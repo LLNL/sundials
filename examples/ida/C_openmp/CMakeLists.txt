@@ -2,13 +2,13 @@
 # Programmer: Ting Yan @ SMU
 # ---------------------------------------------------------------
 # LLNS/SMU Copyright Start
-# Copyright (c) 2015, Southern Methodist University and 
+# Copyright (c) 2015, Southern Methodist University and
 # Lawrence Livermore National Security
 #
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Southern Methodist University and Lawrence Livermore 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Southern Methodist University and Lawrence Livermore
 # National Laboratory under Contract DE-AC52-07NA27344.
-# Produced at Southern Methodist University and the Lawrence 
+# Produced at Southern Methodist University and the Lawrence
 # Livermore National Laboratory.
 #
 # All rights reserved.
@@ -21,18 +21,21 @@
 # CMakeLists.txt file for IDA OpenMP examples
 # -----------------------------------------------------------------
 
+# Example lists are tuples "name\;args\;type" where the type is
+# 'develop' for examples excluded from 'make test' in releases
+
 # Only include tests if OpenMP is enabled
 IF(OPENMP_FOUND)
 
   # Examples using SUNDIALS linear solvers
   SET(IDA_examples
-    idaFoodWeb_bnd_omp
-    idaFoodWeb_kry_omp
+    "idaFoodWeb_bnd_omp\;4\;develop"
+    "idaFoodWeb_kry_omp\;4\;develop"
     )
 
 ENDIF(OPENMP_FOUND)
 
-# Specify libraries to link against (through the target that was used to 
+# Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(IDA_LIB sundials_ida_static)
@@ -49,8 +52,14 @@ SET(SUNDIALS_LIBS ${IDA_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
 
+
 # Add the build and install targets for each example
-FOREACH(example ${IDA_examples})
+FOREACH(example_tuple ${IDA_examples})
+
+  # parse the example tuple
+  LIST(GET example_tuple 0 example)
+  LIST(GET example_tuple 1 example_args)
+  LIST(GET example_tuple 2 example_type)
 
   # example source files
   ADD_EXECUTABLE(${example} ${example}.c)
@@ -58,8 +67,12 @@ FOREACH(example ${IDA_examples})
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
   IF (NOT ${example} MATCHES "idaFoodWeb_kry_omp")
-    # add to regression tests
-    SUNDIALS_ADD_TEST(${example} ${example} TEST_ARGS 4)
+    # add example to regression tests
+    SUNDIALS_ADD_TEST(${example} ${example}
+      TEST_ARGS ${example_args}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${example}.out
+      EXAMPLE_TYPE ${example_type})
   ENDIF()
 
   # libraries to link against
@@ -71,7 +84,7 @@ FOREACH(example ${IDA_examples})
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/C_openmp)
   ENDIF()
 
-ENDFOREACH(example ${IDA_examples})
+ENDFOREACH(example_tuple ${IDA_examples})
 
 
 # create Makfile and CMakeLists.txt for examples
@@ -84,27 +97,27 @@ IF(EXAMPLES_INSTALL)
   SET(SOLVER "IDA")
   SET(SOLVER_LIB "sundials_ida")
 
-  LIST2STRING(IDA_examples EXAMPLES)
+  EXAMPLES2STRING(IDA_examples EXAMPLES)
 
-  # Regardless of the platform we're on, we will generate and install 
-  # CMakeLists.txt file for building the examples. This file  can then 
+  # Regardless of the platform we're on, we will generate and install
+  # CMakeLists.txt file for building the examples. This file  can then
   # be used as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
   CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_openmp_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/ida/C_openmp/CMakeLists.txt
-      @ONLY
-      )
+    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_openmp_C_ex.in
+    ${PROJECT_BINARY_DIR}/examples/ida/C_openmp/CMakeLists.txt
+    @ONLY
+    )
 
   # install CMakelists.txt
   INSTALL(
     FILES ${PROJECT_BINARY_DIR}/examples/ida/C_openmp/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/C_openmp 
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/C_openmp
     )
 
-  # On UNIX-type platforms, we also  generate and install a makefile for 
-  # building the examples. This makefile can then be used as a template 
+  # On UNIX-type platforms, we also  generate and install a makefile for
+  # building the examples. This makefile can then be used as a template
   # for the user's own programs.
 
   IF(UNIX)
@@ -116,7 +129,7 @@ IF(EXAMPLES_INSTALL)
       )
     # install the configured Makefile_ex as Makefile
     INSTALL(
-      FILES ${PROJECT_BINARY_DIR}/examples/ida/C_openmp/Makefile_ex 
+      FILES ${PROJECT_BINARY_DIR}/examples/ida/C_openmp/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/C_openmp
       RENAME Makefile
       )

@@ -60,6 +60,7 @@ static int funcRoberts(N_Vector u, N_Vector f, void *user_data);
 static void PrintOutput(N_Vector u);
 static void PrintFinalStats(void *kmem);
 static int check_flag(void *flagvalue, const char *funcname, int opt);
+static int check_ans(N_Vector u, realtype rtol, realtype atol);
 
 /*
  *--------------------------------------------------------------------
@@ -168,6 +169,9 @@ int main()
 
   PrintFinalStats(kmem);
 
+  /* check the solution error */
+  flag = check_ans(y, RCONST(1e-4), RCONST(1e-6));
+
   /* -----------
    * Free memory 
    * ----------- */
@@ -176,7 +180,7 @@ int main()
   N_VDestroy_Serial(scale);
   KINFree(&kmem);
 
-  return(0);
+  return(flag);
 }
 
 /*
@@ -293,4 +297,50 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
   }
 
   return(0);
+}
+
+/* compare the solution to a reference solution computed with a
+   tolerance of 1e-14 */
+static int check_ans(N_Vector u, realtype rtol, realtype atol)
+{
+  int      passfail=0;        /* answer pass (0) or fail (1) flag */  
+  N_Vector ref;               /* reference solution vector        */
+  N_Vector ewt;               /* error weight vector              */
+  realtype err;               /* wrms error                       */
+
+  /* create reference solution and error weight vectors */
+  ref = N_VClone(u);
+  ewt = N_VClone(u);
+
+  /* set the reference solution data */
+  NV_Ith_S(ref,0) = RCONST(9.9678538655358029e-01);
+  NV_Ith_S(ref,1) = RCONST(2.9530060962800345e-03);
+  NV_Ith_S(ref,2) = RCONST(2.6160735013975683e-04);
+
+  /* compute the error weight vector */
+  N_VAbs(ref, ewt);
+  N_VScale(rtol, ewt, ewt);
+  N_VAddConst(ewt, atol, ewt);
+  if (N_VMin(ewt) <= ZERO) {
+    fprintf(stderr, "\nSUNDIALS_ERROR: check_ans failed - ewt <= 0\n\n");
+    return(-1);
+  }
+  N_VInv(ewt, ewt);   
+
+  /* compute the solution error */
+  N_VLinearSum(ONE, u, -ONE, ref, ref);
+  err = N_VWrmsNorm(ref, ewt);
+
+  /* is the solution within the tolerances? */
+  passfail = (err < ONE) ? 0 : 1; 
+
+  if (passfail) {
+    fprintf(stdout, "\nSUNDIALS_WARNING: check_ans error=%g \n\n", err);
+  }
+
+  /* Free vectors */
+  N_VDestroy(ref);
+  N_VDestroy(ewt);
+
+  return(passfail);
 }

@@ -3,8 +3,8 @@
 # ---------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Lawrence Livermore National Laboratory in part under
 # Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
@@ -14,12 +14,13 @@
 # CMakeLists.txt file for IDA PETSc examples
 # ---------------------------------------------------------------
 
+# Example lists are tuples "name\;nodes\;tasks\;type" where the
+# type is develop for examples excluded from 'make test' in releases
 
-# Add variable IDA_examples with the names of the PETSc IDA examples
-# "name\;nodes\;tasks"
+# Examples using SUNDIALS linear solvers
 SET(IDA_examples
   #"idaHeat2D_jac_petsc\;1\;4"  # Not to be released in 2.7.0
-  "idaHeat2D_kry_petsc\;1\;4"
+  "idaHeat2D_kry_petsc\;1\;4\;develop"
   )
 
 # Check whether we use MPI compiler scripts.
@@ -33,7 +34,7 @@ ELSE()
   INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
 ENDIF()
 
-# Specify libraries to link against (through the target that was used to 
+# Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(IDA_LIB sundials_ida_static)
@@ -44,8 +45,7 @@ ELSE()
 ENDIF()
 
 # Set-up linker flags and link libraries
-SET(SUNDIALS_LIBS ${IDA_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS} ${PETSC_LIBRARIES})
-SET(PETSC_LIBS ${PETSC_LIBRARIES})
+SET(SUNDIALS_LIBS ${IDA_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
 
 
 # Add the build and install targets for each example
@@ -54,17 +54,22 @@ FOREACH(example_tuple ${IDA_examples})
   list(GET example_tuple 0 example)
   list(GET example_tuple 1 number_of_nodes)
   list(GET example_tuple 2 number_of_tasks)
+  list(GET example_tuple 3 example_type)
 
   # example source files
   ADD_EXECUTABLE(${example} ${example}.c)
 
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
-  # add to regression tests
-  SUNDIALS_ADD_TEST(${example} ${example} MPI_NPROCS ${number_of_tasks})
+  # add example to regression tests
+  SUNDIALS_ADD_TEST(${example} ${example}
+    MPI_NPROCS ${number_of_tasks}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${example}.out
+    EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
-  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${PETSC_LIBS})
+  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${PETSC_LIBRARIES})
 
   IF(NOT MPI_MPICC)
     TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
@@ -78,6 +83,7 @@ FOREACH(example_tuple ${IDA_examples})
 
 ENDFOREACH(example_tuple ${IDA_examples})
 
+
 IF(EXAMPLES_INSTALL)
 
   # Install the README file
@@ -87,30 +93,27 @@ IF(EXAMPLES_INSTALL)
   SET(SOLVER "IDA")
   SET(SOLVER_LIB "sundials_ida")
 
-  FOREACH(example_tuple ${IDA_examples})
-    list(GET example_tuple 0 example)
-    LIST2STRING(example EXAMPLES)
-  ENDFOREACH()
+  EXAMPLES2STRING(IDA_examples EXAMPLES)
 
-  # Regardless of the platform we're on, we will generate and install 
-  # CMakeLists.txt file for building the examples. This file  can then 
+  # Regardless of the platform we're on, we will generate and install
+  # CMakeLists.txt file for building the examples. This file  can then
   # be used as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
   CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_petsc_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/ida/petsc/CMakeLists.txt
-      @ONLY
-      )
+    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_petsc_C_ex.in
+    ${PROJECT_BINARY_DIR}/examples/ida/petsc/CMakeLists.txt
+    @ONLY
+    )
 
   # install CMakelists.txt
   INSTALL(
     FILES ${PROJECT_BINARY_DIR}/examples/ida/petsc/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/petsc 
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/petsc
     )
 
-  # On UNIX-type platforms, we also  generate and install a makefile for 
-  # building the examples. This makefile can then be used as a template 
+  # On UNIX-type platforms, we also  generate and install a makefile for
+  # building the examples. This makefile can then be used as a template
   # for the user's own programs.
 
   IF(UNIX)

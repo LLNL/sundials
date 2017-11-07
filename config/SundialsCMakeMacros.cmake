@@ -13,7 +13,7 @@
 # LLNS Copyright End
 # ---------------------------------------------------------------
 # CMake macros used throughout the SUNDIALS build system
-
+# ---------------------------------------------------------------
 
 # Print variable and value
 IF (NOT COMMAND PRINT_VARIABLE)
@@ -94,12 +94,25 @@ MACRO(PRINT_ERROR message)
   MESSAGE(FATAL_ERROR ${MSG})
 ENDMACRO()
 
-# Returns an unquoted string.  Note that CMake will readily turn such
+# Returns an unquoted string. Note that CMake will readily turn such
 # strings back into lists, due to the duality of lists and
-# semicolon-separated strings.  So be careful how you use it.
+# semicolon-separated strings. So be careful how you use it.
 
 MACRO(LIST2STRING alist astring)
   FOREACH(elem ${${alist}})
    SET(${astring} "${${astring}} ${elem}")
   ENDFOREACH(elem)
 ENDMACRO(LIST2STRING)
+
+# Returns a string of unique example names from a list of example tuples
+
+MACRO(EXAMPLES2STRING example_list example_string)
+  SET(tmp_list "")
+  FOREACH(example_tuple ${${example_list}})
+    LIST(GET example_tuple 0 example)
+    LIST(APPEND tmp_list ${example})
+  ENDFOREACH()
+  LIST(REMOVE_DUPLICATES tmp_list)
+  LIST2STRING(tmp_list ${example_string})
+ENDMACRO(EXAMPLES2STRING)
+

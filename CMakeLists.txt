@@ -12,14 +12,13 @@
 # LLNS Copyright End
 # ---------------------------------------------------------------
 # Top level CMakeLists.txt for SUNDIALS (for cmake build system)
-
+# ---------------------------------------------------------------
 
 # ---------------------------------------------------------------
 # Initial commands
 # ---------------------------------------------------------------
 
 # Require a fairly recent cmake version
-
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.1)
 
 # Set CMake policy to allow examples to build
@@ -560,6 +559,17 @@ IF(EXAMPLES_ENABLED)
       SET(EXAMPLES_INSTALL_PATH "${CMAKE_INSTALL_PREFIX}/examples" CACHE STRING
         "Output directory for installing example files" FORCE)
     ENDIF(NOT EXAMPLES_INSTALL_PATH)
+    
+    # create test_install target and directory for running smoke tests after
+    # installation
+    ADD_CUSTOM_TARGET(test_install)
+
+    SET(TEST_INSTALL_DIR ${PROJECT_BINARY_DIR}/Testing_Install)
+
+    IF(NOT EXISTS ${TEST_INSTALL_DIR})
+      FILE(MAKE_DIRECTORY ${TEST_INSTALL_DIR})
+    ENDIF()
+
 
   ELSE(EXAMPLES_INSTALL)
 
@@ -577,6 +587,11 @@ ELSE(EXAMPLES_ENABLED)
   
 ENDIF(EXAMPLES_ENABLED)
 
+# ---------------------------------------------------------------
+# Include development examples in regression tests?
+# ---------------------------------------------------------------
+OPTION(SUNDIALS_DEVTESTS "Include development tests in make test" OFF)
+MARK_AS_ADVANCED(FORCE SUNDIALS_DEVTESTS)
 
 # ===============================================================
 # Add any other necessary compiler flags & definitions
@@ -1230,10 +1245,13 @@ ENDIF(BUILD_CPODES)
 
 INCLUDE(SundialsAddTest)
 HIDE_VARIABLE(TESTRUNNER)
+
 IF(EXAMPLES_ENABLED)
+
+  # enable regression testing with 'make test'
   IF(TESTRUNNER)
     ENABLE_TESTING()
-  ENDIF(TESTRUNNER)
+  ENDIF()
 
   # set variables used in generating CMake and Makefiles for examples
   IF(EXAMPLES_INSTALL)
@@ -1584,7 +1602,7 @@ IF(EXAMPLES_ENABLED)
 ENDIF(EXAMPLES_ENABLED)
 
 # ---------------------------------------------------------------
-# Install configuration header file
+# Install configuration header files and license file
 # ---------------------------------------------------------------
 
 # install configured header file
@@ -1593,7 +1611,13 @@ INSTALL(
   DESTINATION include/sundials
   )
 
+# install configured header file for Fortran 90
 INSTALL(
   FILES ${PROJECT_BINARY_DIR}/include/sundials/sundials_fconfig.h
   DESTINATION include/sundials
   )
+
+# install license file
+INSTALL(
+  FILES ${PROJECT_SOURCE_DIR}/LICENSE
+  DESTINATION .)

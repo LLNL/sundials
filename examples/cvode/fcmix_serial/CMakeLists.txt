@@ -15,17 +15,20 @@
 # CMakeLists.txt file for the FCVODE serial examples
 # ---------------------------------------------------------------
 
+# Example lists are tuples "name\;type" where the type is
+# 'develop' for examples excluded from 'make test' in releases
+
 # Examples using SUNDIALS linear solvers
 SET(FCVODE_examples
-  fcvAdvDiff_bnd
-  fcvDiurnal_kry_bp
-  fcvDiurnal_kry
-  fcvRoberts_dns
+  "fcvAdvDiff_bnd\;develop"
+  "fcvDiurnal_kry_bp\;develop"
+  "fcvDiurnal_kry\;develop"
+  "fcvRoberts_dns\;develop"
   )
 
 # Examples using LAPACK linear solvers
 SET(FCVODE_examples_BL
-  fcvRoberts_dnsL
+  "fcvRoberts_dnsL\;develop"
   )
 
 # Add sparse solvers examples for 64-bit indextype configurations only,
@@ -34,12 +37,12 @@ IF(SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
 
   # Examples using KLU linear solver
   SET(FCVODE_examples_KLU
-    fcvRoberts_klu
+    "fcvRoberts_klu\;develop"
     )
 
   # Examples using SuperLU_MT linear solver
   SET(FCVODE_examples_SUPERLUMT
-    fcvRoberts_sps
+    "fcvRoberts_sps\;develop"
     )
 
 ENDIF()
@@ -64,15 +67,22 @@ SET(SUNDIALS_LIBS ${FCVODE_LIB} ${CVODE_LIB} ${FNVECS_LIB} ${NVECS_LIB} ${EXTRA_
 
 
 # Add the build and install targets for each example
-FOREACH(example ${FCVODE_examples})
+FOREACH(example_tuple ${FCVODE_examples})
+
+  # parse the example tuple
+  LIST(GET example_tuple 0 example)
+  LIST(GET example_tuple 1 example_type)
 
   # example source files
   ADD_EXECUTABLE(${example} ${example}.f)
 
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
-  # add to regression tests
-  SUNDIALS_ADD_TEST(${example} ${example})
+  # add example to regression tests
+  SUNDIALS_ADD_TEST(${example} ${example}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${example}.out
+    EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
@@ -83,7 +93,7 @@ FOREACH(example ${FCVODE_examples})
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/fcmix_serial)
   ENDIF()
 
-ENDFOREACH(example ${FCVODE_examples})
+ENDFOREACH(example_tuple ${FCVODE_examples})
 
 
 # Add the build and install targets for each LAPACK example (if needed)
@@ -112,15 +122,22 @@ IF(LAPACK_FOUND)
     LIST(APPEND SUNLINSOLLAPACK_LIBS ${BLAS_LIBRARIES})
   ENDIF(BLAS_FOUND)
 
-  FOREACH(example ${FCVODE_examples_BL})
+  FOREACH(example_tuple ${FCVODE_examples_BL})
+
+    # parse the example tuple
+    LIST(GET example_tuple 0 example)
+    LIST(GET example_tuple 1 example_type)
 
     # example source files
     ADD_EXECUTABLE(${example} ${example}.f)
 
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
-    # add to regression tests
-    SUNDIALS_ADD_TEST(${example} ${example})
+    # add example to regression tests
+    SUNDIALS_ADD_TEST(${example} ${example}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${example}.out
+      EXAMPLE_TYPE ${example_type})
 
     # libraries to link against
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${SUNLINSOLLAPACK_LIBS})
@@ -131,7 +148,7 @@ IF(LAPACK_FOUND)
         DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/fcmix_serial)
     ENDIF()
 
-  ENDFOREACH(example ${FCVODE_examples_BL})
+  ENDFOREACH(example_tuple ${FCVODE_examples_BL})
 
 ENDIF(LAPACK_FOUND)
 
@@ -153,15 +170,22 @@ IF(KLU_FOUND)
   # KLU libraries
   LIST(APPEND SUNLINSOLKLU_LIBS ${KLU_LIBRARIES})
 
-  FOREACH(example ${FCVODE_examples_KLU})
+  FOREACH(example_tuple ${FCVODE_examples_KLU})
+
+    # parse the example tuple
+    LIST(GET example_tuple 0 example)
+    LIST(GET example_tuple 1 example_type)
 
     # example source files
     ADD_EXECUTABLE(${example} ${example}.f)
 
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
-    # add to regression tests
-    SUNDIALS_ADD_TEST(${example} ${example})
+    # add example to regression tests
+    SUNDIALS_ADD_TEST(${example} ${example}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${example}.out
+      EXAMPLE_TYPE ${example_type})
 
     # libraries to link against
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${SUNLINSOLKLU_LIBS})
@@ -172,7 +196,7 @@ IF(KLU_FOUND)
         DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/fcmix_serial)
     ENDIF()
 
-  ENDFOREACH(example ${FCVODE_examples_KLU})
+  ENDFOREACH(example_tuple ${FCVODE_examples_KLU})
 
 ENDIF(KLU_FOUND)
 
@@ -199,15 +223,22 @@ IF(SUPERLUMT_FOUND)
     LIST(APPEND SUNLINSOLSLUMT_LIBS ${BLAS_LIBRARIES})
   ENDIF(BLAS_FOUND)
 
-  FOREACH(example ${FCVODE_examples_SUPERLUMT})
+  FOREACH(example_tuple ${FCVODE_examples_SUPERLUMT})
+
+    # parse the example tuple
+    LIST(GET example_tuple 0 example)
+    LIST(GET example_tuple 1 example_type)
 
     # example source files
     ADD_EXECUTABLE(${example} ${example}.f)
 
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
-    # add to regression tests
-    SUNDIALS_ADD_TEST(${example} ${example})
+    # add example to regression tests
+    SUNDIALS_ADD_TEST(${example} ${example}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${example}.out
+      EXAMPLE_TYPE ${example_type})
 
     # libraries to link against
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${SUNLINSOLSLUMT_LIBS})
@@ -218,7 +249,7 @@ IF(SUPERLUMT_FOUND)
         DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/fcmix_serial)
     ENDIF()
 
-  ENDFOREACH(example ${FCVODE_examples_SUPERLUMT})
+  ENDFOREACH(example_tuple ${FCVODE_examples_SUPERLUMT})
 
 ENDIF(SUPERLUMT_FOUND)
 
@@ -233,22 +264,22 @@ IF(EXAMPLES_INSTALL)
   SET(SOLVER_LIB "sundials_cvode")
   SET(SOLVER_FLIB "sundials_fcvode")
 
-  LIST2STRING(FCVODE_examples EXAMPLES)
+  EXAMPLES2STRING(FCVODE_examples EXAMPLES)
 
   IF(LAPACK_FOUND)
-    LIST2STRING(FCVODE_examples_BL EXAMPLES_BL)
+    EXAMPLES2STRING(FCVODE_examples_BL EXAMPLES_BL)
   ELSE()
     SET(EXAMPLES_BL "")
   ENDIF()
 
   IF(KLU_FOUND)
-    LIST2STRING(FCVODE_examples_KLU EXAMPLES_KLU)
+    EXAMPLES2STRING(FCVODE_examples_KLU EXAMPLES_KLU)
   ELSE()
     SET(EXAMPLES_KLU "")
   ENDIF()
 
   IF(SUPERLUMT_FOUND)
-    LIST2STRING(FCVODE_examples_SUPERLUMT EXAMPLES_SLUMT)
+    EXAMPLES2STRING(FCVODE_examples_SUPERLUMT EXAMPLES_SLUMT)
   ELSE()
     SET(EXAMPLES_SLUMT "")
   ENDIF()
@@ -259,10 +290,10 @@ IF(EXAMPLES_INSTALL)
 
   # generate CMakelists.txt in the binary directory
   CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_F77_ex.in
-      ${PROJECT_BINARY_DIR}/examples/cvode/fcmix_serial/CMakeLists.txt
-      @ONLY
-      )
+    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_F77_ex.in
+    ${PROJECT_BINARY_DIR}/examples/cvode/fcmix_serial/CMakeLists.txt
+    @ONLY
+    )
 
   # install CMakelists.txt
   INSTALL(

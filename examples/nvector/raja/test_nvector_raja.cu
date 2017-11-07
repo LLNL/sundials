@@ -1,5 +1,4 @@
-/*
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -14,8 +13,7 @@
  * -----------------------------------------------------------------
  * This is the testing routine to check the NVECTOR Raja module
  * implementation. 
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,11 +30,11 @@
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[]) 
 {
-  int fails = 0;       /* counter for test failures  */
-  sunindextype veclen; /* vector length              */
-  N_Vector W, X, Y, Z; /* test vectors               */
-  /*  sunindextype liw, lrw; */
+  int          fails = 0;   /* counter for test failures  */
+  sunindextype veclen;      /* vector length              */
+  N_Vector     W, X, Y, Z;  /* test vectors               */
   int print_timing;
+  /*  sunindextype liw, lrw; */
 
 
   /* check input and set vector length */
@@ -115,7 +113,7 @@ int main(int argc, char *argv[])
     printf("SUCCESS: NVector module passed all tests \n \n");
   }
 
-  return(0);
+  return(fails);
 }
 
 /* ----------------------------------------------------------------------

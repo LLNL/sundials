@@ -14,9 +14,12 @@
 # CMakeLists.txt file for the FKINSOL serial examples
 # ---------------------------------------------------------------
 
+# Example lists are tuples "name\;type" where the type is
+# 'develop' for examples excluded from 'make test' in releases
+
 # Examples using SUNDIALS linear solvers
 SET(FKINSOL_examples
-  fkinDiagon_kry
+  "fkinDiagon_kry\;develop"
   )
 
 # Specify libraries to link against (through the target that was used to 
@@ -37,16 +40,24 @@ SET(FKINSOL_LIB sundials_fkinsol_static)
 # Set-up linker flags and link libraries
 SET(SUNDIALS_LIBS ${FKINSOL_LIB} ${KINSOL_LIB} ${FNVECS_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 
+
 # Add the build and install targets for each example
-FOREACH(example ${FKINSOL_examples})
+FOREACH(example_tuple ${FKINSOL_examples})
+
+  # parse the example tuple
+  LIST(GET example_tuple 0 example)
+  LIST(GET example_tuple 1 example_type)
 
   # example source files
   ADD_EXECUTABLE(${example} ${example}.f)
 
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
-  # add to regression tests
-  SUNDIALS_ADD_TEST(${example} ${example})
+  # add example to regression tests
+  SUNDIALS_ADD_TEST(${example} ${example}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${example}.out
+    EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
@@ -57,7 +68,8 @@ FOREACH(example ${FKINSOL_examples})
       DESTINATION ${EXAMPLES_INSTALL_PATH}/kinsol/fcmix_serial)
   ENDIF()
 
-ENDFOREACH(example ${FKINSOL_examples})
+ENDFOREACH(example_tuple ${FKINSOL_examples})
+
 
 # create Makfile and CMakeLists.txt for examples
 IF(EXAMPLES_INSTALL)
@@ -70,7 +82,7 @@ IF(EXAMPLES_INSTALL)
   SET(SOLVER_LIB "sundials_kinsol")
   SET(SOLVER_FLIB "sundials_fkinsol")
 
-  LIST2STRING(FKINSOL_examples EXAMPLES)
+  EXAMPLES2STRING(FKINSOL_examples EXAMPLES)
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 
@@ -78,10 +90,10 @@ IF(EXAMPLES_INSTALL)
 
   # generate CMakelists.txt in the binary directory
   CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_F77_ex.in
-      ${PROJECT_BINARY_DIR}/examples/kinsol/fcmix_serial/CMakeLists.txt
-      @ONLY
-      )
+    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_F77_ex.in
+    ${PROJECT_BINARY_DIR}/examples/kinsol/fcmix_serial/CMakeLists.txt
+    @ONLY
+    )
 
   # install CMakelists.txt
   INSTALL(

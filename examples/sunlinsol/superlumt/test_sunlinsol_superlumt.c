@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
   N_VDestroy(y);
   N_VDestroy(b);
 
-  return(0);
+  return(fails);
 }
 
 /* ----------------------------------------------------------------------

@@ -139,6 +139,13 @@ echo "START CMAKE"
 cmake \
     -D CMAKE_INSTALL_PREFIX="../install_${realtype}_${indextype}" \
     \
+    -D BUILD_ARKODE=ON \
+    -D BUILD_CVODE=ON \
+    -D BUILD_CVODES=ON \
+    -D BUILD_IDA=ON \
+    -D BUILD_IDAS=ON \
+    -D BUILD_KINSOL=ON \
+    \
     -D SUNDIALS_PRECISION=$realtype \
     -D SUNDIALS_INDEX_TYPE=$indextype \
     \
@@ -192,6 +199,7 @@ cmake \
     -D SUPERLUMT_LIBRARY_DIR="${SUPERLUMTDIR}/lib" \
     -D SUPERLUMT_THREAD_TYPE=Pthread \
     \
+    -D SUNDIALS_DEVTESTS=ON \
     ../../. 2>&1 | tee configure.log
 
 # check cmake return code
@@ -241,7 +249,14 @@ if [ $rc -ne 0 ]; then exit 1; fi
 # Test SUNDIALS Install
 # -------------------------------------------------------------------------------
 
-# add make test_install here
+# smoke test for installation
+echo "START TEST_INSTALL"
+make test_install 2>&1 | tee test_install.log
+
+# check make install return code
+rc=${PIPESTATUS[0]}
+echo -e "\nmake test_install returned $rc\n" | tee -a test_install.log
+if [ $rc -ne 0 ]; then exit 1; fi
 
 # -------------------------------------------------------------------------------
 # Return

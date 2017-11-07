@@ -357,7 +357,7 @@ int main(int argc, char *argv[])
   if (square)
     SUNMatDestroy(I);
 
-  return(0);
+  return(fails);
 }
 
 /* ----------------------------------------------------------------------
