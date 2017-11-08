@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): David J. Gardner and Carol S. Woodward @ LLNL
  * -----------------------------------------------------------------
  * Acknowledgements: This NVECTOR module is based on the NVECTOR 
@@ -22,8 +18,7 @@
  * -----------------------------------------------------------------
  * This is the implementation file for an OpenMP implementation
  * of the NVECTOR module.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <omp.h>
 
@@ -267,12 +262,20 @@ sunindextype N_VGetLength_OpenMP(N_Vector v)
   return NV_LENGTH_OMP(v);
 }
 
- 
 /* ----------------------------------------------------------------------------
- * Function to print a vector 
+ * Function to print a vector to stdout
  */
  
 void N_VPrint_OpenMP(N_Vector x)
+{
+  N_VPrintFile_OpenMP(x, stdout);
+}
+ 
+/* ----------------------------------------------------------------------------
+ * Function to print a vector to outfile
+ */
+ 
+void N_VPrintFile_OpenMP(N_Vector x, FILE *outfile)
 {
   sunindextype i, N;
   realtype *xd;
@@ -284,14 +287,14 @@ void N_VPrint_OpenMP(N_Vector x)
 
   for (i = 0; i < N; i++) {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    printf("%11.8Lg\n", xd[i]);
+    fprintf(outfile, "%11.8Lg\n", xd[i]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf("%11.8g\n", xd[i]);
+    fprintf(outfile, "%11.8g\n", xd[i]);
 #else
-    printf("%11.8g\n", xd[i]);
+    fprintf(outfile, "%11.8g\n", xd[i]);
 #endif
   }
-  printf("\n");
+  fprintf(outfile, "\n");
 
   return;
 }

@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4378 $
- * $Date: 2015-02-19 10:55:14 -0800 (Thu, 19 Feb 2015) $
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -43,8 +39,7 @@
  *
  *     (which stores the result of the operation a*x+b*y in y)
  *     is legal.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #ifndef _NVECTOR_RAJA_H
 #define _NVECTOR_RAJA_H
@@ -92,6 +87,7 @@ typedef struct _N_VectorContent_Raja *N_VectorContent_Raja;
  *    N_VGetHostArrayPointer_Raja
  *    N_VGetDeviceArrayPointer_Raja
  *    N_VPrint_Raja
+ *    N_VPrintFile_Raja
  * -----------------------------------------------------------------
  */
 
@@ -219,6 +215,16 @@ SUNDIALS_EXPORT void N_VCopyFromDevice_Raja(N_Vector v);
  */
 
 SUNDIALS_EXPORT void N_VPrint_Raja(N_Vector v);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : N_VPrintFile_Raja
+ * -----------------------------------------------------------------
+ * This function prints the content of a RAJA vector to outfile.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT void N_VPrintFile_Raja(N_Vector v, FILE *outfile);
 
 /*
  * -----------------------------------------------------------------

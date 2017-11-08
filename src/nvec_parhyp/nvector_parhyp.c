@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4396 $
- * $Date: 2015-02-26 16:59:39 -0800 (Thu, 26 Feb 2015) $
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Jean M. Sexton @ SMU
  *                Slaven Peles @ LLNL
  * -----------------------------------------------------------------
@@ -21,8 +17,7 @@
  * -----------------------------------------------------------------
  * This is the implementation file for a parhyp MPI implementation
  * of the NVECTOR package.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -344,6 +339,16 @@ hypre_ParVector* N_VGetVector_ParHyp(N_Vector v)
 
 void N_VPrint_ParHyp(N_Vector x)
 {
+  N_VPrintFile_ParHyp(x, stdout);
+}
+
+/* ---------------------------------------------------------------- 
+ * Function to print a parhyp vector.
+ * TODO: Consider using a HYPRE function for this.
+ */
+
+void N_VPrintFile_ParHyp(N_Vector x, FILE *outfile)
+{
   sunindextype i, N;
   realtype *xd;
 
@@ -354,14 +359,14 @@ void N_VPrint_ParHyp(N_Vector x)
 
   for (i = 0; i < N; i++) {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    printf("%Lg\n", xd[i]);
+    fprintf(outfile, "%Lg\n", xd[i]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf("%g\n", xd[i]);
+    fprintf(outfile, "%g\n", xd[i]);
 #else
-    printf("%g\n", xd[i]);
+    fprintf(outfile, "%g\n", xd[i]);
 #endif
   }
-  printf("\n");
+  fprintf(outfile, "\n");
 
   return;
 }

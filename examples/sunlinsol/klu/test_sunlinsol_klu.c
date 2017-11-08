@@ -82,16 +82,20 @@ int main(int argc, char *argv[])
     i = rand() % N;
     j = rand() % N;
     matdata = SUNDenseMatrix_Column(B,j);
-    matdata[i] = rand() / (pow(2.0,31.0) - 1.0) / N;
+    matdata[i] = (realtype) rand() / (realtype) RAND_MAX / N;
   }
 
   /* Add identity to matrix */
   fails = SUNMatScaleAddI(ONE, B);
+  if (fails) {
+    printf("FAIL: SUNLinSol SUNMatScaleAddI failure\n");
+    return(1);
+  }
 
   /* Fill x vector with uniform random data in [0,1] */
   xdata = N_VGetArrayPointer(x);
   for (i=0; i<N; i++)
-    xdata[i] = rand() / (pow(2.0,31.0) - 1.0);
+    xdata[i] = (realtype) rand() / (realtype) RAND_MAX;
 
   /* Create sparse matrix from dense, and destroy B */
   A = SUNSparseFromDenseMatrix(B, ZERO, mattype);
@@ -102,6 +106,10 @@ int main(int argc, char *argv[])
 
   /* create right-hand side vector for linear solve */
   fails = SUNMatMatvec(A, x, b);
+  if (fails) {
+    printf("FAIL: SUNLinSol SUNMatMatvec failure\n");
+    return(1);
+  }
   
   /* Create KLU linear solver */
   LS = SUNKLU(x, A);
@@ -137,7 +145,7 @@ int main(int argc, char *argv[])
   N_VDestroy(y);
   N_VDestroy(b);
 
-  return(0);
+  return(fails);
 }
 
 /* ----------------------------------------------------------------------

@@ -1,5 +1,4 @@
-/*
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -40,8 +39,7 @@
  *
  *     (which stores the result of the operation a*x+b*y in y)
  *     is legal.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #ifndef _NVECTOR_CUDA_H
 #define _NVECTOR_CUDA_H
@@ -90,6 +88,7 @@ typedef struct _N_VectorContent_Cuda *N_VectorContent_Cuda;
  *    N_VGetHostArrayPointer_Cuda
  *    N_VGetDeviceArrayPointer_Cuda
  *    N_VPrint_Cuda
+ *    N_VPrintFile_Cuda
  * -----------------------------------------------------------------
  */
 
@@ -217,6 +216,16 @@ SUNDIALS_EXPORT void N_VCopyFromDevice_Cuda(N_Vector v);
  */
 
 SUNDIALS_EXPORT void N_VPrint_Cuda(N_Vector v);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : N_VPrintFile_Cuda
+ * -----------------------------------------------------------------
+ * This function prints the content of a CUDA vector to outfile.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT void N_VPrintFile_Cuda(N_Vector v, FILE *outfile);
 
 /*
  * -----------------------------------------------------------------

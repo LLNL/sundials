@@ -1,7 +1,7 @@
                      NVECTOR_PARHYPE
                  released as part of SUNDIALS
     SUite of Nonlinear and DIfferential/ALgebraic equation Solvers
-                   Release 3.0.0, September 2017
+                   Release 3.1.0, November 2017
 
 
 The NVECTOR_PARHYP implementation of the nvector module provided with
@@ -41,6 +41,7 @@ For complete installation instructions see any of the user guides.
 C. Releases
 -----------
 
+v. 3.1.0 - Nov. 2017
 v. 3.0.0 - Sep. 2017
 v. 2.7.0 - Sep. 2016
 

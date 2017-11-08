@@ -102,6 +102,8 @@ sunindextype local_problem_size;
 int main(int argc, char *argv[]) 
 {
   int             fails=0;          /* counter for test failures */
+  int             passfail=0;       /* overall pass/fail flag    */
+  int             mpierr;           /* mpi error flag            */
   SUNLinearSolver LS;               /* linear solver object      */
   N_Vector        xhat, x, b;       /* test vectors              */
   UserData        ProbData;         /* problem data structure    */
@@ -241,10 +243,12 @@ int main(int argc, char *argv[])
   fails += Test_SUNLinSolResid(LS, ProbData.myid);
   
   /* Print result */
-  if (fails) 
+  if (fails) {
     printf("FAIL: SUNSPGMR module, problem 1, failed %i tests\n\n", fails);
-  else if (ProbData.myid == 0)
+    passfail += 1;
+  } else if (ProbData.myid == 0) {
     printf("SUCCESS: SUNSPGMR module, problem 1, passed all tests\n\n");
+  }
 
   
   /*** Test 2: simple Poisson-like solve (Jacobi preconditioning) ***/
@@ -270,10 +274,12 @@ int main(int argc, char *argv[])
   fails += Test_SUNLinSolResid(LS, ProbData.myid);
 
   /* Print result */
-  if (fails) 
+  if (fails) {
     printf("FAIL: SUNSPGMR module, problem 2, failed %i tests\n\n", fails);
-  else if (ProbData.myid == 0)
+    passfail += 1;
+  } else if (ProbData.myid == 0) {
     printf("SUCCESS: SUNSPGMR module, problem 2, passed all tests\n\n");
+  }
 
   
   /*** Test 3: Poisson-like solve w/ scaled rows (no preconditioning) ***/
@@ -301,10 +307,12 @@ int main(int argc, char *argv[])
   fails += Test_SUNLinSolResid(LS, ProbData.myid);
 
   /* Print result */
-  if (fails) 
+  if (fails) {
     printf("FAIL: SUNSPGMR module, problem 3, failed %i tests\n\n", fails);
-  else if (ProbData.myid == 0)
+    passfail += 1;
+  } else if (ProbData.myid == 0) {
     printf("SUCCESS: SUNSPGMR module, problem 3, passed all tests\n\n");
+  }
 
   
   /*** Test 4: Poisson-like solve w/ scaled rows (Jacobi preconditioning) ***/
@@ -332,10 +340,12 @@ int main(int argc, char *argv[])
   fails += Test_SUNLinSolResid(LS, ProbData.myid);
 
   /* Print result */
-  if (fails) 
+  if (fails) {
     printf("FAIL: SUNSPGMR module, problem 4, failed %i tests\n\n", fails);
-  else if (ProbData.myid == 0)
+    passfail += 1;
+  } else if (ProbData.myid == 0) {
     printf("SUCCESS: SUNSPGMR module, problem 4, passed all tests\n\n");
+  }
 
   
   /*** Test 5: Poisson-like solve w/ scaled columns (no preconditioning) ***/
@@ -363,10 +373,12 @@ int main(int argc, char *argv[])
   fails += Test_SUNLinSolResid(LS, ProbData.myid);
 
   /* Print result */
-  if (fails) 
+  if (fails) {
     printf("FAIL: SUNSPGMR module, problem 5, failed %i tests\n\n", fails);
-  else if (ProbData.myid == 0)
+    passfail += 1;
+  } else if (ProbData.myid == 0) {
     printf("SUCCESS: SUNSPGMR module, problem 5, passed all tests\n\n");
+  }
 
   
   /*** Test 6: Poisson-like solve w/ scaled columns (Jacobi preconditioning) ***/
@@ -394,11 +406,15 @@ int main(int argc, char *argv[])
   fails += Test_SUNLinSolResid(LS, ProbData.myid);
 
   /* Print result */
-  if (fails) 
+  if (fails) {
     printf("FAIL: SUNSPGMR module, problem 6, failed %i tests\n\n", fails);
-  else if (ProbData.myid == 0)
+    passfail += 1;
+  } else if (ProbData.myid == 0) {
     printf("SUCCESS: SUNSPGMR module, problem 6, passed all tests\n\n");
+  }
 
+  /* check if any other process failed */
+  mpierr = MPI_Allreduce(&passfail, &fails, 1, MPI_INT, MPI_MAX, ProbData.comm);
   
   /* Free solver and vectors */
   SUNLinSolFree(LS);
@@ -410,7 +426,7 @@ int main(int argc, char *argv[])
   N_VDestroy(ProbData.s2);
 
   MPI_Finalize();
-  return(0);
+  return(fails);
 }
 
 
@@ -525,7 +541,7 @@ int PSolve(void* Data, N_Vector r_vec, N_Vector z_vec, realtype tol, int lr)
 /* uniform random number generator */
 static realtype urand()
 {
-  return (rand() / (pow(RCONST(2.0),RCONST(31.0)) - ONE));
+  return ((realtype) rand() / (realtype) RAND_MAX);
 }
 
 /* Check function return value based on "opt" input:

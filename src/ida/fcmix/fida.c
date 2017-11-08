@@ -83,7 +83,7 @@ void FIDA_MALLOC(realtype *t0, realtype *yy0, realtype *yp0,
   if ((F2C_IDA_vec->ops->nvgetarraypointer == NULL) ||
       (F2C_IDA_vec->ops->nvsetarraypointer == NULL)) {
     *ier = -1;
-    printf("A required vector operation is not implemented.\n\n");
+    fprintf(stderr, "A required vector operation is not implemented.\n\n");
     return;
   }
 
@@ -267,7 +267,7 @@ void FIDA_SETIIN(char key_name[], long int *ival, int *ier)
     *ier = IDASetLineSearchOffIC(IDA_idamem, (booleantype) *ival);
   else {
     *ier = -99;
-    printf("FIDASETIIN: Unrecognized key.\n\n");
+    fprintf(stderr, "FIDASETIIN: Unrecognized key.\n\n");
   }
 
 }
@@ -291,7 +291,7 @@ void FIDA_SETRIN(char key_name[], realtype *rval, int *ier)
     *ier = IDASetStepToleranceIC(IDA_idamem, *rval);
   else {
     *ier = -99;
-    printf("FIDASETRIN: Unrecognized key.\n\n");
+    fprintf(stderr, "FIDASETRIN: Unrecognized key.\n\n");
   }
 
 }
@@ -326,7 +326,7 @@ void FIDA_SETVIN(char key_name[], realtype *vval, int *ier)
     N_VDestroy(Vec);
   } else {
     *ier = -99;
-    printf("FIDASETVIN: Unrecognized key.\n\n");
+    fprintf(stderr, "FIDASETVIN: Unrecognized key.\n\n");
   }
 
 }

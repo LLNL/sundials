@@ -3,8 +3,8 @@
 # ---------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Lawrence Livermore National Laboratory in part under
 # Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
@@ -14,12 +14,15 @@
 # CMakeLists.txt file for the FIDA serial examples
 # ---------------------------------------------------------------
 
+# Example lists are tuples "name\;type" where the type is
+# 'develop' for examples excluded from 'make test' in releases
+
 # Examples using SUNDIALS linear solvers
 SET(FIDA_examples
-  fidaRoberts_dns
+  "fidaRoberts_dns\;develop"
   )
 
-# Specify libraries to link against (through the target that was used to 
+# Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(IDA_LIB sundials_ida_static)
@@ -37,16 +40,24 @@ SET(FIDA_LIB sundials_fida_static)
 # Set-up linker flags and link libraries
 SET(SUNDIALS_LIBS ${FIDA_LIB} ${IDA_LIB} ${FNVECS_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 
+
 # Add the build and install targets for each example
-FOREACH(example ${FIDA_examples})
+FOREACH(example_tuple ${FIDA_examples})
+
+  # parse the example tuple
+  LIST(GET example_tuple 0 example)
+  LIST(GET example_tuple 1 example_type)
 
   # example source files
   ADD_EXECUTABLE(${example} ${example}.f)
 
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
-  # add to regression tests
-  SUNDIALS_ADD_TEST(${example} ${example})
+  # add example to regression tests
+  SUNDIALS_ADD_TEST(${example} ${example}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${example}.out
+    EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
@@ -57,7 +68,7 @@ FOREACH(example ${FIDA_examples})
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/fcmix_serial)
   ENDIF()
 
-ENDFOREACH(example ${FIDA_examples})
+ENDFOREACH(example_tuple ${FIDA_examples})
 
 # create Makfile and CMakeLists.txt for examples
 IF(EXAMPLES_INSTALL)
@@ -70,27 +81,27 @@ IF(EXAMPLES_INSTALL)
   SET(SOLVER_LIB "sundials_ida")
   SET(SOLVER_FLIB "sundials_fida")
 
-  LIST2STRING(FIDA_examples EXAMPLES)
+  EXAMPLES2STRING(FIDA_examples EXAMPLES)
 
-  # Regardless of the platform we're on, we will generate and install 
-  # CMakeLists.txt file for building the examples. This file  can then 
+  # Regardless of the platform we're on, we will generate and install
+  # CMakeLists.txt file for building the examples. This file  can then
   # be used as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
   CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_F77_ex.in
-      ${PROJECT_BINARY_DIR}/examples/ida/fcmix_serial/CMakeLists.txt
-      @ONLY
-      )
+    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_F77_ex.in
+    ${PROJECT_BINARY_DIR}/examples/ida/fcmix_serial/CMakeLists.txt
+    @ONLY
+    )
 
   # install CMakelists.txt
   INSTALL(
     FILES ${PROJECT_BINARY_DIR}/examples/ida/fcmix_serial/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/fcmix_serial 
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/fcmix_serial
     )
 
-  # On UNIX-type platforms, we also  generate and install a makefile for 
-  # building the examples. This makefile can then be used as a template 
+  # On UNIX-type platforms, we also  generate and install a makefile for
+  # building the examples. This makefile can then be used as a template
   # for the user's own programs.
 
   IF(UNIX)
@@ -102,8 +113,8 @@ IF(EXAMPLES_INSTALL)
       )
     # install the configured Makefile_ex as Makefile
     INSTALL(
-      FILES ${PROJECT_BINARY_DIR}/examples/ida/fcmix_serial/Makefile_ex 
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/fcmix_serial 
+      FILES ${PROJECT_BINARY_DIR}/examples/ida/fcmix_serial/Makefile_ex
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/fcmix_serial
       RENAME Makefile
       )
   ENDIF(UNIX)

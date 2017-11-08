@@ -12,14 +12,13 @@
 # LLNS Copyright End
 # ---------------------------------------------------------------
 # Top level CMakeLists.txt for SUNDIALS (for cmake build system)
-
+# ---------------------------------------------------------------
 
 # ---------------------------------------------------------------
 # Initial commands
 # ---------------------------------------------------------------
 
 # Require a fairly recent cmake version
-
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.1)
 
 # Set CMake policy to allow examples to build
@@ -34,13 +33,13 @@ PROJECT(sundials C)
 # Set some variables with info on the SUNDIALS project
 SET(PACKAGE_BUGREPORT "woodward6@llnl.gov")
 SET(PACKAGE_NAME "SUNDIALS")
-SET(PACKAGE_STRING "SUNDIALS 3.0.0")
+SET(PACKAGE_STRING "SUNDIALS 3.1.0")
 SET(PACKAGE_TARNAME "sundials")
 
 # set SUNDIALS version numbers 
 # (use "" for the version label if none is needed)
 SET(PACKAGE_VERSION_MAJOR "3")
-SET(PACKAGE_VERSION_MINOR "0")
+SET(PACKAGE_VERSION_MINOR "1")
 SET(PACKAGE_VERSION_PATCH "0")
 SET(PACKAGE_VERSION_LABEL "")
 
@@ -68,34 +67,34 @@ MARK_AS_ADVANCED(CLEAR
 
 # Specify the VERSION and SOVERSION for shared libraries
 
-SET(arkodelib_VERSION "2.0.0")
+SET(arkodelib_VERSION "2.1.0")
 SET(arkodelib_SOVERSION "2")
 
-SET(cvodelib_VERSION "3.0.0")
+SET(cvodelib_VERSION "3.1.0")
 SET(cvodelib_SOVERSION "3")
 
-SET(cvodeslib_VERSION "3.0.0")
+SET(cvodeslib_VERSION "3.1.0")
 SET(cvodeslib_SOVERSION "3")
 
-SET(idalib_VERSION "3.0.0")
+SET(idalib_VERSION "3.1.0")
 SET(idalib_SOVERSION "3")
 
-SET(idaslib_VERSION "2.0.0")
+SET(idaslib_VERSION "2.1.0")
 SET(idaslib_SOVERSION "2")
 
-SET(kinsollib_VERSION "3.0.0")
+SET(kinsollib_VERSION "3.1.0")
 SET(kinsollib_SOVERSION "3")
 
 SET(cpodeslib_VERSION "0.0.0")
 SET(cpodeslib_SOVERSION "0")
 
-SET(nveclib_VERSION "3.0.0")
+SET(nveclib_VERSION "3.1.0")
 SET(nveclib_SOVERSION "3")
 
-SET(sunmatrixlib_VERSION "1.0.0")
+SET(sunmatrixlib_VERSION "1.1.0")
 SET(sunmatrixlib_SOVERSION "1")
 
-SET(sunlinsollib_VERSION "1.0.0")
+SET(sunlinsollib_VERSION "1.1.0")
 SET(sunlinsollib_SOVERSION "1")
 
 # Specify the location of additional CMAKE modules
@@ -560,6 +559,17 @@ IF(EXAMPLES_ENABLED)
       SET(EXAMPLES_INSTALL_PATH "${CMAKE_INSTALL_PREFIX}/examples" CACHE STRING
         "Output directory for installing example files" FORCE)
     ENDIF(NOT EXAMPLES_INSTALL_PATH)
+    
+    # create test_install target and directory for running smoke tests after
+    # installation
+    ADD_CUSTOM_TARGET(test_install)
+
+    SET(TEST_INSTALL_DIR ${PROJECT_BINARY_DIR}/Testing_Install)
+
+    IF(NOT EXISTS ${TEST_INSTALL_DIR})
+      FILE(MAKE_DIRECTORY ${TEST_INSTALL_DIR})
+    ENDIF()
+
 
   ELSE(EXAMPLES_INSTALL)
 
@@ -577,6 +587,11 @@ ELSE(EXAMPLES_ENABLED)
   
 ENDIF(EXAMPLES_ENABLED)
 
+# ---------------------------------------------------------------
+# Include development examples in regression tests?
+# ---------------------------------------------------------------
+OPTION(SUNDIALS_DEVTESTS "Include development tests in make test" OFF)
+MARK_AS_ADVANCED(FORCE SUNDIALS_DEVTESTS)
 
 # ===============================================================
 # Add any other necessary compiler flags & definitions
@@ -1230,10 +1245,13 @@ ENDIF(BUILD_CPODES)
 
 INCLUDE(SundialsAddTest)
 HIDE_VARIABLE(TESTRUNNER)
+
 IF(EXAMPLES_ENABLED)
+
+  # enable regression testing with 'make test'
   IF(TESTRUNNER)
     ENABLE_TESTING()
-  ENDIF(TESTRUNNER)
+  ENDIF()
 
   # set variables used in generating CMake and Makefiles for examples
   IF(EXAMPLES_INSTALL)
@@ -1584,7 +1602,7 @@ IF(EXAMPLES_ENABLED)
 ENDIF(EXAMPLES_ENABLED)
 
 # ---------------------------------------------------------------
-# Install configuration header file
+# Install configuration header files and license file
 # ---------------------------------------------------------------
 
 # install configured header file
@@ -1593,7 +1611,13 @@ INSTALL(
   DESTINATION include/sundials
   )
 
+# install configured header file for Fortran 90
 INSTALL(
   FILES ${PROJECT_BINARY_DIR}/include/sundials/sundials_fconfig.h
   DESTINATION include/sundials
   )
+
+# install license file
+INSTALL(
+  FILES ${PROJECT_SOURCE_DIR}/LICENSE
+  DESTINATION .)
