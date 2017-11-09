@@ -4,7 +4,7 @@
                    Release 3.1.0, November 2017
 
 
-NVECTOR_PETSC is an NVECTOR wrapper around the PETSC vector.  
+The NVECTOR_PETSC is an NVECTOR wrapper around the PETSC vector.  
 
 NVECTOR_PETSC defines the content field of an N_Vector to be a 
 structure containing the global and local lengths of the vector, a 

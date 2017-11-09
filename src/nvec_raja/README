@@ -5,12 +5,12 @@
 
 
 
-NVECTOR_RAJA module is an experimental NVECTOR implementation 
-with vector kernels written using RAJA hardware abstraction layer.  
+The NVECTOR_RAJA module is an experimental NVECTOR implementation 
+with vector kernels written using the RAJA hardware abstraction layer.  
 
 The module allows for SUNDIALS vector kernels to run on GPU devices. 
 It is intended for users who are already familiar with RAJA and GPU
-programming. Building this vector module requires a RAJA to be installed,
+programming. Building this vector module requires RAJA to be installed,
 as well as a C++ compiler.  
 
 NVECTOR_RAJA defines the content field of an N_Vector to be a 

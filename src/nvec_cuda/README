@@ -5,8 +5,8 @@
 
 
 
-NVECTOR_CUDA module is an experimental NVECTOR implementation 
-with vector kernels written in CUDA language.  
+The NVECTOR_CUDA module is an experimental NVECTOR implementation 
+with vector kernels written in the CUDA language.  
 
 The module allows for SUNDIALS vector kernels to run on GPU devices. 
 It is intended for users who are already familiar with CUDA and GPU
