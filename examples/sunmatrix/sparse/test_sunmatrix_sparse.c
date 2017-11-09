@@ -303,7 +303,7 @@ int main(int argc, char *argv[])
     i = rand() % matrows;
     j = rand() % matcols;
     matdata = SUNDenseMatrix_Column(B,j);
-    matdata[i] = rand() / (pow(2.0,31.0) - 1.0);
+    matdata[i] = (realtype) rand() / (realtype) RAND_MAX;
   }
   A = SUNSparseFromDenseMatrix(B, ZERO, mattype);
   
@@ -312,7 +312,7 @@ int main(int argc, char *argv[])
   y = N_VNew_Serial(matrows);
   vecdata = N_VGetArrayPointer(x);
   for(i=0; i<matcols; i++) 
-    vecdata[i] = rand() / (pow(2.0,31.0) - 1.0);
+    vecdata[i] = (realtype) rand() / (realtype) RAND_MAX;
   if (SUNMatMatvec(B, x, y) != 0) {
     printf("FAIL: SUNMatrix module Dense matvec failure \n \n");
     SUNMatDestroy(A);
@@ -357,7 +357,7 @@ int main(int argc, char *argv[])
   if (square)
     SUNMatDestroy(I);
 
-  return(0);
+  return(fails);
 }
 
 /* ----------------------------------------------------------------------

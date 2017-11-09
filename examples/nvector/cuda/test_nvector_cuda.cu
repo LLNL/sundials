@@ -30,10 +30,10 @@
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[]) 
 {
-  int fails = 0;       /* counter for test failures  */
-  sunindextype veclen; /* vector length              */
-  N_Vector W, X, Y, Z; /* test vectors               */
-  int print_timing;
+  int          fails = 0;     /* counter for test failures  */
+  sunindextype veclen;        /* vector length              */
+  N_Vector     W, X, Y, Z;    /* test vectors               */
+  int          print_timing;
   /* sunindextype lrw, liw; */
 
 
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
     printf("SUCCESS: NVector module passed all tests \n \n");
   }
 
-  return(0);
+  return(fails);
 }
 
 /* ----------------------------------------------------------------------

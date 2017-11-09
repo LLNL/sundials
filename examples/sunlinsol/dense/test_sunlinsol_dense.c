@@ -16,7 +16,7 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  * -----------------------------------------------------------------
- * This is the testing routine to check the SUNLinSol Dense module 
+ * This is the testing routine to check the SUNLinSol Dense module
  * implementation. 
  * -----------------------------------------------------------------
  */
@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 {
   int             fails = 0;          /* counter for test failures  */
   sunindextype    cols, rows;         /* matrix columns, rows       */
-  SUNLinearSolver DenseSol;           /* solver object              */
+  SUNLinearSolver LS;                 /* solver object              */
   SUNMatrix       A, B, I;            /* test matrices              */
   N_Vector        x, y, b;            /* test vectors               */
   int             print_timing;
@@ -73,20 +73,14 @@ int main(int argc, char *argv[])
   y = N_VNew_Serial(cols);
   b = N_VNew_Serial(cols);
 
-  /* Fill matrix and x vector with uniform random data in [0,1] */
-  xdata = N_VGetArrayPointer(x);
+  /* Fill A matrix with uniform random data in [0,1/cols] */
   for (j=0; j<cols; j++) {
-    
-    /* A matrix column */
     colj = SUNDenseMatrix_Column(A, j);
     for (k=0; k<rows; k++)
-      colj[k] = rand() / (pow(2.0,31.0) - 1.0) / cols;
-
-    /* x entry */
-    xdata[j] = rand() / (pow(2.0,31.0) - 1.0);
-    
+      colj[k] = (realtype) rand() / (realtype) RAND_MAX / cols;    
   }
-  
+
+  /* Create anti-identity matrix */
   j=cols-1;
   for (k=0; k<rows; k++) {
     colj = SUNDenseMatrix_Column(I,j);
@@ -94,6 +88,7 @@ int main(int argc, char *argv[])
     j = j-1;
   }    
   
+  /* Add anti-identity to ensure the solver needs to do row-swapping */
   for (k=0; k<rows; k++){
     for(j=0; j<cols; j++){
       colj = SUNDenseMatrix_Column(A,j);
@@ -102,24 +97,34 @@ int main(int argc, char *argv[])
    }
   }
 
+  /* Fill x vector with uniform random data in [0,1] */
+  xdata = N_VGetArrayPointer(x);
+  for (j=0; j<cols; j++) {
+    xdata[j] = (realtype) rand() / (realtype) RAND_MAX;
+  } 
+
   /* copy A and x into B and y to print in case of solver failure */
   SUNMatCopy(A, B);
   N_VScale(ONE, x, y);
 
   /* create right-hand side vector for linear solve */
   fails = SUNMatMatvec(A, x, b);
-  
+  if (fails) {
+    printf("FAIL: SUNLinSol SUNMatMatvec failure\n");
+    return(1);
+  }
+
   /* Create dense linear solver */
-  DenseSol = SUNDenseLinearSolver(x, A);
+  LS = SUNDenseLinearSolver(x, A);
   
   /* Run Tests */
-  fails += Test_SUNLinSolInitialize(DenseSol, 0);
-  fails += Test_SUNLinSolSetup(DenseSol, A, 0);
-  fails += Test_SUNLinSolSolve(DenseSol, A, x, b, RCONST(1.0e-15), 0);
+  fails += Test_SUNLinSolInitialize(LS, 0);
+  fails += Test_SUNLinSolSetup(LS, A, 0);
+  fails += Test_SUNLinSolSolve(LS, A, x, b, RCONST(1.0e-15), 0);
  
-  fails += Test_SUNLinSolGetType(DenseSol, SUNLINEARSOLVER_DIRECT, 0);
-  fails += Test_SUNLinSolLastFlag(DenseSol, 0);
-  fails += Test_SUNLinSolSpace(DenseSol, 0);
+  fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_DIRECT, 0);
+  fails += Test_SUNLinSolLastFlag(LS, 0);
+  fails += Test_SUNLinSolSpace(LS, 0);
 
   /* Print result */
   if (fails) {
@@ -137,13 +142,13 @@ int main(int argc, char *argv[])
   }
 
   /* Free solver, matrix and vectors */
-  SUNLinSolFree(DenseSol);
+  SUNLinSolFree(LS);
   SUNMatDestroy(A);
   SUNMatDestroy(B);
   N_VDestroy(x);
   N_VDestroy(y);
 
-  return(0);
+  return(fails);
 }
 
 /* ----------------------------------------------------------------------

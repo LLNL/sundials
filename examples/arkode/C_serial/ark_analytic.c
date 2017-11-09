@@ -43,6 +43,7 @@
 #include <sunlinsol/sunlinsol_dense.h>     /* access to dense SUNLinearSolver      */
 #include <arkode/arkode_direct.h>          /* access to ARKDls interface           */
 #include <sundials/sundials_types.h>       /* definition of type realtype          */
+#include <sundials/sundials_math.h>
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -62,6 +63,8 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 /* Private function to check function return values */
 static int check_flag(void *flagvalue, const char *funcname, int opt);
 
+/* Private function to check computed solution */
+static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol);
 
 /* Main Program */
 int main()
@@ -187,12 +190,16 @@ int main()
   printf("   Total number of linear solver convergence failures = %li\n", ncfn);
   printf("   Total number of error test failures = %li\n\n", netf);
 
-  /* Clean up and return with successful completion */
+  /* check the solution error */
+  flag = check_ans(y, t, reltol, abstol);
+
+  /* Clean up and return */
   N_VDestroy(y);            /* Free y vector */
   ARKodeFree(&arkode_mem);  /* Free integrator memory */
   SUNLinSolFree(LS);        /* Free linear solver */
   SUNMatDestroy(A);         /* Free A matrix */
-  return 0;
+ 
+  return flag;
 }
 
 /*-------------------------------
@@ -265,5 +272,26 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
   return 0;
 }
 
+/* check the computed solution */
+static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol)
+{
+  int      passfail=0;     /* answer pass (0) or fail (1) flag     */  
+  realtype ans, err, ewt;  /* answer data, error, and error weight */
+  realtype ONE=RCONST(1.0);
+
+  /* compute solution error */
+  ans  = atan(t);
+  ewt = ONE / (rtol * SUNRabs(ans) + atol);
+  err = ewt * SUNRabs(NV_Ith_S(y,0) - ans);
+
+  /* is the solution within the tolerances? */
+  passfail = (err < ONE) ? 0 : 1; 
+
+  if (passfail) {
+    fprintf(stdout, "\nSUNDIALS_WARNING: check_ans error=%g \n\n", err);
+  }
+
+  return(passfail);
+}
 
 /*---- end of file ----*/

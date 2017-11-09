@@ -64,6 +64,9 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 /* Private function to check function return values */
 static int check_flag(void *flagvalue, const char *funcname, int opt);
 
+/* Private function to check computed solution */
+static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol);
+
 /* Main Program */
 int main()
 {
@@ -207,12 +210,16 @@ int main()
   printf("   Total number of nonlinear solver convergence failures = %li\n", ncfn);
   printf("   Total number of error test failures = %li\n", netf);
 
+  /* check the solution error */
+  flag = check_ans(y, t, reltol, abstol);
+
   /* Clean up and return with successful completion */
   N_VDestroy(y);               /* Free y vector */
   ARKodeFree(&arkode_mem);     /* Free integrator memory */
   SUNLinSolFree(LS);           /* Free linear solver */
   SUNMatDestroy(A);            /* Free A matrix */
-  return 0;
+
+  return flag;
 }
 
 /*-------------------------------
@@ -295,5 +302,52 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
   return 0;
 }
 
+/* compare the solution at the final time 1e11s to a reference solution computed
+   using a relative tolerance of 1e-8 and absoltue tolerance of 1e-14 */
+static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol)
+{
+  int      passfail=0;        /* answer pass (0) or fail (1) flag */  
+  N_Vector ref;               /* reference solution vector        */
+  N_Vector ewt;               /* error weight vector              */
+  realtype err;               /* wrms error                       */
+  realtype ZERO=RCONST(0.0);  
+  realtype ONE=RCONST(1.0);  
+
+  /* create reference solution and error weight vectors */
+  ref = N_VClone(y);
+  ewt = N_VClone(y);
+
+  /* set the reference solution data */
+  NV_Ith_S(ref,0) = RCONST(2.0833403356917897e-08);
+  NV_Ith_S(ref,1) = RCONST(8.1470714598028223e-14);
+  NV_Ith_S(ref,2) = RCONST(9.9999997916651040e-01);
+
+  /* compute the error weight vector */
+  N_VAbs(ref, ewt);
+  N_VScale(rtol, ewt, ewt);
+  N_VAddConst(ewt, atol, ewt);
+  if (N_VMin(ewt) <= ZERO) {
+    fprintf(stderr, "\nSUNDIALS_ERROR: check_ans failed - ewt <= 0\n\n");
+    return(-1);
+  }
+  N_VInv(ewt, ewt);   
+
+  /* compute the solution error */
+  N_VLinearSum(ONE, y, -ONE, ref, ref);
+  err = N_VWrmsNorm(ref, ewt);
+
+  /* is the solution within the tolerances? */
+  passfail = (err < ONE) ? 0 : 1; 
+
+  if (passfail) {
+    fprintf(stdout, "\nSUNDIALS_WARNING: check_ans error=%g \n\n", err);
+  }
+
+  /* Free vectors */
+  N_VDestroy(ref);
+  N_VDestroy(ewt);
+
+  return(passfail);
+}
 
 /*---- end of file ----*/

@@ -88,7 +88,7 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
   if(F2C_CVODE_vec->ops->nvgetarraypointer == NULL ||
      F2C_CVODE_vec->ops->nvsetarraypointer == NULL) {
     *ier = -1;
-    printf("A required vector operation is not implemented.\n\n");
+    fprintf(stderr, "A required vector operation is not implemented.\n\n");
     return;
   }
 
@@ -253,7 +253,7 @@ void FCV_SETIIN(char key_name[], long int *ival, int *ier)
     *ier = CVodeSetStabLimDet(CV_cvodemem, (booleantype) *ival);
   else {
     *ier = -99;
-    printf("FCVSETIIN: Unrecognized key.\n\n");
+    fprintf(stderr, "FCVSETIIN: Unrecognized key.\n\n");
   }
 
 }
@@ -274,7 +274,7 @@ void FCV_SETRIN(char key_name[], realtype *rval, int *ier)
     *ier = CVodeSetNonlinConvCoef(CV_cvodemem, *rval);
   else {
     *ier = -99;
-    printf("FCVSETRIN: Unrecognized key.\n\n");
+    fprintf(stderr, "FCVSETRIN: Unrecognized key.\n\n");
   }
 
 }

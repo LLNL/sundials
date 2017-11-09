@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
 # Programmer(s): Daniel Reynolds @ SMU
-# -----------------------------------------------------------------
+# ---------------------------------------------------------------
 # LLNS/SMU Copyright Start
 # Copyright (c) 2017, Southern Methodist University and 
 # Lawrence Livermore National Security
@@ -15,67 +15,110 @@
 # For details, see the LICENSE file.
 # LLNS/SMU Copyright End
 # ---------------------------------------------------------------
-# CMakeLists.txt file for sunlinsol examples
+# CMakeLists.txt file for sunlinsol KLU examples
+# ---------------------------------------------------------------
 
-# Add variable sunlinsol_klu_examples with the names of the sunlinsol examples
+# Example lists are tuples "name\;args\;type" where the type is
+# 'develop' for examples excluded from 'make test' in releases
 
+# Examples using the KLU linear solver
 SET(sunlinsol_klu_examples
-  test_sunlinsol_klu
-)
+  "test_sunlinsol_klu\;300 0 0\;"
+  "test_sunlinsol_klu\;300 1 0\;"
+  "test_sunlinsol_klu\;1000 0 0\;"
+  "test_sunlinsol_klu\;1000 1 0\;"
+  )
 
+# Dependencies for nvector examples
 SET(sunlinsol_klu_dependencies
   test_sunlinsol
   sundials_nvector
   sundials_matrix
   sundials_linearsolver
-)
+  )
 
 # Add source directory to include directories
 INCLUDE_DIRECTORIES(. ..)
 
 # Specify libraries to link against (through the target that was used to 
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
-
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(NVEC_LIB sundials_nvecserial_static)
   SET(SUNMAT_LIB sundials_sunmatrixdense_static)
   LIST(APPEND SUNMAT_LIB sundials_sunmatrixsparse_static)
   SET(SUNLINSOL_LIB sundials_sunlinsolklu_static)
-ELSE(LINK_LIBRARY_TYPE MATCHES "static")
+ELSE()
   SET(NVEC_LIB sundials_nvecserial_shared)
   SET(SUNMAT_LIB sundials_sunmatrixdense_shared)
   LIST(APPEND SUNMAT_LIB sundials_sunmatrixsparse_shared)
   SET(SUNLINSOL_LIB sundials_sunlinsolklu_shared)
-ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
+ENDIF()
 
 # Set-up linker flags and link libraries
-
 SET(SUNDIALS_LIBS ${NVEC_LIB} ${SUNMAT_LIB} ${SUNLINSOL_LIB} ${EXTRA_LINK_LIBS})
 
 LIST(APPEND SUNDIALS_LIBS ${KLU_LIBRARIES})
 
-# Add the build and install targets for each sunlinsol example
 
-FOREACH(example ${sunlinsol_klu_examples})
+# Add the build and install targets for each example
+FOREACH(example_tuple ${sunlinsol_klu_examples})
 
+  # parse the example tuple
+  LIST(GET example_tuple 0 example)
+  LIST(GET example_tuple 1 example_args)
+  LIST(GET example_tuple 2 example_type)
+
+  # This is used to get around DLL linkage issue since we are
+  # manually including sundials_nvector.c here, which is normally in
+  # a library that is included.  If this is not set build system
+  # thinks nvector is externally linked.
   IF(WIN32)
     ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
   ENDIF(WIN32)
 
-  ADD_EXECUTABLE(${example} ${example}.c ../test_sunlinsol.c ../../../src/sundials/sundials_matrix.c ../../../src/sundials/sundials_linearsolver.c ../../../src/sundials/sundials_nvector.c)
-  SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+  # check if this example has already been added, only need to add
+  # example source files once for testing with different inputs
+  IF(NOT TARGET ${example})
+    # example source files
+    ADD_EXECUTABLE(${example} ${example}.c
+      ../test_sunlinsol.c
+      ../../../src/sundials/sundials_matrix.c
+      ../../../src/sundials/sundials_linearsolver.c
+      ../../../src/sundials/sundials_nvector.c)
 
-  SUNDIALS_ADD_TEST( ${example}_300_0_0 ${example} TEST_ARGS 300 0 0)
-  SUNDIALS_ADD_TEST( ${example}_300_1_0 ${example} TEST_ARGS 300 1 0)
-  SUNDIALS_ADD_TEST( ${example}_1000_0_0 ${example} TEST_ARGS 1000 0 0)
-  SUNDIALS_ADD_TEST( ${example}_1000_1_0 ${example} TEST_ARGS 1000 1 0)
+    # folder to organize targets in an IDE
+    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
-  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+    # libraries to link against    
+    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+  ENDIF()
 
+  # check if example args are provided and set the test name
+  IF("${example_args}" STREQUAL "")
+    SET(test_name ${example})
+  ELSE()
+    STRING(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+  ENDIF()
+
+  # add example to regression tests
+  SUNDIALS_ADD_TEST(${test_name} ${example}
+    TEST_ARGS ${example_args}
+    EXAMPLE_TYPE ${example_type}
+    NODIFF)
+
+  # install example source files
   IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${example}.c ../test_sunlinsol.h ../test_sunlinsol.c ../../../src/sundials/sundials_matrix.c ../../../src/sundials/sundials_linearsolver.c ../../../src/sundials/sundials_nvector.c DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/klu)
-  ENDIF(EXAMPLES_INSTALL)
-ENDFOREACH(example ${sunlinsol_klu_examples})
+    INSTALL(FILES ${example}.c
+      ../test_sunlinsol.h
+      ../test_sunlinsol.c 
+      ../../../src/sundials/sundials_matrix.c
+      ../../../src/sundials/sundials_linearsolver.c
+      ../../../src/sundials/sundials_nvector.c
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/klu)
+  ENDIF()
+
+ENDFOREACH(example_tuple ${sunlinsol_klu_examples})
+
 
 IF(EXAMPLES_INSTALL)
 
@@ -90,8 +133,8 @@ IF(EXAMPLES_INSTALL)
   # The generated CMakeLists.txt does not use find_library() locate them
   SET(EXTRA_LIBS_DIR "${libdir}")
 
-  LIST2STRING(sunlinsol_klu_examples EXAMPLES_KLU)
-  LIST2STRING(sunlinsol_klu_dependencies EXAMPLES_DEPENDENCIES_KLU)
+  EXAMPLES2STRING(sunlinsol_klu_examples EXAMPLES_KLU)
+  EXAMPLES2STRING(sunlinsol_klu_dependencies EXAMPLES_DEPENDENCIES_KLU)
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 
@@ -99,10 +142,10 @@ IF(EXAMPLES_INSTALL)
 
   # generate CMakelists.txt in the binary directory
   CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/sunlinsol/klu/CMakeLists.txt
-      @ONLY
-      )
+    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
+    ${PROJECT_BINARY_DIR}/examples/sunlinsol/klu/CMakeLists.txt
+    @ONLY
+    )
 
   # install CMakelists.txt
   INSTALL(

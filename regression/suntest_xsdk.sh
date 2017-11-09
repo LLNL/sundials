@@ -203,6 +203,7 @@ cmake \
     -D TPL_SUPERLUMT_LIBRARIES="${SUPERLUMTDIR}/lib/libsuperlu_mt_PTHREAD.a" \
     -D TPL_SUPERLUMT_THREAD_TYPE=Pthread \
     \
+    -D SUNDIALS_DEVTESTS=ON \
     ../../. 2>&1 | tee configure.log
 
 # check cmake return code
@@ -252,7 +253,14 @@ if [ $rc -ne 0 ]; then exit 1; fi
 # Test SUNDIALS Install
 # -------------------------------------------------------------------------------
 
-# add make test_install here
+# smoke test for installation
+echo "START TEST_INSTALL"
+make test_install 2>&1 | tee test_install.log
+
+# check make install return code
+rc=${PIPESTATUS[0]}
+echo -e "\nmake test_install returned $rc\n" | tee -a test_install.log
+if [ $rc -ne 0 ]; then exit 1; fi
 
 # -------------------------------------------------------------------------------
 # Return

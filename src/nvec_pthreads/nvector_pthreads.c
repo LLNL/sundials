@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): David J. Gardner @ LLNL
  * ----------------------------------------------------------------- 
  * Acknowledgements: This NVECTOR module is based on the NVECTOR 
@@ -23,8 +19,7 @@
  * This is the implementation file for a POSIX Threads (Pthreads)
  * implementation of the NVECTOR package using a LOCAL array of 
  * structures to pass data to threads.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -305,12 +300,20 @@ sunindextype N_VGetLength_Pthreads(N_Vector v)
   return NV_LENGTH_PT(v);
 }
 
- 
 /* ----------------------------------------------------------------------------
- * Function to print a vector 
+ * Function to print a vector to stdout
  */
  
 void N_VPrint_Pthreads(N_Vector x)
+{
+  N_VPrintFile_Pthreads(x, stdout);
+}
+ 
+/* ----------------------------------------------------------------------------
+ * Function to print a vector to outfile
+ */
+ 
+void N_VPrintFile_Pthreads(N_Vector x, FILE *outfile)
 {
   sunindextype i, N;
   realtype *xd;
@@ -322,14 +325,14 @@ void N_VPrint_Pthreads(N_Vector x)
 
   for (i = 0; i < N; i++) {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-    printf("%11.8Lg\n", xd[i]);
+    fprintf(outfile, "%11.8Lg\n", xd[i]);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-    printf("%11.8g\n", xd[i]);
+    fprintf(outfile, "%11.8g\n", xd[i]);
 #else
-    printf("%11.8g\n", xd[i]);
+    fprintf(outfile, "%11.8g\n", xd[i]);
 #endif
   }
-  printf("\n");
+  fprintf(outfile, "\n");
 
   return;
 }

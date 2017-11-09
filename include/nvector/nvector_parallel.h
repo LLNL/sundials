@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -48,8 +44,7 @@
  *
  *     (which stores the result of the operation a*x+b*y in y)
  *     is legal.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #ifndef _NVECTOR_PARALLEL_H
 #define _NVECTOR_PARALLEL_H
@@ -179,6 +174,7 @@ typedef struct _N_VectorContent_Parallel *N_VectorContent_Parallel;
  *    N_VGetLength_Parallel
  *    N_VGetLocalLength_Parallel
  *    N_VPrint_Parallel
+ *    N_VPrintFile_Parallel
  * -----------------------------------------------------------------
  */
 
@@ -280,11 +276,23 @@ SUNDIALS_EXPORT sunindextype N_VGetLocalLength_Parallel(N_Vector v);
  * -----------------------------------------------------------------
  * Function : N_VPrint_Parallel
  * -----------------------------------------------------------------
- * This function prints the content of a parallel vector to stdout.
+ * This function prints the local content of a parallel vector to
+ * stdout.
  * -----------------------------------------------------------------
  */
 
 SUNDIALS_EXPORT void N_VPrint_Parallel(N_Vector v);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : N_VPrintFile_Parallel
+ * -----------------------------------------------------------------
+ * This function prints the local content of a parallel vector to
+ * outfile.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT void N_VPrintFile_Parallel(N_Vector v, FILE *outfile);
 
 /*
  * -----------------------------------------------------------------

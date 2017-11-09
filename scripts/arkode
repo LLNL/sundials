@@ -157,30 +157,3 @@ $tar $tarfile $distrobase/examples/arkode/F90_serial/ark_bruss1D_FEM_klu.f90
 $tar $tarfile $distrobase/examples/arkode/F90_serial/ark_bruss1D_FEM_klu.out
 $tar $tarfile $distrobase/examples/arkode/F90_serial/plot_brusselator1D_FEM.py
 $tar $tarfile $distrobase/examples/arkode/F90_serial/plot_sol.py
-
-# 3/3/2015:LEBanks - Don't add to release yet. Many tests will fail, which can be confusing to users
-#echo "   --- Add regression test files to $tarfile"
-#$tar $tarfile $distrobase/test/answers/ark_analytic
-#$tar $tarfile $distrobase/test/answers/ark_analytic_nonlin
-#$tar $tarfile $distrobase/test/answers/ark_analytic_sys
-#$tar $tarfile $distrobase/test/answers/ark_bruss
-#$tar $tarfile $distrobase/test/answers/ark_brusselator
-#$tar $tarfile $distrobase/test/answers/ark_brusselator1D
-#$tar $tarfile $distrobase/test/answers/ark_brusselator1D_FEM_slu
-#$tar $tarfile $distrobase/test/answers/ark_brusselator1D_klu
-#$tar $tarfile $distrobase/test/answers/ark_brusselator1D_omp
-#$tar $tarfile $distrobase/test/answers/ark_brusselator_fp
-#$tar $tarfile $distrobase/test/answers/ark_diurnal_kry_bbd_p
-#$tar $tarfile $distrobase/test/answers/ark_diurnal_kry_p
-#$tar $tarfile $distrobase/test/answers/ark_heat1D
-#$tar $tarfile $distrobase/test/answers/ark_heat1D_adapt
-#$tar $tarfile $distrobase/test/answers/ark_heat2D
-#$tar $tarfile $distrobase/test/answers/ark_KrylovDemo_prec
-#$tar $tarfile $distrobase/test/answers/ark_robertson
-#$tar $tarfile $distrobase/test/answers/ark_robertson_root
-#$tar $tarfile $distrobase/test/answers/fark_diag_kry_bbd_p
-#$tar $tarfile $distrobase/test/answers/fark_diag_non_p
-#$tar $tarfile $distrobase/test/answers/fark_diurnal_kry_bp
-#$tar $tarfile $distrobase/test/answers/fark_heat2D
-#$tar $tarfile $distrobase/test/answers/fark_roberts_dnsL
-

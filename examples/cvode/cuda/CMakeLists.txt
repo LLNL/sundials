@@ -16,9 +16,12 @@
 # CMakeLists.txt file for CVODE cuda examples
 # ---------------------------------------------------------------
 
-# Add variable CVODE_examples with the names of the cuda CVODE examples
+# Example lists are tuples "name\;type" where the type is
+# 'develop' for examples excluded from 'make test' in releases
+
+# Examples using SUNDIALS linear solvers
 SET(CVODE_examples
-  cvAdvDiff_kry_cuda
+  "cvAdvDiff_kry_cuda\;develop"
   )
 
 # Add source directory to include directories
@@ -39,7 +42,11 @@ SET(SUNDIALS_LIBS ${CVODE_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 
 
 # Add the build and install targets for each CVODE example
-FOREACH(example ${CVODE_examples})
+FOREACH(example_tuple ${CVODE_examples})
+
+  # parse the example tuple
+  LIST(GET example_tuple 0 example)
+  LIST(GET example_tuple 1 example_type)
 
   set_source_files_properties(${example}.cu PROPERTIES CUDA_SOURCE_PROPERTY_FORMAT OBJ)
 
@@ -48,8 +55,11 @@ FOREACH(example ${CVODE_examples})
 
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
-  # add to regression tests
-  SUNDIALS_ADD_TEST(${example} ${example})
+  # add example to regression tests
+  SUNDIALS_ADD_TEST(${example} ${example}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${example}.out
+    EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
@@ -60,7 +70,7 @@ FOREACH(example ${CVODE_examples})
       DESTINATION ${EXAMPLES_INSTALL_PATH}/cvode/cuda)
   ENDIF()
 
-ENDFOREACH(example ${CVODE_examples})
+ENDFOREACH(example_tuple ${CVODE_examples})
 
 
 # create Makfile and CMakeLists.txt for examples
@@ -73,7 +83,7 @@ IF(EXAMPLES_INSTALL)
   SET(SOLVER "CVODE")
   SET(SOLVER_LIB "sundials_cvode")
 
-  LIST2STRING(CVODE_examples EXAMPLES)
+  EXAMPLES2STRING(CVODE_examples EXAMPLES)
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 
@@ -81,10 +91,10 @@ IF(EXAMPLES_INSTALL)
 
   # generate CMakelists.txt in the binary directory
   CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_cuda_CUDA_ex.in
-      ${PROJECT_BINARY_DIR}/examples/cvode/cuda/CMakeLists.txt
-      @ONLY
-      )
+    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_cuda_CUDA_ex.in
+    ${PROJECT_BINARY_DIR}/examples/cvode/cuda/CMakeLists.txt
+    @ONLY
+    )
 
   # install CMakelists.txt
   INSTALL(

@@ -1,6 +1,26 @@
 #! /usr/bin/env python
-
-# Author: Steven Smith based on code from : Chris White
+# ---------------------------------------------------------------
+# Programmer(s): Steven Smith @ LLNL
+#                David J. Gardner @ LLNL
+# ---------------------------------------------------------------
+# Acknowledgement: Based on code from Chris White @ LLNL
+# ---------------------------------------------------------------
+# LLNS Copyright Start
+# Copyright (c) 2014, Lawrence Livermore National Security
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Lawrence Livermore National Laboratory in part under
+# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
+# Produced at the Lawrence Livermore National Laboratory.
+# All rights reserved.
+# For details, see the LICENSE file.
+# LLNS Copyright End
+# ---------------------------------------------------------------
+# Sundials test runner for CTest. Note examples must be enabled
+# to use the test runner (e.g. EXAMPLES_ENABLE_C=ON). 
+#
+# All output from the test runner output will be collected in
+# <build directory>/Testing/Temporary/LastTest.log
+# ---------------------------------------------------------------
 
 import exceptions
 import os
@@ -11,27 +31,38 @@ import re
 
 def main():
     parser = argparse.ArgumentParser(description='Sundials test runner for use in ctest.')
+
+    # Required inputs
     parser.add_argument('--testname', dest='testName', type=str, required=True,
                         help='name of the test')
     parser.add_argument('--executablename', dest='executableName', type=str, required=True,
                         help='executable, including path')
-    parser.add_argument('--answersdir', dest='answersDir', type=str, required=True,
-                        help='path to answers directory')
-    parser.add_argument('--answerfile', dest='answerFile', type=str, required=False,
-                        help='answer file, filename only specify path using --answersdir')
     parser.add_argument('--outputdir', dest='outputDir', type=str, required=True,
                         help='path to output directory')
+
+    # Optional inputs
+    parser.add_argument('--answerdir', dest='answerDir', type=str,
+                        help='path to answers directory')
+    parser.add_argument('--answerfile', dest='answerFile', type=str,
+                        help='answer file, filename only specify path using --answerdir')
 
     parser.add_argument('--runcommand', dest='runCommand', type=str,
                         help='command used to run test executable, eg. mpirun')
     parser.add_argument('--runargs', dest='runArgs', type=str,
                         help='command line arguments passed to test executable')
 
-    parser.add_argument('--floatprecision', dest='floatPrecision', type=float,
-                        help='precision for floating point failure comparison')
-
+    parser.add_argument('--floatprecision', dest='floatPrecision', type=int,
+                        help='precision for floating point failure comparison (number of digits')
     parser.add_argument('--integerpercentage', dest='integerPercentage', type=int,
                         help='integer percentage difference for failure comparison')
+
+    parser.add_argument('--nodiff', dest='CheckDiff', action='store_false',
+                        help='do not diff the output file against answer file, only check the test return value')
+
+    parser.add_argument('--builddir', dest='buildDir', type=str,
+                        help='path to the example CMakeLists.txt file')
+    parser.add_argument('--buildcmd', dest='buildCmd', type=str,
+                        help='CMake command used to build the example')
 
     parser.add_argument('-v', '--verbose', dest='verbose', action='store_true',
                         help='run verbosely')
@@ -41,35 +72,90 @@ def main():
     if(args.verbose):
         print "testName=%s"%(args.testName)
         print "executableName=%s"%(args.executableName)
-        print "answersDir=%s"%(args.answersDir)
+        print "answerDir=%s"%(args.answerDir)
         print "answerFile=%s"%(args.answerFile)
         print "outputDir=%s"%(args.outputDir)
         print "runCommand=%s"%(args.runCommand)
         print "runArgs=%s"%(args.runArgs)
+        print "buildDir=%s"%(args.buildDir)
+        print "buildCmd=%s"%(args.buildCmd)
 
-    testName = args.testName
+    # regression test name and output directory 
+    testName  = args.testName
+    outDir    = args.outputDir
 
+    # path to Sundials test directory
     testDir = os.path.dirname(sys.argv[0])
-    outDir = args.outputDir
 
-    answersDir = os.path.join(testDir, "answers")
+    # path to Sundials answer directory
+    if (args.answerDir):
+        answerDir = args.answerDir
+    else:
+        answerDir = os.path.join(testDir, "answers")
     
     if(args.verbose):
-        print "testDir %s"%testDir
+        print "testName %s"%testDir
         print "outDir %s"%outDir
-        print "answersDir %s"%answersDir
+        print "testDir %s"%testDir
+        print "answerDir %s"%answerDir
 
+    # create output directory if necessary
     if not os.path.exists(outDir):
         os.makedirs(outDir)
     elif not os.path.isdir(outDir):
         error("Output directory exists but is not a directory, it must be deleted.", outDir)
         sys.exit(1)
 
-    testInfos = getInfo(testName, testDir)
+    # initialize testing result to success
     success = True
+
+    # configure/build the example if necessary
+    if (args.buildCmd):
+
+        # configure/build output file
+        outPath = os.path.join(outDir, args.testName+".build")
+        outFile = open(outPath, 'w')
+
+        # configure/build commands
+        cmakeCommand = [args.buildCmd] + [args.buildDir]
+        makeCommand  = ["make"] + [args.testName]
+
+        try:
+            # configure the example
+            process = subprocess.Popen(cmakeCommand, stdout=outFile, stderr=outFile)
+            process.wait()
+
+            # check the return value
+            if process.returncode != 0:
+                error("cmake exited with error code " + str(process.returncode)
+                      + "for ", args.buildDir)
+                success = False
+                
+            # build the example
+            process = subprocess.Popen(makeCommand, stdout=outFile, stderr=outFile)
+            process.wait()
+
+            # check the return value
+            if process.returncode != 0:
+                error("make exited with error code " + str(process.returncode)
+                      + "for ", args.testName)
+                success = False
+
+        finally:
+            outFile.close()
+
+    # exit if configure/build failed
+    if not success:
+        print "Test failed."
+        sys.exit(1)
+
+    # get testing information
+    testInfos = getInfo(testName, testDir)
+
     for testInfo in testInfos:
+
         if(args.verbose):
-            error("testInfo.arguments = ",testInfo.arguments)
+            print "testInfo.arguments = ",testInfo.arguments
 
         # If running under another program (e.g. mpirun)
         if(args.runCommand):
@@ -95,11 +181,11 @@ def main():
         if(args.answerFile):
             answerFileName = args.answerFile
 
-        outPath = os.path.join(outDir, args.testName)
+        outPath = os.path.join(outDir, args.testName+".out")
 
-        answerPath = os.path.join(answersDir, answerFileName)
+        answerPath = os.path.join(answerDir, answerFileName)
 
-        # if user supplies precision info overide default choices
+        # if user supplies precision info overide the default choices
         if(args.floatPrecision):
             testInfo.floatPrecision=args.floatPrecision
 
@@ -119,19 +205,28 @@ def main():
             if(args.verbose):
                 print "Running command : " + ' '.join(testCommand)
                         
+            # run the test
             process = subprocess.Popen(testCommand, stdout=outFile, stderr=outFile)
             process.wait()
+            
+            # check test return value
             if process.returncode != 0:
                 error("Exited with error code " + str(process.returncode) + ".", testName)
                 success = False
-            if not os.path.exists(answerPath):
-                error("Answer file did not exist.", answerPath)
-                success = False
-            if not os.path.isfile(answerPath):
-                error("Answer file existed but was not a file.", answerPath)
-                success = False
-            if not compare(outPath, answerPath, testInfo):
-                success = False
+
+            # compare test output against the answer file output
+            if (args.CheckDiff):
+                if(args.verbose):
+                    print "Comparing test output to answer file."
+
+                if not os.path.exists(answerPath):
+                    error("Answer file did not exist.", answerPath)
+                    success = False
+                if not os.path.isfile(answerPath):
+                    error("Answer file existed but was not a file.", answerPath)
+                    success = False
+                if not compare(outPath, answerPath, testInfo):
+                    success = False
         finally:
             outFile.close()
 
@@ -142,9 +237,10 @@ def main():
     sys.exit(0)
 
 def compare(outPath, answerPath, testInfo):
-    #Note: This functions strips all lines of leading and trailing whitespace and blank lines.  Then it
-    #      compares the output against the checked in answer file. It allows fuzziness in floating points
-    #      and integers, as described in the testInfo file.
+    # Note: This functions strips all lines of leading and trailing whitespace
+    # and blank lines. Then it compares the output against the answer file. It
+    # allows fuzziness in floating points and integers, as described in the
+    # testInfo file.
     outFile = open(outPath, 'r')
     try:
         outLines = stripLines(outFile.readlines())
@@ -158,7 +254,9 @@ def compare(outPath, answerPath, testInfo):
     diffCount = 0
 
     if len(outLines) != len(answerLines):
-        error("Line count is not equal (blank lines ignored):\n" + str(len(outLines)) + ":" + outPath + "\n" + str(len(answerLines)) + ":" + answerPath)
+        error("Line count is not equal (blank lines ignored):\n"
+              + str(len(outLines)) + ":" + outPath + "\n"
+              + str(len(answerLines)) + ":" + answerPath)
         return False
 
     for i, outLine in enumerate(outLines):
@@ -204,12 +302,14 @@ def compareLines(outLine, answerLine, testInfo):
     return True
 
 def isInt(value):
+    # Check if string can be converted to int
     try:
         return True, int(value)
     except exceptions.ValueError:
         return False, 0
 
 def intCompare(answer, value, percentage):
+    # Check if error between value and answer is greater than the allowed percentage
     if answer == value:
         return True
     if percentage != 0:
@@ -220,12 +320,14 @@ def intCompare(answer, value, percentage):
     return False
 
 def isFloat(value):
+    # Check if string can be converted to float
     try:
         return True, float(value)
     except exceptions.ValueError:
         return False, 0
 
 def floatCompare(answer, value, precision):
+    # Check if two floating point numbers are the same to a given number of digits
     if precision == 0:
         if answer == value:
             return True
@@ -278,10 +380,13 @@ def getInfo(testName, testDir):
                 continue
             lineInfo = line.split(':', 3)
             if lineInfo[0].strip().lower() == loweredTestName:
-                testInfos.append(TestInfo(int(lineInfo[1].strip()), int(lineInfo[2].strip()), lineInfo[3].strip()))
+                testInfos.append(TestInfo(int(lineInfo[1].strip()),
+                                          int(lineInfo[2].strip()),
+                                          lineInfo[3].strip()))
 
     if len(testInfos) == 0:
-        #Note: If no info found in testInfo file then run test without arguments and do default comparisions
+        # Note: If no info is found in the testInfo file then run the test 
+        # without arguments and use the default comparisions values
         testInfos.append(TestInfo(4,10,""))
     return testInfos
 

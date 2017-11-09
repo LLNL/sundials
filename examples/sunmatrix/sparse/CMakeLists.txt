@@ -1,6 +1,6 @@
 # ---------------------------------------------------------------
 # Programmer(s): Daniel Reynolds @ SMU
-#                David Gardner @ LLNL
+#                David J. Gardner @ LLNL
 # -----------------------------------------------------------------
 # LLNS/SMU Copyright Start
 # Copyright (c) 2017, Southern Methodist University and 
@@ -16,14 +16,23 @@
 # For details, see the LICENSE file.
 # LLNS/SMU Copyright End
 # ---------------------------------------------------------------
-# CMakeLists.txt file for sunmatrix examples
+# CMakeLists.txt file for sparse sunmatrix examples
+# ---------------------------------------------------------------
 
-# Add variable sunmatrix_sparse_examples with the names of the sunmatrix examples
+# Example lists are tuples "name\;args\;type" where the type is
+# 'develop' for examples excluded from 'make test' in releases
 
+# Examples using SUNDIALS sparse matrix
 SET(sunmatrix_sparse_examples
-  test_sunmatrix_sparse
+  "test_sunmatrix_sparse\;400 400 0 0\;"
+  "test_sunmatrix_sparse\;450 450 1 0\;"
+  "test_sunmatrix_sparse\;200 1000 0 0\;"
+  "test_sunmatrix_sparse\;6000 350 0 0\;"
+  "test_sunmatrix_sparse\;500 5000 1 0\;"
+  "test_sunmatrix_sparse\;4000 800 1 0\;"
 )
 
+# Dependencies for sunmatrix examples
 SET(sunmatrix_sparse_dependencies
   test_sunmatrix
   sundials_nvector
@@ -35,47 +44,78 @@ INCLUDE_DIRECTORIES(. ..)
 
 # Specify libraries to link against (through the target that was used to 
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
-
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(NVECS_LIB sundials_nvecserial_static)
   SET(SUNMATS_LIB sundials_sunmatrixdense_static)
   LIST(APPEND SUNMATS_LIB sundials_sunmatrixband_static)
   LIST(APPEND SUNMATS_LIB sundials_sunmatrixsparse_static)
-ELSE(LINK_LIBRARY_TYPE MATCHES "static")
+ELSE()
   SET(NVECS_LIB sundials_nvecserial_shared)
   SET(SUNMATS_LIB sundials_sunmatrixdense_shared)
   LIST(APPEND SUNMATS_LIB sundials_sunmatrixband_shared)
   LIST(APPEND SUNMATS_LIB sundials_sunmatrixsparse_shared)
-ENDIF(LINK_LIBRARY_TYPE MATCHES "static")
+ENDIF()
 
 # Set-up linker flags and link libraries
-
 SET(SUNDIALS_LIBS ${NVECS_LIB} ${SUNMATS_LIB} ${EXTRA_LINK_LIBS})
 
-# Add the build and install targets for each sunmatrix example
 
-FOREACH(example ${sunmatrix_sparse_examples})
+# Add the build and install targets for each example
+FOREACH(example_tuple ${sunmatrix_sparse_examples})
 
+  # parse the example tuple
+  LIST(GET example_tuple 0 example)
+  LIST(GET example_tuple 1 example_args)
+  LIST(GET example_tuple 2 example_type)
+
+  # This is used to get around DLL linkage issue since we are
+  # manually including sundials_nvector.c here, which is normally in
+  # a library that is included.  If this is not set build system
+  # thinks nvector is externally linked.
   IF(WIN32)
     ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
   ENDIF(WIN32)
 
-  ADD_EXECUTABLE(${example} ${example}.c ../test_sunmatrix.c ../../../src/sundials/sundials_matrix.c ../../../src/sundials/sundials_nvector.c)
-  SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+  # check if this example has already been added, only need to add
+  # example source files once for testing with different inputs
+  IF(NOT TARGET ${example})
+    # example source files
+    ADD_EXECUTABLE(${example} ${example}.c
+      ../test_sunmatrix.c ../../../src/sundials/sundials_matrix.c
+      ../../../src/sundials/sundials_nvector.c)
 
-  SUNDIALS_ADD_TEST( ${example}_400_400_0_0 ${example} TEST_ARGS 400 400 0 0)
-  SUNDIALS_ADD_TEST( ${example}_450_450_1_0 ${example} TEST_ARGS 450 450 1 0)
-  SUNDIALS_ADD_TEST( ${example}_200_1000_0_0 ${example} TEST_ARGS 200 1000 0 0)
-  SUNDIALS_ADD_TEST( ${example}_6000_350_0_0 ${example} TEST_ARGS 6000 350 0 0)
-  SUNDIALS_ADD_TEST( ${example}_500_5000_1_0 ${example} TEST_ARGS 500 5000 1 0)
-  SUNDIALS_ADD_TEST( ${example}_4000_800_1_0 ${example} TEST_ARGS 4000 800 1 0)
+    # folder to organize targets in an IDE
+    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+    
+    # libraries to link against
+    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+  ENDIF()
 
-  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+  # check if example args are provided and set the test name
+  IF("${example_args}" STREQUAL "")
+    SET(test_name ${example})
+  ELSE()
+    STRING(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+  ENDIF()
 
+  # add example to regression tests
+  SUNDIALS_ADD_TEST(${test_name} ${example}
+    TEST_ARGS ${example_args}
+    EXAMPLE_TYPE ${example_type}
+    NODIFF)
+
+  # install example source files
   IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${example}.c ../test_sunmatrix.c ../test_sunmatrix.h ../../../src/sundials/sundials_matrix.c ../../../src/sundials/sundials_nvector.c DESTINATION ${EXAMPLES_INSTALL_PATH}/sunmatrix/sparse)
-  ENDIF(EXAMPLES_INSTALL)
-ENDFOREACH(example ${sunmatrix_sparse_examples})
+    INSTALL(FILES ${example}.c
+      ../test_sunmatrix.c
+      ../test_sunmatrix.h
+      ../../../src/sundials/sundials_matrix.c
+      ../../../src/sundials/sundials_nvector.c
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunmatrix/sparse)
+  ENDIF()
+
+ENDFOREACH(example_tuple ${sunmatrix_sparse_examples})
+
 
 IF(EXAMPLES_INSTALL)
 
@@ -90,8 +130,8 @@ IF(EXAMPLES_INSTALL)
   # The generated CMakeLists.txt does not use find_library() locate them
   SET(EXTRA_LIBS_DIR "${libdir}")
 
-  LIST2STRING(sunmatrix_sparse_examples EXAMPLES)
-  LIST2STRING(sunmatrix_sparse_dependencies EXAMPLES_DEPENDENCIES)
+  EXAMPLES2STRING(sunmatrix_sparse_examples EXAMPLES)
+  EXAMPLES2STRING(sunmatrix_sparse_dependencies EXAMPLES_DEPENDENCIES)
 
   # Regardless of the platform we're on, we will generate and install 
   # CMakeLists.txt file for building the examples. This file  can then 
@@ -99,10 +139,10 @@ IF(EXAMPLES_INSTALL)
 
   # generate CMakelists.txt in the binary directory
   CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/sunmatrix/sparse/CMakeLists.txt
-      @ONLY
-      )
+    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
+    ${PROJECT_BINARY_DIR}/examples/sunmatrix/sparse/CMakeLists.txt
+    @ONLY
+    )
 
   # install CMakelists.txt
   INSTALL(

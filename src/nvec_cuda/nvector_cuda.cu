@@ -1,5 +1,4 @@
-/*
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -14,10 +13,10 @@
  * -----------------------------------------------------------------
  * This is the implementation file for a serial implementation
  * of the NVECTOR package.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
-
+#include <stdio.h>
+#include <stdlib.h>
 
 #include <nvector/cuda/Vector.hpp>
 #include <nvector/cuda/VectorKernels.cuh>
@@ -237,20 +236,34 @@ void N_VCopyFromDevice_Cuda(N_Vector x)
   xv->copyFromDev();
 }
 
-
 /* ----------------------------------------------------------------------------
- * Function to print the a CUDA-based vector
+ * Function to print the a CUDA-based vector to stdout
  */
 
 void N_VPrint_Cuda(N_Vector x)
+{
+  N_VPrintFile_Cuda(x, stdout);
+}
+
+/* ----------------------------------------------------------------------------
+ * Function to print the a CUDA-based vector to outfile
+ */
+
+void N_VPrintFile_Cuda(N_Vector x, FILE *outfile)
 {
   sunindextype i;
   Vector<realtype, sunindextype>* xd = static_cast<Vector<realtype, sunindextype>*>(x->content);
 
   for (i = 0; i < xd->size(); i++) {
-    std::cout << xd->host()[i] << "\n";
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+    fprintf(outfile, "%35.32Lg\n", xd->host()[i]);
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
+    fprintf(outfile, "%19.16g\n", xd->host()[i]);
+#else
+    fprintf(outfile, "%11.8g\n", xd->host()[i]);
+#endif
   }
-  std::cout << "\n";
+  fprintf(outfile, "\n");
 
   return;
 }

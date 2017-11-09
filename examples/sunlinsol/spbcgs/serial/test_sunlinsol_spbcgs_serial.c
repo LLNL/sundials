@@ -96,6 +96,7 @@ sunindextype problem_size;
 int main(int argc, char *argv[]) 
 {
   int             fails=0;          /* counter for test failures */
+  int             passfail=0;       /* overall pass/fail flag    */
   SUNLinearSolver LS;               /* linear solver object      */
   N_Vector        xhat, x, b;       /* test vectors              */
   UserData        ProbData;         /* problem data structure    */
@@ -208,6 +209,7 @@ int main(int argc, char *argv[])
   /* Print result */
   if (fails) {
     printf("FAIL: SUNSPBCGS module, problem 1, failed %i tests\n\n", fails);
+    passfail += 1;
   } else {
     printf("SUCCESS: SUNSPBCGS module, problem 1, passed all tests\n\n");
   }
@@ -238,6 +240,7 @@ int main(int argc, char *argv[])
   /* Print result */
   if (fails) {
     printf("FAIL: SUNSPBCGS module, problem 2, failed %i tests\n\n", fails);
+    passfail += 1;
   } else {
     printf("SUCCESS: SUNSPBCGS module, problem 2, passed all tests\n\n");
   }
@@ -270,6 +273,7 @@ int main(int argc, char *argv[])
   /* Print result */
   if (fails) {
     printf("FAIL: SUNSPBCGS module, problem 3, failed %i tests\n\n", fails);
+    passfail += 1;
   } else {
     printf("SUCCESS: SUNSPBCGS module, problem 3, passed all tests\n\n");
   }
@@ -302,6 +306,7 @@ int main(int argc, char *argv[])
   /* Print result */
   if (fails) {
     printf("FAIL: SUNSPBCGS module, problem 4, failed %i tests\n\n", fails);
+    passfail += 1;
   } else {
     printf("SUCCESS: SUNSPBCGS module, problem 4, passed all tests\n\n");
   }
@@ -334,6 +339,7 @@ int main(int argc, char *argv[])
   /* Print result */
   if (fails) { 
     printf("FAIL: SUNSPBCGS module, problem 5, failed %i tests\n\n", fails);
+    passfail += 1;
   } else {
     printf("SUCCESS: SUNSPBCGS module, problem 5, passed all tests\n\n");
   }
@@ -366,6 +372,7 @@ int main(int argc, char *argv[])
   /* Print result */
   if (fails) {
     printf("FAIL: SUNSPBCGS module, problem 6, failed %i tests\n\n", fails);
+    passfail += 1;
   } else {
     printf("SUCCESS: SUNSPBCGS module, problem 6, passed all tests\n\n");
   }
@@ -380,7 +387,7 @@ int main(int argc, char *argv[])
   N_VDestroy(ProbData.s1);
   N_VDestroy(ProbData.s2);
 
-  return(0);
+  return(passfail);
 }
 
 
@@ -453,7 +460,7 @@ int PSolve(void* Data, N_Vector r_vec, N_Vector z_vec, realtype tol, int lr)
 /* uniform random number generator */
 static realtype urand()
 {
-  return (rand() / (pow(RCONST(2.0),RCONST(31.0)) - ONE));
+  return ((realtype) rand() / (realtype) RAND_MAX);
 }
 
 /* Check function return value based on "opt" input:

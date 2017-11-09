@@ -1,4 +1,4 @@
-%% This is a shared SUNDIALS TEX file with a description of the
+% This is a shared SUNDIALS TEX file with a description of the
 %% serial nvector implementation
 %%
 
@@ -172,10 +172,16 @@ The module {\nvecs} provides the following additional user-callable routines:
 \item \ID{N\_VPrint\_Serial}
 
  This function prints the content of a serial vector to \id{stdout}.
-
- 
  
  \verb|void N_VPrint_Serial(N_Vector v);|
+
+%%--------------------------------------
+
+\item \ID{N\_VPrintFile\_Serial}
+
+ This function prints the content of a serial vector to \id{outfile}.
+ 
+ \verb|void N_VPrintFile_Serial(N_Vector v, FILE *outfile);|
 
 \end{itemize}
 %%

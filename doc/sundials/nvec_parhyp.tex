@@ -127,11 +127,17 @@ N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count, N_Vector w);
 
 \item \ID{N\_VPrint\_ParHyp}
   
-  This function prints the content of a parhyp vector to stdout.
- 
+  This function prints the local content of a parhyp vector to \id{stdout}.
     
   \verb|void N_VPrint_ParHyp(N_Vector v);|
 
+%%--------------------------------------
+
+\item \ID{N\_VPrintFile\_ParHyp}
+  
+  This function prints the local content of a parhyp vector to \id{outfile}.
+    
+  \verb|void N_VPrintFile_ParHyp(N_Vector v, FILE *outfile);|
 
 \end{itemize}
 

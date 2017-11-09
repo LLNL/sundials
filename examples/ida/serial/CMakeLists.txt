@@ -15,15 +15,18 @@
 # CMakeLists.txt file for IDA serial examples
 # ---------------------------------------------------------------
 
+# Example lists are tuples "name\;type" where the type is
+# 'develop' for examples excluded from 'make test' in releases
+
 # Examples using SUNDIALS linear solvers
 SET(IDA_examples
-  idaFoodWeb_bnd
-  idaHeat2D_bnd
-  idaHeat2D_kry
-  idaFoodWeb_kry
-  idaKrylovDemo_ls
-  idaRoberts_dns
-  idaSlCrank_dns
+  "idaFoodWeb_bnd\;develop"
+  "idaHeat2D_bnd\;develop"
+  "idaHeat2D_kry\;develop"
+  "idaFoodWeb_kry\;develop"
+  "idaKrylovDemo_ls\;develop"
+  "idaRoberts_dns\;"
+  "idaSlCrank_dns\;develop"
   )
 
 # Examples using LAPACK linear solvers
@@ -32,17 +35,17 @@ SET(IDA_examples_BL
 
 # Examples using KLU linear solver
 SET(IDA_examples_KLU
-  idaRoberts_klu
-  idaHeat2D_klu
+  "idaRoberts_klu\;develop"
+  "idaHeat2D_klu\;develop"
   )
 
 # Examples using SuperLU_MT linear solver
 SET(IDA_examples_SUPERLUMT
-    idaRoberts_sps
-    #idaHeat2D_sps ... not ready yet ... incorrect answer.
+    "idaRoberts_sps\;develop"
+    #"idaHeat2D_sps\;develop" # not ready yet, incorrect answer.
     )
 
-# Specify libraries to link against (through the target that was used to 
+# Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(IDA_LIB sundials_ida_static)
@@ -57,15 +60,22 @@ SET(SUNDIALS_LIBS ${IDA_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 
 
 # Add the build and install targets for each example
-FOREACH(example ${IDA_examples})
+FOREACH(example_tuple ${IDA_examples})
+
+  # parse the example tuple
+  LIST(GET example_tuple 0 example)
+  LIST(GET example_tuple 1 example_type)
 
   # example source files
   ADD_EXECUTABLE(${example} ${example}.c)
 
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
-  # add to regression tests
-  SUNDIALS_ADD_TEST(${example} ${example})
+  # add example to regression tests
+  SUNDIALS_ADD_TEST(${example} ${example}
+    ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+    ANSWER_FILE ${example}.out
+    EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
@@ -76,7 +86,7 @@ FOREACH(example ${IDA_examples})
       DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
   ENDIF()
 
-ENDFOREACH(example ${IDA_examples})
+ENDFOREACH(example_tuple ${IDA_examples})
 
 
 # Add the build and install targets for each LAPACK example (if needed)
@@ -101,15 +111,22 @@ IF(LAPACK_FOUND)
     LIST(APPEND SUNLINSOLLAPACK_LIBS ${BLAS_LIBRARIES})
   ENDIF(BLAS_FOUND)
 
-  FOREACH(example ${IDA_examples_BL})
+  FOREACH(example_tuple ${IDA_examples_BL})
+
+    # parse the example tuple
+    LIST(GET example_tuple 0 example)
+    LIST(GET example_tuple 1 example_type)
 
     # example source files
     ADD_EXECUTABLE(${example} ${example}.c)
 
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
-    # add to regression tests
-    SUNDIALS_ADD_TEST(${example} ${example})
+    # add example to regression tests
+    SUNDIALS_ADD_TEST(${example} ${example}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${example}.out
+      EXAMPLE_TYPE ${example_type})
 
     # libraries to link against
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${SUNLINSOLLAPACK_LIBS})
@@ -120,7 +137,7 @@ IF(LAPACK_FOUND)
         DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
     ENDIF()
 
-  ENDFOREACH(example ${IDA_examples_BL})
+  ENDFOREACH(example_tuple ${IDA_examples_BL})
 
 ENDIF(LAPACK_FOUND)
 
@@ -138,15 +155,22 @@ IF(KLU_FOUND)
   # KLU libraries
   LIST(APPEND SUNLINSOLKLU_LIBS ${KLU_LIBRARIES})
 
-  FOREACH(example ${IDA_examples_KLU})
+  FOREACH(example_tuple ${IDA_examples_KLU})
+
+    # parse the example tuple
+    LIST(GET example_tuple 0 example)
+    LIST(GET example_tuple 1 example_type)
 
     # example source files
     ADD_EXECUTABLE(${example} ${example}.c)
 
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
-    # add to regression tests
-    SUNDIALS_ADD_TEST(${example} ${example})
+    # add example to regression tests
+    SUNDIALS_ADD_TEST(${example} ${example}
+      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+      ANSWER_FILE ${example}.out
+      EXAMPLE_TYPE ${example_type})
 
     # libraries to link against
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${SUNLINSOLKLU_LIBS})
@@ -157,7 +181,7 @@ IF(KLU_FOUND)
         DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
     ENDIF()
 
-  ENDFOREACH(example ${IDA_examples_KLU})
+  ENDFOREACH(example_tuple ${IDA_examples_KLU})
 
 ENDIF(KLU_FOUND)
 
@@ -180,7 +204,11 @@ IF(SUPERLUMT_FOUND)
     LIST(APPEND SUNLINSOLSLUMT_LIBS ${BLAS_LIBRARIES})
   ENDIF(BLAS_FOUND)
 
-  FOREACH(example ${IDA_examples_SUPERLUMT})
+  FOREACH(example_tuple ${IDA_examples_SUPERLUMT})
+
+    # parse the example tuple
+    LIST(GET example_tuple 0 example)
+    LIST(GET example_tuple 1 example_type)
 
     # example source files
     ADD_EXECUTABLE(${example} ${example}.c)
@@ -192,8 +220,11 @@ IF(SUPERLUMT_FOUND)
     # occur causing a false positive when testing. These tests can be re-enabled
     # when type specific answer files are added.
     IF(SUNDIALS_INDEX_TYPE MATCHES "INT32_T")
-      # add to regression tests
-      SUNDIALS_ADD_TEST(${example} ${example})
+      # add example to regression tests
+      SUNDIALS_ADD_TEST(${example} ${example}
+        ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+        ANSWER_FILE ${example}.out
+        EXAMPLE_TYPE ${example_type})
     ENDIF()
 
     # libraries to link against
@@ -205,7 +236,7 @@ IF(SUPERLUMT_FOUND)
         DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial)
     ENDIF()
 
-  ENDFOREACH(example ${IDA_examples_SUPERLUMT})
+  ENDFOREACH(example_tuple ${IDA_examples_SUPERLUMT})
 
 ENDIF(SUPERLUMT_FOUND)
 
@@ -220,45 +251,45 @@ IF(EXAMPLES_INSTALL)
   SET(SOLVER "IDA")
   SET(SOLVER_LIB "sundials_ida")
 
-  LIST2STRING(IDA_examples EXAMPLES)
+  EXAMPLES2STRING(IDA_examples EXAMPLES)
 
   IF(LAPACK_FOUND)
-    LIST2STRING(IDA_examples_BL EXAMPLES_BL)
+    EXAMPLES2STRING(IDA_examples_BL EXAMPLES_BL)
   ELSE()
     SET(EXAMPLES_BL "")
   ENDIF()
 
   IF(KLU_FOUND)
-    LIST2STRING(IDA_examples_KLU EXAMPLES_KLU)
+    EXAMPLES2STRING(IDA_examples_KLU EXAMPLES_KLU)
   ELSE()
     SET(EXAMPLES_KLU "")
   ENDIF()
 
   IF(SUPERLUMT_FOUND)
-    LIST2STRING(IDA_examples_SUPERLUMT EXAMPLES_SLUMT)
+    EXAMPLES2STRING(IDA_examples_SUPERLUMT EXAMPLES_SLUMT)
   ELSE()
     SET(EXAMPLES_SLUMT "")
   ENDIF()
 
-  # Regardless of the platform we're on, we will generate and install 
-  # CMakeLists.txt file for building the examples. This file  can then 
+  # Regardless of the platform we're on, we will generate and install
+  # CMakeLists.txt file for building the examples. This file  can then
   # be used as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
   CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/ida/serial/CMakeLists.txt
-      @ONLY
-      )
+    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
+    ${PROJECT_BINARY_DIR}/examples/ida/serial/CMakeLists.txt
+    @ONLY
+    )
 
   # install CMakelists.txt
   INSTALL(
     FILES ${PROJECT_BINARY_DIR}/examples/ida/serial/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial 
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial
     )
 
-  # On UNIX-type platforms, we also  generate and install a makefile for 
-  # building the examples. This makefile can then be used as a template 
+  # On UNIX-type platforms, we also  generate and install a makefile for
+  # building the examples. This makefile can then be used as a template
   # for the user's own programs.
 
   IF(UNIX)
@@ -270,10 +301,14 @@ IF(EXAMPLES_INSTALL)
       )
     # install the configured Makefile_ex as Makefile
     INSTALL(
-      FILES ${PROJECT_BINARY_DIR}/examples/ida/serial/Makefile_ex 
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial 
+      FILES ${PROJECT_BINARY_DIR}/examples/ida/serial/Makefile_ex
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/serial
       RENAME Makefile
       )
   ENDIF(UNIX)
+
+  # add test_install target
+  SUNDIALS_ADD_TEST_INSTALL(ida idaRoberts_dns
+    EXAMPLE_DIR ${EXAMPLES_INSTALL_PATH}/ida/serial)
 
 ENDIF(EXAMPLES_INSTALL)
