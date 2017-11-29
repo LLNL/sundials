@@ -1,3 +1,15 @@
+Changes to SUNDIALS since Release of Nov. 7, 2017.
+
+* Fixed a potential memory leak in the SPGMR and SPFGMR linear
+  solvers: if "Initialize" was called multiple times then the solver
+  memory was reallocated (without being freed). 
+  
+* Fixed a minor bug in the ARKReInit routine, where a flag was
+  incorrectly set to indicate that the problem had been resized
+  (instead of just re-initialized). 
+
+
+
 Changes to SUNDIALS since Release of Oct. 26, 2017.
 
 * Added NVECTOR print functions that write vector data to a specified
@@ -8,6 +20,8 @@ Changes to SUNDIALS since Release of Oct. 26, 2017.
   respectively.
 
 * Added "Changes in ..." (latest version) to Intro. in all User Guides.
+
+
 
 Changes to SUNDIALS since Release of Sept. 30, 2016.
 

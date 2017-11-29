@@ -484,7 +484,7 @@ int ARKodeReInit(void *arkode_mem, ARKRhsFn fe, ARKRhsFn fi,
   ark_mem->ark_irfnd        = 0;
 
   /* Indicate that problem size is new */
-  ark_mem->ark_resized = SUNTRUE;
+  ark_mem->ark_resized = SUNFALSE;
   ark_mem->ark_firststage = SUNTRUE;
 
   /* Initialize other integrator optional outputs */

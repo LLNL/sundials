@@ -56,7 +56,7 @@ Approved for public release; further dissemination unlimited
 }
 
 \title{User Documentation for ARKode v2.1.0\\
-       (SUNDIALS v3.1.0)}
+       (SUNDIALS v3.1.1)}
 \author{
   Daniel R. Reynolds$^1$, David J. Gardner$^2$, \\
   Alan C. Hindmarsh$^2$, Carol S. Woodward$^2$ \\
@@ -282,6 +282,15 @@ preconditioner routines.
 \section{Changes from previous versions}
 \label{Introduction:changes-from-previous-versions}
 
+\subsection{Changes in v2.1.1}
+\label{Introduction:changes-in-v2-1-1}
+Fixed a potential memory leak in the SPGMR and SPFGMR linear solvers:
+if ``Initialize'' was called multiple times then the solver memory was
+reallocated (without being freed).
+
+Fixed a minor bug in the ARKReInit routine, where a flag was
+incorrectly set to indicate that the problem had been resized (instead
+of just re-initialized).
 \subsection{Changes in v2.1.0}
 \label{Introduction:changes-in-v2-1-0}
 
@@ -291,6 +300,7 @@ file (e.g. \code{N\_VPrintFile\_Serial}).
 Added \code{make test} and \code{make test\_install} options to the build
 system for testing SUNDIALS after building with \code{make} and
 installing with \code{make install} respectively.
+
 
 \subsection{Changes in v2.0.0}
 \label{Introduction:changes-in-v2-0-0}
@@ -4960,14 +4970,11 @@ Specifies the order of accuracy for the integration method.
 values are \(3 \le\) \emph{ord} \(\le 5\).  Any illegal input
 will result in the default value of 4.
 
-\end{fulllineitems}
-
-\begin{description}
-\item[{z   Since \emph{ord} affects the memory requirements for the internal}] \leavevmode
+Since \emph{ord} affects the memory requirements for the internal
 ARKode memory block, it cannot be increased between calls to
 {\hyperref[c_interface/User_callable:c.ARKode]{\emph{\code{ARKode()}}}} unless {\hyperref[c_interface/User_callable:c.ARKodeReInit]{\emph{\code{ARKodeReInit()}}}} is called.
 
-\end{description}
+\end{fulllineitems}
 \index{ARKodeSetImEx (C function)}
 
 \begin{fulllineitems}
@@ -26825,19 +26832,18 @@ CMake configuration file. SUNDIALS was tested with RAJA version 0.3.
 
 
 \subsection{Testing the build and installation}
-\label{Install:testing-build-and-install}\label{Install:installation-cmake-testing}
-If SUNDIALS was configured with
-\code{EXAMPLES\_ENABLE\_$<$language$>$} options to \code{ON}, then a
-set of regression tests can be run after building with the \code{make}
-command by running: 
+\label{Install:testing-the-build-and-installation}\label{Install:installation-cmake-testing}
+If SUNDIALS was configured with \code{EXAMPLES\_ENABLE\_\textless{}language\textgreater{}} options
+to \code{ON}, then a set of regression tests can be run after building
+with the \code{make} command by running:
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZdl{} make test
+\PYGZpc{} make \PYG{n+nb}{test}
 \end{Verbatim}
-Additionally, if \code{EXAMPLES\_INSTALL} was also set to \code{ON}, then
-a set of smoke tests can be run after installing with the \code{make install}
+Additionally, if \code{EXAMPLES\_INSTALL} was also set to \code{ON}, then a
+set of smoke tests can be run after installing with the \code{make install}
 command by running:
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZdl{} make test\_install
+\PYGZpc{} make test\PYGZus{}install
 \end{Verbatim}
 
 

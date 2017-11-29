@@ -230,56 +230,65 @@ int SUNLinSolInitialize_SPFGMR(SUNLinearSolver S)
      choice of maxl) here */
 
   /*   Krylov subspace vectors */
-  content->V = N_VCloneVectorArray(content->maxl+1, content->vtemp);
   if (content->V == NULL) {
-    SUNLinSolFree(S);
-    content->last_flag = SUNLS_MEM_FAIL;
-    return(SUNLS_MEM_FAIL);
+    content->V = N_VCloneVectorArray(content->maxl+1, content->vtemp);
+    if (content->V == NULL) {
+      SUNLinSolFree(S);
+      content->last_flag = SUNLS_MEM_FAIL;
+      return(SUNLS_MEM_FAIL);
+    }
   }
 
   /*   Preconditioned basis vectors */
-  content->Z = N_VCloneVectorArray(content->maxl+1, content->vtemp);
   if (content->Z == NULL) {
-    SUNLinSolFree(S);
-    content->last_flag = SUNLS_MEM_FAIL;
-    return(SUNLS_MEM_FAIL);
-  }
-
-  /*   Hessenberg matrix Hes */
-  content->Hes = (realtype **) malloc((content->maxl+1)*sizeof(realtype *)); 
-  if (content->Hes == NULL) {
-    SUNLinSolFree(S);
-    content->last_flag = SUNLS_MEM_FAIL;
-    return(SUNLS_MEM_FAIL);
-  }
-
-  for (k=0; k<=content->maxl; k++) {
-    content->Hes[k] = NULL;
-    content->Hes[k] = (realtype *) malloc(content->maxl*sizeof(realtype));
-    if (content->Hes[k] == NULL) {
+    content->Z = N_VCloneVectorArray(content->maxl+1, content->vtemp);
+    if (content->Z == NULL) {
       SUNLinSolFree(S);
       content->last_flag = SUNLS_MEM_FAIL;
       return(SUNLS_MEM_FAIL);
     }
   }
   
+  /*   Hessenberg matrix Hes */
+  if (content->Hes == NULL) {
+    content->Hes = (realtype **) malloc((content->maxl+1)*sizeof(realtype *));
+    if (content->Hes == NULL) {
+      SUNLinSolFree(S);
+      content->last_flag = SUNLS_MEM_FAIL;
+      return(SUNLS_MEM_FAIL);
+    }
+
+    for (k=0; k<=content->maxl; k++) {
+      content->Hes[k] = NULL;
+      content->Hes[k] = (realtype *) malloc(content->maxl*sizeof(realtype));
+      if (content->Hes[k] == NULL) {
+        SUNLinSolFree(S);
+        content->last_flag = SUNLS_MEM_FAIL;
+        return(SUNLS_MEM_FAIL);
+      }
+    }
+  }
+  
   /*   Givens rotation components */
-  content->givens = NULL;
-  content->givens = (realtype *) malloc(2*content->maxl*sizeof(realtype));
   if (content->givens == NULL) {
-    SUNLinSolFree(S);
-    content->last_flag = SUNLS_MEM_FAIL;
-    return(SUNLS_MEM_FAIL);
+    content->givens = (realtype *) malloc(2*content->maxl*sizeof(realtype));
+    if (content->givens == NULL) {
+      SUNLinSolFree(S);
+      content->last_flag = SUNLS_MEM_FAIL;
+      return(SUNLS_MEM_FAIL);
+    }
   }
-
+  
   /*    y and g vectors */
-  content->yg = (realtype *) malloc((content->maxl+1)*sizeof(realtype));
   if (content->yg == NULL) {
-    SUNLinSolFree(S);
-    content->last_flag = SUNLS_MEM_FAIL;
-    return(SUNLS_MEM_FAIL);
+    content->yg = (realtype *) malloc((content->maxl+1)*sizeof(realtype));
+    if (content->yg == NULL) {
+      SUNLinSolFree(S);
+      content->last_flag = SUNLS_MEM_FAIL;
+      return(SUNLS_MEM_FAIL);
+    }
   }
-
+  
   /* return with success */
   content->last_flag = SUNLS_SUCCESS;
   return(SUNLS_SUCCESS);
