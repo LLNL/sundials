@@ -30,6 +30,20 @@
 
 #include <nvector/nvector_raja.h>
 
+#ifdef SUNDIALS_MPI_ENABLED
+
+#include <mpi.h>
+typedef MPI_Comm SUNDIALS_Comm;
+#warning "SUNDIALS_MPI_ENABLED is defined!\n"
+
+#else
+
+typedef int SUNDIALS_Comm;
+#warning "SUNDIALS_MPI_ENABLED not defined!\n"
+
+#endif // ifdef SUNDIALS_MPI_ENABLED
+
+
 namespace sunrajavec
 {
 

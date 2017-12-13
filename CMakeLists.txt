@@ -757,6 +757,10 @@ ENDIF(F77SCHEME_FOUND)
 # ---------------------------------------------------------------
 
 IF(MPI_ENABLE)
+  IF(MPI_ENABLE)
+    SET(IS_MPI_ENABLED "#define SUNDIALS_MPI_ENABLED 1")
+  ENDIF()
+
   # show command to run MPI codes (defaults to mpirun)
   SHOW_VARIABLE(MPI_RUN_COMMAND STRING "MPI run command" "mpirun")
 
@@ -844,6 +848,11 @@ if(CUDA_ENABLE)
   if (CUDA_FOUND)
     #message("CUDA found!")
     set(CUDA_NVCC_FLAGS "-lineinfo")
+    if(MPI_ENABLE)
+      set(CUDA_HOST_COMPILER ${MPI_MPICXX})
+    else()
+      message(STATUS "CUDA host compiler: ${CUDA_HOST_COMPILER}")
+    endif()
   else()
     message(STATUS "Disabling CUDA support, could not find CUDA.")
   endif()
