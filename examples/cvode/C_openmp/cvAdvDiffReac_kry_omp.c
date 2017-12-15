@@ -1,8 +1,5 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
  * Programmer(s): Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * Example problem:
@@ -14,15 +11,17 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include <omp.h>
+
 #include <cvode/cvode.h>
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver        */
 #include <cvode/cvode_spils.h>         /* access to CVSpils interface            */
-#include <nvector/nvector_cuda.h>
+#include <nvector/nvector_openmp.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
 
-#define SUNDIALS_HAVE_POSIX_TIMERS
-#define _POSIX_TIMERS
+//#define SUNDIALS_HAVE_POSIX_TIMERS
+//#define _POSIX_TIMERS
 
 #if defined( SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
 #include <time.h>
@@ -30,14 +29,14 @@
 #endif
 
 
-typedef struct _UserData
+
+typedef struct
 {
   sunindextype Nx;
   sunindextype Ny;
   sunindextype NEQ;
 
-  int block;
-  int grid;
+  int num_threads;
 
   realtype hx;
   realtype hy;
@@ -50,12 +49,12 @@ typedef struct _UserData
 
 } *UserData;
 
-//typedef _UserData *UserData;
-
 /* User defined functions */
 
 static N_Vector SetIC(UserData data);
 static UserData SetUserData(int argc, char *argv[]);
+static void Phiu(N_Vector u, N_Vector result, sunindextype NEQ, sunindextype Nx, sunindextype Ny,
+                 realtype hordc, realtype verdc, realtype horac, realtype verac);
 static int RHS(realtype t, N_Vector u, N_Vector udot, void *userData);
 static int Jtv(N_Vector v, N_Vector Jv, realtype t, N_Vector u, N_Vector fu, void *userData, N_Vector tmp);
 
@@ -78,16 +77,14 @@ static double get_time();
 
 int main(int argc, char *argv[])
 {
-  realtype abstol, reltol, t;
-  //realtype tout;
+  realtype abstol, reltol, t, tout;
   const realtype t_in = 0.0;
   const realtype t_fi = 0.1;
   N_Vector u;
   UserData data;
   SUNLinearSolver LS;
   void *cvode_mem;
-  //int iout;
-  int flag;
+  int iout, flag;
 
   u = NULL;
   data = NULL;
@@ -134,19 +131,18 @@ int main(int argc, char *argv[])
   if(check_flag(&flag, "CVSpilsSetJacTimes", 1)) return(1);
 
 
-  printf("Solving diffusion-advection-reaction problem with %ld unknowns...\n", data->NEQ);
+  printf("Solving diffusion-advection-reaction problem with %d unknowns...\n", data->NEQ);
 
   double start_time, stop_time;
   start_time = get_time();
   flag = CVode(cvode_mem, t_fi, u, &t, CV_NORMAL);
-  cudaDeviceSynchronize(); /* Ensures execution time is captured correctly */
   stop_time = get_time();
   PrintOutput(cvode_mem, u, t);
   if(check_flag(&flag, "CVode", 1))
     return (-1);
 
   printf("Computation successful!\n");
-  //printf("Execution time = %g\n", stop_time - start_time);
+  //printf("Execution time on %d threads = %g\n", data->num_threads, stop_time - start_time);
   printf("L2 norm = %14.6e\n", SUNRsqrt(N_VDotProd(u,u)));
   
   PrintFinalStats(cvode_mem);
@@ -172,8 +168,8 @@ N_Vector SetIC(UserData data)
   const realtype hx = data->hx;
   const realtype hy = data->hy;
 
-  N_Vector y     = N_VNew_Cuda(data->NEQ);
-  realtype *ydat = N_VGetHostArrayPointer_Cuda(y);
+  N_Vector y = N_VNew_OpenMP(data->NEQ, 4);
+  realtype *ydat = N_VGetArrayPointer(y);
   sunindextype i, j, index;
 
   for (index = 0; index < data->NEQ; ++index)
@@ -186,7 +182,6 @@ N_Vector SetIC(UserData data)
     realtype tmp = (1 - x) * x * (1 - y) * y;
     ydat[index] = (256.0 * tmp * tmp) + 0.3;
   }
-  N_VCopyToDevice_Cuda(y);
   return y;
 }
 
@@ -197,26 +192,28 @@ UserData SetUserData(int argc, char *argv[])
   const realtype diffusionConst =  0.01;
   const realtype advectionConst = -10.0;
   const realtype reactionConst  = 100.0;
-
-  const int maxthreads = 256;
-
+    
   /* Allocate user data structure */
   UserData ud = (UserData) malloc(sizeof *ud);
   if(check_flag((void*) ud, "AllocUserData", 2)) return(NULL);
 
+  /* Set the number of threads to use */
+  ud->num_threads = 1;     /* default value */
+#ifdef _OPENMP
+  ud->num_threads = omp_get_max_threads();  /* Overwrite with OMP_NUM_THREADS environment variable */
+#endif
+  if (argc == 2) {  /* Overwrite with command line values, if supplied */
+    ud->num_threads = strtol(argv[1], (char**) NULL, 10);
+  }
+
   /* Set grid size */
-  if (argc == 3) {
+  if (argc == 3) {   /* Overwrite grid size with command line values, if supplied */
     dimX = strtol(argv[1], (char**) NULL, 10);
     dimY = strtol(argv[2], (char**) NULL, 10);
   }
-
   ud->Nx = dimX + 1;
   ud->Ny = dimY + 1;
   ud->NEQ = ud->Nx * ud->Ny;
-
-  /* Set thread partitioning for GPU execution */
-  ud->block = maxthreads;
-  ud->grid  = (ud->NEQ + maxthreads - 1) / maxthreads;
     
   /* Compute cell sizes */
   ud->hx = 1.0/((realtype) dimX);
@@ -237,13 +234,13 @@ UserData SetUserData(int argc, char *argv[])
 }
 
 
-__global__ void phiKernel(const realtype *u, realtype *result, sunindextype NEQ, sunindextype Nx, sunindextype Ny,
-                          realtype hordc, realtype verdc, realtype horac, realtype verac)
+void Phiu(N_Vector u, N_Vector result, sunindextype NEQ, sunindextype Nx, sunindextype Ny,
+          realtype hordc, realtype verdc, realtype horac, realtype verac)
 {
-  sunindextype i, j, index;
+  const realtype *uData = N_VGetArrayPointer(u);
+  realtype *resultData = N_VGetArrayPointer(result);
 
-  /* Loop over all grid points. */
-  index = blockDim.x * blockIdx.x + threadIdx.x;
+  sunindextype i, j, index;
 
   realtype uij;
   realtype ult;
@@ -256,86 +253,66 @@ __global__ void phiKernel(const realtype *u, realtype *result, sunindextype NEQ,
   realtype hadv;
   realtype vadv;
 
-  if (index < NEQ)
+#pragma omp parallel for default(shared) private(index, i, j, uij, ult, urt, uup, udn, hdiff, vdiff, hadv, vadv)
+  for (index = 0; index < NEQ; ++index)
   {
     i = index%Nx;
     j = index/Nx;
 
-    uij = u[index];
+    uij = uData[index];
 
-    ult = (i == 0)    ? u[index + 1]  : u[index - 1];
-    urt = (i == Nx-1) ? u[index - 1]  : u[index + 1];
-    udn = (j == 0)    ? u[index + Nx] : u[index - Nx];
-    uup = (j == Ny-1) ? u[index - Nx] : u[index + Nx];
+    ult = (i == 0)    ? uData[index + 1]  : uData[index - 1];
+    urt = (i == Nx-1) ? uData[index - 1]  : uData[index + 1];
+    udn = (j == 0)    ? uData[index + Nx] : uData[index - Nx];
+    uup = (j == Ny-1) ? uData[index - Nx] : uData[index + Nx];
 
     hdiff =  hordc*(ult -2.0*uij + urt);
     vdiff =  verdc*(udn -2.0*uij + uup);
     hadv  = -horac*(urt - ult);
     vadv  = -verac*(uup - udn);
 
-    result[index] = hdiff + vdiff + hadv + vadv;
+    resultData[index] = hdiff + vdiff + hadv + vadv;
   }
 
 }
-
-
-__global__ void rhsKernel(const realtype* u, realtype* udot, sunindextype N, realtype reacc)
-{
-  const realtype a = -1.0 / 2.0;
-
-  /* Loop over all grid points. */
-  sunindextype tid = blockDim.x * blockIdx.x + threadIdx.x;
-
-  if(tid < N)
-  {
-    udot[tid] += (reacc*(u[tid] + a)*(1.0 - u[tid])*u[tid]);
-  }
-
-}
-
 
 int RHS(realtype t, N_Vector u, N_Vector udot, void *user_data)
 {
   UserData data = (UserData) user_data;
-  const int grid  = data->grid;
-  const int block = data->block;
+  const realtype *udata = N_VGetArrayPointer(u);
+  realtype *udotdata = N_VGetArrayPointer(udot);
 
-  const realtype *udata = N_VGetDeviceArrayPointer_Cuda(u);
-  realtype *udotdata    = N_VGetDeviceArrayPointer_Cuda(udot);
+  const realtype a = -1.0 / 2.0;
+  sunindextype i;
 
-  phiKernel<<<grid,block>>>(udata, udotdata, data->NEQ, data->Nx, data->Ny, data->hordc, data->verdc, data->horac, data->verac);
-  rhsKernel<<<grid,block>>>(udata, udotdata, data->NEQ, data->reacc);
+  Phiu(u, udot, data->NEQ, data->Nx, data->Ny, data->hordc, data->verdc, data->horac, data->verac);
+
+#pragma omp parallel for default(shared) private(i)
+  for(i=0; i<data->NEQ; ++i)
+  {
+    udotdata[i] += (data->reacc*(udata[i] + a)*(1.0 - udata[i])*udata[i]);
+  }
 
   return 0;
 }
 
-__global__ void jtvKernel(const realtype* v, realtype* Jv, const realtype* u, sunindextype N, realtype reacc)
-{
-  const realtype a = -1.0 / 2.0;
-
-  /* Loop over all grid points. */
-  sunindextype tid = blockDim.x * blockIdx.x + threadIdx.x;
-
-  if(tid < N)
-  {
-    Jv[tid] += reacc*(3.0*u[tid] + a - 3.0*u[tid]*u[tid])*v[tid]; // original
-  }
-
-}
-
-
 int Jtv(N_Vector v, N_Vector Jv, realtype t, N_Vector u, N_Vector fu, void *user_data, N_Vector tmp)
 {
   UserData data = (UserData) user_data;
-  const int grid  = data->grid;
-  const int block = data->block;
+  realtype *udata = N_VGetArrayPointer(u);
+  realtype *vdata = N_VGetArrayPointer(v);
+  realtype *Jvdata = N_VGetArrayPointer(Jv);
 
-  const realtype *udata  = N_VGetDeviceArrayPointer_Cuda(u);
-  const realtype *vdata  = N_VGetDeviceArrayPointer_Cuda(v);
-  realtype *Jvdata       = N_VGetDeviceArrayPointer_Cuda(Jv);
+  const realtype a = -1.0 / 2.0;
+  sunindextype i;
 
-  phiKernel<<<grid,block>>>(vdata, Jvdata, data->NEQ, data->Nx, data->Ny, data->hordc, data->verdc, data->horac, data->verac);
-  jtvKernel<<<grid,block>>>(vdata, Jvdata, udata, data->NEQ, data->reacc);
+  Phiu(v, Jv, data->NEQ, data->Nx, data->Ny, data->hordc, data->verdc, data->horac, data->verac);
+
+#pragma omp parallel for default(shared) private(i)
+  for(i=0; i<data->NEQ; ++i)
+  {
+    Jvdata[i] += data->reacc*(3.0*udata[i] + a - 3.0*udata[i]*udata[i])*vdata[i];
+  }
 
   return 0;
 }  
@@ -355,10 +332,9 @@ static void PrintOutput(void *cvode_mem, N_Vector u, realtype t)
 {
   long int nst;
   int qu, flag;
-  realtype hu;
-  //realtype *udata;
+  realtype hu, *udata;
 
-  //udata = N_VGetArrayPointer_Serial(u);
+  udata = N_VGetArrayPointer(u);
 
   flag = CVodeGetNumSteps(cvode_mem, &nst);
   check_flag(&flag, "CVodeGetNumSteps", 1);
@@ -373,8 +349,8 @@ static void PrintOutput(void *cvode_mem, N_Vector u, realtype t)
 
 static void PrintFinalStats(void *cvode_mem)
 {
-  long lenrw, leniw ;
-  long lenrwLS, leniwLS;
+  sunindextype lenrw, leniw ;
+  sunindextype lenrwLS, leniwLS;
   long int nst, nfe, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS;
   int flag;
@@ -484,7 +460,7 @@ void SetTiming(int onoff)
 static double get_time()
 {
 #if defined( SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
-  struct timespec spec;
+  struct timespec spec;  
   clock_gettime( CLOCK_MONOTONIC_RAW, &spec );
   double time = (double)(spec.tv_sec - base_time_tv_sec) + ((double)(spec.tv_nsec) / 1E9);
 #else

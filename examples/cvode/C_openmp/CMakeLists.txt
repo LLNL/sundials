@@ -30,6 +30,7 @@ IF(OPENMP_FOUND)
   # Examples using SUNDIALS linear solvers
   SET(CVODE_examples
     "cvAdvDiff_bnd_omp\;4\;develop"
+    "cvAdvDiffReac_kry_omp\;4\;develop"
     )
 
 ENDIF(OPENMP_FOUND)

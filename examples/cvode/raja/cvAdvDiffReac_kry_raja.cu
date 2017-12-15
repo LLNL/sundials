@@ -15,9 +15,9 @@
 #include <math.h>
 
 #include <cvode/cvode.h>
-#include <cvode/cvode_spgmr.h>
+#include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver        */
+#include <cvode/cvode_spils.h>         /* access to CVSpils interface            */
 #include <nvector/nvector_raja.h>
-#include <nvector/raja/Vector.hpp>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
 
@@ -86,6 +86,7 @@ int main(int argc, char *argv[])
   const realtype t_fi = 0.1;
   N_Vector u;
   UserData data;
+  SUNLinearSolver LS;
   void *cvode_mem;
   //int iout;
   int flag;
@@ -121,14 +122,18 @@ int main(int argc, char *argv[])
   flag = CVodeSStolerances(cvode_mem, reltol, abstol);
   if (check_flag(&flag, "CVodeSStolerances", 1)) return(1);
 
-  /* Call CVSpgmr to specify the linear solver CVSPGMR 
-   * with left preconditioning and the maximum Krylov dimension maxl */
-  flag = CVSpgmr(cvode_mem, PREC_NONE, 0);
-  if(check_flag(&flag, "CVSpgmr", 1)) return(1);
+  /* Create SPGMR solver structure without preconditioning
+   * and the maximum Krylov dimension maxl */
+  LS = SUNSPGMR(u, PREC_NONE, 0);
+  if(check_flag(&flag, "SUNSPGMR", 1)) return(1);
+
+  /* Set CVSpils linear solver to LS */
+  flag = CVSpilsSetLinearSolver(cvode_mem, LS);
+  if(check_flag(&flag, "CVSpilsSetLinearSolver", 1)) return(1);
 
   /* set the JAcobian-times-vector function */
-  flag = CVSpilsSetJacTimesVecFn(cvode_mem, Jtv);
-  if(check_flag(&flag, "CVSpilsSetJacTimesVecFn", 1)) return(1);
+  flag = CVSpilsSetJacTimes(cvode_mem, NULL, Jtv);
+  if(check_flag(&flag, "CVSpilsSetJacTimes", 1)) return(1);
 
 
   printf("Solving diffusion-advection-reaction problem with %ld unknowns...\n", data->NEQ);
