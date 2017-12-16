@@ -571,7 +571,10 @@ realtype N_VL1Norm_Raja(N_Vector X)
     gpu_result += (abs(xdata[i]));
   });
 
-  return static_cast<realtype>(gpu_result);
+  /* Reduce across MPI processes */
+  realtype sum = static_cast<realtype>(gpu_result);
+  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  return VAllReduce_Raja(sum, 1, comm);
 }
 
 void N_VCompare_Raja(realtype c, N_Vector X, N_Vector Z)
@@ -600,7 +603,12 @@ booleantype N_VInvTest_Raja(N_Vector x, N_Vector z)
     }
   });
 
-  return (static_cast<realtype>(gpu_result) < HALF);
+  /* Reduce across MPI processes */
+  realtype minimum = static_cast<realtype>(gpu_result);
+  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(x);
+  realtype global_minimum = VAllReduce_Raja(minimum, 3, comm);
+
+  return (global_minimum < HALF);
 }
 
 booleantype N_VConstrMask_Raja(N_Vector c, N_Vector x, N_Vector m)
@@ -618,7 +626,12 @@ booleantype N_VConstrMask_Raja(N_Vector c, N_Vector x, N_Vector m)
     gpu_result += mdata[i];
   });
 
-  return (static_cast<realtype>(gpu_result) < HALF);
+  /* Reduce across MPI processes */
+  realtype minimum = static_cast<realtype>(gpu_result);
+  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(x);
+  realtype global_minimum = VAllReduce_Raja(minimum, 3, comm);
+
+  return (global_minimum < HALF);
 }
 
 realtype N_VMinQuotient_Raja(N_Vector num, N_Vector denom)
@@ -633,7 +646,10 @@ realtype N_VMinQuotient_Raja(N_Vector num, N_Vector denom)
       gpu_result.min(ndata[i]/ddata[i]);
   });
 
-  return (static_cast<realtype>(gpu_result));
+  /* Reduce across MPI processes */
+  realtype minimum = static_cast<realtype>(gpu_result);
+  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(num);
+  return VAllReduce_Raja(minimum, 3, comm);
 }
 
 
