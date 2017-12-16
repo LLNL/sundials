@@ -17,6 +17,8 @@
 
 #include <nvector/raja/Vector.hpp>
 #include <RAJA/RAJA.hpp>
+#include <sundials/sundials_mpi_types.h>
+
 
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
@@ -28,6 +30,7 @@ extern "C" {
 using namespace sunrajavec;
 
 static constexpr sunindextype zeroIdx = 0;
+static realtype VAllReduce_Raja(realtype d, int op, MPI_Comm comm);
 
 /* ----------------------------------------------------------------
  * Returns vector type ID. Used to identify vector implementation
@@ -92,15 +95,17 @@ N_Vector N_VNewEmpty_Raja(sunindextype length)
 }
 
     
-N_Vector N_VNew_Raja(sunindextype length)
+N_Vector N_VNew_Raja(SUNDIALS_Comm comm, 
+                     sunindextype local_length,
+                     sunindextype global_length)
 {
   N_Vector v;
 
   v = NULL;
-  v = N_VNewEmpty_Raja(length);
+  v = N_VNewEmpty_Raja(local_length);
   if (v == NULL) return(NULL);
 
-  v->content = new Vector<realtype, sunindextype>(length);
+  v->content = new Vector<realtype, sunindextype>(comm, local_length, global_length);
 
   return(v);
 }
@@ -466,7 +471,10 @@ realtype N_VDotProd_Raja(N_Vector X, N_Vector Y)
     gpu_result += xdata[i] * ydata[i] ;
   });
 
-  return static_cast<realtype>(gpu_result);
+  /* Reduce across MPI processes */
+  realtype sum = static_cast<realtype>(gpu_result);
+  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  return VAllReduce_Raja(sum, 1, comm);
 }
 
 realtype N_VMaxNorm_Raja(N_Vector X)
@@ -479,7 +487,10 @@ realtype N_VMaxNorm_Raja(N_Vector X)
     gpu_result.max(abs(xdata[i]));
   });
 
-  return static_cast<realtype>(gpu_result);
+  /* Reduce across MPI processes */
+  realtype maximum = static_cast<realtype>(gpu_result);
+  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  return VAllReduce_Raja(maximum, 2, comm);
 }
 
 realtype N_VWrmsNorm_Raja(N_Vector X, N_Vector W)
@@ -493,7 +504,10 @@ realtype N_VWrmsNorm_Raja(N_Vector X, N_Vector W)
     gpu_result += (xdata[i] * wdata[i] * xdata[i] * wdata[i]);
   });
 
-  return std::sqrt(static_cast<realtype>(gpu_result)/N);
+  /* Reduce across MPI processes */
+  realtype sum = static_cast<realtype>(gpu_result);
+  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  return std::sqrt(VAllReduce_Raja(sum, 1, comm)/N);
 }
 
 realtype N_VWrmsNormMask_Raja(N_Vector X, N_Vector W, N_Vector ID)
@@ -508,7 +522,10 @@ realtype N_VWrmsNormMask_Raja(N_Vector X, N_Vector W, N_Vector ID)
     gpu_result += (xdata[i] * wdata[i] * xdata[i] * wdata[i] * iddata[i]);
   });
 
-  return std::sqrt(static_cast<realtype>(gpu_result)/N);
+  /* Reduce across MPI processes */
+  realtype sum = static_cast<realtype>(gpu_result);
+  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  return std::sqrt(VAllReduce_Raja(sum, 1, comm)/N);
 }
 
 realtype N_VMin_Raja(N_Vector X)
@@ -521,7 +538,10 @@ realtype N_VMin_Raja(N_Vector X)
     gpu_result.min(xdata[i]);
   });
 
-  return static_cast<realtype>(gpu_result);
+  /* Reduce across MPI processes */
+  realtype minumum = static_cast<realtype>(gpu_result);
+  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  return VAllReduce_Raja(minumum, 3, comm);
 }
 
 realtype N_VWL2Norm_Raja(N_Vector X, N_Vector W)
@@ -535,7 +555,10 @@ realtype N_VWL2Norm_Raja(N_Vector X, N_Vector W)
     gpu_result += (xdata[i] * wdata[i] * xdata[i] * wdata[i]);
   });
 
-  return std::sqrt(static_cast<realtype>(gpu_result));
+  /* Reduce across MPI processes */
+  realtype sum = static_cast<realtype>(gpu_result);
+  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  return std::sqrt(VAllReduce_Raja(sum, 1, comm));
 }
 
 realtype N_VL1Norm_Raja(N_Vector X)
@@ -611,6 +634,50 @@ realtype N_VMinQuotient_Raja(N_Vector num, N_Vector denom)
   });
 
   return (static_cast<realtype>(gpu_result));
+}
+
+
+/*
+ * -----------------------------------------------------------------
+ * private functions
+ * -----------------------------------------------------------------
+ */
+
+static realtype VAllReduce_Raja(realtype d, int op, SUNDIALS_Comm comm)
+{
+  /* 
+   * This function does a global reduction.  The operation is
+   *   sum if op = 1,
+   *   max if op = 2,
+   *   min if op = 3.
+   * The operation is over all processors in the communicator 
+   */
+
+#ifdef SUNDIALS_MPI_ENABLED
+
+  realtype out;
+
+  switch (op) {
+   case 1: MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
+           break;
+
+   case 2: MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_MAX, comm);
+           break;
+
+   case 3: MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_MIN, comm);
+           break;
+
+   default: break;
+  }
+
+  return(out);
+
+#else
+  
+  /* If MPI is not enabled don't do reduction */
+  return d;
+
+#endif // ifdef SUNDIALS_MPI_ENABLED
 }
 
 

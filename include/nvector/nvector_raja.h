@@ -46,6 +46,21 @@
 
 #include <sundials/sundials_nvector.h>
 
+#ifdef SUNDIALS_MPI_ENABLED
+
+#include <mpi.h>
+typedef MPI_Comm SUNDIALS_Comm;
+#warning "SUNDIALS_MPI_ENABLED is defined!\n"
+
+#else
+
+typedef int SUNDIALS_Comm;
+#warning "SUNDIALS_MPI_ENABLED not defined!\n"
+
+#endif // ifdef SUNDIALS_MPI_ENABLED
+
+
+
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
@@ -99,7 +114,9 @@ typedef struct _N_VectorContent_Raja *N_VectorContent_Raja;
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNew_Raja(sunindextype vec_length);
+SUNDIALS_EXPORT N_Vector N_VNew_Raja(SUNDIALS_Comm comm, 
+                                     sunindextype local_length,
+                                     sunindextype global_length);
 
 /*
  * -----------------------------------------------------------------
@@ -110,7 +127,7 @@ SUNDIALS_EXPORT N_Vector N_VNew_Raja(sunindextype vec_length);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNewEmpty_Raja(sunindextype vec_length);
+SUNDIALS_EXPORT N_Vector N_VNewEmpty_Raja(sunindextype local_length);
 
 /*
  * -----------------------------------------------------------------

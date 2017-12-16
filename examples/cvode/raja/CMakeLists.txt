@@ -63,8 +63,7 @@ FOREACH(example_tuple ${CVODE_examples})
     EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
-  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
-
+  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} /usr/lib64/mpich/lib/libmpich.so)
   # install example source and out files
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.cu ${example}.out

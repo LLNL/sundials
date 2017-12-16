@@ -116,7 +116,7 @@ int main(int argc, char** argv)
   abstol = ATOL;
 
   /* Create a RAJA vector with initial values */
-  u = N_VNew_Raja(data->NEQ);  /* Allocate u vector */
+  u = N_VNew_Raja(0, data->NEQ, data->NEQ);  /* Allocate u vector */
   if(check_flag((void*)u, "N_VNew_Raja", 0)) return(1);
 
   SetIC(u, data);  /* Initialize u vector */

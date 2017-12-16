@@ -30,19 +30,6 @@
 
 #include <nvector/nvector_raja.h>
 
-#ifdef SUNDIALS_MPI_ENABLED
-
-#include <mpi.h>
-typedef MPI_Comm SUNDIALS_Comm;
-#warning "SUNDIALS_MPI_ENABLED is defined!\n"
-
-#else
-
-typedef int SUNDIALS_Comm;
-#warning "SUNDIALS_MPI_ENABLED not defined!\n"
-
-#endif // ifdef SUNDIALS_MPI_ENABLED
-
 
 namespace sunrajavec
 {
@@ -51,7 +38,18 @@ template <typename T, typename I>
 class Vector : public _N_VectorContent_Raja
 {
 public:
-  Vector(I N) : size_(N), mem_size_(N*sizeof(T))
+  Vector(I N) 
+  : size_(N), 
+    mem_size_(N*sizeof(T)),
+    comm_(0)
+  {
+    allocate();
+  }
+
+  Vector(SUNDIALS_Comm comm, I N, I Nglobal) 
+  : size_(N), 
+    mem_size_(N*sizeof(T)), 
+    comm_(comm)
   {
     allocate();
   }
@@ -59,7 +57,8 @@ public:
   /// Copy constructor does not copy values
   explicit Vector(const Vector& v)
   : size_(v.size()),
-    mem_size_(size_*sizeof(T))
+    mem_size_(size_*sizeof(T)),
+    comm_(v.comm_)
   {
     allocate();
   }
@@ -95,6 +94,11 @@ public:
     return size_;
   }
 
+  SUNDIALS_Comm comm()
+  {
+    return comm_;
+  }
+  
   T* host()
   {
     return h_vec_;
@@ -134,6 +138,7 @@ private:
   I mem_size_;
   T* h_vec_;
   T* d_vec_;
+  SUNDIALS_Comm comm_;
 };
 
 
@@ -161,6 +166,14 @@ inline I getSize(N_Vector v)
 {
   Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
   return vp->size();
+}
+
+// Get MPI communicator
+template <typename T, typename I>
+inline SUNDIALS_Comm getMPIComm(N_Vector v)
+{
+  Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
+  return vp->comm();
 }
 
 

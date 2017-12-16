@@ -174,7 +174,7 @@ N_Vector SetIC(UserData data)
   const realtype hx = data->hx;
   const realtype hy = data->hy;
 
-  N_Vector u = N_VNew_Raja(data->NEQ);
+  N_Vector u = N_VNew_Raja(0, data->NEQ, data->NEQ);
   realtype *udat = N_VGetHostArrayPointer_Raja(u);
 
   sunindextype i, j, index;

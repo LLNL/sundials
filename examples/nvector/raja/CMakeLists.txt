@@ -19,7 +19,8 @@
 
 # Examples using SUNDIALS raja nvector
 SET(nvector_raja_examples
-  "test_nvector_raja\;10000 0\;"
+  #"test_nvector_raja\;10000 0\;"
+  "test_nvector_raja"
   )
 
 # Dependencies for nvector examples
@@ -49,8 +50,8 @@ FOREACH(example_tuple ${nvector_raja_examples})
 
   # parse the example tuple
   LIST(GET example_tuple 0 example)
-  LIST(GET example_tuple 1 example_args)
-  LIST(GET example_tuple 2 example_type)
+  #LIST(GET example_tuple 1 example_args)
+  #LIST(GET example_tuple 2 example_type)
 
   # This is used to get around DLL linkage issue since we are
   # manually including sundials_nvector.c here, which is normally in
@@ -70,7 +71,7 @@ FOREACH(example_tuple ${nvector_raja_examples})
     
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
-    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${CUDA_LIBRARIES})
+    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${CUDA_LIBRARIES} /usr/lib64/mpich/lib/libmpich.so)
   ENDIF()
 
   # check if example args are provided and set the test name

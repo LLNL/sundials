@@ -30,34 +30,49 @@
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[]) 
 {
-  int          fails = 0;   /* counter for test failures  */
-  sunindextype veclen;      /* vector length              */
-  N_Vector     W, X, Y, Z;  /* test vectors               */
-  int print_timing;
+  int           fails = 0;   /* counter for test failures  */
+  sunindextype  veclen;      /* vector length              */
+  N_Vector      W, X, Y, Z;  /* test vectors               */
+  SUNDIALS_Comm comm;
+  int           nprocs, myid;                /* Number of procs, proc id  */
+  int           print_timing;
+  sunindextype  global_length;
   /*  sunindextype liw, lrw; */
 
 
-  /* check input and set vector length */
-  if (argc < 3){
-    printf("ERROR: TWO (2) Inputs required: vector length, print timing \n");
-    return(-1);
-  }
+//   /* check input and set vector length */
+//   if (argc < 3){
+//     printf("ERROR: TWO (2) Inputs required: vector length, print timing \n");
+//     return(-1);
+//   }
+// 
+//   veclen = atol(argv[1]); 
+//   if (veclen <= 0) {
+//     printf("ERROR: length of vector must be a positive integer \n");
+//     return(-1); 
+//   }
+// 
+//   print_timing = atoi(argv[2]);
+//   SetTiming(print_timing);
 
-  veclen = atol(argv[1]); 
-  if (veclen <= 0) {
-    printf("ERROR: length of vector must be a positive integer \n");
-    return(-1); 
-  }
+  veclen = 1000;
 
-  print_timing = atoi(argv[2]);
-  SetTiming(print_timing);
-
+#ifdef SUNDIALS_MPI_ENABLED
+  /* Get processor number and total number of processes */
+  MPI_Init(&argc, &argv);
+  comm = MPI_COMM_WORLD;
+  MPI_Comm_size(comm, &nprocs);
+  MPI_Comm_rank(comm, &myid);
+  global_length = nprocs*veclen;
+#else
+  comm = 0;
+#endif
 
   printf("\nRunning with vector length %ld \n\n", (long) veclen);
 
   /* Create vectors */
   W = N_VNewEmpty_Raja(veclen);
-  X = N_VNew_Raja(veclen);
+  X = N_VNew_Raja(comm, veclen, global_length);
 
   /* NVector Tests */
   
@@ -113,6 +128,11 @@ int main(int argc, char *argv[])
     printf("SUCCESS: NVector module passed all tests \n \n");
   }
 
+#ifdef SUNDIALS_MPI_ENABLED
+  MPI_Finalize();
+#endif
+
+  
   return(fails);
 }
 
