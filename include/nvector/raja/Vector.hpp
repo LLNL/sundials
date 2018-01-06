@@ -38,17 +38,18 @@ template <typename T, typename I>
 class Vector : public _N_VectorContent_Raja
 {
 public:
-  Vector(I N) 
-  : size_(N), 
+  Vector(I N)
+  : size_(N),
     mem_size_(N*sizeof(T)),
     comm_(0)
   {
     allocate();
   }
 
-  Vector(SUNDIALS_Comm comm, I N, I Nglobal) 
-  : size_(N), 
-    mem_size_(N*sizeof(T)), 
+  Vector(SUNDIALS_Comm comm, I N, I Nglobal)
+  : size_(N),
+    mem_size_(N*sizeof(T)),
+    global_size_(Nglobal),
     comm_(comm)
   {
     allocate();
@@ -94,11 +95,16 @@ public:
     return size_;
   }
 
+  int sizeGlobal() const
+  {
+    return global_size_;
+  }
+
   SUNDIALS_Comm comm()
   {
     return comm_;
   }
-  
+
   T* host()
   {
     return h_vec_;
@@ -136,6 +142,7 @@ public:
 private:
   I size_;
   I mem_size_;
+  I global_size_;
   T* h_vec_;
   T* d_vec_;
   SUNDIALS_Comm comm_;
@@ -166,6 +173,14 @@ inline I getSize(N_Vector v)
 {
   Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
   return vp->size();
+}
+
+// Get Vector length
+template <typename T, typename I>
+inline I getGlobalSize(N_Vector v)
+{
+  Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
+  return vp->sizeGlobal();
 }
 
 // Get MPI communicator

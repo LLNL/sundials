@@ -1,10 +1,10 @@
-/* ----------------------------------------------------------------- 
+/* -----------------------------------------------------------------
  * Programmer(s): Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Lawrence Livermore National Laboratory in part under
  * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
@@ -12,7 +12,7 @@
  * LLNS Copyright End
  * -----------------------------------------------------------------
  * This is the testing routine to check the NVECTOR Raja module
- * implementation. 
+ * implementation.
  * -----------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -28,7 +28,7 @@
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
  * --------------------------------------------------------------------*/
-int main(int argc, char *argv[]) 
+int main(int argc, char *argv[])
 {
   int           fails = 0;   /* counter for test failures  */
   sunindextype  veclen;      /* vector length              */
@@ -45,13 +45,13 @@ int main(int argc, char *argv[])
 //     printf("ERROR: TWO (2) Inputs required: vector length, print timing \n");
 //     return(-1);
 //   }
-// 
-//   veclen = atol(argv[1]); 
+//
+//   veclen = atol(argv[1]);
 //   if (veclen <= 0) {
 //     printf("ERROR: length of vector must be a positive integer \n");
-//     return(-1); 
+//     return(-1);
 //   }
-// 
+//
 //   print_timing = atoi(argv[2]);
 //   SetTiming(print_timing);
 
@@ -75,9 +75,9 @@ int main(int argc, char *argv[])
   X = N_VNew_Raja(comm, veclen, global_length);
 
   /* NVector Tests */
-  
+
   /* Raja specific tests */
-  
+
   /* Memory allocation tests */
   fails += Test_N_VCloneEmpty(X, 0);
   fails += Test_N_VClone(X, veclen, 0);
@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
   /* Skipped tests */
   /*   fails += Test_N_VSetArrayPointer(W, veclen, 0); */
   /*   fails += Test_N_VGetArrayPointer(X, veclen, 0); */
-  
+
   /* Vector operation tests */
   fails += Test_N_VConst(X, veclen, 0);
   fails += Test_N_VLinearSum(X, Y, Z, veclen, 0);
@@ -100,13 +100,13 @@ int main(int argc, char *argv[])
   fails += Test_N_VAbs(X, Z, veclen, 0);
   fails += Test_N_VInv(X, Z, veclen, 0);
   fails += Test_N_VAddConst(X, Z, veclen, 0);
-  fails += Test_N_VDotProd(X, Y, veclen, veclen, 0);
+  fails += Test_N_VDotProd(X, Y, veclen, global_length, 0);
   fails += Test_N_VMaxNorm(X, veclen, 0);
   fails += Test_N_VWrmsNorm(X, Y, veclen, 0);
-  fails += Test_N_VWrmsNormMask(X, Y, Z, veclen, veclen, 0);
+  fails += Test_N_VWrmsNormMask(X, Y, Z, veclen, global_length, 0);
   fails += Test_N_VMin(X, veclen, 0);
-  fails += Test_N_VWL2Norm(X, Y, veclen, veclen, 0);
-  fails += Test_N_VL1Norm(X, veclen, veclen, 0);
+  fails += Test_N_VWL2Norm(X, Y, veclen, global_length, 0);
+  fails += Test_N_VL1Norm(X, veclen, global_length, 0);
   fails += Test_N_VCompare(X, Z, veclen, 0);
   fails += Test_N_VInvTest(X, Z, veclen, 0);
   fails += Test_N_VConstrMask(X, Y, Z, veclen, 0);
@@ -114,7 +114,7 @@ int main(int argc, char *argv[])
 
   /*  N_VSpace_Raja(X, &lrw, &liw);               */
   /*  printf("lrw = %ld, liw = %ld\n", lrw, liw); */
-  
+
   /* Free vectors */
   N_VDestroy_Raja(W);
   N_VDestroy_Raja(X);
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
   MPI_Finalize();
 #endif
 
-  
+
   return(fails);
 }
 
@@ -145,9 +145,9 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
   sunindextype i;
   sunrajavec::Vector<double, sunindextype>* xv = sunrajavec::extract<realtype, sunindextype>(X);
   realtype *xdata;
-  
+
   xv->copyFromDev();
-  
+
   xdata = xv->host();
   /* check vector data */
   for(i=0; i < local_length; i++){
