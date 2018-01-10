@@ -1,10 +1,10 @@
-/* ----------------------------------------------------------------- 
+/* -----------------------------------------------------------------
  * Programmer(s): Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Lawrence Livermore National Laboratory in part under
  * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
@@ -27,8 +27,8 @@
  *     in the header file sundials_nvector.h.
  *
  *   - The definition of the type 'realtype' can be found in the
- *     header file sundials_types.h, and it may be changed (at the 
- *     configuration stage) according to the user's needs. 
+ *     header file sundials_types.h, and it may be changed (at the
+ *     configuration stage) according to the user's needs.
  *     The sundials_types.h file also contains the definition
  *     for the type 'booleantype'.
  *
@@ -50,7 +50,7 @@
 
 #include <mpi.h>
 typedef MPI_Comm SUNDIALS_Comm;
-#warning "SUNDIALS_MPI_ENABLED is defined!\n"
+// #warning "SUNDIALS_MPI_ENABLED is defined!\n"
 
 #else
 
@@ -65,8 +65,8 @@ typedef int SUNDIALS_Comm;
 extern "C" {
 #endif
 
-    
-    
+
+
 /*
  * -----------------------------------------------------------------
  * PART I: RAJA implementation of N_Vector
@@ -87,7 +87,7 @@ typedef struct _N_VectorContent_Raja *N_VectorContent_Raja;
 /*
  * -----------------------------------------------------------------
  * PART II: functions exported by nvector_raja
- * 
+ *
  * CONSTRUCTORS:
  *    N_VNew_Raja
  *    N_VNewEmpty_Raja
@@ -114,7 +114,7 @@ typedef struct _N_VectorContent_Raja *N_VectorContent_Raja;
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNew_Raja(SUNDIALS_Comm comm, 
+SUNDIALS_EXPORT N_Vector N_VNew_Raja(SUNDIALS_Comm comm,
                                      sunindextype local_length,
                                      sunindextype global_length);
 
@@ -166,7 +166,7 @@ SUNDIALS_EXPORT N_Vector *N_VCloneVectorArrayEmpty_Raja(int count, N_Vector w);
  * -----------------------------------------------------------------
  * Function : N_VDestroyVectorArray_Raja
  * -----------------------------------------------------------------
- * This function frees an array of RAJA vectors created with 
+ * This function frees an array of RAJA vectors created with
  * N_VCloneVectorArray_Raja or N_VCloneVectorArrayEmpty_Raja.
  * -----------------------------------------------------------------
  */
