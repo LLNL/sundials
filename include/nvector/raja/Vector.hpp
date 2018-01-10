@@ -59,6 +59,7 @@ public:
   explicit Vector(const Vector& v)
   : size_(v.size()),
     mem_size_(size_*sizeof(T)),
+    global_size_(v.global_size_),
     comm_(v.comm_)
   {
     allocate();
