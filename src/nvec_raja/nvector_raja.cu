@@ -30,7 +30,7 @@ extern "C" {
 using namespace sunrajavec;
 
 static constexpr sunindextype zeroIdx = 0;
-static realtype VAllReduce_Raja(realtype d, int op, MPI_Comm comm);
+static realtype VAllReduce_Raja(realtype d, int op, SUNDIALS_Comm comm);
 
 /* ----------------------------------------------------------------
  * Returns vector type ID. Used to identify vector implementation

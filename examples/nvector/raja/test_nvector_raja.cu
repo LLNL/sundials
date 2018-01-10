@@ -66,6 +66,7 @@ int main(int argc, char *argv[])
   global_length = nprocs*veclen;
 #else
   comm = 0;
+  global_length = veclen;
 #endif
 
   printf("\nRunning with vector length %ld \n\n", (long) veclen);
