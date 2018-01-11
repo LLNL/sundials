@@ -30,11 +30,17 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <ida/ida.h>                   /* prototypes for IDA fcts., consts.    */
-#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
+#include <ida/ida.h>                   /* prototypes for IDA methods           */
+#include <nvector/nvector_raja.h>      /* access to RAJA N_Vector              */
 #include <ida/ida_spils.h>             /* access to IDASpils interface         */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to spgmr SUNLinearSolver      */
 #include <sundials/sundials_types.h>   /* definition of type realtype          */
+
+#include <RAJA/RAJA.hpp>
+
+#ifdef SUNDIALS_MPI_ENABLED
+#include <mpi.h>
+#endif
 
 /* Problem Constants */
 
@@ -48,13 +54,15 @@
 
 /* User data type */
 
-typedef struct {
+struct _UserData {
   sunindextype mm;  /* number of grid points in one dimension */
   sunindextype neq; /* number of equations */
   realtype dx;
   realtype coeff;
   N_Vector pp;  /* vector of prec. diag. elements */
-} *UserData;
+};
+
+typedef _UserData *UserData;
 
 /* Prototypes for functions called by IDA */
 
@@ -84,7 +92,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
  *--------------------------------------------------------------------
  */
 
-int main()
+int main(int argc, char *argv[])
 {
   void *mem;
   UserData data;
@@ -93,11 +101,27 @@ int main()
   realtype rtol, atol, t0, t1, tout, tret;
   long int netf, ncfn, ncfl;
   SUNLinearSolver LS;
+  int npes;
+  SUNDIALS_Comm comm;
 
   mem = NULL;
   data = NULL;
   uu = up = constraints = res = NULL;
   LS = NULL;
+
+#ifdef SUNDIALS_MPI_ENABLED
+  MPI_Init(&argc, &argv);
+  comm = MPI_COMM_WORLD;
+  MPI_Comm_size(comm, &npes);
+#else
+  comm = 0;
+  npes = 1;
+#endif
+
+  if (npes != 1) {
+    printf("Warning: This test case works only with one MPI rank!");
+    return -1;
+  }
 
   /* Assign parameters in the user data structure. */
 
@@ -112,7 +136,7 @@ int main()
 
   /* Allocate N-vectors and the user data structure objects. */
 
-  uu = N_VNew_Serial(data->neq);
+  uu = N_VNew_Raja(comm, data->neq, data->neq);
   if(check_flag((void *)uu, "N_VNew_Serial", 0)) return(1);
 
   up = N_VClone(uu);
@@ -276,6 +300,10 @@ int main()
   N_VDestroy(data->pp);
   free(data);
 
+#ifdef SUNDIALS_MPI_ENABLED
+  MPI_Finalize();
+#endif
+  
   return(0);
 }
 
@@ -298,32 +326,33 @@ int resHeat(realtype tt,
             N_Vector uu, N_Vector up, N_Vector rr,
             void *user_data)
 {
-  sunindextype i, j, loc, mm;
-  realtype *uu_data, *up_data, *rr_data, coeff, dif1, dif2;
+  const sunindextype zero = 0;
+  sunindextype mm;
+  realtype coeff;
   UserData data;
 
-  uu_data = N_VGetArrayPointer(uu);
-  up_data = N_VGetArrayPointer(up);
-  rr_data = N_VGetArrayPointer(rr);
+  const realtype *uu_data = N_VGetDeviceArrayPointer_Raja(uu);
+  const realtype *up_data = N_VGetDeviceArrayPointer_Raja(up);
+  realtype *rr_data = N_VGetDeviceArrayPointer_Raja(rr);
 
   data = (UserData) user_data;
 
   coeff = data->coeff;
   mm    = data->mm;
 
-  for (loc = 0; loc < mm*mm; ++loc) {
-    i = loc % mm;
-    j = loc / mm;
+  RAJA::forall<RAJA::cuda_exec<256> >(zero, mm*mm, [=] __device__(sunindextype loc) {
+    sunindextype i = loc % mm;
+    sunindextype j = loc / mm;
     if (j==0 || j==mm-1 || i==0 || i==mm-1) {
       /* Initialize rr to uu, to take care of boundary equations. */
       rr_data[loc] = uu_data[loc];
     } else {
       /* Loop over interior points; set res = up - (central difference). */
-      dif1 = uu_data[loc-1]  + uu_data[loc+1]  - TWO * uu_data[loc];
-      dif2 = uu_data[loc-mm] + uu_data[loc+mm] - TWO * uu_data[loc];
+      realtype dif1 = uu_data[loc-1]  + uu_data[loc+1]  - TWO * uu_data[loc];
+      realtype dif2 = uu_data[loc-mm] + uu_data[loc+mm] - TWO * uu_data[loc];
       rr_data[loc] = up_data[loc] - coeff * ( dif1 + dif2 );
     }
-  }
+  });
 
   return(0);
 }
@@ -349,26 +378,27 @@ int PsetupHeat(realtype tt,
                N_Vector uu, N_Vector up, N_Vector rr,
                realtype c_j, void *prec_data)
 {
-
-  sunindextype i, j, loc, mm;
+  const sunindextype zero = 0;
+  sunindextype mm;
   realtype *ppv;
   UserData data;
 
   data = (UserData) prec_data;
-  ppv = N_VGetArrayPointer(data->pp);
+  ppv = N_VGetDeviceArrayPointer_Raja(data->pp);
   mm = data->mm;
+  realtype coeff = data->coeff;
 
-  for (loc = 0; loc < mm*mm; ++loc) {
-    i = loc % mm;
-    j = loc / mm;
+  RAJA::forall<RAJA::cuda_exec<256> >(zero, mm*mm, [=] __device__(sunindextype loc) {
+    sunindextype i = loc % mm;
+    sunindextype j = loc / mm;
     if (j==0 || j==mm-1 || i==0 || i==mm-1) {
       /* Set ppv to one, to take care of boundary equations. */
       ppv[loc] = ONE;
     } else {
       /* Loop over interior points; ppv_i = 1/J_ii */
-      ppv[loc] = ONE/(c_j + FOUR*data->coeff);
+      ppv[loc] = ONE/(c_j + FOUR*coeff);
     }
-  }
+  });
 
   return(0);
 }
@@ -404,13 +434,13 @@ int PsolveHeat(realtype tt,
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
                              N_Vector res)
 {
-  sunindextype loc, mm, mm1, i, j;
+  sunindextype mm, mm1, i, j;
+  const sunindextype zero = 0;
   realtype xfact, yfact, *udata, *updata;
 
   mm = data->mm;
 
-  udata = N_VGetArrayPointer(uu);
-  updata = N_VGetArrayPointer(up);
+  udata = N_VGetHostArrayPointer_Raja(uu);
 
   /* Initialize uu on all grid points. */
   for (j = 0; j < mm; j++) {
@@ -420,6 +450,8 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
       udata[mm*j + i] = RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
     }
   }
+
+  N_VCopyToDevice_Raja(uu);
 
   /* Initialize up vector to 0. */
   N_VConst(ZERO, up);
@@ -431,14 +463,16 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
   N_VScale(-ONE, res, up);
 
   /* Set up at boundary points to zero. */
+  updata = N_VGetDeviceArrayPointer_Raja(up);
   mm1 = mm - 1;
-  for (loc = 0; loc < mm*mm; ++loc) {
-    i = loc % mm;
-    j = loc / mm;
+
+  RAJA::forall<RAJA::cuda_exec<256> >(zero, mm*mm, [=] __device__(sunindextype loc) {
+    sunindextype i = loc % mm;
+    sunindextype j = loc / mm;
     if (j==0 || j==mm1 || i==0 || i==mm1) {
       updata[loc] = ZERO;
     }
-  }
+  });
 
   return(0);
 }
