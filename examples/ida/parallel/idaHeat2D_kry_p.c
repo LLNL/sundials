@@ -65,6 +65,8 @@ typedef struct {
   sunindextype mx, my, mxsub, mysub;
   realtype     dx, dy, coeffx, coeffy, coeffxy;
   realtype    *uext;
+  realtype    *dev_uext;
+  realtype    *send_buff;
   N_Vector     pp;    /* vector of diagonal preconditioner elements */
   MPI_Comm     comm;
 } *UserData;
@@ -80,14 +82,15 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up,
                     N_Vector res,  void *user_data);
 
 static int BSend(MPI_Comm comm, int thispe, int ixsub, int jysub,
-                 sunindextype dsizex, sunindextype dsizey, realtype uarray[]);
+                 sunindextype mxsub, sunindextype mysub,
+                 realtype uarray[], realtype* send_buffer);
 
 static int BRecvPost(MPI_Comm comm, MPI_Request request[], int thispe,
-                     int ixsub, int jysub, sunindextype dsizex,
-                     sunindextype dsizey, realtype uext[], realtype buffer[]);
+                     int ixsub, int jysub, sunindextype mxsub,
+                     sunindextype mysub, realtype uext[], realtype recv_buff[]);
 
 static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
-                     sunindextype dsizex, realtype uext[], realtype buffer[]);
+                     sunindextype mxsub, realtype uext[], realtype recv_buff[]);
 
 /* User-supplied preconditioner routines */
 
@@ -150,13 +153,15 @@ int main(int argc, char *argv[])
   InitUserData(thispe, comm, data);
   data->pp = NULL;
   data->uext = NULL;
+  data->dev_uext = NULL;
+  data->send_buff = NULL;
 
   /* Check if the number of MPI processes matches the number of subgrids */
   if (npes != (data->npex * data->npey)) {
     if (thispe == 0)
       fprintf(stderr,
               "\nMPI_ERROR(0): npes = %d is not equal to NPEX*NPEY = %d\n",
-              npes,NPEX*NPEY);
+              npes, data->npex * data->npey);
     free(data);
     MPI_Finalize();
     return(1);
@@ -197,6 +202,11 @@ int main(int argc, char *argv[])
   /* Allocate local extended vector (includes ghost nodes) */
   data->uext = (realtype*) malloc((MXSUB + 2)*(MYSUB +2)*sizeof(realtype));
   if(check_flag((void *)data->uext, "uext malloc", 0, thispe))
+    MPI_Abort(comm, 1);
+
+  /* Allocate local host send buffer */
+  data->send_buff = (realtype*) malloc(2*(data->mxsub + data->mysub)*sizeof(realtype));
+  if(check_flag((void *)data->send_buff, "send_buff malloc", 0, thispe))
     MPI_Abort(comm, 1);
 
   /* Initialize the uu, up, id, and res profiles. */
@@ -281,6 +291,7 @@ int main(int argc, char *argv[])
 
   N_VDestroy(data->pp);
   free(data->uext);
+  free(data->send_buff);
   free(data);
 
   MPI_Finalize();
@@ -347,20 +358,19 @@ int resHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
 int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
                realtype c_j, void *user_data)
 {
-  realtype *ppv, pelinv;
-  sunindextype lx, ly, ixbegin, ixend, jybegin, jyend, locu, mxsub, mysub;
-  int ixsub, jysub, npex, npey;
-  UserData data;
+  realtype pelinv;
+  sunindextype lx, ly, ixbegin, ixend, jybegin, jyend, locu;
 
-  data = (UserData) user_data;
-
-  ppv = N_VGetArrayPointer_Parallel(data->pp);
-  ixsub = data->ixsub;
-  jysub = data->jysub;
-  mxsub = data->mxsub;
-  mysub = data->mysub;
-  npex  = data->npex;
-  npey  = data->npey;
+  UserData data = (UserData) user_data;
+  int ixsub = data->ixsub;
+  int jysub = data->jysub;
+  int npex  = data->npex;
+  int npey  = data->npey;
+  sunindextype mxsub = data->mxsub;
+  sunindextype mysub = data->mysub;
+  realtype coeffxy = data->coeffxy;
+  realtype *ppv = N_VGetArrayPointer_Parallel(data->pp);
+  realtype *send_buffer = data->send_buff;
 
   /* Initially set all pp elements to one. */
   N_VConst(ONE, data->pp);
@@ -372,7 +382,7 @@ int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
   jyend   = mysub-1;
   if (ixsub == 0) ixbegin++; if (ixsub == npex-1) ixend--;
   if (jysub == 0) jybegin++; if (jysub == npey-1) jyend--;
-  pelinv = ONE/(c_j + data->coeffxy);
+  pelinv = ONE/(c_j + coeffxy);
 
   /* Load the inverse of the preconditioner diagonal elements
      in loop over all the local subgrid. */
@@ -424,7 +434,8 @@ int PsolveHeat(realtype tt, N_Vector uu, N_Vector up,
 static int rescomm(N_Vector uu, N_Vector up, void *user_data)
 {
   UserData data;
-  realtype *uarray, *uext, buffer[2*MYSUB];
+  realtype *uarray, *uext, recv_buff[2*MYSUB];
+  realtype *send_buffer;
   MPI_Comm comm;
   int thispe, ixsub, jysub;
   sunindextype mxsub, mysub;
@@ -438,15 +449,16 @@ static int rescomm(N_Vector uu, N_Vector up, void *user_data)
   ixsub = data->ixsub;   jysub = data->jysub;
   mxsub = data->mxsub;   mysub = data->mysub;
   uext = data->uext;
+  send_buffer = data->send_buff;
 
   /* Start receiving boundary data from neighboring PEs. */
-  BRecvPost(comm, request, thispe, ixsub, jysub, mxsub, mysub, uext, buffer);
+  BRecvPost(comm, request, thispe, ixsub, jysub, mxsub, mysub, uext, recv_buff);
 
   /* Send data from boundary of local grid to neighboring PEs. */
-  BSend(comm, thispe, ixsub, jysub, mxsub, mysub, uarray);
+  BSend(comm, thispe, ixsub, jysub, mxsub, mysub, uarray, send_buffer);
 
   /* Finish receiving boundary data from neighboring PEs. */
-  BRecvWait(request, ixsub, jysub, mxsub, uext, buffer);
+  BRecvWait(request, ixsub, jysub, mxsub, uext, recv_buff);
 
   return(0);
 
@@ -463,7 +475,9 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
 {
   realtype *uext, *uuv, *upv, *resv;
   realtype termx, termy, termctr;
-  sunindextype lx, ly, offsetu, offsetue, locu, locue;
+  sunindextype lx, ly;
+  //sunindextype offsetu, offsetue;
+  sunindextype locu, locue;
   int ixsub, jysub, npex, npey;
   sunindextype mxsub, mxsub2, mysub;
   sunindextype ixbegin, ixend, jybegin, jyend;
@@ -488,14 +502,10 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
   /* Copy local segment of u vector into the working extended array uext.
      This completes uext prior to the computation of the rr vector.     */
 
-  offsetu = 0;
-  offsetue = mxsub2 + 1;
   for (ly = 0; ly < mysub; ly++) {
     for (lx = 0; lx < mxsub; lx++) {
-      uext[offsetue+lx] = uuv[offsetu+lx];
+      uext[mxsub2*(ly+1) + (lx+1)] = uuv[mxsub*ly + lx];
     }
-    offsetu = offsetu + mxsub;
-    offsetue = offsetue + mxsub2;
   }
 
   /* Set loop limits for the interior of the local subgrid. */
@@ -528,21 +538,31 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
  */
 
 static int BSend(MPI_Comm comm, int thispe, int ixsub, int jysub,
-                 sunindextype dsizex, sunindextype dsizey, realtype uarray[])
+                 sunindextype mxsub, sunindextype mysub, realtype uarray[],
+                 realtype *send_buffer)
 {
-  sunindextype ly, offsetu;
-  realtype bufleft[MYSUB], bufright[MYSUB];
+  sunindextype lx, ly;
+  realtype *bufleft   = send_buffer;
+  realtype *bufright  = send_buffer + mysub;
+  realtype *buftop    = send_buffer + 2*mysub;
+  realtype *bufbottom = send_buffer + 2*mysub + mxsub;
 
-  /* If jysub > 0, send data from bottom x-line of u. */
+  /* If jysub > 0, send data from bottom x-line of u.  (via bufbottom) */
 
-  if (jysub != 0)
-    MPI_Send(&uarray[0], dsizex, PVEC_REAL_MPI_TYPE, thispe-NPEX, 0, comm);
+  if (jysub != 0) {
+    for (lx = 0; lx < mxsub; ++lx) {
+      bufbottom[lx] = uarray[lx];
+    }
+    MPI_Send(bufbottom, mxsub, PVEC_REAL_MPI_TYPE, thispe-NPEX, 0, comm);
+  }
 
-  /* If jysub < NPEY-1, send data from top x-line of u. */
+  /* If jysub < NPEY-1, send data from top x-line of u. (via buftop) */
 
   if (jysub != NPEY-1) {
-    offsetu = (MYSUB-1)*dsizex;
-    MPI_Send(&uarray[offsetu], dsizex, PVEC_REAL_MPI_TYPE,
+    for (lx = 0; lx < mxsub; ++lx) {
+      buftop[lx] = uarray[(mysub-1)*mxsub + lx];
+    }
+    MPI_Send(buftop, mxsub, PVEC_REAL_MPI_TYPE,
              thispe+NPEX, 0, comm);
   }
 
@@ -550,20 +570,18 @@ static int BSend(MPI_Comm comm, int thispe, int ixsub, int jysub,
 
   if (ixsub != 0) {
     for (ly = 0; ly < MYSUB; ly++) {
-      offsetu = ly*dsizex;
-      bufleft[ly] = uarray[offsetu];
+      bufleft[ly] = uarray[ly*mxsub];
     }
-    MPI_Send(&bufleft[0], dsizey, PVEC_REAL_MPI_TYPE, thispe-1, 0, comm);
+    MPI_Send(bufleft, mysub, PVEC_REAL_MPI_TYPE, thispe-1, 0, comm);
   }
 
   /* If ixsub < NPEX-1, send data from right y-line of u (via bufright). */
 
   if (ixsub != NPEX-1) {
     for (ly = 0; ly < MYSUB; ly++) {
-      offsetu = ly*MXSUB + (MXSUB-1);
-      bufright[ly] = uarray[offsetu];
+      bufright[ly] = uarray[ly*mxsub + (mxsub-1)];
     }
-    MPI_Send(&bufright[0], dsizey, PVEC_REAL_MPI_TYPE, thispe+1, 0, comm);
+    MPI_Send(bufright, mysub, PVEC_REAL_MPI_TYPE, thispe+1, 0, comm);
   }
 
   return(0);
@@ -581,34 +599,34 @@ static int BSend(MPI_Comm comm, int thispe, int ixsub, int jysub,
  */
 
 static int BRecvPost(MPI_Comm comm, MPI_Request request[], int thispe,
-                     int ixsub, int jysub, sunindextype dsizex,
-                     sunindextype dsizey, realtype uext[], realtype buffer[])
+                     int ixsub, int jysub, sunindextype mxsub,
+                     sunindextype mysub, realtype uext[], realtype recv_buff[])
 {
   sunindextype offsetue;
-  /* Have bufleft and bufright use the same buffer. */
-  realtype *bufleft = buffer, *bufright = buffer+MYSUB;
+  /* Have bufleft and bufright use the same recv_buff. */
+  realtype *bufleft = recv_buff, *bufright = recv_buff+MYSUB;
 
   /* If jysub > 0, receive data for bottom x-line of uext. */
   if (jysub != 0)
-    MPI_Irecv(&uext[1], dsizex, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&uext[1], mxsub, PVEC_REAL_MPI_TYPE,
               thispe-NPEX, 0, comm, &request[0]);
 
   /* If jysub < NPEY-1, receive data for top x-line of uext. */
   if (jysub != NPEY-1) {
     offsetue = (1 + (MYSUB+1)*(MXSUB+2));
-    MPI_Irecv(&uext[offsetue], dsizex, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&uext[offsetue], mxsub, PVEC_REAL_MPI_TYPE,
               thispe+NPEX, 0, comm, &request[1]);
   }
 
   /* If ixsub > 0, receive data for left y-line of uext (via bufleft). */
   if (ixsub != 0) {
-    MPI_Irecv(&bufleft[0], dsizey, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&bufleft[0], mysub, PVEC_REAL_MPI_TYPE,
               thispe-1, 0, comm, &request[2]);
   }
 
   /* If ixsub < NPEX-1, receive data for right y-line of uext (via bufright). */
   if (ixsub != NPEX-1) {
-    MPI_Irecv(&bufright[0], dsizey, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&bufright[0], mysub, PVEC_REAL_MPI_TYPE,
               thispe+1, 0, comm, &request[3]);
   }
 
@@ -627,13 +645,13 @@ static int BRecvPost(MPI_Comm comm, MPI_Request request[], int thispe,
  */
 
 static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
-                     sunindextype dsizex, realtype uext[], realtype buffer[])
+                     sunindextype mxsub, realtype uext[], realtype recv_buff[])
 {
-  sunindextype ly, dsizex2, offsetue;
-  realtype *bufleft = buffer, *bufright = buffer+MYSUB;
+  sunindextype ly, mxsub2, offsetue;
+  realtype *bufleft = recv_buff, *bufright = recv_buff+MYSUB;
   MPI_Status status;
 
-  dsizex2 = dsizex + 2;
+  mxsub2 = mxsub + 2;
 
   /* If jysub > 0, receive data for bottom x-line of uext. */
   if (jysub != 0)
@@ -647,9 +665,9 @@ static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
   if (ixsub != 0) {
     MPI_Wait(&request[2],&status);
 
-    /* Copy the buffer to uext. */
+    /* Copy the recv_buff to uext. */
     for (ly = 0; ly < MYSUB; ly++) {
-      offsetue = (ly+1)*dsizex2;
+      offsetue = (ly+1)*mxsub2;
       uext[offsetue] = bufleft[ly];
     }
   }
@@ -658,9 +676,9 @@ static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
   if (ixsub != NPEX-1) {
     MPI_Wait(&request[3],&status);
 
-    /* Copy the buffer to uext */
+    /* Copy the recv_buff to uext */
     for (ly = 0; ly < MYSUB; ly++) {
-      offsetue = (ly+2)*dsizex2 - 1;
+      offsetue = (ly+2)*mxsub2 - 1;
       uext[offsetue] = bufright[ly];
     }
   }
@@ -691,10 +709,10 @@ static int InitUserData(int thispe, MPI_Comm comm, UserData data)
   data->ixsub   = thispe - data->jysub * NPEX;
   data->npex    = NPEX;
   data->npey    = NPEY;
-  data->mx      = MX;
-  data->my      = MY;
-  data->mxsub   = MXSUB;
-  data->mysub   = MYSUB;
+  data->mx      = MX;    /* Number of mesh points in x-direction */
+  data->my      = MY;    /* Number of mesh points in y-direction */
+  data->mxsub   = MXSUB; /* Number of subgrif mesh points in x-direction */
+  data->mysub   = MYSUB; /* Number of subgrif mesh points in y-direction */
   data->comm    = comm;
   return(0);
 }
@@ -706,12 +724,12 @@ static int InitUserData(int thispe, MPI_Comm comm, UserData data)
 static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
                              N_Vector res, UserData data)
 {
-  sunindextype i, iloc, j, jloc, offset, loc;
+  sunindextype i, iloc, j, jloc, loc;
   realtype xfact, yfact;
 
   /* Initialize uu. */
 
-  realtype *udata = N_VGetArrayPointer_Parallel(uu);
+  realtype *uudata = N_VGetArrayPointer_Parallel(uu);
   realtype *iddata = N_VGetArrayPointer_Parallel(id);
 
   /* Set mesh spacings and subgrid indices for this PE. */
@@ -736,12 +754,13 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
   N_VConst(ONE, id);
   for (j = jybegin, jloc = 0; j <= jyend; j++, jloc++) {
     yfact = dy*j;
-    offset= jloc*MXSUB;
     for (i = ixbegin, iloc = 0; i <= ixend; i++, iloc++) {
       xfact = dx*i;
-      loc = offset + iloc;
-      udata[loc] = RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
-      if (i == 0 || i == MX-1 || j == 0 || j == MY-1) iddata[loc] = ZERO;
+      loc = iloc + jloc*mxsub;
+      uudata[loc] = RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
+
+      if (i == 0 || i == MX-1 || j == 0 || j == MY-1)
+        iddata[loc] = ZERO;
     }
   }
 
