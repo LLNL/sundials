@@ -48,13 +48,13 @@
 #define ONE   RCONST(1.0)
 #define TWO   RCONST(2.0)
 
-#define NOUT         11             /* Number of output times */
+#define NOUT         11    /* Number of output times */
 
-#define NPEX         2              /* No. PEs in x direction of PE array */
-#define NPEY         2              /* No. PEs in y direction of PE array */
-                                    /* Total no. PEs = NPEX*NPEY */
-#define MXSUB        5              /* No. x points per subgrid */
-#define MYSUB        5              /* No. y points per subgrid */
+#define NPEX         2     /* No. PEs in x direction of PE array */
+#define NPEY         2     /* No. PEs in y direction of PE array */
+                           /* Total no. PEs = NPEX*NPEY */
+#define MXSUB        5     /* No. x points per subgrid */
+#define MYSUB        5     /* No. y points per subgrid */
 
 /* Global spatial mesh is MX x MY = (NPEX x MXSUB) x (NPEY x MYSUB) */
 
@@ -63,7 +63,6 @@ typedef struct {
   sunindextype mx, my, mxsub, mysub;
   realtype     dx, dy, coeffx, coeffy, coeffxy;
   realtype    *uext;
-//  realtype    *dev_uext;
   realtype    *send_buff;
   realtype    *recv_buff;
   N_Vector     pp;    /* vector of diagonal preconditioner elements */
@@ -346,18 +345,20 @@ int resHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
 int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
                realtype c_j, void *user_data)
 {
-  realtype pelinv;
   sunindextype lx, ly, ixbegin, ixend, jybegin, jyend, locu;
 
+  /* Unwrap the user data */
   UserData data = (UserData) user_data;
-  int ixsub = data->ixsub;
-  int jysub = data->jysub;
-  int npex  = data->npex;
-  int npey  = data->npey;
-  sunindextype mxsub = data->mxsub;
-  sunindextype mysub = data->mysub;
-  realtype coeffxy = data->coeffxy;
+  const int ixsub = data->ixsub;
+  const int jysub = data->jysub;
+  const int npex  = data->npex;
+  const int npey  = data->npey;
+  const sunindextype mxsub = data->mxsub;
+  const sunindextype mysub = data->mysub;
   realtype *ppv = N_VGetArrayPointer_Parallel(data->pp);
+
+  /* Calculate the value for the inverse of the diagonal preconditioner */
+  const realtype pelinv = ONE/(c_j + data->coeffxy);
 
   /* Initially set all pp elements to one. */
   N_VConst(ONE, data->pp);
@@ -369,7 +370,6 @@ int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
   jyend   = mysub-1;
   if (ixsub == 0) ixbegin++; if (ixsub == npex-1) ixend--;
   if (jysub == 0) jybegin++; if (jysub == npey-1) jyend--;
-  pelinv = ONE/(c_j + coeffxy);
 
   /* Load the inverse of the preconditioner diagonal elements
      in loop over all the local subgrid. */
@@ -396,9 +396,7 @@ int PsolveHeat(realtype tt, N_Vector uu, N_Vector up,
                N_Vector rr, N_Vector rvec, N_Vector zvec,
                realtype c_j, realtype delta, void *user_data)
 {
-  UserData data;
-
-  data = (UserData) user_data;
+  UserData data = (UserData) user_data;
 
   N_VProd(data->pp, rvec, zvec);
 
