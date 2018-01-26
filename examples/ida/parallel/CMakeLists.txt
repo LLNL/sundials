@@ -23,6 +23,7 @@ SET(IDA_examples
   "idaFoodWeb_kry_p\;1\;4\;develop"
   "idaHeat2D_kry_bbd_p\;1\;4\;develop"
   "idaHeat2D_kry_p\;1\;4\;develop"
+  "idaHeat2D_kry_p_raja\;1\;4\;develop"
   )
 
 # Check whether we use MPI compiler scripts.
