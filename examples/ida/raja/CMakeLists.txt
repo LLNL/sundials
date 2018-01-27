@@ -20,6 +20,7 @@
 # Examples using SUNDIALS linear solvers
 SET(IDA_examples
   "idaHeat2D_kry_raja\;develop"
+  "idaHeat2D_kry_p_raja\;1\;4\;develop"
   )
 
 # Add source directory to include directories
