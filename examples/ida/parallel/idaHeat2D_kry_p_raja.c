@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string.h>
 
 #include <ida/ida.h>
 #include <ida/ida_spils.h>
@@ -62,7 +63,7 @@ typedef struct {
   int thispe, npex, npey, ixsub, jysub;
   sunindextype mx, my, mxsub, mysub;
   realtype     dx, dy, coeffx, coeffy, coeffxy;
-  realtype    *uext; /* device buffer */
+  realtype    *uext; /* device array */
   realtype    *host_send_buff;
   realtype    *host_recv_buff;
   realtype    *dev_send_buff;
@@ -84,17 +85,17 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up,
 static int BSend(MPI_Comm comm, int thispe,
                  int ixsub, int jysub, int npex, int npey,
                  sunindextype mxsub, sunindextype mysub,
-                 const realtype uarray[], realtype* send_buffer);
+                 const realtype uarray[], realtype *dev_send_buff, realtype *host_send_buff);
 
 static int BRecvPost(MPI_Comm comm, MPI_Request request[], int thispe,
                      int ixsub, int jysub, int npex, int npey,
                      sunindextype mxsub, sunindextype mysub,
-                     realtype recv_buff[]);
+                     realtype host_recv_buff[]);
 
 static int BRecvWait(MPI_Request request[],
                      int ixsub, int jysub, int npex, int npey,
                      sunindextype mxsub, sunindextype mysub,
-                     realtype uext[], const realtype recv_buff[]);
+                     realtype uext[], const realtype *host_recv_buff, realtype *dev_recv_buff);
 
 /* User-supplied preconditioner routines */
 
@@ -370,6 +371,7 @@ int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
   jbc = (jysub == 0) || (jysub == npey-1);
   j0  = (jysub == 0);
 
+  // Replace with RAJA loop; ppv must be on the device
   for(tid=0; tid < (mxsub - ibc)*(mysub - jbc); ++tid) {
     j = tid/(mxsub - ibc) + j0;
     i = tid%(mxsub - ibc) + i0;
@@ -429,17 +431,19 @@ static int rescomm(N_Vector uu, N_Vector up, UserData data)
   /* Get solution vector data, buffers, extended array uext. */
   const realtype *uarray = N_VGetArrayPointer_Parallel(uu);
   realtype *uext = data->uext;
-  realtype *send_buffer = data->host_send_buff;
-  realtype *recv_buff = data->host_recv_buff;
+  realtype *host_send_buff = data->host_send_buff;
+  realtype *host_recv_buff = data->host_recv_buff;
+  realtype *dev_send_buff = data->dev_send_buff;
+  realtype *dev_recv_buff = data->dev_recv_buff;
 
   /* Start receiving boundary data from neighboring PEs. */
-  BRecvPost(comm, request, thispe, ixsub, jysub, npex, npey, mxsub, mysub, recv_buff);
+  BRecvPost(comm, request, thispe, ixsub, jysub, npex, npey, mxsub, mysub, host_recv_buff);
 
   /* Send data from boundary of local grid to neighboring PEs. */
-  BSend(comm, thispe, ixsub, jysub, npex, npey, mxsub, mysub, uarray, send_buffer);
+  BSend(comm, thispe, ixsub, jysub, npex, npey, mxsub, mysub, uarray, dev_send_buff, host_send_buff);
 
   /* Finish receiving boundary data from neighboring PEs. */
-  BRecvWait(request, ixsub, jysub, npex, npey, mxsub, mysub, uext, recv_buff);
+  BRecvWait(request, ixsub, jysub, npex, npey, mxsub, mysub, uext, host_recv_buff, dev_recv_buff);
 
   return(0);
 
@@ -484,6 +488,7 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
   /* Copy local segment of u vector into the working extended array uext.
      This completes uext prior to the computation of the rr vector.     */
 
+  // Replace with RAJA loop; uext and uuv must be on the device.
   for (tid = 0; tid < mxsub*mysub; ++tid) {
     j = tid/mxsub;
     i = tid%mxsub;
@@ -499,6 +504,7 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
   jbc = (jysub == 0) || (jysub == npey-1);
   j0  = (jysub == 0);
 
+  // Replace with RAJA loop; uext, upv, and resv must be on the device
   for(tid=0; tid < (mxsub - ibc)*(mysub - jbc); ++tid) {
     j = tid/(mxsub - ibc) + j0;
     i = tid%(mxsub - ibc) + i0;
@@ -522,25 +528,32 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
 static int BSend(MPI_Comm comm, int thispe,
                  int ixsub, int jysub, int npex, int npey,
                  sunindextype mxsub, sunindextype mysub,
-                 const realtype uarray[], realtype *send_buffer)
+                 const realtype *uarray, realtype *dev_send_buff, realtype *host_send_buff)
 {
   sunindextype lx, ly;
-  /* Have left, right, top and bottom buffers use the same send_buffer. */
-  realtype *bufleft   = send_buffer;
-  realtype *bufright  = send_buffer + mysub;
-  realtype *buftop    = send_buffer + 2*mysub;
-  realtype *bufbottom = send_buffer + 2*mysub + mxsub;
+  /* Have left, right, top and bottom device buffers use the same dev_send_buff. */
+  realtype *d_bufleft   = dev_send_buff;
+  realtype *d_bufright  = dev_send_buff + mysub;
+  realtype *d_buftop    = dev_send_buff + 2*mysub;
+  realtype *d_bufbottom = dev_send_buff + 2*mysub + mxsub;
+
+  /* Have left, right, top and bottom host buffers use the same host_send_buff. */
+  realtype *h_bufleft   = host_send_buff;
+  realtype *h_bufright  = host_send_buff + mysub;
+  realtype *h_buftop    = host_send_buff + 2*mysub;
+  realtype *h_bufbottom = host_send_buff + 2*mysub + mxsub;
 
   /* If jysub > 0, send data from bottom x-line of u.  (via bufbottom) */
 
   if (jysub != 0) {
     // Create buffer on the device
     for (lx = 0; lx < mxsub; ++lx) {
-      bufbottom[lx] = uarray[lx];
+      d_bufbottom[lx] = uarray[lx];
     }
     // Copy buffer to the host
+    memcpy(h_bufbottom, d_bufbottom, mxsub*sizeof(realtype));
     // MPI send buffer
-    MPI_Send(bufbottom, mxsub, PVEC_REAL_MPI_TYPE, thispe-npex, 0, comm);
+    MPI_Send(h_bufbottom, mxsub, PVEC_REAL_MPI_TYPE, thispe-npex, 0, comm);
   }
 
   /* If jysub < NPEY-1, send data from top x-line of u. (via buftop) */
@@ -548,11 +561,12 @@ static int BSend(MPI_Comm comm, int thispe,
   if (jysub != npey-1) {
     // Create buffer on the device
     for (lx = 0; lx < mxsub; ++lx) {
-      buftop[lx] = uarray[(mysub-1)*mxsub + lx];
+      d_buftop[lx] = uarray[(mysub-1)*mxsub + lx];
     }
     // Copy buffer to the host
+    memcpy(h_buftop, d_buftop, mxsub*sizeof(realtype));
     // MPI send buffer
-    MPI_Send(buftop, mxsub, PVEC_REAL_MPI_TYPE, thispe+npex, 0, comm);
+    MPI_Send(h_buftop, mxsub, PVEC_REAL_MPI_TYPE, thispe+npex, 0, comm);
   }
 
   /* If ixsub > 0, send data from left y-line of u (via bufleft). */
@@ -560,11 +574,12 @@ static int BSend(MPI_Comm comm, int thispe,
   if (ixsub != 0) {
     // Create buffer on the device
     for (ly = 0; ly < mysub; ly++) {
-      bufleft[ly] = uarray[ly*mxsub];
+      d_bufleft[ly] = uarray[ly*mxsub];
     }
     // Copy buffer to the host
+    memcpy(h_bufleft, d_bufleft, mysub*sizeof(realtype));
     // MPI send buffer
-    MPI_Send(bufleft, mysub, PVEC_REAL_MPI_TYPE, thispe-1, 0, comm);
+    MPI_Send(h_bufleft, mysub, PVEC_REAL_MPI_TYPE, thispe-1, 0, comm);
   }
 
   /* If ixsub < NPEX-1, send data from right y-line of u (via bufright). */
@@ -572,11 +587,12 @@ static int BSend(MPI_Comm comm, int thispe,
   if (ixsub != npex-1) {
     // Create buffer on the device
     for (ly = 0; ly < mysub; ly++) {
-      bufright[ly] = uarray[ly*mxsub + (mxsub-1)];
+      d_bufright[ly] = uarray[ly*mxsub + (mxsub-1)];
     }
     // Copy buffer to the host
+    memcpy(h_bufright, d_bufright, mysub*sizeof(realtype));
     // MPI send buffer
-    MPI_Send(bufright, mysub, PVEC_REAL_MPI_TYPE, thispe+1, 0, comm);
+    MPI_Send(h_bufright, mysub, PVEC_REAL_MPI_TYPE, thispe+1, 0, comm);
   }
 
   return(0);
@@ -596,13 +612,13 @@ static int BSend(MPI_Comm comm, int thispe,
 static int BRecvPost(MPI_Comm comm, MPI_Request request[], int thispe,
                      int ixsub, int jysub, int npex, int npey,
                      sunindextype mxsub, sunindextype mysub,
-                     realtype recv_buff[])
+                     realtype *host_recv_buff)
 {
-  /* Have left, right, top and bottom buffers use the same recv_buff. */
-  realtype *bufleft   = recv_buff;
-  realtype *bufright  = recv_buff + mysub;
-  realtype *buftop    = recv_buff + 2*mysub;
-  realtype *bufbottom = recv_buff + 2*mysub + mxsub;
+  /* Have left, right, top and bottom buffers use the same host_recv_buff. */
+  realtype *bufleft   = host_recv_buff;
+  realtype *bufright  = host_recv_buff + mysub;
+  realtype *buftop    = host_recv_buff + 2*mysub;
+  realtype *bufbottom = host_recv_buff + 2*mysub + mxsub;
 
   /* If jysub > 0, receive data for bottom x-line of uext. */
   if (jysub != 0) {
@@ -645,13 +661,19 @@ static int BRecvPost(MPI_Comm comm, MPI_Request request[], int thispe,
 static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
                      int npex, int npey,
                      sunindextype mxsub, sunindextype mysub,
-                     realtype uext[], const realtype recv_buff[])
+                     realtype *uext, const realtype *host_recv_buff, realtype *dev_recv_buff)
 {
   MPI_Status status;
-  const realtype *bufleft   = recv_buff;
-  const realtype *bufright  = recv_buff + mysub;
-  const realtype *buftop    = recv_buff + 2*mysub;
-  const realtype *bufbottom = recv_buff + 2*mysub + mxsub;
+  const realtype *h_bufleft   = host_recv_buff;
+  const realtype *h_bufright  = host_recv_buff + mysub;
+  const realtype *h_buftop    = host_recv_buff + 2*mysub;
+  const realtype *h_bufbottom = host_recv_buff + 2*mysub + mxsub;
+
+  realtype *d_bufleft   = dev_recv_buff;
+  realtype *d_bufright  = dev_recv_buff + mysub;
+  realtype *d_buftop    = dev_recv_buff + 2*mysub;
+  realtype *d_bufbottom = dev_recv_buff + 2*mysub + mxsub;
+
   sunindextype ly, lx, offsetue;
   const sunindextype mxsub2 = mxsub + 2;
   const sunindextype mysub1 = mysub + 1;
@@ -660,10 +682,11 @@ static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
   if (jysub != 0) {
     MPI_Wait(&request[0], &status);
     // Copy the buffer to the device
+    memcpy(d_bufbottom, h_bufbottom, mxsub*sizeof(realtype));
     /* Copy the recv_buff to uext. */
     for (lx = 0; lx < mxsub; lx++) {
       offsetue = 1 + lx;
-      uext[offsetue] = bufbottom[lx];
+      uext[offsetue] = d_bufbottom[lx];
     }
   }
 
@@ -671,10 +694,11 @@ static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
   if (jysub != npey-1) {
     MPI_Wait(&request[1], &status);
     // Copy the buffer to the device
+    memcpy(d_buftop, h_buftop, mxsub*sizeof(realtype));
     /* Copy the recv_buff to uext. */
     for (lx = 0; lx < mxsub; lx++) {
       offsetue = (1 + mysub1*mxsub2) + lx;
-      uext[offsetue] = buftop[lx];
+      uext[offsetue] = d_buftop[lx];
     }
   }
 
@@ -682,10 +706,11 @@ static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
   if (ixsub != 0) {
     MPI_Wait(&request[2], &status);
     // Copy the buffer to the device
+    memcpy(d_bufleft, h_bufleft, mysub*sizeof(realtype));
     /* Copy the recv_buff to uext. */
     for (ly = 0; ly < mysub; ly++) {
       offsetue = (ly+1)*mxsub2;
-      uext[offsetue] = bufleft[ly];
+      uext[offsetue] = d_bufleft[ly];
     }
   }
 
@@ -693,10 +718,11 @@ static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
   if (ixsub != npex-1) {
     MPI_Wait(&request[3], &status);
     // Copy the buffer to the device
+    memcpy(d_bufright, h_bufright, mysub*sizeof(realtype));
     /* Copy the recv_buff to uext */
     for (ly = 0; ly < mysub; ly++) {
       offsetue = (ly+2)*mxsub2 - 1;
-      uext[offsetue] = bufright[ly];
+      uext[offsetue] = d_bufright[ly];
     }
   }
 
@@ -732,9 +758,11 @@ static int InitUserData(int thispe, MPI_Comm comm, UserData data)
   data->coeffy  = ONE/(data->dy * data->dy);
   data->coeffxy = TWO/(data->dx * data->dx) + TWO/(data->dy * data->dy);
 
-  data->uext =NULL;
+  data->uext = NULL;
   data->host_send_buff = NULL;
   data->host_recv_buff = NULL;
+  data->dev_send_buff  = NULL;
+  data->dev_recv_buff  = NULL;
 
   return(0);
 }
@@ -780,6 +808,29 @@ static int AllocUserData(int thispe, MPI_Comm comm, N_Vector uu, UserData data)
     return -1;
   }
 
+  /* Allocate local device send buffer */
+  data->dev_send_buff = (realtype*) malloc(2*(data->mxsub + data->mysub)*sizeof(realtype));
+  if(data->dev_send_buff == NULL) {
+    N_VDestroy(data->pp);
+    free(data->uext);
+    free(data->host_send_buff);
+    free(data->host_recv_buff);
+    MPI_Abort(comm, 1);
+    return -1;
+  }
+
+  /* Allocate local device send buffer */
+  data->dev_recv_buff = (realtype*) malloc(2*(data->mxsub + data->mysub)*sizeof(realtype));
+  if(data->dev_recv_buff == NULL) {
+    N_VDestroy(data->pp);
+    free(data->uext);
+    free(data->host_send_buff);
+    free(data->host_recv_buff);
+    free(data->dev_send_buff);
+    MPI_Abort(comm, 1);
+    return -1;
+  }
+
   return 0;
 }
 
@@ -809,6 +860,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
 
   /* Initialize uu. */
 
+  // Get host pointer
   realtype *uudata = N_VGetArrayPointer_Parallel(uu);
   realtype *iddata = N_VGetArrayPointer_Parallel(id);
 
@@ -853,6 +905,8 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
 
   /* Copy -res into up to get correct initial up values. */
   N_VScale(-ONE, res, up);
+
+  // Synchronize device with host data for uu, up and id vectors
 
   return(0);
 }
