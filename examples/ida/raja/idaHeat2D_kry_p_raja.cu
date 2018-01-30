@@ -361,7 +361,6 @@ int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
                realtype c_j, void *user_data)
 {
   const sunindextype zero = 0;
-//   sunindextype locu, i, j, tid;
   sunindextype ibc, i0, jbc, j0;
 
   /* Unwrap the user data */
@@ -392,14 +391,6 @@ int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
 
     ppv[i + j*mxsub] = pelinv;
   });
-
-//   for(tid=0; tid < (mxsub - ibc)*(mysub - jbc); ++tid) {
-//     j = tid/(mxsub - ibc) + j0;
-//     i = tid%(mxsub - ibc) + i0;
-//
-//     locu  = i + j*mxsub;
-//     ppv[locu] = pelinv;
-//   }
 
   return(0);
 }
@@ -455,8 +446,8 @@ static int rescomm(N_Vector uu, N_Vector up, void* user_data)
   realtype *uext = data->uext;
   realtype *host_send_buff = data->host_send_buff;
   realtype *host_recv_buff = data->host_recv_buff;
-  realtype *dev_send_buff = data->dev_send_buff;
-  realtype *dev_recv_buff = data->dev_recv_buff;
+  realtype *dev_send_buff  = data->dev_send_buff;
+  realtype *dev_recv_buff  = data->dev_recv_buff;
 
   /* Start receiving boundary data from neighboring PEs. */
   BRecvPost(comm, request, thispe, ixsub, jysub, npex, npey, mxsub, mysub, host_recv_buff);
@@ -484,10 +475,7 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
 {
   UserData data = (UserData) user_data;
   const sunindextype zero = 0;
-//  realtype termx, termy, termctr;
-//  sunindextype i, j, tid;
   sunindextype ibc, i0, jbc, j0;
-//  sunindextype locu, locue;
 
   /* Get subgrid indices, array sizes */
   const int ixsub = data->ixsub;
@@ -523,13 +511,6 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
     uext[(i+1) + (j+1)*mxsub2] = uuv[i + j*mxsub];
   });
 
-//   for (tid = 0; tid < mxsub*mysub; ++tid) {
-//     j = tid/mxsub;
-//     i = tid%mxsub;
-//
-//     uext[(i+1) + (j+1)*mxsub2] = uuv[i + j*mxsub];
-//   }
-
   /* Set loop limits for the interior of the local subgrid. */
 
   /* Prepare to loop over subgrid. */
@@ -551,18 +532,6 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
     resv[locu] = upv[locu] - (termx + termy - termctr);
   });
 
-//   for(tid=0; tid < (mxsub - ibc)*(mysub - jbc); ++tid) {
-//     j = tid/(mxsub - ibc) + j0;
-//     i = tid%(mxsub - ibc) + i0;
-//     locu  = i + j*mxsub;
-//     locue = (i+1) + (j+1)*mxsub2;
-//
-//     termx   = coeffx * (uext[locue-1]      + uext[locue+1]);
-//     termy   = coeffy * (uext[locue-mxsub2] + uext[locue+mxsub2]);
-//     termctr = coeffxy * uext[locue];
-//     resv[locu] = upv[locu] - (termx + termy - termctr);
-//   }
-
   return(0);
 
 }
@@ -576,8 +545,8 @@ static int BSend(MPI_Comm comm, int thispe,
                  sunindextype mxsub, sunindextype mysub,
                  const realtype *uarray, realtype *dev_send_buff, realtype *host_send_buff)
 {
+  cudaError_t err;
   const sunindextype zero = 0;
-//  sunindextype lx, ly;
   /* Have left, right, top and bottom device buffers use the same dev_send_buff. */
   realtype *d_bufleft   = dev_send_buff;
   realtype *d_bufright  = dev_send_buff + mysub;
@@ -597,11 +566,13 @@ static int BSend(MPI_Comm comm, int thispe,
     RAJA::forall<RAJA::cuda_exec<256> >(zero, mxsub, [=] __device__(sunindextype lx) {
       d_bufbottom[lx] = uarray[lx];
     });
-//     for (lx = 0; lx < mxsub; ++lx) {
-//       d_bufbottom[lx] = uarray[lx];
-//     }
     // Copy buffer to the host
-    cudaMemcpy(h_bufbottom, d_bufbottom, mxsub*sizeof(realtype), cudaMemcpyDeviceToHost);
+    err = cudaMemcpy(h_bufbottom, d_bufbottom, mxsub*sizeof(realtype), cudaMemcpyDeviceToHost);
+    if (err != cudaSuccess) {
+      printf("Bottom buffer: Copy from device to host failed with code %d... \n", err);
+      printf("%ld %ld\n", h_bufbottom, d_bufbottom);
+      return -1;
+    }
     // MPI send buffer
     MPI_Send(h_bufbottom, mxsub, PVEC_REAL_MPI_TYPE, thispe-npex, 0, comm);
   }
@@ -613,11 +584,12 @@ static int BSend(MPI_Comm comm, int thispe,
     RAJA::forall<RAJA::cuda_exec<256> >(zero, mxsub, [=] __device__(sunindextype lx) {
       d_buftop[lx] = uarray[(mysub-1)*mxsub + lx];
     });
-//     for (lx = 0; lx < mxsub; ++lx) {
-//       d_buftop[lx] = uarray[(mysub-1)*mxsub + lx];
-//     }
     // Copy buffer to the host
-    cudaMemcpy(h_buftop, d_buftop, mxsub*sizeof(realtype), cudaMemcpyDeviceToHost);
+    err = cudaMemcpy(h_buftop, d_buftop, mxsub*sizeof(realtype), cudaMemcpyDeviceToHost);
+    if (err != cudaSuccess) {
+      printf("Top buffer: Copy from device to host failed ... \n");
+      return -1;
+    }
     // MPI send buffer
     MPI_Send(h_buftop, mxsub, PVEC_REAL_MPI_TYPE, thispe+npex, 0, comm);
   }
@@ -629,11 +601,12 @@ static int BSend(MPI_Comm comm, int thispe,
     RAJA::forall<RAJA::cuda_exec<256> >(zero, mysub, [=] __device__(sunindextype ly) {
       d_bufleft[ly] = uarray[ly*mxsub];
     });
-//     for (ly = 0; ly < mysub; ly++) {
-//       d_bufleft[ly] = uarray[ly*mxsub];
-//     }
     // Copy buffer to the host
-    cudaMemcpy(h_bufleft, d_bufleft, mysub*sizeof(realtype), cudaMemcpyDeviceToHost);
+    err = cudaMemcpy(h_bufleft, d_bufleft, mysub*sizeof(realtype), cudaMemcpyDeviceToHost);
+    if (err != cudaSuccess) {
+      printf("Left buffer: Copy from device to host failed ... \n");
+      return -1;
+    }
     // MPI send buffer
     MPI_Send(h_bufleft, mysub, PVEC_REAL_MPI_TYPE, thispe-1, 0, comm);
   }
@@ -645,11 +618,12 @@ static int BSend(MPI_Comm comm, int thispe,
     RAJA::forall<RAJA::cuda_exec<256> >(zero, mysub, [=] __device__(sunindextype ly) {
       d_bufright[ly] = uarray[ly*mxsub + (mxsub-1)];
     });
-//     for (ly = 0; ly < mysub; ly++) {
-//       d_bufright[ly] = uarray[ly*mxsub + (mxsub-1)];
-//     }
     // Copy buffer to the host
-    cudaMemcpy(h_bufright, d_bufright, mysub*sizeof(realtype), cudaMemcpyDeviceToHost);
+    err = cudaMemcpy(h_bufright, d_bufright, mysub*sizeof(realtype), cudaMemcpyDeviceToHost);
+    if (err != cudaSuccess) {
+      printf("Right buffer: Copy from device to host failed ... \n");
+      return -1;
+    }
     // MPI send buffer
     MPI_Send(h_bufright, mysub, PVEC_REAL_MPI_TYPE, thispe+1, 0, comm);
   }
@@ -722,6 +696,7 @@ static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
                      sunindextype mxsub, sunindextype mysub,
                      realtype *uext, const realtype *host_recv_buff, realtype *dev_recv_buff)
 {
+  cudaError_t err;
   MPI_Status status;
   const sunindextype zero = 0;
 
@@ -735,7 +710,6 @@ static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
   realtype *d_buftop    = dev_recv_buff + 2*mysub;
   realtype *d_bufbottom = dev_recv_buff + 2*mysub + mxsub;
 
-  // sunindextype ly, lx, offsetue;
   const sunindextype mxsub2 = mxsub + 2;
   const sunindextype mysub1 = mysub + 1;
 
@@ -743,60 +717,60 @@ static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
   if (jysub != 0) {
     MPI_Wait(&request[0], &status);
     // Copy the buffer to the device
-    cudaMemcpy(d_bufbottom, h_bufbottom, mxsub*sizeof(realtype), cudaMemcpyHostToDevice);
+    err = cudaMemcpy(d_bufbottom, h_bufbottom, mxsub*sizeof(realtype), cudaMemcpyHostToDevice);
+    if (err != cudaSuccess) {
+      printf("Copy from host to device failed ... \n");
+      return -1;
+    }
     /* RAJA kernel here to copy the dev_recv_buff to uext. */
     RAJA::forall<RAJA::cuda_exec<256> >(zero, mxsub, [=] __device__(sunindextype lx) {
       uext[1 + lx] = d_bufbottom[lx];
     });
-//     for (lx = 0; lx < mxsub; lx++) {
-//       offsetue = 1 + lx;
-//       uext[offsetue] = d_bufbottom[lx];
-//     }
   }
 
   /* If jysub < NPEY-1, receive data for top x-line of uext. */
   if (jysub != npey-1) {
     MPI_Wait(&request[1], &status);
     // Copy the buffer to the device
-    cudaMemcpy(d_buftop, h_buftop, mxsub*sizeof(realtype), cudaMemcpyHostToDevice);
+    err = cudaMemcpy(d_buftop, h_buftop, mxsub*sizeof(realtype), cudaMemcpyHostToDevice);
+    if (err != cudaSuccess) {
+      printf("Copy from host to device failed ... \n");
+      return -1;
+    }
     /* RAJA kernel here to copy the dev_recv_buff to uext. */
     RAJA::forall<RAJA::cuda_exec<256> >(zero, mxsub, [=] __device__(sunindextype lx) {
       uext[(1 + mysub1*mxsub2) + lx] = d_buftop[lx];
     });
-//     for (lx = 0; lx < mxsub; lx++) {
-//       offsetue = (1 + mysub1*mxsub2) + lx;
-//       uext[offsetue] = d_buftop[lx];
-//     }
   }
 
   /* If ixsub > 0, receive data for left y-line of uext (via bufleft). */
   if (ixsub != 0) {
     MPI_Wait(&request[2], &status);
     // Copy the buffer to the device
-    cudaMemcpy(d_bufleft, h_bufleft, mysub*sizeof(realtype), cudaMemcpyHostToDevice);
+    err = cudaMemcpy(d_bufleft, h_bufleft, mysub*sizeof(realtype), cudaMemcpyHostToDevice);
+    if (err != cudaSuccess) {
+      printf("Copy from host to device failed ... \n");
+      return -1;
+    }
     /* RAJA kernel here to copy the dev_recv_buff to uext. */
     RAJA::forall<RAJA::cuda_exec<256> >(zero, mysub, [=] __device__(sunindextype ly) {
       uext[(ly+1)*mxsub2] = d_bufleft[ly];
     });
-//     for (ly = 0; ly < mysub; ly++) {
-//       offsetue = (ly+1)*mxsub2;
-//       uext[offsetue] = d_bufleft[ly];
-//     }
   }
 
   /* If ixsub < NPEX-1, receive data for right y-line of uext (via bufright). */
   if (ixsub != npex-1) {
     MPI_Wait(&request[3], &status);
     // Copy the buffer to the device
-    cudaMemcpy(d_bufright, h_bufright, mysub*sizeof(realtype), cudaMemcpyHostToDevice);
+    err = cudaMemcpy(d_bufright, h_bufright, mysub*sizeof(realtype), cudaMemcpyHostToDevice);
+    if (err != cudaSuccess) {
+      printf("Copy from host to device failed ... \n");
+      return -1;
+    }
     /* RAJA kernel here to copy the dev_recv_buff to uext. */
     RAJA::forall<RAJA::cuda_exec<256> >(zero, mysub, [=] __device__(sunindextype ly) {
       uext[(ly+2)*mxsub2 - 1] = d_bufright[ly];
     });
-//     for (ly = 0; ly < mysub; ly++) {
-//       offsetue = (ly+2)*mxsub2 - 1;
-//       uext[offsetue] = d_bufright[ly];
-//     }
   }
 
   return(0);
@@ -815,6 +789,7 @@ static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
 
 static int InitUserData(int thispe, MPI_Comm comm, UserData data)
 {
+
   data->comm    = comm;
   data->thispe  = thispe;
   data->npex    = NPEX;  /* Number of subgrids in x-direction */
@@ -849,9 +824,6 @@ static int InitUserData(int thispe, MPI_Comm comm, UserData data)
 static int AllocUserData(int thispe, MPI_Comm comm, N_Vector uu, UserData data)
 {
   cudaError_t err;
-  realtype *uext = data->uext;
-  realtype *dev_send_buff = data->dev_send_buff;
-  realtype *dev_recv_buff = data->dev_recv_buff;
   sunindextype mxsub = data->mxsub;
   sunindextype mysub = data->mysub;
 
@@ -863,15 +835,16 @@ static int AllocUserData(int thispe, MPI_Comm comm, N_Vector uu, UserData data)
   }
 
   /* Allocate local extended vector (includes ghost nodes) */
-  err = cudaMalloc(&uext, (mxsub + 2)*(mysub +2)*sizeof(realtype));
+  err = cudaMalloc((void**) &data->uext, (mxsub + 2)*(mysub +2)*sizeof(realtype));
   if(err != cudaSuccess) {
+    printf("Failed to allocate uext ... \n");
     N_VDestroy(data->pp);
     MPI_Abort(comm, 1);
     return -1;
   }
 
   /* Allocate local host send buffer */
-  data->host_send_buff = (realtype*) malloc(2*(data->mxsub + data->mysub)*sizeof(realtype));
+  data->host_send_buff = (realtype*) malloc(2*(mxsub + mysub)*sizeof(realtype));
   if(data->host_send_buff == NULL) {
     N_VDestroy(data->pp);
     free(data->uext);
@@ -879,7 +852,7 @@ static int AllocUserData(int thispe, MPI_Comm comm, N_Vector uu, UserData data)
     return -1;
   }
 
-  data->host_recv_buff = (realtype*) malloc(2*(data->mxsub + data->mysub)*sizeof(realtype));
+  data->host_recv_buff = (realtype*) malloc(2*(mxsub + mysub)*sizeof(realtype));
   if(data->host_recv_buff == NULL) {
     N_VDestroy(data->pp);
     free(data->uext);
@@ -889,10 +862,11 @@ static int AllocUserData(int thispe, MPI_Comm comm, N_Vector uu, UserData data)
   }
 
   /* Allocate local device send buffer */
-  err = cudaMalloc(&dev_send_buff, 2*(mxsub + mysub)*sizeof(realtype));
+  err = cudaMalloc((void**) &data->dev_send_buff, 2*(mxsub + mysub)*sizeof(realtype));
   if(err != cudaSuccess) {
+    printf("Failed to allocate dev_send_buff ... \n");
     N_VDestroy(data->pp);
-    cudaFree(uext);
+    cudaFree(data->uext);
     free(data->host_send_buff);
     free(data->host_recv_buff);
     MPI_Abort(comm, 1);
@@ -900,13 +874,14 @@ static int AllocUserData(int thispe, MPI_Comm comm, N_Vector uu, UserData data)
   }
 
   /* Allocate local device send buffer */
-  err = cudaMalloc(&dev_recv_buff, 2*(mxsub + mysub)*sizeof(realtype));
+  err = cudaMalloc((void**) &data->dev_recv_buff, 2*(mxsub + mysub)*sizeof(realtype));
   if(err != cudaSuccess) {
+    printf("Failed to allocate dev_recv_buff ... \n");
     N_VDestroy(data->pp);
-    cudaFree(uext);
+    cudaFree(data->uext);
     free(data->host_send_buff);
     free(data->host_recv_buff);
-    cudaFree(dev_send_buff);
+    cudaFree(data->dev_send_buff);
     MPI_Abort(comm, 1);
     return -1;
   }

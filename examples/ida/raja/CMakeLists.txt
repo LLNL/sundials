@@ -19,7 +19,7 @@
 
 # Examples using SUNDIALS linear solvers
 SET(IDA_examples
-  "idaHeat2D_kry_raja\;develop"
+  "idaHeat2D_kry_raja\;1\;1\;develop"
   "idaHeat2D_kry_p_raja\;1\;4\;develop"
   )
 
@@ -44,8 +44,10 @@ SET(SUNDIALS_LIBS ${IDA_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS} -L${RAJA_LIB_PATH} 
 FOREACH(example_tuple ${IDA_examples})
 
   # parse the example tuple
-  LIST(GET example_tuple 0 example)
-  LIST(GET example_tuple 1 example_type)
+  list(GET example_tuple 0 example)
+  list(GET example_tuple 1 number_of_nodes)
+  list(GET example_tuple 2 number_of_tasks)
+  list(GET example_tuple 3 example_type)
 
   set_source_files_properties(${example}.cu PROPERTIES CUDA_SOURCE_PROPERTY_FORMAT OBJ)
 
@@ -56,6 +58,7 @@ FOREACH(example_tuple ${IDA_examples})
 
   # add example to regression tests
   SUNDIALS_ADD_TEST(${example} ${example}
+    MPI_NPROCS ${number_of_tasks}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${example}.out
     EXAMPLE_TYPE ${example_type})
