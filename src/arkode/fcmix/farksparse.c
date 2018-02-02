@@ -88,8 +88,8 @@ int FARKSparseJac(realtype t, N_Vector y, N_Vector fy,
   NP = SUNSparseMatrix_NP(J);
   NNZ = SUNSparseMatrix_NNZ(J);
   Jdata = SUNSparseMatrix_Data(J);
-  indexvals = SUNSparseMatrix_IndexValues(J);
-  indexptrs = SUNSparseMatrix_IndexPointers(J);
+  indexvals = (long int*) SUNSparseMatrix_IndexValues(J);
+  indexptrs = (long int*) SUNSparseMatrix_IndexPointers(J);
 
   FARK_SPJAC(&t, ydata, fydata, &NP, &NNZ, Jdata, indexvals, 
              indexptrs, &h, ARK_userdata->ipar, ARK_userdata->rpar, 

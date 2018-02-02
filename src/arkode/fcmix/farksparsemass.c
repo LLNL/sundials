@@ -72,8 +72,8 @@ int FARKSparseMass(realtype t, SUNMatrix MassMat, void *user_data,
   NP = SUNSparseMatrix_NP(MassMat);
   NNZ = SUNSparseMatrix_NNZ(MassMat);
   Mdata = SUNSparseMatrix_Data(MassMat);
-  indexvals = SUNSparseMatrix_IndexValues(MassMat);
-  indexptrs = SUNSparseMatrix_IndexPointers(MassMat);
+  indexvals = (long int*) SUNSparseMatrix_IndexValues(MassMat);
+  indexptrs = (long int*) SUNSparseMatrix_IndexPointers(MassMat);
   ARK_userdata = (FARKUserData) user_data;
 
   FARK_SPMASS(&t, &NP, &NNZ, Mdata, indexvals, indexptrs, 

@@ -85,8 +85,8 @@ int FIDASparseJac(realtype t, realtype cj, N_Vector y, N_Vector yp,
   NP = SUNSparseMatrix_NP(J);
   NNZ = SUNSparseMatrix_NNZ(J);
   Jdata = SUNSparseMatrix_Data(J);
-  indexvals = SUNSparseMatrix_IndexValues(J);
-  indexptrs = SUNSparseMatrix_IndexPointers(J);
+  indexvals = (long int*) SUNSparseMatrix_IndexValues(J);
+  indexptrs = (long int*) SUNSparseMatrix_IndexPointers(J);
 
   FIDA_SPJAC(&t, &cj, ydata, ypdata, rdata, &NP, &NNZ,
 	    Jdata, indexvals, indexptrs, &h, 
