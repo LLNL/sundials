@@ -582,7 +582,7 @@ void N_VLinearSum_Pthreads(realtype a, N_Vector x, realtype b, N_Vector y, N_Vec
   /* allocate threads and thread data structs */ 
   N            = NV_LENGTH_PT(x);
   nthreads     = NV_NUM_THREADS_PT(x);
-  threads      = malloc(nthreads*sizeof(pthread_t));
+  threads      = (pthread_t *) malloc(nthreads*sizeof(pthread_t));
   thread_data  = (Pthreads_Data *) malloc(nthreads*sizeof(struct _Pthreads_Data));
 
   /* set thread attributes */
