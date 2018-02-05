@@ -58,6 +58,8 @@ $tar $tarfile $distrobase/src/cpodes/cpodes_bbdpre_impl.h
 
 echo "   --- Add cpodes examples to $tarfile"
 
+$tar $tarfile $distrobase/examples/cpodes/CMakeLists.txt
+
 $tar $tarfile $distrobase/examples/cpodes/serial/README
 $tar $tarfile $distrobase/examples/cpodes/serial/Makefile.in
 $tar $tarfile $distrobase/examples/cpodes/serial/CMakeLists.txt
