@@ -87,6 +87,12 @@ in extended {\F}.
 
 \section{Changes from previous versions}
 
+\subsection*{Changes in v2.1.1}
+
+Fixed a potential memory leak in the {\spgmr} and {\spfgmr} linear
+solvers: if "Initialize" was called multiple times then the solver
+memory was reallocated (without being freed).
+
 \subsection*{Changes in v2.1.0}
 
 Added {\nvector} print functions that write vector data to a specified

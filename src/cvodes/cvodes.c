@@ -8001,7 +8001,8 @@ static int cvSLdet(CVodeMem cv_mem)
         adrr = SUNRabs(rav[k] - rr);
         drrmax = SUNMAX(drrmax, adrr);
       }
-      if (drrmax > vrrt2) kflag = -3;    
+      if (drrmax > vrrt2) { kflag = -3; return(kflag); }
+    
       kflag = 1;
 
       /*  can compute charactistic root, drop to next section   */

@@ -1084,6 +1084,8 @@ int FIDAPSol(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
 
 int FIDAEwtSet(N_Vector yy, N_Vector ewt, void *user_data);
 
+void FIDANullMatrix();
+  
 /* Declarations for global variables shared amongst various routines */
 extern N_Vector F2C_IDA_vec;            /* defined in FNVECTOR module */
 extern N_Vector F2C_IDA_ypvec;          /* defined in fida.c */

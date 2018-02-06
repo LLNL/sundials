@@ -392,6 +392,7 @@ void FIDA_SPILSINIT(int *ier) {
     return;
   }
   *ier = IDASpilsSetLinearSolver(IDA_idamem, F2C_IDA_linsol);
+  FIDANullMatrix();
   IDA_ls = IDA_LS_ITERATIVE;
   return;
 }

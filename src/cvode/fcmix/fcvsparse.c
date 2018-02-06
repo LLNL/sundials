@@ -85,8 +85,8 @@ int FCVSparseJac(realtype t, N_Vector y, N_Vector fy,
   NP = SUNSparseMatrix_NP(J);
   NNZ = SUNSparseMatrix_NNZ(J);
   Jdata = SUNSparseMatrix_Data(J);
-  indexvals = SUNSparseMatrix_IndexValues(J);
-  indexptrs = SUNSparseMatrix_IndexPointers(J);
+  indexvals = (long int*) SUNSparseMatrix_IndexValues(J);
+  indexptrs = (long int*) SUNSparseMatrix_IndexPointers(J);
 
   FCV_SPJAC(&t, ydata, fydata, &NP, &NNZ, Jdata, indexvals, 
 	    indexptrs, &h, CV_userdata->ipar, CV_userdata->rpar,
