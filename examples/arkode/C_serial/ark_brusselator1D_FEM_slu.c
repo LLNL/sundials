@@ -65,6 +65,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <arkode/arkode.h>                  /* prototypes for ARKode fcts., consts. */
+#include <arkode/arkode_arkstep.h>          /* prototypes for ARKStep fcts., consts */
 #include <nvector/nvector_serial.h>         /* serial N_Vector types, fcts., macros */
 #include <sunmatrix/sunmatrix_sparse.h>     /* access to sparse SUNMatrix           */
 #include <sunlinsol/sunlinsol_superlumt.h>  /* access to SuperLU_MT SUNLinearSolver */
@@ -130,7 +131,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 static int f_diff(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 static int f_rx(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 static int MassMatrix(realtype t, SUNMatrix M, void *user_data, 
-		      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+                      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
@@ -209,9 +210,9 @@ int main(int argc, char *argv[]) {
   printf("    N = %li,  NEQ = %li\n", (long int) udata->N, (long int) NEQ);
   printf("    num_threads = %i\n", num_threads);
   printf("    problem parameters:  a = %"GSYM",  b = %"GSYM",  ep = %"GSYM"\n",
-	 udata->a, udata->b, udata->ep);
+         udata->a, udata->b, udata->ep);
   printf("    diffusion coefficients:  du = %"GSYM",  dv = %"GSYM",  dw = %"GSYM"\n", 
-	 udata->du, udata->dv, udata->dw);
+         udata->du, udata->dv, udata->dw);
   printf("    reltol = %.1"ESYM",  abstol = %.1"ESYM"\n\n", reltol, abstol);
 
   /* Initialize data structures */
@@ -368,18 +369,18 @@ int main(int argc, char *argv[]) {
   /* Print some final statistics */
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   check_flag(&flag, "ARKodeGetNumSteps", 1);
-  flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
-  check_flag(&flag, "ARKodeGetNumStepAttempts", 1);
-  flag = ARKodeGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(&flag, "ARKodeGetNumRhsEvals", 1);
-  flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
-  check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1);
-  flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
-  check_flag(&flag, "ARKodeGetNumErrTestFails", 1);
-  flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
-  check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1);
-  flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
-  check_flag(&flag, "ARKodeGetNumNonlinSolvConvFails", 1);
+  flag = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
+  check_flag(&flag, "ARKStepGetNumStepAttempts", 1);
+  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
+  check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
+  flag = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
+  check_flag(&flag, "ARKStepGetNumLinSolvSetups", 1);
+  flag = ARKStepGetNumErrTestFails(arkode_mem, &netf);
+  check_flag(&flag, "ARKStepGetNumErrTestFails", 1);
+  flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
+  check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1);
+  flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
+  check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1);
   flag = ARKDlsGetNumMassSetups(arkode_mem, &nmset);
   check_flag(&flag, "ARKDlsGetNumMassSetups", 1);
   flag = ARKDlsGetNumMassSolves(arkode_mem, &nms);
@@ -729,7 +730,7 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 
 /* Routine to compute the mass matrix multiplying y_t. */
 static int MassMatrix(realtype t, SUNMatrix M, void *user_data, 
-		      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3) {
+                      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3) {
 
   /* user data structure */
   UserData udata = (UserData) user_data;
@@ -1369,7 +1370,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return 1; }
 
   /* Check if flag < 0 */
@@ -1377,13 +1378,13 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
     errflag = (int *) flagvalue;
     if (*errflag < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
-	      funcname, *errflag);
+              funcname, *errflag);
       return 1; }}
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && flagvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return 1; }
 
   return 0;

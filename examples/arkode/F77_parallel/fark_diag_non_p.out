@@ -20,7 +20,7 @@ Diagonal test problem:
  t =   0.90D+00     steps =    88  (attempted =    88),  fe =   532  fi =     0
  t =   0.10D+01     steps =    97  (attempted =    97),  fe =   586  fi =     0
 
-Max. absolute error is   0.54E-05
+Max. absolute error is   0.22E-08
 
 
 Final statistics:

@@ -52,6 +52,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include "arkode/arkode.h"            // prototypes for ARKode fcts., consts. 
+#include "arkode/arkode_arkstep.h"    // prototypes for ARKStep fcts., consts
 #include "nvector/nvector_parallel.h" // parallel N_Vector types, fcts., macros 
 #include "sunlinsol/sunlinsol_pcg.h"  // access to PCG SUNLinearSolver
 #include "arkode/arkode_spils.h"      // access to ARKSpils interface
@@ -109,10 +110,10 @@ typedef struct {
 // User-supplied Functions Called by the Solver 
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 static int PSet(realtype t, N_Vector y, N_Vector fy, booleantype jok, 
-		booleantype *jcurPtr, realtype gamma, void *user_data);
+                booleantype *jcurPtr, realtype gamma, void *user_data);
 static int PSol(realtype t, N_Vector y, N_Vector fy, N_Vector r, 
-		N_Vector z, realtype gamma, realtype delta, int lr, 
-		void *user_data);
+                N_Vector z, realtype gamma, realtype delta, int lr, 
+                void *user_data);
 
 // Private functions 
 //    checks function return values 
@@ -222,8 +223,8 @@ int main(int argc, char* argv[]) {
   // Set routines 
   flag = ARKodeSetUserData(arkode_mem, (void *) udata);   // Pass udata to user functions 
   if (check_flag(&flag, "ARKodeSetUserData", 1)) return 1;
-  flag = ARKodeSetNonlinConvCoef(arkode_mem, 1.e-7);      // Update solver convergence coeff.
-  if (check_flag(&flag, "ARKodeSetNonlinConvCoef", 1)) return 1;
+  flag = ARKStepSetNonlinConvCoef(arkode_mem, 1.e-7);      // Update solver convergence coeff.
+  if (check_flag(&flag, "ARKStepSetNonlinConvCoef", 1)) return 1;
   flag = ARKodeSStolerances(arkode_mem, rtol, atol);      // Specify tolerances 
   if (check_flag(&flag, "ARKodeSStolerances", 1)) return 1;
 
@@ -234,15 +235,15 @@ int main(int argc, char* argv[]) {
   if (check_flag(&flag, "ARKSpilsSetPreconditioner", 1)) return 1;
 
   // Specify linearly implicit RHS, with non-time-dependent preconditioner
-  flag = ARKodeSetLinear(arkode_mem, 0);
-  if (check_flag(&flag, "ARKodeSetLinear", 1)) return 1;
+  flag = ARKStepSetLinear(arkode_mem, 0);
+  if (check_flag(&flag, "ARKStepSetLinear", 1)) return 1;
 
   // Each processor outputs subdomain information
   char outname[100];
   sprintf(outname, "heat2d_subdomain.%03i.txt", udata->myid);
   FILE *UFID = fopen(outname,"w");
   fprintf(UFID, "%li  %li  %li  %li  %li  %li\n", 
-	  (long int) udata->nx, (long int) udata->ny, (long int) udata->is,
+          (long int) udata->nx, (long int) udata->ny, (long int) udata->is,
           (long int) udata->ie, (long int) udata->js, (long int) udata->je);
   fclose(UFID);
 
@@ -278,7 +279,7 @@ int main(int argc, char* argv[]) {
       tout = (tout > Tf) ? Tf : tout;
     } else {                                                    // unsuccessful solve: break 
       if (outproc)  
-	cerr << "Solver failure, stopping integration\n";
+        cerr << "Solver failure, stopping integration\n";
       break;
     }
 
@@ -293,18 +294,18 @@ int main(int argc, char* argv[]) {
   long int nst, nst_a, nfe, nfi, nsetups, nli, nJv, nlcf, nni, ncfn, netf, npe, nps;
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   if (check_flag(&flag, "ARKodeGetNumSteps", 1)) return 1;
-  flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
-  if (check_flag(&flag, "ARKodeGetNumStepAttempts", 1)) return 1;
-  flag = ARKodeGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  if (check_flag(&flag, "ARKodeGetNumRhsEvals", 1)) return 1;
-  flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
-  if (check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1)) return 1;
-  flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
-  if (check_flag(&flag, "ARKodeGetNumErrTestFails", 1)) return 1;
-  flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
-  if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) return 1;
-  flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
-  if (check_flag(&flag, "ARKodeGetNumNonlinSolvConvFails", 1)) return 1;
+  flag = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
+  if (check_flag(&flag, "ARKStepGetNumStepAttempts", 1)) return 1;
+  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
+  if (check_flag(&flag, "ARKStepGetNumRhsEvals", 1)) return 1;
+  flag = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
+  if (check_flag(&flag, "ARKStepGetNumLinSolvSetups", 1)) return 1;
+  flag = ARKStepGetNumErrTestFails(arkode_mem, &netf);
+  if (check_flag(&flag, "ARKStepGetNumErrTestFails", 1)) return 1;
+  flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
+  if (check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1)) return 1;
+  flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
+  if (check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1)) return 1;
   flag = ARKSpilsGetNumLinIters(arkode_mem, &nli);
   if (check_flag(&flag, "ARKSpilsGetNumLinIters", 1)) return 1;
   flag = ARKSpilsGetNumJtimesEvals(arkode_mem, &nJv);
@@ -442,7 +443,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
 // Preconditioner setup routine (fills inverse of Jacobian diagonal)
 static int PSet(realtype t, N_Vector y, N_Vector fy, booleantype jok, 
-		booleantype *jcurPtr, realtype gamma, void *user_data)
+                booleantype *jcurPtr, realtype gamma, void *user_data)
 {
   UserData *udata = (UserData *) user_data;      // variable shortcuts 
   realtype kx = udata->kx;
@@ -462,8 +463,8 @@ static int PSet(realtype t, N_Vector y, N_Vector fy, booleantype jok,
 
 // Preconditioner solve routine
 static int PSol(realtype t, N_Vector y, N_Vector fy, N_Vector r, 
-		N_Vector z, realtype gamma, realtype delta, int lr, 
-		void *user_data)
+                N_Vector z, realtype gamma, realtype delta, int lr, 
+                void *user_data)
 {
   UserData *udata = (UserData *) user_data;  // access user_data structure
   N_VProd(r, udata->d, z);                   // perform Jacobi iteration

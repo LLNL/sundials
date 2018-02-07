@@ -97,7 +97,8 @@ Approved for public release; further dissemination unlimited
 \expandafter\def\csname PYG@tok@gr\endcsname{\def\PYG@tc##1{\textcolor[rgb]{1.00,0.00,0.00}{##1}}}
 \expandafter\def\csname PYG@tok@cm\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
 \expandafter\def\csname PYG@tok@vg\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
-\expandafter\def\csname PYG@tok@m\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
+\expandafter\def\csname PYG@tok@vi\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
+\expandafter\def\csname PYG@tok@vm\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
 \expandafter\def\csname PYG@tok@mh\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
 \expandafter\def\csname PYG@tok@cs\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}\def\PYG@bc##1{\setlength{\fboxsep}{0pt}\colorbox[rgb]{1.00,0.94,0.94}{\strut ##1}}}
 \expandafter\def\csname PYG@tok@ge\endcsname{\let\PYG@it=\textit}
@@ -119,16 +120,20 @@ Approved for public release; further dissemination unlimited
 \expandafter\def\csname PYG@tok@nf\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.02,0.16,0.49}{##1}}}
 \expandafter\def\csname PYG@tok@si\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.44,0.63,0.82}{##1}}}
 \expandafter\def\csname PYG@tok@s2\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
-\expandafter\def\csname PYG@tok@vi\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
 \expandafter\def\csname PYG@tok@nt\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.02,0.16,0.45}{##1}}}
 \expandafter\def\csname PYG@tok@nv\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.73,0.38,0.84}{##1}}}
 \expandafter\def\csname PYG@tok@s1\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@dl\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@ch\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
+\expandafter\def\csname PYG@tok@m\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
 \expandafter\def\csname PYG@tok@gp\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.78,0.36,0.04}{##1}}}
 \expandafter\def\csname PYG@tok@sh\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
 \expandafter\def\csname PYG@tok@ow\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
 \expandafter\def\csname PYG@tok@sx\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.78,0.36,0.04}{##1}}}
 \expandafter\def\csname PYG@tok@bp\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
 \expandafter\def\csname PYG@tok@c1\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
+\expandafter\def\csname PYG@tok@fm\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.02,0.16,0.49}{##1}}}
+\expandafter\def\csname PYG@tok@o\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
 \expandafter\def\csname PYG@tok@kc\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
 \expandafter\def\csname PYG@tok@c\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
 \expandafter\def\csname PYG@tok@mf\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
@@ -140,7 +145,7 @@ Approved for public release; further dissemination unlimited
 \expandafter\def\csname PYG@tok@kd\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
 \expandafter\def\csname PYG@tok@mi\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.13,0.50,0.31}{##1}}}
 \expandafter\def\csname PYG@tok@kn\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
-\expandafter\def\csname PYG@tok@o\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.40,0.40,0.40}{##1}}}
+\expandafter\def\csname PYG@tok@cpf\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.50,0.56}{##1}}}
 \expandafter\def\csname PYG@tok@kr\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
 \expandafter\def\csname PYG@tok@s\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
 \expandafter\def\csname PYG@tok@kp\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
@@ -148,6 +153,7 @@ Approved for public release; further dissemination unlimited
 \expandafter\def\csname PYG@tok@kt\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.56,0.13,0.00}{##1}}}
 \expandafter\def\csname PYG@tok@sc\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
 \expandafter\def\csname PYG@tok@sb\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
+\expandafter\def\csname PYG@tok@sa\endcsname{\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
 \expandafter\def\csname PYG@tok@k\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.00,0.44,0.13}{##1}}}
 \expandafter\def\csname PYG@tok@se\endcsname{\let\PYG@bf=\textbf\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
 \expandafter\def\csname PYG@tok@sd\endcsname{\let\PYG@it=\textit\def\PYG@tc##1{\textcolor[rgb]{0.25,0.44,0.63}{##1}}}
@@ -282,6 +288,13 @@ preconditioner routines.
 \section{Changes from previous versions}
 \label{Introduction:changes-from-previous-versions}
 
+\subsection{Changes since v2.1.1}
+\label{Introduction:changes-since-v2-1-1}
+Simplified the prototype for the user-supplied time step adaptivity
+function, {\hyperref[c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn()}}}}, to supply only the method order of
+accuracy (instead of both the method and embedding orders).
+
+
 \subsection{Changes in v2.1.1}
 \label{Introduction:changes-in-v2-1-1}
 Fixed a potential memory leak in the SPGMR and SPFGMR linear solvers:
@@ -291,9 +304,10 @@ reallocated (without being freed).
 Fixed a minor bug in the ARKReInit routine, where a flag was
 incorrectly set to indicate that the problem had been resized (instead
 of just re-initialized).
+
+
 \subsection{Changes in v2.1.0}
 \label{Introduction:changes-in-v2-1-0}
-
 Added NVECTOR print functions that write vector data to a specified
 file (e.g. \code{N\_VPrintFile\_Serial}).
 
@@ -2092,20 +2106,20 @@ knowledge of this structure is not necessary for its use.
 
 The overall organization of the ARKode package is shown in Figure
 {\hyperref[Organization:arkorg]{\emph{\DUspan{}{ARKode organization}}}}.  The central integration module,
-implemented in the files \code{arkode.h}, \code{arkode\_impl.h} and
-\code{arkode.c}, deals with the evaluation of integration stages, the
-nonlinear solver \((\text{if}\; f_I(t,y)\ne 0)\), estimation of
-the local truncation error, selection of step size, and interpolation
-to user output points, among other issues.  ARKode currently supports
-modified Newton, inexact Newton, and accelerated fixed-point solvers
-for these implicit problems.  However, when using the Newton-based
-iterations, or when using a non-identity mass matrix \(M\ne I\),
-ARKode has flexibility in the choice of method used to solve the
-linear sub-systems that arise.  Therefore, for any user problem
-invoking the Newton solvers, or any user problem with \(M\ne I\),
-one (or more) of the linear system solver modules should be specified
-by the user, which is then invoked as needed during the integration
-process.
+implemented in the files \code{arkode.h}, \code{arkode\_impl.h},
+\code{arkode\_butcher.h}, \code{arkode.c} and \code{arkode\_butcher.c}, deals
+with the evaluation of integration stages, the nonlinear solver
+\((\text{if}\; f_I(t,y)\ne 0)\), estimation of the local
+truncation error, selection of step size, and interpolation to user
+output points, among other issues.  ARKode currently supports modified
+Newton, inexact Newton, and accelerated fixed-point solvers for these
+implicit problems.  However, when using the Newton-based iterations,
+or when using a non-identity mass matrix \(M\ne I\), ARKode has
+flexibility in the choice of method used to solve the linear
+sub-systems that arise.  Therefore, for any user problem invoking the
+Newton solvers, or any user problem with \(M\ne I\), one (or more)
+of the linear system solver modules should be specified by the user,
+which is then invoked as needed during the integration process.
 \begin{figure}[htbp]
 \centering
 \capstart
@@ -4975,6 +4989,7 @@ ARKode memory block, it cannot be increased between calls to
 {\hyperref[c_interface/User_callable:c.ARKode]{\emph{\code{ARKode()}}}} unless {\hyperref[c_interface/User_callable:c.ARKodeReInit]{\emph{\code{ARKodeReInit()}}}} is called.
 
 \end{fulllineitems}
+
 \index{ARKodeSetImEx (C function)}
 
 \begin{fulllineitems}
@@ -7871,7 +7886,7 @@ Returns the current internal time reached by the solver.
 \index{ARKodeGetCurrentButcherTables (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{c_interface/User_callable:c.ARKodeGetCurrentButcherTables}\pysiglinewithargsret{int \bfcode{ARKodeGetCurrentButcherTables}}{void*\emph{ arkode\_mem}, int*\emph{ s}, int*\emph{ q}, int*\emph{ p}, realtype*\emph{ Ai}, realtype*\emph{ Ae}, realtype*\emph{ ci}, realtype*\emph{ ce}, realtype*\emph{ bi}, realtype*\emph{ be}, realtype*\emph{ b2i}, realtype*\emph{ b2e}}{}
+\phantomsection\label{c_interface/User_callable:c.ARKodeGetCurrentButcherTables}\pysiglinewithargsret{int \bfcode{ARKodeGetCurrentButcherTables}}{void*\emph{ arkode\_mem}, ARKodeButcherTable\emph{ *Bi}, ARKodeButcherTable\emph{ *Be}}{}
 Returns the explicit and implicit Butcher tables
 currently in use by the solver.
 \begin{description}
@@ -7880,37 +7895,10 @@ currently in use by the solver.
 \emph{arkode\_mem} -- pointer to the ARKode memory block.
 
 \item {} 
-\emph{s} -- number of stages in the method.
+\emph{Bi} -- pointer to implicit Butcher table structure.
 
 \item {} 
-\emph{q} -- global order of accuracy of the method.
-
-\item {} 
-\emph{p} -- global order of accuracy of the embedding.
-
-\item {} 
-\emph{Ai} -- coefficients of DIRK method.
-
-\item {} 
-\emph{Ae} -- coefficients of ERK method.
-
-\item {} 
-\emph{ci} -- array of implicit stage times.
-
-\item {} 
-\emph{ce} -- array of explicit stage times.
-
-\item {} 
-\emph{bi} -- array of implicit solution coefficients.
-
-\item {} 
-\emph{be} -- array of explicit solution coefficients.
-
-\item {} 
-\emph{b2i} -- array of implicit embedding coefficients.
-
-\item {} 
-\emph{b2e} -- array of explicit embedding coefficients.
+\emph{Be} -- pointer to explicit Butcher table structure.
 
 \end{itemize}
 
@@ -7925,9 +7913,23 @@ currently in use by the solver.
 
 \end{description}
 
-\textbf{Notes:}  The user must allocate space for \emph{Ae} and \emph{Ai} of size
-\code{ARK\_S\_MAX*ARK\_S\_MAX}, and for \emph{ci}, \emph{ce}, \emph{bi}, \emph{be}, \emph{b2i}, and
-\emph{b2e} of size \code{ARK\_S\_MAX} prior to calling this function.
+\textbf{Notes:}  The \emph{ARKodeButcherTable} data structure is defined in
+the header file \code{arkode/arkode\_butcher.h}.  It is defined as a
+pointer to the following C structure:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{typedef} \PYG{k}{struct} \PYG{n}{ARKodeButcherTableMem} \PYG{p}{\PYGZob{}}
+
+  \PYG{k+kt}{int} \PYG{n}{q}\PYG{p}{;}           \PYG{c+cm}{/* method order of accuracy       */}
+  \PYG{k+kt}{int} \PYG{n}{p}\PYG{p}{;}           \PYG{c+cm}{/* embedding order of accuracy    */}
+  \PYG{k+kt}{int} \PYG{n}{stages}\PYG{p}{;}      \PYG{c+cm}{/* number of stages               */}
+  \PYG{n}{realtype} \PYG{o}{*}\PYG{o}{*}\PYG{n}{A}\PYG{p}{;}    \PYG{c+cm}{/* Butcher table coefficients     */}
+  \PYG{n}{realtype} \PYG{o}{*}\PYG{n}{c}\PYG{p}{;}     \PYG{c+cm}{/* canopy node coefficients       */}
+  \PYG{n}{realtype} \PYG{o}{*}\PYG{n}{b}\PYG{p}{;}     \PYG{c+cm}{/* root node coefficients         */}
+  \PYG{n}{realtype} \PYG{o}{*}\PYG{n}{d}\PYG{p}{;}     \PYG{c+cm}{/* embedding coefficients         */}
+
+\PYG{p}{\PYGZcb{}} \PYG{o}{*}\PYG{n}{ARKodeButcherTable}\PYG{p}{;}
+\end{Verbatim}
 
 \end{fulllineitems}
 
@@ -9500,16 +9502,6 @@ Output the current Butcher table(s)
  & 
 {\hyperref[c_interface/User_callable:c.ARKodeWriteButcher]{\emph{\code{ARKodeWriteButcher()}}}}
 \\
-\hline
-Test the analytical order of accuracy for a Butcher table
- & 
-{\hyperref[c_interface/User_callable:c.ARKodeTestButcherTable]{\emph{\code{ARKodeTestButcherTable()}}}}
-\\
-\hline
-Test the analytical order for a pair of Butcher tables
- & 
-{\hyperref[c_interface/User_callable:c.ARKodeTestButcherTables]{\emph{\code{ARKodeTestButcherTables()}}}}
-\\
 \hline\end{tabulary}
 
 \index{ARKodeWriteParameters (C function)}
@@ -9550,10 +9542,11 @@ identical.
 \index{ARKodeLoadButcherTable (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{c_interface/User_callable:c.ARKodeLoadButcherTable}\pysiglinewithargsret{int \bfcode{ARKodeLoadButcherTable}}{int\emph{ imethod}, int\emph{ *s}, int\emph{ *q}, int\emph{ *p}, realtype\emph{ *A}, realtype\emph{ *b}, realtype\emph{ *c}, realtype\emph{ *b2}}{}
-Retrieves a specified Butcher table.  The array \emph{A} must be declared
-of size \code{ARK\_S\_MAX*ARK\_S\_MAX}, and the arrays \emph{c}, \emph{b}
-and \emph{b2} should all have length at least \code{ARK\_S\_MAX}.
+\phantomsection\label{c_interface/User_callable:c.ARKodeLoadButcherTable}\pysiglinewithargsret{ARKodeButcherTable \bfcode{ARKodeLoadButcherTable}}{int\emph{ imethod}}{}
+Retrieves a specified Butcher table.  The \emph{ARKodeButcherTable} data
+structure is defined in the header file
+\code{arkode/arkode\_butcher.h}, and is described above in the notes
+for the function {\hyperref[c_interface/User_callable:c.ARKodeGetCurrentButcherTables]{\emph{\code{ARKodeGetCurrentButcherTables()}}}}.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
@@ -9561,35 +9554,14 @@ and \emph{b2} should all have length at least \code{ARK\_S\_MAX}.
 valid values match those for the functions
 {\hyperref[c_interface/User_callable:c.ARKodeSetERKTableNum]{\emph{\code{ARKodeSetERKTableNum()}}}} and {\hyperref[c_interface/User_callable:c.ARKodeSetIRKTableNum]{\emph{\code{ARKodeSetIRKTableNum()}}}}
 
-\item {} 
-\emph{s} -- integer number of stages for the method (output)
-
-\item {} 
-\emph{q} -- integer order of the method (output)
-
-\item {} 
-\emph{p} -- integer order of the embedding (output)
-
-\item {} 
-\emph{A} -- realtype Butcher table coefficients (output)
-
-\item {} 
-\emph{b} -- realtype root node coefficients (output)
-
-\item {} 
-\emph{c} -- realtype canopy node coefficients (output)
-
-\item {} 
-\emph{b2} -- realtype embedding coefficients (output)
-
 \end{itemize}
 
 \item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
 \item {} 
-\emph{ARKSPILS\_SUCCESS} if successful
+\emph{ARKodeButcherTable} structure if successful
 
 \item {} 
-\emph{ARKSPILS\_ILL\_INPUT} if \emph{imethod} was invalid
+\emph{NULL} pointer if \emph{imethod} was invalid
 
 \end{itemize}
 
@@ -9633,122 +9605,6 @@ configured to run an ImEx method then both tables will be output.
 When run in parallel, only one process should set a non-NULL value
 for this pointer, since tables for all processes would be
 identical.
-
-\end{fulllineitems}
-
-\index{ARKodeTestButcherTable (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{c_interface/User_callable:c.ARKodeTestButcherTable}\pysiglinewithargsret{int \bfcode{ARKodeTestButcherTable}}{realtype\emph{ *A}, realtype\emph{ *b}, realtype\emph{ *c}, int\emph{ s}, booleantype\emph{ printstats}}{}
-Checks the order conditions for a single Butcher table (ERK or DIRK
-or even IRK), and returns the integer order of accuracy for the
-method (up to 6th order).  It will optionally output detailed
-information on the tests that pass/fail, depending on the
-\emph{printstats} argument.
-\begin{description}
-\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
-\item {} 
-\emph{A} -- realtype Butcher table of allocated size
-\code{ARK\_S\_MAX*ARK\_S\_MAX}, although not all of this space need
-be used.
-
-\item {} 
-\emph{b} -- realtype root node coefficients for the Butcher table
-
-\item {} 
-\emph{c} -- realtype canopy node coefficients for the Butcher table
-
-\item {} 
-\emph{s} -- integer number of stages in this Butcher table
-
-\item {} 
-\emph{printstats} -- booleantype flag denoting whether to output
-detailed test statistics to \code{stdout}
-
-\end{itemize}
-
-\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
-\item {} 
-the integer order of accuracy for the method (0 through 6); a
-return value of \code{-1} indicates that the row sum condition is
-not satisfied (see below).
-
-\end{itemize}
-
-\end{description}
-
-\textbf{Notes:} The only assumption is that the row-sum condition must
-be satisfied, i.e. that
-\begin{gather}
-\begin{split}c_i = \sum_{j=1}^s A_{i,j}, \quad i=1,\ldots,s,\end{split}\notag
-\end{gather}
-no other ``simplifying assumptions'' are made.
-
-\end{fulllineitems}
-
-\index{ARKodeTestButcherTables (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{c_interface/User_callable:c.ARKodeTestButcherTables}\pysiglinewithargsret{int \bfcode{ARKodeTestButcherTables}}{realtype\emph{ *A1}, realtype\emph{ *b1}, realtype\emph{ *c1}, realtype\emph{ *A2}, realtype\emph{ *b2}, realtype\emph{ *c2}, int\emph{ s}, booleantype\emph{ printstats}}{}
-Checks the order conditions for a pair of Butcher tables that
-comprise a 2-additive Runge-Kutta method, and returns the integer
-order of accuracy for the coupled method (up to 6th order).  No
-assumptions are made about whether each method is explicit or
-implicit.  It will optionally output detailed information on the
-tests that pass/fail, depending on the \emph{printstats} argument.
-\begin{description}
-\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
-\item {} 
-\emph{A1} -- realtype Butcher table of allocated size
-\code{ARK\_S\_MAX*ARK\_S\_MAX}, although not all of this space need
-be used.
-
-\item {} 
-\emph{b1} -- realtype root node coefficients for the Butcher table
-
-\item {} 
-\emph{c1} -- realtype root node coefficients for the Butcher table
-
-\item {} 
-\emph{A2} -- realtype Butcher table of allocated size
-\code{ARK\_S\_MAX*ARK\_S\_MAX}, although not all of this space need
-be used.
-
-\item {} 
-\emph{b2} -- realtype root node coefficients for the Butcher table
-
-\item {} 
-\emph{c2} -- realtype canopy coefficients for the Butcher table
-
-\item {} 
-\emph{s} -- integer number of stages in this Butcher table
-
-\item {} 
-\emph{printstats} -- booleantype flag denoting whether to output
-detailed test statistics to \code{stdout}
-
-\end{itemize}
-
-\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
-\item {} 
-the integer order of accuracy for the coupled method (0
-through 6); a return value of \code{-1} indicates that one or
-both of the row sum conditions is not satisfied (see below).
-
-\end{itemize}
-
-\end{description}
-
-\textbf{Notes:} The only assumptions are that the row-sum
-condition for each component method must be satisfied, i.e. that
-\begin{gather}
-\begin{split}c^1_i &= \sum_{j=1}^s A^1_{i,j}, \quad i=1,\ldots,s\\
-\text{and}\qquad\quad&\\
-c^2_i &= \sum_{j=1}^s A^2_{i,j}, \quad i=1,\ldots,s,\end{split}\notag
-\end{gather}
-where \(c^i\) and \(A^i\), \(i =\) \{1,2\}  denote the
-coefficients for the respective table; no other ``simplifying
-assumptions'' are made.
 
 \end{fulllineitems}
 
@@ -10236,7 +10092,7 @@ as the maximum value such that the error estimates remain below 1.
 \index{ARKAdaptFn (C type)}
 
 \begin{fulllineitems}
-\phantomsection\label{c_interface/User_supplied:c.ARKAdaptFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKAdaptFn)}}{N\_Vector\emph{ y}, realtype\emph{ t}, realtype\emph{ h1}, realtype\emph{ h2}, realtype\emph{ h3}, realtype\emph{ e1}, realtype\emph{ e2}, realtype\emph{ e3}, int\emph{ q}, int\emph{ p}, realtype*\emph{ hnew}, void*\emph{ user\_data}}{}
+\phantomsection\label{c_interface/User_supplied:c.ARKAdaptFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKAdaptFn)}}{N\_Vector\emph{ y}, realtype\emph{ t}, realtype\emph{ h1}, realtype\emph{ h2}, realtype\emph{ h3}, realtype\emph{ e1}, realtype\emph{ e2}, realtype\emph{ e3}, int\emph{ q}, realtype*\emph{ hnew}, void*\emph{ user\_data}}{}
 This function implements a time step adaptivity algorithm
 that chooses \(h\) satisfying the error tolerances.
 \begin{description}
@@ -10266,10 +10122,7 @@ that chooses \(h\) satisfying the error tolerances.
 \emph{e3} -- the error estimate from the step \(m-2\).
 
 \item {} 
-\emph{q} -- the global order of accuracy for the integration method.
-
-\item {} 
-\emph{p} -- the global order of accuracy for the embedding.
+\emph{q} -- the global order of accuracy for the method.
 
 \item {} 
 \emph{hnew} -- the output value of the next step size.
@@ -12980,7 +12833,8 @@ ARKode routine
 \emph{(a)} When setting \code{ARK\_TABLE\_NUM}, pass in \emph{IVAL} as an array of
 length 2, specifying the IRK table number first, then the ERK table
 number.  The integer specifiers for each table may be found in the
-section {\hyperref[Constants:constants]{\emph{\DUspan{}{Appendix: ARKode Constants}}}}, or in the ARKode header file \code{arkode.h}.
+section {\hyperref[Constants:constants]{\emph{\DUspan{}{Appendix: ARKode Constants}}}}, or in the ARKode header file
+\code{arkode\_butcher.h}.
 \index{FARKSETRIN() (fortran subroutine)|textbf}
 
 \begin{fulllineitems}
@@ -13339,7 +13193,7 @@ interface this is provided through the user-supplied function:
 \index{FARKADAPT() (fortran subroutine)|textbf}
 
 \begin{fulllineitems}
-\phantomsection\label{f_interface/Usage:f/_/FARKADAPT}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FARKADAPT}}{\emph{Y}, \emph{T}, \emph{H1}, \emph{H2}, \emph{H3}, \emph{E1}, \emph{E2}, \emph{E3}, \emph{Q}, \emph{P}, \emph{HNEW}, \emph{IPAR}, \emph{RPAR}, \emph{IER}}{}
+\phantomsection\label{f_interface/Usage:f/_/FARKADAPT}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FARKADAPT}}{\emph{Y}, \emph{T}, \emph{H1}, \emph{H2}, \emph{H3}, \emph{E1}, \emph{E2}, \emph{E3}, \emph{Q}, \emph{HNEW}, \emph{IPAR}, \emph{RPAR}, \emph{IER}}{}
 It must set the new step size \emph{HNEW} based on the three previous
 steps (\emph{H1}, \emph{H2}, \emph{H3}) and the three previous error estimates
 (\emph{E1}, \emph{E2}, \emph{E3}).
@@ -13371,9 +13225,6 @@ steps (\emph{H1}, \emph{H2}, \emph{H3}) and the three previous error estimates
 
 \item {} 
 \emph{Q} (\code{int}, input) -- global order of accuracy for RK method.
-
-\item {} 
-\emph{P} (\code{int}, input) -- global order of accuracy for RK embedding.
 
 \item {} 
 \emph{HNEW} (\code{realtype}, output) -- array containing the error weight vector.
@@ -17207,6 +17058,7 @@ This function returns the number of vector elements.
 \begin{fulllineitems}
 \phantomsection\label{nvectors/NVector_Serial:c.N_VPrint_Serial}\pysiglinewithargsret{void \bfcode{N\_VPrint\_Serial}}{N\_Vector\emph{ v}}{}
 This function prints the content of a serial vector to \code{stdout}.
+
 \end{fulllineitems}
 
 \index{N\_VPrintFile\_Serial (C function)}
@@ -18041,6 +17893,7 @@ This function returns the number of vector elements.
 \begin{fulllineitems}
 \phantomsection\label{nvectors/NVector_Pthreads:c.N_VPrint_Pthreads}\pysiglinewithargsret{void \bfcode{N\_VPrint\_Pthreads}}{N\_Vector\emph{ v}}{}
 This function prints the content of a Pthreads vector to \code{stdout}.
+
 \end{fulllineitems}
 
 \index{N\_VPrintFile\_Pthreads (C function)}
@@ -19362,7 +19215,7 @@ space requirements; it could be a dummy function in a user-supplied
 Usage:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-ier = SUNMatSpace(A, \PYGZbs{}\PYGZam{}lrw, \PYGZbs{}\PYGZam{}liw);
+\PYG{n}{ier} \PYG{o}{=} \PYG{n}{SUNMatSpace}\PYG{p}{(}\PYG{n}{A}\PYG{p}{,} \PYG{o}{\PYGZam{}}\PYG{n}{lrw}\PYG{p}{,} \PYG{o}{\PYGZam{}}\PYG{n}{liw}\PYG{p}{)}\PYG{p}{;}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -21613,7 +21466,7 @@ returning one of the generic error codes listed in section
 Usage:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-ier = SUNLinSolSetATimes(LS, A\PYGZbs{}\PYGZus{}data, ATimes);
+\PYG{n}{ier} \PYG{o}{=} \PYG{n}{SUNLinSolSetATimes}\PYG{p}{(}\PYG{n}{LS}\PYG{p}{,} \PYG{n}{A\PYGZus{}data}\PYG{p}{,} \PYG{n}{ATimes}\PYG{p}{)}\PYG{p}{;}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -23082,7 +22935,7 @@ SUNLINSOL\_SUPERLUMT module defines the \emph{content} field of a
   \PYG{k+kt}{int}          \PYG{n}{num\PYGZus{}threads}\PYG{p}{;}
   \PYG{n}{realtype}     \PYG{n}{diag\PYGZus{}pivot\PYGZus{}thresh}\PYG{p}{;}
   \PYG{k+kt}{int}          \PYG{n}{ordering}\PYG{p}{;}
-  \PYG{k+kt}{superlumt\PYGZus{}options\PYGZus{}t} \PYG{o}{*}\PYG{n}{options}\PYG{p}{;}
+  \PYG{n}{superlumt\PYGZus{}options\PYGZus{}t} \PYG{o}{*}\PYG{n}{options}\PYG{p}{;}
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{Verbatim}
 
@@ -25810,9 +25663,9 @@ level SUNDIALS directory with appropriate source, build and install
 directories:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }mkdir \PYG{o}{(}...\PYG{o}{)}/INSTDIR
-\PYG{n+nv}{\PYGZdl{} }mkdir \PYG{o}{(}...\PYG{o}{)}/BUILDDIR
-\PYG{n+nv}{\PYGZdl{} }\PYG{n+nb}{cd} \PYG{o}{(}...\PYG{o}{)}/BUILDDIR
+\PYGZdl{} mkdir \PYG{o}{(}...\PYG{o}{)}/INSTDIR
+\PYGZdl{} mkdir \PYG{o}{(}...\PYG{o}{)}/BUILDDIR
+\PYGZdl{} \PYG{n+nb}{cd} \PYG{o}{(}...\PYG{o}{)}/BUILDDIR
 \end{Verbatim}
 
 \index{cmake-gui}
@@ -25905,7 +25758,7 @@ To build the default configuration using the curses GUI, from the
 BUILDDIR enter the \code{ccmake} command and point to the SRCDIR:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }ccmake \PYG{o}{(}...\PYG{o}{)}/SRCDIR
+\PYGZdl{} ccmake \PYG{o}{(}...\PYG{o}{)}/SRCDIR
 \end{Verbatim}
 
 Similarly, to build the default configuration using the wxWidgets GUI,
@@ -25913,7 +25766,7 @@ from the BUILDDIR enter the \code{cmake-gui} command and point to the
 SRCDIR:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }cmake\PYGZhy{}gui \PYG{o}{(}...\PYG{o}{)}/SRCDIR
+\PYGZdl{} cmake\PYGZhy{}gui \PYG{o}{(}...\PYG{o}{)}/SRCDIR
 \end{Verbatim}
 
 The default curses configuration screen is shown in
@@ -25943,19 +25796,19 @@ makefiles including all dependencies and all rules to build SUNDIALS
 on this system.  Back at the command prompt, you can now run:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }make
+\PYGZdl{} make
 \end{Verbatim}
 
 or for a faster parallel build (e.g. using 4 threads), you can run
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }make \PYGZhy{}j 4
+\PYGZdl{} make \PYGZhy{}j \PYG{l+m}{4}
 \end{Verbatim}
 
 To install SUNDIALS in the installation directory specified in the configuration, simply run:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }make install
+\PYGZdl{} make install
 \end{Verbatim}
 
 \index{cmake}
@@ -25967,11 +25820,11 @@ CMake variable settings with the \code{cmake} command.  The following
 will build the default configuration:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }cmake \PYGZhy{}DCMAKE\PYGZus{}INSTALL\PYGZus{}PREFIX\PYG{o}{=}/home/myname/sundials/instdir \PYG{l+s+se}{\PYGZbs{}}
+\PYGZdl{} cmake \PYGZhy{}DCMAKE\PYGZus{}INSTALL\PYGZus{}PREFIX\PYG{o}{=}/home/myname/sundials/instdir \PYG{l+s+se}{\PYGZbs{}}
 \PYGZgt{}  \PYGZhy{}DEXAMPLES\PYGZus{}INSTALL\PYGZus{}PATH\PYG{o}{=}/home/myname/sundials/instdir/examples \PYG{l+s+se}{\PYGZbs{}}
 \PYGZgt{}  ../srcdir
-\PYG{n+nv}{\PYGZdl{} }make
-\PYG{n+nv}{\PYGZdl{} }make install
+\PYGZdl{} make
+\PYGZdl{} make install
 \end{Verbatim}
 
 
@@ -26836,12 +26689,15 @@ CMake configuration file. SUNDIALS was tested with RAJA version 0.3.
 If SUNDIALS was configured with \code{EXAMPLES\_ENABLE\_\textless{}language\textgreater{}} options
 to \code{ON}, then a set of regression tests can be run after building
 with the \code{make} command by running:
+
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYGZpc{} make \PYG{n+nb}{test}
 \end{Verbatim}
+
 Additionally, if \code{EXAMPLES\_INSTALL} was also set to \code{ON}, then a
 set of smoke tests can be run after installing with the \code{make install}
 command by running:
+
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYGZpc{} make test\PYGZus{}install
 \end{Verbatim}
@@ -26939,7 +26795,7 @@ and set the SUNDIALS libraries as dependencies for your project.
 Using the CMake SUNDIALS build system, the command
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n+nv}{\PYGZdl{} }make install
+\PYGZdl{} make install
 \end{Verbatim}
 
 will install the libraries under \code{LIBDIR} and the public header
@@ -27327,6 +27183,7 @@ Header files
 \code{arkode/arkode.h},
 \code{arkode/arkode\_bandpre.h},
 \code{arkode/arkode\_bbdpre.h},
+\code{arkode/arkode\_butcher.h},
 \code{arkode/arkode\_direct.h},
 \code{arkode/arkode\_impl.h},
 \code{arkode/arkode\_spils.h},
@@ -27785,7 +27642,7 @@ where here
 
 \end{itemize}
 
-In the code, unique integer IDs are defined inside \code{arkode.h} for
+In the code, unique integer IDs are defined inside \code{arkode\_butcher.h} for
 each method, which may be used by calling routines to specify the
 desired method.  These names are specified in \code{fixed width font} at
 the start of each method's section below.

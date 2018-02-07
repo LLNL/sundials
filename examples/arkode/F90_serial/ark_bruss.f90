@@ -76,7 +76,7 @@ program driver
 
   !-----------------------
   ! set some solver parameters
-  order = 3          ! 4th order method
+  order = 3          ! 3rd order method
   adapt_method = 0   ! PID-controller
   nlscoef = 1.d-2    ! Newton solver tolerance coefficient
 

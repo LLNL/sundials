@@ -39,20 +39,20 @@
 
 /* Prototypes of functions ARKBBDPrecSetup and ARKBBDPrecSolve */
 static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy, 
-			   booleantype jok, booleantype *jcurPtr, 
-			   realtype gamma, void *bbd_data);
+                           booleantype jok, booleantype *jcurPtr, 
+                           realtype gamma, void *bbd_data);
 static int ARKBBDPrecSolve(realtype t, N_Vector y, N_Vector fy, 
-			   N_Vector r, N_Vector z, 
-			   realtype gamma, realtype delta,
-			   int lr, void *bbd_data);
+                           N_Vector r, N_Vector z, 
+                           realtype gamma, realtype delta,
+                           int lr, void *bbd_data);
 
 /* Prototype for ARKBBDPrecFree */
 static int ARKBBDPrecFree(ARKodeMem ark_mem);
 
 /* Prototype for difference quotient Jacobian calculation routine */
 static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t, 
-		       N_Vector y, N_Vector gy, 
-		       N_Vector ytemp, N_Vector gtemp);
+                       N_Vector y, N_Vector gy, 
+                       N_Vector ytemp, N_Vector gtemp);
 
 
 /*---------------------------------------------------------------
@@ -64,27 +64,28 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
                    realtype dqrely, 
                    ARKLocalFn gloc, ARKCommFn cfn)
 {
-  ARKodeMem ark_mem;
-  ARKSpilsMem arkspils_mem;
+  ARKodeMem      ark_mem;
+  ARKSpilsMem    arkspils_mem;
+  void*          ark_step_lmem;
   ARKBBDPrecData pdata;
-  sunindextype muk, mlk, storage_mu, lrw1, liw1;
-  long int lrw, liw;
-  int flag;
+  sunindextype   muk, mlk, storage_mu, lrw1, liw1;
+  long int       lrw, liw;
+  int            flag;
 
+  /* Return immediately if ARKodeMem or ARKSpilsMem are NULL */
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKBBDPRE", 
                     "ARKBBDPrecInit", MSGBBD_MEM_NULL);
     return(ARKSPILS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-
-  /* Test if the SPILS linear solver interface has been created */
-  if (ark_mem->ark_lmem == NULL) {
+  ark_step_lmem = ark_mem->ark_step_getlinmem(arkode_mem);
+  if (ark_step_lmem == NULL) {
     arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKBBDPRE", 
                     "ARKBBDPrecInit", MSGBBD_LMEM_NULL);
     return(ARKSPILS_LMEM_NULL);
   }
-  arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
+  arkspils_mem = (ARKSpilsMem) ark_step_lmem;
 
   /* Test compatibility of NVECTOR package with the BBD preconditioner */
   if(ark_mem->ark_tempv->ops->nvgetarraypointer == NULL) {
@@ -280,7 +281,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   /* Attach preconditioner solve and setup functions */
   flag = ARKSpilsSetPreconditioner(arkode_mem, 
                                    ARKBBDPrecSetup, 
-				   ARKBBDPrecSolve);
+                                   ARKBBDPrecSolve);
 
   return(flag);
 }
@@ -288,29 +289,28 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
 
 /*-------------------------------------------------------------*/
 int ARKBBDPrecReInit(void *arkode_mem, sunindextype mudq, 
-		     sunindextype mldq, realtype dqrely)
+                     sunindextype mldq, realtype dqrely)
 {
-  ARKodeMem ark_mem;
-  ARKSpilsMem arkspils_mem;
+  ARKodeMem      ark_mem;
+  ARKSpilsMem    arkspils_mem;
+  void*          ark_step_lmem;
   ARKBBDPrecData pdata;
-  sunindextype Nlocal;
+  sunindextype   Nlocal;
 
+  /* Return immediately if ARKodeMem, ARKSpilsMem or ARKBBDPrecData are NULL */
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKBBDPRE", 
                     "ARKBBDPrecReInit", MSGBBD_MEM_NULL);
     return(ARKSPILS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-
-  /* Test if the SPILS linear solver interface has been created */
-  if (ark_mem->ark_lmem == NULL) {
+  ark_step_lmem = ark_mem->ark_step_getlinmem(arkode_mem);
+  if (ark_step_lmem == NULL) {
     arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKBBDPRE", 
                     "ARKBBDPrecReInit", MSGBBD_LMEM_NULL);
     return(ARKSPILS_LMEM_NULL);
   }
-  arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
-
-  /* Test if the preconditioner data is non-NULL */
+  arkspils_mem = (ARKSpilsMem) ark_step_lmem;
   if (arkspils_mem->P_data == NULL) {
     arkProcessError(ark_mem, ARKSPILS_PMEM_NULL, "ARKBBDPRE", 
                     "ARKBBDPrecReInit", MSGBBD_PMEM_NULL);
@@ -337,26 +337,27 @@ int ARKBBDPrecReInit(void *arkode_mem, sunindextype mudq,
 /*-------------------------------------------------------------*/
 int ARKBBDPrecGetWorkSpace(void *arkode_mem, 
                            long int *lenrwBBDP, 
-			   long int *leniwBBDP)
+                           long int *leniwBBDP)
 {
-  ARKodeMem ark_mem;
-  ARKSpilsMem arkspils_mem;
+  ARKodeMem      ark_mem;
+  ARKSpilsMem    arkspils_mem;
+  void*          ark_step_lmem;
   ARKBBDPrecData pdata;
 
+  /* Return immediately if ARKodeMem, ARKSpilsMem or ARKBBDPrecData are NULL */
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKBBDPRE", 
                     "ARKBBDPrecGetWorkSpace", MSGBBD_MEM_NULL);
     return(ARKSPILS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-
-  if (ark_mem->ark_lmem == NULL) {
+  ark_step_lmem = ark_mem->ark_step_getlinmem(arkode_mem);
+  if (ark_step_lmem == NULL) {
     arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKBBDPRE", 
                     "ARKBBDPrecGetWorkSpace", MSGBBD_LMEM_NULL);
     return(ARKSPILS_LMEM_NULL);
   }
-  arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
-
+  arkspils_mem = (ARKSpilsMem) ark_step_lmem;
   if (arkspils_mem->P_data == NULL) {
     arkProcessError(ark_mem, ARKSPILS_PMEM_NULL, "ARKBBDPRE", 
                     "ARKBBDPrecGetWorkSpace", MSGBBD_PMEM_NULL);
@@ -364,6 +365,7 @@ int ARKBBDPrecGetWorkSpace(void *arkode_mem,
   } 
   pdata = (ARKBBDPrecData) arkspils_mem->P_data;
 
+  /* set outputs */
   *lenrwBBDP = pdata->rpwsize;
   *leniwBBDP = pdata->ipwsize;
 
@@ -375,24 +377,25 @@ int ARKBBDPrecGetWorkSpace(void *arkode_mem,
 int ARKBBDPrecGetNumGfnEvals(void *arkode_mem, 
                              long int *ngevalsBBDP)
 {
-  ARKodeMem ark_mem;
-  ARKSpilsMem arkspils_mem;
+  ARKodeMem      ark_mem;
+  ARKSpilsMem    arkspils_mem;
+  void*          ark_step_lmem;
   ARKBBDPrecData pdata;
 
+  /* Return immediately if ARKodeMem, ARKSpilsMem or ARKBBDPrecData are NULL */
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKBBDPRE", 
                     "ARKBBDPrecGetNumGfnEvals", MSGBBD_MEM_NULL);
     return(ARKSPILS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-
-  if (ark_mem->ark_lmem == NULL) {
+  ark_step_lmem = ark_mem->ark_step_getlinmem(arkode_mem);
+  if (ark_step_lmem == NULL) {
     arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKBBDPRE", 
                     "ARKBBDPrecGetNumGfnEvals", MSGBBD_LMEM_NULL);
     return(ARKSPILS_LMEM_NULL);
   }
-  arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
-
+  arkspils_mem = (ARKSpilsMem) ark_step_lmem;
   if (arkspils_mem->P_data == NULL) {
     arkProcessError(ark_mem, ARKSPILS_PMEM_NULL, "ARKBBDPRE", 
                     "ARKBBDPrecGetNumGfnEvals", MSGBBD_PMEM_NULL);
@@ -400,6 +403,7 @@ int ARKBBDPrecGetNumGfnEvals(void *arkode_mem,
   } 
   pdata = (ARKBBDPrecData) arkspils_mem->P_data;
 
+  /* set output */
   *ngevalsBBDP = pdata->nge;
 
   return(ARKSPILS_SUCCESS);
@@ -453,8 +457,8 @@ int ARKBBDPrecGetNumGfnEvals(void *arkode_mem,
    1  for a recoverable error (step will be retried).
 ---------------------------------------------------------------*/
 static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy, 
-			   booleantype jok, booleantype *jcurPtr, 
-			   realtype gamma, void *bbd_data)
+                           booleantype jok, booleantype *jcurPtr, 
+                           realtype gamma, void *bbd_data)
 {
   sunindextype ier;
   ARKBBDPrecData pdata;
@@ -549,9 +553,9 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
  as the value returned from the linear solver object.
 ---------------------------------------------------------------*/
 static int ARKBBDPrecSolve(realtype t, N_Vector y, N_Vector fy, 
-			   N_Vector r, N_Vector z, 
-			   realtype gamma, realtype delta,
-			   int lr, void *bbd_data)
+                           N_Vector r, N_Vector z, 
+                           realtype gamma, realtype delta,
+                           int lr, void *bbd_data)
 {
   int retval;
   ARKBBDPrecData pdata;
@@ -577,12 +581,15 @@ static int ARKBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
 /*-------------------------------------------------------------*/
 static int ARKBBDPrecFree(ARKodeMem ark_mem)
 {
-  ARKSpilsMem arkspils_mem;
+  ARKSpilsMem    arkspils_mem;
+  void*          ark_step_lmem;
   ARKBBDPrecData pdata;
   
-  if (ark_mem->ark_lmem == NULL) return(0);
-  arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
-  
+  /* Return immediately if ARKodeMem, ARKSpilsMem or ARKBandPrecData are NULL */
+  if (ark_mem == NULL) return(0);
+  ark_step_lmem = ark_mem->ark_step_getlinmem((void*) ark_mem);
+  if (ark_step_lmem == NULL) return(0);
+  arkspils_mem = (ARKSpilsMem) ark_step_lmem;
   if (arkspils_mem->P_data == NULL) return(0);
   pdata = (ARKBBDPrecData) arkspils_mem->P_data;
 
@@ -617,8 +624,8 @@ static int ARKBBDPrecFree(ARKodeMem ark_mem)
  stored contiguously.
 ---------------------------------------------------------------*/
 static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t, 
-		       N_Vector y, N_Vector gy, 
-		       N_Vector ytemp, N_Vector gtemp)
+                       N_Vector y, N_Vector gy, 
+                       N_Vector ytemp, N_Vector gtemp)
 {
   ARKodeMem ark_mem;
   realtype gnorm, minInc, inc, inc_inv;
@@ -670,7 +677,7 @@ static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
 
     /* Evaluate g with incremented y */
     retval = pdata->gloc(pdata->n_local, t, ytemp, gtemp, 
-			 ark_mem->ark_user_data);
+                         ark_mem->ark_user_data);
     pdata->nge++;
     if (retval != 0) return(retval);
 

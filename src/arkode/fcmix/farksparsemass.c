@@ -59,7 +59,7 @@ void FARK_SPARSESETMASS(int *ier)
 /* C interface to user-supplied Fortran routine FARKSPMASS; see 
    farkode.h for additional information  */
 int FARKSparseMass(realtype t, SUNMatrix MassMat, void *user_data, 
-		   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   int ier;
   realtype *v1data, *v2data, *v3data, *Mdata;

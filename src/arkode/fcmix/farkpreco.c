@@ -36,13 +36,13 @@ extern "C" {
 #endif
 
   extern void FARK_PSET(realtype *T, realtype *Y, realtype *FY,
-			booleantype *JOK, booleantype *JCUR,
-			realtype *GAMMA, realtype *H,
-			long int *IPAR, realtype *RPAR, int *IER);
+                        booleantype *JOK, booleantype *JCUR,
+                        realtype *GAMMA, realtype *H,
+                        long int *IPAR, realtype *RPAR, int *IER);
   extern void FARK_PSOL(realtype *T, realtype *Y, realtype *FY,
-			realtype *R, realtype *Z, 
-			realtype *GAMMA, realtype *DELTA,
-			int *LR, long int *IPAR, realtype *RPAR, 
+                        realtype *R, realtype *Z, 
+                        realtype *GAMMA, realtype *DELTA,
+                        int *LR, long int *IPAR, realtype *RPAR, 
                         int *IER);
 
 #ifdef __cplusplus
@@ -59,7 +59,7 @@ void FARK_SPILSSETPREC(int *flag, int *ier)
     *ier = ARKSpilsSetPreconditioner(ARK_arkodemem, NULL, NULL);
   } else {
     *ier = ARKSpilsSetPreconditioner(ARK_arkodemem, 
-				     FARKPSet, FARKPSol);
+                                     FARKPSet, FARKPSol);
   }
   return;
 }
@@ -69,8 +69,8 @@ void FARK_SPILSSETPREC(int *flag, int *ier)
 /* C interface to user-supplied Fortran routine FARKPSET; see 
    farkode.h for further details */
 int FARKPSet(realtype t, N_Vector y, N_Vector fy, 
-	     booleantype jok, booleantype *jcurPtr, 
-	     realtype gamma, void *user_data)
+             booleantype jok, booleantype *jcurPtr, 
+             realtype gamma, void *user_data)
 {
   int ier = 0;
   realtype *ydata, *fydata;
@@ -83,7 +83,7 @@ int FARKPSet(realtype t, N_Vector y, N_Vector fy,
   ARK_userdata = (FARKUserData) user_data;
 
   FARK_PSET(&t, ydata, fydata, &jok, jcurPtr, &gamma, &h,
-	    ARK_userdata->ipar, ARK_userdata->rpar, &ier);
+            ARK_userdata->ipar, ARK_userdata->rpar, &ier);
   return(ier);
 }
 
@@ -93,8 +93,8 @@ int FARKPSet(realtype t, N_Vector y, N_Vector fy,
 /* C interface to user-supplied Fortran routine FARKPSOL; see 
    farkode.h for further details */
 int FARKPSol(realtype t, N_Vector y, N_Vector fy, N_Vector r, 
-	     N_Vector z, realtype gamma, realtype delta,
-	     int lr, void *user_data)
+             N_Vector z, realtype gamma, realtype delta,
+             int lr, void *user_data)
 {
   int ier = 0;
   realtype *ydata, *fydata, *rdata, *zdata;
@@ -107,7 +107,7 @@ int FARKPSol(realtype t, N_Vector y, N_Vector fy, N_Vector r,
   ARK_userdata = (FARKUserData) user_data;
 
   FARK_PSOL(&t, ydata, fydata, rdata, zdata, &gamma, &delta, &lr, 
-	    ARK_userdata->ipar, ARK_userdata->rpar, &ier);
+            ARK_userdata->ipar, ARK_userdata->rpar, &ier);
   return(ier);
 }
 

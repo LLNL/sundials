@@ -50,6 +50,7 @@
 #include <string.h>
 #include <math.h>
 #include <arkode/arkode.h>              // prototypes for ARKode fcts., consts.
+#include <arkode/arkode_arkstep.h>      // prototypes for ARKStep fcts., consts.
 #include <nvector/nvector_serial.h>     // access to serial N_Vector
 #include <sunmatrix/sunmatrix_dense.h>  // access to dense SUNMatrix 
 #include <sunlinsol/sunlinsol_dense.h>  // access to dense SUNLinearSolver
@@ -141,7 +142,7 @@ int main()
   if (check_flag(&flag, "ARKDlsSetJacFn", 1)) return 1;
 
   // Specify linearly implicit RHS, with non-time-dependent Jacobian
-  flag = ARKodeSetLinear(arkode_mem, 0);
+  flag = ARKStepSetLinear(arkode_mem, 0);
   if (check_flag(&flag, "ARKodeSetLinear", 1)) return 1;
 
   // Open output stream for results, output comment line
@@ -150,7 +151,7 @@ int main()
 
   // output initial condition to disk 
   fprintf(UFID," %.16" ESYM" %.16" ESYM" %.16" ESYM" %.16" ESYM"\n", 
-	  T0, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));  
+          T0, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));  
 
   /* Main time-stepping loop: calls ARKode to perform the integration, then
      prints results.  Stops when the final time has been reached */
@@ -165,7 +166,7 @@ int main()
     printf("  %8.4" FSYM"  %8.5" FSYM"  %8.5" FSYM"  %8.5" FSYM"\n",  // access/print solution
            t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
     fprintf(UFID," %.16" ESYM" %.16" ESYM" %.16" ESYM" %.16" ESYM"\n", 
-	    t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));  
+            t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));  
     if (flag >= 0) {                                              // successful solve: update time
       tout += dTout;
       tout = (tout > Tf) ? Tf : tout;
@@ -181,17 +182,17 @@ int main()
   long int nst, nst_a, nfe, nfi, nsetups, nje, nfeLS, nni, ncfn, netf;
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   check_flag(&flag, "ARKodeGetNumSteps", 1);
-  flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
+  flag = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
   check_flag(&flag, "ARKodeGetNumStepAttempts", 1);
-  flag = ARKodeGetNumRhsEvals(arkode_mem, &nfe, &nfi);
+  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
   check_flag(&flag, "ARKodeGetNumRhsEvals", 1);
-  flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
+  flag = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
   check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1);
-  flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
+  flag = ARKStepGetNumErrTestFails(arkode_mem, &netf);
   check_flag(&flag, "ARKodeGetNumErrTestFails", 1);
-  flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
+  flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
   check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1);
-  flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
+  flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
   check_flag(&flag, "ARKodeGetNumNonlinSolvConvFails", 1);
   flag = ARKDlsGetNumJacEvals(arkode_mem, &nje);
   check_flag(&flag, "ARKDlsGetNumJacEvals", 1);
@@ -257,7 +258,6 @@ static int Jac(realtype t, N_Vector y, N_Vector fy,
   SUNMatrix V  = SUNDenseMatrix(3,3);          // create temporary SUNMatrix objects
   SUNMatrix D  = SUNDenseMatrix(3,3);          // create temporary SUNMatrix objects
   SUNMatrix Vi = SUNDenseMatrix(3,3);          // create temporary SUNMatrix objects
-  sunindextype N = SUNDenseMatrix_Rows(J);
 
   SUNMatZero(V);        // initialize temporary matrices to zero
   SUNMatZero(D);        // (not technically required)

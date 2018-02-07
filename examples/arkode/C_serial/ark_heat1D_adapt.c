@@ -44,6 +44,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <arkode/arkode.h>            /* prototypes for ARKode fcts., consts. */
+#include <arkode/arkode_arkstep.h>    /* prototypes for ARKStep fcts., consts */
 #include <nvector/nvector_serial.h>   /* serial N_Vector types, fcts., macros */
 #include <sunlinsol/sunlinsol_pcg.h>  /* access to PCG SUNLinearSolver        */
 #include <arkode/arkode_spils.h>      /* access to ARKSpils interface         */
@@ -158,14 +159,14 @@ int main() {
   if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) return 1;
   flag = ARKodeSStolerances(arkode_mem, rtol, atol);      /* Specify tolerances */
   if (check_flag(&flag, "ARKodeSStolerances", 1)) return 1;
-  flag = ARKodeSetAdaptivityMethod(arkode_mem, 2, 1, 0, NULL);  /* Set adaptivity method */
-  if (check_flag(&flag, "ARKodeSetAdaptivityMethod", 1)) return 1;
-  flag = ARKodeSetPredictorMethod(arkode_mem, 0);     /* Set predictor method */
-  if (check_flag(&flag, "ARKodeSetPredictorMethod", 1)) return 1;
+  flag = ARKStepSetAdaptivityMethod(arkode_mem, 2, 1, 0, NULL);  /* Set adaptivity method */
+  if (check_flag(&flag, "ARKStepSetAdaptivityMethod", 1)) return 1;
+  flag = ARKStepSetPredictorMethod(arkode_mem, 0);     /* Set predictor method */
+  if (check_flag(&flag, "ARKStepSetPredictorMethod", 1)) return 1;
 
   /* Specify linearly implicit RHS, with time-dependent Jacobian */
-  flag = ARKodeSetLinear(arkode_mem, 1);
-  if (check_flag(&flag, "ARKodeSetLinear", 1)) return 1;
+  flag = ARKStepSetLinear(arkode_mem, 1);
+  if (check_flag(&flag, "ARKStepSetLinear", 1)) return 1;
 
   /* Initialize PCG solver -- no preconditioning, with up to N iterations  */
   LS = SUNPCG(y, 0, N);
@@ -185,7 +186,7 @@ int main() {
   printf("  iout          dt_old                 dt_new               ||u||_rms       N   NNI  NLI\n");
   printf(" ----------------------------------------------------------------------------------------\n");
   printf(" %4i  %19.15"ESYM"  %19.15"ESYM"  %19.15"ESYM"  %li   %2i  %3i\n", 
-	 iout, olddt, newdt, SUNRsqrt(N_VDotProd(y,y)/udata->N),
+         iout, olddt, newdt, SUNRsqrt(N_VDotProd(y,y)/udata->N),
          (long int) udata->N, 0, 0);
   while (t < Tf) {
 
@@ -204,15 +205,15 @@ int main() {
     if (check_flag(&flag, "ARKodeGetLastStep", 1)) return 1;
     flag = ARKodeGetCurrentStep(arkode_mem, &newdt);
     if (check_flag(&flag, "ARKodeGetCurrentStep", 1)) return 1;
-    flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
-    if (check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1)) return 1;
+    flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
+    if (check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1)) return 1;
     flag = ARKSpilsGetNumLinIters(arkode_mem, &nli);
     if (check_flag(&flag, "ARKSpilsGetNumLinIters", 1)) return 1;
 
     /* print current solution stats */
     iout++;
     printf(" %4i  %19.15"ESYM"  %19.15"ESYM"  %19.15"ESYM"  %li   %2li  %3li\n", 
-	   iout, olddt, newdt, SUNRsqrt(N_VDotProd(y,y)/udata->N),
+           iout, olddt, newdt, SUNRsqrt(N_VDotProd(y,y)/udata->N),
            (long int) udata->N, nni-nni_cur, nli);
     nni_cur = nni;
     nni_tot = nni;
@@ -453,7 +454,7 @@ realtype * adapt_mesh(N_Vector y, sunindextype *Nnew, UserData udata)
       ynew [output] -- the vector defined over the new mesh
                        (allocated prior to calling project) */
 static int project(sunindextype Nold, realtype *xold, N_Vector yold, 
-		   sunindextype Nnew, realtype *xnew, N_Vector ynew)
+                   sunindextype Nnew, realtype *xnew, N_Vector ynew)
 {
   sunindextype iv, i, j;
   realtype *Yold=NULL, *Ynew=NULL;
@@ -472,8 +473,8 @@ static int project(sunindextype Nold, realtype *xold, N_Vector yold,
     /* find old interval, start with previous value since sorted */
     for (j=iv; j<Nold-1; j++) {
       if (xnew[i] >= xold[j] && xnew[i] <= xold[j+1]) {
-	iv = j;
-	break;
+        iv = j;
+        break;
       }
       iv = Nold-1;     /* just in case it wasn't found above */
     }
@@ -502,7 +503,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return 1; }
 
   /* Check if flag < 0 */
@@ -510,13 +511,13 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
     errflag = (int *) flagvalue;
     if (*errflag < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
-	      funcname, *errflag);
+              funcname, *errflag);
       return 1; }}
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && flagvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return 1; }
 
   return 0;

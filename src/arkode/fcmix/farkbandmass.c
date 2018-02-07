@@ -60,7 +60,7 @@ void FARK_BANDSETMASS(int *ier)
 /* C interface to user-supplied Fortran subroutine FARKBMASS; see
    farkode.h for further details */
 int FARKBandMass(realtype t, SUNMatrix M, void *user_data,
-		 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   int ier;
   realtype *massdata, *v1data, *v2data, *v3data;
@@ -79,8 +79,8 @@ int FARKBandMass(realtype t, SUNMatrix M, void *user_data,
   ARK_userdata = (FARKUserData) user_data;
 
   FARK_BMASS(&N, &mupper, &mlower, &eband, &t, massdata,
-	     ARK_userdata->ipar, ARK_userdata->rpar, v1data,
-	     v2data, v3data, &ier);
+             ARK_userdata->ipar, ARK_userdata->rpar, v1data,
+             v2data, v3data, &ier);
   return(ier);
 }
 

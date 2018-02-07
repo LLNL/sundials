@@ -41,9 +41,9 @@ extern "C" {
                            realtype *RPAR, int *IER);
 
   extern void FARK_JTIMES(realtype *V, realtype *JV, realtype *T, 
-			  realtype *Y, realtype *FY, realtype *H,
-			  long int *IPAR, realtype *RPAR,
-			  realtype *WRK, int *IER);
+                          realtype *Y, realtype *FY, realtype *H,
+                          long int *IPAR, realtype *RPAR,
+                          realtype *WRK, int *IER);
 
 #ifdef __cplusplus
 }
@@ -83,14 +83,14 @@ int FARKJTSetup(realtype t, N_Vector y, N_Vector fy, void *user_data)
   ARK_userdata = (FARKUserData) user_data;
  
   FARK_JTSETUP(&t, ydata, fydata, &h, ARK_userdata->ipar, 
-	      ARK_userdata->rpar, &ier);
+              ARK_userdata->rpar, &ier);
   return(ier);
 }
 
 /* C interface to user-supplied Fortran routine FARKJTIMES; see
    farkode.h for further information */
 int FARKJtimes(N_Vector v, N_Vector Jv, realtype t, N_Vector y, 
-	       N_Vector fy, void *user_data, N_Vector work)
+               N_Vector fy, void *user_data, N_Vector work)
 {
   realtype *vdata, *Jvdata, *ydata, *fydata, *wkdata;
   realtype h;
@@ -111,7 +111,7 @@ int FARKJtimes(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
   ARK_userdata = (FARKUserData) user_data;
  
   FARK_JTIMES(vdata, Jvdata, &t, ydata, fydata, &h, ARK_userdata->ipar, 
-	      ARK_userdata->rpar, wkdata, &ier);
+              ARK_userdata->rpar, wkdata, &ier);
   return(ier);
 }
 

@@ -34,8 +34,8 @@
 extern "C" {
 #endif
   extern void FARK_ROOTFN(realtype *T, realtype *Y, 
-			  realtype *G, long int *IPAR, 
-			  realtype *RPAR, int *ier);
+                          realtype *G, long int *IPAR, 
+                          realtype *RPAR, int *ier);
 
 #ifdef __cplusplus
 }
@@ -48,7 +48,7 @@ extern "C" {
 void FARK_ROOTINIT(int *nrtfn, int *ier)
 {
   *ier = ARKodeRootInit(ARK_arkodemem, *nrtfn, 
-			(ARKRootFn) FARKrootfunc);
+                        (ARKRootFn) FARKrootfunc);
   ARK_nrtfn = *nrtfn;
   return;
 }
@@ -79,7 +79,7 @@ void FARK_ROOTFREE(void)
 /* C interface to user-supplied routine FARKROOTFN; see 
    farkroot.h for further information. */
 int FARKrootfunc(realtype t, N_Vector y, 
-		 realtype *gout, void *user_data)
+                 realtype *gout, void *user_data)
 {
   int ier;
   realtype *ydata;
@@ -88,7 +88,7 @@ int FARKrootfunc(realtype t, N_Vector y,
   ydata = N_VGetArrayPointer(y);
   ARK_userdata = (FARKUserData) user_data;
   FARK_ROOTFN(&t, ydata, gout, ARK_userdata->ipar, 
-	      ARK_userdata->rpar, &ier);
+              ARK_userdata->rpar, &ier);
   return(ier);
 }
 

@@ -33,8 +33,8 @@ extern "C" {
 #endif
 
   extern void FARK_EWT(realtype *Y, realtype *EWT, 
-		       long int *IPAR, realtype *RPAR, 
-		       int *IER);
+                       long int *IPAR, realtype *RPAR, 
+                       int *IER);
 
 #ifdef __cplusplus
 }
@@ -67,7 +67,7 @@ int FARKEwt(N_Vector y, N_Vector ewt, void *user_data)
   ARK_userdata = (FARKUserData) user_data;
 
   FARK_EWT(ydata, ewtdata, ARK_userdata->ipar, 
-	   ARK_userdata->rpar, &ier);
+           ARK_userdata->rpar, &ier);
   return(ier);
 }
 

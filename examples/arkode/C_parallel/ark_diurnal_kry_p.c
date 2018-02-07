@@ -59,6 +59,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <arkode/arkode.h>               /* prototypes for ARKODE fcts.      */
+#include <arkode/arkode_arkstep.h>       /* prototypes for ARKStep fcts., consts */
 #include <nvector/nvector_parallel.h>    /* access to MPI-parallel N_Vector  */
 #include <sunlinsol/sunlinsol_spgmr.h>   /* access to SPGMR SUNLinearSolver  */
 #include <sundials/sundials_dense.h>     /* prototypes for small dense fcts. */
@@ -150,8 +151,8 @@ static void BSend(MPI_Comm comm,
                   realtype udata[]);
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], 
                       int my_pe, int isubx, int isuby,
-		      sunindextype dsizex, sunindextype dsizey,
-		      realtype uext[], realtype buffer[]);
+                      sunindextype dsizex, sunindextype dsizey,
+                      realtype uext[], realtype buffer[]);
 static void BRecvWait(MPI_Request request[], 
                       int isubx, int isuby, 
                       sunindextype dsizex, realtype uext[],
@@ -203,7 +204,7 @@ int main(int argc, char *argv[])
   if (npes != NPEX*NPEY) {
     if (my_pe == 0)
       fprintf(stderr, "\nMPI_ERROR(0): npes = %d is not equal to NPEX*NPEY = %d\n\n",
-	      npes,NPEX*NPEY);
+              npes,NPEX*NPEY);
     MPI_Finalize();
     return(1);
   }
@@ -442,16 +443,16 @@ static void PrintFinalStats(void *arkode_mem)
   check_flag(&flag, "ARKodeGetWorkSpace", 1, 0);
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   check_flag(&flag, "ARKodeGetNumSteps", 1, 0);
-  flag = ARKodeGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(&flag, "ARKodeGetNumRhsEvals", 1, 0);
-  flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
-  check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1, 0);
-  flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
-  check_flag(&flag, "ARKodeGetNumErrTestFails", 1, 0);
-  flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
-  check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1, 0);
-  flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
-  check_flag(&flag, "ARKodeGetNumNonlinSolvConvFails", 1, 0);
+  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
+  check_flag(&flag, "ARKStepGetNumRhsEvals", 1, 0);
+  flag = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
+  check_flag(&flag, "ARKStepGetNumLinSolvSetups", 1, 0);
+  flag = ARKStepGetNumErrTestFails(arkode_mem, &netf);
+  check_flag(&flag, "ARKStepGetNumErrTestFails", 1, 0);
+  flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
+  check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1, 0);
+  flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
+  check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1, 0);
 
   flag = ARKSpilsGetWorkSpace(arkode_mem, &lenrwLS, &leniwLS);
   check_flag(&flag, "ARKSpilsGetWorkSpace", 1, 0);
@@ -467,7 +468,7 @@ static void PrintFinalStats(void *arkode_mem)
   check_flag(&flag, "ARKSpilsGetNumRhsEvals", 1, 0);
 
   printf("\nFinal Statistics: \n\n");
-  printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw,   leniw);
+  printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw, leniw);
   printf("lenrwls = %5ld     leniwls = %5ld\n", lenrwLS, leniwLS);
   printf("nst     = %5ld     nfe     = %5ld\n", nst, nfe);
   printf("nfi     = %5ld     nfels   = %5ld\n", nfi, nfeLS);
@@ -528,8 +529,8 @@ static void BSend(MPI_Comm comm, int my_pe, int isubx,
 
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], 
                       int my_pe, int isubx, int isuby,
-		      sunindextype dsizex, sunindextype dsizey,
-		      realtype uext[], realtype buffer[])
+                      sunindextype dsizex, sunindextype dsizey,
+                      realtype uext[], realtype buffer[])
 {
   sunindextype offsetue;
   /* Have bufleft and bufright use the same buffer */
@@ -538,7 +539,7 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[],
   /* If isuby > 0, receive data for bottom x-line of uext */
   if (isuby != 0)
     MPI_Irecv(&uext[NVARS], dsizex, PVEC_REAL_MPI_TYPE,
-    					 my_pe-NPEX, 0, comm, &request[0]);
+              my_pe-NPEX, 0, comm, &request[0]);
 
   /* If isuby < NPEY-1, receive data for top x-line of uext */
   if (isuby != NPEY-1) {
@@ -609,7 +610,7 @@ static void BRecvWait(MPI_Request request[],
       offsetbuf = ly*NVARS;
       offsetue = (ly+2)*dsizex2 - NVARS;
       for (i = 0; i < NVARS; i++)
-	uext[offsetue+i] = bufright[offsetbuf+i];
+        uext[offsetue+i] = bufright[offsetbuf+i];
     }
   }
 }
@@ -644,6 +645,7 @@ static void ucomm(realtype t, N_Vector u, UserData data)
   /* Finish receiving boundary data from neighboring PEs */
   BRecvWait(request, isubx, isuby, nvmxsub, uext, buffer);
 }
+
 
 /* fcalc routine. Compute f(t,y).  This routine assumes that communication 
    between processors of data needed to calculate f has already been done,
@@ -799,6 +801,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   return(0);
 }
 
+
 /* Preconditioner setup routine. Generate and preprocess P. */
 static int Precond(realtype tn, N_Vector u, N_Vector fu,
                    booleantype jok, booleantype *jcurPtr, 
@@ -834,15 +837,15 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 
   else {
 
-  /* jok = SUNFALSE: Generate Jbd from scratch and copy to P */
+    /* jok = SUNFALSE: Generate Jbd from scratch and copy to P */
 
-  /* Make local copies of problem variables, for efficiency */
-  q4coef = data->q4;
-  dely = data->dy;
-  verdco = data->vdco;
-  hordco  = data->hdco;
-
-  /* Compute 2x2 diagonal Jacobian blocks (using q4 values 
+    /* Make local copies of problem variables, for efficiency */
+    q4coef = data->q4;
+    dely = data->dy;
+    verdco = data->vdco;
+    hordco  = data->hdco;
+    
+    /* Compute 2x2 diagonal Jacobian blocks (using q4 values 
      computed on the last f call).  Load into P. */
     for (ly = 0; ly < MYSUB; ly++) {
       jy = ly + isuby*MYSUB;
@@ -865,14 +868,14 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
       }
     }
 
-  *jcurPtr = SUNTRUE;
+    *jcurPtr = SUNTRUE;
 
   }
 
   /* Scale by -gamma */
-    for (ly = 0; ly < MYSUB; ly++)
-      for (lx = 0; lx < MXSUB; lx++)
-        denseScale(-gamma, P[lx][ly], NVARS, NVARS);
+  for (ly = 0; ly < MYSUB; ly++)
+    for (lx = 0; lx < MXSUB; lx++)
+      denseScale(-gamma, P[lx][ly], NVARS, NVARS);
 
   /* Add identity matrix and do LU decompositions on blocks in place */
   for (lx = 0; lx < MXSUB; lx++) {
@@ -885,6 +888,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 
   return(0);
 }
+
 
 /* Preconditioner solve routine */
 static int PSolve(realtype tn, N_Vector u, N_Vector fu, 
@@ -939,22 +943,20 @@ static int check_flag(void *flagvalue, const char *funcname, int opt, int id)
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n",
-	    id, funcname);
-    return(1); }
-
-  /* Check if flag < 0 */
-  else if (opt == 1) {
+            id, funcname);
+    return(1); 
+  } else if (opt == 1) { /* Check if flag < 0 */
     errflag = (int *) flagvalue;
     if (*errflag < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
-	      id, funcname, *errflag);
-      return(1); }}
-
-  /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
+              id, funcname, *errflag);
+      return(1); 
+    }
+  } else if (opt == 2 && flagvalue == NULL) { /* Check if function returned NULL pointer - no memory allocated */
     fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
-	    id, funcname);
-    return(1); }
+            id, funcname);
+    return(1); 
+  }
 
   return(0);
 }

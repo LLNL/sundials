@@ -224,18 +224,18 @@ SUNDIALS_EXPORT int ARKDlsSetMassFn(void *arkode_mem, ARKDlsMassFn mass);
     ARKDLS_LMEM_NULL if the linear solver memory was NULL
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKDlsGetWorkSpace(void *arkode_mem, 
-				       long int *lenrwLS, 
-				       long int *leniwLS);
+                                       long int *lenrwLS, 
+                                       long int *leniwLS);
 SUNDIALS_EXPORT int ARKDlsGetNumJacEvals(void *arkode_mem, 
-					 long int *njevals);
+                                         long int *njevals);
 SUNDIALS_EXPORT int ARKDlsGetNumRhsEvals(void *arkode_mem, 
-					 long int *nfevalsLS);
+                                         long int *nfevalsLS);
 SUNDIALS_EXPORT int ARKDlsGetLastFlag(void *arkode_mem, 
-				      long int *flag);
+                                      long int *flag);
 
 SUNDIALS_EXPORT int ARKDlsGetMassWorkSpace(void *arkode_mem, 
-					   long int *lenrwMLS, 
-					   long int *leniwMLS);
+                                           long int *lenrwMLS, 
+                                           long int *leniwMLS);
 SUNDIALS_EXPORT int ARKDlsGetNumMassSetups(void *arkode_mem, 
                                            long int *nmsetups);
 SUNDIALS_EXPORT int ARKDlsGetNumMassSolves(void *arkode_mem, 
@@ -243,7 +243,7 @@ SUNDIALS_EXPORT int ARKDlsGetNumMassSolves(void *arkode_mem,
 SUNDIALS_EXPORT int ARKDlsGetNumMassMult(void *arkode_mem, 
                                          long int *nmmults);
 SUNDIALS_EXPORT int ARKDlsGetLastMassFlag(void *arkode_mem, 
-					  long int *flag);
+                                          long int *flag);
 
 
 /*---------------------------------------------------------------

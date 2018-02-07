@@ -19,10 +19,10 @@
  *---------------------------------------------------------------
  * ARKODE is used to solve numerically the ordinary initial value
  * problem:
- *              M(t)*y' = f(t,y),
- *                y(t0) = y0,
- * where t0, y0 in R^N, M(t)*y: R x R^N -> R^N, and 
- * f: R x R^N -> R^N are given.
+ *              M y'(t) = fe(t,y) + fi(t,y),
+ *             y(t0) = y0,
+ * where t0, y0 in R^N, y: R -> R^N, and fe,fi: R x R^N -> R^N 
+ * are given.
  *--------------------------------------------------------------*/
 
 #ifndef _ARKODE_H
@@ -30,6 +30,7 @@
 
 #include <stdio.h>
 #include <sundials/sundials_nvector.h>
+#include <arkode/arkode_butcher.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -54,77 +55,18 @@ extern "C" {
         return an approximate value of y(tout). The ARK_ONE_STEP
         option tells the solver to just take one internal step
         and return the solution at the point reached by that 
-	step.  If fixed time steps are desired, then the user 
-	can run in ARK_ONE_STEP mode, and set hmin and hmax to
-	be the desired time step -- this will effectively 
-	disable all temporal error control, and the user may
-	need to increase the iteration counts for the nonlinear 
-	and linear solvers to guarantee convergence for larger 
-	step sizes.
+        step.  If fixed time steps are desired, then the user 
+        can run in ARK_ONE_STEP mode, and set hmin and hmax to
+        be the desired time step -- this will effectively 
+        disable all temporal error control, and the user may
+        need to increase the iteration counts for the nonlinear 
+        and linear solvers to guarantee convergence for larger 
+        step sizes.
 ---------------------------------------------------------------*/
-
-/* max number of overall stages allowed */
-#define ARK_S_MAX          15
-#define ARK_A(A,i,j)       (A[i*ARK_S_MAX + j])
 
 /* itask */
 #define ARK_NORMAL         1
 #define ARK_ONE_STEP       2
-
-
-/* Butcher table accessors -- explicit */
-#define HEUN_EULER_2_1_2         0
-#define BOGACKI_SHAMPINE_4_2_3   1
-#define ARK324L2SA_ERK_4_2_3     2
-#define ZONNEVELD_5_3_4          3
-#define ARK436L2SA_ERK_6_3_4     4
-#define SAYFY_ABURUB_6_3_4       5
-#define CASH_KARP_6_4_5          6
-#define FEHLBERG_6_4_5           7
-#define DORMAND_PRINCE_7_4_5     8
-#define ARK548L2SA_ERK_8_4_5     9
-#define VERNER_8_5_6            10
-#define FEHLBERG_13_7_8         11
-
-#define DEFAULT_ERK_2           HEUN_EULER_2_1_2
-#define DEFAULT_ERK_3           BOGACKI_SHAMPINE_4_2_3
-#define DEFAULT_ERK_4           ZONNEVELD_5_3_4
-#define DEFAULT_ERK_5           CASH_KARP_6_4_5
-#define DEFAULT_ERK_6           VERNER_8_5_6
-#define DEFAULT_ERK_8           FEHLBERG_13_7_8
-
-#define MIN_ERK_NUM              0
-#define MAX_ERK_NUM             11
-
-/* Butcher table accessors -- implicit */
-#define SDIRK_2_1_2             12
-#define BILLINGTON_3_3_2        13
-#define TRBDF2_3_3_2            14
-#define KVAERNO_4_2_3           15
-#define ARK324L2SA_DIRK_4_2_3   16
-#define CASH_5_2_4              17
-#define CASH_5_3_4              18
-#define SDIRK_5_3_4             19
-#define KVAERNO_5_3_4           20
-#define ARK436L2SA_DIRK_6_3_4   21
-#define KVAERNO_7_4_5           22
-#define ARK548L2SA_DIRK_8_4_5   23
-
-#define DEFAULT_DIRK_2          SDIRK_2_1_2
-#define DEFAULT_DIRK_3          ARK324L2SA_DIRK_4_2_3
-#define DEFAULT_DIRK_4          SDIRK_5_3_4
-#define DEFAULT_DIRK_5          ARK548L2SA_DIRK_8_4_5
-
-#define MIN_DIRK_NUM            12
-#define MAX_DIRK_NUM            23
-
-/* Butcher table accessors -- ImEx */
-#define DEFAULT_ARK_ETABLE_3    ARK324L2SA_ERK_4_2_3
-#define DEFAULT_ARK_ETABLE_4    ARK436L2SA_ERK_6_3_4
-#define DEFAULT_ARK_ETABLE_5    ARK548L2SA_ERK_8_4_5
-#define DEFAULT_ARK_ITABLE_3    ARK324L2SA_DIRK_4_2_3
-#define DEFAULT_ARK_ITABLE_4    ARK436L2SA_DIRK_6_3_4
-#define DEFAULT_ARK_ITABLE_5    ARK548L2SA_DIRK_8_4_5
 
 
 /* ARKODE return flags */
@@ -193,7 +135,7 @@ extern "C" {
  will try to correct and retry.
 ---------------------------------------------------------------*/
 typedef int (*ARKRhsFn)(realtype t, N_Vector y,
-			N_Vector ydot, void *user_data);
+                        N_Vector ydot, void *user_data);
 
 /*---------------------------------------------------------------
  Type : ARKRootFn
@@ -213,7 +155,7 @@ typedef int (*ARKRhsFn)(realtype t, N_Vector y,
  halted).
 ---------------------------------------------------------------*/
 typedef int (*ARKRootFn)(realtype t, N_Vector y, 
-			 realtype *gout, void *user_data);
+                         realtype *gout, void *user_data);
 
 /*---------------------------------------------------------------
  Type : ARKEwtFn
@@ -274,8 +216,8 @@ typedef int (*ARKRwtFn)(N_Vector y, N_Vector rwt, void *user_data);
  A ARKErrHandlerFn has no return value.
 ---------------------------------------------------------------*/
 typedef void (*ARKErrHandlerFn)(int error_code, const char *module, 
-				const char *function, char *msg, 
-				void *user_data); 
+                                const char *function, char *msg, 
+                                void *user_data); 
 
 /*---------------------------------------------------------------
  Type : ARKAdaptFn
@@ -283,24 +225,24 @@ typedef void (*ARKErrHandlerFn)(int error_code, const char *module,
  A function which sets the new time step h, must have type 
  ARKAdaptFn.  The function takes as input the current dependent 
  variable y, the current time t, the last 3 step sizes h, 
- the last 3 error estimates, the method order q, the embedding 
- order p, and a pointer to user data. The function must set the 
- scalar step size for the upcoming time step.  This value will 
- subsequently be bounded by the user-supplied values for the 
- minimum and maximum allowed time step, and the time step 
- satisfying the explicit stability restriction.  The user_data 
- parameter is the same as that passed by the user to the 
- ARKodeSetUserData routine.  This user-supplied pointer is passed 
- to the function every time it is called.
+ the last 3 error estimates, the method order q, and a 
+ pointer to user data. The function must set the scalar step size 
+ for the upcoming time step.  This value will subsequently be 
+ bounded by the user-supplied values for the minimum and maximum 
+ allowed time step, and the time step satisfying the explicit 
+ stability restriction.  The user_data parameter is the same as 
+ that passed by the user to the ARKodeSetUserData routine.  This 
+ user-supplied pointer is passed to the function every time it 
+ is called.
 
  A ARKAdaptFn must return 0 if the new time step has been
  successfuly set and a non-zero value otherwise.
 ---------------------------------------------------------------*/
 typedef int (*ARKAdaptFn)(N_Vector y, realtype t, realtype h1, 
-			  realtype h2, realtype h3, 
-			  realtype e1, realtype e2, 
-			  realtype e3, int q, int p, 
-			  realtype *hnew, void *user_data);
+                          realtype h2, realtype h3, 
+                          realtype e1, realtype e2, 
+                          realtype e3, int q, realtype *hnew,
+                          void *user_data);
 
 /*---------------------------------------------------------------
  Type : ARKExpStabFn
@@ -325,7 +267,7 @@ typedef int (*ARKAdaptFn)(N_Vector y, realtype t, realtype h1,
  successfuly set and a non-zero value otherwise.
 ---------------------------------------------------------------*/
 typedef int (*ARKExpStabFn)(N_Vector y, realtype t, 
-			    realtype *hstab, void *user_data);
+                            realtype *hstab, void *user_data);
 
 /*---------------------------------------------------------------
  Type : ARKVecResizeFn
@@ -354,7 +296,7 @@ typedef int (*ARKExpStabFn)(N_Vector y, realtype t,
  value if an error occurred.
 ---------------------------------------------------------------*/
 typedef int (*ARKVecResizeFn)(N_Vector y, N_Vector ytemplate, 
-			      void *user_data);
+                              void *user_data);
 
 /*---------------------------------------------------------------
  Type : ARKPostProcessStepFn
@@ -375,7 +317,7 @@ typedef int (*ARKVecResizeFn)(N_Vector y, N_Vector ytemplate,
               ARKodeSetUserData routine.
 ---------------------------------------------------------------*/
 typedef int (*ARKPostProcessStepFn)(realtype t, N_Vector y, 
-				    void *user_data);
+                                    void *user_data);
 
 
 /*===============================================================
@@ -414,14 +356,11 @@ SUNDIALS_EXPORT void *ARKodeCreate();
                           ! ARKodeRootInit).
                           | [internal]
                           |
- ARKodeSetOptimalParams   | sets all adaptivity and solver 
-                          | parameters to our 'best guess' values, 
-                          | for a given integration method (ERK, 
-                          | DIRK, ARK) and a given method order.  
-                          | Should only be called after the method
-                          | order and integration method have been 
-                          ! set.
-                          | [internal]
+ ARKodeSetDenseOrder      | polynomial order to be used for dense 
+                          | output.  Allowed values are between 0
+                          | and min(q,5) (where q is the order of
+                          | the integrator)
+                          | [3]
                           |
  ARKodeSetErrHandlerFn    | user-provided ErrHandler function.
                           | [internal]
@@ -459,104 +398,6 @@ SUNDIALS_EXPORT void *ARKodeCreate();
                           | identical.
                           | [NULL]
                           |
- ARKodeSetOrder           | method order to be used by the solver.
-                          | [4]
-                          |
- ARKodeSetDenseOrder      | polynomial order to be used for dense 
-                          | output.  Allowed values are between 0
-                          | and min(q,5) (where q is the order of
-                          | the integrator)
-                          | [3]
-                          |
- ARKodeSetLinear          | specifies that the implicit portion of 
-                          | the problem is linear, and to tighten 
-                          | the linear solver tolerances while 
-                          | taking only one Newton iteration.
-                          | [SUNFALSE]
-                          |
- ARKodeSetNonlinear       | specifies that the implicit portion of 
-                          | the problem is nonlinear.  Used to undo
-                          | a previous call to ARKodeSetLinear.
-                          | [SUNTRUE]
-                          |
- ARKodeSetFixedPoint      | specifies that the implicit portion of 
-                          | the problem should use the accelerated 
-                          | fixed-point solver.
-                          | [SUNFALSE]
-                          |
- ARKodeSetNewton          | specifies that the implicit portion of 
-                          | the problem should use the modified Newton 
-                          | solver.  Used to undo a previous call to
-                          | ARKodeSetFixedPoint.
-                          | [SUNTRUE]
-                          |
- ARKodeSetExplicit        | specifies that implicit portion of 
-                          | problem is disabled, and to use an 
-                          | explicit RK method.
-                          | [SUNFALSE]
-                          |
- ARKodeSetImplicit        | specifies that explicit portion of 
-                          | problem is disabled, and to use an 
-                          | implicit RK method.
-                          | [SUNFALSE]
-                          |
- ARKodeSetImEx            | specifies that problem has both 
-                          | implicit and explicit parts, and to 
-                          | use an ARK method.
-                          | [SUNTRUE]
-                          |
- ARKodeSetERKTable        | specifies to use a customized Butcher 
-                          | table for the explicit portion of the 
-                          | system.  This automatically calls 
-                          ! ARKodeSetExplicit.
-                          | [determined by ARKODE based on order]
-                          |
- ARKodeSetIRKTable        | specifies to use a customized Butcher 
-                          | table for the implicit portion of the 
-                          | system. This automatically calls 
-                          ! ARKodeSetImplicit.
-                          | [determined by ARKODE based on order]
-                          |
- ARKodeSetARKTables       | specifies to use customized Butcher 
-                          | tables for the IMEX system.  This 
-                          ! automatically calls ARKodeSetImEx.
-                          | [determined by ARKODE based on order]
-                          |
- ARKodeSetERKTableNum     | specifies to use a built-in Butcher 
-                          | table for the explicit portion of the 
-                          | system.  The integer argument should 
-                          | match an existing method in 
-                          | ARKodeLoadButcherTable() within the file
-                          | arkode_butcher.c.  Error-checking is
-                          | performed to ensure that the table
-                          | exists, and is not implicit.  This 
-                          ! automatically calls ARKodeSetExplicit.
-                          | [determined by ARKODE based on order]
-                          |
- ARKodeSetIRKTableNum     | specifies to use a built-in Butcher 
-                          | table for the implicit portion of the 
-                          | system.  The integer argument should 
-                          | match an existing method in 
-                          | ARKodeLoadButcherTable() within the file
-                          | arkode_butcher.c.  Error-checking is
-                          | performed to ensure that the table
-                          | exists, and is not explicit.  This 
-                          ! automatically calls ARKodeSetImplicit.
-                          | [determined by ARKODE based on order]
-                          |
- ARKodeSetARKTableNum     | specifies to use a built-in Butcher 
-                          | tables for the ImEx system.  The 
-                          ! integer arguments should match existing 
-                          | methods in ARKodeLoadButcherTable() 
-                          | within the file arkode_butcher.c.  
-                          | Error-checking is performed to ensure 
-                          | that the tables exist.  Subsequent 
-                          | error-checking is automatically performed
-                          | to ensure that the tables' stage times 
-                          | and solution coefficients match.  This 
-                          ! automatically calls ARKodeSetImEx.
-                          | [determined by ARKODE based on order]
-                          |
  ARKodeSetMaxNumSteps     | maximum number of internal steps to be
                           | taken by the solver in its attempt to
                           | reach tout.
@@ -586,86 +427,6 @@ SUNDIALS_EXPORT void *ARKodeCreate();
  ARKodeSetFixedStep       | specifies to use a fixed step size 
                           | throughout integration
                           | [off]
-                          |
- ARKodeSetCFLFraction     | safety factor to use for explicitly 
-                          ! stable steps
-                          | [0.5]
-                          |
- ARKodeSetSafetyFactor    | safety factor to use for error-based 
-                          ! step adaptivity
-                          | [0.96]
-                          |
- ARKodeSetErrorBias       | error bias factor to use in error-based
-                          ! step adaptivity
-                          | [1.5]
-                          |
- ARKodeSetMaxGrowth       | maximum growth factor for successive 
-                          ! time steps (not including the first step).
-                          | [20.0]
-                          |
- ARKodeSetMaxFirstGrowth  | maximum growth factor for first step.
-                          | [10000.0]
-                          |
- ARKodeSetMaxEFailGrowth  | maximum growth factor after an error failure.
-                          | [0.3]
-                          |
- ARKodeSetSmallNumEFails  | maximum number of error failures before 
-                          ! MaxFailGrowth factor is used.
-                          | [2]
-                          |
- ARKodeSetMaxCFailGrowth  | maximum growth factor after a convergence failure.
-                          | [0.25]
-                          |
- ARKodeSetFixedStepBounds | step growth interval to force retention of 
-                          ! the same step size
-                          | [1.0 1.5]
-                          |
- ARKodeSetAdaptivityMethod | Method to use for time step adaptivity
-                          | [0]
-                          |
- ARKodeSetAdaptivityFn    | user-provided time step adaptivity 
-                          | function.
-                          | [internal]
-                          |
- ARKodeSetNonlinCRDown    | user-provided nonlinear convergence
-                          | rate constant.
-                          | [0.3]
-                          |
- ARKodeSetNonlinRDiv      | user-provided nonlinear divergence ratio.
-                          | [2.3]
-                          |
- ARKodeSetDeltaGammaMax   | user-provided linear setup decision
-                          | constant.
-                          | [0.2]
-                          |
- ARKodeSetMaxStepsBetweenLSet | user-provided linear setup decision
-                          | constant.
-                          | [20]
-                          |
- ARKodeSetPredictorMethod | Method to use for predicting implicit 
-                          | solutions.
-                          | [0]
-                          |
- ARKodeSetStabilityFn     | user-provided explicit time step 
-                          | stability function.
-                          | [internal]
-                          |
- ARKodeSetMaxErrTestFails | Maximum number of error test failures
-                          | in attempting one step.
-                          | [7]
-                          |
- ARKodeSetMaxNonlinIters  | Maximum number of nonlinear solver
-                          | iterations at one stage solution.
-                          | [3]
-                          |
- ARKodeSetMaxConvFails    | Maximum number of convergence failures
-                          | allowed in attempting one step.
-                          | [10]
-                          |
- ARKodeSetNonlinConvCoef  | Coefficient in the nonlinear
-                          | convergence test.
-                          | [0.1]
-                          |
 -----------------------------------------------------------------
  ARKodeSetRootDirection      | Specifies the direction of zero
                              | crossings to be monitored
@@ -680,110 +441,37 @@ SUNDIALS_EXPORT void *ARKodeCreate();
    ARK_ILL_INPUT if an argument has an illegal value
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKodeSetDefaults(void *arkode_mem);
-SUNDIALS_EXPORT int ARKodeSetOptimalParams(void *arkode_mem);
-SUNDIALS_EXPORT int ARKodeSetErrHandlerFn(void *arkode_mem, 
-					  ARKErrHandlerFn ehfun, 
-					  void *eh_data);
-SUNDIALS_EXPORT int ARKodeSetErrFile(void *arkode_mem, 
-				     FILE *errfp);
-SUNDIALS_EXPORT int ARKodeSetUserData(void *arkode_mem, 
-				      void *user_data);
-SUNDIALS_EXPORT int ARKodeSetDiagnostics(void *arkode_mem, 
-					 FILE *diagfp);
-SUNDIALS_EXPORT int ARKodeSetOrder(void *arkode_mem, int maxord);
 SUNDIALS_EXPORT int ARKodeSetDenseOrder(void *arkode_mem, int dord);
-SUNDIALS_EXPORT int ARKodeSetLinear(void *arkode_mem, int timedepend);
-SUNDIALS_EXPORT int ARKodeSetNonlinear(void *arkode_mem);
-SUNDIALS_EXPORT int ARKodeSetFixedPoint(void *arkode_mem, long int fp_m);
-SUNDIALS_EXPORT int ARKodeSetNewton(void *arkode_mem);
-SUNDIALS_EXPORT int ARKodeSetExplicit(void *arkode_mem);
-SUNDIALS_EXPORT int ARKodeSetImplicit(void *arkode_mem);
-SUNDIALS_EXPORT int ARKodeSetImEx(void *arkode_mem);
-SUNDIALS_EXPORT int ARKodeSetERKTable(void *arkode_mem, int s, 
-				      int q, int p, realtype *c, 
-				      realtype *A, realtype *b, 
-				      realtype *bembed);
-SUNDIALS_EXPORT int ARKodeSetIRKTable(void *arkode_mem, int s, 
-				      int q, int p, realtype *c, 
-				      realtype *A, realtype *b, 
-				      realtype *bembed);
-SUNDIALS_EXPORT int ARKodeSetARKTables(void *arkode_mem, int s, 
-				       int q, int p, 
-				       realtype *ci, realtype *ce, 
-				       realtype *Ai, realtype *Ae, 
-				       realtype *bi, realtype *be, 
-				       realtype *b2i, realtype *b2e);
-SUNDIALS_EXPORT int ARKodeSetERKTableNum(void *arkode_mem, int itable);
-SUNDIALS_EXPORT int ARKodeSetIRKTableNum(void *arkode_mem, int itable);
-SUNDIALS_EXPORT int ARKodeSetARKTableNum(void *arkode_mem, 
-					 int itable, int etable);
+SUNDIALS_EXPORT int ARKodeSetErrHandlerFn(void *arkode_mem, 
+                                          ARKErrHandlerFn ehfun, 
+                                          void *eh_data);
+SUNDIALS_EXPORT int ARKodeSetErrFile(void *arkode_mem, 
+                                     FILE *errfp);
+SUNDIALS_EXPORT int ARKodeSetUserData(void *arkode_mem, 
+                                      void *user_data);
+SUNDIALS_EXPORT int ARKodeSetDiagnostics(void *arkode_mem, 
+                                         FILE *diagfp);
 SUNDIALS_EXPORT int ARKodeSetMaxNumSteps(void *arkode_mem, 
-					 long int mxsteps);
+                                         long int mxsteps);
 SUNDIALS_EXPORT int ARKodeSetMaxHnilWarns(void *arkode_mem, 
-					  int mxhnil);
+                                          int mxhnil);
 SUNDIALS_EXPORT int ARKodeSetInitStep(void *arkode_mem, 
-				      realtype hin);
+                                      realtype hin);
 SUNDIALS_EXPORT int ARKodeSetMinStep(void *arkode_mem, 
-				     realtype hmin);
+                                     realtype hmin);
 SUNDIALS_EXPORT int ARKodeSetMaxStep(void *arkode_mem, 
-				     realtype hmax);
+                                     realtype hmax);
 SUNDIALS_EXPORT int ARKodeSetStopTime(void *arkode_mem, 
-				      realtype tstop);
+                                      realtype tstop);
 SUNDIALS_EXPORT int ARKodeSetFixedStep(void *arkode_mem, 
-				       realtype hfixed);
-SUNDIALS_EXPORT int ARKodeSetCFLFraction(void *arkode_mem, 
-					 realtype cfl_frac);
-SUNDIALS_EXPORT int ARKodeSetSafetyFactor(void *arkode_mem, 
-					  realtype safety);
-SUNDIALS_EXPORT int ARKodeSetErrorBias(void *arkode_mem, 
-				       realtype bias);
-SUNDIALS_EXPORT int ARKodeSetMaxGrowth(void *arkode_mem, 
-				       realtype mx_growth);
-SUNDIALS_EXPORT int ARKodeSetFixedStepBounds(void *arkode_mem, 
-					     realtype lb, realtype ub);
-SUNDIALS_EXPORT int ARKodeSetAdaptivityMethod(void *arkode_mem, 
-					      int imethod, 
-					      int idefault, int pq, 
-					      realtype *adapt_params);
-SUNDIALS_EXPORT int ARKodeSetAdaptivityFn(void *arkode_mem, 
-					  ARKAdaptFn hfun, 
-					  void *h_data);
-SUNDIALS_EXPORT int ARKodeSetMaxFirstGrowth(void *arkode_mem, 
-					    realtype etamx1);
-SUNDIALS_EXPORT int ARKodeSetMaxEFailGrowth(void *arkode_mem, 
-					    realtype etamxf);
-SUNDIALS_EXPORT int ARKodeSetSmallNumEFails(void *arkode_mem, 
-					    int small_nef);
-SUNDIALS_EXPORT int ARKodeSetMaxCFailGrowth(void *arkode_mem, 
-					    realtype etacf);
-SUNDIALS_EXPORT int ARKodeSetNonlinCRDown(void *arkode_mem, 
-					  realtype crdown);
-SUNDIALS_EXPORT int ARKodeSetNonlinRDiv(void *arkode_mem, 
-					realtype rdiv);
-SUNDIALS_EXPORT int ARKodeSetDeltaGammaMax(void *arkode_mem, 
-					   realtype dgmax);
-SUNDIALS_EXPORT int ARKodeSetMaxStepsBetweenLSet(void *arkode_mem, 
-						 int msbp);
-SUNDIALS_EXPORT int ARKodeSetPredictorMethod(void *arkode_mem, 
-					     int method);
-SUNDIALS_EXPORT int ARKodeSetStabilityFn(void *arkode_mem, 
-					 ARKExpStabFn EStab, 
-					 void *estab_data);
-SUNDIALS_EXPORT int ARKodeSetMaxErrTestFails(void *arkode_mem, 
-					     int maxnef);
-SUNDIALS_EXPORT int ARKodeSetMaxNonlinIters(void *arkode_mem, 
-					    int maxcor);
-SUNDIALS_EXPORT int ARKodeSetMaxConvFails(void *arkode_mem, 
-					  int maxncf);
-SUNDIALS_EXPORT int ARKodeSetNonlinConvCoef(void *arkode_mem, 
-					    realtype nlscoef);
+                                       realtype hfixed);
 
 SUNDIALS_EXPORT int ARKodeSetRootDirection(void *arkode_mem, 
-					   int *rootdir);
+                                           int *rootdir);
 SUNDIALS_EXPORT int ARKodeSetNoInactiveRootWarn(void *arkode_mem);
 
 SUNDIALS_EXPORT int ARKodeSetPostprocessStepFn(void *arkode_mem,
-					       ARKPostProcessStepFn ProcessStep);
+                                               ARKPostProcessStepFn ProcessStep);
 
 /*---------------------------------------------------------------
  Function : ARKodeInit
@@ -812,7 +500,7 @@ SUNDIALS_EXPORT int ARKodeSetPostprocessStepFn(void *arkode_mem,
   ARK_ILL_INPUT if an argument has an illegal value.
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKodeInit(void *arkode_mem, ARKRhsFn fe, 
-			       ARKRhsFn fi, realtype t0, N_Vector y0);
+                               ARKRhsFn fi, realtype t0, N_Vector y0);
 
 /*---------------------------------------------------------------
  Function : ARKodeReInit
@@ -839,7 +527,7 @@ SUNDIALS_EXPORT int ARKodeInit(void *arkode_mem, ARKRhsFn fe,
  In case of an error return, an error message is also printed.
  --------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKodeReInit(void *arkode_mem, ARKRhsFn fe, 
-				 ARKRhsFn fi, realtype t0, N_Vector y0);
+                                 ARKRhsFn fi, realtype t0, N_Vector y0);
 
 /*---------------------------------------------------------------
  Function : ARKodeResize
@@ -884,13 +572,13 @@ SUNDIALS_EXPORT int ARKodeReInit(void *arkode_mem, ARKRhsFn fe,
                     called).
    ARK_ILL_INPUT    indicating an input argument was illegal
                     (including an error from the supplied 
-		    resize function).
+                    resize function).
  In case of an error return, an error message is also printed.
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKodeResize(void *arkode_mem, N_Vector ynew, 
-				 realtype hscale, realtype t0,
-				 ARKVecResizeFn resize, 
-				 void *resize_data);
+                                 realtype hscale, realtype t0,
+                                 ARKVecResizeFn resize, 
+                                 void *resize_data);
 
 /*---------------------------------------------------------------
  Functions : ARKodeSStolerances
@@ -932,13 +620,13 @@ SUNDIALS_EXPORT int ARKodeResize(void *arkode_mem, N_Vector ynew,
  In case of an error return, an error message is also printed.
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKodeSStolerances(void *arkode_mem, 
-				       realtype reltol, 
-				       realtype abstol);
+                                       realtype reltol, 
+                                       realtype abstol);
 SUNDIALS_EXPORT int ARKodeSVtolerances(void *arkode_mem, 
-				       realtype reltol, 
-				       N_Vector abstol);
+                                       realtype reltol, 
+                                       N_Vector abstol);
 SUNDIALS_EXPORT int ARKodeWFtolerances(void *arkode_mem, 
-				       ARKEwtFn efun);
+                                       ARKEwtFn efun);
 
 /*---------------------------------------------------------------
  Functions : ARKodeResStolerance
@@ -987,11 +675,11 @@ SUNDIALS_EXPORT int ARKodeWFtolerances(void *arkode_mem,
  In case of an error return, an error message is also printed.
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKodeResStolerance(void *arkode_mem, 
-					realtype rabstol);
+                                        realtype rabstol);
 SUNDIALS_EXPORT int ARKodeResVtolerance(void *arkode_mem, 
-					N_Vector rabstol);
+                                        N_Vector rabstol);
 SUNDIALS_EXPORT int ARKodeResFtolerance(void *arkode_mem, 
-					ARKRwtFn rfun);
+                                        ARKRwtFn rfun);
 
 /*---------------------------------------------------------------
  Function : ARKodeRootInit
@@ -1020,8 +708,8 @@ SUNDIALS_EXPORT int ARKodeResFtolerance(void *arkode_mem,
  In case of an error return, an error message is also printed.
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKodeRootInit(void *arkode_mem, 
-				   int nrtfn, 
-				   ARKRootFn g);
+                                   int nrtfn, 
+                                   ARKRootFn g);
 
 /*---------------------------------------------------------------
  Function : ARKode
@@ -1102,7 +790,7 @@ SUNDIALS_EXPORT int ARKodeRootInit(void *arkode_mem,
 
  ARK_TOO_MUCH_WORK: The solver took mxstep internal steps but
                    could not reach tout prior to the maximum number
-		   of steps (ark_mxstep).
+                   of steps (ark_mxstep).
 
  ARK_TOO_MUCH_ACC: The solver could not satisfy the accuracy
                    demanded by the user for some internal step.
@@ -1125,7 +813,7 @@ SUNDIALS_EXPORT int ARKodeRootInit(void *arkode_mem,
                    unrecoverable manner.
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKode(void *arkode_mem, realtype tout, 
-			   N_Vector yout, realtype *tret, int itask);
+                           N_Vector yout, realtype *tret, int itask);
 
 /*---------------------------------------------------------------
  Function : ARKodeGetDky
@@ -1164,7 +852,7 @@ SUNDIALS_EXPORT int ARKode(void *arkode_mem, realtype tout,
    ARK_MEM_NULL: The arkode_mem argument was NULL.
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKodeGetDky(void *arkode_mem, realtype t, 
-				 int k, N_Vector dky);
+                                 int k, N_Vector dky);
 
 /*---------------------------------------------------------------
  Integrator optional output extraction functions
@@ -1172,34 +860,8 @@ SUNDIALS_EXPORT int ARKodeGetDky(void *arkode_mem, realtype t,
  The following functions can be called to get optional outputs
  and statistics related to the main integrator.
 -----------------------------------------------------------------
- ARKodeGetWorkSpace returns the ARKODE real and integer workspaces
-
  ARKodeGetNumSteps returns the cumulative number of internal
                    steps taken by the solver
-
- ARKodeGetNumExpSteps returns the cumulative number of stability 
-                      limited steps taken by the solver
-
- ARKodeGetNumAccSteps returns the cumulative number of accuracy 
-                      limited steps taken by the solver
-
- ARKodeGetNumStepAttempts returns the total number of steps
-                          attempted by the solver
-
- ARKodeGetNumRhsEvals returns the number of calls to the user's
-                      fe and fi functions
-
- ARKodeGetNumLinSolvSetups returns the number of calls made to
-                           the linear solver's setup routine
-
- ARKodeGetNumMassSolves returns the number of calls made to
-                           the mass matrix solve routine
-
- ARKodeGetNumMassMultiplies returns the number of calls made to
-                            the mass matrix times vector routine
-
- ARKodeGetNumErrTestFails returns the number of local error test
-                          failures that have occured
 
  ARKodeGetActualInitStep returns the actual initial step size
                          used by ARKODE
@@ -1213,9 +875,6 @@ SUNDIALS_EXPORT int ARKodeGetDky(void *arkode_mem, realtype t,
  ARKodeGetCurrentTime returns the current internal time reached
                       by the solver
 
- ARKodeGetCurrentButcherTables returns the explicit and implicit
-                               Butcher tables currently in use
-
  ARKodeGetTolScaleFactor returns a suggested factor by which the
                          user's tolerances should be scaled when
                          too much accuracy has been requested for
@@ -1227,9 +886,7 @@ SUNDIALS_EXPORT int ARKodeGetDky(void *arkode_mem, realtype t,
  ARKodeGetResWeights returns the current residual weight vector.
                      The user must allocate space for rweight.
 
- ARKodeGetEstLocalErrors returns the vector of estimated local
-                         errors. The user must allocate space
-                         for ele.
+ ARKodeGetWorkSpace returns the ARKODE real and integer workspaces
 
  ARKodeGetNumGEvals returns the number of calls to the user's
                     g function (for rootfinding)
@@ -1238,114 +895,47 @@ SUNDIALS_EXPORT int ARKodeGetDky(void *arkode_mem, realtype t,
                    have a root. The user must allocate space for 
                    rootsfound. For i = 0 ... nrtfn-1, 
                    rootsfound[i] = 1 if g_i has a root, and = 0 
-		   if not.
+                   if not.
 
  ARKodeGet* return values:
    ARK_SUCCESS   if succesful
    ARK_MEM_NULL  if the arkode memory was NULL
 ---------------------------------------------------------------*/
+
 SUNDIALS_EXPORT int ARKodeGetWorkSpace(void *arkode_mem, 
-				       long int *lenrw, 
-				       long int *leniw);
+                                       long int *lenrw, 
+                                       long int *leniw);
 SUNDIALS_EXPORT int ARKodeGetNumSteps(void *arkode_mem, 
-				      long int *nsteps);
-SUNDIALS_EXPORT int ARKodeGetNumExpSteps(void *arkode_mem, 
-					 long int *expsteps);
-SUNDIALS_EXPORT int ARKodeGetNumAccSteps(void *arkode_mem, 
-					 long int *accsteps);
-SUNDIALS_EXPORT int ARKodeGetNumStepAttempts(void *arkode_mem, 
-					     long int *step_attempts);
-SUNDIALS_EXPORT int ARKodeGetNumRhsEvals(void *arkode_mem, 
-					 long int *nfe_evals, 
-					 long int *nfi_evals);
-SUNDIALS_EXPORT int ARKodeGetNumLinSolvSetups(void *arkode_mem, 
-					      long int *nlinsetups);
-SUNDIALS_EXPORT int ARKodeGetNumMassSolves(void *arkode_mem, 
-					   long int *nMassSolves);
-SUNDIALS_EXPORT int ARKodeGetNumMassMultiplies(void *arkode_mem, 
-					       long int *nMassMult);
-SUNDIALS_EXPORT int ARKodeGetNumErrTestFails(void *arkode_mem, 
-					     long int *netfails);
+                                      long int *nsteps);
 SUNDIALS_EXPORT int ARKodeGetActualInitStep(void *arkode_mem, 
-					    realtype *hinused);
+                                            realtype *hinused);
 SUNDIALS_EXPORT int ARKodeGetLastStep(void *arkode_mem, 
-				      realtype *hlast);
+                                      realtype *hlast);
 SUNDIALS_EXPORT int ARKodeGetCurrentStep(void *arkode_mem, 
-					 realtype *hcur);
+                                         realtype *hcur);
 SUNDIALS_EXPORT int ARKodeGetCurrentTime(void *arkode_mem, 
-					 realtype *tcur);
-SUNDIALS_EXPORT int ARKodeGetCurrentButcherTables(void *arkode_mem, 
-						  int *s, int *q, int *p, 
-						  realtype *Ai, realtype *Ae, 
-						  realtype *ci, realtype *ce, 
-						  realtype *bi, realtype *be, 
-						  realtype *b2i, realtype *b2e);
+                                         realtype *tcur);
 SUNDIALS_EXPORT int ARKodeGetTolScaleFactor(void *arkode_mem, 
-					    realtype *tolsfac);
+                                            realtype *tolsfac);
 SUNDIALS_EXPORT int ARKodeGetErrWeights(void *arkode_mem, 
-					N_Vector eweight);
+                                        N_Vector eweight);
 SUNDIALS_EXPORT int ARKodeGetResWeights(void *arkode_mem, 
-					N_Vector rweight);
-SUNDIALS_EXPORT int ARKodeGetEstLocalErrors(void *arkode_mem, 
-					    N_Vector ele);
+                                        N_Vector rweight);
 SUNDIALS_EXPORT int ARKodeGetNumGEvals(void *arkode_mem, 
-				       long int *ngevals);
+                                       long int *ngevals);
 SUNDIALS_EXPORT int ARKodeGetRootInfo(void *arkode_mem, 
-				      int *rootsfound);
+                                      int *rootsfound);
 
 /*---------------------------------------------------------------
- As a convenience, the following functions provides the
- optional outputs in one group.
+ As a convenience, the following function provides many of the
+ optional outputs as a group.
 ---------------------------------------------------------------*/
-SUNDIALS_EXPORT int ARKodeGetIntegratorStats(void *arkode_mem, 
-					     long int *nsteps,
-					     long int *expsteps, 
-					     long int *accsteps, 
-					     long int *step_attempts, 
-					     long int *nfe_evals, 
-					     long int *nfi_evals, 
-					     long int *nlinsetups, 
-					     long int *netfails,
-					     realtype *hinused, 
-					     realtype *hlast, 
-					     realtype *hcur, 
-					     realtype *tcur);
-
-/*---------------------------------------------------------------
- Nonlinear solver optional output extraction functions
------------------------------------------------------------------
- The following functions can be called to get optional outputs
- and statistics related to the nonlinear solver.
------------------------------------------------------------------
- ARKodeGetNumNonlinSolvIters returns the number of nonlinear
-                             solver iterations performed.
-
- ARKodeGetNumNonlinSolvConvFails returns the number of nonlinear
-                                 convergence failures.
----------------------------------------------------------------*/
-SUNDIALS_EXPORT int ARKodeGetNumNonlinSolvIters(void *arkode_mem, 
-						long int *nniters);
-SUNDIALS_EXPORT int ARKodeGetNumNonlinSolvConvFails(void *arkode_mem, 
-						    long int *nncfails);
-
-/*---------------------------------------------------------------
- As a convenience, the following function provides the
- nonlinear solver optional outputs in a group.
----------------------------------------------------------------*/
-SUNDIALS_EXPORT int ARKodeGetNonlinSolvStats(void *arkode_mem, 
-					     long int *nniters,
-					     long int *nncfails);
-
-/*---------------------------------------------------------------
- As a convenience, the following function may be used to retrieve
- Butcher tables from arkode_butcher.c.  The array A must be 
- declared of type A[ARK_S_MAX][ARK_S_MAX], and the arrays c, b 
- and b2 should all have length at least ARK_S_MAX.
----------------------------------------------------------------*/
-SUNDIALS_EXPORT int ARKodeLoadButcherTable(int imethod, int *s, 
-					   int *q, int *p, 
-					   realtype *A, realtype *b, 
-					   realtype *c, realtype *b2);
+SUNDIALS_EXPORT int ARKodeGetStepStats(void *arkode_mem, 
+                                       long int *nsteps,
+                                       realtype *hinused, 
+                                       realtype *hlast, 
+                                       realtype *hcur, 
+                                       realtype *tcur);
 
 /*---------------------------------------------------------------
  The following function returns the name of the constant 
@@ -1360,14 +950,6 @@ SUNDIALS_EXPORT char *ARKodeGetReturnFlagName(long int flag);
  provided file pointer.
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKodeWriteParameters(void *arkode_mem, FILE *fp);
-
-/*---------------------------------------------------------------
- Function : ARKodeWriteButcher
------------------------------------------------------------------
- ARKodeWriteButcher outputs the Butcher tables to the 
- provided file pointer.
----------------------------------------------------------------*/
-SUNDIALS_EXPORT int ARKodeWriteButcher(void *arkode_mem, FILE *fp);
 
 /*---------------------------------------------------------------
  Function : ARKodeFree

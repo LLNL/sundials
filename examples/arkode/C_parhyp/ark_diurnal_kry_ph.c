@@ -61,10 +61,11 @@
 #include <stdlib.h>
 #include <math.h>
 #include <arkode/arkode.h>             /* prototypes for ARKODE fcts. */
+#include <arkode/arkode_arkstep.h>     /* prototypes for ARKStep fcts., consts */
 #include <nvector/nvector_parhyp.h>    /* declaration of N_Vector  */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver  */
 #include <sundials/sundials_dense.h>   /* prototypes for small dense fcts. */
-#include <arkode/arkode_spils.h>         /* access to ARKSpils interface     */
+#include <arkode/arkode_spils.h>       /* access to ARKSpils interface     */
 #include <sundials/sundials_types.h>   /* definitions of realtype, booleantype */
 #include <sundials/sundials_math.h>    /* definition of macros SUNSQR and EXP */
 #include <mpi.h>                       /* MPI constants and types */
@@ -260,7 +261,7 @@ int main(int argc, char *argv[])
   if(check_flag(&flag, "ARKodeInit", 1, my_pe)) return(1);
 
   /* Call ARKodeSetMaxNumSteps to increase default */
-  flag = ARKodeSetMaxNumSteps(arkode_mem, 1000000);
+  flag = ARKodeSetMaxNumSteps(arkode_mem, 10000);
   if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1, my_pe)) return(1);
 
   /* Call ARKodeSStolerances to specify the scalar relative tolerance
@@ -277,6 +278,7 @@ int main(int argc, char *argv[])
   flag = ARKSpilsSetPreconditioner(arkode_mem, Precond, PSolve);
   if (check_flag(&flag, "ARKSpilsSetPreconditioner", 1, my_pe)) MPI_Abort(comm, 1);
 
+  /* Print heading */
   if (my_pe == 0)
     printf("\n2-species diurnal advection-diffusion problem\n\n");
 
@@ -462,7 +464,7 @@ static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
 /* Print final statistics contained in iopt */
 static void PrintFinalStats(void *arkode_mem)
 {
-  long int lenrw, leniw ;
+  long int lenrw, leniw;
   long int lenrwLS, leniwLS;
   long int nst, nfe, nfi, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS;
@@ -472,16 +474,16 @@ static void PrintFinalStats(void *arkode_mem)
   check_flag(&flag, "ARKodeGetWorkSpace", 1, 0);
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   check_flag(&flag, "ARKodeGetNumSteps", 1, 0);
-  flag = ARKodeGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(&flag, "ARKodeGetNumRhsEvals", 1, 0);
-  flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
-  check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1, 0);
-  flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
-  check_flag(&flag, "ARKodeGetNumErrTestFails", 1, 0);
-  flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
-  check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1, 0);
-  flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
-  check_flag(&flag, "ARKodeGetNumNonlinSolvConvFails", 1, 0);
+  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
+  check_flag(&flag, "ARKStepGetNumRhsEvals", 1, 0);
+  flag = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
+  check_flag(&flag, "ARKStepGetNumLinSolvSetups", 1, 0);
+  flag = ARKStepGetNumErrTestFails(arkode_mem, &netf);
+  check_flag(&flag, "ARKStepGetNumErrTestFails", 1, 0);
+  flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
+  check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1, 0);
+  flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
+  check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1, 0);
 
   flag = ARKSpilsGetWorkSpace(arkode_mem, &lenrwLS, &leniwLS);
   check_flag(&flag, "ARKSpilsGetWorkSpace", 1, 0);
@@ -508,10 +510,9 @@ static void PrintFinalStats(void *arkode_mem)
 }
  
 /* Routine to send boundary data to neighboring PEs */
-static void BSend(MPI_Comm comm, 
-                  int my_pe, int isubx, int isuby, 
-                  sunindextype dsizex, sunindextype dsizey,
-                  realtype udata[])
+static void BSend(MPI_Comm comm, int my_pe, int isubx, 
+                  int isuby, sunindextype dsizex, 
+                  sunindextype dsizey, realtype udata[])
 {
   int i, ly;
   sunindextype offsetu, offsetbuf;
@@ -644,7 +645,6 @@ static void BRecvWait(MPI_Request request[],
     }
   }
 }
-
 
 /* ucomm routine.  This routine performs all communication 
    between processors of data needed to calculate f. */
@@ -857,7 +857,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   realtype *udata, **a, **j;
   HYPRE_ParVector uhyp;
   UserData data;
-  
+
   /* Make local copies of pointers in user_data, pointer to u's data,
      and PE index pair */
   data = (UserData) user_data;
@@ -871,8 +871,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   udata = hypre_VectorData(hypre_ParVectorLocalVector(uhyp));
 
   if (jok) {
-
-    /* jok = SUNTRUE: Copy Jbd to P */
+  /* jok = SUNTRUE: Copy Jbd to P */
     for (ly = 0; ly < MYSUB; ly++)
       for (lx = 0; lx < MXSUB; lx++)
         denseCopy(Jbd[lx][ly], P[lx][ly], NVARS, NVARS);
@@ -892,7 +891,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
     hordco  = data->hdco;
     
     /* Compute 2x2 diagonal Jacobian blocks (using q4 values 
-     c*omputed on the last f call).  Load into P. */
+     computed on the last f call).  Load into P. */
     for (ly = 0; ly < MYSUB; ly++) {
       jy = ly + isuby*MYSUB;
       ydn = YMIN + (jy - RCONST(0.5))*dely;
@@ -937,7 +936,6 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
 
 
 /* Preconditioner solve routine */
-
 static int PSolve(realtype tn, N_Vector u, N_Vector fu, 
                   N_Vector r, N_Vector z, 
                   realtype gamma, realtype delta,
@@ -950,7 +948,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
   realtype *zdata, *v;
   HYPRE_ParVector zhyp;
   UserData data;
-  
+
   /* Extract the P and pivot arrays from user_data */
   data = (UserData) user_data;
   P = data->P;
@@ -960,7 +958,6 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
      in P and pivot data in pivot, and return the solution in z.
      First copy vector r to z. */
   N_VScale(RCONST(1.0), r, z);
-
   nvmxsub = data->nvmxsub;
   zhyp  = N_VGetVector_ParHyp(z); /* extract hypre vector */
   zdata = hypre_VectorData(hypre_ParVectorLocalVector(zhyp));

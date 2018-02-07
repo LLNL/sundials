@@ -15,6 +15,7 @@ $tar $tarfile $distrobase/doc/arkode/ark_examples.pdf
 fi
 
 $tar $tarfile $distrobase/include/arkode/arkode.h
+$tar $tarfile $distrobase/include/arkode/arkode_butcher.h
 $tar $tarfile $distrobase/include/arkode/arkode_bandpre.h
 $tar $tarfile $distrobase/include/arkode/arkode_bbdpre.h
 $tar $tarfile $distrobase/include/arkode/arkode_direct.h
@@ -25,6 +26,10 @@ $tar $tarfile $distrobase/src/arkode/README
 $tar $tarfile $distrobase/src/arkode/CMakeLists.txt
 
 $tar $tarfile $distrobase/src/arkode/arkode.c
+$tar $tarfile $distrobase/src/arkode/arkode_adapt.c
+$tar $tarfile $distrobase/src/arkode/arkode_adapt_impl.c
+$tar $tarfile $distrobase/src/arkode/arkode_arkstep.c
+$tar $tarfile $distrobase/src/arkode/arkode_arkstep_impl.c
 $tar $tarfile $distrobase/src/arkode/arkode_bandpre.c
 $tar $tarfile $distrobase/src/arkode/arkode_bandpre_impl.h
 $tar $tarfile $distrobase/src/arkode/arkode_bbdpre.c
@@ -33,7 +38,11 @@ $tar $tarfile $distrobase/src/arkode/arkode_butcher.c
 $tar $tarfile $distrobase/src/arkode/arkode_direct.c
 $tar $tarfile $distrobase/src/arkode/arkode_direct_impl.h
 $tar $tarfile $distrobase/src/arkode/arkode_impl.h
+$tar $tarfile $distrobase/src/arkode/arkode_interp.c
+$tar $tarfile $distrobase/src/arkode/arkode_interp_impl.h
 $tar $tarfile $distrobase/src/arkode/arkode_io.c
+$tar $tarfile $distrobase/src/arkode/arkode_root.c
+$tar $tarfile $distrobase/src/arkode/arkode_root_impl.c
 $tar $tarfile $distrobase/src/arkode/arkode_spils.c
 $tar $tarfile $distrobase/src/arkode/arkode_spils_impl.h
 

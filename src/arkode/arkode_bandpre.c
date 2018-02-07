@@ -37,20 +37,20 @@
 
 /* Prototypes of ARKBandPrecSetup and ARKBandPrecSolve */
 static int ARKBandPrecSetup(realtype t, N_Vector y, N_Vector fy, 
-			    booleantype jok, booleantype *jcurPtr, 
-			    realtype gamma, void *bp_data);
+                            booleantype jok, booleantype *jcurPtr, 
+                            realtype gamma, void *bp_data);
 static int ARKBandPrecSolve(realtype t, N_Vector y, N_Vector fy, 
-			    N_Vector r, N_Vector z, 
-			    realtype gamma, realtype delta,
-			    int lr, void *bp_data);
+                            N_Vector r, N_Vector z, 
+                            realtype gamma, realtype delta,
+                            int lr, void *bp_data);
 
 /* Prototype for ARKBandPrecFree */
 static int ARKBandPrecFree(ARKodeMem ark_mem);
 
 /* Prototype for difference quotient Jacobian calculation routine */
 static int ARKBandPDQJac(ARKBandPrecData pdata,
-			 realtype t, N_Vector y, N_Vector fy, 
-			 N_Vector ftemp, N_Vector ytemp);
+                         realtype t, N_Vector y, N_Vector fy, 
+                         N_Vector ftemp, N_Vector ytemp);
 
 
 /*---------------------------------------------------------------
@@ -62,28 +62,29 @@ static int ARKBandPDQJac(ARKBandPrecData pdata,
        N_VGetArrayPointer exists.
 ---------------------------------------------------------------*/
 int ARKBandPrecInit(void *arkode_mem, sunindextype N, 
-		    sunindextype mu, sunindextype ml)
+                    sunindextype mu, sunindextype ml)
 {
-  ARKodeMem ark_mem;
-  ARKSpilsMem arkspils_mem;
+  ARKodeMem       ark_mem;
+  ARKSpilsMem     arkspils_mem;
+  void*           ark_step_lmem;
   ARKBandPrecData pdata;
-  sunindextype mup, mlp, storagemu;
-  int flag;
+  sunindextype    mup, mlp, storagemu;
+  int             flag;
 
+  /* Return immediately if ARKodeMem or ARKSpilsMem are NULL */
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKBANDPRE", 
                     "ARKBandPrecInit", MSGBP_MEM_NULL);
     return(ARKSPILS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-
-  /* Test if the SPILS linear solver interface has been created */
-  if (ark_mem->ark_lmem == NULL) {
+  ark_step_lmem = ark_mem->ark_step_getlinmem(arkode_mem);
+  if (ark_step_lmem == NULL) {
     arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKBANDPRE", 
                     "ARKBandPrecInit", MSGBP_LMEM_NULL);
     return(ARKSPILS_LMEM_NULL);
   }
-  arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
+  arkspils_mem = (ARKSpilsMem) ark_step_lmem;
 
   /* Test compatibility of NVECTOR package with the BAND preconditioner */
   if(ark_mem->ark_tempv->ops->nvgetarraypointer == NULL) {
@@ -204,27 +205,28 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
 int ARKBandPrecGetWorkSpace(void *arkode_mem, long int *lenrwBP, 
                             long int *leniwBP)
 {
-  ARKodeMem ark_mem;
-  ARKSpilsMem arkspils_mem;
+  ARKodeMem       ark_mem;
+  ARKSpilsMem     arkspils_mem;
+  void*           ark_step_lmem;
   ARKBandPrecData pdata;
-  sunindextype lrw1, liw1;
-  long int lrw, liw;
-  int flag;
+  sunindextype    lrw1, liw1;
+  long int        lrw, liw;
+  int             flag;
   
+  /* Return immediately if ARKodeMem, ARKSpilsMem or ARKBandPrecData are NULL */
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKBANDPRE", 
                     "ARKBandPrecGetWorkSpace", MSGBP_MEM_NULL);
     return(ARKSPILS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-
-  if (ark_mem->ark_lmem == NULL) {
+  ark_step_lmem = ark_mem->ark_step_getlinmem(arkode_mem);
+  if (ark_step_lmem == NULL) {
     arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKBANDPRE", 
                     "ARKBandPrecGetWorkSpace", MSGBP_LMEM_NULL);
     return(ARKSPILS_LMEM_NULL);
   }
-  arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
-
+  arkspils_mem = (ARKSpilsMem) ark_step_lmem;
   if (arkspils_mem->P_data == NULL) {
     arkProcessError(ark_mem, ARKSPILS_PMEM_NULL, "ARKBANDPRE", 
                     "ARKBandPrecGetWorkSpace", MSGBP_PMEM_NULL);
@@ -242,18 +244,24 @@ int ARKBandPrecGetWorkSpace(void *arkode_mem, long int *lenrwBP,
   }
   if (pdata->savedJ->ops->space) {
     flag = SUNMatSpace(pdata->savedJ, &lrw, &liw);
-    *leniwBP += liw;
-    *lenrwBP += lrw;
+    if (flag == 0) {
+      *leniwBP += liw;
+      *lenrwBP += lrw;
+    }
   }
   if (pdata->savedP->ops->space) {
     flag = SUNMatSpace(pdata->savedP, &lrw, &liw);
-    *leniwBP += liw;
-    *lenrwBP += lrw;
+    if (flag == 0) {
+      *leniwBP += liw;
+      *lenrwBP += lrw;
+    }
   }
   if (pdata->LS->ops->space) {
     flag = SUNLinSolSpace(pdata->LS, &lrw, &liw);
-    *leniwBP += liw;
-    *lenrwBP += lrw;
+    if (flag == SUNLS_SUCCESS) {
+      *leniwBP += liw;
+      *lenrwBP += lrw;
+    }
   }
 
   return(ARKSPILS_SUCCESS);
@@ -262,24 +270,25 @@ int ARKBandPrecGetWorkSpace(void *arkode_mem, long int *lenrwBP,
 
 int ARKBandPrecGetNumRhsEvals(void *arkode_mem, long int *nfevalsBP)
 {
-  ARKodeMem ark_mem;
-  ARKSpilsMem arkspils_mem;
+  ARKodeMem       ark_mem;
+  void*           ark_step_lmem;
+  ARKSpilsMem     arkspils_mem;
   ARKBandPrecData pdata;
 
+  /* Return immediately if ARKodeMem, ARKSpilsMem or ARKBandPrecData are NULL */
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARKSPILS_MEM_NULL, "ARKBANDPRE", 
                     "ARKBandPrecGetNumRhsEvals", MSGBP_MEM_NULL);
     return(ARKSPILS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-
-  if (ark_mem->ark_lmem == NULL) {
+  ark_step_lmem = ark_mem->ark_step_getlinmem(arkode_mem);
+  if (ark_step_lmem == NULL) {
     arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKBANDPRE", 
                     "ARKBandPrecGetNumRhsEvals", MSGBP_LMEM_NULL);
     return(ARKSPILS_LMEM_NULL);
   }
-  arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
-
+  arkspils_mem = (ARKSpilsMem) ark_step_lmem;
   if (arkspils_mem->P_data == NULL) {
     arkProcessError(ark_mem, ARKSPILS_PMEM_NULL, "ARKBANDPRE", 
                     "ARKBandPrecGetNumRhsEvals", MSGBP_PMEM_NULL);
@@ -287,6 +296,7 @@ int ARKBandPrecGetNumRhsEvals(void *arkode_mem, long int *nfevalsBP)
   } 
   pdata = (ARKBandPrecData) arkspils_mem->P_data;
 
+  /* set output */
   *nfevalsBP = pdata->nfeBP;
 
   return(ARKSPILS_SUCCESS);
@@ -454,12 +464,15 @@ static int ARKBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
 ---------------------------------------------------------------*/ 
 static int ARKBandPrecFree(ARKodeMem ark_mem)
 {
-  ARKSpilsMem arkspils_mem;
+  ARKSpilsMem     arkspils_mem;
+  void*           ark_step_lmem;
   ARKBandPrecData pdata;
 
-  if (ark_mem->ark_lmem == NULL) return(0);
-  arkspils_mem = (ARKSpilsMem) ark_mem->ark_lmem;
-  
+  /* Return immediately if ARKodeMem, ARKSpilsMem or ARKBandPrecData are NULL */
+  if (ark_mem == NULL) return(0);
+  ark_step_lmem = ark_mem->ark_step_getlinmem((void*) ark_mem);
+  if (ark_step_lmem == NULL) return(0);
+  arkspils_mem = (ARKSpilsMem) ark_step_lmem;
   if (arkspils_mem->P_data == NULL) return(0);
   pdata = (ARKBandPrecData) arkspils_mem->P_data;
 
@@ -487,10 +500,11 @@ static int ARKBandPrecFree(ARKodeMem ark_mem)
  each of the elements of a column in succession.
 ---------------------------------------------------------------*/
 static int ARKBandPDQJac(ARKBandPrecData pdata, 
-			 realtype t, N_Vector y, N_Vector fy, 
-			 N_Vector ftemp, N_Vector ytemp)
+                         realtype t, N_Vector y, N_Vector fy, 
+                         N_Vector ftemp, N_Vector ytemp)
 {
   ARKodeMem ark_mem;
+  ARKRhsFn fi;
   realtype fnorm, minInc, inc, inc_inv, srur;
   sunindextype group, i, j, width, ngroups, i1, i2;
   realtype *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
@@ -498,6 +512,11 @@ static int ARKBandPDQJac(ARKBandPrecData pdata,
 
   ark_mem = (ARKodeMem) pdata->arkode_mem;
 
+  /* Access implicit RHS function */
+  fi = NULL;
+  fi = ark_mem->ark_step_getimplicitrhs((void*) ark_mem);
+  if (fi == NULL)  return(-1);
+  
   /* Obtain pointers to the data for ewt, fy, ftemp, y, ytemp. */
   ewt_data   = N_VGetArrayPointer(ark_mem->ark_ewt);
   fy_data    = N_VGetArrayPointer(fy);
@@ -528,7 +547,7 @@ static int ARKBandPDQJac(ARKBandPrecData pdata,
     }
 
     /* Evaluate f with incremented y. */
-    retval = ark_mem->ark_fi(t, ytemp, ftemp, ark_mem->ark_user_data);
+    retval = fi(t, ytemp, ftemp, ark_mem->ark_user_data);
     pdata->nfeBP++;
     if (retval != 0) return(retval);
 

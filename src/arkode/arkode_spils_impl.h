@@ -41,6 +41,7 @@ typedef struct ARKSpilsMemRec {
   realtype eplifac;   /* eplifac = user specified or EPLIN_DEFAULT    */
   realtype deltar;    /* deltar = delt * LTE                          */
   realtype delta;     /* delta = deltar * sqrtN                       */
+  realtype tcur;      /* 'time' for current ARKSpils solve            */
 
   booleantype jbad;   /* heuristic suggestion for pset/JTimes         */
   long int nstlpre;   /* value of nst at the last pset call           */
@@ -57,8 +58,8 @@ typedef struct ARKSpilsMemRec {
   
   N_Vector ytemp;     /* temp vector passed to jtimes and psolve      */
   N_Vector x;         /* solution vector used by SUNLinearSolver      */
-  N_Vector ycur;      /* ARKODE current y vector in Newton Iteration  */
-  N_Vector fcur;      /* fcur = f(tn, ycur)                           */
+  N_Vector ycur;      /* ARKODE current y vector in ARKSpils solve    */
+  N_Vector fcur;      /* fcur = f(tcur, ycur)                         */
 
   /* Preconditioner computation
     (a) user-provided:
@@ -142,15 +143,15 @@ typedef struct ARKSpilsMassMemRec {
 ---------------------------------------------------------------*/
 
 /* Interface routines called by system SUNLinearSolver */
-int ARKSpilsATimes(void *ark_mem, N_Vector v, N_Vector z);
-int ARKSpilsPSetup(void *ark_mem);
-int ARKSpilsPSolve(void *ark_mem, N_Vector r, N_Vector z,
+int ARKSpilsATimes(void* arkode_mem, N_Vector v, N_Vector z);
+int ARKSpilsPSetup(void* arkode_mem);
+int ARKSpilsPSolve(void* arkode_mem, N_Vector r, N_Vector z,
                    realtype tol, int lr);
 
 /* Interface routines called by mass SUNLinearSolver */
-int ARKSpilsMTimes(void *ark_mem, N_Vector v, N_Vector z);
-int ARKSpilsMPSetup(void *ark_mem);
-int ARKSpilsMPSolve(void *ark_mem, N_Vector r, N_Vector z,
+int ARKSpilsMTimes(void* arkode_mem, N_Vector v, N_Vector z);
+int ARKSpilsMPSetup(void* arkode_mem);
+int ARKSpilsMPSolve(void* arkode_mem, N_Vector r, N_Vector z,
                     realtype tol, int lr);
 
 /* Difference quotient approximation for Jac times vector */
@@ -159,27 +160,26 @@ int ARKSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
                      N_Vector work);
 
 /* Generic linit/lsetup/lsolve/lfree interface routines for ARKode to call */
-int arkSpilsInitialize(ARKodeMem ark_mem);
+int arkSpilsInitialize(void* arkode_mem);
 
-int arkSpilsSetup(ARKodeMem ark_mem, int convfail, N_Vector ypred,
-                  N_Vector fpred, booleantype *jcurPtr, 
+int arkSpilsSetup(void* arkode_mem, int convfail, realtype tpred,
+                  N_Vector ypred, N_Vector fpred, booleantype *jcurPtr, 
                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3); 
 
-int arkSpilsSolve(ARKodeMem ark_mem, N_Vector b, N_Vector ycur, N_Vector fcur);
+int arkSpilsSolve(void* arkode_mem, N_Vector b, realtype tcur,
+                  N_Vector ycur, N_Vector fcur, realtype eRnrm, int mnewt);
 
-int arkSpilsFree(ARKodeMem ark_mem);
+int arkSpilsFree(void* arkode_mem);
 
 /* Generic minit/msetup/mmult/msolve/mfree routines for ARKode to call */  
-int arkSpilsMassInitialize(ARKodeMem ark_mem);
+int arkSpilsMassInitialize(void* arkode_mem);
   
-int arkSpilsMassSetup(ARKodeMem ark_mem, N_Vector vtemp1,
+int arkSpilsMassSetup(void* arkode_mem, N_Vector vtemp1,
                       N_Vector vtemp2, N_Vector vtemp3); 
 
-int arkSpilsMassMult(ARKodeMem ark_mem, N_Vector v, N_Vector Mv);
+int arkSpilsMassSolve(void* arkode_mem, N_Vector b, realtype nlscoef);
 
-int arkSpilsMassSolve(ARKodeMem ark_mem, N_Vector b);
-
-int arkSpilsMassFree(ARKodeMem ark_mem);
+int arkSpilsMassFree(void* arkode_mem);
 
 /* Auxilliary functions */
 int arkSpilsInitializeCounters(ARKSpilsMem arkspils_mem);

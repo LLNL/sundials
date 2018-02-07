@@ -102,6 +102,7 @@
 #include <math.h>
 
 #include <arkode/arkode.h>              /* main integrator header file                 */
+#include <arkode/arkode_arkstep.h>      /* prototypes for ARKStep fcts., consts */
 #include <sunlinsol/sunlinsol_spgmr.h>  /* access to SPGMR SUNLinearSolver             */
 #include <arkode/arkode_spils.h>        /* access to ARKSpils interface                */
 #include <nvector/nvector_serial.h>     /* serial N_Vector types, fct. and macros      */
@@ -196,9 +197,9 @@ static void PrintOutput(void *arkode_mem, realtype t);
 static void PrintFinalStats(void *arkode_mem);
 static void FreeUserData(WebData wdata);
 static void WebRates(realtype x, realtype y, realtype t, realtype c[],
-		     realtype rate[], WebData wdata);
+                     realtype rate[], WebData wdata);
 static void fblock (realtype t, realtype cdata[], int jx, int jy,
-		    realtype cdotdata[], WebData wdata);
+                    realtype cdotdata[], WebData wdata);
 static void GSIter(realtype gamma, N_Vector z, N_Vector x, WebData wdata);
 
 /* Small Vector Kernels */
@@ -282,8 +283,8 @@ int main()
         flag = ARKodeSetMaxNumSteps(arkode_mem, 1000);
         if(check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) return(1);
 
-        flag = ARKodeSetNonlinConvCoef(arkode_mem, 1.e-3);
-        if(check_flag(&flag, "ARKodeSetNonlinConvCoef", 1)) return(1);
+        flag = ARKStepSetNonlinConvCoef(arkode_mem, 1.e-3);
+        if(check_flag(&flag, "ARKStepSetNonlinConvCoef", 1)) return(1);
 
         LS = SUNSPGMR(c, jpre, MAXL);
         if(check_flag((void *)LS, "SUNSPGMR", 0)) return(1);
@@ -568,10 +569,10 @@ static void PrintOutput(void *arkode_mem, realtype t)
 
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   check_flag(&flag, "ARKodeGetNumSteps", 1);
-  flag = ARKodeGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(&flag, "ARKodeGetNumRhsEvals", 1);
-  flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
-  check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1);
+  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
+  check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
+  flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
+  check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1);
   flag = ARKodeGetLastStep(arkode_mem, &hu);
   check_flag(&flag, "ARKodeGetLastStep", 1);
 
@@ -600,16 +601,16 @@ static void PrintFinalStats(void *arkode_mem)
   check_flag(&flag, "ARKodeGetWorkSpace", 1);
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   check_flag(&flag, "ARKodeGetNumSteps", 1);
-  flag = ARKodeGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(&flag, "ARKodeGetNumRhsEvals", 1);
-  flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
-  check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1);
-  flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
-  check_flag(&flag, "ARKodeGetNumErrTestFails", 1);
-  flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
-  check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1);
-  flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
-  check_flag(&flag, "ARKodeGetNumNonlinSolvConvFails", 1);
+  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
+  check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
+  flag = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
+  check_flag(&flag, "ARKStepGetNumLinSolvSetups", 1);
+  flag = ARKStepGetNumErrTestFails(arkode_mem, &netf);
+  check_flag(&flag, "ARKStepGetNumErrTestFails", 1);
+  flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
+  check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1);
+  flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
+  check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1);
 
   flag = ARKSpilsGetWorkSpace(arkode_mem, &lenrwLS, &leniwLS);
   check_flag(&flag, "ARKSpilsGetWorkSpace", 1);

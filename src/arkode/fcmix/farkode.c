@@ -30,6 +30,7 @@
 #include <sundials/sundials_matrix.h>
 #include <arkode/arkode_direct.h>
 #include <arkode/arkode_spils.h>
+#include <arkode/arkode_arkstep.h>
 
 /*=============================================================*/
 
@@ -58,9 +59,9 @@ extern "C" {
 #endif
 
   extern void FARK_IMP_FUN(realtype *T, realtype *Y, realtype *YDOT,
-			   long int *IPAR, realtype *RPAR, int *IER);
+                           long int *IPAR, realtype *RPAR, int *IER);
   extern void FARK_EXP_FUN(realtype *T, realtype *Y, realtype *YDOT,
-			   long int *IPAR, realtype *RPAR, int *IER);
+                           long int *IPAR, realtype *RPAR, int *IER);
 
 #ifdef __cplusplus
 }
@@ -74,9 +75,9 @@ extern "C" {
    ARKodeSStolerances (or ARKodeSVtolerances); see farkode.h
    for further details */
 void FARK_MALLOC(realtype *t0, realtype *y0, int *imex,
-		 int *iatol, realtype *rtol, realtype *atol,
-		 long int *iout, realtype *rout,
-		 long int *ipar, realtype *rpar, int *ier) {
+                 int *iatol, realtype *rtol, realtype *atol,
+                 long int *iout, realtype *rout,
+                 long int *ipar, realtype *rpar, int *ier) {
 
   N_Vector Vatol;
   FARKUserData ARK_userdata;
@@ -140,17 +141,17 @@ void FARK_MALLOC(realtype *t0, realtype *y0, int *imex,
   switch (*imex) {
   case 0:  /* purely implicit */
     *ier = ARKodeInit(ARK_arkodemem, NULL, FARKfi,
-		      *t0, F2C_ARKODE_vec);
+                      *t0, F2C_ARKODE_vec);
     break;
   case 1:  /* purely explicit */
     *ier = ARKodeInit(ARK_arkodemem, FARKfe, NULL,
-		      *t0, F2C_ARKODE_vec);
+                      *t0, F2C_ARKODE_vec);
     FARKNullMatrix();
     FARKNullLinsol();
     break;
   case 2:  /* imex */
     *ier = ARKodeInit(ARK_arkodemem, FARKfe, FARKfi,
-		      *t0, F2C_ARKODE_vec);
+                      *t0, F2C_ARKODE_vec);
     break;
   }
 
@@ -214,7 +215,7 @@ void FARK_MALLOC(realtype *t0, realtype *y0, int *imex,
    routines ARKodeReInit and ARKodeSStolerances (or
    ARKodeSVtolerances); see farkode.h for further details */
 void FARK_REINIT(realtype *t0, realtype *y0, int *imex, int *iatol,
-		 realtype *rtol, realtype *atol, int *ier) {
+                 realtype *rtol, realtype *atol, int *ier) {
 
   N_Vector Vatol;
   realtype reltol, abstol;
@@ -230,15 +231,15 @@ void FARK_REINIT(realtype *t0, realtype *y0, int *imex, int *iatol,
   switch (*imex) {
   case 0:  /* purely implicit */
     *ier = ARKodeReInit(ARK_arkodemem, NULL, FARKfi,
-			*t0, F2C_ARKODE_vec);
+                        *t0, F2C_ARKODE_vec);
     break;
   case 1:  /* purely explicit */
     *ier = ARKodeReInit(ARK_arkodemem, FARKfe, NULL,
-			*t0, F2C_ARKODE_vec);
+                        *t0, F2C_ARKODE_vec);
     break;
   case 2:  /* imex */
     *ier = ARKodeReInit(ARK_arkodemem, FARKfe, FARKfi,
-			*t0, F2C_ARKODE_vec);
+                        *t0, F2C_ARKODE_vec);
     break;
   }
 
@@ -290,7 +291,7 @@ void FARK_REINIT(realtype *t0, realtype *y0, int *imex, int *iatol,
    routines ARKodeResize (and potentially ARKodeSVtolerances);
    see farkode.h for further details */
 void FARK_RESIZE(realtype *t0, realtype *y0, realtype *hscale,
-		 int *itol, realtype *rtol, realtype *atol, int *ier) {
+                 int *itol, realtype *rtol, realtype *atol, int *ier) {
 
   *ier = 0;
 
@@ -329,10 +330,11 @@ void FARK_RESIZE(realtype *t0, realtype *y0, realtype *hscale,
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKodeSetDefaults; see
-   farkode.h for further details */
+/* Fortran interface to C routines ARKodeSetDefaults and 
+   ARKStepSetDefaults; see farkode.h for further details */
 void FARK_SETDEFAULTS(int *ier) {
   *ier = ARKodeSetDefaults(ARK_arkodemem);
+  *ier += ARKStepSetDefaults(ARK_arkodemem);
   return;
 }
 
@@ -342,45 +344,45 @@ void FARK_SETDEFAULTS(int *ier) {
    arguments; see farkode.h for further details */
 void FARK_SETIIN(char key_name[], long int *ival, int *ier) {
   if (!strncmp(key_name, "ORDER", 5))
-    *ier = ARKodeSetOrder(ARK_arkodemem, (int) *ival);
+    *ier = ARKStepSetOrder(ARK_arkodemem, (int) *ival);
   else if (!strncmp(key_name, "DENSE_ORDER", 11))
     *ier = ARKodeSetDenseOrder(ARK_arkodemem, (int) *ival);
   else if (!strncmp(key_name, "LINEAR", 6))
-    *ier = ARKodeSetLinear(ARK_arkodemem, (int) *ival);
+    *ier = ARKStepSetLinear(ARK_arkodemem, (int) *ival);
   else if (!strncmp(key_name, "NONLINEAR", 9))
-    *ier = ARKodeSetNonlinear(ARK_arkodemem);
+    *ier = ARKStepSetNonlinear(ARK_arkodemem);
   else if (!strncmp(key_name, "FIXEDPOINT", 10))
-    *ier = ARKodeSetFixedPoint(ARK_arkodemem, (long int) *ival);
+    *ier = ARKStepSetFixedPoint(ARK_arkodemem, (long int) *ival);
   else if (!strncmp(key_name, "NEWTON", 6))
-    *ier = ARKodeSetNewton(ARK_arkodemem);
+    *ier = ARKStepSetNewton(ARK_arkodemem);
   else if (!strncmp(key_name, "EXPLICIT", 8))
-    *ier = ARKodeSetExplicit(ARK_arkodemem);
+    *ier = ARKStepSetExplicit(ARK_arkodemem);
   else if (!strncmp(key_name, "IMPLICIT", 8))
-    *ier = ARKodeSetImplicit(ARK_arkodemem);
+    *ier = ARKStepSetImplicit(ARK_arkodemem);
   else if (!strncmp(key_name, "IMEX", 4))
-    *ier = ARKodeSetImEx(ARK_arkodemem);
+    *ier = ARKStepSetImEx(ARK_arkodemem);
   else if (!strncmp(key_name, "IRK_TABLE_NUM", 13))
-    *ier = ARKodeSetIRKTableNum(ARK_arkodemem, (int) *ival);
+    *ier = ARKStepSetIRKTableNum(ARK_arkodemem, (int) *ival);
   else if (!strncmp(key_name, "ERK_TABLE_NUM", 13))
-    *ier = ARKodeSetERKTableNum(ARK_arkodemem, (int) *ival);
+    *ier = ARKStepSetERKTableNum(ARK_arkodemem, (int) *ival);
   else if (!strncmp(key_name, "ARK_TABLE_NUM", 13))
-    *ier = ARKodeSetARKTableNum(ARK_arkodemem, (int) ival[0], (int) ival[1]);
+    *ier = ARKStepSetARKTableNum(ARK_arkodemem, (int) ival[0], (int) ival[1]);
   else if (!strncmp(key_name, "MAX_NSTEPS", 10))
     *ier = ARKodeSetMaxNumSteps(ARK_arkodemem, (long int) *ival);
   else if (!strncmp(key_name, "HNIL_WARNS", 10))
     *ier = ARKodeSetMaxHnilWarns(ARK_arkodemem, (int) *ival);
   else if (!strncmp(key_name, "PREDICT_METHOD", 14))
-    *ier = ARKodeSetPredictorMethod(ARK_arkodemem, (int) *ival);
+    *ier = ARKStepSetPredictorMethod(ARK_arkodemem, (int) *ival);
   else if (!strncmp(key_name, "MAX_ERRFAIL", 11))
-    *ier = ARKodeSetMaxErrTestFails(ARK_arkodemem, (int) *ival);
+    *ier = ARKStepSetMaxErrTestFails(ARK_arkodemem, (int) *ival);
   else if (!strncmp(key_name, "MAX_CONVFAIL", 12))
-    *ier = ARKodeSetMaxConvFails(ARK_arkodemem, (int) *ival);
+    *ier = ARKStepSetMaxConvFails(ARK_arkodemem, (int) *ival);
   else if (!strncmp(key_name, "MAX_NITERS", 10))
-    *ier = ARKodeSetMaxNonlinIters(ARK_arkodemem, (int) *ival);
+    *ier = ARKStepSetMaxNonlinIters(ARK_arkodemem, (int) *ival);
   else if (!strncmp(key_name, "ADAPT_SMALL_NEF", 15))
-    *ier = ARKodeSetSmallNumEFails(ARK_arkodemem, (int) *ival);
+    *ier = ARKStepSetSmallNumEFails(ARK_arkodemem, (int) *ival);
   else if (!strncmp(key_name, "LSETUP_MSBP", 11))
-    *ier = ARKodeSetMaxStepsBetweenLSet(ARK_arkodemem, (int) *ival);
+    *ier = ARKStepSetMaxStepsBetweenLSet(ARK_arkodemem, (int) *ival);
   else {
     *ier = -99;
     fprintf(stderr, "FARKSETIIN: Unrecognized key.\n\n");
@@ -402,29 +404,29 @@ void FARK_SETRIN(char key_name[], realtype *rval, int *ier) {
   else if (!strncmp(key_name, "STOP_TIME", 9))
     *ier = ARKodeSetStopTime(ARK_arkodemem, *rval);
   else if (!strncmp(key_name, "NLCONV_COEF", 11))
-    *ier = ARKodeSetNonlinConvCoef(ARK_arkodemem, *rval);
+    *ier = ARKStepSetNonlinConvCoef(ARK_arkodemem, *rval);
   else if (!strncmp(key_name, "ADAPT_CFL", 9))
-    *ier = ARKodeSetCFLFraction(ARK_arkodemem, *rval);
+    *ier = ARKStepSetCFLFraction(ARK_arkodemem, *rval);
   else if (!strncmp(key_name, "ADAPT_SAFETY", 12))
-    *ier = ARKodeSetSafetyFactor(ARK_arkodemem, *rval);
+    *ier = ARKStepSetSafetyFactor(ARK_arkodemem, *rval);
   else if (!strncmp(key_name, "ADAPT_BIAS", 10))
-    *ier = ARKodeSetErrorBias(ARK_arkodemem, *rval);
+    *ier = ARKStepSetErrorBias(ARK_arkodemem, *rval);
   else if (!strncmp(key_name, "ADAPT_GROWTH", 12))
-    *ier = ARKodeSetMaxGrowth(ARK_arkodemem, *rval);
+    *ier = ARKStepSetMaxGrowth(ARK_arkodemem, *rval);
   else if (!strncmp(key_name, "ADAPT_BOUNDS", 12))
-    *ier = ARKodeSetFixedStepBounds(ARK_arkodemem, rval[0], rval[1]);
+    *ier = ARKStepSetFixedStepBounds(ARK_arkodemem, rval[0], rval[1]);
   else if (!strncmp(key_name, "ADAPT_ETAMX1", 12))
-    *ier = ARKodeSetMaxFirstGrowth(ARK_arkodemem, *rval);
+    *ier = ARKStepSetMaxFirstGrowth(ARK_arkodemem, *rval);
   else if (!strncmp(key_name, "ADAPT_ETAMXF", 12))
-    *ier = ARKodeSetMaxEFailGrowth(ARK_arkodemem, *rval);
+    *ier = ARKStepSetMaxEFailGrowth(ARK_arkodemem, *rval);
   else if (!strncmp(key_name, "ADAPT_ETACF", 11))
-    *ier = ARKodeSetMaxCFailGrowth(ARK_arkodemem, *rval);
+    *ier = ARKStepSetMaxCFailGrowth(ARK_arkodemem, *rval);
   else if (!strncmp(key_name, "NONLIN_CRDOWN", 11))
-    *ier = ARKodeSetNonlinCRDown(ARK_arkodemem, *rval);
+    *ier = ARKStepSetNonlinCRDown(ARK_arkodemem, *rval);
   else if (!strncmp(key_name, "NONLIN_RDIV", 9))
-    *ier = ARKodeSetNonlinRDiv(ARK_arkodemem, *rval);
+    *ier = ARKStepSetNonlinRDiv(ARK_arkodemem, *rval);
   else if (!strncmp(key_name, "LSETUP_DGMAX", 12))
-    *ier = ARKodeSetDeltaGammaMax(ARK_arkodemem, *rval);
+    *ier = ARKStepSetDeltaGammaMax(ARK_arkodemem, *rval);
   else if (!strncmp(key_name, "FIXED_STEP", 10))
     *ier = ARKodeSetFixedStep(ARK_arkodemem, *rval);
   else {
@@ -436,46 +438,46 @@ void FARK_SETRIN(char key_name[], realtype *rval, int *ier) {
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKodeSetAdaptivityMethod;
+/* Fortran interface to C routine ARKStepSetAdaptivityMethod;
    see farkode.h for further details */
 void FARK_SETADAPTMETHOD(int *imethod, int *idefault, int *ipq,
-			 realtype *params, int *ier) {
+                         realtype *params, int *ier) {
 
-  *ier = ARKodeSetAdaptivityMethod(ARK_arkodemem, *imethod,
-				   *idefault, *ipq, params);
+  *ier = ARKStepSetAdaptivityMethod(ARK_arkodemem, *imethod,
+                                    *idefault, *ipq, params);
   return;
 }
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKodeSetERKTable; see
+/* Fortran interface to C routine ARKStepSetERKTable; see
    farkode.h for further details */
 void FARK_SETERKTABLE(int *s, int *q, int *p, realtype *c, realtype *A,
-		      realtype *b, realtype *b2, int *ier) {
-  *ier = ARKodeSetERKTable(ARK_arkodemem, *s, *q, *p, c, A, b, b2);
+                      realtype *b, realtype *b2, int *ier) {
+  *ier = ARKStepSetERKTable(ARK_arkodemem, *s, *q, *p, c, A, b, b2);
   return;
 }
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKodeSetIRKTable; see
+/* Fortran interface to C routine ARKStepSetIRKTable; see
    farkode.h for further details */
 void FARK_SETIRKTABLE(int *s, int *q, int *p, realtype *c, realtype *A,
-		      realtype *b, realtype *b2, int *ier) {
-  *ier = ARKodeSetIRKTable(ARK_arkodemem, *s, *q, *p, c, A, b, b2);
+                      realtype *b, realtype *b2, int *ier) {
+  *ier = ARKStepSetIRKTable(ARK_arkodemem, *s, *q, *p, c, A, b, b2);
   return;
 }
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKodeSetARKTables; see
+/* Fortran interface to C routine ARKStepSetARKTables; see
    farkode.h for further details */
 void FARK_SETARKTABLES(int *s, int *q, int *p, realtype *ci,
-		       realtype *ce, realtype *Ai, realtype *Ae,
-		       realtype *bi, realtype *be, realtype *b2i,
-		       realtype *b2e, int *ier) {
-  *ier = ARKodeSetARKTables(ARK_arkodemem, *s, *q, *p, ci,
-			    ce, Ai, Ae, bi, be, b2i, b2e);
+                       realtype *ce, realtype *Ai, realtype *Ae,
+                       realtype *bi, realtype *be, realtype *b2i,
+                       realtype *b2e, int *ier) {
+  *ier = ARKStepSetARKTables(ARK_arkodemem, *s, *q, *p, ci,
+                             ce, Ai, Ae, bi, be, b2i, b2e);
   return;
 }
 
@@ -642,10 +644,11 @@ void FARK_SPILSSETMASSEPSLIN(realtype *eplifac, int *ier) {
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKode (the main integrator);
+/* Fortran interface to C routine ARKode (the main integrator)
+   and optional output routines ARKodeGet* and ARKStepGet*;
    see farkode.h for further details */
 void FARK_ARKODE(realtype *tout, realtype *t, realtype *y,
-		 int *itask, int *ier) {
+                 int *itask, int *ier) {
 
   /* attach user solution array to solver memory */
   N_VSetArrayPointer(y, F2C_ARKODE_vec);
@@ -658,26 +661,27 @@ void FARK_ARKODE(realtype *tout, realtype *t, realtype *y,
 
   /* Load optional outputs in iout & rout */
   ARKodeGetWorkSpace(ARK_arkodemem,
-		     &ARK_iout[0],          /* LENRW   */
-		     &ARK_iout[1]);         /* LENIW   */
-  ARKodeGetIntegratorStats(ARK_arkodemem,
-			   &ARK_iout[2],    /* NST     */
-			   &ARK_iout[3],    /* NST_STB */
-			   &ARK_iout[4],    /* NST_ACC */
-			   &ARK_iout[5],    /* NST_ATT */
-			   &ARK_iout[6],    /* NFE     */
-			   &ARK_iout[7],    /* NFI     */
-			   &ARK_iout[8],    /* NSETUPS */
-			   &ARK_iout[9],    /* NETF    */
-			   &ARK_rout[0],    /* H0U     */
-			   &ARK_rout[1],    /* HU      */
-			   &ARK_rout[2],    /* HCUR    */
-			   &ARK_rout[3]);   /* TCUR    */
+                     &ARK_iout[0],          /* LENRW   */
+                     &ARK_iout[1]);         /* LENIW   */
+  ARKodeGetStepStats(ARK_arkodemem,
+                     &ARK_iout[2],    /* NST     */
+                     &ARK_rout[0],    /* H0U     */
+                     &ARK_rout[1],    /* HU      */
+                     &ARK_rout[2],    /* HCUR    */
+                     &ARK_rout[3]);   /* TCUR    */
+  ARKStepGetTimestepperStats(ARK_arkodemem,
+                             &ARK_iout[3],    /* NST_STB */
+                             &ARK_iout[4],    /* NST_ACC */
+                             &ARK_iout[5],    /* NST_ATT */
+                             &ARK_iout[6],    /* NFE     */
+                             &ARK_iout[7],    /* NFI     */
+                             &ARK_iout[8],    /* NSETUPS */
+                             &ARK_iout[9]);   /* NETF    */
   ARKodeGetTolScaleFactor(ARK_arkodemem,
-			  &ARK_rout[4]);    /* TOLSFAC */
-  ARKodeGetNonlinSolvStats(ARK_arkodemem,
-                           &ARK_iout[10],   /* NNI     */
-                           &ARK_iout[11]);  /* NCFN    */
+                          &ARK_rout[4]);    /* TOLSFAC */
+  ARKStepGetNonlinSolvStats(ARK_arkodemem,
+                            &ARK_iout[10],   /* NNI     */
+                            &ARK_iout[11]);  /* NCFN    */
   
   /* If root finding is on, load those outputs as well */
   if (ARK_nrtfn != 0)
@@ -787,7 +791,7 @@ void FARK_GETRESWEIGHTS(realtype *rweight, int *ier) {
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKodeGetEstLocalErrors; see
+/* Fortran interface to C routine ARKStepGetEstLocalErrors; see
    farkode.h for further details */
 void FARK_GETESTLOCALERR(realtype *ele, int *ier) {
 
@@ -797,9 +801,9 @@ void FARK_GETESTLOCALERR(realtype *ele, int *ier) {
   /* attach output data array to F2C_ARKODE_vec */
   N_VSetArrayPointer(ele, F2C_ARKODE_vec);
 
-  /* call ARKodeGetEstLocalErrors */
+  /* call ARKStepGetEstLocalErrors */
   *ier = 0;
-  *ier = ARKodeGetEstLocalErrors(ARK_arkodemem, F2C_ARKODE_vec);
+  *ier = ARKStepGetEstLocalErrors(ARK_arkodemem, F2C_ARKODE_vec);
 
   /* reattach F2C_ARKODE_vec to previous data array */
   N_VSetArrayPointer(f2c_data, F2C_ARKODE_vec);
@@ -815,22 +819,13 @@ void FARK_FREE() {
   ARKodeMem ark_mem;
   ark_mem = (ARKodeMem) ARK_arkodemem;
 
-  /* free DLS/SPILS interface */
-  if (ark_mem->ark_lfree)
-    ark_mem->ark_lfree(ark_mem);
-  ark_mem->ark_lmem = NULL;
-
-  /* free mass DLS/SPILS interface */
-  if (ark_mem->ark_mfree)
-    ark_mem->ark_mfree(ark_mem);
-  ark_mem->ark_mass_mem = NULL;
-
   /* free user_data structure */
   if (ark_mem->ark_user_data)
     free(ark_mem->ark_user_data);
   ark_mem->ark_user_data = NULL;
 
-  /* free main integrator memory structure */
+  /* free main integrator memory structure (internally 
+     frees time step module, rootfinding, interpolation structures) */
   ARKodeFree(&ARK_arkodemem);
 
   /* free interface vector / matrices / linear solvers */
@@ -849,10 +844,11 @@ void FARK_FREE() {
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKodeWriteParameters; see
-   farkode.h for further details */
+/* Fortran interface to C routines ARKodeWriteParameters and
+   ARKStepWriteParameters; see farkode.h for further details */
 void FARK_WRITEPARAMETERS(int *ier) {
   *ier = ARKodeWriteParameters(ARK_arkodemem, stdout);
+  *ier += ARKStepWriteParameters(ARK_arkodemem, stdout);
   return;
 }
 
@@ -870,7 +866,7 @@ int FARKfe(realtype t, N_Vector y, N_Vector ydot, void *user_data) {
   ARK_userdata = (FARKUserData) user_data;
 
   FARK_EXP_FUN(&t, ydata, dydata, ARK_userdata->ipar,
-	       ARK_userdata->rpar, &ier);
+               ARK_userdata->rpar, &ier);
   return(ier);
 }
 
@@ -888,7 +884,7 @@ int FARKfi(realtype t, N_Vector y, N_Vector ydot, void *user_data) {
   ARK_userdata = (FARKUserData) user_data;
 
   FARK_IMP_FUN(&t, ydata, dydata, ARK_userdata->ipar,
-	       ARK_userdata->rpar, &ier);
+               ARK_userdata->rpar, &ier);
   return(ier);
 }
 

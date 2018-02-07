@@ -40,6 +40,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <arkode/arkode.h>              /* prototypes for ARKode fcts., consts. */
+#include <arkode/arkode_arkstep.h>      /* prototypes for ARKStep fcts., consts */
 #include <nvector/nvector_serial.h>     /* serial N_Vector types, fcts., macros */
 #include <sunmatrix/sunmatrix_dense.h>  /* access to dense SUNMatrix            */
 #include <sunlinsol/sunlinsol_dense.h>  /* access to dense SUNLinearSolver      */
@@ -119,16 +120,16 @@ int main()
   /* Set routines */
   flag = ARKodeSetInitStep(arkode_mem, h0);                /* Set custom initial step */
   if (check_flag(&flag, "ARKodeSetInitStep", 1)) return 1;
-  flag = ARKodeSetMaxErrTestFails(arkode_mem, 20);         /* Increase max error test fails */
-  if (check_flag(&flag, "ARKodeSetMaxErrTestFails", 1)) return 1;
-  flag = ARKodeSetMaxNonlinIters(arkode_mem, 8);           /* Increase max nonlin iters  */
-  if (check_flag(&flag, "ARKodeSetMaxNonlinIters", 1)) return 1;
-  flag = ARKodeSetNonlinConvCoef(arkode_mem, 1.e-7);       /* set nonlinear convergence coeff. */
-  if (check_flag(&flag, "ARKodeSetNonlinConvCoef", 1)) return 1;
+  flag = ARKStepSetMaxErrTestFails(arkode_mem, 20);         /* Increase max error test fails */
+  if (check_flag(&flag, "ARKStepSetMaxErrTestFails", 1)) return 1;
+  flag = ARKStepSetMaxNonlinIters(arkode_mem, 8);           /* Increase max nonlin iters  */
+  if (check_flag(&flag, "ARKStepSetMaxNonlinIters", 1)) return 1;
+  flag = ARKStepSetNonlinConvCoef(arkode_mem, 1.e-7);       /* set nonlinear convergence coeff. */
+  if (check_flag(&flag, "ARKStepSetNonlinConvCoef", 1)) return 1;
   flag = ARKodeSetMaxNumSteps(arkode_mem, 100000);         /* Increase max num steps */
   if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) return 1;
-  flag = ARKodeSetPredictorMethod(arkode_mem, 1);         /* Specify maximum-order predictor */
-  if (check_flag(&flag, "ARKodeSetPredictorMethod", 1)) return 1;
+  flag = ARKStepSetPredictorMethod(arkode_mem, 1);         /* Specify maximum-order predictor */
+  if (check_flag(&flag, "ARKStepSetPredictorMethod", 1)) return 1;
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol);   /* Specify tolerances */
   if (check_flag(&flag, "ARKodeSStolerances", 1)) return 1;
 
@@ -150,7 +151,7 @@ int main()
 
   /* output initial condition to disk */
   fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n", 
-	  T0, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));  
+          T0, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));  
 
   /* Main time-stepping loop: calls ARKode to perform the integration, then
      prints results.  Stops when the final time has been reached */
@@ -167,7 +168,7 @@ int main()
     printf("  %10.3"ESYM"  %12.5"ESYM"  %12.5"ESYM"  %12.5"ESYM"\n",              /* access/print solution */
         t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
     fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n", 
-	    t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));  
+            t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));  
     if (flag >= 0) {                                          /* successful solve: update time */
       tout += dTout;
       tout = (tout > Tf) ? Tf : tout;
@@ -182,18 +183,18 @@ int main()
   /* Print some final statistics */
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   check_flag(&flag, "ARKodeGetNumSteps", 1);
-  flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
-  check_flag(&flag, "ARKodeGetNumStepAttempts", 1);
-  flag = ARKodeGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(&flag, "ARKodeGetNumRhsEvals", 1);
-  flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
-  check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1);
-  flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
-  check_flag(&flag, "ARKodeGetNumErrTestFails", 1);
-  flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
-  check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1);
-  flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
-  check_flag(&flag, "ARKodeGetNumNonlinSolvConvFails", 1);
+  flag = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
+  check_flag(&flag, "ARKStepGetNumStepAttempts", 1);
+  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
+  check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
+  flag = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
+  check_flag(&flag, "ARKStepGetNumLinSolvSetups", 1);
+  flag = ARKStepGetNumErrTestFails(arkode_mem, &netf);
+  check_flag(&flag, "ARKStepGetNumErrTestFails", 1);
+  flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
+  check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1);
+  flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
+  check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1);
   flag = ARKDlsGetNumJacEvals(arkode_mem, &nje);
   check_flag(&flag, "ARKDlsGetNumJacEvals", 1);
   flag = ARKDlsGetNumRhsEvals(arkode_mem, &nfeLS);
@@ -201,7 +202,7 @@ int main()
 
   printf("\nFinal Solver Statistics:\n");
   printf("   Internal solver steps = %li (attempted = %li)\n", 
-	 nst, nst_a);
+         nst, nst_a);
   printf("   Total RHS evals:  Fe = %li,  Fi = %li\n", nfe, nfi);
   printf("   Total linear solver setups = %li\n", nsetups);
   printf("   Total RHS evals for setting up the linear system = %li\n", nfeLS);
@@ -282,7 +283,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return 1; }
 
   /* Check if flag < 0 */
@@ -290,13 +291,13 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
     errflag = (int *) flagvalue;
     if (*errflag < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
-	      funcname, *errflag);
+              funcname, *errflag);
       return 1; }}
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && flagvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return 1; }
 
   return 0;

@@ -37,10 +37,10 @@ extern "C" {
 #endif
 
   extern void FARK_MASSPSET(realtype *T, long int *IPAR, 
-			    realtype *RPAR, int *IER);
+                            realtype *RPAR, int *IER);
   extern void FARK_MASSPSOL(realtype *T, realtype *R, realtype *Z, 
-			    realtype *DELTA, int *LR, long int *IPAR, 
-			    realtype *RPAR, int *IER);
+                            realtype *DELTA, int *LR, long int *IPAR, 
+                            realtype *RPAR, int *IER);
 
 #ifdef __cplusplus
 }
@@ -56,7 +56,7 @@ void FARK_SPILSSETMASSPREC(int *flag, int *ier)
     *ier = ARKSpilsSetMassPreconditioner(ARK_arkodemem, NULL, NULL);
   } else {
     *ier = ARKSpilsSetMassPreconditioner(ARK_arkodemem, 
-					 FARKMassPSet, FARKMassPSol);
+                                         FARKMassPSet, FARKMassPSol);
   }
   return;
 }
@@ -80,7 +80,7 @@ int FARKMassPSet(realtype t, void *user_data)
 /* C interface to user-supplied Fortran routine FARKMASSPSOL; see 
    farkode.h for further details */
 int FARKMassPSol(realtype t, N_Vector r, N_Vector z, realtype delta,
-		 int lr, void *user_data)
+                 int lr, void *user_data)
 {
   int ier = 0;
   realtype *rdata, *zdata;
@@ -91,7 +91,7 @@ int FARKMassPSol(realtype t, N_Vector r, N_Vector z, realtype delta,
   ARK_userdata = (FARKUserData) user_data;
 
   FARK_MASSPSOL(&t, rdata, zdata, &delta, &lr, ARK_userdata->ipar, 
-		ARK_userdata->rpar, &ier);
+                ARK_userdata->rpar, &ier);
   return(ier);
 }
 

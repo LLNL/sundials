@@ -62,6 +62,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <arkode/arkode.h>              /* prototypes for ARKODE fcts.      */
+#include <arkode/arkode_arkstep.h>      /* prototypes for ARKStep fcts., consts */
 #include <nvector/nvector_parallel.h>   /* access to MPI-parallel N_Vector  */
 #include <sunlinsol/sunlinsol_spgmr.h>  /* access to SPGMR SUNLinearSolver  */
 #include <arkode/arkode_spils.h>        /* access to ARKSpils interface     */
@@ -127,7 +128,7 @@ static void InitUserData(int my_pe, sunindextype local_N, MPI_Comm comm,
                          UserData data);
 static void SetInitialProfiles(N_Vector u, UserData data);
 static void PrintIntro(int npes, sunindextype mudq, sunindextype mldq,
-		       sunindextype mukeep, sunindextype mlkeep);
+                       sunindextype mukeep, sunindextype mlkeep);
 static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
                         N_Vector u, realtype t);
 static void PrintFinalStats(void *arkode_mem);
@@ -137,8 +138,8 @@ static void BSend(MPI_Comm comm,
                   realtype uarray[]);
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], 
                       int my_pe, int isubx, int isuby,
-		      sunindextype dsizex, sunindextype dsizey,
-		      realtype uext[], realtype buffer[]);
+                      sunindextype dsizex, sunindextype dsizey,
+                      realtype uext[], realtype buffer[]);
 static void BRecvWait(MPI_Request request[], 
                       int isubx, int isuby, 
                       sunindextype dsizex, realtype uext[],
@@ -241,7 +242,7 @@ int main(int argc, char *argv[])
   mudq = mldq = NVARS*MXSUB;
   mukeep = mlkeep = NVARS;
   flag = ARKBBDPrecInit(arkode_mem, local_N, mudq, mldq, 
-			mukeep, mlkeep, ZERO, flocal, NULL);
+                        mukeep, mlkeep, ZERO, flocal, NULL);
   if(check_flag(&flag, "ARKBBDPrecInit", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Print heading */
@@ -266,15 +267,15 @@ int main(int argc, char *argv[])
       check_flag(&flag, "SUNSPGMRSetPrecType", 1, my_pe);
 
       if (my_pe == 0) {
-	printf("\n\n-------------------------------------------------------");
-	printf("------------\n");
+        printf("\n\n-------------------------------------------------------");
+        printf("------------\n");
       }
 
     }
 
     if (my_pe == 0) {
       printf("\n\nPreconditioner type is:  jpre = %s\n\n",
-	     (jpre == PREC_LEFT) ? "PREC_LEFT" : "PREC_RIGHT");
+             (jpre == PREC_LEFT) ? "PREC_LEFT" : "PREC_RIGHT");
     }
 
     /* In loop over output points, call ARKode, print results, test for error */
@@ -369,7 +370,7 @@ static void SetInitialProfiles(N_Vector u, UserData data)
 
 /* Print problem introduction */
 static void PrintIntro(int npes, sunindextype mudq, sunindextype mldq,
-		       sunindextype mukeep, sunindextype mlkeep)
+                       sunindextype mukeep, sunindextype mlkeep)
 {
   printf("\n2-species diurnal advection-diffusion problem\n");
   printf("  %d by %d mesh on %d processors\n", MX, MY, npes);
@@ -448,16 +449,16 @@ static void PrintFinalStats(void *arkode_mem)
   check_flag(&flag, "ARKodeGetWorkSpace", 1, 0);
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   check_flag(&flag, "ARKodeGetNumSteps", 1, 0);
-  flag = ARKodeGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(&flag, "ARKodeGetNumRhsEvals", 1, 0);
-  flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
-  check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1, 0);
-  flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
-  check_flag(&flag, "ARKodeGetNumErrTestFails", 1, 0);
-  flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
-  check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1, 0);
-  flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
-  check_flag(&flag, "ARKodeGetNumNonlinSolvConvFails", 1, 0);
+  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
+  check_flag(&flag, "ARKStepGetNumRhsEvals", 1, 0);
+  flag = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
+  check_flag(&flag, "ARKStepGetNumLinSolvSetups", 1, 0);
+  flag = ARKStepGetNumErrTestFails(arkode_mem, &netf);
+  check_flag(&flag, "ARKStepGetNumErrTestFails", 1, 0);
+  flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
+  check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1, 0);
+  flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
+  check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1, 0);
 
   flag = ARKSpilsGetWorkSpace(arkode_mem, &lenrwLS, &leniwLS);
   check_flag(&flag, "ARKSpilsGetWorkSpace", 1, 0);
@@ -487,7 +488,7 @@ static void PrintFinalStats(void *arkode_mem)
   flag = ARKBBDPrecGetNumGfnEvals(arkode_mem, &ngevalsBBDP);
   check_flag(&flag, "ARKBBDPrecGetNumGfnEvals", 1, 0);
   printf("In ARKBBDPRE: real/integer local work space sizes = %ld, %ld\n",
-	 lenrwBBDP, leniwBBDP);
+         lenrwBBDP, leniwBBDP);
   printf("             no. flocal evals. = %ld\n",ngevalsBBDP);
 }
  
@@ -542,8 +543,8 @@ static void BSend(MPI_Comm comm,
    2) request should have 4 entries, and should be passed in both calls also. */
 static void BRecvPost(MPI_Comm comm, MPI_Request request[], 
                       int my_pe, int isubx, int isuby,
-		      sunindextype dsizex, sunindextype dsizey,
-		      realtype uext[], realtype buffer[])
+                      sunindextype dsizex, sunindextype dsizey,
+                      realtype uext[], realtype buffer[])
 {
   sunindextype offsetue;
   /* Have bufleft and bufright use the same buffer */
@@ -552,7 +553,7 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[],
   /* If isuby > 0, receive data for bottom x-line of uext */
   if (isuby != 0)
     MPI_Irecv(&uext[NVARS], dsizex, PVEC_REAL_MPI_TYPE,
-    					 my_pe-NPEX, 0, comm, &request[0]);
+                                         my_pe-NPEX, 0, comm, &request[0]);
 
   /* If isuby < NPEY-1, receive data for top x-line of uext */
   if (isuby != NPEY-1) {
@@ -622,7 +623,7 @@ static void BRecvWait(MPI_Request request[],
       offsetbuf = ly*NVARS;
       offsetue = (ly+2)*dsizex2 - NVARS;
       for (i = 0; i < NVARS; i++)
-	uext[offsetue+i] = bufright[offsetbuf+i];
+        uext[offsetue+i] = bufright[offsetbuf+i];
     }
   }
 }

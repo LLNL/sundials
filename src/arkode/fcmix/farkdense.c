@@ -35,10 +35,10 @@ extern "C" {
 #endif
 
   extern void FARK_DJAC(long int *N, realtype *T, realtype *Y, 
-			realtype *FY, realtype *DJAC,
-			realtype *H, long int *IPAR,
-			realtype *RPAR, realtype *V1,
-			realtype *V2, realtype *V3, int *ier);
+                        realtype *FY, realtype *DJAC,
+                        realtype *H, long int *IPAR,
+                        realtype *RPAR, realtype *V1,
+                        realtype *V2, realtype *V3, int *ier);
 
 #ifdef __cplusplus
 }
