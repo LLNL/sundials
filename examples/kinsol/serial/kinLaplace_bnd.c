@@ -225,7 +225,6 @@ static int func(N_Vector u, N_Vector f, void *user_data)
   realtype hdc, vdc;
   realtype uij, udn, uup, ult, urt;
   realtype *udata, *fdata;
-  realtype x,y;
 
   int i, j;
 
@@ -239,11 +238,7 @@ static int func(N_Vector u, N_Vector f, void *user_data)
 
   for (j=1; j <= NY; j++) {
 
-    y = j*dy;
-
     for (i=1; i <= NX; i++) {
-
-      x = i*dx;
 
       /* Extract u at x_i, y_j and four neighboring points */
 

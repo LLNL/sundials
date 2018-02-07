@@ -327,9 +327,10 @@ int main(int argc, char *argv[])
   fails += Test_SUNMatClone(A, 0);
   fails += Test_SUNMatCopy(A, 0);
   fails += Test_SUNMatZero(A, 0);
-  fails += Test_SUNMatScaleAdd(A, I, 0);
-  if (square)
+  if (square) {
+    fails += Test_SUNMatScaleAdd(A, I, 0);
     fails += Test_SUNMatScaleAddI(A, I, 0);
+  }
   fails += Test_SUNMatMatvec(A, x, y, 0);
   fails += Test_SUNMatSpace(A, 0);
 

@@ -411,7 +411,6 @@ int ARKSpilsSetJacTimes(void *arkode_mem,
                         ARKSpilsJacTimesSetupFn jtsetup,
                         ARKSpilsJacTimesVecFn jtimes)
 {
-  int retval;
   ARKodeMem ark_mem;
   ARKSpilsMem arkspils_mem;
   void* ark_step_lmem;

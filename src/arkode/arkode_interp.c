@@ -219,7 +219,6 @@ int arkInterpInit(void* arkode_mem, ARKodeInterpMem interp,
                   realtype tnew)
 {
   int ier;
-  N_Vector tempvec;
   ARKodeMem ark_mem;
 
   /* access ARKodeMem structure */
