@@ -45,12 +45,12 @@
 #define _NVECTOR_RAJA_H
 
 #include <sundials/sundials_nvector.h>
+#include <sundials/sundials_config.h>
 
 #ifdef SUNDIALS_MPI_ENABLED
 
 #include <mpi.h>
 typedef MPI_Comm SUNDIALS_Comm;
-// #warning "SUNDIALS_MPI_ENABLED is defined!\n"
 
 #else
 
