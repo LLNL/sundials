@@ -90,17 +90,17 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up,
 static int BSend(MPI_Comm comm, int thispe,
                  int ixsub, int jysub, int npex, int npey,
                  sunindextype mxsub, sunindextype mysub,
-                 const realtype uarray[], realtype *dev_send_buff, realtype *host_send_buff);
+                 const realtype *uarray, realtype *dev_send_buff, realtype *host_send_buff);
 
 static int BRecvPost(MPI_Comm comm, MPI_Request request[], int thispe,
                      int ixsub, int jysub, int npex, int npey,
                      sunindextype mxsub, sunindextype mysub,
-                     realtype host_recv_buff[]);
+                     realtype *host_recv_buff);
 
 static int BRecvWait(MPI_Request request[],
                      int ixsub, int jysub, int npex, int npey,
                      sunindextype mxsub, sunindextype mysub,
-                     realtype uext[], const realtype *host_recv_buff, realtype *dev_recv_buff);
+                     realtype *uext, const realtype *host_recv_buff, realtype *dev_recv_buff);
 
 /* User-supplied preconditioner routines */
 
@@ -373,10 +373,10 @@ int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
   const sunindextype mysub = data->mysub;
   realtype *ppv = N_VGetDeviceArrayPointer_Raja(data->pp);
 
-  /* Calculate the value for the inverse of the diagonal preconditioner */
+  /* Calculate the value for the inverse element of the diagonal preconditioner */
   const realtype pelinv = ONE/(c_j + data->coeffxy);
 
-  /* Initially set all pp elements to one. */
+  /* Initially set all pp elements on the device to one. */
   N_VConst(ONE, data->pp);
 
   ibc = (ixsub == 0) || (ixsub == npex-1);
@@ -384,7 +384,7 @@ int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
   jbc = (jysub == 0) || (jysub == npey-1);
   j0  = (jysub == 0);
 
-  // Replace with RAJA loop; ppv must be on the device
+  /* Set inverse of the preconditioner; ppv must be on the device */
   RAJA::forall<RAJA::cuda_exec<256> >(zero, (mxsub - ibc)*(mysub - jbc), [=] __device__(sunindextype tid) {
     sunindextype j = tid / (mxsub - ibc) + j0;
     sunindextype i = tid % (mxsub - ibc) + i0;
@@ -428,26 +428,30 @@ int PsolveHeat(realtype tt, N_Vector uu, N_Vector up,
 
 static int rescomm(N_Vector uu, N_Vector up, void* user_data)
 {
-  MPI_Request request[4];
   UserData data = (UserData) user_data;
 
   /* Get comm, thispe, subgrid indices, data sizes */
   MPI_Comm comm = data->comm;
   const int thispe = data->thispe;
-  const int ixsub = data->ixsub;
-  const int jysub = data->jysub;
-  const int npex = data->npex;
-  const int npey = data->npey;
+  const int ixsub  = data->ixsub;
+  const int jysub  = data->jysub;
+  const int npex   = data->npex;
+  const int npey   = data->npey;
   const sunindextype mxsub = data->mxsub;
   const sunindextype mysub = data->mysub;
 
-  /* Get solution vector data, buffers, extended array uext. */
-  const realtype *uarray = N_VGetDeviceArrayPointer_Raja(uu);
+  /* Get pointers to buffers and extended solution vector data array uext. */
   realtype *uext = data->uext;
   realtype *host_send_buff = data->host_send_buff;
   realtype *host_recv_buff = data->host_recv_buff;
   realtype *dev_send_buff  = data->dev_send_buff;
   realtype *dev_recv_buff  = data->dev_recv_buff;
+
+  /* Get solution vector data. */
+  const realtype *uarray = N_VGetDeviceArrayPointer_Raja(uu);
+
+  /* Set array of MPI requests */
+  MPI_Request request[4];
 
   /* Start receiving boundary data from neighboring PEs. */
   BRecvPost(comm, request, thispe, ixsub, jysub, npex, npey, mxsub, mysub, host_recv_buff);
@@ -468,16 +472,12 @@ static int rescomm(N_Vector uu, N_Vector up, void* user_data)
  * has already been done, and that this data is in the work array uext.
  */
 
-// static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
-//                     UserData data)
 static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
                     void *user_data)
 {
   UserData data = (UserData) user_data;
-  const sunindextype zero = 0;
-  sunindextype ibc, i0, jbc, j0;
 
-  /* Get subgrid indices, array sizes */
+  /* Get subgrid indices, array sizes, and grid coefficients. */
   const int ixsub = data->ixsub;
   const int jysub = data->jysub;
   const int npex  = data->npex;
@@ -495,15 +495,17 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
   realtype *resv = N_VGetDeviceArrayPointer_Raja(rr);
   realtype *uext = data->uext;
 
+  const sunindextype zero = 0;
+  sunindextype ibc, i0, jbc, j0;
+
   /* Initialize all elements of rr to uu. This sets the boundary
      elements simply without indexing hassles. */
 
   N_VScale(ONE, uu, rr);
 
   /* Copy local segment of u vector into the working extended array uext.
-     This completes uext prior to the computation of the rr vector.     */
-
-  // Replace with RAJA loop; uext and uuv must be on the device.
+     This completes uext prior to the computation of the rr vector.
+     uext and uuv must be on the device.     */
   RAJA::forall<RAJA::cuda_exec<256> >(zero, mxsub*mysub, [=] __device__(sunindextype tid) {
     sunindextype j = tid/mxsub;
     sunindextype i = tid%mxsub;
@@ -519,7 +521,7 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
   jbc = (jysub == 0) || (jysub == npey-1);
   j0  = (jysub == 0);
 
-  // Replace with RAJA loop; uext, upv, and resv must be on the device
+  /* Compute local residual; uext, upv, and resv must be on the device */
   RAJA::forall<RAJA::cuda_exec<256> >(zero, (mxsub - ibc)*(mysub - jbc), [=] __device__(sunindextype tid) {
     sunindextype j = tid/(mxsub - ibc) + j0;
     sunindextype i = tid%(mxsub - ibc) + i0;
@@ -562,7 +564,7 @@ static int BSend(MPI_Comm comm, int thispe,
   /* If jysub > 0, send data from bottom x-line of u.  (via bufbottom) */
 
   if (jysub != 0) {
-    // Device kernel here to copy from uarray the to buffer on the device
+    // Device kernel here to copy from uarray to the buffer on the device
     RAJA::forall<RAJA::cuda_exec<256> >(zero, mxsub, [=] __device__(sunindextype lx) {
       d_bufbottom[lx] = uarray[lx];
     });
@@ -580,7 +582,7 @@ static int BSend(MPI_Comm comm, int thispe,
   /* If jysub < NPEY-1, send data from top x-line of u. (via buftop) */
 
   if (jysub != npey-1) {
-    // Device kernel here to copy from uarray the to buffer on the device
+    // Device kernel here to copy from uarray to the buffer on the device
     RAJA::forall<RAJA::cuda_exec<256> >(zero, mxsub, [=] __device__(sunindextype lx) {
       d_buftop[lx] = uarray[(mysub-1)*mxsub + lx];
     });
@@ -597,7 +599,7 @@ static int BSend(MPI_Comm comm, int thispe,
   /* If ixsub > 0, send data from left y-line of u (via bufleft). */
 
   if (ixsub != 0) {
-    // Device kernel here to copy from uarray the to buffer on the device
+    // Device kernel here to copy from uarray to the buffer on the device
     RAJA::forall<RAJA::cuda_exec<256> >(zero, mysub, [=] __device__(sunindextype ly) {
       d_bufleft[ly] = uarray[ly*mxsub];
     });
@@ -614,7 +616,7 @@ static int BSend(MPI_Comm comm, int thispe,
   /* If ixsub < NPEX-1, send data from right y-line of u (via bufright). */
 
   if (ixsub != npex-1) {
-    // Device kernel here to copy from uarray the to buffer on the device
+    // Device kernel here to copy from uarray to the buffer on the device
     RAJA::forall<RAJA::cuda_exec<256> >(zero, mysub, [=] __device__(sunindextype ly) {
       d_bufright[ly] = uarray[ly*mxsub + (mxsub-1)];
     });
@@ -635,8 +637,8 @@ static int BSend(MPI_Comm comm, int thispe,
 /*
  * Routine to start receiving boundary data from neighboring PEs.
  * Notes:
- *   1) buffer should be able to hold 2*MYSUB realtype entries, should be
- *      passed to both the BRecvPost and BRecvWait functions, and should not
+ *   1) buffer should be able to hold 2*(MYSUB+MYSUB) realtype entries, should
+ *      be passed to both the BRecvPost and BRecvWait functions, and should not
  *      be manipulated between the two calls.
  *   2) request should have 4 entries, and should be passed in
  *      both calls also.
@@ -716,13 +718,13 @@ static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
   /* If jysub > 0, receive data for bottom x-line of uext. */
   if (jysub != 0) {
     MPI_Wait(&request[0], &status);
-    // Copy the buffer to the device
+    /* Copy the buffer from the host to the device */
     err = cudaMemcpy(d_bufbottom, h_bufbottom, mxsub*sizeof(realtype), cudaMemcpyHostToDevice);
     if (err != cudaSuccess) {
       printf("Copy from host to device failed ... \n");
       return -1;
     }
-    /* RAJA kernel here to copy the dev_recv_buff to uext. */
+    /* Copy the bottom dev_recv_buff to uext. */
     RAJA::forall<RAJA::cuda_exec<256> >(zero, mxsub, [=] __device__(sunindextype lx) {
       uext[1 + lx] = d_bufbottom[lx];
     });
@@ -731,13 +733,13 @@ static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
   /* If jysub < NPEY-1, receive data for top x-line of uext. */
   if (jysub != npey-1) {
     MPI_Wait(&request[1], &status);
-    // Copy the buffer to the device
+    /* Copy the buffer from the host to the device */
     err = cudaMemcpy(d_buftop, h_buftop, mxsub*sizeof(realtype), cudaMemcpyHostToDevice);
     if (err != cudaSuccess) {
       printf("Copy from host to device failed ... \n");
       return -1;
     }
-    /* RAJA kernel here to copy the dev_recv_buff to uext. */
+    /* Copy the top dev_recv_buff to uext. */
     RAJA::forall<RAJA::cuda_exec<256> >(zero, mxsub, [=] __device__(sunindextype lx) {
       uext[(1 + mysub1*mxsub2) + lx] = d_buftop[lx];
     });
@@ -746,13 +748,13 @@ static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
   /* If ixsub > 0, receive data for left y-line of uext (via bufleft). */
   if (ixsub != 0) {
     MPI_Wait(&request[2], &status);
-    // Copy the buffer to the device
+    /* Copy the buffer from the host to the device */
     err = cudaMemcpy(d_bufleft, h_bufleft, mysub*sizeof(realtype), cudaMemcpyHostToDevice);
     if (err != cudaSuccess) {
       printf("Copy from host to device failed ... \n");
       return -1;
     }
-    /* RAJA kernel here to copy the dev_recv_buff to uext. */
+    /* Copy the left dev_recv_buff to uext. */
     RAJA::forall<RAJA::cuda_exec<256> >(zero, mysub, [=] __device__(sunindextype ly) {
       uext[(ly+1)*mxsub2] = d_bufleft[ly];
     });
@@ -761,13 +763,13 @@ static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
   /* If ixsub < NPEX-1, receive data for right y-line of uext (via bufright). */
   if (ixsub != npex-1) {
     MPI_Wait(&request[3], &status);
-    // Copy the buffer to the device
+    /* Copy the buffer from the host to the device */
     err = cudaMemcpy(d_bufright, h_bufright, mysub*sizeof(realtype), cudaMemcpyHostToDevice);
     if (err != cudaSuccess) {
       printf("Copy from host to device failed ... \n");
       return -1;
     }
-    /* RAJA kernel here to copy the dev_recv_buff to uext. */
+    /* Copy the right dev_recv_buff to uext. */
     RAJA::forall<RAJA::cuda_exec<256> >(zero, mysub, [=] __device__(sunindextype ly) {
       uext[(ly+2)*mxsub2 - 1] = d_bufright[ly];
     });
@@ -892,22 +894,18 @@ static int AllocUserData(int thispe, MPI_Comm comm, N_Vector uu, UserData data)
 
 static int DeleteUserData(UserData data)
 {
-  realtype *uext = data->uext;
-  realtype *dev_send_buff = data->dev_send_buff;
-  realtype *dev_recv_buff = data->dev_recv_buff;
-
   if (data->pp != NULL)
     N_VDestroy(data->pp);
-  if (uext != NULL)
-    cudaFree(uext);
+  if (data->uext != NULL)
+    cudaFree(data->uext);
   if (data->host_send_buff != NULL)
     free(data->host_send_buff);
   if (data->host_recv_buff != NULL)
     free(data->host_recv_buff);
-  if (dev_send_buff != NULL)
-    cudaFree(dev_send_buff);
-  if (dev_recv_buff != NULL)
-    cudaFree(dev_recv_buff);
+  if (data->dev_send_buff != NULL)
+    cudaFree(data->dev_send_buff);
+  if (data->dev_recv_buff != NULL)
+    cudaFree(data->dev_recv_buff);
   return 0;
 }
 
@@ -946,9 +944,6 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
      The global indices are (i,j) and the local indices are (iloc,jloc).
      Also set the id vector to zero for boundary points, one otherwise. */
 
-//   N_VConst(ONE, id);
-//   N_VCopyFromDevice_Raja(id);
-
   for (j = jybegin, jloc = 0; j <= jyend; j++, jloc++) {
     yfact = dy*j;
     for (i = ixbegin, iloc = 0; i <= ixend; i++, iloc++) {
@@ -963,7 +958,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
     }
   }
 
-  // Synchronize device with host data for uu and id vectors
+  // Synchronize data from the host to the device for uu and id vectors
   N_VCopyToDevice_Raja(uu);
   N_VCopyToDevice_Raja(id);
 
@@ -974,7 +969,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
   /* resHeat sets res to negative of ODE RHS values at interior points. */
   resHeat(ZERO, uu, up, res, data);
 
-  /* Copy -res into up to get correct initial up values. */
+  /* Copy -res into up to get correct initial up values on the device only! */
   N_VScale(-ONE, res, up);
 
   return(0);
