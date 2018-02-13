@@ -27,7 +27,7 @@ function print_usage
     echo "   module   : all, sundials, arkode, cvode, cvodes, ida, idas, kinsol"
     echo ""
     echo "Notes: If the module is not specified, all tarballs are created."
-    echo "       This script must be executed from within its directory." 
+    echo "       This script must be executed from within its directory."
     echo "       Tarballs will be created in $location"
     echo ""
     exit 1
@@ -86,7 +86,7 @@ shift $(($OPTIND - 1))
 module=$1
 
 #------------
-# Test module 
+# Test module
 #------------
 do_sundials=F
 do_arkode=F
@@ -107,7 +107,7 @@ if [ -z $module ]; then
     do_kinsol=T
 else
     case $module in
-        all) 
+        all)
             do_sundials=T
             do_arkode=T
             do_cvode=T
@@ -192,7 +192,7 @@ mkdir $tmpdir/examples
 #----------------------------------
 
 cp $sundialsdir/LICENSE $tmpdir/
-cp $sundialsdir/README $tmpdir/ 
+cp $sundialsdir/README $tmpdir/
 #cp $sundialsdir/INSTALL_NOTES $tmpdir/
 #cp $sundialsdir/config.hin $tmpdir/
 #cp $sundialsdir/configure.ac $tmpdir/configure.ac
@@ -210,7 +210,7 @@ cp $sundialsdir/doc/sundials/install_guide.pdf $tmpdir/INSTALL_GUIDE.pdf
 # cleanup doc/sundials
 make QUIET= purge
 
-cd - 
+cd -
 cp -r $sundialsdir/config $tmpdir/
 cp -r $sundialsdir/test $tmpdir/
 
@@ -219,6 +219,7 @@ cp -r $sundialsdir/include/nvector $tmpdir/include/
 cp -r $sundialsdir/include/sunmatrix $tmpdir/include/
 cp -r $sundialsdir/include/sunlinsol $tmpdir/include/
 
+cp    $sundialsdir/src/CMakeLists.txt $tmpdir/src/
 cp -r $sundialsdir/src/sundials $tmpdir/src/
 cp -r $sundialsdir/src/nvec_ser $tmpdir/src/
 cp -r $sundialsdir/src/nvec_par $tmpdir/src/
@@ -247,6 +248,7 @@ cp -r $sundialsdir/doc/sundials $tmpdir/doc/
 
 cp -r $sundialsdir/bin $tmpdir/
 
+cp    $sundialsdir/examples/CMakeLists.txt $tmpdir/examples/
 cp -r $sundialsdir/examples/nvector $tmpdir/examples/
 cp -r $sundialsdir/examples/sunmatrix $tmpdir/examples/
 cp -r $sundialsdir/examples/sunlinsol $tmpdir/examples/
@@ -276,7 +278,7 @@ if [ $do_sundials = "T" -o $do_arkode = "T" ]; then
         make QUIET= purge
         make QUIET= ug_pdf
         make QUIET= ex_pdf
-        cd - 
+        cd -
     fi
     #doc="F"
 fi
@@ -292,7 +294,7 @@ if [ $do_sundials = "T" -o $do_cvode = "T" ]; then
         make QUIET= purge
         make QUIET= ug_pdf
         make QUIET= ex_pdf
-        cd - 
+        cd -
     fi
 fi
 
@@ -369,11 +371,11 @@ distrobase="$tmpdir"
 # SUNDIALS
 if [ $do_sundials = "T" ]; then
     echo -e "\n--- Generate SUNDIALS tarball ---"
-    
+
     mv $distrobase sundials-$SUN_VER
     distrobase="sundials-"$SUN_VER
     filename="sundials-"$SUN_VER
-    
+
     tarfile=$filename".tar"
     echo "$scriptdir/shared $tarfile $distrobase $tar"
     $scriptdir/shared $tarfile $distrobase $tar
@@ -383,21 +385,21 @@ if [ $do_sundials = "T" ]; then
     $scriptdir/ida $tarfile $distrobase $doc $tar
     $scriptdir/idas $tarfile $distrobase $doc $tar
     $scriptdir/kinsol $tarfile $distrobase $doc $tar
-    
-    ### Don't release MATLAB until brought current with new version(s) 
-    # $scriptdir/stb $tarfile $distrobase $doc $tar  
-    
+
+    ### Don't release MATLAB until brought current with new version(s)
+    # $scriptdir/stb $tarfile $distrobase $doc $tar
+
     gzip $tarfile
 fi
 
 # ARKODE
 if [ $do_arkode = "T" ]; then
     echo -e "\n--- Generate ARKODE tarball ---"
-    
+
     mv $distrobase arkode-$ARK_VER
     distrobase="arkode-"$ARK_VER
     filename="arkode-"$ARK_VER
-    
+
     tarfile=$filename".tar"
     $scriptdir/shared $tarfile $distrobase $tar
     $scriptdir/arkode $tarfile $distrobase $doc $tar
@@ -407,11 +409,11 @@ fi
 # CVODE
 if [ $do_cvode = "T" ]; then
     echo -e "\n--- Generate CVODE tarball ---"
-    
+
     mv $distrobase cvode-$CV_VER
     distrobase="cvode-"$CV_VER
     filename="cvode-"$CV_VER
-    
+
     tarfile=$filename".tar"
     $scriptdir/shared $tarfile $distrobase $tar
     $scriptdir/cvode $tarfile $distrobase $doc $tar
@@ -421,45 +423,45 @@ fi
 # CVODES
 if [ $do_cvodes = "T" ]; then
     echo -e "\n--- Generate CVODES tarball ---"
-    
+
     mv $distrobase cvodes-$CVS_VER
     distrobase="cvodes-"$CVS_VER
     filename="cvodes-"$CVS_VER
-    
+
     tarfile=$filename".tar"
     $scriptdir/shared $tarfile $distrobase $tar
     $scriptdir/cvodes $tarfile $distrobase $doc $tar
     gzip $tarfile
 fi
-  
+
 # IDA
 if [ $do_ida = "T" ]; then
     echo -e "\n--- Generate IDA tarball ---"
-    
+
     mv $distrobase ida-$IDA_VER
     distrobase="ida-"$IDA_VER
     filename="ida-"$IDA_VER
-    
+
     tarfile=$filename".tar"
     $scriptdir/shared $tarfile $distrobase $tar
     $scriptdir/ida $tarfile $distrobase $doc $tar
     gzip $tarfile
 fi
- 
+
 # IDAS
 if [ $do_idas = "T" ]; then
     echo -e "\n--- Generate IDAS tarball ---"
-    
+
     mv $distrobase idas-$IDAS_VER
     distrobase="idas-"$IDAS_VER
     filename="idas-"$IDAS_VER
-    
+
     tarfile=$filename".tar"
     $scriptdir/shared $tarfile $distrobase $tar
     $scriptdir/idas $tarfile $distrobase $doc $tar
     gzip $tarfile
 fi
- 
+
 # KINSOL
 if [ $do_kinsol = "T" ]; then
     echo -e "\n--- Generate KINSOL tarball ---"
@@ -467,7 +469,7 @@ if [ $do_kinsol = "T" ]; then
     mv $distrobase kinsol-$KIN_VER
     distrobase="kinsol-"$KIN_VER
     filename="kinsol-"$KIN_VER
-    
+
     tarfile=$filename".tar"
     $scriptdir/shared $tarfile $distrobase $tar
     $scriptdir/kinsol $tarfile $distrobase $doc $tar

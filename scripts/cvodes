@@ -43,6 +43,8 @@ $tar $tarfile $distrobase/src/cvodes/cvodes_spils_impl.h
 
 echo "   --- Add cvodes examples to $tarfile"
 
+$tar $tarfile $distrobase/examples/cvodes/CMakeLists.txt
+
 $tar $tarfile $distrobase/examples/cvodes/serial/README
 $tar $tarfile $distrobase/examples/cvodes/serial/CMakeLists.txt
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsAdvDiff_ASAi_bnd.c
