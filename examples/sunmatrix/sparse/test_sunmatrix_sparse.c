@@ -284,6 +284,7 @@ int main(int argc, char *argv[])
 
 
   /* Create/fill I matrix */
+  I = NULL;
   if (square) {
     I = SUNSparseMatrix(matrows, matcols, matcols, mattype);
     matdata    = SUNSparseMatrix_Data(I);

@@ -75,6 +75,7 @@ int main(int argc, char *argv[])
   x = N_VNew_Serial(matcols);
   y = N_VNew_Serial(matrows);
   A = SUNDenseMatrix(matrows, matcols);
+  I = NULL;
   if (square)
     I = SUNDenseMatrix(matrows, matcols);
   
