@@ -2,7 +2,7 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2018, Southern Methodist University and 
  * Lawrence Livermore National Security
  *
  * This work was performed under the auspices of the U.S. Department 
@@ -42,14 +42,14 @@
   ===============================================================*/
 
 /*---------------------------------------------------------------
- ARKStepSetDefaults:
+  ARKStepSetDefaults:
 
- Resets all ARKStep optional inputs to their default values.  
- Does not change problem-defining function pointers or 
- user_data pointer.  Also leaves alone any data 
- structures/options related to the ARKode infrastructure itself
- (e.g. root-finding).
----------------------------------------------------------------*/
+  Resets all ARKStep optional inputs to their default values.  
+  Does not change problem-defining function pointers or 
+  user_data pointer.  Also leaves alone any data 
+  structures/options related to the ARKode infrastructure itself
+  (e.g. root-finding).
+  ---------------------------------------------------------------*/
 int ARKStepSetDefaults(void* arkode_mem)
 {
   ARKodeMem ark_mem;
@@ -116,15 +116,15 @@ int ARKStepSetDefaults(void* arkode_mem)
 
 
 /*---------------------------------------------------------------
- ARKStepSetOptimalParams:
+  ARKStepSetOptimalParams:
 
- Sets all adaptivity and solver parameters to our 'best guess' 
- values, for a given ARKStep integration method (ERK, DIRK, ARK), 
- a given method order, and a given nonlinear solver type.  Should
- only be called after the method order, solver, and integration
- method have been set, and only if time step adaptivity is 
- enabled.
----------------------------------------------------------------*/
+  Sets all adaptivity and solver parameters to our 'best guess' 
+  values, for a given ARKStep integration method (ERK, DIRK, ARK), 
+  a given method order, and a given nonlinear solver type.  Should
+  only be called after the method order, solver, and integration
+  method have been set, and only if time step adaptivity is 
+  enabled.
+  ---------------------------------------------------------------*/
 int ARKStepSetOptimalParams(void *arkode_mem)
 {
   ARKodeMem ark_mem;
@@ -165,7 +165,7 @@ int ARKStepSetOptimalParams(void *arkode_mem)
     hadapt_mem->k2      = RCONST(0.31);
     hadapt_mem->etamxf  = RCONST(0.3);
 
-  /*    implicit */
+    /*    implicit */
   } else if (arkstep_mem->implicit && !arkstep_mem->explicit) {
     switch (arkstep_mem->q) {
     case 2:   /* just use standard defaults since better ones unknown */
@@ -236,7 +236,7 @@ int ARKStepSetOptimalParams(void *arkode_mem)
     /* newton vs fixed-point */
     if (arkstep_mem->use_fp)  arkstep_mem->maxcor = 10;
 
-  /*    imex */
+    /*    imex */
   } else {
     switch (arkstep_mem->q) {
     case 3:
@@ -300,18 +300,18 @@ int ARKStepSetOptimalParams(void *arkode_mem)
 
 
 /*---------------------------------------------------------------
- ARKStepSetOrder:
+  ARKStepSetOrder:
 
- Specifies the method order
+  Specifies the method order
 
- ** Note in documentation that this should not be called along 
-    with ARKStepSetERKTable, ARKStepSetIRKTable, ARKStepSetARKTable, 
-    ARKStepSetERKTableNum, ARKStepSetIRKTableNum or 
-    ARKStepSetARKTableNum.  This routine is used to specify a 
-    desired method order using default Butcher tables, whereas 
-    any user-supplied table will have their own order associated 
-    with them.
----------------------------------------------------------------*/
+  ** Note in documentation that this should not be called along 
+  with ARKStepSetERKTable, ARKStepSetIRKTable, ARKStepSetARKTable, 
+  ARKStepSetERKTableNum, ARKStepSetIRKTableNum or 
+  ARKStepSetARKTableNum.  This routine is used to specify a 
+  desired method order using default Butcher tables, whereas 
+  any user-supplied table will have their own order associated 
+  with them.
+  ---------------------------------------------------------------*/
 int ARKStepSetOrder(void *arkode_mem, int ord)
 {
   ARKodeMem ark_mem;
@@ -351,20 +351,20 @@ int ARKStepSetOrder(void *arkode_mem, int ord)
 
 
 /*---------------------------------------------------------------
- ARKStepSetLinear:
+  ARKStepSetLinear:
 
- Specifies that the implicit portion of the problem is linear, 
- and to tighten the linear solver tolerances while taking only 
- one Newton iteration.  Not useful when used in combination with
- the fixed-point solver.  Automatically tightens DeltaGammaMax 
- to ensure that step size changes cause Jacobian recomputation.
+  Specifies that the implicit portion of the problem is linear, 
+  and to tighten the linear solver tolerances while taking only 
+  one Newton iteration.  Not useful when used in combination with
+  the fixed-point solver.  Automatically tightens DeltaGammaMax 
+  to ensure that step size changes cause Jacobian recomputation.
 
- The argument should be 1 or 0, where 1 indicates that the 
- Jacobian of fi with respect to y depends on time, and
- 0 indicates that it is not time dependent.  Alternately, when 
- using an iterative linear solver this flag denotes time 
- dependence of the preconditioner. 
----------------------------------------------------------------*/
+  The argument should be 1 or 0, where 1 indicates that the 
+  Jacobian of fi with respect to y depends on time, and
+  0 indicates that it is not time dependent.  Alternately, when 
+  using an iterative linear solver this flag denotes time 
+  dependence of the preconditioner. 
+  ---------------------------------------------------------------*/
 int ARKStepSetLinear(void *arkode_mem, int timedepend)
 {
   ARKodeMem ark_mem;
@@ -394,12 +394,12 @@ int ARKStepSetLinear(void *arkode_mem, int timedepend)
 
 
 /*---------------------------------------------------------------
- ARKStepSetNonlinear:
+  ARKStepSetNonlinear:
 
- Specifies that the implicit portion of the problem is nonlinear.
- Used to undo a previous call to ARKStepSetLinear.  Automatically
- loosens DeltaGammaMax back to default value.
----------------------------------------------------------------*/
+  Specifies that the implicit portion of the problem is nonlinear.
+  Used to undo a previous call to ARKStepSetLinear.  Automatically
+  loosens DeltaGammaMax back to default value.
+  ---------------------------------------------------------------*/
 int ARKStepSetNonlinear(void *arkode_mem)
 {
   ARKodeMem ark_mem;
@@ -429,14 +429,14 @@ int ARKStepSetNonlinear(void *arkode_mem)
 
 
 /*---------------------------------------------------------------
- ARKStepSetFixedPoint:
+  ARKStepSetFixedPoint:
 
- Specifies that the implicit portion of the problem should be 
- solved using the accelerated fixed-point solver instead of the 
- Newton iteration.  Allowed values for the dimension of the 
- acceleration space, fp_m, must be non-negative.  Illegal 
- values imply to use the default.
----------------------------------------------------------------*/
+  Specifies that the implicit portion of the problem should be 
+  solved using the accelerated fixed-point solver instead of the 
+  Newton iteration.  Allowed values for the dimension of the 
+  acceleration space, fp_m, must be non-negative.  Illegal 
+  values imply to use the default.
+  ---------------------------------------------------------------*/
 int ARKStepSetFixedPoint(void *arkode_mem, long int fp_m)
 {
   ARKodeMem ark_mem;
@@ -469,12 +469,12 @@ int ARKStepSetFixedPoint(void *arkode_mem, long int fp_m)
 
 
 /*---------------------------------------------------------------
- ARKStepSetNewton:
+  ARKStepSetNewton:
 
- Specifies that the implicit portion of the problem should be 
- solved using the modified Newton solver.  Used to undo a 
- previous call to ARKStepSetFixedPoint.
----------------------------------------------------------------*/
+  Specifies that the implicit portion of the problem should be 
+  solved using the modified Newton solver.  Used to undo a 
+  previous call to ARKStepSetFixedPoint.
+  ---------------------------------------------------------------*/
 int ARKStepSetNewton(void *arkode_mem)
 {
   ARKodeMem ark_mem;
@@ -502,11 +502,11 @@ int ARKStepSetNewton(void *arkode_mem)
 
 
 /*---------------------------------------------------------------
- ARKStepSetExplicit:
+  ARKStepSetExplicit:
 
- Specifies that the implicit portion of the problem is disabled, 
- and to use an explicit RK method.
----------------------------------------------------------------*/
+  Specifies that the implicit portion of the problem is disabled, 
+  and to use an explicit RK method.
+  ---------------------------------------------------------------*/
 int ARKStepSetExplicit(void *arkode_mem)
 {
   ARKodeMem ark_mem;
@@ -542,11 +542,11 @@ int ARKStepSetExplicit(void *arkode_mem)
 
 
 /*---------------------------------------------------------------
- ARKStepSetImplicit:
+  ARKStepSetImplicit:
 
- Specifies that the explicit portion of the problem is disabled, 
- and to use an implicit RK method.
----------------------------------------------------------------*/
+  Specifies that the explicit portion of the problem is disabled, 
+  and to use an implicit RK method.
+  ---------------------------------------------------------------*/
 int ARKStepSetImplicit(void *arkode_mem)
 {
   ARKodeMem ark_mem;
@@ -582,11 +582,11 @@ int ARKStepSetImplicit(void *arkode_mem)
 
 
 /*---------------------------------------------------------------
- ARKStepSetImEx:
+  ARKStepSetImEx:
 
- Specifies that the specifies that problem has both implicit and
- explicit parts, and to use an ARK method (this is the default).
----------------------------------------------------------------*/
+  Specifies that the specifies that problem has both implicit and
+  explicit parts, and to use an ARK method (this is the default).
+  ---------------------------------------------------------------*/
 int ARKStepSetImEx(void *arkode_mem)
 {
   ARKodeMem ark_mem;
@@ -627,19 +627,19 @@ int ARKStepSetImEx(void *arkode_mem)
 
 
 /*---------------------------------------------------------------
- ARKStepSetERKTable:
+  ARKStepSetERKTable:
 
- Specifies to use a customized Butcher table for the explicit 
- portion of the system (automatically calls ARKStepSetExplicit).
+  Specifies to use a customized Butcher table for the explicit 
+  portion of the system (automatically calls ARKStepSetExplicit).
  
- If d==NULL, then the method is automatically flagged as a 
- fixed-step method; a user MUST also call either 
- ARKodeSetFixedStep or ARKodeSetInitStep to set the desired time 
- step size.
----------------------------------------------------------------*/
+  If d==NULL, then the method is automatically flagged as a 
+  fixed-step method; a user MUST also call either 
+  ARKodeSetFixedStep or ARKodeSetInitStep to set the desired time 
+  step size.
+  ---------------------------------------------------------------*/
 int ARKStepSetERKTable(void *arkode_mem, int s, int q, int p,
-                      realtype *c, realtype *A, realtype *b, 
-                      realtype *d)
+                       realtype *c, realtype *A, realtype *b, 
+                       realtype *d)
 {
   int i, j;
   ARKodeMem ark_mem;
@@ -712,19 +712,19 @@ int ARKStepSetERKTable(void *arkode_mem, int s, int q, int p,
 
 
 /*---------------------------------------------------------------
- ARKStepSetIRKTable:
+  ARKStepSetIRKTable:
 
- Specifies to use a customized Butcher table for the implicit 
- portion of the system (automatically calls ARKStepSetImplicit).
+  Specifies to use a customized Butcher table for the implicit 
+  portion of the system (automatically calls ARKStepSetImplicit).
 
- If d==NULL, then the method is automatically flagged as a 
- fixed-step method; a user MUST also call either 
- ARKodeSetFixedStep or ARKodeSetInitStep to set the desired time 
- step size.
----------------------------------------------------------------*/
+  If d==NULL, then the method is automatically flagged as a 
+  fixed-step method; a user MUST also call either 
+  ARKodeSetFixedStep or ARKodeSetInitStep to set the desired time 
+  step size.
+  ---------------------------------------------------------------*/
 int ARKStepSetIRKTable(void *arkode_mem, int s, int q, int p,
-                      realtype *c, realtype *A, realtype *b, 
-                      realtype *d)
+                       realtype *c, realtype *A, realtype *b, 
+                       realtype *d)
 {
   int i, j;
   ARKodeMem ark_mem;
@@ -797,21 +797,21 @@ int ARKStepSetIRKTable(void *arkode_mem, int s, int q, int p,
 
 
 /*---------------------------------------------------------------
- ARKStepSetARKTables:
+  ARKStepSetARKTables:
 
- Specifies to use customized Butcher tables for the ImEx system
- (automatically calls ARKStepSetImEx).
+  Specifies to use customized Butcher tables for the ImEx system
+  (automatically calls ARKStepSetImEx).
 
- If either b2e==NULL or b2i==NULL, then the method is 
- automatically flagged as a fixed-step method; a user MUST also 
- call either ARKodeSetFixedStep or ARKodeSetInitStep to set the 
- desired time step size.
----------------------------------------------------------------*/
+  If either b2e==NULL or b2i==NULL, then the method is 
+  automatically flagged as a fixed-step method; a user MUST also 
+  call either ARKodeSetFixedStep or ARKodeSetInitStep to set the 
+  desired time step size.
+  ---------------------------------------------------------------*/
 int ARKStepSetARKTables(void *arkode_mem, int s, int q, int p,
-                       realtype *ci, realtype *ce, 
-                       realtype *Ai, realtype *Ae, 
-                       realtype *bi, realtype *be, 
-                       realtype *di, realtype *de)
+                        realtype *ci, realtype *ce, 
+                        realtype *Ai, realtype *Ae, 
+                        realtype *bi, realtype *be, 
+                        realtype *di, realtype *de)
 {
   int i, j;
   ARKodeMem ark_mem;
@@ -894,13 +894,13 @@ int ARKStepSetARKTables(void *arkode_mem, int s, int q, int p,
 
 
 /*---------------------------------------------------------------
- ARKStepSetERKTableNum:
+  ARKStepSetERKTableNum:
 
- Specifies to use a pre-existing Butcher table for the explicit 
- portion of the problem, based on the integer flag held in 
- ARKodeLoadButcherTable() within the file arkode_butcher.c 
- (automatically calls ARKStepSetExplicit).
----------------------------------------------------------------*/
+  Specifies to use a pre-existing Butcher table for the explicit 
+  portion of the problem, based on the integer flag held in 
+  ARKodeLoadButcherTable() within the file arkode_butcher.c 
+  (automatically calls ARKStepSetExplicit).
+  ---------------------------------------------------------------*/
 int ARKStepSetERKTableNum(void *arkode_mem, int itable)
 {
   ARKodeMem ark_mem;
@@ -959,13 +959,13 @@ int ARKStepSetERKTableNum(void *arkode_mem, int itable)
 
 
 /*---------------------------------------------------------------
- ARKStepSetIRKTableNum:
+  ARKStepSetIRKTableNum:
 
- Specifies to use a pre-existing Butcher table for the implicit 
- portion of the problem, based on the integer flag held in 
- ARKodeLoadButcherTable() within the file arkode_butcher.c
- (automatically calls ARKStepSetImplicit).
----------------------------------------------------------------*/
+  Specifies to use a pre-existing Butcher table for the implicit 
+  portion of the problem, based on the integer flag held in 
+  ARKodeLoadButcherTable() within the file arkode_butcher.c
+  (automatically calls ARKStepSetImplicit).
+  ---------------------------------------------------------------*/
 int ARKStepSetIRKTableNum(void *arkode_mem, int itable)
 {
   ARKodeMem ark_mem;
@@ -1024,12 +1024,12 @@ int ARKStepSetIRKTableNum(void *arkode_mem, int itable)
 
 
 /*---------------------------------------------------------------
- ARKStepSetARKTableNum:
+  ARKStepSetARKTableNum:
 
- Specifies to use pre-existing Butcher tables for the ImEx system,
- based on the integer flags held in ARKodeLoadButcherTable() 
- within the file arkode_butcher.c (automatically calls ARKStepSetImEx).
----------------------------------------------------------------*/
+  Specifies to use pre-existing Butcher tables for the ImEx system,
+  based on the integer flags held in ARKodeLoadButcherTable() 
+  within the file arkode_butcher.c (automatically calls ARKStepSetImEx).
+  ---------------------------------------------------------------*/
 int ARKStepSetARKTableNum(void *arkode_mem, int itable, int etable)
 {
   ARKodeMem ark_mem;
@@ -1097,13 +1097,13 @@ int ARKStepSetARKTableNum(void *arkode_mem, int itable, int etable)
 
 
 /*---------------------------------------------------------------
- ARKStepSetCFLFraction:
+  ARKStepSetCFLFraction:
 
- Specifies the safety factor to use on the maximum explicitly-
- stable step size.  Allowable values must be within the open 
- interval (0,1).  A non-positive input implies a reset to
- the default value.
----------------------------------------------------------------*/
+  Specifies the safety factor to use on the maximum explicitly-
+  stable step size.  Allowable values must be within the open 
+  interval (0,1).  A non-positive input implies a reset to
+  the default value.
+  ---------------------------------------------------------------*/
 int ARKStepSetCFLFraction(void *arkode_mem, realtype cfl_frac)
 {
   ARKodeMem ark_mem;
@@ -1150,13 +1150,13 @@ int ARKStepSetCFLFraction(void *arkode_mem, realtype cfl_frac)
 
 
 /*---------------------------------------------------------------
- ARKStepSetSafetyFactor:
+  ARKStepSetSafetyFactor:
 
- Specifies the safety factor to use on the error-based predicted 
- time step size.  Allowable values must be within the open 
- interval (0,1).  A non-positive input implies a reset to the 
- default value.
----------------------------------------------------------------*/
+  Specifies the safety factor to use on the error-based predicted 
+  time step size.  Allowable values must be within the open 
+  interval (0,1).  A non-positive input implies a reset to the 
+  default value.
+  ---------------------------------------------------------------*/
 int ARKStepSetSafetyFactor(void *arkode_mem, realtype safety)
 {
   ARKodeMem ark_mem;
@@ -1202,12 +1202,12 @@ int ARKStepSetSafetyFactor(void *arkode_mem, realtype safety)
 
 
 /*---------------------------------------------------------------
- ARKStepSetErrorBias:
+  ARKStepSetErrorBias:
 
- Specifies the error bias to use when performing adaptive-step
- error control.  Allowable values must be >= 1.0.  Any illegal
- value implies a reset to the default value.
----------------------------------------------------------------*/
+  Specifies the error bias to use when performing adaptive-step
+  error control.  Allowable values must be >= 1.0.  Any illegal
+  value implies a reset to the default value.
+  ---------------------------------------------------------------*/
 int ARKStepSetErrorBias(void *arkode_mem, realtype bias)
 {
   ARKodeMem ark_mem;
@@ -1246,13 +1246,13 @@ int ARKStepSetErrorBias(void *arkode_mem, realtype bias)
 
 
 /*---------------------------------------------------------------
- ARKStepSetMaxGrowth:
+  ARKStepSetMaxGrowth:
 
- Specifies the maximum step size growth factor to be allowed
- between successive integration steps.  Note: the first step uses 
- a separate maximum growth factor.  Allowable values must be 
- > 1.0.  Any illegal value implies a reset to the default.
----------------------------------------------------------------*/
+  Specifies the maximum step size growth factor to be allowed
+  between successive integration steps.  Note: the first step uses 
+  a separate maximum growth factor.  Allowable values must be 
+  > 1.0.  Any illegal value implies a reset to the default.
+  ---------------------------------------------------------------*/
 int ARKStepSetMaxGrowth(void *arkode_mem, realtype mx_growth)
 {
   ARKodeMem ark_mem;
@@ -1291,12 +1291,12 @@ int ARKStepSetMaxGrowth(void *arkode_mem, realtype mx_growth)
 
 
 /*---------------------------------------------------------------
- ARKStepSetFixedStepBounds:
+  ARKStepSetFixedStepBounds:
 
- Specifies the step size growth interval within which the step 
- size will remain unchanged.  Allowable values must enclose the 
- value 1.0.  Any illegal interval implies a reset to the default.
----------------------------------------------------------------*/
+  Specifies the step size growth interval within which the step 
+  size will remain unchanged.  Allowable values must enclose the 
+  value 1.0.  Any illegal interval implies a reset to the default.
+  ---------------------------------------------------------------*/
 int ARKStepSetFixedStepBounds(void *arkode_mem, realtype lb, realtype ub)
 {
   ARKodeMem ark_mem;
@@ -1337,15 +1337,15 @@ int ARKStepSetFixedStepBounds(void *arkode_mem, realtype lb, realtype ub)
 
 
 /*---------------------------------------------------------------
- ARKStepSetAdaptivityMethod:
+  ARKStepSetAdaptivityMethod:
 
- Specifies the built-in time step adaptivity algorithm (and 
- optionally, its associated parameters) to use.  All parameters 
- will be checked for validity when used by the solver.
----------------------------------------------------------------*/
+  Specifies the built-in time step adaptivity algorithm (and 
+  optionally, its associated parameters) to use.  All parameters 
+  will be checked for validity when used by the solver.
+  ---------------------------------------------------------------*/
 int ARKStepSetAdaptivityMethod(void *arkode_mem, int imethod, 
-                              int idefault, int pq, 
-                              realtype *adapt_params)
+                               int idefault, int pq, 
+                               realtype *adapt_params)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem arkstep_mem;
@@ -1418,12 +1418,12 @@ int ARKStepSetAdaptivityMethod(void *arkode_mem, int imethod,
 
 
 /*---------------------------------------------------------------
- ARKStepSetAdaptivityFn:
+  ARKStepSetAdaptivityFn:
 
- Specifies the user-provided time step adaptivity function to use.
----------------------------------------------------------------*/
+  Specifies the user-provided time step adaptivity function to use.
+  ---------------------------------------------------------------*/
 int ARKStepSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun,
-                          void *h_data)
+                           void *h_data)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem arkstep_mem;
@@ -1465,12 +1465,12 @@ int ARKStepSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun,
 
 
 /*---------------------------------------------------------------
- ARKStepSetMaxFirstGrowth:
+  ARKStepSetMaxFirstGrowth:
 
- Specifies the user-provided time step adaptivity constant 
- etamx1.  Legal values are greater than 1.0.  Illegal values 
- imply a reset to the default value. 
----------------------------------------------------------------*/
+  Specifies the user-provided time step adaptivity constant 
+  etamx1.  Legal values are greater than 1.0.  Illegal values 
+  imply a reset to the default value. 
+  ---------------------------------------------------------------*/
 int ARKStepSetMaxFirstGrowth(void *arkode_mem, realtype etamx1)
 {
   ARKodeMem ark_mem;
@@ -1509,12 +1509,12 @@ int ARKStepSetMaxFirstGrowth(void *arkode_mem, realtype etamx1)
 
 
 /*---------------------------------------------------------------
- ARKStepSetMaxEFailGrowth:
+  ARKStepSetMaxEFailGrowth:
 
- Specifies the user-provided time step adaptivity constant 
- etamxf. Legal values are in the interval (0,1].  Illegal values 
- imply a reset to the default value. 
----------------------------------------------------------------*/
+  Specifies the user-provided time step adaptivity constant 
+  etamxf. Legal values are in the interval (0,1].  Illegal values 
+  imply a reset to the default value. 
+  ---------------------------------------------------------------*/
 int ARKStepSetMaxEFailGrowth(void *arkode_mem, realtype etamxf)
 {
   ARKodeMem ark_mem;
@@ -1553,12 +1553,12 @@ int ARKStepSetMaxEFailGrowth(void *arkode_mem, realtype etamxf)
 
 
 /*---------------------------------------------------------------
- ARKStepSetSmallNumEFails:
+  ARKStepSetSmallNumEFails:
 
- Specifies the user-provided time step adaptivity constant
- small_nef.  Legal values are > 0.  Illegal values 
- imply a reset to the default value. 
----------------------------------------------------------------*/
+  Specifies the user-provided time step adaptivity constant
+  small_nef.  Legal values are > 0.  Illegal values 
+  imply a reset to the default value. 
+  ---------------------------------------------------------------*/
 int ARKStepSetSmallNumEFails(void *arkode_mem, int small_nef)
 {
   ARKodeMem ark_mem;
@@ -1597,12 +1597,12 @@ int ARKStepSetSmallNumEFails(void *arkode_mem, int small_nef)
 
 
 /*---------------------------------------------------------------
- ARKStepSetMaxCFailGrowth:
+  ARKStepSetMaxCFailGrowth:
 
- Specifies the user-provided time step adaptivity constant
- etacf. Legal values are in the interval (0,1].  Illegal values 
- imply a reset to the default value. 
----------------------------------------------------------------*/
+  Specifies the user-provided time step adaptivity constant
+  etacf. Legal values are in the interval (0,1].  Illegal values 
+  imply a reset to the default value. 
+  ---------------------------------------------------------------*/
 int ARKStepSetMaxCFailGrowth(void *arkode_mem, realtype etacf)
 {
   ARKodeMem ark_mem;
@@ -1641,12 +1641,12 @@ int ARKStepSetMaxCFailGrowth(void *arkode_mem, realtype etacf)
 
 
 /*---------------------------------------------------------------
- ARKStepSetNonlinCRDown:
+  ARKStepSetNonlinCRDown:
 
- Specifies the user-provided nonlinear convergence constant
- crdown.  Legal values are strictly positive; illegal values 
- imply a reset to the default.
----------------------------------------------------------------*/
+  Specifies the user-provided nonlinear convergence constant
+  crdown.  Legal values are strictly positive; illegal values 
+  imply a reset to the default.
+  ---------------------------------------------------------------*/
 int ARKStepSetNonlinCRDown(void *arkode_mem, realtype crdown)
 {
   ARKodeMem ark_mem;
@@ -1678,12 +1678,12 @@ int ARKStepSetNonlinCRDown(void *arkode_mem, realtype crdown)
 
 
 /*---------------------------------------------------------------
- ARKStepSetNonlinRDiv:
+  ARKStepSetNonlinRDiv:
 
- Specifies the user-provided nonlinear convergence constant
- rdiv.  Legal values are strictly positive; illegal values 
- imply a reset to the default.
----------------------------------------------------------------*/
+  Specifies the user-provided nonlinear convergence constant
+  rdiv.  Legal values are strictly positive; illegal values 
+  imply a reset to the default.
+  ---------------------------------------------------------------*/
 int ARKStepSetNonlinRDiv(void *arkode_mem, realtype rdiv)
 {
   ARKodeMem ark_mem;
@@ -1715,12 +1715,12 @@ int ARKStepSetNonlinRDiv(void *arkode_mem, realtype rdiv)
 
 
 /*---------------------------------------------------------------
- ARKStepSetDeltaGammaMax:
+  ARKStepSetDeltaGammaMax:
 
- Specifies the user-provided linear setup decision constant
- dgmax.  Legal values are strictly positive; illegal values imply 
- a reset to the default. 
----------------------------------------------------------------*/
+  Specifies the user-provided linear setup decision constant
+  dgmax.  Legal values are strictly positive; illegal values imply 
+  a reset to the default. 
+  ---------------------------------------------------------------*/
 int ARKStepSetDeltaGammaMax(void *arkode_mem, realtype dgmax)
 {
   ARKodeMem ark_mem;
@@ -1752,14 +1752,14 @@ int ARKStepSetDeltaGammaMax(void *arkode_mem, realtype dgmax)
 
 
 /*---------------------------------------------------------------
- ARKStepSetMaxStepsBetweenLSet:
+  ARKStepSetMaxStepsBetweenLSet:
 
- Specifies the user-provided linear setup decision constant
- msbp.  Positive values give the number of time steps to wait 
- before calling lsetup; negative values imply recomputation of 
- lsetup at each Newton iteration; a zero value implies a reset 
- to the default. 
----------------------------------------------------------------*/
+  Specifies the user-provided linear setup decision constant
+  msbp.  Positive values give the number of time steps to wait 
+  before calling lsetup; negative values imply recomputation of 
+  lsetup at each Newton iteration; a zero value implies a reset 
+  to the default. 
+  ---------------------------------------------------------------*/
 int ARKStepSetMaxStepsBetweenLSet(void *arkode_mem, int msbp)
 {
   ARKodeMem ark_mem;
@@ -1791,12 +1791,12 @@ int ARKStepSetMaxStepsBetweenLSet(void *arkode_mem, int msbp)
 
 
 /*---------------------------------------------------------------
- ARKStepSetPredictorMethod:
+  ARKStepSetPredictorMethod:
 
- Specifies the method to use for predicting implicit solutions.  
- Non-default choices are {1,2,3,4}, all others will use default 
- (trivial) predictor.
----------------------------------------------------------------*/
+  Specifies the method to use for predicting implicit solutions.  
+  Non-default choices are {1,2,3,4}, all others will use default 
+  (trivial) predictor.
+  ---------------------------------------------------------------*/
 int ARKStepSetPredictorMethod(void *arkode_mem, int pred_method)
 {
   ARKodeMem ark_mem;
@@ -1824,14 +1824,14 @@ int ARKStepSetPredictorMethod(void *arkode_mem, int pred_method)
 
 
 /*---------------------------------------------------------------
- ARKStepSetStabilityFn:
+  ARKStepSetStabilityFn:
 
- Specifies the user-provided explicit time step stability 
- function to use.  A NULL input function implies a reset to
- the default function (empty).
----------------------------------------------------------------*/
+  Specifies the user-provided explicit time step stability 
+  function to use.  A NULL input function implies a reset to
+  the default function (empty).
+  ---------------------------------------------------------------*/
 int ARKStepSetStabilityFn(void *arkode_mem, ARKExpStabFn EStab,
-                         void *estab_data)
+                          void *estab_data)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem arkstep_mem;
@@ -1871,12 +1871,12 @@ int ARKStepSetStabilityFn(void *arkode_mem, ARKExpStabFn EStab,
 
 
 /*---------------------------------------------------------------
- ARKStepSetMaxErrTestFails:
+  ARKStepSetMaxErrTestFails:
 
- Specifies the maximum number of error test failures during one
- step try.  A non-positive input implies a reset to
- the default value.
----------------------------------------------------------------*/
+  Specifies the maximum number of error test failures during one
+  step try.  A non-positive input implies a reset to
+  the default value.
+  ---------------------------------------------------------------*/
 int ARKStepSetMaxErrTestFails(void *arkode_mem, int maxnef)
 {
   ARKodeMem ark_mem;
@@ -1908,12 +1908,12 @@ int ARKStepSetMaxErrTestFails(void *arkode_mem, int maxnef)
 
 
 /*---------------------------------------------------------------
- ARKStepSetMaxConvFails:
+  ARKStepSetMaxConvFails:
 
- Specifies the maximum number of nonlinear convergence failures 
- during one step try.  A non-positive input implies a reset to
- the default value.
----------------------------------------------------------------*/
+  Specifies the maximum number of nonlinear convergence failures 
+  during one step try.  A non-positive input implies a reset to
+  the default value.
+  ---------------------------------------------------------------*/
 int ARKStepSetMaxConvFails(void *arkode_mem, int maxncf)
 {
   ARKodeMem ark_mem;
@@ -1945,12 +1945,12 @@ int ARKStepSetMaxConvFails(void *arkode_mem, int maxncf)
 
 
 /*---------------------------------------------------------------
- ARKStepSetMaxNonlinIters:
+  ARKStepSetMaxNonlinIters:
 
- Specifies the maximum number of nonlinear iterations during
- one solve.  A non-positive input implies a reset to the 
- default value.
----------------------------------------------------------------*/
+  Specifies the maximum number of nonlinear iterations during
+  one solve.  A non-positive input implies a reset to the 
+  default value.
+  ---------------------------------------------------------------*/
 int ARKStepSetMaxNonlinIters(void *arkode_mem, int maxcor)
 {
   ARKodeMem ark_mem;
@@ -1982,11 +1982,11 @@ int ARKStepSetMaxNonlinIters(void *arkode_mem, int maxcor)
 
 
 /*---------------------------------------------------------------
- ARKStepSetNonlinConvCoef:
+  ARKStepSetNonlinConvCoef:
 
- Specifies the coefficient in the nonlinear solver convergence
- test.  A non-positive input implies a reset to the default value.
----------------------------------------------------------------*/
+  Specifies the coefficient in the nonlinear solver convergence
+  test.  A non-positive input implies a reset to the default value.
+  ---------------------------------------------------------------*/
 int ARKStepSetNonlinConvCoef(void *arkode_mem, realtype nlscoef)
 {
   ARKodeMem ark_mem;
@@ -2018,14 +2018,14 @@ int ARKStepSetNonlinConvCoef(void *arkode_mem, realtype nlscoef)
 
 
 /*===============================================================
- ARKODE optional output functions
-===============================================================*/
+  ARKODE optional output functions
+  ===============================================================*/
 
 /*---------------------------------------------------------------
- ARKStepGetNumExpSteps:
+  ARKStepGetNumExpSteps:
 
- Returns the current number of stability-limited steps
----------------------------------------------------------------*/
+  Returns the current number of stability-limited steps
+  ---------------------------------------------------------------*/
 int ARKStepGetNumExpSteps(void *arkode_mem, long int *nsteps)
 {
   ARKodeMem ark_mem;
@@ -2057,10 +2057,10 @@ int ARKStepGetNumExpSteps(void *arkode_mem, long int *nsteps)
 
 
 /*---------------------------------------------------------------
- ARKStepGetNumAccSteps:
+  ARKStepGetNumAccSteps:
 
- Returns the current number of accuracy-limited steps
----------------------------------------------------------------*/
+  Returns the current number of accuracy-limited steps
+  ---------------------------------------------------------------*/
 int ARKStepGetNumAccSteps(void *arkode_mem, long int *nsteps)
 {
   ARKodeMem ark_mem;
@@ -2092,10 +2092,10 @@ int ARKStepGetNumAccSteps(void *arkode_mem, long int *nsteps)
 
 
 /*---------------------------------------------------------------
- ARKStepGetNumStepAttempts:
+  ARKStepGetNumStepAttempts:
 
- Returns the current number of steps attempted by the solver
----------------------------------------------------------------*/
+  Returns the current number of steps attempted by the solver
+  ---------------------------------------------------------------*/
 int ARKStepGetNumStepAttempts(void *arkode_mem, long int *nsteps)
 {
   ARKodeMem ark_mem;
@@ -2123,12 +2123,12 @@ int ARKStepGetNumStepAttempts(void *arkode_mem, long int *nsteps)
 
 
 /*---------------------------------------------------------------
- ARKStepGetNumRhsEvals:
+  ARKStepGetNumRhsEvals:
 
- Returns the current number of calls to fe and fi
----------------------------------------------------------------*/
+  Returns the current number of calls to fe and fi
+  ---------------------------------------------------------------*/
 int ARKStepGetNumRhsEvals(void *arkode_mem, long int *fe_evals,
-                         long int *fi_evals)
+                          long int *fi_evals)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem arkstep_mem;
@@ -2156,10 +2156,10 @@ int ARKStepGetNumRhsEvals(void *arkode_mem, long int *fe_evals,
 
 
 /*---------------------------------------------------------------
- ARKStepGetNumLinSolvSetups:
+  ARKStepGetNumLinSolvSetups:
 
- Returns the current number of calls to the lsetup routine
----------------------------------------------------------------*/
+  Returns the current number of calls to the lsetup routine
+  ---------------------------------------------------------------*/
 int ARKStepGetNumLinSolvSetups(void *arkode_mem, long int *nlinsetups)
 {
   ARKodeMem ark_mem;
@@ -2187,10 +2187,10 @@ int ARKStepGetNumLinSolvSetups(void *arkode_mem, long int *nlinsetups)
 
 
 /*---------------------------------------------------------------
- ARKStepGetNumErrTestFails:
+  ARKStepGetNumErrTestFails:
 
- Returns the current number of error test failures
----------------------------------------------------------------*/
+  Returns the current number of error test failures
+  ---------------------------------------------------------------*/
 int ARKStepGetNumErrTestFails(void *arkode_mem, long int *netfails)
 {
   ARKodeMem ark_mem;
@@ -2218,14 +2218,14 @@ int ARKStepGetNumErrTestFails(void *arkode_mem, long int *netfails)
 
 
 /*---------------------------------------------------------------
- ARKStepGetCurrentButcherTables:
+  ARKStepGetCurrentButcherTables:
 
- Sets pointers to the explicit and implicit Butcher tables 
- currently in use.
----------------------------------------------------------------*/
+  Sets pointers to the explicit and implicit Butcher tables 
+  currently in use.
+  ---------------------------------------------------------------*/
 int ARKStepGetCurrentButcherTables(void *arkode_mem,
-                                  ARKodeButcherTable *Bi,
-                                  ARKodeButcherTable *Be)
+                                   ARKodeButcherTable *Bi,
+                                   ARKodeButcherTable *Be)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem arkstep_mem;
@@ -2252,12 +2252,12 @@ int ARKStepGetCurrentButcherTables(void *arkode_mem,
 
 
 /*---------------------------------------------------------------
- ARKStepGetEstLocalErrors: (updated to the correct vector, but 
-   need to verify that it is unchanged between filling the 
-   estimated error and the end of the time step)
+  ARKStepGetEstLocalErrors: (updated to the correct vector, but 
+  need to verify that it is unchanged between filling the 
+  estimated error and the end of the time step)
 
- Returns an estimate of the local error
----------------------------------------------------------------*/
+  Returns an estimate of the local error
+  ---------------------------------------------------------------*/
 int ARKStepGetEstLocalErrors(void *arkode_mem, N_Vector ele)
 {
   ARKodeMem ark_mem;
@@ -2285,10 +2285,10 @@ int ARKStepGetEstLocalErrors(void *arkode_mem, N_Vector ele)
 
 
 /*---------------------------------------------------------------
- ARKStepGetTimestepperStats:
+  ARKStepGetTimestepperStats:
 
- Returns integrator statistics
----------------------------------------------------------------*/
+  Returns integrator statistics
+  ---------------------------------------------------------------*/
 int ARKStepGetTimestepperStats(void *arkode_mem, long int *expsteps,
                                long int *accsteps, long int *step_attempts,
                                long int *fe_evals, long int *fi_evals,
@@ -2333,10 +2333,10 @@ int ARKStepGetTimestepperStats(void *arkode_mem, long int *expsteps,
 
 
 /*---------------------------------------------------------------
- ARKStepGetNumNonlinSolvIters:
+  ARKStepGetNumNonlinSolvIters:
 
- Returns the current number of nonlinear solver iterations 
----------------------------------------------------------------*/
+  Returns the current number of nonlinear solver iterations 
+  ---------------------------------------------------------------*/
 int ARKStepGetNumNonlinSolvIters(void *arkode_mem, long int *nniters)
 {
   ARKodeMem ark_mem;
@@ -2364,10 +2364,10 @@ int ARKStepGetNumNonlinSolvIters(void *arkode_mem, long int *nniters)
 
 
 /*---------------------------------------------------------------
- ARKStepGetNumNonlinSolvConvFails:
+  ARKStepGetNumNonlinSolvConvFails:
 
- Returns the current number of nonlinear solver convergence fails
----------------------------------------------------------------*/
+  Returns the current number of nonlinear solver convergence fails
+  ---------------------------------------------------------------*/
 int ARKStepGetNumNonlinSolvConvFails(void *arkode_mem, long int *nncfails)
 {
   ARKodeMem ark_mem;
@@ -2395,12 +2395,12 @@ int ARKStepGetNumNonlinSolvConvFails(void *arkode_mem, long int *nncfails)
 
 
 /*---------------------------------------------------------------
- ARKStepGetNonlinSolvStats:
+  ARKStepGetNonlinSolvStats:
 
- Returns nonlinear solver statistics
----------------------------------------------------------------*/
+  Returns nonlinear solver statistics
+  ---------------------------------------------------------------*/
 int ARKStepGetNonlinSolvStats(void *arkode_mem, long int *nniters, 
-                             long int *nncfails)
+                              long int *nncfails)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem arkstep_mem;
@@ -2429,13 +2429,13 @@ int ARKStepGetNonlinSolvStats(void *arkode_mem, long int *nniters,
 
 /*===============================================================
   ARKStep parameter output
-===============================================================*/
+  ===============================================================*/
 
 /*---------------------------------------------------------------
- ARKStepWriteParameters:
+  ARKStepWriteParameters:
 
- Outputs all solver parameters to the provided file pointer.
----------------------------------------------------------------*/
+  Outputs all solver parameters to the provided file pointer.
+  ---------------------------------------------------------------*/
 int ARKStepWriteParameters(void *arkode_mem, FILE *fp)
 {
   ARKodeMem ark_mem;
@@ -2524,10 +2524,10 @@ int ARKStepWriteParameters(void *arkode_mem, FILE *fp)
 
 
 /*---------------------------------------------------------------
- ARKStepWriteButcher:
+  ARKStepWriteButcher:
 
- Outputs Butcher tables to the provided file pointer.
----------------------------------------------------------------*/
+  Outputs Butcher tables to the provided file pointer.
+  ---------------------------------------------------------------*/
 int ARKStepWriteButcher(void *arkode_mem, FILE *fp)
 {
   int i, j;

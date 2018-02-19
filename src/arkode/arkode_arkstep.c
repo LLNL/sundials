@@ -50,10 +50,6 @@
   ARKStep Exported functions -- Required
   ===============================================================*/
 
-/***** This is currently called by ARKodeInit directly.           *****/
-/***** Eventually swap these so that user calls this (or another  *****/
-/***** step Create routine), and it calls [an updated version of] *****/
-/***** ARKodeInit internally)                                     *****/
 int ARKStepCreate(void* arkode_mem, ARKRhsFn fe,
                   ARKRhsFn fi, realtype t0, N_Vector y0)
 {
@@ -77,14 +73,6 @@ int ARKStepCreate(void* arkode_mem, ARKRhsFn fe,
     return(ARK_ILL_INPUT);
   }
 
-  /* Initialize main ARKode infrastructure (UNCOMMENT WHEN READY) */
-  /* iret = ARKodeInit(arkode_mem, t0, y0); */
-  /* if (iret != ARK_SUCCESS) { */
-  /*   arkProcessError(ark_mem, iret, "ARKODE::ARKStep", "ARKStepCreate",  */
-  /*                   "Unable to initialize main ARKode infrastructure"); */
-  /*   return(iret); */
-  /* } */
-  
   /* Allocate ARKodeARKStepMem structure, and initialize to zero */
   arkstep_mem = NULL;
   arkstep_mem = (ARKodeARKStepMem) malloc(sizeof(struct ARKodeARKStepMemRec));
@@ -204,20 +192,25 @@ int ARKStepCreate(void* arkode_mem, ARKRhsFn fe,
   arkstep_mem->nsetups      = 0;
   arkstep_mem->nstlp        = 0;
 
+  /* Initialize main ARKode infrastructure */
+  iret = arkodeInit(ark_mem, t0, y0);
+  if (iret != ARK_SUCCESS) {
+    arkProcessError(ark_mem, iret, "ARKODE::ARKStep", "ARKStepCreate",
+                    "Unable to initialize main ARKode infrastructure");
+    return(iret);
+  }
+  
   return(ARK_SUCCESS);
 }
 
 
 
-/***** This is currently called by ARKodeReInit directly.         *****/
-/***** Eventually swap these so that user calls this (or another  *****/
-/***** step Create routine), and it calls [an updated version of] *****/
-/***** ARKodeReInit internally)                                   *****/
 int ARKStepReInit(void* arkode_mem, ARKRhsFn fe,
                   ARKRhsFn fi, realtype t0, N_Vector y0)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem arkstep_mem;
+  int iret;
 
   /* Check arkode_mem */
   if (arkode_mem==NULL) {
@@ -243,13 +236,13 @@ int ARKStepReInit(void* arkode_mem, ARKRhsFn fe,
     return(ARK_ILL_INPUT);
   }
 
-  /* ReInitialize main ARKode infrastructure (UNCOMMENT WHEN READY) */
-  /* iret = ARKodeReInit(arkode_mem, t0, y0); */
-  /* if (iret != ARK_SUCCESS) { */
-  /*   arkProcessError(ark_mem, iret, "ARKODE::ARKStep", "ARKStepReInit",  */
-  /*                   "Unable to initialize main ARKode infrastructure"); */
-  /*   return(iret); */
-  /* } */
+  /* ReInitialize main ARKode infrastructure */
+  iret = arkodeReInit(ark_mem, t0, y0);
+  if (iret != ARK_SUCCESS) {
+    arkProcessError(ark_mem, iret, "ARKODE::ARKStep", "ARKStepReInit",
+                    "Unable to initialize main ARKode infrastructure");
+    return(iret);
+  }
   
   /* Set implicit/explicit problem based on function pointers */
   arkstep_mem->explicit = (fe == NULL) ? SUNFALSE : SUNTRUE;
@@ -1593,6 +1586,8 @@ int arkStep_Free(void* arkode_mem)
     ButcherTableSpace(arkstep_mem->Be, &Bliw, &Blrw);
     FreeButcherTable(arkstep_mem->Be);
     arkstep_mem->Be = NULL;
+    ark_mem->ark_liw -= Bliw;
+    ark_mem->ark_lrw -= Blrw;
   }
   if (arkstep_mem->Bi != NULL) {
     ButcherTableSpace(arkstep_mem->Bi, &Bliw, &Blrw);
@@ -3031,6 +3026,9 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
   tmp1 = ark_mem->ark_sdata;
   tmp2 = ark_mem->ark_ycur;
 
+  /* initialize output */
+  *dsm = ZERO;
+
   /* Compute updated solution and error estimate based on whether
      a non-identity mass matrix is present */
   if (arkstep_mem->mass_mem != NULL) {   /* M != I */
@@ -3043,12 +3041,21 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
 
     /* compute y RHS (store in y) */
     N_VConst(ZERO, y);
-    for (j=0; j<arkstep_mem->stages; j++) {
-      if (arkstep_mem->explicit) {
+    if (arkstep_mem->explicit && arkstep_mem->implicit) {
+      for (j=0; j<arkstep_mem->stages; j++) {
+        hb = ark_mem->ark_h * arkstep_mem->Be->b[j];
+        N_VLinearSum(hb, arkstep_mem->Fe[j], ONE, y, y);
+
+        hb = ark_mem->ark_h * arkstep_mem->Bi->b[j];
+        N_VLinearSum(hb, arkstep_mem->Fi[j], ONE, y, y);
+      }
+    } else if (arkstep_mem->explicit) { /* explicit only */
+      for (j=0; j<arkstep_mem->stages; j++) {
         hb = ark_mem->ark_h * arkstep_mem->Be->b[j];
         N_VLinearSum(hb, arkstep_mem->Fe[j], ONE, y, y);
       }
-      if (arkstep_mem->implicit) {
+    } else {                            /* implicit only */
+      for (j=0; j<arkstep_mem->stages; j++) {
         hb = ark_mem->ark_h * arkstep_mem->Bi->b[j];
         N_VLinearSum(hb, arkstep_mem->Fi[j], ONE, y, y);
       }
@@ -3071,24 +3078,34 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
     if (!ark_mem->ark_fixedstep) {
 
       /* compute yerr RHS vector (store in yerr) */
-      for (j=0; j<arkstep_mem->stages; j++) {
-        if (arkstep_mem->explicit) {
+      if (arkstep_mem->explicit && arkstep_mem->implicit) {
+        for (j=0; j<arkstep_mem->stages; j++) {
+          hb = ark_mem->ark_h * (arkstep_mem->Be->b[j] - arkstep_mem->Be->d[j]);
+          N_VLinearSum(hb, arkstep_mem->Fe[j], ONE, yerr, yerr);
+
+          hb = ark_mem->ark_h * (arkstep_mem->Bi->b[j] - arkstep_mem->Bi->d[j]);
+          N_VLinearSum(hb, arkstep_mem->Fi[j], ONE, yerr, yerr);
+        }
+      } else if (arkstep_mem->explicit) {  /* explicit only */
+        for (j=0; j<arkstep_mem->stages; j++) {
           hb = ark_mem->ark_h * (arkstep_mem->Be->b[j] - arkstep_mem->Be->d[j]);
           N_VLinearSum(hb, arkstep_mem->Fe[j], ONE, yerr, yerr);
         }
-        if (arkstep_mem->implicit) {
+      } else {                            /* implicit only */
+        for (j=0; j<arkstep_mem->stages; j++) {
           hb = ark_mem->ark_h * (arkstep_mem->Bi->b[j] - arkstep_mem->Bi->d[j]);
           N_VLinearSum(hb, arkstep_mem->Fi[j], ONE, yerr, yerr);
         }
       }
-
+    
       /* solve for yerr */
       ier = arkstep_mem->msolve((void *) ark_mem, yerr, arkstep_mem->nlscoef); 
       if (ier < 0) {
         *dsm = 2.0;         /* indicate too much error, step with smaller step */
         return(CONV_FAIL);
       }
-
+      /* fill error norm */
+      *dsm = N_VWrmsNorm(yerr, ark_mem->ark_ewt);
     }
 
   } else {                          /* M == I */
@@ -3098,37 +3115,53 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
     N_VConst(ZERO, yerr);
 
     /* Compute time step solution */
-    for (j=0; j<arkstep_mem->stages; j++) {
-      
-      if (arkstep_mem->explicit) {
+    if (arkstep_mem->explicit && arkstep_mem->implicit) {
+      for (j=0; j<arkstep_mem->stages; j++) {
         hb = ark_mem->ark_h * arkstep_mem->Be->b[j];
         N_VLinearSum(hb, arkstep_mem->Fe[j], ONE, y, y);
-      }
-      if (arkstep_mem->implicit) {
+
         hb = ark_mem->ark_h * arkstep_mem->Bi->b[j];
         N_VLinearSum(hb, arkstep_mem->Fi[j], ONE, y, y);
       }
-
+    } else if (arkstep_mem->explicit) { /* explicit only */
+      for (j=0; j<arkstep_mem->stages; j++) {
+        hb = ark_mem->ark_h * arkstep_mem->Be->b[j];
+        N_VLinearSum(hb, arkstep_mem->Fe[j], ONE, y, y);
+      }
+    } else {                            /* implicit only */
+      for (j=0; j<arkstep_mem->stages; j++) {
+        hb = ark_mem->ark_h * arkstep_mem->Bi->b[j];
+        N_VLinearSum(hb, arkstep_mem->Fi[j], ONE, y, y);
+      }
     }
 
     /* Compute yerr (if step adaptivity enabled) */
     if (!ark_mem->ark_fixedstep) {
-      for (j=0; j<arkstep_mem->stages; j++) {
-        if (arkstep_mem->explicit) {
+      if (arkstep_mem->explicit && arkstep_mem->implicit) {
+        for (j=0; j<arkstep_mem->stages; j++) {
+          hb = ark_mem->ark_h * (arkstep_mem->Be->b[j] - arkstep_mem->Be->d[j]);
+          N_VLinearSum(hb, arkstep_mem->Fe[j], ONE, yerr, yerr);
+
+          hb = ark_mem->ark_h * (arkstep_mem->Bi->b[j] - arkstep_mem->Bi->d[j]);
+          N_VLinearSum(hb, arkstep_mem->Fi[j], ONE, yerr, yerr);
+        }
+      } else if (arkstep_mem->explicit) { /* explicit only */
+        for (j=0; j<arkstep_mem->stages; j++) {
           hb = ark_mem->ark_h * (arkstep_mem->Be->b[j] - arkstep_mem->Be->d[j]);
           N_VLinearSum(hb, arkstep_mem->Fe[j], ONE, yerr, yerr);
         }
-        if (arkstep_mem->implicit) {
+      } else {                            /* implicit only */
+        for (j=0; j<arkstep_mem->stages; j++) {
           hb = ark_mem->ark_h * (arkstep_mem->Bi->b[j] - arkstep_mem->Bi->d[j]);
           N_VLinearSum(hb, arkstep_mem->Fi[j], ONE, yerr, yerr);
         }
       }
+      /* fill error norm */
+      *dsm = N_VWrmsNorm(yerr, ark_mem->ark_ewt);
     }
 
   }
 
-  /* fill error norm and return */
-  *dsm = N_VWrmsNorm(yerr, ark_mem->ark_ewt);
   return(ARK_SUCCESS);
 }
 

@@ -102,7 +102,7 @@
 #define MY           (NPEY*MYSUB)         /* MY = number of y mesh points */
                                           /* Spatial mesh is MX by MY */
 
-/* ARKodeInit Constants */
+/* initialization constants */
 #define RTOL    RCONST(1.0e-5)            /* scalar relative tolerance */
 #define FLOOR   RCONST(100.0)             /* value of C1 or C2 at which tolerances */
                                           /* change from relative to absolute      */
@@ -236,11 +236,11 @@ int main(int argc, char *argv[])
   flag = ARKodeSetUserData(arkode_mem, data);
   if (check_flag(&flag, "ARKodeSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
 
-  /* Call ARKodeInit to initialize the integrator memory and specify the
-     user's right hand side functions in u'=fe(t,u)+fi(t,u) [here fe is NULL], 
+  /* Call ARKStepCreate to initialize the integrator memory and specify the
+     user's right hand side functions in u'=fi(t,u) [here fe is NULL], 
      the inital time T0, and the initial dependent variable vector u. */
-  flag = ARKodeInit(arkode_mem, NULL, f, T0, u);
-  if(check_flag(&flag, "ARKodeInit", 1, my_pe)) return(1);
+  flag = ARKStepCreate(arkode_mem, NULL, f, T0, u);
+  if(check_flag(&flag, "ARKStepCreate", 1, my_pe)) return(1);
 
   /* Call ARKodeSetMaxNumSteps to increase default */
   flag = ARKodeSetMaxNumSteps(arkode_mem, 10000);

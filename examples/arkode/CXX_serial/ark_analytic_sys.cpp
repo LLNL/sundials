@@ -122,11 +122,11 @@ int main()
   arkode_mem = ARKodeCreate();
   if (check_flag((void *)arkode_mem, "ARKodeCreate", 0)) return 1;
   
-  /* Call ARKodeInit to initialize the integrator memory and specify the
-     right-hand side function in y'=f(t,y), the inital time T0, and
-     the initial dependent variable vector y.  Note: since this
-     problem is fully implicit, we set f_E to NULL and f_I to f. */
-  flag = ARKodeInit(arkode_mem, NULL, f, T0, y);
+  /* Call ARKStepCreate to initialize the ARK timestepper memory and 
+     specify the right-hand side function in y'=f(t,y), the inital time 
+     T0, and the initial dependent variable vector y.  Note: since 
+     this problem is fully implicit, we set f_E to NULL and f_I to f. */
+  flag = ARKStepCreate(arkode_mem, NULL, f, T0, y);
   if (check_flag(&flag, "ARKodeInit", 1)) return 1;
 
   // Set routines

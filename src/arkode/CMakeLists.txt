@@ -29,6 +29,8 @@ SET(arkode_SOURCES
   arkode_bbdpre.c
   arkode_butcher.c
   arkode_direct.c        
+  arkode_erkstep.c
+  arkode_erkstep_io.c
   arkode_interp.c
   arkode_io.c
   arkode_root.c
@@ -77,6 +79,7 @@ SET(arkode_HEADERS
   arkode_bandpre.h
   arkode_bbdpre.h
   arkode_butcher.h
+  arkode_erkstep.h
   arkode_direct.h
   arkode_spils.h
   )

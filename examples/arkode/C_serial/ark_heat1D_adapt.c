@@ -148,9 +148,9 @@ int main() {
   arkode_mem = ARKodeCreate();
   if (check_flag((void *) arkode_mem, "ARKodeCreate", 0)) return 1;
 
-  /* Initialize the integrator memory */
-  flag = ARKodeInit(arkode_mem, NULL, f, T0, y);
-  if (check_flag(&flag, "ARKodeInit", 1)) return 1;
+  /* Initialize the ARK timestepper */
+  flag = ARKStepCreate(arkode_mem, NULL, f, T0, y);
+  if (check_flag(&flag, "ARKStepCreate", 1)) return 1;
 
   /* Set routines */
   flag = ARKodeSetUserData(arkode_mem, (void *) udata);   /* Pass udata to user functions */

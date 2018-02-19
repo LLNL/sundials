@@ -72,9 +72,9 @@
  * The product preconditoner is applied on the left and on the
  * right. In each case, both the modified and classical Gram-Schmidt
  * options are tested.
- * In the series of runs, ARKodeInit, SUNSPGMR and 
+ * In the series of runs, ARKStepCreate, SUNSPGMR and 
  * ARKSpilsSetLinearSolver are called only for the first run, whereas 
- * ARKodeReInit, SUNSPGMRSetPrecType, and SUNSPGMRSetGSType are called
+ * ARKStepReInit, SUNSPGMRSetPrecType, and SUNSPGMRSetGSType are called
  * for each of the remaining three runs.
  *
  * A problem description, performance statistics at selected output
@@ -262,7 +262,7 @@ int main()
       CInit(c, wdata);
       PrintHeader(jpre, gstype);
 
-      /* Call ARKodeInit or ARKodeReInit, then ARKSpgmr to set up problem */
+      /* Call ARKStepCreate or ARKStepReInit, then ARKSpgmr to set up problem */
       
       firstrun = (jpre == PREC_LEFT) && (gstype == MODIFIED_GS);
       if (firstrun) {
@@ -274,8 +274,8 @@ int main()
         flag = ARKodeSetUserData(arkode_mem, wdata);
         if(check_flag(&flag, "ARKodeSetUserData", 1)) return(1);
 
-        flag = ARKodeInit(arkode_mem, NULL, f, T0, c);
-        if(check_flag(&flag, "ARKodeInit", 1)) return(1);
+        flag = ARKStepCreate(arkode_mem, NULL, f, T0, c);
+        if(check_flag(&flag, "ARKStepCreate", 1)) return(1);
 
         flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
         if(check_flag(&flag, "ARKodeSStolerances", 1)) return(1);
@@ -303,8 +303,8 @@ int main()
 
       } else {
 
-        flag = ARKodeReInit(arkode_mem, NULL, f, T0, c);
-        if(check_flag(&flag, "ARKodeReInit", 1)) return(1);
+        flag = ARKStepReInit(arkode_mem, NULL, f, T0, c);
+        if(check_flag(&flag, "ARKStepReInit", 1)) return(1);
 
         flag = SUNSPGMRSetPrecType(LS, jpre);
         check_flag(&flag, "SUNSPGMRSetPrecType", 1);

@@ -32,6 +32,7 @@
 #include <sundials/sundials_types.h>
 
 #define NO_DEBUG_OUTPUT
+/* #define DEBUG_OUTPUT */
 #ifdef DEBUG_OUTPUT
 #include <nvector/nvector_serial.h>
 #endif
@@ -126,207 +127,6 @@ void *ARKodeCreate()
 
 
 /*---------------------------------------------------------------
-  ARKodeInit:
- 
-  ARKodeInit allocates and initializes memory for a problem. All 
-  inputs are checked for errors. If any error occurs during 
-  initialization, it is reported to the file whose file pointer 
-  is errfp and an error flag is returned. Otherwise, it returns 
-  ARK_SUCCESS.  This routine must be called prior to calling 
-  ARKode to evolve the problem.
-  ---------------------------------------------------------------*/
-int ARKodeInit(void *arkode_mem, ARKRhsFn fe, ARKRhsFn fi, 
-               realtype t0, N_Vector y0)
-{
-  ARKodeMem ark_mem;
-  booleantype stepperOK, nvectorOK, allocOK;
-  sunindextype lrw1, liw1;
-  int iret;
-  
-  /* Check arkode_mem */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", "ARKodeInit", 
-                    MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-
-  /* Check for legal input parameters */
-  if (y0==NULL) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
-                    "ARKodeInit", MSGARK_NULL_Y0);
-    return(ARK_ILL_INPUT);
-  }
-
-  /* Initialize ARKStep module (REMOVE WHEN READY) */
-  iret = ARKStepCreate(arkode_mem, fe, fi, t0, y0);
-  if (iret != ARK_SUCCESS) {
-    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "ARKodeInit", 
-                    "Unable to allocate/initialize ARKStep module");
-    return(ARK_MEM_FAIL);
-  }
-
-  /* Test if all required time stepper operations are implemented */
-  stepperOK = arkCheckTimestepper(ark_mem);
-  if (!stepperOK) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "ARKodeInit",
-                    "Time stepper module is missing required functionality");
-    return(ARK_ILL_INPUT);
-  }
-
-  /* Test if all required vector operations are implemented */
-  nvectorOK = arkCheckNvector(y0);
-  if (!nvectorOK) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
-                    "ARKodeInit", MSGARK_BAD_NVECTOR);
-    return(ARK_ILL_INPUT);
-  }
-
-  /* Set space requirements for one N_Vector */
-  if (y0->ops->nvspace != NULL) {
-    N_VSpace(y0, &lrw1, &liw1);
-  } else {
-    lrw1 = 0;
-    liw1 = 0;
-  }
-  ark_mem->ark_lrw1 = lrw1;
-  ark_mem->ark_liw1 = liw1;
-
-
-  /* Allocate the solver vectors (using y0 as a template) */
-  allocOK = arkAllocVectors(ark_mem, y0);
-  if (!allocOK) {
-    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", 
-                    "ARKodeInit", MSGARK_MEM_FAIL);
-    return(ARK_MEM_FAIL);
-  }
-
-  /* Initialize the interpolation structure to NULL */
-  ark_mem->ark_interp = NULL;
-
-  /* All error checking is complete at this point */
-
-  /* Copy the input parameters into ARKODE state */
-  ark_mem->ark_tn = t0;
-  ark_mem->ark_tnew = t0;
-
-  /* Set step parameters */
-  ark_mem->ark_hold     = ZERO;
-  ark_mem->ark_tolsf    = ONE;
-  ark_mem->ark_hmin     = ZERO;       /* no minimum step size */
-  ark_mem->ark_hmax_inv = ZERO;       /* no maximum step size */
-
-  /* Initialize ycur */
-  N_VScale(ONE, y0, ark_mem->ark_ycur);
-
-  /* Initialize all the counters */
-  ark_mem->ark_nst   = 0;
-  ark_mem->ark_nhnil = 0;
-
-  /* Initialize other integrator optional outputs */
-  ark_mem->ark_h0u    = ZERO;
-  ark_mem->ark_next_h = ZERO;
-
-  /* Initially, rwt should point to ewt */
-  ark_mem->ark_rwt_is_ewt = SUNTRUE;
-
-  /* Indicate that problem size is new */
-  ark_mem->ark_resized = SUNTRUE;
-  ark_mem->ark_firststage = SUNTRUE;
-
-  /* Problem has been successfully initialized */
-  ark_mem->ark_MallocDone = SUNTRUE;
-
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
-  ARKodeReInit:
-
-  ARKodeReInit re-initializes ARKODE's memory for a problem, 
-  assuming it has already been allocated in a prior ARKodeInit 
-  call.  All problem specification inputs are checked for errors.
-  If any error occurs during initialization, it is reported to 
-  the file whose file pointer is errfp.  This routine should only
-  be called after ARKodeInit, and only when the problem dynamics 
-  or desired solvers have changed dramatically, so that the
-  problem integration should resume as if started from scratch.
-
-  The return value is ARK_SUCCESS = 0 if no errors occurred, or
-  a negative value otherwise.
-  ---------------------------------------------------------------*/
-int ARKodeReInit(void *arkode_mem, ARKRhsFn fe, ARKRhsFn fi, 
-                 realtype t0, N_Vector y0)
-{
-  ARKodeMem ark_mem;
-  int iret;
-  
-  /* Check arkode_mem */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "ARKodeReInit", MSGARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-
-  /* Check if arkode_mem was allocated */
-  if (ark_mem->ark_MallocDone == SUNFALSE) {
-    arkProcessError(ark_mem, ARK_NO_MALLOC, "ARKODE", 
-                    "ARKodeReInit", MSGARK_NO_MALLOC);
-    return(ARK_NO_MALLOC);
-  }
-
-  /* Check for legal input parameters */
-  if (y0 == NULL) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
-                    "ARKodeReInit", MSGARK_NULL_Y0);
-    return(ARK_ILL_INPUT);
-  }
-  
-  /* Re-Initialize ARKStep module (REMOVE WHEN READY) */
-  iret = ARKStepReInit(arkode_mem, fe, fi, t0, y0);
-  if (iret != ARK_SUCCESS) {
-    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", "ARKodeInit", 
-                    "Unable to allocate/initialize ARKStep module");
-    return(ARK_MEM_FAIL);
-  }
-  
-  /* Copy the input parameters into ARKODE state */
-  ark_mem->ark_tn   = t0;
-  ark_mem->ark_tnew = t0;
-  
-  /* Set step parameters */
-  ark_mem->ark_hold     = ZERO;
-  ark_mem->ark_tolsf    = ONE;
-  ark_mem->ark_hmin     = ZERO;       /* no minimum step size */
-  ark_mem->ark_hmax_inv = ZERO;       /* no maximum step size */
-
-  /* Do not reset the linear solver addresses to NULL.  This means 
-     that if the user does not re-set these manually, we'll re-use 
-     the linear solver routines that were set during ARKodeInit. */
-
-  /* Initialize ycur */
-  N_VScale(ONE, y0, ark_mem->ark_ycur);
-
-  /* Initialize all the counters */
-  ark_mem->ark_nst   = 0;
-  ark_mem->ark_nhnil = 0;
-
-  /* Indicate that problem size is new */
-  ark_mem->ark_resized    = SUNTRUE;
-  ark_mem->ark_firststage = SUNTRUE;
-
-  /* Initialize other integrator optional outputs */
-  ark_mem->ark_h0u    = ZERO;
-  ark_mem->ark_next_h = ZERO;
-
-  /* Problem has been successfully re-initialized */
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
   ARKodeResize:
 
   ARKodeResize re-initializes ARKODE's memory for a problem with a
@@ -336,7 +136,7 @@ int ARKodeReInit(void *arkode_mem, ARKRhsFn fe, ARKRhsFn fi,
   remain valid after the call.  If instead the dynamics should be 
   re-calibrated, the ARKode memory structure should be deleted 
   with a call to ARKodeFree, and re-created with calls to 
-  ARKodeCreate and ARKodeInit.
+  ARKodeCreate and arkodeInit.
 
   To aid in the vector-resize operation, the user can supply a 
   vector resize function, that will take as input an N_Vector with
@@ -1178,7 +978,7 @@ int ARKodeGetDky(void *arkode_mem, realtype t, int k, N_Vector dky)
 /*---------------------------------------------------------------
   ARKodeFree:
 
-  This routine frees the problem memory allocated by ARKodeInit.
+  This routine frees the problem memory allocated by arkodeInit.
   Such memory includes all the vectors allocated by 
   arkAllocVectors, and the memory lmem for
   the linear solver (deallocated by a call to lfree).
@@ -1335,6 +1135,169 @@ void arkErrHandler(int error_code, const char *module,
 /*===============================================================
   Private Helper Functions
   ===============================================================*/
+
+/*---------------------------------------------------------------
+  arkodeInit:
+ 
+  arkodeInit allocates and initializes memory for a problem. All 
+  inputs are checked for errors. If any error occurs during 
+  initialization, it is reported to the file whose file pointer 
+  is errfp and an error flag is returned. Otherwise, it returns 
+  ARK_SUCCESS.  This routine should be called by an ARKode 
+  timestepper module (not by the user).  This routine must be 
+  called prior to calling ARKode to evolve the problem.
+  ---------------------------------------------------------------*/
+int arkodeInit(ARKodeMem ark_mem, realtype t0, N_Vector y0)
+{
+  booleantype stepperOK, nvectorOK, allocOK;
+  sunindextype lrw1, liw1;
+  
+  /* Check for legal input parameters */
+  if (y0==NULL) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
+                    "arkodeInit", MSGARK_NULL_Y0);
+    return(ARK_ILL_INPUT);
+  }
+
+  /* Test if all required time stepper operations are implemented */
+  stepperOK = arkCheckTimestepper(ark_mem);
+  if (!stepperOK) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkodeInit",
+                    "Time stepper module is missing required functionality");
+    return(ARK_ILL_INPUT);
+  }
+
+  /* Test if all required vector operations are implemented */
+  nvectorOK = arkCheckNvector(y0);
+  if (!nvectorOK) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
+                    "arkodeInit", MSGARK_BAD_NVECTOR);
+    return(ARK_ILL_INPUT);
+  }
+
+  /* Set space requirements for one N_Vector */
+  if (y0->ops->nvspace != NULL) {
+    N_VSpace(y0, &lrw1, &liw1);
+  } else {
+    lrw1 = 0;
+    liw1 = 0;
+  }
+  ark_mem->ark_lrw1 = lrw1;
+  ark_mem->ark_liw1 = liw1;
+
+
+  /* Allocate the solver vectors (using y0 as a template) */
+  allocOK = arkAllocVectors(ark_mem, y0);
+  if (!allocOK) {
+    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", 
+                    "arkodeInit", MSGARK_MEM_FAIL);
+    return(ARK_MEM_FAIL);
+  }
+
+  /* Initialize the interpolation structure to NULL */
+  ark_mem->ark_interp = NULL;
+
+  /* All error checking is complete at this point */
+
+  /* Copy the input parameters into ARKODE state */
+  ark_mem->ark_tn   = t0;
+  ark_mem->ark_tnew = t0;
+
+  /* Set step parameters */
+  ark_mem->ark_hold     = ZERO;
+  ark_mem->ark_tolsf    = ONE;
+  ark_mem->ark_hmin     = ZERO;       /* no minimum step size */
+  ark_mem->ark_hmax_inv = ZERO;       /* no maximum step size */
+
+  /* Initialize ycur */
+  N_VScale(ONE, y0, ark_mem->ark_ycur);
+
+  /* Initialize all the counters */
+  ark_mem->ark_nst   = 0;
+  ark_mem->ark_nhnil = 0;
+
+  /* Initialize other integrator optional outputs */
+  ark_mem->ark_h0u    = ZERO;
+  ark_mem->ark_next_h = ZERO;
+
+  /* Initially, rwt should point to ewt */
+  ark_mem->ark_rwt_is_ewt = SUNTRUE;
+
+  /* Indicate that problem size is new */
+  ark_mem->ark_resized = SUNTRUE;
+  ark_mem->ark_firststage = SUNTRUE;
+
+  /* Problem has been successfully initialized */
+  ark_mem->ark_MallocDone = SUNTRUE;
+
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  arkodeReInit:
+
+  arkodeReInit re-initializes ARKODE's memory for a problem, 
+  assuming it has already been allocated in a prior arkodeInit 
+  call.  All problem specification inputs are checked for errors.
+  If any error occurs during initialization, it is reported to 
+  the file whose file pointer is errfp.  This routine should only
+  be called after arkodeInit, and only when the problem dynamics 
+  or desired solvers have changed dramatically, so that the
+  problem integration should resume as if started from scratch.
+
+  The return value is ARK_SUCCESS = 0 if no errors occurred, or
+  a negative value otherwise.
+  ---------------------------------------------------------------*/
+int arkodeReInit(ARKodeMem ark_mem, realtype t0, N_Vector y0)
+{
+  /* Check if ark_mem was allocated */
+  if (ark_mem->ark_MallocDone == SUNFALSE) {
+    arkProcessError(ark_mem, ARK_NO_MALLOC, "ARKODE", 
+                    "arkodeReInit", MSGARK_NO_MALLOC);
+    return(ARK_NO_MALLOC);
+  }
+
+  /* Check for legal input parameters */
+  if (y0 == NULL) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
+                    "arkodeReInit", MSGARK_NULL_Y0);
+    return(ARK_ILL_INPUT);
+  }
+  
+  /* Copy the input parameters into ARKODE state */
+  ark_mem->ark_tn   = t0;
+  ark_mem->ark_tnew = t0;
+  
+  /* Set step parameters */
+  ark_mem->ark_hold     = ZERO;
+  ark_mem->ark_tolsf    = ONE;
+  ark_mem->ark_hmin     = ZERO;       /* no minimum step size */
+  ark_mem->ark_hmax_inv = ZERO;       /* no maximum step size */
+
+  /* Do not reset the linear solver addresses to NULL.  This means 
+     that if the user does not re-set these manually, we'll re-use 
+     the linear solver routines that were set during arkodeInit. */
+
+  /* Initialize ycur */
+  N_VScale(ONE, y0, ark_mem->ark_ycur);
+
+  /* Initialize all the counters */
+  ark_mem->ark_nst   = 0;
+  ark_mem->ark_nhnil = 0;
+
+  /* Indicate that problem size is new */
+  ark_mem->ark_resized    = SUNTRUE;
+  ark_mem->ark_firststage = SUNTRUE;
+
+  /* Initialize other integrator optional outputs */
+  ark_mem->ark_h0u    = ZERO;
+  ark_mem->ark_next_h = ZERO;
+
+  /* Problem has been successfully re-initialized */
+  return(ARK_SUCCESS);
+}
+
 
 /*---------------------------------------------------------------
   arkPrintMem:

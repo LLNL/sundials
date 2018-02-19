@@ -71,7 +71,7 @@ extern "C" {
 
 /* Fortran interface routine to initialize ARKode memory
    structure; functions as an all-in-one interface to the C
-   routines ARKodeCreate, ARKodeSetUserData, ARKodeInit, and
+   routines ARKodeCreate, ARKodeSetUserData, ARKStepCreate, and
    ARKodeSStolerances (or ARKodeSVtolerances); see farkode.h
    for further details */
 void FARK_MALLOC(realtype *t0, realtype *y0, int *imex,
@@ -137,21 +137,21 @@ void FARK_MALLOC(realtype *t0, realtype *y0, int *imex,
   /* Set data in F2C_ARKODE_vec to y0 */
   N_VSetArrayPointer(y0, F2C_ARKODE_vec);
 
-  /* Call ARKodeInit based on imex argument */
+  /* Call ARKStepCreate based on imex argument */
   switch (*imex) {
   case 0:  /* purely implicit */
-    *ier = ARKodeInit(ARK_arkodemem, NULL, FARKfi,
-                      *t0, F2C_ARKODE_vec);
+    *ier = ARKStepCreate(ARK_arkodemem, NULL, FARKfi,
+                         *t0, F2C_ARKODE_vec);
     break;
   case 1:  /* purely explicit */
-    *ier = ARKodeInit(ARK_arkodemem, FARKfe, NULL,
-                      *t0, F2C_ARKODE_vec);
+    *ier = ARKStepCreate(ARK_arkodemem, FARKfe, NULL,
+                         *t0, F2C_ARKODE_vec);
     FARKNullMatrix();
     FARKNullLinsol();
     break;
   case 2:  /* imex */
-    *ier = ARKodeInit(ARK_arkodemem, FARKfe, FARKfi,
-                      *t0, F2C_ARKODE_vec);
+    *ier = ARKStepCreate(ARK_arkodemem, FARKfe, FARKfi,
+                         *t0, F2C_ARKODE_vec);
     break;
   }
 
@@ -212,7 +212,7 @@ void FARK_MALLOC(realtype *t0, realtype *y0, int *imex,
 
 /* Fortran interface routine to re-initialize ARKode memory
    structure; functions as an all-in-one interface to the C
-   routines ARKodeReInit and ARKodeSStolerances (or
+   routines ARKStepReInit and ARKodeSStolerances (or
    ARKodeSVtolerances); see farkode.h for further details */
 void FARK_REINIT(realtype *t0, realtype *y0, int *imex, int *iatol,
                  realtype *rtol, realtype *atol, int *ier) {
@@ -227,19 +227,19 @@ void FARK_REINIT(realtype *t0, realtype *y0, int *imex, int *iatol,
   /* Set data in F2C_ARKODE_vec to y0 */
   N_VSetArrayPointer(y0, F2C_ARKODE_vec);
 
-  /* Call ARKodeReInit based on imex argument */
+  /* Call ARKStepReInit based on imex argument */
   switch (*imex) {
   case 0:  /* purely implicit */
-    *ier = ARKodeReInit(ARK_arkodemem, NULL, FARKfi,
-                        *t0, F2C_ARKODE_vec);
+    *ier = ARKStepReInit(ARK_arkodemem, NULL, FARKfi,
+                         *t0, F2C_ARKODE_vec);
     break;
   case 1:  /* purely explicit */
-    *ier = ARKodeReInit(ARK_arkodemem, FARKfe, NULL,
-                        *t0, F2C_ARKODE_vec);
+    *ier = ARKStepReInit(ARK_arkodemem, FARKfe, NULL,
+                         *t0, F2C_ARKODE_vec);
     break;
   case 2:  /* imex */
-    *ier = ARKodeReInit(ARK_arkodemem, FARKfe, FARKfi,
-                        *t0, F2C_ARKODE_vec);
+    *ier = ARKStepReInit(ARK_arkodemem, FARKfe, FARKfi,
+                         *t0, F2C_ARKODE_vec);
     break;
   }
 

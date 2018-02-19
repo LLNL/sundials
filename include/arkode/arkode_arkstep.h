@@ -368,11 +368,6 @@ SUNDIALS_EXPORT int ARKStepSetNonlinConvCoef(void *arkode_mem,
   ARKStepGetCurrentButcherTables returns the explicit and implicit
                                  Butcher tables currently in use
 
-  ARKStepGetTolScaleFactor returns a suggested factor by which the
-                           user's tolerances should be scaled when
-                           too much accuracy has been requested for
-                           some internal step
-
   ARKStepGetEstLocalErrors returns the vector of estimated local
                            errors. The user must allocate space
                            for ele.

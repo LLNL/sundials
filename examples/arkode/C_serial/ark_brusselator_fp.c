@@ -149,11 +149,11 @@ int main()
   arkode_mem = ARKodeCreate();      /* Create the solver memory */
   if (check_flag((void *)arkode_mem, "ARKodeCreate", 0)) return 1;
 
-  /* Call ARKodeInit to initialize the integrator memory and specify the
-     right-hand side functions in y'=fe(t,y)+fi(t,y), the inital time T0, 
-     and the initial dependent variable vector y. */
-  flag = ARKodeInit(arkode_mem, fe, fi, T0, y);
-  if (check_flag(&flag, "ARKodeInit", 1)) return 1;
+  /* Call ARKStepCreate to initialize the ARK timestepper module and 
+     specify the right-hand side functions in y'=fe(t,y)+fi(t,y), 
+     the inital time T0, and the initial dependent variable vector y. */
+  flag = ARKStepCreate(arkode_mem, fe, fi, T0, y);
+  if (check_flag(&flag, "ARKStepCreate", 1)) return 1;
 
   /* Set routines */
   flag = ARKodeSetUserData(arkode_mem, (void *) rdata);     /* Pass rdata to user functions */

@@ -26,6 +26,7 @@
 #include <arkode/arkode_spils.h>
 #include <arkode/arkode_butcher.h>
 #include <arkode/arkode_arkstep.h>
+#include <arkode/arkode_erkstep.h>
 #include "arkode_adapt_impl.h"
 #include "arkode_interp_impl.h"
 #include "arkode_root_impl.h"
@@ -938,6 +939,8 @@ void arkProcessError(ARKodeMem ark_mem, int error_code,
 #define SUNDIALS_UNUSED
 #endif
 
+int arkodeInit(ARKodeMem ark_mem, realtype t0, N_Vector y0);
+int arkodeReInit(ARKodeMem ark_mem, realtype t0, N_Vector y0);
 booleantype arkAllocVec(ARKodeMem ark_mem, 
                         N_Vector tmpl,
                         N_Vector *v);

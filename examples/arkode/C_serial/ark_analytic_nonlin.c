@@ -33,7 +33,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <arkode/arkode.h>            /* prototypes for ARKode fcts., consts. */
-#include <arkode/arkode_arkstep.h>    /* prototypes for ARKStep fcts., consts */
+#include <arkode/arkode_erkstep.h>    /* prototypes for ERKStep fcts., consts */
 #include <nvector/nvector_serial.h>   /* serial N_Vector types, fcts., macros */
 #include <sundials/sundials_types.h>  /* def. of type 'realtype' */
 #include <sundials/sundials_math.h>   /* def. of SUNRsqrt, etc. */
@@ -71,7 +71,7 @@ int main()
   void *arkode_mem = NULL;       /* empty ARKode memory structure */
   FILE *UFID;
   realtype t, tout;
-  long int nst, nst_a, nfe, nfi, netf;
+  long int nst, nst_a, nfe, netf;
 
   /* Initial problem output */
   printf("\nAnalytical ODE test problem:\n");
@@ -85,12 +85,11 @@ int main()
   arkode_mem = ARKodeCreate();     /* Create the solver memory */
   if (check_flag((void *)arkode_mem, "ARKodeCreate", 0)) return 1;
 
-  /* Call ARKodeInit to initialize the integrator memory and specify the
-     right-hand side function in y'=f(t,y), the inital time T0, and
-     the initial dependent variable vector y.  Note: since this
-     problem is fully explicit, we set f_U to NULL and f_E to f. */
-  flag = ARKodeInit(arkode_mem, f, NULL, T0, y);
-  if (check_flag(&flag, "ARKodeInit", 1)) return 1;
+  /* Call ERKStepCreate to initialize the ERK timestepper module and 
+     specify the right-hand side function in y'=f(t,y), the inital time 
+     T0, and the initial dependent variable vector y. */
+  flag = ERKStepCreate(arkode_mem, f, T0, y);
+  if (check_flag(&flag, "ERKStepCreate", 1)) return 1;
 
   /* Specify tolerances */
   flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
@@ -129,16 +128,16 @@ int main()
   /* Print some final statistics */
   flag = ARKodeGetNumSteps(arkode_mem, &nst);
   check_flag(&flag, "ARKodeGetNumSteps", 1);
-  flag = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
-  check_flag(&flag, "ARKStepGetNumStepAttempts", 1);
-  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
-  flag = ARKStepGetNumErrTestFails(arkode_mem, &netf);
-  check_flag(&flag, "ARKStepGetNumErrTestFails", 1);
+  flag = ERKStepGetNumStepAttempts(arkode_mem, &nst_a);
+  check_flag(&flag, "ERKStepGetNumStepAttempts", 1);
+  flag = ERKStepGetNumRhsEvals(arkode_mem, &nfe);
+  check_flag(&flag, "ERKStepGetNumRhsEvals", 1);
+  flag = ERKStepGetNumErrTestFails(arkode_mem, &netf);
+  check_flag(&flag, "ERKStepGetNumErrTestFails", 1);
 
   printf("\nFinal Solver Statistics:\n");
   printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);
-  printf("   Total RHS evals:  Fe = %li,  Fi = %li\n", nfe, nfi);
+  printf("   Total RHS evals = %li\n", nfe);
   printf("   Total number of error test failures = %li\n\n", netf);
 
   /* Clean up and return with successful completion */
