@@ -38,7 +38,7 @@ extern "C" {
   extern void FARK_SPJAC(realtype *T, realtype *Y, 
                          realtype *FY, long int *N, 
                          long int *NNZ, realtype *JDATA, 
-                         long int *JRVALS, long int *JCPTRS, 
+                         sunindextype *JRVALS, sunindextype *JCPTRS, 
                          realtype *H,  long int *IPAR,
                          realtype *RPAR, realtype *V1,
                          realtype *V2, realtype *V3,
@@ -75,7 +75,8 @@ int FARKSparseJac(realtype t, N_Vector y, N_Vector fy,
   int ier;
   realtype *ydata, *fydata, *v1data, *v2data, *v3data, *Jdata;
   realtype h;
-  long int NP, NNZ, *indexvals, *indexptrs; 
+  long int NP, NNZ; 
+  sunindextype *indexvals, *indexptrs; 
   FARKUserData ARK_userdata;
 
   ARKodeGetLastStep(ARK_arkodemem, &h);
@@ -88,8 +89,8 @@ int FARKSparseJac(realtype t, N_Vector y, N_Vector fy,
   NP = SUNSparseMatrix_NP(J);
   NNZ = SUNSparseMatrix_NNZ(J);
   Jdata = SUNSparseMatrix_Data(J);
-  indexvals = (long int*) SUNSparseMatrix_IndexValues(J);
-  indexptrs = (long int*) SUNSparseMatrix_IndexPointers(J);
+  indexvals = SUNSparseMatrix_IndexValues(J);
+  indexptrs = SUNSparseMatrix_IndexPointers(J);
 
   FARK_SPJAC(&t, ydata, fydata, &NP, &NNZ, Jdata, indexvals, 
              indexptrs, &h, ARK_userdata->ipar, ARK_userdata->rpar, 

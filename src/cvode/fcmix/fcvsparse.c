@@ -35,8 +35,8 @@ extern "C" {
 extern void FCV_SPJAC(realtype *T, realtype *Y, 
                       realtype *FY, long int *N,
                       long int *NNZ, realtype *JDATA,
-                      long int *JRVALS, 
-                      long int *JCPTRS, realtype *H, 
+                      sunindextype *JRVALS, 
+                      sunindextype *JCPTRS, realtype *H, 
 		      long int *IPAR, realtype *RPAR, 
                       realtype *V1, realtype *V2, 
                       realtype *V3, int *ier);
@@ -72,7 +72,8 @@ int FCVSparseJac(realtype t, N_Vector y, N_Vector fy,
   int ier;
   realtype *ydata, *fydata, *v1data, *v2data, *v3data, *Jdata;
   realtype h;
-  long int NP, NNZ, *indexvals, *indexptrs; 
+  long int NP, NNZ; 
+  sunindextype *indexvals, *indexptrs; 
   FCVUserData CV_userdata;
 
   CVodeGetLastStep(CV_cvodemem, &h);
@@ -85,8 +86,8 @@ int FCVSparseJac(realtype t, N_Vector y, N_Vector fy,
   NP = SUNSparseMatrix_NP(J);
   NNZ = SUNSparseMatrix_NNZ(J);
   Jdata = SUNSparseMatrix_Data(J);
-  indexvals = (long int*) SUNSparseMatrix_IndexValues(J);
-  indexptrs = (long int*) SUNSparseMatrix_IndexPointers(J);
+  indexvals = SUNSparseMatrix_IndexValues(J);
+  indexptrs = SUNSparseMatrix_IndexPointers(J);
 
   FCV_SPJAC(&t, ydata, fydata, &NP, &NNZ, Jdata, indexvals, 
 	    indexptrs, &h, CV_userdata->ipar, CV_userdata->rpar,

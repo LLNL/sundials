@@ -35,7 +35,7 @@ extern "C" {
 extern void FIDA_SPJAC(realtype *T, realtype *CJ, realtype *Y, 
 		       realtype *YP, realtype *R, long int *N,
                        long int *NNZ, realtype *JDATA,
-                       long int *JRVALS, long int *JCPTRS,
+                       sunindextype *JRVALS, sunindextype *JCPTRS,
                        realtype *H, long int *IPAR, realtype *RPAR, 
 		       realtype *V1, realtype *V2, 
 		       realtype *V3, int *ier);
@@ -71,7 +71,8 @@ int FIDASparseJac(realtype t, realtype cj, N_Vector y, N_Vector yp,
   int ier;
   realtype *ydata, *ypdata, *rdata, *v1data, *v2data, *v3data, *Jdata;
   realtype h;
-  long int NP, NNZ, *indexvals, *indexptrs; 
+  long int NP, NNZ; 
+  sunindextype *indexvals, *indexptrs; 
   FIDAUserData IDA_userdata;
 
   IDAGetLastStep(IDA_idamem, &h);
@@ -85,8 +86,8 @@ int FIDASparseJac(realtype t, realtype cj, N_Vector y, N_Vector yp,
   NP = SUNSparseMatrix_NP(J);
   NNZ = SUNSparseMatrix_NNZ(J);
   Jdata = SUNSparseMatrix_Data(J);
-  indexvals = (long int*) SUNSparseMatrix_IndexValues(J);
-  indexptrs = (long int*) SUNSparseMatrix_IndexPointers(J);
+  indexvals = SUNSparseMatrix_IndexValues(J);
+  indexptrs = SUNSparseMatrix_IndexPointers(J);
 
   FIDA_SPJAC(&t, &cj, ydata, ypdata, rdata, &NP, &NNZ,
 	    Jdata, indexvals, indexptrs, &h, 
