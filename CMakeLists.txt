@@ -208,13 +208,15 @@ SET(PRECISION_LEVEL "#define SUNDIALS_${SUNDIALS_PRECISION}_PRECISION 1")
 # prepare substitution variable FPRECISION_LEVEL for sundials_fconfig.h
 IF(SUNDIALS_PRECISION MATCHES "SINGLE")
   SET(FPRECISION_LEVEL "4")
-ENDIF(SUNDIALS_PRECISION MATCHES "SINGLE")
+ENDIF()
+
 IF(SUNDIALS_PRECISION MATCHES "DOUBLE")
   SET(FPRECISION_LEVEL "8")
-ENDIF(SUNDIALS_PRECISION MATCHES "DOUBLE")
+ENDIF()
+
 IF(SUNDIALS_PRECISION MATCHES "EXTENDED")
   SET(FPRECISION_LEVEL "16")
-ENDIF(SUNDIALS_PRECISION MATCHES "EXTENDED")
+ENDIF()
 
 # ---------------------------------------------------------------
 # Option to specify index type
@@ -230,10 +232,11 @@ SET(INDEX_TYPE "#define SUNDIALS_${SUNDIALS_INDEX_TYPE} 1")
 # prepare substitution variable FINDEX_TYPE for sundials_fconfig.h
 IF(SUNDIALS_INDEX_TYPE MATCHES "INT32_T")
   SET(FINDEX_TYPE "4")
-ENDIF(SUNDIALS_INDEX_TYPE MATCHES "INT32_T")
+ENDIF()
+
 IF(SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
   SET(FINDEX_TYPE "8")
-ENDIF(SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
+ENDIF()
 
 # ---------------------------------------------------------------
 # Enable Fortran interface?
@@ -274,16 +277,16 @@ IF(BUILD_SHARED_LIBS AND WIN32)
 #else
 #define SUNDIALS_EXPORT __declspec(dllimport)
 #endif")
-ELSE(BUILD_SHARED_LIBS AND WIN32)
+ELSE()
   SET(SUNDIALS_EXPORT "#define SUNDIALS_EXPORT")
-ENDIF(BUILD_SHARED_LIBS AND WIN32)
+ENDIF()
 
 # Make sure we build at least one type of libraries
 IF(NOT BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
   PRINT_WARNING("Both static and shared library generation were disabled"
                 "Building static libraries was re-enabled")
   FORCE_VARIABLE(BUILD_STATIC_LIBS BOOL "Build static libraries" ON)
-ENDIF(NOT BUILD_STATIC_LIBS AND NOT BUILD_SHARED_LIBS)
+ENDIF()
 
 # ---------------------------------------------------------------
 # Option to use the generic math libraries (UNIX only)
@@ -296,8 +299,8 @@ IF(UNIX)
     SET(EXTRA_LINK_LIBS -lm)
     # prepare substitution variable for sundials_config.h
     SET(SUNDIALS_USE_GENERIC_MATH TRUE)
-  ENDIF(USE_GENERIC_MATH)
-ENDIF(UNIX)
+  ENDIF()
+ENDIF()
 
 ## clock-monotonic, see if we need to link with rt
 include(CheckSymbolExists)
@@ -540,9 +543,9 @@ IF(EXAMPLES_ENABLED)
   # Whenever building shared libraries, use them to link the examples.
   IF(BUILD_SHARED_LIBS)
     SET(LINK_LIBRARY_TYPE "shared")
-  ELSE(BUILD_SHARED_LIBS)
+  ELSE()
     SET(LINK_LIBRARY_TYPE "static")
-  ENDIF(BUILD_SHARED_LIBS)
+  ENDIF()
 
   # Enable installing examples by default
   SHOW_VARIABLE(EXAMPLES_INSTALL BOOL "Install example files" ON)
@@ -558,7 +561,7 @@ IF(EXAMPLES_ENABLED)
                     "Example installation path was reset to its default value")
       SET(EXAMPLES_INSTALL_PATH "${CMAKE_INSTALL_PREFIX}/examples" CACHE STRING
         "Output directory for installing example files" FORCE)
-    ENDIF(NOT EXAMPLES_INSTALL_PATH)
+    ENDIF()
 
     # create test_install target and directory for running smoke tests after
     # installation
@@ -569,7 +572,6 @@ IF(EXAMPLES_ENABLED)
     IF(NOT EXISTS ${TEST_INSTALL_DIR})
       FILE(MAKE_DIRECTORY ${TEST_INSTALL_DIR})
     ENDIF()
-
 
   ELSE(EXAMPLES_INSTALL)
 
