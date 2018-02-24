@@ -589,7 +589,7 @@ OPTION(SUNDIALS_DEVTESTS "Include development tests in make test" OFF)
 MARK_AS_ADVANCED(FORCE SUNDIALS_DEVTESTS)
 
 # ===============================================================
-# Add any other necessary compiler flags & definitions
+# Add any platform specifc settings
 # ===============================================================
 
 # Under Windows, add compiler directive to inhibit warnings
@@ -602,6 +602,10 @@ ENDIF(WIN32)
 IF(APPLE)
   SET(CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -undefined dynamic_lookup")
 ENDIF(APPLE)
+
+# ===============================================================
+# Fortran and C++ settings
+# ===============================================================
 
 # ---------------------------------------------------------------
 # A Fortran compiler is needed if:
