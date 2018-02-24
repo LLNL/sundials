@@ -661,7 +661,7 @@ ENDIF()
 # Note: the default scheme is lower case - one underscore
 # ---------------------------------------------------------------
 
-IF(BLAS_ENABLE OR LAPACK_ENABLE AND NOT F77SCHEME_FOUND)
+IF((BLAS_ENABLE OR LAPACK_ENABLE) AND NOT F77SCHEME_FOUND)
 
   # Specify the case for the Fortran name-mangling scheme
   SHOW_VARIABLE(SUNDIALS_F77_FUNC_CASE STRING
