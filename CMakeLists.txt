@@ -244,7 +244,7 @@ ENDIF()
 
 # Fortran interface is disabled by default
 SET(DOCSTR "Enable Fortran-C support")
-SHOW_VARIABLE(FCMIX_ENABLE BOOL "${DOCSTR}" OFF)
+OPTION(FCMIX_ENABLE "${DOCSTR}" OFF)
 
 # Check that at least one solver with a Fortran interface is built
 IF(NOT BUILD_ARKODE AND NOT BUILD_CVODE AND NOT BUILD_IDA AND NOT BUILD_KINSOL)
@@ -462,7 +462,7 @@ ENDIF()
 # C++ examples (off by default) are an option only if ARKode is enabled
 SET(DOCSTR "Build ARKode C++ examples")
 IF(BUILD_ARKODE)
-  SHOW_VARIABLE(EXAMPLES_ENABLE_CXX BOOL "${DOCSTR}" OFF)
+  OPTION(EXAMPLES_ENABLE_CXX "${DOCSTR}" OFF)
 ELSE()
   # set back to OFF (in case was ON)
   IF(EXAMPLES_ENABLE_CXX)
@@ -477,14 +477,7 @@ ENDIF()
 # built and the Fortran interface is enabled
 SET(DOCSTR "Build ARKode F90 examples")
 IF(FCMIX_ENABLE AND BUILD_ARKODE)
-  SHOW_VARIABLE(EXAMPLES_ENABLE_F90 BOOL "${DOCSTR}" OFF)
-  # Fortran90 examples do not support single or extended precision
-  # NOTE: This check can be removed after Fortran configure file is integrated into examples
-  IF(SUNDIALS_PRECISION MATCHES "EXTENDED" OR SUNDIALS_PRECISION MATCHES "SINGLE")
-    PRINT_WARNING("F90 examples are not compatible with ${SUNDIALS_PRECISION} precision"
-                  "EXAMPLES_ENABLE_F90")
-    FORCE_VARIABLE(EXAMPLES_ENABLE_F90 BOOL "Fortran90 examples are disabled" OFF)
-  ENDIF()
+  OPTION(EXAMPLES_ENABLE_F90 "${DOCSTR}" OFF)
 ELSE()
   # set back to OFF (in case was ON)
   IF(EXAMPLES_ENABLE_F90)
@@ -498,7 +491,7 @@ ENDIF()
 # CUDA examples (off by default)
 SET(DOCSTR "Build SUNDIALS CUDA examples")
 IF(CUDA_ENABLE)
-  SHOW_VARIABLE(EXAMPLES_ENABLE_CUDA BOOL "${DOCSTR}" OFF)
+  OPTION(EXAMPLES_ENABLE_CUDA "${DOCSTR}" OFF)
 ELSE()
   IF(EXAMPLES_ENABLE_CUDA)
     PRINT_WARNING("EXAMPLES_ENABLE_CUDA is ON but CUDA_ENABLE is OFF"
@@ -510,7 +503,7 @@ ENDIF()
 # RAJA examples (off by default)
 SET(DOCSTR "Build SUNDIALS RAJA examples")
 IF(RAJA_ENABLE)
-  SHOW_VARIABLE(EXAMPLES_ENABLE_RAJA BOOL "${DOCSTR}" OFF)
+  OPTION(EXAMPLES_ENABLE_RAJA "${DOCSTR}" OFF)
 ELSE()
   IF(EXAMPLES_ENABLE_RAJA)
     PRINT_WARNING("EXAMPLES_ENABLE_RAJA is ON but RAJA_ENABLE is OFF"
@@ -548,7 +541,7 @@ IF(EXAMPLES_ENABLED)
   ENDIF()
 
   # Enable installing examples by default
-  SHOW_VARIABLE(EXAMPLES_INSTALL BOOL "Install example files" ON)
+  OPTION(EXAMPLES_INSTALL "Install example files" ON)
 
   # If examples are to be exported, check where we should install them.
   IF(EXAMPLES_INSTALL)
