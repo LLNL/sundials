@@ -34,8 +34,6 @@ set(F77SCHEME_FOUND FALSE)
 set(CMAKE_Fortran_SCHEME_NO_UNDERSCORES "")
 set(CMAKE_Fortran_SCHEME_WITH_UNDERSCORES "")
 
-include(CMakeDetermineFortranCompiler)
-
 if(CMAKE_Fortran_COMPILER)
   message(STATUS "Searching for a Fortran compiler... ${CMAKE_Fortran_COMPILER}")
 

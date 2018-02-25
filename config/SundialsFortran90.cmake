@@ -18,7 +18,6 @@
 # Fortran90-related tests for SUNDIALS CMake-based configuration.
 
 set(F90_FOUND FALSE)
-include(CMakeDetermineFortranCompiler)
 
 if(CMAKE_Fortran_COMPILER)
   message(STATUS "Searching for a Fortran compiler... ${CMAKE_Fortran_COMPILER}")

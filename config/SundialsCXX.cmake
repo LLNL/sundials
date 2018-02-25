@@ -19,8 +19,6 @@
 
 set(CXX_FOUND FALSE)
 
-include(CMakeDetermineCXXCompiler)
-
 if(CMAKE_CXX_COMPILER)
   message(STATUS "Searching for a C++ compiler... ${CMAKE_CXX_COMPILER}")
 
