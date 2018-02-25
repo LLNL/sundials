@@ -45,13 +45,13 @@ ENDIF()
 # Set-up linker flags and link libraries
 SET(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 
-IF(MPI_MPICC)
-  # use MPI_MPICC as the compiler
-  SET(CMAKE_C_COMPILER ${MPI_MPICC})
-ELSE(MPI_MPICC)
+IF(MPI_C_COMPILER)
+  # use MPI wrapper as the compiler
+  SET(CMAKE_C_COMPILER ${MPI_C_COMPILER})
+ELSE()
   # add MPI_INCLUDE_PATH to include directories
   INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
-ENDIF(MPI_MPICC)
+ENDIF()
 
 
 # Add the build and install targets for each example
@@ -77,7 +77,7 @@ FOREACH(example_tuple ${nvector_parallel_examples})
     # libraries to link against
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
 
-    IF(NOT MPI_MPICC)
+    IF(NOT MPI_C_COMPILER)
       TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARIES})
     ENDIF()
   ENDIF()

@@ -22,17 +22,10 @@ SET(cvodes_examples
   pvakt
   )
 
-# Check whether we use MPI compiler scripts.
-# If yes, then change the C compiler to the MPICC script.
-# If not, then add the MPI include directory for MPI headers.
-
-IF(MPI_MPICC)
-  # use MPI_MPICC as the compiler
-  SET(CMAKE_C_COMPILER ${MPI_MPICC})
-ELSE(MPI_MPICC)
-  # add MPI_INCLUDE_PATH to include directories
-  INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
-ENDIF(MPI_MPICC)
+IF(MPI_C_COMPILER)
+  # use MPI wrapper as the compiler
+  SET(CMAKE_C_COMPILER ${MPI_C_COMPILER})
+ENDIF()
 
 # Specify libraries to link against (through the target that was used to 
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
@@ -61,8 +54,9 @@ FOREACH(example ${cvodes_examples})
   # link to the sundials libraries
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   # if needed, link to the MPI libraries
-  IF(NOT MPI_MPICC)
+  IF(NOT MPI_C_COMPILER)
+    TARGET_INCLUDE_DIRECTORIES(${example} ${MPI_INCLUDE_PATH})
     TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
-  ENDIF(NOT MPI_MPICC)
-ENDFOREACH(example ${cvodes_examples})
+  ENDIF()
+ENDFOREACH()
 
