@@ -756,9 +756,7 @@ ENDIF(F77SCHEME_FOUND)
 # Decide how to compile MPI codes.
 # ---------------------------------------------------------------
 
-IF(MPI_ENABLE)
-  # show command to run MPI codes (defaults to mpirun)
-  SHOW_VARIABLE(MPI_RUN_COMMAND STRING "MPI run command" "mpirun")
+if(MPI_ENABLE)
 
   include(SundialsMPI)
 
@@ -773,46 +771,7 @@ IF(MPI_ENABLE)
     set(F77_MPI_COMM_F2C "#define SUNDIALS_MPI_COMM_F2C 0")
   endif()
 
-  print_variable(MPI_C_FOUND)
-  print_variable(MPI_C_COMPILER)
-  print_variable(MPI_C_COMPILE_FLAGS)
-  print_variable(MPI_C_INCLUDE_PATH)
-  print_variable(MPI_C_LINK_FLAGS)
-  print_variable(MPI_C_LIBRARIES)
-    
-  print_variable(MPI_CXX_FOUND)
-  print_variable(MPI_CXX_COMPILER)
-  print_variable(MPI_CXX_COMPILE_FLAGS)
-  print_variable(MPI_CXX_INCLUDE_PATH)
-  print_variable(MPI_CXX_LINK_FLAGS)
-  print_variable(MPI_CXX_LIBRARIES)
-
-  print_variable(MPI_Fortran_FOUND)
-  print_variable(MPI_Fortran_COMPILER)
-  print_variable(MPI_Fortran_COMPILE_FLAGS)
-  print_variable(MPI_Fortran_INCLUDE_PATH)
-  print_variable(MPI_Fortran_LINK_FLAGS)
-  print_variable(MPI_Fortran_LIBRARIES)
-
-  print_variable(MPI_EXTRA_LIBRARIES)
-  print_variable(MPI_INCLUDE_PATH)
-  print_variable(MPI_LIBRARIES)
-
-  print_variable(MPIEXEC)
-  print_variable(MPIEXEC_NUMPROC_FLAG)
-  print_variable(MPIEXEC_PREFLAGS)
-  print_variable(MPIEXEC_POSTFLAGS)
-
-ELSE()
-
-  hide_variable(MPI_INCLUDE_PATH)
-  hide_variable(MPI_LIBRARIES)
-  hide_variable(MPI_EXTRA_LIBRARIES)
-  hide_variable(MPI_C_COMPILER)
-  hide_variable(MPI_CXX_COMPILER)
-  hide_variable(MPI_Fortran_COMPILER)
-
-ENDIF()
+endif()
 
 # -------------------------------------------------------------
 # Find OpenMP
