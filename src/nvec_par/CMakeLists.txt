@@ -15,13 +15,13 @@
 
 INSTALL(CODE "MESSAGE(\"\nInstall NVECTOR_PARALLEL\n\")")
 
-IF(MPI_MPICC)
-  # use MPI_MPICC as the compiler
-  SET(CMAKE_C_COMPILER ${MPI_MPICC})
-ELSE(MPI_MPICC)
+IF(MPI_C_COMPILER)
+  # use MPI wrapper as the compiler
+  SET(CMAKE_C_COMPILER ${MPI_C_COMPILER})
+ELSE()
   # add MPI_INCLUDE_PATH to include directories
   INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
-ENDIF(MPI_MPICC)
+ENDIF()
 
 # Add variable nvecparallel_SOURCES with the sources for the NVECPARALLEL lib
 SET(nvecparallel_SOURCES nvector_parallel.c)
@@ -76,8 +76,8 @@ ENDIF(BUILD_SHARED_LIBS)
 # Install the NVECPARALLEL header files
 INSTALL(FILES ${nvecparallel_HEADERS} DESTINATION include/nvector)
 
-# If FCMIX is enabled and MPI-F77 works, build and install the FNVECPARALLEL library
-IF(FCMIX_ENABLE AND MPIF_FOUND)
+# If FCMIX is enabled and MPI works, build and install the FNVECPARALLEL library
+IF(FCMIX_ENABLE AND MPI_Fortran_FOUND)
   SET(fnvecparallel_SOURCES fnvector_parallel.c)
 
   IF(BUILD_STATIC_LIBS)
@@ -100,6 +100,6 @@ IF(FCMIX_ENABLE AND MPIF_FOUND)
     INSTALL(TARGETS sundials_fnvecparallel_shared DESTINATION lib)
   ENDIF(BUILD_SHARED_LIBS)
 
-ENDIF(FCMIX_ENABLE AND MPIF_FOUND)
+ENDIF()
 #
 MESSAGE(STATUS "Added NVECTOR_PARALLEL module")
