@@ -588,6 +588,29 @@ ELSE(EXAMPLES_ENABLED)
 ENDIF(EXAMPLES_ENABLED)
 
 # ---------------------------------------------------------------
+# Do we need a Fortran name-mangling scheme?
+# ---------------------------------------------------------------
+if(FCMIX_ENABLE OR BLAS_ENABLE OR LAPACK_ENABLE)
+
+  # Need Fortran name-mangling scheme
+  set(NEED_FORTRAN_NAME_MANGLING TRUE)
+
+  # Specify the case for the Fortran name-mangling scheme
+  show_variable(SUNDIALS_F77_FUNC_CASE STRING
+    "case of Fortran function names (lower/upper)"
+    "")
+
+  # Specify the number of appended underscores for the Fortran name-mangling scheme
+  show_variable(SUNDIALS_F77_FUNC_UNDERSCORES STRING
+    "number of underscores appended to Fortran function names (none/one/two)"
+    "")
+
+  mark_as_advanced(FORCE SUNDIALS_F77_FUNC_CASE)
+  mark_as_advanced(FORCE SUNDIALS_F77_FUNC_UNDERSCORES)
+
+endif()
+
+# ---------------------------------------------------------------
 # Include development examples in regression tests?
 # ---------------------------------------------------------------
 OPTION(SUNDIALS_DEVTESTS "Include development tests in make test" OFF)
@@ -615,26 +638,142 @@ ENDIF(APPLE)
 # (c) LAPACK is enabled (for the name-mangling scheme)
 # ---------------------------------------------------------------
 
-IF(FCMIX_ENABLE OR BLAS_ENABLE OR LAPACK_ENABLE)
-  INCLUDE(SundialsFortran)
-  IF(NOT F77_FOUND AND FCMIX_ENABLE)
-    PRINT_WARNING("Fortran compiler not functional"
-                  "FCMIX support will not be provided")
-  ENDIF()
-ENDIF()
+# Did the user provide a name-mangling scheme?
+if(NEED_FORTRAN_NAME_MANGLING AND SUNDIALS_F77_FUNC_CASE AND
+    SUNDIALS_F77_FUNC_UNDERSCORES)
 
-# ---------------------------------------------------------------
-# A Fortran90 compiler is needed if:
-# (a) F90 ARKODE examples are enabled
-# ---------------------------------------------------------------
+  SET(F77_MANGLE_MACRO1 "")
+  SET(F77_MANGLE_MACRO2 "")
 
-IF(EXAMPLES_ENABLE_F90)
-  INCLUDE(SundialsFortran90)
-  IF(NOT F90_FOUND)
-    PRINT_WARNING("Fortran90 compiler not functional"
-                  "F90 support will not be provided")
-  ENDIF()
-ENDIF()
+  # Based on the given case and number of underscores,
+  # set the C preprocessor macro definitions
+  if(SUNDIALS_F77_FUNC_CASE MATCHES "lower")
+
+    if(SUNDIALS_F77_FUNC_UNDERSCORES MATCHES "none")
+      set(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) name")
+      set(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) name")
+    endif()
+
+    if(SUNDIALS_F77_FUNC_UNDERSCORES MATCHES "one")
+      set(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) name ## _")
+      SET(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) name ## _")
+    endif()
+
+    if(SUNDIALS_F77_FUNC_UNDERSCORES MATCHES "two")
+      set(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) name ## __")
+      set(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) name ## __")
+    endif()
+
+  else()
+
+    if(SUNDIALS_F77_FUNC_UNDERSCORES MATCHES "none")
+      set(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) NAME")
+      set(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) NAME")
+    endif()
+
+    if(SUNDIALS_F77_FUNC_UNDERSCORES MATCHES "one")
+      set(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) NAME ## _")
+      set(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) NAME ## _")
+    endif()
+
+    if(SUNDIALS_F77_FUNC_UNDERSCORES MATCHES "two")
+      set(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) NAME ## __")
+      set(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) NAME ## __")
+    endif()
+
+  endif()
+
+endif()
+
+# Do we need a Fortran compiler to build examples or to figure out
+# the Fortran name-mangling scheme?
+if(EXAMPLES_ENABLE_F77 OR EXAMPLES_ENABLE_F90
+    OR (NEED_FORTRAN_NAME_MANGLING AND (NOT FORTRAN_NAME_MANGLING_FOUND)))
+
+  if(EXAMPLES_ENABLE_F77 OR EXAMPLES_ENABLE_F90)
+    # If building examples and the Fortran compiler flags are set using environemnt
+    # variables (i.e., CMAKE_Fortran_FLAGS is not set), then check if both FFLAGS
+    # and FCFLAGS are set. If both are set and not the same then a fatal error
+    # occurs.
+    #
+    # NOTE: This check must occur before 'enable_language(Fortran)' as it will use
+    # the value of FFLAGS to set CMAKE_Fortran_FLAGS
+    set(ENV_FFLAGS "$ENV{FFLAGS}")
+    set(ENV_FCFLAGS "$ENV{FCFLAGS}")
+
+    # check if environment variables are used and CMAKE_Fortran_FLAGS is not
+    if ((NOT "${ENV_FFLAGS}" STREQUAL "") AND (NOT "${ENV_FCFLAGS}" STREQUAL "")
+        AND ("${CMAKE_Fortran_FLAGS}" STREQUAL ""))
+
+      # check if environment variables are equal
+      if (NOT "${ENV_FFLAGS}" STREQUAL "${ENV_FCFLAGS}")
+        print_error("FFLAGS='${ENV_FFLAGS}' and FCFLAGS='${ENV_FCFLAGS}' are both set but are not equal.")
+      endif()
+
+    endif()
+  endif()
+
+  # include(CMakeDetermineFortranCompiler)
+
+  enable_language(Fortran)
+  set(F77_FOUND TRUE)
+
+  if(CMAKE_Fortran_COMPILER_SUPPORTS_F90)
+    set(F90_FOUND TRUE)
+  else()
+    set(F90_FOUND FALSE)
+    print_warning("Fortran90 compiler not functional"
+      "F90 support will not be provided")
+  endif()
+
+  # show some cache variables
+  mark_as_advanced(CLEAR
+    CMAKE_Fortran_COMPILER
+    CMAKE_Fortran_FLAGS)
+
+  # hide all build type specific flags
+  mark_as_advanced(FORCE
+    CMAKE_Fortran_FLAGS_DEBUG
+    CMAKE_Fortran_FLAGS_MINSIZEREL
+    CMAKE_Fortran_FLAGS_RELEASE
+    CMAKE_Fortran_FLAGS_RELWITHDEBINFO)
+
+  # only show flags for the current build type
+  # these flags are appended to CMAKE_Fortran_FLAGS
+  if(CMAKE_BUILD_TYPE)
+    if(CMAKE_BUILD_TYPE MATCHES "Debug")
+      message("Appending Fortran debug flags")
+      mark_as_advanced(CLEAR CMAKE_Fortran_FLAGS_DEBUG)
+    elseif(CMAKE_BUILD_TYPE MATCHES "MinSizeRel")
+      message("Appending Fortran min size release flags")
+      mark_as_advanced(CLEAR CMAKE_Fortran_FLAGS_MINSIZEREL)
+    elseif(CMAKE_BUILD_TYPE MATCHES "Release")
+      message("Appending Fortran release flags")
+      mark_as_advanced(CLEAR CMAKE_Fortran_FLAGS_RELEASE)
+    elseif(CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo")
+      message("Appending Fortran release with debug info flags")
+      mark_as_advanced(CLEAR CMAKE_Fortran_FLAGS_RELWITHDEBINFO)
+    endif()
+  endif()
+
+  # Do we need to figure out the Fortran name-mangling scheme?
+  if(NEED_FORTRAN_NAME_MANGLING AND (NOT FORTRAN_NAME_MANGLING_FOUND))
+
+    # figure out Fortran name-mangling scheme
+    include(FortranCInterface)
+
+    # create header with name mangeling macros
+    if(FortranCInterface_GLOBAL_FOUND)
+      set(FORTRAN_NAME_MANGLING_FOUND TRUE)
+      FortranCInterface_HEADER(${PROJECT_BINARY_DIR}/include/sundials/sundials_fcmix.h
+        MACRO_NAMESPACE "SUNDIALS_F77_FUNC_")
+    else()
+      set(FORTRAN_NAME_MANGLING_FOUND FALSE)
+    endif()
+
+  endif()
+
+endif()
 
 # ---------------------------------------------------------------
 # A C++ compiler is needed if:
@@ -678,107 +817,6 @@ IF(EXAMPLES_ENABLE_CXX OR CUDA_ENABLE OR RAJA_ENABLE)
   ENDIF()
 
 ENDIF()
-
-# ---------------------------------------------------------------
-# Check if we need an alternate way of specifying the Fortran
-# name-mangling scheme if we were unable to infer it using a
-# compiler.
-# Ask the user to specify the case and number of appended underscores
-# corresponding to the Fortran name-mangling scheme of symbol names
-# that do not themselves contain underscores (recall that this is all
-# we really need for the interfaces to LAPACK).
-# Note: the default scheme is lower case - one underscore
-# ---------------------------------------------------------------
-
-IF(BLAS_ENABLE OR LAPACK_ENABLE AND NOT F77SCHEME_FOUND)
-  # Specify the case for the Fortran name-mangling scheme
-  SHOW_VARIABLE(SUNDIALS_F77_FUNC_CASE STRING
-    "case of Fortran function names (lower/upper)"
-    "lower")
-  # Specify the number of appended underscores for the Fortran name-mangling scheme
-  SHOW_VARIABLE(SUNDIALS_F77_FUNC_UNDERSCORES STRING
-    "number of underscores appended to Fortran function names"
-    "one")
-  # Based on the given case and number of underscores,
-  # set the C preprocessor macro definition
-  IF(${SUNDIALS_F77_FUNC_CASE} MATCHES "lower")
-    IF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "none")
-      SET(CMAKE_Fortran_SCHEME_NO_UNDERSCORES "mysub")
-    ENDIF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "none")
-    IF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "one")
-      SET(CMAKE_Fortran_SCHEME_NO_UNDERSCORES "mysub_")
-    ENDIF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "one")
-    IF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "two")
-      SET(CMAKE_Fortran_SCHEME_NO_UNDERSCORES "mysub__")
-    ENDIF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "two")
-  ELSE(${SUNDIALS_F77_FUNC_CASE} MATCHES "lower")
-    IF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "none")
-      SET(CMAKE_Fortran_SCHEME_NO_UNDERSCORES "MYSUB")
-    ENDIF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "none")
-    IF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "one")
-      SET(CMAKE_Fortran_SCHEME_NO_UNDERSCORES "MYSUB_")
-    ENDIF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "one")
-    IF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "two")
-      SET(CMAKE_Fortran_SCHEME_NO_UNDERSCORES "MYSUB__")
-    ENDIF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "two")
-  ENDIF(${SUNDIALS_F77_FUNC_CASE} MATCHES "lower")
-  # Since the SUNDIALS codes never use symbol names containing
-  # underscores, set a default scheme (probably wrong) for symbols
-  # with underscores.
-  SET(CMAKE_Fortran_SCHEME_WITH_UNDERSCORES "my_sub_")
-  # We now "have" a scheme.
-  SET(F77SCHEME_FOUND TRUE)
-ENDIF(BLAS_ENABLE OR LAPACK_ENABLE AND NOT F77SCHEME_FOUND)
-
-# ---------------------------------------------------------------
-# If we have a name-mangling scheme (either automatically
-# inferred or provided by the user), set the SUNDIALS
-# compiler preprocessor macro definitions.
-# ---------------------------------------------------------------
-
-SET(F77_MANGLE_MACRO1 "")
-SET(F77_MANGLE_MACRO2 "")
-
-IF(F77SCHEME_FOUND)
-  # Symbols WITHOUT underscores
-  IF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "mysub")
-    SET(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) name")
-  ENDIF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "mysub")
-  IF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "mysub_")
-    SET(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) name ## _")
-  ENDIF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "mysub_")
-  IF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "mysub__")
-    SET(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) name ## __")
-  ENDIF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "mysub__")
-  IF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MYSUB")
-    SET(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) NAME")
-  ENDIF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MYSUB")
-  IF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MYSUB_")
-    SET(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) NAME ## _")
-  ENDIF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MYSUB_")
-  IF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MYSUB__")
-    SET(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) NAME ## __")
-  ENDIF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MYSUB__")
-  # Symbols with underscores
-  IF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "my_sub")
-    SET(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) name")
-  ENDIF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "my_sub")
-  IF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "my_sub_")
-    SET(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) name ## _")
-  ENDIF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "my_sub_")
-  IF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "my_sub__")
-    SET(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) name ## __")
-  ENDIF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "my_sub__")
-  IF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MY_SUB")
-    SET(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) NAME")
-  ENDIF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MY_SUB")
-  IF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MY_SUB_")
-    SET(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) NAME ## _")
-  ENDIF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MY_SUB_")
-  IF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MY_SUB__")
-    SET(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) NAME ## __")
-  ENDIF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MY_SUB__")
-ENDIF(F77SCHEME_FOUND)
 
 # ---------------------------------------------------------------
 # Decide how to compile MPI codes.
@@ -941,10 +979,6 @@ IF(BLAS_ENABLE)
 
 ELSE()
 
-  IF(NOT LAPACK_ENABLE)
-    HIDE_VARIABLE(SUNDIALS_F77_FUNC_CASE)
-    HIDE_VARIABLE(SUNDIALS_F77_FUNC_UNDERSCORES)
-  ENDIF()
   HIDE_VARIABLE(BLAS_LIBRARIES)
 
 ENDIF()
@@ -974,10 +1008,6 @@ IF(LAPACK_ENABLE)
 
 ELSE()
 
-  IF(NOT BLAS_ENABLE)
-    HIDE_VARIABLE(SUNDIALS_F77_FUNC_CASE)
-    HIDE_VARIABLE(SUNDIALS_F77_FUNC_UNDERSCORES)
-  ENDIF()
   HIDE_VARIABLE(LAPACK_LIBRARIES)
 
 ENDIF()
