@@ -638,17 +638,45 @@ ENDIF()
 
 # ---------------------------------------------------------------
 # A C++ compiler is needed if:
-# (a) C++ ARKODE examples are enabled
+# (a) C++ examples are enabled
 # (b) CUDA is enabled
 # (c) RAJA is enabled
 # ---------------------------------------------------------------
 
 IF(EXAMPLES_ENABLE_CXX OR CUDA_ENABLE OR RAJA_ENABLE)
-  INCLUDE(SundialsCXX)
-  IF(NOT CXX_FOUND)
-    PRINT_WARNING("C++ compiler not functional"
-                  "C++ support will not be provided")
+  enable_language(CXX)
+  set(CXX_FOUND TRUE)
+
+  # show some cache variables
+  MARK_AS_ADVANCED(CLEAR
+    CMAKE_CXX_COMPILER
+    CMAKE_CXX_FLAGS)
+
+  # hide all build type specific flags
+  MARK_AS_ADVANCED(FORCE
+    CMAKE_CXX_FLAGS_DEBUG
+    CMAKE_CXX_FLAGS_MINSIZEREL
+    CMAKE_CXX_FLAGS_RELEASE
+    CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+
+  # only show flags for the current build type
+  # these flags are appended to CMAKE_CXX_FLAGS
+  IF(CMAKE_BUILD_TYPE)
+    IF(CMAKE_BUILD_TYPE MATCHES "Debug")
+      MESSAGE("Appending CXX debug flags")
+      MARK_AS_ADVANCED(CLEAR CMAKE_CXX_FLAGS_DEBUG)
+    ELSEIF(CMAKE_BUILD_TYPE MATCHES "MinSizeRel")
+      MESSAGE("Appending CXX min size release flags")
+      MARK_AS_ADVANCED(CLEAR CMAKE_CXX_FLAGS_MINSIZEREL)
+    ELSEIF(CMAKE_BUILD_TYPE MATCHES "Release")
+      MESSAGE("Appending CXX release flags")
+      MARK_AS_ADVANCED(CLEAR CMAKE_CXX_FLAGS_RELEASE)
+    ELSEIF(CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo")
+      MESSAGE("Appending CXX release with debug info flags")
+      MARK_AS_ADVANCED(CLEAR CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+    ENDIF()
   ENDIF()
+
 ENDIF()
 
 # ---------------------------------------------------------------
