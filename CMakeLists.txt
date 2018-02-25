@@ -19,7 +19,7 @@
 # ---------------------------------------------------------------
 
 # Require a fairly recent cmake version
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.1)
+cmake_minimum_required(VERSION 3.0.2)
 
 # Set CMake policy to allow examples to build
 if(COMMAND cmake_policy)
@@ -760,47 +760,59 @@ IF(MPI_ENABLE)
   # show command to run MPI codes (defaults to mpirun)
   SHOW_VARIABLE(MPI_RUN_COMMAND STRING "MPI run command" "mpirun")
 
-  INCLUDE(SundialsMPIC)
-  IF(MPIC_FOUND)
-    IF(CXX_FOUND AND EXAMPLES_ENABLE_CXX)
-      INCLUDE(SundialsMPICXX)
-    ENDIF()
-    IF(F77_FOUND AND EXAMPLES_ENABLE_F77)
-      INCLUDE(SundialsMPIF)
-    ENDIF()
-    IF(F90_FOUND AND EXAMPLES_ENABLE_F90)
-      INCLUDE(SundialsMPIF90)
-    ENDIF()
-  ELSE()
-    PRINT_WARNING("MPI not functional"
-                  "Parallel support will not be provided")
-  ENDIF()
+  include(SundialsMPI)
 
-  IF(MPIC_MPI2)
-    SET(F77_MPI_COMM_F2C "#define SUNDIALS_MPI_COMM_F2C 1")
-  ELSE()
-    SET(F77_MPI_COMM_F2C "#define SUNDIALS_MPI_COMM_F2C 0")
-  ENDIF()
+  if(NOT MPI_C_FOUND)
+    print_warning("MPI not functional"
+      "Parallel support will not be provided")
+  endif()
+
+  if(MPIC_MPI2)
+    set(F77_MPI_COMM_F2C "#define SUNDIALS_MPI_COMM_F2C 1")
+  else()
+    set(F77_MPI_COMM_F2C "#define SUNDIALS_MPI_COMM_F2C 0")
+  endif()
+
+  print_variable(MPI_C_FOUND)
+  print_variable(MPI_C_COMPILER)
+  print_variable(MPI_C_COMPILE_FLAGS)
+  print_variable(MPI_C_INCLUDE_PATH)
+  print_variable(MPI_C_LINK_FLAGS)
+  print_variable(MPI_C_LIBRARIES)
+    
+  print_variable(MPI_CXX_FOUND)
+  print_variable(MPI_CXX_COMPILER)
+  print_variable(MPI_CXX_COMPILE_FLAGS)
+  print_variable(MPI_CXX_INCLUDE_PATH)
+  print_variable(MPI_CXX_LINK_FLAGS)
+  print_variable(MPI_CXX_LIBRARIES)
+
+  print_variable(MPI_Fortran_FOUND)
+  print_variable(MPI_Fortran_COMPILER)
+  print_variable(MPI_Fortran_COMPILE_FLAGS)
+  print_variable(MPI_Fortran_INCLUDE_PATH)
+  print_variable(MPI_Fortran_LINK_FLAGS)
+  print_variable(MPI_Fortran_LIBRARIES)
+
+  print_variable(MPI_EXTRA_LIBRARIES)
+  print_variable(MPI_INCLUDE_PATH)
+  print_variable(MPI_LIBRARIES)
+
+  print_variable(MPIEXEC)
+  print_variable(MPIEXEC_NUMPROC_FLAG)
+  print_variable(MPIEXEC_PREFLAGS)
+  print_variable(MPIEXEC_POSTFLAGS)
 
 ELSE()
 
-  HIDE_VARIABLE(MPI_INCLUDE_PATH)
-  HIDE_VARIABLE(MPI_LIBRARIES)
-  HIDE_VARIABLE(MPI_EXTRA_LIBRARIES)
-  HIDE_VARIABLE(MPI_MPICC)
-  HIDE_VARIABLE(MPI_MPICXX)
-  HIDE_VARIABLE(MPI_MPIF77)
-  HIDE_VARIABLE(MPI_MPIF90)
+  hide_variable(MPI_INCLUDE_PATH)
+  hide_variable(MPI_LIBRARIES)
+  hide_variable(MPI_EXTRA_LIBRARIES)
+  hide_variable(MPI_C_COMPILER)
+  hide_variable(MPI_CXX_COMPILER)
+  hide_variable(MPI_Fortran_COMPILER)
 
-ENDIF(MPI_ENABLE)
-
-# ---------------------------------------------------------------
-# If using MPI with C++, disable C++ extensions (for known wrappers)
-# ---------------------------------------------------------------
-
-# IF(MPICXX_FOUND)
-#   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMPICH_SKIP_MPICXX -DOMPI_SKIP_MPICXX -DLAM_BUILDING")
-# ENDIF(MPICXX_FOUND)
+ENDIF()
 
 # -------------------------------------------------------------
 # Find OpenMP
