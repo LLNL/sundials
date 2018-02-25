@@ -215,10 +215,54 @@ endif()
 # ---------------------------------------------------------------------------
 find_package(MPI)
 
-# additional checks in MPI is found
 if(MPI_C_FOUND)
 
-  # determine if MPI-2 is supported
+  # show some advaned MPI C variables
+  mark_as_advanced(CLEAR MPIEXEC)
+  mark_as_advanced(CLEAR MPI_C_COMPILER)
+  # hide some MPI C variables
+  mark_as_advanced(MPI_C_LIBRARIES)
+  mark_as_advanced(MPI_C_COMPILE_FLAGS)
+  mark_as_advanced(MPI_C_INCLUDE_PATH)
+  mark_as_advanced(MPI_C_LIBRARIES)
+  mark_as_advanced(MPI_C_LINK_FLAGS)
+
+  # hide some MPI variables
+  mark_as_advanced(MPI_EXTRA_LIBRARY)
+  mark_as_advanced(MPI_LIBRARY)
+
+  if(MPI_CXX_FOUND)
+    # show some advaned MPI C variables
+    mark_as_advanced(CLEAR MPI_CXX_COMPILER)
+    # hide some MPI CXX variables
+    mark_as_advanced(MPI_CXX_LIBRARIES)
+    mark_as_advanced(MPI_CXX_COMPILE_FLAGS)
+    mark_as_advanced(MPI_CXX_INCLUDE_PATH)
+    mark_as_advanced(MPI_CXX_LIBRARIES)
+    mark_as_advanced(MPI_CXX_LINK_FLAGS)
+  endif()
+
+  if(MPI_Fortran_FOUND)
+    # show some advaned MPI Fortran variables
+    mark_as_advanced(CLEAR MPI_Fortran_COMPILER)
+    # hide some MPI Fortran variables
+    mark_as_advanced(MPI_Fortran_COMPILE_FLAGS)
+    mark_as_advanced(MPI_Fortran_INCLUDE_PATH)
+    mark_as_advanced(MPI_Fortran_LIBRARIES)
+    mark_as_advanced(MPI_Fortran_LINK_FLAGS)
+  endif()
+
+else()
+
+  # MPI not functioning
+  set(MPI_C_FOUND FALSE)
+  set(MPI_CXX_FOUND FALSE)
+  set(MPI_Fortran_FOUND FALSE)
+
+endif()
+
+# determine if MPI-2 is supported
+if(MPI_C_FOUND)
 
   # MPI_VERSION is set by FindMPI in CMake 3.10 and later, update to:
   # if(NOT MPI_VERSION) test else() check version number endif()
@@ -291,13 +335,6 @@ if(MPI_C_FOUND)
     message(STATUS "Checking for MPI-2 support... FAILED")
     set(MPIC_MPI2 FALSE)
   endif()       
-
-else()
-
-  # MPI not functioning 
-  set(MPI_C_FOUND FALSE)
-  set(MPI_CXX_FOUND FALSE)
-  set(MPI_Fortran_FOUND FALSE)
 
 endif()
   
