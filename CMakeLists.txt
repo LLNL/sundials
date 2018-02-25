@@ -615,26 +615,18 @@ ENDIF(APPLE)
 # (c) LAPACK is enabled (for the name-mangling scheme)
 # ---------------------------------------------------------------
 
-IF(FCMIX_ENABLE OR BLAS_ENABLE OR LAPACK_ENABLE)
-  INCLUDE(SundialsFortran)
-  IF(NOT F77_FOUND AND FCMIX_ENABLE)
-    PRINT_WARNING("Fortran compiler not functional"
-                  "FCMIX support will not be provided")
-  ENDIF()
-ENDIF()
+if(FCMIX_ENABLE OR BLAS_ENABLE OR LAPACK_ENABLE)
+  include(SundialsFortran)
+endif()
 
 # ---------------------------------------------------------------
 # A Fortran90 compiler is needed if:
 # (a) F90 ARKODE examples are enabled
 # ---------------------------------------------------------------
 
-IF(EXAMPLES_ENABLE_F90)
-  INCLUDE(SundialsFortran90)
-  IF(NOT F90_FOUND)
-    PRINT_WARNING("Fortran90 compiler not functional"
-                  "F90 support will not be provided")
-  ENDIF()
-ENDIF()
+if(EXAMPLES_ENABLE_F90)
+  include(SundialsFortran90)
+endif()
 
 # ---------------------------------------------------------------
 # A C++ compiler is needed if:
@@ -643,13 +635,9 @@ ENDIF()
 # (c) RAJA is enabled
 # ---------------------------------------------------------------
 
-IF(EXAMPLES_ENABLE_CXX OR CUDA_ENABLE OR RAJA_ENABLE)
-  INCLUDE(SundialsCXX)
-  IF(NOT CXX_FOUND)
-    PRINT_WARNING("C++ compiler not functional"
-                  "C++ support will not be provided")
-  ENDIF()
-ENDIF()
+if(EXAMPLES_ENABLE_CXX OR CUDA_ENABLE OR RAJA_ENABLE)
+  include(SundialsCXX)
+endif()
 
 # ---------------------------------------------------------------
 # Check if we need an alternate way of specifying the Fortran
