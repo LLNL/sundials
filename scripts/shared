@@ -22,7 +22,6 @@ echo "   --- Add configuration files to $tarfile"
 
 $tar $tarfile $distrobase/config/FindHypre.cmake
 $tar $tarfile $distrobase/config/FindKLU.cmake
-$tar $tarfile $distrobase/config/FindMPI.cmake
 $tar $tarfile $distrobase/config/FindPETSc.cmake
 $tar $tarfile $distrobase/config/FindSUPERLUMT.cmake
 $tar $tarfile $distrobase/config/SundialsAddTest.cmake
