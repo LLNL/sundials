@@ -73,9 +73,9 @@ int ARKSpilsSetLinearSolver(void *arkode_mem, SUNLinearSolver LS)
                     "Non-iterative LS supplied to ARKSpils interface");
     return(ARKSPILS_ILL_INPUT);
   }
-  if ( (ark_mem->ark_tempv->ops->nvlinearsum == NULL) ||
-       (ark_mem->ark_tempv->ops->nvconst == NULL) ||
-       (ark_mem->ark_tempv->ops->nvdotprod == NULL) ){
+  if ( (ark_mem->ark_tempv1->ops->nvlinearsum == NULL) ||
+       (ark_mem->ark_tempv1->ops->nvconst == NULL) ||
+       (ark_mem->ark_tempv1->ops->nvdotprod == NULL) ){
     arkProcessError(ark_mem, ARKSPILS_ILL_INPUT, "ARKSPILS", 
                     "ARKSpilsSetLinearSolver", MSGS_BAD_NVECTOR);
     return(ARKSPILS_ILL_INPUT);
@@ -143,7 +143,7 @@ int ARKSpilsSetLinearSolver(void *arkode_mem, SUNLinearSolver LS)
   }
 
   /* Allocate memory for ytemp and x */
-  arkspils_mem->ytemp = N_VClone(ark_mem->ark_tempv);
+  arkspils_mem->ytemp = N_VClone(ark_mem->ark_tempv1);
   if (arkspils_mem->ytemp == NULL) {
     arkProcessError(ark_mem, ARKSPILS_MEM_FAIL, "ARKSPILS", 
                     "ARKSpilsSetLinearSolver", MSGS_MEM_FAIL);
@@ -151,7 +151,7 @@ int ARKSpilsSetLinearSolver(void *arkode_mem, SUNLinearSolver LS)
     return(ARKSPILS_MEM_FAIL);
   }
 
-  arkspils_mem->x = N_VClone(ark_mem->ark_tempv);
+  arkspils_mem->x = N_VClone(ark_mem->ark_tempv1);
   if (arkspils_mem->x == NULL) {
     arkProcessError(ark_mem, ARKSPILS_MEM_FAIL, "ARKSPILS", 
                     "ARKSpilsSetLinearSolver", MSGS_MEM_FAIL);
@@ -217,8 +217,8 @@ int ARKSpilsSetMassLinearSolver(void *arkode_mem,
                     "Non-iterative LS supplied to ARKSpils interface");
     return(ARKSPILS_ILL_INPUT);
   }
-  if ( (ark_mem->ark_tempv->ops->nvconst == NULL) ||
-       (ark_mem->ark_tempv->ops->nvdotprod == NULL) ){
+  if ( (ark_mem->ark_tempv1->ops->nvconst == NULL) ||
+       (ark_mem->ark_tempv1->ops->nvdotprod == NULL) ){
     arkProcessError(ark_mem, ARKSPILS_ILL_INPUT, "ARKSPILS", 
                     "ARKSpilsSetMassLinearSolver", MSGS_BAD_NVECTOR);
     return(ARKSPILS_ILL_INPUT);
@@ -283,7 +283,7 @@ int ARKSpilsSetMassLinearSolver(void *arkode_mem,
   }
 
   /* Allocate memory for x */
-  arkspils_mem->x = N_VClone(ark_mem->ark_tempv);
+  arkspils_mem->x = N_VClone(ark_mem->ark_tempv1);
   if (arkspils_mem->x == NULL) {
     arkProcessError(ark_mem, ARKSPILS_MEM_FAIL, "ARKSPILS", 
                     "ARKSpilsSetMassLinearSolver", MSGS_MEM_FAIL);
@@ -481,8 +481,8 @@ int ARKSpilsGetWorkSpace(void *arkode_mem, long int *lenrw,
   *leniw = 10;
 
   /* add NVector sizes */
-  if (ark_mem->ark_tempv->ops->nvspace) {
-    N_VSpace(ark_mem->ark_tempv, &lrw1, &liw1);
+  if (ark_mem->ark_tempv1->ops->nvspace) {
+    N_VSpace(ark_mem->ark_tempv1, &lrw1, &liw1);
     *lenrw += 2*lrw1;
     *leniw += 2*liw1;
   }
@@ -951,8 +951,8 @@ int ARKSpilsGetMassWorkSpace(void *arkode_mem, long int *lenrw,
   *leniw = 8;
 
   /* add NVector sizes */
-  if (ark_mem->ark_tempv->ops->nvspace) {
-    N_VSpace(ark_mem->ark_tempv, &lrw1, &liw1);
+  if (ark_mem->ark_tempv1->ops->nvspace) {
+    N_VSpace(ark_mem->ark_tempv1, &lrw1, &liw1);
     *lenrw += lrw1;
     *leniw += liw1;
   }

@@ -61,6 +61,8 @@ typedef struct ARKodeARKStepMemRec {
   /* ARK method storage and parameters */
   N_Vector *Fe;           /* explicit RHS at each stage */
   N_Vector *Fi;           /* implicit RHS at each stage */
+  N_Vector  sdata;        /* old stage data in residual */
+  N_Vector  zpred;        /* predicted stage solution   */
   int q;                  /* method order               */
   int p;                  /* embedding order            */
   int istage;             /* current stage              */

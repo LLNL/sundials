@@ -378,10 +378,8 @@ typedef struct ARKodeMemRec {
                            where the vector is named yout.                   */
   N_Vector ark_ycur;    /* ycur always holds the solver's current version of 
                            the solution (changes from stage to stage) */
-  N_Vector ark_sdata;   /* Storage for old stage data in computing residual. */
-  N_Vector ark_tempv;   /* temporary storage vector                          */
-  N_Vector ark_acor;    /* temporary storage vector; Between steps this  
-                           holds the estimated local error                   */
+  N_Vector ark_tempv1;  /* temporary storage vector                          */
+  N_Vector ark_tempv2;  /* temporary storage vector                          */
 
   /* Temporal interpolation module */
   ARKodeInterpMem ark_interp;  
@@ -834,7 +832,8 @@ typedef struct ARKodeMemRec {
   structure.  Relevant items in the ARKodeMem structure for this
   purpose include:
   - ark_tn -- the current "t" value
-  - ark_y -- the current "y" value
+  - ark_y -- the current "y" value on input; should hold the 
+    time-stepped solution on output
   - ark_h -- the suggested/maximum "h" value to use; if the step 
     eventually completes with a smaller "h" value, then that 
     should be stored here

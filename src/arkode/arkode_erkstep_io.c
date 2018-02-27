@@ -1087,7 +1087,7 @@ int ERKStepGetEstLocalErrors(void *arkode_mem, N_Vector ele)
   erkstep_mem = (ARKodeERKStepMem) ark_mem->ark_step_mem;
 
   /* copy vector to output */
-  N_VScale(ONE, ark_mem->ark_tempv, ele);
+  N_VScale(ONE, ark_mem->ark_tempv1, ele);
 
   return(ARK_SUCCESS);
 }

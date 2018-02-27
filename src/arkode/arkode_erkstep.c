@@ -249,8 +249,6 @@ int ERKStepReInit(void* arkode_mem, ARKRhsFn f, realtype t0, N_Vector y0)
    linear solvers (if applicable)
  - initializes and sets up the system and mass matrix linear 
    solvers (if applicable)
- - allocates the interpolation data structure (if needed based 
-   on ERKStep solver options)
 ---------------------------------------------------------------*/
 int erkStep_Init(void* arkode_mem)
 {
@@ -315,16 +313,6 @@ int erkStep_Init(void* arkode_mem)
   }
   ark_mem->ark_liw += erkstep_mem->stages;  /* pointers */
 
-  /* Allocate interpolation memory (if unallocated, and needed) */
-  if (ark_mem->ark_interp == NULL) {
-    ark_mem->ark_interp = arkInterpCreate(ark_mem);
-    if (ark_mem->ark_interp == NULL) {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ERKStep", "erkStep_Init",
-                      "Unable to allocate interpolation structure");
-      return(ARK_MEM_FAIL);
-    }
-  }
-  
   return(ARK_SUCCESS);
 }
 
@@ -436,7 +424,7 @@ int erkStep_FullRHS(void* arkode_mem, realtype t,
   default:
 
     /* call f */
-    retval = erkstep_mem->f(t, y, ark_mem->ark_acor, ark_mem->ark_user_data);
+    retval = erkstep_mem->f(t, y, ark_mem->ark_tempv2, ark_mem->ark_user_data);
     erkstep_mem->nfe++;
     if (retval != 0) {
       arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::ERKStep",
@@ -445,7 +433,7 @@ int erkStep_FullRHS(void* arkode_mem, realtype t,
     }
 
     /* copy RHS vector into output */
-    N_VScale(ONE, ark_mem->ark_acor, f);
+    N_VScale(ONE, ark_mem->ark_tempv2, f);
     
     break;
   }
@@ -512,7 +500,7 @@ int erkStep_AdaptiveStep(void* arkode_mem)
 #endif
       
       /* Initialize y to ycur */
-      N_VScale(ONE, ark_mem->ark_interp->ynew, ark_mem->ark_y);
+      N_VScale(ONE, ark_mem->ark_ycur, ark_mem->ark_y);
 
       /* Iterate over each prior stage updating rhs */
       for (js=0; js<is; js++) {
@@ -624,7 +612,7 @@ int erkStep_FixedStep(void* arkode_mem)
 #endif
       
     /* Initialize y to ycur */
-    N_VScale(ONE, ark_mem->ark_interp->ynew, ark_mem->ark_y);
+    N_VScale(ONE, ark_mem->ark_ycur, ark_mem->ark_y);
 
     /* Iterate over each prior stage updating rhs */
     for (js=0; js<is; js++) {
@@ -971,18 +959,18 @@ int erkStep_CheckButcherTable(ARKodeMem ark_mem)
  also computes the error estimate ||y-ytilde||_WRMS, where ytilde 
  is the embedded solution, and the norm weights come from 
  ark_ewt.  This norm value is returned.  The vector form of this 
- estimated error (y-ytilde) is stored in ark_tempv, in case the 
+ estimated error (y-ytilde) is stored in ark_tempv1, in case the 
  calling routine wishes to examine the error locations.
 
- Note: at this point in the step, the vectors ark_tempv, 
- ark_sdata and ark_ycur may all be used as temporary vectors.
+ Note: at this point in the step, the vector ark_tempv1 may be 
+ used as a temporary vector.
 ---------------------------------------------------------------*/
 int erkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
 {
   /* local data */
   realtype hb;
   int ier, j;
-  N_Vector y, yerr, tmp1, tmp2;
+  N_Vector y, yerr;
   ARKodeERKStepMem erkstep_mem;
 
   /* access ARKodeERKStepMem structure */
@@ -995,16 +983,14 @@ int erkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
 
   /* set N_Vector shortcuts */
   y    = ark_mem->ark_y;
-  yerr = ark_mem->ark_tempv;
-  tmp1 = ark_mem->ark_sdata;
-  tmp2 = ark_mem->ark_ycur;
+  yerr = ark_mem->ark_tempv1;
 
   /* initialize output */
   *dsm = ZERO;
 
   /* Compute updated solution and error estimate  */
   /*    Initialize solution to yn, error estimate to zero */
-  N_VScale(ONE, ark_mem->ark_interp->ynew, y);
+  N_VScale(ONE, ark_mem->ark_ycur, y);
   N_VConst(ZERO, yerr);
 
   /* Compute time step solution */
@@ -1095,7 +1081,7 @@ int erkStep_DoErrorTest(ARKodeMem ark_mem, int *nefPtr, realtype dsm)
 
   /* Compute accuracy-based time step estimate (updated ark_eta) */
   k = (erkstep_mem->hadapt_pq) ? erkstep_mem->q : erkstep_mem->p;
-  retval = arkAdapt((void*) ark_mem, erkstep_mem->hadapt_mem, ark_mem->ark_ycur,
+  retval = arkAdapt((void*) ark_mem, erkstep_mem->hadapt_mem, ark_mem->ark_y,
                     ark_mem->ark_tn, ark_mem->ark_h, k, ark_mem->ark_nst);
   if (retval != ARK_SUCCESS)  return(ARK_ERR_FAILURE);
 
@@ -1141,9 +1127,6 @@ int erkStep_PrepareNextStep(ARKodeMem ark_mem, realtype dsm)
   }
   erkstep_mem = (ARKodeERKStepMem) ark_mem->ark_step_mem;
 
-  /* update ycur to current solution */
-  N_VScale(ONE, ark_mem->ark_y, ark_mem->ark_ycur);
-
   /* Update step size and error history arrays */
   if (erkstep_mem->hadapt_mem != NULL) {
     erkstep_mem->hadapt_mem->ehist[2] = erkstep_mem->hadapt_mem->ehist[1];
@@ -1176,7 +1159,7 @@ int erkStep_PrepareNextStep(ARKodeMem ark_mem, realtype dsm)
   if (erkstep_mem->hadapt_mem != NULL) {
     k = (erkstep_mem->hadapt_pq) ? erkstep_mem->q : erkstep_mem->p;
     retval = arkAdapt((void*) ark_mem, erkstep_mem->hadapt_mem,
-                      ark_mem->ark_ycur, ark_mem->ark_tn + ark_mem->ark_h,
+                      ark_mem->ark_y, ark_mem->ark_tn + ark_mem->ark_h,
                       ark_mem->ark_h, k, ark_mem->ark_nst+1);
     if (retval != ARK_SUCCESS)  return(ARK_ERR_FAILURE);
   }

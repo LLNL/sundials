@@ -88,7 +88,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   arkspils_mem = (ARKSpilsMem) ark_step_lmem;
 
   /* Test compatibility of NVECTOR package with the BBD preconditioner */
-  if(ark_mem->ark_tempv->ops->nvgetarraypointer == NULL) {
+  if(ark_mem->ark_tempv1->ops->nvgetarraypointer == NULL) {
     arkProcessError(ark_mem, ARKSPILS_ILL_INPUT, "ARKBBDPRE", 
                     "ARKBBDPrecInit", MSGBBD_BAD_NVECTOR);
     return(ARKSPILS_ILL_INPUT);
@@ -158,7 +158,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     return(ARKSPILS_MEM_FAIL);
   }
   pdata->tmp1 = NULL;
-  pdata->tmp1 = N_VClone(ark_mem->ark_tempv);
+  pdata->tmp1 = N_VClone(ark_mem->ark_tempv1);
   if (pdata->tmp1 == NULL) {
     N_VDestroy(pdata->zlocal);
     N_VDestroy(pdata->rlocal);
@@ -170,7 +170,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     return(ARKSPILS_MEM_FAIL);
   }
   pdata->tmp2 = NULL;
-  pdata->tmp2 = N_VClone(ark_mem->ark_tempv);
+  pdata->tmp2 = N_VClone(ark_mem->ark_tempv1);
   if (pdata->tmp2 == NULL) {
     N_VDestroy(pdata->tmp1);
     N_VDestroy(pdata->zlocal);
@@ -183,7 +183,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     return(ARKSPILS_MEM_FAIL);
   }
   pdata->tmp3 = NULL;
-  pdata->tmp3 = N_VClone(ark_mem->ark_tempv);
+  pdata->tmp3 = N_VClone(ark_mem->ark_tempv1);
   if (pdata->tmp3 == NULL) {
     N_VDestroy(pdata->tmp1);
     N_VDestroy(pdata->tmp2);
@@ -241,8 +241,8 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   /* Set work space sizes and initialize nge */
   pdata->rpwsize = 0;
   pdata->ipwsize = 0;
-  if (ark_mem->ark_tempv->ops->nvspace) {
-    N_VSpace(ark_mem->ark_tempv, &lrw1, &liw1);
+  if (ark_mem->ark_tempv1->ops->nvspace) {
+    N_VSpace(ark_mem->ark_tempv1, &lrw1, &liw1);
     pdata->rpwsize += 3*lrw1;
     pdata->ipwsize += 3*liw1;
   }

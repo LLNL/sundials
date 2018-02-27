@@ -74,8 +74,8 @@ int ARKDlsSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
                     "Non-direct LS supplied to ARKDls interface");
     return(ARKDLS_ILL_INPUT);
   }
-  if (ark_mem->ark_tempv->ops->nvgetarraypointer == NULL ||
-      ark_mem->ark_tempv->ops->nvsetarraypointer == NULL) {
+  if (ark_mem->ark_tempv1->ops->nvgetarraypointer == NULL ||
+      ark_mem->ark_tempv1->ops->nvsetarraypointer == NULL) {
     arkProcessError(ark_mem, ARKDLS_ILL_INPUT, "ARKDLS", 
                     "ARKDlsSetLinearSolver", MSGD_BAD_NVECTOR);
     return(ARKDLS_ILL_INPUT);
@@ -124,7 +124,7 @@ int ARKDlsSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   }
 
   /* Allocate memory for x */
-  arkdls_mem->x = N_VClone(ark_mem->ark_tempv);
+  arkdls_mem->x = N_VClone(ark_mem->ark_tempv1);
   if (arkdls_mem->x == NULL) {
     arkProcessError(ark_mem, ARKDLS_MEM_FAIL, "ARKDLS", 
                     "ARKDlsSetLinearSolver", MSGD_MEM_FAIL);
@@ -183,8 +183,8 @@ int ARKDlsSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
                     "Non-direct LS supplied to ARKDls interface");
     return(ARKDLS_ILL_INPUT);
   }
-  if (ark_mem->ark_tempv->ops->nvgetarraypointer == NULL ||
-      ark_mem->ark_tempv->ops->nvsetarraypointer == NULL) {
+  if (ark_mem->ark_tempv1->ops->nvgetarraypointer == NULL ||
+      ark_mem->ark_tempv1->ops->nvsetarraypointer == NULL) {
     arkProcessError(ark_mem, ARKDLS_ILL_INPUT, "ARKDLS", 
                     "ARKDlsSetMassLinearSolver", 
                     MSGD_BAD_NVECTOR);
@@ -231,7 +231,7 @@ int ARKDlsSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   }
 
   /* Allocate memory for x */
-  arkdls_mem->x = N_VClone(ark_mem->ark_tempv);
+  arkdls_mem->x = N_VClone(ark_mem->ark_tempv1);
   if (arkdls_mem->x == NULL) {
     arkProcessError(ark_mem, ARKDLS_MEM_FAIL, "ARKDLS", 
                     "ARKDlsSetMassLinearSolver", MSGD_MEM_FAIL);
