@@ -62,36 +62,36 @@ ARKodeInterpMem arkInterpCreate(void* arkode_mem)
   memset(interp_mem, 0, sizeof(struct ARKodeInterpMemRec));
 
   /* set interpolation order based on user request (if possible) */
-  if ((ark_mem->ark_dense_q < 0) || (ark_mem->ark_dense_q > 3)) {
+  if ((ark_mem->dense_q < 0) || (ark_mem->dense_q > 3)) {
     interp_mem->order = QDENSE_DEF;
   } else {
-    interp_mem->order = ark_mem->ark_dense_q;
+    interp_mem->order = ark_mem->dense_q;
   }
 
   /* vector allocation */
-  if (!arkAllocVec(ark_mem, ark_mem->ark_ycur, &interp_mem->fold)) {
+  if (!arkAllocVec(ark_mem, ark_mem->yn, &interp_mem->fold)) {
     arkInterpFree(&interp_mem); return(NULL);
   }
-  if (!arkAllocVec(ark_mem, ark_mem->ark_ycur, &interp_mem->fnew)) {
+  if (!arkAllocVec(ark_mem, ark_mem->yn, &interp_mem->fnew)) {
     arkInterpFree(&interp_mem); return(NULL);
   }
-  if (!arkAllocVec(ark_mem, ark_mem->ark_ycur, &interp_mem->yold)) {
+  if (!arkAllocVec(ark_mem, ark_mem->yn, &interp_mem->yold)) {
     arkInterpFree(&interp_mem); return(NULL);
   }
 
-  /* set ynew pointer to ark_mem->ark_ycur */
-  interp_mem->ynew = ark_mem->ark_ycur;
+  /* set ynew pointer to ark_mem->yn */
+  interp_mem->ynew = ark_mem->yn;
 
   /* update workspace sizes */
-  ark_mem->ark_lrw += ARK_INTERP_LRW;
-  ark_mem->ark_liw += ARK_INTERP_LIW;
+  ark_mem->lrw += ARK_INTERP_LRW;
+  ark_mem->liw += ARK_INTERP_LIW;
   
-  /* copy ycur into yold */
-  N_VScale(ONE, ark_mem->ark_ycur, interp_mem->yold);
+  /* copy ark_mem->yn into yold */
+  N_VScale(ONE, ark_mem->yn, interp_mem->yold);
 
   /* initialize time values */
-  interp_mem->told = ark_mem->ark_tn;
-  interp_mem->tnew = ark_mem->ark_tn;
+  interp_mem->told = ark_mem->tcur;
+  interp_mem->tnew = ark_mem->tcur;
   interp_mem->h    = RCONST(0.0);
   
   return(interp_mem);
@@ -138,8 +138,8 @@ int arkInterpResize(void* arkode_mem, ARKodeInterpMem interp_mem,
   N_VScale(ONE, y0, interp_mem->yold);
 
   /* reinitialize time values */
-  interp_mem->told = ark_mem->ark_tn;
-  interp_mem->tnew = ark_mem->ark_tn;
+  interp_mem->told = ark_mem->tcur;
+  interp_mem->tnew = ark_mem->tcur;
   interp_mem->h    = RCONST(0.0);
   
   return(ARK_SUCCESS);
@@ -202,7 +202,7 @@ void arkPrintInterpMem(ARKodeInterpMem interp_mem, FILE *outfile)
 
  This routine performs the following steps:
  1. Sets tnew and told to the input time
- 1. Copies ark_mem->ark_ycur into yold
+ 1. Copies ark_mem->yn into yold
  2. Calls the full RHS routine to fill fnew
  3. Copies fnew into fold
 ---------------------------------------------------------------*/
@@ -225,11 +225,11 @@ int arkInterpInit(void* arkode_mem, ARKodeInterpMem interp,
   interp->h    = RCONST(0.0);
   
   /* copy current solution into yold */
-  N_VScale(ONE, ark_mem->ark_ycur, interp->yold);
+  N_VScale(ONE, ark_mem->yn, interp->yold);
 
   /* fill fnew */
-  ier = ark_mem->ark_step_fullrhs(ark_mem, tnew, interp->ynew, 
-                                  interp->fnew, 0);
+  ier = ark_mem->step_fullrhs(ark_mem, tnew, interp->ynew, 
+                              interp->fnew, 0);
   if (ier != 0)  return(ARK_RHSFUNC_FAIL);
 
   /* copy fnew into fold */
@@ -246,8 +246,8 @@ int arkInterpInit(void* arkode_mem, ARKodeInterpMem interp,
  This routine performs the following steps:
  1. Copies ynew into yold, and swaps the fnew <-> fold pointers, 
     so that yold and fold contain the previous values
- 2. Calls the full RHS routine to fill fnew, using ark_mem->ark_y 
-    for the time-evolved solution (since ynew==ark_mem->ark_ynew 
+ 2. Calls the full RHS routine to fill fnew, using ark_mem->ycur 
+    for the time-evolved solution (since ynew==ark_mem->yn 
     has not been updated yet).
 
  Note: if forceRHS==SUNTRUE, then any previously-stored RHS 
@@ -280,14 +280,14 @@ int arkInterpUpdate(void* arkode_mem, ARKodeInterpMem interp,
   /* update time values */
   interp->told = interp->tnew;
   interp->tnew = tnew;
-  interp->h    = ark_mem->ark_h;
+  interp->h    = ark_mem->h;
   
   /* determine mode for calling fullrhs */
   mode = (forceRHS) ? 0 : 1;
   
   /* fill fnew */
-  ier = ark_mem->ark_step_fullrhs(ark_mem, tnew, ark_mem->ark_y,
-                                  interp->fnew, mode);
+  ier = ark_mem->step_fullrhs(ark_mem, tnew, ark_mem->ycur,
+                              interp->fnew, mode);
   if (ier != 0)  return(ARK_RHSFUNC_FAIL);
 
   /* return with success */

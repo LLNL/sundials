@@ -554,11 +554,11 @@ void FARK_STOPDIAGNOSTICS(int *ier) {
   }
   ark_mem = (ARKodeMem) ARK_arkodemem;
 
-  if (ark_mem->ark_diagfp == NULL) {
+  if (ark_mem->diagfp == NULL) {
     *ier = 1;
     return;
   }
-  *ier = fclose(ark_mem->ark_diagfp);
+  *ier = fclose(ark_mem->diagfp);
   return;
 }
 
@@ -820,9 +820,9 @@ void FARK_FREE() {
   ark_mem = (ARKodeMem) ARK_arkodemem;
 
   /* free user_data structure */
-  if (ark_mem->ark_user_data)
-    free(ark_mem->ark_user_data);
-  ark_mem->ark_user_data = NULL;
+  if (ark_mem->user_data)
+    free(ark_mem->user_data);
+  ark_mem->user_data = NULL;
 
   /* free main integrator memory structure (internally 
      frees time step module, rootfinding, interpolation structures) */

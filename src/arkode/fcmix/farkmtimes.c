@@ -54,7 +54,7 @@ void FARK_SPILSSETMASS(int *ier)
   ARKodeMem ark_mem;
   ark_mem = (ARKodeMem) ARK_arkodemem;
   *ier = ARKSpilsSetMassTimes(ARK_arkodemem, FARKMTSetup, 
-                              FARKMtimes, ark_mem->ark_user_data);
+                              FARKMtimes, ark_mem->user_data);
 }
 
 /*=============================================================*/

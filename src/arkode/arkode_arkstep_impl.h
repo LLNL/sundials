@@ -69,7 +69,6 @@ typedef struct ARKodeARKStepMemRec {
   int stages;             /* number of stages           */
   ARKodeButcherTable Be;  /* ERK Butcher table          */
   ARKodeButcherTable Bi;  /* IRK Butcher table          */
-  realtype tstage;        /* time of current stage      */
 
   /* Time step adaptivity data */
   ARKodeHAdaptMem hadapt_mem;  /* time step adaptivity structure   */
@@ -121,6 +120,7 @@ typedef struct ARKodeARKStepMemRec {
   ARKMassSolveFn  msolve;
   ARKMassFreeFn   mfree;
   void*           mass_mem;
+  realtype        msetuptime;   /* "t" value at last msetup call */
   int msolve_type;  /* interface type: 0=iterative; 1=direct; 2=custom */
 
   /* Counters */

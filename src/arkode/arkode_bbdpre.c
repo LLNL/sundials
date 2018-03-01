@@ -79,7 +79,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     return(ARKSPILS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  ark_step_lmem = ark_mem->ark_step_getlinmem(arkode_mem);
+  ark_step_lmem = ark_mem->step_getlinmem(arkode_mem);
   if (ark_step_lmem == NULL) {
     arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKBBDPRE", 
                     "ARKBBDPrecInit", MSGBBD_LMEM_NULL);
@@ -88,7 +88,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   arkspils_mem = (ARKSpilsMem) ark_step_lmem;
 
   /* Test compatibility of NVECTOR package with the BBD preconditioner */
-  if(ark_mem->ark_tempv1->ops->nvgetarraypointer == NULL) {
+  if(ark_mem->tempv1->ops->nvgetarraypointer == NULL) {
     arkProcessError(ark_mem, ARKSPILS_ILL_INPUT, "ARKBBDPRE", 
                     "ARKBBDPrecInit", MSGBBD_BAD_NVECTOR);
     return(ARKSPILS_ILL_INPUT);
@@ -158,7 +158,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     return(ARKSPILS_MEM_FAIL);
   }
   pdata->tmp1 = NULL;
-  pdata->tmp1 = N_VClone(ark_mem->ark_tempv1);
+  pdata->tmp1 = N_VClone(ark_mem->tempv1);
   if (pdata->tmp1 == NULL) {
     N_VDestroy(pdata->zlocal);
     N_VDestroy(pdata->rlocal);
@@ -170,7 +170,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     return(ARKSPILS_MEM_FAIL);
   }
   pdata->tmp2 = NULL;
-  pdata->tmp2 = N_VClone(ark_mem->ark_tempv1);
+  pdata->tmp2 = N_VClone(ark_mem->tempv1);
   if (pdata->tmp2 == NULL) {
     N_VDestroy(pdata->tmp1);
     N_VDestroy(pdata->zlocal);
@@ -183,7 +183,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
     return(ARKSPILS_MEM_FAIL);
   }
   pdata->tmp3 = NULL;
-  pdata->tmp3 = N_VClone(ark_mem->ark_tempv1);
+  pdata->tmp3 = N_VClone(ark_mem->tempv1);
   if (pdata->tmp3 == NULL) {
     N_VDestroy(pdata->tmp1);
     N_VDestroy(pdata->tmp2);
@@ -233,7 +233,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   
   /* Set dqrely based on input dqrely (0 implies default). */
   pdata->dqrely = (dqrely > ZERO) ? 
-    dqrely : SUNRsqrt(ark_mem->ark_uround);
+    dqrely : SUNRsqrt(ark_mem->uround);
 
   /* Store Nlocal to be used in ARKBBDPrecSetup */
   pdata->n_local = Nlocal;
@@ -241,8 +241,8 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   /* Set work space sizes and initialize nge */
   pdata->rpwsize = 0;
   pdata->ipwsize = 0;
-  if (ark_mem->ark_tempv1->ops->nvspace) {
-    N_VSpace(ark_mem->ark_tempv1, &lrw1, &liw1);
+  if (ark_mem->tempv1->ops->nvspace) {
+    N_VSpace(ark_mem->tempv1, &lrw1, &liw1);
     pdata->rpwsize += 3*lrw1;
     pdata->ipwsize += 3*liw1;
   }
@@ -304,7 +304,7 @@ int ARKBBDPrecReInit(void *arkode_mem, sunindextype mudq,
     return(ARKSPILS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  ark_step_lmem = ark_mem->ark_step_getlinmem(arkode_mem);
+  ark_step_lmem = ark_mem->step_getlinmem(arkode_mem);
   if (ark_step_lmem == NULL) {
     arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKBBDPRE", 
                     "ARKBBDPrecReInit", MSGBBD_LMEM_NULL);
@@ -325,7 +325,7 @@ int ARKBBDPrecReInit(void *arkode_mem, sunindextype mudq,
 
   /* Set dqrely based on input dqrely (0 implies default). */
   pdata->dqrely = (dqrely > ZERO) ? 
-    dqrely : SUNRsqrt(ark_mem->ark_uround);
+    dqrely : SUNRsqrt(ark_mem->uround);
 
   /* Re-initialize nge */
   pdata->nge = 0;
@@ -351,7 +351,7 @@ int ARKBBDPrecGetWorkSpace(void *arkode_mem,
     return(ARKSPILS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  ark_step_lmem = ark_mem->ark_step_getlinmem(arkode_mem);
+  ark_step_lmem = ark_mem->step_getlinmem(arkode_mem);
   if (ark_step_lmem == NULL) {
     arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKBBDPRE", 
                     "ARKBBDPrecGetWorkSpace", MSGBBD_LMEM_NULL);
@@ -389,7 +389,7 @@ int ARKBBDPrecGetNumGfnEvals(void *arkode_mem,
     return(ARKSPILS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  ark_step_lmem = ark_mem->ark_step_getlinmem(arkode_mem);
+  ark_step_lmem = ark_mem->step_getlinmem(arkode_mem);
   if (ark_step_lmem == NULL) {
     arkProcessError(ark_mem, ARKSPILS_LMEM_NULL, "ARKBBDPRE", 
                     "ARKBBDPrecGetNumGfnEvals", MSGBBD_LMEM_NULL);
@@ -587,7 +587,7 @@ static int ARKBBDPrecFree(ARKodeMem ark_mem)
   
   /* Return immediately if ARKodeMem, ARKSpilsMem or ARKBandPrecData are NULL */
   if (ark_mem == NULL) return(0);
-  ark_step_lmem = ark_mem->ark_step_getlinmem((void*) ark_mem);
+  ark_step_lmem = ark_mem->step_getlinmem((void*) ark_mem);
   if (ark_step_lmem == NULL) return(0);
   arkspils_mem = (ARKSpilsMem) ark_step_lmem;
   if (arkspils_mem->P_data == NULL) return(0);
@@ -640,27 +640,27 @@ static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
 
   /* Call cfn and gloc to get base value of g(t,y) */
   if (pdata->cfn != NULL) {
-    retval = pdata->cfn(pdata->n_local, t, y, ark_mem->ark_user_data);
+    retval = pdata->cfn(pdata->n_local, t, y, ark_mem->user_data);
     if (retval != 0) return(retval);
   }
 
   retval = pdata->gloc(pdata->n_local, t, ytemp, gy, 
-                       ark_mem->ark_user_data);
+                       ark_mem->user_data);
   pdata->nge++;
   if (retval != 0) return(retval);
 
   /* Obtain pointers to the data for various vectors */
   y_data     =  N_VGetArrayPointer(y);
   gy_data    =  N_VGetArrayPointer(gy);
-  ewt_data   =  N_VGetArrayPointer(ark_mem->ark_ewt);
+  ewt_data   =  N_VGetArrayPointer(ark_mem->ewt);
   ytemp_data =  N_VGetArrayPointer(ytemp);
   gtemp_data =  N_VGetArrayPointer(gtemp);
 
   /* Set minimum increment based on uround and norm of g */
-  gnorm = N_VWrmsNorm(gy, ark_mem->ark_rwt);
+  gnorm = N_VWrmsNorm(gy, ark_mem->rwt);
   minInc = (gnorm != ZERO) ? 
-    (MIN_INC_MULT * SUNRabs(ark_mem->ark_h) *
-     ark_mem->ark_uround * pdata->n_local * gnorm) : ONE;
+    (MIN_INC_MULT * SUNRabs(ark_mem->h) *
+     ark_mem->uround * pdata->n_local * gnorm) : ONE;
 
   /* Set bandwidth and number of column groups for band differencing */
   width = pdata->mldq + pdata->mudq + 1;
@@ -677,7 +677,7 @@ static int ARKBBDDQJac(ARKBBDPrecData pdata, realtype t,
 
     /* Evaluate g with incremented y */
     retval = pdata->gloc(pdata->n_local, t, ytemp, gtemp, 
-                         ark_mem->ark_user_data);
+                         ark_mem->user_data);
     pdata->nge++;
     if (retval != 0) return(retval);
 

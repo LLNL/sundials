@@ -205,8 +205,8 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
   if (h_cfl <= 0.0)  h_cfl = RCONST(1.0e30) * SUNRabs(hcur);
 
   /* Solver diagnostics reporting */
-  if (ark_mem->ark_report) 
-    fprintf(ark_mem->ark_diagfp, "  adapt  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  ",
+  if (ark_mem->report) 
+    fprintf(ark_mem->diagfp, "  adapt  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  ",
             hadapt_mem->ehist[0], hadapt_mem->ehist[1], 
             hadapt_mem->ehist[2], hadapt_mem->hhist[0], 
             hadapt_mem->hhist[1], hadapt_mem->hhist[2], h_acc, h_cfl);
@@ -222,8 +222,8 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
   h_acc = int_dir * SUNMAX(SUNRabs(h_acc), SUNRabs(ETAMIN*hcur));
 
   /* Solver diagnostics reporting */
-  if (ark_mem->ark_report) 
-    fprintf(ark_mem->ark_diagfp, "%"RSYM"  %"RSYM"  ", h_acc, h_cfl);
+  if (ark_mem->report) 
+    fprintf(ark_mem->diagfp, "%"RSYM"  %"RSYM"  ", h_acc, h_cfl);
 
   /* increment the relevant step counter, set desired step */
   if (SUNRabs(h_acc) < SUNRabs(h_cfl))
@@ -238,19 +238,19 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
     h_acc = hcur;
 
   /* set basic value of ark_eta */
-  ark_mem->ark_eta = h_acc / hcur;
+  ark_mem->eta = h_acc / hcur;
 
   /* enforce minimum time step size */
-  ark_mem->ark_eta = SUNMAX(ark_mem->ark_eta,
-                            ark_mem->ark_hmin / SUNRabs(hcur));
+  ark_mem->eta = SUNMAX(ark_mem->eta,
+                        ark_mem->hmin / SUNRabs(hcur));
 
   /* enforce maximum time step size */
-  ark_mem->ark_eta /= SUNMAX(ONE, SUNRabs(hcur) *
-                             ark_mem->ark_hmax_inv*ark_mem->ark_eta);
+  ark_mem->eta /= SUNMAX(ONE, SUNRabs(hcur) *
+                         ark_mem->hmax_inv*ark_mem->eta);
 
   /* Solver diagnostics reporting */
-  if (ark_mem->ark_report) 
-    fprintf(ark_mem->ark_diagfp, "%"RSYM"\n", ark_mem->ark_eta);
+  if (ark_mem->report) 
+    fprintf(ark_mem->diagfp, "%"RSYM"\n", ark_mem->eta);
 
   return(ier);
 }

@@ -74,18 +74,18 @@ int ARKDlsSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
                     "Non-direct LS supplied to ARKDls interface");
     return(ARKDLS_ILL_INPUT);
   }
-  if (ark_mem->ark_tempv1->ops->nvgetarraypointer == NULL ||
-      ark_mem->ark_tempv1->ops->nvsetarraypointer == NULL) {
+  if (ark_mem->tempv1->ops->nvgetarraypointer == NULL ||
+      ark_mem->tempv1->ops->nvsetarraypointer == NULL) {
     arkProcessError(ark_mem, ARKDLS_ILL_INPUT, "ARKDLS", 
                     "ARKDlsSetLinearSolver", MSGD_BAD_NVECTOR);
     return(ARKDLS_ILL_INPUT);
   }
 
   /* Test whether time stepper module is supplied, with required routines */
-  if ( (ark_mem->ark_step_attachlinsol == NULL) ||
-       (ark_mem->ark_step_getlinmem == NULL) ||
-       (ark_mem->ark_step_getimplicitrhs == NULL) ||
-       (ark_mem->ark_step_getgammas == NULL) ) {
+  if ( (ark_mem->step_attachlinsol == NULL) ||
+       (ark_mem->step_getlinmem == NULL) ||
+       (ark_mem->step_getimplicitrhs == NULL) ||
+       (ark_mem->step_getgammas == NULL) ) {
     arkProcessError(ark_mem, ARKDLS_ILL_INPUT, "ARKDLS",
                     "ARKDlsSetLinearSolver",
                     "Missing time step module or associated routines");
@@ -124,7 +124,7 @@ int ARKDlsSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   }
 
   /* Allocate memory for x */
-  arkdls_mem->x = N_VClone(ark_mem->ark_tempv1);
+  arkdls_mem->x = N_VClone(ark_mem->tempv1);
   if (arkdls_mem->x == NULL) {
     arkProcessError(ark_mem, ARKDLS_MEM_FAIL, "ARKDLS", 
                     "ARKDlsSetLinearSolver", MSGD_MEM_FAIL);
@@ -134,9 +134,9 @@ int ARKDlsSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   }
 
   /* Attach to time stepper module */
-  ier = ark_mem->ark_step_attachlinsol(arkode_mem, arkDlsInitialize,
-                                       arkDlsSetup, arkDlsSolve,
-                                       arkDlsFree, 1, arkdls_mem);
+  ier = ark_mem->step_attachlinsol(arkode_mem, arkDlsInitialize,
+                                   arkDlsSetup, arkDlsSolve,
+                                   arkDlsFree, 1, arkdls_mem);
   if (ier != ARK_SUCCESS) {
     arkProcessError(ark_mem, ier, "ARKDLS", "ARKDlsSetLinearSolver",
                     "Failed to attach to time stepper module");
@@ -183,8 +183,8 @@ int ARKDlsSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
                     "Non-direct LS supplied to ARKDls interface");
     return(ARKDLS_ILL_INPUT);
   }
-  if (ark_mem->ark_tempv1->ops->nvgetarraypointer == NULL ||
-      ark_mem->ark_tempv1->ops->nvsetarraypointer == NULL) {
+  if (ark_mem->tempv1->ops->nvgetarraypointer == NULL ||
+      ark_mem->tempv1->ops->nvsetarraypointer == NULL) {
     arkProcessError(ark_mem, ARKDLS_ILL_INPUT, "ARKDLS", 
                     "ARKDlsSetMassLinearSolver", 
                     MSGD_BAD_NVECTOR);
@@ -192,8 +192,8 @@ int ARKDlsSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   }
 
   /* Test whether time stepper module is supplied, with required routines */
-  if ( (ark_mem->ark_step_attachmasssol == NULL) ||
-       (ark_mem->ark_step_getmassmem == NULL) ) {
+  if ( (ark_mem->step_attachmasssol == NULL) ||
+       (ark_mem->step_getmassmem == NULL) ) {
     arkProcessError(ark_mem, ARKDLS_ILL_INPUT, "ARKDLS",
                     "ARKDlsSetLinearSolver",
                     "Missing time step module or associated routines");
@@ -231,7 +231,7 @@ int ARKDlsSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   }
 
   /* Allocate memory for x */
-  arkdls_mem->x = N_VClone(ark_mem->ark_tempv1);
+  arkdls_mem->x = N_VClone(ark_mem->tempv1);
   if (arkdls_mem->x == NULL) {
     arkProcessError(ark_mem, ARKDLS_MEM_FAIL, "ARKDLS", 
                     "ARKDlsSetMassLinearSolver", MSGD_MEM_FAIL);
@@ -241,10 +241,10 @@ int ARKDlsSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
   }
 
   /* Attach to time stepper module */
-  ier = ark_mem->ark_step_attachmasssol(arkode_mem, arkDlsMassInitialize,
-                                        arkDlsMassSetup, arkDlsMassMult,
-                                        arkDlsMassSolve, arkDlsMassFree,
-                                        1, arkdls_mem);
+  ier = ark_mem->step_attachmasssol(arkode_mem, arkDlsMassInitialize,
+                                    arkDlsMassSetup, arkDlsMassMult,
+                                    arkDlsMassSolve, arkDlsMassFree,
+                                    1, arkdls_mem);
   if (ier != ARK_SUCCESS) {
     arkProcessError(ark_mem, ier, "ARKDLS", "ARKDlsSetMassLinearSolver",
                     "Failed to attach to time stepper module");
@@ -278,7 +278,7 @@ int ARKDlsSetJacFn(void *arkode_mem, ARKDlsJacFn jac)
     return(ARKDLS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  ark_step_lmem = ark_mem->ark_step_getlinmem(arkode_mem);
+  ark_step_lmem = ark_mem->step_getlinmem(arkode_mem);
   if (ark_step_lmem == NULL) {
     arkProcessError(ark_mem, ARKDLS_LMEM_NULL, "ARKDLS", 
                     "ARKDlsSetJacFn", MSGD_LMEM_NULL);
@@ -289,7 +289,7 @@ int ARKDlsSetJacFn(void *arkode_mem, ARKDlsJacFn jac)
   if (jac != NULL) {
     arkdls_mem->jacDQ  = SUNFALSE;
     arkdls_mem->jac    = jac;
-    arkdls_mem->J_data = ark_mem->ark_user_data;
+    arkdls_mem->J_data = ark_mem->user_data;
   } else {
     arkdls_mem->jacDQ  = SUNTRUE;
     arkdls_mem->jac    = arkDlsDQJac;
@@ -316,7 +316,7 @@ int ARKDlsSetMassFn(void *arkode_mem, ARKDlsMassFn mass)
     return(ARKDLS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  ark_step_massmem = ark_mem->ark_step_getmassmem(arkode_mem);
+  ark_step_massmem = ark_mem->step_getmassmem(arkode_mem);
   if (ark_step_massmem == NULL) {
     arkProcessError(ark_mem, ARKDLS_MASSMEM_NULL, "ARKDLS", 
                     "ARKDlsSetMassFn", MSGD_MASSMEM_NULL);
@@ -357,7 +357,7 @@ int ARKDlsGetWorkSpace(void *arkode_mem, long int *lenrw,
     return(ARKDLS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  ark_step_lmem = ark_mem->ark_step_getlinmem(arkode_mem);
+  ark_step_lmem = ark_mem->step_getlinmem(arkode_mem);
   if (ark_step_lmem == NULL) {
     arkProcessError(ark_mem, ARKDLS_LMEM_NULL, "ARKDLS", 
                     "ARKDlsGetWorkSpace", MSGD_LMEM_NULL);
@@ -414,7 +414,7 @@ int ARKDlsGetNumJacEvals(void *arkode_mem, long int *njevals)
     return(ARKDLS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  ark_step_lmem = ark_mem->ark_step_getlinmem(arkode_mem);
+  ark_step_lmem = ark_mem->step_getlinmem(arkode_mem);
   if (ark_step_lmem == NULL) {
     arkProcessError(ark_mem, ARKDLS_LMEM_NULL, "ARKDLS", 
                     "ARKDlsGetNumJacEvals", MSGD_LMEM_NULL);
@@ -445,7 +445,7 @@ int ARKDlsGetNumRhsEvals(void *arkode_mem, long int *nfevalsLS)
     return(ARKDLS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  ark_step_lmem = ark_mem->ark_step_getlinmem(arkode_mem);
+  ark_step_lmem = ark_mem->step_getlinmem(arkode_mem);
   if (ark_step_lmem == NULL) {
     arkProcessError(ark_mem, ARKDLS_LMEM_NULL, "ARKDLS", 
                     "ARKDlsGetNumRhsEvals", MSGD_LMEM_NULL);
@@ -527,7 +527,7 @@ int ARKDlsGetLastFlag(void *arkode_mem, long int *flag)
     return(ARKDLS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  ark_step_lmem = ark_mem->ark_step_getlinmem(arkode_mem);
+  ark_step_lmem = ark_mem->step_getlinmem(arkode_mem);
   if (ark_step_lmem == NULL) {
     arkProcessError(ark_mem, ARKDLS_LMEM_NULL, "ARKDLS", 
                     "ARKDlsGetLastFlag", MSGD_LMEM_NULL);
@@ -562,7 +562,7 @@ int ARKDlsGetMassWorkSpace(void *arkode_mem, long int *lenrw,
     return(ARKDLS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  ark_step_massmem = ark_mem->ark_step_getmassmem(arkode_mem);
+  ark_step_massmem = ark_mem->step_getmassmem(arkode_mem);
   if (ark_step_massmem == NULL) {
     arkProcessError(ark_mem, ARKDLS_MASSMEM_NULL, "ARKDLS", 
                     "ARKDlsGetMassWorkSpace", MSGD_MASSMEM_NULL);
@@ -620,7 +620,7 @@ int ARKDlsGetNumMassSetups(void *arkode_mem, long int *nmsetups)
     return(ARKDLS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  ark_step_massmem = ark_mem->ark_step_getmassmem(arkode_mem);
+  ark_step_massmem = ark_mem->step_getmassmem(arkode_mem);
   if (ark_step_massmem == NULL) {
     arkProcessError(ark_mem, ARKDLS_MASSMEM_NULL, "ARKDLS", 
                     "ARKDlsGetNumMassSetups", MSGD_MASSMEM_NULL);
@@ -651,7 +651,7 @@ int ARKDlsGetNumMassSolves(void *arkode_mem, long int *nmsolves)
     return(ARKDLS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  ark_step_massmem = ark_mem->ark_step_getmassmem(arkode_mem);
+  ark_step_massmem = ark_mem->step_getmassmem(arkode_mem);
   if (ark_step_massmem == NULL) {
     arkProcessError(ark_mem, ARKDLS_MASSMEM_NULL, "ARKDLS", 
                     "ARKDlsGetNumMassSolves", MSGD_MASSMEM_NULL);
@@ -682,7 +682,7 @@ int ARKDlsGetNumMassMult(void *arkode_mem, long int *nmmults)
     return(ARKDLS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  ark_step_massmem = ark_mem->ark_step_getmassmem(arkode_mem);
+  ark_step_massmem = ark_mem->step_getmassmem(arkode_mem);
   if (ark_step_massmem == NULL) {
     arkProcessError(ark_mem, ARKDLS_MASSMEM_NULL, "ARKDLS", 
                     "ARKDlsGetNumMassMult", MSGD_MASSMEM_NULL);
@@ -713,7 +713,7 @@ int ARKDlsGetLastMassFlag(void *arkode_mem, long int *flag)
     return(ARKDLS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  ark_step_massmem = ark_mem->ark_step_getmassmem(arkode_mem);
+  ark_step_massmem = ark_mem->step_getmassmem(arkode_mem);
   if (ark_step_massmem == NULL) {
     arkProcessError(ark_mem, ARKDLS_MASSMEM_NULL, "ARKDLS", 
                     "ARKDlsGetLastMassFlag", MSGD_MASSMEM_NULL);
@@ -802,7 +802,7 @@ int arkDlsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
   int          retval = 0;
 
   /* access DlsMem interface structure */
-  ark_step_lmem = ark_mem->ark_step_getlinmem((void*) ark_mem);
+  ark_step_lmem = ark_mem->step_getlinmem((void*) ark_mem);
   if (ark_step_lmem == NULL) {
     arkProcessError(ark_mem, ARKDLS_LMEM_NULL, "ARKDLS", 
                     "arkDlsDenseDQJac", MSGD_LMEM_NULL);
@@ -811,7 +811,7 @@ int arkDlsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
   arkdls_mem = (ARKDlsMem) ark_step_lmem;
 
   /* Access implicit RHS function */
-  fi = ark_mem->ark_step_getimplicitrhs((void*) ark_mem);
+  fi = ark_mem->step_getimplicitrhs((void*) ark_mem);
   if (fi == NULL) {
     arkProcessError(ark_mem, ARKDLS_ILL_INPUT, "ARKDLS", 
                     "arkDlsDenseDQJac",
@@ -829,14 +829,14 @@ int arkDlsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
   jthCol = N_VCloneEmpty(tmp1);
 
   /* Obtain pointers to the data for ewt, y */
-  ewt_data = N_VGetArrayPointer(ark_mem->ark_ewt);
+  ewt_data = N_VGetArrayPointer(ark_mem->ewt);
   y_data   = N_VGetArrayPointer(y);
 
   /* Set minimum increment based on uround and norm of f */
-  srur = SUNRsqrt(ark_mem->ark_uround);
-  fnorm = N_VWrmsNorm(fy, ark_mem->ark_rwt);
+  srur = SUNRsqrt(ark_mem->uround);
+  fnorm = N_VWrmsNorm(fy, ark_mem->rwt);
   minInc = (fnorm != ZERO) ?
-    (MIN_INC_MULT * SUNRabs(ark_mem->ark_h) * ark_mem->ark_uround * N * fnorm) : ONE;
+    (MIN_INC_MULT * SUNRabs(ark_mem->h) * ark_mem->uround * N * fnorm) : ONE;
 
   for (j = 0; j < N; j++) {
 
@@ -847,7 +847,7 @@ int arkDlsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
     inc = SUNMAX(srur*SUNRabs(yjsaved), minInc/ewt_data[j]);
     y_data[j] += inc;
 
-    retval = fi(t, y, ftemp, ark_mem->ark_user_data);
+    retval = fi(t, y, ftemp, ark_mem->user_data);
     arkdls_mem->nfeDQ++;
     if (retval != 0) break;
     
@@ -893,7 +893,7 @@ int arkDlsBandDQJac(realtype t, N_Vector y, N_Vector fy,
   int          retval = 0;
 
   /* access DlsMem interface structure */
-  ark_step_lmem = ark_mem->ark_step_getlinmem((void*) ark_mem);
+  ark_step_lmem = ark_mem->step_getlinmem((void*) ark_mem);
   if (ark_step_lmem == NULL) {
     arkProcessError(ark_mem, ARKDLS_LMEM_NULL, "ARKDLS", 
                     "arkDlsBandDQJac", MSGD_LMEM_NULL);
@@ -902,7 +902,7 @@ int arkDlsBandDQJac(realtype t, N_Vector y, N_Vector fy,
   arkdls_mem = (ARKDlsMem) ark_step_lmem;
 
   /* Access implicit RHS function */
-  fi = ark_mem->ark_step_getimplicitrhs((void*) ark_mem);
+  fi = ark_mem->step_getimplicitrhs((void*) ark_mem);
   if (fi == NULL) {
     arkProcessError(ark_mem, ARKDLS_ILL_INPUT, "ARKDLS", 
                     "arkDlsBandDQJac",
@@ -920,7 +920,7 @@ int arkDlsBandDQJac(realtype t, N_Vector y, N_Vector fy,
   ytemp = tmp2;
 
   /* Obtain pointers to the data for ewt, fy, ftemp, y, ytemp */
-  ewt_data   = N_VGetArrayPointer(ark_mem->ark_ewt);
+  ewt_data   = N_VGetArrayPointer(ark_mem->ewt);
   fy_data    = N_VGetArrayPointer(fy);
   ftemp_data = N_VGetArrayPointer(ftemp);
   y_data     = N_VGetArrayPointer(y);
@@ -930,10 +930,10 @@ int arkDlsBandDQJac(realtype t, N_Vector y, N_Vector fy,
   N_VScale(ONE, y, ytemp);
 
   /* Set minimum increment based on uround and norm of f */
-  srur = SUNRsqrt(ark_mem->ark_uround);
-  fnorm = N_VWrmsNorm(fy, ark_mem->ark_rwt);
+  srur = SUNRsqrt(ark_mem->uround);
+  fnorm = N_VWrmsNorm(fy, ark_mem->rwt);
   minInc = (fnorm != ZERO) ?
-    (MIN_INC_MULT * SUNRabs(ark_mem->ark_h) * ark_mem->ark_uround * N * fnorm) : ONE;
+    (MIN_INC_MULT * SUNRabs(ark_mem->h) * ark_mem->uround * N * fnorm) : ONE;
 
   /* Set bandwidth and number of column groups for band differencing */
   width = mlower + mupper + 1;
@@ -949,7 +949,7 @@ int arkDlsBandDQJac(realtype t, N_Vector y, N_Vector fy,
     }
 
     /* Evaluate f with incremented y */
-    retval = fi(ark_mem->ark_tn, ytemp, ftemp, ark_mem->ark_user_data);
+    retval = fi(ark_mem->tcur, ytemp, ftemp, ark_mem->user_data);
     arkdls_mem->nfeDQ++;
     if (retval != 0) break;
 
@@ -989,7 +989,7 @@ int arkDlsInitialize(void* arkode_mem)
     return(ARKDLS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  ark_step_lmem = ark_mem->ark_step_getlinmem((void*) ark_mem);
+  ark_step_lmem = ark_mem->step_getlinmem((void*) ark_mem);
   if (ark_step_lmem == NULL) {
     arkProcessError(ark_mem, ARKDLS_LMEM_NULL, "ARKDLS", 
                     "arkDlsInitialize", MSGD_LMEM_NULL);
@@ -1006,14 +1006,14 @@ int arkDlsInitialize(void* arkode_mem)
     arkdls_mem->jac    = arkDlsDQJac;
     arkdls_mem->J_data = ark_mem;
   } else {
-    arkdls_mem->J_data = ark_mem->ark_user_data;
+    arkdls_mem->J_data = ark_mem->user_data;
   }
 
   /* Ensure that if a mass matrix / solver are used, that system 
      and mass matrix types match */
   ark_step_massmem = NULL;
-  if (ark_mem->ark_step_getmassmem != NULL) 
-    ark_step_massmem = ark_mem->ark_step_getmassmem(arkode_mem);
+  if (ark_mem->step_getmassmem != NULL) 
+    ark_step_massmem = ark_mem->step_getmassmem(arkode_mem);
   if (ark_step_massmem != NULL) {
     arkdls_massmem = (ARKDlsMassMem) ark_step_massmem;
     if (SUNMatGetID(arkdls_mem->A) != SUNMatGetID(arkdls_massmem->M)) {
@@ -1061,7 +1061,7 @@ int arkDlsSetup(void* arkode_mem, int convfail, realtype tpred,
     return(ARKDLS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  ark_step_lmem = ark_mem->ark_step_getlinmem((void*) ark_mem);
+  ark_step_lmem = ark_mem->step_getlinmem((void*) ark_mem);
   if (ark_step_lmem == NULL) {
     arkProcessError(ark_mem, ARKDLS_LMEM_NULL, "ARKDLS", 
                     "arkDlsSetup", MSGD_LMEM_NULL);
@@ -1070,8 +1070,8 @@ int arkDlsSetup(void* arkode_mem, int convfail, realtype tpred,
   arkdls_mem = (ARKDlsMem) ark_step_lmem;
 
   /* get gamma values from time step module */
-  retval = ark_mem->ark_step_getgammas(arkode_mem, &gamma, &gamrat,
-                                       &jcur, &dgamma_fail);
+  retval = ark_mem->step_getgammas(arkode_mem, &gamma, &gamrat,
+                                   &jcur, &dgamma_fail);
   if (retval != ARK_SUCCESS) {
     arkProcessError(ark_mem, retval, "ARKDLS", "arkDlsSetup",
                     "An error occurred in ark_step_getgammas");
@@ -1079,8 +1079,8 @@ int arkDlsSetup(void* arkode_mem, int convfail, realtype tpred,
   }
  
   /* Use nst, gamma/gammap, and convfail to set J eval. flag jok */
-  jbad = (ark_mem->ark_nst == 0) || 
-    (ark_mem->ark_nst > arkdls_mem->nstlj + ARKD_MSBJ) ||
+  jbad = (ark_mem->nst == 0) || 
+    (ark_mem->nst > arkdls_mem->nstlj + ARKD_MSBJ) ||
     ((convfail == ARK_FAIL_BAD_J) && (!dgamma_fail)) ||
     (convfail == ARK_FAIL_OTHER);
   jok = !jbad;
@@ -1099,7 +1099,7 @@ int arkDlsSetup(void* arkode_mem, int convfail, realtype tpred,
   /* If jok = SUNFALSE, call jac routine for new J value */
   } else {
     arkdls_mem->nje++;
-    arkdls_mem->nstlj = ark_mem->ark_nst;
+    arkdls_mem->nstlj = ark_mem->nst;
     *jcurPtr = SUNTRUE;
     retval = SUNMatZero(arkdls_mem->A);
     if (retval) {
@@ -1134,8 +1134,8 @@ int arkDlsSetup(void* arkode_mem, int convfail, realtype tpred,
   
   /* Scale and add mass matrix to get A = M-gamma*J*/
   ark_step_massmem = NULL;
-  if (ark_mem->ark_step_getmassmem != NULL) 
-    ark_step_massmem = ark_mem->ark_step_getmassmem(arkode_mem);
+  if (ark_mem->step_getmassmem != NULL) 
+    ark_step_massmem = ark_mem->step_getmassmem(arkode_mem);
   if (ark_step_massmem != NULL) {
     
     arkdls_massmem = (ARKDlsMassMem) ark_step_massmem;
@@ -1192,7 +1192,7 @@ int arkDlsSolve(void* arkode_mem, N_Vector b, realtype tcur,
     return(ARKDLS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  ark_step_lmem = ark_mem->ark_step_getlinmem((void*) ark_mem);
+  ark_step_lmem = ark_mem->step_getlinmem((void*) ark_mem);
   if (ark_step_lmem == NULL) {
     arkProcessError(ark_mem, ARKDLS_LMEM_NULL, "ARKDLS", 
                     "arkDlsSolve", MSGD_LMEM_NULL);
@@ -1201,8 +1201,8 @@ int arkDlsSolve(void* arkode_mem, N_Vector b, realtype tcur,
   arkdls_mem = (ARKDlsMem) ark_step_lmem;
 
   /* get gamma values from time step module */
-  retval = ark_mem->ark_step_getgammas(arkode_mem, &gamma, &gamrat,
-                                       &jcur, &dgamma_fail);
+  retval = ark_mem->step_getgammas(arkode_mem, &gamma, &gamrat,
+                                   &jcur, &dgamma_fail);
   if (retval != ARK_SUCCESS) {
     arkProcessError(ark_mem, retval, "ARKDLS", "arkDlsSolve",
                     "An error occurred in ark_step_getgammas");
@@ -1237,7 +1237,7 @@ int arkDlsFree(void* arkode_mem)
   /* Return immediately if ARKodeMem or ARKDlsMem are NULL */
   if (arkode_mem == NULL)  return (ARKDLS_SUCCESS);
   ark_mem = (ARKodeMem) arkode_mem;
-  ark_step_lmem = ark_mem->ark_step_getlinmem((void*) ark_mem);
+  ark_step_lmem = ark_mem->step_getlinmem((void*) ark_mem);
   if (ark_step_lmem == NULL)  return(ARKDLS_SUCCESS);
   arkdls_mem = (ARKDlsMem) ark_step_lmem;
 
@@ -1280,7 +1280,7 @@ int arkDlsMassInitialize(void *arkode_mem)
     return(ARKDLS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  ark_step_massmem = ark_mem->ark_step_getmassmem((void*) ark_mem);
+  ark_step_massmem = ark_mem->step_getmassmem((void*) ark_mem);
   if (ark_step_massmem == NULL) {
     arkProcessError(ark_mem, ARKDLS_LMEM_NULL, "ARKDLS", 
                     "arkDlsMassInitialize", MSGD_LMEM_NULL);
@@ -1339,7 +1339,7 @@ int arkDlsMassSetup(void *arkode_mem, N_Vector vtemp1,
     return(ARKDLS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  ark_step_massmem = ark_mem->ark_step_getmassmem((void*) ark_mem);
+  ark_step_massmem = ark_mem->step_getmassmem((void*) ark_mem);
   if (ark_step_massmem == NULL) {
     arkProcessError(ark_mem, ARKDLS_LMEM_NULL, "ARKDLS", 
                     "arkDlsMassSetup", MSGD_LMEM_NULL);
@@ -1363,9 +1363,8 @@ int arkDlsMassSetup(void *arkode_mem, N_Vector vtemp1,
     return(-1);
   }
 
-  retval = arkdls_mem->mass(ark_mem->ark_tn, 
-                            arkdls_mem->M, 
-                            ark_mem->ark_user_data, 
+  retval = arkdls_mem->mass(ark_mem->tcur, arkdls_mem->M, 
+                            ark_mem->user_data, 
                             vtemp1, vtemp2, vtemp3);
   if (retval < 0) {
     arkProcessError(ark_mem, ARKDLS_MASSFUNC_UNRECVR, "ARKDLS", 
@@ -1408,7 +1407,7 @@ int arkDlsMassMult(void *arkode_mem, N_Vector v, N_Vector Mv)
     return(ARKDLS_MEM_NULL);
   } 
   ark_mem = (ARKodeMem) arkode_mem;
-  ark_step_massmem = ark_mem->ark_step_getmassmem((void*) ark_mem);
+  ark_step_massmem = ark_mem->step_getmassmem((void*) ark_mem);
   if (ark_step_massmem == NULL) {
     arkProcessError(ark_mem, ARKDLS_LMEM_NULL, "ARKDLS", 
                     "arkDlsMassMult", MSGD_LMEM_NULL);
@@ -1441,7 +1440,7 @@ int arkDlsMassSolve(void *arkode_mem, N_Vector b, realtype nlscoef)
     return(ARKDLS_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
-  ark_step_massmem = ark_mem->ark_step_getmassmem((void*) ark_mem);
+  ark_step_massmem = ark_mem->step_getmassmem((void*) ark_mem);
   if (ark_step_massmem == NULL) {
     arkProcessError(ark_mem, ARKDLS_LMEM_NULL, "ARKDLS", 
                     "arkDlsMassSolve", MSGD_LMEM_NULL);
@@ -1474,7 +1473,7 @@ int arkDlsMassFree(void *arkode_mem)
   /* Return immediately if ARKodeMem or ARKDlsMassMem are NULL */
   if (arkode_mem == NULL)  return (ARKDLS_SUCCESS);
   ark_mem = (ARKodeMem) arkode_mem;
-  ark_step_massmem = ark_mem->ark_step_getmassmem((void*) ark_mem);
+  ark_step_massmem = ark_mem->step_getmassmem((void*) ark_mem);
   if (ark_step_massmem == NULL)  return(ARKDLS_SUCCESS);
   arkdls_mem = (ARKDlsMassMem) ark_step_massmem;
 

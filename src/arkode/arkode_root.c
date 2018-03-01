@@ -78,8 +78,8 @@ int ARKodeRootInit(void* arkode_mem, int nrtfn, ARKRootFn g)
     ark_mem->root_mem->gactive = NULL;
     ark_mem->root_mem->mxgnull = 1;
 
-    ark_mem->ark_lrw += ARK_ROOT_LRW;
-    ark_mem->ark_liw += ARK_ROOT_LIW;
+    ark_mem->lrw += ARK_ROOT_LRW;
+    ark_mem->liw += ARK_ROOT_LIW;
   }
 
   /* If rerunning ARKodeRootInit() with a different number of root
@@ -93,8 +93,8 @@ int ARKodeRootInit(void* arkode_mem, int nrtfn, ARKRootFn g)
     free(ark_mem->root_mem->rootdir); ark_mem->root_mem->rootdir = NULL;
     free(ark_mem->root_mem->gactive); ark_mem->root_mem->gactive = NULL;
 
-    ark_mem->ark_lrw -= 3 * (ark_mem->root_mem->nrtfn);
-    ark_mem->ark_liw -= 3 * (ark_mem->root_mem->nrtfn);
+    ark_mem->lrw -= 3 * (ark_mem->root_mem->nrtfn);
+    ark_mem->liw -= 3 * (ark_mem->root_mem->nrtfn);
   }
 
   /* If ARKodeRootInit() was called with nrtfn == 0, then set 
@@ -120,8 +120,8 @@ int ARKodeRootInit(void* arkode_mem, int nrtfn, ARKRootFn g)
         free(ark_mem->root_mem->rootdir); ark_mem->root_mem->rootdir = NULL;
         free(ark_mem->root_mem->gactive); ark_mem->root_mem->gactive = NULL;
 
-        ark_mem->ark_lrw -= 3*nrt;
-        ark_mem->ark_liw -= 3*nrt;
+        ark_mem->lrw -= 3*nrt;
+        ark_mem->liw -= 3*nrt;
 
         arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
                         "ARKodeRootInit", MSGARK_NULL_G);
@@ -209,8 +209,8 @@ int ARKodeRootInit(void* arkode_mem, int nrtfn, ARKRootFn g)
   /* Set default values for gactive (all active) */
   for(i=0; i<nrt; i++) ark_mem->root_mem->gactive[i] = SUNTRUE;
 
-  ark_mem->ark_lrw += 3*nrt;
-  ark_mem->ark_liw += 3*nrt;
+  ark_mem->lrw += 3*nrt;
+  ark_mem->liw += 3*nrt;
 
   return(ARK_SUCCESS);
 }
@@ -239,12 +239,12 @@ int arkRootFree(void* arkode_mem)
       free(ark_mem->root_mem->iroots);  ark_mem->root_mem->iroots  = NULL;
       free(ark_mem->root_mem->rootdir); ark_mem->root_mem->rootdir = NULL;
       free(ark_mem->root_mem->gactive); ark_mem->root_mem->gactive = NULL;
-      ark_mem->ark_lrw -= 3*ark_mem->root_mem->nrtfn;
-      ark_mem->ark_liw -= 3*ark_mem->root_mem->nrtfn;
+      ark_mem->lrw -= 3*ark_mem->root_mem->nrtfn;
+      ark_mem->liw -= 3*ark_mem->root_mem->nrtfn;
     }
     free(ark_mem->root_mem);
-    ark_mem->ark_lrw -= ARK_ROOT_LRW;
-    ark_mem->ark_liw -= ARK_ROOT_LIW;
+    ark_mem->lrw -= ARK_ROOT_LRW;
+    ark_mem->liw -= ARK_ROOT_LIW;
   }
   return(ARK_SUCCESS);
 }
@@ -329,13 +329,13 @@ int arkRootCheck1(void* arkode_mem)
 
   for (i = 0; i < rootmem->nrtfn; i++) 
     rootmem->iroots[i] = 0;
-  rootmem->tlo = ark_mem->ark_tn;
-  rootmem->ttol = (SUNRabs(ark_mem->ark_tn) +
-                   SUNRabs(ark_mem->ark_h))*ark_mem->ark_uround*HUND;
+  rootmem->tlo = ark_mem->tcur;
+  rootmem->ttol = (SUNRabs(ark_mem->tcur) +
+                   SUNRabs(ark_mem->h))*ark_mem->uround*HUND;
 
   /* Evaluate g at initial t and check for zero values. */
-  retval = rootmem->gfun(rootmem->tlo, ark_mem->ark_ycur,
-                         rootmem->glo, ark_mem->ark_user_data);
+  retval = rootmem->gfun(rootmem->tlo, ark_mem->yn,
+                         rootmem->glo, ark_mem->user_data);
   rootmem->nge = 1;
   if (retval != 0) return(ARK_RTFUNC_FAIL);
 
@@ -349,13 +349,13 @@ int arkRootCheck1(void* arkode_mem)
   if (!zroot) return(ARK_SUCCESS);
 
   /* Some g_i is zero at t0; look at g at t0+(small increment). */
-  hratio = SUNMAX(rootmem->ttol/SUNRabs(ark_mem->ark_h), TENTH);
-  smallh = hratio*ark_mem->ark_h;
+  hratio = SUNMAX(rootmem->ttol/SUNRabs(ark_mem->h), TENTH);
+  smallh = hratio*ark_mem->h;
   tplus = rootmem->tlo + smallh;
-  N_VLinearSum(ONE, ark_mem->ark_ycur, smallh,
-               ark_mem->ark_interp->fold, ark_mem->ark_y);
-  retval = rootmem->gfun(tplus, ark_mem->ark_y, rootmem->ghi, 
-                         ark_mem->ark_user_data);
+  N_VLinearSum(ONE, ark_mem->yn, smallh,
+               ark_mem->interp->fold, ark_mem->ycur);
+  retval = rootmem->gfun(tplus, ark_mem->ycur, rootmem->ghi, 
+                         ark_mem->user_data);
   rootmem->nge++;
   if (retval != 0) return(ARK_RTFUNC_FAIL);
 
@@ -409,12 +409,12 @@ int arkRootCheck2(void* arkode_mem)
   /* return if no roots in previous step */
   if (rootmem->irfnd == 0) return(ARK_SUCCESS);
 
-  /* Set ark_y = y(tlo) */
-  (void) ARKodeGetDky(ark_mem, rootmem->tlo, 0, ark_mem->ark_y);
+  /* Set ark_ycur = y(tlo) */
+  (void) ARKodeGetDky(ark_mem, rootmem->tlo, 0, ark_mem->ycur);
 
   /* Evaluate root-finding function: glo = g(tlo, y(tlo)) */
-  retval = rootmem->gfun(rootmem->tlo, ark_mem->ark_y, 
-                         rootmem->glo, ark_mem->ark_user_data);
+  retval = rootmem->gfun(rootmem->tlo, ark_mem->ycur, 
+                         rootmem->glo, ark_mem->user_data);
   rootmem->nge++;
   if (retval != 0) return(ARK_RTFUNC_FAIL);
 
@@ -435,23 +435,23 @@ int arkRootCheck2(void* arkode_mem)
 
   /* One or more g_i has a zero at tlo.  Check g at tlo+smallh. */
   /*     set time tolerance */
-  rootmem->ttol = (SUNRabs(ark_mem->ark_tn) +
-                   SUNRabs(ark_mem->ark_h))*ark_mem->ark_uround*HUND;
+  rootmem->ttol = (SUNRabs(ark_mem->tcur) +
+                   SUNRabs(ark_mem->h))*ark_mem->uround*HUND;
   /*     set tplus = tlo + smallh */
-  smallh = (ark_mem->ark_h > ZERO) ? rootmem->ttol : -rootmem->ttol;
+  smallh = (ark_mem->h > ZERO) ? rootmem->ttol : -rootmem->ttol;
   tplus = rootmem->tlo + smallh;
-  /*     update ark_y with small explicit Euler step (if tplus is past tn) */
-  if ( (tplus - ark_mem->ark_tn)*ark_mem->ark_h >= ZERO ) {
-    /* hratio = smallh/ark_mem->ark_h; */
-    N_VLinearSum(ONE, ark_mem->ark_y, smallh, 
-                 ark_mem->ark_interp->fold, ark_mem->ark_y);
+  /*     update ark_ycur with small explicit Euler step (if tplus is past tn) */
+  if ( (tplus - ark_mem->tcur)*ark_mem->h >= ZERO ) {
+    /* hratio = smallh/ark_mem->h; */
+    N_VLinearSum(ONE, ark_mem->ycur, smallh, 
+                 ark_mem->interp->fold, ark_mem->ycur);
   } else {
-    /*   set ark_y = y(tplus) via interpolation */
-    (void) ARKodeGetDky(ark_mem, tplus, 0, ark_mem->ark_y);
+    /*   set ark_ycur = y(tplus) via interpolation */
+    (void) ARKodeGetDky(ark_mem, tplus, 0, ark_mem->ycur);
   }
   /*     set ghi = g(tplus,y(tplus)) */
-  retval = rootmem->gfun(tplus, ark_mem->ark_y, rootmem->ghi, 
-                         ark_mem->ark_user_data);
+  retval = rootmem->gfun(tplus, ark_mem->ycur, rootmem->ghi, 
+                         ark_mem->user_data);
   rootmem->nge++;
   if (retval != 0) return(ARK_RTFUNC_FAIL);
 
@@ -501,27 +501,27 @@ int arkRootCheck3(void* arkode_mem)
 
   /* Set thi = tn or tout, whichever comes first; set y = y(thi). */
   if (rootmem->taskc == ARK_ONE_STEP) {
-    rootmem->thi = ark_mem->ark_tn;
-    N_VScale(ONE, ark_mem->ark_ycur, ark_mem->ark_y);
+    rootmem->thi = ark_mem->tcur;
+    N_VScale(ONE, ark_mem->yn, ark_mem->ycur);
   }
   if (rootmem->taskc == ARK_NORMAL) {
-    if ( (rootmem->toutc - ark_mem->ark_tn)*ark_mem->ark_h >= ZERO) {
-      rootmem->thi = ark_mem->ark_tn; 
-      N_VScale(ONE, ark_mem->ark_ycur, ark_mem->ark_y);
+    if ( (rootmem->toutc - ark_mem->tcur)*ark_mem->h >= ZERO) {
+      rootmem->thi = ark_mem->tcur; 
+      N_VScale(ONE, ark_mem->yn, ark_mem->ycur);
     } else {
       rootmem->thi = rootmem->toutc;
-      (void) ARKodeGetDky(ark_mem, rootmem->thi, 0, ark_mem->ark_y);
+      (void) ARKodeGetDky(ark_mem, rootmem->thi, 0, ark_mem->ycur);
     }
   }
 
   /* Set rootmem->ghi = g(thi) and call arkRootfind to search (tlo,thi) for roots. */
-  retval = rootmem->gfun(rootmem->thi, ark_mem->ark_y, 
-                         rootmem->ghi, ark_mem->ark_user_data);
+  retval = rootmem->gfun(rootmem->thi, ark_mem->ycur, 
+                         rootmem->ghi, ark_mem->user_data);
   rootmem->nge++;
   if (retval != 0) return(ARK_RTFUNC_FAIL);
 
-  rootmem->ttol = (SUNRabs(ark_mem->ark_tn) +
-                   SUNRabs(ark_mem->ark_h))*ark_mem->ark_uround*HUND;
+  rootmem->ttol = (SUNRabs(ark_mem->tcur) +
+                   SUNRabs(ark_mem->h))*ark_mem->uround*HUND;
   ier = arkRootfind(ark_mem);
   if (ier == ARK_RTFUNC_FAIL) return(ARK_RTFUNC_FAIL);
   for(i=0; i<rootmem->nrtfn; i++) {
@@ -536,7 +536,7 @@ int arkRootCheck3(void* arkode_mem)
   if (ier == ARK_SUCCESS) return(ARK_SUCCESS);
 
   /* If a root was found, interpolate to get y(trout) and return.  */
-  (void) ARKodeGetDky(ark_mem, rootmem->trout, 0, ark_mem->ark_y);
+  (void) ARKodeGetDky(ark_mem, rootmem->trout, 0, ark_mem->ycur);
   return(RTFOUND);
 }
 
@@ -714,9 +714,9 @@ int arkRootfind(void* arkode_mem)
       tmid = rootmem->thi - fracsub*(rootmem->thi - rootmem->tlo);
     }
 
-    (void) ARKodeGetDky(ark_mem, tmid, 0, ark_mem->ark_y);
-    retval = rootmem->gfun(tmid, ark_mem->ark_y, rootmem->grout, 
-                           ark_mem->ark_user_data);
+    (void) ARKodeGetDky(ark_mem, tmid, 0, ark_mem->ycur);
+    retval = rootmem->gfun(tmid, ark_mem->ycur, rootmem->grout, 
+                           ark_mem->user_data);
     rootmem->nge++;
     if (retval != 0) return(ARK_RTFUNC_FAIL);
 
