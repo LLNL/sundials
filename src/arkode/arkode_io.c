@@ -407,9 +407,10 @@ int ARKodeSetStopTime(void *arkode_mem, realtype tstop)
  Specifies to use a fixed time step size instead of performing 
  any form of temporal adaptivity.  ARKode will use this step size 
  for all steps (unless tstop is set, in which case it may need to 
- modify that last step approaching tstop.  If any (non)linear
- solver failure occurs, ARKode will immediately return with an 
- error message since the time step size cannot be modified.  
+ modify that last step approaching tstop.  If any solver failure
+ occurs in the timestepping module, ARKode will typically
+ immediately return with an error message indicating that the
+ selected step size cannot be used.
 
  Any nonzero argument will result in the use of that fixed step 
  size; an argument of 0 will re-enable temporal adaptivity.

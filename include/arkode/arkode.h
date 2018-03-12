@@ -639,9 +639,10 @@ SUNDIALS_EXPORT int ARKodeResFtolerance(void *arkode_mem,
  g          = name of user-supplied function, of type ARKRootFn,
               defining the functions g_i whose roots are sought.
 
- If a new problem is to be solved with a call to ARKodeReInit,
- where the new problem has no root functions but the prior one
- did, then call ARKodeRootInit with nrtfn = 0.
+ If a new problem is to be solved with a call to either
+ ARKStepReInit or ERKStepReInit, where the new problem has no
+ root functions but the prior one did, then call ARKodeRootInit
+ again with nrtfn = 0.
 
  The return value of ARKodeRootInit is ARK_SUCCESS = 0 if there 
  were no errors; otherwise it is a negative int equal to:

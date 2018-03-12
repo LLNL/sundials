@@ -45,7 +45,7 @@ extern "C" {
   main ARKode infrastructure.
   ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKStepCreate(void* arkode_mem, ARKRhsFn fe,
-                                  ARKRhsFn fi,realtype t0, N_Vector y0);
+                                  ARKRhsFn fi, realtype t0, N_Vector y0);
 
   
 /*---------------------------------------------------------------
@@ -54,7 +54,7 @@ SUNDIALS_EXPORT int ARKStepCreate(void* arkode_mem, ARKRhsFn fe,
   This re-initializes the ARK time step module.
   ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKStepReInit(void* arkode_mem, ARKRhsFn fe,
-                                  ARKRhsFn fi,realtype t0, N_Vector y0);
+                                  ARKRhsFn fi, realtype t0, N_Vector y0);
 
   
 /*---------------------------------------------------------------
