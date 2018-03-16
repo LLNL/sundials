@@ -315,6 +315,19 @@ Fixed a minor bug in the ARKReInit routine, where a flag was
 incorrectly set to indicate that the problem had been resized (instead
 of just re-initialized).
 
+Fixed C++11 compiler errors/warnings about incompatible use of string
+literals.
+
+Updated KLU SUNLinearSolver module to use a \code{typedef} for the
+precision-specific solve function to be used (to avoid compiler
+warnings).
+
+Added missing typecasts for some \code{(void*)} pointers (again, to avoid
+compiler warnings).
+
+Bugfix in \code{sunmatrix\_sparse.c} where we had used \code{int} instead of
+\code{sunindextype} in one location.
+
 
 \subsection{Changes in v2.1.0}
 \label{Introduction:changes-in-v2-1-0}
