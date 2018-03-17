@@ -56,7 +56,7 @@ Approved for public release; further dissemination unlimited
 }
 
 \title{User Documentation for ARKode v2.1.0\\
-       (SUNDIALS v3.1.1)}
+       (SUNDIALS v3.1.0)}
 \author{
   Daniel R. Reynolds$^1$, David J. Gardner$^2$, \\
   Alan C. Hindmarsh$^2$, Carol S. Woodward$^2$ \\
@@ -282,8 +282,8 @@ preconditioner routines.
 \section{Changes from previous versions}
 \label{Introduction:changes-from-previous-versions}
 
-\subsection{Changes in v2.1.1}
-\label{Introduction:changes-in-v2-1-1}
+\subsection{Changes in vX.X.X}
+\label{Introduction:changes-in-vX-X-X}
 Fixed a potential memory leak in the SPGMR and SPFGMR linear solvers:
 if ``Initialize'' was called multiple times then the solver memory was
 reallocated (without being freed).
@@ -291,6 +291,21 @@ reallocated (without being freed).
 Fixed a minor bug in the ARKReInit routine, where a flag was
 incorrectly set to indicate that the problem had been resized (instead
 of just re-initialized).
+
+Fixed C++11 compiler errors/warnings about incompatible use of string
+literals. 
+
+Updated KLU SUNLINEARSOLVER module to use a \texttt{typedef} for the
+precision-specific solve function to be used (to avoid compiler 
+warnings).  
+
+Added missing typecasts for some \texttt{(void*)} pointers (again, to
+avoid compiler warnings). 
+
+Bugfix in \texttt{sunmatrix\_sparse.c} where we had used \texttt{int}
+instead of \texttt{sunindextype} in one location.  
+
+
 \subsection{Changes in v2.1.0}
 \label{Introduction:changes-in-v2-1-0}
 

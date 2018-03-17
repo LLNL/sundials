@@ -8,6 +8,19 @@ Changes to SUNDIALS since Release of Nov. 7, 2017.
   incorrectly set to indicate that the problem had been resized
   (instead of just re-initialized). 
 
+* Fixed C++11 compiler errors/warnings about incompatible use of
+  string literals.
+
+* Updated KLU SUNLinearSolver module to use a typedef for the
+  precision-specific solve function to be used (to avoid compiler
+  warnings). 
+
+* Added missing typecasts for some (void*) pointers (again, to avoid
+  compiler warnings).
+
+* Bugfix in sunmatrix_sparse.c where we had used 'int' instead of
+  'sunindextype' in one location. 
+
 
 
 Changes to SUNDIALS since Release of Oct. 26, 2017.

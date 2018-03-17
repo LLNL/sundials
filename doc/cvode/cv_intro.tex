@@ -99,11 +99,21 @@ in extended {\F}.
 
 \section{Changes from previous versions}
 
-\subsection*{Changes in v3.1.1}
+\subsection*{Changes in vX.X.X}
 
 Fixed a potential memory leak in the {\spgmr} and {\spfgmr} linear
-solvers: if "Initialize" was called multiple times then the solver
+solvers: if ``Initialize'' was called multiple times then the solver
 memory was reallocated (without being freed).
+  
+Updated KLU SUNLINEARSOLVER module to use a \id{typedef} for the
+precision-specific solve function to be used (to avoid compiler 
+warnings).  
+
+Added missing typecasts for some \id{(void*)} pointers (again, to
+avoid compiler warnings). 
+
+Bugfix in \id{sunmatrix\_sparse.c} where we had used \id{int}
+instead of \id{sunindextype} in one location.  
 
 \subsection*{Changes in v3.1.0}
 
