@@ -3092,6 +3092,9 @@ supplied, the default is a difference quotient approximation of these products.
 { If a user-defined routine is not given, then an internal \id{jtimes}
   function, using a difference quotient approximation, is used.
 
+  This function must return a value of $J*v$ that uses the {\it current}
+  value of $J$, i.e. as evaluated at the current $u$.
+
   If the user's \id{KINSpilsJacTimesVecFn} function uses difference quotient
   approximations, it may need to access quantities not in the call list.
   These might include the scale vectors and the unit roundoff.

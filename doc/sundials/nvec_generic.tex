@@ -300,8 +300,9 @@ $m = \sqrt{\left( \sum_{i=0}^{n-1} (x_i w_i)^2 \right) / n}$.
 & Returns the weighted root mean square norm of the \id{N\_Vector} \id{x} with
 \id{realtype} weight vector \id{w} built using only 
 the elements of \id{x} corresponding to
-nonzero elements of the \id{N\_Vector} \id{id}:\\
-&$m = \sqrt{\left( \sum_{i=0}^{n-1} (x_i w_i \text{sign}(id_i))^2 \right) / n}$.
+positive elements of the \id{N\_Vector} \id{id}:\\
+&$m = \sqrt{\left( \sum_{i=0}^{n-1} (x_i w_i msk_i)^2 \right) / n}$,
+  where $msk_i$ is 1 if $id_i > 0$ or 0 if $id_i \leq 0$.
 \\[2mm]
 %%
 \id{N\_VMin} & \id{m = N\_VMin(x);} \\

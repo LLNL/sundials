@@ -4254,7 +4254,11 @@ the default is a difference quotient approximation to these products.
 {
   The value returned by the Jacobian-times-vector function should be 0 if
   successful.  A nonzero value indicates that a nonrecoverable error occurred. 
-
+}
+{
+  This function must return a value of $J*v$ that uses the {\it current}
+  value of $J$, i.e. as evaluated at the current $(t,y,\dot{y})$.
+  \newline
   If the user's \id{IDASpilsJacTimesVecFn} function uses difference quotient
   approximations, it may need to access quantities not in the call
   list. These include the current stepsize, the error weights, etc.
@@ -4263,7 +4267,7 @@ the default is a difference quotient approximation to these products.
   \S\ref{sss:optout_main}. The unit roundoff can be accessed as
   \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
 }
-{}
+
 \index{Jacobian approximation function!Jacobian times vector!user-supplied|)}
 %%
 %%--------------
