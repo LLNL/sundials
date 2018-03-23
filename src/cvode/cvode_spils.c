@@ -821,6 +821,10 @@ int cvSpilsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
                  N_Vector fpred, booleantype *jcurPtr,
                  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
+  UNUSED(vtemp1);
+  UNUSED(vtemp2);
+  UNUSED(vtemp3);
+  
   realtype dgamma;
   int  retval;
   CVSpilsMem cvspils_mem;
