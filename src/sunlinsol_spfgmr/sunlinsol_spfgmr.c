@@ -329,7 +329,7 @@ int SUNLinSolSetScalingVectors_SPFGMR(SUNLinearSolver S, N_Vector s1,
 
 int SUNLinSolSetup_SPFGMR(SUNLinearSolver S, SUNMatrix A)
 {
-  UNUNSED(A);
+  UNUSED(A);
   
   int ier;
   PSetupFn Psetup;
