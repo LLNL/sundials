@@ -193,6 +193,8 @@ SUNDIALS_EXPORT int SUNSPTFQMRSetMaxl(SUNLinearSolver S, int maxl)
 
 SUNLinearSolver_Type SUNLinSolGetType_SPTFQMR(SUNLinearSolver S)
 {
+  UNUSED(S);
+  
   return(SUNLINEARSOLVER_ITERATIVE);
 }
 
