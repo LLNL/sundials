@@ -137,6 +137,8 @@ SUNLinearSolver SUNBandLinearSolver(N_Vector y, SUNMatrix A)
 
 SUNLinearSolver_Type SUNLinSolGetType_Band(SUNLinearSolver S)
 {
+  UNUSED(S);
+  
   return(SUNLINEARSOLVER_DIRECT);
 }
 
@@ -191,6 +193,8 @@ int SUNLinSolSetup_Band(SUNLinearSolver S, SUNMatrix A)
 int SUNLinSolSolve_Band(SUNLinearSolver S, SUNMatrix A, N_Vector x, 
                         N_Vector b, realtype tol)
 {
+  UNUSED(tol);
+  
   realtype **A_cols, *xdata;
   sunindextype *pivots;
   
