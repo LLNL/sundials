@@ -201,6 +201,8 @@ SUNDIALS_EXPORT int SUNSPGMRSetMaxRestarts(SUNLinearSolver S, int maxrs)
 
 SUNLinearSolver_Type SUNLinSolGetType_SPGMR(SUNLinearSolver S)
 {
+  UNUSED(S);
+  
   return(SUNLINEARSOLVER_ITERATIVE);
 }
 
@@ -317,6 +319,8 @@ int SUNLinSolSetScalingVectors_SPGMR(SUNLinearSolver S, N_Vector s1,
 
 int SUNLinSolSetup_SPGMR(SUNLinearSolver S, SUNMatrix A)
 {
+  UNUSED(A);
+  
   int ier;
   PSetupFn Psetup;
   void* PData;
@@ -345,6 +349,8 @@ int SUNLinSolSetup_SPGMR(SUNLinearSolver S, SUNMatrix A)
 int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x, 
                          N_Vector b, realtype delta)
 {
+  UNUSED(A);
+  
   /* local data and shortcut variables */
   N_Vector *V, xcor, vtemp, s1, s2;
   realtype **Hes, *givens, *yg, *res_norm;
