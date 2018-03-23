@@ -28,6 +28,7 @@
 
 #include <sunlinsol/sunlinsol_spfgmr.h>
 #include <sundials/sundials_math.h>
+#include <sundials/sundials_types.h>
 
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
