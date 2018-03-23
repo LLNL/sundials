@@ -263,6 +263,8 @@ int SUNLinSolSetScalingVectors_SPTFQMR(SUNLinearSolver S,
 
 int SUNLinSolSetup_SPTFQMR(SUNLinearSolver S, SUNMatrix A)
 {
+  UNUSED(A);
+  
   int ier;
   PSetupFn Psetup;
   void* PData;
@@ -291,6 +293,8 @@ int SUNLinSolSetup_SPTFQMR(SUNLinearSolver S, SUNMatrix A)
 int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x, 
                            N_Vector b, realtype delta)
 {
+  UNUSED(A);
+  
   /* local data and shortcut variables */
   realtype alpha, tau, eta, beta, c, sigma, v_bar, omega;
   realtype rho[2];
