@@ -61,6 +61,7 @@ static void VScaleBy_Serial(realtype a, N_Vector x);
  */
 N_Vector_ID N_VGetVectorID_Serial(N_Vector v)
 {
+  UNUSED(v);
   return SUNDIALS_NVEC_SERIAL;
 }
 
