@@ -254,6 +254,8 @@ int SUNLinSolSetScalingVectors_SPBCGS(SUNLinearSolver S, N_Vector s1,
 
 int SUNLinSolSetup_SPBCGS(SUNLinearSolver S, SUNMatrix A)
 {
+  UNUSED(A);
+  
   int ier;
   PSetupFn Psetup;
   void* PData;
