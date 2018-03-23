@@ -155,6 +155,20 @@ typedef int sunindextype;
 #define SUNTRUE 1
 #endif
 
+/*
+ *------------------------------------------------------------------
+ * Macro : UNUSED(x)
+ *------------------------------------------------------------------
+ * The macro UNUSED gives the user a conventient way to explicitly
+ * mark variable `x` as unused. Explicit marking suppresses compiler
+ * warnings. This enables the user to "take seriously" other warnings
+ * about variables that were UNINTENDEDLY not used.
+ *------------------------------------------------------------------
+ */
+
+#ifndef UNUSED
+#define UNUSED(x) (void)(x)
+#endif
 
 #ifdef __cplusplus
 }
