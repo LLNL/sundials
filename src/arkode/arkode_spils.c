@@ -1520,6 +1520,10 @@ int arkSpilsSetup(ARKodeMem ark_mem, int convfail, N_Vector ypred,
                   N_Vector fpred, booleantype *jcurPtr, 
                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
+  UNUSED(vtemp1);
+  UNUSED(vtemp2);
+  UNUSED(vtemp3);
+  
   realtype dgamma;
   int  retval;
   ARKSpilsMem arkspils_mem;
@@ -1795,6 +1799,10 @@ int arkSpilsMassInitialize(ARKodeMem ark_mem)
 int arkSpilsMassSetup(ARKodeMem ark_mem, N_Vector vtemp1,
                       N_Vector vtemp2, N_Vector vtemp3)
 {
+  UNUSED(vtemp1);
+  UNUSED(vtemp2);
+  UNUSED(vtemp3);
+  
   int retval;
   ARKSpilsMassMem arkspils_mem;
 
