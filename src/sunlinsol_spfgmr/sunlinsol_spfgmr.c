@@ -328,6 +328,8 @@ int SUNLinSolSetScalingVectors_SPFGMR(SUNLinearSolver S, N_Vector s1,
 
 int SUNLinSolSetup_SPFGMR(SUNLinearSolver S, SUNMatrix A)
 {
+  UNUNSED(A);
+  
   int ier;
   PSetupFn Psetup;
   void* PData;
@@ -356,6 +358,8 @@ int SUNLinSolSetup_SPFGMR(SUNLinearSolver S, SUNMatrix A)
 int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x, 
                          N_Vector b, realtype delta)
 {
+  UNUSED(A);
+  
   /* local data and shortcut variables */
   N_Vector *V, *Z, xcor, vtemp, s1, s2;
   realtype **Hes, *givens, *yg, *res_norm;
