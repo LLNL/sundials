@@ -205,6 +205,8 @@ SUNDIALS_EXPORT int SUNSPFGMRSetMaxRestarts(SUNLinearSolver S, int maxrs)
 
 SUNLinearSolver_Type SUNLinSolGetType_SPFGMR(SUNLinearSolver S)
 {
+  UNUSED(S);
+  
   return(SUNLINEARSOLVER_ITERATIVE);
 }
 
