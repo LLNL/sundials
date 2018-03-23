@@ -22,7 +22,7 @@
 /* fill string with SUNDIALS version information */
 int SUNDIALSGetVersion(char *version, int len)
 {
-  if (strlen(SUNDIALS_VERSION) > len) {
+  if ((int)(strlen(SUNDIALS_VERSION)) > len) {
     return(-1);
   }
   
@@ -35,7 +35,7 @@ int SUNDIALSGetVersion(char *version, int len)
 int SUNDIALSGetVersionNumber(int *major, int *minor, int *patch, 
                              char *label, int len)
 {
-  if (strlen(SUNDIALS_VERSION_LABEL) > len) {
+  if ((int)(strlen(SUNDIALS_VERSION_LABEL)) > len) {
     return(-1);
   }
   
