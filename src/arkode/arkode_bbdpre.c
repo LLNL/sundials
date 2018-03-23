@@ -456,6 +456,8 @@ static int ARKBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
 			   booleantype jok, booleantype *jcurPtr, 
 			   realtype gamma, void *bbd_data)
 {
+  UNUSED(fy);
+  
   sunindextype ier;
   ARKBBDPrecData pdata;
   ARKodeMem ark_mem;
@@ -553,6 +555,13 @@ static int ARKBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
 			   realtype gamma, realtype delta,
 			   int lr, void *bbd_data)
 {
+  UNUSED(t);
+  UNUSED(y);
+  UNUSED(fy);
+  UNUSED(gamma);
+  UNUSED(delta);
+  UNUSED(lr);
+  
   int retval;
   ARKBBDPrecData pdata;
 
