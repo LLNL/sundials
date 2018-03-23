@@ -28,6 +28,7 @@
 
 #include <sunlinsol/sunlinsol_spbcgs.h>
 #include <sundials/sundials_math.h>
+#include <sundials/sundials_types.h>
 
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
@@ -186,6 +187,8 @@ SUNDIALS_EXPORT int SUNSPBCGSSetMaxl(SUNLinearSolver S, int maxl)
 
 SUNLinearSolver_Type SUNLinSolGetType_SPBCGS(SUNLinearSolver S)
 {
+  UNUSED(S);
+  
   return(SUNLINEARSOLVER_ITERATIVE);
 }
 
@@ -251,6 +254,8 @@ int SUNLinSolSetScalingVectors_SPBCGS(SUNLinearSolver S, N_Vector s1,
 
 int SUNLinSolSetup_SPBCGS(SUNLinearSolver S, SUNMatrix A)
 {
+  UNUSED(A);
+  
   int ier;
   PSetupFn Psetup;
   void* PData;
@@ -280,6 +285,8 @@ int SUNLinSolSetup_SPBCGS(SUNLinearSolver S, SUNMatrix A)
 int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x, 
                           N_Vector b, realtype delta)
 {
+  UNUSED(A);
+  
   /* local data and shortcut variables */
   realtype alpha, beta, omega, omega_denom, beta_num, beta_denom, r_norm, rho;
   N_Vector r_star, r, p, q, u, Ap, vtemp;

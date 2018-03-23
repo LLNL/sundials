@@ -202,6 +202,7 @@ realtype* SUNDenseMatrix_Column(SUNMatrix A, sunindextype j)
 
 SUNMatrix_ID SUNMatGetID_Dense(SUNMatrix A)
 {
+  UNUSED(A);
   return SUNMATRIX_DENSE;
 }
 
@@ -338,6 +339,9 @@ static booleantype SMCompatible_Dense(SUNMatrix A, SUNMatrix B)
 
 static booleantype SMCompatible2_Dense(SUNMatrix A, N_Vector x, N_Vector y)
 {
+  UNUSED(A);
+  UNUSED(y);
+  
   /*   vectors must be one of {SERIAL, OPENMP, PTHREADS} */ 
   if ( (N_VGetVectorID(x) != SUNDIALS_NVEC_SERIAL) &&
        (N_VGetVectorID(x) != SUNDIALS_NVEC_OPENMP) &&

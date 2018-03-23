@@ -131,6 +131,8 @@ SUNLinearSolver SUNDenseLinearSolver(N_Vector y, SUNMatrix A)
 
 SUNLinearSolver_Type SUNLinSolGetType_Dense(SUNLinearSolver S)
 {
+  UNUSED(S);
+  
   return(SUNLINEARSOLVER_DIRECT);
 }
 
@@ -179,6 +181,9 @@ int SUNLinSolSetup_Dense(SUNLinearSolver S, SUNMatrix A)
 int SUNLinSolSolve_Dense(SUNLinearSolver S, SUNMatrix A, N_Vector x, 
                         N_Vector b, realtype tol)
 {
+  UNUSED(S);
+  UNUSED(tol);
+  
   realtype **A_cols, *xdata;
   sunindextype *pivots;
   

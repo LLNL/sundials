@@ -4778,6 +4778,8 @@ static int arkNlsNewton(ARKodeMem ark_mem, int nflag)
 ---------------------------------------------------------------*/
 static int arkNlsAccelFP(ARKodeMem ark_mem, int nflag)
 {
+  UNUSED(nflag);
+  
   /* local variables */
   int retval;
   realtype del, delp, dcon;
@@ -5851,6 +5853,10 @@ static int arkAdaptImExGus(ARKodeMem ark_mem, realtype *hnew)
 ---------------------------------------------------------------*/
 int arkExpStab(N_Vector y, realtype t, realtype *hstab, void *data)
 {
+  UNUSED(y);
+  UNUSED(t);
+  UNUSED(data);
+  
   /* explicit stability not used by default, 
      set to zero to disable */
   *hstab = RCONST(0.0);

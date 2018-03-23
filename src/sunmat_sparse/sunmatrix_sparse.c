@@ -430,6 +430,7 @@ sunindextype* SUNSparseMatrix_IndexPointers(SUNMatrix A)
 
 SUNMatrix_ID SUNMatGetID_Sparse(SUNMatrix A)
 {
+  UNUSED(A);
   return SUNMATRIX_SPARSE;
 }
 
@@ -901,7 +902,9 @@ static booleantype SMCompatible_Sparse(SUNMatrix A, SUNMatrix B)
 
 static booleantype SMCompatible2_Sparse(SUNMatrix A, N_Vector x, N_Vector y)
 {
-
+  UNUSED(A);
+  UNUSED(y);
+  
   /*   vectors must be one of {SERIAL, OPENMP, PTHREADS} */ 
   if ( (N_VGetVectorID(x) != SUNDIALS_NVEC_SERIAL) &&
        (N_VGetVectorID(x) != SUNDIALS_NVEC_OPENMP) &&

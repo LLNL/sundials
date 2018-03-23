@@ -374,6 +374,8 @@ int cvDlsDQJac(realtype t, N_Vector y, N_Vector fy,
                SUNMatrix Jac, void *cvode_mem, N_Vector tmp1, 
                N_Vector tmp2, N_Vector tmp3)
 {
+  UNUSED(tmp3);
+  
   int retval;
   CVodeMem cv_mem;
   cv_mem = (CVodeMem) cvode_mem;
@@ -492,6 +494,8 @@ int cvDlsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
 int cvDlsBandDQJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac, 
                    CVodeMem cv_mem, N_Vector tmp1, N_Vector tmp2)
 {
+  UNUSED(t);
+  
   N_Vector ftemp, ytemp;
   realtype fnorm, minInc, inc, inc_inv, srur;
   realtype *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
@@ -718,6 +722,10 @@ int cvDlsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 int cvDlsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                N_Vector ycur, N_Vector fcur)
 {
+  UNUSED(weight);
+  UNUSED(ycur);
+  UNUSED(fcur);
+  
   int retval;
   CVDlsMem cvdls_mem;
 

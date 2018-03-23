@@ -451,6 +451,8 @@ static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy,
                           booleantype jok, booleantype *jcurPtr, 
                           realtype gamma, void *bbd_data)
 {
+  UNUSED(fy);
+  
   sunindextype ier;
   CVBBDPrecData pdata;
   CVodeMem cv_mem;
@@ -547,6 +549,13 @@ static int CVBBDPrecSolve(realtype t, N_Vector y, N_Vector fy,
                           realtype gamma, realtype delta,
                           int lr, void *bbd_data)
 {
+  UNUSED(t);
+  UNUSED(y);
+  UNUSED(fy);
+  UNUSED(gamma);
+  UNUSED(delta);
+  UNUSED(lr);
+  
   int retval;
   CVBBDPrecData pdata;
 

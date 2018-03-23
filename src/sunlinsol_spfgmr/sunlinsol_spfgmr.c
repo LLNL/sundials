@@ -28,6 +28,7 @@
 
 #include <sunlinsol/sunlinsol_spfgmr.h>
 #include <sundials/sundials_math.h>
+#include <sundials/sundials_types.h>
 
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
@@ -204,6 +205,8 @@ SUNDIALS_EXPORT int SUNSPFGMRSetMaxRestarts(SUNLinearSolver S, int maxrs)
 
 SUNLinearSolver_Type SUNLinSolGetType_SPFGMR(SUNLinearSolver S)
 {
+  UNUSED(S);
+  
   return(SUNLINEARSOLVER_ITERATIVE);
 }
 
@@ -328,6 +331,8 @@ int SUNLinSolSetScalingVectors_SPFGMR(SUNLinearSolver S, N_Vector s1,
 
 int SUNLinSolSetup_SPFGMR(SUNLinearSolver S, SUNMatrix A)
 {
+  UNUSED(A);
+  
   int ier;
   PSetupFn Psetup;
   void* PData;
@@ -356,6 +361,8 @@ int SUNLinSolSetup_SPFGMR(SUNLinearSolver S, SUNMatrix A)
 int SUNLinSolSolve_SPFGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x, 
                          N_Vector b, realtype delta)
 {
+  UNUSED(A);
+  
   /* local data and shortcut variables */
   N_Vector *V, *Z, xcor, vtemp, s1, s2;
   realtype **Hes, *givens, *yg, *res_norm;

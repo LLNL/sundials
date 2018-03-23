@@ -433,6 +433,13 @@ static int CVBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
                            N_Vector r, N_Vector z, realtype gamma, 
                            realtype delta, int lr, void *bp_data)
 {
+  UNUSED(t);
+  UNUSED(y);
+  UNUSED(fy);
+  UNUSED(gamma);
+  UNUSED(delta);
+  UNUSED(lr);
+  
   CVBandPrecData pdata;
   int retval;
 

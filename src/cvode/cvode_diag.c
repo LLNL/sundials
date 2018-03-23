@@ -317,6 +317,9 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
                        N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1,
                        N_Vector vtemp2, N_Vector vtemp3)
 {
+  UNUSED(convfail);
+  UNUSED(vtemp3);
+  
   realtype r;
   N_Vector ftemp, y;
   booleantype invOK;
@@ -386,6 +389,10 @@ static int CVDiagSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 static int CVDiagSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                        N_Vector ycur, N_Vector fcur)
 {
+  UNUSED(weight);
+  UNUSED(ycur);
+  UNUSED(fcur);
+  
   booleantype invOK;
   realtype r;
   CVDiagMem cvdiag_mem;

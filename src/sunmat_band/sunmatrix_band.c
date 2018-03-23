@@ -234,6 +234,7 @@ realtype* SUNBandMatrix_Column(SUNMatrix A, sunindextype j)
 
 SUNMatrix_ID SUNMatGetID_Band(SUNMatrix A)
 {
+  UNUSED(A);
   return SUNMATRIX_BAND;
 }
 
@@ -424,6 +425,8 @@ static booleantype SMCompatible_Band(SUNMatrix A, SUNMatrix B)
 
 static booleantype SMCompatible2_Band(SUNMatrix A, N_Vector x, N_Vector y)
 {
+  UNUSED(y);
+  
   /*   matrix must be SUNMATRIX_BAND */
   if (SUNMatGetID(A) != SUNMATRIX_BAND)
     return SUNFALSE;

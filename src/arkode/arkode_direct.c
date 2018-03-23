@@ -710,6 +710,8 @@ int arkDlsDQJac(realtype t, N_Vector y, N_Vector fy,
                 SUNMatrix Jac, void *arkode_mem, N_Vector tmp1, 
                 N_Vector tmp2, N_Vector tmp3)
 {
+  UNUSED(tmp3);
+  
   int retval;
   ARKodeMem ark_mem;
   ark_mem = (ARKodeMem) arkode_mem;
@@ -828,6 +830,8 @@ int arkDlsBandDQJac(realtype t, N_Vector y, N_Vector fy,
                     SUNMatrix Jac, ARKodeMem ark_mem,
                     N_Vector tmp1, N_Vector tmp2)
 {
+  UNUSED(t);
+  
   N_Vector ftemp, ytemp;
   realtype fnorm, minInc, inc, inc_inv, srur;
   realtype *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
@@ -1105,6 +1109,9 @@ int arkDlsSetup(ARKodeMem ark_mem, int convfail, N_Vector ypred,
 ---------------------------------------------------------------*/
 int arkDlsSolve(ARKodeMem ark_mem, N_Vector b, N_Vector ycur, N_Vector fcur)
 {
+  UNUSED(ycur);
+  UNUSED(fcur);
+  
   int retval;
   ARKDlsMem arkdls_mem;
 

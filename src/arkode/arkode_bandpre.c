@@ -435,6 +435,13 @@ static int ARKBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
                             realtype gamma, realtype delta,
                             int lr, void *bp_data)
 {
+  UNUSED(t);
+  UNUSED(y);
+  UNUSED(fy);
+  UNUSED(gamma);
+  UNUSED(delta);
+  UNUSED(lr);
+  
   ARKBandPrecData pdata;
   int retval;
 
