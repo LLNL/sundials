@@ -1080,7 +1080,7 @@ int arkRwtSetSV(ARKodeMem ark_mem, N_Vector My,
 #define MSGARK_BAD_TSTOP      "The value " MSG_TIME_TSTOP " is behind current " MSG_TIME " in the direction of integration."
 #define MSGARK_INACTIVE_ROOTS "At the end of the first step, there are still some root functions identically 0. This warning will not be issued again."
 #define MSGARK_MISSING_FE     "Cannot specify that method is explicit without providing a function pointer to fe(t,y)."
-#define MSGARK_MISSING_FI     "Cannot specify that method is explicit without providing a function pointer to fe(t,y)."
+#define MSGARK_MISSING_FI     "Cannot specify that method is implicit without providing a function pointer to fi(t,y)."
 #define MSGARK_MISSING_F      "Cannot specify that method is ImEx without providing function pointers to fi(t,y) and fe(t,y)."
 #define MSGARK_RESIZE_FAIL    "Error in user-supplied resize() function."
 #define MSGARK_MASSSOLVE_NULL "The mass matrix linear solver object is NULL."
