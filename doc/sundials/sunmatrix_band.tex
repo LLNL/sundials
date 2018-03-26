@@ -201,10 +201,15 @@ The module {\sunmatband} provides the following additional user-callable routine
   This constructor function creates and allocates memory for a banded \id{SUNMatrix}.
   Its arguments are the matrix size, \id{N}, the upper and lower
   half-bandwidths of the matrix, \id{mu} and \id{ml}, and the stored
-  upper bandwidth, \id{smu}.  When creating a band \id{SUNMatrix}, if
-  the matrix will be used by the {\sunlinsolband} module then \id{smu}
-  should be at least min(\id{N}-1,\id{mu}+\id{ml}); otherwise \id{smu}
-  should be at least \id{mu}.  
+  upper bandwidth, \id{smu}.  When creating a band \id{SUNMatrix},
+  this value should be
+  \begin{itemize}
+  \item at least min(\id{N}-1,\id{mu}+\id{ml}) if the matrix will be
+    used by the {\sunlinsolband} module; 
+  \item exactly equal to \id{mu}+\id{ml} if the matrix will be used by
+    the {\sunlinsollapband} module;
+  \item at least \id{mu} if used in some other manner.
+  \end{itemize}
 
   \begin{verbatim}
 SUNMatrix SUNBandMatrix(sunindextype N, sunindextype mu,
