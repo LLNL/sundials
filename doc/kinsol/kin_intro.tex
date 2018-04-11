@@ -123,7 +123,10 @@ Added missing typecasts for some \id{(void*)} pointers (again, to
 avoid compiler warnings). 
 
 Bugfix in \id{sunmatrix\_sparse.c} where we had used \id{int}
-instead of \id{sunindextype} in one location.  
+instead of \id{sunindextype} in one location. 
+
+Fixed a minor bug in \id{KINPrintInfo} where a case was missing for
+\id{KIN\_REPTD\_SYSFUNC\_ERR} leading to an undefined info message.
 
 \subsection*{Changes in v3.1.0}
 

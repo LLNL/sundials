@@ -19,7 +19,10 @@ Changes to SUNDIALS since Release of Nov. 7, 2017.
   compiler warnings).
 
 * Bugfix in sunmatrix_sparse.c where we had used 'int' instead of
-  'sunindextype' in one location. 
+  'sunindextype' in one location.
+
+* Fixed a minor bug in KINPrintInfo where a case was missing for
+  KIN_REPTD_SYSFUNC_ERR leading to an undefined info message.
 
 
 
