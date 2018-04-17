@@ -24,8 +24,8 @@ SET(IDA_examples
   )
 
 # Add source directory to include directories
-#INCLUDE_DIRECTORIES(. ${CUDA_TOOLKIT_ROOT_DIR}/samples/common/inc ${CUDA_INCLUDE_PATH} /usr/include/mpich-x86_64/)
-INCLUDE_DIRECTORIES(. ${CUDA_TOOLKIT_ROOT_DIR}/samples/common/inc ${RAJA_INCLUDE_PATH} /usr/include/mpich-x86_64/) # temporary, for testing only
+#INCLUDE_DIRECTORIES(. ${CUDA_INCLUDE_PATH} ${MPI_C_INCLUDE_PATH})
+INCLUDE_DIRECTORIES(. ${RAJA_INCLUDE_PATH} ${MPI_C_INCLUDE_PATH}) # temporary, for testing only
 
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
@@ -68,7 +68,7 @@ FOREACH(example_tuple ${IDA_examples})
     EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
-  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} /usr/lib64/mpich/lib/libmpich.so)
+  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${MPI_LIBRARY})
   # install example source and out files
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.cu ${example}.out
