@@ -19,7 +19,7 @@
 # ---------------------------------------------------------------
 
 # Require a fairly recent cmake version
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.1)
+cmake_minimum_required(VERSION 3.0.2)
 
 # Set CMake policy to allow examples to build
 if(COMMAND cmake_policy)
@@ -614,26 +614,18 @@ ENDIF(APPLE)
 # (c) LAPACK is enabled (for the name-mangling scheme)
 # ---------------------------------------------------------------
 
-IF(FCMIX_ENABLE OR BLAS_ENABLE OR LAPACK_ENABLE)
-  INCLUDE(SundialsFortran)
-  IF(NOT F77_FOUND AND FCMIX_ENABLE)
-    PRINT_WARNING("Fortran compiler not functional"
-                  "FCMIX support will not be provided")
-  ENDIF()
-ENDIF()
+if(FCMIX_ENABLE OR BLAS_ENABLE OR LAPACK_ENABLE)
+  include(SundialsFortran)
+endif()
 
 # ---------------------------------------------------------------
 # A Fortran90 compiler is needed if:
 # (a) F90 ARKODE examples are enabled
 # ---------------------------------------------------------------
 
-IF(EXAMPLES_ENABLE_F90)
-  INCLUDE(SundialsFortran90)
-  IF(NOT F90_FOUND)
-    PRINT_WARNING("Fortran90 compiler not functional"
-                  "F90 support will not be provided")
-  ENDIF()
-ENDIF()
+if(EXAMPLES_ENABLE_F90)
+  include(SundialsFortran90)
+endif()
 
 # ---------------------------------------------------------------
 # A C++ compiler is needed if:
@@ -642,13 +634,9 @@ ENDIF()
 # (c) RAJA is enabled
 # ---------------------------------------------------------------
 
-IF(EXAMPLES_ENABLE_CXX OR CUDA_ENABLE OR RAJA_ENABLE)
-  INCLUDE(SundialsCXX)
-  IF(NOT CXX_FOUND)
-    PRINT_WARNING("C++ compiler not functional"
-                  "C++ support will not be provided")
-  ENDIF()
-ENDIF()
+if(EXAMPLES_ENABLE_CXX OR CUDA_ENABLE OR RAJA_ENABLE)
+  include(SundialsCXX)
+endif()
 
 # ---------------------------------------------------------------
 # Check if we need an alternate way of specifying the Fortran
@@ -782,58 +770,24 @@ ENDIF()
 # Decide how to compile MPI codes.
 # ---------------------------------------------------------------
 
-IF(MPI_ENABLE)
-  IF(MPI_ENABLE)
-    SET(IS_MPI_ENABLED "#define SUNDIALS_MPI_ENABLED 1")
-  ENDIF()
+if(MPI_ENABLE)
 
-  # show command to run MPI codes (defaults to mpirun)
-  SHOW_VARIABLE(MPI_RUN_COMMAND STRING "MPI run command" "mpirun")
+  include(SundialsMPI)
 
-  INCLUDE(SundialsMPIC)
-  IF(MPIC_FOUND)
-    IF(CXX_FOUND AND EXAMPLES_ENABLE_CXX)
-      INCLUDE(SundialsMPICXX)
-    ENDIF()
-    IF(F77_FOUND AND EXAMPLES_ENABLE_F77)
-      INCLUDE(SundialsMPIF)
-    ENDIF()
-    IF(F90_FOUND AND EXAMPLES_ENABLE_F90)
-      INCLUDE(SundialsMPIF90)
-    ENDIF()
-  ELSE()
-    PRINT_WARNING("MPI not functional"
-                  "Parallel support will not be provided")
-  ENDIF()
+  if(NOT MPI_C_FOUND)
+    print_warning("MPI not functional"
+      "Parallel support will not be provided")
+  endif()
 
-  IF(MPIC_MPI2)
-    SET(F77_MPI_COMM_F2C "#define SUNDIALS_MPI_COMM_F2C 1")
-    SET(FMPI_COMM_F2C ".true.")
+  SET(IS_MPI_ENABLED "#define SUNDIALS_MPI_ENABLED 1")
 
-  ELSE()
-    SET(F77_MPI_COMM_F2C "#define SUNDIALS_MPI_COMM_F2C 0")
-    SET(FMPI_COMM_F2C ".false.")
-  ENDIF()
+  if(MPIC_MPI2)
+    set(F77_MPI_COMM_F2C "#define SUNDIALS_MPI_COMM_F2C 1")
+  else()
+    set(F77_MPI_COMM_F2C "#define SUNDIALS_MPI_COMM_F2C 0")
+  endif()
 
-ELSE()
-
-  HIDE_VARIABLE(MPI_INCLUDE_PATH)
-  HIDE_VARIABLE(MPI_LIBRARIES)
-  HIDE_VARIABLE(MPI_EXTRA_LIBRARIES)
-  HIDE_VARIABLE(MPI_MPICC)
-  HIDE_VARIABLE(MPI_MPICXX)
-  HIDE_VARIABLE(MPI_MPIF77)
-  HIDE_VARIABLE(MPI_MPIF90)
-
-ENDIF(MPI_ENABLE)
-
-# ---------------------------------------------------------------
-# If using MPI with C++, disable C++ extensions (for known wrappers)
-# ---------------------------------------------------------------
-
-# IF(MPICXX_FOUND)
-#   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMPICH_SKIP_MPICXX -DOMPI_SKIP_MPICXX -DLAM_BUILDING")
-# ENDIF(MPICXX_FOUND)
+endif()
 
 # -------------------------------------------------------------
 # Find OpenMP

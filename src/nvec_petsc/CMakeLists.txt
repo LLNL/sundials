@@ -15,13 +15,13 @@
 
 INSTALL(CODE "MESSAGE(\"\nInstall NVECTOR_PETSC\n\")")
 
-IF(MPI_MPICC)
-  # use MPI_MPICC as the compiler
-  SET(CMAKE_C_COMPILER ${MPI_MPICC})
-ELSE(MPI_MPICC)
+IF(MPI_C_COMPILER)
+  # use MPI wrapper as the compiler
+  SET(CMAKE_C_COMPILER ${MPI_C_COMPILER})
+ELSE()
   # add MPI_INCLUDE_PATH to include directories
   INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
-ENDIF(MPI_MPICC)
+ENDIF()
 
 # Add variable nvecpetsc_SOURCES with the sources for the NVECPARHYP lib
 SET(nvecpetsc_SOURCES nvector_petsc.c)
