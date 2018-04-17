@@ -54,6 +54,7 @@
 #ifndef _NVECTOR_PTHREADS_H
 #define _NVECTOR_PTHREADS_H
 
+#include <stdio.h>
 #include <pthread.h>
 #include <sundials/sundials_nvector.h>
 

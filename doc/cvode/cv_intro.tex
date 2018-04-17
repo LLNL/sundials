@@ -113,7 +113,10 @@ Added missing typecasts for some \id{(void*)} pointers (again, to
 avoid compiler warnings). 
 
 Bugfix in \id{sunmatrix\_sparse.c} where we had used \id{int}
-instead of \id{sunindextype} in one location.  
+instead of \id{sunindextype} in one location.
+
+Added missing \id{\#include <stdio.h>} in {\nvector} and {\sunmatrix}
+header files.
 
 \subsection*{Changes in v3.1.0}
 

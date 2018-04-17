@@ -49,6 +49,7 @@
 #ifndef _NVECTOR_SERIAL_H
 #define _NVECTOR_SERIAL_H
 
+#include <stdio.h>
 #include <sundials/sundials_nvector.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */

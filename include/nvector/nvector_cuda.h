@@ -44,6 +44,7 @@
 #ifndef _NVECTOR_CUDA_H
 #define _NVECTOR_CUDA_H
 
+#include <stdio.h>
 #include <sundials/sundials_nvector.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */

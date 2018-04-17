@@ -49,6 +49,7 @@
 #ifndef _NVECTOR_PARALLEL_H
 #define _NVECTOR_PARALLEL_H
 
+#include <stdio.h>
 #include <mpi.h>
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_mpi_types.h>

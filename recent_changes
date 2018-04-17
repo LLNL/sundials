@@ -24,6 +24,8 @@ Changes to SUNDIALS since Release of Nov. 7, 2017.
 * Fixed a minor bug in KINPrintInfo where a case was missing for
   KIN_REPTD_SYSFUNC_ERR leading to an undefined info message.
 
+* Added missing #include <stdio.h> in NVECTOR and SUNMATRIX
+  header files.
 
 
 Changes to SUNDIALS since Release of Oct. 26, 2017.

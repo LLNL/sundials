@@ -48,6 +48,7 @@
 #ifndef _NVECTOR_PARHYP_H
 #define _NVECTOR_PARHYP_H
 
+#include <stdio.h>
 #include <mpi.h>
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_mpi_types.h>

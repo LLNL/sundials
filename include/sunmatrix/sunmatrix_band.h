@@ -49,6 +49,7 @@
 #ifndef _SUNMATRIX_BAND_H
 #define _SUNMATRIX_BAND_H
 
+#include <stdio.h>
 #include <sundials/sundials_matrix.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
