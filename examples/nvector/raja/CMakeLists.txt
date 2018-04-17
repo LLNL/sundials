@@ -31,7 +31,7 @@ SET(nvector_examples_dependencies
   )
 
 # Add source directory to include directories
-INCLUDE_DIRECTORIES(. .. ${MPI_C_INCLUDE_PATH})
+INCLUDE_DIRECTORIES(. .. ${MPI_CXX_INCLUDE_PATH})
 
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
@@ -71,7 +71,7 @@ FOREACH(example_tuple ${nvector_raja_examples})
 
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
-    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${CUDA_LIBRARIES} ${MPI_LIBRARY})
+    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${CUDA_LIBRARIES} ${MPI_CXX_LIBRARIES})
   ENDIF()
 
   # check if example args are provided and set the test name
