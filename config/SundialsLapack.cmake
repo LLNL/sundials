@@ -56,14 +56,13 @@ if(LAPACK_LIBRARIES)
     "SET(CMAKE_C_FLAGS_RELWITHDEBUGINFO \"${CMAKE_C_FLAGS_RELWITHDEBUGINFO}\")\n"
     "SET(CMAKE_C_FLAGS_MINSIZE \"${CMAKE_C_FLAGS_MINSIZE}\")\n"
     "ADD_EXECUTABLE(ltest ltest.c)\n"
-    "TARGET_LINK_LIBRARIES(ltest ${LAPACK_LIBRARIES})\n"
-    "TARGET_INCLUDE_DIRECTORIES(ltest PRIVATE ${CMAKE_BINARY_DIR}/include)\n")
+    "TARGET_LINK_LIBRARIES(ltest ${LAPACK_LIBRARIES})\n")
 
   # Create a C source file which calls a Blas function (dcopy) and an Lapack function (dgetrf)
   file(WRITE ${LapackTest_DIR}/ltest.c
-    "#include \"sundials/sundials_fcmix.h\"\n"
-    "#define dcopy_f77 SUNDIALS_F77_FUNC_GLOBAL(dcopy, DCOPY)\n"
-    "#define dgetrf_f77 SUNDIALS_F77_FUNC_GLOBAL(dgetrf, DGETRF)\n"
+    "${F77_MANGLE_MACRO1}\n"
+    "#define dcopy_f77 SUNDIALS_F77_FUNC(dcopy, DCOPY)\n"
+    "#define dgetrf_f77 SUNDIALS_F77_FUNC(dgetrf, DGETRF)\n"
     "extern void dcopy_f77(int *n, const double *x, const int *inc_x, double *y, const int *inc_y);\n"
     "extern void dgetrf_f77(const int *m, const int *n, double *a, int *lda, int *ipiv, int *info);\n"
     "int main(){\n"

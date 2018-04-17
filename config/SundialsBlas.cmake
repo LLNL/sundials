@@ -58,13 +58,12 @@ if(BLAS_LIBRARIES)
     "SET(CMAKE_C_FLAGS_RELWITHDEBUGINFO \"${CMAKE_C_FLAGS_RELWITHDEBUGINFO}\")\n"
     "SET(CMAKE_C_FLAGS_MINSIZE \"${CMAKE_C_FLAGS_MINSIZE}\")\n"
     "ADD_EXECUTABLE(ltest ltest.c)\n"
-    "TARGET_LINK_LIBRARIES(ltest ${BLAS_LIBRARIES})\n"
-    "TARGET_INCLUDE_DIRECTORIES(ltest PRIVATE ${CMAKE_BINARY_DIR}/include)\n")
+    "TARGET_LINK_LIBRARIES(ltest ${BLAS_LIBRARIES})\n")
 
   # Create a C source file which calls a Blas function (dcopy)
   file(WRITE ${BlasTest_DIR}/ltest.c
-    "#include \"sundials/sundials_fcmix.h\"\n"
-    "#define dcopy_f77 SUNDIALS_F77_FUNC_GLOBAL(dcopy, DCOPY)\n"
+    "${F77_MANGLE_MACRO1}\n"
+    "#define dcopy_f77 SUNDIALS_F77_FUNC(dcopy, DCOPY)\n"
     "extern void dcopy_f77(int *n, const double *x, const int *inc_x, double *y, const int *inc_y);\n"
     "int main(){\n"
     "int n=1;\n"
