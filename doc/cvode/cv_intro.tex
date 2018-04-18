@@ -101,6 +101,9 @@ in extended {\F}.
 
 \subsection*{Changes in vX.X.X}
 
+Fixed a minor bug in the cvSLdet routine, where a return was missing
+in the error check for three inconsistent roots.
+
 Fixed a potential memory leak in the {\spgmr} and {\spfgmr} linear
 solvers: if ``Initialize'' was called multiple times then the solver
 memory was reallocated (without being freed).

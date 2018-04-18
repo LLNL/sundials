@@ -1,5 +1,8 @@
 Changes to SUNDIALS since Release of Nov. 7, 2017.
 
+* Fixed a minor bug in the CVODE and CVODES cvSLdet routine, where a
+  return was missing in the error check for three inconsistent roots.
+
 * Fixed a potential memory leak in the SPGMR and SPFGMR linear
   solvers: if "Initialize" was called multiple times then the solver
   memory was reallocated (without being freed). 
