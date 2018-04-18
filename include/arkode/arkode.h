@@ -1192,12 +1192,6 @@ SUNDIALS_EXPORT int ARKodeGetDky(void *arkode_mem, realtype t,
  ARKodeGetNumLinSolvSetups returns the number of calls made to
                            the linear solver's setup routine
 
- ARKodeGetNumMassSolves returns the number of calls made to
-                           the mass matrix solve routine
-
- ARKodeGetNumMassMultiplies returns the number of calls made to
-                            the mass matrix times vector routine
-
  ARKodeGetNumErrTestFails returns the number of local error test
                           failures that have occured
 
@@ -1260,10 +1254,6 @@ SUNDIALS_EXPORT int ARKodeGetNumRhsEvals(void *arkode_mem,
 					 long int *nfi_evals);
 SUNDIALS_EXPORT int ARKodeGetNumLinSolvSetups(void *arkode_mem, 
 					      long int *nlinsetups);
-SUNDIALS_EXPORT int ARKodeGetNumMassSolves(void *arkode_mem, 
-					   long int *nMassSolves);
-SUNDIALS_EXPORT int ARKodeGetNumMassMultiplies(void *arkode_mem, 
-					       long int *nMassMult);
 SUNDIALS_EXPORT int ARKodeGetNumErrTestFails(void *arkode_mem, 
 					     long int *netfails);
 SUNDIALS_EXPORT int ARKodeGetActualInitStep(void *arkode_mem, 

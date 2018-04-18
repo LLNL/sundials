@@ -306,8 +306,7 @@ typedef int (*ARKSpilsJacTimesVecFn)(N_Vector v, N_Vector Jv,
  t       is the current value of the independent variable.
 
  mtimes_data  is a pointer to user data - the same as the 
-         parameter passed to the ARKodeSetMassTimesVecFn
-         function.
+         parameter passed to the ARKSpilsSetMassTimes function.
 
  Returned value:
  The value to be returned by the MassTimesSetup function is a 
@@ -336,9 +335,8 @@ typedef int (*ARKSpilsMassTimesSetupFn)(realtype t, void *mtimes_data);
 
    t        is the current value of the independent variable.
 
-   mtimes_data   is a pointer to user data, the same as the 
-            parameter passed to the ARKodeSetMassTimesVecFn 
-            function.
+   mtimes_data  is a pointer to user data - the same as the 
+            parameter passed to the ARKSpilsSetMassTimes function.
 ---------------------------------------------------------------*/
 typedef int (*ARKSpilsMassTimesVecFn)(N_Vector v, N_Vector Mv, 
                                       realtype t, void *mtimes_data);
