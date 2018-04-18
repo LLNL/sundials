@@ -42,10 +42,6 @@
 
 #include <RAJA/RAJA.hpp>
 
-#ifdef SUNDIALS_MPI_ENABLED
-#include <mpi.h>
-#endif
-
 /* Real Constants */
 
 #define ATOL  RCONST(1.0e-5) /* scalar absolute tolerance */
@@ -125,7 +121,8 @@ int main(int argc, char** argv)
     printf("Warning: This test case works only with one MPI rank!");
     return -1;
   }
-    /* Set model parameters */
+
+  /* Set model parameters */
   data = SetUserData(argc, argv);
   if(check_flag((void *)data, "malloc", 2)) return(1);
 

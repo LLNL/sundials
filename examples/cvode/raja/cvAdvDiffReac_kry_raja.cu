@@ -56,7 +56,7 @@ typedef struct
 
 /* User defined functions */
 
-static N_Vector SetIC(UserData data);
+static N_Vector SetIC(SUNDIALS_Comm comm, UserData data);
 static UserData SetUserData(int argc, char *argv[]);
 static int RHS(realtype t, N_Vector u, N_Vector udot, void *userData);
 static int Jtv(N_Vector v, N_Vector Jv, realtype t, N_Vector u, N_Vector fu, void *userData, N_Vector tmp);
@@ -90,19 +90,36 @@ int main(int argc, char *argv[])
   void *cvode_mem;
   //int iout;
   int flag;
+  int npes;
+  SUNDIALS_Comm comm;
 
   u = NULL;
   data = NULL;
+  LS = NULL;
   cvode_mem = NULL;
+
+#ifdef SUNDIALS_MPI_ENABLED
+  MPI_Init(&argc, &argv);
+  comm = MPI_COMM_WORLD;
+  MPI_Comm_size(comm, &npes);
+#else
+  comm = 0;
+  npes = 1;
+#endif
+
+  if (npes != 1) {
+    printf("Warning: This test case works only with one MPI rank!");
+    return -1;
+  }
 
   /* Allocate memory, set problem data and initial values */
   data = SetUserData(argc, argv);
-  u = SetIC(data);
+  u = SetIC(comm, data);
 
   reltol = RCONST(1.0e-5);         /* scalar relative tolerance */
   abstol = reltol * RCONST(100.0); /* scalar absolute tolerance */
 
-  /* Call CVodeCreate to create the solver memory and specify the 
+  /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula and the use of a Newton iteration */
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
@@ -150,13 +167,17 @@ int main(int argc, char *argv[])
   printf("Computation successful!\n");
   //printf("Execution time = %g\n", stop_time - start_time);
   printf("L2 norm = %14.6e\n", SUNRsqrt(N_VDotProd(u,u)));
-  
+
   PrintFinalStats(cvode_mem);
 
   /* Free memory */
   N_VDestroy(u);
   free(data);
   CVodeFree(&cvode_mem);
+
+#ifdef SUNDIALS_MPI_ENABLED
+  MPI_Finalize();
+#endif
 
   return(0);
 }
@@ -168,13 +189,13 @@ int main(int argc, char *argv[])
  *-------------------------------
  */
 
-N_Vector SetIC(UserData data)
+N_Vector SetIC(SUNDIALS_Comm comm, UserData data)
 {
   const sunindextype Nx = data->Nx;
   const realtype hx = data->hx;
   const realtype hy = data->hy;
 
-  N_Vector u = N_VNew_Raja(0, data->NEQ, data->NEQ);
+  N_Vector u = N_VNew_Raja(comm, data->NEQ, data->NEQ);
   realtype *udat = N_VGetHostArrayPointer_Raja(u);
 
   sunindextype i, j, index;
@@ -183,7 +204,7 @@ N_Vector SetIC(UserData data)
   {
     j = index/Nx;
     i = index%Nx;
-    
+
     realtype y = j * hy;
     realtype x = i * hx;
     realtype tmp = (1 - x) * x * (1 - y) * y;
@@ -220,7 +241,7 @@ UserData SetUserData(int argc, char *argv[])
   /* Set thread partitioning for GPU execution */
   ud->block = maxthreads;
   ud->grid  = (ud->NEQ + maxthreads - 1) / maxthreads;
-    
+
   /* Compute cell sizes */
   ud->hx = 1.0/((realtype) dimX);
   ud->hy = 1.0/((realtype) dimY);
@@ -438,7 +459,7 @@ void SetTiming(int onoff)
    //print_time = onoff;
 
 #if defined( SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
-  struct timespec spec;  
+  struct timespec spec;
   clock_gettime( CLOCK_MONOTONIC_RAW, &spec );
   base_time_tv_sec = spec.tv_sec;
 #endif
