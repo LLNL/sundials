@@ -18,10 +18,16 @@
 # 'develop' for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-SET(IDA_examples
-  "idaHeat2D_kry_cuda\;1\;1\;develop"
-  "idaHeat2D_kry_p_cuda\;1\;4\;develop"
-  )
+IF(MPI_C_FOUND)
+  SET(IDA_examples
+      "idaHeat2D_kry_cuda\;1\;1\;develop"
+      "idaHeat2D_kry_p_cuda\;1\;4\;develop"
+     )
+ELSE()
+  SET(IDA_examples
+      "idaHeat2D_kry_cuda\;1\;1\;develop"
+     )
+ENDIF()
 
 # Add source directory to include directories
 #INCLUDE_DIRECTORIES(. ${CUDA_INCLUDE_PATH} ${MPI_C_INCLUDE_PATH})
