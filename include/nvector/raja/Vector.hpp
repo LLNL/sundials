@@ -130,14 +130,14 @@ public:
   {
     cudaError_t err = cudaMemcpy(d_vec_, h_vec_, mem_size_, cudaMemcpyHostToDevice);
     if(err != cudaSuccess)
-      std::cout << "Failed to copy vector from host to device (error code " << err << ")!\n";
+      std::cerr << "Failed to copy vector from host to device (error code " << err << ")!\n";
   }
 
   void copyFromDev()
   {
     cudaError_t err = cudaMemcpy(h_vec_, d_vec_, mem_size_, cudaMemcpyDeviceToHost);
     if(err != cudaSuccess)
-      std::cout << "Failed to copy vector from device to host (error code " << err << ")!\n";
+      std::cerr << "Failed to copy vector from device to host (error code " << err << ")!\n";
   }
 
 private:

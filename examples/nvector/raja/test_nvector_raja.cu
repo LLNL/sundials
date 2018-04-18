@@ -30,13 +30,12 @@
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[])
 {
-  int           fails = 0;   /* counter for test failures  */
-  sunindextype  veclen;      /* vector length              */
-  N_Vector      W, X, Y, Z;  /* test vectors               */
+  int           fails = 0;    /* counter for test failures  */
+  N_Vector      W, X, Y, Z;   /* test vectors               */
   SUNDIALS_Comm comm;
-  int           nprocs, myid;                /* Number of procs, proc id  */
-  int           print_timing;
-  sunindextype  global_length;
+  int           nprocs, myid; /* Number of procs, proc id  */
+  const int     print_timing = 0;
+  sunindextype  global_length, local_length;
   /*  sunindextype liw, lrw; */
 
 
@@ -46,16 +45,17 @@ int main(int argc, char *argv[])
 //     return(-1);
 //   }
 //
-//   veclen = atol(argv[1]);
-//   if (veclen <= 0) {
+//   local_length = atol(argv[1]);
+//   if (local_length <= 0) {
 //     printf("ERROR: length of vector must be a positive integer \n");
 //     return(-1);
 //   }
 //
 //   print_timing = atoi(argv[2]);
-//   SetTiming(print_timing);
 
-  veclen = 1000;
+  SetTiming(print_timing);
+
+  local_length = 1000;
 
 #ifdef SUNDIALS_MPI_ENABLED
   /* Get processor number and total number of processes */
@@ -63,17 +63,17 @@ int main(int argc, char *argv[])
   comm = MPI_COMM_WORLD;
   MPI_Comm_size(comm, &nprocs);
   MPI_Comm_rank(comm, &myid);
-  global_length = nprocs*veclen;
+  global_length = nprocs*local_length;
 #else
   comm = 0;
-  global_length = veclen;
+  global_length = local_length;
 #endif
 
-  printf("\nRunning with vector length %ld \n\n", (long) veclen);
+  printf("\nRunning with vector length %ld \n\n", (long) local_length);
 
   /* Create vectors */
-  W = N_VNewEmpty_Raja(veclen);
-  X = N_VNew_Raja(comm, veclen, global_length);
+  W = N_VNewEmpty_Raja(local_length);
+  X = N_VNew_Raja(comm, local_length, global_length);
 
   /* NVector Tests */
 
@@ -81,37 +81,37 @@ int main(int argc, char *argv[])
 
   /* Memory allocation tests */
   fails += Test_N_VCloneEmpty(X, 0);
-  fails += Test_N_VClone(X, veclen, 0);
+  fails += Test_N_VClone(X, local_length, 0);
   fails += Test_N_VCloneEmptyVectorArray(5, X, 0);
-  fails += Test_N_VCloneVectorArray(5, X, veclen, 0);
+  fails += Test_N_VCloneVectorArray(5, X, local_length, 0);
 
   Y = N_VClone_Raja(X);
   Z = N_VClone_Raja(X);
 
   /* Skipped tests */
-  /*   fails += Test_N_VSetArrayPointer(W, veclen, 0); */
-  /*   fails += Test_N_VGetArrayPointer(X, veclen, 0); */
+  /*   fails += Test_N_VSetArrayPointer(W, local_length, 0); */
+  /*   fails += Test_N_VGetArrayPointer(X, local_length, 0); */
 
   /* Vector operation tests */
-  fails += Test_N_VConst(X, veclen, 0);
-  fails += Test_N_VLinearSum(X, Y, Z, veclen, 0);
-  fails += Test_N_VProd(X, Y, Z, veclen, 0);
-  fails += Test_N_VDiv(X, Y, Z, veclen, 0);
-  fails += Test_N_VScale(X, Z, veclen, 0);
-  fails += Test_N_VAbs(X, Z, veclen, 0);
-  fails += Test_N_VInv(X, Z, veclen, 0);
-  fails += Test_N_VAddConst(X, Z, veclen, 0);
-  fails += Test_N_VDotProd(X, Y, veclen, global_length, 0);
-  fails += Test_N_VMaxNorm(X, veclen, 0);
-  fails += Test_N_VWrmsNorm(X, Y, veclen, 0);
-  fails += Test_N_VWrmsNormMask(X, Y, Z, veclen, global_length, 0);
-  fails += Test_N_VMin(X, veclen, 0);
-  fails += Test_N_VWL2Norm(X, Y, veclen, global_length, 0);
-  fails += Test_N_VL1Norm(X, veclen, global_length, 0);
-  fails += Test_N_VCompare(X, Z, veclen, 0);
-  fails += Test_N_VInvTest(X, Z, veclen, 0);
-  fails += Test_N_VConstrMask(X, Y, Z, veclen, 0);
-  fails += Test_N_VMinQuotient(X, Y, veclen, 0);
+  fails += Test_N_VConst(X, local_length, 0);
+  fails += Test_N_VLinearSum(X, Y, Z, local_length, 0);
+  fails += Test_N_VProd(X, Y, Z, local_length, 0);
+  fails += Test_N_VDiv(X, Y, Z, local_length, 0);
+  fails += Test_N_VScale(X, Z, local_length, 0);
+  fails += Test_N_VAbs(X, Z, local_length, 0);
+  fails += Test_N_VInv(X, Z, local_length, 0);
+  fails += Test_N_VAddConst(X, Z, local_length, 0);
+  fails += Test_N_VDotProd(X, Y, local_length, global_length, 0);
+  fails += Test_N_VMaxNorm(X, local_length, 0);
+  fails += Test_N_VWrmsNorm(X, Y, local_length, 0);
+  fails += Test_N_VWrmsNormMask(X, Y, Z, local_length, global_length, 0);
+  fails += Test_N_VMin(X, local_length, 0);
+  fails += Test_N_VWL2Norm(X, Y, local_length, global_length, 0);
+  fails += Test_N_VL1Norm(X, local_length, global_length, 0);
+  fails += Test_N_VCompare(X, Z, local_length, 0);
+  fails += Test_N_VInvTest(X, Z, local_length, 0);
+  fails += Test_N_VConstrMask(X, Y, Z, local_length, 0);
+  fails += Test_N_VMinQuotient(X, Y, local_length, 0);
 
   /*  N_VSpace_Raja(X, &lrw, &liw);               */
   /*  printf("lrw = %ld, liw = %ld\n", lrw, liw); */
@@ -160,7 +160,8 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 
 booleantype has_data(N_Vector X)
 {
-  sunrajavec::Vector<double, sunindextype>* xv = sunrajavec::extract<realtype, sunindextype>(X);
+  //sunrajavec::Vector<double, sunindextype>* xv = sunrajavec::extract<realtype, sunindextype>(X);
+  auto xv = sunrajavec::extract<realtype, sunindextype>(X);
 
   return (xv == NULL ? SUNFALSE : SUNTRUE);
 }

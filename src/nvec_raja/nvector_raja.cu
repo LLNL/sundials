@@ -84,11 +84,8 @@ N_Vector N_VNewEmpty_Raja(sunindextype length)
   ops->nvconstrmask      = N_VConstrMask_Raja;
   ops->nvminquotient     = N_VMinQuotient_Raja;
 
-  /* Create content */
-  content = NULL;
-
-  /* Attach content and ops */
-  v->content = content;
+  /* Attach ops and set content to NULL */
+  v->content = NULL;
   v->ops     = ops;
 
   return(v);
