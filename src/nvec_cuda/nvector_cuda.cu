@@ -123,60 +123,6 @@ N_Vector N_VMake_Cuda(N_VectorContent_Cuda c)
   return(v);
 }
 
-/* ----------------------------------------------------------------------------
- * Function to create an array of new CUDA-based vectors.
- */
-
-N_Vector *N_VCloneVectorArray_Cuda(int count, N_Vector w)
-{
-  N_Vector *vs;
-  int j;
-
-  if (count <= 0) return(NULL);
-
-  vs = NULL;
-  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
-  if(vs == NULL) return(NULL);
-
-  for (j = 0; j < count; j++) {
-    vs[j] = NULL;
-    vs[j] = N_VClone_Cuda(w);
-    if (vs[j] == NULL) {
-      N_VDestroyVectorArray_Cuda(vs, j-1);
-      return(NULL);
-    }
-  }
-
-  return(vs);
-}
-
-/* ----------------------------------------------------------------------------
- * Function to create an array of new serial vectors with NULL data array.
- */
-
-N_Vector *N_VCloneVectorArrayEmpty_Cuda(int count, N_Vector w)
-{
-  N_Vector *vs;
-  int j;
-
-  if (count <= 0) return(NULL);
-
-  vs = NULL;
-  vs = (N_Vector *) malloc(count * sizeof(N_Vector));
-  if(vs == NULL) return(NULL);
-
-  for (j = 0; j < count; j++) {
-    vs[j] = NULL;
-    vs[j] = N_VCloneEmpty_Cuda(w);
-    if (vs[j] == NULL) {
-      N_VDestroyVectorArray_Cuda(vs, j-1);
-      return(NULL);
-    }
-  }
-
-  return(vs);
-}
-
 /* -----------------------------------------------------------------
  * Function to return the length of the vector.
  */
@@ -184,21 +130,6 @@ sunindextype N_VGetLength_Cuda(N_Vector v)
 {
   Vector<realtype, sunindextype>* xd = static_cast<Vector<realtype, sunindextype>*>(v->content);
   return xd->size();
-}
-
-/* ----------------------------------------------------------------------------
- * Function to free an array created with N_VCloneVectorArray_Cuda
- */
-
-void N_VDestroyVectorArray_Cuda(N_Vector *vs, int count)
-{
-  int j;
-
-  for (j = 0; j < count; j++) N_VDestroy_Cuda(vs[j]);
-
-  free(vs); vs = NULL;
-
-  return;
 }
 
 /* ----------------------------------------------------------------------------

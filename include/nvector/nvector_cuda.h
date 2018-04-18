@@ -94,11 +94,8 @@ typedef struct _N_VectorContent_Cuda *N_VectorContent_Cuda;
  *    N_VNew_Cuda
  *    N_VNewEmpty_Cuda
  *    N_VMake_Cuda
- *    N_VCloneVectorArray_Cuda
- *    N_VCloneVectorArrayEmpty_Cuda
  * DESTRUCTORS:
  *    N_VDestroy_Cuda
- *    N_VDestroyVectorArray_Cuda
  * OTHER:
  *    N_VGetHostArrayPointer_Cuda
  *    N_VGetDeviceArrayPointer_Cuda
@@ -140,39 +137,6 @@ SUNDIALS_EXPORT N_Vector N_VNewEmpty_Cuda(sunindextype vec_length);
  */
 
 SUNDIALS_EXPORT N_Vector N_VMake_Cuda(N_VectorContent_Cuda c);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VCloneVectorArray_Cuda
- * -----------------------------------------------------------------
- * This function creates an array of 'count' CUDA vectors by
- * cloning a given vector w.
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT N_Vector *N_VCloneVectorArray_Cuda(int count, N_Vector w);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VCloneVectorArrayEmpty_Cuda
- * -----------------------------------------------------------------
- * This function creates an array of 'count' CUDA vectors each
- * with an empty (NULL) data array by cloning w.
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT N_Vector *N_VCloneVectorArrayEmpty_Cuda(int count, N_Vector w);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VDestroyVectorArray_Cuda
- * -----------------------------------------------------------------
- * This function frees an array of CUDA vectors created with
- * N_VCloneVectorArray_Cuda or N_VCloneVectorArrayEmpty_Cuda.
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT void N_VDestroyVectorArray_Cuda(N_Vector *vs, int count);
 
 /*
  * -----------------------------------------------------------------

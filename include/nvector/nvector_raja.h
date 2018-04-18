@@ -92,11 +92,8 @@ typedef struct _N_VectorContent_Raja *N_VectorContent_Raja;
  *    N_VNew_Raja
  *    N_VNewEmpty_Raja
  *    N_VMake_Raja
- *    N_VCloneVectorArray_Raja
- *    N_VCloneVectorArrayEmpty_Raja
  * DESTRUCTORS:
  *    N_VDestroy_Raja
- *    N_VDestroyVectorArray_Raja
  * OTHER:
  *    N_VGetLength_Raja
  *    N_VGetHostArrayPointer_Raja
@@ -139,39 +136,6 @@ SUNDIALS_EXPORT N_Vector N_VNewEmpty_Raja(sunindextype local_length);
  */
 
 SUNDIALS_EXPORT N_Vector N_VMake_Raja(N_VectorContent_Raja c);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VCloneVectorArray_Raja
- * -----------------------------------------------------------------
- * This function creates an array of 'count' RAJA vectors by
- * cloning a given vector w.
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT N_Vector *N_VCloneVectorArray_Raja(int count, N_Vector w);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VCloneVectorArrayEmpty_Raja
- * -----------------------------------------------------------------
- * This function creates an array of 'count' RAJA vectors each
- * with an empty (NULL) data array by cloning w.
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT N_Vector *N_VCloneVectorArrayEmpty_Raja(int count, N_Vector w);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VDestroyVectorArray_Raja
- * -----------------------------------------------------------------
- * This function frees an array of RAJA vectors created with
- * N_VCloneVectorArray_Raja or N_VCloneVectorArrayEmpty_Raja.
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT void N_VDestroyVectorArray_Raja(N_Vector *vs, int count);
 
 /*
  * -----------------------------------------------------------------
