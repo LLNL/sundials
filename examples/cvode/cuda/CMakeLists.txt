@@ -26,7 +26,7 @@ SET(CVODE_examples
   )
 
 # Add source directory to include directories
-INCLUDE_DIRECTORIES(.)
+INCLUDE_DIRECTORIES(. ${MPI_CXX_INCLUDE_PATH})
 
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
@@ -63,7 +63,7 @@ FOREACH(example_tuple ${CVODE_examples})
     EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
-  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${MPI_CXX_LIBRARIES})
 
   # install example source and out files
   IF(EXAMPLES_INSTALL)

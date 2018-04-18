@@ -39,7 +39,7 @@ namespace math_kernels
 
 /**
  * Sets all elements of the vector X to constant value a.
- * 
+ *
  */
 
 template <typename T, typename I>
@@ -57,7 +57,7 @@ setConstKernel(T a, T *X, I n)
 
 /**
  * Computes linear sum (combination) of two vectors.
- * 
+ *
  */
 
 template <typename T, typename I>
@@ -201,7 +201,7 @@ compareKernel(T c, const T *X, T *Z, I n)
 
 /*
  * Sums all elements of the vector.
- *    
+ *
  */
 template <typename T, typename I>
 __global__ void
@@ -239,7 +239,7 @@ sumReduceKernel(const T *x, T *out, I n)
 
 /*
  * Dot product of two vectors.
- *    
+ *
  */
 template <typename T, typename I>
 __global__ void
@@ -277,7 +277,7 @@ dotProdKernel(const T *x, const T *y, T *out, I n)
 
 /*
  * Finds max norm the vector.
- *    
+ *
  */
 template <typename T, typename I>
 __global__ void
@@ -314,12 +314,12 @@ maxNormKernel(const T *x, T *out, I n)
 
 
 /*
- * Weighted root mean square norm of a vector.
- *    
+ * Weighted L2 norm squared.
+ *
  */
 template <typename T, typename I>
 __global__ void
-wrmsNormKernel(const T *x, const T *w, T *out, I n)
+wL2NormSquareKernel(const T *x, const T *w, T *out, I n)
 {
   extern __shared__ T shmem[];
 
@@ -353,12 +353,12 @@ wrmsNormKernel(const T *x, const T *w, T *out, I n)
 }
 
 /*
- * Weighted root mean square norm of a vector values selected by id.
+ * Weighted L2 norm squared with mask. Vector id specifies the mask.
  *
  */
 template <typename T, typename I>
 __global__ void
-wrmsNormMaskKernel(const T *x, const T *w, const T *id, T *out, I n)
+wL2NormSquareMaskKernel(const T *x, const T *w, const T *id, T *out, I n)
 {
   extern __shared__ T shmem[];
 
@@ -391,7 +391,7 @@ wrmsNormMaskKernel(const T *x, const T *w, const T *id, T *out, I n)
 
 /*
  * Finds min value in the vector.
- *    
+ *
  */
 template <typename T, typename I>
 __global__ void
@@ -428,7 +428,7 @@ findMinKernel(T MAX_VAL, const T *x, T *out, I n)
 
 
 /*
- * Weighted root mean square notm of a vector.
+ * Computes L1 norm of vector
  *
  */
 template <typename T, typename I>
@@ -790,7 +790,7 @@ inline T maxNorm(const Vector<T,I>& x)
 }
 
 template <typename T, typename I>
-inline T wrmsNorm(const Vector<T,I>& x, const Vector<T,I>& w)
+inline T wL2NormSquareMask(const Vector<T,I>& x, const Vector<T,I>& w, const Vector<T,I>& id)
 {
   // Set partitioning
   ReducePartitioning<T, I>& p = x.partReduce();
@@ -798,7 +798,7 @@ inline T wrmsNorm(const Vector<T,I>& x, const Vector<T,I>& w)
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
 
-  math_kernels::wrmsNormKernel<T,I><<< grid, block, shMemSize >>>(x.device(), w.device(), p.devBuffer(), x.size());
+  math_kernels::wL2NormSquareMaskKernel<T,I><<< grid, block, shMemSize >>>(x.device(), w.device(), id.device(), p.devBuffer(), x.size());
 
   unsigned n = grid;
   unsigned nmax = 2*block;
@@ -820,41 +820,7 @@ inline T wrmsNorm(const Vector<T,I>& x, const Vector<T,I>& w)
   {
     gpu_result += p.hostBuffer()[i];
   }
-  return sqrt(gpu_result/x.size());
-}
-
-template <typename T, typename I>
-inline T wrmsNormMask(const Vector<T,I>& x, const Vector<T,I>& w, const Vector<T,I>& id)
-{
-  // Set partitioning
-  ReducePartitioning<T, I>& p = x.partReduce();
-  unsigned grid               = p.grid();
-  unsigned block              = p.block();
-  unsigned shMemSize          = p.shmem();
-
-  math_kernels::wrmsNormMaskKernel<T,I><<< grid, block, shMemSize >>>(x.device(), w.device(), id.device(), p.devBuffer(), x.size());
-
-  unsigned n = grid;
-  unsigned nmax = 2*block;
-  while (n > nmax)
-  {
-    // Recompute partitioning
-    p.setPartitioning(n, grid, block, shMemSize);
-
-    // (Re)run reduction kernel
-    math_kernels::sumReduceKernel<T,I><<< grid, block, shMemSize >>>(p.devBuffer(), p.devBuffer(), n);
-    n = grid;
-  }
-
-  // Finish reduction on CPU if there are less than two blocks of data left.
-  p.copyFromDevBuffer(n);
-
-  T gpu_result = p.hostBuffer()[0];
-  for (unsigned int i=1; i<n; i++)
-  {
-    gpu_result += p.hostBuffer()[i];
-  }
-  return sqrt(gpu_result/x.size());
+  return gpu_result;
 }
 
 template <typename T, typename I>
@@ -896,7 +862,7 @@ inline T findMin(const Vector<T,I>& x)
 
 
 template <typename T, typename I>
-inline T wL2Norm(const Vector<T,I>& x, const Vector<T,I>& y)
+inline T wL2NormSquare(const Vector<T,I>& x, const Vector<T,I>& y)
 {
   // Set partitioning
   ReducePartitioning<T, I>& p = x.partReduce();
@@ -904,7 +870,7 @@ inline T wL2Norm(const Vector<T,I>& x, const Vector<T,I>& y)
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
 
-  math_kernels::wrmsNormKernel<T,I><<< grid, block, shMemSize >>>(x.device(), y.device(), p.devBuffer(), x.size());
+  math_kernels::wL2NormSquareKernel<T,I><<< grid, block, shMemSize >>>(x.device(), y.device(), p.devBuffer(), x.size());
 
   unsigned n = grid;
   unsigned nmax = 2*block;
@@ -926,7 +892,7 @@ inline T wL2Norm(const Vector<T,I>& x, const Vector<T,I>& y)
   {
     gpu_result += p.hostBuffer()[i];
   }
-  return sqrt(gpu_result);
+  return (gpu_result);
 }
 
 
@@ -966,7 +932,7 @@ inline T L1Norm(const Vector<T,I>& x)
 
 
 template <typename T, typename I>
-inline bool invTest(const Vector<T,I>& x, Vector<T,I>& z)
+inline T invTest(const Vector<T,I>& x, Vector<T,I>& z)
 {
   // Set partitioning
   ReducePartitioning<T, I>& p = x.partReduce();
@@ -996,12 +962,12 @@ inline bool invTest(const Vector<T,I>& x, Vector<T,I>& z)
   {
     gpu_result += p.hostBuffer()[i];
   }
-  return !(gpu_result > 0.0);
+  return gpu_result;
 }
 
 
 template <typename T, typename I>
-inline bool constrMask(const Vector<T,I>& c, const Vector<T,I>& x, Vector<T,I>& m)
+inline T constrMask(const Vector<T,I>& c, const Vector<T,I>& x, Vector<T,I>& m)
 {
   // Set partitioning
   ReducePartitioning<T, I>& p = x.partReduce();
@@ -1031,7 +997,7 @@ inline bool constrMask(const Vector<T,I>& c, const Vector<T,I>& x, Vector<T,I>& 
   {
     gpu_result += p.hostBuffer()[i];
   }
-  return (gpu_result < 0.5);
+  return (gpu_result);
 }
 
 

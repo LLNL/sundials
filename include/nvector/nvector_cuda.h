@@ -1,10 +1,10 @@
-/* ----------------------------------------------------------------- 
+/* -----------------------------------------------------------------
  * Programmer(s): Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Lawrence Livermore National Laboratory in part under
  * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
@@ -45,13 +45,28 @@
 #define _NVECTOR_CUDA_H
 
 #include <sundials/sundials_nvector.h>
+#include <sundials/sundials_config.h>
+
+#ifdef SUNDIALS_MPI_ENABLED
+
+#include <mpi.h>
+typedef MPI_Comm SUNDIALS_Comm;
+
+#else
+
+typedef int SUNDIALS_Comm;
+#warning "SUNDIALS_MPI_ENABLED not defined!\n"
+
+#endif // ifdef SUNDIALS_MPI_ENABLED
+
+
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-    
-    
+
+
 /*
  * -----------------------------------------------------------------
  * PART I: CUDA implementation of N_Vector
@@ -74,7 +89,7 @@ typedef struct _N_VectorContent_Cuda *N_VectorContent_Cuda;
 /*
  * -----------------------------------------------------------------
  * PART II: functions exported by nvector_cuda
- * 
+ *
  * CONSTRUCTORS:
  *    N_VNew_Cuda
  *    N_VNewEmpty_Cuda
@@ -100,7 +115,9 @@ typedef struct _N_VectorContent_Cuda *N_VectorContent_Cuda;
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNew_Cuda(sunindextype vec_length);
+SUNDIALS_EXPORT N_Vector N_VNew_Cuda(SUNDIALS_Comm comm,
+                                     sunindextype local_length,
+                                     sunindextype global_length);
 
 /*
  * -----------------------------------------------------------------
@@ -150,7 +167,7 @@ SUNDIALS_EXPORT N_Vector *N_VCloneVectorArrayEmpty_Cuda(int count, N_Vector w);
  * -----------------------------------------------------------------
  * Function : N_VDestroyVectorArray_Cuda
  * -----------------------------------------------------------------
- * This function frees an array of CUDA vectors created with 
+ * This function frees an array of CUDA vectors created with
  * N_VCloneVectorArray_Cuda or N_VCloneVectorArrayEmpty_Cuda.
  * -----------------------------------------------------------------
  */

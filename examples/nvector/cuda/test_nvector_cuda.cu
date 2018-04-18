@@ -1,18 +1,18 @@
-/* ----------------------------------------------------------------- 
+/* -----------------------------------------------------------------
  * Programmer(s): Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Lawrence Livermore National Laboratory in part under
  * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
  * For details, see the LICENSE file.
  * LLNS Copyright End
  * -----------------------------------------------------------------
- * This is the testing routine to check the NVECTOR CUDA module 
- * implementation. 
+ * This is the testing routine to check the NVECTOR CUDA module
+ * implementation.
  * -----------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -28,78 +28,93 @@
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
  * --------------------------------------------------------------------*/
-int main(int argc, char *argv[]) 
+int main(int argc, char *argv[])
 {
-  int          fails = 0;     /* counter for test failures  */
-  sunindextype veclen;        /* vector length              */
-  N_Vector     W, X, Y, Z;    /* test vectors               */
-  int          print_timing;
-  /* sunindextype lrw, liw; */
+  int           fails = 0;    /* counter for test failures  */
+  N_Vector      W, X, Y, Z;   /* test vectors               */
+  SUNDIALS_Comm comm;
+  int           nprocs, myid; /* Number of procs, proc id  */
+  const int     print_timing = 0;
+  sunindextype  global_length, local_length;
 
 
-  /* check input and set vector length */
-  if (argc < 3){
-    printf("ERROR: TWO (2) Inputs required: vector length, print timing \n");
-    return(-1);
-  }
+//   /* check input and set vector length */
+//   if (argc < 3){
+//     printf("ERROR: TWO (2) Inputs required: vector length, print timing \n");
+//     return(-1);
+//   }
+//
+//   local_length = atol(argv[1]);
+//   if (local_length <= 0) {
+//     printf("ERROR: length of vector must be a positive integer \n");
+//     return(-1);
+//   }
+//
+//   print_timing = atoi(argv[2]);
 
-  veclen = atol(argv[1]); 
-  if (veclen <= 0) {
-    printf("ERROR: length of vector must be a positive integer \n");
-    return(-1); 
-  }
-
-  print_timing = atoi(argv[2]);
   SetTiming(print_timing);
 
+  local_length = 1000;
 
-  printf("\nRunning with vector length %ld \n\n", (long) veclen);
+#ifdef SUNDIALS_MPI_ENABLED
+  /* Get processor number and total number of processes */
+  MPI_Init(&argc, &argv);
+  comm = MPI_COMM_WORLD;
+  MPI_Comm_size(comm, &nprocs);
+  MPI_Comm_rank(comm, &myid);
+  global_length = nprocs*local_length;
+#else
+  comm = 0;
+  global_length = local_length;
+#endif
+
+  printf("\nRunning with vector length %ld \n\n", (long) local_length);
 
   /* Create vectors */
-  W = N_VNewEmpty_Cuda(veclen);
-  X = N_VNew_Cuda(veclen);
+  W = N_VNewEmpty_Cuda(local_length);
+  X = N_VNew_Cuda(comm, local_length, global_length);
 
   /* NVector Tests */
-  
+
   /* CUDA specific tests */
-  
+
   /* Memory allocation tests */
   fails += Test_N_VCloneEmpty(X, 0);
-  fails += Test_N_VClone(X, veclen, 0);
+  fails += Test_N_VClone(X, local_length, 0);
   fails += Test_N_VCloneEmptyVectorArray(5, X, 0);
-  fails += Test_N_VCloneVectorArray(5, X, veclen, 0);
+  fails += Test_N_VCloneVectorArray(5, X, local_length, 0);
 
   Y = N_VClone_Cuda(X);
   Z = N_VClone_Cuda(X);
 
   /* Skipped tests */
-  /*   fails += Test_N_VSetArrayPointer(W, veclen, 0); */
-  /*   fails += Test_N_VGetArrayPointer(X, veclen, 0); */
-  
+  /*   fails += Test_N_VSetArrayPointer(W, local_length, 0); */
+  /*   fails += Test_N_VGetArrayPointer(X, local_length, 0); */
+
   /* Vector operation tests */
-  fails += Test_N_VConst(X, veclen, 0);
-  fails += Test_N_VLinearSum(X, Y, Z, veclen, 0);
-  fails += Test_N_VProd(X, Y, Z, veclen, 0);
-  fails += Test_N_VDiv(X, Y, Z, veclen, 0);
-  fails += Test_N_VScale(X, Z, veclen, 0);
-  fails += Test_N_VAbs(X, Z, veclen, 0);
-  fails += Test_N_VInv(X, Z, veclen, 0);
-  fails += Test_N_VAddConst(X, Z, veclen, 0);
-  fails += Test_N_VDotProd(X, Y, veclen, veclen, 0);
-  fails += Test_N_VMaxNorm(X, veclen, 0);
-  fails += Test_N_VWrmsNorm(X, Y, veclen, 0);
-  fails += Test_N_VWrmsNormMask(X, Y, Z, veclen, veclen, 0);
-  fails += Test_N_VMin(X, veclen, 0);
-  fails += Test_N_VWL2Norm(X, Y, veclen, veclen, 0);
-  fails += Test_N_VL1Norm(X, veclen, veclen, 0);
-  fails += Test_N_VCompare(X, Z, veclen, 0);
-  fails += Test_N_VInvTest(X, Z, veclen, 0);
-  fails += Test_N_VConstrMask(X, Y, Z, veclen, 0);
-  fails += Test_N_VMinQuotient(X, Y, veclen, 0);
+  fails += Test_N_VConst(X, local_length, 0);
+  fails += Test_N_VLinearSum(X, Y, Z, local_length, 0);
+  fails += Test_N_VProd(X, Y, Z, local_length, 0);
+  fails += Test_N_VDiv(X, Y, Z, local_length, 0);
+  fails += Test_N_VScale(X, Z, local_length, 0);
+  fails += Test_N_VAbs(X, Z, local_length, 0);
+  fails += Test_N_VInv(X, Z, local_length, 0);
+  fails += Test_N_VAddConst(X, Z, local_length, 0);
+  fails += Test_N_VDotProd(X, Y, local_length, global_length, 0);
+  fails += Test_N_VMaxNorm(X, local_length, 0);
+  fails += Test_N_VWrmsNorm(X, Y, local_length, 0);
+  fails += Test_N_VWrmsNormMask(X, Y, Z, local_length, global_length, 0);
+  fails += Test_N_VMin(X, local_length, 0);
+  fails += Test_N_VWL2Norm(X, Y, local_length, global_length, 0);
+  fails += Test_N_VL1Norm(X, local_length, global_length, 0);
+  fails += Test_N_VCompare(X, Z, local_length, 0);
+  fails += Test_N_VInvTest(X, Z, local_length, 0);
+  fails += Test_N_VConstrMask(X, Y, Z, local_length, 0);
+  fails += Test_N_VMinQuotient(X, Y, local_length, 0);
 
   /*   N_VSpace_Cuda(X, &lrw, &liw);               */
   /*   printf("lrw = %ld, liw = %ld\n", lrw, liw); */
-  
+
   /* Free vectors */
   N_VDestroy_Cuda(W);
   N_VDestroy_Cuda(X);
@@ -113,6 +128,10 @@ int main(int argc, char *argv[])
     printf("SUCCESS: NVector module passed all tests \n \n");
   }
 
+#ifdef SUNDIALS_MPI_ENABLED
+  MPI_Finalize();
+#endif
+
   return(fails);
 }
 
@@ -125,9 +144,9 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
   sunindextype i;
   suncudavec::Vector<realtype, sunindextype>* xv = suncudavec::extract<realtype, sunindextype>(X);
   realtype *xdata;
-  
+
   xv->copyFromDev();
-  
+
   xdata = xv->host();
   /* check vector data */
   for(i=0; i < local_length; i++){

@@ -3,8 +3,8 @@
 # ---------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Lawrence Livermore National Laboratory in part under
 # Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
@@ -23,21 +23,21 @@ set_source_files_properties(${nvecraja_SOURCES} PROPERTIES CUDA_SOURCE_PROPERTY_
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the NVECCUDA library
-SET(shared_SOURCES 
+SET(shared_SOURCES
   sundials_math.c
 )
 ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
 
 # Add variable nveccuda_HEADERS with the exported NVECSERIAL header files
-SET(nveccuda_HEADERS 
+SET(nveccuda_HEADERS
   nvector_cuda.h
 )
 ADD_PREFIX(${sundials_SOURCE_DIR}/include/nvector/ nveccuda_HEADERS)
 
 # Add source directory to include directories
-INCLUDE_DIRECTORIES(.)
+INCLUDE_DIRECTORIES(. ${MPI_CXX_INCLUDE_PATH})
 
-# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY 
+# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
 ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 
 # Rules for building and installing the static library:

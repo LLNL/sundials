@@ -1,8 +1,5 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
  * Programmer(s): Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -55,13 +52,28 @@ public:
     allocate();
   }
 
+  Vector(SUNDIALS_Comm comm, I N, I Nglobal)
+  : size_(N),
+    mem_size_(N*sizeof(T)),
+    global_size_(Nglobal),
+    comm_(comm)
+  {
+    // Set partitioning
+    partStream_ = new StreamPartitioning<T, I>(N, 256);
+    partReduce_ = new ReducePartitioning<T, I>(N, 256);
+
+    allocate();
+  }
+
   /// Copy constructor does not copy values
   explicit Vector(const Vector& v)
   : size_(v.size()),
     mem_size_(size_*sizeof(T)),
+    global_size_(v.global_size_),
     partStream_(v.partStream_),
     partReduce_(v.partReduce_),
-    ownPartitioning_(false)
+    ownPartitioning_(false),
+    comm_(v.comm_)
   {
     allocate();
   }
@@ -99,6 +111,16 @@ public:
   int size() const
   {
     return size_;
+  }
+
+  int sizeGlobal() const
+  {
+    return global_size_;
+  }
+
+  SUNDIALS_Comm comm()
+  {
+    return comm_;
   }
 
   T* host()
@@ -148,29 +170,29 @@ public:
 private:
   I size_;
   I mem_size_;
+  I global_size_;
   T* h_vec_;
   T* d_vec_;
   StreamPartitioning<T, I>* partStream_;
   ReducePartitioning<T, I>* partReduce_;
   bool ownPartitioning_;
+  SUNDIALS_Comm comm_;
 };
 
 
 
-
-
-// Vector extractor
+// Extract Vector from N_Vector
 template <typename T, typename I>
-inline Vector<T, I> *extract(N_Vector v)
-{ 
+inline Vector<T, I>* extract(N_Vector v)
+{
   return static_cast<Vector<T, I>*>(v->content);
 }
 
 // Get Vector device data
 template <typename T, typename I>
-inline T *getDevData(N_Vector v)
+inline T* getDevData(N_Vector v)
 {
-  Vector<T,I> *vp = static_cast<Vector<T, I>*>(v->content);
+  Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
   return vp->device();
 }
 
@@ -178,9 +200,49 @@ inline T *getDevData(N_Vector v)
 template <typename T, typename I>
 inline I getSize(N_Vector v)
 {
-  Vector<T,I> *vp = static_cast<Vector<T, I>*>(v->content);
+  Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
   return vp->size();
 }
+
+// Get Vector length
+template <typename T, typename I>
+inline I getGlobalSize(N_Vector v)
+{
+  Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
+  return vp->sizeGlobal();
+}
+
+// Get MPI communicator
+template <typename T, typename I>
+inline SUNDIALS_Comm getMPIComm(N_Vector v)
+{
+  Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
+  return vp->comm();
+}
+
+
+// // Vector extractor
+// template <typename T, typename I>
+// inline Vector<T, I> *extract(N_Vector v)
+// {
+//   return static_cast<Vector<T, I>*>(v->content);
+// }
+//
+// // Get Vector device data
+// template <typename T, typename I>
+// inline T *getDevData(N_Vector v)
+// {
+//   Vector<T,I> *vp = static_cast<Vector<T, I>*>(v->content);
+//   return vp->device();
+// }
+//
+// // Get Vector length
+// template <typename T, typename I>
+// inline I getSize(N_Vector v)
+// {
+//   Vector<T,I> *vp = static_cast<Vector<T, I>*>(v->content);
+//   return vp->size();
+// }
 
 } // namespace suncudavec
 

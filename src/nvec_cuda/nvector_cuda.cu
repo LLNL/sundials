@@ -17,13 +17,20 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <cmath>
 
 #include <nvector/cuda/Vector.hpp>
 #include <nvector/cuda/VectorKernels.cuh>
+#include <sundials/sundials_mpi_types.h>
+
+#define HALF   RCONST(0.5)
 
 extern "C" {
 
 using namespace suncudavec;
+
+static realtype VAllReduce_Cuda(realtype d, int op, SUNDIALS_Comm comm);
+
 
 /* ----------------------------------------------------------------
  * Returns vector type ID. Used to identify vector implementation
@@ -38,7 +45,6 @@ N_Vector N_VNewEmpty_Cuda(sunindextype length)
 {
   N_Vector v;
   N_Vector_Ops ops;
-  N_VectorContent_Cuda content;
 
   /* Create vector */
   v = NULL;
@@ -77,27 +83,26 @@ N_Vector N_VNewEmpty_Cuda(sunindextype length)
   ops->nvconstrmask      = N_VConstrMask_Cuda;
   ops->nvminquotient     = N_VMinQuotient_Cuda;
 
-  /* Create content */
-  content = NULL;
-
-  /* Attach content and ops */
-  v->content = content;
+  /* Attach ops and set content to NULL */
+  v->content = NULL;
   v->ops     = ops;
 
   return(v);
 }
 
 
-N_Vector N_VNew_Cuda(sunindextype length)
+N_Vector N_VNew_Cuda(SUNDIALS_Comm comm,
+                     sunindextype local_length,
+                     sunindextype global_length)
 {
   N_Vector v;
 
   v = NULL;
-  v = N_VNewEmpty_Cuda(length);
+  v = N_VNewEmpty_Cuda(local_length);
   if (v == NULL)
     return(NULL);
 
-  v->content = new Vector<realtype, sunindextype>(length);
+  v->content = new Vector<realtype, sunindextype>(comm, local_length, global_length);
 
   return(v);
 }
@@ -348,7 +353,7 @@ void N_VDestroy_Cuda(N_Vector v)
     delete x;
     v->content = NULL;
   }
-  
+
   free(v->ops); v->ops = NULL;
   free(v); v = NULL;
 
@@ -357,103 +362,238 @@ void N_VDestroy_Cuda(N_Vector v)
 
 void N_VSpace_Cuda(N_Vector X, sunindextype *lrw, sunindextype *liw)
 {
-  *lrw = (extract<realtype, sunindextype>(X))->size();
+  *lrw = getSize<realtype, sunindextype>(X);
   *liw = 1;
 }
 
 void N_VConst_Cuda(realtype a, N_Vector X)
 {
-  setConst(a, *extract<realtype, sunindextype>(X));
+  auto xvec = extract<realtype, sunindextype>(X);
+  setConst(a, *xvec);
 }
 
 void N_VLinearSum_Cuda(realtype a, N_Vector X, realtype b, N_Vector Y, N_Vector Z)
 {
-  linearSum(a, *extract<realtype, sunindextype>(X), b, *extract<realtype, sunindextype>(Y), *extract<realtype, sunindextype>(Z));
+  const auto xvec = extract<realtype, sunindextype>(X);
+  const auto yvec = extract<realtype, sunindextype>(Y);
+  auto zvec = extract<realtype, sunindextype>(Z);
+  linearSum(a, *xvec, b, *yvec, *zvec);
 }
 
 void N_VProd_Cuda(N_Vector X, N_Vector Y, N_Vector Z)
 {
-  prod(*extract<realtype, sunindextype>(X), *extract<realtype, sunindextype>(Y), *extract<realtype, sunindextype>(Z));
+  const auto xvec = extract<realtype, sunindextype>(X);
+  const auto yvec = extract<realtype, sunindextype>(Y);
+  auto zvec = extract<realtype, sunindextype>(Z);
+  prod(*xvec, *yvec, *zvec);
 }
 
 void N_VDiv_Cuda(N_Vector X, N_Vector Y, N_Vector Z)
 {
-  div(*extract<realtype, sunindextype>(X), *extract<realtype, sunindextype>(Y), *extract<realtype, sunindextype>(Z));
+  const auto xvec = extract<realtype, sunindextype>(X);
+  const auto yvec = extract<realtype, sunindextype>(Y);
+  auto zvec = extract<realtype, sunindextype>(Z);
+  div(*xvec, *yvec, *zvec);
 }
 
 void N_VScale_Cuda(realtype a, N_Vector X, N_Vector Z)
 {
-  scale(a, *extract<realtype, sunindextype>(X), *extract<realtype, sunindextype>(Z));
+  const auto xvec = extract<realtype, sunindextype>(X);
+  auto zvec = extract<realtype, sunindextype>(Z);
+  scale(a, *xvec, *zvec);
 }
 
 void N_VAbs_Cuda(N_Vector X, N_Vector Z)
 {
-  absVal(*extract<realtype, sunindextype>(X), *extract<realtype, sunindextype>(Z));
+  const auto xvec = extract<realtype, sunindextype>(X);
+  auto zvec = extract<realtype, sunindextype>(Z);
+  absVal(*xvec, *zvec);
 }
 
 void N_VInv_Cuda(N_Vector X, N_Vector Z)
 {
-  inv(*extract<realtype, sunindextype>(X), *extract<realtype, sunindextype>(Z));
+  const auto xvec = extract<realtype, sunindextype>(X);
+  auto zvec = extract<realtype, sunindextype>(Z);
+  inv(*xvec, *zvec);
 }
 
 void N_VAddConst_Cuda(N_Vector X, realtype b, N_Vector Z)
 {
-  addConst(b, *extract<realtype, sunindextype>(X), *extract<realtype, sunindextype>(Z));
+  const auto xvec = extract<realtype, sunindextype>(X);
+  auto zvec = extract<realtype, sunindextype>(Z);
+  addConst(b, *xvec, *zvec);
 }
 
 realtype N_VDotProd_Cuda(N_Vector X, N_Vector Y)
 {
-  return (dotProd(*extract<realtype, sunindextype>(X), *extract<realtype, sunindextype>(Y)));
+  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  const auto xvec = extract<realtype, sunindextype>(X);
+  const auto yvec = extract<realtype, sunindextype>(Y);
+
+  realtype sum = dotProd(*xvec, *yvec);
+
+  realtype gsum = VAllReduce_Cuda(sum, 1, comm);
+  return gsum;
 }
 
 realtype N_VMaxNorm_Cuda(N_Vector X)
 {
-  return (maxNorm(*extract<realtype, sunindextype>(X)));
+  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  const auto xvec = extract<realtype, sunindextype>(X);
+
+  realtype locmax = maxNorm(*xvec);
+
+  realtype globmax = VAllReduce_Cuda(locmax, 2, comm);
+  return globmax;
 }
 
 realtype N_VWrmsNorm_Cuda(N_Vector X, N_Vector W)
 {
-  return (wrmsNorm(*extract<realtype, sunindextype>(X), *extract<realtype, sunindextype>(W)));
+  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  const sunindextype Nglob = getGlobalSize<realtype,sunindextype>(X);
+  const auto xvec = extract<realtype, sunindextype>(X);
+  const auto wvec = extract<realtype, sunindextype>(W);
+
+  realtype sum = wL2NormSquare(*xvec, *wvec);
+
+  realtype gsum = VAllReduce_Cuda(sum, 1, comm);
+  return std::sqrt(gsum/Nglob);
 }
 
 realtype N_VWrmsNormMask_Cuda(N_Vector X, N_Vector W, N_Vector Id)
 {
-  return (wrmsNormMask(*extract<realtype, sunindextype>(X), *extract<realtype, sunindextype>(W), *extract<realtype, sunindextype>(Id)));
+  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  const sunindextype Nglob = getGlobalSize<realtype,sunindextype>(X);
+  const auto xvec = extract<realtype, sunindextype>(X);
+  const auto wvec = extract<realtype, sunindextype>(W);
+  const auto ivec = extract<realtype, sunindextype>(Id);
+
+  realtype sum = wL2NormSquareMask(*xvec, *wvec, *ivec);
+
+  realtype gsum = VAllReduce_Cuda(sum, 1, comm);
+  return std::sqrt(gsum/Nglob);
 }
 
 realtype N_VMin_Cuda(N_Vector X)
 {
-  return (findMin(*extract<realtype, sunindextype>(X)));
+  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  const auto xvec = extract<realtype, sunindextype>(X);
+
+  realtype locmin = findMin(*xvec);
+
+  realtype globmin = VAllReduce_Cuda(locmin, 3, comm);
+  return globmin;
 }
 
 realtype N_VWL2Norm_Cuda(N_Vector X, N_Vector W)
 {
-  return (wL2Norm(*extract<realtype, sunindextype>(X), *extract<realtype, sunindextype>(W)));
+  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  const auto xvec = extract<realtype, sunindextype>(X);
+  const auto wvec = extract<realtype, sunindextype>(W);
+
+  realtype sum = wL2NormSquare(*xvec, *wvec);
+
+  realtype gsum = VAllReduce_Cuda(sum, 1, comm);
+  return std::sqrt(gsum);
 }
 
 realtype N_VL1Norm_Cuda(N_Vector X)
 {
-  return (L1Norm(*extract<realtype, sunindextype>(X)));
+  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  const auto xvec = extract<realtype, sunindextype>(X);
+
+  realtype sum = L1Norm(*xvec);
+
+  realtype gsum = VAllReduce_Cuda(sum, 1, comm);
+  return gsum;
 }
 
 void N_VCompare_Cuda(realtype c, N_Vector X, N_Vector Z)
 {
-  compare(c, *extract<realtype, sunindextype>(X), *extract<realtype, sunindextype>(Z));
+  const auto xvec = extract<realtype, sunindextype>(X);
+  auto zvec = extract<realtype, sunindextype>(Z);
+  compare(c, *xvec, *zvec);
 }
 
 booleantype N_VInvTest_Cuda(N_Vector X, N_Vector Z)
 {
-  return (booleantype) (invTest(*extract<realtype, sunindextype>(X), *extract<realtype, sunindextype>(Z)));
+  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  const auto xvec = extract<realtype, sunindextype>(X);
+  const auto zvec = extract<realtype, sunindextype>(Z);
+
+  realtype locmin = invTest(*xvec, *zvec);
+
+  realtype globmin = VAllReduce_Cuda(locmin, 3, comm);
+  return (globmin < HALF);
 }
 
 booleantype N_VConstrMask_Cuda(N_Vector C, N_Vector X, N_Vector M)
 {
-  return (booleantype) (constrMask(*extract<realtype, sunindextype>(C), *extract<realtype, sunindextype>(X), *extract<realtype, sunindextype>(M)));
+  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  const auto cvec = extract<realtype, sunindextype>(C);
+  const auto xvec = extract<realtype, sunindextype>(X);
+  auto mvec = extract<realtype, sunindextype>(M);
+
+  realtype locmin = constrMask(*cvec, *xvec, *mvec);
+
+  realtype globmin = VAllReduce_Cuda(locmin, 3, comm);
+  return (globmin < HALF);
 }
 
 realtype N_VMinQuotient_Cuda(N_Vector num, N_Vector denom)
 {
-  return (minQuotient(*extract<realtype, sunindextype>(num), *extract<realtype, sunindextype>(denom)));
+  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(num);
+  const auto numvec = extract<realtype, sunindextype>(num);
+  const auto denvec = extract<realtype, sunindextype>(denom);
+
+  realtype locmin = minQuotient(*numvec, *denvec);
+
+  realtype globmin = VAllReduce_Cuda(locmin, 3, comm);
+  return globmin;
 }
+
+/*
+ * -----------------------------------------------------------------
+ * private functions
+ * -----------------------------------------------------------------
+ */
+
+static realtype VAllReduce_Cuda(realtype d, int op, SUNDIALS_Comm comm)
+{
+  /*
+   * This function does a global reduction.  The operation is
+   *   sum if op = 1,
+   *   max if op = 2,
+   *   min if op = 3.
+   * The operation is over all processors in the communicator
+   */
+
+#ifdef SUNDIALS_MPI_ENABLED
+
+  realtype out;
+
+  switch (op) {
+   case 1: MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
+           break;
+
+   case 2: MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_MAX, comm);
+           break;
+
+   case 3: MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_MIN, comm);
+           break;
+
+   default: break;
+  }
+
+  return(out);
+
+#else
+
+  /* If MPI is not enabled don't do reduction */
+  return d;
+
+#endif // ifdef SUNDIALS_MPI_ENABLED
+}
+
 
 } // extern "C"
