@@ -30,6 +30,8 @@ Changes to SUNDIALS since Release of Nov. 7, 2017.
 * Added missing #include <stdio.h> in NVECTOR and SUNMATRIX
   header files.
 
+* Added missing prototypes for ARKSpilsGetNumMTSetups in ARKode and
+  IDASpilsGetNumJTSetupEvals in IDA and IDAS.
 
 Changes to SUNDIALS since Release of Oct. 26, 2017.
 

@@ -558,6 +558,8 @@ SUNDIALS_EXPORT int ARKSpilsSetMassTimes(void *arkode_mem,
  ARKSpilsGetNumMassConvFails returns the number of mass matrix solver
                  convergence failures.
 
+ ARKSpilsGetNumMTSetups returns the number of calls to mtsetup.
+
  ARKSpilsGetNumMtimesEvals returns the number of calls to mtimes.
 
  ARKSpilsGetLastMassFlag returns the last error flag set by any of
@@ -588,7 +590,7 @@ SUNDIALS_EXPORT int ARKSpilsGetNumRhsEvals(void *arkode_mem,
                                            long int *nfevalsLS); 
 SUNDIALS_EXPORT int ARKSpilsGetLastFlag(void *arkode_mem, 
                                         long int *flag);
-  
+
 SUNDIALS_EXPORT int ARKSpilsGetMassWorkSpace(void *arkode_mem, 
                                              long int *lenrwMLS, 
                                              long int *leniwMLS);
@@ -600,6 +602,8 @@ SUNDIALS_EXPORT int ARKSpilsGetNumMassIters(void *arkode_mem,
                                             long int *nmiters);
 SUNDIALS_EXPORT int ARKSpilsGetNumMassConvFails(void *arkode_mem, 
                                                 long int *nmcfails);
+SUNDIALS_EXPORT int ARKSpilsGetNumMTSetups(void *arkode_mem,
+                                           long int *nmtsetups);
 SUNDIALS_EXPORT int ARKSpilsGetNumMtimesEvals(void *arkode_mem, 
                                               long int *nmvevals);
 SUNDIALS_EXPORT int ARKSpilsGetLastMassFlag(void *arkode_mem, 
