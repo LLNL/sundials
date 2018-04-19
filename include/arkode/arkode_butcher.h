@@ -98,7 +98,7 @@ typedef struct ARKodeButcherTableMem {
 
 } *ARKodeButcherTable;
 
-  
+
 /* Utility routines to allocate/free/output Butcher table structures */
 ARKodeButcherTable AllocButcherTable(int stages, booleantype embedded);
 void ButcherTableSpace(ARKodeButcherTable B, sunindextype *liw, sunindextype *lrw);
@@ -106,7 +106,7 @@ void FreeButcherTable(ARKodeButcherTable B);
 void WriteButcherTable(ARKodeButcherTable B, FILE *outfile);
 
 /* Utility routine to fill a pre-defined Butcher table structure */  
-ARKodeButcherTable ARKodeLoadButcherTable(int imethod); 
+ARKodeButcherTable ARKodeLoadButcherTable(int imethod);
 
 #ifdef __cplusplus
 }

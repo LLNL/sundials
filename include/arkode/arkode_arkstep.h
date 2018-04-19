@@ -356,12 +356,6 @@ SUNDIALS_EXPORT int ARKStepSetNonlinConvCoef(void *arkode_mem,
   ARKStepGetNumLinSolvSetups returns the number of calls made to
                              the linear solver's setup routine
 
-  ARKStepGetNumMassSolves returns the number of calls made to
-                          the mass matrix solve routine
-
-  ARKStepGetNumMassMultiplies returns the number of calls made to
-                              the mass matrix times vector routine
-
   ARKStepGetNumErrTestFails returns the number of local error test
                             failures that have occured
 
@@ -390,10 +384,6 @@ SUNDIALS_EXPORT int ARKStepGetNumRhsEvals(void *arkode_mem,
                                           long int *nfi_evals);
 SUNDIALS_EXPORT int ARKStepGetNumLinSolvSetups(void *arkode_mem, 
                                                long int *nlinsetups);
-SUNDIALS_EXPORT int ARKStepGetNumMassSolves(void *arkode_mem, 
-                                            long int *nMassSolves);
-SUNDIALS_EXPORT int ARKStepGetNumMassMultiplies(void *arkode_mem, 
-                                                long int *nMassMult);
 SUNDIALS_EXPORT int ARKStepGetNumErrTestFails(void *arkode_mem, 
                                               long int *netfails);
 SUNDIALS_EXPORT int ARKStepGetCurrentButcherTables(void *arkode_mem,

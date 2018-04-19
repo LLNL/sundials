@@ -392,8 +392,8 @@ typedef struct ARKodeMemRec {
   realtype h;               /* current step size                        */
   realtype hmin;            /* |h| >= hmin                              */
   realtype hmax_inv;        /* |h| <= 1/hmax_inv                        */
-  realtype hprime;          /* step size to be used on the next step    */ 
-  realtype next_h;          /* step size to be used on the next step    */ 
+  realtype hprime;          /* next step size (used internally)         */
+  realtype next_h;          /* next step size (for user output)         */
   realtype eta;             /* eta = hprime / h                         */
   realtype tcur;            /* current internal value of t 
                                (changes with each stage)                */
