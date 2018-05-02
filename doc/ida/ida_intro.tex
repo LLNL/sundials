@@ -86,6 +86,11 @@ header files.
 
 Added missing prototype for \id{IDASpilsGetNumJTSetupEvals}.
 
+Fixed an indexing bug in the {\cuda} {\nvector} implementation of
+\id{N\_VWrmsNormMask} and revised the {\raja} {\nvector} implementation of
+\id{N\_VWrmsNormMask} to work with mask arrays using values other than zero or
+one. Replaced \id{double} with \id{realtype} in the RAJA vector test functions.
+
 \subsection*{Changes in v3.1.0}
 
 Added {\nvector} print functions that write vector data to a specified

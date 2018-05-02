@@ -370,7 +370,7 @@ wrmsNormMaskKernel(const T *x, const T *w, const T *id, T *out, I n)
   // First reduction step before storing data in shared memory.
   if (i < n && id[i] > 0.0)
     sum = x[i] * w[i] * x[i] * w[i];
-  if ((i + blockDim.x < n) && (id[i] > 0.0))
+  if ((i + blockDim.x < n) && (id[i + blockDim.x] > 0.0))
     sum += ( x[i+blockDim.x] * w[i+blockDim.x] * x[i+blockDim.x] * w[i+blockDim.x]);
   shmem[tid] = sum;
   __syncthreads();

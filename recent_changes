@@ -33,6 +33,12 @@ Changes to SUNDIALS since Release of Nov. 7, 2017.
 * Added missing prototypes for ARKSpilsGetNumMTSetups in ARKode and
   IDASpilsGetNumJTSetupEvals in IDA and IDAS.
 
+* Fixed an indexing bug in the CUDA NVECTOR implementation of
+  N_VWrmsNormMask and revised the RAJA NVECTOR implementation of
+  N_VWrmsNormMask to work with mask arrays using values other than
+  zero or one. Replaced doubles with realtypes in the RAJA vector
+  test functions.
+
 Changes to SUNDIALS since Release of Oct. 26, 2017.
 
 * Added NVECTOR print functions that write vector data to a specified
