@@ -25,12 +25,9 @@ SET(CVODE_examples
   "cvDiurnal_kry_p\;2\;4\;develop"
   )
 
-# Check whether we use MPI compiler scripts.
-# If yes, then change the C compiler to the MPICC script.
-# If not, then add the MPI include directory for MPI headers.
-IF(MPI_MPICC)
-  # use MPI_MPICC as the compiler
-  SET(CMAKE_C_COMPILER ${MPI_MPICC})
+IF(MPI_C_COMPILER)
+  # use MPI wrapper as the compiler
+  SET(CMAKE_C_COMPILER ${MPI_C_COMPILER})
 ELSE()
   # add MPI_INCLUDE_PATH to include directories
   INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
@@ -73,7 +70,7 @@ FOREACH(example_tuple ${CVODE_examples})
   # libraries to link against
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
 
-  IF(NOT MPI_MPICC)
+  IF(NOT MPI_C_COMPILER)
     TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
   ENDIF()
 

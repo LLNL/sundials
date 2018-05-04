@@ -43,9 +43,9 @@ ADD_SUBDIRECTORY(sunlinsol_spbcgs)
 ADD_SUBDIRECTORY(sunlinsol_sptfqmr)
 ADD_SUBDIRECTORY(sunlinsol_pcg)
 
-IF(MPIC_FOUND)
+IF(MPI_C_FOUND)
   ADD_SUBDIRECTORY(nvec_par)
-ENDIF(MPIC_FOUND)
+ENDIF()
 
 IF(HYPRE_FOUND)
   ADD_SUBDIRECTORY(nvec_parhyp)

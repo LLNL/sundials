@@ -282,6 +282,31 @@ preconditioner routines.
 \section{Changes from previous versions}
 \label{Introduction:changes-from-previous-versions}
 
+\subsection{Changes in vX.X.X}
+\label{Introduction:changes-in-vX-X-X}
+
+Several changes were made to the build system. If MPI is enabled and
+MPI compiler wrappers are not set, the build system will check if
+\code{CMAKE\_<language>\_COMPILER} can compile MPI programs before
+trying to locate and use an MPI installation. The native CMake FindMPI
+module is now used to locate an MPI installation. The options for
+setting MPI compiler wrappers and the executable for running MPI
+programs have been updated to align with those in native CMake FindMPI
+module. This included changing \code{MPI\_MPICC} to
+\code{MPI\_C\_COMPILER}, \code{MPI\_MPICXX} to \code{MPI\_CXX\_COMPILER},
+combining \code{MPI\_MPIF77} and \code{MPI\_MPIF90} to
+\code{MPI\_Fortran\_COMPILER}, and changing \code{MPI\_RUN\_COMMAND} to
+\code{MPIEXEC}. When a Fortran name-mangling scheme is needed (e.g.,
+\code{LAPACK\_ENABLE} is \code{ON}) the build system will infer the scheme
+from the Fortran compiler. If a Fortran compiler is not available or
+the inferred or default scheme needs to be overridden, the advanced
+options \code{SUNDIALS\_F77\_FUNC\_CASE} and
+\code{SUNDIALS\_F77\_FUNC\_UNDERSCORES} can be used to manually set the
+name-mangling scheme and bypass trying to infer the
+scheme. Additionally, parts of the main CMakeLists.txt file were moved
+to new files in the \code{src} and \code{example} directories to make the
+CMake configuration file structure more modular.
+
 \subsection{Changes in v2.1.0}
 \label{Introduction:changes-in-v2-1-0}
 

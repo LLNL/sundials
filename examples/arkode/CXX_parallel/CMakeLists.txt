@@ -34,13 +34,11 @@ SET(ARKODE_extras
   plot_heat2D.py
   )
 
-# Check whether we use MPI compiler scripts.
-# If yes, then change the C compiler to the MPICC script.
-# If not, then add the MPI include directory for MPI headers.
+IF(MPI_CXX_COMPILER)
+  # use MPI wrapper as the compiler
+  SET(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
 
-IF(MPI_MPICXX)
-  # use MPI_MPICXX as the compiler
-  SET(CMAKE_CXX_COMPILER ${MPI_MPICXX})
+  # disable C++ extensions (for known wrappers)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMPICH_SKIP_MPICXX -DOMPI_SKIP_MPICXX -DLAM_BUILDING")
 ELSE()
   # add MPI_INCLUDE_PATH to include directories
@@ -85,7 +83,7 @@ FOREACH(example_tuple ${ARKODE_examples})
   # libraries to link against
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
 
-  IF(NOT MPI_MPICXX)
+  IF(NOT MPI_CXX_COMPILER)
     TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
   ENDIF()
 

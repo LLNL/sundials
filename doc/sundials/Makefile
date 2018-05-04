@@ -1,13 +1,10 @@
 # -----------------------------------------------------------------
-# $Revision$
-# $Date$
-# -----------------------------------------------------------------
 # Programmer(s): Carol Woodward @ LLNL
 # -----------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Lawrence Livermore National Laboratory in part under
 # Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
@@ -19,7 +16,7 @@
 
 QUIET =
 
-TEX_COMPILER = xelatex
+TEX_COMPILER = pdflatex
 
 SHARED_DOC = ../sundials
 
@@ -55,6 +52,7 @@ all:
 	@echo "  make clean    - remove all temporary files"
 	@echo "  make purge    - remove temporary files + PDF files"
 	@echo "  make in_g_pdf - use pdflatex to generate PDF file for Instalation Guide"
+	@echo "  make in_g_xel - use xelatex to generate PDF file for Instalation Guide"
 	@echo ""
 
 #-------------------------------------------------------------------------------
@@ -62,6 +60,8 @@ all:
 in_g: 	copy_ug_figs copy_ug_cmake_figs $(INSTALLATION_GUIDE).pdf
 
 in_g_pdf: use_pdflatex in_g
+
+in_g_xel: use_xellatex in_g
 
 copy_ug_files:
 	@for i in ${UG_SHARED_FILES} ; do \
@@ -77,7 +77,7 @@ copy_ug_cmake_figs:
 	@for i in ${UG_CMAKE_FIGURES} ; do \
 	cp ${SHARED_DOC}/figures/cmake/$${i} . ;\
 	done
-	
+
 $(INSTALLATION_GUIDE).pdf: ${UG_FILES} ${UG_SHARED_FILES:%=${SHARED_DOC}/%}
 	${TEX_COMPILER} ${QUIET} $(INSTALLATION_GUIDE).tex
 #	makeindex $(INSTALLATION_GUIDE).idx
@@ -91,6 +91,9 @@ $(INSTALLATION_GUIDE).pdf: ${UG_FILES} ${UG_SHARED_FILES:%=${SHARED_DOC}/%}
 
 use_pdflatex:
 	$(eval TEX_COMPILER := pdflatex)
+
+use_xelatex:
+	$(eval TEX_COMPILER := xelatex)
 
 clean:
 	rm -rf ${UG_SHARED_FIGURES}

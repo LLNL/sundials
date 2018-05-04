@@ -50,7 +50,5 @@ parameter (SUNINDEXTYPE=@FINDEX_TYPE@)
 !          .true.   (communicator can differ from MPI_COMM_WORLD)
 !          .false.  (communicator must be MPI_COMM_WORLD)
 !
-!      logical SUNDIALS_MPI_COMM_F2C
-!      parameter (SUNDIALS_MPI_COMM_F2C=)
-@FMPI_COMM_F2C_1@
-@FMPI_COMM_F2C_2@
+logical SUNDIALS_MPI_COMM_F2C
+parameter (SUNDIALS_MPI_COMM_F2C=@FMPI_COMM_F2C@)

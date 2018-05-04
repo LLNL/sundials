@@ -10,8 +10,7 @@ compressed archives (\id{.tar.gz}). The name of the distribution
 archive is of the form {\em solver}\id{-x.y.z.tar.gz}, where {\em solver}
 is one of: \id{sundials}, \id{cvode}, \id{cvodes}, \id{arkode}, \id{ida},
 \id{idas}, or \id{kinsol}, and \id{x.y.z} represents the version number
-(of the {\sundials} suite or of the individual solver)
-.
+(of the {\sundials} suite or of the individual solver).
 %%
 To begin the installation, first uncompress and expand the sources, by issuing
 \begin{verbatim}
@@ -27,7 +26,7 @@ The explanations of the installation procedure begins with a few common observat
 
 \item The remainder of this chapter will follow these conventions:
   \begin{description}
-  \item[{\em srcdir}] 
+  \item[{\em solverdir}] 
     is the directory {\em solver}\id{-x.y.z} created above; i.e., the 
     directory containing the {\sundials} sources.
   \item[{\em builddir}]
@@ -40,13 +39,13 @@ The explanations of the installation procedure begins with a few common observat
   \end{description}
 
 \item For {\sundials} CMake-based installation, in-source builds are prohibited; in other words, the
-  build directory {\em builddir} can {\bf not} be the same as {\em srcdir}
+  build directory {\em builddir} can {\bf not} be the same as {\em solverdir}
   and such an attempt will lead to an error. This
   prevents ``polluting'' the source tree and allows efficient builds
   for different configurations and/or options.
 
 \item {\warn}The installation directory {\em instdir} can {\bf not} be the same as
-  the source directory {\em srcdir}.
+  the source directory {\em solverdir}.
 
 \item By default, only the libraries and header files are exported to the installation
   directory {\em instdir}.  If enabled by the user (with the
@@ -58,7 +57,7 @@ The explanations of the installation procedure begins with a few common observat
   automatically generated configuration files that reference the {\em
   installed} {\sundials} headers and libraries.  As such, these
   configuration files for the {\sundials} examples can be used as
-  "templates" for your own problems. CMake installs \id{CMakeLists.txt} files and also
+  ``templates'' for your own problems. CMake installs \id{CMakeLists.txt} files and also
   (as an option available only under Unix/Linux) \id{Makefile} files. Note this
   installation approach also allows the option of building the
   {\sundials} examples without having to install them.  (This can be
@@ -67,7 +66,7 @@ The explanations of the installation procedure begins with a few common observat
 \item Even if generation of shared libraries is enabled, only static libraries
   are created for the FCMIX modules.  (Because of the use of fixed names for
   the Fortran user-provided subroutines, FCMIX shared libraries would result in
-  "undefined symbol" errors at link time.)
+  ``undefined symbol'' errors at link time.)
 
 \end{itemize}
 
@@ -82,12 +81,12 @@ Unix and Linux Makefiles, as well as KDevelop, Visual Studio, and
 In addition, CMake also provides a GUI front end and which allows an interactive build and
 installation process.
 
-The {\sundials} build process requires CMake version \id{2.8.1} or
+The {\sundials} build process requires CMake version \id{3.0.2} or
 higher and a working {\CC} compiler.  On Unix-like operating systems, it
 also requires Make (and \id{curses}, including its development libraries,
 for the GUI front end to CMake, \id{ccmake}), while on Windows it
 requires Visual Studio.  While many Linux distributions offer CMake,
-the version included is probably out of date.  Many new CMake
+the version included may be out of date.  Many new CMake
 features have been added recently, and you should download the latest
 version from {\tt http://www.cmake.org}.  Build instructions for CMake
 (only necessary for Unix-like systems) can be found on the CMake website.
@@ -107,7 +106,7 @@ compiler and linker.
 
 The default CMake configuration will build all included solvers and
 associated examples and will build static and shared libraries. The
-{\em installdir} defaults to \id{/usr/local} and can be changed by
+{\em instdir} defaults to \id{/usr/local} and can be changed by
 setting the \id{CMAKE\_INSTALL\_PREFIX} variable.  Support for FORTRAN
 and all other options are disabled.
 
@@ -145,10 +144,10 @@ Using CMake with the GUI follows this general process:
 \end{itemize}
 
 To build the default configuration using the GUI, from the {\em builddir} enter
-the ccmake command and point to the {\em srcdir}:
+the ccmake command and point to the {\em solverdir}:
 
 \begin{verbatim}
-    % ccmake ../srcdir
+    % ccmake ../solverdir
 \end{verbatim}
 
 The default configuration screen is shown in Figure
@@ -224,12 +223,12 @@ To install {\sundials} in the installation directory specified in the configurat
 \subsubsection*{Building from the command line}
 
 Using CMake from the command line is simply a matter of specifying CMake variable settings
-with the {\id cmake} command.  The following will build the default configuration:  
+with the \id{cmake} command.  The following will build the default configuration:  
 
 \begin{verbatim}
    % cmake -DCMAKE_INSTALL_PREFIX=/home/myname/sundials/instdir \
    > -DEXAMPLES_INSTALL_PATH=/home/myname/sundials/instdir/examples \
-   > ../srcdir
+   > ../solverdir
    % make
    % make install
 \end{verbatim}
@@ -474,18 +473,18 @@ a typical configuration on a Linux system and are provided as illustration only.
   \\
   Note: CMake will search for libraries in your \id{LD\_LIBRARY\_PATH} prior
   to searching default system paths.
-\item[\id{MPI\_ENABLE}] -  
+\item[\id{MPI\_ENABLE}] -
   Enable MPI support (build the parallel nvector).
   \\
   Default: OFF 
   \\
   Note: Setting this option to ON will trigger several additional options
   related to MPI.
-\item[\id{MPI\_MPICC}] - 
+\item[\id{MPI\_C\_COMPILER}] -
   \id{mpicc} program
   \\
   Default: 
-\item[\id{MPI\_MPICXX}] - 
+\item[\id{MPI\_CXX\_COMPILER}] -
   \id{mpicxx} program
   \\
   Default: 
@@ -496,27 +495,21 @@ a typical configuration on a Linux system and are provided as illustration only.
   solvers can be used from {\CPP} MPI applications by default
   without setting any additional configuration options other than
   \id{MPI\_ENABLE}.
-\item[\id{MPI\_MPIF77}] - 
-  \id{mpif77} program
-  \\
-  Default: 
-  \\
-  Note: This option is triggered only if MPI is enabled
-  (\id{MPI\_ENABLE} is ON) and Fortran-C support is enabled
-  (\id{FCMIX\_ENABLE} is ON). 
-\item[\id{MPI\_MPIF90}] - 
-  \id{mpif90} program
+\item[\id{MPI\_Fortran\_COMPILER}] -
+  \id{mpif77} or \id{mpif90} program
   \\
   Default: 
   \\
   Note: This option is triggered only if MPI is enabled
   (\id{MPI\_ENABLE} is ON), Fortran-C support is enabled
-  (\id{FCMIX\_ENABLE} is ON), and Fortran90 examples are enabled
-  (\id{EXAMPLES\_ENABLE\_F90} is ON).
-\item[\id{MPI\_RUN\_COMMAND}] -  
-  Specify run command for MPI  
+  (\id{FCMIX\_ENABLE} is ON), and Fortran77 or Fortran90
+  examples are enabled (\id{EXAMPLES\_ENABLE\_F77} or
+  \id{EXAMPLES\_ENABLE\_F90} are ON).
+\item[\id{MPIEXEC}] -
+  Specify the executable for running MPI programs
   \\
-  Default: mpirun 
+  Default: \id{mpirun}
+  \\
   Note: This option is triggered only if MPI is enabled
   (\id{MPI\_ENABLE} is ON).
   %% \\
@@ -548,6 +541,29 @@ a typical configuration on a Linux system and are provided as illustration only.
   Default: OFF 
   \\
   Note: You need to enable {\cuda} in order to build the {\raja} vector module.
+\item[\id{SUNDIALS\_F77\_FUNC\_CASE}] - \textbf{advanced option} -
+  Specify the case to use in the Fortran name-mangling scheme, options
+  are: \id{lower} or \id{upper}
+  \\
+  Default:
+  \\
+  Note: The build system will attempt to infer the Fortran
+  name-mangling scheme using the Fortran compiler. This option should
+  only be used if a Fortran compiler is not available or to override
+  the inferred or default (\id{lower}) scheme if one can not be
+  determined. If used, \id{SUNDIALS\_F77\_FUNC\_UNDERSCORES} must also
+  be set.
+\item[\id{SUNDIALS\_F77\_FUNC\_UNDERSCORES}] - \textbf{advanced option} -
+  Specify the number of underscores to append in the Fortran
+  name-mangling scheme, options are: \id{none}, \id{one}, or \id{two}
+  \\
+  Default:
+  \\
+  Note: The build system will attempt to infer the Fortran
+  name-mangling scheme using the Fortran compiler. This option should
+  only be used if a Fortran compiler is not available or to override
+  the inferred or default (\id{one}) scheme if one can not be
+  determined. If used, \id{SUNDIALS\_F77\_FUNC\_CASE} must also be set.
 \item[\id{SUNDIALS\_INDEX\_TYPE}] - 
   Integer type used for {\sundials} indices, options are: \id{int32\_t} or \id{int64\_t}
   \\
@@ -735,7 +751,7 @@ example sources under subdirectories of
    > -DEXAMPLES_INSTALL_PATH=/home/myname/sundials/instdir/examples \
    > -DMPI_ENABLE=ON \
    > -DFCMIX_ENABLE=ON \
-   > /home/myname/sundials/srcdir
+   > /home/myname/sundials/solverdir
    %
    % make install
    % 
@@ -749,7 +765,7 @@ example sources under subdirectories of
    > -DMPI_ENABLE=ON \
    > -DFCMIX_ENABLE=ON \
    > -DEXAMPLES_INSTALL=OFF \
-   > /home/myname/sundials/srcdir
+   > /home/myname/sundials/solverdir
    %
    % make install
    % 
@@ -767,7 +783,7 @@ static library compiled with the \id{-fPIC} flag.{\warn}
 
 \subsubsection*{Building with BLAS}
 {\sundials} does not utilize BLAS directly but it may be needed by other
-external libraries that {\sundials} can be build with (e.g. LAPACK,
+external libraries that {\sundials} can be built with (e.g. LAPACK,
 PETSc, SuperLU\_MT, etc.). To enable BLAS, set the \id{BLAS\_ENABLE}
 option to \id{ON}. If the directory containing the BLAS library is in
 the \id{LD\_LIBRARY\_PATH} environment variable, CMake will set the
@@ -784,15 +800,20 @@ variable can be set to the desired library. Example:
    > -DSUPERLUMT_ENABLE=ON \
    > -DSUPERLUMT_INCLUDE_DIR=/mysuperlumtpath/SRC
    > -DSUPERLUMT_LIBRARY_DIR=/mysuperlumtpath/lib
-   > /home/myname/sundials/srcdir
+   > /home/myname/sundials/solverdir
    %
    % make install
    % 
 \end{verbatim}
-{\warn}If enabling LAPACK and allowing CMake to automatically locate
-the LAPACK library, it is not necessary to also enable BLAS as CMake
-will find the corresponding BLAS library and include it when searching
-for LAPACK.
+{\warn}When allowing CMake to automatically locate the LAPACK library,
+CMake \textit{may} also locate the corresponding BLAS library.
+
+If a working Fortran compiler is not available to infer the Fortran
+name-mangling scheme, the options \id{SUNDIALS\_F77\_FUNC\_CASE} and
+\id{SUNDIALS\_F77\_FUNC\_UNDERSCORES} \textit{must} be set in order to
+bypass the check for a Fortran compiler and define the name-mangling
+scheme. The defaults for these options in earlier versions of
+{\sundials} were \id{lower} and \id{one} respectively.
 
 
 \subsubsection*{Building with LAPACK}
@@ -813,16 +834,20 @@ library will also need to be set. Example:
    > -DBLAS_LIBRARIES=/mylapackpath/lib/libblas.so \
    > -DLAPACK_ENABLE=ON \
    > -DLAPACK_LIBRARIES=/mylapackpath/lib/liblapack.so \
-   > /home/myname/sundials/srcdir
+   > /home/myname/sundials/solverdir
    %
    % make install
    % 
 \end{verbatim}
-{\warn}If enabling LAPACK and allowing CMake to automatically locate
-the LAPACK library, it is not necessary to also enable BLAS as CMake
-will find the corresponding BLAS library and include it when searching
-for LAPACK.
+{\warn}When allowing CMake to automatically locate the LAPACK library,
+CMake \textit{may} also locate the corresponding BLAS library.
 
+If a working Fortran compiler is not available to infer the Fortran
+name-mangling scheme, the options \id{SUNDIALS\_F77\_FUNC\_CASE} and
+\id{SUNDIALS\_F77\_FUNC\_UNDERSCORES} \textit{must} be set in order to
+bypass the check for a Fortran compiler and define the name-mangling
+scheme. The defaults for these options in earlier versions of
+{\sundials} were \id{lower} and \id{one} respectively.
 
 \subsubsection*{Building with KLU}
 The KLU libraries are part of SuiteSparse, a suite of sparse matrix software,
@@ -868,25 +893,26 @@ to the \id{include} path of the \textit{hypre} installation, and set the variabl
 \id{HYPRE\_LIBRARY\_DIR} to the \id{lib} path of the \textit{hypre} installation.
 
 \subsubsection*{Building with CUDA}
-{\sundials} {\cuda} modules and examples are tested with version 8.0 of the 
+{\sundials} {\cuda} modules and examples have been tested with version 8.0 of the 
 {\cuda} toolkit. To build them, you need to install the Toolkit and compatible
-NVIDIA drivers. Both are available for download from NVIDIA website:
+NVIDIA drivers. Both are available for download from the NVIDIA website:
 {\tt https://developer.nvidia.com/cuda-downloads}. To enable {\cuda}, 
-set \id{CUDA\_ENABLE} to \id{ON}. If you
-installed {\cuda} in a nonstandard location, you may be prompted to set the
-variable \id{CUDA\_TOOLKIT\_ROOT\_DIR} with your {\cuda} Toolkit installation
+set \id{CUDA\_ENABLE} to \id{ON}. If {\cuda} is installed in a
+nonstandard location, you may be prompted to set the variable
+\id{CUDA\_TOOLKIT\_ROOT\_DIR} with your {\cuda} Toolkit installation
 path. To enable {\cuda} examples, set \id{EXAMPLES\_ENABLE\_CUDA} to \id{ON}.
 
 \subsubsection*{Building with RAJA}
-To build {\sundials} {\raja} modules you need to enable {\sundials} {\cuda}
-support, first. You also need a {\cuda}-enabled {\raja} installation on your
-system. {\raja} is free software, developed by Lawrence Livermore
-National Laboratory, and can be obtained from {\tt https://github.com/LLNL/RAJA}.
-Next you need to set \id{RAJA\_ENABLE} to \id{ON}, to enable building the {\raja}
-vector module, and  \id{EXAMPLES\_ENABLE\_RAJA} to \id{ON} to build the {\raja}
-examples. If you installed {\raja} to a nonstandard location you will be 
-prompted to set the variable \id{RAJA\_DIR} with the path to the {\raja} CMake configuration
-file. {\sundials} was tested with {\raja} version 0.3.
+{\raja} is a performance portability layer developed by Lawrence
+Livermore National Laboratory and can be obtained from {\tt https://github.com/LLNL/RAJA}.
+{\sundials} {\raja} modules and examples have been tested with {\raja}
+version 0.3. Building {\sundials} {\raja} modules requires a
+{\cuda}-enabled {\raja} installation. To enable {\raja}, set
+\id{CUDA\_ENABLE} and \id{RAJA\_ENABLE} to \id{ON}. If {\raja} is
+installed in a nonstandard location you will be prompted to set the
+variable \id{RAJA\_DIR} with the path to the {\raja} CMake
+configuration file. To enable building the {\raja} examples set
+\id{EXAMPLES\_ENABLE\_RAJA} to \id{ON}.
 
 \subsection{Testing the build and installation}
 
@@ -934,10 +960,10 @@ use of third party libraries etc.{\warn}
 CMake can also be used to build {\sundials} on Windows. To build {\sundials} for
 use with Visual Studio the following steps should be performed:
 \begin{enumerate}
-\item Unzip the downloaded tar file(s) into a directory. This will be the {\em srcdir} 
+\item Unzip the downloaded tar file(s) into a directory. This will be the {\em solverdir} 
 \item Create a separate {\em builddir}
 \item Open a Visual Studio Command Prompt and cd to {\em builddir}
-\item Run cmake-gui ../{\em srcdir}
+\item Run cmake-gui ../{\em solverdir}
 \begin{enumerate}
 \item Hit Configure
 \item Check/Uncheck solvers to be built
