@@ -310,6 +310,15 @@ header files.
 
 Added missing prototype for \texttt{ARKSpilsGetNumMTSetups}.
 
+Fixed an indexing bug in the CUDA NVECTOR implementation of
+\code{N\_VWrmsNormMask} and revised the RAJA NVECTOR implementation of
+\code{N\_VWrmsNormMask} to work with mask arrays using values other than zero or
+one. Replaced \code{double} with \code{realtype} in the RAJA vector test functions.
+
+Fixed compilation issue with GCC 7.3.0 and Fortran programs that do
+not require a SUNMatrix or SUNLinearSolver module (e.g. iterative
+linear solvers, explicit methods, fixed point solver, etc.).
+
 \subsection{Changes in v2.1.0}
 \label{Introduction:changes-in-v2-1-0}
 
@@ -319,11 +328,6 @@ file (e.g. \code{N\_VPrintFile\_Serial}).
 Added \code{make test} and \code{make test\_install} options to the build
 system for testing SUNDIALS after building with \code{make} and
 installing with \code{make install} respectively.
-
-Fixed an indexing bug in the {\cuda} {\nvector} implementation of
-\id{N\_VWrmsNormMask} and revised the {\raja} {\nvector} implementation of
-\id{N\_VWrmsNormMask} to work with mask arrays using values other than zero or
-one. Replaced \id{double} with \id{realtype} in the RAJA vector test functions.
 
 \subsection{Changes in v2.0.0}
 \label{Introduction:changes-in-v2-0-0}

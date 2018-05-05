@@ -23,6 +23,8 @@ SET(fkinsol_SOURCES
   fkinbbd.c
   fkindense.c
   fkinjtimes.c
+  fkinnullmatrix.c
+  fkinnulllinsol.c
   fkinpreco.c
   fkinsol.c
   fkinsparse.c

@@ -91,6 +91,9 @@ Fixed an indexing bug in the {\cuda} {\nvector} implementation of
 \id{N\_VWrmsNormMask} to work with mask arrays using values other than zero or
 one. Replaced \id{double} with \id{realtype} in the RAJA vector test functions.
 
+Fixed compilation issue with GCC 7.3.0 and Fortran programs that do
+not require a {\sunmatrix} module (e.g., iterative linear solvers).
+
 \subsection*{Changes in v3.1.0}
 
 Added {\nvector} print functions that write vector data to a specified

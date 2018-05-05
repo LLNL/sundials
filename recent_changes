@@ -39,6 +39,11 @@ Changes to SUNDIALS since Release of Nov. 7, 2017.
   zero or one. Replaced doubles with realtypes in the RAJA vector
   test functions.
 
+* Fixed compilation issue with GCC 7.3.0 and Fortran programs that do
+  not require a SUNMatrix or SUNLinearSolver module (e.g. iterative
+  linear solvers, explicit methods in ARKode, functional iteration
+  in CVODE, etc.).
+
 Changes to SUNDIALS since Release of Oct. 26, 2017.
 
 * Added NVECTOR print functions that write vector data to a specified
