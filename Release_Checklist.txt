@@ -34,6 +34,22 @@ web pages.
     src/nvec_ser/README
     src/nvec_parhyp/README
     src/nvec_petsc/README
+    src/nvec_cuda/README
+    src/nvec_raja/README
+    src/sunmat_band/README
+    src/sunmat_dense/README
+    src/sunmat_sparse/README
+    src/sunlinsol_band/README
+    src/sunlinsol_dense/README
+    src/sunlinsol_klu/README
+    src/sunlinsol_lapackband/README
+    src/sunlinsol_lapackdense/README
+    src/sunlinsol_pcg/README
+    src/sunlinsol_spbcgs/README
+    src/sunlinsol_spfgmr/README
+    src/sunlinsol_spgmr/README
+    src/sunlinsol_sptfqmr/README
+    src/sunlinsol_superlumt/README
     src/sundials/README 
 
 9. Update version numbers of third party libraries in Install Guide 
