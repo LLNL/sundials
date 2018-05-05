@@ -302,6 +302,10 @@ static int Jac(realtype t, N_Vector y, N_Vector fy,
   }
   SUNMatCopy(D, J);
 
+  SUNMatDestroy(V);                // Free V matrix
+  SUNMatDestroy(D);                // Free D matrix
+  SUNMatDestroy(Vi);               // Free Vi matrix
+
   return 0;                        // Return with success
 }
 

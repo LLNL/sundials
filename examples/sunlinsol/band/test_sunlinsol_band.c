@@ -103,6 +103,15 @@ int main(int argc, char *argv[])
   fails += SUNMatScaleAddI( ONE/(uband+lband+1), A );
   if (fails) {
     printf("FAIL: SUNLinSol SUNMatScaleAddI failure\n");
+
+    /* Free solver, matrix and vectors */
+    SUNLinSolFree(LS);
+    SUNMatDestroy(A);
+    SUNMatDestroy(B);
+    N_VDestroy(x);
+    N_VDestroy(y);
+    N_VDestroy(b);
+
     return(1);
   }
 
@@ -114,6 +123,15 @@ int main(int argc, char *argv[])
   fails = SUNMatMatvec(A, x, b);
   if (fails) {
     printf("FAIL: SUNLinSol SUNMatMatvec failure\n");
+
+    /* Free solver, matrix and vectors */
+    SUNLinSolFree(LS);
+    SUNMatDestroy(A);
+    SUNMatDestroy(B);
+    N_VDestroy(x);
+    N_VDestroy(y);
+    N_VDestroy(b);
+
     return(1);
   }
   
@@ -150,6 +168,7 @@ int main(int argc, char *argv[])
   SUNMatDestroy(B);
   N_VDestroy(x);
   N_VDestroy(y);
+  N_VDestroy(b);
 
   return(fails);
 }
