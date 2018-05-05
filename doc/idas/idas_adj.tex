@@ -1610,6 +1610,7 @@ problem through the following functions:
 }
 %%
 %%
+\ucfunction{IDASpilsSetIncrementFactorB}
 {
   flag = IDASpilsSetIncrementFactorB(ida\_mem, which, dqincfacB);
 }
@@ -2351,7 +2352,7 @@ provide a function of type \ID{IDADlsJacFnB} or \ID{IDADlsJacFnBS}
 \index{Jacobian approximation function!user-supplied (backward)}
 \usfunction{IDADlsJacFnB}
 {
-  typedef int (*IDADlsJacFnB)(realtype tt, realtype cjB, \\
+  typedef int (*IDADlsJacFnB)(&realtype tt, realtype cjB, \\
                               &N\_Vector yy, N\_Vector yp,\\
                               &N\_Vector yB, N\_Vector ypB,\\
                               &N\_Vector resvalB,\\
@@ -2425,7 +2426,7 @@ provide a function of type \ID{IDADlsJacFnB} or \ID{IDADlsJacFnBS}
 \index{Jacobian approximation function!user-supplied (backward)}
 \usfunction{IDADlsJacFnBS}
 {
-  typedef int (*IDADlsDenseJacFnBS)(realtype tt, realtype cjB, \\
+  typedef int (*IDADlsDenseJacFnBS)(&realtype tt, realtype cjB, \\
                                &N\_Vector yy, N\_Vector yp,\\
                                &N\_Vector *yS, N\_Vector *ypS,\\
                                &N\_Vector yB, N\_Vector ypB,\\
