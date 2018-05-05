@@ -173,24 +173,25 @@ SUNDIALS_EXPORT int ModifiedGS(N_Vector *v, realtype **h, int k, int p,
  * -----------------------------------------------------------------
  * Function: ClassicalGS                                          
  * -----------------------------------------------------------------
- * ClassicalGS performs a classical Gram-Schmidt                  
- * orthogonalization of the N_Vector v[k] against the p unit      
- * N_Vectors at v[k-1], v[k-2], ..., v[k-p]. The parameters v, h, 
- * k, p, and new_vk_norm are as described in the documentation    
- * for ModifiedGS.                                                
- *                                                                
- * temp is an N_Vector which can be used as workspace by the      
- * ClassicalGS routine.                                           
- *                                                                
- * s is a length k array of realtype which can be used as         
- * workspace by the ClassicalGS routine.                          
+ * ClassicalGS performs a classical Gram-Schmidt
+ * orthogonalization of the N_Vector v[k] against the p unit
+ * N_Vectors at v[k-1], v[k-2], ..., v[k-p]. The parameters v, h,
+ * k, p, and new_vk_norm are as described in the documentation
+ * for ModifiedGS.
  *
- * ClassicalGS returns 0 to indicate success. It cannot fail.     
+ * stemp is a length k+1 array of realtype which can be used as
+ * workspace by the ClassicalGS routine.
+ *                                                                
+ * vtemp is an N_Vector array of k+1 vectors which can be used as
+ * workspace by the ClassicalGS routine.
+ *
+ * ClassicalGS returns 0 to indicate success.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int ClassicalGS(N_Vector *v, realtype **h, int k, int p, 
-				realtype *new_vk_norm, N_Vector temp, realtype *s);
+SUNDIALS_EXPORT int ClassicalGS(N_Vector *v, realtype **h, int k, int p,
+                                realtype *new_vk_norm, realtype *stemp,
+                                N_Vector *vtemp);
 
 /*
  * -----------------------------------------------------------------

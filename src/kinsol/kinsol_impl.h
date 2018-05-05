@@ -162,6 +162,8 @@ typedef struct KINMemRec {
   sunindextype kin_m_aa;    /* parameter for AA, Broyden or NLEN */
   booleantype kin_aamem_aa; /* sets additional memory needed for Anderson Acc */
   booleantype kin_setstop_aa; /* determines whether user will set stopping criterion */
+  realtype *kin_cv;         /* scalar array for fused vector operations */
+  N_Vector *kin_Xv;         /* vector array for fused vector operations */
 
   /* space requirements for vector storage */ 
 

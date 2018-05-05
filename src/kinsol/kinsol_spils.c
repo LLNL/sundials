@@ -282,6 +282,7 @@ int KINSpilsGetWorkSpace(void *kinmem, long int *lenrwLS,
   /* add LS sizes */
   if (kinspils_mem->LS->ops->space) {
     flag = SUNLinSolSpace(kinspils_mem->LS, &lrw, &liw);
+    if (flag != 0) return(-1);
     *lenrwLS += lrw;
     *leniwLS += liw;
   }

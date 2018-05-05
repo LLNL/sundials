@@ -99,26 +99,31 @@ int ModifiedGS(N_Vector *v, realtype **h, int k, int p,
  * -----------------------------------------------------------------
  */
 
-int ClassicalGS(N_Vector *v, realtype **h, int k, int p, 
-                realtype *new_vk_norm, N_Vector temp, realtype *s)
+int ClassicalGS(N_Vector *v, realtype **h, int k, int p, realtype *new_vk_norm,
+                realtype *stemp, N_Vector *vtemp)
 {
-  int  i, k_minus_1, i0;
+  int  i, i0, k_minus_1, retval;
   realtype vk_norm;
 
   k_minus_1 = k - 1;
-  
+  i0 = SUNMAX(k-p,0);
+
   /* Perform Classical Gram-Schmidt */
 
-  vk_norm = SUNRsqrt(N_VDotProd(v[k], v[k]));
+  retval = N_VDotProdMulti(k-i0+1, v[k], v+i0, stemp);
+  if (retval != 0) return(-1);
 
-  i0 = SUNMAX(k-p, 0);
-  for (i=i0; i < k; i++) {
-    h[i][k_minus_1] = N_VDotProd(v[i], v[k]);
+  vk_norm = SUNRsqrt(stemp[k-i0]);
+  for (i=k-i0-1; i >= 0; i--) {
+    h[i][k_minus_1] = stemp[i];
+    stemp[i+1] = -stemp[i];
+    vtemp[i+1] = v[i];
   }
+  stemp[0] = ONE;
+  vtemp[0] = v[k];
 
-  for (i=i0; i < k; i++) {
-    N_VLinearSum(ONE, v[k], -h[i][k_minus_1], v[i], v[k]);
-  }
+  retval = N_VLinearCombination(k-i0+1, stemp, vtemp, v[k]);
+  if (retval != 0) return(-1);
 
   /* Compute the norm of the new vector at v[k] */
 
@@ -128,19 +133,19 @@ int ClassicalGS(N_Vector *v, realtype **h, int k, int p,
 
   if ((FACTOR * (*new_vk_norm)) < vk_norm) {
 
+    retval = N_VDotProdMulti(k-i0, v[k], v+i0, stemp+1);
+    if (retval != 0) return(-1);
+
+    stemp[0] = ONE;
+    vtemp[0] = v[k];
     for (i=i0; i < k; i++) {
-      s[i] = N_VDotProd(v[i], v[k]);
+      h[i][k_minus_1] += stemp[i-i0+1];
+      stemp[i-i0+1] = -stemp[i-i0+1];
+      vtemp[i-i0+1] = v[i-i0];
     }
 
-    if (i0 < k) {
-      N_VScale(s[i0], v[i0], temp);
-      h[i0][k_minus_1] += s[i0];
-    }
-    for (i=i0+1; i < k; i++) {
-      N_VLinearSum(s[i], v[i], ONE, temp, temp);
-      h[i][k_minus_1] += s[i];
-    }
-    N_VLinearSum(ONE, v[k], -ONE, temp, v[k]);
+    retval = N_VLinearCombination(k+1, stemp, vtemp, v[k]);
+    if (retval != 0) return(-1);
 
     *new_vk_norm = SUNRsqrt(N_VDotProd(v[k],v[k]));
   }

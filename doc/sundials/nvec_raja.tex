@@ -51,17 +51,22 @@ to access its member variables.
 %%--------------------------------------------
 %%
 The {\nvecraja} module defines the implementations of all vector operations listed 
-in Table \ref{t:nvecops}, except for \verb|N_VGetArrayPointer| and 
-\verb|N_VSetArrayPointer|. 
+in Tables \ref{t:nvecops}, \ref{t:nvecfusedops}, and \ref{t:nvecarrayops}, except
+for \id{N\_VDotProdMulti}, \id{N\_VWrmsNormVectorArray}, and
+\id{N\_VWrmsNormMaskVectorArray} as support for arrays of reduction vectors is not
+yet supported in {\raja}. These function will be added to the {\nvecraja}
+implementation in the futrue. Additionally vector \id{N\_VGetArrayPointer} and
+\id{N\_VSetArrayPointer} are not implemented by the {\raja} vector.
 As such, this vector cannot be used with {\sundials} Fortran interfaces,
-nor with {\sundials} direct solvers and preconditioners. 
+nor with {\sundials} direct solvers and preconditioners.
 The {\nvecraja} module provides separate functions to access data on the host
 and on the device. It also provides methods for copying data from the host to 
 the device and vice versa. Usage examples of {\nvecraja} are provided in
 some example programs for {\cvode} \cite{cvode_ex}.
 
-The names of vector operations are obtained from those in 
-Table \ref{t:nvecops} by appending the suffix \id{\_Raja} (e.g. \id{N\_VDestroy\_Raja}).
+The names of vector operations are obtained from those in Tables \ref{t:nvecops},
+\ref{t:nvecfusedops}, and \ref{t:nvecarrayops}, by appending the suffix \id{\_Raja}
+(e.g. \id{N\_VDestroy\_Raja}).
 The module {\nvecraja}  provides the following additional user-callable routines:
 %%
 %%

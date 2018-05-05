@@ -282,8 +282,29 @@ preconditioner routines.
 \section{Changes from previous versions}
 \label{Introduction:changes-from-previous-versions}
 
-\subsection{Changes in vX.X.X}
-\label{Introduction:changes-in-vX-X-X}
+\subsection{Changes in v3.0.0-dev}
+\label{Introduction:changes-in-v3-0-0-dev}
+
+Three fused vector operations and seven vector array operations have
+been added to the NVECTOR API. These \textit{optional} operations
+are intended to increase data reuse in vector operations, reduce
+parallel communication on distributed memory systems, and lower the
+number of kernel launches on systems with accelerators. The new
+operations are 
+\code{N\_VLinearCombination},
+\code{N\_VScaleAddMulti},
+\code{N\_VDotProdMulti},
+\code{N\_VLinearCombinationVectorArray},
+\code{N\_VScaleVectorArray},
+\code{N\_VConstVectorArray},
+\code{N\_VWrmsNormVectorArray},
+\code{N\_VWrmsNormMaskVectorArray},
+\code{N\_VScaleAddMultiVectorArray}, and
+\code{N\_VLinearCombinationVectorArray}.
+If any of these operations are defined as \code{NULL} in an NVECTOR
+implementation the NVECTOR interface will automatically call
+standard NVECTOR operations as necessary. Details on the new
+operations can be found in Chapter {\hyperref[nvectors/index:nvectors]{\emph{\DUspan{}{Vector Data Structures}}}}.
 
 Several changes were made to the build system. If MPI is enabled and
 MPI compiler wrappers are not set, the build system will check if
@@ -16413,6 +16434,20 @@ defined as
    \PYG{n}{booleantype} \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvinvtest}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
    \PYG{n}{booleantype} \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvconstrmask}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
    \PYG{n}{realtype}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvminquotient}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{int}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvlinearcombination}\PYG{p}{)}\PYG{p}{(}\PYG{n}{int}\PYG{p}{,} \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{int}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvscaleaddmulti}\PYG{p}{)}\PYG{p}{(}\PYG{n}{int}\PYG{p}{,} \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{int}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvdotprodmulti}\PYG{p}{)}\PYG{p}{(}\PYG{n}{int}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,}  \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{int}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvlinearsumvectorarray}\PYG{p}{)}\PYG{p}{(}\PYG{n}{int}\PYG{p}{,} \PYG{n}{realtype}\PYG{p}{,}
+                                         \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{int}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvscalevectorarray}\PYG{p}{)}\PYG{p}{(}\PYG{n}{int}\PYG{p}{,} \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{,}  \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{int}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvconstvectorarray}\PYG{p}{)}\PYG{p}{(}\PYG{n}{int}\PYG{p}{,} \PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{int}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvwrmsnomrvectorarray}\PYG{p}{)}\PYG{p}{(}\PYG{n}{int}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{int}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvwrmsnomrmaskvectorarray}\PYG{p}{)}\PYG{p}{(}\PYG{n}{int}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,}
+                                            \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{int}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvscaleaddmultivectorarray}\PYG{p}{)}\PYG{p}{(}\PYG{n}{int}\PYG{p}{,} \PYG{n}{int}\PYG{p}{,} \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,}
+                                             \PYG{n}{N\PYGZus{}Vector} \PYG{o}{**}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{**}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{int}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvlinearcombinationvectorarray}\PYG{p}{)}\PYG{p}{(}\PYG{n}{int}\PYG{p}{,} \PYG{n}{int}\PYG{p}{,} \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{**}\PYG{p}{,}
+                                                 \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{Verbatim}
 
@@ -16886,8 +16921,9 @@ with (positive) \code{realtype} weight vector \emph{w} built using only the
 elements of \emph{x} corresponding to nonzero elements of the
 \code{N\_Vector} \emph{id}:
 \begin{gather}
-\begin{split}m = \left( \frac1n \sum_{i=1}^{n} \left(x_i w_i \text{sign}(id_i)\right)^2 \right)^{1/2}.\end{split}\notag
+\begin{split}m = \left( \frac1n \sum_{i=1}^{n} \left(x_i w_i H(id_i)\right)^2 \right)^{1/2},\end{split}\notag
 \end{gather}
+where \(H(id_i)=1\) for \(id_i > 0\) and is zero otherwise.
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{n}{m} \PYG{o}{=} \PYG{n}{N\PYGZus{}VWrmsNormMask}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{w}\PYG{p}{,} \PYG{n}{id}\PYG{p}{)}\PYG{p}{;}
 \end{Verbatim}
@@ -17032,6 +17068,202 @@ Usage:
 
 \end{fulllineitems}
 
+The following fused and vector array operations are \textit{optional}.
+These operations are intended to increase data reuse, reduce parallel
+communication on distributed memory systems, and lower the number of
+kernel launches on systems with accelerators. If a particular NVECTOR
+implementation defines one of the fused or vector array operations as
+\code{NULL}, the NVECTOR interface will call one of the above standard
+vector as necessary.
+
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VLinearCombination}\pysiglinewithargsret{int \bfcode{N\_VLinearCombination}}{int\emph{ nvec}, realtype*\emph{ c}, N\_Vector*\emph{ X}, N\_Vector\emph{ z}}{}
+This routine computes the linear combination of \emph{nvec} vectors with \emph{n} elements:
+\begin{gather}
+\begin{split}z_i = \sum_{j=1}^{nvec} c_j x_{j,i}, \quad i=1,\ldots,n,\end{split}\notag
+\end{gather}
+where \emph{c} is an array of scalars, \(x_j\) is a vector the vector array \emph{X},
+and \emph{z} is the output vector. If the output vector \emph{z} is one of the vectors
+in \emph{X}, then it \textit{must} be the first vector in the vector array. The
+operation returns 0 for success and a non-zero value otherwise.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{ier} \PYG{o}{=} \PYG{n}{N\PYGZus{}VLinearCombination}\PYG{p}{(}\PYG{n}{nv}\PYG{p}{,} \PYG{n}{c}\PYG{p}{,} \PYG{n}{X}\PYG{p}{,} \PYG{n}{z}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VScaleAddMulti}\pysiglinewithargsret{int \bfcode{N\_VScaleAddMulti}}{int\emph{ nvec}, realtype*\emph{ c}, N\_Vector\emph{ x}, N\_Vector*\emph{ Y}, N\_Vector*\emph{ Z}}{}
+This routine scales and adds one vector to multiple other vectors with \emph{n} elements:
+\begin{gather}
+\begin{split}z_{j,i} = c_j x_i + y_{j,i}, \quad j=1,\ldots,nvec \quad i=1,\ldots,n,\end{split}\notag
+\end{gather}
+where \emph{c} is an array of scalars, \emph{x} is a vector, \(y_j\) is a vector
+the vector array \emph{Y}, and \(z_j\) is an output vector in the vector array
+\emph{Z}. The operation returns 0 for success and a non-zero value otherwise.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{ier} \PYG{o}{=} \PYG{n}{N\PYGZus{}VScaleAddMulti}\PYG{p}{(}\PYG{n}{nv}\PYG{p}{,} \PYG{n}{c}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{n}{Y}\PYG{p}{,} \PYG{n}{Z}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VDotProdMulti}\pysiglinewithargsret{int \bfcode{N\_VDotProdMulti}}{int\emph{ nvec}, N\_Vector\emph{ x}, N\_Vector*\emph{ Y}, realtype*\emph{ d}}{}
+This routine computes the dot product of a vector with multiple other vectors with \emph{n} elements:
+\begin{gather}
+\begin{split}d_j = \sum_{i}^{n} x_i y_{j,i}, \quad j=1,\ldots,nvec,\end{split}\notag
+\end{gather}
+where \emph{d} is an array of scalars containing the computed dot products,
+\emph{x} is a vector, and \(y_j\) is a vector the vector array \emph{Y}. The
+operation returns 0 for success and a non-zero value otherwise.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{ier} \PYG{o}{=} \PYG{n}{N\PYGZus{}VDotProdMulti}\PYG{p}{(}\PYG{n}{nv}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{n}{Y}\PYG{p}{,} \PYG{n}{d}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VLinearSumVectorArray}\pysiglinewithargsret{int \bfcode{N\_VLinaerSumVectorArray}}{int\emph{ nvec}, realtype\emph{ a}, N\_Vector\emph{ X}, realtype\emph{ b}, N\_Vector*\emph{ Y}, N\_Vector*\emph{ Z}}{}
+This routine computes the linear sum of two vector arrays of \emph{nvec} vectors with \emph{n} elements:
+\begin{gather}
+\begin{split}z_{j,i} = a x_{j,i} + b y_{j,i}, \quad i=1,\ldots,n \quad j=1,\ldots,nvec,\end{split}\notag
+\end{gather}
+where \emph{a} and \emph{b} are scalars, \(x_j\) and \(y_j\) are vectors in
+the vector arrays \emph{X} and \emph{Y} respectively, and \(z_j\) is a vector in
+the output vector array \emph{Z}. The operation returns 0 for success and a
+non-zero value otherwise.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{ier} \PYG{o}{=} \PYG{n}{N\PYGZus{}VLinearSumVectorArray}\PYG{p}{(}\PYG{n}{nv}\PYG{p}{,} \PYG{n}{a}\PYG{p}{,} \PYG{n}{X}\PYG{p}{,} \PYG{n}{b}\PYG{p}{,} \PYG{n}{Y}\PYG{p}{,} \PYG{n}{Z}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VScaleVectorArray}\pysiglinewithargsret{int \bfcode{N\_VScaleVectorArray}}{int\emph{ nvec}, realtype*\emph{ c}, N\_Vector*\emph{ X}, N\_Vector*\emph{ Z}}{}
+This routine scales each element in a vector of \emph{n} elements in a vector array of \emph{nvec} vectors by a potentially different constant value:
+\begin{gather}
+\begin{split}z_{j,i} = c_j x_{j,i}, \quad i=1,\ldots,n \quad j=1,\ldots,nvec,\end{split}\notag
+\end{gather}
+where \emph{c} is an array of scalars, \(x_j\) is a vector in the vector array
+\emph{X}, and \(z_j\) is a vector in the output vector array \emph{Z}. The
+operation returns 0 for success and a non-zero value otherwise.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{ier} \PYG{o}{=} \PYG{n}{N\PYGZus{}VScaleVectorArray}\PYG{p}{(}\PYG{n}{nv}\PYG{p}{,} \PYG{n}{c}\PYG{p}{,} \PYG{n}{X}\PYG{p}{,} \PYG{n}{Z}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VConstVectorArray}\pysiglinewithargsret{int \bfcode{N\_VConstVectorArray}}{int\emph{ nvec}, realtype\emph{ c}, N\_Vector*\emph{ Z}}{}
+This routine sets each element in a vector of \emph{n} elements in a vector array of \emph{nvec} vectors to the same constant value:
+\begin{gather}
+\begin{split}z_{j,i} = c, \quad i=1,\ldots,n \quad j=1,\ldots,nvec,\end{split}\notag
+\end{gather}
+where \emph{c} is a scalar and \(z_j\) is a vector in the vector array
+\emph{Z}. The operation returns 0 for success and a non-zero value otherwise.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{ier} \PYG{o}{=} \PYG{n}{N\PYGZus{}VConstVectorArray}\PYG{p}{(}\PYG{n}{nv}\PYG{p}{,} \PYG{n}{c}\PYG{p}{,} \PYG{n}{Z}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VWrmsNormVectorArray}\pysiglinewithargsret{int \bfcode{N\_VWrmsNormVectorArray}}{int\emph{ nvec}, N\_Vector*\emph{ X}, N\_Vector*\emph{ W}, realtype*\emph{ m}}{}
+This routine computes the weighted root mean square norm of each vector in a vector array:
+\begin{gather}
+\begin{split}m_j = \left( \frac1n \sum_{i=1}^{n} \left(x_{j,i} w_{j,i}\right)^2\right)^{1/2}, \quad j=1,\ldots,nvec,\end{split}\notag
+\end{gather}
+where \(x_j\) is a vector in the vector array \emph{X}, \(w_j\) is a weight
+vector in the vector array \emph{W}, and \emph{m} is the output array of scalars
+containing the computed norms. The operation returns 0 for success and a
+non-zero value otherwise.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{ier} \PYG{o}{=} \PYG{n}{N\PYGZus{}VWrmsNormVectorArray}\PYG{p}{(}\PYG{n}{nv}\PYG{p}{,} \PYG{n}{X}\PYG{p}{,} \PYG{n}{W}\PYG{p}{,} \PYG{n}{m}\PYG{}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VWrmsNormMaskVectorArray}\pysiglinewithargsret{int \bfcode{N\_VWrmsNormMaskVectorArray}}{int\emph{ nvec}, N\_Vector*\emph{ X}, N\_Vector*\emph{ W}, N\_Vector\emph{ id}, realtype*\emph{ m}}{}
+This routine computes the masked weighted root mean square norm of each vector in a vector array:
+\begin{gather}
+\begin{split}m_j = \left( \frac1n \sum_{i=1}^{n} \left(x_{j,i} w_{j,i} H(id_i)\right)^2 \right)^{1/2}, \quad j=1,\ldots,nvec,\end{split}\notag
+\end{gather}
+where \(H(id_i)=1\) for \(id_i > 0\) and is zero otherwise, \(x_j\) is a vector in
+the vector array \emph{X}, \(w_j\) is a weight vector in the vector array
+\emph{W}, \emph{id} is the mask vector, and \emph{m} is the output array of
+scalars containing the computed norms. The operation returns 0 for success and a
+non-zero value otherwise.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{ier} \PYG{o}{=} \PYG{n}{N\PYGZus{}VWrmsNormMaskVectorArray}\PYG{p}{(}\PYG{n}{nv}\PYG{p}{,} \PYG{n}{X}\PYG{p}{,} \PYG{n}{W}\PYG{p}{,} \PYG{n}{id}\PYG{p}{,} \PYG{n}{m}\PYG{}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VScaleAddMultiVectorArray}\pysiglinewithargsret{int \bfcode{N\_VScaleAddMultiVectorArray}}{int\emph{ nvec}, int\emph{ nsum}, realtype*\emph{ c}, N\_Vector*\emph{ X}, N\_Vector**\emph{ YY}, N\_Vector**\emph{ ZZ}}{}
+This routine scales and adds a vector array of \emph{nvec} vectors to \emph{nsum} other vector arrays:
+\begin{gather}
+\begin{split}z_{k,j,i} = c_k x_{j,i} + y_{k,j,i}, \quad i=1,\ldots,n \quad j=1,\ldots,nvec, \quad k=1,\ldots,nsum\end{split}\notag
+\end{gather}
+where \emph{c} is an array of scalars, \(x_j\) is a vector in the vector array
+\emph{X}, \(y_{k,j}\) is a vector in the array of vector arrays \emph{YY}, and
+\(z_{k,j}\) is an output vector in the array of vector arrays \emph{ZZ}. The
+operation returns 0 for success and a non-zero value otherwise.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{ier} \PYG{o}{=} \PYG{n}{N\PYGZus{}VScaleAddMultiVectorArray}\PYG{p}{(}\PYG{n}{nv}\PYG{p}{,} \PYG{n}{ns}\PYG{p}{,} \PYG{n}{c}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{n}{YY}\PYG{p}{,} \PYG{n}{ZZ}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VLinearCombinatinoVectorArray}\pysiglinewithargsret{int \bfcode{N\_VLinearCombinationVectorArray}}{int\emph{ nvec}, int\emph{ nsum}, realtype*\emph{ c}, N\_Vector**\emph{ XX}, N\_Vector*\emph{ Z}}{}
+This routine computes the linear combination of \emph{nsum} vector arrays containing \emph{nvec} vectors:
+\begin{gather}
+\begin{split}z_{j,i} = \sum_{k=1}^{nsum} c_k x_{k,j,i}, \quad i=1,\ldots,n \quad j=1,\ldots,nvec,\end{split}\notag
+\end{gather}
+where \emph{c} is an array of scalars, \(x_{k,j}\) is a vector in array of
+vector arrays \emph{XX}, and \(z_{j,i}\) is an output vector in the vector array
+\emph{Z}. If the output vector array is one of the vector arrays in \emph{XX}, it
+\textit{must} be the first vector array in \emph{XX}. The operation returns 0 for
+success and a non-zero value otherwise.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{ier} \PYG{o}{=} \PYG{n}{N\PYGZus{}VLinearCombinationVectorArray}\PYG{p}{(}\PYG{n}{nv}\PYG{p}{,} \PYG{n}{ns}\PYG{p}{,} \PYG{n}{c}\PYG{p}{,} \PYG{n}{XX}\PYG{p}{,} \PYG{n}{Z}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
 
 
 \section{The NVECTOR\_SERIAL Module}
@@ -18951,21 +19183,13 @@ omit these functions from their implementation.
 
 \begin{tabulary}{\linewidth}{|L|L|L|L|L|L|L|}
 \hline
-\textsf{\relax 
-Routine
-} & \textsf{\relax 
-ARKode
-} & \textsf{\relax 
-ARKDLS
-} & \textsf{\relax 
-ARKSPILS
-} & \textsf{\relax 
-ARKBANDPRE
-} & \textsf{\relax 
-ARKBBDPRE
-} & \textsf{\relax 
-FARKODE
-}\\
+{Routine}
+& {\rotatebox{45}{\small ARKode}}
+& {\rotatebox{45}{\small ARKDLS}}
+& {\rotatebox{45}{\small ARKSPILS}}
+& {\rotatebox{45}{\small ARKBANDPRE}}
+& {\rotatebox{45}{\small ARKBBDPRE}}
+& {\rotatebox{45}{\small FARKODE}}\\
 \hline
 N\_VAbs
  & 
@@ -19127,6 +19351,9 @@ X
  & 
 X
 \\
+\hline \hline
+N\_VLinearCombination & X            & & X              & & &  \\ \hline 
+N\_VDotProdMulti      & X$^{\text{3}}$ & & X$^{\text{3}}$   & & &  \\ \hline 
 \hline\end{tabulary}
 
 \begin{enumerate}
@@ -19140,6 +19367,12 @@ supplied by the \code{N\_Vector} implementation.
 \item {} 
 The {\hyperref[nvectors/NVector_Operations:c.N_VSpace]{\emph{\code{N\_VSpace()}}}} function is only informational, and need
 not be supplied by the \code{N\_Vector} implementation.
+
+\item {}
+The optional function N\_VDotProd is only used when the Anderson acceleration 
+fixed point solver is used or when Classical Gram-Schmidt is used with SPGMR or
+SPFGMR. The remaining fused vector and vector array operations are unused and a
+user-supplied NVECTOR module for ARKode could omit these operations.
 
 \end{enumerate}
 

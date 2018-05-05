@@ -188,6 +188,9 @@ struct _SUNLinearSolverContent_SPGMR {
   N_Vector xcor;
   realtype *yg;
   N_Vector vtemp;
+
+  realtype *cv;
+  N_Vector *Xv;
 };
 
 typedef struct _SUNLinearSolverContent_SPGMR *SUNLinearSolverContent_SPGMR;

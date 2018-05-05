@@ -307,6 +307,8 @@ SUNDIALS_EXPORT void N_VDestroy_Parallel(N_Vector v);
 SUNDIALS_EXPORT void N_VSpace_Parallel(N_Vector v, sunindextype *lrw, sunindextype *liw);
 SUNDIALS_EXPORT realtype *N_VGetArrayPointer_Parallel(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer_Parallel(realtype *v_data, N_Vector v);
+
+/* standard vector operations */
 SUNDIALS_EXPORT void N_VLinearSum_Parallel(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);
 SUNDIALS_EXPORT void N_VConst_Parallel(realtype c, N_Vector z);
 SUNDIALS_EXPORT void N_VProd_Parallel(N_Vector x, N_Vector y, N_Vector z);
@@ -326,6 +328,38 @@ SUNDIALS_EXPORT void N_VCompare_Parallel(realtype c, N_Vector x, N_Vector z);
 SUNDIALS_EXPORT booleantype N_VInvTest_Parallel(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT booleantype N_VConstrMask_Parallel(N_Vector c, N_Vector x, N_Vector m);
 SUNDIALS_EXPORT realtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom);
+
+/* fused vector operations */
+SUNDIALS_EXPORT int N_VLinearCombination_Parallel(int nvec, realtype* c, N_Vector* V,
+                                                  N_Vector z);
+SUNDIALS_EXPORT int N_VScaleAddMulti_Parallel(int nvec, realtype* a, N_Vector x,
+                                              N_Vector* Y, N_Vector* Z);
+SUNDIALS_EXPORT int N_VDotProdMulti_Parallel(int nvec, N_Vector x,
+                                             N_Vector *Y, realtype* dotprods);
+
+/* vector array operations */
+SUNDIALS_EXPORT int N_VLinearSumVectorArray_Parallel(int nvec, 
+                                                     realtype a, N_Vector* X,
+                                                     realtype b, N_Vector* Y,
+                                                     N_Vector* Z);
+SUNDIALS_EXPORT int N_VScaleVectorArray_Parallel(int nvec, realtype* c,
+                                                 N_Vector* X, N_Vector* Z);
+SUNDIALS_EXPORT int N_VConstVectorArray_Parallel(int nvecs, realtype c,
+                                                 N_Vector* Z);
+SUNDIALS_EXPORT int N_VWrmsNormVectorArray_Parallel(int nvecs, N_Vector* X,
+                                                    N_Vector* W, realtype* nrm);
+SUNDIALS_EXPORT int N_VWrmsNormMaskVectorArray_Parallel(int nvec, N_Vector* X,
+                                                        N_Vector* W, N_Vector id,
+                                                        realtype* nrm);
+SUNDIALS_EXPORT int N_VScaleAddMultiVectorArray_Parallel(int nvec, int nsum,
+                                                         realtype* a,
+                                                         N_Vector* X,
+                                                         N_Vector** Y,
+                                                         N_Vector** Z);
+SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_Parallel(int nvec, int nsum,
+                                                             realtype* c,
+                                                             N_Vector** X,
+                                                             N_Vector* Z);
 
 #ifdef __cplusplus
 }

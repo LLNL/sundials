@@ -109,7 +109,28 @@ interfacing the solver to applications written in {\F}.
 
 \section{Changes from previous versions}
 
-\subsection*{Changes in vX.X.X}
+\subsection*{Changes in v4.0.0-dev}
+
+Three fused vector operations and seven vector array operations have
+been added to the {\nvector} API. These \textit{optional} operations
+are intended to increase data reuse in vector operations, reduce
+parallel communication on distributed memory systems, and lower the
+number of kernel launches on systems with accelerators. The new
+operations are 
+\id{N\_VLinearCombination},
+\id{N\_VScaleAddMulti},
+\id{N\_VDotProdMulti},
+\id{N\_VLinearCombinationVectorArray},
+\id{N\_VScaleVectorArray},
+\id{N\_VConstVectorArray},\\
+\id{N\_VWrmsNormVectorArray},
+\id{N\_VWrmsNormMaskVectorArray},
+\id{N\_VScaleAddMultiVectorArray}, and\\
+\id{N\_VLinearCombinationVectorArray}.
+If any of these operations are defined as \id{NULL} in an {\nvector}
+implementation the {\nvector} interface will automatically call
+standard {\nvector} operations as necessary. Details on the new
+operations can be found in Chapter \ref{s:nvector}.
 
 Several changes were made to the build system. If MPI is enabled and
 MPI compiler wrappers are not set, the build system will check if

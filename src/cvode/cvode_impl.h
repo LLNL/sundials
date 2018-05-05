@@ -268,6 +268,12 @@ typedef struct CVodeMemRec {
   booleantype *cv_gactive; /* array with active/inactive event functions      */
   int cv_mxgnull;          /* number of warning messages about possible g==0  */
 
+  /*-----------------------
+    Fused Vector Operations
+    -----------------------*/
+
+  realtype cv_cvals[L_MAX]; /* array of scalars */
+  N_Vector cv_Xvecs[L_MAX]; /* array of vectors */
 
 } *CVodeMem;
 

@@ -54,18 +54,19 @@ to access its member variables.
 %%--------------------------------------------
 %%
 The {\nveccuda} module defines implementations of all vector operations listed 
-in Table \ref{t:nvecops}, except for \verb|N_VGetArrayPointer| and 
-\verb|N_VSetArrayPointer|. 
+in Tables \ref{t:nvecops}, \ref{t:nvecfusedops}, and \ref{t:nvecarrayops}, except
+for \id{N\_VGetArrayPointer} and \id{N\_VSetArrayPointer}.
 As such, this vector cannot be used with {\sundials} Fortran interfaces,
 nor with {\sundials} direct solvers and preconditioners. This support
-will be added in subsequent {\sundials} releases. 
+will be added in subsequent {\sundials} releases.
 The {\nveccuda} module provides separate functions to access data on the host
 and on the device. It also provides methods for copying from the host to 
 the device and vice versa. Usage examples of {\nveccuda} are provided in
 some example programs for {\cvode} \cite{cvode_ex}.
 
-The names of vector operations are obtained from those in 
-Table \ref{t:nvecops} by appending the suffix \id{\_Cuda} (e.g. \id{N\_VDestroy\_Cuda}).
+The names of vector operations are obtained from those in Tables \ref{t:nvecops},
+\ref{t:nvecfusedops}, and \ref{t:nvecarrayops} by appending the suffix \id{\_Cuda}
+(e.g. \id{N\_VDestroy\_Cuda}).
 The module {\nveccuda}  provides the following additional user-callable routines:
 %%
 %%

@@ -1403,9 +1403,9 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 
 int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky)
 {
-  realtype s, c, r;
+  realtype s, r;
   realtype tfuzz, tp, tn1;
-  int i, j;
+  int i, j, nvec, ier;
   CVodeMem cv_mem;
   
   /* Check all inputs for legality */
@@ -1438,17 +1438,21 @@ int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky)
   }
 
   /* Sum the differentiated interpolating polynomial */
+  nvec = 0;
 
   s = (t - cv_mem->cv_tn) / cv_mem->cv_h;
   for (j=cv_mem->cv_q; j >= k; j--) {
-    c = ONE;
-    for (i=j; i >= j-k+1; i--) c *= i;
-    if (j == cv_mem->cv_q) {
-      N_VScale(c, cv_mem->cv_zn[cv_mem->cv_q], dky);
-    } else {
-      N_VLinearSum(c, cv_mem->cv_zn[j], s, dky, dky);
-    }
+    cv_mem->cv_cvals[nvec] = ONE;
+    for (i=j; i >= j-k+1; i--)
+      cv_mem->cv_cvals[nvec] *= i;
+    for (i=0; i < j-k; i++)
+      cv_mem->cv_cvals[nvec] *= s;
+    cv_mem->cv_Xvecs[nvec] = cv_mem->cv_zn[j];
+    nvec += 1;
   }
+  ier = N_VLinearCombination(nvec, cv_mem->cv_cvals, cv_mem->cv_Xvecs, dky);
+  if (ier != CV_SUCCESS) return (CV_VECTOROP_ERR);
+
   if (k == 0) return(CV_SUCCESS);
   r = SUNRpowerI(cv_mem->cv_h,-k);
   N_VScale(r, dky, dky);
@@ -1872,8 +1876,7 @@ static int cvYddNorm(CVodeMem cv_mem, realtype hg, realtype *yddnrm)
   if (retval < 0) return(CV_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);
 
-  N_VLinearSum(ONE, cv_mem->cv_tempv, -ONE, cv_mem->cv_zn[1], cv_mem->cv_tempv);
-  N_VScale(ONE/hg, cv_mem->cv_tempv, cv_mem->cv_tempv);
+  N_VLinearSum(ONE/hg, cv_mem->cv_tempv, -ONE/hg, cv_mem->cv_zn[1], cv_mem->cv_tempv);
 
   *yddnrm = N_VWrmsNorm(cv_mem->cv_tempv, cv_mem->cv_ewt);
 
@@ -2050,8 +2053,12 @@ static void cvAdjustAdams(CVodeMem cv_mem, int deltaq)
     cv_mem->cv_l[j+1] = cv_mem->cv_q * (cv_mem->cv_l[j] / (j+1));
   
   for (j=2; j < cv_mem->cv_q; j++)
-    N_VLinearSum(-cv_mem->cv_l[j], cv_mem->cv_zn[cv_mem->cv_q], ONE,
-                 cv_mem->cv_zn[j], cv_mem->cv_zn[j]);
+    cv_mem->cv_cvals[j-2] = -cv_mem->cv_l[j];
+
+  if (cv_mem->cv_q > 2)
+    (void) N_VScaleAddMulti(cv_mem->cv_q-2, cv_mem->cv_cvals,
+                            cv_mem->cv_zn[cv_mem->cv_q],
+                            cv_mem->cv_zn+2, cv_mem->cv_zn+2);
 }
 
 /*
@@ -2111,9 +2118,12 @@ static void cvIncreaseBDF(CVodeMem cv_mem)
   A1 = (-alpha0 - alpha1) / prod;
   N_VScale(A1, cv_mem->cv_zn[cv_mem->cv_indx_acor],
            cv_mem->cv_zn[cv_mem->cv_L]);
-  for (j=2; j <= cv_mem->cv_q; j++)
-    N_VLinearSum(cv_mem->cv_l[j], cv_mem->cv_zn[cv_mem->cv_L], ONE,
-                 cv_mem->cv_zn[j], cv_mem->cv_zn[j]);
+
+  /* for (j=2; j <= cv_mem->cv_q; j++) */
+  if (cv_mem->cv_q > 1)
+    (void) N_VScaleAddMulti(cv_mem->cv_q-1, cv_mem->cv_l+2,
+                            cv_mem->cv_zn[cv_mem->cv_L],
+                            cv_mem->cv_zn+2, cv_mem->cv_zn+2);
 }
 
 /*
@@ -2142,8 +2152,12 @@ static void cvDecreaseBDF(CVodeMem cv_mem)
   }
   
   for (j=2; j < cv_mem->cv_q; j++)
-    N_VLinearSum(-cv_mem->cv_l[j], cv_mem->cv_zn[cv_mem->cv_q],
-                 ONE, cv_mem->cv_zn[j], cv_mem->cv_zn[j]);
+    cv_mem->cv_cvals[j-2] = -cv_mem->cv_l[j];
+
+  if (cv_mem->cv_q > 2)
+    (void) N_VScaleAddMulti(cv_mem->cv_q-2, cv_mem->cv_cvals,
+                            cv_mem->cv_zn[cv_mem->cv_q],
+                            cv_mem->cv_zn+2, cv_mem->cv_zn+2);
 }
 
 /*
@@ -2157,13 +2171,14 @@ static void cvDecreaseBDF(CVodeMem cv_mem)
 static void cvRescale(CVodeMem cv_mem)
 {
   int j;
-  realtype factor;
   
-  factor = cv_mem->cv_eta;
-  for (j=1; j <= cv_mem->cv_q; j++) {
-    N_VScale(factor, cv_mem->cv_zn[j], cv_mem->cv_zn[j]);
-    factor *= cv_mem->cv_eta;
-  }
+  cv_mem->cv_cvals[0] = cv_mem->cv_eta;
+  for (j=1; j <= cv_mem->cv_q; j++)
+    cv_mem->cv_cvals[j] = cv_mem->cv_eta * cv_mem->cv_cvals[j-1];
+
+  (void) N_VScaleVectorArray(cv_mem->cv_q, cv_mem->cv_cvals,
+                             cv_mem->cv_zn+1, cv_mem->cv_zn+1);
+
   cv_mem->cv_h = cv_mem->cv_hscale * cv_mem->cv_eta;
   cv_mem->cv_next_h = cv_mem->cv_h;
   cv_mem->cv_hscale = cv_mem->cv_h;
@@ -2931,7 +2946,7 @@ static booleantype cvDoErrorTest(CVodeMem cv_mem, int *nflagPtr,
 
 static void cvCompleteStep(CVodeMem cv_mem)
 {
-  int i, j;
+  int i;
   
   cv_mem->cv_nst++;
   cv_mem->cv_nscon++;
@@ -2944,9 +2959,8 @@ static void cvCompleteStep(CVodeMem cv_mem)
   cv_mem->cv_tau[1] = cv_mem->cv_h;
 
   /* Apply correction to column j of zn: l_j * Delta_n */
-  for (j=0; j <= cv_mem->cv_q; j++) 
-    N_VLinearSum(cv_mem->cv_l[j], cv_mem->cv_acor, ONE,
-                 cv_mem->cv_zn[j], cv_mem->cv_zn[j]);
+  (void) N_VScaleAddMulti(cv_mem->cv_q+1, cv_mem->cv_l, cv_mem->cv_acor,
+                          cv_mem->cv_zn, cv_mem->cv_zn);
   cv_mem->cv_qwait--;
   if ((cv_mem->cv_qwait == 1) && (cv_mem->cv_q != cv_mem->cv_qmax)) {
     N_VScale(ONE, cv_mem->cv_acor, cv_mem->cv_zn[cv_mem->cv_qmax]);

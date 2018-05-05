@@ -218,6 +218,7 @@ extern "C" {
 #define CV_BAD_T                -25
 #define CV_BAD_DKY              -26
 #define CV_TOO_CLOSE            -27
+#define CV_VECTOROP_ERR         -28
 
 #define CV_NO_QUAD              -30
 #define CV_QRHSFUNC_FAIL        -31

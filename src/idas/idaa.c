@@ -1201,7 +1201,7 @@ int IDACalcICBS(void *ida_mem, int which, realtype tout1,
   IDAadjMem IDAADJ_mem;
   IDABMem IDAB_mem;
   void *ida_memB;
-  int flag, is;
+  int flag, is, retval;
   
   /* Is ida_mem valid? */
   if (ida_mem == NULL) {
@@ -1255,10 +1255,16 @@ int IDACalcICBS(void *ida_mem, int which, realtype tout1,
   N_VScale(ONE, yy0, IDAADJ_mem->ia_yyTmp);
   N_VScale(ONE, yp0, IDAADJ_mem->ia_ypTmp);
 
-  for (is=0; is<IDA_mem->ida_Ns; is++) {
-    N_VScale(ONE, yyS0[is], IDAADJ_mem->ia_yySTmp[is]);
-    N_VScale(ONE, ypS0[is], IDAADJ_mem->ia_ypSTmp[is]);
-  }
+  for (is=0; is<IDA_mem->ida_Ns; is++)
+    IDA_mem->ida_cvals[is] = ONE;
+
+  retval = N_VScaleVectorArray(IDA_mem->ida_Ns, IDA_mem->ida_cvals,
+                               yyS0, IDAADJ_mem->ia_yySTmp);
+  if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
+
+  retval = N_VScaleVectorArray(IDA_mem->ida_Ns, IDA_mem->ida_cvals,
+                               ypS0, IDAADJ_mem->ia_ypSTmp);
+  if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
   
   /* Set noInterp flag to SUNTRUE, so IDAARes will use user provided values for
      y and y' and will not call the interpolation routine(s). */
@@ -1873,25 +1879,49 @@ static void IDAAckpntCopyVectors(IDAMem IDA_mem, CkpntMem ck_mem)
   /* Save phi* arrays from IDA_mem */
 
   for (j=0; j<ck_mem->ck_phi_alloc; j++)
-    N_VScale(ONE, IDA_mem->ida_phi[j], ck_mem->ck_phi[j]);
+    IDA_mem->ida_cvals[j] = ONE;
 
-  if (ck_mem->ck_quadr) {
-    for (j=0; j<ck_mem->ck_phi_alloc; j++)
-      N_VScale(ONE, IDA_mem->ida_phiQ[j], ck_mem->ck_phiQ[j]);
+  (void) N_VScaleVectorArray(ck_mem->ck_phi_alloc, IDA_mem->ida_cvals,
+                             IDA_mem->ida_phi, ck_mem->ck_phi);
+
+  if (ck_mem->ck_quadr)
+    (void) N_VScaleVectorArray(ck_mem->ck_phi_alloc, IDA_mem->ida_cvals,
+                               IDA_mem->ida_phiQ, ck_mem->ck_phiQ);
+
+  if (ck_mem->ck_sensi || ck_mem->ck_quadr_sensi) {
+    for (j=0; j<ck_mem->ck_phi_alloc; j++) {
+      for (is=0; is<IDA_mem->ida_Ns; is++) {
+        IDA_mem->ida_cvals[j*IDA_mem->ida_Ns + is] = ONE;
+      }
+    }
   }
 
   if (ck_mem->ck_sensi) {
-    for (is=0; is<IDA_mem->ida_Ns; is++)
-      for (j=0; j<ck_mem->ck_phi_alloc; j++) 
-        N_VScale(ONE, IDA_mem->ida_phiS[j][is], ck_mem->ck_phiS[j][is]);
+    for (j=0; j<ck_mem->ck_phi_alloc; j++) {
+      for (is=0; is<IDA_mem->ida_Ns; is++) {
+        IDA_mem->ida_Xvecs[j*IDA_mem->ida_Ns + is] = IDA_mem->ida_phiS[j][is];
+        IDA_mem->ida_Zvecs[j*IDA_mem->ida_Ns + is] = ck_mem->ck_phiS[j][is];
+      }
+    }
+
+    (void) N_VScaleVectorArray(ck_mem->ck_phi_alloc * IDA_mem->ida_Ns,
+                               IDA_mem->ida_cvals,
+                               IDA_mem->ida_Xvecs, IDA_mem->ida_Zvecs);
   }
 
   if(ck_mem->ck_quadr_sensi) {
-    for (is=0; is<IDA_mem->ida_Ns; is++)
-      for (j=0; j<ck_mem->ck_phi_alloc; j++) 
-        N_VScale(ONE, IDA_mem->ida_phiQS[j][is], ck_mem->ck_phiQS[j][is]);
+    for (j=0; j<ck_mem->ck_phi_alloc; j++) {
+      for (is=0; is<IDA_mem->ida_Ns; is++) {
+        IDA_mem->ida_Xvecs[j*IDA_mem->ida_Ns + is] = IDA_mem->ida_phiQS[j][is];
+        IDA_mem->ida_Zvecs[j*IDA_mem->ida_Ns + is] = ck_mem->ck_phiQS[j][is];
+      }
+    }
 
+    (void) N_VScaleVectorArray(ck_mem->ck_phi_alloc * IDA_mem->ida_Ns,
+                               IDA_mem->ida_cvals,
+                               IDA_mem->ida_Xvecs, IDA_mem->ida_Zvecs);
   }
+
 }
 
 /*
@@ -2325,7 +2355,7 @@ static int IDAAhermiteStorePnt(IDAMem IDA_mem, DtpntMem d)
 {
   IDAadjMem IDAADJ_mem;
   HermiteDataMem content;
-  int is;
+  int is, retval;
 
   IDAADJ_mem = IDA_mem->ida_adj_mem;
 
@@ -2335,8 +2365,12 @@ static int IDAAhermiteStorePnt(IDAMem IDA_mem, DtpntMem d)
   N_VScale(ONE, IDA_mem->ida_phi[0], content->y);
   
   if (IDAADJ_mem->ia_storeSensi) {
-    for (is=0; is<IDA_mem->ida_Ns; is++) 
-      N_VScale(ONE, IDA_mem->ida_phiS[0][is], content->yS[is]);
+    for (is=0; is<IDA_mem->ida_Ns; is++)
+      IDA_mem->ida_cvals[is] = ONE;
+
+    retval = N_VScaleVectorArray(IDA_mem->ida_Ns, IDA_mem->ida_cvals,
+                                 IDA_mem->ida_phiS[0], content->yS);
+    if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
   }
 
   /* Load derivative(s). */
@@ -2378,6 +2412,11 @@ static int IDAAhermiteGetY(IDAMem IDA_mem, realtype t,
   long int indx;
   booleantype newpoint;
 
+  /* local variables for fused vector oerations */
+  int retval;
+  realtype  cvals[4];
+  N_Vector  Xvecs[4];
+  N_Vector* XXvecs[4];
  
   IDAADJ_mem = IDA_mem->ida_adj_mem;
   dt_mem = IDAADJ_mem->dt_mem;
@@ -2397,10 +2436,17 @@ static int IDAAhermiteGetY(IDAMem IDA_mem, realtype t,
     N_VScale(ONE, content0->y,  yy);
     N_VScale(ONE, content0->yd, yp);
 
-    for (is=0; is<NS; is++) {
-      N_VScale(ONE, content0->yS[is], yyS[is]);
-      N_VScale(ONE, content0->ySd[is],ypS[is]);
+    if (NS > 0) {
+      for (is=0; is<NS; is++)
+        IDA_mem->ida_cvals[is] = ONE;
+
+      retval = N_VScaleVectorArray(NS, IDA_mem->ida_cvals, content0->yS, yyS);
+      if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
+
+      retval = N_VScaleVectorArray(NS, IDA_mem->ida_cvals, content0->ySd, ypS);
+      if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
     }
+
     return(IDA_SUCCESS);
   }
 
@@ -2425,20 +2471,47 @@ static int IDAAhermiteGetY(IDAMem IDA_mem, realtype t,
     y1  = content1->y;
     yd1 = content1->yd;
 
-    N_VLinearSum(ONE, y1, -ONE, y0, IDAADJ_mem->ia_Y[0]);
-    N_VLinearSum(ONE, yd1,  ONE, yd0, IDAADJ_mem->ia_Y[1]);
-    N_VLinearSum(delta, IDAADJ_mem->ia_Y[1], -TWO, IDAADJ_mem->ia_Y[0], IDAADJ_mem->ia_Y[1]);
-    N_VLinearSum(ONE, IDAADJ_mem->ia_Y[0], -delta, yd0, IDAADJ_mem->ia_Y[0]);
+    /* Y1 = delta (yd1 + yd0) - 2 (y1 - y0) */
+    cvals[0] = -TWO;   Xvecs[0] = y1;
+    cvals[1] = TWO;    Xvecs[1] = y0;
+    cvals[2] = delta;  Xvecs[2] = yd1;
+    cvals[3] = delta;  Xvecs[3] = yd0;
 
+    retval = N_VLinearCombination(4, cvals, Xvecs, IDAADJ_mem->ia_Y[1]);
+    if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
 
-    yS1  = content1->yS;
-    ySd1 = content1->ySd;
-      
-    for (is=0; is<NS; is++) {
-      N_VLinearSum(ONE, yS1[is], -ONE, yS0[is], IDAADJ_mem->ia_YS[0][is]);
-      N_VLinearSum(ONE, ySd1[is],  ONE, ySd0[is], IDAADJ_mem->ia_YS[1][is]);
-      N_VLinearSum(delta, IDAADJ_mem->ia_YS[1][is], -TWO, IDAADJ_mem->ia_YS[0][is], IDAADJ_mem->ia_YS[1][is]);
-      N_VLinearSum(ONE, IDAADJ_mem->ia_YS[0][is], -delta, ySd0[is], IDAADJ_mem->ia_YS[0][is]);
+    /* Y0 = y1 - y0 - delta * yd0 */
+    cvals[0] = ONE;     Xvecs[0] = y1;
+    cvals[1] = -ONE;    Xvecs[1] = y0;
+    cvals[2] = -delta;  Xvecs[2] = yd0;
+
+    retval = N_VLinearCombination(3, cvals, Xvecs, IDAADJ_mem->ia_Y[0]);
+    if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
+
+    /* Recompute YS0 and YS1, if needed */
+
+    if (NS > 0) {
+
+      yS1  = content1->yS;
+      ySd1 = content1->ySd;
+
+      /* YS1 = delta (ySd1 + ySd0) - 2 (yS1 - yS0) */
+      cvals[0] = -TWO;   XXvecs[0] = yS1;
+      cvals[1] = TWO;    XXvecs[1] = yS0;
+      cvals[2] = delta;  XXvecs[2] = ySd1;
+      cvals[3] = delta;  XXvecs[3] = ySd0;
+
+      retval = N_VLinearCombinationVectorArray(NS, 4, cvals, XXvecs, IDAADJ_mem->ia_YS[1]);
+      if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
+
+      /* YS0 = yS1 - yS0 - delta * ySd0 */
+      cvals[0] = ONE;     XXvecs[0] = yS1;
+      cvals[1] = -ONE;    XXvecs[1] = yS0;
+      cvals[2] = -delta;  XXvecs[2] = ySd0;
+
+      retval = N_VLinearCombinationVectorArray(NS, 3, cvals, XXvecs, IDAADJ_mem->ia_YS[0]);
+      if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
+
     }
 
   }
@@ -2453,29 +2526,64 @@ static int IDAAhermiteGetY(IDAMem IDA_mem, realtype t,
 
   factor3 = factor2*(t-t1)/delta;
 
-  N_VLinearSum(ONE, y0, factor1, yd0, yy);
-  N_VLinearSum(ONE, yy, factor2, IDAADJ_mem->ia_Y[0], yy);
-  N_VLinearSum(ONE, yy, factor3, IDAADJ_mem->ia_Y[1], yy);
+  cvals[0] = ONE;
+  cvals[1] = factor1;
+  cvals[2] = factor2;
+  cvals[3] = factor3;
+
+  /* y = y0 + factor1 yd0 + factor2 * Y[0] + factor3 Y[1] */
+  Xvecs[0] = y0;
+  Xvecs[1] = yd0;
+  Xvecs[2] = IDAADJ_mem->ia_Y[0];
+  Xvecs[3] = IDAADJ_mem->ia_Y[1];
+
+  retval = N_VLinearCombination(4, cvals, Xvecs, yy);
+  if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
 
   /* Sensi Interpolation. */
-  for (is=0; is<NS; is++) {
-    N_VLinearSum(ONE, yS0[is], factor1, ySd0[is], yyS[is]);
-    N_VLinearSum(ONE, yyS[is], factor2, IDAADJ_mem->ia_YS[0][is], yyS[is]);
-    N_VLinearSum(ONE, yyS[is], factor3, IDAADJ_mem->ia_YS[1][is], yyS[is]);
+
+  /* yS = yS0 + factor1 ySd0 + factor2 * YS[0] + factor3 YS[1], if needed */
+  if (NS > 0) {
+
+    XXvecs[0] = yS0;
+    XXvecs[1] = ySd0;
+    XXvecs[2] = IDAADJ_mem->ia_YS[0];
+    XXvecs[3] = IDAADJ_mem->ia_YS[1];
+
+    retval = N_VLinearCombinationVectorArray(NS, 4, cvals, XXvecs, yyS);
+    if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
+
   }
 
-  /*For y'. */
-  factor1 = factor1/delta/delta; /* factor1 = 2(t-t0)/(t1-t0)^2 */
+  /* For y'. */
+  factor1 = factor1/delta/delta;           /* factor1 = 2(t-t0)/(t1-t0)^2             */
   factor2 = factor1*((3*t-2*t1-t0)/delta); /* factor2 = (t-t0)(3*t-2*t1-t0)/(t1-t0)^3 */
   factor1 *= 2;
 
-  N_VLinearSum(ONE, yd0, factor1, IDAADJ_mem->ia_Y[0], yp);
-  N_VLinearSum(ONE, yp,  factor2, IDAADJ_mem->ia_Y[1], yp);
+  cvals[0] = ONE;
+  cvals[1] = factor1;
+  cvals[2] = factor2;
+
+  /* yp = yd0 + factor1 Y[0] + factor 2 Y[1] */
+  Xvecs[0] = yd0;
+  Xvecs[1] = IDAADJ_mem->ia_Y[0];
+  Xvecs[2] = IDAADJ_mem->ia_Y[1];
+
+  retval = N_VLinearCombination(3, cvals, Xvecs, yp);
+  if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
                                             
   /* Sensi interpolation for 1st derivative. */
-  for (is=0; is<NS; is++) {
-    N_VLinearSum(ONE, ySd0[is], factor1, IDAADJ_mem->ia_YS[0][is], ypS[is]);
-    N_VLinearSum(ONE, ypS[is],  factor2, IDAADJ_mem->ia_YS[1][is], ypS[is]);    
+
+  /* ypS = ySd0 + factor1 YS[0] + factor 2 YS[1], if needed */
+  if (NS > 0) {
+
+    XXvecs[0] = ySd0;
+    XXvecs[1] = IDAADJ_mem->ia_YS[0];
+    XXvecs[2] = IDAADJ_mem->ia_YS[1];
+
+    retval = N_VLinearCombinationVectorArray(NS, 3, cvals, XXvecs, ypS);
+    if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
+
   }
 
   return(IDA_SUCCESS);
@@ -2700,7 +2808,7 @@ static int IDAApolynomialStorePnt(IDAMem IDA_mem, DtpntMem d)
 {
   IDAadjMem IDAADJ_mem;
   PolynomialDataMem content;
-  int is;
+  int is, retval;
 
   IDAADJ_mem = IDA_mem->ida_adj_mem;
   content = (PolynomialDataMem) d->content;
@@ -2714,8 +2822,12 @@ static int IDAApolynomialStorePnt(IDAMem IDA_mem, DtpntMem d)
 
   if (IDAADJ_mem->ia_storeSensi) {
     
-    for (is=0; is<IDA_mem->ida_Ns; is++) 
-      N_VScale(ONE, IDA_mem->ida_phiS[0][is], content->yS[is]);
+    for (is=0; is<IDA_mem->ida_Ns; is++)
+      IDA_mem->ida_cvals[is] = ONE;
+
+    retval = N_VScaleVectorArray(IDA_mem->ida_Ns, IDA_mem->ida_cvals,
+                                 IDA_mem->ida_phiS[0], content->yS);
+    if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
     
     /* store the derivative if it is the first data point. */
     if(content->ySd)
@@ -2744,7 +2856,7 @@ static int IDAApolynomialGetY(IDAMem IDA_mem, realtype t,
   DtpntMem *dt_mem;
   PolynomialDataMem content;
 
-  int flag, dir, order, i, j, is, NS;
+  int flag, dir, order, i, j, is, NS, retval;
   long int indx, base;
   booleantype newpoint;
   realtype delt, factor, Psi, Psiprime;
@@ -2767,12 +2879,17 @@ static int IDAApolynomialGetY(IDAMem IDA_mem, realtype t,
     N_VScale(ONE, content->y,  yy);
     N_VScale(ONE, content->yd, yp);
 
-    
-    for (is=0; is<NS; is++) {
-      N_VScale(ONE, content->yS[is], yyS[is]);
-      N_VScale(ONE, content->ySd[is], ypS[is]);
+    if (NS > 0) {
+      for (is=0; is<NS; is++)
+        IDA_mem->ida_cvals[is] = ONE;
+
+      retval = N_VScaleVectorArray(NS, IDA_mem->ida_cvals, content->yS, yyS);
+      if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
+
+      retval = N_VScaleVectorArray(NS, IDA_mem->ida_cvals, content->ySd, ypS);
+      if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
     }
-    
+
     return(IDA_SUCCESS);
   }
 
@@ -2807,20 +2924,28 @@ static int IDAApolynomialGetY(IDAMem IDA_mem, realtype t,
         IDAADJ_mem->ia_T[j] = dt_mem[base-j]->t;
         content = (PolynomialDataMem) (dt_mem[base-j]->content);
         N_VScale(ONE, content->y, IDAADJ_mem->ia_Y[j]);
-        
-        for (is=0; is<NS; is++) 
-          N_VScale(ONE, content->yS[is], IDAADJ_mem->ia_YS[j][is]);
-       
+
+        if (NS > 0) {
+          for (is=0; is<NS; is++)
+            IDA_mem->ida_cvals[is] = ONE;
+          retval = N_VScaleVectorArray(NS, IDA_mem->ida_cvals,
+                                       content->yS, IDAADJ_mem->ia_YS[j]);
+          if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
+        }
       }
     } else {
       for(j=0;j<=order;j++) {
         IDAADJ_mem->ia_T[j] = dt_mem[base-1+j]->t;
         content = (PolynomialDataMem) (dt_mem[base-1+j]->content);
         N_VScale(ONE, content->y, IDAADJ_mem->ia_Y[j]);
-        
-        for (is=0; is<NS; is++) 
-          N_VScale(ONE, content->yS[is], IDAADJ_mem->ia_YS[j][is]);
-        
+
+        if (NS > 0) {
+          for (is=0; is<NS; is++)
+            IDA_mem->ida_cvals[is] = ONE;
+          retval = N_VScaleVectorArray(NS, IDA_mem->ida_cvals, 
+                                       content->yS, IDAADJ_mem->ia_YS[j]);
+          if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
+        }
       }
     }
 
@@ -2829,27 +2954,26 @@ static int IDAApolynomialGetY(IDAMem IDA_mem, realtype t,
       for(j=order;j>=i;j--) {
         factor = delt/(IDAADJ_mem->ia_T[j]-IDAADJ_mem->ia_T[j-i]);
         N_VLinearSum(factor, IDAADJ_mem->ia_Y[j], -factor, IDAADJ_mem->ia_Y[j-1], IDAADJ_mem->ia_Y[j]);
-        
+
         for (is=0; is<NS; is++) 
           N_VLinearSum(factor, IDAADJ_mem->ia_YS[j][is], -factor, IDAADJ_mem->ia_YS[j-1][is], IDAADJ_mem->ia_YS[j][is]);
-        
+
       }
     }
   }
 
   /* Perform the actual interpolation for yy using nested multiplications */
-  N_VScale(ONE, IDAADJ_mem->ia_Y[order], yy);
-  
-  for (is=0; is<NS; is++) 
-    N_VScale(ONE, IDAADJ_mem->ia_YS[order][is], yyS[is]);
-  
-  for (i=order-1; i>=0; i--) {
-    factor = (t-IDAADJ_mem->ia_T[i])/delt;
-    N_VLinearSum(factor, yy, ONE, IDAADJ_mem->ia_Y[i], yy);
-    
-    for (is=0; is<NS; is++) 
-      N_VLinearSum(factor, yyS[is], ONE, IDAADJ_mem->ia_YS[i][is], yyS[is]);
-    
+
+  IDA_mem->ida_cvals[0] = ONE;
+  for (i=0; i<order; i++)
+    IDA_mem->ida_cvals[i+1] = IDA_mem->ida_cvals[i] * (t-IDAADJ_mem->ia_T[i]) / delt;
+
+  retval = N_VLinearCombination(order+1, IDA_mem->ida_cvals, IDAADJ_mem->ia_Y, yy);
+  if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
+
+  if (NS > 0) {
+    retval = N_VLinearCombinationVectorArray(NS, order+1, IDA_mem->ida_cvals, IDAADJ_mem->ia_YS, yyS);
+    if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
   }
   
   /* Perform the actual interpolation for yp.
@@ -2867,29 +2991,31 @@ static int IDAApolynomialGetY(IDAMem IDA_mem, realtype t,
      scaled with delt.
   */
 
-  Psi = ONE; Psiprime = ZERO; 
-  N_VConst(ZERO, yp);
-
-  for (is=0; is<NS; is++)
-    N_VConst(ZERO, ypS[is]);
+  Psi = ONE;
+  Psiprime = ZERO; 
 
   for(i=1; i<=order; i++) {
     factor = (t-IDAADJ_mem->ia_T[i-1])/delt;
 
-    Psiprime = Psi/delt +  factor * Psiprime;
+    Psiprime = Psi/delt + factor * Psiprime;
     Psi = Psi * factor;
 
-    N_VLinearSum(ONE, yp, Psiprime, IDAADJ_mem->ia_Y[i], yp);
-    
-    for (is=0; is<NS; is++)
-      N_VLinearSum(ONE, ypS[is], Psiprime, IDAADJ_mem->ia_YS[i][is], ypS[is]);
+    IDA_mem->ida_cvals[i-1] = Psiprime;
+  }
+
+  retval = N_VLinearCombination(order, IDA_mem->ida_cvals, IDAADJ_mem->ia_Y+1, yp);
+  if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
+
+  if (NS > 0) {
+    retval = N_VLinearCombinationVectorArray(NS, order, IDA_mem->ida_cvals, IDAADJ_mem->ia_YS+1, ypS);
+    if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
   }
 
   return(IDA_SUCCESS);
 }
 
 /* 
- * IDAAGetSolutionYp
+ * IDAAGettnSolutionYp
  *
  * Evaluates the first derivative of the solution at the last time returned by
  * IDASolve (tretlast).
@@ -2903,19 +3029,18 @@ static int IDAApolynomialGetY(IDAMem IDA_mem, realtype t,
 
 static int IDAAGettnSolutionYp(IDAMem IDA_mem, N_Vector yp)
 {
-  int j, kord;
+  int j, kord, retval;
   realtype C, D, gam;
 
   if (IDA_mem->ida_nst==0) {
 
     /* If no integration was done, return the yp supplied by user.*/
-      N_VScale(ONE, IDA_mem->ida_phi[1], yp);
+    N_VScale(ONE, IDA_mem->ida_phi[1], yp);
 
     return(0);
   }
 
   /* Compute yp as in IDAGetSolution for this particular case when t=tn. */
-  N_VConst(ZERO, yp);
   
   kord = IDA_mem->ida_kused;
   if(IDA_mem->ida_kused==0) kord=1;
@@ -2926,8 +3051,13 @@ static int IDAAGettnSolutionYp(IDAMem IDA_mem, N_Vector yp)
     D = D*gam + C/IDA_mem->ida_psi[j-1];
     C = C*gam;
     gam = IDA_mem->ida_psi[j-1] / IDA_mem->ida_psi[j];
-    N_VLinearSum(ONE, yp, D, IDA_mem->ida_phi[j], yp);
-  }   
+
+    IDA_mem->ida_dvals[j-1] = D;
+  }
+
+  retval = N_VLinearCombination(kord, IDA_mem->ida_dvals,
+                                IDA_mem->ida_phi+1, yp);
+  if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
 
   return(0);
 }
@@ -2942,20 +3072,21 @@ static int IDAAGettnSolutionYp(IDAMem IDA_mem, N_Vector yp)
 
 static int IDAAGettnSolutionYpS(IDAMem IDA_mem, N_Vector *ypS)
 {
-  int j, kord, is;
+  int j, kord, is, retval;
   realtype C, D, gam;
 
   if (IDA_mem->ida_nst==0) {
 
     /* If no integration was done, return the ypS supplied by user.*/
-    for (is=0; is<IDA_mem->ida_Ns; is++) 
-      N_VScale(ONE, IDA_mem->ida_phiS[1][is], ypS[is]);
+    for (is=0; is<IDA_mem->ida_Ns; is++)
+      IDA_mem->ida_cvals[is] = ONE;
+
+    retval = N_VScaleVectorArray(IDA_mem->ida_Ns, IDA_mem->ida_cvals,
+                                 IDA_mem->ida_phiS[1], ypS);
+    if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
 
     return(0);
   }
-
-  for (is=0; is<IDA_mem->ida_Ns; is++) 
-    N_VConst(ZERO, ypS[is]);
   
   kord = IDA_mem->ida_kused;
   if(IDA_mem->ida_kused==0) kord=1;
@@ -2967,9 +3098,13 @@ static int IDAAGettnSolutionYpS(IDAMem IDA_mem, N_Vector *ypS)
     C = C*gam;
     gam = IDA_mem->ida_psi[j-1] / IDA_mem->ida_psi[j];
   
-    for (is=0; is<IDA_mem->ida_Ns; is++)
-      N_VLinearSum(ONE, ypS[is], D, IDA_mem->ida_phiS[j][is], ypS[is]);
-  }   
+    IDA_mem->ida_dvals[j-1] = D;
+  }
+
+  retval = N_VLinearCombinationVectorArray(IDA_mem->ida_Ns, kord,
+                                           IDA_mem->ida_dvals,
+                                           IDA_mem->ida_phiS+1, ypS);
+  if (retval != IDA_SUCCESS) return (IDA_VECTOROP_ERR);
 
   return(0);
 }
