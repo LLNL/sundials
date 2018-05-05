@@ -234,7 +234,7 @@ int KINSpilsSetJacTimesVecFn(void *kinmem, KINSpilsJacTimesVecFn jtv)
   retval = SUNLinSolSetATimes(kinspils_mem->LS, kin_mem, KINSpilsATimes);
   if (retval != SUNLS_SUCCESS) {
     KINProcessError(kin_mem, KINSPILS_SUNLS_FAIL, "KINSPILS", 
-                    "KINSpilsSetJacTimes", 
+                    "KINSpilsSetJacTimesVecFn",
                     "Error in calling SUNLinSolSetATimes");
     return(KINSPILS_SUNLS_FAIL);
   }
