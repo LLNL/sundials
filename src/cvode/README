@@ -1,7 +1,7 @@
-                              CVODE
-                    Release 3.1.0, November 2017
+                               CVODE
+                      Release 3.1.1, May 2018
                  Alan C. Hindmarsh and Radu Serban
-              Center for Applied Scientific Computing, LLNL
+            Center for Applied Scientific Computing, LLNL
 
 CVODE is a solver for stiff and nonstiff ODE systems (initial value problem) 
 given in explicit form dy/dt = f(t,y). It is written in ANSI standard C.
@@ -74,6 +74,7 @@ C. References
 D. Releases
 -----------
 
+v. 3.1.1       - May  2018
 v. 3.1.0       - Nov. 2017
 v. 3.0.0       - Sep. 2017
 v. 2.9.0       - Sep. 2016
@@ -92,4 +93,3 @@ v. 2.0         - Jul. 2002 (first SUNDIALS release)
 v. 1.0         - Mar. 2002 (CVODE and PVODE combined)
 v. 1.0 (PVODE) - Jul. 1997 (date written)
 v. 1.0 (CVODE) - Sep. 1994 (date written)
-

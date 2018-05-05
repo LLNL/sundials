@@ -1,7 +1,7 @@
-                               IDAS
-                    Release 2.1.0, November 2017
+                              IDAS
+                     Release 2.1.1, May 2018
                            Radu Serban 
-              Center for Applied Scientific Computing, LLNL
+           Center for Applied Scientific Computing, LLNL
 
 
 IDAS is a package for the solution of differential-algebraic equation (DAE) 
@@ -72,6 +72,7 @@ C. References
 D. Releases
 -----------
 
+v. 2.1.1   - May  2018
 v. 2.1.0   - Nov. 2017
 v. 2.0.0   - Sep. 2017
 v. 1.3.0   - Sep. 2016
