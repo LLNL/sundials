@@ -15,7 +15,7 @@
 # 
 
 # Set library prefixes for Windows
-IF(WIN32)
+if(WIN32)
   set(CMAKE_FIND_LIBRARY_PREFIXES lib ${CMAKE_FIND_LIBRARY_PREFIXES})
 endif()
 
@@ -61,7 +61,7 @@ endif ()
 if (NOT SUITESPARSECONFIG_LIBRARY)
     set(SUITESPARSECONFIG_LIBRARY_NAME suitesparseconfig)
     # NOTE: no prefix for this library on windows
-    if (WIN32)
+    if(WIN32 AND NOT MSYS)
         set(CMAKE_FIND_LIBRARY_PREFIXES "")
     endif()
     FIND_LIBRARY( SUITESPARSECONFIG_LIBRARY ${SUITESPARSECONFIG_LIBRARY_NAME} ${KLU_LIBRARY_DIR} NO_DEFAULT_PATH)

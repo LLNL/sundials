@@ -1874,7 +1874,7 @@ or use the internal difference quotient approximation
 \index{Jacobian approximation function!Jacobian times vector!difference quotient}
 that comes with the {\kinspils} solver interface.  A user-defined Jacobian-vector
 function must be of type \id{KINSpilsJacTimesVecFn} and 
-can be specified through a call to \id{KINSpilsSetJacTimes} 
+can be specified through a call to \id{KINSpilsSetJacTimesVecFn}
 (see \S\ref{ss:jtimesFn} for specification details).
 %%
 A {\kinspils} solver passes the pointer \id{user\_data} received through 
@@ -1923,28 +1923,25 @@ each time it is called.
 %%
 \index{preconditioning!user-supplied|)}
 \index{Jacobian approximation function!Jacobian times vector!user-supplied}
-\ucfunction{KINSpilsSetJacTimes}
+\ucfunction{KINSpilsSetJacTimesVecFn}
 {
-  flag = KINSpilsSetJacTimes(kin\_mem, jsetup, jtimes);
+  flag = KINSpilsSetJacTimesVecFn(kin\_mem, jtimes);
 }
 {
-  The function \ID{KINSpilsSetJacTimes} specifies the Jacobian-vector 
-  setup and product.
+  The function \ID{KINSpilsSetJacTimesVecFn} specifies the Jacobian-vector 
+  product function.
 }
 {
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[jtsetup] (\id{KINSpilsJacTimesSetupFn})
-    user-defined function to set up the Jacobian-vector product.
-    Pass \id{NULL} if no setup is necessary.
   \item[jtimes] (\id{KINSpilsJacTimesVecFn})
     user-defined Jacobian-vector product function.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[KINSPILS\_LMEM\_NULL]
+  \begin{args}[KINSPILS\_SUNLS\_FAIL]
   \item[\Id{KINSPILS\_SUCCESS}] 
     The optional value has been successfully set.
   \item[\Id{KINSPILS\_MEM\_NULL}]
@@ -3091,6 +3088,9 @@ supplied, the default is a difference quotient approximation of these products.
 }
 { If a user-defined routine is not given, then an internal \id{jtimes}
   function, using a difference quotient approximation, is used.
+
+  This function must return a value of $J*v$ that uses the {\it current}
+  value of $J$, i.e. as evaluated at the current $u$.
 
   If the user's \id{KINSpilsJacTimesVecFn} function uses difference quotient
   approximations, it may need to access quantities not in the call list.

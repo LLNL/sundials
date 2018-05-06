@@ -1,10 +1,10 @@
-                     NVECTOR_PARALLEL
-                 released as part of SUNDIALS
-    SUite of Nonlinear and DIfferential/ALgebraic equation Solvers
-                   Release 3.1.0, November 2017
+                         NVECTOR_PETSC
+                  released as part of SUNDIALS
+  SUite of Nonlinear and DIfferential/ALgebraic equation Solvers
+                    Release 3.1.1, May 2018
 
 
-NVECTOR_PETSC is an NVECTOR wrapper around the PETSC vector.  
+The NVECTOR_PETSC is an NVECTOR wrapper around the PETSC vector.  
 
 NVECTOR_PETSC defines the content field of an N_Vector to be a 
 structure containing the global and local lengths of the vector, a 
@@ -40,8 +40,7 @@ For complete installation instructions see any of the user guides.
 C. Releases
 -----------
 
+v. 3.1.1 - May  2018
 v. 3.1.0 - Nov. 2017
 v. 3.0.0 - Sep. 2017
 v. 2.7.0 - Sep. 2016
-
-

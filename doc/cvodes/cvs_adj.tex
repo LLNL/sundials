@@ -1588,6 +1588,40 @@ used by \id{CVodeB}.
   {\warn} The user must allocate space for \id{y}.
 }
 
+\ucfunction{CVodeGetAdjCheckPointsInfo}
+{
+  flag = CVodeGetAdjCheckPointsInfo(cvode\_mem, CVadjCheckPointRec *ckpnt);
+}
+{
+  The function \ID{CVodeGetAdjCheckPointsInfo} loads an array of \id{ncheck+1}
+  records of type \id{CVadjCheckPointRec}.
+  The user must allocate space for the array \id{ckpnt}.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvodes} memory block created by \id{CVodeCreate}.
+  \item[ckpnt] (\id{CVadjCheckPointRec *})
+    array of \id{ncheck+1} checkpoint records, each of type \id{CVadjCheckPointRec}.
+  \end{args}
+}
+{  The return value is \id{CV\_SUCCESS} if successful, or 
+   \id{CV\_MEM\_NULL} if \id{cvode\_mem} is \id{NULL}, or
+   \id{CV\_NO\_ADJ} if ASA was not initialized.}
+{  The members of each record \id{ckpnt[i]} are:
+\begin{itemize}
+ \item: \id{ckpnt[i].my\_addr} (\id{void *}) address of current checkpoint
+        in \id{cvode\_mem->cv\_adj\_mem}
+ \item: \id{ckpnt[i].next\_addr} (\id{void *}) address of next checkpoint
+ \item: \id{ckpnt[i].t0} (\id{realtype}) start of checkpoint interval
+ \item: \id{ckpnt[i].t1} (\id{realtype}) end of checkpoint interval
+ \item: \id{ckpnt[i].nstep} (\id{long int}) step counter at ckeckpoint \id{t0}
+ \item: \id{ckpnt[i].order} (\id{int}) method order at checkpoint \id{t0}
+ \item: \id{ckpnt[i].step} (\id{realtype}) step size at checkpoint \id{t0}
+\end{itemize}
+}
+
+
 %%---------------------------------------------------------------------
 \subsection{Backward integration of quadrature equations}
 %%---------------------------------------------------------------------

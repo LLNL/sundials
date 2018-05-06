@@ -503,9 +503,8 @@ program driver
 
   ! solution vector and other local variables
   real(kind=REALTYPE), allocatable :: y(:,:)
-  real(kind=REALTYPE)    :: rout(6), rpar, t, dTout, tout, urms
-  integer(kind=SUNINDEXTYPE) :: N, Ntot, i, j
-  integer*8 :: iout(22), ipar
+  real(kind=REALTYPE) :: rout(6), rpar, t, dTout, tout, urms
+  integer*8 :: iout(22), ipar, N, Ntot, i, j
   integer   :: flag, ioutput
   logical   :: outproc
   character*100 :: outname

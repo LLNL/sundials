@@ -1,7 +1,7 @@
                                IDA
-                    Release 3.1.0, November 2017
-                 Alan C. Hindmarsh and Radu Serban 
-            Center for Applied Scientific Computing, LLNL
+                    Release 3.1.1, May 2018
+                Alan C. Hindmarsh and Radu Serban 
+           Center for Applied Scientific Computing, LLNL
 
 
 IDA is a package for the solution of differential-algebraic equation
@@ -84,6 +84,7 @@ C. References
 D. Releases
 -----------
 
+v. 3.1.1   - May  2018
 v. 3.1.0   - Nov. 2017
 v. 3.0.0   - Sep. 2017
 v. 2.9.0   - Sep. 2016

@@ -1041,6 +1041,9 @@ extern "C" {
   
   int FCVEwtSet(N_Vector y, N_Vector ewt, void *user_data);
 
+  void FCVNullMatrix();
+  void FCVNullLinsol();
+
   /* Declarations for global variables shared amongst various routines */
 
   extern N_Vector F2C_CVODE_vec;             /* defined in FNVECTOR module */

@@ -111,6 +111,16 @@ int main(int argc, char *argv[])
   fails = SUNMatMatvec(A, x, b);
   if (fails) {
     printf("FAIL: SUNLinSol SUNMatMatvec failure\n");
+
+    /* Free solver, matrix and vectors */
+    SUNLinSolFree(LS);
+    SUNMatDestroy(A);
+    SUNMatDestroy(B);
+    SUNMatDestroy(I);
+    N_VDestroy(x);
+    N_VDestroy(y);
+    N_VDestroy(b);
+
     return(1);
   }
 
@@ -145,8 +155,10 @@ int main(int argc, char *argv[])
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
   SUNMatDestroy(B);
+  SUNMatDestroy(I);
   N_VDestroy(x);
   N_VDestroy(y);
+  N_VDestroy(b);
 
   return(fails);
 }

@@ -55,6 +55,8 @@ $tar $tarfile $distrobase/src/arkode/fcmix/farkexpstab.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkjtimes.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkmasspreco.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkmtimes.c
+$tar $tarfile $distrobase/src/arkode/fcmix/farknulllinsol.c
+$tar $tarfile $distrobase/src/arkode/fcmix/farknullmatrix.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkode.c
 $tar $tarfile $distrobase/src/arkode/fcmix/farkode.h
 $tar $tarfile $distrobase/src/arkode/fcmix/farkpreco.c

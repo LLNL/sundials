@@ -54,6 +54,7 @@
 #ifndef _NVECTOR_PTHREADS_H
 #define _NVECTOR_PTHREADS_H
 
+#include <stdio.h>
 #include <pthread.h>
 #include <sundials/sundials_nvector.h>
 
@@ -82,7 +83,12 @@ struct _N_VectorContent_Pthreads {
 typedef struct _N_VectorContent_Pthreads *N_VectorContent_Pthreads;
 
 
-/* structure to allow threads to share data */
+/* Structure to hold parallelization information for each thread when
+   calling "companion" functions to compute vector operations. The
+   start and end vector (loop) indices are unique to each thread, the
+   realtype variables are the same for each thread, and the mutex
+   variable is used to lock variables in reductions. */
+
 struct _Pthreads_Data{
   sunindextype start;            /* starting index for loop  */
   sunindextype end;              /* ending index for loop    */

@@ -42,6 +42,8 @@ $tar $tarfile $distrobase/src/kinsol/fcmix/fkinbbd.c
 $tar $tarfile $distrobase/src/kinsol/fcmix/fkinbbd.h
 $tar $tarfile $distrobase/src/kinsol/fcmix/fkindense.c
 $tar $tarfile $distrobase/src/kinsol/fcmix/fkinjtimes.c
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkinnulllinsol.c
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkinnullmatrix.c
 $tar $tarfile $distrobase/src/kinsol/fcmix/fkinpreco.c
 $tar $tarfile $distrobase/src/kinsol/fcmix/fkinsol.c
 $tar $tarfile $distrobase/src/kinsol/fcmix/fkinsol.h

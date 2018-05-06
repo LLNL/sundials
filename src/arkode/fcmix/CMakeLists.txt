@@ -30,6 +30,8 @@ SET(farkode_SOURCES
   farkexpstab.c
   farkjtimes.c
   farkmtimes.c
+  farknulllinsol.c
+  farknullmatrix.c
   farkode.c
   farkpreco.c
   farkmasspreco.c

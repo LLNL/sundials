@@ -291,8 +291,8 @@ int SUNSparseMatrix_Realloc(SUNMatrix A)
     return 1;
 
   /* perform reallocation */
-  SM_INDEXVALS_S(A) = realloc(SM_INDEXVALS_S(A), nzmax*sizeof(sunindextype));
-  SM_DATA_S(A) = realloc(SM_DATA_S(A), nzmax*sizeof(realtype));
+  SM_INDEXVALS_S(A) = (sunindextype *) realloc(SM_INDEXVALS_S(A), nzmax*sizeof(sunindextype));
+  SM_DATA_S(A) = (realtype *) realloc(SM_DATA_S(A), nzmax*sizeof(realtype));
   SM_NNZ_S(A) = nzmax;
 
   return 0;
@@ -493,8 +493,8 @@ int SUNMatCopy_Sparse(SUNMatrix A, SUNMatrix B)
   /* ensure that B is allocated with at least as 
      much memory as we have nonzeros in A */
   if (SM_NNZ_S(B) < A_nz) {
-    SM_INDEXVALS_S(B) = realloc(SM_INDEXVALS_S(B), A_nz*sizeof(int));
-    SM_DATA_S(B) = realloc(SM_DATA_S(B), A_nz*sizeof(realtype));
+    SM_INDEXVALS_S(B) = (sunindextype *) realloc(SM_INDEXVALS_S(B), A_nz*sizeof(sunindextype));
+    SM_DATA_S(B) = (realtype *) realloc(SM_DATA_S(B), A_nz*sizeof(realtype));
     SM_NNZ_S(B) = A_nz;
   }
 

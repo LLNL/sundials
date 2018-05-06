@@ -55,8 +55,8 @@ Approved for public release; further dissemination unlimited
 \clearpage
 }
 
-\title{User Documentation for ARKode v2.1.0\\
-       (SUNDIALS v3.1.0)}
+\title{User Documentation for ARKode v2.1.1\\
+       (SUNDIALS v3.1.1)}
 \author{
   Daniel R. Reynolds$^1$, David J. Gardner$^2$, \\
   Alan C. Hindmarsh$^2$, Carol S. Woodward$^2$ \\
@@ -327,6 +327,43 @@ name-mangling scheme and bypass trying to infer the
 scheme. Additionally, parts of the main CMakeLists.txt file were moved
 to new files in the \code{src} and \code{example} directories to make the
 CMake configuration file structure more modular.
+
+\subsection{Changes in v2.1.1}
+\label{Introduction:changes-in-v2-1-1}
+Fixed a potential memory leak in the SPGMR and SPFGMR linear solvers:
+if ``Initialize'' was called multiple times then the solver memory was
+reallocated (without being freed).
+
+Fixed a minor bug in the ARKReInit routine, where a flag was
+incorrectly set to indicate that the problem had been resized (instead
+of just re-initialized).
+
+Fixed C++11 compiler errors/warnings about incompatible use of string
+literals. 
+
+Updated KLU SUNLINEARSOLVER module to use a \texttt{typedef} for the
+precision-specific solve function to be used (to avoid compiler 
+warnings).  
+
+Added missing typecasts for some \texttt{(void*)} pointers (again, to
+avoid compiler warnings). 
+
+Bugfix in \texttt{sunmatrix\_sparse.c} where we had used \texttt{int}
+instead of \texttt{sunindextype} in one location.
+
+Added missing \texttt{\#include <stdio.h>} in NVECTOR and SUNMATRIX
+header files.
+
+Added missing prototype for \texttt{ARKSpilsGetNumMTSetups}.
+
+Fixed an indexing bug in the CUDA NVECTOR implementation of
+\code{N\_VWrmsNormMask} and revised the RAJA NVECTOR implementation of
+\code{N\_VWrmsNormMask} to work with mask arrays using values other than zero or
+one. Replaced \code{double} with \code{realtype} in the RAJA vector test functions.
+
+Fixed compilation issue with GCC 7.3.0 and Fortran programs that do
+not require a SUNMatrix or SUNLinearSolver module (e.g. iterative
+linear solvers, explicit methods, fixed point solver, etc.).
 
 \subsection{Changes in v2.1.0}
 \label{Introduction:changes-in-v2-1-0}
@@ -2079,7 +2116,7 @@ IDAS, respectively.
 The various solvers of this family share many subordinate modules.
 For this reason, it is organized as a family, with a directory
 structure that exploits that sharing (see the following Figures
-{\hyperref[Organization:sunorg1]{\emph{\DUspan{}{SUNDIALS organization}}}} and {\hyperref[Organization:sunorg2]{\emph{\DUspan{}{SUNDIALS tree}}}}).  The following is a list of the solver packages presently
+{\hyperref[Organization:sunorg1]{\emph{\DUspan{}{SUNDIALS organization}}}}, {\hyperref[Organization:sunorg2]{\emph{\DUspan{}{SUNDIALS tree}}}}, and {\hyperref[Organization:sunorg3]{\emph{\DUspan{}{SUNDIALS examples}}}}).  The following is a list of the solver packages presently
 available, and the basic functionality of each:
 \begin{itemize}
 \item {} 
@@ -2118,6 +2155,13 @@ KINSOL, a solver for nonlinear algebraic systems \(F(u) = 0\).
 
 \scalebox{0.750000}{\includegraphics{sunorg2.png}}
 \caption{\emph{SUNDIALS tree}: Directory structure of the source tree.}\label{Organization:sunorg2}\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\capstart
+
+\scalebox{0.750000}{\includegraphics{sunorg3.png}}
+\caption{\emph{SUNDIALS examples}: Directory structure of the examples.}\label{Organization:sunorg3}\end{figure}
 
 
 \section{ARKode organization}
@@ -5006,14 +5050,11 @@ Specifies the order of accuracy for the integration method.
 values are \(3 \le\) \emph{ord} \(\le 5\).  Any illegal input
 will result in the default value of 4.
 
-\end{fulllineitems}
-
-\begin{description}
-\item[{z   Since \emph{ord} affects the memory requirements for the internal}] \leavevmode
+Since \emph{ord} affects the memory requirements for the internal
 ARKode memory block, it cannot be increased between calls to
 {\hyperref[c_interface/User_callable:c.ARKode]{\emph{\code{ARKode()}}}} unless {\hyperref[c_interface/User_callable:c.ARKodeReInit]{\emph{\code{ARKodeReInit()}}}} is called.
 
-\end{description}
+\end{fulllineitems}
 \index{ARKodeSetImEx (C function)}
 
 \begin{fulllineitems}
@@ -6752,8 +6793,8 @@ Similarly, if a problem involves a non-identity mass matrix,
 to compute an approximation to the product between the mass matrix
 \(M(t)\) and a vector \(v\).  This function must be
 user-supplied, since there is no default value.  \emph{mtimes} must be
-of type {\hyperref[c_interface/User_supplied:c.ARKSpilsMassTimesVecFn]{\emph{\code{ARKSpilsMassTimesVecFn()}}}}.  and can be specified
-through a call to the  \code{ARKSpilsSetMassTimesVecFn()}.
+of type {\hyperref[c_interface/User_supplied:c.ARKSpilsMassTimesVecFn]{\emph{\code{ARKSpilsMassTimesVecFn()}}}}, and can be specified
+through a call to the  \code{ARKSpilsSetMassTimes()} routine.
 As with the user-supplied preconditioner functions, the evaluation and
 processing of any Jacobian-related data needed by the user's
 mass-matrix-times-vector function is done in the optional user-supplied
@@ -6807,7 +6848,7 @@ Newton preconditioning functions
  & 
 {\hyperref[c_interface/User_callable:c.ARKSpilsSetMassTimes]{\emph{\code{ARKSpilsSetMassTimes()}}}}
  & 
-none, none,
+none, none
 \\
 \hline
 Mass matrix linear and nonlinear tolerance ratio
@@ -6981,7 +7022,7 @@ Both of the function types {\hyperref[c_interface/User_supplied:c.ARKSpilsPrecSe
 \index{ARKSpilsSetMassTimes (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{c_interface/User_callable:c.ARKSpilsSetMassTimes}\pysiglinewithargsret{int \bfcode{ARKSpilsSetMassTimes}}{void*\emph{ arkode\_mem}, {\hyperref[c_interface/User_supplied:c.ARKSpilsMassTimesSetupFn]{\emph{ARKSpilsMassTimesSetupFn}}}\emph{ mtsetup}, {\hyperref[c_interface/User_supplied:c.ARKSpilsMassTimesVecFn]{\emph{ARKSpilsMassTimesVecFn}}}\emph{ mtimes}}{}
+\phantomsection\label{c_interface/User_callable:c.ARKSpilsSetMassTimes}\pysiglinewithargsret{int \bfcode{ARKSpilsSetMassTimes}}{void*\emph{ arkode\_mem}, {\hyperref[c_interface/User_supplied:c.ARKSpilsMassTimesSetupFn]{\emph{ARKSpilsMassTimesSetupFn}}}\emph{ mtsetup}, {\hyperref[c_interface/User_supplied:c.ARKSpilsMassTimesVecFn]{\emph{ARKSpilsMassTimesVecFn}}}\emph{ mtimes}, void*\emph{ mtimes\_data}}{}
 Specifies the mass matrix-times-vector setup and product functions.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -6994,6 +7035,10 @@ Pass \code{NULL} if no setup is necessary.
 
 \item {} 
 \emph{mtimes} -- user-defined mass matrix-vector product function.
+
+\item {} 
+\emph{mtimes\_data} -- a pointer to user data, that will be supplied
+to both the \emph{mtsetup} and \emph{mtimes} functions.
 
 \end{itemize}
 
@@ -8173,11 +8218,6 @@ No. of calls to linear solver setup function
 {\hyperref[c_interface/User_callable:c.ARKodeGetNumLinSolvSetups]{\emph{\code{ARKodeGetNumLinSolvSetups()}}}}
 \\
 \hline
-No. of calls to mass matrix solver
- & 
-{\hyperref[c_interface/User_callable:c.ARKodeGetNumMassSolves]{\emph{\code{ARKodeGetNumMassSolves()}}}}
-\\
-\hline
 No. of nonlinear solver iterations
  & 
 {\hyperref[c_interface/User_callable:c.ARKodeGetNumNonlinSolvIters]{\emph{\code{ARKodeGetNumNonlinSolvIters()}}}}
@@ -8207,34 +8247,6 @@ setup routine (so far).
 
 \item {} 
 \emph{nlinsetups} -- number of linear solver setup calls made.
-
-\end{itemize}
-
-\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
-\item {} 
-\emph{ARK\_SUCCESS} if successful
-
-\item {} 
-\emph{ARK\_MEM\_NULL} if the ARKode memory was \code{NULL}
-
-\end{itemize}
-
-\end{description}
-
-\end{fulllineitems}
-
-\index{ARKodeGetNumMassSolves (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{c_interface/User_callable:c.ARKodeGetNumMassSolves}\pysiglinewithargsret{int \bfcode{ARKodeGetNumMassSolves}}{void*\emph{ arkode\_mem}, long int*\emph{ nMassSolves}}{}
-Returns the number of calls made to the mass matrix solver (so far).
-\begin{description}
-\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
-\item {} 
-\emph{arkode\_mem} -- pointer to the ARKode memory block.
-
-\item {} 
-\emph{nMassSolves} -- number of mass matrix solves made.
 
 \end{itemize}
 
@@ -8469,9 +8481,19 @@ No. of Jacobian evaluations
 {\hyperref[c_interface/User_callable:c.ARKDlsGetNumJacEvals]{\emph{\code{ARKDlsGetNumJacEvals()}}}}
 \\
 \hline
-No. of mass matrix evaluations
+No. of mass matrix setups
  & 
-{\hyperref[c_interface/User_callable:c.ARKDlsGetNumMassEvals]{\emph{\code{ARKDlsGetNumMassEvals()}}}}
+{\hyperref[c_interface/User_callable:c.ARKDlsGetNumMassSetups]{\emph{\code{ARKDlsGetNumMassSetups()}}}}
+\\
+\hline
+No. of mass matrix solves
+ & 
+{\hyperref[c_interface/User_callable:c.ARKDlsGetNumMassSolves]{\emph{\code{ARKDlsGetNumMassSolves()}}}}
+\\
+\hline
+No. of mass matrix multiplies
+ & 
+{\hyperref[c_interface/User_callable:c.ARKDlsGetNumMassMult]{\emph{\code{ARKDlsGetNumMassMult()}}}}
 \\
 \hline
 No. of \emph{fi} calls for finite diff. Jacobian evals
@@ -8609,19 +8631,80 @@ approximation routine.
 
 \end{fulllineitems}
 
-\index{ARKDlsGetNumMassEvals (C function)}
+\index{ARKDlsGetNumMassSetups (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{c_interface/User_callable:c.ARKDlsGetNumMassEvals}\pysiglinewithargsret{int \bfcode{ARKDlsGetNumMassEvals}}{void*\emph{ arkode\_mem}, long int*\emph{ nmevals}}{}
-Returns the number of calls made to the ARKDLS mass matrix
-construction routine.
+\phantomsection\label{c_interface/User_callable:c.ARKDlsGetNumMassSetups}\pysiglinewithargsret{int \bfcode{ARKDlsGetNumMassSetups}}{void*\emph{ arkode\_mem}, long int*\emph{ nmsetups}}{}
+Returns the number of calls made to the ARKDLS mass matrix solver `setup' routine.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
 \emph{arkode\_mem} -- pointer to the ARKode memory block.
 
 \item {} 
-\emph{nmevals} -- number of calls to the mass matrix function.
+\emph{nmsetups} -- number of calls to the mass matrix solver setup routine.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARKDLS\_SUCCESS} if successful
+
+\item {} 
+\emph{ARKDLS\_MEM\_NULL} if the ARKode memory was \code{NULL}
+
+\item {} 
+\emph{ARKDLS\_LMEM\_NULL} if the linear solver memory was \code{NULL}
+
+\end{itemize}
+
+\end{description}
+
+\end{fulllineitems}
+
+\index{ARKDlsGetNumMassSolves (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{c_interface/User_callable:c.ARKDlsGetNumMassSolves}\pysiglinewithargsret{int \bfcode{ARKDlsGetNumMassSolves}}{void*\emph{ arkode\_mem}, long int*\emph{ nmsolves}}{}
+Returns the number of calls made to the ARKDLS mass matrix solver 'solve' routine.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the ARKode memory block.
+
+\item {} 
+\emph{nmsolves} -- number of calls to the mass matrix solver solve routine.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARKDLS\_SUCCESS} if successful
+
+\item {} 
+\emph{ARKDLS\_MEM\_NULL} if the ARKode memory was \code{NULL}
+
+\item {} 
+\emph{ARKDLS\_LMEM\_NULL} if the linear solver memory was \code{NULL}
+
+\end{itemize}
+
+\end{description}
+
+\end{fulllineitems}
+
+\index{ARKDlsGetNumMassMult (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{c_interface/User_callable:c.ARKDlsGetNumMassMult}\pysiglinewithargsret{int \bfcode{ARKDlsGetNumMassMult}}{void*\emph{ arkode\_mem}, long int*\emph{ nmmults}}{}
+Returns the number of calls made to the ARKDLS mass matrix 'matvec' routine.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the ARKode memory block.
+
+\item {} 
+\emph{nmmults} -- number of calls to the mass matrix solver matrix-times-vector routine
 
 \end{itemize}
 
@@ -10955,7 +11038,7 @@ compute matrix-vector products \(Mv\).
 \index{ARKSpilsMassTimesVecFn (C type)}
 
 \begin{fulllineitems}
-\phantomsection\label{c_interface/User_supplied:c.ARKSpilsMassTimesVecFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKSpilsMassTimesVecFn)}}{N\_Vector\emph{ v}, N\_Vector\emph{ Mv}, realtype\emph{ t}, void*\emph{ user\_data}}{}
+\phantomsection\label{c_interface/User_supplied:c.ARKSpilsMassTimesVecFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKSpilsMassTimesVecFn)}}{N\_Vector\emph{ v}, N\_Vector\emph{ Mv}, realtype\emph{ t}, void*\emph{ mtimes\_data}}{}
 This function computes the product \(M*v\) (or an approximation to it).
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -10969,8 +11052,8 @@ This function computes the product \(M*v\) (or an approximation to it).
 \emph{t} -- the current value of the independent variable.
 
 \item {} 
-\emph{user\_data} -- a pointer to user data, the same as the
-\emph{user\_data} parameter that was passed to {\hyperref[c_interface/User_callable:c.ARKodeSetUserData]{\emph{\code{ARKodeSetUserData()}}}}.
+\emph{mtimes\_data} -- a pointer to user data, the same as the
+\emph{mtimes\_data} parameter that was passed to {\hyperref[c_interface/User_callable:c.ARKSpilsSetMassTimes]{\emph{\code{ARKSpilsSetMassTimes()}}}}.
 
 \end{itemize}
 
@@ -10995,7 +11078,7 @@ be done in a user-supplied function of type
 \index{ARKSpilsMassTimesSetupFn (C type)}
 
 \begin{fulllineitems}
-\phantomsection\label{c_interface/User_supplied:c.ARKSpilsMassTimesSetupFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKSpilsMassTimesSetupFn)}}{realtype\emph{ t}, void*\emph{ user\_data}}{}
+\phantomsection\label{c_interface/User_supplied:c.ARKSpilsMassTimesSetupFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKSpilsMassTimesSetupFn)}}{realtype\emph{ t}, void*\emph{ mtimes\_data}}{}
 This function preprocesses and/or evaluates any mass-matrix-related
 data needed by the mass-matrix-times-vector routine.
 \begin{description}
@@ -11004,8 +11087,8 @@ data needed by the mass-matrix-times-vector routine.
 \emph{t} -- the current value of the independent variable.
 
 \item {} 
-\emph{user\_data} -- a pointer to user data, the same as the
-\emph{user\_data} parameter that was passed to {\hyperref[c_interface/User_callable:c.ARKodeSetUserData]{\emph{\code{ARKodeSetUserData()}}}}.
+\emph{mtimes\_data} -- a pointer to user data, the same as the
+\emph{mtimes\_data} parameter that was passed to {\hyperref[c_interface/User_callable:c.ARKSpilsSetMassTimes]{\emph{\code{ARKSpilsSetMassTimes()}}}}.
 
 \end{itemize}
 
@@ -15435,9 +15518,21 @@ LSTMF
 \hline
 26
  & 
-NME
+NMSET
  & 
-{\hyperref[c_interface/User_callable:c.ARKDlsGetNumMassEvals]{\emph{\code{ARKDlsGetNumMassEvals()}}}}
+{\hyperref[c_interface/User_callable:c.ARKDlsGetNumMassSetups]{\emph{\code{ARKDlsGetNumMassSetups()}}}}
+\\
+27
+ & 
+NMSOL
+ & 
+{\hyperref[c_interface/User_callable:c.ARKDlsGetNumMassSolves]{\emph{\code{ARKDlsGetNumMassSolves()}}}}
+\\
+28
+ & 
+NMMUL
+ & 
+{\hyperref[c_interface/User_callable:c.ARKDlsGetNumMassMult]{\emph{\code{ARKDlsGetNumMassMult()}}}}
 \\
 \hline\end{tabulary}
 
@@ -27083,19 +27178,18 @@ CMake configuration file. SUNDIALS was tested with RAJA version 0.3.
 
 
 \subsection{Testing the build and installation}
-\label{Install:testing-build-and-install}\label{Install:installation-cmake-testing}
-If SUNDIALS was configured with
-\code{EXAMPLES\_ENABLE\_$<$language$>$} options to \code{ON}, then a
-set of regression tests can be run after building with the \code{make}
-command by running: 
+\label{Install:testing-the-build-and-installation}\label{Install:installation-cmake-testing}
+If SUNDIALS was configured with \code{EXAMPLES\_ENABLE\_\textless{}language\textgreater{}} options
+to \code{ON}, then a set of regression tests can be run after building
+with the \code{make} command by running:
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZdl{} make test
+\PYGZpc{} make \PYG{n+nb}{test}
 \end{Verbatim}
-Additionally, if \code{EXAMPLES\_INSTALL} was also set to \code{ON}, then
-a set of smoke tests can be run after installing with the \code{make install}
+Additionally, if \code{EXAMPLES\_INSTALL} was also set to \code{ON}, then a
+set of smoke tests can be run after installing with the \code{make install}
 command by running:
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZdl{} make test\_install
+\PYGZpc{} make test\PYGZus{}install
 \end{Verbatim}
 
 

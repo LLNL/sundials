@@ -51,6 +51,8 @@ $tar $tarfile $distrobase/src/cvode/fcmix/fcvbp.h
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvdense.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvewt.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvjtimes.c
+$tar $tarfile $distrobase/src/cvode/fcmix/fcvnulllinsol.c
+$tar $tarfile $distrobase/src/cvode/fcmix/fcvnullmatrix.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvode.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvode.h
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvpreco.c

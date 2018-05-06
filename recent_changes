@@ -1,4 +1,4 @@
-Changes to SUNDIALS since Release of Nov. 7, 2017.
+Changes to SUNDIALS since Release of May. 7, 2017.
 
 * Three fused vector operations and seven vector array operations have
   been added to the NVECTOR API. These optional operations are intended
@@ -32,6 +32,52 @@ Changes to SUNDIALS since Release of Nov. 7, 2017.
   the src and example directories to make the CMake configuration file structure
   more modular.
 
+Changes to SUNDIALS since Release of Nov. 7, 2017.
+
+* Fixed a minor bug in the CVODE and CVODES cvSLdet routine, where a
+  return was missing in the error check for three inconsistent roots.
+
+* Fixed a potential memory leak in the SPGMR and SPFGMR linear
+  solvers: if "Initialize" was called multiple times then the solver
+  memory was reallocated (without being freed). 
+  
+* Fixed a minor bug in the ARKReInit routine, where a flag was
+  incorrectly set to indicate that the problem had been resized
+  (instead of just re-initialized). 
+
+* Fixed C++11 compiler errors/warnings about incompatible use of
+  string literals.
+
+* Updated KLU SUNLinearSolver module to use a typedef for the
+  precision-specific solve function to be used (to avoid compiler
+  warnings). 
+
+* Added missing typecasts for some (void*) pointers (again, to avoid
+  compiler warnings).
+
+* Bugfix in sunmatrix_sparse.c where we had used 'int' instead of
+  'sunindextype' in one location.
+
+* Fixed a minor bug in KINPrintInfo where a case was missing for
+  KIN_REPTD_SYSFUNC_ERR leading to an undefined info message.
+
+* Added missing #include <stdio.h> in NVECTOR and SUNMATRIX
+  header files.
+
+* Added missing prototypes for ARKSpilsGetNumMTSetups in ARKode and
+  IDASpilsGetNumJTSetupEvals in IDA and IDAS.
+
+* Fixed an indexing bug in the CUDA NVECTOR implementation of
+  N_VWrmsNormMask and revised the RAJA NVECTOR implementation of
+  N_VWrmsNormMask to work with mask arrays using values other than
+  zero or one. Replaced doubles with realtypes in the RAJA vector
+  test functions.
+
+* Fixed compilation issue with GCC 7.3.0 and Fortran programs that do
+  not require a SUNMatrix or SUNLinearSolver module (e.g. iterative
+  linear solvers, explicit methods in ARKode, functional iteration
+  in CVODE, etc.).
+
 
 Changes to SUNDIALS since Release of Oct. 26, 2017.
 
@@ -43,6 +89,8 @@ Changes to SUNDIALS since Release of Oct. 26, 2017.
   respectively.
 
 * Added "Changes in ..." (latest version) to Intro. in all User Guides.
+
+
 
 Changes to SUNDIALS since Release of Sept. 30, 2016.
 

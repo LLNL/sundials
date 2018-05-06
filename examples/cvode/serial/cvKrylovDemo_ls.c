@@ -215,7 +215,9 @@ int main(void)
 
     }
 
-    /* Attach a linear solver module */
+    /* Free previous linear solver and attach a new linear solver module */
+    SUNLinSolFree(LS);
+
     switch(linsolver) {
 
     /* (a) SPGMR */
