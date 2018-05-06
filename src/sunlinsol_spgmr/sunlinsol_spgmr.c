@@ -124,8 +124,8 @@ SUNLinearSolver SUNSPGMR(N_Vector y, int pretype, int maxl)
   content->Hes = NULL;
   content->givens = NULL;
   content->yg = NULL;
-  content->cv == NULL;
-  content->Xv == NULL;
+  content->cv = NULL;
+  content->Xv = NULL;
 
   /* Attach content and ops */
   S->content = content;
