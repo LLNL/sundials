@@ -1,7 +1,7 @@
                      SUNLINSOL_LAPACKDENSE
                   released as part of SUNDIALS
   SUite of Nonlinear and DIfferential/ALgebraic equation Solvers
-                    Release 3.1.1, May 2018
+                   Release 4.0.0-dev, May 2018
 
 
 LAPACK dense implementation of the SUNLINSOL module for SUNDIALS. 
@@ -33,6 +33,7 @@ For complete installation instructions see any of the user guides.
 D. Releases
 -----------
 
-v. 1.1.1 - May 2018
-v. 1.1.0 - Nov 2017
-v. 1.0.0 - Sep 2017
+v. 2.0.0-dev - May 2018
+v. 1.1.1     - May 2018
+v. 1.1.0     - Nov 2017
+v. 1.0.0     - Sep 2017

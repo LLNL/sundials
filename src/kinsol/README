@@ -1,5 +1,5 @@
                                  KINSOL
-                        Release 3.1.1, May 2018
+                       Release 4.0.0-dev, May 2018
   Aaron Collier, Alan C. Hindmarsh, Radu Serban, and Carol S. Woodward
              Center for Applied Scientific Computing, LLNL
 
@@ -85,20 +85,21 @@ C. References
 D. Releases
 -----------
 
-v. 3.1.1   - May  2018
-v. 3.1.0   - Nov. 2017
-v. 3.0.0   - Sep. 2017
-v. 2.9.0   - Sep. 2016
-v. 2.8.2   - Aug. 2015
-v. 2.8.1   - Mar. 2015
-v. 2.8.0   - Mar. 2015
-v. 2.7.0   - Mar. 2012
-v. 2.6.0   - May  2009
-v. 2.5.0   - Nov. 2006
-v. 2.4.0   - Mar. 2006
-v. 2.3.0   - Apr. 2005
-v. 2.2.2   - Mar. 2005
-v. 2.2.1   - Jan. 2005
-v. 2.2.0   - Dec. 2004
-v. 2.0     - Jul. 2002 (first SUNDIALS release)
-v. 1.0     - Aug. 1998 (date written)
+v. 4.0.0-dev - May  2018
+v. 3.1.1     - May  2018
+v. 3.1.0     - Nov. 2017
+v. 3.0.0     - Sep. 2017
+v. 2.9.0     - Sep. 2016
+v. 2.8.2     - Aug. 2015
+v. 2.8.1     - Mar. 2015
+v. 2.8.0     - Mar. 2015
+v. 2.7.0     - Mar. 2012
+v. 2.6.0     - May  2009
+v. 2.5.0     - Nov. 2006
+v. 2.4.0     - Mar. 2006
+v. 2.3.0     - Apr. 2005
+v. 2.2.2     - Mar. 2005
+v. 2.2.1     - Jan. 2005
+v. 2.2.0     - Dec. 2004
+v. 2.0       - Jul. 2002 (first SUNDIALS release)
+v. 1.0       - Aug. 1998 (date written)
