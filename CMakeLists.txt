@@ -739,14 +739,15 @@ if(MPI_ENABLE)
       "Parallel support will not be provided")
   endif()
 
-  if(MPIC_MPI2)
-    set(F77_MPI_COMM_F2C "#define SUNDIALS_MPI_COMM_F2C 1")
-    set(FMPI_COMM_F2C ".true.")
-  else()
-    set(F77_MPI_COMM_F2C "#define SUNDIALS_MPI_COMM_F2C 0")
-    set(FMPI_COMM_F2C ".false.")
-  endif()
+endif()
 
+# always define FMPI_COMM_F2C in sundials_fconfig.h file
+if(MPIC_MPI2)
+  set(F77_MPI_COMM_F2C "#define SUNDIALS_MPI_COMM_F2C 1")
+  set(FMPI_COMM_F2C ".true.")
+else()
+  set(F77_MPI_COMM_F2C "#define SUNDIALS_MPI_COMM_F2C 0")
+  set(FMPI_COMM_F2C ".false.")
 endif()
 
 # -------------------------------------------------------------
