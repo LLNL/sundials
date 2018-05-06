@@ -163,6 +163,8 @@ for tarball in *.tar.gz; do
             # only testing hypre with double precision at this time
             if [ "$rt" != "double" ]; then
                 HYPRESTATUS=OFF
+            else
+                HYPRESTATUS=ON
             fi
          
             # PETSc index type must be set a build time
@@ -175,6 +177,8 @@ for tarball in *.tar.gz; do
             # only testing PETSc with double precision at this time
             if [ "$rt" != "double" ]; then
                 PETSCSTATUS=OFF
+            else
+                PETSCSTATUS=ON
             fi
          
             # -------------------------------------------------------------------
@@ -273,7 +277,7 @@ for tarball in *.tar.gz; do
             # -------------------------------------------------------------------
              
             echo "START MAKE"
-            make -j $buildthreads 2>&1 | tee make.log
+            make -j 4 2>&1 | tee make.log
              
             # check make return code
             rc=${PIPESTATUS[0]}
