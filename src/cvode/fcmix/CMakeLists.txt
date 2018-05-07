@@ -8,6 +8,8 @@ SET(fcvode_SOURCES
   fcvdense.c
   fcvewt.c
   fcvjtimes.c
+  fcvnulllinsol.c
+  fcvnullmatrix.c
   fcvode.c
   fcvpreco.c
   fcvroot.c

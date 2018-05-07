@@ -7877,7 +7877,7 @@ static void cvBDFStab(CVodeMem cv_mem)
  *
  * This routine detects stability limitation using stored scaled 
  * derivatives data. cvSLdet returns the magnitude of the
- * dominate characteristic root, rr. The presents of a stability
+ * dominate characteristic root, rr. The presence of a stability
  * limit is indicated by rr > "something a little less then 1.0",  
  * and a positive kflag. This routine should only be called if
  * order is greater than or equal to 3, and data has been collected
@@ -7981,9 +7981,9 @@ static int cvSLdet(CVodeMem cv_mem)
     }
   }                            /* End of k loop */
   
-  /* Isolate normal or nearly-normal matrix case. Three quartic will
-     have common or nearly-common roots in this case. 
-     Return a kflag = 1 if this procedure works. If three root 
+  /* Isolate normal or nearly-normal matrix case. The three quartics will
+     have a common or nearly-common root in this case.
+     Return a kflag = 1 if this procedure works. If the three roots
      differ more than vrrt2, return error kflag = -3.    */
   
   vmin = SUNMIN(vrat[1],SUNMIN(vrat[2],vrat[3]));
@@ -8001,7 +8001,8 @@ static int cvSLdet(CVodeMem cv_mem)
         adrr = SUNRabs(rav[k] - rr);
         drrmax = SUNMAX(drrmax, adrr);
       }
-      if (drrmax > vrrt2) kflag = -3;    
+      if (drrmax > vrrt2) { kflag = -3; return(kflag); }
+    
       kflag = 1;
 
       /*  can compute charactistic root, drop to next section   */

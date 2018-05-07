@@ -123,7 +123,7 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 {
   int      failure = 0;
   sunindextype i;
-  sunrajavec::Vector<double, sunindextype>* xv = sunrajavec::extract<realtype, sunindextype>(X);
+  sunrajavec::Vector<realtype, sunindextype>* xv = sunrajavec::extract<realtype, sunindextype>(X);
   realtype *xdata;
   
   xv->copyFromDev();
@@ -139,14 +139,14 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 
 booleantype has_data(N_Vector X)
 {
-  sunrajavec::Vector<double, sunindextype>* xv = sunrajavec::extract<realtype, sunindextype>(X);
+  sunrajavec::Vector<realtype, sunindextype>* xv = sunrajavec::extract<realtype, sunindextype>(X);
 
   return (xv == NULL ? SUNFALSE : SUNTRUE);
 }
 
 void set_element(N_Vector X, sunindextype i, realtype val)
 {
-  sunrajavec::Vector<double, sunindextype>* xv = sunrajavec::extract<realtype, sunindextype>(X);
+  sunrajavec::Vector<realtype, sunindextype>* xv = sunrajavec::extract<realtype, sunindextype>(X);
   xv->copyFromDev();
   (xv->host())[i] = val;
   xv->copyToDev();
@@ -154,7 +154,7 @@ void set_element(N_Vector X, sunindextype i, realtype val)
 
 realtype get_element(N_Vector X, sunindextype i)
 {
-  sunrajavec::Vector<double, sunindextype>* xv = sunrajavec::extract<realtype, sunindextype>(X);
+  sunrajavec::Vector<realtype, sunindextype>* xv = sunrajavec::extract<realtype, sunindextype>(X);
   xv->copyFromDev();
   return (xv->host())[i];
 }

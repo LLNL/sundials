@@ -109,6 +109,13 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
     return;
   }
 
+  /* If using a functional iteration, initialize NULL F2C_CVODE_linsol 
+     and F2C_CVODE_matrix objects */
+  if (iter == CV_FUNCTIONAL) {
+    FCVNullMatrix();
+    FCVNullLinsol();
+  }
+  
   /* Set and attach user data */
   CV_userdata = NULL;
   CV_userdata = (FCVUserData) malloc(sizeof *CV_userdata);
@@ -301,6 +308,7 @@ void FCV_SPILSINIT(int *ier) {
     return;
   }
   *ier = CVSpilsSetLinearSolver(CV_cvodemem, F2C_CVODE_linsol);
+  FCVNullMatrix();
   CV_ls = CV_LS_ITERATIVE;
   return;
 }

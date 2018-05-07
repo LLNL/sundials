@@ -505,7 +505,7 @@ void N_VLinearSum_Pthreads(realtype a, N_Vector x, realtype b, N_Vector y, N_Vec
   N_Vector v1, v2;
   booleantype test;
 
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -582,7 +582,7 @@ void N_VLinearSum_Pthreads(realtype a, N_Vector x, realtype b, N_Vector y, N_Vec
   /* allocate threads and thread data structs */ 
   N            = NV_LENGTH_PT(x);
   nthreads     = NV_NUM_THREADS_PT(x);
-  threads      = malloc(nthreads*sizeof(pthread_t));
+  threads      = (pthread_t *) malloc(nthreads*sizeof(pthread_t));
   thread_data  = (Pthreads_Data *) malloc(nthreads*sizeof(struct _Pthreads_Data));
 
   /* set thread attributes */
@@ -659,7 +659,7 @@ static void *N_VLinearSum_PT(void *thread_data)
 
 void N_VConst_Pthreads(realtype c, N_Vector z)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -739,7 +739,7 @@ static void *N_VConst_PT(void *thread_data)
 
 void N_VProd_Pthreads(N_Vector x, N_Vector y, N_Vector z)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -819,7 +819,7 @@ static void *N_VProd_PT(void *thread_data)
 
 void N_VDiv_Pthreads(N_Vector x, N_Vector y, N_Vector z)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -912,7 +912,7 @@ void N_VScale_Pthreads(realtype c, N_Vector x, N_Vector z)
     VNeg_Pthreads(x, z);
   } 
   else {      
-      sunindextype      N;
+      sunindextype  N;
       int           i, nthreads;
       pthread_t     *threads;
       Pthreads_Data *thread_data;
@@ -995,7 +995,7 @@ static void *N_VScale_PT(void *thread_data)
 
 void N_VAbs_Pthreads(N_Vector x, N_Vector z)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -1074,7 +1074,7 @@ static void *N_VAbs_PT(void *thread_data)
 
 void N_VInv_Pthreads(N_Vector x, N_Vector z)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -1153,7 +1153,7 @@ static void *N_VInv_PT(void *thread_data)
 
 void N_VAddConst_Pthreads(N_Vector x, realtype b, N_Vector z)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -1235,7 +1235,7 @@ static void *N_VAddConst_PT(void *thread_data)
 
 realtype N_VDotProd_Pthreads(N_Vector x, N_Vector y)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -1333,7 +1333,7 @@ static void *N_VDotProd_PT(void *thread_data)
 
 realtype N_VMaxNorm_Pthreads(N_Vector x)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -1431,7 +1431,7 @@ static void *N_VMaxNorm_PT(void *thread_data)
 
 realtype N_VWrmsNorm_Pthreads(N_Vector x, N_Vector w)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -1529,7 +1529,7 @@ static void *N_VWrmsNorm_PT(void *thread_data)
 
 realtype N_VWrmsNormMask_Pthreads(N_Vector x, N_Vector w, N_Vector id)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -1631,7 +1631,7 @@ static void *N_VWrmsNormMask_PT(void *thread_data)
 
 realtype N_VMin_Pthreads(N_Vector x)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -1733,7 +1733,7 @@ static void *N_VMin_PT(void *thread_data)
 
 realtype N_VWL2Norm_Pthreads(N_Vector x, N_Vector w)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -1831,7 +1831,7 @@ static void *N_VWL2Norm_PT(void *thread_data)
 
 realtype N_VL1Norm_Pthreads(N_Vector x)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -1927,7 +1927,7 @@ static void *N_VL1Norm_PT(void *thread_data)
 
 void N_VCompare_Pthreads(realtype c, N_Vector x, N_Vector z)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -2008,7 +2008,7 @@ static void *N_VCompare_PT(void *thread_data)
 
 booleantype N_VInvTest_Pthreads(N_Vector x, N_Vector z)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -2105,7 +2105,7 @@ static void *N_VInvTest_PT(void *thread_data)
 
 booleantype N_VConstrMask_Pthreads(N_Vector c, N_Vector x, N_Vector m)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -2222,7 +2222,7 @@ static void *N_VConstrMask_PT(void *thread_data)
 
 realtype N_VMinQuotient_Pthreads(N_Vector num, N_Vector denom)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -2331,7 +2331,7 @@ static void *N_VMinQuotient_PT(void *thread_data)
 
 static void VCopy_Pthreads(N_Vector x, N_Vector z)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -2410,7 +2410,7 @@ static void *VCopy_PT(void *thread_data)
 
 static void VSum_Pthreads(N_Vector x, N_Vector y, N_Vector z)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -2491,7 +2491,7 @@ static void *VSum_PT(void *thread_data)
 
 static void VDiff_Pthreads(N_Vector x, N_Vector y, N_Vector z)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -2572,7 +2572,7 @@ static void *VDiff_PT(void *thread_data)
 
 static void VNeg_Pthreads(N_Vector x, N_Vector z)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -2651,7 +2651,7 @@ static void *VNeg_PT(void *thread_data)
 
 static void VScaleSum_Pthreads(realtype c, N_Vector x, N_Vector y, N_Vector z)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -2735,7 +2735,7 @@ static void *VScaleSum_PT(void *thread_data)
 
 static void VScaleDiff_Pthreads(realtype c, N_Vector x, N_Vector y, N_Vector z)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -2819,7 +2819,7 @@ static void *VScaleDiff_PT(void *thread_data)
 
 static void VLin1_Pthreads(realtype a, N_Vector x, N_Vector y, N_Vector z)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -2903,7 +2903,7 @@ static void *VLin1_PT(void *thread_data)
 
 static void VLin2_Pthreads(realtype a, N_Vector x, N_Vector y, N_Vector z)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -2986,7 +2986,7 @@ static void *VLin2_PT(void *thread_data)
 
 static void Vaxpy_Pthreads(realtype a, N_Vector x, N_Vector y)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -3083,7 +3083,7 @@ static void *Vaxpy_PT(void *thread_data)
 
 static void VScaleBy_Pthreads(realtype a, N_Vector x)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;

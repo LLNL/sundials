@@ -149,7 +149,7 @@ int main()
   fprintf(UFID,"# t y1 y2 y3\n");
 
   // output initial condition to disk 
-  fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n", 
+  fprintf(UFID," %.16" ESYM" %.16" ESYM" %.16" ESYM" %.16" ESYM"\n", 
 	  T0, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));  
 
   /* Main time-stepping loop: calls ARKode to perform the integration, then
@@ -162,9 +162,9 @@ int main()
 
     flag = ARKode(arkode_mem, tout, y, &t, ARK_NORMAL);           // call integrator
     if (check_flag(&flag, "ARKode", 1)) break;
-    printf("  %8.4"FSYM"  %8.5"FSYM"  %8.5"FSYM"  %8.5"FSYM"\n",  // access/print solution
+    printf("  %8.4" FSYM"  %8.5" FSYM"  %8.5" FSYM"  %8.5" FSYM"\n",  // access/print solution
            t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
-    fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n", 
+    fprintf(UFID," %.16" ESYM" %.16" ESYM" %.16" ESYM" %.16" ESYM"\n", 
 	    t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));  
     if (flag >= 0) {                                              // successful solve: update time
       tout += dTout;
@@ -301,6 +301,10 @@ static int Jac(realtype t, N_Vector y, N_Vector fy,
     return 1;
   }
   SUNMatCopy(D, J);
+
+  SUNMatDestroy(V);                // Free V matrix
+  SUNMatDestroy(D);                // Free D matrix
+  SUNMatDestroy(Vi);               // Free Vi matrix
 
   return 0;                        // Return with success
 }

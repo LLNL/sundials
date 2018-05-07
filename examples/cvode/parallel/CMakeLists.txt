@@ -96,7 +96,7 @@ IF(EXAMPLES_INSTALL)
   SET(SOLVER "CVODE")
   SET(SOLVER_LIB "sundials_cvode")
 
-  EXAMPLES2STRING(CVODE_example EXAMPLES)
+  EXAMPLES2STRING(CVODE_examples EXAMPLES)
 
   # Regardless of the platform we're on, we will generate and install
   # CMakeLists.txt file for building the examples. This file  can then

@@ -1908,6 +1908,9 @@ void KINPrintInfo(KINMem kin_mem,
     case KIN_SYSFUNC_FAIL:
       sprintf(retstr, "KIN_SYSFUNC_FAIL");
       break;
+    case KIN_REPTD_SYSFUNC_ERR:
+      sprintf(retstr, "KIN_REPTD_SYSFUNC_ERR");
+      break;
     case KIN_STEP_LT_STPTOL:
       sprintf(retstr, "KIN_STEP_LT_STPTOL");
       break;

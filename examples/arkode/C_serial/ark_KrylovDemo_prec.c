@@ -664,6 +664,7 @@ static void FreeUserData(WebData wdata)
     destroyArray((wdata->pivot)[i]);
   }
   N_VDestroy_Serial(wdata->rewt);
+  N_VDestroy_Serial(wdata->tmp);
   free(wdata);
 }
 

@@ -1,7 +1,7 @@
-                     SUNMATRIX_SPARSE
-                 released as part of SUNDIALS
-    SUite of Nonlinear and DIfferential/ALgebraic equation Solvers
-                   Release 3.0.0, September 2017
+                        SUNMATRIX_SPARSE
+                  released as part of SUNDIALS
+  SUite of Nonlinear and DIfferential/ALgebraic equation Solvers
+                    Release 3.1.1, May 2018
 
 
 Sparse implementation of the SUNMATRIX module for SUNDIALS. 
@@ -43,6 +43,7 @@ For complete installation instructions see any of the user guides.
 
 D. Releases
 -----------
-v. 1.0   - date?
 
-
+v. 1.1.1 - May  2018
+v. 1.1.0 - Nov. 2017
+v. 1.0.0 - Sep. 2017

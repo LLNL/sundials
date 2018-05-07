@@ -484,7 +484,7 @@ int ARKodeReInit(void *arkode_mem, ARKRhsFn fe, ARKRhsFn fi,
   ark_mem->ark_irfnd        = 0;
 
   /* Indicate that problem size is new */
-  ark_mem->ark_resized = SUNTRUE;
+  ark_mem->ark_resized = SUNFALSE;
   ark_mem->ark_firststage = SUNTRUE;
 
   /* Initialize other integrator optional outputs */
@@ -2203,114 +2203,114 @@ static void arkPrintMem(ARKodeMem ark_mem, FILE *outfile)
       fprintf(outfile, "ark_gactive[%i] = %i\n", i, ark_mem->ark_gactive[i]);
 
   /* output realtype quantities */
-  fprintf(outfile, "ark_uround = %"RSYM"\n", ark_mem->ark_uround);
-  fprintf(outfile, "ark_reltol = %"RSYM"\n", ark_mem->ark_reltol);
-  fprintf(outfile, "ark_Sabstol = %"RSYM"\n", ark_mem->ark_Sabstol);
-  fprintf(outfile, "ark_tstop = %"RSYM"\n", ark_mem->ark_tstop);
+  fprintf(outfile, "ark_uround = %" RSYM"\n", ark_mem->ark_uround);
+  fprintf(outfile, "ark_reltol = %" RSYM"\n", ark_mem->ark_reltol);
+  fprintf(outfile, "ark_Sabstol = %" RSYM"\n", ark_mem->ark_Sabstol);
+  fprintf(outfile, "ark_tstop = %" RSYM"\n", ark_mem->ark_tstop);
   fprintf(outfile, "ark_Ae = \n");
   for (i=0; i<ARK_S_MAX; i++) {
     fprintf(outfile, "    ");
     for (j=0; j<ARK_S_MAX; j++)
-      fprintf(outfile, "%"RSYM"  ", ARK_A(ark_mem->ark_Ae,i,j));
+      fprintf(outfile, "%" RSYM"  ", ARK_A(ark_mem->ark_Ae,i,j));
     fprintf(outfile, "\n");
   }
   fprintf(outfile, "ark_Ai = \n");
   for (i=0; i<ARK_S_MAX; i++) {
     fprintf(outfile, "    ");
     for (j=0; j<ARK_S_MAX; j++)
-      fprintf(outfile, "%"RSYM"  ", ARK_A(ark_mem->ark_Ai,i,j));
+      fprintf(outfile, "%" RSYM"  ", ARK_A(ark_mem->ark_Ai,i,j));
     fprintf(outfile, "\n");
   }
   fprintf(outfile, "ark_ce = ");
   for (i=0; i<ARK_S_MAX; i++) 
-    fprintf(outfile, "%"RSYM"  ", ark_mem->ark_ce[i]);
+    fprintf(outfile, "%" RSYM"  ", ark_mem->ark_ce[i]);
   fprintf(outfile, "\n");
   fprintf(outfile, "ark_ci = ");
   for (i=0; i<ARK_S_MAX; i++) 
-    fprintf(outfile, "%"RSYM"  ", ark_mem->ark_ci[i]);
+    fprintf(outfile, "%" RSYM"  ", ark_mem->ark_ci[i]);
   fprintf(outfile, "\n");
   fprintf(outfile, "ark_be = ");
   for (i=0; i<ARK_S_MAX; i++) 
-    fprintf(outfile, "%"RSYM"  ", ark_mem->ark_be[i]);
+    fprintf(outfile, "%" RSYM"  ", ark_mem->ark_be[i]);
   fprintf(outfile, "\n");
   fprintf(outfile, "ark_bi = ");
   for (i=0; i<ARK_S_MAX; i++) 
-    fprintf(outfile, "%"RSYM"  ", ark_mem->ark_bi[i]);
+    fprintf(outfile, "%" RSYM"  ", ark_mem->ark_bi[i]);
   fprintf(outfile, "\n");
   fprintf(outfile, "ark_b2e = ");
   for (i=0; i<ARK_S_MAX; i++) 
-    fprintf(outfile, "%"RSYM"  ", ark_mem->ark_b2e[i]);
+    fprintf(outfile, "%" RSYM"  ", ark_mem->ark_b2e[i]);
   fprintf(outfile, "\n");
   fprintf(outfile, "ark_b2i = ");
   for (i=0; i<ARK_S_MAX; i++) 
-    fprintf(outfile, "%"RSYM"  ", ark_mem->ark_b2i[i]);
+    fprintf(outfile, "%" RSYM"  ", ark_mem->ark_b2i[i]);
   fprintf(outfile, "\n");
-  fprintf(outfile, "ark_hin = %"RSYM"\n", ark_mem->ark_hin);
-  fprintf(outfile, "ark_h = %"RSYM"\n", ark_mem->ark_h);
-  fprintf(outfile, "ark_hprime = %"RSYM"\n", ark_mem->ark_hprime);
-  fprintf(outfile, "ark_next_h = %"RSYM"\n", ark_mem->ark_next_h);
-  fprintf(outfile, "ark_eta = %"RSYM"\n", ark_mem->ark_eta);
-  fprintf(outfile, "ark_tn = %"RSYM"\n", ark_mem->ark_tn);
-  fprintf(outfile, "ark_tretlast = %"RSYM"\n", ark_mem->ark_tretlast);
-  fprintf(outfile, "ark_gamma = %"RSYM"\n", ark_mem->ark_gamma);
-  fprintf(outfile, "ark_gammap = %"RSYM"\n", ark_mem->ark_gammap);
-  fprintf(outfile, "ark_gamrat = %"RSYM"\n", ark_mem->ark_gamrat);
-  fprintf(outfile, "ark_crate = %"RSYM"\n", ark_mem->ark_crate);
-  fprintf(outfile, "ark_eRNrm = %"RSYM"\n", ark_mem->ark_eRNrm);
-  fprintf(outfile, "ark_nlscoef = %"RSYM"\n", ark_mem->ark_nlscoef);
+  fprintf(outfile, "ark_hin = %" RSYM"\n", ark_mem->ark_hin);
+  fprintf(outfile, "ark_h = %" RSYM"\n", ark_mem->ark_h);
+  fprintf(outfile, "ark_hprime = %" RSYM"\n", ark_mem->ark_hprime);
+  fprintf(outfile, "ark_next_h = %" RSYM"\n", ark_mem->ark_next_h);
+  fprintf(outfile, "ark_eta = %" RSYM"\n", ark_mem->ark_eta);
+  fprintf(outfile, "ark_tn = %" RSYM"\n", ark_mem->ark_tn);
+  fprintf(outfile, "ark_tretlast = %" RSYM"\n", ark_mem->ark_tretlast);
+  fprintf(outfile, "ark_gamma = %" RSYM"\n", ark_mem->ark_gamma);
+  fprintf(outfile, "ark_gammap = %" RSYM"\n", ark_mem->ark_gammap);
+  fprintf(outfile, "ark_gamrat = %" RSYM"\n", ark_mem->ark_gamrat);
+  fprintf(outfile, "ark_crate = %" RSYM"\n", ark_mem->ark_crate);
+  fprintf(outfile, "ark_eRNrm = %" RSYM"\n", ark_mem->ark_eRNrm);
+  fprintf(outfile, "ark_nlscoef = %" RSYM"\n", ark_mem->ark_nlscoef);
   fprintf(outfile, "ark_fixedstep = %i\n", ark_mem->ark_fixedstep);
-  fprintf(outfile, "ark_hadapt_ehist =  %"RSYM"  %"RSYM"  %"RSYM"\n",
+  fprintf(outfile, "ark_hadapt_ehist =  %" RSYM"  %" RSYM"  %" RSYM"\n",
 	 ark_mem->ark_hadapt_ehist[0], ark_mem->ark_hadapt_ehist[1], ark_mem->ark_hadapt_ehist[2]);
-  fprintf(outfile, "ark_hadapt_hhist =  %"RSYM"  %"RSYM"  %"RSYM"\n",
+  fprintf(outfile, "ark_hadapt_hhist =  %" RSYM"  %" RSYM"  %" RSYM"\n",
 	 ark_mem->ark_hadapt_hhist[0], ark_mem->ark_hadapt_hhist[1], ark_mem->ark_hadapt_hhist[2]);
-  fprintf(outfile, "ark_hadapt_cfl = %"RSYM"\n", ark_mem->ark_hadapt_cfl);
-  fprintf(outfile, "ark_hadapt_safety = %"RSYM"\n", ark_mem->ark_hadapt_safety);
-  fprintf(outfile, "ark_hadapt_bias = %"RSYM"\n", ark_mem->ark_hadapt_bias);
-  fprintf(outfile, "ark_hadapt_growth = %"RSYM"\n", ark_mem->ark_hadapt_growth);
-  fprintf(outfile, "ark_hadapt_lbound = %"RSYM"\n", ark_mem->ark_hadapt_lbound);
-  fprintf(outfile, "ark_hadapt_ubound = %"RSYM"\n", ark_mem->ark_hadapt_ubound);
-  fprintf(outfile, "ark_hadapt_k1 = %"RSYM"\n", ark_mem->ark_hadapt_k1);
-  fprintf(outfile, "ark_hadapt_k2 = %"RSYM"\n", ark_mem->ark_hadapt_k2);
-  fprintf(outfile, "ark_hadapt_k3 = %"RSYM"\n", ark_mem->ark_hadapt_k3);
-  fprintf(outfile, "ark_hmin = %"RSYM"\n", ark_mem->ark_hmin);
-  fprintf(outfile, "ark_hmax_inv = %"RSYM"\n", ark_mem->ark_hmax_inv);
-  fprintf(outfile, "ark_etamax = %"RSYM"\n", ark_mem->ark_etamax);
-  fprintf(outfile, "ark_etamx1 = %"RSYM"\n", ark_mem->ark_etamx1);
-  fprintf(outfile, "ark_etamxf = %"RSYM"\n", ark_mem->ark_etamxf);
-  fprintf(outfile, "ark_etacf = %"RSYM"\n", ark_mem->ark_etacf);
-  fprintf(outfile, "ark_crdown = %"RSYM"\n", ark_mem->ark_crdown);
-  fprintf(outfile, "ark_rdiv = %"RSYM"\n", ark_mem->ark_rdiv);
-  fprintf(outfile, "ark_dgmax = %"RSYM"\n", ark_mem->ark_dgmax);
+  fprintf(outfile, "ark_hadapt_cfl = %" RSYM"\n", ark_mem->ark_hadapt_cfl);
+  fprintf(outfile, "ark_hadapt_safety = %" RSYM"\n", ark_mem->ark_hadapt_safety);
+  fprintf(outfile, "ark_hadapt_bias = %" RSYM"\n", ark_mem->ark_hadapt_bias);
+  fprintf(outfile, "ark_hadapt_growth = %" RSYM"\n", ark_mem->ark_hadapt_growth);
+  fprintf(outfile, "ark_hadapt_lbound = %" RSYM"\n", ark_mem->ark_hadapt_lbound);
+  fprintf(outfile, "ark_hadapt_ubound = %" RSYM"\n", ark_mem->ark_hadapt_ubound);
+  fprintf(outfile, "ark_hadapt_k1 = %" RSYM"\n", ark_mem->ark_hadapt_k1);
+  fprintf(outfile, "ark_hadapt_k2 = %" RSYM"\n", ark_mem->ark_hadapt_k2);
+  fprintf(outfile, "ark_hadapt_k3 = %" RSYM"\n", ark_mem->ark_hadapt_k3);
+  fprintf(outfile, "ark_hmin = %" RSYM"\n", ark_mem->ark_hmin);
+  fprintf(outfile, "ark_hmax_inv = %" RSYM"\n", ark_mem->ark_hmax_inv);
+  fprintf(outfile, "ark_etamax = %" RSYM"\n", ark_mem->ark_etamax);
+  fprintf(outfile, "ark_etamx1 = %" RSYM"\n", ark_mem->ark_etamx1);
+  fprintf(outfile, "ark_etamxf = %" RSYM"\n", ark_mem->ark_etamxf);
+  fprintf(outfile, "ark_etacf = %" RSYM"\n", ark_mem->ark_etacf);
+  fprintf(outfile, "ark_crdown = %" RSYM"\n", ark_mem->ark_crdown);
+  fprintf(outfile, "ark_rdiv = %" RSYM"\n", ark_mem->ark_rdiv);
+  fprintf(outfile, "ark_dgmax = %" RSYM"\n", ark_mem->ark_dgmax);
   if (ark_mem->ark_fp_R != NULL) {
     fprintf(outfile, "ark_fp_R =  ");
     for (i=0; i<ark_mem->ark_fp_m*ark_mem->ark_fp_m; i++)
-      fprintf(outfile, "%"RSYM"  ", ark_mem->ark_fp_R[i]);
+      fprintf(outfile, "%" RSYM"  ", ark_mem->ark_fp_R[i]);
     fprintf(outfile, "\n");
   }
   if (ark_mem->ark_fp_gamma != NULL) {
     fprintf(outfile, "ark_fp_gamma =  ");
     for (i=0; i<ark_mem->ark_fp_m; i++)
-      fprintf(outfile, "%"RSYM"  ", ark_mem->ark_fp_gamma[i]);
+      fprintf(outfile, "%" RSYM"  ", ark_mem->ark_fp_gamma[i]);
     fprintf(outfile, "\n");
   }
-  fprintf(outfile, "ark_h0u = %"RSYM"\n", ark_mem->ark_h0u);
-  fprintf(outfile, "ark_tnew = %"RSYM"\n", ark_mem->ark_tnew);
-  fprintf(outfile, "ark_hold = %"RSYM"\n", ark_mem->ark_hold);
-  fprintf(outfile, "ark_tolsf = %"RSYM"\n", ark_mem->ark_tolsf);
-  fprintf(outfile, "ark_tlo = %"RSYM"\n", ark_mem->ark_tlo);
-  fprintf(outfile, "ark_thi = %"RSYM"\n", ark_mem->ark_thi);
-  fprintf(outfile, "ark_trout = %"RSYM"\n", ark_mem->ark_trout);
+  fprintf(outfile, "ark_h0u = %" RSYM"\n", ark_mem->ark_h0u);
+  fprintf(outfile, "ark_tnew = %" RSYM"\n", ark_mem->ark_tnew);
+  fprintf(outfile, "ark_hold = %" RSYM"\n", ark_mem->ark_hold);
+  fprintf(outfile, "ark_tolsf = %" RSYM"\n", ark_mem->ark_tolsf);
+  fprintf(outfile, "ark_tlo = %" RSYM"\n", ark_mem->ark_tlo);
+  fprintf(outfile, "ark_thi = %" RSYM"\n", ark_mem->ark_thi);
+  fprintf(outfile, "ark_trout = %" RSYM"\n", ark_mem->ark_trout);
   if (ark_mem->ark_glo != NULL) 
     for (i=0; i<ark_mem->ark_nrtfn; i++)
-      fprintf(outfile, "ark_glo[%i] = %"RSYM"\n", i, ark_mem->ark_glo[i]);
+      fprintf(outfile, "ark_glo[%i] = %" RSYM"\n", i, ark_mem->ark_glo[i]);
   if (ark_mem->ark_ghi != NULL) 
     for (i=0; i<ark_mem->ark_nrtfn; i++)
-      fprintf(outfile, "ark_ghi[%i] = %"RSYM"\n", i, ark_mem->ark_ghi[i]);
+      fprintf(outfile, "ark_ghi[%i] = %" RSYM"\n", i, ark_mem->ark_ghi[i]);
   if (ark_mem->ark_grout != NULL) 
     for (i=0; i<ark_mem->ark_nrtfn; i++)
-      fprintf(outfile, "ark_grout[%i] = %"RSYM"\n", i, ark_mem->ark_grout[i]);
-  fprintf(outfile, "ark_toutc = %"RSYM"\n", ark_mem->ark_toutc);
-  fprintf(outfile, "ark_ttol = %"RSYM"\n", ark_mem->ark_ttol);
+      fprintf(outfile, "ark_grout[%i] = %" RSYM"\n", i, ark_mem->ark_grout[i]);
+  fprintf(outfile, "ark_toutc = %" RSYM"\n", ark_mem->ark_toutc);
+  fprintf(outfile, "ark_ttol = %" RSYM"\n", ark_mem->ark_ttol);
 
 #ifdef DEBUG_OUTPUT
   /* output vector quantities */  
@@ -3740,7 +3740,7 @@ static int arkStep(ARKodeMem ark_mem)
       /* } */
 
 #ifdef DEBUG_OUTPUT
- printf("step %li,  stage %i,  h = %"RSYM",  t_n = %"RSYM"\n", 
+ printf("step %li,  stage %i,  h = %" RSYM",  t_n = %" RSYM"\n", 
 	 ark_mem->ark_nst, is, ark_mem->ark_h, ark_mem->ark_tn);
 #endif
       
@@ -3764,7 +3764,7 @@ static int arkStep(ARKodeMem ark_mem)
 
       /* Solver diagnostics reporting */
       if (ark_mem->ark_report) 	
-	fprintf(ark_mem->ark_diagfp, "step  %li  %"RSYM"  %i  %"RSYM"\n",
+	fprintf(ark_mem->ark_diagfp, "step  %li  %" RSYM"  %i  %" RSYM"\n",
 		ark_mem->ark_nst, ark_mem->ark_h, is, ark_mem->ark_tn);
 
       /* solve implicit problem (if required) */
@@ -3856,12 +3856,12 @@ static int arkStep(ARKodeMem ark_mem)
     if (retval < 0)  return(retval);    /* msetup failure */
 
 #ifdef DEBUG_OUTPUT
- printf("error estimate = %"RSYM"\n", dsm);
+ printf("error estimate = %" RSYM"\n", dsm);
 #endif
 
     /* Solver diagnostics reporting */
     if (ark_mem->ark_report) 
-      fprintf(ark_mem->ark_diagfp, "  etest  %li  %"RSYM"  %"RSYM"\n", 
+      fprintf(ark_mem->ark_diagfp, "  etest  %li  %" RSYM"  %" RSYM"\n", 
 	      ark_mem->ark_nst, ark_mem->ark_h, dsm);
 
     /* Perform time accuracy error test (if failure, updates h for next try) */
@@ -4691,15 +4691,15 @@ static int arkNlsNewton(ARKodeMem ark_mem, int nflag)
 #endif
 
 #ifdef DEBUG_OUTPUT
- printf("Newton iter %i,  del = %"RSYM",  crate = %"RSYM"\n", m, del, ark_mem->ark_crate);
- printf("   dcon = %"RSYM"\n", dcon);
+ printf("Newton iter %i,  del = %" RSYM",  crate = %" RSYM"\n", m, del, ark_mem->ark_crate);
+ printf("   dcon = %" RSYM"\n", dcon);
  printf("Newton correction:\n");
  N_VPrint_Serial(ark_mem->ark_acor);
 #endif
 
       /* Solver diagnostics reporting */
       if (ark_mem->ark_report) 
-        fprintf(ark_mem->ark_diagfp, "    newt  %i  %"RSYM"  %"RSYM"\n", m, del, dcon);
+        fprintf(ark_mem->ark_diagfp, "    newt  %i  %" RSYM"  %" RSYM"\n", m, del, dcon);
     
       if (dcon <= ONE) {
         ark_mem->ark_jcur = SUNFALSE;
@@ -4853,15 +4853,15 @@ static int arkNlsAccelFP(ARKodeMem ark_mem, int nflag)
     dcon = SUNMIN(ark_mem->ark_crate, ONE) * del / ark_mem->ark_nlscoef;
 
 #ifdef DEBUG_OUTPUT
- printf("FP iter %i,  del = %"RSYM",  crate = %"RSYM"\n", ark_mem->ark_mnewt, del, ark_mem->ark_crate);
- printf("   dcon = %"RSYM"\n", dcon);
+ printf("FP iter %i,  del = %" RSYM",  crate = %" RSYM"\n", ark_mem->ark_mnewt, del, ark_mem->ark_crate);
+ printf("   dcon = %" RSYM"\n", dcon);
  printf("Fixed-point correction:\n");
  N_VPrint_Serial(tempv);
 #endif
 
     /* Solver diagnostics reporting */
     if (ark_mem->ark_report)
-      fprintf(ark_mem->ark_diagfp, "    fp  %i  %"RSYM"  %"RSYM"\n", ark_mem->ark_mnewt, del, dcon);
+      fprintf(ark_mem->ark_diagfp, "    fp  %i  %" RSYM"  %" RSYM"\n", ark_mem->ark_mnewt, del, dcon);
 
     /* update iteration counter */
     ark_mem->ark_mnewt++;
@@ -5132,7 +5132,7 @@ static int arkLs(ARKodeMem ark_mem, int nflag)
 
   /*   Solver diagnostics reporting */
   if (ark_mem->ark_report) 
-    fprintf(ark_mem->ark_diagfp, "    newt  %i  %"RSYM"  %g\n", 0, del, 0.0);
+    fprintf(ark_mem->ark_diagfp, "    newt  %i  %" RSYM"  %g\n", 0, del, 0.0);
 
   /* clean up and return */ 
   ark_mem->ark_jcur = SUNFALSE;
@@ -5619,7 +5619,7 @@ static int arkAdapt(ARKodeMem ark_mem)
 
   /* Solver diagnostics reporting */
   if (ark_mem->ark_report) 
-    fprintf(ark_mem->ark_diagfp, "  adapt  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  ",
+    fprintf(ark_mem->ark_diagfp, "  adapt  %" RSYM"  %" RSYM"  %" RSYM"  %" RSYM"  %" RSYM"  %" RSYM"  %" RSYM"  %" RSYM"  ",
 	    ark_mem->ark_hadapt_ehist[0], ark_mem->ark_hadapt_ehist[1], 
 	    ark_mem->ark_hadapt_ehist[2], ark_mem->ark_hadapt_hhist[0], 
 	    ark_mem->ark_hadapt_hhist[1], ark_mem->ark_hadapt_hhist[2], h_acc, h_cfl);
@@ -5636,7 +5636,7 @@ static int arkAdapt(ARKodeMem ark_mem)
 
   /* Solver diagnostics reporting */
   if (ark_mem->ark_report) 
-    fprintf(ark_mem->ark_diagfp, "%"RSYM"  %"RSYM"  ", h_acc, h_cfl);
+    fprintf(ark_mem->ark_diagfp, "%" RSYM"  %" RSYM"  ", h_acc, h_cfl);
 
   /* increment the relevant step counter, set desired step */
   if (SUNRabs(h_acc) < SUNRabs(h_cfl))
@@ -5663,7 +5663,7 @@ static int arkAdapt(ARKodeMem ark_mem)
 
   /* Solver diagnostics reporting */
   if (ark_mem->ark_report) 
-    fprintf(ark_mem->ark_diagfp, "%"RSYM"\n", ark_mem->ark_eta);
+    fprintf(ark_mem->ark_diagfp, "%" RSYM"\n", ark_mem->ark_eta);
 
   return(ier);
 }

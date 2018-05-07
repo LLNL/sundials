@@ -3121,9 +3121,9 @@ static int IDAAres(realtype tt,
   /* Get forward solution from interpolation. */
   if( IDAADJ_mem->ia_noInterp == SUNFALSE) {
     if (IDAADJ_mem->ia_interpSensi)
-      flag = IDAADJ_mem->ia_getY(ida_mem, tt, IDAADJ_mem->ia_yyTmp, IDAADJ_mem->ia_ypTmp, IDAADJ_mem->ia_yySTmp, IDAADJ_mem->ia_ypSTmp);
+      flag = IDAADJ_mem->ia_getY(IDA_mem, tt, IDAADJ_mem->ia_yyTmp, IDAADJ_mem->ia_ypTmp, IDAADJ_mem->ia_yySTmp, IDAADJ_mem->ia_ypSTmp);
     else
-      flag = IDAADJ_mem->ia_getY(ida_mem, tt, IDAADJ_mem->ia_yyTmp, IDAADJ_mem->ia_ypTmp, NULL, NULL);
+      flag = IDAADJ_mem->ia_getY(IDA_mem, tt, IDAADJ_mem->ia_yyTmp, IDAADJ_mem->ia_ypTmp, NULL, NULL);
   
     if (flag != IDA_SUCCESS) {
       IDAProcessError(IDA_mem, -1, "IDAA", "IDAAres", MSGAM_BAD_TINTERP, tt);

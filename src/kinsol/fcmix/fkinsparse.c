@@ -33,7 +33,7 @@ extern "C" {
  
 extern void FKIN_SPJAC(realtype *Y, realtype *FY, long int *N,
                        long int *NNZ, realtype *JDATA,
-                       long int *JRVALS, long int *JCPTRS,
+                       sunindextype *JRVALS, sunindextype *JCPTRS,
                        realtype *V1, realtype *V2, int *ier);
  
 #ifdef __cplusplus
@@ -66,7 +66,8 @@ int FKINSparseJac(N_Vector y, N_Vector fy, SUNMatrix J,
 {
   int ier;
   realtype *ydata, *fydata, *v1data, *v2data, *Jdata;
-  long int NP, NNZ, *indexvals, *indexptrs;
+  long int NP, NNZ;
+  sunindextype *indexvals, *indexptrs;
  
   ydata   = N_VGetArrayPointer(y);
   fydata  = N_VGetArrayPointer(fy);

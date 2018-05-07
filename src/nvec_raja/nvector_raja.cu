@@ -505,7 +505,8 @@ realtype N_VWrmsNormMask_Raja(N_Vector X, N_Vector W, N_Vector ID)
 
   RAJA::ReduceSum<RAJA::cuda_reduce<128>, realtype> gpu_result(0.0);
   RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {
-    gpu_result += (xdata[i] * wdata[i] * xdata[i] * wdata[i] * iddata[i]);
+      if (iddata[i] > ZERO)
+        gpu_result += (xdata[i] * wdata[i] * xdata[i] * wdata[i]);
   });
 
   return std::sqrt(static_cast<realtype>(gpu_result)/N);

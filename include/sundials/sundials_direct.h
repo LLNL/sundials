@@ -19,6 +19,7 @@
 #ifndef _SUNDIALS_DIRECT_H
 #define _SUNDIALS_DIRECT_H
 
+#include <stdio.h>
 #include <sundials/sundials_types.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
