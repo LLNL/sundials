@@ -30,15 +30,20 @@ help ()
       -help        Displays this message.
 
    Example usage: $0 sundials-2.7.0.tar.gz
-                  $0 sundials-3.0.0-beta-1.tar.gz
+                  $0 sundials-4.0.0-dev.tar.gz develop
 
 EOF
 }
 
 # check number of inputs
-if [ $# -ne 1 ]; then
-  help
-  exit -1
+if [ $# -eq 1 ]; then
+    DISTFILE=$1
+elif [ $# -eq 2 ]; then
+    DISTFILE=$1
+    BRANCH=$2
+else
+    help
+    exit -1
 fi
 
 case $1 in
@@ -51,7 +56,6 @@ esac
 cd ../..
 
 # check that tar file exists
-DISTFILE=$1
 if [ ! -e $DISTFILE ]; then
   echo "Error: tar file not found"
   exit -1
@@ -74,6 +78,10 @@ fi
 
 # untar sundials distribution into WORKDIR
 \tar xzf $DISTFILE -C $WORKDIR
+if [ $? -ne 0 ]; then
+  echo "Error: Failed to untar $DISTFILE"
+  exit -1
+fi
 
 # change into working directory
 cd $WORKDIR
@@ -85,8 +93,19 @@ if [ $? -ne 0 ]; then
   exit -1
 fi
 
+# if a branch is specified, checkout that branch
+if [ -n "${BRANCH}" ]; then
+    cd $REPODIR
+    git checkout ${BRANCH}
+    if [ $? -ne 0 ]; then
+        echo "Error: git checkout failed"
+        exit -1
+    fi
+    cd ..
+fi
+
 # remove everything from the local github repo except for '.git'
-rm -fr $REPODIR/*
+\rm -fr $REPODIR/*
 
 # add sundials distribution files to local github repo
 cp -r $DISTDIR/* $REPODIR
