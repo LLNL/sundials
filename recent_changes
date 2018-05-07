@@ -1,4 +1,4 @@
-Changes to SUNDIALS since Release of May. 7, 2017.
+Changes to SUNDIALS in release 4.0.0-dev
 
 * Three fused vector operations and seven vector array operations have
   been added to the NVECTOR API. These optional operations are intended
@@ -32,7 +32,7 @@ Changes to SUNDIALS since Release of May. 7, 2017.
   the src and example directories to make the CMake configuration file structure
   more modular.
 
-Changes to SUNDIALS since Release of Nov. 7, 2017.
+Changes to SUNDIALS in release 3.1.1
 
 * Fixed a minor bug in the CVODE and CVODES cvSLdet routine, where a
   return was missing in the error check for three inconsistent roots.
@@ -79,7 +79,7 @@ Changes to SUNDIALS since Release of Nov. 7, 2017.
   in CVODE, etc.).
 
 
-Changes to SUNDIALS since Release of Oct. 26, 2017.
+Changes to SUNDIALS in release 3.1.0
 
 * Added NVECTOR print functions that write vector data to a specified
   file (e.g., N_VPrintFile_Serial).
@@ -92,7 +92,7 @@ Changes to SUNDIALS since Release of Oct. 26, 2017.
 
 
 
-Changes to SUNDIALS since Release of Sept. 30, 2016.
+Changes to SUNDIALS in release 3.0.0
 
 * New linear solver API and interfaces for all SUNDIALS packages and 
   linear solvers
