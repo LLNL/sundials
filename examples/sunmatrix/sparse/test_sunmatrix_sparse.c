@@ -354,6 +354,7 @@ int main(int argc, char *argv[])
   N_VDestroy_Serial(x);
   N_VDestroy_Serial(y);
   SUNMatDestroy(A);
+  SUNMatDestroy(B);
   if (square)
     SUNMatDestroy(I);
 

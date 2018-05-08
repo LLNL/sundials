@@ -144,6 +144,42 @@ scheme. Additionally, parts of the main CMakeLists.txt file were moved
 to new files in the \id{src} and \id{example} directories to make the
 CMake configuration file structure more modular.
 
+\subsection*{Changes in v3.1.1}
+
+The changes in this minor release include the following:
+\begin{itemize}
+\item Fixed a minor bug in the cvSLdet routine, where a return was missing
+  in the error check for three inconsistent roots.
+
+\item Fixed a potential memory leak in the {\spgmr} and {\spfgmr} linear
+  solvers: if ``Initialize'' was called multiple times then the solver
+  memory was reallocated (without being freed).
+  
+\item Updated KLU SUNLINEARSOLVER module to use a \id{typedef} for the
+  precision-specific solve function to be used (to avoid compiler 
+  warnings).  
+
+\item Added missing typecasts for some \id{(void*)} pointers (again, to
+  avoid compiler warnings). 
+
+\item Bugfix in \id{sunmatrix\_sparse.c} where we had used \id{int}
+  instead of \id{sunindextype} in one location.
+
+\item Added missing \id{\#include <stdio.h>} in {\nvector} and {\sunmatrix}
+  header files.
+
+\item Fixed an indexing bug in the {\cuda} {\nvector} implementation of
+  \id{N\_VWrmsNormMask} and revised the {\raja} {\nvector} implementation of
+  \id{N\_VWrmsNormMask} to work with mask arrays using values other than zero or
+  one. Replaced \id{double} with \id{realtype} in the RAJA vector test functions.
+
+\item Fixed compilation issue with GCC 7.3.0 and Fortran programs that do
+  not require a {\sunmatrix} or {\sunlinsol} module (e.g., iterative
+  linear solvers or functional iteration).
+\end{itemize}
+In addition to the changes above, minor corrections were also made to the
+example programs, build system, and user documentation.
+
 \subsection*{Changes in v3.1.0}
 
 Added {\nvector} print functions that write vector data to a specified

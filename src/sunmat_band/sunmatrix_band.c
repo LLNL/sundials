@@ -300,7 +300,8 @@ int SUNMatCopy_Band(SUNMatrix A, SUNMatrix B)
     SM_CONTENT_B(B)->s_mu = smu;
     SM_CONTENT_B(B)->ldim = colSize;
     SM_CONTENT_B(B)->ldata = SM_COLUMNS_B(B) * colSize;
-    SM_CONTENT_B(B)->data = realloc(SM_CONTENT_B(B)->data, SM_COLUMNS_B(B) * colSize*sizeof(realtype));
+    SM_CONTENT_B(B)->data = (realtype *)
+      realloc(SM_CONTENT_B(B)->data, SM_COLUMNS_B(B) * colSize*sizeof(realtype));
     for (j=0; j<SM_COLUMNS_B(B); j++)
       SM_CONTENT_B(B)->cols[j] = SM_CONTENT_B(B)->data + j * colSize;   
   }

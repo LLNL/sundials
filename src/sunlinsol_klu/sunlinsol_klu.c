@@ -52,6 +52,18 @@ sunindextype GlobalVectorLength_KLU(N_Vector y);
 
 /*
  * -----------------------------------------------------------------
+ * typedef to handle pointer casts from sunindextype to KLU type
+ * -----------------------------------------------------------------
+ */
+
+#if defined(SUNDIALS_INT64_T)
+#define KLU_INDEXTYPE long int
+#else
+#define KLU_INDEXTYPE int
+#endif
+
+/*
+ * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------
  */
@@ -119,9 +131,9 @@ SUNLinearSolver SUNKLU(N_Vector y, SUNMatrix A)
   content->first_factorize = 1;
 #if defined(SUNDIALS_INT64_T)
   if (SUNSparseMatrix_SparseType(A) == CSC_MAT) {
-    content->klu_solver = &klu_l_solve;
+    content->klu_solver = (KLUSolveFn) &klu_l_solve;
   } else {
-    content->klu_solver = &klu_l_tsolve;
+    content->klu_solver = (KLUSolveFn) &klu_l_tsolve;
   }
 #elif defined(SUNDIALS_INT32_T)
   if (SUNSparseMatrix_SparseType(A) == CSC_MAT) {
@@ -257,8 +269,8 @@ int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
     if (SYMBOLIC(S)) 
       sun_klu_free_symbolic(&SYMBOLIC(S), &COMMON(S));
     SYMBOLIC(S) = sun_klu_analyze(SUNSparseMatrix_NP(A), 
-                                  SUNSparseMatrix_IndexPointers(A), 
-                                  SUNSparseMatrix_IndexValues(A), 
+                                  (KLU_INDEXTYPE*) SUNSparseMatrix_IndexPointers(A), 
+                                  (KLU_INDEXTYPE*) SUNSparseMatrix_IndexValues(A), 
                                   &COMMON(S));
     if (SYMBOLIC(S) == NULL) {
       LASTFLAG(S) = SUNLS_PACKAGE_FAIL_UNREC;
@@ -270,8 +282,8 @@ int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
        ------------------------------------------------------------*/
     if(NUMERIC(S)) 
       sun_klu_free_numeric(&NUMERIC(S), &COMMON(S));
-    NUMERIC(S) = sun_klu_factor(SUNSparseMatrix_IndexPointers(A), 
-                                SUNSparseMatrix_IndexValues(A), 
+    NUMERIC(S) = sun_klu_factor((KLU_INDEXTYPE*) SUNSparseMatrix_IndexPointers(A), 
+                                (KLU_INDEXTYPE*) SUNSparseMatrix_IndexValues(A), 
                                 SUNSparseMatrix_Data(A), 
                                 SYMBOLIC(S), 
                                 &COMMON(S));
@@ -284,8 +296,8 @@ int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
 
   } else {   /* not the first decomposition, so just refactor */
 
-    retval = sun_klu_refactor(SUNSparseMatrix_IndexPointers(A), 
-                              SUNSparseMatrix_IndexValues(A), 
+    retval = sun_klu_refactor((KLU_INDEXTYPE*) SUNSparseMatrix_IndexPointers(A), 
+                              (KLU_INDEXTYPE*) SUNSparseMatrix_IndexValues(A), 
                               SUNSparseMatrix_Data(A), 
                               SYMBOLIC(S),
                               NUMERIC(S),
@@ -311,7 +323,7 @@ int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
       
       /* Condition number may be getting large.  
 	 Compute more accurate estimate */
-      retval = sun_klu_condest(SUNSparseMatrix_IndexPointers(A), 
+      retval = sun_klu_condest((KLU_INDEXTYPE*) SUNSparseMatrix_IndexPointers(A), 
                                SUNSparseMatrix_Data(A), 
                                SYMBOLIC(S),
                                NUMERIC(S),
@@ -326,8 +338,8 @@ int SUNLinSolSetup_KLU(SUNLinearSolver S, SUNMatrix A)
 	/* More accurate estimate also says condition number is 
 	   large, so recompute the numeric factorization */
 	sun_klu_free_numeric(&NUMERIC(S), &COMMON(S));
-	NUMERIC(S) = sun_klu_factor(SUNSparseMatrix_IndexPointers(A), 
-                                    SUNSparseMatrix_IndexValues(A), 
+	NUMERIC(S) = sun_klu_factor((KLU_INDEXTYPE*) SUNSparseMatrix_IndexPointers(A), 
+                                    (KLU_INDEXTYPE*) SUNSparseMatrix_IndexValues(A), 
                                     SUNSparseMatrix_Data(A), 
                                     SYMBOLIC(S), 
                                     &COMMON(S));

@@ -101,19 +101,23 @@ extern "C" {
  *        components
  *     Common -- storage structure for common KLU solver 
  *        components
- *     klu_solver -- ptr to KLU function to handle CSR/CSC
+ *     klu_solver -- ptr to KLU function to handle CSR/CSC.
+ *        We create a typedef for this type of function pointer
+ *        to suppress compiler warning messages about sunindextype 
+ *        vs internal KLU index types.
  * -----------------------------------------------------------------
  */
-  
+typedef sunindextype (*KLUSolveFn)(sun_klu_symbolic*, sun_klu_numeric*,
+                                   sunindextype, sunindextype,
+                                   double*, sun_klu_common*);
+ 
 struct _SUNLinearSolverContent_KLU {
   long int         last_flag;
   int              first_factorize;
   sun_klu_symbolic *symbolic;
   sun_klu_numeric  *numeric;
   sun_klu_common   common;
-  sunindextype     (*klu_solver)(sun_klu_symbolic*, sun_klu_numeric*,
-                                 sunindextype, sunindextype,
-                                 double*, sun_klu_common*);
+  KLUSolveFn       klu_solver;
 };
 
 typedef struct _SUNLinearSolverContent_KLU *SUNLinearSolverContent_KLU;

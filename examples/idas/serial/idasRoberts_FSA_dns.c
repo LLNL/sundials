@@ -260,10 +260,12 @@ int main(int argc, char *argv[])
 
   IDAQuadInit(ida_mem, rhsQ, yQ);
 
-  yQS = N_VCloneVectorArray(NS, yQ);
-  for (is=0;is<NS;is++) N_VConst(ZERO, yQS[is]);  
+  if (sensi) {
+    yQS = N_VCloneVectorArray(NS, yQ);
+    for (is=0;is<NS;is++) N_VConst(ZERO, yQS[is]);  
 
-  IDAQuadSensInit(ida_mem, NULL, yQS);
+    IDAQuadSensInit(ida_mem, NULL, yQS);
+  }
 
   /* Call IDACalcIC to compute consistent initial conditions. If sensitivity is
      enabled, this function also try to find consistent IC for the sensitivities. */
@@ -336,14 +338,19 @@ int main(int argc, char *argv[])
 
   /* Free memory */
   N_VDestroy(y);
+  N_VDestroy(yp);
+  N_VDestroy(abstol);
+  N_VDestroy(id);
+  N_VDestroy(yQ);
   if (sensi) {
-    N_VDestroyVectorArray(yS, NS);
+    N_VDestroyVectorArray(yS,  NS);
+    N_VDestroyVectorArray(ypS, NS);
+    N_VDestroyVectorArray(yQS, NS);
   }
   free(data);
   IDAFree(&ida_mem);
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
-  N_VDestroy(yQ);
 
   return(0);
 }

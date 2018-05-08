@@ -35,7 +35,7 @@ parts of this \emph{content} field is given below:
     an upper bandwidth as big as min(\id{N}-1,\id{mu}+\id{ml}) because of 
     partial pivoting. The \id{s\_mu} field holds the upper
   half-bandwidth allocated for A.
-  \item[ldim] - leading dimension (\id{ldim} $\ge$ \id{s\_mu})
+  \item[ldim] - leading dimension (\id{ldim} $\ge$ \id{s\_mu}+\id{ml}+1)
   \item[data] - pointer to a contiguous block of \id{realtype} variables.
     The elements of the banded matrix are stored columnwise
     (i.e.~columns are stored one on top of the other in memory). Only
@@ -43,7 +43,7 @@ parts of this \emph{content} field is given below:
     \id{data} is a pointer to \id{ldata} contiguous locations   
     which hold the elements within the band of A.  
   \item[ldata] - length of the data array
-    ($=$ \id{ldim}$\cdot$(\id{s\_mu}+\id{ml}+1)) 
+    ($=$ \id{ldim}$\cdot N$) 
   \item[cols] - array of pointers. \id{cols[j]} is a pointer to the
     uppermost element within the band in the j-th column. This pointer
     may be treated as an array indexed from \id{s\_mu}$-$\id{mu} (to
@@ -201,10 +201,15 @@ The module {\sunmatband} provides the following additional user-callable routine
   This constructor function creates and allocates memory for a banded \id{SUNMatrix}.
   Its arguments are the matrix size, \id{N}, the upper and lower
   half-bandwidths of the matrix, \id{mu} and \id{ml}, and the stored
-  upper bandwidth, \id{smu}.  When creating a band \id{SUNMatrix}, if
-  the matrix will be used by the {\sunlinsolband} module then \id{smu}
-  should be at least min(\id{N}-1,\id{mu}+\id{ml}); otherwise \id{smu}
-  should be at least \id{mu}.  
+  upper bandwidth, \id{smu}.  When creating a band \id{SUNMatrix},
+  this value should be
+  \begin{itemize}
+  \item at least min(\id{N}-1,\id{mu}+\id{ml}) if the matrix will be
+    used by the {\sunlinsolband} module; 
+  \item exactly equal to \id{mu}+\id{ml} if the matrix will be used by
+    the {\sunlinsollapband} module;
+  \item at least \id{mu} if used in some other manner.
+  \end{itemize}
 
   \begin{verbatim}
 SUNMatrix SUNBandMatrix(sunindextype N, sunindextype mu,

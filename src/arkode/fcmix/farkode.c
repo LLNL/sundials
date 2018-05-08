@@ -145,6 +145,8 @@ void FARK_MALLOC(realtype *t0, realtype *y0, int *imex,
   case 1:  /* purely explicit */
     *ier = ARKodeInit(ARK_arkodemem, FARKfe, NULL,
 		      *t0, F2C_ARKODE_vec);
+    FARKNullMatrix();
+    FARKNullLinsol();
     break;
   case 2:  /* imex */
     *ier = ARKodeInit(ARK_arkodemem, FARKfe, FARKfi,
@@ -598,6 +600,7 @@ void FARK_SPILSINIT(int *ier) {
     return;
   }
   *ier = ARKSpilsSetLinearSolver(ARK_arkodemem, F2C_ARKODE_linsol);
+  FARKNullMatrix();
   ARK_ls = ARK_LS_ITERATIVE;
   return;
 }
@@ -612,6 +615,7 @@ void FARK_SPILSMASSINIT(int *time_dep, int *ier) {
   *ier = ARKSpilsSetMassLinearSolver(ARK_arkodemem, 
                                      F2C_ARKODE_mass_sol, 
                                      *time_dep);
+  FARKNullMatrix();
   ARK_mass_ls = ARK_LS_ITERATIVE;
   return;
 }

@@ -235,6 +235,7 @@ int main()
 
   /* Clean up and return with successful completion */
   N_VDestroy(y);               /* Free y vector */
+  N_VDestroy(atols);           /* Free atols vector */
   ARKodeFree(&arkode_mem);     /* Free integrator memory */
   SUNLinSolFree(LS);           /* Free linear solver */
   SUNMatDestroy(A);            /* Free A matrix */

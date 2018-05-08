@@ -627,7 +627,7 @@ void N_VLinearSum_Pthreads(realtype a, N_Vector x, realtype b, N_Vector y, N_Vec
   /* allocate threads and thread data structs */
   N            = NV_LENGTH_PT(x);
   nthreads     = NV_NUM_THREADS_PT(x);
-  threads      = malloc(nthreads*sizeof(pthread_t));
+  threads      = (pthread_t *) malloc(nthreads*sizeof(pthread_t));
   thread_data  = (Pthreads_Data *) malloc(nthreads*sizeof(struct _Pthreads_Data));
 
   /* set thread attributes */
@@ -3842,7 +3842,7 @@ static void *VSum_PT(void *thread_data)
 
 static void VDiff_Pthreads(N_Vector x, N_Vector y, N_Vector z)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -3923,7 +3923,7 @@ static void *VDiff_PT(void *thread_data)
 
 static void VNeg_Pthreads(N_Vector x, N_Vector z)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -4002,7 +4002,7 @@ static void *VNeg_PT(void *thread_data)
 
 static void VScaleSum_Pthreads(realtype c, N_Vector x, N_Vector y, N_Vector z)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -4086,7 +4086,7 @@ static void *VScaleSum_PT(void *thread_data)
 
 static void VScaleDiff_Pthreads(realtype c, N_Vector x, N_Vector y, N_Vector z)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -4170,7 +4170,7 @@ static void *VScaleDiff_PT(void *thread_data)
 
 static void VLin1_Pthreads(realtype a, N_Vector x, N_Vector y, N_Vector z)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -4254,7 +4254,7 @@ static void *VLin1_PT(void *thread_data)
 
 static void VLin2_Pthreads(realtype a, N_Vector x, N_Vector y, N_Vector z)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -4337,7 +4337,7 @@ static void *VLin2_PT(void *thread_data)
 
 static void Vaxpy_Pthreads(realtype a, N_Vector x, N_Vector y)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;
@@ -4434,7 +4434,7 @@ static void *Vaxpy_PT(void *thread_data)
 
 static void VScaleBy_Pthreads(realtype a, N_Vector x)
 {
-  sunindextype      N;
+  sunindextype  N;
   int           i, nthreads;
   pthread_t     *threads;
   Pthreads_Data *thread_data;

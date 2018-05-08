@@ -1335,7 +1335,7 @@ with the second used when the backward problem depends on the forwrad sensitivit
   \end{args}
 }
 {
-  The function type \id{IDADlsJacFnB} is described in \S\ref{ss:djacFn}.
+  The function type \id{IDADlsJacFnB} is described in \S\ref{ss:djacFn_b}.
 }
 %%
 \index{Jacobian approximation function!direct!user-supplied (backward)}
@@ -1374,7 +1374,7 @@ with the second used when the backward problem depends on the forwrad sensitivit
   \end{args}
 }
 {
-  The function type \id{IDADlsJacFnBS} is described in \S\ref{ss:djacFn}.
+  The function type \id{IDADlsJacFnBS} is described in \S\ref{ss:djacFn_b}.
 }
 %%
 \index{optional input!direct linear solver interface|)}
@@ -1610,6 +1610,7 @@ problem through the following functions:
 }
 %%
 %%
+\ucfunction{IDASpilsSetIncrementFactorB}
 {
   flag = IDASpilsSetIncrementFactorB(ida\_mem, which, dqincfacB);
 }
@@ -1741,6 +1742,40 @@ used by \id{IDASolveB}.
 {
   {\warn} The user must allocate space for \id{y} and \id{yp}.
 }
+
+\ucfunction{IDAGetAdjCheckPointsInfo}
+{
+  flag = IDAGetAdjCheckPointsInfo(ida\_mem, IDAadjCheckPointRec *ckpnt);
+}
+{
+  The function \ID{IDAGetAdjCheckPointsInfo} loads an array of \id{ncheck+1}
+  records of type \id{IDAadjCheckPointRec}.
+  The user must allocate space for the array \id{ckpnt}.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory block created by \id{IDACreate}.
+  \item[ckpnt] (\id{IDAadjCheckPointRec *})
+    array of \id{ncheck+1} checkpoint records, each of type \id{IDAadjCheckPointRec}.
+  \end{args}
+}
+{  The return value is \id{IDA\_SUCCESS} if successful, or 
+   \id{IDA\_MEM\_NULL} if \id{ida\_mem} is \id{NULL}, or
+   \id{IDA\_NO\_ADJ} if ASA was not initialized.}
+{  The members of each record \id{ckpnt[i]} are:
+\begin{itemize}
+ \item: \id{ckpnt[i].my\_addr} (\id{void *}) address of current checkpoint
+        in \id{ida\_mem->ida\_adj\_mem}
+ \item: \id{ckpnt[i].next\_addr} (\id{void *}) address of next checkpoint
+ \item: \id{ckpnt[i].t0} (\id{realtype}) start of checkpoint interval
+ \item: \id{ckpnt[i].t1} (\id{realtype}) end of checkpoint interval
+ \item: \id{ckpnt[i].nstep} (\id{long int}) step counter at ckeckpoint \id{t0}
+ \item: \id{ckpnt[i].order} (\id{int}) method order at checkpoint \id{t0}
+ \item: \id{ckpnt[i].step} (\id{realtype}) step size at checkpoint \id{t0}
+\end{itemize}
+}
+
 
 %%
 \subsubsection{Initial condition calculation optional output function}
@@ -2317,7 +2352,7 @@ provide a function of type \ID{IDADlsJacFnB} or \ID{IDADlsJacFnBS}
 \index{Jacobian approximation function!user-supplied (backward)}
 \usfunction{IDADlsJacFnB}
 {
-  typedef int (*IDADlsJacFnB)(realtype tt, realtype cjB, \\
+  typedef int (*IDADlsJacFnB)(&realtype tt, realtype cjB, \\
                               &N\_Vector yy, N\_Vector yp,\\
                               &N\_Vector yB, N\_Vector ypB,\\
                               &N\_Vector resvalB,\\
@@ -2391,7 +2426,7 @@ provide a function of type \ID{IDADlsJacFnB} or \ID{IDADlsJacFnBS}
 \index{Jacobian approximation function!user-supplied (backward)}
 \usfunction{IDADlsJacFnBS}
 {
-  typedef int (*IDADlsDenseJacFnBS)(realtype tt, realtype cjB, \\
+  typedef int (*IDADlsDenseJacFnBS)(&realtype tt, realtype cjB, \\
                                &N\_Vector yy, N\_Vector yp,\\
                                &N\_Vector *yS, N\_Vector *ypS,\\
                                &N\_Vector yB, N\_Vector ypB,\\
