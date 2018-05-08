@@ -1335,7 +1335,7 @@ with the second used when the backward problem depends on the forwrad sensitivit
   \end{args}
 }
 {
-  The function type \id{IDADlsJacFnB} is described in \S\ref{ss:djacFn}.
+  The function type \id{IDADlsJacFnB} is described in \S\ref{ss:djacFn_b}.
 }
 %%
 \index{Jacobian approximation function!direct!user-supplied (backward)}
@@ -1374,7 +1374,7 @@ with the second used when the backward problem depends on the forwrad sensitivit
   \end{args}
 }
 {
-  The function type \id{IDADlsJacFnBS} is described in \S\ref{ss:djacFn}.
+  The function type \id{IDADlsJacFnBS} is described in \S\ref{ss:djacFn_b}.
 }
 %%
 \index{optional input!direct linear solver interface|)}
@@ -1610,6 +1610,7 @@ problem through the following functions:
 }
 %%
 %%
+\ucfunction{IDASpilsSetIncrementFactorB}
 {
   flag = IDASpilsSetIncrementFactorB(ida\_mem, which, dqincfacB);
 }
@@ -2351,7 +2352,7 @@ provide a function of type \ID{IDADlsJacFnB} or \ID{IDADlsJacFnBS}
 \index{Jacobian approximation function!user-supplied (backward)}
 \usfunction{IDADlsJacFnB}
 {
-  typedef int (*IDADlsJacFnB)(realtype tt, realtype cjB, \\
+  typedef int (*IDADlsJacFnB)(&realtype tt, realtype cjB, \\
                               &N\_Vector yy, N\_Vector yp,\\
                               &N\_Vector yB, N\_Vector ypB,\\
                               &N\_Vector resvalB,\\
@@ -2425,7 +2426,7 @@ provide a function of type \ID{IDADlsJacFnB} or \ID{IDADlsJacFnBS}
 \index{Jacobian approximation function!user-supplied (backward)}
 \usfunction{IDADlsJacFnBS}
 {
-  typedef int (*IDADlsDenseJacFnBS)(realtype tt, realtype cjB, \\
+  typedef int (*IDADlsDenseJacFnBS)(&realtype tt, realtype cjB, \\
                                &N\_Vector yy, N\_Vector yp,\\
                                &N\_Vector *yS, N\_Vector *ypS,\\
                                &N\_Vector yB, N\_Vector ypB,\\

@@ -109,36 +109,41 @@ interfacing the solver to applications written in {\F}.
 
 \section{Changes from previous versions}
 
-\subsection*{Changes in vX.X.X}
+\subsection*{Changes in v3.1.1}
 
-Fixed a potential memory leak in the {\spgmr} and {\spfgmr} linear
-solvers: if ``Initialize'' was called multiple times then the solver
-memory was reallocated (without being freed).
+The changes in this minor release include the following:
+\begin{itemize}
+\item Fixed a potential memory leak in the {\spgmr} and {\spfgmr} linear
+  solvers: if ``Initialize'' was called multiple times then the solver
+  memory was reallocated (without being freed).
   
-Updated KLU SUNLinearSolver module to use a \id{typedef} for the
-precision-specific solve function to be used (to avoid compiler 
-warnings).  
-
-Added missing typecasts for some \id{(void*)} pointers (again, to
-avoid compiler warnings). 
-
-Bugfix in \id{sunmatrix\_sparse.c} where we had used \id{int}
-instead of \id{sunindextype} in one location. 
-
-Fixed a minor bug in \id{KINPrintInfo} where a case was missing for
-\id{KIN\_REPTD\_SYSFUNC\_ERR} leading to an undefined info message.
-
-Added missing \id{\#include <stdio.h>} in {\nvector} and {\sunmatrix}
-header files.
-
-Fixed an indexing bug in the {\cuda} {\nvector} implementation of
-\id{N\_VWrmsNormMask} and revised the {\raja} {\nvector} implementation of
-\id{N\_VWrmsNormMask} to work with mask arrays using values other than zero or
-one. Replaced \id{double} with \id{realtype} in the RAJA vector test functions.
-
-Fixed compilation issue with GCC 7.3.0 and Fortran programs that do
-not require a {\sunmatrix} or {\sunlinsol} module (e.g., iterative
-linear solvers or fixed pointer solver).
+\item Updated KLU SUNLinearSolver module to use a \id{typedef} for the
+  precision-specific solve function to be used (to avoid compiler 
+  warnings).  
+  
+\item Added missing typecasts for some \id{(void*)} pointers (again, to
+  avoid compiler warnings). 
+  
+\item Bugfix in \id{sunmatrix\_sparse.c} where we had used \id{int}
+  instead of \id{sunindextype} in one location. 
+  
+\item Fixed a minor bug in \id{KINPrintInfo} where a case was missing for
+  \id{KIN\_REPTD\_SYSFUNC\_ERR} leading to an undefined info message.
+  
+\item Added missing \id{\#include <stdio.h>} in {\nvector} and {\sunmatrix}
+  header files.
+  
+\item Fixed an indexing bug in the {\cuda} {\nvector} implementation of
+  \id{N\_VWrmsNormMask} and revised the {\raja} {\nvector} implementation of
+  \id{N\_VWrmsNormMask} to work with mask arrays using values other than zero or
+  one. Replaced \id{double} with \id{realtype} in the RAJA vector test functions.
+  
+\item Fixed compilation issue with GCC 7.3.0 and Fortran programs that do
+  not require a {\sunmatrix} or {\sunlinsol} module (e.g., iterative
+  linear solvers or fixed pointer solver).
+\end{itemize}
+In addition to the changes above, minor corrections were also made to the
+example programs, build system, and user documentation.
 
 \subsection*{Changes in v3.1.0}
 

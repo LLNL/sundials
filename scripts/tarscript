@@ -43,13 +43,13 @@ function print_usage
 # VERSION NUMBERS
 #---------------------------------------------------------
 
-SUN_VER="3.1.0"
-CV_VER="3.1.0"
-CVS_VER="3.1.0"
-IDA_VER="3.1.0"
-IDAS_VER="2.1.0"
-KIN_VER="3.1.0"
-ARK_VER="2.1.0"
+SUN_VER="3.1.1"
+CV_VER="3.1.1"
+CVS_VER="3.1.1"
+IDA_VER="3.1.1"
+IDAS_VER="2.1.1"
+KIN_VER="3.1.1"
+ARK_VER="2.1.1"
 
 #---------------------------------------------------------
 # Test if the script is executed from within its directory
@@ -192,7 +192,7 @@ mkdir $tmpdir/examples
 #----------------------------------
 
 cp $sundialsdir/LICENSE $tmpdir/
-cp $sundialsdir/README $tmpdir/ 
+cp $sundialsdir/README.md $tmpdir/
 #cp $sundialsdir/INSTALL_NOTES $tmpdir/
 #cp $sundialsdir/config.hin $tmpdir/
 #cp $sundialsdir/configure.ac $tmpdir/configure.ac

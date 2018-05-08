@@ -65,34 +65,39 @@ in extended {\F}.
 
 \section{Changes from previous versions}
 
-\subsection*{Changes in vX.X.X}
+\subsection*{Changes in v3.1.1}
 
-Fixed a potential memory leak in the {\spgmr} and {\spfgmr} linear
-solvers: if ``Initialize'' was called multiple times then the solver
-memory was reallocated (without being freed).
+The changes in this minor release include the following:
+\begin{itemize}
+\item Fixed a potential memory leak in the {\spgmr} and {\spfgmr} linear
+  solvers: if ``Initialize'' was called multiple times then the solver
+  memory was reallocated (without being freed).
   
-Updated KLU SUNLINEARSOLVER module to use a \id{typedef} for the
-precision-specific solve function to be used (to avoid compiler 
-warnings).  
+\item Updated KLU SUNLINEARSOLVER module to use a \id{typedef} for the
+  precision-specific solve function to be used (to avoid compiler 
+  warnings).  
 
-Added missing typecasts for some \id{(void*)} pointers (again, to
-avoid compiler warnings). 
+\item Added missing typecasts for some \id{(void*)} pointers (again, to
+  avoid compiler warnings). 
 
-Bugfix in \id{sunmatrix\_sparse.c} where we had used \id{int}
-instead of \id{sunindextype} in one location.
+\item Bugfix in \id{sunmatrix\_sparse.c} where we had used \id{int}
+  instead of \id{sunindextype} in one location.
 
-Added missing \id{\#include <stdio.h>} in {\nvector} and {\sunmatrix}
-header files.
+\item Added missing \id{\#include <stdio.h>} in {\nvector} and {\sunmatrix}
+  header files.
 
-Added missing prototype for \id{IDASpilsGetNumJTSetupEvals}.
+\item Added missing prototype for \id{IDASpilsGetNumJTSetupEvals}.
 
-Fixed an indexing bug in the {\cuda} {\nvector} implementation of
-\id{N\_VWrmsNormMask} and revised the {\raja} {\nvector} implementation of
-\id{N\_VWrmsNormMask} to work with mask arrays using values other than zero or
-one. Replaced \id{double} with \id{realtype} in the RAJA vector test functions.
+\item Fixed an indexing bug in the {\cuda} {\nvector} implementation of
+  \id{N\_VWrmsNormMask} and revised the {\raja} {\nvector} implementation of
+  \id{N\_VWrmsNormMask} to work with mask arrays using values other than zero or
+  one. Replaced \id{double} with \id{realtype} in the RAJA vector test functions.
 
-Fixed compilation issue with GCC 7.3.0 and Fortran programs that do
-not require a {\sunmatrix} module (e.g., iterative linear solvers).
+\item Fixed compilation issue with GCC 7.3.0 and Fortran programs that do
+  not require a {\sunmatrix} module (e.g., iterative linear solvers).
+\end{itemize}
+In addition to the changes above, minor corrections were also made to the
+example programs, build system, and user documentation.
 
 \subsection*{Changes in v3.1.0}
 
