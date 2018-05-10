@@ -176,7 +176,6 @@ $tar $tarfile $distrobase/src/nvec_raja/nvector_raja.cu
 
 echo "   --- Add sunmatband module to $tarfile"
 
-$tar $tarfile $distrobase/src/sunmat_band/README
 $tar $tarfile $distrobase/src/sunmat_band/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunmat_band/sunmatrix_band.c
 $tar $tarfile $distrobase/src/sunmat_band/fsunmatrix_band.h
@@ -184,7 +183,6 @@ $tar $tarfile $distrobase/src/sunmat_band/fsunmatrix_band.c
 
 echo "   --- Add sunmatdense module to $tarfile"
 
-$tar $tarfile $distrobase/src/sunmat_dense/README
 $tar $tarfile $distrobase/src/sunmat_dense/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunmat_dense/sunmatrix_dense.c
 $tar $tarfile $distrobase/src/sunmat_dense/fsunmatrix_dense.h
@@ -192,7 +190,6 @@ $tar $tarfile $distrobase/src/sunmat_dense/fsunmatrix_dense.c
 
 echo "   --- Add sunmatsparse module to $tarfile"
 
-$tar $tarfile $distrobase/src/sunmat_sparse/README
 $tar $tarfile $distrobase/src/sunmat_sparse/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunmat_sparse/sunmatrix_sparse.c
 $tar $tarfile $distrobase/src/sunmat_sparse/fsunmatrix_sparse.h
