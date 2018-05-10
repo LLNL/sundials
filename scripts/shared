@@ -197,7 +197,6 @@ $tar $tarfile $distrobase/src/sunmat_sparse/fsunmatrix_sparse.c
 
 echo "   --- Add sunlinsolband module to $tarfile"
 
-$tar $tarfile $distrobase/src/sunlinsol_band/README
 $tar $tarfile $distrobase/src/sunlinsol_band/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunlinsol_band/sunlinsol_band.c
 $tar $tarfile $distrobase/src/sunlinsol_band/fsunlinsol_band.h
@@ -205,7 +204,6 @@ $tar $tarfile $distrobase/src/sunlinsol_band/fsunlinsol_band.c
 
 echo "   --- Add sunlinsoldense module to $tarfile"
 
-$tar $tarfile $distrobase/src/sunlinsol_dense/README
 $tar $tarfile $distrobase/src/sunlinsol_dense/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunlinsol_dense/sunlinsol_dense.c
 $tar $tarfile $distrobase/src/sunlinsol_dense/fsunlinsol_dense.h
@@ -213,7 +211,6 @@ $tar $tarfile $distrobase/src/sunlinsol_dense/fsunlinsol_dense.c
 
 echo "   --- Add sunlinsolklu module to $tarfile"
 
-$tar $tarfile $distrobase/src/sunlinsol_klu/README
 $tar $tarfile $distrobase/src/sunlinsol_klu/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunlinsol_klu/sunlinsol_klu.c
 $tar $tarfile $distrobase/src/sunlinsol_klu/fsunlinsol_klu.h
@@ -221,7 +218,6 @@ $tar $tarfile $distrobase/src/sunlinsol_klu/fsunlinsol_klu.c
 
 echo "   --- Add sunlinsollapackband module to $tarfile"
 
-$tar $tarfile $distrobase/src/sunlinsol_lapackband/README
 $tar $tarfile $distrobase/src/sunlinsol_lapackband/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunlinsol_lapackband/sunlinsol_lapackband.c
 $tar $tarfile $distrobase/src/sunlinsol_lapackband/fsunlinsol_lapackband.h
@@ -229,7 +225,6 @@ $tar $tarfile $distrobase/src/sunlinsol_lapackband/fsunlinsol_lapackband.c
 
 echo "   --- Add sunlinsollapackdense module to $tarfile"
 
-$tar $tarfile $distrobase/src/sunlinsol_lapackdense/README
 $tar $tarfile $distrobase/src/sunlinsol_lapackdense/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunlinsol_lapackdense/sunlinsol_lapackdense.c
 $tar $tarfile $distrobase/src/sunlinsol_lapackdense/fsunlinsol_lapackdense.h
@@ -237,7 +232,6 @@ $tar $tarfile $distrobase/src/sunlinsol_lapackdense/fsunlinsol_lapackdense.c
 
 echo "   --- Add sunlinsolpcg module to $tarfile"
 
-$tar $tarfile $distrobase/src/sunlinsol_pcg/README
 $tar $tarfile $distrobase/src/sunlinsol_pcg/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunlinsol_pcg/sunlinsol_pcg.c
 $tar $tarfile $distrobase/src/sunlinsol_pcg/fsunlinsol_pcg.h
@@ -245,7 +239,6 @@ $tar $tarfile $distrobase/src/sunlinsol_pcg/fsunlinsol_pcg.c
 
 echo "   --- Add sunlinsolspbcgs module to $tarfile"
 
-$tar $tarfile $distrobase/src/sunlinsol_spbcgs/README
 $tar $tarfile $distrobase/src/sunlinsol_spbcgs/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunlinsol_spbcgs/sunlinsol_spbcgs.c
 $tar $tarfile $distrobase/src/sunlinsol_spbcgs/fsunlinsol_spbcgs.h
@@ -253,7 +246,6 @@ $tar $tarfile $distrobase/src/sunlinsol_spbcgs/fsunlinsol_spbcgs.c
 
 echo "   --- Add sunlinsolspfgmr module to $tarfile"
 
-$tar $tarfile $distrobase/src/sunlinsol_spfgmr/README
 $tar $tarfile $distrobase/src/sunlinsol_spfgmr/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunlinsol_spfgmr/sunlinsol_spfgmr.c
 $tar $tarfile $distrobase/src/sunlinsol_spfgmr/fsunlinsol_spfgmr.h
@@ -261,7 +253,6 @@ $tar $tarfile $distrobase/src/sunlinsol_spfgmr/fsunlinsol_spfgmr.c
 
 echo "   --- Add sunlinsolspgmr module to $tarfile"
 
-$tar $tarfile $distrobase/src/sunlinsol_spgmr/README
 $tar $tarfile $distrobase/src/sunlinsol_spgmr/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunlinsol_spgmr/sunlinsol_spgmr.c
 $tar $tarfile $distrobase/src/sunlinsol_spgmr/fsunlinsol_spgmr.h
@@ -269,7 +260,6 @@ $tar $tarfile $distrobase/src/sunlinsol_spgmr/fsunlinsol_spgmr.c
 
 echo "   --- Add sunlinsolsptfqmr module to $tarfile"
 
-$tar $tarfile $distrobase/src/sunlinsol_sptfqmr/README
 $tar $tarfile $distrobase/src/sunlinsol_sptfqmr/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunlinsol_sptfqmr/sunlinsol_sptfqmr.c
 $tar $tarfile $distrobase/src/sunlinsol_sptfqmr/fsunlinsol_sptfqmr.h
@@ -277,7 +267,6 @@ $tar $tarfile $distrobase/src/sunlinsol_sptfqmr/fsunlinsol_sptfqmr.c
 
 echo "   --- Add sunlinsolsuperlumt module to $tarfile"
 
-$tar $tarfile $distrobase/src/sunlinsol_superlumt/README
 $tar $tarfile $distrobase/src/sunlinsol_superlumt/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunlinsol_superlumt/sunlinsol_superlumt.c
 $tar $tarfile $distrobase/src/sunlinsol_superlumt/fsunlinsol_superlumt.h
