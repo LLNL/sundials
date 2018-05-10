@@ -107,7 +107,6 @@ $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_spgmr.h
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_sptfqmr.h
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_superlumt.h
 
-$tar $tarfile $distrobase/src/sundials/README
 $tar $tarfile $distrobase/src/sundials/LICENSE
 $tar $tarfile $distrobase/src/sundials/CMakeLists.txt
 $tar $tarfile $distrobase/src/sundials/sundials_math.c
