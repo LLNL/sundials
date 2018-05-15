@@ -30,25 +30,22 @@ ELSE()
 ENDIF()
 
 # Add source directory to include directories
-#INCLUDE_DIRECTORIES(. ${CUDA_INCLUDE_PATH} ${MPI_C_INCLUDE_PATH})
-INCLUDE_DIRECTORIES(. ${RAJA_INCLUDE_PATH} ${MPI_CXX_INCLUDE_PATH}) # temporary, for testing only
+INCLUDE_DIRECTORIES(. ${CUDA_INCLUDE_PATH} ${MPI_CXX_INCLUDE_PATH})
 
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(IDA_LIB sundials_ida_static)
-#  SET(NVECS_LIB sundials_nveccuda_static)
-  SET(NVECS_LIB sundials_nvecraja_static) # temporary, for testing only
+  SET(NVECS_LIB sundials_nveccuda_static)
+#  SET(NVECS_LIB sundials_nvecraja_static) # temporary, for testing only
 ELSE()
   SET(IDA_LIB sundials_ida_shared)
-#  SET(NVECS_LIB sundials_nveccuda_shared)
-  SET(NVECS_LIB sundials_nvecraja_shared) # temporary, for testing only
+  SET(NVECS_LIB sundials_nveccuda_shared)
+#  SET(NVECS_LIB sundials_nvecraja_shared) # temporary, for testing only
 ENDIF()
 
 # Set-up linker flags and link libraries
-#SET(SUNDIALS_LIBS ${IDA_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS} -L${CUDA_LIB_PATH})
-SET(SUNDIALS_LIBS ${IDA_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS} -L${RAJA_LIB_PATH} -lRAJA) # temporary, for testing only
-
+SET(SUNDIALS_LIBS ${IDA_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each IDA example
 FOREACH(example_tuple ${IDA_examples})
