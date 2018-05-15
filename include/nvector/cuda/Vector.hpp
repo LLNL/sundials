@@ -22,8 +22,8 @@
  *
  */
 
-#ifndef _NVECTOR_HPP_
-#define _NVECTOR_HPP_
+#ifndef _NVECTOR_CUDA_HPP_
+#define _NVECTOR_CUDA_HPP_
 
 #include <cstdlib>
 #include <iostream>
@@ -196,6 +196,14 @@ inline T* getDevData(N_Vector v)
   return vp->device();
 }
 
+// Get Vector host data
+template <typename T, typename I>
+inline T* getHostData(N_Vector v)
+{
+  Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
+  return vp->host();
+}
+
 // Get Vector length
 template <typename T, typename I>
 inline I getSize(N_Vector v)
@@ -249,4 +257,4 @@ inline SUNDIALS_Comm getMPIComm(N_Vector v)
 
 
 
-#endif // _NVECTOR_HPP_
+#endif // _NVECTOR_CUDA_HPP_
