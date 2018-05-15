@@ -1,5 +1,7 @@
 /* -----------------------------------------------------------------
- * Programmer(s): Allan Taylor, Alan Hindmarsh and
+ * Programmer(s): Slaven Peles @ LLNL
+ * -----------------------------------------------------------------
+ * Based on work by Allan Taylor, Alan Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Example problem for IDA: 2D heat equation, serial, GMRES.
@@ -31,12 +33,10 @@
 #include <math.h>
 
 #include <ida/ida.h>                   /* prototypes for IDA methods           */
-#include <nvector/nvector_raja.h>      /* access to RAJA N_Vector              */
+#include <nvector/nvector_cuda.h>      /* access to CUDA N_Vector              */
 #include <ida/ida_spils.h>             /* access to IDASpils interface         */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to spgmr SUNLinearSolver      */
 #include <sundials/sundials_types.h>   /* definition of type realtype          */
-
-#include <RAJA/RAJA.hpp>
 
 #ifdef SUNDIALS_MPI_ENABLED
 #include <mpi.h>
@@ -85,6 +85,78 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
 static void PrintHeader(realtype rtol, realtype atol);
 static void PrintOutput(void *mem, realtype t, N_Vector uu);
 static int check_flag(void *flagvalue, const char *funcname, int opt);
+
+
+/*
+ * CUDA kernels
+ */
+
+__global__
+void resHeatKernel(const realtype *uu, const realtype *up, realtype *rr,
+                   sunindextype mm, realtype coeff)
+{
+  sunindextype i, j, tid;
+
+  /* Loop over all grid points. */
+  tid = blockDim.x * blockIdx.x + threadIdx.x;
+
+  if (tid < mm*mm) {
+    i = tid % mm;
+    j = tid / mm;
+
+    if (j==0 || j==mm-1 || i==0 || i==mm-1) {
+      /* Initialize rr to uu, to take care of boundary equations. */
+      rr[tid] = uu[tid];
+    } else {
+      /* Loop over interior points; set res = up - (central difference). */
+      realtype dif1 = uu[tid-1]  + uu[tid+1]  - TWO * uu[tid];
+      realtype dif2 = uu[tid-mm] + uu[tid+mm] - TWO * uu[tid];
+      rr[tid] = up[tid] - coeff * ( dif1 + dif2 );
+    }
+  }
+}
+
+__global__
+void PsetupHeatKernel(realtype *ppv, sunindextype mm, realtype c_j, realtype coeff)
+{
+  sunindextype i, j, tid;
+
+  /* Loop over all grid points. */
+  tid = blockDim.x * blockIdx.x + threadIdx.x;
+
+  if (tid < mm*mm) {
+    i = tid % mm;
+    j = tid / mm;
+
+    if (j==0 || j==mm-1 || i==0 || i==mm-1) {
+      /* Set ppv to one, to take care of boundary equations. */
+      ppv[tid] = ONE;
+    } else {
+      /* Loop over interior points; ppv_i = 1/J_ii */
+      ppv[tid] = ONE/(c_j + FOUR*coeff);
+    }
+  }
+}
+
+__global__
+void setInitHeatKernel(realtype *up, sunindextype mm)
+{
+  sunindextype i, j, tid;
+
+  /* Loop over all grid points. */
+  tid = blockDim.x * blockIdx.x + threadIdx.x;
+
+  if (tid < mm*mm) {
+    i = tid % mm;
+    j = tid / mm;
+
+    if (j==0 || j==mm-1 || i==0 || i==mm-1) {
+      up[tid] = ZERO;
+    }
+  }
+}
+
+
 
 /*
  *--------------------------------------------------------------------
@@ -136,7 +208,7 @@ int main(int argc, char *argv[])
 
   /* Allocate N-vectors and the user data structure objects. */
 
-  uu = N_VNew_Raja(comm, data->neq, data->neq);
+  uu = N_VNew_Cuda(comm, data->neq, data->neq);
   if(check_flag((void *)uu, "N_VNew_Serial", 0)) return(1);
 
   up = N_VClone(uu);
@@ -326,33 +398,38 @@ int resHeat(realtype tt,
             N_Vector uu, N_Vector up, N_Vector rr,
             void *user_data)
 {
-  const sunindextype zero = 0;
   sunindextype mm;
   realtype coeff;
   UserData data;
 
-  const realtype *uu_data = N_VGetDeviceArrayPointer_Raja(uu);
-  const realtype *up_data = N_VGetDeviceArrayPointer_Raja(up);
-  realtype *rr_data = N_VGetDeviceArrayPointer_Raja(rr);
+  const realtype *uu_data = N_VGetDeviceArrayPointer_Cuda(uu);
+  const realtype *up_data = N_VGetDeviceArrayPointer_Cuda(up);
+  realtype *rr_data = N_VGetDeviceArrayPointer_Cuda(rr);
 
   data = (UserData) user_data;
 
   coeff = data->coeff;
   mm    = data->mm;
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zero, mm*mm, [=] __device__(sunindextype loc) {
-    sunindextype i = loc % mm;
-    sunindextype j = loc / mm;
-    if (j==0 || j==mm-1 || i==0 || i==mm-1) {
-      /* Initialize rr to uu, to take care of boundary equations. */
-      rr_data[loc] = uu_data[loc];
-    } else {
-      /* Loop over interior points; set res = up - (central difference). */
-      realtype dif1 = uu_data[loc-1]  + uu_data[loc+1]  - TWO * uu_data[loc];
-      realtype dif2 = uu_data[loc-mm] + uu_data[loc+mm] - TWO * uu_data[loc];
-      rr_data[loc] = up_data[loc] - coeff * ( dif1 + dif2 );
-    }
-  });
+  unsigned block = 256;
+  unsigned grid = (mm*mm + block - 1) / block;
+
+  resHeatKernel<<<grid, block>>>(uu_data, up_data, rr_data, mm, coeff);
+
+//   const sunindextype zero = 0;
+//   RAJA::forall<RAJA::cuda_exec<256> >(zero, mm*mm, [=] __device__(sunindextype loc) {
+//     sunindextype i = loc % mm;
+//     sunindextype j = loc / mm;
+//     if (j==0 || j==mm-1 || i==0 || i==mm-1) {
+//       /* Initialize rr to uu, to take care of boundary equations. */
+//       rr_data[loc] = uu_data[loc];
+//     } else {
+//       /* Loop over interior points; set res = up - (central difference). */
+//       realtype dif1 = uu_data[loc-1]  + uu_data[loc+1]  - TWO * uu_data[loc];
+//       realtype dif2 = uu_data[loc-mm] + uu_data[loc+mm] - TWO * uu_data[loc];
+//       rr_data[loc] = up_data[loc] - coeff * ( dif1 + dif2 );
+//     }
+//   });
 
   return(0);
 }
@@ -378,27 +455,32 @@ int PsetupHeat(realtype tt,
                N_Vector uu, N_Vector up, N_Vector rr,
                realtype c_j, void *prec_data)
 {
-  const sunindextype zero = 0;
   sunindextype mm;
   realtype *ppv;
   UserData data;
 
   data = (UserData) prec_data;
-  ppv = N_VGetDeviceArrayPointer_Raja(data->pp);
+  ppv = N_VGetDeviceArrayPointer_Cuda(data->pp);
   mm = data->mm;
   realtype coeff = data->coeff;
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zero, mm*mm, [=] __device__(sunindextype loc) {
-    sunindextype i = loc % mm;
-    sunindextype j = loc / mm;
-    if (j==0 || j==mm-1 || i==0 || i==mm-1) {
-      /* Set ppv to one, to take care of boundary equations. */
-      ppv[loc] = ONE;
-    } else {
-      /* Loop over interior points; ppv_i = 1/J_ii */
-      ppv[loc] = ONE/(c_j + FOUR*coeff);
-    }
-  });
+  unsigned block = 256;
+  unsigned grid = (mm*mm + block - 1) / block;
+
+  PsetupHeatKernel<<<grid, block>>>(ppv, mm, c_j, coeff);
+
+//   const sunindextype zero = 0;
+//   RAJA::forall<RAJA::cuda_exec<256> >(zero, mm*mm, [=] __device__(sunindextype loc) {
+//     sunindextype i = loc % mm;
+//     sunindextype j = loc / mm;
+//     if (j==0 || j==mm-1 || i==0 || i==mm-1) {
+//       /* Set ppv to one, to take care of boundary equations. */
+//       ppv[loc] = ONE;
+//     } else {
+//       /* Loop over interior points; ppv_i = 1/J_ii */
+//       ppv[loc] = ONE/(c_j + FOUR*coeff);
+//     }
+//   });
 
   return(0);
 }
@@ -434,13 +516,12 @@ int PsolveHeat(realtype tt,
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
                              N_Vector res)
 {
-  sunindextype mm, mm1, i, j;
-  const sunindextype zero = 0;
+  sunindextype mm, i, j;
   realtype xfact, yfact, *udata, *updata;
 
   mm = data->mm;
 
-  udata = N_VGetHostArrayPointer_Raja(uu);
+  udata = N_VGetHostArrayPointer_Cuda(uu);
 
   /* Initialize uu on all grid points. */
   for (j = 0; j < mm; j++) {
@@ -451,7 +532,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
     }
   }
 
-  N_VCopyToDevice_Raja(uu);
+  N_VCopyToDevice_Cuda(uu);
 
   /* Initialize up vector to 0. */
   N_VConst(ZERO, up);
@@ -463,16 +544,21 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
   N_VScale(-ONE, res, up);
 
   /* Set up at boundary points to zero. */
-  updata = N_VGetDeviceArrayPointer_Raja(up);
-  mm1 = mm - 1;
+  updata = N_VGetDeviceArrayPointer_Cuda(up);
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zero, mm*mm, [=] __device__(sunindextype loc) {
-    sunindextype i = loc % mm;
-    sunindextype j = loc / mm;
-    if (j==0 || j==mm1 || i==0 || i==mm1) {
-      updata[loc] = ZERO;
-    }
-  });
+  unsigned block = 256;
+  unsigned grid = (mm*mm + block - 1) / block;
+
+  setInitHeatKernel<<<grid, block>>>(updata, mm);
+
+//   const sunindextype zero = 0;
+//   RAJA::forall<RAJA::cuda_exec<256> >(zero, mm*mm, [=] __device__(sunindextype loc) {
+//     sunindextype i = loc % mm;
+//     sunindextype j = loc / mm;
+//     if (j==0 || j==mm-1 || i==0 || i==mm-1) {
+//       updata[loc] = ZERO;
+//     }
+//   });
 
   return(0);
 }

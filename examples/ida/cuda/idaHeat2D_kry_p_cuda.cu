@@ -1,6 +1,8 @@
 /*
  * -----------------------------------------------------------------
- * Programmer(s): Daniel R. Reynolds @ SMU
+ * Programmer(s): Slaven Peles @ LLNL
+ * -----------------------------------------------------------------
+ * Based on work by Daniel R. Reynolds @ SMU
  *         Allan Taylor, Alan Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Example problem for IDA: 2D heat equation, parallel, GMRES.
@@ -37,13 +39,11 @@
 #include <string.h>
 
 #include <ida/ida.h>
-#include <nvector/nvector_raja.h>      /* access to RAJA N_Vector              */
+#include <nvector/nvector_cuda.h>
 #include <ida/ida_spils.h>
 #include <sunlinsol/sunlinsol_spgmr.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
-
-#include <RAJA/RAJA.hpp>
 
 #ifdef SUNDIALS_MPI_ENABLED
 #include <mpi.h>
@@ -130,6 +130,198 @@ static void PrintFinalStats(void *ida_mem);
 
 static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
 
+
+/*
+ *--------------------------------------------------------------------
+ * CUDA Kernels
+ *--------------------------------------------------------------------
+ */
+
+__global__
+void PsetupHeatKernel(realtype *ppv, sunindextype mx, sunindextype my,
+                      sunindextype ibc, sunindextype jbc,
+                      sunindextype i0, sunindextype j0, realtype pelinv)
+{
+  sunindextype i, j, tid;
+
+  /* Loop over all grid points. */
+  tid = blockDim.x * blockIdx.x + threadIdx.x;
+
+  if (tid < (mx - ibc)*(my - jbc)) {
+    i = tid % (mx - ibc) + i0;
+    j = tid / (mx - ibc) + j0;
+
+    /* Loop over interior points; ppv_i = 1/J_ii */
+    ppv[i + j*mx] = pelinv;
+  }
+}
+
+
+__global__
+void CopyLocalToExtendedArray(const realtype *uuv, realtype *uext,
+                              sunindextype mx, sunindextype my)
+{
+  sunindextype i, j, tid;
+
+  /* Loop over all grid points. */
+  tid = blockDim.x * blockIdx.x + threadIdx.x;
+
+  if (tid < mx*my) {
+    i = tid % mx;
+    j = tid / mx;
+
+    uext[(i+1) + (j+1)*(mx+2)] = uuv[i + j*mx];
+  }
+}
+
+
+__global__
+void LocalResidualKernel(const realtype *uext, const realtype *upv, realtype *resv,
+                         sunindextype mx, sunindextype my,
+                         sunindextype ibc, sunindextype jbc,
+                         sunindextype i0, sunindextype j0,
+                         realtype coeffx, realtype coeffy, realtype coeffxy)
+{
+  sunindextype i, j, tid;
+
+  /* Loop over all grid points. */
+  tid = blockDim.x * blockIdx.x + threadIdx.x;
+
+  if (tid < (mx - ibc)*(my - jbc)) {
+    i = tid % (mx - ibc) + i0;
+    j = tid / (mx - ibc) + j0;
+
+    sunindextype locu  = i + j*mx;
+    sunindextype locue = (i+1) + (j+1)*(mx+2);
+
+    realtype termx   = coeffx * (uext[locue-1]      + uext[locue+1]);
+    realtype termy   = coeffy * (uext[locue-(mx+2)] + uext[locue+(mx+2)]);
+    realtype termctr = coeffxy * uext[locue];
+    resv[locu] = upv[locu] - (termx + termy - termctr);
+  }
+}
+
+
+__global__
+void CopyToBottomBuffer(const realtype *uarray, realtype *bufbottom,
+                        sunindextype mx)
+{
+  sunindextype tid;
+
+  /* Loop over all grid points. */
+  tid = blockDim.x * blockIdx.x + threadIdx.x;
+
+  if (tid < mx) {
+      bufbottom[tid] = uarray[tid];
+  }
+}
+
+
+__global__
+void CopyToTopBuffer(const realtype *uarray, realtype *buftop,
+                     sunindextype mx, sunindextype my)
+{
+  sunindextype tid;
+
+  /* Loop over all grid points. */
+  tid = blockDim.x * blockIdx.x + threadIdx.x;
+
+  if (tid < mx) {
+      buftop[tid] = uarray[(my-1)*mx + tid];
+  }
+}
+
+
+__global__
+void CopyToLeftBuffer(const realtype *uarray, realtype *bufleft,
+                      sunindextype mx, sunindextype my)
+{
+  sunindextype tid;
+
+  /* Loop over all grid points. */
+  tid = blockDim.x * blockIdx.x + threadIdx.x;
+
+  if (tid < my) {
+      bufleft[tid] = uarray[tid*mx];
+  }
+}
+
+
+__global__
+void CopyToRightBuffer(const realtype *uarray, realtype *bufright,
+                       sunindextype mx, sunindextype my)
+{
+  sunindextype tid;
+
+  /* Loop over all grid points. */
+  tid = blockDim.x * blockIdx.x + threadIdx.x;
+
+  if (tid < my) {
+      bufright[tid] = uarray[tid*mx + (mx-1)];
+  }
+}
+
+
+__global__
+void CopyFromBottomBuffer(const realtype *bufbottom, realtype *uext,
+                          sunindextype mx)
+{
+  sunindextype tid;
+
+  /* Loop over all grid points. */
+  tid = blockDim.x * blockIdx.x + threadIdx.x;
+
+  if (tid < mx) {
+      uext[1 + tid] = bufbottom[tid];
+  }
+}
+
+
+__global__
+void CopyFromTopBuffer(const realtype *buftop, realtype *uext,
+                       sunindextype mx, sunindextype my)
+{
+  sunindextype tid;
+
+  /* Loop over all grid points. */
+  tid = blockDim.x * blockIdx.x + threadIdx.x;
+
+  if (tid < mx) {
+      uext[(1 + (my+1)*(mx+2)) + tid] = buftop[tid];
+  }
+}
+
+
+__global__
+void CopyFromLeftBuffer(const realtype *bufleft, realtype *uext,
+                        sunindextype mx, sunindextype my)
+{
+  sunindextype tid;
+
+  /* Loop over all grid points. */
+  tid = blockDim.x * blockIdx.x + threadIdx.x;
+
+  if (tid < my) {
+      uext[(tid+1)*(mx+2)] = bufleft[tid];
+  }
+}
+
+
+__global__
+void CopyFromRightBuffer(const realtype *bufright, realtype *uext,
+                         sunindextype mx, sunindextype my)
+{
+  sunindextype tid;
+
+  /* Loop over all grid points. */
+  tid = blockDim.x * blockIdx.x + threadIdx.x;
+
+  if (tid < my) {
+      uext[(tid+2)*(mx+2) - 1] = bufright[tid];
+  }
+}
+
+
 /*
  *--------------------------------------------------------------------
  * MAIN PROGRAM
@@ -189,7 +381,7 @@ int main(int argc, char *argv[])
 
   /* Allocate and initialize N-vectors. */
 
-  uu = N_VNew_Raja(comm, local_N, Neq);
+  uu = N_VNew_Cuda(comm, local_N, Neq);
   if(check_flag((void *)uu, "N_VNew_Parallel", 0, thispe))
     MPI_Abort(comm, 1);
 
@@ -360,7 +552,6 @@ int resHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
 int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
                realtype c_j, void *user_data)
 {
-  const sunindextype zero = 0;
   sunindextype ibc, i0, jbc, j0;
 
   /* Unwrap the user data */
@@ -371,7 +562,7 @@ int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
   const int npey  = data->npey;
   const sunindextype mxsub = data->mxsub;
   const sunindextype mysub = data->mysub;
-  realtype *ppv = N_VGetDeviceArrayPointer_Raja(data->pp);
+  realtype *ppv = N_VGetDeviceArrayPointer_Cuda(data->pp);
 
   /* Calculate the value for the inverse element of the diagonal preconditioner */
   const realtype pelinv = ONE/(c_j + data->coeffxy);
@@ -384,13 +575,10 @@ int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
   jbc = (jysub == 0) || (jysub == npey-1);
   j0  = (jysub == 0);
 
-  /* Set inverse of the preconditioner; ppv must be on the device */
-  RAJA::forall<RAJA::cuda_exec<256> >(zero, (mxsub - ibc)*(mysub - jbc), [=] __device__(sunindextype tid) {
-    sunindextype j = tid / (mxsub - ibc) + j0;
-    sunindextype i = tid % (mxsub - ibc) + i0;
+  unsigned block = 256;
+  unsigned grid = ((mxsub - ibc)*(mysub - jbc) + block - 1) / block;
 
-    ppv[i + j*mxsub] = pelinv;
-  });
+  PsetupHeatKernel<<<grid, block>>>(ppv, mxsub, mysub, ibc, jbc, i0, j0, pelinv);
 
   return(0);
 }
@@ -448,7 +636,7 @@ static int rescomm(N_Vector uu, N_Vector up, void* user_data)
   realtype *dev_recv_buff  = data->dev_recv_buff;
 
   /* Get solution vector data. */
-  const realtype *uarray = N_VGetDeviceArrayPointer_Raja(uu);
+  const realtype *uarray = N_VGetDeviceArrayPointer_Cuda(uu);
 
   /* Set array of MPI requests */
   MPI_Request request[4];
@@ -483,19 +671,17 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
   const int npex  = data->npex;
   const int npey  = data->npey;
   const sunindextype mxsub  = data->mxsub;
-  const sunindextype mxsub2 = data->mxsub + 2;
   const sunindextype mysub  = data->mysub;
   const realtype coeffx  = data->coeffx;
   const realtype coeffy  = data->coeffy;
   const realtype coeffxy = data->coeffxy;
 
   /* Vector data arrays, extended work array uext. */
-  const realtype *uuv = N_VGetDeviceArrayPointer_Raja(uu);
-  const realtype *upv = N_VGetDeviceArrayPointer_Raja(up);
-  realtype *resv = N_VGetDeviceArrayPointer_Raja(rr);
+  const realtype *uuv = N_VGetDeviceArrayPointer_Cuda(uu);
+  const realtype *upv = N_VGetDeviceArrayPointer_Cuda(up);
+  realtype *resv = N_VGetDeviceArrayPointer_Cuda(rr);
   realtype *uext = data->uext;
 
-  const sunindextype zero = 0;
   sunindextype ibc, i0, jbc, j0;
 
   /* Initialize all elements of rr to uu. This sets the boundary
@@ -506,33 +692,23 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
   /* Copy local segment of u vector into the working extended array uext.
      This completes uext prior to the computation of the rr vector.
      uext and uuv must be on the device.     */
-  RAJA::forall<RAJA::cuda_exec<256> >(zero, mxsub*mysub, [=] __device__(sunindextype tid) {
-    sunindextype j = tid/mxsub;
-    sunindextype i = tid%mxsub;
+  unsigned block = 256;
+  unsigned grid = (mxsub*mysub + block - 1) / block;
 
-    uext[(i+1) + (j+1)*mxsub2] = uuv[i + j*mxsub];
-  });
+  CopyLocalToExtendedArray<<<grid, block>>>(uuv, uext, mxsub, mysub);
 
   /* Set loop limits for the interior of the local subgrid. */
-
-  /* Prepare to loop over subgrid. */
   ibc = (ixsub == 0) || (ixsub == npex-1);
   i0  = (ixsub == 0);
   jbc = (jysub == 0) || (jysub == npey-1);
   j0  = (jysub == 0);
 
   /* Compute local residual; uext, upv, and resv must be on the device */
-  RAJA::forall<RAJA::cuda_exec<256> >(zero, (mxsub - ibc)*(mysub - jbc), [=] __device__(sunindextype tid) {
-    sunindextype j = tid/(mxsub - ibc) + j0;
-    sunindextype i = tid%(mxsub - ibc) + i0;
-    sunindextype locu  = i + j*mxsub;
-    sunindextype locue = (i+1) + (j+1)*mxsub2;
+  block = 256;
+  grid = ((mxsub - ibc)*(mysub - jbc) + block - 1) / block;
 
-    realtype termx   = coeffx * (uext[locue-1]      + uext[locue+1]);
-    realtype termy   = coeffy * (uext[locue-mxsub2] + uext[locue+mxsub2]);
-    realtype termctr = coeffxy * uext[locue];
-    resv[locu] = upv[locu] - (termx + termy - termctr);
-  });
+  LocalResidualKernel<<<grid, block>>>(uext, upv, resv, mxsub, mysub, ibc, jbc,
+                                       i0, j0, coeffx, coeffy, coeffxy);
 
   return(0);
 
@@ -548,7 +724,7 @@ static int BSend(MPI_Comm comm, int thispe,
                  const realtype *uarray, realtype *dev_send_buff, realtype *host_send_buff)
 {
   cudaError_t err;
-  const sunindextype zero = 0;
+  //const sunindextype zero = 0;
   /* Have left, right, top and bottom device buffers use the same dev_send_buff. */
   realtype *d_bufleft   = dev_send_buff;
   realtype *d_bufright  = dev_send_buff + mysub;
@@ -565,9 +741,10 @@ static int BSend(MPI_Comm comm, int thispe,
 
   if (jysub != 0) {
     // Device kernel here to copy from uarray to the buffer on the device
-    RAJA::forall<RAJA::cuda_exec<256> >(zero, mxsub, [=] __device__(sunindextype lx) {
-      d_bufbottom[lx] = uarray[lx];
-    });
+    unsigned block = 256;
+    unsigned grid = (mxsub + block - 1) / block;
+    CopyToBottomBuffer<<<grid, block>>>(uarray, d_bufbottom, mxsub);
+
     // Copy buffer to the host
     err = cudaMemcpy(h_bufbottom, d_bufbottom, mxsub*sizeof(realtype), cudaMemcpyDeviceToHost);
     if (err != cudaSuccess) {
@@ -583,9 +760,10 @@ static int BSend(MPI_Comm comm, int thispe,
 
   if (jysub != npey-1) {
     // Device kernel here to copy from uarray to the buffer on the device
-    RAJA::forall<RAJA::cuda_exec<256> >(zero, mxsub, [=] __device__(sunindextype lx) {
-      d_buftop[lx] = uarray[(mysub-1)*mxsub + lx];
-    });
+    unsigned block = 256;
+    unsigned grid = (mxsub + block - 1) / block;
+    CopyToTopBuffer<<<grid, block>>>(uarray, d_buftop, mxsub, mysub);
+
     // Copy buffer to the host
     err = cudaMemcpy(h_buftop, d_buftop, mxsub*sizeof(realtype), cudaMemcpyDeviceToHost);
     if (err != cudaSuccess) {
@@ -600,9 +778,10 @@ static int BSend(MPI_Comm comm, int thispe,
 
   if (ixsub != 0) {
     // Device kernel here to copy from uarray to the buffer on the device
-    RAJA::forall<RAJA::cuda_exec<256> >(zero, mysub, [=] __device__(sunindextype ly) {
-      d_bufleft[ly] = uarray[ly*mxsub];
-    });
+    unsigned block = 256;
+    unsigned grid = (mysub + block - 1) / block;
+    CopyToLeftBuffer<<<grid, block>>>(uarray, d_bufleft, mxsub, mysub);
+
     // Copy buffer to the host
     err = cudaMemcpy(h_bufleft, d_bufleft, mysub*sizeof(realtype), cudaMemcpyDeviceToHost);
     if (err != cudaSuccess) {
@@ -617,9 +796,10 @@ static int BSend(MPI_Comm comm, int thispe,
 
   if (ixsub != npex-1) {
     // Device kernel here to copy from uarray to the buffer on the device
-    RAJA::forall<RAJA::cuda_exec<256> >(zero, mysub, [=] __device__(sunindextype ly) {
-      d_bufright[ly] = uarray[ly*mxsub + (mxsub-1)];
-    });
+    unsigned block = 256;
+    unsigned grid = (mysub + block - 1) / block;
+    CopyToRightBuffer<<<grid, block>>>(uarray, d_bufright, mxsub, mysub);
+
     // Copy buffer to the host
     err = cudaMemcpy(h_bufright, d_bufright, mysub*sizeof(realtype), cudaMemcpyDeviceToHost);
     if (err != cudaSuccess) {
@@ -700,7 +880,6 @@ static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
 {
   cudaError_t err;
   MPI_Status status;
-  const sunindextype zero = 0;
 
   const realtype *h_bufleft   = host_recv_buff;
   const realtype *h_bufright  = host_recv_buff + mysub;
@@ -712,9 +891,6 @@ static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
   realtype *d_buftop    = dev_recv_buff + 2*mysub;
   realtype *d_bufbottom = dev_recv_buff + 2*mysub + mxsub;
 
-  const sunindextype mxsub2 = mxsub + 2;
-  const sunindextype mysub1 = mysub + 1;
-
   /* If jysub > 0, receive data for bottom x-line of uext. */
   if (jysub != 0) {
     MPI_Wait(&request[0], &status);
@@ -725,9 +901,9 @@ static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
       return -1;
     }
     /* Copy the bottom dev_recv_buff to uext. */
-    RAJA::forall<RAJA::cuda_exec<256> >(zero, mxsub, [=] __device__(sunindextype lx) {
-      uext[1 + lx] = d_bufbottom[lx];
-    });
+    unsigned block = 256;
+    unsigned grid = (mxsub + block - 1) / block;
+    CopyFromBottomBuffer<<<grid, block>>>(d_bufbottom, uext, mxsub);
   }
 
   /* If jysub < NPEY-1, receive data for top x-line of uext. */
@@ -740,9 +916,9 @@ static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
       return -1;
     }
     /* Copy the top dev_recv_buff to uext. */
-    RAJA::forall<RAJA::cuda_exec<256> >(zero, mxsub, [=] __device__(sunindextype lx) {
-      uext[(1 + mysub1*mxsub2) + lx] = d_buftop[lx];
-    });
+    unsigned block = 256;
+    unsigned grid = (mxsub + block - 1) / block;
+    CopyFromTopBuffer<<<grid, block>>>(d_buftop, uext, mxsub, mysub);
   }
 
   /* If ixsub > 0, receive data for left y-line of uext (via bufleft). */
@@ -755,9 +931,9 @@ static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
       return -1;
     }
     /* Copy the left dev_recv_buff to uext. */
-    RAJA::forall<RAJA::cuda_exec<256> >(zero, mysub, [=] __device__(sunindextype ly) {
-      uext[(ly+1)*mxsub2] = d_bufleft[ly];
-    });
+    unsigned block = 256;
+    unsigned grid = (mysub + block - 1) / block;
+    CopyFromLeftBuffer<<<grid, block>>>(d_bufleft, uext, mxsub, mysub);
   }
 
   /* If ixsub < NPEX-1, receive data for right y-line of uext (via bufright). */
@@ -770,9 +946,9 @@ static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
       return -1;
     }
     /* Copy the right dev_recv_buff to uext. */
-    RAJA::forall<RAJA::cuda_exec<256> >(zero, mysub, [=] __device__(sunindextype ly) {
-      uext[(ly+2)*mxsub2 - 1] = d_bufright[ly];
-    });
+    unsigned block = 256;
+    unsigned grid = (mysub + block - 1) / block;
+    CopyFromRightBuffer<<<grid, block>>>(d_bufright, uext, mxsub, mysub);
   }
 
   return(0);
@@ -922,8 +1098,8 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
   /* Initialize uu. */
 
   // Get host pointer
-  realtype *uudata = N_VGetHostArrayPointer_Raja(uu);
-  realtype *iddata = N_VGetHostArrayPointer_Raja(id);
+  realtype *uudata = N_VGetHostArrayPointer_Cuda(uu);
+  realtype *iddata = N_VGetHostArrayPointer_Cuda(id);
 
   /* Set mesh spacings and subgrid indices for this PE. */
   const realtype dx = data->dx;
@@ -959,8 +1135,8 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
   }
 
   // Synchronize data from the host to the device for uu and id vectors
-  N_VCopyToDevice_Raja(uu);
-  N_VCopyToDevice_Raja(id);
+  N_VCopyToDevice_Cuda(uu);
+  N_VCopyToDevice_Cuda(id);
 
   /* Initialize up. */
 
