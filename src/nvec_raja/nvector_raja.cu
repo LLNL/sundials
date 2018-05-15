@@ -45,7 +45,6 @@ N_Vector N_VNewEmpty_Raja(sunindextype length)
 {
   N_Vector v;
   N_Vector_Ops ops;
-  N_VectorContent_Raja content;
 
   /* Create vector */
   v = NULL;
@@ -558,11 +557,11 @@ booleantype N_VConstrMask_Raja(N_Vector c, N_Vector x, N_Vector m)
   });
 
   /* Reduce across MPI processes */
-  realtype minimum = static_cast<realtype>(gpu_result);
+  realtype sum = static_cast<realtype>(gpu_result);
   SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(x);
-  realtype global_minimum = VAllReduce_Raja(minimum, 3, comm);
+  realtype global_sum = VAllReduce_Raja(sum, 1, comm);
 
-  return (global_minimum < HALF);
+  return (global_sum < HALF);
 }
 
 realtype N_VMinQuotient_Raja(N_Vector num, N_Vector denom)
