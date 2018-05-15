@@ -23,7 +23,10 @@
 #include <nvector/cuda/VectorKernels.cuh>
 #include <sundials/sundials_mpi_types.h>
 
+#define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
+#define ONE    RCONST(1.0)
+#define ONEPT5 RCONST(1.5)
 
 extern "C" {
 
@@ -458,17 +461,61 @@ booleantype N_VInvTest_Cuda(N_Vector X, N_Vector Z)
   return (globmin < HALF);
 }
 
+/*
+ * TODO:Fix bug in N_VConstrMask_Cuda kernel.
+ * Currently an inefficient workaround is implemented.
+ */
 booleantype N_VConstrMask_Cuda(N_Vector C, N_Vector X, N_Vector M)
 {
+  N_VCopyFromDevice_Cuda(C);
+  N_VCopyFromDevice_Cuda(X);
+  N_VCopyFromDevice_Cuda(M);
+
+  const realtype *cd = getHostData<realtype, sunindextype>(C);
+  const realtype *xd = getHostData<realtype, sunindextype>(X);
+  realtype *md = getHostData<realtype, sunindextype>(M);
+
   SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
-  const auto cvec = extract<realtype, sunindextype>(C);
-  const auto xvec = extract<realtype, sunindextype>(X);
-  auto mvec = extract<realtype, sunindextype>(M);
+  realtype temp = ONE;
+  sunindextype i;
+  sunindextype N = getSize<realtype, sunindextype>(X);
+  sunindextype N_global = getGlobalSize<realtype, sunindextype>(X);
 
-  realtype locmin = constrMask(*cvec, *xvec, *mvec);
+  for (i = 0; i < N; i++) {
+    md[i] = ZERO;
+    if (cd[i] == ZERO) continue;
+    if (cd[i] > ONEPT5 || cd[i] < -ONEPT5) {
+      if (xd[i]*cd[i] <= ZERO) { temp = ZERO; md[i] = ONE; }
+      continue;
+    }
+    if (cd[i] > HALF || cd[i] < -HALF) {
+      if (xd[i]*cd[i] < ZERO ) { temp = ZERO; md[i] = ONE; }
+    }
+  }
 
-  realtype globmin = VAllReduce_Cuda(locmin, 3, comm);
-  return (globmin < HALF);
+  N_VCopyToDevice_Cuda(M);
+
+  temp = VAllReduce_Cuda(temp, 3, comm);
+
+  booleantype retval;
+  if (temp == ONE) retval = SUNTRUE;
+  else retval = SUNFALSE;
+  //printf("ConstraintMask: retval = %d\n", retval);
+  return retval;
+
+//   if (temp == ONE) return(SUNTRUE);
+//   else return(SUNFALSE);
+
+//   SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+//   const auto cvec = extract<realtype, sunindextype>(C);
+//   const auto xvec = extract<realtype, sunindextype>(X);
+//   auto mvec = extract<realtype, sunindextype>(M);
+//
+//   realtype locsum = constrMask(*cvec, *xvec, *mvec);
+//
+//   realtype globsum = VAllReduce_Cuda(locsum, 1, comm);
+//   printf("ConstraintMask: globsum = %d\n", globsum < HALF);
+//   return (globsum < HALF);
 }
 
 realtype N_VMinQuotient_Cuda(N_Vector num, N_Vector denom)
