@@ -111,6 +111,20 @@ $tar $tarfile $distrobase/examples/ida/parallel/idaHeat2D_kry_bbd_p.out
 $tar $tarfile $distrobase/examples/ida/parallel/idaHeat2D_kry_p.c
 $tar $tarfile $distrobase/examples/ida/parallel/idaHeat2D_kry_p.out
 
+$tar $tarfile $distrobase/examples/ida/cuda/README
+$tar $tarfile $distrobase/examples/ida/cuda/CMakeLists.txt
+$tar $tarfile $distrobase/examples/ida/cuda/idaHeat2D_kry_cuda.c
+$tar $tarfile $distrobase/examples/ida/cuda/idaHeat2D_kry_cuda.out
+$tar $tarfile $distrobase/examples/ida/cuda/idaHeat2D_kry_p_cuda.c
+$tar $tarfile $distrobase/examples/ida/cuda/idaHeat2D_kry_p_cuda.out
+
+$tar $tarfile $distrobase/examples/ida/raja/README
+$tar $tarfile $distrobase/examples/ida/raja/CMakeLists.txt
+$tar $tarfile $distrobase/examples/ida/raja/idaHeat2D_kry_raja.c
+$tar $tarfile $distrobase/examples/ida/raja/idaHeat2D_kry_raja.out
+$tar $tarfile $distrobase/examples/ida/raja/idaHeat2D_kry_p_raja.c
+$tar $tarfile $distrobase/examples/ida/raja/idaHeat2D_kry_p_raja.out
+
 $tar $tarfile $distrobase/examples/ida/fcmix_parallel/README
 $tar $tarfile $distrobase/examples/ida/fcmix_parallel/CMakeLists.txt
 $tar $tarfile $distrobase/examples/ida/fcmix_parallel/fidaHeat2D_kry_bbd_p.f

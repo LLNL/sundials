@@ -1,0 +1,6 @@
+List of RAJA IDA examples
+
+  idaHeat2D_kry_raja    : 2D heat equation with SPGMR, diagonal preconditioner and RAJA vector
+  idaHeat2D_kry_p_raja  : 2D heat equation with SPGMR, diagonal preconditioner and MPI+RAJA vector
+
+ 
