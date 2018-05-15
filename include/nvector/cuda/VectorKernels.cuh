@@ -519,6 +519,8 @@ invTestKernel(const T *x, T *z, T *out, I n)
  * results are stored in vector 'm'. A reduction is performed to set a
  * flag > 0 if any of the constraints is violated.
  *
+ * TODO: There seems to be a bug in this kernel or associated driver!
+ *
  */
 template <typename T, typename I>
 __global__ void
@@ -531,14 +533,14 @@ constrMaskKernel(const T *c, const T *x, T *m, T *out, I n)
 
   // First reduction step before storing data in shared memory.
 
-  // test1 = true if test failed
-  bool test1 = (abs(c[i]) > 1.5 && c[i]*x[i] <= 0.0) ||
-      (abs(c[i]) > 0.5 && c[i]*x[i] <  0.0);
+  // test1 = true if constraints violated
+  bool test1 = (std::abs(c[i]) > 1.5 && c[i]*x[i] <= 0.0) ||
+               (std::abs(c[i]) > 0.5 && c[i]*x[i] <  0.0);
   T sum = m[i] = (i < n && test1) ? 1.0 : 0.0;
 
-  // test2 = true if test failed
-  bool test2 = (abs(c[i + blockDim.x]) > 1.5 && c[i + blockDim.x]*x[i + blockDim.x] <= 0.0) ||
-      (abs(c[i + blockDim.x]) > 0.5 && c[i + blockDim.x]*x[i + blockDim.x] <  0.0);
+  // test2 = true if constraints violated
+  bool test2 = (std::abs(c[i + blockDim.x]) > 1.5 && c[i + blockDim.x]*x[i + blockDim.x] <= 0.0) ||
+               (std::abs(c[i + blockDim.x]) > 0.5 && c[i + blockDim.x]*x[i + blockDim.x] <  0.0);
   m[i+blockDim.x] = (i+blockDim.x < n && test2) ? 1.0 : 0.0;
   sum += m[i+blockDim.x];
 
@@ -997,7 +999,7 @@ inline T constrMask(const Vector<T,I>& c, const Vector<T,I>& x, Vector<T,I>& m)
   {
     gpu_result += p.hostBuffer()[i];
   }
-  return (gpu_result);
+  return gpu_result;
 }
 
 
@@ -1005,7 +1007,7 @@ template <typename T, typename I>
 inline T minQuotient(const Vector<T,I>& num, const Vector<T,I>& den)
 {
   // Starting value for min reduction
-  T maxVal = std::numeric_limits<T>::max();
+  const T maxVal = std::numeric_limits<T>::max();
 
   // Set partitioning
   ReducePartitioning<T, I>& p = num.partReduce();
