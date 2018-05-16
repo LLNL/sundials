@@ -2,26 +2,11 @@
    documentation has been updated to reflect the correct approach, I
    just need to implement this in code.
 
-2. Revisit scaling vectors with PCG (without preconditioning) -- this
-   seems to work improperly now.  Perhaps it is the testing code, or
-   maybe the solver itself.
-  
-3. idaFoodWeb_kry_omp had been explicitly disabled from our testing
-   (in the examples/ida/C_openmp/CMakeLists.txt file).  Why?  It runs
-   correctly, although my results differ from the 'answer' file.
-   Perhaps this problem should be investigated more thoroughly and
-   added back in? 
-  
-4. Revisit the question of the differencing parameter used in the
-   IDADls and IDASDls interfaces.  Previously we had different
-   increments for GMRES than for BiCGStab and TFQMR; currently these
-   all use the GMRES value, but that value seems off in general (see
-   Alan's email about why it works for GMRES).  Test what happens if
-   we use the more 'standard' value.  We may need to add some kind of
-   internal check to see if the LS object is actually a SUNSPGMR
-   object (perhaps check if LS->ops->solve == SUNLinSolSolve_SPGMR ?)
+2. Examine restructure where we solve for and store the scaled RHS
+   vectors instead of the stages themselves, as discussed in various
+   references as being generally preferred for very stiff problems.
 
-5. Add <solver>Cls interfaces to all integrators for 'custom' linear
+3. Add <solver>Cls interfaces to all integrators for 'custom' linear
    solvers.  These should:
    - assume a SUNMatrix object is provided
    - assume an iterative linear solve is performed
@@ -29,4 +14,23 @@
      calling specific items.  Perhaps these interfaces should just
      hold booleantype flags for supported routines (set at
      initialization), and check these during use??
+
+4. Revisit scaling vectors with PCG (without preconditioning) -- this
+   seems to work improperly now.  Perhaps it is the testing code, or
+   maybe the solver itself.
+  
+5. idaFoodWeb_kry_omp had been explicitly disabled from our testing
+   (in the examples/ida/C_openmp/CMakeLists.txt file).  Why?  It runs
+   correctly, although my results differ from the 'answer' file.
+   Perhaps this problem should be investigated more thoroughly and
+   added back in? 
+  
+6. Revisit the question of the differencing parameter used in the
+   IDADls and IDASDls interfaces.  Previously we had different
+   increments for GMRES than for BiCGStab and TFQMR; currently these
+   all use the GMRES value, but that value seems off in general (see
+   Alan's email about why it works for GMRES).  Test what happens if
+   we use the more 'standard' value.  We may need to add some kind of
+   internal check to see if the LS object is actually a SUNSPGMR
+   object (perhaps check if LS->ops->solve == SUNLinSolSolve_SPGMR ?)
 
