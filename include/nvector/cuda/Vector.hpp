@@ -229,29 +229,6 @@ inline SUNDIALS_Comm getMPIComm(N_Vector v)
 }
 
 
-// // Vector extractor
-// template <typename T, typename I>
-// inline Vector<T, I> *extract(N_Vector v)
-// {
-//   return static_cast<Vector<T, I>*>(v->content);
-// }
-//
-// // Get Vector device data
-// template <typename T, typename I>
-// inline T *getDevData(N_Vector v)
-// {
-//   Vector<T,I> *vp = static_cast<Vector<T, I>*>(v->content);
-//   return vp->device();
-// }
-//
-// // Get Vector length
-// template <typename T, typename I>
-// inline I getSize(N_Vector v)
-// {
-//   Vector<T,I> *vp = static_cast<Vector<T, I>*>(v->content);
-//   return vp->size();
-// }
-
 } // namespace suncudavec
 
 
