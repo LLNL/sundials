@@ -25,6 +25,7 @@ set_source_files_properties(${nvecraja_SOURCES} PROPERTIES CUDA_SOURCE_PROPERTY_
 # also be included in the NVECCUDA library
 SET(shared_SOURCES
   sundials_math.c
+  sundials_mpi.c
 )
 ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
 
@@ -45,7 +46,7 @@ ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 #  - Set the library name and make sure it is not deleted
 #  - Install the NVECSERIAL library
 IF(BUILD_STATIC_LIBS)
-  CUDA_ADD_LIBRARY(sundials_nveccuda_static STATIC ${nveccuda_SOURCES})
+  CUDA_ADD_LIBRARY(sundials_nveccuda_static STATIC ${nveccuda_SOURCES} ${shared_SOURCES})
   SET_TARGET_PROPERTIES(sundials_nveccuda_static
     PROPERTIES OUTPUT_NAME sundials_nveccuda CLEAN_DIRECT_OUTPUT 1
   )
@@ -58,7 +59,7 @@ ENDIF(BUILD_STATIC_LIBS)
 #  - Set VERSION and SOVERSION for shared libraries
 #  - Install the NVECSERIAL library
 IF(BUILD_SHARED_LIBS)
-  CUDA_ADD_LIBRARY(sundials_nveccuda_shared SHARED ${nveccuda_SOURCES})
+  CUDA_ADD_LIBRARY(sundials_nveccuda_shared SHARED ${nveccuda_SOURCES} ${shared_SOURCES})
   SET_TARGET_PROPERTIES(sundials_nveccuda_shared
     PROPERTIES OUTPUT_NAME sundials_nveccuda CLEAN_DIRECT_OUTPUT 1
   )

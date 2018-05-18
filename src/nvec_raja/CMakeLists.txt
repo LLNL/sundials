@@ -15,7 +15,7 @@
 
 INSTALL(CODE "MESSAGE(\"\nInstall NVECTOR_RAJA\n\")")
 
-# Add variable nveccuda_SOURCES with the sources for the NVECRAJA lib
+# Add variable nvecraja_SOURCES with the sources for the NVECRAJA lib
 SET(nvecraja_SOURCES
   nvector_raja.cu
 )
@@ -27,6 +27,7 @@ set_source_files_properties(${nvecraja_SOURCES} PROPERTIES CUDA_SOURCE_PROPERTY_
 # also be included in the NVECRAJA library
 SET(shared_SOURCES
   sundials_math.c
+  sundials_mpi.c
 )
 ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
 
@@ -49,7 +50,7 @@ ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 #  - Set the library name and make sure it is not deleted
 #  - Install the NVECRAJA library
 IF(BUILD_STATIC_LIBS)
-  CUDA_ADD_LIBRARY(sundials_nvecraja_static STATIC ${nvecraja_SOURCES})
+  CUDA_ADD_LIBRARY(sundials_nvecraja_static STATIC ${nvecraja_SOURCES} ${shared_SOURCES})
   SET_TARGET_PROPERTIES(sundials_nvecraja_static
     PROPERTIES OUTPUT_NAME sundials_nvecraja CLEAN_DIRECT_OUTPUT 1
   )
@@ -62,7 +63,7 @@ ENDIF(BUILD_STATIC_LIBS)
 #  - Set VERSION and SOVERSION for shared libraries
 #  - Install the NVECRAJA library
 IF(BUILD_SHARED_LIBS)
-  CUDA_ADD_LIBRARY(sundials_nvecraja_shared SHARED ${nvecraja_SOURCES})
+  CUDA_ADD_LIBRARY(sundials_nvecraja_shared SHARED ${nvecraja_SOURCES} ${shared_SOURCES})
   SET_TARGET_PROPERTIES(sundials_nvecraja_shared
     PROPERTIES OUTPUT_NAME sundials_nvecraja CLEAN_DIRECT_OUTPUT 1
   )

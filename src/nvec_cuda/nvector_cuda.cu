@@ -21,7 +21,7 @@
 
 #include <nvector/cuda/Vector.hpp>
 #include <nvector/cuda/VectorKernels.cuh>
-#include <sundials/sundials_mpi_types.h>
+#include <sundials/sundials_mpi.h>
 
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
@@ -31,8 +31,6 @@
 extern "C" {
 
 using namespace suncudavec;
-
-static realtype VAllReduce_Cuda(realtype d, int op, SUNDIALS_Comm comm);
 
 
 /* ----------------------------------------------------------------
@@ -366,7 +364,7 @@ realtype N_VDotProd_Cuda(N_Vector X, N_Vector Y)
 
   realtype sum = dotProd(*xvec, *yvec);
 
-  realtype gsum = VAllReduce_Cuda(sum, 1, comm);
+  realtype gsum = SUNDIALS_Reduce(sum, 1, comm);
   return gsum;
 }
 
@@ -377,7 +375,7 @@ realtype N_VMaxNorm_Cuda(N_Vector X)
 
   realtype locmax = maxNorm(*xvec);
 
-  realtype globmax = VAllReduce_Cuda(locmax, 2, comm);
+  realtype globmax = SUNDIALS_Reduce(locmax, 2, comm);
   return globmax;
 }
 
@@ -390,7 +388,7 @@ realtype N_VWrmsNorm_Cuda(N_Vector X, N_Vector W)
 
   realtype sum = wL2NormSquare(*xvec, *wvec);
 
-  realtype gsum = VAllReduce_Cuda(sum, 1, comm);
+  realtype gsum = SUNDIALS_Reduce(sum, 1, comm);
   return std::sqrt(gsum/Nglob);
 }
 
@@ -404,7 +402,7 @@ realtype N_VWrmsNormMask_Cuda(N_Vector X, N_Vector W, N_Vector Id)
 
   realtype sum = wL2NormSquareMask(*xvec, *wvec, *ivec);
 
-  realtype gsum = VAllReduce_Cuda(sum, 1, comm);
+  realtype gsum = SUNDIALS_Reduce(sum, 1, comm);
   return std::sqrt(gsum/Nglob);
 }
 
@@ -415,7 +413,7 @@ realtype N_VMin_Cuda(N_Vector X)
 
   realtype locmin = findMin(*xvec);
 
-  realtype globmin = VAllReduce_Cuda(locmin, 3, comm);
+  realtype globmin = SUNDIALS_Reduce(locmin, 3, comm);
   return globmin;
 }
 
@@ -427,7 +425,7 @@ realtype N_VWL2Norm_Cuda(N_Vector X, N_Vector W)
 
   realtype sum = wL2NormSquare(*xvec, *wvec);
 
-  realtype gsum = VAllReduce_Cuda(sum, 1, comm);
+  realtype gsum = SUNDIALS_Reduce(sum, 1, comm);
   return std::sqrt(gsum);
 }
 
@@ -438,7 +436,7 @@ realtype N_VL1Norm_Cuda(N_Vector X)
 
   realtype sum = L1Norm(*xvec);
 
-  realtype gsum = VAllReduce_Cuda(sum, 1, comm);
+  realtype gsum = SUNDIALS_Reduce(sum, 1, comm);
   return gsum;
 }
 
@@ -457,7 +455,7 @@ booleantype N_VInvTest_Cuda(N_Vector X, N_Vector Z)
 
   realtype locmin = invTest(*xvec, *zvec);
 
-  realtype globmin = VAllReduce_Cuda(locmin, 3, comm);
+  realtype globmin = SUNDIALS_Reduce(locmin, 3, comm);
   return (globmin < HALF);
 }
 
@@ -495,7 +493,7 @@ booleantype N_VConstrMask_Cuda(N_Vector C, N_Vector X, N_Vector M)
 
   N_VCopyToDevice_Cuda(M);
 
-  temp = VAllReduce_Cuda(temp, 3, comm);
+  temp = SUNDIALS_Reduce(temp, 3, comm);
 
   booleantype retval;
   if (temp == ONE) retval = SUNTRUE;
@@ -513,7 +511,7 @@ booleantype N_VConstrMask_Cuda(N_Vector C, N_Vector X, N_Vector M)
 //
 //   realtype locsum = constrMask(*cvec, *xvec, *mvec);
 //
-//   realtype globsum = VAllReduce_Cuda(locsum, 1, comm);
+//   realtype globsum = SUNDIALS_Reduce(locsum, 1, comm);
 //   printf("ConstraintMask: globsum = %d\n", globsum < HALF);
 //   return (globsum < HALF);
 }
@@ -526,52 +524,10 @@ realtype N_VMinQuotient_Cuda(N_Vector num, N_Vector denom)
 
   realtype locmin = minQuotient(*numvec, *denvec);
 
-  realtype globmin = VAllReduce_Cuda(locmin, 3, comm);
+  realtype globmin = SUNDIALS_Reduce(locmin, 3, comm);
   return globmin;
 }
 
-/*
- * -----------------------------------------------------------------
- * private functions
- * -----------------------------------------------------------------
- */
-
-static realtype VAllReduce_Cuda(realtype d, int op, SUNDIALS_Comm comm)
-{
-  /*
-   * This function does a global reduction.  The operation is
-   *   sum if op = 1,
-   *   max if op = 2,
-   *   min if op = 3.
-   * The operation is over all processors in the communicator
-   */
-
-#ifdef SUNDIALS_MPI_ENABLED
-
-  realtype out;
-
-  switch (op) {
-   case 1: MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
-           break;
-
-   case 2: MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_MAX, comm);
-           break;
-
-   case 3: MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_MIN, comm);
-           break;
-
-   default: break;
-  }
-
-  return(out);
-
-#else
-
-  /* If MPI is not enabled don't do reduction */
-  return d;
-
-#endif // ifdef SUNDIALS_MPI_ENABLED
-}
 
 
 } // extern "C"

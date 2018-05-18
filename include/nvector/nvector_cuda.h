@@ -46,19 +46,7 @@
 
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_config.h>
-
-#ifdef SUNDIALS_MPI_ENABLED
-
-#include <mpi.h>
-typedef MPI_Comm SUNDIALS_Comm;
-
-#else
-
-typedef int SUNDIALS_Comm;
-#warning "SUNDIALS_MPI_ENABLED not defined!\n"
-
-#endif // ifdef SUNDIALS_MPI_ENABLED
-
+#include <sundials/sundials_mpi.h>
 
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
