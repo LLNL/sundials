@@ -1,0 +1,49 @@
+                          NVECTOR_CUDA
+                  released as part of SUNDIALS
+  SUite of Nonlinear and DIfferential/ALgebraic equation Solvers
+                   Release 4.0.0-dev, May 2018
+
+
+The NVECTOR_CUDA module is an experimental NVECTOR implementation 
+with vector kernels written in the CUDA language.  
+
+The module allows for SUNDIALS vector kernels to run on GPU devices. 
+It is intended for users who are already familiar with CUDA and GPU
+programming. Building this vector module requires a CUDA compiler and,
+by extension, a C++ compiler.  
+
+NVECTOR_CUDA defines the content field of an N_Vector to be a 
+class Vector, which manages data layout. Thread partitioning is
+handled by classes StreamPartitioning and ReducePartitioning.
+
+NVECTOR_CUDA defines implementations of all vector operations defined
+by the generic NVECTOR module in the table of operations, except for 
+N_VSetArrayPointer and N_VGetArrayPointer. As such, this vector is not 
+available for use with SUNDIALS Fortran interfaces. When access to raw 
+vector data is needed, one should use NVECTOR_CUDA specific functions 
+N_VGetHostArrayPointer_Cuda and N_VGetDeviceArrayPointer_Cuda. Usage
+examples of NVECTOR_CUDA are provided in example programs for CVODE.
+
+
+A. Documentation
+----------------
+
+The NVECTOR_CUDA implementation is fully described in the user documentation
+for any of the SUNDIALS solvers. A PDF file for the user guide for a particular
+solver is available in the solver's subdirectory under doc/.
+
+
+B. Installation
+---------------
+
+For basic installation instructions see /sundials/INSTALL_GUIDE.pdf. 
+For complete installation instructions see any of the user guides.
+
+
+C. Releases
+-----------
+
+v. 4.0.0-dev - May  2018
+v. 3.1.1     - May  2018
+v. 3.1.0     - Nov. 2017
+v. 3.0.0     - Sep. 2017

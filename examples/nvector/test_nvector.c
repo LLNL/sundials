@@ -1165,8 +1165,11 @@ int Test_N_VMaxNorm(N_Vector X, sunindextype local_length, int myid)
   realtype ans;
 
   /* fill vector data */
-  N_VConst(NEG_ONE, X);
-  set_element(X, local_length-1, NEG_TWO);
+  N_VConst(NEG_HALF, X);
+  if (myid == 0)
+    set_element(X, local_length-1, NEG_TWO);
+  else
+    set_element(X, local_length-1, ONE);
   
   start_time = get_time();
   ans = N_VMaxNorm(X);
@@ -1232,59 +1235,34 @@ int Test_N_VWrmsNormMask(N_Vector X, N_Vector W, N_Vector ID,
   int      fails = 0, failure = 0;
   double   start_time, stop_time;
   realtype ans;
+  realtype fac;
 
-  /* 
-   * Case 1: use all elements, ID = 1
-   */
+  /* factor used in checking solutions */
+  fac = SUNRsqrt((realtype) (global_length - 1)/(global_length));
 
   /* fill vector data */
   N_VConst(NEG_HALF, X);
   N_VConst(HALF, W);
+
+  /* use all elements except one */
   N_VConst(ONE, ID);
+  if (myid == 0)
+    set_element(ID, local_length-1, ZERO);
 
   start_time = get_time();
   ans = N_VWrmsNormMask(X, W, ID);
   stop_time = get_time(); 
   
   /* ans equals 1/4 (same as wrms norm) */
-  failure = (ans < ZERO) ? 1 : FNEQ(ans, HALF*HALF);
+  failure = (ans < ZERO) ? 1 : FNEQ(ans, fac*HALF*HALF);
     
   if (failure) {
-    printf(">>> FAILED test -- N_VWrmsNormMask Case 1, Proc %d \n", myid);
+    printf(">>> FAILED test -- N_VWrmsNormMask, Proc %d \n", myid);
     PRINT_TIME("    N_VWrmsNormMask Time: %22.15e \n \n", stop_time - start_time);
     fails++;
   }
   else if (myid == 0) {
-    printf("    PASSED test -- N_VWrmsNormMask Case 1 \n");
-    PRINT_TIME("    N_VWrmsNormMask Time: %22.15e \n \n", stop_time - start_time);
-  }    
-
-  /* 
-   * Case 2: use no elements, ID = 0
-   */
-  
-  /* reset failure */
-  failure = 0;
-
-  /* fill vector data */
-  N_VConst(NEG_HALF, X);
-  N_VConst(HALF, W);
-  N_VConst(ZERO, ID);
-
-  start_time = get_time();
-  ans = N_VWrmsNormMask(X, W, ID);
-  stop_time = get_time(); 
-  
-  /* ans equals 0 (skips all elements) */
-  failure = (ans < ZERO) ? 1 : FNEQ(ans, ZERO);
-    
-  if (failure) {
-    printf(">>> FAILED test -- N_VWrmsNormMask Case 2, Proc %d \n", myid);
-    PRINT_TIME("    N_VWrmsNormMask Time: %22.15e \n \n", stop_time - start_time);
-    fails++;
-  }
-  else if (myid == 0) {
-    printf("    PASSED test -- N_VWrmsNormMask Case 2 \n");
+    printf("    PASSED test -- N_VWrmsNormMask \n");
     PRINT_TIME("    N_VWrmsNormMask Time: %22.15e \n \n", stop_time - start_time);
   }    
   
@@ -1303,14 +1281,17 @@ int Test_N_VMin(N_Vector X, sunindextype local_length, int myid)
 
   /* fill vector data */
   N_VConst(TWO, X);
-  set_element(X, local_length-1, NEG_ONE);
+  if (myid == 0)
+    set_element(X, local_length-1, NEG_TWO);
+  else
+    set_element(X, local_length-1, NEG_ONE);
 
   start_time = get_time();
   ans = N_VMin(X);
   stop_time = get_time(); 
 
-  /* ans should equal -1 */
-  failure = FNEQ(ans, NEG_ONE);
+  /* ans should equal -2 */
+  failure = FNEQ(ans, NEG_TWO);
 
   if (failure) {
     printf(">>> FAILED test -- N_VMin, Proc %d \n", myid);
@@ -1407,7 +1388,7 @@ int Test_N_VCompare(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
   if (local_length < 3) {
     printf("Error Test_N_VCompare: Local vector length is %ld, length must be >= 3",
            (long int) local_length);
-    return(-1);
+    return(1);
   }
 
   /* fill vector data */
@@ -1491,7 +1472,7 @@ int Test_N_VInvTest(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
   if (local_length < 2) {
     printf("Error Test_N_VCompare: Local vector length is %ld, length must be >= 2",
            (long int) local_length);
-    return(-1);
+    return(1);
   }
 
   /*
@@ -1581,7 +1562,7 @@ int Test_N_VConstrMask(N_Vector C, N_Vector X, N_Vector M,
   if (local_length < 7) {
     printf("Error Test_N_VCompare: Local vector length is %ld, length must be >= 7",
            (long int) local_length);
-    return(-1);
+    return(1);
   }
 
   /*
@@ -1748,14 +1729,17 @@ int Test_N_VMinQuotient(N_Vector NUM, N_Vector DENOM,
   /* fill vector data */
   N_VConst(TWO, NUM);
   N_VConst(TWO, DENOM);
-  set_element(NUM, local_length-1, ONE);
+  if (myid == 0)
+    set_element(NUM, local_length-1, HALF);
+  else
+    set_element(NUM, local_length-1, ONE);
 
   start_time = get_time();
   ans = N_VMinQuotient(NUM, DENOM);
   stop_time = get_time(); 
 
-  /* ans should equal 1/2 */
-  failure = FNEQ(ans, HALF);
+  /* ans should equal 1/4 */
+  failure = FNEQ(ans, HALF*HALF);
   
   if (failure) {
     printf(">>> FAILED test -- N_VMinQuotient Case 1, Proc %d \n", myid);
@@ -1794,6 +1778,2000 @@ int Test_N_VMinQuotient(N_Vector NUM, N_Vector DENOM,
     printf("    PASSED test -- N_VMinQuotient Case 2 \n");
     PRINT_TIME("    N_VMinQuotient Time: %22.15e \n \n", stop_time - start_time);
   }    
+
+  return(fails);
+}
+
+
+/* ----------------------------------------------------------------------
+ * N_VLinearCombination Test
+ * --------------------------------------------------------------------*/
+int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int myid)
+{
+  int      fails = 0, failure = 0, ierr = 0;
+  double   start_time, stop_time;
+
+  N_Vector Y1, Y2, Y3;
+  N_Vector V[3];
+  realtype c[3];
+
+  /* create vectors for testing */
+  Y1 = N_VClone(X);
+  Y2 = N_VClone(X);
+  Y3 = N_VClone(X);
+
+  /* set vectors in vector array */
+  V[0] = Y1;
+  V[1] = Y2;
+  V[2] = Y3;
+
+  /* initialize c values */
+  c[0] = ZERO;
+  c[1] = ZERO;
+  c[2] = ZERO;
+
+  /* 
+   * Case 1a: V[0] = a V[0], N_VScale
+   */
+
+  /* fill vector data */
+  N_VConst(TWO, Y1);
+
+  /* set scaling factors */
+  c[0] = HALF;
+
+  start_time = get_time();
+  ierr = N_VLinearCombination(1, c, V, Y1);
+  stop_time = get_time();
+
+  /* Y1 should be vector of +1 */
+  if (ierr == 0)
+    failure = check_ans(ONE, Y1, local_length);
+  else
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VLinearCombination Case 1a, Proc %d \n", myid);
+    PRINT_TIME("    N_VLinearCombination Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VLinearCombination Case 1a \n");
+    PRINT_TIME("    N_VLinearCombination Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /*
+   * Case 1b: X = a V[0], N_VScale
+   */
+
+  /* fill vector data and scaling factors */
+  N_VConst(TWO, Y1);
+
+  c[0] = HALF;
+
+  N_VConst(ZERO, X);
+
+  start_time = get_time();
+  ierr = N_VLinearCombination(1, c, V, X);
+  stop_time = get_time();
+
+  /* X should be vector of +1 */
+  if (ierr == 0)
+    failure = check_ans(ONE, X, local_length);
+  else
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VLinearCombination Case 1b, Proc %d \n", myid);
+    PRINT_TIME("    N_VLinearCombination Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VLinearCombination Case 1b \n");
+    PRINT_TIME("    N_VLinearCombination Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /* 
+   * Case 2a: V[0] = a V[0] + b V[1], N_VLinearSum
+   */
+
+  /* fill vector data */
+  N_VConst(NEG_TWO, Y1);
+  N_VConst(ONE,     Y2);
+
+  /* set scaling factors */
+  c[0] = HALF;
+  c[1] = TWO;
+
+  start_time = get_time();
+  ierr = N_VLinearCombination(2, c, V, Y1);
+  stop_time = get_time();
+
+  /* Y1 should be vector of +1 */
+  if (ierr == 0)
+    failure = check_ans(ONE, Y1, local_length);
+  else
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VLinearCombination Case 2a, Proc %d \n", myid);
+    PRINT_TIME("    N_VLinearCombination Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VLinearCombination Case 2a \n");
+    PRINT_TIME("    N_VLinearCombination Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /* 
+   * Case 2b: X = a V[0] + b V[1], N_VLinearSum
+   */
+
+  /* fill vector data and scaling factors */
+  N_VConst(ONE,     Y1);
+  N_VConst(NEG_TWO, Y2);
+
+  c[0] = TWO;
+  c[1] = HALF;
+
+  N_VConst(ZERO, X);
+
+  start_time = get_time();
+  ierr = N_VLinearCombination(2, c, V, X);
+  stop_time = get_time();
+
+  /* X should be vector of +1 */
+  if (ierr == 0)
+    failure = check_ans(ONE, X, local_length);
+  else
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VLinearCombination Case 2b, Proc %d \n", myid);
+    PRINT_TIME("    N_VLinearCombination Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VLinearCombination Case 2b \n");
+    PRINT_TIME("    N_VLinearCombination Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+
+  /*
+   * Case 3a: V[0] = V[0] + b V[1] + c V[2]
+   */
+
+  /* fill vector data */
+  N_VConst(TWO,     Y1);
+  N_VConst(NEG_TWO, Y2);
+  N_VConst(NEG_ONE, Y3);
+
+  /* set scaling factors */
+  c[0] = ONE;
+  c[1] = HALF;
+  c[2] = NEG_TWO;
+
+  start_time = get_time();
+  ierr = N_VLinearCombination(3, c, V, Y1);
+  stop_time = get_time();
+
+  /* Y1 should be vector of +3 */
+  if (ierr == 0)
+    failure = check_ans(TWO+ONE, Y1, local_length);
+  else
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VLinearCombination Case 3a, Proc %d \n", myid);
+    PRINT_TIME("    N_VLinearCombination Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VLinearCombination Case 3a \n");
+    PRINT_TIME("    N_VLinearCombination Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /*
+   * Case 3b: V[0] = a V[0] + b V[1] + c V[2]
+   */
+
+  /* fill vector data */
+  N_VConst(ONE,     Y1);
+  N_VConst(NEG_TWO, Y2);
+  N_VConst(NEG_ONE, Y3);
+
+  /* set scaling factors */
+  c[0] = TWO;
+  c[1] = HALF;
+  c[2] = NEG_ONE;
+
+  start_time = get_time();
+  ierr = N_VLinearCombination(3, c, V, Y1);
+  stop_time = get_time();
+
+  /* Y1 should be vector of +2 */
+  if (ierr == 0)
+    failure = check_ans(TWO, Y1, local_length);
+  else
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VLinearCombination Case 3b, Proc %d \n", myid);
+    PRINT_TIME("    N_VLinearCombination Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VLinearCombination Case 3b \n");
+    PRINT_TIME("    N_VLinearCombination Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /*
+   * Case 3c: X = a V[0] + b V[1] + c V[2]
+   */
+
+  /* fill vector data and set scaling factors */
+  N_VConst(ONE,     Y1);
+  N_VConst(NEG_TWO, Y2);
+  N_VConst(NEG_ONE, Y3);
+
+  c[0] = TWO;
+  c[1] = HALF;
+  c[2] = NEG_ONE;
+
+  N_VConst(ZERO, X);
+
+  start_time = get_time();
+  ierr = N_VLinearCombination(3, c, V, X);
+  stop_time = get_time();
+
+  /* X should be vector of +2 */
+  if (ierr == 0)
+    failure = check_ans(TWO, X, local_length);
+  else
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VLinearCombination Case 3c, Proc %d \n", myid);
+    PRINT_TIME("    N_VLinearCombination Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VLinearCombination Case 3c \n");
+    PRINT_TIME("    N_VLinearCombination Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /* Free vectors */
+  N_VDestroy(Y1);
+  N_VDestroy(Y2);
+  N_VDestroy(Y3);
+
+  return(fails);
+}
+
+
+/* ----------------------------------------------------------------------
+ * N_VScaleaddmulti Test
+ * --------------------------------------------------------------------*/
+int Test_N_VScaleAddMulti(N_Vector X, sunindextype local_length, int myid)
+{
+  int      fails = 0, failure = 0, ierr = 0;
+  double   start_time, stop_time;
+
+  realtype avals[3];
+  N_Vector *V, *Z;
+
+  /* create vectors for testing */
+  Z = N_VCloneVectorArray(3, X);
+  V = N_VCloneVectorArray(3, X);
+
+  /* initialize a values */
+  avals[0] = ZERO;
+  avals[1] = ZERO;
+  avals[2] = ZERO;
+
+  /* 
+   * Case 1a: V[0] = a[0] x + V[0], N_VLinearSum
+   */
+
+  /* fill vector data */
+  N_VConst(ONE,     X);
+  N_VConst(NEG_ONE, V[0]);
+
+  /* set scaling factors */
+  avals[0] = TWO;
+
+  start_time = get_time();
+  ierr = N_VScaleAddMulti(1, avals, X, V, V);
+  stop_time = get_time();
+
+  /* V[0] should be vector of +1 */
+  if (ierr == 0)
+    failure = check_ans(ONE, V[0], local_length);
+  else
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VScaleAddMulti Case 1a, Proc %d \n", myid);
+    PRINT_TIME("    N_VScaleAddMulti Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VScaleAddMulti Case 1a \n");
+    PRINT_TIME("    N_VScaleAddMulti Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /* 
+   * Case 1b: Z[0] = a[0] x + V[0], N_VLinearSum
+   */
+
+  /* fill vector data and set scaling factors */
+  N_VConst(ONE,     X);
+  N_VConst(NEG_ONE, V[0]);
+
+  avals[0] = TWO;
+
+  N_VConst(ZERO, Z[0]);
+
+  start_time = get_time();
+  ierr = N_VScaleAddMulti(1, avals, X, V, Z);
+  stop_time = get_time();
+
+  /* Z[0] should be vector of +1 */
+  if (ierr == 0)
+    failure = check_ans(ONE, Z[0], local_length);
+  else
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VScaleAddMulti Case 1b, Proc %d \n", myid);
+    PRINT_TIME("    N_VScaleAddMulti Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VScaleAddMulti Case 1b \n");
+    PRINT_TIME("    N_VScaleAddMulti Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /* 
+   * Case 2a: V[i] = a[i] x + V[i], N_VScaleAddMulti
+   */
+
+  /* fill vector data */
+  N_VConst(ONE, X);
+  N_VConst(NEG_TWO, V[0]);
+  N_VConst(TWO,     V[1]);
+  N_VConst(NEG_ONE, V[2]);
+
+  /* set scaling factors */
+  avals[0] = ONE;
+  avals[1] = NEG_TWO;
+  avals[2] = TWO;
+
+  start_time = get_time();
+  ierr = N_VScaleAddMulti(3, avals, X, V, V);
+  stop_time = get_time();
+
+  /* V[i] should be a vector of -1, 0, +1 */
+  if (ierr == 0) {
+    failure  = check_ans(NEG_ONE, V[0], local_length);
+    failure += check_ans(ZERO,    V[1], local_length);
+    failure += check_ans(ONE,     V[2], local_length);
+  } else {
+    failure = 1;
+  }
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VScaleAddMulti Case 2a, Proc %d \n", myid);
+    PRINT_TIME("    N_VScaleAddMulti Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VScaleAddMulti Case 2a \n");
+    PRINT_TIME("    N_VScaleAddMulti Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /* 
+   * Case 2b: Z[i] = a[i] x + V[i], N_VScaleAddMulti
+   */
+
+  /* fill vector data and set scaling factors */
+  N_VConst(ONE, X);
+  N_VConst(NEG_TWO, V[0]);
+  N_VConst(TWO,     V[1]);
+  N_VConst(NEG_ONE, V[2]);
+
+  avals[0] = ONE;
+  avals[1] = NEG_TWO;
+  avals[2] = TWO;
+
+  N_VConst(TWO, Z[0]);
+  N_VConst(TWO, Z[1]);
+  N_VConst(TWO, Z[2]);
+
+  start_time = get_time();
+  ierr = N_VScaleAddMulti(3, avals, X, V, Z);
+  stop_time = get_time();
+
+  /* Z[i] should be a vector of -1, 0, +1 */
+  if (ierr == 0) {
+    failure  = check_ans(NEG_ONE, Z[0], local_length);
+    failure += check_ans(ZERO,    Z[1], local_length);
+    failure += check_ans(ONE,     Z[2], local_length);
+  }
+  else {
+    failure = 1;
+  }
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VScaleAddMulti Case 2b, Proc %d \n", myid);
+    PRINT_TIME("    N_VScaleAddMulti Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VScaleAddMulti Case 2b \n");
+    PRINT_TIME("    N_VScaleAddMulti Time: %22.15e \n \n", stop_time - start_time);
+  }    
+
+  /* Free vectors */
+  N_VDestroyVectorArray(Z, 3);
+  N_VDestroyVectorArray(V, 3);
+
+  return(fails);
+}
+
+
+/* ----------------------------------------------------------------------
+ * N_VDotProdMulti Test
+ * --------------------------------------------------------------------*/
+int Test_N_VDotProdMulti(N_Vector X, sunindextype local_length,
+                         sunindextype global_length, int myid)
+{
+  int      fails = 0, failure = 0, ierr = 0;
+  double   start_time, stop_time;
+
+  N_Vector *V;
+  realtype dotprods[3];
+
+  /* create vectors for testing */
+  V = N_VCloneVectorArray(3, X);
+
+  /* 
+   * Case 1: d[0] = z . V[0], N_VDotProd
+   */
+  
+  /* fill vector data */
+  N_VConst(TWO,  X);
+  N_VConst(HALF, V[0]);
+
+  start_time = get_time();
+  ierr = N_VDotProdMulti(1, X, V, dotprods);
+  stop_time = get_time(); 
+
+  /* dotprod[0] should equal the global vector length */
+  if (ierr == 0)
+    failure = FNEQ(dotprods[0], global_length);
+  else
+    failure = 1;
+  
+  if (failure) {
+    printf(">>> FAILED test -- N_VDotProdMulti Case 1, Proc %d \n", myid);
+    PRINT_TIME("    N_VDotProdMulti Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VDotProdMulti Case 1 \n");
+    PRINT_TIME("    N_VDotProdMulti Time: %22.15e \n \n", stop_time - start_time);
+  }    
+
+  /* 
+   * Case 2: d[i] = z . V[i], N_VDotProd
+   */
+  
+  /* fill vector data */
+  N_VConst(TWO,      X);
+  N_VConst(NEG_HALF, V[0]);
+  N_VConst(HALF,     V[1]);
+  N_VConst(ONE,      V[2]);
+
+  start_time = get_time();
+  ierr = N_VDotProdMulti(3, X, V, dotprods);
+  stop_time = get_time();
+
+  /* dotprod[i] should equal -1, +1, and 2 times the global vector length */
+  if (ierr == 0) {
+    failure  = FNEQ(dotprods[0], -1*global_length);
+    failure += FNEQ(dotprods[1],    global_length);
+    failure += FNEQ(dotprods[2],  2*global_length);
+  } else {
+    failure = 1;
+  }
+  
+  if (failure) {
+    printf(">>> FAILED test -- N_VDotProdMulti Case 2, Proc %d \n", myid);
+    PRINT_TIME("    N_VDotProdMulti Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VDotProdMulti Case 2 \n");
+    PRINT_TIME("    N_VDotProdMulti Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /* Free vectors */
+  N_VDestroyVectorArray(V, 3);
+
+  return(fails);
+}
+
+
+/* ----------------------------------------------------------------------
+ * N_VLinearSumVectorArray Test
+ * --------------------------------------------------------------------*/
+int Test_N_VLinearSumVectorArray(N_Vector V, sunindextype local_length, int myid)
+{
+  int      fails = 0, failure = 0, ierr = 0;
+  double   start_time, stop_time;
+
+  N_Vector *X, *Y, *Z;
+
+  /* create vectors for testing */
+  X = N_VCloneVectorArray(3, V);
+  Y = N_VCloneVectorArray(3, V);
+  Z = N_VCloneVectorArray(3, V);
+
+  /*
+   * Case 1: Z[0] = a X[0] + b Y[0], N_VLinearSum
+   */
+
+  /* fill vector data */
+  N_VConst(NEG_HALF, X[0]);
+  N_VConst(TWO,      Y[0]);
+  N_VConst(TWO,      Z[0]);
+
+  start_time = get_time(); 
+  ierr = N_VLinearSumVectorArray(1, TWO, X, HALF, Y, Z);
+  stop_time = get_time(); 
+
+  /* Z[0] should be a vector of 0 */
+  if (ierr == 0)
+    failure = check_ans(ZERO, Z[0], local_length);
+  else
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VLinearSumVectorArray Case 1, Proc %d \n", myid);
+    PRINT_TIME("    N_VLinearSumVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VLinearSumVectorArray Case 1 \n");
+    PRINT_TIME("    N_VLinearSumVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }    
+
+  /* 
+   * Case 2a: Z[i] = a X[i] + b Y[i]
+   */
+
+  /* fill vector data */
+  N_VConst(NEG_HALF, X[0]);
+  N_VConst(TWO,      Y[0]);
+
+  N_VConst(ONE,     X[1]);
+  N_VConst(NEG_TWO, Y[1]);
+
+  N_VConst(HALF, X[2]);
+  N_VConst(TWO,  Y[2]);
+
+  start_time = get_time(); 
+  ierr = N_VLinearSumVectorArray(3, TWO, X, HALF, Y, Z);
+  stop_time = get_time(); 
+
+  /* Z[i] should be a vector of 0, +1, +2 */
+  if (ierr == 0) {
+    failure  = check_ans(ZERO, Z[0], local_length);
+    failure += check_ans(ONE,  Z[1], local_length);
+    failure += check_ans(TWO,  Z[2], local_length);
+  } else {
+    failure = 1;
+  }
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VLinearSumVectorArray Case 2a, Proc %d \n", myid);
+    PRINT_TIME("    N_VLinearSumVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VLinearSumVectorArray Case 2a \n");
+    PRINT_TIME("    N_VLinearSumVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /*
+   * Case 2b: X[i] = a X[i] + b Y[i]
+   */
+
+  /* fill vector data */
+  N_VConst(NEG_HALF, X[0]);
+  N_VConst(TWO,      Y[0]);
+
+  N_VConst(ONE,     X[1]);
+  N_VConst(NEG_TWO, Y[1]);
+
+  N_VConst(HALF, X[2]);
+  N_VConst(TWO,  Y[2]);
+
+  start_time = get_time(); 
+  ierr = N_VLinearSumVectorArray(3, TWO, X, HALF, Y, X);
+  stop_time = get_time(); 
+
+  /* X[i] should be a vector of 0, +1, +2 */
+  if (ierr == 0) {
+    failure  = check_ans(ZERO, X[0], local_length);
+    failure += check_ans(ONE,  X[1], local_length);
+    failure += check_ans(TWO,  X[2], local_length);
+  } else {
+    failure = 1;
+  }
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VLinearSumVectorArray Case 2b, Proc %d \n", myid);
+    PRINT_TIME("    N_VLinearSumVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VLinearSumVectorArray Case 2b \n");
+    PRINT_TIME("    N_VLinearSumVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }    
+
+  /*
+   * Case 2c: Y[i] = a X[i] + b Y[i]
+   */
+
+  /* fill vector data */
+  N_VConst(NEG_HALF, X[0]);
+  N_VConst(TWO,      Y[0]);
+
+  N_VConst(ONE,     X[1]);
+  N_VConst(NEG_TWO, Y[1]);
+
+  N_VConst(HALF, X[2]);
+  N_VConst(TWO,  Y[2]);
+
+  start_time = get_time(); 
+  ierr = N_VLinearSumVectorArray(3, TWO, X, HALF, Y, Y);
+  stop_time = get_time(); 
+
+  /* Y[i] should be a vector of 0, +1, +2 */
+  if (ierr == 0) {
+    failure  = check_ans(ZERO, Y[0], local_length);
+    failure += check_ans(ONE,  Y[1], local_length);
+    failure += check_ans(TWO,  Y[2], local_length);
+  } else {
+    failure = 1;
+  }
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VLinearSumVectorArray Case 2c, Proc %d \n", myid);
+    PRINT_TIME("    N_VLinearSumVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VLinearSumVectorArray Case 2c \n");
+    PRINT_TIME("    N_VLinearSumVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /* Free vectors */
+  N_VDestroyVectorArray(X, 3);
+  N_VDestroyVectorArray(Y, 3);
+  N_VDestroyVectorArray(Z, 3);
+
+  return(fails);
+}
+
+
+/* ----------------------------------------------------------------------
+ * N_VScaleVectorArray Test
+ * --------------------------------------------------------------------*/
+int Test_N_VScaleVectorArray(N_Vector X, sunindextype local_length, int myid)
+{
+  int      fails = 0, failure = 0, ierr = 0;
+  double   start_time, stop_time;
+
+  realtype c[3];
+  N_Vector *Y, *Z;
+
+  /* create vectors for testing */
+  Y = N_VCloneVectorArray(3, X);
+  Z = N_VCloneVectorArray(3, X);
+
+  /*
+   * Case 1a: Y[0] = c[0] Y[0], N_VScale
+   */
+
+  /* fill vector data */
+  N_VConst(HALF, Y[0]);
+
+  c[0] = TWO;
+
+  start_time = get_time(); 
+  ierr = N_VScaleVectorArray(1, c, Y, Y);
+  stop_time = get_time(); 
+
+  /* Y[0] should be a vector of +1 */
+  if (ierr == 0)
+    failure = check_ans(ONE, Y[0], local_length);
+  else
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VScaleVectorArray Case 1a, Proc %d \n", myid);
+    PRINT_TIME("    N_VScaleVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VScaleVectorArray Case 1a \n");
+    PRINT_TIME("    N_VScaleVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }    
+
+  /*
+   * Case 1b: Z[0] = c[0] Y[0], N_VScale
+   */
+
+  /* fill vector data */
+  N_VConst(HALF, Y[0]);
+
+  c[0] = TWO;
+
+  start_time = get_time(); 
+  ierr = N_VScaleVectorArray(1, c, Y, Z);
+  stop_time = get_time(); 
+
+  /* Z[0] should be a vector of +1 */
+  if (ierr == 0)
+    failure = check_ans(ONE, Z[0], local_length);
+  else
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VScaleVectorArray Case 1b, Proc %d \n", myid);
+    PRINT_TIME("    N_VScaleVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VScaleVectorArray Case 1b \n");
+    PRINT_TIME("    N_VScaleVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }    
+
+  /*
+   * Case 2a: Y[i] = c[i] Y[i]
+   */
+
+  /* fill vector data */
+  N_VConst(HALF,    Y[0]);
+  N_VConst(NEG_TWO, Y[1]);
+  N_VConst(NEG_ONE, Y[2]);
+
+  c[0] = TWO;
+  c[1] = HALF;
+  c[2] = NEG_TWO;
+
+  start_time = get_time(); 
+  ierr = N_VScaleVectorArray(3, c, Y, Y);
+  stop_time = get_time(); 
+
+  /* Y[i] should be a vector of +1, -1, 2 */
+  if (ierr == 0) {
+    failure  = check_ans(ONE,     Y[0], local_length);
+    failure += check_ans(NEG_ONE, Y[1], local_length);
+    failure += check_ans(TWO,     Y[2], local_length);
+  } else {
+    failure = 1;
+  }
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VScaleVectorArray Case 2a, Proc %d \n", myid);
+    PRINT_TIME("    N_VScaleVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VScaleVectorArray Case 2a \n");
+    PRINT_TIME("    N_VScaleVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /*
+   * Case 2b: Z[i] = c[i] Y[i]
+   */
+
+  /* fill vector data */
+  N_VConst(HALF,    Y[0]);
+  N_VConst(NEG_TWO, Y[1]);
+  N_VConst(NEG_ONE, Y[2]);
+
+  c[0] = TWO;
+  c[1] = HALF;
+  c[2] = NEG_TWO;
+
+  start_time = get_time(); 
+  ierr = N_VScaleVectorArray(3, c, Y, Z);
+  stop_time = get_time(); 
+
+  /* Z[i] should be a vector of +1, -1, 2 */
+  if (ierr == 0) {
+    failure  = check_ans(ONE,     Z[0], local_length);
+    failure += check_ans(NEG_ONE, Z[1], local_length);
+    failure += check_ans(TWO,     Z[2], local_length);
+  } else {
+    failure = 1;
+  }
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VScaleVectorArray Case 2b, Proc %d \n", myid);
+    PRINT_TIME("    N_VScaleVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VScaleVectorArray Case 2b \n");
+    PRINT_TIME("    N_VScaleVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /* Free vectors */
+  N_VDestroyVectorArray(Y, 3);
+  N_VDestroyVectorArray(Z, 3);
+
+  return(fails);
+}
+
+
+/* ----------------------------------------------------------------------
+ * N_VConstVectorArray Test
+ * --------------------------------------------------------------------*/
+int Test_N_VConstVectorArray(N_Vector X, sunindextype local_length, int myid)
+{
+  int      fails = 0, failure = 0, ierr = 0;
+  double   start_time, stop_time;
+
+  N_Vector *Z;
+
+  /* create vectors for testing */
+  Z = N_VCloneVectorArray(3, X);
+
+  /*
+   * Case 1a: Z[0] = c, N_VConst
+   */
+
+  /* fill vector data */
+  N_VConst(ZERO, Z[0]);
+
+  start_time = get_time(); 
+  ierr = N_VConstVectorArray(1, ONE, Z);
+  stop_time = get_time(); 
+
+  /* Y[0] should be a vector of 1 */
+  if (ierr == 0)
+    failure = check_ans(ONE, Z[0], local_length);
+  else
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VConstVectorArray Case 1a, Proc %d \n", myid);
+    PRINT_TIME("    N_VConstVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VConstVectorArray Case 1a \n");
+    PRINT_TIME("    N_VConstVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }    
+
+  /*
+   * Case 1b: Z[i] = c
+   */
+
+  /* fill vector data */
+  N_VConst(ZERO, Z[0]);
+  N_VConst(ZERO, Z[1]);
+  N_VConst(ZERO, Z[2]);
+
+  start_time = get_time(); 
+  ierr = N_VConstVectorArray(3, ONE, Z);
+  stop_time = get_time(); 
+
+  /* Y[i] should be a vector of 1 */
+  if (ierr == 0) {
+    failure  = check_ans(ONE, Z[0], local_length);
+    failure += check_ans(ONE, Z[1], local_length);
+    failure += check_ans(ONE, Z[2], local_length);
+  } else {
+    failure = 1;
+  }
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VConstVectorArray Case 1b, Proc %d \n", myid);
+    PRINT_TIME("    N_VConstVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VConstVectorArray Case 1b \n");
+    PRINT_TIME("    N_VConstVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }    
+
+  /* Free vectors */
+  N_VDestroyVectorArray(Z, 3);
+
+  return(fails);
+}
+
+
+/* ----------------------------------------------------------------------
+ * N_VWrmsNormVectorArray Test
+ * --------------------------------------------------------------------*/
+int Test_N_VWrmsNormVectorArray(N_Vector X, sunindextype local_length, int myid)
+{
+  int      fails = 0, failure = 0, ierr = 0;
+  double   start_time, stop_time;
+
+  realtype nrm[3];
+  N_Vector *Z;
+  N_Vector *W;
+
+  /* create vectors for testing */
+  Z = N_VCloneVectorArray(3, X);
+  W = N_VCloneVectorArray(3, X);
+
+  /*
+   * Case 1a: nrm[0] = ||Z[0]||, N_VWrmsNorm
+   */
+
+  /* fill vector data */
+  N_VConst(NEG_HALF, Z[0]);
+  N_VConst(HALF,     W[0]);
+  
+  nrm[0] = NEG_ONE;
+  nrm[1] = NEG_ONE;
+  nrm[2] = NEG_ONE;
+
+  start_time = get_time(); 
+  ierr = N_VWrmsNormVectorArray(1, Z, W, nrm);
+  stop_time = get_time(); 
+
+  /* nrm should equal 1/4 */
+  if (ierr == 0)
+    failure = (nrm[0] < ZERO) ? 1 : FNEQ(nrm[0], HALF*HALF);
+  else
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VWrmsNormVectorArray Case 1a, Proc %d \n", myid);
+    PRINT_TIME("    N_VWrmsNormVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VWrmsNormVectorArray Case 1a \n");
+    PRINT_TIME("    N_VWrmsNormVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }    
+
+  /*
+   * Case 1b: nrm[i] = ||Z[i]||
+   */
+
+  /* fill vector data */
+  N_VConst(NEG_HALF, Z[0]);
+  N_VConst(TWO*TWO,  Z[1]);
+  N_VConst(HALF,     Z[2]);
+
+  N_VConst(HALF,      W[0]);
+  N_VConst(HALF*HALF, W[1]);
+  N_VConst(ONE,       W[2]);
+  
+  nrm[0] = NEG_ONE;
+  nrm[1] = NEG_ONE;
+  nrm[2] = NEG_ONE;
+
+  start_time = get_time(); 
+  ierr = N_VWrmsNormVectorArray(3, Z, W, nrm);
+  stop_time = get_time(); 
+
+  /* ans should equal 1/4, 1, 1/2 */
+  if (ierr == 0) {
+    failure  = (nrm[0] < ZERO) ? 1 : FNEQ(nrm[0], HALF*HALF);
+    failure += (nrm[1] < ZERO) ? 1 : FNEQ(nrm[1], ONE);
+    failure += (nrm[2] < ZERO) ? 1 : FNEQ(nrm[2], HALF);
+  } else {
+    failure = 1;
+  }
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VWrmsNormVectorArray Case 1b, Proc %d \n", myid);
+    PRINT_TIME("    N_VWrmsNormVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VWrmsNormVectorArray Case 1b \n");
+    PRINT_TIME("    N_VWrmsNormVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }    
+
+  /* Free vectors */
+  N_VDestroyVectorArray(Z, 3);
+  N_VDestroyVectorArray(W, 3);
+
+  return(fails);
+}
+
+
+/* ----------------------------------------------------------------------
+ * N_VWrmsNormMaskVectorArray Test
+ * --------------------------------------------------------------------*/
+int Test_N_VWrmsNormMaskVectorArray(N_Vector X, sunindextype local_length,
+                                    sunindextype global_length, int myid)
+{
+  int      fails = 0, failure = 0, ierr = 0;
+  double   start_time, stop_time;
+
+  realtype fac;
+  realtype nrm[3];
+  N_Vector *Z;
+  N_Vector *W;
+
+  /* factor used in checking solutions */
+  fac = SUNRsqrt((realtype) (global_length - 1)/(global_length));
+
+  /* create vectors for testing */
+  Z = N_VCloneVectorArray(3, X);
+  W = N_VCloneVectorArray(3, X);
+
+  /*
+   * Case 1: nrm[0] = ||Z[0]||
+   */
+
+  /* fill vector data */
+  N_VConst(NEG_HALF, Z[0]);
+  N_VConst(HALF,     W[0]);
+
+  /* use all elements except one */
+  N_VConst(ONE, X);
+  if (myid == 0)
+    set_element(X, local_length-1, ZERO);
+
+  nrm[0] = NEG_ONE;
+  nrm[1] = NEG_ONE;
+  nrm[2] = NEG_ONE;
+
+  start_time = get_time();
+  ierr = N_VWrmsNormMaskVectorArray(1, Z, W, X, nrm);
+  stop_time = get_time();
+
+  /* nrm should equal fac/4 */
+  if (ierr == 0)
+    failure = (nrm[0] < ZERO) ? 1 : FNEQ(nrm[0], fac*HALF*HALF);
+  else
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VWrmsNormMaskVectorArray Case 1, Proc %d \n", myid);
+    PRINT_TIME("    N_VWrmsNormVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VWrmsNormMaskVectorArray Case 1 \n");
+    PRINT_TIME("    N_VWrmsNormVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /*
+   * Case 2: nrm[i] = ||Z[i]||
+   */
+
+  /* fill vector data */
+  N_VConst(NEG_HALF, Z[0]);
+  N_VConst(TWO*TWO,  Z[1]);
+  N_VConst(HALF,     Z[2]);
+
+  N_VConst(HALF,      W[0]);
+  N_VConst(HALF*HALF, W[1]);
+  N_VConst(ONE,       W[2]);
+
+  /* use all elements except one */
+  N_VConst(ONE, X);
+  if (myid == 0)
+    set_element(X, local_length-1, ZERO);
+
+  nrm[0] = NEG_ONE;
+  nrm[1] = NEG_ONE;
+  nrm[2] = NEG_ONE;
+
+  start_time = get_time();
+  ierr = N_VWrmsNormMaskVectorArray(3, Z, W, X, nrm);
+  stop_time = get_time();
+
+  /* ans should equal fac/4, fac, fac/2] */
+  if (ierr == 0) {
+    failure  = (nrm[0] < ZERO) ? 1 : FNEQ(nrm[0], fac*HALF*HALF);
+    failure += (nrm[1] < ZERO) ? 1 : FNEQ(nrm[1], fac);
+    failure += (nrm[2] < ZERO) ? 1 : FNEQ(nrm[2], fac*HALF);
+  } else {
+    failure = 1;
+  }
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VWrmsNormMaskVectorArray Case 2, Proc %d \n", myid);
+    PRINT_TIME("    N_VWrmsNormVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VWrmsNormMaskVectorArray Case 2 \n");
+    PRINT_TIME("    N_VWrmsNormVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /* Free vectors */
+  N_VDestroyVectorArray(Z, 3);
+  N_VDestroyVectorArray(W, 3);
+
+  return(fails);
+}
+
+
+/* ----------------------------------------------------------------------
+ * N_VScaleAddMultiVectorArray Test
+ * --------------------------------------------------------------------*/
+int Test_N_VScaleAddMultiVectorArray(N_Vector V, sunindextype local_length, int myid)
+{
+  int      fails = 0, failure = 0, ierr = 0;
+  double   start_time, stop_time;
+
+  realtype  a[3];
+  N_Vector* X;
+  N_Vector* Y[3];
+  N_Vector* Z[3];
+
+
+  /* create vectors for testing */
+  X = N_VCloneVectorArray(3, V);
+
+  Y[0] = N_VCloneVectorArray(3, V);
+  Y[1] = N_VCloneVectorArray(3, V);
+  Y[2] = N_VCloneVectorArray(3, V);
+
+  Z[0] = N_VCloneVectorArray(3, V);
+  Z[1] = N_VCloneVectorArray(3, V);
+  Z[2] = N_VCloneVectorArray(3, V);
+
+  /*
+   * Case 1a (nvec = 1, nsum = 1):
+   * Z[0][0] = a[0] X[0] + Y[0][0], N_VLinearSum
+   */
+
+  /* fill scaling and vector data */
+  a[0] = TWO;
+
+  N_VConst(ONE,     X[0]);
+  N_VConst(NEG_ONE, Y[0][0]);
+
+  start_time = get_time();
+  ierr = N_VScaleAddMultiVectorArray(1, 1, a, X, Y, Y);
+  stop_time = get_time();
+
+  /* Y[0][0] should be vector of +1 */
+  if (ierr == 0)
+    failure = check_ans(ONE, Y[0][0], local_length);
+  else
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VScaleAddMultiVectorArray Case 1a, Proc %d \n", myid);
+    PRINT_TIME("    N_VScaleAddMultiVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VScaleAddMultiVectorArray Case 1a \n");
+    PRINT_TIME("    N_VScaleAddMultiVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /*
+   * Case 1b (nvec = 1, nsum = 1):
+   * Z[0][0] = a[0] X[0] + Y[0][0], N_VLinearSum
+   */
+
+  /* fill scaling and vector data */
+  a[0] = TWO;
+
+  N_VConst(ONE,     X[0]);
+  N_VConst(NEG_ONE, Y[0][0]);
+  N_VConst(ZERO,    Z[0][0]);
+
+  start_time = get_time();
+  ierr = N_VScaleAddMultiVectorArray(1, 1, a, X, Y, Z);
+  stop_time = get_time();
+
+  /* Z[0][0] should be vector of +1 */
+  if (ierr == 0)
+    failure = check_ans(ONE, Z[0][0], local_length);
+  else
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VScaleAddMultiVectorArray Case 1b, Proc %d \n", myid);
+    PRINT_TIME("    N_VScaleAddMultiVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VScaleAddMultiVectorArray Case 1b \n");
+    PRINT_TIME("    N_VScaleAddMultiVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /*
+   * Case 2a (nvec = 1, nsum > 1):
+   * Y[j][0] = a[j] X[0] + Y[j][0], N_VScaleAddMulti
+   */
+
+  /* fill scaling and vector data */
+  a[0] = ONE;
+  a[1] = NEG_TWO;
+  a[2] = TWO;
+
+  N_VConst(ONE, X[0]);
+
+  N_VConst(NEG_TWO, Y[0][0]);
+  N_VConst(TWO,     Y[1][0]);
+  N_VConst(NEG_ONE, Y[2][0]);
+
+  start_time = get_time();
+  ierr = N_VScaleAddMultiVectorArray(1, 3, a, X, Y, Y);
+  stop_time = get_time();
+
+  /* Y[i][0] should be a vector of -1, 0, +1 */
+  if (ierr == 0) {
+    failure  = check_ans(NEG_ONE, Y[0][0], local_length);
+    failure += check_ans(ZERO,    Y[1][0], local_length);
+    failure += check_ans(ONE,     Y[2][0], local_length);
+  } else {
+    failure = 1;
+  }
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VScaleAddMultiVectorArray Case 2a, Proc %d \n", myid);
+    PRINT_TIME("    N_VScaleAddMultiVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VScaleAddMultiVectorArray Case 2a \n");
+    PRINT_TIME("    N_VScaleAddMultiVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /*
+   * Case 2b (nvec = 1, nsum > 1):
+   * Z[j][0] = a[j] X[0] + Y[j][0], N_VScaleAddMulti
+   */
+
+  /* fill scaling and vector data */
+  a[0] = ONE;
+  a[1] = NEG_TWO;
+  a[2] = TWO;
+
+  N_VConst(ONE, X[0]);
+
+  N_VConst(NEG_TWO, Y[0][0]);
+  N_VConst(TWO,     Y[1][0]);
+  N_VConst(NEG_ONE, Y[2][0]);
+
+  N_VConst(ZERO, Z[0][0]);
+  N_VConst(ONE,  Z[1][0]);
+  N_VConst(TWO,  Z[2][0]);
+
+  start_time = get_time();
+  ierr = N_VScaleAddMultiVectorArray(1, 3, a, X, Y, Z);
+  stop_time = get_time();
+
+  /* Z[i][0] should be a vector of -1, 0, +1 */
+  if (ierr == 0) {
+    failure  = check_ans(NEG_ONE, Z[0][0], local_length);
+    failure += check_ans(ZERO,    Z[1][0], local_length);
+    failure += check_ans(ONE,     Z[2][0], local_length);
+  } else {
+    failure = 1;
+  }
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VScaleAddMultiVectorArray Case 2b, Proc %d \n", myid);
+    PRINT_TIME("    N_VScaleAddMultiVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VScaleAddMultiVectorArray Case 2b \n");
+    PRINT_TIME("    N_VScaleAddMultiVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /*
+   * Case 3a (nvec > 1, nsum = 1):
+   * Y[0][i] = a[0] X[i] + Y[0][i], N_VLinearSumVectorArray
+   */
+
+  /* fill scaling and vector data */
+  a[0] = TWO;
+
+  N_VConst(HALF,    X[0]);
+  N_VConst(NEG_ONE, X[1]);
+  N_VConst(ONE,     X[2]);
+
+  N_VConst(NEG_TWO, Y[0][0]);
+  N_VConst(TWO,     Y[0][1]);
+  N_VConst(NEG_ONE, Y[0][2]);
+
+  start_time = get_time();
+  ierr = N_VScaleAddMultiVectorArray(3, 1, a, X, Y, Y);
+  stop_time = get_time();
+
+  /* Y[0][i] should be vector of -1, 0, +1 */
+  if (ierr == 0) {
+    failure  = check_ans(NEG_ONE, Y[0][0], local_length);
+    failure += check_ans(ZERO,    Y[0][1], local_length);
+    failure += check_ans(ONE,     Y[0][2], local_length);
+  } else {
+    failure = 1;
+  }
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VScaleAddMultiVectorArray Case 3a, Proc %d \n", myid);
+    PRINT_TIME("    N_VScaleAddMultiVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VScaleAddMultiVectorArray Case 3a \n");
+    PRINT_TIME("    N_VScaleAddMultiVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /*
+   * Case 3b (nvec > 1, nsum = 1):
+   * Z[j][0] = a[j] X[0] + Y[j][0], N_VLinearSumVectorArray
+   */
+
+  /* fill scaling and vector data */
+  a[0] = TWO;
+
+  N_VConst(HALF,    X[0]);
+  N_VConst(NEG_ONE, X[1]);
+  N_VConst(ONE,     X[2]);
+
+  N_VConst(NEG_TWO, Y[0][0]);
+  N_VConst(TWO,     Y[0][1]);
+  N_VConst(NEG_ONE, Y[0][2]);
+
+  N_VConst(TWO, Z[0][0]);
+  N_VConst(TWO, Z[0][1]);
+  N_VConst(TWO, Z[0][2]);
+
+  start_time = get_time();
+  ierr = N_VScaleAddMultiVectorArray(3, 1, a, X, Y, Z);
+  stop_time = get_time();
+
+  /* Z[0][i] should be vector of -1, 0, +1 */
+  if (ierr == 0) {
+    failure  = check_ans(NEG_ONE, Z[0][0], local_length);
+    failure += check_ans(ZERO,    Z[0][1], local_length);
+    failure += check_ans(ONE,     Z[0][2], local_length);
+  } else {
+    failure = 1;
+  }
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VScaleAddMultiVectorArray Case 3b, Proc %d \n", myid);
+    PRINT_TIME("    N_VScaleAddMultiVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VScaleAddMultiVectorArray Case 3b \n");
+    PRINT_TIME("    N_VScaleAddMultiVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /*
+   * Case 4a (nvec > 1, nsum > 1):
+   * Y[j][i] = a[j] X[i] + Y[j][i], N_VScaleAddMultiVectorArray
+   */
+
+  /* fill scaling and vector data */
+  a[0] = TWO;
+  a[1] = ONE;
+  a[2] = NEG_TWO;
+
+  N_VConst(HALF,     X[0]);
+  N_VConst(NEG_TWO,  Y[0][0]);
+  N_VConst(NEG_HALF, Y[1][0]);
+  N_VConst(TWO,      Y[2][0]);
+
+  N_VConst(ONE,     X[1]);
+  N_VConst(NEG_ONE, Y[0][1]);
+  N_VConst(NEG_TWO, Y[1][1]);
+  N_VConst(TWO,     Y[2][1]);
+
+  N_VConst(NEG_TWO,     X[2]);
+  N_VConst(TWO,         Y[0][2]);
+  N_VConst(TWO*TWO,     Y[1][2]);
+  N_VConst(NEG_TWO*TWO, Y[2][2]);
+
+  start_time = get_time();
+  ierr = N_VScaleAddMultiVectorArray(3, 3, a, X, Y, Y);
+  stop_time = get_time();
+
+  if (ierr == 0) {
+    /* Y[i][0] should be vector of -1, 0, +1 */
+    failure  = check_ans(NEG_ONE, Y[0][0], local_length);
+    failure += check_ans(ZERO,    Y[1][0], local_length);
+    failure += check_ans(ONE,     Y[2][0], local_length);
+
+    /* Y[i][1] should be vector of +1, -1, 0 */
+    failure += check_ans(ONE,     Y[0][1], local_length);
+    failure += check_ans(NEG_ONE, Y[1][1], local_length);
+    failure += check_ans(ZERO,    Y[2][1], local_length);
+
+    /* Y[i][2] should be vector of -2, 2, 0 */
+    failure += check_ans(NEG_TWO, Y[0][2], local_length);
+    failure += check_ans(TWO,     Y[1][2], local_length);
+    failure += check_ans(ZERO,    Y[2][2], local_length);
+  } else {
+    failure = 1;
+  }
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VScaleAddMultiVectorArray Case 4a, Proc %d \n", myid);
+    PRINT_TIME("    N_VScaleAddMultiVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VScaleAddMultiVectorArray Case 4a \n");
+    PRINT_TIME("    N_VScaleAddMultiVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /*
+   * Case 4b (nvec > 1, nsum > 1):
+   * Z[j][i] = a[j] X[i] + Y[j][i], N_VScaleAddMultiVectorArray
+   */
+
+  /* fill scaling and vector data */
+  a[0] = TWO;
+  a[1] = ONE;
+  a[2] = NEG_TWO;
+
+  N_VConst(HALF, X[0]);
+
+  N_VConst(NEG_TWO,  Y[0][0]);
+  N_VConst(NEG_HALF, Y[1][0]);
+  N_VConst(TWO,      Y[2][0]);
+
+  N_VConst(HALF, Z[0][0]);
+  N_VConst(HALF, Z[1][0]);
+  N_VConst(HALF, Z[2][0]);
+
+  N_VConst(ONE, X[1]);
+
+  N_VConst(NEG_ONE, Y[0][1]);
+  N_VConst(NEG_TWO, Y[1][1]);
+  N_VConst(TWO,     Y[2][1]);
+
+  N_VConst(HALF, Z[0][1]);
+  N_VConst(HALF, Z[1][1]);
+  N_VConst(HALF, Z[2][1]);
+
+  N_VConst(NEG_TWO, X[2]);
+
+  N_VConst(TWO,         Y[0][2]);
+  N_VConst(TWO*TWO,     Y[1][2]);
+  N_VConst(NEG_TWO*TWO, Y[2][2]);
+
+  N_VConst(HALF, Z[0][2]);
+  N_VConst(HALF, Z[1][2]);
+  N_VConst(HALF, Z[2][2]);
+
+  start_time = get_time();
+  ierr = N_VScaleAddMultiVectorArray(3, 3, a, X, Y, Z);
+  stop_time = get_time();
+
+  if (ierr == 0) {
+    /* Z[i][0] should be vector of -1, 0, +1 */
+    failure  = check_ans(NEG_ONE, Z[0][0], local_length);
+    failure += check_ans(ZERO,    Z[1][0], local_length);
+    failure += check_ans(ONE,     Z[2][0], local_length);
+
+    /* Z[i][1] should be vector of +1, -1, 0 */
+    failure += check_ans(ONE,     Z[0][1], local_length);
+    failure += check_ans(NEG_ONE, Z[1][1], local_length);
+    failure += check_ans(ZERO,    Z[2][1], local_length);
+
+    /* Z[i][2] should be vector of -2, 2, 0 */
+    failure += check_ans(NEG_TWO, Z[0][2], local_length);
+    failure += check_ans(TWO,     Z[1][2], local_length);
+    failure += check_ans(ZERO,    Z[2][2], local_length);
+  } else {
+    failure = 1;
+  }
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VScaleAddMultiVectorArray Case 4b, Proc %d \n", myid);
+    PRINT_TIME("    N_VScaleAddMultiVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VScaleAddMultiVectorArray Case 4b \n");
+    PRINT_TIME("    N_VScaleAddMultiVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /* Free vectors */
+  N_VDestroyVectorArray(X, 3);
+  N_VDestroyVectorArray(Y[0], 3);
+  N_VDestroyVectorArray(Y[1], 3);
+  N_VDestroyVectorArray(Y[2], 3);
+  N_VDestroyVectorArray(Z[0], 3);
+  N_VDestroyVectorArray(Z[1], 3);
+  N_VDestroyVectorArray(Z[2], 3);
+
+  return(fails);
+}
+
+
+/* ----------------------------------------------------------------------
+ * N_VLinearCombinationVectorArray Test
+ * --------------------------------------------------------------------*/
+int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length, int myid)
+{
+  int      fails = 0, failure = 0, ierr = 0;
+  double   start_time, stop_time;
+
+  realtype c[3];
+  N_Vector *Z;
+  N_Vector* X[3];
+
+  /* create vectors for testing */
+  Z = N_VCloneVectorArray(3, V);
+
+  X[0] = N_VCloneVectorArray(3, V);
+  X[1] = N_VCloneVectorArray(3, V);
+  X[2] = N_VCloneVectorArray(3, V);
+
+  /*
+   * Case 1a: (nvec = 1, nsum = 1), N_VScale
+   * X[0][0] = c[0] X[0][0]
+   */
+
+  /* fill vector data and scaling factor */
+  N_VConst(HALF, X[0][0]);
+  c[0] = TWO;
+
+  start_time = get_time();
+  ierr = N_VLinearCombinationVectorArray(1, 1, c, X, X[0]);
+  stop_time = get_time();
+
+  /* X[0][0] should equal +1 */
+  if (ierr == 0)
+    failure = check_ans(ONE, X[0][0], local_length);
+  else
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VLinearCombinationVectorArray Case 1a, Proc %d \n", myid);
+    PRINT_TIME("    N_VLinearCombinationVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VLinearCombinationVectorArray Case 1a \n");
+    PRINT_TIME("    N_VLinearCombinationVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /*
+   * Case 1b: (nvec = 1, nsum = 1), N_VScale
+   * Z[0] = c[0] X[0][0]
+   */
+
+  /* fill vector data and scaling factor */
+  N_VConst(HALF, X[0][0]);
+  N_VConst(ZERO, Z[0]);
+  c[0] = TWO;
+
+  start_time = get_time();
+  ierr = N_VLinearCombinationVectorArray(1, 1, c, X, Z);
+  stop_time = get_time();
+
+  /* X[0][0] should equal +1 */
+  if (ierr == 0)
+    failure = check_ans(ONE, Z[0], local_length);
+  else
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VLinearCombinationVectorArray Case 1b, Proc %d \n", myid);
+    PRINT_TIME("    N_VLinearCombinationVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VLinearCombinationVectorArray Case 1b \n");
+    PRINT_TIME("    N_VLinearCombinationVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /*
+   * Case 2a: (nvec = 1, nsum = 2), N_VLinearSum
+   * X[0][0] = c[0] X[0][0] + c[1] X[1][0]
+   */
+
+  /* fill vector data and scaling factor */
+  N_VConst(HALF,    X[0][0]);
+  N_VConst(NEG_ONE, X[1][0]);
+
+  c[0] = TWO;
+  c[1] = NEG_ONE;
+
+  start_time = get_time();
+  ierr = N_VLinearCombinationVectorArray(1, 2, c, X, X[0]);
+  stop_time = get_time();
+
+  /* X[0][0] should equal +2 */
+  if (ierr == 0)
+    failure = check_ans(TWO, X[0][0], local_length);
+  else
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VLinearCombinationVectorArray Case 2a, Proc %d \n", myid);
+    PRINT_TIME("    N_VLinearCombinationVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VLinearCombinationVectorArray Case 2a \n");
+    PRINT_TIME("    N_VLinearCombinationVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /*
+   * Case 2b: (nvec = 1, nsum = 2), N_VLinearSum
+   * Z[0] = c[0] X[0][0] + c[1] X[1][0]
+   */
+
+  /* fill vector data and scaling factor */
+  N_VConst(HALF,    X[0][0]);
+  N_VConst(NEG_ONE, X[1][0]);
+
+  c[0] = TWO;
+  c[1] = NEG_ONE;
+
+  N_VConst(ZERO, Z[0]);
+
+  start_time = get_time();
+  ierr = N_VLinearCombinationVectorArray(1, 2, c, X, Z);
+  stop_time = get_time();
+
+  /* X[0][0] should equal +2 */
+  if (ierr == 0)
+    failure = check_ans(TWO, Z[0], local_length);
+  else
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VLinearCombinationVectorArray Case 2b, Proc %d \n", myid);
+    PRINT_TIME("    N_VLinearCombinationVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VLinearCombinationVectorArray Case 2b \n");
+    PRINT_TIME("    N_VLinearCombinationVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /*
+   * Case 3a: (nvec = 1, nsum > 2), N_VLinearCombination
+   * X[0][0] = c[0] X[0][0] + c[1] X[1][0] + c[2] X[2][0]
+   */
+
+  /* fill vector data */
+  N_VConst(ONE,     X[0][0]);
+  N_VConst(NEG_TWO, X[1][0]);
+  N_VConst(NEG_ONE, X[2][0]);
+
+  /* set scaling factors */
+  c[0] = TWO;
+  c[1] = HALF;
+  c[2] = NEG_ONE;
+
+  start_time = get_time();
+  ierr = N_VLinearCombinationVectorArray(1, 3, c, X, X[0]);
+  stop_time = get_time();
+
+  /* X[0][0] should equal +2 */
+  if (ierr == 0)
+    failure = check_ans(TWO, X[0][0], local_length);
+  else
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VLinearCombinationVectorArray Case 3a, Proc %d \n", myid);
+    PRINT_TIME("    N_VLinearCombinationVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VLinearCombinationVectorArray Case 3a \n");
+    PRINT_TIME("    N_VLinearCombinationVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /*
+   * Case 3b: (nvec = 1, nsum > 2), N_VLinearCombination
+   * Z[0] = c[0] X[0][0] + c[1] X[1][0] + c[2] X[2][0]
+   */
+
+  /* fill vector data */
+  N_VConst(ONE,     X[0][0]);
+  N_VConst(NEG_TWO, X[1][0]);
+  N_VConst(NEG_ONE, X[2][0]);
+
+  /* set scaling factors */
+  c[0] = TWO;
+  c[1] = HALF;
+  c[2] = NEG_ONE;
+
+  start_time = get_time();
+  ierr = N_VLinearCombinationVectorArray(1, 3, c, X, Z);
+  stop_time = get_time();
+
+  /* Z[0] should equal +2 */
+  if (ierr == 0)
+    failure = check_ans(TWO, Z[0], local_length);
+  else
+    failure = 1;
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VLinearCombinationVectorArray Case 3b, Proc %d \n", myid);
+    PRINT_TIME("    N_VLinearCombinationVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VLinearCombinationVectorArray Case 3b \n");
+    PRINT_TIME("    N_VLinearCombinationVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /*
+   * Case 4a: (nvec > 1, nsum = 1), N_VScaleVectorArray
+   * X[0][i] = c[0] X[0][i]
+   */
+
+  /* fill vector data and set scaling factors */
+  N_VConst(NEG_TWO, X[0][0]);
+  N_VConst(NEG_ONE, X[0][1]);
+  N_VConst(TWO,     X[0][2]);
+
+  c[0] = HALF;
+
+  start_time = get_time();
+  ierr = N_VLinearCombinationVectorArray(3, 1, c, X, X[0]);
+  stop_time = get_time();
+
+  /* X[0][i] should equal to -1, -1/2, +1 */
+  if (ierr == 0) {
+    failure  = check_ans(NEG_ONE,  X[0][0], local_length);
+    failure += check_ans(NEG_HALF, X[0][1], local_length);
+    failure += check_ans(ONE,      X[0][2], local_length);
+  } else {
+    failure = 1;
+  }
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VLinearCombinationVectorArray Case 4a, Proc %d \n", myid);
+    PRINT_TIME("    N_VLinearCombinationVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VLinearCombinationVectorArray Case 4a \n");
+    PRINT_TIME("    N_VLinearCombinationVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /*
+   * Case 4b: (nvec > 1, nsum = 1), N_VScaleVectorArray
+   * Z[i] = c[0] X[0][i]
+   */
+
+  /* fill vector data and set scaling factors */
+  N_VConst(NEG_TWO, X[0][0]);
+  N_VConst(NEG_ONE, X[0][1]);
+  N_VConst(TWO,     X[0][2]);
+
+  c[0] = HALF;
+
+  N_VConst(ZERO, Z[0]);
+  N_VConst(ZERO, Z[1]);
+  N_VConst(ZERO, Z[2]);
+
+  start_time = get_time();
+  ierr = N_VLinearCombinationVectorArray(3, 1, c, X, Z);
+  stop_time = get_time();
+
+  /* X[0][i] should equal to -1, -1/2, +1 */
+  if (ierr == 0) {
+    failure  = check_ans(NEG_ONE,  Z[0], local_length);
+    failure += check_ans(NEG_HALF, Z[1], local_length);
+    failure += check_ans(ONE,      Z[2], local_length);
+  } else {
+    failure = 1;
+  }
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VLinearCombinationVectorArray Case 4b, Proc %d \n", myid);
+    PRINT_TIME("    N_VLinearCombinationVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VLinearCombinationVectorArray Case 4b \n");
+    PRINT_TIME("    N_VLinearCombinationVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /*
+   * Case 5a: (nvec > 1, nsum = 2), N_VLinearSumVectorArray
+   * X[0][i] = c[0] X[0][i] + c[1] X[1][i]
+   */
+
+  /* fill vector data and set scaling factors */
+  N_VConst(NEG_TWO, X[0][0]);
+  N_VConst(TWO,     X[1][0]);
+
+  N_VConst(TWO,  X[0][1]);
+  N_VConst(HALF, X[1][1]);
+
+  N_VConst(ZERO, X[0][2]);
+  N_VConst(HALF, X[1][2]);
+
+  c[0] = HALF;
+  c[1] = TWO;
+
+  start_time = get_time();
+  ierr = N_VLinearCombinationVectorArray(3, 2, c, X, X[0]);
+  stop_time = get_time();
+
+  /* X[0][i] should equal to +3, +2, +1 */
+  if (ierr == 0) {
+    failure  = check_ans(ONE+TWO, X[0][0], local_length);
+    failure += check_ans(TWO,     X[0][1], local_length);
+    failure += check_ans(ONE,     X[0][2], local_length);
+  } else {
+    failure = 1;
+  }
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VLinearCombinationVectorArray Case 5a, Proc %d \n", myid);
+    PRINT_TIME("    N_VLinearCombinationVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VLinearCombinationVectorArray Case 5a \n");
+    PRINT_TIME("    N_VLinearCombinationVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /*
+   * Case 5b: (nvec > 1, nsum = 2), N_VLinearSumVectorArray
+   * Z[0] = c[0] X[0][i] + c[1] X[1][i]
+   */
+
+  /* fill vector data and set scaling factors */
+  N_VConst(NEG_TWO, X[0][0]);
+  N_VConst(TWO,     X[1][0]);
+
+  N_VConst(TWO,  X[0][1]);
+  N_VConst(HALF, X[1][1]);
+
+  N_VConst(ZERO, X[0][2]);
+  N_VConst(HALF, X[1][2]);
+
+  c[0] = HALF;
+  c[1] = TWO;
+
+  N_VConst(ZERO, Z[0]);
+  N_VConst(ZERO, Z[1]);
+  N_VConst(ZERO, Z[2]);
+
+  start_time = get_time();
+  ierr = N_VLinearCombinationVectorArray(3, 2, c, X, Z);
+  stop_time = get_time();
+
+  /* X[0][i] should equal to +3, +2, +1 */
+  if (ierr == 0) {
+    failure  = check_ans(ONE+TWO, Z[0], local_length);
+    failure += check_ans(TWO,     Z[1], local_length);
+    failure += check_ans(ONE,     Z[2], local_length);
+  } else {
+    failure = 1;
+  }
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VLinearCombinationVectorArray Case 5b, Proc %d \n", myid);
+    PRINT_TIME("    N_VLinearCombinationVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VLinearCombinationVectorArray Case 5b \n");
+    PRINT_TIME("    N_VLinearCombinationVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /*
+   * Case 6a: (nvec > 1, nsum > 2)
+   * X[0][i] += c[1] X[1][i] + c[2] X[2][i]
+   */
+
+  /* fill vector data and set scaling factors */
+  N_VConst(TWO,     X[0][0]);
+  N_VConst(NEG_TWO, X[1][0]);
+  N_VConst(NEG_ONE, X[2][0]);
+
+  N_VConst(ONE,     X[0][1]);
+  N_VConst(TWO,     X[1][1]);
+  N_VConst(ONE,     X[2][1]);
+
+  N_VConst(NEG_ONE, X[0][2]);
+  N_VConst(TWO,     X[1][2]);
+  N_VConst(TWO,     X[2][2]);
+
+  c[0] = ONE;
+  c[1] = NEG_HALF;
+  c[2] = NEG_ONE;
+
+  start_time = get_time();
+  ierr = N_VLinearCombinationVectorArray(3, 3, c, X, X[0]);
+  stop_time = get_time();
+
+  /* X[0][i] should equal to +4, -1, -4 */
+  if (ierr == 0) {
+    failure  = check_ans(TWO+TWO,  X[0][0], local_length);
+    failure += check_ans(NEG_ONE,  X[0][1], local_length);
+    failure += check_ans(-TWO-TWO, X[0][2], local_length);
+  } else {
+    failure = 1;
+  }
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VLinearCombinationVectorArray Case 6a, Proc %d \n", myid);
+    PRINT_TIME("    N_VLinearCombinationVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VLinearCombinationVectorArray Case 6a \n");
+    PRINT_TIME("    N_VLinearCombinationVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /*
+   * Case 6b: (nvec > 1, nsum > 2)
+   * X[0][i] = c[0] X[0][i] + c[1] X[1][i] + c[2] X[2][i]
+   */
+
+  /* fill vector data and set scaling factors */
+  N_VConst(ONE,     X[0][0]);
+  N_VConst(NEG_TWO, X[1][0]);
+  N_VConst(NEG_ONE, X[2][0]);
+
+  N_VConst(NEG_ONE, X[0][1]);
+  N_VConst(TWO,     X[1][1]);
+  N_VConst(ONE,     X[2][1]);
+
+  N_VConst(HALF,    X[0][2]);
+  N_VConst(TWO,     X[1][2]);
+  N_VConst(ONE,     X[2][2]);
+
+  c[0] = TWO;
+  c[1] = HALF;
+  c[2] = NEG_ONE;
+
+  start_time = get_time();
+  ierr = N_VLinearCombinationVectorArray(3, 3, c, X, X[0]);
+  stop_time = get_time();
+
+  /* X[0][i] should equal to +2, -2, +1 */
+  if (ierr == 0) {
+    failure  = check_ans(TWO,     X[0][0], local_length);
+    failure += check_ans(NEG_TWO, X[0][1], local_length);
+    failure += check_ans(ONE,     X[0][2], local_length);
+  } else {
+    failure = 1;
+  }
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VLinearCombinationVectorArray Case 6b, Proc %d \n", myid);
+    PRINT_TIME("    N_VLinearCombinationVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VLinearCombinationVectorArray Case 6b \n");
+    PRINT_TIME("    N_VLinearCombinationVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /*
+   * Case 6c: (nvec > 1, nsum > 2)
+   * Z[i] = c[0] X[0][i] + c[1] X[1][i] + c[2] X[2][i]
+   */
+
+  /* fill vector data and set scaling factors */
+  N_VConst(ONE,     X[0][0]);
+  N_VConst(NEG_TWO, X[1][0]);
+  N_VConst(NEG_ONE, X[2][0]);
+
+  N_VConst(NEG_ONE, X[0][1]);
+  N_VConst(TWO,     X[1][1]);
+  N_VConst(ONE,     X[2][1]);
+
+  N_VConst(HALF,    X[0][2]);
+  N_VConst(TWO,     X[1][2]);
+  N_VConst(ONE,     X[2][2]);
+
+  c[0] = TWO;
+  c[1] = HALF;
+  c[2] = NEG_ONE;
+
+  N_VConst(ZERO, Z[0]);
+  N_VConst(ZERO, Z[1]);
+  N_VConst(ZERO, Z[2]);
+
+  start_time = get_time();
+  ierr = N_VLinearCombinationVectorArray(3, 3, c, X, Z);
+  stop_time = get_time();
+
+  /* Z[i] should equal to +2, -2, +1 */
+  if (ierr == 0) {
+    failure  = check_ans(TWO,     Z[0], local_length);
+    failure += check_ans(NEG_TWO, Z[1], local_length);
+    failure += check_ans(ONE,     Z[2], local_length);
+  } else {
+    failure = 1;
+  }
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VLinearCombinationVectorArray Case 6c, Proc %d \n", myid);
+    PRINT_TIME("    N_VLinearCombinationVectorArray Time: %22.15e \n \n", stop_time - start_time);
+    fails++;
+  } else if (myid == 0) {
+    printf("    PASSED test -- N_VLinearCombinationVectorArray Case 6c \n");
+    PRINT_TIME("    N_VLinearCombinationVectorArray Time: %22.15e \n \n", stop_time - start_time);
+  }
+
+  /* Free vectors */
+  N_VDestroyVectorArray(Z, 3);
+  N_VDestroyVectorArray(X[0], 3);
+  N_VDestroyVectorArray(X[1], 3);
+  N_VDestroyVectorArray(X[2], 3);
 
   return(fails);
 }

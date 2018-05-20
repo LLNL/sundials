@@ -1221,10 +1221,11 @@ int IDASolve(void *ida_mem, realtype tout, realtype *tret,
  * independent variable value, tn, and the method order last used, kused.
  * 
  * The return values are:
- *   IDA_SUCCESS  if t is legal, or
- *   IDA_BAD_T    if t is not within the interval of the last step taken.
- *   IDA_BAD_DKY  if the dky vector is NULL.
- *   IDA_BAD_K    if the requested k is not in the range 0,1,...,order used 
+ *   IDA_SUCCESS       if t is legal
+ *   IDA_BAD_T         if t is not within the interval of the last step taken
+ *   IDA_BAD_DKY       if the dky vector is NULL
+ *   IDA_BAD_K         if the requested k is not in the range [0,order used]
+ *   IDA_VECTOROP_ERR  if the fused vector operation fails
  *
  */
 
@@ -1232,7 +1233,7 @@ int IDAGetDky(void *ida_mem, realtype t, int k, N_Vector dky)
 {
   IDAMem IDA_mem;
   realtype tfuzz, tp, delt, psij_1;
-  int i, j;
+  int i, j, retval;
   realtype cjk  [MXORDP1];
   realtype cjk_1[MXORDP1];
 
@@ -1317,11 +1318,10 @@ int IDAGetDky(void *ida_mem, realtype t, int k, N_Vector dky)
 
   /* Compute sum (c_j(t) * phi(t)) */
 
-  N_VConst(ZERO, dky);
-  for(j=k; j<=IDA_mem->ida_kused; j++)
-  {
-    N_VLinearSum(ONE, dky, cjk[j], IDA_mem->ida_phi[j], dky);
-  }
+  /* Sum j=k to j<=IDA_mem->ida_kused */
+  retval = N_VLinearCombination(IDA_mem->ida_kused-k+1, cjk+k,
+                                IDA_mem->ida_phi+k, dky);
+  if (retval != IDA_SUCCESS) return(IDA_VECTOROP_ERR);
 
   return(IDA_SUCCESS);
 }
@@ -2140,10 +2140,14 @@ static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck)
   *ck = SUNRabs(IDA_mem->ida_alpha[IDA_mem->ida_kk] + alphas - alpha0);
   *ck = SUNMAX(*ck, IDA_mem->ida_alpha[IDA_mem->ida_kk]);
 
- /* change phi to phi-star  */
+  /* change phi to phi-star  */
 
-  for(i=IDA_mem->ida_ns; i<=IDA_mem->ida_kk; i++)
-    N_VScale(IDA_mem->ida_beta[i], IDA_mem->ida_phi[i], IDA_mem->ida_phi[i]);
+  /* Scale i=IDA_mem->ida_ns to i<=IDA_mem->ida_kk */
+  if (IDA_mem->ida_ns <= IDA_mem->ida_kk)
+    (void) N_VScaleVectorArray(IDA_mem->ida_kk-IDA_mem->ida_ns+1,
+                               IDA_mem->ida_beta+IDA_mem->ida_ns,
+                               IDA_mem->ida_phi+IDA_mem->ida_ns,
+                               IDA_mem->ida_phi+IDA_mem->ida_ns);
 
 }
 
@@ -2300,15 +2304,15 @@ static void IDAPredict(IDAMem IDA_mem)
 {
   int j;
 
-  N_VScale(ONE, IDA_mem->ida_phi[0], IDA_mem->ida_yy);
-  N_VConst(ZERO, IDA_mem->ida_yp);
-  
-  for(j=1; j<=IDA_mem->ida_kk; j++) {
-    N_VLinearSum(ONE,      IDA_mem->ida_phi[j], ONE,
-                 IDA_mem->ida_yy, IDA_mem->ida_yy);
-    N_VLinearSum(IDA_mem->ida_gamma[j], IDA_mem->ida_phi[j], ONE,
-                 IDA_mem->ida_yp, IDA_mem->ida_yp);
-  }
+  for(j=0; j<=IDA_mem->ida_kk; j++)
+    IDA_mem->ida_cvals[j] = ONE;
+
+  (void) N_VLinearCombination(IDA_mem->ida_kk+1, IDA_mem->ida_cvals,
+                              IDA_mem->ida_phi, IDA_mem->ida_yy);
+
+  (void) N_VLinearCombination(IDA_mem->ida_kk, IDA_mem->ida_gamma+1,
+                              IDA_mem->ida_phi+1, IDA_mem->ida_yp);
+
 }
 
 /*
@@ -2335,6 +2339,10 @@ static int IDANewtonIter(IDAMem IDA_mem)
   int mnewt, retval;
   realtype delnrm, oldnrm, rate;
 
+  /* local variables for fused vector operation */
+  realtype cvals[3];
+  N_Vector Xvecs[3];
+
   /* Initialize counter mnewt and cumulative correction vector ee. */
   mnewt = 0;
   N_VConst(ZERO, IDA_mem->ida_ee);
@@ -2358,9 +2366,17 @@ static int IDANewtonIter(IDAMem IDA_mem)
     if (retval > 0) return(IDA_LSOLVE_RECVR);
 
     /* Apply delta to yy, yp, and ee, and get norm(delta). */
-    N_VLinearSum(ONE, IDA_mem->ida_yy, -ONE, IDA_mem->ida_delta, IDA_mem->ida_yy);
-    N_VLinearSum(ONE, IDA_mem->ida_ee, -ONE, IDA_mem->ida_delta, IDA_mem->ida_ee);
-    N_VLinearSum(ONE, IDA_mem->ida_yp, -IDA_mem->ida_cj,  IDA_mem->ida_delta, IDA_mem->ida_yp);
+    cvals[0] = -ONE;
+    cvals[1] = -ONE;
+    cvals[2] = -IDA_mem->ida_cj;
+
+    Xvecs[0] = IDA_mem->ida_yy;
+    Xvecs[1] = IDA_mem->ida_ee;
+    Xvecs[2] = IDA_mem->ida_yp;
+
+    retval = N_VScaleAddMulti(3, cvals, IDA_mem->ida_delta, Xvecs, Xvecs);
+    if (retval != IDA_SUCCESS) return(IDA_VECTOROP_ERR);
+
     delnrm = IDAWrmsNorm(IDA_mem, IDA_mem->ida_delta, IDA_mem->ida_ewt, SUNFALSE);
 
     /* Test for convergence, first directly, then with rate estimate. */
@@ -2481,8 +2497,16 @@ static void IDARestore(IDAMem IDA_mem, realtype saved_t)
   for (j = 1; j <= IDA_mem->ida_kk; j++) 
     IDA_mem->ida_psi[j-1] = IDA_mem->ida_psi[j] - IDA_mem->ida_hh;
 
-  for (j = IDA_mem->ida_ns; j <= IDA_mem->ida_kk; j++) 
-    N_VScale(ONE/IDA_mem->ida_beta[j], IDA_mem->ida_phi[j], IDA_mem->ida_phi[j]);
+  if (IDA_mem->ida_ns <= IDA_mem->ida_kk) {
+    
+    for (j = IDA_mem->ida_ns; j <= IDA_mem->ida_kk; j++)
+      IDA_mem->ida_cvals[j-IDA_mem->ida_ns] = ONE/IDA_mem->ida_beta[j];
+    
+    (void) N_VScaleVectorArray(IDA_mem->ida_kk-IDA_mem->ida_ns+1,
+                               IDA_mem->ida_cvals,
+                               IDA_mem->ida_phi+IDA_mem->ida_ns,
+                               IDA_mem->ida_phi+IDA_mem->ida_ns);
+  }
 
 }
 
@@ -2745,11 +2769,22 @@ static void IDACompleteStep(IDAMem IDA_mem, realtype err_k, realtype err_km1)
   }
 
   /* Update phi arrays */
-  N_VLinearSum(ONE, IDA_mem->ida_ee, ONE, IDA_mem->ida_phi[IDA_mem->ida_kused],
-               IDA_mem->ida_phi[IDA_mem->ida_kused]);
-  for (j= IDA_mem->ida_kused-1; j>=0; j--)
-    N_VLinearSum(ONE, IDA_mem->ida_phi[j], ONE, IDA_mem->ida_phi[j+1], IDA_mem->ida_phi[j]);
 
+  /* To update phi arrays compute X += Z where                  */
+  /* X = [ phi[kused], phi[kused-1], phi[kused-2], ... phi[1] ] */
+  /* Z = [ ee,         phi[kused],   phi[kused-1], ... phi[0] ] */
+
+  IDA_mem->ida_Zvecs[0] = IDA_mem->ida_ee;
+  IDA_mem->ida_Xvecs[0] = IDA_mem->ida_phi[IDA_mem->ida_kused];
+  for (j=1; j<=IDA_mem->ida_kused; j++) {
+    IDA_mem->ida_Zvecs[j] = IDA_mem->ida_phi[IDA_mem->ida_kused-j+1];
+    IDA_mem->ida_Xvecs[j] = IDA_mem->ida_phi[IDA_mem->ida_kused-j];
+  }
+
+  (void) N_VLinearSumVectorArray(IDA_mem->ida_kused+1,
+                                 ONE, IDA_mem->ida_Xvecs,
+                                 ONE, IDA_mem->ida_Zvecs,
+                                 IDA_mem->ida_Xvecs);
 }
 
 /* 
@@ -2779,7 +2814,7 @@ int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret)
 {
   IDAMem IDA_mem;
   realtype tfuzz, tp, delt, c, d, gam;
-  int j, kord;
+  int j, kord, retval;
 
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAGetSolution", MSG_NO_MEM);
@@ -2799,10 +2834,8 @@ int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret)
     return(IDA_BAD_T);
   }
 
-  /* Initialize yret = phi[0], ypret = 0, and kord = (kused or 1). */
+  /* Initialize kord = (kused or 1). */
 
-  N_VScale(ONE, IDA_mem->ida_phi[0], yret);
-  N_VConst(ZERO, ypret);
   kord = IDA_mem->ida_kused; 
   if (IDA_mem->ida_kused == 0) kord = 1;
 
@@ -2811,13 +2844,25 @@ int IDAGetSolution(void *ida_mem, realtype t, N_Vector yret, N_Vector ypret)
   delt = t - IDA_mem->ida_tn;
   c = ONE; d = ZERO;
   gam = delt / IDA_mem->ida_psi[0];
+
+  IDA_mem->ida_cvals[0] = c;
   for (j=1; j <= kord; j++) {
     d = d*gam + c / IDA_mem->ida_psi[j-1];
     c = c*gam;
     gam = (delt + IDA_mem->ida_psi[j-1]) / IDA_mem->ida_psi[j];
-    N_VLinearSum(ONE,  yret, c, IDA_mem->ida_phi[j],  yret);
-    N_VLinearSum(ONE, ypret, d, IDA_mem->ida_phi[j], ypret);
+
+    IDA_mem->ida_cvals[j]   = c;
+    IDA_mem->ida_dvals[j-1] = d;
   }
+
+  retval = N_VLinearCombination(kord+1, IDA_mem->ida_cvals,
+                                IDA_mem->ida_phi,  yret);
+  if (retval != IDA_SUCCESS) return(IDA_VECTOROP_ERR);
+
+  retval = N_VLinearCombination(kord, IDA_mem->ida_dvals,
+                                IDA_mem->ida_phi+1, ypret);
+  if (retval != IDA_SUCCESS) return(IDA_VECTOROP_ERR);
+
   return(IDA_SUCCESS);
 }
 

@@ -147,11 +147,25 @@ int main(int argc, char *argv[])
   fails += Test_N_VConstrMask(X, Y, Z, local_length, myid);
   fails += Test_N_VMinQuotient(X, Y, local_length, myid);
 
+  /* Fused vector operation tests (optional) */
+  fails += Test_N_VLinearCombination(X, local_length, myid);
+  fails += Test_N_VScaleAddMulti(X, local_length, myid);
+  fails += Test_N_VDotProdMulti(X, local_length, global_length, myid);
+
+  /* Vector array operation tests (optional) */
+  fails += Test_N_VLinearSumVectorArray(X, local_length, myid);
+  fails += Test_N_VScaleVectorArray(X, local_length, myid);
+  fails += Test_N_VConstVectorArray(X, local_length, myid);
+  fails += Test_N_VWrmsNormVectorArray(X, local_length, myid);
+  fails += Test_N_VWrmsNormMaskVectorArray(X, local_length, global_length, myid);
+  fails += Test_N_VScaleAddMultiVectorArray(X, local_length, 0);
+  fails += Test_N_VLinearCombinationVectorArray(X, local_length, myid);
+
   /* Free vectors */
-  N_VDestroy_ParHyp(W);
-  N_VDestroy_ParHyp(X);
-  N_VDestroy_ParHyp(Y);
-  N_VDestroy_ParHyp(Z);
+  N_VDestroy(W);
+  N_VDestroy(X);
+  N_VDestroy(Y);
+  N_VDestroy(Z);
   
   /* Print result */
   if (fails) {

@@ -12,7 +12,7 @@ tar=$*
 
 echo "   --- Add top-level files to $tarfile"
 
-tar cfv $tarfile $distrobase/README
+tar cfv $tarfile $distrobase/README.md
 $tar $tarfile $distrobase/LICENSE
 $tar $tarfile $distrobase/INSTALL_GUIDE.pdf
 
@@ -29,15 +29,11 @@ $tar $tarfile $distrobase/config/SundialsBlas.cmake
 $tar $tarfile $distrobase/config/SundialsCMakeMacros.cmake
 $tar $tarfile $distrobase/config/SundialsCXX.cmake
 $tar $tarfile $distrobase/config/SundialsDeprecated.cmake
-$tar $tarfile $distrobase/config/SundialsFortran90.cmake
 $tar $tarfile $distrobase/config/SundialsFortran.cmake
 $tar $tarfile $distrobase/config/SundialsHypre.cmake
 $tar $tarfile $distrobase/config/SundialsKLU.cmake
 $tar $tarfile $distrobase/config/SundialsLapack.cmake
-$tar $tarfile $distrobase/config/SundialsMPIC.cmake
-$tar $tarfile $distrobase/config/SundialsMPICXX.cmake
-$tar $tarfile $distrobase/config/SundialsMPIF90.cmake
-$tar $tarfile $distrobase/config/SundialsMPIF.cmake
+$tar $tarfile $distrobase/config/SundialsMPI.cmake
 $tar $tarfile $distrobase/config/SundialsPETSc.cmake
 $tar $tarfile $distrobase/config/SundialsSuperLUMT.cmake
 $tar $tarfile $distrobase/config/SundialsXSDK.cmake

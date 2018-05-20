@@ -400,15 +400,17 @@ typedef struct ARKodeMemRec {
   /*-----------------------
     Fixed-point Solver Data 
     -----------------------*/
-  booleantype ark_use_fp;     /* flag to enable fixed-point solver vs Newton */
-  long int    ark_fp_m;       /* number of vectors to use in acceleration    */
-  long int    *ark_fp_imap;   /* array of length m          */
-  realtype    *ark_fp_R;      /* array of length m*m        */
-  realtype    *ark_fp_gamma;  /* array of length m          */
-  N_Vector    *ark_fp_df;     /* vector array of length m   */
-  N_Vector    *ark_fp_dg;     /* vector array of length m   */
-  N_Vector    *ark_fp_q;      /* vector array of length m   */
-  N_Vector     ark_fp_fval;   /* temporary N_Vectors        */
+  booleantype ark_use_fp;     /* flag to enable fixed-point solver vs Newton    */
+  long int    ark_fp_m;       /* number of vectors to use in acceleration       */
+  long int    *ark_fp_imap;   /* array of length m                              */
+  realtype    *ark_fp_R;      /* array of length m*m                            */
+  realtype    *ark_fp_gamma;  /* array of length m                              */
+  realtype    *ark_fp_cvals;  /* scalar array of length m+1 for fused vector op */
+  N_Vector    *ark_fp_df;     /* vector array of length m  		        */
+  N_Vector    *ark_fp_dg;     /* vector array of length m		        */
+  N_Vector    *ark_fp_q;      /* vector array of length m		        */
+  N_Vector    *ark_fp_Xvecs;  /* vector array of length m+1 for fused vector op */
+  N_Vector     ark_fp_fval;   /* temporary N_Vectors                            */
   N_Vector     ark_fp_fold;
   N_Vector     ark_fp_gold;
 
@@ -485,6 +487,15 @@ typedef struct ARKodeMemRec {
     User-supplied step solution post-processing function
     ----------------------------------------------------*/
   ARKPostProcessStepFn ark_ProcessStep;
+
+  /*-----------------------
+    Fused Vector Operations
+    -----------------------*/
+  
+  realtype ark_cvals[2*ARK_S_MAX+1]; /* array of scalars */
+  N_Vector ark_Xvecs[2*ARK_S_MAX+1]; /* array of vectors */
+
+
 
 } *ARKodeMem;
 

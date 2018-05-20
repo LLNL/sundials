@@ -174,7 +174,7 @@ int main(int argc, char *argv[])
   CHKERRQ(ierr);
 
   /* Make N_Vector wrapper for uvec */
-  uu = N_VMake_Petsc(&uvec);
+  uu = N_VMake_Petsc(uvec);
   if(check_flag((void *)uu, "N_VNew_Petsc", 0, thispe)) 
     MPI_Abort(comm, 1);
 
@@ -322,9 +322,9 @@ int resHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
   PetscReal      hx, hy, sx, sy;
   PetscScalar    u, uxx, uyy, **uarray, **f, **udot;
   Vec localU;
-  Vec *U    = N_VGetVector_Petsc(uu);
-  Vec *Udot = N_VGetVector_Petsc(up);
-  Vec *F    = N_VGetVector_Petsc(rr);
+  Vec U    = N_VGetVector_Petsc(uu);
+  Vec Udot = N_VGetVector_Petsc(up);
+  Vec F    = N_VGetVector_Petsc(rr);
 
   PetscFunctionBeginUser;
   ierr = DMGetLocalVector(da, &localU);
@@ -353,17 +353,17 @@ int resHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
      By placing code between these two statements, computations can be
      done while messages are in transition.
   */
-  ierr = DMGlobalToLocalBegin(da, *U, INSERT_VALUES, localU);
+  ierr = DMGlobalToLocalBegin(da, U, INSERT_VALUES, localU);
   CHKERRQ(ierr);
-  ierr = DMGlobalToLocalEnd(da, *U, INSERT_VALUES, localU);
+  ierr = DMGlobalToLocalEnd(da, U, INSERT_VALUES, localU);
   CHKERRQ(ierr);
 
   /* Get pointers to vector data */
   ierr = DMDAVecGetArrayRead(da, localU, &uarray);
   CHKERRQ(ierr);
-  ierr = DMDAVecGetArray(da, *F, &f);
+  ierr = DMDAVecGetArray(da, F, &f);
   CHKERRQ(ierr);
-  ierr = DMDAVecGetArray(da, *Udot, &udot);
+  ierr = DMDAVecGetArray(da, Udot, &udot);
   CHKERRQ(ierr);
 
   /* Get local grid boundaries */
@@ -389,9 +389,9 @@ int resHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
   /* Restore vectors */
   ierr = DMDAVecRestoreArrayRead(da, localU, &uarray);
   CHKERRQ(ierr);
-  ierr = DMDAVecRestoreArray(da, *F, &f);
+  ierr = DMDAVecRestoreArray(da, F, &f);
   CHKERRQ(ierr);
-  ierr = DMDAVecRestoreArray(da, *Udot, &udot);
+  ierr = DMDAVecRestoreArray(da, Udot, &udot);
   CHKERRQ(ierr);
   ierr = DMRestoreLocalVector(da, &localU);
   CHKERRQ(ierr);
@@ -428,7 +428,7 @@ int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp,
   PetscScalar **ppv;
   UserData data = (UserData) user_data;
   DM da = (DM) data->da;
-  Vec *ppvec = N_VGetVector_Petsc((data->pp));
+  Vec ppvec = N_VGetVector_Petsc((data->pp));
   
   PetscFunctionBeginUser;
   ierr = DMDAGetInfo(da,
@@ -453,7 +453,7 @@ int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp,
   
   pelinv = ONE/(2.0*(sx + sy) + c_j);
 
-  ierr = DMDAVecGetArray(da, *ppvec, &ppv);
+  ierr = DMDAVecGetArray(da, ppvec, &ppv);
   CHKERRQ(ierr);
 
   for (j=ys; j<ys+ym; j++) {
@@ -466,7 +466,7 @@ int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp,
     }
   }
 
-  ierr = DMDAVecRestoreArray(da, *ppvec, &ppv);
+  ierr = DMDAVecRestoreArray(da, ppvec, &ppv);
   CHKERRQ(ierr);
   
   PetscFunctionReturn(0);
@@ -516,8 +516,8 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
   PetscScalar    **u;
   PetscScalar    **iddat;
   PetscReal      hx, hy, x, y;
-  Vec *U     = N_VGetVector_Petsc(uu);
-  Vec *idvec = N_VGetVector_Petsc(id);
+  Vec U     = N_VGetVector_Petsc(uu);
+  Vec idvec = N_VGetVector_Petsc(id);
 
   PetscFunctionBeginUser;
   ierr = DMDAGetInfo(da,
@@ -539,11 +539,11 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
   hy = 1.0/(PetscReal)(My-1);
 
   /* Get pointers to vector data */
-  ierr = DMDAVecGetArray(da, *U, &u);
+  ierr = DMDAVecGetArray(da, U, &u);
   CHKERRQ(ierr);
 
   /* Get pointers to differentiable variable IDs */
-  ierr = DMDAVecGetArray(da, *idvec, &iddat);
+  ierr = DMDAVecGetArray(da, idvec, &iddat);
   CHKERRQ(ierr);
 
   /* Get local grid boundaries */
@@ -565,11 +565,11 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
   }
 
   /* Restore vectors */
-  ierr = DMDAVecRestoreArray(da, *U, &u);
+  ierr = DMDAVecRestoreArray(da, U, &u);
   CHKERRQ(ierr);
 
    /* Restore vectors */
-  ierr = DMDAVecRestoreArray(da, *idvec, &iddat);
+  ierr = DMDAVecRestoreArray(da, idvec, &iddat);
   CHKERRQ(ierr);
 
   /* Initialize up. */

@@ -4080,6 +4080,9 @@ the default is a difference quotient approximation to these products.
   error of the generic Krylov solver, in which case the integration is halted.
 }
 {
+  This function must return a value of $J*v$ that uses the {\it current}
+  value of $J$, i.e. as evaluated at the current $(t,y)$.
+  \newline
   If the user's \id{CVSpilsJacTimesVecFn} function uses difference quotient
   approximations, it may need to access quantities not in the argument
   list. These include the current step size, the error weights, etc.

@@ -789,6 +789,16 @@ IF(CUDA_ENABLE AND (NOT CXX_FOUND))
 ENDIF()
 
 if(CUDA_ENABLE)
+  include(CheckCXXCompilerFlag)
+  CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
+
+  IF(COMPILER_SUPPORTS_CXX11)
+    set(CMAKE_CXX_STANDARD 11)
+  ELSE()
+    PRINT_WARNING("C++11 compliant compiler required for RAJA support" "Disabling RAJA")
+    FORCE_VARIABLE(RAJA_ENABLE BOOL "RAJA disabled" OFF)
+  ENDIF()
+
   find_package(CUDA)
 
   if (CUDA_FOUND)

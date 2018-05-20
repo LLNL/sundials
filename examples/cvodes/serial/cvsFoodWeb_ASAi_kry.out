@@ -15,37 +15,37 @@ Create and allocate CVODES memory for backward run
 Backward integration
 
 Maximum sensitivity with respect to I.C. of species 1
-  lambda max = 9.567445e+02
+  lambda max = 9.564957e+02
 at
   x = 1.000000e+00
   y = 1.000000e+00
 
 Maximum sensitivity with respect to I.C. of species 2
-  lambda max = 9.377778e+02
+  lambda max = 9.375298e+02
 at
   x = 1.000000e+00
   y = 1.000000e+00
 
 Maximum sensitivity with respect to I.C. of species 3
-  lambda max = 9.198574e+02
+  lambda max = 9.196102e+02
 at
   x = 1.000000e+00
   y = 1.000000e+00
 
 Maximum sensitivity with respect to I.C. of species 4
-  lambda max = -4.419783e-03
+  lambda max = -3.070915e-03
 at
   x = 1.000000e+00
   y = 0.000000e+00
 
 Maximum sensitivity with respect to I.C. of species 5
-  lambda max = -4.394964e-03
+  lambda max = -3.065139e-03
 at
   x = 1.000000e+00
   y = 0.000000e+00
 
 Maximum sensitivity with respect to I.C. of species 6
-  lambda max = 3.252876e-01
+  lambda max = 2.127710e-01
 at
   x = 0.000000e+00
   y = 0.000000e+00

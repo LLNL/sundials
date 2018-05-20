@@ -247,6 +247,13 @@ typedef struct IDAMemRec {
   booleantype *ida_gactive; /* array with active/inactive event functions      */
   int ida_mxgnull;          /* number of warning messages about possible g==0  */
 
+  /* Arrays for Fused Vector Operations */
+
+  realtype ida_cvals[MXORDP1];
+  realtype ida_dvals[MAXORD_DEFAULT];
+
+  N_Vector ida_Xvecs[MXORDP1];
+  N_Vector ida_Zvecs[MXORDP1];
 
 } *IDAMem;
 

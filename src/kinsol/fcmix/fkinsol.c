@@ -268,6 +268,7 @@ void FKIN_SPILSINIT(int *ier) {
     return;
   }
   *ier = KINSpilsSetLinearSolver(KIN_kinmem, F2C_KINSOL_linsol);
+  FKINNullMatrix();
   KIN_ls = KIN_LS_ITERATIVE;
   return;
 }
@@ -305,6 +306,13 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
   }
   N_VSetArrayPointer(fscale, fscalevec);
 
+  /* If using the fixed-point solver, initialize F2C_KINSOL_linsol 
+     and F2C_KINSOL_matrix to NULL */
+  if (*globalstrategy == KIN_FP) {
+    FKINNullMatrix();
+    FKINNullLinsol();
+  }
+  
   /* Call main solver function */
   *ier = KINSol(KIN_kinmem, uuvec, *globalstrategy, uscalevec, fscalevec);
 

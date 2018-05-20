@@ -306,8 +306,7 @@ typedef int (*ARKSpilsJacTimesVecFn)(N_Vector v, N_Vector Jv,
  t       is the current value of the independent variable.
 
  mtimes_data  is a pointer to user data - the same as the 
-         parameter passed to the ARKodeSetMassTimesVecFn
-         function.
+         parameter passed to the ARKSpilsSetMassTimes function.
 
  Returned value:
  The value to be returned by the MassTimesSetup function is a 
@@ -336,9 +335,8 @@ typedef int (*ARKSpilsMassTimesSetupFn)(realtype t, void *mtimes_data);
 
    t        is the current value of the independent variable.
 
-   mtimes_data   is a pointer to user data, the same as the 
-            parameter passed to the ARKodeSetMassTimesVecFn 
-            function.
+   mtimes_data  is a pointer to user data - the same as the 
+            parameter passed to the ARKSpilsSetMassTimes function.
 ---------------------------------------------------------------*/
 typedef int (*ARKSpilsMassTimesVecFn)(N_Vector v, N_Vector Mv, 
                                       realtype t, void *mtimes_data);
@@ -558,6 +556,8 @@ SUNDIALS_EXPORT int ARKSpilsSetMassTimes(void *arkode_mem,
  ARKSpilsGetNumMassConvFails returns the number of mass matrix solver
                  convergence failures.
 
+ ARKSpilsGetNumMTSetups returns the number of calls to mtsetup.
+
  ARKSpilsGetNumMtimesEvals returns the number of calls to mtimes.
 
  ARKSpilsGetLastMassFlag returns the last error flag set by any of
@@ -588,7 +588,7 @@ SUNDIALS_EXPORT int ARKSpilsGetNumRhsEvals(void *arkode_mem,
                                            long int *nfevalsLS); 
 SUNDIALS_EXPORT int ARKSpilsGetLastFlag(void *arkode_mem, 
                                         long int *flag);
-  
+
 SUNDIALS_EXPORT int ARKSpilsGetMassWorkSpace(void *arkode_mem, 
                                              long int *lenrwMLS, 
                                              long int *leniwMLS);
@@ -600,6 +600,8 @@ SUNDIALS_EXPORT int ARKSpilsGetNumMassIters(void *arkode_mem,
                                             long int *nmiters);
 SUNDIALS_EXPORT int ARKSpilsGetNumMassConvFails(void *arkode_mem, 
                                                 long int *nmcfails);
+SUNDIALS_EXPORT int ARKSpilsGetNumMTSetups(void *arkode_mem,
+                                           long int *nmtsetups);
 SUNDIALS_EXPORT int ARKSpilsGetNumMtimesEvals(void *arkode_mem, 
                                               long int *nmvevals);
 SUNDIALS_EXPORT int ARKSpilsGetLastMassFlag(void *arkode_mem, 

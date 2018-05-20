@@ -1825,6 +1825,9 @@ extern "C" {
 
   int FARKExpStab(N_Vector y, realtype t, realtype *hstab, void *user_data);
 
+  void FARKNullMatrix();
+  void FARKNullLinsol();
+  
   /* Declarations for global variables shared amongst various routines */
   extern N_Vector F2C_ARKODE_vec;             /* defined in FNVECTOR module */
   extern SUNMatrix F2C_ARKODE_matrix;         /* defined in FSUNMATRIX module */

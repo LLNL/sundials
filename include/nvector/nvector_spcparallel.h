@@ -15,6 +15,7 @@
 #ifndef _NVECTOR_SPCPARALLEL_H
 #define _NVECTOR_SPCPARALLEL_H
 
+#include <stdio.h>
 #include <mpi.h>
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_mpi_types.h>

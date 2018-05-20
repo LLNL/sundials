@@ -291,6 +291,10 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   PSolveFn psolve;
   realtype *res_norm;
   int *nli;
+
+  /* local variables for fused vector operations */
+  realtype cv[3];
+  N_Vector Xv[3];
   
   /* Make local shorcuts to solver variables. */
   if (S == NULL) return(SUNLS_MEM_NULL);
@@ -482,9 +486,17 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     omega = (N_VDotProd(u, q) / omega_denom);
 
     /* Update x = x + alpha*p + omega*q */
+    cv[0] = ONE;
+    Xv[0] = x;
 
-    N_VLinearSum(alpha, p, omega, q, vtemp);
-    N_VLinearSum(ONE, x, ONE, vtemp, x);
+    cv[1] = alpha;
+    Xv[1] = p;
+
+    cv[2] = omega;
+    Xv[2] = q;
+
+    ier = N_VLinearCombination(3, cv, Xv, x);
+    if (ier != SUNLS_SUCCESS) return(SUNLS_VECTOROP_ERR);
 
     /* Update the residual r = q - omega*u */
 
@@ -503,13 +515,22 @@ int SUNLinSolSolve_SPBCGS(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 
     beta_num = N_VDotProd(r, r_star);
     beta = ((beta_num / beta_denom) * (alpha / omega));
+
+    /* Update p = r + beta*(p - omega*Ap) = beta*p - beta*omega*Ap + r */
+    cv[0] = beta;
+    Xv[0] = p;
+
+    cv[1] = -alpha*(beta_num / beta_denom);
+    Xv[1] = Ap;
+
+    cv[2] = ONE;
+    Xv[2] = r;
+
+    ier = N_VLinearCombination(3, cv, Xv, p);
+    if (ier != SUNLS_SUCCESS) return(SUNLS_VECTOROP_ERR);
+
+    /* udpate beta_denom for next iteration */
     beta_denom = beta_num;
-
-    /* Update p = r + beta*(p - omega*Ap) */
-
-    N_VLinearSum(ONE, p, -omega, Ap, vtemp);
-    N_VLinearSum(ONE, r, beta, vtemp, p);
-
   }
 
   /* Main loop finished */

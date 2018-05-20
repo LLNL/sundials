@@ -113,14 +113,28 @@ int main(int argc, char *argv[])
   fails += Test_N_VConstrMask(X, Y, Z, local_length, 0);
   fails += Test_N_VMinQuotient(X, Y, local_length, 0);
 
+  /* Fused vector operation tests (optional) */
+  fails += Test_N_VLinearCombination(X, local_length, 0);
+  fails += Test_N_VScaleAddMulti(X, local_length, 0);
+  fails += Test_N_VDotProdMulti(X, local_length, local_length, 0);
+
+  /* Vector array operation tests (optional) */
+  fails += Test_N_VLinearSumVectorArray(X, local_length, 0);
+  fails += Test_N_VScaleVectorArray(X, local_length, 0);
+  fails += Test_N_VConstVectorArray(X, local_length, 0);
+  fails += Test_N_VWrmsNormVectorArray(X, local_length, 0);
+  fails += Test_N_VWrmsNormMaskVectorArray(X, local_length, local_length, 0);
+  fails += Test_N_VScaleAddMultiVectorArray(X, local_length, 0);
+  fails += Test_N_VLinearCombinationVectorArray(X, local_length, 0);
+
   /*  N_VSpace_Raja(X, &lrw, &liw);               */
   /*  printf("lrw = %ld, liw = %ld\n", lrw, liw); */
 
   /* Free vectors */
-  N_VDestroy_Raja(W);
-  N_VDestroy_Raja(X);
-  N_VDestroy_Raja(Y);
-  N_VDestroy_Raja(Z);
+  N_VDestroy(W);
+  N_VDestroy(X);
+  N_VDestroy(Y);
+  N_VDestroy(Z);
 
   /* Print result */
   if (fails) {
@@ -144,7 +158,7 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 {
   int      failure = 0;
   sunindextype i;
-  sunrajavec::Vector<double, sunindextype>* xv = sunrajavec::extract<realtype, sunindextype>(X);
+  sunrajavec::Vector<realtype, sunindextype>* xv = sunrajavec::extract<realtype, sunindextype>(X);
   realtype *xdata;
 
   xv->copyFromDev();
@@ -168,7 +182,7 @@ booleantype has_data(N_Vector X)
 
 void set_element(N_Vector X, sunindextype i, realtype val)
 {
-  sunrajavec::Vector<double, sunindextype>* xv = sunrajavec::extract<realtype, sunindextype>(X);
+  sunrajavec::Vector<realtype, sunindextype>* xv = sunrajavec::extract<realtype, sunindextype>(X);
   xv->copyFromDev();
   (xv->host())[i] = val;
   xv->copyToDev();
@@ -176,7 +190,7 @@ void set_element(N_Vector X, sunindextype i, realtype val)
 
 realtype get_element(N_Vector X, sunindextype i)
 {
-  sunrajavec::Vector<double, sunindextype>* xv = sunrajavec::extract<realtype, sunindextype>(X);
+  sunrajavec::Vector<realtype, sunindextype>* xv = sunrajavec::extract<realtype, sunindextype>(X);
   xv->copyFromDev();
   return (xv->host())[i];
 }

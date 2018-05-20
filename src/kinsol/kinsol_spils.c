@@ -234,7 +234,7 @@ int KINSpilsSetJacTimesVecFn(void *kinmem, KINSpilsJacTimesVecFn jtv)
   retval = SUNLinSolSetATimes(kinspils_mem->LS, kin_mem, KINSpilsATimes);
   if (retval != SUNLS_SUCCESS) {
     KINProcessError(kin_mem, KINSPILS_SUNLS_FAIL, "KINSPILS", 
-                    "KINSpilsSetJacTimes", 
+                    "KINSpilsSetJacTimesVecFn",
                     "Error in calling SUNLinSolSetATimes");
     return(KINSPILS_SUNLS_FAIL);
   }
@@ -282,6 +282,7 @@ int KINSpilsGetWorkSpace(void *kinmem, long int *lenrwLS,
   /* add LS sizes */
   if (kinspils_mem->LS->ops->space) {
     flag = SUNLinSolSpace(kinspils_mem->LS, &lrw, &liw);
+    if (flag != 0) return(-1);
     *lenrwLS += lrw;
     *leniwLS += liw;
   }

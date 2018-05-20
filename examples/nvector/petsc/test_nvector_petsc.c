@@ -30,7 +30,7 @@
 /* local vector length */
 #define VECLEN 10000
 
-static int Test_N_VMake(Vec* W, int myid);
+static int Test_N_VMake(Vec W, int myid);
 
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
@@ -74,9 +74,9 @@ int main(int argc, char *argv[])
   /* NVector Test */
 
   /* PETSc specific tests */
-  fails += Test_N_VMake(&xvec, myid);
+  fails += Test_N_VMake(xvec, myid);
   
-  X = N_VMake_Petsc(&xvec);
+  X = N_VMake_Petsc(xvec);
 
   /* Memory allocation tests */
   fails += Test_N_VCloneEmpty(X, myid);
@@ -112,11 +112,25 @@ int main(int argc, char *argv[])
   fails += Test_N_VConstrMask(X, Y, Z, local_length, myid);
   fails += Test_N_VMinQuotient(X, Y, local_length, myid);
 
+  /* Fused vector operation tests (optional) */
+  fails += Test_N_VLinearCombination(X, local_length, myid);
+  fails += Test_N_VScaleAddMulti(X, local_length, myid);
+  fails += Test_N_VDotProdMulti(X, local_length, global_length, myid);
+
+  /* Vector array operation tests (optional) */
+  fails += Test_N_VLinearSumVectorArray(X, local_length, myid);
+  fails += Test_N_VScaleVectorArray(X, local_length, myid);
+  fails += Test_N_VConstVectorArray(X, local_length, myid);
+  fails += Test_N_VWrmsNormVectorArray(X, local_length, myid);
+  fails += Test_N_VWrmsNormMaskVectorArray(X, local_length, global_length, myid);
+  fails += Test_N_VScaleAddMultiVectorArray(X, local_length, 0);
+  fails += Test_N_VLinearCombinationVectorArray(X, local_length, myid);
+
   /* Free vectors */
-  N_VDestroy_Petsc(W);
-  N_VDestroy_Petsc(X);
-  N_VDestroy_Petsc(Y);
-  N_VDestroy_Petsc(Z);
+  N_VDestroy(W);
+  N_VDestroy(X);
+  N_VDestroy(Y);
+  N_VDestroy(Z);
 
   /* Print result */
   if (fails) {
@@ -144,16 +158,16 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 {
   int failure = 0;
   sunindextype i;
-  Vec *xv = N_VGetVector_Petsc(X);
+  Vec xv = N_VGetVector_Petsc(X);
   PetscScalar *a;
 
   failure = 0;
   /* check PETSc vector */
-  VecGetArray(*xv, &a);
+  VecGetArray(xv, &a);
   for (i = 0; i < local_length; ++i){
     failure += FNEQ(a[i], ans);
   }
-  VecRestoreArray(*xv, &a);
+  VecRestoreArray(xv, &a);
 
   if (failure > ZERO)
     return(1);
@@ -172,22 +186,22 @@ booleantype has_data(N_Vector X)
 void set_element(N_Vector X, sunindextype i, realtype val)
 {
   PetscScalar *a;
-  Vec *xv = N_VGetVector_Petsc(X);
+  Vec xv = N_VGetVector_Petsc(X);
   
-  VecGetArray(*xv, &a);
+  VecGetArray(xv, &a);
   a[i] = val;
-  VecRestoreArray(*xv, &a);
+  VecRestoreArray(xv, &a);
 }
 
 realtype get_element(N_Vector X, sunindextype i)
 {
   PetscScalar *a;
-  Vec *xv = N_VGetVector_Petsc(X);
+  Vec xv = N_VGetVector_Petsc(X);
   realtype val;
   
-  VecGetArray(*xv, &a);
+  VecGetArray(xv, &a);
   val = a[i];
-  VecRestoreArray(*xv, &a);
+  VecRestoreArray(xv, &a);
   
   return val;    
 }
@@ -197,7 +211,7 @@ realtype get_element(N_Vector X, sunindextype i)
  *
  * NOTE: This routine depends on N_VConst to check vector data.
  * --------------------------------------------------------------------*/
-static int Test_N_VMake(Vec* W, int myid)
+static int Test_N_VMake(Vec W, int myid)
 {
   /* double   start_time, stop_time; */
   N_Vector X;
@@ -215,7 +229,7 @@ static int Test_N_VMake(Vec* W, int myid)
   } 
 
   /* check underlying PETSc vector is correct */
-  if (*W != *N_VGetVector_Petsc(X)) {
+  if (W != N_VGetVector_Petsc(X)) {
     printf(">>> FAILED test -- N_VMake, Proc %d \n", myid);
     printf("    PETSc not wrapped correctly \n \n");
     N_VDestroy(X);
@@ -224,7 +238,7 @@ static int Test_N_VMake(Vec* W, int myid)
 
   N_VDestroy(X); 
 
-  if (*W == NULL) {
+  if (W == NULL) {
     printf(">>> FAILED test -- N_VMake, Proc %d \n", myid);
     printf("    Destroying wrapper destroyed underlying PETSc vector \n \n");
     return(1);

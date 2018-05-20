@@ -54,7 +54,7 @@ program driver
   include "sundials/sundials_fconfig.h"
 
   ! general problem variables
-  integer(kind=SUNINDEXTYPE), parameter :: NEQ=3
+  integer*8, parameter :: NEQ=3
   real(kind=REALTYPE), parameter :: T0=0.d0, Tf=10.d0
   real(kind=REALTYPE) :: dTout, Tout, Tcur, rtol, atol, rout(6)
   integer   :: it, Nt, ier
@@ -71,7 +71,7 @@ program driver
 
   ! solver parameters
   integer :: adapt_method
-  integer(kind=SUNINDEXTYPE) :: order
+  integer*8 :: order
   real(kind=REALTYPE) :: nlscoef, adapt_params
 
   !-----------------------
@@ -286,7 +286,7 @@ subroutine farkdjac(neq,t,y,fy,DJac,h,ipar,rpar,wk1,wk2,wk3,ier)
   ! Arguments
   real(kind=REALTYPE), intent(in) :: t, h, rpar(3)
   integer*8, intent(in) :: ipar(1)
-  integer(kind=SUNINDEXTYPE), intent(in) :: neq
+  integer*8, intent(in) :: neq
   integer,   intent(out) :: ier
   real(kind=REALTYPE), intent(in), dimension(neq) :: y, fy, wk1, wk2, wk3
   real(kind=REALTYPE), intent(out) :: DJac(neq,neq)

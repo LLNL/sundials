@@ -305,6 +305,10 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   realtype *res_norm;
   int *nli;
   N_Vector sx, sb, r_star, q, d, v, p, *r, u, vtemp1, vtemp2, vtemp3;
+
+  /* local variables for fused vector operations */
+  realtype cv[3];
+  N_Vector Xv[3];
   
   /* Make local shorcuts to solver variables. */
   if (S == NULL) return(SUNLS_MEM_NULL);
@@ -596,9 +600,18 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     /* u = r[1]+beta*q */
     N_VLinearSum(ONE, r[1], beta, q, u);
 
-    /* p = u+beta*(q+beta*p) */
-    N_VLinearSum(beta, q, SUNSQR(beta), p, p);
-    N_VLinearSum(ONE, u, ONE, p, p);
+    /* p = u+beta*(q+beta*p) = beta*beta*p + beta*q + u */
+    cv[0] = SUNSQR(beta);
+    Xv[0] = p;
+
+    cv[1] = beta;
+    Xv[1] = q;
+
+    cv[2] = ONE;
+    Xv[2] = u;
+
+    ier = N_VLinearCombination(3, cv, Xv, p);
+    if (ier != SUNLS_SUCCESS) return(SUNLS_VECTOROP_ERR);
 
     /* v = A*p */
     if (scale_x) N_VDiv(p, sx, vtemp1);

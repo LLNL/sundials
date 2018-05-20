@@ -117,6 +117,83 @@ writing in C|)}
 
 \section{Changes from previous versions}
 
+\subsection*{Changes in v4.0.0-dev}
+
+Three fused vector operations and seven vector array operations have
+been added to the {\nvector} API. These \textit{optional} operations
+are intended to increase data reuse in vector operations, reduce
+parallel communication on distributed memory systems, and lower the
+number of kernel launches on systems with accelerators. The new
+operations are 
+\id{N\_VLinearCombination},
+\id{N\_VScaleAddMulti},
+\id{N\_VDotProdMulti},
+\id{N\_VLinearCombinationVectorArray},
+\id{N\_VScaleVectorArray},
+\id{N\_VConstVectorArray},\\
+\id{N\_VWrmsNormVectorArray},
+\id{N\_VWrmsNormMaskVectorArray},
+\id{N\_VScaleAddMultiVectorArray}, and\\
+\id{N\_VLinearCombinationVectorArray}.
+If any of these operations are defined as \id{NULL} in an {\nvector}
+implementation the {\nvector} interface will automatically call
+standard {\nvector} operations as necessary. Details on the new
+operations can be found in Chapter \ref{s:nvector}.
+
+Several changes were made to the build system. If MPI is enabled and
+MPI compiler wrappers are not set, the build system will check if
+\id{CMAKE\_<language>\_COMPILER} can compile MPI programs before
+trying to locate and use an MPI installation. The native CMake FindMPI
+module is now used to locate an MPI installation. The options for
+setting MPI compiler wrappers and the executable for running MPI
+programs have been updated to align with those in native CMake FindMPI
+module. This included changing \id{MPI\_MPICC} to
+\id{MPI\_C\_COMPILER}, \id{MPI\_MPICXX} to \id{MPI\_CXX\_COMPILER},
+combining \id{MPI\_MPIF77} and \id{MPI\_MPIF90} to
+\id{MPI\_Fortran\_COMPILER}, and changing \id{MPI\_RUN\_COMMAND} to
+\id{MPIEXEC}. When a Fortran name-mangling scheme is needed (e.g.,
+\id{LAPACK\_ENABLE} is \id{ON}) the build system will infer the scheme
+from the Fortran compiler. If a Fortran compiler is not available or
+the inferred or default scheme needs to be overridden, the advanced
+options \id{SUNDIALS\_F77\_FUNC\_CASE} and
+\id{SUNDIALS\_F77\_FUNC\_UNDERSCORES} can be used to manually set the
+name-mangling scheme and bypass trying to infer the
+scheme. Additionally, parts of the main CMakeLists.txt file were moved
+to new files in the \id{src} and \id{example} directories to make the
+CMake configuration file structure more modular.
+
+\subsection*{Changes in v3.1.1}
+
+The changes in this minor release include the following:
+\begin{itemize}
+\item Fixed a minor bug in the cvSLdet routine, where a return was missing
+  in the error check for three inconsistent roots.
+
+\item Fixed a potential memory leak in the {\spgmr} and {\spfgmr} linear
+  solvers: if ``Initialize'' was called multiple times then the solver
+  memory was reallocated (without being freed).
+  
+\item Updated KLU SUNLINEARSOLVER module to use a \id{typedef} for the
+  precision-specific solve function to be used (to avoid compiler 
+  warnings).  
+
+\item Added missing typecasts for some \id{(void*)} pointers (again, to
+  avoid compiler warnings). 
+
+\item Bugfix in \id{sunmatrix\_sparse.c} where we had used \id{int}
+  instead of \id{sunindextype} in one location.
+
+\item Added missing \id{\#include <stdio.h>} in {\nvector} and {\sunmatrix}
+  header files.
+
+\item Fixed an indexing bug in the {\cuda} {\nvector} implementation of
+  \id{N\_VWrmsNormMask} and revised the {\raja} {\nvector} implementation of
+  \id{N\_VWrmsNormMask} to work with mask arrays using values other than zero or
+  one. Replaced \id{double} with \id{realtype} in the RAJA vector test functions.
+\end{itemize}
+In addition to the changes above, minor corrections were also made to the
+example programs, build system, and user documentation.
+
 \subsection*{Changes in v3.1.0}
 
 Added {\nvector} print functions that write vector data to a specified

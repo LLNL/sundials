@@ -51,10 +51,6 @@
 ! the system and mass matrices.  These matrices are stored in 
 ! compressed-sparse-row format.
 !
-! This program assumes that SUNDIALS was configured with
-! realtype==double and sunindextype=64bit (should seg-fault
-! otherwise).
-!
 ! Output is printed 10 times throughout the defined time interval.
 ! Run statistics (optional outputs) are printed at the end.
 !-----------------------------------------------------------------
@@ -179,8 +175,7 @@ program driver
   real(kind=REALTYPE) :: rtol, atol, rout(6), Tout, Tcur
   real*8    :: dTout, pi, h, z
   integer   :: i, it, Nt, ier, ordering, sparsetype, time_dep
-  integer*8 :: iout(29)
-  integer(kind=SUNINDEXTYPE) :: NEQ, nnz, Iinput
+  integer*8 :: iout(29), NEQ, nnz, Iinput
   real(kind=REALTYPE), allocatable :: y(:,:), umask(:,:)
   real(kind=REALTYPE), allocatable :: vmask(:,:), wmask(:,:)
 
@@ -584,8 +579,7 @@ subroutine farkspjac(t, y, fy, neq, nnz, Jdata, Jcolvals, &
   real(kind=REALTYPE), intent(in)  :: t, h, rpar(1)
   real(kind=REALTYPE), intent(in), dimension(3,N) :: y, fy, wk1, wk2, wk3
   real(kind=REALTYPE), intent(out) :: Jdata(nnz)
-  integer*8, intent(in)  :: ipar(1)
-  integer(kind=SUNINDEXTYPE), intent(in)  :: neq, nnz
+  integer*8, intent(in)  :: ipar(1), neq, nnz
   integer(kind=SUNINDEXTYPE), intent(out) :: Jcolvals(nnz)
   integer(kind=SUNINDEXTYPE), intent(out) :: Jrowptrs(neq+1)
   integer,   intent(out) :: ier
@@ -1023,8 +1017,7 @@ subroutine farkspmass(t, neq, nnz, Mdata, Mcolvals, Mrowptrs, &
   real(kind=REALTYPE), intent(in)  :: t, rpar(1)
   real(kind=REALTYPE), intent(in), dimension(3,N) :: wk1, wk2, wk3
   real(kind=REALTYPE), intent(out) :: Mdata(nnz)
-  integer*8, intent(in) :: ipar(1)
-  integer(kind=SUNINDEXTYPE), intent(in)  :: neq, nnz
+  integer*8, intent(in) :: ipar(1), neq, nnz
   integer(kind=SUNINDEXTYPE), intent(out) :: Mcolvals(nnz)
   integer(kind=SUNINDEXTYPE), intent(out) :: Mrowptrs(neq+1)
   integer,  intent(out) :: ier

@@ -2795,14 +2795,14 @@ int ARKodeWriteParameters(void *arkode_mem, FILE *fp)
   } else {
     if (ark_mem->ark_hadapt == NULL) {
       fprintf(fp, "  Time step adaptivity method %i\n", ark_mem->ark_hadapt_imethod);
-      fprintf(fp, "     Safety factor = %"RSYM"\n", ark_mem->ark_hadapt_safety);
-      fprintf(fp, "     Bias factor = %"RSYM"\n", ark_mem->ark_hadapt_bias);
-      fprintf(fp, "     Growth factor = %"RSYM"\n", ark_mem->ark_hadapt_growth);
-      fprintf(fp, "     Step growth lower bound = %"RSYM"\n", ark_mem->ark_hadapt_lbound);
-      fprintf(fp, "     Step growth upper bound = %"RSYM"\n", ark_mem->ark_hadapt_ubound);
-      fprintf(fp, "     k1 = %"RSYM"\n", ark_mem->ark_hadapt_k1);
-      fprintf(fp, "     k2 = %"RSYM"\n", ark_mem->ark_hadapt_k2);
-      fprintf(fp, "     k3 = %"RSYM"\n", ark_mem->ark_hadapt_k3);
+      fprintf(fp, "     Safety factor = %" RSYM"\n", ark_mem->ark_hadapt_safety);
+      fprintf(fp, "     Bias factor = %" RSYM"\n", ark_mem->ark_hadapt_bias);
+      fprintf(fp, "     Growth factor = %" RSYM"\n", ark_mem->ark_hadapt_growth);
+      fprintf(fp, "     Step growth lower bound = %" RSYM"\n", ark_mem->ark_hadapt_lbound);
+      fprintf(fp, "     Step growth upper bound = %" RSYM"\n", ark_mem->ark_hadapt_ubound);
+      fprintf(fp, "     k1 = %" RSYM"\n", ark_mem->ark_hadapt_k1);
+      fprintf(fp, "     k2 = %" RSYM"\n", ark_mem->ark_hadapt_k2);
+      fprintf(fp, "     k3 = %" RSYM"\n", ark_mem->ark_hadapt_k3);
     } else {
       fprintf(fp, "  User provided time step adaptivity function\n");
     }
@@ -2810,9 +2810,9 @@ int ARKodeWriteParameters(void *arkode_mem, FILE *fp)
   if (ark_mem->ark_itol == ARK_WF) {
     fprintf(fp, "  User provided error weight function\n");
   } else {
-    fprintf(fp, "  Solver relative tolerance = %"RSYM"\n", ark_mem->ark_reltol);
+    fprintf(fp, "  Solver relative tolerance = %" RSYM"\n", ark_mem->ark_reltol);
     if (ark_mem->ark_itol == ARK_SS) {
-      fprintf(fp, "  Solver absolute tolerance = %"RSYM"\n", ark_mem->ark_Sabstol);
+      fprintf(fp, "  Solver absolute tolerance = %" RSYM"\n", ark_mem->ark_Sabstol);
     } else {
       fprintf(fp, "  Vector-valued solver absolute tolerance\n");
     }
@@ -2822,24 +2822,24 @@ int ARKodeWriteParameters(void *arkode_mem, FILE *fp)
       fprintf(fp, "  User provided residual weight function\n");
     } else {
       if (ark_mem->ark_ritol == ARK_SS) {
-	fprintf(fp, "  Absolute residual tolerance = %"RSYM"\n", ark_mem->ark_SRabstol);
+	fprintf(fp, "  Absolute residual tolerance = %" RSYM"\n", ark_mem->ark_SRabstol);
       } else {
 	fprintf(fp, "  Vector-valued residual absolute tolerance\n");
       }
     }
   }
   if (ark_mem->ark_hin != ZERO)  
-    fprintf(fp, "  Initial step size = %"RSYM"\n",ark_mem->ark_hin);
+    fprintf(fp, "  Initial step size = %" RSYM"\n",ark_mem->ark_hin);
   if (ark_mem->ark_hmin != ZERO)  
-    fprintf(fp, "  Minimum step size = %"RSYM"\n",ark_mem->ark_hmin);
+    fprintf(fp, "  Minimum step size = %" RSYM"\n",ark_mem->ark_hmin);
   if (ark_mem->ark_hmax_inv != ZERO)  
-    fprintf(fp, "  Maximum step size = %"RSYM"\n",ONE/ark_mem->ark_hmax_inv);
+    fprintf(fp, "  Maximum step size = %" RSYM"\n",ONE/ark_mem->ark_hmax_inv);
   fprintf(fp, "  Maximum number of error test failures = %i\n",ark_mem->ark_maxnef);
   fprintf(fp, "  Maximum number of convergence test failures = %i\n",ark_mem->ark_maxncf);
-  fprintf(fp, "  Maximum step increase (first step) = %"RSYM"\n",ark_mem->ark_etamx1);
-  fprintf(fp, "  Step reduction factor on multiple error fails = %"RSYM"\n",ark_mem->ark_etamxf);
+  fprintf(fp, "  Maximum step increase (first step) = %" RSYM"\n",ark_mem->ark_etamx1);
+  fprintf(fp, "  Step reduction factor on multiple error fails = %" RSYM"\n",ark_mem->ark_etamxf);
   fprintf(fp, "  Minimum error fails before above factor is used = %i\n",ark_mem->ark_small_nef);
-  fprintf(fp, "  Step reduction factor on nonlinear convergence failure = %"RSYM"\n",ark_mem->ark_etacf);
+  fprintf(fp, "  Step reduction factor on nonlinear convergence failure = %" RSYM"\n",ark_mem->ark_etacf);
 
   if (!ark_mem->ark_implicit) {
     if (ark_mem->ark_expstab == arkExpStab) {
@@ -2847,15 +2847,15 @@ int ARKodeWriteParameters(void *arkode_mem, FILE *fp)
     } else {
       fprintf(fp, "  User provided explicit stability function\n");
     }
-    fprintf(fp, "  Explicit safety factor = %"RSYM"\n",ark_mem->ark_hadapt_cfl);
+    fprintf(fp, "  Explicit safety factor = %" RSYM"\n",ark_mem->ark_hadapt_cfl);
   }
   if (!ark_mem->ark_explicit) {
     fprintf(fp, "  Implicit predictor method = %i\n",ark_mem->ark_predictor);
-    fprintf(fp, "  Implicit solver tolerance coefficient = %"RSYM"\n",ark_mem->ark_nlscoef);
+    fprintf(fp, "  Implicit solver tolerance coefficient = %" RSYM"\n",ark_mem->ark_nlscoef);
     fprintf(fp, "  Maximum number of nonlinear corrections = %i\n",ark_mem->ark_maxcor);
-    fprintf(fp, "  Nonlinear convergence rate constant = %"RSYM"\n",ark_mem->ark_crdown);
-    fprintf(fp, "  Nonlinear divergence tolerance = %"RSYM"\n",ark_mem->ark_rdiv);
-    fprintf(fp, "  Gamma factor LSetup tolerance = %"RSYM"\n",ark_mem->ark_dgmax);
+    fprintf(fp, "  Nonlinear convergence rate constant = %" RSYM"\n",ark_mem->ark_crdown);
+    fprintf(fp, "  Nonlinear divergence tolerance = %" RSYM"\n",ark_mem->ark_rdiv);
+    fprintf(fp, "  Gamma factor LSetup tolerance = %" RSYM"\n",ark_mem->ark_dgmax);
     fprintf(fp, "  Number of steps between LSetup calls = %i\n",ark_mem->ark_msbp);
   }
   fprintf(fp, "\n");
@@ -2885,35 +2885,35 @@ int ARKodeWriteButcher(void *arkode_mem, FILE *fp)
   if (!ark_mem->ark_implicit) {
     fprintf(fp, "  Explicit Butcher table:\n");
     for (i=0; i<ark_mem->ark_stages; i++) {
-      fprintf(fp, "     %"RSYM"",ark_mem->ark_ce[i]);
+      fprintf(fp, "     %" RSYM"",ark_mem->ark_ce[i]);
       for (j=0; j<ark_mem->ark_stages; j++) 
-	fprintf(fp, " %"RSYM"",ARK_A(ark_mem->ark_Ae,i,j));
+	fprintf(fp, " %" RSYM"",ARK_A(ark_mem->ark_Ae,i,j));
       fprintf(fp,"\n");
     }
     fprintf(fp, "            ");
     for (j=0; j<ark_mem->ark_stages; j++) 
-      fprintf(fp, " %"RSYM"",ark_mem->ark_be[j]);
+      fprintf(fp, " %" RSYM"",ark_mem->ark_be[j]);
     fprintf(fp,"\n");
     fprintf(fp, "            ");
     for (j=0; j<ark_mem->ark_stages; j++) 
-      fprintf(fp, " %"RSYM"",ark_mem->ark_b2e[j]);
+      fprintf(fp, " %" RSYM"",ark_mem->ark_b2e[j]);
     fprintf(fp,"\n");
   }
   if (!ark_mem->ark_explicit) {
     fprintf(fp, "  Implicit Butcher table:\n");
     for (i=0; i<ark_mem->ark_stages; i++) {
-      fprintf(fp, "     %"RSYM"",ark_mem->ark_ci[i]);
+      fprintf(fp, "     %" RSYM"",ark_mem->ark_ci[i]);
       for (j=0; j<ark_mem->ark_stages; j++) 
-	fprintf(fp, " %"RSYM"",ARK_A(ark_mem->ark_Ai,i,j));
+	fprintf(fp, " %" RSYM"",ARK_A(ark_mem->ark_Ai,i,j));
       fprintf(fp,"\n");
     }
     fprintf(fp, "            ");
     for (j=0; j<ark_mem->ark_stages; j++) 
-      fprintf(fp, " %"RSYM"",ark_mem->ark_bi[j]);
+      fprintf(fp, " %" RSYM"",ark_mem->ark_bi[j]);
     fprintf(fp,"\n");
     fprintf(fp, "            ");
     for (j=0; j<ark_mem->ark_stages; j++) 
-      fprintf(fp, " %"RSYM"",ark_mem->ark_b2i[j]);
+      fprintf(fp, " %" RSYM"",ark_mem->ark_b2i[j]);
     fprintf(fp,"\n");
   }
   fprintf(fp, "\n");

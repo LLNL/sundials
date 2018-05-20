@@ -69,7 +69,7 @@ if(NOT MPI_C_COMPILER)
   try_compile(MPI_TEST_OK ${MPITest_DIR} ${MPITest_DIR}
     mpictest OUTPUT_VARIABLE MY_OUTPUT)
 
-  # To ensure we do not use stuff from the previous attempts,
+  # To ensure we do not use stuff from the previous attempts, 
   # we must remove the CMakeFiles directory.
   file(REMOVE_RECURSE ${MPITest_DIR}/CMakeFiles)
 
@@ -271,7 +271,7 @@ if(MPI_C_FOUND)
   # Create CMakeLists.txt file for "mpi2test" executable
   if(MPI_C_COMPILER)
 
-    file(WRITE ${MPITest_DIR}/CMakeLists.txt
+  file(WRITE ${MPITest_DIR}/CMakeLists.txt
       "CMAKE_MINIMUM_REQUIRED(VERSION 3.0.2)\n"
       "PROJECT(mpi2test C)\n"
       "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"

@@ -114,6 +114,7 @@ extern "C" {
 #define IDA_BAD_K           -25
 #define IDA_BAD_T           -26
 #define IDA_BAD_DKY         -27
+#define IDA_VECTOROP_ERR    -28
 
 #define IDA_NO_QUAD         -30
 #define IDA_QRHS_FAIL       -31

@@ -55,8 +55,8 @@ Approved for public release; further dissemination unlimited
 \clearpage
 }
 
-\title{User Documentation for ARKode v2.1.0\\
-       (SUNDIALS v3.1.0)}
+\title{User Documentation for ARKode v3.0.0-dev\\
+       (SUNDIALS v4.0.0-dev)}
 \author{
   Daniel R. Reynolds$^1$, David J. Gardner$^2$, \\
   Alan C. Hindmarsh$^2$, Carol S. Woodward$^2$ \\
@@ -281,6 +281,89 @@ preconditioner routines.
 
 \section{Changes from previous versions}
 \label{Introduction:changes-from-previous-versions}
+
+\subsection{Changes in v3.0.0-dev}
+\label{Introduction:changes-in-v3-0-0-dev}
+
+Three fused vector operations and seven vector array operations have
+been added to the NVECTOR API. These \textit{optional} operations
+are intended to increase data reuse in vector operations, reduce
+parallel communication on distributed memory systems, and lower the
+number of kernel launches on systems with accelerators. The new
+operations are 
+\code{N\_VLinearCombination},
+\code{N\_VScaleAddMulti},
+\code{N\_VDotProdMulti},
+\code{N\_VLinearCombinationVectorArray},
+\code{N\_VScaleVectorArray},
+\code{N\_VConstVectorArray},
+\code{N\_VWrmsNormVectorArray},
+\code{N\_VWrmsNormMaskVectorArray},
+\code{N\_VScaleAddMultiVectorArray}, and
+\code{N\_VLinearCombinationVectorArray}.
+If any of these operations are defined as \code{NULL} in an NVECTOR
+implementation the NVECTOR interface will automatically call
+standard NVECTOR operations as necessary. Details on the new
+operations can be found in Chapter {\hyperref[nvectors/index:nvectors]{\emph{\DUspan{}{Vector Data Structures}}}}.
+
+Several changes were made to the build system. If MPI is enabled and
+MPI compiler wrappers are not set, the build system will check if
+\code{CMAKE\_<language>\_COMPILER} can compile MPI programs before
+trying to locate and use an MPI installation. The native CMake FindMPI
+module is now used to locate an MPI installation. The options for
+setting MPI compiler wrappers and the executable for running MPI
+programs have been updated to align with those in native CMake FindMPI
+module. This included changing \code{MPI\_MPICC} to
+\code{MPI\_C\_COMPILER}, \code{MPI\_MPICXX} to \code{MPI\_CXX\_COMPILER},
+combining \code{MPI\_MPIF77} and \code{MPI\_MPIF90} to
+\code{MPI\_Fortran\_COMPILER}, and changing \code{MPI\_RUN\_COMMAND} to
+\code{MPIEXEC}. When a Fortran name-mangling scheme is needed (e.g.,
+\code{LAPACK\_ENABLE} is \code{ON}) the build system will infer the scheme
+from the Fortran compiler. If a Fortran compiler is not available or
+the inferred or default scheme needs to be overridden, the advanced
+options \code{SUNDIALS\_F77\_FUNC\_CASE} and
+\code{SUNDIALS\_F77\_FUNC\_UNDERSCORES} can be used to manually set the
+name-mangling scheme and bypass trying to infer the
+scheme. Additionally, parts of the main CMakeLists.txt file were moved
+to new files in the \code{src} and \code{example} directories to make the
+CMake configuration file structure more modular.
+
+\subsection{Changes in v2.1.1}
+\label{Introduction:changes-in-v2-1-1}
+Fixed a potential memory leak in the SPGMR and SPFGMR linear solvers:
+if ``Initialize'' was called multiple times then the solver memory was
+reallocated (without being freed).
+
+Fixed a minor bug in the ARKReInit routine, where a flag was
+incorrectly set to indicate that the problem had been resized (instead
+of just re-initialized).
+
+Fixed C++11 compiler errors/warnings about incompatible use of string
+literals. 
+
+Updated KLU SUNLINEARSOLVER module to use a \texttt{typedef} for the
+precision-specific solve function to be used (to avoid compiler 
+warnings).  
+
+Added missing typecasts for some \texttt{(void*)} pointers (again, to
+avoid compiler warnings). 
+
+Bugfix in \texttt{sunmatrix\_sparse.c} where we had used \texttt{int}
+instead of \texttt{sunindextype} in one location.
+
+Added missing \texttt{\#include <stdio.h>} in NVECTOR and SUNMATRIX
+header files.
+
+Added missing prototype for \texttt{ARKSpilsGetNumMTSetups}.
+
+Fixed an indexing bug in the CUDA NVECTOR implementation of
+\code{N\_VWrmsNormMask} and revised the RAJA NVECTOR implementation of
+\code{N\_VWrmsNormMask} to work with mask arrays using values other than zero or
+one. Replaced \code{double} with \code{realtype} in the RAJA vector test functions.
+
+Fixed compilation issue with GCC 7.3.0 and Fortran programs that do
+not require a SUNMatrix or SUNLinearSolver module (e.g. iterative
+linear solvers, explicit methods, fixed point solver, etc.).
 
 \subsection{Changes in v2.1.0}
 \label{Introduction:changes-in-v2-1-0}
@@ -2033,7 +2116,7 @@ IDAS, respectively.
 The various solvers of this family share many subordinate modules.
 For this reason, it is organized as a family, with a directory
 structure that exploits that sharing (see the following Figures
-{\hyperref[Organization:sunorg1]{\emph{\DUspan{}{SUNDIALS organization}}}} and {\hyperref[Organization:sunorg2]{\emph{\DUspan{}{SUNDIALS tree}}}}).  The following is a list of the solver packages presently
+{\hyperref[Organization:sunorg1]{\emph{\DUspan{}{SUNDIALS organization}}}}, {\hyperref[Organization:sunorg2]{\emph{\DUspan{}{SUNDIALS tree}}}}, and {\hyperref[Organization:sunorg3]{\emph{\DUspan{}{SUNDIALS examples}}}}).  The following is a list of the solver packages presently
 available, and the basic functionality of each:
 \begin{itemize}
 \item {} 
@@ -2072,6 +2155,13 @@ KINSOL, a solver for nonlinear algebraic systems \(F(u) = 0\).
 
 \scalebox{0.750000}{\includegraphics{sunorg2.png}}
 \caption{\emph{SUNDIALS tree}: Directory structure of the source tree.}\label{Organization:sunorg2}\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\capstart
+
+\scalebox{0.750000}{\includegraphics{sunorg3.png}}
+\caption{\emph{SUNDIALS examples}: Directory structure of the examples.}\label{Organization:sunorg3}\end{figure}
 
 
 \section{ARKode organization}
@@ -4960,14 +5050,11 @@ Specifies the order of accuracy for the integration method.
 values are \(3 \le\) \emph{ord} \(\le 5\).  Any illegal input
 will result in the default value of 4.
 
-\end{fulllineitems}
-
-\begin{description}
-\item[{z   Since \emph{ord} affects the memory requirements for the internal}] \leavevmode
+Since \emph{ord} affects the memory requirements for the internal
 ARKode memory block, it cannot be increased between calls to
 {\hyperref[c_interface/User_callable:c.ARKode]{\emph{\code{ARKode()}}}} unless {\hyperref[c_interface/User_callable:c.ARKodeReInit]{\emph{\code{ARKodeReInit()}}}} is called.
 
-\end{description}
+\end{fulllineitems}
 \index{ARKodeSetImEx (C function)}
 
 \begin{fulllineitems}
@@ -6706,8 +6793,8 @@ Similarly, if a problem involves a non-identity mass matrix,
 to compute an approximation to the product between the mass matrix
 \(M(t)\) and a vector \(v\).  This function must be
 user-supplied, since there is no default value.  \emph{mtimes} must be
-of type {\hyperref[c_interface/User_supplied:c.ARKSpilsMassTimesVecFn]{\emph{\code{ARKSpilsMassTimesVecFn()}}}}.  and can be specified
-through a call to the  \code{ARKSpilsSetMassTimesVecFn()}.
+of type {\hyperref[c_interface/User_supplied:c.ARKSpilsMassTimesVecFn]{\emph{\code{ARKSpilsMassTimesVecFn()}}}}, and can be specified
+through a call to the  \code{ARKSpilsSetMassTimes()} routine.
 As with the user-supplied preconditioner functions, the evaluation and
 processing of any Jacobian-related data needed by the user's
 mass-matrix-times-vector function is done in the optional user-supplied
@@ -6761,7 +6848,7 @@ Newton preconditioning functions
  & 
 {\hyperref[c_interface/User_callable:c.ARKSpilsSetMassTimes]{\emph{\code{ARKSpilsSetMassTimes()}}}}
  & 
-none, none,
+none, none
 \\
 \hline
 Mass matrix linear and nonlinear tolerance ratio
@@ -6935,7 +7022,7 @@ Both of the function types {\hyperref[c_interface/User_supplied:c.ARKSpilsPrecSe
 \index{ARKSpilsSetMassTimes (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{c_interface/User_callable:c.ARKSpilsSetMassTimes}\pysiglinewithargsret{int \bfcode{ARKSpilsSetMassTimes}}{void*\emph{ arkode\_mem}, {\hyperref[c_interface/User_supplied:c.ARKSpilsMassTimesSetupFn]{\emph{ARKSpilsMassTimesSetupFn}}}\emph{ mtsetup}, {\hyperref[c_interface/User_supplied:c.ARKSpilsMassTimesVecFn]{\emph{ARKSpilsMassTimesVecFn}}}\emph{ mtimes}}{}
+\phantomsection\label{c_interface/User_callable:c.ARKSpilsSetMassTimes}\pysiglinewithargsret{int \bfcode{ARKSpilsSetMassTimes}}{void*\emph{ arkode\_mem}, {\hyperref[c_interface/User_supplied:c.ARKSpilsMassTimesSetupFn]{\emph{ARKSpilsMassTimesSetupFn}}}\emph{ mtsetup}, {\hyperref[c_interface/User_supplied:c.ARKSpilsMassTimesVecFn]{\emph{ARKSpilsMassTimesVecFn}}}\emph{ mtimes}, void*\emph{ mtimes\_data}}{}
 Specifies the mass matrix-times-vector setup and product functions.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -6948,6 +7035,10 @@ Pass \code{NULL} if no setup is necessary.
 
 \item {} 
 \emph{mtimes} -- user-defined mass matrix-vector product function.
+
+\item {} 
+\emph{mtimes\_data} -- a pointer to user data, that will be supplied
+to both the \emph{mtsetup} and \emph{mtimes} functions.
 
 \end{itemize}
 
@@ -8127,11 +8218,6 @@ No. of calls to linear solver setup function
 {\hyperref[c_interface/User_callable:c.ARKodeGetNumLinSolvSetups]{\emph{\code{ARKodeGetNumLinSolvSetups()}}}}
 \\
 \hline
-No. of calls to mass matrix solver
- & 
-{\hyperref[c_interface/User_callable:c.ARKodeGetNumMassSolves]{\emph{\code{ARKodeGetNumMassSolves()}}}}
-\\
-\hline
 No. of nonlinear solver iterations
  & 
 {\hyperref[c_interface/User_callable:c.ARKodeGetNumNonlinSolvIters]{\emph{\code{ARKodeGetNumNonlinSolvIters()}}}}
@@ -8161,34 +8247,6 @@ setup routine (so far).
 
 \item {} 
 \emph{nlinsetups} -- number of linear solver setup calls made.
-
-\end{itemize}
-
-\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
-\item {} 
-\emph{ARK\_SUCCESS} if successful
-
-\item {} 
-\emph{ARK\_MEM\_NULL} if the ARKode memory was \code{NULL}
-
-\end{itemize}
-
-\end{description}
-
-\end{fulllineitems}
-
-\index{ARKodeGetNumMassSolves (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{c_interface/User_callable:c.ARKodeGetNumMassSolves}\pysiglinewithargsret{int \bfcode{ARKodeGetNumMassSolves}}{void*\emph{ arkode\_mem}, long int*\emph{ nMassSolves}}{}
-Returns the number of calls made to the mass matrix solver (so far).
-\begin{description}
-\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
-\item {} 
-\emph{arkode\_mem} -- pointer to the ARKode memory block.
-
-\item {} 
-\emph{nMassSolves} -- number of mass matrix solves made.
 
 \end{itemize}
 
@@ -8423,9 +8481,19 @@ No. of Jacobian evaluations
 {\hyperref[c_interface/User_callable:c.ARKDlsGetNumJacEvals]{\emph{\code{ARKDlsGetNumJacEvals()}}}}
 \\
 \hline
-No. of mass matrix evaluations
+No. of mass matrix setups
  & 
-{\hyperref[c_interface/User_callable:c.ARKDlsGetNumMassEvals]{\emph{\code{ARKDlsGetNumMassEvals()}}}}
+{\hyperref[c_interface/User_callable:c.ARKDlsGetNumMassSetups]{\emph{\code{ARKDlsGetNumMassSetups()}}}}
+\\
+\hline
+No. of mass matrix solves
+ & 
+{\hyperref[c_interface/User_callable:c.ARKDlsGetNumMassSolves]{\emph{\code{ARKDlsGetNumMassSolves()}}}}
+\\
+\hline
+No. of mass matrix multiplies
+ & 
+{\hyperref[c_interface/User_callable:c.ARKDlsGetNumMassMult]{\emph{\code{ARKDlsGetNumMassMult()}}}}
 \\
 \hline
 No. of \emph{fi} calls for finite diff. Jacobian evals
@@ -8563,19 +8631,80 @@ approximation routine.
 
 \end{fulllineitems}
 
-\index{ARKDlsGetNumMassEvals (C function)}
+\index{ARKDlsGetNumMassSetups (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{c_interface/User_callable:c.ARKDlsGetNumMassEvals}\pysiglinewithargsret{int \bfcode{ARKDlsGetNumMassEvals}}{void*\emph{ arkode\_mem}, long int*\emph{ nmevals}}{}
-Returns the number of calls made to the ARKDLS mass matrix
-construction routine.
+\phantomsection\label{c_interface/User_callable:c.ARKDlsGetNumMassSetups}\pysiglinewithargsret{int \bfcode{ARKDlsGetNumMassSetups}}{void*\emph{ arkode\_mem}, long int*\emph{ nmsetups}}{}
+Returns the number of calls made to the ARKDLS mass matrix solver `setup' routine.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
 \emph{arkode\_mem} -- pointer to the ARKode memory block.
 
 \item {} 
-\emph{nmevals} -- number of calls to the mass matrix function.
+\emph{nmsetups} -- number of calls to the mass matrix solver setup routine.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARKDLS\_SUCCESS} if successful
+
+\item {} 
+\emph{ARKDLS\_MEM\_NULL} if the ARKode memory was \code{NULL}
+
+\item {} 
+\emph{ARKDLS\_LMEM\_NULL} if the linear solver memory was \code{NULL}
+
+\end{itemize}
+
+\end{description}
+
+\end{fulllineitems}
+
+\index{ARKDlsGetNumMassSolves (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{c_interface/User_callable:c.ARKDlsGetNumMassSolves}\pysiglinewithargsret{int \bfcode{ARKDlsGetNumMassSolves}}{void*\emph{ arkode\_mem}, long int*\emph{ nmsolves}}{}
+Returns the number of calls made to the ARKDLS mass matrix solver 'solve' routine.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the ARKode memory block.
+
+\item {} 
+\emph{nmsolves} -- number of calls to the mass matrix solver solve routine.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARKDLS\_SUCCESS} if successful
+
+\item {} 
+\emph{ARKDLS\_MEM\_NULL} if the ARKode memory was \code{NULL}
+
+\item {} 
+\emph{ARKDLS\_LMEM\_NULL} if the linear solver memory was \code{NULL}
+
+\end{itemize}
+
+\end{description}
+
+\end{fulllineitems}
+
+\index{ARKDlsGetNumMassMult (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{c_interface/User_callable:c.ARKDlsGetNumMassMult}\pysiglinewithargsret{int \bfcode{ARKDlsGetNumMassMult}}{void*\emph{ arkode\_mem}, long int*\emph{ nmmults}}{}
+Returns the number of calls made to the ARKDLS mass matrix 'matvec' routine.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the ARKode memory block.
+
+\item {} 
+\emph{nmmults} -- number of calls to the mass matrix solver matrix-times-vector routine
 
 \end{itemize}
 
@@ -10909,7 +11038,7 @@ compute matrix-vector products \(Mv\).
 \index{ARKSpilsMassTimesVecFn (C type)}
 
 \begin{fulllineitems}
-\phantomsection\label{c_interface/User_supplied:c.ARKSpilsMassTimesVecFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKSpilsMassTimesVecFn)}}{N\_Vector\emph{ v}, N\_Vector\emph{ Mv}, realtype\emph{ t}, void*\emph{ user\_data}}{}
+\phantomsection\label{c_interface/User_supplied:c.ARKSpilsMassTimesVecFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKSpilsMassTimesVecFn)}}{N\_Vector\emph{ v}, N\_Vector\emph{ Mv}, realtype\emph{ t}, void*\emph{ mtimes\_data}}{}
 This function computes the product \(M*v\) (or an approximation to it).
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -10923,8 +11052,8 @@ This function computes the product \(M*v\) (or an approximation to it).
 \emph{t} -- the current value of the independent variable.
 
 \item {} 
-\emph{user\_data} -- a pointer to user data, the same as the
-\emph{user\_data} parameter that was passed to {\hyperref[c_interface/User_callable:c.ARKodeSetUserData]{\emph{\code{ARKodeSetUserData()}}}}.
+\emph{mtimes\_data} -- a pointer to user data, the same as the
+\emph{mtimes\_data} parameter that was passed to {\hyperref[c_interface/User_callable:c.ARKSpilsSetMassTimes]{\emph{\code{ARKSpilsSetMassTimes()}}}}.
 
 \end{itemize}
 
@@ -10949,7 +11078,7 @@ be done in a user-supplied function of type
 \index{ARKSpilsMassTimesSetupFn (C type)}
 
 \begin{fulllineitems}
-\phantomsection\label{c_interface/User_supplied:c.ARKSpilsMassTimesSetupFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKSpilsMassTimesSetupFn)}}{realtype\emph{ t}, void*\emph{ user\_data}}{}
+\phantomsection\label{c_interface/User_supplied:c.ARKSpilsMassTimesSetupFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKSpilsMassTimesSetupFn)}}{realtype\emph{ t}, void*\emph{ mtimes\_data}}{}
 This function preprocesses and/or evaluates any mass-matrix-related
 data needed by the mass-matrix-times-vector routine.
 \begin{description}
@@ -10958,8 +11087,8 @@ data needed by the mass-matrix-times-vector routine.
 \emph{t} -- the current value of the independent variable.
 
 \item {} 
-\emph{user\_data} -- a pointer to user data, the same as the
-\emph{user\_data} parameter that was passed to {\hyperref[c_interface/User_callable:c.ARKodeSetUserData]{\emph{\code{ARKodeSetUserData()}}}}.
+\emph{mtimes\_data} -- a pointer to user data, the same as the
+\emph{mtimes\_data} parameter that was passed to {\hyperref[c_interface/User_callable:c.ARKSpilsSetMassTimes]{\emph{\code{ARKSpilsSetMassTimes()}}}}.
 
 \end{itemize}
 
@@ -15389,9 +15518,21 @@ LSTMF
 \hline
 26
  & 
-NME
+NMSET
  & 
-{\hyperref[c_interface/User_callable:c.ARKDlsGetNumMassEvals]{\emph{\code{ARKDlsGetNumMassEvals()}}}}
+{\hyperref[c_interface/User_callable:c.ARKDlsGetNumMassSetups]{\emph{\code{ARKDlsGetNumMassSetups()}}}}
+\\
+27
+ & 
+NMSOL
+ & 
+{\hyperref[c_interface/User_callable:c.ARKDlsGetNumMassSolves]{\emph{\code{ARKDlsGetNumMassSolves()}}}}
+\\
+28
+ & 
+NMMUL
+ & 
+{\hyperref[c_interface/User_callable:c.ARKDlsGetNumMassMult]{\emph{\code{ARKDlsGetNumMassMult()}}}}
 \\
 \hline\end{tabulary}
 
@@ -16388,6 +16529,20 @@ defined as
    \PYG{n}{booleantype} \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvinvtest}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
    \PYG{n}{booleantype} \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvconstrmask}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
    \PYG{n}{realtype}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvminquotient}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{int}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvlinearcombination}\PYG{p}{)}\PYG{p}{(}\PYG{n}{int}\PYG{p}{,} \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{int}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvscaleaddmulti}\PYG{p}{)}\PYG{p}{(}\PYG{n}{int}\PYG{p}{,} \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{int}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvdotprodmulti}\PYG{p}{)}\PYG{p}{(}\PYG{n}{int}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,}  \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{int}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvlinearsumvectorarray}\PYG{p}{)}\PYG{p}{(}\PYG{n}{int}\PYG{p}{,} \PYG{n}{realtype}\PYG{p}{,}
+                                         \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{int}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvscalevectorarray}\PYG{p}{)}\PYG{p}{(}\PYG{n}{int}\PYG{p}{,} \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{,}  \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{int}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvconstvectorarray}\PYG{p}{)}\PYG{p}{(}\PYG{n}{int}\PYG{p}{,} \PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{int}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvwrmsnomrvectorarray}\PYG{p}{)}\PYG{p}{(}\PYG{n}{int}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{int}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvwrmsnomrmaskvectorarray}\PYG{p}{)}\PYG{p}{(}\PYG{n}{int}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,}
+                                            \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{int}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvscaleaddmultivectorarray}\PYG{p}{)}\PYG{p}{(}\PYG{n}{int}\PYG{p}{,} \PYG{n}{int}\PYG{p}{,} \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,}
+                                             \PYG{n}{N\PYGZus{}Vector} \PYG{o}{**}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{**}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{int}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvlinearcombinationvectorarray}\PYG{p}{)}\PYG{p}{(}\PYG{n}{int}\PYG{p}{,} \PYG{n}{int}\PYG{p}{,} \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{**}\PYG{p}{,}
+                                                 \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{Verbatim}
 
@@ -16861,8 +17016,9 @@ with (positive) \code{realtype} weight vector \emph{w} built using only the
 elements of \emph{x} corresponding to nonzero elements of the
 \code{N\_Vector} \emph{id}:
 \begin{gather}
-\begin{split}m = \left( \frac1n \sum_{i=1}^{n} \left(x_i w_i \text{sign}(id_i)\right)^2 \right)^{1/2}.\end{split}\notag
+\begin{split}m = \left( \frac1n \sum_{i=1}^{n} \left(x_i w_i H(id_i)\right)^2 \right)^{1/2},\end{split}\notag
 \end{gather}
+where \(H(id_i)=1\) for \(id_i > 0\) and is zero otherwise.
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{n}{m} \PYG{o}{=} \PYG{n}{N\PYGZus{}VWrmsNormMask}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{w}\PYG{p}{,} \PYG{n}{id}\PYG{p}{)}\PYG{p}{;}
 \end{Verbatim}
@@ -17007,6 +17163,202 @@ Usage:
 
 \end{fulllineitems}
 
+The following fused and vector array operations are \textit{optional}.
+These operations are intended to increase data reuse, reduce parallel
+communication on distributed memory systems, and lower the number of
+kernel launches on systems with accelerators. If a particular NVECTOR
+implementation defines one of the fused or vector array operations as
+\code{NULL}, the NVECTOR interface will call one of the above standard
+vector as necessary.
+
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VLinearCombination}\pysiglinewithargsret{int \bfcode{N\_VLinearCombination}}{int\emph{ nvec}, realtype*\emph{ c}, N\_Vector*\emph{ X}, N\_Vector\emph{ z}}{}
+This routine computes the linear combination of \emph{nvec} vectors with \emph{n} elements:
+\begin{gather}
+\begin{split}z_i = \sum_{j=1}^{nvec} c_j x_{j,i}, \quad i=1,\ldots,n,\end{split}\notag
+\end{gather}
+where \emph{c} is an array of scalars, \(x_j\) is a vector the vector array \emph{X},
+and \emph{z} is the output vector. If the output vector \emph{z} is one of the vectors
+in \emph{X}, then it \textit{must} be the first vector in the vector array. The
+operation returns 0 for success and a non-zero value otherwise.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{ier} \PYG{o}{=} \PYG{n}{N\PYGZus{}VLinearCombination}\PYG{p}{(}\PYG{n}{nv}\PYG{p}{,} \PYG{n}{c}\PYG{p}{,} \PYG{n}{X}\PYG{p}{,} \PYG{n}{z}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VScaleAddMulti}\pysiglinewithargsret{int \bfcode{N\_VScaleAddMulti}}{int\emph{ nvec}, realtype*\emph{ c}, N\_Vector\emph{ x}, N\_Vector*\emph{ Y}, N\_Vector*\emph{ Z}}{}
+This routine scales and adds one vector to multiple other vectors with \emph{n} elements:
+\begin{gather}
+\begin{split}z_{j,i} = c_j x_i + y_{j,i}, \quad j=1,\ldots,nvec \quad i=1,\ldots,n,\end{split}\notag
+\end{gather}
+where \emph{c} is an array of scalars, \emph{x} is a vector, \(y_j\) is a vector
+the vector array \emph{Y}, and \(z_j\) is an output vector in the vector array
+\emph{Z}. The operation returns 0 for success and a non-zero value otherwise.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{ier} \PYG{o}{=} \PYG{n}{N\PYGZus{}VScaleAddMulti}\PYG{p}{(}\PYG{n}{nv}\PYG{p}{,} \PYG{n}{c}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{n}{Y}\PYG{p}{,} \PYG{n}{Z}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VDotProdMulti}\pysiglinewithargsret{int \bfcode{N\_VDotProdMulti}}{int\emph{ nvec}, N\_Vector\emph{ x}, N\_Vector*\emph{ Y}, realtype*\emph{ d}}{}
+This routine computes the dot product of a vector with multiple other vectors with \emph{n} elements:
+\begin{gather}
+\begin{split}d_j = \sum_{i}^{n} x_i y_{j,i}, \quad j=1,\ldots,nvec,\end{split}\notag
+\end{gather}
+where \emph{d} is an array of scalars containing the computed dot products,
+\emph{x} is a vector, and \(y_j\) is a vector the vector array \emph{Y}. The
+operation returns 0 for success and a non-zero value otherwise.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{ier} \PYG{o}{=} \PYG{n}{N\PYGZus{}VDotProdMulti}\PYG{p}{(}\PYG{n}{nv}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{n}{Y}\PYG{p}{,} \PYG{n}{d}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VLinearSumVectorArray}\pysiglinewithargsret{int \bfcode{N\_VLinaerSumVectorArray}}{int\emph{ nvec}, realtype\emph{ a}, N\_Vector\emph{ X}, realtype\emph{ b}, N\_Vector*\emph{ Y}, N\_Vector*\emph{ Z}}{}
+This routine computes the linear sum of two vector arrays of \emph{nvec} vectors with \emph{n} elements:
+\begin{gather}
+\begin{split}z_{j,i} = a x_{j,i} + b y_{j,i}, \quad i=1,\ldots,n \quad j=1,\ldots,nvec,\end{split}\notag
+\end{gather}
+where \emph{a} and \emph{b} are scalars, \(x_j\) and \(y_j\) are vectors in
+the vector arrays \emph{X} and \emph{Y} respectively, and \(z_j\) is a vector in
+the output vector array \emph{Z}. The operation returns 0 for success and a
+non-zero value otherwise.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{ier} \PYG{o}{=} \PYG{n}{N\PYGZus{}VLinearSumVectorArray}\PYG{p}{(}\PYG{n}{nv}\PYG{p}{,} \PYG{n}{a}\PYG{p}{,} \PYG{n}{X}\PYG{p}{,} \PYG{n}{b}\PYG{p}{,} \PYG{n}{Y}\PYG{p}{,} \PYG{n}{Z}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VScaleVectorArray}\pysiglinewithargsret{int \bfcode{N\_VScaleVectorArray}}{int\emph{ nvec}, realtype*\emph{ c}, N\_Vector*\emph{ X}, N\_Vector*\emph{ Z}}{}
+This routine scales each element in a vector of \emph{n} elements in a vector array of \emph{nvec} vectors by a potentially different constant value:
+\begin{gather}
+\begin{split}z_{j,i} = c_j x_{j,i}, \quad i=1,\ldots,n \quad j=1,\ldots,nvec,\end{split}\notag
+\end{gather}
+where \emph{c} is an array of scalars, \(x_j\) is a vector in the vector array
+\emph{X}, and \(z_j\) is a vector in the output vector array \emph{Z}. The
+operation returns 0 for success and a non-zero value otherwise.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{ier} \PYG{o}{=} \PYG{n}{N\PYGZus{}VScaleVectorArray}\PYG{p}{(}\PYG{n}{nv}\PYG{p}{,} \PYG{n}{c}\PYG{p}{,} \PYG{n}{X}\PYG{p}{,} \PYG{n}{Z}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VConstVectorArray}\pysiglinewithargsret{int \bfcode{N\_VConstVectorArray}}{int\emph{ nvec}, realtype\emph{ c}, N\_Vector*\emph{ Z}}{}
+This routine sets each element in a vector of \emph{n} elements in a vector array of \emph{nvec} vectors to the same constant value:
+\begin{gather}
+\begin{split}z_{j,i} = c, \quad i=1,\ldots,n \quad j=1,\ldots,nvec,\end{split}\notag
+\end{gather}
+where \emph{c} is a scalar and \(z_j\) is a vector in the vector array
+\emph{Z}. The operation returns 0 for success and a non-zero value otherwise.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{ier} \PYG{o}{=} \PYG{n}{N\PYGZus{}VConstVectorArray}\PYG{p}{(}\PYG{n}{nv}\PYG{p}{,} \PYG{n}{c}\PYG{p}{,} \PYG{n}{Z}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VWrmsNormVectorArray}\pysiglinewithargsret{int \bfcode{N\_VWrmsNormVectorArray}}{int\emph{ nvec}, N\_Vector*\emph{ X}, N\_Vector*\emph{ W}, realtype*\emph{ m}}{}
+This routine computes the weighted root mean square norm of each vector in a vector array:
+\begin{gather}
+\begin{split}m_j = \left( \frac1n \sum_{i=1}^{n} \left(x_{j,i} w_{j,i}\right)^2\right)^{1/2}, \quad j=1,\ldots,nvec,\end{split}\notag
+\end{gather}
+where \(x_j\) is a vector in the vector array \emph{X}, \(w_j\) is a weight
+vector in the vector array \emph{W}, and \emph{m} is the output array of scalars
+containing the computed norms. The operation returns 0 for success and a
+non-zero value otherwise.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{ier} \PYG{o}{=} \PYG{n}{N\PYGZus{}VWrmsNormVectorArray}\PYG{p}{(}\PYG{n}{nv}\PYG{p}{,} \PYG{n}{X}\PYG{p}{,} \PYG{n}{W}\PYG{p}{,} \PYG{n}{m}\PYG{}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VWrmsNormMaskVectorArray}\pysiglinewithargsret{int \bfcode{N\_VWrmsNormMaskVectorArray}}{int\emph{ nvec}, N\_Vector*\emph{ X}, N\_Vector*\emph{ W}, N\_Vector\emph{ id}, realtype*\emph{ m}}{}
+This routine computes the masked weighted root mean square norm of each vector in a vector array:
+\begin{gather}
+\begin{split}m_j = \left( \frac1n \sum_{i=1}^{n} \left(x_{j,i} w_{j,i} H(id_i)\right)^2 \right)^{1/2}, \quad j=1,\ldots,nvec,\end{split}\notag
+\end{gather}
+where \(H(id_i)=1\) for \(id_i > 0\) and is zero otherwise, \(x_j\) is a vector in
+the vector array \emph{X}, \(w_j\) is a weight vector in the vector array
+\emph{W}, \emph{id} is the mask vector, and \emph{m} is the output array of
+scalars containing the computed norms. The operation returns 0 for success and a
+non-zero value otherwise.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{ier} \PYG{o}{=} \PYG{n}{N\PYGZus{}VWrmsNormMaskVectorArray}\PYG{p}{(}\PYG{n}{nv}\PYG{p}{,} \PYG{n}{X}\PYG{p}{,} \PYG{n}{W}\PYG{p}{,} \PYG{n}{id}\PYG{p}{,} \PYG{n}{m}\PYG{}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VScaleAddMultiVectorArray}\pysiglinewithargsret{int \bfcode{N\_VScaleAddMultiVectorArray}}{int\emph{ nvec}, int\emph{ nsum}, realtype*\emph{ c}, N\_Vector*\emph{ X}, N\_Vector**\emph{ YY}, N\_Vector**\emph{ ZZ}}{}
+This routine scales and adds a vector array of \emph{nvec} vectors to \emph{nsum} other vector arrays:
+\begin{gather}
+\begin{split}z_{k,j,i} = c_k x_{j,i} + y_{k,j,i}, \quad i=1,\ldots,n \quad j=1,\ldots,nvec, \quad k=1,\ldots,nsum\end{split}\notag
+\end{gather}
+where \emph{c} is an array of scalars, \(x_j\) is a vector in the vector array
+\emph{X}, \(y_{k,j}\) is a vector in the array of vector arrays \emph{YY}, and
+\(z_{k,j}\) is an output vector in the array of vector arrays \emph{ZZ}. The
+operation returns 0 for success and a non-zero value otherwise.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{ier} \PYG{o}{=} \PYG{n}{N\PYGZus{}VScaleAddMultiVectorArray}\PYG{p}{(}\PYG{n}{nv}\PYG{p}{,} \PYG{n}{ns}\PYG{p}{,} \PYG{n}{c}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{n}{YY}\PYG{p}{,} \PYG{n}{ZZ}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VLinearCombinatinoVectorArray}\pysiglinewithargsret{int \bfcode{N\_VLinearCombinationVectorArray}}{int\emph{ nvec}, int\emph{ nsum}, realtype*\emph{ c}, N\_Vector**\emph{ XX}, N\_Vector*\emph{ Z}}{}
+This routine computes the linear combination of \emph{nsum} vector arrays containing \emph{nvec} vectors:
+\begin{gather}
+\begin{split}z_{j,i} = \sum_{k=1}^{nsum} c_k x_{k,j,i}, \quad i=1,\ldots,n \quad j=1,\ldots,nvec,\end{split}\notag
+\end{gather}
+where \emph{c} is an array of scalars, \(x_{k,j}\) is a vector in array of
+vector arrays \emph{XX}, and \(z_{j,i}\) is an output vector in the vector array
+\emph{Z}. If the output vector array is one of the vector arrays in \emph{XX}, it
+\textit{must} be the first vector array in \emph{XX}. The operation returns 0 for
+success and a non-zero value otherwise.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{ier} \PYG{o}{=} \PYG{n}{N\PYGZus{}VLinearCombinationVectorArray}\PYG{p}{(}\PYG{n}{nv}\PYG{p}{,} \PYG{n}{ns}\PYG{p}{,} \PYG{n}{c}\PYG{p}{,} \PYG{n}{XX}\PYG{p}{,} \PYG{n}{Z}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
 
 
 \section{The NVECTOR\_SERIAL Module}
@@ -18926,21 +19278,13 @@ omit these functions from their implementation.
 
 \begin{tabulary}{\linewidth}{|L|L|L|L|L|L|L|}
 \hline
-\textsf{\relax 
-Routine
-} & \textsf{\relax 
-ARKode
-} & \textsf{\relax 
-ARKDLS
-} & \textsf{\relax 
-ARKSPILS
-} & \textsf{\relax 
-ARKBANDPRE
-} & \textsf{\relax 
-ARKBBDPRE
-} & \textsf{\relax 
-FARKODE
-}\\
+{Routine}
+& {\rotatebox{45}{\small ARKode}}
+& {\rotatebox{45}{\small ARKDLS}}
+& {\rotatebox{45}{\small ARKSPILS}}
+& {\rotatebox{45}{\small ARKBANDPRE}}
+& {\rotatebox{45}{\small ARKBBDPRE}}
+& {\rotatebox{45}{\small FARKODE}}\\
 \hline
 N\_VAbs
  & 
@@ -19102,6 +19446,9 @@ X
  & 
 X
 \\
+\hline \hline
+N\_VLinearCombination & X            & & X              & & &  \\ \hline 
+N\_VDotProdMulti      & X$^{\text{3}}$ & & X$^{\text{3}}$   & & &  \\ \hline 
 \hline\end{tabulary}
 
 \begin{enumerate}
@@ -19115,6 +19462,12 @@ supplied by the \code{N\_Vector} implementation.
 \item {} 
 The {\hyperref[nvectors/NVector_Operations:c.N_VSpace]{\emph{\code{N\_VSpace()}}}} function is only informational, and need
 not be supplied by the \code{N\_Vector} implementation.
+
+\item {}
+The optional function N\_VDotProd is only used when the Anderson acceleration 
+fixed point solver is used or when Classical Gram-Schmidt is used with SPGMR or
+SPFGMR. The remaining fused vector and vector array operations are unused and a
+user-supplied NVECTOR module for ARKode could omit these operations.
 
 \end{enumerate}
 
@@ -26825,19 +27178,18 @@ CMake configuration file. SUNDIALS was tested with RAJA version 0.3.
 
 
 \subsection{Testing the build and installation}
-\label{Install:testing-build-and-install}\label{Install:installation-cmake-testing}
-If SUNDIALS was configured with
-\code{EXAMPLES\_ENABLE\_$<$language$>$} options to \code{ON}, then a
-set of regression tests can be run after building with the \code{make}
-command by running: 
+\label{Install:testing-the-build-and-installation}\label{Install:installation-cmake-testing}
+If SUNDIALS was configured with \code{EXAMPLES\_ENABLE\_\textless{}language\textgreater{}} options
+to \code{ON}, then a set of regression tests can be run after building
+with the \code{make} command by running:
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZdl{} make test
+\PYGZpc{} make \PYG{n+nb}{test}
 \end{Verbatim}
-Additionally, if \code{EXAMPLES\_INSTALL} was also set to \code{ON}, then
-a set of smoke tests can be run after installing with the \code{make install}
+Additionally, if \code{EXAMPLES\_INSTALL} was also set to \code{ON}, then a
+set of smoke tests can be run after installing with the \code{make install}
 command by running:
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYGZdl{} make test\_install
+\PYGZpc{} make test\PYGZus{}install
 \end{Verbatim}
 
 

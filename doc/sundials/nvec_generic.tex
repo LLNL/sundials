@@ -57,6 +57,20 @@ struct _generic_N_Vector_Ops {
   booleantype (*nvinvtest)(N_Vector, N_Vector);
   booleantype (*nvconstrmask)(N_Vector, N_Vector, N_Vector);
   realtype    (*nvminquotient)(N_Vector, N_Vector);
+  int         (*nvlinearcombination)(int, realtype*, N_Vector*, N_Vector);
+  int         (*nvscaleaddmulti)(int, realtype*, N_Vector, N_Vector*, N_Vector*);
+  int         (*nvdotprodmulti)(int, N_Vector, N_Vector*, realtype*);
+  int         (*nvlinearsumvectorarray)(int, realtype, N_Vector*, realtype,
+                                        N_Vector*, N_Vector*);
+  int         (*nvscalevectorarray)(int, realtype*, N_Vector*, N_Vector*);
+  int         (*nvconstvectorarray)(int, realtype, N_Vector*);
+  int         (*nvwrmsnomrvectorarray)(int, N_Vector*, N_Vector*, realtype*);
+  int         (*nvwrmsnomrmaskvectorarray)(int, N_Vector*, N_Vector*, N_Vector,
+                                           realtype*);
+  int         (*nvscaleaddmultivectorarray)(int, int, realtype*, N_Vector*,
+                                            N_Vector**, N_Vector**);
+  int         (*nvlinearcombinationvectorarray)(int, int, realtype*, N_Vector**,
+                                                N_Vector*);
 };
 \end{verbatim}
 
@@ -64,7 +78,7 @@ struct _generic_N_Vector_Ops {
 
 
 The generic {\nvector} module defines and implements the vector operations 
-acting on \id{N\_Vector}.
+acting on an \id{N\_Vector}.
 These routines are nothing but wrappers for the vector operations defined by
 a particular {\nvector} implementation, which are accessed through the {\em ops}
 field of the \id{N\_Vector} structure. To illustrate this point we
@@ -81,8 +95,14 @@ void N_VScale(realtype c, N_Vector x, N_Vector z)
 \end{verbatim}
 %%
 %%
-Table \ref{t:nvecops} contains a complete list of all vector operations defined
-by the generic {\nvector} module.
+Table \ref{t:nvecops} contains a complete list of all standard vector operations defined
+by the generic {\nvector} module. Tables \ref{t:nvecfusedops} and \ref{t:nvecarrayops}
+list \textit{optional} fused and vector array operations respectively. These
+operations are intended to increase data reuse, reduce parallel communication on
+distributed memory systems, and lower the number of kernel launches on systems with
+accelerators. If a particular {\nvector} implementation defines one of the fused or
+vector array operations as \id{NULL}, the {\nvector} interface will call one of the
+standard vector operations as necessary.
 
 Finally, note that the generic {\nvector} module defines the functions
 \ID{N\_VCloneVectorArray} and \ID{N\_VCloneVectorArrayEmpty}.  Both functions
@@ -167,7 +187,7 @@ SUNDIALS\_NVEC\_CUSTOM     & User-provided custom vector       & 6 \\
 \settowidth{\colone}{\id{N\_VGetArrayPointer}}
 \newlength{\coltwo}
 \setlength{\coltwo}{\textwidth}
-\addtolength{\coltwo}{-0.5in}
+\addtolength{\coltwo}{-0.4in}
 \addtolength{\coltwo}{-\colone}
 
 \tablecaption{Description of the NVECTOR operations}\label{t:nvecops}
@@ -300,8 +320,16 @@ $m = \sqrt{\left( \sum_{i=0}^{n-1} (x_i w_i)^2 \right) / n}$.
 & Returns the weighted root mean square norm of the \id{N\_Vector} \id{x} with
 \id{realtype} weight vector \id{w} built using only 
 the elements of \id{x} corresponding to
-nonzero elements of the \id{N\_Vector} \id{id}:\\
-&$m = \sqrt{\left( \sum_{i=0}^{n-1} (x_i w_i \text{sign}(id_i))^2 \right) / n}$.
+positive elements of the \id{N\_Vector} \id{id}:\\
+&$m = \sqrt{\left( \sum_{i=0}^{n-1} (x_i w_i H(id_i))^2 \right) / n}$,
+where
+$
+H(\alpha) =
+\begin{cases} 
+1 & \alpha > 0 \\
+0 & \alpha \leq 0
+\end{cases}
+$
 \\[2mm]
 %%
 \id{N\_VMin} & \id{m = N\_VMin(x);} \\
@@ -361,6 +389,176 @@ is returned.
 %%
 \end{xtabular}
 \bigskip
+
+%---------------------------------------------------------------------------
+% Table of fused vector kernels
+%---------------------------------------------------------------------------
+%\newpage
+
+\newlength{\coloneb}
+\settowidth{\coloneb}{\id{N\_VLinearCombination}}
+\newlength{\coltwob}
+\setlength{\coltwob}{\textwidth}
+\addtolength{\coltwob}{-0.4in}
+\addtolength{\coltwob}{-\coloneb}
+
+\tablecaption{Description of the NVECTOR fused operations}\label{t:nvecfusedops}
+\tablefirsthead{\hline {\rule{0mm}{5mm}}{\bf Name} & {\bf Usage and Description} \\[3mm] \hline\hline}
+\tablehead{\hline \multicolumn{2}{|l|}{\small\slshape continued from last page} \\
+           \hline {\rule{0mm}{5mm}}{\bf Name} & {\bf Usage and  Description} \\[3mm] \hline\hline}
+\tabletail{\hline \multicolumn{2}{|r|}{\small\slshape continued on next page} \\ \hline}
+\tablelasttail{\hline}
+\begin{xtabular}{|p{\coloneb}|p{\coltwob}|}
+
+\id{N\_VLinearCombination} & \id{ier = N\_VLinearCombination(nv, c, X, z);} \\ 
+& This routine computes the linear combination of $nv$ vectors with $n$
+elements:
+\begin{equation*}
+z_i = \sum_{j=1}^{nv} c_j x_{j,i}, \quad i=1,\ldots,n,
+\end{equation*}
+where $c$ is an array of $nv$ scalars (type \id{realtype}*), $X$ is an array of
+$n$ vectors (type \id{N\_Vector*}), and $z$ is the output vector (type
+\id{N\_Vector}). If the output vector $z$ is one of the vectors in $X$, then it
+\textit{must} be the first vector in the vector array. The operation returns
+\id{0} for success and a non-zero value otherwise.
+\\[2mm]
+
+\id{N\_VScaleAddMulti} & \id{ier = N\_VScaleAddMulti(nv, c, x, Y, Z);} \\ 
+& This routine scales and adds one vector to $nv$ vectors with $n$ elements:
+\begin{equation*}
+z_{j,i} = c_j x_i + y_{j,i}, \quad j=1,\ldots,nv \quad i=1,\ldots,n,
+\end{equation*}
+where $c$ is an array of $nv$ scalars (type \id{realtype}*), $x$ is the vector
+(type \id{N\_Vector}) to be scaled and added to each vector in the vector array
+of $nv$ vectors $Y$ (type \id{N\_Vector*}), and $Z$ (type \id{N\_Vector*}) is a
+vector array of $nv$ output vectors. The operation returns \id{0} for success and a
+non-zero value otherwise.
+\\[2mm]
+
+\id{N\_VDotProdMulti} & \id{ier = N\_VDotProdMulti(nv, x, Y, d);} \\ 
+& This routine computes the dot product of a vector with $nv$ other vectors:
+\begin{equation*}
+d_j = \sum_{i}^{n} x_i y_{j,i}, \quad j=1,\ldots,nv,
+\end{equation*}
+where $d$ (type \id{realtype}*) is an array of $nv$ scalars containing the
+dot products of the vector $x$ (type \id{N\_Vector}) with each of the $nv$
+vectors in the vector array $Y$ (type \id{N\_Vector*}). The operation returns
+\id{0} for success and a non-zero value otherwise.
+\\[2mm]
+
+\end{xtabular}
+\bigskip
+
+%---------------------------------------------------------------------------
+% Table of vector array kernels
+%---------------------------------------------------------------------------
+%\newpage
+
+\newlength{\colonec}
+\settowidth{\colonec}{\id{N\_VLinearCombinationVectorArray}}
+\newlength{\coltwoc}
+\setlength{\coltwoc}{\textwidth}
+\addtolength{\coltwoc}{-0.4in}
+\addtolength{\coltwoc}{-\colonec}
+
+\tablecaption{Description of the NVECTOR vector array operations}\label{t:nvecarrayops}
+\tablefirsthead{\hline {\rule{0mm}{5mm}}{\bf Name} & {\bf Usage and Description} \\[3mm] \hline\hline}
+\tablehead{\hline \multicolumn{2}{|l|}{\small\slshape continued from last page} \\
+           \hline {\rule{0mm}{5mm}}{\bf Name} & {\bf Usage and  Description} \\[3mm] \hline\hline}
+\tabletail{\hline \multicolumn{2}{|r|}{\small\slshape continued on next page} \\ \hline}
+\tablelasttail{\hline}
+\begin{xtabular}{|p{\colonec}|p{\coltwoc}|}
+
+\id{N\_VLinearSumVectorArray} & \id{ier = N\_VLinearSumVectorArray(nv, a, X, b, Y, Z);} \\
+& This routine comuptes the linear sum of two vector arrays containing $nv$
+vectors of $n$ elements:
+\begin{equation*}
+z_{j,i} = a x_{j,i} + b y_{j,i}, \quad i=1,\ldots,n \quad j=1,\ldots,nv,
+\end{equation*}
+where $a$ and $b$ are \id{realtype} scalars and $X$, $Y$, and $Z$ are arrays of
+$nv$ vectors (type \id{N\_Vector*}). The operation returns \id{0} for success and
+a non-zero value otherwise.
+\\[2mm]
+
+\id{N\_VScaleVectorArray} & \id{ier = N\_VScaleVectorArray(nv, c, X, Z);} \\
+& This routine scales each vector of $n$ elements in a vector array of $nv$
+vectors by a potentially different constant:
+\begin{equation*}
+z_{j,i} = c_j x_{j,i}, \quad i=1,\ldots,n \quad j=1,\ldots,nv,
+\end{equation*}
+where $c$ is an array of $nv$ scalars (type \id{realtype}*) and $X$ and $Z$ are
+arrays of $nv$ vectors (type \id{N\_Vector*}). The operation returns \id{0} for
+success and a non-zero value otherwise.
+\\[2mm]
+
+\id{N\_VConstVectorArray} & \id{ier = N\_VConstVectorArray(nv, c, X);} \\
+& This routine sets each element in a vector of $n$ elements in a vector array of
+$nv$ vectors to the same value:
+\begin{equation*}
+z_{j,i} = c, \quad i=1,\ldots,n \quad j=1,\ldots,nv,
+\end{equation*}
+where $c$ is a \id{realtype} scalar and $X$ is an array of $nv$ vectors (type
+\id{N\_Vector*}). The operation returns \id{0} for success and a non-zero value
+otherwise.
+\\[2mm]
+
+\id{N\_VWrmsNormVectorArray} & \id{ier = N\_VWrmsNormVectorArray(nv, X, W, m);} \\
+& This routine computes the weighted root mean square norm of $nv$ vectors with
+$n$ elements:
+\begin{equation*}
+m_j = \left( \frac1n \sum_{i=1}^{n} \left(x_{j,i} w_{j,i}\right)^2\right)^{1/2}, \quad j=1,\ldots,nvec,
+\end{equation*}
+where $m$ (type \id{realtype*}) contains the $nv$ norms of the vectors in the
+vector array $X$ (type \id{N\_Vector*}) with corresponding weight vectors $W$
+(type \id{N\_Vector*}). The operation returns \id{0} for success and a non-zero
+value otherwise.
+\\[2mm]
+
+\id{N\_VWrmsNormMaskVectorArray} & \id{ier = N\_VWrmsNormMaskVectorArray(nv, X, W, id, m);} \\
+& This routine computes the masked weighted root mean square norm of $nv$
+vectors with $n$ elements:
+\begin{equation*}
+m_j = \left( \frac1n \sum_{i=1}^{n} \left(x_{j,i} w_{j,i}
+H(id_i)\right)^2 \right)^{1/2}, \quad j=1,\ldots,nvec,
+\end{equation*}
+$H(id_i)=1$ for $id_i > 0$ and is zero otherwise, $m$ (type \id{realtype*}) contains
+the $nv$ norms of the vectors in the vector array $X$ (type \id{N\_Vector*}) with
+corresponding weight vectors $W$ (type \id{N\_Vector*}) and mask vector $id$
+(type \id{N\_Vector}). The operation returns \id{0} for success and a non-zero
+value otherwise.
+\\[2mm]
+
+\id{N\_VScaleAddMultiVectorArray} & \id{ier = N\_VScaleAddMultiVectorArray(nv, ns, c, X, YY, ZZ);} \\ 
+& This routine scales and adds a vector in a vector array of $nv$ vectors to
+the corresponding vector in $ns$ vector arrays:
+\begin{equation*}
+z_{j,i} = \sum_{k=1}^{ns} c_k x_{k,j,i}, \quad i=1,\ldots,n \quad j=1,\ldots,nv,
+\end{equation*}
+where $c$ is an array of $ns$ scalars (type \id{realtype*}), $X$ is a vector
+array of $nv$ vectors (type id{N\_Vector*}) to be scaled and added to the
+corresponding vector in each of the $ns$ vector arrays in the array of vector
+arrays $YY$ (type \id{N\_Vector**}) and stored in the output array of vector
+arrays $ZZ$ (type \id{N\_Vector**}). The operation returns \id{0} for success
+and a non-zero value otherwise.
+\\[2mm]
+
+\id{N\_VLinearCombinationVectorArray} & \id{ier = N\_VLinearCombinationVectorArray(nv, ns, c, XX, Z);} \\ 
+& This routine computes the linear combination of $ns$ vector arrays containing
+$nv$ vectors with $n$ elements:
+\begin{equation*}
+z_{j,i} = \sum_{k=1}^{ns} c_k x_{k,j,i}, \quad i=1,\ldots,n \quad j=1,\ldots,nv,
+\end{equation*}
+where $c$ is an array of $ns$ scalars (type \id{realtype*}), $XX$
+(type \id{N\_Vector**}) is an array of $ns$ vector arrays each containing $nv$
+vectors to be summed into the output vector array of $nv$ vectors $ZZ$ (type
+\id{N\_Vector*}). If the output vector array $ZZ$ is one of the vector arrays in
+$XX$, then it \textit{must} be the first vector array in $XX$. The operation
+returns \id{0} for success and a non-zero value otherwise.
+\\[2mm]
+
+\end{xtabular}
+\bigskip
+
 
 %---------------------------------------------------------------------------
 \section{The NVECTOR\_SERIAL implementation}\label{ss:nvec_ser}
@@ -439,12 +637,9 @@ of threads (if threaded implementation), and a print timing flag.
 \item \id{Test\_N\_VAbs}: Create absolute value of vector. 
 \item \id{Test\_N\_VAddConst}: add constant vector: z = c + x
 \item \id{Test\_N\_VDotProd}: Calculate dot product of two vectors.
-\item \id{Test\_N\_VMaxNorm}: Create vector with known values, find and validate max norm.
-\item \id{Test\_N\_VWrmsNorm}: Create vector of known values, find and validate weighted root mean square.
-\item \id{Test\_N\_VWrmsNormMask}: Case 1: Create vector of known values,
-      find and validate weighted root mean square using all elements.
-\item \id{Test\_N\_VWrmsNormMask}: Case 2: Create vector of known values,
-      find and validate weighted root mean square using no elements.
+\item \id{Test\_N\_VMaxNorm}: Create vector with known values, find and validate the max norm.
+\item \id{Test\_N\_VWrmsNorm}: Create vector of known values, find and validate the weighted root mean square.
+\item \id{Test\_N\_VWrmsNormMask}: Create vector of known values, find and validate the weighted root mean square using all elements except one.
 \item \id{Test\_N\_VMin}: Create vector, find and validate the min.
 \item \id{Test\_N\_VWL2Norm}: Create vector, find and validate the weighted Euclidean L2 norm.
 \item \id{Test\_N\_VL1Norm}: Create vector, find and validate the L1 norm.
@@ -452,4 +647,52 @@ of threads (if threaded implementation), and a print timing flag.
 \item \id{Test\_N\_VInvTest}: Test z[i] = 1 / x[i]
 \item \id{Test\_N\_VConstrMask}: Test mask of vector x with vector c.
 \item \id{Test\_N\_VMinQuotient}: Fill two vectors with known values. Calculate and validate minimum quotient.
+\item \id{Test\_N\_VLinearCombination} Case 1a: Test x = a x
+\item \id{Test\_N\_VLinearCombination} Case 1b: Test z = a x
+\item \id{Test\_N\_VLinearCombination} Case 2a: Test x = a x + b y
+\item \id{Test\_N\_VLinearCombination} Case 2b: Test z = a x + b y
+\item \id{Test\_N\_VLinearCombination} Case 3a: Test x = x + a y + b z
+\item \id{Test\_N\_VLinearCombination} Case 3b: Test x = a x + b y + c z
+\item \id{Test\_N\_VLinearCombination} Case 3c: Test w = a x + b y + c z
+\item \id{Test\_N\_VScaleAddMulti} Case 1a: y = a x + y
+\item \id{Test\_N\_VScaleAddMulti} Case 1b: z = a x + y
+\item \id{Test\_N\_VScaleAddMulti} Case 2a: Y[i] = c[i] x + Y[i], i = 1,2,3
+\item \id{Test\_N\_VScaleAddMulti} Case 2b: Z[i] = c[i] x + Y[i], i = 1,2,3
+\item \id{Test\_N\_VDotProdMulti} Case 1: Calculate the dot product of two vectors
+\item \id{Test\_N\_VDotProdMulti} Case 2: Calculate the dot product of one vector with three other vectors in a vector array.
+\item \id{Test\_N\_VLinearSumVectorArray} Case 1: z = a x + b y 
+\item \id{Test\_N\_VLinearSumVectorArray} Case 2a: Z[i] = a X[i] + b Y[i]
+\item \id{Test\_N\_VLinearSumVectorArray} Case 2b: X[i] = a X[i] + b Y[i]
+\item \id{Test\_N\_VLinearSumVectorArray} Case 2c: Y[i] = a X[i] + b Y[i]
+\item \id{Test\_N\_VScaleVectorArray} Case 1a: y = c y
+\item \id{Test\_N\_VScaleVectorArray} Case 1b: z = c y
+\item \id{Test\_N\_VScaleVectorArray} Case 2a: Y[i] = c[i] Y[i]
+\item \id{Test\_N\_VScaleVectorArray} Case 2b: Z[i] = c[i] Y[i]
+\item \id{Test\_N\_VScaleVectorArray} Case 1a: z = c
+\item \id{Test\_N\_VScaleVectorArray} Case 1b: Z[i] = c
+\item \id{Test\_N\_VWrmsNormVectorArray} Case 1a: Create a vector of know values, find and validate the weighted root mean square norm.
+\item \id{Test\_N\_VWrmsNormVectorArray} Case 1b: Create a vector array of three vectors of know values, find and validate the weighted root mean square norm of each.
+\item \id{Test\_N\_VWrmsNormMaskVectorArray} Case 1a: Create a vector of know values, find and validate the weighted root mean square norm using all elements except one.
+\item \id{Test\_N\_VWrmsNormMaskVectorArray} Case 1b: Create a vector array of three vectors of know values, find and validate the weighted root mean square norm of each using all elements except one.
+\item \id{Test\_N\_VScaleAddMultiVectorArray} Case 1a: y = a x + y 
+\item \id{Test\_N\_VScaleAddMultiVectorArray} Case 1b: z = a x + y
+\item \id{Test\_N\_VScaleAddMultiVectorArray} Case 2a: Y[j][0] = a[j] X[0] + Y[j][0]
+\item \id{Test\_N\_VScaleAddMultiVectorArray} Case 2b: Z[j][0] = a[j] X[0] + Y[j][0]
+\item \id{Test\_N\_VScaleAddMultiVectorArray} Case 3a: Y[0][i] = a[0] X[i] + Y[0][i]
+\item \id{Test\_N\_VScaleAddMultiVectorArray} Case 3b: Z[0][i] = a[0] X[i] + Y[0][i]
+\item \id{Test\_N\_VScaleAddMultiVectorArray} Case 4a: Y[j][i] = a[j] X[i] + Y[j][i]
+\item \id{Test\_N\_VScaleAddMultiVectorArray} Case 4b: Z[j][i] = a[j] X[i] + Y[j][i]  
+\item \id{Test\_N\_VLinearCombinationVectorArray} Case 1a: x = a x
+\item \id{Test\_N\_VLinearCombinationVectorArray} Case 1b: z = a x
+\item \id{Test\_N\_VLinearCombinationVectorArray} Case 2a: x = a x + b y 
+\item \id{Test\_N\_VLinearCombinationVectorArray} Case 2b: z = a x + b y
+\item \id{Test\_N\_VLinearCombinationVectorArray} Case 3a: x = a x + b y + c z
+\item \id{Test\_N\_VLinearCombinationVectorArray} Case 3b: w = a x + b y + c z
+\item \id{Test\_N\_VLinearCombinationVectorArray} Case 4a: X[0][i] = c[0] X[0][i]
+\item \id{Test\_N\_VLinearCombinationVectorArray} Case 4b: Z[i] = c[0] X[0][i]
+\item \id{Test\_N\_VLinearCombinationVectorArray} Case 5a: X[0][i] = c[0] X[0][i] + c[1] X[1][i]
+\item \id{Test\_N\_VLinearCombinationVectorArray} Case 5b: Z[i] = c[0] X[0][i] + c[1] X[1][i]
+\item \id{Test\_N\_VLinearCombinationVectorArray} Case 6a: X[0][i] = X[0][i] + c[1] X[1][i] + c[2] X[2][i]
+\item \id{Test\_N\_VLinearCombinationVectorArray} Case 6b: X[0][i] = c[0] X[0][i] + c[1] X[1][i] + c[2] X[2][i]
+\item \id{Test\_N\_VLinearCombinationVectorArray} Case 6c: Z[i] = c[0] X[0][i] + c[1] X[1][i] + c[2] X[2][i]
 \end{itemize}
