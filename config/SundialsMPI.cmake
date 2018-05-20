@@ -54,7 +54,7 @@ if(NOT MPI_C_COMPILER)
     "SET(CMAKE_C_FLAGS_MINSIZE \"${CMAKE_C_FLAGS_MINSIZE}\")\n"
     "ADD_EXECUTABLE(mpictest mpictest.c)\n")
 
-  # Create a simple C source which only calls the MPI_Init and MPI_Finalize functions
+  # Create a simple C source which only calls MPI_Init and MPI_Finalize
   file(WRITE ${MPITest_DIR}/mpictest.c
     "#include <mpi.h>\n"
     "int main(){\n"
@@ -69,7 +69,7 @@ if(NOT MPI_C_COMPILER)
   try_compile(MPI_TEST_OK ${MPITest_DIR} ${MPITest_DIR}
     mpictest OUTPUT_VARIABLE MY_OUTPUT)
 
-  # To ensure we do not use stuff from the previous attempts, 
+  # To ensure we do not use stuff from the previous attempts,
   # we must remove the CMakeFiles directory.
   file(REMOVE_RECURSE ${MPITest_DIR}/CMakeFiles)
 
@@ -83,7 +83,7 @@ if(NOT MPI_C_COMPILER)
   endif()
 
 endif()
- 
+
 # only check C++ and Fortran compilers if MPI C compiler was found and works
 if(MPI_C_FOUND)
 
@@ -110,7 +110,7 @@ if(MPI_C_FOUND)
       "SET(CMAKE_CXX_FLAGS_MINSIZE \"${CMAKE_CXX_FLAGS_MINSIZE}\")\n"
       "ADD_EXECUTABLE(mpicxxtest mpicxxtest.cpp)\n")
 
-    # Create a simple C++ source which only calls the MPI_Init and MPI_Finalize functions
+    # Create a simple C++ source which only calls MPI_Init and MPI_Finalize
     file(WRITE ${MPITest_DIR}/mpicxxtest.cpp
       "#include <mpi.h>\n"
       "int main(){\n"
@@ -125,7 +125,7 @@ if(MPI_C_FOUND)
     try_compile(MPI_TEST_OK ${MPITest_DIR} ${MPITest_DIR}
       mpicxxtest OUTPUT_VARIABLE MY_OUTPUT)
 
-    # To ensure we do not use stuff from the previous attempts, 
+    # To ensure we do not use stuff from the previous attempts,
     # we must remove the CMakeFiles directory.
     file(REMOVE_RECURSE ${MPITest_DIR}/CMakeFiles)
 
@@ -139,7 +139,7 @@ if(MPI_C_FOUND)
     endif()
 
   endif()
-  
+
   # check Fortran compiler
   if((F77_FOUND OR F90_FOUND) AND (NOT MPI_Fortran_COMPILER))
 
@@ -163,10 +163,10 @@ if(MPI_C_FOUND)
       "SET(CMAKE_Fortran_FLAGS_MINSIZE \"${CMAKE_Fortran_FLAGS_MINSIZE}\")\n"
       "ADD_EXECUTABLE(mpif9test mpiftest.f)\n")
 
-    # Create a simple F90 source which only calls the MPI_Init and MPI_Finalize functions
+    # Create a simple Fortran source which only calls MPI_Init and MPI_Finalize
     file(WRITE ${MPITest_DIR}/mpiftest.f
       "       INCLUDE \"mpif.h\"\n"
-      "       INTEGER IER\n" 
+      "       INTEGER IER\n"
       "       CALL MPI_INIT(IER)\n"
       "       CALL MPI_FINALIZE(IER)\n"
       "       STOP\n"
@@ -176,7 +176,7 @@ if(MPI_C_FOUND)
     try_compile(MPI_TEST_OK ${MPITest_DIR} ${MPITest_DIR}
       mpiftest OUTPUT_VARIABLE MY_OUTPUT)
 
-    # To ensure we do not use stuff from the previous attempts, 
+    # To ensure we do not use stuff from the previous attempts,
     # we must remove the CMakeFiles directory.
     file(REMOVE_RECURSE ${MPITest_DIR}/CMakeFiles)
 
@@ -194,7 +194,7 @@ if(MPI_C_FOUND)
 endif()
 
 # ---------------------------------------------------------------------------
-# If MPI_<lang>_COMPILER is set FindMPI will try to set the below variables
+# If MPI_<lang>_COMPILER is set, FindMPI will try to set the below variables
 # for the given compiler wrapper. If MPI_<lang>_COMPILER is unset FindMPI
 # will attempt to locate an installed MPI library and set the below
 # variables.
@@ -215,50 +215,47 @@ endif()
 # ---------------------------------------------------------------------------
 find_package(MPI)
 
-if(MPI_C_FOUND)
-
-  # show some advaned MPI C variables
-  mark_as_advanced(CLEAR MPIEXEC)
-  mark_as_advanced(CLEAR MPI_C_COMPILER)
-  # hide some MPI C variables
-  mark_as_advanced(MPI_C_LIBRARIES)
-  mark_as_advanced(MPI_C_COMPILE_FLAGS)
-  mark_as_advanced(MPI_C_INCLUDE_PATH)
-  mark_as_advanced(MPI_C_LIBRARIES)
-  mark_as_advanced(MPI_C_LINK_FLAGS)
-
-  # hide some MPI variables
-  mark_as_advanced(MPI_EXTRA_LIBRARY)
-  mark_as_advanced(MPI_LIBRARY)
-
-  if(MPI_CXX_FOUND)
-    # show some advaned MPI C variables
-    mark_as_advanced(CLEAR MPI_CXX_COMPILER)
-    # hide some MPI CXX variables
-    mark_as_advanced(MPI_CXX_LIBRARIES)
-    mark_as_advanced(MPI_CXX_COMPILE_FLAGS)
-    mark_as_advanced(MPI_CXX_INCLUDE_PATH)
-    mark_as_advanced(MPI_CXX_LIBRARIES)
-    mark_as_advanced(MPI_CXX_LINK_FLAGS)
-  endif()
-
-  if(MPI_Fortran_FOUND)
-    # show some advaned MPI Fortran variables
-    mark_as_advanced(CLEAR MPI_Fortran_COMPILER)
-    # hide some MPI Fortran variables
-    mark_as_advanced(MPI_Fortran_COMPILE_FLAGS)
-    mark_as_advanced(MPI_Fortran_INCLUDE_PATH)
-    mark_as_advanced(MPI_Fortran_LIBRARIES)
-    mark_as_advanced(MPI_Fortran_LINK_FLAGS)
-  endif()
-
-else()
-
-  # MPI not functioning
+# MPI not functioning
+if(NOT MPI_C_FOUND)
   set(MPI_C_FOUND FALSE)
   set(MPI_CXX_FOUND FALSE)
   set(MPI_Fortran_FOUND FALSE)
+endif()
 
+# show some advaned MPI C variables
+mark_as_advanced(CLEAR MPIEXEC)
+mark_as_advanced(CLEAR MPI_C_COMPILER)
+
+# hide some MPI C variables
+mark_as_advanced(MPI_C_LIBRARIES)
+mark_as_advanced(MPI_C_COMPILE_FLAGS)
+mark_as_advanced(MPI_C_INCLUDE_PATH)
+mark_as_advanced(MPI_C_LIBRARIES)
+mark_as_advanced(MPI_C_LINK_FLAGS)
+
+# hide some MPI variables
+mark_as_advanced(MPI_EXTRA_LIBRARY)
+mark_as_advanced(MPI_LIBRARY)
+
+if(CXX_FOUND)
+  # show some advaned MPI C variables
+  mark_as_advanced(CLEAR MPI_CXX_COMPILER)
+  # hide some MPI CXX variables
+  mark_as_advanced(MPI_CXX_LIBRARIES)
+  mark_as_advanced(MPI_CXX_COMPILE_FLAGS)
+  mark_as_advanced(MPI_CXX_INCLUDE_PATH)
+  mark_as_advanced(MPI_CXX_LIBRARIES)
+  mark_as_advanced(MPI_CXX_LINK_FLAGS)
+endif()
+
+if(F77_FOUND OR F90_FOUND)
+  # show some advaned MPI Fortran variables
+  mark_as_advanced(CLEAR MPI_Fortran_COMPILER)
+  # hide some MPI Fortran variables
+  mark_as_advanced(MPI_Fortran_COMPILE_FLAGS)
+  mark_as_advanced(MPI_Fortran_INCLUDE_PATH)
+  mark_as_advanced(MPI_Fortran_LIBRARIES)
+  mark_as_advanced(MPI_Fortran_LINK_FLAGS)
 endif()
 
 # determine if MPI-2 is supported
@@ -273,7 +270,7 @@ if(MPI_C_FOUND)
 
   # Create CMakeLists.txt file for "mpi2test" executable
   if(MPI_C_COMPILER)
-    
+
     file(WRITE ${MPITest_DIR}/CMakeLists.txt
       "CMAKE_MINIMUM_REQUIRED(VERSION 3.0.2)\n"
       "PROJECT(mpi2test C)\n"
@@ -286,9 +283,9 @@ if(MPI_C_FOUND)
       "SET(CMAKE_C_FLAGS_RELWITHDEBUGINFO \"${CMAKE_C_FLAGS_RELWITHDEBUGINFO}\")\n"
       "SET(CMAKE_C_FLAGS_MINSIZE \"${CMAKE_C_FLAGS_MINSIZE}\")\n"
       "ADD_EXECUTABLE(mpi2test mpi2test.c)\n")
-    
+
   else()
-    
+
     file(WRITE ${MPITest_DIR}/CMakeLists.txt
       "CMAKE_MINIMUM_REQUIRED(VERSION 3.0.2)\n"
       "PROJECT(mpi2test C)\n"
@@ -303,9 +300,9 @@ if(MPI_C_FOUND)
       "INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})\n"
       "ADD_EXECUTABLE(mpi2test mpi2test.c)\n"
       "TARGET_LINK_LIBRARIES(mpi2test ${MPI_LIBRARIES})\n")
-    
+
   endif()
-  
+
   # Create a simple C source which calls the MPI_Comm_f2c function
   file(WRITE ${MPITest_DIR}/mpi2test.c
     "#include <mpi.h>\n"
@@ -318,15 +315,15 @@ if(MPI_C_FOUND)
     "MPI_Finalize();\n"
     "return(0);\n"
     "}\n")
-  
+
   # Use TRY_COMPILE to make the target "mpi2test"
   try_compile(MPITEST_OK ${MPITest_DIR} ${MPITest_DIR}
     mpi2test OUTPUT_VARIABLE MY_OUTPUT)
-  
-  # To ensure we do not use stuff from the previous attempts, 
+
+  # To ensure we do not use stuff from the previous attempts,
   # we must remove the CMakeFiles directory.
   FILE(REMOVE_RECURSE ${MPITest_DIR}/CMakeFiles)
-  
+
   # Interpret test results
   if(MPITEST_OK)
     message(STATUS "Checking for MPI-2 support... OK")
@@ -334,11 +331,6 @@ if(MPI_C_FOUND)
   else()
     message(STATUS "Checking for MPI-2 support... FAILED")
     set(MPIC_MPI2 FALSE)
-  endif()       
+  endif()
 
 endif()
-  
-
-
-
-
