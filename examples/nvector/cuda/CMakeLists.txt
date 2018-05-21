@@ -14,13 +14,23 @@
 # CMakeLists.txt file for cuda nvector examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;type" where the type is
-# 'develop' for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;nodes\;tasks\;type" where the
+# type is develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS cuda nvector
-SET(nvector_cuda_examples
-  "test_nvector_cuda\;10000 0\;"
-  )
+IF(MPI_C_FOUND)
+  SET(nvector_cuda_examples
+    "test_nvector_cuda\;\;\;\;"          # run sequentially
+    "test_nvector_cuda\;1000 0\;\;\;"    # run sequentially with arguments
+    "test_nvector_cuda\;\;1\;4\;"        # run parallel on 4 procs
+    "test_nvector_cuda\;1000 0\;1\;4\;"  # run parallel on 4 procs with arguments
+     )
+ELSE()
+  SET(nvector_cuda_examples
+    "test_nvector_cuda\;\;\;\;"          # run sequentially
+    "test_nvector_cuda\;1000 0\;\;\;"    # run sequentially with arguments
+     )
+ENDIF()
 
 # Dependencies for nvector examples
 SET(nvector_examples_dependencies
@@ -50,7 +60,9 @@ FOREACH(example_tuple ${nvector_cuda_examples})
   # parse the example tuple
   LIST(GET example_tuple 0 example)
   LIST(GET example_tuple 1 example_args)
-  LIST(GET example_tuple 2 example_type)
+  LIST(GET example_tuple 2 number_of_nodes)
+  LIST(GET example_tuple 3 number_of_tasks)
+  LIST(GET example_tuple 4 example_type)
 
   # This is used to get around DLL linkage issue since we are
   # manually including sundials_nvector.c here, which is normally in
@@ -77,14 +89,23 @@ FOREACH(example_tuple ${nvector_cuda_examples})
 
   # check if example args are provided and set the test name
   IF("${example_args}" STREQUAL "")
-    SET(test_name ${example})
+    IF("${number_of_tasks}" STREQUAL "")
+      SET(test_name ${example})
+    ELSE()
+      STRING(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks})
+    ENDIF()
   ELSE()
-    STRING(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+    IF("${number_of_tasks}" STREQUAL "")
+      STRING(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+    ELSE()
+      STRING(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks}_${example_args})
+    ENDIF()
   ENDIF()
 
   # add example to regression tests
   SUNDIALS_ADD_TEST(${test_name} ${example}
     TEST_ARGS ${example_args}
+    MPI_NPROCS ${number_of_tasks}
     EXAMPLE_TYPE ${example_type}
     NODIFF)
 
