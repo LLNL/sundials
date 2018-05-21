@@ -85,18 +85,18 @@ N_Vector N_VNewEmpty_Raja(sunindextype length)
   ops->nvminquotient  = N_VMinQuotient_Raja;
 
   /* fused vector operations */
-  ops->nvlinearcombination = N_VLinearCombination_Raja;
-  ops->nvscaleaddmulti     = N_VScaleAddMulti_Raja;
+  ops->nvlinearcombination = NULL; //N_VLinearCombination_Raja;
+  ops->nvscaleaddmulti     = NULL; //N_VScaleAddMulti_Raja;
   ops->nvdotprodmulti      = NULL;
 
   /* vector array operations */
-  ops->nvlinearsumvectorarray         = N_VLinearSumVectorArray_Raja;
-  ops->nvscalevectorarray             = N_VScaleVectorArray_Raja;
-  ops->nvconstvectorarray             = N_VConstVectorArray_Raja;
+  ops->nvlinearsumvectorarray         = NULL; // N_VLinearSumVectorArray_Raja;
+  ops->nvscalevectorarray             = NULL; //N_VScaleVectorArray_Raja;
+  ops->nvconstvectorarray             = NULL; //N_VConstVectorArray_Raja;
   ops->nvwrmsnormvectorarray          = NULL;
   ops->nvwrmsnormmaskvectorarray      = NULL;
-  ops->nvscaleaddmultivectorarray     = N_VScaleAddMultiVectorArray_Raja;
-  ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Raja;
+  ops->nvscaleaddmultivectorarray     = NULL; //N_VScaleAddMultiVectorArray_Raja;
+  ops->nvlinearcombinationvectorarray = NULL; //N_VLinearCombinationVectorArray_Raja;
 
   /* Attach ops and set content to NULL */
   v->content = NULL;

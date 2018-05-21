@@ -87,18 +87,18 @@ N_Vector N_VNewEmpty_Cuda(sunindextype length)
   ops->nvminquotient  = N_VMinQuotient_Cuda;
 
   /* fused vector operations */
-  ops->nvlinearcombination = N_VLinearCombination_Cuda;
-  ops->nvscaleaddmulti     = N_VScaleAddMulti_Cuda;
-  ops->nvdotprodmulti      = N_VDotProdMulti_Cuda;
+  ops->nvlinearcombination = NULL; //N_VLinearCombination_Cuda;
+  ops->nvscaleaddmulti     = NULL; //N_VScaleAddMulti_Cuda;
+  ops->nvdotprodmulti      = NULL; //N_VDotProdMulti_Cuda;
 
   /* vector array operations */
-  ops->nvlinearsumvectorarray         = N_VLinearSumVectorArray_Cuda;
-  ops->nvscalevectorarray             = N_VScaleVectorArray_Cuda;
-  ops->nvconstvectorarray             = N_VConstVectorArray_Cuda;
-  ops->nvwrmsnormvectorarray          = N_VWrmsNormVectorArray_Cuda;
-  ops->nvwrmsnormmaskvectorarray      = N_VWrmsNormMaskVectorArray_Cuda;
-  ops->nvscaleaddmultivectorarray     = N_VScaleAddMultiVectorArray_Cuda;
-  ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Cuda;
+  ops->nvlinearsumvectorarray         = NULL; //N_VLinearSumVectorArray_Cuda;
+  ops->nvscalevectorarray             = NULL; //N_VScaleVectorArray_Cuda;
+  ops->nvconstvectorarray             = NULL; //N_VConstVectorArray_Cuda;
+  ops->nvwrmsnormvectorarray          = NULL; //N_VWrmsNormVectorArray_Cuda;
+  ops->nvwrmsnormmaskvectorarray      = NULL; //N_VWrmsNormMaskVectorArray_Cuda;
+  ops->nvscaleaddmultivectorarray     = NULL; //N_VScaleAddMultiVectorArray_Cuda;
+  ops->nvlinearcombinationvectorarray = NULL; //N_VLinearCombinationVectorArray_Cuda;
 
   /* Attach ops and set content to NULL */
   v->content = NULL;
@@ -570,20 +570,19 @@ realtype N_VMinQuotient_Cuda(N_Vector num, N_Vector denom)
 int N_VLinearCombination_Cuda(int nvec, realtype* c, N_Vector* X, N_Vector Z)
 {
 //   cudaError_t err;
-  Vector<realtype, sunindextype>** Xv;
-  Vector<realtype, sunindextype>*  Zv;
-
-  Zv = extract<realtype, sunindextype>(Z);
-
-  //Xv = new Vector<realtype, sunindextype>*[nvec];
-  for (int i=0; i<nvec; i++)
-    Xv[i] = extract<realtype, sunindextype>(X[i]);
-
-//  err =
-  //linearCombination(nvec, c, Xv, Zv);
-
-  delete[] Xv;
-
+//   Vector<realtype, sunindextype>** Xv;
+//   Vector<realtype, sunindextype>*  Zv;
+//
+//   Zv = extract<realtype, sunindextype>(Z);
+//
+//   Xv = new Vector<realtype, sunindextype>*[nvec];
+//   for (int i=0; i<nvec; i++)
+//     Xv[i] = extract<realtype, sunindextype>(X[i]);
+//
+//   err = linearCombination(nvec, c, Xv, Zv);
+//
+//   delete[] Xv;
+//
 //   if (err != cudaSuccess)
 //     return(-1);
 //   else
