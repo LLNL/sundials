@@ -53,3 +53,13 @@ realtype SUNDIALS_Reduce(realtype d, int op, SUNDIALS_Comm comm)
 #endif // ifdef SUNDIALS_MPI_ENABLED
 }
 
+
+void SUNDIALS_Comm_size(SUNDIALS_Comm comm, int *npes)
+{
+#ifdef SUNDIALS_MPI_ENABLED
+  MPI_Comm_size(comm, npes);
+#else
+  *npes = 1;
+#endif
+};
+

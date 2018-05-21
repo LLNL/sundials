@@ -28,7 +28,7 @@
 typedef MPI_Comm SUNDIALS_Comm;
 #else
 typedef int SUNDIALS_Comm;
-  #warning "SUNDIALS_MPI_ENABLED not defined!\n"
+  #warning "SUNDIALS_MPI_ENABLED not defined!"
 #endif // ifdef SUNDIALS_MPI_ENABLED
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
@@ -36,6 +36,7 @@ extern "C" {
 #endif
 
 SUNDIALS_EXPORT realtype SUNDIALS_Reduce(realtype d, int op, SUNDIALS_Comm comm);
+SUNDIALS_EXPORT void SUNDIALS_Comm_size(SUNDIALS_Comm comm, int *npes);
 
 #ifdef __cplusplus
 }

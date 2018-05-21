@@ -324,8 +324,13 @@ void N_VDestroy_Raja(N_Vector v)
 
 void N_VSpace_Raja(N_Vector X, sunindextype *lrw, sunindextype *liw)
 {
-    *lrw = getSize<realtype, sunindextype>(X);
-    *liw = 1;
+  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  int npes;
+
+  SUNDIALS_Comm_size(comm, &npes);
+
+  *lrw = getGlobalSize<realtype, sunindextype>(X);
+  *liw = 2*npes;
 }
 
 void N_VConst_Raja(realtype c, N_Vector Z)

@@ -326,8 +326,13 @@ void N_VDestroy_Cuda(N_Vector v)
 
 void N_VSpace_Cuda(N_Vector X, sunindextype *lrw, sunindextype *liw)
 {
-  *lrw = getSize<realtype, sunindextype>(X);
-  *liw = 1;
+  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  int npes;
+
+  SUNDIALS_Comm_size(comm, &npes);
+
+  *lrw = getGlobalSize<realtype, sunindextype>(X);
+  *liw = 2*npes;
 }
 
 void N_VConst_Cuda(realtype a, N_Vector X)

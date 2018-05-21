@@ -127,8 +127,10 @@ int main(int argc, char *argv[])
   fails += Test_N_VScaleAddMultiVectorArray(X, local_length, myid);
   fails += Test_N_VLinearCombinationVectorArray(X, local_length, myid);
 
-  /*   N_VSpace_Cuda(X, &lrw, &liw);               */
-  /*   printf("lrw = %ld, liw = %ld\n", lrw, liw); */
+//   sunindextype lrw, liw;
+//   N_VSpace_Cuda(X, &lrw, &liw);
+//   if (myid == 0)
+//     printf("lrw = %ld, liw = %ld\n", lrw, liw);
 
   /* Free vectors */
   N_VDestroy(W);
