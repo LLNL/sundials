@@ -1,8 +1,9 @@
 % This is a shared SUNDIALS TEX file with description of
 % the CUDA nvector implementation
 %
-The {\nvecraja} module is an experimental {\nvector} implementation using the {\raja} 
-hardware abstraction layer, https://software.llnl.gov/RAJA/. In this implementation, {\raja}
+The {\nvecraja} module is an experimental {\nvector} implementation using the
+\href{https://software.llnl.gov/RAJA/}{\raja} hardware abstraction layer.
+In this implementation, {\raja}
 allows for {\sundials} vector kernels to run on GPU devices. The module is intended for users 
 who are already familiar with {\raja} and GPU programming. Building this vector 
 module requires a C++11 compliant compiler and a CUDA software development toolkit. 
@@ -44,7 +45,41 @@ where \id{\em.lib} is typically \id{.so} for shared libraries
 and \id{.a} for static libraries.
 
 Unlike other native {\sundials} vector types, {\nvecraja} does not provide macros 
-to access its member variables.
+to access its member variables.Instead, user should use standalone functions in
+namespace \id{sunrajavec}. 
+\begin{itemize}
+
+\item 
+  \ID{getDevData(N\_Vector v)}
+
+  This function takes \id{N\_Vector} as an argument and returns raw pointer to vector
+  data on the device (GPU). It is users responsibility to ensure correct vector is
+  passed as the argument.
+  
+\item 
+  \ID{getHostData(N\_Vector v)}
+
+  This function takes \id{N\_Vector} as an argument and returns raw pointer to vector
+  data on the host (CPU memory). It is users responsibility to ensure correct vector is
+  passed as the argument.
+  
+\item \ID{getSize(N\_Vector v)}
+
+  Returns vector's local length.
+
+
+\item \ID{getGlobalSize(N\_Vector v)}
+
+  Returns vector's global length.
+
+
+\item \ID{getMPICom(N\_Vector v)}
+
+  Takes \id{N\_Vector} as an argument and returns sundials communicator of type
+  \id{SUNDIALS\_Comm}. 
+
+\end{itemize}
+
 %Note that {\nvecraja} requires {\sundials} to be built with {\mpi} support.
 
 %%
@@ -78,11 +113,17 @@ The module {\nvecraja}  provides the following additional user-callable routines
 \item \ID{N\_VNew\_Raja}
  
   This function creates and allocates memory for a {\raja} \id{N\_Vector}.
-  The memory is allocated on both the host and the device. Its only argument is the 
-  vector length. 
+  The memory is allocated on both host and device. Its arguments are local
+  and global vector lengths, as well as the {\sundials} communicator. If   
+  {\sundials} is built with MPI support, the communicator is MPI communicator.
+  Otherwise, it is an integer number and is ignored by \id{N\_VNew\_Raja}.
+  If {\sundials} is built without MPI support local and global vector
+  lengths must be the same.
 
 \begin{verbatim}
-N_Vector N_VNew_Raja(sunindextype vec_length);
+N_Vector N_VNew_Raja(sunindextype local_length,
+                     sunindextype global_length,
+                     SUNDIALS_Comm comm);
 \end{verbatim}
 
   
@@ -115,38 +156,6 @@ N_Vector N_VMake_Raja(N_VectorContent_Raja c);
 
 %%--------------------------------------
 
-
-\item \ID{N\_VCloneVectorArray\_Raja}
- 
-  This function creates (by cloning) an array of \id{count} {\nvecraja} vectors.
- 
-\begin{verbatim}
-N_Vector *N_VCloneVectorArray_Raja(int count, N_Vector w);
-\end{verbatim}
-
-%%--------------------------------------
-
-\item \ID{N\_VCloneVectorArrayEmpty\_Raja}
- 
-  This function creates (by cloning) an array of \id{count} {\nvecraja} vectors,
-  each with pointers to {\raja} vectors set to (\id{NULL}).
- 
-\begin{verbatim}
-N_Vector *N_VCloneVectorArrayEmpty_Raja(int count, N_Vector w);
-\end{verbatim}
-
-%%--------------------------------------
-
-\item \ID{N\_VDestroyVectorArray\_Raja}
- 
- This function frees memory allocated for the array of \id{count} variables of
- type \id{N\_Vector} created with \id{N\_VCloneVectorArray\_Raja} or with
- \id{N\_VCloneVectorArrayEmpty\_Raja}.
- 
-
- \verb|void N_VDestroyVectorArray_Raja(N_Vector *vs, int count);|
-
-%%--------------------------------------
 
 \item \ID{N\_VGetLength\_Raja}
  
