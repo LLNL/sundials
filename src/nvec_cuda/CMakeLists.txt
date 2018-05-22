@@ -20,6 +20,7 @@ SET(nveccuda_SOURCES nvector_cuda.cu)
 
 # Tell compiler it is a CUDA source
 set_source_files_properties(${nvecraja_SOURCES} PROPERTIES CUDA_SOURCE_PROPERTY_FORMAT OBJ)
+set(CUDA_NVCC_FLAGS -std;c++11)
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the NVECCUDA library
