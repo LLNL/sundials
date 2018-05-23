@@ -54,6 +54,39 @@ realtype SUNDIALS_Reduce(realtype d, int op, SUNDIALS_Comm comm)
 }
 
 
+void SUNDIALS_Allreduce(realtype *d, int nvec, int op, SUNDIALS_Comm comm)
+{
+  /*
+   * This function does a global reduction.  The operation is
+   *   sum if op = 1,
+   *   max if op = 2,
+   *   min if op = 3.
+   * The operation is over all processors in the communicator
+   */
+
+#ifdef SUNDIALS_MPI_ENABLED
+
+  switch (op) {
+   case 1: MPI_Allreduce(MPI_IN_PLACE, d, nvec, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
+           break;
+
+   case 2: MPI_Allreduce(MPI_IN_PLACE, d, nvec, PVEC_REAL_MPI_TYPE, MPI_MAX, comm);
+           break;
+
+   case 3: MPI_Allreduce(MPI_IN_PLACE, d, nvec, PVEC_REAL_MPI_TYPE, MPI_MIN, comm);
+           break;
+
+   default: break;
+  }
+
+#else
+
+  /* If MPI is not enabled don't do reduction */
+
+#endif // ifdef SUNDIALS_MPI_ENABLED
+}
+
+
 void SUNDIALS_Comm_size(SUNDIALS_Comm comm, int *npes)
 {
 #ifdef SUNDIALS_MPI_ENABLED

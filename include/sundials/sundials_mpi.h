@@ -36,6 +36,7 @@ extern "C" {
 #endif
 
 SUNDIALS_EXPORT realtype SUNDIALS_Reduce(realtype d, int op, SUNDIALS_Comm comm);
+SUNDIALS_EXPORT void SUNDIALS_Allreduce(realtype *d, int nvec, int op, SUNDIALS_Comm comm);
 SUNDIALS_EXPORT void SUNDIALS_Comm_size(SUNDIALS_Comm comm, int *npes);
 
 #ifdef __cplusplus

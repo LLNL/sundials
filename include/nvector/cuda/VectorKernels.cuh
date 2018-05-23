@@ -644,7 +644,7 @@ scaleAddMultiKernel(int nv, T* c, T* xd, T** yd, T** zd, I n)
 
 /*
  * Dot product of one vector with nv other vectors.
- *    
+ *
  */
 template <typename T, typename I>
 __global__ void
@@ -654,7 +654,7 @@ dotProdMultiKernel(int nv, T* xd, T** yd, T* out, I n)
 
   I tid = threadIdx.x;
   I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
-    
+
   // First reduction step before storing data in shared memory.
   if (i < n)
     for (int k=0; k<nv; k++)
@@ -683,7 +683,7 @@ dotProdMultiKernel(int nv, T* xd, T** yd, T* out, I n)
 
 /*
  * Sums all elements of the vector.
- *    
+ *
  */
 template <typename T, typename I>
 __global__ void
@@ -774,17 +774,17 @@ constVectorArrayKernel(int nv, T c, T** zd, I n)
 
 /*
  * WRMS norm of nv vectors.
- *    
+ *
  */
 template <typename T, typename I>
 __global__ void
-wrmsNormVectorArrayKernel(int nv, T** xd, T** wd, T* out, I n)
+wL2NormSquareVectorArrayKernel(int nv, T** xd, T** wd, T* out, I n)
 {
   extern __shared__ T shmem[];
 
   I tid = threadIdx.x;
   I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
-    
+
   // First reduction step before storing data in shared memory.
   if (i < n)
     for (int k=0; k<nv; k++)
@@ -814,17 +814,17 @@ wrmsNormVectorArrayKernel(int nv, T** xd, T** wd, T* out, I n)
 
 /*
  * Masked WRMS norm of nv vectors.
- *    
+ *
  */
 template <typename T, typename I>
 __global__ void
-wrmsNormMaskVectorArrayKernel(int nv, T** xd, T** wd, T* id, T* out, I n)
+wL2NormSquareMaskVectorArrayKernel(int nv, T** xd, T** wd, T* id, T* out, I n)
 {
   extern __shared__ T shmem[];
 
   I tid = threadIdx.x;
   I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
-    
+
   // First reduction step before storing data in shared memory.
   if (i < n && id[i] > 0.0)
     for (int k=0; k<nv; k++)
@@ -1461,7 +1461,7 @@ inline cudaError_t dotProdMulti(int nvec, Vector<T,I>* x, Vector<T,I>** Y,
   T* d_buff;
   err = cudaMalloc((void**) &d_buff, nvec*grid*sizeof(T));
   if (err != cudaSuccess) return cudaGetLastError();
-  
+
   math_kernels::dotProdMultiKernel<T,I><<< grid, block, shMemSize >>>(nvec,
                                                                       x->device(),
                                                                       d_Yd,
@@ -1673,8 +1673,8 @@ inline cudaError_t constVectorArray(int nvec, T c, Vector<T,I>** Z)
 
 
 template <typename T, typename I>
-inline cudaError_t wrmsNormVectorArray(int nvec, Vector<T,I>** X,
-                                       Vector<T,I>** W, T* nrm)
+inline cudaError_t wL2NormSquareVectorArray(int nvec, Vector<T,I>** X,
+                                            Vector<T,I>** W, T* nrm)
 {
   cudaError_t err;
 
@@ -1710,12 +1710,12 @@ inline cudaError_t wrmsNormVectorArray(int nvec, Vector<T,I>** X,
   T* d_buff;
   err = cudaMalloc((void**) &d_buff, nvec*grid*sizeof(T));
   if (err != cudaSuccess) return cudaGetLastError();
-  
-  math_kernels::wrmsNormVectorArrayKernel<<< grid, block, shMemSize >>>(nvec,
-                                                                        d_Xd,
-                                                                        d_Wd,
-                                                                        d_buff,
-                                                                        X[0]->size());
+
+  math_kernels::wL2NormSquareVectorArrayKernel<<< grid, block, shMemSize >>>(nvec,
+                                                                             d_Xd,
+                                                                             d_Wd,
+                                                                             d_buff,
+                                                                             X[0]->size());
 
   unsigned n = grid;
   unsigned nmax = 2*block;
@@ -1744,7 +1744,6 @@ inline cudaError_t wrmsNormVectorArray(int nvec, Vector<T,I>** X,
     for (int i=1; i<n; i++){
       nrm[k] += h_buff[i + k*n];
     }
-    nrm[k] = sqrt(nrm[k]/X[0]->size());
   }
 
   // Free host array
@@ -1765,7 +1764,7 @@ inline cudaError_t wrmsNormVectorArray(int nvec, Vector<T,I>** X,
 
 
 template <typename T, typename I>
-inline cudaError_t wrmsNormMaskVectorArray(int nvec, Vector<T,I>** X,
+inline cudaError_t wL2NormSquareMaskVectorArray(int nvec, Vector<T,I>** X,
                                            Vector<T,I>** W, Vector<T,I>* ID,
                                            T* nrm)
 {
@@ -1803,8 +1802,8 @@ inline cudaError_t wrmsNormMaskVectorArray(int nvec, Vector<T,I>** X,
   T* d_buff;
   err = cudaMalloc((void**) &d_buff, nvec*grid*sizeof(T));
   if (err != cudaSuccess) return cudaGetLastError();
-  
-  math_kernels::wrmsNormMaskVectorArrayKernel<<< grid, block, shMemSize >>>(nvec,
+
+  math_kernels::wL2NormSquareMaskVectorArrayKernel<<< grid, block, shMemSize >>>(nvec,
                                                                             d_Xd,
                                                                             d_Wd,
                                                                             ID->device(),
@@ -1838,7 +1837,6 @@ inline cudaError_t wrmsNormMaskVectorArray(int nvec, Vector<T,I>** X,
     for (int i=1; i<n; i++){
       nrm[k] += h_buff[i + k*n];
     }
-    nrm[k] = sqrt(nrm[k]/X[0]->size());
   }
 
   // Free host array

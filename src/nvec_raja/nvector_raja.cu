@@ -85,18 +85,18 @@ N_Vector N_VNewEmpty_Raja(sunindextype length)
   ops->nvminquotient  = N_VMinQuotient_Raja;
 
   /* fused vector operations */
-  ops->nvlinearcombination = NULL; //N_VLinearCombination_Raja;
-  ops->nvscaleaddmulti     = NULL; //N_VScaleAddMulti_Raja;
+  ops->nvlinearcombination = N_VLinearCombination_Raja;
+  ops->nvscaleaddmulti     = N_VScaleAddMulti_Raja;
   ops->nvdotprodmulti      = NULL;
 
   /* vector array operations */
-  ops->nvlinearsumvectorarray         = NULL; // N_VLinearSumVectorArray_Raja;
-  ops->nvscalevectorarray             = NULL; //N_VScaleVectorArray_Raja;
-  ops->nvconstvectorarray             = NULL; //N_VConstVectorArray_Raja;
+  ops->nvlinearsumvectorarray         = N_VLinearSumVectorArray_Raja;
+  ops->nvscalevectorarray             = N_VScaleVectorArray_Raja;
+  ops->nvconstvectorarray             = N_VConstVectorArray_Raja;
   ops->nvwrmsnormvectorarray          = NULL;
   ops->nvwrmsnormmaskvectorarray      = NULL;
-  ops->nvscaleaddmultivectorarray     = NULL; //N_VScaleAddMultiVectorArray_Raja;
-  ops->nvlinearcombinationvectorarray = NULL; //N_VLinearCombinationVectorArray_Raja;
+  ops->nvscaleaddmultivectorarray     = N_VScaleAddMultiVectorArray_Raja;
+  ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Raja;
 
   /* Attach ops and set content to NULL */
   v->content = NULL;
@@ -628,44 +628,44 @@ realtype N_VMinQuotient_Raja(N_Vector num, N_Vector denom)
 
 int N_VLinearCombination_Raja(int nvec, realtype* c, N_Vector* X, N_Vector z)
 {
-//   cudaError_t  err;
-//
-//   sunindextype N = getSize<realtype, sunindextype>(z);
-//   realtype* d_zd = getDevData<realtype, sunindextype>(z);
-//
-//   // Copy c array to device
-//   realtype* d_c;
-//   err = cudaMalloc((void**) &d_c, nvec*sizeof(realtype));
-//   if (err != cudaSuccess) return cudaGetLastError();
-//   err = cudaMemcpy(d_c, c, nvec*sizeof(realtype), cudaMemcpyHostToDevice);
-//   if (err != cudaSuccess) return cudaGetLastError();
-//
-//   // Create array of device pointers on host
-//   realtype** h_Xd = new realtype*[nvec];
-//   for (int j=0; j<nvec; j++)
-//     h_Xd[j] = getDevData<realtype, sunindextype>(X[j]);
-//
-//   // Copy array of device pointers to device from host
-//   realtype** d_Xd;
-//   err = cudaMalloc((void**) &d_Xd, nvec*sizeof(realtype*));
-//   if (err != cudaSuccess) return cudaGetLastError();
-//   err = cudaMemcpy(d_Xd, h_Xd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-//   if (err != cudaSuccess) return cudaGetLastError();
-//
-//   RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
-//       d_zd[i] = d_c[0] * d_Xd[0][i];
-//       for (int j=1; j<nvec; j++)
-//         d_zd[i] += d_c[j] * d_Xd[j][i];
-//     });
-//
-//   // Free host array
-//   delete[] h_Xd;
-//
-//   // Free device arrays
-//   err = cudaFree(d_c);
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//   err = cudaFree(d_Xd);
-//   //if (err != cudaSuccess) return cudaGetLastError();
+  cudaError_t  err;
+
+  sunindextype N = getSize<realtype, sunindextype>(z);
+  realtype* d_zd = getDevData<realtype, sunindextype>(z);
+
+  // Copy c array to device
+  realtype* d_c;
+  err = cudaMalloc((void**) &d_c, nvec*sizeof(realtype));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_c, c, nvec*sizeof(realtype), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  // Create array of device pointers on host
+  realtype** h_Xd = new realtype*[nvec];
+  for (int j=0; j<nvec; j++)
+    h_Xd[j] = getDevData<realtype, sunindextype>(X[j]);
+
+  // Copy array of device pointers to device from host
+  realtype** d_Xd;
+  err = cudaMalloc((void**) &d_Xd, nvec*sizeof(realtype*));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_Xd, h_Xd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
+      d_zd[i] = d_c[0] * d_Xd[0][i];
+      for (int j=1; j<nvec; j++)
+        d_zd[i] += d_c[j] * d_Xd[j][i];
+    });
+
+  // Free host array
+  delete[] h_Xd;
+
+  // Free device arrays
+  err = cudaFree(d_c);
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaFree(d_Xd);
+  if (err != cudaSuccess) return cudaGetLastError();
 
   return(0);
 }
@@ -673,56 +673,56 @@ int N_VLinearCombination_Raja(int nvec, realtype* c, N_Vector* X, N_Vector z)
 
 int N_VScaleAddMulti_Raja(int nvec, realtype* c, N_Vector x, N_Vector* Y, N_Vector* Z)
 {
-//   cudaError_t err;
-//
-//   sunindextype N = getSize<realtype, sunindextype>(x);
-//   realtype* d_xd = getDevData<realtype, sunindextype>(x);
-//
-//   // Copy c array to device
-//   realtype* d_c;
-//   err = cudaMalloc((void**) &d_c, nvec*sizeof(realtype));
-//   if (err != cudaSuccess) return cudaGetLastError();
-//   err = cudaMemcpy(d_c, c, nvec*sizeof(realtype), cudaMemcpyHostToDevice);
-//   if (err != cudaSuccess) return cudaGetLastError();
-//
-//   // Create array of device pointers on host
-//   realtype** h_Yd = new realtype*[nvec];
-//   for (int j=0; j<nvec; j++)
-//     h_Yd[j] = getDevData<realtype, sunindextype>(Y[j]);
-//
-//   realtype** h_Zd = new realtype*[nvec];
-//   for (int j=0; j<nvec; j++)
-//     h_Zd[j] = getDevData<realtype, sunindextype>(Z[j]);
-//
-//   // Copy array of device pointers to device from host
-//   realtype** d_Yd;
-//   err = cudaMalloc((void**) &d_Yd, nvec*sizeof(realtype*));
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//   err = cudaMemcpy(d_Yd, h_Yd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//
-//   realtype** d_Zd;
-//   err = cudaMalloc((void**) &d_Zd, nvec*sizeof(realtype*));
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//   err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//
-//   RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
-//       for (int j=0; j<nvec; j++)
-//         d_Zd[j][i] = d_c[j] * d_xd[i] + d_Yd[j][i];
-//     });
-//
-//   // Free host array
-//   delete[] h_Yd;
-//   delete[] h_Zd;
-//
-//   // Free device arrays
-//   err = cudaFree(d_c);
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//   err = cudaFree(d_Yd);
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//   err = cudaFree(d_Zd);
-//   //if (err != cudaSuccess) return cudaGetLastError();
+  cudaError_t err;
+
+  sunindextype N = getSize<realtype, sunindextype>(x);
+  realtype* d_xd = getDevData<realtype, sunindextype>(x);
+
+  // Copy c array to device
+  realtype* d_c;
+  err = cudaMalloc((void**) &d_c, nvec*sizeof(realtype));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_c, c, nvec*sizeof(realtype), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  // Create array of device pointers on host
+  realtype** h_Yd = new realtype*[nvec];
+  for (int j=0; j<nvec; j++)
+    h_Yd[j] = getDevData<realtype, sunindextype>(Y[j]);
+
+  realtype** h_Zd = new realtype*[nvec];
+  for (int j=0; j<nvec; j++)
+    h_Zd[j] = getDevData<realtype, sunindextype>(Z[j]);
+
+  // Copy array of device pointers to device from host
+  realtype** d_Yd;
+  err = cudaMalloc((void**) &d_Yd, nvec*sizeof(realtype*));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_Yd, h_Yd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  realtype** d_Zd;
+  err = cudaMalloc((void**) &d_Zd, nvec*sizeof(realtype*));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
+      for (int j=0; j<nvec; j++)
+        d_Zd[j][i] = d_c[j] * d_xd[i] + d_Yd[j][i];
+    });
+
+  // Free host array
+  delete[] h_Yd;
+  delete[] h_Zd;
+
+  // Free device arrays
+  err = cudaFree(d_c);
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaFree(d_Yd);
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaFree(d_Zd);
+  if (err != cudaSuccess) return cudaGetLastError();
 
   return(0);
 }
@@ -739,113 +739,113 @@ int N_VLinearSumVectorArray_Raja(int nvec,
                                  realtype b, N_Vector* Y,
                                  N_Vector* Z)
 {
-//   cudaError_t err;
-//
-//   sunindextype N = getSize<realtype, sunindextype>(Z[0]);
-//
-//   // Create array of device pointers on host
-//   realtype** h_Xd = new realtype*[nvec];
-//   for (int j=0; j<nvec; j++)
-//     h_Xd[j] = getDevData<realtype, sunindextype>(X[j]);
-//
-//   realtype** h_Yd = new realtype*[nvec];
-//   for (int j=0; j<nvec; j++)
-//     h_Yd[j] = getDevData<realtype, sunindextype>(Y[j]);
-//
-//   realtype** h_Zd = new realtype*[nvec];
-//   for (int j=0; j<nvec; j++)
-//     h_Zd[j] = getDevData<realtype, sunindextype>(Z[j]);
-//
-//   // Copy array of device pointers to device from host
-//   realtype** d_Xd;
-//   err = cudaMalloc((void**) &d_Xd, nvec*sizeof(realtype*));
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//   err = cudaMemcpy(d_Xd, h_Xd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//
-//   realtype** d_Yd;
-//   err = cudaMalloc((void**) &d_Yd, nvec*sizeof(realtype*));
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//   err = cudaMemcpy(d_Yd, h_Yd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//
-//   realtype** d_Zd;
-//   err = cudaMalloc((void**) &d_Zd, nvec*sizeof(realtype*));
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//   err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//
-//   RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
-//       for (int j=0; j<nvec; j++)
-//         d_Zd[j][i] = a * d_Xd[j][i] + b * d_Yd[j][i];
-//     });
-//
-//   // Free host array
-//   delete[] h_Xd;
-//   delete[] h_Yd;
-//   delete[] h_Zd;
-//
-//   // Free device arrays
-//   err = cudaFree(d_Xd);
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//   err = cudaFree(d_Yd);
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//   err = cudaFree(d_Zd);
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//
+  cudaError_t err;
+
+  sunindextype N = getSize<realtype, sunindextype>(Z[0]);
+
+  // Create array of device pointers on host
+  realtype** h_Xd = new realtype*[nvec];
+  for (int j=0; j<nvec; j++)
+    h_Xd[j] = getDevData<realtype, sunindextype>(X[j]);
+
+  realtype** h_Yd = new realtype*[nvec];
+  for (int j=0; j<nvec; j++)
+    h_Yd[j] = getDevData<realtype, sunindextype>(Y[j]);
+
+  realtype** h_Zd = new realtype*[nvec];
+  for (int j=0; j<nvec; j++)
+    h_Zd[j] = getDevData<realtype, sunindextype>(Z[j]);
+
+  // Copy array of device pointers to device from host
+  realtype** d_Xd;
+  err = cudaMalloc((void**) &d_Xd, nvec*sizeof(realtype*));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_Xd, h_Xd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  realtype** d_Yd;
+  err = cudaMalloc((void**) &d_Yd, nvec*sizeof(realtype*));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_Yd, h_Yd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  realtype** d_Zd;
+  err = cudaMalloc((void**) &d_Zd, nvec*sizeof(realtype*));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
+      for (int j=0; j<nvec; j++)
+        d_Zd[j][i] = a * d_Xd[j][i] + b * d_Yd[j][i];
+    });
+
+  // Free host array
+  delete[] h_Xd;
+  delete[] h_Yd;
+  delete[] h_Zd;
+
+  // Free device arrays
+  err = cudaFree(d_Xd);
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaFree(d_Yd);
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaFree(d_Zd);
+  if (err != cudaSuccess) return cudaGetLastError();
+
   return(0);
 }
 
 
 int N_VScaleVectorArray_Raja(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
 {
-//   cudaError_t err;
-//
-//   sunindextype N = getSize<realtype, sunindextype>(Z[0]);
-//
-//   // Copy c array to device
-//   realtype* d_c;
-//   err = cudaMalloc((void**) &d_c, nvec*sizeof(realtype));
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//   err = cudaMemcpy(d_c, c, nvec*sizeof(realtype), cudaMemcpyHostToDevice);
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//
-//   // Create array of device pointers on host
-//   realtype** h_Xd = new realtype*[nvec];
-//   for (int j=0; j<nvec; j++)
-//     h_Xd[j] = getDevData<realtype, sunindextype>(X[j]);
-//
-//   realtype** h_Zd = new realtype*[nvec];
-//   for (int j=0; j<nvec; j++)
-//     h_Zd[j] = getDevData<realtype, sunindextype>(Z[j]);
-//
-//   // Copy array of device pointers to device from host
-//   realtype** d_Xd;
-//   err = cudaMalloc((void**) &d_Xd, nvec*sizeof(realtype*));
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//   err = cudaMemcpy(d_Xd, h_Xd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//
-//   realtype** d_Zd;
-//   err = cudaMalloc((void**) &d_Zd, nvec*sizeof(realtype*));
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//   err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//
-//   RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
-//       for (int j=0; j<nvec; j++)
-//         d_Zd[j][i] = d_c[j] * d_Xd[j][i];
-//     });
-//
-//   // Free host array
-//   delete[] h_Xd;
-//   delete[] h_Zd;
-//
-//   // Free device arrays
-//   err = cudaFree(d_Xd);
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//   err = cudaFree(d_Zd);
-//   //if (err != cudaSuccess) return cudaGetLastError();
+  cudaError_t err;
+
+  sunindextype N = getSize<realtype, sunindextype>(Z[0]);
+
+  // Copy c array to device
+  realtype* d_c;
+  err = cudaMalloc((void**) &d_c, nvec*sizeof(realtype));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_c, c, nvec*sizeof(realtype), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  // Create array of device pointers on host
+  realtype** h_Xd = new realtype*[nvec];
+  for (int j=0; j<nvec; j++)
+    h_Xd[j] = getDevData<realtype, sunindextype>(X[j]);
+
+  realtype** h_Zd = new realtype*[nvec];
+  for (int j=0; j<nvec; j++)
+    h_Zd[j] = getDevData<realtype, sunindextype>(Z[j]);
+
+  // Copy array of device pointers to device from host
+  realtype** d_Xd;
+  err = cudaMalloc((void**) &d_Xd, nvec*sizeof(realtype*));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_Xd, h_Xd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  realtype** d_Zd;
+  err = cudaMalloc((void**) &d_Zd, nvec*sizeof(realtype*));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
+      for (int j=0; j<nvec; j++)
+        d_Zd[j][i] = d_c[j] * d_Xd[j][i];
+    });
+
+  // Free host array
+  delete[] h_Xd;
+  delete[] h_Zd;
+
+  // Free device arrays
+  err = cudaFree(d_Xd);
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaFree(d_Zd);
+  if (err != cudaSuccess) return cudaGetLastError();
 
   return(0);
 }
@@ -853,33 +853,33 @@ int N_VScaleVectorArray_Raja(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
 
 int N_VConstVectorArray_Raja(int nvec, realtype c, N_Vector* Z)
 {
-//   cudaError_t err;
-//
-//   sunindextype N = getSize<realtype, sunindextype>(Z[0]);
-//
-//   // Create array of device pointers on host
-//   realtype** h_Zd = new realtype*[nvec];
-//   for (int j=0; j<nvec; j++)
-//     h_Zd[j] = getDevData<realtype, sunindextype>(Z[j]);
-//
-//   // Copy array of device pointers to device from host
-//   realtype** d_Zd;
-//   err = cudaMalloc((void**) &d_Zd, nvec*sizeof(realtype*));
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//   err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//
-//   RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
-//       for (int j=0; j<nvec; j++)
-//         d_Zd[j][i] = c;
-//     });
-//
-//   // Free host array
-//   delete[] h_Zd;
-//
-//   // Free device arrays
-//   err = cudaFree(d_Zd);
-//   //if (err != cudaSuccess) return cudaGetLastError();
+  cudaError_t err;
+
+  sunindextype N = getSize<realtype, sunindextype>(Z[0]);
+
+  // Create array of device pointers on host
+  realtype** h_Zd = new realtype*[nvec];
+  for (int j=0; j<nvec; j++)
+    h_Zd[j] = getDevData<realtype, sunindextype>(Z[j]);
+
+  // Copy array of device pointers to device from host
+  realtype** d_Zd;
+  err = cudaMalloc((void**) &d_Zd, nvec*sizeof(realtype*));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
+      for (int j=0; j<nvec; j++)
+        d_Zd[j][i] = c;
+    });
+
+  // Free host array
+  delete[] h_Zd;
+
+  // Free device arrays
+  err = cudaFree(d_Zd);
+  if (err != cudaSuccess) return cudaGetLastError();
 
   return(0);
 }
@@ -888,69 +888,69 @@ int N_VConstVectorArray_Raja(int nvec, realtype c, N_Vector* Z)
 int N_VScaleAddMultiVectorArray_Raja(int nvec, int nsum, realtype* c,
                                       N_Vector* X, N_Vector** Y, N_Vector** Z)
 {
-//   cudaError_t err;
-//
-//   sunindextype N = getSize<realtype, sunindextype>(X[0]);
-//
-//   // Copy c array to device
-//   realtype* d_c;
-//   err = cudaMalloc((void**) &d_c, nsum*sizeof(realtype));
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//   err = cudaMemcpy(d_c, c, nsum*sizeof(realtype), cudaMemcpyHostToDevice);
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//
-//   // Create array of device pointers on host
-//   realtype** h_Xd = new realtype*[nvec];
-//   for (int j=0; j<nvec; j++)
-//     h_Xd[j] = getDevData<realtype, sunindextype>(X[j]);
-//
-//   realtype** h_Yd = new realtype*[nsum*nvec];
-//   for (int j=0; j<nvec; j++)
-//     for (int k=0; k<nsum; k++)
-//       h_Yd[j*nsum+k] = getDevData<realtype, sunindextype>(Y[k][j]);
-//
-//   realtype** h_Zd = new realtype*[nsum*nvec];
-//   for (int j=0; j<nvec; j++)
-//     for (int k=0; k<nsum; k++)
-//       h_Zd[j*nsum+k] = getDevData<realtype, sunindextype>(Z[k][j]);
-//
-//   // Copy array of device pointers to device from host
-//   realtype** d_Xd;
-//   err = cudaMalloc((void**) &d_Xd, nvec*sizeof(realtype*));
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//   err = cudaMemcpy(d_Xd, h_Xd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//
-//   realtype** d_Yd;
-//   err = cudaMalloc((void**) &d_Yd, nsum*nvec*sizeof(realtype*));
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//   err = cudaMemcpy(d_Yd, h_Yd, nsum*nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//
-//   realtype** d_Zd;
-//   err = cudaMalloc((void**) &d_Zd, nsum*nvec*sizeof(realtype*));
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//   err = cudaMemcpy(d_Zd, h_Zd, nsum*nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//
-//   RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
-//       for (int j=0; j<nvec; j++)
-//         for (int k=0; k<nsum; k++)
-//           d_Zd[j*nsum+k][i] = d_c[k] * d_Xd[j][i] + d_Yd[j*nsum+k][i];
-//     });
-//
-//   // Free host array
-//   delete[] h_Xd;
-//   delete[] h_Yd;
-//   delete[] h_Zd;
-//
-//   // Free device arrays
-//   err = cudaFree(d_Xd);
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//   err = cudaFree(d_Yd);
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//   err = cudaFree(d_Zd);
-//   //if (err != cudaSuccess) return cudaGetLastError();
+  cudaError_t err;
+
+  sunindextype N = getSize<realtype, sunindextype>(X[0]);
+
+  // Copy c array to device
+  realtype* d_c;
+  err = cudaMalloc((void**) &d_c, nsum*sizeof(realtype));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_c, c, nsum*sizeof(realtype), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  // Create array of device pointers on host
+  realtype** h_Xd = new realtype*[nvec];
+  for (int j=0; j<nvec; j++)
+    h_Xd[j] = getDevData<realtype, sunindextype>(X[j]);
+
+  realtype** h_Yd = new realtype*[nsum*nvec];
+  for (int j=0; j<nvec; j++)
+    for (int k=0; k<nsum; k++)
+      h_Yd[j*nsum+k] = getDevData<realtype, sunindextype>(Y[k][j]);
+
+  realtype** h_Zd = new realtype*[nsum*nvec];
+  for (int j=0; j<nvec; j++)
+    for (int k=0; k<nsum; k++)
+      h_Zd[j*nsum+k] = getDevData<realtype, sunindextype>(Z[k][j]);
+
+  // Copy array of device pointers to device from host
+  realtype** d_Xd;
+  err = cudaMalloc((void**) &d_Xd, nvec*sizeof(realtype*));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_Xd, h_Xd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  realtype** d_Yd;
+  err = cudaMalloc((void**) &d_Yd, nsum*nvec*sizeof(realtype*));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_Yd, h_Yd, nsum*nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  realtype** d_Zd;
+  err = cudaMalloc((void**) &d_Zd, nsum*nvec*sizeof(realtype*));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_Zd, h_Zd, nsum*nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
+      for (int j=0; j<nvec; j++)
+        for (int k=0; k<nsum; k++)
+          d_Zd[j*nsum+k][i] = d_c[k] * d_Xd[j][i] + d_Yd[j*nsum+k][i];
+    });
+
+  // Free host array
+  delete[] h_Xd;
+  delete[] h_Yd;
+  delete[] h_Zd;
+
+  // Free device arrays
+  err = cudaFree(d_Xd);
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaFree(d_Yd);
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaFree(d_Zd);
+  if (err != cudaSuccess) return cudaGetLastError();
 
   return(0);
 }
@@ -959,58 +959,58 @@ int N_VScaleAddMultiVectorArray_Raja(int nvec, int nsum, realtype* c,
 int N_VLinearCombinationVectorArray_Raja(int nvec, int nsum, realtype* c,
                                          N_Vector** X, N_Vector* Z)
 {
-//   cudaError_t err;
-//
-//   sunindextype N = getSize<realtype, sunindextype>(Z[0]);
-//
-//   // Copy c array to device
-//   realtype* d_c;
-//   err = cudaMalloc((void**) &d_c, nsum*sizeof(realtype));
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//   err = cudaMemcpy(d_c, c, nsum*sizeof(realtype), cudaMemcpyHostToDevice);
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//
-//   // Create array of device pointers on host
-//   realtype** h_Xd = new realtype*[nsum*nvec];
-//   for (int j=0; j<nvec; j++)
-//     for (int k=0; k<nsum; k++)
-//       h_Xd[j*nsum+k] = getDevData<realtype, sunindextype>(X[k][j]);
-//
-//   realtype** h_Zd = new realtype*[nvec];
-//   for (int j=0; j<nvec; j++)
-//     h_Zd[j] = getDevData<realtype, sunindextype>(Z[j]);
-//
-//   // Copy array of device pointers to device from host
-//   realtype** d_Xd;
-//   err = cudaMalloc((void**) &d_Xd, nsum*nvec*sizeof(realtype*));
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//   err = cudaMemcpy(d_Xd, h_Xd, nsum*nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//
-//   realtype** d_Zd;
-//   err = cudaMalloc((void**) &d_Zd, nvec*sizeof(realtype*));
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//   err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//
-//   RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
-//       for (int j=0; j<nvec; j++) {
-//         d_Zd[j][i] = d_c[0] * d_Xd[j*nsum][i];
-//         for (int k=1; k<nsum; k++) {
-//           d_Zd[j][i] += d_c[k] * d_Xd[j*nsum+k][i];
-//         }
-//       }
-//     });
-//
-//   // Free host array
-//   delete[] h_Xd;
-//   delete[] h_Zd;
-//
-//   // Free device arrays
-//   err = cudaFree(d_Xd);
-//   //if (err != cudaSuccess) return cudaGetLastError();
-//   err = cudaFree(d_Zd);
-//   //if (err != cudaSuccess) return cudaGetLastError();
+  cudaError_t err;
+
+  sunindextype N = getSize<realtype, sunindextype>(Z[0]);
+
+  // Copy c array to device
+  realtype* d_c;
+  err = cudaMalloc((void**) &d_c, nsum*sizeof(realtype));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_c, c, nsum*sizeof(realtype), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  // Create array of device pointers on host
+  realtype** h_Xd = new realtype*[nsum*nvec];
+  for (int j=0; j<nvec; j++)
+    for (int k=0; k<nsum; k++)
+      h_Xd[j*nsum+k] = getDevData<realtype, sunindextype>(X[k][j]);
+
+  realtype** h_Zd = new realtype*[nvec];
+  for (int j=0; j<nvec; j++)
+    h_Zd[j] = getDevData<realtype, sunindextype>(Z[j]);
+
+  // Copy array of device pointers to device from host
+  realtype** d_Xd;
+  err = cudaMalloc((void**) &d_Xd, nsum*nvec*sizeof(realtype*));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_Xd, h_Xd, nsum*nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  realtype** d_Zd;
+  err = cudaMalloc((void**) &d_Zd, nvec*sizeof(realtype*));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
+      for (int j=0; j<nvec; j++) {
+        d_Zd[j][i] = d_c[0] * d_Xd[j*nsum][i];
+        for (int k=1; k<nsum; k++) {
+          d_Zd[j][i] += d_c[k] * d_Xd[j*nsum+k][i];
+        }
+      }
+    });
+
+  // Free host array
+  delete[] h_Xd;
+  delete[] h_Zd;
+
+  // Free device arrays
+  err = cudaFree(d_Xd);
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaFree(d_Zd);
+  if (err != cudaSuccess) return cudaGetLastError();
 
   return(0);
 }
