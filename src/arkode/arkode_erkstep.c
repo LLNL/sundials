@@ -1069,27 +1069,6 @@ int erkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
   /* initialize output */
   *dsm = ZERO;
 
-  /* /\* Compute updated solution and error estimate  *\/ */
-  /* /\*    Initialize solution to yn, error estimate to zero *\/ */
-  /* N_VScale(ONE, ark_mem->yn, y); */
-  /* N_VConst(ZERO, yerr); */
-
-  /* /\* Compute time step solution *\/ */
-  /* for (j=0; j<erkstep_mem->stages; j++) { */
-  /*   hb = ark_mem->h * erkstep_mem->B->b[j]; */
-  /*   N_VLinearSum(hb, erkstep_mem->F[j], ONE, y, y); */
-  /* } */
-
-  /* /\* Compute yerr (if step adaptivity enabled) *\/ */
-  /* if (!ark_mem->fixedstep) { */
-  /*   for (j=0; j<erkstep_mem->stages; j++) { */
-  /*     hb = ark_mem->h * (erkstep_mem->B->b[j] - erkstep_mem->B->d[j]); */
-  /*     N_VLinearSum(hb, erkstep_mem->F[j], ONE, yerr, yerr); */
-  /*   } */
-
-  /*   /\* fill error norm *\/ */
-  /*   *dsm = N_VWrmsNorm(yerr, ark_mem->ewt); */
-  /* } */
 
   /* Compute time step solution */
   /*   set arrays for fused vector operation */
@@ -1126,7 +1105,6 @@ int erkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
     *dsm = N_VWrmsNorm(yerr, ark_mem->ewt);
   }
 
-  
   return(ARK_SUCCESS);
 }
 

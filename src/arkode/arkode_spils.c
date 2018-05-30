@@ -490,7 +490,7 @@ int ARKSpilsGetWorkSpace(void *arkode_mem, long int *lenrw,
   /* add LS sizes */
   if (arkspils_mem->LS->ops->space) {
     flag = SUNLinSolSpace(arkspils_mem->LS, &lrw, &liw);
-    if (flag == 0) {
+    if (flag == SUNLS_SUCCESS) {
       *lenrw += lrw;
       *leniw += liw;
     }
@@ -960,7 +960,7 @@ int ARKSpilsGetMassWorkSpace(void *arkode_mem, long int *lenrw,
   /* add LS sizes */
   if (arkspils_mem->LS->ops->space) {
     flag = SUNLinSolSpace(arkspils_mem->LS, &lrw, &liw);
-    if (flag == 0) {
+    if (flag == SUNLS_SUCCESS) {
       *lenrw += lrw;
       *leniw += liw;
     }

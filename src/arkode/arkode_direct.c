@@ -388,7 +388,7 @@ int ARKDlsGetWorkSpace(void *arkode_mem, long int *lenrw,
   /* add LS sizes */
   if (arkdls_mem->LS->ops->space) {
     flag = SUNLinSolSpace(arkdls_mem->LS, &lrw, &liw);
-    if (flag == 0) {
+    if (flag == SUNLS_SUCCESS) {
       *lenrw += lrw;
       *leniw += liw;
     }
@@ -593,7 +593,7 @@ int ARKDlsGetMassWorkSpace(void *arkode_mem, long int *lenrw,
   /* add LS sizes */
   if (arkdls_mem->LS->ops->space) {
     flag = SUNLinSolSpace(arkdls_mem->LS, &lrw, &liw);
-    if (flag == 0) {
+    if (flag == SUNLS_SUCCESS) {
       *lenrw += lrw;
       *leniw += liw;
     }

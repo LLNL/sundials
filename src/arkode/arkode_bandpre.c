@@ -258,7 +258,7 @@ int ARKBandPrecGetWorkSpace(void *arkode_mem, long int *lenrwBP,
   }
   if (pdata->LS->ops->space) {
     flag = SUNLinSolSpace(pdata->LS, &lrw, &liw);
-    if (flag == 0) {
+    if (flag == SUNLS_SUCCESS) {
       *leniwBP += liw;
       *lenrwBP += lrw;
     }

@@ -417,7 +417,7 @@ elements:
 z_i = \sum_{j=1}^{nv} c_j x_{j,i}, \quad i=1,\ldots,n,
 \end{equation*}
 where $c$ is an array of $nv$ scalars (type \id{realtype}*), $X$ is an array of
-$n$ vectors (type \id{N\_Vector*}), and $z$ is the output vector (type
+$nv$ vectors (type \id{N\_Vector*}), and $z$ is the output vector (type
 \id{N\_Vector}). If the output vector $z$ is one of the vectors in $X$, then it
 \textit{must} be the first vector in the vector array. The operation returns
 \id{0} for success and a non-zero value otherwise.
