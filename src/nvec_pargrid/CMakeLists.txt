@@ -9,13 +9,13 @@
 
 INSTALL(CODE "MESSAGE(\"\nInstall NVECTOR_PARALLEL_GRID\n\")")
 
-IF(MPI_MPICC)
-  # use MPI_MPICC as the compiler
-  SET(CMAKE_C_COMPILER ${MPI_MPICC})
-ELSE(MPI_MPICC)
+IF(MPI_C_COMPILER)
+  # use MPI wrapper as the compiler
+  SET(CMAKE_C_COMPILER ${MPI_C_COMPILER})
+ELSE()
   # add MPI_INCLUDE_PATH to include directories
   INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
-ENDIF(MPI_MPICC)
+ENDIF()
 
 # Add variable nvecparallelgrid_SOURCES with the sources for the NVECPARALLELGRID lib
 SET(nvecparallelgrid_SOURCES nvector_parallel_grid.c)
@@ -63,8 +63,8 @@ ENDIF(BUILD_SHARED_LIBS)
 # Install the NVECPARALLELGRID header files
 INSTALL(FILES ${nvecparallelgrid_HEADERS} DESTINATION include/nvector)
 
-# If FCMIX is enabled and MPI-F77 works, build and install the FNVECPARALLELGRID library
-IF(FCMIX_ENABLE AND MPIF_FOUND)
+# If FCMIX is enabled and MPI works, build and install the FNVECPARALLELGRID library
+IF(FCMIX_ENABLE AND MPI_Fortran_FOUND)
   SET(fnvecparallelgrid_SOURCES fnvector_parallel_grid.c)
   IF(BUILD_STATIC_LIBS)
     ADD_LIBRARY(sundials_fnvecparallelgrid_static STATIC ${fnvecparallelgrid_SOURCES})
@@ -80,6 +80,6 @@ IF(FCMIX_ENABLE AND MPIF_FOUND)
       PROPERTIES VERSION ${nveclib_VERSION} SOVERSION ${nveclib_SOVERSION})
     INSTALL(TARGETS sundials_fnvecparallelgrid_shared DESTINATION lib)
   ENDIF(BUILD_SHARED_LIBS)
-ENDIF(FCMIX_ENABLE AND MPIF_FOUND)
+ENDIF()
 #
 MESSAGE(STATUS "Added NVECTOR_PARALLEL_GRID module")

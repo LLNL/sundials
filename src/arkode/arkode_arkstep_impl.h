@@ -35,7 +35,6 @@ extern "C" {
   ===============================================================*/
 
 
-
   
 /*===============================================================
   ARK time step module data structure
@@ -131,6 +130,10 @@ typedef struct ARKodeARKStepMemRec {
   long int netf;          /* num error test failures            */
   long int nni;           /* num Newton iterations performed    */
   long int nsetups;       /* num setup calls                    */
+
+  /* Reusable arrays for fused vector operations */
+  realtype *cvals;
+  N_Vector *Xvecs;
 
 } *ARKodeARKStepMem;
 

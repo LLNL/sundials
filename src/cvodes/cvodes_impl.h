@@ -441,6 +441,14 @@ typedef struct CVodeMemRec {
   booleantype *cv_gactive; /* array with active/inactive event functions      */
   int cv_mxgnull;          /* number of warning messages about possible g==0  */
 
+  /*-----------------------
+    Fused Vector Operations
+    -----------------------*/
+
+  realtype* cv_cvals; /* array of scalars */
+  N_Vector* cv_Xvecs; /* array of vectors */
+  N_Vector* cv_Zvecs; /* array of vectors */
+
   /*------------------------
     Adjoint sensitivity data
     ------------------------*/

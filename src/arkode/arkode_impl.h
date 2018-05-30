@@ -307,14 +307,16 @@ typedef struct ARKodeMassMemRec {
   ---------------------------------------------------------------*/
 typedef struct ARKodeFPMemRec {
 
-  long int  m;      /* number of acceleration vectors to use */
-  long int *imap;   /* array of length m                     */
-  realtype *R;      /* array of length m*m                   */
-  realtype *gamma;  /* array of length m                     */
-  N_Vector *df;     /* vector array of length m              */
-  N_Vector *dg;     /* vector array of length m              */
-  N_Vector *q;      /* vector array of length m              */
-  N_Vector  fval;   /* temporary N_Vectors                   */
+  long int  m;      /* number of acceleration vectors to use   */
+  long int *imap;   /* array of length m                       */
+  realtype *R;      /* array of length m*m                     */
+  realtype *gamma;  /* array of length m                       */
+  realtype *cvals;  /* array of length m+1 for fused vector op */
+  N_Vector *df;     /* vector array of length m                */
+  N_Vector *dg;     /* vector array of length m                */
+  N_Vector *q;      /* vector array of length m                */
+  N_Vector *Xvecs;  /* array of length m+1 for fused vector op */
+  N_Vector  fval;   /* temporary N_Vectors                     */
   N_Vector  fold;
   N_Vector  gold;
 

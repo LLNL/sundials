@@ -65,6 +65,8 @@ extern "C" {
 #define KIN_FIRST_SYSFUNC_ERR   -14
 #define KIN_REPTD_SYSFUNC_ERR   -15
 
+#define KIN_VECTOROP_ERR        -16
+
 
 /*
  * -----------------------------------------------------------------

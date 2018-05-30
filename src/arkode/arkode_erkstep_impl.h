@@ -35,7 +35,6 @@ extern "C" {
   ===============================================================*/
 
 
-
   
 /*===============================================================
   ERK time step module data structure
@@ -69,6 +68,10 @@ typedef struct ARKodeERKStepMemRec {
   long int nst_attempts;  /* num attempted steps                */
   long int nfe;           /* num fe calls                       */
   long int netf;          /* num error test failures            */
+
+  /* Reusable arrays for fused vector operations */
+  realtype* cvals;
+  N_Vector* Xvecs;
 
 } *ARKodeERKStepMem;
 

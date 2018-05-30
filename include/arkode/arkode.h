@@ -106,6 +106,7 @@ extern "C" {
 #define ARK_TOO_CLOSE            -27
 
 #define ARK_POSTPROCESS_FAIL     -28
+#define ARK_VECTOROP_ERR         -29
 
 
 /*===============================================================

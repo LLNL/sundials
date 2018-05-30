@@ -30,30 +30,37 @@ solver interface in {\ida}.
 \begin{sideways}{\idaspils}  \end{sideways} &
 \begin{sideways}{\idabbdpre} \end{sideways} &
 \begin{sideways}{\fida}      \end{sideways}  \\ \hline\hline
-%                          IDA   DLS  SPILS  BBD   FIDA
-\id{N\_VGetVectorID}     &     &     &     &     &     \\ \hline
-\id{N\_VClone}           & \cm &     & \cm & \cm & \cm \\ \hline
-\id{N\_VCloneEmpty}      &     &     &     &     & \cm \\ \hline
-\id{N\_VDestroy}         & \cm &     & \cm & \cm & \cm \\ \hline
-\id{N\_VSpace}           & \cm &     &     &     &     \\ \hline
-\id{N\_VGetArrayPointer} &     & \cm &     & \cm & \cm \\ \hline
-\id{N\_VSetArrayPointer} &     & \cm &     &     & \cm \\ \hline
-\id{N\_VLinearSum}       & \cm & \cm & \cm &     &     \\ \hline
-\id{N\_VConst}           & \cm &     & \cm &     &     \\ \hline
-\id{N\_VProd}            & \cm &     & \cm &     &     \\ \hline
-\id{N\_VDiv}             & \cm &     & \cm &     &     \\ \hline
-\id{N\_VScale}           & \cm & \cm & \cm & \cm &     \\ \hline
-\id{N\_VAbs}             & \cm &     &     &     &     \\ \hline
-\id{N\_VInv}             & \cm &     &     &     &     \\ \hline
-\id{N\_VAddConst}        & \cm &     &     &     &     \\ \hline
-\id{N\_VDotProd}         &     &     & \cm &     &     \\ \hline
-\id{N\_VMaxNorm}         & \cm &     &     &     &     \\ \hline
-\id{N\_VWrmsNorm}        & \cm &     & \cm &     &     \\ \hline
-\id{N\_VMin}             & \cm &     &     &     &     \\ \hline
-\id{N\_VMinQuotient}     & \cm &     &     &     &     \\ \hline
-\id{N\_VConstrMask}      & \cm &     &     &     &     \\ \hline
-\id{N\_VWrmsNormMask}    & \cm &     &     &     &     \\ \hline
-\id{N\_VCompare}         & \cm &     &     &     &     \\ \hline
+%                                       IDA   DLS  SPILS  BBD   FIDA
+\id{N\_VGetVectorID}                  &     &     &     &     &     \\ \hline
+\id{N\_VClone}                        & \cm &     & \cm & \cm & \cm \\ \hline
+\id{N\_VCloneEmpty}                   &     &     &     &     & \cm \\ \hline
+\id{N\_VDestroy}                      & \cm &     & \cm & \cm & \cm \\ \hline
+\id{N\_VSpace}                        & \cm &     &     &     &     \\ \hline
+\id{N\_VGetArrayPointer}              &     & \cm &     & \cm & \cm \\ \hline
+\id{N\_VSetArrayPointer}              &     & \cm &     &     & \cm \\ \hline
+\id{N\_VLinearSum}                    & \cm & \cm & \cm &     &     \\ \hline
+\id{N\_VConst}                        & \cm &     & \cm &     &     \\ \hline
+\id{N\_VProd}                         & \cm &     & \cm &     &     \\ \hline
+\id{N\_VDiv}                          & \cm &     & \cm &     &     \\ \hline
+\id{N\_VScale}                        & \cm & \cm & \cm & \cm &     \\ \hline
+\id{N\_VAbs}                          & \cm &     &     &     &     \\ \hline
+\id{N\_VInv}                          & \cm &     &     &     &     \\ \hline
+\id{N\_VAddConst}                     & \cm &     &     &     &     \\ \hline
+\id{N\_VDotProd}                      &     &     & \cm &     &     \\ \hline
+\id{N\_VMaxNorm}                      & \cm &     &     &     &     \\ \hline
+\id{N\_VWrmsNorm}                     & \cm &     & \cm &     &     \\ \hline
+\id{N\_VMin}                          & \cm &     &     &     &     \\ \hline
+\id{N\_VMinQuotient}                  & \cm &     &     &     &     \\ \hline
+\id{N\_VConstrMask}                   & \cm &     &     &     &     \\ \hline
+\id{N\_VWrmsNormMask}                 & \cm &     &     &     &     \\ \hline
+\id{N\_VCompare}                      & \cm &     &     &     &     \\ \hline
+\hline
+\id{N\_VLinearCombination}            & \cm &     & \cm &     &     \\ \hline 
+\id{N\_VScaleAddMulti}                & \cm &     &     &     &     \\ \hline 
+\id{N\_VDotProdMulti}                 &     &     & \cm &     &     \\ \hline 
+\hline
+\id{N\_VLinearSumVectorArray}         & \cm &     &     &     &     \\ \hline 
+\id{N\_VScaleVectorArray}             & \cm &     &     &     &     \\ \hline 
 \end{tabular}
 \end{table}
 
@@ -61,4 +68,9 @@ Of the functions listed in Table \ref{t:nvecops}, \id{N\_VWL2Norm},
 \id{N\_VL1Norm}, and \id{N\_VInvTest} 
 are {\em not} used by {\ida}. Therefore a user-supplied
 {\nvector} module for {\ida} could omit these three functions.
-%%
+
+The optional function \id{N\_VDotProdMulti} is only used when Classical
+Gram-Schmidt is enabled with {\spgmr} or {\spfgmr}. The remaining
+operations from Tables \ref{t:nvecfusedops} and \ref{t:nvecarrayops}
+not listed above are unused and a user-supplied {\nvector} module for
+{\ida} could omit these operations.

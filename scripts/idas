@@ -38,6 +38,8 @@ $tar $tarfile $distrobase/src/idas/idas_spils_impl.h
 
 echo "   --- Add idas examples to $tarfile"
 
+$tar $tarfile $distrobase/examples/idas/CMakeLists.txt
+
 $tar $tarfile $distrobase/examples/idas/serial/README
 $tar $tarfile $distrobase/examples/idas/serial/CMakeLists.txt
 $tar $tarfile $distrobase/examples/idas/serial/idasAkzoNob_ASAi_dns.c

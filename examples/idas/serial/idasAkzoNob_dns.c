@@ -213,6 +213,7 @@ int main()
   N_VDestroy(yy);
   N_VDestroy(yp);
   N_VDestroy(q);
+  free(data);
 
   return(0);
 }

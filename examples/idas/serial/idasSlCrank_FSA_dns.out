@@ -5,14 +5,14 @@ Forward integration ... done!
 
 Final Run Statistics: 
 
-Number of steps                    = 232
-Number of residual evaluations     = 1170
-Number of Jacobian evaluations     = 45
-Number of nonlinear iterations     = 720
+Number of steps                    = 233
+Number of residual evaluations     = 1194
+Number of Jacobian evaluations     = 47
+Number of nonlinear iterations     = 724
 Number of error test failures      = 0
-Number of nonlinear conv. failures = 0
+Number of nonlinear conv. failures = 1
 --------------------------------------------
-  G =       3.3366157233164491
+  G =       3.3366156425216897
 --------------------------------------------
 
 -------------F O R W A R D------------------

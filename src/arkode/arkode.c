@@ -1624,7 +1624,7 @@ ARKodeFPMem arkAllocFPData(ARKodeMem ark_mem, long int maa)
     arkFreeFPData(ark_mem, fp_mem);
     return(NULL);
   }
- 
+
   /* Allocate df if needed */
   if (maa > 0) {
     fp_mem->df = N_VCloneVectorArray(maa, ark_mem->ewt);
@@ -1688,6 +1688,23 @@ ARKodeFPMem arkAllocFPData(ARKodeMem ark_mem, long int maa)
     ark_mem->liw += maa;
   }
 
+  /* Allocate fused-vector pointer arrays (if needed) */
+  if (maa > 0) {
+    fp_mem->cvals = (realtype *) malloc((maa+1) * sizeof(realtype));
+    if (fp_mem->cvals == NULL) {
+      arkFreeFPData(ark_mem, fp_mem);
+      return(NULL);
+    }
+    ark_mem->lrw += maa+1;
+  }
+  if (maa > 0) {
+    fp_mem->Xvecs = (N_Vector *) malloc((maa+1) * sizeof(N_Vector));
+    if (fp_mem->Xvecs == NULL) {
+      arkFreeFPData(ark_mem, fp_mem);
+      return(NULL);
+    }
+  }    
+  
   return(fp_mem);
 }
 
@@ -1816,6 +1833,17 @@ void arkFreeFPData(ARKodeMem ark_mem, ARKodeFPMem fp_mem)
     ark_mem->liw -= fp_mem->m;
   }
 
+  /* free fused-vector pointer arrays if needed */
+  if (fp_mem->cvals != NULL) {
+    free(fp_mem->cvals);
+    fp_mem->cvals = NULL;
+    ark_mem->lrw -= (fp_mem->m+1);
+  }
+  if (fp_mem->Xvecs != NULL) {
+    free(fp_mem->Xvecs);
+    fp_mem->Xvecs = NULL;
+  }    
+  
   /* free fp_mem structure */
   free(fp_mem);
 }
@@ -2396,9 +2424,8 @@ int arkYddNorm(ARKodeMem ark_mem, realtype hg, realtype *yddnrm)
   if (retval != 0) return(ARK_RHSFUNC_FAIL);
   
   /* difference new f and original f to estimate y'' */
-  N_VLinearSum(ONE, ark_mem->tempv1, -ONE, 
-               ark_mem->interp->fnew, ark_mem->tempv1);
-  N_VScale(ONE/hg, ark_mem->tempv1, ark_mem->tempv1);
+  N_VLinearSum(ONE/hg, ark_mem->tempv1, -ONE/hg, 
+	       ark_mem->interp->fnew, ark_mem->tempv1);
 
   /* compute norm of y'' */
   *yddnrm = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);

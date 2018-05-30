@@ -44,6 +44,7 @@
 #ifndef _NVECTOR_RAJA_H
 #define _NVECTOR_RAJA_H
 
+#include <stdio.h>
 #include <sundials/sundials_nvector.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
@@ -239,6 +240,8 @@ SUNDIALS_EXPORT void N_VDestroy_Raja(N_Vector v);
 SUNDIALS_EXPORT void N_VSpace_Raja(N_Vector v, sunindextype *lrw, sunindextype *liw);
 SUNDIALS_EXPORT realtype *N_VGetArrayPointer_Raja(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer_Raja(realtype *v_data, N_Vector v);
+
+/* standard vector operations */
 SUNDIALS_EXPORT void N_VLinearSum_Raja(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);
 SUNDIALS_EXPORT void N_VConst_Raja(realtype c, N_Vector z);
 SUNDIALS_EXPORT void N_VProd_Raja(N_Vector x, N_Vector y, N_Vector z);
@@ -259,6 +262,28 @@ SUNDIALS_EXPORT booleantype N_VInvTest_Raja(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT booleantype N_VConstrMask_Raja(N_Vector c, N_Vector x, N_Vector m);
 SUNDIALS_EXPORT realtype N_VMinQuotient_Raja(N_Vector num, N_Vector denom);
 
+/* fused vector operations */
+SUNDIALS_EXPORT int N_VLinearCombination_Raja(int nvec, realtype* c, N_Vector* X,
+                                              N_Vector z);
+SUNDIALS_EXPORT int N_VScaleAddMulti_Raja(int nvec, realtype* c, N_Vector x,
+                                          N_Vector* Y, N_Vector* Z);
+
+/* vector array operations */
+SUNDIALS_EXPORT int N_VLinearSumVectorArray_Raja(int nvec,
+                                                 realtype a, N_Vector* X,
+                                                 realtype b, N_Vector* Y,
+                                                 N_Vector* Z);
+SUNDIALS_EXPORT int N_VScaleVectorArray_Raja(int nvec, realtype* c, N_Vector* X,
+                                             N_Vector* Z);
+SUNDIALS_EXPORT int N_VConstVectorArray_Raja(int nvec, realtype c, N_Vector* Z);
+SUNDIALS_EXPORT int N_VScaleAddMultiVectorArray_Raja(int nvec, int nsum,
+                                                     realtype* a,
+                                                     N_Vector* X, N_Vector** Y,
+                                                     N_Vector** Z);
+SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_Raja(int nvec, int nsum,
+                                                         realtype* c,
+                                                         N_Vector** X,
+                                                         N_Vector* Z);
 #ifdef __cplusplus
 }
 #endif

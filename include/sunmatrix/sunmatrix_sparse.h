@@ -50,6 +50,7 @@
 #ifndef _SUNMATRIX_SPARSE_H
 #define _SUNMATRIX_SPARSE_H
 
+#include <stdio.h>
 #include <sundials/sundials_matrix.h>
 #include <sunmatrix/sunmatrix_dense.h>
 #include <sunmatrix/sunmatrix_band.h>

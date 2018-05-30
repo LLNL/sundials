@@ -840,6 +840,25 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
     return(CV_MEM_FAIL);
   }
 
+  /* Allocate temporary work arrays for fused vector ops */
+  cv_mem->cv_cvals = NULL;
+  cv_mem->cv_cvals = (realtype *) malloc(L_MAX*sizeof(realtype));
+
+  cv_mem->cv_Xvecs = NULL;
+  cv_mem->cv_Xvecs = (N_Vector *) malloc(L_MAX*sizeof(N_Vector));
+
+  cv_mem->cv_Zvecs = NULL;
+  cv_mem->cv_Zvecs = (N_Vector *) malloc(L_MAX*sizeof(N_Vector));
+
+  if ((cv_mem->cv_cvals == NULL) ||
+      (cv_mem->cv_Xvecs == NULL) ||
+      (cv_mem->cv_Zvecs == NULL)) {
+    cvFreeVectors(cv_mem);
+    cvProcessError(cv_mem, CV_MEM_FAIL, "CVODES", "CVodeInit",
+                   MSGCV_MEM_FAIL);
+    return(CV_MEM_FAIL);
+  }
+
   /* All error checking is complete at this point */
 
   /* Copy the input parameters into CVODES state */
@@ -1397,7 +1416,7 @@ int CVodeSensInit(void *cvode_mem, int Ns, int ism, CVSensRhsFn fS, N_Vector *yS
 {
   CVodeMem cv_mem;
   booleantype allocOK;
-  int is;
+  int is, retval;
   
   /* Check cvode_mem */
 
@@ -1482,14 +1501,37 @@ int CVodeSensInit(void *cvode_mem, int Ns, int ism, CVSensRhsFn fS, N_Vector *yS
     return(CV_MEM_FAIL);
   }
   
+  /* Check if larger temporary work arrays are needed for fused vector ops */
+  if (Ns*L_MAX > L_MAX) {
+    free(cv_mem->cv_cvals); cv_mem->cv_cvals = NULL;
+    free(cv_mem->cv_Xvecs); cv_mem->cv_Xvecs = NULL;
+    free(cv_mem->cv_Zvecs); cv_mem->cv_Zvecs = NULL;
+
+    cv_mem->cv_cvals = (realtype *) malloc((Ns*L_MAX)*sizeof(realtype));
+    cv_mem->cv_Xvecs = (N_Vector *) malloc((Ns*L_MAX)*sizeof(N_Vector));
+    cv_mem->cv_Zvecs = (N_Vector *) malloc((Ns*L_MAX)*sizeof(N_Vector));
+
+    if ((cv_mem->cv_cvals == NULL) ||
+        (cv_mem->cv_Xvecs == NULL) ||
+        (cv_mem->cv_Zvecs == NULL)) {
+      cvSensFreeVectors(cv_mem);
+      cvProcessError(cv_mem, CV_MEM_FAIL, "CVODES", "CVodeSensInit",
+                     MSGCV_MEM_FAIL);
+      return(CV_MEM_FAIL);
+    }
+  }
+
   /*---------------------------------------------- 
     All error checking is complete at this point 
     -----------------------------------------------*/
 
   /* Initialize znS[0] in the history array */
 
-  for (is=0; is<Ns; is++) 
-    N_VScale(ONE, yS0[is], cv_mem->cv_znS[0][is]);
+  for (is=0; is<Ns; is++)
+    cv_mem->cv_cvals[is] = ONE;
+    
+  retval = N_VScaleVectorArray(Ns, cv_mem->cv_cvals, yS0, cv_mem->cv_znS[0]);
+  if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
 
   /* Initialize all sensitivity related counters */
 
@@ -1532,7 +1574,7 @@ int CVodeSensInit1(void *cvode_mem, int Ns, int ism, CVSensRhs1Fn fS1, N_Vector 
 {
   CVodeMem cv_mem;
   booleantype allocOK;
-  int is;
+  int is, retval;
   
   /* Check cvode_mem */
 
@@ -1630,6 +1672,31 @@ int CVodeSensInit1(void *cvode_mem, int Ns, int ism, CVSensRhs1Fn fS1, N_Vector 
                    MSGCV_MEM_FAIL);
     return(CV_MEM_FAIL);
   }
+
+  /* Check if larger temporary work arrays are needed for fused vector ops */
+  if (Ns*L_MAX > L_MAX) {
+    free(cv_mem->cv_cvals); cv_mem->cv_cvals = NULL;
+    free(cv_mem->cv_Xvecs); cv_mem->cv_Xvecs = NULL;
+    free(cv_mem->cv_Zvecs); cv_mem->cv_Zvecs = NULL;
+
+    cv_mem->cv_cvals = (realtype *) malloc((Ns*L_MAX)*sizeof(realtype));
+    cv_mem->cv_Xvecs = (N_Vector *) malloc((Ns*L_MAX)*sizeof(N_Vector));
+    cv_mem->cv_Zvecs = (N_Vector *) malloc((Ns*L_MAX)*sizeof(N_Vector));
+
+    if ((cv_mem->cv_cvals == NULL) ||
+        (cv_mem->cv_Xvecs == NULL) ||
+        (cv_mem->cv_Zvecs == NULL)) {
+      if (cv_mem->cv_stgr1alloc) {
+        free(cv_mem->cv_ncfS1);  cv_mem->cv_ncfS1 = NULL;
+        free(cv_mem->cv_ncfnS1); cv_mem->cv_ncfnS1 = NULL;
+        free(cv_mem->cv_nniS1);  cv_mem->cv_nniS1 = NULL;
+      }
+      cvSensFreeVectors(cv_mem);
+      cvProcessError(cv_mem, CV_MEM_FAIL, "CVODES", "CVodeSensInit1",
+                     MSGCV_MEM_FAIL);
+      return(CV_MEM_FAIL);
+    }
+  }
   
   /*---------------------------------------------- 
     All error checking is complete at this point 
@@ -1637,8 +1704,11 @@ int CVodeSensInit1(void *cvode_mem, int Ns, int ism, CVSensRhs1Fn fS1, N_Vector 
 
   /* Initialize znS[0] in the history array */
 
-  for (is=0; is<Ns; is++) 
-    N_VScale(ONE, yS0[is], cv_mem->cv_znS[0][is]);
+  for (is=0; is<Ns; is++)
+    cv_mem->cv_cvals[is] = ONE;
+    
+  retval = N_VScaleVectorArray(Ns, cv_mem->cv_cvals, yS0, cv_mem->cv_znS[0]);
+  if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
 
   /* Initialize all sensitivity related counters */
 
@@ -1691,7 +1761,7 @@ int CVodeSensInit1(void *cvode_mem, int Ns, int ism, CVSensRhs1Fn fS1, N_Vector 
 int CVodeSensReInit(void *cvode_mem, int ism, N_Vector *yS0)
 {
   CVodeMem cv_mem;
-  int is;  
+  int is, retval;
 
   /* Check cvode_mem */
 
@@ -1760,8 +1830,12 @@ int CVodeSensReInit(void *cvode_mem, int ism, N_Vector *yS0)
 
   /* Initialize znS[0] in the history array */
 
-  for (is=0; is<cv_mem->cv_Ns; is++) 
-    N_VScale(ONE, yS0[is], cv_mem->cv_znS[0][is]);
+  for (is=0; is<cv_mem->cv_Ns; is++)
+    cv_mem->cv_cvals[is] = ONE;
+    
+  retval = N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                               yS0, cv_mem->cv_znS[0]);
+  if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
 
   /* Initialize all sensitivity related counters */
 
@@ -1865,7 +1939,7 @@ int CVodeSensSStolerances(void *cvode_mem, realtype reltolS, realtype *abstolS)
 int CVodeSensSVtolerances(void *cvode_mem,  realtype reltolS, N_Vector *abstolS)
 {
   CVodeMem cv_mem;
-  int is;
+  int is, retval;
 
   if (cvode_mem==NULL) {
     cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSensSVtolerances",
@@ -1916,8 +1990,12 @@ int CVodeSensSVtolerances(void *cvode_mem,  realtype reltolS, N_Vector *abstolS)
     cv_mem->cv_VabstolSMallocDone = SUNTRUE;
   }
   
-  for (is=0; is<cv_mem->cv_Ns; is++)    
-    N_VScale(ONE, abstolS[is], cv_mem->cv_VabstolS[is]);
+  for (is=0; is<cv_mem->cv_Ns; is++)
+    cv_mem->cv_cvals[is] = ONE;
+
+  retval = N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                               abstolS, cv_mem->cv_VabstolS);
+  if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
 
   return(CV_SUCCESS);
 }
@@ -1959,7 +2037,7 @@ int CVodeQuadSensInit(void *cvode_mem, CVQuadSensRhsFn fQS, N_Vector *yQS0)
 {
   CVodeMem    cv_mem;
   booleantype allocOK;
-  int is;
+  int is, retval;
 
   /* Check cvode_mem */
   if (cvode_mem==NULL) {
@@ -2013,8 +2091,12 @@ int CVodeQuadSensInit(void *cvode_mem, CVQuadSensRhsFn fQS, N_Vector *yQS0)
   }
 
   /* Initialize znQS[0] in the history array */
-  for (is=0; is<cv_mem->cv_Ns; is++) 
-    N_VScale(ONE, yQS0[is], cv_mem->cv_znQS[0][is]);
+  for (is=0; is<cv_mem->cv_Ns; is++)
+    cv_mem->cv_cvals[is] = ONE;
+    
+  retval = N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                               yQS0, cv_mem->cv_znQS[0]);
+  if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
 
   /* Initialize all sensitivity related counters */
   cv_mem->cv_nfQSe  = 0;
@@ -2037,7 +2119,7 @@ int CVodeQuadSensInit(void *cvode_mem, CVQuadSensRhsFn fQS, N_Vector *yQS0)
 int CVodeQuadSensReInit(void *cvode_mem, N_Vector *yQS0)
 {
   CVodeMem cv_mem;
-  int is;
+  int is, retval;
 
   /* Check cvode_mem */
   if (cvode_mem==NULL) {
@@ -2074,7 +2156,11 @@ int CVodeQuadSensReInit(void *cvode_mem, N_Vector *yQS0)
 
   /* Initialize znQS[0] in the history array */
   for (is=0; is<cv_mem->cv_Ns; is++) 
-    N_VScale(ONE, yQS0[is], cv_mem->cv_znQS[0][is]);
+    cv_mem->cv_cvals[is] = ONE;
+  
+  retval = N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                               yQS0, cv_mem->cv_znQS[0]);
+  if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
 
   /* Initialize all sensitivity related counters */
   cv_mem->cv_nfQSe  = 0;
@@ -2179,7 +2265,7 @@ int CVodeQuadSensSStolerances(void *cvode_mem, realtype reltolQS, realtype *abst
 int CVodeQuadSensSVtolerances(void *cvode_mem,  realtype reltolQS, N_Vector *abstolQS)
 {
   CVodeMem cv_mem;
-  int is;
+  int is, retval;
 
   if (cvode_mem==NULL) {
     cvProcessError(NULL, CV_MEM_NULL, "CVODES",
@@ -2238,8 +2324,12 @@ int CVodeQuadSensSVtolerances(void *cvode_mem,  realtype reltolQS, N_Vector *abs
     cv_mem->cv_VabstolQSMallocDone = SUNTRUE;
   }
   
-  for (is=0; is<cv_mem->cv_Ns; is++)    
-    N_VScale(ONE, abstolQS[is], cv_mem->cv_VabstolQS[is]);
+  for (is=0; is<cv_mem->cv_Ns; is++)
+    cv_mem->cv_cvals[is] = ONE;
+
+  retval = N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                               abstolQS, cv_mem->cv_VabstolQS);
+  if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
 
   return(CV_SUCCESS);
 }
@@ -2699,13 +2789,23 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
     if (cv_mem->cv_quadr)
       N_VScale(cv_mem->cv_h, cv_mem->cv_znQ[1], cv_mem->cv_znQ[1]);
 
-    if (cv_mem->cv_sensi)
-      for (is=0; is<cv_mem->cv_Ns; is++) 
-        N_VScale(cv_mem->cv_h, cv_mem->cv_znS[1][is], cv_mem->cv_znS[1][is]);
+    if (cv_mem->cv_sensi) {
+      for (is=0; is<cv_mem->cv_Ns; is++)
+        cv_mem->cv_cvals[is] = cv_mem->cv_h;
 
-    if (cv_mem->cv_quadr_sensi)
-      for (is=0; is<cv_mem->cv_Ns; is++) 
-        N_VScale(cv_mem->cv_h, cv_mem->cv_znQS[1][is], cv_mem->cv_znQS[1][is]);
+      retval = N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                                   cv_mem->cv_znS[1], cv_mem->cv_znS[1]);
+      if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+    }
+
+    if (cv_mem->cv_quadr_sensi) {
+      for (is=0; is<cv_mem->cv_Ns; is++)
+        cv_mem->cv_cvals[is] = cv_mem->cv_h;
+
+      retval = N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                                   cv_mem->cv_znQS[1], cv_mem->cv_znQS[1]);
+      if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+    }
     
     /* Check for zeros of root function g at and near t0. */
 
@@ -3097,9 +3197,9 @@ int CVode(void *cvode_mem, realtype tout, N_Vector yout,
 
 int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky)
 {
-  realtype s, c, r;
+  realtype s, r;
   realtype tfuzz, tp, tn1;
-  int i, j;
+  int i, j, nvec, ier;
   CVodeMem cv_mem;
   
   /* Check all inputs for legality */
@@ -3133,21 +3233,26 @@ int CVodeGetDky(void *cvode_mem, realtype t, int k, N_Vector dky)
   }
 
   /* Sum the differentiated interpolating polynomial */
+  nvec = 0;
 
   s = (t - cv_mem->cv_tn) / cv_mem->cv_h;
   for (j=cv_mem->cv_q; j >= k; j--) {
-    c = ONE;
-    for (i=j; i >= j-k+1; i--) c *= i;
-    if (j == cv_mem->cv_q) {
-      N_VScale(c, cv_mem->cv_zn[cv_mem->cv_q], dky);
-    } else {
-      N_VLinearSum(c, cv_mem->cv_zn[j], s, dky, dky);
-    }
+    cv_mem->cv_cvals[nvec] = ONE;
+    for (i=j; i >= j-k+1; i--)
+      cv_mem->cv_cvals[nvec] *= i;
+    for (i=0; i < j-k; i++)
+      cv_mem->cv_cvals[nvec] *= s;
+    cv_mem->cv_Xvecs[nvec] = cv_mem->cv_zn[j];
+    nvec += 1;
   }
+  ier = N_VLinearCombination(nvec, cv_mem->cv_cvals, cv_mem->cv_Xvecs, dky);
+  if (ier != CV_SUCCESS) return (CV_VECTOROP_ERR);
+
   if (k == 0) return(CV_SUCCESS);
   r = SUNRpowerI(cv_mem->cv_h, -k);
   N_VScale(r, dky, dky);
   return(CV_SUCCESS);
+
 }
 
 /* 
@@ -3192,9 +3297,9 @@ int CVodeGetQuad(void *cvode_mem, realtype *tret, N_Vector yQout)
 
 int CVodeGetQuadDky(void *cvode_mem, realtype t, int k, N_Vector dkyQ)
 { 
-  realtype s, c, r;
+  realtype s, r;
   realtype tfuzz, tp, tn1;
-  int i, j;
+  int i, j, nvec, ier;
   CVodeMem cv_mem;
   
   /* Check all inputs for legality */
@@ -3232,17 +3337,21 @@ int CVodeGetQuadDky(void *cvode_mem, realtype t, int k, N_Vector dkyQ)
   }
   
   /* Sum the differentiated interpolating polynomial */
-  
+  nvec = 0;
+
   s = (t - cv_mem->cv_tn) / cv_mem->cv_h;
   for (j=cv_mem->cv_q; j >= k; j--) {
-    c = ONE;
-    for (i=j; i >= j-k+1; i--) c *= i;
-    if (j == cv_mem->cv_q) {
-      N_VScale(c, cv_mem->cv_znQ[cv_mem->cv_q], dkyQ);
-    } else {
-      N_VLinearSum(c, cv_mem->cv_znQ[j], s, dkyQ, dkyQ);
-    }
+    cv_mem->cv_cvals[nvec] = ONE;
+    for (i=j; i >= j-k+1; i--)
+      cv_mem->cv_cvals[nvec] *= i;
+    for (i=0; i < j-k; i++)
+      cv_mem->cv_cvals[nvec] *= s;
+    cv_mem->cv_Xvecs[nvec] = cv_mem->cv_znQ[j];
+    nvec += 1;
   }
+  ier = N_VLinearCombination(nvec, cv_mem->cv_cvals, cv_mem->cv_Xvecs, dkyQ);
+  if (ier != CV_SUCCESS) return (CV_VECTOROP_ERR);
+
   if (k == 0) return(CV_SUCCESS);
   r = SUNRpowerI(cv_mem->cv_h, -k);
   N_VScale(r, dkyQ, dkyQ);
@@ -3353,9 +3462,9 @@ int CVodeGetSensDky(void *cvode_mem, realtype t, int k, N_Vector *dkyS)
 
 int CVodeGetSensDky1(void *cvode_mem, realtype t, int k, int is, N_Vector dkyS)
 { 
-  realtype s, c, r;
+  realtype s, r;
   realtype tfuzz, tp, tn1;
-  int i, j;
+  int i, j, nvec, ier;
   CVodeMem cv_mem;
   
   /* Check all inputs for legality */
@@ -3404,17 +3513,21 @@ int CVodeGetSensDky1(void *cvode_mem, realtype t, int k, int is, N_Vector dkyS)
   }
   
   /* Sum the differentiated interpolating polynomial */
-  
+  nvec = 0;
+
   s = (t - cv_mem->cv_tn) / cv_mem->cv_h;
   for (j=cv_mem->cv_q; j >= k; j--) {
-    c = ONE;
-    for (i=j; i >= j-k+1; i--) c *= i;
-    if (j == cv_mem->cv_q) {
-      N_VScale(c, cv_mem->cv_znS[cv_mem->cv_q][is], dkyS);
-    } else {
-      N_VLinearSum(c, cv_mem->cv_znS[j][is], s, dkyS, dkyS);
-    }
+    cv_mem->cv_cvals[nvec] = ONE;
+    for (i=j; i >= j-k+1; i--)
+      cv_mem->cv_cvals[nvec] *= i;
+    for (i=0; i < j-k; i++)
+      cv_mem->cv_cvals[nvec] *= s;
+    cv_mem->cv_Xvecs[nvec] = cv_mem->cv_znS[j][is];
+    nvec += 1;
   }
+  ier = N_VLinearCombination(nvec, cv_mem->cv_cvals, cv_mem->cv_Xvecs, dkyS);
+  if (ier != CV_SUCCESS) return (CV_VECTOROP_ERR);
+
   if (k == 0) return(CV_SUCCESS);
   r = SUNRpowerI(cv_mem->cv_h, -k);
   N_VScale(r, dkyS, dkyS);
@@ -3503,9 +3616,9 @@ int CVodeGetQuadSensDky(void *cvode_mem, realtype t, int k, N_Vector *dkyQS_all)
 
 int CVodeGetQuadSensDky1(void *cvode_mem, realtype t, int k, int is, N_Vector dkyQS)
 {
-  realtype s, c, r;
+  realtype s, r;
   realtype tfuzz, tp, tn1;
-  int i, j;
+  int i, j, nvec, ier;
   CVodeMem cv_mem;
   
   /* Check all inputs for legality */
@@ -3554,21 +3667,26 @@ int CVodeGetQuadSensDky1(void *cvode_mem, realtype t, int k, int is, N_Vector dk
   }
   
   /* Sum the differentiated interpolating polynomial */
+  nvec = 0;
   
   s = (t - cv_mem->cv_tn) / cv_mem->cv_h;
   for (j=cv_mem->cv_q; j >= k; j--) {
-    c = ONE;
-    for (i=j; i >= j-k+1; i--) c *= i;
-    if (j == cv_mem->cv_q) {
-      N_VScale(c, cv_mem->cv_znQS[cv_mem->cv_q][is], dkyQS);
-    } else {
-      N_VLinearSum(c, cv_mem->cv_znQS[j][is], s, dkyQS, dkyQS);
-    }
+    cv_mem->cv_cvals[nvec] = ONE;
+    for (i=j; i >= j-k+1; i--)
+      cv_mem->cv_cvals[nvec] *= i;
+    for (i=0; i < j-k; i++)
+      cv_mem->cv_cvals[nvec] *= s;
+    cv_mem->cv_Xvecs[nvec] = cv_mem->cv_znQS[j][is];
+    nvec += 1;
   }
+  ier = N_VLinearCombination(nvec, cv_mem->cv_cvals, cv_mem->cv_Xvecs, dkyQS);
+  if (ier != CV_SUCCESS) return (CV_VECTOROP_ERR);
+
   if (k == 0) return(CV_SUCCESS);
   r = SUNRpowerI(cv_mem->cv_h, -k);
   N_VScale(r, dkyQS, dkyQS);
   return(CV_SUCCESS);
+
 }
 
 /* 
@@ -3615,6 +3733,10 @@ void CVodeFree(void **cvode_mem)
     free(cv_mem->cv_rootdir); cv_mem->cv_rootdir = NULL;
     free(cv_mem->cv_gactive); cv_mem->cv_gactive = NULL;
   }
+
+  free(cv_mem->cv_cvals); cv_mem->cv_cvals = NULL;
+  free(cv_mem->cv_Xvecs); cv_mem->cv_Xvecs = NULL;
+  free(cv_mem->cv_Zvecs); cv_mem->cv_Zvecs = NULL;
 
   free(*cvode_mem);
   *cvode_mem = NULL;
@@ -4466,17 +4588,20 @@ static realtype cvUpperBoundH0(CVodeMem cv_mem, realtype tdist)
 
 static int cvYddNorm(CVodeMem cv_mem, realtype hg, realtype *yddnrm)
 {
-  int retval, is;
+  int retval;
   N_Vector wrk1, wrk2;
   
   /* y <- h*y'(t) + y(t) */
   
   N_VLinearSum(hg, cv_mem->cv_zn[1], ONE, cv_mem->cv_zn[0], cv_mem->cv_y);
   
-  if (cv_mem->cv_sensi && cv_mem->cv_errconS) 
-    for (is=0; is<cv_mem->cv_Ns; is++)
-      N_VLinearSum(hg, cv_mem->cv_znS[1][is], ONE,
-                   cv_mem->cv_znS[0][is], cv_mem->cv_yS[is]);
+  if (cv_mem->cv_sensi && cv_mem->cv_errconS) {
+    retval = N_VLinearSumVectorArray(cv_mem->cv_Ns,
+                                     hg,  cv_mem->cv_znS[1],
+                                     ONE, cv_mem->cv_znS[0],
+                                     cv_mem->cv_yS);
+    if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+  }
   
   /* tempv <- f(t+h, h*y'(t)+y(t)) */
 
@@ -4520,34 +4645,36 @@ static int cvYddNorm(CVodeMem cv_mem, realtype hg, realtype *yddnrm)
   /* Load estimate of ||y''|| into tempv:
    * tempv <-  (1/h) * f(t+h, h*y'(t)+y(t)) - y'(t) */
   
-  N_VLinearSum(ONE, cv_mem->cv_tempv, -ONE, cv_mem->cv_zn[1], cv_mem->cv_tempv);
-  N_VScale(ONE/hg, cv_mem->cv_tempv, cv_mem->cv_tempv);
+  N_VLinearSum(ONE/hg, cv_mem->cv_tempv, -ONE/hg, cv_mem->cv_zn[1], cv_mem->cv_tempv);
+
   *yddnrm = N_VWrmsNorm(cv_mem->cv_tempv, cv_mem->cv_ewt);
 
   if (cv_mem->cv_quadr && cv_mem->cv_errconQ) {
-    N_VLinearSum(ONE, cv_mem->cv_tempvQ, -ONE, 
-                 cv_mem->cv_znQ[1], cv_mem->cv_tempvQ);
-    N_VScale(ONE/hg, cv_mem->cv_tempvQ, cv_mem->cv_tempvQ);
+    N_VLinearSum(ONE/hg, cv_mem->cv_tempvQ, -ONE/hg, cv_mem->cv_znQ[1],
+                 cv_mem->cv_tempvQ);
+
     *yddnrm = cvQuadUpdateNorm(cv_mem, *yddnrm, cv_mem->cv_tempvQ,
                                cv_mem->cv_ewtQ);
   }
 
   if (cv_mem->cv_sensi && cv_mem->cv_errconS) {
-    for (is=0; is<cv_mem->cv_Ns; is++) {
-      N_VLinearSum(ONE, cv_mem->cv_tempvS[is], -ONE,
-                   cv_mem->cv_znS[1][is], cv_mem->cv_tempvS[is]);
-      N_VScale(ONE/hg, cv_mem->cv_tempvS[is], cv_mem->cv_tempvS[is]);
-    }
+    retval = N_VLinearSumVectorArray(cv_mem->cv_Ns,
+                                     ONE/hg,  cv_mem->cv_tempvS,
+                                     -ONE/hg, cv_mem->cv_znS[1],
+                                     cv_mem->cv_tempvS);
+    if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+
     *yddnrm = cvSensUpdateNorm(cv_mem, *yddnrm, cv_mem->cv_tempvS,
                                cv_mem->cv_ewtS);
   }
 
   if (cv_mem->cv_quadr_sensi && cv_mem->cv_errconQS) {
-    for (is=0; is<cv_mem->cv_Ns; is++) {
-      N_VLinearSum(ONE, cv_mem->cv_tempvQS[is], -ONE,
-                   cv_mem->cv_znQS[1][is], cv_mem->cv_tempvQS[is]);
-      N_VScale(ONE/hg, cv_mem->cv_tempvQS[is], cv_mem->cv_tempvQS[is]);
-    }
+    retval = N_VLinearSumVectorArray(cv_mem->cv_Ns,
+                                     ONE/hg,  cv_mem->cv_tempvQS,
+                                     -ONE/hg, cv_mem->cv_znQS[1],
+                                     cv_mem->cv_tempvQS);
+    if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+
     *yddnrm = cvQuadSensUpdateNorm(cv_mem, *yddnrm, cv_mem->cv_tempvQS,
                                    cv_mem->cv_ewtQS);
   }
@@ -5278,13 +5405,23 @@ static int cvStep(CVodeMem cv_mem)
   if (cv_mem->cv_quadr)
     N_VScale(cv_mem->cv_tq[2], cv_mem->cv_acorQ, cv_mem->cv_acorQ);
 
-  if (cv_mem->cv_sensi)
+  if (cv_mem->cv_sensi) {
     for (is=0; is<cv_mem->cv_Ns; is++)
-      N_VScale(cv_mem->cv_tq[2], cv_mem->cv_acorS[is], cv_mem->cv_acorS[is]);
+      cv_mem->cv_cvals[is] = cv_mem->cv_tq[2];
 
-  if (cv_mem->cv_quadr_sensi)
+    retval = N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                                 cv_mem->cv_acorS, cv_mem->cv_acorS);
+    if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+  }
+
+  if (cv_mem->cv_quadr_sensi) {
     for (is=0; is<cv_mem->cv_Ns; is++)
-      N_VScale(cv_mem->cv_tq[2], cv_mem->cv_acorQS[is], cv_mem->cv_acorQS[is]);
+      cv_mem->cv_cvals[is] = cv_mem->cv_tq[2];
+
+    retval = N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                                 cv_mem->cv_acorQS, cv_mem->cv_acorQS);
+    if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+  }
 
   return(CV_SUCCESS);
       
@@ -5351,7 +5488,6 @@ static void cvAdjustOrder(CVodeMem cv_mem, int deltaq)
 static void cvAdjustAdams(CVodeMem cv_mem, int deltaq)
 {
   int i, j;
-  int is;
   realtype xi, hsum;
 
   /* On an order increase, set new column of zn to zero and return */
@@ -5361,8 +5497,8 @@ static void cvAdjustAdams(CVodeMem cv_mem, int deltaq)
     if (cv_mem->cv_quadr)
       N_VConst(ZERO, cv_mem->cv_znQ[cv_mem->cv_L]);
     if (cv_mem->cv_sensi)
-      for (is=0; is<cv_mem->cv_Ns; is++)
-        N_VConst(ZERO, cv_mem->cv_znS[cv_mem->cv_L][is]);
+      (void) N_VConstVectorArray(cv_mem->cv_Ns, ZERO,
+                                 cv_mem->cv_znS[cv_mem->cv_L]);
     return;
   }
 
@@ -5388,20 +5524,27 @@ static void cvAdjustAdams(CVodeMem cv_mem, int deltaq)
   for (j=1; j <= cv_mem->cv_q-2; j++)
     cv_mem->cv_l[j+1] = cv_mem->cv_q * (cv_mem->cv_l[j] / (j+1));
   
-  for (j=2; j < cv_mem->cv_q; j++)
-    N_VLinearSum(-cv_mem->cv_l[j], cv_mem->cv_zn[cv_mem->cv_q], ONE,
-                 cv_mem->cv_zn[j], cv_mem->cv_zn[j]);
+  if (cv_mem->cv_q > 2) {
 
-  if (cv_mem->cv_quadr)
     for (j=2; j < cv_mem->cv_q; j++)
-      N_VLinearSum(-cv_mem->cv_l[j], cv_mem->cv_znQ[cv_mem->cv_q], ONE,
-                   cv_mem->cv_znQ[j], cv_mem->cv_znQ[j]);
+      cv_mem->cv_cvals[j-2] = -cv_mem->cv_l[j];
 
-  if (cv_mem->cv_sensi)
-    for (is=0; is<cv_mem->cv_Ns; is++)
-      for (j=2; j < cv_mem->cv_q; j++)
-        N_VLinearSum(-cv_mem->cv_l[j], cv_mem->cv_znS[cv_mem->cv_q][is],
-                     ONE, cv_mem->cv_znS[j][is], cv_mem->cv_znS[j][is]);
+    (void) N_VScaleAddMulti(cv_mem->cv_q-2, cv_mem->cv_cvals,
+                            cv_mem->cv_zn[cv_mem->cv_q],
+                            cv_mem->cv_zn+2, cv_mem->cv_zn+2);
+
+    if (cv_mem->cv_quadr)
+      (void) N_VScaleAddMulti(cv_mem->cv_q-2, cv_mem->cv_cvals,
+                              cv_mem->cv_znQ[cv_mem->cv_q],
+                              cv_mem->cv_znQ+2, cv_mem->cv_znQ+2);
+
+    if (cv_mem->cv_sensi)
+      (void) N_VScaleAddMultiVectorArray(cv_mem->cv_Ns, cv_mem->cv_q-2,
+                                         cv_mem->cv_cvals,
+                                         cv_mem->cv_znS[cv_mem->cv_q],
+                                         cv_mem->cv_znS+2,
+                                         cv_mem->cv_znS+2);
+  }
 
 }
 
@@ -5471,36 +5614,60 @@ static void cvIncreaseBDF(CVodeMem cv_mem)
      A1 contains dbar = (1/xi* - 1/xi_q)/prod(xi_j)
   */
   
-  N_VScale(A1, cv_mem->cv_zn[cv_mem->cv_indx_acor], cv_mem->cv_zn[cv_mem->cv_L]);
-  for (j=2; j <= cv_mem->cv_q; j++)
-    N_VLinearSum(cv_mem->cv_l[j], cv_mem->cv_zn[cv_mem->cv_L],
-                 ONE, cv_mem->cv_zn[j], cv_mem->cv_zn[j]);
+  N_VScale(A1, cv_mem->cv_zn[cv_mem->cv_indx_acor],
+           cv_mem->cv_zn[cv_mem->cv_L]);
+
+  /* for (j=2; j <= cv_mem->cv_q; j++) */
+  if (cv_mem->cv_q > 1)
+    (void) N_VScaleAddMulti(cv_mem->cv_q-1, cv_mem->cv_l+2,
+                            cv_mem->cv_zn[cv_mem->cv_L],
+                            cv_mem->cv_zn+2, cv_mem->cv_zn+2);
 
   if (cv_mem->cv_quadr) {
-    N_VScale(A1, cv_mem->cv_znQ[cv_mem->cv_indx_acor], cv_mem->cv_znQ[cv_mem->cv_L]);
-    for (j=2; j <= cv_mem->cv_q; j++)
-      N_VLinearSum(cv_mem->cv_l[j], cv_mem->cv_znQ[cv_mem->cv_L],
-                   ONE, cv_mem->cv_znQ[j], cv_mem->cv_znQ[j]);
+    N_VScale(A1, cv_mem->cv_znQ[cv_mem->cv_indx_acor],
+             cv_mem->cv_znQ[cv_mem->cv_L]);
+
+    /* for (j=2; j <= cv_mem->cv_q; j++) */
+    if (cv_mem->cv_q > 1)
+      (void) N_VScaleAddMulti(cv_mem->cv_q-1, cv_mem->cv_l+2,
+                              cv_mem->cv_znQ[cv_mem->cv_L],
+                              cv_mem->cv_znQ+2, cv_mem->cv_znQ+2);
   }
 
   if (cv_mem->cv_sensi) {
-    for (is=0; is<cv_mem->cv_Ns; is++) {
-      N_VScale(A1, cv_mem->cv_znS[cv_mem->cv_indx_acor][is],
-               cv_mem->cv_znS[cv_mem->cv_L][is]);
-      for (j=2; j <= cv_mem->cv_q; j++)
-        N_VLinearSum(cv_mem->cv_l[j], cv_mem->cv_znS[cv_mem->cv_L][is],
-                     ONE, cv_mem->cv_znS[j][is], cv_mem->cv_znS[j][is]);
-    }
+
+    for (is=0; is<cv_mem->cv_Ns; is++)
+      cv_mem->cv_cvals[is] = A1;
+
+    (void) N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                               cv_mem->cv_znS[cv_mem->cv_indx_acor],
+                               cv_mem->cv_znS[cv_mem->cv_L]);
+
+    /* for (j=2; j <= cv_mem->cv_q; j++) */
+    if (cv_mem->cv_q > 1)
+      (void) N_VScaleAddMultiVectorArray(cv_mem->cv_Ns, cv_mem->cv_q-1,
+                                         cv_mem->cv_l+2,
+                                         cv_mem->cv_znS[cv_mem->cv_L],
+                                         cv_mem->cv_znS+2,
+                                         cv_mem->cv_znS+2);
   }
 
   if (cv_mem->cv_quadr_sensi) {
-    for (is=0; is<cv_mem->cv_Ns; is++) {
-      N_VScale(A1, cv_mem->cv_znQS[cv_mem->cv_indx_acor][is],
-               cv_mem->cv_znQS[cv_mem->cv_L][is]);
-      for (j=2; j <= cv_mem->cv_q; j++)
-        N_VLinearSum(cv_mem->cv_l[j], cv_mem->cv_znQS[cv_mem->cv_L][is],
-                     ONE, cv_mem->cv_znQS[j][is], cv_mem->cv_znQS[j][is]);
-    }
+
+    for (is=0; is<cv_mem->cv_Ns; is++)
+      cv_mem->cv_cvals[is] = A1;
+
+    (void) N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                               cv_mem->cv_znQS[cv_mem->cv_indx_acor],
+                               cv_mem->cv_znQS[cv_mem->cv_L]);
+
+    /* for (j=2; j <= cv_mem->cv_q; j++) */
+    if (cv_mem->cv_q > 1)
+      (void) N_VScaleAddMultiVectorArray(cv_mem->cv_Ns, cv_mem->cv_q-1,
+                                         cv_mem->cv_l+2,
+                                         cv_mem->cv_znQS[cv_mem->cv_L],
+                                         cv_mem->cv_znQS+2,
+                                         cv_mem->cv_znQS+2);
   }
 
 }
@@ -5519,7 +5686,6 @@ static void cvDecreaseBDF(CVodeMem cv_mem)
 {
   realtype hsum, xi;
   int i, j;
-  int is;
   
   for (i=0; i <= cv_mem->cv_qmax; i++)
     cv_mem->cv_l[i] = ZERO;
@@ -5532,30 +5698,37 @@ static void cvDecreaseBDF(CVodeMem cv_mem)
       cv_mem->cv_l[i] = cv_mem->cv_l[i]*xi + cv_mem->cv_l[i-1];
   }
   
-  for (j=2; j < cv_mem->cv_q; j++)
-    N_VLinearSum(-cv_mem->cv_l[j], cv_mem->cv_zn[cv_mem->cv_q],
-                 ONE, cv_mem->cv_zn[j], cv_mem->cv_zn[j]);
+  if (cv_mem->cv_q > 2) {
 
-  if (cv_mem->cv_quadr) {
     for (j=2; j < cv_mem->cv_q; j++)
-      N_VLinearSum(-cv_mem->cv_l[j], cv_mem->cv_znQ[cv_mem->cv_q],
-                   ONE, cv_mem->cv_znQ[j], cv_mem->cv_znQ[j]);
+      cv_mem->cv_cvals[j-2] = -cv_mem->cv_l[j];
+
+    (void) N_VScaleAddMulti(cv_mem->cv_q-2, cv_mem->cv_cvals,
+                            cv_mem->cv_zn[cv_mem->cv_q],
+                            cv_mem->cv_zn+2, cv_mem->cv_zn+2);
+
+    if (cv_mem->cv_quadr)
+      (void) N_VScaleAddMulti(cv_mem->cv_q-2, cv_mem->cv_cvals,
+                              cv_mem->cv_znQ[cv_mem->cv_q],
+                              cv_mem->cv_znQ+2, cv_mem->cv_znQ+2);
+
+    if (cv_mem->cv_sensi)
+      (void) N_VScaleAddMultiVectorArray(cv_mem->cv_Ns, cv_mem->cv_q-2,
+                                         cv_mem->cv_cvals,
+                                         cv_mem->cv_znS[cv_mem->cv_q],
+                                         cv_mem->cv_znS+2,
+                                         cv_mem->cv_znS+2);
+
+    if (cv_mem->cv_quadr_sensi)
+      (void) N_VScaleAddMultiVectorArray(cv_mem->cv_Ns, cv_mem->cv_q-2,
+                                         cv_mem->cv_cvals,
+                                         cv_mem->cv_znQS[cv_mem->cv_q],
+                                         cv_mem->cv_znQS+2,
+                                         cv_mem->cv_znQS+2);
   }
 
-  if (cv_mem->cv_sensi) {
-    for (is=0; is<cv_mem->cv_Ns; is++) 
-      for (j=2; j < cv_mem->cv_q; j++)
-        N_VLinearSum(-cv_mem->cv_l[j], cv_mem->cv_znS[cv_mem->cv_q][is],
-                     ONE, cv_mem->cv_znS[j][is], cv_mem->cv_znS[j][is]);
-  }
-
-  if (cv_mem->cv_quadr_sensi) {
-    for (is=0; is<cv_mem->cv_Ns; is++) 
-      for (j=2; j < cv_mem->cv_q; j++)
-        N_VLinearSum(-cv_mem->cv_l[j], cv_mem->cv_znQS[cv_mem->cv_q][is],
-                     ONE, cv_mem->cv_znQS[j][is], cv_mem->cv_znQS[j][is]);
-  }
 }
+
 
 /*
  * cvRescale
@@ -5569,26 +5742,45 @@ static void cvRescale(CVodeMem cv_mem)
 {
   int j;
   int is;
-  realtype factor;
 
-  factor = cv_mem->cv_eta;
-  for (j=1; j <= cv_mem->cv_q; j++) {
+  /* compute scaling factors */
+  cv_mem->cv_cvals[0] = cv_mem->cv_eta;
+  for (j=1; j < cv_mem->cv_q; j++)
+    cv_mem->cv_cvals[j] = cv_mem->cv_eta * cv_mem->cv_cvals[j-1];
 
-    N_VScale(factor, cv_mem->cv_zn[j], cv_mem->cv_zn[j]);
+  (void) N_VScaleVectorArray(cv_mem->cv_q, cv_mem->cv_cvals,
+                             cv_mem->cv_zn+1, cv_mem->cv_zn+1);
 
-    if (cv_mem->cv_quadr)
-      N_VScale(factor, cv_mem->cv_znQ[j], cv_mem->cv_znQ[j]);
+  if (cv_mem->cv_quadr)
+    (void) N_VScaleVectorArray(cv_mem->cv_q, cv_mem->cv_cvals,
+                               cv_mem->cv_znQ+1, cv_mem->cv_znQ+1);
 
-    if (cv_mem->cv_sensi)
+  /* compute sensi scaling factors */
+  if (cv_mem->cv_sensi || cv_mem->cv_quadr_sensi) {
+    for (is=0; is<cv_mem->cv_Ns; is++)
+      cv_mem->cv_cvals[is] = cv_mem->cv_eta;
+    for (j=1; j < cv_mem->cv_q; j++)
       for (is=0; is<cv_mem->cv_Ns; is++)
-        N_VScale(factor, cv_mem->cv_znS[j][is], cv_mem->cv_znS[j][is]);
+        cv_mem->cv_cvals[j*cv_mem->cv_Ns+is] =
+          cv_mem->cv_eta * cv_mem->cv_cvals[(j-1)*cv_mem->cv_Ns+is];
+  }
 
-    if (cv_mem->cv_quadr_sensi)
+  if (cv_mem->cv_sensi) {
+    for (j=1; j <= cv_mem->cv_q; j++)
       for (is=0; is<cv_mem->cv_Ns; is++)
-        N_VScale(factor, cv_mem->cv_znQS[j][is], cv_mem->cv_znQS[j][is]);
+        cv_mem->cv_Xvecs[(j-1)*cv_mem->cv_Ns+is] = cv_mem->cv_znS[j][is];
+      
+    (void) N_VScaleVectorArray(cv_mem->cv_q*cv_mem->cv_Ns, cv_mem->cv_cvals,
+                               cv_mem->cv_Xvecs, cv_mem->cv_Xvecs);
+  }
 
-    factor *= cv_mem->cv_eta;
-
+  if (cv_mem->cv_quadr_sensi) {
+    for (j=1; j <= cv_mem->cv_q; j++)
+      for (is=0; is<cv_mem->cv_Ns; is++)
+        cv_mem->cv_Xvecs[(j-1)*cv_mem->cv_Ns+is] = cv_mem->cv_znQS[j][is];
+      
+    (void) N_VScaleVectorArray(cv_mem->cv_q*cv_mem->cv_Ns, cv_mem->cv_cvals,
+                               cv_mem->cv_Xvecs, cv_mem->cv_Xvecs);
   }
 
   cv_mem->cv_h = cv_mem->cv_hscale * cv_mem->cv_eta;
@@ -5611,7 +5803,6 @@ static void cvRescale(CVodeMem cv_mem)
 static void cvPredict(CVodeMem cv_mem)
 {
   int j, k;
-  int is;
 
   cv_mem->cv_tn += cv_mem->cv_h;
   if (cv_mem->cv_tstopset) {
@@ -5632,21 +5823,21 @@ static void cvPredict(CVodeMem cv_mem)
   }
 
   if (cv_mem->cv_sensi) {
-    for (is=0; is<cv_mem->cv_Ns; is++) {
-      for (k = 1; k <= cv_mem->cv_q; k++)
-        for (j = cv_mem->cv_q; j >= k; j--) 
-          N_VLinearSum(ONE, cv_mem->cv_znS[j-1][is], ONE,
-                       cv_mem->cv_znS[j][is], cv_mem->cv_znS[j-1][is]);
-    }
+    for (k = 1; k <= cv_mem->cv_q; k++)
+      for (j = cv_mem->cv_q; j >= k; j--)
+        (void) N_VLinearSumVectorArray(cv_mem->cv_Ns,
+                                       ONE, cv_mem->cv_znS[j-1],
+                                       ONE, cv_mem->cv_znS[j],
+                                       cv_mem->cv_znS[j-1]);
   }
 
   if (cv_mem->cv_quadr_sensi) {
-    for (is=0; is<cv_mem->cv_Ns; is++) {
-      for (k = 1; k <= cv_mem->cv_q; k++)
-        for (j = cv_mem->cv_q; j >= k; j--) 
-          N_VLinearSum(ONE, cv_mem->cv_znQS[j-1][is], ONE,
-                       cv_mem->cv_znQS[j][is], cv_mem->cv_znQS[j-1][is]);
-    }
+    for (k = 1; k <= cv_mem->cv_q; k++)
+      for (j = cv_mem->cv_q; j >= k; j--) 
+        (void) N_VLinearSumVectorArray(cv_mem->cv_Ns, 
+                                       ONE, cv_mem->cv_znQS[j-1],
+                                       ONE, cv_mem->cv_znQS[j],
+                                       cv_mem->cv_znQS[j-1]);
   }
 
 }
@@ -5990,8 +6181,8 @@ static int cvNlsFunctional(CVodeMem cv_mem)
 
   N_VConst(ZERO, cv_mem->cv_acor);
   if (do_sensi_sim) {
-    for (is=0; is<cv_mem->cv_Ns; is++)
-      N_VConst(ZERO, cv_mem->cv_acorS[is]);
+    retval = N_VConstVectorArray(cv_mem->cv_Ns, ZERO, cv_mem->cv_acorS);
+    if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
   }
 
   /* Loop until convergence; accumulate corrections in acor */
@@ -6019,19 +6210,28 @@ static int cvNlsFunctional(CVodeMem cv_mem)
     /* Get WRMS norm of current correction to use in convergence test */
 
     N_VLinearSum(ONE, cv_mem->cv_tempv, -ONE, cv_mem->cv_acor, cv_mem->cv_acor);
-    if (do_sensi_sim)
-      for (is=0; is<cv_mem->cv_Ns; is++)
-        N_VLinearSum(ONE, cv_mem->cv_tempvS[is], -ONE,
-                     cv_mem->cv_acorS[is], cv_mem->cv_acorS[is]);
+    if (do_sensi_sim) {
+      retval = N_VLinearSumVectorArray(cv_mem->cv_Ns,
+                                       ONE,  cv_mem->cv_tempvS,
+                                       -ONE, cv_mem->cv_acorS,
+                                       cv_mem->cv_acorS);
+      if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+    }
+
 
     del = N_VWrmsNorm(cv_mem->cv_acor, cv_mem->cv_ewt);
     if (do_sensi_sim)
       delS = cvSensUpdateNorm(cv_mem, del, cv_mem->cv_acorS, cv_mem->cv_ewtS);
 
     N_VScale(ONE, cv_mem->cv_tempv, cv_mem->cv_acor);
-    if (do_sensi_sim) 
+    if (do_sensi_sim) {
       for (is=0; is<cv_mem->cv_Ns; is++)
-        N_VScale(ONE, cv_mem->cv_tempvS[is], cv_mem->cv_acorS[is]);
+        cv_mem->cv_cvals[is] = ONE;
+
+      retval = N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                                   cv_mem->cv_tempvS, cv_mem->cv_acorS);
+      if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+    }
     
     /* Test for convergence.  If m > 0, an estimate of the convergence
        rate constant is stored in crate, and used in the test. 
@@ -6204,11 +6404,17 @@ static int cvNlsNewton(CVodeMem cv_mem, int nflag)
     N_VConst(ZERO, cv_mem->cv_acor);
     N_VScale(ONE, cv_mem->cv_zn[0], cv_mem->cv_y);
 
-    if (do_sensi_sim)
-      for (is=0; is<cv_mem->cv_Ns; is++) {
-        N_VConst(ZERO, cv_mem->cv_acorS[is]);
-        N_VScale(ONE, cv_mem->cv_znS[0][is], cv_mem->cv_yS[is]);
-      }
+    if (do_sensi_sim) {
+      retval = N_VConstVectorArray(cv_mem->cv_Ns, ZERO, cv_mem->cv_acorS);
+      if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+
+      for (is=0; is<cv_mem->cv_Ns; is++)
+        cv_mem->cv_cvals[is] = ONE;
+
+      retval = N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                                   cv_mem->cv_znS[0], cv_mem->cv_yS);
+      if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+    }
 
     /* Do the Newton iteration */
     ier = cvNewtonIteration(cv_mem);
@@ -6250,6 +6456,8 @@ static int cvNewtonIteration(CVodeMem cv_mem)
   N_Vector b, *bS=NULL, wrk1, wrk2;
   booleantype do_sensi_sim;
   int retval, is;
+  realtype cvals[3];
+  N_Vector* XXvecs[3];
   
   /* Are we computing sensitivities with the CV_SIMULTANEOUS approach? */
   do_sensi_sim = (cv_mem->cv_sensi && (cv_mem->cv_ism==CV_SIMULTANEOUS));
@@ -6297,12 +6505,14 @@ static int cvNewtonIteration(CVodeMem cv_mem)
  
     if (do_sensi_sim) {
 
-      for (is=0; is<cv_mem->cv_Ns; is++) {
-        N_VLinearSum(cv_mem->cv_rl1, cv_mem->cv_znS[1][is], ONE,
-                     cv_mem->cv_acorS[is], cv_mem->cv_tempvS[is]);
-        N_VLinearSum(cv_mem->cv_gamma, cv_mem->cv_ftempS[is], -ONE,
-                     cv_mem->cv_tempvS[is], cv_mem->cv_tempvS[is]);
-      }
+      cvals[0] = -cv_mem->cv_rl1;   XXvecs[0] = cv_mem->cv_znS[1];
+      cvals[1] = -ONE;              XXvecs[1] = cv_mem->cv_acorS;
+      cvals[2] = cv_mem->cv_gamma;  XXvecs[2] = cv_mem->cv_ftempS;
+
+      retval = N_VLinearCombinationVectorArray(cv_mem->cv_Ns, 3, cvals, XXvecs,
+                                               cv_mem->cv_tempvS);
+      if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+
       bS = cv_mem->cv_tempvS;
       for (is=0; is<cv_mem->cv_Ns; is++) {
         retval = cv_mem->cv_lsolve(cv_mem, bS[is], cv_mem->cv_ewtS[is],
@@ -6549,8 +6759,8 @@ static int cvStgrNlsFunctional(CVodeMem cv_mem)
   if (retval > 0) return(SRHSFUNC_RECVR);
 
   /* Initialize correction to zero */
-  for (is=0; is<cv_mem->cv_Ns; is++)
-    N_VConst(ZERO, cv_mem->cv_acorS[is]);
+  retval = N_VConstVectorArray(cv_mem->cv_Ns, ZERO, cv_mem->cv_acorS);
+  if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
 
   /* Loop until convergence; accumulate corrections in acorS */
 
@@ -6568,12 +6778,19 @@ static int cvStgrNlsFunctional(CVodeMem cv_mem)
                    cv_mem->cv_tempvS[is], cv_mem->cv_yS[is]);
     }
     /* Get norm of current correction to use in convergence test */
-    for (is=0; is<cv_mem->cv_Ns; is++)
-      N_VLinearSum(ONE, cv_mem->cv_tempvS[is], -ONE,
-                   cv_mem->cv_acorS[is], cv_mem->cv_acorS[is]);
+    retval = N_VLinearSumVectorArray(cv_mem->cv_Ns,
+                                     ONE,  cv_mem->cv_tempvS,
+                                     -ONE, cv_mem->cv_acorS,
+                                     cv_mem->cv_acorS);
+    if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+
     Del = cvSensNorm(cv_mem, cv_mem->cv_acorS, cv_mem->cv_ewtS);
     for (is=0; is<cv_mem->cv_Ns; is++)
-      N_VScale(ONE, cv_mem->cv_tempvS[is], cv_mem->cv_acorS[is]);
+      cv_mem->cv_cvals[is] = ONE;
+
+    retval = N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                                 cv_mem->cv_tempvS, cv_mem->cv_acorS);
+    if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
 
     /* Test for convergence.  If m > 0, an estimate of the convergence
        rate constant is stored in crateS, and used in the test. 
@@ -6640,10 +6857,15 @@ static int cvStgrNlsNewton(CVodeMem cv_mem)
   for(;;) {
 
     /* Set acorS to zero and load prediction into yS vector */
-    for (is=0; is<cv_mem->cv_Ns; is++) {
-      N_VConst(ZERO, cv_mem->cv_acorS[is]);
-      N_VScale(ONE, cv_mem->cv_znS[0][is], cv_mem->cv_yS[is]);
-    }
+    retval = N_VConstVectorArray(cv_mem->cv_Ns, ZERO, cv_mem->cv_acorS);
+    if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+
+    for (is=0; is<cv_mem->cv_Ns; is++)
+      cv_mem->cv_cvals[is] = ONE;
+
+    retval = N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                                 cv_mem->cv_znS[0], cv_mem->cv_yS);
+    if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
  
     /* Evaluate fS at predicted yS but with converged y (and corresponding f) */
     wrk1 = cv_mem->cv_tempv;
@@ -6710,6 +6932,8 @@ static int cvStgrNewtonIteration(CVodeMem cv_mem)
   realtype Del, Delp, dcon;
   N_Vector *bS, wrk1, wrk2;
   int is;
+  realtype cvals[3];
+  N_Vector* XXvecs[3];
 
   m = 0;
 
@@ -6725,12 +6949,13 @@ static int cvStgrNewtonIteration(CVodeMem cv_mem)
   for(;;) {
 
     /* Evaluate the residual of the nonlinear systems */
-    for (is=0; is<cv_mem->cv_Ns; is++) {
-      N_VLinearSum(cv_mem->cv_rl1, cv_mem->cv_znS[1][is], ONE,
-                   cv_mem->cv_acorS[is], cv_mem->cv_tempvS[is]);
-      N_VLinearSum(cv_mem->cv_gamma, cv_mem->cv_ftempS[is], -ONE,
-                   cv_mem->cv_tempvS[is], cv_mem->cv_tempvS[is]);
-    }
+    cvals[0] = -cv_mem->cv_rl1;   XXvecs[0] = cv_mem->cv_znS[1];
+    cvals[1] = -ONE;              XXvecs[1] = cv_mem->cv_acorS;
+    cvals[2] = cv_mem->cv_gamma;  XXvecs[2] = cv_mem->cv_ftempS;
+
+    retval = N_VLinearCombinationVectorArray(cv_mem->cv_Ns, 3, cvals, XXvecs,
+                                             cv_mem->cv_tempvS);
+    if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
 
     /* Call the lsolve function */
     bS = cv_mem->cv_tempvS;
@@ -7207,7 +7432,6 @@ static int cvHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
 static void cvRestore(CVodeMem cv_mem, realtype saved_t)
 {
   int j, k;
-  int is;
 
   cv_mem->cv_tn = saved_t;
   for (k = 1; k <= cv_mem->cv_q; k++)
@@ -7223,21 +7447,21 @@ static void cvRestore(CVodeMem cv_mem, realtype saved_t)
   }
 
   if (cv_mem->cv_sensi) {
-    for (is=0; is<cv_mem->cv_Ns; is++) {
-      for (k = 1; k <= cv_mem->cv_q; k++)
-        for (j = cv_mem->cv_q; j >= k; j--)
-          N_VLinearSum(ONE, cv_mem->cv_znS[j-1][is], -ONE,
-                       cv_mem->cv_znS[j][is], cv_mem->cv_znS[j-1][is]);
-    }
+    for (k = 1; k <= cv_mem->cv_q; k++)
+      for (j = cv_mem->cv_q; j >= k; j--)
+        (void) N_VLinearSumVectorArray(cv_mem->cv_Ns,
+                                       ONE,  cv_mem->cv_znS[j-1],
+                                       -ONE, cv_mem->cv_znS[j],
+                                       cv_mem->cv_znS[j-1]);
   }
 
   if (cv_mem->cv_quadr_sensi) {
-    for (is=0; is<cv_mem->cv_Ns; is++) {
-      for (k = 1; k <= cv_mem->cv_q; k++)
-        for (j = cv_mem->cv_q; j >= k; j--)
-          N_VLinearSum(ONE, cv_mem->cv_znQS[j-1][is], -ONE,
-                       cv_mem->cv_znQS[j][is], cv_mem->cv_znQS[j-1][is]);
-    }
+    for (k = 1; k <= cv_mem->cv_q; k++)
+      for (j = cv_mem->cv_q; j >= k; j--)
+        (void) N_VLinearSumVectorArray(cv_mem->cv_Ns,
+                                       ONE,  cv_mem->cv_znQS[j-1],
+                                       -ONE, cv_mem->cv_znQS[j],
+                                       cv_mem->cv_znQS[j-1]);
   }
 }
 
@@ -7365,9 +7589,12 @@ static int cvDoErrorTest(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
     if (retval < 0) return(CV_SRHSFUNC_FAIL);
     if (retval > 0) return(CV_UNREC_SRHSFUNC_ERR);
 
-    for (is=0; is<cv_mem->cv_Ns; is++) 
-      N_VScale(cv_mem->cv_h, cv_mem->cv_tempvS[is], cv_mem->cv_znS[1][is]);
-
+    for (is=0; is<cv_mem->cv_Ns; is++)
+      cv_mem->cv_cvals[is] = cv_mem->cv_h;
+      
+    retval = N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                                 cv_mem->cv_tempvS, cv_mem->cv_znS[1]);
+    if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
   }
 
   if (cv_mem->cv_quadr_sensi) {
@@ -7383,11 +7610,13 @@ static int cvDoErrorTest(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
     if (retval < 0) return(CV_QSRHSFUNC_FAIL);
     if (retval > 0) return(CV_UNREC_QSRHSFUNC_ERR);
 
-    for (is=0; is<cv_mem->cv_Ns; is++) 
-      N_VScale(cv_mem->cv_h, cv_mem->cv_tempvQS[is], cv_mem->cv_znQS[1][is]);
+    for (is=0; is<cv_mem->cv_Ns; is++)
+      cv_mem->cv_cvals[is] = cv_mem->cv_h;
 
+    retval = N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                                 cv_mem->cv_tempvQS, cv_mem->cv_znQS[1]);
+    if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
   }
-
   
   return(TRY_AGAIN);
 }
@@ -7412,7 +7641,7 @@ static int cvDoErrorTest(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
 
 static void cvCompleteStep(CVodeMem cv_mem)
 {
-  int i, j;
+  int i;
   int is;
   
   cv_mem->cv_nst++;
@@ -7427,30 +7656,22 @@ static void cvCompleteStep(CVodeMem cv_mem)
   cv_mem->cv_tau[1] = cv_mem->cv_h;
 
   /* Apply correction to column j of zn: l_j * Delta_n */
-  for (j=0; j <= cv_mem->cv_q; j++) 
-    N_VLinearSum(cv_mem->cv_l[j], cv_mem->cv_acor, ONE,
-                 cv_mem->cv_zn[j], cv_mem->cv_zn[j]);
+  (void) N_VScaleAddMulti(cv_mem->cv_q+1, cv_mem->cv_l, cv_mem->cv_acor,
+                          cv_mem->cv_zn, cv_mem->cv_zn);
 
-  if (cv_mem->cv_quadr) {
-    for (j=0; j <= cv_mem->cv_q; j++) 
-      N_VLinearSum(cv_mem->cv_l[j], cv_mem->cv_acorQ, ONE,
-                   cv_mem->cv_znQ[j], cv_mem->cv_znQ[j]);
-  }
+  if (cv_mem->cv_quadr)
+    (void) N_VScaleAddMulti(cv_mem->cv_q+1, cv_mem->cv_l, cv_mem->cv_acorQ,
+                            cv_mem->cv_znQ, cv_mem->cv_znQ);
 
-  if (cv_mem->cv_sensi) {
-    for (is=0; is<cv_mem->cv_Ns; is++)
-      for (j=0; j <= cv_mem->cv_q; j++) 
-        N_VLinearSum(cv_mem->cv_l[j], cv_mem->cv_acorS[is], ONE,
-                     cv_mem->cv_znS[j][is], cv_mem->cv_znS[j][is]);
-  }
+  if (cv_mem->cv_sensi)
+    (void) N_VScaleAddMultiVectorArray(cv_mem->cv_Ns, cv_mem->cv_q+1,
+                                       cv_mem->cv_l, cv_mem->cv_acorS,
+                                       cv_mem->cv_znS, cv_mem->cv_znS);
 
-  if (cv_mem->cv_quadr_sensi) {
-    for (is=0; is<cv_mem->cv_Ns; is++)
-      for (j=0; j <= cv_mem->cv_q; j++) 
-        N_VLinearSum(cv_mem->cv_l[j], cv_mem->cv_acorQS[is], ONE,
-                     cv_mem->cv_znQS[j][is], cv_mem->cv_znQS[j][is]);
-  }
-
+  if (cv_mem->cv_quadr_sensi)
+    (void) N_VScaleAddMultiVectorArray(cv_mem->cv_Ns, cv_mem->cv_q+1,
+                                       cv_mem->cv_l, cv_mem->cv_acorQS,
+                                       cv_mem->cv_znQS, cv_mem->cv_znQS);
 
   /* If necessary, store Delta_n in zn[qmax] to be used in order increase.
    * This actually will be Delta_{n-1} in the ELTE at q+1 since it happens at
@@ -7465,13 +7686,21 @@ static void cvCompleteStep(CVodeMem cv_mem)
     if (cv_mem->cv_quadr)
       N_VScale(ONE, cv_mem->cv_acorQ, cv_mem->cv_znQ[cv_mem->cv_qmax]);
 
-    if (cv_mem->cv_sensi)
+    if (cv_mem->cv_sensi) {
       for (is=0; is<cv_mem->cv_Ns; is++)
-        N_VScale(ONE, cv_mem->cv_acorS[is], cv_mem->cv_znS[cv_mem->cv_qmax][is]);
+        cv_mem->cv_cvals[is] = ONE;
+        
+      (void) N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                                 cv_mem->cv_acorS, cv_mem->cv_znS[cv_mem->cv_qmax]);
+    }
     
-    if (cv_mem->cv_quadr_sensi)
+    if (cv_mem->cv_quadr_sensi) {
       for (is=0; is<cv_mem->cv_Ns; is++)
-        N_VScale(ONE, cv_mem->cv_acorQS[is], cv_mem->cv_znQS[cv_mem->cv_qmax][is]);
+        cv_mem->cv_cvals[is] = ONE;
+
+      (void) N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                                 cv_mem->cv_acorQS, cv_mem->cv_znQS[cv_mem->cv_qmax]);
+    }
 
     cv_mem->cv_saved_tq5 = cv_mem->cv_tq[5];
     cv_mem->cv_indx_acor = cv_mem->cv_qmax;
@@ -7590,7 +7819,6 @@ static realtype cvComputeEtaqm1(CVodeMem cv_mem)
 static realtype cvComputeEtaqp1(CVodeMem cv_mem)
 {
   realtype dup, cquot;
-  int is;
   
   cv_mem->cv_etaqp1 = ZERO;
 
@@ -7611,16 +7839,20 @@ static realtype cvComputeEtaqp1(CVodeMem cv_mem)
     }
 
     if ( cv_mem->cv_sensi && cv_mem->cv_errconS ) {
-      for (is=0; is<cv_mem->cv_Ns; is++) 
-        N_VLinearSum(-cquot, cv_mem->cv_znS[cv_mem->cv_qmax][is], ONE,
-                     cv_mem->cv_acorS[is], cv_mem->cv_tempvS[is]);
+      (void) N_VLinearSumVectorArray(cv_mem->cv_Ns,
+                                     -cquot, cv_mem->cv_znS[cv_mem->cv_qmax],
+                                     ONE,    cv_mem->cv_acorS,
+                                     cv_mem->cv_tempvS);
+
       dup = cvSensUpdateNorm(cv_mem, dup, cv_mem->cv_tempvS, cv_mem->cv_ewtS);
     }
 
     if ( cv_mem->cv_quadr_sensi && cv_mem->cv_errconQS ) {
-      for (is=0; is<cv_mem->cv_Ns; is++) 
-        N_VLinearSum(-cquot, cv_mem->cv_znQS[cv_mem->cv_qmax][is], ONE,
-                     cv_mem->cv_acorQS[is], cv_mem->cv_tempvQS[is]);
+      (void) N_VLinearSumVectorArray(cv_mem->cv_Ns,
+                                     -cquot, cv_mem->cv_znQS[cv_mem->cv_qmax],
+                                     ONE,    cv_mem->cv_acorQS,
+                                     cv_mem->cv_tempvQS);
+
       dup = cvSensUpdateNorm(cv_mem, dup, cv_mem->cv_tempvQS, cv_mem->cv_ewtQS);
     }
 
@@ -7685,13 +7917,21 @@ static void cvChooseEta(CVodeMem cv_mem)
       if (cv_mem->cv_quadr && cv_mem->cv_errconQ)
         N_VScale(ONE, cv_mem->cv_acorQ, cv_mem->cv_znQ[cv_mem->cv_qmax]);
       
-      if (cv_mem->cv_sensi && cv_mem->cv_errconS)
+      if (cv_mem->cv_sensi && cv_mem->cv_errconS) {
         for (is=0; is<cv_mem->cv_Ns; is++)
-          N_VScale(ONE, cv_mem->cv_acorS[is], cv_mem->cv_znS[cv_mem->cv_qmax][is]);
+          cv_mem->cv_cvals[is] = ONE;
 
-      if (cv_mem->cv_quadr_sensi && cv_mem->cv_errconQS)
+        (void) N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                                   cv_mem->cv_acorS, cv_mem->cv_znS[cv_mem->cv_qmax]);
+      }
+
+      if (cv_mem->cv_quadr_sensi && cv_mem->cv_errconQS) {
         for (is=0; is<cv_mem->cv_Ns; is++)
-          N_VScale(ONE, cv_mem->cv_acorQS[is], cv_mem->cv_znQS[cv_mem->cv_qmax][is]);
+          cv_mem->cv_cvals[is] = ONE;
+
+        (void) N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                                   cv_mem->cv_acorQS, cv_mem->cv_znQS[cv_mem->cv_qmax]);
+      }
 
     }
   }
@@ -7877,7 +8117,7 @@ static void cvBDFStab(CVodeMem cv_mem)
  *
  * This routine detects stability limitation using stored scaled 
  * derivatives data. cvSLdet returns the magnitude of the
- * dominate characteristic root, rr. The presents of a stability
+ * dominate characteristic root, rr. The presence of a stability
  * limit is indicated by rr > "something a little less then 1.0",  
  * and a positive kflag. This routine should only be called if
  * order is greater than or equal to 3, and data has been collected
@@ -7981,9 +8221,9 @@ static int cvSLdet(CVodeMem cv_mem)
     }
   }                            /* End of k loop */
   
-  /* Isolate normal or nearly-normal matrix case. Three quartic will
-     have common or nearly-common roots in this case. 
-     Return a kflag = 1 if this procedure works. If three root 
+  /* Isolate normal or nearly-normal matrix case. The three quartics will
+     have a common or nearly-common root in this case.
+     Return a kflag = 1 if this procedure works. If the three roots
      differ more than vrrt2, return error kflag = -3.    */
   
   vmin = SUNMIN(vrat[1],SUNMIN(vrat[2],vrat[3]));
@@ -8667,13 +8907,13 @@ static realtype cvQuadUpdateNorm(CVodeMem cv_mem, realtype old_nrm,
 static realtype cvSensNorm(CVodeMem cv_mem, N_Vector *xS, N_Vector *wS)
 {
   int is;
-  realtype nrm, snrm;
+  realtype nrm;
 
-  nrm = N_VWrmsNorm(xS[0],wS[0]);
-  for (is=1; is<cv_mem->cv_Ns; is++) {
-    snrm = N_VWrmsNorm(xS[is],wS[is]);
-    if ( snrm > nrm ) nrm = snrm;
-  }
+  (void) N_VWrmsNormVectorArray(cv_mem->cv_Ns, xS, wS, cv_mem->cv_cvals);
+  
+  nrm = cv_mem->cv_cvals[0];
+  for (is=1; is<cv_mem->cv_Ns; is++)
+    if ( cv_mem->cv_cvals[is] > nrm ) nrm = cv_mem->cv_cvals[is];
 
   return(nrm);
 }
@@ -8708,13 +8948,13 @@ static realtype cvSensUpdateNorm(CVodeMem cv_mem, realtype old_nrm,
 static realtype cvQuadSensNorm(CVodeMem cv_mem, N_Vector *xQS, N_Vector *wQS)
 {
   int is;
-  realtype nrm, snrm;
+  realtype nrm;
 
-  nrm = N_VWrmsNorm(xQS[0],wQS[0]);
-  for (is=1; is<cv_mem->cv_Ns; is++) {
-    snrm = N_VWrmsNorm(xQS[is],wQS[is]);
-    if ( snrm > nrm ) nrm = snrm;
-  }
+  (void) N_VWrmsNormVectorArray(cv_mem->cv_Ns, xQS, wQS, cv_mem->cv_cvals);
+  
+  nrm = cv_mem->cv_cvals[0];
+  for (is=1; is<cv_mem->cv_Ns; is++)
+    if ( cv_mem->cv_cvals[is] > nrm ) nrm = cv_mem->cv_cvals[is];
 
   return(nrm);
 }
@@ -8871,6 +9111,10 @@ int cvSensRhs1InternalDQ(int Ns, realtype t,
   realtype Deltay, rDeltay, r2Deltay;
   realtype Delta , rDelta , r2Delta ;
   realtype norms, ratio;
+
+  /* local variables for fused vector operations */
+  realtype cvals[3];
+  N_Vector Xvecs[3];
   
   /* cvode_mem is passed here as user data */
   cv_mem = (CVodeMem) cvode_mem;
@@ -8955,13 +9199,17 @@ int cvSensRhs1InternalDQ(int Ns, realtype t,
     retval = cv_mem->cv_f(t, y, ftemp, cv_mem->cv_user_data);
     nfel++;
     if (retval != 0) return(retval);
+    
+    /* ySdot = ySdot + r2Deltap * ytemp - r2Deltap * ftemp */
+    cvals[0] = ONE;        Xvecs[0] = ySdot;
+    cvals[1] = r2Deltap;   Xvecs[1] = ytemp;
+    cvals[2] = -r2Deltap;  Xvecs[2] = ftemp;
 
-    N_VLinearSum(r2Deltap,ytemp,-r2Deltap,ftemp,ftemp);
-    
-    N_VLinearSum(ONE,ySdot,ONE,ftemp,ySdot);
-    
+    retval = N_VLinearCombination(3, cvals, Xvecs, ySdot);
+    if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+
     break;
-    
+
   case FORWARD1:
     
     Delta = SUNMIN(Deltay, Deltap);
@@ -8993,12 +9241,16 @@ int cvSensRhs1InternalDQ(int Ns, realtype t,
     nfel++;
     if (retval != 0) return(retval);
 
-    N_VLinearSum(rDeltap,ytemp,-rDeltap,ydot,ftemp);
-      
-    N_VLinearSum(ONE,ySdot,ONE,ftemp,ySdot);
-    
+    /* ySdot = ySdot + rDeltap * ytemp - rDeltap * ydot */
+    cvals[0] = ONE;       Xvecs[0] = ySdot;
+    cvals[1] = rDeltap;   Xvecs[1] = ytemp;
+    cvals[2] = -rDeltap;  Xvecs[2] = ydot;
+
+    retval = N_VLinearCombination(3, cvals, Xvecs, ySdot);
+    if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+
     break;
-    
+
   }
   
   cv_mem->cv_p[which] = psave;

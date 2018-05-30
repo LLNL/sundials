@@ -274,6 +274,7 @@ int main()
   N_VDestroy(yB);
   N_VDestroy(ypB);
   N_VDestroy(q);
+  free(data);
 
   return(0);
 }

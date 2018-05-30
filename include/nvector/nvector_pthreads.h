@@ -54,6 +54,7 @@
 #ifndef _NVECTOR_PTHREADS_H
 #define _NVECTOR_PTHREADS_H
 
+#include <stdio.h>
 #include <pthread.h>
 #include <sundials/sundials_nvector.h>
 
@@ -82,14 +83,35 @@ struct _N_VectorContent_Pthreads {
 typedef struct _N_VectorContent_Pthreads *N_VectorContent_Pthreads;
 
 
-/* structure to allow threads to share data */
+/* Structure to hold parallelization information for each thread when
+   calling "companion" functions to compute vector operations. The
+   start and end vector (loop) indices are unique to each thread, the
+   realtype variables are the same for each thread, and the mutex
+   variable is used to lock variables in reductions. */
+
 struct _Pthreads_Data{
-  sunindextype start;                /* starting index for loop  */ 
-  sunindextype end;                  /* ending index for loop    */
-  realtype c1, c2;               /* scaler values            */
+  sunindextype start;            /* starting index for loop  */
+  sunindextype end;              /* ending index for loop    */
+  realtype c1, c2;               /* scalar values            */
   realtype *v1, *v2, *v3;        /* vector data              */
   realtype *global_val;          /* shared global variable   */
-  pthread_mutex_t *global_mutex; /* lock for shared variable */ 
+  pthread_mutex_t *global_mutex; /* lock for shared variable */
+
+  int nvec; /* number of vectors in fused op */
+  int nsum; /* number of sums in fused op    */
+
+  realtype* cvals; /* scalar values in fused op */
+
+  N_Vector x1;    /* vector array in fused op */
+  N_Vector x2;    /* vector array in fused op */
+  N_Vector x3;    /* vector array in fused op */
+
+  N_Vector* Y1;    /* vector array in fused op */
+  N_Vector* Y2;    /* vector array in fused op */
+  N_Vector* Y3;    /* vector array in fused op */
+
+  N_Vector** ZZ1;  /* array of vector arrays in fused op */
+  N_Vector** ZZ2;  /* array of vector arrays in fused op */
 };
 
 typedef struct _Pthreads_Data Pthreads_Data;
@@ -289,6 +311,8 @@ SUNDIALS_EXPORT void N_VDestroy_Pthreads(N_Vector v);
 SUNDIALS_EXPORT void N_VSpace_Pthreads(N_Vector v, sunindextype *lrw, sunindextype *liw);
 SUNDIALS_EXPORT realtype *N_VGetArrayPointer_Pthreads(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer_Pthreads(realtype *v_data, N_Vector v);
+
+/* standard vector operations */
 SUNDIALS_EXPORT void N_VLinearSum_Pthreads(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);
 SUNDIALS_EXPORT void N_VConst_Pthreads(realtype c, N_Vector z);
 SUNDIALS_EXPORT void N_VProd_Pthreads(N_Vector x, N_Vector y, N_Vector z);
@@ -308,6 +332,38 @@ SUNDIALS_EXPORT void N_VCompare_Pthreads(realtype c, N_Vector x, N_Vector z);
 SUNDIALS_EXPORT booleantype N_VInvTest_Pthreads(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT booleantype N_VConstrMask_Pthreads(N_Vector c, N_Vector x, N_Vector m);
 SUNDIALS_EXPORT realtype N_VMinQuotient_Pthreads(N_Vector num, N_Vector denom);
+
+/* fused vector operations */
+SUNDIALS_EXPORT int N_VLinearCombination_Pthreads(int nvec, realtype* c,
+                                                  N_Vector* X, N_Vector z);
+SUNDIALS_EXPORT int N_VScaleAddMulti_Pthreads(int nvec, realtype* a, N_Vector x,
+                                              N_Vector* Y, N_Vector* Z);
+SUNDIALS_EXPORT int N_VDotProdMulti_Pthreads(int nvec, N_Vector x, N_Vector* Y,
+                                             realtype* dotprods);
+
+/* vector array operations */
+SUNDIALS_EXPORT int N_VLinearSumVectorArray_Pthreads(int nvec,
+                                                     realtype a, N_Vector* X,
+                                                     realtype b, N_Vector* Y,
+                                                     N_Vector* Z);
+SUNDIALS_EXPORT int N_VScaleVectorArray_Pthreads(int nvec, realtype* c,
+                                                 N_Vector* X, N_Vector* Z);
+SUNDIALS_EXPORT int N_VConstVectorArray_Pthreads(int nvec, realtype c,
+                                                 N_Vector* Z);
+SUNDIALS_EXPORT int N_VWrmsNormVectorArray_Pthreads(int nvec, N_Vector* X,
+                                                    N_Vector* W, realtype* nrm);
+SUNDIALS_EXPORT int N_VWrmsNormMaskVectorArray_Pthreads(int nvec, N_Vector* X,
+                                                        N_Vector* W, N_Vector id,
+                                                        realtype* nrm);
+SUNDIALS_EXPORT int N_VScaleAddMultiVectorArray_Pthreads(int nvec, int nsum,
+                                                         realtype* a,
+                                                         N_Vector* X,
+                                                         N_Vector** Y,
+                                                         N_Vector** Z);
+SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_Pthreads(int nvec, int nsum,
+                                                             realtype* c,
+                                                             N_Vector** X,
+                                                             N_Vector* Z);
 
 #ifdef __cplusplus
 }

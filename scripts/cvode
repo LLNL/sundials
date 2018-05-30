@@ -62,6 +62,8 @@ $tar $tarfile $distrobase/src/cvode/fcmix/fcvsparse.c
 
 echo "   --- Add cvode examples to $tarfile"
 
+$tar $tarfile $distrobase/examples/cvode/CMakeLists.txt
+
 $tar $tarfile $distrobase/examples/cvode/serial/README
 $tar $tarfile $distrobase/examples/cvode/serial/CMakeLists.txt
 $tar $tarfile $distrobase/examples/cvode/serial/cvAdvDiff_bnd.c

@@ -145,25 +145,41 @@ N_Vector N_VNewEmpty_Parallel_Grid(MPI_Comm comm,
   ops->nvspace           = N_VSpace_Parallel_Grid;
   ops->nvgetarraypointer = N_VGetArrayPointer_Parallel_Grid;
   ops->nvsetarraypointer = N_VSetArrayPointer_Parallel_Grid;
-  ops->nvlinearsum       = N_VLinearSum_Parallel_Grid;
-  ops->nvconst           = N_VConst_Parallel_Grid;
-  ops->nvprod            = N_VProd_Parallel_Grid;
-  ops->nvdiv             = N_VDiv_Parallel_Grid;
-  ops->nvscale           = N_VScale_Parallel_Grid;
-  ops->nvabs             = N_VAbs_Parallel_Grid;
-  ops->nvinv             = N_VInv_Parallel_Grid;
-  ops->nvaddconst        = N_VAddConst_Parallel_Grid;
-  ops->nvdotprod         = N_VDotProd_Parallel_Grid;
-  ops->nvmaxnorm         = N_VMaxNorm_Parallel_Grid;
-  ops->nvwrmsnormmask    = N_VWrmsNormMask_Parallel_Grid;
-  ops->nvwrmsnorm        = N_VWrmsNorm_Parallel_Grid;
-  ops->nvmin             = N_VMin_Parallel_Grid;
-  ops->nvwl2norm         = N_VWL2Norm_Parallel_Grid;
-  ops->nvl1norm          = N_VL1Norm_Parallel_Grid;
-  ops->nvcompare         = N_VCompare_Parallel_Grid;
-  ops->nvinvtest         = N_VInvTest_Parallel_Grid;
-  ops->nvconstrmask      = N_VConstrMask_Parallel_Grid;
-  ops->nvminquotient     = N_VMinQuotient_Parallel_Grid;
+
+  /* standard vector operations */
+  ops->nvlinearsum    = N_VLinearSum_Parallel_Grid;
+  ops->nvconst        = N_VConst_Parallel_Grid;
+  ops->nvprod         = N_VProd_Parallel_Grid;
+  ops->nvdiv          = N_VDiv_Parallel_Grid;
+  ops->nvscale        = N_VScale_Parallel_Grid;
+  ops->nvabs          = N_VAbs_Parallel_Grid;
+  ops->nvinv          = N_VInv_Parallel_Grid;
+  ops->nvaddconst     = N_VAddConst_Parallel_Grid;
+  ops->nvdotprod      = N_VDotProd_Parallel_Grid;
+  ops->nvmaxnorm      = N_VMaxNorm_Parallel_Grid;
+  ops->nvwrmsnormmask = N_VWrmsNormMask_Parallel_Grid;
+  ops->nvwrmsnorm     = N_VWrmsNorm_Parallel_Grid;
+  ops->nvmin          = N_VMin_Parallel_Grid;
+  ops->nvwl2norm      = N_VWL2Norm_Parallel_Grid;
+  ops->nvl1norm       = N_VL1Norm_Parallel_Grid;
+  ops->nvcompare      = N_VCompare_Parallel_Grid;
+  ops->nvinvtest      = N_VInvTest_Parallel_Grid;
+  ops->nvconstrmask   = N_VConstrMask_Parallel_Grid;
+  ops->nvminquotient  = N_VMinQuotient_Parallel_Grid;
+
+  /* fused vector operations */
+  ops->nvlinearcombination = NULL;
+  ops->nvscaleaddmulti     = NULL;
+  ops->nvdotprodmulti      = NULL;
+
+  /* vector array operations */
+  ops->nvlinearsumvectorarray         = NULL;
+  ops->nvscalevectorarray             = NULL;
+  ops->nvconstvectorarray             = NULL;
+  ops->nvwrmsnormvectorarray          = NULL;
+  ops->nvwrmsnormmaskvectorarray      = NULL;
+  ops->nvscaleaddmultivectorarray     = NULL;
+  ops->nvlinearcombinationvectorarray = NULL;
 
   /* Create content */
   content = NULL;
@@ -657,25 +673,41 @@ N_Vector N_VCloneEmpty_Parallel_Grid(N_Vector w)
   ops->nvspace           = w->ops->nvspace;
   ops->nvgetarraypointer = w->ops->nvgetarraypointer;
   ops->nvsetarraypointer = w->ops->nvsetarraypointer;
-  ops->nvlinearsum       = w->ops->nvlinearsum;
-  ops->nvconst           = w->ops->nvconst;  
-  ops->nvprod            = w->ops->nvprod;   
-  ops->nvdiv             = w->ops->nvdiv;
-  ops->nvscale           = w->ops->nvscale; 
-  ops->nvabs             = w->ops->nvabs;
-  ops->nvinv             = w->ops->nvinv;
-  ops->nvaddconst        = w->ops->nvaddconst;
-  ops->nvdotprod         = w->ops->nvdotprod;
-  ops->nvmaxnorm         = w->ops->nvmaxnorm;
-  ops->nvwrmsnormmask    = w->ops->nvwrmsnormmask;
-  ops->nvwrmsnorm        = w->ops->nvwrmsnorm;
-  ops->nvmin             = w->ops->nvmin;
-  ops->nvwl2norm         = w->ops->nvwl2norm;
-  ops->nvl1norm          = w->ops->nvl1norm;
-  ops->nvcompare         = w->ops->nvcompare;    
-  ops->nvinvtest         = w->ops->nvinvtest;
-  ops->nvconstrmask      = w->ops->nvconstrmask;
-  ops->nvminquotient     = w->ops->nvminquotient;
+
+  /* standard vector operations */
+  ops->nvlinearsum    = w->ops->nvlinearsum;
+  ops->nvconst        = w->ops->nvconst;
+  ops->nvprod         = w->ops->nvprod;
+  ops->nvdiv          = w->ops->nvdiv;
+  ops->nvscale        = w->ops->nvscale; 
+  ops->nvabs          = w->ops->nvabs;
+  ops->nvinv          = w->ops->nvinv;
+  ops->nvaddconst     = w->ops->nvaddconst;
+  ops->nvdotprod      = w->ops->nvdotprod;
+  ops->nvmaxnorm      = w->ops->nvmaxnorm;
+  ops->nvwrmsnormmask = w->ops->nvwrmsnormmask;
+  ops->nvwrmsnorm     = w->ops->nvwrmsnorm;
+  ops->nvmin          = w->ops->nvmin;
+  ops->nvwl2norm      = w->ops->nvwl2norm;
+  ops->nvl1norm       = w->ops->nvl1norm;
+  ops->nvcompare      = w->ops->nvcompare;
+  ops->nvinvtest      = w->ops->nvinvtest;
+  ops->nvconstrmask   = w->ops->nvconstrmask;
+  ops->nvminquotient  = w->ops->nvminquotient;
+
+  /* fused vector operations */
+  ops->nvlinearcombination = w->ops->nvlinearcombination;
+  ops->nvscaleaddmulti     = w->ops->nvscaleaddmulti;
+  ops->nvdotprodmulti      = w->ops->nvdotprodmulti;
+
+  /* vector array operations */
+  ops->nvlinearsumvectorarray         = w->ops->nvlinearsumvectorarray;
+  ops->nvscalevectorarray             = w->ops->nvscalevectorarray;
+  ops->nvconstvectorarray             = w->ops->nvconstvectorarray;
+  ops->nvwrmsnormvectorarray          = w->ops->nvwrmsnormvectorarray;
+  ops->nvwrmsnormmaskvectorarray      = w->ops->nvwrmsnormmaskvectorarray;
+  ops->nvscaleaddmultivectorarray     = w->ops->nvscaleaddmultivectorarray;
+  ops->nvlinearcombinationvectorarray = w->ops->nvlinearcombinationvectorarray;
 
   /* Create content */  
   content = NULL;

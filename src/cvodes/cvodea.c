@@ -1558,8 +1558,10 @@ static CkpntMem CVAckpntInit(CVodeMem cv_mem)
     }
 
     for (is=0; is<cv_mem->cv_Ns; is++)
-      N_VScale(ONE, cv_mem->cv_znS[0][is], ck_mem->ck_znS[0][is]);
+      cv_mem->cv_cvals[is] = ONE;
 
+    (void) N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                               cv_mem->cv_znS[0], ck_mem->ck_znS[0]);
   }
 
   /* Do we need to carry quadrature sensitivities? */
@@ -1577,8 +1579,10 @@ static CkpntMem CVAckpntInit(CVodeMem cv_mem)
     }
     
     for (is=0; is<cv_mem->cv_Ns; is++)
-      N_VScale(ONE, cv_mem->cv_znQS[0][is], ck_mem->ck_znQS[0][is]);
+      cv_mem->cv_cvals[is] = ONE;
 
+    (void) N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                               cv_mem->cv_znQS[0], ck_mem->ck_znQS[0]);
   }
 
   /* Next in list */
@@ -1597,7 +1601,7 @@ static CkpntMem CVAckpntInit(CVodeMem cv_mem)
 static CkpntMem CVAckpntNew(CVodeMem cv_mem)
 {
   CkpntMem ck_mem;
-  int j, jj, is, qmax; 
+  int j, jj, is, qmax;
 
   /* Allocate space for ckdata */
   ck_mem = NULL;
@@ -1742,25 +1746,66 @@ static CkpntMem CVAckpntNew(CVodeMem cv_mem)
 
   /* Load check point data from cv_mem */
 
-  for (j=0; j<=cv_mem->cv_q; j++) N_VScale(ONE, cv_mem->cv_zn[j], ck_mem->ck_zn[j]);
-  if ( cv_mem->cv_q < qmax ) N_VScale(ONE, cv_mem->cv_zn[qmax], ck_mem->ck_zn[qmax]);
+  for (j=0; j<=cv_mem->cv_q; j++)
+    cv_mem->cv_cvals[j] = ONE;
+
+  (void) N_VScaleVectorArray(cv_mem->cv_q+1, cv_mem->cv_cvals,
+                             cv_mem->cv_zn, ck_mem->ck_zn);
+
+  if ( cv_mem->cv_q < qmax )
+    N_VScale(ONE, cv_mem->cv_zn[qmax], ck_mem->ck_zn[qmax]);
 
   if (ck_mem->ck_quadr) {
-    for (j=0; j<=cv_mem->cv_q; j++) N_VScale(ONE, cv_mem->cv_znQ[j], ck_mem->ck_znQ[j]);
-    if ( cv_mem->cv_q < qmax ) N_VScale(ONE, cv_mem->cv_znQ[qmax], ck_mem->ck_znQ[qmax]);
+    for (j=0; j<=cv_mem->cv_q; j++)
+      cv_mem->cv_cvals[j] = ONE;
+
+    (void) N_VScaleVectorArray(cv_mem->cv_q+1, cv_mem->cv_cvals,
+                               cv_mem->cv_znQ, ck_mem->ck_znQ);
+
+    if ( cv_mem->cv_q < qmax )
+      N_VScale(ONE, cv_mem->cv_znQ[qmax], ck_mem->ck_znQ[qmax]);
   }
 
   if (ck_mem->ck_sensi) {
-    for (is=0; is<cv_mem->cv_Ns; is++) {
-      for (j=0; j<=cv_mem->cv_q; j++) N_VScale(ONE, cv_mem->cv_znS[j][is], ck_mem->ck_znS[j][is]);
-      if ( cv_mem->cv_q < qmax ) N_VScale(ONE, cv_mem->cv_znS[qmax][is], ck_mem->ck_znS[qmax][is]);
+    for (j=0; j<=cv_mem->cv_q; j++) {
+      for (is=0; is<cv_mem->cv_Ns; is++) {
+        cv_mem->cv_cvals[j*cv_mem->cv_Ns+is] = ONE;
+        cv_mem->cv_Xvecs[j*cv_mem->cv_Ns+is] = cv_mem->cv_znS[j][is];
+        cv_mem->cv_Zvecs[j*cv_mem->cv_Ns+is] = ck_mem->ck_znS[j][is];
+      }
+    }
+    
+    (void) N_VScaleVectorArray(cv_mem->cv_Ns*(cv_mem->cv_q+1),
+                               cv_mem->cv_cvals,
+                               cv_mem->cv_Xvecs, cv_mem->cv_Zvecs);
+
+    if ( cv_mem->cv_q < qmax ) {
+      for (is=0; is<cv_mem->cv_Ns; is++)
+        cv_mem->cv_cvals[is] = ONE;
+
+      (void) N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                                 cv_mem->cv_znS[qmax], ck_mem->ck_znS[qmax]);
     }
   }
-
+  
   if (ck_mem->ck_quadr_sensi) {
-    for (is=0; is<cv_mem->cv_Ns; is++) {
-      for (j=0; j<=cv_mem->cv_q; j++) N_VScale(ONE, cv_mem->cv_znQS[j][is], ck_mem->ck_znQS[j][is]);
-      if ( cv_mem->cv_q < qmax ) N_VScale(ONE, cv_mem->cv_znQS[qmax][is], ck_mem->ck_znQS[qmax][is]);
+    for (j=0; j<=cv_mem->cv_q; j++) {
+      for (is=0; is<cv_mem->cv_Ns; is++) {
+        cv_mem->cv_cvals[j*cv_mem->cv_Ns+is] = ONE;
+        cv_mem->cv_Xvecs[j*cv_mem->cv_Ns+is] = cv_mem->cv_znQS[j][is];
+        cv_mem->cv_Zvecs[j*cv_mem->cv_Ns+is] = ck_mem->ck_znQS[j][is];
+      }
+    }
+
+    (void) N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                               cv_mem->cv_Xvecs, cv_mem->cv_Zvecs);
+
+    if ( cv_mem->cv_q < qmax ) {
+      for (is=0; is<cv_mem->cv_Ns; is++)
+        cv_mem->cv_cvals[is] = ONE;
+
+      (void) N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                                 cv_mem->cv_znQS[qmax], ck_mem->ck_znQS[qmax]);
     }
   }
 
@@ -1969,7 +2014,7 @@ static int CVAdataStore(CVodeMem cv_mem, CkpntMem ck_mem)
 
 static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem) 
 {
-  int flag, j, is, qmax;
+  int flag, j, is, qmax, retval;
 
   if (ck_mem->ck_next == NULL) {
 
@@ -2020,25 +2065,73 @@ static int CVAckpntGet(CVodeMem cv_mem, CkpntMem ck_mem)
     
     /* Copy the arrays from check point data structure */
 
-    for (j=0; j<=cv_mem->cv_q; j++) N_VScale(ONE, ck_mem->ck_zn[j], cv_mem->cv_zn[j]);
-    if ( cv_mem->cv_q < qmax ) N_VScale(ONE, ck_mem->ck_zn[qmax], cv_mem->cv_zn[qmax]);
+    for (j=0; j<=cv_mem->cv_q; j++)
+      cv_mem->cv_cvals[j] = ONE;
+
+    retval = N_VScaleVectorArray(cv_mem->cv_q+1, cv_mem->cv_cvals,
+                                 ck_mem->ck_zn, cv_mem->cv_zn);
+    if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+
+    if ( cv_mem->cv_q < qmax )
+      N_VScale(ONE, ck_mem->ck_zn[qmax], cv_mem->cv_zn[qmax]);
 
     if (ck_mem->ck_quadr) {
-      for (j=0; j<=cv_mem->cv_q; j++) N_VScale(ONE, ck_mem->ck_znQ[j], cv_mem->cv_znQ[j]);
-      if ( cv_mem->cv_q < qmax ) N_VScale(ONE, ck_mem->ck_znQ[qmax], cv_mem->cv_znQ[qmax]);
+      for (j=0; j<=cv_mem->cv_q; j++)
+        cv_mem->cv_cvals[j] = ONE;
+
+      retval = N_VScaleVectorArray(cv_mem->cv_q+1, cv_mem->cv_cvals,
+                                   ck_mem->ck_znQ, cv_mem->cv_znQ);
+      if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+
+      if ( cv_mem->cv_q < qmax )
+        N_VScale(ONE, ck_mem->ck_znQ[qmax], cv_mem->cv_znQ[qmax]);
     }
 
     if (ck_mem->ck_sensi) {
-      for (is=0; is<cv_mem->cv_Ns; is++) {
-        for (j=0; j<=cv_mem->cv_q; j++) N_VScale(ONE, ck_mem->ck_znS[j][is], cv_mem->cv_znS[j][is]);
-        if ( cv_mem->cv_q < qmax ) N_VScale(ONE, ck_mem->ck_znS[qmax][is], cv_mem->cv_znS[qmax][is]);
+      for (j=0; j<=cv_mem->cv_q; j++) {
+        for (is=0; is<cv_mem->cv_Ns; is++) {
+          cv_mem->cv_cvals[j*cv_mem->cv_Ns+is] = ONE;
+          cv_mem->cv_Xvecs[j*cv_mem->cv_Ns+is] = ck_mem->ck_znS[j][is];
+          cv_mem->cv_Zvecs[j*cv_mem->cv_Ns+is] = cv_mem->cv_znS[j][is];
+        }
+      }
+
+      retval = N_VScaleVectorArray(cv_mem->cv_Ns*(cv_mem->cv_q+1),
+                                   cv_mem->cv_cvals,
+                                   cv_mem->cv_Xvecs, cv_mem->cv_Zvecs);
+      if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+
+      if ( cv_mem->cv_q < qmax ) {
+        for (is=0; is<cv_mem->cv_Ns; is++)
+          cv_mem->cv_cvals[is] = ONE;
+
+        retval = N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                                     ck_mem->ck_znS[qmax], cv_mem->cv_znS[qmax]);
+        if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
       }
     }
 
     if (ck_mem->ck_quadr_sensi) {
-      for (is=0; is<cv_mem->cv_Ns; is++) {
-        for (j=0; j<=cv_mem->cv_q; j++) N_VScale(ONE, ck_mem->ck_znQS[j][is], cv_mem->cv_znQS[j][is]);
-        if ( cv_mem->cv_q < qmax ) N_VScale(ONE, ck_mem->ck_znQS[qmax][is], cv_mem->cv_znQS[qmax][is]);
+      for (j=0; j<=cv_mem->cv_q; j++) {
+        for (is=0; is<cv_mem->cv_Ns; is++) {
+          cv_mem->cv_cvals[j*cv_mem->cv_Ns+is] = ONE;
+          cv_mem->cv_Xvecs[j*cv_mem->cv_Ns+is] = ck_mem->ck_znQS[j][is];
+          cv_mem->cv_Zvecs[j*cv_mem->cv_Ns+is] = cv_mem->cv_znQS[j][is];
+        }
+      }
+      
+      retval = N_VScaleVectorArray(cv_mem->cv_Ns*(cv_mem->cv_q+1),
+                                   cv_mem->cv_cvals,
+                                   cv_mem->cv_Xvecs, cv_mem->cv_Zvecs);
+      if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+
+      if ( cv_mem->cv_q < qmax ) {
+        for (is=0; is<cv_mem->cv_Ns; is++)
+          cv_mem->cv_cvals[is] = ONE;
+
+        retval = N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                                     ck_mem->ck_znQS[qmax], cv_mem->cv_znQS[qmax]);
+        if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
       }
     }
 
@@ -2353,8 +2446,7 @@ static int CVAhermiteStorePnt(CVodeMem cv_mem, DtpntMem d)
 {
   CVadjMem ca_mem;
   HermiteDataMem content;
-  int is;
-  /* int retval; */
+  int is, retval;
 
   ca_mem = cv_mem->cv_adj_mem;
 
@@ -2365,8 +2457,12 @@ static int CVAhermiteStorePnt(CVodeMem cv_mem, DtpntMem d)
   N_VScale(ONE, cv_mem->cv_zn[0], content->y);
   
   if (ca_mem->ca_IMstoreSensi) {
-    for (is=0; is<cv_mem->cv_Ns; is++) 
-      N_VScale(ONE, cv_mem->cv_znS[0][is], content->yS[is]);
+    for (is=0; is<cv_mem->cv_Ns; is++)
+      cv_mem->cv_cvals[is] = ONE;
+
+    retval = N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                                 cv_mem->cv_znS[0], content->yS);
+    if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
   }
 
   /* Load derivative */
@@ -2386,8 +2482,12 @@ static int CVAhermiteStorePnt(CVodeMem cv_mem, DtpntMem d)
     N_VScale(ONE/cv_mem->cv_h, cv_mem->cv_zn[1], content->yd);
 
     if (ca_mem->ca_IMstoreSensi) {
-      for (is=0; is<cv_mem->cv_Ns; is++) 
-        N_VScale(ONE/cv_mem->cv_h, cv_mem->cv_znS[1][is], content->ySd[is]);
+      for (is=0; is<cv_mem->cv_Ns; is++)
+        cv_mem->cv_cvals[is] = ONE/cv_mem->cv_h;
+
+      retval = N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                                   cv_mem->cv_znS[1], content->ySd);
+      if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
     }
 
   }
@@ -2422,6 +2522,11 @@ static int CVAhermiteGetY(CVodeMem cv_mem, realtype t,
   long int indx;
   booleantype newpoint;
 
+  /* local variables for fused vector oerations */
+  int retval;
+  realtype  cvals[4];
+  N_Vector  Xvecs[4];
+  N_Vector* XXvecs[4];
  
   ca_mem = cv_mem->cv_adj_mem;
   dt_mem = ca_mem->dt_mem;
@@ -2441,7 +2546,16 @@ static int CVAhermiteGetY(CVodeMem cv_mem, realtype t,
   if (indx == 0) {
     content0 = (HermiteDataMem) (dt_mem[0]->content);
     N_VScale(ONE, content0->y, y);
-    for (is=0; is<NS; is++) N_VScale(ONE, content0->yS[is], yS[is]);
+
+    if (NS > 0) {
+      for (is=0; is<NS; is++)
+        cv_mem->cv_cvals[is] = ONE;
+
+      retval = N_VScaleVectorArray(NS, cv_mem->cv_cvals,
+                                   content0->yS, yS);
+      if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+    }
+    
     return(CV_SUCCESS);
   }
 
@@ -2468,20 +2582,47 @@ static int CVAhermiteGetY(CVodeMem cv_mem, realtype t,
     y1  = content1->y;
     yd1 = content1->yd;
 
-    N_VLinearSum(ONE, y1, -ONE, y0, ca_mem->ca_Y[0]);
-    N_VLinearSum(ONE, yd1,  ONE, yd0, ca_mem->ca_Y[1]);
-    N_VLinearSum(delta, ca_mem->ca_Y[1], -TWO, ca_mem->ca_Y[0], ca_mem->ca_Y[1]);
-    N_VLinearSum(ONE, ca_mem->ca_Y[0], -delta, yd0, ca_mem->ca_Y[0]);
+    /* Y1 = delta (yd1 + yd0) - 2 (y1 - y0) */
+    cvals[0] = -TWO;   Xvecs[0] = y1;
+    cvals[1] = TWO;    Xvecs[1] = y0;
+    cvals[2] = delta;  Xvecs[2] = yd1;
+    cvals[3] = delta;  Xvecs[3] = yd0;
 
+    retval = N_VLinearCombination(4, cvals, Xvecs, ca_mem->ca_Y[1]);
+    if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
 
-    yS1  = content1->yS;
-    ySd1 = content1->ySd;
-      
-    for (is=0; is<NS; is++) {
-      N_VLinearSum(ONE, yS1[is], -ONE, yS0[is], ca_mem->ca_YS[0][is]);
-      N_VLinearSum(ONE, ySd1[is],  ONE, ySd0[is], ca_mem->ca_YS[1][is]);
-      N_VLinearSum(delta, ca_mem->ca_YS[1][is], -TWO, ca_mem->ca_YS[0][is], ca_mem->ca_YS[1][is]);
-      N_VLinearSum(ONE, ca_mem->ca_YS[0][is], -delta, ySd0[is], ca_mem->ca_YS[0][is]);
+    /* Y0 = y1 - y0 - delta * yd0 */
+    cvals[0] = ONE;     Xvecs[0] = y1;
+    cvals[1] = -ONE;    Xvecs[1] = y0;
+    cvals[2] = -delta;  Xvecs[2] = yd0;
+
+    retval = N_VLinearCombination(3, cvals, Xvecs, ca_mem->ca_Y[0]);
+    if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+
+    /* Recompute YS0 and YS1, if needed */
+
+    if (NS > 0) {
+
+      yS1  = content1->yS;
+      ySd1 = content1->ySd;
+
+      /* YS1 = delta (ySd1 + ySd0) - 2 (yS1 - yS0) */
+      cvals[0] = -TWO;   XXvecs[0] = yS1;
+      cvals[1] = TWO;    XXvecs[1] = yS0;
+      cvals[2] = delta;  XXvecs[2] = ySd1;
+      cvals[3] = delta;  XXvecs[3] = ySd0;
+
+      retval = N_VLinearCombinationVectorArray(NS, 4, cvals, XXvecs, ca_mem->ca_YS[1]);
+      if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+
+      /* YS0 = yS1 - yS0 - delta * ySd0 */
+      cvals[0] = ONE;     XXvecs[0] = yS1;
+      cvals[1] = -ONE;    XXvecs[1] = yS0;
+      cvals[2] = -delta;  XXvecs[2] = ySd0;
+
+      retval = N_VLinearCombinationVectorArray(NS, 3, cvals, XXvecs, ca_mem->ca_YS[0]);
+      if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+
     }
 
   }
@@ -2495,16 +2636,32 @@ static int CVAhermiteGetY(CVodeMem cv_mem, realtype t,
 
   factor3 = factor2*(t-t1)/delta;
 
-  N_VLinearSum(ONE, y0, factor1, yd0, y);
-  N_VLinearSum(ONE, y, factor2, ca_mem->ca_Y[0], y);
-  N_VLinearSum(ONE, y, factor3, ca_mem->ca_Y[1], y);
+  cvals[0] = ONE;
+  cvals[1] = factor1;
+  cvals[2] = factor2;
+  cvals[3] = factor3;
 
-  for (is=0; is<NS; is++) {
-    N_VLinearSum(ONE, yS0[is], factor1, ySd0[is], yS[is]);
-    N_VLinearSum(ONE, yS[is], factor2, ca_mem->ca_YS[0][is], yS[is]);
-    N_VLinearSum(ONE, yS[is], factor3, ca_mem->ca_YS[1][is], yS[is]);
+  /* y = y0 + factor1 yd0 + factor2 * Y[0] + factor3 Y[1] */
+  Xvecs[0] = y0;
+  Xvecs[1] = yd0;
+  Xvecs[2] = ca_mem->ca_Y[0];
+  Xvecs[3] = ca_mem->ca_Y[1];
+
+  retval = N_VLinearCombination(4, cvals, Xvecs, y);
+  if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+
+  /* yS = yS0 + factor1 ySd0 + factor2 * YS[0] + factor3 YS[1], if needed */
+  if (NS > 0) {
+
+    XXvecs[0] = yS0;
+    XXvecs[1] = ySd0;
+    XXvecs[2] = ca_mem->ca_YS[0];
+    XXvecs[3] = ca_mem->ca_YS[1];
+
+    retval = N_VLinearCombinationVectorArray(NS, 4, cvals, XXvecs, yS);
+    if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+
   }
-
 
   return(CV_SUCCESS);
 }
@@ -2660,7 +2817,7 @@ static int CVApolynomialStorePnt(CVodeMem cv_mem, DtpntMem d)
 {
   CVadjMem ca_mem;
   PolynomialDataMem content;
-  int is;
+  int is, retval;
 
   ca_mem = cv_mem->cv_adj_mem;
 
@@ -2669,8 +2826,11 @@ static int CVApolynomialStorePnt(CVodeMem cv_mem, DtpntMem d)
   N_VScale(ONE, cv_mem->cv_zn[0], content->y);
 
   if (ca_mem->ca_IMstoreSensi) {
-    for (is=0; is<cv_mem->cv_Ns; is++) 
-      N_VScale(ONE, cv_mem->cv_znS[0][is], content->yS[is]);
+    for (is=0; is<cv_mem->cv_Ns; is++)
+      cv_mem->cv_cvals[is] = ONE;
+    retval = N_VScaleVectorArray(cv_mem->cv_Ns, cv_mem->cv_cvals,
+                                 cv_mem->cv_znS[0], content->yS);
+    if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
   }
 
   content->order = cv_mem->cv_qu;
@@ -2694,7 +2854,7 @@ static int CVApolynomialGetY(CVodeMem cv_mem, realtype t,
   DtpntMem *dt_mem;
   PolynomialDataMem content;
 
-  int flag, dir, order, i, j, is, NS;
+  int flag, dir, order, i, j, is, NS, retval;
   long int indx, base;
   booleantype newpoint;
   realtype dt, factor;
@@ -2717,7 +2877,14 @@ static int CVApolynomialGetY(CVodeMem cv_mem, realtype t,
   if (indx == 0) {
     content = (PolynomialDataMem) (dt_mem[0]->content);
     N_VScale(ONE, content->y, y);
-    for (is=0; is<NS; is++) N_VScale(ONE, content->yS[is], yS[is]);
+
+    if (NS > 0) {
+      for (is=0; is<NS; is++)
+        cv_mem->cv_cvals[is] = ONE;
+      retval = N_VScaleVectorArray(NS, cv_mem->cv_cvals, content->yS, yS);
+      if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+    }
+
     return(CV_SUCCESS);
   }
 
@@ -2754,14 +2921,27 @@ static int CVApolynomialGetY(CVodeMem cv_mem, realtype t,
         ca_mem->ca_T[j] = dt_mem[base-j]->t;
         content = (PolynomialDataMem) (dt_mem[base-j]->content);
         N_VScale(ONE, content->y, ca_mem->ca_Y[j]);
-        for (is=0; is<NS; is++) N_VScale(ONE, content->yS[is], ca_mem->ca_YS[j][is]);
+
+        if (NS > 0) {
+          for (is=0; is<NS; is++)
+            cv_mem->cv_cvals[is] = ONE;
+          retval = N_VScaleVectorArray(NS, cv_mem->cv_cvals,
+                                       content->yS, ca_mem->ca_YS[j]);
+          if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+        }
       }
     } else {
       for(j=0;j<=order;j++) {
         ca_mem->ca_T[j] = dt_mem[base-1+j]->t;
         content = (PolynomialDataMem) (dt_mem[base-1+j]->content);
         N_VScale(ONE, content->y, ca_mem->ca_Y[j]);
-        for (is=0; is<NS; is++) N_VScale(ONE, content->yS[is], ca_mem->ca_YS[j][is]);
+        if (NS > 0) {
+          for (is=0; is<NS; is++)
+            cv_mem->cv_cvals[is] = ONE;
+          retval = N_VScaleVectorArray(NS, cv_mem->cv_cvals,
+                                       content->yS, ca_mem->ca_YS[j]);
+          if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+        }
       }
     }
 
@@ -2770,19 +2950,30 @@ static int CVApolynomialGetY(CVodeMem cv_mem, realtype t,
       for(j=order;j>=i;j--) {
         factor = dt/(ca_mem->ca_T[j]-ca_mem->ca_T[j-i]);
         N_VLinearSum(factor, ca_mem->ca_Y[j], -factor, ca_mem->ca_Y[j-1], ca_mem->ca_Y[j]);
-        for (is=0; is<NS; is++) N_VLinearSum(factor, ca_mem->ca_YS[j][is], -factor, ca_mem->ca_YS[j-1][is], ca_mem->ca_YS[j][is]);
+
+        if (NS > 0) {
+          retval = N_VLinearSumVectorArray(NS,
+                                           factor,  ca_mem->ca_YS[j],
+                                           -factor, ca_mem->ca_YS[j-1],
+                                           ca_mem->ca_YS[j]);
+          if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+        }
       }
     }
   }
 
   /* Perform the actual interpolation using nested multiplications */
 
-  N_VScale(ONE, ca_mem->ca_Y[order], y);
-  for (is=0; is<NS; is++) N_VScale(ONE, ca_mem->ca_YS[order][is], yS[is]);
-  for (i=order-1; i>=0; i--) {
-    factor = (t-ca_mem->ca_T[i])/dt;
-    N_VLinearSum(factor, y, ONE, ca_mem->ca_Y[i], y);
-    for (is=0; is<NS; is++) N_VLinearSum(factor, yS[is], ONE, ca_mem->ca_YS[i][is], yS[is]);
+  cv_mem->cv_cvals[0] = ONE;
+  for (i=0; i<order; i++)
+    cv_mem->cv_cvals[i+1] = cv_mem->cv_cvals[i] * (t-ca_mem->ca_T[i]) / dt;
+
+  retval = N_VLinearCombination(order+1, cv_mem->cv_cvals, ca_mem->ca_Y, y);
+  if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
+
+  if (NS > 0) {
+    retval = N_VLinearCombinationVectorArray(NS, order+1, cv_mem->cv_cvals, ca_mem->ca_YS, yS);
+    if (retval != CV_SUCCESS) return (CV_VECTOROP_ERR);
   }
 
   return(CV_SUCCESS);

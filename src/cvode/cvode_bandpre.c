@@ -242,16 +242,19 @@ int CVBandPrecGetWorkSpace(void *cvode_mem, long int *lenrwBP,
   }
   if (pdata->savedJ->ops->space) {
     flag = SUNMatSpace(pdata->savedJ, &lrw, &liw);
+    if (flag != 0) return(-1);
     *leniwBP += liw;
     *lenrwBP += lrw;
   }
   if (pdata->savedP->ops->space) {
     flag = SUNMatSpace(pdata->savedP, &lrw, &liw);
+    if (flag != 0) return(-1);
     *leniwBP += liw;
     *lenrwBP += lrw;
   }
   if (pdata->LS->ops->space) {
     flag = SUNLinSolSpace(pdata->LS, &lrw, &liw);
+    if (flag != 0) return(-1);
     *leniwBP += liw;
     *lenrwBP += lrw;
   }

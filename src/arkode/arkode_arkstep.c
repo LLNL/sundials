@@ -138,11 +138,9 @@ int ARKStepCreate(void* arkode_mem, ARKRhsFn fe,
   }
 
   /* Allocate the general ARK stepper vectors using y0 as a template */
-  /* NOTE: Fe and Fi will be allocated later on.  Once we determine which 
-     N_Vectors are no longer needed in the main ARKode memory structure
-     (e.g. for inside nonlinear solvers), they should be moved here */ 
+  /* NOTE: Fe, Fi, cvals and Xvecs will be allocated later on 
+     (based on the number of ARK stages) */
 
-  
   /* Clone the input vector to create sdata, zpred */
   if (!arkAllocVec(ark_mem, y0, &(arkstep_mem->sdata)))
     return(ARK_MEM_FAIL);
@@ -650,6 +648,18 @@ int arkStep_Init(void* arkode_mem)
     ark_mem->liw += arkstep_mem->stages;  /* pointers */
   }
 
+  /* Allocate reusable arrays for fused vector interface */
+  if (arkstep_mem->cvals == NULL) {
+    arkstep_mem->cvals = (realtype *) calloc(2*arkstep_mem->stages+1, sizeof(realtype));
+    if (arkstep_mem->cvals == NULL)  return(ARK_MEM_FAIL);
+    ark_mem->lrw += (2*arkstep_mem->stages + 1);
+  }
+  if (arkstep_mem->Xvecs == NULL) {
+    arkstep_mem->Xvecs = (N_Vector *) calloc(2*arkstep_mem->stages+1, sizeof(N_Vector));
+    if (arkstep_mem->Xvecs == NULL)  return(ARK_MEM_FAIL);
+    ark_mem->liw += (2*arkstep_mem->stages + 1);   /* pointers */
+  }
+  
   /* Check for consistency between linear system modules 
      (if lsolve is direct, msolve needs to match) */
   if (arkstep_mem->mass_mem != NULL) {  /* M != I */
@@ -1101,7 +1111,7 @@ int arkStep_AdaptiveStep(void* arkode_mem)
           /* Return if solve failed and recovery not possible. */
           if (kflag != SOLVE_SUCCESS) return(kflag);
 
-        /* if M==I, set y to be zpred + RHS data computed in arkSet */
+        /* if M==I, set y to be zpred + RHS data computed in arkStep_StageSetup */
         } else {
           N_VLinearSum(ONE, arkstep_mem->sdata, ONE,
                        arkstep_mem->zpred, ark_mem->ycur);
@@ -1337,7 +1347,7 @@ int arkStep_FixedStep(void* arkode_mem)
           /* Return if solve failed and recovery not possible. */
           if (kflag != SOLVE_SUCCESS) return(kflag);
 
-        /* if M==I, set y to be zpred + RHS data computed in arkSet */
+        /* if M==I, set y to be zpred + RHS data computed in arkStep_StageSetup */
         } else {
           N_VLinearSum(ONE, arkstep_mem->sdata, ONE,
                        arkstep_mem->zpred, ark_mem->ycur);
@@ -1688,12 +1698,26 @@ int arkStep_Free(void* arkode_mem)
       arkFreeVec(ark_mem, &arkstep_mem->Fe[j]);
     free(arkstep_mem->Fe);
     arkstep_mem->Fe = NULL;
+    ark_mem->liw -= arkstep_mem->stages;
   }
   if (arkstep_mem->Fi != NULL) {
     for(j=0; j<arkstep_mem->stages; j++) 
       arkFreeVec(ark_mem, &arkstep_mem->Fi[j]);
     free(arkstep_mem->Fi);
     arkstep_mem->Fi = NULL;
+    ark_mem->liw -= arkstep_mem->stages;
+  }
+
+  /* free the reusable arrays for fused vector interface */
+  if (arkstep_mem->cvals != NULL) {
+    free(arkstep_mem->cvals);
+    arkstep_mem->cvals = NULL;
+    ark_mem->lrw -= (2*arkstep_mem->stages + 1);
+  }
+  if (arkstep_mem->Xvecs != NULL) {
+    free(arkstep_mem->Xvecs);
+    arkstep_mem->Xvecs = NULL;
+    ark_mem->liw -= (2*arkstep_mem->stages + 1);
   }
 
   /* free the time stepper module itself */
@@ -1971,12 +1995,14 @@ int arkStep_CheckButcherTables(ARKodeMem ark_mem)
 ---------------------------------------------------------------*/
 int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
 {
-  int i, retval, ord, jstage;
+  int i, retval, ord, jstage, nvec;
   realtype tau;
-  realtype h, a0, a1, a2, hA;
+  realtype h, a0, a1, a2;
   ARKodeARKStepMem arkstep_mem;
   realtype tau_tol = 0.5;
   realtype tau_tol2 = 0.75;
+  realtype* cvals;
+  N_Vector* Xvecs;
 
   /* verify that interpolation structure is provided */
   if ((ark_mem->interp == NULL) && (arkstep_mem->predictor > 0)) {
@@ -1994,6 +2020,10 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
   }
   arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
 
+  /* local shortcuts to fused vector operations */
+  cvals = arkstep_mem->cvals;
+  Xvecs = arkstep_mem->Xvecs;
+  
   /* if the first step (or if resized), use initial condition as guess */
   if (ark_mem->nst == 0 || ark_mem->resized) {
     N_VScale(ONE, ark_mem->yn, yguess);
@@ -2062,7 +2092,7 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
 
     /* if using the trivial predictor, break */
     if (jstage == -1)  break;
-    
+
     /* find the "optimal" previous stage to use */
     for (i=0; i<istage; i++) 
       if ( (arkstep_mem->Bi->c[i] > arkstep_mem->Bi->c[jstage]) &&
@@ -2076,11 +2106,27 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
     a2 = tau*tau/TWO/h;
     a1 = tau - a2;
 
-    N_VLinearSum(a0, ark_mem->yn, a1, ark_mem->interp->fnew, yguess);
-    if (arkstep_mem->implicit) 
-      N_VLinearSum(a2, arkstep_mem->Fi[jstage], ONE, yguess, yguess);
-    if (arkstep_mem->explicit) 
-      N_VLinearSum(a2, arkstep_mem->Fe[jstage], ONE, yguess, yguess);
+    /* set arrays for fused vector operation */
+    cvals[0] = a0;
+    Xvecs[0] = ark_mem->yn;
+    cvals[1] = a1;
+    Xvecs[1] = ark_mem->interp->fnew;
+    nvec = 2;
+    if (arkstep_mem->implicit) {    /* Implicit piece */
+      cvals[nvec] = a2;
+      Xvecs[nvec] = arkstep_mem->Fi[jstage];
+      nvec += 1;
+    }
+    if (arkstep_mem->explicit) {    /* Explicit piece */
+      cvals[nvec] = a2;
+      Xvecs[nvec] = arkstep_mem->Fe[jstage];
+      nvec += 1;
+    }
+
+    /* compute predictor */
+    retval = N_VLinearCombination(nvec, cvals, Xvecs, yguess);
+    if (retval != 0) return(ARK_VECTOROP_ERR);
+    
     return(ARK_SUCCESS);
     break;
 
@@ -2095,21 +2141,30 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
       break;
     }
 
-    /* yguess = h*sum_{j=0}^{i-1} (Ae(i,j)*Fe(j) + Ai(i,j)*Fi(j)) */
-    N_VConst(ZERO, yguess);
-    if (arkstep_mem->explicit)
+    /* set arrays for fused vector operation */
+    nvec = 0;
+    if (arkstep_mem->explicit) {       /* Explicit pieces */
       for (jstage=0; jstage<istage; jstage++) {
-        hA = ark_mem->h * arkstep_mem->Be->A[istage][jstage];
-        N_VLinearSum(hA, arkstep_mem->Fe[jstage], ONE, yguess, yguess);
+        cvals[nvec] = ark_mem->h * arkstep_mem->Be->A[istage][jstage];
+        Xvecs[nvec] = arkstep_mem->Fe[jstage];
+        nvec += 1;
       }
-    if (arkstep_mem->implicit)
-      for (jstage=0; jstage<istage; jstage++) {
-        hA = ark_mem->h * arkstep_mem->Bi->A[istage][jstage];
-        N_VLinearSum(hA, arkstep_mem->Fi[jstage], ONE, yguess, yguess);
     }
+    if (arkstep_mem->implicit) {      /* Implicit pieces */
+      for (jstage=0; jstage<istage; jstage++) {
+        cvals[nvec] = ark_mem->h * arkstep_mem->Bi->A[istage][jstage];
+        Xvecs[nvec] = arkstep_mem->Fi[jstage];
+        nvec += 1;
+      }
+    }
+    cvals[nvec] = ONE;
+    Xvecs[nvec] = ark_mem->yn;
+    nvec += 1;
 
-    /* yguess = ycur + h*sum_{j=0}^{i-1}(Ae(i,j)*Fe(j) + Ai(i,j)*Fi(j)) */ 
-    N_VLinearSum(ONE, ark_mem->yn, ONE, yguess, yguess);
+    /* compute predictor */
+    retval = N_VLinearCombination(nvec, cvals, Xvecs, yguess);
+    if (retval != 0) return(ARK_VECTOROP_ERR);    
+
     return(ARK_SUCCESS);
     break;
 
@@ -2143,11 +2198,12 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
 int arkStep_StageSetup(ARKodeMem ark_mem)
 {
   /* local data */
-  realtype hA;
   ARKodeARKStepMem arkstep_mem;
-  int retval, i, j;
+  int retval, i, j, nvec;
   N_Vector tmp = ark_mem->tempv1;
-
+  realtype* cvals;
+  N_Vector* Xvecs;
+  
   /* access ARKodeARKStepMem structure */
   if (ark_mem->step_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::ARKStep",
@@ -2158,6 +2214,10 @@ int arkStep_StageSetup(ARKodeMem ark_mem)
 
   /* Set shortcut to current stage index */
   i = arkstep_mem->istage;
+
+  /* local shortcuts for fused vector operations */
+  cvals = arkstep_mem->cvals;
+  Xvecs = arkstep_mem->Xvecs;
   
   /* If predictor==5, then sdata=0, otherwise set sdata appropriately */
   if ( (arkstep_mem->predictor == 5) && (arkstep_mem->mass_mem == NULL) ) {
@@ -2177,22 +2237,28 @@ int arkStep_StageSetup(ARKodeMem ark_mem)
       if (retval != ARK_SUCCESS)  return (ARK_MASSMULT_FAIL);
     }
 
-    /* Iterate over each prior stage updating rhs */
-    /*    Explicit pieces */
-    if (arkstep_mem->explicit)
+    /* Update rhs with prior stage information */
+    /*   set arrays for fused vector operation */
+    cvals[0] = ONE;
+    Xvecs[0] = arkstep_mem->sdata;
+    nvec = 1;
+    if (arkstep_mem->explicit)    /* Explicit pieces */
       for (j=0; j<i; j++) {
-        hA = ark_mem->h * arkstep_mem->Be->A[i][j];
-        N_VLinearSum(hA, arkstep_mem->Fe[j], ONE, 
-                     arkstep_mem->sdata, arkstep_mem->sdata);
+        cvals[nvec] = ark_mem->h * arkstep_mem->Be->A[i][j];
+        Xvecs[nvec] = arkstep_mem->Fe[j];
+        nvec += 1;
       }
-    /*    Implicit pieces */
-    if (arkstep_mem->implicit)
+    if (arkstep_mem->implicit)    /* Implicit pieces */
       for (j=0; j<i; j++) {
-        hA = ark_mem->h * arkstep_mem->Bi->A[i][j];
-        N_VLinearSum(hA, arkstep_mem->Fi[j], ONE, 
-                     arkstep_mem->sdata, arkstep_mem->sdata);
+        cvals[nvec] = ark_mem->h * arkstep_mem->Bi->A[i][j];
+        Xvecs[nvec] = arkstep_mem->Fi[j];
+        nvec += 1;
       }
-
+ 
+    /*   call fused vector operation to do the work */
+    retval = N_VLinearCombination(nvec, cvals, Xvecs, arkstep_mem->sdata);
+    if (retval != 0) return(ARK_VECTOROP_ERR);
+    
   }
 
   /* Update gamma (if the method contains an implicit component) */
@@ -2283,6 +2349,8 @@ int arkStep_NlsResid(ARKodeMem ark_mem, N_Vector z, N_Vector fz,
 
   /* temporary variables */
   int retval;
+  realtype c[3];
+  N_Vector X[3];
   ARKodeARKStepMem arkstep_mem;
 
   /* access ARKodeARKStepMem structure */
@@ -2296,18 +2364,20 @@ int arkStep_NlsResid(ARKodeMem ark_mem, N_Vector z, N_Vector fz,
   /* put M*z in r */
   if (arkstep_mem->mass_mem != NULL) {
     retval = arkstep_mem->mmult((void *) ark_mem, z, r);
-    if (retval != ARK_SUCCESS)  
-      return (ARK_MASSMULT_FAIL);
+    if (retval != ARK_SUCCESS)  return (ARK_MASSMULT_FAIL);
+    X[0] = r;
   } else {
-    N_VScale(ONE, z, r);
+    X[0] = z;
   }
 
-  /* update with sdata */
-  N_VLinearSum(-ONE, r, ONE, arkstep_mem->sdata, r);
-
-  /* update with gamma*fz */
-  N_VLinearSum(arkstep_mem->gamma, fz, ONE, r, r);
-
+  /* update with My, sdata and gamma*fy */
+  c[0] = -ONE;
+  c[1] = ONE;
+  X[1] = arkstep_mem->sdata;
+  c[2] = arkstep_mem->gamma;
+  X[2] = fz;
+  retval = N_VLinearCombination(3, c, X, r);
+  if (retval != 0)  return(ARK_VECTOROP_ERR);
   return(ARK_SUCCESS);
 }
 
@@ -2721,9 +2791,12 @@ int arkStep_AndersonAcc(ARKodeMem ark_mem, N_Vector gval,
                         int iter, realtype *R, realtype *gamma)
 {
   /* local variables */
+  int      nvec, retval;
   long int i_pt, i, j, lAA, *ipt_map, maa;
   realtype alfa, a, b, temp, c, s;
   N_Vector vtemp2, gold, fold, *df, *dg, *Q;
+  realtype* cvals;
+  N_Vector* Xvecs;
   ARKodeARKStepMem arkstep_mem;
 
   /* access ARKodeARKStepMem structure */
@@ -2743,6 +2816,8 @@ int arkStep_AndersonAcc(ARKodeMem ark_mem, N_Vector gval,
   df = arkstep_mem->fp_mem->df;
   dg = arkstep_mem->fp_mem->dg;
   Q = arkstep_mem->fp_mem->q;
+  cvals = arkstep_mem->fp_mem->cvals;
+  Xvecs = arkstep_mem->fp_mem->Xvecs;
   
   for (i=0; i<maa; i++)  ipt_map[i]=0;
   i_pt = iter-1 - ((iter-1)/maa)*maa;
@@ -2831,9 +2906,13 @@ int arkStep_AndersonAcc(ARKodeMem ark_mem, N_Vector gval,
     /* Solve least squares problem and update solution */
     lAA = iter;
     if (maa < iter)  lAA = maa;
-    N_VScale(ONE, gval, x);
-    for (i=0; i<lAA; i++)
-      gamma[i] = N_VDotProd(fv, Q[i]);
+    retval = N_VDotProdMulti(lAA, fv, Q, gamma);
+    if (retval != 0) return(ARK_VECTOROP_ERR);
+
+    /* set arrays for fused vector operation */
+    cvals[0] = ONE;
+    Xvecs[0] = gval;
+    nvec = 1;
     for (i=lAA-1; i>-1; i--) {
       for (j=i+1; j<lAA; j++) 
         gamma[i] = gamma[i] - R[j*maa+i]*gamma[j]; 
@@ -2842,8 +2921,13 @@ int arkStep_AndersonAcc(ARKodeMem ark_mem, N_Vector gval,
       } else {
         gamma[i] = gamma[i]/R[i*maa+i];
       }
-      N_VLinearSum(ONE, x, -gamma[i], dg[ipt_map[i]], x);
+      cvals[nvec] = -gamma[i];
+      Xvecs[nvec] = dg[ipt_map[i]];
+      nvec += 1;
     }
+    /* update solution */
+    retval = N_VLinearCombination(nvec, cvals, Xvecs, x);
+    if (retval != 0)  return(ARK_VECTOROP_ERR);
   }
 
   return 0;
@@ -3086,9 +3170,11 @@ int arkStep_HandleNFlag(ARKodeMem ark_mem, int *nflagPtr, int *ncfPtr)
 int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
 {
   /* local data */
-  realtype hb, tend;
-  int ier, j;
+  realtype tend;
+  int ier, j, nvec;
   N_Vector y, yerr;
+  realtype* cvals;
+  N_Vector* Xvecs;
   ARKodeARKStepMem arkstep_mem;
 
   /* access ARKodeARKStepMem structure */
@@ -3104,6 +3190,10 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
   yerr = ark_mem->tempv1;
   tend = ark_mem->tn + ark_mem->h;
 
+  /* local shortcuts for fused vector operations */
+  cvals = arkstep_mem->cvals;
+  Xvecs = arkstep_mem->Xvecs;
+  
   /* initialize output */
   *dsm = ZERO;
 
@@ -3121,26 +3211,24 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
       }
 
     /* compute y RHS (store in y) */
-    N_VConst(ZERO, y);
-    if (arkstep_mem->explicit && arkstep_mem->implicit) {
-      for (j=0; j<arkstep_mem->stages; j++) {
-        hb = ark_mem->h * arkstep_mem->Be->b[j];
-        N_VLinearSum(hb, arkstep_mem->Fe[j], ONE, y, y);
-
-        hb = ark_mem->h * arkstep_mem->Bi->b[j];
-        N_VLinearSum(hb, arkstep_mem->Fi[j], ONE, y, y);
+    /*   set arrays for fused vector operation */
+    nvec = 0;
+    for (j=0; j<arkstep_mem->stages; j++) {
+      if (arkstep_mem->explicit) {      /* Explicit pieces */
+        cvals[nvec] = ark_mem->h * arkstep_mem->Be->b[j];
+        Xvecs[nvec] = arkstep_mem->Fe[j];
+        nvec += 1;
       }
-    } else if (arkstep_mem->explicit) { /* explicit only */
-      for (j=0; j<arkstep_mem->stages; j++) {
-        hb = ark_mem->h * arkstep_mem->Be->b[j];
-        N_VLinearSum(hb, arkstep_mem->Fe[j], ONE, y, y);
-      }
-    } else {                            /* implicit only */
-      for (j=0; j<arkstep_mem->stages; j++) {
-        hb = ark_mem->h * arkstep_mem->Bi->b[j];
-        N_VLinearSum(hb, arkstep_mem->Fi[j], ONE, y, y);
+      if (arkstep_mem->implicit) {      /* Implicit pieces */
+        cvals[nvec] = ark_mem->h * arkstep_mem->Bi->b[j];
+        Xvecs[nvec] = arkstep_mem->Fi[j];
+        nvec += 1;
       }
     }
+
+    /*   call fused vector operation to compute RHS */
+    ier = N_VLinearCombination(nvec, cvals, Xvecs, y);
+    if (ier != 0) return(ARK_VECTOROP_ERR);
     
     /* solve for y update (stored in y) */
     ier = arkstep_mem->msolve((void *) ark_mem, y, arkstep_mem->nlscoef); 
@@ -3155,30 +3243,28 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
 
 
     /* compute yerr (if step adaptivity enabled) */
-    N_VConst(ZERO, yerr);
     if (!ark_mem->fixedstep) {
 
       /* compute yerr RHS vector (store in yerr) */
-      if (arkstep_mem->explicit && arkstep_mem->implicit) {
-        for (j=0; j<arkstep_mem->stages; j++) {
-          hb = ark_mem->h * (arkstep_mem->Be->b[j] - arkstep_mem->Be->d[j]);
-          N_VLinearSum(hb, arkstep_mem->Fe[j], ONE, yerr, yerr);
-
-          hb = ark_mem->h * (arkstep_mem->Bi->b[j] - arkstep_mem->Bi->d[j]);
-          N_VLinearSum(hb, arkstep_mem->Fi[j], ONE, yerr, yerr);
+      /*   set arrays for fused vector operation */
+      nvec = 0;
+      for (j=0; j<arkstep_mem->stages; j++) {
+        if (arkstep_mem->explicit) {        /* Explicit pieces */
+          cvals[nvec] = ark_mem->h * (arkstep_mem->Be->b[j] - arkstep_mem->Be->d[j]);
+          Xvecs[nvec] = arkstep_mem->Fe[j];
+          nvec += 1;
         }
-      } else if (arkstep_mem->explicit) {  /* explicit only */
-        for (j=0; j<arkstep_mem->stages; j++) {
-          hb = ark_mem->h * (arkstep_mem->Be->b[j] - arkstep_mem->Be->d[j]);
-          N_VLinearSum(hb, arkstep_mem->Fe[j], ONE, yerr, yerr);
-        }
-      } else {                            /* implicit only */
-        for (j=0; j<arkstep_mem->stages; j++) {
-          hb = ark_mem->h * (arkstep_mem->Bi->b[j] - arkstep_mem->Bi->d[j]);
-          N_VLinearSum(hb, arkstep_mem->Fi[j], ONE, yerr, yerr);
+        if (arkstep_mem->implicit) {        /* Implicit pieces */
+          cvals[nvec] = ark_mem->h * (arkstep_mem->Bi->b[j] - arkstep_mem->Bi->d[j]);
+          Xvecs[nvec] = arkstep_mem->Fi[j];
+          nvec += 1;
         }
       }
-    
+ 
+      /*   call fused vector operation to compute yerr RHS */
+      ier = N_VLinearCombination(nvec, cvals, Xvecs, yerr);
+      if (ier != 0) return(ARK_VECTOROP_ERR);
+      
       /* solve for yerr */
       ier = arkstep_mem->msolve((void *) ark_mem, yerr, arkstep_mem->nlscoef); 
       if (ier < 0) {
@@ -3191,52 +3277,50 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
 
   } else {                          /* M == I */
 
-    /* Initialize solution to yn, error estimate to zero */
-    N_VScale(ONE, ark_mem->yn, y);
-    N_VConst(ZERO, yerr);
-
     /* Compute time step solution */
-    if (arkstep_mem->explicit && arkstep_mem->implicit) {
-      for (j=0; j<arkstep_mem->stages; j++) {
-        hb = ark_mem->h * arkstep_mem->Be->b[j];
-        N_VLinearSum(hb, arkstep_mem->Fe[j], ONE, y, y);
-
-        hb = ark_mem->h * arkstep_mem->Bi->b[j];
-        N_VLinearSum(hb, arkstep_mem->Fi[j], ONE, y, y);
+    /*   set arrays for fused vector operation */
+    cvals[0] = ONE;
+    Xvecs[0] = ark_mem->yn;
+    nvec = 1;
+    for (j=0; j<arkstep_mem->stages; j++) {
+      if (arkstep_mem->explicit) {      /* Explicit pieces */
+        cvals[nvec] = ark_mem->h * arkstep_mem->Be->b[j];
+        Xvecs[nvec] = arkstep_mem->Fe[j];
+        nvec += 1;
       }
-    } else if (arkstep_mem->explicit) { /* explicit only */
-      for (j=0; j<arkstep_mem->stages; j++) {
-        hb = ark_mem->h * arkstep_mem->Be->b[j];
-        N_VLinearSum(hb, arkstep_mem->Fe[j], ONE, y, y);
-      }
-    } else {                            /* implicit only */
-      for (j=0; j<arkstep_mem->stages; j++) {
-        hb = ark_mem->h * arkstep_mem->Bi->b[j];
-        N_VLinearSum(hb, arkstep_mem->Fi[j], ONE, y, y);
+      if (arkstep_mem->implicit) {      /* Implicit pieces */
+        cvals[nvec] = ark_mem->h * arkstep_mem->Bi->b[j];
+        Xvecs[nvec] = arkstep_mem->Fi[j];
+        nvec += 1;
       }
     }
-
+ 
+    /*   call fused vector operation to do the work */
+    ier = N_VLinearCombination(nvec, cvals, Xvecs, y);
+    if (ier != 0) return(ARK_VECTOROP_ERR);
+    
     /* Compute yerr (if step adaptivity enabled) */
     if (!ark_mem->fixedstep) {
-      if (arkstep_mem->explicit && arkstep_mem->implicit) {
-        for (j=0; j<arkstep_mem->stages; j++) {
-          hb = ark_mem->h * (arkstep_mem->Be->b[j] - arkstep_mem->Be->d[j]);
-          N_VLinearSum(hb, arkstep_mem->Fe[j], ONE, yerr, yerr);
 
-          hb = ark_mem->h * (arkstep_mem->Bi->b[j] - arkstep_mem->Bi->d[j]);
-          N_VLinearSum(hb, arkstep_mem->Fi[j], ONE, yerr, yerr);
+      /* set arrays for fused vector operation */
+      nvec = 0;
+      for (j=0; j<arkstep_mem->stages; j++) {
+        if (arkstep_mem->explicit) {        /* Explicit pieces */
+          cvals[nvec] = ark_mem->h * (arkstep_mem->Be->b[j] - arkstep_mem->Be->d[j]);
+          Xvecs[nvec] = arkstep_mem->Fe[j];
+          nvec += 1;
         }
-      } else if (arkstep_mem->explicit) { /* explicit only */
-        for (j=0; j<arkstep_mem->stages; j++) {
-          hb = ark_mem->h * (arkstep_mem->Be->b[j] - arkstep_mem->Be->d[j]);
-          N_VLinearSum(hb, arkstep_mem->Fe[j], ONE, yerr, yerr);
-        }
-      } else {                            /* implicit only */
-        for (j=0; j<arkstep_mem->stages; j++) {
-          hb = ark_mem->h * (arkstep_mem->Bi->b[j] - arkstep_mem->Bi->d[j]);
-          N_VLinearSum(hb, arkstep_mem->Fi[j], ONE, yerr, yerr);
+        if (arkstep_mem->implicit) {        /* Implicit pieces */
+          cvals[nvec] = ark_mem->h * (arkstep_mem->Bi->b[j] - arkstep_mem->Bi->d[j]);
+          Xvecs[nvec] = arkstep_mem->Fi[j];
+          nvec += 1;
         }
       }
+ 
+      /* call fused vector operation to do the work */
+      ier = N_VLinearCombination(nvec, cvals, Xvecs, yerr);
+      if (ier != 0) return(ARK_VECTOROP_ERR);
+
       /* fill error norm */
       *dsm = N_VWrmsNorm(yerr, ark_mem->ewt);
     }

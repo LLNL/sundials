@@ -35,28 +35,31 @@ interested reader.
 \begin{sideways}{\kinspils}  \end{sideways} &
 \begin{sideways}{\kinbbdpre} \end{sideways} &
 \begin{sideways}{\fkinsol}   \end{sideways} \\ \hline\hline
-%                        KINSOL  DLS  SPILS  BPRE  FKINSOL
-\id{N\_VGetVectorID}     &     &     &     &     &     \\ \hline
-\id{N\_VClone}           & \cm &     & \cm & \cm &     \\ \hline
-\id{N\_VCloneEmpty}      &     &     &     &     & \cm \\ \hline
-\id{N\_VDestroy}         & \cm &     & \cm & \cm & \cm \\ \hline
-\id{N\_VSpace}           & \cm &     &     &     &     \\ \hline
-\id{N\_VGetArrayPointer} &     & \cm &     & \cm & \cm \\ \hline
-\id{N\_VSetArrayPointer} &     & \cm &     &     & \cm \\ \hline
-\id{N\_VLinearSum}       & \cm & \cm & \cm &     &     \\ \hline
-\id{N\_VConst}           &     &     & \cm &     &     \\ \hline
-\id{N\_VProd}            & \cm & \cm & \cm &     &     \\ \hline
-\id{N\_VDiv}             & \cm &     & \cm &     &     \\ \hline
-\id{N\_VScale}           & \cm & \cm & \cm & \cm &     \\ \hline
-\id{N\_VAbs}             & \cm &     &     &     &     \\ \hline
-\id{N\_VInv}             & \cm &     &     &     &     \\ \hline
-\id{N\_VDotProd}         & \cm & \cm & \cm &     &     \\ \hline
-\id{N\_VMaxNorm}         & \cm &     &     &     &     \\ \hline
-\id{N\_VMin}             & \cm &     &     &     &     \\ \hline
-\id{N\_VWL2Norm}         & \cm &     & \cm &     &     \\ \hline
-\id{N\_VL1Norm}          &     &     & \cm &     &     \\ \hline
-\id{N\_VConstrMask}      & \cm &     &     &     &     \\ \hline
-\id{N\_VMinQuotient}     & \cm &     &     &     &     \\ \hline
+%                           KINSOL  DLS  SPILS  BPRE  FKINSOL
+\id{N\_VGetVectorID}        &     &     &     &     &     \\ \hline
+\id{N\_VClone}              & \cm &     & \cm & \cm &     \\ \hline
+\id{N\_VCloneEmpty}         &     &     &     &     & \cm \\ \hline
+\id{N\_VDestroy}            & \cm &     & \cm & \cm & \cm \\ \hline
+\id{N\_VSpace}              & \cm &     &     &     &     \\ \hline
+\id{N\_VGetArrayPointer}    &     & \cm &     & \cm & \cm \\ \hline
+\id{N\_VSetArrayPointer}    &     & \cm &     &     & \cm \\ \hline
+\id{N\_VLinearSum}          & \cm & \cm & \cm &     &     \\ \hline
+\id{N\_VConst}              &     &     & \cm &     &     \\ \hline
+\id{N\_VProd}               & \cm & \cm & \cm &     &     \\ \hline
+\id{N\_VDiv}                & \cm &     & \cm &     &     \\ \hline
+\id{N\_VScale}              & \cm & \cm & \cm & \cm &     \\ \hline
+\id{N\_VAbs}                & \cm &     &     &     &     \\ \hline
+\id{N\_VInv}                & \cm &     &     &     &     \\ \hline
+\id{N\_VDotProd}            & \cm & \cm & \cm &     &     \\ \hline
+\id{N\_VMaxNorm}            & \cm &     &     &     &     \\ \hline
+\id{N\_VMin}                & \cm &     &     &     &     \\ \hline
+\id{N\_VWL2Norm}            & \cm &     & \cm &     &     \\ \hline
+\id{N\_VL1Norm}             &     &     & \cm &     &     \\ \hline
+\id{N\_VConstrMask}         & \cm &     &     &     &     \\ \hline
+\id{N\_VMinQuotient}        & \cm &     &     &     &     \\ \hline
+\hline
+\id{N\_VLinearCombination}  & \cm &     & \cm &     &     \\ \hline 
+\id{N\_VDotProdMulti}       & \cm &     & \cm &     &     \\ \hline 
 \end{tabular}
 \end{table}
 
@@ -65,3 +68,12 @@ The vector functions listed in Table \ref{t:nvecops} that are {\em not} used by
 \id{N\_VCompare}, and \id{N\_VInvTest}.
 Therefore a user-supplied {\nvector} module for {\kinsol} could omit these
 functions.
+
+The optional function \id{N\_VLinearCombination} is only used when
+Anderson acceleration is enabled or the {\spbcg}, {\sptfqmr},
+{\spgmr}, or {\spfgmr} linear solvers are used. \id{N\_VDotProd} is
+only used when Anderson acceleration is enabled or Classical
+Gram-Schmidt is used with {\spgmr} or {\spfgmr}. The remaining
+operations from Tables \ref{t:nvecfusedops} and \ref{t:nvecarrayops}
+are unused and a user-supplied {\nvector} module for {\kinsol} could
+omit these operations.

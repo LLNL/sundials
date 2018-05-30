@@ -1,5 +1,5 @@
                              ARKODE
-                   Release 2.1.0, November 2017
+                   Release 3.0.0-dev, May 2018
                        Daniel R. Reynolds
                   Department of Mathematics, SMU
 
@@ -54,20 +54,14 @@ For complete installation instructions see the "Installation Procedure"
 chapter in the ARKODE User Guide.
 
 
-C. References
--------------
-
-[1] Daniel R. Reynolds, "User Documentation for ARKode v1.1.0," 
-    Southern Methodist University, March 2016.
-
-
-D. Releases
+C. Releases
 -----------
 
-v. 2.1.0 - Nov. 2017
-v. 2.0.0 - Sep. 2017
-v. 1.1.0 - Sep. 2016
-v. 1.0.2 - Aug. 2015
-v. 1.0.1 - Mar. 2015
-v. 1.0.0 - Mar. 2015
-
+v. 3.0.0-dev - May  2018
+v. 2.1.1     - May  2018
+v. 2.1.0     - Nov. 2017
+v. 2.0.0     - Sep. 2017
+v. 1.1.0     - Sep. 2016
+v. 1.0.2     - Aug. 2015
+v. 1.0.1     - Mar. 2015
+v. 1.0.0     - Mar. 2015

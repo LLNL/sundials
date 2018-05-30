@@ -36,17 +36,18 @@ Note that {\nvecph} requires {\sundials} to be built with {\mpi} support.
 %%--------------------------------------------
 %%
 The {\nvecph} module defines implementations of all vector operations 
-listed in Table \ref{t:nvecops}, except for \id{N\_VSetArrayPointer} and 
-\id{N\_VGetArrayPointer}, because accessing raw vector data is handled by 
-low-level {\hypre} functions. 
+listed in Tables \ref{t:nvecops}, \ref{t:nvecfusedops}, and \ref{t:nvecarrayops}, except
+for \id{N\_VSetArrayPointer} and \id{N\_VGetArrayPointer}, because accessing raw vector
+data is handled by low-level {\hypre} functions.
 As such, this vector is not available for use with {\sundials} Fortran interfaces.
-When access to raw vector data is needed, one 
-should extract the {\hypre} vector first, and then use {\hypre} 
-methods to access the data. Usage examples of {\nvecph} are provided in 
-the \id{cvAdvDiff\_non\_ph.c} example program for {\cvode} \cite{cvode_ex} 
+When access to raw vector data is needed, one
+should extract the {\hypre} vector first, and then use {\hypre}
+methods to access the data. Usage examples of {\nvecph} are provided in
+the \id{cvAdvDiff\_non\_ph.c} example program for {\cvode} \cite{cvode_ex}
 and the \id{ark\_diurnal\_kry\_ph.c} example program for {\arkode} \cite{arkode_ex}.
 
-The names of parhyp methods are obtained from those in Table \ref{t:nvecops}
+The names of parhyp methods are obtained from those in Tables \ref{t:nvecops},
+\ref{t:nvecfusedops}, and \ref{t:nvecarrayops}
 by appending the suffix \id{\_ParHyp} (e.g. \id{N\_VDestroy\_ParHyp}).
 The module {\nvecph} provides the following additional user-callable routines:
 %%

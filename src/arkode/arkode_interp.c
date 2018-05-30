@@ -326,8 +326,10 @@ int arkInterpEvaluate(void* arkode_mem, ARKodeInterpMem interp,
                       realtype tau, int d, int order, N_Vector yout)
 {
   /* local variables */
-  int q;
-  realtype h, a0, a1, a2, a3, tau2, tau3;
+  int q, retval;
+  realtype h, a0, a1, tau2, tau3;
+  realtype a[4];
+  N_Vector X[4];
   ARKodeMem ark_mem;
 
   /* access ARKodeMem structure */
@@ -347,7 +349,7 @@ int arkInterpEvaluate(void* arkode_mem, ARKodeInterpMem interp,
   /* if ((d > SUNMIN(5,q)) || (d < 0)) { */
   if ((d > SUNMIN(3,q)) || (d < 0)) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
-                    "arkDenseEval", "Requested illegal derivative.");
+                    "arkInterpEvaluate", "Requested illegal derivative.");
     return (ARK_ILL_INPUT);
   }
 
@@ -371,51 +373,57 @@ int arkInterpEvaluate(void* arkode_mem, ARKodeInterpMem interp,
 
   case(2):    /* quadratic interpolant */
     if (d == 0) {
-      a0 = tau2;
-      a1 = ONE -tau2;
-      a2 = h*(tau2 + tau);
+      a[0] = tau2;
+      a[1] = ONE - tau2;
+      a[2] = h*(tau2 + tau);
     } else if (d == 1) {
-      a0 = TWO*tau/h;
-      a1 = -TWO*tau/h;
-      a2 = (ONE + TWO*tau);
+      a[0] = TWO*tau/h;
+      a[1] = -TWO*tau/h;
+      a[2] = (ONE + TWO*tau);
     } else {  /* d == 2 */
-      a0 = TWO/h/h;
-      a1 = -TWO/h/h;
-      a2 = TWO/h;
+      a[0] = TWO/h/h;
+      a[1] = -TWO/h/h;
+      a[2] = TWO/h;
     }
-    N_VLinearSum(a0, interp->yold, a1, interp->ynew, yout);
-    N_VLinearSum(a2, interp->fnew, ONE, yout, yout);
+    X[0] = interp->yold;
+    X[1] = interp->ynew;
+    X[2] = interp->fnew;
+    retval = N_VLinearCombination(3, a, X, yout);
+    if (retval != 0)  return(ARK_VECTOROP_ERR);
     break;
 
   case(3):    /* cubic interpolant */
     if (d == 0) {
-      a0 = THREE*tau2 + TWO*tau3;
-      a1 = ONE - THREE*tau2 - TWO*tau3;
-      a2 = h*(tau2 + tau3);
-      a3 = h*(tau + TWO*tau2 + tau3);
+      a[0] = THREE*tau2 + TWO*tau3;
+      a[1] = ONE - THREE*tau2 - TWO*tau3;
+      a[2] = h*(tau2 + tau3);
+      a[3] = h*(tau + TWO*tau2 + tau3);
     } else if (d == 1) {
-      a0 = (SIX*tau + SIX*tau2)/h;
-      a1 = -(SIX*tau + SIX*tau2)/h;
-      a2 = TWO*tau + THREE*tau2;
-      a3 = ONE + FOUR*tau + THREE*tau2;
+      a[0] = (SIX*tau + SIX*tau2)/h;
+      a[1] = -(SIX*tau + SIX*tau2)/h;
+      a[2] = TWO*tau + THREE*tau2;
+      a[3] = ONE + FOUR*tau + THREE*tau2;
     } else if (d == 2) {
-      a0 = (SIX + TWELVE*tau)/h/h;
-      a1 = -(SIX + TWELVE*tau)/h/h;
-      a2 = (TWO + SIX*tau)/h;
-      a3 = (FOUR + SIX*tau)/h;
+      a[0] = (SIX + TWELVE*tau)/h/h;
+      a[1] = -(SIX + TWELVE*tau)/h/h;
+      a[2] = (TWO + SIX*tau)/h;
+      a[3] = (FOUR + SIX*tau)/h;
     } else {  /* d == 3 */
-      a0 = TWELVE/h/h/h;
-      a1 = -TWELVE/h/h/h;
-      a2 = SIX/h/h;
-      a3 = SIX/h/h;
+      a[0] = TWELVE/h/h/h;
+      a[1] = -TWELVE/h/h/h;
+      a[2] = SIX/h/h;
+      a[3] = SIX/h/h;
     }
-    N_VLinearSum(a0, interp->yold, a1, interp->ynew, yout);
-    N_VLinearSum(a2, interp->fold, ONE, yout, yout);
-    N_VLinearSum(a3, interp->fnew, ONE, yout, yout);
+    X[0] = interp->yold;
+    X[1] = interp->ynew;
+    X[2] = interp->fold;
+    X[3] = interp->fnew;
+    retval = N_VLinearCombination(4, a, X, yout);
+    if (retval != 0) return(ARK_VECTOROP_ERR);
     break;
 
   default:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkDenseEval", 
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkInterpEvaluate", 
                     "Illegal polynomial order");
     return (ARK_ILL_INPUT);
   }

@@ -56,21 +56,21 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
- * PART I: PARALLEL implementation of N_Vector               
+ * PART I: Implementation of N_Vector wrapper for a PETSc vector
  * -----------------------------------------------------------------
  */
 
-/* parallel implementation of the N_Vector 'content' structure
-   contains the global and local lengths of the vector, a pointer
-   to the underlying PETSc vector, the MPI communicator,
-   and a flag indicating ownership of the PETSc vector */
+/* Implementation of the N_Vector 'content' structure contains the
+   global and local lengths of the vector, the underlying PETSc
+   vector object, the MPI communicator, and a flag indicating
+   ownership of the PETSc vector. */
 
 struct _N_VectorContent_Petsc {
   sunindextype local_length;   /* copy of local vector length  */
   sunindextype global_length;  /* copy of global vector length */
-  booleantype own_data;    /* ownership of data            */
-  Vec *pvec;               /* pointer to PETSc vector      */
-  MPI_Comm comm;           /* copy of MPI communicator     */
+  booleantype own_data;        /* ownership of data            */
+  Vec pvec;                    /* the PETSc Vec object         */
+  MPI_Comm comm;               /* copy of MPI communicator     */
 };
 
 typedef struct _N_VectorContent_Petsc *N_VectorContent_Petsc;
@@ -111,11 +111,11 @@ SUNDIALS_EXPORT N_Vector N_VNewEmpty_Petsc(MPI_Comm comm,
  * -----------------------------------------------------------------
  * Function : N_VMake_Petsc
  * -----------------------------------------------------------------
- * This function is not supported for PETSc vector wrapper.
+ * This function creates an N_Vector wrapper for a PETSc vector.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VMake_Petsc(Vec *v);
+SUNDIALS_EXPORT N_Vector N_VMake_Petsc(Vec v);
 
 /*
  * -----------------------------------------------------------------
@@ -131,7 +131,7 @@ SUNDIALS_EXPORT realtype *N_VGetArrayPointer_Petsc(N_Vector v);
  * -----------------------------------------------------------------
  * Function : N_VCloneVectorArray_Petsc
  * -----------------------------------------------------------------
- * This function creates an array of 'count' PARALLEL vectors by
+ * This function creates an array of 'count' PETSc vectors by
  * cloning a given vector w.
  * -----------------------------------------------------------------
  */
@@ -142,7 +142,7 @@ SUNDIALS_EXPORT N_Vector *N_VCloneVectorArray_Petsc(int count, N_Vector w);
  * -----------------------------------------------------------------
  * Function : N_VCloneVectorArrayEmpty_Petsc
  * -----------------------------------------------------------------
- * This function creates an array of 'count' PARALLEL vectors each 
+ * This function creates an array of 'count' PETSc vectors each 
  * with an empty (NULL) data array by cloning w.
  * -----------------------------------------------------------------
  */
@@ -168,13 +168,13 @@ SUNDIALS_EXPORT void N_VDestroyVectorArray_Petsc(N_Vector *vs, int count);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT Vec *N_VGetVector_Petsc(N_Vector v);
+SUNDIALS_EXPORT Vec N_VGetVector_Petsc(N_Vector v);
 
 /*
  * -----------------------------------------------------------------
  * Function : N_VPrint_Petsc
  * -----------------------------------------------------------------
- * This function prints the content of a parallel vector to stdout.
+ * This function prints the content of a PETSc vector to stdout.
  * -----------------------------------------------------------------
  */
 
@@ -184,7 +184,7 @@ SUNDIALS_EXPORT void N_VPrint_Petsc(N_Vector v);
  * -----------------------------------------------------------------
  * Function : N_VPrintFile_Petsc
  * -----------------------------------------------------------------
- * This function prints the local content of a parallel vector to
+ * This function prints the local content of a PETSc vector to
  * outfile.
  * -----------------------------------------------------------------
  */
@@ -203,6 +203,8 @@ SUNDIALS_EXPORT N_Vector N_VClone_Petsc(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_Petsc(N_Vector v);
 SUNDIALS_EXPORT void N_VSpace_Petsc(N_Vector v, sunindextype *lrw, sunindextype *liw);
 SUNDIALS_EXPORT void N_VSetArrayPointer_Petsc(realtype *v_data, N_Vector v);
+
+/* standard vector operations */
 SUNDIALS_EXPORT void N_VLinearSum_Petsc(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);
 SUNDIALS_EXPORT void N_VConst_Petsc(realtype c, N_Vector z);
 SUNDIALS_EXPORT void N_VProd_Petsc(N_Vector x, N_Vector y, N_Vector z);
@@ -222,6 +224,38 @@ SUNDIALS_EXPORT void N_VCompare_Petsc(realtype c, N_Vector x, N_Vector z);
 SUNDIALS_EXPORT booleantype N_VInvTest_Petsc(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT booleantype N_VConstrMask_Petsc(N_Vector c, N_Vector x, N_Vector m);
 SUNDIALS_EXPORT realtype N_VMinQuotient_Petsc(N_Vector num, N_Vector denom);
+
+/* fused vector operations */
+SUNDIALS_EXPORT int N_VLinearCombination_Petsc(int nvec, realtype* c,
+                                               N_Vector* X, N_Vector z);
+SUNDIALS_EXPORT int N_VScaleAddMulti_Petsc(int nvec, realtype* a, N_Vector x,
+                                           N_Vector* Y, N_Vector* Z);
+SUNDIALS_EXPORT int N_VDotProdMulti_Petsc(int nvec, N_Vector x, N_Vector* Y,
+                                          realtype* dotprods);
+
+/* vector array operations */
+SUNDIALS_EXPORT int N_VLinearSumVectorArray_Petsc(int nvec, 
+                                                  realtype a, N_Vector* X,
+                                                  realtype b, N_Vector* Y,
+                                                  N_Vector* Z);
+SUNDIALS_EXPORT int N_VScaleVectorArray_Petsc(int nvec, realtype* c,
+                                              N_Vector* X, N_Vector* Z);
+SUNDIALS_EXPORT int N_VConstVectorArray_Petsc(int nvecs, realtype c,
+                                              N_Vector* Z);
+SUNDIALS_EXPORT int N_VWrmsNormVectorArray_Petsc(int nvecs, N_Vector* X,
+                                                 N_Vector* W, realtype* nrm);
+SUNDIALS_EXPORT int N_VWrmsNormMaskVectorArray_Petsc(int nvec, N_Vector* X,
+                                                     N_Vector* W, N_Vector id,
+                                                     realtype* nrm);
+SUNDIALS_EXPORT int N_VScaleAddMultiVectorArray_Petsc(int nvec, int nsum,
+                                                      realtype* a,
+                                                      N_Vector* X,
+                                                      N_Vector** Y,
+                                                      N_Vector** Z);
+SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_Petsc(int nvec, int nsum,
+                                                          realtype* c,
+                                                          N_Vector** X,
+                                                          N_Vector* Z);
 
 #ifdef __cplusplus
 }

@@ -57,6 +57,8 @@ $tar $tarfile $distrobase/src/ida/fcmix/fidasparse.c
 
 echo "   --- Add ida examples to $tarfile"
 
+$tar $tarfile $distrobase/examples/ida/CMakeLists.txt
+
 $tar $tarfile $distrobase/examples/ida/serial/README
 $tar $tarfile $distrobase/examples/ida/serial/CMakeLists.txt
 $tar $tarfile $distrobase/examples/ida/serial/idaFoodWeb_bnd.c

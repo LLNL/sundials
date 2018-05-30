@@ -355,6 +355,8 @@ SUNDIALS_EXPORT int IDASpilsGetNumLinIters(void *ida_mem,
                                            long int *nliters);
 SUNDIALS_EXPORT int IDASpilsGetNumConvFails(void *ida_mem,
                                             long int *nlcfails);
+SUNDIALS_EXPORT int IDASpilsGetNumJTSetupEvals(void *ida_mem,
+                                               long int *njtsetups);
 SUNDIALS_EXPORT int IDASpilsGetNumJtimesEvals(void *ida_mem,
                                               long int *njvevals);
 SUNDIALS_EXPORT int IDASpilsGetNumResEvals(void *ida_mem,

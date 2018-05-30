@@ -225,6 +225,7 @@ int IDADlsGetWorkSpace(void *ida_mem, long int *lenrwLS,
   /* add LS sizes */
   if (idadls_mem->LS->ops->space) {
     flag = SUNLinSolSpace(idadls_mem->LS, &lrw, &liw);
+    if (flag != 0) return(-1);
     *lenrwLS += lrw;
     *leniwLS += liw;
   }

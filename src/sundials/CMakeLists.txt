@@ -40,7 +40,7 @@ SET(sundials_HEADERS
   )
 
 # append header file with sundials MPI type macros if using MPI
-IF(MPIC_FOUND)
+IF(MPI_C_FOUND)
   LIST(APPEND sundials_HEADERS sundials_mpi_types.h)
 ENDIF()
 

@@ -1,4 +1,41 @@
-Changes to SUNDIALS since Release of Nov. 7, 2017.
+Changes to SUNDIALS in release 4.0.0-dev
+
+* Three fused vector operations and seven vector array operations have
+  been added to the NVECTOR API. These optional operations are intended
+  to increase data reuse in vector operations, reduce parallel
+  communication on distributed memory systems, and lower the number of
+  kernel launches on systems with accelerators. The new operations are 
+  N_VLinearCombination, N_VScaleAddMulti, N_VDotProdMulti, 
+  N_VLinearCombinationVectorArray, N_VScaleVectorArray, N_VConstVectorArray,
+  N_VWrmsNormVectorArray, N_VWrmsNormMaskVectorArray,
+  N_VScaleAddMultiVectorArray, and N_VLinearCombinationVectorArray. If any
+  of these operations are defined as NULL in an NVECTOR implementation the
+  NVECTOR interface will automatically call standard NVECTOR operations as
+  necessary. Details on the new operations can be found in the user guide
+  Chapter on the NVECTOR API.
+
+* Several changes were made to the build system. If MPI is enabled and MPI
+  compiler wrappers are not set, the build system will check if
+  CMAKE_<language>_COMPILER can compile MPI programs before trying to locate and
+  use an MPI installation. The native CMake FindMPI module is now used to locate
+  an MPI installation. The options for setting MPI compiler wrappers and the
+  executable for running MPI programs have been updated to align with those in
+  native CMake FindMPI module. This included changing MPI_MPICC to MPI_C_COMPILER,
+  MPI_MPICXX to MPI_CXX_COMPILER combining MPI_MPIF77 and MPI_MPIF90 to
+  MPI_Fortran_COMPILER, and changing MPI_RUN_COMMAND to MPIEXEC. When a Fortran
+  name-mangling scheme is needed (e.g., LAPACK_ENABLE is ON) the build system will
+  infer the scheme from the Fortran compiler. If a Fortran compiler is not
+  available or the inferred or default scheme needs to be overridden, the advanced
+  options SUNDIALS_F77_FUNC_CASE and SUNDIALS_F77_FUNC_UNDERSCORES can be used to
+  manually set the name-mangling scheme and bypass trying to infer the scheme.
+  Additionally, parts of the main CMakeLists.txt file were moved to new files in
+  the src and example directories to make the CMake configuration file structure
+  more modular.
+
+Changes to SUNDIALS in release 3.1.1
+
+* Fixed a minor bug in the CVODE and CVODES cvSLdet routine, where a
+  return was missing in the error check for three inconsistent roots.
 
 * Fixed a potential memory leak in the SPGMR and SPFGMR linear
   solvers: if "Initialize" was called multiple times then the solver
@@ -8,9 +45,41 @@ Changes to SUNDIALS since Release of Nov. 7, 2017.
   incorrectly set to indicate that the problem had been resized
   (instead of just re-initialized). 
 
+* Fixed C++11 compiler errors/warnings about incompatible use of
+  string literals.
+
+* Updated KLU SUNLinearSolver module to use a typedef for the
+  precision-specific solve function to be used (to avoid compiler
+  warnings). 
+
+* Added missing typecasts for some (void*) pointers (again, to avoid
+  compiler warnings).
+
+* Bugfix in sunmatrix_sparse.c where we had used 'int' instead of
+  'sunindextype' in one location.
+
+* Fixed a minor bug in KINPrintInfo where a case was missing for
+  KIN_REPTD_SYSFUNC_ERR leading to an undefined info message.
+
+* Added missing #include <stdio.h> in NVECTOR and SUNMATRIX
+  header files.
+
+* Added missing prototypes for ARKSpilsGetNumMTSetups in ARKode and
+  IDASpilsGetNumJTSetupEvals in IDA and IDAS.
+
+* Fixed an indexing bug in the CUDA NVECTOR implementation of
+  N_VWrmsNormMask and revised the RAJA NVECTOR implementation of
+  N_VWrmsNormMask to work with mask arrays using values other than
+  zero or one. Replaced doubles with realtypes in the RAJA vector
+  test functions.
+
+* Fixed compilation issue with GCC 7.3.0 and Fortran programs that do
+  not require a SUNMatrix or SUNLinearSolver module (e.g. iterative
+  linear solvers, explicit methods in ARKode, functional iteration
+  in CVODE, etc.).
 
 
-Changes to SUNDIALS since Release of Oct. 26, 2017.
+Changes to SUNDIALS in release 3.1.0
 
 * Added NVECTOR print functions that write vector data to a specified
   file (e.g., N_VPrintFile_Serial).
@@ -23,7 +92,7 @@ Changes to SUNDIALS since Release of Oct. 26, 2017.
 
 
 
-Changes to SUNDIALS since Release of Sept. 30, 2016.
+Changes to SUNDIALS in release 3.0.0
 
 * New linear solver API and interfaces for all SUNDIALS packages and 
   linear solvers

@@ -1,24 +1,19 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 1.0 $
- * $Date: 2013/08/31 12:25:00 $
- * ----------------------------------------------------------------- 
+/* -----------------------------------------------------------------
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Lawrence Livermore National Laboratory in part under
  * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
  * For details, see the LICENSE file.
  * LLNS Copyright End
  * -----------------------------------------------------------------
- * This is the header file contains the prototypes for functions to 
- * test an NVECTOR module implementation. 
- * -----------------------------------------------------------------
- */
+ * This is the header file contains the prototypes for functions to
+ * test an NVECTOR module implementation.
+ * -----------------------------------------------------------------*/
 
 #include <math.h>
 
@@ -48,13 +43,17 @@ extern "C" {
   void set_element(N_Vector X, sunindextype i, realtype val);
   realtype get_element(N_Vector X, sunindextype i);
 
-  /* Test function declarations */
+  /* Vector clone tests */
   int Test_N_VCloneVectorArray(int count, N_Vector W, sunindextype local_length, int myid);
   int Test_N_VCloneEmptyVectorArray(int count, N_Vector W, int myid);
   int Test_N_VCloneEmpty(N_Vector W, int myid);
   int Test_N_VClone(N_Vector W, sunindextype local_length, int myid);
+
+  /* Vector get/set function tests */
   int Test_N_VGetArrayPointer(N_Vector W, sunindextype local_length, int myid);
   int Test_N_VSetArrayPointer(N_Vector W, sunindextype local_length, int myid);
+
+  /* Standard vector operation tests */
   int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z, 
                         sunindextype local_length, int myid);
   int Test_N_VConst(N_Vector X, sunindextype local_length, int myid);
@@ -79,6 +78,22 @@ extern "C" {
   int Test_N_VConstrMask(N_Vector C, N_Vector X, N_Vector M, 
                          sunindextype local_length, int myid);
   int Test_N_VMinQuotient(N_Vector NUM, N_Vector DENOM, sunindextype local_length, int myid);
+
+  /* Fused vector operation tests */
+  int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int myid);
+  int Test_N_VScaleAddMulti(N_Vector X, sunindextype local_length, int myid);
+  int Test_N_VDotProdMulti(N_Vector X, sunindextype local_length,
+                           sunindextype global_length, int myid);
+
+  /* Vector array operation tests */
+  int Test_N_VLinearSumVectorArray(N_Vector X, sunindextype local_length, int myid);
+  int Test_N_VScaleVectorArray(N_Vector X, sunindextype local_length, int myid);
+  int Test_N_VConstVectorArray(N_Vector X, sunindextype local_length, int myid);
+  int Test_N_VWrmsNormVectorArray(N_Vector X, sunindextype local_length, int myid);
+  int Test_N_VWrmsNormMaskVectorArray(N_Vector X, sunindextype local_length,
+                                      sunindextype global_length, int myid);
+  int Test_N_VScaleAddMultiVectorArray(N_Vector X, sunindextype local_length, int myid);
+  int Test_N_VLinearCombinationVectorArray(N_Vector X, sunindextype local_length, int myid);
 
   void SetTiming(int onoff);
   

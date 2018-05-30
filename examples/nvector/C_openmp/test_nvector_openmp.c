@@ -96,11 +96,25 @@ int main(int argc, char *argv[])
   fails += Test_N_VCloneEmpty(X, 0);
   fails += Test_N_VClone(X, veclen, 0);
 
+  /* Fused vector operation tests (optional) */
+  fails += Test_N_VLinearCombination(X, veclen, 0);
+  fails += Test_N_VScaleAddMulti(X, veclen, 0);
+  fails += Test_N_VDotProdMulti(X, veclen, veclen, 0);
+
+  /* Vector array operation tests (optional) */
+  fails += Test_N_VLinearSumVectorArray(X, veclen, 0);
+  fails += Test_N_VScaleVectorArray(X, veclen, 0);
+  fails += Test_N_VConstVectorArray(X, veclen, 0);
+  fails += Test_N_VWrmsNormVectorArray(X, veclen, 0);
+  fails += Test_N_VWrmsNormMaskVectorArray(X, veclen, veclen, 0);
+  fails += Test_N_VScaleAddMultiVectorArray(X, veclen, 0);
+  fails += Test_N_VLinearCombinationVectorArray(X, veclen, 0);
+
   /* Free vectors */
-  N_VDestroy_OpenMP(W);
-  N_VDestroy_OpenMP(X);
-  N_VDestroy_OpenMP(Y);
-  N_VDestroy_OpenMP(Z);
+  N_VDestroy(W);
+  N_VDestroy(X);
+  N_VDestroy(Y);
+  N_VDestroy(Z);
 
   /* Print results */
   if (fails) {

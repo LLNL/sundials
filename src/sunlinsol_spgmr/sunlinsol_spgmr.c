@@ -124,6 +124,8 @@ SUNLinearSolver SUNSPGMR(N_Vector y, int pretype, int maxl)
   content->Hes = NULL;
   content->givens = NULL;
   content->yg = NULL;
+  content->cv = NULL;
+  content->Xv = NULL;
 
   /* Attach content and ops */
   S->content = content;
@@ -275,7 +277,27 @@ int SUNLinSolInitialize_SPGMR(SUNLinearSolver S)
       return(SUNLS_MEM_FAIL);
     }
   }
-  
+
+  /*    cv vector for fused vector ops */
+  if (content->cv == NULL) {
+    content->cv = (realtype *) malloc((content->maxl+1)*sizeof(realtype));
+    if (content->cv == NULL) {
+      SUNLinSolFree(S);
+      content->last_flag = SUNLS_MEM_FAIL;
+      return(SUNLS_MEM_FAIL);
+    }
+  }
+
+  /*    Xv vector for fused vector ops */
+  if (content->Xv == NULL) {
+    content->Xv = (N_Vector *) malloc((content->maxl+1)*sizeof(N_Vector));
+    if (content->Xv == NULL) {
+      SUNLinSolFree(S);
+      content->last_flag = SUNLS_MEM_FAIL;
+      return(SUNLS_MEM_FAIL);
+    }
+  }
+
   /* return with success */
   content->last_flag = SUNLS_SUCCESS;
   return(SUNLS_SUCCESS);
@@ -363,6 +385,10 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   ATimesFn atimes;
   PSolveFn psolve;
 
+  /* local shortcuts for fused vector operations */
+  realtype* cv;
+  N_Vector* Xv;
+
   /* Initialize some variables */
   l_plus_1 = 0;
   krydim = 0;
@@ -386,6 +412,8 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   psolve       = SPGMR_CONTENT(S)->Psolve;
   nli          = &(SPGMR_CONTENT(S)->numiters);
   res_norm     = &(SPGMR_CONTENT(S)->resnorm);
+  cv           = SPGMR_CONTENT(S)->cv;
+  Xv           = SPGMR_CONTENT(S)->Xv;
 
   /* Initialize counters and convergence flag */
   *nli = 0;
@@ -509,7 +537,7 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       /*  Orthogonalize V[l+1] against previous V[i]: V[l+1] = w_tilde */
       if (gstype == CLASSICAL_GS) {
         if (ClassicalGS(V, Hes, l_plus_1, l_max, &(Hes[l_plus_1][l]),
-                        vtemp, yg) != 0) {
+                        cv, Xv) != 0) {
           LASTFLAG(S) = SUNLS_GS_FAIL;
           return(LASTFLAG(S));
         }
@@ -547,8 +575,15 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     }
     
     /*   Add correction vector V_l y to xcor */
-    for (k=0; k<krydim; k++)
-      N_VLinearSum(yg[k], V[k], ONE, xcor, xcor);
+    cv[0] = ONE;
+    Xv[0] = xcor;
+
+    for (k=0; k<krydim; k++) {
+      cv[k+1] = yg[k];
+      Xv[k+1] = V[k];
+    }
+    ier = N_VLinearCombination(krydim+1, cv, Xv, xcor);
+    if (ier != SUNLS_SUCCESS) return(SUNLS_VECTOROP_ERR);
     
     /* If converged, construct the final solution vector x and return */
     if (converged) {
@@ -591,9 +626,12 @@ int SUNLinSolSolve_SPGMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
     r_norm = SUNRabs(r_norm);
     
     /* Multiply yg by V_(krydim+1) to get last residual vector; restart */
-    N_VScale(yg[0], V[0], V[0]);
-    for (k=1; k<=krydim; k++)
-      N_VLinearSum(yg[k], V[k], ONE, V[0], V[0]);
+    for (k=0; k<=krydim; k++) {
+      cv[k] = yg[k];
+      Xv[k] = V[k];
+    }
+    ier = N_VLinearCombination(krydim+1, cv, Xv, V[0]);
+    if (ier != SUNLS_SUCCESS) return(SUNLS_VECTOROP_ERR);
     
   }
   
@@ -669,7 +707,7 @@ int SUNLinSolSpace_SPGMR(SUNLinearSolver S,
     N_VSpace(SPGMR_CONTENT(S)->vtemp, &lrw1, &liw1);
   else
     lrw1 = liw1 = 0;
-  *lenrwLS = lrw1*(maxl + 5) + maxl*(maxl + 4) + 1;
+  *lenrwLS = lrw1*(maxl + 5) + maxl*(maxl + 5) + 2;
   *leniwLS = liw1*(maxl + 5);
   return(SUNLS_SUCCESS);
 }
@@ -699,6 +737,10 @@ int SUNLinSolFree_SPGMR(SUNLinearSolver S)
     free(SPGMR_CONTENT(S)->givens);
   if (SPGMR_CONTENT(S)->yg)
     free(SPGMR_CONTENT(S)->yg);
+  if (SPGMR_CONTENT(S)->cv)
+    free(SPGMR_CONTENT(S)->cv);
+  if (SPGMR_CONTENT(S)->Xv)
+    free(SPGMR_CONTENT(S)->Xv);
 
   /* delete generic structures */
   free(S->content);  S->content = NULL;

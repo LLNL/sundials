@@ -34,12 +34,9 @@ SET(FARKODE_extras
   plot_heat2D.py
   )
 
-# Check whether we use MPI compiler scripts.
-# If yes, then change the Fortran compiler to the MPIF90 script.
-# If not, then add the MPI include directory for MPI headers.
-IF(MPI_MPIF90)
-  # use MPI_MPIF90 as the compiler
-  SET(CMAKE_Fortran_COMPILER ${MPI_MPIF90})
+IF(MPI_Fortran_COMPILER)
+  # use MPI wrapper as the compiler
+  SET(CMAKE_Fortran_COMPILER ${MPI_Fortran_COMPILER})
 ELSE()
   # add MPI_INCLUDE_PATH to include directories
   INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
@@ -87,7 +84,7 @@ FOREACH(example_tuple ${FARKODE_examples})
   # libraries to link against
   TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
 
-  IF(NOT MPI_MPIF90)
+  IF(NOT MPI_Fortran_COMPILER)
     TARGET_LINK_LIBRARIES(${example} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARIES})
   ENDIF()
 

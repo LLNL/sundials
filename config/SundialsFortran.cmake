@@ -1,10 +1,10 @@
 # ---------------------------------------------------------------
-# Programmer:  Radu Serban @ LLNL
+# Programmer:  Radu Serban and David Gardner @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Lawrence Livermore National Laboratory in part under
 # Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
@@ -12,82 +12,94 @@
 # LLNS Copyright End
 # ---------------------------------------------------------------
 # Fortran-related tests for SUNDIALS CMake-based configuration.
+# ---------------------------------------------------------------
+
+# If the Fortran compiler flags are set using environemnt variables (i.e.,
+# CMAKE_Fortran_FLAGS is not set), then check if both FFLAGS and FCFLAGS are
+# set. If both are set and not the same then a fatal error occurs.
 #
-# Determining the name-mangling scheme
-# ------------------------------------
-# In general, names of symbols with and without underscore may be mangled 
+# NOTE: This check must occur before 'enable_language(Fortran)' as it will use
+# the value of FFLAGS to set CMAKE_Fortran_FLAGS
+set(ENV_FFLAGS "$ENV{FFLAGS}")
+set(ENV_FCFLAGS "$ENV{FCFLAGS}")
+
+# check if environment variables are used and CMAKE_Fortran_FLAGS is not
+if ((NOT "${ENV_FFLAGS}" STREQUAL "") AND (NOT "${ENV_FCFLAGS}" STREQUAL "")
+    AND ("${CMAKE_Fortran_FLAGS}" STREQUAL ""))
+
+  # check if environment variables are equal
+  if (NOT "${ENV_FFLAGS}" STREQUAL "${ENV_FCFLAGS}")
+    print_error("FFLAGS='${ENV_FFLAGS}' and FCFLAGS='${ENV_FCFLAGS}' are both set but are not equal.")
+  endif()
+
+endif()
+
+# Enable Fortran
+enable_language(Fortran)
+set(F77_FOUND TRUE)
+
+# Check if Fortran90 is supported
+if(CMAKE_Fortran_COMPILER_SUPPORTS_F90)
+  set(F90_FOUND TRUE)
+else()
+  set(F90_FOUND FALSE)
+  print_warning("Fortran compiler does not support F90"
+    "F90 support will not be provided")
+endif()
+
+# show some cache variables
+mark_as_advanced(CLEAR
+  CMAKE_Fortran_COMPILER
+  CMAKE_Fortran_FLAGS)
+
+# hide all build type specific flags
+mark_as_advanced(FORCE
+  CMAKE_Fortran_FLAGS_DEBUG
+  CMAKE_Fortran_FLAGS_MINSIZEREL
+  CMAKE_Fortran_FLAGS_RELEASE
+  CMAKE_Fortran_FLAGS_RELWITHDEBINFO)
+
+# only show flags for the current build type
+# these flags are appended to CMAKE_Fortran_FLAGS
+if(CMAKE_BUILD_TYPE)
+  if(CMAKE_BUILD_TYPE MATCHES "Debug")
+    message("Appending Fortran debug flags")
+    mark_as_advanced(CLEAR CMAKE_Fortran_FLAGS_DEBUG)
+  elseif(CMAKE_BUILD_TYPE MATCHES "MinSizeRel")
+    message("Appending Fortran min size release flags")
+    mark_as_advanced(CLEAR CMAKE_Fortran_FLAGS_MINSIZEREL)
+  elseif(CMAKE_BUILD_TYPE MATCHES "Release")
+    message("Appending Fortran release flags")
+    mark_as_advanced(CLEAR CMAKE_Fortran_FLAGS_RELEASE)
+  elseif(CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo")
+    message("Appending Fortran release with debug info flags")
+    mark_as_advanced(CLEAR CMAKE_Fortran_FLAGS_RELWITHDEBINFO)
+  endif()
+endif()
+
+
+# ---------------------------------------------------------------
+# Determining the name-mangling scheme if needed
+# ---------------------------------------------------------------
+# In general, names of symbols with and without underscore may be mangled
 # differently (e.g. g77 mangles mysub to mysub_ and my_sub to my_sub__),
 # we have to consider both cases.
+#
 # Method:
 #  1) create a library from a Fortran source file which defines a function "mysub"
 #  2) attempt to link with this library a C source file which calls the "mysub"
 #     function using various possible schemes (6 different schemes, corresponding
-#     to all combinations lower/upper case and none/one/two underscores)
+#     to all combinations lower/upper case and none/one/two underscores).
 #  3) define the name-mangling scheme based on the test that was successful.
+#
 # On exit, if we were able to infer the scheme, the variables
 # CMAKE_Fortran_SCHEME_NO_UNDERSCORES and CMAKE_Fortran_SCHEME_WITH_UNDERSCORES
 # contain the mangled names for "mysub" and "my_sub", respectively.
+# ---------------------------------------------------------------
+if(NEED_FORTRAN_NAME_MANGLING)
 
-set(F77_FOUND FALSE)
-set(F77SCHEME_FOUND FALSE)
-
-set(CMAKE_Fortran_SCHEME_NO_UNDERSCORES "")
-set(CMAKE_Fortran_SCHEME_WITH_UNDERSCORES "")
-
-include(CMakeDetermineFortranCompiler)
-
-if(CMAKE_Fortran_COMPILER)
-  message(STATUS "Searching for a Fortran compiler... ${CMAKE_Fortran_COMPILER}")
-
-  # If Fortran compiler flags are set using environemnt variables and both FFLAGS
-  # and FCFLAGS are used, then check if the variables are the same. If they are
-  # not the same then a fatal error occurs.
-  # 
-  # NOTE: This check must occur before 'enable_language(Fortran)' as it will use
-  # the value of FFLAGS to set CMAKE_Fortran_FLAGS
-  SET(ENV_FFLAGS "$ENV{FFLAGS}")
-  SET(ENV_FCFLAGS "$ENV{FCFLAGS}")
-  IF ((NOT "${ENV_FFLAGS}" STREQUAL "") AND
-      (NOT "${ENV_FCFLAGS}" STREQUAL "") AND
-      ("${CMAKE_Fortran_FLAGS}" STREQUAL ""))
-    # check if environment variables are equal
-    IF (NOT "${ENV_FFLAGS}" STREQUAL "${ENV_FCFLAGS}")
-      PRINT_ERROR("FFLAGS='${ENV_FFLAGS}' and FCFLAGS='${ENV_FCFLAGS}' are both set but are not equal.")
-    ENDIF()
-  ENDIF()
-
-  # Enable the language for next steps
-  enable_language(Fortran)
-
-  # show some cache variables
-  MARK_AS_ADVANCED(CLEAR
-    CMAKE_Fortran_COMPILER
-    CMAKE_Fortran_FLAGS)
-
-  # hide all build type specific flags
-  MARK_AS_ADVANCED(FORCE
-    CMAKE_Fortran_FLAGS_DEBUG
-    CMAKE_Fortran_FLAGS_MINSIZEREL
-    CMAKE_Fortran_FLAGS_RELEASE
-    CMAKE_Fortran_FLAGS_RELWITHDEBINFO)
-
-  # only show flags for the current build type
-  # these flags are appended to CMAKE_Fortran_FLAGS
-  IF(CMAKE_BUILD_TYPE)
-    IF(CMAKE_BUILD_TYPE MATCHES "Debug")
-      MESSAGE("Appending Fortran debug flags")
-      MARK_AS_ADVANCED(CLEAR CMAKE_Fortran_FLAGS_DEBUG)
-    ELSEIF(CMAKE_BUILD_TYPE MATCHES "MinSizeRel")
-      MESSAGE("Appending Fortran min size release flags")
-      MARK_AS_ADVANCED(CLEAR CMAKE_Fortran_FLAGS_MINSIZEREL)
-    ELSEIF(CMAKE_BUILD_TYPE MATCHES "Release")
-      MESSAGE("Appending Fortran release flags")
-      MARK_AS_ADVANCED(CLEAR CMAKE_Fortran_FLAGS_RELEASE)
-    ELSEIF(CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo")
-      MESSAGE("Appending Fortran release with debug info flags")
-      MARK_AS_ADVANCED(CLEAR CMAKE_Fortran_FLAGS_RELWITHDEBINFO)
-    ENDIF()
-  ENDIF()
+  set(CMAKE_Fortran_SCHEME_NO_UNDERSCORES "")
+  set(CMAKE_Fortran_SCHEME_WITH_UNDERSCORES "")
 
   # Create the FortranTest directory
   set(FortranTest_DIR ${PROJECT_BINARY_DIR}/FortranTest)
@@ -96,7 +108,7 @@ if(CMAKE_Fortran_COMPILER)
   # Create a CMakeLists.txt file which will generate the "flib" library
   # and an executable "ftest"
   file(WRITE ${FortranTest_DIR}/CMakeLists.txt
-    "CMAKE_MINIMUM_REQUIRED(VERSION 2.4)\n"
+    "CMAKE_MINIMUM_REQUIRED(VERSION 3.0.2)\n"
     "PROJECT(ftest Fortran)\n"
     "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
     "SET(CMAKE_BUILD_TYPE \"${CMAKE_BUILD_TYPE}\")\n"
@@ -129,19 +141,17 @@ if(CMAKE_Fortran_COMPILER)
   try_compile(FTEST_OK ${FortranTest_DIR} ${FortranTest_DIR}
     ftest OUTPUT_VARIABLE MY_OUTPUT)
 
-  # To ensure we do not use stuff from the previous attempts, 
+  # To ensure we do not use stuff from the previous attempts,
   # we must remove the CMakeFiles directory.
   file(REMOVE_RECURSE ${FortranTest_DIR}/CMakeFiles)
 
   # Proceed based on test results
   if(FTEST_OK)
-    message(STATUS "Trying to compile and link a simple Fortran program... OK")
-    set(F77_FOUND TRUE)
 
     # Infer Fortran name-mangling scheme for symbols WITHOUT underscores.
     # Overwrite CMakeLists.txt with one which will generate the "ctest1" executable
     file(WRITE ${FortranTest_DIR}/CMakeLists.txt
-      "CMAKE_MINIMUM_REQUIRED(VERSION 2.4)\n"
+      "CMAKE_MINIMUM_REQUIRED(VERSION 3.0.2)\n"
       "PROJECT(ctest1 C)\n"
       "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
       "SET(CMAKE_BUILD_TYPE \"${CMAKE_BUILD_TYPE}\")\n"
@@ -162,7 +172,7 @@ if(CMAKE_Fortran_COMPILER)
 
     # We will attempt to sucessfully generate the "ctest1" executable as long as
     # there still are entries in the "options" list
-    while(${iopt} LESS ${imax})   
+    while(${iopt} LESS ${imax})
       # Get the current list entry (current scheme)
       list(GET options ${iopt} opt)
       # Generate C source which calls the "mysub" function using the current scheme
@@ -171,11 +181,11 @@ if(CMAKE_Fortran_COMPILER)
       # and linking to the previously created "flib" library.
       try_compile(CTEST_OK ${FortranTest_DIR} ${FortranTest_DIR}
         ctest1 OUTPUT_VARIABLE MY_OUTPUT)
-      # To ensure we do not use stuff from the previous attempts, 
+      # To ensure we do not use stuff from the previous attempts,
       # we must remove the CMakeFiles directory.
       file(REMOVE_RECURSE ${FortranTest_DIR}/CMakeFiles)
       # Test if we successfully created the "ctest" executable.
-      # If yes, save the current scheme, and set the counter "iopt" to "imax" 
+      # If yes, save the current scheme, and set the counter "iopt" to "imax"
       # so that we exit the while loop.
       # Otherwise, increment the counter "iopt" and go back in the while loop.
       if(CTEST_OK)
@@ -184,12 +194,12 @@ if(CMAKE_Fortran_COMPILER)
       else(CTEST_OK)
         math(EXPR iopt ${iopt}+1)
       endif(CTEST_OK)
-    endwhile(${iopt} LESS ${imax})   
+    endwhile(${iopt} LESS ${imax})
 
     # Infer Fortran name-mangling scheme for symbols WITH underscores.
     # Practically a duplicate of the previous steps.
     file(WRITE ${FortranTest_DIR}/CMakeLists.txt
-      "CMAKE_MINIMUM_REQUIRED(VERSION 2.4)\n"
+      "CMAKE_MINIMUM_REQUIRED(VERSION 3.0.2)\n"
       "PROJECT(ctest2 C)\n"
       "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
       "SET(CMAKE_BUILD_TYPE \"${CMAKE_BUILD_TYPE}\")\n"
@@ -205,7 +215,7 @@ if(CMAKE_Fortran_COMPILER)
     set(options my_sub my_sub_ my_sub__ MY_SUB MY_SUB_ MY_SUB__)
     list(LENGTH options imax)
     set(iopt 0)
-    while(${iopt} LESS ${imax})   
+    while(${iopt} LESS ${imax})
       list(GET options ${iopt} opt)
       file(WRITE ${FortranTest_DIR}/ctest2.c "int main(){${opt}();return(0);}\n")
       try_compile(CTEST_OK ${FortranTest_DIR} ${FortranTest_DIR}
@@ -217,21 +227,64 @@ if(CMAKE_Fortran_COMPILER)
       else(CTEST_OK)
         math(EXPR iopt ${iopt}+1)
       endif(CTEST_OK)
-    endwhile(${iopt} LESS ${imax})   
+    endwhile(${iopt} LESS ${imax})
 
-    # Proceed based on whether the previous tests were successfull or not
+    # If a name-mangling scheme was found set the C preprocessor macros to use
+    # that scheme. Otherwise default to lower case with one underscore.
     if(CMAKE_Fortran_SCHEME_NO_UNDERSCORES AND CMAKE_Fortran_SCHEME_WITH_UNDERSCORES)
       message(STATUS "Determining Fortran name-mangling scheme... OK")
-      set(F77SCHEME_FOUND TRUE)
-    else(CMAKE_Fortran_SCHEME_NO_UNDERSCORES AND CMAKE_Fortran_SCHEME_WITH_UNDERSCORES)
-      message(STATUS "Determining Fortran name-mangling scheme... FAILED")
-    endif(CMAKE_Fortran_SCHEME_NO_UNDERSCORES AND CMAKE_Fortran_SCHEME_WITH_UNDERSCORES)
-    
+    else()
+      message(STATUS "Determining Fortran name-mangling scheme... DEFAULT")
+      set(CMAKE_Fortran_SCHEME_NO_UNDERSCORES "mysub_")
+      set(CMAKE_Fortran_SCHEME_WITH_UNDERSCORES "my_sub_")
+    endif()
+
+    # Symbols NO underscores
+    if(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "mysub")
+      set(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) name")
+    endif()
+    if(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "mysub_")
+      set(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) name ## _")
+    endif()
+    if(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "mysub__")
+      set(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) name ## __")
+    endif()
+    if(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MYSUB")
+      set(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) NAME")
+    endif()
+    if(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MYSUB_")
+      set(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) NAME ## _")
+    endif()
+    if(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MYSUB__")
+      set(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) NAME ## __")
+    endif()
+
+    # Symbols WITH underscores
+    if(${CMAKE_Fortran_SCHEME_WITH_UNDERSCORES} MATCHES "my_sub")
+      set(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) name")
+    endif()
+    if(${CMAKE_Fortran_SCHEME_WITH_UNDERSCORES} MATCHES "my_sub_")
+      set(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) name ## _")
+    endif()
+    if(${CMAKE_Fortran_SCHEME_WITH_UNDERSCORES} MATCHES "my_sub__")
+      set(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) name ## __")
+    endif()
+    if(${CMAKE_Fortran_SCHEME_WITH_UNDERSCORES} MATCHES "MY_SUB")
+      set(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) NAME")
+    endif()
+    if(${CMAKE_Fortran_SCHEME_WITH_UNDERSCORES} MATCHES "MY_SUB_")
+      set(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) NAME ## _")
+    endif()
+    if(${CMAKE_Fortran_SCHEME_WITH_UNDERSCORES} MATCHES "MY_SUB__")
+      set(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) NAME ## __")
+    endif()
+
+    # name-mangling scheme has been set
+    set(NEED_FORTRAN_NAME_MANGLING FALSE)
+  
   else(FTEST_OK)
-    message(STATUS "Trying to compile and link a simple Fortran program... FAILED")
+    message(STATUS "Determining Fortran name-mangling scheme... FAILED")
   endif(FTEST_OK)
 
-else(CMAKE_Fortran_COMPILER)
-  message(STATUS "Searching for a Fortran compiler... FAILED")
-endif(CMAKE_Fortran_COMPILER)
+endif()
 

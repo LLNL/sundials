@@ -82,6 +82,8 @@ $tar $tarfile $distrobase/src/arkode/fcmix/farksparsemass.c
 
 echo "   --- Add arkode examples to $tarfile"
 
+$tar $tarfile $distrobase/examples/arkode/CMakeLists.txt
+
 $tar $tarfile $distrobase/examples/arkode/C_openmp/CMakeLists.txt
 $tar $tarfile $distrobase/examples/arkode/C_openmp/README
 $tar $tarfile $distrobase/examples/arkode/C_openmp/ark_brusselator1D_omp.c

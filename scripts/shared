@@ -11,8 +11,8 @@ shift 2
 tar=$*
 
 echo "   --- Add top-level files to $tarfile"
-    
-tar cfv $tarfile $distrobase/README
+
+tar cfv $tarfile $distrobase/README.md
 $tar $tarfile $distrobase/LICENSE
 $tar $tarfile $distrobase/INSTALL_GUIDE.pdf
 
@@ -22,7 +22,6 @@ echo "   --- Add configuration files to $tarfile"
 
 $tar $tarfile $distrobase/config/FindHypre.cmake
 $tar $tarfile $distrobase/config/FindKLU.cmake
-$tar $tarfile $distrobase/config/FindMPI.cmake
 $tar $tarfile $distrobase/config/FindPETSc.cmake
 $tar $tarfile $distrobase/config/FindSUPERLUMT.cmake
 $tar $tarfile $distrobase/config/SundialsAddTest.cmake
@@ -30,21 +29,17 @@ $tar $tarfile $distrobase/config/SundialsBlas.cmake
 $tar $tarfile $distrobase/config/SundialsCMakeMacros.cmake
 $tar $tarfile $distrobase/config/SundialsCXX.cmake
 $tar $tarfile $distrobase/config/SundialsDeprecated.cmake
-$tar $tarfile $distrobase/config/SundialsFortran90.cmake
 $tar $tarfile $distrobase/config/SundialsFortran.cmake
 $tar $tarfile $distrobase/config/SundialsHypre.cmake
 $tar $tarfile $distrobase/config/SundialsKLU.cmake
 $tar $tarfile $distrobase/config/SundialsLapack.cmake
-$tar $tarfile $distrobase/config/SundialsMPIC.cmake
-$tar $tarfile $distrobase/config/SundialsMPICXX.cmake
-$tar $tarfile $distrobase/config/SundialsMPIF90.cmake
-$tar $tarfile $distrobase/config/SundialsMPIF.cmake
+$tar $tarfile $distrobase/config/SundialsMPI.cmake
 $tar $tarfile $distrobase/config/SundialsPETSc.cmake
 $tar $tarfile $distrobase/config/SundialsSuperLUMT.cmake
 $tar $tarfile $distrobase/config/SundialsXSDK.cmake
 
 
-# 03/06/2015 LEBanks - comment out, but don't remove yet...may want to recreate some of this logic in CMake 
+# 03/06/2015 LEBanks - comment out, but don't remove yet...may want to recreate some of this logic in CMake
 #$tar $tarfile $distrobase/bin/sundials-config.in
 #$tar $tarfile $distrobase/bin/fortran-update.in
 #$tar $tarfile $distrobase/bin/makefile-update.in
@@ -107,6 +102,7 @@ $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_spgmr.h
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_sptfqmr.h
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_superlumt.h
 
+$tar $tarfile $distrobase/src/CMakeLists.txt
 $tar $tarfile $distrobase/src/sundials/README
 $tar $tarfile $distrobase/src/sundials/LICENSE
 $tar $tarfile $distrobase/src/sundials/CMakeLists.txt
@@ -292,7 +288,13 @@ $tar $tarfile $distrobase/src/sunlinsol_superlumt/sunlinsol_superlumt.c
 $tar $tarfile $distrobase/src/sunlinsol_superlumt/fsunlinsol_superlumt.h
 $tar $tarfile $distrobase/src/sunlinsol_superlumt/fsunlinsol_superlumt.c
 
+echo "   --- Add examples to $tarfile"
+
+$tar $tarfile $distrobase/examples/CMakeLists.txt
+
 echo "   --- Add nvector examples to $tarfile"
+
+$tar $tarfile $distrobase/examples/nvector/CMakeLists.txt
 
 $tar $tarfile $distrobase/examples/nvector/serial/test_nvector_serial.c
 $tar $tarfile $distrobase/examples/nvector/serial/CMakeLists.txt
@@ -315,6 +317,8 @@ $tar $tarfile $distrobase/examples/nvector/test_nvector.h
 
 echo "   --- Add sunmatrix examples to $tarfile"
 
+$tar $tarfile $distrobase/examples/sunmatrix/CMakeLists.txt
+
 $tar $tarfile $distrobase/examples/sunmatrix/band/test_sunmatrix_band.c
 $tar $tarfile $distrobase/examples/sunmatrix/band/CMakeLists.txt
 $tar $tarfile $distrobase/examples/sunmatrix/dense/test_sunmatrix_dense.c
@@ -325,6 +329,8 @@ $tar $tarfile $distrobase/examples/sunmatrix/test_sunmatrix.c
 $tar $tarfile $distrobase/examples/sunmatrix/test_sunmatrix.h
 
 echo "   --- Add sunlinsol examples to $tarfile"
+
+$tar $tarfile $distrobase/examples/sunlinsol/CMakeLists.txt
 
 $tar $tarfile $distrobase/examples/sunlinsol/band/test_sunlinsol_band.c
 $tar $tarfile $distrobase/examples/sunlinsol/band/CMakeLists.txt
