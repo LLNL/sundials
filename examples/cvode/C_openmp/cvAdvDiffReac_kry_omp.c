@@ -20,8 +20,8 @@
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
 
-//#define SUNDIALS_HAVE_POSIX_TIMERS
-//#define _POSIX_TIMERS
+/* #define SUNDIALS_HAVE_POSIX_TIMERS */
+/* #define _POSIX_TIMERS */
 
 #if defined( SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
 #include <time.h>
@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
   reltol = RCONST(1.0e-5);         /* scalar relative tolerance */
   abstol = reltol * RCONST(100.0); /* scalar absolute tolerance */
 
-  /* Call CVodeCreate to create the solver memory and specify the 
+  /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula and the use of a Newton iteration */
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
@@ -142,9 +142,9 @@ int main(int argc, char *argv[])
     return (-1);
 
   printf("Computation successful!\n");
-  //printf("Execution time on %d threads = %g\n", data->num_threads, stop_time - start_time);
+  /* printf("Execution time on %d threads = %g\n", data->num_threads, stop_time - start_time); */
   printf("L2 norm = %14.6e\n", SUNRsqrt(N_VDotProd(u,u)));
-  
+
   PrintFinalStats(cvode_mem);
 
   /* Free memory */
@@ -176,7 +176,7 @@ N_Vector SetIC(UserData data)
   {
     j = index/Nx;
     i = index%Nx;
-    
+
     realtype y = j * hy;
     realtype x = i * hx;
     realtype tmp = (1 - x) * x * (1 - y) * y;
@@ -192,7 +192,7 @@ UserData SetUserData(int argc, char *argv[])
   const realtype diffusionConst =  0.01;
   const realtype advectionConst = -10.0;
   const realtype reactionConst  = 100.0;
-    
+
   /* Allocate user data structure */
   UserData ud = (UserData) malloc(sizeof *ud);
   if(check_flag((void*) ud, "AllocUserData", 2)) return(NULL);
@@ -214,7 +214,7 @@ UserData SetUserData(int argc, char *argv[])
   ud->Nx = dimX + 1;
   ud->Ny = dimY + 1;
   ud->NEQ = ud->Nx * ud->Ny;
-    
+
   /* Compute cell sizes */
   ud->hx = 1.0/((realtype) dimX);
   ud->hy = 1.0/((realtype) dimY);
@@ -315,8 +315,8 @@ int Jtv(N_Vector v, N_Vector Jv, realtype t, N_Vector u, N_Vector fu, void *user
   }
 
   return 0;
-}  
-  
+}
+
 
 
 /*
@@ -445,10 +445,10 @@ time_t base_time_tv_sec = 0; /* Base time; makes time values returned
 
 void SetTiming(int onoff)
 {
-   //print_time = onoff;
+   /* print_time = onoff; */
 
 #if defined( SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
-  struct timespec spec;  
+  struct timespec spec;
   clock_gettime( CLOCK_MONOTONIC_RAW, &spec );
   base_time_tv_sec = spec.tv_sec;
 #endif
@@ -460,7 +460,7 @@ void SetTiming(int onoff)
 static double get_time()
 {
 #if defined( SUNDIALS_HAVE_POSIX_TIMERS) && defined(_POSIX_TIMERS)
-  struct timespec spec;  
+  struct timespec spec;
   clock_gettime( CLOCK_MONOTONIC_RAW, &spec );
   double time = (double)(spec.tv_sec - base_time_tv_sec) + ((double)(spec.tv_nsec) / 1E9);
 #else
