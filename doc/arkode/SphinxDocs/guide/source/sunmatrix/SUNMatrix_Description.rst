@@ -1,0 +1,133 @@
+..
+   Programmer(s): Daniel R. Reynolds @ SMU
+   ----------------------------------------------------------------
+   Copyright (c) 2013, Southern Methodist University.
+   All rights reserved.
+   For details, see the LICENSE file.
+   ----------------------------------------------------------------
+
+:tocdepth: 3
+
+
+.. _SUNMatrix.Description:
+
+Description of the SUNMATRIX Modules
+======================================
+
+For problems that involve direct methods for solving linear systems,
+the SUNDIALS solvers not only operate on generic vectors, but also 
+on generic matrices (of type ``SUNMatrix``), through a set of
+operations defined by the particular SUNMATRIX implementation.
+Users can provide their own specific implementation of the
+SUNMATRIX module, particularly in cases where they provide their
+own ``N_Vector`` and/or linear solver modules, and require matrices
+that are compatible with those implementations.  Alternately, we
+provide three SUNMATRIX implementations: dense, banded, and sparse.
+The generic operations are described below, and descriptions of the
+implementations provided with SUNDIALS follow.
+
+The generic ``SUNMatrix`` type has been modeled after the
+object-oriented style of the generic ``N_Vector`` type.
+Specifically, a generic ``SUNMatrix`` is a pointer to a structure
+that has an implementation-dependent *content* field containing
+the description and actual data of the matrix, and an *ops* field 
+pointing to a structure with generic matrix operations.
+The type ``SUNMatrix`` is defined as:
+
+.. code-block:: c
+
+   typedef struct _generic_SUNMatrix *SUNMatrix;
+
+   struct _generic_SUNMatrix {
+       void *content;
+       struct _generic_SUNMatrix_Ops *ops;
+   };
+
+Here, the ``_generic_SUNMatrix_Ops`` structure is essentially a list of
+function pointers to the various actual matrix operations, and is
+defined as  
+
+.. code-block:: c
+
+   struct _generic_SUNMatrix_Ops {
+     SUNMatrix_ID (*getid)(SUNMatrix);
+     SUNMatrix    (*clone)(SUNMatrix);
+     void         (*destroy)(SUNMatrix);
+     int          (*zero)(SUNMatrix);
+     int          (*copy)(SUNMatrix, SUNMatrix);
+     int          (*scaleadd)(realtype, SUNMatrix, SUNMatrix);
+     int          (*scaleaddi)(realtype, SUNMatrix);
+     int          (*matvec)(SUNMatrix, N_Vector, N_Vector);
+     int          (*space)(SUNMatrix, long int*, long int*);
+   };
+
+
+The generic SUNMATRIX module defines and implements the matrix
+operations acting on a ``SUNMatrix``. These routines are nothing but
+wrappers for the matrix operations defined by a particular SUNMATRIX
+implementation, which are accessed through the *ops* field of the
+``SUNMatrix`` structure. To illustrate this point we show below the
+implementation of a typical matrix operation from the generic
+SUNMATRIX module, namely ``SUNMatZero``, which sets all values of a
+matrix ``A`` to zero, returning a flag denoting a successful/failed
+operation: 
+
+.. code-block:: c
+
+   int SUNMatZero(SUNMatrix A)
+   {
+     return((int) A->ops->zero(A));
+   }
+
+The subsection :ref:`SUNMatrix.Ops` contains a complete list of all
+matrix operations defined by the generic SUNMATRIX module.  A
+particular implementation of the SUNMATRIX module must:
+
+* Specify the *content* field of the ``SUNMatrix`` object.
+
+* Define and implement a minimal subset of the matrix operations.
+  See the documentation for each SUNDIALS solver to determine which
+  SUNMATRIX operations they require.  The list of required
+  operations for use with ARKode is given in the section
+  :reF:`SUNMatrix.ARKode`. 
+
+  Note that the names of these routines should be unique to that
+  implementation in order to permit using more than one SUNMATRIX
+  module (each with different ``SUNMatrix`` internal data
+  representations) in the same code.
+
+* Define and implement user-callable constructor and destructor
+  routines to create and free a ``SUNMatrix`` with the new *content*
+  field and with *ops* pointing to the new matrix operations. 
+
+* Optionally, define and implement additional user-callable routines
+  acting on the newly defined ``SUNMatrix`` (e.g., a routine to print the
+  *content* for debugging purposes). 
+
+* Optionally, provide accessor macros as needed for that particular
+  implementation to be used to access different parts in the content
+  field of the newly defined ``SUNMatrix``. 
+
+
+Each SUNMATRIX implementation included in SUNDIALS has a unique 
+identifier specified in enumeration and shown in the table below.  
+It is recommended that a user-supplied SUNMATRIX implementation use
+the ``SUNMATRIX_CUSTOM`` identifier.
+
+
+
+.. _SUNMatrix.matrixIDs:
+
+Identifiers associated with matrix kernels supplied with SUNDIALS
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. cssclass:: table-bordered
+
+======================  ============================================  ==============
+Matrix ID               Matrix type                                   ID Value
+======================  ============================================  ==============
+SUNMATRIX_DENSE         Dense :math:`M\times N` matrix                0
+SUNMATRIX_BAND          Band :math:`M\times M` matrix                 1
+SUNMATRIX_SPARSE        Sparse (CSR or CSC) :math:`M\times N` matrix  2
+SUNMATRIX_CUSTOM        User-provided custom matrix                   3
+======================  ============================================  ==============

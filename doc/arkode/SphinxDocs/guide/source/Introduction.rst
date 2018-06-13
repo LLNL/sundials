@@ -1,0 +1,540 @@
+..
+   Programmer(s): Daniel R. Reynolds @ SMU
+   ----------------------------------------------------------------
+   Copyright (c) 2013, Southern Methodist University.
+   All rights reserved.
+   For details, see the LICENSE file.
+   ----------------------------------------------------------------
+
+:tocdepth: 3
+
+.. _Introduction:
+
+Introduction
+============
+
+The ARKode solver library provides an adaptive-step time integration
+package for stiff, nonstiff and mixed stiff/nonstiff systems of
+ordinary differential equations (ODEs).  It is organized to support a
+wide range of problem types and solver algorithms; at present it
+supports ODE systems given in split-explicit form
+
+.. math::
+   M \dot{y} = f_E(t,y) + f_I(t,y),  \qquad y(t_0) = y_0,
+   :label: ODE
+
+where :math:`t` is the independent variable, :math:`y` is the set of
+dependent variables (in :math:`\mathbb{R}^N`), :math:`M` is a
+user-specified, nonsingular operator from :math:`\mathbb{R}^N` to
+:math:`\mathbb{R}^N` (possibly time dependent, but independent of
+:math:`y`), and the right-hand side function is partitioned into two
+components: 
+
+- :math:`f_E(t,y)` contains the "nonstiff" time scale components to be
+  integrated explicitly, and 
+- :math:`f_I(t,y)`  contains the "stiff" time scale components to be
+  integrated implicitly. 
+
+Either of these operators may be disabled, allowing for fully
+explicit, fully implicit, or combination implicit-explicit (ImEx) time
+integration.
+
+The current set of time-stepping methods used in ARKode are
+adaptive- and fixed-step additive Runge Kutta methods. Such methods
+are defined through combining two complementary Runge-Kutta methods:
+one explicit (ERK) and the other diagonally implicit (DIRK).  Through
+appropriately partitioning the ODE system into explicit and implicit
+components :eq:`ODE`, such methods have the potential to enable
+accurate and efficient time integration of mixed stiff/nonstiff
+systems of ordinary differential equations.  A key feature allowing
+for high efficiency of these methods is that only the components in
+:math:`f_I(t,y)` must be solved implicitly, allowing for splittings
+tuned for use with optimal implicit solver algorithms.
+
+This framework allows for significant freedom over the constitutive
+methods used for each component, and ARKode is packaged with a wide
+array of built-in methods for use.  These built-in Butcher tables
+include adaptive explicit methods of orders 2-8, adaptive implicit
+methods of orders 2-5, and adaptive ImEx methods of orders 3-5. 
+
+For problems that include nonzero implicit term :math:`f_I(t,y)`, the
+resulting implicit system (assumed nonlinear, unless specified
+otherwise) is solved approximately at each integration step, using a
+Newton method, modified Newton method, Inexact Newton method, or an
+accelerated fixed-point solver.  For the Newton-based methods and the
+serial or threaded NVECTOR modules in SUNDIALS, ARKode may use a
+variety of linear solvers provided with SUNDIALS, including both
+direct (dense, band, or sparse) and preconditioned Krylov iterative
+(GMRES [SS1986]_, BiCGStab [V1992]_, TFQMR [F1993]_, FGMRES [S1993]_,
+or PCG [HS1952]_) linear solvers.  When used with the MPI-based
+parallel, PETSc, *hypre*, CUDA and Raja NVECTOR modules, or a
+user-provided vector data structure, only the Krylov solvers are
+available, although a user may supply their own linear solver for any
+data structures if desired.  For the serial or threaded vector
+structures, we provide a banded preconditioner module called ARKBANDPRE
+that may be used with the Krylov solvers, while for the MPI-based
+parallel vector structure there is a preconditioner module called
+ARKBBDPRE which provides a band-block-diagonal preconditioner. 
+Additionally, a user may supply more optimal, problem-specific
+preconditioner routines.
+
+
+
+
+Changes from previous versions
+--------------------------------
+
+
+Changes in v3.0.0-dev
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Simplified the prototype for the user-supplied time step adaptivity
+function, :c:func:`ARKAdaptFn()`, to supply only the method order of
+accuracy (instead of both the method and embedding orders).
+
+Fully restructured the internal workings of ARKode to support any
+single-step time integration method.  The existing ARK-based methods
+have been encapsulated inside the new ``ARKStep`` time-stepping
+module, and a new ``ERKStep`` time-stepping module provides an
+optimized implementation for explicit Runge-Kutta methods (reduced
+storage and number of calls to the ODE right-hand side function).
+This resulted in numerous small changes to the user-interface,
+particularly the suite of "Set" routines for user-provided solver
+parameters and and "Get" routines to access solver statistics.
+
+Three fused vector operations and seven vector array operations have
+been added to the NVECTOR API. These *optional* operations
+are intended to increase data reuse in vector operations, reduce
+parallel communication on distributed memory systems, and lower the
+number of kernel launches on systems with accelerators. The new
+operations are ``N_VLinearCombination``, ``N_VScaleAddMulti``,
+``N_VDotProdMulti``, ``N_VLinearCombinationVectorArray``,
+``N_VScaleVectorArray``, ``N_VConstVectorArray``,
+``N_VWrmsNormVectorArray``, ``N_VWrmsNormMaskVectorArray``,
+``N_VScaleAddMultiVectorArray``, and
+``N_VLinearCombinationVectorArray``. If any of these operations are
+defined as ``NULL`` in an NVECTOR implementation the NVECTOR interface
+will automatically call standard NVECTOR operations as
+necessary. Details on the new operations can be found in Chapter
+:ref:`NVectors.Description`. 
+
+Several changes were made to the build system. If MPI is enabled and
+MPI compiler wrappers are not set, the build system will check if
+``CMAKE_<language>_COMPILER`` can compile MPI programs before
+trying to locate and use an MPI installation. The native CMake FindMPI
+module is now used to locate an MPI installation. The options for
+setting MPI compiler wrappers and the executable for running MPI
+programs have been updated to align with those in native CMake FindMPI
+module. This included changing ``MPI_MPICC`` to ``MPI_C_COMPILER``,
+``MPI_MPICXX`` to ``MPI_CXX_COMPILER``, combining ``MPI_MPIF77`` and
+``MPI_MPIF90`` to ``MPI_Fortran_COMPILER``, and changing
+``MPI_RUN_COMMAND`` to ``MPIEXEC``. When a Fortran name-mangling
+scheme is needed (e.g., ``LAPACK_ENABLE`` is ``ON``) the build system
+will infer the scheme from the Fortran compiler. If a Fortran compiler
+is not available or the inferred or default scheme needs to be
+overridden, the advanced options ``SUNDIALS_F77_FUNC_CASE`` and
+``SUNDIALS_F77_FUNC_UNDERSCORES`` can be used to manually set the
+name-mangling scheme and bypass trying to infer the scheme. 
+Additionally, parts of the main CMakeLists.txt file were moved 
+to new files in the ``src`` and ``example`` directories to make the
+CMake configuration file structure more modular.
+
+
+Changes in v2.1.1
+^^^^^^^^^^^^^^^^^^^
+
+Fixed a potential memory leak in the SPGMR and SPFGMR linear solvers:
+if "Initialize" was called multiple times then the solver memory was
+reallocated (without being freed).  
+  
+Fixed a minor bug in the ARKReInit routine, where a flag was
+incorrectly set to indicate that the problem had been resized (instead
+of just re-initialized).
+
+Fixed C++11 compiler errors/warnings about incompatible use of string
+literals.
+
+Updated KLU SUNLINEARSOLVER module to use a ``typedef`` for the
+precision-specific solve function to be used (to avoid compiler
+warnings).
+
+Added missing typecasts for some ``(void*)`` pointers (again, to avoid
+compiler warnings).
+
+Bugfix in ``sunmatrix_sparse.c`` where we had used ``int`` instead of
+``sunindextype`` in one location.  
+
+Added missing ``#include <stdio.h>`` in NVECTOR and SUNMATRIX header files.
+
+Added missing prototype for ``ARKSpilsGetNumMTSetups``.
+
+Fixed an indexing bug in the CUDA NVECTOR implementation of
+``N_VWrmsNormMask`` and revised the RAJA NVECTOR implementation of
+``N_VWrmsNormMask`` to work with mask arrays using values other than
+zero or one. Replaced ``double`` with ``realtype`` in the RAJA vector
+test functions. 
+
+Fixed compilation issue with GCC 7.3.0 and Fortran programs that do
+not require a SUNMatrix or SUNLinearSolver module (e.g. iterative
+linear solvers, explicit methods, fixed point solver, etc.).
+
+
+Changes in v2.1.0
+^^^^^^^^^^^^^^^^^^^
+
+Added NVECTOR print functions that write vector data to a specified
+file (e.g. ``N_VPrintFile_Serial``).
+
+Added ``make test`` and ``make test_install`` options to the build
+system for testing SUNDIALS after building with ``make`` and
+installing with ``make install`` respectively.
+
+
+Changes in v2.0.0
+^^^^^^^^^^^^^^^^^^^
+
+All interfaces to matrix structures and linear solvers have been
+reworked, and all example programs have been updated.  The goal of the
+redesign of these interfaces was to provide more encapsulation and
+ease in interfacing custom linear solvers and interoperability with
+linear solver libraries.
+
+Specific changes include:
+
+* Added generic SUNMATRIX module with three provided implementations:
+  dense, banded and sparse.  These replicate previous SUNDIALS Dls and
+  Sls matrix structures in a single object-oriented API.
+
+* Added example problems demonstrating use of generic SUNMATRIX modules.
+
+* Added generic SUNLINEARSOLVER module with eleven provided
+  implementations: dense, banded, LAPACK dense, LAPACK band, KLU,
+  SuperLU_MT, SPGMR, SPBCGS, SPTFQMR, SPFGMR, PCG.  These replicate
+  previous SUNDIALS generic linear solvers in a single object-oriented
+  API.
+
+* Added example problems demonstrating use of generic SUNLINEARSOLVER modules.
+
+* Expanded package-provided direct linear solver (Dls) interfaces and
+  scaled, preconditioned, iterative linear solver (Spils) interfaces
+  to utilize generic SUNMATRIX and SUNLINEARSOLVER objects.
+
+* Removed package-specific, linear solver-specific, solver modules
+  (e.g. CVDENSE, KINBAND, IDAKLU, ARKSPGMR) since their functionality
+  is entirely replicated by the generic Dls/Spils interfaces and
+  SUNLINEARSOLVER/SUNMATRIX modules.  The exception is CVDIAG, a
+  diagonal approximate Jacobian solver available to CVODE and CVODES.
+
+* Converted all SUNDIALS example problems to utilize new generic
+  SUNMATRIX and SUNLINEARSOLVER objects, along with updated Dls and
+  Spils linear solver interfaces.
+
+* Added Spils interface routines to ARKode, CVODE, CVODES, IDA and
+  IDAS to allow specification of a user-provided "JTSetup" routine.
+  This change supports users who wish to set up data structures for
+  the user-provided Jacobian-times-vector ("JTimes") routine, and
+  where the cost of one JTSetup setup per Newton iteration can be
+  amortized between multiple JTimes calls. 
+ 
+Two additional NVECTOR implementations were added -- one for CUDA and
+one for RAJA vectors.  These vectors are supplied to provide very
+basic support for running on GPU architectures.  Users are advised
+that these vectors both move all data to the GPU device upon
+construction, and speedup will only be realized if the user also
+conducts the right-hand-side function evaluation on the device. In
+addition, these vectors assume the problem fits on one GPU. Further
+information about RAJA, users are referred to th web site,
+`https://software.llnl.gov/RAJA/ <https://software.llnl.gov/RAJA/>`_.
+These additions are accompanied by additions to various interface
+functions and to user documentation.
+ 
+All indices for data structures were updated to a new ``sunindextype``
+that can be configured to be a 32- or 64-bit integer data index type.
+``sunindextype`` is defined to be ``int32_t`` or ``int64_t`` when
+portable types are supported, otherwise it is defined as ``int`` or
+``long int``. The Fortran interfaces continue to use ``long int`` for
+indices, except for their sparse matrix interface that now uses the
+new ``sunindextype``.  This new flexible capability for index types 
+includes interfaces to PETSc, *hypre*, SuperLU_MT, and KLU with either
+32-bit or 64-bit capabilities depending how the user configures
+SUNDIALS. 
+
+To avoid potential namespace conflicts, the macros defining
+``booleantype`` values ``TRUE`` and ``FALSE`` have been changed to
+``SUNTRUE`` and ``SUNFALSE`` respectively.
+
+Temporary vectors were removed from preconditioner setup and solve
+routines for all packages.  It is assumed that all necessary data
+for user-provided preconditioner operations will be allocated and
+stored in user-provided data structures.
+ 
+The file ``include/sundials_fconfig.h`` was added.  This file contains
+SUNDIALS type information for use in Fortran programs. 
+
+Added functions SUNDIALSGetVersion and SUNDIALSGetVersionNumber to get
+SUNDIALS release version information at runtime.
+
+The build system was expanded to support many of the xSDK-compliant keys.
+The xSDK is a movement in scientific software to provide a foundation for the
+rapid and efficient production of high-quality,
+sustainable extreme-scale scientific applications.  More information can
+be found at, `https://xsdk.info <https://xsdk.info>`_.
+ 
+In addition, numerous changes were made to the build system.
+These include the addition of separate ``BLAS_ENABLE`` and ``BLAS_LIBRARIES``
+CMake variables, additional error checking during CMake configuration,
+minor bug fixes, and renaming CMake options to enable/disable examples
+for greater clarity and an added option to enable/disable Fortran 77 examples.
+These changes included changing ``ENABLE_EXAMPLES`` to ``ENABLE_EXAMPLES_C``,
+changing ``CXX_ENABLE`` to ``EXAMPLES_ENABLE_CXX``, changing ``F90_ENABLE`` to
+``EXAMPLES_ENABLE_F90``, and adding an ``EXAMPLES_ENABLE_F77`` option.
+ 
+Corrections and additions were made to the examples, to
+installation-related files, and to the user documentation.
+
+
+
+
+Changes in v1.1.0
+^^^^^^^^^^^^^^^^^^^
+
+We have included numerous bugfixes and enhancements since the 
+v1.0.2 release.  
+
+The bugfixes include:
+
+* For each linear solver, the various solver performance counters are
+  now initialized to 0 in both the solver specification function and
+  in the solver's ``linit`` function.  This ensures that these solver
+  counters are initialized upon linear solver instantiation as well as
+  at the beginning of the problem solution.
+
+* The choice of the method vs embedding the Billington and TRBDF2
+  explicit Runge-Kutta methods were swapped, since in those the
+  lower-order coefficients result in an A-stable method, while the
+  higher-order coefficients do not.  This change results in
+  significantly improved robustness when using those methods.
+
+* A bug was fixed for the situation where a user supplies a vector of
+  absolute tolerances, and also uses the vector Resize() functionality. 
+
+* A bug was fixed wherein a user-supplied Butcher table without an
+  embedding is supplied, and the user is running with either fixed
+  time steps (or they do adaptivity manually); previously this had
+  resulted in an error since the embedding order was below 1.
+
+* Numerous aspects of the documentation were fixed and/or clarified.
+
+
+The feature changes/enhancements include:
+
+* Two additional NVECTOR implementations were added -- one for Hypre
+  (parallel) ParVector vectors, and one for PETSc vectors.  These
+  additions are accompanied by additions to various interface
+  functions and to user documentation. 
+
+* Each NVECTOR module now includes a function, ``N_VGetVectorID``,
+  that returns the NVECTOR module name.
+
+* A memory leak was fixed in the banded preconditioner and
+  banded-block-diagonal preconditioner interfaces.  In addition,
+  updates were done to return integers from linear solver and
+  preconditioner 'free' routines.
+
+* The Krylov linear solver Bi-CGstab was enhanced by removing a
+  redundant dot product.  Various additions and corrections were made
+  to the interfaces to the sparse solvers KLU and SuperLU_MT,
+  including support for CSR format when using KLU.
+
+* The ARKode implicit predictor algorithms were updated: methods 2 and
+  3 were improved slightly, a new predictor approach was added, and
+  the default choice was modified.
+
+* The underlying sparse matrix structure was enhanced to allow both
+  CSR and CSC matrices, with CSR supported by the KLU linear solver
+  interface.  ARKode interfaces to the KLU solver from both C and
+  Fortran were updated to enable selection of sparse matrix type, and a
+  Fortran-90 CSR example program was added.
+
+* The missing :c:func:`ARKSpilsGetNumMtimesEvals()` function was added
+  -- this had been included in the previous documentation but had not
+  been implemented.
+
+* The handling of integer codes for specifying built-in ARKode Butcher
+  tables was enhanced.  While a global numbering system is still used,
+  methods now have #defined names to simplify the user interface and to
+  streamline incorporation of new Butcher tables into ARKode. 
+
+* The maximum number of Butcher table stages was increased from 8 to
+  15 to accommodate very high order methods, and an 8th-order adaptive
+  ERK method was added.
+
+* Support was added for the explicit and implicit methods in an
+  additive Runge-Kutta method to utilize different stage times,
+  solution and embedding coefficients, to support new SSP-ARK
+  methods.
+
+* The FARKODE interface was extended to include a routine to set
+  scalar/array-valued residual tolerances, to support Fortran
+  applications with non-identity mass-matrices. 
+
+
+
+
+
+
+
+Reading this User Guide
+----------------------------
+
+This user guide is a combination of general usage instructions and
+specific example programs.  We expect that some readers will want to
+concentrate on teh general instructions, while others will refer
+mostly to the examples, and the organization is intended to
+accommodate both styles.
+
+The structure of this document is as follows:
+
+* In the next section we provide a thorough presentation of the
+  underlying :ref:`mathematics <Mathematics>` that relate these
+  algorithms together.  
+
+* We follow this with overview of how the source code for ARKode is
+  :ref:`organized <Organization>`.  
+
+* The largest section follows, providing a full account of the ARKode
+  user interface, including a description of all user-accessible
+  functions and outlines for ARKode usage for serial and parallel
+  applications. Since ARKode is written in C, we first present
+  :ref:`the C and C++ interface <CInterface>`, followed with a
+  separate section on :ref:`using ARKode within Fortran applications
+  <FortranInterface>`.  
+
+* The following sections discuss shared features between ARKode
+  and the rest of the SUNDIALS library:
+  :ref:`vector data structures <NVectors>`,
+  :ref:`matrix data structures <SUNMatrix>`,
+  :ref:`linear solver data structures <SUNLinSol>`, and the
+  :ref:`installation procedure <Installation>`.  
+
+* The final sections catalog the full set of :ref:`ARKode constants
+  <Constants>`, that are used for both input specifications and return
+  codes, and the full set of :ref:`Butcher tables <Butcher>` that are
+  packaged with ARKode. 
+
+
+
+SUNDIALS Release License
+----------------------------
+
+The SUNDIALS packages are released open source, under a BSD license.
+The only requirements of the BSD license are preservation of copyright
+and a standard disclaimer of liability. Our Copyright notice is below
+along with the license. 
+
+**PLEASE NOTE**  If you are using SUNDIALS with any third party
+libraries linked in (e.g., LAPACK, KLU, SuperLU_MT, PETSc, or
+*hypre*), be sure to review the respective license of the package as
+that license may have more restrictive terms than the SUNDIALS
+license.  For example, if someone builds SUNDIALS with a statically
+linked KLU, the build is subject to terms of the more-restrictive LGPL
+license (which is what KLU is released with) and *not* the SUNDIALS
+BSD license anymore.
+
+
+Copyright Notices
+^^^^^^^^^^^^^^^^^^^
+
+All SUNDIALS packages except ARKode are subject to the following Copyright
+notice.
+
+SUNDIALS Copyright
+""""""""""""""""""""""""""
+Copyright (c) 2002-2016, Lawrence Livermore National Security.
+Produced at the Lawrence Livermore National Laboratory.
+Written by A.C. Hindmarsh, D.R. Reynolds, R. Serban, C.S. Woodward,
+S.D. Cohen, A.G. Taylor, S. Peles, L.E. Banks, and D. Shumaker.
+
+UCRL-CODE-155951    (CVODE)
+
+UCRL-CODE-155950    (CVODES)
+
+UCRL-CODE-155952    (IDA)
+
+UCRL-CODE-237203    (IDAS)
+
+LLNL-CODE-665877    (KINSOL)
+
+All rights reserved.
+
+
+ARKode Copyright
+""""""""""""""""""""""""""
+ARKode is subject to the following joint Copyright notice.
+Copyright (c) 2015-2018, Southern Methodist University and
+Lawrence Livermore National Security
+Written by D.R. Reynolds, D.J. Gardner, A.C. Hindmarsh, C.S. Woodward,
+and J.M. Sexton.
+
+LLNL-CODE-667205    (ARKODE)
+
+All rights reserved.
+
+
+BSD License
+^^^^^^^^^^^^^^^^^^^
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the disclaimer below.
+
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the disclaimer (as noted below)
+   in the documentation and/or other materials provided with the
+   distribution. 
+
+3. Neither the name of the LLNS/LLNL nor the names of its contributors
+   may be used to endorse or promote products derived from this
+   software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL LAWRENCE
+LIVERMORE NATIONAL SECURITY, LLC, THE U.S. DEPARTMENT OF ENERGY OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+
+
+Additional BSD Notice
+
+* This notice is required to be provided under our contract with the
+  U.S. Department of Energy (DOE). This work was produced at Lawrence
+  Livermore National Laboratory under Contract No. DE-AC52-07NA27344
+  with the DOE. 
+
+* Neither the United States Government nor Lawrence Livermore National
+  Security, LLC nor any of their employees, makes any warranty,
+  express or implied, or assumes any liability or responsibility for
+  the accuracy, completeness, or usefulness of any information,
+  apparatus, product, or process disclosed, or represents that its use
+  would not infringe privately-owned rights.
+
+* Also, reference herein to any specific commercial products, process,
+  or services by trade name, trademark, manufacturer or otherwise does
+  not necessarily constitute or imply its endorsement, recommendation,
+  or favoring by the United States Government or Lawrence Livermore
+  National Security, LLC. The views and opinions of authors expressed
+  herein do not necessarily state or reflect those of the United
+  States Government or Lawrence Livermore National Security, LLC, and
+  shall not be used for advertising or product endorsement purposes.
+
+  
