@@ -122,13 +122,21 @@ section of the Chapter :ref:`SUNMatrix`.  Note that these matrix
 options are usable only in a serial or multi-threaded environment.
 
 
+..
+   As described in the section :ref:`Mathematics.MassSolve`, in the case
+   of using a problem with a non-identity mass matrix (no matter whether
+   the integrator is implicit, explicit or ImEx), linear systems of the
+   form :math:`Mx=b` must be solved, where :math:`M(t)` is the possibly
+   time-dependent system mass matrix.  If these are to be solved with a
+   direct SUNLINSOL linear solver module and one of the SUNMATRIX modules
+   supplied with SUNDIALS, the user must make a call of the form
 As described in the section :ref:`Mathematics.MassSolve`, in the case
 of using a problem with a non-identity mass matrix (no matter whether
 the integrator is implicit, explicit or ImEx), linear systems of the
-form :math:`Mx=b` must be solved, where :math:`M(t)` is the possibly
-time-dependent system mass matrix.  If these are to be solved with a
-direct SUNLINSOL linear solver module and one of the SUNMATRIX modules
-supplied with SUNDIALS, the user must make a call of the form
+form :math:`Mx=b` must be solved, where :math:`M` is the system mass
+matrix.  If these are to be solved with a direct SUNLINSOL linear
+solver module and one of the SUNMATRIX modules supplied with SUNDIALS,
+the user must make a call of the form 
 
 .. code:: 
 
@@ -1053,12 +1061,22 @@ supplied, for solution of the preconditioner linear system:
       * *IER*  (``int``, output) -- return flag  (0 if success, >0 if a recoverable
         failure, <0 if a non-recoverable failure).
       
+   ..
+      **Notes:**
+      Typically this routine will use only *T*, *Y*, *GAMMA*, *R*,
+      *LR*, and *Z*.  It must solve the preconditioner linear system 
+      :math:`Pz = r`.  The preconditioner (or the product of the left and
+      right preconditioners if both are nontrivial) should be an
+      approximation to the matrix  :math:`M(T) - \gamma J`, where
+      :math:`M` is the system mass matrix, :math:`\gamma` is the input
+      GAMMA, and :math:`J = \frac{\partial f_I}{\partial y}`. 
+
    **Notes:**
    Typically this routine will use only *T*, *Y*, *GAMMA*, *R*,
    *LR*, and *Z*.  It must solve the preconditioner linear system 
    :math:`Pz = r`.  The preconditioner (or the product of the left and
    right preconditioners if both are nontrivial) should be an
-   approximation to the matrix  :math:`M(T) - \gamma J`, where
+   approximation to the matrix  :math:`M - \gamma J`, where
    :math:`M` is the system mass matrix, :math:`\gamma` is the input
    GAMMA, and :math:`J = \frac{\partial f_I}{\partial y}`. 
 
@@ -1157,13 +1175,19 @@ system in steps :ref:`FInterface.SUNMatrix` and
    **Arguments:** 
       * *TIME_DEP* (``int``, input) -- flag indicating whether the
         mass matrix is time-dependent (1) or not (0).
+        *Currently, only values of "0" are supported*
       * *IER* (``int``, output) -- return flag (0 if success, -1 if a memory allocation
         error occurred, -2 for an illegal input).
 
 
+..
+   When using the ARKDLS interface with the SUNLINSOL_DENSE or
+   SUNLINSOL_LAPACKDENSE mass matrix linear solver modules, the user must
+   supply a routine that computes the dense mass matrix :math:`M(t)`.  This
+   routine must have the following form:
 When using the ARKDLS interface with the SUNLINSOL_DENSE or
 SUNLINSOL_LAPACKDENSE mass matrix linear solver modules, the user must
-supply a routine that computes the dense mass matrix :math:`M(t)`.  This
+supply a routine that computes the dense mass matrix :math:`M`.  This
 routine must have the following form:
 
 
@@ -1206,9 +1230,14 @@ the routine :f:func:`FARKDENSESETMASS()`:
 	:math:`\ne 0` if an error occurred).
    
    
+..
+   When using the ARKDLS interface with the SUNLINSOL_BAND or
+   SUNLINSOL_LAPACKBAND mass matrix linear solver modules, the user must
+   supply a routine that computes the banded mass matrix :math:`M(t)`.  This
+   routine must have the following form:
 When using the ARKDLS interface with the SUNLINSOL_BAND or
 SUNLINSOL_LAPACKBAND mass matrix linear solver modules, the user must
-supply a routine that computes the banded mass matrix :math:`M(t)`.  This
+supply a routine that computes the banded mass matrix :math:`M`.  This
 routine must have the following form:
 
 .. f:subroutine:: FARKBMASS(NEQ, MU, ML, MDIM, T, BMASS, IPAR, RPAR, WK1, WK2, WK3, IER)
@@ -1257,14 +1286,24 @@ following the call to :f:func:`FARKDLSMASSINIT()`, the user must call the routin
 	:math:`\ne 0` if an error occurred).
 
 
+..
+   When using the ARKDLS interface with the SUNLINSOL_KLU or
+   SUNLINSOL_SUPERLUMT mass matrix linear solver modules, the user must
+   supply a routine that computes the sparse mass matrix :math:`M(t)`.
+   Both the KLU and SuperLU_MT solver interfaces support the
+   compressed-sparse-column (CSC) and compressed-sparse-row (CSR) matrix
+   formats.  The desired format must have been specified to the
+   :f:func:`FSUNSPARSEMASSMATINIT()` function when initializing the
+   sparse mass matrix.  The user-provided routine to compute :math:`M(t)`
+   must have the following form: 
 When using the ARKDLS interface with the SUNLINSOL_KLU or
 SUNLINSOL_SUPERLUMT mass matrix linear solver modules, the user must
-supply a routine that computes the sparse mass matrix :math:`M(t)`.
+supply a routine that computes the sparse mass matrix :math:`M`.
 Both the KLU and SuperLU_MT solver interfaces support the
 compressed-sparse-column (CSC) and compressed-sparse-row (CSR) matrix
 formats.  The desired format must have been specified to the
 :f:func:`FSUNSPARSEMASSMATINIT()` function when initializing the
-sparse mass matrix.  The user-provided routine to compute :math:`M(t)`
+sparse mass matrix.  The user-provided routine to compute :math:`M`
 must have the following form: 
 
 
@@ -1337,6 +1376,7 @@ the :f:func:`FARKSPILSMASSINIT()` routine:
    **Arguments:** 
       * *TIME_DEP* (``int``, input) -- flag indicating whether the
         mass matrix is time-dependent (1) or not (0).
+        *Currently, only values of 0 are supported.*
       * *IER* (``int``, output) -- return flag (0 if success, -1 if a memory allocation
         error occurred, -2 for an illegal input).
 
@@ -1369,10 +1409,15 @@ iterative solvers, there are two required user-supplied routines,
 optional user-supplied routines, :f:func:`FARKMASSPSET()` and
 :f:func:`FARKMASSPSOL()`. The specifications of these functions are given below.
 
+..
+   The required routines when using a Krylov iterative mass matrix linear
+   solver perform setup and computation of the product of the possibly
+   time-dependent system mass matrix :math:`M(t)` and a given vector
+   :math:`v`.  The product routine must have the following form:  
 The required routines when using a Krylov iterative mass matrix linear
-solver perform setup and computation of the product of the possibly
-time-dependent system mass matrix :math:`M(t)` and a given vector
-:math:`v`.  The product routine must have the following form:  
+solver perform setup and computation of the product of the system mass
+matrix :math:`M` and a given vector :math:`v`.  The product routine
+must have the following form:
 
 
 .. f:subroutine:: FARKMTIMES(V, MV, T, IPAR, RPAR, IER)
@@ -1485,12 +1530,20 @@ within the solve.
       * *IER*  (``int``, output) -- return flag  (0 if success, >0 if
 	a recoverable failure, <0 if a non-recoverable failure).
       
+   ..
+      **Notes:**
+      This routine must set up the preconditioner :math:`P` to be used in
+      the subsequent call to :f:func:`FARKMASSPSOL()`.  The
+      preconditioner (or the product of the left and right
+      preconditioners if using both) should be an approximation to the
+      system mass matrix, :math:`M(t)`. 
+   
    **Notes:**
    This routine must set up the preconditioner :math:`P` to be used in
    the subsequent call to :f:func:`FARKMASSPSOL()`.  The
    preconditioner (or the product of the left and right
    preconditioners if using both) should be an approximation to the
-   matrix :math:`M(t)`, where :math:`M` is the system mass matrix. 
+   system mass matrix, :math:`M`. 
    
    
 .. f:subroutine:: FARKMASSPSOL(T,R,Z,DELTA,LR,IPAR,RPAR,IER)
@@ -1514,13 +1567,21 @@ within the solve.
       * *IER*  (``int``, output) -- return flag  (0 if success, >0 if
 	a recoverable failure, <0 if a non-recoverable failure).
       
+   ..
+      **Notes:**
+      Typically this routine will use only *T*, *R*, *LR*, and *Z*.  It
+      must solve the preconditioner linear system :math:`Pz = r`.  The
+      preconditioner (or the product of the left and right
+      preconditioners if both are nontrivial) should be an approximation
+      to the system mass matrix :math:`M(t)`. 
+
    **Notes:**
    Typically this routine will use only *T*, *R*, *LR*, and *Z*.  It
    must solve the preconditioner linear system :math:`Pz = r`.  The
    preconditioner (or the product of the left and right
    preconditioners if both are nontrivial) should be an approximation
-   to the system mass matrix :math:`M(t)`. 
-
+   to the system mass matrix :math:`M`. 
+   
 
 Notes:
 
@@ -1755,8 +1816,8 @@ Memory deallocation
 ---------------------------------------
 
 To free the internal memory created by :f:func:`FARKMALLOC()`,
-:f:func:`FARKDLSINIT()`/:f:func:`FARKSPILSINIT()`,
-:f:func:`FARKDLSMASSINIT()`/:f:func:`FARKSPILSMASSINIT()`,
+:f:func:`FARKDLSINIT()`, :f:func:`FARKSPILSINIT()`,
+:f:func:`FARKDLSMASSINIT()`, :f:func:`FARKSPILSMASSINIT()`,
 and the SUNMATRIX and SUNLINSOL objects, the user may call
 :f:func:`FARKFREE()`, as follows: 
 

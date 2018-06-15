@@ -27,12 +27,20 @@ band-block-diagonal preconditioner  for parallel problems (ARKBBDPRE).
 A serial banded preconditioner module
 -------------------------------------------
 
+..
+   This preconditioner provides a band matrix preconditioner for use with
+   the ARKSPILS iterative linear solver interface, in a serial setting.
+   It requires that the problem be set up using either the
+   NVECTOR_SERIAL, NVECTOR_OPENMP or NVECTOR_PTHREADS module, due to data
+   access patterns.  It also currently requires that the problem involve
+   an identity mass matrix, i.e. :math:`M(t) = I`.
+
 This preconditioner provides a band matrix preconditioner for use with
 the ARKSPILS iterative linear solver interface, in a serial setting.
 It requires that the problem be set up using either the
 NVECTOR_SERIAL, NVECTOR_OPENMP or NVECTOR_PTHREADS module, due to data
 access patterns.  It also currently requires that the problem involve
-an identity mass matrix, i.e. :math:`M(t) = I`.
+an identity mass matrix, i.e. :math:`M = I`.
 
 This module uses difference quotients of the ODE right-hand
 side function :math:`f_I` to generate a band matrix of bandwidth

@@ -152,8 +152,12 @@ desired time-stepping module:
 - ``arkode/arkode_arkstep.h``, the header file for solving problems
   posted in additive semilinear form,
 
+  ..
+     .. math::
+        M(t) \dot{y} = f_E(t,y) + f_I(t,y), \qquad y(t_0) = y_0.
+
   .. math::
-     M(t) \dot{y} = f_E(t,y) + f_I(t,y), \qquad y(t_0) = y_0.
+     M \dot{y} = f_E(t,y) + f_I(t,y), \qquad y(t_0) = y_0.
 
 - ``arkode/arkode_erkstep.h``, the header file for solving problems
   posted in explicit form (using ERK methods),
@@ -168,13 +172,26 @@ section :ref:`NVectors` for details for the appropriate name.  This
 file in turn includes the header file ``sundials_nvector.h`` which
 defines the abstract ``N_Vector`` data type.
 
+..
+   If the user includes a non-trivial implicit component to their
+   ODE system, then each time step will require a nonlinear solver for
+   the resulting systems of equations.  ARKode allows an accelerated
+   fixed point iteration and Newton-based iterations for this solver; if
+   a Newton method is used then a linear solver module header file may
+   also be required.  Similarly, if the ODE system involves a
+   non-identity mass matrix :math:`M(t) \ne I`, then each time 
+   step will require a linear solver for systems of the form
+   :math:`Mx=b`.  The header files corresponding to the various linear
+   solver interfaces and linear solver modules available for use with
+   ARKode for either the Newton solver or for mass-matrix solves, are:  
+
 If the user includes a non-trivial implicit component to their
 ODE system, then each time step will require a nonlinear solver for
 the resulting systems of equations.  ARKode allows an accelerated
 fixed point iteration and Newton-based iterations for this solver; if
 a Newton method is used then a linear solver module header file may
 also be required.  Similarly, if the ODE system involves a
-non-identity mass matrix :math:`M(t) \ne I`, then each time 
+non-identity mass matrix :math:`M \ne I`, then each time 
 step will require a linear solver for systems of the form
 :math:`Mx=b`.  The header files corresponding to the various linear
 solver interfaces and linear solver modules available for use with

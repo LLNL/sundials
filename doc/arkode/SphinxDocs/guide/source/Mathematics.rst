@@ -18,25 +18,44 @@ ARKode solves ODE initial value problems (IVPs) in :math:`\mathbb{R}^N`.
 At present, such problems should be posed in linearly-implicit form,
 as 
 
+..
+   .. math::
+      M(t) \dot{y} = f_E(t,y) + f_I(t,y), \qquad y(t_0) = y_0.
+      :label: IVP
 .. math::
-   M(t) \dot{y} = f_E(t,y) + f_I(t,y), \qquad y(t_0) = y_0.
+   M \dot{y} = f_E(t,y) + f_I(t,y), \qquad y(t_0) = y_0.
    :label: IVP
 
 Here, :math:`t` is the independent variable (e.g. time), and the
 dependent variables are given by :math:`y \in \mathbb{R}^N`, where we
 use the notation :math:`\dot{y}` to denote :math:`\frac{dy}{dt}`.
 
-:math:`M(t)` is a user-specified nonsingular operator from
-:math:`\mathbb{R}^N \to \mathbb{R}^N`.  This operator may depend on
-:math:`t` but is assumed to be independent of :math:`y`.  For standard
-systems of ordinary differential equations and for problems arising
-from the spatial semi-discretization of partial differential equations
-using finite difference, finite volume, or spectral finite element
-methods, :math:`M` is typically the identity matrix, :math:`I`.  For
-PDEs using other standard finite-element spatial semi-discretizations,
-:math:`M` is typically a well-conditioned mass matrix that is
-independent of :math:`t` (except in the case of a spatially-adaptive
-method, where :math:`M` can change *between* time steps).
+..
+   :math:`M(t)` is a user-specified nonsingular operator from
+   :math:`\mathbb{R}^N \to \mathbb{R}^N`.  This operator may depend on
+   :math:`t` but is assumed to be independent of :math:`y`.
+   For standard systems of ordinary differential equations and for
+   problems arising from the spatial semi-discretization of partial
+   differential equations 
+   using finite difference, finite volume, or spectral finite element
+   methods, :math:`M` is typically the identity matrix, :math:`I`.  For
+   PDEs using other standard finite-element spatial semi-discretizations,
+   :math:`M` is typically a well-conditioned mass matrix that is
+   independent of :math:`t` (except in the case of a spatially-adaptive
+   method, where :math:`M` can change *between* time steps).
+
+:math:`M` is a user-specified nonsingular operator from
+:math:`\mathbb{R}^N \to \mathbb{R}^N`.  This operator is currently
+assumed to be independent of both :math:`t` and :math:`y`.
+For standard systems of ordinary differential equations and for
+problems arising from the spatial semi-discretization of partial
+differential equations using finite difference, finite volume, or
+spectral finite element methods, :math:`M` is typically the identity
+matrix, :math:`I`.  For PDEs using other standard finite-element
+spatial semi-discretizations, :math:`M` is typically a
+well-conditioned mass matrix that is fixed throughout a simulation
+(except in the case of a spatially-adaptive method, where :math:`M`
+can change *between*, but not *within*, time steps). 
 
 The two right-hand side functions may be described as:  
 
@@ -325,17 +344,29 @@ The ARKStep time-stepping module in ARKode utilizes variable-step,
 embedded, :index:`additive Runge-Kutta methods` (ARK), corresponding
 to algorithms of the form 
 
-.. math::
-   z_i &= y_{n-1} + h_n \sum_{j=1}^{i-1} A^E_{i,j} M(t^E_{n,j})^{-1} f_E(t^E_{n,j}, z_j) 
-                 + h_n \sum_{j=1}^{i} A^I_{i,j} M(t^I_{n,j})^{-1} f_I(t^I_{n,j}, z_j),
-   \quad i=1,\ldots,s, \\
-   y_n &= y_{n-1} + h_n \sum_{i=1}^{s} \left(b^E_i M(t^E_{n,j})^{-1} f_E(t^E_{n,i}, z_i) 
-                 + b^I_i M(t^I_{n,j})^{-1} f_I(t^I_{n,i}, z_i)\right), \\
-   \tilde{y}_n &= y_{n-1} + h_n \sum_{i=1}^{s} \left(
-                  \tilde{b}^E_i M(t^E_{n,j})^{-1} f_E(t^E_{n,i}, z_i) + 
-		  \tilde{b}^I_i M(t^I_{n,j})^{-1} f_I(t^I_{n,i}, z_i)\right).
-   :label: ARK
+..
+   .. math::
+      z_i &= y_{n-1} + h_n \sum_{j=1}^{i-1} A^E_{i,j} M(t^E_{n,j})^{-1} f_E(t^E_{n,j}, z_j) 
+                    + h_n \sum_{j=1}^{i} A^I_{i,j} M(t^I_{n,j})^{-1} f_I(t^I_{n,j}, z_j),
+      \quad i=1,\ldots,s, \\
+      y_n &= y_{n-1} + h_n \sum_{i=1}^{s} \left(b^E_i M(t^E_{n,j})^{-1} f_E(t^E_{n,i}, z_i) 
+                    + b^I_i M(t^I_{n,j})^{-1} f_I(t^I_{n,i}, z_i)\right), \\
+      \tilde{y}_n &= y_{n-1} + h_n \sum_{i=1}^{s} \left(
+                     \tilde{b}^E_i M(t^E_{n,j})^{-1} f_E(t^E_{n,i}, z_i) + 
+                     \tilde{b}^I_i M(t^I_{n,j})^{-1} f_I(t^I_{n,i}, z_i)\right).
+      :label: ARK
 
+.. math::
+   M z_i &= M y_{n-1} + h_n \sum_{j=1}^{i-1} A^E_{i,j} f_E(t^E_{n,j}, z_j) 
+                 + h_n \sum_{j=1}^{i} A^I_{i,j} f_I(t^I_{n,j}, z_j),
+   \quad i=1,\ldots,s, \\
+   M y_n &= M y_{n-1} + h_n \sum_{i=1}^{s} \left(b^E_i f_E(t^E_{n,i}, z_i) 
+                 + b^I_i f_I(t^I_{n,i}, z_i)\right), \\
+   M \tilde{y}_n &= M y_{n-1} + h_n \sum_{i=1}^{s} \left(
+                  \tilde{b}^E_i f_E(t^E_{n,i}, z_i) + 
+		  \tilde{b}^I_i f_I(t^I_{n,i}, z_i)\right).
+   :label: ARK
+           
 Here :math:`y_n` correspond to computed approximations of
 :math:`y(t_n)`, :math:`\tilde{y}_n` are embedded solutions (used in
 error estimation; typically lower-order-accurate), and :math:`h_n
@@ -371,8 +402,13 @@ such problems, ARKStep currently implements the ARK methods proposed in
 For nonstiff problems, a user may specify that :math:`f_I = 0`,
 i.e. the equation :eq:`IVP` reduces to the non-split IVP 
 
+..
+   .. math::
+      M(t)\, \dot{y} = f_E(t,y), \qquad y(t_0) = y_0.
+      :label: IVP_explicit
+
 .. math::
-   M(t)\, \dot{y} = f_E(t,y), \qquad y(t_0) = y_0.
+   M\, \dot{y} = f_E(t,y), \qquad y(t_0) = y_0.
    :label: IVP_explicit
 
 In this scenario, the coefficients :math:`A^I=0`, :math:`c^I=0`,
@@ -388,8 +424,13 @@ methods reduce to classical :index:`explicit Runge-Kutta methods`
 Finally, for stiff problems the user may specify that :math:`f_E = 0`,
 so the equation :eq:`IVP` reduces to the non-split IVP 
 
+..
+   .. math::
+      M(t)\, \dot{y} = f_I(t,y), \qquad y(t_0) = y_0.
+      :label: IVP_implicit
+
 .. math::
-   M(t)\, \dot{y} = f_I(t,y), \qquad y(t_0) = y_0.
+   M\, \dot{y} = f_I(t,y), \qquad y(t_0) = y_0.
    :label: IVP_implicit
 
 Similarly to ERK methods, in this scenario the coefficients
@@ -479,8 +520,13 @@ Additionally, for problems involving a non-identity mass matrix,
 units of the solution :math:`y`.  In this case, ARKode may also
 construct a :index:`residual weight vector`,
 
+..
+   .. math::
+      w_i = \frac{1}{RTOL\cdot | \left[M(t_{n-1}) y_{n-1}\right]_i| + ATOL'_i},
+      :label: RWT
+
 .. math::
-   w_i = \frac{1}{RTOL\cdot | \left[M(t_{n-1}) y_{n-1}\right]_i| + ATOL'_i},
+   w_i = \frac{1}{RTOL\cdot | \left[M y_{n-1}\right]_i| + ATOL'_i},
    :label: RWT
 
 where the user may specify a separate absolute residual tolerance
@@ -534,11 +580,19 @@ We therefore use the norm of the difference between :math:`y_n` and
 :math:`\tilde{y}_n` as an estimate for the local truncation error at
 the step :math:`n`
 
+..
+   .. math::
+      T_n = \beta \left(y_n - \tilde{y}_n\right) = 
+      \beta h_n \sum_{i=1}^{s} \left[
+      \left(b^E_i - \tilde{b}^E_i\right) M(t^E_{n,i})^{-1} f_E(t^E_{n,i}, z_i) + 
+      \left(b^I_i - \tilde{b}^I_i\right) M(t^I_{n,i})^{-1} f_I(t^I_{n,i}, z_i) \right]
+      :label: LTE
+
 .. math::
-   T_n = \beta \left(y_n - \tilde{y}_n\right) = 
+   M T_n = \beta \left(y_n - \tilde{y}_n\right) = 
    \beta h_n \sum_{i=1}^{s} \left[
-   \left(b^E_i - \tilde{b}^E_i\right) M(t^E_{n,i})^{-1} f_E(t^E_{n,i}, z_i) + 
-   \left(b^I_i - \tilde{b}^I_i\right) M(t^I_{n,i})^{-1} f_I(t^I_{n,i}, z_i) \right]
+   \left(b^E_i - \tilde{b}^E_i\right) f_E(t^E_{n,i}, z_i) + 
+   \left(b^I_i - \tilde{b}^I_i\right) f_I(t^I_{n,i}, z_i) \right]
    :label: LTE
 
 for ARK methods, and similarly for ERK methods.  Here, :math:`\beta>0`
@@ -921,12 +975,29 @@ Additional information on this mode is provided in the section
 Algebraic solvers
 ===============================
 
+..
+   Since the ERKStep time-stepping module provides purely explicit
+   numerical methods, the remainder of this section currently pertains
+   only to the ARKStep module.  More specifically, when using the ARKStep
+   time-stepping module for a problem involving either a nonzero implicit
+   component, :math:`f_I(t,y) \ne 0`, or a non-identity mass matrix,
+   :math:`M(t) \ne I`, systems of linear or nonlinear algebraic equations
+   must be solved at each stage and/or step of the method.  This section
+   therefore focuses on the variety of mathematical methods provided in
+   ARKode for such problems, including :ref:`nonlinear solvers
+   <Mathematics.Nonlinear>`, :ref:`linear solvers <Mathematics.Linear>`,
+   :ref:`preconditioners <Mathematics.Preconditioning>`,
+   :ref:`iterative solver error control <Mathematics.Error>`, 
+   :ref:`implicit predictors <Mathematics.Predictors>`, and techniques
+   used for simplifying the above solves when using non-time-dependent
+   :ref:`mass-matrices <Mathematics.MassSolve>`.
+
 Since the ERKStep time-stepping module provides purely explicit
 numerical methods, the remainder of this section currently pertains
 only to the ARKStep module.  More specifically, when using the ARKStep
 time-stepping module for a problem involving either a nonzero implicit
 component, :math:`f_I(t,y) \ne 0`, or a non-identity mass matrix,
-:math:`M(t) \ne I`, systems of linear or nonlinear algebraic equations
+:math:`M \ne I`, systems of linear or nonlinear algebraic equations
 must be solved at each stage and/or step of the method.  This section
 therefore focuses on the variety of mathematical methods provided in
 ARKode for such problems, including :ref:`nonlinear solvers
@@ -936,7 +1007,7 @@ ARKode for such problems, including :ref:`nonlinear solvers
 :ref:`implicit predictors <Mathematics.Predictors>`, and techniques
 used for simplifying the above solves when using non-time-dependent
 :ref:`mass-matrices <Mathematics.MassSolve>`.
-
+     
 
 
 
@@ -949,23 +1020,39 @@ Nonlinear solver methods
 For both the DIRK and ARK methods corresponding to :eq:`IVP` and
 :eq:`IVP_implicit`, an implicit system
 
+..
+   .. math::
+      G(z_i) \equiv M(t^I_{n,i}) z_i - h_n A^I_{i,i} f_I(t^I_{n,i}, z_i) - a_i = 0
+      :label: Residual
+
 .. math::
-   G(z_i) \equiv M(t^I_{n,i}) z_i - h_n A^I_{i,i} f_I(t^I_{n,i}, z_i) - a_i = 0
+   G(z_i) \equiv M z_i - h_n A^I_{i,i} f_I(t^I_{n,i}, z_i) - a_i = 0
    :label: Residual
 
 must be solved for each stage :math:`z_i, i=1,\ldots,s`, where we have
 the data 
 
+..
+   .. math::
+      a_i \equiv M(t^I_{n,i}) \left( y_{n-1} + h_n \sum_{j=1}^{i-1} \left[
+      A^E_{i,j} M(t^E_{n,j})^{-1} f_E(t^E_{n,j}, z_j) +
+      A^I_{i,j} M(t^I_{n,j})^{-1} f_I(t^I_{n,j}, z_j) \right] \right)
+   
 .. math::
-   a_i \equiv M(t^I_{n,i}) \left( y_{n-1} + h_n \sum_{j=1}^{i-1} \left[
-   A^E_{i,j} M(t^E_{n,j})^{-1} f_E(t^E_{n,j}, z_j) +
-   A^I_{i,j} M(t^I_{n,j})^{-1} f_I(t^I_{n,j}, z_j) \right] \right)
+   a_i \equiv \left( y_{n-1} + h_n \sum_{j=1}^{i-1} \left[
+   A^E_{i,j} f_E(t^E_{n,j}, z_j) +
+   A^I_{i,j} f_I(t^I_{n,j}, z_j) \right] \right)
    
 for the ARK methods, or 
 
+..
+   .. math::
+      a_i \equiv M(t^I_{n,i}) \left( y_{n-1} + h_n \sum_{j=1}^{i-1} 
+         A^I_{i,j} M(t^I_{n,j})^{-1} f_I(t^I_{n,j}, z_j) \right)
+   
 .. math::
-   a_i \equiv M(t^I_{n,i}) \left( y_{n-1} + h_n \sum_{j=1}^{i-1} 
-      A^I_{i,j} M(t^I_{n,j})^{-1} f_I(t^I_{n,j}, z_j) \right)
+   a_i \equiv \left( y_{n-1} + h_n \sum_{j=1}^{i-1} 
+   A^I_{i,j} f_I(t^I_{n,j}, z_j) \right)
    
 for the DIRK methods.  Here, if :math:`f_I(t,y)` depends nonlinearly
 on :math:`y` then :eq:`Residual` corresponds to a nonlinear system of
@@ -991,8 +1078,15 @@ update` :math:`\delta^{(m+1)}` in turn requires the solution of the
 
 in which
 
+..
+   .. math::
+      {\mathcal A}(t,z) \approx M(t) - \gamma J(t,z), \quad
+      J(t,z) = \frac{\partial f_I(t,z)}{\partial z}, \quad\text{and}\quad
+      \gamma = h_n A^I_{i,i}.
+      :label: NewtonMatrix
+
 .. math::
-   {\mathcal A}(t,z) \approx M(t) - \gamma J(t,z), \quad
+   {\mathcal A}(t,z) \approx M - \gamma J(t,z), \quad
    J(t,z) = \frac{\partial f_I(t,z)}{\partial z}, \quad\text{and}\quad
    \gamma = h_n A^I_{i,i}.
    :label: NewtonMatrix
@@ -1121,11 +1215,17 @@ equation
 
 in which
 
+..
+   .. math::
+      \tilde{\mathcal A}(t,z) \approx M(t) - \tilde{\gamma} J(t,z), 
+      \quad\text{and}\quad \tilde{\gamma} = \tilde{h} A^I_{i,i}. 
+      :label: modified_NewtonMatrix
+
 .. math::
-   \tilde{\mathcal A}(t,z) \approx M(t) - \tilde{\gamma} J(t,z), 
+   \tilde{\mathcal A}(t,z) \approx M - \tilde{\gamma} J(t,z), 
    \quad\text{and}\quad \tilde{\gamma} = \tilde{h} A^I_{i,i}. 
    :label: modified_NewtonMatrix
-
+           
 Here, the solution :math:`\tilde{z}`, time :math:`\tilde{t}`, and step
 size :math:`\tilde{h}` upon which the modified equation rely, are
 merely values of these quantities from a previous iteration.  In other
@@ -1180,9 +1280,12 @@ solved completely, since these linear solvers are iterative (hence the
 "inexact" in the name). As a result. for these linear solvers
 :math:`{\mathcal A}` is applied in a matrix-free manner,
 
-.. math::
+..
+   .. math::
+      {\mathcal A}(t,z)\, v = M(t)\, v - \gamma\, J(t,z)\, v.
 
-   {\mathcal A}(t,z)\, v = M(t)\, v - \gamma\, J(t,z)\, v.
+.. math::
+   {\mathcal A}(t,z)\, v = Mv - \gamma\, J(t,z)\, v.
 
 The matrix-vector products :math:`Mv` *must* be provided through a
 user-supplied routine; the matrix-vector products :math:`Jv` are
@@ -1716,91 +1819,96 @@ separately for both tolerances :eq:`LinearTolerance` and
 :f:func:`FARKSPILSSETMASSEPSLIN()` in Fortran.   
  
 
-In the subsections that follow we examine these in two
-distinct cases: first where the mass matrix is time-dependent,
-i.e. :math:`M = M(t)`, and the second where it does not depend on
-time, i.e. :math:`M \ne M(t)`, since this latter case may be leveraged
-to reduce the overall complexity in use of non-identity mass
-matrices.  We note that for problems where :math:`M` only varies due
-to spatial adaptivity between time steps, the user may specify that
-their mass matrix is independent of :math:`t` and manually update any
-internal structures required to perform mass-matrix-related operations
-when they update the spatial mesh.
+..
+   In the subsections that follow we examine these in two
+   distinct cases: first where the mass matrix is time-dependent,
+   i.e. :math:`M = M(t)`, and the second where it does not depend on
+   time, i.e. :math:`M \ne M(t)`, since this latter case may be leveraged
+   to reduce the overall complexity in use of non-identity mass
+   matrices.  We note that for problems where :math:`M` only varies due
+   to spatial adaptivity between time steps, the user may specify that
+   their mass matrix is independent of :math:`t` and manually update any
+   internal structures required to perform mass-matrix-related operations
+   when they update the spatial mesh.
 
 
 
-Time-dependent mass matrix
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..
+   Time-dependent mass matrix
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-When the mass matrix is time-dependent, the algorithms above are
-constructed by first rewriting the problem from semilinear form,
+   When the mass matrix is time-dependent, the algorithms above are
+   constructed by first rewriting the problem from semilinear form,
 
-.. math::
-   M(t)\, \dot{y}(t) = f_E(t,y) + f_I(t,y)
+   .. math::
+      M(t)\, \dot{y}(t) = f_E(t,y) + f_I(t,y)
 
-to explicit form,
-   
-.. math::
-   &\dot{y}(t) = M(t)^{-1} f_E(t,y) + M(t)^{-1} f_I(t,y) \\
-   \Leftrightarrow \qquad & \\
-   &\dot{y}(t) = \tilde{f}_E(t,y) + \tilde{f}_I(t,y).
+   to explicit form,
 
-The above algorithms then apply standard additive Runge-Kutta methods
-to this modified version of the problem.  Of particular relevance when
-considering this form of the problem is that each evaluation of the
-explicit and implicit right-hand side functions includes a linear
-solve of the form :eq:`mass_solve`.  However, assuming that
-matrix-vector products of the form :eq:`mass_multiply` are
-significantly less costly than the corresponding solves, we 
-include one transformation for enhanced efficiency when solving for
-each stage :math:`z_i,\; i=1,\ldots,s`.  Multiplying these stage
-equations by :math:`M(t^I_{n,j}),` we consider the equivalent implicit
-equation for each stage: 
+   .. math::
+      &\dot{y}(t) = M(t)^{-1} f_E(t,y) + M(t)^{-1} f_I(t,y) \\
+      \Leftrightarrow \qquad & \\
+      &\dot{y}(t) = \tilde{f}_E(t,y) + \tilde{f}_I(t,y).
 
-.. math::
-   M(t^I_{n,j}) z_i - h_n A^I_{i,i} f_I(t^I_{n,i}, z_i) &= M(t^I_{n,j}) \left(
-   y_{n-1} + h_n \sum_{j=1}^{i-1} \left[
-   A^E_{i,j} \tilde{f}_E(t^E_{n,j}, z_j) +
-   A^I_{i,j} \tilde{f}_I(t^I_{n,j}, z_j)\right]\right),
-   \quad i=1,\ldots,s, \\
-   :label: ARK_semilinear
+   The above algorithms then apply standard additive Runge-Kutta methods
+   to this modified version of the problem.  Of particular relevance when
+   considering this form of the problem is that each evaluation of the
+   explicit and implicit right-hand side functions includes a linear
+   solve of the form :eq:`mass_solve`.  However, assuming that
+   matrix-vector products of the form :eq:`mass_multiply` are
+   significantly less costly than the corresponding solves, we 
+   include one transformation for enhanced efficiency when solving for
+   each stage :math:`z_i,\; i=1,\ldots,s`.  Multiplying these stage
+   equations by :math:`M(t^I_{n,j}),` we consider the equivalent implicit
+   equation for each stage: 
 
-which gives rise to the nonlinear system of equations :eq:`Residual`
-that must be solved for each stage.  This formulation reqires a
-matrix-vector product :eq:`mass_multiply` instead of a linear solve
-:eq:`mass_solve` at each nonlinear iteration; once the stage
-:math:`z_i` has been computed this then requires only two additional
-linear solves to compute 
-:math:`\tilde{f}_I(t^I_{n,i},z_i) = M(t^I_{n,j})^{-1} f_I(t^I_{n,i}, z_i)`
-and
-:math:`\tilde{f}_E(t^E_{n,i},z_i) = M(t^E_{n,j})^{-1} f_E(t^E_{n,i}, z_i)`, 
-amounting to a total of :math:`2s` mass-matrix linear solves per step.
-For problems requiring multiple nonlinear iterations, the
-computational savings may be significant.
+   .. math::
+      M(t^I_{n,j}) z_i - h_n A^I_{i,i} f_I(t^I_{n,i}, z_i) &= M(t^I_{n,j}) \left(
+      y_{n-1} + h_n \sum_{j=1}^{i-1} \left[
+      A^E_{i,j} \tilde{f}_E(t^E_{n,j}, z_j) +
+      A^I_{i,j} \tilde{f}_I(t^I_{n,j}, z_j)\right]\right),
+      \quad i=1,\ldots,s, \\
+      :label: ARK_semilinear
 
-We note that the vast majority of ARK methods (that we have
-encountered) utilize the same stage times for both explicit and
-implicit components :math:`c^I = c^E`, so any "setup" performed for a
-given mass matrix (e.g. factorization or preconditioner) need only be
-performed :math:`s` times per step; for the small fraction of ARK
-methods that use different stage times this increases to :math:`2s`
-mass matrix "setups."
+   which gives rise to the nonlinear system of equations :eq:`Residual`
+   that must be solved for each stage.  This formulation reqires a
+   matrix-vector product :eq:`mass_multiply` instead of a linear solve
+   :eq:`mass_solve` at each nonlinear iteration; once the stage
+   :math:`z_i` has been computed this then requires only two additional
+   linear solves to compute 
+   :math:`\tilde{f}_I(t^I_{n,i},z_i) = M(t^I_{n,j})^{-1} f_I(t^I_{n,i}, z_i)`
+   and
+   :math:`\tilde{f}_E(t^E_{n,i},z_i) = M(t^E_{n,j})^{-1} f_E(t^E_{n,i}, z_i)`, 
+   amounting to a total of :math:`2s` mass-matrix linear solves per step.
+   For problems requiring multiple nonlinear iterations, the
+   computational savings may be significant.
 
-We finally note that this approach does not require additional
-storage beyond that required for ARK methods applied to problems in
-explicit form, since the vectors :math:`\tilde{f}_E(t^E_{n,i}, z_i)`,
-and :math:`\tilde{f}_I(t^I_{n,i}, z_i)` may be stored instead of the
-vectors :math:`f_E(t^E_{n,i}, z_i)` and :math:`f_I(t^I_{n,i}, z_i)`
-that would normally be required.
+   We note that the vast majority of ARK methods (that we have
+   encountered) utilize the same stage times for both explicit and
+   implicit components :math:`c^I = c^E`, so any "setup" performed for a
+   given mass matrix (e.g. factorization or preconditioner) need only be
+   performed :math:`s` times per step; for the small fraction of ARK
+   methods that use different stage times this increases to :math:`2s`
+   mass matrix "setups."
+
+   We finally note that this approach does not require additional
+   storage beyond that required for ARK methods applied to problems in
+   explicit form, since the vectors :math:`\tilde{f}_E(t^E_{n,i}, z_i)`,
+   and :math:`\tilde{f}_I(t^I_{n,i}, z_i)` may be stored instead of the
+   vectors :math:`f_E(t^E_{n,i}, z_i)` and :math:`f_I(t^I_{n,i}, z_i)`
+   that would normally be required.
 
 
 
-Time-independent mass matrix
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..
+   Time-independent mass matrix
+   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-When the mass matrix does not depend on :math:`t`, the above equations
-may be transformed significantly to reduce the number of mass matrix
-"setup" and solve operations.  Specifically, there are three locations
+..
+   When the mass matrix does not depend on :math:`t`, the above equations
+   may be transformed significantly to reduce the number of mass matrix
+   "setup" and solve operations.  Specifically, there are three locations
+In the above algorithmic description there are three locations
 where a linear solve of the form :eq:`mass_solve` is required: (a) in
 constructing the time-evolved solution :math:`y_n`, (b) in estimating
 the local temporal truncation error, and (c) in constructing

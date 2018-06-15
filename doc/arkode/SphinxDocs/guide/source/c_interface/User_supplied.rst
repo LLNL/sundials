@@ -724,15 +724,31 @@ approximation.
    implementation-specific ``SUNMatrix`` interface functions
    (see the section :ref:`SUNMatrix` for details).
 
-   Prior to calling the user-supplied mass matrix function, the mass
-   matrix :math:`M(t)` is zeroed out, so only nonzero elements need to
-   be loaded into *M*. 
+   ..
+      Prior to calling the user-supplied mass matrix function, the mass
+      matrix :math:`M(t)` is zeroed out, so only nonzero elements need to
+      be loaded into *M*. 
 
+   Prior to calling the user-supplied mass matrix function, the mass
+   matrix :math:`M` is zeroed out, so only nonzero elements need to
+   be loaded into *M*. 
+   
    **dense**:
 
+   ..
+      A user-supplied dense mass matrix function must load the *N* by *N*
+      dense matrix *M* with an approximation to the mass matrix
+      :math:`M(t)`. As discussed above in section :ref:`CInterface.JacobianFn`,
+      the accessor macros ``SM_ELEMENT_D`` and ``SM_COLUMN_D`` allow the user
+      to read and write dense matrix elements without making explicit
+      references to the underlying representation of the SUNMATRIX_DENSE
+      type. Similarly, the SUNMATRIX_DENSE type and accessor macros
+      ``SM_ELEMENT_D`` and ``SM_COLUMN_D`` are documented in the section
+      :ref:`SUNMatrix_Dense`. 
+   
    A user-supplied dense mass matrix function must load the *N* by *N*
    dense matrix *M* with an approximation to the mass matrix
-   :math:`M(t)`. As discussed above in section :ref:`CInterface.JacobianFn`,
+   :math:`M`. As discussed above in section :ref:`CInterface.JacobianFn`,
    the accessor macros ``SM_ELEMENT_D`` and ``SM_COLUMN_D`` allow the user
    to read and write dense matrix elements without making explicit
    references to the underlying representation of the SUNMATRIX_DENSE
@@ -742,9 +758,21 @@ approximation.
    
    **band**:
 
+   ..
+      A user-supplied banded mass matrix function must load
+      the band matrix *M* with the elements of the mass matrix
+      :math:`M(t)`. As discussed above in section
+      :ref:`CInterface.JacobianFn`, the accessor macros ``SM_ELEMENT_B``,
+      ``SM_COLUMN_B``, and ``SM_COLUMN_ELEMENT_B`` allow the user to read
+      and write band matrix elements without making specific references
+      to the underlying representation of the SUNMATRIX_BAND type.
+      Similarly, the SUNMATRIX_BAND type and the accessor macros ``SM_ELEMENT_B``,
+      ``SM_COLUMN_B``, and ``SM_COLUMN_ELEMENT_B`` are documented in the section
+      :ref:`SUNMatrix_Band`.
+
    A user-supplied banded mass matrix function must load
    the band matrix *M* with the elements of the mass matrix
-   :math:`M(t)`. As discussed above in section
+   :math:`M`. As discussed above in section
    :ref:`CInterface.JacobianFn`, the accessor macros ``SM_ELEMENT_B``,
    ``SM_COLUMN_B``, and ``SM_COLUMN_ELEMENT_B`` allow the user to read
    and write band matrix elements without making specific references
@@ -752,12 +780,26 @@ approximation.
    Similarly, the SUNMATRIX_BAND type and the accessor macros ``SM_ELEMENT_B``,
    ``SM_COLUMN_B``, and ``SM_COLUMN_ELEMENT_B`` are documented in the section
    :ref:`SUNMatrix_Band`.
-
+        
    **sparse**:
+
+   ..
+      A user-supplied sparse mass matrix function must load the
+      compressed-sparse-column (CSR) or compressed-sparse-row (CSR)
+      matrix *M* with an approximation to the mass matrix :math:`M(t)`.
+      Storage for *M* already exists on entry to this function, although
+      the user should ensure that sufficient space is allocated in *M*
+      to hold the nonzero values to be set; if the existing space is
+      insufficient the user may reallocate the data and row index arrays
+      as needed.  The type of *M* is SUNMATRIX_SPARSE, and the amount of
+      allocated space in a SUNMATRIX_SPARSE object may be
+      accessed using the macro ``SM_NNZ_S`` or the routine
+      :c:func:`SUNSparseMatrix_NNZ()`.  The SUNMATRIX_SPARSE type is
+      further documented in the section :ref:`SUNMatrix_Sparse`.
 
    A user-supplied sparse mass matrix function must load the
    compressed-sparse-column (CSR) or compressed-sparse-row (CSR)
-   matrix *M* with an approximation to the mass matrix :math:`M(t)`.
+   matrix *M* with an approximation to the mass matrix :math:`M`.
    Storage for *M* already exists on entry to this function, although
    the user should ensure that sufficient space is allocated in *M*
    to hold the nonzero values to be set; if the existing space is
@@ -767,7 +809,7 @@ approximation.
    accessed using the macro ``SM_NNZ_S`` or the routine
    :c:func:`SUNSparseMatrix_NNZ()`.  The SUNMATRIX_SPARSE type is
    further documented in the section :ref:`SUNMatrix_Sparse`.
-
+   
 
 
 .. _CInterface.MTimesFn:

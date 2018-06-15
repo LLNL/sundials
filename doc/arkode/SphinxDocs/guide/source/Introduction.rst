@@ -23,12 +23,19 @@ supports ODE systems given in split-explicit form
    M \dot{y} = f_E(t,y) + f_I(t,y),  \qquad y(t_0) = y_0,
    :label: ODE
 
+..
+   where :math:`t` is the independent variable, :math:`y` is the set of
+   dependent variables (in :math:`\mathbb{R}^N`), :math:`M` is a
+   user-specified, nonsingular operator from :math:`\mathbb{R}^N` to
+   :math:`\mathbb{R}^N` (possibly time dependent, but independent of
+   :math:`y`), and the right-hand side function is partitioned into two
+   components: 
+
 where :math:`t` is the independent variable, :math:`y` is the set of
 dependent variables (in :math:`\mathbb{R}^N`), :math:`M` is a
 user-specified, nonsingular operator from :math:`\mathbb{R}^N` to
-:math:`\mathbb{R}^N` (possibly time dependent, but independent of
-:math:`y`), and the right-hand side function is partitioned into two
-components: 
+:math:`\mathbb{R}^N`, and the right-hand side function is partitioned
+into two components: 
 
 - :math:`f_E(t,y)` contains the "nonstiff" time scale components to be
   integrated explicitly, and 

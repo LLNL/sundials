@@ -231,9 +231,8 @@ supports ODE systems given in split-explicit form
 where \(t\) is the independent variable, \(y\) is the set of
 dependent variables (in \(\mathbb{R}^N\)), \(M\) is a
 user-specified, nonsingular operator from \(\mathbb{R}^N\) to
-\(\mathbb{R}^N\) (possibly time dependent, but independent of
-\(y\)), and the right-hand side function is partitioned into two
-components:
+\(\mathbb{R}^N\), and the right-hand side function is partitioned
+into two components:
 \begin{itemize}
 \item {} 
 \(f_E(t,y)\) contains the ``nonstiff'' time scale components to be
@@ -778,23 +777,24 @@ ARKode solves ODE initial value problems (IVPs) in \(\mathbb{R}^N\).
 At present, such problems should be posed in linearly-implicit form,
 as
 \phantomsection\label{Mathematics:equation-IVP}\begin{gather}
-\begin{split}M(t) \dot{y} = f_E(t,y) + f_I(t,y), \qquad y(t_0) = y_0.\end{split}\label{Mathematics-IVP}
+\begin{split}M \dot{y} = f_E(t,y) + f_I(t,y), \qquad y(t_0) = y_0.\end{split}\label{Mathematics-IVP}
 \end{gather}
 Here, \(t\) is the independent variable (e.g. time), and the
 dependent variables are given by \(y \in \mathbb{R}^N\), where we
 use the notation \(\dot{y}\) to denote \(\frac{dy}{dt}\).
 
-\(M(t)\) is a user-specified nonsingular operator from
-\(\mathbb{R}^N \to \mathbb{R}^N\).  This operator may depend on
-\(t\) but is assumed to be independent of \(y\).  For standard
-systems of ordinary differential equations and for problems arising
-from the spatial semi-discretization of partial differential equations
-using finite difference, finite volume, or spectral finite element
-methods, \(M\) is typically the identity matrix, \(I\).  For
-PDEs using other standard finite-element spatial semi-discretizations,
-\(M\) is typically a well-conditioned mass matrix that is
-independent of \(t\) (except in the case of a spatially-adaptive
-method, where \(M\) can change \emph{between} time steps).
+\(M\) is a user-specified nonsingular operator from
+\(\mathbb{R}^N \to \mathbb{R}^N\).  This operator is currently
+assumed to be independent of both \(t\) and \(y\).
+For standard systems of ordinary differential equations and for
+problems arising from the spatial semi-discretization of partial
+differential equations using finite difference, finite volume, or
+spectral finite element methods, \(M\) is typically the identity
+matrix, \(I\).  For PDEs using other standard finite-element
+spatial semi-discretizations, \(M\) is typically a
+well-conditioned mass matrix that is fixed throughout a simulation
+(except in the case of a spatially-adaptive method, where \(M\)
+can change \emph{between}, but not \emph{within}, time steps).
 
 The two right-hand side functions may be described as:
 \begin{itemize}
@@ -1063,14 +1063,14 @@ The ARKStep time-stepping module in ARKode utilizes variable-step,
 embedded, \index{additive Runge-Kutta methods}additive Runge-Kutta methods (ARK), corresponding
 to algorithms of the form
 \phantomsection\label{Mathematics:equation-ARK}\begin{gather}
-\begin{split}z_i &= y_{n-1} + h_n \sum_{j=1}^{i-1} A^E_{i,j} M(t^E_{n,j})^{-1} f_E(t^E_{n,j}, z_j)
-              + h_n \sum_{j=1}^{i} A^I_{i,j} M(t^I_{n,j})^{-1} f_I(t^I_{n,j}, z_j),
+\begin{split}M z_i &= M y_{n-1} + h_n \sum_{j=1}^{i-1} A^E_{i,j} f_E(t^E_{n,j}, z_j)
+              + h_n \sum_{j=1}^{i} A^I_{i,j} f_I(t^I_{n,j}, z_j),
 \quad i=1,\ldots,s, \\
-y_n &= y_{n-1} + h_n \sum_{i=1}^{s} \left(b^E_i M(t^E_{n,j})^{-1} f_E(t^E_{n,i}, z_i)
-              + b^I_i M(t^I_{n,j})^{-1} f_I(t^I_{n,i}, z_i)\right), \\
-\tilde{y}_n &= y_{n-1} + h_n \sum_{i=1}^{s} \left(
-               \tilde{b}^E_i M(t^E_{n,j})^{-1} f_E(t^E_{n,i}, z_i) +
-               \tilde{b}^I_i M(t^I_{n,j})^{-1} f_I(t^I_{n,i}, z_i)\right).\end{split}\label{Mathematics-ARK}
+M y_n &= M y_{n-1} + h_n \sum_{i=1}^{s} \left(b^E_i f_E(t^E_{n,i}, z_i)
+              + b^I_i f_I(t^I_{n,i}, z_i)\right), \\
+M \tilde{y}_n &= M y_{n-1} + h_n \sum_{i=1}^{s} \left(
+               \tilde{b}^E_i f_E(t^E_{n,i}, z_i) +
+               \tilde{b}^I_i f_I(t^I_{n,i}, z_i)\right).\end{split}\label{Mathematics-ARK}
 \end{gather}
 Here \(y_n\) correspond to computed approximations of
 \(y(t_n)\), \(\tilde{y}_n\) are embedded solutions (used in
@@ -1107,7 +1107,7 @@ such problems, ARKStep currently implements the ARK methods proposed in
 For nonstiff problems, a user may specify that \(f_I = 0\),
 i.e. the equation \eqref{Mathematics-IVP} reduces to the non-split IVP
 \phantomsection\label{Mathematics:equation-IVP_explicit}\begin{gather}
-\begin{split}M(t)\, \dot{y} = f_E(t,y), \qquad y(t_0) = y_0.\end{split}\label{Mathematics-IVP_explicit}
+\begin{split}M\, \dot{y} = f_E(t,y), \qquad y(t_0) = y_0.\end{split}\label{Mathematics-IVP_explicit}
 \end{gather}
 In this scenario, the coefficients \(A^I=0\), \(c^I=0\),
 \(b^I=0\) and \(\tilde{b}^I=0\) in \eqref{Mathematics-ARK}, and the ARK
@@ -1122,7 +1122,7 @@ methods reduce to classical \index{explicit Runge-Kutta methods}explicit Runge-K
 Finally, for stiff problems the user may specify that \(f_E = 0\),
 so the equation \eqref{Mathematics-IVP} reduces to the non-split IVP
 \phantomsection\label{Mathematics:equation-IVP_implicit}\begin{gather}
-\begin{split}M(t)\, \dot{y} = f_I(t,y), \qquad y(t_0) = y_0.\end{split}\label{Mathematics-IVP_implicit}
+\begin{split}M\, \dot{y} = f_I(t,y), \qquad y(t_0) = y_0.\end{split}\label{Mathematics-IVP_implicit}
 \end{gather}
 Similarly to ERK methods, in this scenario the coefficients
 \(A^E=0\), \(c^E=0\), \(b^E=0\) and \(\tilde{b}^E=0\)
@@ -1192,7 +1192,7 @@ Additionally, for problems involving a non-identity mass matrix,
 units of the solution \(y\).  In this case, ARKode may also
 construct a \index{residual weight vector}residual weight vector,
 \phantomsection\label{Mathematics:equation-RWT}\begin{gather}
-\begin{split}w_i = \frac{1}{RTOL\cdot | \left[M(t_{n-1}) y_{n-1}\right]_i| + ATOL'_i},\end{split}\label{Mathematics-RWT}
+\begin{split}w_i = \frac{1}{RTOL\cdot | \left[M y_{n-1}\right]_i| + ATOL'_i},\end{split}\label{Mathematics-RWT}
 \end{gather}
 where the user may specify a separate absolute residual tolerance
 value or array, \(ATOL'\).  The choice of weighting vector used
@@ -1237,10 +1237,10 @@ We therefore use the norm of the difference between \(y_n\) and
 \(\tilde{y}_n\) as an estimate for the local truncation error at
 the step \(n\)
 \phantomsection\label{Mathematics:equation-LTE}\begin{gather}
-\begin{split}T_n = \beta \left(y_n - \tilde{y}_n\right) =
+\begin{split}M T_n = \beta \left(y_n - \tilde{y}_n\right) =
 \beta h_n \sum_{i=1}^{s} \left[
-\left(b^E_i - \tilde{b}^E_i\right) M(t^E_{n,i})^{-1} f_E(t^E_{n,i}, z_i) +
-\left(b^I_i - \tilde{b}^I_i\right) M(t^I_{n,i})^{-1} f_I(t^I_{n,i}, z_i) \right]\end{split}\label{Mathematics-LTE}
+\left(b^E_i - \tilde{b}^E_i\right) f_E(t^E_{n,i}, z_i) +
+\left(b^I_i - \tilde{b}^I_i\right) f_I(t^I_{n,i}, z_i) \right]\end{split}\label{Mathematics-LTE}
 \end{gather}
 for ARK methods, and similarly for ERK methods.  Here, \(\beta>0\)
 is an error \emph{bias} to help account for the error constant \(D\);
@@ -1564,7 +1564,7 @@ numerical methods, the remainder of this section currently pertains
 only to the ARKStep module.  More specifically, when using the ARKStep
 time-stepping module for a problem involving either a nonzero implicit
 component, \(f_I(t,y) \ne 0\), or a non-identity mass matrix,
-\(M(t) \ne I\), systems of linear or nonlinear algebraic equations
+\(M \ne I\), systems of linear or nonlinear algebraic equations
 must be solved at each stage and/or step of the method.  This section
 therefore focuses on the variety of mathematical methods provided in
 ARKode for such problems, including {\hyperref[Mathematics:mathematics-nonlinear]{\emph{\DUspan{}{nonlinear solvers}}}}, {\hyperref[Mathematics:mathematics-linear]{\emph{\DUspan{}{linear solvers}}}},
@@ -1580,19 +1580,19 @@ used for simplifying the above solves when using non-time-dependent
 For both the DIRK and ARK methods corresponding to \eqref{Mathematics-IVP} and
 \eqref{Mathematics-IVP_implicit}, an implicit system
 \phantomsection\label{Mathematics:equation-Residual}\begin{gather}
-\begin{split}G(z_i) \equiv M(t^I_{n,i}) z_i - h_n A^I_{i,i} f_I(t^I_{n,i}, z_i) - a_i = 0\end{split}\label{Mathematics-Residual}
+\begin{split}G(z_i) \equiv M z_i - h_n A^I_{i,i} f_I(t^I_{n,i}, z_i) - a_i = 0\end{split}\label{Mathematics-Residual}
 \end{gather}
 must be solved for each stage \(z_i, i=1,\ldots,s\), where we have
 the data
 \begin{gather}
-\begin{split}a_i \equiv M(t^I_{n,i}) \left( y_{n-1} + h_n \sum_{j=1}^{i-1} \left[
-A^E_{i,j} M(t^E_{n,j})^{-1} f_E(t^E_{n,j}, z_j) +
-A^I_{i,j} M(t^I_{n,j})^{-1} f_I(t^I_{n,j}, z_j) \right] \right)\end{split}\notag
+\begin{split}a_i \equiv \left( y_{n-1} + h_n \sum_{j=1}^{i-1} \left[
+A^E_{i,j} f_E(t^E_{n,j}, z_j) +
+A^I_{i,j} f_I(t^I_{n,j}, z_j) \right] \right)\end{split}\notag
 \end{gather}
 for the ARK methods, or
 \begin{gather}
-\begin{split}a_i \equiv M(t^I_{n,i}) \left( y_{n-1} + h_n \sum_{j=1}^{i-1}
-   A^I_{i,j} M(t^I_{n,j})^{-1} f_I(t^I_{n,j}, z_j) \right)\end{split}\notag
+\begin{split}a_i \equiv \left( y_{n-1} + h_n \sum_{j=1}^{i-1}
+A^I_{i,j} f_I(t^I_{n,j}, z_j) \right)\end{split}\notag
 \end{gather}
 for the DIRK methods.  Here, if \(f_I(t,y)\) depends nonlinearly
 on \(y\) then \eqref{Mathematics-Residual} corresponds to a nonlinear system of
@@ -1616,7 +1616,7 @@ update \(\delta^{(m+1)}\) in turn requires the solution of the
 \end{gather}
 in which
 \phantomsection\label{Mathematics:equation-NewtonMatrix}\begin{gather}
-\begin{split}{\mathcal A}(t,z) \approx M(t) - \gamma J(t,z), \quad
+\begin{split}{\mathcal A}(t,z) \approx M - \gamma J(t,z), \quad
 J(t,z) = \frac{\partial f_I(t,z)}{\partial z}, \quad\text{and}\quad
 \gamma = h_n A^I_{i,i}.\end{split}\label{Mathematics-NewtonMatrix}
 \end{gather}
@@ -1749,7 +1749,7 @@ equation
 \end{gather}
 in which
 \phantomsection\label{Mathematics:equation-modified_NewtonMatrix}\begin{gather}
-\begin{split}\tilde{\mathcal A}(t,z) \approx M(t) - \tilde{\gamma} J(t,z),
+\begin{split}\tilde{\mathcal A}(t,z) \approx M - \tilde{\gamma} J(t,z),
 \quad\text{and}\quad \tilde{\gamma} = \tilde{h} A^I_{i,i}.\end{split}\label{Mathematics-modified_NewtonMatrix}
 \end{gather}
 Here, the solution \(\tilde{z}\), time \(\tilde{t}\), and step
@@ -1799,7 +1799,7 @@ solved completely, since these linear solvers are iterative (hence the
 ``inexact'' in the name). As a result. for these linear solvers
 \({\mathcal A}\) is applied in a matrix-free manner,
 \begin{gather}
-\begin{split}{\mathcal A}(t,z)\, v = M(t)\, v - \gamma\, J(t,z)\, v.\end{split}\notag
+\begin{split}{\mathcal A}(t,z)\, v = Mv - \gamma\, J(t,z)\, v.\end{split}\notag
 \end{gather}
 The matrix-vector products \(Mv\) \emph{must} be provided through a
 user-supplied routine; the matrix-vector products \(Jv\) are
@@ -2276,83 +2276,7 @@ separately for both tolerances \eqref{Mathematics-LinearTolerance} and
 {\hyperref[c_interface/User_callable:c.ARKSpilsSetMassEpsLin]{\emph{\code{ARKSpilsSetMassEpsLin()}}}} in C/C++, or
 {\hyperref[f_interface/Usage:f/_/FARKSPILSSETMASSEPSLIN]{\emph{\code{FARKSPILSSETMASSEPSLIN()}}}} in Fortran.
 
-In the subsections that follow we examine these in two
-distinct cases: first where the mass matrix is time-dependent,
-i.e. \(M = M(t)\), and the second where it does not depend on
-time, i.e. \(M \ne M(t)\), since this latter case may be leveraged
-to reduce the overall complexity in use of non-identity mass
-matrices.  We note that for problems where \(M\) only varies due
-to spatial adaptivity between time steps, the user may specify that
-their mass matrix is independent of \(t\) and manually update any
-internal structures required to perform mass-matrix-related operations
-when they update the spatial mesh.
-
-
-\subsubsection{Time-dependent mass matrix}
-\label{Mathematics:time-dependent-mass-matrix}
-When the mass matrix is time-dependent, the algorithms above are
-constructed by first rewriting the problem from semilinear form,
-\begin{gather}
-\begin{split}M(t)\, \dot{y}(t) = f_E(t,y) + f_I(t,y)\end{split}\notag
-\end{gather}
-to explicit form,
-\begin{gather}
-\begin{split}&\dot{y}(t) = M(t)^{-1} f_E(t,y) + M(t)^{-1} f_I(t,y) \\
-\Leftrightarrow \qquad & \\
-&\dot{y}(t) = \tilde{f}_E(t,y) + \tilde{f}_I(t,y).\end{split}\notag
-\end{gather}
-The above algorithms then apply standard additive Runge-Kutta methods
-to this modified version of the problem.  Of particular relevance when
-considering this form of the problem is that each evaluation of the
-explicit and implicit right-hand side functions includes a linear
-solve of the form \eqref{Mathematics-mass_solve}.  However, assuming that
-matrix-vector products of the form \eqref{Mathematics-mass_multiply} are
-significantly less costly than the corresponding solves, we
-include one transformation for enhanced efficiency when solving for
-each stage \(z_i,\; i=1,\ldots,s\).  Multiplying these stage
-equations by \(M(t^I_{n,j}),\) we consider the equivalent implicit
-equation for each stage:
-\phantomsection\label{Mathematics:equation-ARK_semilinear}\begin{gather}
-\begin{split}M(t^I_{n,j}) z_i - h_n A^I_{i,i} f_I(t^I_{n,i}, z_i) &= M(t^I_{n,j}) \left(
-y_{n-1} + h_n \sum_{j=1}^{i-1} \left[
-A^E_{i,j} \tilde{f}_E(t^E_{n,j}, z_j) +
-A^I_{i,j} \tilde{f}_I(t^I_{n,j}, z_j)\right]\right),
-\quad i=1,\ldots,s, \\\end{split}\label{Mathematics-ARK_semilinear}
-\end{gather}
-which gives rise to the nonlinear system of equations \eqref{Mathematics-Residual}
-that must be solved for each stage.  This formulation reqires a
-matrix-vector product \eqref{Mathematics-mass_multiply} instead of a linear solve
-\eqref{Mathematics-mass_solve} at each nonlinear iteration; once the stage
-\(z_i\) has been computed this then requires only two additional
-linear solves to compute
-\(\tilde{f}_I(t^I_{n,i},z_i) = M(t^I_{n,j})^{-1} f_I(t^I_{n,i}, z_i)\)
-and
-\(\tilde{f}_E(t^E_{n,i},z_i) = M(t^E_{n,j})^{-1} f_E(t^E_{n,i}, z_i)\),
-amounting to a total of \(2s\) mass-matrix linear solves per step.
-For problems requiring multiple nonlinear iterations, the
-computational savings may be significant.
-
-We note that the vast majority of ARK methods (that we have
-encountered) utilize the same stage times for both explicit and
-implicit components \(c^I = c^E\), so any ``setup'' performed for a
-given mass matrix (e.g. factorization or preconditioner) need only be
-performed \(s\) times per step; for the small fraction of ARK
-methods that use different stage times this increases to \(2s\)
-mass matrix ``setups.''
-
-We finally note that this approach does not require additional
-storage beyond that required for ARK methods applied to problems in
-explicit form, since the vectors \(\tilde{f}_E(t^E_{n,i}, z_i)\),
-and \(\tilde{f}_I(t^I_{n,i}, z_i)\) may be stored instead of the
-vectors \(f_E(t^E_{n,i}, z_i)\) and \(f_I(t^I_{n,i}, z_i)\)
-that would normally be required.
-
-
-\subsubsection{Time-independent mass matrix}
-\label{Mathematics:time-independent-mass-matrix}
-When the mass matrix does not depend on \(t\), the above equations
-may be transformed significantly to reduce the number of mass matrix
-``setup'' and solve operations.  Specifically, there are three locations
+In the above algorithmic description there are three locations
 where a linear solve of the form \eqref{Mathematics-mass_solve} is required: (a) in
 constructing the time-evolved solution \(y_n\), (b) in estimating
 the local temporal truncation error, and (c) in constructing
@@ -2776,7 +2700,7 @@ desired time-stepping module:
 \code{arkode/arkode\_arkstep.h}, the header file for solving problems
 posted in additive semilinear form,
 \begin{gather}
-\begin{split}M(t) \dot{y} = f_E(t,y) + f_I(t,y), \qquad y(t_0) = y_0.\end{split}\notag
+\begin{split}M \dot{y} = f_E(t,y) + f_I(t,y), \qquad y(t_0) = y_0.\end{split}\notag
 \end{gather}
 \item {} 
 \code{arkode/arkode\_erkstep.h}, the header file for solving problems
@@ -2799,7 +2723,7 @@ the resulting systems of equations.  ARKode allows an accelerated
 fixed point iteration and Newton-based iterations for this solver; if
 a Newton method is used then a linear solver module header file may
 also be required.  Similarly, if the ODE system involves a
-non-identity mass matrix \(M(t) \ne I\), then each time
+non-identity mass matrix \(M \ne I\), then each time
 step will require a linear solver for systems of the form
 \(Mx=b\).  The header files corresponding to the various linear
 solver interfaces and linear solver modules available for use with
@@ -3459,12 +3383,12 @@ be solved using the ARK timestepping module in ARKode.
 \item {} 
 \emph{fe} -- the name of the C function (of type {\hyperref[c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the explicit portion of the right-hand side function in
-\(M(t)\, \dot{y} = f_E(t,y) + f_I(t,y)\)
+\(M\, \dot{y} = f_E(t,y) + f_I(t,y)\)
 
 \item {} 
 \emph{fi} -- the name of the C function (of type {\hyperref[c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the implicit portion of the right-hand side function in
-\(M(t)\, \dot{y} = f_E(t,y) + f_I(t,y)\)
+\(M\, \dot{y} = f_E(t,y) + f_I(t,y)\)
 
 \item {} 
 \emph{t0} -- the initial value of \(t\)
@@ -3710,8 +3634,8 @@ that implements the error weight vector computation.
 
 
 Moreover, for problems involving a non-identity mass matrix
-\(M(t) \ne I\), the units of the solution vector \(y\) may differ
-from the units of the IVP, posed for the vector \(M(t)\,y\).  When this
+\(M \ne I\), the units of the solution vector \(y\) may differ
+from the units of the IVP, posed for the vector \(My\).  When this
 occurs, iterative solvers for the Newton linear systems and the mass
 matrix linear systems may require a different set of tolerances.
 Since the relative tolerance is dimensionless, but the absolute
@@ -4211,6 +4135,7 @@ header file  \code{arkode/arkode\_direct.h}.
 the independent variable (\(M = M(t)\)) or not (\(M
 \ne M(t)\)).  Use \code{SUNTRUE} to indicate time-dependence of the
 mass matrix.
+\emph{Currently, only values of ``SUNFALSE'' are supported}
 
 \end{itemize}
 
@@ -4282,6 +4207,7 @@ solver interface.  Its use requires inclusion of the header file
 the independent variable (\(M = M(t)\)) or not (\(M
 \ne M(t)\)).  Use \code{SUNTRUE} to indicate time-dependence of the
 mass matrix.
+\emph{Currently, only values of ``SUNFALSE'' are supported}
 
 \end{itemize}
 
@@ -7809,7 +7735,7 @@ data pointer may be specified through {\hyperref[c_interface/User_callable:c.ARK
 
 Similarly, if the ODE system involves a non-identity mass matrix,
 \(M\ne I\), the ARKDLS interface needs a function to compute an
-approximation to the mass matrix \(M(t)\). There is no default
+approximation to the mass matrix \(M\). There is no default
 difference quotient approximation, so this routine must be supplied by
 the user. This function must be of type {\hyperref[c_interface/User_supplied:c.ARKDlsMassFn]{\emph{\code{ARKDlsMassFn()}}}}, and
 should be set using the function {\hyperref[c_interface/User_callable:c.ARKDlsSetMassFn]{\emph{\code{ARKDlsSetMassFn()}}}}.  We note
@@ -7953,7 +7879,7 @@ time they are called.
 Similarly, if a problem involves a non-identity mass matrix,
 \(M\ne I\), then the ARKSPILS solvers require a \emph{mtimes} function
 to compute an approximation to the product between the mass matrix
-\(M(t)\) and a vector \(v\).  This function must be
+\(M\) and a vector \(v\).  This function must be
 user-supplied, since there is no default value.  \emph{mtimes} must be
 of type {\hyperref[c_interface/User_supplied:c.ARKSpilsMassTimesVecFn]{\emph{\code{ARKSpilsMassTimesVecFn()}}}}, and can be specified
 through a call to the  {\hyperref[c_interface/User_callable:c.ARKSpilsSetMassTimes]{\emph{\code{ARKSpilsSetMassTimes()}}}} routine.
@@ -11479,12 +11405,12 @@ ARKStep timestepper module.
 \item {} 
 \emph{fe} -- the name of the C function (of type {\hyperref[c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the explicit portion of the right-hand side function in
-\(M(t)\, \dot{y} = f_E(t,y) + f_I(t,y)\).
+\(M\, \dot{y} = f_E(t,y) + f_I(t,y)\).
 
 \item {} 
 \emph{fi} -- the name of the C function (of type {\hyperref[c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the implicit portion of the right-hand side function in
-\(M(t)\, \dot{y} = f_E(t,y) + f_I(t,y)\).
+\(M\, \dot{y} = f_E(t,y) + f_I(t,y)\).
 
 \item {} 
 \emph{t0} -- the initial value of \(t\).
@@ -12572,14 +12498,14 @@ implementation-specific \code{SUNMatrix} interface functions
 (see the section {\hyperref[sunmatrix/index:sunmatrix]{\emph{\DUspan{}{Matrix Data Structures}}}} for details).
 
 Prior to calling the user-supplied mass matrix function, the mass
-matrix \(M(t)\) is zeroed out, so only nonzero elements need to
+matrix \(M\) is zeroed out, so only nonzero elements need to
 be loaded into \emph{M}.
 
 \textbf{dense}:
 
 A user-supplied dense mass matrix function must load the \emph{N} by \emph{N}
 dense matrix \emph{M} with an approximation to the mass matrix
-\(M(t)\). As discussed above in section {\hyperref[c_interface/User_supplied:cinterface-jacobianfn]{\emph{\DUspan{}{Jacobian information (direct method Jacobian)}}}},
+\(M\). As discussed above in section {\hyperref[c_interface/User_supplied:cinterface-jacobianfn]{\emph{\DUspan{}{Jacobian information (direct method Jacobian)}}}},
 the accessor macros \code{SM\_ELEMENT\_D} and \code{SM\_COLUMN\_D} allow the user
 to read and write dense matrix elements without making explicit
 references to the underlying representation of the SUNMATRIX\_DENSE
@@ -12591,7 +12517,7 @@ type. Similarly, the SUNMATRIX\_DENSE type and accessor macros
 
 A user-supplied banded mass matrix function must load
 the band matrix \emph{M} with the elements of the mass matrix
-\(M(t)\). As discussed above in section
+\(M\). As discussed above in section
 {\hyperref[c_interface/User_supplied:cinterface-jacobianfn]{\emph{\DUspan{}{Jacobian information (direct method Jacobian)}}}}, the accessor macros \code{SM\_ELEMENT\_B},
 \code{SM\_COLUMN\_B}, and \code{SM\_COLUMN\_ELEMENT\_B} allow the user to read
 and write band matrix elements without making specific references
@@ -12604,7 +12530,7 @@ Similarly, the SUNMATRIX\_BAND type and the accessor macros \code{SM\_ELEMENT\_B
 
 A user-supplied sparse mass matrix function must load the
 compressed-sparse-column (CSR) or compressed-sparse-row (CSR)
-matrix \emph{M} with an approximation to the mass matrix \(M(t)\).
+matrix \emph{M} with an approximation to the mass matrix \(M\).
 Storage for \emph{M} already exists on entry to this function, although
 the user should ensure that sufficient space is allocated in \emph{M}
 to hold the nonzero values to be set; if the existing space is
@@ -12870,7 +12796,7 @@ the ARKSPILS iterative linear solver interface, in a serial setting.
 It requires that the problem be set up using either the
 NVECTOR\_SERIAL, NVECTOR\_OPENMP or NVECTOR\_PTHREADS module, due to data
 access patterns.  It also currently requires that the problem involve
-an identity mass matrix, i.e. \(M(t) = I\).
+an identity mass matrix, i.e. \(M = I\).
 
 This module uses difference quotients of the ODE right-hand
 side function \(f_I\) to generate a band matrix of bandwidth
@@ -13673,7 +13599,7 @@ The FARKODE interface module is a package of C functions which
 support the use of the main ARKode solver and accompanying ARKStep
 timestepping module for the solution of ODE systems
 \begin{gather}
-\begin{split}M(t)\, \dot{y} = f_E(t,y) + f_I(t,y),\end{split}\notag
+\begin{split}M\, \dot{y} = f_E(t,y) + f_I(t,y),\end{split}\notag
 \end{gather}
 in a mixed Fortran/C setting.  While ARKode is written in C, it is
 assumed here that the user's calling program and user-supplied
@@ -14327,10 +14253,10 @@ options are usable only in a serial or multi-threaded environment.
 As described in the section {\hyperref[Mathematics:mathematics-masssolve]{\emph{\DUspan{}{Mass matrix solver}}}}, in the case
 of using a problem with a non-identity mass matrix (no matter whether
 the integrator is implicit, explicit or ImEx), linear systems of the
-form \(Mx=b\) must be solved, where \(M(t)\) is the possibly
-time-dependent system mass matrix.  If these are to be solved with a
-direct SUNLINSOL linear solver module and one of the SUNMATRIX modules
-supplied with SUNDIALS, the user must make a call of the form
+form \(Mx=b\) must be solved, where \(M\) is the system mass
+matrix.  If these are to be solved with a direct SUNLINSOL linear
+solver module and one of the SUNMATRIX modules supplied with SUNDIALS,
+the user must make a call of the form
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{n}{CALL} \PYG{n}{FSUNBANDMASSMATINIT}\PYG{p}{(}\PYG{n}{N}\PYG{p}{,} \PYG{n}{MU}\PYG{p}{,} \PYG{n}{ML}\PYG{p}{,} \PYG{n}{SMU}\PYG{p}{,} \PYG{n}{IER}\PYG{p}{)}
@@ -15858,7 +15784,7 @@ Typically this routine will use only \emph{T}, \emph{Y}, \emph{GAMMA}, \emph{R},
 \emph{LR}, and \emph{Z}.  It must solve the preconditioner linear system
 \(Pz = r\).  The preconditioner (or the product of the left and
 right preconditioners if both are nontrivial) should be an
-approximation to the matrix  \(M(T) - \gamma J\), where
+approximation to the matrix  \(M - \gamma J\), where
 \(M\) is the system mass matrix, \(\gamma\) is the input
 GAMMA, and \(J = \frac{\partial f_I}{\partial y}\).
 
@@ -15984,6 +15910,7 @@ specify use of the direct mass matrix linear solver interface.
 \item {} 
 \emph{TIME\_DEP} (\code{int}, input) -- flag indicating whether the
 mass matrix is time-dependent (1) or not (0).
+\emph{Currently, only values of ``0'' are supported}
 
 \item {} 
 \emph{IER} (\code{int}, output) -- return flag (0 if success, -1 if a memory allocation
@@ -15998,7 +15925,7 @@ error occurred, -2 for an illegal input).
 
 When using the ARKDLS interface with the SUNLINSOL\_DENSE or
 SUNLINSOL\_LAPACKDENSE mass matrix linear solver modules, the user must
-supply a routine that computes the dense mass matrix \(M(t)\).  This
+supply a routine that computes the dense mass matrix \(M\).  This
 routine must have the following form:
 \index{FARKDMASS() (fortran subroutine)|textbf}
 
@@ -16070,7 +15997,7 @@ for the mass matrix calculation.
 
 When using the ARKDLS interface with the SUNLINSOL\_BAND or
 SUNLINSOL\_LAPACKBAND mass matrix linear solver modules, the user must
-supply a routine that computes the banded mass matrix \(M(t)\).  This
+supply a routine that computes the banded mass matrix \(M\).  This
 routine must have the following form:
 \index{FARKBMASS() (fortran subroutine)|textbf}
 
@@ -16155,12 +16082,12 @@ matrix calculation.
 
 When using the ARKDLS interface with the SUNLINSOL\_KLU or
 SUNLINSOL\_SUPERLUMT mass matrix linear solver modules, the user must
-supply a routine that computes the sparse mass matrix \(M(t)\).
+supply a routine that computes the sparse mass matrix \(M\).
 Both the KLU and SuperLU\_MT solver interfaces support the
 compressed-sparse-column (CSC) and compressed-sparse-row (CSR) matrix
 formats.  The desired format must have been specified to the
 \code{FSUNSPARSEMASSMATINIT()} function when initializing the
-sparse mass matrix.  The user-provided routine to compute \(M(t)\)
+sparse mass matrix.  The user-provided routine to compute \(M\)
 must have the following form:
 \index{FARKSPMASS() (fortran subroutine)|textbf}
 
@@ -16265,6 +16192,7 @@ function to specify use of the iterative mass matrix solver interface.
 \item {} 
 \emph{TIME\_DEP} (\code{int}, input) -- flag indicating whether the
 mass matrix is time-dependent (1) or not (0).
+\emph{Currently, only values of 0 are supported.}
 
 \item {} 
 \emph{IER} (\code{int}, output) -- return flag (0 if success, -1 if a memory allocation
@@ -16316,9 +16244,9 @@ optional user-supplied routines, {\hyperref[f_interface/Usage:f/_/FARKMASSPSET]{
 {\hyperref[f_interface/Usage:f/_/FARKMASSPSOL]{\emph{\code{FARKMASSPSOL()}}}}. The specifications of these functions are given below.
 
 The required routines when using a Krylov iterative mass matrix linear
-solver perform setup and computation of the product of the possibly
-time-dependent system mass matrix \(M(t)\) and a given vector
-\(v\).  The product routine must have the following form:
+solver perform setup and computation of the product of the system mass
+matrix \(M\) and a given vector \(v\).  The product routine
+must have the following form:
 \index{FARKMTIMES() (fortran subroutine)|textbf}
 
 \begin{fulllineitems}
@@ -16494,7 +16422,7 @@ This routine must set up the preconditioner \(P\) to be used in
 the subsequent call to {\hyperref[f_interface/Usage:f/_/FARKMASSPSOL]{\emph{\code{FARKMASSPSOL()}}}}.  The
 preconditioner (or the product of the left and right
 preconditioners if using both) should be an approximation to the
-matrix \(M(t)\), where \(M\) is the system mass matrix.
+system mass matrix, \(M\).
 
 \end{fulllineitems}
 
@@ -16545,7 +16473,7 @@ Typically this routine will use only \emph{T}, \emph{R}, \emph{LR}, and \emph{Z}
 must solve the preconditioner linear system \(Pz = r\).  The
 preconditioner (or the product of the left and right
 preconditioners if both are nontrivial) should be an approximation
-to the system mass matrix \(M(t)\).
+to the system mass matrix \(M\).
 
 \end{fulllineitems}
 
@@ -16823,8 +16751,8 @@ relevant ``set'' routines to specify their usage must be called again
 \subsubsection{Memory deallocation}
 \label{f_interface/Usage:finterface-deallocation}\label{f_interface/Usage:memory-deallocation}
 To free the internal memory created by {\hyperref[f_interface/Usage:f/_/FARKMALLOC]{\emph{\code{FARKMALLOC()}}}},
-{\hyperref[f_interface/Usage:f/_/FARKDLSINIT]{\emph{\code{FARKDLSINIT()}}}}/{\hyperref[f_interface/Usage:f/_/FARKSPILSINIT]{\emph{\code{FARKSPILSINIT()}}}},
-{\hyperref[f_interface/Usage:f/_/FARKDLSMASSINIT]{\emph{\code{FARKDLSMASSINIT()}}}}/{\hyperref[f_interface/Usage:f/_/FARKSPILSMASSINIT]{\emph{\code{FARKSPILSMASSINIT()}}}},
+{\hyperref[f_interface/Usage:f/_/FARKDLSINIT]{\emph{\code{FARKDLSINIT()}}}}, {\hyperref[f_interface/Usage:f/_/FARKSPILSINIT]{\emph{\code{FARKSPILSINIT()}}}},
+{\hyperref[f_interface/Usage:f/_/FARKDLSMASSINIT]{\emph{\code{FARKDLSMASSINIT()}}}}, {\hyperref[f_interface/Usage:f/_/FARKSPILSMASSINIT]{\emph{\code{FARKSPILSMASSINIT()}}}},
 and the SUNMATRIX and SUNLINSOL objects, the user may call
 {\hyperref[f_interface/Usage:f/_/FARKFREE]{\emph{\code{FARKFREE()}}}}, as follows:
 \index{FARKFREE() (fortran subroutine)|textbf}

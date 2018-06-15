@@ -18,8 +18,12 @@ The FARKODE interface module is a package of C functions which
 support the use of the main ARKode solver and accompanying ARKStep
 timestepping module for the solution of ODE systems 
 
+..
+   .. math::
+      M(t)\, \dot{y} = f_E(t,y) + f_I(t,y),
+
 .. math::
-   M(t)\, \dot{y} = f_E(t,y) + f_I(t,y),
+   M\, \dot{y} = f_E(t,y) + f_I(t,y),
 
 in a mixed Fortran/C setting.  While ARKode is written in C, it is
 assumed here that the user's calling program and user-supplied

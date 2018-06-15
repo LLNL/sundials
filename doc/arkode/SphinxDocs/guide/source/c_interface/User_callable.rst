@@ -55,15 +55,28 @@ ARKode initialization and deallocation functions
    This function allocates and initializes memory for a problem to
    be solved using the ARK timestepping module in ARKode. 
 
+   ..
+      **Arguments:**
+         * *arkode_mem* -- pointer to the ARKode memory block
+           (that was returned by :c:func:`ARKodeCreate()`)
+         * *fe* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
+           defining the explicit portion of the right-hand side function in 
+           :math:`M(t)\, \dot{y} = f_E(t,y) + f_I(t,y)` 
+         * *fi* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
+           defining the implicit portion of the right-hand side function in 
+           :math:`M(t)\, \dot{y} = f_E(t,y) + f_I(t,y)`
+         * *t0* -- the initial value of :math:`t`
+         * *y0* -- the initial condition vector :math:`y(t_0)`
+
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKode memory block
         (that was returned by :c:func:`ARKodeCreate()`)
       * *fe* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
         defining the explicit portion of the right-hand side function in 
-        :math:`M(t)\, \dot{y} = f_E(t,y) + f_I(t,y)` 
+        :math:`M\, \dot{y} = f_E(t,y) + f_I(t,y)` 
       * *fi* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
         defining the implicit portion of the right-hand side function in 
-        :math:`M(t)\, \dot{y} = f_E(t,y) + f_I(t,y)`
+        :math:`M\, \dot{y} = f_E(t,y) + f_I(t,y)`
       * *t0* -- the initial value of :math:`t`
       * *y0* -- the initial condition vector :math:`y(t_0)`
 
@@ -208,9 +221,13 @@ Alternatively, the user may supply a custom function to supply the
 
 
 
+..
+   Moreover, for problems involving a non-identity mass matrix
+   :math:`M(t) \ne I`, the units of the solution vector :math:`y` may differ
+   from the units of the IVP, posed for the vector :math:`M(t)\,y`.  When this
 Moreover, for problems involving a non-identity mass matrix
-:math:`M(t) \ne I`, the units of the solution vector :math:`y` may differ
-from the units of the IVP, posed for the vector :math:`M(t)\,y`.  When this
+:math:`M \ne I`, the units of the solution vector :math:`y` may differ
+from the units of the IVP, posed for the vector :math:`My`.  When this
 occurs, iterative solvers for the Newton linear systems and the mass
 matrix linear systems may require a different set of tolerances.
 Since the relative tolerance is dimensionless, but the absolute
@@ -614,6 +631,7 @@ modules.
         the independent variable (:math:`M = M(t)`) or not (:math:`M
         \ne M(t)`).  Use ``SUNTRUE`` to indicate time-dependence of the
         mass matrix.
+        *Currently, only values of "SUNFALSE" are supported*
    
    **Return value:** 
       * *ARKDLS_SUCCESS*   if successful
@@ -665,6 +683,7 @@ modules.
         the independent variable (:math:`M = M(t)`) or not (:math:`M
         \ne M(t)`).  Use ``SUNTRUE`` to indicate time-dependence of the
         mass matrix.
+        *Currently, only values of "SUNFALSE" are supported*
    
    **Return value:** 
       * *ARKSPILS_SUCCESS*   if successful
@@ -2636,9 +2655,13 @@ data and access it during the execution of the user-supplied Jacobian
 function, without using global data in the program. The user
 data pointer may be specified through :c:func:`ARKodeSetUserData()`.
 
+..
+   Similarly, if the ODE system involves a non-identity mass matrix,
+   :math:`M\ne I`, the ARKDLS interface needs a function to compute an
+   approximation to the mass matrix :math:`M(t)`. There is no default
 Similarly, if the ODE system involves a non-identity mass matrix,
 :math:`M\ne I`, the ARKDLS interface needs a function to compute an
-approximation to the mass matrix :math:`M(t)`. There is no default
+approximation to the mass matrix :math:`M`. There is no default
 difference quotient approximation, so this routine must be supplied by
 the user. This function must be of type :c:func:`ARKDlsMassFn()`, and
 should be set using the function :c:func:`ARKDlsSetMassFn()`.  We note
@@ -2752,10 +2775,15 @@ data structure, *user_data*, specified through
 passed to the Jacobian-times-vector setup and product functions each
 time they are called.
 
+..
+   Similarly, if a problem involves a non-identity mass matrix,
+   :math:`M\ne I`, then the ARKSPILS solvers require a *mtimes* function
+   to compute an approximation to the product between the mass matrix
+   :math:`M(t)` and a vector :math:`v`.  This function must be 
 Similarly, if a problem involves a non-identity mass matrix,
 :math:`M\ne I`, then the ARKSPILS solvers require a *mtimes* function
 to compute an approximation to the product between the mass matrix
-:math:`M(t)` and a vector :math:`v`.  This function must be 
+:math:`M` and a vector :math:`v`.  This function must be 
 user-supplied, since there is no default value.  *mtimes* must be 
 of type :c:func:`ARKSpilsMassTimesVecFn()`, and can be specified
 through a call to the  :c:func:`ARKSpilsSetMassTimes()` routine.
@@ -4758,14 +4786,26 @@ vector.
    Provides required problem specifications and reinitializes the
    ARKStep timestepper module.
    
+   ..
+      **Arguments:**
+         * *arkode_mem* -- pointer to the ARKode memory block.
+         * *fe* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
+           defining the explicit portion of the right-hand side function in 
+           :math:`M(t)\, \dot{y} = f_E(t,y) + f_I(t,y)`.
+         * *fi* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
+           defining the implicit portion of the right-hand side function in 
+           :math:`M(t)\, \dot{y} = f_E(t,y) + f_I(t,y)`.
+         * *t0* -- the initial value of :math:`t`.
+         * *y0* -- the initial condition vector :math:`y(t_0)`.
+   
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKode memory block.
       * *fe* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
         defining the explicit portion of the right-hand side function in 
-        :math:`M(t)\, \dot{y} = f_E(t,y) + f_I(t,y)`.
+        :math:`M\, \dot{y} = f_E(t,y) + f_I(t,y)`.
       * *fi* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
         defining the implicit portion of the right-hand side function in 
-        :math:`M(t)\, \dot{y} = f_E(t,y) + f_I(t,y)`.
+        :math:`M\, \dot{y} = f_E(t,y) + f_I(t,y)`.
       * *t0* -- the initial value of :math:`t`.
       * *y0* -- the initial condition vector :math:`y(t_0)`.
    
