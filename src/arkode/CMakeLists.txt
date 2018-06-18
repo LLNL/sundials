@@ -35,6 +35,8 @@ SET(arkode_SOURCES
   arkode_io.c
   arkode_root.c
   arkode_spils.c
+  arkode_imexgarkstep.c
+  arkode_imexgarkstep_io.c
   )
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will

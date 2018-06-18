@@ -37,6 +37,7 @@ SET(ARKODE_examples
   "ark_KrylovDemo_prec\;develop"
   "ark_robertson\;"
   "ark_robertson_root\;develop"
+  "imexgark_brusselator_fp\;develop"
   )
 
 # Examples using LAPACK linear solvers
