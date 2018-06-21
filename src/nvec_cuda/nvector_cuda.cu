@@ -89,7 +89,7 @@ N_Vector N_VNewEmpty_Cuda(sunindextype length)
   /* fused vector operations */
   ops->nvlinearcombination = N_VLinearCombination_Cuda;
   ops->nvscaleaddmulti     = N_VScaleAddMulti_Cuda;
-  ops->nvdotprodmulti      = N_VDotProdMulti_Cuda;
+  ops->nvdotprodmulti      = NULL; // N_VDotProdMulti_Cuda;
 
   /* vector array operations */
   ops->nvlinearsumvectorarray         = N_VLinearSumVectorArray_Cuda;
