@@ -151,7 +151,7 @@ module. This included changing \id{MPI\_MPICC} to
 \id{MPI\_C\_COMPILER}, \id{MPI\_MPICXX} to \id{MPI\_CXX\_COMPILER},
 combining \id{MPI\_MPIF77} and \id{MPI\_MPIF90} to
 \id{MPI\_Fortran\_COMPILER}, and changing \id{MPI\_RUN\_COMMAND} to
-\id{MPIEXEC}. When a Fortran name-mangling scheme is needed (e.g.,
+\id{MPIEXEC\_EXECUTABLE}. When a Fortran name-mangling scheme is needed (e.g.,
 \id{LAPACK\_ENABLE} is \id{ON}) the build system will infer the scheme
 from the Fortran compiler. If a Fortran compiler is not available or
 the inferred or default scheme needs to be overridden, the advanced

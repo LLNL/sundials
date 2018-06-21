@@ -317,7 +317,7 @@ module. This included changing \code{MPI\_MPICC} to
 \code{MPI\_C\_COMPILER}, \code{MPI\_MPICXX} to \code{MPI\_CXX\_COMPILER},
 combining \code{MPI\_MPIF77} and \code{MPI\_MPIF90} to
 \code{MPI\_Fortran\_COMPILER}, and changing \code{MPI\_RUN\_COMMAND} to
-\code{MPIEXEC}. When a Fortran name-mangling scheme is needed (e.g.,
+\code{MPIEXEC\_EXECUTABLE}. When a Fortran name-mangling scheme is needed (e.g.,
 \code{LAPACK\_ENABLE} is \code{ON}) the build system will infer the scheme
 from the Fortran compiler. If a Fortran compiler is not available or
 the inferred or default scheme needs to be overridden, the advanced
@@ -26672,12 +26672,12 @@ Setting this option to \code{ON} will trigger several additional
 options related to MPI.
 \end{notice}
 
-\item[{\index{MPI\_MPICC (CMake option)}MPI\_MPICC}] \leavevmode
+\item[{\index{MPI\_C\_COMPILER (CMake option)}MPI\_C\_COMPILER}] \leavevmode
 \code{mpicc} program
 
 Default:
 
-\item[{\index{MPI\_MPICXX (CMake option)}MPI\_MPICXX}] \leavevmode
+\item[{\index{MPI\_CXX\_COMPILER (CMake option)}MPI\_CXX\_COMPILER}] \leavevmode
 \code{mpicxx} program
 
 Default:
@@ -26691,8 +26691,8 @@ without setting any additional configuration options
 other than \code{MPI\_ENABLE}.
 \end{notice}
 
-\item[{\index{MPI\_MPIF77 (CMake option)}MPI\_MPIF77}] \leavevmode
-\code{mpif77} program
+\item[{\index{MPI\_Fortran\_COMPILER (CMake option)}MPI\_Fortran\_COMPILER}] \leavevmode
+\code{mpifort} program
 
 Default:
 
@@ -26702,19 +26702,7 @@ This option is triggered only if MPI is enabled
 enabled (\code{FCMIX\_ENABLE} is \code{ON}).
 \end{notice}
 
-\item[{\index{MPI\_MPIF90 (CMake option)}MPI\_MPIF90}] \leavevmode
-\code{mpif90} program
-
-Default:
-
-\begin{notice}{note}{Note:}
-This option is triggered only if MPI is enabled
-(\code{MPI\_ENABLE} is \code{ON}), Fortran-C support is enabled
-(\code{FCMIX\_ENABLE} is \code{ON}), and Fortran90 examples are enabled
-(\code{EXAMPLES\_ENABLE\_F90} is \code{ON}).
-\end{notice}
-
-\item[{\index{MPI\_RUN\_COMMAND (CMake option)}MPI\_RUN\_COMMAND}] \leavevmode
+\item[{\index{MPIEXEC\_EXECUTABLE (CMake option)}MPIEXEC\_EXECUTABLE}] \leavevmode
 Specify run command for MPI
 
 Default: \code{mpirun}

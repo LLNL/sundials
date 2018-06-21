@@ -22,9 +22,9 @@ Changes to SUNDIALS in release 4.0.0-dev
   executable for running MPI programs have been updated to align with those in
   native CMake FindMPI module. This included changing MPI_MPICC to MPI_C_COMPILER,
   MPI_MPICXX to MPI_CXX_COMPILER combining MPI_MPIF77 and MPI_MPIF90 to
-  MPI_Fortran_COMPILER, and changing MPI_RUN_COMMAND to MPIEXEC. When a Fortran
-  name-mangling scheme is needed (e.g., LAPACK_ENABLE is ON) the build system will
-  infer the scheme from the Fortran compiler. If a Fortran compiler is not
+  MPI_Fortran_COMPILER, and changing MPI_RUN_COMMAND to MPIEXEC_EXECUTABLE. When a
+  Fortran name-mangling scheme is needed (e.g., LAPACK_ENABLE is ON) the build system
+  will infer the scheme from the Fortran compiler. If a Fortran compiler is not
   available or the inferred or default scheme needs to be overridden, the advanced
   options SUNDIALS_F77_FUNC_CASE and SUNDIALS_F77_FUNC_UNDERSCORES can be used to
   manually set the name-mangling scheme and bypass trying to infer the scheme.
