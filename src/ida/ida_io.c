@@ -27,6 +27,7 @@
 #include "ida_impl.h"
 
 #include <sundials/sundials_math.h>
+#include "ida_nls.h"
 
 #define ZERO    RCONST(0.0)
 #define HALF    RCONST(0.5)
@@ -289,18 +290,9 @@ int IDASetMaxConvFails(void *ida_mem, int maxncf)
 
 int IDASetMaxNonlinIters(void *ida_mem, int maxcor)
 {
-  IDAMem IDA_mem;
-
-  if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDASetMaxNonlinIters", MSG_NO_MEM);
-    return (IDA_MEM_NULL);
-  }
-
-  IDA_mem = (IDAMem) ida_mem;
-
-  IDA_mem->ida_maxcor = maxcor;
-
-  return(IDA_SUCCESS);
+  /* >>>>>>> -- REMOVE this function user will call NLS function -- <<<<<<< */
+  /* >>>>>>> -- OR leave as wrapper to NLS function              -- <<<<<<< */
+  return(SUNNonlinSolSetMaxNonlinIters_Newton(maxcor));
 }
 
 /*-----------------------------------------------------------------*/
@@ -1004,6 +996,7 @@ int IDAGetRootInfo(void *ida_mem, int *rootsfound)
 int IDAGetNumNonlinSolvIters(void *ida_mem, long int *nniters)
 {
   IDAMem IDA_mem;
+  long int nls_iters;
 
   if (ida_mem==NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAGetNumNonlinSolvIters", MSG_NO_MEM);
@@ -1012,7 +1005,9 @@ int IDAGetNumNonlinSolvIters(void *ida_mem, long int *nniters)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  *nniters = IDA_mem->ida_nni;
+  SUNNonlinSolGetNumIters_Newton(&nls_iters);
+
+  *nniters = IDA_mem->ida_nni + nls_iters;
 
   return(IDA_SUCCESS);
 }
@@ -1040,6 +1035,7 @@ int IDAGetNumNonlinSolvConvFails(void *ida_mem, long int *nncfails)
 int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters, long int *nncfails)
 {
   IDAMem IDA_mem;
+  long int nls_iters;
 
   if (ida_mem==NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAGetNonlinSolvStats", MSG_NO_MEM);
@@ -1048,7 +1044,9 @@ int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters, long int *nncfails)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  *nniters  = IDA_mem->ida_nni;
+  SUNNonlinSolGetNumIters_Newton(&nls_iters);
+
+  *nniters  = IDA_mem->ida_nni + nls_iters;
   *nncfails = IDA_mem->ida_ncfn;
 
   return(IDA_SUCCESS);

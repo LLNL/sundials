@@ -52,7 +52,6 @@
  *   Nonlinear solver functions
  *       IDANls
  *       IDAPredict
- *       IDANewtonIter
  *   Error test
  *       IDATestError
  *       IDARestore
@@ -89,6 +88,7 @@
 
 #include "ida_impl.h"
 #include <sundials/sundials_math.h>
+#include "ida_nls.h"
 
 /* 
  * =================================================================
@@ -182,12 +182,7 @@
 #define MAXNI           10  /* max. Newton iterations in IC calc. */
 #define EPCON RCONST(0.33)  /* Newton convergence test constant */
 #define MAXBACKS       100  /* max backtracks per Newton step in IDACalcIC */
-
-/* IDANewtonIter constants */
-
-#define MAXIT   4
-#define RATEMAX RCONST(0.9)
-#define XRATE   RCONST(0.25)        
+#define XRATE  RCONST(0.25) /* constant for updating Jacobian/preconditioner */
 
 /* 
  * =================================================================
@@ -220,7 +215,6 @@ static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck);
 
 static void IDAPredict(IDAMem IDA_mem);
 static int IDANls(IDAMem IDA_mem);
-static int IDANewtonIter(IDAMem IDA_mem);
 
 /* Error test */
 
@@ -318,7 +312,6 @@ void *IDACreate(void)
   IDA_mem->ida_epcon       = EPCON;
   IDA_mem->ida_maxnef      = MXNEF;
   IDA_mem->ida_maxncf      = MXNCF;
-  IDA_mem->ida_maxcor      = MAXIT;
   IDA_mem->ida_suppressalg = SUNFALSE;
   IDA_mem->ida_id          = NULL;
   IDA_mem->ida_constraints = NULL;
@@ -1345,6 +1338,9 @@ void IDAFree(void **ida_mem)
 {
   IDAMem IDA_mem;
 
+  /* >>>>>>> REMOVE -- user needs to call NLS free function -- REMOVE <<<<<<< */
+  SUNNonlinSolFree_Newton();
+
   if (*ida_mem == NULL) return;
 
   IDA_mem = (IDAMem) (*ida_mem);
@@ -1439,11 +1435,30 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
     return(SUNFALSE);
   }
 
+  IDA_mem->ida_yypredict = N_VClone(tmpl);
+  if (IDA_mem->ida_yypredict == NULL) {
+    N_VDestroy(IDA_mem->ida_ewt);
+    N_VDestroy(IDA_mem->ida_ee);
+    N_VDestroy(IDA_mem->ida_delta);
+    return(SUNFALSE);
+  }
+
+  IDA_mem->ida_yppredict = N_VClone(tmpl);
+  if (IDA_mem->ida_yppredict == NULL) {
+    N_VDestroy(IDA_mem->ida_ewt);
+    N_VDestroy(IDA_mem->ida_ee);
+    N_VDestroy(IDA_mem->ida_delta);
+    N_VDestroy(IDA_mem->ida_yypredict);
+    return(SUNFALSE);
+  }
+
   IDA_mem->ida_tempv1 = N_VClone(tmpl);
   if (IDA_mem->ida_tempv1 == NULL) {
     N_VDestroy(IDA_mem->ida_ewt);
     N_VDestroy(IDA_mem->ida_ee);
     N_VDestroy(IDA_mem->ida_delta);
+    N_VDestroy(IDA_mem->ida_yypredict);
+    N_VDestroy(IDA_mem->ida_yppredict);
     return(SUNFALSE);
   }
 
@@ -1452,6 +1467,8 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
     N_VDestroy(IDA_mem->ida_ewt);
     N_VDestroy(IDA_mem->ida_ee);
     N_VDestroy(IDA_mem->ida_delta);
+    N_VDestroy(IDA_mem->ida_yypredict);
+    N_VDestroy(IDA_mem->ida_yppredict);
     N_VDestroy(IDA_mem->ida_tempv1);
     return(SUNFALSE);
   }
@@ -1468,6 +1485,8 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
       N_VDestroy(IDA_mem->ida_ewt);
       N_VDestroy(IDA_mem->ida_ee);
       N_VDestroy(IDA_mem->ida_delta);
+      N_VDestroy(IDA_mem->ida_yypredict);
+      N_VDestroy(IDA_mem->ida_yppredict);
       N_VDestroy(IDA_mem->ida_tempv1);
       N_VDestroy(IDA_mem->ida_tempv2);
       for (i=0; i < j; i++) N_VDestroy(IDA_mem->ida_phi[i]);
@@ -1476,8 +1495,8 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
   }
 
   /* Update solver workspace lengths  */
-  IDA_mem->ida_lrw += (maxcol + 6)*IDA_mem->ida_lrw1;
-  IDA_mem->ida_liw += (maxcol + 6)*IDA_mem->ida_liw1;
+  IDA_mem->ida_lrw += (maxcol + 8)*IDA_mem->ida_lrw1;
+  IDA_mem->ida_liw += (maxcol + 8)*IDA_mem->ida_liw1;
 
   /* Store the value of maxord used here */
   IDA_mem->ida_maxord_alloc = IDA_mem->ida_maxord;
@@ -1498,6 +1517,8 @@ static void IDAFreeVectors(IDAMem IDA_mem)
   N_VDestroy(IDA_mem->ida_ewt);
   N_VDestroy(IDA_mem->ida_ee);
   N_VDestroy(IDA_mem->ida_delta);
+  N_VDestroy(IDA_mem->ida_yypredict);
+  N_VDestroy(IDA_mem->ida_yppredict);
   N_VDestroy(IDA_mem->ida_tempv1);
   N_VDestroy(IDA_mem->ida_tempv2);
   maxcol = SUNMAX(IDA_mem->ida_maxord_alloc,3);
@@ -2034,6 +2055,9 @@ static int IDAStep(IDAMem IDA_mem)
       Advance state variables
       -----------------------*/
 
+    /* Compute predicted values for yy and yp */
+    IDAPredict(IDA_mem);
+
     /* Nonlinear system solution */
     nflag = IDANls(IDA_mem);
 
@@ -2179,11 +2203,14 @@ static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck)
 static int IDANls(IDAMem IDA_mem)
 {
   int retval;
-  booleantype constraintsPassed, callSetup, tryAgain;
+  booleantype constraintsPassed, callSetup;
   realtype temp1, temp2, vnorm;
-  N_Vector tempv3;
 
   callSetup = SUNFALSE;
+
+  /* >>>>>>> REMOVE -- this is a user-callable function -- REMOVE <<<<<<< */
+  if (IDA_mem->ida_nst == 0)
+    retval = IDASetNonlinearSolver(IDA_mem);
 
   /* Initialize if the first time called */
 
@@ -2192,9 +2219,6 @@ static int IDANls(IDAMem IDA_mem)
     IDA_mem->ida_ss = TWENTY;
     if (IDA_mem->ida_lsetup) callSetup = SUNTRUE;
   }
-
-  IDA_mem->ida_mm = IDA_mem->ida_tempv2;
-  tempv3 = IDA_mem->ida_ee;
 
   /* Decide if lsetup is to be called */
 
@@ -2206,55 +2230,22 @@ static int IDANls(IDAMem IDA_mem)
     {if (IDA_mem->ida_cj != IDA_mem->ida_cjlast) IDA_mem->ida_ss=HUNDRED;}
   }
 
-  /* Begin the main loop. This loop is traversed at most twice. 
-     The second pass only occurs when the first pass had a recoverable
-     failure with old Jacobian data */
-  for(;;){
+  /* ensure cj value is current before solve */
+  SUNNonlinSolSetAlphaFactor_Newton(IDA_mem->ida_cj);
 
-    /* Compute predicted values for yy and yp, and compute residual there. */
-    IDAPredict(IDA_mem);
-
-    retval = IDA_mem->ida_res(IDA_mem->ida_tn, IDA_mem->ida_yy, IDA_mem->ida_yp,
-                              IDA_mem->ida_delta, IDA_mem->ida_user_data);
-    IDA_mem->ida_nre++;
-    if (retval < 0) return(IDA_RES_FAIL);
-    if (retval > 0) return(IDA_RES_RECVR);
-
-    /* If indicated, call linear solver setup function and reset parameters. */
-    if (callSetup){
-      IDA_mem->ida_nsetups++;
-      retval = IDA_mem->ida_lsetup(IDA_mem, IDA_mem->ida_yy, IDA_mem->ida_yp,
-                                   IDA_mem->ida_delta, IDA_mem->ida_tempv1,
-                                   IDA_mem->ida_tempv2, tempv3);
-      IDA_mem->ida_cjold = IDA_mem->ida_cj;
-      IDA_mem->ida_cjratio = ONE;
-      IDA_mem->ida_ss = TWENTY;
-      if (retval < 0) return(IDA_LSETUP_FAIL);
-      if (retval > 0) return(IDA_LSETUP_RECVR);
-    }
-
-    /* Call the Newton iteration routine.  */
-
-    retval = IDANewtonIter(IDA_mem);
-
-    /* Retry the current step on recoverable failure with old Jacobian data. */
-
-    tryAgain = (retval>0) && (IDA_mem->ida_lsetup) && (!callSetup);
-
-    if (tryAgain){
-      callSetup = SUNTRUE;
-      continue;
-    }
-    else break;
-
-  }  /* end of loop */
-
+  /* solve the nonlinear system */
+  retval = SUNNonlinSolSolve_Newton(IDA_mem->ida_yypredict, IDA_mem->ida_yppredict,
+                                    IDA_mem->ida_yy, IDA_mem->ida_yp,
+                                    IDA_mem->ida_ee,
+                                    IDA_mem->ida_ewt, IDA_mem->ida_epsNewt,
+                                    callSetup, IDA_mem);
   if (retval != IDA_SUCCESS) return(retval);
 
   /* If otherwise successful, check and enforce inequality constraints. */
 
   if (IDA_mem->ida_constraintsSet){  /* Check constraints and get mask vector mm, 
                                         set where constraints failed */
+    IDA_mem->ida_mm = IDA_mem->ida_tempv2;
     constraintsPassed = N_VConstrMask(IDA_mem->ida_constraints,
                                       IDA_mem->ida_yy, IDA_mem->ida_mm);
     if (constraintsPassed) return(IDA_SUCCESS);
@@ -2308,108 +2299,10 @@ static void IDAPredict(IDAMem IDA_mem)
     IDA_mem->ida_cvals[j] = ONE;
 
   (void) N_VLinearCombination(IDA_mem->ida_kk+1, IDA_mem->ida_cvals,
-                              IDA_mem->ida_phi, IDA_mem->ida_yy);
+                              IDA_mem->ida_phi, IDA_mem->ida_yypredict);
 
   (void) N_VLinearCombination(IDA_mem->ida_kk, IDA_mem->ida_gamma+1,
-                              IDA_mem->ida_phi+1, IDA_mem->ida_yp);
-
-}
-
-/*
- * IDANewtonIter
- *
- * This routine performs the Newton iteration.  
- * It assumes that delta contains the initial residual vector on entry.
- * If the iteration succeeds, it returns the value IDA_SUCCESS = 0.
- * If not, it returns either:
- *   a positive value (for a recoverable failure), namely one of:
- *     IDA_RES_RECVR
- *     IDA_LSOLVE_RECVR
- *     IDA_NCONV_RECVR
- * or
- *   a negative value (for a nonrecoverable failure), namely one of:
- *     IDA_RES_FAIL
- *     IDA_LSOLVE_FAIL
- *
- * NOTE: This routine uses N_Vector savres, which is preset to tempv1.
- */
-
-static int IDANewtonIter(IDAMem IDA_mem)
-{
-  int mnewt, retval;
-  realtype delnrm, oldnrm, rate;
-
-  /* local variables for fused vector operation */
-  realtype cvals[3];
-  N_Vector Xvecs[3];
-
-  /* Initialize counter mnewt and cumulative correction vector ee. */
-  mnewt = 0;
-  N_VConst(ZERO, IDA_mem->ida_ee);
-
-  /* Initialize oldnrm to avoid compiler warning message */
-  oldnrm = ZERO;
-
-  /* Looping point for Newton iteration.  Break out on any error. */
-  for(;;) {
-
-    IDA_mem->ida_nni++;
-
-    /* Save a copy of the residual vector in savres. */
-    N_VScale(ONE, IDA_mem->ida_delta, IDA_mem->ida_savres);
-
-    /* Call the lsolve function to get correction vector delta. */
-    retval = IDA_mem->ida_lsolve(IDA_mem, IDA_mem->ida_delta,
-                                 IDA_mem->ida_ewt, IDA_mem->ida_yy,
-                                 IDA_mem->ida_yp, IDA_mem->ida_savres); 
-    if (retval < 0) return(IDA_LSOLVE_FAIL);
-    if (retval > 0) return(IDA_LSOLVE_RECVR);
-
-    /* Apply delta to yy, yp, and ee, and get norm(delta). */
-    cvals[0] = -ONE;
-    cvals[1] = -ONE;
-    cvals[2] = -IDA_mem->ida_cj;
-
-    Xvecs[0] = IDA_mem->ida_yy;
-    Xvecs[1] = IDA_mem->ida_ee;
-    Xvecs[2] = IDA_mem->ida_yp;
-
-    retval = N_VScaleAddMulti(3, cvals, IDA_mem->ida_delta, Xvecs, Xvecs);
-    if (retval != IDA_SUCCESS) return(IDA_VECTOROP_ERR);
-
-    delnrm = IDAWrmsNorm(IDA_mem, IDA_mem->ida_delta, IDA_mem->ida_ewt, SUNFALSE);
-
-    /* Test for convergence, first directly, then with rate estimate. */
-
-    if (mnewt == 0){ 
-       oldnrm = delnrm;
-       if (delnrm <= IDA_mem->ida_toldel) return(IDA_SUCCESS);
-    }
-    else {
-      rate = SUNRpowerR( delnrm/oldnrm, ONE/mnewt );
-      if (rate > RATEMAX) return(IDA_NCONV_RECVR); 
-      IDA_mem->ida_ss = rate/(ONE - rate);
-    }
-
-    if (IDA_mem->ida_ss*delnrm <= IDA_mem->ida_epsNewt) return(IDA_SUCCESS);
-
-    /* Not yet converged.  Increment mnewt and test for max allowed. */
-    mnewt++;
-    if (mnewt >= IDA_mem->ida_maxcor) {retval = IDA_NCONV_RECVR; break;}
-
-    /* Call res for new residual and check error flag from res. */
-    retval = IDA_mem->ida_res(IDA_mem->ida_tn, IDA_mem->ida_yy, IDA_mem->ida_yp,
-                              IDA_mem->ida_delta, IDA_mem->ida_user_data);
-    IDA_mem->ida_nre++;
-    if (retval < 0) return(IDA_RES_FAIL);
-    if (retval > 0) return(IDA_RES_RECVR);
-
-    /* Loop for next iteration. */
-
-  } /* end of Newton iteration loop */
-
-  /* All error returns exit here. */
-  return(retval);
+                              IDA_mem->ida_phi+1, IDA_mem->ida_yppredict);
 
 }
 

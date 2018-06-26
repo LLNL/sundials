@@ -92,6 +92,8 @@ typedef struct IDAMemRec {
   N_Vector ida_ewt;         /* error weight vector                            */
   N_Vector ida_yy;          /* work space for y vector (= user's yret)        */
   N_Vector ida_yp;          /* work space for y' vector (= user's ypret)      */
+  N_Vector ida_yypredict;   /* predicted y vector                             */
+  N_Vector ida_yppredict;   /* predicted y' vector                            */
   N_Vector ida_delta;       /* residual vector                                */
   N_Vector ida_id;          /* bit vector for diff./algebraic components      */
   N_Vector ida_constraints; /* vector of inequality constraint options        */
@@ -157,7 +159,6 @@ typedef struct IDAMemRec {
   /* Limits */
 
   int ida_maxncf;        /* max numer of convergence failures                 */
-  int ida_maxcor;        /* max number of Newton corrections                  */
   int ida_maxnef;        /* max number of error test failures                 */
 
   int ida_maxord;        /* max value of method order k:                      */

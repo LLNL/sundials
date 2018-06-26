@@ -28,6 +28,8 @@ SET(ida_SOURCES
   ida_ic.c
   ida_io.c
   ida_spils.c
+  ida_nls.c
+  sunnls_newton.c
   )
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
@@ -71,6 +73,7 @@ SET(ida_HEADERS
   ida_bbdpre.h
   ida_direct.h
   ida_spils.h
+  ida_nls.h
   )
 
 # Add prefix with complete path to the IDA header files
