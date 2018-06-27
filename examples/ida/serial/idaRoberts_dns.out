@@ -19,20 +19,20 @@ Constraints and id not used.
 4.0000e+03   1.8320e-01   8.9421e-07   8.1680e-01 | 220  4   2.0527e+02
 4.0000e+04   3.8984e-02   1.6218e-07   9.6102e-01 | 266  3   1.2965e+03
 4.0000e+05   4.9390e-03   1.9853e-08   9.9506e-01 | 307  5   1.6802e+04
-4.0000e+06   5.1669e-04   2.0678e-09   9.9948e-01 | 364  3   1.8269e+05
-2.0798e+07   1.0000e-04   4.0004e-10   9.9990e-01 | 395  5   1.1839e+06
+4.0000e+06   5.1679e-04   2.0682e-09   9.9948e-01 | 364  3   8.9575e+04
+2.0792e+07   1.0000e-04   4.0004e-10   9.9990e-01 | 401  5   8.2581e+05
     rootsfound[] =  -1   0
-4.0000e+07   5.2043e-05   2.0818e-10   9.9995e-01 | 407  4   2.8429e+06
-4.0000e+08   5.2075e-06   2.0830e-11   9.9999e-01 | 451  5   3.3159e+07
-4.0000e+09   5.2291e-07   2.0916e-12   1.0000e+00 | 483  3   4.5703e+08
-4.0000e+10   5.1012e-08   2.0405e-13   1.0000e+00 | 503  2   6.5812e+09
+4.0000e+07   5.2036e-05   2.0815e-10   9.9995e-01 | 415  3   1.6651e+06
+4.0000e+08   5.2099e-06   2.0840e-11   9.9999e-01 | 454  5   2.6642e+07
+4.0000e+09   5.1869e-07   2.0748e-12   1.0000e+00 | 481  4   3.4527e+08
+4.0000e+10   5.0925e-08   2.0370e-13   1.0000e+00 | 500  2   6.6043e+09
 
 Final Run Statistics: 
 
-Number of steps                    = 503
-Number of residual evaluations     = 707
-Number of Jacobian evaluations     = 76
-Number of nonlinear iterations     = 707
-Number of error test failures      = 13
+Number of steps                    = 500
+Number of residual evaluations     = 697
+Number of Jacobian evaluations     = 77
+Number of nonlinear iterations     = 697
+Number of error test failures      = 15
 Number of nonlinear conv. failures = 0
-Number of root fn. evaluations     = 532
+Number of root fn. evaluations     = 536

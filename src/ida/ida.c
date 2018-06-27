@@ -2236,9 +2236,13 @@ static int IDANls(IDAMem IDA_mem)
   /* solve the nonlinear system */
   retval = SUNNonlinSolSolve_Newton(IDA_mem->ida_yypredict, IDA_mem->ida_yppredict,
                                     IDA_mem->ida_yy, IDA_mem->ida_yp,
-                                    IDA_mem->ida_ee,
                                     IDA_mem->ida_ewt, IDA_mem->ida_epsNewt,
                                     callSetup, IDA_mem);
+
+  /* compute correction to the predictor */
+  N_VLinearSum(ONE, IDA_mem->ida_yy, -ONE, IDA_mem->ida_yypredict, IDA_mem->ida_ee);
+
+  /* return if nonlinear solver failed */
   if (retval != IDA_SUCCESS) return(retval);
 
   /* If otherwise successful, check and enforce inequality constraints. */

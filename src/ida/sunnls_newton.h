@@ -31,7 +31,6 @@ typedef int (*SUNNonlinSolCTestFn)(int m, realtype delnrm, realtype tol, void* m
 /* NLS exported functions */
 int SUNNonlinSolSolve_Newton(N_Vector yy_predict, N_Vector yp_predict,
                              N_Vector yy, N_Vector yp,
-                             N_Vector ee,
                              N_Vector ewt, realtype tol,
                              booleantype callSetup, void* mem);
 int SUNNonlinSolInit_Newton(N_Vector tmpl);

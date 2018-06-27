@@ -139,7 +139,6 @@ int SUNNonlinSolGetNumIters_Newton(long int *numiters)
 
 int SUNNonlinSolSolve_Newton(N_Vector yy_predict, N_Vector yp_predict,
                              N_Vector yy, N_Vector yp,
-                             N_Vector ee,
                              N_Vector ewt, realtype tol,
                              booleantype callSetup, void* mem)
 {
@@ -177,9 +176,6 @@ int SUNNonlinSolSolve_Newton(N_Vector yy_predict, N_Vector yp_predict,
     }
 
   }  /* end of setup loop */
-
-  /* copy correction and solution to solver mem */
-  N_VScale(ONE, cor, ee);
 
   if (retval != SUN_NLS_SUCCESS) return(retval);
 
