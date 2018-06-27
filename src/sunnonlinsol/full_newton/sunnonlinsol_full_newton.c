@@ -71,15 +71,13 @@ SUNNonlinearSolver SUNFullNewtonSolver(N_Vector y)
   if (content == NULL) { free(ops); free(NLS); return(NULL); }
 
   /* Fill content */
-  content->Sys       = NULL;
-  content->LSetup    = NULL;
-  content->LSolve    = NULL;
-  content->CTest     = NULL;
-  content->cor       = N_VClone(y);
-  content->delta     = N_VClone(y);
-  content->callSetup = SUNFALSE;
-  content->maxiters  = 3;
-  content->niters    = 0;
+  content->Sys      = NULL;
+  content->LSetup   = NULL;
+  content->LSolve   = NULL;
+  content->CTest    = NULL;
+  content->delta    = N_VClone(y);
+  content->maxiters = 3;
+  content->niters   = 0;
   
   /* Attach content and ops */
   NLS->content = content;
@@ -127,15 +125,13 @@ int SUNNonlinSolSolve_FullNewton(SUNNonlinearSolver NLS,
                                  N_Vector w, realtype tol,
                                  booleantype callSetup, void* mem)
 {
-  int mnewt, retval;
+  int mnewt;
+  int retval;
   realtype delnrm;
-
-  N_Vector cor   = NEWTON_CONTENT(NLS)->cor;
   N_Vector delta = NEWTON_CONTENT(NLS)->delta;
 
-  /* initialize counter mnewt and cumulative correction vector cor. */
+  /* initialize counter mnewt */
   mnewt = 0;
-  N_VConst(ZERO, cor);
 
   /* load prediction into y */
   N_VScale(ONE, y0, y);
@@ -160,9 +156,8 @@ int SUNNonlinSolSolve_FullNewton(SUNNonlinearSolver NLS,
     retval = NEWTON_CONTENT(NLS)->LSolve(y, delta, mem);
     if (retval != SUN_NLS_SUCCESS) break;
 
-    /* apply delta to y and cor */
-    N_VLinearSum(ONE, y,   -ONE, delta, y);
-    N_VLinearSum(ONE, cor, -ONE, delta, cor);
+    /* apply delta to y */
+    N_VLinearSum(ONE, y, -ONE, delta, y);
 
     /* compute the norm of the correction */
     delnrm = N_VWrmsNorm(delta, w);
@@ -194,9 +189,6 @@ int SUNNonlinSolFree_FullNewton(SUNNonlinearSolver NLS)
 
   /* free items from contents, then the generic structure */
   if (NLS->content) {
-
-    if (NEWTON_CONTENT(NLS)->cor)
-      N_VDestroy(NEWTON_CONTENT(NLS)->cor);
 
     if (NEWTON_CONTENT(NLS)->delta)
       N_VDestroy(NEWTON_CONTENT(NLS)->delta);

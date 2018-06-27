@@ -43,11 +43,9 @@ struct _SUNNonlinearSolverContent_FullNewton {
   SUNNonlinSolConvTestFn CTest;  /* nonlinear solver convergence test function */
 
   /* nonlinear solver variables */
-  N_Vector         cor;       /* Newton correction vector                  */
-  N_Vector         delta;     /* Newton correction vector                  */
-  booleantype      callSetup; /* does the setup function need to be called */
-  int              maxiters;  /* maximum number of nonlinear iterations    */
-  long int         niters;    /* number of nonlinear iterations            */
+  N_Vector delta;     /* Newton correction vector                               */
+  int      maxiters;  /* maximum number of Newton iterations in a solve attempt */
+  long int niters;    /* total number of nonlinear iterations across all solves */
 };
 
 typedef struct _SUNNonlinearSolverContent_FullNewton *SUNNonlinearSolverContent_FullNewton;
