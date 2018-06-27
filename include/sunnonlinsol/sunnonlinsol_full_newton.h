@@ -33,7 +33,7 @@ extern "C" {
 /* -----------------------------------------------------------------------------
  * I. Content structure
  * ---------------------------------------------------------------------------*/
-  
+
 struct _SUNNonlinearSolverContent_FullNewton {
 
   /* functions provided by the integrator */
@@ -60,9 +60,11 @@ SUNDIALS_EXPORT SUNNonlinearSolver SUNFullNewtonSolver(N_Vector y);
 /* core functions */
 SUNDIALS_EXPORT SUNNonlinearSolver_Type SUNNonlinSolGetType_FullNewton(SUNNonlinearSolver NLS);
 
-SUNDIALS_EXPORT int SUNNonlinSolInit_FullNewton(SUNNonlinearSolver NLS, N_Vector tmpl);
+SUNDIALS_EXPORT int SUNNonlinSolInit_FullNewton(SUNNonlinearSolver NLS,
+                                                N_Vector tmpl);
 
-SUNDIALS_EXPORT int SUNNonlinSolSetup_FullNewton(SUNNonlinearSolver NLS, N_Vector y, void* mem);
+SUNDIALS_EXPORT int SUNNonlinSolSetup_FullNewton(SUNNonlinearSolver NLS,
+                                                 N_Vector y, void* mem);
 
 SUNDIALS_EXPORT int SUNNonlinSolSolve_FullNewton(SUNNonlinearSolver NLS,
                                                  N_Vector y0, N_Vector y,
@@ -73,21 +75,23 @@ SUNDIALS_EXPORT int SUNNonlinSolFree_FullNewton(SUNNonlinearSolver NLS);
 
 /* set functions */
 SUNDIALS_EXPORT int SUNNonlinSolSetSysFn_FullNewton(SUNNonlinearSolver NLS,
-                                                SUNNonlinSolSysFn SysFn);
+                                                    SUNNonlinSolSysFn SysFn);
 
 SUNDIALS_EXPORT int SUNNonlinSolSetLSetupFn_FullNewton(SUNNonlinearSolver NLS,
-                                                   SUNNonlinSolLSetupFn LSetupFn);
+                                                       SUNNonlinSolLSetupFn LSetupFn);
 
 SUNDIALS_EXPORT int SUNNonlinSolSetLSolveFn_FullNewton(SUNNonlinearSolver NLS,
-                                                   SUNNonlinSolLSolveFn LSolveFn);
+                                                       SUNNonlinSolLSolveFn LSolveFn);
 
 SUNDIALS_EXPORT int SUNNonlinSolSetConvTestFn_FullNewton(SUNNonlinearSolver NLS,
-                                                     SUNNonlinSolConvTestFn CTestFn);
+                                                         SUNNonlinSolConvTestFn CTestFn);
 
-SUNDIALS_EXPORT int SUNNonlinSolSetMaxIters_FullNewton(SUNNonlinearSolver NLS, int maxiters);
+SUNDIALS_EXPORT int SUNNonlinSolSetMaxIters_FullNewton(SUNNonlinearSolver NLS,
+                                                       int maxiters);
 
 /* get functions */
-SUNDIALS_EXPORT int SUNNonlinSolGetNumIters_FullNewton(SUNNonlinearSolver NLS, long int *niters);
+SUNDIALS_EXPORT int SUNNonlinSolGetNumIters_FullNewton(SUNNonlinearSolver NLS,
+                                                       long int *niters);
 
 #ifdef __cplusplus
 }

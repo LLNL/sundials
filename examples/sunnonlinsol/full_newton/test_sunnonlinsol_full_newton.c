@@ -11,7 +11,8 @@
  * For details, see the LICENSE file.
  * LLNS Copyright End
  * -----------------------------------------------------------------------------
- * This is the testing routine to check the SUNNONLINEARSOLVER Newton module
+ * This is the testing routine to check the SUNNonlinearSolver Full Newton
+ * module
  * ---------------------------------------------------------------------------*/
 
 #include <stdio.h>
