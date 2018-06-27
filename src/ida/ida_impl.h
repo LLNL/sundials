@@ -94,6 +94,7 @@ typedef struct IDAMemRec {
   N_Vector ida_yp;          /* work space for y' vector (= user's ypret)      */
   N_Vector ida_yypredict;   /* predicted y vector                             */
   N_Vector ida_yppredict;   /* predicted y' vector                            */
+  N_Vector ida_ypbeta;      /* beta vector = yp^(0) - y^(0)                   */
   N_Vector ida_delta;       /* residual vector                                */
   N_Vector ida_id;          /* bit vector for diff./algebraic components      */
   N_Vector ida_constraints; /* vector of inequality constraint options        */

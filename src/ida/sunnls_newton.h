@@ -23,14 +23,13 @@
 #define SUN_NLS_CONV_CONTINUE +2
 
 /* NLS functions that the integrator will provide */
-typedef int (*SUNNonlinSolSysFn)(N_Vector y, N_Vector yp, N_Vector Fval, void* mem);
-typedef int (*SUNNonlinSolLSetupFn)(N_Vector y, N_Vector yp, N_Vector Fval, void* mem);
-typedef int (*SUNNonlinSolLSolveFn)(N_Vector y, N_Vector yp, N_Vector delta, void* mem);
+typedef int (*SUNNonlinSolSysFn)(N_Vector y, N_Vector Fval, void* mem);
+typedef int (*SUNNonlinSolLSetupFn)(N_Vector y, N_Vector Fval, void* mem);
+typedef int (*SUNNonlinSolLSolveFn)(N_Vector y, N_Vector delta, void* mem);
 typedef int (*SUNNonlinSolCTestFn)(int m, realtype delnrm, realtype tol, void* mem);
 
 /* NLS exported functions */
-int SUNNonlinSolSolve_Newton(N_Vector yy_predict, N_Vector yp_predict,
-                             N_Vector yy, N_Vector yp,
+int SUNNonlinSolSolve_Newton(N_Vector yy_predict, N_Vector yy,
                              N_Vector ewt, realtype tol,
                              booleantype callSetup, void* mem);
 int SUNNonlinSolInit_Newton(N_Vector tmpl);

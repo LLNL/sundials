@@ -8,9 +8,9 @@
 #define PT0001  RCONST(0.0001) /* real 0.0001                        */
 
 /* private functions passed to nonlinear solver */
-static int IDANls_Res(N_Vector yy, N_Vector yp, N_Vector res, void* ida_mem);
-static int IDANls_LSetup(N_Vector yy, N_Vector yp, N_Vector res, void* ida_mem);
-static int IDANls_LSolve(N_Vector yy, N_Vector yp, N_Vector delta, void* ida_mem);
+static int IDANls_Res(N_Vector yy, N_Vector res, void* ida_mem);
+static int IDANls_LSetup(N_Vector yy, N_Vector res, void* ida_mem);
+static int IDANls_LSolve(N_Vector yy, N_Vector delta, void* ida_mem);
 static int IDANls_ConvergenceTest(int m, realtype delnrm, realtype tol, void* ida_mem);
 
 /* attach nonlinear solver to IDA */
@@ -51,7 +51,7 @@ int IDASetNonlinearSolver(void *ida_mem)
 }
 
 
-static int IDANls_LSetup(N_Vector yy, N_Vector yp, N_Vector res, void* ida_mem)
+static int IDANls_LSetup(N_Vector yy, N_Vector res, void* ida_mem)
 {
   IDAMem   IDA_mem;
   N_Vector tempv3;
@@ -66,7 +66,7 @@ static int IDANls_LSetup(N_Vector yy, N_Vector yp, N_Vector res, void* ida_mem)
   tempv3 = IDA_mem->ida_ee;
 
   IDA_mem->ida_nsetups++;
-  retval = IDA_mem->ida_lsetup(IDA_mem, yy, yp, res,
+  retval = IDA_mem->ida_lsetup(IDA_mem, yy, IDA_mem->ida_yp, res,
                                IDA_mem->ida_tempv1, IDA_mem->ida_tempv2, tempv3);
 
   IDA_mem->ida_cjold = IDA_mem->ida_cj;
@@ -77,7 +77,7 @@ static int IDANls_LSetup(N_Vector yy, N_Vector yp, N_Vector res, void* ida_mem)
 }
 
 
-static int IDANls_LSolve(N_Vector yy, N_Vector yp, N_Vector delta, void* ida_mem)
+static int IDANls_LSolve(N_Vector yy, N_Vector delta, void* ida_mem)
 {
   IDAMem IDA_mem;
   int    retval;
@@ -88,7 +88,7 @@ static int IDANls_LSolve(N_Vector yy, N_Vector yp, N_Vector delta, void* ida_mem
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  retval = IDA_mem->ida_lsolve(IDA_mem, delta, IDA_mem->ida_ewt, yy, yp,
+  retval = IDA_mem->ida_lsolve(IDA_mem, delta, IDA_mem->ida_ewt, yy, IDA_mem->ida_yp,
                                IDA_mem->ida_savres);
   return(retval);
 }
@@ -96,7 +96,7 @@ static int IDANls_LSolve(N_Vector yy, N_Vector yp, N_Vector delta, void* ida_mem
 
 /* only called from within the nonlinear solver so can assume predictor
  * has already been called */
-static int IDANls_Res(N_Vector yy, N_Vector yp, N_Vector res, void* ida_mem)
+static int IDANls_Res(N_Vector yy, N_Vector res, void* ida_mem)
 {
   IDAMem IDA_mem;
   int retval;
@@ -107,7 +107,11 @@ static int IDANls_Res(N_Vector yy, N_Vector yp, N_Vector res, void* ida_mem)
   }
   IDA_mem = (IDAMem) ida_mem;
 
-  retval = IDA_mem->ida_res(IDA_mem->ida_tn, yy, yp, res, IDA_mem->ida_user_data);
+  /* compute current yp */
+  N_VLinearSum(IDA_mem->ida_cj, yy, ONE, IDA_mem->ida_ypbeta, IDA_mem->ida_yp);
+
+  /* evaluate residual */
+  retval = IDA_mem->ida_res(IDA_mem->ida_tn, yy, IDA_mem->ida_yp, res, IDA_mem->ida_user_data);
 
   /* increment the number of residual evaluations */
   IDA_mem->ida_nre++;
