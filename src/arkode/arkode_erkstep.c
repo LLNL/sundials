@@ -89,11 +89,7 @@ int ERKStepCreate(void* arkode_mem, ARKRhsFn f, realtype t0, N_Vector y0)
   ark_mem->step_init    = erkStep_Init;
   ark_mem->step_resize  = erkStep_Resize;
   ark_mem->step_fullrhs = erkStep_FullRHS;
-  if (ark_mem->fixedstep) {
-    ark_mem->step       = erkStep_FixedStep;
-  } else {
-    ark_mem->step       = erkStep_AdaptiveStep;
-  }
+  ark_mem->step         = erkStep_TakeStep;
   ark_mem->step_print   = erkStep_PrintMem;
   ark_mem->step_free    = erkStep_Free;
   ark_mem->step_mem     = (void*) erkstep_mem;
@@ -447,7 +443,7 @@ int erkStep_FullRHS(void* arkode_mem, realtype t,
 
 
 /*---------------------------------------------------------------
- erkStep_AdaptiveStep:
+ erkStep_TakeStep:
 
  This routine serves the primary purpose of the ERKStep module: 
  it performs a single successful embedded ERK step (if possible).  
@@ -456,7 +452,7 @@ int erkStep_FullRHS(void* arkode_mem, realtype t,
  passes the error estimate, the routine returns successfully.  
  If it cannot do so, it returns with an appropriate error flag.
 ---------------------------------------------------------------*/
-int erkStep_AdaptiveStep(void* arkode_mem)
+int erkStep_TakeStep(void* arkode_mem)
 {
   realtype dsm;
   int retval, nef, is, eflag, js, nvec;
@@ -468,13 +464,13 @@ int erkStep_AdaptiveStep(void* arkode_mem)
   /* access ARKodeERKStepMem structure */
   if (arkode_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::ERKStep",
-                    "erkStep_AdaptiveStep", MSG_ARK_NO_MEM);
+                    "erkStep_TakeStep", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::ERKStep",
-                    "erkStep_AdaptiveStep", MSG_ERKSTEP_NO_MEM);
+                    "erkStep_TakeStep", MSG_ERKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
   erkstep_mem = (ARKodeERKStepMem) ark_mem->step_mem;
@@ -592,110 +588,6 @@ int erkStep_AdaptiveStep(void* arkode_mem)
 
   /* The step has completed successfully, clean up and 
      consider change of step size */
-  retval = erkStep_PrepareNextStep(ark_mem, dsm); 
-  if (retval != ARK_SUCCESS)  return(retval);
-
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
- erkStep_FixedStep:
-
- This routine serves the primary purpose of the ERKStep module: 
- it performs a single non-embedded ERK step.
----------------------------------------------------------------*/
-int erkStep_FixedStep(void* arkode_mem)
-{
-  realtype dsm;
-  int retval, nef, is, eflag, js, nvec;
-  realtype* cvals;
-  N_Vector* Xvecs;
-  ARKodeMem ark_mem;
-  ARKodeERKStepMem erkstep_mem;
-
-  /* access ARKodeERKStepMem structure */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::ERKStep",
-                    "erkStep_AdaptiveStep", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::ERKStep",
-                    "erkStep_AdaptiveStep", MSG_ERKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  erkstep_mem = (ARKodeERKStepMem) ark_mem->step_mem;
-  
-  /* local shortcuts for fused vector operations */
-  cvals = erkstep_mem->cvals;
-  Xvecs = erkstep_mem->Xvecs;
-  
-  nef = 0;
-  eflag = ARK_SUCCESS;
-
-  /* increment attempt counter */
-  erkstep_mem->nst_attempts++;
-
-  /* Loop over internal stages to the step; since the method is explicit
-     the first stage RHS is just the full RHS from the start of the step */
-  for (is=1; is<erkstep_mem->stages; is++) {
-
-    /* Set current stage time(s) */
-    ark_mem->tcur = ark_mem->tn + erkstep_mem->B->c[is]*ark_mem->h;
-        
-#ifdef DEBUG_OUTPUT
-    printf("step %li,  stage %i,  h = %"RSYM",  t_n = %"RSYM"\n", 
-           ark_mem->nst, is, ark_mem->h, ark_mem->tcur);
-#endif
-      
-    /* Set ycur to current stage solution */
-    /*   set arrays for fused vector operation */
-    /* cvals[0] = ONE; */
-    /* Xvecs[0] = ark_mem->yn; */
-    /* nvec = 1; */
-    /* for (j=0; j<is; j++) { */
-    /*   cvals[nvec] = ark_mem->h * erkstep_mem->B->A[is][js]; */
-    /*   Xvecs[nvec] = erkstep_mem->F[js]; */
-    /*   nvec += 1; */
-    /* } */
-    nvec = 0;
-    for (js=0; js<is; js++) {
-      cvals[nvec] = ark_mem->h * erkstep_mem->B->A[is][js];
-      Xvecs[nvec] = erkstep_mem->F[js];
-      nvec += 1;
-    }
-    cvals[nvec] = ONE;
-    Xvecs[nvec] = ark_mem->yn;
-    nvec += 1;
-
-    /*   call fused vector operation to do the work */
-    retval = N_VLinearCombination(nvec, cvals, Xvecs, ark_mem->ycur);
-    if (retval != 0) return(ARK_VECTOROP_ERR);
-
-    /* N_VScale(ONE, ark_mem->yn, ark_mem->ycur); */
-
-    /* /\* Iterate over each prior stage updating rhs *\/ */
-    /* for (js=0; js<is; js++) { */
-    /*   hA = ark_mem->h * erkstep_mem->B->A[is][js]; */
-    /*   N_VLinearSum(hA, erkstep_mem->F[js], ONE, ark_mem->ycur, ark_mem->ycur); */
-    /* } */
-
-    /* compute updated RHS */
-    retval = erkstep_mem->f(ark_mem->tcur, ark_mem->ycur,
-                            erkstep_mem->F[is], ark_mem->user_data);
-    erkstep_mem->nfe++;
-    if (retval < 0)  return(ARK_RHSFUNC_FAIL);
-    if (retval > 0)  return(ARK_UNREC_RHSFUNC_ERR);
-    
-  } /* loop over stages */
-
-  /* compute time-evolved solution (in ark_ycur), error estimate (in dsm) */
-  retval = erkStep_ComputeSolutions(ark_mem, &dsm);
-  if (retval < 0)  return(retval);
-
-  /* clean up prepare for next step */
   retval = erkStep_PrepareNextStep(ark_mem, dsm); 
   if (retval != ARK_SUCCESS)  return(retval);
 

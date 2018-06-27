@@ -100,11 +100,7 @@ int ARKStepCreate(void* arkode_mem, ARKRhsFn fe,
   ark_mem->step_init           = arkStep_Init;
   ark_mem->step_resize         = arkStep_Resize;
   ark_mem->step_fullrhs        = arkStep_FullRHS;
-  if (ark_mem->fixedstep) {
-    ark_mem->step              = arkStep_FixedStep;
-  } else {
-    ark_mem->step              = arkStep_AdaptiveStep;
-  }
+  ark_mem->step                = arkStep_TakeStep;
   ark_mem->step_print          = arkStep_PrintMem;
   ark_mem->step_free           = arkStep_Free;
   ark_mem->step_mem            = (void*) arkstep_mem;
@@ -954,16 +950,17 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
 
 
 /*---------------------------------------------------------------
- arkStep_AdaptiveStep:
+ arkStep_TakeStep:
 
- This routine serves the primary purpose of the ARKStep module: 
- it performs a single successful embedded ARK step (if possible).  
- Multiple attempts may be taken in this process -- once a step 
- completes with successful (non)linear solves at each stage and 
- passes the error estimate, the routine returns successfully.  
- If it cannot do so, it returns with an appropriate error flag.
+ This routine serves the primary purpose of the ARKStep module:
+ it performs a single successful ARK step (with embedding, if
+ possible).  Multiple attempts may be taken in this process --
+ once a step completes with successful (non)linear solves at
+ each stage and passes the error estimate, the routine returns
+ successfully.  If it cannot do so, it returns with an
+ appropriate error flag.
 ---------------------------------------------------------------*/
-int arkStep_AdaptiveStep(void* arkode_mem)
+int arkStep_TakeStep(void* arkode_mem)
 {
   realtype dsm;
   int retval, ncf, nef, is, nflag, kflag, eflag;
@@ -974,13 +971,13 @@ int arkStep_AdaptiveStep(void* arkode_mem)
   /* access ARKodeARKStepMem structure */
   if (arkode_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::ARKStep",
-                    "arkStep_AdaptiveStep", MSG_ARK_NO_MEM);
+                    "arkStep_TakeStep", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::ARKStep",
-                    "arkStep_AdaptiveStep", MSG_ARKSTEP_NO_MEM);
+                    "arkStep_TakeStep", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
   arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
@@ -1085,7 +1082,7 @@ int arkStep_AdaptiveStep(void* arkode_mem)
           /*                                 ark_mem->ycur, TEMPVEC1, TEMPVEC2); */
           /*     if (eflag != ARK_SUCCESS) { */
           /*       arkProcessError(ark_mem, ARK_MASSSETUP_FAIL, "ARKODE::ARKStep", */
-          /*                       "arkStep_AdaptiveStep", MSG_ARK_MASSSSETUP_FAIL); */
+          /*                       "arkStep_TakeStep", MSG_ARK_MASSSSETUP_FAIL); */
           /*       return(ARK_MASSSETUP_FAIL); */
           /*     } */
           /*     arkstep_mem->msetuptime = tend; */
@@ -1178,213 +1175,6 @@ int arkStep_AdaptiveStep(void* arkode_mem)
     if (eflag != ARK_SUCCESS)  return(eflag);
         
     /* Error test passed (eflag=ARK_SUCCESS), break from loop */
-    break;
-
-  } /* loop over step attempts */
-
-
-  /* The step has completed successfully, clean up and 
-     consider change of step size */
-  retval = arkStep_PrepareNextStep(ark_mem, dsm); 
-  if (retval != ARK_SUCCESS)  return(retval);
-
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
- arkStep_FixedStep:
-
- This routine serves the primary purpose of the ARKStep module: 
- it performs a single non-embedded ARK step (if possible).  
- Multiple attempts may be taken in this process -- once a step 
- completes with successful (non)linear solves at each stage, 
- the routine returns successfully.  If it cannot do so, it 
- returns with an appropriate error flag.
----------------------------------------------------------------*/
-int arkStep_FixedStep(void* arkode_mem)
-{
-  realtype dsm;
-  int retval, ncf, nef, is, nflag, kflag;
-  booleantype implicit_stage;
-  ARKodeMem ark_mem;
-  ARKodeARKStepMem arkstep_mem;
-
-  /* access ARKodeARKStepMem structure */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::ARKStep",
-                    "arkStep_FixedStep", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::ARKStep",
-                    "arkStep_FixedStep", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
-  
-  ncf = nef = 0;
-  nflag = FIRST_CALL;
-  kflag = SOLVE_SUCCESS;
-
-  /* Looping point for attempts to take a step */
-  for(;;) {  
-
-    /* increment attempt counter */
-    arkstep_mem->nst_attempts++;
-
-    /* Loop over internal stages to the step */
-    for (is=0; is<arkstep_mem->stages; is++) {
-
-      /* store current stage index */
-      arkstep_mem->istage = is;
-
-      /* Set current stage time(s) */
-      if (arkstep_mem->implicit)
-        ark_mem->tcur = ark_mem->tn + arkstep_mem->Bi->c[is]*ark_mem->h;
-      else
-        ark_mem->tcur = ark_mem->tn + arkstep_mem->Be->c[is]*ark_mem->h;
-        
-#ifdef DEBUG_OUTPUT
- printf("step %li,  stage %i,  h = %"RSYM",  t_n = %"RSYM"\n", 
-         ark_mem->nst, is, ark_mem->h, ark_mem->tcur);
-#endif
-      
-      /* determine whether implicit solve is required */
-      implicit_stage = SUNFALSE;
-      if (arkstep_mem->implicit) 
-        if (SUNRabs(arkstep_mem->Bi->A[is][is]) > TINY)
-          implicit_stage = SUNTRUE;
-
-      /* Call predictor for current stage solution (result placed in zpred) */
-      if (implicit_stage) {
-        if (arkStep_Predict(ark_mem, is, arkstep_mem->zpred) != ARK_SUCCESS)
-          return (ARK_MASSSOLVE_FAIL);
-      } else {
-        N_VScale(ONE, ark_mem->yn, arkstep_mem->zpred);
-      }
-
-#ifdef DEBUG_OUTPUT
- printf("predictor:\n");
- N_VPrint_Serial(arkstep_mem->zpred);
-#endif
-      
-      /* Set up data for evaluation of ARK stage residual (data stored in sdata) */
-      if (arkStep_StageSetup(ark_mem) != ARK_SUCCESS)
-        return (ARK_MASSMULT_FAIL);
-
-#ifdef DEBUG_OUTPUT
- printf("rhs data:\n");
- N_VPrint_Serial(arkstep_mem->sdata);
-#endif
-
-      /* Solver diagnostics reporting */
-      if (ark_mem->report)  
-        fprintf(ark_mem->diagfp, "step  %li  %"RSYM"  %i  %"RSYM"\n",
-                ark_mem->nst, ark_mem->h, is, ark_mem->tcur);
-
-      /* perform implicit solve if required */
-      if (implicit_stage) {
-        
-        /* perform implicit solve (result is stored in ark_mem->ycur) */
-        nflag = arkStep_Nls(ark_mem, nflag);
-
-#ifdef DEBUG_OUTPUT
- printf("nonlinear solution:\n");
- N_VPrint_Serial(ark_mem->ycur);
-#endif
-
-        /* check for convergence (on failure, h will have been modified) */
-        kflag = arkStep_HandleNFlag(ark_mem, &nflag, &ncf);
-
-        /* If fixed time-stepping is used, then anything other than a 
-           successful solve must result in an error */
-        if (kflag != SOLVE_SUCCESS) return(kflag);
-
-        /* If h reduced and step needs to be retried, break loop */
-        if (kflag == PREDICT_AGAIN) break;
-
-        /* Return if nonlinear solve failed and recovery not possible. */
-        if (kflag != SOLVE_SUCCESS) return(kflag);
-
-      /* otherwise no implicit solve is needed */
-      } else {
-
-        /* if M!=I, solve with M to compute update (place back in sdata) */
-        if (arkstep_mem->mass_mem != NULL) {
-
-          /* /\* call msetup if needed -- NEED TEMPVEC1 and TEMPVEC2 *\/ */
-          /* if (arkstep_mem->msetup != NULL) { */
-          /*   if (SUNRabs(arkstep_mem->msetuptime - ark_mem->tcur) > */
-          /*       FUZZ_FACTOR*ark_mem->uround) { */
-          /*     kflag = arkstep_mem->msetup((void *) ark_mem, ark_mem->tcur, */
-          /*                                 ark_mem->ycur, TEMPVEC1, TEMPVEC2); */
-          /*     if (kflag != ARK_SUCCESS) { */
-          /*       arkProcessError(ark_mem, ARK_MASSSETUP_FAIL, "ARKODE::ARKStep", */
-          /*                       "arkStep_FixedStep", MSG_ARK_MASSSSETUP_FAIL); */
-          /*       return(ARK_MASSSETUP_FAIL); */
-          /*     } */
-          /*     arkstep_mem->msetuptime = tend; */
-          /*   } */
-          /* } */
-
-          /* perform mass matrix solve */
-          nflag = arkstep_mem->msolve((void *) ark_mem, arkstep_mem->sdata,
-                                      arkstep_mem->nlscoef); 
-          
-          /* check for convergence (on failure, h will have been modified) */
-          kflag = arkStep_HandleNFlag(ark_mem, &nflag, &ncf);
-
-          /* If fixed time-stepping is used, then anything other than a 
-             successful solve must result in an error */
-          if (kflag != SOLVE_SUCCESS) return(kflag);
-
-          /* If h reduced and step needs to be retried, break loop */
-          if (kflag == PREDICT_AGAIN) break;
-
-          /* Return if solve failed and recovery not possible. */
-          if (kflag != SOLVE_SUCCESS) return(kflag);
-
-        /* if M==I, set y to be zpred + RHS data computed in arkStep_StageSetup */
-        } else {
-          N_VLinearSum(ONE, arkstep_mem->sdata, ONE,
-                       arkstep_mem->zpred, ark_mem->ycur);
-        }
-
-#ifdef DEBUG_OUTPUT
- printf("explicit solution:\n");
- N_VPrint_Serial(ark_mem->ycur);
-#endif
-
-      }
-
-      /* successful stage solve */
-      /*    store implicit RHS (value in Fi[is] is from preceding nonlinear iteration) */
-      if (arkstep_mem->implicit) {
-        retval = arkstep_mem->fi(ark_mem->tcur, ark_mem->ycur,
-                                 arkstep_mem->Fi[is], ark_mem->user_data);
-        arkstep_mem->nfi++; 
-        if (retval < 0)  return(ARK_RHSFUNC_FAIL);
-        if (retval > 0)  return(ARK_UNREC_RHSFUNC_ERR);
-      }
-
-      /*    store explicit RHS if necessary
-            (already computed at first stage of purely explicit runs) */
-      if (arkstep_mem->explicit) {
-          retval = arkstep_mem->fe(ark_mem->tn + arkstep_mem->Be->c[is]*ark_mem->h,
-                                   ark_mem->ycur, arkstep_mem->Fe[is], ark_mem->user_data);
-          arkstep_mem->nfe++;
-          if (retval < 0)  return(ARK_RHSFUNC_FAIL);
-          if (retval > 0)  return(ARK_UNREC_RHSFUNC_ERR);
-      }
-
-    } /* loop over stages */
-
-    /* compute time-evolved solution (in ark_ycur), error estimate (in dsm) */
-    retval = arkStep_ComputeSolutions(ark_mem, &dsm);
-    if (retval < 0)  return(retval);
-
     break;
 
   } /* loop over step attempts */

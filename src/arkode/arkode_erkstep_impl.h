@@ -84,8 +84,7 @@ typedef struct ARKodeERKStepMemRec {
 int erkStep_Init(void* arkode_mem);
 int erkStep_FullRHS(void* arkode_mem, realtype t, 
                     N_Vector y, N_Vector f, int mode);
-int erkStep_AdaptiveStep(void* arkode_mem);
-int erkStep_FixedStep(void* arkode_mem);
+int erkStep_TakeStep(void* arkode_mem);
 int erkStep_Resize(void* arkode_mem, ARKVecResizeFn resize,
                    void *resize_data, sunindextype lrw_diff,
                    sunindextype liw_diff, N_Vector tmpl);

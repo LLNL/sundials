@@ -165,8 +165,7 @@ int arkStep_GetGammas(void* arkode_mem, realtype *gamma,
                       booleantype *dgamma_fail);
 int arkStep_FullRHS(void* arkode_mem, realtype t, 
                     N_Vector y, N_Vector f, int mode);
-int arkStep_AdaptiveStep(void* arkode_mem);
-int arkStep_FixedStep(void* arkode_mem);
+int arkStep_TakeStep(void* arkode_mem);
 int arkStep_Resize(void* arkode_mem, ARKVecResizeFn resize,
                    void *resize_data, sunindextype lrw_diff,
                    sunindextype liw_diff, N_Vector tmpl);
