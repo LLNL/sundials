@@ -199,7 +199,7 @@ SUNDIALS_EXPORT int SUNNonlinSolGetNumIters(SUNNonlinearSolver NLS,
 
 #define SUN_NLS_VECTOROP_ERR -28
 
-#define NLS_CONTINUE +6
+#define SUN_NLS_CONTINUE +6
 
 #ifdef __cplusplus
 }

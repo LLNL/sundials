@@ -148,18 +148,17 @@ int SUNNonlinSolSolve_FullNewton(SUNNonlinearSolver NLS,
 
     /* compute the residual */
     retval = NEWTON_CONTENT(NLS)->Sys(y, delta, mem);
-    if (retval < 0) return(SUN_NLS_SYS_FAIL);
-    if (retval > 0) return(SUN_NLS_SYS_RECVR);
+    if (retval != SUN_NLS_SUCCESS) break;
 
     /* setup the linear system */
-    retval = NEWTON_CONTENT(NLS)->LSetup(y, delta, mem);
-    if (retval < 0) return(SUN_NLS_LSETUP_FAIL);
-    if (retval > 0) return(SUN_NLS_LSETUP_RECVR);
+	if (NEWTON_CONTENT(NLS)->LSetup) {
+      retval = NEWTON_CONTENT(NLS)->LSetup(y, delta, mem);
+      if (retval != SUN_NLS_SUCCESS) break;
+    }
 
     /* solve the linear system to get correction vector delta */
     retval = NEWTON_CONTENT(NLS)->LSolve(y, delta, mem);
-    if (retval < 0) return(SUN_NLS_LSOLVE_FAIL);
-    if (retval > 0) return(SUN_NLS_LSOLVE_RECVR);
+    if (retval != SUN_NLS_SUCCESS) break;
 
     /* apply delta to y and cor */
     N_VLinearSum(ONE, y,   -ONE, delta, y);
@@ -168,23 +167,22 @@ int SUNNonlinSolSolve_FullNewton(SUNNonlinearSolver NLS,
     /* compute the norm of the correction */
     delnrm = N_VWrmsNorm(delta, w);
 
-    /* Test for convergence */
-    if (NEWTON_CONTENT(NLS)->CTest(mnewt, delnrm, tol, mem))
-        return(SUN_NLS_SUCCESS);
+    /* test for convergence, return if successful */
+    retval = NEWTON_CONTENT(NLS)->CTest(mnewt, delnrm, tol, mem);
+    if (retval == SUN_NLS_SUCCESS)  return(SUN_NLS_SUCCESS);
+    if (retval != SUN_NLS_CONTINUE) break;
 
     /* not yet converged. Increment mnewt and test for max allowed. */
     mnewt++;
-    if (mnewt >= NEWTON_CONTENT(NLS)->maxiters) return(SUN_NLS_NCONV_RECVR);
-
-    /* Call res for new residual and check error flag from res. */
-    retval = NEWTON_CONTENT(NLS)->Sys(y, delta, mem);
-    if (retval < 0) return(SUN_NLS_SYS_FAIL);
-    if (retval > 0) return(SUN_NLS_SYS_RECVR);
+    if (mnewt >= NEWTON_CONTENT(NLS)->maxiters) break;
 
   } /* end of Newton iteration loop */
 
-  /* All error returns exit here. */
-  return(SUN_NLS_SUCCESS);
+  /* all error returns exit here */
+  if (retval > 0)
+    return(SUN_NLS_NCONV_RECVR);
+  else
+    return(retval);
 }
 
 

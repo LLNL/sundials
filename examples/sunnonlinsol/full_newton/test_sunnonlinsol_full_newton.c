@@ -239,8 +239,8 @@ int CTest(int m, realtype delnrm, realtype tol, void* mem)
   }
   Imem = (IntegratorMem) mem;
 
-  if (delnrm <= tol) return(1); /* success       */
-  else               return(0); /* not converged */
+  if (delnrm <= tol) return(SUN_NLS_SUCCESS);  /* success       */
+  else               return(SUN_NLS_CONTINUE); /* not converged */
 }
 
 
