@@ -15,4 +15,4 @@
 # ------------------------------------------------------------------------------
 
 # Always add the Newton examples
-ADD_SUBDIRECTORY(newton)
+ADD_SUBDIRECTORY(full_newton)

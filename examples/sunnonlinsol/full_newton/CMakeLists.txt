@@ -11,15 +11,15 @@
 # For details, see the LICENSE file.
 # LLNS Copyright End
 # ------------------------------------------------------------------------------
-# CMakeLists.txt file for sunnonlinsol Newton examples
+# CMakeLists.txt file for sunnonlinsol Full Newton examples
 # ------------------------------------------------------------------------------
 
 # Example lists are tuples "name\;args\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
 
-# Examples using SUNDIALS Newton nonlinear solver
-SET(sunnonlinsol_newton_examples
-  "test_sunnonlinsol_newton\;\;"
+# Example programs
+SET(examples
+  "test_sunnonlinsol_full_newton\;\;"
 )
 
 # Dependencies
@@ -46,19 +46,19 @@ IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(SUNDIALS_LIBS sundials_nvecserial_static)
   LIST(APPEND SUNDIALS_LIBS sundials_sunmatrixdense_static)
   LIST(APPEND SUNDIALS_LIBS sundials_sunlinsoldense_static)
-  LIST(APPEND SUNDIALS_LIBS sundials_sunnonlinsolnewton_static)
+  LIST(APPEND SUNDIALS_LIBS sundials_sunnonlinsolfullnewton_static)
 ELSE()
   SET(SUNDIALS_LIBS sundials_nvecserial_shared)
   LIST(APPEND SUNDIALS_LIBS sundials_sunmatrixdense_shared)
   LIST(APPEND SUNDIALS_LIBS sundials_sunlinsoldense_shared)
-  LIST(APPEND SUNDIALS_LIBS sundials_sunnonlinsolnewton_shared)
+  LIST(APPEND SUNDIALS_LIBS sundials_sunnonlinsolfullnewton_shared)
 ENDIF()
 
 # Set-up linker flags and link libraries
 LIST(APPEND SUNDIALS_LIBS ${EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
-FOREACH(example_tuple ${sunnonlinsol_newton_examples})
+FOREACH(example_tuple ${examples})
 
   # parse the example tuple
   LIST(GET example_tuple 0 example)
@@ -102,10 +102,10 @@ FOREACH(example_tuple ${sunnonlinsol_newton_examples})
 
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.c
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/newton)
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/full_newton)
   ENDIF()
 
-ENDFOREACH(example_tuple ${sunnonlinsol_newton_examples})
+ENDFOREACH(example_tuple ${examples})
 
 
 # IF(EXAMPLES_INSTALL)

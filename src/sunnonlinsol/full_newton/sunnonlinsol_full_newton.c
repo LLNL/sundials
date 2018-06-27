@@ -12,20 +12,20 @@
  * LLNS Copyright End
  * -----------------------------------------------------------------------------
  * This is the implementation file for the SUNNonlinearSolver module
- * implementation of Newton's method.
+ * implementation of a full Newton iteration (for initial testing).
  * ---------------------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <sunnonlinsol/sunnonlinsol_newton.h>
+#include <sunnonlinsol/sunnonlinsol_full_newton.h>
 #include <sundials/sundials_math.h>
 
 #define ZERO RCONST(0.0) /* real 0.0 */
 #define ONE  RCONST(1.0) /* real 1.0 */
 
 /* Content structure accessibility macros  */
-#define NEWTON_CONTENT(S) ( (SUNNonlinearSolverContent_Newton)(S->content) )
+#define NEWTON_CONTENT(S) ( (SUNNonlinearSolverContent_FullNewton)(S->content) )
 
 /* -----------------------------------------------------------------------------
  * Exported functions
@@ -35,11 +35,11 @@
  * Constructor to create a new Newton solver
  */
 
-SUNNonlinearSolver SUNNewtonSolver(N_Vector y)
+SUNNonlinearSolver SUNFullNewtonSolver(N_Vector y)
 {
   SUNNonlinearSolver NLS;
   SUNNonlinearSolver_Ops ops;
-  SUNNonlinearSolverContent_Newton content;
+  SUNNonlinearSolverContent_FullNewton content;
   
   /* Create nonlinear linear solver */
   NLS = NULL;
@@ -52,22 +52,22 @@ SUNNonlinearSolver SUNNewtonSolver(N_Vector y)
   if (ops == NULL) { free(NLS); return(NULL); }
 
   /* Attach operations */
-  ops->gettype     = SUNNonlinSolGetType_Newton;
-  ops->init        = SUNNonlinSolInit_Newton;
-  ops->setup       = SUNNonlinSolSetup_Newton;
-  ops->solve       = SUNNonlinSolSolve_Newton;
-  ops->free        = SUNNonlinSolFree_Newton;
-  ops->setsysfn    = SUNNonlinSolSetSysFn_Newton;
-  ops->setlsetupfn = SUNNonlinSolSetLSetupFn_Newton;
-  ops->setlsolvefn = SUNNonlinSolSetLSolveFn_Newton;
-  ops->setctestfn  = SUNNonlinSolSetConvTestFn_Newton;
-  ops->setmaxiters = SUNNonlinSolSetMaxIters_Newton;
-  ops->getnumiters = SUNNonlinSolGetNumIters_Newton;
-  /* ops->lastflag          = SUNNonlinSolLastFlag_Newton; */
+  ops->gettype     = SUNNonlinSolGetType_FullNewton;
+  ops->init        = SUNNonlinSolInit_FullNewton;
+  ops->setup       = SUNNonlinSolSetup_FullNewton;
+  ops->solve       = SUNNonlinSolSolve_FullNewton;
+  ops->free        = SUNNonlinSolFree_FullNewton;
+  ops->setsysfn    = SUNNonlinSolSetSysFn_FullNewton;
+  ops->setlsetupfn = SUNNonlinSolSetLSetupFn_FullNewton;
+  ops->setlsolvefn = SUNNonlinSolSetLSolveFn_FullNewton;
+  ops->setctestfn  = SUNNonlinSolSetConvTestFn_FullNewton;
+  ops->setmaxiters = SUNNonlinSolSetMaxIters_FullNewton;
+  ops->getnumiters = SUNNonlinSolGetNumIters_FullNewton;
+  /* ops->lastflag          = SUNNonlinSolLastFlag_FullNewton; */
 
   /* Create content */
   content = NULL;
-  content = (SUNNonlinearSolverContent_Newton) malloc(sizeof *content);
+  content = (SUNNonlinearSolverContent_FullNewton) malloc(sizeof *content);
   if (content == NULL) { free(ops); free(NLS); return(NULL); }
 
   /* Fill content */
@@ -97,20 +97,20 @@ SUNNonlinearSolver SUNNewtonSolver(N_Vector y)
  * Core functions
  */
 
-SUNNonlinearSolver_Type SUNNonlinSolGetType_Newton(SUNNonlinearSolver NLS)
+SUNNonlinearSolver_Type SUNNonlinSolGetType_FullNewton(SUNNonlinearSolver NLS)
 {
   return(SUNNONLINEARSOLVER_ROOTFIND);
 }
 
 
-int SUNNonlinSolInit_Newton(SUNNonlinearSolver NLS, N_Vector tmpl)
+int SUNNonlinSolInit_FullNewton(SUNNonlinearSolver NLS, N_Vector tmpl)
 {
   /* all solver-specific memory has already been allocated */
   return(SUN_NLS_SUCCESS);
 }
 
 
-int SUNNonlinSolSetup_Newton(SUNNonlinearSolver NLS, N_Vector y, void* mem)
+int SUNNonlinSolSetup_FullNewton(SUNNonlinearSolver NLS, N_Vector y, void* mem)
 {
   /* check that all necessary function pointer have been set */
   if (NEWTON_CONTENT(NLS)->Sys == NULL ||
@@ -122,8 +122,8 @@ int SUNNonlinSolSetup_Newton(SUNNonlinearSolver NLS, N_Vector y, void* mem)
 }
 
 
-int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS, N_Vector y0, N_Vector y,
-                             N_Vector w, realtype tol, void* mem)
+int SUNNonlinSolSolve_FullNewton(SUNNonlinearSolver NLS, N_Vector y0, N_Vector y,
+                                 N_Vector w, realtype tol, void* mem)
 {
   int mnewt, retval;
   realtype delnrm;
@@ -186,7 +186,7 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS, N_Vector y0, N_Vector y,
 }
 
 
-int SUNNonlinSolFree_Newton(SUNNonlinearSolver NLS)
+int SUNNonlinSolFree_FullNewton(SUNNonlinearSolver NLS)
 {
   /* return if NLS is already free */
   if (NLS == NULL)
@@ -217,38 +217,38 @@ int SUNNonlinSolFree_Newton(SUNNonlinearSolver NLS)
   return(SUN_NLS_SUCCESS);
 }
 
-int SUNNonlinSolSetSysFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn)
+int SUNNonlinSolSetSysFn_FullNewton(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn)
 {
   NEWTON_CONTENT(NLS)->Sys = SysFn;
   return(SUN_NLS_SUCCESS);
 }
 
-int SUNNonlinSolSetLSetupFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolLSetupFn LSetupFn)
+int SUNNonlinSolSetLSetupFn_FullNewton(SUNNonlinearSolver NLS, SUNNonlinSolLSetupFn LSetupFn)
 {
   NEWTON_CONTENT(NLS)->LSetup = LSetupFn;
   return(SUN_NLS_SUCCESS);
 }
 
-int SUNNonlinSolSetLSolveFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolLSolveFn LSolveFn)
+int SUNNonlinSolSetLSolveFn_FullNewton(SUNNonlinearSolver NLS, SUNNonlinSolLSolveFn LSolveFn)
 {
   NEWTON_CONTENT(NLS)->LSolve = LSolveFn;
   return(SUN_NLS_SUCCESS);
 }
 
-int SUNNonlinSolSetConvTestFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolConvTestFn CTestFn)
+int SUNNonlinSolSetConvTestFn_FullNewton(SUNNonlinearSolver NLS, SUNNonlinSolConvTestFn CTestFn)
 {
   NEWTON_CONTENT(NLS)->CTest = CTestFn;
   return(SUN_NLS_SUCCESS);
 }
 
-int SUNNonlinSolSetMaxIters_Newton(SUNNonlinearSolver NLS, int maxiters)
+int SUNNonlinSolSetMaxIters_FullNewton(SUNNonlinearSolver NLS, int maxiters)
 {
   if (maxiters < 1) return(1);
   NEWTON_CONTENT(NLS)->maxiters = maxiters;
   return(SUN_NLS_SUCCESS);
 }
 
-int SUNNonlinSolGetNumIters_Newton(SUNNonlinearSolver NLS, long int *niters)
+int SUNNonlinSolGetNumIters_FullNewton(SUNNonlinearSolver NLS, long int *niters)
 {
   *niters = NEWTON_CONTENT(NLS)->niters;
   return(SUN_NLS_SUCCESS);

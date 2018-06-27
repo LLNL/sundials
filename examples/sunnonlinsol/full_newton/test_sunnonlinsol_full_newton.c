@@ -21,7 +21,7 @@
 #include "nvector/nvector_serial.h"
 #include "sunmatrix/sunmatrix_dense.h"
 #include "sunlinsol/sunlinsol_dense.h"
-#include "sunnonlinsol/sunnonlinsol_newton.h"
+#include "sunnonlinsol/sunnonlinsol_full_newton.h"
 
 #define NEQ   3                /* number of equations        */
 #define TOL   RCONST(1.0e-2)   /* nonlinear solver tolerance */
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
   Imem->LS = LS;
 
   /* create nonlinear solver */
-  NLS = SUNNewtonSolver(y);
+  NLS = SUNFullNewtonSolver(y);
   if (check_flag((void *)NLS, "SUNNewtonSolver", 0)) return(1);
 
   /* set the nonlinear residual function */
@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
   if (check_flag(&ier, "SUNNonlinSolSetMaxIters", 1)) return(1);
 
   /* solve the nonlinear system */
-  ier = SUNNonlinSolSolve_Newton(NLS, y0, y, w, TOL, Imem);
+  ier = SUNNonlinSolSolve(NLS, y0, y, w, TOL, Imem);
   if (check_flag(&ier, "SUNNonlinSolSolve_Newton", 1)) return(1);
 
   /* print the solution */

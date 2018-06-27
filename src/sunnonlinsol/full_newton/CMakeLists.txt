@@ -11,13 +11,13 @@
 # For details, see the LICENSE file.
 # LLNS Copyright End
 # ------------------------------------------------------------------------------
-# CMakeLists.txt file for the Newton SUNNonlinearSolver library
+# CMakeLists.txt file for the Full Newton SUNNonlinearSolver library
 # ------------------------------------------------------------------------------
 
-install(CODE "MESSAGE(\"\nInstall SUNNONLINSOL_NEWTON\n\")")
+install(CODE "MESSAGE(\"\nInstall SUNNONLINSOL_FULL_NEWTON\n\")")
 
 # Add variable with the sources for the library
-set(lib_SOURCES sunnonlinsol_newton.c)
+set(lib_SOURCES sunnonlinsol_full_newton.c)
 
 # Add variable with the common SUNDIALS sources to be included in the library
 set(shared_SOURCES
@@ -28,7 +28,7 @@ set(shared_SOURCES
 
 # Add variable with the exported header files
 set(lib_HEADERS
-  ${sundials_SOURCE_DIR}/include/sunnonlinsol/sunnonlinsol_newton.h
+  ${sundials_SOURCE_DIR}/include/sunnonlinsol/sunnonlinsol_full_newton.h
   )
 
 # Add source directory to include directories
@@ -42,10 +42,10 @@ add_definitions(-DBUILD_SUNDIALS_LIBRARY)
 #  - Set the library name and make sure it is not deleted
 #  - Install the library
 if(BUILD_STATIC_LIBS)
-  add_library(sundials_sunnonlinsolnewton_static STATIC ${lib_SOURCES} ${shared_SOURCES})
-  set_target_properties(sundials_sunnonlinsolnewton_static
-    PROPERTIES OUTPUT_NAME sundials_sunnonlinsolnewton CLEAN_DIRECT_OUTPUT 1)
-  install(TARGETS sundials_sunnonlinsolnewton_static DESTINATION lib)
+  add_library(sundials_sunnonlinsolfullnewton_static STATIC ${lib_SOURCES} ${shared_SOURCES})
+  set_target_properties(sundials_sunnonlinsolfullnewton_static
+    PROPERTIES OUTPUT_NAME sundials_sunnonlinsolfullnewton CLEAN_DIRECT_OUTPUT 1)
+  install(TARGETS sundials_sunnonlinsolfullnewton_static DESTINATION lib)
 endif()
 
 # Rules for building and installing the shared library:
@@ -54,17 +54,17 @@ endif()
 #  - Set VERSION and SOVERSION for shared libraries
 #  - Install the library
 if(BUILD_SHARED_LIBS)
-  add_library(sundials_sunnonlinsolnewton_shared SHARED ${lib_SOURCES} ${shared_SOURCES})
+  add_library(sundials_sunnonlinsolfullnewton_shared SHARED ${lib_SOURCES} ${shared_SOURCES})
 
   if(UNIX)
-    target_link_libraries(sundials_sunnonlinsolnewton_shared m)
+    target_link_libraries(sundials_sunnonlinsolfullnewton_shared m)
   endif()
 
-  set_target_properties(sundials_sunnonlinsolnewton_shared
-    PROPERTIES OUTPUT_NAME sundials_sunnonlinsolnewton CLEAN_DIRECT_OUTPUT 1)
-  set_target_properties(sundials_sunnonlinsolnewton_shared
+  set_target_properties(sundials_sunnonlinsolfullnewton_shared
+    PROPERTIES OUTPUT_NAME sundials_sunnonlinsolfullnewton CLEAN_DIRECT_OUTPUT 1)
+  set_target_properties(sundials_sunnonlinsolfullnewton_shared
     PROPERTIES VERSION ${sunnonlinsollib_VERSION} SOVERSION ${sunnonlinsollib_SOVERSION})
-  install(TARGETS sundials_sunnonlinsolnewton_shared DESTINATION lib)
+  install(TARGETS sundials_sunnonlinsolfullnewton_shared DESTINATION lib)
 endif()
 
 # Install the header files
@@ -99,4 +99,4 @@ INSTALL(FILES ${lib_HEADERS} DESTINATION include/sunnonlinsol)
 # endif()
 
 #
-message(STATUS "Added SUNNONLINSOL_NEWTON module")
+message(STATUS "Added SUNNONLINSOL_FULL_NEWTON module")
