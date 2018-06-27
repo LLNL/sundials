@@ -2506,9 +2506,9 @@ int ARKStepWriteParameters(void *arkode_mem, FILE *fp)
   }
 
   fprintf(fp, "  Maximum number of error test failures = %i\n",arkstep_mem->maxnef);
-  fprintf(fp, "  Maximum number of convergence test failures = %i\n",arkstep_mem->maxncf);
 
   if (arkstep_mem->implicit) {
+    fprintf(fp, "  Maximum number of convergence test failures = %i\n",arkstep_mem->maxncf);
     fprintf(fp, "  Implicit predictor method = %i\n",arkstep_mem->predictor);
     fprintf(fp, "  Implicit solver tolerance coefficient = %"RSYM"\n",arkstep_mem->nlscoef);
     fprintf(fp, "  Maximum number of nonlinear corrections = %i\n",arkstep_mem->maxcor);
