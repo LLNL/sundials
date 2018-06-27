@@ -43,6 +43,9 @@ ADD_SUBDIRECTORY(sunlinsol_spbcgs)
 ADD_SUBDIRECTORY(sunlinsol_sptfqmr)
 ADD_SUBDIRECTORY(sunlinsol_pcg)
 
+# Add nonlinerar solver modules
+ADD_SUBDIRECTORY(sunnonlinsol)
+
 IF(MPI_C_FOUND)
   ADD_SUBDIRECTORY(nvec_par)
 ENDIF()
