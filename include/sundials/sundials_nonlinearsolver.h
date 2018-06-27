@@ -116,7 +116,7 @@ struct _generic_SUNNonlinearSolver_Ops {
   int                     (*init)(SUNNonlinearSolver, N_Vector);
   int                     (*setup)(SUNNonlinearSolver, N_Vector, void*);
   int                     (*solve)(SUNNonlinearSolver, N_Vector, N_Vector,
-                                   N_Vector, realtype, void*);
+                                   N_Vector, realtype, booleantype, void*);
   int                     (*free)(SUNNonlinearSolver);
   int                     (*setsysfn)(SUNNonlinearSolver, SUNNonlinSolSysFn);
   int                     (*setlsetupfn)(SUNNonlinearSolver, SUNNonlinSolLSetupFn);
@@ -149,7 +149,8 @@ SUNDIALS_EXPORT int SUNNonlinSolSetup(SUNNonlinearSolver NLS,
 
 SUNDIALS_EXPORT int SUNNonlinSolSolve(SUNNonlinearSolver NLS,
                                       N_Vector y0, N_Vector y,
-                                      N_Vector w, realtype tol, void *mem);
+                                      N_Vector w, realtype tol,
+                                      booleantype callSetup, void *mem);
 
 SUNDIALS_EXPORT int SUNNonlinSolFree(SUNNonlinearSolver NLS);
 

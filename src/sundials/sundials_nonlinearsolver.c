@@ -42,10 +42,12 @@ int SUNNonlinSolSetup(SUNNonlinearSolver NLS, N_Vector y, void* mem)
   return((int) NLS->ops->setup(NLS, y, mem));
 }
 
-int SUNNonlinSolSolve(SUNNonlinearSolver NLS, N_Vector y0, N_Vector y,
-                      N_Vector w, realtype tol, void* mem)
+int SUNNonlinSolSolve(SUNNonlinearSolver NLS,
+                      N_Vector y0, N_Vector y,
+                      N_Vector w, realtype tol,
+                      booleantype callSetup, void* mem)
 {
-  return((int) NLS->ops->solve(NLS, y0, y, w, tol, mem));
+  return((int) NLS->ops->solve(NLS, y0, y, w, tol, callSetup, mem));
 }
 
 int SUNNonlinSolFree(SUNNonlinearSolver NLS)

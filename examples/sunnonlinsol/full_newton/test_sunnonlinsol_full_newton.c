@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
   if (check_flag(&ier, "SUNNonlinSolSetMaxIters", 1)) return(1);
 
   /* solve the nonlinear system */
-  ier = SUNNonlinSolSolve(NLS, y0, y, w, TOL, Imem);
+  ier = SUNNonlinSolSolve(NLS, y0, y, w, TOL, SUNTRUE, Imem);
   if (check_flag(&ier, "SUNNonlinSolSolve_Newton", 1)) return(1);
 
   /* print the solution */
