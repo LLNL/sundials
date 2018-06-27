@@ -112,7 +112,7 @@ int main(void)
 
   atval = N_VGetArrayPointer(avtol);
   atval[0] = RCONST(1.0e-8);
-  atval[1] = RCONST(1.0e-14);
+  atval[1] = RCONST(1.0e-6);
   atval[2] = RCONST(1.0e-6);
 
   /* Integration limits */
