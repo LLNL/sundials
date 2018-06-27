@@ -73,7 +73,6 @@ SET(ida_HEADERS
   ida_bbdpre.h
   ida_direct.h
   ida_spils.h
-  ida_nls.h
   )
 
 # Add prefix with complete path to the IDA header files
