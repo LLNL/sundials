@@ -802,7 +802,7 @@ int ARKStepSetIRKTable(void *arkode_mem, int s, int q, int p,
   Specifies to use customized Butcher tables for the ImEx system
   (automatically calls ARKStepSetImEx).
 
-  If either b2e==NULL or b2i==NULL, then the method is 
+  If either de==NULL or di==NULL, then the method is 
   automatically flagged as a fixed-step method; a user MUST also 
   call either ARKodeSetFixedStep or ARKodeSetInitStep to set the 
   desired time step size.
