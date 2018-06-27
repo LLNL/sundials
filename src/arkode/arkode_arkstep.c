@@ -696,8 +696,7 @@ int arkStep_Init(void* arkode_mem)
     }
   }
 
-  /* Check if lsolve function exists and call linit (if it exists -- 
-     LIKELY NEED TO MODIFY ARK_MEM INPUT) */
+  /* Check if lsolve function exists and call linit (if it exists) */
   if (arkstep_mem->implicit && !arkstep_mem->use_fp) {
     if (arkstep_mem->lsolve == NULL) {
       arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::ARKStep", 
@@ -714,7 +713,7 @@ int arkStep_Init(void* arkode_mem)
     }
   }
 
-  /* Allocate fixed-point solver memory (LIKELY NEED TO MODIFY ARK_MEM INPUT) */
+  /* Allocate fixed-point solver memory */
   if ( (arkstep_mem->use_fp) && (arkstep_mem->fp_mem == NULL) ){
     arkstep_mem->fp_mem = arkAllocFPData(ark_mem, arkstep_mem->fp_m);
     if (arkstep_mem->fp_mem == NULL) {
