@@ -23,12 +23,12 @@ SET(examples
 )
 
 # Dependencies
-# SET(sunnonlinsol_newton_dependencies
-#   sundials_nvector
-#   sundials_matrix
-#   sundials_linearsolver
-#   sundials_nonlinearsolver
-# )
+SET(dependencies
+  sundials_nvector
+  sundials_matrix
+  sundials_linearsolver
+  sundials_nonlinearsolver
+)
 
 SET(shared_SOURCES
   ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
@@ -101,63 +101,63 @@ FOREACH(example_tuple ${examples})
     NODIFF)
 
   IF(EXAMPLES_INSTALL)
-    INSTALL(FILES ${example}.c
+    INSTALL(FILES ${shared_SOURCES} ${example}.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/full_newton)
   ENDIF()
 
 ENDFOREACH(example_tuple ${examples})
 
 
-# IF(EXAMPLES_INSTALL)
+IF(EXAMPLES_INSTALL)
 
-#   # Install the README file
-#   INSTALL(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/newton)
+  # Install the README file
+  INSTALL(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/full_newton)
 
-#   # Prepare substitution variables for Makefile and/or CMakeLists templates
-#   SET(SOLVER_LIB "sundials_sunnonlinsolnewton")
-#   SET(LIBS "${LIBS} -lsundials_sunmatrixdense")
+  # Prepare substitution variables for Makefile and/or CMakeLists templates
+  SET(SOLVER_LIB "sundials_sunnonlinsolfullnewton")
+  SET(LIBS "${LIBS} -lsundials_sunmatrixdense -lsundials_sunlinsoldense")
 
-#   # Set the link directory for the dense sunmatrix library 
-#   # The generated CMakeLists.txt does not use find_library() locate it
-#   SET(EXTRA_LIBS_DIR "${libdir}")
+  # Set the link directory for the dense sunmatrix and linear solver library 
+  # The generated CMakeLists.txt does not use find_library() locate it
+  SET(EXTRA_LIBS_DIR "${libdir}")
 
-#   EXAMPLES2STRING(sunlinsol_dense_examples EXAMPLES)
-#   EXAMPLES2STRING(sunlinsol_dense_dependencies EXAMPLES_DEPENDENCIES)
+  EXAMPLES2STRING(examples EXAMPLES)
+  EXAMPLES2STRING(dependencies EXAMPLES_DEPENDENCIES)
 
-#   # Regardless of the platform we're on, we will generate and install 
-#   # CMakeLists.txt file for building the examples. This file  can then 
-#   # be used as a template for the user's own programs.
+  # Regardless of the platform we're on, we will generate and install 
+  # CMakeLists.txt file for building the examples. This file  can then 
+  # be used as a template for the user's own programs.
 
-#   # generate CMakelists.txt in the binary directory
-#   CONFIGURE_FILE(
-#     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
-#     ${PROJECT_BINARY_DIR}/examples/sunlinsol/dense/CMakeLists.txt
-#     @ONLY
-#     )
+  # generate CMakelists.txt in the binary directory
+  CONFIGURE_FILE(
+    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_serial_C_ex.in
+    ${PROJECT_BINARY_DIR}/examples/sunnonlinsol/full_newton/CMakeLists.txt
+    @ONLY
+    )
 
-#   # install CMakelists.txt
-#   INSTALL(
-#     FILES ${PROJECT_BINARY_DIR}/examples/sunlinsol/dense/CMakeLists.txt
-#     DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/dense
-#     )
+  # install CMakelists.txt
+  INSTALL(
+    FILES ${PROJECT_BINARY_DIR}/examples/sunnonlinsol/full_newton/CMakeLists.txt
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/full_newton
+    )
 
-#   # On UNIX-type platforms, we also  generate and install a makefile for 
-#   # building the examples. This makefile can then be used as a template 
-#   # for the user's own programs.
+  # On UNIX-type platforms, we also  generate and install a makefile for 
+  # building the examples. This makefile can then be used as a template 
+  # for the user's own programs.
 
-#   IF(UNIX)
-#     # generate Makefile and place it in the binary dir
-#     CONFIGURE_FILE(
-#       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
-#       ${PROJECT_BINARY_DIR}/examples/sunlinsol/dense/Makefile_ex
-#       @ONLY
-#       )
-#     # install the configured Makefile_ex as Makefile
-#     INSTALL(
-#       FILES ${PROJECT_BINARY_DIR}/examples/sunlinsol/dense/Makefile_ex 
-#       DESTINATION ${EXAMPLES_INSTALL_PATH}/sunlinsol/dense
-#       RENAME Makefile
-#       )
-#   ENDIF(UNIX)
+  IF(UNIX)
+    # generate Makefile and place it in the binary dir
+    CONFIGURE_FILE(
+      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_C_ex.in
+      ${PROJECT_BINARY_DIR}/examples/sunnonlinsol/full_newton/Makefile_ex
+      @ONLY
+      )
+    # install the configured Makefile_ex as Makefile
+    INSTALL(
+      FILES ${PROJECT_BINARY_DIR}/examples/sunnonlinsol/full_newton/Makefile_ex 
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/sunnonlinsol/full_newton
+      RENAME Makefile
+      )
+  ENDIF(UNIX)
 
-# ENDIF(EXAMPLES_INSTALL)
+ENDIF(EXAMPLES_INSTALL)
