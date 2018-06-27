@@ -143,12 +143,12 @@ void WriteButcherTable(ARKodeButcherTable B, FILE *outfile) {
 
  Input:  imeth -- integer key for the desired method (see below)
 
- Allowed 'method' names and properties (those in an ARK pair are marked 
- with a *).  All method names are of the form <name>_s_p_q.  The method 
- 'type' is one of 
+ Allowed 'method' names and properties (those in an ARK pair are 
+ marked with a *).  All method names are of the form 
+ <name>_s_p_q.  The method 'type' is one of 
     ERK -- explicit Runge Kutta
     SDIRK -- singly-diagonally implicit Runge Kutta
-    SDIRK -- explicit [1st stage] singly-diagonally implicit Runge Kutta
+    ESDIRK -- explicit [1st stage] singly-diagonally implicit Runge Kutta
  The 'A-stable' and 'L-stable' columns are based on numerical estimates 
  of each property.  The 'QP' column denotes whether the coefficients 
  of the method are known precisely enough for use in 'long double' 
