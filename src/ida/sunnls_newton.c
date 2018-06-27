@@ -57,6 +57,12 @@ int SUNNonlinSolInit_Newton(N_Vector tmpl)
     }
   }    
 
+  /* initialize integrator provided functions to NULL */
+  Res    = NULL;
+  LSetup = NULL;
+  LSolve = NULL;
+  CTest  = NULL;
+
   /* initialize constants */
   nni     = 0;   /* number of nonlinear iterations         */
   maxiter = 3;   /* maximum number of nonlinear iterations */
@@ -156,7 +162,7 @@ int SUNNonlinSolSolve_Newton(N_Vector yy_predict, N_Vector yy,
     retval = NewtonIter(yy_predict, yy, ewt, tol, mem);
 
     /* Retry the current step on recoverable failure with old Jacobian data */
-    tryAgain = (retval>0) && (!callSetup);
+    tryAgain = (retval>0) && (LSetup) && (!callSetup);
 
     if (tryAgain){
       callSetup = SUNTRUE;

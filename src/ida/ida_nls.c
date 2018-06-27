@@ -51,7 +51,8 @@ int IDASetNonlinearSolver(void *ida_mem)
   SUNNonlinSolSetSysFn(IDANls_Res);
 
   /* set the setup function */
-  SUNNonlinSolSetLSetupFn(IDANls_LSetup);
+  if (IDA_mem->ida_lsetup)
+    SUNNonlinSolSetLSetupFn(IDANls_LSetup);
 
   /* set the linear solve function */
   SUNNonlinSolSetLSolveFn(IDANls_LSolve);
