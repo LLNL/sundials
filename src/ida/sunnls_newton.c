@@ -1,3 +1,20 @@
+/* -----------------------------------------------------------------------------
+ * Programmer(s): David J. Gardner @ LLNL
+ * -----------------------------------------------------------------------------
+ * LLNS Copyright Start
+ * Copyright (c) 2014, Lawrence Livermore National Security
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Lawrence Livermore National Laboratory in part under
+ * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see the LICENSE file.
+ * LLNS Copyright End
+ * -----------------------------------------------------------------------------
+ * This a proxy implementation file for the SUNNonlinearSolver module
+ * implementation of Newton's method.
+ * ---------------------------------------------------------------------------*/
+
 #include "stdlib.h"
 #include "sunnls_newton.h"
 #include "sundials/sundials_math.h"
@@ -21,8 +38,6 @@ static N_Vector delta;
 
 static long int nni;
 static int maxiter;
-
-static realtype cj; /* LMM scaling factor to update yp */
 
 /*
  * Exported Functions
@@ -81,12 +96,6 @@ int SUNNonlinSolFree_Newton()
     delta = NULL;
   }
 
-  return(SUN_NLS_SUCCESS);
-}
-
-int SUNNonlinSolSetAlphaFactor_Newton(realtype alpha)
-{
-  cj = alpha;
   return(SUN_NLS_SUCCESS);
 }
 
@@ -174,12 +183,12 @@ int SUNNonlinSolSolve_Newton(N_Vector yy_predict, N_Vector yy,
  * If the iteration succeeds, it returns the value SUN_NLS_SUCCESS = 0.
  * If not, it returns either:
  *   a positive value (for a recoverable failure), namely one of:
- *     residual
+ *     SUN_NLS_SYS_RECVR
  *     SUN_NLS_LSOLVE_RECVR
  *     SUN_NLS_NCONV_RECVR
  * or
  *   a negative value (for a nonrecoverable failure), namely one of:
- *     residual
+ *     SUN_NLS_SYS_FAIL
  *     SUN_NLS_LSOLVE_FAIL
  */
 

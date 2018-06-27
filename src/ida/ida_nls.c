@@ -1,11 +1,29 @@
+/* -----------------------------------------------------------------------------
+ * Programmer(s): David J. Gardner @ LLNL
+ * -----------------------------------------------------------------------------
+ * LLNS Copyright Start
+ * Copyright (c) 2014, Lawrence Livermore National Security
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Lawrence Livermore National Laboratory in part under
+ * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see the LICENSE file.
+ * LLNS Copyright End
+ * -----------------------------------------------------------------------------
+ * This the implementation file for the IDA nonlinear solver interface.
+ * ---------------------------------------------------------------------------*/
+
 #include "ida_nls.h"
-#include "sunnls_newton.h"
+#include "sunnls_newton.h" /* relace with sundial_nonlinearsolve.h */
 #include "sundials/sundials_math.h"
 
 /* nonlinear solver constants */
 #define MAXIT   4              /* max number of nonlinear iterations */
 #define RATEMAX RCONST(0.9)    /* max convergence rate               */
 #define PT0001  RCONST(0.0001) /* real 0.0001                        */
+#define ONE     RCONST(1.0)    /* real 1.0                           */
+#define TWENTY  RCONST(20.0)   /* real 20.0                          */
 
 /* private functions passed to nonlinear solver */
 static int IDANls_Res(N_Vector yy, N_Vector res, void* ida_mem);
@@ -43,9 +61,6 @@ int IDASetNonlinearSolver(void *ida_mem)
 
   /* set max allowed nonlinear iterations */
   SUNNonlinSolSetMaxNonlinIters_Newton(MAXIT);
-
-  /* set initial convergence rate factor */
-  SUNNonlinSolSetAlphaFactor_Newton(IDA_mem->ida_cj);
 
   return(IDA_SUCCESS);
 }
@@ -94,8 +109,6 @@ static int IDANls_LSolve(N_Vector yy, N_Vector delta, void* ida_mem)
 }
 
 
-/* only called from within the nonlinear solver so can assume predictor
- * has already been called */
 static int IDANls_Res(N_Vector yy, N_Vector res, void* ida_mem)
 {
   IDAMem IDA_mem;

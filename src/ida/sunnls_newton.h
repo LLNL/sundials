@@ -1,3 +1,20 @@
+/* -----------------------------------------------------------------------------
+ * Programmer(s): David J. Gardner @ LLNL
+ * -----------------------------------------------------------------------------
+ * LLNS Copyright Start
+ * Copyright (c) 2014, Lawrence Livermore National Security
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Lawrence Livermore National Laboratory in part under
+ * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see the LICENSE file.
+ * LLNS Copyright End
+ * -----------------------------------------------------------------------------
+ * This a proxy header file for the SUNNonlinearSolver module implementation of
+ * Newton's method.
+ * ---------------------------------------------------------------------------*/
+
 #ifndef _SUN_NLS_H
 #define _SUN_NLS_H
 
@@ -35,7 +52,6 @@ int SUNNonlinSolSolve_Newton(N_Vector yy_predict, N_Vector yy,
 int SUNNonlinSolInit_Newton(N_Vector tmpl);
 int SUNNonlinSolFree_Newton();
 
-int SUNNonlinSolSetAlphaFactor_Newton(realtype alpha);
 int SUNNonlinSolSetMaxNonlinIters_Newton(int max);
 
 int SUNNonlinSolSetSysFn(SUNNonlinSolSysFn SysFn);

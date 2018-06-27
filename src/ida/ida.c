@@ -2244,9 +2244,6 @@ static int IDANls(IDAMem IDA_mem)
     {if (IDA_mem->ida_cj != IDA_mem->ida_cjlast) IDA_mem->ida_ss=HUNDRED;}
   }
 
-  /* ensure cj value is current before solve */
-  SUNNonlinSolSetAlphaFactor_Newton(IDA_mem->ida_cj);
-
   /* solve the nonlinear system */
   retval = SUNNonlinSolSolve_Newton(IDA_mem->ida_yypredict, IDA_mem->ida_yy,
                                     IDA_mem->ida_ewt, IDA_mem->ida_epsNewt,
