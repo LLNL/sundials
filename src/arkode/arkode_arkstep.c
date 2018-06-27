@@ -506,13 +506,13 @@ ARKRhsFn arkStep_GetImplicitRHS(void* arkode_mem)
   /* access ARKodeARKStepMem structure, and return fi */
   if (arkode_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::ARKStep",
-                    "arkStep_GetMassMem", MSG_ARK_NO_MEM);
+                    "arkStep_GetImplicitRHS", MSG_ARK_NO_MEM);
     return(NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::ARKStep",
-                    "arkStep_GetMassMem", MSG_ARKSTEP_NO_MEM);
+                    "arkStep_GetImplicitRHS", MSG_ARKSTEP_NO_MEM);
     return(NULL);
   }
   arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
