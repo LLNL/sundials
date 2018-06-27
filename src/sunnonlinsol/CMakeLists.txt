@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Programmer: David J. Gardner @ LLNL
+# Programmer(s): David J. Gardner @ LLNL
 # ------------------------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
@@ -15,4 +15,5 @@
 # ------------------------------------------------------------------------------
 
 # Always add SUNDIALS provided nonlinear solver modules
+add_subdirectory(newton)
 add_subdirectory(full_newton)
