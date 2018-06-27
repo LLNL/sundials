@@ -69,14 +69,14 @@ typedef struct ARKBBDPrecDataRec {
  ARKBBDPRE error messages
 ---------------------------------------------------------------*/
 
-#define MSGBBD_MEM_NULL    "Integrator memory is NULL."
-#define MSGBBD_LMEM_NULL   "Linear solver memory is NULL. One of the SPILS linear solvers must be attached."
-#define MSGBBD_MEM_FAIL    "A memory request failed."
-#define MSGBBD_BAD_NVECTOR "A required vector operation is not implemented."
-#define MSGBBD_SUNMAT_FAIL "An error arose from a SUNBandMatrix routine."
-#define MSGBBD_SUNLS_FAIL  "An error arose from a SUNBandLinearSolver routine."
-#define MSGBBD_PMEM_NULL   "BBD peconditioner memory is NULL. ARKBBDPrecInit must be called."
-#define MSGBBD_FUNC_FAILED "The gloc or cfn routine failed in an unrecoverable manner."
+#define MSG_BBD_MEM_NULL    "Integrator memory is NULL."
+#define MSG_BBD_LMEM_NULL   "Linear solver memory is NULL. One of the SPILS linear solvers must be attached."
+#define MSG_BBD_MEM_FAIL    "A memory request failed."
+#define MSG_BBD_BAD_NVECTOR "A required vector operation is not implemented."
+#define MSG_BBD_SUNMAT_FAIL "An error arose from a SUNBandMatrix routine."
+#define MSG_BBD_SUNLS_FAIL  "An error arose from a SUNBandLinearSolver routine."
+#define MSG_BBD_PMEM_NULL   "BBD peconditioner memory is NULL. ARKBBDPrecInit must be called."
+#define MSG_BBD_FUNC_FAILED "The gloc or cfn routine failed in an unrecoverable manner."
 
 #ifdef __cplusplus
 }

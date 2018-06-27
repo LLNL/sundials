@@ -53,7 +53,7 @@ int ARKodeRootInit(void* arkode_mem, int nrtfn, ARKRootFn g)
   /* Check arkode_mem pointer */
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "ARKodeRootInit", MSGARK_NO_MEM);
+                    "ARKodeRootInit", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -65,7 +65,7 @@ int ARKodeRootInit(void* arkode_mem, int nrtfn, ARKRootFn g)
     ark_mem->root_mem = (ARKodeRootMem) malloc(sizeof(struct ARKodeRootMemRec));
     if (ark_mem->root_mem == NULL) {
       arkProcessError(NULL, 0, "ARKODE", "ARKodeRootInit", 
-                      MSGARK_ARKMEM_FAIL);
+                      MSG_ARK_ARKMEM_FAIL);
       return(ARK_MEM_FAIL);
     }
     ark_mem->root_mem->glo     = NULL;
@@ -124,7 +124,7 @@ int ARKodeRootInit(void* arkode_mem, int nrtfn, ARKRootFn g)
         ark_mem->liw -= 3*nrt;
 
         arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
-                        "ARKodeRootInit", MSGARK_NULL_G);
+                        "ARKodeRootInit", MSG_ARK_NULL_G);
         return(ARK_ILL_INPUT);
       }
       else {
@@ -139,7 +139,7 @@ int ARKodeRootInit(void* arkode_mem, int nrtfn, ARKRootFn g)
   ark_mem->root_mem->nrtfn = nrt;
   if (g == NULL) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
-                    "ARKodeRootInit", MSGARK_NULL_G);
+                    "ARKodeRootInit", MSG_ARK_NULL_G);
     return(ARK_ILL_INPUT);
   }
   else ark_mem->root_mem->gfun = g;
@@ -149,7 +149,7 @@ int ARKodeRootInit(void* arkode_mem, int nrtfn, ARKRootFn g)
   ark_mem->root_mem->glo = (realtype *) malloc(nrt*sizeof(realtype));
   if (ark_mem->root_mem->glo == NULL) {
     arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", 
-                    "ARKodeRootInit", MSGARK_MEM_FAIL);
+                    "ARKodeRootInit", MSG_ARK_MEM_FAIL);
     return(ARK_MEM_FAIL);
   }
   ark_mem->root_mem->ghi = NULL;
@@ -157,7 +157,7 @@ int ARKodeRootInit(void* arkode_mem, int nrtfn, ARKRootFn g)
   if (ark_mem->root_mem->ghi == NULL) {
     free(ark_mem->root_mem->glo); ark_mem->root_mem->glo = NULL;
     arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", 
-                    "ARKodeRootInit", MSGARK_MEM_FAIL);
+                    "ARKodeRootInit", MSG_ARK_MEM_FAIL);
     return(ARK_MEM_FAIL);
   }
   ark_mem->root_mem->grout = NULL;
@@ -166,7 +166,7 @@ int ARKodeRootInit(void* arkode_mem, int nrtfn, ARKRootFn g)
     free(ark_mem->root_mem->glo); ark_mem->root_mem->glo = NULL;
     free(ark_mem->root_mem->ghi); ark_mem->root_mem->ghi = NULL;
     arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", 
-                    "ARKodeRootInit", MSGARK_MEM_FAIL);
+                    "ARKodeRootInit", MSG_ARK_MEM_FAIL);
     return(ARK_MEM_FAIL);
   }
   ark_mem->root_mem->iroots = NULL;
@@ -176,7 +176,7 @@ int ARKodeRootInit(void* arkode_mem, int nrtfn, ARKRootFn g)
     free(ark_mem->root_mem->ghi); ark_mem->root_mem->ghi = NULL;
     free(ark_mem->root_mem->grout); ark_mem->root_mem->grout = NULL;
     arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", 
-                    "ARKodeRootInit", MSGARK_MEM_FAIL);
+                    "ARKodeRootInit", MSG_ARK_MEM_FAIL);
     return(ARK_MEM_FAIL);
   }
   ark_mem->root_mem->rootdir = NULL;
@@ -187,7 +187,7 @@ int ARKodeRootInit(void* arkode_mem, int nrtfn, ARKRootFn g)
     free(ark_mem->root_mem->grout); ark_mem->root_mem->grout = NULL;
     free(ark_mem->root_mem->iroots); ark_mem->root_mem->iroots = NULL;
     arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE", 
-                    "ARKodeRootInit", MSGARK_MEM_FAIL);
+                    "ARKodeRootInit", MSG_ARK_MEM_FAIL);
     return(ARK_MEM_FAIL);
   }
   ark_mem->root_mem->gactive = NULL;
@@ -199,7 +199,7 @@ int ARKodeRootInit(void* arkode_mem, int nrtfn, ARKRootFn g)
     free(ark_mem->root_mem->iroots); ark_mem->root_mem->iroots = NULL;
     free(ark_mem->root_mem->rootdir); ark_mem->root_mem->rootdir = NULL;
     arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODES", 
-                    "ARKodeRootInit", MSGARK_MEM_FAIL);
+                    "ARKodeRootInit", MSG_ARK_MEM_FAIL);
     return(ARK_MEM_FAIL);
   }
 
@@ -227,7 +227,7 @@ int arkRootFree(void* arkode_mem)
   ARKodeMem ark_mem;
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "arkRootFree", MSGARK_NO_MEM);
+                    "arkRootFree", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -262,7 +262,7 @@ int arkPrintRootMem(void* arkode_mem, FILE *outfile)
   ARKodeMem ark_mem;
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "arkPrintRootMem", MSGARK_NO_MEM);
+                    "arkPrintRootMem", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -321,7 +321,7 @@ int arkRootCheck1(void* arkode_mem)
   ARKodeRootMem rootmem;
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "arkRootCheck1", MSGARK_NO_MEM);
+                    "arkRootCheck1", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -400,7 +400,7 @@ int arkRootCheck2(void* arkode_mem)
   ARKodeRootMem rootmem;
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "arkRootCheck2", MSGARK_NO_MEM);
+                    "arkRootCheck2", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -493,7 +493,7 @@ int arkRootCheck3(void* arkode_mem)
   ARKodeRootMem rootmem;
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "arkRootCheck3", MSGARK_NO_MEM);
+                    "arkRootCheck3", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
@@ -626,7 +626,7 @@ int arkRootfind(void* arkode_mem)
   ARKodeRootMem rootmem;
   if (arkode_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
-                    "arkRootfind", MSGARK_NO_MEM);
+                    "arkRootfind", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;

@@ -107,8 +107,7 @@ int erkStep_PrepareNextStep(ARKodeMem ark_mem, realtype dsm);
   ===============================================================*/
 
 /* Initialization and I/O error messages */
-#define MSGERKSTEP_NO_MEM     "Time step module memory is NULL."
-#define MSGARKADAPT_NO_MEM    "Adaptivity memory structure not allocated."
+#define MSG_ERKSTEP_NO_MEM    "Time step module memory is NULL."
 
 #ifdef __cplusplus
 }
