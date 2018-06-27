@@ -111,10 +111,10 @@ int SUNNonlinSolInit_FullNewton(SUNNonlinearSolver NLS, N_Vector tmpl)
 int SUNNonlinSolSetup_FullNewton(SUNNonlinearSolver NLS, N_Vector y, void* mem)
 {
   /* check that all necessary function pointer have been set */
-  if (NEWTON_CONTENT(NLS)->Sys == NULL ||
-      NEWTON_CONTENT(NLS)->LSetup == NULL ||
-      NEWTON_CONTENT(NLS)->LSolve == NULL) {
-    return(1);
+  if ( NEWTON_CONTENT(NLS)->Sys    == NULL ||
+       NEWTON_CONTENT(NLS)->LSolve == NULL ||
+       NEWTON_CONTENT(NLS)->CTest  == NULL    ) {
+    return(-1);
   }
   return(SUN_NLS_SUCCESS);
 }
