@@ -2004,14 +2004,6 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
   realtype* cvals;
   N_Vector* Xvecs;
 
-  /* verify that interpolation structure is provided */
-  if ((ark_mem->interp == NULL) && (arkstep_mem->predictor > 0)) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::ARKStep",
-                    "arkStep_Predict", 
-                    "Interpolation structure is NULL");
-    return(ARK_MEM_NULL);
-  }
-  
   /* access ARKodeARKStepMem structure */
   if (ark_mem->step_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::ARKStep",
@@ -2020,6 +2012,14 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
   }
   arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
 
+  /* verify that interpolation structure is provided */
+  if ((ark_mem->interp == NULL) && (arkstep_mem->predictor > 0)) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::ARKStep",
+                    "arkStep_Predict", 
+                    "Interpolation structure is NULL");
+    return(ARK_MEM_NULL);
+  }
+  
   /* local shortcuts to fused vector operations */
   cvals = arkstep_mem->cvals;
   Xvecs = arkstep_mem->Xvecs;
