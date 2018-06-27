@@ -2550,7 +2550,7 @@ int ARKStepWriteButcher(void *arkode_mem, FILE *fp)
 
   /* print Butcher tables to file */
   fprintf(fp, "\nARKStep Butcher tables (stages = %i):\n", arkstep_mem->stages);
-  if (arkstep_mem->explicit) {
+  if (arkstep_mem->explicit && (arkstep_mem->Be != NULL)) {
     fprintf(fp, "  Explicit Butcher table:\n");
     for (i=0; i<arkstep_mem->stages; i++) {
       fprintf(fp, "     %"RSYM"",arkstep_mem->Be->c[i]);
@@ -2569,7 +2569,7 @@ int ARKStepWriteButcher(void *arkode_mem, FILE *fp)
       fprintf(fp,"\n");
     }
   }
-  if (arkstep_mem->implicit) {
+  if (arkstep_mem->implicit && (arkstep_mem->Bi != NULL)) {
     fprintf(fp, "  Implicit Butcher table:\n");
     for (i=0; i<arkstep_mem->stages; i++) {
       fprintf(fp, "     %"RSYM"",arkstep_mem->Bi->c[i]);

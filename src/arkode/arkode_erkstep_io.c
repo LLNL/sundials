@@ -1232,6 +1232,13 @@ int ERKStepWriteButcher(void *arkode_mem, FILE *fp)
   }
   erkstep_mem = (ARKodeERKStepMem) ark_mem->step_mem;
 
+  /* check that Butcher table is non-NULL (otherwise report error) */
+  if (erkstep_mem->B == NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", "ARKodeWriteButcher", 
+                    "Butcher table memory is NULL");
+    return(ARK_MEM_NULL);
+  }
+  
   /* print Butcher table to file */
   fprintf(fp, "\nERKStep Butcher table (stages = %i):\n", erkstep_mem->stages);
   for (i=0; i<erkstep_mem->stages; i++) {
