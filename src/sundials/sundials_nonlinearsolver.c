@@ -32,9 +32,9 @@ SUNNonlinearSolver_Type SUNNonlinSolGetType(SUNNonlinearSolver NLS)
   return(NLS->ops->gettype(NLS));
 }
 
-int SUNNonlinSolInit(SUNNonlinearSolver NLS, N_Vector tmpl)
+int SUNNonlinSolInit(SUNNonlinearSolver NLS)
 {
-  return((int) NLS->ops->init(NLS, tmpl));
+  return((int) NLS->ops->init(NLS));
 }
 
 int SUNNonlinSolSetup(SUNNonlinearSolver NLS, N_Vector y, void* mem)

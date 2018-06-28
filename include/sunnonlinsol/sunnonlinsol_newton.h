@@ -60,8 +60,7 @@ SUNDIALS_EXPORT SUNNonlinearSolver SUNNewtonSolver(N_Vector y);
 /* core functions */
 SUNDIALS_EXPORT SUNNonlinearSolver_Type SUNNonlinSolGetType_Newton(SUNNonlinearSolver NLS);
 
-SUNDIALS_EXPORT int SUNNonlinSolInit_Newton(SUNNonlinearSolver NLS,
-                                            N_Vector tmpl);
+SUNDIALS_EXPORT int SUNNonlinSolInit_Newton(SUNNonlinearSolver NLS);
 
 SUNDIALS_EXPORT int SUNNonlinSolSetup_Newton(SUNNonlinearSolver NLS,
                                              N_Vector y, void* mem);

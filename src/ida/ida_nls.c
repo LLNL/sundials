@@ -54,7 +54,7 @@ int IDASetNonlinearSolver(void *ida_mem)
   }
 
   /* initialize nonlinear solver */
-  SUNNonlinSolInit(IDA_mem->NLS, IDA_mem->ida_yy);
+  SUNNonlinSolInit(IDA_mem->NLS);
 
   /* set the residual function */
   SUNNonlinSolSetSysFn(IDA_mem->NLS, IDANls_Res);

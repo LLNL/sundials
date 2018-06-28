@@ -101,7 +101,7 @@ SUNNonlinearSolver_Type SUNNonlinSolGetType_Newton(SUNNonlinearSolver NLS)
 }
 
 
-int SUNNonlinSolInit_Newton(SUNNonlinearSolver NLS, N_Vector tmpl)
+int SUNNonlinSolInit_Newton(SUNNonlinearSolver NLS)
 {
   /* all solver-specific memory has already been allocated */
   return(SUN_NLS_SUCCESS);
