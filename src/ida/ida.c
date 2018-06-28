@@ -88,7 +88,6 @@
 
 #include "ida_impl.h"
 #include <sundials/sundials_math.h>
-#include "sunnls_newton.h"
 
 /* 
  * =================================================================
@@ -1338,12 +1337,12 @@ void IDAFree(void **ida_mem)
 {
   IDAMem IDA_mem;
 
-  /* >>>>>>> REMOVE -- user needs to call NLS free function -- REMOVE <<<<<<< */
-  SUNNonlinSolFree_Newton();
-
   if (*ida_mem == NULL) return;
 
   IDA_mem = (IDAMem) (*ida_mem);
+
+  /* >>>>>>> REMOVE -- user needs to call NLS free function -- REMOVE <<<<<<< */
+  SUNNonlinSolFree(IDA_mem->NLS);
   
   IDAFreeVectors(IDA_mem);
 
@@ -2245,9 +2244,10 @@ static int IDANls(IDAMem IDA_mem)
   }
 
   /* solve the nonlinear system */
-  retval = SUNNonlinSolSolve_Newton(IDA_mem->ida_yypredict, IDA_mem->ida_yy,
-                                    IDA_mem->ida_ewt, IDA_mem->ida_epsNewt,
-                                    callSetup, IDA_mem);
+  retval = SUNNonlinSolSolve(IDA_mem->NLS,
+                             IDA_mem->ida_yypredict, IDA_mem->ida_yy,
+                             IDA_mem->ida_ewt, IDA_mem->ida_epsNewt,
+                             callSetup, IDA_mem);
 
   /* compute the cumulative correction vector */
   N_VLinearSum(ONE, IDA_mem->ida_yy, -ONE, IDA_mem->ida_yypredict, IDA_mem->ida_ee);

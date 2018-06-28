@@ -175,7 +175,7 @@ int SUNNonlinSolSolve_FullNewton(SUNNonlinearSolver NLS,
 
   /* all error returns exit here */
   if (retval > 0)
-    return(SUN_NLS_NCONV_RECVR);
+    return(SUN_NLS_CONV_FAIL);
   else
     return(retval);
 }

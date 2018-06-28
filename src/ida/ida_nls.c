@@ -15,8 +15,8 @@
  * ---------------------------------------------------------------------------*/
 
 #include "ida_impl.h"
-#include "sunnls_newton.h" /* relace with sundial_nonlinearsolve.h */
 #include "sundials/sundials_math.h"
+#include "sunnonlinsol/sunnonlinsol_newton.h" /* >>>>>>> REMOVE when constructor is removed <<<<<<< */
 
 /* nonlinear solver constants */
 #define MAXIT   4              /* max number of nonlinear iterations */
@@ -44,24 +44,33 @@ int IDASetNonlinearSolver(void *ida_mem)
   }
   IDA_mem = (IDAMem) ida_mem;
 
+  /* >>>>>>> -- REMOVE user needs to create and attach the NLS module -- <<<<<<< */
+  IDA_mem->NLS = SUNNewtonSolver(IDA_mem->ida_ee);
+
+  if (IDA_mem->NLS == NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA",
+                    "IDASetNonlinearSolver", MSG_NO_MEM);
+    return (IDA_MEM_NULL);
+  }
+
   /* initialize nonlinear solver */
-  SUNNonlinSolInit_Newton(IDA_mem->ida_yy);
+  SUNNonlinSolInit(IDA_mem->NLS, IDA_mem->ida_yy);
 
   /* set the residual function */
-  SUNNonlinSolSetSysFn(IDANls_Res);
+  SUNNonlinSolSetSysFn(IDA_mem->NLS, IDANls_Res);
 
   /* set the setup function */
   if (IDA_mem->ida_lsetup)
-    SUNNonlinSolSetLSetupFn(IDANls_LSetup);
+    SUNNonlinSolSetLSetupFn(IDA_mem->NLS, IDANls_LSetup);
 
   /* set the linear solve function */
-  SUNNonlinSolSetLSolveFn(IDANls_LSolve);
+  SUNNonlinSolSetLSolveFn(IDA_mem->NLS, IDANls_LSolve);
 
   /* set convergence test function */
-  SUNNonlinSolSetConvTestFn(IDANls_ConvergenceTest);
+  SUNNonlinSolSetConvTestFn(IDA_mem->NLS, IDANls_ConvergenceTest);
 
   /* set max allowed nonlinear iterations */
-  SUNNonlinSolSetMaxNonlinIters_Newton(MAXIT);
+  SUNNonlinSolSetMaxIters(IDA_mem->NLS, MAXIT);
 
   return(IDA_SUCCESS);
 }
@@ -155,12 +164,12 @@ static int IDANls_ConvergenceTest(int m, realtype delnrm, realtype tol, void* id
     if (delnrm <= PT0001 * IDA_mem->ida_toldel) return(SUN_NLS_SUCCESS);
   } else {
     rate = SUNRpowerR( delnrm/oldnrm, ONE/m );
-    if (rate > RATEMAX) return(SUN_NLS_CONV_RECVR);
+    if (rate > RATEMAX) return(SUN_NLS_CONV_FAIL);
     IDA_mem->ida_ss = rate/(ONE - rate);
   }
 
   if (IDA_mem->ida_ss*delnrm <= tol) return(SUN_NLS_SUCCESS);
 
   /* Not yet converged */
-  return(SUN_NLS_CONV_CONTINUE);
+  return(SUN_NLS_CONTINUE);
 }

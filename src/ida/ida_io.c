@@ -27,7 +27,6 @@
 #include "ida_impl.h"
 
 #include <sundials/sundials_math.h>
-#include "sunnls_newton.h"
 
 #define ZERO    RCONST(0.0)
 #define HALF    RCONST(0.5)
@@ -290,9 +289,23 @@ int IDASetMaxConvFails(void *ida_mem, int maxncf)
 
 int IDASetMaxNonlinIters(void *ida_mem, int maxcor)
 {
-  /* >>>>>>> -- REMOVE this function user will call NLS function -- <<<<<<< */
-  /* >>>>>>> -- OR leave as wrapper to NLS function              -- <<<<<<< */
-  return(SUNNonlinSolSetMaxNonlinIters_Newton(maxcor));
+  IDAMem IDA_mem;
+
+  if (ida_mem==NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDASetMaxNonlinIters", MSG_NO_MEM);
+    return (IDA_MEM_NULL);
+  }
+
+  IDA_mem = (IDAMem) ida_mem;
+
+  if (IDA_mem->NLS == NULL) {
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDASetMaxNonlinIters", MSG_NO_MEM);
+    return (IDA_MEM_NULL);
+  }
+
+  /* >>>>>>> -- REMOVE this function and have user call NLS function -- <<<<<<< */
+  /* >>>>>>> -- OR this as a wrapper to the NLS function             -- <<<<<<< */
+  return(SUNNonlinSolSetMaxIters(IDA_mem->NLS, maxcor));
 }
 
 /*-----------------------------------------------------------------*/
@@ -997,6 +1010,7 @@ int IDAGetNumNonlinSolvIters(void *ida_mem, long int *nniters)
 {
   IDAMem IDA_mem;
   long int nls_iters;
+  int retval;
 
   if (ida_mem==NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAGetNumNonlinSolvIters", MSG_NO_MEM);
@@ -1005,9 +1019,15 @@ int IDAGetNumNonlinSolvIters(void *ida_mem, long int *nniters)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNNonlinSolGetNumIters_Newton(&nls_iters);
+  *nniters = IDA_mem->ida_nni;
 
-  *nniters = IDA_mem->ida_nni + nls_iters;
+  if (IDA_mem->NLS != NULL) {
+    retval = SUNNonlinSolGetNumIters(IDA_mem->NLS, &nls_iters);
+    if (retval != IDA_SUCCESS)
+      return(retval);
+    else
+      *nniters += nls_iters;
+  }
 
   return(IDA_SUCCESS);
 }
@@ -1036,6 +1056,7 @@ int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters, long int *nncfails)
 {
   IDAMem IDA_mem;
   long int nls_iters;
+  int retval;
 
   if (ida_mem==NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAGetNonlinSolvStats", MSG_NO_MEM);
@@ -1044,10 +1065,16 @@ int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters, long int *nncfails)
 
   IDA_mem = (IDAMem) ida_mem;
 
-  SUNNonlinSolGetNumIters_Newton(&nls_iters);
-
-  *nniters  = IDA_mem->ida_nni + nls_iters;
+  *nniters  = IDA_mem->ida_nni;
   *nncfails = IDA_mem->ida_ncfn;
+
+  if (IDA_mem->NLS != NULL) {
+    retval = SUNNonlinSolGetNumIters(IDA_mem->NLS, &nls_iters);
+    if (retval != IDA_SUCCESS)
+      return(retval);
+    else
+      *nniters += nls_iters;
+  }
 
   return(IDA_SUCCESS);
 }

@@ -204,6 +204,10 @@ typedef struct IDAMemRec {
                                  set to SUNTRUE by IDAMAlloc
                                  tested by IDAReInit and IDASolve             */
 
+  /* Nonlinear Solver */
+
+  SUNNonlinearSolver NLS; /* Sundials generic nonlinear solver object */
+
   /* Linear Solver Data */
 
   /* Linear Solver functions to be called */

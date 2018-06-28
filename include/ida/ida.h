@@ -34,6 +34,7 @@
 
 #include <stdio.h>
 #include <sundials/sundials_nvector.h>
+#include <sundials/sundials_nonlinearsolver.h>
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
