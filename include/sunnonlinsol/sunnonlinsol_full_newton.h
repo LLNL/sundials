@@ -12,7 +12,7 @@
  * LLNS Copyright End
  * -----------------------------------------------------------------------------
  * This is the header file for the SUNNonlinearSolver module implementation of
- * a Full Newton iteration (for initial testing).
+ * a Full Newton iteration.
  * 
  * Part I defines the solver-specific content structure.
  * 

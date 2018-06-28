@@ -12,7 +12,7 @@
  * LLNS Copyright End
  * -----------------------------------------------------------------------------
  * This is the implementation file for the SUNNonlinearSolver module
- * implementation of a full Newton iteration (for initial testing).
+ * implementation of a full Newton iteration.
  * ---------------------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -27,9 +27,9 @@
 /* Content structure accessibility macros  */
 #define NEWTON_CONTENT(S) ( (SUNNonlinearSolverContent_FullNewton)(S->content) )
 
-/* -----------------------------------------------------------------------------
+/* =============================================================================
  * Exported functions
- * ---------------------------------------------------------------------------*/
+ * ===========================================================================*/
 
 /* ----------------------------------------------------------------------------
  * Constructor to create a new Newton solver
@@ -41,6 +41,14 @@ SUNNonlinearSolver SUNFullNewtonSolver(N_Vector y)
   SUNNonlinearSolver_Ops ops;
   SUNNonlinearSolverContent_FullNewton content;
   
+  /* Check that the supplied N_Vector supports all required operations */
+  if ( (y->ops->nvclone     == NULL) ||
+       (y->ops->nvdestroy   == NULL) ||
+       (y->ops->nvscale     == NULL) ||
+       (y->ops->nvlinearsum == NULL) ||
+       (y->ops->nvwrmsnorm  == NULL) )
+    return(NULL);
+
   /* Create nonlinear linear solver */
   NLS = NULL;
   NLS = (SUNNonlinearSolver) malloc(sizeof *NLS);
@@ -79,6 +87,9 @@ SUNNonlinearSolver SUNFullNewtonSolver(N_Vector y)
   content->maxiters = 3;
   content->niters   = 0;
   
+  /* check if clone was successful */
+  if (content->delta == NULL) { free(ops); free(NLS); return(NULL); }
+
   /* Attach content and ops */
   NLS->content = content;
   NLS->ops     = ops;
@@ -87,13 +98,9 @@ SUNNonlinearSolver SUNFullNewtonSolver(N_Vector y)
 }
 
 
-/* -----------------------------------------------------------------------------
+/* =============================================================================
  * Implementation of nonlinear solver operations
- * ---------------------------------------------------------------------------*/
-
-/*
- * Core functions
- */
+ * ===========================================================================*/
 
 SUNNonlinearSolver_Type SUNNonlinSolGetType_FullNewton(SUNNonlinearSolver NLS)
 {
@@ -104,22 +111,51 @@ SUNNonlinearSolver_Type SUNNonlinSolGetType_FullNewton(SUNNonlinearSolver NLS)
 int SUNNonlinSolInit_FullNewton(SUNNonlinearSolver NLS)
 {
   /* all solver-specific memory has already been allocated */
+  if (NLS == NULL)
+    return(SUN_NLS_MEM_NULL);
+
+  /* check that all required function pointers have been set */
+  if ( NEWTON_CONTENT(NLS)->Sys    == NULL ||
+       NEWTON_CONTENT(NLS)->LSolve == NULL ||
+       NEWTON_CONTENT(NLS)->CTest  == NULL ) {
+    return(SUN_NLS_MEM_NULL);
+  }
+
+  /* initialize the total number of nonlinear solver iterations */
+  NEWTON_CONTENT(NLS)->niters = 0;
+
   return(SUN_NLS_SUCCESS);
 }
 
 
 int SUNNonlinSolSetup_FullNewton(SUNNonlinearSolver NLS, N_Vector y, void* mem)
 {
-  /* check that all necessary function pointer have been set */
-  if ( NEWTON_CONTENT(NLS)->Sys    == NULL ||
-       NEWTON_CONTENT(NLS)->LSolve == NULL ||
-       NEWTON_CONTENT(NLS)->CTest  == NULL    ) {
-    return(-1);
-  }
+  /* no setup necessary */
   return(SUN_NLS_SUCCESS);
 }
 
 
+/* -----------------------------------------------------------------------------
+ * SUNNonlinSolSolve_Newton: Performs the nonlinear solve F(y) = 0
+ *
+ * Successful solve return code:
+ *  SUN_NLS_SUCCESS = 0
+ *
+ * Recoverable failure return codes (positive):
+ *   SUN_NLS_CONV_RECVR
+ *   *_RHSFUNC_RECVR (ODEs) or *_RES_RECVR (DAEs)
+ *   *_LSETUP_RECVR
+ *   *_LSOLVE_RECVR
+ *
+ * Unrecoverable failure return codes (negative):
+ *   *_MEM_NULL
+ *   *_RHSFUNC_RECVR (ODEs) or *_RES_RECVR (DAEs)
+ *   *_LSETUP_FAIL
+ *   *_LSOLVE_FAIL
+ *
+ * Note return values beginning with * are package specific values returned by
+ * the Sys, LSetup, and Solve functions provided to the nonlinear solver.
+ * ---------------------------------------------------------------------------*/
 int SUNNonlinSolSolve_FullNewton(SUNNonlinearSolver NLS,
                                  N_Vector y0, N_Vector y,
                                  N_Vector w, realtype tol,
@@ -128,7 +164,10 @@ int SUNNonlinSolSolve_FullNewton(SUNNonlinearSolver NLS,
   int mnewt;
   int retval;
   realtype delnrm;
-  N_Vector delta = NEWTON_CONTENT(NLS)->delta;
+  N_Vector delta;
+
+  /* shortcut to correction vector */
+  delta = NEWTON_CONTENT(NLS)->delta;
 
   /* initialize counter mnewt */
   mnewt = 0;
@@ -203,11 +242,13 @@ int SUNNonlinSolFree_FullNewton(SUNNonlinearSolver NLS)
     NLS->ops = NULL;
   }
 
+  /* free the nonlinear solver */
   free(NLS);
   NLS = NULL;
 
   return(SUN_NLS_SUCCESS);
 }
+
 
 int SUNNonlinSolSetSysFn_FullNewton(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn)
 {
@@ -215,11 +256,13 @@ int SUNNonlinSolSetSysFn_FullNewton(SUNNonlinearSolver NLS, SUNNonlinSolSysFn Sy
   return(SUN_NLS_SUCCESS);
 }
 
+
 int SUNNonlinSolSetLSetupFn_FullNewton(SUNNonlinearSolver NLS, SUNNonlinSolLSetupFn LSetupFn)
 {
   NEWTON_CONTENT(NLS)->LSetup = LSetupFn;
   return(SUN_NLS_SUCCESS);
 }
+
 
 int SUNNonlinSolSetLSolveFn_FullNewton(SUNNonlinearSolver NLS, SUNNonlinSolLSolveFn LSolveFn)
 {
@@ -227,18 +270,21 @@ int SUNNonlinSolSetLSolveFn_FullNewton(SUNNonlinearSolver NLS, SUNNonlinSolLSolv
   return(SUN_NLS_SUCCESS);
 }
 
+
 int SUNNonlinSolSetConvTestFn_FullNewton(SUNNonlinearSolver NLS, SUNNonlinSolConvTestFn CTestFn)
 {
   NEWTON_CONTENT(NLS)->CTest = CTestFn;
   return(SUN_NLS_SUCCESS);
 }
 
+
 int SUNNonlinSolSetMaxIters_FullNewton(SUNNonlinearSolver NLS, int maxiters)
 {
-  if (maxiters < 1) return(1);
+  if (maxiters < 1) return(SUN_NLS_ILL_INPUT);
   NEWTON_CONTENT(NLS)->maxiters = maxiters;
   return(SUN_NLS_SUCCESS);
 }
+
 
 int SUNNonlinSolGetNumIters_FullNewton(SUNNonlinearSolver NLS, long int *niters)
 {

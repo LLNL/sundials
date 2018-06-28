@@ -163,9 +163,12 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
 {
   int mnewt;
   int retval;
-  booleantype tryAgain;
   realtype delnrm;
-  N_Vector delta = NEWTON_CONTENT(NLS)->delta;
+  N_Vector delta;
+  booleantype tryAgain;
+
+  /* shortcut to correction vector */
+  delta = NEWTON_CONTENT(NLS)->delta;
 
   /* looping point for Jacobian/preconditioner setup attempts */
   for(;;) {
