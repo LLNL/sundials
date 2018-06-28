@@ -11,21 +11,17 @@
  * For details, see the LICENSE file.
  * LLNS Copyright End
  * -----------------------------------------------------------------------------
- * This is the implementation file for a generic SUNNONLINEARSOLVER package. It
+ * This is the implementation file for a generic SUNNonlinerSolver package. It
  * contains the implementation of the SUNNonlinearSolver operations listed in
- * sundials_nonlinearsolver.h
+ * the 'ops' structure in sundials_nonlinearsolver.h
  * ---------------------------------------------------------------------------*/
 
 #include <stdlib.h>
 #include <sundials/sundials_nonlinearsolver.h>
 
 /* -----------------------------------------------------------------------------
- * Functions in the 'ops' structure
- * ---------------------------------------------------------------------------*/
-
-/*
  * core functions
- */
+ * ---------------------------------------------------------------------------*/
 
 SUNNonlinearSolver_Type SUNNonlinSolGetType(SUNNonlinearSolver NLS)
 {
@@ -52,44 +48,66 @@ int SUNNonlinSolSolve(SUNNonlinearSolver NLS,
 
 int SUNNonlinSolFree(SUNNonlinearSolver NLS)
 {
-  if (NLS == NULL) return(0);
+  if (NLS == NULL) return(SUN_NLS_SUCCESS);
   return(NLS->ops->free(NLS));
 }
 
-/*
+/* -----------------------------------------------------------------------------
  * set functions
- */
+ * ---------------------------------------------------------------------------*/
 
+/* set the nonlinear system function (required) */
 int SUNNonlinSolSetSysFn(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn)
 {
   return((int) NLS->ops->setsysfn(NLS, SysFn));
 }
 
+/* set the linear solver setup function (optional) */
 int SUNNonlinSolSetLSetupFn(SUNNonlinearSolver NLS, SUNNonlinSolLSetupFn LSetupFn)
 {
-  return((int) NLS->ops->setlsetupfn(NLS, LSetupFn));
+  if (NLS->ops->setlsetupfn)
+    return((int) NLS->ops->setlsetupfn(NLS, LSetupFn));
+  else
+    return(SUN_NLS_SUCCESS);
 }
 
+/* set the linear solver solve function (optional) */
 int SUNNonlinSolSetLSolveFn(SUNNonlinearSolver NLS, SUNNonlinSolLSolveFn LSolveFn)
 {
-  return((int) NLS->ops->setlsolvefn(NLS, LSolveFn));
+  if (NLS->ops->setlsolvefn)
+    return((int) NLS->ops->setlsolvefn(NLS, LSolveFn));
+  else
+    return(SUN_NLS_SUCCESS);
 }
 
+/* set the convergence test function (optional) */
 int SUNNonlinSolSetConvTestFn(SUNNonlinearSolver NLS, SUNNonlinSolConvTestFn CTestFn)
 {
-  return((int) NLS->ops->setctestfn(NLS, CTestFn));
+  if (NLS->ops->setctestfn)
+    return((int) NLS->ops->setctestfn(NLS, CTestFn));
+  else
+    return(SUN_NLS_SUCCESS);
 }
 
 int SUNNonlinSolSetMaxIters(SUNNonlinearSolver NLS, int maxiters)
 {
-  return((int) NLS->ops->setmaxiters(NLS, maxiters));
+  if (NLS->ops->setmaxiters)
+    return((int) NLS->ops->setmaxiters(NLS, maxiters));
+  else
+    return(SUN_NLS_SUCCESS);
 }
 
-/*
+/* -----------------------------------------------------------------------------
  * get functions
- */
+ * ---------------------------------------------------------------------------*/
 
+/* get the total number on nonlinear iterations (optional) */
 int SUNNonlinSolGetNumIters(SUNNonlinearSolver NLS, long int *niters)
 {
-  return((int) NLS->ops->getnumiters(NLS, niters));
+  if (NLS->ops->getnumiters) {
+    return((int) NLS->ops->getnumiters(NLS, niters));
+  } else {
+    *niters = 0;
+    return(SUN_NLS_SUCCESS);
+  }
 }
