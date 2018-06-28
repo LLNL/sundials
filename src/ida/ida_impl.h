@@ -45,6 +45,14 @@ extern "C" {
 #define MXORDP1          6           /* max. number of N_Vectors in phi */
 #define MXSTEP_DEFAULT   500         /* mxstep default value            */
 
+/* Return values for lower level routines used by IDASolve and functions
+   provided to the nonlinear solver */
+
+#define IDA_RES_RECVR    +1
+#define IDA_LSETUP_RECVR +2
+#define IDA_LSOLVE_RECVR +3
+#define IDA_CONSTR_RECVR +5
+
 /*
  * ----------------------------------------------------------------
  * Types : struct IDAMemRec, IDAMem

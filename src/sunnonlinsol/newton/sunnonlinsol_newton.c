@@ -120,6 +120,30 @@ int SUNNonlinSolSetup_Newton(SUNNonlinearSolver NLS, N_Vector y, void* mem)
 }
 
 
+/* -----------------------------------------------------------------------------
+ * SUNNonlinSolSolve_Newton
+ *
+ * This routine performs the Newton iteration to solve the system F(y) = 0.
+ *
+ * Successful solve return code:
+ *  SUN_NLS_SUCCESS = 0
+ *
+ * Recoverable failure return codes (positive):
+ *   SUN_NLS_CONV_RECVR
+ *   *_RHSFUNC_RECVR (ODEs) or *_RES_RECVR (DAEs)
+ *   *_LSETUP_RECVR
+ *   *_LSOLVE_RECVR
+ *
+ * Unrecoverable failure return codes (negative):
+ *   *_MEM_NULL
+ *   *_RHSFUNC_RECVR (ODEs) or *_RES_RECVR (DAEs)
+ *   *_LSETUP_FAIL
+ *   *_LSOLVE_FAIL
+ *
+ * Note return values beginning with * are package specific values returned by
+ * the Sys, LSetup, and Solve functions provided to the nonlinear solver.
+ * ---------------------------------------------------------------------------*/
+
 int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
                              N_Vector y0, N_Vector y,
                              N_Vector w, realtype tol,
@@ -173,7 +197,10 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
 
         /* not yet converged. Increment mnewt and test for max allowed. */
         mnewt++;
-        if (mnewt >= NEWTON_CONTENT(NLS)->maxiters) break;
+        if (mnewt >= NEWTON_CONTENT(NLS)->maxiters) {
+          retval = SUN_NLS_CONV_RECVR;
+          break;
+        }
 
         /* call res for new residual and check error flag from res. */
         retval = NEWTON_CONTENT(NLS)->Sys(y, delta, mem);
@@ -192,10 +219,7 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
   } /* end of setup loop */
 
   /* all error returns exit here */
-  if (retval > 0)
-    return(SUN_NLS_CONV_FAIL);
-  else
-    return(retval);
+  return(retval);
 }
 
 

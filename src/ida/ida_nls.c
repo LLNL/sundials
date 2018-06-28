@@ -98,7 +98,10 @@ static int IDANls_LSetup(N_Vector yy, N_Vector res, void* ida_mem)
   IDA_mem->ida_cjratio = ONE;
   IDA_mem->ida_ss = TWENTY;
 
-  return(retval);
+  if (retval < 0) return(IDA_LSETUP_FAIL);
+  if (retval > 0) return(IDA_LSETUP_RECVR);
+
+  return(IDA_SUCCESS);
 }
 
 
@@ -115,7 +118,11 @@ static int IDANls_LSolve(N_Vector yy, N_Vector delta, void* ida_mem)
 
   retval = IDA_mem->ida_lsolve(IDA_mem, delta, IDA_mem->ida_ewt, yy, IDA_mem->ida_yp,
                                IDA_mem->ida_savres);
-  return(retval);
+
+  if (retval < 0) return(IDA_LSOLVE_FAIL);
+  if (retval > 0) return(IDA_LSOLVE_RECVR);
+
+  return(IDA_SUCCESS);
 }
 
 
@@ -142,7 +149,10 @@ static int IDANls_Res(N_Vector yy, N_Vector res, void* ida_mem)
   /* save a copy of the residual vector in savres */
   N_VScale(ONE, res, IDA_mem->ida_savres);
 
-  return(retval);
+  if (retval < 0) return(IDA_RES_FAIL);
+  if (retval > 0) return(IDA_RES_RECVR);
+
+  return(IDA_SUCCESS);
 }
 
 
@@ -164,7 +174,7 @@ static int IDANls_ConvergenceTest(int m, realtype delnrm, realtype tol, void* id
     if (delnrm <= PT0001 * IDA_mem->ida_toldel) return(SUN_NLS_SUCCESS);
   } else {
     rate = SUNRpowerR( delnrm/oldnrm, ONE/m );
-    if (rate > RATEMAX) return(SUN_NLS_CONV_FAIL);
+    if (rate > RATEMAX) return(SUN_NLS_CONV_RECVR);
     IDA_mem->ida_ss = rate/(ONE - rate);
   }
 

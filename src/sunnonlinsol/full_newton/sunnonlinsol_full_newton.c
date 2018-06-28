@@ -147,7 +147,7 @@ int SUNNonlinSolSolve_FullNewton(SUNNonlinearSolver NLS,
     if (retval != SUN_NLS_SUCCESS) break;
 
     /* setup the linear system */
-	if (NEWTON_CONTENT(NLS)->LSetup) {
+    if (NEWTON_CONTENT(NLS)->LSetup) {
       retval = NEWTON_CONTENT(NLS)->LSetup(y, delta, mem);
       if (retval != SUN_NLS_SUCCESS) break;
     }
@@ -169,15 +169,15 @@ int SUNNonlinSolSolve_FullNewton(SUNNonlinearSolver NLS,
 
     /* not yet converged. Increment mnewt and test for max allowed. */
     mnewt++;
-    if (mnewt >= NEWTON_CONTENT(NLS)->maxiters) break;
+    if (mnewt >= NEWTON_CONTENT(NLS)->maxiters) {
+      retval = SUN_NLS_CONV_RECVR;
+      break;
+    }
 
   } /* end of Newton iteration loop */
 
   /* all error returns exit here */
-  if (retval > 0)
-    return(SUN_NLS_CONV_FAIL);
-  else
-    return(retval);
+  return(retval);
 }
 
 

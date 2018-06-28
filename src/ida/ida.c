@@ -132,12 +132,6 @@
 
 /* Return values for lower level routines used by IDASolve */
 
-#define IDA_RES_RECVR    +1
-#define IDA_LSETUP_RECVR +2
-#define IDA_LSOLVE_RECVR +3
-
-#define IDA_NCONV_RECVR  +4
-#define IDA_CONSTR_RECVR +5
 #define CONTINUE_STEPS   +99
 
 /* IDACompleteStep constants */
@@ -1956,6 +1950,10 @@ static int IDAHandleFailure(IDAMem IDA_mem, int sflag)
       IDAProcessError(IDA_mem, IDA_CONSTR_FAIL, "IDA", "IDASolve", MSG_FAILED_CONSTR, IDA_mem->ida_tn);
       return(IDA_CONSTR_FAIL);
 
+    case IDA_MEM_NULL:
+      IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDASolve", MSG_NO_MEM);
+      return (IDA_MEM_NULL);
+
   }
 
   return (IDA_UNRECOGNISED_ERROR);   /* This return should never happen */
@@ -2210,7 +2208,8 @@ static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck)
  *  IDA_LSOLVE_RECVR    IDA_LSOLVE_FAIL
  *
  *  IDA_CONSTR_RECVR
- *  IDA_NCONV_RECVR
+ *  SUN_NLS_CONV_RECVR
+ *  IDA_MEM_NULL
  */
 
 static int IDANls(IDAMem IDA_mem)
@@ -2443,7 +2442,7 @@ static void IDARestore(IDAMem IDA_mem, realtype saved_t)
  *   IDA_RES_RECVR              > 0
  *   IDA_LSOLVE_RECVR           > 0
  *   IDA_CONSTR_RECVR           > 0
- *   IDA_NCONV_RECVR            > 0
+ *   SUN_NLS_CONV_RECV          > 0
  *   IDA_RES_FAIL               < 0
  *   IDA_LSOLVE_FAIL            < 0
  *   IDA_LSETUP_FAIL            < 0

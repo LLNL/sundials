@@ -177,16 +177,16 @@ SUNDIALS_EXPORT int SUNNonlinSolGetNumIters(SUNNonlinearSolver NLS,
  * V. SUNNonlinearSolver return codes
  * ---------------------------------------------------------------------------*/
 
-#define SUN_NLS_SUCCESS    0  /* successful / converged */
+#define SUN_NLS_SUCCESS     0  /* successful / converged */
 
 /* Recoverable */
-#define SUN_NLS_CONTINUE  +1  /* convergence test failed, keep iterating */
-#define SUN_NLS_CONV_FAIL +2  /* convergecee test failed, try to recover */
+#define SUN_NLS_CONTINUE   +1  /* not converged, keep iterating      */
+#define SUN_NLS_CONV_RECVR +2  /* convergece failure, try to recover */
 
 /* Unrecoverable */
-#define SUN_NLS_MEM_NULL  -1  /* memory argument is NULL            */
-#define SUN_NLS_MEM_FAIL  -2  /* failed memory access / allocation  */
-#define SUN_NLS_ILL_INPUT -3  /* illegal function input             */
+#define SUN_NLS_MEM_NULL   -1  /* memory argument is NULL            */
+#define SUN_NLS_MEM_FAIL   -2  /* failed memory access / allocation  */
+#define SUN_NLS_ILL_INPUT  -3  /* illegal function input             */
 
 #ifdef __cplusplus
 }
