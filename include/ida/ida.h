@@ -942,6 +942,16 @@ SUNDIALS_EXPORT char *IDAGetReturnFlagName(long int flag);
 
 SUNDIALS_EXPORT void IDAFree(void **ida_mem);
 
+/*
+ * ----------------------------------------------------------------
+ * Function : IDASetNonlinearSolver
+ * ----------------------------------------------------------------
+ * Set the nonlinear solver in IDA
+ * ----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int IDASetNonlinearSolver(void *ida_mem);
+
 #ifdef __cplusplus
 }
 #endif

@@ -14,7 +14,7 @@
  * This the implementation file for the IDA nonlinear solver interface.
  * ---------------------------------------------------------------------------*/
 
-#include "ida_nls.h"
+#include "ida_impl.h"
 #include "sunnls_newton.h" /* relace with sundial_nonlinearsolve.h */
 #include "sundials/sundials_math.h"
 

@@ -88,7 +88,7 @@
 
 #include "ida_impl.h"
 #include <sundials/sundials_math.h>
-#include "ida_nls.h"
+#include "sunnls_newton.h"
 
 /* 
  * =================================================================

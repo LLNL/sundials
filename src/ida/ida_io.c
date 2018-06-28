@@ -27,7 +27,7 @@
 #include "ida_impl.h"
 
 #include <sundials/sundials_math.h>
-#include "ida_nls.h"
+#include "sunnls_newton.h"
 
 #define ZERO    RCONST(0.0)
 #define HALF    RCONST(0.5)
