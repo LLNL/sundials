@@ -88,6 +88,7 @@
 
 #include "ida_impl.h"
 #include <sundials/sundials_math.h>
+#include "sunnonlinsol/sunnonlinsol_newton.h" /* >>>>>>> REMOVE when constructor is removed <<<<<<< */
 
 /* 
  * =================================================================
@@ -244,10 +245,6 @@ static int IDARcheck2(IDAMem IDA_mem);
 static int IDARcheck3(IDAMem IDA_mem);
 static int IDARootfind(IDAMem IDA_mem);
 
-/* Norm functions */
-
-realtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w, booleantype mask);
-
 /* 
  * =================================================================
  * EXPORTED FUNCTIONS IMPLEMENTATION
@@ -332,6 +329,9 @@ void *IDACreate(void)
   IDA_mem->ida_constraintsMallocDone = SUNFALSE;
   IDA_mem->ida_idMallocDone = SUNFALSE;
   IDA_mem->ida_MallocDone = SUNFALSE;
+
+  /* Initialize nonlinear solver pointer */
+  IDA_mem->NLS = NULL;
 
   /* Return pointer to IDA memory block */
   return((void *)IDA_mem);
@@ -464,6 +464,9 @@ int IDAInit(void *ida_mem, IDAResFn res,
   /* Problem memory has been successfully allocated */
 
   IDA_mem->ida_MallocDone = SUNTRUE;
+
+  /* >>>>>>> REMOVE -- this is a user-callable function -- REMOVE <<<<<<< */
+  IDASetNonlinearSolver(IDA_mem, SUNNewtonSolver(yy0));
 
   return(IDA_SUCCESS);
 }
@@ -1634,6 +1637,14 @@ int IDAInitialSetup(IDAMem IDA_mem)
     }
   }
 
+  /* Initialize the nonlinear solver (must occur after linear solver is initialize) so 
+   * that lsetup and lsolve pointer have been set */
+  ier = IDANlsInit(IDA_mem);
+  if (ier != IDA_SUCCESS) {
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDAInitialSetup", MSG_NLS_INIT_FAIL);
+    return(IDA_NLS_INIT_FAIL);
+  }
+
   return(IDA_SUCCESS);
 }
 
@@ -2219,10 +2230,6 @@ static int IDANls(IDAMem IDA_mem)
   realtype temp1, temp2, vnorm;
 
   callSetup = SUNFALSE;
-
-  /* >>>>>>> REMOVE -- this is a user-callable function -- REMOVE <<<<<<< */
-  if (IDA_mem->ida_nst == 0)
-    retval = IDASetNonlinearSolver(IDA_mem);
 
   /* Initialize if the first time called */
 

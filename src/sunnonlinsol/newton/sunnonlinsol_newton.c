@@ -27,9 +27,9 @@
 /* Content structure accessibility macros  */
 #define NEWTON_CONTENT(S) ( (SUNNonlinearSolverContent_Newton)(S->content) )
 
-/* -----------------------------------------------------------------------------
+/* =============================================================================
  * Exported functions
- * ---------------------------------------------------------------------------*/
+ * ===========================================================================*/
 
 /* ----------------------------------------------------------------------------
  * Constructor to create a new Newton solver
@@ -41,6 +41,14 @@ SUNNonlinearSolver SUNNewtonSolver(N_Vector y)
   SUNNonlinearSolver_Ops ops;
   SUNNonlinearSolverContent_Newton content;
   
+  /* Check that the supplied N_Vector supports all required operations */
+  if ( (y->ops->nvclone     == NULL) ||
+       (y->ops->nvdestroy   == NULL) ||
+       (y->ops->nvscale     == NULL) ||
+       (y->ops->nvlinearsum == NULL) ||
+       (y->ops->nvwrmsnorm  == NULL) )
+    return(NULL);
+
   /* Create nonlinear linear solver */
   NLS = NULL;
   NLS = (SUNNonlinearSolver) malloc(sizeof *NLS);
@@ -79,6 +87,9 @@ SUNNonlinearSolver SUNNewtonSolver(N_Vector y)
   content->maxiters = 3;
   content->niters   = 0;
   
+  /* check if clone was successful */
+  if (content->delta == NULL) { free(ops); free(NLS); return(NULL); }
+
   /* Attach content and ops */
   NLS->content = content;
   NLS->ops     = ops;
@@ -87,13 +98,9 @@ SUNNonlinearSolver SUNNewtonSolver(N_Vector y)
 }
 
 
-/* -----------------------------------------------------------------------------
+/* =============================================================================
  * Implementation of nonlinear solver operations
- * ---------------------------------------------------------------------------*/
-
-/*
- * Core functions
- */
+ * ===========================================================================*/
 
 SUNNonlinearSolver_Type SUNNonlinSolGetType_Newton(SUNNonlinearSolver NLS)
 {
@@ -104,26 +111,32 @@ SUNNonlinearSolver_Type SUNNonlinSolGetType_Newton(SUNNonlinearSolver NLS)
 int SUNNonlinSolInit_Newton(SUNNonlinearSolver NLS)
 {
   /* all solver-specific memory has already been allocated */
+  if (NLS == NULL)
+    return(SUN_NLS_MEM_NULL);
+
+  /* check that all required function pointers have been set */
+  if ( NEWTON_CONTENT(NLS)->Sys    == NULL ||
+       NEWTON_CONTENT(NLS)->LSolve == NULL ||
+       NEWTON_CONTENT(NLS)->CTest  == NULL ) {
+    return(SUN_NLS_MEM_NULL);
+  }
+
+  /* initialize the total number of nonlinear solver iterations */
+  NEWTON_CONTENT(NLS)->niters = 0;
+
   return(SUN_NLS_SUCCESS);
 }
 
 
 int SUNNonlinSolSetup_Newton(SUNNonlinearSolver NLS, N_Vector y, void* mem)
 {
-  /* check that all necessary function pointer have been set */
-  if ( NEWTON_CONTENT(NLS)->Sys    == NULL ||
-       NEWTON_CONTENT(NLS)->LSolve == NULL ||
-       NEWTON_CONTENT(NLS)->CTest  == NULL    ) {
-    return(-1);
-  }
+  /* no setup necessary */
   return(SUN_NLS_SUCCESS);
 }
 
 
 /* -----------------------------------------------------------------------------
- * SUNNonlinSolSolve_Newton
- *
- * This routine performs the Newton iteration to solve the system F(y) = 0.
+ * SUNNonlinSolSolve_Newton: Performs the nonlinear solve F(y) = 0
  *
  * Successful solve return code:
  *  SUN_NLS_SUCCESS = 0
@@ -143,7 +156,6 @@ int SUNNonlinSolSetup_Newton(SUNNonlinearSolver NLS, N_Vector y, void* mem)
  * Note return values beginning with * are package specific values returned by
  * the Sys, LSetup, and Solve functions provided to the nonlinear solver.
  * ---------------------------------------------------------------------------*/
-
 int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
                              N_Vector y0, N_Vector y,
                              N_Vector w, realtype tol,
@@ -245,11 +257,13 @@ int SUNNonlinSolFree_Newton(SUNNonlinearSolver NLS)
     NLS->ops = NULL;
   }
 
+  /* free the nonlinear solver */
   free(NLS);
   NLS = NULL;
 
   return(SUN_NLS_SUCCESS);
 }
+
 
 int SUNNonlinSolSetSysFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn)
 {
@@ -257,11 +271,13 @@ int SUNNonlinSolSetSysFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn)
   return(SUN_NLS_SUCCESS);
 }
 
+
 int SUNNonlinSolSetLSetupFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolLSetupFn LSetupFn)
 {
   NEWTON_CONTENT(NLS)->LSetup = LSetupFn;
   return(SUN_NLS_SUCCESS);
 }
+
 
 int SUNNonlinSolSetLSolveFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolLSolveFn LSolveFn)
 {
@@ -269,18 +285,21 @@ int SUNNonlinSolSetLSolveFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolLSolveFn 
   return(SUN_NLS_SUCCESS);
 }
 
+
 int SUNNonlinSolSetConvTestFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolConvTestFn CTestFn)
 {
   NEWTON_CONTENT(NLS)->CTest = CTestFn;
   return(SUN_NLS_SUCCESS);
 }
 
+
 int SUNNonlinSolSetMaxIters_Newton(SUNNonlinearSolver NLS, int maxiters)
 {
-  if (maxiters < 1) return(1);
+  if (maxiters < 1) return(SUN_NLS_ILL_INPUT);
   NEWTON_CONTENT(NLS)->maxiters = maxiters;
   return(SUN_NLS_SUCCESS);
 }
+
 
 int SUNNonlinSolGetNumIters_Newton(SUNNonlinearSolver NLS, long int *niters)
 {

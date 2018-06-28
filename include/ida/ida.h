@@ -88,6 +88,7 @@ extern "C" {
 #define IDA_FIRST_RES_FAIL  -12
 #define IDA_LINESEARCH_FAIL -13
 #define IDA_NO_RECOVERY     -14
+#define IDA_NLS_INIT_FAIL   -15
 
 #define IDA_MEM_NULL        -20
 #define IDA_MEM_FAIL        -21
@@ -951,7 +952,7 @@ SUNDIALS_EXPORT void IDAFree(void **ida_mem);
  * ----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT int IDASetNonlinearSolver(void *ida_mem);
+SUNDIALS_EXPORT int IDASetNonlinearSolver(void *ida_mem, SUNNonlinearSolver NLS);
 
 #ifdef __cplusplus
 }

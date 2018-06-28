@@ -383,6 +383,14 @@ void IDAProcessError(IDAMem IDA_mem,
 void IDAErrHandler(int error_code, const char *module, const char *function, 
                    char *msg, void *data);
 
+/* Norm functions */
+
+realtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w, booleantype mask);
+
+/* Nonlinear solver initialization function */
+
+int IDANlsInit(IDAMem IDA_mem);
+
 /*
  * =================================================================
  * I D A    E R R O R    M E S S A G E S
@@ -440,6 +448,7 @@ void IDAErrHandler(int error_code, const char *module, const char *function,
 #define MSG_Y0_FAIL_CONSTR "y0 fails to satisfy constraints."
 #define MSG_LSOLVE_NULL    "The linear solver's solve routine is NULL."
 #define MSG_LINIT_FAIL     "The linear solver's init routine failed."
+#define MSG_NLS_INIT_FAIL  "The nonlinear solver's init routine failed."
 
 /* IDACalcIC error messages */
 
