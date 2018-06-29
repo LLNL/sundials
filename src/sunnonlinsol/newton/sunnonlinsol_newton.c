@@ -28,12 +28,8 @@
 #define NEWTON_CONTENT(S) ( (SUNNonlinearSolverContent_Newton)(S->content) )
 
 /* =============================================================================
- * Exported functions
- * ===========================================================================*/
-
-/* ----------------------------------------------------------------------------
  * Constructor to create a new Newton solver
- */
+ * ===========================================================================*/
 
 SUNNonlinearSolver SUNNewtonSolver(N_Vector y)
 {
@@ -99,7 +95,7 @@ SUNNonlinearSolver SUNNewtonSolver(N_Vector y)
 
 
 /* =============================================================================
- * Implementation of nonlinear solver operations
+ * GetType, Init, Setup, Solve, and Free operations
  * ===========================================================================*/
 
 SUNNonlinearSolver_Type SUNNonlinSolGetType_Newton(SUNNonlinearSolver NLS)
@@ -268,6 +264,10 @@ int SUNNonlinSolFree_Newton(SUNNonlinearSolver NLS)
 }
 
 
+/* =============================================================================
+ * Set functions
+ * ===========================================================================*/
+
 int SUNNonlinSolSetSysFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn)
 {
   NEWTON_CONTENT(NLS)->Sys = SysFn;
@@ -303,6 +303,10 @@ int SUNNonlinSolSetMaxIters_Newton(SUNNonlinearSolver NLS, int maxiters)
   return(SUN_NLS_SUCCESS);
 }
 
+
+/* =============================================================================
+ * Get functions
+ * ===========================================================================*/
 
 int SUNNonlinSolGetNumIters_Newton(SUNNonlinearSolver NLS, long int *niters)
 {
