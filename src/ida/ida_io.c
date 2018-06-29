@@ -303,8 +303,6 @@ int IDASetMaxNonlinIters(void *ida_mem, int maxcor)
     return (IDA_MEM_NULL);
   }
 
-  /* >>>>>>> -- REMOVE this function and have user call NLS function -- <<<<<<< */
-  /* >>>>>>> -- OR this as a wrapper to the NLS function             -- <<<<<<< */
   return(SUNNonlinSolSetMaxIters(IDA_mem->NLS, maxcor));
 }
 
