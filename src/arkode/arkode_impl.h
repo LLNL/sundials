@@ -15,7 +15,7 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * Implementation header file for the main ARKODE integrator.
+ * Implementation header file for the main ARKode integrator.
  *--------------------------------------------------------------*/
 
 #ifndef _ARKODE_IMPL_H
@@ -34,10 +34,10 @@ extern "C" {
 
 
 /*===============================================================
-  ARKODE Private Constants                             
+  ARKode Private Constants                             
   ===============================================================*/
 
-/* Basic ARKODE constants */
+/* Basic ARKode constants */
 #define Q_DEFAULT        4       /* default RK order */
 #define MXSTEP_DEFAULT   500     /* mxstep default value */
 #define MAXNEF           7       /* maxnef default value */
@@ -96,7 +96,7 @@ extern "C" {
 
 
 /*===============================================================
-  ARKODE Routine-Specific Constants                   
+  ARKode Routine-Specific Constants                   
   ===============================================================*/
 
 /*---------------------------------------------------------------
@@ -199,7 +199,7 @@ extern "C" {
 
 
 /*===============================================================
-  ARKODE Interface function definitions
+  ARKode Interface function definitions
   ===============================================================*/
 
 /* NOTE: documentation for the purpose of these functions is 
@@ -270,7 +270,7 @@ typedef int (*ARKTimestepFreeFn)(void* arkode_mem);
 
   
 /*===============================================================
-  ARKODE DATA STRUCTURES
+  ARKode data structures
   ===============================================================*/
 
 /*---------------------------------------------------------------
@@ -414,11 +414,11 @@ typedef struct ARKodeMemRec {
   booleantype report;   /* flag to enable/disable diagnostic output    */
   FILE       *diagfp;   /* diagnostic outputs are sent to diagfp   */
 
-  /* Space requirements for ARKODE */
+  /* Space requirements for ARKode */
   sunindextype lrw1;        /* no. of realtype words in 1 N_Vector          */ 
   sunindextype liw1;        /* no. of integer words in 1 N_Vector           */ 
-  long int lrw;             /* no. of realtype words in ARKODE work vectors */
-  long int liw;             /* no. of integer words in ARKODE work vectors  */
+  long int lrw;             /* no. of realtype words in ARKode work vectors */
+  long int liw;             /* no. of integer words in ARKode work vectors  */
 
   /* Saved Values */
   realtype    h0u;          /* actual initial stepsize                     */
@@ -434,7 +434,7 @@ typedef struct ARKodeMemRec {
   /* Error handler function and error ouput file */
   ARKErrHandlerFn ehfun;    /* error messages are handled by ehfun        */
   void           *eh_data;  /* data pointer passed to ehfun               */
-  FILE           *errfp;    /* ARKODE error messages are sent to errfp    */
+  FILE           *errfp;    /* ARKode error messages are sent to errfp    */
 
   /* Rootfinding Data */
   ARKodeRootMem root_mem;          /* root-finding structure */
@@ -451,7 +451,7 @@ typedef struct ARKodeMemRec {
   ===============================================================*/
   
 /*---------------------------------------------------------------
-  Communication between ARKODE and a ARKODE Linear Solver
+  Communication between ARKode and a ARKode Linear Solver
   -----------------------------------------------------------------
   convfail (input to lsetup)
 
@@ -491,7 +491,7 @@ typedef struct ARKodeMemRec {
   This function should complete initializations for a specific 
   ARKode linear solver interface, such as counters and statistics.
   This should return 0 if it has successfully initialized the 
-  ARKODE linear solver interface and a negative value otherwise. 
+  ARKode linear solver interface and a negative value otherwise. 
   If an error does occur, an appropriate message should be sent 
   to the error handler function.
   ---------------------------------------------------------------*/
@@ -511,13 +511,13 @@ typedef struct ARKodeMemRec {
              the solution of the nonlinear equation on the
              current time step for which the linear solver is
              being used. This flag can be used to help decide
-             whether the Jacobian data kept by a ARKODE linear
+             whether the Jacobian data kept by a ARKode linear
              solver needs to be updated or not.
              Its possible values have been documented above.
 
-  tpred - the time for the current ARKODE internal step.
+  tpred - the time for the current ARKode internal step.
 
-  ypred - the predicted y vector for the current ARKODE internal
+  ypred - the predicted y vector for the current ARKode internal
           step.
 
   fpred - f(tpred, ypred).
@@ -527,7 +527,7 @@ typedef struct ARKodeMemRec {
             data is current after the call and should set
             *jcurPtr=SUNFALSE if its Jacobian data is not current.
             Note: If lsetup calls for re-evaluation of
-            Jacobian data (based on convfail and ARKODE state
+            Jacobian data (based on convfail and ARKode state
             data), it should return *jcurPtr=SUNTRUE always;
             otherwise an infinite loop can result.
 
@@ -788,7 +788,7 @@ typedef struct ARKodeMemRec {
   Butcher table(s), counters and statistics.  
 
   This routine should return 0 if it has successfully initialized 
-  the ARKODE time stepper module and a negative value otherwise. 
+  the ARKode time stepper module and a negative value otherwise. 
   If an error does occur, an appropriate message should be sent 
   to the error handler function.
   ---------------------------------------------------------------*/
@@ -903,7 +903,7 @@ typedef struct ARKodeMemRec {
 
   
 /*===============================================================
-  ARKODE PROTOTYPE FUNCTIONS (MAY BE REPLACED BY USER)
+  ARKode PROTOTYPE FUNCTIONS (MAY BE REPLACED BY USER)
   ===============================================================*/
 
 /* Prototype of internal ewtSet function */
@@ -920,7 +920,7 @@ void arkErrHandler(int error_code, const char *module,
 int arkExpStab(N_Vector y, realtype t, realtype *hstab, void *user_data);
 
 /*===============================================================
-  HIGH LEVEL ERROR HANDLER, USED THROUGHOUT ARKODE
+  HIGH LEVEL ERROR HANDLER, USED THROUGHOUT ARKode
   ===============================================================*/
 
 void arkProcessError(ARKodeMem ark_mem, int error_code, 
@@ -928,7 +928,7 @@ void arkProcessError(ARKodeMem ark_mem, int error_code,
                      const char *msgfmt, ...);
 
 /*===============================================================
-  ARKODE PRIVATE FUNCTION PROTOTYPES
+  ARKode PRIVATE FUNCTION PROTOTYPES
   ===============================================================*/
 #ifdef __GNUC__
 #define SUNDIALS_UNUSED __attribute__ ((unused))

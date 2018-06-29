@@ -58,7 +58,7 @@ typedef struct ARKSpilsMemRec {
   
   N_Vector ytemp;     /* temp vector passed to jtimes and psolve      */
   N_Vector x;         /* solution vector used by SUNLinearSolver      */
-  N_Vector ycur;      /* ARKODE current y vector in ARKSpils solve    */
+  N_Vector ycur;      /* ARKode current y vector in ARKSpils solve    */
   N_Vector fcur;      /* fcur = f(tcur, ycur)                         */
 
   /* Preconditioner computation
@@ -114,7 +114,7 @@ typedef struct ARKSpilsMassMemRec {
   booleantype time_dependent;  /* flag stating whether M depends on t */
   
   N_Vector x;         /* solution vector used by SUNLinearSolver      */
-  N_Vector ycur;      /* ARKODE current y vector                      */
+  N_Vector ycur;      /* ARKode current y vector                      */
 
   /* Preconditioner computation
     (a) user-provided:

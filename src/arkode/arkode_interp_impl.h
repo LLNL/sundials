@@ -30,7 +30,7 @@ extern "C" {
 #endif
 
 /*===============================================================
-  ARKODE temporal interpolation constants
+  ARKode temporal interpolation constants
   ===============================================================*/
   
 #define QDENSE_DEF  3       /* default dense output order */
@@ -39,7 +39,7 @@ extern "C" {
 
   
 /*===============================================================
-  ARKODE Temporal Interpolation Data Structure
+  ARKode Temporal Interpolation Data Structure
   ===============================================================*/
 
 /*---------------------------------------------------------------
@@ -64,7 +64,7 @@ typedef struct ARKodeInterpMemRec {
 
 
 /*===============================================================
-  ARKODE Temporal Interpolation Routines
+  ARKode Temporal Interpolation Routines
 ===============================================================*/
 
 ARKodeInterpMem arkInterpCreate(void* arkode_mem);

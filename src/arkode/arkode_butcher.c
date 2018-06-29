@@ -16,7 +16,7 @@
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
  * This is the implementation file for Butcher table structure
- * (and built-in tables) for the ARKODE solver.
+ * (and built-in tables) for the ARKode solver.
  *--------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -1100,7 +1100,7 @@ ARKodeButcherTable ARKodeLoadButcherTable(int imethod)
 
   default:
 
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE", 
+    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode", 
                     "ARKodeLoadButcherTable", "Unknown Butcher table");
     return(NULL);
 

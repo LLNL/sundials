@@ -16,7 +16,7 @@
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
  * This is the implementation file for the optional input and 
- * output functions for the ARKODE ARKStep time stepper module.
+ * output functions for the ARKode ARKStep time stepper module.
  *
  * NOTE: many functions currently in arkode_io.c will move here, 
  * with slightly different names.  The code transition will be 
@@ -57,13 +57,13 @@ int ARKStepSetDefaults(void* arkode_mem)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetDefaults", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetDefaults", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -133,20 +133,20 @@ int ARKStepSetOptimalParams(void *arkode_mem)
 
   /* access ARKodeMem, ARKodeARKStepMem and ARKodeHAdaptMem structures */
   if (arkode_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetOptimalParams", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetOptimalParams",
                     "Missing ARKStep time stepper module");
     return(ARK_MEM_NULL);
   }
   step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetOptimalParams",
                     MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
@@ -319,13 +319,13 @@ int ARKStepSetOrder(void *arkode_mem, int ord)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetOrder", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetOrder",  MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -372,13 +372,13 @@ int ARKStepSetLinear(void *arkode_mem, int timedepend)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetLinear", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetLinear", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -407,13 +407,13 @@ int ARKStepSetNonlinear(void *arkode_mem)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetNonlinear", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetNonlinear", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -444,13 +444,13 @@ int ARKStepSetFixedPoint(void *arkode_mem, long int fp_m)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetFixedPoint", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetFixedPoint", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -482,13 +482,13 @@ int ARKStepSetNewton(void *arkode_mem)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetNewton", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetNewton", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -514,13 +514,13 @@ int ARKStepSetExplicit(void *arkode_mem)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetExplicit", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetExplicit", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -528,7 +528,7 @@ int ARKStepSetExplicit(void *arkode_mem)
 
   /* ensure that fe is defined */
   if (step_mem->fe == NULL) {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE", 
+    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ARKStep", 
                     "ARKStepSetExplicit", MSG_ARK_MISSING_FE);
     return(ARK_ILL_INPUT);
   }
@@ -554,13 +554,13 @@ int ARKStepSetImplicit(void *arkode_mem)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetImplicit", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetImplicit", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -568,7 +568,7 @@ int ARKStepSetImplicit(void *arkode_mem)
 
   /* ensure that fi is defined */
   if (step_mem->fi == NULL) {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE", 
+    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ARKStep", 
                     "ARKStepSetImplicit", MSG_ARK_MISSING_FI);
     return(ARK_ILL_INPUT);
   }
@@ -594,13 +594,13 @@ int ARKStepSetImEx(void *arkode_mem)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetImEx", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetImEx", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -608,12 +608,12 @@ int ARKStepSetImEx(void *arkode_mem)
 
   /* ensure that fe and fi are defined */
   if (step_mem->fe == NULL) {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE", 
+    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ARKStep", 
                     "ARKStepSetImEx", MSG_ARK_MISSING_FE);
     return(ARK_ILL_INPUT);
   }
   if (step_mem->fi == NULL) {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE", 
+    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ARKStep", 
                     "ARKStepSetImEx", MSG_ARK_MISSING_FI);
     return(ARK_ILL_INPUT);
   }
@@ -647,13 +647,13 @@ int ARKStepSetERKTable(void *arkode_mem, int s, int q, int p,
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetERKTable", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetERKTable", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -661,7 +661,7 @@ int ARKStepSetERKTable(void *arkode_mem, int s, int q, int p,
 
   /* check for legal inputs */
   if ((c == NULL) || (A == NULL) || (b == NULL)) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetERKTable", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -702,7 +702,7 @@ int ARKStepSetERKTable(void *arkode_mem, int s, int q, int p,
   
   /* set method as purely explicit */
   if (ARKStepSetExplicit(arkode_mem) != ARK_SUCCESS) {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE", 
+    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ARKStep", 
                     "ARKStepSetERKTable", MSG_ARK_MISSING_FE);
     return(ARK_ILL_INPUT);
   }
@@ -732,13 +732,13 @@ int ARKStepSetIRKTable(void *arkode_mem, int s, int q, int p,
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetIRKTable", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetIRKTable", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -746,7 +746,7 @@ int ARKStepSetIRKTable(void *arkode_mem, int s, int q, int p,
 
   /* check for legal inputs */
   if ((c == NULL) || (A == NULL) || (b == NULL)) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetIRKTable", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -787,7 +787,7 @@ int ARKStepSetIRKTable(void *arkode_mem, int s, int q, int p,
   
   /* set method as purely implicit */
   if (ARKStepSetImplicit(arkode_mem) != ARK_SUCCESS) {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE", 
+    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ARKStep", 
                     "ARKStepSetIRKTable", MSG_ARK_MISSING_FI);
     return(ARK_ILL_INPUT);
   }
@@ -819,13 +819,13 @@ int ARKStepSetARKTables(void *arkode_mem, int s, int q, int p,
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetARKTables", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetARKTables", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -835,7 +835,7 @@ int ARKStepSetARKTables(void *arkode_mem, int s, int q, int p,
   if ((ci == NULL) || (ce == NULL) || 
       (Ai == NULL) || (Ae == NULL) || 
       (bi == NULL) || (be == NULL)) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetARKTables", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -884,7 +884,7 @@ int ARKStepSetARKTables(void *arkode_mem, int s, int q, int p,
   
   /* set method as ImEx */
   if (ARKStepSetImEx(arkode_mem) != ARK_SUCCESS) {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE", 
+    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ARKStep", 
                     "ARKStepSetARKTables", MSG_ARK_MISSING_F);
     return(ARK_ILL_INPUT);
   }
@@ -908,13 +908,13 @@ int ARKStepSetERKTableNum(void *arkode_mem, int itable)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetERKTableNum", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetERKTableNum", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -922,7 +922,7 @@ int ARKStepSetERKTableNum(void *arkode_mem, int itable)
 
   /* check that argument specifies an explicit table */
   if (itable<MIN_ERK_NUM || itable>MAX_ERK_NUM) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetERKTableNum", 
                     "Illegal ERK table number");
     return(ARK_ILL_INPUT);
@@ -938,7 +938,7 @@ int ARKStepSetERKTableNum(void *arkode_mem, int itable)
   /* fill in table based on argument */
   step_mem->Be = ARKodeLoadButcherTable(itable);
   if (step_mem->Be == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetERKTableNum", 
                     "Error setting table with that index");
     return(ARK_ILL_INPUT);
@@ -949,7 +949,7 @@ int ARKStepSetERKTableNum(void *arkode_mem, int itable)
 
   /* set method as purely explicit */
   if (ARKStepSetExplicit(arkode_mem) != ARK_SUCCESS) {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE", 
+    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ARKStep", 
                     "ARKStepSetERKTableNum", MSG_ARK_MISSING_FE);
     return(ARK_ILL_INPUT);
   }
@@ -973,13 +973,13 @@ int ARKStepSetIRKTableNum(void *arkode_mem, int itable)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetIRKTableNum", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetIRKTableNum", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -987,7 +987,7 @@ int ARKStepSetIRKTableNum(void *arkode_mem, int itable)
 
   /* check that argument specifies an implicit table */
   if (itable<MIN_DIRK_NUM || itable>MAX_DIRK_NUM) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetIRKTableNum", 
                     "Illegal IRK table number");
     return(ARK_ILL_INPUT);
@@ -1003,7 +1003,7 @@ int ARKStepSetIRKTableNum(void *arkode_mem, int itable)
   /* fill in table based on argument */
   step_mem->Bi = ARKodeLoadButcherTable(itable);
   if (step_mem->Bi == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetIRKTableNum", 
                     "Error setting table with that index");
     return(ARK_ILL_INPUT);
@@ -1014,7 +1014,7 @@ int ARKStepSetIRKTableNum(void *arkode_mem, int itable)
 
   /* set method as purely implicit */
   if (ARKStepSetImplicit(arkode_mem) != ARK_SUCCESS) {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE", 
+    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ARKStep", 
                     "ARKStepSetIRKTableNum", MSG_ARK_MISSING_FI);
     return(ARK_ILL_INPUT);
   }
@@ -1037,13 +1037,13 @@ int ARKStepSetARKTableNum(void *arkode_mem, int itable, int etable)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetARKTableNum", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetARKTableNum", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1053,7 +1053,7 @@ int ARKStepSetARKTableNum(void *arkode_mem, int itable, int etable)
   if ( !((etable == ARK324L2SA_ERK_4_2_3) && (itable == ARK324L2SA_DIRK_4_2_3)) &&
        !((etable == ARK436L2SA_ERK_6_3_4) && (itable == ARK436L2SA_DIRK_6_3_4)) &&
        !((etable == ARK548L2SA_ERK_8_4_5) && (itable == ARK548L2SA_DIRK_8_4_5)) ) {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE", 
+    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ARKStep", 
                     "ARKStepSetARKTableNum", 
                     "Incompatible Butcher tables for ARK method");
     return(ARK_ILL_INPUT);
@@ -1070,13 +1070,13 @@ int ARKStepSetARKTableNum(void *arkode_mem, int itable, int etable)
   step_mem->Bi = ARKodeLoadButcherTable(itable);
   step_mem->Be = ARKodeLoadButcherTable(etable);
   if (step_mem->Bi == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetARKTableNum", 
                     "Illegal IRK table number");
     return(ARK_ILL_INPUT);
   }
   if (step_mem->Be == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetARKTableNum", 
                     "Illegal ERK table number");
     return(ARK_ILL_INPUT);
@@ -1087,7 +1087,7 @@ int ARKStepSetARKTableNum(void *arkode_mem, int itable, int etable)
 
   /* set method as ImEx */
   if (ARKStepSetImEx(arkode_mem) != ARK_SUCCESS) {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE", 
+    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ARKStep", 
                     "ARKStepSetARKTableNum", MSG_ARK_MISSING_F);
     return(ARK_ILL_INPUT);
   }
@@ -1112,19 +1112,19 @@ int ARKStepSetCFLFraction(void *arkode_mem, realtype cfl_frac)
 
   /* access ARKodeMem, ARKodeARKStepMem and ARKodeHAdaptMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetCFLFraction", MSG_ARK_NO_MEM);
     return (ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetCFLFraction", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
   step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetCFLFraction",
                     MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
@@ -1133,7 +1133,7 @@ int ARKStepSetCFLFraction(void *arkode_mem, realtype cfl_frac)
 
   /* check for allowable parameters */
   if (cfl_frac >= 1.0) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep", 
                     "ARKStepSetCFLFraction", "Illegal CFL fraction");
     return(ARK_ILL_INPUT);
   }
@@ -1165,19 +1165,19 @@ int ARKStepSetSafetyFactor(void *arkode_mem, realtype safety)
 
   /* access ARKodeMem, ARKodeARKStepMem and ARKodeHAdaptMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetSafetyFactor", MSG_ARK_NO_MEM);
     return (ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetSafetyFactor", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
   step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetSafetyFactoy",MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1185,7 +1185,7 @@ int ARKStepSetSafetyFactor(void *arkode_mem, realtype safety)
 
   /* check for allowable parameters */
   if (safety >= 1.0) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep", 
                     "ARKStepSetSafetyFactor", "Illegal safety factor");
     return(ARK_ILL_INPUT);
   }
@@ -1216,19 +1216,19 @@ int ARKStepSetErrorBias(void *arkode_mem, realtype bias)
 
   /* access ARKodeMem, ARKodeARKStepMem and ARKodeHAdaptMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetErrorBias", MSG_ARK_NO_MEM);
     return (ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetErrorBias", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
   step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetErrorBias", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1261,19 +1261,19 @@ int ARKStepSetMaxGrowth(void *arkode_mem, realtype mx_growth)
 
   /* access ARKodeMem, ARKodeARKStepMem and ARKodeHAdaptMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetMaxGrowth", MSG_ARK_NO_MEM);
     return (ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetMaxGrowth", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
   step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetMaxGrowth", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1305,19 +1305,19 @@ int ARKStepSetFixedStepBounds(void *arkode_mem, realtype lb, realtype ub)
 
   /* access ARKodeMem ARKodeARKStepMem and ARKodeHAdaptMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetFixedStepBounds", MSG_ARK_NO_MEM);
     return (ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetFixedStepBounds", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
   step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetFixedStepBounds", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1353,19 +1353,19 @@ int ARKStepSetAdaptivityMethod(void *arkode_mem, int imethod,
 
   /* access ARKodeMem, ARKodeARKStepMem and ARKodeHAdaptMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetAdaptivityMethod", MSG_ARK_NO_MEM);
     return (ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetAdaptivityMethod", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
   step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetAdaptivityMethod", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1373,7 +1373,7 @@ int ARKStepSetAdaptivityMethod(void *arkode_mem, int imethod,
 
   /* check for allowable parameters */
   if ((imethod > 5) || (imethod < 0)) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep", 
                     "ARKStepSetAdaptivityMethod", "Illegal imethod");
     return(ARK_ILL_INPUT);
   }
@@ -1431,19 +1431,19 @@ int ARKStepSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun,
 
   /* access ARKodeMem, ARKodeARKStepMem and ARKodeHAdaptMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetAdaptivityFn", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetAdaptivityFn", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
   step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetAdaptivityFn", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1479,19 +1479,19 @@ int ARKStepSetMaxFirstGrowth(void *arkode_mem, realtype etamx1)
 
   /* access ARKodeMem, ARKodeARKStepMem and ARKodeHAdaptMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetMaxFirstGrowth", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetMaxFirstGrowth", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
   step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetMaxFirstGrowth",MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1523,19 +1523,19 @@ int ARKStepSetMaxEFailGrowth(void *arkode_mem, realtype etamxf)
 
   /* access ARKodeMem, ARKodeARKStepMem and ARKodeHAdaptMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetMaxEFailGrowth", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetMaxEFailGrowth", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
   step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetMaxEFailGrowth", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1567,19 +1567,19 @@ int ARKStepSetSmallNumEFails(void *arkode_mem, int small_nef)
 
   /* access ARKodeMem, ARKodeARKStepMem and ARKodeHAdaptMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetSmallNumEFails", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetSmallNumEFails", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
   step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetSmallNumEFails", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1611,19 +1611,19 @@ int ARKStepSetMaxCFailGrowth(void *arkode_mem, realtype etacf)
 
   /* access ARKodeMem, ARKodeARKStepMem and ARKodeHAdaptMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetMaxCFailGrowth", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetMaxCFailGrowth", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
   step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetMaxCFailGrowth", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1654,13 +1654,13 @@ int ARKStepSetNonlinCRDown(void *arkode_mem, realtype crdown)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetNonlinCRDown", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetNonlinCRDown", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1691,13 +1691,13 @@ int ARKStepSetNonlinRDiv(void *arkode_mem, realtype rdiv)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetNonlinRDiv", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetNonlinRDiv", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1728,13 +1728,13 @@ int ARKStepSetDeltaGammaMax(void *arkode_mem, realtype dgmax)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetDeltaGammaMax", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetDeltaGammaMax", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1767,13 +1767,13 @@ int ARKStepSetMaxStepsBetweenLSet(void *arkode_mem, int msbp)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetMaxStepsBetweenLSet", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetMaxStepsBetweenLSet", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1804,13 +1804,13 @@ int ARKStepSetPredictorMethod(void *arkode_mem, int pred_method)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetPredictorMethod", MSG_ARK_NO_MEM);
     return (ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetPredictorMethod", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1839,19 +1839,19 @@ int ARKStepSetStabilityFn(void *arkode_mem, ARKExpStabFn EStab,
 
   /* access ARKodeMem, ARKodeARKStepMem and ARKodeHAdaptMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetStabilityFn", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetStabilityFn", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
   step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetStabilityFn", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1884,13 +1884,13 @@ int ARKStepSetMaxErrTestFails(void *arkode_mem, int maxnef)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetMaxErrTestFails", MSG_ARK_NO_MEM);
     return (ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetMaxErrTestFails", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1921,13 +1921,13 @@ int ARKStepSetMaxConvFails(void *arkode_mem, int maxncf)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetMaxConvFails", MSG_ARK_NO_MEM);
     return (ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetMaxConvFails", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1958,13 +1958,13 @@ int ARKStepSetMaxNonlinIters(void *arkode_mem, int maxcor)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetMaxNonlinIters", MSG_ARK_NO_MEM);
     return (ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetMaxNonlinIters", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1994,13 +1994,13 @@ int ARKStepSetNonlinConvCoef(void *arkode_mem, realtype nlscoef)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetNonlinConvCoef", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetNonlinConvCoef", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -2018,7 +2018,7 @@ int ARKStepSetNonlinConvCoef(void *arkode_mem, realtype nlscoef)
 
 
 /*===============================================================
-  ARKODE optional output functions
+  ARKode optional output functions
   ===============================================================*/
 
 /*---------------------------------------------------------------
@@ -2033,13 +2033,13 @@ int ARKStepGetNumExpSteps(void *arkode_mem, long int *nsteps)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepGetNumExpSteps", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepGetNumExpSteps", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -2068,13 +2068,13 @@ int ARKStepGetNumAccSteps(void *arkode_mem, long int *nsteps)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepGetNumAccSteps", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepGetNumAccSteps", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -2103,13 +2103,13 @@ int ARKStepGetNumStepAttempts(void *arkode_mem, long int *nsteps)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepGetNumStepAttempts", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepGetNumStepAttempts", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -2135,13 +2135,13 @@ int ARKStepGetNumRhsEvals(void *arkode_mem, long int *fe_evals,
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepGetNumRhsEvals", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepGetNumRhsEvals", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -2167,13 +2167,13 @@ int ARKStepGetNumLinSolvSetups(void *arkode_mem, long int *nlinsetups)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepGetNumLinSolvSetups", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepGetNumLinSolvSetups", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -2198,13 +2198,13 @@ int ARKStepGetNumErrTestFails(void *arkode_mem, long int *netfails)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepGetNumErrTestFails", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepGetNumErrTestFails", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -2232,13 +2232,13 @@ int ARKStepGetCurrentButcherTables(void *arkode_mem,
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepGetCurrentButcherTables", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepGetCurrentButcherTables", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -2265,13 +2265,13 @@ int ARKStepGetEstLocalErrors(void *arkode_mem, N_Vector ele)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepGetEstLocalErrors", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepGetEstLocalErrors", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -2299,13 +2299,13 @@ int ARKStepGetTimestepperStats(void *arkode_mem, long int *expsteps,
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepGetTimestepperStats", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepGetTimestepperStats", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -2344,13 +2344,13 @@ int ARKStepGetNumNonlinSolvIters(void *arkode_mem, long int *nniters)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepGetNumNonlinSolvIters", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepGetNumNonlinSolvIters", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -2375,13 +2375,13 @@ int ARKStepGetNumNonlinSolvConvFails(void *arkode_mem, long int *nncfails)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepGetNumNonlinSolvConvFails", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepGetNumNonlinSolvConvFails", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -2407,13 +2407,13 @@ int ARKStepGetNonlinSolvStats(void *arkode_mem, long int *nniters,
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepGetNonlinSolvStats", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepGetNonlinSolvStats", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -2443,13 +2443,13 @@ int ARKStepWriteParameters(void *arkode_mem, FILE *fp)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepWriteParameters", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepWriteParameters", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -2536,13 +2536,13 @@ int ARKStepWriteButcher(void *arkode_mem, FILE *fp)
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE", 
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKodeWriteButcher", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKODE",
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKodeWriteButcher", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }

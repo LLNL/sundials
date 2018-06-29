@@ -15,7 +15,7 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * Header file for the Additive Runge Kutta time step module for ARKODE.
+ * Header file for the Additive Runge Kutta time step module for ARKode.
  *--------------------------------------------------------------*/
 
 #ifndef _ERKSTEP_H
@@ -83,7 +83,7 @@ SUNDIALS_EXPORT int ERKStepReInit(void* arkode_mem, ARKRhsFn f,
                           | table for the explicit portion of the 
                           | system.  This automatically calls 
                           ! ERKStepSetExplicit
-                          | [determined by ARKODE based on order]
+                          | [determined by ARKode based on order]
                           |
  ERKStepSetERKTableNum    | specifies to use a built-in Butcher 
                           | table for the explicit portion of the 
@@ -94,7 +94,7 @@ SUNDIALS_EXPORT int ERKStepReInit(void* arkode_mem, ARKRhsFn f,
                           | performed to ensure that the table
                           | exists, and is not implicit.  This 
                           ! automatically calls ERKStepSetExplicit
-                          | [determined by ARKODE based on order]
+                          | [determined by ARKode based on order]
                           |
  ERKStepSetCFLFraction    | safety factor to use for explicitly 
                           ! stable steps

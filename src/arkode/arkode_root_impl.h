@@ -31,14 +31,14 @@ extern "C" {
 
 
 /*===============================================================
-  ARKODE Root-finding constants
+  ARKode Root-finding constants
   ===============================================================*/
 
 #define ARK_ROOT_LRW   5
 #define ARK_ROOT_LIW  12   /* int, ptr, etc */
   
 /*===============================================================
-  ARKODE Root-finding Data Structure
+  ARKode Root-finding Data Structure
   ===============================================================*/
 
 /*---------------------------------------------------------------
@@ -72,7 +72,7 @@ typedef struct ARKodeRootMemRec {
 
 
 /*===============================================================
-  ARKODE Root-finding Routines
+  ARKode Root-finding Routines
 ===============================================================*/
 
 int arkRootFree(void* arkode_mem);

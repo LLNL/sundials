@@ -17,7 +17,7 @@
  *---------------------------------------------------------------
  * This file contains implementations of routines for a
  * band-block-diagonal preconditioner, i.e. a block-diagonal
- * matrix with banded blocks, for use with ARKODE, the ARKSPILS 
+ * matrix with banded blocks, for use with ARKode, the ARKSPILS 
  * linear solver interface, and the MPI-parallel implementation 
  * of NVECTOR.
  *--------------------------------------------------------------*/

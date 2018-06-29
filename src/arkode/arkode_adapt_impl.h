@@ -31,7 +31,7 @@ extern "C" {
 
 
 /*===============================================================
-  ARKODE Time Step Adaptivity Data Structure
+  ARKode Time Step Adaptivity Data Structure
 ===============================================================*/
 
 /* size constants for the adaptivity memory structure */
@@ -84,7 +84,7 @@ typedef struct ARKodeHAdaptMemRec {
 
 
 /*===============================================================
-  ARKODE Time Step Adaptivity Routines
+  ARKode Time Step Adaptivity Routines
 ===============================================================*/
 
 ARKodeHAdaptMem arkAdaptInit();

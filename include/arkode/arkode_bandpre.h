@@ -104,7 +104,7 @@ extern "C" {
 
  The parameters of ARKBandPrecInit are as follows:
 
- arkode_mem is the pointer to ARKODE memory returned by ARKodeCreate.
+ arkode_mem is the pointer to ARKode memory returned by ARKodeCreate.
 
  N is the problem size.
 

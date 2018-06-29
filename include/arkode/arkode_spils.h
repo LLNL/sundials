@@ -16,7 +16,7 @@
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
  * Header file for the Scaled, Preconditioned Iterative Linear 
- * Solver interface in ARKODE.
+ * Solver interface in ARKode.
  *--------------------------------------------------------------*/
 
 #ifndef _ARKSPILS_H
@@ -443,7 +443,7 @@ typedef int (*ARKSpilsMassPrecSolveFn)(realtype t, N_Vector r,
 
  The return value is one of:
     ARKSPILS_SUCCESS   if successful
-    ARKSPILS_MEM_NULL  if the ARKODE memory was NULL
+    ARKSPILS_MEM_NULL  if the ARKode memory was NULL
     ARKSPILS_ILL_INPUT if the linear solver memory was NULL
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKSpilsSetLinearSolver(void *arkode_mem, 

@@ -15,7 +15,7 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * Header file for the Additive Runge Kutta time step module for ARKODE.
+ * Header file for the Additive Runge Kutta time step module for ARKode.
  *--------------------------------------------------------------*/
 
 #ifndef _ARKSTEP_H
@@ -129,18 +129,18 @@ SUNDIALS_EXPORT int ARKStepReInit(void* arkode_mem, ARKRhsFn fe,
                           | table for the explicit portion of the 
                           | system.  This automatically calls 
                           ! ARKStepSetExplicit
-                          | [determined by ARKODE based on order]
+                          | [determined by ARKode based on order]
                           |
  ARKStepSetIRKTable       | specifies to use a customized Butcher 
                           | table for the implicit portion of the 
                           | system. This automatically calls 
                           ! ARKStepSetImplicit
-                          | [determined by ARKODE based on order]
+                          | [determined by ARKode based on order]
                           |
  ARKStepSetARKTables      | specifies to use customized Butcher 
                           | tables for the IMEX system.  This 
                           ! automatically calls ARKStepSetImEx
-                          | [determined by ARKODE based on order]
+                          | [determined by ARKode based on order]
                           |
  ARKStepSetERKTableNum    | specifies to use a built-in Butcher 
                           | table for the explicit portion of the 
@@ -151,7 +151,7 @@ SUNDIALS_EXPORT int ARKStepReInit(void* arkode_mem, ARKRhsFn fe,
                           | performed to ensure that the table
                           | exists, and is not implicit.  This 
                           ! automatically calls ARKStepSetExplicit
-                          | [determined by ARKODE based on order]
+                          | [determined by ARKode based on order]
                           |
  ARKStepSetIRKTableNum    | specifies to use a built-in Butcher 
                           | table for the implicit portion of the 
@@ -162,7 +162,7 @@ SUNDIALS_EXPORT int ARKStepReInit(void* arkode_mem, ARKRhsFn fe,
                           | performed to ensure that the table
                           | exists, and is not explicit.  This 
                           ! automatically calls ARKStepSetImplicit
-                          | [determined by ARKODE based on order]
+                          | [determined by ARKode based on order]
                           |
  ARKStepSetARKTableNum    | specifies to use a built-in Butcher 
                           | tables for the ImEx system.  The 
@@ -175,7 +175,7 @@ SUNDIALS_EXPORT int ARKStepReInit(void* arkode_mem, ARKRhsFn fe,
                           | to ensure that the tables' stage times 
                           | and solution coefficients match.  This 
                           ! automatically calls ARKStepSetImEx
-                          | [determined by ARKODE based on order]
+                          | [determined by ARKode based on order]
                           |
  ARKStepSetCFLFraction    | safety factor to use for explicitly 
                           ! stable steps

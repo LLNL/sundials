@@ -15,9 +15,9 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * This is the interface file for the main ARKODE integrator.
+ * This is the interface file for the main ARKode integrator.
  *---------------------------------------------------------------
- * ARKODE is used to solve numerically the ordinary initial value
+ * ARKode is used to solve numerically the ordinary initial value
  * problem:
  *              M y'(t) = fe(t,y) + fi(t,y),
  *             y(t0) = y0,
@@ -37,7 +37,7 @@ extern "C" {
 #endif
 
 /*===============================================================
-                         ARKODE CONSTANTS
+                         ARKode Constants
 ===============================================================*/
 
 /*---------------------------------------------------------------
@@ -69,7 +69,7 @@ extern "C" {
 #define ARK_ONE_STEP       2
 
 
-/* ARKODE return flags */
+/* ARKode return flags */
 #define ARK_SUCCESS               0
 #define ARK_TSTOP_RETURN          1
 #define ARK_ROOT_RETURN           2
@@ -122,7 +122,7 @@ extern "C" {
  dependent variable vector y.  It stores the result of fe(t,y) 
  or fi(t,y) in the vector ydot.  The y and ydot arguments are of 
  type N_Vector.
- (Allocation of memory for ydot is handled within ARKODE)
+ (Allocation of memory for ydot is handled within ARKode)
  The user_data parameter is the same as the user_data
  parameter set by the user through the ARKodeSetUserData routine.
  This user-supplied pointer is passed to the user's fe or fi
@@ -132,7 +132,7 @@ extern "C" {
  an unrecoverable error occured, and a positive value if a 
  recoverable error (e.g. invalid y values) occured. 
  If an unrecoverable occured, the integration is halted. 
- If a recoverable error occured, then (in most cases) ARKODE
+ If a recoverable error occured, then (in most cases) ARKode
  will try to correct and retry.
 ---------------------------------------------------------------*/
 typedef int (*ARKRhsFn)(realtype t, N_Vector y,
@@ -146,7 +146,7 @@ typedef int (*ARKRhsFn)(realtype t, N_Vector y,
  ARKRootFn. The function g takes as input the independent 
  variable value t, and the dependent variable vector y.  It 
  stores the nrtfn values g_i(t,y) in the realtype array gout.
- (Allocation of memory for gout is handled within ARKODE.)
+ (Allocation of memory for gout is handled within ARKode.)
  The user_data parameter is the same as that passed by the user
  to the ARKodeSetUserData routine.  This user-supplied pointer 
  is passed to the user's g function every time it is called.
@@ -329,7 +329,7 @@ typedef int (*ARKPostProcessStepFn)(realtype t, N_Vector y,
  Function : ARKodeCreate
 -----------------------------------------------------------------
  ARKodeCreate creates an internal memory block for a problem to
- be solved by ARKODE.
+ be solved by ARKode.
 
  If successful, ARKodeCreate returns a pointer to initialized
  problem memory. This pointer should be passed to ARKodeInit.
@@ -367,7 +367,7 @@ SUNDIALS_EXPORT void *ARKodeCreate();
                           | [internal]
                           |
  ARKodeSetErrFile         | the file pointer for an error file
-                          | where all ARKODE warning and error
+                          | where all ARKode warning and error
                           | messages will be written if the 
                           | default internal error handling 
                           | function is used. This parameter can 
@@ -385,7 +385,7 @@ SUNDIALS_EXPORT void *ARKodeCreate();
                           | [NULL]
                           |
  ARKodeSetDiagnostics     | the file pointer for a diagnostics file 
-                          | where all ARKODE step adaptivity and solver 
+                          | where all ARKode step adaptivity and solver 
                           | information is written.  This parameter can 
                           | be stdout or stderr, though the preferred 
                           | approach is to specify a file pointer 
@@ -411,7 +411,7 @@ SUNDIALS_EXPORT void *ARKodeCreate();
                           | [10]
                           |
  ARKodeSetInitStep        | initial step size.
-                          | [estimated by ARKODE]
+                          | [estimated by ARKode]
                           |
  ARKodeSetMinStep         | minimum absolute value of step size
                           | allowed.
@@ -477,7 +477,7 @@ SUNDIALS_EXPORT int ARKodeSetPostprocessStepFn(void *arkode_mem,
 /*---------------------------------------------------------------
  Function : ARKodeResize
 -----------------------------------------------------------------
- ARKodeResize re-initializes ARKODE's memory for a problem with a
+ ARKodeResize re-initializes ARKode's memory for a problem with a
  changing vector size.  It is assumed that the problem dynamics 
  before and after the vector resize will be comparable, so that 
  all time-stepping heuristics prior to calling ARKodeResize 
@@ -633,7 +633,7 @@ SUNDIALS_EXPORT int ARKodeResFtolerance(void *arkode_mem,
  during the integration of the ODE system.  It must be called
  after ARKodeCreate, and before ARKode.  The arguments are:
 
- arkode_mem = pointer to ARKODE memory returned by ARKodeCreate.
+ arkode_mem = pointer to ARKode memory returned by ARKodeCreate.
 
  nrtfn      = number of functions g_i, an integer >= 0.
 
@@ -692,7 +692,7 @@ SUNDIALS_EXPORT int ARKodeRootInit(void *arkode_mem,
  The time reached by the solver is placed in (*tret). The
  user is responsible for allocating the memory for this value.
 
- arkode_mem is the pointer to ARKODE memory returned by
+ arkode_mem is the pointer to ARKode memory returned by
             ARKodeCreate.
 
  tout  is the next time at which a computed solution is desired.
@@ -774,7 +774,7 @@ SUNDIALS_EXPORT int ARKode(void *arkode_mem, realtype tout,
  is only legal to call this function after a successful return 
  from ARKode.
 
- arkode_mem is the pointer to ARKODE memory returned by
+ arkode_mem is the pointer to ARKode memory returned by
             ARKodeCreate.
 
  t   is the time at which the kth derivative of y is evaluated.
@@ -810,7 +810,7 @@ SUNDIALS_EXPORT int ARKodeGetDky(void *arkode_mem, realtype t,
                    steps taken by the solver
 
  ARKodeGetActualInitStep returns the actual initial step size
-                         used by ARKODE
+                         used by ARKode
 
  ARKodeGetLastStep returns the step size for the last internal
                    step
@@ -832,7 +832,7 @@ SUNDIALS_EXPORT int ARKodeGetDky(void *arkode_mem, realtype t,
  ARKodeGetResWeights returns the current residual weight vector.
                      The user must allocate space for rweight.
 
- ARKodeGetWorkSpace returns the ARKODE real and integer workspaces
+ ARKodeGetWorkSpace returns the ARKode real and integer workspaces
 
  ARKodeGetNumGEvals returns the number of calls to the user's
                     g function (for rootfinding)
@@ -885,7 +885,7 @@ SUNDIALS_EXPORT int ARKodeGetStepStats(void *arkode_mem,
 
 /*---------------------------------------------------------------
  The following function returns the name of the constant 
- associated with a ARKODE return flag
+ associated with a ARKode return flag
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT char *ARKodeGetReturnFlagName(long int flag);
 

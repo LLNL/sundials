@@ -348,7 +348,7 @@ int arkInterpEvaluate(void* arkode_mem, ARKodeInterpMem interp,
   /* check that d is possible */
   /* if ((d > SUNMIN(5,q)) || (d < 0)) { */
   if ((d > SUNMIN(3,q)) || (d < 0)) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", 
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", 
                     "arkInterpEvaluate", "Requested illegal derivative.");
     return (ARK_ILL_INPUT);
   }
@@ -423,7 +423,7 @@ int arkInterpEvaluate(void* arkode_mem, ARKodeInterpMem interp,
     break;
 
   default:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE", "arkInterpEvaluate", 
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkInterpEvaluate", 
                     "Illegal polynomial order");
     return (ARK_ILL_INPUT);
   }
