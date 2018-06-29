@@ -54,7 +54,7 @@ int ARKStepCreate(void* arkode_mem, ARKRhsFn fe,
                   ARKRhsFn fi, realtype t0, N_Vector y0)
 {
   ARKodeMem ark_mem;
-  ARKodeARKStepMem arkstep_mem;
+  ARKodeARKStepMem step_mem;
   booleantype nvectorOK;
   int iret;
 
@@ -74,20 +74,20 @@ int ARKStepCreate(void* arkode_mem, ARKRhsFn fe,
   }
 
   /* Allocate ARKodeARKStepMem structure, and initialize to zero */
-  arkstep_mem = NULL;
-  arkstep_mem = (ARKodeARKStepMem) malloc(sizeof(struct ARKodeARKStepMemRec));
-  if (arkstep_mem == NULL) {
+  step_mem = NULL;
+  step_mem = (ARKodeARKStepMem) malloc(sizeof(struct ARKodeARKStepMemRec));
+  if (step_mem == NULL) {
     arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ARKStep",
                     "ARKStepCreate", MSG_ARK_ARKMEM_FAIL);
     return(ARK_MEM_FAIL);
   }
-  memset(arkstep_mem, 0, sizeof(struct ARKodeARKStepMemRec));
+  memset(step_mem, 0, sizeof(struct ARKodeARKStepMemRec));
 
   /* free any existing time step module attached to ARKode */
   if (ark_mem->step_free != NULL)
     ark_mem->step_free(ark_mem);
   
-  /* Attach arkstep_mem structure and function pointers to ark_mem */
+  /* Attach step_mem structure and function pointers to ark_mem */
   ark_mem->step_attachlinsol   = arkStep_AttachLinsol;
   ark_mem->step_attachmasssol  = arkStep_AttachMasssol;
   ark_mem->step_disablelsetup  = arkStep_DisableLSetup;
@@ -103,7 +103,7 @@ int ARKStepCreate(void* arkode_mem, ARKRhsFn fe,
   ark_mem->step                = arkStep_TakeStep;
   ark_mem->step_print          = arkStep_PrintMem;
   ark_mem->step_free           = arkStep_Free;
-  ark_mem->step_mem            = (void*) arkstep_mem;
+  ark_mem->step_mem            = (void*) step_mem;
 
   /* Set default values for ARKStep optional inputs */
   iret = ARKStepSetDefaults((void *)ark_mem);
@@ -115,11 +115,11 @@ int ARKStepCreate(void* arkode_mem, ARKRhsFn fe,
   }
   
   /* Set implicit/explicit problem based on function pointers */
-  arkstep_mem->explicit = (fe == NULL) ? SUNFALSE : SUNTRUE;
-  arkstep_mem->implicit = (fi == NULL) ? SUNFALSE : SUNTRUE;
+  step_mem->explicit = (fe == NULL) ? SUNFALSE : SUNTRUE;
+  step_mem->implicit = (fi == NULL) ? SUNFALSE : SUNTRUE;
 
   /* Check that at least one of fe,fi is supplied and is to be used */
-  if (!arkstep_mem->implicit && !arkstep_mem->explicit) {
+  if (!step_mem->implicit && !step_mem->explicit) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::ARKStep",
                     "ARKStepCreate", MSG_ARK_NULL_F);
     return(ARK_ILL_INPUT);
@@ -138,40 +138,40 @@ int ARKStepCreate(void* arkode_mem, ARKRhsFn fe,
      (based on the number of ARK stages) */
 
   /* Clone the input vector to create sdata, zpred */
-  if (!arkAllocVec(ark_mem, y0, &(arkstep_mem->sdata)))
+  if (!arkAllocVec(ark_mem, y0, &(step_mem->sdata)))
     return(ARK_MEM_FAIL);
-  if (!arkAllocVec(ark_mem, y0, &(arkstep_mem->zpred)))
+  if (!arkAllocVec(ark_mem, y0, &(step_mem->zpred)))
     return(ARK_MEM_FAIL);
   
   /* Copy the input parameters into ARKODE state */
-  arkstep_mem->fe = fe;
-  arkstep_mem->fi = fi;
+  step_mem->fe = fe;
+  step_mem->fi = fi;
 
   /* Update the ARKode workspace requirements */
   ark_mem->liw += 41;  /* fcn/data ptr, int, long int, sunindextype, booleantype */
   ark_mem->lrw += 10;
   
   /* Set the linear solver addresses to NULL (we check != NULL later) */
-  arkstep_mem->linit  = NULL;
-  arkstep_mem->lsetup = NULL;
-  arkstep_mem->lsolve = NULL;
-  arkstep_mem->lfree  = NULL;
-  arkstep_mem->lmem   = NULL;
-  arkstep_mem->lsolve_type = -1;
+  step_mem->linit  = NULL;
+  step_mem->lsetup = NULL;
+  step_mem->lsolve = NULL;
+  step_mem->lfree  = NULL;
+  step_mem->lmem   = NULL;
+  step_mem->lsolve_type = -1;
 
   /* Set the mass matrix solver addresses to NULL */
-  arkstep_mem->minit    = NULL;
-  arkstep_mem->msetup   = NULL;
-  arkstep_mem->mmult    = NULL;
-  arkstep_mem->msolve   = NULL;
-  arkstep_mem->mfree    = NULL;
-  arkstep_mem->mass_mem = NULL;
-  arkstep_mem->msetuptime = -RCONST(99999999999.0);
-  arkstep_mem->msolve_type = -1;
+  step_mem->minit    = NULL;
+  step_mem->msetup   = NULL;
+  step_mem->mmult    = NULL;
+  step_mem->msolve   = NULL;
+  step_mem->mfree    = NULL;
+  step_mem->mass_mem = NULL;
+  step_mem->msetuptime = -RCONST(99999999999.0);
+  step_mem->msolve_type = -1;
 
   /* Allocate step adaptivity structure, set default values, note storage */
-  arkstep_mem->hadapt_mem = arkAdaptInit();
-  if (arkstep_mem->hadapt_mem == NULL) {
+  step_mem->hadapt_mem = arkAdaptInit();
+  if (step_mem->hadapt_mem == NULL) {
     arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ARKStep", "ARKStepCreate", 
                     "Allocation of step adaptivity structure failed");
     return(ARK_MEM_FAIL);
@@ -180,17 +180,17 @@ int ARKStepCreate(void* arkode_mem, ARKRhsFn fe,
   ark_mem->liw += ARK_ADAPT_LIW;
   
   /* Initialize initial error norm  */
-  arkstep_mem->eRNrm = 1.0;
+  step_mem->eRNrm = 1.0;
   
   /* Initialize all the counters */
-  arkstep_mem->nst_attempts = 0;
-  arkstep_mem->nfe          = 0;
-  arkstep_mem->nfi          = 0;
-  arkstep_mem->ncfn         = 0;
-  arkstep_mem->netf         = 0;
-  arkstep_mem->nni          = 0;
-  arkstep_mem->nsetups      = 0;
-  arkstep_mem->nstlp        = 0;
+  step_mem->nst_attempts = 0;
+  step_mem->nfe          = 0;
+  step_mem->nfi          = 0;
+  step_mem->ncfn         = 0;
+  step_mem->netf         = 0;
+  step_mem->nni          = 0;
+  step_mem->nsetups      = 0;
+  step_mem->nstlp        = 0;
 
   /* Initialize main ARKode infrastructure */
   iret = arkodeInit(ark_mem, t0, y0);
@@ -209,7 +209,7 @@ int ARKStepReInit(void* arkode_mem, ARKRhsFn fe,
                   ARKRhsFn fi, realtype t0, N_Vector y0)
 {
   ARKodeMem ark_mem;
-  ARKodeARKStepMem arkstep_mem;
+  ARKodeARKStepMem step_mem;
   int iret;
 
   /* Check arkode_mem */
@@ -227,7 +227,7 @@ int ARKStepReInit(void* arkode_mem, ARKRhsFn fe,
                     "Missing time step module memory");
     return(ARK_MEM_NULL);
   }
-  arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
   
   /* Check for legal input parameters */
   if (y0==NULL) {
@@ -245,42 +245,42 @@ int ARKStepReInit(void* arkode_mem, ARKRhsFn fe,
   }
   
   /* Set implicit/explicit problem based on function pointers */
-  arkstep_mem->explicit = (fe == NULL) ? SUNFALSE : SUNTRUE;
-  arkstep_mem->implicit = (fi == NULL) ? SUNFALSE : SUNTRUE;
+  step_mem->explicit = (fe == NULL) ? SUNFALSE : SUNTRUE;
+  step_mem->implicit = (fi == NULL) ? SUNFALSE : SUNTRUE;
 
   /* Check that at least one of fe,fi is supplied and is to be used */
-  if (!arkstep_mem->implicit && !arkstep_mem->explicit) {
+  if (!step_mem->implicit && !step_mem->explicit) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::ARKStep",
                     "ARKStepReInit", MSG_ARK_NULL_F);
     return(ARK_ILL_INPUT);
   }
 
   /* Copy the input parameters into ARKODE state */
-  arkstep_mem->fe = fe;
-  arkstep_mem->fi = fi;
+  step_mem->fe = fe;
+  step_mem->fi = fi;
 
   /* Destroy/Reinitialize time step adaptivity structure (if present) */
-  if (arkstep_mem->hadapt_mem != NULL) {
-    free(arkstep_mem->hadapt_mem);
-    arkstep_mem->hadapt_mem = arkAdaptInit();
-    if (arkstep_mem->hadapt_mem == NULL) {
+  if (step_mem->hadapt_mem != NULL) {
+    free(step_mem->hadapt_mem);
+    step_mem->hadapt_mem = arkAdaptInit();
+    if (step_mem->hadapt_mem == NULL) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ARKStep", "ARKStepReInit", 
                       "Allocation of Step Adaptivity Structure Failed");
       return(ARK_MEM_FAIL);
     }
   }
   /* Initialize initial error norm  */
-  arkstep_mem->eRNrm = 1.0;
+  step_mem->eRNrm = 1.0;
   
   /* Initialize all the counters */
-  arkstep_mem->nst_attempts = 0;
-  arkstep_mem->nfe          = 0;
-  arkstep_mem->nfi          = 0;
-  arkstep_mem->ncfn         = 0;
-  arkstep_mem->netf         = 0;
-  arkstep_mem->nni          = 0;
-  arkstep_mem->nsetups      = 0;
-  arkstep_mem->nstlp        = 0;
+  step_mem->nst_attempts = 0;
+  step_mem->nfe          = 0;
+  step_mem->nfi          = 0;
+  step_mem->ncfn         = 0;
+  step_mem->netf         = 0;
+  step_mem->nni          = 0;
+  step_mem->nsetups      = 0;
+  step_mem->nstlp        = 0;
 
   return(ARK_SUCCESS);
 }
@@ -308,7 +308,7 @@ int arkStep_AttachLinsol(void* arkode_mem, ARKLinsolInitFn linit,
                          int lsolve_type, void *lmem)
 {
   ARKodeMem ark_mem;
-  ARKodeARKStepMem arkstep_mem;
+  ARKodeARKStepMem step_mem;
 
   /* access ARKodeARKStepMem structure */
   if (arkode_mem==NULL) {
@@ -322,18 +322,18 @@ int arkStep_AttachLinsol(void* arkode_mem, ARKLinsolInitFn linit,
                     "arkStep_AttachLinsol", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
 
   /* free any existing system solver */
-  if (arkstep_mem->lfree != NULL)  arkstep_mem->lfree(arkode_mem);
+  if (step_mem->lfree != NULL)  step_mem->lfree(arkode_mem);
 
   /* Attach the provided routines, data structure and solve type */
-  arkstep_mem->linit       = linit;
-  arkstep_mem->lsetup      = lsetup;
-  arkstep_mem->lsolve      = lsolve;
-  arkstep_mem->lfree       = lfree;
-  arkstep_mem->lmem        = lmem;
-  arkstep_mem->lsolve_type = lsolve_type;
+  step_mem->linit       = linit;
+  step_mem->lsetup      = lsetup;
+  step_mem->lsolve      = lsolve;
+  step_mem->lfree       = lfree;
+  step_mem->lmem        = lmem;
+  step_mem->lsolve_type = lsolve_type;
   
   return(ARK_SUCCESS);
 }
@@ -354,7 +354,7 @@ int arkStep_AttachMasssol(void* arkode_mem, ARKMassInitFn minit,
                           int msolve_type, void *mass_mem)
 {
   ARKodeMem ark_mem;
-  ARKodeARKStepMem arkstep_mem;
+  ARKodeARKStepMem step_mem;
 
   /* access ARKodeARKStepMem structure */
   if (arkode_mem==NULL) {
@@ -368,19 +368,19 @@ int arkStep_AttachMasssol(void* arkode_mem, ARKMassInitFn minit,
                     "arkStep_AttachMasssol", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
 
   /* free any existing mass matrix solver */
-  if (arkstep_mem->mfree != NULL)  arkstep_mem->mfree(arkode_mem);
+  if (step_mem->mfree != NULL)  step_mem->mfree(arkode_mem);
 
   /* Attach the provided routines, data structure and solve type */
-  arkstep_mem->minit       = minit;
-  arkstep_mem->msetup      = msetup;
-  arkstep_mem->mmult       = mmult;
-  arkstep_mem->msolve      = msolve;
-  arkstep_mem->mfree       = mfree;
-  arkstep_mem->mass_mem    = mass_mem;
-  arkstep_mem->msolve_type = msolve_type;
+  step_mem->minit       = minit;
+  step_mem->msetup      = msetup;
+  step_mem->mmult       = mmult;
+  step_mem->msolve      = msolve;
+  step_mem->mfree       = mfree;
+  step_mem->mass_mem    = mass_mem;
+  step_mem->msolve_type = msolve_type;
 
   /* Attach mmult function pointer to ark_mem as well */
   ark_mem->step_mmult = mmult;
@@ -398,16 +398,16 @@ int arkStep_AttachMasssol(void* arkode_mem, ARKMassInitFn minit,
 void arkStep_DisableLSetup(void* arkode_mem)
 {
   ARKodeMem ark_mem;
-  ARKodeARKStepMem arkstep_mem;
+  ARKodeARKStepMem step_mem;
 
   /* access ARKodeARKStepMem structure */
   if (arkode_mem==NULL)  return;
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL)  return;
-  arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
 
   /* nullify the lsetup function pointer */
-  arkstep_mem->lsetup = NULL;
+  step_mem->lsetup = NULL;
 }
 
 
@@ -420,16 +420,16 @@ void arkStep_DisableLSetup(void* arkode_mem)
 void arkStep_DisableMSetup(void* arkode_mem)
 {
   ARKodeMem ark_mem;
-  ARKodeARKStepMem arkstep_mem;
+  ARKodeARKStepMem step_mem;
 
   /* access ARKodeARKStepMem structure */
   if (arkode_mem==NULL)  return;
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL)  return;
-  arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
 
   /* nullify the msetup function pointer */
-  arkstep_mem->msetup = NULL;
+  step_mem->msetup = NULL;
 }
 
 
@@ -442,7 +442,7 @@ void arkStep_DisableMSetup(void* arkode_mem)
 void* arkStep_GetLmem(void* arkode_mem)
 {
   ARKodeMem ark_mem;
-  ARKodeARKStepMem arkstep_mem;
+  ARKodeARKStepMem step_mem;
 
   /* access ARKodeARKStepMem structure, and return lmem */
   if (arkode_mem==NULL) {
@@ -456,8 +456,8 @@ void* arkStep_GetLmem(void* arkode_mem)
                     "arkStep_GetLmem", MSG_ARKSTEP_NO_MEM);
     return(NULL);
   }
-  arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
-  return(arkstep_mem->lmem);
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  return(step_mem->lmem);
 }
 
 
@@ -470,7 +470,7 @@ void* arkStep_GetLmem(void* arkode_mem)
 void* arkStep_GetMassMem(void* arkode_mem)
 {
   ARKodeMem ark_mem;
-  ARKodeARKStepMem arkstep_mem;
+  ARKodeARKStepMem step_mem;
 
   /* access ARKodeARKStepMem structure, and return lmem */
   if (arkode_mem==NULL) {
@@ -484,8 +484,8 @@ void* arkStep_GetMassMem(void* arkode_mem)
                     "arkStep_GetMassMem", MSG_ARKSTEP_NO_MEM);
     return(NULL);
   }
-  arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
-  return(arkstep_mem->mass_mem);
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  return(step_mem->mass_mem);
 }
 
 
@@ -497,7 +497,7 @@ void* arkStep_GetMassMem(void* arkode_mem)
 ARKRhsFn arkStep_GetImplicitRHS(void* arkode_mem)
 {
   ARKodeMem ark_mem;
-  ARKodeARKStepMem arkstep_mem;
+  ARKodeARKStepMem step_mem;
 
   /* access ARKodeARKStepMem structure, and return fi */
   if (arkode_mem==NULL) {
@@ -511,8 +511,8 @@ ARKRhsFn arkStep_GetImplicitRHS(void* arkode_mem)
                     "arkStep_GetImplicitRHS", MSG_ARKSTEP_NO_MEM);
     return(NULL);
   }
-  arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
-  return(arkstep_mem->fi);
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  return(step_mem->fi);
 }
 
 
@@ -527,7 +527,7 @@ int arkStep_GetGammas(void* arkode_mem, realtype *gamma,
                       booleantype *dgamma_fail)
 {
   ARKodeMem ark_mem;
-  ARKodeARKStepMem arkstep_mem;
+  ARKodeARKStepMem step_mem;
 
   /* access ARKodeARKStepMem structure, and return fi */
   if (arkode_mem==NULL) {
@@ -541,11 +541,11 @@ int arkStep_GetGammas(void* arkode_mem, realtype *gamma,
                     "arkStep_GetGammas", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
-  *gamma  = arkstep_mem->gamma;
-  *gamrat = arkstep_mem->gamrat;
-  *jcur = &arkstep_mem->jcur;
-  *dgamma_fail = (SUNRabs(*gamrat - ONE) >= arkstep_mem->dgmax);
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  *gamma  = step_mem->gamma;
+  *gamrat = step_mem->gamrat;
+  *jcur = &step_mem->jcur;
+  *dgamma_fail = (SUNRabs(*gamrat - ONE) >= step_mem->dgmax);
 
   return(ARK_SUCCESS);
 }
@@ -568,7 +568,7 @@ int arkStep_GetGammas(void* arkode_mem, realtype *gamma,
 int arkStep_Init(void* arkode_mem)
 {
   ARKodeMem ark_mem;
-  ARKodeARKStepMem arkstep_mem;
+  ARKodeARKStepMem step_mem;
   sunindextype Blrw, Bliw;
   int ier, j;
 
@@ -584,18 +584,18 @@ int arkStep_Init(void* arkode_mem)
                     "arkStep_Init", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
 
   /* destroy adaptivity structure if fixed-stepping is requested */
   if (ark_mem->fixedstep) 
-    if (arkstep_mem->hadapt_mem != NULL) {
-      free(arkstep_mem->hadapt_mem);
-      arkstep_mem->hadapt_mem = NULL;
+    if (step_mem->hadapt_mem != NULL) {
+      free(step_mem->hadapt_mem);
+      step_mem->hadapt_mem = NULL;
     }
   
   /* Set first step growth factor */
-  if (arkstep_mem->hadapt_mem != NULL)
-    arkstep_mem->hadapt_mem->etamax = arkstep_mem->hadapt_mem->etamx1;
+  if (step_mem->hadapt_mem != NULL)
+    step_mem->hadapt_mem->etamax = step_mem->hadapt_mem->etamx1;
 
   /* Create Butcher tables (if not already set) */
   ier = arkStep_SetButcherTables(ark_mem);
@@ -614,52 +614,52 @@ int arkStep_Init(void* arkode_mem)
   }
 
   /* note Butcher table space requirements */
-  ButcherTableSpace(arkstep_mem->Be, &Bliw, &Blrw);
+  ButcherTableSpace(step_mem->Be, &Bliw, &Blrw);
   ark_mem->liw += Bliw;
   ark_mem->lrw += Blrw;
-  ButcherTableSpace(arkstep_mem->Bi, &Bliw, &Blrw);
+  ButcherTableSpace(step_mem->Bi, &Bliw, &Blrw);
   ark_mem->liw += Bliw;
   ark_mem->lrw += Blrw;
   
   /* Allocate ARK RHS vector memory, update storage requirements */
   /*   Allocate Fe[0] ... Fe[stages-1] if needed */
-  if (arkstep_mem->explicit) {
-    if (arkstep_mem->Fe == NULL) 
-      arkstep_mem->Fe = (N_Vector *) calloc(arkstep_mem->stages, sizeof(N_Vector));
-    for (j=0; j<arkstep_mem->stages; j++) {
-      if (!arkAllocVec(ark_mem, ark_mem->ewt, &(arkstep_mem->Fe[j])))
+  if (step_mem->explicit) {
+    if (step_mem->Fe == NULL) 
+      step_mem->Fe = (N_Vector *) calloc(step_mem->stages, sizeof(N_Vector));
+    for (j=0; j<step_mem->stages; j++) {
+      if (!arkAllocVec(ark_mem, ark_mem->ewt, &(step_mem->Fe[j])))
         return(ARK_MEM_FAIL);
     }
-    ark_mem->liw += arkstep_mem->stages;  /* pointers */
+    ark_mem->liw += step_mem->stages;  /* pointers */
   }
 
   /*   Allocate Fi[0] ... Fi[stages-1] if needed */
-  if (arkstep_mem->implicit) {
-    if (arkstep_mem->Fi == NULL) 
-      arkstep_mem->Fi = (N_Vector *) calloc(arkstep_mem->stages, sizeof(N_Vector));
-    for (j=0; j<arkstep_mem->stages; j++) {
-      if (!arkAllocVec(ark_mem, ark_mem->ewt, &(arkstep_mem->Fi[j])))
+  if (step_mem->implicit) {
+    if (step_mem->Fi == NULL) 
+      step_mem->Fi = (N_Vector *) calloc(step_mem->stages, sizeof(N_Vector));
+    for (j=0; j<step_mem->stages; j++) {
+      if (!arkAllocVec(ark_mem, ark_mem->ewt, &(step_mem->Fi[j])))
         return(ARK_MEM_FAIL);
     }
-    ark_mem->liw += arkstep_mem->stages;  /* pointers */
+    ark_mem->liw += step_mem->stages;  /* pointers */
   }
 
   /* Allocate reusable arrays for fused vector interface */
-  if (arkstep_mem->cvals == NULL) {
-    arkstep_mem->cvals = (realtype *) calloc(2*arkstep_mem->stages+1, sizeof(realtype));
-    if (arkstep_mem->cvals == NULL)  return(ARK_MEM_FAIL);
-    ark_mem->lrw += (2*arkstep_mem->stages + 1);
+  if (step_mem->cvals == NULL) {
+    step_mem->cvals = (realtype *) calloc(2*step_mem->stages+1, sizeof(realtype));
+    if (step_mem->cvals == NULL)  return(ARK_MEM_FAIL);
+    ark_mem->lrw += (2*step_mem->stages + 1);
   }
-  if (arkstep_mem->Xvecs == NULL) {
-    arkstep_mem->Xvecs = (N_Vector *) calloc(2*arkstep_mem->stages+1, sizeof(N_Vector));
-    if (arkstep_mem->Xvecs == NULL)  return(ARK_MEM_FAIL);
-    ark_mem->liw += (2*arkstep_mem->stages + 1);   /* pointers */
+  if (step_mem->Xvecs == NULL) {
+    step_mem->Xvecs = (N_Vector *) calloc(2*step_mem->stages+1, sizeof(N_Vector));
+    if (step_mem->Xvecs == NULL)  return(ARK_MEM_FAIL);
+    ark_mem->liw += (2*step_mem->stages + 1);   /* pointers */
   }
   
   /* Check for consistency between linear system modules 
      (if lsolve is direct, msolve needs to match) */
-  if (arkstep_mem->mass_mem != NULL) {  /* M != I */
-    if (arkstep_mem->lsolve_type != arkstep_mem->msolve_type) {
+  if (step_mem->mass_mem != NULL) {  /* M != I */
+    if (step_mem->lsolve_type != step_mem->msolve_type) {
       arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::ARKStep", "arkStep_Init", 
                       "Incompatible linear and mass matrix solvers");
       return(ARK_ILL_INPUT);
@@ -667,11 +667,11 @@ int arkStep_Init(void* arkode_mem)
   }
 
   /* Perform mass matrix solver initialization and setup (if applicable) */
-  if (arkstep_mem->mass_mem != NULL) {
+  if (step_mem->mass_mem != NULL) {
 
     /* Call minit (if it exists) */
-    if (arkstep_mem->minit != NULL) {
-      ier = arkstep_mem->minit((void *) ark_mem);
+    if (step_mem->minit != NULL) {
+      ier = step_mem->minit((void *) ark_mem);
       if (ier != 0) {
         arkProcessError(ark_mem, ARK_MASSINIT_FAIL, "ARKODE::ARKStep", 
                         "arkStep_Init", MSG_ARK_MASSINIT_FAIL);
@@ -680,27 +680,27 @@ int arkStep_Init(void* arkode_mem)
     }
 
     /* Call msetup (if it exists) -- use ewt, ark_tempv2 and sdata as temp vectors */
-    if (arkstep_mem->msetup != NULL) {
-      ier = arkstep_mem->msetup((void *) ark_mem, ark_mem->ewt,
-                                ark_mem->tempv2, arkstep_mem->sdata);
+    if (step_mem->msetup != NULL) {
+      ier = step_mem->msetup((void *) ark_mem, ark_mem->ewt,
+                                ark_mem->tempv2, step_mem->sdata);
       if (ier != 0) {
         arkProcessError(ark_mem, ARK_MASSSETUP_FAIL, "ARKODE::ARKStep", 
                         "arkStep_Init", MSG_ARK_MASSSETUP_FAIL);
         return(ARK_MASSSETUP_FAIL);
-        arkstep_mem->msetuptime = ark_mem->tcur;
+        step_mem->msetuptime = ark_mem->tcur;
       }
     }
   }
 
   /* Check if lsolve function exists and call linit (if it exists) */
-  if (arkstep_mem->implicit && !arkstep_mem->use_fp) {
-    if (arkstep_mem->lsolve == NULL) {
+  if (step_mem->implicit && !step_mem->use_fp) {
+    if (step_mem->lsolve == NULL) {
       arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKODE::ARKStep", 
                       "arkStep_Init", MSG_ARK_LSOLVE_NULL);
       return(ARK_ILL_INPUT);
     }
-    if (arkstep_mem->linit) {
-      ier = arkstep_mem->linit(ark_mem);
+    if (step_mem->linit) {
+      ier = step_mem->linit(ark_mem);
       if (ier != 0) {
         arkProcessError(ark_mem, ARK_LINIT_FAIL, "ARKODE::ARKStep", 
                         "arkStep_Init", MSG_ARK_LINIT_FAIL);
@@ -710,9 +710,9 @@ int arkStep_Init(void* arkode_mem)
   }
 
   /* Allocate fixed-point solver memory */
-  if ( (arkstep_mem->use_fp) && (arkstep_mem->fp_mem == NULL) ){
-    arkstep_mem->fp_mem = arkAllocFPData(ark_mem, arkstep_mem->fp_m);
-    if (arkstep_mem->fp_mem == NULL) {
+  if ( (step_mem->use_fp) && (step_mem->fp_mem == NULL) ){
+    step_mem->fp_mem = arkAllocFPData(ark_mem, step_mem->fp_m);
+    if (step_mem->fp_mem == NULL) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ARKStep", "arkStep_Init",
                       "Unable to allocate fixed-point solver memory");
       return(ARK_MEM_FAIL);
@@ -720,7 +720,7 @@ int arkStep_Init(void* arkode_mem)
   }
 
   /* Allocate interpolation memory (if unallocated, and needed) */
-  if ((ark_mem->interp == NULL) && (arkstep_mem->predictor > 0)) {
+  if ((ark_mem->interp == NULL) && (step_mem->predictor > 0)) {
     ark_mem->interp = arkInterpCreate(ark_mem);
     if (ark_mem->interp == NULL) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ARKStep", "arkStep_Init",
@@ -764,7 +764,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
                     N_Vector y, N_Vector f, int mode)
 {
   ARKodeMem ark_mem;
-  ARKodeARKStepMem arkstep_mem;
+  ARKodeARKStepMem step_mem;
   int retval;
   booleantype recomputeRHS;
   
@@ -780,16 +780,16 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
                     "arkStep_FullRHS", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
 
   /* if the problem involves a non-identity mass matrix and setup is
      required, do so here (use f, ark_tempv2 and sdata as a temporaries) */
-  if ( (arkstep_mem->mass_mem != NULL) && (arkstep_mem->msetup != NULL) )
-    if (SUNRabs(arkstep_mem->msetuptime - t) > FUZZ_FACTOR*ark_mem->uround) {
-      retval = arkstep_mem->msetup((void *) ark_mem, f, ark_mem->tempv2,
-                                   arkstep_mem->sdata);
+  if ( (step_mem->mass_mem != NULL) && (step_mem->msetup != NULL) )
+    if (SUNRabs(step_mem->msetuptime - t) > FUZZ_FACTOR*ark_mem->uround) {
+      retval = step_mem->msetup((void *) ark_mem, f, ark_mem->tempv2,
+                                   step_mem->sdata);
       if (retval != ARK_SUCCESS)  return(ARK_MASSSETUP_FAIL);
-      arkstep_mem->msetuptime = t;
+      step_mem->msetuptime = t;
     }
 
   /* perform RHS functions contingent on 'mode' argument */
@@ -801,9 +801,9 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
   case 0:
 
     /* call fe if the problem has an explicit component */
-    if (arkstep_mem->explicit) {
-      retval = arkstep_mem->fe(t, y, arkstep_mem->Fe[0], ark_mem->user_data);
-      arkstep_mem->nfe++;
+    if (step_mem->explicit) {
+      retval = step_mem->fe(t, y, step_mem->Fe[0], ark_mem->user_data);
+      step_mem->nfe++;
       if (retval != 0) {
         arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::ARKStep",
                         "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
@@ -812,9 +812,9 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
     }
 
     /* call fi if the problem has an implicit component */
-    if (arkstep_mem->implicit) {
-      retval = arkstep_mem->fi(t, y, arkstep_mem->Fi[0], ark_mem->user_data);
-      arkstep_mem->nfi++;
+    if (step_mem->implicit) {
+      retval = step_mem->fi(t, y, step_mem->Fi[0], ark_mem->user_data);
+      step_mem->nfi++;
       if (retval != 0) {
         arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::ARKStep", 
                         "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, y);
@@ -823,12 +823,12 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
     }
 
     /* combine RHS vector(s) into output */
-    if (arkstep_mem->explicit && arkstep_mem->implicit) { /* ImEx */
-      N_VLinearSum(ONE, arkstep_mem->Fi[0], ONE, arkstep_mem->Fe[0], f);
-    } else if (arkstep_mem->implicit) {                   /* implicit */
-      N_VScale(ONE, arkstep_mem->Fi[0], f);
+    if (step_mem->explicit && step_mem->implicit) { /* ImEx */
+      N_VLinearSum(ONE, step_mem->Fi[0], ONE, step_mem->Fe[0], f);
+    } else if (step_mem->implicit) {                   /* implicit */
+      N_VScale(ONE, step_mem->Fi[0], f);
     } else {                                              /* explicit */
-      N_VScale(ONE, arkstep_mem->Fe[0], f);
+      N_VScale(ONE, step_mem->Fe[0], f);
     }
 
     break;
@@ -842,18 +842,18 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
 
     /* determine if explicit/implicit RHS functions need to be recomputed */
     recomputeRHS = SUNFALSE;
-    if ( arkstep_mem->explicit && (SUNRabs(arkstep_mem->Be->c[arkstep_mem->stages-1]-ONE)>TINY) )
+    if ( step_mem->explicit && (SUNRabs(step_mem->Be->c[step_mem->stages-1]-ONE)>TINY) )
       recomputeRHS = SUNTRUE;
-    if ( arkstep_mem->implicit && (SUNRabs(arkstep_mem->Bi->c[arkstep_mem->stages-1]-ONE)>TINY) )
+    if ( step_mem->implicit && (SUNRabs(step_mem->Bi->c[step_mem->stages-1]-ONE)>TINY) )
       recomputeRHS = SUNTRUE;
 
     /* base RHS calls on recomputeRHS argument */
     if (recomputeRHS) {
       
       /* call fe if the problem has an explicit component */
-      if (arkstep_mem->explicit) {
-        retval = arkstep_mem->fe(t, y, arkstep_mem->Fe[0], ark_mem->user_data);
-        arkstep_mem->nfe++;
+      if (step_mem->explicit) {
+        retval = step_mem->fe(t, y, step_mem->Fe[0], ark_mem->user_data);
+        step_mem->nfe++;
         if (retval != 0) {
           arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::ARKStep",
                           "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
@@ -862,9 +862,9 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
       }
       
       /* call fi if the problem has an implicit component */
-      if (arkstep_mem->implicit) {
-        retval = arkstep_mem->fi(t, y, arkstep_mem->Fi[0], ark_mem->user_data);
-        arkstep_mem->nfi++;
+      if (step_mem->implicit) {
+        retval = step_mem->fi(t, y, step_mem->Fi[0], ark_mem->user_data);
+        step_mem->nfi++;
         if (retval != 0) {
           arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::ARKStep", 
                           "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, y);
@@ -872,19 +872,19 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
         }
       }
     } else {
-      if (arkstep_mem->explicit) 
-        N_VScale(ONE, arkstep_mem->Fe[arkstep_mem->stages-1], arkstep_mem->Fe[0]);
-      if (arkstep_mem->implicit) 
-        N_VScale(ONE, arkstep_mem->Fi[arkstep_mem->stages-1], arkstep_mem->Fi[0]);
+      if (step_mem->explicit) 
+        N_VScale(ONE, step_mem->Fe[step_mem->stages-1], step_mem->Fe[0]);
+      if (step_mem->implicit) 
+        N_VScale(ONE, step_mem->Fi[step_mem->stages-1], step_mem->Fi[0]);
     }
 
     /* combine RHS vector(s) into output */
-    if (arkstep_mem->explicit && arkstep_mem->implicit) { /* ImEx */
-      N_VLinearSum(ONE, arkstep_mem->Fi[0], ONE, arkstep_mem->Fe[0], f);
-    } else if (arkstep_mem->implicit) {                   /* implicit */
-      N_VScale(ONE, arkstep_mem->Fi[0], f);
+    if (step_mem->explicit && step_mem->implicit) { /* ImEx */
+      N_VLinearSum(ONE, step_mem->Fi[0], ONE, step_mem->Fe[0], f);
+    } else if (step_mem->implicit) {                   /* implicit */
+      N_VScale(ONE, step_mem->Fi[0], f);
     } else {                                              /* explicit */
-      N_VScale(ONE, arkstep_mem->Fe[0], f);
+      N_VScale(ONE, step_mem->Fe[0], f);
     }
     
     break;
@@ -895,9 +895,9 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
   default:
 
     /* call fe if the problem has an explicit component (store in ark_tempv2) */
-    if (arkstep_mem->explicit) {
-      retval = arkstep_mem->fe(t, y, ark_mem->tempv2, ark_mem->user_data);
-      arkstep_mem->nfe++;
+    if (step_mem->explicit) {
+      retval = step_mem->fe(t, y, ark_mem->tempv2, ark_mem->user_data);
+      step_mem->nfe++;
       if (retval != 0) {
         arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::ARKStep",
                         "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
@@ -906,9 +906,9 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
     }
 
     /* call fi if the problem has an implicit component (store in sdata) */
-    if (arkstep_mem->implicit) {
-      retval = arkstep_mem->fi(t, y, arkstep_mem->sdata, ark_mem->user_data);
-      arkstep_mem->nfi++;
+    if (step_mem->implicit) {
+      retval = step_mem->fi(t, y, step_mem->sdata, ark_mem->user_data);
+      step_mem->nfi++;
       if (retval != 0) {
         arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKODE::ARKStep", 
                         "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, y);
@@ -917,10 +917,10 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
     }
 
     /* combine RHS vector(s) into output */
-    if (arkstep_mem->explicit && arkstep_mem->implicit) { /* ImEx */
-      N_VLinearSum(ONE, arkstep_mem->sdata, ONE, ark_mem->tempv2, f);
-    } else if (arkstep_mem->implicit) {                   /* implicit */
-      N_VScale(ONE, arkstep_mem->sdata, f);
+    if (step_mem->explicit && step_mem->implicit) { /* ImEx */
+      N_VLinearSum(ONE, step_mem->sdata, ONE, ark_mem->tempv2, f);
+    } else if (step_mem->implicit) {                   /* implicit */
+      N_VScale(ONE, step_mem->sdata, f);
     } else {                                              /* explicit */
       N_VScale(ONE, ark_mem->tempv2, f);
     }
@@ -931,11 +931,11 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
   
   /* if M != I, then update f = M^{-1}*f 
      MAY WANT TO MOVE THIS TO BE CONDITIONALLY CALLED INSIDE THE PRECEDING CASE BLOCKS */
-  if (arkstep_mem->mass_mem != NULL) {
+  if (step_mem->mass_mem != NULL) {
     /* scale RHS */
     N_VScale(ark_mem->h, f, f);
     /* update fnew = M^{-1}*fnew */
-    retval = arkstep_mem->msolve((void *) ark_mem, f, arkstep_mem->nlscoef); 
+    retval = step_mem->msolve((void *) ark_mem, f, step_mem->nlscoef); 
     /* scale result */
     N_VScale(ONE/ark_mem->h, f, f);
     if (retval != ARK_SUCCESS) {
@@ -966,7 +966,7 @@ int arkStep_TakeStep(void* arkode_mem)
   int retval, ncf, nef, is, nflag, kflag, eflag;
   booleantype implicit_stage;
   ARKodeMem ark_mem;
-  ARKodeARKStepMem arkstep_mem;
+  ARKodeARKStepMem step_mem;
 
   /* access ARKodeARKStepMem structure */
   if (arkode_mem==NULL) {
@@ -980,7 +980,7 @@ int arkStep_TakeStep(void* arkode_mem)
                     "arkStep_TakeStep", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
   
   ncf = nef = 0;
   nflag = FIRST_CALL;
@@ -991,19 +991,19 @@ int arkStep_TakeStep(void* arkode_mem)
   for(;;) {  
 
     /* increment attempt counter */
-    arkstep_mem->nst_attempts++;
+    step_mem->nst_attempts++;
 
     /* Loop over internal stages to the step */
-    for (is=0; is<arkstep_mem->stages; is++) {
+    for (is=0; is<step_mem->stages; is++) {
 
       /* store current stage index */
-      arkstep_mem->istage = is;
+      step_mem->istage = is;
 
       /* Set current stage time(s) */
-      if (arkstep_mem->implicit)
-        ark_mem->tcur = ark_mem->tn + arkstep_mem->Bi->c[is]*ark_mem->h;
+      if (step_mem->implicit)
+        ark_mem->tcur = ark_mem->tn + step_mem->Bi->c[is]*ark_mem->h;
       else
-        ark_mem->tcur = ark_mem->tn + arkstep_mem->Be->c[is]*ark_mem->h;
+        ark_mem->tcur = ark_mem->tn + step_mem->Be->c[is]*ark_mem->h;
         
 #ifdef DEBUG_OUTPUT
  printf("step %li,  stage %i,  h = %"RSYM",  t_n = %"RSYM"\n", 
@@ -1012,21 +1012,21 @@ int arkStep_TakeStep(void* arkode_mem)
       
       /* determine whether implicit solve is required */
       implicit_stage = SUNFALSE;
-      if (arkstep_mem->implicit) 
-        if (SUNRabs(arkstep_mem->Bi->A[is][is]) > TINY)
+      if (step_mem->implicit) 
+        if (SUNRabs(step_mem->Bi->A[is][is]) > TINY)
           implicit_stage = SUNTRUE;
 
       /* Call predictor for current stage solution (result placed in zpred) */
       if (implicit_stage) {
-        eflag = arkStep_Predict(ark_mem, is, arkstep_mem->zpred);
+        eflag = arkStep_Predict(ark_mem, is, step_mem->zpred);
         if (eflag != ARK_SUCCESS)  return (eflag);
       } else {
-        N_VScale(ONE, ark_mem->yn, arkstep_mem->zpred);
+        N_VScale(ONE, ark_mem->yn, step_mem->zpred);
       }
 
 #ifdef DEBUG_OUTPUT
  printf("predictor:\n");
- N_VPrint_Serial(arkstep_mem->zpred);
+ N_VPrint_Serial(step_mem->zpred);
 #endif
       
       /* Set up data for evaluation of ARK stage residual (data stored in sdata) */
@@ -1035,7 +1035,7 @@ int arkStep_TakeStep(void* arkode_mem)
 
 #ifdef DEBUG_OUTPUT
  printf("rhs data:\n");
- N_VPrint_Serial(arkstep_mem->sdata);
+ N_VPrint_Serial(step_mem->sdata);
 #endif
 
       /* Solver diagnostics reporting */
@@ -1072,26 +1072,26 @@ int arkStep_TakeStep(void* arkode_mem)
       } else {
 
         /* if M!=I, solve with M to compute update (place back in sdata) */
-        if (arkstep_mem->mass_mem != NULL) {
+        if (step_mem->mass_mem != NULL) {
 
           /* /\* call msetup if needed -- NEED TEMPVEC1 and TEMPVEC2 *\/ */
-          /* if (arkstep_mem->msetup != NULL) { */
-          /*   if (SUNRabs(arkstep_mem->msetuptime - ark_mem->tcur) > */
+          /* if (step_mem->msetup != NULL) { */
+          /*   if (SUNRabs(step_mem->msetuptime - ark_mem->tcur) > */
           /*       FUZZ_FACTOR*ark_mem->uround) { */
-          /*     eflag = arkstep_mem->msetup((void *) ark_mem, ark_mem->tcur, */
+          /*     eflag = step_mem->msetup((void *) ark_mem, ark_mem->tcur, */
           /*                                 ark_mem->ycur, TEMPVEC1, TEMPVEC2); */
           /*     if (eflag != ARK_SUCCESS) { */
           /*       arkProcessError(ark_mem, ARK_MASSSETUP_FAIL, "ARKODE::ARKStep", */
           /*                       "arkStep_TakeStep", MSG_ARK_MASSSSETUP_FAIL); */
           /*       return(ARK_MASSSETUP_FAIL); */
           /*     } */
-          /*     arkstep_mem->msetuptime = tend; */
+          /*     step_mem->msetuptime = tend; */
           /*   } */
           /* } */
 
           /* perform mass matrix solve */
-          nflag = arkstep_mem->msolve((void *) ark_mem, arkstep_mem->sdata,
-                                      arkstep_mem->nlscoef); 
+          nflag = step_mem->msolve((void *) ark_mem, step_mem->sdata,
+                                      step_mem->nlscoef); 
           
           /* check for convergence (on failure, h will have been modified) */
           kflag = arkStep_HandleNFlag(ark_mem, &nflag, &ncf);
@@ -1109,8 +1109,8 @@ int arkStep_TakeStep(void* arkode_mem)
 
         /* if M==I, set y to be zpred + RHS data computed in arkStep_StageSetup */
         } else {
-          N_VLinearSum(ONE, arkstep_mem->sdata, ONE,
-                       arkstep_mem->zpred, ark_mem->ycur);
+          N_VLinearSum(ONE, step_mem->sdata, ONE,
+                       step_mem->zpred, ark_mem->ycur);
         }
 
 #ifdef DEBUG_OUTPUT
@@ -1122,20 +1122,20 @@ int arkStep_TakeStep(void* arkode_mem)
 
       /* successful stage solve */
       /*    store implicit RHS (value in Fi[is] is from preceding nonlinear iteration) */
-      if (arkstep_mem->implicit) {
-        retval = arkstep_mem->fi(ark_mem->tcur, ark_mem->ycur,
-                                 arkstep_mem->Fi[is], ark_mem->user_data);
-        arkstep_mem->nfi++; 
+      if (step_mem->implicit) {
+        retval = step_mem->fi(ark_mem->tcur, ark_mem->ycur,
+                                 step_mem->Fi[is], ark_mem->user_data);
+        step_mem->nfi++; 
         if (retval < 0)  return(ARK_RHSFUNC_FAIL);
         if (retval > 0)  return(ARK_UNREC_RHSFUNC_ERR);
       }
 
       /*    store explicit RHS if necessary
             (already computed at first stage of purely explicit runs) */
-      if (arkstep_mem->explicit) {
-          retval = arkstep_mem->fe(ark_mem->tn + arkstep_mem->Be->c[is]*ark_mem->h,
-                                   ark_mem->ycur, arkstep_mem->Fe[is], ark_mem->user_data);
-          arkstep_mem->nfe++;
+      if (step_mem->explicit) {
+          retval = step_mem->fe(ark_mem->tn + step_mem->Be->c[is]*ark_mem->h,
+                                   ark_mem->ycur, step_mem->Fe[is], ark_mem->user_data);
+          step_mem->nfe++;
           if (retval < 0)  return(ARK_RHSFUNC_FAIL);
           if (retval > 0)  return(ARK_UNREC_RHSFUNC_ERR);
       }
@@ -1199,7 +1199,7 @@ int arkStep_Resize(void* arkode_mem, ARKVecResizeFn resize,
                    sunindextype liw_diff, N_Vector tmpl)
 {
   ARKodeMem ark_mem;
-  ARKodeARKStepMem arkstep_mem;
+  ARKodeARKStepMem step_mem;
   int ier, i;
   
   /* access ARKodeARKStepMem structure */
@@ -1214,41 +1214,41 @@ int arkStep_Resize(void* arkode_mem, ARKVecResizeFn resize,
                     "arkStep_Resize", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
 
   /* Resize the sdata and zpred vectors */
-  if (arkstep_mem->sdata != NULL) {
+  if (step_mem->sdata != NULL) {
     ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                       liw_diff, tmpl, &arkstep_mem->sdata);
+                       liw_diff, tmpl, &step_mem->sdata);
     if (ier != ARK_SUCCESS)  return(ier);
   }
-  if (arkstep_mem->zpred != NULL) {
+  if (step_mem->zpred != NULL) {
     ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                       liw_diff, tmpl, &arkstep_mem->zpred);
+                       liw_diff, tmpl, &step_mem->zpred);
     if (ier != ARK_SUCCESS)  return(ier);
   }
   
   /* Resize the ARKStep vectors */
   /*     Fe */
-  if (arkstep_mem->Fe != NULL) {
-    for (i=0; i<arkstep_mem->stages; i++) {
+  if (step_mem->Fe != NULL) {
+    for (i=0; i<step_mem->stages; i++) {
       ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                         liw_diff, tmpl, &arkstep_mem->Fe[i]);
+                         liw_diff, tmpl, &step_mem->Fe[i]);
       if (ier != ARK_SUCCESS)  return(ier);
     }
   }
   /*     Fi */
-  if (arkstep_mem->Fi != NULL) {
-    for (i=0; i<arkstep_mem->stages; i++) {
+  if (step_mem->Fi != NULL) {
+    for (i=0; i<step_mem->stages; i++) {
       ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                         liw_diff, tmpl, &arkstep_mem->Fi[i]);
+                         liw_diff, tmpl, &step_mem->Fi[i]);
       if (ier != ARK_SUCCESS)  return(ier);
     }
   }
 
   /* Resize fixed-point solver memory */
-  if ( (arkstep_mem->use_fp) && (arkstep_mem->fp_mem == NULL) ) {
-    ier = arkResizeFPData(ark_mem, arkstep_mem->fp_mem, resize, 
+  if ( (step_mem->use_fp) && (step_mem->fp_mem == NULL) ) {
+    ier = arkResizeFPData(ark_mem, step_mem->fp_mem, resize, 
                           resize_data, lrw_diff, liw_diff, tmpl);
     if (ier != ARK_SUCCESS) {
       arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKODE::ARKStep",
@@ -1259,9 +1259,9 @@ int arkStep_Resize(void* arkode_mem, ARKVecResizeFn resize,
 
   /* Re-initialize the linear solver (assumes that solver 
      memory has already been resized appropriately) */
-  if (arkstep_mem->implicit) {
-    if (arkstep_mem->linit != NULL) {
-      ier = arkstep_mem->linit(ark_mem);
+  if (step_mem->implicit) {
+    if (step_mem->linit != NULL) {
+      ier = step_mem->linit(ark_mem);
       if (ier != 0) {
         arkProcessError(ark_mem, ARK_LINIT_FAIL, "ARKODE::ARKStep", 
                         "arkStep_Resize", MSG_ARK_LINIT_FAIL);
@@ -1272,8 +1272,8 @@ int arkStep_Resize(void* arkode_mem, ARKVecResizeFn resize,
 
   /* Re-initialize the mass matrix solver (assumes that solver 
      memory has already been resized appropriately) */
-  if (arkstep_mem->minit != NULL) {
-    ier = arkstep_mem->minit((void *) ark_mem);
+  if (step_mem->minit != NULL) {
+    ier = step_mem->minit((void *) ark_mem);
     if (ier != 0) {
       arkProcessError(ark_mem, ARK_MASSINIT_FAIL, "ARKODE::ARKStep", 
                       "arkStep_Resize", MSG_ARK_MASSINIT_FAIL);
@@ -1294,7 +1294,7 @@ int arkStep_Resize(void* arkode_mem, ARKVecResizeFn resize,
 void arkStep_PrintMem(void* arkode_mem, FILE* outfile)
 {
   ARKodeMem ark_mem;
-  ARKodeARKStepMem arkstep_mem;
+  ARKodeARKStepMem step_mem;
   int i;
 
   /* access ARKodeARKStepMem structure */
@@ -1309,102 +1309,102 @@ void arkStep_PrintMem(void* arkode_mem, FILE* outfile)
                     "arkStep_PrintMem", MSG_ARKSTEP_NO_MEM);
     return;
   }
-  arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
   
   /* output integer quantities */
-  fprintf(outfile,"ARKStep: q = %i\n", arkstep_mem->q);
-  fprintf(outfile,"ARKStep: p = %i\n", arkstep_mem->p);
-  fprintf(outfile,"ARKStep: istage = %i\n", arkstep_mem->istage);
-  fprintf(outfile,"ARKStep: stages = %i\n", arkstep_mem->stages);
-  fprintf(outfile,"ARKStep: mnewt = %i\n", arkstep_mem->mnewt);
-  fprintf(outfile,"ARKStep: maxcor = %i\n", arkstep_mem->maxcor);
-  fprintf(outfile,"ARKStep: maxnef = %i\n", arkstep_mem->maxnef);
-  fprintf(outfile,"ARKStep: maxncf = %i\n", arkstep_mem->maxncf);
-  fprintf(outfile,"ARKStep: msbp = %i\n", arkstep_mem->msbp);
-  fprintf(outfile,"ARKStep: predictor = %i\n", arkstep_mem->predictor);
-  fprintf(outfile,"ARKStep: lsolve_type = %i\n", arkstep_mem->lsolve_type);
-  fprintf(outfile,"ARKStep: msolve_type = %i\n", arkstep_mem->msolve_type);
+  fprintf(outfile,"ARKStep: q = %i\n", step_mem->q);
+  fprintf(outfile,"ARKStep: p = %i\n", step_mem->p);
+  fprintf(outfile,"ARKStep: istage = %i\n", step_mem->istage);
+  fprintf(outfile,"ARKStep: stages = %i\n", step_mem->stages);
+  fprintf(outfile,"ARKStep: mnewt = %i\n", step_mem->mnewt);
+  fprintf(outfile,"ARKStep: maxcor = %i\n", step_mem->maxcor);
+  fprintf(outfile,"ARKStep: maxnef = %i\n", step_mem->maxnef);
+  fprintf(outfile,"ARKStep: maxncf = %i\n", step_mem->maxncf);
+  fprintf(outfile,"ARKStep: msbp = %i\n", step_mem->msbp);
+  fprintf(outfile,"ARKStep: predictor = %i\n", step_mem->predictor);
+  fprintf(outfile,"ARKStep: lsolve_type = %i\n", step_mem->lsolve_type);
+  fprintf(outfile,"ARKStep: msolve_type = %i\n", step_mem->msolve_type);
 
   /* output long integer quantities */
-  fprintf(outfile,"ARKStep: nst_attempts = %li\n", arkstep_mem->nst_attempts);
-  fprintf(outfile,"ARKStep: nfe = %li\n", arkstep_mem->nfe);
-  fprintf(outfile,"ARKStep: nfi = %li\n", arkstep_mem->nfi);
-  fprintf(outfile,"ARKStep: ncfn = %li\n", arkstep_mem->ncfn);
-  fprintf(outfile,"ARKStep: netf = %li\n", arkstep_mem->netf);
-  fprintf(outfile,"ARKStep: nni = %li\n", arkstep_mem->nni);
-  fprintf(outfile,"ARKStep: nsetups = %li\n", arkstep_mem->nsetups);
-  fprintf(outfile,"ARKStep: use_fp = %i\n", arkstep_mem->use_fp);
-  if (arkstep_mem->fp_mem != NULL) {
+  fprintf(outfile,"ARKStep: nst_attempts = %li\n", step_mem->nst_attempts);
+  fprintf(outfile,"ARKStep: nfe = %li\n", step_mem->nfe);
+  fprintf(outfile,"ARKStep: nfi = %li\n", step_mem->nfi);
+  fprintf(outfile,"ARKStep: ncfn = %li\n", step_mem->ncfn);
+  fprintf(outfile,"ARKStep: netf = %li\n", step_mem->netf);
+  fprintf(outfile,"ARKStep: nni = %li\n", step_mem->nni);
+  fprintf(outfile,"ARKStep: nsetups = %li\n", step_mem->nsetups);
+  fprintf(outfile,"ARKStep: use_fp = %i\n", step_mem->use_fp);
+  if (step_mem->fp_mem != NULL) {
     fprintf(outfile,"ARKStep: fixed-point solver structure:\n");
-    fprintf(outfile, "    m = %li\n", arkstep_mem->fp_mem->m);
-    if (arkstep_mem->fp_mem->imap != NULL)
-      for (i=0; i<arkstep_mem->fp_mem->m; i++)
-        fprintf(outfile, "   imap[%i] = %li\n", i, arkstep_mem->fp_mem->imap[i]);
-    if (arkstep_mem->fp_mem->R != NULL) {
+    fprintf(outfile, "    m = %li\n", step_mem->fp_mem->m);
+    if (step_mem->fp_mem->imap != NULL)
+      for (i=0; i<step_mem->fp_mem->m; i++)
+        fprintf(outfile, "   imap[%i] = %li\n", i, step_mem->fp_mem->imap[i]);
+    if (step_mem->fp_mem->R != NULL) {
       fprintf(outfile, "    R =  ");
-      for (i=0; i<arkstep_mem->fp_mem->m*arkstep_mem->fp_mem->m; i++)
-        fprintf(outfile, "%"RSYM"  ", arkstep_mem->fp_mem->R[i]);
+      for (i=0; i<step_mem->fp_mem->m*step_mem->fp_mem->m; i++)
+        fprintf(outfile, "%"RSYM"  ", step_mem->fp_mem->R[i]);
       fprintf(outfile, "\n");
     }
-    if (arkstep_mem->fp_mem->gamma != NULL) {
+    if (step_mem->fp_mem->gamma != NULL) {
       fprintf(outfile, "    gamma =  ");
-      for (i=0; i<arkstep_mem->fp_mem->m; i++)
-        fprintf(outfile, "%"RSYM"  ", arkstep_mem->fp_mem->gamma[i]);
+      for (i=0; i<step_mem->fp_mem->m; i++)
+        fprintf(outfile, "%"RSYM"  ", step_mem->fp_mem->gamma[i]);
       fprintf(outfile, "\n");
     }
   }
-  fprintf(outfile,"ARKStep: nstlp = %li\n", arkstep_mem->nstlp);
+  fprintf(outfile,"ARKStep: nstlp = %li\n", step_mem->nstlp);
 
   /* output boolean quantities */
-  fprintf(outfile,"ARKStep: user_linear = %i\n", arkstep_mem->linear);
-  fprintf(outfile,"ARKStep: user_linear_timedep = %i\n", arkstep_mem->linear_timedep);
-  fprintf(outfile,"ARKStep: user_explicit = %i\n", arkstep_mem->explicit);
-  fprintf(outfile,"ARKStep: user_implicit = %i\n", arkstep_mem->implicit);
-  fprintf(outfile,"ARKStep: hadapt_pq = %i\n", arkstep_mem->hadapt_pq);
-  fprintf(outfile,"ARKStep: jcur = %i\n", arkstep_mem->jcur);
+  fprintf(outfile,"ARKStep: user_linear = %i\n", step_mem->linear);
+  fprintf(outfile,"ARKStep: user_linear_timedep = %i\n", step_mem->linear_timedep);
+  fprintf(outfile,"ARKStep: user_explicit = %i\n", step_mem->explicit);
+  fprintf(outfile,"ARKStep: user_implicit = %i\n", step_mem->implicit);
+  fprintf(outfile,"ARKStep: hadapt_pq = %i\n", step_mem->hadapt_pq);
+  fprintf(outfile,"ARKStep: jcur = %i\n", step_mem->jcur);
 
   /* output realtype quantities */
-  if (arkstep_mem->Be != NULL) {
+  if (step_mem->Be != NULL) {
     fprintf(outfile,"ARKStep: explicit Butcher table:\n");
-    WriteButcherTable(arkstep_mem->Be, outfile);
+    WriteButcherTable(step_mem->Be, outfile);
   }
-  if (arkstep_mem->Bi != NULL) {
+  if (step_mem->Bi != NULL) {
     fprintf(outfile,"ARKStep: implicit Butcher table:\n");
-    WriteButcherTable(arkstep_mem->Bi, outfile);
+    WriteButcherTable(step_mem->Bi, outfile);
   }
-  fprintf(outfile,"ARKStep: gamma = %"RSYM"\n", arkstep_mem->gamma);
-  fprintf(outfile,"ARKStep: gammap = %"RSYM"\n", arkstep_mem->gammap);
-  fprintf(outfile,"ARKStep: gamrat = %"RSYM"\n", arkstep_mem->gamrat);
-  fprintf(outfile,"ARKStep: crate = %"RSYM"\n", arkstep_mem->crate);
-  fprintf(outfile,"ARKStep: eRNrm = %"RSYM"\n", arkstep_mem->eRNrm);
-  fprintf(outfile,"ARKStep: nlscoef = %"RSYM"\n", arkstep_mem->nlscoef);
-  if (arkstep_mem->hadapt_mem != NULL) {
+  fprintf(outfile,"ARKStep: gamma = %"RSYM"\n", step_mem->gamma);
+  fprintf(outfile,"ARKStep: gammap = %"RSYM"\n", step_mem->gammap);
+  fprintf(outfile,"ARKStep: gamrat = %"RSYM"\n", step_mem->gamrat);
+  fprintf(outfile,"ARKStep: crate = %"RSYM"\n", step_mem->crate);
+  fprintf(outfile,"ARKStep: eRNrm = %"RSYM"\n", step_mem->eRNrm);
+  fprintf(outfile,"ARKStep: nlscoef = %"RSYM"\n", step_mem->nlscoef);
+  if (step_mem->hadapt_mem != NULL) {
     fprintf(outfile,"ARKStep: timestep adaptivity structure:\n");
-    arkPrintAdaptMem(arkstep_mem->hadapt_mem, outfile);
+    arkPrintAdaptMem(step_mem->hadapt_mem, outfile);
   }
-  fprintf(outfile,"ARKStep: crdown = %"RSYM"\n", arkstep_mem->crdown);
-  fprintf(outfile,"ARKStep: rdiv = %"RSYM"\n", arkstep_mem->rdiv);
-  fprintf(outfile,"ARKStep: dgmax = %"RSYM"\n", arkstep_mem->dgmax);
+  fprintf(outfile,"ARKStep: crdown = %"RSYM"\n", step_mem->crdown);
+  fprintf(outfile,"ARKStep: rdiv = %"RSYM"\n", step_mem->rdiv);
+  fprintf(outfile,"ARKStep: dgmax = %"RSYM"\n", step_mem->dgmax);
 
 #ifdef DEBUG_OUTPUT
   /* output vector quantities */  
-  if (arkstep_mem->sdata != NULL) {
+  if (step_mem->sdata != NULL) {
     fprintf(outfile, "ARKStep: sdata:\n");
-    N_VPrint_Serial(arkstep_mem->sdata);
+    N_VPrint_Serial(step_mem->sdata);
   }
-  if (arkstep_mem->zpred != NULL) {
+  if (step_mem->zpred != NULL) {
     fprintf(outfile, "ARKStep: zpred:\n");
-    N_VPrint_Serial(arkstep_mem->zpred);
+    N_VPrint_Serial(step_mem->zpred);
   }
-  if (arkstep_mem->Fe != NULL) 
-    for (i=0; i<arkstep_mem->stages; i++) {
+  if (step_mem->Fe != NULL) 
+    for (i=0; i<step_mem->stages; i++) {
       fprintf(outfile,"ARKStep: Fe[%i]:\n", i);
-      N_VPrint_Serial(arkstep_mem->Fe[i]);
+      N_VPrint_Serial(step_mem->Fe[i]);
     }
-  if (arkstep_mem->Fi != NULL) 
-    for (i=0; i<arkstep_mem->stages; i++) {
+  if (step_mem->Fi != NULL) 
+    for (i=0; i<step_mem->stages; i++) {
       fprintf(outfile,"ARKStep: Fi[%i]:\n", i);
-      N_VPrint_Serial(arkstep_mem->Fi[i]);
+      N_VPrint_Serial(step_mem->Fi[i]);
     }
 #endif
 }
@@ -1421,92 +1421,92 @@ int arkStep_Free(void* arkode_mem)
   int j;
   sunindextype Bliw, Blrw;
   ARKodeMem ark_mem;
-  ARKodeARKStepMem arkstep_mem;
+  ARKodeARKStepMem step_mem;
 
   /* trivially return if the ARKStep module is not allocated */
   if (arkode_mem == NULL)  return(ARK_SUCCESS);
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL)  return(ARK_SUCCESS);
-  arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
 
   /* free the time step adaptivity module */
-  if (arkstep_mem->hadapt_mem != NULL) {
-    free(arkstep_mem->hadapt_mem);
-    arkstep_mem->hadapt_mem = NULL;
+  if (step_mem->hadapt_mem != NULL) {
+    free(step_mem->hadapt_mem);
+    step_mem->hadapt_mem = NULL;
     ark_mem->lrw -= ARK_ADAPT_LRW;
     ark_mem->liw -= ARK_ADAPT_LIW;
   }
 
   /* free the Butcher tables */
-  if (arkstep_mem->Be != NULL) {
-    ButcherTableSpace(arkstep_mem->Be, &Bliw, &Blrw);
-    FreeButcherTable(arkstep_mem->Be);
-    arkstep_mem->Be = NULL;
+  if (step_mem->Be != NULL) {
+    ButcherTableSpace(step_mem->Be, &Bliw, &Blrw);
+    FreeButcherTable(step_mem->Be);
+    step_mem->Be = NULL;
     ark_mem->liw -= Bliw;
     ark_mem->lrw -= Blrw;
   }
-  if (arkstep_mem->Bi != NULL) {
-    ButcherTableSpace(arkstep_mem->Bi, &Bliw, &Blrw);
-    FreeButcherTable(arkstep_mem->Bi);
-    arkstep_mem->Bi = NULL;
+  if (step_mem->Bi != NULL) {
+    ButcherTableSpace(step_mem->Bi, &Bliw, &Blrw);
+    FreeButcherTable(step_mem->Bi);
+    step_mem->Bi = NULL;
     ark_mem->liw -= Bliw;
     ark_mem->lrw -= Blrw;
   }
 
   /* free the fixed-point solver memory */
-  if (arkstep_mem->fp_mem != NULL) {
-    arkFreeFPData(ark_mem, arkstep_mem->fp_mem);
-    arkstep_mem->fp_mem = NULL;
+  if (step_mem->fp_mem != NULL) {
+    arkFreeFPData(ark_mem, step_mem->fp_mem);
+    step_mem->fp_mem = NULL;
   }
 
   /* free the linear solver memory */
-  if (arkstep_mem->lfree != NULL) {
-    arkstep_mem->lfree((void *) ark_mem);
-    arkstep_mem->lmem = NULL;
+  if (step_mem->lfree != NULL) {
+    step_mem->lfree((void *) ark_mem);
+    step_mem->lmem = NULL;
   }
 
   /* free the mass matrix solver memory */
-  if (arkstep_mem->mfree != NULL) {
-    arkstep_mem->mfree((void *) ark_mem);
-    arkstep_mem->mass_mem = NULL;
+  if (step_mem->mfree != NULL) {
+    step_mem->mfree((void *) ark_mem);
+    step_mem->mass_mem = NULL;
   }
 
   /* free the sdata and zpred vectors */
-  if (arkstep_mem->sdata != NULL) {
-    arkFreeVec(ark_mem, &arkstep_mem->sdata);
-    arkstep_mem->sdata = NULL;
+  if (step_mem->sdata != NULL) {
+    arkFreeVec(ark_mem, &step_mem->sdata);
+    step_mem->sdata = NULL;
   }
-  if (arkstep_mem->zpred != NULL) {
-    arkFreeVec(ark_mem, &arkstep_mem->zpred);
-    arkstep_mem->zpred = NULL;
+  if (step_mem->zpred != NULL) {
+    arkFreeVec(ark_mem, &step_mem->zpred);
+    step_mem->zpred = NULL;
   }
   
   /* free the RHS vectors */
-  if (arkstep_mem->Fe != NULL) {
-    for(j=0; j<arkstep_mem->stages; j++) 
-      arkFreeVec(ark_mem, &arkstep_mem->Fe[j]);
-    free(arkstep_mem->Fe);
-    arkstep_mem->Fe = NULL;
-    ark_mem->liw -= arkstep_mem->stages;
+  if (step_mem->Fe != NULL) {
+    for(j=0; j<step_mem->stages; j++) 
+      arkFreeVec(ark_mem, &step_mem->Fe[j]);
+    free(step_mem->Fe);
+    step_mem->Fe = NULL;
+    ark_mem->liw -= step_mem->stages;
   }
-  if (arkstep_mem->Fi != NULL) {
-    for(j=0; j<arkstep_mem->stages; j++) 
-      arkFreeVec(ark_mem, &arkstep_mem->Fi[j]);
-    free(arkstep_mem->Fi);
-    arkstep_mem->Fi = NULL;
-    ark_mem->liw -= arkstep_mem->stages;
+  if (step_mem->Fi != NULL) {
+    for(j=0; j<step_mem->stages; j++) 
+      arkFreeVec(ark_mem, &step_mem->Fi[j]);
+    free(step_mem->Fi);
+    step_mem->Fi = NULL;
+    ark_mem->liw -= step_mem->stages;
   }
 
   /* free the reusable arrays for fused vector interface */
-  if (arkstep_mem->cvals != NULL) {
-    free(arkstep_mem->cvals);
-    arkstep_mem->cvals = NULL;
-    ark_mem->lrw -= (2*arkstep_mem->stages + 1);
+  if (step_mem->cvals != NULL) {
+    free(step_mem->cvals);
+    step_mem->cvals = NULL;
+    ark_mem->lrw -= (2*step_mem->stages + 1);
   }
-  if (arkstep_mem->Xvecs != NULL) {
-    free(arkstep_mem->Xvecs);
-    arkstep_mem->Xvecs = NULL;
-    ark_mem->liw -= (2*arkstep_mem->stages + 1);
+  if (step_mem->Xvecs != NULL) {
+    free(step_mem->Xvecs);
+    step_mem->Xvecs = NULL;
+    ark_mem->liw -= (2*step_mem->stages + 1);
   }
 
   /* free the time stepper module itself */
@@ -1552,7 +1552,7 @@ booleantype arkStep_CheckNVector(N_Vector tmpl)
 int arkStep_SetButcherTables(ARKodeMem ark_mem)
 {
   int etable, itable;
-  ARKodeARKStepMem arkstep_mem;
+  ARKodeARKStepMem step_mem;
 
   /* access ARKodeARKStepMem structure */
   if (ark_mem->step_mem==NULL) {
@@ -1560,19 +1560,19 @@ int arkStep_SetButcherTables(ARKodeMem ark_mem)
                     "arkStep_SetButcherTables", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
 
   /* if tables have already been specified, just return */
-  if ( (arkstep_mem->Be != NULL) || (arkstep_mem->Bi != NULL) )
+  if ( (step_mem->Be != NULL) || (step_mem->Bi != NULL) )
     return(ARK_SUCCESS);
 
   /* initialize table numbers to illegal values */
   etable = itable = -1;
   
   /**** ImEx methods ****/
-  if (arkstep_mem->explicit && arkstep_mem->implicit) {
+  if (step_mem->explicit && step_mem->implicit) {
     
-    switch (arkstep_mem->q) {
+    switch (step_mem->q) {
       
     case(2):
     case(3):
@@ -1597,9 +1597,9 @@ int arkStep_SetButcherTables(ARKodeMem ark_mem)
     }
     
   /**** implicit methods ****/
-  } else if (arkstep_mem->implicit) {
+  } else if (step_mem->implicit) {
 
-    switch (arkstep_mem->q) {
+    switch (step_mem->q) {
     case(2):
       itable = DEFAULT_DIRK_2;
       break;
@@ -1623,7 +1623,7 @@ int arkStep_SetButcherTables(ARKodeMem ark_mem)
   /**** explicit methods ****/
   } else {
 
-    switch (arkstep_mem->q) {
+    switch (step_mem->q) {
     case(2):
       etable = DEFAULT_ERK_2;
       break;
@@ -1654,20 +1654,20 @@ int arkStep_SetButcherTables(ARKodeMem ark_mem)
   }
 
   if (etable > -1)
-    arkstep_mem->Be = ARKodeLoadButcherTable(etable);
+    step_mem->Be = ARKodeLoadButcherTable(etable);
   if (itable > -1)
-    arkstep_mem->Bi = ARKodeLoadButcherTable(itable);
+    step_mem->Bi = ARKodeLoadButcherTable(itable);
 
   /* set [redundant] ARK stored values for stage numbers and method orders */
-  if (arkstep_mem->Be != NULL) {
-    arkstep_mem->stages = arkstep_mem->Be->stages;
-    arkstep_mem->q = arkstep_mem->Be->q;
-    arkstep_mem->p = arkstep_mem->Be->p;
+  if (step_mem->Be != NULL) {
+    step_mem->stages = step_mem->Be->stages;
+    step_mem->q = step_mem->Be->q;
+    step_mem->p = step_mem->Be->p;
   }
-  if (arkstep_mem->Bi != NULL) {
-    arkstep_mem->stages = arkstep_mem->Bi->stages;
-    arkstep_mem->q = arkstep_mem->Bi->q;
-    arkstep_mem->p = arkstep_mem->Bi->p;
+  if (step_mem->Bi != NULL) {
+    step_mem->stages = step_mem->Bi->stages;
+    step_mem->q = step_mem->Bi->q;
+    step_mem->p = step_mem->Bi->p;
   }
 
   return(ARK_SUCCESS);
@@ -1692,7 +1692,7 @@ int arkStep_CheckButcherTables(ARKodeMem ark_mem)
 {
   int i, j;
   booleantype okay;
-  ARKodeARKStepMem arkstep_mem;
+  ARKodeARKStepMem step_mem;
   realtype tol = RCONST(1.0e-12);
 
   /* access ARKodeARKStepMem structure */
@@ -1701,14 +1701,14 @@ int arkStep_CheckButcherTables(ARKodeMem ark_mem)
                     "arkStep_CheckButcherTables", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
 
   /* check that ERK table is strictly lower triangular */
-  if (arkstep_mem->explicit) {
+  if (step_mem->explicit) {
     okay = SUNTRUE;
-    for (i=0; i<arkstep_mem->stages; i++)
-      for (j=i; j<arkstep_mem->stages; j++)
-        if (SUNRabs(arkstep_mem->Be->A[i][j]) > tol)
+    for (i=0; i<step_mem->stages; i++)
+      for (j=i; j<step_mem->stages; j++)
+        if (SUNRabs(step_mem->Be->A[i][j]) > tol)
           okay = SUNFALSE;
     if (!okay) {
       arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE::ARKStep", 
@@ -1719,10 +1719,10 @@ int arkStep_CheckButcherTables(ARKodeMem ark_mem)
   }
 
   /* check that IRK table is implicit and lower triangular */
-  if (arkstep_mem->implicit) {
+  if (step_mem->implicit) {
     okay = SUNFALSE;
-    for (i=0; i<arkstep_mem->stages; i++)
-      if (SUNRabs(arkstep_mem->Bi->A[i][i]) > tol)
+    for (i=0; i<step_mem->stages; i++)
+      if (SUNRabs(step_mem->Bi->A[i][i]) > tol)
         okay = SUNTRUE;
     if (!okay) {
       arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE::ARKStep", 
@@ -1732,9 +1732,9 @@ int arkStep_CheckButcherTables(ARKodeMem ark_mem)
     }
 
     okay = SUNTRUE;
-    for (i=0; i<arkstep_mem->stages; i++)
-      for (j=i+1; j<arkstep_mem->stages; j++)
-        if (SUNRabs(arkstep_mem->Bi->A[i][j]) > tol)
+    for (i=0; i<step_mem->stages; i++)
+      for (j=i+1; j<step_mem->stages; j++)
+        if (SUNRabs(step_mem->Bi->A[i][j]) > tol)
           okay = SUNFALSE;
     if (!okay) {
       arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE::ARKStep", 
@@ -1745,7 +1745,7 @@ int arkStep_CheckButcherTables(ARKodeMem ark_mem)
   }
 
   /* check that method order q > 0 */
-  if (arkstep_mem->q < 1) {
+  if (step_mem->q < 1) {
     arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE::ARKStep", 
                     "arkStep_CheckButcherTables",
                     "method order < 1!");
@@ -1753,7 +1753,7 @@ int arkStep_CheckButcherTables(ARKodeMem ark_mem)
   }
 
   /* check that embedding order p > 0 */
-  if ((arkstep_mem->p < 1) && (!ark_mem->fixedstep)) {
+  if ((step_mem->p < 1) && (!ark_mem->fixedstep)) {
     arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE::ARKStep", 
                     "arkStep_CheckButcherTables",
                     "embedding order < 1!");
@@ -1761,7 +1761,7 @@ int arkStep_CheckButcherTables(ARKodeMem ark_mem)
   }
 
   /* check that stages > 0 */
-  if (arkstep_mem->stages < 1) {
+  if (step_mem->stages < 1) {
     arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE::ARKStep", 
                     "arkStep_CheckButcherTables",
                     "stages < 1!");
@@ -1787,7 +1787,7 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
   int i, retval, ord, jstage, nvec;
   realtype tau;
   realtype h, a0, a1, a2;
-  ARKodeARKStepMem arkstep_mem;
+  ARKodeARKStepMem step_mem;
   realtype tau_tol = 0.5;
   realtype tau_tol2 = 0.75;
   realtype* cvals;
@@ -1799,10 +1799,10 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
                     "arkStep_Predict", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
 
   /* verify that interpolation structure is provided */
-  if ((ark_mem->interp == NULL) && (arkstep_mem->predictor > 0)) {
+  if ((ark_mem->interp == NULL) && (step_mem->predictor > 0)) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::ARKStep",
                     "arkStep_Predict", 
                     "Interpolation structure is NULL");
@@ -1810,8 +1810,8 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
   }
   
   /* local shortcuts to fused vector operations */
-  cvals = arkstep_mem->cvals;
-  Xvecs = arkstep_mem->Xvecs;
+  cvals = step_mem->cvals;
+  Xvecs = step_mem->Xvecs;
   
   /* if the first step (or if resized), use initial condition as guess */
   if (ark_mem->nst == 0 || ark_mem->resized) {
@@ -1820,10 +1820,10 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
   }
 
   /* set evaluation time tau relative shift from previous successful time */
-  tau = arkstep_mem->Bi->c[istage]*ark_mem->h/ark_mem->hold;
+  tau = step_mem->Bi->c[istage]*ark_mem->h/ark_mem->hold;
 
   /* use requested predictor formula */
-  switch (arkstep_mem->predictor) {
+  switch (step_mem->predictor) {
 
   case 1:
 
@@ -1869,7 +1869,7 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
            use the trivial predictor. *****/
 
     /* this approach will not work (for now) when using a non-identity mass matrix */
-    if (arkstep_mem->mass_mem != NULL)  {
+    if (step_mem->mass_mem != NULL)  {
       N_VScale(ONE, ark_mem->yn, yguess);
       break;
     }
@@ -1877,20 +1877,20 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
     /* determine if any previous stages in step meet criteria */
     jstage = -1;
     for (i=0; i<istage; i++)
-      jstage = (arkstep_mem->Bi->c[i] != ZERO) ? i : jstage;
+      jstage = (step_mem->Bi->c[i] != ZERO) ? i : jstage;
 
     /* if using the trivial predictor, break */
     if (jstage == -1)  break;
 
     /* find the "optimal" previous stage to use */
     for (i=0; i<istage; i++) 
-      if ( (arkstep_mem->Bi->c[i] > arkstep_mem->Bi->c[jstage]) &&
-           (arkstep_mem->Bi->c[i] != ZERO) )
+      if ( (step_mem->Bi->c[i] > step_mem->Bi->c[jstage]) &&
+           (step_mem->Bi->c[i] != ZERO) )
         jstage = i;
 
     /* evaluate the quadratic Hermite interpolant for the prediction */
-    h = ark_mem->h * arkstep_mem->Bi->c[jstage];
-    tau = ark_mem->h * arkstep_mem->Bi->c[istage];
+    h = ark_mem->h * step_mem->Bi->c[jstage];
+    tau = ark_mem->h * step_mem->Bi->c[istage];
     a0 = ONE;
     a2 = tau*tau/TWO/h;
     a1 = tau - a2;
@@ -1901,14 +1901,14 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
     cvals[1] = a1;
     Xvecs[1] = ark_mem->interp->fnew;
     nvec = 2;
-    if (arkstep_mem->implicit) {    /* Implicit piece */
+    if (step_mem->implicit) {    /* Implicit piece */
       cvals[nvec] = a2;
-      Xvecs[nvec] = arkstep_mem->Fi[jstage];
+      Xvecs[nvec] = step_mem->Fi[jstage];
       nvec += 1;
     }
-    if (arkstep_mem->explicit) {    /* Explicit piece */
+    if (step_mem->explicit) {    /* Explicit piece */
       cvals[nvec] = a2;
-      Xvecs[nvec] = arkstep_mem->Fe[jstage];
+      Xvecs[nvec] = step_mem->Fe[jstage];
       nvec += 1;
     }
 
@@ -1925,24 +1925,24 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
            information in this step *****/
 
     /* this approach will not work (for now) when using a non-identity mass matrix */
-    if (arkstep_mem->mass_mem != NULL)  {
+    if (step_mem->mass_mem != NULL)  {
       N_VScale(ONE, ark_mem->yn, yguess);
       break;
     }
 
     /* set arrays for fused vector operation */
     nvec = 0;
-    if (arkstep_mem->explicit) {       /* Explicit pieces */
+    if (step_mem->explicit) {       /* Explicit pieces */
       for (jstage=0; jstage<istage; jstage++) {
-        cvals[nvec] = ark_mem->h * arkstep_mem->Be->A[istage][jstage];
-        Xvecs[nvec] = arkstep_mem->Fe[jstage];
+        cvals[nvec] = ark_mem->h * step_mem->Be->A[istage][jstage];
+        Xvecs[nvec] = step_mem->Fe[jstage];
         nvec += 1;
       }
     }
-    if (arkstep_mem->implicit) {      /* Implicit pieces */
+    if (step_mem->implicit) {      /* Implicit pieces */
       for (jstage=0; jstage<istage; jstage++) {
-        cvals[nvec] = ark_mem->h * arkstep_mem->Bi->A[istage][jstage];
-        Xvecs[nvec] = arkstep_mem->Fi[jstage];
+        cvals[nvec] = ark_mem->h * step_mem->Bi->A[istage][jstage];
+        Xvecs[nvec] = step_mem->Fi[jstage];
         nvec += 1;
       }
     }
@@ -1982,12 +1982,12 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
  the first group corresponds to the current solution 
  correction, and the second group corresponds to existing data.  
  This routine computes this existing data, (M*yn - M*zp + data) 
- and stores in arkstep_mem->sdata.
+ and stores in step_mem->sdata.
 ---------------------------------------------------------------*/
 int arkStep_StageSetup(ARKodeMem ark_mem)
 {
   /* local data */
-  ARKodeARKStepMem arkstep_mem;
+  ARKodeARKStepMem step_mem;
   int retval, i, j, nvec;
   N_Vector tmp = ark_mem->tempv1;
   realtype* cvals;
@@ -1999,64 +1999,64 @@ int arkStep_StageSetup(ARKodeMem ark_mem)
                     "arkStep_StageSetup", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
 
   /* Set shortcut to current stage index */
-  i = arkstep_mem->istage;
+  i = step_mem->istage;
 
   /* local shortcuts for fused vector operations */
-  cvals = arkstep_mem->cvals;
-  Xvecs = arkstep_mem->Xvecs;
+  cvals = step_mem->cvals;
+  Xvecs = step_mem->Xvecs;
   
   /* If predictor==5, then sdata=0, otherwise set sdata appropriately */
-  if ( (arkstep_mem->predictor == 5) && (arkstep_mem->mass_mem == NULL) ) {
+  if ( (step_mem->predictor == 5) && (step_mem->mass_mem == NULL) ) {
 
-    N_VConst(ZERO, arkstep_mem->sdata);
+    N_VConst(ZERO, step_mem->sdata);
 
   } else {
 
     /* Initialize sdata to ycur - zpred (here: ycur = yn and zpred = zp) */
-    N_VLinearSum(ONE, ark_mem->yn, -ONE, arkstep_mem->zpred,
-                 arkstep_mem->sdata);
+    N_VLinearSum(ONE, ark_mem->yn, -ONE, step_mem->zpred,
+                 step_mem->sdata);
 
     /* If M!=I, replace sdata with M*sdata, so that sdata = M*(yn-zpred) */
-    if (arkstep_mem->mass_mem != NULL) {
-      N_VScale(ONE, arkstep_mem->sdata, tmp);
-      retval = arkstep_mem->mmult((void *) ark_mem, tmp, arkstep_mem->sdata);
+    if (step_mem->mass_mem != NULL) {
+      N_VScale(ONE, step_mem->sdata, tmp);
+      retval = step_mem->mmult((void *) ark_mem, tmp, step_mem->sdata);
       if (retval != ARK_SUCCESS)  return (ARK_MASSMULT_FAIL);
     }
 
     /* Update rhs with prior stage information */
     /*   set arrays for fused vector operation */
     cvals[0] = ONE;
-    Xvecs[0] = arkstep_mem->sdata;
+    Xvecs[0] = step_mem->sdata;
     nvec = 1;
-    if (arkstep_mem->explicit)    /* Explicit pieces */
+    if (step_mem->explicit)    /* Explicit pieces */
       for (j=0; j<i; j++) {
-        cvals[nvec] = ark_mem->h * arkstep_mem->Be->A[i][j];
-        Xvecs[nvec] = arkstep_mem->Fe[j];
+        cvals[nvec] = ark_mem->h * step_mem->Be->A[i][j];
+        Xvecs[nvec] = step_mem->Fe[j];
         nvec += 1;
       }
-    if (arkstep_mem->implicit)    /* Implicit pieces */
+    if (step_mem->implicit)    /* Implicit pieces */
       for (j=0; j<i; j++) {
-        cvals[nvec] = ark_mem->h * arkstep_mem->Bi->A[i][j];
-        Xvecs[nvec] = arkstep_mem->Fi[j];
+        cvals[nvec] = ark_mem->h * step_mem->Bi->A[i][j];
+        Xvecs[nvec] = step_mem->Fi[j];
         nvec += 1;
       }
  
     /*   call fused vector operation to do the work */
-    retval = N_VLinearCombination(nvec, cvals, Xvecs, arkstep_mem->sdata);
+    retval = N_VLinearCombination(nvec, cvals, Xvecs, step_mem->sdata);
     if (retval != 0) return(ARK_VECTOROP_ERR);
     
   }
 
   /* Update gamma (if the method contains an implicit component) */
-  if (arkstep_mem->implicit) {
-    arkstep_mem->gamma = ark_mem->h * arkstep_mem->Bi->A[i][i];
+  if (step_mem->implicit) {
+    step_mem->gamma = ark_mem->h * step_mem->Bi->A[i][i];
     if (ark_mem->firststage)  
-      arkstep_mem->gammap = arkstep_mem->gamma;
-    arkstep_mem->gamrat = (ark_mem->firststage) ? 
-      ONE : arkstep_mem->gamma / arkstep_mem->gammap;  /* protect x/x != 1.0 */
+      step_mem->gammap = step_mem->gamma;
+    step_mem->gamrat = (ark_mem->firststage) ? 
+      ONE : step_mem->gamma / step_mem->gammap;  /* protect x/x != 1.0 */
   }
   
   /* return with success */
@@ -2072,7 +2072,7 @@ int arkStep_StageSetup(ARKodeMem ark_mem)
  It calls one of arkStep_NlsAccelFP, arkStep_Ls or 
  arkStep_NlsNewton to do the work.
 
- Upon entry, the predicted solution is held in arkstep_mem->zpred; 
+ Upon entry, the predicted solution is held in step_mem->zpred; 
  this array is never changed throughout this routine.  If an 
  initial attempt at solving the nonlinear system fails (e.g. due 
  to a stale Jacobian), this allows for new attempts at the 
@@ -2082,7 +2082,7 @@ int arkStep_StageSetup(ARKodeMem ark_mem)
 ---------------------------------------------------------------*/
 int arkStep_Nls(ARKodeMem ark_mem, int nflag)
 {
-  ARKodeARKStepMem arkstep_mem;
+  ARKodeARKStepMem step_mem;
 
   /* access ARKodeARKStepMem structure */
   if (ark_mem->step_mem==NULL) {
@@ -2090,16 +2090,16 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
                     "arkStep_Nls", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
 
   /* call the appropriate solver */
 
   /*   fixed point */
-  if (arkstep_mem->use_fp)
+  if (step_mem->use_fp)
     return(arkStep_NlsAccelFP(ark_mem, nflag));
 
   /*   linearly implicit (one Newton iteration) */
-  if (arkstep_mem->linear)
+  if (step_mem->linear)
     return(arkStep_Ls(ark_mem, nflag));
   
   /*   Newton */
@@ -2113,7 +2113,7 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
 
  This routine evaluates the negative nonlinear residual for the 
  additive Runge-Kutta method.  It assumes that any data from 
- previous time steps/stages is contained in arkstep_mem, and 
+ previous time steps/stages is contained in step_mem, and 
  merely combines this old data with the current implicit ODE RHS 
  vector, fy = fi(t,y), to compute the nonlinear residual r.
 
@@ -2126,9 +2126,9 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
  where zi = zp + zc, and where
     zc is stored in the input z
     Fi(zi) is stored in fz
-    (M*yn-M*zp+data) is stored in arkstep_mem->sdata,
+    (M*yn-M*zp+data) is stored in step_mem->sdata,
  so we really just compute
-    r = -M*z + gamma*fz + arkstep_mem->sdata
+    r = -M*z + gamma*fz + step_mem->sdata
 
  Possible return values:  ARK_SUCCESS  or  ARK_RHSFUNC_FAIL
 ---------------------------------------------------------------*/
@@ -2140,7 +2140,7 @@ int arkStep_NlsResid(ARKodeMem ark_mem, N_Vector z, N_Vector fz,
   int retval;
   realtype c[3];
   N_Vector X[3];
-  ARKodeARKStepMem arkstep_mem;
+  ARKodeARKStepMem step_mem;
 
   /* access ARKodeARKStepMem structure */
   if (ark_mem->step_mem==NULL) {
@@ -2148,11 +2148,11 @@ int arkStep_NlsResid(ARKodeMem ark_mem, N_Vector z, N_Vector fz,
                     "arkStep_NlsResid", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
 
   /* put M*z in r */
-  if (arkstep_mem->mass_mem != NULL) {
-    retval = arkstep_mem->mmult((void *) ark_mem, z, r);
+  if (step_mem->mass_mem != NULL) {
+    retval = step_mem->mmult((void *) ark_mem, z, r);
     if (retval != ARK_SUCCESS)  return (ARK_MASSMULT_FAIL);
     X[0] = r;
   } else {
@@ -2162,8 +2162,8 @@ int arkStep_NlsResid(ARKodeMem ark_mem, N_Vector z, N_Vector fz,
   /* update with My, sdata and gamma*fy */
   c[0] = -ONE;
   c[1] = ONE;
-  X[1] = arkstep_mem->sdata;
-  c[2] = arkstep_mem->gamma;
+  X[1] = step_mem->sdata;
+  c[2] = step_mem->gamma;
   X[2] = fz;
   retval = N_VLinearCombination(3, c, X, r);
   if (retval != 0)  return(ARK_VECTOROP_ERR);
@@ -2180,7 +2180,7 @@ int arkStep_NlsResid(ARKodeMem ark_mem, N_Vector z, N_Vector fz,
  Jacobian / precond), and retries a failed attempt at Newton 
  iteration if that is indicated. 
 
- Upon entry, the predicted solution is held in arkstep_mem->zpred; 
+ Upon entry, the predicted solution is held in step_mem->zpred; 
  this array is never changed throughout this routine.  If an 
  initial attempt at solving the nonlinear system fails (e.g. due to 
  a stale Jacobian), this allows for new attempts that first revert 
@@ -2205,7 +2205,7 @@ int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag)
   int convfail, retval, ier, m, is;
   booleantype callSetup;
   realtype del, delp, dcon;
-  ARKodeARKStepMem arkstep_mem;
+  ARKodeARKStepMem step_mem;
 
   /* access ARKodeARKStepMem structure */
   if (ark_mem->step_mem==NULL) {
@@ -2213,25 +2213,25 @@ int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag)
                     "arkStep_NlsNewton", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
   
   b    = ark_mem->tempv1;  /* rename tempv1 as b for readability */
   z    = ark_mem->ycur;    /* rename ycur as z for readability */
   zcor = ark_mem->tempv2;  /* rename tempv2 as zcor for readability */
-  is   = arkstep_mem->istage;
+  is   = step_mem->istage;
 
   /* Set flag convfail, input to lsetup for its evaluation decision */
   convfail = ((nflag == FIRST_CALL) || (nflag == PREV_ERR_FAIL)) ?
     ARK_NO_FAILURES : ARK_FAIL_OTHER;
 
   /* Decide whether or not to call setup routine (if one exists) */
-  if (arkstep_mem->lsetup) {      
+  if (step_mem->lsetup) {      
     callSetup = (nflag == PREV_CONV_FAIL) || (nflag == PREV_ERR_FAIL) ||
-      (ark_mem->firststage) || (arkstep_mem->msbp < 0) ||
-      (ark_mem->nst >= arkstep_mem->nstlp + abs(arkstep_mem->msbp)) || 
-      (SUNRabs(arkstep_mem->gamrat-ONE) > arkstep_mem->dgmax);
+      (ark_mem->firststage) || (step_mem->msbp < 0) ||
+      (ark_mem->nst >= step_mem->nstlp + abs(step_mem->msbp)) || 
+      (SUNRabs(step_mem->gamrat-ONE) > step_mem->dgmax);
   } else {  
-    arkstep_mem->crate = ONE;
+    step_mem->crate = ONE;
     callSetup = SUNFALSE;
   }
   
@@ -2245,9 +2245,9 @@ int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag)
      failure with stale Jacobian). */
   for(;;) {
 
-    retval = arkstep_mem->fi(ark_mem->tcur, arkstep_mem->zpred, 
-                             arkstep_mem->Fi[is], ark_mem->user_data);
-    arkstep_mem->nfi++; 
+    retval = step_mem->fi(ark_mem->tcur, step_mem->zpred, 
+                             step_mem->Fi[is], ark_mem->user_data);
+    step_mem->nfi++; 
     if (retval < 0) return(ARK_RHSFUNC_FAIL);
     if (retval > 0) return(RHSFUNC_RECVR);
     
@@ -2258,15 +2258,15 @@ int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag)
       if (ark_mem->report)  fprintf(ark_mem->diagfp, "  lsetup\n");
 
       /* call lsetup, using zcor, z and b as temporary vectors */
-      ier = arkstep_mem->lsetup(ark_mem, convfail, ark_mem->tcur,
-                                arkstep_mem->zpred, arkstep_mem->Fi[is],
-                                &arkstep_mem->jcur, zcor, z, b);
-      arkstep_mem->nsetups++;
+      ier = step_mem->lsetup(ark_mem, convfail, ark_mem->tcur,
+                                step_mem->zpred, step_mem->Fi[is],
+                                &step_mem->jcur, zcor, z, b);
+      step_mem->nsetups++;
       callSetup = SUNFALSE;
       ark_mem->firststage = SUNFALSE;
-      arkstep_mem->gamrat = arkstep_mem->crate = ONE; 
-      arkstep_mem->gammap = arkstep_mem->gamma;
-      arkstep_mem->nstlp  = ark_mem->nst;
+      step_mem->gamrat = step_mem->crate = ONE; 
+      step_mem->gammap = step_mem->gamma;
+      step_mem->nstlp  = ark_mem->nst;
 
       /* Return if lsetup failed */
       if (ier < 0) return(ARK_LSETUP_FAIL);
@@ -2275,30 +2275,30 @@ int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag)
 
     /* Set zcor to zero and load prediction into z vector */
     N_VConst(ZERO, zcor);
-    N_VScale(ONE, arkstep_mem->zpred, z);
+    N_VScale(ONE, step_mem->zpred, z);
 
 
     /***********************************
      Do the modified Newton iteration:
      - Reuses a single call to ark_mem->lsetup (called by the enclosing loop). 
-     - Upon entry, the predicted solution is held in arkstep_mem->zpred.
+     - Upon entry, the predicted solution is held in step_mem->zpred.
      - Here, zcor accumulates the difference between the predictor 
        and the final stage solution.
      - Upon a successful solve, the solution is held in z (ark_mem->ycur). 
     */
 
     /* Initialize temporary variables for use in iteration */
-    arkstep_mem->mnewt = m = 0;
+    step_mem->mnewt = m = 0;
     del = delp = ZERO;
 
     /* Reset the stored residual norm (for iterative linear solvers) */
-    arkstep_mem->eRNrm = RCONST(0.1) * arkstep_mem->nlscoef;
+    step_mem->eRNrm = RCONST(0.1) * step_mem->nlscoef;
 
     /* Looping point for Newton iteration */
     for(;;) {
 
       /* Evaluate the nonlinear system residual, put result into b */
-      retval = arkStep_NlsResid(ark_mem, zcor, arkstep_mem->Fi[is], b);
+      retval = arkStep_NlsResid(ark_mem, zcor, step_mem->Fi[is], b);
       if (retval != ARK_SUCCESS) {
         ier = ARK_RHSFUNC_FAIL;
         break;
@@ -2310,10 +2310,10 @@ int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag)
 #endif
 
       /* Call the lsolve function, overwriting b with solution */
-      retval = arkstep_mem->lsolve(ark_mem, b, ark_mem->tcur,
-                                   z, arkstep_mem->Fi[is],
-                                   arkstep_mem->eRNrm, arkstep_mem->mnewt); 
-      arkstep_mem->nni++;
+      retval = step_mem->lsolve(ark_mem, b, ark_mem->tcur,
+                                   z, step_mem->Fi[is],
+                                   step_mem->eRNrm, step_mem->mnewt); 
+      step_mem->nni++;
       if (retval < 0) {
         ier = ARK_LSOLVE_FAIL;
         break;
@@ -2327,7 +2327,7 @@ int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag)
       /* If lsolve had a recoverable failure and Jacobian data is
          not current, signal to try the solution again */
       if (retval > 0) { 
-        if ((!arkstep_mem->jcur) && (arkstep_mem->lsetup)) 
+        if ((!step_mem->jcur) && (step_mem->lsetup)) 
           ier = TRY_AGAIN;
         else 
           ier = CONV_FAIL;
@@ -2337,7 +2337,7 @@ int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag)
       /* Get WRMS norm of correction; add to zcor and y */
       del = N_VWrmsNorm(b, ark_mem->ewt);
       N_VLinearSum(ONE, zcor, ONE, b, zcor);
-      N_VLinearSum(ONE, arkstep_mem->zpred, ONE, zcor, z);
+      N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, z);
 
 #ifdef DEBUG_OUTPUT
  printf("corrected solution\n");
@@ -2347,19 +2347,19 @@ int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag)
       /* Compute the nonlinear error estimate.  If m > 0, an estimate of the convergence
          rate constant is stored in crate, and used in the subsequent estimates */
       if (m > 0) 
-        arkstep_mem->crate = SUNMAX(arkstep_mem->crdown*arkstep_mem->crate, del/delp);
-      dcon = SUNMIN(arkstep_mem->crate, ONE) * del / arkstep_mem->nlscoef;
+        step_mem->crate = SUNMAX(step_mem->crdown*step_mem->crate, del/delp);
+      dcon = SUNMIN(step_mem->crate, ONE) * del / step_mem->nlscoef;
 
       /* compute the forcing term for linear solver tolerance */
-      arkstep_mem->eRNrm = SUNMIN(arkstep_mem->crate, ONE) * del
-                         * RCONST(0.1) * arkstep_mem->nlscoef;
+      step_mem->eRNrm = SUNMIN(step_mem->crate, ONE) * del
+                         * RCONST(0.1) * step_mem->nlscoef;
 #ifdef FIXED_LIN_TOL
       /* reset if a fixed linear solver tolerance is desired */
-      arkstep_mem->eRNrm = RCONST(0.1) * arkstep_mem->nlscoef;
+      step_mem->eRNrm = RCONST(0.1) * step_mem->nlscoef;
 #endif
 
 #ifdef DEBUG_OUTPUT
- printf("Newton iter %i,  del = %"RSYM",  crate = %"RSYM"\n", m, del, arkstep_mem->crate);
+ printf("Newton iter %i,  del = %"RSYM",  crate = %"RSYM"\n", m, del, step_mem->crate);
  printf("   dcon = %"RSYM"\n", dcon);
 #endif
 
@@ -2368,20 +2368,20 @@ int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag)
         fprintf(ark_mem->diagfp, "    newt  %i  %"RSYM"  %"RSYM"\n", m, del, dcon);
     
       if (dcon <= ONE) {
-        arkstep_mem->jcur = SUNFALSE;
+        step_mem->jcur = SUNFALSE;
         ier = ARK_SUCCESS;
         break;
       }
 
       /* update Newton iteration counter */
-      arkstep_mem->mnewt = ++m;
+      step_mem->mnewt = ++m;
     
       /* Stop at maxcor iterations or if iteration seems to be diverging.
          If still not converged and Jacobian data is not current, signal 
          to try the solution again */
-      if ( (m == arkstep_mem->maxcor) || 
-           ((m >= 2) && (del > arkstep_mem->rdiv*delp)) ) {
-        if ((!arkstep_mem->jcur) && (arkstep_mem->lsetup)) 
+      if ( (m == step_mem->maxcor) || 
+           ((m >= 2) && (del > step_mem->rdiv*delp)) ) {
+        if ((!step_mem->jcur) && (step_mem->lsetup)) 
           ier = TRY_AGAIN;
         else
           ier = CONV_FAIL;
@@ -2390,16 +2390,16 @@ int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag)
     
       /* Save norm of correction, evaluate fi, and loop again */
       delp = del;
-      retval = arkstep_mem->fi(ark_mem->tcur, z, 
-                               arkstep_mem->Fi[arkstep_mem->istage], 
+      retval = step_mem->fi(ark_mem->tcur, z, 
+                               step_mem->Fi[step_mem->istage], 
                                ark_mem->user_data);
-      arkstep_mem->nfi++;
+      step_mem->nfi++;
       if (retval < 0) {
         ier = ARK_RHSFUNC_FAIL;
         break;
       }
       if (retval > 0) {
-        if ((!arkstep_mem->jcur) && (arkstep_mem->lsetup)) 
+        if ((!step_mem->jcur) && (step_mem->lsetup)) 
           ier = TRY_AGAIN;
         else
           ier = RHSFUNC_RECVR;
@@ -2429,7 +2429,7 @@ int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag)
  performs an accelerated fixed-point iteration (without need for 
  a Jacobian or preconditioner. 
 
- Upon entry, the predicted solution is held in arkstep_mem->zpred.
+ Upon entry, the predicted solution is held in step_mem->zpred.
 
  Upon a successful solve, the solution is held in ark_mem->ycur.
 
@@ -2450,7 +2450,7 @@ int arkStep_NlsAccelFP(ARKodeMem ark_mem, int nflag)
   long int maa;
   void *udata;
   N_Vector zold, z, zpred, ftemp, fval, tempv;
-  ARKodeARKStepMem arkstep_mem;
+  ARKodeARKStepMem step_mem;
 
   /* access ARKodeARKStepMem structure */
   if (ark_mem->step_mem==NULL) {
@@ -2458,27 +2458,27 @@ int arkStep_NlsAccelFP(ARKodeMem ark_mem, int nflag)
                     "arkStep_NlsAccelFP", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
   
   /* local shortcut variables */
   tcur = ark_mem->tcur;
-  R  = arkstep_mem->fp_mem->R;
-  gamma = arkstep_mem->fp_mem->gamma;
-  maa = arkstep_mem->fp_mem->m;
+  R  = step_mem->fp_mem->R;
+  gamma = step_mem->fp_mem->gamma;
+  maa = step_mem->fp_mem->m;
   udata = ark_mem->user_data;
   zold  = ark_mem->tempv2;
   z     = ark_mem->ycur;
-  zpred = arkstep_mem->zpred;
-  ftemp = arkstep_mem->Fi[arkstep_mem->istage];
-  fval  = arkstep_mem->fp_mem->fval;
+  zpred = step_mem->zpred;
+  ftemp = step_mem->Fi[step_mem->istage];
+  fval  = step_mem->fp_mem->fval;
   tempv = ark_mem->tempv1;
 
   /* Initialize temporary variables for use in iteration */
   del = delp = ZERO;
-  arkstep_mem->crate = ONE;
+  step_mem->crate = ONE;
 
   /* Initialize iteration counter */
-  arkstep_mem->mnewt = 0;
+  step_mem->mnewt = 0;
 
   /* Load prediction into z vector, zold */
   N_VScale(ONE, zpred, z);
@@ -2492,8 +2492,8 @@ int arkStep_NlsAccelFP(ARKodeMem ark_mem, int nflag)
   for(;;) {
 
     /* evaluate implicit ODE RHS function, store in ftemp */
-    retval = arkstep_mem->fi(tcur, z, ftemp, udata);
-    arkstep_mem->nfi++;
+    retval = step_mem->fi(tcur, z, ftemp, udata);
+    step_mem->nfi++;
     if (retval < 0) return(ARK_RHSFUNC_FAIL);
     if (retval > 0) return(RHSFUNC_RECVR);
 
@@ -2516,20 +2516,20 @@ int arkStep_NlsAccelFP(ARKodeMem ark_mem, int nflag)
       /* Anderson-accelerated solver */
       N_VScale(ONE, zold, z);   /* update guess */
       retval = arkStep_AndersonAcc(ark_mem, fval, tempv, z,  /* accelerate guess */
-                                   zold, (int)(arkstep_mem->mnewt), R, gamma);
+                                   zold, (int)(step_mem->mnewt), R, gamma);
     }
-    arkstep_mem->nni++;
+    step_mem->nni++;
 
     /* compute the nonlinear error estimate.  If m > 0, an estimate of the convergence
        rate constant is stored in crate, and used in the subsequent estimates */
     N_VLinearSum(ONE, z, -ONE, zold, tempv);
     del = N_VWrmsNorm(tempv, ark_mem->ewt);
-    if (arkstep_mem->mnewt > 0)
-      arkstep_mem->crate = SUNMAX(arkstep_mem->crdown*arkstep_mem->crate, del/delp);
-    dcon = SUNMIN(arkstep_mem->crate, ONE) * del / arkstep_mem->nlscoef;
+    if (step_mem->mnewt > 0)
+      step_mem->crate = SUNMAX(step_mem->crdown*step_mem->crate, del/delp);
+    dcon = SUNMIN(step_mem->crate, ONE) * del / step_mem->nlscoef;
 
 #ifdef DEBUG_OUTPUT
- printf("FP iter %i,  del = %"RSYM",  crate = %"RSYM"\n", arkstep_mem->mnewt, del, arkstep_mem->crate);
+ printf("FP iter %i,  del = %"RSYM",  crate = %"RSYM"\n", step_mem->mnewt, del, step_mem->crate);
  printf("   dcon = %"RSYM"\n", dcon);
  printf("Fixed-point correction:\n");
  N_VPrint_Serial(tempv);
@@ -2537,16 +2537,16 @@ int arkStep_NlsAccelFP(ARKodeMem ark_mem, int nflag)
 
     /* Solver diagnostics reporting */
     if (ark_mem->report)
-      fprintf(ark_mem->diagfp, "    fp  %i  %"RSYM"  %"RSYM"\n", arkstep_mem->mnewt, del, dcon);
+      fprintf(ark_mem->diagfp, "    fp  %i  %"RSYM"  %"RSYM"\n", step_mem->mnewt, del, dcon);
 
     /* update iteration counter */
-    arkstep_mem->mnewt++;
+    step_mem->mnewt++;
 
     if (dcon <= ONE)  return(ARK_SUCCESS);
 
     /* Stop at maxcor iterations or if iteration seems to be diverging */
-    if ((arkstep_mem->mnewt == arkstep_mem->maxcor) ||
-        ((arkstep_mem->mnewt >= 2) && (del > arkstep_mem->rdiv*delp))) 
+    if ((step_mem->mnewt == step_mem->maxcor) ||
+        ((step_mem->mnewt >= 2) && (del > step_mem->rdiv*delp))) 
       return(CONV_FAIL);
 
     /* Update current solution guess */
@@ -2586,7 +2586,7 @@ int arkStep_AndersonAcc(ARKodeMem ark_mem, N_Vector gval,
   N_Vector vtemp2, gold, fold, *df, *dg, *Q;
   realtype* cvals;
   N_Vector* Xvecs;
-  ARKodeARKStepMem arkstep_mem;
+  ARKodeARKStepMem step_mem;
 
   /* access ARKodeARKStepMem structure */
   if (ark_mem->step_mem==NULL) {
@@ -2594,19 +2594,19 @@ int arkStep_AndersonAcc(ARKodeMem ark_mem, N_Vector gval,
                     "arkStep_AndersonAcc", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
 
   /* local shortcut variables */
   vtemp2 = ark_mem->ycur;     /* rename ycur as vtemp2 for readability */
-  ipt_map = arkstep_mem->fp_mem->imap;
-  maa = arkstep_mem->fp_mem->m;
-  gold = arkstep_mem->fp_mem->gold;
-  fold = arkstep_mem->fp_mem->fold;
-  df = arkstep_mem->fp_mem->df;
-  dg = arkstep_mem->fp_mem->dg;
-  Q = arkstep_mem->fp_mem->q;
-  cvals = arkstep_mem->fp_mem->cvals;
-  Xvecs = arkstep_mem->fp_mem->Xvecs;
+  ipt_map = step_mem->fp_mem->imap;
+  maa = step_mem->fp_mem->m;
+  gold = step_mem->fp_mem->gold;
+  fold = step_mem->fp_mem->fold;
+  df = step_mem->fp_mem->df;
+  dg = step_mem->fp_mem->dg;
+  Q = step_mem->fp_mem->q;
+  cvals = step_mem->fp_mem->cvals;
+  Xvecs = step_mem->fp_mem->Xvecs;
   
   for (i=0; i<maa; i++)  ipt_map[i]=0;
   i_pt = iter-1 - ((iter-1)/maa)*maa;
@@ -2736,7 +2736,7 @@ int arkStep_AndersonAcc(ARKodeMem ark_mem, N_Vector gval,
  call the user-specified linear solver (with a tight tolerance) 
  to compute the time-evolved solution.  
 
- Upon entry, the predicted solution is held in arkstep_mem->zpred.
+ Upon entry, the predicted solution is held in step_mem->zpred.
 
  Upon a successful solve, the solution is held in ark_mem->ycur.
 
@@ -2756,7 +2756,7 @@ int arkStep_Ls(ARKodeMem ark_mem, int nflag)
   int convfail, retval, ier, is;
   booleantype callSetup;
   realtype del;
-  ARKodeARKStepMem arkstep_mem;
+  ARKodeARKStepMem step_mem;
 
   /* access ARKodeARKStepMem structure */
   if (ark_mem->step_mem==NULL) {
@@ -2764,29 +2764,29 @@ int arkStep_Ls(ARKodeMem ark_mem, int nflag)
                     "arkStep_Ls", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
   
   b    = ark_mem->tempv1;   /* rename tempv1 as b for readability */
   z    = ark_mem->ycur;     /* rename ycur as z for readability */
   zcor = ark_mem->tempv2;   /* rename tempv2 as zcor for readability */
-  is   = arkstep_mem->istage;
+  is   = step_mem->istage;
 
   /* Set flag convfail, input to lsetup for its evaluation decision */
   convfail = (nflag == FIRST_CALL) ? ARK_NO_FAILURES : ARK_FAIL_OTHER;
 
   /* Decide whether or not to call setup routine (if one exists) */
-  if (arkstep_mem->lsetup) {    
+  if (step_mem->lsetup) {    
     callSetup = (ark_mem->firststage) || 
-      (arkstep_mem->linear_timedep) || (arkstep_mem->msbp < 0) ||
-      (SUNRabs(arkstep_mem->gamrat-ONE) > arkstep_mem->dgmax);
+      (step_mem->linear_timedep) || (step_mem->msbp < 0) ||
+      (SUNRabs(step_mem->gamrat-ONE) > step_mem->dgmax);
   } else {  
     callSetup = SUNFALSE;
   }
   
   /* update implicit RHS, store in ark_mem->Fi[is] */
-  retval = arkstep_mem->fi(ark_mem->tcur, arkstep_mem->zpred, 
-                           arkstep_mem->Fi[is], ark_mem->user_data);
-  arkstep_mem->nfi++; 
+  retval = step_mem->fi(ark_mem->tcur, step_mem->zpred, 
+                           step_mem->Fi[is], ark_mem->user_data);
+  step_mem->nfi++; 
   if (retval < 0) return(ARK_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);
   
@@ -2797,15 +2797,15 @@ int arkStep_Ls(ARKodeMem ark_mem, int nflag)
     if (ark_mem->report)  fprintf(ark_mem->diagfp, "  lsetup\n");
 
     /* call lsetup, using zcor, z and b as temporary vectors */
-    ier = arkstep_mem->lsetup(ark_mem, convfail, ark_mem->tcur,
-                              arkstep_mem->zpred, arkstep_mem->Fi[is],
-                              &arkstep_mem->jcur, zcor, z, b);
-    arkstep_mem->nsetups++;
+    ier = step_mem->lsetup(ark_mem, convfail, ark_mem->tcur,
+                              step_mem->zpred, step_mem->Fi[is],
+                              &step_mem->jcur, zcor, z, b);
+    step_mem->nsetups++;
     callSetup = SUNFALSE;
     ark_mem->firststage = SUNFALSE;
-    arkstep_mem->gamrat = arkstep_mem->crate = ONE; 
-    arkstep_mem->gammap = arkstep_mem->gamma;
-    arkstep_mem->nstlp  = ark_mem->nst;
+    step_mem->gamrat = step_mem->crate = ONE; 
+    step_mem->gammap = step_mem->gamma;
+    step_mem->nstlp  = ark_mem->nst;
 
     /* Return if lsetup failed */
     if (ier < 0) return(ARK_LSETUP_FAIL);
@@ -2814,39 +2814,39 @@ int arkStep_Ls(ARKodeMem ark_mem, int nflag)
 
   /* Set zcor to zero and load prediction into y vector */
   N_VConst(ZERO, zcor);
-  N_VScale(ONE, arkstep_mem->zpred, z);
+  N_VScale(ONE, step_mem->zpred, z);
   
 
   /* Do a single Newton iteration */
 
   /*   Initialize temporary variables for use in iteration */
-  arkstep_mem->mnewt = 0;
+  step_mem->mnewt = 0;
   del = ZERO;
 
   /*   Set the stored residual norm to force an "accurate" initial linear solve */
-  arkstep_mem->eRNrm = RCONST(0.1) * arkstep_mem->nlscoef;
+  step_mem->eRNrm = RCONST(0.1) * step_mem->nlscoef;
 
   /*   Evaluate the nonlinear system residual, put result into b */
-  retval = arkStep_NlsResid(ark_mem, zcor, arkstep_mem->Fi[is], b);
+  retval = arkStep_NlsResid(ark_mem, zcor, step_mem->Fi[is], b);
   if (retval != ARK_SUCCESS)  return (ARK_RHSFUNC_FAIL);
 
   /*   Call the lsolve function */
-  retval = arkstep_mem->lsolve(ark_mem, b, ark_mem->tcur, z, arkstep_mem->Fi[is], 
-                               arkstep_mem->eRNrm, arkstep_mem->mnewt); 
-  arkstep_mem->nni++;
+  retval = step_mem->lsolve(ark_mem, b, ark_mem->tcur, z, step_mem->Fi[is], 
+                               step_mem->eRNrm, step_mem->mnewt); 
+  step_mem->nni++;
   if (retval != 0)  return (ARK_LSOLVE_FAIL);
     
   /*   Get WRMS norm of correction; add correction to zcor and z */
   del = N_VWrmsNorm(b, ark_mem->ewt);
   N_VLinearSum(ONE, zcor, ONE, b, zcor);
-  N_VLinearSum(ONE, arkstep_mem->zpred, ONE, zcor, z);
+  N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, z);
 
   /*   Solver diagnostics reporting */
   if (ark_mem->report) 
     fprintf(ark_mem->diagfp, "    newt  %i  %"RSYM"  %g\n", 0, del, 0.0);
 
   /* clean up and return */ 
-  arkstep_mem->jcur = SUNFALSE;
+  step_mem->jcur = SUNFALSE;
   return (ARK_SUCCESS);
 }
 
@@ -2886,7 +2886,7 @@ int arkStep_HandleNFlag(ARKodeMem ark_mem, int *nflagPtr, int *ncfPtr)
 {
   int nflag;
   ARKodeHAdaptMem hadapt_mem;
-  ARKodeARKStepMem arkstep_mem;
+  ARKodeARKStepMem step_mem;
 
   /* access ARKodeARKStepMem structure */
   if (ark_mem->step_mem==NULL) {
@@ -2894,25 +2894,25 @@ int arkStep_HandleNFlag(ARKodeMem ark_mem, int *nflagPtr, int *ncfPtr)
                     "arkStep_HandleNFlag", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
   
   nflag = *nflagPtr;
   
   if (nflag == ARK_SUCCESS) return(SOLVE_SUCCESS);
 
   /* The nonlinear soln. failed; increment ncfn */
-  arkstep_mem->ncfn++;
+  step_mem->ncfn++;
   
   /* If fixed time stepping, then return with convergence failure */
   if (ark_mem->fixedstep)    return(ARK_CONV_FAILURE);
 
   /* Otherwise, access adaptivity structure */
-  if (arkstep_mem->hadapt_mem == NULL) {
+  if (step_mem->hadapt_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::ARKStep", "arkStep_HandleNFlag",
                     MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  hadapt_mem = arkstep_mem->hadapt_mem;
+  hadapt_mem = step_mem->hadapt_mem;
   
   /* Return if lsetup, lsolve, or rhs failed unrecoverably */
   if (nflag == ARK_LSETUP_FAIL)  return(ARK_LSETUP_FAIL);
@@ -2925,7 +2925,7 @@ int arkStep_HandleNFlag(ARKodeMem ark_mem, int *nflagPtr, int *ncfPtr)
 
   /* If we had maxncf failures, or if |h| = hmin,
      return ARK_CONV_FAILURE or ARK_REPTD_RHSFUNC_ERR. */
-  if ((*ncfPtr == arkstep_mem->maxncf) ||
+  if ((*ncfPtr == step_mem->maxncf) ||
       (SUNRabs(ark_mem->h) <= ark_mem->hmin*ONEPSM)) {
     if (nflag == CONV_FAIL)     return(ARK_CONV_FAILURE);
     if (nflag == RHSFUNC_RECVR) return(ARK_REPTD_RHSFUNC_ERR);    
@@ -2964,7 +2964,7 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
   N_Vector y, yerr;
   realtype* cvals;
   N_Vector* Xvecs;
-  ARKodeARKStepMem arkstep_mem;
+  ARKodeARKStepMem step_mem;
 
   /* access ARKodeARKStepMem structure */
   if (ark_mem->step_mem==NULL) {
@@ -2972,7 +2972,7 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
                     "arkStep_ComputeSolutions", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
 
   /* set N_Vector shortcuts, and shortcut to time at end of step */
   y    = ark_mem->ycur;
@@ -2980,37 +2980,37 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
   tend = ark_mem->tn + ark_mem->h;
 
   /* local shortcuts for fused vector operations */
-  cvals = arkstep_mem->cvals;
-  Xvecs = arkstep_mem->Xvecs;
+  cvals = step_mem->cvals;
+  Xvecs = step_mem->Xvecs;
   
   /* initialize output */
   *dsm = ZERO;
 
   /* Compute updated solution and error estimate based on whether
      a non-identity mass matrix is present */
-  if (arkstep_mem->mass_mem != NULL) {   /* M != I */
+  if (step_mem->mass_mem != NULL) {   /* M != I */
 
     /* setup mass matrix, using y, sdata, zpred as temporaries */
-    if (arkstep_mem->msetup != NULL)
-      if (SUNRabs(arkstep_mem->msetuptime - tend) > FUZZ_FACTOR*ark_mem->uround) {
-        ier = arkstep_mem->msetup((void *) ark_mem, y,
-                                  arkstep_mem->sdata, arkstep_mem->zpred);
+    if (step_mem->msetup != NULL)
+      if (SUNRabs(step_mem->msetuptime - tend) > FUZZ_FACTOR*ark_mem->uround) {
+        ier = step_mem->msetup((void *) ark_mem, y,
+                                  step_mem->sdata, step_mem->zpred);
         if (ier != ARK_SUCCESS)  return(ARK_MASSSETUP_FAIL);
-        arkstep_mem->msetuptime = tend;
+        step_mem->msetuptime = tend;
       }
 
     /* compute y RHS (store in y) */
     /*   set arrays for fused vector operation */
     nvec = 0;
-    for (j=0; j<arkstep_mem->stages; j++) {
-      if (arkstep_mem->explicit) {      /* Explicit pieces */
-        cvals[nvec] = ark_mem->h * arkstep_mem->Be->b[j];
-        Xvecs[nvec] = arkstep_mem->Fe[j];
+    for (j=0; j<step_mem->stages; j++) {
+      if (step_mem->explicit) {      /* Explicit pieces */
+        cvals[nvec] = ark_mem->h * step_mem->Be->b[j];
+        Xvecs[nvec] = step_mem->Fe[j];
         nvec += 1;
       }
-      if (arkstep_mem->implicit) {      /* Implicit pieces */
-        cvals[nvec] = ark_mem->h * arkstep_mem->Bi->b[j];
-        Xvecs[nvec] = arkstep_mem->Fi[j];
+      if (step_mem->implicit) {      /* Implicit pieces */
+        cvals[nvec] = ark_mem->h * step_mem->Bi->b[j];
+        Xvecs[nvec] = step_mem->Fi[j];
         nvec += 1;
       }
     }
@@ -3020,7 +3020,7 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
     if (ier != 0) return(ARK_VECTOROP_ERR);
     
     /* solve for y update (stored in y) */
-    ier = arkstep_mem->msolve((void *) ark_mem, y, arkstep_mem->nlscoef); 
+    ier = step_mem->msolve((void *) ark_mem, y, step_mem->nlscoef); 
     if (ier < 0) {
       *dsm = 2.0;         /* indicate too much error, step with smaller step */
       N_VScale(ONE, ark_mem->yn, y);      /* place old solution into y */
@@ -3037,15 +3037,15 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
       /* compute yerr RHS vector (store in yerr) */
       /*   set arrays for fused vector operation */
       nvec = 0;
-      for (j=0; j<arkstep_mem->stages; j++) {
-        if (arkstep_mem->explicit) {        /* Explicit pieces */
-          cvals[nvec] = ark_mem->h * (arkstep_mem->Be->b[j] - arkstep_mem->Be->d[j]);
-          Xvecs[nvec] = arkstep_mem->Fe[j];
+      for (j=0; j<step_mem->stages; j++) {
+        if (step_mem->explicit) {        /* Explicit pieces */
+          cvals[nvec] = ark_mem->h * (step_mem->Be->b[j] - step_mem->Be->d[j]);
+          Xvecs[nvec] = step_mem->Fe[j];
           nvec += 1;
         }
-        if (arkstep_mem->implicit) {        /* Implicit pieces */
-          cvals[nvec] = ark_mem->h * (arkstep_mem->Bi->b[j] - arkstep_mem->Bi->d[j]);
-          Xvecs[nvec] = arkstep_mem->Fi[j];
+        if (step_mem->implicit) {        /* Implicit pieces */
+          cvals[nvec] = ark_mem->h * (step_mem->Bi->b[j] - step_mem->Bi->d[j]);
+          Xvecs[nvec] = step_mem->Fi[j];
           nvec += 1;
         }
       }
@@ -3055,7 +3055,7 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
       if (ier != 0) return(ARK_VECTOROP_ERR);
       
       /* solve for yerr */
-      ier = arkstep_mem->msolve((void *) ark_mem, yerr, arkstep_mem->nlscoef); 
+      ier = step_mem->msolve((void *) ark_mem, yerr, step_mem->nlscoef); 
       if (ier < 0) {
         *dsm = 2.0;         /* indicate too much error, step with smaller step */
         return(CONV_FAIL);
@@ -3071,15 +3071,15 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
     cvals[0] = ONE;
     Xvecs[0] = ark_mem->yn;
     nvec = 1;
-    for (j=0; j<arkstep_mem->stages; j++) {
-      if (arkstep_mem->explicit) {      /* Explicit pieces */
-        cvals[nvec] = ark_mem->h * arkstep_mem->Be->b[j];
-        Xvecs[nvec] = arkstep_mem->Fe[j];
+    for (j=0; j<step_mem->stages; j++) {
+      if (step_mem->explicit) {      /* Explicit pieces */
+        cvals[nvec] = ark_mem->h * step_mem->Be->b[j];
+        Xvecs[nvec] = step_mem->Fe[j];
         nvec += 1;
       }
-      if (arkstep_mem->implicit) {      /* Implicit pieces */
-        cvals[nvec] = ark_mem->h * arkstep_mem->Bi->b[j];
-        Xvecs[nvec] = arkstep_mem->Fi[j];
+      if (step_mem->implicit) {      /* Implicit pieces */
+        cvals[nvec] = ark_mem->h * step_mem->Bi->b[j];
+        Xvecs[nvec] = step_mem->Fi[j];
         nvec += 1;
       }
     }
@@ -3093,15 +3093,15 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
 
       /* set arrays for fused vector operation */
       nvec = 0;
-      for (j=0; j<arkstep_mem->stages; j++) {
-        if (arkstep_mem->explicit) {        /* Explicit pieces */
-          cvals[nvec] = ark_mem->h * (arkstep_mem->Be->b[j] - arkstep_mem->Be->d[j]);
-          Xvecs[nvec] = arkstep_mem->Fe[j];
+      for (j=0; j<step_mem->stages; j++) {
+        if (step_mem->explicit) {        /* Explicit pieces */
+          cvals[nvec] = ark_mem->h * (step_mem->Be->b[j] - step_mem->Be->d[j]);
+          Xvecs[nvec] = step_mem->Fe[j];
           nvec += 1;
         }
-        if (arkstep_mem->implicit) {        /* Implicit pieces */
-          cvals[nvec] = ark_mem->h * (arkstep_mem->Bi->b[j] - arkstep_mem->Bi->d[j]);
-          Xvecs[nvec] = arkstep_mem->Fi[j];
+        if (step_mem->implicit) {        /* Implicit pieces */
+          cvals[nvec] = ark_mem->h * (step_mem->Bi->b[j] - step_mem->Bi->d[j]);
+          Xvecs[nvec] = step_mem->Fi[j];
           nvec += 1;
         }
       }
@@ -3143,7 +3143,7 @@ int arkStep_DoErrorTest(ARKodeMem ark_mem, int *nflagPtr,
   realtype ehist2, hhist2;
   int retval, k;
   ARKodeHAdaptMem hadapt_mem;
-  ARKodeARKStepMem arkstep_mem;
+  ARKodeARKStepMem step_mem;
 
   /* access ARKodeARKStepMem structure */
   if (ark_mem->step_mem==NULL) {
@@ -3151,26 +3151,26 @@ int arkStep_DoErrorTest(ARKodeMem ark_mem, int *nflagPtr,
                     "arkStep_DoErrorTest", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
 
-  if (arkstep_mem->hadapt_mem == NULL) {
+  if (step_mem->hadapt_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKODE::ARKStep", "arkDoErrorTest",
                     MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  hadapt_mem = arkstep_mem->hadapt_mem;
+  hadapt_mem = step_mem->hadapt_mem;
 
   /* If est. local error norm dsm passes test, return ARK_SUCCESS */  
   if (dsm <= ONE) return(ARK_SUCCESS);
   
   /* Test failed; increment counters, set nflag */
   (*nefPtr)++;
-  arkstep_mem->netf++;
+  step_mem->netf++;
   *nflagPtr = PREV_ERR_FAIL;
 
   /* At |h| = hmin or maxnef failures, return ARK_ERR_FAILURE */
   if ((SUNRabs(ark_mem->h) <= ark_mem->hmin*ONEPSM) ||
-      (*nefPtr == arkstep_mem->maxnef))
+      (*nefPtr == step_mem->maxnef))
     return(ARK_ERR_FAILURE);
 
   /* Set etamax=1 to prevent step size increase at end of this step */
@@ -3189,8 +3189,8 @@ int arkStep_DoErrorTest(ARKodeMem ark_mem, int *nflagPtr,
   hadapt_mem->hhist[0] = ark_mem->h;
 
   /* Compute accuracy-based time step estimate (updated ark_eta) */
-  k = (arkstep_mem->hadapt_pq) ? arkstep_mem->q : arkstep_mem->p;
-  retval = arkAdapt((void*) ark_mem, arkstep_mem->hadapt_mem, ark_mem->ycur,
+  k = (step_mem->hadapt_pq) ? step_mem->q : step_mem->p;
+  retval = arkAdapt((void*) ark_mem, step_mem->hadapt_mem, ark_mem->ycur,
                     ark_mem->tcur, ark_mem->h, k, ark_mem->nst);
   if (retval != ARK_SUCCESS)  return(ARK_ERR_FAILURE);
 
@@ -3226,7 +3226,7 @@ int arkStep_DoErrorTest(ARKodeMem ark_mem, int *nflagPtr,
 int arkStep_PrepareNextStep(ARKodeMem ark_mem, realtype dsm)
 {
   int retval, k;
-  ARKodeARKStepMem arkstep_mem;
+  ARKodeARKStepMem step_mem;
 
   /* access ARKodeARKStepMem structure */
   if (ark_mem->step_mem==NULL) {
@@ -3234,16 +3234,16 @@ int arkStep_PrepareNextStep(ARKodeMem ark_mem, realtype dsm)
                     "arkStep_PrepareNextStep", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  arkstep_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
 
   /* Update step size and error history arrays */
-  if (arkstep_mem->hadapt_mem != NULL) {
-    arkstep_mem->hadapt_mem->ehist[2] = arkstep_mem->hadapt_mem->ehist[1];
-    arkstep_mem->hadapt_mem->ehist[1] = arkstep_mem->hadapt_mem->ehist[0];
-    arkstep_mem->hadapt_mem->ehist[0] = dsm*arkstep_mem->hadapt_mem->bias;
-    arkstep_mem->hadapt_mem->hhist[2] = arkstep_mem->hadapt_mem->hhist[1];
-    arkstep_mem->hadapt_mem->hhist[1] = arkstep_mem->hadapt_mem->hhist[0];
-    arkstep_mem->hadapt_mem->hhist[0] = ark_mem->h;
+  if (step_mem->hadapt_mem != NULL) {
+    step_mem->hadapt_mem->ehist[2] = step_mem->hadapt_mem->ehist[1];
+    step_mem->hadapt_mem->ehist[1] = step_mem->hadapt_mem->ehist[0];
+    step_mem->hadapt_mem->ehist[0] = dsm*step_mem->hadapt_mem->bias;
+    step_mem->hadapt_mem->hhist[2] = step_mem->hadapt_mem->hhist[1];
+    step_mem->hadapt_mem->hhist[1] = step_mem->hadapt_mem->hhist[0];
+    step_mem->hadapt_mem->hhist[0] = ark_mem->h;
   }
   
   /* If fixed time-stepping requested, defer 
@@ -3256,18 +3256,18 @@ int arkStep_PrepareNextStep(ARKodeMem ark_mem, realtype dsm)
 
   /* If etamax = 1, defer step size changes until next step, 
      and reset etamax */
-  if (arkstep_mem->hadapt_mem != NULL)
-    if (arkstep_mem->hadapt_mem->etamax == ONE) {
+  if (step_mem->hadapt_mem != NULL)
+    if (step_mem->hadapt_mem->etamax == ONE) {
       ark_mem->hprime = ark_mem->h;
       ark_mem->eta = ONE;
-      arkstep_mem->hadapt_mem->etamax = arkstep_mem->hadapt_mem->growth;
+      step_mem->hadapt_mem->etamax = step_mem->hadapt_mem->growth;
       return(ARK_SUCCESS);
     }
 
   /* Adjust ark_eta in arkAdapt */
-  if (arkstep_mem->hadapt_mem != NULL) {
-    k = (arkstep_mem->hadapt_pq) ? arkstep_mem->q : arkstep_mem->p;
-    retval = arkAdapt((void*) ark_mem, arkstep_mem->hadapt_mem,
+  if (step_mem->hadapt_mem != NULL) {
+    k = (step_mem->hadapt_pq) ? step_mem->q : step_mem->p;
+    retval = arkAdapt((void*) ark_mem, step_mem->hadapt_mem,
                       ark_mem->ycur, ark_mem->tn + ark_mem->h,
                       ark_mem->h, k, ark_mem->nst+1);
     if (retval != ARK_SUCCESS)  return(ARK_ERR_FAILURE);
@@ -3277,8 +3277,8 @@ int arkStep_PrepareNextStep(ARKodeMem ark_mem, realtype dsm)
   ark_mem->hprime = ark_mem->h * ark_mem->eta;
   
   /* Reset growth factor for subsequent time step */
-  if (arkstep_mem->hadapt_mem != NULL)
-    arkstep_mem->hadapt_mem->etamax = arkstep_mem->hadapt_mem->growth;
+  if (step_mem->hadapt_mem != NULL)
+    step_mem->hadapt_mem->etamax = step_mem->hadapt_mem->growth;
 
   return(ARK_SUCCESS);
 }
