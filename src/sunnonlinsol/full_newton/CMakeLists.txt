@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# Programmer: David J. Gardner @ LLNL
+# Programmer(s): David J. Gardner @ LLNL
 # ------------------------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
@@ -71,32 +71,33 @@ endif()
 INSTALL(FILES ${lib_HEADERS} DESTINATION include/sunnonlinsol)
 
 # If FCMIX is enabled, build and install the F library
-# if(FCMIX_ENABLE AND F77_FOUND)
-#   set(flib_SOURCES fsunnonlinsol_newton.c)
+if(FCMIX_ENABLE AND F77_FOUND)
 
-#   if(BUILD_STATIC_LIBS)
-#     add_library(sundials_fsunnonlinsolnewton_static STATIC ${flib_SOURCES})
-#     set_target_properties(sundials_fsunnonlinsolnewton_static
-#       PROPERTIES OUTPUT_NAME sundials_fsunnonlinsolnewton CLEAN_DIRECT_OUTPUT 1)
-#     install(TARGETS sundials_fsunnonlinsolnewton_static DESTINATION lib)
-#   endif()
+  set(flib_SOURCES fsunnonlinsol_full_newton.c)
 
-#   if(BUILD_SHARED_LIBS)
-#     add_library(sundials_fsunnonlinsolnewton_shared ${flib_SOURCES})
+  if(BUILD_STATIC_LIBS)
+    add_library(sundials_fsunnonlinsolfullnewton_static STATIC ${flib_SOURCES})
+    set_target_properties(sundials_fsunnonlinsolfullnewton_static
+      PROPERTIES OUTPUT_NAME sundials_fsunnonlinsolfullnewton CLEAN_DIRECT_OUTPUT 1)
+    install(TARGETS sundials_fsunnonlinsolfullnewton_static DESTINATION lib)
+  endif()
 
-#     # depends on fnvecserial and sunnonlinsolnewton
-#     target_link_libraries(sundials_fsunnonlinsolnewton_shared
-#       sundials_fnvecserial_shared
-#       sundials_sunnonlinsolnewton_shared)
+  if(BUILD_SHARED_LIBS)
+    add_library(sundials_fsunnonlinsolfullnewton_shared ${flib_SOURCES})
 
-#     set_target_properties(sundials_fsunnonlinsolnewton_shared
-#       PROPERTIES OUTPUT_NAME sundials_fsunnonlinsolnewton CLEAN_DIRECT_OUTPUT 1)
-#     set_target_properties(sundials_fsunnonlinsolnewton_shared
-#       PROPERTIES VERSION ${sunnonlinsollib_VERSION} SOVERSION ${sunnonlinsollib_SOVERSION})
-#     install(TARGETS sundials_fsunnonlinsolnewton_shared DESTINATION lib)
-#   endif()
+    # depends on fnvecserial and sunnonlinsolfullnewton
+    target_link_libraries(sundials_fsunnonlinsolfullnewton_shared
+      sundials_fnvecserial_shared
+      sundials_sunnonlinsolfullnewton_shared)
 
-# endif()
+    set_target_properties(sundials_fsunnonlinsolfullnewton_shared
+      PROPERTIES OUTPUT_NAME sundials_fsunnonlinsolfullnewton CLEAN_DIRECT_OUTPUT 1)
+    set_target_properties(sundials_fsunnonlinsolfullnewton_shared
+      PROPERTIES VERSION ${sunnonlinsollib_VERSION} SOVERSION ${sunnonlinsollib_SOVERSION})
+    install(TARGETS sundials_fsunnonlinsolfullnewton_shared DESTINATION lib)
+  endif()
+
+endif()
 
 #
 message(STATUS "Added SUNNONLINSOL_FULL_NEWTON module")

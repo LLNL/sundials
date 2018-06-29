@@ -57,6 +57,8 @@
     FSUNSPTFQMRINIT              SUNSPTFQMR
     FSUNSUPERLUMTINIT            SUNSuperLUMT
 
+    FSUNNEWTONINIT               SUNNewtonSolver
+
     FIDAMALLOC                   IDACreate, IDASetUserData and IDAInit
     FIDAREINIT                   IDAReInit
  
@@ -80,7 +82,9 @@
     FIDASPILSSETINCREMENTFACTOR  IDASpilsSetIncrementFactor
     FIDASPILSSETJAC              IDASpilsSetJacTimes
     FIDASPILSSETPREC             IDASpilsSetPreconditioner
- 
+
+    FIDANLSINIT                  IDASetNonlinearSolver
+
     FIDASOLVE                    IDASolve, IDAGet*, and IDA*Get*
  
     FIDAGETDKY                   IDAGetDky
@@ -467,6 +471,7 @@
                           FSUNPCGINIT / FSUNSPBCGSINIT / FSUNSPFGMRINIT / 
                           FSUNSPGMRINIT / FSUNSPTFQMRINIT / FSUNSUPERLUMTINIT /
                           FSUNSUPERLUMTSETORDERING,
+                       FSUNNEWTONINIT,
                        FIDAMALLOC, 
                        FIDADLSINIT / FIDASPILSINIT
                        FIDAREINIT,
@@ -585,8 +590,26 @@
                    0 = success, 
                   -1 = failure.
 
- 
-  (5.4) To set various problem and solution parameters and allocate
+  (5.4) To initialize a nonlinear solver structure for solving nonlinear systems
+        arising from the solution to the DAE, the user must make the following
+        call:
+
+          CALL FSUNNEWTON(2, IER)
+
+        Once the nonlinear solver has been initialized, nonlinear solver
+        parameters may be modified calls to the function
+
+          CAll FSUNNEWTONSETMAXITERS(2, MAXITERS, IER)
+
+        In the above, the first argument is an integer corresponding to the
+        solver ID (2 for IDA). The other arguments are:
+
+           MAXITERS = maximum number of nonlinear solver iterations [int, input]
+           IER      = return completion flag [int, output]:
+                         0 = success, 
+                        -1 = failure.
+
+  (5.5) To set various problem and solution parameters and allocate
       internal memory, make the following call:
 
          CALL FIDAMALLOC(T0, Y0, YP0, IATOL, RTOL, ATOL, 
@@ -641,7 +664,7 @@
             UNITRND = ROUT( 6) -> UNIT_ROUNDOFF
       See the IDA manual for details. 
  
-  (5.5) If a direct linear solver was created in step (5.3) then it must be 
+  (5.6) If a direct linear solver was created in step (5.3) then it must be 
       attached to IDA.  If the user called any one of FSUNBANDLINSOLINIT, 
       FSUNDENSELINSOLINIT, FSUNKLUINIT, FSUNLAPACKBANDINIT, 
       FSUNLAPACKDENSEINIT, or FSUNSUPERLUMTINIT, then this must be 
@@ -654,7 +677,7 @@
                    0 = SUCCESS,
                   -1 = failure (see printed message for failure details).
 
-  (5.5) If an iterative linear solver was created in step (5.3) then it must 
+  (5.7) If an iterative linear solver was created in step (5.3) then it must 
       be attached to IDA.  If the user called any one of FSUNPCGINIT, 
       FSUNSPBCGSINIT, FSUNSPFGMRINIT, FSUNSPGMRINIT, or FSUNSPTFQMRINIT, 
       then this must be attached to the IDASPILS interface using the command:
@@ -666,8 +689,17 @@
                    0 = SUCCESS,
                   -1 = failure (see printed message for failure details).
 
- 
-  (5.6) If the user program includes the FIDAEWT routine for the evaluation 
+  (5.8) The nonlinear solver strucutre must be attached to IDA using the
+        command:
+
+          CALL FIDANLSINIT(IER)
+
+        The arguments are:
+          IER = return completion flag [int, output]:
+                   0 = SUCCESS,
+                  -1 = failure (see printed message for failure details).
+
+  (5.9) If the user program includes the FIDAEWT routine for the evaluation 
       of the error weights, the following call must be made
 
         CALL FIDAEWTSET(FLAG, IER)
@@ -676,7 +708,7 @@
       FLAG = 0 resets to the default EWT formulation. 
       The return flag IER is 0 if successful, and nonzero otherwise.
 
-  (5.7) If the user program includes the FIDABJAC routine for the 
+  (5.10) If the user program includes the FIDABJAC routine for the 
       evaluation of the band approximation to the Jacobian, then following 
       the call to FIDADLSINIT, the following call must be made 
 
@@ -707,7 +739,7 @@
 
       The int return flag IER=0 if successful, and nonzero otherwise.
 
- (5.8) If the user program includes the FIDAJTSETUP and FIDAJTIMES 
+ (5.11) If the user program includes the FIDAJTSETUP and FIDAJTIMES 
       routines for setup of a Jacobian-times-vector product (for use with 
       the IDASpils interface), then after creating the IDASpils interface, 
       the following call must be made:
@@ -719,7 +751,7 @@
       finite difference approximation to this product).  The int return 
       flag IER=0 if successful, and nonzero otherwise.
  
-  (5.9) If the user program includes the FIDAPSET and FIDAPSOL routines 
+  (5.12) If the user program includes the FIDAPSET and FIDAPSOL routines 
       for supplying a preconditioner to an iterative linear solver, then 
       after creating the IDASpils interface, the following call must be made
 
@@ -729,7 +761,7 @@
       routines will be disabled. The return flag IER=0 if successful, 
       nonzero otherwise.
 
-  (5.10) If the user wishes to use one of IDAode's built-in preconditioning 
+  (5.13) If the user wishes to use one of IDAode's built-in preconditioning 
       module, FIDABBD, then that should be initialized after creating the 
       IDASpils interface using the call
 
@@ -739,7 +771,7 @@
       requirements of user-supplied functions on which these preconditioning 
       modules rely, may be found in the header file fidabbd.h.
 
-  (5.11) To set various integer optional inputs, make the folowing call:
+  (5.14) To set various integer optional inputs, make the folowing call:
 
         CALL FIDASETIIN(KEY, VALUE, IER)
 
@@ -750,7 +782,7 @@
       SUPPRESS_ALG, MAX_NSTEPS_IC, MAX_NITERS_IC, MAX_NJE_IC, LS_OFF_IC. 
       The int return flag IER is 0 if successful, and nonzero otherwise. 
 
-  (5.12) To set various real optional inputs, make the folowing call:
+  (5.15) To set various real optional inputs, make the folowing call:
 
         CALL FIDASETRIN(KEY, VALUE, IER)
 
@@ -761,7 +793,7 @@
       NLCONV_COEF. The int return flag IER is 0 if successful, and nonzero
       otherwise. 
  
-  (5.13) To set the vector of variable IDs or the vector of constraints, 
+  (5.16) To set the vector of variable IDs or the vector of constraints, 
       make the following call:
 
         CALL FIDASETVIN(KEY, ARRAY, IER)
@@ -770,7 +802,7 @@
       KEY is one of: ID_VEC or CONSTR_VEC.  The int return flag IER is 0 
       if successful, and nonzero otherwise. 
  
-  (5.14) To re-initialize the FIDA solver for the solution of a new problem
+  (5.17) To re-initialize the FIDA solver for the solution of a new problem
       of the same size as one already solved, make the following call:
 
         CALL FIDAREINIT(T0, Y0, YP0, IATOL, RTOL, ATOL, ID, CONSTR, IER)
@@ -782,14 +814,14 @@
       The subsequent calls to attach the linear system solver is only needed
       if the matrix or linear solver objects have been re-created.
  
-  (5.15) To modify the tolerance parameters, make the following call:
+  (5.18) To modify the tolerance parameters, make the following call:
 
         CALL FIDATOLREINIT(IATOL, RTOL, ATOL, IER)
 
       The arguments have the same names and meanings as those of FIDAMALLOC. 
       FIDATOLREINIT simply calls IDASetTolerances with the given arguments.
  
-  (5.16) To compute consistent initial conditions for an index-one DAE system,
+  (5.19) To compute consistent initial conditions for an index-one DAE system,
       make the following call:
 
         CALL FIDACALCIC(ICOPT, TOUT, IER)
@@ -803,7 +835,7 @@
                  be requested from FIDASOLVE [realtype, input].
          IER   = return completion flag [int, output].
 
-  (5.17) The SUNKLU solver will reuse much of the factorization information 
+  (5.20) The SUNKLU solver will reuse much of the factorization information 
       from one solve to the next.  If at any time the user wants to force a 
       full refactorization or if the number of nonzeros in the Jacobian 
       matrix changes, the user should make the call
@@ -970,6 +1002,7 @@ extern "C" {
 #define FIDA_GETDKY         SUNDIALS_F77_FUNC(fidagetdky, FIDAGETDKY)
 #define FIDA_GETERRWEIGHTS  SUNDIALS_F77_FUNC(fidageterrweights, FIDAGETERRWEIGHTS)
 #define FIDA_GETESTLOCALERR SUNDIALS_F77_FUNC(fidagetestlocalerr, FIDAGETESTLOCALERR)
+#define FIDA_NLSINIT        SUNDIALS_F77_FUNC(fidanlsinit, FIDANLSINIT)
 
 #else
 
@@ -1004,6 +1037,7 @@ extern "C" {
 #define FIDA_GETDKY         fidagetdky_
 #define FIDA_GETERRWEIGHTS  fidageterrweights_
 #define FIDA_GETESTLOCALERR fidagetestlocalerr_
+#define FIDA_NLSINIT        fidanlsinit_
 
 #endif
 
@@ -1041,6 +1075,8 @@ void FIDA_SPILSSETEPSLIN(realtype *eplifac, int *ier);
 void FIDA_SPILSSETINCREMENTFACTOR(realtype *dqincfac, int *ier);
 void FIDA_SPILSSETJAC(int *flag, int *ier);
 void FIDA_SPILSSETPREC(int *flag, int *ier);
+
+void FIDA_NLSINIT(int *ier);
 
 void FIDA_SOLVE(realtype *tout, realtype *tret, realtype *yret,
                 realtype *ypret, int *itask, int *ier);
@@ -1087,16 +1123,17 @@ int FIDAEwtSet(N_Vector yy, N_Vector ewt, void *user_data);
 void FIDANullMatrix();
   
 /* Declarations for global variables shared amongst various routines */
-extern N_Vector F2C_IDA_vec;            /* defined in FNVECTOR module */
-extern N_Vector F2C_IDA_ypvec;          /* defined in fida.c */
-extern N_Vector F2C_IDA_ewtvec;         /* defined in fida.c */
-extern SUNMatrix F2C_IDA_matrix;        /* defined in FSUNMATRIX module */
-extern SUNLinearSolver F2C_IDA_linsol;  /* defined in FSUNLINSOL module */
-extern void *IDA_idamem;                /* defined in fida.c */
-extern long int *IDA_iout;              /* defined in fida.c */
-extern realtype *IDA_rout;              /* defined in fida.c */  
-extern int IDA_ls;                      /* defined in fida.c */
-extern int IDA_nrtfn;                   /* defined in fida.c */
+extern N_Vector F2C_IDA_vec;                 /* defined in FNVECTOR module */
+extern N_Vector F2C_IDA_ypvec;               /* defined in fida.c */
+extern N_Vector F2C_IDA_ewtvec;              /* defined in fida.c */
+extern SUNMatrix F2C_IDA_matrix;             /* defined in FSUNMATRIX module */
+extern SUNLinearSolver F2C_IDA_linsol;       /* defined in FSUNLINSOL module */
+extern SUNNonlinearSolver F2C_IDA_nonlinsol; /* defined in FSUNNONLINSOL module */
+extern void *IDA_idamem;                     /* defined in fida.c */
+extern long int *IDA_iout;                   /* defined in fida.c */
+extern realtype *IDA_rout;                   /* defined in fida.c */  
+extern int IDA_ls;                           /* defined in fida.c */
+extern int IDA_nrtfn;                        /* defined in fida.c */
 
 /* Linear solver IDs */
 enum { IDA_LS_ITERATIVE = 0,
