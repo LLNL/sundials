@@ -106,6 +106,7 @@
 #include <nvector/nvector_openmp.h>
 #include <sundials/sundials_direct.h>
 #include <sundials/sundials_types.h>
+#include <sunnonlinsol/sunnonlinsol_newton.h>
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -191,6 +192,7 @@ int main(int argc, char *argv[])
   void *ida_mem;
   SUNMatrix A;
   SUNLinearSolver LS;
+  SUNNonlinearSolver NLS;
   UserData webdata;
   N_Vector cc, cp, id;
   int iout, retval;
@@ -201,6 +203,7 @@ int main(int argc, char *argv[])
   ida_mem = NULL;
   A = NULL;
   LS = NULL;
+  NLS = NULL;
   webdata = NULL;
   cc = cp = id = NULL;
 
@@ -268,6 +271,14 @@ int main(int argc, char *argv[])
   retval = IDADlsSetLinearSolver(ida_mem, LS, A);
   if(check_flag(&retval, "IDADlsSetLinearSolver", 1)) return(1);
 
+  /* Create Newton SUNNonlinearSolver object */
+  NLS = SUNNewtonSolver(cc);
+  if(check_flag((void *)NLS, "SUNNewtonSolver", 0)) return(1);
+
+  /* Attach the nonlinear solver */
+  retval = IDASetNonlinearSolver(ida_mem, NLS);
+  if(check_flag(&retval, "IDASetNonlinearSolver", 1)) return(1);
+
   /* Call IDACalcIC (with default options) to correct the initial values. */
 
   tout = RCONST(0.001);
@@ -300,6 +311,7 @@ int main(int argc, char *argv[])
   /* Free memory */
 
   IDAFree(&ida_mem);
+  SUNNonlinSolFree(NLS);
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
   

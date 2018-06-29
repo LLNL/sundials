@@ -82,12 +82,13 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <ida/ida.h>                   /* prototypes for IDA fcts., consts.    */
-#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
-#include <sunmatrix/sunmatrix_band.h>  /* access to band SUNMatrix             */
-#include <sunlinsol/sunlinsol_band.h>  /* access to band SUNLinearSolver       */
-#include <ida/ida_direct.h>            /* access to IDADls interface           */
-#include <sundials/sundials_types.h>   /* definition of type realtype          */
+#include <ida/ida.h>                          /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>           /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_band.h>         /* access to band SUNMatrix             */
+#include <sunlinsol/sunlinsol_band.h>         /* access to band SUNLinearSolver       */
+#include <ida/ida_direct.h>                   /* access to IDADls interface           */
+#include <sunnonlinsol/sunnonlinsol_newton.h> /* access to Newton SUNNonlinearSolver  */
+#include <sundials/sundials_types.h>          /* definition of type realtype          */
 
 /* Problem Constants. */
 
@@ -173,12 +174,14 @@ int main()
   realtype rtol, atol, t0, tout, tret;
   SUNMatrix A;
   SUNLinearSolver LS;
+  SUNNonlinearSolver NLS;
 
   mem = NULL;
   webdata = NULL;
   cc = cp = id = NULL;
   A = NULL;
   LS = NULL;
+  NLS = NULL;
 
   /* Allocate and initialize user data block webdata. */
 
@@ -237,6 +240,14 @@ int main()
   retval = IDADlsSetLinearSolver(mem, LS, A);
   if(check_flag(&retval, "IDADlsSetLinearSolver", 1)) return(1);
 
+  /* Create Newton SUNNonlinearSolver object */
+  NLS = SUNNewtonSolver(cc);
+  if(check_flag((void *)NLS, "SUNNewtonSolver", 0)) return(1);
+
+  /* Attach the nonlinear solver */
+  retval = IDASetNonlinearSolver(mem, NLS);
+  if(check_flag(&retval, "IDASetNonlinearSolver", 1)) return(1);
+
   /* Call IDACalcIC (with default options) to correct the initial values. */
 
   tout = RCONST(0.001);
@@ -268,6 +279,7 @@ int main()
   /* Free memory */
 
   IDAFree(&mem);
+  SUNNonlinSolFree(NLS);
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
 

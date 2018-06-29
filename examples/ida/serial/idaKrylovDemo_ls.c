@@ -33,13 +33,14 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <ida/ida.h>                     /* main integrator header file       */
-#include <ida/ida_spils.h>               /* access to IDASpils interface      */
-#include <sunlinsol/sunlinsol_spgmr.h>   /* access to SPGMR SUNLinearSolver   */
-#include <sunlinsol/sunlinsol_spbcgs.h>  /* access to SPBCGS SUNLinearSolver  */
-#include <sunlinsol/sunlinsol_sptfqmr.h> /* access to SPTFQMR SUNLinearSolver */
-#include <nvector/nvector_serial.h>      /* serial N_Vector types, fct. and macros */
-#include <sundials/sundials_types.h>     /* definition of realtype */
+#include <ida/ida.h>                          /* main integrator header file       */
+#include <ida/ida_spils.h>                    /* access to IDASpils interface      */
+#include <sunlinsol/sunlinsol_spgmr.h>        /* access to SPGMR SUNLinearSolver   */
+#include <sunlinsol/sunlinsol_spbcgs.h>       /* access to SPBCGS SUNLinearSolver  */
+#include <sunlinsol/sunlinsol_sptfqmr.h>      /* access to SPTFQMR SUNLinearSolver */
+#include <sunnonlinsol/sunnonlinsol_newton.h> /* access to Newton SUNNonlinearSolver  */
+#include <nvector/nvector_serial.h>           /* serial N_Vector types, fct. and macros */
+#include <sundials/sundials_types.h>          /* definition of realtype */
 
 /* Problem Constants */
 
@@ -103,11 +104,13 @@ int main(void)
   realtype rtol, atol, t0, t1, tout, tret;
   long int netf, ncfn, ncfl;
   SUNLinearSolver LS;
+  SUNNonlinearSolver NLS;
 
   mem = NULL;
   data = NULL;
   uu = up = constraints = res = NULL;
   LS = NULL;
+  NLS = NULL;
 
   /* Allocate N-vectors and the user data structure. */
 
@@ -167,6 +170,14 @@ int main(void)
 
   ier = IDASStolerances(mem, rtol, atol);
   if(check_flag(&ier, "IDASStolerances", 1)) return(1);
+
+  /* Create Newton SUNNonlinearSolver object */
+  NLS = SUNNewtonSolver(uu);
+  if(check_flag((void *)NLS, "SUNNewtonSolver", 0)) return(1);
+
+  /* Attach the nonlinear solver */
+  ier = IDASetNonlinearSolver(mem, NLS);
+  if(check_flag(&ier, "IDASetNonlinearSolver", 1)) return(1);
 
   /* START: Loop through SPGMR, SPBCG and SPTFQMR linear solver modules */
   for (linsolver = 0; linsolver < 3; ++linsolver) {
@@ -289,6 +300,7 @@ int main(void)
   /* Free Memory */
 
   IDAFree(&mem);
+  SUNNonlinSolFree(NLS);
   SUNLinSolFree(LS);
 
   N_VDestroy(uu);

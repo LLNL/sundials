@@ -43,6 +43,7 @@
 #include <nvector/nvector_parallel.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
+#include <sunnonlinsol/sunnonlinsol_newton.h>
 
 #include <mpi.h>
 
@@ -122,6 +123,7 @@ int main(int argc, char *argv[])
   MPI_Comm comm;
   void *ida_mem;
   SUNLinearSolver LS;
+  SUNNonlinearSolver NLS;
   UserData data;
   int thispe, iout, ier, npes;
   sunindextype Neq, local_N, mudq, mldq, mukeep, mlkeep;
@@ -130,6 +132,7 @@ int main(int argc, char *argv[])
 
   ida_mem = NULL;
   LS = NULL;
+  NLS = NULL;
   data = NULL;
   uu = up = constraints = id = res = NULL;
 
@@ -245,6 +248,14 @@ int main(int argc, char *argv[])
                        ZERO, reslocal, NULL);
   if(check_flag(&ier, "IDABBDPrecAlloc", 1, thispe)) MPI_Abort(comm, 1);
 
+  /* Create Newton SUNNonlinearSolver object */
+  NLS = SUNNewtonSolver(uu);
+  if(check_flag((void *)NLS, "SUNNewtonSolver", 0, thispe)) return(1);
+
+  /* Attach the nonlinear solver */
+  ier = IDASetNonlinearSolver(ida_mem, NLS);
+  if(check_flag(&ier, "IDASetNonlinearSolver", 1, thispe)) return(1);
+
   /* Print output heading (on processor 0 only) and initial solution. */
   if (thispe == 0) PrintCase(1, mudq, mukeep);
 
@@ -299,6 +310,7 @@ int main(int argc, char *argv[])
 
   /* Free Memory */
   IDAFree(&ida_mem);
+  SUNNonlinSolFree(NLS);
   SUNLinSolFree(LS);
   free(data);
   N_VDestroy_Parallel(id);

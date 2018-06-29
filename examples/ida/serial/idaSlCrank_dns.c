@@ -15,13 +15,14 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <ida/ida.h>                   /* prototypes for IDA fcts., consts.    */
-#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
-#include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
-#include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
-#include <ida/ida_direct.h>            /* access to IDADls interface           */
-#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
-#include <sundials/sundials_math.h>    /* defs. of SUNRabs, SUNRexp, etc.      */
+#include <ida/ida.h>                          /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>           /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_dense.h>        /* access to dense SUNMatrix            */
+#include <sunlinsol/sunlinsol_dense.h>        /* access to dense SUNLinearSolver      */
+#include <ida/ida_direct.h>                   /* access to IDADls interface           */
+#include <sunnonlinsol/sunnonlinsol_newton.h> /* access to Newton SUNNonlinearSolver  */
+#include <sundials/sundials_types.h>          /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>           /* defs. of SUNRabs, SUNRexp, etc.      */
 
 /* Problem Constants */
 
@@ -73,9 +74,11 @@ int main(void)
   int flag, iout;
   SUNMatrix A;
   SUNLinearSolver LS;
+  SUNNonlinearSolver NLS;
 
   A = NULL;
   LS = NULL;
+  NLS = NULL;
 
   /* User data */
 
@@ -134,6 +137,14 @@ int main(void)
   flag = IDADlsSetLinearSolver(mem, LS, A);
   if(check_flag(&flag, "IDADlsSetLinearSolver", 1)) return(1);
 
+  /* Create Newton SUNNonlinearSolver object */
+  NLS = SUNNewtonSolver(yy);
+  if(check_flag((void *)NLS, "SUNNewtonSolver", 0)) return(1);
+
+  /* Attach the nonlinear solver */
+  flag = IDASetNonlinearSolver(mem, NLS);
+  if(check_flag(&flag, "IDASetNonlinearSolver", 1)) return(1);
+
   PrintHeader(rtol, atol, yy);
 
   /* In loop, call IDASolve, print results, and test for error. */
@@ -156,6 +167,7 @@ int main(void)
 
   free(data);
   IDAFree(&mem);
+  SUNNonlinSolFree(NLS);
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
   N_VDestroy(yy);

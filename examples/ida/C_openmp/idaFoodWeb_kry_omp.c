@@ -106,6 +106,7 @@
 #include <sundials/sundials_dense.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
+#include <sunnonlinsol/sunnonlinsol_newton.h>
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -201,6 +202,7 @@ int main(int argc, char *argv[])
 { 
   void *ida_mem;
   SUNLinearSolver LS;
+  SUNNonlinearSolver NLS;
   UserData webdata;
   N_Vector cc, cp, id;
   int iout, jx, jy, flag;
@@ -210,6 +212,7 @@ int main(int argc, char *argv[])
 
   ida_mem = NULL;
   LS = NULL;
+  NLS = NULL;
   webdata = NULL;
   cc = cp = id = NULL;
 
@@ -288,6 +291,14 @@ int main(int argc, char *argv[])
   flag = IDASpilsSetPreconditioner(ida_mem, Precond, PSolve);
   if(check_flag(&flag, "IDASpilsSetPreconditioner", 1)) return(1);
 
+  /* Create Newton SUNNonlinearSolver object */
+  NLS = SUNNewtonSolver(cc);
+  if(check_flag((void *)NLS, "SUNNewtonSolver", 0)) return(1);
+
+  /* Attach the nonlinear solver */
+  flag = IDASetNonlinearSolver(ida_mem, NLS);
+  if(check_flag(&flag, "IDASetNonlinearSolver", 1)) return(1);
+
   /* Call IDACalcIC (with default options) to correct the initial values. */
 
   tout = RCONST(0.001);
@@ -320,6 +331,7 @@ int main(int argc, char *argv[])
   /* Free memory */
 
   IDAFree(&ida_mem);
+  SUNNonlinSolFree(NLS);
   SUNLinSolFree(LS);
 
   N_VDestroy_OpenMP(cc);

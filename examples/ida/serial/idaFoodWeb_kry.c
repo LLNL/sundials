@@ -82,13 +82,14 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <ida/ida.h>                   /* prototypes for IDA fcts., consts.    */
-#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
-#include <ida/ida_spils.h>             /* access to IDASpils interface         */
-#include <sunlinsol/sunlinsol_spgmr.h> /* access to spgmr SUNLinearSolver      */
-#include <sundials/sundials_dense.h>   /* use generic dense solver in precond. */
-#include <sundials/sundials_types.h>   /* definition of type realtype          */
-#include <sundials/sundials_math.h>    /* macros SUNRabs, SUNRsqrt, etc.       */
+#include <ida/ida.h>                          /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>           /* access to serial N_Vector            */
+#include <ida/ida_spils.h>                    /* access to IDASpils interface         */
+#include <sunlinsol/sunlinsol_spgmr.h>        /* access to spgmr SUNLinearSolver      */
+#include <sundials/sundials_dense.h>          /* use generic dense solver in precond. */
+#include <sunnonlinsol/sunnonlinsol_newton.h> /* access to Newton SUNNonlinearSolver  */
+#include <sundials/sundials_types.h>          /* definition of type realtype          */
+#include <sundials/sundials_math.h>           /* macros SUNRabs, SUNRsqrt, etc.       */
 
 /* Problem Constants. */
 
@@ -186,11 +187,13 @@ int main()
   sunindextype maxl;
   realtype rtol, atol, t0, tout, tret;
   SUNLinearSolver LS;
+  SUNNonlinearSolver NLS;
 
   mem = NULL;
   webdata = NULL;
   cc = cp = id = NULL;
   LS = NULL;
+  NLS = NULL;
 
   /* Allocate and initialize user data block webdata. */
 
@@ -263,6 +266,14 @@ int main()
   flag = IDASpilsSetPreconditioner(mem, Precond, PSolve);
   if(check_flag(&flag, "IDASpilsSetPreconditioner", 1)) return(1);
 
+  /* Create Newton SUNNonlinearSolver object */
+  NLS = SUNNewtonSolver(cc);
+  if(check_flag((void *)NLS, "SUNNewtonSolver", 0)) return(1);
+
+  /* Attach the nonlinear solver */
+  flag = IDASetNonlinearSolver(mem, NLS);
+  if(check_flag(&flag, "IDASetNonlinearSolver", 1)) return(1);
+
   /* Call IDACalcIC (with default options) to correct the initial values. */
 
   tout = RCONST(0.001);
@@ -294,6 +305,7 @@ int main()
   /* Free memory */
 
   IDAFree(&mem);
+  SUNNonlinSolFree(NLS);
   SUNLinSolFree(LS);
 
   N_VDestroy(cc);

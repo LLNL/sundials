@@ -24,13 +24,14 @@
 #include <stdio.h>
 #include <math.h>
 
-#include <ida/ida.h>                       /* prototypes for IDA fcts., consts.    */
-#include <nvector/nvector_serial.h>        /* access to serial N_Vector            */
-#include <sunmatrix/sunmatrix_sparse.h>    /* access to sparse SUNMatrix           */
-#include <sunlinsol/sunlinsol_klu.h>       /* access to KLU linear solver          */
-#include <ida/ida_direct.h>                /* access to IDADls interface           */
-#include <sundials/sundials_types.h>       /* defs. of realtype, sunindextype      */
-#include <sundials/sundials_math.h>        /* defs. of SUNRabs, SUNRexp, etc.      */
+#include <ida/ida.h>                          /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>           /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_sparse.h>       /* access to sparse SUNMatrix           */
+#include <sunlinsol/sunlinsol_klu.h>          /* access to KLU linear solver          */
+#include <ida/ida_direct.h>                   /* access to IDADls interface           */
+#include <sunnonlinsol/sunnonlinsol_newton.h> /* access to Newton SUNNonlinearSolver  */
+#include <sundials/sundials_types.h>          /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>           /* defs. of SUNRabs, SUNRexp, etc.      */
 
 /* Problem Constants */
 
@@ -81,6 +82,7 @@ int main(void)
   int rootsfound[2];
   SUNMatrix A;
   SUNLinearSolver LS;
+  SUNNonlinearSolver NLS;
   sunindextype nnz;
 
   mem = NULL;
@@ -88,6 +90,7 @@ int main(void)
   yval = ypval = atval = NULL;
   A = NULL;
   LS = NULL;
+  NLS = NULL;
 
   /* Allocate N-vectors. */
   yy = N_VNew_Serial(NEQ);
@@ -154,6 +157,14 @@ int main(void)
   retval = IDADlsSetJacFn(mem, jacrobCSR);
   if(check_flag(&retval, "IDADlsSetJacFn", 1)) return(1);
 
+  /* Create Newton SUNNonlinearSolver object */
+  NLS = SUNNewtonSolver(yy);
+  if(check_flag((void *)NLS, "SUNNewtonSolver", 0)) return(1);
+
+  /* Attach the nonlinear solver */
+  retval = IDASetNonlinearSolver(mem, NLS);
+  if(check_flag(&retval, "IDASetNonlinearSolver", 1)) return(1);
+
   /* In loop, call IDASolve, print results, and test for error.
      Break out of loop when NOUT preset output times have been reached. */
 
@@ -183,8 +194,8 @@ int main(void)
   PrintFinalStats(mem);
 
   /* Free memory */
-
   IDAFree(&mem);
+  SUNNonlinSolFree(NLS);
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
   N_VDestroy(yy);

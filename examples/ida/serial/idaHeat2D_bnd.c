@@ -30,12 +30,13 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <ida/ida.h>                   /* prototypes for IDA fcts., consts.    */
-#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
-#include <sunmatrix/sunmatrix_band.h>  /* access to band SUNMatrix             */
-#include <sunlinsol/sunlinsol_band.h>  /* access to band SUNLinearSolver       */
-#include <ida/ida_direct.h>            /* access to IDADls interface           */
-#include <sundials/sundials_types.h>   /* definition of type realtype          */
+#include <ida/ida.h>                          /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>           /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_band.h>         /* access to band SUNMatrix             */
+#include <sunlinsol/sunlinsol_band.h>         /* access to band SUNLinearSolver       */
+#include <ida/ida_direct.h>                   /* access to IDADls interface           */
+#include <sunnonlinsol/sunnonlinsol_newton.h> /* access to Newton SUNNonlinearSolver  */
+#include <sundials/sundials_types.h>          /* definition of type realtype          */
 
 /* Problem Constants */
 
@@ -85,12 +86,14 @@ int main(void)
   realtype rtol, atol, t0, t1, tout, tret;
   SUNMatrix A;
   SUNLinearSolver LS;
+  SUNNonlinearSolver NLS;
   
   mem = NULL;
   data = NULL;
   uu = up = constraints = id = res = NULL;
   A = NULL;
   LS = NULL;
+  NLS = NULL;
 
   /* Create vectors uu, up, res, constraints, id. */
   uu = N_VNew_Serial(NEQ);
@@ -157,6 +160,14 @@ int main(void)
   ier = IDADlsSetLinearSolver(mem, LS, A);
   if(check_flag(&ier, "IDADlsSetLinearSolver", 1)) return(1);
 
+  /* Create Newton SUNNonlinearSolver object */
+  NLS = SUNNewtonSolver(uu);
+  if(check_flag((void *)NLS, "SUNNewtonSolver", 0)) return(1);
+
+  /* Attach the nonlinear solver */
+  ier = IDASetNonlinearSolver(mem, NLS);
+  if(check_flag(&ier, "IDASetNonlinearSolver", 1)) return(1);
+
   /* Call IDACalcIC to correct the initial values. */
 
   ier = IDACalcIC(mem, IDA_YA_YDP_INIT, t1);
@@ -187,6 +198,7 @@ int main(void)
   printf("\n netf = %ld,   ncfn = %ld \n", netf, ncfn);
 
   IDAFree(&mem);
+  SUNNonlinSolFree(NLS);
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
   N_VDestroy(uu);

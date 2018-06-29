@@ -88,7 +88,6 @@
 
 #include "ida_impl.h"
 #include <sundials/sundials_math.h>
-#include "sunnonlinsol/sunnonlinsol_newton.h" /* >>>>>>> REMOVE when constructor is removed <<<<<<< */
 
 /* 
  * =================================================================
@@ -464,9 +463,6 @@ int IDAInit(void *ida_mem, IDAResFn res,
   /* Problem memory has been successfully allocated */
 
   IDA_mem->ida_MallocDone = SUNTRUE;
-
-  /* >>>>>>> REMOVE -- this is a user-callable function -- REMOVE <<<<<<< */
-  IDASetNonlinearSolver(IDA_mem, SUNNewtonSolver(yy0));
 
   return(IDA_SUCCESS);
 }
@@ -1338,9 +1334,6 @@ void IDAFree(void **ida_mem)
 
   IDA_mem = (IDAMem) (*ida_mem);
 
-  /* >>>>>>> REMOVE -- user needs to call NLS free function -- REMOVE <<<<<<< */
-  SUNNonlinSolFree(IDA_mem->NLS);
-  
   IDAFreeVectors(IDA_mem);
 
   if (IDA_mem->ida_lfree != NULL)

@@ -47,6 +47,7 @@
 #include <nvector/nvector_petsc.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
+#include <sunnonlinsol/sunnonlinsol_newton.h>
 
 #include <mpi.h>
 #include <petscdm.h>
@@ -110,6 +111,7 @@ int main(int argc, char *argv[])
   MPI_Comm comm;
   void *ida_mem;
   SUNLinearSolver LS;
+  SUNNonlinearSolver NLS;
   UserData data;
   int iout, thispe, ier, npes;
   sunindextype Neq;
@@ -120,6 +122,7 @@ int main(int argc, char *argv[])
 
   ida_mem = NULL;
   LS = NULL;
+  NLS = NULL;
   data = NULL;
   uu = up = constraints = id = res = NULL;
 
@@ -249,6 +252,14 @@ int main(int argc, char *argv[])
   ier = IDASpilsSetPreconditioner(ida_mem, PsetupHeat, PsolveHeat);
   if(check_flag(&ier, "IDASpilsSetPreconditioner", 1, thispe)) MPI_Abort(comm, 1);
 
+  /* Create Newton SUNNonlinearSolver object */
+  NLS = SUNNewtonSolver(uu);
+  if(check_flag((void *)NLS, "SUNNewtonSolver", 0, thispe)) return(1);
+
+  /* Attach the nonlinear solver */
+  ier = IDASetNonlinearSolver(ida_mem, NLS);
+  if(check_flag(&ier, "IDASetNonlinearSolver", 1, thispe)) return(1);
+
   /* Print output heading (on processor 0 only) and intial solution  */
   
   if (thispe == 0) PrintHeader(Neq, rtol, atol);
@@ -272,6 +283,7 @@ int main(int argc, char *argv[])
   /* Free memory */
 
   IDAFree(&ida_mem);
+  SUNNonlinSolFree(NLS);
   SUNLinSolFree(LS);
 
   N_VDestroy_Petsc(id);
