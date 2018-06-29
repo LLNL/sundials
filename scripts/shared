@@ -70,6 +70,7 @@ $tar $tarfile $distrobase/include/sundials/sundials_iterative.h
 $tar $tarfile $distrobase/include/sundials/sundials_klu_impl.h
 $tar $tarfile $distrobase/include/sundials/sundials_superlumt_impl.h
 $tar $tarfile $distrobase/include/sundials/sundials_version.h
+$tar $tarfile $distrobase/include/sundials/sundials_nonlinearsolver.h
 
 $tar $tarfile $distrobase/include/nvector/nvector_serial.h
 $tar $tarfile $distrobase/include/nvector/nvector_parallel.h
@@ -102,6 +103,9 @@ $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_spgmr.h
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_sptfqmr.h
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_superlumt.h
 
+$tar $tarfile $distrobase/include/sunnonlinsol/sunnonlinsol_newton.h
+$tar $tarfile $distrobase/include/sunnonlinsol/sunnonlinsol_full_newton.h
+
 $tar $tarfile $distrobase/src/CMakeLists.txt
 $tar $tarfile $distrobase/src/sundials/README
 $tar $tarfile $distrobase/src/sundials/LICENSE
@@ -121,6 +125,7 @@ $tar $tarfile $distrobase/src/sundials/sundials_sptfqmr.c
 $tar $tarfile $distrobase/src/sundials/sundials_pcg.c
 $tar $tarfile $distrobase/src/sundials/sundials_iterative.c
 $tar $tarfile $distrobase/src/sundials/sundials_version.c
+$tar $tarfile $distrobase/src/sundials/sundials_nonlinearsolver.c
 
 echo "   --- Add nvecser module to $tarfile"
 
@@ -288,6 +293,24 @@ $tar $tarfile $distrobase/src/sunlinsol_superlumt/sunlinsol_superlumt.c
 $tar $tarfile $distrobase/src/sunlinsol_superlumt/fsunlinsol_superlumt.h
 $tar $tarfile $distrobase/src/sunlinsol_superlumt/fsunlinsol_superlumt.c
 
+echo "   --- Add sunnonlinsol modules to $tarfile"
+
+$tar $tarfile $distrobase/src/sunnonlinsol/CMakeLists.txt
+
+echo "   --- Add sunnonlinsolnewton modules to $tarfile"
+
+$tar $tarfile $distrobase/src/sunnonlinsol/newton/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunnonlinsol/newton/sunnonlinsol_newton.c
+$tar $tarfile $distrobase/src/sunnonlinsol/newton/fsunnonlinsol_newton.h
+$tar $tarfile $distrobase/src/sunnonlinsol/newton/fsunnonlinsol_newton.c
+
+echo "   --- Add sunnonlinsolfullnewton modules to $tarfile"
+
+$tar $tarfile $distrobase/src/sunnonlinsol/full_newton/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunnonlinsol/full_newton/sunnonlinsol_full_newton.c
+$tar $tarfile $distrobase/src/sunnonlinsol/full_newton/fsunnonlinsol_full_newton.h
+$tar $tarfile $distrobase/src/sunnonlinsol/full_newton/fsunnonlinsol_full_newton.c
+
 echo "   --- Add examples to $tarfile"
 
 $tar $tarfile $distrobase/examples/CMakeLists.txt
@@ -373,6 +396,16 @@ $tar $tarfile $distrobase/examples/sunlinsol/superlumt/test_sunlinsol_superlumt.
 $tar $tarfile $distrobase/examples/sunlinsol/superlumt/CMakeLists.txt
 $tar $tarfile $distrobase/examples/sunlinsol/test_sunlinsol.c
 $tar $tarfile $distrobase/examples/sunlinsol/test_sunlinsol.h
+
+echo "   --- Add sunnonlinsol examples to $tarfile"
+
+$tar $tarfile $distrobase/examples/sunnonlinsol/CMakeLists.txt
+
+$tar $tarfile $distrobase/examples/sunnonlinsol/newton/CMakeLists.txt
+$tar $tarfile $distrobase/examples/sunnonlinsol/newton/test_sunnonlinsol_newton.c
+
+$tar $tarfile $distrobase/examples/sunnonlinsol/full_newton/CMakeLists.txt
+$tar $tarfile $distrobase/examples/sunnonlinsol/full_newton/test_sunnonlinsol_full_newton.c
 
 echo "   --- Add directory with example Makefile templates to $tarfile"
 
