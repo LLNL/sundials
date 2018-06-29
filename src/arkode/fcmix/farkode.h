@@ -42,6 +42,7 @@
 
 /* header files  */
 #include <arkode/arkode.h>
+#include <arkode/arkode_arkstep.h>
 #include <sundials/sundials_linearsolver.h>  /* definition of type SUNLinearSolver */
 #include <sundials/sundials_matrix.h>        /* definition of type SUNMatrix */
 #include <sundials/sundials_nvector.h>       /* definition of type N_Vector */

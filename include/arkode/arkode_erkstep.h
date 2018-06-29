@@ -23,6 +23,7 @@
 
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_linearsolver.h>
+#include <arkode/arkode.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {

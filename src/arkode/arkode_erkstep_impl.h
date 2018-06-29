@@ -22,7 +22,7 @@
 #ifndef _ARKODE_ERKSTEP_IMPL_H
 #define _ARKODE_ERKSTEP_IMPL_H
 
-/* #include <arkode/arkode_erkstep.h> */
+#include <arkode/arkode_erkstep.h>
 #include "arkode_impl.h"
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */

@@ -23,10 +23,7 @@
 
 #include <stdarg.h>
 #include <arkode/arkode.h>
-#include <arkode/arkode_spils.h>
 #include <arkode/arkode_butcher.h>
-#include <arkode/arkode_arkstep.h>
-#include <arkode/arkode_erkstep.h>
 #include "arkode_adapt_impl.h"
 #include "arkode_interp_impl.h"
 #include "arkode_root_impl.h"
