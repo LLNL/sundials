@@ -72,6 +72,12 @@ are as follows:
   \item \id{FSUNSUPERLUMTINIT} (defined by {\sunlinsolslumt}) 
     interfaces to \id{SUNSuperLUMT}.
   \end{itemize}
+\item
+  Interface to the {\sunnonlinsol} modules
+  \begin{itemize}
+  \item \id{FSUNNEWTONINIT} (defined by {\sunnonlinsolnewton}) 
+    interfaces to \id{SUNNewtonSolver}.
+  \end{itemize}
 \item Interface to the main {\ida} module
   \begin{itemize}
   \item \id{FIDAMALLOC}
@@ -117,6 +123,11 @@ are as follows:
    interfaces to \id{IDASpilsSetJacTimes}.
  \item \id{FIDASPILSSETPREC}
    interfaces to \id{IDASpilsSetPreconditioner}.
+ \end{itemize}
+\item Interface to the nonlinear solver interfaces
+  \begin{itemize}
+  \item \id{FIDANLSINIT}    
+    interfaces to \id{IDASetNonlinearSolver}.
  \end{itemize}
 
 \end{itemize}
@@ -253,6 +264,25 @@ modified using a call to the functions
 \end{verbatim}
 where again the call sequences are described in the appropriate
 sections of Chapter \ref{s:sunlinsol}.
+
+%%====================
+\item\label{i:fida_nonlinsol_init} {\bf {\sunnonlinsol} module initialization}
+%%====================
+
+  To initialize the {\sunnonlinsolnewton} module supplied with
+  {\sundials}, the user must make the following call
+\begin{verbatim}
+      CALL FSUNNEWTON(2, IER)
+\end{verbatim}
+  where \id{2} is the {\ida} package ID and \id{IER} is an error
+  return flag set on $0$ on success or $-1$ if an error occurred. Once
+  created the default maximum number of nonlinear iterations may be
+  modified by calling
+\begin{verbatim}
+      CALL FSUNNEWTONSETMAXITERS(2, MAXITERS, IER)
+\end{verbatim}
+  where \id{MAXITERS} is the desired maximum number of nonlinear
+  iterations.
 
 \item {\bf Problem specification}
 
@@ -655,6 +685,18 @@ sections of Chapter \ref{s:sunlinsol}.
 
   {\warn} If the user calls \id{FIDASPILSSETPREC}, the subroutine \id{FIDAPSET}
   must be provided, even if it is not needed, and it must return \id{IER = 0}.
+
+%%====================
+\item\label{i:fida_nonlin_solv_spec} {\bf Nonlinear solver interface specification} 
+%%====================
+
+  To attach the {\sunnonlinsolnewton} object created in step
+  \ref{i:fida_nonlinsol_init} the following call must be made
+\begin{verbatim}
+      CALL FIDANLSINIT(IER)
+\end{verbatim}
+  where \id{IER} is an error return flag set on $0$ on success or $-1$
+  if a memory failure occurred.
 
 \item {\bf Correct initial values}
 

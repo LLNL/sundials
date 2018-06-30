@@ -28,7 +28,7 @@ documentation, we note that the preconditioner module {\idabbdpre}
 can only be used with {\nvecp}.
 It is not recommended to use a threaded vector module with SuperLU\_MT
 unless it is the {\nvecopenmp} module, and SuperLU\_MT is also compiled
-with openMP.
+with OpenMP.
 
 {\ida} uses various constants for both input and output.  These are
 defined as needed in this chapter, but for convenience are also listed
@@ -48,7 +48,7 @@ appropriate locations for the library and header files required by
 {\ida}.  The relevant library files are
 \begin{itemize}
 \item {\em libdir}\id{/libsundials\_ida.}{\em lib},
-\item {\em libdir}\id{/libsundials\_nvec*.}{\em lib} (one to four files),
+\item {\em libdir}\id{/libsundials\_nvec*.}{\em lib},
 \end{itemize}
 where the file extension .{\em lib} is typically \id{.so} for shared libraries
 and \id{.a} for static libraries. The relevant header files are located in
@@ -59,6 +59,7 @@ the subdirectories
 \item {\em incdir}\id{/include/nvector}
 \item {\em incdir}\id{/include/sunmatrix}
 \item {\em incdir}\id{/include/sunlinsol}
+\item {\em incdir}\id{/include/sunnonlinsol}
 \end{itemize}
 The directories {\em libdir} and {\em incdir} are the install library
 and include directories, respectively. For a default installation,
@@ -98,7 +99,7 @@ of the form \id{nvector/nvector\_***.h}.  See Chapter \ref{s:nvector} for the ap
 name.  This file in turn includes the header file \Id{sundials\_nvector.h}
 which defines the abstract \Id{N\_Vector} data type. 
 
-Finally, a linear solver module header file is required. 
+A linear solver module header file is also required.
 \index{IDA@{\ida} linear solvers!header files}
 The header files corresponding to the various linear solver interfaces and linear 
 solver modules available for use with {\ida} are:
@@ -189,6 +190,9 @@ block-diagonal matrix. For this, even though the {\sunlinsolspgmr}
 linear solver is used, the header \id{sundials/sundials\_dense.h} is
 included for access to the underlying generic dense matrix arithmetic
 routines.
+
+Finally, the header file for the {\sunnonlinsolnewton} module
+\id{sunnonlinsol/sunnonlinsol\_newton.h} is also required.
 
 %%====================================================================
 \section{A skeleton of the user's main program}\label{ss:skeleton_sim}
@@ -345,6 +349,24 @@ serial or threaded environment.
   Call \id{IDADlsSet*} or \id{IDASpilsSet*} functions to change optional
   inputs specific to that linear solver interface. 
   See \S\ref{ss:optional_input} for details.
+
+\item
+  {\bf Create a nonlinear solver object}
+
+  Call the constructor for the desired nonlinear solver (e.g.,
+  \id{NLS = SUNNewtonSolver(...)}).
+
+\item
+  {\bf Set nonlinear optional inputs}
+
+  Call the appropriate set functions for the selected nonlinear solver
+  module to change optional inputs sepcific to that nonlinear solver.
+
+\item
+  {\bf Attach the nonlinear solver object}
+
+  Call the \id{IDASetNonlinearSolver(ida\_mem, NLS)} to attach the nonlinear
+  solver to {\ida}.
 
 \item 
   {\bf Correct initial values}
