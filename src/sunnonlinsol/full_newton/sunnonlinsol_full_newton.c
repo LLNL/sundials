@@ -57,7 +57,7 @@ SUNNonlinearSolver SUNFullNewtonSolver(N_Vector y)
 
   /* Attach operations */
   ops->gettype     = SUNNonlinSolGetType_FullNewton;
-  ops->init        = SUNNonlinSolInit_FullNewton;
+  ops->initialize  = SUNNonlinSolInitialize_FullNewton;
   ops->setup       = SUNNonlinSolSetup_FullNewton;
   ops->solve       = SUNNonlinSolSolve_FullNewton;
   ops->free        = SUNNonlinSolFree_FullNewton;
@@ -95,7 +95,7 @@ SUNNonlinearSolver SUNFullNewtonSolver(N_Vector y)
 
 
 /* =============================================================================
- * GetType, Init, Setup, Solve, and Free operations
+ * GetType, Initialize, Setup, Solve, and Free operations
  * ===========================================================================*/
 
 SUNNonlinearSolver_Type SUNNonlinSolGetType_FullNewton(SUNNonlinearSolver NLS)
@@ -104,7 +104,7 @@ SUNNonlinearSolver_Type SUNNonlinSolGetType_FullNewton(SUNNonlinearSolver NLS)
 }
 
 
-int SUNNonlinSolInit_FullNewton(SUNNonlinearSolver NLS)
+int SUNNonlinSolInitialize_FullNewton(SUNNonlinearSolver NLS)
 {
   /* all solver-specific memory has already been allocated */
   if (NLS == NULL)

@@ -113,7 +113,7 @@ typedef struct _generic_SUNNonlinearSolver *SUNNonlinearSolver;
 /* Structure containing function pointers to nonlinear solver operations */  
 struct _generic_SUNNonlinearSolver_Ops {
   SUNNonlinearSolver_Type (*gettype)(SUNNonlinearSolver);
-  int                     (*init)(SUNNonlinearSolver);
+  int                     (*initialize)(SUNNonlinearSolver);
   int                     (*setup)(SUNNonlinearSolver, N_Vector, void*);
   int                     (*solve)(SUNNonlinearSolver, N_Vector, N_Vector,
                                    N_Vector, realtype, booleantype, void*);
@@ -141,7 +141,7 @@ struct _generic_SUNNonlinearSolver {
 /* core functions */
 SUNDIALS_EXPORT SUNNonlinearSolver_Type SUNNonlinSolGetType(SUNNonlinearSolver NLS);
 
-SUNDIALS_EXPORT int SUNNonlinSolInit(SUNNonlinearSolver NLS);
+SUNDIALS_EXPORT int SUNNonlinSolInitialize(SUNNonlinearSolver NLS);
 
 SUNDIALS_EXPORT int SUNNonlinSolSetup(SUNNonlinearSolver NLS,
                                       N_Vector y, void* mem);

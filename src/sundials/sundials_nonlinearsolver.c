@@ -28,9 +28,9 @@ SUNNonlinearSolver_Type SUNNonlinSolGetType(SUNNonlinearSolver NLS)
   return(NLS->ops->gettype(NLS));
 }
 
-int SUNNonlinSolInit(SUNNonlinearSolver NLS)
+int SUNNonlinSolInitialize(SUNNonlinearSolver NLS)
 {
-  return((int) NLS->ops->init(NLS));
+  return((int) NLS->ops->initialize(NLS));
 }
 
 int SUNNonlinSolSetup(SUNNonlinearSolver NLS, N_Vector y, void* mem)
