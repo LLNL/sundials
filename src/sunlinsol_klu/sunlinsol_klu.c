@@ -165,9 +165,6 @@ SUNLinearSolver SUNKLU(N_Vector y, SUNMatrix A)
 int SUNKLUReInit(SUNLinearSolver S, SUNMatrix A,
                  sunindextype nnz, int reinit_type)
 {
-  sunindextype n;
-  int type;
-  
   /* Check for non-NULL SUNLinearSolver */
   if ((S == NULL) || (A == NULL)) 
     return(SUNLS_MEM_NULL);
@@ -177,24 +174,14 @@ int SUNKLUReInit(SUNLinearSolver S, SUNMatrix A,
     return(SUNLS_ILL_INPUT);
 
   /* Check for valid reinit_type */
-  if ((reinit_type != 1) && (reinit_type != 2))
+  if ((reinit_type != SUNKLU_REINIT_FULL) &&
+      (reinit_type != SUNKLU_REINIT_PARTIAL))
     return(SUNLS_ILL_INPUT);
 
-  /* Perform re-initialization */ 
-  if (reinit_type == 1) {
-
-    /* Get size/type of current matrix */
-    n = SUNSparseMatrix_Rows(A);
-    type = SUNSparseMatrix_SparseType(A);
-    
-    /* Destroy previous matrix */
-    SUNMatDestroy(A);
-
-    /* Create new sparse matrix */
-    A = SUNSparseMatrix(n, n, nnz, type);
-    if (A == NULL) return(SUNLS_MEM_FAIL);
-    
-  }
+  /* Full re-initialization: reallocate matrix for updated storage */ 
+  if (reinit_type == SUNKLU_REINIT_FULL)
+    if (SUNSparseMatrix_Reallocate(A, nnz) != 0)
+      return(SUNLS_MEM_FAIL);
 
   /* Free the prior factorazation and reset for first factorization */
   if( SYMBOLIC(S) != NULL)

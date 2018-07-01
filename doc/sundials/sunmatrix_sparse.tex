@@ -312,6 +312,18 @@ SUNMatrix SUNSparseFromBandMatrix(SUNMatrix A, realtype droptol,
 
 %%--------------------------------------
 
+\item \ID{SUNSparseMatrix\_Reallocate}
+
+  This function reallocates internal storage arrays in a sparse matrix
+  so that the resulting sparse matrix has storage for a specified
+  number of nonzeros. Returns 0 on success and 
+  1 on failure (e.g.~if the input matrix is not sparse or if NNZ is
+  negative). 
+
+  \verb|int SUNSparseMatrix_Reallocate(SUNMatrix A, sunindextype NNZ);|
+
+%%--------------------------------------
+
 \item \ID{SUNSparseMatrix\_Print}
 
   This function prints the content of a sparse \id{SUNMatrix} to the

@@ -122,6 +122,14 @@ writing in C|)}
 Updated the minimum required version of CMake to 2.8.12 and enabled
 using rpath by default to locate shared libraries on OSX.
 
+Added sparse SUNMatrix ``Reallocate'' routine to allow specification of
+the nonzero storage.
+
+Updated the KLU SUNLinearSolver module to set constants for the two
+reinitialization types, and fixed a bug in the full reinitialization
+approach where the sparse SUNMatrix pointer would go out of scope on
+some architectures.
+
 \subsection*{Changes in v3.1.1}
 
 The changes in this minor release include the following:
@@ -133,7 +141,7 @@ The changes in this minor release include the following:
   solvers: if ``Initialize'' was called multiple times then the solver
   memory was reallocated (without being freed).
   
-\item Updated KLU SUNLINEARSOLVER module to use a \id{typedef} for the
+\item Updated KLU SUNLinearSolver module to use a \id{typedef} for the
   precision-specific solve function to be used (to avoid compiler 
   warnings).  
 

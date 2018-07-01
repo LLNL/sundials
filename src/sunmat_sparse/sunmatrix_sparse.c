@@ -279,7 +279,7 @@ SUNMatrix SUNSparseFromBandMatrix(SUNMatrix Ad, realtype droptol, int sparsetype
 
 int SUNSparseMatrix_Realloc(SUNMatrix A)
 {
-  sunindextype nzmax; 
+  sunindextype nzmax;
 
   /* check for valid matrix type */
   if (SUNMatGetID(A) != SUNMATRIX_SPARSE)
@@ -294,6 +294,30 @@ int SUNSparseMatrix_Realloc(SUNMatrix A)
   SM_INDEXVALS_S(A) = (sunindextype *) realloc(SM_INDEXVALS_S(A), nzmax*sizeof(sunindextype));
   SM_DATA_S(A) = (realtype *) realloc(SM_DATA_S(A), nzmax*sizeof(realtype));
   SM_NNZ_S(A) = nzmax;
+
+  return 0;
+}
+
+
+/* ----------------------------------------------------------------------------
+ * Function to reallocate internal sparse matrix storage arrays so that the
+ * resulting sparse matrix has storage for a specified number of nonzeros.  
+ * Returns 0 on success and 1 on failure (e.g. if A does not have sparse type, 
+ * or if nnz is negative)
+ */
+
+int SUNSparseMatrix_Reallocate(SUNMatrix A, sunindextype NNZ)
+{
+  /* check for valid matrix type */
+  if (SUNMatGetID(A) != SUNMATRIX_SPARSE)  return 1;
+
+  /* check for valid nnz */
+  if (NNZ < 0)  return 1;
+
+  /* perform reallocation */
+  SM_INDEXVALS_S(A) = (sunindextype *) realloc(SM_INDEXVALS_S(A), NNZ*sizeof(sunindextype));
+  SM_DATA_S(A) = (realtype *) realloc(SM_DATA_S(A), NNZ*sizeof(realtype));
+  SM_NNZ_S(A) = NNZ;
 
   return 0;
 }
