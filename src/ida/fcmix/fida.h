@@ -57,7 +57,7 @@
     FSUNSPTFQMRINIT              SUNSPTFQMR
     FSUNSUPERLUMTINIT            SUNSuperLUMT
 
-    FSUNNEWTONINIT               SUNNewtonSolver
+    FSUNNEWTONINIT               SUNNonlinSol_Newton
 
     FIDAMALLOC                   IDACreate, IDASetUserData and IDAInit
     FIDAREINIT                   IDAReInit

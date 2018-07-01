@@ -138,8 +138,8 @@ int main(void)
   if(check_flag(&flag, "IDADlsSetLinearSolver", 1)) return(1);
 
   /* Create Newton SUNNonlinearSolver object */
-  NLS = SUNNewtonSolver(yy);
-  if(check_flag((void *)NLS, "SUNNewtonSolver", 0)) return(1);
+  NLS = SUNNonlinSol_Newton(yy);
+  if(check_flag((void *)NLS, "SUNNonlinSol_Newton", 0)) return(1);
 
   /* Attach the nonlinear solver */
   flag = IDASetNonlinearSolver(mem, NLS);

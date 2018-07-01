@@ -31,7 +31,7 @@
  * Constructor to create a new Full Newton solver
  * ===========================================================================*/
 
-SUNNonlinearSolver SUNFullNewtonSolver(N_Vector y)
+SUNNonlinearSolver SUNNonlinSol_FullNewton(N_Vector y)
 {
   SUNNonlinearSolver NLS;
   SUNNonlinearSolver_Ops ops;

@@ -292,8 +292,8 @@ int main(int argc, char *argv[])
   if(check_flag(&flag, "IDASpilsSetPreconditioner", 1)) return(1);
 
   /* Create Newton SUNNonlinearSolver object */
-  NLS = SUNNewtonSolver(cc);
-  if(check_flag((void *)NLS, "SUNNewtonSolver", 0)) return(1);
+  NLS = SUNNonlinSol_Newton(cc);
+  if(check_flag((void *)NLS, "SUNNonlinSol_Newton", 0)) return(1);
 
   /* Attach the nonlinear solver */
   flag = IDASetNonlinearSolver(ida_mem, NLS);

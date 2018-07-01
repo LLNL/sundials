@@ -244,8 +244,8 @@ int main(int argc, char *argv[])
   if(check_flag(&ier, "IDASpilsSetPreconditioner", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Create Newton SUNNonlinearSolver object */
-  NLS = SUNNewtonSolver(uu);
-  if(check_flag((void *)NLS, "SUNNewtonSolver", 0, thispe)) return(1);
+  NLS = SUNNonlinSol_Newton(uu);
+  if(check_flag((void *)NLS, "SUNNonlinSol_Newton", 0, thispe)) return(1);
 
   /* Attach the nonlinear solver */
   ier = IDASetNonlinearSolver(ida_mem, NLS);

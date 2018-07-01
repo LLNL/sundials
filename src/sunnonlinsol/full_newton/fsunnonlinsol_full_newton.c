@@ -42,19 +42,19 @@ void FSUNFULLNEWTON_INIT(int *code, int *ier)
   case FCMIX_CVODE:
     if (F2C_CVODE_nonlinsol)  SUNNonlinSolFree(F2C_CVODE_nonlinsol);
     F2C_CVODE_nonlinsol = NULL;
-    F2C_CVODE_nonlinsol = SUNFullNewtonSolver(F2C_CVODE_vec);
+    F2C_CVODE_nonlinsol = SUNNonlinSol_FullNewton(F2C_CVODE_vec);
     if (F2C_CVODE_nonlinsol == NULL) *ier = -1;
     break;
   case FCMIX_IDA:
     if (F2C_IDA_nonlinsol)  SUNNonlinSolFree(F2C_IDA_nonlinsol);
     F2C_IDA_nonlinsol = NULL;
-    F2C_IDA_nonlinsol = SUNFullNewtonSolver(F2C_IDA_vec);
+    F2C_IDA_nonlinsol = SUNNonlinSol_FullNewton(F2C_IDA_vec);
     if (F2C_IDA_nonlinsol == NULL) *ier = -1;
     break;
   case FCMIX_ARKODE:
     if (F2C_ARKODE_nonlinsol)  SUNNonlinSolFree(F2C_ARKODE_nonlinsol);
     F2C_ARKODE_nonlinsol = NULL;
-    F2C_ARKODE_nonlinsol = SUNFullNewtonSolver(F2C_ARKODE_vec);
+    F2C_ARKODE_nonlinsol = SUNNonlinSol_FullNewton(F2C_ARKODE_vec);
     if (F2C_ARKODE_nonlinsol == NULL) *ier = -1;
     break;
   default:

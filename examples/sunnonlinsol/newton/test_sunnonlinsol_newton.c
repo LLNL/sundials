@@ -127,8 +127,8 @@ int main(int argc, char *argv[])
   Imem->LS = LS;
 
   /* create nonlinear solver */
-  NLS = SUNNewtonSolver(y);
-  if (check_flag((void *)NLS, "SUNNewtonSolver", 0)) return(1);
+  NLS = SUNNonlinSol_Newton(y);
+  if (check_flag((void *)NLS, "SUNNonlinSol_Newton", 0)) return(1);
 
   /* set the nonlinear residual function */
   ier = SUNNonlinSolSetSysFn(NLS, Res);

@@ -55,7 +55,7 @@ typedef struct _SUNNonlinearSolverContent_FullNewton *SUNNonlinearSolverContent_
  * ---------------------------------------------------------------------------*/
  
 /* Constructor to create solver and allocates memory */
-SUNDIALS_EXPORT SUNNonlinearSolver SUNFullNewtonSolver(N_Vector y);
+SUNDIALS_EXPORT SUNNonlinearSolver SUNNonlinSol_FullNewton(N_Vector y);
 
 /* core functions */
 SUNDIALS_EXPORT SUNNonlinearSolver_Type SUNNonlinSolGetType_FullNewton(SUNNonlinearSolver NLS);
