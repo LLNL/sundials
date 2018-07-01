@@ -1,0 +1,621 @@
+{\sundials} packages are written in terms of generic nonlinear solver
+operations defined by the {\sunnonlinsol} API and implemented by a
+particular {\sunnonlinsol} module of type \Id{SUNNonlinearSolver}.
+Users can supply their own {\sunnonlinsol} module, or use one of the
+modules provided with {\sundials}. The following section presents the
+{\sunnonlinsol} API and its implementation. The subsequent sections in
+this chapter describe the {\sunnonlinsol} modules provided with
+{\sundials}.
+
+
+% ====================================================================
+\section{The SUNNonlinearSolver API}
+\label{s:sunnonlinsol_api}
+% ====================================================================
+
+The {\sunnonlinsol} API defines several nonlinear solver operations
+that enable {\sundials} packages to untilize any {\sunnonlinsol}
+implementation that provides the required functions. These functions
+can be divided into three catagories. The first are the core nonlinear
+solver functions: get type, initialization, setup, solve, and free.
+The second group of functions consists set functions to supply the
+nonlinear solver with functions provided by the {\sundials} pacakge
+and to modify solver paramters. The final group consists of get
+functions for retreiving nonlinear solver statistics. All of these
+functions are defined in the header
+file \id{sundials/sundials\_nonlinearsolver.h}.
+
+% ====================================================================
+\subsection{SUNNonlinearSolver core functions}
+\label{ss:sunnonlinsol_corefn}
+% ====================================================================
+\ucfunction{SUNNonlinSolGetType}
+{
+  type = SUNNonlinSolGetType(NLS);
+}
+{
+  The \textit{required} function \ID{SUNNonlinSolGetType} returns the
+  type identifier for the nonlinear solver \id{NLS} and is used to
+  determine the solver type (rootfind or stationary).
+}
+{
+  \begin{args}[NLS]
+  \item[NLS] (\id{SUNNonlinearSolver})
+    a {\sunnonlinsol} object.
+  \end{args}
+}
+{
+  The return value \id{type} (of type \id{int}) will be one of the
+  following:
+  \begin{args}[SUNNONLINEARSOLVER\_STATIONARY]
+  \item[\Id{SUNNONLINEARSOLVER\_ROOTFIND}]
+    \id{0}, the {\sunnonlinsol} module solves $F(y) = 0$.
+  \item[\Id{SUNNONLINEARSOLVER\_STATIONARY}]
+    \id{1}, the {\sunnonlinsol} module solves $G(y) = y$.
+  \end{args}
+}
+{}
+% --------------------------------------------------------------------
+\ucfunction{SUNNonlinSolInitialize}
+{
+  retval = SUNNonlinSolInitialize(NLS);
+}
+{
+  The \textit{required} function \ID{SUNNonlinSolInitialize} preforms
+  nonlinear solver initialization. This function assumes all
+  solver-specific options have been set prior to being called.
+}
+{
+  \begin{args}[NLS]
+  \item[NLS] (\id{SUNNonlinearSolver})
+    a {\sunnonlinsol} object.
+  \end{args}
+}
+{
+  The return value \id{retval} (of type \id{int}) should be zero for a
+  successful call and a negative value for a failure.
+}
+{}
+% --------------------------------------------------------------------
+\ucfunction{SUNNonlinSolSetup}
+{
+  retval = SUNNonlinSolSetup(NLS, y, mem);
+}
+{
+  The \textit{optional} function \ID{SUNNonlinSolSetup} preforms any
+  solver setup needed before a nonlinear solve.
+}
+{
+  \begin{args}[NLS]
+  \item[NLS] (\id{SUNNonlinearSolver})
+    a {\sunnonlinsol} object.
+  \item[y] (\id{N\_Vector})
+    the initial iteration passed to the nonlinear solver.
+  \item[mem] (\id{void *})
+    the {\sundials} package memory structure.
+  \end{args}
+}
+{
+  The return value \id{retval} (of type \id{int}) should be zero for a
+  successful call and a negative value for a failure.
+}
+{
+  {\sunnonlinsol} implementations that do not require setup may set
+  this operation to \id{NULL}.
+}
+% --------------------------------------------------------------------
+\ucfunction{SUNNonlinSolSolve}
+{
+  retval = SUNNonlinSolSolve(NLS, y0, y, w, tol, callSetup, mem);
+}
+{
+  The \textit{required} function \ID{SUNNonlinSolSolve} solves the
+  nonlinear system $F(y)=0$ or $G(y)=y$.
+}
+{
+  \begin{args}[callSetup]
+  \item[NLS] (\id{SUNNonlinearSolver})
+    a {\sunnonlinsol} object.
+  \item[y0] (\id{N\_Vector})
+    the initial iterate for the nonlinear solver.
+  \item[y] (\id{N\_Vector})
+    the solution to the nonlinear system.
+  \item[w] (\id{N\_Vector})
+    the weight vector used in computing weighted norms.
+  \item[tol] (\id{realtype})
+    the specified tolerance in a weight root mean square norm.
+  \item[callSetup] (\id{booleantype})
+    a flag indicating if the linear solver should be setup.
+  \item[mem] (\id{void *})
+    the {\sundials} package memory structure.
+  \end{args}
+}
+{
+  The return value \id{retval} (of type \id{int}) should be zero if
+  the solve was successful, a positive value if a recoverable error
+  occured, and a negative value for an unrecoverable failure.
+}
+{
+  In the context of time integration, the failure of the nonlinear
+  solver to converge is considered a \textit{recoverable} error and a
+  positive value should be returned in this case. The time integrator
+  will then reattempt the step (and the nonlinear solve) with a
+  reduced time step size.
+}
+% --------------------------------------------------------------------
+\ucfunction{SUNNonlinSolFree}
+{
+  retval = SUNNonlinSolFree(NLS);
+}
+{
+  The \textit{required} function \ID{SUNNonlinSolFree} frees memory
+  allocated by the nonlinear solver.
+}
+{
+  \begin{args}[NLS]
+  \item[NLS] (\id{SUNNonlinearSolver})
+    a {\sunnonlinsol} object.
+  \end{args}
+}
+{
+  The return value \id{retval} (of type \id{int}) should be zero for a
+  successful call, and a negative value for a failure.
+}
+{}
+
+
+% ====================================================================
+\subsection{SUNNonlinearSolver set functions}
+\label{ss:sunnonlinsol_setfn}
+% ====================================================================
+\ucfunction{SUNNonlinSetSysFn}
+{
+  retval = SUNNonlinSolSetSysFn(NLS, SysFn);
+}
+{
+  The \textit{required} function \ID{SUNNonlinSolSetSysFn} is used
+  to provide the nonlinear solver with the function defining the
+  nonlinear system. This is the function $F(y)=0$ for
+  \wtt{SUNNONLINERASOLVER\_ROOTFIND} modules or $G(y)=y$ for
+  \wtt{SUNNONLINEARSOLVER\_STATIONARY} modules.
+}
+{
+  \begin{args}[SysFn]
+  \item[NLS] (\id{SUNNonlinearSolver})
+    a {\sunnonlinsol} object.
+  \item[SysFn] (\id{SUNNonlinSolSysFn})
+    the function defining the nonlinear system. See
+    \ref{ss:sunnonlinsol_sunsuppliedfn} for the definition of
+    \id{SUNNonlinSolSysFn}.
+  \end{args}
+}
+{
+  The return value \id{retval} (of type \id{int}) should be zero for a
+  successful call, and a negative value for a failure.
+}
+{}
+% --------------------------------------------------------------------
+\ucfunction{SUNNonlinSetLSetupFn}
+{
+  retval = SUNNonlinSolSetLSetupFn(NLS, LSetupFn);
+}
+{
+  The \textit{optional} function \ID{SUNNonlinSolLSetupFn} is used to
+  provide the nonlinear solver with a wrapper function to the
+  {\sundials} package's linear solver setup function.
+}
+{
+  \begin{args}[LSetupFn]
+  \item[NLS] (\id{SUNNonlinearSolver})
+    a {\sunnonlinsol} object.
+  \item[LSetupFn] (\id{SUNNonlinSolLSetupFn})
+    a wrapper function to the {\sundials} package's linear solver
+    setup function. See \ref{ss:sunnonlinsol_sunsuppliedfn} for the
+    definition of \id{SUNNonlinLSetupFn}.
+  \end{args}
+}
+{
+  The return value \id{retval} (of type \id{int}) should be zero for a
+  successful call, and a negative value for a failure.
+}
+{
+  {\sunnonlinsol} implementations not utilizing {\sunlinsol} modules
+  may set this operation to \id{NULL}.
+}
+% --------------------------------------------------------------------
+\ucfunction{SUNNonlinSetLSolveFn}
+{
+  retval = SUNNonlinSolLSolve(NLS, LSolveFn);
+}
+{
+  The \textit{optional} function \ID{SUNNonlinSolLSolve} is used to
+  provide the nonlinear solver with a wrapper function to the
+  {\sundials} package's linear solver solve function.
+}
+{
+  \begin{args}[LSolveFn]
+  \item[NLS] (\id{SUNNonlinearSolver})
+    a {\sunnonlinsol} object
+  \item[LSolveFn] (\id{SUNNonlinSolLSolveFn})
+    a wrapper function to the {\sundials} package's linear solver
+    solve function. See \ref{ss:sunnonlinsol_sunsuppliedfn} for the
+    definition of \id{SUNNonlinSolLSolveFn}.
+  \end{args}
+}
+{
+  The return value \id{retval} (of type \id{int}) should be zero for a
+  successful call, and a negative value for a failure.
+}
+{
+  {\sunnonlinsol} implementations not utilizing {\sunlinsol} modules
+  may set this operation to \id{NULL}.
+}
+% --------------------------------------------------------------------
+\ucfunction{SUNNonlinSetConvTestFn}
+{
+  retval = SUNNonlinSolSetConvTestFn(NLS, CTestFn);
+}
+{
+  The \textit{optional} function \ID{SUNNonlinSolSetConvTestFn} is
+  used to provide the nonlinear solver with a function for determining
+  if the nonlinear solver iteration has converged.
+}
+{
+  \begin{args}[CTestFn]
+  \item[NLS] (\id{SUNNonlinearSolver})
+    a {\sunnonlinsol} object.
+  \item[CTestFn] (\id{SUNNonlinearSolConvTestFn})
+    a {\sundials} package nonlinear solver convergence test function.
+    See \ref{ss:sunnonlinsol_sunsuppliedfn} for the definition of
+    \id{SUNNonlinSolConvTestFn}.
+  \end{args}
+}
+{
+  The return value \id{retval} (of type \id{int}) should be zero for a
+  successful call, and a negative value for a failure.
+}
+{
+  {\sunnonlinsol} implementations utilizing their own convergence test
+  criteria may set this function to \id{NULL}.
+}
+% --------------------------------------------------------------------
+\ucfunction{SUNNonlinSetMaxIters}
+{
+  retval = SUNNonlinSolSetMaxIters(NLS, maxiters);
+}
+{
+  The \textit{optional} function \ID{SUNNonlinSolSetMaxIters} sets the
+  maximum number of nonlinear solver iterations.
+}
+{
+  \begin{args}[maxiters]
+  \item[NLS] (\id{SUNNonlinearSolver})
+    a {\sunnonlinsol} object.
+  \item[maxiters] (\id{int})
+    the maximum number of nonlinear iterations.
+  \end{args}
+}
+{
+  The return value \id{retval} (of type \id{int}) should be zero for a
+  successful call, and a negative value for a failure
+  (e.g., $\id{maxiters} < 1$).
+}
+{}
+
+
+% ====================================================================
+\subsection{SUNNonlinearSolver get functions}
+\label{ss:sunnonlinsol_getfn}
+% ====================================================================
+\ucfunction{SUNNonlinGetNumIters}
+{
+  retval = SUNNonlinSolGetNumIters(NLS, numiters);
+}
+{
+  The \textit{optional} function \ID{SUNNonlinSolGetNumIters} to get
+  the total number of nonlinear solver iterations.
+}
+{
+  \begin{args}[numiters]
+  \item[NLS] (\id{SUNNonlinearSolver})
+    a {\sunnonlinsol} object
+  \item[numiters] (\id{long int})
+    the total number of nonlinear solver iterations.
+  \end{args}
+}
+{
+  The return value \id{retval} (of type \id{int}) should be zero for a
+  successful call, and a negative value for a failure.
+}
+{}
+
+
+% ====================================================================
+\subsection{SUNDIALS package provided SUNNonlinearSolver routines}
+\label{ss:sunnonlinsol_sunsuppliedfn}
+% ====================================================================
+
+The {\sundials} packages provide the {\sunnonlinsol} module with
+routines for evaluating the nonlinear system, calling the {\sunlinsol}
+steup and solve functions, and testing the nonlinear iteration for
+convergence. The function types for each of these functions are
+defined in the header file \id{sundials/sundials\_nonlinearsolver.h},
+and are described below. 
+% --------------------------------------------------------------------
+\usfunction{SUNNonlinSolSysFn}
+{
+  typedef int (*SUNNonlinSolSysFn)(N\_Vector y, N\_Vector F, void* mem);
+}
+{
+  These functions evaluate the nonlinear system $F(y)$
+  for \wtt{SUNNONLINEARSOLVER\_ROOTFIND} type modules or $G(y)$
+  for \wtt{SUNNONLINEARSOLVER\_STATIONARY} type modules. Memory
+  for \id{F} should already be allocated prior to calling this
+  function. The vector \id{y} should be left unchanged.
+}
+{
+  \begin{args}[mem]
+  \item[y]
+    is the state vector at which the nonlinear system should be evaluated.
+  \item[F]
+    is the output vector containing $F(y)$ or $G(y)$, depending on the
+    solver type.
+  \item[mem]
+    is the {\sundials} package memory structure.
+  \end{args}
+}
+{
+  The return value of this routine will be zero if the evaluation was
+  successful, a postive value if a recoverable error occured, or a
+  negative value if an unrecoverable error occured.
+}
+{}
+% --------------------------------------------------------------------
+\usfunction{SUNNonlinSolLSetupFn}
+{
+  typedef int (*SUNNonlinSolLSetupFn)(N\_Vector y, N\_Vector F, void* mem);
+}
+{
+  These functions are wrappers to the {\sundials} package's function
+  for setting up linear solves with {\sunlinsol} modules.
+}
+{
+  \begin{args}[mem]
+  \item[y]
+    is the state vector at which the linear system should be setup.
+  \item[F]
+    is the value of the nonlinear system function at \id{y}.
+  \item[mem]
+    is the {\sundials} package memory structure.
+  \end{args}
+}
+{
+  The return value of this routine will be zero if the setup was
+  successful, a postive value if a recoverable error occured, or a
+  negative value if an unrecoverable error occured.
+}
+{
+  {\sunnonlinsol} modules not utilizing {\sunlinsol} linear solvers
+  may ignore these functions and will need to handle any linear system
+  setup.
+}
+% --------------------------------------------------------------------
+\usfunction{SUNNonlinSolLSolveFn}
+{
+  typedef int (*SUNNonlinSolLSolveFn)(N\_Vector y, N\_Vector b, void* mem);
+}
+{
+  These functions are wrappers to the {\sundials} package's function
+  for solving linear systems with {\sunlinsol} modules.
+}
+{
+  \begin{args}[mem]
+  \item[y]
+    is the input vector containing the current nonlinear iteration.
+  \item[b]
+    contains the right-hand side vector for the linear solve on input
+    and the solution to the linear system on output.
+  \item[mem]
+    is the {\sundials} package memory structure.
+  \end{args}
+}
+{
+  The return value of this routine will be zero if the linear solve
+  was successful, a postive value if a recoverable error occured, or a
+  negative value if an unrecoverable error occured.
+}
+{
+  {\sunnonlinsol} modules not utilizing {\sunlinsol} linear solvers
+  may ignore these functions and will need to handle solving linear
+  systems.
+}
+% --------------------------------------------------------------------
+\usfunction{SUNNonlinSolConvTestFn}
+{
+  typedef int (*SUNNonlinSolConvTestFn)(&int m, realtype delnrm,\\
+                                        &realtype tol, void* mem);
+}
+{
+  These functions are {\sundials} package specifc convergence tests of
+  nonlinear solvers.
+}
+{
+  \begin{args}[delnrm]
+  \item[m]
+    is the value of the nonlinear iteration counter, starting from
+  zero for the inital iteration.
+  \item[delnrm]
+    is the WRMS norm of the iteration update vector $\delta^{(m)}$ in
+    $y^{(m+1)} = y^{(m)} + \delta^{(m+1)}$.
+  \item[tol]
+    is the nonlinear solver tolerance.
+  \item[mem]
+    is the {\sundials} package memory structure.
+  \end{args}
+}
+{
+  The return value of this routine will be one of the following: 
+  \begin{args}[SUN\_NLS\_CONV\_RECVR]
+  \item[\id{SUN\_NLS\_SUCCESS}]
+    the iteration is converged.
+  \item[\id{SUN\_NLS\_CONTINUE}]
+    the iteration is not converged.
+  \item[\id{SUN\_NLS\_CONV\_RECVR}]
+    the iteration appears to be diverging.
+  \end{args}
+  or a negative value if an unrecoverable error occured
+  (i.e., \id{mem} is \id{NULL}).
+}
+{
+  {\sunnonlinsol} modules utilizing their own convergence criteria may
+  ignore these functions.
+}
+
+
+% ====================================================================
+\subsection{SUNNonlinearSolver return codes}
+\label{ss:sunnonlinsol_returncodes}
+% ====================================================================
+
+The functions provided to {\sunnonlinsol} modules and functions within
+the {\sundials}-provided {\sunnonlinsol} implementations utilize a
+common set of return codes, shown below in Table \ref{t:sunnonlinsol_returncodes}.
+
+\newlength{\ColumnOneA}
+\settowidth{\ColumnOneA}{\id{SUN\_NLS\_CONV\_RECVR}}
+\newlength{\ColumnTwoA}
+\settowidth{\ColumnTwoA}{\id{Value}}
+\newlength{\ColumnThreeA}
+\setlength{\ColumnThreeA}{\textwidth}
+\addtolength{\ColumnThreeA}{-0.5in}
+\addtolength{\ColumnThreeA}{-\ColumnOneA}
+\addtolength{\ColumnThreeA}{-\ColumnTwoA}
+
+\tablecaption{Description of the \id{SUNNonlinearSolver} return codes}\label{t:sunnonlinsol_returncodes}
+\tablehead{\hline {\rule{0mm}{5mm}}{\bf Name} & {\bf Value} & {\bf Description} \\[3mm] \hline\hline}
+\tabletail{\hline \multicolumn{3}{|r|}{\small\slshape continued on next page} \\ \hline}
+\begin{xtabular}{|p{\ColumnOneA}|p{\ColumnTwoA}|p{\ColumnThreeA}|}
+%%
+\id{SUN\_NLS\_SUCCESS}     & \id{0}  & successful call or converged solve
+\\[1mm]
+%%
+\id{SUN\_NLS\_CONTINUE}    & \id{1}  & the nonlinear solver is not
+                                      converged, keep iterating 
+\\[1mm]
+%%
+\id{SUN\_NLS\_CONV\_RECVR} & \id{2}  & the nonlinear solver appears to
+                                       be diverging, try to recover
+\\[1mm]
+%%
+\id{SUN\_NLS\_MEM\_NULL}   & \id{-1} & a memory argument is \id{NULL}
+\\[1mm]
+%%
+\id{SUN\_NLS\_MEM\_FAIL}   & \id{-2} & a memory access or allocation failed
+\\[1mm]
+%%
+\id{SUN\_NLS\_ILL\_INPUT}  & \id{-3} & an illegal input option was provided
+\\
+\end{xtabular}
+\bigskip
+
+
+% ====================================================================
+\subsection{The generic SUNNonlinearSolver module}
+\label{ss:sunnonlinsol_generic}
+% ====================================================================
+
+{\sundials} packages interact with a specific {\sunnonlinsol}
+implementation through the generic {\sunnonlinsol} module on which all
+other {\sunnonlinsol} are built. The \wtt{SUNNonlinearSolver} type is
+a pointer to a structure containing an implementation-dependent
+\textit{content} field and an \textit{ops} field. The type
+\wtt{SUNNonlinearSolver} is defined as follows:
+%%
+%%
+\begin{verbatim}
+typedef struct _generic_SUNNonlinearSolver *SUNNonlinearSolver;
+
+struct _generic_SUNNonlinearSolver {
+  void *content;
+  struct _generic_SUNNonlinearSolver_Ops *ops;
+};
+\end{verbatim}
+%%
+%%
+where the \wtt{\_generic\_SUNLinearSolver\_Ops} structure is a list of 
+pointers to the various actual linear solver operations provided by a
+specific implemenation. The \wtt{\_generic\_SUNLinearSolver\_Ops}
+structure is defined as
+%%
+%%
+\begin{verbatim}
+struct _generic_SUNNonlinearSolver_Ops {
+  SUNNonlinearSolver_Type (*gettype)(SUNNonlinearSolver);
+  int                     (*initialize)(SUNNonlinearSolver);
+  int                     (*setup)(SUNNonlinearSolver, N_Vector, void*);
+  int                     (*solve)(SUNNonlinearSolver, N_Vector, N_Vector,
+                                   N_Vector, realtype, booleantype, void*);
+  int                     (*free)(SUNNonlinearSolver);
+  int                     (*setsysfn)(SUNNonlinearSolver, SUNNonlinSolSysFn);
+  int                     (*setlsetupfn)(SUNNonlinearSolver, SUNNonlinSolLSetupFn);
+  int                     (*setlsolvefn)(SUNNonlinearSolver, SUNNonlinSolLSolveFn);
+  int                     (*setctestfn)(SUNNonlinearSolver, SUNNonlinSolConvTestFn);
+  int                     (*setmaxiters)(SUNNonlinearSolver, int);
+  int                     (*getnumiters)(SUNNonlinearSolver, long int*);
+};
+\end{verbatim}
+%%
+%%
+The generic sunlinsol module defines and implements the nonlinear
+solver operations defined in Sections \ref{ss:sunnonlinsol_corefn}
+-- \ref{ss:sunnonlinsol_getfn}. These routines are in fact only
+wrappers to the nonlinear solver operations provided by a particular
+{\sunnonlinsol} implementation, which are accessed through the ops
+field of the \id{SUNNonlinearSolver} structure. To illustrate this
+point we show below the implementation of a typical nonlinear solver
+operation from the generic \{sunnonlinsol} module,
+namely \wtt{SUNNonlinSolInitialize}, which initializes a
+{\sunnonlinsol} object for use after it has been created and
+configured, and returns a flag denoting a successful/failed operation:
+%%
+%%
+\begin{verbatim}
+int SUNNonlinSolInitialize(SUNNonlinearSolver NLS)
+{
+  return ((int) NLS->ops->initialize(NLS));
+}
+\end{verbatim}
+
+
+% ====================================================================
+\subsection{Implementing a SUNNonlinearSolver Module}
+\label{ss:sunnonlinsol_custom}
+% ====================================================================
+
+A {\sunnonlinsol} implementation \textit{must} do the following:
+\begin{enumerate}
+\item Specify the content of the {\sunnonlinsol} module.
+\item Define and implement the required nonlinear solver operations
+  defined in Sections \ref{ss:sunnonlinsol_corefn}
+  -- \ref{ss:sunnonlinsol_getfn}. Note that the names of the module
+  routines should be unique to that implementation in order to permit
+  using more than one {\sunlinsol} module (each with different
+  \wtt{SUNLinearSolver} internal data representations) in
+  the same code.
+\item Define and implement a user-callable constructor to create a
+  \wtt{SUNNonlinearSolver} object.
+\end{enumerate}
+Additionally, a {\sunnonlinsol} implementation \textit{may} do the
+following:
+\begin{enumerate}
+\item Define and implement additional user-callable routines acting on
+  a newly created \wtt{SUNNonlinearSolver} object that are not defined
+  in the {\sunnonlinsol} API. For example, routines to set various
+  configuration options for tuning the performance of the nonlinear
+  solver.
+\item Provide functions as needed for the particular {\sunnonlinsol}
+  implementation to access different parts in the {\em content}
+  structure of the newly defined \wtt{SUNLinearSolver} object 
+  (e.g., routines to return various statistics from the solver).
+\end{enumerate}
+

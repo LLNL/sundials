@@ -60,6 +60,7 @@ sunlinsol_spfgmr.tex \
 sunlinsol_spgmr.tex \
 sunlinsol_sptfqmr.tex \
 sunlinsol_superlumt.tex \
+sunnonlinsol_generic.tex \
 types.tex \
 ug.tex \
 biblio.bib

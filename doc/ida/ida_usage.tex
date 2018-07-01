@@ -354,13 +354,14 @@ serial or threaded environment.
   {\bf Create a nonlinear solver object}
 
   Call the constructor for the desired nonlinear solver (e.g.,
-  \id{NLS = SUNNewtonSolver(...)}).
+  \id{NLS = SUNNonlinSol\_Newton(...)}).
 
 \item
   {\bf Set nonlinear optional inputs}
 
   Call the appropriate set functions for the selected nonlinear solver
-  module to change optional inputs sepcific to that nonlinear solver.
+  module to change optional inputs sepcific to that nonlinear
+  solver. See Chapter \ref{c:sunnonlinsol}.
 
 \item
   {\bf Attach the nonlinear solver object}
@@ -416,6 +417,12 @@ serial or threaded environment.
   {\bf Free solver memory}
 
   \Id{IDAFree}\id{(\&ida\_mem)} to free the memory allocated for {\ida}.
+
+\item
+  {\bf Free nonlinear solver memory}
+
+  Call \Id{SUNNonlinSolFree}\id{(NLS)} to free any memory allocated
+  for the {\sunnonlinsol} object.
   
 \item
   {\bf Free linear solver and matrix memory}
@@ -873,11 +880,55 @@ question, as described in Chapters \ref{s:sunmatrix} and
   limitations for each {\sunlinsol} object (i.e.~required {\nvector}
   routines) are described in Chapter \ref{s:sunlinsol}.
 }
-%
 %%
+%%==================================================================================
 %%
+\subsection{Noninear solver interface function}\label{sss:nonlin_solv_init}
 
+To specify a generic nonlinear solver to {\ida}, after the call to
+\id{IDACreate} but before any calls to \id{IDASolve}, the user's
+program must create the appropriate {\sunnonlinsol} object and call
+\Id{IDASetNonlinearSolver}, as documented below. The first argument
+passed to this function is the {\ida} memory pointer returned by
+\id{IDACreate}; the second argument passed to this function is the 
+desired {\sunnonlinsol} object to use for solving the nonlinear system
+\ref{e:DAE_nls}. A call to this function attaches the nonlinear solver
+to the main {\ida} integrator.
+
+\ucfunction{IDASetNonlinearSolver}
+{
+  flag = IDASetNonlinearSolver(ida\_mem, NLS);
+}
+{
+  The function \ID{IDASetNonLinearSolver} attaches a {\sunnonlinsol}
+  object \id{NLS} to {\ida}.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[LS] (\id{SUNNonlinearSolver})
+    {\sunnonlinsol} object to use for solving nonlinear systems. 
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}
+  [IDADLS\_ILL\_INPUT]
+  \item[\Id{IDA\_SUCCESS}] 
+    The {\idadls} initialization was successful.
+  \item[\Id{IDA\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDA\_ILL\_INPUT}]
+    The {\sunnonlinsol} object is \id{NULL}, not of the correct type,
+    or does not implement the required nonlinear solver operations.
+  \end{args}
+}
+{}
+
+%%
 %%===================================================================================
+%%
 
 \subsection{Initial condition calculation function}\label{ss:idacalcic}
 
