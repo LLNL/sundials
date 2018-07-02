@@ -1,0 +1,98 @@
+The {\sunnonlinsolnewton} module provides a {\sunnonlinsol}
+implementation of Newton's method with the following constructor for
+creating the \id{SUNNonlinearSolver} object.
+% --------------------------------------------------------------------
+\ucfunction{SUNNonlinSol\_Newton}
+{
+  NLS = SUNNonlinSol\_Newton(y);
+}
+{
+  The function \ID{SUNNonlinSol\_Newton} creates a
+  \id{SUNNonlinearSolver} object for use with {\sundials} packages to
+  solve nonlinear system of the form $F(y) = 0$ with Newton's method.
+}
+{
+  \begin{args}[y]
+  \item[y] (\id{N\_Vector})
+    an \id{N\_Vector} used as a template for cloning vectors need within
+    the solver
+  \end{args}
+}
+{
+  The return value \id{NLS} (of type \id{SUNNonlinearSolver}) will be
+  a {\sunnonlinsol} object if constructor exits successfully,
+  otherwise \id{NLS} will be \id{NULL}.
+}
+{}
+% --------------------------------------------------------------------
+To access the constructor and other {\sunnonlinsolnewton} functions,
+include the header file \wtt{sunlinsol/sunnonlinsol\_newton.h}. Note
+the {\sunnonlinsolnewton} module is accessible from {\sundials}
+solvers \textit{without} linking to the
+\id{libsundials\_sunnonlinsolnewton} module library.
+
+The {\sunnonlinsolnewton} module implements all of the functions
+defined in Sections \ref{ss:sunnonlinsol_corefn} --
+\ref{ss:sunnonlinsol_getfn} with \id{\_Newton} appended to the
+function name. The \textit{content} field of the {\sunnonlinsolnewton}
+module is the following structure.
+%%
+%%
+\begin{verbatim} 
+struct _SUNNonlinearSolverContent_Newton {
+
+  SUNNonlinSolSysFn      Sys;
+  SUNNonlinSolLSetupFn   LSetup;
+  SUNNonlinSolLSolveFn   LSolve;
+  SUNNonlinSolConvTestFn CTest;
+
+  N_Vector delta;
+  int      maxiters;
+  long int niters;
+};
+\end{verbatim}
+%%
+%%
+These entries of the \emph{content} field contain the following
+information:
+\begin{args}[maxiters]
+  \item[Sys] - the function for evaluating the nonlinear system,
+  \item[LSetup] - the function for setting up the linear solver,
+  \item[LSolve] - the function for preforming linear solves,
+  \item[CTest] - the function for checking convergence of the Newton
+    iteration,
+  \item[delta] - the Newton iteration update vector,
+  \item[maxiters] - the maximum number of Newton iterations allows in
+    a solve, and
+  \item[niters] - the total number of nonlinear iterations across all
+    solves.
+\end{args}
+
+For {\sundials} packages that include a Fortran interface, the
+{\sunnonlinsolnewton} module also includes a Fortran-callable
+function for creating a \id{SUNNonlinearSolver} object.
+\ucfunction{FSUNNEWTONINIT}
+{
+  SUNNEWTONINIT(code, ier);
+}
+{
+  The function \ID{SUNNEWTONINIT} can be called for Fortran programs
+  to create a \id{SUNNonlinearSolver} object for use with {\sundials}
+  packages to solve nonlinear system of the form $F(y) = 0$ with
+  Newton's method.
+}
+{
+  \begin{args}[code]
+  \item[code] (\id{int*})
+    is an integer input specifying the solver id (1 for {\cvode}, 2
+    for {\ida}, 3 for {\kinsol}, and 4 for {\arkode}).
+  \end{args}
+}
+{
+  \id{ier} is a return completion flag equal to \id{0} for a success
+  return and \id{-1} otherwise. See printed message for details in case
+  of failure.
+}
+{}
+
+% LocalWords:  Fortran SUNNEWTONINIT Fortran
