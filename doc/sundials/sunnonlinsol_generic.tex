@@ -14,14 +14,14 @@ this chapter describe the {\sunnonlinsol} modules provided with
 % ====================================================================
 
 The {\sunnonlinsol} API defines several nonlinear solver operations
-that enable {\sundials} packages to untilize any {\sunnonlinsol}
+that enable {\sundials} packages to utilize any {\sunnonlinsol}
 implementation that provides the required functions. These functions
-can be divided into three catagories. The first are the core nonlinear
+can be divided into three categories. The first are the core nonlinear
 solver functions: get type, initialization, setup, solve, and free.
 The second group of functions consists set functions to supply the
-nonlinear solver with functions provided by the {\sundials} pacakge
-and to modify solver paramters. The final group consists of get
-functions for retreiving nonlinear solver statistics. All of these
+nonlinear solver with functions provided by the {\sundials} package
+and to modify solver parameters. The final group consists of get
+functions for retrieving nonlinear solver statistics. All of these
 functions are defined in the header
 file \id{sundials/sundials\_nonlinearsolver.h}.
 
@@ -133,7 +133,7 @@ file \id{sundials/sundials\_nonlinearsolver.h}.
 {
   The return value \id{retval} (of type \id{int}) should be zero if
   the solve was successful, a positive value if a recoverable error
-  occured, and a negative value for an unrecoverable failure.
+  occurred, and a negative value for an unrecoverable failure.
 }
 {
   In the context of time integration, the failure of the nonlinear
@@ -337,7 +337,7 @@ file \id{sundials/sundials\_nonlinearsolver.h}.
 
 The {\sundials} packages provide the {\sunnonlinsol} module with
 routines for evaluating the nonlinear system, calling the {\sunlinsol}
-steup and solve functions, and testing the nonlinear iteration for
+setup and solve functions, and testing the nonlinear iteration for
 convergence. The function types for each of these functions are
 defined in the header file \id{sundials/sundials\_nonlinearsolver.h},
 and are described below. 
@@ -366,8 +366,8 @@ and are described below.
 }
 {
   The return value of this routine will be zero if the evaluation was
-  successful, a postive value if a recoverable error occured, or a
-  negative value if an unrecoverable error occured.
+  successful, a positive value if a recoverable error occurred, or a
+  negative value if an unrecoverable error occurred.
 }
 {}
 % --------------------------------------------------------------------
@@ -391,8 +391,8 @@ and are described below.
 }
 {
   The return value of this routine will be zero if the setup was
-  successful, a postive value if a recoverable error occured, or a
-  negative value if an unrecoverable error occured.
+  successful, a positive value if a recoverable error occurred, or a
+  negative value if an unrecoverable error occurred.
 }
 {
   {\sunnonlinsol} modules not utilizing {\sunlinsol} linear solvers
@@ -421,8 +421,8 @@ and are described below.
 }
 {
   The return value of this routine will be zero if the linear solve
-  was successful, a postive value if a recoverable error occured, or a
-  negative value if an unrecoverable error occured.
+  was successful, a positive value if a recoverable error occurred, or a
+  negative value if an unrecoverable error occurred.
 }
 {
   {\sunnonlinsol} modules not utilizing {\sunlinsol} linear solvers
@@ -436,14 +436,14 @@ and are described below.
                                         &realtype tol, void* mem);
 }
 {
-  These functions are {\sundials} package specifc convergence tests of
+  These functions are {\sundials} package specific convergence tests of
   nonlinear solvers.
 }
 {
   \begin{args}[delnrm]
   \item[m]
     is the value of the nonlinear iteration counter, starting from
-  zero for the inital iteration.
+  zero for the initial iteration.
   \item[delnrm]
     is the WRMS norm of the iteration update vector $\delta^{(m)}$ in
     $y^{(m+1)} = y^{(m)} + \delta^{(m+1)}$.
@@ -463,7 +463,7 @@ and are described below.
   \item[\id{SUN\_NLS\_CONV\_RECVR}]
     the iteration appears to be diverging.
   \end{args}
-  or a negative value if an unrecoverable error occured
+  or a negative value if an unrecoverable error occurred
   (i.e., \id{mem} is \id{NULL}).
 }
 {
@@ -544,7 +544,7 @@ struct _generic_SUNNonlinearSolver {
 %%
 where the \wtt{\_generic\_SUNLinearSolver\_Ops} structure is a list of 
 pointers to the various actual linear solver operations provided by a
-specific implemenation. The \wtt{\_generic\_SUNLinearSolver\_Ops}
+specific implementation. The \wtt{\_generic\_SUNLinearSolver\_Ops}
 structure is defined as
 %%
 %%
@@ -566,7 +566,7 @@ struct _generic_SUNNonlinearSolver_Ops {
 \end{verbatim}
 %%
 %%
-The generic sunlinsol module defines and implements the nonlinear
+The generic {\sunnonlinsol} module defines and implements the nonlinear
 solver operations defined in Sections \ref{ss:sunnonlinsol_corefn}
 -- \ref{ss:sunnonlinsol_getfn}. These routines are in fact only
 wrappers to the nonlinear solver operations provided by a particular
@@ -619,3 +619,10 @@ following:
   (e.g., routines to return various statistics from the solver).
 \end{enumerate}
 
+
+% ====================================================================
+\section{The SUNNonlinearSolver\_Newton implementation}\label{s:sunnonlinsol_newton}
+\input{sunnonlinsol_newton}
+% ====================================================================
+
+% LocalWords:  API
