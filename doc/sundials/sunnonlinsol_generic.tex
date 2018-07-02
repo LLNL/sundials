@@ -18,12 +18,12 @@ that enable {\sundials} packages to utilize any {\sunnonlinsol}
 implementation that provides the required functions. These functions
 can be divided into three categories. The first are the core nonlinear
 solver functions: get type, initialization, setup, solve, and free.
-The second group of functions consists set functions to supply the
+The second group of functions consists set routines to supply the
 nonlinear solver with functions provided by the {\sundials} package
 and to modify solver parameters. The final group consists of get
-functions for retrieving nonlinear solver statistics. All of these
-functions are defined in the header
-file \id{sundials/sundials\_nonlinearsolver.h}.
+routines for retrieving nonlinear solver statistics. All of these
+functions are defined in the header file
+\id{sundials/sundials\_nonlinearsolver.h}.
 
 % ====================================================================
 \subsection{SUNNonlinearSolver core functions}
@@ -36,7 +36,7 @@ file \id{sundials/sundials\_nonlinearsolver.h}.
 {
   The \textit{required} function \ID{SUNNonlinSolGetType} returns the
   type identifier for the nonlinear solver \id{NLS} and is used to
-  determine the solver type (rootfind or stationary).
+  determine the solver type.
 }
 {
   \begin{args}[NLS]
@@ -62,8 +62,7 @@ file \id{sundials/sundials\_nonlinearsolver.h}.
 }
 {
   The \textit{required} function \ID{SUNNonlinSolInitialize} preforms
-  nonlinear solver initialization. This function assumes all
-  solver-specific options have been set prior to being called.
+  nonlinear solver initialization.
 }
 {
   \begin{args}[NLS]
@@ -75,7 +74,10 @@ file \id{sundials/sundials\_nonlinearsolver.h}.
   The return value \id{retval} (of type \id{int}) should be zero for a
   successful call and a negative value for a failure.
 }
-{}
+{
+  This function assumes all solver-specific options have been set prior
+  to being called.
+}
 % --------------------------------------------------------------------
 \ucfunction{SUNNonlinSolSetup}
 {
@@ -117,7 +119,8 @@ file \id{sundials/sundials\_nonlinearsolver.h}.
   \item[NLS] (\id{SUNNonlinearSolver})
     a {\sunnonlinsol} object.
   \item[y0] (\id{N\_Vector})
-    the initial iterate for the nonlinear solver.
+    the initial iterate for the nonlinear solver and should be left
+    unchanged.
   \item[y] (\id{N\_Vector})
     the solution to the nonlinear system.
   \item[w] (\id{N\_Vector})
@@ -125,23 +128,45 @@ file \id{sundials/sundials\_nonlinearsolver.h}.
   \item[tol] (\id{realtype})
     the specified tolerance in a weight root mean square norm.
   \item[callSetup] (\id{booleantype})
-    a flag indicating if the linear solver should be setup.
+    a flag indicating if the linear solver setup function should be
+    called. 
   \item[mem] (\id{void *})
     the {\sundials} package memory structure.
   \end{args}
 }
 {
-  The return value \id{retval} (of type \id{int}) should be zero if
-  the solve was successful, a positive value if a recoverable error
-  occurred, and a negative value for an unrecoverable failure.
+  The return value \id{retval} (of type \id{int}) should be one of the
+  following:
+  \begin{args}[SUN\_NLS\_CONV\_RECVR]
+  \item[\Id{SUN\_NLS\_SUCCESS}]
+    the solve was successful.
+  \item[\Id{SUN\_NLS\_CONV\_RECVR}]
+    the solve failed to converge and the integrator should attempt to
+    recover.
+  \item[\id{*\_RHSFUNC\_RECVR}]
+    the ODE right-hand side function returned a recoverable error
+  \item[\id{*\_RES\_RECVR}]
+    the DAE residual function returned a recoverable error
+  \item[\id{*\_LSETUP\_RECVR}]
+    the linear solver setup function returned a recoverable error
+  \item[\id{*\_LSOLVE\_RECVR}]
+    the linear solver solve function returned a recoverable error
+  \item[\id{*\_MEM\_NULL}]
+    the {\sundials} package memory was \id{NULL}
+  \item[\id{*\_RHSFUNC\_FAIL}]
+    the ODE right-hand side function returned an unrecoverable error
+  \item[\id{*\_RES\_FAIL}]
+    the DAE residual function returned an unrecoverable error
+  \item[\id{*\_LSETUP\_FAIL}]
+    the linear solver setup function returned an unrecoverable error
+  \item[\id{*\_LSOLVE\_FAIL}]
+    the linear solver solve function returned an unrecoverable error
+  \end{args}
+  In the above return codes \id{*} is a {\sundials} package specific
+  prefix (\id{CV} for {\cvode} or {\cvodes}, \id{IDA} for {\ida} or
+  {\idas}, and \id{ARK} for {\arkode}).
 }
-{
-  In the context of time integration, the failure of the nonlinear
-  solver to converge is considered a \textit{recoverable} error and a
-  positive value should be returned in this case. The time integrator
-  will then reattempt the step (and the nonlinear solve) with a
-  reduced time step size.
-}
+{}
 % --------------------------------------------------------------------
 \ucfunction{SUNNonlinSolFree}
 {
@@ -365,9 +390,25 @@ and are described below.
   \end{args}
 }
 {
-  The return value of this routine will be zero if the evaluation was
-  successful, a positive value if a recoverable error occurred, or a
-  negative value if an unrecoverable error occurred.
+  The return value \id{retval} (of type \id{int}) will be one of the
+  following:
+  \begin{args}[*\_RHSFUNC\_RECVR]
+  \item[\id{*\_SUCCESS}]
+    the function evaluation was successful
+  \item[\id{*\_RHSFUNC\_RECVR}]
+    the ODE right-hand side function returned a recoverable error
+  \item[\id{*\_RES\_RECVR}]
+    the DAE residual function returned a recoverable error
+  \item[\id{*\_RHSFUNC\_FAIL}]
+    the ODE right-hand side function returned an unrecoverable error
+  \item[\id{*\_RES\_FAIL}]
+    the DAE residual function returned an unrecoverable error
+  \item[\id{*\_MEM\_NULL}]
+    the {\sundials} package memory was \id{NULL}
+  \end{args}
+  In the above return codes \id{*} is a {\sundials} package specific
+  prefix (\id{CV} for {\cvode} or {\cvodes}, \id{IDA} for {\ida} or
+  {\idas}, and \id{ARK} for {\arkode}).
 }
 {}
 % --------------------------------------------------------------------
@@ -390,9 +431,21 @@ and are described below.
   \end{args}
 }
 {
-  The return value of this routine will be zero if the setup was
-  successful, a positive value if a recoverable error occurred, or a
-  negative value if an unrecoverable error occurred.
+  The return value \id{retval} (of type \id{int}) will be one of the
+  following:
+  \begin{args}[*\_LSETUP\_RECVR]
+  \item[\id{*\_SUCCESS}]
+    the linear solver setup was successful
+  \item[\id{*\_LSETUP\_RECVR}]
+    the linear solver setup function returned a recoverable error
+  \item[\id{*\_LSETUP\_FAIL}]
+    the linear solver setup function returned an unrecoverable error
+  \item[\id{*\_MEM\_NULL}]
+    the {\sundials} package memory was \id{NULL}
+  \end{args}
+  In the above return codes \id{*} is a {\sundials} package specific
+  prefix (\id{CV} for {\cvode} or {\cvodes}, \id{IDA} for {\ida} or
+  {\idas}, and \id{ARK} for {\arkode}).
 }
 {
   {\sunnonlinsol} modules not utilizing {\sunlinsol} linear solvers
@@ -420,9 +473,21 @@ and are described below.
   \end{args}
 }
 {
-  The return value of this routine will be zero if the linear solve
-  was successful, a positive value if a recoverable error occurred, or a
-  negative value if an unrecoverable error occurred.
+  The return value \id{retval} (of type \id{int}) will be one of the
+  following:
+  \begin{args}[*\_LSOLVE\_RECVR]
+  \item[\id{*\_SUCCESS}]
+    the linear solve was successful
+  \item[\id{*\_LSOLVE\_RECVR}]
+    the linear solver solve function returned a recoverable error
+  \item[\id{*\_LSOLVE\_FAIL}]
+    the linear solver solve function returned an unrecoverable error
+  \item[\id{*\_MEM\_NULL}]
+    the {\sundials} package memory was \id{NULL}
+  \end{args}
+  In the above return codes \id{*} is a {\sundials} package specific
+  prefix (\id{CV} for {\cvode} or {\cvodes}, \id{IDA} for {\ida} or
+  {\idas}, and \id{ARK} for {\arkode}).
 }
 {
   {\sunnonlinsol} modules not utilizing {\sunlinsol} linear solvers
@@ -459,12 +524,15 @@ and are described below.
   \item[\id{SUN\_NLS\_SUCCESS}]
     the iteration is converged.
   \item[\id{SUN\_NLS\_CONTINUE}]
-    the iteration is not converged.
+    the iteration has not converged, keep iterating.
   \item[\id{SUN\_NLS\_CONV\_RECVR}]
-    the iteration appears to be diverging.
+    the iteration appears to be diverging, try to recover.
+  \item[\id{*\_MEM\_NULL}]
+    the {\sundials} package memory was \id{NULL}
   \end{args}
-  or a negative value if an unrecoverable error occurred
-  (i.e., \id{mem} is \id{NULL}).
+  In the above return codes \id{*} is a {\sundials} package specific
+  prefix (\id{CV} for {\cvode} or {\cvodes}, \id{IDA} for {\ida} or
+  {\idas}, and \id{ARK} for {\arkode}).
 }
 {
   {\sunnonlinsol} modules utilizing their own convergence criteria may
