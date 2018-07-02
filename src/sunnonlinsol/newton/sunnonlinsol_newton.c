@@ -145,7 +145,7 @@ int SUNNonlinSolSetup_Newton(SUNNonlinearSolver NLS, N_Vector y, void* mem)
  *
  * Unrecoverable failure return codes (negative):
  *   *_MEM_NULL
- *   *_RHSFUNC_RECVR (ODEs) or *_RES_RECVR (DAEs)
+ *   *_RHSFUNC_FAIL (ODEs) or *_RES_FAIL (DAEs)
  *   *_LSETUP_FAIL
  *   *_LSOLVE_FAIL
  *
