@@ -226,8 +226,8 @@ int ERKStepSetERKTable(void *arkode_mem, int s, int q, int p,
   ERKStepSetERKTableNum:
 
   Specifies to use a pre-existing Butcher table for the problem, 
-  based on the integer flag held in ARKodeLoadButcherTable() 
-  within the file arkode_butcher.c.
+  based on the integer flag passed to ARKodeLoadButcherTable_ERK() 
+  within the file arkode_butcher_erk.c.
   ---------------------------------------------------------------*/
 int ERKStepSetERKTableNum(void *arkode_mem, int itable)
 {
@@ -263,7 +263,7 @@ int ERKStepSetERKTableNum(void *arkode_mem, int itable)
   FreeButcherTable(step_mem->B);  step_mem->B = NULL;
 
   /* fill in table based on argument */
-  step_mem->B = ARKodeLoadButcherTable(itable);
+  step_mem->B = ARKodeLoadButcherTable_ERK(itable);
   if (step_mem->B == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep", 
                     "ERKStepSetERKTableNum", 

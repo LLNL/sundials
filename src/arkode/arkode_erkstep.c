@@ -837,7 +837,7 @@ int erkStep_SetButcherTable(ARKodeMem ark_mem)
   }
 
   if (etable > -1)
-    step_mem->B = ARKodeLoadButcherTable(etable);
+    step_mem->B = ARKodeLoadButcherTable_ERK(etable);
 
   /* set [redundant] stored values for stage numbers and method orders */
   if (step_mem->B != NULL) {

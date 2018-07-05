@@ -24,6 +24,7 @@
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_linearsolver.h>
 #include <arkode/arkode.h>
+#include <arkode/arkode_butcher_erk.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -33,6 +34,13 @@ extern "C" {
   ERKSTEP Constants
   ===============================================================*/
 
+/* Default Butcher tables for each order */
+#define DEFAULT_ERK_2           HEUN_EULER_2_1_2
+#define DEFAULT_ERK_3           BOGACKI_SHAMPINE_4_2_3
+#define DEFAULT_ERK_4           ZONNEVELD_5_3_4
+#define DEFAULT_ERK_5           CASH_KARP_6_4_5
+#define DEFAULT_ERK_6           VERNER_8_5_6
+#define DEFAULT_ERK_8           FEHLBERG_13_7_8
 
 
 /*===============================================================
@@ -58,6 +66,14 @@ SUNDIALS_EXPORT int ERKStepReInit(void* arkode_mem, ARKRhsFn f,
                                   realtype t0, N_Vector y0);
 
   
+/*---------------------------------------------------------------
+  ERKStepLoadButcherTable
+
+  Utility routine to fill a pre-defined Butcher table structure
+  ---------------------------------------------------------------*/
+ARKodeButcherTable ERKStepLoadButcherTable(int imethod);
+
+
 /*---------------------------------------------------------------
   ERKStep optional input specification functions -- ALL of these 
   must be called AFTER ERKStepCreate.

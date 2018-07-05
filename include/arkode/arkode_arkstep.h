@@ -24,6 +24,8 @@
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_linearsolver.h>
 #include <arkode/arkode.h>
+#include <arkode/arkode_butcher_erk.h>
+#include <arkode/arkode_butcher_dirk.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -33,6 +35,29 @@ extern "C" {
   ARKSTEP Constants
   ===============================================================*/
 
+/* Default Butcher tables for each method/order */
+
+/*    explicit */
+#define DEFAULT_ERK_2           HEUN_EULER_2_1_2
+#define DEFAULT_ERK_3           BOGACKI_SHAMPINE_4_2_3
+#define DEFAULT_ERK_4           ZONNEVELD_5_3_4
+#define DEFAULT_ERK_5           CASH_KARP_6_4_5
+#define DEFAULT_ERK_6           VERNER_8_5_6
+#define DEFAULT_ERK_8           FEHLBERG_13_7_8
+
+/*    implicit */
+#define DEFAULT_DIRK_2          SDIRK_2_1_2
+#define DEFAULT_DIRK_3          ARK324L2SA_DIRK_4_2_3
+#define DEFAULT_DIRK_4          SDIRK_5_3_4
+#define DEFAULT_DIRK_5          ARK548L2SA_DIRK_8_4_5
+
+/*    ImEx */
+#define DEFAULT_ARK_ETABLE_3    ARK324L2SA_ERK_4_2_3
+#define DEFAULT_ARK_ETABLE_4    ARK436L2SA_ERK_6_3_4
+#define DEFAULT_ARK_ETABLE_5    ARK548L2SA_ERK_8_4_5
+#define DEFAULT_ARK_ITABLE_3    ARK324L2SA_DIRK_4_2_3
+#define DEFAULT_ARK_ITABLE_4    ARK436L2SA_DIRK_6_3_4
+#define DEFAULT_ARK_ITABLE_5    ARK548L2SA_DIRK_8_4_5
 
 
 /*===============================================================
@@ -57,7 +82,15 @@ SUNDIALS_EXPORT int ARKStepCreate(void* arkode_mem, ARKRhsFn fe,
 SUNDIALS_EXPORT int ARKStepReInit(void* arkode_mem, ARKRhsFn fe,
                                   ARKRhsFn fi, realtype t0, N_Vector y0);
 
-  
+
+/*---------------------------------------------------------------
+  ARKStepLoadButcherTable
+
+  Utility routine to fill a pre-defined Butcher table structure
+  ---------------------------------------------------------------*/
+ARKodeButcherTable ARKStepLoadButcherTable(int imethod);
+
+
 /*---------------------------------------------------------------
   ARKStep optional input specification functions -- ALL of these 
   must be called AFTER ARKStepCreate.

@@ -897,9 +897,9 @@ int ARKStepSetARKTables(void *arkode_mem, int s, int q, int p,
   ARKStepSetERKTableNum:
 
   Specifies to use a pre-existing Butcher table for the explicit 
-  portion of the problem, based on the integer flag held in 
-  ARKodeLoadButcherTable() within the file arkode_butcher.c 
-  (automatically calls ARKStepSetExplicit).
+  portion of the problem, based on the integer flag passed to
+  ARKodeLoadButcherTable_ERK() within the file 
+  arkode_butcher_erk.c (automatically calls ARKStepSetExplicit).
   ---------------------------------------------------------------*/
 int ARKStepSetERKTableNum(void *arkode_mem, int itable)
 {
@@ -936,7 +936,7 @@ int ARKStepSetERKTableNum(void *arkode_mem, int itable)
   FreeButcherTable(step_mem->Bi);  step_mem->Bi = NULL;
 
   /* fill in table based on argument */
-  step_mem->Be = ARKodeLoadButcherTable(itable);
+  step_mem->Be = ARKodeLoadButcherTable_ERK(itable);
   if (step_mem->Be == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetERKTableNum", 
@@ -962,9 +962,9 @@ int ARKStepSetERKTableNum(void *arkode_mem, int itable)
   ARKStepSetIRKTableNum:
 
   Specifies to use a pre-existing Butcher table for the implicit 
-  portion of the problem, based on the integer flag held in 
-  ARKodeLoadButcherTable() within the file arkode_butcher.c
-  (automatically calls ARKStepSetImplicit).
+  portion of the problem, based on the integer flag passed to
+  ARKodeLoadButcherTable_DIRK() within the file 
+  arkode_butcher_dirk.c (automatically calls ARKStepSetImplicit).
   ---------------------------------------------------------------*/
 int ARKStepSetIRKTableNum(void *arkode_mem, int itable)
 {
@@ -1001,7 +1001,7 @@ int ARKStepSetIRKTableNum(void *arkode_mem, int itable)
   FreeButcherTable(step_mem->Bi);  step_mem->Bi = NULL;
 
   /* fill in table based on argument */
-  step_mem->Bi = ARKodeLoadButcherTable(itable);
+  step_mem->Bi = ARKodeLoadButcherTable_DIRK(itable);
   if (step_mem->Bi == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetIRKTableNum", 
@@ -1027,8 +1027,10 @@ int ARKStepSetIRKTableNum(void *arkode_mem, int itable)
   ARKStepSetARKTableNum:
 
   Specifies to use pre-existing Butcher tables for the ImEx system,
-  based on the integer flags held in ARKodeLoadButcherTable() 
-  within the file arkode_butcher.c (automatically calls ARKStepSetImEx).
+  based on the integer flags passed to 
+  ARKodeLoadButcherTable_ERK() and ARKodeLoadButcherTable_DIRK()  
+  within the files arkode_butcher_erk.c and arkode_butcher_dirk.c 
+  (automatically calls ARKStepSetImEx).
   ---------------------------------------------------------------*/
 int ARKStepSetARKTableNum(void *arkode_mem, int itable, int etable)
 {
@@ -1067,8 +1069,8 @@ int ARKStepSetARKTableNum(void *arkode_mem, int itable, int etable)
   FreeButcherTable(step_mem->Bi);  step_mem->Bi = NULL;
 
   /* fill in tables based on arguments */
-  step_mem->Bi = ARKodeLoadButcherTable(itable);
-  step_mem->Be = ARKodeLoadButcherTable(etable);
+  step_mem->Bi = ARKodeLoadButcherTable_DIRK(itable);
+  step_mem->Be = ARKodeLoadButcherTable_ERK(etable);
   if (step_mem->Bi == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep", 
                     "ARKStepSetARKTableNum", 
