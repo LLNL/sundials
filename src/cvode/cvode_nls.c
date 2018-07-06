@@ -38,6 +38,12 @@
 
 #define RHSFUNC_RECVR    +9
 
+/* NLS VALUES */
+
+/* Recoverable */
+#define SUN_NLS_CONTINUE   +1  /* not converged, keep iterating      */
+#define SUN_NLS_CONV_RECVR +2  /* convergece failure, try to recover */
+
 /* private functions */
 static int cvNewtonIteration(CVodeMem cv_mem);
 static int cvNlsRes(N_Vector y, N_Vector res, void* cvode_mem);
@@ -46,6 +52,7 @@ static N_Vector delta;
 
 static int cvNls_LSetup(N_Vector y, N_Vector res, int convfail, void* cvode_mem);
 static int cvNls_LSolve(N_Vector y, N_Vector delta, void* cvode_mem);
+static int cvNls_ConvTest(int m, realtype del, realtype tol, void* cvode_mem);
 
 /* -----------------------------------------------------------------------------
  * Private functions
@@ -115,6 +122,43 @@ static int cvNls_LSolve(N_Vector y, N_Vector delta, void* cvode_mem)
   if (retval > 0) return(retval);
 
   return(CV_SUCCESS);
+}
+
+
+static int cvNls_ConvTest(int m, realtype del, realtype tol, void* cvode_mem)
+{
+  CVodeMem cv_mem;
+  realtype dcon;
+  static realtype delp;
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "cvNlsConvTest", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* Test for convergence.  If m > 0, an estimate of the convergence
+     rate constant is stored in crate, and used in the test.        */
+  if (m > 0) {
+    cv_mem->cv_crate = SUNMAX(CRDOWN * cv_mem->cv_crate, del/delp);
+  }
+  dcon = del * SUNMIN(ONE, cv_mem->cv_crate) / cv_mem->cv_tq[4];
+
+  if (dcon <= ONE) {
+    cv_mem->cv_acnrm = (m==0) ?
+      del : N_VWrmsNorm(cv_mem->cv_acor, cv_mem->cv_ewt);
+    cv_mem->cv_jcur = SUNFALSE;
+    return(CV_SUCCESS); /* Nonlinear system was solved successfully */
+  }
+
+  /* check if the iteration seems to be diverging */
+  if ((m >= 1) && (del > RDIV*delp)) return(SUN_NLS_CONV_RECVR);
+
+  /* Save norm of correction and loop again */
+  delp = del;
+
+  /* Not yet converged */
+  return(SUN_NLS_CONTINUE);
 }
 
 
@@ -225,8 +269,6 @@ int cvNlsNewton(CVodeMem cv_mem, int nflag)
   int convfail, retval, ier;
   booleantype callSetup;
   
-
-  
   /* Set flag convfail, input to lsetup for its evaluation decision */
   convfail = ((nflag == FIRST_CALL) || (nflag == PREV_ERR_FAIL)) ?
     CV_NO_FAILURES : CV_FAIL_OTHER;
@@ -294,12 +336,12 @@ int cvNlsNewton(CVodeMem cv_mem, int nflag)
 static int cvNewtonIteration(CVodeMem cv_mem)
 {
   int m, retval;
-  realtype del, delp, dcon;
+  realtype del;
 
   cv_mem->cv_mnewt = m = 0;
 
-  /* Initialize delp to avoid compiler warning message */
-  del = delp = ZERO;
+  /* Initialize */
+  del = ZERO;
 
   /* Looping point for Newton iteration */
   for(;;) {
@@ -326,32 +368,20 @@ static int cvNewtonIteration(CVodeMem cv_mem)
     
     /* Test for convergence.  If m > 0, an estimate of the convergence
        rate constant is stored in crate, and used in the test.        */
-    if (m > 0) {
-      cv_mem->cv_crate = SUNMAX(CRDOWN * cv_mem->cv_crate, del/delp);
-    }
-    dcon = del * SUNMIN(ONE, cv_mem->cv_crate) / cv_mem->cv_tq[4];
-    
-    if (dcon <= ONE) {
-      cv_mem->cv_acnrm = (m==0) ?
-        del : N_VWrmsNorm(cv_mem->cv_acor, cv_mem->cv_ewt);
-      cv_mem->cv_jcur = SUNFALSE;
-      return(CV_SUCCESS); /* Nonlinear system was solved successfully */
-    }
+    retval = cvNls_ConvTest(m, del, ONE, cv_mem);
+    if (retval == CV_SUCCESS) return(CV_SUCCESS);
     
     cv_mem->cv_mnewt = ++m;
     
     /* Stop at maxcor iterations or if iter. seems to be diverging.
        If still not converged and Jacobian data is not current, 
        signal to try the solution again                            */
-    if ((m == cv_mem->cv_maxcor) || ((m >= 2) && (del > RDIV*delp))) {
+    if ((m == cv_mem->cv_maxcor) || (retval == SUN_NLS_CONV_RECVR)) {
       if ((!cv_mem->cv_jcur) && (cv_mem->cv_lsetup))
         return(TRY_AGAIN);
       else
         return(CONV_FAIL);
     }
-    
-    /* Save norm of correction, evaluate f, and loop again */
-    delp = del;
 
     /* Evaluate the residual of the nonlinear system */
     retval = cvNlsRes(cv_mem->cv_y, delta, cv_mem);
