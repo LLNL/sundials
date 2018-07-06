@@ -45,6 +45,7 @@ static int cvNlsRes(N_Vector y, N_Vector res, void* cvode_mem);
 static N_Vector delta;
 
 static int cvNls_LSetup(N_Vector y, N_Vector res, int convfail, void* cvode_mem);
+static int cvNls_LSolve(N_Vector y, N_Vector delta, void* cvode_mem);
 
 /* -----------------------------------------------------------------------------
  * Private functions
@@ -92,6 +93,26 @@ static int cvNls_LSetup(N_Vector y, N_Vector res, int convfail, void* cvode_mem)
 
   if (retval < 0) return(CV_LSETUP_FAIL);
   if (retval > 0) return(CONV_FAIL);
+
+  return(CV_SUCCESS);
+}
+
+
+static int cvNls_LSolve(N_Vector y, N_Vector delta, void* cvode_mem)
+{
+  CVodeMem cv_mem;
+  int      retval;
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "cvNlsRes", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  retval = cv_mem->cv_lsolve(cv_mem, delta, cv_mem->cv_ewt, y, cv_mem->cv_ftemp);
+
+  if (retval < 0) return(CV_LSOLVE_FAIL);
+  if (retval > 0) return(retval);
 
   return(CV_SUCCESS);
 }
@@ -284,8 +305,7 @@ static int cvNewtonIteration(CVodeMem cv_mem)
   for(;;) {
 
     /* Call the lsolve function */
-    retval = cv_mem->cv_lsolve(cv_mem, delta, cv_mem->cv_ewt,
-                               cv_mem->cv_y, cv_mem->cv_ftemp); 
+    retval = cvNls_LSolve(cv_mem->cv_y, delta, cv_mem);
     cv_mem->cv_nni++;
     
     if (retval < 0) return(CV_LSOLVE_FAIL);
