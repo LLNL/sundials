@@ -431,6 +431,9 @@ void cvErrHandler(int error_code, const char *module, const char *function,
 		  char *msg, void *data);
 
 /* Nonlinear solver functions */
+int cvNlsInit(CVodeMem cv_mem);
+int cvNlsFree(CVodeMem cv_mem);
+
 int cvNlsFunctional(CVodeMem cv_mem);
 int cvNlsNewton(CVodeMem cv_mem, int nflag);
 

@@ -42,6 +42,29 @@
 static int cvNewtonIteration(CVodeMem cv_mem);
 static int cvNlsRes(N_Vector y, N_Vector res, void* cvode_mem);
 
+static N_Vector delta;
+
+
+/* -----------------------------------------------------------------------------
+ * Private functions
+ * ---------------------------------------------------------------------------*/
+
+int cvNlsInit(CVodeMem cvode_mem)
+{
+  delta = N_VClone(cvode_mem->cv_acor);
+
+  return(CV_SUCCESS);
+}
+
+
+int cvNlsFree(CVodeMem cvode_mem)
+{
+  N_VDestroy(delta);
+
+  return(CV_SUCCESS);
+}
+
+
 /*
  * cvNlsFunctional
  *
@@ -176,11 +199,9 @@ int cvNlsNewton(CVodeMem cv_mem, int nflag)
 
   for(;;) {
 
-    retval = cv_mem->cv_f(cv_mem->cv_tn, cv_mem->cv_zn[0],
-                          cv_mem->cv_ftemp, cv_mem->cv_user_data);
-    cv_mem->cv_nfe++; 
-    if (retval < 0) return(CV_RHSFUNC_FAIL);
-    if (retval > 0) return(RHSFUNC_RECVR);
+    /* compute the residual */
+    retval = cvNlsRes(cv_mem->cv_zn[0], delta, cv_mem);
+    if (retval != CV_SUCCESS) return(retval);
 
     if (callSetup) {
       ier = cv_mem->cv_lsetup(cv_mem, convfail, cv_mem->cv_zn[0],
@@ -231,7 +252,6 @@ static int cvNewtonIteration(CVodeMem cv_mem)
 {
   int m, retval;
   realtype del, delp, dcon;
-  N_Vector b;
 
   cv_mem->cv_mnewt = m = 0;
 
@@ -241,12 +261,8 @@ static int cvNewtonIteration(CVodeMem cv_mem)
   /* Looping point for Newton iteration */
   for(;;) {
 
-    /* Evaluate the residual of the nonlinear system */
-    retval = cvNlsRes(cv_mem->cv_y, cv_mem->cv_tempv, cv_mem);
-
     /* Call the lsolve function */
-    b = cv_mem->cv_tempv;
-    retval = cv_mem->cv_lsolve(cv_mem, b, cv_mem->cv_ewt,
+    retval = cv_mem->cv_lsolve(cv_mem, delta, cv_mem->cv_ewt,
                                cv_mem->cv_y, cv_mem->cv_ftemp); 
     cv_mem->cv_nni++;
     
@@ -262,8 +278,8 @@ static int cvNewtonIteration(CVodeMem cv_mem)
     }
 
     /* Get WRMS norm of correction; add correction to acor and y */
-    del = N_VWrmsNorm(b, cv_mem->cv_ewt);
-    N_VLinearSum(ONE, cv_mem->cv_acor, ONE, b, cv_mem->cv_acor);
+    del = N_VWrmsNorm(delta, cv_mem->cv_ewt);
+    N_VLinearSum(ONE, cv_mem->cv_acor, ONE, delta, cv_mem->cv_acor);
     N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, cv_mem->cv_acor, cv_mem->cv_y);
     
     /* Test for convergence.  If m > 0, an estimate of the convergence
@@ -294,9 +310,10 @@ static int cvNewtonIteration(CVodeMem cv_mem)
     
     /* Save norm of correction, evaluate f, and loop again */
     delp = del;
-    retval = cv_mem->cv_f(cv_mem->cv_tn, cv_mem->cv_y,
-                          cv_mem->cv_ftemp, cv_mem->cv_user_data);
-    cv_mem->cv_nfe++;
+
+    /* Evaluate the residual of the nonlinear system */
+    retval = cvNlsRes(cv_mem->cv_y, delta, cv_mem);
+
     if (retval < 0) return(CV_RHSFUNC_FAIL);
     if (retval > 0) {
       if ((!cv_mem->cv_jcur) && (cv_mem->cv_lsetup))
@@ -312,13 +329,19 @@ static int cvNewtonIteration(CVodeMem cv_mem)
 static int cvNlsRes(N_Vector y, N_Vector res, void* cvode_mem)
 {
   CVodeMem cv_mem;
-  /* int retval; */
+  int retval;
 
   if (cvode_mem == NULL) {
     cvProcessError(NULL, CV_MEM_NULL, "CVODE", "cvNlsRes", MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
+
+  retval = cv_mem->cv_f(cv_mem->cv_tn, y, cv_mem->cv_ftemp,
+                        cv_mem->cv_user_data);
+  cv_mem->cv_nfe++;
+  if (retval < 0) return(CV_RHSFUNC_FAIL);
+  if (retval > 0) return(RHSFUNC_RECVR);
 
   /* compute the accumulated correction */
   N_VLinearSum(ONE, y, -ONE, cv_mem->cv_zn[0], res);

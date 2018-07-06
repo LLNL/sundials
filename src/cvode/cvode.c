@@ -1475,6 +1475,8 @@ void CVodeFree(void **cvode_mem)
   
   cvFreeVectors(cv_mem);
 
+  cvNlsFree(cv_mem); /* >>>>>>> REMOVE <<<<<<< */
+
   if (cv_mem->cv_lfree != NULL) cv_mem->cv_lfree(cv_mem);
 
   if (cv_mem->cv_nrtfn > 0) {
@@ -1661,6 +1663,14 @@ static int cvInitialSetup(CVodeMem cv_mem)
         return(CV_LINIT_FAIL);
       }
     }
+  }
+
+  /* Initialize the nonlinear solver (must occur after linear solver is initialize) so
+   * that lsetup and lsolve pointer have been set */
+  ier = cvNlsInit(cv_mem);
+  if (ier != 0) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "cvInitialSetup", MSGCV_LINIT_FAIL);
+    return(CV_LINIT_FAIL); /* >>>>>>> FIX RETURN CODES <<<<<<< */
   }
 
   return(CV_SUCCESS);
