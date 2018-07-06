@@ -40,7 +40,7 @@
 
 /* private functions */
 static int cvNewtonIteration(CVodeMem cv_mem);
-
+static int cvNlsRes(N_Vector y, N_Vector res, void* cvode_mem);
 
 /*
  * cvNlsFunctional
@@ -242,10 +242,7 @@ static int cvNewtonIteration(CVodeMem cv_mem)
   for(;;) {
 
     /* Evaluate the residual of the nonlinear system */
-    N_VLinearSum(cv_mem->cv_rl1, cv_mem->cv_zn[1], ONE,
-                 cv_mem->cv_acor, cv_mem->cv_tempv);
-    N_VLinearSum(cv_mem->cv_gamma, cv_mem->cv_ftemp, -ONE,
-                 cv_mem->cv_tempv, cv_mem->cv_tempv);
+    retval = cvNlsRes(cv_mem->cv_y, cv_mem->cv_tempv, cv_mem);
 
     /* Call the lsolve function */
     b = cv_mem->cv_tempv;
@@ -309,4 +306,26 @@ static int cvNewtonIteration(CVodeMem cv_mem)
     }
 
   } /* end loop */
+}
+
+
+static int cvNlsRes(N_Vector y, N_Vector res, void* cvode_mem)
+{
+  CVodeMem cv_mem;
+  /* int retval; */
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "cvNlsRes", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* compute the accumulated correction */
+  N_VLinearSum(ONE, y, -ONE, cv_mem->cv_zn[0], res);
+
+  /* evaluate the residual of the nonlinear system */
+  N_VLinearSum(cv_mem->cv_rl1, cv_mem->cv_zn[1], ONE, res, res);
+  N_VLinearSum(cv_mem->cv_gamma, cv_mem->cv_ftemp, -ONE, res, res);
+
+  return(0);
 }
