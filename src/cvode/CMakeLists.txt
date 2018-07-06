@@ -29,6 +29,7 @@ SET(cvode_SOURCES
   cvode_direct.c        
   cvode_io.c
   cvode_spils.c
+  cvode_nls.c
   )
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will

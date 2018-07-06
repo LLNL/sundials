@@ -430,6 +430,10 @@ void cvProcessError(CVodeMem cv_mem,
 void cvErrHandler(int error_code, const char *module, const char *function, 
 		  char *msg, void *data);
 
+/* Nonlinear solver functions */
+int cvNlsFunctional(CVodeMem cv_mem);
+int cvNlsNewton(CVodeMem cv_mem, int nflag);
+
 /*
  * =================================================================
  *   C V O D E    E R R O R    M E S S A G E S
