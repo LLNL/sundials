@@ -44,6 +44,7 @@ static int cvNlsRes(N_Vector y, N_Vector res, void* cvode_mem);
 
 static N_Vector delta;
 
+static int cvNls_LSetup(N_Vector y, N_Vector res, int convfail, void* cvode_mem);
 
 /* -----------------------------------------------------------------------------
  * Private functions
@@ -60,6 +61,37 @@ int cvNlsInit(CVodeMem cvode_mem)
 int cvNlsFree(CVodeMem cvode_mem)
 {
   N_VDestroy(delta);
+
+  return(CV_SUCCESS);
+}
+
+
+static int cvNls_LSetup(N_Vector y, N_Vector res, int convfail, void* cvode_mem)
+{
+  CVodeMem cv_mem;
+  N_Vector vtemp1, vtemp2, vtemp3;
+  int      retval;
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "cvNlsRes", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  vtemp1 = cv_mem->cv_acor;  /* rename acor as vtemp1 for readability  */
+  vtemp2 = cv_mem->cv_y;     /* rename y as vtemp2 for readability     */
+  vtemp3 = cv_mem->cv_tempv; /* rename tempv as vtemp3 for readability */
+
+  retval = cv_mem->cv_lsetup(cv_mem, convfail, y, cv_mem->cv_ftemp,
+                             &(cv_mem->cv_jcur), vtemp1, vtemp2, vtemp3);
+  cv_mem->cv_nsetups++;
+
+  cv_mem->cv_gamrat = cv_mem->cv_crate = ONE;
+  cv_mem->cv_gammap = cv_mem->cv_gamma;
+  cv_mem->cv_nstlp  = cv_mem->cv_nst;
+
+  if (retval < 0) return(CV_LSETUP_FAIL);
+  if (retval > 0) return(CONV_FAIL);
 
   return(CV_SUCCESS);
 }
@@ -169,13 +201,10 @@ int cvNlsFunctional(CVodeMem cv_mem)
 
 int cvNlsNewton(CVodeMem cv_mem, int nflag)
 {
-  N_Vector vtemp1, vtemp2, vtemp3;
   int convfail, retval, ier;
   booleantype callSetup;
   
-  vtemp1 = cv_mem->cv_acor;  /* rename acor as vtemp1 for readability  */
-  vtemp2 = cv_mem->cv_y;     /* rename y as vtemp2 for readability     */
-  vtemp3 = cv_mem->cv_tempv; /* rename tempv as vtemp3 for readability */
+
   
   /* Set flag convfail, input to lsetup for its evaluation decision */
   convfail = ((nflag == FIRST_CALL) || (nflag == PREV_ERR_FAIL)) ?
@@ -203,18 +232,11 @@ int cvNlsNewton(CVodeMem cv_mem, int nflag)
     retval = cvNlsRes(cv_mem->cv_zn[0], delta, cv_mem);
     if (retval != CV_SUCCESS) return(retval);
 
+    /* if indicated, setup the linear system */
     if (callSetup) {
-      ier = cv_mem->cv_lsetup(cv_mem, convfail, cv_mem->cv_zn[0],
-                              cv_mem->cv_ftemp, &(cv_mem->cv_jcur),
-                              vtemp1, vtemp2, vtemp3);
-      cv_mem->cv_nsetups++;
+      retval = cvNls_LSetup(cv_mem->cv_zn[0], delta, convfail, cv_mem);
       callSetup = SUNFALSE;
-      cv_mem->cv_gamrat = cv_mem->cv_crate = ONE; 
-      cv_mem->cv_gammap = cv_mem->cv_gamma;
-      cv_mem->cv_nstlp = cv_mem->cv_nst;
-      /* Return if lsetup failed */
-      if (ier < 0) return(CV_LSETUP_FAIL);
-      if (ier > 0) return(CONV_FAIL);
+      if (retval != CV_SUCCESS) return(retval);
     }
 
     /* Set acor to zero and load prediction into y vector */
