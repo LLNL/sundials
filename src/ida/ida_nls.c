@@ -238,7 +238,7 @@ static int IDANls_ConvTest(int m, realtype delnrm, realtype tol, void* ida_mem)
   static realtype oldnrm;
 
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDANlsRes", MSG_NO_MEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDANlsConvTest", MSG_NO_MEM);
     return(IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
