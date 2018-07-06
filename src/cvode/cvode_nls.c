@@ -312,10 +312,15 @@ int cvNlsNewton(CVodeMem cv_mem, int nflag)
     /* If there is a convergence failure and the Jacobian-related 
        data appears not to be current, loop again with a call to lsetup
        in which convfail=CV_FAIL_BAD_J.  Otherwise return.                 */
-    if (ier != TRY_AGAIN) return(ier);
-    
-    callSetup = SUNTRUE;
-    convfail = CV_FAIL_BAD_J;
+    if (ier <= 0) return(ier);
+
+    if ((!cv_mem->cv_jcur) && (cv_mem->cv_lsetup)) {
+      callSetup = SUNTRUE;
+      convfail = CV_FAIL_BAD_J;
+    } else {
+      return(ier);
+    }
+
   }
 }
 
@@ -351,15 +356,7 @@ static int cvNewtonIteration(CVodeMem cv_mem)
     cv_mem->cv_nni++;
     
     if (retval < 0) return(CV_LSOLVE_FAIL);
-    
-    /* If lsolve had a recoverable failure and Jacobian data is
-       not current, signal to try the solution again            */
-    if (retval > 0) { 
-      if ((!cv_mem->cv_jcur) && (cv_mem->cv_lsetup))
-        return(TRY_AGAIN);
-      else
-        return(CONV_FAIL);
-    }
+    if (retval > 0) return(CONV_FAIL);
 
     /* Get WRMS norm of correction; add correction to acor and y */
     del = N_VWrmsNorm(delta, cv_mem->cv_ewt);
@@ -376,23 +373,14 @@ static int cvNewtonIteration(CVodeMem cv_mem)
     /* Stop at maxcor iterations or if iter. seems to be diverging.
        If still not converged and Jacobian data is not current, 
        signal to try the solution again                            */
-    if ((m == cv_mem->cv_maxcor) || (retval == SUN_NLS_CONV_RECVR)) {
-      if ((!cv_mem->cv_jcur) && (cv_mem->cv_lsetup))
-        return(TRY_AGAIN);
-      else
-        return(CONV_FAIL);
-    }
+    if ((m == cv_mem->cv_maxcor) || (retval == SUN_NLS_CONV_RECVR))
+      return(CONV_FAIL);
 
     /* Evaluate the residual of the nonlinear system */
     retval = cvNlsRes(cv_mem->cv_y, delta, cv_mem);
 
     if (retval < 0) return(CV_RHSFUNC_FAIL);
-    if (retval > 0) {
-      if ((!cv_mem->cv_jcur) && (cv_mem->cv_lsetup))
-        return(TRY_AGAIN);
-      else
-        return(RHSFUNC_RECVR);
-    }
+    if (retval > 0) return(RHSFUNC_RECVR);
 
   } /* end loop */
 }
