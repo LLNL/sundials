@@ -87,9 +87,8 @@ typedef enum {
  * SUNNonlinSolLSolveFn
  *   Integrator specific wrapper to the lsolve function
  *
- * This function should return 0 if successful, a negative value if an
- * unrecoverable error occurred, and a positive value if a recoverable error   
- * (e.g. invalid y values) occurred.
+ * SUNNonlinSolConvTestFn
+ *   Integrator specific or user porvided test for nonlinear solver convergence
  * ---------------------------------------------------------------------------*/
 
 typedef int (*SUNNonlinSolSysFn)(N_Vector y, N_Vector F, void* mem);
@@ -98,7 +97,8 @@ typedef int (*SUNNonlinSolLSetupFn)(N_Vector y, N_Vector F, void* mem);
 
 typedef int (*SUNNonlinSolLSolveFn)(N_Vector y, N_Vector b, void* mem);
 
-typedef int (*SUNNonlinSolConvTestFn)(int m, realtype delnrm, realtype tol, void* mem);
+typedef int (*SUNNonlinSolConvTestFn)(int m, N_Vector y, N_Vector del,
+                                      realtype tol, N_Vector ewt, void* mem);
 
 /* -----------------------------------------------------------------------------
  * III. Definition of a generic SUNNonlinearSolver

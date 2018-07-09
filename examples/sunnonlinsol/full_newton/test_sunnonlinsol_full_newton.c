@@ -69,7 +69,7 @@ static int LSetup(N_Vector y, N_Vector f, void* mem);
 static int LSolve(N_Vector y, N_Vector b, void* mem);
 
 /* Convergence test function */
-static int CTest(int m, realtype delnrm, realtype tol, void* mem);
+static int CTest(int m, N_Vector y, N_Vector del, realtype tol, N_Vector ewt, void* mem);
 
 /* -----------------------------------------------------------------------------
  * Main testing routine
@@ -230,9 +230,10 @@ int LSolve(N_Vector y, N_Vector b, void* mem)
 
 
 /* Proxy for integrator convergence test function */
-int CTest(int m, realtype delnrm, realtype tol, void* mem)
+int CTest(int m, N_Vector y, N_Vector del, realtype tol, N_Vector ewt, void* mem)
 {
   IntegratorMem Imem;
+  realtype delnrm;
 
   if (mem == NULL) {
     printf("ERROR: Integrator memory is NULL");
@@ -240,6 +241,9 @@ int CTest(int m, realtype delnrm, realtype tol, void* mem)
   }
   Imem = (IntegratorMem) mem;
 
+  /* compute the norm of the correction */
+  delnrm = N_VWrmsNorm(del, ewt);
+  
   if (delnrm <= tol) return(SUN_NLS_SUCCESS);  /* success       */
   else               return(SUN_NLS_CONTINUE); /* not converged */
 }

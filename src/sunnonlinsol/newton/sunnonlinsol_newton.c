@@ -159,7 +159,6 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
 {
   int mnewt;
   int retval;
-  realtype delnrm;
   N_Vector delta;
   booleantype tryAgain;
 
@@ -198,11 +197,8 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
         /* apply delta to y */
         N_VLinearSum(ONE, y, -ONE, delta, y);
 
-        /* compute the norm of the correction */
-        delnrm = N_VWrmsNorm(delta, w);
-
         /* test for convergence, return if successful */
-        retval = NEWTON_CONTENT(NLS)->CTest(mnewt, delnrm, tol, mem);
+        retval = NEWTON_CONTENT(NLS)->CTest(mnewt, y, delta, tol, w, mem);
         if (retval == SUN_NLS_SUCCESS)  return(SUN_NLS_SUCCESS);
         if (retval != SUN_NLS_CONTINUE) break;
 

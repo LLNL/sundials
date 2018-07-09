@@ -497,8 +497,9 @@ and are described below.
 % --------------------------------------------------------------------
 \usfunction{SUNNonlinSolConvTestFn}
 {
-  typedef int (*SUNNonlinSolConvTestFn)(&int m, realtype delnrm,\\
-                                        &realtype tol, void* mem);
+  typedef int (*SUNNonlinSolConvTestFn)(&int m, N\_Vector y, N\_Vector del,\\
+                                        &realtype tol, N\_Vector ewt,\\
+                                        &void* mem);
 }
 {
   These functions are {\sundials} package specific convergence tests of
@@ -508,12 +509,15 @@ and are described below.
   \begin{args}[delnrm]
   \item[m]
     is the value of the nonlinear iteration counter, starting from
-  zero for the initial iteration.
-  \item[delnrm]
-    is the WRMS norm of the iteration update vector $\delta^{(m)}$ in
-    $y^{(m+1)} = y^{(m)} + \delta^{(m+1)}$.
+    zero for the initial iteration.
+  \item[y]
+    is the current nonlinear iterate.
+  \item[del]
+    is the difference between the current and prior nonlinear iterates.
   \item[tol]
     is the nonlinear solver tolerance.
+  \item[ewt]
+    is the weight vector used in computing weighted norms.
   \item[mem]
     is the {\sundials} package memory structure.
   \end{args}
