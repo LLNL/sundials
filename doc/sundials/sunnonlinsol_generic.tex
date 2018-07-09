@@ -2,10 +2,24 @@
 operations defined by the {\sunnonlinsol} API and implemented by a
 particular {\sunnonlinsol} module of type \Id{SUNNonlinearSolver}.
 Users can supply their own {\sunnonlinsol} module, or use one of the
-modules provided with {\sundials}. The following section presents the
-{\sunnonlinsol} API and its implementation. The subsequent sections in
-this chapter describe the {\sunnonlinsol} modules provided with
-{\sundials}.
+modules provided with {\sundials}.
+
+The following section presents the {\sunnonlinsol} API and its
+implementation beginning with the definition of {\sunnonlinsol}
+functions in sections \ref{ss:sunnonlinsol_corefn}
+-- \ref{ss:sunnonlinsol_getfn}. This is followed by the definition of
+functions supplied to a nonlinear solver implementation in section
+\ref{ss:sunnonlinsol_sunsuppliedfn}. A table of nonlinear solver
+return codes is given in section \ref{ss:sunnonlinsol_returncodes}.
+The \id{SUNNonlinearSolver} type and the generic {\sunnonlinsol}
+module are defined in section \ref{ss:sunnonlinsol_generic}. Finally,
+section \ref{ss:sunnonlinsol_custom} list the requirements for
+supplying a custom {\sunnonlinsol} module.
+
+The subsequent sections in this chapter describe the {\sunnonlinsol}
+modules provided with {\sundials}. Users wishing to supply their own
+{\sunnonlinsol} module are encouraged to uses these implementations as
+a template for supplying custom nonlinear solver modules. 
 
 
 % ====================================================================
@@ -564,7 +578,10 @@ common set of return codes, shown below in Table \ref{t:sunnonlinsol_returncodes
 \addtolength{\ColumnThreeA}{-\ColumnTwoA}
 
 \tablecaption{Description of the \id{SUNNonlinearSolver} return codes}\label{t:sunnonlinsol_returncodes}
-\tablehead{\hline {\rule{0mm}{5mm}}{\bf Name} & {\bf Value} & {\bf Description} \\[3mm] \hline\hline}
+\tablefirsthead{\hline {\rule{0mm}{5mm}}{\bf Name} & {\bf Value} & {\bf Description} \\[3mm] \hline\hline}
+\tablehead{\hline \multicolumn{3}{|l|}{\small\slshape continued from last page} \\
+           \hline {\rule{0mm}{5mm}}{\bf Name} & {\bf Value} & {\bf Description} \\[3mm] \hline\hline}
+%% \tablehead{\hline {\rule{0mm}{5mm}}{\bf Name} & {\bf Value} & {\bf Description} \\[3mm] \hline\hline}
 \tabletail{\hline \multicolumn{3}{|r|}{\small\slshape continued on next page} \\ \hline}
 \begin{xtabular}{|p{\ColumnOneA}|p{\ColumnTwoA}|p{\ColumnThreeA}|}
 %%
