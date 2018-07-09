@@ -896,7 +896,8 @@ passed to this function is the {\ida} memory pointer returned by
 \id{IDACreate}; the second argument passed to this function is the 
 desired {\sunnonlinsol} object to use for solving the nonlinear system
 \ref{e:DAE_nls}. A call to this function attaches the nonlinear solver
-to the main {\ida} integrator.
+to the main {\ida} integrator. Note the {\sunnonlinsol} object must be
+of type \id{SUNNONLINEARSOLVER\_ROOTFIND}.
 
 \ucfunction{IDASetNonlinearSolver}
 {
