@@ -357,17 +357,20 @@ serial or threaded environment.
   \id{NLS = SUNNonlinSol\_Newton(...)}).
 
 \item
-  {\bf Set nonlinear optional inputs}
-
-  Call the appropriate set functions for the selected nonlinear solver
-  module to change optional inputs sepcific to that nonlinear
-  solver. See Chapter \ref{c:sunnonlinsol}.
-
-\item
   {\bf Attach the nonlinear solver object}
 
   Call the \id{IDASetNonlinearSolver(ida\_mem, NLS)} to attach the nonlinear
   solver to {\ida}.
+
+\item
+  {\bf Set nonlinear solver optional inputs}
+
+  Call the appropriate set functions for the selected nonlinear solver
+  module to change optional inputs specific to that nonlinear
+  solver. These \textit{must} be called after attaching the nonlinear
+  solver to {\ida}, otherwise the optional inputs will be overridden
+  by {\ida} defaults. See Chapter \ref{c:sunnonlinsol} for more
+  information on optional inputs.
 
 \item 
   {\bf Correct initial values}
