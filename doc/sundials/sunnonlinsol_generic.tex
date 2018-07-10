@@ -32,7 +32,7 @@ that enable {\sundials} packages to utilize any {\sunnonlinsol}
 implementation that provides the required functions. These functions
 can be divided into three categories. The first are the core nonlinear
 solver functions: get type, initialization, setup, solve, and free.
-The second group of functions consists set routines to supply the
+The second group of functions consists of set routines to supply the
 nonlinear solver with functions provided by the {\sundials} package
 and to modify solver parameters. The final group consists of get
 routines for retrieving nonlinear solver statistics. All of these
@@ -133,8 +133,8 @@ functions are defined in the header file
   \item[NLS] (\id{SUNNonlinearSolver})
     a {\sunnonlinsol} object.
   \item[y0] (\id{N\_Vector})
-    the initial iterate for the nonlinear solver and should be left
-    unchanged.
+    the initial iterate for the nonlinear solver and \textit{must}
+    remain unchanged.
   \item[y] (\id{N\_Vector})
     the solution to the nonlinear system.
   \item[w] (\id{N\_Vector})
@@ -207,7 +207,7 @@ functions are defined in the header file
 \subsection{SUNNonlinearSolver set functions}
 \label{ss:sunnonlinsol_setfn}
 % ====================================================================
-\ucfunction{SUNNonlinSetSysFn}
+\ucfunction{SUNNonlinSolSetSysFn}
 {
   retval = SUNNonlinSolSetSysFn(NLS, SysFn);
 }
@@ -234,7 +234,7 @@ functions are defined in the header file
 }
 {}
 % --------------------------------------------------------------------
-\ucfunction{SUNNonlinSetLSetupFn}
+\ucfunction{SUNNonlinSolSetLSetupFn}
 {
   retval = SUNNonlinSolSetLSetupFn(NLS, LSetupFn);
 }
@@ -262,13 +262,13 @@ functions are defined in the header file
   may set this operation to \id{NULL}.
 }
 % --------------------------------------------------------------------
-\ucfunction{SUNNonlinSetLSolveFn}
+\ucfunction{SUNNonlinSolSetLSolveFn}
 {
-  retval = SUNNonlinSolLSolve(NLS, LSolveFn);
+  retval = SUNNonlinSolSetLSolveFn(NLS, LSolveFn);
 }
 {
-  The \textit{optional} function \ID{SUNNonlinSolLSolve} is used to
-  provide the nonlinear solver with a wrapper function to the
+  The \textit{optional} function \ID{SUNNonlinSolSetLSolveFn} is used
+  to provide the nonlinear solver with a wrapper function to the
   {\sundials} package's linear solver solve function.
 }
 {
@@ -290,7 +290,7 @@ functions are defined in the header file
   may set this operation to \id{NULL}.
 }
 % --------------------------------------------------------------------
-\ucfunction{SUNNonlinSetConvTestFn}
+\ucfunction{SUNNonlinSolSetConvTestFn}
 {
   retval = SUNNonlinSolSetConvTestFn(NLS, CTestFn);
 }
@@ -303,7 +303,7 @@ functions are defined in the header file
   \begin{args}[CTestFn]
   \item[NLS] (\id{SUNNonlinearSolver})
     a {\sunnonlinsol} object.
-  \item[CTestFn] (\id{SUNNonlinearSolConvTestFn})
+  \item[CTestFn] (\id{SUNNonlineSolConvTestFn})
     a {\sundials} package nonlinear solver convergence test function.
     See \ref{ss:sunnonlinsol_sunsuppliedfn} for the definition of
     \id{SUNNonlinSolConvTestFn}.
@@ -318,7 +318,7 @@ functions are defined in the header file
   criteria may set this function to \id{NULL}.
 }
 % --------------------------------------------------------------------
-\ucfunction{SUNNonlinSetMaxIters}
+\ucfunction{SUNNonlinSolSetMaxIters}
 {
   retval = SUNNonlinSolSetMaxIters(NLS, maxiters);
 }
@@ -346,19 +346,19 @@ functions are defined in the header file
 \subsection{SUNNonlinearSolver get functions}
 \label{ss:sunnonlinsol_getfn}
 % ====================================================================
-\ucfunction{SUNNonlinGetNumIters}
+\ucfunction{SUNNonlinSolGetNumIters}
 {
-  retval = SUNNonlinSolGetNumIters(NLS, numiters);
+  retval = SUNNonlinSolGetNumIters(NLS, \&numiters);
 }
 {
-  The \textit{optional} function \ID{SUNNonlinSolGetNumIters} to get
+  The \textit{optional} function \ID{SUNNonlinSolGetNumIters} returns
   the total number of nonlinear solver iterations.
 }
 {
   \begin{args}[numiters]
   \item[NLS] (\id{SUNNonlinearSolver})
     a {\sunnonlinsol} object
-  \item[numiters] (\id{long int})
+  \item[numiters] (\id{long int*})
     the total number of nonlinear solver iterations.
   \end{args}
 }
@@ -463,7 +463,7 @@ and are described below.
   \item[F]
     is the value of the nonlinear system function at \id{y}.
   \item[jcur]
-    is the Jacobian current (\id{SUNTURE}) or stale (\id{SUNFALSE}).
+    is the Jacobian current (\id{SUNTRUE}) or stale (\id{SUNFALSE}).
   \item[mem]
     is the {\sundials} package memory structure.
   \end{args}
@@ -686,7 +686,7 @@ wrappers to the nonlinear solver operations provided by a particular
 {\sunnonlinsol} implementation, which are accessed through the ops
 field of the \id{SUNNonlinearSolver} structure. To illustrate this
 point we show below the implementation of a typical nonlinear solver
-operation from the generic \{sunnonlinsol} module,
+operation from the generic {\sunnonlinsol} module,
 namely \wtt{SUNNonlinSolInitialize}, which initializes a
 {\sunnonlinsol} object for use after it has been created and
 configured, and returns a flag denoting a successful/failed operation:

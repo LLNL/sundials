@@ -886,7 +886,7 @@ question, as described in Chapters \ref{s:sunmatrix} and
 %%
 %%==================================================================================
 %%
-\subsection{Noninear solver interface function}\label{sss:nonlin_solv_init}
+\subsection{Nonlinear solver interface function}\label{sss:nonlin_solv_init}
 
 To specify a generic nonlinear solver to {\ida}, after the call to
 \id{IDACreate} but before any calls to \id{IDASolve}, the user's
@@ -2564,7 +2564,7 @@ different quantities that may be of interest to the user, such as solver workspa
 requirements, solver performance statistics, as well as additional data from
 the {\ida} memory block (a suggested tolerance scaling factor, the error weight
 vector, and the vector of estimated local errors). Also provided are functions to
-extract statistics related to the performance of the {\ida} nonlinear solver
+extract statistics related to the performance of the {\sunnonlinsol} nonlinear solver
 being used. As a convenience, additional extraction functions provide the optional 
 outputs in groups.
 %%
