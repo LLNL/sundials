@@ -2,13 +2,13 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2015, Southern Methodist University and
  * Lawrence Livermore National Security
  *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Southern Methodist University and Lawrence Livermore
  * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
+ * Produced at Southern Methodist University and the Lawrence
  * Livermore National Laboratory.
  *
  * All rights reserved.
@@ -61,7 +61,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <arkode/arkode.h>              /* prototypes for ARKODE fcts.      */
 #include <arkode/arkode_arkstep.h>      /* prototypes for ARKStep fcts., consts */
 #include <nvector/nvector_parallel.h>   /* access to MPI-parallel N_Vector  */
 #include <sunlinsol/sunlinsol_spgmr.h>  /* access to SPGMR SUNLinearSolver  */
@@ -78,7 +77,7 @@
 #define KH           RCONST(4.0e-6)    /* horizontal diffusivity Kh */
 #define VEL          RCONST(0.001)     /* advection velocity V      */
 #define KV0          RCONST(1.0e-8)    /* coefficient in Kv(y)      */
-#define Q1           RCONST(1.63e-16)  /* coefficients q1, q2, c3   */ 
+#define Q1           RCONST(1.63e-16)  /* coefficients q1, q2, c3   */
 #define Q2           RCONST(4.66e-16)
 #define C3           RCONST(3.7e16)
 #define A3           RCONST(22.62)     /* coefficient in expression for q3(t) */
@@ -90,7 +89,7 @@
 #define NOUT         12                  /* number of output times */
 #define TWOHR        RCONST(7200.0)      /* number of seconds in two hours  */
 #define HALFDAY      RCONST(4.32e4)      /* number of seconds in a half day */
-#define PI       RCONST(3.1415926535898) /* pi */ 
+#define PI       RCONST(3.1415926535898) /* pi */
 
 #define XMIN         ZERO                /* grid boundaries in x  */
 #define XMAX         RCONST(20.0)
@@ -112,7 +111,7 @@
                                   /* change from relative to absolute      */
 #define ATOL    (RTOL*FLOOR)      /* scalar absolute tolerance */
 
-/* Type : UserData 
+/* Type : UserData
    contains problem constants, extended dependent variable array,
    grid constants, processor indices, MPI communicator */
 typedef struct {
@@ -132,16 +131,16 @@ static void PrintIntro(int npes, sunindextype mudq, sunindextype mldq,
 static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
                         N_Vector u, realtype t);
 static void PrintFinalStats(void *arkode_mem);
-static void BSend(MPI_Comm comm, 
-                  int my_pe, int isubx, int isuby, 
+static void BSend(MPI_Comm comm,
+                  int my_pe, int isubx, int isuby,
                   sunindextype dsizex, sunindextype dsizey,
                   realtype uarray[]);
-static void BRecvPost(MPI_Comm comm, MPI_Request request[], 
+static void BRecvPost(MPI_Comm comm, MPI_Request request[],
                       int my_pe, int isubx, int isuby,
                       sunindextype dsizex, sunindextype dsizey,
                       realtype uext[], realtype buffer[]);
-static void BRecvWait(MPI_Request request[], 
-                      int isubx, int isuby, 
+static void BRecvWait(MPI_Request request[],
+                      int isubx, int isuby,
                       sunindextype dsizex, realtype uext[],
                       realtype buffer[]);
 static void fucomm(realtype t, N_Vector u, void *user_data);
@@ -199,40 +198,36 @@ int main(int argc, char *argv[])
   if(check_flag((void *)data, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
   InitUserData(my_pe, local_N, comm, data);
 
-  /* Allocate and initialize u, and set tolerances */ 
+  /* Allocate and initialize u, and set tolerances */
   u = N_VNew_Parallel(comm, local_N, neq);
   if(check_flag((void *)u, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
   SetInitialProfiles(u, data);
   abstol = ATOL;
   reltol = RTOL;
 
-  /* Create SPGMR solver structure -- use left preconditioning 
+  /* Create SPGMR solver structure -- use left preconditioning
      and the default Krylov dimension maxl */
   LS = SUNSPGMR(u, PREC_LEFT, 0);
   if (check_flag((void *)LS, "SUNSPGMR", 0, my_pe)) MPI_Abort(comm, 1);
-  
-  /* Call ARKodeCreate to create the solver memory */
-  arkode_mem = ARKodeCreate();
-  if(check_flag((void *)arkode_mem, "ARKodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
-
-  /* Set the pointer to user-defined data */
-  flag = ARKodeSetUserData(arkode_mem, data);
-  if(check_flag(&flag, "ARKodeSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Call ARKStepCreate to initialize the integrator memory and specify the
-     user's right hand side function in u'=fi(t,u) [here fe is NULL], 
+     user's right hand side function in u'=fi(t,u) [here fe is NULL],
      the inital time T0, and the initial dependent variable vector u. */
-  flag = ARKStepCreate(arkode_mem, NULL, f, T0, u);
-  if(check_flag(&flag, "ARKStepCreate", 1, my_pe)) return(1);
+  arkode_mem = ARKStepCreate(NULL, f, T0, u);
+  if(check_flag((void *)arkode_mem, "ARKStepCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
-  /* Call ARKodeSetMaxNumSteps to increase default */
-  flag = ARKodeSetMaxNumSteps(arkode_mem, 10000);
-  if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1, my_pe)) return(1);
+  /* Set the pointer to user-defined data */
+  flag = ARKStepSetUserData(arkode_mem, data);
+  if(check_flag(&flag, "ARKStepSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
 
-  /* Call ARKodeSStolerances to specify the scalar relative tolerance
+  /* Call ARKStepSetMaxNumSteps to increase default */
+  flag = ARKStepSetMaxNumSteps(arkode_mem, 10000);
+  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1, my_pe)) return(1);
+
+  /* Call ARKStepSStolerances to specify the scalar relative tolerance
      and scalar absolute tolerances */
-  flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
-  if (check_flag(&flag, "ARKodeSStolerances", 1, my_pe)) return(1);
+  flag = ARKStepSStolerances(arkode_mem, reltol, abstol);
+  if (check_flag(&flag, "ARKStepSStolerances", 1, my_pe)) return(1);
 
   /* Attach SPGMR solver structure to ARKSpils interface */
   flag = ARKSpilsSetLinearSolver(arkode_mem, LS);
@@ -241,7 +236,7 @@ int main(int argc, char *argv[])
   /* Initialize BBD preconditioner */
   mudq = mldq = NVARS*MXSUB;
   mukeep = mlkeep = NVARS;
-  flag = ARKBBDPrecInit(arkode_mem, local_N, mudq, mldq, 
+  flag = ARKBBDPrecInit(arkode_mem, local_N, mudq, mldq,
                         mukeep, mlkeep, ZERO, flocal, NULL);
   if(check_flag(&flag, "ARKBBDPrecInit", 1, my_pe)) MPI_Abort(comm, 1);
 
@@ -251,7 +246,7 @@ int main(int argc, char *argv[])
   /* Loop over jpre (= PREC_LEFT, PREC_RIGHT), and solve the problem */
   for (jpre=PREC_LEFT; jpre<=PREC_RIGHT; jpre++) {
 
-    /* On second run, re-initialize u, the integrator, ARKBBDPRE, 
+    /* On second run, re-initialize u, the integrator, ARKBBDPRE,
        and preconditioning type */
     if (jpre == PREC_RIGHT) {
 
@@ -278,22 +273,22 @@ int main(int argc, char *argv[])
              (jpre == PREC_LEFT) ? "PREC_LEFT" : "PREC_RIGHT");
     }
 
-    /* In loop over output points, call ARKode, print results, test for error */
+    /* In loop over output points, call ARKStepEvolve, print results, test for error */
     for (iout=1, tout=TWOHR; iout<=NOUT; iout++, tout+=TWOHR) {
-      flag = ARKode(arkode_mem, tout, u, &t, ARK_NORMAL);
-      if(check_flag(&flag, "ARKode", 1, my_pe)) break;
+      flag = ARKStepEvolve(arkode_mem, tout, u, &t, ARK_NORMAL);
+      if(check_flag(&flag, "ARKStepEvolve", 1, my_pe)) break;
       PrintOutput(arkode_mem, my_pe, comm, u, t);
     }
-    
+
     /* Print final statistics */
     if (my_pe == 0) PrintFinalStats(arkode_mem);
-    
+
   } /* End of jpre loop */
 
   /* Free memory */
   N_VDestroy_Parallel(u);
   free(data);
-  ARKodeFree(&arkode_mem);
+  ARKStepFree(&arkode_mem);
   SUNLinSolFree(LS);
   MPI_Finalize();
   return(0);
@@ -361,7 +356,7 @@ static void SetInitialProfiles(N_Vector u, UserData data)
       x = XMIN + jx*dx;
       cx = SUNSQR(RCONST(0.1)*(x - xmid));
       cx = RCONST(1.0) - cx + RCONST(0.5)*SUNSQR(cx);
-      uarray[offset  ] = C1_SCALE*cx*cy; 
+      uarray[offset  ] = C1_SCALE*cx*cy;
       uarray[offset+1] = C2_SCALE*cx*cy;
       offset = offset + 2;
     }
@@ -383,7 +378,7 @@ static void PrintIntro(int npes, sunindextype mudq, sunindextype mldq,
 }
 
 /* Print current t, step count, order, stepsize, and sampled c1,c2 values */
-static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm, 
+static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
                         N_Vector u, realtype t)
 {
   int flag, npelast;
@@ -408,14 +403,14 @@ static void PrintOutput(void *arkode_mem, int my_pe, MPI_Comm comm,
   }
 
   /* On PE 0, receive c1,c2 at top right, then print performance data
-     and sampled solution values */ 
+     and sampled solution values */
   if (my_pe == 0) {
     if (npelast != 0)
       MPI_Recv(&tempu[0], 2, PVEC_REAL_MPI_TYPE, npelast, 0, comm, &status);
-    flag = ARKodeGetNumSteps(arkode_mem, &nst);
-    check_flag(&flag, "ARKodeGetNumSteps", 1, my_pe);
-    flag = ARKodeGetLastStep(arkode_mem, &hu);
-    check_flag(&flag, "ARKodeGetLastStep", 1, my_pe);
+    flag = ARKStepGetNumSteps(arkode_mem, &nst);
+    check_flag(&flag, "ARKStepGetNumSteps", 1, my_pe);
+    flag = ARKStepGetLastStep(arkode_mem, &hu);
+    check_flag(&flag, "ARKStepGetLastStep", 1, my_pe);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf("t = %.2Le   no. steps = %ld   stepsize = %.2Le\n",
            t, nst, hu);
@@ -445,10 +440,10 @@ static void PrintFinalStats(void *arkode_mem)
   long int nli, npe, nps, ncfl, nfeLS, ngevalsBBDP;
   int flag;
 
-  flag = ARKodeGetWorkSpace(arkode_mem, &lenrw, &leniw);
-  check_flag(&flag, "ARKodeGetWorkSpace", 1, 0);
-  flag = ARKodeGetNumSteps(arkode_mem, &nst);
-  check_flag(&flag, "ARKodeGetNumSteps", 1, 0);
+  flag = ARKStepGetWorkSpace(arkode_mem, &lenrw, &leniw);
+  check_flag(&flag, "ARKStepGetWorkSpace", 1, 0);
+  flag = ARKStepGetNumSteps(arkode_mem, &nst);
+  check_flag(&flag, "ARKStepGetNumSteps", 1, 0);
   flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
   check_flag(&flag, "ARKStepGetNumRhsEvals", 1, 0);
   flag = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
@@ -491,10 +486,10 @@ static void PrintFinalStats(void *arkode_mem)
          lenrwBBDP, leniwBBDP);
   printf("             no. flocal evals. = %ld\n",ngevalsBBDP);
 }
- 
+
 /* Routine to send boundary data to neighboring PEs */
-static void BSend(MPI_Comm comm, 
-                  int my_pe, int isubx, int isuby, 
+static void BSend(MPI_Comm comm,
+                  int my_pe, int isubx, int isuby,
                   sunindextype dsizex, sunindextype dsizey,
                   realtype uarray[])
 {
@@ -520,7 +515,7 @@ static void BSend(MPI_Comm comm,
       for (i = 0; i < NVARS; i++)
         bufleft[offsetbuf+i] = uarray[offsetu+i];
     }
-    MPI_Send(&bufleft[0], dsizey, PVEC_REAL_MPI_TYPE, my_pe-1, 0, comm);   
+    MPI_Send(&bufleft[0], dsizey, PVEC_REAL_MPI_TYPE, my_pe-1, 0, comm);
   }
 
   /* If isubx < NPEX-1, send data from right y-line of u (via bufright) */
@@ -531,17 +526,17 @@ static void BSend(MPI_Comm comm,
       for (i = 0; i < NVARS; i++)
         bufright[offsetbuf+i] = uarray[offsetu+i];
     }
-    MPI_Send(&bufright[0], dsizey, PVEC_REAL_MPI_TYPE, my_pe+1, 0, comm);   
+    MPI_Send(&bufright[0], dsizey, PVEC_REAL_MPI_TYPE, my_pe+1, 0, comm);
   }
 }
- 
+
 /* Routine to start receiving boundary data from neighboring PEs.
    Notes:
    1) buffer should be able to hold 2*NVARS*MYSUB realtype entries, should be
    passed to both the BRecvPost and BRecvWait functions, and should not
    be manipulated between the two calls.
    2) request should have 4 entries, and should be passed in both calls also. */
-static void BRecvPost(MPI_Comm comm, MPI_Request request[], 
+static void BRecvPost(MPI_Comm comm, MPI_Request request[],
                       int my_pe, int isubx, int isuby,
                       sunindextype dsizex, sunindextype dsizey,
                       realtype uext[], realtype buffer[])
@@ -581,8 +576,8 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[],
    passed to both the BRecvPost and BRecvWait functions, and should not
    be manipulated between the two calls.
    2) request should have 4 entries, and should be passed in both calls also. */
-static void BRecvWait(MPI_Request request[], 
-                      int isubx, int isuby, 
+static void BRecvWait(MPI_Request request[],
+                      int isubx, int isuby,
                       sunindextype dsizex, realtype uext[],
                       realtype buffer[])
 {
@@ -661,7 +656,7 @@ static void fucomm(realtype t, N_Vector u, void *user_data)
 
 /***************** Function called by the solver **************************/
 
-/* f routine.  Evaluate f(t,y).  First call fucomm to do communication of 
+/* f routine.  Evaluate f(t,y).  First call fucomm to do communication of
    subgrid boundary data into uext.  Then calculate f by a call to flocal. */
 static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 {
@@ -754,7 +749,7 @@ static int flocal(sunindextype Nlocal, realtype t, N_Vector u,
   hordco = data->hdco;
   horaco = data->haco;
 
-  /* Set diurnal rate coefficients as functions of t, and save q4 in 
+  /* Set diurnal rate coefficients as functions of t, and save q4 in
   data block for use by preconditioner evaluation routine            */
 
   s = sin((data->om)*t);
@@ -811,7 +806,7 @@ static int flocal(sunindextype Nlocal, realtype t, N_Vector u,
 
       /* Load all terms into duarray */
       offsetu = lx*NVARS + ly*nvmxsub;
-      duarray[offsetu]   = vertd1 + hord1 + horad1 + rkin1; 
+      duarray[offsetu]   = vertd1 + hord1 + horad1 + rkin1;
       duarray[offsetu+1] = vertd2 + hord2 + horad2 + rkin2;
     }
   }

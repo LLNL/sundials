@@ -2,13 +2,13 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2015, Southern Methodist University and
  * Lawrence Livermore National Security
  *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Southern Methodist University and Lawrence Livermore
  * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
+ * Produced at Southern Methodist University and the Lawrence
  * Livermore National Laboratory.
  *
  * All rights reserved.
@@ -16,9 +16,9 @@
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
  * Example problem:
- * 
- * The following test simulates a brusselator problem from chemical 
- * kinetics.  This is n PDE system with 3 components, Y = [u,v,w], 
+ *
+ * The following test simulates a brusselator problem from chemical
+ * kinetics.  This is n PDE system with 3 components, Y = [u,v,w],
  * satisfying the equations,
  *    u_t = du*u_xx + a - (w+1)*u + v*u^2
  *    v_t = dv*v_xx + w*u - v*u^2
@@ -27,24 +27,24 @@
  *    u(0,x) =  a  + 0.1*sin(pi*x)
  *    v(0,x) = b/a + 0.1*sin(pi*x)
  *    w(0,x) =  b  + 0.1*sin(pi*x),
- * and with stationary boundary conditions, i.e. 
+ * and with stationary boundary conditions, i.e.
  *    u_t(t,0) = u_t(t,1) = 0,
  *    v_t(t,0) = v_t(t,1) = 0,
  *    w_t(t,0) = w_t(t,1) = 0.
- * Note: these can also be implemented as Dirichlet boundary 
+ * Note: these can also be implemented as Dirichlet boundary
  * conditions with values identical to the initial conditions.
- * 
- * The spatial derivatives are computed using second-order 
- * centered differences, with the data distributed over N points 
+ *
+ * The spatial derivatives are computed using second-order
+ * centered differences, with the data distributed over N points
  * on a uniform spatial grid.
  *
  * This program solves the problem with the DIRK method, using a
  * Newton iteration with the band linear solver, and a
- * user-supplied Jacobian routine.  This example uses the OpenMP 
- * vector kernel, and employs OpenMP threading within the 
+ * user-supplied Jacobian routine.  This example uses the OpenMP
+ * vector kernel, and employs OpenMP threading within the
  * right-hand side and Jacobian construction functions.
  *
- * 100 outputs are printed at equal intervals, and run statistics 
+ * 100 outputs are printed at equal intervals, and run statistics
  * are printed at the end.
  *---------------------------------------------------------------*/
 
@@ -52,7 +52,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <arkode/arkode.h>            /* prototypes for ARKode fcts., consts. */
 #include <arkode/arkode_arkstep.h>    /* prototypes for ARKStep fcts., consts */
 #include <nvector/nvector_openmp.h>   /* access to OpenMP N_Vector */
 #include <sunmatrix/sunmatrix_band.h> /* access to band SUNMatrix */
@@ -78,7 +77,7 @@
 #define IDX(x,v) (3*(x)+v)
 
 /* user data structure */
-typedef struct {  
+typedef struct {
   sunindextype N;  /* number of intervals      */
   int nthreads;    /* number of OpenMP threads */
   realtype dx;     /* mesh spacing             */
@@ -93,7 +92,7 @@ typedef struct {
 
 /* User-supplied Functions Called by the Solver */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(realtype t, N_Vector y, N_Vector fy, 
+static int Jac(realtype t, N_Vector y, N_Vector fy,
                SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
@@ -170,7 +169,7 @@ int main(int argc, char *argv[])
   printf("    num_threads = %i\n", num_threads);
   printf("    problem parameters:  a = %"GSYM",  b = %"GSYM",  ep = %"GSYM"\n",
          udata->a, udata->b, udata->ep);
-  printf("    diffusion coefficients:  du = %"GSYM",  dv = %"GSYM",  dw = %"GSYM"\n", 
+  printf("    diffusion coefficients:  du = %"GSYM",  dv = %"GSYM",  dw = %"GSYM"\n",
          udata->du, udata->dv, udata->dw);
   printf("    reltol = %.1"ESYM",  abstol = %.1"ESYM"\n\n", reltol, abstol);
 
@@ -216,23 +215,19 @@ int main(int argc, char *argv[])
   if (check_flag((void *)A, "SUNBandMatrix", 0)) return 1;
   LS = SUNBandLinearSolver(y, A);
   if (check_flag((void *)LS, "SUNBandLinearSolver", 0)) return 1;
-  
-  /* Create the solver memory */
-  arkode_mem = ARKodeCreate();
-  if (check_flag((void *)arkode_mem, "ARKodeCreate", 0)) return 1;
 
-  /* Call ARKStepCreate to initialize the ARK timestepper module and 
-     specify the right-hand side function in y'=f(t,y), the inital time 
+  /* Call ARKStepCreate to initialize the ARK timestepper module and
+     specify the right-hand side function in y'=f(t,y), the inital time
      T0, and the initial dependent variable vector y.  Note: since this
      problem is fully implicit, we set f_E to NULL and f_I to f. */
-  flag = ARKStepCreate(arkode_mem, NULL, f, T0, y);
-  if (check_flag(&flag, "ARKStepCreate", 1)) return 1;
+  arkode_mem = ARKStepCreate(NULL, f, T0, y);
+  if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) return 1;
 
   /* Set routines */
-  flag = ARKodeSetUserData(arkode_mem, (void *) udata);     /* Pass udata to user functions */
-  if (check_flag(&flag, "ARKodeSetUserData", 1)) return 1;
-  flag = ARKodeSStolerances(arkode_mem, reltol, abstol);    /* Specify tolerances */
-  if (check_flag(&flag, "ARKodeSStolerances", 1)) return 1;
+  flag = ARKStepSetUserData(arkode_mem, (void *) udata);     /* Pass udata to user functions */
+  if (check_flag(&flag, "ARKStepSetUserData", 1)) return 1;
+  flag = ARKStepSStolerances(arkode_mem, reltol, abstol);    /* Specify tolerances */
+  if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
 
   /* Linear solver specification */
   flag = ARKDlsSetLinearSolver(arkode_mem, LS, A);          /* Attach matrix and linear solver */
@@ -244,7 +239,7 @@ int main(int argc, char *argv[])
   FID=fopen("bruss_mesh.txt","w");
   for (i=0; i<N; i++)  fprintf(FID,"  %.16"ESYM"\n", udata->dx*i);
   fclose(FID);
-  
+
   /* Open output stream for results, access data arrays */
   UFID=fopen("bruss_u.txt","w");
   VFID=fopen("bruss_v.txt","w");
@@ -260,7 +255,7 @@ int main(int argc, char *argv[])
   fprintf(VFID,"\n");
   fprintf(WFID,"\n");
 
-  /* Main time-stepping loop: calls ARKode to perform the integration, then
+  /* Main time-stepping loop: calls ARKStepEvolve to perform the integration, then
      prints results.  Stops when the final time has been reached */
   t = T0;
   dTout = (Tf-T0)/Nt;
@@ -269,8 +264,8 @@ int main(int argc, char *argv[])
   printf("   ----------------------------------------------\n");
   for (iout=0; iout<Nt; iout++) {
 
-    flag = ARKode(arkode_mem, tout, y, &t, ARK_NORMAL);    /* call integrator */
-    if (check_flag(&flag, "ARKode", 1)) break;
+    flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);    /* call integrator */
+    if (check_flag(&flag, "ARKStepEvolve", 1)) break;
     u = N_VWL2Norm(y,umask);                               /* access/print solution statistics */
     u = SUNRsqrt(u*u/N);
     v = N_VWL2Norm(y,vmask);
@@ -298,10 +293,10 @@ int main(int argc, char *argv[])
   fclose(UFID);
   fclose(VFID);
   fclose(WFID);
-    
+
   /* Print some final statistics */
-  flag = ARKodeGetNumSteps(arkode_mem, &nst);
-  check_flag(&flag, "ARKodeGetNumSteps", 1);
+  flag = ARKStepGetNumSteps(arkode_mem, &nst);
+  check_flag(&flag, "ARKStepGetNumSteps", 1);
   flag = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
   check_flag(&flag, "ARKStepGetNumStepAttempts", 1);
   flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
@@ -331,7 +326,7 @@ int main(int argc, char *argv[])
 
   /* Clean up and return with successful completion */
   free(udata);                  /* Free user data */
-  ARKodeFree(&arkode_mem);      /* Free integrator memory */
+  ARKStepFree(&arkode_mem);     /* Free integrator memory */
   SUNLinSolFree(LS);            /* Free linear solver */
   SUNMatDestroy(A);             /* Free matrix */
   N_VDestroy_OpenMP(y);         /* Free vectors */
@@ -402,7 +397,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 
 
 /* Jacobian routine to compute J(t,y) = df/dy. */
-static int Jac(realtype t, N_Vector y, N_Vector fy, 
+static int Jac(realtype t, N_Vector y, N_Vector fy,
                SUNMatrix J, void *user_data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
@@ -438,7 +433,7 @@ static int LaplaceMatrix(realtype c, SUNMatrix Jac, UserData udata)
   realtype uconst = c*udata->du/dx/dx;
   realtype vconst = c*udata->dv/dx/dx;
   realtype wconst = c*udata->dw/dx/dx;
-  
+
   /* iterate over intervals, filling in Jacobian entries */
 #pragma omp parallel for default(shared) private(i) schedule(static) num_threads(udata->nthreads)
   for (i=1; i<N-1; i++) {
@@ -470,7 +465,7 @@ static int ReactionJac(realtype c, N_Vector y, SUNMatrix Jac, UserData udata)
   realtype u, v, w;
   realtype *Ydata = N_VGetArrayPointer(y);     /* access solution array */
   if (check_flag((void *)Ydata, "N_VGetArrayPointer", 0)) return 1;
-  
+
   /* iterate over nodes, filling in Jacobian entries */
 #pragma omp parallel for default(shared) private(i,u,v,w) schedule(static) num_threads(udata->nthreads)
   for (i=1; i<N-1; i++) {
@@ -505,7 +500,7 @@ static int ReactionJac(realtype c, N_Vector y, SUNMatrix Jac, UserData udata)
     opt == 1 means SUNDIALS function returns a flag so check if
              flag >= 0
     opt == 2 means function allocates memory so check if returned
-             NULL pointer  
+             NULL pointer
 */
 static int check_flag(void *flagvalue, const char *funcname, int opt)
 {

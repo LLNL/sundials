@@ -77,7 +77,7 @@ int FARKPSet(realtype t, N_Vector y, N_Vector fy,
   realtype h;
   FARKUserData ARK_userdata;
 
-  ARKodeGetLastStep(ARK_arkodemem, &h);
+  ARKStepGetLastStep(ARK_arkodemem, &h);
   ydata  = N_VGetArrayPointer(y);
   fydata = N_VGetArrayPointer(fy);
   ARK_userdata = (FARKUserData) user_data;

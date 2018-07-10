@@ -2,20 +2,20 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2018, Southern Methodist University and 
+ * Copyright (c) 2018, Southern Methodist University and
  * Lawrence Livermore National Security
  *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Southern Methodist University and Lawrence Livermore
  * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
+ * Produced at Southern Methodist University and the Lawrence
  * Livermore National Laboratory.
  *
  * All rights reserved.
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * Implementation header file for ARKode's ERK time stepper 
+ * Implementation header file for ARKode's ERK time stepper
  * module.
  *--------------------------------------------------------------*/
 
@@ -30,12 +30,12 @@ extern "C" {
 #endif
 
 /*===============================================================
-  ERK time step module constants -- move many items here from 
+  ERK time step module constants -- move many items here from
   arkode_impl.h
   ===============================================================*/
 
 
-  
+
 /*===============================================================
   ERK time step module data structure
   ===============================================================*/
@@ -43,8 +43,8 @@ extern "C" {
 /*---------------------------------------------------------------
   Types : struct ARKodeERKStepMemRec, ARKodeERKStepMem
   ---------------------------------------------------------------
-  The type ARKodeERKStepMem is type pointer to struct 
-  ARKodeERKStepMemRec.  This structure contains fields to 
+  The type ARKodeERKStepMem is type pointer to struct
+  ARKodeERKStepMemRec.  This structure contains fields to
   perform an additive Runge-Kutta time step.
   ---------------------------------------------------------------*/
 typedef struct ARKodeERKStepMemRec {
@@ -80,22 +80,17 @@ typedef struct ARKodeERKStepMemRec {
   ERK time step module private function prototypes
   ===============================================================*/
 
-/* Interface routines supplied to ARKode */  
+/* Interface routines supplied to ARKode */
 int erkStep_Init(void* arkode_mem);
-int erkStep_FullRHS(void* arkode_mem, realtype t, 
+int erkStep_FullRHS(void* arkode_mem, realtype t,
                     N_Vector y, N_Vector f, int mode);
 int erkStep_TakeStep(void* arkode_mem);
-int erkStep_Resize(void* arkode_mem, ARKVecResizeFn resize,
-                   void *resize_data, sunindextype lrw_diff,
-                   sunindextype liw_diff, N_Vector tmpl);
-void erkStep_PrintMem(void* arkode_mem, FILE* outfile);
-int erkStep_Free(void* arkode_mem);
 
-/* Internal utility routines */  
+/* Internal utility routines */
 booleantype erkStep_CheckNVector(N_Vector tmpl);
 int erkStep_SetButcherTable(ARKodeMem ark_mem);
 int erkStep_CheckButcherTable(ARKodeMem ark_mem);
-  
+
 int erkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm);
 int erkStep_DoErrorTest(ARKodeMem ark_mem, int *nefPtr,
                         realtype dsm);

@@ -2,25 +2,27 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2017, Southern Methodist University and 
+ * Copyright (c) 2017, Southern Methodist University and
  * Lawrence Livermore National Security
  *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Southern Methodist University and Lawrence Livermore
  * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
+ * Produced at Southern Methodist University and the Lawrence
  * Livermore National Laboratory.
  *
  * All rights reserved.
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * This is the implementation file for the main ARKode integrator.
- * It is independent of the ARKode linear solver in use.
+ * This is the implementation file for the main ARKode
+ * infrastructure.  It is independent of the ARKode time step
+ * module, nonlinear solver, linear solver and vector modules in
+ * use.
  *--------------------------------------------------------------*/
 
 /*===============================================================
-  Import Header Files                                 
+  Import Header Files
   ===============================================================*/
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,15 +51,15 @@
   ===============================================================*/
 
 /*---------------------------------------------------------------
-  ARKodeCreate:
+  arkCreate:
 
-  ARKodeCreate creates an internal memory block for a problem to 
-  be solved by ARKode.  If successful, ARKodeCreate returns a 
-  pointer to the problem memory. This pointer should be passed to
-  ARKodeInit. If an initialization error occurs, ARKodeCreate 
-  prints an error message to standard err and returns NULL. 
+  arkCreate creates an internal memory block for a problem to
+  be solved by a time step module built on ARKode.  If successful,
+  arkCreate returns a pointer to the problem memory. If an
+  initialization error occurs, arkCreate prints an error message
+  to standard err and returns NULL.
   ---------------------------------------------------------------*/
-void *ARKodeCreate()
+ARKodeMem arkCreate()
 {
   int iret;
   ARKodeMem ark_mem;
@@ -65,7 +67,7 @@ void *ARKodeCreate()
   ark_mem = NULL;
   ark_mem = (ARKodeMem) malloc(sizeof(struct ARKodeMemRec));
   if (ark_mem == NULL) {
-    arkProcessError(NULL, 0, "ARKode", "ARKodeCreate", 
+    arkProcessError(NULL, 0, "ARKode", "arkCreate",
                     MSG_ARK_ARKMEM_FAIL);
     return(NULL);
   }
@@ -77,9 +79,9 @@ void *ARKodeCreate()
   ark_mem->uround = UNIT_ROUNDOFF;
 
   /* Set default values for integrator optional inputs */
-  iret = ARKodeSetDefaults((void *)ark_mem);
+  iret = arkSetDefaults(ark_mem);
   if (iret != ARK_SUCCESS) {
-    arkProcessError(NULL, 0, "ARKode", "ARKodeCreate", 
+    arkProcessError(NULL, 0, "ARKode", "arkCreate",
                     "Error setting default solver options");
     return(NULL);
   }
@@ -97,9 +99,6 @@ void *ARKodeCreate()
   ark_mem->step_init = NULL;
   ark_mem->step_fullrhs = NULL;
   ark_mem->step = NULL;
-  ark_mem->step_resize = NULL;
-  ark_mem->step_print = NULL;
-  ark_mem->step_free = NULL;
   ark_mem->step_mem = NULL;
 
   /* Initialize root finding variables */
@@ -122,77 +121,74 @@ void *ARKodeCreate()
   ark_mem->ProcessStep = NULL;
 
   /* Return pointer to ARKode memory block */
-  return((void *)ark_mem);
+  return(ark_mem);
 }
 
 
 /*---------------------------------------------------------------
-  ARKodeResize:
+  arkResize:
 
-  ARKodeResize re-initializes ARKode's memory for a problem with a
-  changing vector size.  It is assumed that the problem dynamics 
-  before and after the vector resize will be comparable, so that 
-  all time-stepping heuristics prior to calling ARKodeResize 
-  remain valid after the call.  If instead the dynamics should be 
-  re-calibrated, the ARKode memory structure should be deleted 
-  with a call to ARKodeFree, and re-created with calls to 
-  ARKodeCreate and arkodeInit.
+  arkResize re-initializes ARKode's memory for a problem with a
+  changing vector size.  It is assumed that the problem dynamics
+  before and after the vector resize will be comparable, so that
+  all time-stepping heuristics prior to calling arkResize
+  remain valid after the call.  If instead the dynamics should be
+  re-calibrated, the ARKode memory structure should be deleted
+  with a call to *StepFree, and re-created with a call to
+  *StepCreate.
 
-  To aid in the vector-resize operation, the user can supply a 
+  To aid in the vector-resize operation, the user can supply a
   vector resize function, that will take as input an N_Vector with
-  the previous size, and return as output a corresponding vector 
-  of the new size.  If this function (of type ARKVecResizeFn) is 
-  not supplied (i.e. is set to NULL), then all existing N_Vectors 
+  the previous size, and return as output a corresponding vector
+  of the new size.  If this function (of type ARKVecResizeFn) is
+  not supplied (i.e. is set to NULL), then all existing N_Vectors
   will be destroyed and re-cloned from the input vector.
 
-  In the case that the dynamical time scale should be modified 
-  slightly from the previous time scale, an input "hscale" is 
-  allowed, that will re-scale the upcoming time step by the 
-  specified factor.  If a value <= 0 is specified, the default of 
+  In the case that the dynamical time scale should be modified
+  slightly from the previous time scale, an input "hscale" is
+  allowed, that will re-scale the upcoming time step by the
+  specified factor.  If a value <= 0 is specified, the default of
   1.0 will be used.
 
   Other arguments:
-  arkode_mem       Existing ARKode memory data structure.
-  y0               The newly-sized solution vector, holding 
+  ark_mem          Existing ARKode memory data structure.
+  y0               The newly-sized solution vector, holding
                    the current dependent variable values.
-  t0               The current value of the independent 
+  t0               The current value of the independent
                    variable.
-  resize_data      User-supplied data structure that will be 
+  resize_data      User-supplied data structure that will be
                    passed to the supplied resize function.
 
   The return value is ARK_SUCCESS = 0 if no errors occurred, or
   a negative value otherwise.
   ---------------------------------------------------------------*/
-int ARKodeResize(void *arkode_mem, N_Vector y0, 
-                 realtype hscale, realtype t0, 
-                 ARKVecResizeFn resize, void *resize_data)
+int arkResize(ARKodeMem ark_mem, N_Vector y0, realtype hscale,
+              realtype t0, ARKVecResizeFn resize, void *resize_data)
 {
-  ARKodeMem ark_mem;
   sunindextype lrw1, liw1, lrw_diff, liw_diff;
   int ier;
- 
-  /* Check arkode_mem */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode", 
-                    "ARKodeResize", MSG_ARK_NO_MEM);
+
+  /* Check ark_mem */
+  if (ark_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    "arkResize", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  ark_mem = (ARKodeMem) arkode_mem;
 
-  /* Check if arkode_mem was allocated */
+  /* Check if ark_mem was allocated */
   if (ark_mem->MallocDone == SUNFALSE) {
-    arkProcessError(ark_mem, ARK_NO_MALLOC, "ARKode", 
-                    "ARKodeResize", MSG_ARK_NO_MALLOC);
+    arkProcessError(ark_mem, ARK_NO_MALLOC, "ARKode",
+                    "arkResize", MSG_ARK_NO_MALLOC);
     return(ARK_NO_MALLOC);
   }
 
   /* Check for legal input parameters */
   if (y0 == NULL) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", 
-                    "ARKodeResize", MSG_ARK_NULL_Y0);
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
+                    "arkResize", MSG_ARK_NULL_Y0);
     return(ARK_ILL_INPUT);
   }
-  
+
   /* Copy the input parameters into ARKode state */
   ark_mem->tcur = t0;
   ark_mem->tn   = t0;
@@ -207,7 +203,7 @@ int ARKodeResize(void *arkode_mem, N_Vector y0,
     ark_mem->hprime *= hscale;
 
     /* If next step would overtake tstop, adjust stepsize */
-    if ( ark_mem->tstopset ) 
+    if ( ark_mem->tstopset )
       if ( (ark_mem->tcur + ark_mem->hprime - ark_mem->tstop)*ark_mem->hprime > ZERO ) {
         ark_mem->hprime = (ark_mem->tstop-ark_mem->tcur) *
           (ONE-FOUR*ark_mem->uround);
@@ -218,7 +214,7 @@ int ARKodeResize(void *arkode_mem, N_Vector y0,
 
   /* Determing change in vector sizes */
   lrw1 = liw1 = 0;
-  if (y0->ops->nvspace != NULL) 
+  if (y0->ops->nvspace != NULL)
     N_VSpace(y0, &lrw1, &liw1);
   lrw_diff = lrw1 - ark_mem->lrw1;
   liw_diff = liw1 - ark_mem->liw1;
@@ -265,24 +261,10 @@ int ARKodeResize(void *arkode_mem, N_Vector y0,
     ier = arkInterpResize(ark_mem, ark_mem->interp, resize,
                           resize_data, lrw_diff, liw_diff, y0);
     if (ier != ARK_SUCCESS) {
-      arkProcessError(ark_mem, ier, "ARKode", "ARKodeResize",
+      arkProcessError(ark_mem, ier, "ARKode", "arkResize",
                       "Interpolation module resize failure");
       return(ier);
     }
-  }
-  
-  /* Resize time step module memory */
-  if (ark_mem->step_resize == NULL) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "ARKodeResize", 
-                    "Missing ark_step_resize routine");
-    return(ARK_ILL_INPUT);
-  }
-  ier = ark_mem->step_resize(ark_mem, resize, resize_data,
-                                 lrw_diff, liw_diff, y0);
-  if (ier != ARK_SUCCESS) {
-    arkProcessError(ark_mem, ier, "ARKode", "ARKodeResize",
-                    "Time step module resize failure");
-    return(ier);
   }
 
   /* Copy y0 into ark_yn to set the current solution */
@@ -291,59 +273,51 @@ int ARKodeResize(void *arkode_mem, N_Vector y0,
   /* Indicate that problem size is new */
   ark_mem->resized = SUNTRUE;
   ark_mem->firststage = SUNTRUE;
-  
+
   /* Problem has been successfully re-sized */
   return(ARK_SUCCESS);
 }
 
 
 /*---------------------------------------------------------------
-  ARKodeSStolerances:
-  ARKodeSVtolerances:
-  ARKodeWFtolerances:
+  arkSStolerances, arkSVtolerances, arkWFtolerances:
 
   These functions specify the integration tolerances. One of them
-  SHOULD be called before the first call to ARKode; otherwise 
-  default values of reltol=1e-4 and abstol=1e-9 will be used, 
+  SHOULD be called before the first call to arkEvolve; otherwise
+  default values of reltol=1e-4 and abstol=1e-9 will be used,
   which may be entirely incorrect for a specific problem.
 
-  ARKodeSStolerances specifies scalar relative and absolute 
+  arkSStolerances specifies scalar relative and absolute
   tolerances.
 
-  ARKodeSVtolerances specifies scalar relative tolerance and a 
-  vector absolute tolerance (a potentially different absolute 
+  arkSVtolerances specifies scalar relative tolerance and a
+  vector absolute tolerance (a potentially different absolute
   tolerance for each vector component).
 
-  ARKodeWFtolerances specifies a user-provides function (of type
+  arkWFtolerances specifies a user-provides function (of type
   ARKEwtFn) which will be called to set the error weight vector.
   ---------------------------------------------------------------*/
-int ARKodeSStolerances(void *arkode_mem, realtype reltol, 
-                       realtype abstol)
+int arkSStolerances(ARKodeMem ark_mem, realtype reltol, realtype abstol)
 {
-  ARKodeMem ark_mem;
-
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode", 
-                    "ARKodeSStolerances", MSG_ARK_NO_MEM);
+  /* Check inputs */
+  if (ark_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    "arkSStolerances", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  ark_mem = (ARKodeMem) arkode_mem;
-
   if (ark_mem->MallocDone == SUNFALSE) {
-    arkProcessError(ark_mem, ARK_NO_MALLOC, "ARKode", 
-                    "ARKodeSStolerances", MSG_ARK_NO_MALLOC);
+    arkProcessError(ark_mem, ARK_NO_MALLOC, "ARKode",
+                    "arkSStolerances", MSG_ARK_NO_MALLOC);
     return(ARK_NO_MALLOC);
   }
-
-  /* Check inputs */
   if (reltol < ZERO) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", 
-                    "ARKodeSStolerances", MSG_ARK_BAD_RELTOL);
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
+                    "arkSStolerances", MSG_ARK_BAD_RELTOL);
     return(ARK_ILL_INPUT);
   }
   if (abstol < ZERO) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", 
-                    "ARKodeSStolerances", MSG_ARK_BAD_ABSTOL);
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
+                    "arkSStolerances", MSG_ARK_BAD_ABSTOL);
     return(ARK_ILL_INPUT);
   }
 
@@ -361,33 +335,27 @@ int ARKodeSStolerances(void *arkode_mem, realtype reltol,
 }
 
 
-int ARKodeSVtolerances(void *arkode_mem, realtype reltol, 
-                       N_Vector abstol)
+int arkSVtolerances(ARKodeMem ark_mem, realtype reltol, N_Vector abstol)
 {
-  ARKodeMem ark_mem;
-
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode", 
-                    "ARKodeSVtolerances", MSG_ARK_NO_MEM);
+  /* Check inputs */
+  if (ark_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    "arkSVtolerances", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  ark_mem = (ARKodeMem) arkode_mem;
-
   if (ark_mem->MallocDone == SUNFALSE) {
-    arkProcessError(ark_mem, ARK_NO_MALLOC, "ARKode", 
-                    "ARKodeSVtolerances", MSG_ARK_NO_MALLOC);
+    arkProcessError(ark_mem, ARK_NO_MALLOC, "ARKode",
+                    "arkSVtolerances", MSG_ARK_NO_MALLOC);
     return(ARK_NO_MALLOC);
   }
-
-  /* Check inputs */
   if (reltol < ZERO) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", 
-                    "ARKodeSVtolerances", MSG_ARK_BAD_RELTOL);
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
+                    "arkSVtolerances", MSG_ARK_BAD_RELTOL);
     return(ARK_ILL_INPUT);
   }
   if (N_VMin(abstol) < ZERO) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", 
-                    "ARKodeSVtolerances", MSG_ARK_BAD_ABSTOL);
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
+                    "arkSVtolerances", MSG_ARK_BAD_ABSTOL);
     return(ARK_ILL_INPUT);
   }
 
@@ -411,20 +379,16 @@ int ARKodeSVtolerances(void *arkode_mem, realtype reltol,
 }
 
 
-int ARKodeWFtolerances(void *arkode_mem, ARKEwtFn efun)
+int arkWFtolerances(ARKodeMem ark_mem, ARKEwtFn efun)
 {
-  ARKodeMem ark_mem;
-
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode", 
-                    "ARKodeWFtolerances", MSG_ARK_NO_MEM);
+  if (ark_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    "arkWFtolerances", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  ark_mem = (ARKodeMem) arkode_mem;
-
   if (ark_mem->MallocDone == SUNFALSE) {
-    arkProcessError(ark_mem, ARK_NO_MALLOC, "ARKode", 
-                    "ARKodeWFtolerances", MSG_ARK_NO_MALLOC);
+    arkProcessError(ark_mem, ARK_NO_MALLOC, "ARKode",
+                    "arkWFtolerances", MSG_ARK_NO_MALLOC);
     return(ARK_NO_MALLOC);
   }
 
@@ -439,50 +403,43 @@ int ARKodeWFtolerances(void *arkode_mem, ARKEwtFn efun)
 
 
 /*---------------------------------------------------------------
-  ARKodeResStolerance:
-  ARKodeResVtolerance:
-  ARKodeResFtolerance:
+  arkResStolerance, arkResVtolerance, arkResFtolerance:
 
-  These functions specify the absolute residual tolerance. 
-  Specification of the absolute residual tolerance is only 
+  These functions specify the absolute residual tolerance.
+  Specification of the absolute residual tolerance is only
   necessary for problems with non-identity mass matrices in which
-  the units of the solution vector y dramatically differ from the 
-  units of the ODE right-hand side f(t,y).  If this occurs, one 
-  of these routines SHOULD be called before the first call to 
-  ARKode; otherwise the default value of rabstol=1e-9 will be 
+  the units of the solution vector y dramatically differ from the
+  units of the ODE right-hand side f(t,y).  If this occurs, one
+  of these routines SHOULD be called before the first call to
+  ARKode; otherwise the default value of rabstol=1e-9 will be
   used, which may be entirely incorrect for a specific problem.
 
-  ARKodeResStolerances specifies a scalar residual tolerance.
+  arkResStolerances specifies a scalar residual tolerance.
 
-  ARKodeResVtolerances specifies a vector residual tolerance 
-  (a potentially different absolute residual tolerance for 
+  arkResVtolerances specifies a vector residual tolerance
+  (a potentially different absolute residual tolerance for
   each vector component).
 
-  ARKodeResFtolerances specifies a user-provides function (of 
-  type ARKRwtFn) which will be called to set the residual 
+  arkResFtolerances specifies a user-provides function (of
+  type ARKRwtFn) which will be called to set the residual
   weight vector.
   ---------------------------------------------------------------*/
-int ARKodeResStolerance(void *arkode_mem, realtype rabstol)
+int arkResStolerance(ARKodeMem ark_mem, realtype rabstol)
 {
-  ARKodeMem ark_mem;
-
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode", 
-                    "ARKodeResStolerances", MSG_ARK_NO_MEM);
+  /* Check inputs */
+  if (ark_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    "arkResStolerances", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  ark_mem = (ARKodeMem) arkode_mem;
-
   if (ark_mem->MallocDone == SUNFALSE) {
-    arkProcessError(ark_mem, ARK_NO_MALLOC, "ARKode", 
-                    "ARKodeResStolerances", MSG_ARK_NO_MALLOC);
+    arkProcessError(ark_mem, ARK_NO_MALLOC, "ARKode",
+                    "arkResStolerances", MSG_ARK_NO_MALLOC);
     return(ARK_NO_MALLOC);
   }
-
-  /* Check inputs */
   if (rabstol < ZERO) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", 
-                    "ARKodeResStolerances", MSG_ARK_BAD_RABSTOL);
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
+                    "arkResStolerances", MSG_ARK_BAD_RABSTOL);
     return(ARK_ILL_INPUT);
   }
 
@@ -507,27 +464,22 @@ int ARKodeResStolerance(void *arkode_mem, realtype rabstol)
 }
 
 
-int ARKodeResVtolerance(void *arkode_mem, N_Vector rabstol)
+int arkResVtolerance(ARKodeMem ark_mem, N_Vector rabstol)
 {
-  ARKodeMem ark_mem;
-
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode", 
-                    "ARKodeResVtolerances", MSG_ARK_NO_MEM);
+  /* Check inputs */
+  if (ark_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    "arkResVtolerances", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  ark_mem = (ARKodeMem) arkode_mem;
-
   if (ark_mem->MallocDone == SUNFALSE) {
-    arkProcessError(ark_mem, ARK_NO_MALLOC, "ARKode", 
-                    "ARKodeResVtolerances", MSG_ARK_NO_MALLOC);
+    arkProcessError(ark_mem, ARK_NO_MALLOC, "ARKode",
+                    "arkResVtolerances", MSG_ARK_NO_MALLOC);
     return(ARK_NO_MALLOC);
   }
-
-  /* Check inputs */
   if (N_VMin(rabstol) < ZERO) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", 
-                    "ARKodeResVtolerances", MSG_ARK_BAD_RABSTOL);
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
+                    "arkResVtolerances", MSG_ARK_BAD_RABSTOL);
     return(ARK_ILL_INPUT);
   }
 
@@ -559,20 +511,16 @@ int ARKodeResVtolerance(void *arkode_mem, N_Vector rabstol)
 }
 
 
-int ARKodeResFtolerance(void *arkode_mem, ARKRwtFn rfun)
+int arkResFtolerance(ARKodeMem ark_mem, ARKRwtFn rfun)
 {
-  ARKodeMem ark_mem;
-
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode", 
-                    "ARKodeResFtolerances", MSG_ARK_NO_MEM);
+  if (ark_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    "arkResFtolerances", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  ark_mem = (ARKodeMem) arkode_mem;
-
   if (ark_mem->MallocDone == SUNFALSE) {
-    arkProcessError(ark_mem, ARK_NO_MALLOC, "ARKode", 
-                    "ARKodeResFtolerances", MSG_ARK_NO_MALLOC);
+    arkProcessError(ark_mem, ARK_NO_MALLOC, "ARKode",
+                    "arkResFtolerances", MSG_ARK_NO_MALLOC);
     return(ARK_NO_MALLOC);
   }
 
@@ -595,31 +543,30 @@ int ARKodeResFtolerance(void *arkode_mem, ARKRwtFn rfun)
 
 
 /*---------------------------------------------------------------
-  ARKode:
+  arkEvolve:
 
-  This routine is the main driver of the ARKode package. 
+  This routine is the main driver of ARKode-based integrators.
 
-  It integrates over a time interval defined by the user, by 
-  calling ark_step to do internal time steps.
+  It integrates over a time interval defined by the user, by
+  calling the time step module to do internal time steps.
 
-  The first time that ARKode is called for a successfully 
+  The first time that arkEvolve is called for a successfully
   initialized problem, it computes a tentative initial step size.
 
-  ARKode supports two modes as specified by itask: ARK_NORMAL and
-  ARK_ONE_STEP.  In the ARK_NORMAL mode, the solver steps until 
-  it reaches or passes tout and then interpolates to obtain 
-  y(tout).  In the ARK_ONE_STEP mode, it takes one internal step 
-  and returns.  The behavior of both modes can be over-rided 
+  arkEvolve supports two modes as specified by itask: ARK_NORMAL and
+  ARK_ONE_STEP.  In the ARK_NORMAL mode, the solver steps until
+  it reaches or passes tout and then interpolates to obtain
+  y(tout).  In the ARK_ONE_STEP mode, it takes one internal step
+  and returns.  The behavior of both modes can be over-rided
   through user-specification of ark_tstop (through the
-  ARKodeSetStopTime function), in which case if a solver step 
+  *StepSetStopTime function), in which case if a solver step
   would pass tstop, the step is shortened so that it stops at
-  exactly the specified stop time, and hence interpolation of 
+  exactly the specified stop time, and hence interpolation of
   y(tout) is not required.
   ---------------------------------------------------------------*/
-int ARKode(void *arkode_mem, realtype tout, N_Vector yout, 
-           realtype *tret, int itask)
+int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
+              realtype *tret, int itask)
 {
-  ARKodeMem ark_mem;
   long int nstloc;
   int retval, kflag, istate, ir, ier;
   int ewtsetOK;
@@ -629,38 +576,37 @@ int ARKode(void *arkode_mem, realtype tout, N_Vector yout,
 
   /* Check and process inputs */
 
-  /* Check if arkode_mem exists */
-  if (arkode_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode", "ARKode", 
+  /* Check if ark_mem exists */
+  if (ark_mem == NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode", "arkEvolve",
                     MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  ark_mem = (ARKodeMem) arkode_mem;
 
-  /* Check if arkode_mem was allocated */
+  /* Check if ark_mem was allocated */
   if (ark_mem->MallocDone == SUNFALSE) {
-    arkProcessError(ark_mem, ARK_NO_MALLOC, "ARKode", "ARKode", 
+    arkProcessError(ark_mem, ARK_NO_MALLOC, "ARKode", "arkEvolve",
                     MSG_ARK_NO_MALLOC);
     return(ARK_NO_MALLOC);
   }
-  
+
   /* Check for yout != NULL */
   if ((ark_mem->ycur = yout) == NULL) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "ARKode", 
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkEvolve",
                     MSG_ARK_YOUT_NULL);
     return(ARK_ILL_INPUT);
   }
 
   /* Check for tret != NULL */
   if (tret == NULL) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "ARKode", 
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkEvolve",
                     MSG_ARK_TRET_NULL);
     return(ARK_ILL_INPUT);
   }
 
   /* Check for valid itask */
   if ( (itask != ARK_NORMAL) && (itask != ARK_ONE_STEP) ) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "ARKode", 
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkEvolve",
                     MSG_ARK_BAD_ITASK);
     return(ARK_ILL_INPUT);
   }
@@ -682,7 +628,7 @@ int ARKode(void *arkode_mem, realtype tout, N_Vector yout,
   }
 
 
-  /* perform first-step-after-resize initializations */ 
+  /* perform first-step-after-resize initializations */
   if (ark_mem->nst > 0 && ark_mem->resized) {
     ier = arkPostResizeSetup(ark_mem);
     if (ier!= ARK_SUCCESS) return(ier);
@@ -697,11 +643,11 @@ int ARKode(void *arkode_mem, realtype tout, N_Vector yout,
 
   /*--------------------------------------------------
     Looping point for internal steps
- 
+
     - update the ewt vector for the next step
     - check for errors (too many steps, too much
       accuracy requested, step size too small)
-    - take a new step (via ark_step); stop on error 
+    - take a new step (via time stepper); stop on error
     - perform stop tests:
     - check for root in last step taken
     - check if tout was passed
@@ -710,29 +656,29 @@ int ARKode(void *arkode_mem, realtype tout, N_Vector yout,
     --------------------------------------------------*/
   nstloc = 0;
   for(;;) {
-   
+
     ark_mem->next_h = ark_mem->h;
-    
+
     /* Reset and check ewt */
     if (ark_mem->nst > 0 && !ark_mem->resized) {
       ewtsetOK = ark_mem->efun(ark_mem->yn,
-                               ark_mem->ewt, 
+                               ark_mem->ewt,
                                ark_mem->e_data);
       if (ewtsetOK != 0) {
-        if (ark_mem->itol == ARK_WF) 
-          arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "ARKode", 
+        if (ark_mem->itol == ARK_WF)
+          arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkEvolve",
                           MSG_ARK_EWT_NOW_FAIL, ark_mem->tcur);
-        else 
-          arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "ARKode", 
+        else
+          arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkEvolve",
                           MSG_ARK_EWT_NOW_BAD, ark_mem->tcur);
-        
+
         istate = ARK_ILL_INPUT;
         ark_mem->tretlast = *tret = ark_mem->tcur;
         N_VScale(ONE, ark_mem->yn, yout);
         break;
       }
     }
-    
+
     /* Reset and check rwt */
     if (!ark_mem->rwt_is_ewt) {
       if (ark_mem->nst > 0 && !ark_mem->resized) {
@@ -740,13 +686,13 @@ int ARKode(void *arkode_mem, realtype tout, N_Vector yout,
                                  ark_mem->rwt,
                                  ark_mem->r_data);
         if (ewtsetOK != 0) {
-          if (ark_mem->itol == ARK_WF) 
-            arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "ARKode", 
+          if (ark_mem->itol == ARK_WF)
+            arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkEvolve",
                             MSG_ARK_RWT_NOW_FAIL, ark_mem->tcur);
-          else 
-            arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "ARKode", 
+          else
+            arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkEvolve",
                             MSG_ARK_RWT_NOW_BAD, ark_mem->tcur);
-        
+
           istate = ARK_ILL_INPUT;
           ark_mem->tretlast = *tret = ark_mem->tcur;
           N_VScale(ONE, ark_mem->yn, yout);
@@ -754,10 +700,10 @@ int ARKode(void *arkode_mem, realtype tout, N_Vector yout,
         }
       }
     }
-    
+
     /* Check for too many steps */
     if ( (ark_mem->mxstep>0) && (nstloc >= ark_mem->mxstep) ) {
-      arkProcessError(ark_mem, ARK_TOO_MUCH_WORK, "ARKode", "ARKode", 
+      arkProcessError(ark_mem, ARK_TOO_MUCH_WORK, "ARKode", "arkEvolve",
                       MSG_ARK_MAX_STEPS, ark_mem->tcur);
       istate = ARK_TOO_MUCH_WORK;
       ark_mem->tretlast = *tret = ark_mem->tcur;
@@ -769,7 +715,7 @@ int ARKode(void *arkode_mem, realtype tout, N_Vector yout,
     nrm = N_VWrmsNorm(ark_mem->yn, ark_mem->ewt);
     ark_mem->tolsf = ark_mem->uround * nrm;
     if (ark_mem->tolsf > ONE) {
-      arkProcessError(ark_mem, ARK_TOO_MUCH_ACC, "ARKode", "ARKode", 
+      arkProcessError(ark_mem, ARK_TOO_MUCH_ACC, "ARKode", "arkEvolve",
                       MSG_ARK_TOO_MUCH_ACC, ark_mem->tcur);
       istate = ARK_TOO_MUCH_ACC;
       ark_mem->tretlast = *tret = ark_mem->tcur;
@@ -783,11 +729,11 @@ int ARKode(void *arkode_mem, realtype tout, N_Vector yout,
     /* Check for h below roundoff level in tn */
     if (ark_mem->tcur + ark_mem->h == ark_mem->tcur) {
       ark_mem->nhnil++;
-      if (ark_mem->nhnil <= ark_mem->mxhnil) 
-        arkProcessError(ark_mem, ARK_WARNING, "ARKode", "ARKode", 
+      if (ark_mem->nhnil <= ark_mem->mxhnil)
+        arkProcessError(ark_mem, ARK_WARNING, "ARKode", "arkEvolve",
                         MSG_ARK_HNIL, ark_mem->tcur, ark_mem->h);
-      if (ark_mem->nhnil == ark_mem->mxhnil) 
-        arkProcessError(ark_mem, ARK_WARNING, "ARKode", "ARKode", 
+      if (ark_mem->nhnil == ark_mem->mxhnil)
+        arkProcessError(ark_mem, ARK_WARNING, "ARKode", "arkEvolve",
                         MSG_ARK_HNIL_DONE);
     }
 
@@ -801,13 +747,13 @@ int ARKode(void *arkode_mem, realtype tout, N_Vector yout,
       ark_mem->next_h = ark_mem->h;
     }
 
-    /* Call arkStep to take a step */
+    /* Call time stepper module to take a step */
     kflag = ark_mem->step((void*) ark_mem);
 
     /* Process successful step, catch additional errors to send to arkHandleFailure */
-    if (kflag == ARK_SUCCESS) 
+    if (kflag == ARK_SUCCESS)
       kflag = arkCompleteStep(ark_mem);
-    
+
     /* Process failed step cases, and exit loop */
     if (kflag != ARK_SUCCESS) {
       istate = arkHandleFailure(ark_mem, kflag);
@@ -815,7 +761,7 @@ int ARKode(void *arkode_mem, realtype tout, N_Vector yout,
       N_VScale(ONE, ark_mem->yn, yout);
       break;
     }
-    
+
     nstloc++;
 
     /* Check for root in last step taken. */
@@ -829,7 +775,7 @@ int ARKode(void *arkode_mem, realtype tout, N_Vector yout,
           ark_mem->tretlast = *tret = ark_mem->root_mem->tlo;
           break;
         } else if (retval == ARK_RTFUNC_FAIL) { /* g failed */
-          arkProcessError(ark_mem, ARK_RTFUNC_FAIL, "ARKode", "arkRootCheck3", 
+          arkProcessError(ark_mem, ARK_RTFUNC_FAIL, "ARKode", "arkEvolve",
                           MSG_ARK_RTFUNC_FAILED, ark_mem->root_mem->tlo);
           istate = ARK_RTFUNC_FAIL;
           break;
@@ -841,35 +787,35 @@ int ARKode(void *arkode_mem, realtype tout, N_Vector yout,
            of the root function. */
         if (ark_mem->nst==1) {
           inactive_roots = SUNFALSE;
-          for (ir=0; ir<ark_mem->root_mem->nrtfn; ir++) { 
+          for (ir=0; ir<ark_mem->root_mem->nrtfn; ir++) {
             if (!ark_mem->root_mem->gactive[ir]) {
               inactive_roots = SUNTRUE;
               break;
             }
           }
           if ((ark_mem->root_mem->mxgnull > 0) && inactive_roots) {
-            arkProcessError(ark_mem, ARK_WARNING, "ARKodeS", "ARKode", 
+            arkProcessError(ark_mem, ARK_WARNING, "ARKode", "arkEvolve",
                             MSG_ARK_INACTIVE_ROOTS);
           }
         }
       }
-    
+
     /* In NORMAL mode, check if tout reached */
     if ( (itask == ARK_NORMAL) &&
          (ark_mem->tcur-tout)*ark_mem->h >= ZERO ) {
       istate = ARK_SUCCESS;
       ark_mem->tretlast = *tret = tout;
-      (void) ARKodeGetDky(ark_mem, tout, 0, yout);
+      (void) arkGetDky(ark_mem, tout, 0, yout);
       ark_mem->next_h = ark_mem->hprime;
       break;
     }
 
     /* Check if tn is at tstop or near tstop */
     if ( ark_mem->tstopset ) {
-      troundoff = FUZZ_FACTOR*ark_mem->uround * 
+      troundoff = FUZZ_FACTOR*ark_mem->uround *
         (SUNRabs(ark_mem->tcur) + SUNRabs(ark_mem->h));
       if ( SUNRabs(ark_mem->tcur - ark_mem->tstop) <= troundoff) {
-        (void) ARKodeGetDky(ark_mem, ark_mem->tstop, 0, yout);
+        (void) arkGetDky(ark_mem, ark_mem->tstop, 0, yout);
         ark_mem->tretlast = *tret = ark_mem->tstop;
         ark_mem->tstopset = SUNFALSE;
         istate = ARK_TSTOP_RETURN;
@@ -898,62 +844,60 @@ int ARKode(void *arkode_mem, realtype tout, N_Vector yout,
 
 
 /*---------------------------------------------------------------
-  ARKodeGetDky:
+  arkGetDky:
 
   This routine computes the k-th derivative of the interpolating
-  polynomial at the time t and stores the result in the vector 
+  polynomial at the time t and stores the result in the vector
   dky. This routine internally calls arkInterpEvaluate to perform the
-  interpolation.  We have the restriction that 0 <= k <= 3.  This 
-  routine uses an interpolating polynomial of degree 
+  interpolation.  We have the restriction that 0 <= k <= 3.  This
+  routine uses an interpolating polynomial of degree
   max(ark_dense_q, k), i.e. it will form a polynomial of the
-  degree requested by the user through ark_dense_q, unless 
+  degree requested by the user through ark_dense_q, unless
   higher-order derivatives are requested.
 
-  This function is called by ARKode with k=0 and t=tout to perform
-  interpolation of outputs, but may also be called directly by the
-  user.  Note: in all cases it will be called after ark_tcur has 
-  been updated to correspond with the end time of the last 
-  successful step.
+  This function is called by arkEvolve with k=0 and t=tout to perform
+  interpolation of outputs, but may also be called indirectly by the
+  user via time step module *StepGetDky calls.  Note: in all cases
+  it will be called after ark_tcur has been updated to correspond
+  with the end time of the last successful step.
   ---------------------------------------------------------------*/
-int ARKodeGetDky(void *arkode_mem, realtype t, int k, N_Vector dky)
+int arkGetDky(ARKodeMem ark_mem, realtype t, int k, N_Vector dky)
 {
   realtype s, tfuzz, tp, tn1;
   int retval, degree;
-  ARKodeMem ark_mem;
-  
+
   /* Check all inputs for legality */
-  if (arkode_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode", "ARKodeGetDky", 
+  if (ark_mem == NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode", "arkGetDky",
                     MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  ark_mem = (ARKodeMem) arkode_mem;
   if (dky == NULL) {
-    arkProcessError(ark_mem, ARK_BAD_DKY, "ARKode", "ARKodeGetDky", 
+    arkProcessError(ark_mem, ARK_BAD_DKY, "ARKode", "arkGetDky",
                     MSG_ARK_NULL_DKY);
     return(ARK_BAD_DKY);
   }
   if ((k < 0) || (k > 3)) {
-    arkProcessError(ark_mem, ARK_BAD_K, "ARKode", "ARKodeGetDky", 
+    arkProcessError(ark_mem, ARK_BAD_K, "ARKode", "arkGetDky",
                     MSG_ARK_BAD_K);
     return(ARK_BAD_K);
   }
   if (ark_mem->interp == NULL) {
-    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode", "ARKodeGetDky",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode", "arkGetDky",
                     "Missing interpolation structure");
     return(ARK_MEM_NULL);
   }
 
-  
+
   /* Allow for some slack */
-  tfuzz = FUZZ_FACTOR * ark_mem->uround * 
+  tfuzz = FUZZ_FACTOR * ark_mem->uround *
     (SUNRabs(ark_mem->tcur) + SUNRabs(ark_mem->hold));
   if (ark_mem->hold < ZERO) tfuzz = -tfuzz;
   tp = ark_mem->tcur - ark_mem->hold - tfuzz;
   tn1 = ark_mem->tcur + tfuzz;
   if ((t-tp)*(t-tn1) > ZERO) {
-    arkProcessError(ark_mem, ARK_BAD_T, "ARKode", "ARKodeGetDky", 
-                    MSG_ARK_BAD_T, t, ark_mem->tcur-ark_mem->hold, 
+    arkProcessError(ark_mem, ARK_BAD_T, "ARKode", "arkGetDky",
+                    MSG_ARK_BAD_T, t, ark_mem->tcur-ark_mem->hold,
                     ark_mem->tcur);
     return(ARK_BAD_T);
   }
@@ -962,8 +906,8 @@ int ARKodeGetDky(void *arkode_mem, realtype t, int k, N_Vector dky)
   s = (t - ark_mem->tcur) / ark_mem->h;
   degree = (k > ark_mem->dense_q) ? k : ark_mem->dense_q;
   retval = arkInterpEvaluate(ark_mem, ark_mem->interp, s, k, degree, dky);
-  if (retval != ARK_SUCCESS) { 
-    arkProcessError(ark_mem, retval, "ARKode", "ARKodeGetDky", 
+  if (retval != ARK_SUCCESS) {
+    arkProcessError(ark_mem, retval, "ARKode", "arkGetDky",
                     "Error calling arkInterpEvaluate");
     return(retval);
   }
@@ -972,28 +916,22 @@ int ARKodeGetDky(void *arkode_mem, realtype t, int k, N_Vector dky)
 
 
 /*---------------------------------------------------------------
-  ARKodeFree:
+  arkFree:
 
-  This routine frees the problem memory allocated by arkodeInit.
-  Such memory includes all the vectors allocated by 
-  arkAllocVectors, and the memory lmem for
-  the linear solver (deallocated by a call to lfree).
+  This routine frees the ARKode infrastructure memory.
   ---------------------------------------------------------------*/
-void ARKodeFree(void **arkode_mem)
+void arkFree(void **arkode_mem)
 {
   ARKodeMem ark_mem;
 
   if (*arkode_mem == NULL) return;
 
   ark_mem = (ARKodeMem) (*arkode_mem);
-  
+
   arkFreeVectors(ark_mem);
-  if (ark_mem->interp != NULL) 
+  if (ark_mem->interp != NULL)
     arkInterpFree(&(ark_mem->interp));
 
-  if (ark_mem->step_free != NULL)
-    (void) ark_mem->step_free(*arkode_mem);
-  
   if (ark_mem->root_mem != NULL)
     (void) arkRootFree(*arkode_mem);
 
@@ -1033,14 +971,14 @@ int arkEwtSet(N_Vector ycur, N_Vector weight, void *data)
   ark_mem = (ARKodeMem) data;
 
   switch(ark_mem->itol) {
-  case ARK_SS: 
+  case ARK_SS:
     flag = arkEwtSetSS(ark_mem, ycur, weight);
     break;
-  case ARK_SV: 
+  case ARK_SV:
     flag = arkEwtSetSV(ark_mem, ycur, weight);
     break;
   }
-  
+
   return(flag);
 }
 
@@ -1048,7 +986,7 @@ int arkEwtSet(N_Vector ycur, N_Vector weight, void *data)
 /*---------------------------------------------------------------
   arkRwtSet
 
-  This routine is responsible for setting the residual weight 
+  This routine is responsible for setting the residual weight
   vector rwt, according to tol_type, as follows:
 
   (1) rwt[i] = 1 / (reltol * SUNRabs(M*ycur[i]) + rabstol), i=0,...,neq-1
@@ -1086,21 +1024,21 @@ int arkRwtSet(N_Vector y, N_Vector weight, void *data)
 
   /* call appropriate routine to fill rwt */
   switch(ark_mem->ritol) {
-  case ARK_SS: 
+  case ARK_SS:
     flag = arkRwtSetSS(ark_mem, My, weight);
     break;
-  case ARK_SV: 
+  case ARK_SV:
     flag = arkRwtSetSV(ark_mem, My, weight);
     break;
   }
-  
+
   return(flag);
 }
 
 
 /*---------------------------------------------------------------
   arkErrHandler is the default error handling function.
-  It sends the error message to the stream pointed to by ark_errfp 
+  It sends the error message to the stream pointed to by ark_errfp
   ---------------------------------------------------------------*/
 void arkErrHandler(int error_code, const char *module,
                    const char *function, char *msg, void *data)
@@ -1133,32 +1071,32 @@ void arkErrHandler(int error_code, const char *module,
   ===============================================================*/
 
 /*---------------------------------------------------------------
-  arkodeInit:
- 
-  arkodeInit allocates and initializes memory for a problem. All 
-  inputs are checked for errors. If any error occurs during 
-  initialization, it is reported to the file whose file pointer 
-  is errfp and an error flag is returned. Otherwise, it returns 
-  ARK_SUCCESS.  This routine should be called by an ARKode 
-  timestepper module (not by the user).  This routine must be 
-  called prior to calling ARKode to evolve the problem.
+  arkInit:
+
+  arkInit allocates and initializes memory for a problem. All
+  inputs are checked for errors. If any error occurs during
+  initialization, it is reported to the file whose file pointer
+  is errfp and an error flag is returned. Otherwise, it returns
+  ARK_SUCCESS.  This routine should be called by an ARKode
+  timestepper module (not by the user).  This routine must be
+  called prior to calling arkEvolve to evolve the problem.
   ---------------------------------------------------------------*/
-int arkodeInit(ARKodeMem ark_mem, realtype t0, N_Vector y0)
+int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0)
 {
   booleantype stepperOK, nvectorOK, allocOK;
   sunindextype lrw1, liw1;
-  
+
   /* Check for legal input parameters */
   if (y0==NULL) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", 
-                    "arkodeInit", MSG_ARK_NULL_Y0);
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
+                    "arkInit", MSG_ARK_NULL_Y0);
     return(ARK_ILL_INPUT);
   }
 
   /* Test if all required time stepper operations are implemented */
   stepperOK = arkCheckTimestepper(ark_mem);
   if (!stepperOK) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkodeInit",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkInit",
                     "Time stepper module is missing required functionality");
     return(ARK_ILL_INPUT);
   }
@@ -1166,8 +1104,8 @@ int arkodeInit(ARKodeMem ark_mem, realtype t0, N_Vector y0)
   /* Test if all required vector operations are implemented */
   nvectorOK = arkCheckNvector(y0);
   if (!nvectorOK) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", 
-                    "arkodeInit", MSG_ARK_BAD_NVECTOR);
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
+                    "arkInit", MSG_ARK_BAD_NVECTOR);
     return(ARK_ILL_INPUT);
   }
 
@@ -1185,8 +1123,8 @@ int arkodeInit(ARKodeMem ark_mem, realtype t0, N_Vector y0)
   /* Allocate the solver vectors (using y0 as a template) */
   allocOK = arkAllocVectors(ark_mem, y0);
   if (!allocOK) {
-    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode", 
-                    "arkodeInit", MSG_ARK_MEM_FAIL);
+    arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode",
+                    "arkInit", MSG_ARK_MEM_FAIL);
     return(ARK_MEM_FAIL);
   }
 
@@ -1231,49 +1169,49 @@ int arkodeInit(ARKodeMem ark_mem, realtype t0, N_Vector y0)
 
 
 /*---------------------------------------------------------------
-  arkodeReInit:
+  arkReInit:
 
-  arkodeReInit re-initializes ARKode's memory for a problem, 
-  assuming it has already been allocated in a prior arkodeInit 
+  arkReInit re-initializes ARKode's memory for a problem,
+  assuming it has already been allocated in a prior arkInit
   call.  All problem specification inputs are checked for errors.
-  If any error occurs during initialization, it is reported to 
+  If any error occurs during initialization, it is reported to
   the file whose file pointer is errfp.  This routine should only
-  be called after arkodeInit, and only when the problem dynamics 
+  be called after arkInit, and only when the problem dynamics
   or desired solvers have changed dramatically, so that the
   problem integration should resume as if started from scratch.
 
   The return value is ARK_SUCCESS = 0 if no errors occurred, or
   a negative value otherwise.
   ---------------------------------------------------------------*/
-int arkodeReInit(ARKodeMem ark_mem, realtype t0, N_Vector y0)
+int arkReInit(ARKodeMem ark_mem, realtype t0, N_Vector y0)
 {
   /* Check if ark_mem was allocated */
   if (ark_mem->MallocDone == SUNFALSE) {
-    arkProcessError(ark_mem, ARK_NO_MALLOC, "ARKode", 
-                    "arkodeReInit", MSG_ARK_NO_MALLOC);
+    arkProcessError(ark_mem, ARK_NO_MALLOC, "ARKode",
+                    "arkReInit", MSG_ARK_NO_MALLOC);
     return(ARK_NO_MALLOC);
   }
 
   /* Check for legal input parameters */
   if (y0 == NULL) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", 
-                    "arkodeReInit", MSG_ARK_NULL_Y0);
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
+                    "arkReInit", MSG_ARK_NULL_Y0);
     return(ARK_ILL_INPUT);
   }
-  
+
   /* Copy the input parameters into ARKode state */
   ark_mem->tcur = t0;
   ark_mem->tn   = t0;
-  
+
   /* Set step parameters */
   ark_mem->hold     = ZERO;
   ark_mem->tolsf    = ONE;
   ark_mem->hmin     = ZERO;       /* no minimum step size */
   ark_mem->hmax_inv = ZERO;       /* no maximum step size */
 
-  /* Do not reset the linear solver addresses to NULL.  This means 
-     that if the user does not re-set these manually, we'll re-use 
-     the linear solver routines that were set during arkodeInit. */
+  /* Do not reset the linear solver addresses to NULL.  This means
+     that if the user does not re-set these manually, we'll re-use
+     the linear solver routines that were set during arkInit. */
 
   /* Initialize yn */
   N_VScale(ONE, y0, ark_mem->yn);
@@ -1298,7 +1236,7 @@ int arkodeReInit(ARKodeMem ark_mem, realtype t0, N_Vector y0)
 /*---------------------------------------------------------------
   arkPrintMem:
 
-  This routine outputs the ark_mem structure to a specified file 
+  This routine outputs the ark_mem structure to a specified file
   pointer.
   ---------------------------------------------------------------*/
 void arkPrintMem(ARKodeMem ark_mem, FILE *outfile)
@@ -1330,7 +1268,7 @@ void arkPrintMem(ARKodeMem ark_mem, FILE *outfile)
   /* output counters */
   fprintf(outfile, "ark_nhnil = %i\n", ark_mem->nhnil);
   fprintf(outfile, "ark_nst = %li\n", ark_mem->nst);
-  
+
   /* output time-stepping values */
   fprintf(outfile, "ark_hin = %" RSYM"\n", ark_mem->hin);
   fprintf(outfile, "ark_h = %" RSYM"\n", ark_mem->h);
@@ -1344,7 +1282,7 @@ void arkPrintMem(ARKodeMem ark_mem, FILE *outfile)
   fprintf(outfile, "ark_h0u = %" RSYM"\n", ark_mem->h0u);
   fprintf(outfile, "ark_tn = %" RSYM"\n", ark_mem->tn);
   fprintf(outfile, "ark_hold = %" RSYM"\n", ark_mem->hold);
-  
+
   /* output root-finding quantities */
   if (ark_mem->root_mem != NULL)
     (void) arkPrintRootMem((void*) ark_mem, outfile);
@@ -1353,12 +1291,8 @@ void arkPrintMem(ARKodeMem ark_mem, FILE *outfile)
   if (ark_mem->interp != NULL)
     arkPrintInterpMem(ark_mem->interp, outfile);
 
-  /* output time step module quantities */
-  if (ark_mem->step_print != NULL)
-    ark_mem->step_print((void*) ark_mem, outfile);
-
 #ifdef DEBUG_OUTPUT
-  /* output vector quantities */  
+  /* output vector quantities */
   if (ark_mem->Vabstol != NULL) {
     fprintf(outfile, "ark_Vapbsol:\n");
     N_VPrint_Serial(ark_mem->Vabstol);
@@ -1395,15 +1329,14 @@ void arkPrintMem(ARKodeMem ark_mem, FILE *outfile)
 /*---------------------------------------------------------------
   arkCheckTimestepper:
 
-  This routine checks if all required time stepper function 
-  pointers have been supplied.  If any of them is missing it 
+  This routine checks if all required time stepper function
+  pointers have been supplied.  If any of them is missing it
   returns SUNFALSE.
   ---------------------------------------------------------------*/
 booleantype arkCheckTimestepper(ARKodeMem ark_mem)
 {
   if ( (ark_mem->step_init == NULL) ||
        (ark_mem->step      == NULL) ||
-       (ark_mem->step_free == NULL) ||
        (ark_mem->step_mem  == NULL) )
     return(SUNFALSE);
   if ( (ark_mem->interp != NULL) &&
@@ -1416,7 +1349,7 @@ booleantype arkCheckTimestepper(ARKodeMem ark_mem)
 /*---------------------------------------------------------------
   arkCheckNvector:
 
-  This routine checks if all required vector operations are 
+  This routine checks if all required vector operations are
   present.  If any of them is missing it returns SUNFALSE.
   ---------------------------------------------------------------*/
 booleantype arkCheckNvector(N_Vector tmpl)  /* to be updated?? */
@@ -1442,15 +1375,15 @@ booleantype arkCheckNvector(N_Vector tmpl)  /* to be updated?? */
 /*---------------------------------------------------------------
   arkAllocVec:
 
-  This routine allocates a single vector based on a template 
-  vector.  If the target vector already exists it is left alone; 
-  otherwise it is allocated by cloning the input vector. If the 
-  allocation is successful (or if the target vector already 
-  exists) then this returns SUNTRUE.  This routine also updates 
-  the optional outputs lrw and liw, which are (respectively) the 
+  This routine allocates a single vector based on a template
+  vector.  If the target vector already exists it is left alone;
+  otherwise it is allocated by cloning the input vector. If the
+  allocation is successful (or if the target vector already
+  exists) then this returns SUNTRUE.  This routine also updates
+  the optional outputs lrw and liw, which are (respectively) the
   lengths of the overall ARKode real and integer work spaces.
   ---------------------------------------------------------------*/
-booleantype arkAllocVec(ARKodeMem ark_mem, 
+booleantype arkAllocVec(ARKodeMem ark_mem,
                         N_Vector tmpl,
                         N_Vector *v)
 {
@@ -1489,13 +1422,13 @@ void arkFreeVec(ARKodeMem ark_mem, N_Vector *v)
 /*---------------------------------------------------------------
   arkResizeVec:
 
-  This routine resizes a single vector based on a template 
-  vector.  If the ARKVecResizeFn function is non-NULL, then it 
-  calls that routine to perform the single-vector resize; 
-  otherwise it deallocates and reallocates the target vector based 
-  on the template vector.  If the resize is successful then this 
-  returns SUNTRUE.  This routine also updates the optional outputs 
-  lrw and liw, which are (respectively) the lengths of the overall 
+  This routine resizes a single vector based on a template
+  vector.  If the ARKVecResizeFn function is non-NULL, then it
+  calls that routine to perform the single-vector resize;
+  otherwise it deallocates and reallocates the target vector based
+  on the template vector.  If the resize is successful then this
+  returns SUNTRUE.  This routine also updates the optional outputs
+  lrw and liw, which are (respectively) the lengths of the overall
   ARKode real and integer work spaces.
   ---------------------------------------------------------------*/
 int arkResizeVec(ARKodeMem ark_mem, ARKVecResizeFn resize,
@@ -1508,7 +1441,7 @@ int arkResizeVec(ARKodeMem ark_mem, ARKVecResizeFn resize,
       *v = N_VClone(tmpl);
     } else {
       if (resize(*v, tmpl, resize_data)) {
-        arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", 
+        arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
                         "arkResizeVec", MSG_ARK_RESIZE_FAIL);
         return(ARK_ILL_INPUT);
       }
@@ -1522,14 +1455,14 @@ int arkResizeVec(ARKodeMem ark_mem, ARKVecResizeFn resize,
 /*---------------------------------------------------------------
   arkAllocVectors:
 
-  This routine allocates the ARKode vectors ewt, yn, tempv1, 
+  This routine allocates the ARKode vectors ewt, yn, tempv1,
   tempv2 and ftemp.  If any of these vectors already exist, they
-  are left alone.  Otherwise, it will allocate each vector by 
-  cloning the input vector. If all memory allocations are 
-  successful, arkAllocVectors returns SUNTRUE. Otherwise all 
-  vector memory is freed and arkAllocVectors returns SUNFALSE. 
-  This routine also updates the optional outputs lrw and liw, 
-  which are (respectively) the lengths of the real and integer 
+  are left alone.  Otherwise, it will allocate each vector by
+  cloning the input vector. If all memory allocations are
+  successful, arkAllocVectors returns SUNTRUE. Otherwise all
+  vector memory is freed and arkAllocVectors returns SUNFALSE.
+  This routine also updates the optional outputs lrw and liw,
+  which are (respectively) the lengths of the real and integer
   work spaces.
   ---------------------------------------------------------------*/
 booleantype arkAllocVectors(ARKodeMem ark_mem, N_Vector tmpl)
@@ -1539,7 +1472,7 @@ booleantype arkAllocVectors(ARKodeMem ark_mem, N_Vector tmpl)
     return(SUNFALSE);
 
   /* Set rwt to point at ewt */
-  if (ark_mem->rwt_is_ewt) 
+  if (ark_mem->rwt_is_ewt)
     ark_mem->rwt = ark_mem->ewt;
 
   /* Allocate yn if needed */
@@ -1703,8 +1636,8 @@ ARKodeFPMem arkAllocFPData(ARKodeMem ark_mem, long int maa)
       arkFreeFPData(ark_mem, fp_mem);
       return(NULL);
     }
-  }    
-  
+  }
+
   return(fp_mem);
 }
 
@@ -1712,20 +1645,20 @@ ARKodeFPMem arkAllocFPData(ARKodeMem ark_mem, long int maa)
   arkResizeFPData
 
   This routine resizes all required memory for the accelerated
-  fixed-point solver (called from ARKodeResize()).
+  fixed-point solver (called from arkResize()).
   ---------------------------------------------------------------*/
 int arkResizeFPData(ARKodeMem ark_mem, ARKodeFPMem fp_mem,
-                    ARKVecResizeFn resize, void *resize_data, 
+                    ARKVecResizeFn resize, void *resize_data,
                     sunindextype lrw_diff, sunindextype liw_diff,
                     N_Vector tmpl)
 {
   int ier, i;
   if (fp_mem == NULL) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkResizeFPData", 
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkResizeFPData",
                     "Fixed point solver memory unallocated");
     return(ARK_ILL_INPUT);
   }
-  
+
   /* Resize fval if needed */
   ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
                      liw_diff, tmpl, &fp_mem->fval);
@@ -1842,8 +1775,8 @@ void arkFreeFPData(ARKodeMem ark_mem, ARKodeFPMem fp_mem)
   if (fp_mem->Xvecs != NULL) {
     free(fp_mem->Xvecs);
     fp_mem->Xvecs = NULL;
-  }    
-  
+  }
+
   /* free fp_mem structure */
   free(fp_mem);
 }
@@ -1852,10 +1785,10 @@ void arkFreeFPData(ARKodeMem ark_mem, ARKodeFPMem fp_mem)
 /*---------------------------------------------------------------
   arkInitialSetup
 
-  This routine performs all necessary items to prepare ARKode for 
+  This routine performs all necessary items to prepare ARKode for
   the first internal step, including:
   - checks for valid initial step input or estimates first step
-  - input consistency checks 
+  - input consistency checks
   - checks the linear solver module (if applicable)
   - initializes linear solver (if applicable)
   ---------------------------------------------------------------*/
@@ -1881,53 +1814,53 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
     return(retval);
   }
 
-  /* Check that user has supplied an initial step size if fixedstep mode is on */ 
+  /* Check that user has supplied an initial step size if fixedstep mode is on */
   if ( (ark_mem->fixedstep) && (ark_mem->hin == ZERO) ) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", 
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
                     "arkInitialSetup",
                     "Fixed step mode enabled, but no step size set");
     return(ARK_ILL_INPUT);
   }
 
   /* Set data for efun (if left unspecified) */
-  if (ark_mem->user_efun) 
+  if (ark_mem->user_efun)
     ark_mem->e_data = ark_mem->user_data;
-  else                        
+  else
     ark_mem->e_data = ark_mem;
 
   /* Load initial error weights */
   ier = ark_mem->efun(ark_mem->yn,
-                      ark_mem->ewt, 
+                      ark_mem->ewt,
                       ark_mem->e_data);
   if (ier != 0) {
-    if (ark_mem->itol == ARK_WF) 
-      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", 
+    if (ark_mem->itol == ARK_WF)
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
                       "arkInitialSetup", MSG_ARK_EWT_FAIL);
-    else 
-      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", 
+    else
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
                       "arkInitialSetup", MSG_ARK_BAD_EWT);
     return(ARK_ILL_INPUT);
   }
 
   /* Set data for rfun (if left unspecified) */
-  if (ark_mem->user_rfun) 
+  if (ark_mem->user_rfun)
     ark_mem->r_data = ark_mem->user_data;
-  else                        
+  else
     ark_mem->r_data = ark_mem;
 
   /* Load initial residual weights */
   if (ark_mem->rwt_is_ewt) {      /* update pointer to ewt */
     ark_mem->rwt = ark_mem->ewt;
-  } else { 
+  } else {
     ier = ark_mem->rfun(ark_mem->yn,
-                        ark_mem->rwt, 
+                        ark_mem->rwt,
                         ark_mem->r_data);
     if (ier != 0) {
-      if (ark_mem->itol == ARK_WF) 
-        arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", 
+      if (ark_mem->itol == ARK_WF)
+        arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
                         "arkInitialSetup", MSG_ARK_RWT_FAIL);
-      else 
-        arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", 
+      else
+        arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
                         "arkInitialSetup", MSG_ARK_BAD_RWT);
       return(ARK_ILL_INPUT);
     }
@@ -1939,7 +1872,7 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
     if (ark_mem->interp == NULL)
       return(ARK_MEM_FAIL);
   }
-  
+
   /* Fill initial interpolation data (if needed) */
   if (ark_mem->interp != NULL) {
     ier = arkInterpInit(ark_mem, ark_mem->interp, ark_mem->tcur);
@@ -1949,7 +1882,7 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
   /* Test input tstop for legality. */
   if ( ark_mem->tstopset ) {
     if ( (ark_mem->tstop - ark_mem->tcur)*(tout - ark_mem->tcur) <= ZERO ) {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkInitialSetup", 
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkInitialSetup",
                       MSG_ARK_BAD_TSTOP, ark_mem->tstop, ark_mem->tcur);
       return(ARK_ILL_INPUT);
     }
@@ -1957,14 +1890,14 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
 
   /* Check input h for validity */
   ark_mem->h = ark_mem->hin;
-  if ( (ark_mem->h != ZERO) && 
+  if ( (ark_mem->h != ZERO) &&
        ((tout-ark_mem->tcur)*ark_mem->h < ZERO) ) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkInitialSetup", 
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkInitialSetup",
                     MSG_ARK_BAD_H0);
     return(ARK_ILL_INPUT);
   }
   if ((ark_mem->hin == ZERO) && (ark_mem->fixedstep)) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkInitialSetup", 
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkInitialSetup",
                     "nonzero step size must be supplied when using fixed-step mode");
     return(ARK_ILL_INPUT);
   }
@@ -1976,9 +1909,9 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
     if (ark_mem->h == ZERO)  ark_mem->h = ONE;
     /* Estimate the first step size */
     tout_hin = tout;
-    if ( ark_mem->tstopset && 
-         (tout-ark_mem->tcur)*(tout-ark_mem->tstop) > ZERO ) 
-      tout_hin = ark_mem->tstop; 
+    if ( ark_mem->tstopset &&
+         (tout-ark_mem->tcur)*(tout-ark_mem->tstop) > ZERO )
+      tout_hin = ark_mem->tstop;
     hflag = arkHin(ark_mem, tout_hin);
     if (hflag != ARK_SUCCESS) {
       istate = arkHandleFailure(ark_mem, hflag);
@@ -1997,23 +1930,23 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
       ark_mem->h = (ark_mem->tstop - ark_mem->tcur)*(ONE-FOUR*ark_mem->uround);
     }
   }
-  
+
   /* Set initial time step factors */
   ark_mem->h0u    = ark_mem->h;
   ark_mem->hprime = ark_mem->h;
 
   /* Check for zeros of root function g at and near t0. */
-  if (ark_mem->root_mem != NULL) 
+  if (ark_mem->root_mem != NULL)
     if (ark_mem->root_mem->nrtfn > 0) {
       retval = arkRootCheck1((void*) ark_mem);
-      
+
       if (retval == ARK_RTFUNC_FAIL) {
-        arkProcessError(ark_mem, ARK_RTFUNC_FAIL, "ARKode", "arkRootCheck1", 
+        arkProcessError(ark_mem, ARK_RTFUNC_FAIL, "ARKode", "arkRootCheck1",
                         MSG_ARK_RTFUNC_FAILED, ark_mem->tcur);
         return(ARK_RTFUNC_FAIL);
       }
     }
-  
+
   return(ARK_SUCCESS);
 }
 
@@ -2021,7 +1954,7 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
 /*---------------------------------------------------------------
   arkPostResizeSetup
 
-  This routine performs all necessary items to prepare ARKode for 
+  This routine performs all necessary items to prepare ARKode for
   the first internal step after a resize() call, including:
   - re-initialize the linear solver
   - re-initialize the interpolation structure
@@ -2034,14 +1967,14 @@ int arkPostResizeSetup(ARKodeMem ark_mem)
 
   /* Load updated error weights */
   ier = ark_mem->efun(ark_mem->yn,
-                      ark_mem->ewt, 
+                      ark_mem->ewt,
                       ark_mem->e_data);
   if (ier != 0) {
-    if (ark_mem->itol == ARK_WF) 
-      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", 
+    if (ark_mem->itol == ARK_WF)
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
                       "arkPostResizeSetup", MSG_ARK_EWT_FAIL);
-    else 
-      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", 
+    else
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
                       "arkPostResizeSetup", MSG_ARK_BAD_EWT);
     return(ARK_ILL_INPUT);
   }
@@ -2049,14 +1982,14 @@ int arkPostResizeSetup(ARKodeMem ark_mem)
   /* Load updated residual weights */
   if (!ark_mem->rwt_is_ewt) {
     ier = ark_mem->rfun(ark_mem->yn,
-                        ark_mem->rwt, 
+                        ark_mem->rwt,
                         ark_mem->r_data);
     if (ier != 0) {
-      if (ark_mem->itol == ARK_WF) 
-        arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", 
+      if (ark_mem->itol == ARK_WF)
+        arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
                         "arkPostResizeSetup", MSG_ARK_RWT_FAIL);
-      else 
-        arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", 
+      else
+        arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
                         "arkPostResizeSetup", MSG_ARK_BAD_RWT);
       return(ARK_ILL_INPUT);
     }
@@ -2067,23 +2000,23 @@ int arkPostResizeSetup(ARKodeMem ark_mem)
     ier = arkInterpInit(ark_mem, ark_mem->interp, ark_mem->tcur);
     if (ier != 0)  return(ier);
   }
-  
+
   /* Check for legal tstop (correct direction of integration) */
   if (ark_mem->tstopset) {
     if ( (ark_mem->tstop - ark_mem->tcur)*ark_mem->h < ZERO ) {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkPostResizeSetup", 
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkPostResizeSetup",
                       MSG_ARK_BAD_TSTOP, ark_mem->tstop, ark_mem->tcur);
       return(ARK_ILL_INPUT);
     }
   }
 
   /* Check for zeros of root function g at and near t0. */
-  if (ark_mem->root_mem != NULL) 
+  if (ark_mem->root_mem != NULL)
     if (ark_mem->root_mem->nrtfn > 0) {
       retval = arkRootCheck1((void*) ark_mem);
-        
+
       if (retval == ARK_RTFUNC_FAIL) {
-        arkProcessError(ark_mem, ARK_RTFUNC_FAIL, "ARKode", "arkRootCheck1", 
+        arkProcessError(ark_mem, ARK_RTFUNC_FAIL, "ARKode", "arkRootCheck1",
                         MSG_ARK_RTFUNC_FAILED, ark_mem->tcur);
         return(ARK_RTFUNC_FAIL);
       }
@@ -2104,14 +2037,14 @@ int arkPostResizeSetup(ARKodeMem ark_mem)
   - check if we are close to tstop
   (adjust step size if needed)
   ---------------------------------------------------------------*/
-int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout, 
+int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout,
                  realtype *tret, int itask, int *ier)
 {
   int irfndp, retval;
   realtype troundoff;
 
   /* Estimate an infinitesimal time interval to be used as
-     a roundoff for time quantities (based on current time 
+     a roundoff for time quantities (based on current time
      and step size) */
   troundoff = FUZZ_FACTOR*ark_mem->uround *
     (SUNRabs(ark_mem->tcur) + SUNRabs(ark_mem->h));
@@ -2123,16 +2056,16 @@ int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout,
     if (ark_mem->root_mem->nrtfn > 0) {
 
       irfndp = ark_mem->root_mem->irfnd;
-      
+
       retval = arkRootCheck2((void*) ark_mem);
 
       if (retval == CLOSERT) {
-        arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkRootCheck2", 
+        arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkStopTests",
                         MSG_ARK_CLOSE_ROOTS, ark_mem->root_mem->tlo);
         *ier = ARK_ILL_INPUT;
         return(1);
       } else if (retval == ARK_RTFUNC_FAIL) {
-        arkProcessError(ark_mem, ARK_RTFUNC_FAIL, "ARKode", "arkRootCheck2", 
+        arkProcessError(ark_mem, ARK_RTFUNC_FAIL, "ARKode", "arkStopTests",
                         MSG_ARK_RTFUNC_FAILED, ark_mem->root_mem->tlo);
         *ier = ARK_RTFUNC_FAIL;
         return(1);
@@ -2141,13 +2074,13 @@ int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout,
         *ier = ARK_ROOT_RETURN;
         return(1);
       }
-        
+
       /* If tn is distinct from tretlast (within roundoff),
          check remaining interval for roots */
       if ( SUNRabs(ark_mem->tcur - ark_mem->tretlast) > troundoff ) {
-          
+
         retval = arkRootCheck3((void*) ark_mem);
-          
+
         if (retval == ARK_SUCCESS) {     /* no root found */
           ark_mem->root_mem->irfnd = 0;
           if ((irfndp == 1) && (itask == ARK_ONE_STEP)) {
@@ -2162,23 +2095,23 @@ int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout,
           *ier = ARK_ROOT_RETURN;
           return(1);
         } else if (retval == ARK_RTFUNC_FAIL) {  /* g failed */
-          arkProcessError(ark_mem, ARK_RTFUNC_FAIL, "ARKode", "arkRootCheck3", 
+          arkProcessError(ark_mem, ARK_RTFUNC_FAIL, "ARKode", "arkStopTests",
                           MSG_ARK_RTFUNC_FAILED, ark_mem->root_mem->tlo);
           *ier = ARK_RTFUNC_FAIL;
           return(1);
         }
       }
-        
+
     } /* end of root stop check */
-    
+
   /* In ARK_NORMAL mode, test if tout was reached */
-  if ( (itask == ARK_NORMAL) && 
+  if ( (itask == ARK_NORMAL) &&
        ((ark_mem->tcur-tout)*ark_mem->h >= ZERO) ) {
     ark_mem->tretlast = *tret = tout;
-    *ier = ARKodeGetDky(ark_mem, tout, 0, yout);
+    *ier = arkGetDky(ark_mem, tout, 0, yout);
     if (*ier != ARK_SUCCESS) {
-      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", 
-                      "ARKode", MSG_ARK_BAD_TOUT, tout);
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
+                      "arkStopTests", MSG_ARK_BAD_TOUT, tout);
       *ier = ARK_ILL_INPUT;
       return(1);
     }
@@ -2187,7 +2120,7 @@ int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout,
   }
 
   /* In ARK_ONE_STEP mode, test if tn was returned */
-  if ( itask == ARK_ONE_STEP && 
+  if ( itask == ARK_ONE_STEP &&
        SUNRabs(ark_mem->tcur - ark_mem->tretlast) > troundoff ) {
     ark_mem->tretlast = *tret = ark_mem->tcur;
     N_VScale(ONE, ark_mem->yn, yout);
@@ -2199,9 +2132,9 @@ int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout,
   if ( ark_mem->tstopset ) {
 
     if ( SUNRabs(ark_mem->tcur - ark_mem->tstop) <= troundoff) {
-      *ier = ARKodeGetDky(ark_mem, ark_mem->tstop, 0, yout);
+      *ier = arkGetDky(ark_mem, ark_mem->tstop, 0, yout);
       if (*ier != ARK_SUCCESS) {
-        arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "ARKode", 
+        arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkStopTests",
                         MSG_ARK_BAD_TSTOP, ark_mem->tstop, ark_mem->tcur);
         *ier = ARK_ILL_INPUT;
         return(1);
@@ -2211,14 +2144,14 @@ int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout,
       *ier = ARK_TSTOP_RETURN;
       return(1);
     }
-      
+
     /* If next step would overtake tstop, adjust stepsize */
     if ( (ark_mem->tcur + ark_mem->hprime - ark_mem->tstop)*ark_mem->h > ZERO ) {
       ark_mem->hprime = (ark_mem->tstop - ark_mem->tcur)*(ONE-FOUR*ark_mem->uround);
       ark_mem->eta = ark_mem->hprime/ark_mem->h;
     }
   }
-   
+
   return(0);
 }
 
@@ -2226,42 +2159,42 @@ int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout,
 /*---------------------------------------------------------------
   arkHin
 
-  This routine computes a tentative initial step size h0. 
-  If tout is too close to tn (= t0), then arkHin returns 
-  ARK_TOO_CLOSE and h remains uninitialized. Note that here tout 
-  is either the value passed to ARKode at the first call or the 
-  value of tstop (if tstop is enabled and it is closer to t0=tn 
-  than tout). If the RHS function fails unrecoverably, arkHin 
-  returns ARK_RHSFUNC_FAIL. If the RHS function fails recoverably 
-  too many times and recovery is not possible, arkHin returns 
-  ARK_REPTD_RHSFUNC_ERR. Otherwise, arkHin sets h to the chosen 
+  This routine computes a tentative initial step size h0.
+  If tout is too close to tn (= t0), then arkHin returns
+  ARK_TOO_CLOSE and h remains uninitialized. Note that here tout
+  is either the value passed to arkEvolve at the first call or the
+  value of tstop (if tstop is enabled and it is closer to t0=tn
+  than tout). If the RHS function fails unrecoverably, arkHin
+  returns ARK_RHSFUNC_FAIL. If the RHS function fails recoverably
+  too many times and recovery is not possible, arkHin returns
+  ARK_REPTD_RHSFUNC_ERR. Otherwise, arkHin sets h to the chosen
   value h0 and returns ARK_SUCCESS.
 
   The algorithm used seeks to find h0 as a solution of
-  (WRMS norm of (h0^2 ydd / 2)) = 1, 
-  where ydd = estimated second derivative of y.  Although this 
+  (WRMS norm of (h0^2 ydd / 2)) = 1,
+  where ydd = estimated second derivative of y.  Although this
   choice is based on an error expansion of the Backward Euler
-  method, and hence results in an overly-conservative time step 
+  method, and hence results in an overly-conservative time step
   for our higher-order ARK methods, it does find an order-of-
   magnitude estimate of the initial time scale of the solution.
   Since this method is only used on the first time step, the
   additional caution will not overly hinder solver efficiency.
 
-  We start with an initial estimate equal to the geometric mean 
+  We start with an initial estimate equal to the geometric mean
   of the lower and upper bounds on the step size.
 
   Loop up to H0_ITERS times to find h0.
   Stop if new and previous values differ by a factor < 2.
-  Stop if hnew/hg > 2 after one iteration, as this probably 
-  means that the ydd value is bad because of cancellation error.        
-  
+  Stop if hnew/hg > 2 after one iteration, as this probably
+  means that the ydd value is bad because of cancellation error.
+
   For each new proposed hg, we allow H0_ITERS attempts to
   resolve a possible recoverable failure from f() by reducing
   the proposed stepsize by a factor of 0.2. If a legal stepsize
-  still cannot be found, fall back on a previous value if 
+  still cannot be found, fall back on a previous value if
   possible, or else return ARK_REPTD_RHSFUNC_ERR.
 
-  Finally, we apply a bias (0.5) and verify that h0 is within 
+  Finally, we apply a bias (0.5) and verify that h0 is within
   bounds.
   ---------------------------------------------------------------*/
 int arkHin(ARKodeMem ark_mem, realtype tout)
@@ -2273,14 +2206,14 @@ int arkHin(ARKodeMem ark_mem, realtype tout)
 
   /* If tout is too close to tn, give up */
   if ((tdiff = tout-ark_mem->tcur) == ZERO) return(ARK_TOO_CLOSE);
-  
+
   sign = (tdiff > ZERO) ? 1 : -1;
   tdist = SUNRabs(tdiff);
   tround = ark_mem->uround * SUNMAX(SUNRabs(ark_mem->tcur), SUNRabs(tout));
 
   if (tdist < TWO*tround) return(ARK_TOO_CLOSE);
-  
-  /* Set lower and upper bounds on h0, and take geometric mean 
+
+  /* Set lower and upper bounds on h0, and take geometric mean
      as first trial value.
      Exit with this value if the bounds cross each other. */
   hlb = H0_LBFACTOR * tround;
@@ -2332,7 +2265,7 @@ int arkHin(ARKodeMem ark_mem, realtype tout)
     /* Propose new step size */
     hnew = (yddnrm*hub*hub > TWO) ? SUNRsqrt(TWO/yddnrm) : SUNRsqrt(hg*hub);
     hrat = hnew/hg;
-    
+
     /* Accept hnew if it does not differ from hg by more than a factor of 2 */
     if ((hrat > HALF) && (hrat < TWO))  hnewOK = SUNTRUE;
 
@@ -2369,7 +2302,7 @@ realtype arkUpperBoundH0(ARKodeMem ark_mem, realtype tdist)
   N_Vector temp1, temp2;
 
   /* Bound based on |y0|/|y0'| -- allow at most an increase of
-   * H0_UBFACTOR in y0 (based on a forward Euler step). The weight 
+   * H0_UBFACTOR in y0 (based on a forward Euler step). The weight
    * factor is used as a safeguard against zero components in y0. */
   temp1 = ark_mem->tempv1;
   temp2 = ark_mem->tempv2;
@@ -2410,9 +2343,9 @@ int arkYddNorm(ARKodeMem ark_mem, realtype hg, realtype *yddnrm)
                     "Missing interpolation structure");
     return(ARK_MEM_NULL);
   }
-  
+
   /* increment y with a multiple of f */
-  N_VLinearSum(hg, ark_mem->interp->fnew, ONE, 
+  N_VLinearSum(hg, ark_mem->interp->fnew, ONE,
                ark_mem->yn, ark_mem->ycur);
 
   /* compute y', via the ODE RHS routine */
@@ -2420,9 +2353,9 @@ int arkYddNorm(ARKodeMem ark_mem, realtype hg, realtype *yddnrm)
                                  ark_mem->ycur,
                                  ark_mem->tempv1, 2);
   if (retval != 0) return(ARK_RHSFUNC_FAIL);
-  
+
   /* difference new f and original f to estimate y'' */
-  N_VLinearSum(ONE/hg, ark_mem->tempv1, -ONE/hg, 
+  N_VLinearSum(ONE/hg, ark_mem->tempv1, -ONE/hg,
 	       ark_mem->interp->fnew, ark_mem->tempv1);
 
   /* compute norm of y'' */
@@ -2435,33 +2368,33 @@ int arkYddNorm(ARKodeMem ark_mem, realtype hg, realtype *yddnrm)
 /*---------------------------------------------------------------
   arkCompleteStep
 
-  This routine performs various update operations when the step 
-  solution is complete.  It is assumed that the timestepper 
-  module has stored the time-evolved solution in ark_mem->ycur, 
+  This routine performs various update operations when the step
+  solution is complete.  It is assumed that the timestepper
+  module has stored the time-evolved solution in ark_mem->ycur,
   and the step that gave rise to this solution in ark_mem->h.
-  We update the current time (tn), the current solution (yn), 
-  increment the overall step counter nst, record the values hold 
-  and tnew, reset the resized flag, allow for user-provided 
+  We update the current time (tn), the current solution (yn),
+  increment the overall step counter nst, record the values hold
+  and tnew, reset the resized flag, allow for user-provided
   postprocessing, and update the interpolation structure.
   ---------------------------------------------------------------*/
 int arkCompleteStep(ARKodeMem ark_mem)
 {
   int retval;
 
-  /* Set current time to the end of the step (in case the last 
-     stage time does not coincide with the step solution time).  
-     If tstop is enabled, it is possible for tn + h to be past 
-     tstop by roundoff, and in that case, we reset tn (after 
+  /* Set current time to the end of the step (in case the last
+     stage time does not coincide with the step solution time).
+     If tstop is enabled, it is possible for tn + h to be past
+     tstop by roundoff, and in that case, we reset tn (after
      incrementing by h) to tstop. */
   ark_mem->tcur = ark_mem->tn + ark_mem->h;
   if (ark_mem->tstopset) {
-    if ((ark_mem->tcur - ark_mem->tstop)*ark_mem->h > ZERO) 
+    if ((ark_mem->tcur - ark_mem->tstop)*ark_mem->h > ZERO)
       ark_mem->tcur = ark_mem->tstop;
   }
 
-  /* apply user-supplied step postprocessing function (if supplied) */ 
+  /* apply user-supplied step postprocessing function (if supplied) */
   if (ark_mem->ProcessStep != NULL) {
-    retval = ark_mem->ProcessStep(ark_mem->tcur, 
+    retval = ark_mem->ProcessStep(ark_mem->tcur,
                                   ark_mem->ycur,
                                   ark_mem->user_data);
     if (retval != 0) return(ARK_POSTPROCESS_FAIL);
@@ -2474,7 +2407,7 @@ int arkCompleteStep(ARKodeMem ark_mem)
                              (ark_mem->ProcessStep != NULL));
     if (retval != ARK_SUCCESS)  return(retval);
   }
-  
+
   /* update yn to current solution */
   N_VScale(ONE, ark_mem->ycur, ark_mem->yn);
 
@@ -2494,7 +2427,7 @@ int arkCompleteStep(ARKodeMem ark_mem)
   arkHandleFailure
 
   This routine prints error messages for all cases of failure by
-  arkHin and ark_step. It returns to ARKode the value that ARKode 
+  arkHin and ark_step. It returns to ARKode the value that ARKode
   is to return to the user.
   ---------------------------------------------------------------*/
 int arkHandleFailure(ARKodeMem ark_mem, int flag)
@@ -2502,48 +2435,48 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
 
   /* Depending on flag, print error message and return error flag */
   switch (flag) {
-  case ARK_ERR_FAILURE: 
-    arkProcessError(ark_mem, ARK_ERR_FAILURE, "ARKode", "ARKode", 
+  case ARK_ERR_FAILURE:
+    arkProcessError(ark_mem, ARK_ERR_FAILURE, "ARKode", "ARKode",
                     MSG_ARK_ERR_FAILS, ark_mem->tcur, ark_mem->h);
     break;
   case ARK_CONV_FAILURE:
-    arkProcessError(ark_mem, ARK_CONV_FAILURE, "ARKode", "ARKode", 
+    arkProcessError(ark_mem, ARK_CONV_FAILURE, "ARKode", "ARKode",
                     MSG_ARK_CONV_FAILS, ark_mem->tcur, ark_mem->h);
     break;
   case ARK_LSETUP_FAIL:
-    arkProcessError(ark_mem, ARK_LSETUP_FAIL, "ARKode", "ARKode", 
+    arkProcessError(ark_mem, ARK_LSETUP_FAIL, "ARKode", "ARKode",
                     MSG_ARK_SETUP_FAILED, ark_mem->tcur);
     break;
   case ARK_LSOLVE_FAIL:
-    arkProcessError(ark_mem, ARK_LSOLVE_FAIL, "ARKode", "ARKode", 
+    arkProcessError(ark_mem, ARK_LSOLVE_FAIL, "ARKode", "ARKode",
                     MSG_ARK_SOLVE_FAILED, ark_mem->tcur);
     break;
   case ARK_RHSFUNC_FAIL:
-    arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKode", "ARKode", 
+    arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKode", "ARKode",
                     MSG_ARK_RHSFUNC_FAILED, ark_mem->tcur);
     break;
   case ARK_UNREC_RHSFUNC_ERR:
-    arkProcessError(ark_mem, ARK_UNREC_RHSFUNC_ERR, "ARKode", "ARKode", 
+    arkProcessError(ark_mem, ARK_UNREC_RHSFUNC_ERR, "ARKode", "ARKode",
                     MSG_ARK_RHSFUNC_UNREC, ark_mem->tcur);
     break;
   case ARK_REPTD_RHSFUNC_ERR:
-    arkProcessError(ark_mem, ARK_REPTD_RHSFUNC_ERR, "ARKode", "ARKode", 
+    arkProcessError(ark_mem, ARK_REPTD_RHSFUNC_ERR, "ARKode", "ARKode",
                     MSG_ARK_RHSFUNC_REPTD, ark_mem->tcur);
     break;
-  case ARK_RTFUNC_FAIL:    
-    arkProcessError(ark_mem, ARK_RTFUNC_FAIL, "ARKode", "ARKode", 
+  case ARK_RTFUNC_FAIL:
+    arkProcessError(ark_mem, ARK_RTFUNC_FAIL, "ARKode", "ARKode",
                     MSG_ARK_RTFUNC_FAILED, ark_mem->tcur);
     break;
   case ARK_TOO_CLOSE:
-    arkProcessError(ark_mem, ARK_TOO_CLOSE, "ARKode", "ARKode", 
+    arkProcessError(ark_mem, ARK_TOO_CLOSE, "ARKode", "ARKode",
                     MSG_ARK_TOO_CLOSE);
     break;
   case ARK_MASSSOLVE_FAIL:
-    arkProcessError(ark_mem, ARK_MASSSOLVE_FAIL, "ARKode", "ARKode", 
+    arkProcessError(ark_mem, ARK_MASSSOLVE_FAIL, "ARKode", "ARKode",
                     MSG_ARK_MASSSOLVE_FAIL);
     break;
   default:
-    return(ARK_SUCCESS);   
+    return(ARK_SUCCESS);
   }
 
   return(flag);
@@ -2580,7 +2513,7 @@ int arkEwtSetSS(ARKodeMem ark_mem, N_Vector ycur, N_Vector weight)
 int arkEwtSetSV(ARKodeMem ark_mem, N_Vector ycur, N_Vector weight)
 {
   N_VAbs(ycur, ark_mem->tempv1);
-  N_VLinearSum(ark_mem->reltol, ark_mem->tempv1, ONE, 
+  N_VLinearSum(ark_mem->reltol, ark_mem->tempv1, ONE,
                ark_mem->Vabstol, ark_mem->tempv1);
   if (N_VMin(ark_mem->tempv1) <= ZERO) return(-1);
   N_VInv(ark_mem->tempv1, weight);
@@ -2618,7 +2551,7 @@ int arkRwtSetSS(ARKodeMem ark_mem, N_Vector My, N_Vector weight)
 int arkRwtSetSV(ARKodeMem ark_mem, N_Vector My, N_Vector weight)
 {
   N_VAbs(My, ark_mem->tempv1);
-  N_VLinearSum(ark_mem->reltol, ark_mem->tempv1, ONE, 
+  N_VLinearSum(ark_mem->reltol, ark_mem->tempv1, ONE,
                ark_mem->VRabstol, ark_mem->tempv1);
   if (N_VMin(ark_mem->tempv1) <= ZERO) return(-1);
   N_VInv(ark_mem->tempv1, weight);
@@ -2631,7 +2564,7 @@ int arkRwtSetSV(ARKodeMem ark_mem, N_Vector My, N_Vector weight)
   ---------------------------------------------------------------*/
 int arkExpStab(N_Vector y, realtype t, realtype *hstab, void *data)
 {
-  /* explicit stability not used by default, 
+  /* explicit stability not used by default,
      set to zero to disable */
   *hstab = RCONST(0.0);
 
@@ -2642,17 +2575,17 @@ int arkExpStab(N_Vector y, realtype t, realtype *hstab, void *data)
 /*---------------------------------------------------------------
   arkProcessError is a high level error handling function
   - if ark_mem==NULL it prints the error message to stderr
-  - otherwise, it sets-up and calls the error handling function 
-    pointed to by ark_ehfun 
+  - otherwise, it sets-up and calls the error handling function
+    pointed to by ark_ehfun
   ---------------------------------------------------------------*/
-void arkProcessError(ARKodeMem ark_mem, int error_code, 
-                     const char *module, const char *fname, 
+void arkProcessError(ARKodeMem ark_mem, int error_code,
+                     const char *module, const char *fname,
                      const char *msgfmt, ...)
 {
   va_list ap;
   char msg[256];
 
-  /* Initialize the argument pointer variable 
+  /* Initialize the argument pointer variable
      (msgfmt is the last required argument to arkProcessError) */
   va_start(ap, msgfmt);
 
@@ -2667,7 +2600,7 @@ void arkProcessError(ARKodeMem ark_mem, int error_code,
 #endif
 
   } else {                 /* We can call ehfun */
-    ark_mem->ehfun(error_code, module, fname, msg, 
+    ark_mem->ehfun(error_code, module, fname, msg,
                    ark_mem->eh_data);
   }
 

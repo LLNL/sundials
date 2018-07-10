@@ -75,7 +75,7 @@ int FARKDenseJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   /* Initialize all pointers to NULL */
   ydata = fydata = jacdata = v1data = v2data = v3data = NULL;
 
-  ARKodeGetLastStep(ARK_arkodemem, &h);
+  ARKStepGetLastStep(ARK_arkodemem, &h);
   ydata   = N_VGetArrayPointer(y);
   fydata  = N_VGetArrayPointer(fy);
   v1data  = N_VGetArrayPointer(vtemp1);

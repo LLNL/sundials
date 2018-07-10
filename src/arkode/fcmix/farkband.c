@@ -75,7 +75,7 @@ int FARKBandJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   FARKUserData ARK_userdata;
   int ier = 0;
 
-  ARKodeGetLastStep(ARK_arkodemem, &h);
+  ARKStepGetLastStep(ARK_arkodemem, &h);
   ydata   = N_VGetArrayPointer(y);
   fydata  = N_VGetArrayPointer(fy);
   v1data  = N_VGetArrayPointer(vtemp1);

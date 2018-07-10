@@ -2,13 +2,13 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2015, Southern Methodist University and
  * Lawrence Livermore National Security
  *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Southern Methodist University and Lawrence Livermore
  * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
+ * Produced at Southern Methodist University and the Lawrence
  * Livermore National Laboratory.
  *
  * All rights reserved.
@@ -16,14 +16,14 @@
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
  * Example problem:
- * 
- * The following is a simple example problem with analytical 
+ *
+ * The following is a simple example problem with analytical
  * solution,
  *     dy/dt = (t+1)*exp(-y)
- * for t in the interval [0.0, 10.0], with initial condition: y=0. 
- * This has analytical solution 
+ * for t in the interval [0.0, 10.0], with initial condition: y=0.
+ * This has analytical solution
  *      y(t) = log(0.5*t^2 + t + 1)
- * 
+ *
  * This program solves the problem with the ERK method.
  * Output is printed every 1.0 units of time (10 total).
  * Run statistics (optional outputs) are printed at the end.
@@ -32,7 +32,6 @@
 /* Header files */
 #include <stdio.h>
 #include <math.h>
-#include <arkode/arkode.h>            /* prototypes for ARKode fcts., consts. */
 #include <arkode/arkode_erkstep.h>    /* prototypes for ERKStep fcts., consts */
 #include <nvector/nvector_serial.h>   /* serial N_Vector types, fcts., macros */
 #include <sundials/sundials_types.h>  /* def. of type 'realtype' */
@@ -82,27 +81,25 @@ int main()
   y = N_VNew_Serial(NEQ);          /* Create serial vector for solution */
   if (check_flag((void *)y, "N_VNew_Serial", 0)) return 1;
   NV_Ith_S(y,0) = 0.0;             /* Specify initial condition */
-  arkode_mem = ARKodeCreate();     /* Create the solver memory */
-  if (check_flag((void *)arkode_mem, "ARKodeCreate", 0)) return 1;
 
-  /* Call ERKStepCreate to initialize the ERK timestepper module and 
-     specify the right-hand side function in y'=f(t,y), the inital time 
+  /* Call ERKStepCreate to initialize the ERK timestepper module and
+     specify the right-hand side function in y'=f(t,y), the inital time
      T0, and the initial dependent variable vector y. */
-  flag = ERKStepCreate(arkode_mem, f, T0, y);
-  if (check_flag(&flag, "ERKStepCreate", 1)) return 1;
+  arkode_mem = ERKStepCreate(f, T0, y);
+  if (check_flag((void *)arkode_mem, "ERKStepCreate", 0)) return 1;
 
   /* Specify tolerances */
-  flag = ARKodeSStolerances(arkode_mem, reltol, abstol);
-  if (check_flag(&flag, "ARKodeSStolerances", 1)) return 1;
+  flag = ERKStepSStolerances(arkode_mem, reltol, abstol);
+  if (check_flag(&flag, "ERKStepSStolerances", 1)) return 1;
 
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt","w");
   fprintf(UFID,"# t u\n");
 
   /* output initial condition to disk */
-  fprintf(UFID," %.16"ESYM" %.16"ESYM"\n", T0, NV_Ith_S(y,0));  
+  fprintf(UFID," %.16"ESYM" %.16"ESYM"\n", T0, NV_Ith_S(y,0));
 
-  /* Main time-stepping loop: calls ARKode to perform the integration, then
+  /* Main time-stepping loop: calls ERKStepEvolve to perform the integration, then
      prints results.  Stops when the final time has been reached */
   t = T0;
   tout = T0+dTout;
@@ -110,10 +107,10 @@ int main()
   printf("   ---------------------\n");
   while (Tf - t > 1.0e-15) {
 
-    flag = ARKode(arkode_mem, tout, y, &t, ARK_NORMAL);       /* call integrator */
-    if (check_flag(&flag, "ARKode", 1)) break;
+    flag = ERKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);       /* call integrator */
+    if (check_flag(&flag, "ERKStepEvolve", 1)) break;
     printf("  %10.6"FSYM"  %10.6"FSYM"\n", t, NV_Ith_S(y,0));           /* access/print solution */
-    fprintf(UFID," %.16"ESYM" %.16"ESYM"\n", t, NV_Ith_S(y,0));  
+    fprintf(UFID," %.16"ESYM" %.16"ESYM"\n", t, NV_Ith_S(y,0));
     if (flag >= 0) {                                          /* successful solve: update time */
       tout += dTout;
       tout = (tout > Tf) ? Tf : tout;
@@ -126,8 +123,8 @@ int main()
   fclose(UFID);
 
   /* Print some final statistics */
-  flag = ARKodeGetNumSteps(arkode_mem, &nst);
-  check_flag(&flag, "ARKodeGetNumSteps", 1);
+  flag = ERKStepGetNumSteps(arkode_mem, &nst);
+  check_flag(&flag, "ERKStepGetNumSteps", 1);
   flag = ERKStepGetNumStepAttempts(arkode_mem, &nst_a);
   check_flag(&flag, "ERKStepGetNumStepAttempts", 1);
   flag = ERKStepGetNumRhsEvals(arkode_mem, &nfe);
@@ -142,7 +139,7 @@ int main()
 
   /* Clean up and return with successful completion */
   N_VDestroy(y);               /* Free y vector */
-  ARKodeFree(&arkode_mem);     /* Free integrator memory */
+  ERKStepFree(&arkode_mem);    /* Free integrator memory */
   return 0;
 }
 
@@ -167,7 +164,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
     opt == 1 means SUNDIALS function returns a flag so check if
              flag >= 0
     opt == 2 means function allocates memory so check if returned
-             NULL pointer  
+             NULL pointer
 */
 static int check_flag(void *flagvalue, const char *funcname, int opt)
 {

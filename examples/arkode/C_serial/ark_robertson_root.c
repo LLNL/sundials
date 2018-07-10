@@ -2,13 +2,13 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2015, Southern Methodist University and
  * Lawrence Livermore National Security
  *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Southern Methodist University and Lawrence Livermore
  * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
+ * Produced at Southern Methodist University and the Lawrence
  * Livermore National Laboratory.
  *
  * All rights reserved.
@@ -16,33 +16,32 @@
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
  * Example problem:
- * 
- * The following test simulates the Robertson problem, 
- * corresponding to the kinetics of an autocatalytic reaction.  
+ *
+ * The following test simulates the Robertson problem,
+ * corresponding to the kinetics of an autocatalytic reaction.
  * This is an ODE system with 3 components, Y = [u,v,w], satisfying
  * the equations,
  *    du/dt = -0.04*u + 1e4*v*w
  *    dv/dt = 0.04*u - 1e4*v*w - 3e7*v^2
  *    dw/dt = 3e7*v^2
- * for t in the interval [0.0, 1e11], with initial conditions 
+ * for t in the interval [0.0, 1e11], with initial conditions
  * Y0 = [1,0,0].
  *
- * While integrating the system, we use the rootfinding feature 
+ * While integrating the system, we use the rootfinding feature
  * to find the times at which either u=1e-4 or w=1e-2.
- * 
- * This program solves the problem with one of the solvers, ERK, 
- * DIRK or ARK.  For DIRK and ARK, implicit subsystems are solved 
- * using a Newton iteration with the dense SUNLinearSolver, and a  
+ *
+ * This program solves the problem with one of the solvers, ERK,
+ * DIRK or ARK.  For DIRK and ARK, implicit subsystems are solved
+ * using a Newton iteration with the dense SUNLinearSolver, and a
  * user-supplied Jacobian routine.
  *
- * 100 outputs are printed at equal intervals, and run statistics 
+ * 100 outputs are printed at equal intervals, and run statistics
  * are printed at the end.
  *---------------------------------------------------------------*/
 
 /* Header files */
 #include <stdio.h>
 #include <math.h>
-#include <arkode/arkode.h>              /* prototypes for ARKode fcts., consts. */
 #include <arkode/arkode_arkstep.h>      /* prototypes for ARKStep fcts., consts */
 #include <nvector/nvector_serial.h>     /* serial N_Vector types, fcts., macros */
 #include <sunmatrix/sunmatrix_dense.h>  /* access to dense SUNMatrix            */
@@ -62,7 +61,7 @@
 
 /* User-supplied Functions Called by the Solver */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, 
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int g(realtype t, N_Vector y, realtype *gout, void *user_data);
 
@@ -111,15 +110,13 @@ int main()
   NV_Ith_S(y,0) = u0;            /* Set initial conditions into y */
   NV_Ith_S(y,1) = v0;
   NV_Ith_S(y,2) = w0;
-  arkode_mem = ARKodeCreate();   /* Create the solver memory */
-  if (check_flag((void *)arkode_mem, "ARKodeCreate", 0)) return 1;
 
-  /* Call ARKStepCreate to initialize the ARK timestepper module and 
-     specify the right-hand side function in y'=f(t,y), the inital time 
+  /* Call ARKStepCreate to initialize the ARK timestepper module and
+     specify the right-hand side function in y'=f(t,y), the inital time
      T0, and the initial dependent variable vector y.  Note: since this
      problem is fully implicit, we set f_E to NULL and f_I to f. */
-  flag = ARKStepCreate(arkode_mem, NULL, f, T0, y);
-  if (check_flag(&flag, "ARKStepCreate", 1)) return 1;
+  arkode_mem = ARKStepCreate(NULL, f, T0, y);
+  if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) return 1;
 
   /* Set tolerances */
   reltol = RCONST(1.0e-4);
@@ -134,16 +131,16 @@ int main()
   if (check_flag(&flag, "ARKStepSetMaxNonlinIters", 1)) return 1;
   flag = ARKStepSetNonlinConvCoef(arkode_mem, 1.e-7);      /* Update nonlinear solver convergence coeff. */
   if (check_flag(&flag, "ARKStepSetNonlinConvCoef", 1)) return 1;
-  flag = ARKodeSetMaxNumSteps(arkode_mem, 100000);        /* Increase max number of steps */
-  if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) return 1;
+  flag = ARKStepSetMaxNumSteps(arkode_mem, 100000);        /* Increase max number of steps */
+  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) return 1;
   flag = ARKStepSetPredictorMethod(arkode_mem, 1);         /* Specify maximum-order predictor */
   if (check_flag(&flag, "ARKStepSetPredictorMethod", 1)) return 1;
-  flag = ARKodeSVtolerances(arkode_mem, reltol, atols);   /* Specify tolerances */
-  if (check_flag(&flag, "ARKodeSStolerances", 1)) return 1;
+  flag = ARKStepSVtolerances(arkode_mem, reltol, atols);   /* Specify tolerances */
+  if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
 
   /* Specify the root-finding function, having 2 equations */
-  flag = ARKodeRootInit(arkode_mem, 2, g);
-  if (check_flag(&flag, "ARKodeRootInit", 1)) return 1;
+  flag = ARKStepRootInit(arkode_mem, 2, g);
+  if (check_flag(&flag, "ARKStepRootInit", 1)) return 1;
 
   /* Initialize dense matrix data structure and solver */
   A = SUNDenseMatrix(NEQ, NEQ);
@@ -162,10 +159,10 @@ int main()
   fprintf(UFID,"# t u v w\n");
 
   /* output initial condition to disk */
-  fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n", 
-          T0, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));  
+  fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n",
+          T0, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
 
-  /* Main time-stepping loop: calls ARKode to perform the integration, then
+  /* Main time-stepping loop: calls ARKStepEvolve to perform the integration, then
      prints results.  Stops when the final time has been reached */
   t = T0;
   printf("        t             u             v             w\n");
@@ -176,15 +173,15 @@ int main()
   iout = 0;
   while(1) {
 
-    flag = ARKode(arkode_mem, tout, y, &t, ARK_NORMAL);     /* call integrator */
-    if (check_flag(&flag, "ARKode", 1)) break;
+    flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);     /* call integrator */
+    if (check_flag(&flag, "ARKStepEvolve", 1)) break;
     printf("  %12.5"ESYM"  %12.5"ESYM"  %12.5"ESYM"  %12.5"ESYM"\n",  t,        /* access/print solution */
         NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
-    fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n", 
-            t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));  
+    fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n",
+            t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
     if (flag == ARK_ROOT_RETURN) {                          /* check if a root was found */
-      rtflag = ARKodeGetRootInfo(arkode_mem, rootsfound);
-      if (check_flag(&rtflag, "ARKodeGetRootInfo", 1)) return 1;
+      rtflag = ARKStepGetRootInfo(arkode_mem, rootsfound);
+      if (check_flag(&rtflag, "ARKStepGetRootInfo", 1)) return 1;
       printf("      rootsfound[] = %3d %3d\n",
           rootsfound[0], rootsfound[1]);
     }
@@ -201,8 +198,8 @@ int main()
   fclose(UFID);
 
   /* Print some final statistics */
-  flag = ARKodeGetNumSteps(arkode_mem, &nst);
-  check_flag(&flag, "ARKodeGetNumSteps", 1);
+  flag = ARKStepGetNumSteps(arkode_mem, &nst);
+  check_flag(&flag, "ARKStepGetNumSteps", 1);
   flag = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
   check_flag(&flag, "ARKStepGetNumStepAttempts", 1);
   flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
@@ -219,11 +216,11 @@ int main()
   check_flag(&flag, "ARKDlsGetNumJacEvals", 1);
   flag = ARKDlsGetNumRhsEvals(arkode_mem, &nfeLS);
   check_flag(&flag, "ARKDlsGetNumRhsEvals", 1);
-  flag = ARKodeGetNumGEvals(arkode_mem, &nge);
-  check_flag(&flag, "ARKodeGetNumGEvals", 1);
+  flag = ARKStepGetNumGEvals(arkode_mem, &nge);
+  check_flag(&flag, "ARKStepGetNumGEvals", 1);
 
   printf("\nFinal Solver Statistics:\n");
-  printf("   Internal solver steps = %li (attempted = %li)\n", 
+  printf("   Internal solver steps = %li (attempted = %li)\n",
          nst, nst_a);
   printf("   Total RHS evals:  Fe = %li,  Fi = %li\n", nfe, nfi);
   printf("   Total linear solver setups = %li\n", nsetups);
@@ -237,7 +234,7 @@ int main()
   /* Clean up and return with successful completion */
   N_VDestroy(y);               /* Free y vector */
   N_VDestroy(atols);           /* Free atols vector */
-  ARKodeFree(&arkode_mem);     /* Free integrator memory */
+  ARKStepFree(&arkode_mem);    /* Free integrator memory */
   SUNLinSolFree(LS);           /* Free linear solver */
   SUNMatDestroy(A);            /* Free A matrix */
   return 0;
@@ -263,7 +260,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* Jacobian routine to compute J(t,y) = df/dy. */
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, 
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
   realtype v = NV_Ith_S(y,1);    /* access current solution */
@@ -306,7 +303,7 @@ static int g(realtype t, N_Vector y, realtype *gout, void *user_data)
     opt == 1 means SUNDIALS function returns a flag so check if
              flag >= 0
     opt == 2 means function allocates memory so check if returned
-             NULL pointer  
+             NULL pointer
 */
 static int check_flag(void *flagvalue, const char *funcname, int opt)
 {

@@ -2,13 +2,13 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2015, Southern Methodist University and
  * Lawrence Livermore National Security
  *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Southern Methodist University and Lawrence Livermore
  * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
+ * Produced at Southern Methodist University and the Lawrence
  * Livermore National Laboratory.
  *
  * All rights reserved.
@@ -16,17 +16,17 @@
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
  * Example problem:
- * 
- * The following is a simple example problem with analytical 
+ *
+ * The following is a simple example problem with analytical
  * solution,
  *    dy/dt = lamda*y + 1/(1+t^2) - lamda*atan(t)
- * for t in the interval [0.0, 10.0], with initial condition: y=0. 
- * 
- * The stiffness of the problem is directly proportional to the 
+ * for t in the interval [0.0, 10.0], with initial condition: y=0.
+ *
+ * The stiffness of the problem is directly proportional to the
  * value of "lamda".  The value of lamda should be negative to
- * result in a well-posed ODE; for values with magnitude larger 
+ * result in a well-posed ODE; for values with magnitude larger
  * than 100 the problem becomes quite stiff.
- * 
+ *
  * This program solves the problem with the DIRK method,
  * Newton iteration with the dense SUNLinearSolver, and a
  * user-supplied Jacobian routine.
@@ -37,7 +37,6 @@
 /* Header files */
 #include <stdio.h>
 #include <math.h>
-#include <arkode/arkode.h>                 /* prototypes for ARKODE fcts., consts. */
 #include <arkode/arkode_arkstep.h>         /* prototypes for ARKStep fcts., consts */
 #include <nvector/nvector_serial.h>        /* serial N_Vector types, fcts., macros */
 #include <sunmatrix/sunmatrix_dense.h>     /* access to dense SUNMatrix            */
@@ -58,7 +57,7 @@
 
 /* User-supplied Functions Called by the Solver */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, 
+static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
 /* Private function to check function return values */
@@ -99,21 +98,19 @@ int main()
   y = N_VNew_Serial(NEQ);          /* Create serial vector for solution */
   if (check_flag((void *)y, "N_VNew_Serial", 0)) return 1;
   N_VConst(0.0, y);             /* Specify initial condition */
-  arkode_mem = ARKodeCreate();     /* Create the solver memory */
-  if (check_flag((void *)arkode_mem, "ARKodeCreate", 0)) return 1;
 
-  /* Call ARKStepCreate to initialize the ARK timestepper module and 
-     specify the right-hand side function in y'=f(t,y), the inital time 
+  /* Call ARKStepCreate to initialize the ARK timestepper module and
+     specify the right-hand side function in y'=f(t,y), the inital time
      T0, and the initial dependent variable vector y.  Note: since this
      problem is fully implicit, we set f_E to NULL and f_I to f. */
-  flag = ARKStepCreate(arkode_mem, NULL, f, T0, y);
-  if (check_flag(&flag, "ARKStepCreate", 1)) return 1;
+  arkode_mem = ARKStepCreate(NULL, f, T0, y);
+  if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) return 1;
 
   /* Set routines */
-  flag = ARKodeSetUserData(arkode_mem, (void *) &lamda);  /* Pass lamda to user functions */
-  if (check_flag(&flag, "ARKodeSetUserData", 1)) return 1;
-  flag = ARKodeSStolerances(arkode_mem, reltol, abstol);  /* Specify tolerances */
-  if (check_flag(&flag, "ARKodeSStolerances", 1)) return 1;
+  flag = ARKStepSetUserData(arkode_mem, (void *) &lamda);  /* Pass lamda to user functions */
+  if (check_flag(&flag, "ARKStepSetUserData", 1)) return 1;
+  flag = ARKStepSStolerances(arkode_mem, reltol, abstol);  /* Specify tolerances */
+  if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
 
   /* Initialize dense matrix data structure and solver */
   A = SUNDenseMatrix(NEQ, NEQ);
@@ -136,9 +133,9 @@ int main()
   fprintf(UFID,"# t u\n");
 
   /* output initial condition to disk */
-  fprintf(UFID," %.16"ESYM" %.16"ESYM"\n", T0, NV_Ith_S(y,0));  
+  fprintf(UFID," %.16"ESYM" %.16"ESYM"\n", T0, NV_Ith_S(y,0));
 
-  /* Main time-stepping loop: calls ARKode to perform the integration, then
+  /* Main time-stepping loop: calls ARKStepEvolve to perform the integration, then
      prints results.  Stops when the final time has been reached */
   t = T0;
   tout = T0+dTout;
@@ -146,10 +143,10 @@ int main()
   printf("   ---------------------\n");
   while (Tf - t > 1.0e-15) {
 
-    flag = ARKode(arkode_mem, tout, y, &t, ARK_NORMAL);      /* call integrator */
-    if (check_flag(&flag, "ARKode", 1)) break;
+    flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);      /* call integrator */
+    if (check_flag(&flag, "ARKStepEvolve", 1)) break;
     printf("  %10.6"FSYM"  %10.6"FSYM"\n", t, NV_Ith_S(y,0));          /* access/print solution */
-    fprintf(UFID," %.16"ESYM" %.16"ESYM"\n", t, NV_Ith_S(y,0));  
+    fprintf(UFID," %.16"ESYM" %.16"ESYM"\n", t, NV_Ith_S(y,0));
     if (flag >= 0) {                                         /* successful solve: update time */
       tout += dTout;
       tout = (tout > Tf) ? Tf : tout;
@@ -162,8 +159,8 @@ int main()
   fclose(UFID);
 
   /* Get/print some final statistics on how the solve progressed */
-  flag = ARKodeGetNumSteps(arkode_mem, &nst);
-  check_flag(&flag, "ARKodeGetNumSteps", 1);
+  flag = ARKStepGetNumSteps(arkode_mem, &nst);
+  check_flag(&flag, "ARKStepGetNumSteps", 1);
   flag = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
   check_flag(&flag, "ARKStepGetNumStepAttempts", 1);
   flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
@@ -196,10 +193,10 @@ int main()
 
   /* Clean up and return */
   N_VDestroy(y);            /* Free y vector */
-  ARKodeFree(&arkode_mem);  /* Free integrator memory */
+  ARKStepFree(&arkode_mem); /* Free integrator memory */
   SUNLinSolFree(LS);        /* Free linear solver */
   SUNMatDestroy(A);         /* Free A matrix */
- 
+
   return flag;
 }
 
@@ -227,7 +224,7 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   realtype *rdata = (realtype *) user_data;   /* cast user_data to realtype */
   realtype lamda = rdata[0];                  /* set shortcut for stiffness parameter */
   realtype *Jdata = SUNDenseMatrix_Data(J);
-  
+
   /* Fill in Jacobian of f: set the first entry of the data array to set the (0,0) entry */
   Jdata[0] = lamda;
 
@@ -244,7 +241,7 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
     opt == 1 means SUNDIALS function returns a flag so check if
              flag >= 0
     opt == 2 means function allocates memory so check if returned
-             NULL pointer  
+             NULL pointer
 */
 static int check_flag(void *flagvalue, const char *funcname, int opt)
 {
@@ -276,7 +273,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
 /* check the computed solution */
 static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol)
 {
-  int      passfail=0;     /* answer pass (0) or fail (1) flag     */  
+  int      passfail=0;     /* answer pass (0) or fail (1) flag     */
   realtype ans, err, ewt;  /* answer data, error, and error weight */
   realtype ONE=RCONST(1.0);
 
@@ -286,7 +283,7 @@ static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol)
   err = ewt * SUNRabs(NV_Ith_S(y,0) - ans);
 
   /* is the solution within the tolerances? */
-  passfail = (err < ONE) ? 0 : 1; 
+  passfail = (err < ONE) ? 0 : 1;
 
   if (passfail) {
     fprintf(stdout, "\nSUNDIALS_WARNING: check_ans error=%g \n\n", err);

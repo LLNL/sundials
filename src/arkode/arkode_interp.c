@@ -2,20 +2,20 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2017, Southern Methodist University and 
+ * Copyright (c) 2017, Southern Methodist University and
  * Lawrence Livermore National Security
  *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Southern Methodist University and Lawrence Livermore
  * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
+ * Produced at Southern Methodist University and the Lawrence
  * Livermore National Laboratory.
  *
  * All rights reserved.
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * This is the implementation file for ARKode's temporal 
+ * This is the implementation file for ARKode's temporal
  * interpolation utility.
  *--------------------------------------------------------------*/
 
@@ -43,8 +43,8 @@
 /*---------------------------------------------------------------
  arkInterpCreate:
 
- This routine creates an ARKodeInterpMem structure, through 
- cloning an input template N_Vector.  This returns a non-NULL 
+ This routine creates an ARKodeInterpMem structure, through
+ cloning an input template N_Vector.  This returns a non-NULL
  structure if no errors occurred, or a NULL value otherwise.
 ---------------------------------------------------------------*/
 ARKodeInterpMem arkInterpCreate(void* arkode_mem)
@@ -55,7 +55,7 @@ ARKodeInterpMem arkInterpCreate(void* arkode_mem)
   /* access ARKodeMem structure */
   if (arkode_mem == NULL)  return(NULL);
   ark_mem = (ARKodeMem) arkode_mem;
-  
+
   /* allocate structure */
   interp_mem = (ARKodeInterpMem) malloc(sizeof(struct ARKodeInterpMemRec));
   if (interp_mem == NULL)  return(NULL);
@@ -85,7 +85,7 @@ ARKodeInterpMem arkInterpCreate(void* arkode_mem)
   /* update workspace sizes */
   ark_mem->lrw += ARK_INTERP_LRW;
   ark_mem->liw += ARK_INTERP_LIW;
-  
+
   /* copy ark_mem->yn into yold */
   N_VScale(ONE, ark_mem->yn, interp_mem->yold);
 
@@ -93,7 +93,7 @@ ARKodeInterpMem arkInterpCreate(void* arkode_mem)
   interp_mem->told = ark_mem->tcur;
   interp_mem->tnew = ark_mem->tcur;
   interp_mem->h    = RCONST(0.0);
-  
+
   return(interp_mem);
 }
 
@@ -101,10 +101,10 @@ ARKodeInterpMem arkInterpCreate(void* arkode_mem)
 /*---------------------------------------------------------------
  arkInterpResize:
 
- This routine resizes the internal vectors in an ARKodeInterpMem 
+ This routine resizes the internal vectors in an ARKodeInterpMem
  structure.
 ---------------------------------------------------------------*/
-int arkInterpResize(void* arkode_mem, ARKodeInterpMem interp_mem, 
+int arkInterpResize(void* arkode_mem, ARKodeInterpMem interp_mem,
                     ARKVecResizeFn resize, void *resize_data,
                     sunindextype lrw_diff, sunindextype liw_diff,
                     N_Vector y0)
@@ -137,11 +137,14 @@ int arkInterpResize(void* arkode_mem, ARKodeInterpMem interp_mem,
   /* update yold with current solution */
   N_VScale(ONE, y0, interp_mem->yold);
 
+  /* update ynew pointer to point to current ark_mem->yn */
+  interp_mem->ynew = ark_mem->yn;
+
   /* reinitialize time values */
   interp_mem->told = ark_mem->tcur;
   interp_mem->tnew = ark_mem->tcur;
   interp_mem->h    = RCONST(0.0);
-  
+
   return(ARK_SUCCESS);
 }
 
@@ -165,7 +168,7 @@ void arkInterpFree(ARKodeInterpMem *interp_mem)
 /*---------------------------------------------------------------
  arkPrintInterpMem
 
- This routine outputs the temporal interpolation memory structure 
+ This routine outputs the temporal interpolation memory structure
  to a specified file pointer.
 ---------------------------------------------------------------*/
 void arkPrintInterpMem(ARKodeInterpMem interp_mem, FILE *outfile)
@@ -192,7 +195,7 @@ void arkPrintInterpMem(ARKodeInterpMem interp_mem, FILE *outfile)
       fprintf(outfile, "ark_interp: ynew:\n");
       N_VPrint_Serial(interp_mem->ynew);
     }
-#endif    
+#endif
   }
 }
 
@@ -218,23 +221,23 @@ int arkInterpInit(void* arkode_mem, ARKodeInterpMem interp,
 
   /* return with success if no interpolation structure is allocated */
   if (interp == NULL)  return(ARK_SUCCESS);
-  
+
   /* initialize time values */
   interp->told = tnew;
   interp->tnew = tnew;
   interp->h    = RCONST(0.0);
-  
+
   /* copy current solution into yold */
   N_VScale(ONE, ark_mem->yn, interp->yold);
 
   /* fill fnew */
-  ier = ark_mem->step_fullrhs(ark_mem, tnew, interp->ynew, 
+  ier = ark_mem->step_fullrhs(ark_mem, tnew, interp->ynew,
                               interp->fnew, 0);
   if (ier != 0)  return(ARK_RHSFUNC_FAIL);
 
   /* copy fnew into fold */
   N_VScale(ONE, interp->fnew, interp->fold);
-  
+
   /* return with success */
   return(ARK_SUCCESS);
 }
@@ -244,15 +247,15 @@ int arkInterpInit(void* arkode_mem, ARKodeInterpMem interp,
  arkInterpUpdate
 
  This routine performs the following steps:
- 1. Copies ynew into yold, and swaps the fnew <-> fold pointers, 
+ 1. Copies ynew into yold, and swaps the fnew <-> fold pointers,
     so that yold and fold contain the previous values
- 2. Calls the full RHS routine to fill fnew, using ark_mem->ycur 
-    for the time-evolved solution (since ynew==ark_mem->yn 
+ 2. Calls the full RHS routine to fill fnew, using ark_mem->ycur
+    for the time-evolved solution (since ynew==ark_mem->yn
     has not been updated yet).
 
- Note: if forceRHS==SUNTRUE, then any previously-stored RHS 
- function data in the time step module is suspect, and all RHS 
- function(s) require recomputation; we therefore signal the 
+ Note: if forceRHS==SUNTRUE, then any previously-stored RHS
+ function data in the time step module is suspect, and all RHS
+ function(s) require recomputation; we therefore signal the
  fullrhs function with a corresponding flag.
 ---------------------------------------------------------------*/
 int arkInterpUpdate(void* arkode_mem, ARKodeInterpMem interp,
@@ -268,7 +271,7 @@ int arkInterpUpdate(void* arkode_mem, ARKodeInterpMem interp,
 
   /* return with success if no interpolation structure is allocated */
   if (interp == NULL)  return(ARK_SUCCESS);
-  
+
   /* copy ynew into yold */
   N_VScale(ONE, interp->ynew, interp->yold);
 
@@ -281,10 +284,10 @@ int arkInterpUpdate(void* arkode_mem, ARKodeInterpMem interp,
   interp->told = interp->tnew;
   interp->tnew = tnew;
   interp->h    = ark_mem->h;
-  
+
   /* determine mode for calling fullrhs */
   mode = (forceRHS) ? 0 : 1;
-  
+
   /* fill fnew */
   ier = ark_mem->step_fullrhs(ark_mem, tnew, ark_mem->ycur,
                               interp->fnew, mode);
@@ -298,28 +301,28 @@ int arkInterpUpdate(void* arkode_mem, ARKodeInterpMem interp,
 /*---------------------------------------------------------------
   arkInterpEvaluate
 
-  This routine evaluates a temporal interpolation/extrapolation 
+  This routine evaluates a temporal interpolation/extrapolation
   based on the data in the interpolation structure:
      yold = y(told)
      ynew = y(tnew)
      fold = f(told, yold)
      fnew = f(told, ynew)
-  This typically consists of using a cubic Hermite interpolating 
-  formula with this data.  If greater polynomial order than 3 is 
-  requested, then we can bootstrap up to a 5th-order accurate 
+  This typically consists of using a cubic Hermite interpolating
+  formula with this data.  If greater polynomial order than 3 is
+  requested, then we can bootstrap up to a 5th-order accurate
   interpolant.  For lower order interpolants than cubic, we use:
      {yold,ynew,fnew} for quadratic
      {yold,ynew} for linear
      {0.5*(yold+ynew)} for constant.
- 
+
   Derivatives have lower accuracy than the interpolant
-  itself, losing one order per derivative.  We will provide 
+  itself, losing one order per derivative.  We will provide
   derivatives up to d = min(5,q).
 
   The input 'tau' specifies the time at which to return derivative
-  information, the formula is 
+  information, the formula is
                t = told + tau*(tnew-told),
-  where h = tnew-told, i.e. values 0<tau<1 provide interpolation, 
+  where h = tnew-told, i.e. values 0<tau<1 provide interpolation,
   other values result in extrapolation.
 ---------------------------------------------------------------*/
 int arkInterpEvaluate(void* arkode_mem, ARKodeInterpMem interp,
@@ -340,7 +343,7 @@ int arkInterpEvaluate(void* arkode_mem, ARKodeInterpMem interp,
   tau2 = tau*tau;
   tau3 = tau*tau2;
   h = interp->h;
-  
+
   /* determine polynomial order q */
   q = SUNMAX(order, 0);        /* respect lower bound  */
   q = SUNMIN(q, 3);            /* respect max possible */
@@ -348,7 +351,7 @@ int arkInterpEvaluate(void* arkode_mem, ARKodeInterpMem interp,
   /* check that d is possible */
   /* if ((d > SUNMIN(5,q)) || (d < 0)) { */
   if ((d > SUNMIN(3,q)) || (d < 0)) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", 
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
                     "arkInterpEvaluate", "Requested illegal derivative.");
     return (ARK_ILL_INPUT);
   }
@@ -423,7 +426,7 @@ int arkInterpEvaluate(void* arkode_mem, ARKodeInterpMem interp,
     break;
 
   default:
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkInterpEvaluate", 
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkInterpEvaluate",
                     "Illegal polynomial order");
     return (ARK_ILL_INPUT);
   }

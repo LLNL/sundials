@@ -2,20 +2,20 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2018, Southern Methodist University and 
+ * Copyright (c) 2018, Southern Methodist University and
  * Lawrence Livermore National Security
  *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Southern Methodist University and Lawrence Livermore
  * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
+ * Produced at Southern Methodist University and the Lawrence
  * Livermore National Laboratory.
  *
  * All rights reserved.
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * Implementation header file for ARKode's ARK time stepper 
+ * Implementation header file for ARKode's ARK time stepper
  * module.
  *--------------------------------------------------------------*/
 
@@ -30,12 +30,12 @@ extern "C" {
 #endif
 
 /*===============================================================
-  ARK time step module constants -- move many items here from 
+  ARK time step module constants -- move many items here from
   arkode_impl.h
   ===============================================================*/
 
 
-  
+
 /*===============================================================
   ARK time step module data structure
   ===============================================================*/
@@ -43,8 +43,8 @@ extern "C" {
 /*---------------------------------------------------------------
   Types : struct ARKodeARKStepMemRec, ARKodeARKStepMem
   ---------------------------------------------------------------
-  The type ARKodeARKStepMem is type pointer to struct 
-  ARKodeARKStepMemRec.  This structure contains fields to 
+  The type ARKodeARKStepMem is type pointer to struct
+  ARKodeARKStepMemRec.  This structure contains fields to
   perform an additive Runge-Kutta time step.
   ---------------------------------------------------------------*/
 typedef struct ARKodeARKStepMemRec {
@@ -89,16 +89,16 @@ typedef struct ARKodeARKStepMemRec {
   realtype nlscoef;    /* coefficient in nonlin. convergence test  */
   int      mnewt;      /* internal Newton iteration counter        */
 
-  int      msbp;       /* positive => max # steps between lsetup 
+  int      msbp;       /* positive => max # steps between lsetup
                           negative => call at each Newton iter     */
   long int nstlp;      /* step number of last setup call           */
 
-  int      maxcor;     /* max num iterations for solving the 
+  int      maxcor;     /* max num iterations for solving the
                           nonlinear equation                       */
   int      maxncf;     /* max num nonlin. conv. fails in one step  */
 
   booleantype jcur;    /* is Jacobian info for lin solver current? */
-  
+
   /* Fixed-point Solver Data */
   booleantype use_fp;  /* flag for fixed-point solver vs Newton    */
   long int    fp_m;    /* number of vectors to use in acceleration */
@@ -142,7 +142,7 @@ typedef struct ARKodeARKStepMemRec {
   ARK time step module private function prototypes
   ===============================================================*/
 
-/* Interface routines supplied to ARKode */  
+/* Interface routines supplied to ARKode */
 int arkStep_AttachLinsol(void* arkode_mem, ARKLinsolInitFn linit,
                          ARKLinsolSetupFn lsetup,
                          ARKLinsolSolveFn lsolve,
@@ -163,32 +163,27 @@ ARKRhsFn arkStep_GetImplicitRHS(void* arkode_mem);
 int arkStep_GetGammas(void* arkode_mem, realtype *gamma,
                       realtype *gamrat, booleantype **jcur,
                       booleantype *dgamma_fail);
-int arkStep_FullRHS(void* arkode_mem, realtype t, 
+int arkStep_FullRHS(void* arkode_mem, realtype t,
                     N_Vector y, N_Vector f, int mode);
 int arkStep_TakeStep(void* arkode_mem);
-int arkStep_Resize(void* arkode_mem, ARKVecResizeFn resize,
-                   void *resize_data, sunindextype lrw_diff,
-                   sunindextype liw_diff, N_Vector tmpl);
-void arkStep_PrintMem(void* arkode_mem, FILE* outfile);
-int arkStep_Free(void* arkode_mem);
 
-/* Internal utility routines */  
+/* Internal utility routines */
 booleantype arkStep_CheckNVector(N_Vector tmpl);
 int arkStep_SetButcherTables(ARKodeMem ark_mem);
 int arkStep_CheckButcherTables(ARKodeMem ark_mem);
 int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess);
 int arkStep_StageSetup(ARKodeMem ark_mem);
 int arkStep_Nls(ARKodeMem ark_mem, int nflag);
-int arkStep_NlsResid(ARKodeMem ark_mem, N_Vector y, 
+int arkStep_NlsResid(ARKodeMem ark_mem, N_Vector y,
                      N_Vector fy, N_Vector r);
 int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag);
 int arkStep_NlsAccelFP(ARKodeMem ark_mem, int nflag);
-int arkStep_AndersonAcc(ARKodeMem ark_mem, N_Vector gval, 
-                        N_Vector fv, N_Vector x, N_Vector xold, 
+int arkStep_AndersonAcc(ARKodeMem ark_mem, N_Vector gval,
+                        N_Vector fv, N_Vector x, N_Vector xold,
                         int iter, realtype *R, realtype *gamma);
 int arkStep_Ls(ARKodeMem ark_mem, int nflag);
 int arkStep_HandleNFlag(ARKodeMem ark_mem, int *nflagPtr, int *ncfPtr);
-  
+
 int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm);
 int arkStep_DoErrorTest(ARKodeMem ark_mem, int *nflagPtr,
                         int *nefPtr, realtype dsm);
