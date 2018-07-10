@@ -154,7 +154,6 @@ int SUNNonlinSolSolve_FullNewton(SUNNonlinearSolver NLS,
 {
   int mnewt;
   int retval;
-  realtype delnrm;
   N_Vector delta;
 
   /* check that the inputs are non-null */
