@@ -1616,12 +1616,7 @@ int IDAInitialSetup(IDAMem IDA_mem)
     }
   }
 
-  /* Check that lsolve exists and call linit function if it exists. */
-  if (IDA_mem->ida_lsolve == NULL) {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDAInitialSetup", MSG_LSOLVE_NULL);
-    return(IDA_ILL_INPUT);
-  }
-
+  /* Call linit function if it exists. */
   if (IDA_mem->ida_linit != NULL) {
     ier = IDA_mem->ida_linit(IDA_mem);
     if (ier != 0) {
