@@ -367,7 +367,29 @@ functions are defined in the header file
   successful call, and a negative value for a failure.
 }
 {}
-
+% --------------------------------------------------------------------
+\ucfunction{SUNNonlinSolGetCurIter}
+{
+  retval = SUNNonlinSolGetCurIter(NLS, \&iter);
+}
+{
+  The \textit{optional} function \ID{SUNNonlinSolGetCurIter} returns
+  the iteration index of the current nonlinear solve.
+}
+{
+  \begin{args}[numiters]
+  \item[NLS] (\id{SUNNonlinearSolver})
+    a {\sunnonlinsol} object
+  \item[iter] (\id{int*})
+    the nonlinear solver iteration in the current solve starting from
+    zero.
+  \end{args}
+}
+{
+  The return value \id{retval} (of type \id{int}) should be zero for a
+  successful call, and a negative value for a failure.
+}
+{}
 
 % ====================================================================
 \subsection{SUNDIALS package provided SUNNonlinearSolver routines}

@@ -70,6 +70,7 @@ SUNNonlinearSolver SUNNonlinSol_FullNewton(N_Vector y)
   ops->setctestfn  = SUNNonlinSolSetConvTestFn_FullNewton;
   ops->setmaxiters = SUNNonlinSolSetMaxIters_FullNewton;
   ops->getnumiters = SUNNonlinSolGetNumIters_FullNewton;
+  ops->getcuriter  = SUNNonlinSolGetCurIter_FullNewton;
 
   /* Create content */
   content = NULL;
@@ -82,6 +83,7 @@ SUNNonlinearSolver SUNNonlinSol_FullNewton(N_Vector y)
   content->LSolve   = NULL;
   content->CTest    = NULL;
   content->delta    = N_VClone(y);
+  content->mnewt    = 0;
   content->maxiters = 3;
   content->niters   = 0;
   
@@ -108,7 +110,7 @@ SUNNonlinearSolver_Type SUNNonlinSolGetType_FullNewton(SUNNonlinearSolver NLS)
 
 int SUNNonlinSolInitialize_FullNewton(SUNNonlinearSolver NLS)
 {
-  /* all solver-specific memory has already been allocated */
+  /* check that the nonlinear solver is non-null */
   if (NLS == NULL)
     return(SUN_NLS_MEM_NULL);
 
@@ -119,7 +121,7 @@ int SUNNonlinSolInitialize_FullNewton(SUNNonlinearSolver NLS)
     return(SUN_NLS_MEM_NULL);
   }
 
-  /* initialize the total number of nonlinear solver iterations */
+  /* reset the total number of nonlinear solver iterations */
   NEWTON_CONTENT(NLS)->niters = 0;
 
   return(SUN_NLS_SUCCESS);
@@ -140,7 +142,7 @@ int SUNNonlinSolInitialize_FullNewton(SUNNonlinearSolver NLS)
  *
  * Unrecoverable failure return codes (negative):
  *   *_MEM_NULL
- *   *_RHSFUNC_RECVR (ODEs) or *_RES_RECVR (DAEs)
+ *   *_RHSFUNC_FAIL (ODEs) or *_RES_FAIL (DAEs)
  *   *_LSETUP_FAIL
  *   *_LSOLVE_FAIL
  *
@@ -152,7 +154,6 @@ int SUNNonlinSolSolve_FullNewton(SUNNonlinearSolver NLS,
                                  N_Vector w, realtype tol,
                                  booleantype callSetup, void* mem)
 {
-  int mnewt;
   int retval;
   booleantype jcur;
   N_Vector delta;
@@ -172,7 +173,7 @@ int SUNNonlinSolSolve_FullNewton(SUNNonlinearSolver NLS,
   delta = NEWTON_CONTENT(NLS)->delta;
 
   /* initialize counter mnewt */
-  mnewt = 0;
+  NEWTON_CONTENT(NLS)->mnewt = 0;
 
   /* load prediction into y */
   N_VScale(ONE, y0, y);
@@ -201,13 +202,14 @@ int SUNNonlinSolSolve_FullNewton(SUNNonlinearSolver NLS,
     N_VLinearSum(ONE, y, -ONE, delta, y);
 
     /* test for convergence, return if successful */
-    retval = NEWTON_CONTENT(NLS)->CTest(mnewt, y, delta, tol, w, mem);
+    retval = NEWTON_CONTENT(NLS)->CTest(NEWTON_CONTENT(NLS)->mnewt,
+                                        y, delta, tol, w, mem);
     if (retval == SUN_NLS_SUCCESS)  return(SUN_NLS_SUCCESS);
     if (retval != SUN_NLS_CONTINUE) break;
 
     /* not yet converged. Increment mnewt and test for max allowed. */
-    mnewt++;
-    if (mnewt >= NEWTON_CONTENT(NLS)->maxiters) {
+    NEWTON_CONTENT(NLS)->mnewt++;
+    if (NEWTON_CONTENT(NLS)->mnewt >= NEWTON_CONTENT(NLS)->maxiters) {
       retval = SUN_NLS_CONV_RECVR;
       break;
     }
@@ -334,6 +336,19 @@ int SUNNonlinSolGetNumIters_FullNewton(SUNNonlinearSolver NLS, long int *niters)
   if (NLS == NULL)
     return(SUN_NLS_MEM_NULL);
 
+  /* return the total number of nonlinear iterations */
   *niters = NEWTON_CONTENT(NLS)->niters;
+  return(SUN_NLS_SUCCESS);
+}
+
+
+int SUNNonlinSolGetCurIter_FullNewton(SUNNonlinearSolver NLS, int *iter)
+{
+  /* check that the nonlinear solver is non-null */
+  if (NLS == NULL)
+    return(SUN_NLS_MEM_NULL);
+
+  /* return the current nonlinear solver iteration count */
+  *iter = NEWTON_CONTENT(NLS)->mnewt;
   return(SUN_NLS_SUCCESS);
 }

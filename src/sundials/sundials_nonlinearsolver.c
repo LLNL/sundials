@@ -111,3 +111,15 @@ int SUNNonlinSolGetNumIters(SUNNonlinearSolver NLS, long int *niters)
     return(SUN_NLS_SUCCESS);
   }
 }
+
+
+/* get the iteration count for the current nonlinear solve */
+int SUNNonlinSolGetCurIter(SUNNonlinearSolver NLS, int *iter)
+{
+  if (NLS->ops->getcuriter) {
+    return((int) NLS->ops->getcuriter(NLS, iter));
+  } else {
+    *iter = -1;
+    return(SUN_NLS_SUCCESS);
+  }
+}
