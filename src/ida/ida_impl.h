@@ -48,10 +48,11 @@ extern "C" {
 /* Return values for lower level routines used by IDASolve and functions
    provided to the nonlinear solver */
 
-#define IDA_RES_RECVR    +1
-#define IDA_LSETUP_RECVR +2
-#define IDA_LSOLVE_RECVR +3
-#define IDA_CONSTR_RECVR +5
+#define IDA_RES_RECVR       +1
+#define IDA_LSETUP_RECVR    +2
+#define IDA_LSOLVE_RECVR    +3
+#define IDA_CONSTR_RECVR    +5
+#define IDA_NLS_SETUP_RECVR +6
 
 /*
  * ----------------------------------------------------------------
@@ -497,7 +498,7 @@ int IDANlsInit(IDAMem IDA_mem);
 #define MSG_RTFUNC_FAILED  "At " MSG_TIME ", the rootfinding routine failed in an unrecoverable manner."
 #define MSG_NO_ROOT        "Rootfinding was not initialized."
 #define MSG_INACTIVE_ROOTS "At the end of the first step, there are still some root functions identically 0. This warning will not be issued again."
-
+#define MSG_NLS_SETUP_FAILED "At " MSG_TIME "the nonlinear solver setup failed unrecoverably."
 
 /* IDASet* / IDAGet* error messages */
 

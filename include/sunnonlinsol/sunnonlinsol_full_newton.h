@@ -62,9 +62,6 @@ SUNDIALS_EXPORT SUNNonlinearSolver_Type SUNNonlinSolGetType_FullNewton(SUNNonlin
 
 SUNDIALS_EXPORT int SUNNonlinSolInitialize_FullNewton(SUNNonlinearSolver NLS);
 
-SUNDIALS_EXPORT int SUNNonlinSolSetup_FullNewton(SUNNonlinearSolver NLS,
-                                                 N_Vector y, void* mem);
-
 SUNDIALS_EXPORT int SUNNonlinSolSolve_FullNewton(SUNNonlinearSolver NLS,
                                                  N_Vector y0, N_Vector y,
                                                  N_Vector w, realtype tol,

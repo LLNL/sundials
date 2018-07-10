@@ -61,7 +61,7 @@ SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y)
   /* Attach operations */
   ops->gettype     = SUNNonlinSolGetType_Newton;
   ops->initialize  = SUNNonlinSolInitialize_Newton;
-  ops->setup       = SUNNonlinSolSetup_Newton;
+  ops->setup       = NULL; /* no setup needed */
   ops->solve       = SUNNonlinSolSolve_Newton;
   ops->free        = SUNNonlinSolFree_Newton;
   ops->setsysfn    = SUNNonlinSolSetSysFn_Newton;
@@ -122,13 +122,6 @@ int SUNNonlinSolInitialize_Newton(SUNNonlinearSolver NLS)
   /* initialize the total number of nonlinear solver iterations */
   NEWTON_CONTENT(NLS)->niters = 0;
 
-  return(SUN_NLS_SUCCESS);
-}
-
-
-int SUNNonlinSolSetup_Newton(SUNNonlinearSolver NLS, N_Vector y, void* mem)
-{
-  /* no setup necessary */
   return(SUN_NLS_SUCCESS);
 }
 

@@ -1953,6 +1953,9 @@ static int IDAHandleFailure(IDAMem IDA_mem, int sflag)
       IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDASolve", MSG_NO_MEM);
       return (IDA_MEM_NULL);
 
+    case IDA_NLS_SETUP_FAIL:
+      IDAProcessError(IDA_mem, IDA_NLS_SETUP_FAIL, "IDA", "IDASolve", MSG_NLS_SETUP_FAILED, IDA_mem->ida_tn);
+      return(IDA_NLS_SETUP_FAIL);
   }
 
   return (IDA_UNRECOGNISED_ERROR);   /* This return should never happen */
@@ -2235,6 +2238,13 @@ static int IDANls(IDAMem IDA_mem)
     temp2 = ONE/temp1;
     {if (IDA_mem->ida_cjratio < temp1 || IDA_mem->ida_cjratio > temp2) callSetup = SUNTRUE;}
     {if (IDA_mem->ida_cj != IDA_mem->ida_cjlast) IDA_mem->ida_ss=HUNDRED;}
+  }
+
+  /* call nonlinear solver setup if it exists */
+  if ((IDA_mem->NLS)->ops->setup) {
+    retval = SUNNonlinSolSetup(IDA_mem->NLS, IDA_mem->ida_phi[0], IDA_mem);
+    if (retval < 0) return(IDA_NLS_SETUP_FAIL);
+    if (retval > 0) return(IDA_NLS_SETUP_RECVR);
   }
 
   /* solve the nonlinear system */
