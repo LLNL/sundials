@@ -36,6 +36,9 @@ SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y)
   SUNNonlinearSolver NLS;
   SUNNonlinearSolver_Ops ops;
   SUNNonlinearSolverContent_Newton content;
+
+  /* Check that the supplied N_Vector is non-NULL */
+  if (y == NULL) return(NULL);
   
   /* Check that the supplied N_Vector supports all required operations */
   if ( (y->ops->nvclone     == NULL) ||
@@ -67,7 +70,6 @@ SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y)
   ops->setctestfn  = SUNNonlinSolSetConvTestFn_Newton;
   ops->setmaxiters = SUNNonlinSolSetMaxIters_Newton;
   ops->getnumiters = SUNNonlinSolGetNumIters_Newton;
-  /* ops->lastflag          = SUNNonlinSolLastFlag_Newton; */
 
   /* Create content */
   content = NULL;
@@ -106,14 +108,14 @@ SUNNonlinearSolver_Type SUNNonlinSolGetType_Newton(SUNNonlinearSolver NLS)
 
 int SUNNonlinSolInitialize_Newton(SUNNonlinearSolver NLS)
 {
-  /* all solver-specific memory has already been allocated */
+  /* check that the nonlinear solver is non-null */
   if (NLS == NULL)
     return(SUN_NLS_MEM_NULL);
 
   /* check that all required function pointers have been set */
-  if ( NEWTON_CONTENT(NLS)->Sys    == NULL ||
-       NEWTON_CONTENT(NLS)->LSolve == NULL ||
-       NEWTON_CONTENT(NLS)->CTest  == NULL ) {
+  if ( (NEWTON_CONTENT(NLS)->Sys    == NULL) ||
+       (NEWTON_CONTENT(NLS)->LSolve == NULL) ||
+       (NEWTON_CONTENT(NLS)->CTest  == NULL) ) {
     return(SUN_NLS_MEM_NULL);
   }
 
@@ -161,6 +163,14 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
   int retval;
   N_Vector delta;
   booleantype tryAgain;
+
+  /* check that the inputs are non-null */
+  if ( (NLS == NULL) ||
+       (y0  == NULL) ||
+       (y   == NULL) ||
+       (w   == NULL) ||
+       (mem == NULL) )
+    return(SUN_NLS_MEM_NULL);
 
   /* shortcut to correction vector */
   delta = NEWTON_CONTENT(NLS)->delta;
@@ -266,6 +276,14 @@ int SUNNonlinSolFree_Newton(SUNNonlinearSolver NLS)
 
 int SUNNonlinSolSetSysFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn)
 {
+  /* check that the nonlinear solver is non-null */
+  if (NLS == NULL)
+    return(SUN_NLS_MEM_NULL);
+
+  /* check that the nonlinear system function is non-null */
+  if (SysFn == NULL)
+    return(SUN_NLS_ILL_INPUT);
+
   NEWTON_CONTENT(NLS)->Sys = SysFn;
   return(SUN_NLS_SUCCESS);
 }
@@ -273,6 +291,10 @@ int SUNNonlinSolSetSysFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn)
 
 int SUNNonlinSolSetLSetupFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolLSetupFn LSetupFn)
 {
+  /* check that the nonlinear solver is non-null */
+  if (NLS == NULL)
+    return(SUN_NLS_MEM_NULL);
+
   NEWTON_CONTENT(NLS)->LSetup = LSetupFn;
   return(SUN_NLS_SUCCESS);
 }
@@ -280,6 +302,14 @@ int SUNNonlinSolSetLSetupFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolLSetupFn 
 
 int SUNNonlinSolSetLSolveFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolLSolveFn LSolveFn)
 {
+  /* check that the nonlinear solver is non-null */
+  if (NLS == NULL)
+    return(SUN_NLS_MEM_NULL);
+
+  /* check that the linear solver solve function is non-null */
+  if (LSolveFn == NULL)
+    return(SUN_NLS_ILL_INPUT);
+
   NEWTON_CONTENT(NLS)->LSolve = LSolveFn;
   return(SUN_NLS_SUCCESS);
 }
@@ -287,6 +317,14 @@ int SUNNonlinSolSetLSolveFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolLSolveFn 
 
 int SUNNonlinSolSetConvTestFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolConvTestFn CTestFn)
 {
+  /* check that the nonlinear solver is non-null */
+  if (NLS == NULL)
+    return(SUN_NLS_MEM_NULL);
+
+  /* check that the convergence test function is non-null */
+  if (CTestFn == NULL)
+    return(SUN_NLS_ILL_INPUT);
+
   NEWTON_CONTENT(NLS)->CTest = CTestFn;
   return(SUN_NLS_SUCCESS);
 }
@@ -294,7 +332,14 @@ int SUNNonlinSolSetConvTestFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolConvTes
 
 int SUNNonlinSolSetMaxIters_Newton(SUNNonlinearSolver NLS, int maxiters)
 {
-  if (maxiters < 1) return(SUN_NLS_ILL_INPUT);
+  /* check that the nonlinear solver is non-null */
+  if (NLS == NULL)
+    return(SUN_NLS_MEM_NULL);
+
+  /* check that maxiters is a vaild */
+  if (maxiters < 1)
+    return(SUN_NLS_ILL_INPUT);
+
   NEWTON_CONTENT(NLS)->maxiters = maxiters;
   return(SUN_NLS_SUCCESS);
 }
@@ -306,6 +351,10 @@ int SUNNonlinSolSetMaxIters_Newton(SUNNonlinearSolver NLS, int maxiters)
 
 int SUNNonlinSolGetNumIters_Newton(SUNNonlinearSolver NLS, long int *niters)
 {
+  /* check that the nonlinear solver is non-null */
+  if (NLS == NULL)
+    return(SUN_NLS_MEM_NULL);
+
   *niters = NEWTON_CONTENT(NLS)->niters;
   return(SUN_NLS_SUCCESS);
 }
