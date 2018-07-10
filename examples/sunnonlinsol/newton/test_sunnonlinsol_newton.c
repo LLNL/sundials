@@ -41,7 +41,7 @@
 #define Y3 0.369922830745872357
 
 /* Check function return values */
-static int check_flag(void *flagvalue, const char *funcname, int opt);
+static int check_retval(void *flagvalue, const char *funcname, int opt);
 
 /* Nonlinear residual function */
 static int Res(N_Vector y, N_Vector f, void *mem);
@@ -75,7 +75,7 @@ static int CTest(int m, N_Vector y, N_Vector del, realtype tol, N_Vector ewt, vo
  * ---------------------------------------------------------------------------*/
 int main(int argc, char *argv[]) 
 {
-  int                ier = 0;
+  int                retval = 0;
   N_Vector           x, y0, y, w;
   SUNMatrix          A;
   SUNLinearSolver    LS;
@@ -88,16 +88,16 @@ int main(int argc, char *argv[])
 
   /* create vector */
   x  = N_VNew_Serial(NEQ);
-  if (check_flag((void *)x, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)x, "N_VNew_Serial", 0)) return(1);
 
   y0 = N_VNew_Serial(NEQ);
-  if (check_flag((void *)y0, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)y0, "N_VNew_Serial", 0)) return(1);
 
   y  = N_VNew_Serial(NEQ);
-  if (check_flag((void *)y, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
 
   w  = N_VNew_Serial(NEQ);
-  if (check_flag((void *)w, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)w, "N_VNew_Serial", 0)) return(1);
 
   /* set initial guess */
   NV_Ith_S(y0,0) = HALF;
@@ -111,15 +111,15 @@ int main(int argc, char *argv[])
   
   /* create dense matrix */
   A = SUNDenseMatrix(NEQ, NEQ);
-  if (check_flag((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if (check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* create dense linear solver */
   LS  = SUNDenseLinearSolver(y, A);
-  if (check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+  if (check_retval((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
 
   /* initialize the linear solver */
-  ier = SUNLinSolInitialize(LS);
-  if (check_flag(&ier, "SUNLinSolInitialize", 1)) return(1);
+  retval = SUNLinSolInitialize(LS);
+  if (check_retval(&retval, "SUNLinSolInitialize", 1)) return(1);
 
   /* set integrator memory */
   Imem->x  = x;
@@ -128,29 +128,29 @@ int main(int argc, char *argv[])
 
   /* create nonlinear solver */
   NLS = SUNNonlinSol_Newton(y);
-  if (check_flag((void *)NLS, "SUNNonlinSol_Newton", 0)) return(1);
+  if (check_retval((void *)NLS, "SUNNonlinSol_Newton", 0)) return(1);
 
   /* set the nonlinear residual function */
-  ier = SUNNonlinSolSetSysFn(NLS, Res);
-  if (check_flag(&ier, "SUNNonlinSolSetSysFn", 1)) return(1);
+  retval = SUNNonlinSolSetSysFn(NLS, Res);
+  if (check_retval(&retval, "SUNNonlinSolSetSysFn", 1)) return(1);
 
   /* set the wrapper functions to linear solver setup and solve functions */
-  ier = SUNNonlinSolSetLSetupFn(NLS, LSetup);
-  if (check_flag(&ier, "SUNNonlinSolSetSetupFn", 1)) return(1);
+  retval = SUNNonlinSolSetLSetupFn(NLS, LSetup);
+  if (check_retval(&retval, "SUNNonlinSolSetSetupFn", 1)) return(1);
 
-  ier = SUNNonlinSolSetLSolveFn(NLS, LSolve);
-  if (check_flag(&ier, "SUNNonlinSolSetSolveFn", 1)) return(1);
+  retval = SUNNonlinSolSetLSolveFn(NLS, LSolve);
+  if (check_retval(&retval, "SUNNonlinSolSetSolveFn", 1)) return(1);
 
-  ier = SUNNonlinSolSetConvTestFn(NLS, CTest);
-  if (check_flag(&ier, "SUNNonlinSolSetConvTestFn", 1)) return(1);
+  retval = SUNNonlinSolSetConvTestFn(NLS, CTest);
+  if (check_retval(&retval, "SUNNonlinSolSetConvTestFn", 1)) return(1);
 
   /* set the maximum number of nonlinear iterations */
-  ier = SUNNonlinSolSetMaxIters(NLS, MAXIT);
-  if (check_flag(&ier, "SUNNonlinSolSetMaxIters", 1)) return(1);
+  retval = SUNNonlinSolSetMaxIters(NLS, MAXIT);
+  if (check_retval(&retval, "SUNNonlinSolSetMaxIters", 1)) return(1);
 
   /* solve the nonlinear system */
-  ier = SUNNonlinSolSolve(NLS, y0, y, w, TOL, SUNTRUE, Imem);
-  if (check_flag(&ier, "SUNNonlinSolSolve_Newton", 1)) return(1);
+  retval = SUNNonlinSolSolve(NLS, y0, y, w, TOL, SUNTRUE, Imem);
+  if (check_retval(&retval, "SUNNonlinSolSolve_Newton", 1)) return(1);
 
   /* print the solution */
   printf("Solution:\n");
@@ -165,8 +165,8 @@ int main(int argc, char *argv[])
   printf("e3 = %g\n",NV_Ith_S(y,2) - Y3);
 
   /* get the number of linear iterations */
-  ier = SUNNonlinSolGetNumIters(NLS, &niters);
-  if (check_flag(&ier, "SUNNonlinSolGetNumIters_Newton", 1)) return(1);
+  retval = SUNNonlinSolGetNumIters(NLS, &niters);
+  if (check_retval(&retval, "SUNNonlinSolGetNumIters_Newton", 1)) return(1);
 
   printf("Number of nonlinear iterations: %ld\n",niters);
 
@@ -179,20 +179,20 @@ int main(int argc, char *argv[])
   free(Imem);
 
   /* Print result */
-  if (ier) {
+  if (retval) {
     printf("FAIL\n");
   } else {
     printf("SUCCESS\n");
   }
 
-  return(ier);
+  return(retval);
 }
 
 
 /* Proxy for integrator lsetup function */
 int LSetup(N_Vector y, N_Vector f, void* mem)
 {
-  int ier;
+  int retval;
   IntegratorMem Imem;
 
   if (mem == NULL) {
@@ -201,18 +201,22 @@ int LSetup(N_Vector y, N_Vector f, void* mem)
   }
   Imem = (IntegratorMem) mem;
 
-  ier = Jac(ZERO, y, NULL, Imem->A, NULL, NULL, NULL, NULL);
-  if (ier != 0) return(ier);
+  /* compute the Jacobian */
+  retval = Jac(ZERO, y, NULL, Imem->A, NULL, NULL, NULL, NULL);
+  if (retval != 0) return(retval);
 
-  ier = SUNLinSolSetup(Imem->LS, Imem->A);
-  return(ier);
+
+  /* setup the linear solver */
+  retval = SUNLinSolSetup(Imem->LS, Imem->A);
+
+  return(retval);
 }
 
 
 /* Proxy for integrator lsolve function */
 int LSolve(N_Vector y, N_Vector b, void* mem)
 {
-  int ier;
+  int retval;
   IntegratorMem Imem;
 
   if (mem == NULL) {
@@ -221,10 +225,10 @@ int LSolve(N_Vector y, N_Vector b, void* mem)
   }
   Imem = (IntegratorMem) mem;
 
-  ier = SUNLinSolSolve(Imem->LS, Imem->A, Imem->x, b, ZERO);
+  retval = SUNLinSolSolve(Imem->LS, Imem->A, Imem->x, b, ZERO);
   N_VScale(ONE, Imem->x, b);
 
-  return(ier);
+  return(retval);
 }
 
 
@@ -310,7 +314,7 @@ int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
  *   opt == 0 check if returned NULL pointer
  *   opt == 1 check if returned a non-zero value
  * ---------------------------------------------------------------------------*/
-static int check_flag(void *flagvalue, const char *funcname, int opt)
+static int check_retval(void *flagvalue, const char *funcname, int opt)
 {
   int *errflag;
 
@@ -336,6 +340,6 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
   }
 
   /* if we make it here then opt was not 0 or 1 */
-  fprintf(stderr, "\nERROR: check_flag failed -- Invalid opt value\n\n");
+  fprintf(stderr, "\nERROR: check_retval failed -- Invalid opt value\n\n");
   return(1);
 }
