@@ -82,6 +82,7 @@ SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y)
   content->LSolve   = NULL;
   content->CTest    = NULL;
   content->delta    = N_VClone(y);
+  content->jcur     = SUNFALSE;
   content->maxiters = 3;
   content->niters   = 0;
   
@@ -119,8 +120,11 @@ int SUNNonlinSolInitialize_Newton(SUNNonlinearSolver NLS)
     return(SUN_NLS_MEM_NULL);
   }
 
-  /* initialize the total number of nonlinear solver iterations */
+  /* reset the total number of nonlinear solver iterations */
   NEWTON_CONTENT(NLS)->niters = 0;
+
+  /* reset the Jacobian status */
+  NEWTON_CONTENT(NLS)->jcur = SUNFALSE;
 
   return(SUN_NLS_SUCCESS);
 }
@@ -155,7 +159,6 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
   int mnewt;
   int retval;
   N_Vector delta;
-  booleantype tryAgain;
 
   /* check that the inputs are non-null */
   if ( (NLS == NULL) ||
@@ -177,7 +180,9 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
 
       /* if indicated, setup the linear system */
       if (callSetup) {
-        retval = NEWTON_CONTENT(NLS)->LSetup(y0, delta, mem);
+        retval = NEWTON_CONTENT(NLS)->LSetup(y0, delta,
+                                             &(NEWTON_CONTENT(NLS)->jcur),
+                                             mem);
         if (retval != SUN_NLS_SUCCESS) break;
       }
 
@@ -200,9 +205,16 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
         /* apply delta to y */
         N_VLinearSum(ONE, y, -ONE, delta, y);
 
-        /* test for convergence, return if successful */
+        /* test for convergence */
         retval = NEWTON_CONTENT(NLS)->CTest(mnewt, y, delta, tol, w, mem);
-        if (retval == SUN_NLS_SUCCESS)  return(SUN_NLS_SUCCESS);
+
+        /* if successful update Jacobian status and return */
+        if (retval == SUN_NLS_SUCCESS) {
+          NEWTON_CONTENT(NLS)->jcur = SUNFALSE;
+          return(SUN_NLS_SUCCESS);
+        }
+
+        /* check if the iteration should continue */
         if (retval != SUN_NLS_CONTINUE) break;
 
         /* not yet converged. Increment mnewt and test for max allowed. */
@@ -218,13 +230,13 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
 
       } /* end of Newton iteration loop */
 
-      /* all error go here */
-      tryAgain = (retval > 0) && (NEWTON_CONTENT(NLS)->LSetup) && (!callSetup);
-      
-      if (tryAgain)
-        callSetup = SUNTRUE;
-      else
-        break;
+      /* all errors go here */
+      if (retval > 0) {
+        if (!(NEWTON_CONTENT(NLS)->jcur) && (NEWTON_CONTENT(NLS)->LSetup))
+          callSetup = SUNTRUE;
+        else
+          break;
+      }
 
   } /* end of setup loop */
 

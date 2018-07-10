@@ -63,7 +63,7 @@ typedef struct IntegratorMemRec {
 } *IntegratorMem;
 
 /* Linear solver setup interface function */
-static int LSetup(N_Vector y, N_Vector f, void* mem);
+static int LSetup(N_Vector y, N_Vector f, booleantype* jcur, void* mem);
 
 /* Linear solver solve interface function */
 static int LSolve(N_Vector y, N_Vector b, void* mem);
@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
 
 
 /* Proxy for integrator lsetup function */
-int LSetup(N_Vector y, N_Vector f, void* mem)
+int LSetup(N_Vector y, N_Vector f, booleantype* jcur, void* mem)
 {
   int retval;
   IntegratorMem Imem;
@@ -206,6 +206,8 @@ int LSetup(N_Vector y, N_Vector f, void* mem)
   retval = Jac(ZERO, y, NULL, Imem->A, NULL, NULL, NULL, NULL);
   if (retval != 0) return(retval);
 
+  /* update Jacobian status */
+  *jcur = SUNTRUE;
 
   /* setup the linear solver */
   retval = SUNLinSolSetup(Imem->LS, Imem->A);

@@ -26,7 +26,8 @@
 
 /* private functions passed to nonlinear solver */
 static int IDANls_Res(N_Vector yy, N_Vector res, void* ida_mem);
-static int IDANls_LSetup(N_Vector yy, N_Vector res, void* ida_mem);
+static int IDANls_LSetup(N_Vector yy, N_Vector res, booleantype* jcur,
+                         void* ida_mem);
 static int IDANls_LSolve(N_Vector yy, N_Vector delta, void* ida_mem);
 static int IDANls_ConvTest(int m, N_Vector y, N_Vector del, realtype tol,
                            N_Vector ewt, void* ida_mem);
@@ -152,7 +153,8 @@ int IDANlsInit(IDAMem IDA_mem)
 }
 
 
-static int IDANls_LSetup(N_Vector yy, N_Vector res, void* ida_mem)
+static int IDANls_LSetup(N_Vector yy, N_Vector res, booleantype* jcur,
+                         void* ida_mem)
 {
   IDAMem   IDA_mem;
   N_Vector tempv3;
@@ -170,6 +172,10 @@ static int IDANls_LSetup(N_Vector yy, N_Vector res, void* ida_mem)
   retval = IDA_mem->ida_lsetup(IDA_mem, yy, IDA_mem->ida_yp, res,
                                IDA_mem->ida_tempv1, IDA_mem->ida_tempv2, tempv3);
 
+  /* update Jacobian status */
+  *jcur = SUNTRUE;
+
+  /* update convergence test constants */
   IDA_mem->ida_cjold = IDA_mem->ida_cj;
   IDA_mem->ida_cjratio = ONE;
   IDA_mem->ida_ss = TWENTY;

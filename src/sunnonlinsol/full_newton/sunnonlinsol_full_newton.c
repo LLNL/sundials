@@ -154,6 +154,7 @@ int SUNNonlinSolSolve_FullNewton(SUNNonlinearSolver NLS,
 {
   int mnewt;
   int retval;
+  booleantype jcur;
   N_Vector delta;
 
   /* check that the inputs are non-null */
@@ -163,6 +164,9 @@ int SUNNonlinSolSolve_FullNewton(SUNNonlinearSolver NLS,
        (w   == NULL) ||
        (mem == NULL) )
     return(SUN_NLS_MEM_NULL);
+
+  /* initialize jcur */
+  jcur = SUNFALSE;
 
   /* shortcut to correction vector */
   delta = NEWTON_CONTENT(NLS)->delta;
@@ -185,7 +189,7 @@ int SUNNonlinSolSolve_FullNewton(SUNNonlinearSolver NLS,
 
     /* setup the linear system */
     if (NEWTON_CONTENT(NLS)->LSetup) {
-      retval = NEWTON_CONTENT(NLS)->LSetup(y, delta, mem);
+      retval = NEWTON_CONTENT(NLS)->LSetup(y, delta, &jcur, mem);
       if (retval != SUN_NLS_SUCCESS) break;
     }
 

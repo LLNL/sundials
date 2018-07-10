@@ -93,7 +93,8 @@ typedef enum {
 
 typedef int (*SUNNonlinSolSysFn)(N_Vector y, N_Vector F, void* mem);
 
-typedef int (*SUNNonlinSolLSetupFn)(N_Vector y, N_Vector F, void* mem);
+typedef int (*SUNNonlinSolLSetupFn)(N_Vector y, N_Vector F, booleantype* jcur,
+                                    void* mem);
 
 typedef int (*SUNNonlinSolLSolveFn)(N_Vector y, N_Vector b, void* mem);
 

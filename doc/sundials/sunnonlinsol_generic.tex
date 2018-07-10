@@ -428,7 +428,7 @@ and are described below.
 % --------------------------------------------------------------------
 \usfunction{SUNNonlinSolLSetupFn}
 {
-  typedef int (*SUNNonlinSolLSetupFn)(N\_Vector y, N\_Vector F, void* mem);
+  typedef int (*SUNNonlinSolLSetupFn)(N\_Vector y, N\_Vector F, booleantype* jcur, void* mem);
 }
 {
   These functions are wrappers to the {\sundials} package's function
@@ -440,6 +440,8 @@ and are described below.
     is the state vector at which the linear system should be setup.
   \item[F]
     is the value of the nonlinear system function at \id{y}.
+  \item[jcur]
+    is the Jacobian current (\id{SUNTURE}) or stale (\id{SUNFALSE}).
   \item[mem]
     is the {\sundials} package memory structure.
   \end{args}
