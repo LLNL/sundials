@@ -237,14 +237,7 @@ int LSolve(N_Vector y, N_Vector b, void* mem)
 /* Proxy for integrator convergence test function */
 int CTest(int m, N_Vector y, N_Vector del, realtype tol, N_Vector ewt, void* mem)
 {
-  IntegratorMem Imem;
   realtype delnrm;
-
-  if (mem == NULL) {
-    printf("ERROR: Integrator memory is NULL");
-    return(-1);
-  }
-  Imem = (IntegratorMem) mem;
 
   /* compute the norm of the correction */
   delnrm = N_VWrmsNorm(del, ewt);
