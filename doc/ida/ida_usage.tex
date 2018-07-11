@@ -17,13 +17,13 @@ which describes the {\F}/{\CC} interface module.
 The user should be aware that not all {\sunlinsol} and {\sunmatrix} 
 modules are compatible with all {\nvector} implementations. 
 \index{IDA@{\ida} linear solvers!NVECTOR@{\nvector} compatibility}
-Details on compatability are given in the documentation for each
+Details on compatibility are given in the documentation for each
 {\sunmatrix} module (Chapter \ref{s:sunmatrix}) and each {\sunlinsol}
 module (Chapter \ref{s:sunlinsol}). For example, {\nvecp} is not
 compatible with the dense, banded, or sparse {\sunmatrix} types, or with
 the corresponding dense, banded, or sparse {\sunlinsol} modules.  Please
 check Chapters \ref{s:sunmatrix} and \ref{s:sunlinsol} to verify
-compatability between these modules.  In addition to that
+compatibility between these modules.  In addition to that
 documentation, we note that the preconditioner module {\idabbdpre}
 can only be used with {\nvecp}.
 It is not recommended to use a threaded vector module with SuperLU\_MT
