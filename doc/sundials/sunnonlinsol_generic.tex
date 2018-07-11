@@ -535,19 +535,18 @@ module are defined in the header file
 % --------------------------------------------------------------------
 \usfunction{SUNNonlinSolConvTestFn}
 {
-  typedef int (*SUNNonlinSolConvTestFn)(&int m, N\_Vector y, N\_Vector del,\\
-                                        &realtype tol, N\_Vector ewt,\\
-                                        &void* mem);
+  typedef int (*SUNNonlinSolConvTestFn)(&SUNNonlinearSolver NLS, N\_Vector y,\\
+                                        &N\_Vector del, realtype tol,\\
+                                        &N\_Vector ewt, void* mem);
 }
 {
   These functions are {\sundials} package specific convergence tests of
   nonlinear solvers.
 }
 {
-  \begin{args}[delnrm]
-  \item[m]
-    is the value of the nonlinear iteration counter, starting from
-    zero for the initial iteration.
+  \begin{args}[NLS]
+  \item[NLS]
+    is the {\sunnonlinsol} object.
   \item[y]
     is the current nonlinear iterate.
   \item[del]
@@ -570,7 +569,7 @@ module are defined in the header file
   \item[\id{SUN\_NLS\_CONV\_RECVR}]
     the iteration appears to be diverging, try to recover.
   \item[\id{*\_MEM\_NULL}]
-    the {\sundials} package memory was \id{NULL}
+    the {\sunnonlinsol} or {\sundials} package memory was \id{NULL}
   \end{args}
   In the above return codes \id{*} is a {\sundials} package specific
   prefix (\id{CV} for {\cvode} or {\cvodes}, \id{IDA} for {\ida} or

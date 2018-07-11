@@ -69,7 +69,8 @@ static int LSetup(N_Vector y, N_Vector f, booleantype* jcur, void* mem);
 static int LSolve(N_Vector y, N_Vector b, void* mem);
 
 /* Convergence test function */
-static int CTest(int m, N_Vector y, N_Vector del, realtype tol, N_Vector ewt, void* mem);
+static int ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
+                    realtype tol, N_Vector ewt, void* mem);
 
 /* -----------------------------------------------------------------------------
  * Main testing routine
@@ -142,7 +143,7 @@ int main(int argc, char *argv[])
   retval = SUNNonlinSolSetLSolveFn(NLS, LSolve);
   if (check_retval(&retval, "SUNNonlinSolSetSolveFn", 1)) return(1);
 
-  retval = SUNNonlinSolSetConvTestFn(NLS, CTest);
+  retval = SUNNonlinSolSetConvTestFn(NLS, ConvTest);
   if (check_retval(&retval, "SUNNonlinSolSetConvTestFn", 1)) return(1);
 
   /* set the maximum number of nonlinear iterations */
@@ -235,7 +236,8 @@ int LSolve(N_Vector y, N_Vector b, void* mem)
 
 
 /* Proxy for integrator convergence test function */
-int CTest(int m, N_Vector y, N_Vector del, realtype tol, N_Vector ewt, void* mem)
+int ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del, realtype tol,
+             N_Vector ewt, void* mem)
 {
   realtype delnrm;
 

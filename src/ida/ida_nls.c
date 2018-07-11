@@ -29,8 +29,8 @@ static int IDANls_Res(N_Vector yy, N_Vector res, void* ida_mem);
 static int IDANls_LSetup(N_Vector yy, N_Vector res, booleantype* jcur,
                          void* ida_mem);
 static int IDANls_LSolve(N_Vector yy, N_Vector delta, void* ida_mem);
-static int IDANls_ConvTest(int m, N_Vector y, N_Vector del, realtype tol,
-                           N_Vector ewt, void* ida_mem);
+static int IDANls_ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
+                           realtype tol, N_Vector ewt, void* ida_mem);
 
 /* -----------------------------------------------------------------------------
  * Exported functions
@@ -238,10 +238,11 @@ static int IDANls_Res(N_Vector yy, N_Vector res, void* ida_mem)
 }
 
 
-static int IDANls_ConvTest(int m, N_Vector y, N_Vector del, realtype tol,
+static int IDANls_ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del, realtype tol,
                            N_Vector ewt, void* ida_mem)
 {
   IDAMem IDA_mem;
+  int m, retval;
   realtype delnrm;
   realtype rate;
   static realtype oldnrm;
@@ -254,6 +255,10 @@ static int IDANls_ConvTest(int m, N_Vector y, N_Vector del, realtype tol,
 
   /* compute the norm of the correction */
   delnrm = N_VWrmsNorm(del, ewt);
+
+  /* get the current nonlinear solver iteration count */
+  retval = SUNNonlinSolGetCurIter(NLS, &m);
+  if (retval != IDA_SUCCESS) return(IDA_MEM_NULL);
   
   /* Test for convergence, first directly, then with rate estimate. */
   if (m == 0){

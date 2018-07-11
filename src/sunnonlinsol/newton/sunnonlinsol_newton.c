@@ -207,8 +207,7 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
         N_VLinearSum(ONE, y, -ONE, delta, y);
 
         /* test for convergence */
-        retval = NEWTON_CONTENT(NLS)->CTest(NEWTON_CONTENT(NLS)->mnewt,
-                                            y, delta, tol, w, mem);
+        retval = NEWTON_CONTENT(NLS)->CTest(NLS, y, delta, tol, w, mem);
 
         /* if successful update Jacobian status and return */
         if (retval == SUN_NLS_SUCCESS) {

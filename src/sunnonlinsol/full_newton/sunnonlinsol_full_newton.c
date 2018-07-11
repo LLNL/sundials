@@ -202,8 +202,7 @@ int SUNNonlinSolSolve_FullNewton(SUNNonlinearSolver NLS,
     N_VLinearSum(ONE, y, -ONE, delta, y);
 
     /* test for convergence, return if successful */
-    retval = NEWTON_CONTENT(NLS)->CTest(NEWTON_CONTENT(NLS)->mnewt,
-                                        y, delta, tol, w, mem);
+    retval = NEWTON_CONTENT(NLS)->CTest(NLS, y, delta, tol, w, mem);
     if (retval == SUN_NLS_SUCCESS)  return(SUN_NLS_SUCCESS);
     if (retval != SUN_NLS_CONTINUE) break;
 

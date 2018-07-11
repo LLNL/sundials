@@ -24,17 +24,20 @@
  * are applicable only to one type of nonlinear solver (as noted in the comments
  * below).
  * -----------------------------------------------------------------------------
- * Part I of this file contains enumeration constants for all SUNDIALS-defined
+ * Part I of this file contains forward references for the nonlinear solver
+ * structures defined in this files.
+ *
+ * Part II of this file contains enumeration constants for all SUNDIALS-defined
  * nonlinear solver types.
  *
- * Part II of this files defines function types a SUNNonlinearSolve expectes to
+ * Part III of this files defines function types a SUNNonlinearSolve expectes to
  * be implemented by the client.
  *
- * Part III of this file contains type declarations for the
+ * Part IV of this file contains type declarations for the
  * _generic_SUNNonlinearSolver and _generic_SUNNonlinearSolver_Ops structures,
  * as well as references to pointers to such structures (SUNNonlinearSolver).
  *
- * Part IV of this file contains the prototypes for the nonlinear solver
+ * Part V of this file contains the prototypes for the nonlinear solver
  * functions which operate on/by SUNNonlinearSolver objects.
  *
  * At a minimum, a particular implementation of a SUNNonlinearSolver must do the
@@ -47,7 +50,7 @@
  *   - "Set" routines to control solver-specific parameters/options
  *   - "Get" routines to access solver-specific performance metrics
  *
- * Part V of this file contains return codes for SUNLinearSolver objects.
+ * Part VI of this file contains return codes for SUNLinearSolver objects.
  * ---------------------------------------------------------------------------*/
 
 #ifndef _SUNNONLINEARSOLVER_H
@@ -61,7 +64,17 @@ extern "C" {
 #endif
 
 /* -----------------------------------------------------------------------------
- * I. Implemented SUNNonlinearSolver types:
+ * I. Forward references for SUNNonlinearSolver types defined below
+ * ---------------------------------------------------------------------------*/
+
+/* Forward reference for pointer to SUNNonlinearSolver_Ops object */
+typedef struct _generic_SUNNonlinearSolver_Ops *SUNNonlinearSolver_Ops;
+
+/* Forward reference for pointer to SUNNonlinearSolver object */
+typedef struct _generic_SUNNonlinearSolver *SUNNonlinearSolver;
+
+/* -----------------------------------------------------------------------------
+ * II. SUNNonlinearSolver types:
  *
  * These type names may be modified, but at a minimum a client nonlinear solver
  * and/or time integrator will want to know whether the system is defined
@@ -74,7 +87,7 @@ typedef enum {
 } SUNNonlinearSolver_Type;
 
 /* -----------------------------------------------------------------------------
- * II. Nonlinear solver function types:
+ * III. Nonlinear solver function types:
  *
  * SUNNonlinSolSysFn
  *   Integrator specific function to evaluate either the nonlinear residual
@@ -98,20 +111,15 @@ typedef int (*SUNNonlinSolLSetupFn)(N_Vector y, N_Vector F, booleantype* jcur,
 
 typedef int (*SUNNonlinSolLSolveFn)(N_Vector y, N_Vector b, void* mem);
 
-typedef int (*SUNNonlinSolConvTestFn)(int m, N_Vector y, N_Vector del,
-                                      realtype tol, N_Vector ewt, void* mem);
+typedef int (*SUNNonlinSolConvTestFn)(SUNNonlinearSolver NLS, N_Vector y,
+                                      N_Vector del, realtype tol, N_Vector ewt,
+                                      void* mem);
 
 /* -----------------------------------------------------------------------------
- * III. Definition of a generic SUNNonlinearSolver
+ * IV. Definition of a generic SUNNonlinearSolver
  * ---------------------------------------------------------------------------*/
 
-/* Forward reference for pointer to SUNNonlinearSolver_Ops object */
-typedef struct _generic_SUNNonlinearSolver_Ops *SUNNonlinearSolver_Ops;
-
-/* Forward reference for pointer to SUNNonlinearSolver object */
-typedef struct _generic_SUNNonlinearSolver *SUNNonlinearSolver;
-
-/* Structure containing function pointers to nonlinear solver operations */  
+/* Structure containing function pointers to nonlinear solver operations */
 struct _generic_SUNNonlinearSolver_Ops {
   SUNNonlinearSolver_Type (*gettype)(SUNNonlinearSolver);
   int                     (*initialize)(SUNNonlinearSolver);
@@ -127,7 +135,7 @@ struct _generic_SUNNonlinearSolver_Ops {
   int                     (*getnumiters)(SUNNonlinearSolver, long int*);
   int                     (*getcuriter)(SUNNonlinearSolver, int*);
 };
- 
+
 /* A nonlinear solver is a structure with an implementation-dependent 'content'
    field, and a pointer to a structure of solver nonlinear solver operations
    corresponding to that implementation. */
@@ -137,7 +145,7 @@ struct _generic_SUNNonlinearSolver {
 };
 
 /* -----------------------------------------------------------------------------
- * IV. Functions exported by SUNNonlinearSolver module:
+ * V. Functions exported by SUNNonlinearSolver module:
  * ---------------------------------------------------------------------------*/
 
 /* core functions */
@@ -178,7 +186,7 @@ SUNDIALS_EXPORT int SUNNonlinSolGetCurIter(SUNNonlinearSolver NLS,
                                            int *iter);
 
 /* -----------------------------------------------------------------------------
- * V. SUNNonlinearSolver return codes
+ * VI. SUNNonlinearSolver return codes
  * ---------------------------------------------------------------------------*/
 
 #define SUN_NLS_SUCCESS     0  /* successful / converged */
