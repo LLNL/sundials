@@ -781,12 +781,10 @@ int ARKStepSetOptimalParams(void *arkode_mem)
   Specifies the method order
 
   ** Note in documentation that this should not be called along
-  with ARKStepSetERKTable, ARKStepSetIRKTable, ARKStepSetARKTable,
-  ARKStepSetERKTableNum, ARKStepSetIRKTableNum or
-  ARKStepSetARKTableNum.  This routine is used to specify a
-  desired method order using default Butcher tables, whereas
-  any user-supplied table will have their own order associated
-  with them.
+  with ARKStepSetARKTable or ARKStepSetARKTableNum.  This routine
+  is used to specify a desired method order using default Butcher
+  tables, whereas any user-supplied table will have their own
+  order associated with them.
   ---------------------------------------------------------------*/
 int ARKStepSetOrder(void *arkode_mem, int ord)
 {
@@ -1354,7 +1352,7 @@ int ARKStepSetARKTableNum(void *arkode_mem, int itable, int etable)
   } else if (itable < 0) {
 
     /* check that argument specifies an explicit table */
-    if (itable<MIN_ERK_NUM || itable>MAX_ERK_NUM) {
+    if (etable<MIN_ERK_NUM || etable>MAX_ERK_NUM) {
       arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                       "ARKStepSetARKTableNum",
                       "Illegal ERK table number");
@@ -1362,7 +1360,7 @@ int ARKStepSetARKTableNum(void *arkode_mem, int itable, int etable)
     }
 
     /* fill in table based on argument */
-    step_mem->Be = ARKodeLoadButcherTable_ERK(itable);
+    step_mem->Be = ARKodeLoadButcherTable_ERK(etable);
     if (step_mem->Be == NULL) {
       arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                       "ARKStepSetARKTableNum",
