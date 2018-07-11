@@ -308,10 +308,11 @@ specific name of the function to be called or macro to be referenced.
 \item\label{i:matrix} 
   {\bf Create matrix object}
  
-  If a direct linear solver is to be used within a Newton iteration
+  If a nonlinear solver requiring a linear solver will be used (e.g.,
+  a Newton iteration) and the linear solver will be a direct linear solver,
   then a template Jacobian matrix must be created by using the
-  appropriate functions defined by the particular {\sunmatrix}
-  implementation. 
+  appropriate constructor defined by the particular {\sunmatrix}
+  implementation.
   
 NOTE: The dense, banded, and sparse matrix objects are usable only in a
 serial or threaded environment.
@@ -319,8 +320,8 @@ serial or threaded environment.
 \item\label{i:lin_solver} 
   {\bf Create linear solver object}
  
-  If a Newton iteration is chosen, then the desired linear solver
-  object must be created by using the appropriate functions defined by
+  If a nonlinear solver requiring a linear solver will be used (e.g., a Newton iteration), then the desired linear solver
+  object must be created by using the appropriate constructor defined by
   the particular {\sunlinsol} implementation.
 
 \item
@@ -334,7 +335,7 @@ serial or threaded environment.
 \item\label{i:lin_solver_interface} 
   {\bf Attach linear solver module}
 
-  If a Newton iteration is chosen, initialize the {\idadls} or
+  If a nonlinear solver requiring a linear solver will be used (e.g., a Newton iteration), initialize the {\idadls} or
   {\idaspils} linear solver interface by attaching the linear solver
   object (and matrix object, if applicable)
   with one of the following calls (for details see \S\ref{sss:lin_solv_init}):
