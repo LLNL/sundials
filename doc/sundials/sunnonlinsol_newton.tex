@@ -9,7 +9,7 @@ creating the \id{SUNNonlinearSolver} object.
 {
   The function \ID{SUNNonlinSol\_Newton} creates a
   \id{SUNNonlinearSolver} object for use with {\sundials} packages to
-  solve nonlinear system of the form $F(y) = 0$ with Newton's method.
+  solve nonlinear systems of the form $F(y) = 0$ with Newton's method.
 }
 {
   \begin{args}[y]
@@ -46,9 +46,11 @@ struct _SUNNonlinearSolverContent_Newton {
   SUNNonlinSolLSolveFn   LSolve;
   SUNNonlinSolConvTestFn CTest;
 
-  N_Vector delta;
-  int      maxiters;
-  long int niters;
+  N_Vector    delta;
+  booleantype jcur;
+  int         mnewt;
+  int         maxiters;
+  long int    niters;
 };
 \end{verbatim}
 %%
@@ -62,6 +64,9 @@ information:
   \item[CTest] - the function for checking convergence of the Newton
     iteration,
   \item[delta] - the Newton iteration update vector,
+  \item[jcur] - the Jacobian status (\id{SUNTRUE} =
+  current, \id{SUNFALSE} = stale),
+  \item[mnewt] - the current number of iterations in the solve attempt,
   \item[maxiters] - the maximum number of Newton iterations allows in
     a solve, and
   \item[niters] - the total number of nonlinear iterations across all
