@@ -156,7 +156,7 @@ int SUNNonlinSolInitialize_Newton(SUNNonlinearSolver NLS)
 int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
                              N_Vector y0, N_Vector y,
                              N_Vector w, realtype tol,
-                             booleantype callSetup, void* mem)
+                             booleantype callLSetup, void* mem)
 {
   int retval;
   N_Vector delta;
@@ -180,7 +180,7 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
       if (retval != SUN_NLS_SUCCESS) break;
 
       /* if indicated, setup the linear system */
-      if (callSetup) {
+      if (callLSetup) {
         retval = NEWTON_CONTENT(NLS)->LSetup(y0, delta,
                                              &(NEWTON_CONTENT(NLS)->jcur),
                                              mem);
@@ -235,7 +235,7 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
       /* all errors go here */
       if (retval > 0) {
         if (!(NEWTON_CONTENT(NLS)->jcur) && (NEWTON_CONTENT(NLS)->LSetup))
-          callSetup = SUNTRUE;
+          callLSetup = SUNTRUE;
         else
           break;
       }

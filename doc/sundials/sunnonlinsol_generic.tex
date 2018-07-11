@@ -121,14 +121,14 @@ functions are defined in the header file
 % --------------------------------------------------------------------
 \ucfunction{SUNNonlinSolSolve}
 {
-  retval = SUNNonlinSolSolve(NLS, y0, y, w, tol, callSetup, mem);
+  retval = SUNNonlinSolSolve(NLS, y0, y, w, tol, callLSetup, mem);
 }
 {
   The \textit{required} function \ID{SUNNonlinSolSolve} solves the
   nonlinear system $F(y)=0$ or $G(y)=y$.
 }
 {
-  \begin{args}[callSetup]
+  \begin{args}[callLSetup]
   \item[NLS] (\id{SUNNonlinearSolver})
     a {\sunnonlinsol} object.
   \item[y0] (\id{N\_Vector})
@@ -140,7 +140,7 @@ functions are defined in the header file
     the weight vector used in computing weighted norms.
   \item[tol] (\id{realtype})
     the specified tolerance in a weight root mean square norm.
-  \item[callSetup] (\id{booleantype})
+  \item[callLSetup] (\id{booleantype})
     a flag indicating if the linear solver setup function should be
     called. 
   \item[mem] (\id{void *})
