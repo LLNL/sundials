@@ -18,12 +18,13 @@ NVECTOR functions required by ARKode
 In the table below, we list the vector functions in the ``N_Vector``
 module that are called within the ARKode package.  The table also
 shows, for each function, which ARKode module uses the function.  
-The ARKode column shows function usage within the main integrator
-module,  while the remaining columns show function usage within 
-the ARKode linear solvers, the ARKBANDPRE and ARKBBDPRE
-preconditioner modules, and the FARKODE module.  Here ARKDLS stands
-for the direct linear solver interface in ARKode, and ARKSPILS stands
-for the scaled, preconditioned, iterative linear solver interface in ARKode.
+The ARKode column shows function usage within the main time-stepping
+modules and the shared ARKode infrastructure,  while the remaining
+columns show function usage within the ARKode linear solver
+interfaces, the ARKBANDPRE and ARKBBDPRE preconditioner modules, and
+the FARKODE module.  Here ARKDLS stands for the direct linear solver
+interface in ARKode, and ARKSPILS stands for the scaled,
+preconditioned, iterative linear solver interface in ARKode.
 
 At this point, we should emphasize that the user does not need to know
 anything about ARKode's usage of vector functions in order to use

@@ -18,7 +18,7 @@ functions, depending on the method options selected, and two or more
 user-supplied routines which define the problem to be solved.  These
 function calls and user routines are summarized separately below.
 Some details are omitted, and the user is referred to the description
-of the corresponding C interface ARKode functions for complete
+of the corresponding C interface ARKStep functions for complete
 information on the arguments of any given user-callable interface
 routine, or of a given user-supplied function called by an interface
 function.  The usage of FARKODE for rootfinding and with
@@ -247,11 +247,10 @@ memory, the user must call :f:func:`FARKMALLOC()`.
 
 .. f:subroutine:: FARKMALLOC(T0, Y0, IMEX, IATOL, RTOL, ATOL, IOUT, ROUT, IPAR, RPAR, IER)
 
-   Initializes the Fortran interface to the ARKode solver, providing
-   interfaces to the C routines :c:func:`ARKodeCreate()`,
-   :c:func:`ARKodeSetUserData()`, and :c:func:`ARKStepCreate()`, as well
-   as one of :c:func:`ARKodeSStolerances()` or
-   :c:func:`ARKodeSVtolerances()`.
+   Initializes the Fortran interface to the ARKStep solver, providing
+   interfaces to the C routines :c:func:`ARKStepCreate()` and
+   :c:func:`ARKStepSetUserData()`, as well as one of :c:func:`ARKStepSStolerances()` or
+   :c:func:`ARKStepSVtolerances()`.
 
    **Arguments:**
       * *T0* (``realtype``, input) -- initial value of :math:`t`.
@@ -275,7 +274,7 @@ memory, the user must call :f:func:`FARKMALLOC()`.
    **Notes:** Modifications to the user data arrays *IPAR* and *RPAR*
    inside a user-provided routine will be propagated to all
    subsequent calls to such routines. The optional outputs
-   associated with the main ARKode integrator are listed in
+   associated with the main ARKStep integrator are listed in
    :ref:`FInterface.IOUTTable` and :ref:`FInterface.ROUTTable`, in
    the section :ref:`FInterface.OptionalOutputs`.
 
@@ -320,7 +319,7 @@ call to :f:func:`FARKMALLOC()`, the user must call the function
 Setting optional inputs
 --------------------------------------
 
-Unlike ARKode's C interface, that provides separate functions for
+Unlike ARKStep's C interface, that provides separate functions for
 setting each optional input, FARKODE uses only two functions, that
 accept keywords to specify which optional input should be set to the
 provided value.  These routines are :f:func:`FARKSETIIN()` and
@@ -348,10 +347,10 @@ Table: Keys for setting FARKODE integer optional inputs
 .. cssclass:: table-bordered
 
 =======================  =========================================
-Key                      ARKode routine
+Key                      ARKStep routine
 =======================  =========================================
 ``ORDER``                :c:func:`ARKStepSetOrder()`
-``DENSE_ORDER``          :c:func:`ARKodeSetDenseOrder()`
+``DENSE_ORDER``          :c:func:`ARKStepSetDenseOrder()`
 ``LINEAR``               :c:func:`ARKStepSetLinear()`
 ``NONLINEAR``            :c:func:`ARKStepSetNonlinear()`
 ``FIXEDPOINT``           :c:func:`ARKStepSetFixedPoint()`
@@ -359,11 +358,11 @@ Key                      ARKode routine
 ``EXPLICIT``             :c:func:`ARKStepSetExplicit()`
 ``IMPLICIT``             :c:func:`ARKStepSetImplicit()`
 ``IMEX``                 :c:func:`ARKStepSetImEx()`
-``IRK_TABLE_NUM``        :c:func:`ARKStepSetIRKTableNum()`
-``ERK_TABLE_NUM``        :c:func:`ARKStepSetERKTableNum()`
+``IRK_TABLE_NUM``        :c:func:`ARKStepSetARKTableNum()`
+``ERK_TABLE_NUM``        :c:func:`ARKStepSetARKTableNum()`
 ``ARK_TABLE_NUM`` *(a)*  :c:func:`ARKStepSetARKTableNum()`
-``MAX_NSTEPS``           :c:func:`ARKodeSetMaxNumSteps()`
-``HNIL_WARNS``           :c:func:`ARKodeSetMaxHnilWarns()`
+``MAX_NSTEPS``           :c:func:`ARKStepSetMaxNumSteps()`
+``HNIL_WARNS``           :c:func:`ARKStepSetMaxHnilWarns()`
 ``PREDICT_METHOD``       :c:func:`ARKStepSetPredictorMethod()`
 ``MAX_ERRFAIL``          :c:func:`ARKStepSetMaxErrTestFails()`
 ``MAX_CONVFAIL``         :c:func:`ARKStepSetMaxConvFails()`
@@ -375,8 +374,8 @@ Key                      ARKode routine
 *(a)* When setting ``ARK_TABLE_NUM``, pass in *IVAL* as an array of
 length 2, specifying the IRK table number first, then the ERK table
 number.  The integer specifiers for each table may be found in the
-section :ref:`Constants`, or in the ARKode header file
-``arkode_butcher.h``.
+section :ref:`Constants`, or in the ARKode header files
+``arkode_butcher_dirk.h`` and ``arkode_butcher_erk.h``.
 
 
 .. f:subroutine:: FARKSETRIN(KEY, RVAL, IER)
@@ -400,12 +399,12 @@ Table: Keys for setting FARKODE real optional inputs
 .. cssclass:: table-bordered
 
 =================  =========================================
-Key                ARKode routine
+Key                ARKStep routine
 =================  =========================================
-``INIT_STEP``      :c:func:`ARKodeSetInitStep()`
-``MAX_STEP``       :c:func:`ARKodeSetMaxStep()`
-``MIN_STEP``       :c:func:`ARKodeSetMinStep()`
-``STOP_TIME``      :c:func:`ARKodeSetStopTime()`
+``INIT_STEP``      :c:func:`ARKStepSetInitStep()`
+``MAX_STEP``       :c:func:`ARKStepSetMaxStep()`
+``MIN_STEP``       :c:func:`ARKStepSetMinStep()`
+``STOP_TIME``      :c:func:`ARKStepSetStopTime()`
 ``NLCONV_COEF``    :c:func:`ARKStepSetNonlinConvCoef()`
 ``ADAPT_CFL``      :c:func:`ARKStepSetCFLFraction()`
 ``ADAPT_SAFETY``   :c:func:`ARKStepSetSafetyFactor()`
@@ -418,7 +417,7 @@ Key                ARKode routine
 ``NONLIN_CRDOWN``  :c:func:`ARKStepSetNonlinCRDown()`
 ``NONLIN_RDIV``    :c:func:`ARKStepSetNonlinRDiv()`
 ``LSETUP_DGMAX``   :c:func:`ARKStepSetDeltaGammaMax()`
-``FIXED_STEP``     :c:func:`ARKodeSetFixedStep()`
+``FIXED_STEP``     :c:func:`ARKStepSetFixedStep()`
 =================  =========================================
 
 
@@ -442,7 +441,7 @@ Optional advanced FARKODE inputs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 FARKODE supplies additional routines to specify optional advanced
-inputs to the :c:func:`ARKode()` solver.  These are summarized below,
+inputs to the :c:func:`ARKStepEvolve()` solver.  These are summarized below,
 and the user is referred to their C routine counterparts for more
 complete information.
 
@@ -450,7 +449,7 @@ complete information.
 
 .. f:subroutine:: FARKSETERKTABLE(S, Q, P, C, A, B, BEMBED, IER)
 
-   Interface to the routine :c:func:`ARKStepSetERKTable()`.
+   Interface to the routine :c:func:`ARKStepSetARKTables()`.
 
    **Arguments:**
       * *S* (``int``, input) -- number of stages in the table.
@@ -467,7 +466,7 @@ complete information.
 
 .. f:subroutine:: FARKSETIRKTABLE(S, Q, P, C, A, B, BEMBED, IER)
 
-   Interface to the routine :c:func:`ARKStepSetIRKTable()`.
+   Interface to the routine :c:func:`ARKStepSetARKTables()`.
 
    **Arguments:**
       * *S* (``int``, input) -- number of stages in the table.
@@ -511,7 +510,7 @@ complete information.
 
 .. f:subroutine:: FARKSETRESTOLERANCE(IATOL, ATOL, IER)
 
-   Interface to the routines :c:func:`ARKodeResStolerance()` and :c:func:`ARKodeResVtolerance()`.
+   Interface to the routines :c:func:`ARKStepResStolerance()` and :c:func:`ARKStepResVtolerance()`.
 
    **Arguments:**
       * *IATOL* (``int``, input) -- type for absolute residual tolerance input
@@ -545,10 +544,10 @@ strategy (and it's associated parameters) through a call to
 
 
 Lastly, the user may provide functions to aid/replace those within
-ARKode for handling adaptive error control and explicit stability.
+ARKStep for handling adaptive error control and explicit stability.
 The former of these is designed for advanced users who wish to
 investigate custom step adaptivity approaches as opposed to using any
-of those built-in to ARKode.  In ARKode's C/C++ interface, this would be
+of those built-in to ARKStep.  In ARKStep's C/C++ interface, this would be
 provided by a function of type :c:func:`ARKAdaptFn()`; in the Fortran
 interface this is provided through the user-supplied function:
 
@@ -597,7 +596,7 @@ Similarly, if either an explicit or mixed implicit-explicit
 integration method is to be employed, the user may specify a function
 to provide the maximum explicitly-stable step for their problem.
 Again, in the C/C++ interface this would be a function of type
-:c:func:`ARKExpStabFn()`, while in ARKode's Fortran interface this
+:c:func:`ARKExpStabFn()`, while in ARKStep's Fortran interface this
 must be given through the user-supplied function:
 
 .. f:subroutine:: FARKEXPSTAB(Y, T, HSTAB, IPAR, RPAR, IER)
@@ -1586,7 +1585,7 @@ Carrying out the integration is accomplished by making calls to
 
 .. f:subroutine:: FARKODE(TOUT, T, Y, ITASK, IER)
 
-   Fortran interface to the C routine :c:func:`ARKode()`
+   Fortran interface to the C routine :c:func:`ARKStepEvolve()`
    for performing the solve, along with many of the ARK*Get*
    routines for reporting on solver statistics.
 
@@ -1622,7 +1621,7 @@ Carrying out the integration is accomplished by making calls to
 
 	* 2 = root return,
 
-	* values -1, ..., -10 are failure modes (see :c:func:`ARKode()` and
+	* values -1, ..., -10 are failure modes (see :c:func:`ARKStepEvolve()` and
           :ref:`Constants`).
 
    **Notes:**
@@ -1632,7 +1631,7 @@ Carrying out the integration is accomplished by making calls to
 
    A full description of error flags and output behavior of the solver
    (values filled in for *T* and *Y*) is provided in the description
-   of :c:func:`ARKode()`.
+   of :c:func:`ARKStepEvolve()`.
 
 
 
@@ -1669,14 +1668,14 @@ of order up to 3, at any :math:`t` within the last step taken.
 Problem reinitialization
 ---------------------------------------
 
-To re-initialize the ARKode solver for the solution of a new
+To re-initialize the ARKStep solver for the solution of a new
 problem of the same size as one already solved, the user must call
 :f:func:`FARKREINIT()`:
 
 
 .. f:subroutine:: FARKREINIT(T0, Y0, IMEX, IATOL, RTOL, ATOL, IER)
 
-   Re-initializes the Fortran interface to the ARKode solver.
+   Re-initializes the Fortran interface to the ARKStep solver.
 
    **Arguments:**  The arguments have the same names and meanings as those of
    :f:func:`FARKMALLOC()`.
@@ -1706,8 +1705,8 @@ For simulations involving changes to the number of equations and
 unknowns in the ODE system (e.g. when solving a spatially-adaptive
 PDE), the :f:func:`FARKODE()` integrator may be "resized" between
 integration steps, through calls to the :f:func:`FARKRESIZE()`
-function, that interfaces with the C routine :c:func:`ARKodeResize()`.
-This function modifies ARKode's internal memory structures to use the
+function, that interfaces with the C routine :c:func:`ARKStepResize()`.
+This function modifies ARKStep's internal memory structures to use the
 new problem size, without destruction of the temporal adaptivity
 heuristics.  It is assumed that the dynamical time scales before and
 after the vector resize will be comparable, so that all time-stepping
@@ -1720,7 +1719,7 @@ FARKODE memory structure should be deleted with a call to
 
 .. f:subroutine:: FARKRESIZE(T0, Y0, HSCALE, ITOL, RTOL, ATOL, IER)
 
-   Re-initializes the Fortran interface to the ARKode solver for a
+   Re-initializes the Fortran interface to the ARKStep solver for a
    differently-sized ODE system.
 
    **Arguments:**

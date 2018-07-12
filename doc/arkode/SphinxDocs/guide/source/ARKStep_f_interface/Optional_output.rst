@@ -36,7 +36,7 @@ values provided to a Fortran user.
 In the following tables, :ref:`FInterface.IOUTTable` and
 :ref:`FInterface.ROUTTable`, we list the entries in these
 arrays by index, naming them according to their role with the main
-ARKode solver, and list the relevant ARKode C/C++ function that is
+ARKStep solver, and list the relevant ARKStep C/C++ function that is
 actually called to extract the output value.  Similarly, optional
 integer output values that are specific to the ARKDLS linear solver
 interface are listed in :ref:`FInterface.DlsIOUTTable`, while
@@ -44,7 +44,7 @@ integer optional output values specific to the ARKSPILS iterative
 linear solver interface are listed in
 :ref:`FInterface.SpilsIOUTTable`.
 
-For more details on the optional inputs and outputs to ARKode, see
+For more details on the optional inputs and outputs to ARKStep, see
 the sections :ref:`ARKStep_CInterface.OptionalInputs` and
 :ref:`ARKStep_CInterface.OptionalOutputs`.
 
@@ -58,11 +58,11 @@ Table: Optional FARKODE integer outputs
 .. cssclass:: table-bordered
 
 ==============  ===============  =========================================================
-*IOUT* Index    Optional output  ARKode function
+*IOUT* Index    Optional output  ARKStep function
 ==============  ===============  =========================================================
-1               LENRW            :c:func:`ARKodeGetWorkSpace()`
-2               LENIW            :c:func:`ARKodeGetWorkSpace()`
-3               NST              :c:func:`ARKodeGetNumSteps()`
+1               LENRW            :c:func:`ARKStepGetWorkSpace()`
+2               LENIW            :c:func:`ARKStepGetWorkSpace()`
+3               NST              :c:func:`ARKStepGetNumSteps()`
 4               NST_STB          :c:func:`ARKStepGetNumExpSteps()`
 5               NST_ACC          :c:func:`ARKStepGetNumAccSteps()`
 6               NST_ATT          :c:func:`ARKStepGetNumStepAttempts()`
@@ -72,7 +72,7 @@ Table: Optional FARKODE integer outputs
 10              NETF             :c:func:`ARKStepGetNumErrTestFails()`
 11              NNI              :c:func:`ARKStepGetNumNonlinSolvIters()`
 12              NCFN             :c:func:`ARKStepGetNumNonlinSolvConvFails()`
-13              NGE              :c:func:`ARKodeGetNumGEvals()`
+13              NGE              :c:func:`ARKStepGetNumGEvals()`
 ==============  ===============  =========================================================
 
 
@@ -85,13 +85,13 @@ Table: Optional FARKODE real outputs
 .. cssclass:: table-bordered
 
 ==============  ===============  =======================================================================
-*ROUT* Index    Optional output  ARKode function
+*ROUT* Index    Optional output  ARKStep function
 ==============  ===============  =======================================================================
-1               H0U              :c:func:`ARKodeGetActualInitStep()`
-2               HU               :c:func:`ARKodeGetLastStep()`
-3               HCUR             :c:func:`ARKodeGetCurrentStep()`
-4               TCUR             :c:func:`ARKodeGetCurrentTime()`
-5               TOLSF            :c:func:`ARKodeGetTolScaleFactor()`
+1               H0U              :c:func:`ARKStepGetActualInitStep()`
+2               HU               :c:func:`ARKStepGetLastStep()`
+3               HCUR             :c:func:`ARKStepGetCurrentStep()`
+4               TCUR             :c:func:`ARKStepGetCurrentTime()`
+5               TOLSF            :c:func:`ARKStepGetTolScaleFactor()`
 6               UROUND           ``UNIT_ROUNDOFF`` (see the section :ref:`ARKStep_CInterface.DataTypes`)
 ==============  ===============  =======================================================================
 
@@ -105,7 +105,7 @@ Table: Optional ARKDLS interface outputs
 .. cssclass:: table-bordered
 
 ==============  ===============  ===================================================
-*IOUT* Index    Optional output  ARKode function
+*IOUT* Index    Optional output  ARKStep function
 ==============  ===============  ===================================================
 14              LENRWLS          :c:func:`ARKDlsGetWorkSpace()`
 15              LENIWLS          :c:func:`ARKDlsGetWorkSpace()`
@@ -124,7 +124,7 @@ Table: Optional ARKDLS mass interface outputs
 .. cssclass:: table-bordered
 
 ==============  ===============  ===================================================
-*IOUT* Index    Optional output  ARKode function
+*IOUT* Index    Optional output  ARKStep function
 ==============  ===============  ===================================================
 23              LENRWMS          :c:func:`ARKDlsGetMassWorkSpace()`
 24              LENIWMS          :c:func:`ARKDlsGetMassWorkSpace()`
@@ -144,7 +144,7 @@ Table: Optional ARKSPILS interface outputs
 .. cssclass:: table-bordered
 
 ==============  ===============  ===================================================
-*IOUT* Index    Optional output  ARKode function
+*IOUT* Index    Optional output  ARKStep function
 ==============  ===============  ===================================================
 14              LENRWLS          :c:func:`ARKSpilsGetWorkSpace()`
 15              LENIWLS          :c:func:`ARKSpilsGetWorkSpace()`
@@ -167,7 +167,7 @@ Table: Optional ARKSPILS mass interface outputs
 .. cssclass:: table-bordered
 
 ==============  ===============  ===================================================
-*IOUT* Index    Optional output  ARKode function
+*IOUT* Index    Optional output  ARKStep function
 ==============  ===============  ===================================================
 23              LENRWMS          :c:func:`ARKSpilsGetMassWorkSpace()`
 24              LENIWMS          :c:func:`ARKSpilsGetMassWorkSpace()`
@@ -197,7 +197,7 @@ the routine :f:func:`FARKGETERRWEIGHTS()` as follows:
 .. f:subroutine:: FARKGETERRWEIGHTS(EWT, IER)
 
    Retrieves the current error weight vector (interfaces
-   with :c:func:`ARKodeGetErrWeights()`).
+   with :c:func:`ARKStepGetErrWeights()`).
 
    **Arguments:**
       * *EWT* (``realtype``, output) -- array containing the error

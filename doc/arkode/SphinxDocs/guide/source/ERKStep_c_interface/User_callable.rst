@@ -117,7 +117,7 @@ Alternatively, the user may supply a custom function to supply the
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL*  if the ERKStep memory was ``NULL``
-      * *ARK_NO_MALLOC*  if the ERKStep memory was not allocated by the timestepping module
+      * *ARK_NO_MALLOC*  if the ERKStep memory was not allocated by the time-stepping module
       * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. a negative tolerance).
 
 
@@ -137,7 +137,7 @@ Alternatively, the user may supply a custom function to supply the
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL*  if the ERKStep memory was ``NULL``
-      * *ARK_NO_MALLOC*  if the ERKStep memory was not allocated by the timestepping module
+      * *ARK_NO_MALLOC*  if the ERKStep memory was not allocated by the time-stepping module
       * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. a negative tolerance).
 
 
@@ -155,7 +155,7 @@ Alternatively, the user may supply a custom function to supply the
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL*  if the ERKStep memory was ``NULL``
-      * *ARK_NO_MALLOC*  if the ERKStep memory was not allocated by the timestepping module
+      * *ARK_NO_MALLOC*  if the ERKStep memory was not allocated by the time-stepping module
 
 
 
@@ -164,7 +164,7 @@ General advice on the choice of tolerances
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 For many users, the appropriate choices for tolerance values in
-``reltol``, ``abstol`` and ``rabstol`` are a concern. The following pieces
+``reltol`` and ``abstol`` are a concern. The following pieces
 of advice are relevant.
 
 (1) The scalar relative tolerance ``reltol`` is to be set to control
@@ -186,7 +186,7 @@ of advice are relevant.
     levels, then ``abstol`` should be a vector.  For example, see the
     example problem ``ark_robertson.c``, and the discussion
     of it in the ARKode Examples Documentation [R2013]_.  In that
-    problem, the three components vary betwen 0 and 1, and have
+    problem, the three components vary between 0 and 1, and have
     different noise levels; hence the ``atols`` vector therein. It is
     impossible to give any general advice on ``abstol`` values,
     because the appropriate noise levels are completely
@@ -206,12 +206,12 @@ of advice are relevant.
 
 
 
-Advice on controlling unphysical negative values
+Advice on controlling nonphysical negative values
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In many applications, some components in the true solution are always
 positive or non-negative, though at times very small.  In the
-numerical solution, however, small negative (unphysical) values
+numerical solution, however, small negative (nonphysical) values
 can then occur. In most cases, these values are harmless, and simply
 need to be controlled, not eliminated, but in other cases any value
 that violates a constraint may cause a simulation to halt. For both of
@@ -228,7 +228,7 @@ these scenarios the following pieces of advice are relevant.
     avoiding a long explanation of them, if nothing else), then
     eliminate them, but only in the context of the output medium. Then
     the internal values carried by the solver are unaffected. Remember
-    that a small negative value in :math:`y` returned by ERKstep, with
+    that a small negative value in :math:`y` returned by ERKStep, with
     magnitude comparable to ``abstol`` or less, is equivalent to zero
     as far as the computation is concerned.
 
@@ -337,7 +337,7 @@ has requested rootfinding.
         :c:func:`ERKStepEvolve()` to specify a fixed stop time to
         end the time step and return to the user.  Once the integrator
         returns at a `tstop` time, any future testing for *tstop* is
-        disabled (and can be reenabled only though a new call to
+        disabled (and can be re-enabled only though a new call to
         :c:func:`ERKStepSetStopTime()`).
 
 	The *ARK_ONE_STEP* option tells the solver to take just one
@@ -624,7 +624,7 @@ Maximum no. of ERKStep error test failures          :c:func:`ERKStepSetMaxErrTes
 .. c:function:: int ERKStepSetInitStep(void* arkode_mem, realtype hin)
 
    Specifies the initial time step size ERKStep should use after
-   initialization or reinitialization.
+   initialization or re-initialization.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ERKStep memory block.
@@ -811,7 +811,7 @@ Specify explicit RK table number   :c:func:`ERKStepSetERKTableNum()`  internal
 .. c:function:: int ERKStepSetOrder(void* arkode_mem, int ord)
 
    Specifies the order of accuracy for the integration method in the
-   ERK timestepper module.
+   ERK time-stepper module.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ERKStep memory block.
@@ -833,7 +833,7 @@ Specify explicit RK table number   :c:func:`ERKStepSetERKTableNum()`  internal
 
 .. c:function:: int ERKStepSetERKTable(void* arkode_mem, int s, int q, int p, realtype* c, realtype* A, realtype* b, realtype* bembed)
 
-   Specifies a customized Butcher table for the ERK timestepping
+   Specifies a customized Butcher table for the ERK time-stepping
    module to use.
 
    **Arguments:**
@@ -869,7 +869,7 @@ Specify explicit RK table number   :c:func:`ERKStepSetERKTableNum()`  internal
 .. c:function:: int ERKStepSetERKTableNum(void* arkode_mem, int etable)
 
    Indicates to use a specific built-in Butcher table for use by the
-   ERK timestepping module.
+   ERK time-stepping module.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ERKStep memory block.
@@ -1387,7 +1387,7 @@ Name of constant associated with a return flag       :c:func:`ERKStepGetReturnFl
 No. of explicit stability-limited steps              :c:func:`ERKStepGetNumExpSteps()`
 No. of accuracy-limited steps                        :c:func:`ERKStepGetNumAccSteps()`
 No. of attempted steps                               :c:func:`ERKStepGetNumStepAttempts()`
-No. of calls to *fe* and *fi* functions              :c:func:`ERKStepGetNumRhsEvals()`
+No. of calls to *f* function                         :c:func:`ERKStepGetNumRhsEvals()`
 No. of local error test failures that have occurred  :c:func:`ERKStepGetNumErrTestFails()`
 Current ERK and DIRK Butcher tables                  :c:func:`ERKStepGetCurrentButcherTable()`
 Estimated local truncation error vector              :c:func:`ERKStepGetEstLocalErrors()`
@@ -1618,7 +1618,7 @@ Single accessor to many statistics at once           :c:func:`ERKStepGetTimestep
 .. c:function:: int ERKStepGetNumErrTestFails(void* arkode_mem, long int* netfails)
 
    Returns the number of local error test failures that
-   have occured (so far).
+   have occurred (so far).
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ERKStep memory block.
@@ -1693,7 +1693,7 @@ Single accessor to many statistics at once           :c:func:`ERKStepGetTimestep
 
 .. c:function:: int ERKStepGetTimestepperStats(void* arkode_mem, long int* expsteps, long int* accsteps, long int* step_attempts, long int* nf_evals, long int* netfails)
 
-   Returns many of the most useful timestepper statistics in a single call.
+   Returns many of the most useful time-stepper statistics in a single call.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ERKStep memory block.
@@ -1845,8 +1845,8 @@ Output the current Butcher table(s)                          :c:func:`ERKStepWri
       * *fp* -- pointer to use for printing the Butcher table
 
    **Return value:**
-      * *ARKSPILS_SUCCESS* if successful
-      * *ARKSPILS_MEM_NULL* if the ERKStep memory was ``NULL``
+      * *ARK_SUCCESS* if successful
+      * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
 
    **Notes:** The *fp* argument can be ``stdout`` or ``stderr``, or it
    may point to a specific file created using ``fopen``.
@@ -1862,7 +1862,7 @@ Output the current Butcher table(s)                          :c:func:`ERKStepWri
 
 .. _ERKStep_CInterface.Reinitialization:
 
-ERKStep reinitialization functions
+ERKStep re-initialization functions
 -------------------------------------
 
 To reinitialize the ERKStep module for the solution of a new problem,
@@ -1893,7 +1893,7 @@ of the discontinuity is known, simply make that location a value of
 ``tout``.  To stop when the location of the discontinuity is
 determined by the solution, use the rootfinding feature.  In either
 case, it is critical that the RHS function *not* incorporate the
-discontinuity, but rather have a smooth extention over the
+discontinuity, but rather have a smooth extension over the
 discontinuity, so that the step across it (and subsequent rootfinding,
 if used) can be done efficiently.  Then use a switch within the RHS
 function (communicated through ``user_data``) that can be flipped
@@ -1905,8 +1905,8 @@ vector.
 
 .. c:function:: int ERKStepReInit(void* arkode_mem, ARKRhsFn f, realtype t0, N_Vector y0)
 
-   Provides required problem specifications and reinitializes the
-   ERKStep timestepper module.
+   Provides required problem specifications and re-initializes the
+   ERKStep time-stepper module.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ERKStep memory block.
@@ -1998,9 +1998,7 @@ If using array-valued absolute tolerances, the absolute tolerance
 vector will be invalid after the call to :c:func:`ERKStepResize()`, so
 the new absolute tolerance vector should be re-set **following** each
 call to :c:func:`ERKStepResize()` through a new call to
-:c:func:`ERKStepSVtolerances()` (and similarly to
-:c:func:`ERKStepResVtolerance()` if that was used for the original
-problem).
+:c:func:`ERKStepSVtolerances()`.
 
 If scalar-valued tolerances or a tolerance function was specified
 through either :c:func:`ERKStepSStolerances()` or

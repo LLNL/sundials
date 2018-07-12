@@ -14,16 +14,16 @@ Usage of the FARKROOT interface to rootfinding
 -----------------------------------------------
 
 The FARKROOT interface package allows programs written in Fortran to
-use the rootfinding feature of the ARKode solver module. The
-user-callable functions in FARKROOT, with the corresponding ARKode
+use the rootfinding feature of the ARKStep solver module. The
+user-callable functions in FARKROOT, with the corresponding ARKStep
 functions, are as follows: 
 
-* :f:func:`FARKROOTINIT()` interfaces to :c:func:`ARKodeRootInit()`,
+* :f:func:`FARKROOTINIT()` interfaces to :c:func:`ARKStepRootInit()`,
 
 * :f:func:`FARKROOTINFO()` interfaces to
-  :c:func:`ARKodeGetRootInfo()`, and 
+  :c:func:`ARKStepGetRootInfo()`, and 
 
-* :f:func:`FARKROOTFREE()` interfaces to :c:func:`ARKodeRootInit()`,
+* :f:func:`FARKROOTFREE()` interfaces to :c:func:`ARKStepRootInit()`,
   freeing memory by calling the initializer with no root functions.
 
 Note that at this time, FARKROOT does not provide support to specify
@@ -33,7 +33,7 @@ may be captured by the user through monitoring the sign of any
 non-zero elements in the array *INFO* returned by
 :f:func:`FARKROOTINFO()`. 
 
-In order to use the rootfinding feature of ARKode, after calling :f:func:`FARKMALLOC()` but prior to
+In order to use the rootfinding feature of ARKStep, after calling :f:func:`FARKMALLOC()` but prior to
 calling :f:func:`FARKODE()`, the user must call
 :f:func:`FARKROOTINIT()` to allocate and initialize memory for the FARKROOT module: 
 
@@ -44,7 +44,7 @@ calling :f:func:`FARKODE()`, the user must call
    **Arguments:** 
       * *NRTFN* (``int``, input) -- total number of root functions.
       * *IER* (``int``, output) -- return flag (0 success, -1 if
-	ARKode memory is ``NULL``, and -11 if a memory allocation
+	ARKStep memory is ``NULL``, and -11 if a memory allocation
 	error occurred).
       
 
@@ -101,7 +101,7 @@ found to have a root can be identified by calling the routine
 
 The total number of calls made to the root function
 :f:func:`FARKROOTFN()`, denoted *NGE*, can be obtained from
-*IOUT(12)*.  If the FARKODE/ARKode memory block is reinitialized to
+*IOUT(12)*.  If the FARKODE/ARKStep memory block is reinitialized to
 solve a different problem via a call to :f:func:`FARKREINIT()`, then
 the counter *NGE* is reset to zero. 
 

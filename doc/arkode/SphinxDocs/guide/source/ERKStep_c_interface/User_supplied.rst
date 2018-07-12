@@ -68,7 +68,7 @@ specify the right-hand side of the ODE system:
    ERKStep module.  A recoverable failure error return from the
    *ARKRhsFn* is typically used to flag a value of the dependent
    variable :math:`y` that is "illegal" in some way (e.g., negative
-   where only a nonnegative value is physically meaningful).  If such
+   where only a non-negative value is physically meaningful).  If such
    a return is made, ERKStep will attempt to recover by reducing the
    step size in order to avoid this recoverable error return.  There
    are some situations in which recovery is not possible even if the
@@ -187,7 +187,7 @@ as the maximum value such that the error estimates remain below 1.
 
    **Return value:**
    An *ARKAdaptFn* function should return 0 if it
-   successfuly set the next step size, and a non-zero value otherwise.
+   successfully set the next step size, and a non-zero value otherwise.
 
 
 

@@ -16,7 +16,7 @@ FARKODE routines
 
 In this section, we list the full set of user-callable functions
 comprising the FARKODE solver interface.  For each function, we list
-the corresponding ARKode functions, to provide a mapping between the
+the corresponding ARKStep functions, to provide a mapping between the
 two solver interfaces.  Further documentation on each FARKODE function
 is provided in the following sections, :ref:`FInterface.Usage`,
 :ref:`FInterface.OptionalOutputs`, :ref:`FInterface.Rootfinding` and
@@ -101,18 +101,17 @@ Interface to the SUNLINSOL modules
 Interface to the main ARKODE module
 --------------------------------------
 
-* :f:func:`FARKMALLOC()` interfaces to :c:func:`ARKodeCreate()`,
-  :c:func:`ARKodeSetUserData()`, and :c:func:`ARKStepCreate()`, as well
-  as one of :c:func:`ARKodeSStolerances()` or :c:func:`ARKodeSVtolerances()`.
+* :f:func:`FARKMALLOC()` interfaces to :c:func:`ARKStepCreate()` and
+  :c:func:`ARKStepSetUserData()`, as well as one of :c:func:`ARKStepSStolerances()` or :c:func:`ARKStepSVtolerances()`.
 
 * :f:func:`FARKREINIT()` interfaces to :c:func:`ARKStepReInit()`.
 
-* :f:func:`FARKRESIZE()` interfaces to :c:func:`ARKodeResize()`.
+* :f:func:`FARKRESIZE()` interfaces to :c:func:`ARKStepResize()`.
 
 * :f:func:`FARKSETIIN()` and :f:func:`FARKSETRIN()` interface to the
-  ARKodeSet* and ARKStepSet* functions (see :ref:`ARKStep_CInterface.OptionalInputs`).
+  ARKStepSet* and ARKStepSet* functions (see :ref:`ARKStep_CInterface.OptionalInputs`).
 
-* :f:func:`FARKEWTSET()` interfaces to :c:func:`ARKodeWFtolerances()`.
+* :f:func:`FARKEWTSET()` interfaces to :c:func:`ARKStepWFtolerances()`.
 
 * :f:func:`FARKADAPTSET()` interfaces to :c:func:`ARKStepSetAdaptivityFn()`.
 
@@ -125,26 +124,26 @@ Interface to the main ARKODE module
 * :f:func:`FARKSETARKTABLES()` interfaces to :c:func:`ARKStepSetARKTables()`.
 
 * :f:func:`FARKSETRESTOLERANCE()` interfaces to either
-  :c:func:`ARKodeResStolerance()` and :c:func:`ARKodeResVtolerance()`
+  :c:func:`ARKStepResStolerance()` and :c:func:`ARKStepResVtolerance()`
 
 ..
-   * :f:func:`FARKSETDIAGNOSTICS()` interfaces to :c:func:`ARKodeSetDiagnostics()`.
+   * :f:func:`FARKSETDIAGNOSTICS()` interfaces to :c:func:`ARKStepSetDiagnostics()`.
 
-* :f:func:`FARKODE()` interfaces to :c:func:`ARKode()`, the
-  ARKodeGet* functions (see :ref:`ARKStep_CInterface.OptionalOutputs`),
+* :f:func:`FARKODE()` interfaces to :c:func:`ARKStepEvolve()`, the
+  ARKStepGet* functions (see :ref:`ARKStep_CInterface.OptionalOutputs`),
   and to the optional output functions for the selected linear
   solver module (see :ref:`ARKStep_CInterface.OptionalOutputs`).
 
 * :f:func:`FARKDKY()` interfaces to the interpolated output function
-  :c:func:`ARKodeGetDky()`.
+  :c:func:`ARKStepGetDky()`.
 
 * :f:func:`FARKGETERRWEIGHTS()` interfaces to
-  :c:func:`ARKodeGetErrWeights()`.
+  :c:func:`ARKStepGetErrWeights()`.
 
 * :f:func:`FARKGETESTLOCALERR()` interfaces to
   :c:func:`ARKStepGetEstLocalErrors()`.
 
-* :f:func:`FARKFREE()` interfaces to :c:func:`ARKodeFree()`.
+* :f:func:`FARKFREE()` interfaces to :c:func:`ARKStepFree()`.
 
 
 
@@ -197,9 +196,9 @@ Interface to the mass matrix linear solver interfaces
 User-supplied routines
 ---------------------------------------
 
-As with the native C interface, the FARKode solver interface requires
+As with the native C interface, the FARKODE solver interface requires
 user-supplied functions to specify the ODE problem to be solved.  In
-contrast to the case of direct use of ARKode, and of most Fortran ODE
+contrast to the case of direct use of ARKStep, and of most Fortran ODE
 solvers, the names of all user-supplied routines here are fixed, in
 order to maximize portability for the resulting mixed-language program.
 As a result, whether using a purely implicit, purely explicit, or
@@ -210,7 +209,7 @@ may do nothing):
 .. cssclass:: table-bordered
 
 +---------------------------+-----------------------------------+
-| FARKODE routine           | ARKode interface                  |
+| FARKODE routine           | ARKStep interface                 |
 | (FORTRAN, user-supplied)  | function type                     |
 +===========================+===================================+
 | :f:func:`FARKIFUN()`      | :c:func:`ARKRhsFn()`              |
@@ -227,7 +226,7 @@ which is required whenever a sparse matrix solver is used:
 .. cssclass:: table-bordered
 
 +--------------------------+--------------------------------------+----------------------------------+
-| FARKODE routine          | ARKode interface                     | FARKODE "activation" routine     |
+| FARKODE routine          | ARKStep interface                    | FARKODE "activation" routine     |
 | (FORTRAN, user-supplied) | function type                        |                                  |
 +==========================+======================================+==================================+
 | :f:func:`FARKDJAC()`     | :c:func:`ARKDlsJacFn()`              | :f:func:`FARKDENSESETJAC()`      |

@@ -28,14 +28,6 @@ parallel problems (ARKBBDPRE).
 A serial banded preconditioner module
 -------------------------------------------
 
-..
-   This preconditioner provides a band matrix preconditioner for use with
-   the ARKSPILS iterative linear solver interface, in a serial setting.
-   It requires that the problem be set up using either the
-   NVECTOR_SERIAL, NVECTOR_OPENMP or NVECTOR_PTHREADS module, due to data
-   access patterns.  It also currently requires that the problem involve
-   an identity mass matrix, i.e. :math:`M(t) = I`.
-
 This preconditioner provides a band matrix preconditioner for use with
 the ARKSPILS iterative linear solver interface, in a serial setting.
 It requires that the problem be set up using either the
@@ -332,7 +324,7 @@ The ARKBBDPRE module calls two user-provided functions to construct
 :math:`P`: a required function *gloc* (of type :c:func:`ARKLocalFn()`)
 which approximates the right-hand side function :math:`g(t,y) \approx
 f_I(t,y)` and which is computed locally, and an optional function
-*cfn* (of type :c:func:`ARKCommFn()`) which performs all interprocess
+*cfn* (of type :c:func:`ARKCommFn()`) which performs all inter-process
 communication necessary to evaluate the approximate right-hand side
 :math:`g`. These are in addition to the user-supplied right-hand side
 function :math:`f_I`. Both functions take as input the same pointer
@@ -365,7 +357,7 @@ communicated between processes by *cfn*, and that are then used by
    case the integration is halted and :c:func:`ARKStepEvolve()` will return
    *ARK_LSETUP_FAIL*).
 
-   **Notes:**  This function should assume that all interprocess
+   **Notes:**  This function should assume that all inter-process
    communication of data needed to calculate *glocal* has already been
    done, and that this data is accessible within user data.
 
@@ -376,8 +368,8 @@ communicated between processes by *cfn*, and that are then used by
 
 .. c:function:: typedef int (*ARKCommFn)(sunindextype Nlocal, realtype t, N_Vector y, void* user_data)
 
-   This *cfn* function performs all interprocess
-   communication necessary for the executation of the *gloc* function
+   This *cfn* function performs all inter-process
+   communication necessary for the execution of the *gloc* function
    above, using the input vector *y*.
 
    **Arguments:**
@@ -452,7 +444,7 @@ that are unchanged from the skeleton program presented in
     to allocate memory and initialize the internal preconditioner
     data. The last two arguments of :c:func:`ARKBBDPrecInit()` are the
     two user-supplied functions of type :c:func:`ARKLocalFn()` and
-    :c:func:`ARKCommFn()` described above, respectivelyl.
+    :c:func:`ARKCommFn()` described above, respectively.
 
 11. *Set the linear solver interface optional inputs*
 
@@ -512,7 +504,7 @@ and attached to the integrator by calling the following functions:
       * *gloc* -- the name of the C function (of type :c:func:`ARKLocalFn()`)
         which computes the approximation :math:`g(t,y) \approx f_I(t,y)`.
       * *cfn* -- the name of the C function (of type :c:func:`ARKCommFn()`) which
-        performs all interprocess communication required for the
+        performs all inter-process communication required for the
         computation of :math:`g(t,y)`.
 
    **Return value:**
@@ -541,7 +533,7 @@ and attached to the integrator by calling the following functions:
 
 
 
-The ARKBBDPRE module also provides a reinitialization function to
+The ARKBBDPRE module also provides a re-initialization function to
 allow solving a sequence of problems of the same size, with the same
 linear solver choice, provided there is no change in *Nlocal*,
 *mukeep*, or *mlkeep*. After solving one problem, and after

@@ -120,7 +120,7 @@ Alternatively, the user may supply a custom function to supply the
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL*  if the ARKStep memory was ``NULL``
-      * *ARK_NO_MALLOC*  if the ARKStep memory was not allocated by the timestepping module
+      * *ARK_NO_MALLOC*  if the ARKStep memory was not allocated by the time-stepping module
       * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. a negative tolerance).
 
 
@@ -140,7 +140,7 @@ Alternatively, the user may supply a custom function to supply the
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL*  if the ARKStep memory was ``NULL``
-      * *ARK_NO_MALLOC*  if the ARKStep memory was not allocated by the timestepping module
+      * *ARK_NO_MALLOC*  if the ARKStep memory was not allocated by the time-stepping module
       * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. a negative tolerance).
 
 
@@ -158,7 +158,7 @@ Alternatively, the user may supply a custom function to supply the
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL*  if the ARKStep memory was ``NULL``
-      * *ARK_NO_MALLOC*  if the ARKStep memory was not allocated by the timestepping module
+      * *ARK_NO_MALLOC*  if the ARKStep memory was not allocated by the time-stepping module
 
 
 
@@ -212,7 +212,7 @@ these functions is provided below.
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL*  if the ARKStep memory was ``NULL``
-      * *ARK_NO_MALLOC*  if the ARKStep memory was not allocated by the timestepping module
+      * *ARK_NO_MALLOC*  if the ARKStep memory was not allocated by the time-stepping module
       * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. a negative tolerance).
 
 
@@ -229,7 +229,7 @@ these functions is provided below.
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL*  if the ARKStep memory was ``NULL``
-      * *ARK_NO_MALLOC*  if the ARKStep memory was not allocated by the timestepping module
+      * *ARK_NO_MALLOC*  if the ARKStep memory was not allocated by the time-stepping module
       * *ARK_ILL_INPUT* if an argument has an illegal value (e.g. a negative tolerance).
 
 
@@ -247,7 +247,7 @@ these functions is provided below.
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL*  if the ARKStep memory was ``NULL``
-      * *ARK_NO_MALLOC*  if the ARKStep memory was not allocated by the timestepping module
+      * *ARK_NO_MALLOC*  if the ARKStep memory was not allocated by the time-stepping module
 
 
 
@@ -277,7 +277,7 @@ of advice are relevant.
     levels, then ``abstol`` should be a vector.  For example, see the
     example problem ``ark_robertson.c``, and the discussion
     of it in the ARKode Examples Documentation [R2013]_.  In that
-    problem, the three components vary betwen 0 and 1, and have
+    problem, the three components vary between 0 and 1, and have
     different noise levels; hence the ``atols`` vector therein. It is
     impossible to give any general advice on ``abstol`` values,
     because the appropriate noise levels are completely
@@ -305,12 +305,12 @@ of advice are relevant.
 
 
 
-Advice on controlling unphysical negative values
+Advice on controlling nonphysical negative values
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In many applications, some components in the true solution are always
 positive or non-negative, though at times very small.  In the
-numerical solution, however, small negative (unphysical) values
+numerical solution, however, small negative (nonphysical) values
 can then occur. In most cases, these values are harmless, and simply
 need to be controlled, not eliminated, but in other cases any value
 that violates a constraint may cause a simulation to halt. For both of
@@ -762,7 +762,7 @@ has requested rootfinding.
         :c:func:`ARKStepEvolve()` to specify a fixed stop time to
         end the time step and return to the user.  Once the integrator
         returns at a `tstop` time, any future testing for *tstop* is
-        disabled (and can be reenabled only though a new call to
+        disabled (and can be re-enabled only though a new call to
 	:c:func:`ARKStepSetStopTime()`).
 
 	The *ARK_ONE_STEP* option tells the solver to take just one
@@ -896,7 +896,7 @@ Minimum absolute step size                          :c:func:`ARKStepSetMinStep()
 Set a value for :math:`t_{stop}`                    :c:func:`ARKStepSetStopTime()`         :math:`\infty`
 Supply a pointer for user data                      :c:func:`ARKStepSetUserData()`         ``NULL``
 Maximum no. of ARKStep error test failures          :c:func:`ARKStepSetMaxErrTestFails()`  7
-Set 'optimal' adaptivity params for a method        :c:func:`ARKStepSetOptimalParams()`    internal
+Set 'optimal' adaptivity parameters for a method    :c:func:`ARKStepSetOptimalParams()`    internal
 ==================================================  =====================================  ==============
 
 
@@ -1076,7 +1076,7 @@ Set 'optimal' adaptivity params for a method        :c:func:`ARKStepSetOptimalPa
 .. c:function:: int ARKStepSetInitStep(void* arkode_mem, realtype hin)
 
    Specifies the initial time step size ARKStep should use after
-   initialization or reinitialization.
+   initialization or re-initialization.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
@@ -1285,7 +1285,7 @@ Specify additive RK table numbers  :c:func:`ARKStepSetARKTableNum()`  internal
 .. c:function:: int ARKStepSetOrder(void* arkode_mem, int ord)
 
    Specifies the order of accuracy for the ARK/DIRK/ERK integration
-   method in the ARK timestepper module.
+   method in the ARK time-stepper module.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
@@ -1330,7 +1330,7 @@ Specify additive RK table numbers  :c:func:`ARKStepSetARKTableNum()`  internal
 .. c:function:: int ARKStepSetExplicit(void* arkode_mem)
 
    Specifies that the implicit portion of problem is disabled,
-   and to use an explicit RK method in the ARK timestepper module.
+   and to use an explicit RK method in the ARK time-stepper module.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
@@ -1345,7 +1345,7 @@ Specify additive RK table numbers  :c:func:`ARKStepSetARKTableNum()`  internal
    directly by the user if desired.
 
    If the problem is posed in explicit form, i.e. :math:`\dot{y} =
-   f(t,y)`, then we recommend that the ERKStep timestepper module be
+   f(t,y)`, then we recommend that the ERKStep time-stepper module be
    used instead.
 
 
@@ -1400,7 +1400,7 @@ Specify additive RK table numbers  :c:func:`ARKStepSetARKTableNum()`  internal
    *bi* must be ``NULL``.  This automatically calls
    :c:func:`ARKStepSetExplicit()`.  However, if the problem is posed
    in explicit form, i.e. :math:`\dot{y} = f(t,y)`, then we recommend
-   that the ERKStep timestepper module be used instead of ARKStep.
+   that the ERKStep time-stepper module be used instead of ARKStep.
 
    To set an implicit table, at least one of the inputs *ce*, *Ae* or
    *be* must be ``NULL``.  This automatically calls
@@ -1445,7 +1445,7 @@ Specify additive RK table numbers  :c:func:`ARKStepSetARKTableNum()`  internal
    To choose an explicit table, set *itable* to a negative value.  This
    automatically calls :c:func:`ARKStepSetExplicit()`.  However, if
    the problem is posed in explicit form, i.e. :math:`\dot{y} =
-   f(t,y)`, then we recommend that the ERKStep timestepper module be
+   f(t,y)`, then we recommend that the ERKStep time-stepper module be
    used instead of ARKStep.
 
    To select an implicit table, set *etable* to a negative value.
@@ -2958,7 +2958,7 @@ Single accessor to many statistics at once           :c:func:`ARKStepGetTimestep
 .. c:function:: int ARKStepGetNumErrTestFails(void* arkode_mem, long int* netfails)
 
    Returns the number of local error test failures that
-   have occured (so far).
+   have occurred (so far).
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
@@ -3035,7 +3035,7 @@ Single accessor to many statistics at once           :c:func:`ARKStepGetTimestep
 
 .. c:function:: int ARKStepGetTimestepperStats(void* arkode_mem, long int* expsteps, long int* accsteps, long int* step_attempts, long int* nfe_evals, long int* nfi_evals, long int* nlinsetups, long int* netfails)
 
-   Returns many of the most useful timestepper statistics in a single call.
+   Returns many of the most useful time-stepper statistics in a single call.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
@@ -3313,7 +3313,7 @@ Name of constant associated with a return flag       :c:func:`ARKDlsGetReturnFla
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *nmsolvess* -- number of calls to the mass matrix solver solve routine.
+      * *nmsolves* -- number of calls to the mass matrix solver solve routine.
 
    **Return value:**
       * *ARKDLS_SUCCESS* if successful
@@ -3819,7 +3819,7 @@ Optional routine                                             Function name
 ===========================================================  ========================================
 Output all ARKStep solver parameters                         :c:func:`ARKStepWriteParameters()`
 Retrieve a given explicit Butcher table by its unique name   :c:func:`ARKodeLoadButcherTable_ERK()`
-Retrieve a given implciit Butcher table by its unique name   :c:func:`ARKodeLoadButcherTable_DIRK()`
+Retrieve a given implicit Butcher table by its unique name   :c:func:`ARKodeLoadButcherTable_DIRK()`
 Output the current Butcher table(s)                          :c:func:`ARKStepWriteButcher()`
 ===========================================================  ========================================
 
@@ -3914,7 +3914,7 @@ Output the current Butcher table(s)                          :c:func:`ARKStepWri
 
 .. _ARKStep_CInterface.Reinitialization:
 
-ARKStep reinitialization functions
+ARKStep re-initialization functions
 -------------------------------------
 
 To reinitialize the ARKStep module for the solution of a new problem,
@@ -3936,7 +3936,7 @@ for the previous problem.  This condition is automatically fulfilled
 if the method order *q* and the problem type (explicit, implicit,
 ImEx) are left unchanged.
 
-When using the ARKStep timestepping module, if there are changes to
+When using the ARKStep time-stepping module, if there are changes to
 the linear solver specifications, the user should make the appropriate
 calls to either the linear solver objects themselves, or to the ARKDLS
 or ARKSPILS interface routines, as described  in the section
@@ -3952,7 +3952,7 @@ the location of the discontinuity is known, simply make that location
 a value of ``tout``.  To stop when the location of the discontinuity
 is determined by the solution, use the rootfinding feature.  In either
 case, it is critical that the RHS function *not* incorporate the
-discontinuity, but rather have a smooth extention over the
+discontinuity, but rather have a smooth extension over the
 discontinuity, so that the step across it (and subsequent rootfinding,
 if used) can be done efficiently.  Then use a switch within the RHS
 function (communicated through ``user_data``) that can be flipped
@@ -3964,8 +3964,8 @@ vector.
 
 .. c:function:: int ARKStepReInit(void* arkode_mem, ARKRhsFn fe, ARKRhsFn fi, realtype t0, N_Vector y0)
 
-   Provides required problem specifications and reinitializes the
-   ARKStep timestepper module.
+   Provides required problem specifications and re-initializes the
+   ARKStep time-stepper module.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.

@@ -74,13 +74,17 @@ defined as
       int         (*nvlinearcombination)(int, realtype *, N_Vector *, N_Vector);
       int         (*nvscaleaddmulti)(int, realtype *, N_Vector, N_Vector *, N_Vector *);
       int         (*nvdotprodmulti)(int, N_Vector, N_Vector *,  realtype *);
-      int         (*nvlinearsumvectorarray)(int, realtype, N_Vector *, realtype, N_Vector *, N_Vector *);
+      int         (*nvlinearsumvectorarray)(int, realtype, N_Vector *, realtype,
+                                            N_Vector *, N_Vector *);
       int         (*nvscalevectorarray)(int, realtype *,  N_Vector *, N_Vector *);
       int         (*nvconstvectorarray)(int, realtype, N_Vector *);
       int         (*nvwrmsnomrvectorarray)(int, N_Vector *, N_Vector *, realtype *);
-      int         (*nvwrmsnomrmaskvectorarray)(int, N_Vector *, N_Vector *, N_Vector, realtype *);
-      int         (*nvscaleaddmultivectorarray)(int, int, realtype *, N_Vector *, N_Vector **, N_Vector **);
-      int         (*nvlinearcombinationvectorarray)(int, int, realtype *, N_Vector **, N_Vector *);      
+      int         (*nvwrmsnomrmaskvectorarray)(int, N_Vector *, N_Vector *, N_Vector,
+                                               realtype *);
+      int         (*nvscaleaddmultivectorarray)(int, int, realtype *, N_Vector *,
+                                                N_Vector **, N_Vector **);
+      int         (*nvlinearcombinationvectorarray)(int, int, realtype *, N_Vector **,
+                                                    N_Vector *);
    };
 
 

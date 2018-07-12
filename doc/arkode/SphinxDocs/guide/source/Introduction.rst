@@ -62,8 +62,7 @@ include adaptive explicit methods of orders 2-8, adaptive implicit
 methods of orders 2-5, and adaptive ImEx methods of orders 3-5.
 
 
-*ERKStep*, on the other hand, focuses specifically on problems posed
-in explicit form,
+*ERKStep* focuses specifically on problems posed in explicit form,
 
 .. math::
    \dot{y} = f(t,y),  \qquad y(t_0) = y_0.
@@ -267,7 +266,7 @@ that these vectors both move all data to the GPU device upon
 construction, and speedup will only be realized if the user also
 conducts the right-hand-side function evaluation on the device. In
 addition, these vectors assume the problem fits on one GPU. Further
-information about RAJA, users are referred to th web site,
+information about RAJA, users are referred to the web site,
 `https://software.llnl.gov/RAJA/ <https://software.llnl.gov/RAJA/>`_.
 These additions are accompanied by additions to various interface
 functions and to user documentation.
@@ -423,10 +422,10 @@ The structure of this document is as follows:
   underlying :ref:`mathematics <Mathematics>` used within the ARKode
   family of solvers.
 
-* We follow this with overview of how the source code for ARKode is
+* We follow this with an overview of how the source code for ARKode is
   :ref:`organized <Organization>`.
 
-* The largest section follows, providing a full account of ARKode's
+* The largest section follows, providing a full account of the
   ARKStep module user interface, including a description of all
   user-accessible functions and outlines for usage in serial and
   parallel applications. Since ARKode is written in C, we first
@@ -434,11 +433,11 @@ The structure of this document is as follows:
   <ARKStep_CInterface>`, followed with a separate section on
   :ref:`using ARKode within Fortran applications <FortranInterface>`.
 
-* The much smaller section :ref:`using ERKStep for C and C++ applications
-  <ERKStep_CInterface>` follows, that provides a full description of
-  ARKode's ERKStep time-stepping module.
+* The much smaller section describing the ERKStep time-stepping
+  module, :ref:`using ERKStep for C and C++ applications
+  <ERKStep_CInterface>`, follows.
 
-* The following sections discuss shared features between ARKode
+* Subsequent sections discuss shared features between ARKode
   and the rest of the SUNDIALS library:
   :ref:`vector data structures <NVectors>`,
   :ref:`matrix data structures <SUNMatrix>`,

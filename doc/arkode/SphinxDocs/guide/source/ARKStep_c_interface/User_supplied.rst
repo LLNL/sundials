@@ -86,7 +86,7 @@ specify the explicit and/or implicit portions of the ODE system:
    ARKStep module.  A recoverable failure error return from the *ARKRhsFn* is
    typically used to flag a value of the dependent variable :math:`y`
    that is "illegal" in some way (e.g., negative where only a
-   nonnegative value is physically meaningful).  If such a return is
+   non-negative value is physically meaningful).  If such a return is
    made, ARKStep will attempt to recover (possibly repeating the
    nonlinear iteration, or reducing the step size) in order to avoid
    this recoverable error return.  There are some situations in which
@@ -248,7 +248,7 @@ as the maximum value such that the error estimates remain below 1.
 
    **Return value:**
    An *ARKAdaptFn* function should return 0 if it
-   successfuly set the next step size, and a non-zero value otherwise.
+   successfully set the next step size, and a non-zero value otherwise.
 
 
 
@@ -593,7 +593,7 @@ preconditioner matrices should approximate :math:`A`.
       * *gamma* -- the scalar :math:`\gamma` appearing in the Newton
         matrix given by :math:`A=M-\gamma J`.
       * *delta* -- an input tolerance to be used if an iterative method
-        is employed in the solution.  In that case, the resdual vector
+        is employed in the solution.  In that case, the residual vector
         :math:`Res = r-Pz` of the system should be made to be less than *delta*
         in the weighted :math:`l_2` norm, i.e. :math:`\left(\sum_{i=1}^n
         \left(Res_i * ewt_i\right)^2 \right)^{1/2} < \delta`, where :math:`\delta =`
@@ -898,7 +898,7 @@ approximate :math:`M`.
       * *r* -- the right-hand side vector of the linear system.
       * *z* -- the computed output solution vector.
       * *delta* -- an input tolerance to be used if an iterative method
-        is employed in the solution.  In that case, the resdual vector
+        is employed in the solution.  In that case, the residual vector
         :math:`Res = r-Pz` of the system should be made to be less than *delta*
         in the weighted :math:`l_2` norm, i.e. :math:`\left(\sum_{i=1}^n
         \left(Res_i * ewt_i\right)^2 \right)^{1/2} < \delta`, where :math:`\delta =`
@@ -920,7 +920,7 @@ approximate :math:`M`.
 
 
 
-.. _ARKStep_CInterface.MasPrecSetupFn:
+.. _ARKStep_CInterface.MassPrecSetupFn:
 
 Mass matrix preconditioning (mass matrix data)
 --------------------------------------------------------------

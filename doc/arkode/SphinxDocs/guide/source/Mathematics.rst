@@ -60,8 +60,8 @@ Runge-Kutta methods <Mathematics.ARK>` and the ERKStep module that
 is optimized for :ref:`explicit Runge-Kutta methods <Mathematics.ERK>`.
 We then discuss the :ref:`adaptive temporal error controllers
 <Mathematics.Adaptivity>` shared by the time-stepping modules,
-including discussion on our choice of norms used within ARKode for
-measuring errors within various components of the solver.
+including discussion of our choice of norms for measuring errors
+within various components of the solver. 
 
 We conclude this section by discussing the nonlinear and linear solver
 strategies used by ARKode's time-stepping modules for solving implicit
@@ -71,8 +71,8 @@ solvers <Mathematics.Nonlinear>`, :ref:`linear solvers
 <Mathematics.Preconditioning>`,  :ref:`error control
 <Mathematics.Error>` within iterative nonlinear and linear solvers,
 algorithms for :ref:`initial predictors <Mathematics.Predictors>` for
-implicit stage solutions, and approaches for handling non-identity
-:ref:`mass-matrices <Mathematics.MassSolve>`.
+implicit stage solutions, and approaches for handling 
+:ref:`non-identity mass-matrices <Mathematics.MassSolve>`.
 
 
 
@@ -81,15 +81,15 @@ implicit stage solutions, and approaches for handling non-identity
 Adaptive single-step methods
 ===============================
 
-The top-level ARKode infrastructure is designed to support
-variably-sized, single-step, IVP integration methods, i.e.
+The ARKode infrastructure is designed to support single-step, IVP
+integration methods, i.e.
 
 .. math::
 
    y_{n} = \varphi(y_{n-1}, h_n)
 
 where :math:`y_{n-1}` is an approximation to the solution :math:`y(t_{n-1})`,
-:math:`y_{n}` is an approximation to the solution :math:`y(t_n)` where
+:math:`y_{n}` is an approximation to the solution :math:`y(t_n)`, 
 :math:`t_n = t_{n-1} + h_n`, and the approximation method is
 represented by the function :math:`\varphi`.
 
@@ -101,8 +101,8 @@ ARKode's time stepping modules may be run in a variety of "modes":
 
 * **NORMAL** -- The solver will take internal steps until it has just
   overtaken a user-specified output time, :math:`t_\text{out}`, in the
-  direction of integration, i.e. :math:`t_{n-1} < t_\text{out} <
-  t_{n}` for forward integration, or :math:`t_{n} < t_\text{out} <
+  direction of integration, i.e. :math:`t_{n-1} < t_\text{out} \le
+  t_{n}` for forward integration, or :math:`t_{n} \le t_\text{out} <
   t_{n-1}` for backward integration.  It will then compute an
   approximation to the solution :math:`y(t_\text{out})` by
   interpolation (using one of the dense output routines described in
@@ -498,7 +498,7 @@ value or array, :math:`ATOL'`.  The choice of weighting vector used
 in any given norm is determined by the quantity being measured: values
 having "solution" units use :eq:`EWT`, whereas values having "equation"
 units use :eq:`RWT`.  Obviously, for problems with :math:`M=I`, the
-solution and eqution units are identical, so the solvers in ARKode
+solution and equation units are identical, so the solvers in ARKode
 will use :eq:`EWT` when computing all error norms.
 
 
@@ -541,8 +541,8 @@ estimates, we have
    \le D h_n^{p+1} + \mathcal O(h_n^{p+2}).
 
 We therefore use the norm of the difference between :math:`y_n` and
-:math:`\tilde{y}_n` as an estimate for the local truncation error at
-the step :math:`n`
+:math:`\tilde{y}_n` as an estimate for the local truncation error
+(LTE) at the step :math:`n`
 
 .. math::
    M T_n = \beta \left(y_n - \tilde{y}_n\right) =
@@ -560,27 +560,23 @@ With this LTE estimate, the local error test is simply
 :math:`\|T_n\| < 1` since this norm includes the user-specified
 tolerances.  If this error test passes, the step is considered
 successful, and the estimate is subsequently used to estimate the next
-step size, as will be described below in the section
-:ref:`Mathematics.Adaptivity.ErrorControl`.  If the error test fails,
-the step is rejected and a new step size :math:`h'` is then computed
-using the error control algorithms described in
-:ref:`Mathematics.Adaptivity.ErrorControl`.  A new attempt at the step
-is made, and the error test is repeated.  If it fails twice, then
-:math:`h'/h` is limited above to 0.3, and limited below to 0.1 after
-an additional step failure.  After seven error test failures, control
-is returned to the user with a failure message.  We note that all of
-the constants listed above are only the default values; each may be
-modified by the user.
+step size, the algorithms used for this purpose are described below in
+the section :ref:`Mathematics.Adaptivity.ErrorControl`.  If the error
+test fails, the step is rejected and a new step size :math:`h'` is
+then computed using the same error controller as for successful steps.
+A new attempt at the step is made, and the error test is repeated.  If
+it fails twice, then :math:`h'/h` is limited above to 0.3, and limited
+below to 0.1 after an additional step failure.  After seven error test
+failures, control is returned to the user with a failure message.  We
+note that all of the constants listed above are only the default
+values; each may be modified by the user.
 
 We define the step size ratio between a prospective step :math:`h'`
-and a completed step :math:`h` as :math:`\eta`, i.e.
-
-.. math::
-   \eta = h' / h.
-
-This is bounded above by :math:`\eta_\text{max}` to ensure that step size
-adjustments are not overly aggressive.  This value is modified
-according to the step and history,
+and a completed step :math:`h` as :math:`\eta`, i.e. :math:`\eta = h'
+/ h`.  This value is subsequently bounded from above by
+:math:`\eta_\text{max}` to ensure that step size adjustments are not
+overly aggressive.  This upper bound changes according to the step
+and history, 
 
 .. math::
    \eta_\text{max} = \begin{cases}
@@ -598,18 +594,18 @@ error control algorithms discussed in the subsections below.
 .. _adaptivity_figure:
 
 .. figure:: figs/time_adaptivity.png
-   :scale: 40 %
+   :scale: 60 %
    :align: center
 
 
-For some problems it may be preferrable to avoid small step size
+For some problems it may be preferable to avoid small step size
 adjustments.  This can be especially true for problems that construct
 a Newton Jacobian matrix or a preconditioner for a nonlinear or an
 iterative linear solve, where this construction is computationally
 expensive, and where convergence can be seriously hindered through use
-of an inaccurate matrix.  In these scenarios, the step is not changed
-when :math:`\eta \in [\eta_L, \eta_U]`.  The default values for this
-interval are :math:`\eta_L = 1` and :math:`\eta_U = 1.5`.
+of an inaccurate matrix.  To accommodate these scenarios, the step is
+left unchanged when :math:`\eta \in [\eta_L, \eta_U]`.  The default
+values for this interval are :math:`\eta_L = 1` and :math:`\eta_U = 1.5`.
 
 We note that any choices for :math:`\eta` (or equivalently,
 :math:`h'`) are subsequently constrained by the optional user-supplied
@@ -651,7 +647,7 @@ PID controller
 ^^^^^^^^^^^^^^^^^^
 
 This is the default time adaptivity controller used by the ARKStep and
-ERKStep mdoules.  It derives from those found in [KC2003]_, [S1998]_, [S2003]_ and
+ERKStep modules.  It derives from those found in [KC2003]_, [S1998]_, [S2003]_ and
 [S2006]_, and uses all three of the local error estimates
 :math:`\varepsilon_n`, :math:`\varepsilon_{n-1}` and
 :math:`\varepsilon_{n-2}` in determination of a prospective step size,
@@ -663,7 +659,7 @@ ERKStep mdoules.  It derives from those found in [KC2003]_, [S1998]_, [S2003]_ a
 where the constants :math:`k_1`, :math:`k_2` and :math:`k_3` default
 to 0.58, 0.21 and 0.1, respectively.  In this estimate, a floor of
 :math:`\varepsilon > 10^{-10}` is enforced to avoid division-by-zero
-rrors.
+errors.
 
 
 
@@ -811,13 +807,14 @@ trial-and-error can result in an unreasonable number of failed steps,
 increasing the cost of the computation.  In these scenarios, a
 stability-based time step controller may also be useful.
 
-Since the explicit stability region for any method depends on the
-problem under consideration, in that the extents of the stability
-region result from the eigenvalues of the linearized operator
-:math:`\frac{\partial f_E}{\partial y}`, information on the maximum
-stable step size is not computed internally within ARKode's
-time-stepping modules.  However, for many problems such information is
-readily available, e.g. in an advection-diffusion calculation
+Since the maximum stable explicit step for any method depends on the
+problem under consideration, in that the value :math:`(h_n\lambda)` must
+reside within a bounded stability region, where :math:`\lambda` are
+the eigenvalues of the linearized operator :math:`\partial f_E /
+\partial y`, information on the maximum stable step size is not
+readily available to ARKode's time-stepping modules.  However, for
+many problems such information may be easily obtained through analysis
+of the problem itself, e.g. in an advection-diffusion calculation
 :math:`f_I` may contain the stiff diffusive components and
 :math:`f_E` may contain the comparably nonstiff advection terms.  In
 this scenario, an explicitly stable step :math:`h_\text{exp}` would be
@@ -840,9 +837,8 @@ limited accordingly,
 .. math::
    h' = \frac{h}{|h|}\min\{c\, |h_\text{exp}|,\, |h_\text{acc}|\}.
 
-Here the explicit stability step factor (often called the "CFL
-factor") :math:`c>0` defaults to :math:`1/2` but may be modified by
-the user.
+Here the explicit stability step factor :math:`c>0` (often called the
+"CFL number") defaults to :math:`1/2` but may be modified by the user.
 
 
 
@@ -870,7 +866,7 @@ adaptivity is disabled:
 
 Additional information on this mode is provided in the sections
 :ref:`ARKStep Optional Inputs <ARKStep_CInterface.OptionalInputs>` and
-:ref:`ARKStep Optional Inputs <ERKStep_CInterface.OptionalInputs>`.
+:ref:`ERKStep Optional Inputs <ERKStep_CInterface.OptionalInputs>`.
 
 
 
@@ -881,19 +877,16 @@ Additional information on this mode is provided in the sections
 Algebraic solvers
 ===============================
 
-Since the ERKStep time-stepping module provides purely explicit
-numerical methods, the remainder of this section currently pertains
-only to the ARKStep module.  More specifically, when using the ARKStep
-time-stepping module for a problem involving either a nonzero implicit
-component, :math:`f_I(t,y) \ne 0`, or a non-identity mass matrix,
-:math:`M \ne I`, systems of linear or nonlinear algebraic equations
-must be solved at each stage and/or step of the method.  This section
-therefore focuses on the variety of mathematical methods provided in the
-ARKode infrastructure for such problems, including :ref:`nonlinear
-solvers <Mathematics.Nonlinear>`, :ref:`linear solvers
-<Mathematics.Linear>`, :ref:`preconditioners
-<Mathematics.Preconditioning>`, :ref:`iterative solver error control
-<Mathematics.Error>`, :ref:`implicit predictors
+More specifically, when using the ARKStep time-stepping module for a
+problem involving either a nonzero implicit component, :math:`f_I(t,y)
+\ne 0`, or a non-identity mass matrix, :math:`M \ne I`, systems of
+linear or nonlinear algebraic equations must be solved at each stage
+and/or step of the method.  This section therefore focuses on the
+variety of mathematical methods provided in the ARKode infrastructure
+for such problems, including :ref:`nonlinear solvers
+<Mathematics.Nonlinear>`, :ref:`linear solvers <Mathematics.Linear>`,
+:ref:`preconditioners <Mathematics.Preconditioning>`, :ref:`iterative
+solver error control <Mathematics.Error>`, :ref:`implicit predictors 
 <Mathematics.Predictors>`, and techniques used for simplifying the
 above solves when using non-time-dependent :ref:`mass-matrices
 <Mathematics.MassSolve>`.
@@ -979,7 +972,8 @@ the problem :eq:`Residual` will be solved using only a single Newton
 iteration. In this case, an additional user-supplied argument
 indicates whether this Jacobian is time-dependent or not, signaling to
 ARKStep whether the Jacobian or preconditioner needs to be recomputed
-at each stage or time step.
+at each stage or time step, or if it can be reused throughout the full
+ARKStep simulation.
 
 The optimal choice of solver (Newton vs fixed-point) is highly
 problem dependent.  Since fixed-point solvers do not require the
@@ -1201,7 +1195,7 @@ update :math:`P`) when:
 However, for direct linear solvers and preconditioners that do not
 rely on costly matrix construction and factorization operations
 (e.g. when using an iterative multigrid method as preconditioner), it
-may be more efficient to update these structures more freqeuently than
+may be more efficient to update these structures more frequently than
 the above heuristics specify, since the increased rate of
 linear/nonlinear solver convergence may more than account for the
 additional cost of Jacobian/preconditioner construction.  To this end,
@@ -1345,7 +1339,7 @@ third case, should in some sense approximate the system matrix
 :math:`{\mathcal A}`.  Simultaneously, in order to be
 cost-effective the matrix :math:`P` (or matrices :math:`P_L` and
 :math:`P_R`) should be reasonably efficient to evaluate and solve.
-Finding an optimal point in this tradeoff between rapid
+Finding an optimal point in this trade-off between rapid
 convergence and low cost can be quite challenging.  Good choices are
 often problem-dependent (for example, see [BH1989]_ for an
 extensive study of preconditioners for reaction-transport systems).
@@ -1462,15 +1456,13 @@ Maximum order predictor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 At the opposite end of the spectrum, ARKStep can utilize ARKode's
-interpolation module :ref:`Mathematics.Interpolation` to construct a
+:ref:`interpolation module <Mathematics.Interpolation>` to construct a
 higher-order polynomial interpolant, :math:`p_q(t)`, based on the two
 most-recently-computed solutions,
 :math:`\left\{ y_{n-2}, f_{n-2}, y_{n-1}, f_{n-1} \right\}`.
 ARKStep can then utilize :math:`p_q(t)` to extrapolate predicted stage
 solutions for each stage time :math:`t^I_{n,i}`.  This polynomial
-order is the same as that specified by the user for dense output,
-via the functions :c:func:`ARKodeSetDenseOrder()` in C/C++ or
-:f:func:`FARKSETIIN()` in Fortran (via the *DENSE_ORDER* argument).
+order is the same as that specified by the user for dense output.
 
 
 
@@ -1519,26 +1511,27 @@ This predictor does not use any information from the preceding
 step, instead using information only within the current step
 :math:`[t_{n-1},t_n]`.  In addition to using the solution and ODE
 right-hand side function, :math:`y_{n-1}` and
-:math:`f_{n-1}=\left[f_E(t_{n-1},y_{n-1}) + f_I(t_{n-1},y_{n-1})\right]`,
-this approach uses the right-hand side from a previously computed
-stage solution in the same step, :math:`f(t_{n-1}+c^I_j h,z_j)` to
-construct a quadratic Hermite interpolant for the prediction.  If we
-define the constants :math:`\tilde{h} = c^I_j h` and :math:`\tau =
-c^I_i h`, the predictor is given by
+:math:`f(t_{n-1},y_{n-1})`, this approach uses the right-hand
+side from a previously computed stage solution in the same step,
+:math:`f(t_{n-1}+c^I_j h,z_j)` to construct a quadratic Hermite
+interpolant for the prediction.  If we define the constants
+:math:`\tilde{h} = c^I_j h` and :math:`\tau = c^I_i h`, the predictor
+is given by 
 
 .. math::
 
    z_i^{(0)} = y_{n-1} + \left(\tau - \frac{\tau^2}{2\tilde{h}}\right)
       f(t_{n-1},y_{n-1}) + \frac{\tau^2}{2\tilde{h}} f(t_{n-1}+\tilde{h},z_j).
 
-For stages without a nonzero preceding stage time :math:`c^I_j\ne 0`
-for :math:`j<i`, this method reduces to using the trivial predictor
-:math:`z_i^{(0)} = y_{n-1}`.  For stages having multiple precdeding
-nonzero :math:`c^I_j`, we choose the stage having largest :math:`c^I_j`
-value, to minimize the level of extrapolation used in the prediction.
+For stages without a nonzero preceding stage time,
+i.e. :math:`c^I_j\ne 0` for :math:`j<i`, this method reduces to using
+the trivial predictor :math:`z_i^{(0)} = y_{n-1}`.  For stages having
+multiple preceding nonzero :math:`c^I_j`, we choose the stage having
+largest :math:`c^I_j` value, to minimize the level of extrapolation
+used in the prediction.
 
 We note that in general, each stage solution :math:`z_j` has
-signicantly worse accuracy than the time step solutions
+significantly worse accuracy than the time step solutions
 :math:`y_{n-1}`, due to the difference between the *stage order* and
 the *method order* in Runge-Kutta methods.  As a result, the accuracy
 of this predictor will generally be rather limited, but it is
@@ -1549,8 +1542,8 @@ step interval :math:`[t_{n-2},t_{n-1}]`.
 We further note that although this method could be used with
 non-identity mass matrix :math:`M\ne I`, support for that mode is not
 currently implemented, so selection of this predictor in the case that
-:math:`M\ne I` will result in use of the
-:ref:`Mathematics.Predictors.Trivial`.
+:math:`M\ne I` will result in use of the trivial predictor.
+
 
 
 .. _Mathematics.Predictors.MinimumCorrection:
@@ -1567,7 +1560,7 @@ each stage solves a nonlinear equation
 .. math::
    z_i &= y_{n-1} + h_n \sum_{j=1}^{i-1} A^E_{i,j} f_E(t^E_{n,j}, z_j)
    + h_n \sum_{j=1}^{i}   A^I_{i,j} f_I(t^I_{n,j}, z_j), \\
-   \Leftrightarrow \qquad & \\
+   \Leftrightarrow \qquad \qquad & \\
    G(z_i) &\equiv z_i - h_n A^I_{i,i} f_I(t^I_{n,i}, z_i) - a_i = 0.
 
 This prediction method merely computes the predictor :math:`z_i` as
@@ -1575,14 +1568,13 @@ This prediction method merely computes the predictor :math:`z_i` as
 .. math::
    z_i &= y_{n-1} + h_n \sum_{j=1}^{i-1} A^E_{i,j} f_E(t^E_{n,j}, z_j)
                  + h_n \sum_{j=1}^{i-1}  A^I_{i,j} f_I(t^I_{n,j}, z_j), \\
-   \Leftrightarrow \quad & \\
+   \Leftrightarrow \quad \qquad & \\
    z_i &= a_i.
 
 We again note that although this method could be used with
 non-identity mass matrix :math:`M\ne I`, support for that mode is not
 currently implemented, so selection of this predictor in the case that
-:math:`M\ne I` will result in use of the
-:ref:`Mathematics.Predictors.Trivial`.
+:math:`M\ne I` will result in use of the trivial predictor.
 
 
 

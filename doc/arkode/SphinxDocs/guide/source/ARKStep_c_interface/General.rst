@@ -137,7 +137,7 @@ When using ARKStep, the calling program must include several header
 files so that various macros and data types can be used. The header
 file that is always required is:
 
-- ``arkode/arkode_arkstep.h``, the main header file for the ERKStep
+- ``arkode/arkode_arkstep.h``, the main header file for the ARKStep
   time-stepping module, which defines the several types and various
   constants, includes function prototypes, and includes the shared
   ``arkode/arkode.h`` header file.
@@ -189,7 +189,7 @@ ARKode for either the Newton solver or for mass-matrix solves, are:
     SUNLINSOL_LAPACKBAND;
 
   - ``sunlinsol/sunlinsol_klu.h``,
-    which is used with the {\klu} sparse linear solver interface module,
+    which is used with the KLU sparse linear solver interface module,
     SUNLINSOL_KLU;
 
   - ``sunlinsol/sunlinsol_superlumt.h``,

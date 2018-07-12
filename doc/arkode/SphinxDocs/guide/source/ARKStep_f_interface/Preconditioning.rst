@@ -29,14 +29,14 @@ Usage of the FARKBP interface to ARKBANDPRE
 
 The FARKBP interface module is a package of C functions which,
 as part of the FARKODE interface module, support the use of the
-ARKode solver with the serial or threaded NVector modules
+ARKStep solver with the serial or threaded NVector modules
 (:ref:`NVectors.NVSerial`, :ref:`NVectors.OpenMP` or
 :ref:`NVectors.Pthreads`), and the combination of the ARKBANDPRE
 preconditioner module (see the section :ref:`ARKStep_CInterface.BandPre`) with
 the ARKSPILS interface and any of the Krylov iterative linear solvers.
 
 The two user-callable functions in this package, with the
-corresponding ARKode function around which they wrap, are:
+corresponding ARKStep function around which they wrap, are:
 
 * :f:func:`FARKBPINIT()` interfaces to :c:func:`ARKBandPrecInit()`.
 
@@ -125,7 +125,7 @@ are unchanged from the main program described in the section
 
 9. *Additional solution output*
 
-10. *Problem reinitialization*
+10. *Problem re-initialization*
 
 11. *Memory deallocation*
 
@@ -141,14 +141,14 @@ Usage of the FARKBBD interface to ARKBBDPRE
 -----------------------------------------------
 
 The FARKBBD interface module is a package of C functions which, as
-part of the FARKODE interface module, support the use of the ARKode
+part of the FARKODE interface module, support the use of the ARKStep
 solver with the parallel vector module (:ref:`NVectors.NVParallel`),
 and the combination of the ARKBBDPRE preconditioner module (see the
 section :ref:`ARKStep_CInterface.BBDPre`) with any of the Krylov iterative
 linear solvers.
 
 The user-callable functions in this package, with the corresponding
-ARKode and ARKBBDPRE functions, are as follows:
+ARKStep and ARKBBDPRE functions, are as follows:
 
 * :f:func:`FARKBBDINIT()` interfaces to :c:func:`ARKBBDPrecInit()`.
 
@@ -160,7 +160,7 @@ ARKode and ARKBBDPRE functions, are as follows:
 In addition to the functions required for general FARKODE usage, the
 user-supplied functions required by this package are listed in the
 table below, each with the corresponding interface function which
-calls it (and its type within ARKBBDPRE or ARKode).
+calls it (and its type within ARKBBDPRE or ARKStep).
 
 
 *Table: FARKBBD function mapping*
@@ -168,7 +168,7 @@ calls it (and its type within ARKBBDPRE or ARKode).
 .. cssclass:: table-bordered
 
 +--------------------------+------------------------+-------------------------------------+
-| FARKBBD routine          | ARKode routine         | ARKode interface                    |
+| FARKBBD routine          | ARKStep routine        | ARKStep interface                   |
 | (FORTRAN, user-supplied) | (C, interface)         | function type                       |
 +==========================+========================+=====================================+
 | :f:func:`FARKGLOCFN()`   | FARKgloc               | :c:func:`ARKLocalFn()`              |
@@ -277,11 +277,11 @@ unchanged from the main program described in the section
 
 9. *Additional solution output*
 
-10. Problem reinitialization
+10. Problem re-initialization
 
     If a sequence of problems of the same size is being solved using
     the same linear solver in combination with the ARKBBDPRE
-    preconditioner, then the ARKode package can be re-initialized for
+    preconditioner, then the ARKStep package can be re-initialized for
     the second and subsequent problems by calling
     :f:func:`FARKREINIT()`, following which a call to
     :f:func:`FARKBBDREINIT()` may or may not be needed. If the input
@@ -317,9 +317,9 @@ unchanged from the main program described in the section
 11. Problem resizing
 
     If a sequence of problems of different sizes (but with similar
-    dyanamical time scales) is being solved using the same linear
+    dynamical time scales) is being solved using the same linear
     solver (SPGMR, SPBCG, SPTFQMR, SPFGMR or PCG) in combination with
-    the ARKBBDPRE preconditioner, then the ARKode package can be
+    the ARKBBDPRE preconditioner, then the ARKStep package can be
     re-initialized for the second and subsequent problems by calling
     :f:func:`FARKRESIZE()`, following which a call to
     :f:func:`FARKBBDINIT()` is required to delete and re-allocate the
@@ -385,8 +385,8 @@ unchanged from the main program described in the section
     .. f:subroutine:: FARKCOMMFN(NLOC, T, YLOC, IPAR, RPAR, IER)
 
        User-supplied routine (of type :c:func:`ARKCommFn()`) that
-       performs all interprocess communication necessary for the
-       executation of the :f:func:`FARKGLOCFN()` function above, using
+       performs all inter-process communication necessary for the
+       execution of the :f:func:`FARKGLOCFN()` function above, using
        the input vector *YLOC*.
 
        **Arguments:**
