@@ -16,23 +16,23 @@ Appendix: ARKode Constants
 
 Below we list all input and output constants used by the main solver,
 timestepper, and linear solver modules, together with their numerical
-values and a short description of their meaning. 
+values and a short description of their meaning.
 
 
 ARKode input constants
 ==========================
 
-ARKode main solver module
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+Shared ARKode input constants
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:index:`ARK_NORMAL` (1): 
+:index:`ARK_NORMAL` (1):
    Solver returns at a specified output time.
 
-:index:`ARK_ONE_STEP`  (2): 
+:index:`ARK_ONE_STEP`  (2):
    Solver returns after each successful step.
 
 
-Explicit Butcher table specification 
+Explicit Butcher table specification
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 :index:`HEUN_EULER_2_1_2 <Heun-Euler-2-1-2 ERK method>`  (0):
@@ -93,7 +93,7 @@ Explicit Butcher table specification
 
 
 
-Implicit Butcher table specification 
+Implicit Butcher table specification
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 :index:`SDIRK_2_1_2 <SDIRK-2-1-2 method>`  (12):
@@ -147,10 +147,10 @@ Implicit Butcher table specification
 
 
 
-ImEx Butcher table specification 
+ImEx Butcher table specification
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:index:`ARK324L2SA_ERK_4_2_3 and ARK324L2SA_DIRK_4_2_3 <ARK-4-2-3 ARK method>` (2 and 16): 
+:index:`ARK324L2SA_ERK_4_2_3 and ARK324L2SA_DIRK_4_2_3 <ARK-4-2-3 ARK method>` (2 and 16):
    Use the ARK-4-2-3 ARK method
 
 :index:`ARK436L2SA_ERK_6_3_4 and ARK436L2SA_DIRK_6_3_4 <ARK-6-3-4 ARK method>` (4 and 21):
@@ -160,7 +160,7 @@ ImEx Butcher table specification
    Use the ARK-8-4-5 ARK method
 
 
-:index:`DEFAULT_ARK_ETABLE_3` and :index:`DEFAULT_ARK_ITABLE_3` (ARK324L2SA_[ERK,DIRK]_4_2_3): 
+:index:`DEFAULT_ARK_ETABLE_3` and :index:`DEFAULT_ARK_ITABLE_3` (ARK324L2SA_[ERK,DIRK]_4_2_3):
    Use the default third-order ARK method
 
 :index:`DEFAULT_ARK_ETABLE_4` and :index:`DEFAULT_ARK_ITABLE_4` (ARK436L2SA_[ERK,DIRK]_6_3_4):
@@ -175,122 +175,122 @@ ImEx Butcher table specification
 ARKode output constants
 ==========================
 
-ARKode main solver module
+Shared ARKode output constants
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:index:`ARK_SUCCESS`  (0): 
+:index:`ARK_SUCCESS`  (0):
    Successful function return.
 
-:index:`ARK_TSTOP_RETURN`  (1): 
+:index:`ARK_TSTOP_RETURN`  (1):
    ARKode succeeded by reachign the specified
    stopping point.
 
-:index:`ARK_ROOT_RETURN`  (2): 
+:index:`ARK_ROOT_RETURN`  (2):
    ARKode succeeded and found one more more roots.
 
-:index:`ARK_WARNING`  (99): 
+:index:`ARK_WARNING`  (99):
    ARKode succeeded but an unusual situation occurred.
 
-:index:`ARK_TOO_MUCH_WORK`  (-1): 
+:index:`ARK_TOO_MUCH_WORK`  (-1):
    The solver took ``mxstep`` internal steps
    but could not reach ``tout``.
 
-:index:`ARK_TOO_MUCH_ACC`  (-2): 
+:index:`ARK_TOO_MUCH_ACC`  (-2):
    The solver could not satisfy the accuracy
    demanded by the user for some internal step.
 
-:index:`ARK_ERR_FAILURE`  (-3): 
+:index:`ARK_ERR_FAILURE`  (-3):
    Error test failures occurred too many times
    during one internal time step, or the minimum step size was
-   reached. 
+   reached.
 
-:index:`ARK_CONV_FAILURE`  (-4): 
+:index:`ARK_CONV_FAILURE`  (-4):
    Convergence test failures occurred too many
    times during one internal time step, or the minimum step size was
-   reached. 
+   reached.
 
-:index:`ARK_LINIT_FAIL`  (-5): 
+:index:`ARK_LINIT_FAIL`  (-5):
    The linear solver's initialization function failed.
 
-:index:`ARK_LSETUP_FAIL`  (-6): 
+:index:`ARK_LSETUP_FAIL`  (-6):
    The linear solver's setup function failed in
    an unrecoverable manner.
 
-:index:`ARK_LSOLVE_FAIL`  (-7): 
-   The linear solver's solve function failed in 
+:index:`ARK_LSOLVE_FAIL`  (-7):
+   The linear solver's solve function failed in
    an unrecoverable manner.
 
-:index:`ARK_RHSFUNC_FAIL`  (-8): 
+:index:`ARK_RHSFUNC_FAIL`  (-8):
    The right-hand side function failed in an
    unrecoverable manner.
 
-:index:`ARK_FIRST_RHSFUNC_ERR`  (-9): 
-   The right-hand side function failed 
+:index:`ARK_FIRST_RHSFUNC_ERR`  (-9):
+   The right-hand side function failed
    at the first call.
 
-:index:`ARK_REPTD_RHSFUNC_ERR`  (-10): 
-   The right-hand side function had 
+:index:`ARK_REPTD_RHSFUNC_ERR`  (-10):
+   The right-hand side function had
    repeated recoverable errors.
 
-:index:`ARK_UNREC_RHSFUNC_ERR`  (-11): 
+:index:`ARK_UNREC_RHSFUNC_ERR`  (-11):
    The right-hand side function had a
    recoverable error, but no recovery is possible.
 
-:index:`ARK_RTFUNC_FAIL`  (-12): 
+:index:`ARK_RTFUNC_FAIL`  (-12):
    The rootfinding function failed in an
    unrecoverable manner.
 
-:index:`ARK_LFREE_FAIL`  (-13): 
+:index:`ARK_LFREE_FAIL`  (-13):
    The linear solver's memory deallocation function failed.
 
-:index:`ARK_MASSINIT_FAIL`  (-14): 
+:index:`ARK_MASSINIT_FAIL`  (-14):
    The mass matrix linear solver's initialization function failed.
 
-:index:`ARK_MASSSETUP_FAIL`  (-15): 
+:index:`ARK_MASSSETUP_FAIL`  (-15):
    The mass matrix linear solver's setup function failed in
    an unrecoverable manner.
 
-:index:`ARK_MASSSOLVE_FAIL`  (-16): 
-   The mass matrix linear solver's solve function failed in 
+:index:`ARK_MASSSOLVE_FAIL`  (-16):
+   The mass matrix linear solver's solve function failed in
    an unrecoverable manner.
 
-:index:`ARK_MASSFREE_FAIL`  (-17): 
+:index:`ARK_MASSFREE_FAIL`  (-17):
    The mass matrix linear solver's memory deallocation function failed.
 
-:index:`ARK_MASSMULT_FAIL`  (-17): 
+:index:`ARK_MASSMULT_FAIL`  (-17):
    The mass matrix-vector product function failed.
 
-:index:`ARK_MEM_FAIL`  (-20): 
+:index:`ARK_MEM_FAIL`  (-20):
    A memory allocation failed.
 
-:index:`ARK_MEM_NULL`  (-21): 
+:index:`ARK_MEM_NULL`  (-21):
    The ``arkode_mem`` argument was ``NULL``.
 
-:index:`ARK_ILL_INPUT`  (-22): 
+:index:`ARK_ILL_INPUT`  (-22):
    One of the function inputs is illegal.
 
-:index:`ARK_NO_MALLOC`  (-23): 
-   The ARKode memory block was not allocated by 
+:index:`ARK_NO_MALLOC`  (-23):
+   The ARKode memory block was not allocated by
    a call to :c:func:`ARKodeMalloc()`.
 
-:index:`ARK_BAD_K`  (-24): 
+:index:`ARK_BAD_K`  (-24):
    The derivative order :math:`k` is larger than allowed.
 
-:index:`ARK_BAD_T`  (-25): 
+:index:`ARK_BAD_T`  (-25):
    The time :math:`t` is outside the last step taken.
 
-:index:`ARK_BAD_DKY`  (-26): 
+:index:`ARK_BAD_DKY`  (-26):
    The output derivative vector is ``NULL``.
 
-:index:`ARK_TOO_CLOSE`  (-27): 
-   The output and initial times are too close to 
+:index:`ARK_TOO_CLOSE`  (-27):
+   The output and initial times are too close to
    each other.
 
 ..
-   :index:`ARK_POSTPROCESS_FAIL`  (-28): 
+   :index:`ARK_POSTPROCESS_FAIL`  (-28):
       An error occurred when calling the user-provided ``ARKPostProcessStepFn`` routine.
 
-:index:`ARK_VECTOROP_ERR`  (-29): 
+:index:`ARK_VECTOROP_ERR`  (-29):
    An error occurred when calling an NVECTOR routine.
 
 
@@ -298,40 +298,40 @@ ARKode main solver module
 ARKDLS linear solver modules
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:index:`ARKDLS_SUCCESS`  (0): 
+:index:`ARKDLS_SUCCESS`  (0):
    Successful function return.
 
-:index:`ARKDLS_MEM_NULL`  (-1): 
+:index:`ARKDLS_MEM_NULL`  (-1):
    The ``arkode_mem`` argument was ``NULL``.
 
-:index:`ARKDLS_LMEM_NULL`  (-2): 
+:index:`ARKDLS_LMEM_NULL`  (-2):
    The ARKDLS linear solver has not been initialized.
 
-:index:`ARKDLS_ILL_INPUT`  (-3): 
+:index:`ARKDLS_ILL_INPUT`  (-3):
    The ARKDLS solver is not compatible with
    the current NVECTOR module.
 
-:index:`ARKDLS_MEM_FAIL`  (-4): 
+:index:`ARKDLS_MEM_FAIL`  (-4):
    A memory allocation request failed.
 
-:index:`ARKDLS_MASSMEM_FAIL`  (-5): 
+:index:`ARKDLS_MASSMEM_FAIL`  (-5):
    A memory allocation request failed for the mass matrix solver.
 
-:index:`ARKDLS_JACFUNC_UNRECVR`  (-6): 
+:index:`ARKDLS_JACFUNC_UNRECVR`  (-6):
    The Jacobian function failed in an
    unrecoverable manner.
 
-:index:`ARKDLS_JACFUNC_RECVR`  (-7): 
+:index:`ARKDLS_JACFUNC_RECVR`  (-7):
    The Jacobian function had a recoverable error.
 
-:index:`ARKDLS_MASSFUNC_UNRECVR`  (-8): 
+:index:`ARKDLS_MASSFUNC_UNRECVR`  (-8):
    The mass matrix function failed in an
    unrecoverable manner.
 
-:index:`ARKDLS_MASSFUNC_RECVR`  (-9): 
+:index:`ARKDLS_MASSFUNC_RECVR`  (-9):
    The mass matrix function had a recoverable error.
 
-:index:`ARKDLS_SUNMAT_FAIL`  (-10): 
+:index:`ARKDLS_SUNMAT_FAIL`  (-10):
    An error occurred with the current SUNMATRIX module.
 
 
@@ -339,28 +339,27 @@ ARKDLS linear solver modules
 ARKSPILS linear solver modules
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:index:`ARKSPILS_SUCCESS`  (0): 
+:index:`ARKSPILS_SUCCESS`  (0):
    Successful function return.
 
-:index:`ARKSPILS_MEM_NULL`  (-1): 
+:index:`ARKSPILS_MEM_NULL`  (-1):
    The ``arkode_mem`` argument was ``NULL``.
 
-:index:`ARKSPILS_LMEM_NULL`  (-2): 
+:index:`ARKSPILS_LMEM_NULL`  (-2):
    The ARKSPILS linear solver has not been initialized.
 
-:index:`AKRSPILS_ILL_INPUT`  (-3): 
+:index:`AKRSPILS_ILL_INPUT`  (-3):
    The ARKSPILS solver is not compatible with
    the current NVECTOR module, or an input value was illegal.
 
-:index:`ARKSPILS_MEM_FAIL`  (-4): 
+:index:`ARKSPILS_MEM_FAIL`  (-4):
    A memory allocation request failed.
 
-:index:`ARKSPILS_PMEM_FAIL`  (-5): 
+:index:`ARKSPILS_PMEM_FAIL`  (-5):
    The preconditioner module has not been initialized.
 
-:index:`ARKSPILS_MASSMEM_FAIL`  (-6): 
+:index:`ARKSPILS_MASSMEM_FAIL`  (-6):
    A memory allocation request failed in the mass matrix solver.
 
-:index:`ARKSPILS_SUNLS_FAIL`  (-10): 
+:index:`ARKSPILS_SUNLS_FAIL`  (-10):
    An error occurred with the current SUNLINSOL module.
-

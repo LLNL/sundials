@@ -33,7 +33,7 @@ Interface to the NVECTOR modules
   :c:func:`N_VNewEmpty_Serial()`.
 
 * :f:func:`FNVINITP()` (defined by NVECTOR_PARALLEL) interfaces to
-  :c:func:`N_VNewEmpty_Parallel()`. 
+  :c:func:`N_VNewEmpty_Parallel()`.
 
 * :f:func:`FNVINITOMP()` (defined by NVECTOR_OPENMP) interfaces to
   :c:func:`N_VNewEmpty_OpenMP()`.
@@ -96,7 +96,7 @@ Interface to the SUNLINSOL modules
 * :f:func:`FSUNSUPERLUMTINIT()` (defined by SUNLINSOL_SUPERLUMT)
   interfaces to :c:func:`SUNSuperLUMT()`.
 
-     
+
 
 Interface to the main ARKODE module
 --------------------------------------
@@ -110,7 +110,7 @@ Interface to the main ARKODE module
 * :f:func:`FARKRESIZE()` interfaces to :c:func:`ARKodeResize()`.
 
 * :f:func:`FARKSETIIN()` and :f:func:`FARKSETRIN()` interface to the
-  ARKodeSet* and ARKStepSet* functions (see :ref:`CInterface.OptionalInputs`).
+  ARKodeSet* and ARKStepSet* functions (see :ref:`ARKStep_CInterface.OptionalInputs`).
 
 * :f:func:`FARKEWTSET()` interfaces to :c:func:`ARKodeWFtolerances()`.
 
@@ -131,9 +131,9 @@ Interface to the main ARKODE module
    * :f:func:`FARKSETDIAGNOSTICS()` interfaces to :c:func:`ARKodeSetDiagnostics()`.
 
 * :f:func:`FARKODE()` interfaces to :c:func:`ARKode()`, the
-  ARKodeGet* functions (see :ref:`CInterface.OptionalOutputs`), 
+  ARKodeGet* functions (see :ref:`ARKStep_CInterface.OptionalOutputs`),
   and to the optional output functions for the selected linear
-  solver module (see :ref:`CInterface.OptionalOutputs`). 
+  solver module (see :ref:`ARKStep_CInterface.OptionalOutputs`).
 
 * :f:func:`FARKDKY()` interfaces to the interpolated output function
   :c:func:`ARKodeGetDky()`.
@@ -174,20 +174,20 @@ Interface to the mass matrix linear solver interfaces
 
 * :f:func:`FARKDLSMASSINIT()` interfaces to :c:func:`ARKDlsSetMassLinearSolver()`.
 
-* :f:func:`FARKDENSESETMASS()` interfaces to :c:func:`ARKDlsSetMassFn()`. 
+* :f:func:`FARKDENSESETMASS()` interfaces to :c:func:`ARKDlsSetMassFn()`.
 
-* :f:func:`FARKBANDSETMASS()` interfaces to :c:func:`ARKDlsSetMassFn()`. 
+* :f:func:`FARKBANDSETMASS()` interfaces to :c:func:`ARKDlsSetMassFn()`.
 
-* :f:func:`FARKSPARSESETMASS()` interfaces to :c:func:`ARKDlsSetMassFn()`. 
+* :f:func:`FARKSPARSESETMASS()` interfaces to :c:func:`ARKDlsSetMassFn()`.
 
 * :f:func:`FARKSPILSMASSINIT()` interfaces to :c:func:`ARKSpilsSetMassLinearSolver()`.
 
 * :f:func:`FARKSPILSSETMASSEPSLIN()` interfaces to :c:func:`ARKSpilsSetMassEpsLin()`.
 
-* :f:func:`FARKSPILSSETMASS()` interfaces to :c:func:`ARKSpilsSetMassTimes()`. 
+* :f:func:`FARKSPILSSETMASS()` interfaces to :c:func:`ARKSpilsSetMassTimes()`.
 
 * :f:func:`FARKSPILSSETMASSPREC()` interfaces to
-  :c:func:`ARKSpilsSetMassPreconditioner()`. 
+  :c:func:`ARKSpilsSetMassPreconditioner()`.
 
 
 
@@ -201,11 +201,11 @@ As with the native C interface, the FARKode solver interface requires
 user-supplied functions to specify the ODE problem to be solved.  In
 contrast to the case of direct use of ARKode, and of most Fortran ODE
 solvers, the names of all user-supplied routines here are fixed, in
-order to maximize portability for the resulting mixed-language program. 
+order to maximize portability for the resulting mixed-language program.
 As a result, whether using a purely implicit, purely explicit, or
 mixed implicit-explicit solver, routines for both :math:`f_E(t,y)` and
 :math:`f_I(t,y)` must be provided by the user (though either of which
-may do nothing): 
+may do nothing):
 
 .. cssclass:: table-bordered
 
@@ -222,7 +222,7 @@ In addition, as with the native C interface a user may provide
 additional routines to assist in the solution process.  Each of the
 following user-supplied routines is activated by calling the specified
 "activation" routine, with the exception of :f:func:`FARKSPJAC()`
-which is required whenever a sparse matrix solver is used: 
+which is required whenever a sparse matrix solver is used:
 
 .. cssclass:: table-bordered
 

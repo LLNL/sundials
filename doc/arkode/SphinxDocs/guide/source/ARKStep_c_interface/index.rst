@@ -8,17 +8,17 @@
 
 :tocdepth: 3
 
-.. _CInterface:
+.. _ARKStep_CInterface:
 
-=======================================
-Using ARKode for C and C++ Applications
-=======================================
+=========================================
+Using ARKStep for C and C++ Applications
+=========================================
 
-This chapter is concerned with the use of ARKode for the solution
-of initial value problems (IVPs) in a C or C++ language setting.  The
-following sections discuss the header files and the layout of the
-user's main program, and provide descriptions of the ARKode
-user-callable functions and user-supplied functions. 
+This chapter is concerned with the use of the ARKStep time-stepping
+module for the solution of initial value problems (IVPs) in a C or C++
+language setting.  The following sections discuss the header files and
+the layout of the user's main program, and provide descriptions of the
+ARKStep user-callable functions and user-supplied functions.
 
 The example programs described in the companion document [R2013]_ may
 be helpful. Those codes may be used as templates for new codes and are
@@ -26,9 +26,9 @@ included in the ARKode package ``examples`` subdirectory.
 
 Users with applications written in Fortran should see the chapter
 :ref:`FortranInterface`, which describes the Fortran/C interface
-module, and may look to the Fortran example programs also described in
-the companion document [R2013]_.  These codes are also located in the
-ARKode package ``examples`` directory.
+module for ARKStep, and may look to the Fortran example programs also
+described in the companion document [R2013]_.  These codes are also
+located in the ARKode package ``examples`` directory.
 
 The user should be aware that not all SUNLINSOL, SUNMATRIX and
 preconditioning modules are compatible with all NVECTOR
@@ -44,11 +44,12 @@ only compatible with the NVECTOR_SERIAL, NVECTOR_OPENMP or
 NVECTOR_PTHREADS vector implementations, and the preconditioner module
 ARKBBDPRE can only be used with NVECTOR_PARALLEL.
 
-ARKode uses various constants for both input and output. These are
-defined as needed in this chapter, but for convenience the full list
-is provided separately in the section :ref:`Constants`. 
+ARKStep uses various input and output constants from the shared ARKode
+infrastructure. These are defined as needed in this chapter, but for
+convenience the full list is provided separately in the section
+:ref:`Constants`.
 
-The relevant information on using ARKode's C and C++ interfaces is
+The relevant information on using ARKStep's C and C++ interfaces is
 detailed in the following sub-sections:
 
 .. toctree::

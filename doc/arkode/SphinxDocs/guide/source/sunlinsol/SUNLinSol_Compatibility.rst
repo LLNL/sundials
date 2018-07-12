@@ -15,12 +15,12 @@ Compatibility of SUNLinearSolver modules
 ========================================
 
 We note that not all ``SUNLinearSolver`` types are compatible with all
-``SUNMatrix`` and ``N_Vector`` types provided with SUNDIALS.  In Table 
+``SUNMatrix`` and ``N_Vector`` types provided with SUNDIALS.  In Table
 :ref:`SUNLinSol.linsol-matrix` we show the direct linear solvers
 available as ``SUNLinearSolver`` modules, and the compatible matrix
-implementations.  Recall that Table :ref:`CInterface.solver-vector` shows the
-compatibility between all ``SUNLinearSolver`` modules and vector
-implementations. 
+implementations.  Recall that Table :ref:`ARKStep_CInterface.solver-vector`
+shows the compatibility between all ``SUNLinearSolver`` modules and vector
+implementations.
 
 
 .. _SUNLinSol.linsol-matrix:
@@ -41,5 +41,3 @@ KLU                           X      X
 SuperLU_MT                    X      X
 User supplied    X     X      X      X
 ================ ===== ====== ====== =============
-
-

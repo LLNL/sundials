@@ -8,26 +8,26 @@
 
 :tocdepth: 3
 
-.. _CInterface.Headers:
+.. _ARKStep_CInterface.Headers:
 
 Access to library and header files
 ===========================================
 
 At this point, it is assumed that the installation of ARKode,
 following the procedure described in the section :ref:`Installation`,
-has been completed successfully. 
+has been completed successfully.
 
 Regardless of where the user's application program resides, its
 associated compilation and load commands must make reference to the
 appropriate locations for the library and header files required by
-ARKode. The relevant library files are 
+ARKode. The relevant library files are
 
 - ``libdir/libsundials_arkode.lib``,
-- ``libdir/libsundials_nvec*.lib`` (one or two files), 
+- ``libdir/libsundials_nvec*.lib`` (one or two files),
 
 where the file extension ``.lib`` is typically ``.so`` for shared
 libraries and ``.a`` for static libraries.  The relevant header files
-are located in the subdirectories 
+are located in the subdirectories
 
 - ``incdir/include/arkode``
 - ``incdir/include/sundials``
@@ -43,7 +43,7 @@ section :ref:`Installation` for further details).
 
 
 
-.. _CInterface.DataTypes:
+.. _ARKStep_CInterface.DataTypes:
 
 Data Types
 ===========================================
@@ -53,7 +53,7 @@ type ``realtype``, which is used by the SUNDIALS solvers for all
 floating-point data, the definition of the integer type
 ``sunindextype``, which is used for vector and matrix indices, and
 ``booleantype``, which is used for certain logic operations within
-SUNDIALS. 
+SUNDIALS.
 
 
 Floating point types
@@ -63,14 +63,14 @@ The type ":index:`realtype`" can be set to
 ``float``, ``double``, or ``long double``, depending on how SUNDIALS
 was installed (with the default being ``double``). The user can change
 the precision of the SUNDIALS solvers' floating-point arithmetic at the
-configuration stage (see the section :ref:`Installation.CMake.Options`). 
+configuration stage (see the section :ref:`Installation.CMake.Options`).
 
 Additionally, based on the current precision, ``sundials_types.h``
 defines the values :index:`BIG_REAL` to be the largest value
 representable as a ``realtype``, :index:`SMALL_REAL` to be the
 smallest positive value representable as a ``realtype``, and
 :index:`UNIT_ROUNDOFF` to be the smallest realtype number,
-:math:`\varepsilon`, such that :math:`1.0 + \varepsilon \ne 1.0`.  
+:math:`\varepsilon`, such that :math:`1.0 + \varepsilon \ne 1.0`.
 
 Within SUNDIALS, real constants may be set to have the appropriate
 precision by way of a macro called :index:`RCONST`.  It is this macro
@@ -82,8 +82,8 @@ constant makes it a ``float``, whereas using the suffix "L" makes it a
 
 .. code-block:: c
 
-   #define A 1.0 
-   #define B 1.0F 
+   #define A 1.0
+   #define B 1.0F
    #define C 1.0L
 
 defines ``A`` to be a ``double`` constant equal to 1.0, ``B`` to be a
@@ -91,7 +91,7 @@ defines ``A`` to be a ``double`` constant equal to 1.0, ``B`` to be a
 equal to 1.0.  The macro call ``RCONST(1.0)`` automatically expands to
 1.0 if ``realtype`` is ``double``, to ``1.0F`` if ``realtype`` is ``float``, or
 to ``1.0L`` if ``realtype`` is ``long double``. SUNDIALS uses the ``RCONST``
-macro internally to declare all of its floating-point constants. 
+macro internally to declare all of its floating-point constants.
 
 A user program which uses the type ``realtype`` and the ``RCONST`` macro
 to handle floating-point constants is precision-independent, except for
@@ -115,8 +115,8 @@ to ``int32_t`` at the configuration stage. The configuration system
 will detect if the compiler does not support portable types, and will
 replace ``int32_t`` and ``int64_t`` with ``int`` and ``long int``,
 respectively, to ensure use of the desired sizes on Linux, Mac OS X, and Windows
-platforms. SUNDIALS currently does not support *unsigned* integer types 
-for vector and matrix indices, although these could be added in the future if there 
+platforms. SUNDIALS currently does not support *unsigned* integer types
+for vector and matrix indices, although these could be added in the future if there
 is sufficient demand.
 
 A user program which uses ``sunindextype`` to handle vector and matrix indices
@@ -133,57 +133,27 @@ see the section :ref:`Installation`).
 Header Files
 ===========================================
 
-The calling program must include several header files so that various
-macros and data types can be used. The header file that is always
-required is: 
+When using ARKStep, the calling program must include several header
+files so that various macros and data types can be used. The header
+file that is always required is:
 
-- ``arkode/arkode.h``, the main header file for ARKode, which defines the
-  several types and various constants, and includes function
-  prototypes. 
+- ``arkode/arkode_arkstep.h``, the main header file for the ERKStep
+  time-stepping module, which defines the several types and various
+  constants, includes function prototypes, and includes the shared
+  ``arkode/arkode.h`` header file.
 
 Note that ``arkode.h`` includes ``sundials_types.h`` directly, which
 defines the types ``realtype``,  ``sunindextype`` and ``booleantype``
 and the constants ``SUNFALSE`` and ``SUNTRUE``, so a user program does
-not need to include ``sundials_types.h`` directly. 
+not need to include ``sundials_types.h`` directly.
 
-The calling program must also include the header file for their
-desired time-stepping module:
-
-- ``arkode/arkode_arkstep.h``, the header file for solving problems
-  posted in additive semilinear form,
-
-  ..
-     .. math::
-        M(t) \dot{y} = f_E(t,y) + f_I(t,y), \qquad y(t_0) = y_0.
-
-  .. math::
-     M \dot{y} = f_E(t,y) + f_I(t,y), \qquad y(t_0) = y_0.
-
-- ``arkode/arkode_erkstep.h``, the header file for solving problems
-  posted in explicit form (using ERK methods),
-
-  .. math::
-     \dot{y}(t) = f(t,y), \qquad y(t_0) = y_0.
-
-The calling program must also include an NVECTOR implementation
-header file, of the form ``nvector/nvector_***.h``, corresponding to
-the user's preferred data layout and form of parallelism.  See the
-section :ref:`NVectors` for details for the appropriate name.  This
-file in turn includes the header file ``sundials_nvector.h`` which
-defines the abstract ``N_Vector`` data type.
-
-..
-   If the user includes a non-trivial implicit component to their
-   ODE system, then each time step will require a nonlinear solver for
-   the resulting systems of equations.  ARKode allows an accelerated
-   fixed point iteration and Newton-based iterations for this solver; if
-   a Newton method is used then a linear solver module header file may
-   also be required.  Similarly, if the ODE system involves a
-   non-identity mass matrix :math:`M(t) \ne I`, then each time 
-   step will require a linear solver for systems of the form
-   :math:`Mx=b`.  The header files corresponding to the various linear
-   solver interfaces and linear solver modules available for use with
-   ARKode for either the Newton solver or for mass-matrix solves, are:  
+Additionally, the calling program must also include an NVECTOR
+implementation header file, of the form ``nvector/nvector_***.h``,
+corresponding to the user's preferred data layout and form of
+parallelism.  See the section :ref:`NVectors` for details for the
+appropriate name.  This file in turn includes the header file
+``sundials_nvector.h`` which defines the abstract ``N_Vector`` data
+type.
 
 If the user includes a non-trivial implicit component to their
 ODE system, then each time step will require a nonlinear solver for
@@ -191,37 +161,37 @@ the resulting systems of equations.  ARKode allows an accelerated
 fixed point iteration and Newton-based iterations for this solver; if
 a Newton method is used then a linear solver module header file may
 also be required.  Similarly, if the ODE system involves a
-non-identity mass matrix :math:`M \ne I`, then each time 
+non-identity mass matrix :math:`M \ne I`, then each time
 step will require a linear solver for systems of the form
 :math:`Mx=b`.  The header files corresponding to the various linear
 solver interfaces and linear solver modules available for use with
-ARKode for either the Newton solver or for mass-matrix solves, are:  
+ARKode for either the Newton solver or for mass-matrix solves, are:
 
 - ``arkode/arkode_direct.h``, which is used with the ARKDLS direct
   linear solver interface to access direct solvers (for both implicit
   Newton systems and mass matrix systems) with the following header
   files:
 
-  - ``sunlinsol/sunlinsol_dense.h``, 
-    which is used with the dense linear solver module, 
-    SUNLINSOL_DENSE; 
-    
+  - ``sunlinsol/sunlinsol_dense.h``,
+    which is used with the dense linear solver module,
+    SUNLINSOL_DENSE;
+
   - ``sunlinsol/sunlinsol_band.h``,
     which is used with the banded linear solver module,
-    SUNLINSOL_BAND; 
-    
+    SUNLINSOL_BAND;
+
   - ``sunlinsol/sunlinsol_lapackdense.h``,
     which is used with the LAPACK dense linear solver interface module,
-    SUNLINSOL_LAPACKDENSE; 
-    
+    SUNLINSOL_LAPACKDENSE;
+
   - ``sunlinsol/sunlinsol_lapackband.h``,
     which is used with the LAPACK banded linear solver interface module,
-    SUNLINSOL_LAPACKBAND; 
-    
+    SUNLINSOL_LAPACKBAND;
+
   - ``sunlinsol/sunlinsol_klu.h``,
     which is used with the {\klu} sparse linear solver interface module,
     SUNLINSOL_KLU;
-    
+
   - ``sunlinsol/sunlinsol_superlumt.h``,
     which is used with the SuperLU_MT sparse linear solver interface
     module, SUNLINSOL_SUPERLUMT;
@@ -229,24 +199,24 @@ ARKode for either the Newton solver or for mass-matrix solves, are:
 - ``arkode/arkode_spils.h``, which is used with the ARKSPILS iterative
   linear solver interface to access iterative solvers (for both
   implicit Newton systems and mass matrix systems) with the following
-  header files:  
+  header files:
 
   - ``sunlinsol/sunlinsol_spgmr.h``,
     which is used with the scaled, preconditioned GMRES Krylov linear
     solver module, SUNLINSOL_SPGMR;
-    
+
   - ``sunlinsol/sunlinsol_spfgmr.h``,
     which is used with the scaled, preconditioned FGMRES Krylov linear
     solver module, SUNLINSOL_SPFGMR;
-    
+
   - ``sunlinsol/sunlinsol_spbcgs.h``,
     which is used with the scaled, preconditioned Bi-CGStab Krylov
     linear solver module, SUNLINSOL_SPBCGS;
-    
+
   - ``sunlinsol/sunlinsol_sptfqmr.h``,
     which is used with the scaled, preconditioned TFQMR Krylov linear
     solver module, SUNLINSOL_SPTFQMR;
-    
+
   - ``sunlinsol/sunlinsol_pcg.h``,
     which is used with the scaled, preconditioned CG Krylov linear
     solver module, SUNLINSOL_PCG;
@@ -255,7 +225,7 @@ The header files for the SUNLINSOL_DENSE and SUNLINSOL_LAPACKDENSE
 linear solver modules include the file
 ``sunmatrix/sunmatrix_dense.h``, which defines the SUNMATRIX_DENSE
 matrix module, as well as various functions and macros for acting on
-such matrices. 
+such matrices.
 
 The header files for the SUNLINSOL_BAND and SUNLINSOL_LAPACKBAND
 linear solver modules include the file ``sunmatrix/sunmatrix_band.h``,
@@ -265,15 +235,15 @@ functions and macros for acting on such matrices.
 The header files for the SUNLINSOL_KLU and SUNLINSOL_SUPERLUMT linear
 solver modules include the file ``sunmatrix/sunmatrix_sparse.h``,
 which defines the SUNMATRIX_SPARSE matrix module, as well as various
-functions and macros for acting on such matrices. 
+functions and macros for acting on such matrices.
 
 The header files for the Krylov iterative solvers include the file
-``sundials/sundials_iterative.h``, which enumerates the 
+``sundials/sundials_iterative.h``, which enumerates the
 preconditioning type and (for the SPGMR and SPFGMR solvers) the
-choices for the Gram-Schmidt orthogonalization process. 
+choices for the Gram-Schmidt orthogonalization process.
 
 Other headers may be needed, according to the choice of
-preconditioner, etc.  For example, if preconditioning for an iterative 
+preconditioner, etc.  For example, if preconditioning for an iterative
 linear solver were performed using the ARKBBDPRE module, the header
 ``arkode/arkode_bbdpre.h`` is needed to access the preconditioner
 initialization routines.

@@ -45,8 +45,8 @@ linear solver interface are listed in
 :ref:`FInterface.SpilsIOUTTable`.
 
 For more details on the optional inputs and outputs to ARKode, see
-the sections :ref:`CInterface.OptionalInputs` and
-:ref:`CInterface.OptionalOutputs`.
+the sections :ref:`ARKStep_CInterface.OptionalInputs` and
+:ref:`ARKStep_CInterface.OptionalOutputs`.
 
 
 
@@ -79,21 +79,21 @@ Table: Optional FARKODE integer outputs
 
 .. _FInterface.ROUTTable:
 
-Table: Optional FARKODE real outputs 
+Table: Optional FARKODE real outputs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. cssclass:: table-bordered
 
-==============  ===============  ===============================================================
+==============  ===============  =======================================================================
 *ROUT* Index    Optional output  ARKode function
-==============  ===============  ===============================================================
+==============  ===============  =======================================================================
 1               H0U              :c:func:`ARKodeGetActualInitStep()`
 2               HU               :c:func:`ARKodeGetLastStep()`
 3               HCUR             :c:func:`ARKodeGetCurrentStep()`
 4               TCUR             :c:func:`ARKodeGetCurrentTime()`
 5               TOLSF            :c:func:`ARKodeGetTolScaleFactor()`
-6               UROUND           ``UNIT_ROUNDOFF`` (see the section :ref:`CInterface.DataTypes`)
-==============  ===============  ===============================================================
+6               UROUND           ``UNIT_ROUNDOFF`` (see the section :ref:`ARKStep_CInterface.DataTypes`)
+==============  ===============  =======================================================================
 
 
 
@@ -190,21 +190,21 @@ the following user-callable routines are available.
 
 
 To obtain the error weight array *EWT*, containing the
-multiplicative error weights used in the WRMS norms, the user may call 
+multiplicative error weights used in the WRMS norms, the user may call
 the routine :f:func:`FARKGETERRWEIGHTS()` as follows:
 
 
 .. f:subroutine:: FARKGETERRWEIGHTS(EWT, IER)
-   
+
    Retrieves the current error weight vector (interfaces
    with :c:func:`ARKodeGetErrWeights()`).
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *EWT* (``realtype``, output) -- array containing the error
-	weight vector. 
+	weight vector.
       * *IER*  (``int``, output) -- return flag  (0 if success,
-	:math:`\ne 0` if an error). 
-      
+	:math:`\ne 0` if an error).
+
    **Notes:**
    The array *EWT* must have already been allocated by the user, of
    the same size as the solution array *Y*.
@@ -217,17 +217,16 @@ routine :f:func:`FARKGETESTLOCALERR()` as follows:
 
 
 .. f:subroutine:: FARKGETESTLOCALERR(ELE, IER)
-   
+
    Retrieves the current local truncation error estimate
    vector (interfaces with :c:func:`ARKStepGetEstLocalErrors()`).
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *ELE* (``realtype``, output) -- array with the estimated local
-	truncation error vector. 
+	truncation error vector.
       * *IER*  (``int``, output) -- return flag  (0 if success,
 	:math:`\ne 0` if an error).
-      
+
    **Notes:**
    The array *ELE* must have already been allocated by the user, of
    the same size as the solution array *Y*.
-

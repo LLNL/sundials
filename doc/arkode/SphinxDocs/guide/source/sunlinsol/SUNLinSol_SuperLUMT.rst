@@ -23,7 +23,7 @@ is not recommended to use a threaded vector module with
 SUNLINSOL_SUPERLUMT unless it is the NVECTOR_OPENMP module and the
 SuperLU_MT library has also been compiled with OpenMP. The
 SUNLINSOL_SUPERLUMT module defines the *content* field of a
-``SUNLinearSolver`` to be the following structure: 
+``SUNLinearSolver`` to be the following structure:
 
 .. code-block:: c
 
@@ -35,7 +35,7 @@ SUNLINSOL_SUPERLUMT module defines the *content* field of a
      sunindextype *perm_r, *perm_c;
      sunindextype N;
      int          num_threads;
-     realtype     diag_pivot_thresh; 
+     realtype     diag_pivot_thresh;
      int          ordering;
      superlumt_options_t *options;
    };
@@ -48,21 +48,21 @@ information:
 
 * ``first_factorize`` - flag indicating whether the factorization
   has ever been performed,
-  
+
 * ``A, AC, L, U, B`` - ``SuperMatrix`` pointers used in solve,
-    
+
 * ``Gstat`` - ``GStat_t`` object used in solve,
-      
+
 * ``perm_r, perm_c`` - permutation arrays used in solve,
-        
+
 * ``N`` - size of the linear system,
-          
+
 * ``num_threads`` - number of OpenMP/Pthreads threads to use,
-            
+
 * ``diag_pivot_thresh`` - threshold on diagonal pivoting,
-              
+
 * ``ordering`` - flag for which reordering algorithm to use,
-                
+
 * ``options`` - pointer to SuperLU_MT options structure.
 
 The SUNLINSOL_SUPERLUMT module is a ``SUNLinearSolver`` wrapper for
@@ -76,10 +76,10 @@ assumed that SuperLU_MT has been installed on the system prior to
 installation of SUNDIALS, and that SUNDIALS has been configured
 appropriately to link with SuperLU_MT (see section
 :ref:`Installation.CMake.ExternalLibraries` for details).
-Additionally, this wrapper only supports single- and 
+Additionally, this wrapper only supports single- and
 double-precision calculations, and therefore cannot be compiled if
 SUNDIALS is configured to have ``realtype`` set to ``extended``
-(see section :ref:`CInterface.DataTypes` for details).  Moreover,
+(see section :ref:`ARKStep_CInterface.DataTypes` for details).  Moreover,
 since the SuperLU_MT library may be installed to support either 32-bit
 or 64-bit integers, it is assumed that the SuperLU_MT library is
 installed using the same integer precision as the SUNDIALS
@@ -90,7 +90,7 @@ computes the permutation of the linear system matrix to reduce fill-in
 on subsequent :math:`LU` factorizations (using COLAMD, minimal degree
 ordering on :math:`A^T*A`, minimal degree ordering on :math:`A^T+A`,
 or natural ordering).  Of these ordering choices, the default value in
-the SUNLINSOL_SUPERLUMT module is the COLAMD ordering. 
+the SUNLINSOL_SUPERLUMT module is the COLAMD ordering.
 
 Since the linear systems that arise within the context of SUNDIALS
 calculations will typically have identical sparsity patterns, the
@@ -111,12 +111,12 @@ following operations:
   without requiring costly data copies.
 
 
-The header file to be included when using this module 
-is ``sunlinsol/sunlinsol_superlumt.h``. 
+The header file to be included when using this module
+is ``sunlinsol/sunlinsol_superlumt.h``.
 
 The SUNLINSOL_SUPERLUMT module defines implementations of all
 "direct" linear solver operations listed in the section
-:ref:`SUNLinSol.Ops`: 
+:ref:`SUNLinSol.Ops`:
 
 
 * ``SUNLinSolGetType_SuperLUMT``
@@ -130,7 +130,7 @@ The SUNLINSOL_SUPERLUMT module defines implementations of all
 
 * ``SUNLinSolSolve_SuperLUMT`` -- this calls the appropriate
   SuperLU_MT solve routine to utilize the :math:`LU` factors to solve the
-  linear system. 
+  linear system.
 
 * ``SUNLinSolLastFlag_SuperLUMT``
 
@@ -141,9 +141,9 @@ The SUNLINSOL_SUPERLUMT module defines implementations of all
 
 * ``SUNLinSolFree_SuperLUMT``
 
-  
+
 The module SUNLINSOL_SUPERLUMT provides the following additional
-user-callable routines: 
+user-callable routines:
 
 .. c:function:: SUNLinearSolver SUNSuperLUMT(N_Vector y, SUNMatrix A, int num_threads)
 
@@ -162,7 +162,7 @@ user-callable routines:
    formats) and the NVECTOR_SERIAL, NVECTOR_OPENMP, and
    NVECTOR_PTHREADS vector types.  As additional compatible matrix and
    vector implementations are added to SUNDIALS, these will be
-   included within this compatibility check. 
+   included within this compatibility check.
 
    If either ``A`` or ``y`` are incompatible then this routine will
    return ``NULL``.  The ``num_threads`` argument is not checked
@@ -188,20 +188,20 @@ user-callable routines:
    (``S`` is ``NULL``), ``SUNLS_ILL_INPUT``
    (invalid ``ordering_choice``), or ``SUNLS_SUCCESS``.
 
-   
+
 For solvers that include a Fortran interface module, the
 SUNLINSOL_SUPERLUMT module also includes the Fortran-callable
 function :f:func:`FSUNSuperLUMTInit()` to initialize this
 SUNLINSOL_SUPERLUMT module for a given SUNDIALS solver.
 
 .. f:subroutine:: FSUNSuperLUMTInit(CODE, NUM_THREADS, IER)
-   
+
    Initializes a SuperLU_MT sparse ``SUNLinearSolver`` structure for
-   use in a SUNDIALS package. 
+   use in a SUNDIALS package.
 
    This routine must be called *after* both the ``N_Vector`` and
    ``SUNMatrix`` objects have been initialized.
-                  
+
    **Arguments:**
       * *CODE* (``int``, input) -- flag denoting the SUNDIALS solver
         this matrix will be used for: CVODE=1, IDA=2, KINSOL=3, ARKode=4.
@@ -215,39 +215,39 @@ initializes this SUNLINSOL_SUPERLUMT module for solving mass matrix
 linear systems.
 
 .. f:subroutine:: FSUNMassSuperLUMTInit(NUM_THREADS, IER)
-   
+
    Initializes a SuperLU_MT sparse ``SUNLinearSolver`` structure for
-   use in solving mass matrix systems in ARKode. 
+   use in solving mass matrix systems in ARKode.
 
    This routine must be called *after* both the ``N_Vector`` and
    the mass ``SUNMatrix`` objects have been initialized.
-                  
+
    **Arguments:**
       * *NUM_THREADS* (``int``, input) -- desired number of
         OpenMP/Pthreads threads to use in the factorization.
       * *IER* (``int``, output) -- return flag (0 success, -1 for failure).
 
 The :c:func:`SUNSuperLUMTSetOrdering()` routine also supports Fortran
-interfaces for the system and mass matrix solvers: 
+interfaces for the system and mass matrix solvers:
 
 .. f:subroutine:: FSUNSuperLUMTSetOrdering(CODE, ORDERING, IER)
-   
+
    Fortran interface to :c:func:`SUNSuperLUMTSetOrdering()` for system
-   linear solvers.  
+   linear solvers.
 
    This routine must be called *after*
    :f:func:`FSUNSuperLUMTInit()` has been called
-                  
+
    **Arguments:** all should have type ``int`` and have meanings
    identical to those listed above
 
 .. f:subroutine:: FSUNMassSuperLUMTSetOrdering(ORDERING, IER)
-   
+
    Fortran interface to :c:func:`SUNSuperLUMTSetOrdering()` for mass
    matrix linear solves in ARKode.
 
    This routine must be called *after*
    :f:func:`FSUNMassSuperLUMTInit()` has been called
-                  
+
    **Arguments:** all should have type ``int`` and have meanings
    identical to those listed above

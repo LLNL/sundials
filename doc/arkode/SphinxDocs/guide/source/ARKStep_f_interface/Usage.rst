@@ -15,14 +15,14 @@ Usage of the FARKODE interface module
 
 The usage of FARKODE requires calls to a variety of interface
 functions, depending on the method options selected, and two or more
-user-supplied routines which define the problem to be solved.  These 
+user-supplied routines which define the problem to be solved.  These
 function calls and user routines are summarized separately below.
 Some details are omitted, and the user is referred to the description
 of the corresponding C interface ARKode functions for complete
 information on the arguments of any given user-callable interface
 routine, or of a given user-supplied function called by an interface
 function.  The usage of FARKODE for rootfinding and with
-preconditioner modules is described in later subsections. 
+preconditioner modules is described in later subsections.
 
 
 
@@ -34,12 +34,12 @@ Right-hand side specification
 The user must in all cases supply the following Fortran routines:
 
 .. f:subroutine:: FARKIFUN(T, Y, YDOT, IPAR, RPAR, IER)
-   
+
    Sets the *YDOT* array to :math:`f_I(t,y)`, the implicit portion of
    the right-hand side of the ODE system, as function of the
    independent variable *T* :math:`=t` and the array of dependent state
-   variables *Y* :math:`=y`. 
-      
+   variables *Y* :math:`=y`.
+
    **Arguments:**
       * *T* (``realtype``, input) -- current value of the independent variable.
       * *Y* (``realtype``, input) -- array containing state variables.
@@ -50,15 +50,15 @@ The user must in all cases supply the following Fortran routines:
         data that was passed to :f:func:`FARKMALLOC()`.
       * *IER* (``int``, output) -- return flag (0 success, >0
         recoverable error, <0 unrecoverable error).
-   
+
 
 .. f:subroutine:: FARKEFUN(T, Y, YDOT, IPAR, RPAR, IER)
-   
+
    Sets the *YDOT* array to :math:`f_E(t,y)`, the explicit portion of
    the right-hand side of the ODE system, as function of the
    independent variable *T* :math:`=t` and the array of dependent state
-   variables *Y* :math:`=y`. 
-      
+   variables *Y* :math:`=y`.
+
    **Arguments:**
       * *T* (``realtype``, input) -- current value of the independent variable.
       * *Y* (``realtype``, input) -- array containing state variables.
@@ -72,7 +72,7 @@ The user must in all cases supply the following Fortran routines:
 
 For purely explicit problems, although the routine
 :f:func:`FARKIFUN()` must exist, it will never be called, and may
-remain empty.  Similarly, for purely implicit problems, 
+remain empty.  Similarly, for purely implicit problems,
 :f:func:`FARKEFUN()` will never be called and must exist and may
 remain empty.
 
@@ -86,7 +86,7 @@ NVECTOR module initialization
 If using one of the NVECTOR modules supplied with SUNDIALS, the user
 must make a call of the form
 
-.. code:: 
+.. code::
 
    CALL FNVINITS(4, NEQ, IER)
    CALL FNVINITP(COMM, 4, NLOCAL, NGLOBAL, IER)
@@ -111,7 +111,7 @@ the implicit portion of the ODE system.  If using a Newton iteration
 with direct SUNLINSOL linear solver module and one of the SUNMATRIX
 modules supplied with SUNDIALS, the user must make a call of the form
 
-.. code:: 
+.. code::
 
    CALL FSUNBANDMATINIT(4, N, MU, ML, SMU, IER)
    CALL FSUNDENSEMATINIT(4, M, N, IER)
@@ -121,24 +121,15 @@ in which the specific arguments are as described in the appropriate
 section of the Chapter :ref:`SUNMatrix`.  Note that these matrix
 options are usable only in a serial or multi-threaded environment.
 
-
-..
-   As described in the section :ref:`Mathematics.MassSolve`, in the case
-   of using a problem with a non-identity mass matrix (no matter whether
-   the integrator is implicit, explicit or ImEx), linear systems of the
-   form :math:`Mx=b` must be solved, where :math:`M(t)` is the possibly
-   time-dependent system mass matrix.  If these are to be solved with a
-   direct SUNLINSOL linear solver module and one of the SUNMATRIX modules
-   supplied with SUNDIALS, the user must make a call of the form
 As described in the section :ref:`Mathematics.MassSolve`, in the case
 of using a problem with a non-identity mass matrix (no matter whether
 the integrator is implicit, explicit or ImEx), linear systems of the
 form :math:`Mx=b` must be solved, where :math:`M` is the system mass
 matrix.  If these are to be solved with a direct SUNLINSOL linear
 solver module and one of the SUNMATRIX modules supplied with SUNDIALS,
-the user must make a call of the form 
+the user must make a call of the form
 
-.. code:: 
+.. code::
 
    CALL FSUNBANDMASSMATINIT(N, MU, ML, SMU, IER)
    CALL FSUNDENSEMASSMATINIT(M, N, IER)
@@ -157,9 +148,9 @@ SUNLINSOL module initialization
 
 If using a Newton iteration with one of the SUNLINSOL linear
 solver modules supplied with SUNDIALS, the user must make a call
-of the form 
+of the form
 
-.. code:: 
+.. code::
 
    CALL FSUNBANDLINSOLINIT(4, IER)
    CALL FSUNDENSELINSOLINIT(4, IER)
@@ -176,12 +167,12 @@ of the form
 in which the specific arguments are as described in the
 appropriate section of the Chapter :ref:`SUNLinSol`.  Note that the
 dense, band and sparse solvers are usable only in a serial or
-multi-threaded environment. 
+multi-threaded environment.
 
 Once one of these has been initialized, its solver parameters may be
 modified using a call to the functions
 
-.. code:: 
+.. code::
 
    CALL FSUNKLUSETORDERING(4, ORD_CHOICE, IER)
    CALL FSUNSUPERLUMTSETORDERING(4, ORD_CHOICE, IER)
@@ -198,13 +189,13 @@ modified using a call to the functions
 
 where again the call sequences are described in the appropriate
 sections of the Chapter :ref:`SUNLinSol`.
-   
+
 
 Similarly, in the case of using one of the SUNLINSOL linear solver
 modules supplied with SUNDIALS to solve a problem with a non-identity
 mass matrix, the user must make a call of the form
 
-.. code:: 
+.. code::
 
    CALL FSUNMASSBANDLINSOLINIT(IER)
    CALL FSUNMASSDENSELINSOLINIT(IER)
@@ -219,12 +210,12 @@ mass matrix, the user must make a call of the form
    CALL FSUNMASSSUPERLUMTINIT(NUM_THREADS, IER)
 
 in which the specific arguments are as described in the
-appropriate section of the Chapter :ref:`SUNLinSol`.  
+appropriate section of the Chapter :ref:`SUNLinSol`.
 
 Once one of these has been initialized, its solver parameters may be
 modified using a call to the functions
 
-.. code:: 
+.. code::
 
    CALL FSUNMASSKLUSETORDERING(ORD_CHOICE, IER)
    CALL FSUNMASSSUPERLUMTSETORDERING(ORD_CHOICE, IER)
@@ -241,7 +232,7 @@ modified using a call to the functions
 
 where again the call sequences are described in the appropriate
 sections of the Chapter :ref:`SUNLinSol`.
-   
+
 
 
 
@@ -255,18 +246,18 @@ memory, the user must call :f:func:`FARKMALLOC()`.
 
 
 .. f:subroutine:: FARKMALLOC(T0, Y0, IMEX, IATOL, RTOL, ATOL, IOUT, ROUT, IPAR, RPAR, IER)
-   
+
    Initializes the Fortran interface to the ARKode solver, providing
    interfaces to the C routines :c:func:`ARKodeCreate()`,
    :c:func:`ARKodeSetUserData()`, and :c:func:`ARKStepCreate()`, as well
    as one of :c:func:`ARKodeSStolerances()` or
    :c:func:`ARKodeSVtolerances()`.
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *T0* (``realtype``, input) -- initial value of :math:`t`.
-      * *Y0* (``realtype``, input) -- array of initial conditions. 
+      * *Y0* (``realtype``, input) -- array of initial conditions.
       * *IMEX* (``int``, input) -- flag denoting basic integration
-	method: 0 = implicit, 1 = explicit, 2 = ImEx. 
+	method: 0 = implicit, 1 = explicit, 2 = ImEx.
       * *IATOL* (``int``, input) -- type for absolute tolerance input
 	*ATOL*: 1 = scalar, 2 = array, 3 = user-supplied function; the
 	user must subsequently call :f:func:`FARKEWTSET()` and supply
@@ -280,13 +271,13 @@ memory, the user must call :f:func:`FARKMALLOC()`.
       * *RPAR* (``realtype``, input/output) -- array with user real data, which will be passed
         unmodified to all user-provided routines.
       * *IER* (``int``, output) -- return flag (0 success, :math:`\ne 0` failure).
-      
+
    **Notes:** Modifications to the user data arrays *IPAR* and *RPAR*
    inside a user-provided routine will be propagated to all
    subsequent calls to such routines. The optional outputs
    associated with the main ARKode integrator are listed in
    :ref:`FInterface.IOUTTable` and :ref:`FInterface.ROUTTable`, in
-   the section :ref:`FInterface.OptionalOutputs`. 
+   the section :ref:`FInterface.OptionalOutputs`.
 
 
 As an alternative to providing tolerances in the call to
@@ -295,11 +286,11 @@ error weights used in the WRMS norm evaluations.  If supplied, it must
 have the following form:
 
 .. f:subroutine:: FARKEWT(Y, EWT, IPAR, RPAR, IER)
-   
+
    It must set the positive components of the error weight
    vector *EWT* for the calculation of the WRMS norm of *Y*.
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *Y* (``realtype``, input) -- array containing state variables.
       * *EWT* (``realtype``, output) -- array containing the error weight vector.
       * *IPAR* (``long int``, input) -- array containing the integer user data that was passed
@@ -308,16 +299,16 @@ have the following form:
         :f:func:`FARKMALLOC()`.
       * *IER* (``int``, output) -- return flag (0 success, :math:`\ne 0` failure).
 
-   
+
 If the :f:func:`FARKEWT()` routine is provided, then, following the
 call to :f:func:`FARKMALLOC()`, the user must call the function
-:f:func:`FARKEWTSET()`. 
+:f:func:`FARKEWTSET()`.
 
 .. f:subroutine:: FARKEWTSET(FLAG, IER)
- 
+
    Informs FARKODE to use the user-supplied :f:func:`FARKEWT()` function.
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *FLAG* (``int``, input) -- flag, use "1" to denoting to use :f:func:`FARKEWT()`.
       * *IER* (``int``, output) -- return flag (0 success, :math:`\ne 0` failure).
 
@@ -333,15 +324,15 @@ Unlike ARKode's C interface, that provides separate functions for
 setting each optional input, FARKODE uses only two functions, that
 accept keywords to specify which optional input should be set to the
 provided value.  These routines are :f:func:`FARKSETIIN()` and
-:f:func:`FARKSETRIN()`, and are further described below. 
+:f:func:`FARKSETRIN()`, and are further described below.
 
 
 .. f:subroutine:: FARKSETIIN(KEY, IVAL, IER)
-   
+
    Specification routine to pass optional integer inputs
    to the :f:func:`FARKODE()` solver.
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *KEY* (quoted string, input) -- which optional input
         is set (see :ref:`FInterface.IINOptionTable`).
       * *IVAL* (``long int``, input) -- the integer input value to be used.
@@ -370,7 +361,7 @@ Key                      ARKode routine
 ``IMEX``                 :c:func:`ARKStepSetImEx()`
 ``IRK_TABLE_NUM``        :c:func:`ARKStepSetIRKTableNum()`
 ``ERK_TABLE_NUM``        :c:func:`ARKStepSetERKTableNum()`
-``ARK_TABLE_NUM`` *(a)*  :c:func:`ARKStepSetARKTableNum()`      
+``ARK_TABLE_NUM`` *(a)*  :c:func:`ARKStepSetARKTableNum()`
 ``MAX_NSTEPS``           :c:func:`ARKodeSetMaxNumSteps()`
 ``HNIL_WARNS``           :c:func:`ARKodeSetMaxHnilWarns()`
 ``PREDICT_METHOD``       :c:func:`ARKStepSetPredictorMethod()`
@@ -385,15 +376,15 @@ Key                      ARKode routine
 length 2, specifying the IRK table number first, then the ERK table
 number.  The integer specifiers for each table may be found in the
 section :ref:`Constants`, or in the ARKode header file
-``arkode_butcher.h``. 
-      
+``arkode_butcher.h``.
+
 
 .. f:subroutine:: FARKSETRIN(KEY, RVAL, IER)
-  
+
    Specification routine to pass optional real inputs
    to the :f:func:`FARKODE()` solver.
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *KEY* (quoted string, input) -- which optional input
         is set (see :ref:`FInterface.RINOptionTable`).
       * *RVAL* (``realtype``, input) -- the real input value to be used.
@@ -434,16 +425,16 @@ Key                ARKode routine
 
 
 If a user wishes to reset all of the options to their default values,
-they may call the routine :f:func:`FARKSETDEFAULTS()`. 
+they may call the routine :f:func:`FARKSETDEFAULTS()`.
 
 .. f:subroutine:: FARKSETDEFAULTS(IER)
-   
+
    Specification routine to reset all FARKODE optional
    inputs to their default values.
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *IER* (``int``, output) -- return flag (0 success, :math:`\ne 0` failure).
-   
+
 
 
 
@@ -453,15 +444,15 @@ Optional advanced FARKODE inputs
 FARKODE supplies additional routines to specify optional advanced
 inputs to the :c:func:`ARKode()` solver.  These are summarized below,
 and the user is referred to their C routine counterparts for more
-complete information. 
+complete information.
 
 
 
 .. f:subroutine:: FARKSETERKTABLE(S, Q, P, C, A, B, BEMBED, IER)
-   
+
    Interface to the routine :c:func:`ARKStepSetERKTable()`.
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *S* (``int``, input) -- number of stages in the table.
       * *Q* (``int``, input) -- global order of accuracy of the method.
       * *P* (``int``, input) -- global order of accuracy of the embedding.
@@ -475,10 +466,10 @@ complete information.
 
 
 .. f:subroutine:: FARKSETIRKTABLE(S, Q, P, C, A, B, BEMBED, IER)
-   
+
    Interface to the routine :c:func:`ARKStepSetIRKTable()`.
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *S* (``int``, input) -- number of stages in the table.
       * *Q* (``int``, input) -- global order of accuracy of the method.
       * *P* (``int``, input) -- global order of accuracy of the embedding.
@@ -492,10 +483,10 @@ complete information.
 
 
 .. f:subroutine:: FARKSETARKTABLES(S, Q, P, CI, CE, AI, AE, BI, BE, B2I, B2E, IER)
-   
+
    Interface to the routine :c:func:`ARKStepSetARKTables()`.
-   
-   **Arguments:** 
+
+   **Arguments:**
       * *S* (``int``, input) -- number of stages in the table.
       * *Q* (``int``, input) -- global order of accuracy of the method.
       * *P* (``int``, input) -- global order of accuracy of the embedding.
@@ -504,25 +495,25 @@ complete information.
       * *CE* (``realtype``, input) -- array of length *S* containing
 	the explicit stage times.
       * *AI* (``realtype``, input) -- array of length *S*S* containing the IRK coefficients
-        (stored in row-major, "C", order) 
+        (stored in row-major, "C", order)
       * *AE* (``realtype``, input) -- array of length *S*S* containing the ERK coefficients
-        (stored in row-major, "C", order) 
+        (stored in row-major, "C", order)
       * *BI* (``realtype``, input) -- array of length *S* containing
-	the implicit solution coefficients 
+	the implicit solution coefficients
       * *BE* (``realtype``, input) -- array of length *S* containing
-	the explicit solution coefficients 
+	the explicit solution coefficients
       * *B2I* (``realtype``, input) -- array of length *S* containing
-	the implicit embedding coefficients 
+	the implicit embedding coefficients
       * *B2E* (``realtype``, input) -- array of length *S* containing
-	the explicit embedding coefficients 
-      * *IER* (``int``, output) -- return flag (0 success, :math:`\ne 0` failure) 
+	the explicit embedding coefficients
+      * *IER* (``int``, output) -- return flag (0 success, :math:`\ne 0` failure)
 
-   
+
 .. f:subroutine:: FARKSETRESTOLERANCE(IATOL, ATOL, IER)
-   
+
    Interface to the routines :c:func:`ARKodeResStolerance()` and :c:func:`ARKodeResVtolerance()`.
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *IATOL* (``int``, input) -- type for absolute residual tolerance input
 	*ATOL*: 1 = scalar, 2 = array
       * *ATOL* (``realtype``, input) -- scalar or array absolute residual tolerance.
@@ -532,15 +523,15 @@ complete information.
 
 Additionally, a user may set the accuracy-based step size adaptivity
 strategy (and it's associated parameters) through a call to
-:f:func:`FARKSETADAPTIVITYMETHOD()`, as described below. 
+:f:func:`FARKSETADAPTIVITYMETHOD()`, as described below.
 
 .. f:subroutine:: FARKSETADAPTIVITYMETHOD(IMETHOD, IDEFAULT, IPQ, PARAMS, IER)
-   
+
    Specification routine to set the step size adaptivity strategy and
    parameters within the :f:func:`FARKODE()` solver.  Interfaces with
    the C routine :c:func:`ARKStepSetAdaptivityMethod()`.
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *IMETHOD* (``int``, input) -- choice of adaptivity method.
       * *IDEFAULT* (``int``, input) -- flag denoting whether to use
 	default parameters (1) or that customized parameters will be
@@ -562,12 +553,12 @@ provided by a function of type :c:func:`ARKAdaptFn()`; in the Fortran
 interface this is provided through the user-supplied function:
 
 .. f:subroutine:: FARKADAPT(Y, T, H1, H2, H3, E1, E2, E3, Q, HNEW, IPAR, RPAR, IER)
-   
+
    It must set the new step size *HNEW* based on the three previous
    steps (*H1*, *H2*, *H3*) and the three previous error estimates
-   (*E1*, *E2*, *E3*). 
-      
-   **Arguments:** 
+   (*E1*, *E2*, *E3*).
+
+   **Arguments:**
       * *Y* (``realtype``, input) -- array containing state variables.
       * *T* (``realtype``, input) -- current value of the independent variable.
       * *H1* (``realtype``, input) -- current step size.
@@ -588,10 +579,10 @@ interface this is provided through the user-supplied function:
 This routine is enabled by a call to the activation routine:
 
 .. f:subroutine:: FARKADAPTSET(FLAG, IER)
-   
+
    Informs FARKODE to use the user-supplied :f:func:`FARKADAPT()` function.
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *FLAG* (``int``, input) -- flag, use "1" to denoting to use
 	:f:func:`FARKADAPT()`, or use "0" to denote a return to the
         default adaptivity strategy.
@@ -610,11 +601,11 @@ Again, in the C/C++ interface this would be a function of type
 must be given through the user-supplied function:
 
 .. f:subroutine:: FARKEXPSTAB(Y, T, HSTAB, IPAR, RPAR, IER)
-   
+
    It must set the maximum explicitly-stable step size, *HSTAB*, based
    on the current solution, *Y*.
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *Y* (``realtype``, input) -- array containing state variables.
       * *T* (``realtype``, input) -- current value of the independent variable.
       * *HSTAB* (``realtype``, output) -- maximum explicitly-stable step size.
@@ -623,17 +614,17 @@ must be given through the user-supplied function:
       * *RPAR* (``realtype``, input) -- array containing the real user data that was passed to
         :f:func:`FARKMALLOC()`.
       * *IER* (``int``, output) -- return flag (0 success, :math:`\ne 0` failure).
- 
+
 
 This routine is enabled by a call to the activation routine:
 
 .. f:subroutine:: FARKEXPSTABSET(FLAG, IER)
-   
+
    Informs FARKODE to use the user-supplied :f:func:`FARKEXPSTAB()` function.
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *FLAG* (``int``, input) -- flag, use "1" to denoting to use
-	:f:func:`FARKEXPSTAB()`, or use "0" to denote a return to the 
+	:f:func:`FARKEXPSTAB()`, or use "0" to denote a return to the
         default error-based stability strategy.
       * *IER* (``int``, output) -- return flag (0 success, :math:`\ne
 	0` failure).
@@ -643,7 +634,7 @@ This routine is enabled by a call to the activation routine:
 
 
 
-   
+
 .. _FInterface.LinearSolver:
 
 System linear solver interface specification
@@ -662,15 +653,15 @@ To attach a direct SUNLINSOL object and corresponding SUNMATRIX
 object to the ARKDLS interface, then following calls to initialize the
 SUNLINSOL and SUNMATRIX objects in steps :ref:`FInterface.SUNMatrix` and
 :ref:`FInterface.SUNLinSol` above, the user must call the
-:f:func:`FARKDLSINIT()` routine: 
+:f:func:`FARKDLSINIT()` routine:
 
 
 .. f:subroutine:: FARKDLSINIT(IER)
-   
+
    Interfaces with the :c:func:`ARKDlsSetLinearSolver()` function to
    specify use of the direct linear solver interface.
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *IER* (``int``, output) -- return flag (0 if success, -1 if a memory allocation
         error occurred, -2 for an illegal input).
 
@@ -679,15 +670,15 @@ As an option when using the ARKDLS interface with SUNLINSOL_DENSE or
 SUNLINSOL_LAPACKDENSE linear solver modules, the user may supply a
 routine that computes a dense approximation of the system Jacobian
 :math:`J = \frac{\partial f_I}{\partial y}`.  If supplied, it must
-have the following form: 
+have the following form:
 
 .. f:subroutine:: FARKDJAC(NEQ, T, Y, FY, DJAC, H, IPAR, RPAR, WK1, WK2, WK3, IER)
-   
+
    Interface to provide a user-supplied dense Jacobian approximation
    function (of type :c:func:`ARKDlsJacFn()`), to be used by the
-   SUNLINSOL_DENSE or SUNLINSOL_LAPACKDENSE solver modules. 
-      
-   **Arguments:** 
+   SUNLINSOL_DENSE or SUNLINSOL_LAPACKDENSE solver modules.
+
+   **Arguments:**
       * *NEQ* (``long int``, input) -- size of the ODE system.
       * *T* (``realtype``, input) -- current value of the independent variable.
       * *Y* (``realtype``, input) -- array containing values of the dependent state variables.
@@ -702,50 +693,50 @@ have the following form:
         of same size as *Y*.
       * *IER* (``int``, output) -- return flag (0 if success, >0 if a recoverable error
         occurred, <0 if an unrecoverable error occurred).
-      
+
    **Notes:** Typically this routine will use only *NEQ*, *T*, *Y*, and
-   *DJAC*. It must compute the Jacobian and store it column-wise in *DJAC*. 
-  
-   
+   *DJAC*. It must compute the Jacobian and store it column-wise in *DJAC*.
+
+
 If the above routine uses difference quotient approximations, it may
 need to access the error weight array *EWT* in the calculation of
 suitable increments. The array *EWT* can be obtained by calling
 :f:func:`FARKGETERRWEIGHTS()` using one of the work arrays as
 temporary storage for *EWT*. It may also need the unit roundoff, which
 can be obtained as the optional output *ROUT(6)*, passed from the
-calling program to this routine using either *RPAR* or a common block. 
+calling program to this routine using either *RPAR* or a common block.
 
 If the :f:func:`FARKDJAC()` routine is provided, then, following the
 call to :f:func:`FARKDLSINIT()`, the user must call the routine
-:f:func:`FARKDENSESETJAC()`: 
+:f:func:`FARKDENSESETJAC()`:
 
 
 .. f:subroutine:: FARKDENSESETJAC(FLAG, IER)
-   
+
    Interface to the :c:func:`ARKDlsSetJacFn()` function, specifying
    to use the user-supplied routine :f:func:`FARKDJAC()` for the
-   Jacobian approximation. 
-      
-   **Arguments:** 
+   Jacobian approximation.
+
+   **Arguments:**
       * *FLAG* (``int``, input) -- any nonzero value specifies to use
-	:f:func:`FARKDJAC()`. 
+	:f:func:`FARKDJAC()`.
       * *IER* (``int``, output) -- return flag (0 if success,
 	:math:`\ne 0` if an error occurred).
-   
+
 
 As an option when using the ARKDLS interface with SUNLINSOL_BAND or
 SUNLINSOL_LAPACKBAND linear solver modules, the user may supply a
 routine that computes a banded approximation of the linear system
 Jacobian :math:`J = \frac{\partial f_I}{\partial y}`. If supplied, it
-must have the following form: 
+must have the following form:
 
 .. f:subroutine:: FARKBJAC(NEQ, MU, ML, MDIM, T, Y, FY, BJAC, H, IPAR, RPAR, WK1, WK2, WK3, IER)
-   
+
    Interface to provide a user-supplied band Jacobian approximation
    function (of type :c:func:`ARKDlsJacFn()`), to be used by the
-   SUNLINSOL_BAND or SUNLINSOL_LAPACKBAND solver modules. 
-     
-   **Arguments:** 
+   SUNLINSOL_BAND or SUNLINSOL_LAPACKBAND solver modules.
+
+   **Arguments:**
       * *NEQ* (``long int``, input) -- size of the ODE system.
       * *MU*   (``long int``, input) -- upper half-bandwidth.
       * *ML*   (``long int``, input) -- lower half-bandwidth.
@@ -754,7 +745,7 @@ must have the following form:
       * *Y*    (``realtype``, input) -- array containing dependent state variables.
       * *FY*   (``realtype``, input) -- array containing dependent state derivatives.
       * *BJAC* (``realtype`` of size *(MDIM,NEQ)*, output) -- 2D array
-	containing the Jacobian entries. 
+	containing the Jacobian entries.
       * *H*    (``realtype``, input) -- current step size.
       * *IPAR* (``long int``, input) -- array containing integer user data that was passed to
         :f:func:`FARKMALLOC()`.
@@ -764,23 +755,23 @@ must have the following form:
         of same size as *Y*.
       * *IER* (``int``, output) -- return flag (0 if success, >0 if a recoverable error
         occurred, <0 if an unrecoverable error occurred).
-      
+
    **Notes:**
    Typically this routine will use only *NEQ*, *MU*, *ML*, *T*, *Y*, and
    *BJAC*. It must load the *MDIM* by *N* array *BJAC* with the Jacobian
    matrix at the current :math:`(t,y)` in band form.  Store in
-   *BJAC(k,j)* the Jacobian element :math:`J_{i,j}` with 
-   *k = i - j + MU + 1* (or *k = 1, ..., ML+MU+1*) and *j = 1, ..., N*. 
+   *BJAC(k,j)* the Jacobian element :math:`J_{i,j}` with
+   *k = i - j + MU + 1* (or *k = 1, ..., ML+MU+1*) and *j = 1, ..., N*.
 
 
 If the above routine uses difference quotient approximations, it may
 need to use the error weight array *EWT* in the calculation of
 suitable increments. The array *EWT* can be obtained by calling
-:f:func:`FARKGETERRWEIGHTS()` using one of the work 
+:f:func:`FARKGETERRWEIGHTS()` using one of the work
 arrays as temporary storage for *EWT*. It may also need the unit
 roundoff, which can be obtained as the optional output *ROUT(6)*,
 passed from the calling program to this routine using either *RPAR*
-or a common block. 
+or a common block.
 
 If the :f:func:`FARKBJAC()` routine is provided, then, following the
 call to :f:func:`FARKDLSINIT()`, the user must call the routine
@@ -788,21 +779,21 @@ call to :f:func:`FARKDLSINIT()`, the user must call the routine
 
 
 .. f:subroutine:: FARKBANDSETJAC(FLAG, IER)
-   
+
    Interface to the :c:func:`ARKDlsSetJacFn()` function, specifying
    to use the user-supplied routine :f:func:`FARKBJAC()` for the
-   Jacobian approximation. 
-      
-   **Arguments:** 
+   Jacobian approximation.
+
+   **Arguments:**
       * *FLAG* (``int``, input) -- any nonzero value specifies to use
         :f:func:`FARKBJAC()`.
-      * *IER* (``int``, output) -- return flag (0 if success, 
+      * *IER* (``int``, output) -- return flag (0 if success,
 	:math:`\ne 0` if an error occurred).
 
 
 When using the ARKDLS interface with the SUNLINSOL_KLU or
 SUNLINSOL_SUPERLUMT sparse direct linear solver modules, the user must
-supply a routine that computes a sparse approximation of the system 
+supply a routine that computes a sparse approximation of the system
 Jacobian :math:`J = \frac{\partial f_I}{\partial y}`.  Both the KLU
 and SuperLU_MT solvers allow specification of :math:`J` in either
 compressed-sparse-column (CSC) format or compressed-sparse-row (CSR)
@@ -811,12 +802,12 @@ following form:
 
 
 .. f:subroutine:: FARKSPJAC(T, Y, FY, N, NNZ, JDATA, JINDEXVALS, JINDEXPTRS, H, IPAR, RPAR, WK1, WK2, WK3, IER)
-   
+
    Interface to provide a user-supplied sparse Jacobian approximation
    function (of type :c:func:`ARKDlsJacFn()`), to be used by the
-   SUNLINSOL_KLU or SUNLINSOL_SUPERLUMT solver modules. 
-      
-   **Arguments:** 
+   SUNLINSOL_KLU or SUNLINSOL_SUPERLUMT solver modules.
+
+   **Arguments:**
       * *T* (``realtype``, input) -- current value of the independent variable.
       * *Y* (``realtype``, input) -- array containing values of the dependent state variables.
       * *FY* (``realtype``, input) -- array containing values of the dependent state derivatives.
@@ -837,14 +828,14 @@ following form:
         of same size as *Y*.
       * *IER* (``int``, output) -- return flag (0 if success, >0 if a recoverable error
         occurred, <0 if an unrecoverable error occurred).
-      
+
    **Notes:** due to the internal storage format of the
    SUNMATRIX_SPARSE module, the matrix-specific integer parameters and
    arrays are all of type ``sunindextype`` -- the index precision
    (32-bit vs 64-bit signed integers) specified during the SUNDIALS
    build.  It is assumed that the user's Fortran codes are constructed
    to have matching type to how SUNDIALS was installed.
-  
+
 If the above routine uses difference quotient approximations to
 compute the nonzero entries, it may need to access the error weight
 array *EWT* in the calculation of suitable increments. The array *EWT*
@@ -856,38 +847,38 @@ a common block.
 
 When supplying the :f:func:`FARKSPJAC()` routine, following the call
 to :f:func:`FARKDLSINIT()`, the user must call the routine
-:f:func:`FARKSPARSESETJAC()`. 
+:f:func:`FARKSPARSESETJAC()`.
 
 
 .. f:subroutine:: FARKSPARSESETJAC(IER)
-   
+
    Interface to the :c:func:`ARKDlsSetJacFn()` function,
    specifying that the user-supplied routine :f:func:`FARKSPJAC()` has
-   been provided for the Jacobian approximation. 
-      
-   **Arguments:** 
-      * *IER* (``int``, output) -- return flag (0 if success, 
+   been provided for the Jacobian approximation.
+
+   **Arguments:**
+      * *IER* (``int``, output) -- return flag (0 if success,
 	:math:`\ne 0` if an error occurred).
 
 
 
 .. _FInterface.SPILS:
-              
+
 ARKSPILS iterative linear solver interface
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To attach an iterative SUNLINSOL object to the ARKSPILS interface,
 then following the call to initialize the SUNLINSOL object in step
 :ref:`FInterface.SUNLinSol` above, the user must call the
-:f:func:`FARKSPILSINIT()` routine: 
+:f:func:`FARKSPILSINIT()` routine:
 
 
 .. f:subroutine:: FARKSPILSINIT(IER)
-   
+
    Interfaces with the :c:func:`ARKSpilsSetLinearSolver()` function to
    specify use of the iterative linear solver interface.
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *IER* (``int``, output) -- return flag (0 if success, -1 if a memory allocation
         error occurred, -2 for an illegal input).
 
@@ -898,42 +889,42 @@ may adjust the linear solver tolerance scaling factor
 the function :f:func:`FARKSPILSSETEPSLIN()`:
 
 .. f:subroutine:: FARKSPILSSETEPSLIN(EPLIFAC, IER)
-   
+
    Interface to the function :c:func:`ARKSpilsSetEpsLin()` to
    specify the linear solver tolerance scale factor :math:`\epsilon_L`
    for the Newton system linear solver.
 
    This routine must be called *after* :f:func:`FARKSPILSINIT()`.
-   
-   **Arguments:** 
+
+   **Arguments:**
       * *EPLIFAC* (``realtype``, input) -- value to use for
         :math:`\epsilon_L`.  Passing a value of 0 indicates to use the
         default value (0.05).
       * *IER*  (``int``, output) -- return flag  (0 if success,
 	:math:`\ne 0` if an error).
-      
-      
+
+
 Optional user-supplied routines :f:func:`FARKJTSETUP()` and
 :f:func:`FARKJTIMES()` may be provided to compute the product
 of the system Jacobian :math:`J = \frac{\partial f_I}{\partial y}` and
 a given vector :math:`v`.  If these are supplied, then following the
 call to :f:func:`FARKSPILSINIT()`, the user must call the
-:f:func:`FARKSPILSSETJAC()` routine with *FLAG* :math:`\ne 0`: 
+:f:func:`FARKSPILSSETJAC()` routine with *FLAG* :math:`\ne 0`:
 
 .. f:subroutine:: FARKSPILSSETJAC(FLAG, IER)
-   
+
    Interface to the function :c:func:`ARKSpilsSetJacTimes()` to
    specify use of the user-supplied Jacobian-times-vector setup and
    product functions, :f:func:`FARKJTSETUP()` and
-   :f:func:`FARKJTIMES()`, respectively. 
+   :f:func:`FARKJTIMES()`, respectively.
 
    This routine must be called *after* :f:func:`FARKSPILSINIT()`.
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *FLAG* (``int``, input) -- flag denoting use of user-supplied
         Jacobian-times-vector routines.  A nonzero value specifies to
         use these the user-supplied routines, a zero value specifies
-        not to use these. 
+        not to use these.
       * *IER*  (``int``, output) -- return flag  (0 if success,
 	:math:`\ne 0` if an error).
 
@@ -944,47 +935,47 @@ iterative linear solver (note: the SUNLINSOL module must have been
 configured with preconditioning enabled).  If these routines are
 supplied, then following the call to :f:func:`FARKSPILSINIT()` the
 user must call the routine :f:func:`FARKSPILSSETPREC()` with *FLAG*
-:math:`\ne 0`:  
+:math:`\ne 0`:
 
 .. f:subroutine:: FARKSPILSSETPREC(FLAG, IER)
-   
+
    Interface to the function :c:func:`ARKSpilsSetPreconditioner()` to
    specify use of the user-supplied preconditioner setup and solve
    functions, :f:func:`FARKPSET()` and :f:func:`FARKPSOL()`, respectively.
 
    This routine must be called *after* :f:func:`FARKSPILSINIT()`.
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *FLAG* (``int``, input) -- flag denoting use of user-supplied
         preconditioning routines.  A nonzero value specifies to
         use these the user-supplied routines, a zero value specifies
-        not to use these. 
+        not to use these.
       * *IER*  (``int``, output) -- return flag  (0 if success,
 	:math:`\ne 0` if an error).
 
-              
+
 With treatment of the linear systems by any of the Krylov iterative
 solvers, there are four optional user-supplied routines --
 :f:func:`FARKJTSETUP()`, :f:func:`FARKJTIMES()`, :f:func:`FARKPSET()`
 and :f:func:`FARKPSOL()`. The specifications of these functions are
-given below. 
+given below.
 
 
 As an option when using the ARKSPILS linear solver interface, the user
 may supply a routine that computes the product of the system Jacobian
 :math:`J = \frac{\partial f_I}{\partial y}` and a given vector
-:math:`v`.  If supplied, it must have the following form: 
+:math:`v`.  If supplied, it must have the following form:
 
-             
+
 
 .. f:subroutine:: FARKJTIMES(V, FJV, T, Y, FY, H, IPAR, RPAR, WORK, IER)
-   
+
    Interface to provide a user-supplied Jacobian-times-vector product
    approximation function (corresponding to a C interface routine of
    type :c:func:`ARKSpilsJacTimesVecFn()`), to be used by one of the
    Krylov iterative linear solvers.
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *V*    (``realtype``, input) -- array containing the vector to multiply.
       * *FJV*  (``realtype``, output) -- array containing resulting product vector.
       * *T*    (``realtype``, input) -- current value of the independent variable.
@@ -998,27 +989,27 @@ may supply a routine that computes the product of the system Jacobian
       * *WORK* (``realtype``, input) -- array containing temporary workspace of same size as
         *Y*.
       * *IER*  (``int``, output) -- return flag  (0 if success, :math:`\ne 0` if an error).
-         
+
    **Notes:**
    Typically this routine will use only *T*, *Y*, *V*, and
    *FJV*.  It must compute the product vector :math:`Jv`, where
-   :math:`v` is given in *V*, and the product is stored in *FJV*. 
-   
+   :math:`v` is given in *V*, and the product is stored in *FJV*.
+
 
 If the user's Jacobian-times-vector product routine requires that any
 Jacobian related data be evaluated or preprocessed, then the following
 routine can be used for the evaluation and preprocessing of this data:
 
-            
+
 
 .. f:subroutine:: FARKJTSETUP(T, Y, FY, H, IPAR, RPAR, IER)
-   
+
    Interface to setup data for use in a user-supplied
    Jacobian-times-vector product approximation function (corresponding
    to a C interface routine of type
    :c:func:`ARKSpilsJacTimesSetupFn()`).
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *T*    (``realtype``, input) -- current value of the independent variable.
       * *Y*    (``realtype``, input) -- array containing dependent state variables.
       * *FY*   (``realtype``, input) -- array containing dependent state derivatives.
@@ -1028,23 +1019,23 @@ routine can be used for the evaluation and preprocessing of this data:
       * *RPAR* (``realtype``, input) -- array containing real user data that was passed to
         :f:func:`FARKMALLOC()`.
       * *IER*  (``int``, output) -- return flag  (0 if success, :math:`\ne 0` if an error).
-         
+
    **Notes:**
    Typically this routine will use only *T* and *Y*, and store
    the results in either the arrays *IPAR* and *RPAR*, or in a Fortran
    module or common block.
-   
+
 
 If preconditioning is to be included, the following routine must be
 supplied, for solution of the preconditioner linear system:
 
 
 .. f:subroutine:: FARKPSOL(T,Y,FY,R,Z,GAMMA,DELTA,LR,IPAR,RPAR,VT,IER)
-   
+
    User-supplied preconditioner solve routine (of type
    :c:func:`ARKSpilsPrecSolveFn()`).
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *T* (``realtype``, input) -- current value of the independent variable.
       * *Y* (``realtype``, input) -- current dependent state variable array.
       * *FY* (``realtype``, input) -- current dependent state variable derivative array.
@@ -1060,41 +1051,41 @@ supplied, for solution of the preconditioner linear system:
         :f:func:`FARKMALLOC()`.
       * *IER*  (``int``, output) -- return flag  (0 if success, >0 if a recoverable
         failure, <0 if a non-recoverable failure).
-      
+
    ..
       **Notes:**
       Typically this routine will use only *T*, *Y*, *GAMMA*, *R*,
-      *LR*, and *Z*.  It must solve the preconditioner linear system 
+      *LR*, and *Z*.  It must solve the preconditioner linear system
       :math:`Pz = r`.  The preconditioner (or the product of the left and
       right preconditioners if both are nontrivial) should be an
       approximation to the matrix  :math:`M(T) - \gamma J`, where
       :math:`M` is the system mass matrix, :math:`\gamma` is the input
-      GAMMA, and :math:`J = \frac{\partial f_I}{\partial y}`. 
+      GAMMA, and :math:`J = \frac{\partial f_I}{\partial y}`.
 
    **Notes:**
    Typically this routine will use only *T*, *Y*, *GAMMA*, *R*,
-   *LR*, and *Z*.  It must solve the preconditioner linear system 
+   *LR*, and *Z*.  It must solve the preconditioner linear system
    :math:`Pz = r`.  The preconditioner (or the product of the left and
    right preconditioners if both are nontrivial) should be an
    approximation to the matrix  :math:`M - \gamma J`, where
    :math:`M` is the system mass matrix, :math:`\gamma` is the input
-   GAMMA, and :math:`J = \frac{\partial f_I}{\partial y}`. 
+   GAMMA, and :math:`J = \frac{\partial f_I}{\partial y}`.
 
 
 If the user's preconditioner requires that any Jacobian related data be evaluated
-or preprocessed, then the following routine can be used for the evaluation and 
+or preprocessed, then the following routine can be used for the evaluation and
 preprocessing of the preconditioner:
 
 .. f:subroutine:: FARKPSET(T,Y,FY,JOK,JCUR,GAMMA,H,IPAR,RPAR,IER)
-   
+
    User-supplied preconditioner setup routine (of type
-   :c:func:`ARKSpilsPrecSetupFn()`). 
-      
-   **Arguments:** 
+   :c:func:`ARKSpilsPrecSetupFn()`).
+
+   **Arguments:**
       * *T* (``realtype``, input) -- current value of the independent variable.
       * *Y* (``realtype``, input) -- current dependent state variable array.
       * *FY* (``realtype``, input) -- current dependent state variable derivative array.
-      * *JOK* (``int``, input) -- flag indicating whether Jacobian-related data needs to be 
+      * *JOK* (``int``, input) -- flag indicating whether Jacobian-related data needs to be
         recomputed: 0 = recompute, 1 = reuse with the current value of *GAMMA*.
       * *JCUR* (``realtype``, output) -- return flag to denote if
 	Jacobian data was recomputed (1=yes, 0=no).
@@ -1106,16 +1097,16 @@ preprocessing of the preconditioner:
         :f:func:`FARKMALLOC()`.
       * *IER*  (``int``, output) -- return flag  (0 if success, >0 if a recoverable
         failure, <0 if a non-recoverable failure).
-      
+
    **Notes:**
    This routine must set up the preconditioner :math:`P` to be used in
    the subsequent call to :f:func:`FARKPSOL()`.  The preconditioner (or
    the product of the left and right preconditioners if using both)
    should be an approximation to the matrix  :math:`M - \gamma J`,
    where :math:`M` is the system mass matrix, :math:`\gamma` is the
-   input *GAMMA*, and :math:`J = \frac{\partial f_I}{\partial y}`. 
-   
-   
+   input *GAMMA*, and :math:`J = \frac{\partial f_I}{\partial y}`.
+
+
 Notes:
 
 (a) If the user's :f:func:`FARKJTSETUP()`, :f:func:`FARKJTIMES()` or
@@ -1125,8 +1116,8 @@ Notes:
     increments.  Also, if :f:func:`FARKPSOL()` uses an iterative
     method in its solution, the residual vector :math:`\rho = r - Pz`
     of the system should be made less than :math:`\delta =` *DELTA* in
-    the weighted l2 norm, i.e.  
-    
+    the weighted l2 norm, i.e.
+
     .. math::
        \left(\sum_i \left(\rho_i\, EWT_i\right)^2 \right)^{1/2} < \delta.
 
@@ -1134,13 +1125,13 @@ Notes:
     :f:func:`FARKPSOL()`, or :f:func:`FARKPSET()`, the error weight
     array *EWT* can be obtained by calling
     :f:func:`FARKGETERRWEIGHTS()` using a user-allocated array as
-    temporary storage for *EWT*. 
+    temporary storage for *EWT*.
 
 (c) If needed in :f:func:`FARKJTSETUP()` :f:func:`FARKJTIMES()`,
     :f:func:`FARKPSOL()`, or :f:func:`FARKPSET()`, the unit roundoff
     can be obtained as the optional output *ROUT(6)* (available after
     the call to :f:func:`FARKMALLOC()`) and can be passed using either
-    the *RPAR* user data array or a common block. 
+    the *RPAR* user data array or a common block.
 
 
 
@@ -1164,15 +1155,15 @@ to the ARKDLS mass matrix solver interface, then following the calls
 to initialize the SUNLINSOL and SUNMATRIX objects for the mass-matrix
 system in steps :ref:`FInterface.SUNMatrix` and
 :ref:`FInterface.SUNLinSol` above, the user must call the
-:f:func:`FARKDLSMASSINIT()` routine: 
+:f:func:`FARKDLSMASSINIT()` routine:
 
-   
+
 .. f:subroutine:: FARKDLSMASSINIT(TIME_DEP, IER)
-   
+
    Interfaces with the :c:func:`ARKDlsSetMassLinearSolver()` function to
    specify use of the direct mass matrix linear solver interface.
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *TIME_DEP* (``int``, input) -- flag indicating whether the
         mass matrix is time-dependent (1) or not (0).
         *Currently, only values of "0" are supported*
@@ -1180,11 +1171,6 @@ system in steps :ref:`FInterface.SUNMatrix` and
         error occurred, -2 for an illegal input).
 
 
-..
-   When using the ARKDLS interface with the SUNLINSOL_DENSE or
-   SUNLINSOL_LAPACKDENSE mass matrix linear solver modules, the user must
-   supply a routine that computes the dense mass matrix :math:`M(t)`.  This
-   routine must have the following form:
 When using the ARKDLS interface with the SUNLINSOL_DENSE or
 SUNLINSOL_LAPACKDENSE mass matrix linear solver modules, the user must
 supply a routine that computes the dense mass matrix :math:`M`.  This
@@ -1192,12 +1178,12 @@ routine must have the following form:
 
 
 .. f:subroutine:: FARKDMASS(NEQ, T, DMASS, IPAR, RPAR, WK1, WK2, WK3, IER)
-   
+
    Interface to provide a user-supplied dense mass matrix computation
    function (of type :c:func:`ARKDlsMassFn()`), to be used by the
-   SUNLINSOL_DENSE or SUNLINSOL_LAPACKDENSE solver modules. 
-      
-   **Arguments:** 
+   SUNLINSOL_DENSE or SUNLINSOL_LAPACKDENSE solver modules.
+
+   **Arguments:**
       * *NEQ* (``long int``, input) -- size of the ODE system.
       * *T* (``realtype``, input) -- current value of the independent variable.
       * *DMASS* (``realtype`` of size (NEQ,NEQ), output) -- 2D array
@@ -1210,50 +1196,45 @@ routine must have the following form:
         of same size as *Y*.
       * *IER* (``int``, output) -- return flag (0 if success, >0 if a recoverable error
         occurred, <0 if an unrecoverable error occurred).
-      
+
    **Notes:** Typically this routine will use only *NEQ*, *T*, and
-   *DMASS*. It must compute the mass matrix and store it column-wise in *DMASS*. 
-  
+   *DMASS*. It must compute the mass matrix and store it column-wise in *DMASS*.
+
 To indicate that the :f:func:`FARKDMASS()` routine has been provided, then,
 following the call to :f:func:`FARKDLSMASSINIT()`, the user must call
-the routine :f:func:`FARKDENSESETMASS()`: 
+the routine :f:func:`FARKDENSESETMASS()`:
 
 
 .. f:subroutine:: FARKDENSESETMASS(IER)
-   
+
    Interface to the :c:func:`ARKDlsSetMassFn()` function,
    specifying to use the user-supplied routine :f:func:`FARKDMASS()`
    for the mass matrix calculation.
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *IER* (``int``, output) -- return flag (0 if success,
 	:math:`\ne 0` if an error occurred).
-   
-   
-..
-   When using the ARKDLS interface with the SUNLINSOL_BAND or
-   SUNLINSOL_LAPACKBAND mass matrix linear solver modules, the user must
-   supply a routine that computes the banded mass matrix :math:`M(t)`.  This
-   routine must have the following form:
+
+
 When using the ARKDLS interface with the SUNLINSOL_BAND or
 SUNLINSOL_LAPACKBAND mass matrix linear solver modules, the user must
 supply a routine that computes the banded mass matrix :math:`M`.  This
 routine must have the following form:
 
 .. f:subroutine:: FARKBMASS(NEQ, MU, ML, MDIM, T, BMASS, IPAR, RPAR, WK1, WK2, WK3, IER)
-   
+
    Interface to provide a user-supplied band mass matrix calculation
    function (of type :c:func:`ARKDlsMassFn()`), to be used by the
    SUNLINSOL_BAND or SUNLINSOL_LAPACKBAND solver modules.
-     
-   **Arguments:** 
+
+   **Arguments:**
       * *NEQ* (``long int``, input) -- size of the ODE system.
       * *MU*   (``long int``, input) -- upper half-bandwidth.
       * *ML*   (``long int``, input) -- lower half-bandwidth.
       * *MDIM* (``long int``, input) -- leading dimension of *BMASS* array.
       * *T*    (``realtype``, input) -- current value of the independent variable.
       * *BMASS* (``realtype`` of size *(MDIM,NEQ)*, output) -- 2D array
-	containing the mass matrix entries. 
+	containing the mass matrix entries.
       * *IPAR* (``long int``, input) -- array containing integer user data that was passed to
         :f:func:`FARKMALLOC()`.
       * *RPAR* (``realtype``, input) -- array containing real user data that was passed to
@@ -1262,40 +1243,30 @@ routine must have the following form:
         of same size as *Y*.
       * *IER* (``int``, output) -- return flag (0 if success, >0 if a recoverable error
         occurred, <0 if an unrecoverable error occurred).
-      
+
    **Notes:**
    Typically this routine will use only *NEQ*, *MU*, *ML*, *T*, and
-   *BMASS*. It must load the *MDIM* by *N* array *BMASS* with the mass 
+   *BMASS*. It must load the *MDIM* by *N* array *BMASS* with the mass
    matrix at the current :math:`(t)` in band form.  Store in
-   *BMASS(k,j)* the mass matrix element :math:`M_{i,j}` with 
-   *k = i - j + MU + 1* (or *k = 1, ..., ML+MU+1*) and *j = 1, ..., N*. 
+   *BMASS(k,j)* the mass matrix element :math:`M_{i,j}` with
+   *k = i - j + MU + 1* (or *k = 1, ..., ML+MU+1*) and *j = 1, ..., N*.
 
 
 To indicate that the :f:func:`FARKBMASS()` routine has been provided, then,
 following the call to :f:func:`FARKDLSMASSINIT()`, the user must call the routine
-:f:func:`FARKBANDSETMASS()`: 
+:f:func:`FARKBANDSETMASS()`:
 
 .. f:subroutine:: FARKBANDSETMASS(IER)
-   
+
    Interface to the :c:func:`ARKDlsSetMassFn()` function, specifying
    to use the user-supplied routine :f:func:`FARKBMASS()` for the mass
    matrix calculation.
-      
-   **Arguments:** 
-      * *IER* (``int``, output) -- return flag (0 if success, 
+
+   **Arguments:**
+      * *IER* (``int``, output) -- return flag (0 if success,
 	:math:`\ne 0` if an error occurred).
 
 
-..
-   When using the ARKDLS interface with the SUNLINSOL_KLU or
-   SUNLINSOL_SUPERLUMT mass matrix linear solver modules, the user must
-   supply a routine that computes the sparse mass matrix :math:`M(t)`.
-   Both the KLU and SuperLU_MT solver interfaces support the
-   compressed-sparse-column (CSC) and compressed-sparse-row (CSR) matrix
-   formats.  The desired format must have been specified to the
-   :f:func:`FSUNSPARSEMASSMATINIT()` function when initializing the
-   sparse mass matrix.  The user-provided routine to compute :math:`M(t)`
-   must have the following form: 
 When using the ARKDLS interface with the SUNLINSOL_KLU or
 SUNLINSOL_SUPERLUMT mass matrix linear solver modules, the user must
 supply a routine that computes the sparse mass matrix :math:`M`.
@@ -1304,16 +1275,16 @@ compressed-sparse-column (CSC) and compressed-sparse-row (CSR) matrix
 formats.  The desired format must have been specified to the
 :f:func:`FSUNSPARSEMASSMATINIT()` function when initializing the
 sparse mass matrix.  The user-provided routine to compute :math:`M`
-must have the following form: 
+must have the following form:
 
 
 .. f:subroutine:: FARKSPMASS(T, N, NNZ, MDATA, MINDEXVALS, MINDEXPTRS, IPAR, RPAR, WK1, WK2, WK3, IER)
-   
+
    Interface to provide a user-supplied sparse mass matrix approximation
    function (of type :c:func:`ARKDlsMassFn()`), to be used by the
    SUNLINSOL_KLU or SUNLINSOL_SUPERLUMT solver modules.
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *T* (``realtype``, input) -- current value of the independent variable.
       * *N* (``sunindextype``, input) -- number of mass matrix rows and columns.
       * *NNZ* (``sunindextype``, input) -- allocated length of nonzero storage
@@ -1333,14 +1304,14 @@ must have the following form:
         of same size as *Y*.
       * *IER* (``int``, output) -- return flag (0 if success, >0 if a recoverable error
         occurred, <0 if an unrecoverable error occurred).
-      
+
    **Notes:** due to the internal storage format of the
    SUNMATRIX_SPARSE module, the matrix-specific integer parameters and
    arrays are all of type ``sunindextype`` -- the index precision
    (32-bit vs 64-bit signed integers) specified during the SUNDIALS
    build.  It is assumed that the user's Fortran codes are constructed
    to have matching type to how SUNDIALS was installed.
-  
+
 
 To indicate that the :f:func:`FARKSPMASS()` routine has been provided, then,
 following the call to :f:func:`FARKDLSMASSINIT()`, the user must call the routine
@@ -1348,13 +1319,13 @@ following the call to :f:func:`FARKDLSMASSINIT()`, the user must call the routin
 
 
 .. f:subroutine:: FARKSPARSESETMASS(IER)
-   
+
    Interface to the :c:func:`ARKDlsSetMassFn()` function,
    specifying that the user-supplied routine :f:func:`FARKSPMASS()` has
-   been provided for the mass matrix calculation. 
-      
-   **Arguments:** 
-      * *IER* (``int``, output) -- return flag (0 if success, 
+   been provided for the mass matrix calculation.
+
+   **Arguments:**
+      * *IER* (``int``, output) -- return flag (0 if success,
 	:math:`\ne 0` if an error occurred).
 
 
@@ -1365,15 +1336,15 @@ ARKSPILS iterative mass matrix linear solver interface
 To attach an iterative SUNLINSOL object to the ARKSPILS mass matrix
 solver interface, then following the call to initialize the SUNLINSOL
 object in step :ref:`FInterface.SUNLinSol` above, the user must call
-the :f:func:`FARKSPILSMASSINIT()` routine: 
+the :f:func:`FARKSPILSMASSINIT()` routine:
 
 
 .. f:subroutine:: FARKSPILSMASSINIT(TIME_DEP, IER)
-   
+
    Interfaces with the :c:func:`ARKSpilsSetMassLinearSolver()`
    function to specify use of the iterative mass matrix solver interface.
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *TIME_DEP* (``int``, input) -- flag indicating whether the
         mass matrix is time-dependent (1) or not (0).
         *Currently, only values of 0 are supported.*
@@ -1385,35 +1356,30 @@ As described in the section :ref:`Mathematics.Error.Linear`, a user
 may adjust the linear solver tolerance scaling factor
 :math:`\epsilon_L`.  Fortran users may adjust this value for the mass
 matrix linear solver by calling the function
-:f:func:`FARKSPILSSETMASSEPSLIN()`: 
+:f:func:`FARKSPILSSETMASSEPSLIN()`:
 
 .. f:subroutine:: FARKSPILSSETMASSEPSLIN(EPLIFAC, IER)
-   
+
    Interface to the function :c:func:`ARKSpilsSetEpsLin()` to
    specify the linear solver tolerance scale factor :math:`\epsilon_L`
    for the mass matrix linear solver.
 
    This routine must be called *after* :f:func:`FARKSPILSMASSINIT()`.
-   
-   **Arguments:** 
+
+   **Arguments:**
       * *EPLIFAC* (``realtype``, input) -- value to use for
         :math:`\epsilon_L`.  Passing a value of 0 indicates to use the
         default value (0.05).
       * *IER*  (``int``, output) -- return flag  (0 if success,
 	:math:`\ne 0` if an error).
-      
-      
+
+
 With treatment of the mass matrix linear systems by any of the Krylov
 iterative solvers, there are two required user-supplied routines,
 :f:func:`FARKMTSETUP()` and :f:func:`FARKMTIMES()`, and there are two
 optional user-supplied routines, :f:func:`FARKMASSPSET()` and
 :f:func:`FARKMASSPSOL()`. The specifications of these functions are given below.
 
-..
-   The required routines when using a Krylov iterative mass matrix linear
-   solver perform setup and computation of the product of the possibly
-   time-dependent system mass matrix :math:`M(t)` and a given vector
-   :math:`v`.  The product routine must have the following form:  
 The required routines when using a Krylov iterative mass matrix linear
 solver perform setup and computation of the product of the system mass
 matrix :math:`M` and a given vector :math:`v`.  The product routine
@@ -1421,13 +1387,13 @@ must have the following form:
 
 
 .. f:subroutine:: FARKMTIMES(V, MV, T, IPAR, RPAR, IER)
-   
+
    Interface to a user-supplied mass-matrix-times-vector product
    approximation function (corresponding to a C interface routine of
    type :c:func:`ARKSpilsMassTimesVecFn()`), to be used by one of the
    Krylov iterative linear solvers.
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *V*    (``realtype``, input) -- array containing the vector to multiply.
       * *MV*   (``realtype``, output) -- array containing resulting product vector.
       * *T*    (``realtype``, input) -- current value of the independent variable.
@@ -1436,11 +1402,11 @@ must have the following form:
       * *RPAR* (``realtype``, input) -- array containing real user data that was passed to
         :f:func:`FARKMALLOC()`.
       * *IER*  (``int``, output) -- return flag  (0 if success, :math:`\ne 0` if an error).
-         
+
    **Notes:**
    Typically this routine will use only *T*, *V*, and
    *MV*.  It must compute the product vector :math:`Mv`, where
-   :math:`v` is given in *V*, and the product is stored in *MV*. 
+   :math:`v` is given in *V*, and the product is stored in *MV*.
 
 
 If the user's mass-matrix-times-vector product routine requires that
@@ -1449,66 +1415,66 @@ routine can be used for the evaluation and preprocessing of this data:
 
 
 .. f:subroutine:: FARKMTSETUP(T, IPAR, RPAR, IER)
-   
+
    Interface to a user-supplied mass-matrix-times-vector setup
    function (corresponding to a C interface routine of type
    :c:func:`ARKSpilsMassTimesSetupFn()`).
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *T*    (``realtype``, input) -- current value of the independent variable.
       * *IPAR* (``long int``, input) -- array containing integer user data that was passed to
         :f:func:`FARKMALLOC()`.
       * *RPAR* (``realtype``, input) -- array containing real user data that was passed to
         :f:func:`FARKMALLOC()`.
       * *IER*  (``int``, output) -- return flag  (0 if success, :math:`\ne 0` if an error).
-         
+
    **Notes:**
    Typically this routine will use only *T*, and store
    the results in either the arrays *IPAR* and *RPAR*, or in a Fortran
    module or common block.  If no mass matrix setup is needed, this
    routine should just set *IER* to 0 and return.
-         
+
 
 To indicate that these routines have been supplied by the user, then,
 following the call to :f:func:`FARKSPILSMASSINIT()`, the user must
 call the routine :f:func:`FARKSPILSSETMASS()`:
 
 .. f:subroutine:: FARKSPILSSETMASS(IER)
-   
+
    Interface to the function :c:func:`ARKSpilsSetMassTimes()` to
    specify use of the user-supplied mass-matrix-times-vector setup and
    product functions :f:func:`FARKMTSETUP()` and :f:func:`FARKMTIMES()`.
 
    This routine must be called *after* :f:func:`FARKSPILSMASSINIT()`.
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *IER*  (``int``, output) -- return flag  (0 if success,
 	:math:`\ne 0` if an error).
 
 
 Two optional user-supplied preconditioning routines may be supplied to
 help accelerate convergence of the Krylov mass matrix linear solver.
-If preconditioning was selected when enabling the Krylov solver 
-(i.e. the solver was set up with *IPRETYPE* :math:`\ne 0`), then the 
+If preconditioning was selected when enabling the Krylov solver
+(i.e. the solver was set up with *IPRETYPE* :math:`\ne 0`), then the
 user must also call the routine :f:func:`FARKSPILSSETMASSPREC()` with
 *FLAG* :math:`\ne 0`:
 
 
 .. f:subroutine:: FARKSPILSSETMASSPREC(FLAG, IER)
-   
+
    Interface to the function :c:func:`ARKSpilsSetMassPreconditioner()` to
    specify use of the user-supplied preconditioner setup and solve
    functions, :f:func:`FARKMASSPSET()` and :f:func:`FARKMASSPSOL()`,
-   respectively. 
+   respectively.
 
    This routine must be called *after* :f:func:`FARKSPILSMASSINIT()`.
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *FLAG* (``int``, input) -- flag denoting use of user-supplied
         preconditioning routines.
       * *IER*  (``int``, output) -- return flag  (0 if success,
 	:math:`\ne 0` if an error).
-         
+
 
 In addition, the user must provide the following two routines to
 implement the preconditioner setup and solve functions to be used
@@ -1516,80 +1482,80 @@ within the solve.
 
 
 .. f:subroutine:: FARKMASSPSET(T,IPAR,RPAR,IER)
-   
+
    User-supplied preconditioner setup routine (of type
-   :c:func:`ARKSpilsMassPrecSetupFn()`). 
-      
-   **Arguments:** 
+   :c:func:`ARKSpilsMassPrecSetupFn()`).
+
+   **Arguments:**
       * *T* (``realtype``, input) -- current value of the independent
-	variable. 
+	variable.
       * *IPAR* (``long int``, input/output) -- array containing
 	integer user data that was passed to :f:func:`FARKMALLOC()`.
       * *RPAR* (``realtype``, input/output) -- array containing real
 	user data that was passed to :f:func:`FARKMALLOC()`.
       * *IER*  (``int``, output) -- return flag  (0 if success, >0 if
 	a recoverable failure, <0 if a non-recoverable failure).
-      
+
    ..
       **Notes:**
       This routine must set up the preconditioner :math:`P` to be used in
       the subsequent call to :f:func:`FARKMASSPSOL()`.  The
       preconditioner (or the product of the left and right
       preconditioners if using both) should be an approximation to the
-      system mass matrix, :math:`M(t)`. 
-   
+      system mass matrix, :math:`M(t)`.
+
    **Notes:**
    This routine must set up the preconditioner :math:`P` to be used in
    the subsequent call to :f:func:`FARKMASSPSOL()`.  The
    preconditioner (or the product of the left and right
    preconditioners if using both) should be an approximation to the
-   system mass matrix, :math:`M`. 
-   
-   
+   system mass matrix, :math:`M`.
+
+
 .. f:subroutine:: FARKMASSPSOL(T,R,Z,DELTA,LR,IPAR,RPAR,IER)
-   
+
    User-supplied preconditioner solve routine (of type
    :c:func:`ARKSpilsMassPrecSolveFn()`).
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *T* (``realtype``, input) -- current value of the independent
-	variable. 
+	variable.
       * *R* (``realtype``, input) -- right-hand side array.
       * *Z* (``realtype``, output) -- solution array.
       * *DELTA* (``realtype``, input) -- desired residual tolerance.
       * *LR* (``int``, input) -- flag denoting to solve the right or
 	left preconditioner system: 1 = left preconditioner, 2 = right
-	preconditioner. 
+	preconditioner.
       * *IPAR* (``long int``, input/output) -- array containing
 	integer user data that was passed to :f:func:`FARKMALLOC()`.
       * *RPAR* (``realtype``, input/output) -- array containing real
 	user data that was passed to :f:func:`FARKMALLOC()`.
       * *IER*  (``int``, output) -- return flag  (0 if success, >0 if
 	a recoverable failure, <0 if a non-recoverable failure).
-      
+
    ..
       **Notes:**
       Typically this routine will use only *T*, *R*, *LR*, and *Z*.  It
       must solve the preconditioner linear system :math:`Pz = r`.  The
       preconditioner (or the product of the left and right
       preconditioners if both are nontrivial) should be an approximation
-      to the system mass matrix :math:`M(t)`. 
+      to the system mass matrix :math:`M(t)`.
 
    **Notes:**
    Typically this routine will use only *T*, *R*, *LR*, and *Z*.  It
    must solve the preconditioner linear system :math:`Pz = r`.  The
    preconditioner (or the product of the left and right
    preconditioners if both are nontrivial) should be an approximation
-   to the system mass matrix :math:`M`. 
-   
+   to the system mass matrix :math:`M`.
+
 
 Notes:
 
 (a) If the user's :f:func:`FARKMASSPSOL()` uses an iterative method in
     its solution, the residual vector :math:`\rho = r - Pz` of the
     system should be made less than :math:`\delta =` *DELTA* in the
-    weighted l2 norm, i.e.  
-    
+    weighted l2 norm, i.e.
+
     .. math::
        \left(\sum_i \left(\rho_i\, EWT_i\right)^2 \right)^{1/2} < \delta.
 
@@ -1603,7 +1569,7 @@ Notes:
     :f:func:`FARKMASSPSOL()`, or :f:func:`FARKMASSPSET()`, the unit
     roundoff can be obtained as the optional output *ROUT(6)*
     (available after the call to :f:func:`FARKMALLOC()`) and can be
-    passed using either the *RPAR* user data array or a common block. 
+    passed using either the *RPAR* user data array or a common block.
 
 
 
@@ -1619,12 +1585,12 @@ Carrying out the integration is accomplished by making calls to
 
 
 .. f:subroutine:: FARKODE(TOUT, T, Y, ITASK, IER)
-   
+
    Fortran interface to the C routine :c:func:`ARKode()`
    for performing the solve, along with many of the ARK*Get*
    routines for reporting on solver statistics.
-   
-   **Arguments:** 
+
+   **Arguments:**
       * *TOUT* (``realtype``, input) -- next value of :math:`t` at
 	which a solution is desired.
 
@@ -1632,7 +1598,7 @@ Carrying out the integration is accomplished by making calls to
 	that corresponds to the output *Y*
 
       * *Y* (``realtype``, output) -- array containing dependent state
-	variables on output. 
+	variables on output.
 
       * *ITASK* (``int``, input) -- task indicator :
 
@@ -1648,26 +1614,26 @@ Carrying out the integration is accomplished by making calls to
         * 4 = one step 'tstop' mode (like 2, but integration never
 	  goes past *TSTOP*).
 
-      * *IER* (int, output) -- completion flag: 
+      * *IER* (int, output) -- completion flag:
 
-	* 0 = success, 
+	* 0 = success,
 
-	* 1 = tstop return, 
+	* 1 = tstop return,
 
-	* 2 = root return, 
+	* 2 = root return,
 
 	* values -1, ..., -10 are failure modes (see :c:func:`ARKode()` and
           :ref:`Constants`).
-      
+
    **Notes:**
    The current values of the optional outputs are immediately
    available in *IOUT* and *ROUT* upon return from this function (see
-   :ref:`FInterface.IOUTTable` and :ref:`FInterface.ROUTTable`). 
+   :ref:`FInterface.IOUTTable` and :ref:`FInterface.ROUTTable`).
 
    A full description of error flags and output behavior of the solver
    (values filled in for *T* and *Y*) is provided in the description
    of :c:func:`ARKode()`.
-   
+
 
 
 
@@ -1678,16 +1644,16 @@ Additional solution output
 
 After a successful return from :f:func:`FARKODE()`, the routine
 :f:func:`FARKDKY()` may be used to obtain a derivative of the solution,
-of order up to 3, at any :math:`t` within the last step taken. 
+of order up to 3, at any :math:`t` within the last step taken.
 
 
 .. f:subroutine:: FARKDKY(T, K, DKY, IER)
-   
+
    Fortran interface to the C routine :f:func:`ARKDKY()` for
    interpolating output of the solution or its derivatives at any
    point within the last step taken.
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *T* (``realtype``, input) -- time at which solution derivative
 	is desired, within the interval :math:`[t_n-h,t_n]`.
       * *K* (``int``, input) -- derivative order :math:`(0 \le k \le 3)`.
@@ -1709,17 +1675,17 @@ problem of the same size as one already solved, the user must call
 
 
 .. f:subroutine:: FARKREINIT(T0, Y0, IMEX, IATOL, RTOL, ATOL, IER)
-   
+
    Re-initializes the Fortran interface to the ARKode solver.
-      
+
    **Arguments:**  The arguments have the same names and meanings as those of
    :f:func:`FARKMALLOC()`.
-      
+
    **Notes:**
    This routine performs no memory allocation, instead using the
    existing memory created by the previous :f:func:`FARKMALLOC()`
    call.  The call to specify the linear system solution method may
-   or may not be needed. 
+   or may not be needed.
 
 
 Following a call to :f:func:`FARKREINIT()` if the choice of linear
@@ -1753,16 +1719,16 @@ FARKODE memory structure should be deleted with a call to
 
 
 .. f:subroutine:: FARKRESIZE(T0, Y0, HSCALE, ITOL, RTOL, ATOL, IER)
-   
+
    Re-initializes the Fortran interface to the ARKode solver for a
    differently-sized ODE system.
-      
-   **Arguments:** 
+
+   **Arguments:**
       * *T0* (``realtype``, input) -- initial value of the independent
 	variable :math:`t`.
 
       * *Y0* (``realtype``, input) -- array of dependent-variable
-	initial conditions.  
+	initial conditions.
 
       * *HSCALE* (``realtype``, input) -- desired step size scale factor:
 
@@ -1772,13 +1738,13 @@ FARKODE memory structure should be deleted with a call to
 
       * *ITOL* (``int``, input) -- flag denoting that a new relative
 	tolerance and vector of absolute tolerances are supplied in
-	the *RTOL* and *ATOL* arguments: 
+	the *RTOL* and *ATOL* arguments:
 
         * 0 = retain the current scalar-valued relative and absolute
 	  tolerances, or the user-supplied error weight function,
-	  :f:func:`FARKEWT()`. 
+	  :f:func:`FARKEWT()`.
 
-        * 1 = *RTOL* contains the new scalar-valued relative tolerance 
+        * 1 = *RTOL* contains the new scalar-valued relative tolerance
           and *ATOL* contains a new array of absolute tolerances.
 
       * *RTOL* (``realtype``, input) -- scalar relative tolerance.
@@ -1786,11 +1752,11 @@ FARKODE memory structure should be deleted with a call to
       * *ATOL* (``realtype``, input) -- array of absolute tolerances.
 
       * *IER* (``int``, output) -- return flag (0 success, :math:`\ne 0` failure).
-      
+
    **Notes:**
    This routine performs the opposite set of of operations as
    :f:func:`FARKREINIT()`: it does not reinitialize any of the
-   time-step heuristics, but it does perform memory reallocation.  
+   time-step heuristics, but it does perform memory reallocation.
 
 
 Following a call to :f:func:`FARKRESIZE()`, the internal data
@@ -1798,9 +1764,9 @@ structures for all linear solver and matrix objects will be the
 incorrect size.  Hence, calls must be made to re-create the linear
 system solver, mass matrix solver, linear system matrix, and mass
 matrix, followed by calls to attach the updated objects to the ARKDLS
-or ARKSPILS interfaces. 
+or ARKSPILS interfaces.
 
-If any user-supplied linear solver helper routines were used (Jacobian 
+If any user-supplied linear solver helper routines were used (Jacobian
 evaluation, Jacobian-vector product, mass matrix evaluation,
 mass-matrix-vector product, preconditioning, etc.), then the
 relevant "set" routines to specify their usage must be called again
@@ -1819,11 +1785,11 @@ To free the internal memory created by :f:func:`FARKMALLOC()`,
 :f:func:`FARKDLSINIT()`, :f:func:`FARKSPILSINIT()`,
 :f:func:`FARKDLSMASSINIT()`, :f:func:`FARKSPILSMASSINIT()`,
 and the SUNMATRIX and SUNLINSOL objects, the user may call
-:f:func:`FARKFREE()`, as follows: 
+:f:func:`FARKFREE()`, as follows:
 
 
 .. f:subroutine:: FARKFREE()
-   
+
    Frees the internal memory created by :f:func:`FARKMALLOC()`.
-      
+
    **Arguments:** None.

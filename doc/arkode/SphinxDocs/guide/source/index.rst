@@ -20,7 +20,7 @@ systems of ordinary differential equations (ODEs) using Runge-Kutta
 (i.e. one-step, multi-stage) methods.  The ARKode solver is a
 component of the `SUNDIALS
 <https://computation.llnl.gov/casc/sundials/main.html>`_ suite of
-nonlinear and differential/algebraic equation solvers. It is designed 
+nonlinear and differential/algebraic equation solvers. It is designed
 to have a similar user experience to the `CVODE
 <https://computation.llnl.gov/casc/sundials/description/description.html#descr_cvode>`_
 solver, including user modes to allow adaptive integration to specified
@@ -30,20 +30,16 @@ parallelism (via OpenMP, Pthreads, CUDA, Raja) or distributed-memory
 parallelism (via MPI).  The default integration and solver options
 should apply to most users, though control over nearly all internal
 parameters and time adaptivity algorithms is enabled through optional
-interface routines. 
+interface routines.
 
-ARKode is written in C, with C++ and Fortran interfaces.  
-
-Due to its similarities in both function and design with the CVODE
-package, this documentation is highly similar with the corresponding
-CVODE user guide [HS2017]_. 
+ARKode is written in C, with C++ and Fortran interfaces.
 
 ARKode is developed by `Southern Methodist University
 <http://www.smu.edu>`_, with support by the `US Department of Energy
 <http://www.doe.gov>`_ through the `FASTMath
 <http://www.fastmath-scidac.org/>`_ SciDAC Institute, under subcontract
 B598130 from `Lawrence Livermore National Laboratory
-<http://www.llnl.gov>`_. 
+<http://www.llnl.gov>`_.
 
 
 
@@ -57,8 +53,9 @@ B598130 from `Lawrence Livermore National Laboratory
    Introduction
    Mathematics
    Organization
-   c_interface/index.rst
-   f_interface/index.rst
+   ARKStep_c_interface/index.rst
+   ARKStep_f_interface/index.rst
+   ERKStep_c_interface/index.rst
    nvectors/index.rst
    sunmatrix/index.rst
    sunlinsol/index.rst
@@ -71,5 +68,3 @@ B598130 from `Lawrence Livermore National Laboratory
 
    * :ref:`genindex`
    * :ref:`search`
-
-

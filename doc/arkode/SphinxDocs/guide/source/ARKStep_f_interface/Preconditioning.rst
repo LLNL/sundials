@@ -17,7 +17,7 @@ Usage of the FARKODE interface to built-in preconditioners
 The FARKODE interface enables usage of the two built-in
 preconditioning modules ARKBANDPRE and ARKBBDPRE.  Details on how
 these preconditioners work are provided in the section
-:ref:`CInterface.PreconditionerModules`.  In this section, we focus
+:ref:`ARKStep_CInterface.PreconditionerModules`.  In this section, we focus
 specifically on the Fortran interface to these modules.
 
 
@@ -32,11 +32,11 @@ as part of the FARKODE interface module, support the use of the
 ARKode solver with the serial or threaded NVector modules
 (:ref:`NVectors.NVSerial`, :ref:`NVectors.OpenMP` or
 :ref:`NVectors.Pthreads`), and the combination of the ARKBANDPRE
-preconditioner module (see the section :ref:`CInterface.BandPre`) with
-the ARKSPILS interface and any of the Krylov iterative linear solvers. 
+preconditioner module (see the section :ref:`ARKStep_CInterface.BandPre`) with
+the ARKSPILS interface and any of the Krylov iterative linear solvers.
 
 The two user-callable functions in this package, with the
-corresponding ARKode function around which they wrap, are: 
+corresponding ARKode function around which they wrap, are:
 
 * :f:func:`FARKBPINIT()` interfaces to :c:func:`ARKBandPrecInit()`.
 
@@ -46,7 +46,7 @@ corresponding ARKode function around which they wrap, are:
 
 As with the rest of the FARKODE routines, the names of the
 user-supplied routines are mapped to actual values through a series of
-definitions in the header file ``farkbp.h``. 
+definitions in the header file ``farkbp.h``.
 
 The following is a summary of the usage of this module.  Steps that
 are unchanged from the main program described in the section
@@ -67,11 +67,11 @@ are unchanged from the main program described in the section
 
 5. *Set optional inputs*
 
-6. Linear solver interface specification 
+6. Linear solver interface specification
 
    First, initialize the ARKSPILS iterative linear solver interface by
    calling :f:func:`FARKSPILSINIT()`.
-   
+
    Optionally, to specify that ARKSPILS should use the supplied
    :f:func:`FARKJTIMES()` and :f:func:`FARKJTSETUP()` routines, the
    user should call :f:func:`FARKSPILSSETJAC()` with FLAG :math:`\ne 0`,
@@ -82,52 +82,52 @@ are unchanged from the main program described in the section
 
 
    .. f:subroutine:: FARKBPINIT(NEQ, MU, ML, IER)
-   
+
       Interfaces with the :c:func:`ARKBandPrecInit()`
       function to allocate memory and initialize data associated
       with the ARKBANDPRE preconditioner.
-   
-      **Arguments:** 
-         * *NEQ* (``long int``, input) -- problem size. 
+
+      **Arguments:**
+         * *NEQ* (``long int``, input) -- problem size.
          * *MU* (``long int``, input) -- upper half-bandwidth of the
 	   band matrix that is retained as an approximation of the
-	   Jacobian. 
+	   Jacobian.
          * *ML*  (``long int``, input) -- lower half-bandwidth of the
 	   band matrix approximation to the Jacobian.
          * *IER*  (``int``, output) -- return flag  (0 if success, -1
-	   if a memory failure). 
+	   if a memory failure).
 
 
 7. *Problem solution*
 
-8. ARKBANDPRE optional outputs 
+8. ARKBANDPRE optional outputs
 
    Optional outputs specific to the ARKSPILS interface are listed in
    :ref:`FInterface.SpilsIOUTTable`.  To obtain the optional outputs
    associated with the ARKBANDPRE module, the user should call the
-   :f:func:`FARKBPOPT()`, as specified below:  
+   :f:func:`FARKBPOPT()`, as specified below:
 
 
    .. f:subroutine:: FARKBPOPT(LENRWBP, LENIWBP, NFEBP)
-      
+
       Interfaces with the ARKBANDPRE optional output functions.
-         
-      **Arguments:** 
+
+      **Arguments:**
          * *LENRWBP* (``long int``, output) -- length of real
 	   preconditioner work space (from
-	   :c:func:`ARKBandPrecGetWorkSpace()`). 
+	   :c:func:`ARKBandPrecGetWorkSpace()`).
          * *LENIWBP* (``long int``, output) -- length of integer
 	   preconditioner work space, in integer words (from
-	   :c:func:`ARKBandPrecGetWorkSpace()`). 
+	   :c:func:`ARKBandPrecGetWorkSpace()`).
          * *NFEBP* (``long int``, output) -- number of
-	   :math:`f_I(t,y)` evaluations (from 
-	   :c:func:`ARKBandPrecGetNumRhsEvals()`)  
+	   :math:`f_I(t,y)` evaluations (from
+	   :c:func:`ARKBandPrecGetNumRhsEvals()`)
 
 9. *Additional solution output*
 
 10. *Problem reinitialization*
 
-11. *Memory deallocation* 
+11. *Memory deallocation*
 
     (The memory allocated for the FARKBP module is deallocated
     automatically by :f:func:`FARKFREE()`)
@@ -144,8 +144,8 @@ The FARKBBD interface module is a package of C functions which, as
 part of the FARKODE interface module, support the use of the ARKode
 solver with the parallel vector module (:ref:`NVectors.NVParallel`),
 and the combination of the ARKBBDPRE preconditioner module (see the
-section :ref:`CInterface.BBDPre`) with any of the Krylov iterative
-linear solvers. 
+section :ref:`ARKStep_CInterface.BBDPre`) with any of the Krylov iterative
+linear solvers.
 
 The user-callable functions in this package, with the corresponding
 ARKode and ARKBBDPRE functions, are as follows:
@@ -185,11 +185,11 @@ user-supplied routines here are fixed, in order to maximize
 portability for the resulting mixed-language program.  Additionally,
 based on flags discussed above in the section :ref:`FInterface.Routines`,
 the names of the user-supplied routines are mapped to actual values
-through a series of definitions in the header file ``farkbbd.h``. 
+through a series of definitions in the header file ``farkbbd.h``.
 
 The following is a summary of the usage of this module. Steps that are
 unchanged from the main program described in the section
-:ref:`FInterface.Usage` are *italicized*. 
+:ref:`FInterface.Usage` are *italicized*.
 
 1. *Right-hand side specification*
 
@@ -206,11 +206,11 @@ unchanged from the main program described in the section
 
 5. *Set optional inputs*
 
-6. Linear solver interface specification 
+6. Linear solver interface specification
 
    First, initialize the ARKSPILS iterative linear solver interface by
    calling :f:func:`FARKSPILSINIT()`.
-   
+
    Optionally, to specify that ARKSPILS should use the supplied
    :f:func:`FARKJTIMES()` and :f:func:`FARKJTSETUP()` routines, the
    user should call :f:func:`FARKSPILSSETJAC()` with FLAG :math:`\ne 0`,
@@ -221,16 +221,16 @@ unchanged from the main program described in the section
 
 
    .. f:subroutine:: FARKBBDINIT(NLOCAL, MUDQ, MLDQ, MU, ML, DQRELY, IER)
-      
+
       Interfaces with the :c:func:`ARKBBDPrecInit()`
       routine to initialize the ARKBBDPRE preconditioning module.
-         
-      **Arguments:** 
+
+      **Arguments:**
 	 * *NLOCAL* (``long int``, input) -- local vector size on this
-	   process. 
+	   process.
    	 * *MUDQ* (``long int``, input) -- upper half-bandwidth to be
 	   used in the computation of the local Jacobian blocks by
-	   difference quotients.  These may be smaller than the 
+	   difference quotients.  These may be smaller than the
    	   true half-bandwidths of the Jacobian of the local block
    	   of :math:`g`, when smaller values may provide greater
 	   efficiency.
@@ -242,7 +242,7 @@ unchanged from the main program described in the section
 	   local Jacobian block (may be smaller than *MUDQ*).
 	 * *ML* (``long int``, input) -- lower half-bandwidth of the
 	   band matrix that is retained as an approximation of the
-	   local Jacobian block (may be smaller than *MLDQ*). 
+	   local Jacobian block (may be smaller than *MLDQ*).
 	 * *DQRELY* (``realtype``, input) -- relative increment factor
 	   in :math:`y` for difference quotients (0.0 indicates to use
 	   the default).
@@ -261,13 +261,13 @@ unchanged from the main program described in the section
 
 
    .. f:subroutine:: FARKBBDOPT(LENRWBBD, LENIWBBD, NGEBBD)
-      
+
       Interfaces with the ARKBBDPRE optional output functions.
-         
-      **Arguments:** 
+
+      **Arguments:**
 	 * *LENRWBP* (``long int``, output) -- length of real
 	   preconditioner work space on this process (from
-	   :c:func:`ARKBBDPrecGetWorkSpace()`). 
+	   :c:func:`ARKBBDPrecGetWorkSpace()`).
          * *LENIWBP* (``long int``, output) -- length of integer
 	   preconditioner work space on this process (from
 	   :c:func:`ARKBBDPrecGetWorkSpace()`).
@@ -284,34 +284,34 @@ unchanged from the main program described in the section
     preconditioner, then the ARKode package can be re-initialized for
     the second and subsequent problems by calling
     :f:func:`FARKREINIT()`, following which a call to
-    :f:func:`FARKBBDREINIT()` may or may not be needed. If the input 
+    :f:func:`FARKBBDREINIT()` may or may not be needed. If the input
     arguments are the same, no :f:func:`FARKBBDREINIT()` call is
     needed.
 
     If there is a change in input arguments other than *MU* or
     *ML*, then the user program should call :f:func:`FARKBBDREINIT()`
-    as specified below: 
+    as specified below:
 
 
     .. f:subroutine:: FARKBBDREINIT(NLOCAL, MUDQ, MLDQ, DQRELY, IER)
-      
+
        Interfaces with the
        :c:func:`ARKBBDPrecReInit()` function to reinitialize the
        ARKBBDPRE module.
-         
+
        **Arguments:**  The arguments of the same names have the same
        meanings as in :f:func:`FARKBBDINIT()`.
 
 
     However, if the value of *MU* or *ML* is being changed, then a call
-    to :f:func:`FARKBBDINIT()` must be made instead. 
+    to :f:func:`FARKBBDINIT()` must be made instead.
 
     Finally, if there is a change in any of the linear solver inputs,
     then a call to one of :f:func:`FSUNSPGMRINIT()`,
     :f:func:`FSUNSPBCGSINIT()`, :f:func:`FSUNSPTFQMRINIT()`,
     :f:func:`FSUNSPFGMRINIT()` or :f:func:`FSUNPCGINIT()`, followed by
     a call to :f:func:`FARKSPILSINIT()` must also be made; in this case
-    the linear solver memory is reallocated.  
+    the linear solver memory is reallocated.
 
 
 11. Problem resizing
@@ -322,59 +322,59 @@ unchanged from the main program described in the section
     the ARKBBDPRE preconditioner, then the ARKode package can be
     re-initialized for the second and subsequent problems by calling
     :f:func:`FARKRESIZE()`, following which a call to
-    :f:func:`FARKBBDINIT()` is required to delete and re-allocate the 
+    :f:func:`FARKBBDINIT()` is required to delete and re-allocate the
     preconditioner memory of the correct size.
 
 
     .. f:subroutine:: FARKBBDREINIT(NLOCAL, MUDQ, MLDQ, DQRELY, IER)
-      
+
        Interfaces with the
        :c:func:`ARKBBDPrecReInit()` function to reinitialize the
        ARKBBDPRE module.
-         
+
        **Arguments:**  The arguments of the same names have the same
        meanings as in :f:func:`FARKBBDINIT()`.
 
 
     However, if the value of MU or ML is being changed, then a call to
-    :f:func:`FARKBBDINIT()` must be made instead. 
+    :f:func:`FARKBBDINIT()` must be made instead.
 
     Finally, if there is a change in any of the linear solver inputs,
     then a call to one of :f:func:`FSUNSPGMRINIT()`,
     :f:func:`FSUNSPBCGSINIT()`, :f:func:`FSUNSPTFQMRINIT()`,
     :f:func:`FSUNSPFGMRINIT()` or :f:func:`FSUNPCGINIT()`, followed by
     a call to :f:func:`FARKSPILSINIT()` must also be made; in this case
-    the linear solver memory is reallocated.  
+    the linear solver memory is reallocated.
 
 
-12. `Memory deallocation` 
+12. `Memory deallocation`
 
     (The memory allocated for the FARKBBD module is deallocated
     automatically by :f:func:`FARKFREE()`).
 
-13. User-supplied routines 
+13. User-supplied routines
 
     The following two routines must be supplied for use with the
     ARKBBDPRE module:
 
 
     .. f:subroutine:: FARKGLOCFN(NLOC, T, YLOC, GLOC, IPAR, RPAR, IER)
-      
+
        User-supplied routine (of type :c:func:`ARKLocalFn()`) that
        computes a processor-local approximation :math:`g(t,y)` to
        the right-hand side function :math:`f_I(t,y)`.
-         
-       **Arguments:** 
-          * *NLOC* (``long int``, input) -- local problem size. 
+
+       **Arguments:**
+          * *NLOC* (``long int``, input) -- local problem size.
           * *T* (``realtype``, input) -- current value of the
-	    independent variable. 
+	    independent variable.
 	  * *YLOC* (``realtype``, input) -- array containing local
-	    dependent state variables. 
+	    dependent state variables.
 	  * *GLOC* (``realtype``, output) -- array containing local
-	    dependent state derivatives. 
+	    dependent state derivatives.
           * *IPAR* (``long int``, input/output) -- array containing
 	    integer user data that was passed to
-	    :f:func:`FARKMALLOC()`. 
+	    :f:func:`FARKMALLOC()`.
           * *RPAR* (``realtype``, input/output) -- array containing
 	    real user data that was passed to :f:func:`FARKMALLOC()`.
           * *IER* (``int``, output) -- return flag (0 if success, >0
@@ -383,21 +383,21 @@ unchanged from the main program described in the section
 
 
     .. f:subroutine:: FARKCOMMFN(NLOC, T, YLOC, IPAR, RPAR, IER)
-      
+
        User-supplied routine (of type :c:func:`ARKCommFn()`) that
        performs all interprocess communication necessary for the
        executation of the :f:func:`FARKGLOCFN()` function above, using
        the input vector *YLOC*.
-         
-       **Arguments:** 
-          * *NLOC* (``long int``, input) -- local problem size. 
+
+       **Arguments:**
+          * *NLOC* (``long int``, input) -- local problem size.
 	  * *T* (``realtype``, input) -- current value of the
-	    independent variable. 
+	    independent variable.
 	  * *YLOC* (``realtype``, input) -- array containing local
-	    dependent state variables. 
+	    dependent state variables.
           * *IPAR* (``long int``, input/output) -- array containing
 	    integer user data that was passed to
-	    :f:func:`FARKMALLOC()`. 
+	    :f:func:`FARKMALLOC()`.
           * *RPAR* (``realtype``, input/output) -- array containing
 	    real user data that was passed to :f:func:`FARKMALLOC()`.
           * *IER* (``int``, output) -- return flag (0 if success, >0
@@ -406,7 +406,4 @@ unchanged from the main program described in the section
 
        **Notes:**
        This subroutine must be supplied even if it is not needed, and
-       must return *IER = 0*.  
-
-
-
+       must return *IER = 0*.

@@ -13,56 +13,67 @@
 Introduction
 ============
 
-The ARKode solver library provides an adaptive-step time integration
+The ARKode infrastructure provides an adaptive-step time integration
 package for stiff, nonstiff and mixed stiff/nonstiff systems of
-ordinary differential equations (ODEs).  It is organized to support a
-wide range of problem types and solver algorithms; at present it
-supports ODE systems given in split-explicit form
+ordinary differential equations (ODEs).  ARKode itself is structured
+to support a wide range of one-step (but multi-stage) methods,
+allowing for rapid development of parallel implementations of
+state-of-the-art time integration methods.  At present, ARKode is
+packaged with two time-stepping modules, *ARKStep* and *ERKStep*.
+
+
+*ARKStep* supports ODE systems posed in split, linearly-implicit form,
 
 .. math::
    M \dot{y} = f_E(t,y) + f_I(t,y),  \qquad y(t_0) = y_0,
-   :label: ODE
-
-..
-   where :math:`t` is the independent variable, :math:`y` is the set of
-   dependent variables (in :math:`\mathbb{R}^N`), :math:`M` is a
-   user-specified, nonsingular operator from :math:`\mathbb{R}^N` to
-   :math:`\mathbb{R}^N` (possibly time dependent, but independent of
-   :math:`y`), and the right-hand side function is partitioned into two
-   components: 
+   :label: ODE_split_linearly_implicit
 
 where :math:`t` is the independent variable, :math:`y` is the set of
 dependent variables (in :math:`\mathbb{R}^N`), :math:`M` is a
 user-specified, nonsingular operator from :math:`\mathbb{R}^N` to
 :math:`\mathbb{R}^N`, and the right-hand side function is partitioned
-into two components: 
+into up to two components:
 
 - :math:`f_E(t,y)` contains the "nonstiff" time scale components to be
-  integrated explicitly, and 
+  integrated explicitly, and
 - :math:`f_I(t,y)`  contains the "stiff" time scale components to be
-  integrated implicitly. 
+  integrated implicitly.
 
 Either of these operators may be disabled, allowing for fully
 explicit, fully implicit, or combination implicit-explicit (ImEx) time
 integration.
 
-The current set of time-stepping methods used in ARKode are
-adaptive- and fixed-step additive Runge Kutta methods. Such methods
-are defined through combining two complementary Runge-Kutta methods:
-one explicit (ERK) and the other diagonally implicit (DIRK).  Through
-appropriately partitioning the ODE system into explicit and implicit
-components :eq:`ODE`, such methods have the potential to enable
-accurate and efficient time integration of mixed stiff/nonstiff
-systems of ordinary differential equations.  A key feature allowing
-for high efficiency of these methods is that only the components in
-:math:`f_I(t,y)` must be solved implicitly, allowing for splittings
-tuned for use with optimal implicit solver algorithms.
+The algorithms used in ARKStep are adaptive- and fixed-step additive
+Runge Kutta methods. Such methods are defined through combining two
+complementary Runge-Kutta methods: one explicit (ERK) and the other
+diagonally implicit (DIRK).  Through appropriately partitioning the
+ODE right-hand side into explicit and implicit components
+:eq:`ODE_split_linearly_implicit`, such methods have the potential to
+enable accurate and efficient time integration of stiff, nonstiff, and
+mixed stiff/nonstiff systems of ordinary differential equations.  A
+key feature allowing for high efficiency of these methods is that only
+the components in :math:`f_I(t,y)` must be solved implicitly, allowing
+for splittings tuned for use with optimal implicit solver algorithms.
 
 This framework allows for significant freedom over the constitutive
 methods used for each component, and ARKode is packaged with a wide
 array of built-in methods for use.  These built-in Butcher tables
 include adaptive explicit methods of orders 2-8, adaptive implicit
-methods of orders 2-5, and adaptive ImEx methods of orders 3-5. 
+methods of orders 2-5, and adaptive ImEx methods of orders 3-5.
+
+
+*ERKStep*, on the other hand, focuses specifically on problems posed
+in explicit form,
+
+.. math::
+   \dot{y} = f(t,y),  \qquad y(t_0) = y_0.
+   :label: ODE_explicit
+
+allowing for increased computational efficiency and memory savings.
+The algorithms used in ERKStep are adaptive- and fixed-step explicit
+Runge Kutta methods.   As with ARKStep, the ERKStep module is packaged
+with adaptive explicit methods of orders 2-8.
+
 
 For problems that include nonzero implicit term :math:`f_I(t,y)`, the
 resulting implicit system (assumed nonlinear, unless specified
@@ -81,7 +92,7 @@ data structures if desired.  For the serial or threaded vector
 structures, we provide a banded preconditioner module called ARKBANDPRE
 that may be used with the Krylov solvers, while for the MPI-based
 parallel vector structure there is a preconditioner module called
-ARKBBDPRE which provides a band-block-diagonal preconditioner. 
+ARKBBDPRE which provides a band-block-diagonal preconditioner.
 Additionally, a user may supply more optimal, problem-specific
 preconditioner routines.
 
@@ -95,19 +106,25 @@ Changes from previous versions
 Changes in v3.0.0-dev
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+The ARKode library has been entirely rewritten to support a modular
+approach to one-step methods, which should allow rapid research and
+development of novel integration methods without affecting existing
+solver functionality.  To support this, the existing ARK-based methods
+have been encapsulated inside the new ``ARKStep`` time-stepping
+module; a new ``ERKStep`` time-stepping module provides an
+optimized implementation for explicit Runge-Kutta methods (reduced
+storage and number of calls to the ODE right-hand side function).
+This restructure has resulted in numerous small changes to the user
+interface, particularly the suite of "Set" routines for user-provided
+solver parameters and and "Get" routines to access solver statistics.
+Aside from affecting the names of these routines, user-level changes
+have been kept to a minimum.  However, we recommend that users consult
+both this documentation and the ARKode example programs for further
+details on the updated infrastructure.
+
 Simplified the prototype for the user-supplied time step adaptivity
 function, :c:func:`ARKAdaptFn()`, to supply only the method order of
 accuracy (instead of both the method and embedding orders).
-
-Fully restructured the internal workings of ARKode to support any
-single-step time integration method.  The existing ARK-based methods
-have been encapsulated inside the new ``ARKStep`` time-stepping
-module, and a new ``ERKStep`` time-stepping module provides an
-optimized implementation for explicit Runge-Kutta methods (reduced
-storage and number of calls to the ODE right-hand side function).
-This resulted in numerous small changes to the user-interface,
-particularly the suite of "Set" routines for user-provided solver
-parameters and and "Get" routines to access solver statistics.
 
 Three fused vector operations and seven vector array operations have
 been added to the NVECTOR API. These *optional* operations
@@ -123,11 +140,11 @@ operations are ``N_VLinearCombination``, ``N_VScaleAddMulti``,
 defined as ``NULL`` in an NVECTOR implementation the NVECTOR interface
 will automatically call standard NVECTOR operations as
 necessary. Details on the new operations can be found in Chapter
-:ref:`NVectors.Description`. 
+:ref:`NVectors.Description`.
 
-Several changes were made to the build system. If MPI is enabled and
-MPI compiler wrappers are not set, the build system will check if
-``CMAKE_<language>_COMPILER`` can compile MPI programs before
+Several changes were made to the SUNDIALS build system. If MPI is
+enabled and MPI compiler wrappers are not set, the build system will
+check if ``CMAKE_<language>_COMPILER`` can compile MPI programs before
 trying to locate and use an MPI installation. The native CMake FindMPI
 module is now used to locate an MPI installation. The options for
 setting MPI compiler wrappers and the executable for running MPI
@@ -141,8 +158,8 @@ will infer the scheme from the Fortran compiler. If a Fortran compiler
 is not available or the inferred or default scheme needs to be
 overridden, the advanced options ``SUNDIALS_F77_FUNC_CASE`` and
 ``SUNDIALS_F77_FUNC_UNDERSCORES`` can be used to manually set the
-name-mangling scheme and bypass trying to infer the scheme. 
-Additionally, parts of the main CMakeLists.txt file were moved 
+name-mangling scheme and bypass trying to infer the scheme.
+Additionally, parts of the main CMakeLists.txt file were moved
 to new files in the ``src`` and ``example`` directories to make the
 CMake configuration file structure more modular.
 
@@ -152,8 +169,8 @@ Changes in v2.1.1
 
 Fixed a potential memory leak in the SPGMR and SPFGMR linear solvers:
 if "Initialize" was called multiple times then the solver memory was
-reallocated (without being freed).  
-  
+reallocated (without being freed).
+
 Fixed a minor bug in the ARKReInit routine, where a flag was
 incorrectly set to indicate that the problem had been resized (instead
 of just re-initialized).
@@ -169,7 +186,7 @@ Added missing typecasts for some ``(void*)`` pointers (again, to avoid
 compiler warnings).
 
 Bugfix in ``sunmatrix_sparse.c`` where we had used ``int`` instead of
-``sunindextype`` in one location.  
+``sunindextype`` in one location.
 
 Added missing ``#include <stdio.h>`` in NVECTOR and SUNMATRIX header files.
 
@@ -179,7 +196,7 @@ Fixed an indexing bug in the CUDA NVECTOR implementation of
 ``N_VWrmsNormMask`` and revised the RAJA NVECTOR implementation of
 ``N_VWrmsNormMask`` to work with mask arrays using values other than
 zero or one. Replaced ``double`` with ``realtype`` in the RAJA vector
-test functions. 
+test functions.
 
 Fixed compilation issue with GCC 7.3.0 and Fortran programs that do
 not require a SUNMatrix or SUNLinearSolver module (e.g. iterative
@@ -241,8 +258,8 @@ Specific changes include:
   This change supports users who wish to set up data structures for
   the user-provided Jacobian-times-vector ("JTimes") routine, and
   where the cost of one JTSetup setup per Newton iteration can be
-  amortized between multiple JTimes calls. 
- 
+  amortized between multiple JTimes calls.
+
 Two additional NVECTOR implementations were added -- one for CUDA and
 one for RAJA vectors.  These vectors are supplied to provide very
 basic support for running on GPU architectures.  Users are advised
@@ -254,17 +271,17 @@ information about RAJA, users are referred to th web site,
 `https://software.llnl.gov/RAJA/ <https://software.llnl.gov/RAJA/>`_.
 These additions are accompanied by additions to various interface
 functions and to user documentation.
- 
+
 All indices for data structures were updated to a new ``sunindextype``
 that can be configured to be a 32- or 64-bit integer data index type.
 ``sunindextype`` is defined to be ``int32_t`` or ``int64_t`` when
 portable types are supported, otherwise it is defined as ``int`` or
 ``long int``. The Fortran interfaces continue to use ``long int`` for
 indices, except for their sparse matrix interface that now uses the
-new ``sunindextype``.  This new flexible capability for index types 
+new ``sunindextype``.  This new flexible capability for index types
 includes interfaces to PETSc, *hypre*, SuperLU_MT, and KLU with either
 32-bit or 64-bit capabilities depending how the user configures
-SUNDIALS. 
+SUNDIALS.
 
 To avoid potential namespace conflicts, the macros defining
 ``booleantype`` values ``TRUE`` and ``FALSE`` have been changed to
@@ -274,9 +291,9 @@ Temporary vectors were removed from preconditioner setup and solve
 routines for all packages.  It is assumed that all necessary data
 for user-provided preconditioner operations will be allocated and
 stored in user-provided data structures.
- 
+
 The file ``include/sundials_fconfig.h`` was added.  This file contains
-SUNDIALS type information for use in Fortran programs. 
+SUNDIALS type information for use in Fortran programs.
 
 Added functions SUNDIALSGetVersion and SUNDIALSGetVersionNumber to get
 SUNDIALS release version information at runtime.
@@ -286,7 +303,7 @@ The xSDK is a movement in scientific software to provide a foundation for the
 rapid and efficient production of high-quality,
 sustainable extreme-scale scientific applications.  More information can
 be found at, `https://xsdk.info <https://xsdk.info>`_.
- 
+
 In addition, numerous changes were made to the build system.
 These include the addition of separate ``BLAS_ENABLE`` and ``BLAS_LIBRARIES``
 CMake variables, additional error checking during CMake configuration,
@@ -295,7 +312,7 @@ for greater clarity and an added option to enable/disable Fortran 77 examples.
 These changes included changing ``ENABLE_EXAMPLES`` to ``ENABLE_EXAMPLES_C``,
 changing ``CXX_ENABLE`` to ``EXAMPLES_ENABLE_CXX``, changing ``F90_ENABLE`` to
 ``EXAMPLES_ENABLE_F90``, and adding an ``EXAMPLES_ENABLE_F77`` option.
- 
+
 Corrections and additions were made to the examples, to
 installation-related files, and to the user documentation.
 
@@ -305,8 +322,8 @@ installation-related files, and to the user documentation.
 Changes in v1.1.0
 ^^^^^^^^^^^^^^^^^^^
 
-We have included numerous bugfixes and enhancements since the 
-v1.0.2 release.  
+We have included numerous bugfixes and enhancements since the
+v1.0.2 release.
 
 The bugfixes include:
 
@@ -323,7 +340,7 @@ The bugfixes include:
   significantly improved robustness when using those methods.
 
 * A bug was fixed for the situation where a user supplies a vector of
-  absolute tolerances, and also uses the vector Resize() functionality. 
+  absolute tolerances, and also uses the vector Resize() functionality.
 
 * A bug was fixed wherein a user-supplied Butcher table without an
   embedding is supplied, and the user is running with either fixed
@@ -338,7 +355,7 @@ The feature changes/enhancements include:
 * Two additional NVECTOR implementations were added -- one for Hypre
   (parallel) ParVector vectors, and one for PETSc vectors.  These
   additions are accompanied by additions to various interface
-  functions and to user documentation. 
+  functions and to user documentation.
 
 * Each NVECTOR module now includes a function, ``N_VGetVectorID``,
   that returns the NVECTOR module name.
@@ -370,7 +387,7 @@ The feature changes/enhancements include:
 * The handling of integer codes for specifying built-in ARKode Butcher
   tables was enhanced.  While a global numbering system is still used,
   methods now have #defined names to simplify the user interface and to
-  streamline incorporation of new Butcher tables into ARKode. 
+  streamline incorporation of new Butcher tables into ARKode.
 
 * The maximum number of Butcher table stages was increased from 8 to
   15 to accommodate very high order methods, and an 8th-order adaptive
@@ -383,7 +400,7 @@ The feature changes/enhancements include:
 
 * The FARKODE interface was extended to include a routine to set
   scalar/array-valued residual tolerances, to support Fortran
-  applications with non-identity mass-matrices. 
+  applications with non-identity mass-matrices.
 
 
 
@@ -396,38 +413,42 @@ Reading this User Guide
 
 This user guide is a combination of general usage instructions and
 specific example programs.  We expect that some readers will want to
-concentrate on teh general instructions, while others will refer
+concentrate on the general instructions, while others will refer
 mostly to the examples, and the organization is intended to
 accommodate both styles.
 
 The structure of this document is as follows:
 
 * In the next section we provide a thorough presentation of the
-  underlying :ref:`mathematics <Mathematics>` that relate these
-  algorithms together.  
+  underlying :ref:`mathematics <Mathematics>` used within the ARKode
+  family of solvers.
 
 * We follow this with overview of how the source code for ARKode is
-  :ref:`organized <Organization>`.  
+  :ref:`organized <Organization>`.
 
-* The largest section follows, providing a full account of the ARKode
-  user interface, including a description of all user-accessible
-  functions and outlines for ARKode usage for serial and parallel
-  applications. Since ARKode is written in C, we first present
-  :ref:`the C and C++ interface <CInterface>`, followed with a
-  separate section on :ref:`using ARKode within Fortran applications
-  <FortranInterface>`.  
+* The largest section follows, providing a full account of ARKode's
+  ARKStep module user interface, including a description of all
+  user-accessible functions and outlines for usage in serial and
+  parallel applications. Since ARKode is written in C, we first
+  present a section on :ref:`using ARKStep for C and C++ applications
+  <ARKStep_CInterface>`, followed with a separate section on
+  :ref:`using ARKode within Fortran applications <FortranInterface>`.
+
+* The much smaller section :ref:`using ERKStep for C and C++ applications
+  <ERKStep_CInterface>` follows, that provides a full description of
+  ARKode's ERKStep time-stepping module.
 
 * The following sections discuss shared features between ARKode
   and the rest of the SUNDIALS library:
   :ref:`vector data structures <NVectors>`,
   :ref:`matrix data structures <SUNMatrix>`,
   :ref:`linear solver data structures <SUNLinSol>`, and the
-  :ref:`installation procedure <Installation>`.  
+  :ref:`installation procedure <Installation>`.
 
 * The final sections catalog the full set of :ref:`ARKode constants
   <Constants>`, that are used for both input specifications and return
   codes, and the full set of :ref:`Butcher tables <Butcher>` that are
-  packaged with ARKode. 
+  packaged with ARKode.
 
 
 
@@ -437,7 +458,7 @@ SUNDIALS Release License
 The SUNDIALS packages are released open source, under a BSD license.
 The only requirements of the BSD license are preservation of copyright
 and a standard disclaimer of liability. Our Copyright notice is below
-along with the license. 
+along with the license.
 
 **PLEASE NOTE**  If you are using SUNDIALS with any third party
 libraries linked in (e.g., LAPACK, KLU, SuperLU_MT, PETSc, or
@@ -501,7 +522,7 @@ are met:
 2. Redistributions in binary form must reproduce the above copyright
    notice, this list of conditions and the disclaimer (as noted below)
    in the documentation and/or other materials provided with the
-   distribution. 
+   distribution.
 
 3. Neither the name of the LLNS/LLNL nor the names of its contributors
    may be used to endorse or promote products derived from this
@@ -518,7 +539,7 @@ PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
 PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
 LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
 NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 Additional BSD Notice
@@ -526,7 +547,7 @@ Additional BSD Notice
 * This notice is required to be provided under our contract with the
   U.S. Department of Energy (DOE). This work was produced at Lawrence
   Livermore National Laboratory under Contract No. DE-AC52-07NA27344
-  with the DOE. 
+  with the DOE.
 
 * Neither the United States Government nor Lawrence Livermore National
   Security, LLC nor any of their employees, makes any warranty,
@@ -543,5 +564,3 @@ Additional BSD Notice
   herein do not necessarily state or reflect those of the United
   States Government or Lawrence Livermore National Security, LLC, and
   shall not be used for advertising or product endorsement purposes.
-
-  

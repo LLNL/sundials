@@ -15,11 +15,11 @@ Code Organization
 =================
 
 The family of solvers referred to as SUNDIALS consists of the solvers
-CVODE and ARKode (for ODE systems), KINSOL (for nonlinear algebraic 
-systems), and IDA (for differential-algebraic systems).  In addition, 
-SUNDIALS also includes variants of CVODE and IDA with sensitivity analysis 
+CVODE and ARKode (for ODE systems), KINSOL (for nonlinear algebraic
+systems), and IDA (for differential-algebraic systems).  In addition,
+SUNDIALS also includes variants of CVODE and IDA with sensitivity analysis
 capabilities (using either forward or adjoint methods), called CVODES and
-IDAS, respectively. 
+IDAS, respectively.
 
 The various solvers of this family share many subordinate modules.
 For this reason, it is organized as a family, with a directory
@@ -28,18 +28,17 @@ structure that exploits that sharing (see the following Figures
 :ref:`SUNDIALS tree <sunorg2>` and
 :ref:`SUNDIALS examples <sunorg3>`).  The following is a list of the
 solver packages presently available, and the basic functionality
-of each: 
+of each:
 
 - CVODE, a linear multistep solver for stiff and nonstiff ODE systems
   :math:`\dot{y} = f(t,y)` based on Adams and BDF methods;
 - CVODES, a linear multistep solver for stiff and nonstiff ODEs with
   sensitivity analysis capabilities;
-- ARKode, a solver for ODE systems :math:`M \dot{y} = f_E(t,y) + f_I(t,y)` 
-  based on additive Runge-Kutta methods;
+- ARKode, a Runge-Kutta based solver for stiff, nonstiff and mixed ODE systems;
 - IDA, a linear multistep solver for differential-algebraic systems
-  :math:`F(t,y,\dot{y}) = 0` based on BDF methods; 
+  :math:`F(t,y,\dot{y}) = 0` based on BDF methods;
 - IDAS, a linear multistep solver for differential-algebraic systems with sensitivity
-  analysis capabilities; 
+  analysis capabilities;
 - KINSOL, a solver for nonlinear algebraic systems :math:`F(u) = 0`.
 
 
@@ -58,7 +57,7 @@ of each:
    :scale: 75%
    :align: center
 
-   *SUNDIALS tree*: Directory structure of the source tree. 
+   *SUNDIALS tree*: Directory structure of the source tree.
 
 
 .. _sunorg3:
@@ -85,19 +84,18 @@ The overall organization of the ARKode package is shown in Figure
 implemented in the files ``arkode.h``, ``arkode_impl.h``,
 ``arkode_butcher.h``, ``arkode.c``, ``arkode_arkstep.c`` ,
 ``arkode_erkstep.c`` and ``arkode_butcher.c``, deal with the
-evaluation of integration stages, the nonlinear solver
-:math:`(\text{if}\; f_I(t,y)\ne 0)`, estimation of the local
-truncation error, selection of step size, and interpolation to
-user output points, among other issues.  ARKode currently supports
+evaluation of integration stages, the nonlinear solvers, estimation of
+the local truncation error, selection of step size, and interpolation
+to user output points, among other issues.  ARKode currently supports
 modified Newton, inexact Newton, and accelerated fixed-point solvers
-for these implicit problems.  However, when using the Newton-based
-iterations, or when using a non-identity mass matrix :math:`M\ne I`,
-ARKode has flexibility in the choice of method used to solve the
-linear sub-systems that arise.  Therefore, for any user problem
-invoking the Newton solvers, or any user problem with :math:`M\ne I`,
-one (or more) of the linear system solver modules should be specified
-by the user, which is then invoked as needed during the integration
-process. 
+for these nonlinearly implicit problems.  However, when using the
+Newton-based iterations, or when using a non-identity mass matrix
+:math:`M\ne I`, ARKode has flexibility in the choice of method used to
+solve the linear sub-systems that arise.  Therefore, for any user
+problem invoking the Newton solvers, or any user problem with
+:math:`M\ne I`, one (or more) of the linear system solver modules
+should be specified by the user, which is then invoked as needed
+during the integration process.
 
 .. _arkorg:
 
@@ -105,7 +103,7 @@ process.
 
    *ARKode organization*: Overall structure of the ARKode package.
    Modules specific to ARKode are the timesteppers, linear solver
-   interfaces and preconditioners: ARKSTEP, ERKSTEP, ARKDLS, ARKSPILS, 
+   interfaces and preconditioners: ARKSTEP, ERKSTEP, ARKDLS, ARKSPILS,
    ARKBBDPRE, ARKBANDPRE; all other items correspond to generic solver
    and auxiliary modules.  Note also that the LAPACK, KLU and
    SuperLU_MT support is through interfaces to external packages.
@@ -118,8 +116,8 @@ supports SUNLINSOL implementations with type ``SUNLINSOL_DIRECT`` (see
 the solution of linear systems stored using one of the SUNDIALS generic
 SUNMATRIX implementations (dense, banded or sparse; see
 :ref:`SUNMatrix`).  It is assumed that the dominant cost for such
-solvers occurs in factorization of the linear system matrix :math:`A`, 
-so ARKode utilizes these solvers within its modified Newton nonlinear solve. 
+solvers occurs in factorization of the linear system matrix :math:`A`,
+so ARKode utilizes these solvers within its modified Newton nonlinear solve.
 The *iterative* linear solver interface, ARKSPILS, supports SUNLINSOL
 implementations with type ``SUNLINSOL_ITERATIVE`` (see
 :ref:`SUNLinSol`).  These linear solvers utilize scaled preconditioned
@@ -131,9 +129,9 @@ or ``SUNLINSOL_ITERATIVE`` types, the set of linear solver modules
 available to ARKode will expand as new SUNLINSOL modules are developed.
 
 Within the ARKDLS interface, the package includes algorithms for the
-approximation of dense or banded Jacobians through difference 
+approximation of dense or banded Jacobians through difference
 quotients, but the user also has the option of supplying the Jacobian
-(or an approximation to it) directly.  This user-supplied 
+(or an approximation to it) directly.  This user-supplied
 routine is required when using sparse Jacobian matrices, since
 standard difference quotient approximations do not leverage the
 inherent sparsity of the problem.  Additionally, when solving problems
@@ -156,9 +154,9 @@ demonstration programs included with ARKode and CVODE, offer
 considerable assistance in building simple preconditioners.
 
 Each ARKode linear solver interface consists of four primary phases,
-devoted to 
+devoted to
 
-(1) memory allocation and initialization, 
+(1) memory allocation and initialization,
 (2) setup of the matrix/preconditioner data involved,
 (3) solution of the system, and
 (4) freeing of memory.

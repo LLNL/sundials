@@ -23,15 +23,15 @@ solver module using calls to one of four routines. These are denoted
 here by :c:func:`linit()`, :c:func:`lsetup()`, :c:func:`lsolve()`, and
 :c:func:`lfree()`. Briefly, their purposes are as follows:
 
-* :c:func:`linit()`: initializes memory specific to the linear solver; 
+* :c:func:`linit()`: initializes memory specific to the linear solver;
 * :c:func:`lsetup()`: evaluates and preprocesses the Jacobian or
-  preconditioner in preparation for solves; 
+  preconditioner in preparation for solves;
 * :c:func:`lsolve()`: solves the linear system;
 * :c:func:`lfree()`: frees the linear solver memory.
 
 A linear solver module must also provide a user-callable **specification
 function** (like those described in the section
-:ref:`CInterface.LinearSolvers`) which will attach the above four
+:ref:`ARKStep_CInterface.LinearSolvers`) which will attach the above four
 routines to the main ARKode memory block. The ARKode memory block is a
 structure defined in the header file ``arkode_impl.h``. A pointer to
 such a structure is defined as the type ``ARKodeMem``. The four
@@ -45,7 +45,7 @@ the functions that are *not* provided, the corresponding field should
 be set to ``NULL``. The linear
 solver specification function must also set the value of the field
 ``ark_setupNonNull`` in the ARKode memory block -- to ``SUNTRUE`` if
-:c:func:`lsetup()` is used, or ``SUNFALSE`` otherwise. 
+:c:func:`lsetup()` is used, or ``SUNFALSE`` otherwise.
 
 Typically, the linear solver will require a block of memory specific
 to the solver, and a principal function of the specification function
@@ -66,14 +66,14 @@ members of the linear solver memory block, would be initialized in the
 :c:func:`linit()` function, and would be incremented by the
 :c:func:`lsetup()` and :c:func:`lsolve()` functions.  Then
 user-callable functions would be needed to obtain the values of these
-counters. 
+counters.
 
 For consistency with the existing ARKode linear solver modules, we
 recommend that the return value of the specification function be 0 for
 a successful return, and a negative value if an error occurs.
 Possible error conditions include: the pointer to the main ARKode
 memory block is ``NULL``, an input is illegal, the NVECTOR
-implementation is not compatible, or a memory allocation fails. 
+implementation is not compatible, or a memory allocation fails.
 
 
 
@@ -86,18 +86,18 @@ Similarly, for problems involving a non-identity mass matrix
 :math:`M\ne I`, the main ARKode module interfaces with the mass matrix
 linear solver module using calls to one of four routines:
 :c:func:`minit()`, :c:func:`msetup()`, :c:func:`msolve()`, and
-:c:func:`mfree()`. Briefly, their purposes are as follows: 
+:c:func:`mfree()`. Briefly, their purposes are as follows:
 
 * :c:func:`minit()`: initializes memory specific to the mass matrix
-  linear solver; 
+  linear solver;
 * :c:func:`msetup()`: evaluates and preprocesses the mass matrix or
-  associated preconditioner in preparation for solves; 
+  associated preconditioner in preparation for solves;
 * :c:func:`msolve()`: solves the mass matrix system;
 * :c:func:`mfree()`: frees the mass matrix linear solver memory.
 
 As with the Newton system linear solver, a mass matrix linear solver
 module must also provide a user-callable **specification function** (like
-those described in the section :ref:`CInterface.LinearSolvers`) which
+those described in the section :ref:`ARKStep_CInterface.LinearSolvers`) which
 will attach the above four functions to the main ARKode memory
 block.  The four fields in the ``ARKodeMem`` structure that refer to
 the mass matrix system linear solver's functions are ``ark_minit``,
@@ -130,7 +130,7 @@ members of the linear solver memory block, would be initialized in the
 :c:func:`minit()` function, and would be incremented by the
 :c:func:`msetup()` and :c:func:`msolve()` functions.  Then
 user-callable functions would be needed to obtain the values of these
-counters. 
+counters.
 
 For consistency with the existing ARKode linear solver modules, we
 recommend that the return value of the specification function be 0 for
@@ -171,10 +171,10 @@ The type definition of :c:func:`linit()` is
 
    **Arguments:**
       * *ark_mem* -- pointer to the ARKode memory block.
-   
+
    **Return value:**  Should return 0 if it has successfully
    initialized the ARKode linear solver and a negative value
-   otherwise. 
+   otherwise.
 
 
 Similarly, the type definition of :c:func:`minit()` is
@@ -190,7 +190,7 @@ Similarly, the type definition of :c:func:`minit()` is
 
    **Arguments:**
       * *ark_mem* -- pointer to the ARKode memory block.
-   
+
    **Return value:**  Should return 0 if it has successfully
    initialized the ARKode linear solver and a negative value
    otherwise.
@@ -200,7 +200,7 @@ Similarly, the type definition of :c:func:`minit()` is
 Setup function
 -----------------------------------
 
-   
+
 The type definition of :c:func:`lsetup()` is
 
 .. c:function:: typedef int (*lsetup)(ARKodeMem ark_mem, int convfail, N_Vector ypred, N_Vector fpred, booleantype *jcurPtr, N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
@@ -215,20 +215,20 @@ The type definition of :c:func:`lsetup()` is
    or a function within the linear solver module, to compute needed
    data related to the Jacobian matrix :math:`\frac{\partial
    f}{\partial y}`.  Alterntively, it may choose to retrieve and use
-   stored values of this data. 
+   stored values of this data.
 
    In either case, :c:func:`lsetup()` may also preprocess that data as
    needed for :c:func:`lsolve()`, which may involve calling a generic
    function (such as for LU factorization).  This data may be intended
    either for direct use (in a direct linear solver) or for use in a
-   preconditioner (in a preconditioned iterative linear solver). 
+   preconditioner (in a preconditioned iterative linear solver).
 
    The :c:func:`lsetup()` function is not called at every stage solve
    (or even every time step), but only as frequently as the solver
    determines that it is appropriate to perform the setup task.  In
    this way, Jacobian-related data generated by :c:func:`lsetup()` is
    expected to be used over a number of time steps.
-   
+
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKode memory block.
       * *convfail* -- an input flag used to indicate any problem that
@@ -249,16 +249,16 @@ The type definition of :c:func:`lsetup()` is
 	  corrector iteration, the linear solver's solve function
 	  failed in a recoverable manner and the linear solver's setup
 	  function indicated that its Jacobian-related data is not
-	  current. 
+	  current.
         - *ARK_FAIL_OTHER*: this value is passed if during the current
 	  internal step try, the previous Newton iteration failed to
 	  converge even though the linear solver was using current
 	  Jacobian-related data.
 
       * *ypred* -- is the predicted :math:`y` vector for the current
-	ARKode internal step. 
+	ARKode internal step.
       * *fpred* -- is the value of the implicit right-hand side at
-	*ypred*, :math:`f_I(t_n,ypred)`. 
+	*ypred*, :math:`f_I(t_n,ypred)`.
       * *jcurPtr* -- is a pointer to a boolean to be filled in by
 	:c:func:`lsetup()`. The function should set ``*jcurPtr = SUNTRUE``
         if its Jacobian data is current after the call, and should set
@@ -268,9 +268,9 @@ The type definition of :c:func:`lsetup()` is
 	``*jcurPtr = SUNTRUE`` unconditionally; otherwise an infinite
 	loop can result.
       * *vtemp1*, *vtemp2*, *vtemp3* -- are temporary variables of
-	type ``N_Vector`` provided for use by :c:func:`lsetup()`. 
-   
-   **Return value:** 
+	type ``N_Vector`` provided for use by :c:func:`lsetup()`.
+
+   **Return value:**
    Should return 0 if successful, a positive value
    for a recoverable error, and a negative value for an unrecoverable
    error.  On a recoverable error return, the solver will attempt to
@@ -288,23 +288,23 @@ Similarly, the type definition of :c:func:`msetup()` is
    The :c:func:`msetup()` function may call a user-supplied function,
    or a function within the linear solver module, to compute needed
    data related to the mass matrix.  Alterntively, it may choose to
-   retrieve and use stored values of this data. 
+   retrieve and use stored values of this data.
 
    In either case, :c:func:`msetup()` may also preprocess that data as
    needed for :c:func:`msolve()`, which may involve calling a generic
    function (such as for LU factorization).  This data may be intended
    either for direct use (in a direct linear solver) or for use in a
-   preconditioner (in a preconditioned iterative linear solver). 
+   preconditioner (in a preconditioned iterative linear solver).
 
    The :c:func:`msetup()` function is called at every time step, as
    discussed in section :ref:`Mathematics.MassSolve`.
-   
+
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKode memory block.
       * *vtemp1*, *vtemp2*, *vtemp3* -- are temporary variables of
-	type ``N_Vector`` provided for use by :c:func:`msetup()`. 
-   
-   **Return value:** 
+	type ``N_Vector`` provided for use by :c:func:`msetup()`.
+
+   **Return value:**
    Should return 0 if successful, a positive value
    for a recoverable error, and a negative value for an unrecoverable
    error.  On a recoverable error return, the solver will attempt to
@@ -340,16 +340,16 @@ The type definition of :c:func:`lsolve()` is
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKode memory block.
       * *b* -- is the right-hand side vector :math:`b`. The solution
-	is also to be returned in the vector :math:`b`. 
+	is also to be returned in the vector :math:`b`.
       * *weight* -- is a vector that contains the residual weights. These
-	are the :math:`rwt_i` of :ref:`CInterface.ResidualWeight`.
+	are the :math:`rwt_i` of :ref:`ARKStep_CInterface.ResidualWeight`.
 	This weight vector is included here to enable the computation
 	of weighted norms needed to test for the convergence of
 	iterative methods (if any) within the linear solver.
       * *ycur* -- is a vector that contains the solver's current
-	approximation to :math:`y(t_n)`. 
+	approximation to :math:`y(t_n)`.
       * *fcur* -- is a vector that contains the current right-hand
-         side, :math:`f_I(t_n, ycur)`. 
+         side, :math:`f_I(t_n, ycur)`.
 
    **Return value:**  Should return 0 if successful, a positive value
    for a recoverable error, and a negative value for an unrecoverable
@@ -372,15 +372,15 @@ Similarly, the type definition of :c:func:`msolve()` is
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKode memory block.
       * *b* -- is the right-hand side vector :math:`b`. The solution
-	is also to be returned in the vector :math:`b`. 
+	is also to be returned in the vector :math:`b`.
       * *weight* -- is a vector that contains the error weights. These
-	are the :math:`rwt_i` of :ref:`CInterface.ResidualWeight`.
+	are the :math:`rwt_i` of :ref:`ARKStep_CInterface.ResidualWeight`.
 	This weight vector is included here to enable the computation
 	of weighted norms needed to test for the convergence of
 	iterative methods (if any) within the linear solver.
 
    **Return value:**  Should return 0 if successful, and a nonzero
-   value for an unrecoverable error. 
+   value for an unrecoverable error.
 
 
 
