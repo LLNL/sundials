@@ -372,8 +372,10 @@ functions are defined in the header file
   retval = SUNNonlinSolGetCurIter(NLS, iter);
 }
 {
-  The \textit{optional} function \ID{SUNNonlinSolGetCurIter} returns
-  the iteration index of the current nonlinear solve.
+  The function \ID{SUNNonlinSolGetCurIter} returns the iteration index
+  of the current nonlinear solve. This function is \textit{required}
+  when using {\sundials} package provided convergence tests and
+  \textit{optional} for user supplied convergence test functions.
 }
 {
   \begin{args}[numiters]
