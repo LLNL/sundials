@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
 
   /* solve the nonlinear system */
   retval = SUNNonlinSolSolve(NLS, y0, y, w, TOL, SUNTRUE, Imem);
-  if (check_retval(&retval, "SUNNonlinSolSolve_Newton", 1)) return(1);
+  if (check_retval(&retval, "SUNNonlinSolSolve", 1)) return(1);
 
   /* print the solution */
   printf("Solution:\n");
@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
 
   /* get the number of linear iterations */
   retval = SUNNonlinSolGetNumIters(NLS, &niters);
-  if (check_retval(&retval, "SUNNonlinSolGetNumIters_Newton", 1)) return(1);
+  if (check_retval(&retval, "SUNNonlinSolGetNumIters", 1)) return(1);
 
   printf("Number of nonlinear iterations: %ld\n",niters);
 
