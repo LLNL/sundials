@@ -351,3 +351,15 @@ int SUNNonlinSolGetCurIter_FullNewton(SUNNonlinearSolver NLS, int *iter)
   *iter = NEWTON_CONTENT(NLS)->mnewt;
   return(SUN_NLS_SUCCESS);
 }
+
+
+int SUNNonlinSolGetSysFn_FullNewton(SUNNonlinearSolver NLS, SUNNonlinSolSysFn *SysFn)
+{
+  /* check that the nonlinear solver is non-null */
+  if (NLS == NULL)
+    return(SUN_NLS_MEM_NULL);
+
+  /* return the nonlinear system defining function */
+  *SysFn = NEWTON_CONTENT(NLS)->Sys;
+  return(SUN_NLS_SUCCESS);
+}

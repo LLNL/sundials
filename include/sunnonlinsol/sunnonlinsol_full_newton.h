@@ -93,6 +93,9 @@ SUNDIALS_EXPORT int SUNNonlinSolGetNumIters_FullNewton(SUNNonlinearSolver NLS,
 SUNDIALS_EXPORT int SUNNonlinSolGetCurIter_FullNewton(SUNNonlinearSolver NLS,
                                                       int *iter);
 
+SUNDIALS_EXPORT int SUNNonlinSolGetSysFn_FullNewton(SUNNonlinearSolver NLS,
+                                                    SUNNonlinSolSysFn *SysFn);
+
 #ifdef __cplusplus
 }
 #endif

@@ -214,8 +214,8 @@ functions are defined in the header file
   The \textit{required} function \ID{SUNNonlinSolSetSysFn} is used
   to provide the nonlinear solver with the function defining the
   nonlinear system. This is the function $F(y)$ in $F(y)=0$ for
-  \wtt{SUNNONLINERASOLVER\_ROOTFIND} modules or $G(y)$ in $G(y)=y$ for
-  \wtt{SUNNONLINEARSOLVER\_STATIONARY} modules.
+  \id{SUNNONLINERASOLVER\_ROOTFIND} modules or $G(y)$ in $G(y)=y$ for
+  \id{SUNNONLINEARSOLVER\_STATIONARY} modules.
 }
 {
   \begin{args}[SysFn]
@@ -410,8 +410,8 @@ module are defined in the header file
 }
 {
   These functions evaluate the nonlinear system $F(y)$
-  for \wtt{SUNNONLINEARSOLVER\_ROOTFIND} type modules or $G(y)$
-  for \wtt{SUNNONLINEARSOLVER\_STATIONARY} type modules. Memory
+  for \id{SUNNONLINEARSOLVER\_ROOTFIND} type modules or $G(y)$
+  for \id{SUNNONLINEARSOLVER\_STATIONARY} type modules. Memory
   for \id{F} must by be allocated prior to calling this function. The
   vector \id{y} \textit{must} be left unchanged.
 }
@@ -640,10 +640,10 @@ common set of return codes, shown below in Table \ref{t:sunnonlinsol_returncodes
 
 {\sundials} packages interact with a specific {\sunnonlinsol}
 implementation through the generic {\sunnonlinsol} module on which all
-other {\sunnonlinsol} are built. The \wtt{SUNNonlinearSolver} type is
+other {\sunnonlinsol} are built. The \id{SUNNonlinearSolver} type is
 a pointer to a structure containing an implementation-dependent
 \textit{content} field and an \textit{ops} field. The type
-\wtt{SUNNonlinearSolver} is defined as follows:
+\id{SUNNonlinearSolver} is defined as follows:
 %%
 %%
 \begin{verbatim}
@@ -656,9 +656,9 @@ struct _generic_SUNNonlinearSolver {
 \end{verbatim}
 %%
 %%
-where the \wtt{\_generic\_SUNLinearSolver\_Ops} structure is a list of 
+where the \id{\_generic\_SUNLinearSolver\_Ops} structure is a list of 
 pointers to the various actual linear solver operations provided by a
-specific implementation. The \wtt{\_generic\_SUNLinearSolver\_Ops}
+specific implementation. The \id{\_generic\_SUNLinearSolver\_Ops}
 structure is defined as
 %%
 %%
@@ -689,7 +689,7 @@ wrappers to the nonlinear solver operations provided by a particular
 field of the \id{SUNNonlinearSolver} structure. To illustrate this
 point we show below the implementation of a typical nonlinear solver
 operation from the generic {\sunnonlinsol} module,
-namely \wtt{SUNNonlinSolInitialize}, which initializes a
+namely \id{SUNNonlinSolInitialize}, which initializes a
 {\sunnonlinsol} object for use after it has been created and
 configured, and returns a flag denoting a successful/failed operation:
 %%
@@ -718,13 +718,13 @@ A {\sunnonlinsol} implementation \textit{must} do the following:
   \id{SUNNonlinearSolver} internal data representations) in
   the same code.
 \item Define and implement a user-callable constructor to create a
-  \wtt{SUNNonlinearSolver} object.
+  \id{SUNNonlinearSolver} object.
 \end{enumerate}
 Additionally, a {\sunnonlinsol} implementation \textit{may} do the
 following:
 \begin{enumerate}
 \item Define and implement additional user-callable routines acting on
-  a newly created \wtt{SUNNonlinearSolver} object that are not defined
+  a newly created \id{SUNNonlinearSolver} object that are not defined
   in the {\sunnonlinsol} API. For example, routines to set various
   configuration options for tuning the performance of the nonlinear
   solver.
