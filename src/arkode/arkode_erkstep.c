@@ -316,48 +316,6 @@ int ERKStepWFtolerances(void *arkode_mem, ARKEwtFn efun)
 }
 
 
-int ERKStepResStolerance(void *arkode_mem, realtype rabstol)
-{
-  /* unpack ark_mem, call arkResStolerance, and return */
-  ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
-                    "ERKStepResStolerance", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  return(arkResStolerance(ark_mem, rabstol));
-}
-
-
-int ERKStepResVtolerance(void *arkode_mem, N_Vector rabstol)
-{
-  /* unpack ark_mem, call arkResVtolerance, and return */
-  ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
-                    "ERKStepResVtolerance", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  return(arkResVtolerance(ark_mem, rabstol));
-}
-
-
-int ERKStepResFtolerance(void *arkode_mem, ARKRwtFn rfun)
-{
-  /* unpack ark_mem, call arkResFtolerance, and return */
-  ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
-                    "ERKStepResFtolerance", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  return(arkResFtolerance(ark_mem, rfun));
-}
-
-
 int ERKStepRootInit(void *arkode_mem, int nrtfn, ARKRootFn g)
 {
   /* unpack ark_mem, call arkRootInit, and return */

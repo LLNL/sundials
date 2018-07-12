@@ -168,58 +168,6 @@ SUNDIALS_EXPORT int ERKStepWFtolerances(void *arkode_mem,
 
 
 /*---------------------------------------------------------------
-  ERKStepResStolerance, ERKStepResVtolerance, ERKStepResFtolerance
-
-  These functions specify the absolute residual tolerance.
-  Specification of the absolute residual tolerance is only
-  necessary for problems with non-identity mass matrices in which
-  the units of the solution vector y dramatically differ from the
-  units of My, where M is the user-supplied mass matrix.  If this
-  occurs, one of these routines SHOULD be called before the first
-  call to ERKStepEvolve; otherwise the default value of
-  rabstol=1e-9 will be used, which may be entirely incorrect for
-  a specific problem.
-
-  ERKStepResStolerances specifies a scalar residual tolerance.
-
-  ERKStepResVtolerances specifies a vector residual tolerance
-    (a potentially different absolute residual tolerance for
-    each vector component).
-
-  ERKStepResFtolerances specifies a user-provides function (of
-    type ARKRwtFn) which will be called to set the residual
-    weight vector.
-
-  The tolerances reltol (defined for both the solution and
-  residual) and rabstol define a vector of residual weights,
-  rwt, with components
-    rwt[i] = 1/(reltol*abs(My[i]) + abstol)     (in S case), or
-    rwt[i] = 1/(reltol*abs(My[i]) + abstol[i])  (in V case).
-  This vector is used in all solver convergence tests, which
-  use a weighted RMS norm on all residual-like vectors v:
-     WRMSnorm(v) = sqrt( (1/N) sum(i=1..N) (v[i]*rwt[i])^2 ),
-  where N is the problem dimension.
-
-  The return value of these functions is equal to ARK_SUCCESS=0
-  if there were no errors; otherwise it is a negative int equal
-  to:
-    ARK_MEM_NULL     indicating arkode_mem was NULL (i.e.,
-                     ERKStepCreate has not been called).
-    ARK_NO_MALLOC    indicating that arkode_mem has not been
-                     allocated.
-    ARK_ILL_INPUT    indicating an input argument was illegal
-                     (e.g. a negative tolerance)
-  In case of an error return, an error message is also printed.
-  ---------------------------------------------------------------*/
-SUNDIALS_EXPORT int ERKStepResStolerance(void *arkode_mem,
-                                         realtype rabstol);
-SUNDIALS_EXPORT int ERKStepResVtolerance(void *arkode_mem,
-                                         N_Vector rabstol);
-SUNDIALS_EXPORT int ERKStepResFtolerance(void *arkode_mem,
-                                         ARKRwtFn rfun);
-
-
-/*---------------------------------------------------------------
   ERKStepRootInit
 
   This initializes a rootfinding problem to be solved during the
@@ -688,9 +636,6 @@ SUNDIALS_EXPORT int ERKStepGetDky(void *arkode_mem, realtype t,
   ERKStepGetErrWeights returns the current error weight vector.
                        The user must allocate space for eweight.
 
-  ERKStepGetResWeights returns the current residual weight vector.
-                       The user must allocate space for rweight.
-
   ERKStepGetWorkSpace returns the ERKStep real and integer workspaces
 
   ERKStepGetNumGEvals returns the number of calls to the user's
@@ -739,8 +684,6 @@ SUNDIALS_EXPORT int ERKStepGetTolScaleFactor(void *arkode_mem,
                                              realtype *tolsfac);
 SUNDIALS_EXPORT int ERKStepGetErrWeights(void *arkode_mem,
                                          N_Vector eweight);
-SUNDIALS_EXPORT int ERKStepGetResWeights(void *arkode_mem,
-                                         N_Vector rweight);
 SUNDIALS_EXPORT int ERKStepGetNumGEvals(void *arkode_mem,
                                         long int *ngevals);
 SUNDIALS_EXPORT int ERKStepGetRootInfo(void *arkode_mem,

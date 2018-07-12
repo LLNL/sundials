@@ -415,22 +415,6 @@ int ERKStepGetErrWeights(void *arkode_mem, N_Vector eweight)
 }
 
 /*---------------------------------------------------------------
- ERKStepGetResWeights: This routine returns the current residual
- weight vector.
----------------------------------------------------------------*/
-int ERKStepGetResWeights(void *arkode_mem, N_Vector rweight)
-{
-  ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
-                    "ERKStepGetResWeights", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  return(arkGetResWeights(ark_mem, rweight));
-}
-
-/*---------------------------------------------------------------
  ERKStepGetWorkSpace: Returns integrator work space requirements
 ---------------------------------------------------------------*/
 int ERKStepGetWorkSpace(void *arkode_mem, long int *lenrw, long int *leniw)
