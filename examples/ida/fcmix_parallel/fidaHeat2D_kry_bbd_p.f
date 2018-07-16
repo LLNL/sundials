@@ -203,6 +203,23 @@ c
          stop
       endif
 c
+c Attach Newton nonlinear solver
+c
+      call fsunnewtoninit(2, ier)
+      if (ier .ne. 0) then
+         write(6,38) ier
+ 38      format(///' SUNDIALS_ERROR: FSUNNEWTONINIT IER = ', i5)
+         call mpi_abort(mpi_comm_world, 1, ier)
+         stop
+      endif
+      call fidanlsinit(ier)
+      if (ier .ne. 0) then
+         write(6,39) ier
+ 39      format(///' SUNDIALS_ERROR: FIDANLSINIT returned IER = ', i5)
+         call mpi_abort(mpi_comm_world, 1, ier)
+         stop
+      endif
+c
 c Print header
 c
       if (thispe .eq. 0) then

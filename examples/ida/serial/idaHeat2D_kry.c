@@ -30,11 +30,12 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <ida/ida.h>                   /* prototypes for IDA fcts., consts.    */
-#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
-#include <ida/ida_spils.h>             /* access to IDASpils interface         */
-#include <sunlinsol/sunlinsol_spgmr.h> /* access to spgmr SUNLinearSolver      */
-#include <sundials/sundials_types.h>   /* definition of type realtype          */
+#include <ida/ida.h>                          /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>           /* access to serial N_Vector            */
+#include <ida/ida_spils.h>                    /* access to IDASpils interface         */
+#include <sunlinsol/sunlinsol_spgmr.h>        /* access to spgmr SUNLinearSolver      */
+#include <sunnonlinsol/sunnonlinsol_newton.h> /* access to Newton SUNNonlinearSolver  */
+#include <sundials/sundials_types.h>          /* definition of type realtype          */
 
 /* Problem Constants */
 
@@ -92,11 +93,13 @@ int main()
   realtype rtol, atol, t0, t1, tout, tret;
   long int netf, ncfn, ncfl;
   SUNLinearSolver LS;
+  SUNNonlinearSolver NLS;
 
   mem = NULL;
   data = NULL;
   uu = up = constraints = res = NULL;
   LS = NULL;
+  NLS = NULL;
 
   /* Allocate N-vectors and the user data structure. */
 
@@ -173,6 +176,14 @@ int main()
   /* Set the preconditioner solve and setup functions */
   ier = IDASpilsSetPreconditioner(mem, PsetupHeat, PsolveHeat);
   if(check_flag(&ier, "IDASpilsSetPreconditioner", 1)) return(1);
+
+  /* Create Newton SUNNonlinearSolver object */
+  NLS = SUNNonlinSol_Newton(uu);
+  if(check_flag((void *)NLS, "SUNNonlinSol_Newton", 0)) return(1);
+
+  /* Attach the nonlinear solver */
+  ier = IDASetNonlinearSolver(mem, NLS);
+  if(check_flag(&ier, "IDASetNonlinearSolver", 1)) return(1);
 
   /* Print output heading. */
   PrintHeader(rtol, atol);
@@ -264,6 +275,7 @@ int main()
   /* Free Memory */
 
   IDAFree(&mem);
+  SUNNonlinSolFree(NLS);
   SUNLinSolFree(LS);
 
   N_VDestroy(uu);

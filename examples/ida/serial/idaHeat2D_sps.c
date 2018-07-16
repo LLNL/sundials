@@ -31,13 +31,14 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <ida/ida.h>                       /* prototypes for IDA fcts., consts.    */
-#include <nvector/nvector_serial.h>        /* access to serial N_Vector            */
-#include <sunmatrix/sunmatrix_sparse.h>    /* access to sparse SUNMatrix           */
-#include <sunlinsol/sunlinsol_superlumt.h> /* access to superlumt linear solver    */
-#include <ida/ida_direct.h>                /* access to IDADls interface           */
-#include <sundials/sundials_types.h>       /* defs. of realtype, sunindextype      */
-#include <sundials/sundials_math.h>        /* defs. of SUNRabs, SUNRexp, etc.      */
+#include <ida/ida.h>                          /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>           /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_sparse.h>       /* access to sparse SUNMatrix           */
+#include <sunlinsol/sunlinsol_superlumt.h>    /* access to superlumt linear solver    */
+#include <ida/ida_direct.h>                   /* access to IDADls interface           */
+#include <sunnonlinsol/sunnonlinsol_newton.h> /* access to Newton SUNNonlinearSolver  */
+#include <sundials/sundials_types.h>          /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>           /* defs. of SUNRabs, SUNRexp, etc.      */
 
 /* Problem Constants */
 
@@ -98,11 +99,15 @@ int main(void)
   realtype rtol, atol, t0, t1, tout, tret;
   SUNMatrix A;
   SUNLinearSolver LS;
+  SUNNonlinearSolver NLS;
   sunindextype nnz;
   
   mem = NULL;
   data = NULL;
   uu = up = constraints = id = res = NULL;
+  A = NULL;
+  LS = NULL;
+  NLS = NULL;
 
   /* Create vectors uu, up, res, constraints, id. */
   uu = N_VNew_Serial(NEQ);
@@ -181,6 +186,14 @@ int main(void)
   }
   if(check_flag(&ier, "IDADlsSetJacFn", 1)) return(1);
 
+  /* Create Newton SUNNonlinearSolver object */
+  NLS = SUNNonlinSol_Newton(uu);
+  if(check_flag((void *)NLS, "SUNNonlinSol_Newton", 0)) return(1);
+
+  /* Attach the nonlinear solver */
+  ier = IDASetNonlinearSolver(mem, NLS);
+  if(check_flag(&ier, "IDASetNonlinearSolver", 1)) return(1);
+
   /* Call IDACalcIC to correct the initial values. */
 
   ier = IDACalcIC(mem, IDA_YA_YDP_INIT, t1);
@@ -211,6 +224,7 @@ int main(void)
   printf("\n netf = %ld,   ncfn = %ld \n", netf, ncfn);
 
   IDAFree(&mem);
+  SUNNonlinSolFree(NLS);
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
   N_VDestroy(uu);

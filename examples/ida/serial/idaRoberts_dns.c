@@ -25,13 +25,14 @@
 #include <stdio.h>
 #include <math.h>
 
-#include <ida/ida.h>                   /* prototypes for IDA fcts., consts.    */
-#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
-#include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
-#include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
-#include <ida/ida_direct.h>            /* access to IDADls interface           */
-#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
-#include <sundials/sundials_math.h>    /* defs. of SUNRabs, SUNRexp, etc.      */
+#include <ida/ida.h>                          /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>           /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_dense.h>        /* access to dense SUNMatrix            */
+#include <sunlinsol/sunlinsol_dense.h>        /* access to dense SUNLinearSolver      */
+#include <ida/ida_direct.h>                   /* access to IDADls interface           */
+#include <sunnonlinsol/sunnonlinsol_newton.h> /* access to Newton SUNNonlinearSolver  */
+#include <sundials/sundials_types.h>          /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>           /* defs. of SUNRabs, SUNRexp, etc.      */
 
 /* Problem Constants */
 
@@ -53,7 +54,7 @@ int resrob(realtype tres, N_Vector yy, N_Vector yp,
 static int grob(realtype t, N_Vector yy, N_Vector yp,
                 realtype *gout, void *user_data);
 
-int jacrob(realtype tt,  realtype cj, 
+int jacrob(realtype tt,  realtype cj,
            N_Vector yy, N_Vector yp, N_Vector resvec,
            SUNMatrix JJ, void *user_data,
            N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
@@ -82,12 +83,14 @@ int main(void)
   int rootsfound[2];
   SUNMatrix A;
   SUNLinearSolver LS;
+  SUNNonlinearSolver NLS;
 
   mem = NULL;
   yy = yp = avtol = NULL;
   yval = ypval = atval = NULL;
   A = NULL;
   LS = NULL;
+  NLS = NULL;
 
   /* Allocate N-vectors. */
   yy = N_VNew_Serial(NEQ);
@@ -112,7 +115,7 @@ int main(void)
 
   atval = N_VGetArrayPointer(avtol);
   atval[0] = RCONST(1.0e-8);
-  atval[1] = RCONST(1.0e-14);
+  atval[1] = RCONST(1.0e-6);
   atval[2] = RCONST(1.0e-6);
 
   /* Integration limits */
@@ -150,6 +153,14 @@ int main(void)
   retval = IDADlsSetJacFn(mem, jacrob);
   if(check_flag(&retval, "IDADlsSetJacFn", 1)) return(1);
 
+  /* Create Newton SUNNonlinearSolver object */
+  NLS = SUNNonlinSol_Newton(yy);
+  if(check_flag((void *)NLS, "SUNNonlinSol_Newton", 0)) return(1);
+
+  /* Attach the nonlinear solver */
+  retval = IDASetNonlinearSolver(mem, NLS);
+  if(check_flag(&retval, "IDASetNonlinearSolver", 1)) return(1);
+
   /* In loop, call IDASolve, print results, and test for error.
      Break out of loop when NOUT preset output times have been reached. */
 
@@ -183,6 +194,7 @@ int main(void)
 
   /* Free memory */
   IDAFree(&mem);
+  SUNNonlinSolFree(NLS);
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
   N_VDestroy(avtol);

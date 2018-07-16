@@ -42,6 +42,7 @@
 #include <nvector/nvector_Petsc.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
+#include <sunnonlinsol/sunnonlinsol_newton.h>
 
 #include <mpi.h>
 #include <petscdm.h>
@@ -107,10 +108,12 @@ int main(int argc, char *argv[])
   PetscErrorCode ierr;                  /* PETSc error code  */
   Vec uvec;
   Mat Jac;
+  SUNNonlinearSolver NLS;
 
   mem = NULL;
   data = NULL;
   uu = up = constraints = id = res = NULL;
+  NLS = NULL;
 
   /* Get processor number and total number of pe's. */
 
@@ -236,6 +239,14 @@ int main(int argc, char *argv[])
   ier = IDAPETScSetJacFn(mem, jacHeat);
   if(check_flag(&ier, "IDAPETScSetJacFn", 1, thispe)) MPI_Abort(comm, 1);
 
+  /* Create Newton SUNNonlinearSolver object */
+  NLS = SUNNonlinSol_Newton(uu);
+  if(check_flag((void *)NLS, "SUNNonlinSol_Newton", 0)) return(1);
+
+  /* Attach the nonlinear solver */
+  ier = IDASetNonlinearSolver(mem, NLS);
+  if(check_flag(&ier, "IDASetNonlinearSolver", 1)) return(1);
+
   /* Print output heading (on processor 0 only) and intial solution  */
   
   if (thispe == 0) PrintHeader(Neq, rtol, atol);
@@ -260,6 +271,7 @@ int main(int argc, char *argv[])
   /* Free memory */
 
   IDAFree(&mem);
+  SUNNonlinSolFree(NLS);
 
   N_VDestroy_Petsc(id);
   N_VDestroy_Petsc(res);

@@ -613,3 +613,16 @@ int FIDAresfn(realtype t, N_Vector yy, N_Vector yp,
 
   return(ier);
 }
+
+/*************************************************/
+
+/* Fortran interface to C routine IDASetNonlinearSolver; see 
+   fida.h for further details */
+void FIDA_NLSINIT(int *ier) {
+  if ( (IDA_idamem == NULL) || (F2C_IDA_nonlinsol == NULL) ) {
+    *ier = -1;
+    return;
+  }
+  *ier = IDASetNonlinearSolver(IDA_idamem, F2C_IDA_nonlinsol);
+  return;
+}

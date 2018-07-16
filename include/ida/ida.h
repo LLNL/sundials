@@ -34,6 +34,7 @@
 
 #include <stdio.h>
 #include <sundials/sundials_nvector.h>
+#include <sundials/sundials_nonlinearsolver.h>
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
@@ -87,6 +88,8 @@ extern "C" {
 #define IDA_FIRST_RES_FAIL  -12
 #define IDA_LINESEARCH_FAIL -13
 #define IDA_NO_RECOVERY     -14
+#define IDA_NLS_INIT_FAIL   -15
+#define IDA_NLS_SETUP_FAIL  -16
 
 #define IDA_MEM_NULL        -20
 #define IDA_MEM_FAIL        -21
@@ -941,6 +944,16 @@ SUNDIALS_EXPORT char *IDAGetReturnFlagName(long int flag);
  */
 
 SUNDIALS_EXPORT void IDAFree(void **ida_mem);
+
+/*
+ * ----------------------------------------------------------------
+ * Function : IDASetNonlinearSolver
+ * ----------------------------------------------------------------
+ * Set the nonlinear solver in IDA
+ * ----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int IDASetNonlinearSolver(void *ida_mem, SUNNonlinearSolver NLS);
 
 #ifdef __cplusplus
 }

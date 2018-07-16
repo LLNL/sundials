@@ -36,6 +36,7 @@ $tar $tarfile $distrobase/src/ida/ida_io.c
 # $tar $tarfile $distrobase/src/ida/ida_petsc_impl.h
 $tar $tarfile $distrobase/src/ida/ida_spils.c
 $tar $tarfile $distrobase/src/ida/ida_spils_impl.h
+$tar $tarfile $distrobase/src/ida/ida_nls.c
 
 echo "   --- Add fida module to $tarfile"
 

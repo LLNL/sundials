@@ -78,7 +78,8 @@ description of their meaning.
 \id{IDA\_FIRST\_RES\_FAIL}& -12 & The user-provided residual function failed recoverably on the first call. \\
 \id{IDA\_LINESEARCH\_FAIL}& -13 & The line search failed. \\
 \id{IDA\_NO\_RECOVERY}    & -14 & The residual function, linear solver setup function, or linear solver solve function had a recoverable failure, but \id{IDACalcIC} could not recover. \\
-\id{IDA\_MEM\_NULL}       & -20  & The \id{ida\_mem} argument was \id{NULL}. \\
+\id{IDA\_NLS\_INIT\_FAIL} & -15 & The nonlinear solver's init routine failed. \\
+\id{IDA\_MEM\_NULL}       & -20 & The \id{ida\_mem} argument was \id{NULL}. \\
 \id{IDA\_MEM\_FAIL}       & -21 & A memory allocation failed. \\
 \id{IDA\_ILL\_INPUT}      & -22 & One of the function inputs is illegal. \\
 \id{IDA\_NO\_MALLOC}      & -23 & The {\ida} memory was not allocated by a call to \id{IDAInit}. \\

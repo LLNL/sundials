@@ -69,6 +69,7 @@ for ((i=0; i<${#realtype[@]}; i++)); do
         if [ $? -ne 0 ]; then
             let nfail+=1
             echo "FAILED: NoExtLibs ${realtype[i]} ${indextype[j]}" | tee -a suntest.log
+            break
         else
             echo "PASSED: NoExtLibs ${realtype[i]} ${indextype[j]}" | tee -a suntest.log
         fi
@@ -84,6 +85,7 @@ for ((i=0; i<${#realtype[@]}; i++)); do
         if [ $? -ne 0 ]; then
             let nfail+=1
             echo "FAILED: ${realtype[i]} ${indextype[j]}" | tee -a suntest.log
+            break
         else
             echo "PASSED: ${realtype[i]} ${indextype[j]}" | tee -a suntest.log
         fi
@@ -99,23 +101,31 @@ for ((i=0; i<${#realtype[@]}; i++)); do
         if [ $? -ne 0 ]; then
             let nfail+=1
             echo "FAILED: xSDK ${realtype[i]} ${indextype[j]}" | tee -a suntest.log
+            break
         else
             echo "PASSED: xSDK ${realtype[i]} ${indextype[j]}" | tee -a suntest.log
         fi               
 
     done
+
+    # exit loop on failure
+    if [ $nfail -ne 0 ]; then
+        break
+    fi
+
 done
 
 # ------------------------------------------------------------------------------
 # Report test results
 echo "--------------------------------------------------" | tee -a suntest.log
 echo "SUNDIALS regression tests: $testname " | tee -a suntest.log
+date | tee -a suntest.log
+echo "--------------------------------------------------" | tee -a suntest.log
 if [ $nfail -ne 0 ]; then
-    echo "FAILED: $nfail failures." | tee -a suntest.log
+    echo "FAILED" | tee -a suntest.log
 else
     echo "PASSED" | tee -a suntest.log
 fi
-date | tee -a suntest.log
 echo "--------------------------------------------------" | tee -a suntest.log
 
 # exit

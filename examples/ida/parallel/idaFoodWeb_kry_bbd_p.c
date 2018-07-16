@@ -104,6 +104,7 @@
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_dense.h>
 #include <sundials/sundials_math.h>
+#include <sunnonlinsol/sunnonlinsol_newton.h>
 
 #include <mpi.h>
 
@@ -227,6 +228,7 @@ int main(int argc, char *argv[])
   MPI_Comm comm;
   void *ida_mem;
   SUNLinearSolver LS;
+  SUNNonlinearSolver NLS;
   UserData webdata;
   sunindextype SystemSize, local_N, mudq, mldq, mukeep, mlkeep;
   realtype rtol, atol, t0, tout, tret;
@@ -236,6 +238,7 @@ int main(int argc, char *argv[])
   cc = cp = res = id = NULL;
   webdata = NULL;
   LS = NULL;
+  NLS = NULL;
   ida_mem = NULL;
 
   /* Set communicator, and get processor number and total number of PE's. */
@@ -326,6 +329,14 @@ int main(int argc, char *argv[])
   retval = IDABBDPrecInit(ida_mem, local_N, mudq, mldq, mukeep, mlkeep, 
                           ZERO, reslocal, NULL);
   if(check_flag(&retval, "IDABBDPrecInit", 1, thispe)) MPI_Abort(comm, 1);
+
+  /* Create Newton SUNNonlinearSolver object */
+  NLS = SUNNonlinSol_Newton(cc);
+  if(check_flag((void *)NLS, "SUNNonlinSol_Newton", 0, thispe)) return(1);
+
+  /* Attach the nonlinear solver */
+  retval = IDASetNonlinearSolver(ida_mem, NLS);
+  if(check_flag(&retval, "IDASetNonlinearSolver", 1, thispe)) return(1);
   
   /* Call IDACalcIC (with default options) to correct the initial values. */
   
@@ -365,6 +376,7 @@ int main(int argc, char *argv[])
   N_VDestroy_Parallel(id);
 
   IDAFree(&ida_mem);
+  SUNNonlinSolFree(NLS);
   SUNLinSolFree(LS);
 
   destroyMat(webdata->acoef);
