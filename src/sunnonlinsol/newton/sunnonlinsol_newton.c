@@ -175,61 +175,61 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
   /* looping point for Jacobian/preconditioner setup attempts */
   for(;;) {
 
-      /* compute the residual */
-      retval = NEWTON_CONTENT(NLS)->Sys(y0, delta, mem);
+    /* compute the residual */
+    retval = NEWTON_CONTENT(NLS)->Sys(y0, delta, mem);
+    if (retval != SUN_NLS_SUCCESS) break;
+
+    /* if indicated, setup the linear system */
+    if (callLSetup) {
+      retval = NEWTON_CONTENT(NLS)->LSetup(y0, delta,
+                                           &(NEWTON_CONTENT(NLS)->jcur),
+                                           mem);
+      if (retval != SUN_NLS_SUCCESS) break;
+    }
+
+    /* initialize counter mnewt */
+    NEWTON_CONTENT(NLS)->mnewt = 0;
+
+    /* load prediction into y */
+    N_VScale(ONE, y0, y);
+
+    /* looping point for Newton iteration. Break out on any error. */
+    for(;;) {
+
+      /* increment number of nonlinear solver iterations */
+      NEWTON_CONTENT(NLS)->niters++;
+
+      /* solve the linear system to get correction vector delta */
+      retval = NEWTON_CONTENT(NLS)->LSolve(y, delta, mem);
       if (retval != SUN_NLS_SUCCESS) break;
 
-      /* if indicated, setup the linear system */
-      if (callLSetup) {
-        retval = NEWTON_CONTENT(NLS)->LSetup(y0, delta,
-                                             &(NEWTON_CONTENT(NLS)->jcur),
-                                             mem);
-        if (retval != SUN_NLS_SUCCESS) break;
+      /* apply delta to y */
+      N_VLinearSum(ONE, y, -ONE, delta, y);
+
+      /* test for convergence */
+      retval = NEWTON_CONTENT(NLS)->CTest(NLS, y, delta, tol, w, mem);
+
+      /* if successful update Jacobian status and return */
+      if (retval == SUN_NLS_SUCCESS) {
+        NEWTON_CONTENT(NLS)->jcur = SUNFALSE;
+        return(SUN_NLS_SUCCESS);
       }
 
-      /* initialize counter mnewt */
-      NEWTON_CONTENT(NLS)->mnewt = 0;
+      /* check if the iteration should continue */
+      if (retval != SUN_NLS_CONTINUE) break;
 
-      /* load prediction into y */
-      N_VScale(ONE, y0, y);
+      /* not yet converged. Increment mnewt and test for max allowed. */
+      NEWTON_CONTENT(NLS)->mnewt++;
+      if (NEWTON_CONTENT(NLS)->mnewt >= NEWTON_CONTENT(NLS)->maxiters) {
+        retval = SUN_NLS_CONV_RECVR;
+        break;
+      }
 
-      /* looping point for Newton iteration. Break out on any error. */
-      for(;;) {
+      /* evaluate the nonlinear residual and check return value */
+      retval = NEWTON_CONTENT(NLS)->Sys(y, delta, mem);
+      if (retval != SUN_NLS_SUCCESS) break;
 
-        /* increment number of nonlinear solver iterations */
-        NEWTON_CONTENT(NLS)->niters++;
-
-        /* solve the linear system to get correction vector delta */
-        retval = NEWTON_CONTENT(NLS)->LSolve(y, delta, mem);
-        if (retval != SUN_NLS_SUCCESS) break;
-
-        /* apply delta to y */
-        N_VLinearSum(ONE, y, -ONE, delta, y);
-
-        /* test for convergence */
-        retval = NEWTON_CONTENT(NLS)->CTest(NLS, y, delta, tol, w, mem);
-
-        /* if successful update Jacobian status and return */
-        if (retval == SUN_NLS_SUCCESS) {
-          NEWTON_CONTENT(NLS)->jcur = SUNFALSE;
-          return(SUN_NLS_SUCCESS);
-        }
-
-        /* check if the iteration should continue */
-        if (retval != SUN_NLS_CONTINUE) break;
-
-        /* not yet converged. Increment mnewt and test for max allowed. */
-        NEWTON_CONTENT(NLS)->mnewt++;
-        if (NEWTON_CONTENT(NLS)->mnewt >= NEWTON_CONTENT(NLS)->maxiters) {
-          retval = SUN_NLS_CONV_RECVR;
-          break;
-        }
-
-        /* call res for new residual and check error flag from res. */
-        retval = NEWTON_CONTENT(NLS)->Sys(y, delta, mem);
-        if (retval != SUN_NLS_SUCCESS) break;
-
-      } /* end of Newton iteration loop */
+    } /* end of Newton iteration loop */
 
       /* all errors go here */
       if (retval > 0) {
