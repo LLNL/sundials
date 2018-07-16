@@ -41,9 +41,9 @@ int SUNNonlinSolSetup(SUNNonlinearSolver NLS, N_Vector y, void* mem)
 int SUNNonlinSolSolve(SUNNonlinearSolver NLS,
                       N_Vector y0, N_Vector y,
                       N_Vector w, realtype tol,
-                      booleantype callSetup, void* mem)
+                      booleantype callLSetup, void* mem)
 {
-  return((int) NLS->ops->solve(NLS, y0, y, w, tol, callSetup, mem));
+  return((int) NLS->ops->solve(NLS, y0, y, w, tol, callLSetup, mem));
 }
 
 int SUNNonlinSolFree(SUNNonlinearSolver NLS)
@@ -108,6 +108,18 @@ int SUNNonlinSolGetNumIters(SUNNonlinearSolver NLS, long int *niters)
     return((int) NLS->ops->getnumiters(NLS, niters));
   } else {
     *niters = 0;
+    return(SUN_NLS_SUCCESS);
+  }
+}
+
+
+/* get the iteration count for the current nonlinear solve */
+int SUNNonlinSolGetCurIter(SUNNonlinearSolver NLS, int *iter)
+{
+  if (NLS->ops->getcuriter) {
+    return((int) NLS->ops->getcuriter(NLS, iter));
+  } else {
+    *iter = -1;
     return(SUN_NLS_SUCCESS);
   }
 }

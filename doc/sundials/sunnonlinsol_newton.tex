@@ -1,6 +1,23 @@
-The {\sunnonlinsolnewton} module provides a {\sunnonlinsol}
-implementation of Newton's method with the following constructor for
-creating the \id{SUNNonlinearSolver} object.
+This section describes the {\sundials} {\sunnonlinsol} implementation
+of Newton's method. When used with a direct linear solver this module
+is a modified Newton method which updates the Jacobian
+infrequently. With an iterative linear solver this module is an
+inexact Newton method which updates the preconditioner infrequently.
+
+To access the {\sunnonlinsolnewton} module, include the header
+file \id{sunnonlinsol/sunnonlinsol\_newton.h}. Note the
+{\sunnonlinsolnewton} module is accessible from {\sundials}
+packages \textit{without} linking to the
+\id{libsundials\_sunnonlinsolnewton} module library.
+
+
+% ====================================================================
+\subsection{SUNNonlinerSolver\_Newton functions}
+\label{ss:sunnonlinsolnewton_functions}
+% ====================================================================
+
+The {\sunnonlinsolnewton} module provides the following constructor
+for creating the \id{SUNNonlinearSolver} object.  
 % --------------------------------------------------------------------
 \ucfunction{SUNNonlinSol\_Newton}
 {
@@ -9,7 +26,7 @@ creating the \id{SUNNonlinearSolver} object.
 {
   The function \ID{SUNNonlinSol\_Newton} creates a
   \id{SUNNonlinearSolver} object for use with {\sundials} packages to
-  solve nonlinear system of the form $F(y) = 0$ with Newton's method.
+  solve nonlinear systems of the form $F(y) = 0$ with Newton's method.
 }
 {
   \begin{args}[y]
@@ -25,17 +42,50 @@ creating the \id{SUNNonlinearSolver} object.
 }
 {}
 % --------------------------------------------------------------------
-To access the constructor and other {\sunnonlinsolnewton} functions,
-include the header file \wtt{sunlinsol/sunnonlinsol\_newton.h}. Note
-the {\sunnonlinsolnewton} module is accessible from {\sundials}
-solvers \textit{without} linking to the
-\id{libsundials\_sunnonlinsolnewton} module library.
-
 The {\sunnonlinsolnewton} module implements all of the functions
-defined in Sections \ref{ss:sunnonlinsol_corefn} --
+defined in sections \ref{ss:sunnonlinsol_corefn} -- 
 \ref{ss:sunnonlinsol_getfn} with \id{\_Newton} appended to the
-function name. The \textit{content} field of the {\sunnonlinsolnewton}
-module is the following structure.
+function name.
+
+The {\sunnonlinsolnewton} module also defines the following additional
+user-callable function.
+% --------------------------------------------------------------------
+\ucfunction{SUNNonlinSolGetSysFn\_Newton}
+{
+  retval = SUNNonlinSolGetSysFn\_Newton(NLS, SysFn);
+}
+{
+  The \textit{optional} function \ID{SUNNonlinSolGetSysFn\_Newton}
+  returns the function defining the nonlinear system.
+}
+{
+  \begin{args}[SysFn]
+  \item[NLS] (\id{SUNNonlinearSolver})
+    a {\sunnonlinsol} object
+  \item[SysFn] (\id{SUNNonlinSolSysFn*})
+    the function defining the nonlinear system.
+  \end{args}
+}
+{
+  The return value \id{retval} (of type \id{int}) should be zero for a
+  successful call, and a negative value for a failure.
+}
+{
+  This function is intended for users that which to evaluate the
+  nonlinear system in a custom convergence test function with
+  {\sundials} provided nonlinear solver modules. Note that {\sundials}
+  provided nonlinear solvers will not leverage any extra nonlinear
+  system evaluations in the nonlinear solve.
+}
+
+
+% ====================================================================
+\subsection{SUNNonlinerSolver\_Newton content}
+\label{ss:sunnonlinsolnewton_content}
+% ====================================================================
+
+The \textit{content} field of the {\sunnonlinsolnewton} module is the
+following structure.
 %%
 %%
 \begin{verbatim} 
@@ -46,9 +96,11 @@ struct _SUNNonlinearSolverContent_Newton {
   SUNNonlinSolLSolveFn   LSolve;
   SUNNonlinSolConvTestFn CTest;
 
-  N_Vector delta;
-  int      maxiters;
-  long int niters;
+  N_Vector    delta;
+  booleantype jcur;
+  int         mnewt;
+  int         maxiters;
+  long int    niters;
 };
 \end{verbatim}
 %%
@@ -62,11 +114,20 @@ information:
   \item[CTest] - the function for checking convergence of the Newton
     iteration,
   \item[delta] - the Newton iteration update vector,
+  \item[jcur] - the Jacobian status (\id{SUNTRUE} =
+  current, \id{SUNFALSE} = stale),
+  \item[mnewt] - the current number of iterations in the solve attempt,
   \item[maxiters] - the maximum number of Newton iterations allows in
     a solve, and
   \item[niters] - the total number of nonlinear iterations across all
     solves.
 \end{args}
+
+
+% ====================================================================
+\subsection{SUNNonlinerSolver\_Newton Fortran interface}
+\label{ss:sunnonlinsolnewton_fortran}
+% ====================================================================
 
 For {\sundials} packages that include a Fortran interface, the
 {\sunnonlinsolnewton} module also includes a Fortran-callable
@@ -94,5 +155,3 @@ function for creating a \id{SUNNonlinearSolver} object.
   of failure.
 }
 {}
-
-% LocalWords:  Fortran SUNNEWTONINIT Fortran

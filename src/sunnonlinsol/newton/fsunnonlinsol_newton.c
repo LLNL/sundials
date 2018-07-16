@@ -73,21 +73,21 @@ void FSUNNEWTON_SETMAXITERS(int *code, int *maxiters, int *ier)
       *ier = -1;
       return;
     }
-    *ier = SUNNonlinSolSetMaxIters_Newton(F2C_CVODE_nonlinsol, *maxiters);
+    *ier = SUNNonlinSolSetMaxIters(F2C_CVODE_nonlinsol, *maxiters);
     break;
   case FCMIX_IDA:
     if (!F2C_IDA_nonlinsol) {
       *ier = -1;
       return;
     }
-    *ier = SUNNonlinSolSetMaxIters_Newton(F2C_IDA_nonlinsol, *maxiters);
+    *ier = SUNNonlinSolSetMaxIters(F2C_IDA_nonlinsol, *maxiters);
     break;
   case FCMIX_ARKODE:
     if (!F2C_ARKODE_nonlinsol) {
       *ier = -1;
       return;
     }
-    *ier = SUNNonlinSolSetMaxIters_Newton(F2C_ARKODE_nonlinsol, *maxiters);
+    *ier = SUNNonlinSolSetMaxIters(F2C_ARKODE_nonlinsol, *maxiters);
     break;
   default:
     *ier = -1;

@@ -44,6 +44,7 @@ struct _SUNNonlinearSolverContent_FullNewton {
 
   /* nonlinear solver variables */
   N_Vector delta;     /* Newton correction vector                               */
+  int      mnewt;     /* current number of Newton iterations in a solve attempt */
   int      maxiters;  /* maximum number of Newton iterations in a solve attempt */
   long int niters;    /* total number of nonlinear iterations across all solves */
 };
@@ -62,13 +63,10 @@ SUNDIALS_EXPORT SUNNonlinearSolver_Type SUNNonlinSolGetType_FullNewton(SUNNonlin
 
 SUNDIALS_EXPORT int SUNNonlinSolInitialize_FullNewton(SUNNonlinearSolver NLS);
 
-SUNDIALS_EXPORT int SUNNonlinSolSetup_FullNewton(SUNNonlinearSolver NLS,
-                                                 N_Vector y, void* mem);
-
 SUNDIALS_EXPORT int SUNNonlinSolSolve_FullNewton(SUNNonlinearSolver NLS,
                                                  N_Vector y0, N_Vector y,
                                                  N_Vector w, realtype tol,
-                                                 booleantype callSetup, void *mem);
+                                                 booleantype callLSetup, void *mem);
 
 SUNDIALS_EXPORT int SUNNonlinSolFree_FullNewton(SUNNonlinearSolver NLS);
 
@@ -91,6 +89,12 @@ SUNDIALS_EXPORT int SUNNonlinSolSetMaxIters_FullNewton(SUNNonlinearSolver NLS,
 /* get functions */
 SUNDIALS_EXPORT int SUNNonlinSolGetNumIters_FullNewton(SUNNonlinearSolver NLS,
                                                        long int *niters);
+
+SUNDIALS_EXPORT int SUNNonlinSolGetCurIter_FullNewton(SUNNonlinearSolver NLS,
+                                                      int *iter);
+
+SUNDIALS_EXPORT int SUNNonlinSolGetSysFn_FullNewton(SUNNonlinearSolver NLS,
+                                                    SUNNonlinSolSysFn *SysFn);
 
 #ifdef __cplusplus
 }

@@ -43,9 +43,11 @@ struct _SUNNonlinearSolverContent_Newton {
   SUNNonlinSolConvTestFn CTest;  /* nonlinear solver convergence test function */
 
   /* nonlinear solver variables */
-  N_Vector delta;     /* Newton correction vector                               */
-  int      maxiters;  /* maximum number of Newton iterations in a solve attempt */
-  long int niters;    /* total number of nonlinear iterations across all solves */
+  N_Vector    delta;     /* Newton correction vector                               */
+  booleantype jcur;      /* Jacobian status, current = SUNTRUE / stale = SUNFALSE  */
+  int         mnewt;     /* current number of Newton iterations in a solve attempt */
+  int         maxiters;  /* maximum number of Newton iterations in a solve attempt */
+  long int    niters;    /* total number of nonlinear iterations across all solves */
 };
 
 typedef struct _SUNNonlinearSolverContent_Newton *SUNNonlinearSolverContent_Newton;
@@ -62,13 +64,10 @@ SUNDIALS_EXPORT SUNNonlinearSolver_Type SUNNonlinSolGetType_Newton(SUNNonlinearS
 
 SUNDIALS_EXPORT int SUNNonlinSolInitialize_Newton(SUNNonlinearSolver NLS);
 
-SUNDIALS_EXPORT int SUNNonlinSolSetup_Newton(SUNNonlinearSolver NLS,
-                                             N_Vector y, void* mem);
-
 SUNDIALS_EXPORT int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
                                              N_Vector y0, N_Vector y,
                                              N_Vector w, realtype tol,
-                                             booleantype callSetup, void *mem);
+                                             booleantype callLSetup, void *mem);
 
 SUNDIALS_EXPORT int SUNNonlinSolFree_Newton(SUNNonlinearSolver NLS);
 
@@ -91,6 +90,12 @@ SUNDIALS_EXPORT int SUNNonlinSolSetMaxIters_Newton(SUNNonlinearSolver NLS,
 /* get functions */
 SUNDIALS_EXPORT int SUNNonlinSolGetNumIters_Newton(SUNNonlinearSolver NLS,
                                                    long int *niters);
+
+SUNDIALS_EXPORT int SUNNonlinSolGetCurIter_Newton(SUNNonlinearSolver NLS,
+                                                  int *iter);
+
+SUNDIALS_EXPORT int SUNNonlinSolGetSysFn_Newton(SUNNonlinearSolver NLS,
+                                                SUNNonlinSolSysFn *SysFn);
 
 #ifdef __cplusplus
 }

@@ -1616,12 +1616,7 @@ int IDAInitialSetup(IDAMem IDA_mem)
     }
   }
 
-  /* Check that lsolve exists and call linit function if it exists. */
-  if (IDA_mem->ida_lsolve == NULL) {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDA", "IDAInitialSetup", MSG_LSOLVE_NULL);
-    return(IDA_ILL_INPUT);
-  }
-
+  /* Call linit function if it exists. */
   if (IDA_mem->ida_linit != NULL) {
     ier = IDA_mem->ida_linit(IDA_mem);
     if (ier != 0) {
@@ -1958,6 +1953,9 @@ static int IDAHandleFailure(IDAMem IDA_mem, int sflag)
       IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDASolve", MSG_NO_MEM);
       return (IDA_MEM_NULL);
 
+    case IDA_NLS_SETUP_FAIL:
+      IDAProcessError(IDA_mem, IDA_NLS_SETUP_FAIL, "IDA", "IDASolve", MSG_NLS_SETUP_FAILED, IDA_mem->ida_tn);
+      return(IDA_NLS_SETUP_FAIL);
   }
 
   return (IDA_UNRECOGNISED_ERROR);   /* This return should never happen */
@@ -2219,17 +2217,17 @@ static void IDASetCoeffs(IDAMem IDA_mem, realtype *ck)
 static int IDANls(IDAMem IDA_mem)
 {
   int retval;
-  booleantype constraintsPassed, callSetup;
+  booleantype constraintsPassed, callLSetup;
   realtype temp1, temp2, vnorm;
 
-  callSetup = SUNFALSE;
+  callLSetup = SUNFALSE;
 
   /* Initialize if the first time called */
 
   if (IDA_mem->ida_nst == 0){
     IDA_mem->ida_cjold = IDA_mem->ida_cj;
     IDA_mem->ida_ss = TWENTY;
-    if (IDA_mem->ida_lsetup) callSetup = SUNTRUE;
+    if (IDA_mem->ida_lsetup) callLSetup = SUNTRUE;
   }
 
   /* Decide if lsetup is to be called */
@@ -2238,15 +2236,22 @@ static int IDANls(IDAMem IDA_mem)
     IDA_mem->ida_cjratio = IDA_mem->ida_cj / IDA_mem->ida_cjold;
     temp1 = (ONE - XRATE) / (ONE + XRATE);
     temp2 = ONE/temp1;
-    {if (IDA_mem->ida_cjratio < temp1 || IDA_mem->ida_cjratio > temp2) callSetup = SUNTRUE;}
+    {if (IDA_mem->ida_cjratio < temp1 || IDA_mem->ida_cjratio > temp2) callLSetup = SUNTRUE;}
     {if (IDA_mem->ida_cj != IDA_mem->ida_cjlast) IDA_mem->ida_ss=HUNDRED;}
+  }
+
+  /* call nonlinear solver setup if it exists */
+  if ((IDA_mem->NLS)->ops->setup) {
+    retval = SUNNonlinSolSetup(IDA_mem->NLS, IDA_mem->ida_phi[0], IDA_mem);
+    if (retval < 0) return(IDA_NLS_SETUP_FAIL);
+    if (retval > 0) return(IDA_NLS_SETUP_RECVR);
   }
 
   /* solve the nonlinear system */
   retval = SUNNonlinSolSolve(IDA_mem->NLS,
                              IDA_mem->ida_yypredict, IDA_mem->ida_yy,
                              IDA_mem->ida_ewt, IDA_mem->ida_epsNewt,
-                             callSetup, IDA_mem);
+                             callLSetup, IDA_mem);
 
   /* compute the cumulative correction vector */
   N_VLinearSum(ONE, IDA_mem->ida_yy, -ONE, IDA_mem->ida_yypredict, IDA_mem->ida_ee);

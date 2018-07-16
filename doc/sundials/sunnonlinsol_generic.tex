@@ -2,10 +2,24 @@
 operations defined by the {\sunnonlinsol} API and implemented by a
 particular {\sunnonlinsol} module of type \Id{SUNNonlinearSolver}.
 Users can supply their own {\sunnonlinsol} module, or use one of the
-modules provided with {\sundials}. The following section presents the
-{\sunnonlinsol} API and its implementation. The subsequent sections in
-this chapter describe the {\sunnonlinsol} modules provided with
-{\sundials}.
+modules provided with {\sundials}.
+
+The following section presents the {\sunnonlinsol} API and its
+implementation beginning with the definition of {\sunnonlinsol}
+functions in sections \ref{ss:sunnonlinsol_corefn}
+-- \ref{ss:sunnonlinsol_getfn}. This is followed by the definition of
+functions supplied to a nonlinear solver implementation in section
+\ref{ss:sunnonlinsol_sunsuppliedfn}. A table of nonlinear solver
+return codes is given in section \ref{ss:sunnonlinsol_returncodes}.
+The \id{SUNNonlinearSolver} type and the generic {\sunnonlinsol}
+module are defined in section \ref{ss:sunnonlinsol_generic}. Finally,
+section \ref{ss:sunnonlinsol_custom} lists the requirements for
+supplying a custom {\sunnonlinsol} module.
+
+The subsequent sections in this chapter describe the {\sunnonlinsol}
+modules provided with {\sundials}. Users wishing to supply their own
+{\sunnonlinsol} module are encouraged to use these implementations as
+a template for supplying custom nonlinear solver modules. 
 
 
 % ====================================================================
@@ -18,7 +32,7 @@ that enable {\sundials} packages to utilize any {\sunnonlinsol}
 implementation that provides the required functions. These functions
 can be divided into three categories. The first are the core nonlinear
 solver functions: get type, initialization, setup, solve, and free.
-The second group of functions consists set routines to supply the
+The second group of functions consists of set routines to supply the
 nonlinear solver with functions provided by the {\sundials} package
 and to modify solver parameters. The final group consists of get
 routines for retrieving nonlinear solver statistics. All of these
@@ -34,9 +48,8 @@ functions are defined in the header file
   type = SUNNonlinSolGetType(NLS);
 }
 {
-  The \textit{required} function \ID{SUNNonlinSolGetType} returns the
-  type identifier for the nonlinear solver \id{NLS} and is used to
-  determine the solver type.
+  The \textit{required} function \ID{SUNNonlinSolGetType} returns
+  nonlinear solver type.
 }
 {
   \begin{args}[NLS]
@@ -108,26 +121,26 @@ functions are defined in the header file
 % --------------------------------------------------------------------
 \ucfunction{SUNNonlinSolSolve}
 {
-  retval = SUNNonlinSolSolve(NLS, y0, y, w, tol, callSetup, mem);
+  retval = SUNNonlinSolSolve(NLS, y0, y, w, tol, callLSetup, mem);
 }
 {
   The \textit{required} function \ID{SUNNonlinSolSolve} solves the
   nonlinear system $F(y)=0$ or $G(y)=y$.
 }
 {
-  \begin{args}[callSetup]
+  \begin{args}[callLSetup]
   \item[NLS] (\id{SUNNonlinearSolver})
     a {\sunnonlinsol} object.
   \item[y0] (\id{N\_Vector})
-    the initial iterate for the nonlinear solver and should be left
-    unchanged.
+    the initial iterate for the nonlinear solver and \textit{must}
+    remain unchanged.
   \item[y] (\id{N\_Vector})
     the solution to the nonlinear system.
   \item[w] (\id{N\_Vector})
     the weight vector used in computing weighted norms.
   \item[tol] (\id{realtype})
     the specified tolerance in a weight root mean square norm.
-  \item[callSetup] (\id{booleantype})
+  \item[callLSetup] (\id{booleantype})
     a flag indicating if the linear solver setup function should be
     called. 
   \item[mem] (\id{void *})
@@ -193,16 +206,16 @@ functions are defined in the header file
 \subsection{SUNNonlinearSolver set functions}
 \label{ss:sunnonlinsol_setfn}
 % ====================================================================
-\ucfunction{SUNNonlinSetSysFn}
+\ucfunction{SUNNonlinSolSetSysFn}
 {
   retval = SUNNonlinSolSetSysFn(NLS, SysFn);
 }
 {
   The \textit{required} function \ID{SUNNonlinSolSetSysFn} is used
   to provide the nonlinear solver with the function defining the
-  nonlinear system. This is the function $F(y)=0$ for
-  \wtt{SUNNONLINERASOLVER\_ROOTFIND} modules or $G(y)=y$ for
-  \wtt{SUNNONLINEARSOLVER\_STATIONARY} modules.
+  nonlinear system. This is the function $F(y)$ in $F(y)=0$ for
+  \id{SUNNONLINERASOLVER\_ROOTFIND} modules or $G(y)$ in $G(y)=y$ for
+  \id{SUNNONLINEARSOLVER\_STATIONARY} modules.
 }
 {
   \begin{args}[SysFn]
@@ -220,7 +233,7 @@ functions are defined in the header file
 }
 {}
 % --------------------------------------------------------------------
-\ucfunction{SUNNonlinSetLSetupFn}
+\ucfunction{SUNNonlinSolSetLSetupFn}
 {
   retval = SUNNonlinSolSetLSetupFn(NLS, LSetupFn);
 }
@@ -248,13 +261,13 @@ functions are defined in the header file
   may set this operation to \id{NULL}.
 }
 % --------------------------------------------------------------------
-\ucfunction{SUNNonlinSetLSolveFn}
+\ucfunction{SUNNonlinSolSetLSolveFn}
 {
-  retval = SUNNonlinSolLSolve(NLS, LSolveFn);
+  retval = SUNNonlinSolSetLSolveFn(NLS, LSolveFn);
 }
 {
-  The \textit{optional} function \ID{SUNNonlinSolLSolve} is used to
-  provide the nonlinear solver with a wrapper function to the
+  The \textit{optional} function \ID{SUNNonlinSolSetLSolveFn} is used
+  to provide the nonlinear solver with a wrapper function to the
   {\sundials} package's linear solver solve function.
 }
 {
@@ -276,7 +289,7 @@ functions are defined in the header file
   may set this operation to \id{NULL}.
 }
 % --------------------------------------------------------------------
-\ucfunction{SUNNonlinSetConvTestFn}
+\ucfunction{SUNNonlinSolSetConvTestFn}
 {
   retval = SUNNonlinSolSetConvTestFn(NLS, CTestFn);
 }
@@ -289,7 +302,7 @@ functions are defined in the header file
   \begin{args}[CTestFn]
   \item[NLS] (\id{SUNNonlinearSolver})
     a {\sunnonlinsol} object.
-  \item[CTestFn] (\id{SUNNonlinearSolConvTestFn})
+  \item[CTestFn] (\id{SUNNonlineSolConvTestFn})
     a {\sundials} package nonlinear solver convergence test function.
     See \ref{ss:sunnonlinsol_sunsuppliedfn} for the definition of
     \id{SUNNonlinSolConvTestFn}.
@@ -304,7 +317,7 @@ functions are defined in the header file
   criteria may set this function to \id{NULL}.
 }
 % --------------------------------------------------------------------
-\ucfunction{SUNNonlinSetMaxIters}
+\ucfunction{SUNNonlinSolSetMaxIters}
 {
   retval = SUNNonlinSolSetMaxIters(NLS, maxiters);
 }
@@ -332,19 +345,19 @@ functions are defined in the header file
 \subsection{SUNNonlinearSolver get functions}
 \label{ss:sunnonlinsol_getfn}
 % ====================================================================
-\ucfunction{SUNNonlinGetNumIters}
+\ucfunction{SUNNonlinSolGetNumIters}
 {
   retval = SUNNonlinSolGetNumIters(NLS, numiters);
 }
 {
-  The \textit{optional} function \ID{SUNNonlinSolGetNumIters} to get
+  The \textit{optional} function \ID{SUNNonlinSolGetNumIters} returns
   the total number of nonlinear solver iterations.
 }
 {
   \begin{args}[numiters]
   \item[NLS] (\id{SUNNonlinearSolver})
     a {\sunnonlinsol} object
-  \item[numiters] (\id{long int})
+  \item[numiters] (\id{long int*})
     the total number of nonlinear solver iterations.
   \end{args}
 }
@@ -353,19 +366,43 @@ functions are defined in the header file
   successful call, and a negative value for a failure.
 }
 {}
-
+% --------------------------------------------------------------------
+\ucfunction{SUNNonlinSolGetCurIter}
+{
+  retval = SUNNonlinSolGetCurIter(NLS, iter);
+}
+{
+  The function \ID{SUNNonlinSolGetCurIter} returns the iteration index
+  of the current nonlinear solve. This function is \textit{required}
+  when using {\sundials} package provided convergence tests and
+  \textit{optional} for user supplied convergence test functions.
+}
+{
+  \begin{args}[numiters]
+  \item[NLS] (\id{SUNNonlinearSolver})
+    a {\sunnonlinsol} object
+  \item[iter] (\id{int*})
+    the nonlinear solver iteration in the current solve starting from
+    zero.
+  \end{args}
+}
+{
+  The return value \id{retval} (of type \id{int}) should be zero for a
+  successful call, and a negative value for a failure.
+}
+{}
 
 % ====================================================================
 \subsection{SUNDIALS package provided SUNNonlinearSolver routines}
 \label{ss:sunnonlinsol_sunsuppliedfn}
 % ====================================================================
 
-The {\sundials} packages provide the {\sunnonlinsol} module with
+The {\sundials} packages provide a {\sunnonlinsol} module with
 routines for evaluating the nonlinear system, calling the {\sunlinsol}
 setup and solve functions, and testing the nonlinear iteration for
-convergence. The function types for each of these functions are
-defined in the header file \id{sundials/sundials\_nonlinearsolver.h},
-and are described below. 
+convergence. The types for functions provided to a {\sunnonlinsol}
+module are defined in the header file
+\id{sundials/sundials\_nonlinearsolver.h}, and are described below. 
 % --------------------------------------------------------------------
 \usfunction{SUNNonlinSolSysFn}
 {
@@ -373,10 +410,10 @@ and are described below.
 }
 {
   These functions evaluate the nonlinear system $F(y)$
-  for \wtt{SUNNONLINEARSOLVER\_ROOTFIND} type modules or $G(y)$
-  for \wtt{SUNNONLINEARSOLVER\_STATIONARY} type modules. Memory
-  for \id{F} should already be allocated prior to calling this
-  function. The vector \id{y} should be left unchanged.
+  for \id{SUNNONLINEARSOLVER\_ROOTFIND} type modules or $G(y)$
+  for \id{SUNNONLINEARSOLVER\_STATIONARY} type modules. Memory
+  for \id{F} must by be allocated prior to calling this function. The
+  vector \id{y} \textit{must} be left unchanged.
 }
 {
   \begin{args}[mem]
@@ -414,18 +451,21 @@ and are described below.
 % --------------------------------------------------------------------
 \usfunction{SUNNonlinSolLSetupFn}
 {
-  typedef int (*SUNNonlinSolLSetupFn)(N\_Vector y, N\_Vector F, void* mem);
+  typedef int (*SUNNonlinSolLSetupFn)(&N\_Vector y, N\_Vector F,\\
+                                      &booleantype* jcur, void* mem);
 }
 {
   These functions are wrappers to the {\sundials} package's function
   for setting up linear solves with {\sunlinsol} modules.
 }
 {
-  \begin{args}[mem]
+  \begin{args}[jcur]
   \item[y]
     is the state vector at which the linear system should be setup.
   \item[F]
     is the value of the nonlinear system function at \id{y}.
+  \item[jcur]
+    is the Jacobian current (\id{SUNTRUE}) or stale (\id{SUNFALSE}).
   \item[mem]
     is the {\sundials} package memory structure.
   \end{args}
@@ -497,23 +537,26 @@ and are described below.
 % --------------------------------------------------------------------
 \usfunction{SUNNonlinSolConvTestFn}
 {
-  typedef int (*SUNNonlinSolConvTestFn)(&int m, realtype delnrm,\\
-                                        &realtype tol, void* mem);
+  typedef int (*SUNNonlinSolConvTestFn)(&SUNNonlinearSolver NLS, N\_Vector y,\\
+                                        &N\_Vector del, realtype tol,\\
+                                        &N\_Vector ewt, void* mem);
 }
 {
   These functions are {\sundials} package specific convergence tests of
   nonlinear solvers.
 }
 {
-  \begin{args}[delnrm]
-  \item[m]
-    is the value of the nonlinear iteration counter, starting from
-  zero for the initial iteration.
-  \item[delnrm]
-    is the WRMS norm of the iteration update vector $\delta^{(m)}$ in
-    $y^{(m+1)} = y^{(m)} + \delta^{(m+1)}$.
+  \begin{args}[NLS]
+  \item[NLS]
+    is the {\sunnonlinsol} object.
+  \item[y]
+    is the current nonlinear iterate.
+  \item[del]
+    is the difference between the current and prior nonlinear iterates.
   \item[tol]
     is the nonlinear solver tolerance.
+  \item[ewt]
+    is the weight vector used in computing weighted norms.
   \item[mem]
     is the {\sundials} package memory structure.
   \end{args}
@@ -528,7 +571,7 @@ and are described below.
   \item[\id{SUN\_NLS\_CONV\_RECVR}]
     the iteration appears to be diverging, try to recover.
   \item[\id{*\_MEM\_NULL}]
-    the {\sundials} package memory was \id{NULL}
+    the {\sunnonlinsol} or {\sundials} package memory was \id{NULL}
   \end{args}
   In the above return codes \id{*} is a {\sundials} package specific
   prefix (\id{CV} for {\cvode} or {\cvodes}, \id{IDA} for {\ida} or
@@ -560,7 +603,10 @@ common set of return codes, shown below in Table \ref{t:sunnonlinsol_returncodes
 \addtolength{\ColumnThreeA}{-\ColumnTwoA}
 
 \tablecaption{Description of the \id{SUNNonlinearSolver} return codes}\label{t:sunnonlinsol_returncodes}
-\tablehead{\hline {\rule{0mm}{5mm}}{\bf Name} & {\bf Value} & {\bf Description} \\[3mm] \hline\hline}
+\tablefirsthead{\hline {\rule{0mm}{5mm}}{\bf Name} & {\bf Value} & {\bf Description} \\[3mm] \hline\hline}
+\tablehead{\hline \multicolumn{3}{|l|}{\small\slshape continued from last page} \\
+           \hline {\rule{0mm}{5mm}}{\bf Name} & {\bf Value} & {\bf Description} \\[3mm] \hline\hline}
+%% \tablehead{\hline {\rule{0mm}{5mm}}{\bf Name} & {\bf Value} & {\bf Description} \\[3mm] \hline\hline}
 \tabletail{\hline \multicolumn{3}{|r|}{\small\slshape continued on next page} \\ \hline}
 \begin{xtabular}{|p{\ColumnOneA}|p{\ColumnTwoA}|p{\ColumnThreeA}|}
 %%
@@ -594,10 +640,10 @@ common set of return codes, shown below in Table \ref{t:sunnonlinsol_returncodes
 
 {\sundials} packages interact with a specific {\sunnonlinsol}
 implementation through the generic {\sunnonlinsol} module on which all
-other {\sunnonlinsol} are built. The \wtt{SUNNonlinearSolver} type is
+other {\sunnonlinsol} are built. The \id{SUNNonlinearSolver} type is
 a pointer to a structure containing an implementation-dependent
 \textit{content} field and an \textit{ops} field. The type
-\wtt{SUNNonlinearSolver} is defined as follows:
+\id{SUNNonlinearSolver} is defined as follows:
 %%
 %%
 \begin{verbatim}
@@ -610,9 +656,9 @@ struct _generic_SUNNonlinearSolver {
 \end{verbatim}
 %%
 %%
-where the \wtt{\_generic\_SUNLinearSolver\_Ops} structure is a list of 
+where the \id{\_generic\_SUNLinearSolver\_Ops} structure is a list of 
 pointers to the various actual linear solver operations provided by a
-specific implementation. The \wtt{\_generic\_SUNLinearSolver\_Ops}
+specific implementation. The \id{\_generic\_SUNLinearSolver\_Ops}
 structure is defined as
 %%
 %%
@@ -630,6 +676,7 @@ struct _generic_SUNNonlinearSolver_Ops {
   int                     (*setctestfn)(SUNNonlinearSolver, SUNNonlinSolConvTestFn);
   int                     (*setmaxiters)(SUNNonlinearSolver, int);
   int                     (*getnumiters)(SUNNonlinearSolver, long int*);
+  int                     (*getcuriter)(SUNNonlinearSolver, int*);
 };
 \end{verbatim}
 %%
@@ -641,8 +688,8 @@ wrappers to the nonlinear solver operations provided by a particular
 {\sunnonlinsol} implementation, which are accessed through the ops
 field of the \id{SUNNonlinearSolver} structure. To illustrate this
 point we show below the implementation of a typical nonlinear solver
-operation from the generic \{sunnonlinsol} module,
-namely \wtt{SUNNonlinSolInitialize}, which initializes a
+operation from the generic {\sunnonlinsol} module,
+namely \id{SUNNonlinSolInitialize}, which initializes a
 {\sunnonlinsol} object for use after it has been created and
 configured, and returns a flag denoting a successful/failed operation:
 %%
@@ -667,23 +714,23 @@ A {\sunnonlinsol} implementation \textit{must} do the following:
   defined in Sections \ref{ss:sunnonlinsol_corefn}
   -- \ref{ss:sunnonlinsol_getfn}. Note that the names of the module
   routines should be unique to that implementation in order to permit
-  using more than one {\sunlinsol} module (each with different
-  \wtt{SUNLinearSolver} internal data representations) in
+  using more than one {\sunnonlinsol} module (each with different
+  \id{SUNNonlinearSolver} internal data representations) in
   the same code.
 \item Define and implement a user-callable constructor to create a
-  \wtt{SUNNonlinearSolver} object.
+  \id{SUNNonlinearSolver} object.
 \end{enumerate}
 Additionally, a {\sunnonlinsol} implementation \textit{may} do the
 following:
 \begin{enumerate}
 \item Define and implement additional user-callable routines acting on
-  a newly created \wtt{SUNNonlinearSolver} object that are not defined
+  a newly created \id{SUNNonlinearSolver} object that are not defined
   in the {\sunnonlinsol} API. For example, routines to set various
   configuration options for tuning the performance of the nonlinear
   solver.
 \item Provide functions as needed for the particular {\sunnonlinsol}
   implementation to access different parts in the {\em content}
-  structure of the newly defined \wtt{SUNLinearSolver} object 
+  structure of the newly defined \id{SUNNonlinearSolver} object 
   (e.g., routines to return various statistics from the solver).
 \end{enumerate}
 
