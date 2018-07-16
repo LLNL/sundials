@@ -45,14 +45,14 @@
 #define SUN_NLS_CONV_RECVR +2  /* convergece failure, try to recover */
 
 /* private functions */
-static int cvNewtonIteration(CVodeMem cv_mem);
 static int cvNlsRes(N_Vector y, N_Vector res, void* cvode_mem);
 
 static N_Vector delta;
 
 static int cvNls_LSetup(N_Vector y, N_Vector res, int convfail, void* cvode_mem);
 static int cvNls_LSolve(N_Vector y, N_Vector delta, void* cvode_mem);
-static int cvNls_ConvTest(int m, realtype del, realtype tol, void* cvode_mem);
+static int cvNls_ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
+                          realtype tol, N_Vector ewt, void* cvode_mem);
 
 /* -----------------------------------------------------------------------------
  * Private functions
@@ -99,7 +99,7 @@ static int cvNls_LSetup(N_Vector y, N_Vector res, int convfail, void* cvode_mem)
   cv_mem->cv_nstlp  = cv_mem->cv_nst;
 
   if (retval < 0) return(CV_LSETUP_FAIL);
-  if (retval > 0) return(CONV_FAIL);
+  if (retval > 0) return(SUN_NLS_CONV_RECVR);
 
   return(CV_SUCCESS);
 }
@@ -119,15 +119,18 @@ static int cvNls_LSolve(N_Vector y, N_Vector delta, void* cvode_mem)
   retval = cv_mem->cv_lsolve(cv_mem, delta, cv_mem->cv_ewt, y, cv_mem->cv_ftemp);
 
   if (retval < 0) return(CV_LSOLVE_FAIL);
-  if (retval > 0) return(retval);
+  if (retval > 0) return(SUN_NLS_CONV_RECVR);
 
   return(CV_SUCCESS);
 }
 
 
-static int cvNls_ConvTest(int m, realtype del, realtype tol, void* cvode_mem)
+static int cvNls_ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector delta,
+                          realtype tol, N_Vector ewt, void* cvode_mem)
 {
   CVodeMem cv_mem;
+  int m;
+  realtype del;
   realtype dcon;
   static realtype delp;
 
@@ -137,7 +140,13 @@ static int cvNls_ConvTest(int m, realtype del, realtype tol, void* cvode_mem)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  /* Test for convergence.  If m > 0, an estimate of the convergence
+  /* compute the norm of the correction */
+  del = N_VWrmsNorm(delta, ewt);
+
+  /* get the current nonlinear solver iteration count */
+  m = cv_mem->cv_mnewt;
+
+  /* Test for convergence. If m > 0, an estimate of the convergence
      rate constant is stored in crate, and used in the test.        */
   if (m > 0) {
     cv_mem->cv_crate = SUNMAX(CRDOWN * cv_mem->cv_crate, del/delp);
@@ -147,7 +156,6 @@ static int cvNls_ConvTest(int m, realtype del, realtype tol, void* cvode_mem)
   if (dcon <= ONE) {
     cv_mem->cv_acnrm = (m==0) ?
       del : N_VWrmsNorm(cv_mem->cv_acor, cv_mem->cv_ewt);
-    cv_mem->cv_jcur = SUNFALSE;
     return(CV_SUCCESS); /* Nonlinear system was solved successfully */
   }
 
@@ -247,9 +255,12 @@ int cvNlsFunctional(CVodeMem cv_mem)
 /*
  * cvNlsNewton
  *
- * This routine handles the Newton iteration. It calls lsetup if 
- * indicated, calls cvNewtonIteration to perform the iteration, and 
- * retries a failed attempt at Newton iteration if that is indicated.
+ * This routine handles the Newton iteration. It calls lsetup if indicated and
+ * preforms the Newton iteration. If the iteration succeeds it rutns the value
+ * CV_SUCCESS. If the iteration fails lsetup may be called again and the
+ * iteration reattempted. (In this case, cvNlsNewton must set convfail to
+ * CV_FAIL_BAD_J before calling setup again). Otherwise, this routine returns
+ * one of the other appropriate values.
  *
  * Possible return values:
  *
@@ -259,131 +270,100 @@ int cvNlsFunctional(CVodeMem cv_mem)
  *   CV_LSETUP_FAIL    |-> halt the integration 
  *   CV_LSOLVE_FAIL   -+
  *
- *   CONV_FAIL        -+
- *   RHSFUNC_RECVR    -+-> predict again or stop if too many
+ *   SUN_NLS_CONV_RECVR -+
+ *   RHSFUNC_RECVR      -+-> predict again or stop if too many
  *
  */
-
-int cvNlsNewton(CVodeMem cv_mem, int nflag)
+int cvNlsNewton(CVodeMem cv_mem, N_Vector y0, N_Vector y, N_Vector ewt,
+                realtype tol, booleantype callLSetup, int convfail)
 {
-  int convfail, retval, ier;
-  booleantype callSetup;
-  
-  /* Set flag convfail, input to lsetup for its evaluation decision */
-  convfail = ((nflag == FIRST_CALL) || (nflag == PREV_ERR_FAIL)) ?
-    CV_NO_FAILURES : CV_FAIL_OTHER;
+  int retval;
 
-  /* Decide whether or not to call setup routine (if one exists) */
-  if (cv_mem->cv_lsetup) {      
-    callSetup = (nflag == PREV_CONV_FAIL) || (nflag == PREV_ERR_FAIL) ||
-      (cv_mem->cv_nst == 0) ||
-      (cv_mem->cv_nst >= cv_mem->cv_nstlp + MSBP) ||
-      (SUNRabs(cv_mem->cv_gamrat-ONE) > DGMAX);
-  } else {  
-    cv_mem->cv_crate = ONE;
-    callSetup = SUNFALSE;
-  }
-  
   /* Looping point for the solution of the nonlinear system.
      Evaluate f at the predicted y, call lsetup if indicated, and
      call cvNewtonIteration for the Newton iteration itself.      */
-  
 
+  /* looping point for Jacobian/preconditioner setup attempts */
   for(;;) {
 
     /* set acor to zero >>>>>>> TEMPORARY for acor residual <<<<<<< */
     N_VConst(ZERO, cv_mem->cv_acor);
 
     /* compute the residual */
-    retval = cvNlsRes(cv_mem->cv_zn[0], delta, cv_mem);
+    retval = cvNlsRes(y0, delta, cv_mem);
     if (retval != CV_SUCCESS) return(retval);
 
     /* if indicated, setup the linear system */
-    if (callSetup) {
-      retval = cvNls_LSetup(cv_mem->cv_zn[0], delta, convfail, cv_mem);
-      callSetup = SUNFALSE;
+    if (callLSetup) {
+      retval = cvNls_LSetup(y0, delta, convfail, cv_mem);
       if (retval != CV_SUCCESS) return(retval);
     }
 
-    /* Set acor to zero and load prediction into y vector */
+    /* initialize counter mnewt */
+    cv_mem->cv_mnewt = 0;
+
+    /* load prediction into y */
+    N_VScale(ONE, y0, y);
+
+    /* Set acor to zero >>>>>>> REMOVE LATER <<<<<<< */
     N_VConst(ZERO, cv_mem->cv_acor);
-    N_VScale(ONE, cv_mem->cv_zn[0], cv_mem->cv_y);
 
-    /* Do the Newton iteration */
-    ier = cvNewtonIteration(cv_mem);
+    /* looping point for Newton iteration. Break out on any error. */
+    for(;;) {
 
-    /* If there is a convergence failure and the Jacobian-related 
-       data appears not to be current, loop again with a call to lsetup
-       in which convfail=CV_FAIL_BAD_J.  Otherwise return.                 */
-    if (ier <= 0) return(ier);
+      /* increment number of nonlinear solver iterations */
+      cv_mem->cv_nni++;
 
-    if ((!cv_mem->cv_jcur) && (cv_mem->cv_lsetup)) {
-      callSetup = SUNTRUE;
+      /* solve the linear system to get correction vector delta */
+      retval = cvNls_LSolve(y, delta, cv_mem);
+      if (retval != CV_SUCCESS) break;
+
+      /* add correction to acor >>>>>>> REMOVE LATER <<<<<<< */
+      N_VLinearSum(ONE, cv_mem->cv_acor, ONE, delta, cv_mem->cv_acor);
+
+      /* apply correctionto y */
+      N_VLinearSum(ONE, y0, ONE, cv_mem->cv_acor, y);
+    
+      /* test for convergence */
+      retval = cvNls_ConvTest(cv_mem->NLS, y, delta, tol, ewt, cv_mem);
+
+      /* if successful update Jacobian status and return */
+      if (retval == SUN_NLS_SUCCESS) {
+        cv_mem->cv_jcur = SUNFALSE;
+        return(SUN_NLS_SUCCESS);
+      }
+
+      /* check if the iteration should continue */
+      if (retval != SUN_NLS_CONTINUE) break;
+
+      /* not yet converged. Increment mnewt and test for max allowed. */
+      cv_mem->cv_mnewt++;
+      if (cv_mem->cv_mnewt >= cv_mem->cv_maxcor) {
+        retval = SUN_NLS_CONV_RECVR;
+        break;
+      }
+
+      /* evaluate the nonlinear residual and check return value */
+      retval = cvNlsRes(y, delta, cv_mem);
+      if (retval != CV_SUCCESS) break;
+
+    } /* end of Newton iteration loop */
+
+    /* If there is a recoverable convergence failure and the Jacobian-related
+       data appears not to be current, loop again with a call to lsetup in
+       which convfail=CV_FAIL_BAD_J. Otherwise break out and return           */
+    if ((retval > 0) && !(cv_mem->cv_jcur) && (cv_mem->cv_lsetup)) {
+      callLSetup = SUNTRUE;
       convfail = CV_FAIL_BAD_J;
+      continue;
     } else {
-      return(ier);
+      break;
     }
 
-  }
-}
+  } /* end of setup loop */
 
-
-/*
- * cvNewtonIteration
- *
- * This routine performs the Newton iteration. If the iteration succeeds,
- * it returns the value CV_SUCCESS. If not, it may signal the cvNlsNewton 
- * routine to call lsetup again and reattempt the iteration, by
- * returning the value TRY_AGAIN. (In this case, cvNlsNewton must set 
- * convfail to CV_FAIL_BAD_J before calling setup again). 
- * Otherwise, this routine returns one of the appropriate values 
- * CV_LSOLVE_FAIL, CV_RHSFUNC_FAIL, CONV_FAIL, or RHSFUNC_RECVR back 
- * to cvNlsNewton.
- */
-
-static int cvNewtonIteration(CVodeMem cv_mem)
-{
-  int m, retval;
-  realtype del;
-
-  cv_mem->cv_mnewt = m = 0;
-
-  /* Initialize */
-  del = ZERO;
-
-  /* Looping point for Newton iteration */
-  for(;;) {
-
-    /* Call the lsolve function */
-    retval = cvNls_LSolve(cv_mem->cv_y, delta, cv_mem);
-    cv_mem->cv_nni++;
-    
-    if (retval < 0) return(CV_LSOLVE_FAIL);
-    if (retval > 0) return(CONV_FAIL);
-
-    /* Get WRMS norm of correction; add correction to acor and y */
-    del = N_VWrmsNorm(delta, cv_mem->cv_ewt);
-    N_VLinearSum(ONE, cv_mem->cv_acor, ONE, delta, cv_mem->cv_acor);
-    N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, cv_mem->cv_acor, cv_mem->cv_y);
-    
-    /* Test for convergence.  If m > 0, an estimate of the convergence
-       rate constant is stored in crate, and used in the test.        */
-    retval = cvNls_ConvTest(m, del, ONE, cv_mem);
-    if (retval == CV_SUCCESS) return(CV_SUCCESS);
-    
-    cv_mem->cv_mnewt = ++m;
-    
-    /* Stop at maxcor iterations or if iter. seems to be diverging.
-       If still not converged and Jacobian data is not current, 
-       signal to try the solution again                            */
-    if ((m == cv_mem->cv_maxcor) || (retval == SUN_NLS_CONV_RECVR))
-      return(CONV_FAIL);
-
-    /* Evaluate the residual of the nonlinear system */
-    retval = cvNlsRes(cv_mem->cv_y, delta, cv_mem);
-    if (retval != CV_SUCCESS) return(retval);
-
-  } /* end loop */
+  /* all error returns exit here */
+  return(retval);
 }
 
 

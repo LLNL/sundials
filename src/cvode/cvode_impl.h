@@ -191,6 +191,12 @@ typedef struct CVodeMemRec {
   long int cv_lrw;             /* no. of realtype words in CVODE work vectors     */
   long int cv_liw;             /* no. of integer words in CVODE work vectors      */
 
+  /*---------------------
+    Nonlinear Solver Data
+    ---------------------*/
+
+  SUNNonlinearSolver NLS;  /* Sundials generic nonlinear solver object */
+
   /*------------------
     Linear Solver Data 
     ------------------*/
@@ -435,7 +441,13 @@ int cvNlsInit(CVodeMem cv_mem);
 int cvNlsFree(CVodeMem cv_mem);
 
 int cvNlsFunctional(CVodeMem cv_mem);
-int cvNlsNewton(CVodeMem cv_mem, int nflag);
+int cvNlsNewton(CVodeMem cv_mem,
+                N_Vector y0,
+                N_Vector y,
+                N_Vector ewt,
+                realtype tol,
+                booleantype callLSetup,
+                int convfail);
 
 /*
  * =================================================================

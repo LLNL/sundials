@@ -2473,12 +2473,31 @@ static int cvNls(CVodeMem cv_mem, int nflag)
 {
   int flag = CV_SUCCESS;
 
+  booleantype callSetup;
+  int convfail;
+
   switch(cv_mem->cv_iter) {
   case CV_FUNCTIONAL: 
     flag = cvNlsFunctional(cv_mem);
     break;
   case CV_NEWTON:
-    flag = cvNlsNewton(cv_mem, nflag);
+    /* Set flag convfail, input to lsetup for its evaluation decision */
+    convfail = ((nflag == FIRST_CALL) || (nflag == PREV_ERR_FAIL)) ?
+      CV_NO_FAILURES : CV_FAIL_OTHER;
+
+    /* Decide whether or not to call setup routine (if one exists) */
+    if (cv_mem->cv_lsetup) {
+      callSetup = (nflag == PREV_CONV_FAIL) || (nflag == PREV_ERR_FAIL) ||
+        (cv_mem->cv_nst == 0) ||
+        (cv_mem->cv_nst >= cv_mem->cv_nstlp + MSBP) ||
+        (SUNRabs(cv_mem->cv_gamrat-ONE) > DGMAX);
+    } else {
+      cv_mem->cv_crate = ONE;
+      callSetup = SUNFALSE;
+    }
+
+    flag = cvNlsNewton(cv_mem, cv_mem->cv_zn[0], cv_mem->cv_y, cv_mem->cv_ewt,
+                       cv_mem->cv_tq[4], callSetup, nflag);
     break;
   }
 
@@ -2546,8 +2565,8 @@ static int cvHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
 
   if ((SUNRabs(cv_mem->cv_h) <= cv_mem->cv_hmin*ONEPSM) ||
       (*ncfPtr == cv_mem->cv_maxncf)) {
-    if (nflag == CONV_FAIL)     return(CV_CONV_FAILURE);
-    if (nflag == RHSFUNC_RECVR) return(CV_REPTD_RHSFUNC_ERR);    
+    if (nflag == SUN_NLS_CONV_RECVR) return(CV_CONV_FAILURE);
+    if (nflag == RHSFUNC_RECVR)      return(CV_REPTD_RHSFUNC_ERR);    
   }
 
   /* Reduce step size; return to reattempt the step */
