@@ -206,14 +206,27 @@ endif()
 #   MPI_<lang>_LINK_FLAGS      Linking flags for MPI programs
 #   MPI_<lang>_LIBRARIES       All libraries to link MPI programs against
 #
-#   MPIEXEC                    Executable for running MPI programs
-#   MPIEXEC_NUMPROC_FLAG       Flag to pass to MPIEXEC before giving
-#                              it the number of processors to run on
-#   MPIEXEC_PREFLAGS           Flags to pass to MPIEXEC directly
+#   MPIEXEC_EXECUTABLE         Executable for running MPI programs
+#   MPIEXEC_NUMPROC_FLAG       Flag to pass to MPIEXEC_EXECUTABLE before
+#                              giving it the number of processors to run on
+#   MPIEXEC_PREFLAGS           Flags to pass to MPIEXEC_EXECUTABLE directly
 #                              before the executable to run.
-#   MPIEXEC_POSTFLAGS          Flags to pass to MPIEXEC after other flags
+#   MPIEXEC_POSTFLAGS          Flags to pass to MPIEXEC_EXECUTABLE after
+#                              other flags
 # ---------------------------------------------------------------------------
+
+# Copy value of MPIEXEC_EXECUTABLE to MPIEXEC for older versions of CMake
+if((CMAKE_VERSION VERSION_LESS 3.10) AND (MPIEXEC_EXECUTABLE))
+  force_variable(MPIEXEC FILEPATH "MPI run command" ${MPIEXEC_EXECUTABLE})
+endif()
+
 find_package(MPI)
+
+# Copy value of MPIEXEC to MPIEXEC_EXECUTABLE for older versions of CMake
+if(CMAKE_VERSION VERSION_LESS 3.10)
+  force_variable(MPIEXEC_EXECUTABLE FILEPATH "MPI run command" ${MPIEXEC})
+  mark_as_advanced(MPIEXEC)
+endif()
 
 # MPI not functioning
 if(NOT MPI_C_FOUND)
@@ -223,8 +236,8 @@ if(NOT MPI_C_FOUND)
 endif()
 
 # show some advaned MPI C variables
-mark_as_advanced(CLEAR MPIEXEC)
 mark_as_advanced(CLEAR MPI_C_COMPILER)
+mark_as_advanced(CLEAR MPIEXEC_EXECUTABLE)
 
 # hide some MPI C variables
 mark_as_advanced(MPI_C_LIBRARIES)
