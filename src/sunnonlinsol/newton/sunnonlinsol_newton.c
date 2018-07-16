@@ -231,13 +231,13 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
 
     } /* end of Newton iteration loop */
 
-      /* all errors go here */
-      if (retval > 0) {
-        if (!(NEWTON_CONTENT(NLS)->jcur) && (NEWTON_CONTENT(NLS)->LSetup))
-          callLSetup = SUNTRUE;
-        else
-          break;
-      }
+    /* all errors go here */
+    if ((retval > 0) && !(NEWTON_CONTENT(NLS)->jcur) && (NEWTON_CONTENT(NLS)->LSetup)) {
+      callLSetup = SUNTRUE;
+      continue;
+    } else {
+      break;
+    }
 
   } /* end of setup loop */
 
