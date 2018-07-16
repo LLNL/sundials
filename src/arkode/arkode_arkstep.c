@@ -1972,23 +1972,14 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
   case 1:
 
     /***** Interpolatory Predictor 1 -- all to max order *****/
-    retval = arkInterpEvaluate(ark_mem, ark_mem->interp, tau,
-                               0, ark_mem->dense_q, yguess);
+    retval = arkPredict_MaximumOrder(ark_mem, tau, yguess);
     if (retval == ARK_SUCCESS)  return(ARK_SUCCESS);
     break;
 
   case 2:
 
-    /***** Interpolatory Predictor 2 -- decrease order w/ increasing stage *****/
-    if (tau <= tau_tol) {
-      ord = 3;
-    } else if (tau <= tau_tol2) {
-      ord = 2;
-    } else {
-      ord = 1;
-    }
-    retval = arkInterpEvaluate(ark_mem, ark_mem->interp, tau,
-                               0, ord, yguess);
+    /***** Interpolatory Predictor 2 -- decrease order w/ increasing level of extrapolation *****/
+    retval = arkPredict_VariableOrder(ark_mem, tau, yguess);
     if (retval == ARK_SUCCESS)  return(ARK_SUCCESS);
     break;
 
@@ -1996,13 +1987,7 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
 
     /***** Cutoff predictor: max order interpolatory output for stages "close"
            to previous step, first-order predictor for subsequent stages *****/
-    if (tau <= tau_tol) {
-      retval = arkInterpEvaluate(ark_mem, ark_mem->interp, tau,
-                                 0, ark_mem->dense_q, yguess);
-    } else {
-      retval = arkInterpEvaluate(ark_mem, ark_mem->interp, tau,
-                                 0, 1, yguess);
-    }
+    retval = arkPredict_CutoffOrder(ark_mem, tau, yguess);
     if (retval == ARK_SUCCESS)  return(ARK_SUCCESS);
     break;
 
@@ -2010,7 +1995,9 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
 
     /***** Bootstrap predictor: if any previous stage in step has nonzero c_i,
            construct a quadratic Hermite interpolant for prediction; otherwise
-           use the trivial predictor. *****/
+           use the trivial predictor.  The actual calculations are performed in
+           arkPredict_Bootstrap, but here we need to determine the appropriate
+           stage, c_j, to use. *****/
 
     /* this approach will not work (for now) when using a non-identity mass matrix */
     if (step_mem->mass_mem != NULL)  {
@@ -2032,35 +2019,26 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
            (step_mem->Bi->c[i] != ZERO) )
         jstage = i;
 
-    /* evaluate the quadratic Hermite interpolant for the prediction */
+    /* set stage time, stage RHS and interpolation values */
     h = ark_mem->h * step_mem->Bi->c[jstage];
     tau = ark_mem->h * step_mem->Bi->c[istage];
-    a0 = ONE;
-    a2 = tau*tau/TWO/h;
-    a1 = tau - a2;
-
-    /* set arrays for fused vector operation */
-    cvals[0] = a0;
-    Xvecs[0] = ark_mem->yn;
-    cvals[1] = a1;
-    Xvecs[1] = ark_mem->interp->fnew;
-    nvec = 2;
+    nvec = 0;
     if (step_mem->implicit) {    /* Implicit piece */
-      cvals[nvec] = a2;
+      cvals[nvec] = ONE;
       Xvecs[nvec] = step_mem->Fi[jstage];
       nvec += 1;
     }
     if (step_mem->explicit) {    /* Explicit piece */
-      cvals[nvec] = a2;
+      cvals[nvec] = ONE;
       Xvecs[nvec] = step_mem->Fe[jstage];
       nvec += 1;
     }
-
-    /* compute predictor */
     retval = N_VLinearCombination(nvec, cvals, Xvecs, yguess);
-    if (retval != 0) return(ARK_VECTOROP_ERR);
+    if (retval != ARK_SUCCESS)  break;
 
-    return(ARK_SUCCESS);
+    /* call predictor routine */
+    retval = arkPredict_Bootstrap(ark_mem, h, tau, yguess);
+    if (retval == ARK_SUCCESS)  return(ARK_SUCCESS);
     break;
 
   case 5:

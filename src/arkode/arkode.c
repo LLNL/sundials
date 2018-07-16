@@ -2573,6 +2573,170 @@ int arkExpStab(N_Vector y, realtype t, realtype *hstab, void *data)
 
 
 /*---------------------------------------------------------------
+  arkPredict_MaximumOrder
+
+  This routine predicts the nonlinear implicit stage solution
+  using the ARKode interpolation module.  This uses the
+  highest-degree interpolant supported by the module (stored
+  as dense_q in the ark_mem structure).
+  ---------------------------------------------------------------*/
+int arkPredict_MaximumOrder(ARKodeMem ark_mem, realtype tau, N_Vector yguess)
+{
+
+  /* verify that ark_mem and interpolation structure are provided */
+  if (ark_mem == NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    "arkPredict_MaximumOrder",
+                    "ARKodeMem structure is NULL");
+    return(ARK_MEM_NULL);
+  }
+  if (ark_mem->interp == NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    "arkPredict_MaximumOrder",
+                    "ARKodeInterpMem structure is NULL");
+    return(ARK_MEM_NULL);
+  }
+
+  /* call the interpolation module to do the work */
+  return(arkInterpEvaluate(ark_mem, ark_mem->interp, tau,
+                           0, ark_mem->dense_q, yguess));
+}
+
+
+/*---------------------------------------------------------------
+  arkPredict_VariableOrder
+
+  This routine predicts the nonlinear implicit stage solution
+  using the ARKode interpolation module.  The degree of the
+  interpolant is based on the level of extrapolation outside the
+  preceding time step.
+  ---------------------------------------------------------------*/
+int arkPredict_VariableOrder(ARKodeMem ark_mem, realtype tau, N_Vector yguess)
+{
+  int ord;
+  realtype tau_tol  = 0.5;
+  realtype tau_tol2 = 0.75;
+
+  /* verify that ark_mem and interpolation structure are provided */
+  if (ark_mem == NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    "arkPredict_VariableOrder",
+                    "ARKodeMem structure is NULL");
+    return(ARK_MEM_NULL);
+  }
+  if (ark_mem->interp == NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    "arkPredict_VariableOrder",
+                    "ARKodeInterpMem structure is NULL");
+    return(ARK_MEM_NULL);
+  }
+
+  /* set the polynomial order based on tau input */
+  if (tau <= tau_tol) {
+    ord = 3;
+  } else if (tau <= tau_tol2) {
+    ord = 2;
+  } else {
+    ord = 1;
+  }
+
+  /* call the interpolation module to do the work */
+  return(arkInterpEvaluate(ark_mem, ark_mem->interp, tau,
+                           0, ord, yguess));
+}
+
+
+/*---------------------------------------------------------------
+  arkPredict_CutoffOrder
+
+  This routine predicts the nonlinear implicit stage solution
+  using the ARKode interpolation module.  If the level of
+  extrapolation is small enough, it uses the maximum degree
+  polynomial available (stored in ark_mem->dense_q); otherwise
+  it uses a linear polynomial.
+  ---------------------------------------------------------------*/
+int arkPredict_CutoffOrder(ARKodeMem ark_mem, realtype tau, N_Vector yguess)
+{
+  int ord;
+  realtype tau_tol = 0.5;
+
+  /* verify that ark_mem and interpolation structure are provided */
+  if (ark_mem == NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    "arkPredict_CutoffOrder",
+                    "ARKodeMem structure is NULL");
+    return(ARK_MEM_NULL);
+  }
+  if (ark_mem->interp == NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    "arkPredict_CutoffOrder",
+                    "ARKodeInterpMem structure is NULL");
+    return(ARK_MEM_NULL);
+  }
+
+  /* set the polynomial order based on tau input */
+  if (tau <= tau_tol) {
+    ord = ark_mem->dense_q;
+  } else {
+    ord = 1;
+  }
+
+  /* call the interpolation module to do the work */
+  return(arkInterpEvaluate(ark_mem, ark_mem->interp, tau,
+                           0, ord, yguess));
+}
+
+
+/*---------------------------------------------------------------
+  arkPredict_Bootstrap
+
+  This routine predicts the nonlinear implicit stage solution
+  using a quadratic Hermite interpolating polynomial, based on
+  the data {y_n, f(t_n,y_n), f(t_n+hj,z_j)}.
+
+  Note: it is assumed that f(t_n+hj,z_j) is stored in 'yguess'
+  on input.
+  ---------------------------------------------------------------*/
+int arkPredict_Bootstrap(ARKodeMem ark_mem, realtype hj,
+                         realtype tau, N_Vector yguess)
+{
+  realtype a0, a1, a2;
+  realtype cvals[3];
+  N_Vector Xvecs[3];
+
+  /* verify that ark_mem and interpolation structure are provided */
+  if (ark_mem == NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    "arkPredict_Bootstrap",
+                    "ARKodeMem structure is NULL");
+    return(ARK_MEM_NULL);
+  }
+  if (ark_mem->interp == NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+                    "arkPredict_Bootstrap",
+                    "ARKodeInterpMem structure is NULL");
+    return(ARK_MEM_NULL);
+  }
+
+  /* set coefficients for Hermite interpolant */
+  a0 = ONE;
+  a2 = tau*tau/TWO/hj;
+  a1 = tau - a2;
+
+  /* set arrays for fused vector operation */
+  cvals[0] = a2;
+  Xvecs[0] = yguess;
+  cvals[1] = a0;
+  Xvecs[1] = ark_mem->yn;
+  cvals[2] = a1;
+  Xvecs[2] = ark_mem->interp->fnew;
+
+  /* call fused vector operation to compute prediction */
+  return(N_VLinearCombination(3, cvals, Xvecs, yguess));
+}
+
+
+/*---------------------------------------------------------------
   arkProcessError is a high level error handling function
   - if ark_mem==NULL it prints the error message to stderr
   - otherwise, it sets-up and calls the error handling function

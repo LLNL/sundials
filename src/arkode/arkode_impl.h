@@ -999,7 +999,14 @@ int arkGetStepStats(ARKodeMem ark_mem, long int *nsteps,
                     realtype *hcur, realtype *tcur);
 char *arkGetReturnFlagName(long int flag);
 int arkWriteParameters(ARKodeMem ark_mem, FILE *fp);
-
+int arkPredict_MaximumOrder(ARKodeMem ark_mem, realtype tau,
+                            N_Vector yguess);
+int arkPredict_VariableOrder(ARKodeMem ark_mem, realtype tau,
+                             N_Vector yguess);
+int arkPredict_CutoffOrder(ARKodeMem ark_mem, realtype tau,
+                           N_Vector yguess);
+int arkPredict_Bootstrap(ARKodeMem ark_mem, realtype hj,
+                         realtype tau, N_Vector yguess);
 
 
 /*===============================================================
