@@ -45,7 +45,7 @@ static int cvNlsRes(N_Vector y, N_Vector res, void* cvode_mem);
 
 static N_Vector delta;
 
-static int cvNls_LSetup(N_Vector y, N_Vector res, int convfail, void* cvode_mem);
+static int cvNls_LSetup(N_Vector y, N_Vector res, booleantype jbad, void* cvode_mem);
 static int cvNls_LSolve(N_Vector y, N_Vector delta, void* cvode_mem);
 static int cvNls_ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
                           realtype tol, N_Vector ewt, void* cvode_mem);
@@ -70,7 +70,7 @@ int cvNlsFree(CVodeMem cvode_mem)
 }
 
 
-static int cvNls_LSetup(N_Vector y, N_Vector res, int convfail, void* cvode_mem)
+static int cvNls_LSetup(N_Vector y, N_Vector res, booleantype jbad, void* cvode_mem)
 {
   CVodeMem cv_mem;
   N_Vector vtemp1, vtemp2, vtemp3;
@@ -87,8 +87,8 @@ static int cvNls_LSetup(N_Vector y, N_Vector res, int convfail, void* cvode_mem)
   vtemp3 = cv_mem->cv_tempv; /* rename tempv as vtemp3 for readability */
 
   /* if the nonlinear solver marked the Jacobian as bad update convfail */
-  if (convfail == CV_FAIL_BAD_J)
-    cv_mem->convfail = convfail;
+  if (jbad)
+    cv_mem->convfail = CV_FAIL_BAD_J;
 
   /* setup the linear solver */
   retval = cv_mem->cv_lsetup(cv_mem, cv_mem->convfail, y, cv_mem->cv_ftemp,
@@ -259,9 +259,9 @@ int cvNlsFunctional(CVodeMem cv_mem)
  * This routine handles the Newton iteration. It calls lsetup if indicated and
  * preforms the Newton iteration. If the iteration succeeds it rutns the value
  * CV_SUCCESS. If the iteration fails lsetup may be called again and the
- * iteration reattempted. (In this case, cvNlsNewton must set convfail to
- * CV_FAIL_BAD_J before calling setup again). Otherwise, this routine returns
- * one of the other appropriate values.
+ * iteration reattempted. (In this case, cvNlsNewton must set jbad to SUNTRUE
+ * before calling setup again). Otherwise, this routine returns one of the other
+ * appropriate values.
  *
  * Possible return values:
  *
@@ -279,13 +279,13 @@ int cvNlsNewton(CVodeMem cv_mem, N_Vector y0, N_Vector y, N_Vector ewt,
                 realtype tol, booleantype callLSetup)
 {
   int retval;
-  int convfail;
+  booleantype jbad;
 
   /* Looping point for the solution of the nonlinear system.
      Evaluate f at the predicted y, call lsetup if indicated, and
      call cvNewtonIteration for the Newton iteration itself.      */
 
-  convfail = CV_SUCCESS;
+  jbad = SUNFALSE;
 
   /* looping point for Jacobian/preconditioner setup attempts */
   for(;;) {
@@ -299,7 +299,7 @@ int cvNlsNewton(CVodeMem cv_mem, N_Vector y0, N_Vector y, N_Vector ewt,
 
     /* if indicated, setup the linear system */
     if (callLSetup) {
-      retval = cvNls_LSetup(y0, delta, convfail, cv_mem);
+      retval = cvNls_LSetup(y0, delta, jbad, cv_mem);
       if (retval != CV_SUCCESS) return(retval);
     }
 
@@ -358,10 +358,10 @@ int cvNlsNewton(CVodeMem cv_mem, N_Vector y0, N_Vector y, N_Vector ewt,
 
     /* If there is a recoverable convergence failure and the Jacobian-related
        data appears not to be current, loop again with a call to lsetup in
-       which convfail=CV_FAIL_BAD_J. Otherwise break out and return           */
+       which jbad is TRUE. Otherwise break out and return                     */
     if ((retval > 0) && !(cv_mem->cv_jcur) && (cv_mem->cv_lsetup)) {
       callLSetup = SUNTRUE;
-      convfail = CV_FAIL_BAD_J;
+      jbad = SUNTRUE;
       continue;
     } else {
       break;
