@@ -196,6 +196,8 @@ typedef struct CVodeMemRec {
     ---------------------*/
 
   SUNNonlinearSolver NLS;  /* Sundials generic nonlinear solver object */
+  int convfail;            /* flag to indicate when a Jacbian update may
+                              be needed */
 
   /*------------------
     Linear Solver Data 
@@ -446,8 +448,7 @@ int cvNlsNewton(CVodeMem cv_mem,
                 N_Vector y,
                 N_Vector ewt,
                 realtype tol,
-                booleantype callLSetup,
-                int convfail);
+                booleantype callLSetup);
 
 /*
  * =================================================================

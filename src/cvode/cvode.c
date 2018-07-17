@@ -375,6 +375,7 @@ void *CVodeCreate(int lmm, int iter)
   cv_mem->cv_maxnef     = MXNEF;
   cv_mem->cv_maxncf     = MXNCF;
   cv_mem->cv_nlscoef    = CORTES;
+  cv_mem->convfail      = CV_NO_FAILURES;
   
   /* Initialize root finding variables */
 
@@ -2474,7 +2475,6 @@ static int cvNls(CVodeMem cv_mem, int nflag)
   int flag = CV_SUCCESS;
 
   booleantype callSetup;
-  int convfail;
 
   switch(cv_mem->cv_iter) {
   case CV_FUNCTIONAL: 
@@ -2482,7 +2482,7 @@ static int cvNls(CVodeMem cv_mem, int nflag)
     break;
   case CV_NEWTON:
     /* Set flag convfail, input to lsetup for its evaluation decision */
-    convfail = ((nflag == FIRST_CALL) || (nflag == PREV_ERR_FAIL)) ?
+    cv_mem->convfail = ((nflag == FIRST_CALL) || (nflag == PREV_ERR_FAIL)) ?
       CV_NO_FAILURES : CV_FAIL_OTHER;
 
     /* Decide whether or not to call setup routine (if one exists) */
@@ -2497,7 +2497,7 @@ static int cvNls(CVodeMem cv_mem, int nflag)
     }
 
     flag = cvNlsNewton(cv_mem, cv_mem->cv_zn[0], cv_mem->cv_y, cv_mem->cv_ewt,
-                       cv_mem->cv_tq[4], callSetup, nflag);
+                       cv_mem->cv_tq[4], callSetup);
     break;
   }
 
