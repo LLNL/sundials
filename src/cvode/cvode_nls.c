@@ -322,6 +322,9 @@ int cvNlsNewton(CVodeMem cv_mem, N_Vector y0, N_Vector y, N_Vector ewt,
       /* increment number of nonlinear solver iterations */
       cv_mem->cv_nni++;
 
+      /* compute the negative of the residual for the linear system rhs */
+      N_VScale(-ONE, delta, delta);
+
       /* solve the linear system to get correction vector delta */
       retval = cvNls_LSolve(y, delta, cv_mem);
       if (retval != CV_SUCCESS) break;
@@ -393,7 +396,7 @@ static int cvNlsRes(N_Vector y, N_Vector res, void* cvode_mem)
   if (retval > 0) return(RHSFUNC_RECVR);
 
   N_VLinearSum(cv_mem->cv_rl1, cv_mem->cv_zn[1], ONE, cv_mem->cv_acor, res);
-  N_VLinearSum(cv_mem->cv_gamma, cv_mem->cv_ftemp, -ONE, res, res);
+  N_VLinearSum(-cv_mem->cv_gamma, cv_mem->cv_ftemp, ONE, res, res);
 
   /* compute the accumulated correction */
   /* N_VLinearSum(ONE, y, -ONE, cv_mem->cv_zn[0], res); */
