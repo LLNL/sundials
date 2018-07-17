@@ -2498,6 +2498,10 @@ static int cvNls(CVodeMem cv_mem, int nflag)
 
     flag = cvNlsNewton(cv_mem, cv_mem->cv_zn[0], cv_mem->cv_y, cv_mem->cv_ewt,
                        cv_mem->cv_tq[4], callSetup);
+
+    if (flag == CV_SUCCESS)
+      cv_mem->cv_jcur = SUNFALSE;
+
     break;
   }
 

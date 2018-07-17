@@ -44,8 +44,10 @@
 static int cvNlsRes(N_Vector y, N_Vector res, void* cvode_mem);
 
 static N_Vector delta;
+static booleantype jcur;
 
-static int cvNls_LSetup(N_Vector y, N_Vector res, booleantype jbad, void* cvode_mem);
+static int cvNls_LSetup(N_Vector y, N_Vector res, booleantype jbad,
+                        booleantype* jcur, void* cvode_mem);
 static int cvNls_LSolve(N_Vector y, N_Vector delta, void* cvode_mem);
 static int cvNls_ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
                           realtype tol, N_Vector ewt, void* cvode_mem);
@@ -57,6 +59,7 @@ static int cvNls_ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
 int cvNlsInit(CVodeMem cvode_mem)
 {
   delta = N_VClone(cvode_mem->cv_acor);
+  jcur  = SUNFALSE;
 
   return(CV_SUCCESS);
 }
@@ -70,7 +73,8 @@ int cvNlsFree(CVodeMem cvode_mem)
 }
 
 
-static int cvNls_LSetup(N_Vector y, N_Vector res, booleantype jbad, void* cvode_mem)
+static int cvNls_LSetup(N_Vector y, N_Vector res, booleantype jbad,
+                        booleantype* jcur, void* cvode_mem)
 {
   CVodeMem cv_mem;
   N_Vector vtemp1, vtemp2, vtemp3;
@@ -94,6 +98,9 @@ static int cvNls_LSetup(N_Vector y, N_Vector res, booleantype jbad, void* cvode_
   retval = cv_mem->cv_lsetup(cv_mem, cv_mem->convfail, y, cv_mem->cv_ftemp,
                              &(cv_mem->cv_jcur), vtemp1, vtemp2, vtemp3);
   cv_mem->cv_nsetups++;
+
+  /* update Jacobian status */
+  *jcur = cv_mem->cv_jcur;
 
   cv_mem->cv_gamrat = cv_mem->cv_crate = ONE;
   cv_mem->cv_gammap = cv_mem->cv_gamma;
@@ -299,7 +306,7 @@ int cvNlsNewton(CVodeMem cv_mem, N_Vector y0, N_Vector y, N_Vector ewt,
 
     /* if indicated, setup the linear system */
     if (callLSetup) {
-      retval = cvNls_LSetup(y0, delta, jbad, cv_mem);
+      retval = cvNls_LSetup(y0, delta, jbad, &jcur, cv_mem);
       if (retval != CV_SUCCESS) return(retval);
     }
 
@@ -336,7 +343,7 @@ int cvNlsNewton(CVodeMem cv_mem, N_Vector y0, N_Vector y, N_Vector ewt,
 
       /* if successful update Jacobian status and return */
       if (retval == SUN_NLS_SUCCESS) {
-        cv_mem->cv_jcur = SUNFALSE;
+        jcur = SUNFALSE;
         return(SUN_NLS_SUCCESS);
       }
 
@@ -359,7 +366,7 @@ int cvNlsNewton(CVodeMem cv_mem, N_Vector y0, N_Vector y, N_Vector ewt,
     /* If there is a recoverable convergence failure and the Jacobian-related
        data appears not to be current, loop again with a call to lsetup in
        which jbad is TRUE. Otherwise break out and return                     */
-    if ((retval > 0) && !(cv_mem->cv_jcur) && (cv_mem->cv_lsetup)) {
+    if ((retval > 0) && !(jcur) && (cv_mem->cv_lsetup)) {
       callLSetup = SUNTRUE;
       jbad = SUNTRUE;
       continue;
