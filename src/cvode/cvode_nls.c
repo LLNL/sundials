@@ -32,10 +32,6 @@
 #define CONV_FAIL        +4 
 #define TRY_AGAIN        +5
 
-#define FIRST_CALL       +6
-#define PREV_CONV_FAIL   +7
-#define PREV_ERR_FAIL    +8
-
 #define RHSFUNC_RECVR    +9
 
 /* NLS VALUES */
