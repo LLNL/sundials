@@ -35,7 +35,6 @@ extern "C" {
   ===============================================================*/
 
 
-
 /*===============================================================
   ARK time step module data structure
   ===============================================================*/
@@ -62,6 +61,7 @@ typedef struct ARKodeARKStepMemRec {
   N_Vector *Fi;           /* implicit RHS at each stage */
   N_Vector  sdata;        /* old stage data in residual */
   N_Vector  zpred;        /* predicted stage solution   */
+  N_Vector  tempv;        /* temporary vector           */
   int q;                  /* method order               */
   int p;                  /* embedding order            */
   int istage;             /* current stage              */
@@ -75,6 +75,7 @@ typedef struct ARKodeARKStepMemRec {
   int             maxnef;      /* max error test fails in one step */
 
   /* (Non)Linear solver parameters & data */
+  SUNNonlinearSolver NLS;   /* generic SUNNonlinearSolver object   */
   realtype gamma;      /* gamma = h * A(i,i)                       */
   realtype gammap;     /* gamma at the last setup call             */
   realtype gamrat;     /* gamma / gammap                           */
@@ -189,12 +190,22 @@ int arkStep_DoErrorTest(ARKodeMem ark_mem, int *nflagPtr,
                         int *nefPtr, realtype dsm);
 int arkStep_PrepareNextStep(ARKodeMem ark_mem, realtype dsm);
 
+/* private functions passed to nonlinear solver */
+static int arkStep_NlsResidual(N_Vector yy, N_Vector res, void* arkode_mem);
+static int arkStep_NlsFPFunction(N_Vector yy, N_Vector res, void* arkode_mem);
+static int arkStep_NlsLSetup(N_Vector yy, N_Vector res, booleantype* jcur,
+                             void* arkode_mem);
+static int arkStep_NlsLSolve(N_Vector yy, N_Vector delta, void* arkode_mem);
+static int arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
+                               realtype tol, N_Vector ewt, void* arkode_mem);
+
 /*===============================================================
   Reusable ARKStep Error Messages
   ===============================================================*/
 
 /* Initialization and I/O error messages */
 #define MSG_ARKSTEP_NO_MEM    "Time step module memory is NULL."
+#define MSG_NLS_INIT_FAIL     "The nonlinear solver's init routine failed."
 
 #ifdef __cplusplus
 }

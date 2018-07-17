@@ -587,6 +587,7 @@ int ARKStepSetDefaults(void* arkode_mem)
   step_mem->istage           = 0;              /* current stage */
   step_mem->Be               = NULL;           /* no Butcher tables */
   step_mem->Bi               = NULL;
+  step_mem->NLS              = NULL;           /* no nonlinear solver object */
   return(ARK_SUCCESS);
 }
 

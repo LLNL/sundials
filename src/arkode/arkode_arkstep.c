@@ -129,10 +129,12 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, realtype t0, N_Vector y0)
   /* NOTE: Fe, Fi, cvals and Xvecs will be allocated later on
      (based on the number of ARK stages) */
 
-  /* Clone the input vector to create sdata, zpred */
+  /* Clone the input vector to create sdata, zpred, tempv */
   if (!arkAllocVec(ark_mem, y0, &(step_mem->sdata)))
     return(NULL);
   if (!arkAllocVec(ark_mem, y0, &(step_mem->zpred)))
+    return(NULL);
+  if (!arkAllocVec(ark_mem, y0, &(step_mem->tempv)))
     return(NULL);
 
   /* Copy the input parameters into ARKode state */
@@ -197,6 +199,95 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, realtype t0, N_Vector y0)
 
 
 /*---------------------------------------------------------------
+ ARKStepSetNonlinearSolver:
+
+ This routine attaches a SUNNonlinearSolver object to the ARKStep
+ module.
+---------------------------------------------------------------*/
+int ARKStepSetNonlinearSolver(void *arkode_mem, SUNNonlinearSolver NLS)
+{
+  ARKodeMem ark_mem;
+  ARKodeARKStepMem step_mem;
+  booleantype nvectorOK;
+  int retval;
+
+  /* access ARKodeARKStepMem structure */
+  if (arkode_mem == NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepSetNonlinearSolver", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  if (ark_mem->step_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepSetNonlinearSolver", MSG_ARKSTEP_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+
+  /* Return immediately if NLS input is NULL */
+  if (NLS == NULL) {
+    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ARKStep",
+                    "ARKStepSetNonlinearSolver",
+                    "The NLS input must be non-NULL");
+    return(ARK_ILL_INPUT);
+  }
+
+  /* check for required nonlinear solver functions */
+  if ( (NLS->ops->gettype    == NULL) ||
+       (NLS->ops->initialize == NULL) ||
+       (NLS->ops->solve      == NULL) ||
+       (NLS->ops->free       == NULL) ||
+       (NLS->ops->setsysfn   == NULL) ) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
+                    "ARKStepSetNonlinearSolver",
+                    "NLS does not support required operations");
+    return(ARK_ILL_INPUT);
+  }
+
+  /* free any existing nonlinear solver */
+  if (step_mem->NLS)
+    retval = SUNNonlinSolFree(step_mem->NLS);
+
+  /* set SUNNonlinearSolver pointer */
+  step_mem->NLS = NLS;
+
+  /* set the nonlinear residual/fixed-point function, based on solver type */
+  if (SUNNonlinSolGetType(NLS) == SUNNONLINEARSOLVER_ROOTFIND) {
+    retval = SUNNonlinSolSetSysFn(step_mem->NLS, arkStep_NlsResidual);
+  } else {
+    retval = SUNNonlinSolSetSysFn(step_mem->NLS, arkStep_NlsFPFunction);
+  }
+  if (retval != ARK_SUCCESS) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
+                    "ARKStepSetNonlinearSolver",
+                    "Setting nonlinear system function failed");
+    return(ARK_ILL_INPUT);
+  }
+
+  /* set convergence test function */
+  retval = SUNNonlinSolSetConvTestFn(step_mem->NLS, arkStep_NlsConvTest);
+  if (retval != ARK_SUCCESS) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
+                    "ARKStepSetNonlinearSolver",
+                    "Setting convergence test function failed");
+    return(ARK_ILL_INPUT);
+  }
+
+  /* set default nonlinear iterations */
+  retval = SUNNonlinSolSetMaxIters(step_mem->NLS, MAXCOR);
+  if (retval != ARK_SUCCESS) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
+                    "ARKStepSetNonlinearSolver",
+                    "Setting maximum number of nonlinear iterations failed");
+    return(ARK_ILL_INPUT);
+  }
+
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
  ARKStepResize:
 
  This routine resizes the memory within the ARKStep module.
@@ -242,7 +333,7 @@ int ARKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
     return(flag);
   }
 
-  /* Resize the sdata and zpred vectors */
+  /* Resize the sdata, zpred and tempv vectors */
   if (step_mem->sdata != NULL) {
     ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
                        liw_diff, y0, &step_mem->sdata);
@@ -251,6 +342,11 @@ int ARKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
   if (step_mem->zpred != NULL) {
     ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
                        liw_diff, y0, &step_mem->zpred);
+    if (ier != ARK_SUCCESS)  return(ier);
+  }
+  if (step_mem->tempv != NULL) {
+    ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+                       liw_diff, y0, &step_mem->tempv);
     if (ier != ARK_SUCCESS)  return(ier);
   }
 
@@ -311,6 +407,12 @@ int ARKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
 }
 
 
+/*---------------------------------------------------------------
+ ARKStepReInit:
+
+ This routine re-initializes the ARKStep module to solve a new
+ problem of the same size as was previously solved.
+---------------------------------------------------------------*/
 int ARKStepReInit(void* arkode_mem, ARKRhsFn fe,
                   ARKRhsFn fi, realtype t0, N_Vector y0)
 {
@@ -392,6 +494,13 @@ int ARKStepReInit(void* arkode_mem, ARKRhsFn fe,
 }
 
 
+/*---------------------------------------------------------------
+ ARKStepSStolerances, ARKStepSVtolerances, ARKStepWFtolerances,
+ ARKStepResStolerance, ARKStepResVtolerance, ARKStepResFtolerance:
+
+ These routines set integration tolerances (wrappers for general
+ ARKode utility routines)
+---------------------------------------------------------------*/
 int ARKStepSStolerances(void *arkode_mem, realtype reltol, realtype abstol)
 {
   /* unpack ark_mem, call arkSStolerances, and return */
@@ -404,7 +513,6 @@ int ARKStepSStolerances(void *arkode_mem, realtype reltol, realtype abstol)
   ark_mem = (ARKodeMem) arkode_mem;
   return(arkSStolerances(ark_mem, reltol, abstol));
 }
-
 
 int ARKStepSVtolerances(void *arkode_mem, realtype reltol, N_Vector abstol)
 {
@@ -419,7 +527,6 @@ int ARKStepSVtolerances(void *arkode_mem, realtype reltol, N_Vector abstol)
   return(arkSVtolerances(ark_mem, reltol, abstol));
 }
 
-
 int ARKStepWFtolerances(void *arkode_mem, ARKEwtFn efun)
 {
   /* unpack ark_mem, call arkWFtolerances, and return */
@@ -432,7 +539,6 @@ int ARKStepWFtolerances(void *arkode_mem, ARKEwtFn efun)
   ark_mem = (ARKodeMem) arkode_mem;
   return(arkWFtolerances(ark_mem, efun));
 }
-
 
 int ARKStepResStolerance(void *arkode_mem, realtype rabstol)
 {
@@ -447,7 +553,6 @@ int ARKStepResStolerance(void *arkode_mem, realtype rabstol)
   return(arkResStolerance(ark_mem, rabstol));
 }
 
-
 int ARKStepResVtolerance(void *arkode_mem, N_Vector rabstol)
 {
   /* unpack ark_mem, call arkResVtolerance, and return */
@@ -461,7 +566,6 @@ int ARKStepResVtolerance(void *arkode_mem, N_Vector rabstol)
   return(arkResVtolerance(ark_mem, rabstol));
 }
 
-
 int ARKStepResFtolerance(void *arkode_mem, ARKRwtFn rfun)
 {
   /* unpack ark_mem, call arkResFtolerance, and return */
@@ -474,7 +578,6 @@ int ARKStepResFtolerance(void *arkode_mem, ARKRwtFn rfun)
   ark_mem = (ARKodeMem) arkode_mem;
   return(arkResFtolerance(ark_mem, rfun));
 }
-
 
 int ARKStepRootInit(void *arkode_mem, int nrtfn, ARKRootFn g)
 {
@@ -490,6 +593,12 @@ int ARKStepRootInit(void *arkode_mem, int nrtfn, ARKRootFn g)
 }
 
 
+/*---------------------------------------------------------------
+ ARKStepEvolve:
+
+ This is the main time-integration driver (wrappers for general
+ ARKode utility routine)
+---------------------------------------------------------------*/
 int ARKStepEvolve(void *arkode_mem, realtype tout, N_Vector yout,
                   realtype *tret, int itask)
 {
@@ -505,6 +614,13 @@ int ARKStepEvolve(void *arkode_mem, realtype tout, N_Vector yout,
 }
 
 
+/*---------------------------------------------------------------
+ ARKStepGetDky:
+
+ This returns interpolated output of the solution or its
+ derivatives over the most-recently-computed step (wrapper for
+ generic ARKode utility routine)
+---------------------------------------------------------------*/
 int ARKStepGetDky(void *arkode_mem, realtype t, int k, N_Vector dky)
 {
   /* unpack ark_mem, call arkGetDky, and return */
@@ -569,6 +685,12 @@ void ARKStepFree(void **arkode_mem)
       step_mem->fp_mem = NULL;
     }
 
+    /* free the nonlinear solver memory */
+    if (step_mem->NLS != NULL) {
+      SUNNonlinSolFree(step_mem->NLS);
+      step_mem->NLS = NULL;
+    }
+
     /* free the linear solver memory */
     if (step_mem->lfree != NULL) {
       step_mem->lfree((void *) ark_mem);
@@ -581,7 +703,7 @@ void ARKStepFree(void **arkode_mem)
       step_mem->mass_mem = NULL;
     }
 
-    /* free the sdata and zpred vectors */
+    /* free the sdata, zpred and tempv vectors */
     if (step_mem->sdata != NULL) {
       arkFreeVec(ark_mem, &step_mem->sdata);
       step_mem->sdata = NULL;
@@ -589,6 +711,10 @@ void ARKStepFree(void **arkode_mem)
     if (step_mem->zpred != NULL) {
       arkFreeVec(ark_mem, &step_mem->zpred);
       step_mem->zpred = NULL;
+    }
+    if (step_mem->tempv != NULL) {
+      arkFreeVec(ark_mem, &step_mem->tempv);
+      step_mem->tempv = NULL;
     }
 
     /* free the RHS vectors */
@@ -744,6 +870,10 @@ void ARKStepPrintMem(void* arkode_mem, FILE* outfile)
   if (step_mem->zpred != NULL) {
     fprintf(outfile, "ARKStep: zpred:\n");
     N_VPrint_Serial(step_mem->zpred);
+  }
+  if (step_mem->tempv != NULL) {
+    fprintf(outfile, "ARKStep: tempv:\n");
+    N_VPrint_Serial(step_mem->tempv);
   }
   if (step_mem->Fe != NULL)
     for (i=0; i<step_mem->stages; i++) {
@@ -1663,6 +1793,397 @@ int arkStep_TakeStep(void* arkode_mem)
 
 
 /*---------------------------------------------------------------
+  Interface routines supplied to SUNNonlinearSolver module
+  ---------------------------------------------------------------*/
+
+/*---------------------------------------------------------------
+  arkStep_NlsInit:
+
+  This routine attaches the linear solver 'setup' and 'solve'
+  routines to the nonlinear solver object, and then initializes
+  the nonlinear solver object itself.  This should only be
+  called at the start of a simulation, or after a re-init.
+---------------------------------------------------------------*/
+int arkStep_NlsInit(ARKodeMem ark_mem)
+{
+  ARKodeARKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeARKStepMem structure */
+  if (ark_mem->step_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "arkStep_NlsInit", MSG_ARKSTEP_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+
+  /* set the linear solver setup wrapper function */
+  if (step_mem->lsetup)
+    retval = SUNNonlinSolSetLSetupFn(step_mem->NLS, arkStep_NlsLSetup);
+  else
+    retval = SUNNonlinSolSetLSetupFn(step_mem->NLS, NULL);
+  if (retval != ARK_SUCCESS) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
+                    "arkStep_NlsInit",
+                    "Setting the linear solver setup function failed");
+    return(ARK_NLS_INIT_FAIL);
+  }
+
+  /* set the linear solver solve wrapper function */
+  if (step_mem->lsolve)
+    retval = SUNNonlinSolSetLSolveFn(step_mem->NLS, arkStep_NlsLSolve);
+  else
+    retval = SUNNonlinSolSetLSolveFn(step_mem->NLS, NULL);
+  if (retval != ARK_SUCCESS) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
+                    "arkStep_NlsInit",
+                    "Setting linear solver solve function failed");
+    return(ARK_NLS_INIT_FAIL);
+  }
+
+  /* initialize nonlinear solver */
+  retval = SUNNonlinSolInitialize(step_mem->NLS);
+  if (retval != ARK_SUCCESS) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
+                    "arkStep_NlsInit", MSG_NLS_INIT_FAIL);
+    return(ARK_NLS_INIT_FAIL);
+  }
+
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  arkStep_NlsLSetup:
+
+  This routine wraps the ARKode linear solver interface 'setup'
+  routine for use by the nonlinear solver object.
+---------------------------------------------------------------*/
+static int arkStep_NlsLSetup(N_Vector zcor, N_Vector res,
+                             booleantype* jcur, void* arkode_mem)
+{
+  ARKodeMem ark_mem;
+  ARKodeARKStepMem step_mem;
+  int convfail, retval;
+
+  /* access ARKodeARKStepMem structure */
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "arkStep_NlsLSetup", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  if (ark_mem->step_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "arkStep_NlsLSetup", MSG_ARKSTEP_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+
+  /* temporarily set convfail (until we figure out how to do it correctly) */
+  /* NEED TO DEAL WITH CONVFAIL FLAG CORRECTLY!!! */
+  convfail = ARK_NO_FAILURES;
+
+  /* Use ARkode's tempv1 and tempv2, and ARKStep's tempv as
+     temporary vectors for the linear solver setup routine */
+  step_mem->nsetups++;
+  retval = step_mem->lsetup(ark_mem, convfail, ark_mem->tcur,
+                            ark_mem->ycur, step_mem->Fi[step_mem->istage],
+                            &step_mem->jcur, ark_mem->tempv1,
+                            ark_mem->tempv2, step_mem->tempv);
+
+  /* update Jacobian status */
+  *jcur = step_mem->jcur;
+
+  /* update flags and 'gamma' values for last lsetup call */
+  ark_mem->firststage = SUNFALSE;
+  step_mem->gamrat = step_mem->crate = ONE;
+  step_mem->gammap = step_mem->gamma;
+  step_mem->nstlp  = ark_mem->nst;
+
+  if (retval < 0) return(ARK_LSETUP_FAIL);
+  if (retval > 0) return(CONV_FAIL);
+
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  arkStep_NlsLSolve:
+
+  This routine wraps the ARKode linear solver interface 'solve'
+  routine for use by the nonlinear solver object.
+---------------------------------------------------------------*/
+static int arkStep_NlsLSolve(N_Vector zcor, N_Vector b, void* arkode_mem)
+{
+  ARKodeMem ark_mem;
+  ARKodeARKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeARKStepMem structure */
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "arkStep_NlsLSolve", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  if (ark_mem->step_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "arkStep_NlsLSolve", MSG_ARKSTEP_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+
+  /* call linear solver interface, and handle return value */
+  retval = step_mem->lsolve(ark_mem, b, ark_mem->tcur,
+                            ark_mem->ycur, step_mem->Fi[step_mem->istage],
+                            step_mem->eRNrm, step_mem->mnewt);
+
+  if (retval < 0) return(ARK_LSOLVE_FAIL);
+  if (retval > 0) return(retval);
+
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  arkStep_NlsResidual:
+
+  This routine evaluates the negative nonlinear residual for the
+  additive Runge-Kutta method.  It assumes that any data from
+  previous time steps/stages is contained in step_mem, and
+  merely combines this old data with the current implicit ODE RHS
+  vector to compute the nonlinear residual r.
+
+  At the ith stage, we compute the residual vector:
+     r = M*z - M*yn - h*sum_{j=0}^{i-1} Ae(i,j)*Fe(j)
+                    - h*sum_{j=0}^{i} Ai(i,j)*Fi(j)
+     r = M*zp + M*zc - M*yn - h*sum_{j=0}^{i-1} Ae(i,j)*Fe(j)
+                            - h*sum_{j=0}^{i} Ai(i,j)*Fi(j)
+     r = (M*zc - gamma*Fi(z)) - (M*yn - M*zp + data)
+  where the current stage solution z = zp + zc, and where
+     zc is stored in the input, zcor
+     (M*yn-M*zp+data) is stored in step_mem->sdata,
+  so we really just compute:
+     z = zp + zc (stored in ark_mem->ycur)
+     Fi(z) (stored step_mem->Fi[step_mem->istage])
+     r = M*zc - gamma*Fi(z) - step_mem->sdata
+---------------------------------------------------------------*/
+static int arkStep_NlsResidual(N_Vector zcor, N_Vector r, void* arkode_mem)
+{
+  /* temporary variables */
+  ARKodeMem ark_mem;
+  ARKodeARKStepMem step_mem;
+  int retval;
+  realtype c[3];
+  N_Vector X[3];
+
+  /* access ARKodeARKStepMem structure */
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "arkStep_NlsResidual", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  if (ark_mem->step_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "arkStep_NlsResidual", MSG_ARKSTEP_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+
+  /* update stored 'ycur' value as stored predictor + current corrector */
+  N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
+
+  /* compute implicit RHS and save for later */
+  retval = step_mem->fi(ark_mem->tcur, ark_mem->ycur,
+                        step_mem->Fi[step_mem->istage],
+                        ark_mem->user_data);
+  step_mem->nfi++;
+  if (retval < 0) return(ARK_RHSFUNC_FAIL);
+  if (retval > 0) return(RHSFUNC_RECVR);
+
+  /* put M*zcor in r */
+  if (step_mem->mass_mem != NULL) {
+    retval = step_mem->mmult((void *) ark_mem, zcor, r);
+    if (retval != ARK_SUCCESS)  return (ARK_MASSMULT_FAIL);
+    X[0] = r;
+  } else {
+    X[0] = zcor;
+  }
+
+  /* update with My, sdata and gamma*fy */
+  c[0] = ONE;
+  c[1] = -ONE;
+  X[1] = step_mem->sdata;
+  c[2] = -step_mem->gamma;
+  X[2] = step_mem->Fi[step_mem->istage];
+  retval = N_VLinearCombination(3, c, X, r);
+  if (retval != 0)  return(ARK_VECTOROP_ERR);
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  arkStep_NlsFPFunction:
+
+  This routine evaluates the fixed point iteration function for
+  the additive Runge-Kutta method.  It assumes that any data from
+  previous time steps/stages is contained in step_mem, and
+  merely combines this old data with the current guess and
+  implicit ODE RHS vector to compute the iteration function g.
+
+  At the ith stage, we compute the fixed-point iteration vector:
+     g = z - z + yn + h*sum_{j=0}^{i-1} Ae(i,j)*Fe(j)
+                     + h*sum_{j=0}^{i} Ai(i,j)*Fi(j)
+     g = z - zp - zc + yn + h*sum_{j=0}^{i-1} Ae(i,j)*Fe(j)
+                          + h*sum_{j=0}^{i} Ai(i,j)*Fi(j)
+     g = (zp + gamma*Fi(z)) + (yn - zp + data)
+  where the current stage solution z = zp + zc, and where
+     zc is stored in the input, zcor
+     (yn-zp+data) is stored in step_mem->sdata,
+  so we really just compute:
+     z = zp + zc (stored in ark_mem->ycur)
+     Fi(z) (stored step_mem->Fi[step_mem->istage])
+     g = zp + gamma*Fi(z) + step_mem->sdata
+---------------------------------------------------------------*/
+static int arkStep_NlsFPFunction(N_Vector zcor, N_Vector g,
+                                 void* arkode_mem)
+{
+  /* temporary variables */
+  ARKodeMem ark_mem;
+  ARKodeARKStepMem step_mem;
+  int retval;
+  realtype c[3];
+  N_Vector X[3];
+
+  /* access ARKodeARKStepMem structure */
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "arkStep_NlsFPFunction", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  if (ark_mem->step_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "arkStep_NlsFPFunction", MSG_ARKSTEP_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+
+  /* update stored 'ycur' value as stored predictor + current corrector */
+  N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
+
+  /* compute implicit RHS and save for later */
+  retval = step_mem->fi(ark_mem->tcur, ark_mem->ycur,
+                        step_mem->Fi[step_mem->istage],
+                        ark_mem->user_data);
+  step_mem->nfi++;
+  if (retval < 0) return(ARK_RHSFUNC_FAIL);
+  if (retval > 0) return(RHSFUNC_RECVR);
+
+  /* combine parts:  g = zp + sdata + gamma*Fi(z) */
+  c[0] = ONE;
+  X[0] = step_mem->zpred;
+  c[1] = ONE;
+  X[1] = step_mem->sdata;
+  c[2] = step_mem->gamma;
+  X[2] = step_mem->Fi[step_mem->istage];
+  retval = N_VLinearCombination(3, c, X, g);
+  if (retval != 0)  return(ARK_VECTOROP_ERR);
+  return(ARK_SUCCESS);
+}
+
+
+/*---------------------------------------------------------------
+  arkStep_NlsConvTest:
+
+  This routine provides the nonlinear solver convergence test for
+  the additive Runge-Kutta method.  We have two modes.
+
+  Standard:
+      delnorm = ||del||_WRMS
+      if (m==0) crate = 1
+      if (m>0)  crate = max(crdown*crate, delnorm/delp)
+      dcon = min(crate, ONE) * del / nlscoef
+      if (dcon<=1)  return convergence
+      if ((m >= 2) && (del > rdiv*delp))  return divergence
+
+  Linearly-implicit mode:
+      if the user specifies that the problem is linearly
+      implicit, then we just declare 'success' no matter what
+      is provided.
+---------------------------------------------------------------*/
+static int arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
+                               realtype tol, N_Vector ewt, void* arkode_mem)
+{
+  /* temporary variables */
+  ARKodeMem ark_mem;
+  ARKodeARKStepMem step_mem;
+  static realtype delp;
+  realtype delnrm, dcon;
+  realtype rate;
+  int m, retval;
+
+  /* access ARKodeARKStepMem structure */
+  if (arkode_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "arkStep_NlsConvTest", MSG_ARK_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  ark_mem = (ARKodeMem) arkode_mem;
+  if (ark_mem->step_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "arkStep_NlsConvTest", MSG_ARKSTEP_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+
+  /* if the problem is linearly implicit, just return success */
+  if (step_mem->linear)
+    return(SUN_NLS_SUCCESS);
+
+  /* compute the norm of the correction */
+  delnrm = N_VWrmsNorm(del, ewt);
+
+  /* get the current nonlinear solver iteration count */
+  retval = SUNNonlinSolGetCurIter(NLS, &m);
+  if (retval != ARK_SUCCESS)  return(ARK_MEM_NULL);
+
+  /* update the stored estimate of the convergence rate (assumes linear convergence) */
+  if (m > 0)
+    step_mem->crate = SUNMAX(step_mem->crdown*step_mem->crate, delnrm/delp);
+
+  /* compute our scaled error norm for testing convergence */
+  dcon = SUNMIN(step_mem->crate, ONE) * delnrm / tol;
+
+  /* check for convergence; if so return with success */
+  if (dcon <= ONE) {
+    step_mem->jcur = SUNFALSE;
+    return(SUN_NLS_SUCCESS);
+  }
+
+#ifndef FIXED_LIN_TOL
+  /* update forcing parameter for inexact linear solvers;
+     Note: if a user provides their own convergence test routine,
+     this will result in use of a fixed linear solver tolerance */
+  step_mem->eRNrm = SUNMIN(step_mem->crate, ONE) * delnrm * RCONST(0.1) * tol;
+#endif
+
+  /* check for divergence */
+  if ((m >= 1) && (delnrm > step_mem->rdiv*delp))
+    return(SUN_NLS_CONV_RECVR);
+
+  /* save norm of correction for next iteration */
+  delp = delnrm;
+
+  /* return with flag that there is more work to do */
+  return(SUN_NLS_CONTINUE);
+}
+
+
+
+/*---------------------------------------------------------------
   Internal utility routines
   ---------------------------------------------------------------*/
 
@@ -2368,7 +2889,7 @@ int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag)
   for(;;) {
 
     retval = step_mem->fi(ark_mem->tcur, step_mem->zpred,
-                             step_mem->Fi[is], ark_mem->user_data);
+                          step_mem->Fi[is], ark_mem->user_data);
     step_mem->nfi++;
     if (retval < 0) return(ARK_RHSFUNC_FAIL);
     if (retval > 0) return(RHSFUNC_RECVR);
@@ -2381,10 +2902,9 @@ int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag)
 
       /* call lsetup, using zcor, z and b as temporary vectors */
       ier = step_mem->lsetup(ark_mem, convfail, ark_mem->tcur,
-                                step_mem->zpred, step_mem->Fi[is],
-                                &step_mem->jcur, zcor, z, b);
+                             step_mem->zpred, step_mem->Fi[is],
+                             &step_mem->jcur, zcor, z, b);
       step_mem->nsetups++;
-      callSetup = SUNFALSE;
       ark_mem->firststage = SUNFALSE;
       step_mem->gamrat = step_mem->crate = ONE;
       step_mem->gammap = step_mem->gamma;
@@ -2433,8 +2953,8 @@ int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag)
 
       /* Call the lsolve function, overwriting b with solution */
       retval = step_mem->lsolve(ark_mem, b, ark_mem->tcur,
-                                   z, step_mem->Fi[is],
-                                   step_mem->eRNrm, step_mem->mnewt);
+                                z, step_mem->Fi[is],
+                                step_mem->eRNrm, step_mem->mnewt);
       step_mem->nni++;
       if (retval < 0) {
         ier = ARK_LSOLVE_FAIL;
@@ -2474,7 +2994,7 @@ int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag)
 
       /* compute the forcing term for linear solver tolerance */
       step_mem->eRNrm = SUNMIN(step_mem->crate, ONE) * del
-                         * RCONST(0.1) * step_mem->nlscoef;
+                        * RCONST(0.1) * step_mem->nlscoef;
 #ifdef FIXED_LIN_TOL
       /* reset if a fixed linear solver tolerance is desired */
       step_mem->eRNrm = RCONST(0.1) * step_mem->nlscoef;
@@ -2513,8 +3033,8 @@ int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag)
       /* Save norm of correction, evaluate fi, and loop again */
       delp = del;
       retval = step_mem->fi(ark_mem->tcur, z,
-                               step_mem->Fi[step_mem->istage],
-                               ark_mem->user_data);
+                            step_mem->Fi[step_mem->istage],
+                            ark_mem->user_data);
       step_mem->nfi++;
       if (retval < 0) {
         ier = ARK_RHSFUNC_FAIL;
@@ -2954,7 +3474,7 @@ int arkStep_Ls(ARKodeMem ark_mem, int nflag)
 
   /*   Call the lsolve function */
   retval = step_mem->lsolve(ark_mem, b, ark_mem->tcur, z, step_mem->Fi[is],
-                               step_mem->eRNrm, step_mem->mnewt);
+                            step_mem->eRNrm, step_mem->mnewt);
   step_mem->nni++;
   if (retval != 0)  return (ARK_LSOLVE_FAIL);
 

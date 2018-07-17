@@ -62,7 +62,8 @@ ARKodeInterpMem arkInterpCreate(void* arkode_mem)
   memset(interp_mem, 0, sizeof(struct ARKodeInterpMemRec));
 
   /* set interpolation order based on user request (if possible) */
-  if ((ark_mem->dense_q < 0) || (ark_mem->dense_q > 3)) {
+  /* if ((ark_mem->dense_q < 0) || (ark_mem->dense_q > 3)) { */
+  if ((ark_mem->dense_q < 0) || (ark_mem->dense_q > 5)) {
     interp_mem->order = QDENSE_DEF;
   } else {
     interp_mem->order = ark_mem->dense_q;
@@ -76,6 +77,12 @@ ARKodeInterpMem arkInterpCreate(void* arkode_mem)
     arkInterpFree(&interp_mem); return(NULL);
   }
   if (!arkAllocVec(ark_mem, ark_mem->yn, &interp_mem->yold)) {
+    arkInterpFree(&interp_mem); return(NULL);
+  }
+  if (!arkAllocVec(ark_mem, ark_mem->yn, &interp_mem->fa)) {
+    arkInterpFree(&interp_mem); return(NULL);
+  }
+  if (!arkAllocVec(ark_mem, ark_mem->yn, &interp_mem->fb)) {
     arkInterpFree(&interp_mem); return(NULL);
   }
 
@@ -133,6 +140,16 @@ int arkInterpResize(void* arkode_mem, ARKodeInterpMem interp_mem,
                        liw_diff, y0, &interp_mem->yold);
     if (ier != ARK_SUCCESS)  return(ier);
   }
+  if (interp_mem->fa != NULL) {
+    ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+                       liw_diff, y0, &interp_mem->fa);
+    if (ier != ARK_SUCCESS)  return(ier);
+  }
+  if (interp_mem->fb != NULL) {
+    ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+                       liw_diff, y0, &interp_mem->fb);
+    if (ier != ARK_SUCCESS)  return(ier);
+  }
 
   /* update yold with current solution */
   N_VScale(ONE, y0, interp_mem->yold);
@@ -160,6 +177,8 @@ void arkInterpFree(ARKodeInterpMem *interp_mem)
     if ((*interp_mem)->fold != NULL) N_VDestroy((*interp_mem)->fold);
     if ((*interp_mem)->fnew != NULL) N_VDestroy((*interp_mem)->fnew);
     if ((*interp_mem)->yold != NULL) N_VDestroy((*interp_mem)->yold);
+    if ((*interp_mem)->fa   != NULL) N_VDestroy((*interp_mem)->fa);
+    if ((*interp_mem)->fb   != NULL) N_VDestroy((*interp_mem)->fb);
     free(*interp_mem);
   }
 }
@@ -194,6 +213,14 @@ void arkPrintInterpMem(ARKodeInterpMem interp_mem, FILE *outfile)
     if (interp_mem->ynew != NULL) {
       fprintf(outfile, "ark_interp: ynew:\n");
       N_VPrint_Serial(interp_mem->ynew);
+    }
+    if (interp_mem->fa != NULL) {
+      fprintf(outfile, "ark_interp: fa:\n");
+      N_VPrint_Serial(interp_mem->fa);
+    }
+    if (interp_mem->fb != NULL) {
+      fprintf(outfile, "ark_interp: fb:\n");
+      N_VPrint_Serial(interp_mem->fb);
     }
 #endif
   }
@@ -330,9 +357,9 @@ int arkInterpEvaluate(void* arkode_mem, ARKodeInterpMem interp,
 {
   /* local variables */
   int q, retval;
-  realtype h, a0, a1, tau2, tau3;
-  realtype a[4];
-  N_Vector X[4];
+  realtype tval, h, a0, a1, tau2, tau3, tau4, tau5;
+  realtype a[6];
+  N_Vector X[6];
   ARKodeMem ark_mem;
 
   /* access ARKodeMem structure */
@@ -342,15 +369,18 @@ int arkInterpEvaluate(void* arkode_mem, ARKodeInterpMem interp,
   /* set constants */
   tau2 = tau*tau;
   tau3 = tau*tau2;
+  tau4 = tau*tau3;
+  tau5 = tau*tau4;
   h = interp->h;
 
   /* determine polynomial order q */
   q = SUNMAX(order, 0);        /* respect lower bound  */
-  q = SUNMIN(q, 3);            /* respect max possible */
+  /* q = SUNMIN(q, 3);            /\* respect max possible *\/ */
+  q = SUNMIN(q, 5);            /* respect max possible */
 
   /* check that d is possible */
-  /* if ((d > SUNMIN(5,q)) || (d < 0)) { */
-  if ((d > SUNMIN(3,q)) || (d < 0)) {
+  if ((d > SUNMIN(5,q)) || (d < 0)) {
+  /* if ((d > SUNMIN(3,q)) || (d < 0)) { */
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
                     "arkInterpEvaluate", "Requested illegal derivative.");
     return (ARK_ILL_INPUT);
@@ -423,7 +453,160 @@ int arkInterpEvaluate(void* arkode_mem, ARKodeInterpMem interp,
     X[3] = interp->fnew;
     retval = N_VLinearCombination(4, a, X, yout);
     if (retval != 0) return(ARK_VECTOROP_ERR);
+   break;
+
+  case(4):    /* quartic interpolant */
+
+    /* first, evaluate cubic interpolant at tau=1/3 */
+    tval = ONE/THREE;
+    retval = arkInterpEvaluate(arkode_mem, interp, tval, 0, 3, yout);
+    if (retval != 0)  return(ARK_RHSFUNC_FAIL);
+
+    /* second, evaluate RHS at tau=1/3, storing the result in fa */
+    tval = interp->told + h/THREE;
+    retval = ark_mem->step_fullrhs(ark_mem, tval, yout, interp->fa, 2);
+    if (retval != 0)  return(ARK_RHSFUNC_FAIL);
+
+    /* evaluate desired function */
+    if (d == 0) {
+      a[0] = ONE + SIX*tau2 - RCONST(16.0)*tau3 + RCONST(9.0)*tau4;
+      a[1] = -SIX*tau2 + RCONST(16.0)*tau3 - RCONST(9.0)*tau4;
+      a[2] = h*(tau - TWO*tau2 + tau3);
+      a[3] = h*FOURTH*(FIVE*tau2 - RCONST(14.0)*tau3 + RCONST(9.0)*tau4);
+      a[4] = h*RCONST(27.0)*FOURTH*(tau2 - TWO*tau3 + tau4);
+    } else if (d == 1) {
+      a[0] = (TWELVE*tau - RCONST(48.0)*tau2 + RCONST(36.0)*tau3)/h;
+      a[1] = (-TWELVE*tau + RCONST(48.0)*tau2 - RCONST(36.0)*tau3)/h;
+      a[2] = (ONE - FOUR*tau + THREE*tau2);
+      a[3] = HALF*(FIVE*tau - RCONST(21.0)*tau2 + RCONST(18.0)*tau3);
+      a[4] = RCONST(27.0)*HALF*(tau - THREE*tau2 + TWO*tau3);
+    } else if (d == 2) {
+      a[0] = (TWELVE - RCONST(96.0)*tau + RCONST(108.0)*tau2)/h/h;
+      a[1] = (-TWELVE + RCONST(96.0)*tau - RCONST(108.0)*tau2)/h/h;
+      a[2] = (-FOUR + SIX*tau)/h;
+      a[3] = (FIVE*HALF - RCONST(21.0)*tau + RCONST(27.0)*tau2)/h;
+      a[4] = (RCONST(27.0)*HALF - RCONST(81.0)*tau + RCONST(81.0)*tau2)/h;
+    } else if (d == 3) {
+      a[0] = (-RCONST(96.0) + RCONST(216.0)*tau)/h/h/h;
+      a[1] = (RCONST(96.0) - RCONST(216.0)*tau)/h/h/h;
+      a[2] = SIX/h/h;
+      a[3] = (-RCONST(21.0) + RCONST(54.0)*tau)/h/h;
+      a[4] = (-RCONST(81.0) + RCONST(162.0)*tau)/h/h;
+    } else {  /* d == 4 */
+      a[0] = RCONST(216.0)/h/h/h/h;
+      a[1] = -RCONST(216.0)/h/h/h/h;
+      a[2] = ZERO;
+      a[3] = RCONST(54.0)/h/h/h;
+      a[4] = RCONST(162.0)/h/h/h;
+    }
+    X[0] = interp->yold;
+    X[1] = interp->ynew;
+    X[2] = interp->fold;
+    X[3] = interp->fnew;
+    X[4] = interp->fa;
+    retval = N_VLinearCombination(5, a, X, yout);
+    if (retval != 0) return(ARK_VECTOROP_ERR);
     break;
+
+  /* case(5):    /\* quintic interpolant *\/ */
+  /*   /\* first, evaluate quartic interpolant at tau=2/3 *\/ */
+  /*   tval = TWO/THREE; */
+  /*   retval = ARKDenseEval(ark_mem, tval, 0, 4, yout); */
+  /*   if (retval != 0)  return(ARK_RHSFUNC_FAIL); */
+
+  /*   /\* second, evaluate RHS at tau=2/3, storing temporary values  */
+  /*      in ftemp and the result in fb *\/ */
+  /*   fb = ark_mem->ark_fb; */
+  /*   ftmp = ark_mem->ark_ftemp; */
+  /*   tval = tn + TWO*h/THREE; */
+  /*   retval = ARKFullRHS(ark_mem, tval, yout, ftmp, fb); */
+  /*   if (retval != 0)  return(ARK_RHSFUNC_FAIL); */
+
+  /*   /\* third, evaluate quartic interpolant at tau=1/3 *\/ */
+  /*   tval = ONE/THREE; */
+  /*   retval = ARKDenseEval(ark_mem, tval, 0, 4, yout); */
+  /*   if (retval != 0)  return(ARK_RHSFUNC_FAIL); */
+
+  /*   /\* fourth, evaluate RHS at tau=1/3, storing temporary values  */
+  /*      in ftemp and the result in fb *\/ */
+  /*   fa = ark_mem->ark_fa; */
+  /*   ftmp = ark_mem->ark_ftemp; */
+  /*   tval = tn + h/THREE; */
+  /*   retval = ARKFullRHS(ark_mem, tval, yout, ftmp, fa); */
+  /*   if (retval != 0)  return(ARK_RHSFUNC_FAIL); */
+
+  /*   /\* evaluate desired function *\/ */
+  /*   if (d == 0) { */
+  /*     a0 = ONE - RCONST(30.0)*tau2 + RCONST(110.0)*tau3 -  */
+  /* 	RCONST(135.0)*tau4 + RCONST(54.0)*tau5; */
+  /*     a1 = RCONST(30.0)*tau2 - RCONST(110.0)*tau3 +  */
+  /* 	RCONST(135.0)*tau4 - RCONST(54.0)*tau5; */
+  /*     a2 = h*FOURTH*(FOUR*tau - RCONST(26.0)*tau2 + RCONST(67.0)*tau3 -  */
+  /* 		     RCONST(72.0)*tau4 + RCONST(27.0)*tau5); */
+  /*     a3 = h*FOURTH*(-RCONST(13.0)*tau2 + RCONST(49.0)*tau3 -  */
+  /* 		     RCONST(63.0)*tau4 + RCONST(27.0)*tau5); */
+  /*     a4 = h*FOURTH*RCONST(27.0)*(-tau2 + FIVE*tau3 -  */
+  /* 				  SEVEN*tau4 + THREE*tau5); */
+  /*     a5 = h*FOURTH*RCONST(27.0)*(-TWO*tau2 + SEVEN*tau3 -  */
+  /* 				  RCONST(8.0)*tau4 + THREE*tau5); */
+  /*   } else if (d == 1) { */
+  /*     a0 = (-RCONST(60.0)*tau + RCONST(330.0)*tau2 -  */
+  /* 	    RCONST(540.0)*tau3 + RCONST(270.0)*tau4)/h; */
+  /*     a1 = (RCONST(60.0)*tau - RCONST(330.0)*tau2 +  */
+  /* 	    RCONST(540.0)*tau3 - RCONST(270.0)*tau4)/h; */
+  /*     a2 = FOURTH*(FOUR - RCONST(52.0)*tau + RCONST(201.0)*tau2 -  */
+  /* 		   RCONST(288.0)*tau3 + RCONST(135.0)*tau4); */
+  /*     a3 = FOURTH*(-RCONST(26.0)*tau + RCONST(147.0)*tau2 -  */
+  /* 		   RCONST(252.0)*tau3 + RCONST(135.0)*tau4); */
+  /*     a4 = FOURTH*RCONST(27.0)*(-TWO*tau + RCONST(15.0)*tau2 -  */
+  /* 		      RCONST(28.0)*tau3 + RCONST(15.0)*tau4); */
+  /*     a5 = FOURTH*RCONST(27.0)*(-FOUR*tau + RCONST(21.0)*tau2 -  */
+  /* 		      RCONST(32.0)*tau3 + RCONST(15.0)*tau4); */
+  /*   } else if (d == 2) { */
+  /*     a0 = (-RCONST(60.0) + RCONST(660.0)*tau -  */
+  /* 	    RCONST(1620.0)*tau2 + RCONST(1080.0)*tau3)/h/h; */
+  /*     a1 = (RCONST(60.0) - RCONST(660.0)*tau +  */
+  /* 	    RCONST(1620.0)*tau2 - RCONST(1080.0)*tau3)/h/h; */
+  /*     a2 = FOURTH*(-RCONST(52+402.0)*tau - RCONST(864.0)*tau2 +  */
+  /* 		   RCONST(540.0)*tau3)/h; */
+  /*     a3 = FOURTH*(-RCONST(26.0) + RCONST(294.0)*tau -  */
+  /* 		   RCONST(756.0)*tau2 + RCONST(540.0)*tau3)/h; */
+  /*     a4 = FOURTH*RCONST(27.0)*(-TWO + RCONST(30.0)*tau -  */
+  /* 				RCONST(84.0)*tau2 + RCONST(60.0)*tau3)/h; */
+  /*     a5 = FOURTH*RCONST(27.0)*(-FOUR + RCONST(42.0)*tau -  */
+  /* 				RCONST(96.0)*tau2 + RCONST(60.0)*tau3)/h; */
+  /*   } else if (d == 3) { */
+  /*     a0 = (RCONST(660.0) - RCONST(3240.0)*tau + RCONST(3240.0)*tau2)/h/h/h; */
+  /*     a1 = (-RCONST(660.0) + RCONST(3240.0)*tau - RCONST(3240.0)*tau2)/h/h/h; */
+  /*     a2 = FOURTH*(RCONST(402.0) - RCONST(1728.0)*tau +  */
+  /* 		   RCONST(1620.0)*tau2)/h/h; */
+  /*     a3 = FOURTH*(RCONST(294.0) - RCONST(1512.0)*tau +  */
+  /* 		   RCONST(1620.0)*tau2)/h/h; */
+  /*     a4 = FOURTH*RCONST(27.0)*(RCONST(30.0) - RCONST(168.0)*tau +  */
+  /* 				RCONST(180.0)*tau2)/h/h; */
+  /*     a5 = FOURTH*RCONST(27.0)*(RCONST(42.0) - RCONST(192.0)*tau +  */
+  /* 				RCONST(180.0)*tau2)/h/h; */
+  /*   } else if (d == 4) { */
+  /*     a0 = (-RCONST(3240.0) + RCONST(6480.0)*tau)/h/h/h/h; */
+  /*     a1 = (RCONST(3240.0) - RCONST(6480.0)*tau)/h/h/h/h; */
+  /*     a2 = (-RCONST(432.0) + RCONST(810.0)*tau)/h/h/h; */
+  /*     a3 = (-RCONST(378.0) + RCONST(810.0)*tau)/h/h/h; */
+  /*     a4 = RCONST(27.0)*(-RCONST(42.0) + RCONST(90.0)*tau)/h/h/h; */
+  /*     a5 = RCONST(27.0)*(-RCONST(48.0) + RCONST(90.0)*tau)/h/h/h; */
+  /*   } else {  /\* d == 5 *\/ */
+  /*     a0 = RCONST(6480.0)/h/h/h/h/h; */
+  /*     a1 = -RCONST(6480.0)/h/h/h/h/h; */
+  /*     a2 = RCONST(810.0)/h/h/h/h; */
+  /*     a3 = RCONST(810.0)/h/h/h/h; */
+  /*     a4 = RCONST(2430.0)/h/h/h/h; */
+  /*     a5 = RCONST(2430.0)/h/h/h/h; */
+  /*   } */
+  /*   N_VLinearSum(a0, ark_mem->ark_yold, a1, ark_mem->ark_ynew, yout); */
+  /*   N_VLinearSum(a2, ark_mem->ark_fold, ONE, yout, yout); */
+  /*   N_VLinearSum(a3, ark_mem->ark_fnew, ONE, yout, yout); */
+  /*   N_VLinearSum(a4, fa, ONE, yout, yout); */
+  /*   N_VLinearSum(a5, fb, ONE, yout, yout); */
+  /*   break; */
 
   default:
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkInterpEvaluate",
