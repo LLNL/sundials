@@ -2034,18 +2034,20 @@ static int arkStep_NlsResidual(N_Vector zcor, N_Vector r, void* arkode_mem)
   implicit ODE RHS vector to compute the iteration function g.
 
   At the ith stage, we compute the fixed-point iteration vector:
-     g = z - z + yn + h*sum_{j=0}^{i-1} Ae(i,j)*Fe(j)
-                     + h*sum_{j=0}^{i} Ai(i,j)*Fi(j)
-     g = z - zp - zc + yn + h*sum_{j=0}^{i-1} Ae(i,j)*Fe(j)
+     g(zc) = zc - zc + yn + h*sum_{j=0}^{i-1} Ae(i,j)*Fe(j)
                           + h*sum_{j=0}^{i} Ai(i,j)*Fi(j)
-     g = (zp + gamma*Fi(z)) + (yn - zp + data)
+  <=>
+     g(zc) = yn + h*sum_{j=0}^{i-1} Ae(i,j)*Fe(j)
+                + h*sum_{j=0}^{i} Ai(i,j)*Fi(j)
+  <=>
+     g = gamma*Fi(z) + (yn - zp + data)
   where the current stage solution z = zp + zc, and where
      zc is stored in the input, zcor
      (yn-zp+data) is stored in step_mem->sdata,
   so we really just compute:
-     z = zp + zc (stored in ark_mem->ycur)
-     Fi(z) (stored step_mem->Fi[step_mem->istage])
-     g = zp + gamma*Fi(z) + step_mem->sdata
+     z = zp + zc (store in ark_mem->ycur)
+     Fi(z) (store step_mem->Fi[step_mem->istage])
+     g = gamma*Fi(z) + step_mem->sdata
 ---------------------------------------------------------------*/
 static int arkStep_NlsFPFunction(N_Vector zcor, N_Vector g,
                                  void* arkode_mem)
@@ -2054,8 +2056,6 @@ static int arkStep_NlsFPFunction(N_Vector zcor, N_Vector g,
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   int retval;
-  realtype c[3];
-  N_Vector X[3];
 
   /* access ARKodeARKStepMem structure */
   if (arkode_mem==NULL) {
@@ -2082,15 +2082,9 @@ static int arkStep_NlsFPFunction(N_Vector zcor, N_Vector g,
   if (retval < 0) return(ARK_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);
 
-  /* combine parts:  g = zp + sdata + gamma*Fi(z) */
-  c[0] = ONE;
-  X[0] = step_mem->zpred;
-  c[1] = ONE;
-  X[1] = step_mem->sdata;
-  c[2] = step_mem->gamma;
-  X[2] = step_mem->Fi[step_mem->istage];
-  retval = N_VLinearCombination(3, c, X, g);
-  if (retval != 0)  return(ARK_VECTOROP_ERR);
+  /* combine parts:  g = sdata + gamma*Fi(z) */
+  N_VLinearSum(ONE, step_mem->sdata, step_mem->gamma,
+               step_mem->Fi[step_mem->istage], g);
   return(ARK_SUCCESS);
 }
 
@@ -3254,9 +3248,9 @@ int arkStep_AndersonAcc(ARKodeMem ark_mem, N_Vector gval,
   i_pt = iter-1 - ((iter-1)/maa)*maa;
   N_VLinearSum(ONE, gval, -ONE, xold, fv);
   if (iter > 0) {
-    /* compute dg_new = gval - gval_old*/
+    /* compute dg_new = gval - gold*/
     N_VLinearSum(ONE, gval, -ONE, gold, dg[i_pt]);
-    /* compute df_new = fval - fval_old */
+    /* compute df_new = fv - fold */
     N_VLinearSum(ONE, fv, -ONE, fold, df[i_pt]);
   }
 
