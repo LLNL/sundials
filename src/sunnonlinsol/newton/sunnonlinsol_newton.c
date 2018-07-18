@@ -199,12 +199,15 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
       /* increment number of nonlinear solver iterations */
       NEWTON_CONTENT(NLS)->niters++;
 
+      /* compute the negative of the residual for the linear system rhs */
+      N_VScale(-ONE, delta, delta);
+
       /* solve the linear system to get correction vector delta */
       retval = NEWTON_CONTENT(NLS)->LSolve(y, delta, mem);
       if (retval != SUN_NLS_SUCCESS) break;
 
       /* apply delta to y */
-      N_VLinearSum(ONE, y, -ONE, delta, y);
+      N_VLinearSum(ONE, y, ONE, delta, y);
 
       /* test for convergence */
       retval = NEWTON_CONTENT(NLS)->CTest(NLS, y, delta, tol, w, mem);
