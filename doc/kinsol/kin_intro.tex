@@ -111,6 +111,10 @@ interfacing the solver to applications written in {\F}.
 
 \subsection*{Changes in v3.1.2}
 
+Fixed Windows specific problem where \id{sunindextype} was not correctly 
+defined when using 64-bit integers for the sundials index type. On Windows
+\id{sunindextype} is now defined as the MSVC basic type \id{\_\_int64}.
+
 Updated the minimum required version of CMake to 2.8.12 and enabled
 using rpath by default to locate shared libraries on OSX.
 
