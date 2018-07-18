@@ -51,6 +51,8 @@ extern "C" {
 
 /* Default KLU solver parameters */
 #define SUNKLU_ORDERING_DEFAULT  1    /* COLAMD */
+#define SUNKLU_REINIT_FULL       1
+#define SUNKLU_REINIT_PARTIAL    2
 
 /* Interfaces to match 'sunindextype' with the correct KLU types/functions */
 #if defined(SUNDIALS_INT64_T)
@@ -142,18 +144,18 @@ typedef struct _SUNLinearSolverContent_KLU *SUNLinearSolverContent_KLU;
  *      The reinit_type argument governs the level of 
  *      reinitialization:
  *
- *      reinit_type = 1: The Jacobian matrix will be destroyed and 
- *                       a new one will be allocated based on the 
- *                       nnz value passed to this call. New 
- *                       symbolic and numeric factorizations will 
- *                       be completed at the next solver setup.
+ *      reinit_type = SUNKLU_REINIT_FULL
+ *         The Jacobian matrix will be destroyed and a new one will 
+ *         be allocated based on the nnz value passed to this call. 
+ *         New symbolic and numeric factorizations will be 
+ *         completed at the next solver setup.
  *
- *      reinit_type = 2: Only symbolic and numeric factorizations 
- *                       will be completed.  It is assumed that the 
- *                       Jacobian size has not exceeded the size of 
- *                       nnz given in the sparse matrix provided to
- *                       the original constructor routine (or the 
- *                       previous SUNKLUReInit call) 
+ *      reinit_type = SUNKLU_REINIT_PARTIAL
+ *          Only symbolic and numeric factorizations will be 
+ *          completed.  It is assumed that the Jacobian size has not 
+ *          exceeded the size of nnz given in the sparse matrix 
+ *          provided tothe original constructor routine (or the 
+ *          previous SUNKLUReInit call) 
  *
  *      This routine assumes no other changes to solver use are 
  *      necessary.

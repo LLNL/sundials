@@ -3,6 +3,19 @@ Changes to SUNDIALS since Release of May. 7, 2018.
 * Updated the minimum required version of CMake to 2.8.12 and enabled
   using rpath by default to locate shared libraries on OSX.
 
+* The misnamed function CVSpilsSetJacTimesSetupFnBS in cvodes has been deprecated
+  and replaced by CVSpilsSetJacTimesBS. The deprecated function
+  CVSpilsSetJacTimesSetupFnBS will be removed in the next major release.
+
+* Added sparse SUNMatrix "Reallocate" routine to allow specification
+  of the nonzero storage.
+
+* Updated the KLU SUNLinearSolver module to set constants for the two
+  reinitialization types, and fixed a bug in the full reinitialization
+  approach where the sparse SUNMatrix pointer would go out of scope on
+  some architectures.
+  
+
 Changes to SUNDIALS since Release of Nov. 7, 2017.
 
 * Fixed a minor bug in the CVODE and CVODES cvSLdet routine, where a
