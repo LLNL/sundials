@@ -101,6 +101,16 @@ in extended {\F}.
 
 \subsection*{Changes in v3.1.2}
 
+Added the following examples from the usage notes page of the SUNDIALS website,
+and updated them to work with SUNDIALS 3.x:
+\begin{itemize}
+\item \id{cvDisc\_dns.c}, which demonstrates using CVODE with 
+  discontinuous solutions or RHS.
+\item \id{cvRoberts\_dns\_negsol.c}, which illustrates the 
+  use of the RHS function return value to control unphysical negative
+  concentrations.
+\end{itemize}
+
 Updated the minimum required version of CMake to 2.8.12 and enabled
 using rpath by default to locate shared libraries on OSX.
 
