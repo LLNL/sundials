@@ -70,6 +70,8 @@ $tar $tarfile $distrobase/examples/cvode/serial/cvAdvDiff_bndL.out
 $tar $tarfile $distrobase/examples/cvode/serial/cvAdvDiff_bnd.out
 $tar $tarfile $distrobase/examples/cvode/serial/cvDirectDemo_ls.c
 $tar $tarfile $distrobase/examples/cvode/serial/cvDirectDemo_ls.out
+$tar $tarfile $distrobase/examples/cvode/serial/cvDisc_dns.c
+$tar $tarfile $distrobase/examples/cvode/serial/cvDisc_dns.out
 $tar $tarfile $distrobase/examples/cvode/serial/cvDiurnal_kry_bp.c
 $tar $tarfile $distrobase/examples/cvode/serial/cvDiurnal_kry_bp.out
 $tar $tarfile $distrobase/examples/cvode/serial/cvDiurnal_kry.c
@@ -84,6 +86,8 @@ $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dnsL.out
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dns.out
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dns_uw.c
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dns_uw.out
+$tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dns_negsol.c
+$tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dns_negsol.out
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_klu.c
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_klu.out
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_sps.c
