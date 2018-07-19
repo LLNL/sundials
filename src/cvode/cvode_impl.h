@@ -446,12 +446,6 @@ int cvNlsInit(CVodeMem cv_mem);
 int cvNlsFree(CVodeMem cv_mem);
 
 int cvNlsFunctional(CVodeMem cv_mem);
-int cvNlsNewton(CVodeMem cv_mem,
-                N_Vector y0,
-                N_Vector y,
-                N_Vector ewt,
-                realtype tol,
-                booleantype callLSetup);
 
 /*
  * =================================================================
