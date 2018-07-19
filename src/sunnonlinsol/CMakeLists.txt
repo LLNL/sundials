@@ -17,3 +17,4 @@
 # Always add SUNDIALS provided nonlinear solver modules
 add_subdirectory(newton)
 add_subdirectory(full_newton)
+add_subdirectory(fixedpoint)
