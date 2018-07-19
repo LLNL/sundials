@@ -43,7 +43,8 @@
 #define SUN_NLS_CONV_RECVR +2  /* convergece failure, try to recover */
 
 /* private functions */
-static int cvNls_Res(N_Vector y, N_Vector res, void* cvode_mem);
+static int cvNls_Res(N_Vector ycor, N_Vector res, void* cvode_mem);
+static int cvNls_FP(N_Vector ycor, N_Vector res, void* cvode_mem);
 
 static int cvNls_LSetup(N_Vector ycor, N_Vector res, booleantype jbad,
                         booleantype* jcur, void* cvode_mem);
@@ -92,7 +93,7 @@ int CVodeSetNonlinearSolver(void *cvode_mem, SUNNonlinearSolver NLS)
   /* set SUNNonlinearSolver pointer */
   cv_mem->NLS = NLS;
 
-  /* set the nonlinear residual function */
+  /* set the nonlinear system function */
   if (SUNNonlinSolGetType(NLS) == SUNNONLINEARSOLVER_ROOTFIND) {
     retval = SUNNonlinSolSetSysFn(cv_mem->NLS, cvNls_Res);
     if (retval != CV_SUCCESS) {
@@ -101,8 +102,7 @@ int CVodeSetNonlinearSolver(void *cvode_mem, SUNNonlinearSolver NLS)
       return(CV_ILL_INPUT);
     }
   } else if (SUNNonlinSolGetType(NLS) ==  SUNNONLINEARSOLVER_STATIONARY) {
-    /* >>>>>>> NEED TO UPDATE FOR FIXED POINT <<<<<<< */
-    retval = SUNNonlinSolSetSysFn(cv_mem->NLS, cvNls_Res);
+    retval = SUNNonlinSolSetSysFn(cv_mem->NLS, cvNls_FP);
     if (retval != CV_SUCCESS) {
       cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVSetNonlinearSolver",
                      "Setting nonlinear system function failed");
@@ -113,8 +113,6 @@ int CVodeSetNonlinearSolver(void *cvode_mem, SUNNonlinearSolver NLS)
                    "Invalid nonlinear solver type");
     return(CV_ILL_INPUT);
   }
-
-
 
   /* set convergence test function */
   retval = SUNNonlinSolSetConvTestFn(cv_mem->NLS, cvNls_ConvTest);
@@ -285,83 +283,29 @@ static int cvNls_Res(N_Vector ycor, N_Vector res, void* cvode_mem)
 }
 
 
-/*
- * cvNlsFunctional
- *
- * This routine attempts to solve the nonlinear system using 
- * functional iteration (no matrices involved).
- *
- * Possible return values are:
- *
- *   CV_SUCCESS      --->  continue with error test
- *
- *   CV_RHSFUNC_FAIL --->  halt the integration
- *
- *   CONV_FAIL       -+
- *   RHSFUNC_RECVR   -+->  predict again or stop if too many
- *
- */
-
-int cvNlsFunctional(CVodeMem cv_mem)
+static int cvNls_FP(N_Vector ycor, N_Vector res, void* cvode_mem)
 {
-  int retval, m;
-  realtype del, delp, dcon;
+ CVodeMem cv_mem;
+  int retval;
 
-  /* Initialize counter and evaluate f at predicted y */
-  
-  cv_mem->cv_crate = ONE;
-  m = 0;
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "cvNls_Res", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
 
-  retval = cv_mem->cv_f(cv_mem->cv_tn, cv_mem->cv_zn[0],
-                        cv_mem->cv_tempv, cv_mem->cv_user_data);
+  /* update the state based on the current correction */
+  N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, cv_mem->cv_y);
+
+  /* evaluate the rhs function */
+  retval = cv_mem->cv_f(cv_mem->cv_tn, cv_mem->cv_y, res,
+                        cv_mem->cv_user_data);
   cv_mem->cv_nfe++;
   if (retval < 0) return(CV_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);
 
-  N_VConst(ZERO, cv_mem->cv_acor);
+  N_VLinearSum(cv_mem->cv_h, res, -ONE, cv_mem->cv_zn[1], res);
+  N_VScale(cv_mem->cv_rl1, res, res);
 
-  /* Initialize delp to avoid compiler warning message */
-  del = delp = ZERO;
-
-  /* Loop until convergence; accumulate corrections in acor */
-
-  for(;;) {
-
-    cv_mem->cv_nni++;
-
-    /* Correct y directly from the last f value */
-    N_VLinearSum(cv_mem->cv_h, cv_mem->cv_tempv, -ONE,
-                 cv_mem->cv_zn[1], cv_mem->cv_tempv);
-    N_VScale(cv_mem->cv_rl1, cv_mem->cv_tempv, cv_mem->cv_tempv);
-    N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, cv_mem->cv_tempv, cv_mem->cv_y);
-    /* Get WRMS norm of current correction to use in convergence test */
-    N_VLinearSum(ONE, cv_mem->cv_tempv, -ONE, cv_mem->cv_acor, cv_mem->cv_acor);
-    del = N_VWrmsNorm(cv_mem->cv_acor, cv_mem->cv_ewt);
-    N_VScale(ONE, cv_mem->cv_tempv, cv_mem->cv_acor);
-    
-    /* Test for convergence.  If m > 0, an estimate of the convergence
-       rate constant is stored in crate, and used in the test.        */
-    if (m > 0) cv_mem->cv_crate = SUNMAX(CRDOWN * cv_mem->cv_crate, del / delp);
-    dcon = del * SUNMIN(ONE, cv_mem->cv_crate) / cv_mem->cv_tq[4];
-    if (dcon <= ONE) {
-      cv_mem->cv_acnrm = (m == 0) ?
-        del : N_VWrmsNorm(cv_mem->cv_acor, cv_mem->cv_ewt);
-      return(CV_SUCCESS);  /* Convergence achieved */
-    }
-
-    /* Stop at maxcor iterations or if iter. seems to be diverging */
-    m++;
-    if ((m==cv_mem->cv_maxcor) || ((m >= 2) && (del > RDIV * delp)))
-      return(CONV_FAIL);
-
-    /* Save norm of correction, evaluate f, and loop again */
-    delp = del;
-
-    retval = cv_mem->cv_f(cv_mem->cv_tn, cv_mem->cv_y,
-                          cv_mem->cv_tempv, cv_mem->cv_user_data);
-    cv_mem->cv_nfe++;
-    if (retval < 0) return(CV_RHSFUNC_FAIL);
-    if (retval > 0) return(RHSFUNC_RECVR);
-
-  }
+  return(CV_SUCCESS);
 }

@@ -445,8 +445,6 @@ void cvErrHandler(int error_code, const char *module, const char *function,
 int cvNlsInit(CVodeMem cv_mem);
 int cvNlsFree(CVodeMem cv_mem);
 
-int cvNlsFunctional(CVodeMem cv_mem);
-
 /*
  * =================================================================
  *   C V O D E    E R R O R    M E S S A G E S

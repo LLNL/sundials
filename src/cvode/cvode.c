@@ -34,6 +34,7 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 #include "sunnonlinsol/sunnonlinsol_newton.h"
+#include "sunnonlinsol/sunnonlinsol_fixedpoint.h"
 
 /*=================================================================*/
 /*             CVODE Private Constants                             */
@@ -478,6 +479,9 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
   /* >>>>>>> ADD ERROR CHECK <<<<<<< */
   if (cv_mem->cv_iter == CV_NEWTON) {
     NLS = SUNNonlinSol_Newton(y0);
+    retval = CVodeSetNonlinearSolver(cv_mem, NLS);
+  } else {
+    NLS = SUNNonlinSol_FixedPoint(y0, 0);
     retval = CVodeSetNonlinearSolver(cv_mem, NLS);
   }
 
@@ -1696,17 +1700,11 @@ static int cvInitialSetup(CVodeMem cv_mem)
   }
   
   /* Check if lsolve function exists (if needed) and call linit function (if it exists) */
-  if (cv_mem->cv_iter == CV_NEWTON) {
-    if (cv_mem->cv_lsolve == NULL) {
-      cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "cvInitialSetup", MSGCV_LSOLVE_NULL);
-      return(CV_ILL_INPUT);
-    }
-    if (cv_mem->cv_linit != NULL) {
-      ier = cv_mem->cv_linit(cv_mem);
-      if (ier != 0) {
-        cvProcessError(cv_mem, CV_LINIT_FAIL, "CVODE", "cvInitialSetup", MSGCV_LINIT_FAIL);
-        return(CV_LINIT_FAIL);
-      }
+  if (cv_mem->cv_linit != NULL) {
+    ier = cv_mem->cv_linit(cv_mem);
+    if (ier != 0) {
+      cvProcessError(cv_mem, CV_LINIT_FAIL, "CVODE", "cvInitialSetup", MSGCV_LINIT_FAIL);
+      return(CV_LINIT_FAIL);
     }
   }
 
@@ -2510,48 +2508,41 @@ static void cvSetTqBDF(CVodeMem cv_mem, realtype hsum, realtype alpha0,
  *
  * This routine attempts to solve the nonlinear system associated
  * with a single implicit step of the linear multistep method.
- * Depending on iter, it calls cvNlsFunctional or cvNlsNewton
- * to do the work.
  */
 
 static int cvNls(CVodeMem cv_mem, int nflag)
 {
   int flag = CV_SUCCESS;
-
   booleantype callSetup;
 
-  switch(cv_mem->cv_iter) {
-  case CV_FUNCTIONAL: 
-    flag = cvNlsFunctional(cv_mem);
-    break;
-  case CV_NEWTON:
-    /* Set flag convfail, input to lsetup for its evaluation decision */
+  /* Decide whether or not to call setup routine (if one exists) and */
+  /* set flag convfail (input to lsetup for its evaluation decision) */
+  if (cv_mem->cv_lsetup) {
     cv_mem->convfail = ((nflag == FIRST_CALL) || (nflag == PREV_ERR_FAIL)) ?
       CV_NO_FAILURES : CV_FAIL_OTHER;
 
-    /* Decide whether or not to call setup routine (if one exists) */
-    if (cv_mem->cv_lsetup) {
-      callSetup = (nflag == PREV_CONV_FAIL) || (nflag == PREV_ERR_FAIL) ||
-        (cv_mem->cv_nst == 0) ||
-        (cv_mem->cv_nst >= cv_mem->cv_nstlp + MSBP) ||
-        (SUNRabs(cv_mem->cv_gamrat-ONE) > DGMAX);
-    } else {
-      cv_mem->cv_crate = ONE;
-      callSetup = SUNFALSE;
-    }
+    callSetup = (nflag == PREV_CONV_FAIL) || (nflag == PREV_ERR_FAIL) ||
+      (cv_mem->cv_nst == 0) ||
+      (cv_mem->cv_nst >= cv_mem->cv_nstlp + MSBP) ||
+      (SUNRabs(cv_mem->cv_gamrat-ONE) > DGMAX);
+  } else {
+    cv_mem->cv_crate = ONE;
+    callSetup = SUNFALSE;
+  }
 
-    N_VConst(ZERO, cv_mem->cv_tempv);
+  /* initial guess for the correction to the predictor */
+  N_VConst(ZERO, cv_mem->cv_tempv);
 
-    flag = SUNNonlinSolSolve(cv_mem->NLS, cv_mem->cv_tempv, cv_mem->cv_acor, cv_mem->cv_ewt,
+  /* solve the nonlinear system */
+  flag = SUNNonlinSolSolve(cv_mem->NLS, cv_mem->cv_tempv, cv_mem->cv_acor, cv_mem->cv_ewt,
                              cv_mem->cv_tq[4], callSetup, cv_mem);
 
-    N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, cv_mem->cv_acor, cv_mem->cv_y);
+  /* update the state based on the final correction from the nonlinear solve */
+  N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, cv_mem->cv_acor, cv_mem->cv_y);
 
-    if (flag == CV_SUCCESS)
-      cv_mem->cv_jcur = SUNFALSE;
-
-    break;
-  }
+  /* if solve succeeded update Jacobian status */
+  if (flag == CV_SUCCESS)
+    cv_mem->cv_jcur = SUNFALSE;
 
   return(flag);
 }

@@ -72,6 +72,7 @@ SET(sunlinsol_SOURCES
 # which will also be included in the IDA library
 SET(sunnonlinsol_SOURCES
   ${sundials_SOURCE_DIR}/src/sunnonlinsol/newton/sunnonlinsol_newton.c
+  ${sundials_SOURCE_DIR}/src/sunnonlinsol/fixedpoint/sunnonlinsol_fixedpoint.c ## >>>>>>> REMOVE
   )
 
 # Add variable cvode_HEADERS with the exported CVODE header files
