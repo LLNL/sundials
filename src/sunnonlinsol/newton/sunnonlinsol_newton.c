@@ -39,7 +39,7 @@ SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y)
 
   /* Check that the supplied N_Vector is non-NULL */
   if (y == NULL) return(NULL);
-  
+
   /* Check that the supplied N_Vector supports all required operations */
   if ( (y->ops->nvclone     == NULL) ||
        (y->ops->nvdestroy   == NULL) ||
@@ -52,7 +52,7 @@ SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y)
   NLS = NULL;
   NLS = (SUNNonlinearSolver) malloc(sizeof *NLS);
   if (NLS == NULL) return(NULL);
-  
+
   /* Create linear solver operation structure */
   ops = NULL;
   ops = (SUNNonlinearSolver_Ops) malloc(sizeof *ops);
@@ -87,7 +87,7 @@ SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y)
   content->mnewt    = 0;
   content->maxiters = 3;
   content->niters   = 0;
-  
+
   /* check if clone was successful */
   if (content->delta == NULL) { free(ops); free(NLS); return(NULL); }
 
@@ -257,6 +257,7 @@ int SUNNonlinSolFree_Newton(SUNNonlinearSolver NLS)
 
     if (NEWTON_CONTENT(NLS)->delta)
       N_VDestroy(NEWTON_CONTENT(NLS)->delta);
+    NEWTON_CONTENT(NLS)->delta = NULL;
 
     free(NLS->content);
     NLS->content = NULL;
@@ -270,7 +271,6 @@ int SUNNonlinSolFree_Newton(SUNNonlinearSolver NLS)
 
   /* free the nonlinear solver */
   free(NLS);
-  NLS = NULL;
 
   return(SUN_NLS_SUCCESS);
 }

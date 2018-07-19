@@ -49,6 +49,8 @@ int SUNNonlinSolSolve(SUNNonlinearSolver NLS,
 int SUNNonlinSolFree(SUNNonlinearSolver NLS)
 {
   if (NLS == NULL) return(SUN_NLS_SUCCESS);
+  if (NLS->ops == NULL) return(SUN_NLS_SUCCESS);
+  if (NLS->ops->free == NULL) return(SUN_NLS_SUCCESS);
   return(NLS->ops->free(NLS));
 }
 
