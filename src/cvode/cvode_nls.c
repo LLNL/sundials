@@ -46,10 +46,10 @@ static int cvNlsRes(N_Vector y, N_Vector res, void* cvode_mem);
 static N_Vector delta;
 static booleantype jcur;
 
-static int cvNls_LSetup(N_Vector y, N_Vector res, booleantype jbad,
+static int cvNls_LSetup(N_Vector ycor, N_Vector res, booleantype jbad,
                         booleantype* jcur, void* cvode_mem);
-static int cvNls_LSolve(N_Vector y, N_Vector delta, void* cvode_mem);
-static int cvNls_ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
+static int cvNls_LSolve(N_Vector ycor, N_Vector delta, void* cvode_mem);
+static int cvNls_ConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del,
                           realtype tol, N_Vector ewt, void* cvode_mem);
 
 /* -----------------------------------------------------------------------------
@@ -73,11 +73,10 @@ int cvNlsFree(CVodeMem cvode_mem)
 }
 
 
-static int cvNls_LSetup(N_Vector y, N_Vector res, booleantype jbad,
+static int cvNls_LSetup(N_Vector ycor, N_Vector res, booleantype jbad,
                         booleantype* jcur, void* cvode_mem)
 {
   CVodeMem cv_mem;
-  N_Vector vtemp1, vtemp2, vtemp3;
   int      retval;
 
   if (cvode_mem == NULL) {
@@ -86,17 +85,13 @@ static int cvNls_LSetup(N_Vector y, N_Vector res, booleantype jbad,
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  vtemp1 = cv_mem->cv_acor;  /* rename acor as vtemp1 for readability  */
-  vtemp2 = cv_mem->cv_y;     /* rename y as vtemp2 for readability     */
-  vtemp3 = cv_mem->cv_tempv; /* rename tempv as vtemp3 for readability */
-
   /* if the nonlinear solver marked the Jacobian as bad update convfail */
   if (jbad)
     cv_mem->convfail = CV_FAIL_BAD_J;
 
   /* setup the linear solver */
-  retval = cv_mem->cv_lsetup(cv_mem, cv_mem->convfail, y, cv_mem->cv_ftemp,
-                             &(cv_mem->cv_jcur), vtemp1, vtemp2, vtemp3);
+  retval = cv_mem->cv_lsetup(cv_mem, cv_mem->convfail, cv_mem->cv_y, cv_mem->cv_ftemp, &(cv_mem->cv_jcur),
+                             cv_mem->cv_vtemp1, cv_mem->cv_vtemp2, cv_mem->cv_vtemp3);
   cv_mem->cv_nsetups++;
 
   /* update Jacobian status */
@@ -113,7 +108,7 @@ static int cvNls_LSetup(N_Vector y, N_Vector res, booleantype jbad,
 }
 
 
-static int cvNls_LSolve(N_Vector y, N_Vector delta, void* cvode_mem)
+static int cvNls_LSolve(N_Vector ycor, N_Vector delta, void* cvode_mem)
 {
   CVodeMem cv_mem;
   int      retval;
@@ -124,7 +119,7 @@ static int cvNls_LSolve(N_Vector y, N_Vector delta, void* cvode_mem)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  retval = cv_mem->cv_lsolve(cv_mem, delta, cv_mem->cv_ewt, y, cv_mem->cv_ftemp);
+  retval = cv_mem->cv_lsolve(cv_mem, delta, cv_mem->cv_ewt, cv_mem->cv_y, cv_mem->cv_ftemp);
 
   if (retval < 0) return(CV_LSOLVE_FAIL);
   if (retval > 0) return(SUN_NLS_CONV_RECVR);
@@ -133,7 +128,7 @@ static int cvNls_LSolve(N_Vector y, N_Vector delta, void* cvode_mem)
 }
 
 
-static int cvNls_ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector delta,
+static int cvNls_ConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector delta,
                           realtype tol, N_Vector ewt, void* cvode_mem)
 {
   CVodeMem cv_mem;
@@ -159,11 +154,10 @@ static int cvNls_ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector delta,
   if (m > 0) {
     cv_mem->cv_crate = SUNMAX(CRDOWN * cv_mem->cv_crate, del/delp);
   }
-  dcon = del * SUNMIN(ONE, cv_mem->cv_crate) / cv_mem->cv_tq[4];
+  dcon = del * SUNMIN(ONE, cv_mem->cv_crate) / tol;
 
   if (dcon <= ONE) {
-    cv_mem->cv_acnrm = (m==0) ?
-      del : N_VWrmsNorm(cv_mem->cv_acor, cv_mem->cv_ewt);
+    cv_mem->cv_acnrm = (m==0) ? del : N_VWrmsNorm(ycor, cv_mem->cv_ewt);
     return(CV_SUCCESS); /* Nonlinear system was solved successfully */
   }
 
@@ -288,17 +282,11 @@ int cvNlsNewton(CVodeMem cv_mem, N_Vector y0, N_Vector y, N_Vector ewt,
   int retval;
   booleantype jbad;
 
-  /* Looping point for the solution of the nonlinear system.
-     Evaluate f at the predicted y, call lsetup if indicated, and
-     call cvNewtonIteration for the Newton iteration itself.      */
-
+  /* assume the Jacobian is good */
   jbad = SUNFALSE;
 
   /* looping point for Jacobian/preconditioner setup attempts */
   for(;;) {
-
-    /* set acor to zero >>>>>>> TEMPORARY for acor residual <<<<<<< */
-    N_VConst(ZERO, cv_mem->cv_acor);
 
     /* compute the residual */
     retval = cvNlsRes(y0, delta, cv_mem);
@@ -316,9 +304,6 @@ int cvNlsNewton(CVodeMem cv_mem, N_Vector y0, N_Vector y, N_Vector ewt,
     /* load prediction into y */
     N_VScale(ONE, y0, y);
 
-    /* Set acor to zero >>>>>>> REMOVE LATER <<<<<<< */
-    N_VConst(ZERO, cv_mem->cv_acor);
-
     /* looping point for Newton iteration. Break out on any error. */
     for(;;) {
 
@@ -332,11 +317,8 @@ int cvNlsNewton(CVodeMem cv_mem, N_Vector y0, N_Vector y, N_Vector ewt,
       retval = cvNls_LSolve(y, delta, cv_mem);
       if (retval != CV_SUCCESS) break;
 
-      /* add correction to acor >>>>>>> REMOVE LATER <<<<<<< */
-      N_VLinearSum(ONE, cv_mem->cv_acor, ONE, delta, cv_mem->cv_acor);
-
-      /* apply correctionto y */
-      N_VLinearSum(ONE, y0, ONE, cv_mem->cv_acor, y);
+      /* apply correction */
+      N_VLinearSum(ONE, y, ONE, delta, y);
     
       /* test for convergence */
       retval = cvNls_ConvTest(cv_mem->NLS, y, delta, tol, ewt, cv_mem);
@@ -381,7 +363,7 @@ int cvNlsNewton(CVodeMem cv_mem, N_Vector y0, N_Vector y, N_Vector ewt,
 }
 
 
-static int cvNlsRes(N_Vector y, N_Vector res, void* cvode_mem)
+static int cvNlsRes(N_Vector ycor, N_Vector res, void* cvode_mem)
 {
   CVodeMem cv_mem;
   int retval;
@@ -392,21 +374,18 @@ static int cvNlsRes(N_Vector y, N_Vector res, void* cvode_mem)
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  retval = cv_mem->cv_f(cv_mem->cv_tn, y, cv_mem->cv_ftemp,
+  /* update the state based on the current correction */
+  N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, cv_mem->cv_y);
+
+  /* evaluate the rhs function */
+  retval = cv_mem->cv_f(cv_mem->cv_tn, cv_mem->cv_y, cv_mem->cv_ftemp,
                         cv_mem->cv_user_data);
   cv_mem->cv_nfe++;
   if (retval < 0) return(CV_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);
 
-  N_VLinearSum(cv_mem->cv_rl1, cv_mem->cv_zn[1], ONE, cv_mem->cv_acor, res);
+  N_VLinearSum(cv_mem->cv_rl1, cv_mem->cv_zn[1], ONE, ycor, res);
   N_VLinearSum(-cv_mem->cv_gamma, cv_mem->cv_ftemp, ONE, res, res);
 
-  /* compute the accumulated correction */
-  /* N_VLinearSum(ONE, y, -ONE, cv_mem->cv_zn[0], res); */
-
-  /* evaluate the residual of the nonlinear system */
-  /* N_VLinearSum(cv_mem->cv_rl1, cv_mem->cv_zn[1], ONE, res, res); */
-  /* N_VLinearSum(cv_mem->cv_gamma, cv_mem->cv_ftemp, -ONE, res, res); */
-
-  return(0);
+  return(CV_SUCCESS);
 }

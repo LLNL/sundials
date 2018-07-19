@@ -103,6 +103,9 @@ typedef struct CVodeMemRec {
                           this vector is scaled to give the est. local err.   */
   N_Vector cv_tempv;   /* temporary storage vector                            */
   N_Vector cv_ftemp;   /* temporary storage vector                            */
+  N_Vector cv_vtemp1;  /* temporary storage vector                            */
+  N_Vector cv_vtemp2;  /* temporary storage vector                            */
+  N_Vector cv_vtemp3;  /* temporary storage vector                            */
 
   /*-----------------
     Tstop information
