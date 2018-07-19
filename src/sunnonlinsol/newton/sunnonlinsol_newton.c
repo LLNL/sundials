@@ -159,6 +159,7 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
                              booleantype callLSetup, void* mem)
 {
   int retval;
+  booleantype jbad;
   N_Vector delta;
 
   /* check that the inputs are non-null */
@@ -172,6 +173,9 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
   /* shortcut to correction vector */
   delta = NEWTON_CONTENT(NLS)->delta;
 
+  /* assume the Jacobian is good */
+  jbad = SUNFALSE;
+
   /* looping point for Jacobian/preconditioner setup attempts */
   for(;;) {
 
@@ -181,7 +185,7 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
 
     /* if indicated, setup the linear system */
     if (callLSetup) {
-      retval = NEWTON_CONTENT(NLS)->LSetup(y0, delta,
+      retval = NEWTON_CONTENT(NLS)->LSetup(y0, delta, jbad,
                                            &(NEWTON_CONTENT(NLS)->jcur),
                                            mem);
       if (retval != SUN_NLS_SUCCESS) break;
@@ -199,12 +203,15 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
       /* increment number of nonlinear solver iterations */
       NEWTON_CONTENT(NLS)->niters++;
 
+      /* compute the negative of the residual for the linear system rhs */
+      N_VScale(-ONE, delta, delta);
+
       /* solve the linear system to get correction vector delta */
       retval = NEWTON_CONTENT(NLS)->LSolve(y, delta, mem);
       if (retval != SUN_NLS_SUCCESS) break;
 
       /* apply delta to y */
-      N_VLinearSum(ONE, y, -ONE, delta, y);
+      N_VLinearSum(ONE, y, ONE, delta, y);
 
       /* test for convergence */
       retval = NEWTON_CONTENT(NLS)->CTest(NLS, y, delta, tol, w, mem);
@@ -232,8 +239,13 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
     } /* end of Newton iteration loop */
 
     /* all errors go here */
+
+    /* If there is a recoverable convergence failure and the Jacobian-related
+       data appears not to be current, loop again with a call to lsetup in
+       which jbad is TRUE. Otherwise break out and return                     */
     if ((retval > 0) && !(NEWTON_CONTENT(NLS)->jcur) && (NEWTON_CONTENT(NLS)->LSetup)) {
       callLSetup = SUNTRUE;
+      jbad = SUNTRUE;
       continue;
     } else {
       break;

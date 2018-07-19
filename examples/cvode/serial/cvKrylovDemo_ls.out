@@ -55,8 +55,8 @@ c2 (bot.left/middle/top rt.) =    3.352e+11     9.107e+11     4.163e+11
 
 Final Statistics.. 
 
-lenrw   =  2089     leniw   =    50
-lenrwLS =  2450     leniwLS =    22
+lenrw   =  2689     leniw   =    53
+lenrwLS =  2456     leniwLS =    22
 nst     =   461
 nfe     =   598     nfeLS   =   636
 nni     =   594     nli     =   636
@@ -93,7 +93,7 @@ c1 (bot.left/middle/top rt.) =    1.404e+04     2.029e+04     1.561e+04
 c2 (bot.left/middle/top rt.) =    3.387e+11     4.894e+11     3.765e+11
 
 t = 4.32e+04   no. steps = 369   order = 4   stepsize = 5.46e+02
-c1 (bot.left/middle/top rt.) =   -6.042e-10    -6.057e-10    -5.365e-10
+c1 (bot.left/middle/top rt.) =   -6.037e-10    -6.053e-10    -5.358e-10
 c2 (bot.left/middle/top rt.) =    3.382e+11     1.355e+11     3.804e+11
 
 t = 5.04e+04   no. steps = 385   order = 4   stepsize = 3.19e+02
@@ -101,29 +101,29 @@ c1 (bot.left/middle/top rt.) =   -1.354e-14     1.127e-12    -4.255e-14
 c2 (bot.left/middle/top rt.) =    3.358e+11     4.930e+11     3.864e+11
 
 t = 5.76e+04   no. steps = 399   order = 5   stepsize = 5.96e+02
-c1 (bot.left/middle/top rt.) =    3.722e-14     6.444e-12     2.768e-14
+c1 (bot.left/middle/top rt.) =    3.721e-14     6.437e-12     2.771e-14
 c2 (bot.left/middle/top rt.) =    3.320e+11     9.650e+11     3.909e+11
 
 t = 6.48e+04   no. steps = 411   order = 5   stepsize = 5.96e+02
-c1 (bot.left/middle/top rt.) =   -3.190e-14     3.974e-12    -1.259e-13
+c1 (bot.left/middle/top rt.) =   -3.191e-14     3.975e-12    -1.260e-13
 c2 (bot.left/middle/top rt.) =    3.313e+11     8.922e+11     3.963e+11
 
 t = 7.20e+04   no. steps = 423   order = 5   stepsize = 5.96e+02
-c1 (bot.left/middle/top rt.) =   -4.212e-15    -1.602e-13     1.053e-15
+c1 (bot.left/middle/top rt.) =   -4.209e-15    -1.602e-13     1.053e-15
 c2 (bot.left/middle/top rt.) =    3.330e+11     6.186e+11     4.039e+11
 
 t = 7.92e+04   no. steps = 435   order = 5   stepsize = 5.96e+02
-c1 (bot.left/middle/top rt.) =   -3.763e-23    -1.366e-21     1.010e-23
+c1 (bot.left/middle/top rt.) =   -3.762e-23    -1.366e-21     1.010e-23
 c2 (bot.left/middle/top rt.) =    3.334e+11     6.669e+11     4.120e+11
 
 t = 8.64e+04   no. steps = 447   order = 5   stepsize = 5.96e+02
-c1 (bot.left/middle/top rt.) =   -9.994e-27    -1.865e-22    -1.580e-27
+c1 (bot.left/middle/top rt.) =   -9.999e-27    -1.866e-22    -1.581e-27
 c2 (bot.left/middle/top rt.) =    3.352e+11     9.107e+11     4.163e+11
 
 
 Final Statistics.. 
 
-lenrw   =  2089     leniw   =    50
+lenrw   =  2689     leniw   =    53
 lenrwLS =  2204     leniwLS =    21
 nst     =   447
 nfe     =   570     nfeLS   =   964
@@ -191,7 +191,7 @@ c2 (bot.left/middle/top rt.) =    3.352e+11     9.106e+11     4.163e+11
 
 Final Statistics.. 
 
-lenrw   =  2089     leniw   =    50
+lenrw   =  2689     leniw   =    53
 lenrwLS =  2604     leniwLS =    23
 nst     =   445
 nfe     =   559     nfeLS   =  1143

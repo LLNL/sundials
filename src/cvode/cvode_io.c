@@ -25,6 +25,8 @@
 
 #include "cvode_impl.h"
 #include <sundials/sundials_types.h>
+#include "sunnonlinsol/sunnonlinsol_newton.h"
+#include "sunnonlinsol/sunnonlinsol_fixedpoint.h"
 
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
@@ -89,6 +91,8 @@ int CVodeSetErrFile(void *cvode_mem, FILE *errfp)
 int CVodeSetIterType(void *cvode_mem, int iter)
 {
   CVodeMem cv_mem;
+  SUNNonlinearSolver NLS;
+  int retval;
 
   if (cvode_mem==NULL) {
     cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeSetIterType", MSGCV_NO_MEM);
@@ -103,6 +107,15 @@ int CVodeSetIterType(void *cvode_mem, int iter)
   }
 
   cv_mem->cv_iter = iter;
+
+  /* >>>>>>> REMOVE THIS Set ROUTINE, user should call nls set function <<<<<<< */
+  if (cv_mem->cv_iter == CV_NEWTON) {
+    NLS = SUNNonlinSol_Newton(cv_mem->cv_acor);
+    retval = CVodeSetNonlinearSolver(cv_mem, NLS);
+  } else {
+    NLS = SUNNonlinSol_FixedPoint(cv_mem->cv_acor, 0);
+    retval = CVodeSetNonlinearSolver(cv_mem, NLS);
+  }
 
   return(CV_SUCCESS);
 }
@@ -441,9 +454,12 @@ int CVodeSetMaxNonlinIters(void *cvode_mem, int maxcor)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  cv_mem->cv_maxcor = maxcor;
+  if (cv_mem->NLS == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeSetMaxNonlinIters", MSGCV_NO_MEM);
+    return (CV_MEM_NULL);
+  }
 
-  return(CV_SUCCESS);
+  return(SUNNonlinSolSetMaxIters(cv_mem->NLS, maxcor));
 }
 
 /* 
@@ -963,9 +979,12 @@ int CVodeGetNumNonlinSolvIters(void *cvode_mem, long int *nniters)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nniters = cv_mem->cv_nni;
+  if (cv_mem->NLS == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeGetNumNonlinSolvIters", MSGCV_NO_MEM);
+    return (CV_MEM_NULL);
+  }
 
-  return(CV_SUCCESS);
+  return(SUNNonlinSolGetNumIters(cv_mem->NLS, nniters));
 }
 
 /* 
@@ -1009,7 +1028,11 @@ int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters,
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nniters = cv_mem->cv_nni;
+  if (cv_mem->NLS == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeGetNonlinSolvStats", MSGCV_NO_MEM);
+    return (CV_MEM_NULL);
+  }
+  SUNNonlinSolGetNumIters(cv_mem->NLS, nniters);
   *nncfails = cv_mem->cv_ncfn;
 
   return(CV_SUCCESS);

@@ -103,6 +103,9 @@ typedef struct CVodeMemRec {
                           this vector is scaled to give the est. local err.   */
   N_Vector cv_tempv;   /* temporary storage vector                            */
   N_Vector cv_ftemp;   /* temporary storage vector                            */
+  N_Vector cv_vtemp1;  /* temporary storage vector                            */
+  N_Vector cv_vtemp2;  /* temporary storage vector                            */
+  N_Vector cv_vtemp3;  /* temporary storage vector                            */
 
   /*-----------------
     Tstop information
@@ -190,6 +193,14 @@ typedef struct CVodeMemRec {
   sunindextype cv_liw1;        /* no. of integer words in 1 N_Vector              */ 
   long int cv_lrw;             /* no. of realtype words in CVODE work vectors     */
   long int cv_liw;             /* no. of integer words in CVODE work vectors      */
+
+  /*---------------------
+    Nonlinear Solver Data
+    ---------------------*/
+
+  SUNNonlinearSolver NLS;  /* Sundials generic nonlinear solver object */
+  int convfail;            /* flag to indicate when a Jacbian update may
+                              be needed */
 
   /*------------------
     Linear Solver Data 
@@ -429,6 +440,10 @@ void cvProcessError(CVodeMem cv_mem,
 
 void cvErrHandler(int error_code, const char *module, const char *function, 
 		  char *msg, void *data);
+
+/* Nonlinear solver functions */
+int cvNlsInit(CVodeMem cv_mem);
+int cvNlsFree(CVodeMem cv_mem);
 
 /*
  * =================================================================
