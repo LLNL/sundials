@@ -2707,6 +2707,7 @@ int ARKStepGetNumNonlinSolvIters(void *arkode_mem, long int *nniters)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  int retval;
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
@@ -2716,14 +2717,24 @@ int ARKStepGetNumNonlinSolvIters(void *arkode_mem, long int *nniters)
   }
   ark_mem = (ARKodeMem) arkode_mem;
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepGetNumNonlinSolvIters", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
   step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
 
   /* set output from step_mem */
-  *nniters = step_mem->nni;
+  if (step_mem->NLS) {
+    retval = SUNNonlinSolGetNumIters(step_mem->NLS, nniters);
+    if (retval != SUN_NLS_SUCCESS) {
+      arkProcessError(ark_mem, ARK_NLS_OP_ERR, "ARKode::ARKStep",
+                      "ARKStepGetNumNonlinSolvIters",
+                      "Error retrieving nniters from SUNNonlinearSolver");
+      return(ARK_NLS_OP_ERR);
+    }
+  } else {
+    *nniters = step_mem->nni;
+  }
 
   return(ARK_SUCCESS);
 }

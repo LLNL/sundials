@@ -836,6 +836,9 @@ char *arkGetReturnFlagName(long int flag)
   case ARK_NLS_SETUP_FAIL:
     sprintf(name,"ARK_NLS_SETUP_FAIL");
     break;
+  case ARK_NLS_OP_ERR:
+    sprintf(name,"ARK_NLS_OP_ERR");
+    break;
   default:
     sprintf(name,"NONE");
   }

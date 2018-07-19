@@ -787,6 +787,9 @@ void ARKStepPrintMem(void* arkode_mem, FILE* outfile)
   }
   step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
 
+  /* if outfile==NULL, set it to stdout */
+  if (outfile == NULL)  outfile = stdout;
+
   /* output data from main ARKode infrastructure */
   arkPrintMem(ark_mem, outfile);
 
@@ -1300,20 +1303,22 @@ int arkStep_Init(void* arkode_mem)
     }
   }
 
-  /* Check if lsolve function exists and call linit (if it exists) */
-  if (step_mem->implicit && !step_mem->use_fp) {
+  /* Check that lsolve function exists and (if needed) */
+  if (step_mem->implicit && !step_mem->use_fp && step_mem->NLS==NULL) {
     if (step_mem->lsolve == NULL) {
       arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
                       "arkStep_Init", MSG_ARK_LSOLVE_NULL);
       return(ARK_ILL_INPUT);
     }
-    if (step_mem->linit) {
-      ier = step_mem->linit(ark_mem);
-      if (ier != 0) {
-        arkProcessError(ark_mem, ARK_LINIT_FAIL, "ARKode::ARKStep",
-                        "arkStep_Init", MSG_ARK_LINIT_FAIL);
-        return(ARK_LINIT_FAIL);
-      }
+  }
+
+  /* Call linit (if it exists) */
+  if (step_mem->linit) {
+    ier = step_mem->linit(ark_mem);
+    if (ier != 0) {
+      arkProcessError(ark_mem, ARK_LINIT_FAIL, "ARKode::ARKStep",
+                      "arkStep_Init", MSG_ARK_LINIT_FAIL);
+      return(ARK_LINIT_FAIL);
     }
   }
 
@@ -1705,7 +1710,7 @@ int arkStep_TakeStep(void* arkode_mem)
 
           /* perform mass matrix solve */
           nflag = step_mem->msolve((void *) ark_mem, step_mem->sdata,
-                                      step_mem->nlscoef);
+                                   step_mem->nlscoef);
 
           /* check for convergence (on failure, h will have been modified) */
           kflag = arkStep_HandleNFlag(ark_mem, &nflag, &ncf);
@@ -1738,7 +1743,7 @@ int arkStep_TakeStep(void* arkode_mem)
       /*    store implicit RHS (value in Fi[is] is from preceding nonlinear iteration) */
       if (step_mem->implicit) {
         retval = step_mem->fi(ark_mem->tcur, ark_mem->ycur,
-                                 step_mem->Fi[is], ark_mem->user_data);
+                              step_mem->Fi[is], ark_mem->user_data);
         step_mem->nfi++;
         if (retval < 0)  return(ARK_RHSFUNC_FAIL);
         if (retval > 0)  return(ARK_UNREC_RHSFUNC_ERR);
@@ -1748,7 +1753,7 @@ int arkStep_TakeStep(void* arkode_mem)
             (already computed at first stage of purely explicit runs) */
       if (step_mem->explicit) {
           retval = step_mem->fe(ark_mem->tn + step_mem->Be->c[is]*ark_mem->h,
-                                   ark_mem->ycur, step_mem->Fe[is], ark_mem->user_data);
+                                ark_mem->ycur, step_mem->Fe[is], ark_mem->user_data);
           step_mem->nfe++;
           if (retval < 0)  return(ARK_RHSFUNC_FAIL);
           if (retval > 0)  return(ARK_UNREC_RHSFUNC_ERR);
@@ -1933,7 +1938,7 @@ int arkStep_NlsLSolve(N_Vector zcor, N_Vector b, void* arkode_mem)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
-  int retval;
+  int retval, nonlin_iter;
 
   /* access ARKodeARKStepMem structure */
   if (arkode_mem==NULL) {
@@ -1949,10 +1954,15 @@ int arkStep_NlsLSolve(N_Vector zcor, N_Vector b, void* arkode_mem)
   }
   step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
 
+  /* retrieve nonlinear solver iteration from module */
+  retval = SUNNonlinSolGetCurIter(step_mem->NLS, &nonlin_iter);
+  if (retval != SUN_NLS_SUCCESS)
+    return(ARK_NLS_OP_ERR);
+
   /* call linear solver interface, and handle return value */
   retval = step_mem->lsolve(ark_mem, b, ark_mem->tcur,
                             ark_mem->ycur, step_mem->Fi[step_mem->istage],
-                            step_mem->eRNrm, step_mem->mnewt);
+                            step_mem->eRNrm, nonlin_iter);
 
   if (retval < 0) return(ARK_LSOLVE_FAIL);
   if (retval > 0) return(retval);
@@ -2748,17 +2758,18 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
      use that; otherwise use a built-in routine */
   if (step_mem->NLS) {
 
-    /* Set interface 'convfail' flag, for eventual input to lsetup */
-    step_mem->convfail = ((nflag == FIRST_CALL) || (nflag == PREV_ERR_FAIL)) ?
-      ARK_NO_FAILURES : ARK_FAIL_OTHER;
-
-    /* Decide whether or not to call setup routine (if one exists) */
+    /* If a linear solver 'setup' is supplied:
+       Set interface 'convfail' flag, for eventual input to lsetup, and
+       Decide whether or not to call setup routine */
     if (step_mem->lsetup) {
+      step_mem->convfail = ((nflag == FIRST_CALL) || (nflag == PREV_ERR_FAIL)) ?
+        ARK_NO_FAILURES : ARK_FAIL_OTHER;
       callLSetup = (nflag == PREV_CONV_FAIL) || (nflag == PREV_ERR_FAIL) ||
         (ark_mem->firststage) || (step_mem->msbp < 0) ||
         (ark_mem->nst >= step_mem->nstlp + abs(step_mem->msbp)) ||
         (SUNRabs(step_mem->gamrat-ONE) > step_mem->dgmax);
     } else {
+      step_mem->convfail = ARK_NO_FAILURES;
       step_mem->crate = ONE;
       callLSetup = SUNFALSE;
     }
