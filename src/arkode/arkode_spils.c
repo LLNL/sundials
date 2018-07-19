@@ -1674,7 +1674,10 @@ int arkSpilsSetup(void* arkode_mem, int convfail, realtype tpred,
     return(retval);
   }
 
-  /* Use nst, gamma/gammap, and convfail to set J/P eval. flag jok */
+  /* Use nst, gamma/gammap, and convfail to set J/P eval. flag jok;
+     Note: the "ARK_FAIL_BAD_J" test is asking whether the nonlinear
+     solver converged due to a bad system Jacobian AND our gamma was
+     fine, indicating that the J and/or P were invalid */
   arkspils_mem->jbad = (ark_mem->nst == 0) ||
     (ark_mem->nst > arkspils_mem->nstlpre + ARKSPILS_MSBPRE) ||
     ((convfail == ARK_FAIL_BAD_J) && (!dgamma_fail)) ||
