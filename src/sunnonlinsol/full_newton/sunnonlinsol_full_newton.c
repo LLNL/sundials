@@ -156,6 +156,7 @@ int SUNNonlinSolSolve_FullNewton(SUNNonlinearSolver NLS,
 {
   int retval;
   booleantype jcur;
+  booleantype jbad;
   N_Vector delta;
 
   /* check that the inputs are non-null */
@@ -168,6 +169,9 @@ int SUNNonlinSolSolve_FullNewton(SUNNonlinearSolver NLS,
 
   /* initialize jcur */
   jcur = SUNFALSE;
+
+  /* assume the Jacobian is old */
+  jbad = SUNTRUE;
 
   /* shortcut to correction vector */
   delta = NEWTON_CONTENT(NLS)->delta;
@@ -190,7 +194,7 @@ int SUNNonlinSolSolve_FullNewton(SUNNonlinearSolver NLS,
 
     /* setup the linear system */
     if (NEWTON_CONTENT(NLS)->LSetup) {
-      retval = NEWTON_CONTENT(NLS)->LSetup(y, delta, &jcur, mem);
+      retval = NEWTON_CONTENT(NLS)->LSetup(y, delta, jbad, &jcur, mem);
       if (retval != SUN_NLS_SUCCESS) break;
     }
 

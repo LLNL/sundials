@@ -26,8 +26,8 @@
 
 /* private functions passed to nonlinear solver */
 static int IDANls_Res(N_Vector yy, N_Vector res, void* ida_mem);
-static int IDANls_LSetup(N_Vector yy, N_Vector res, booleantype* jcur,
-                         void* ida_mem);
+static int IDANls_LSetup(N_Vector yy, N_Vector res, booleantype jbad,
+                         booleantype* jcur, void* ida_mem);
 static int IDANls_LSolve(N_Vector yy, N_Vector delta, void* ida_mem);
 static int IDANls_ConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
                            realtype tol, N_Vector ewt, void* ida_mem);
@@ -153,8 +153,8 @@ int IDANlsInit(IDAMem IDA_mem)
 }
 
 
-static int IDANls_LSetup(N_Vector yy, N_Vector res, booleantype* jcur,
-                         void* ida_mem)
+static int IDANls_LSetup(N_Vector yy, N_Vector res, booleantype jbad,
+                         booleantype* jcur, void* ida_mem)
 {
   IDAMem   IDA_mem;
   N_Vector tempv3;

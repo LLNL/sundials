@@ -16,6 +16,7 @@
 
 #include "cvode_impl.h"
 #include "sundials/sundials_math.h"
+#include "sunnonlinsol/sunnonlinsol_newton.h"
 
 /* nonlinear solver constants */
 #define ZERO    RCONST(0.0)     /* real 0.0     */
@@ -27,6 +28,8 @@
 
 #define RDIV    TWO
 #define MSBP    20
+
+#define NLS_MAXCOR 3
 
 /* return values */
 #define CONV_FAIL        +4 
@@ -41,7 +44,7 @@
 #define SUN_NLS_CONV_RECVR +2  /* convergece failure, try to recover */
 
 /* private functions */
-static int cvNlsRes(N_Vector y, N_Vector res, void* cvode_mem);
+static int cvNls_Res(N_Vector y, N_Vector res, void* cvode_mem);
 
 static N_Vector delta;
 static booleantype jcur;
@@ -58,6 +61,21 @@ static int cvNls_ConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del,
 
 int cvNlsInit(CVodeMem cvode_mem)
 {
+  int retval;
+
+  if (cvode_mem->NLS)
+    retval = SUNNonlinSolFree(cvode_mem->NLS);
+
+  cvode_mem->NLS = SUNNonlinSol_Newton(cvode_mem->cv_acor);
+
+  retval = SUNNonlinSolSetSysFn(cvode_mem->NLS, cvNls_Res);
+  retval = SUNNonlinSolSetConvTestFn(cvode_mem->NLS, cvNls_ConvTest);
+  retval = SUNNonlinSolSetMaxIters(cvode_mem->NLS, NLS_MAXCOR);
+
+  retval = SUNNonlinSolSetLSetupFn(cvode_mem->NLS, cvNls_LSetup);
+  retval = SUNNonlinSolSetLSolveFn(cvode_mem->NLS, cvNls_LSolve);
+  retval = SUNNonlinSolInitialize(cvode_mem->NLS);
+
   delta = N_VClone(cvode_mem->cv_acor);
   jcur  = SUNFALSE;
 
@@ -90,8 +108,9 @@ static int cvNls_LSetup(N_Vector ycor, N_Vector res, booleantype jbad,
     cv_mem->convfail = CV_FAIL_BAD_J;
 
   /* setup the linear solver */
-  retval = cv_mem->cv_lsetup(cv_mem, cv_mem->convfail, cv_mem->cv_y, cv_mem->cv_ftemp, &(cv_mem->cv_jcur),
-                             cv_mem->cv_vtemp1, cv_mem->cv_vtemp2, cv_mem->cv_vtemp3);
+  retval = cv_mem->cv_lsetup(cv_mem, cv_mem->convfail, cv_mem->cv_y, cv_mem->cv_ftemp,
+                             &(cv_mem->cv_jcur), cv_mem->cv_vtemp1, cv_mem->cv_vtemp2,
+                             cv_mem->cv_vtemp3);
   cv_mem->cv_nsetups++;
 
   /* update Jacobian status */
@@ -132,7 +151,7 @@ static int cvNls_ConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector delta,
                           realtype tol, N_Vector ewt, void* cvode_mem)
 {
   CVodeMem cv_mem;
-  int m;
+  int m, retval;
   realtype del;
   realtype dcon;
   static realtype delp;
@@ -147,7 +166,8 @@ static int cvNls_ConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector delta,
   del = N_VWrmsNorm(delta, ewt);
 
   /* get the current nonlinear solver iteration count */
-  m = cv_mem->cv_mnewt;
+  retval = SUNNonlinSolGetCurIter(NLS, &m);
+  if (retval != CV_SUCCESS) return(CV_MEM_NULL);
 
   /* Test for convergence. If m > 0, an estimate of the convergence
      rate constant is stored in crate, and used in the test.        */
@@ -169,6 +189,34 @@ static int cvNls_ConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector delta,
 
   /* Not yet converged */
   return(SUN_NLS_CONTINUE);
+}
+
+
+static int cvNls_Res(N_Vector ycor, N_Vector res, void* cvode_mem)
+{
+  CVodeMem cv_mem;
+  int retval;
+
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "cvNls_Res", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* update the state based on the current correction */
+  N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, cv_mem->cv_y);
+
+  /* evaluate the rhs function */
+  retval = cv_mem->cv_f(cv_mem->cv_tn, cv_mem->cv_y, cv_mem->cv_ftemp,
+                        cv_mem->cv_user_data);
+  cv_mem->cv_nfe++;
+  if (retval < 0) return(CV_RHSFUNC_FAIL);
+  if (retval > 0) return(RHSFUNC_RECVR);
+
+  N_VLinearSum(cv_mem->cv_rl1, cv_mem->cv_zn[1], ONE, ycor, res);
+  N_VLinearSum(-cv_mem->cv_gamma, cv_mem->cv_ftemp, ONE, res, res);
+
+  return(CV_SUCCESS);
 }
 
 
@@ -289,7 +337,7 @@ int cvNlsNewton(CVodeMem cv_mem, N_Vector y0, N_Vector y, N_Vector ewt,
   for(;;) {
 
     /* compute the residual */
-    retval = cvNlsRes(y0, delta, cv_mem);
+    retval = cvNls_Res(y0, delta, cv_mem);
     if (retval != CV_SUCCESS) return(retval);
 
     /* if indicated, setup the linear system */
@@ -340,7 +388,7 @@ int cvNlsNewton(CVodeMem cv_mem, N_Vector y0, N_Vector y, N_Vector ewt,
       }
 
       /* evaluate the nonlinear residual and check return value */
-      retval = cvNlsRes(y, delta, cv_mem);
+      retval = cvNls_Res(y, delta, cv_mem);
       if (retval != CV_SUCCESS) break;
 
     } /* end of Newton iteration loop */
@@ -360,32 +408,4 @@ int cvNlsNewton(CVodeMem cv_mem, N_Vector y0, N_Vector y, N_Vector ewt,
 
   /* all error returns exit here */
   return(retval);
-}
-
-
-static int cvNlsRes(N_Vector ycor, N_Vector res, void* cvode_mem)
-{
-  CVodeMem cv_mem;
-  int retval;
-
-  if (cvode_mem == NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "cvNlsRes", MSGCV_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-  cv_mem = (CVodeMem) cvode_mem;
-
-  /* update the state based on the current correction */
-  N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, ycor, cv_mem->cv_y);
-
-  /* evaluate the rhs function */
-  retval = cv_mem->cv_f(cv_mem->cv_tn, cv_mem->cv_y, cv_mem->cv_ftemp,
-                        cv_mem->cv_user_data);
-  cv_mem->cv_nfe++;
-  if (retval < 0) return(CV_RHSFUNC_FAIL);
-  if (retval > 0) return(RHSFUNC_RECVR);
-
-  N_VLinearSum(cv_mem->cv_rl1, cv_mem->cv_zn[1], ONE, ycor, res);
-  N_VLinearSum(-cv_mem->cv_gamma, cv_mem->cv_ftemp, ONE, res, res);
-
-  return(CV_SUCCESS);
 }

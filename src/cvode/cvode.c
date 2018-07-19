@@ -2534,8 +2534,11 @@ static int cvNls(CVodeMem cv_mem, int nflag)
 
     N_VConst(ZERO, cv_mem->cv_tempv);
 
-    flag = cvNlsNewton(cv_mem, cv_mem->cv_tempv, cv_mem->cv_acor, cv_mem->cv_ewt,
-                       cv_mem->cv_tq[4], callSetup);
+    /* flag = cvNlsNewton(cv_mem, cv_mem->cv_tempv, cv_mem->cv_acor, cv_mem->cv_ewt, */
+    /*                    cv_mem->cv_tq[4], callSetup); */
+
+    flag = SUNNonlinSolSolve(cv_mem->NLS, cv_mem->cv_tempv, cv_mem->cv_acor, cv_mem->cv_ewt,
+                             cv_mem->cv_tq[4], callSetup, cv_mem);
 
     N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, cv_mem->cv_acor, cv_mem->cv_y);
 

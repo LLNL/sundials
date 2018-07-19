@@ -441,8 +441,15 @@ int CVodeSetMaxNonlinIters(void *cvode_mem, int maxcor)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  cv_mem->cv_maxcor = maxcor;
-
+  if (cv_mem->cv_iter == CV_NEWTON) {
+    if (cv_mem->NLS == NULL) {
+      cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeSetMaxNonlinIters", MSGCV_NO_MEM);
+      return (CV_MEM_NULL);
+    }
+    return(SUNNonlinSolSetMaxIters(cv_mem->NLS, maxcor));
+  } else {
+    cv_mem->cv_maxcor = maxcor;
+  }
   return(CV_SUCCESS);
 }
 
@@ -963,8 +970,15 @@ int CVodeGetNumNonlinSolvIters(void *cvode_mem, long int *nniters)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nniters = cv_mem->cv_nni;
-
+  if (cv_mem->cv_iter == CV_NEWTON) {
+    if (cv_mem->NLS == NULL) {
+      cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeGetNumNonlinSolvIters", MSGCV_NO_MEM);
+      return (CV_MEM_NULL);
+    }
+    return(SUNNonlinSolGetNumIters(cv_mem->NLS, nniters));
+  } else {
+    *nniters = cv_mem->cv_nni;
+  }
   return(CV_SUCCESS);
 }
 
@@ -1009,7 +1023,16 @@ int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters,
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nniters = cv_mem->cv_nni;
+  if (cv_mem->cv_iter == CV_NEWTON) {
+    if (cv_mem->NLS == NULL) {
+      cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeGetNonlinSolvStats", MSGCV_NO_MEM);
+      return (CV_MEM_NULL);
+    }
+    SUNNonlinSolGetNumIters(cv_mem->NLS, nniters);
+  } else {
+    *nniters = cv_mem->cv_nni;
+  }
+
   *nncfails = cv_mem->cv_ncfn;
 
   return(CV_SUCCESS);

@@ -38,6 +38,7 @@ SET(shared_SOURCES
   ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_matrix.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_linearsolver.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_nonlinearsolver.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_math.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_band.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_dense.c
@@ -67,6 +68,12 @@ SET(sunlinsol_SOURCES
   ${sundials_SOURCE_DIR}/src/sunlinsol_pcg/sunlinsol_pcg.c
   )
 
+# Add variable sunnonlinsol_SOURCES with the common SUNNonlinearSolver sources
+# which will also be included in the IDA library
+SET(sunnonlinsol_SOURCES
+  ${sundials_SOURCE_DIR}/src/sunnonlinsol/newton/sunnonlinsol_newton.c
+  )
+
 # Add variable cvode_HEADERS with the exported CVODE header files
 SET(cvode_HEADERS
   cvode.h
@@ -93,7 +100,8 @@ IF(BUILD_STATIC_LIBS)
 
   # Add the build target for the static CVODE library
   ADD_LIBRARY(sundials_cvode_static STATIC 
-    ${cvode_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES})
+    ${cvode_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES}
+    ${sunnonlinsol_SOURCES})
 
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_cvode_static
@@ -109,7 +117,8 @@ IF(BUILD_SHARED_LIBS)
 
   # Add the build target for the CVODE library
   ADD_LIBRARY(sundials_cvode_shared SHARED 
-    ${cvode_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES})
+    ${cvode_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES}
+    ${sunnonlinsol_SOURCES})
 
   IF(UNIX)
     TARGET_LINK_LIBRARIES(sundials_cvode_shared m)
