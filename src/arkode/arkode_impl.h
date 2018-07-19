@@ -364,8 +364,10 @@ typedef struct ARKodeMemRec {
   N_Vector ycur;    /* pointer to user-provided solution memory; used as
                        evolving solution by the timestepper modules      */
   N_Vector yn;      /* solution from the last successful step            */
-  N_Vector tempv1;  /* temporary storage vector                          */
-  N_Vector tempv2;
+  N_Vector tempv1;  /* temporary storage vectors (for local use and by   */
+  N_Vector tempv2;  /*    time-stepping modules) */
+  N_Vector tempv3;
+  N_Vector tempv4;
 
   /* Temporal interpolation module */
   ARKodeInterpMem interp;

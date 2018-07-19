@@ -246,13 +246,18 @@ int arkResize(ARKodeMem ark_mem, N_Vector y0, realtype hscale,
   ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
                      liw_diff, y0, &ark_mem->yn);
   if (ier != ARK_SUCCESS)  return(ier);
-  /*     tempv */
+  /*     tempv* */
   ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
                      liw_diff, y0, &ark_mem->tempv1);
   if (ier != ARK_SUCCESS)  return(ier);
-  /*     tempv2 */
   ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
                      liw_diff, y0, &ark_mem->tempv2);
+  if (ier != ARK_SUCCESS)  return(ier);
+  ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+                     liw_diff, y0, &ark_mem->tempv3);
+  if (ier != ARK_SUCCESS)  return(ier);
+  ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+                     liw_diff, y0, &ark_mem->tempv4);
   if (ier != ARK_SUCCESS)  return(ier);
 
 
@@ -1321,6 +1326,14 @@ void arkPrintMem(ARKodeMem ark_mem, FILE *outfile)
     fprintf(outfile, "ark_tempv2:\n");
     N_VPrint_Serial(ark_mem->tempv2);
   }
+  if (ark_mem->tempv3 != NULL) {
+    fprintf(outfile, "ark_tempv3:\n");
+    N_VPrint_Serial(ark_mem->tempv3);
+  }
+  if (ark_mem->tempv4 != NULL) {
+    fprintf(outfile, "ark_tempv4:\n");
+    N_VPrint_Serial(ark_mem->tempv4);
+  }
 #endif
 
 }
@@ -1455,15 +1468,14 @@ int arkResizeVec(ARKodeMem ark_mem, ARKVecResizeFn resize,
 /*---------------------------------------------------------------
   arkAllocVectors:
 
-  This routine allocates the ARKode vectors ewt, yn, tempv1,
-  tempv2 and ftemp.  If any of these vectors already exist, they
-  are left alone.  Otherwise, it will allocate each vector by
-  cloning the input vector. If all memory allocations are
-  successful, arkAllocVectors returns SUNTRUE. Otherwise all
-  vector memory is freed and arkAllocVectors returns SUNFALSE.
-  This routine also updates the optional outputs lrw and liw,
-  which are (respectively) the lengths of the real and integer
-  work spaces.
+  This routine allocates the ARKode vectors ewt, yn, tempv* and
+  ftemp.  If any of these vectors already exist, they are left
+  alone.  Otherwise, it will allocate each vector by cloning the
+  input vector. If all memory allocations are successful,
+  arkAllocVectors returns SUNTRUE. Otherwise all vector memory
+  is freed and arkAllocVectors returns SUNFALSE.  This routine
+  also updates the optional outputs lrw and liw, which are
+  (respectively) the lengths of the real and integer work spaces.
   ---------------------------------------------------------------*/
 booleantype arkAllocVectors(ARKodeMem ark_mem, N_Vector tmpl)
 {
@@ -1487,6 +1499,14 @@ booleantype arkAllocVectors(ARKodeMem ark_mem, N_Vector tmpl)
   if (!arkAllocVec(ark_mem, tmpl, &ark_mem->tempv2))
     return(SUNFALSE);
 
+  /* Allocate tempv3 if needed */
+  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->tempv3))
+    return(SUNFALSE);
+
+  /* Allocate tempv4 if needed */
+  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->tempv4))
+    return(SUNFALSE);
+
   return(SUNTRUE);
 }
 
@@ -1504,6 +1524,8 @@ void arkFreeVectors(ARKodeMem ark_mem)
     arkFreeVec(ark_mem, &ark_mem->rwt);
   arkFreeVec(ark_mem, &ark_mem->tempv1);
   arkFreeVec(ark_mem, &ark_mem->tempv2);
+  arkFreeVec(ark_mem, &ark_mem->tempv3);
+  arkFreeVec(ark_mem, &ark_mem->tempv4);
   arkFreeVec(ark_mem, &ark_mem->yn);
   arkFreeVec(ark_mem, &ark_mem->Vabstol);
 }
@@ -2474,6 +2496,11 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
   case ARK_MASSSOLVE_FAIL:
     arkProcessError(ark_mem, ARK_MASSSOLVE_FAIL, "ARKode", "ARKode",
                     MSG_ARK_MASSSOLVE_FAIL);
+    break;
+  case ARK_NLS_SETUP_FAIL:
+    arkProcessError(ark_mem, ARK_NLS_SETUP_FAIL, "ARKode", "ARKode",
+                    "At t = %Lg the nonlinear solver setup failed unrecoverably",
+                    (long double) ark_mem->tcur);
     break;
   default:
     return(ARK_SUCCESS);

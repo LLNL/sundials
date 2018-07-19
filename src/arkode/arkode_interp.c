@@ -79,12 +79,6 @@ ARKodeInterpMem arkInterpCreate(void* arkode_mem)
   if (!arkAllocVec(ark_mem, ark_mem->yn, &interp_mem->yold)) {
     arkInterpFree(&interp_mem); return(NULL);
   }
-  if (!arkAllocVec(ark_mem, ark_mem->yn, &interp_mem->fa)) {
-    arkInterpFree(&interp_mem); return(NULL);
-  }
-  if (!arkAllocVec(ark_mem, ark_mem->yn, &interp_mem->fb)) {
-    arkInterpFree(&interp_mem); return(NULL);
-  }
 
   /* set ynew pointer to ark_mem->yn */
   interp_mem->ynew = ark_mem->yn;
@@ -140,16 +134,6 @@ int arkInterpResize(void* arkode_mem, ARKodeInterpMem interp_mem,
                        liw_diff, y0, &interp_mem->yold);
     if (ier != ARK_SUCCESS)  return(ier);
   }
-  if (interp_mem->fa != NULL) {
-    ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                       liw_diff, y0, &interp_mem->fa);
-    if (ier != ARK_SUCCESS)  return(ier);
-  }
-  if (interp_mem->fb != NULL) {
-    ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                       liw_diff, y0, &interp_mem->fb);
-    if (ier != ARK_SUCCESS)  return(ier);
-  }
 
   /* update yold with current solution */
   N_VScale(ONE, y0, interp_mem->yold);
@@ -177,8 +161,6 @@ void arkInterpFree(ARKodeInterpMem *interp_mem)
     if ((*interp_mem)->fold != NULL) N_VDestroy((*interp_mem)->fold);
     if ((*interp_mem)->fnew != NULL) N_VDestroy((*interp_mem)->fnew);
     if ((*interp_mem)->yold != NULL) N_VDestroy((*interp_mem)->yold);
-    if ((*interp_mem)->fa   != NULL) N_VDestroy((*interp_mem)->fa);
-    if ((*interp_mem)->fb   != NULL) N_VDestroy((*interp_mem)->fb);
     free(*interp_mem);
   }
 }
@@ -213,14 +195,6 @@ void arkPrintInterpMem(ARKodeInterpMem interp_mem, FILE *outfile)
     if (interp_mem->ynew != NULL) {
       fprintf(outfile, "ark_interp: ynew:\n");
       N_VPrint_Serial(interp_mem->ynew);
-    }
-    if (interp_mem->fa != NULL) {
-      fprintf(outfile, "ark_interp: fa:\n");
-      N_VPrint_Serial(interp_mem->fa);
-    }
-    if (interp_mem->fb != NULL) {
-      fprintf(outfile, "ark_interp: fb:\n");
-      N_VPrint_Serial(interp_mem->fb);
     }
 #endif
   }
@@ -357,9 +331,8 @@ int arkInterpEvaluate(void* arkode_mem, ARKodeInterpMem interp,
 {
   /* local variables */
   int q, retval;
-  realtype tval, h, a0, a1, tau2, tau3, tau4, tau5;
-  realtype a[6];
-  N_Vector X[6];
+  realtype tval, h, a0, a1, tau2, tau3, tau4, tau5, a[6];
+  N_Vector fa, fb, X[6];
   ARKodeMem ark_mem;
 
   /* access ARKodeMem structure */
@@ -372,6 +345,10 @@ int arkInterpEvaluate(void* arkode_mem, ARKodeInterpMem interp,
   tau4 = tau*tau3;
   tau5 = tau*tau4;
   h = interp->h;
+
+  /* set shortcuts to ark_mem temporary vectors for fa and fb */
+  fa = ark_mem->tempv3;
+  fb = ark_mem->tempv4;
 
   /* determine polynomial order q */
   q = SUNMAX(order, 0);        /* respect lower bound  */
@@ -464,7 +441,7 @@ int arkInterpEvaluate(void* arkode_mem, ARKodeInterpMem interp,
 
     /* second, evaluate RHS at tau=1/3, storing the result in fa */
     tval = interp->told + h/THREE;
-    retval = ark_mem->step_fullrhs(ark_mem, tval, yout, interp->fa, 2);
+    retval = ark_mem->step_fullrhs(ark_mem, tval, yout, fa, 2);
     if (retval != 0)  return(ARK_RHSFUNC_FAIL);
 
     /* evaluate desired function */
@@ -503,7 +480,7 @@ int arkInterpEvaluate(void* arkode_mem, ARKodeInterpMem interp,
     X[1] = interp->ynew;
     X[2] = interp->fold;
     X[3] = interp->fnew;
-    X[4] = interp->fa;
+    X[4] = fa;
     retval = N_VLinearCombination(5, a, X, yout);
     if (retval != 0) return(ARK_VECTOROP_ERR);
     break;

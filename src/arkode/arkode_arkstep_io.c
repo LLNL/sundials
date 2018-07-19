@@ -588,6 +588,8 @@ int ARKStepSetDefaults(void* arkode_mem)
   step_mem->Be               = NULL;           /* no Butcher tables */
   step_mem->Bi               = NULL;
   step_mem->NLS              = NULL;           /* no nonlinear solver object */
+  step_mem->jcur             = SUNFALSE;
+  step_mem->convfail         = ARK_NO_FAILURES;
   return(ARK_SUCCESS);
 }
 
