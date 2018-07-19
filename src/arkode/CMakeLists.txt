@@ -80,6 +80,7 @@ SET(sunlinsol_SOURCES
 SET(sunnonlinsol_SOURCES
   ${sundials_SOURCE_DIR}/src/sunnonlinsol/newton/sunnonlinsol_newton.c
   ${sundials_SOURCE_DIR}/src/sunnonlinsol/full_newton/sunnonlinsol_full_newton.c
+  ${sundials_SOURCE_DIR}/src/sunnonlinsol/fixedpoint/sunnonlinsol_fixedpoint.c
   )
 
 # Add variable arkode_HEADERS with the exported ARKODE header files
