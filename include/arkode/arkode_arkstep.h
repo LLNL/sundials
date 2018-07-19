@@ -283,275 +283,194 @@ ARKodeButcherTable ARKStepLoadButcherTable(int imethod);
  The following functions can be called to set optional inputs
  to values other than the defaults given below.
 
- Function                 |  Optional input / [ default value ]
+ Function [ default value ], Description
 -----------------------------------------------------------------
- ARKStepSetDefaults       | resets all optional inputs to ARKStep
-                          | default values.  Does not change
-                          | problem-defining function pointers or
-                          | user_data pointer.  Also leaves alone
-                          | any data structures/options related
-                          | to root-finding (those can be reset
-                          | using ARKodeRootInit).
-                          | [internal]
-                          |
- ARKStepSetOptimalParams  | sets all adaptivity and solver
-                          | parameters to our 'best guess' values,
-                          | for a given integration method (ERK,
-                          | DIRK, ARK) and a given method order.
-                          | Should only be called after the method
-                          | order and integration method have been
-                          ! set.
-                          | [internal]
-                          |
- ARKStepSetOrder          | method order to be used by the solver.
-                          | [4]
-                          |
- ARKStepSetDenseOrder     | polynomial order to be used for dense
-                          | output.  Allowed values are between 0
-                          | and min(q,5) (where q is the order of
-                          | the integrator)
-                          | [3]
-                          |
- ARKStepSetErrHandlerFn   | user-provided ErrHandler function.
-                          | [internal]
-                          |
- ARKStepSetErrFile        | the file pointer for an error file
-                          | where all ARKStep warning and error
-                          | messages will be written if the
-                          | default internal error handling
-                          | function is used. This parameter can
-                          | be stdout (standard output), stderr
-                          | (standard error), or a file pointer
-                          | (corresponding to a user error file
-                          | opened for writing) returned by fopen.
-                          | If not called, then all messages will
-                          | be written to stderr.
-                          | [stderr]
-                          |
- ARKStepSetUserData       | a pointer to user data that will be
-                          | passed to the user's fi and fe functions
-                          | every time they are called.
-                          | [NULL]
-                          |
- ARKStepSetDiagnostics    | the file pointer for a diagnostics file
-                          | where all ARKStep adaptivity and solver
-                          | information is written.  This parameter can
-                          | be stdout or stderr, though the preferred
-                          | approach is to specify a file pointer
-                          | (corresponding to a user diagnostics file
-                          | opened for writing) returned by fopen.  If
-                          | not called, or if called with a NULL file
-                          | pointer, all diagnostics output is disabled.
-                          | NOTE: when run in parallel, only one process
-                          | should set a non-NULL value for this pointer,
-                          | since statistics from all processes would be
-                          | identical.
-                          | [NULL]
-                          |
- ARKStepSetLinear         | specifies that the implicit portion of
-                          | the problem is linear, and to tighten
-                          | the linear solver tolerances while
-                          | taking only one Newton iteration.
-                          | [SUNFALSE]
-                          |
- ARKStepSetNonlinear      | specifies that the implicit portion of
-                          | the problem is nonlinear.  Used to undo
-                          | a previous call to ARKStepSetLinear
-                          | [SUNTRUE]
-                          |
- ARKStepSetFixedPoint     | specifies that the implicit portion of
-                          | the problem should use the accelerated
-                          | fixed-point solver.
-                          | [SUNFALSE]
-                          |
- ARKStepSetNewton         | specifies that the implicit portion of
-                          | the problem should use the modified Newton
-                          | solver.  Used to undo a previous call to
-                          | ARKStepSetFixedPoint
-                          | [SUNTRUE]
-                          |
- ARKStepSetExplicit       | specifies that implicit portion of
-                          | problem is disabled, and to use an
-                          | explicit RK method.
-                          | [SUNFALSE]
-                          |
- ARKStepSetImplicit       | specifies that explicit portion of
-                          | problem is disabled, and to use an
-                          | implicit RK method.
-                          | [SUNFALSE]
-                          |
- ARKStepSetImEx           | specifies that problem has both
-                          | implicit and explicit parts, and to
-                          | use an ARK method.
-                          | [SUNTRUE]
-                          |
- ARKStepSetERKTable       | specifies to use a customized Butcher
-                          | table for the explicit portion of the
-                          | system.  This automatically calls
-                          ! ARKStepSetExplicit
-                          | [determined by ARKode based on order]
-                          |
- ARKStepSetIRKTable       | specifies to use a customized Butcher
-                          | table for the implicit portion of the
-                          | system. This automatically calls
-                          ! ARKStepSetImplicit
-                          | [determined by ARKode based on order]
-                          |
- ARKStepSetARKTables      | specifies to use customized Butcher
-                          | tables for the IMEX system.  This
-                          ! automatically calls ARKStepSetImEx
-                          | [determined by ARKode based on order]
-                          |
- ARKStepSetERKTableNum    | specifies to use a built-in Butcher
-                          | table for the explicit portion of the
-                          | system.  The integer argument should
-                          | match an existing method in
-                          | ARKodeLoadButcherTable() within the file
-                          | arkode_butcher.c.  Error-checking is
-                          | performed to ensure that the table
-                          | exists, and is not implicit.  This
-                          ! automatically calls ARKStepSetExplicit
-                          | [determined by ARKode based on order]
-                          |
- ARKStepSetIRKTableNum    | specifies to use a built-in Butcher
-                          | table for the implicit portion of the
-                          | system.  The integer argument should
-                          | match an existing method in
-                          | ARKodeLoadButcherTable() within the file
-                          | arkode_butcher.c.  Error-checking is
-                          | performed to ensure that the table
-                          | exists, and is not explicit.  This
-                          ! automatically calls ARKStepSetImplicit
-                          | [determined by ARKode based on order]
-                          |
- ARKStepSetARKTableNum    | specifies to use a built-in Butcher
-                          | tables for the ImEx system.  The
-                          ! integer arguments should match existing
-                          | methods in ARKodeLoadButcherTable()
-                          | within the file arkode_butcher.c.
-                          | Error-checking is performed to ensure
-                          | that the tables exist.  Subsequent
-                          | error-checking is automatically performed
-                          | to ensure that the tables' stage times
-                          | and solution coefficients match.  This
-                          ! automatically calls ARKStepSetImEx
-                          | [determined by ARKode based on order]
-                          |
- ARKStepSetMaxNumSteps    | maximum number of internal steps to be
-                          | taken by the solver in its attempt to
-                          | reach tout.
-                          | [500]
-                          |
- ARKStepSetMaxHnilWarns   | maximum number of warning messages
-                          | issued by the solver that t+h==t on
-                          | the next internal step. A value of -1
-                          | means no such messages are issued.
-                          | [10]
-                          |
- ARKStepSetInitStep       | initial step size.
-                          | [estimated internally]
-                          |
- ARKStepSetMinStep        | minimum absolute value of step size
-                          | allowed.
-                          | [0.0]
-                          |
- ARKStepSetMaxStep        | maximum absolute value of step size
-                          | allowed.
-                          | [infinity]
-                          |
- ARKStepSetStopTime       | the independent variable value past
-                          | which the solution is not to proceed.
-                          | [infinity]
-                          |
- ARKStepSetFixedStep      | specifies to use a fixed step size
-                          | throughout integration
-                          | [off]
-                          |
- ARKStepSetCFLFraction    | safety factor to use for explicitly
-                          ! stable steps
-                          | [0.5]
-                          |
- ARKStepSetSafetyFactor   | safety factor to use for error-based
-                          ! step adaptivity
-                          | [0.96]
-                          |
- ARKStepSetErrorBias      | error bias factor to use in error-based
-                          ! step adaptivity
-                          | [1.5]
-                          |
- ARKStepSetMaxGrowth      | maximum growth factor for successive
-                          ! time steps (not including the first step).
-                          | [20.0]
-                          |
- ARKStepSetMaxFirstGrowth | maximum growth factor for first step.
-                          | [10000.0]
-                          |
- ARKStepSetMaxEFailGrowth | maximum growth factor after an error failure.
-                          | [0.3]
-                          |
- ARKStepSetSmallNumEFails | maximum number of error failures before
-                          ! MaxFailGrowth factor is used.
-                          | [2]
-                          |
- ARKStepSetMaxCFailGrowth | maximum growth factor after a convergence failure.
-                          | [0.25]
-                          |
- ARKStepSetFixedStepBounds| step growth interval to force retention of
-                          ! the same step size
-                          | [1.0 1.5]
-                          |
- ARKStepSetAdaptivityMethod| Method to use for time step adaptivity
-                          | [0]
-                          |
- ARKStepSetAdaptivityFn   | user-provided time step adaptivity
-                          | function.
-                          | [internal]
-                          |
- ARKStepSetNonlinCRDown   | user-provided nonlinear convergence
-                          | rate constant.
-                          | [0.3]
-                          |
- ARKStepSetNonlinRDiv     | user-provided nonlinear divergence ratio.
-                          | [2.3]
-                          |
- ARKStepSetDeltaGammaMax  | user-provided linear setup decision
-                          | constant.
-                          | [0.2]
-                          |
- ARKStepSetMaxStepsBetweenLSet| user-provided linear setup decision
-                          | constant.
-                          | [20]
-                          |
- ARKStepSetPredictorMethod| Method to use for predicting implicit
-                          | solutions.
-                          | [0]
-                          |
- ARKStepSetStabilityFn    | user-provided explicit time step
-                          | stability function.
-                          | [internal]
-                          |
- ARKStepSetMaxErrTestFails| Maximum number of error test failures
-                          | in attempting one step.
-                          | [7]
-                          |
- ARKStepSetMaxNonlinIters | Maximum number of nonlinear solver
-                          | iterations at one stage solution.
-                          | [3]
-                          |
- ARKStepSetMaxConvFails   | Maximum number of convergence failures
-                          | allowed in attempting one step.
-                          | [10]
-                          |
- ARKStepSetNonlinConvCoef | Coefficient in the nonlinear
-                          | convergence test.
-                          | [0.1]
------------------------------------------------------------------
- ARKStepSetRootDirection      | Specifies the direction of zero
-                              | crossings to be monitored
-                              | [both directions]
-                              |
- ARKStepSetNoInactiveRootWarn | disable warning about possible
-                              | g==0 at beginning of integration
+ ARKStepSetDefaults   [internal]
+ resets all optional inputs to ARKStep default values.  Does not
+ change problem-defining function pointers or user_data pointer.
+ Also leaves alone any data structures/options related to
+ root-finding (those can be reset using ARKodeRootInit).
+
+ ARKStepSetOptimalParams   [internal]
+ sets all adaptivity and solver parameters to our 'best guess'
+ values, for a given integration method (ERK, DIRK, ARK) and a
+ given method order.  Should only be called after the method
+ order and integration method have been set.
+
+ ARKStepSetOrder  [4]
+ method order to be used by the solver.
+
+ ARKStepSetDenseOrder  [3]
+ polynomial order to be used for dense output.  Allowed values
+ are between 0 and min(q,5) (where q is the order of the
+ integrator)
+
+ ARKStepSetNonlinearSolver  [SUNNonlinsol_Newton]
+ attaches a non-default SUNNonlinearSolver object to be used in
+ solving for implicit stage solutions.
+
+ ARKStepSetErrHandlerFn  [internal]
+ user-provided ErrHandler function.
+
+ ARKStepSetErrFile   [stderr]
+ the file pointer for an error file where all ARKStep warning
+ and error messages will be written if the default internal
+ error handling function is used. This parameter can be stdout
+ (standard output), stderr (standard error), or a file pointer
+ (corresponding to a user error file opened for writing)
+ returned by fopen.  If not called, then all messages will
+ be written to stderr.
+
+ ARKStepSetUserData  [NULL]
+ a pointer to user data that will be passed to the user's fi
+ and fe functions every time they are called.
+
+ ARKStepSetDiagnostics  [NULL]
+ the file pointer for a diagnostics file where all ARKStep
+ adaptivity and solver information is written.  This parameter
+ can be stdout or stderr, though the preferred approach is to
+ specify a file pointer corresponding to a user diagnostics file
+ opened for writing) returned by fopen.  If not called, or if
+ called with a NULL file pointer, all diagnostics output is
+ disabled.
+ NOTE: when run in parallel, only one process should set a
+ non-NULL value for this pointer, since statistics from all
+ processes would be identical.
+
+ ARKStepSetLinear  [SUNFALSE]
+ specifies that the implicit portion of the problem is linear,
+ and to tighten the linear solver tolerances while taking only
+ one Newton iteration.
+
+ ARKStepSetNonlinear  [SUNTRUE]
+ specifies that the implicit portion of the problem is nonlinear.
+ Used to undo a previous call to ARKStepSetLinear
+
+ ARKStepSetFixedPoint  [SUNFALSE]
+ specifies that the implicit portion of the problem should use
+ the accelerated fixed-point solver.
+
+ ARKStepSetNewton   [SUNTRUE]
+ specifies that the implicit portion of the problem should use
+ the modified Newton solver.  Used to undo a previous call to
+ ARKStepSetFixedPoint
+
+ ARKStepSetExplicit   [SUNFALSE]
+ specifies that implicit portion of problem is disabled, and
+ to use an explicit RK method.
+
+ ARKStepSetImplicit   [SUNFALSE]
+ specifies that explicit portion of problem is disabled, and to
+ use an implicit RK method.
+
+ ARKStepSetImEx   [SUNTRUE]
+ specifies that problem has both implicit and explicit parts,
+ and to use an ARK method.
+
+ ARKStepSetARKTables  [determined by ARKode based on order]
+ specifies to use customized Butcher tables for the IMEX system.
+
+ ARKStepSetARKTableNum  [determined by ARKode based on order]
+ specifies to use a built-in Butcher tables for the ImEx system.
+ The integer arguments should match existing methods in
+ ARKodeLoadButcherTable_ERK() and ARKodeLoadButcherTable_DIRK().
+ Error-checking is performed to ensure that the tables exist.
+
+ ARKStepSetMaxNumSteps  [500]
+ maximum number of internal steps to be taken by the solver in
+ its attempt to reach tout.
+
+ ARKStepSetMaxHnilWarns  [10]
+ maximum number of warning messages issued by the solver that
+ t+h==t on the next internal step. A value of -1 means no such
+ messages are issued.
+
+ ARKStepSetInitStep  [estimated internally]
+ initial step size.
+
+ ARKStepSetMinStep  [0.0]
+ minimum absolute value of step size allowed.
+
+ ARKStepSetMaxStep  [infinity]
+ maximum absolute value of step size allowed.
+
+ ARKStepSetStopTime  [infinity]
+ the independent variable value past which the solution is
+ not to proceed.
+
+ ARKStepSetFixedStep  [off]
+ specifies to use a fixed step size throughout integration
+
+ ARKStepSetCFLFraction  [0.5]
+ safety factor to use for explicitly stable steps
+
+ ARKStepSetSafetyFactor  [0.96]
+ safety factor to use for error-based step adaptivity
+
+ ARKStepSetErrorBias  [1.5]
+ error bias factor to use in error-based step adaptivity
+
+ ARKStepSetMaxGrowth  [20.0]
+ maximum growth factor for successive time steps (not
+ including the first step).
+
+ ARKStepSetMaxFirstGrowth  [10000.0]
+ maximum growth factor for first step.
+
+ ARKStepSetMaxEFailGrowth  [0.3]
+ maximum growth factor after an error failure.
+
+ ARKStepSetSmallNumEFails  [2]
+ maximum number of error failures before MaxFailGrowth factor
+ is used.
+
+ ARKStepSetMaxCFailGrowth  [0.25]
+ maximum growth factor after a convergence failure.
+
+ ARKStepSetFixedStepBounds  [1.0 1.5]
+ step growth interval to force retention of the same step size
+
+ ARKStepSetAdaptivityMethod  [0]
+ Method to use for time step adaptivity
+
+ ARKStepSetAdaptivityFn  [internal]
+ user-provided time step adaptivity function.
+
+ ARKStepSetNonlinCRDown  [0.3]
+ user-provided nonlinear convergence rate constant.
+
+ ARKStepSetNonlinRDiv  [2.3]
+ user-provided nonlinear divergence ratio.
+
+ ARKStepSetDeltaGammaMax  [0.2]
+ user-provided linear setup decision constant.
+
+ ARKStepSetMaxStepsBetweenLSet  [20]
+ user-provided linear setup decision constant.
+
+ ARKStepSetPredictorMethod  [0]
+ Method to use for predicting implicit solutions.
+
+ ARKStepSetStabilityFn  [internal]
+ user-provided explicit time step stability function.
+
+ ARKStepSetMaxErrTestFails  [7]
+ Maximum number of error test failures in attempting one step.
+
+ ARKStepSetMaxNonlinIters  [3]
+ Maximum number of nonlinear solver iterations at one stage solution.
+
+ ARKStepSetMaxConvFails  [10]
+ Maximum number of convergence failures allowed in attempting one step.
+
+ ARKStepSetNonlinConvCoef  [0.1]
+ Coefficient in the nonlinear convergence test.
+
+ ARKStepSetRootDirection  [both directions]
+ Specifies the direction of zero crossings to be monitored
+
+ ARKStepSetNoInactiveRootWarn  [enabled]
+ disable warning about possible g==0 at beginning of integration
 -----------------------------------------------------------------
  Return flag:
    ARK_SUCCESS   if successful
@@ -562,6 +481,8 @@ SUNDIALS_EXPORT int ARKStepSetDefaults(void* arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetOptimalParams(void *arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetOrder(void *arkode_mem, int maxord);
 SUNDIALS_EXPORT int ARKStepSetDenseOrder(void *arkode_mem, int dord);
+SUNDIALS_EXPORT int ARKStepSetNonlinearSolver(void *arkode_mem,
+                                              SUNNonlinearSolver NLS);
 SUNDIALS_EXPORT int ARKStepSetLinear(void *arkode_mem, int timedepend);
 SUNDIALS_EXPORT int ARKStepSetNonlinear(void *arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetFixedPoint(void *arkode_mem, long int fp_m);
