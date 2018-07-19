@@ -33,6 +33,7 @@
 #include "cvode_impl.h"
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
+#include "sunnonlinsol/sunnonlinsol_newton.h"
 
 /*=================================================================*/
 /*             CVODE Private Constants                             */
@@ -424,7 +425,8 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
   CVodeMem cv_mem;
   booleantype nvectorOK, allocOK;
   sunindextype lrw1, liw1;
-  int i,k;
+  int i,k, retval;
+  SUNNonlinearSolver NLS;
 
   /* Check cvode_mem */
 
@@ -471,6 +473,12 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
   if (!allocOK) {
     cvProcessError(cv_mem, CV_MEM_FAIL, "CVODE", "CVodeInit", MSGCV_MEM_FAIL);
     return(CV_MEM_FAIL);
+  }
+
+  /* >>>>>>> ADD ERROR CHECK <<<<<<< */
+  if (cv_mem->cv_iter == CV_NEWTON) {
+    NLS = SUNNonlinSol_Newton(y0);
+    retval = CVodeSetNonlinearSolver(cv_mem, NLS);
   }
 
   /* All error checking is complete at this point */

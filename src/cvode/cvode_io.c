@@ -25,6 +25,7 @@
 
 #include "cvode_impl.h"
 #include <sundials/sundials_types.h>
+#include "sunnonlinsol/sunnonlinsol_newton.h"
 
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)
@@ -89,6 +90,8 @@ int CVodeSetErrFile(void *cvode_mem, FILE *errfp)
 int CVodeSetIterType(void *cvode_mem, int iter)
 {
   CVodeMem cv_mem;
+  SUNNonlinearSolver NLS;
+  int retval;
 
   if (cvode_mem==NULL) {
     cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeSetIterType", MSGCV_NO_MEM);
@@ -103,6 +106,12 @@ int CVodeSetIterType(void *cvode_mem, int iter)
   }
 
   cv_mem->cv_iter = iter;
+
+  /* >>>>>>> REMOVE THIS Set ROUTINE, user should call nls set function <<<<<<< */
+  if (cv_mem->cv_iter == CV_NEWTON) {
+    NLS = SUNNonlinSol_Newton(cv_mem->cv_acor);
+    retval = CVodeSetNonlinearSolver(cv_mem, NLS);
+  }
 
   return(CV_SUCCESS);
 }

@@ -16,7 +16,6 @@
 
 #include "cvode_impl.h"
 #include "sundials/sundials_math.h"
-#include "sunnonlinsol/sunnonlinsol_newton.h"
 
 /* nonlinear solver constants */
 #define ZERO    RCONST(0.0)     /* real 0.0     */
@@ -43,11 +42,11 @@
 #define SUN_NLS_CONTINUE   +1  /* not converged, keep iterating      */
 #define SUN_NLS_CONV_RECVR +2  /* convergece failure, try to recover */
 
-/* private functions */
-static int cvNls_Res(N_Vector y, N_Vector res, void* cvode_mem);
-
 static N_Vector delta;
 static booleantype jcur;
+
+/* private functions */
+static int cvNls_Res(N_Vector y, N_Vector res, void* cvode_mem);
 
 static int cvNls_LSetup(N_Vector ycor, N_Vector res, booleantype jbad,
                         booleantype* jcur, void* cvode_mem);
@@ -59,22 +58,96 @@ static int cvNls_ConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del,
  * Private functions
  * ---------------------------------------------------------------------------*/
 
+int CVodeSetNonlinearSolver(void *cvode_mem, SUNNonlinearSolver NLS)
+{
+  CVodeMem cv_mem;
+  int retval;
+
+  /* Return immediately if CVode memory is NULL */
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVSetNonlinearSolver", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* Return immediately if NLS memory is NULL */
+  if (NLS == NULL) {
+    cvProcessError(NULL, CV_ILL_INPUT, "CVODE", "CVSetNonlinearSolver",
+                   "NLS must be non-NULL");
+    return (CV_ILL_INPUT);
+  }
+
+  /* check for required nonlinear solver functions */
+  if ( NLS->ops->gettype    == NULL ||
+       NLS->ops->initialize == NULL ||
+       NLS->ops->solve      == NULL ||
+       NLS->ops->free       == NULL ||
+       NLS->ops->setsysfn   == NULL ) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVSetNonlinearSolver",
+                   "NLS does not support required operations");
+    return(CV_ILL_INPUT);
+  }
+
+  /* free any existing nonlinear solver */
+  if (cv_mem->NLS)
+    retval = SUNNonlinSolFree(cv_mem->NLS);
+
+  /* set SUNNonlinearSolver pointer */
+  cv_mem->NLS = NLS;
+
+  /* set the nonlinear residual function */
+  if (SUNNonlinSolGetType(NLS) == SUNNONLINEARSOLVER_ROOTFIND) {
+    retval = SUNNonlinSolSetSysFn(cv_mem->NLS, cvNls_Res);
+    if (retval != CV_SUCCESS) {
+      cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVSetNonlinearSolver",
+                     "Setting nonlinear system function failed");
+      return(CV_ILL_INPUT);
+    }
+  } else if (SUNNonlinSolGetType(NLS) ==  SUNNONLINEARSOLVER_STATIONARY) {
+    /* >>>>>>> NEED TO UPDATE FOR FIXED POINT <<<<<<< */
+    retval = SUNNonlinSolSetSysFn(cv_mem->NLS, cvNls_Res);
+    if (retval != CV_SUCCESS) {
+      cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVSetNonlinearSolver",
+                     "Setting nonlinear system function failed");
+      return(CV_ILL_INPUT);
+    }
+  } else {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVSetNonlinearSolver",
+                   "Invalid nonlinear solver type");
+    return(CV_ILL_INPUT);
+  }
+
+
+
+  /* set convergence test function */
+  retval = SUNNonlinSolSetConvTestFn(cv_mem->NLS, cvNls_ConvTest);
+  if (retval != CV_SUCCESS) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVSetNonlinearSolver",
+                   "Setting convergence test function failed");
+    return(CV_ILL_INPUT);
+  }
+
+  /* set max allowed nonlinear iterations */
+  retval = SUNNonlinSolSetMaxIters(cv_mem->NLS, NLS_MAXCOR);
+  if (retval != CV_SUCCESS) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVSetNonlinearSolver",
+                   "Setting maximum number of nonlinear iterations failed");
+    return(CV_ILL_INPUT);
+  }
+
+  return(CV_SUCCESS);
+}
+
+
 int cvNlsInit(CVodeMem cvode_mem)
 {
   int retval;
 
-  if (cvode_mem->NLS)
-    retval = SUNNonlinSolFree(cvode_mem->NLS);
-
-  cvode_mem->NLS = SUNNonlinSol_Newton(cvode_mem->cv_acor);
-
-  retval = SUNNonlinSolSetSysFn(cvode_mem->NLS, cvNls_Res);
-  retval = SUNNonlinSolSetConvTestFn(cvode_mem->NLS, cvNls_ConvTest);
-  retval = SUNNonlinSolSetMaxIters(cvode_mem->NLS, NLS_MAXCOR);
-
-  retval = SUNNonlinSolSetLSetupFn(cvode_mem->NLS, cvNls_LSetup);
-  retval = SUNNonlinSolSetLSolveFn(cvode_mem->NLS, cvNls_LSolve);
-  retval = SUNNonlinSolInitialize(cvode_mem->NLS);
+  if (cvode_mem->cv_iter == CV_NEWTON) {
+    retval = SUNNonlinSolSetLSetupFn(cvode_mem->NLS, cvNls_LSetup);
+    retval = SUNNonlinSolSetLSolveFn(cvode_mem->NLS, cvNls_LSolve);
+    retval = SUNNonlinSolInitialize(cvode_mem->NLS);
+  }
 
   delta = N_VClone(cvode_mem->cv_acor);
   jcur  = SUNFALSE;

@@ -789,6 +789,17 @@ SUNDIALS_EXPORT char *CVodeGetReturnFlagName(long int flag);
 
 SUNDIALS_EXPORT void CVodeFree(void **cvode_mem);
 
+/*
+ * -----------------------------------------------------------------
+ * Function : CVodeSetNonlinearSolver
+ * -----------------------------------------------------------------
+ * CVodeNonlinearSolver attaches a nonlinear solver object to the
+ * CVODE memory.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int CVodeSetNonlinearSolver(void *cvode_mem, SUNNonlinearSolver NLS);
+
 #ifdef __cplusplus
 }
 #endif
