@@ -2384,7 +2384,6 @@ int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag)
                                 step_mem->zpred, step_mem->Fi[is],
                                 &step_mem->jcur, zcor, z, b);
       step_mem->nsetups++;
-      callSetup = SUNFALSE;
       ark_mem->firststage = SUNFALSE;
       step_mem->gamrat = step_mem->crate = ONE;
       step_mem->gammap = step_mem->gamma;
