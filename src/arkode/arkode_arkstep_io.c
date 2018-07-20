@@ -2781,6 +2781,7 @@ int ARKStepGetNonlinSolvStats(void *arkode_mem, long int *nniters,
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  int retval;
 
   /* access ARKodeMem and ARKodeARKStepMem structures */
   if (arkode_mem==NULL) {
@@ -2797,7 +2798,17 @@ int ARKStepGetNonlinSolvStats(void *arkode_mem, long int *nniters,
   step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
 
   /* set outputs from step_mem */
-  *nniters = step_mem->nni;
+  if (step_mem->NLS) {
+    retval = SUNNonlinSolGetNumIters(step_mem->NLS, nniters);
+    if (retval != SUN_NLS_SUCCESS) {
+      arkProcessError(ark_mem, ARK_NLS_OP_ERR, "ARKode::ARKStep",
+                      "ARKStepGetNonlinSolvStats",
+                      "Error retrieving nniters from SUNNonlinearSolver");
+      return(ARK_NLS_OP_ERR);
+    }
+  } else {
+    *nniters = step_mem->nni;
+  }
   *nncfails = step_mem->ncfn;
 
   return(ARK_SUCCESS);

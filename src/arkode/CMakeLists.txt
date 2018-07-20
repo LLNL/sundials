@@ -25,6 +25,7 @@ SET(arkode_SOURCES
   arkode_adapt.c
   arkode_arkstep.c
   arkode_arkstep_io.c
+  arkode_arkstep_nls.c
   arkode_bandpre.c
   arkode_bbdpre.c
   arkode_butcher.c
