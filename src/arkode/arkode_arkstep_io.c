@@ -1156,7 +1156,7 @@ int ARKStepSetARKTables(void *arkode_mem, int s, int q, int p,
 
   /*     illegal inputs */
   if ( ( (ci == NULL) || (Ai == NULL) || (bi == NULL) ) &&
-         ( (ce == NULL) || (Ae == NULL) || (be == NULL) ) )  {
+       ( (ce == NULL) || (Ae == NULL) || (be == NULL) ) )  {
 
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetARKTables",
