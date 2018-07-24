@@ -4,6 +4,8 @@ Changes to SUNDIALS since Release of May. 7, 2018.
   defined when using 64-bit integers for the sundials index type. On Windows
   sunindextype is now defined as the MSVC basic type __int64.
 
+* Changed LICENSE install path to instdir/include/sundials
+
 * Updated the minimum required version of CMake to 2.8.12 and enabled
   using rpath by default to locate shared libraries on OSX.
 
