@@ -285,6 +285,10 @@ preconditioner routines.
 \subsection{Changes in v2.1.2}
 \label{Introduction:changes-in-v2-1-2}
 
+Fixed Windows specific problem where sunindextype was not correctly 
+defined when using 64-bit integers for the SUNDIALS index type. On Windows
+sunindextype is now defined as the MSVC basic type \texttt{\_\_int64}.
+
 Changed LICENSE install path to \texttt{instdir/include/sundials}.
 
 Updated the minimum required version of CMake to 2.8.12 and enabled

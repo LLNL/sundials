@@ -89,6 +89,10 @@ in extended {\F}.
 
 \subsection*{Changes in v2.1.2}
 
+Fixed Windows specific problem where \id{sunindextype} was not correctly 
+defined when using 64-bit integers for the {\sundials} index type. On Windows
+\id{sunindextype} is now defined as the MSVC basic type \id{\_\_int64}.
+
 Changed the LICENSE install path to \id{instdir/include/sundials}.
 
 Updated the minimum required version of CMake to 2.8.12 and enabled
