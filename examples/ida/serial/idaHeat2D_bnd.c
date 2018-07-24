@@ -66,7 +66,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector u);
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, 
                              N_Vector id, N_Vector res);
 
-static int check_flag(void *flagvalue, const char *funcname, int opt);
+static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 /*
  *--------------------------------------------------------------------
@@ -79,7 +79,7 @@ int main(void)
   void *mem;
   UserData data;
   N_Vector uu, up, constraints, id, res;
-  int ier, iout;
+  int retval, iout;
   long int netf, ncfn;
   sunindextype mu, ml;
   realtype rtol, atol, t0, t1, tout, tret;
@@ -94,19 +94,19 @@ int main(void)
 
   /* Create vectors uu, up, res, constraints, id. */
   uu = N_VNew_Serial(NEQ);
-  if(check_flag((void *)uu, "N_VNew_Serial", 0)) return(1);
+  if(check_retval((void *)uu, "N_VNew_Serial", 0)) return(1);
   up = N_VNew_Serial(NEQ);
-  if(check_flag((void *)up, "N_VNew_Serial", 0)) return(1);
+  if(check_retval((void *)up, "N_VNew_Serial", 0)) return(1);
   res = N_VNew_Serial(NEQ);
-  if(check_flag((void *)res, "N_VNew_Serial", 0)) return(1);
+  if(check_retval((void *)res, "N_VNew_Serial", 0)) return(1);
   constraints = N_VNew_Serial(NEQ);
-  if(check_flag((void *)constraints, "N_VNew_Serial", 0)) return(1);
+  if(check_retval((void *)constraints, "N_VNew_Serial", 0)) return(1);
   id = N_VNew_Serial(NEQ);
-  if(check_flag((void *)id, "N_VNew_Serial", 0)) return(1);
+  if(check_retval((void *)id, "N_VNew_Serial", 0)) return(1);
 
   /* Create and load problem data block. */
   data = (UserData) malloc(sizeof *data);
-  if(check_flag((void *)data, "malloc", 2)) return(1);
+  if(check_retval((void *)data, "malloc", 2)) return(1);
   data->mm = MGRID;
   data->dx = ONE/(MGRID - ONE);
   data->coeff = ONE/( (data->dx) * (data->dx) );
@@ -125,42 +125,42 @@ int main(void)
 
   /* Call IDACreate and IDAMalloc to initialize solution */
   mem = IDACreate();
-  if(check_flag((void *)mem, "IDACreate", 0)) return(1);
+  if(check_retval((void *)mem, "IDACreate", 0)) return(1);
 
-  ier = IDASetUserData(mem, data);
-  if(check_flag(&ier, "IDASetUserData", 1)) return(1);
+  retval = IDASetUserData(mem, data);
+  if(check_retval(&retval, "IDASetUserData", 1)) return(1);
 
   /* Set which components are algebraic or differential */
-  ier = IDASetId(mem, id);
-  if(check_flag(&ier, "IDASetId", 1)) return(1);
+  retval = IDASetId(mem, id);
+  if(check_retval(&retval, "IDASetId", 1)) return(1);
 
-  ier = IDASetConstraints(mem, constraints);
-  if(check_flag(&ier, "IDASetConstraints", 1)) return(1);
+  retval = IDASetConstraints(mem, constraints);
+  if(check_retval(&retval, "IDASetConstraints", 1)) return(1);
   N_VDestroy(constraints);
 
-  ier = IDAInit(mem, heatres, t0, uu, up);
-  if(check_flag(&ier, "IDAInit", 1)) return(1);
+  retval = IDAInit(mem, heatres, t0, uu, up);
+  if(check_retval(&retval, "IDAInit", 1)) return(1);
 
-  ier = IDASStolerances(mem, rtol, atol);
-  if(check_flag(&ier, "IDASStolerances", 1)) return(1);
+  retval = IDASStolerances(mem, rtol, atol);
+  if(check_retval(&retval, "IDASStolerances", 1)) return(1);
 
   /* Create banded SUNMatrix for use in linear solves */
   mu = MGRID; ml = MGRID;
   A = SUNBandMatrix(NEQ, mu, ml, mu+ml);
-  if(check_flag((void *)A, "SUNBandMatrix", 0)) return(1);
+  if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
 
   /* Create banded SUNLinearSolver object */
   LS = SUNBandLinearSolver(uu, A);
-  if(check_flag((void *)LS, "SUNBandLinearSolver", 0)) return(1);
+  if(check_retval((void *)LS, "SUNBandLinearSolver", 0)) return(1);
 
   /* Attach the matrix and linear solver */
-  ier = IDADlsSetLinearSolver(mem, LS, A);
-  if(check_flag(&ier, "IDADlsSetLinearSolver", 1)) return(1);
+  retval = IDADlsSetLinearSolver(mem, LS, A);
+  if(check_retval(&retval, "IDADlsSetLinearSolver", 1)) return(1);
 
   /* Call IDACalcIC to correct the initial values. */
 
-  ier = IDACalcIC(mem, IDA_YA_YDP_INIT, t1);
-  if(check_flag(&ier, "IDACalcIC", 1)) return(1);
+  retval = IDACalcIC(mem, IDA_YA_YDP_INIT, t1);
+  if(check_retval(&retval, "IDACalcIC", 1)) return(1);
 
   /* Print output heading. */
   PrintHeader(rtol, atol);
@@ -172,18 +172,18 @@ int main(void)
   
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) {
     
-    ier = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
-    if(check_flag(&ier, "IDASolve", 1)) return(1);
+    retval = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
+    if(check_retval(&retval, "IDASolve", 1)) return(1);
 
     PrintOutput(mem, tret, uu);
   
   }
   
   /* Print remaining counters and free memory. */
-  ier = IDAGetNumErrTestFails(mem, &netf);
-  check_flag(&ier, "IDAGetNumErrTestFails", 1);
-  ier = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
-  check_flag(&ier, "IDAGetNumNonlinSolvConvFails", 1);
+  retval = IDAGetNumErrTestFails(mem, &netf);
+  check_retval(&retval, "IDAGetNumErrTestFails", 1);
+  retval = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+  check_retval(&retval, "IDAGetNumNonlinSolvConvFails", 1);
   printf("\n netf = %ld,   ncfn = %ld \n", netf, ncfn);
 
   IDAFree(&mem);
@@ -344,27 +344,27 @@ static void PrintHeader(realtype rtol, realtype atol)
 
 static void PrintOutput(void *mem, realtype t, N_Vector uu)
 {
-  int ier;
+  int retval;
   realtype umax, hused;
   long int nst, nni, nje, nre, nreLS;
   int kused;
 
   umax = N_VMaxNorm(uu);
   
-  ier = IDAGetLastOrder(mem, &kused);
-  check_flag(&ier, "IDAGetLastOrder", 1);
-  ier = IDAGetNumSteps(mem, &nst);
-  check_flag(&ier, "IDAGetNumSteps", 1);
-  ier = IDAGetNumNonlinSolvIters(mem, &nni);
-  check_flag(&ier, "IDAGetNumNonlinSolvIters", 1);
-  ier = IDAGetNumResEvals(mem, &nre);
-  check_flag(&ier, "IDAGetNumResEvals", 1);
-  ier = IDAGetLastStep(mem, &hused);
-  check_flag(&ier, "IDAGetLastStep", 1);
-  ier = IDADlsGetNumJacEvals(mem, &nje);
-  check_flag(&ier, "IDADlsGetNumJacEvals", 1);
-  ier = IDADlsGetNumResEvals(mem, &nreLS);
-  check_flag(&ier, "IDADlsGetNumResEvals", 1);
+  retval = IDAGetLastOrder(mem, &kused);
+  check_retval(&retval, "IDAGetLastOrder", 1);
+  retval = IDAGetNumSteps(mem, &nst);
+  check_retval(&retval, "IDAGetNumSteps", 1);
+  retval = IDAGetNumNonlinSolvIters(mem, &nni);
+  check_retval(&retval, "IDAGetNumNonlinSolvIters", 1);
+  retval = IDAGetNumResEvals(mem, &nre);
+  check_retval(&retval, "IDAGetNumResEvals", 1);
+  retval = IDAGetLastStep(mem, &hused);
+  check_retval(&retval, "IDAGetLastStep", 1);
+  retval = IDADlsGetNumJacEvals(mem, &nje);
+  check_retval(&retval, "IDADlsGetNumJacEvals", 1);
+  retval = IDADlsGetNumResEvals(mem, &nreLS);
+  check_retval(&retval, "IDADlsGetNumResEvals", 1);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
   printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le \n",
@@ -383,32 +383,32 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
  * Check function return value...
  *   opt == 0 means SUNDIALS function allocates memory so check if
  *            returned NULL pointer
- *   opt == 1 means SUNDIALS function returns a flag so check if
- *            flag >= 0
+ *   opt == 1 means SUNDIALS function returns an integer value so check if
+ *            retval >= 0
  *   opt == 2 means function allocates memory so check if returned
  *            NULL pointer 
  */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt)
+static int check_retval(void *returnvalue, const char *funcname, int opt)
 {
-  int *errflag;
+  int *retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, 
             "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", 
             funcname);
     return(1);
   } else if (opt == 1) {
-    /* Check if flag < 0 */
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
+    /* Check if retval < 0 */
+    retval = (int *) returnvalue;
+    if (*retval < 0) {
       fprintf(stderr, 
-              "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", 
-              funcname, *errflag);
+              "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n", 
+              funcname, *retval);
       return(1); 
     }
-  } else if (opt == 2 && flagvalue == NULL) {
+  } else if (opt == 2 && returnvalue == NULL) {
     /* Check if function returned NULL pointer - no memory allocated */
     fprintf(stderr, 
             "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", 
