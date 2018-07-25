@@ -303,6 +303,16 @@ approach where the sparse SUNMatrix pointer would go out of scope on
 some architectures.
 
 
+Updated the ``ScaleAdd'' and ``ScaleAddI'' implementations in the
+sparse SUNMatrix module to more optimally handle the case where the
+target matrix contained sufficient storage for the sum, but had the
+wrong sparsity pattern.  The sum now occurs in-place, by performing
+the sum backwards in the existing storage.  However, it is still more
+efficient if the user-supplied Jacobian routine allocates storage for
+the sum $I+\gamma J$ or $M+\gamma J$ manually (with zero entries if
+needed).
+
+
 \subsection{Changes in v2.1.1}
 \label{Introduction:changes-in-v2-1-1}
 Fixed a potential memory leak in the SPGMR and SPFGMR linear solvers:

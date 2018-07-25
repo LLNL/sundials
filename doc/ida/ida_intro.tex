@@ -84,6 +84,13 @@ reinitialization types, and fixed a bug in the full reinitialization
 approach where the sparse SUNMatrix pointer would go out of scope on
 some architectures.
 
+Updated the ``ScaleAdd'' and ``ScaleAddI'' implementations in the
+sparse SUNMatrix module to more optimally handle the case where the
+target matrix contained sufficient storage for the sum, but had the
+wrong sparsity pattern.  The sum now occurs in-place, by performing
+the sum backwards in the existing storage.
+
+
 \subsection*{Changes in v3.1.1}
 
 The changes in this minor release include the following:

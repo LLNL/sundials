@@ -68,7 +68,7 @@ int Test_SUNMatGetID(SUNMatrix A, SUNMatrix_ID sunid, int myid)
 
 
 /* ----------------------------------------------------------------------
- * N_VClone Test
+ * SUNMatClone Test
  *
  * NOTE: This routine depends on SUNMatCopy to check matrix data.
  * --------------------------------------------------------------------*/

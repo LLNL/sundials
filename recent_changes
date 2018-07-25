@@ -21,6 +21,16 @@ Changes to SUNDIALS since Release of May. 7, 2018.
   approach where the sparse SUNMatrix pointer would go out of scope on
   some architectures.
   
+* Updated the "ScaleAdd" and "ScaleAddI" implementations in the sparse
+  SUNMatrix module to more optimally handle the case where the target
+  matrix contained sufficient storage for the sum, but had the wrong
+  sparsity pattern.  The sum now occurs in-place, by performing the
+  sum backwards in the existing storage.  However, it is still more
+  efficient if the user-supplied Jacobian routine allocates storage
+  for the sum $I+\gamma J$ or $M+\gamma J$ manually (with zero entries
+  if needed).
+
+
 
 Changes to SUNDIALS since Release of Nov. 7, 2017.
 
@@ -67,6 +77,10 @@ Changes to SUNDIALS since Release of Nov. 7, 2017.
   not require a SUNMatrix or SUNLinearSolver module (e.g. iterative
   linear solvers, explicit methods in ARKode, functional iteration
   in CVODE, etc.).
+
+
+
+
 
 Changes to SUNDIALS since Release of Oct. 26, 2017.
 
