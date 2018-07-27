@@ -520,21 +520,12 @@ int ARKStepSetDefaults(void* arkode_mem)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
-  int flag;
+  int flag, retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetDefaults", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetDefaults", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetDefaults",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* Set default ARKode infrastructure parameters */
   flag = arkSetDefaults(ark_mem);
@@ -609,21 +600,14 @@ int ARKStepSetOptimalParams(void *arkode_mem)
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   ARKodeHAdaptMem hadapt_mem;
+  int retval;
 
-  /* access ARKodeMem, ARKodeARKStepMem and ARKodeHAdaptMem structures */
-  if (arkode_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetOptimalParams", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetOptimalParams",
-                    "Missing ARKStep time stepper module");
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetOptimalParams",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetOptimalParams",
@@ -793,20 +777,12 @@ int ARKStepSetOrder(void *arkode_mem, int ord)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetOrder", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetOrder",  MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetOrder",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* set user-provided value, or default, depending on argument */
   if (ord <= 0) {
@@ -846,20 +822,12 @@ int ARKStepSetLinear(void *arkode_mem, int timedepend)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetLinear", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetLinear", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetLinear",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* set parameters */
   step_mem->linear = SUNTRUE;
@@ -881,20 +849,12 @@ int ARKStepSetNonlinear(void *arkode_mem)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetNonlinear", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetNonlinear", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetNonlinear",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* set parameters */
   step_mem->linear = SUNFALSE;
@@ -918,20 +878,12 @@ int ARKStepSetFixedPoint(void *arkode_mem, long int fp_m)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetFixedPoint", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetFixedPoint", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetFixedPoint",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* set parameters */
   step_mem->use_fp = SUNTRUE;
@@ -956,20 +908,12 @@ int ARKStepSetNewton(void *arkode_mem)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetNewton", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetNewton", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetNewton",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* set parameters */
   step_mem->use_fp = SUNFALSE;
@@ -988,20 +932,12 @@ int ARKStepSetExplicit(void *arkode_mem)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetExplicit", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetExplicit", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetExplicit",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* ensure that fe is defined */
   if (step_mem->fe == NULL) {
@@ -1028,20 +964,12 @@ int ARKStepSetImplicit(void *arkode_mem)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetImplicit", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetImplicit", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetImplicit",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* ensure that fi is defined */
   if (step_mem->fi == NULL) {
@@ -1068,20 +996,12 @@ int ARKStepSetImEx(void *arkode_mem)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetImEx", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetImEx", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetImEx",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* ensure that fe and fi are defined */
   if (step_mem->fe == NULL) {
@@ -1128,23 +1048,14 @@ int ARKStepSetARKTables(void *arkode_mem, int s, int q, int p,
                         realtype *bi, realtype *be,
                         realtype *di, realtype *de)
 {
-  int flag, i, j;
+  int flag, i, j, retval;
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetARKTables", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetARKTables", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetARKTables",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* clear any existing parameters and Butcher tables */
   step_mem->stages = 0;
@@ -1314,23 +1225,14 @@ int ARKStepSetARKTables(void *arkode_mem, int s, int q, int p,
   ---------------------------------------------------------------*/
 int ARKStepSetARKTableNum(void *arkode_mem, int itable, int etable)
 {
-  int flag;
+  int flag, retval;
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetARKTableNum", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetARKTableNum", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetARKTableNum",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* clear any existing parameters and Butcher tables */
   step_mem->stages = 0;
@@ -1475,20 +1377,14 @@ int ARKStepSetCFLFraction(void *arkode_mem, realtype cfl_frac)
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   ARKodeHAdaptMem hadapt_mem;
+  int retval;
 
-  /* access ARKodeMem, ARKodeARKStepMem and ARKodeHAdaptMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetCFLFraction", MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetCFLFraction", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetCFLFraction",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* access structure */
   if (step_mem->hadapt_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetCFLFraction",
@@ -1528,20 +1424,14 @@ int ARKStepSetSafetyFactor(void *arkode_mem, realtype safety)
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   ARKodeHAdaptMem hadapt_mem;
+  int retval;
 
-  /* access ARKodeMem, ARKodeARKStepMem and ARKodeHAdaptMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetSafetyFactor", MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetSafetyFactor", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetSafetyFactor",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* access structure */
   if (step_mem->hadapt_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetSafetyFactoy",MSG_ARKADAPT_NO_MEM);
@@ -1579,20 +1469,14 @@ int ARKStepSetErrorBias(void *arkode_mem, realtype bias)
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   ARKodeHAdaptMem hadapt_mem;
+  int retval;
 
-  /* access ARKodeMem, ARKodeARKStepMem and ARKodeHAdaptMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetErrorBias", MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetErrorBias", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetErrorBias",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetErrorBias", MSG_ARKADAPT_NO_MEM);
@@ -1624,20 +1508,14 @@ int ARKStepSetMaxGrowth(void *arkode_mem, realtype mx_growth)
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   ARKodeHAdaptMem hadapt_mem;
+  int retval;
 
-  /* access ARKodeMem, ARKodeARKStepMem and ARKodeHAdaptMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetMaxGrowth", MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetMaxGrowth", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetMaxGrowth",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetMaxGrowth", MSG_ARKADAPT_NO_MEM);
@@ -1668,20 +1546,14 @@ int ARKStepSetFixedStepBounds(void *arkode_mem, realtype lb, realtype ub)
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   ARKodeHAdaptMem hadapt_mem;
+  int retval;
 
-  /* access ARKodeMem ARKodeARKStepMem and ARKodeHAdaptMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetFixedStepBounds", MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetFixedStepBounds", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetFixedStepBounds",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetFixedStepBounds", MSG_ARKADAPT_NO_MEM);
@@ -1716,20 +1588,14 @@ int ARKStepSetAdaptivityMethod(void *arkode_mem, int imethod,
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   ARKodeHAdaptMem hadapt_mem;
+  int retval;
 
-  /* access ARKodeMem, ARKodeARKStepMem and ARKodeHAdaptMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetAdaptivityMethod", MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetAdaptivityMethod", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetAdaptivityMethod",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetAdaptivityMethod", MSG_ARKADAPT_NO_MEM);
@@ -1794,20 +1660,14 @@ int ARKStepSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun,
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   ARKodeHAdaptMem hadapt_mem;
+  int retval;
 
-  /* access ARKodeMem, ARKodeARKStepMem and ARKodeHAdaptMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetAdaptivityFn", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetAdaptivityFn", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetAdaptivityFn",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetAdaptivityFn", MSG_ARKADAPT_NO_MEM);
@@ -1842,20 +1702,14 @@ int ARKStepSetMaxFirstGrowth(void *arkode_mem, realtype etamx1)
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   ARKodeHAdaptMem hadapt_mem;
+  int retval;
 
-  /* access ARKodeMem, ARKodeARKStepMem and ARKodeHAdaptMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetMaxFirstGrowth", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetMaxFirstGrowth", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetMaxFirstGrowth",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetMaxFirstGrowth",MSG_ARKADAPT_NO_MEM);
@@ -1886,20 +1740,14 @@ int ARKStepSetMaxEFailGrowth(void *arkode_mem, realtype etamxf)
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   ARKodeHAdaptMem hadapt_mem;
+  int retval;
 
-  /* access ARKodeMem, ARKodeARKStepMem and ARKodeHAdaptMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetMaxEFailGrowth", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetMaxEFailGrowth", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetMaxEFailGrowth",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetMaxEFailGrowth", MSG_ARKADAPT_NO_MEM);
@@ -1930,20 +1778,14 @@ int ARKStepSetSmallNumEFails(void *arkode_mem, int small_nef)
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   ARKodeHAdaptMem hadapt_mem;
+  int retval;
 
-  /* access ARKodeMem, ARKodeARKStepMem and ARKodeHAdaptMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetSmallNumEFails", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetSmallNumEFails", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetSmallNumEFails",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetSmallNumEFails", MSG_ARKADAPT_NO_MEM);
@@ -1974,20 +1816,14 @@ int ARKStepSetMaxCFailGrowth(void *arkode_mem, realtype etacf)
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   ARKodeHAdaptMem hadapt_mem;
+  int retval;
 
-  /* access ARKodeMem, ARKodeARKStepMem and ARKodeHAdaptMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetMaxCFailGrowth", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetMaxCFailGrowth", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetMaxCFailGrowth",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetMaxCFailGrowth", MSG_ARKADAPT_NO_MEM);
@@ -2017,20 +1853,12 @@ int ARKStepSetNonlinCRDown(void *arkode_mem, realtype crdown)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetNonlinCRDown", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetNonlinCRDown", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetNonlinCRDown",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* if argument legal set it, otherwise set default */
   if (crdown <= ZERO) {
@@ -2054,20 +1882,12 @@ int ARKStepSetNonlinRDiv(void *arkode_mem, realtype rdiv)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetNonlinRDiv", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetNonlinRDiv", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetNonlinRDiv",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* if argument legal set it, otherwise set default */
   if (rdiv <= ZERO) {
@@ -2091,20 +1911,12 @@ int ARKStepSetDeltaGammaMax(void *arkode_mem, realtype dgmax)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetDeltaGammaMax", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetDeltaGammaMax", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetDeltaGammaMax",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* if argument legal set it, otherwise set default */
   if (dgmax <= ZERO) {
@@ -2130,20 +1942,12 @@ int ARKStepSetMaxStepsBetweenLSet(void *arkode_mem, int msbp)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
-
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetMaxStepsBetweenLSet", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetMaxStepsBetweenLSet", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  int retval;
+  
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetMaxStepsBetweenLSet",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* if argument legal set it, otherwise set default */
   if (msbp == 0) {
@@ -2167,20 +1971,12 @@ int ARKStepSetPredictorMethod(void *arkode_mem, int pred_method)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetPredictorMethod", MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetPredictorMethod", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetPredictorMethod",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* set parameters */
   step_mem->predictor = pred_method;
@@ -2202,20 +1998,14 @@ int ARKStepSetStabilityFn(void *arkode_mem, ARKExpStabFn EStab,
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   ARKodeHAdaptMem hadapt_mem;
+  int retval;
 
-  /* access ARKodeMem, ARKodeARKStepMem and ARKodeHAdaptMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetStabilityFn", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetStabilityFn", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetStabilityFn",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetStabilityFn", MSG_ARKADAPT_NO_MEM);
@@ -2247,20 +2037,12 @@ int ARKStepSetMaxErrTestFails(void *arkode_mem, int maxnef)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetMaxErrTestFails", MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetMaxErrTestFails", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetMaxErrTestFails",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* argument <= 0 sets default, otherwise set input */
   if (maxnef <= 0) {
@@ -2284,20 +2066,12 @@ int ARKStepSetMaxConvFails(void *arkode_mem, int maxncf)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetMaxConvFails", MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetMaxConvFails", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetMaxConvFails",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* argument <= 0 sets default, otherwise set input */
   if (maxncf <= 0) {
@@ -2321,20 +2095,12 @@ int ARKStepSetMaxNonlinIters(void *arkode_mem, int maxcor)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetMaxNonlinIters", MSG_ARK_NO_MEM);
-    return (ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetMaxNonlinIters", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetMaxNonlinIters",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* argument <= 0 sets default, otherwise set input */
   if (maxcor <= 0) {
@@ -2357,20 +2123,12 @@ int ARKStepSetNonlinConvCoef(void *arkode_mem, realtype nlscoef)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetNonlinConvCoef", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetNonlinConvCoef", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetNonlinConvCoef",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* argument <= 0 sets default, otherwise set input */
   if (nlscoef <= ZERO) {
@@ -2396,20 +2154,12 @@ int ARKStepGetNumExpSteps(void *arkode_mem, long int *nsteps)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepGetNumExpSteps", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepGetNumExpSteps", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepGetNumExpSteps",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* if step adaptivity structure not allocated, just return 0 */
   if (step_mem->hadapt_mem == NULL) {
@@ -2431,20 +2181,12 @@ int ARKStepGetNumAccSteps(void *arkode_mem, long int *nsteps)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepGetNumAccSteps", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepGetNumAccSteps", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepGetNumAccSteps",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* if step adaptivity structure not allocated, just return 0 */
   if (step_mem->hadapt_mem == NULL) {
@@ -2466,20 +2208,12 @@ int ARKStepGetNumStepAttempts(void *arkode_mem, long int *nsteps)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepGetNumStepAttempts", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepGetNumStepAttempts", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepGetNumStepAttempts",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* get value from step_mem */
   *nsteps = step_mem->nst_attempts;
@@ -2498,20 +2232,12 @@ int ARKStepGetNumRhsEvals(void *arkode_mem, long int *fe_evals,
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepGetNumRhsEvals", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepGetNumRhsEvals", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepGetNumRhsEvals",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* get values from step_mem */
   *fe_evals = step_mem->nfe;
@@ -2530,20 +2256,12 @@ int ARKStepGetNumLinSolvSetups(void *arkode_mem, long int *nlinsetups)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepGetNumLinSolvSetups", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepGetNumLinSolvSetups", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepGetNumLinSolvSetups",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* get value from step_mem */
   *nlinsetups = step_mem->nsetups;
@@ -2561,20 +2279,12 @@ int ARKStepGetNumErrTestFails(void *arkode_mem, long int *netfails)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepGetNumErrTestFails", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepGetNumErrTestFails", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepGetNumErrTestFails",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* get value from step_mem */
   *netfails = step_mem->netf;
@@ -2595,20 +2305,12 @@ int ARKStepGetCurrentButcherTables(void *arkode_mem,
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepGetCurrentButcherTables", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepGetCurrentButcherTables", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepGetCurrentButcherTables",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* get tables from step_mem */
   *Bi = step_mem->Bi;
@@ -2628,20 +2330,12 @@ int ARKStepGetEstLocalErrors(void *arkode_mem, N_Vector ele)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepGetEstLocalErrors", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepGetEstLocalErrors", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepGetEstLocalErrors",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* copy vector to output */
   N_VScale(ONE, ark_mem->tempv1, ele);
@@ -2662,20 +2356,12 @@ int ARKStepGetTimestepperStats(void *arkode_mem, long int *expsteps,
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepGetTimestepperStats", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepGetTimestepperStats", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepGetTimestepperStats",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* if step adaptivity structure not allocated,
      just set expsteps and accsteps to 0 */
@@ -2709,19 +2395,10 @@ int ARKStepGetNumNonlinSolvIters(void *arkode_mem, long int *nniters)
   ARKodeARKStepMem step_mem;
   int retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepGetNumNonlinSolvIters", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepGetNumNonlinSolvIters", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepGetNumNonlinSolvIters",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* set output from step_mem */
   if (step_mem->NLS) {
@@ -2749,20 +2426,12 @@ int ARKStepGetNumNonlinSolvConvFails(void *arkode_mem, long int *nncfails)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  int retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepGetNumNonlinSolvConvFails", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepGetNumNonlinSolvConvFails", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepGetNumNonlinSolvConvFails",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* set output from step_mem */
   *nncfails = step_mem->ncfn;
@@ -2783,19 +2452,10 @@ int ARKStepGetNonlinSolvStats(void *arkode_mem, long int *nniters,
   ARKodeARKStepMem step_mem;
   int retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepGetNonlinSolvStats", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepGetNonlinSolvStats", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepGetNonlinSolvStats",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* set outputs from step_mem */
   if (step_mem->NLS) {
@@ -2828,21 +2488,12 @@ int ARKStepWriteParameters(void *arkode_mem, FILE *fp)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
-  int flag;
+  int flag, retval;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepWriteParameters", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepWriteParameters", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepWriteParameters",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* output ARKode infrastructure parameters first */
   flag = arkWriteParameters(ark_mem, fp);
@@ -2928,23 +2579,14 @@ int ARKStepWriteParameters(void *arkode_mem, FILE *fp)
   ---------------------------------------------------------------*/
 int ARKStepWriteButcher(void *arkode_mem, FILE *fp)
 {
-  int i, j;
+  int i, j, retval;
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
 
-  /* access ARKodeMem and ARKodeARKStepMem structures */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepWriteButcher", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepWriteButcher", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepWriteButcher",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* print Butcher tables to file */
   fprintf(fp, "\nARKStep Butcher tables (stages = %i):\n", step_mem->stages);

@@ -57,18 +57,9 @@ int ARKStepSetNonlinearSolver(void *arkode_mem, SUNNonlinearSolver NLS)
   int retval;
 
   /* access ARKodeARKStepMem structure */
-  if (arkode_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetNonlinearSolver", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetNonlinearSolver", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetNonlinearSolver",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* Return immediately if NLS input is NULL */
   if (NLS == NULL) {
@@ -212,18 +203,9 @@ int arkStep_NlsLSetup(N_Vector zcor, N_Vector res, booleantype jbad,
   int retval;
 
   /* access ARKodeARKStepMem structure */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "arkStep_NlsLSetup", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "arkStep_NlsLSetup", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  retval = arkStep_AccessStepMem(arkode_mem, "arkStep_NlsLSetup",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* update convfail based on jbad flag */
   if (jbad)
@@ -267,18 +249,9 @@ int arkStep_NlsLSolve(N_Vector zcor, N_Vector b, void* arkode_mem)
   int retval, nonlin_iter;
 
   /* access ARKodeARKStepMem structure */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "arkStep_NlsLSolve", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "arkStep_NlsLSolve", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  retval = arkStep_AccessStepMem(arkode_mem, "arkStep_NlsLSolve",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* retrieve nonlinear solver iteration from module */
   retval = SUNNonlinSolGetCurIter(step_mem->NLS, &nonlin_iter);
@@ -330,18 +303,9 @@ int arkStep_NlsResidual(N_Vector zcor, N_Vector r, void* arkode_mem)
   N_Vector X[3];
 
   /* access ARKodeARKStepMem structure */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "arkStep_NlsResidual", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "arkStep_NlsResidual", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  retval = arkStep_AccessStepMem(arkode_mem, "arkStep_NlsResidual",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* update stored 'ycur' value as stored predictor + current corrector */
   N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
@@ -408,18 +372,9 @@ int arkStep_NlsFPFunction(N_Vector zcor, N_Vector g, void* arkode_mem)
   int retval;
 
   /* access ARKodeARKStepMem structure */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "arkStep_NlsFPFunction", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "arkStep_NlsFPFunction", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  retval = arkStep_AccessStepMem(arkode_mem, "arkStep_NlsFPFunction",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* update stored 'ycur' value as stored predictor + current corrector */
   N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
@@ -469,18 +424,9 @@ int arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
   int m, retval;
 
   /* access ARKodeARKStepMem structure */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "arkStep_NlsConvTest", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "arkStep_NlsConvTest", MSG_ARKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+  retval = arkStep_AccessStepMem(arkode_mem, "arkStep_NlsConvTest",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
 
   /* if the problem is linearly implicit, just return success */
   if (step_mem->linear)

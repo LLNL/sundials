@@ -170,6 +170,8 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
 int arkStep_TakeStep(void* arkode_mem);
 
 /* Internal utility routines */
+int arkStep_AccessStepMem(void* arkode_mem, const char *fname,
+                          ARKodeMem *ark_mem, ARKodeARKStepMem *step_mem);
 booleantype arkStep_CheckNVector(N_Vector tmpl);
 int arkStep_SetButcherTables(ARKodeMem ark_mem);
 int arkStep_CheckButcherTables(ARKodeMem ark_mem);
