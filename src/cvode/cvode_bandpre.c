@@ -209,7 +209,6 @@ int CVBandPrecGetWorkSpace(void *cvode_mem, long int *lenrwBP,
   CVBandPrecData pdata;
   sunindextype lrw1, liw1;
   long int lrw, liw;
-  int flag;
   
   if (cvode_mem == NULL) {
     cvProcessError(NULL, CVSPILS_MEM_NULL, "CVBANDPRE",
@@ -241,17 +240,17 @@ int CVBandPrecGetWorkSpace(void *cvode_mem, long int *lenrwBP,
     *lenrwBP += 2*lrw1;
   }
   if (pdata->savedJ->ops->space) {
-    flag = SUNMatSpace(pdata->savedJ, &lrw, &liw);
+    (void) SUNMatSpace(pdata->savedJ, &lrw, &liw);
     *leniwBP += liw;
     *lenrwBP += lrw;
   }
   if (pdata->savedP->ops->space) {
-    flag = SUNMatSpace(pdata->savedP, &lrw, &liw);
+    (void) SUNMatSpace(pdata->savedP, &lrw, &liw);
     *leniwBP += liw;
     *lenrwBP += lrw;
   }
   if (pdata->LS->ops->space) {
-    flag = SUNLinSolSpace(pdata->LS, &lrw, &liw);
+    (void) SUNLinSolSpace(pdata->LS, &lrw, &liw);
     *leniwBP += liw;
     *lenrwBP += lrw;
   }

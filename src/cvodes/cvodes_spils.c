@@ -316,13 +316,13 @@ int CVSpilsSetJacTimes(void *cvode_mem,
   /* Return immediately if cvode_mem or cv_mem->cv_lmem are NULL */
   if (cvode_mem == NULL) {
     cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSSPILS",
-                   "CVSpilsSetJacTimesVecFn", MSGS_CVMEM_NULL);
+                   "CVSpilsSetJacTimes", MSGS_CVMEM_NULL);
     return(CVSPILS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
   if (cv_mem->cv_lmem == NULL) {
     cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSSPILS",
-                   "CVSpilsSetJacTimesVecFn", MSGS_LMEM_NULL);
+                   "CVSpilsSetJacTimes", MSGS_LMEM_NULL);
     return(CVSPILS_LMEM_NULL);
   }
   cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
@@ -357,7 +357,6 @@ int CVSpilsGetWorkSpace(void *cvode_mem, long int *lenrwLS,
   CVSpilsMem cvspils_mem;
   sunindextype lrw1, liw1;
   long int lrw, liw;
-  int flag;
 
   /* Return immediately if cvode_mem or cv_mem->cv_lmem are NULL */
   if (cvode_mem == NULL) {
@@ -386,7 +385,7 @@ int CVSpilsGetWorkSpace(void *cvode_mem, long int *lenrwLS,
 
   /* add LS sizes */
   if (cvspils_mem->LS->ops->space) {
-    flag = SUNLinSolSpace(cvspils_mem->LS, &lrw, &liw);
+    (void) SUNLinSolSpace(cvspils_mem->LS, &lrw, &liw);
     *lenrwLS += lrw;
     *leniwLS += liw;
   }
@@ -1447,9 +1446,9 @@ int CVSpilsSetJacTimesB(void *cvode_mem, int which,
 }
 
 
-int CVSpilsSetJacTimesSetupFnBS(void *cvode_mem, int which,
-                                CVSpilsJacTimesSetupFnBS jtsetupBS,
-                                CVSpilsJacTimesVecFnBS jtimesBS)
+int CVSpilsSetJacTimesBS(void *cvode_mem, int which,
+                         CVSpilsJacTimesSetupFnBS jtsetupBS,
+                         CVSpilsJacTimesVecFnBS jtimesBS)
 {
   CVadjMem ca_mem;
   CVodeMem cv_mem;
@@ -1511,6 +1510,14 @@ int CVSpilsSetJacTimesSetupFnBS(void *cvode_mem, int which,
   return CVSpilsSetJacTimes(cvodeB_mem, cvspils_jtsetup, cvspils_jtimes);
 }
 
+
+int CVSpilsSetJacTimesSetupFnBS(void *cvode_mem, int which,
+                                CVSpilsJacTimesSetupFnBS jtsetupBS,
+                                CVSpilsJacTimesVecFnBS jtimesBS)
+{
+  fprintf(stderr, "WARNING: CVSpilsSetJacTimesSetupFnBS is deprecated and will be removed in future releases, use CVSpilsSetJacTimesBS.");
+  return CVSpilsSetJacTimesBS(cvode_mem, which, jtsetupBS, jtimesBS);
+}
 
 /*-----------------------------------------------------------------
   CVSSPILS private functions

@@ -512,14 +512,13 @@ static void FreeUserData(UserData webdata)
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                N_Vector res, UserData webdata)
 {
-  int ixsub, jysub, mxsub, mysub, nsmxsub, np, ix, jy, is;
+  int ixsub, jysub, mxsub, mysub, np, ix, jy, is;
   realtype *cxy, *idxy, *cpxy, dx, dy, xx, yy, xyfactor;
   
   ixsub = webdata->ixsub;
   jysub = webdata->jysub;
   mxsub = webdata->mxsub;
   mysub = webdata->mxsub;
-  nsmxsub = webdata->nsmxsub;
   dx = webdata->dx;
   dy = webdata->dy;
   np = webdata->np;
@@ -764,7 +763,7 @@ static int resweb(realtype tt, N_Vector cc, N_Vector cp,
   /* Call reslocal to calculate the local portion of residual vector. */
   flag = reslocal(tt, cc, cp, res, webdata);
 
-  return(0);
+  return(flag);
  
 }
 

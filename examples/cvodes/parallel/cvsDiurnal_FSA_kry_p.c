@@ -419,10 +419,10 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   realtype c1, c2, cydn, cyup, diag, ydn, yup, q4coef, dely, verdco, hordco;
   realtype **(*P)[MYSUB], **(*Jbd)[MYSUB];
   sunindextype *(*pivot)[MYSUB], ier, nvmxsub, offset;
-  int lx, ly, jx, jy, isubx, isuby;
+  int lx, ly, jy, isuby;
   realtype *udata, **a, **j;
   UserData data;
-  realtype Q1, Q2, C3, A3, A4, KH, VEL, KV0;
+  realtype Q1, Q2, C3;
 
   /* Make local copies of pointers in user_data, pointer to u's data,
      and PE index pair */
@@ -431,18 +431,13 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   Jbd = data->Jbd;
   pivot = data->pivot;
   udata = N_VGetArrayPointer_Parallel(u);
-  isubx = data->isubx;   isuby = data->isuby;
+  isuby = data->isuby;
   nvmxsub = data->nvmxsub;
 
   /* Load problem coefficients and parameters */
   Q1 = data->p[0];
   Q2 = data->p[1];
   C3 = data->p[2];
-  A3 = data->p[3];
-  A4 = data->p[4];
-  KH = data->p[5];
-  VEL = data->p[6];
-  KV0 = data->p[7];
 
   if (jok) {  /* jok = SUNTRUE: Copy Jbd to P */
 
@@ -469,7 +464,6 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
       cyup = verdco*SUNRexp(RCONST(0.2)*yup);
       diag = -(cydn + cyup + RCONST(2.0)*hordco);
       for (lx = 0; lx < MXSUB; lx++) {
-        jx = lx + isubx*MXSUB;
         offset = lx*NVARS + ly*nvmxsub;
         c1 = udata[offset];
         c2 = udata[offset+1];
@@ -906,9 +900,9 @@ static void fcalc(realtype t, realtype udata[], realtype dudata[], UserData data
   realtype c1rt, c2rt, cydn, cyup, hord1, hord2, horad1, horad2;
   realtype qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, ydn, yup;
   realtype q4coef, dely, verdco, hordco, horaco;
-  int i, lx, ly, jx, jy, isubx, isuby;
+  int i, lx, ly, jy, isubx, isuby;
   sunindextype nvmxsub, nvmxsub2, offsetu, offsetue;
-  realtype Q1, Q2, C3, A3, A4, KH, VEL, KV0;
+  realtype Q1, Q2, C3, A3, A4;
 
   /* Get subgrid indices, data sizes, extended work array uext */
   isubx = data->isubx;   isuby = data->isuby;
@@ -921,9 +915,6 @@ static void fcalc(realtype t, realtype udata[], realtype dudata[], UserData data
   C3  = data->p[2];
   A3  = data->p[3];
   A4  = data->p[4];
-  KH  = data->p[5];
-  VEL = data->p[6];
-  KV0 = data->p[7];
 
   /* Copy local segment of u vector into the working extended array uext */
   offsetu = 0;
@@ -995,7 +986,6 @@ static void fcalc(realtype t, realtype udata[], realtype dudata[], UserData data
     cydn = verdco*SUNRexp(RCONST(0.2)*ydn);
     cyup = verdco*SUNRexp(RCONST(0.2)*yup);
     for (lx = 0; lx < MXSUB; lx++) {
-      jx = lx + isubx*MXSUB;
 
       /* Extract c1 and c2, and set kinetic rate terms */
       offsetue = (lx+1)*NVARS + (ly+1)*nvmxsub2;

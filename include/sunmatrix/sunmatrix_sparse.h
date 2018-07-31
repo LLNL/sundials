@@ -196,6 +196,7 @@ typedef struct _SUNMatrixContent_Sparse *SUNMatrixContent_Sparse;
  * OTHER:
  *    SUNSparseMatrix_Print
  *    SUNSparseMatrix_Realloc
+ *    SUNSparseMatrix_Reallocate
  *    SUNSparseMatrix_Rows
  *    SUNSparseMatrix_Columns 
  *    SUNSparseMatrix_NNZ
@@ -266,12 +267,25 @@ SUNDIALS_EXPORT SUNMatrix SUNSparseFromBandMatrix(SUNMatrix A,
  * Functions: SUNSparseMatrix_Realloc
  * -----------------------------------------------------------------
  * This function reallocates internal arrays so that the resulting 
- * sparse matrix holds colptrs[N] nonzeros.  Returns 0 on success and 
+ * sparse matrix holds colptrs[N] nonzeros.  Returns 0 on success and
  * 1 on failure (e.g. if A does not have sparse type)
  * -----------------------------------------------------------------
  */
 
 SUNDIALS_EXPORT int SUNSparseMatrix_Realloc(SUNMatrix A);
+
+/*
+ * -----------------------------------------------------------------
+ * Functions: SUNSparseMatrix_Reallocate
+ * -----------------------------------------------------------------
+ * This function reallocates internal arrays so that the resulting 
+ * sparse matrix has storage for a specified number of nonzeros.  
+ * Returns 0 on success and 1 on failure (e.g. if A does not have 
+ * sparse type, or if nnz is negative)
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int SUNSparseMatrix_Reallocate(SUNMatrix A, sunindextype NNZ);
 
 /*
  * -----------------------------------------------------------------

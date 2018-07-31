@@ -268,7 +268,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   realtype ui, ult, urt, hordc, horac, hdiff, hadv;
   realtype *udata, *dudata, *z;
   int i;
-  int npes, my_pe, my_length, my_pe_m1, my_pe_p1, last_pe, my_last;
+  int npes, my_pe, my_length, my_pe_m1, my_pe_p1, last_pe;
   UserData data;
   MPI_Status status;
   MPI_Comm comm;
@@ -292,7 +292,6 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   my_pe_m1 = my_pe - 1;
   my_pe_p1 = my_pe + 1;
   last_pe = npes - 1;
-  my_last = my_length - 1;
 
   /* Store local segment of u in the working array z. */
    for (i = 1; i <= my_length; i++)

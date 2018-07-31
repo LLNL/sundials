@@ -1,5 +1,5 @@
                               IDAS
-                     Release 2.1.1, May 2018
+                     Release 2.1.2, July 2018
                            Radu Serban 
            Center for Applied Scientific Computing, LLNL
 
@@ -72,6 +72,7 @@ C. References
 D. Releases
 -----------
 
+v. 2.1.2   - Jul. 2018
 v. 2.1.1   - May  2018
 v. 2.1.0   - Nov. 2017
 v. 2.0.0   - Sep. 2017

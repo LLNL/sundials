@@ -1,28 +1,26 @@
-/* -----------------------------------------------------------------
- * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
- *                Radu Serban @ LLNL
+/*
  * -----------------------------------------------------------------
- * Example problem:
- * 
+ * Programmers: Radu Serban and Alan Hindmarsh @ LLNL
+ * -----------------------------------------------------------------
+ * Modification of the CVODE example cvRoberts_dns to illustrate
+ * the treatment of unphysical solution components through the RHS
+ * function return flag.
+ *
+ * Note that, to make possible negative solution components, the
+ * absolute tolerances had to be loosened a bit from their values
+ * in cvRoberts_dns.
+ *
  * The following is a simple example problem, with the coding
  * needed for its solution by CVODE. The problem is from
  * chemical kinetics, and consists of the following three rate
- * equations:         
+ * equations:
  *    dy1/dt = -.04*y1 + 1.e4*y2*y3
  *    dy2/dt = .04*y1 - 1.e4*y2*y3 - 3.e7*(y2)^2
  *    dy3/dt = 3.e7*(y2)^2
  * on the interval from t = 0.0 to t = 4.e10, with initial
  * conditions: y1 = 1.0, y2 = y3 = 0. The problem is stiff.
- * While integrating the system, we also use the rootfinding
- * feature to find the points at which y1 = 1e-4 or at which
- * y3 = 0.01. This program solves the problem with the BDF method,
- * Newton iteration with the SUNDENSE dense linear solver, and a
- * user-supplied Jacobian routine.
- * It uses a user-supplied function to compute the error weights
- * required for the WRMS norm calculations.
- * Output is printed in decades from t = .4 to t = 4.e10.
- * Run statistics (optional outputs) are printed at the end.
- * -----------------------------------------------------------------*/
+ * -----------------------------------------------------------------
+ */
 
 #include <stdio.h>
 
@@ -32,26 +30,6 @@
 #include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
 #include <cvode/cvode_direct.h>        /* access to CVDls interface            */
 #include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
-#include <sundials/sundials_math.h>    /* definition of ABS                    */
-
-/* User-defined vector and matrix accessor macros: Ith, IJth */
-
-/* These macros are defined in order to write code which exactly matches
-   the mathematical problem description given above.
-
-   Ith(v,i) references the ith component of the vector v, where i is in
-   the range [1..NEQ] and NEQ is defined below. The Ith macro is defined
-   using the N_VIth macro in nvector.h. N_VIth numbers the components of
-   a vector starting from 0.
-
-   IJth(A,i,j) references the (i,j)th element of the dense matrix A, where
-   i and j are in the range [1..NEQ]. The IJth macro is defined using the
-   SM_ELEMENT_D macro in dense.h. SM_ELEMENT_D numbers rows and columns of 
-   a dense matrix starting from 0. */
-
-#define Ith(v,i)    NV_Ith_S(v,i-1)         /* Ith numbers components 1..NEQ */
-#define IJth(A,i,j) SM_ELEMENT_D(A,i-1,j-1) /* IJth numbers rows,cols 1..NEQ */
-
 
 /* Problem Constants */
 
@@ -60,13 +38,13 @@
 #define Y2    RCONST(0.0)
 #define Y3    RCONST(0.0)
 #define RTOL  RCONST(1.0e-4)   /* scalar relative tolerance            */
-#define ATOL1 RCONST(1.0e-8)   /* vector absolute tolerance components */
-#define ATOL2 RCONST(1.0e-14)
-#define ATOL3 RCONST(1.0e-6)
+#define ATOL1 RCONST(1.0e-7)   /* vector absolute tolerance components */
+#define ATOL2 RCONST(1.0e-13)
+#define ATOL3 RCONST(1.0e-5)
 #define T0    RCONST(0.0)      /* initial time           */
 #define T1    RCONST(0.4)      /* first output time      */
 #define TMULT RCONST(10.0)     /* output time factor     */
-#define NOUT  12               /* number of output times */
+#define NOUT  14               /* number of output times */
 
 #define ZERO  RCONST(0.0)
 
@@ -74,17 +52,9 @@
 
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 
-static int g(realtype t, N_Vector y, realtype *gout, void *user_data);
-
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
-               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-
-static int ewt(N_Vector y, N_Vector w, void *user_data);
-
 /* Private functions to output results */
 
 static void PrintOutput(realtype t, realtype y1, realtype y2, realtype y3);
-static void PrintRootInfo(int root_f1, int root_f2);
 
 /* Private function to print final statistics */
 
@@ -94,7 +64,6 @@ static void PrintFinalStats(void *cvode_mem);
 
 static int check_flag(void *flagvalue, const char *funcname, int opt);
 
-
 /*
  *-------------------------------
  * Main Program
@@ -103,46 +72,56 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 int main()
 {
-  realtype t, tout;
-  N_Vector y;
+  realtype reltol, t, tout;
+  N_Vector y, abstol;
   SUNMatrix A;
   SUNLinearSolver LS;
   void *cvode_mem;
-  int flag, flagr, iout;
-  int rootsfound[2];
+  int flag, iout;
+  booleantype check_negative;
 
-  y = NULL;
+  y = abstol = NULL;
   A = NULL;
   LS = NULL;
   cvode_mem = NULL;
 
-  /* Create serial vector of length NEQ for I.C. */
+  /* Create serial vector of length NEQ for I.C. and abstol */
   y = N_VNew_Serial(NEQ);
   if (check_flag((void *)y, "N_VNew_Serial", 0)) return(1);
+  abstol = N_VNew_Serial(NEQ);
+  if (check_flag((void *)abstol, "N_VNew_Serial", 0)) return(1);
 
   /* Initialize y */
-  Ith(y,1) = Y1;
-  Ith(y,2) = Y2;
-  Ith(y,3) = Y3;
+  NV_Ith_S(y,0) = Y1;
+  NV_Ith_S(y,1) = Y2;
+  NV_Ith_S(y,2) = Y3;
 
-  /* Call CVodeCreate to create the solver memory and specify the 
+  /* Set the scalar relative tolerance */
+  reltol = RTOL;
+  /* Set the vector absolute tolerance */
+  NV_Ith_S(abstol,0) = ATOL1;
+  NV_Ith_S(abstol,1) = ATOL2;
+  NV_Ith_S(abstol,2) = ATOL3;
+
+  /* Call CVodeCreate to create the solver memory and specify the
    * Backward Differentiation Formula and the use of a Newton iteration */
   cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
   if (check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
-  
+
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in y'=f(t,y), the inital time T0, and
    * the initial dependent variable vector y. */
   flag = CVodeInit(cvode_mem, f, T0, y);
   if (check_flag(&flag, "CVodeInit", 1)) return(1);
 
-  /* Use private function to compute error weights */
-  flag = CVodeWFtolerances(cvode_mem, ewt);
-  if (check_flag(&flag, "CVodeSetEwtFn", 1)) return(1);
+  /* Call CVodeSVtolerances to specify the scalar relative tolerance
+   * and vector absolute tolerances */
+  flag = CVodeSVtolerances(cvode_mem, reltol, abstol);
+  if (check_flag(&flag, "CVodeSVtolerances", 1)) return(1);
 
-  /* Call CVodeRootInit to specify the root function g with 2 components */
-  flag = CVodeRootInit(cvode_mem, 2, g);
-  if (check_flag(&flag, "CVodeRootInit", 1)) return(1);
+  /* Call CVodeSetUserData to pass the check negative flag as user data */
+  flag = CVodeSetUserData(cvode_mem, &check_negative);
+  if (check_flag(&flag, "CVodeSetUserData", 1)) return(1);
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(NEQ, NEQ);
@@ -156,39 +135,44 @@ int main()
   flag = CVDlsSetLinearSolver(cvode_mem, LS, A);
   if(check_flag(&flag, "CVDlsSetLinearSolver", 1)) return(1);
 
-  /* Set the user-supplied Jacobian routine Jac */
-  flag = CVDlsSetJacFn(cvode_mem, Jac);
-  if(check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
-
-  /* In loop, call CVode, print results, and test for error.
-     Break out of loop when NOUT preset output times have been reached.  */
-  printf(" \n3-species kinetics problem\n\n");
-
+  /* Case 1: ignore negative solution components */
+  printf("Ignore negative solution components\n\n");
+  check_negative = SUNFALSE;
+  /* In loop, call CVode in CV_NORMAL mode */
   iout = 0;  tout = T1;
   while(1) {
     flag = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
-    PrintOutput(t, Ith(y,1), Ith(y,2), Ith(y,3));
-
-    if (flag == CV_ROOT_RETURN) {
-      flagr = CVodeGetRootInfo(cvode_mem, rootsfound);
-      if (check_flag(&flagr, "CVodeGetRootInfo", 1)) return(1);
-      PrintRootInfo(rootsfound[0],rootsfound[1]);
-    }
-
-    if (check_flag(&flag, "CVode", 1)) break;
-    if (flag == CV_SUCCESS) {
-      iout++;
-      tout *= TMULT;
-    }
-
+    PrintOutput(t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
+    iout++;
+    tout *= TMULT;
     if (iout == NOUT) break;
   }
-
   /* Print some final statistics */
   PrintFinalStats(cvode_mem);
 
-  /* Free y vector */
+  /* Case 2: intercept negative solution components */
+  printf("Intercept negative solution components\n\n");
+  check_negative = SUNTRUE;
+  /* Reinitialize solver */
+  NV_Ith_S(y,0) = Y1;
+  NV_Ith_S(y,1) = Y2;
+  NV_Ith_S(y,2) = Y3;
+  flag = CVodeReInit(cvode_mem, T0, y);
+  /* In loop, call CVode in CV_NORMAL mode */
+  iout = 0;  tout = T1;
+  while(1) {
+    CVode(cvode_mem, tout, y, &t, CV_NORMAL);
+    PrintOutput(t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
+    iout++;
+    tout *= TMULT;
+    if (iout == NOUT) break;
+  }
+  /* Print some final statistics */
+  PrintFinalStats(cvode_mem);
+
+  /* Free y and abstol vectors */
   N_VDestroy(y);
+  N_VDestroy(abstol);
 
   /* Free integrator memory */
   CVodeFree(&cvode_mem);
@@ -210,83 +194,24 @@ int main()
  */
 
 /*
- * f routine. Compute function f(t,y). 
+ * f routine. Compute function f(t,y).
  */
 
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 {
   realtype y1, y2, y3, yd1, yd3;
+  booleantype *check_negative;
 
-  y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
+  check_negative = (booleantype *)user_data;
 
-  yd1 = Ith(ydot,1) = RCONST(-0.04)*y1 + RCONST(1.0e4)*y2*y3;
-  yd3 = Ith(ydot,3) = RCONST(3.0e7)*y2*y2;
-        Ith(ydot,2) = -yd1 - yd3;
+  y1 = NV_Ith_S(y,0); y2 = NV_Ith_S(y,1); y3 = NV_Ith_S(y,2);
 
-  return(0);
-}
+  if ( *check_negative && (y1<0 || y2<0 || y3<0) )
+    return(1);
 
-/*
- * g routine. Compute functions g_i(t,y) for i = 0,1. 
- */
-
-static int g(realtype t, N_Vector y, realtype *gout, void *user_data)
-{
-  realtype y1, y3;
-
-  y1 = Ith(y,1); y3 = Ith(y,3);
-  gout[0] = y1 - RCONST(0.0001);
-  gout[1] = y3 - RCONST(0.01);
-
-  return(0);
-}
-
-/*
- * Jacobian routine. Compute J(t,y) = df/dy. *
- */
-
-static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, 
-               void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
-{
-  realtype y2, y3;
-
-  y2 = Ith(y,2); y3 = Ith(y,3);
-
-  IJth(J,1,1) = RCONST(-0.04);
-  IJth(J,1,2) = RCONST(1.0e4)*y3;
-  IJth(J,1,3) = RCONST(1.0e4)*y2;
-
-  IJth(J,2,1) = RCONST(0.04); 
-  IJth(J,2,2) = RCONST(-1.0e4)*y3-RCONST(6.0e7)*y2;
-  IJth(J,2,3) = RCONST(-1.0e4)*y2;
-
-  IJth(J,3,1) = ZERO;
-  IJth(J,3,2) = RCONST(6.0e7)*y2;
-  IJth(J,3,3) = ZERO;
-
-  return(0);
-}
-
-/*
- * EwtSet function. Computes the error weights at the current solution.
- */
-
-static int ewt(N_Vector y, N_Vector w, void *user_data)
-{
-  int i;
-  realtype yy, ww, rtol, atol[3];
-
-  rtol    = RTOL;
-  atol[0] = ATOL1;
-  atol[1] = ATOL2;
-  atol[2] = ATOL3;
-
-  for (i=1; i<=3; i++) {
-    yy = Ith(y,i);
-    ww = rtol * SUNRabs(yy) + atol[i-1];
-    if (ww <= 0.0) return (-1);
-    Ith(w,i) = 1.0/ww;
-  }
+  yd1 = NV_Ith_S(ydot,0) = RCONST(-0.04)*y1 + RCONST(1.0e4)*y2*y3;
+  yd3 = NV_Ith_S(ydot,2) = RCONST(3.0e7)*y2*y2;
+        NV_Ith_S(ydot,1) = -yd1 - yd3;
 
   return(0);
 }
@@ -310,20 +235,9 @@ static void PrintOutput(realtype t, realtype y1, realtype y2, realtype y3)
   return;
 }
 
-static void PrintRootInfo(int root_f1, int root_f2)
-{
-  printf("    rootsfound[] = %3d %3d\n", root_f1, root_f2);
-
-  return;
-}
-
-/* 
- * Get and print some final statistics
- */
-
 static void PrintFinalStats(void *cvode_mem)
 {
-  long int nst, nfe, nsetups, nje, nfeLS, nni, ncfn, netf, nge;
+  long int nst, nfe, nsetups, nje, nfeLS, nni, ncfn, netf;
   int flag;
 
   flag = CVodeGetNumSteps(cvode_mem, &nst);
@@ -344,14 +258,11 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVDlsGetNumRhsEvals(cvode_mem, &nfeLS);
   check_flag(&flag, "CVDlsGetNumRhsEvals", 1);
 
-  flag = CVodeGetNumGEvals(cvode_mem, &nge);
-  check_flag(&flag, "CVodeGetNumGEvals", 1);
-
   printf("\nFinal Statistics:\n");
   printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nfeLS = %-6ld nje = %ld\n",
-	 nst, nfe, nsetups, nfeLS, nje);
-  printf("nni = %-6ld ncfn = %-6ld netf = %-6ld nge = %ld\n \n",
-	 nni, ncfn, netf, nge);
+         nst, nfe, nsetups, nfeLS, nje);
+  printf("nni = %-6ld ncfn = %-6ld netf = %-6ld\n \n",
+         nni, ncfn, netf);
 }
 
 /*
@@ -361,7 +272,7 @@ static void PrintFinalStats(void *cvode_mem)
  *   opt == 1 means SUNDIALS function returns a flag so check if
  *            flag >= 0
  *   opt == 2 means function allocates memory so check if returned
- *            NULL pointer 
+ *            NULL pointer
  */
 
 static int check_flag(void *flagvalue, const char *funcname, int opt)
@@ -390,3 +301,4 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
 
   return(0);
 }
+

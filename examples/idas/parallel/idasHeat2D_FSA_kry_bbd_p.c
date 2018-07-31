@@ -393,7 +393,7 @@ static int heatres(realtype tres, N_Vector uu, N_Vector up,
   /* Call reslocal to calculate res. */
   retval = reslocal(Nlocal, tres, uu, up, res, data);
   
-  return(0);
+  return(retval);
   
 }
 
@@ -699,7 +699,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
 {
   int i, iloc, j, jloc, offset, loc, ixsub, jysub;
   int ixbegin, ixend, jybegin, jyend;
-  realtype xfact, yfact, *udata, *iddata, dx, dy;
+  realtype xfact, yfact, *udata, *iddata;
   
   /* Initialize uu. */ 
   
@@ -707,8 +707,6 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
   iddata = N_VGetArrayPointer_Parallel(id);
   
   /* Set mesh spacings and subgrid indices for this PE. */
-  dx = data->dx;
-  dy = data->dy;
   ixsub = data->ixsub;
   jysub = data->jysub;
   

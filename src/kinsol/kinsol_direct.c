@@ -169,7 +169,6 @@ int KINDlsGetWorkSpace(void *kinmem, long int *lenrwLS,
   KINMem kin_mem;
   KINDlsMem kindls_mem;
   long int lrw, liw;
-  int flag;
 
   /* Return immediately if kinmem or kin_mem->kin_lmem are NULL */
   if (kinmem == NULL) {
@@ -191,7 +190,7 @@ int KINDlsGetWorkSpace(void *kinmem, long int *lenrwLS,
 
   /* add LS sizes */
   if (kindls_mem->LS->ops->space) {
-    flag = SUNLinSolSpace(kindls_mem->LS, &lrw, &liw);
+    (void) SUNLinSolSpace(kindls_mem->LS, &lrw, &liw);
     *lenrwLS += lrw;
     *leniwLS += liw;
   }
