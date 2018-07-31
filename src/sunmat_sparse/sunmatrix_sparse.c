@@ -332,22 +332,19 @@ void SUNSparseMatrix_Print(SUNMatrix A, FILE* outfile)
   sunindextype i, j;
   char *matrixtype;
   char *indexname;
-  
+
   /* should not be called unless A is a sparse matrix; 
      otherwise return immediately */
   if (SUNMatGetID(A) != SUNMATRIX_SPARSE)
     return;
 
   /* perform operation */
-  switch(SM_SPARSETYPE_S(A)) {
-  case CSC_MAT:
+  if (SM_SPARSETYPE_S(A) == CSC_MAT) {
     indexname = (char*) "col";
     matrixtype = (char*) "CSC";
-    break;
-  case CSR_MAT:
+  } else {
     indexname = (char*) "row";
     matrixtype = (char*) "CSR";
-    break;
   }
   fprintf(outfile, "\n");
   fprintf(outfile, "%ld by %ld %s matrix, NNZ: %ld \n",

@@ -88,7 +88,16 @@ int main(int argc, char *argv[])
   printf("\nSparse matrix test: size %ld by %ld, type = %i\n\n",
          (long int) matrows, (long int) matcols, mattype);
 
-    
+  /* Initialize vectors and matrices to NULL */
+  x = NULL;
+  y = NULL;
+  z = NULL;
+  A = NULL;
+  B = NULL;
+  C = NULL;
+  D = NULL;
+  I = NULL;
+  
   /* check creating sparse matrix from dense matrix */
   B = SUNDenseMatrix(5,6);
   

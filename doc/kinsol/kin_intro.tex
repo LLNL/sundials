@@ -111,29 +111,28 @@ interfacing the solver to applications written in {\F}.
 
 \subsection*{Changes in v3.1.2}
 
-Fixed Windows specific problem where \id{sunindextype} was not correctly 
-defined when using 64-bit integers for the {\sundials} index type. On Windows
-\id{sunindextype} is now defined as the MSVC basic type \id{\_\_int64}.
-
-Changed the LICENSE install path to \id{instdir/include/sundials}.
-
-Updated the minimum required version of CMake to 2.8.12 and enabled
-using rpath by default to locate shared libraries on OSX.
-
-Added sparse SUNMatrix ``Reallocate'' routine to allow specification of
-the nonzero storage.
-
-Updated the KLU SUNLinearSolver module to set constants for the two
-reinitialization types, and fixed a bug in the full reinitialization
-approach where the sparse SUNMatrix pointer would go out of scope on
-some architectures.
-
-Updated the ``ScaleAdd'' and ``ScaleAddI'' implementations in the
-sparse SUNMatrix module to more optimally handle the case where the
-target matrix contained sufficient storage for the sum, but had the
-wrong sparsity pattern.  The sum now occurs in-place, by performing
-the sum backwards in the existing storage.
-
+The changes in this minor release include the following:
+\begin{itemize}
+\item Updated the minimum required version of CMake to 2.8.12 and enabled
+  using rpath by default to locate shared libraries on OSX.
+\item Fixed Windows specific problem where \id{sunindextype} was not correctly 
+  defined when using 64-bit integers for the {\sundials} index type. On Windows
+  \id{sunindextype} is now defined as the MSVC basic type \id{\_\_int64}.
+\item Added sparse SUNMatrix ``Reallocate'' routine to allow specification of
+  the nonzero storage.
+\item Updated the KLU SUNLinearSolver module to set constants for the two
+  reinitialization types, and fixed a bug in the full reinitialization
+  approach where the sparse SUNMatrix pointer would go out of scope on
+  some architectures.
+\item Updated the ``ScaleAdd'' and ``ScaleAddI'' implementations in the
+  sparse SUNMatrix module to more optimally handle the case where the
+  target matrix contained sufficient storage for the sum, but had the
+  wrong sparsity pattern.  The sum now occurs in-place, by performing
+  the sum backwards in the existing storage.  However, it is still more
+  efficient if the user-supplied Jacobian routine allocates storage for
+  the sum $I+\gamma J$ manually (with zero entries if needed).
+\item Changed the LICENSE install path to \id{instdir/include/sundials}.
+\end{itemize}
 
 \subsection*{Changes in v3.1.1}
 

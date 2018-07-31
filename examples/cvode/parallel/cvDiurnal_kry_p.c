@@ -671,7 +671,7 @@ static void fcalc(realtype t, realtype udata[],
   realtype c1rt, c2rt, cydn, cyup, hord1, hord2, horad1, horad2;
   realtype qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, ydn, yup;
   realtype q4coef, dely, verdco, hordco, horaco;
-  int i, lx, ly, jx, jy;
+  int i, lx, ly, jy;
   int isubx, isuby;
   sunindextype nvmxsub, nvmxsub2, offsetu, offsetue;
 
@@ -752,8 +752,6 @@ static void fcalc(realtype t, realtype udata[],
     cyup = verdco*SUNRexp(RCONST(0.2)*yup);
     for (lx = 0; lx < MXSUB; lx++) {
 
-      jx = lx + isubx*MXSUB;
-
       /* Extract c1 and c2, and set kinetic rate terms */
       offsetue = (lx+1)*NVARS + (ly+1)*nvmxsub2;
       c1 = uext[offsetue];
@@ -824,7 +822,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   realtype **(*P)[MYSUB], **(*Jbd)[MYSUB];
   int nvmxsub, ier, offset;
   sunindextype *(*pivot)[MYSUB];
-  int lx, ly, jx, jy, isubx, isuby;
+  int lx, ly, jy, isuby;
   realtype *udata, **a, **j;
   UserData data;
 
@@ -835,7 +833,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   Jbd = data->Jbd;
   pivot = data->pivot;
   udata = N_VGetArrayPointer(u);
-  isubx = data->isubx;   isuby = data->isuby;
+  isuby = data->isuby;
   nvmxsub = data->nvmxsub;
 
   if (jok) {
@@ -869,7 +867,6 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
       cyup = verdco*SUNRexp(RCONST(0.2)*yup);
       diag = -(cydn + cyup + RCONST(2.0)*hordco);
       for (lx = 0; lx < MXSUB; lx++) {
-        jx = lx + isubx*MXSUB;
         offset = lx*NVARS + ly*nvmxsub;
         c1 = udata[offset];
         c2 = udata[offset+1];

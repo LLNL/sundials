@@ -788,14 +788,14 @@ static int fQB1(realtype t, N_Vector y, N_Vector *yS,
                 N_Vector yB, N_Vector qBdot, void *user_dataB)
 {
   UserData data;
-  realtype p1, p2;
+  realtype p2;
   realtype y1, y2, y3;  /* solution */
   realtype s1, s2, s3;  /* sensitivity 1 */
-  realtype l1, l2, l3;  /* lambda */
-  realtype m1, m2, m3;  /* mu */
+  realtype l1, l3;      /* lambda */
+  realtype m1, m3;      /* mu */
   
   data = (UserData) user_dataB;
-  p1 = data->p1; 
+
   p2 = data->p2; 
 
   y1 = Ith(y,1); 
@@ -807,11 +807,9 @@ static int fQB1(realtype t, N_Vector y, N_Vector *yS,
   s3 = Ith(yS[0],3);
   
   l1 = Ith(yB,1); 
-  l2 = Ith(yB,2); 
   l3 = Ith(yB,3);
 
   m1 = Ith(yB,4); 
-  m2 = Ith(yB,5); 
   m3 = Ith(yB,6);
 
   Ith(qBdot,1) = -y1*y1 * l1;
@@ -873,14 +871,14 @@ static int fQB2(realtype t, N_Vector y, N_Vector *yS,
                 N_Vector yB, N_Vector qBdot, void *user_dataB)
 {
   UserData data;
-  realtype p1, p2;
+  realtype p2;
   realtype y1, y2, y3;  /* solution */
   realtype s1, s2, s3;  /* sensitivity 2 */
-  realtype l1, l2, l3;  /* lambda */
-  realtype m1, m2, m3;  /* mu */
+  realtype l1, l3;  /* lambda */
+  realtype m1, m3;  /* mu */
   
   data = (UserData) user_dataB;
-  p1 = data->p1; 
+
   p2 = data->p2; 
 
   y1 = Ith(y,1); 
@@ -892,11 +890,9 @@ static int fQB2(realtype t, N_Vector y, N_Vector *yS,
   s3 = Ith(yS[1],3);
 
   l1 = Ith(yB,1); 
-  l2 = Ith(yB,2); 
   l3 = Ith(yB,3);
 
   m1 = Ith(yB,4); 
-  m2 = Ith(yB,5); 
   m3 = Ith(yB,6);
 
   Ith(qBdot,1) = -y1*y1 * l1;

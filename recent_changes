@@ -13,6 +13,10 @@ Changes to SUNDIALS since Release of May. 7, 2018.
   and replaced by CVSpilsSetJacTimesBS. The deprecated function
   CVSpilsSetJacTimesSetupFnBS will be removed in the next major release.
 
+* Added and updated usage-notes examples from the SUNDIALS website to work with
+  SUNDIALS 3.x. The new examples are cvode/cvDisc_dns.c cvode/cvRoberts_dns_negsol.c
+  and cvodes/cvsRoberts_FSA_dns_Switch.c. 
+
 * Added sparse SUNMatrix "Reallocate" routine to allow specification
   of the nonzero storage.
 

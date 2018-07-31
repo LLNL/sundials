@@ -357,7 +357,6 @@ int CVSpilsGetWorkSpace(void *cvode_mem, long int *lenrwLS,
   CVSpilsMem cvspils_mem;
   sunindextype lrw1, liw1;
   long int lrw, liw;
-  int flag;
 
   /* Return immediately if cvode_mem or cv_mem->cv_lmem are NULL */
   if (cvode_mem == NULL) {
@@ -386,7 +385,7 @@ int CVSpilsGetWorkSpace(void *cvode_mem, long int *lenrwLS,
 
   /* add LS sizes */
   if (cvspils_mem->LS->ops->space) {
-    flag = SUNLinSolSpace(cvspils_mem->LS, &lrw, &liw);
+    (void) SUNLinSolSpace(cvspils_mem->LS, &lrw, &liw);
     *lenrwLS += lrw;
     *leniwLS += liw;
   }

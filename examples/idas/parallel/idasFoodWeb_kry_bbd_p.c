@@ -456,14 +456,13 @@ static void InitUserData(UserData webdata, int thispe, int npes,
 static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                N_Vector res, UserData webdata)
 {
-  int ixsub, jysub, mxsub, mysub, nsmxsub, np, ix, jy, is;
+  int ixsub, jysub, mxsub, mysub, np, ix, jy, is;
   realtype *cxy, *idxy, *cpxy, dx, dy, xx, yy, xyfactor;
 
   ixsub = webdata->ixsub;
   jysub = webdata->jysub;
   mxsub = webdata->mxsub;
   mysub = webdata->mxsub;
-  nsmxsub = webdata->nsmxsub;
   dx = webdata->dx;
   dy = webdata->dy;
   np = webdata->np;
@@ -723,7 +722,7 @@ static int resweb(realtype tt,
   /* Call reslocal to calculate the local portion of residual vector. */
   retval = reslocal(Nlocal, tt, cc, cp, rr, user_data);
   
-  return(0);
+  return(retval);
 }
 
 /*

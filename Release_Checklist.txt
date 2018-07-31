@@ -8,7 +8,7 @@ web pages.
 
 1. Bug fixes - C solvers
 
-2. Bug fixes - Matlab
+2. Bug fixes - Matlab (This is no longer maintained as of 2016)
 
 3. Bug fixes - installation
 
@@ -76,7 +76,7 @@ web pages.
        - Edit FAQ if necessary:
          https://computation-external.llnl.gov/projects/sundials/faq
 
- b) Once each sub page is complete, ask for team review of draft pages.
+  b) Once each sub page is complete, ask for team review of draft pages.
      https://computation-external.llnl.gov/projects/sundials
 
   c)  After team comments are included and saved, select the
