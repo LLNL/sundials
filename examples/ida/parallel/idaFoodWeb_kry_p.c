@@ -763,7 +763,7 @@ static int resweb(realtype tt, N_Vector cc, N_Vector cp,
   /* Call reslocal to calculate the local portion of residual vector. */
   retval = reslocal(tt, cc, cp, res, webdata);
 
-  return(flag);
+  return(retval);
  
 }
 

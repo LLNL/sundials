@@ -70,8 +70,8 @@ int main()
    */
 
   /* Call CVodeCreate to create CVODE memory block and specify the
-   * Backward Differentiaion Formula and the use of a Newton Iteration */
-  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
+   * Backward Differentiaion Formula */
+  cvode_mem = CVodeCreate(CV_BDF);
   if (check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Call CVodeInit to initialize integrator memory and specify the

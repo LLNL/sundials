@@ -104,8 +104,8 @@ int main()
   NV_Ith_S(abstol,2) = ATOL3;
 
   /* Call CVodeCreate to create the solver memory and specify the
-   * Backward Differentiation Formula and the use of a Newton iteration */
-  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
+   * Backward Differentiation Formula */
+  cvode_mem = CVodeCreate(CV_BDF);
   if (check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
