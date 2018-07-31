@@ -583,8 +583,9 @@ void FIDA_FREE(void)
     SUNMatDestroy(F2C_IDA_matrix);
   if (F2C_IDA_linsol)
     SUNLinSolFree(F2C_IDA_linsol);
+  /* already freed by IDAFree */
   if (F2C_IDA_nonlinsol)
-    SUNNonlinSolFree(F2C_IDA_nonlinsol);
+    F2C_IDA_nonlinsol = NULL;
   return;
 }
 
