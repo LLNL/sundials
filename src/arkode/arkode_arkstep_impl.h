@@ -181,11 +181,13 @@ int arkStep_NlsInit(ARKodeMem ark_mem);
 int arkStep_Nls(ARKodeMem ark_mem, int nflag);
 int arkStep_NlsResid(ARKodeMem ark_mem, N_Vector y,
                      N_Vector fy, N_Vector r);
+int arkStep_NlsFPFun(ARKodeMem ark_mem, N_Vector zpred, N_Vector z,
+                     N_Vector ftemp, N_Vector tempv, N_Vector gz);
 int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag);
 int arkStep_NlsAccelFP(ARKodeMem ark_mem, int nflag);
 int arkStep_AndersonAcc(ARKodeMem ark_mem, N_Vector gval,
                         N_Vector fv, N_Vector x, N_Vector xold,
-                        int iter, realtype *R, realtype *gamma);
+                        int iter);
 int arkStep_Ls(ARKodeMem ark_mem, int nflag);
 int arkStep_HandleNFlag(ARKodeMem ark_mem, int *nflagPtr, int *ncfPtr);
 
