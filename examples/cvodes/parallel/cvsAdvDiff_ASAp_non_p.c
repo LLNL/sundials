@@ -293,7 +293,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   realtype hordc, horac, hdiff, hadv;
   realtype *udata, *dudata;
   sunindextype i, my_length;
-  int npes, my_pe, my_pe_m1, my_pe_p1, last_pe, my_last;
+  int npes, my_pe, my_pe_m1, my_pe_p1, last_pe;
   UserData data;
   MPI_Status status;
   MPI_Comm comm;
@@ -320,7 +320,6 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   udata = N_VGetArrayPointer_Parallel(u);
   dudata = N_VGetArrayPointer_Parallel(udot);
   my_length = N_VGetLocalLength_Parallel(u);
-  my_last = my_length - 1;
 
   /* Pass needed data to processes before and after current process. */
    if (my_pe != 0)
@@ -367,7 +366,7 @@ static int fB(realtype t, N_Vector u,
   realtype dx, hordc, horac, hdiff, hadv;
   realtype *z1, *z2, intgr1, intgr2;
   sunindextype i, my_length;
-  int npes, my_pe, my_pe_m1, my_pe_p1, last_pe, my_last;
+  int npes, my_pe, my_pe_m1, my_pe_p1, last_pe;
   UserData data;
   realtype data_in[2], data_out[2];
   MPI_Status status;
@@ -414,7 +413,6 @@ static int fB(realtype t, N_Vector u,
     my_pe_m1 = my_pe - 1;
     my_pe_p1 = my_pe + 1;
     last_pe  = npes - 1;
-    my_last  = my_length - 1;
 
     /* Pass needed data to processes before and after current process. */
     if (my_pe != 0) {

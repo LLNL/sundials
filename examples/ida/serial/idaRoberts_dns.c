@@ -197,7 +197,6 @@ int main(void)
 
   /* Free memory */
   IDAFree(&mem);
-  SUNNonlinSolFree(NLS);
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
   N_VDestroy(avtol);

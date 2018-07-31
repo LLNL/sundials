@@ -348,14 +348,13 @@ static void InitUserData(UserData data, int thispe, int npes,
 static void SetInitialProfiles(N_Vector uv, N_Vector uvp, N_Vector id,
                                N_Vector resid, UserData data)
 {
-  int ixsub, jysub, mxsub, mysub, nsmxsub, ix, jy;
+  int ixsub, jysub, mxsub, mysub, ix, jy;
   realtype *idxy, dx, dy, x, y, *uvxy, *uvxy1, L, npex, npey;
 
   ixsub = data->ixsub;
   jysub = data->jysub;
   mxsub = data->mxsub;
   mysub = data->mysub;
-  nsmxsub = data->nsmxsub;
   npex = data->npex;
   npey = data->npey;
   dx = data->dx;
@@ -695,7 +694,7 @@ static int res(realtype tt, N_Vector uv, N_Vector uvp,
   /* Call reslocal to calculate the local portion of residual vector. */
   retval = reslocal(Nlocal, tt, uv, uvp, rr, user_data);
   
-  return(0);
+  return(retval);
 }
 
 /*

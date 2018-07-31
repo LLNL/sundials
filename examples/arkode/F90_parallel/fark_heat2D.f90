@@ -86,7 +86,7 @@ module UserData
   integer :: comm                             ! communicator object
   integer :: myid                             ! MPI process ID
   integer :: nprocs                           ! total number of MPI processes
-  logical :: HaveBdry(2,2)                    ! flags denoting if on physical boundary
+  logical :: HaveNbor(2,2)                    ! flags denoting neighbor on boundary
   real(kind=REALTYPE), dimension(:), allocatable :: Erecv  ! receive buffers for neighbor exchange
   real(kind=REALTYPE), dimension(:), allocatable :: Wrecv
   real(kind=REALTYPE), dimension(:), allocatable :: Nrecv
@@ -121,7 +121,7 @@ contains
     comm = MPI_COMM_WORLD
     myid = 0
     nprocs = 0
-    HaveBdry = .true.
+    HaveNbor = .false.
     if (allocated(Erecv))  deallocate(Erecv)
     if (allocated(Wrecv))  deallocate(Wrecv)
     if (allocated(Nrecv))  deallocate(Nrecv)
@@ -193,23 +193,23 @@ contains
     nyl = je-js+1
 
     ! determine if I have neighbors, and allocate exchange buffers
-    HaveBdry(1,1) = (is == 1)
-    HaveBdry(1,2) = (ie == nx)
-    HaveBdry(2,1) = (js == 1)
-    HaveBdry(2,2) = (je == ny)
-    if (.not. HaveBdry(1,1)) then
+    HaveNbor(1,1) = (is /= 1)
+    HaveNbor(1,2) = (ie /= nx)
+    HaveNbor(2,1) = (js /= 1)
+    HaveNbor(2,2) = (je /= ny)
+    if (HaveNbor(1,1)) then
        allocate(Wrecv(nyl))
        allocate(Wsend(nyl))
     endif
-    if (.not. HaveBdry(1,2)) then
+    if (HaveNbor(1,2)) then
        allocate(Erecv(nyl))
        allocate(Esend(nyl))
     endif
-    if (.not. HaveBdry(2,1)) then
+    if (HaveNbor(2,1)) then
        allocate(Srecv(nxl))
        allocate(Ssend(nxl))
     endif
-    if (.not. HaveBdry(2,2)) then
+    if (HaveNbor(2,2)) then
        allocate(Nrecv(nxl))
        allocate(Nsend(nxl))
     endif
@@ -247,7 +247,7 @@ contains
        write(0,*) "Error in MPI_Cart_get = ", ierr
        return
     endif
-    if (.not. HaveBdry(1,1)) then
+    if (HaveNbor(1,1)) then
        nbcoords = (/ coords(1)-1, coords(2) /)
        call MPI_Cart_rank(comm, nbcoords, ipW, ierr)
        if (ierr /= MPI_SUCCESS) then 
@@ -255,7 +255,7 @@ contains
           return
        endif
     endif
-    if (.not. HaveBdry(1,2)) then
+    if (HaveNbor(1,2)) then
        nbcoords = (/ coords(1)+1, coords(2) /)
        call MPI_Cart_rank(comm, nbcoords, ipE, ierr)
        if (ierr /= MPI_SUCCESS) then 
@@ -263,7 +263,7 @@ contains
           return
        endif
     endif
-    if (.not. HaveBdry(2,1)) then
+    if (HaveNbor(2,1)) then
        nbcoords = (/ coords(1), coords(2)-1 /)
        call MPI_Cart_rank(comm, nbcoords, ipS, ierr)
        if (ierr /= MPI_SUCCESS) then 
@@ -271,7 +271,7 @@ contains
           return
        endif
     endif
-    if (.not. HaveBdry(2,2)) then
+    if (HaveNbor(2,2)) then
        nbcoords = (/ coords(1), coords(2)+1 /)
        call MPI_Cart_rank(comm, nbcoords, ipN, ierr)
        if (ierr /= MPI_SUCCESS) then 
@@ -281,7 +281,7 @@ contains
     endif
 
     ! open Irecv buffers
-    if (.not. HaveBdry(1,1)) then
+    if (HaveNbor(1,1)) then
        call MPI_Irecv(Wrecv, nyl, MPI_DOUBLE_PRECISION, ipW, &
                       MPI_ANY_TAG, comm, reqRW, ierr)
        if (ierr /= MPI_SUCCESS) then 
@@ -289,7 +289,7 @@ contains
           return
        endif
     endif
-    if (.not. HaveBdry(1,2)) then
+    if (HaveNbor(1,2)) then
        call MPI_Irecv(Erecv, nyl, MPI_DOUBLE_PRECISION, ipE, &
                       MPI_ANY_TAG, comm, reqRE, ierr)
        if (ierr /= MPI_SUCCESS) then 
@@ -297,7 +297,7 @@ contains
           return
        endif
     endif
-    if (.not. HaveBdry(2,1)) then
+    if (HaveNbor(2,1)) then
        call MPI_Irecv(Srecv, nxl, MPI_DOUBLE_PRECISION, ipS, &
                       MPI_ANY_TAG, comm, reqRS, ierr)
        if (ierr /= MPI_SUCCESS) then 
@@ -305,7 +305,7 @@ contains
           return
        endif
     endif
-    if (.not. HaveBdry(2,2)) then
+    if (HaveNbor(2,2)) then
        call MPI_Irecv(Nrecv, nxl, MPI_DOUBLE_PRECISION, ipN, &
                       MPI_ANY_TAG, comm, reqRN, ierr)
        if (ierr /= MPI_SUCCESS) then 
@@ -315,7 +315,7 @@ contains
     endif
 
     ! send data
-    if (.not. HaveBdry(1,1)) then
+    if (HaveNbor(1,1)) then
        do i=1,nyl
           Wsend(i) = y(1,i)
        enddo
@@ -326,7 +326,7 @@ contains
           return
        endif
     endif
-    if (.not. HaveBdry(1,2)) then
+    if (HaveNbor(1,2)) then
        do i=1,nyl
           Esend(i) = y(nxl,i)
        enddo
@@ -337,8 +337,8 @@ contains
           return
        endif
     endif
-    if (.not. HaveBdry(2,1)) then
-       do i=0,nxl
+    if (HaveNbor(2,1)) then
+       do i=1,nxl
           Ssend(i) = y(i,1)
        enddo
        call MPI_Isend(Ssend, nxl, MPI_DOUBLE_PRECISION, ipS, 2, &
@@ -348,8 +348,8 @@ contains
           return
        endif
     endif
-    if (.not. HaveBdry(2,2)) then
-       do i=0,nxl
+    if (HaveNbor(2,2)) then
+       do i=1,nxl
           Nsend(i) = y(i,nyl)
        enddo
        call MPI_Isend(Nsend, nxl, MPI_DOUBLE_PRECISION, ipN, 3, &
@@ -361,7 +361,7 @@ contains
     endif
 
     ! wait for messages to finish
-    if (.not. HaveBdry(1,1)) then
+    if (HaveNbor(1,1)) then
        call MPI_Wait(reqRW, stat, ierr)
        if (ierr /= MPI_SUCCESS) then 
           write(0,*) "Error in MPI_Wait = ", ierr
@@ -373,7 +373,7 @@ contains
           return
        endif
     endif
-    if (.not. HaveBdry(1,2)) then
+    if (HaveNbor(1,2)) then
        call MPI_Wait(reqRE, stat, ierr)
        if (ierr /= MPI_SUCCESS) then 
           write(0,*) "Error in MPI_Wait = ", ierr
@@ -385,7 +385,7 @@ contains
           return
        endif
     endif
-    if (.not. HaveBdry(2,1)) then
+    if (HaveNbor(2,1)) then
        call MPI_Wait(reqRS, stat, ierr)
        if (ierr /= MPI_SUCCESS) then 
           write(0,*) "Error in MPI_Wait = ", ierr
@@ -397,7 +397,7 @@ contains
           return
        endif
     endif
-    if (.not. HaveBdry(2,2)) then
+    if (HaveNbor(2,2)) then
        call MPI_Wait(reqRN, stat, ierr)
        if (ierr /= MPI_SUCCESS) then 
           write(0,*) "Error in MPI_Wait = ", ierr
@@ -422,22 +422,16 @@ contains
   subroutine FreeUserData(ierr)
     implicit none
     integer, intent(out) :: ierr
-    if (.not. HaveBdry(1,1)) then
-       deallocate(Wrecv)
-       deallocate(Wsend)
-    endif
-    if (.not. HaveBdry(1,2)) then
-       deallocate(Erecv)
-       deallocate(Esend)
-    endif
-    if (.not. HaveBdry(2,1)) then
-       deallocate(Srecv)
-       deallocate(Ssend)
-    endif
-    if (.not. HaveBdry(2,2)) then
-       deallocate(Nrecv)
-       deallocate(Nsend)
-    endif
+    if (allocated(h))      deallocate(h)
+    if (allocated(d))      deallocate(d)
+    if (allocated(Wrecv))  deallocate(Wrecv)
+    if (allocated(Wsend))  deallocate(Wsend)
+    if (allocated(Erecv))  deallocate(Erecv)
+    if (allocated(Esend))  deallocate(Esend)
+    if (allocated(Srecv))  deallocate(Srecv)
+    if (allocated(Ssend))  deallocate(Ssend)
+    if (allocated(Nrecv))  deallocate(Nrecv)
+    if (allocated(Nsend))  deallocate(Nsend)
     ierr = 0     ! return with success flag
     return
   end subroutine FreeUserData
@@ -488,18 +482,18 @@ program driver
   ! Declarations
   ! general problem parameters
   real*8,    parameter :: pi = 3.1415926535897932d0
-  real(kind=REALTYPE),    parameter :: T0 = 0.d0     ! initial time 
-  real(kind=REALTYPE),    parameter :: Tf = 0.3d0    ! final time 
-  integer,   parameter :: Nt = 20       ! total number of output times 
-  real(kind=REALTYPE),    parameter :: rtol = 1.d-5  ! relative and absolute tolerances
-  real(kind=REALTYPE),    parameter :: atol = 1.d-10
-  integer*8, parameter :: nx_ = 60      ! spatial mesh size
+  integer,   parameter :: Nt = 20           ! total number of output times 
+  integer*8, parameter :: nx_ = 60          ! spatial mesh size
   integer*8, parameter :: ny_ = 120
-  real(kind=REALTYPE),    parameter :: kx_ = 0.5d0   ! heat conductivity coefficients
-  real(kind=REALTYPE),    parameter :: ky_ = 0.75d0
-  real(kind=REALTYPE),    parameter :: nlscoef = 1.d-7   ! nonlinear solver tolerance factor
   integer,   parameter :: PCGpretype = 1    ! enable preconditioner
   integer,   parameter :: PCGmaxl = 20      ! max num. PCG iterations
+  real(kind=REALTYPE), parameter :: T0 = 0.d0        ! initial time 
+  real(kind=REALTYPE), parameter :: Tf = 0.3d0       ! final time 
+  real(kind=REALTYPE), parameter :: rtol = 1.d-5     ! relative and absolute tolerances
+  real(kind=REALTYPE), parameter :: atol = 1.d-10
+  real(kind=REALTYPE), parameter :: kx_ = 0.5d0      ! heat conductivity coefficients
+  real(kind=REALTYPE), parameter :: ky_ = 0.75d0
+  real(kind=REALTYPE), parameter :: nlscoef = 1.d-7  ! nonlinear solver tolerance factor
 
   ! solution vector and other local variables
   real(kind=REALTYPE), allocatable :: y(:,:)
@@ -701,13 +695,11 @@ program driver
  endif
 
  ! Clean up and return with successful completion 
- deallocate(y)              ! free vectors
- deallocate(h)
- deallocate(d)
- call FreeUserData(flag)    ! free user data 
- call FARKFree()            ! free integrator memory 
+ if (allocated(y))  deallocate(y)    ! free solution
+ call FreeUserData(flag)             ! free user data 
+ call FARKFree()                     ! free integrator memory 
  call MPI_Barrier(comm, flag)
- call MPI_Finalize(flag)    ! Finalize MPI
+ call MPI_Finalize(flag)             ! Finalize MPI
 
 end program driver
 !-----------------------------------------------------------------
@@ -758,46 +750,46 @@ subroutine farkifun(t, y, ydot, ipar, rpar, ierr)
   enddo
   
   ! iterate over subdomain boundaries (if not at overall domain boundary)
-  if (.not. HaveBdry(1,1)) then    ! West face
+  if (HaveNbor(1,1)) then    ! West face
      i=1
      do j=2,nyl-1
         ydot(i,j) = c1*(Wrecv(j)+y(i+1,j)) + c2*(y(i,j-1)+y(i,j+1)) + c3*y(i,j)
      enddo
   endif
-  if (.not. HaveBdry(1,2)) then    ! East face
+  if (HaveNbor(1,2)) then    ! East face
      i=nxl
      do j=2,nyl-1
         ydot(i,j) = c1*(y(i-1,j)+Erecv(j)) + c2*(y(i,j-1)+y(i,j+1)) + c3*y(i,j)
      enddo
   endif
-  if (.not. HaveBdry(2,1)) then    ! South face
+  if (HaveNbor(2,1)) then    ! South face
      j=1
      do i=2,nxl-1
         ydot(i,j) = c1*(y(i-1,j)+y(i+1,j)) + c2*(Srecv(i)+y(i,j+1)) + c3*y(i,j)
      enddo
   endif
-  if (.not. HaveBdry(2,2)) then    ! West face
+  if (HaveNbor(2,2)) then    ! West face
      j=nyl
      do i=2,nxl-1
         ydot(i,j) = c1*(y(i-1,j)+y(i+1,j)) + c2*(y(i,j-1)+Nrecv(i)) + c3*y(i,j)
      enddo
   endif
-  if (.not. HaveBdry(1,1) .and. .not. HaveBdry(2,1)) then  ! South-West corner
+  if (HaveNbor(1,1) .and. HaveNbor(2,1)) then  ! South-West corner
      i=1
      j=1
      ydot(i,j) = c1*(Wrecv(j)+y(i+1,j)) + c2*(Srecv(i)+y(i,j+1)) + c3*y(i,j)
   endif
-  if (.not. HaveBdry(1,1) .and. .not. HaveBdry(2,2)) then  ! North-West corner
+  if (HaveNbor(1,1) .and. HaveNbor(2,2)) then  ! North-West corner
      i=1
      j=nyl
      ydot(i,j) = c1*(Wrecv(j)+y(i+1,j)) + c2*(y(i,j-1)+Nrecv(i)) + c3*y(i,j)
   endif
-  if (.not. HaveBdry(1,2) .and. .not. HaveBdry(2,1)) then  ! South-East corner
+  if (HaveNbor(1,2) .and. HaveNbor(2,1)) then  ! South-East corner
      i=nxl 
      j=1
      ydot(i,j) = c1*(y(i-1,j)+Erecv(j)) + c2*(Srecv(i)+y(i,j+1)) + c3*y(i,j)
   endif
-  if (.not. HaveBdry(1,2) .and. .not. HaveBdry(2,2)) then  ! North-East corner
+  if (HaveNbor(1,2) .and. HaveNbor(2,2)) then  ! North-East corner
      i=nxl
      j=nyl
      ydot(i,j) = c1*(y(i-1,j)+Erecv(j)) + c2*(y(i,j-1)+Nrecv(i)) + c3*y(i,j)

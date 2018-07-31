@@ -363,7 +363,7 @@ static int resB(realtype tt,
   realtype ypB1, ypB2, ypB3, ypB4, ypB5;
 
   realtype k1, k2, k3, k4;
-  realtype K, klA, Ks, pCO2, H;
+  realtype K, klA, Ks;
 
   realtype y2tohalf, y1to3, k2overK, tmp1, tmp2;
 
@@ -375,8 +375,6 @@ static int resB(realtype tt,
   K = data->K;
   klA = data->klA;
   Ks = data->Ks;
-  pCO2 = data->pCO2;
-  H = data->H;
 
   y1 = Ith(yy,1);
   y2 = Ith(yy,2);

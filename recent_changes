@@ -122,6 +122,42 @@ Changes to SUNDIALS in release 4.0.0-dev
   the src and example directories to make the CMake configuration file structure
   more modular.
 
+Changes in SUNDIALS in release 3.1.2
+
+* Fixed Windows specific problem where sunindextype was not correctly 
+  defined when using 64-bit integers for the sundials index type. On Windows
+  sunindextype is now defined as the MSVC basic type __int64.
+
+* Changed LICENSE install path to instdir/include/sundials
+
+* Updated the minimum required version of CMake to 2.8.12 and enabled
+  using rpath by default to locate shared libraries on OSX.
+
+* The misnamed function CVSpilsSetJacTimesSetupFnBS in cvodes has been deprecated
+  and replaced by CVSpilsSetJacTimesBS. The deprecated function
+  CVSpilsSetJacTimesSetupFnBS will be removed in the next major release.
+
+* Added and updated usage-notes examples from the SUNDIALS website to work with
+  SUNDIALS 3.x. The new examples are cvode/cvDisc_dns.c cvode/cvRoberts_dns_negsol.c
+  and cvodes/cvsRoberts_FSA_dns_Switch.c. 
+
+* Added sparse SUNMatrix "Reallocate" routine to allow specification
+  of the nonzero storage.
+
+* Updated the KLU SUNLinearSolver module to set constants for the two
+  reinitialization types, and fixed a bug in the full reinitialization
+  approach where the sparse SUNMatrix pointer would go out of scope on
+  some architectures.
+  
+* Updated the "ScaleAdd" and "ScaleAddI" implementations in the sparse
+  SUNMatrix module to more optimally handle the case where the target
+  matrix contained sufficient storage for the sum, but had the wrong
+  sparsity pattern.  The sum now occurs in-place, by performing the
+  sum backwards in the existing storage.  However, it is still more
+  efficient if the user-supplied Jacobian routine allocates storage
+  for the sum $I+\gamma J$ or $M+\gamma J$ manually (with zero entries
+  if needed).
+
 Changes to SUNDIALS in release 3.1.1
 
 * Fixed a minor bug in the CVODE and CVODES cvSLdet routine, where a

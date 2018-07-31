@@ -322,11 +322,11 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype y1, y2, y3;
+  realtype y2, y3;
   UserData data;
   realtype p1, p2, p3;
  
-  y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
+  y2 = Ith(y,2); y3 = Ith(y,3);
   data = (UserData) user_data;
   p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
  

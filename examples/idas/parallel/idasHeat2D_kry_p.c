@@ -312,7 +312,7 @@ int resHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
   /* Call reslocal to calculate res. */
   retval = reslocal(tt, uu, up, rr, user_data);
   
-  return(0);
+  return(retval);
 
 }
 
@@ -698,7 +698,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
   int ixsub, jysub;
   sunindextype i, iloc, j, jloc, offset, loc;
   sunindextype ixbegin, ixend, jybegin, jyend;
-  realtype xfact, yfact, *udata, *iddata, dx, dy;
+  realtype xfact, yfact, *udata, *iddata;
   
   /* Initialize uu. */ 
 
@@ -706,8 +706,6 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
   iddata = N_VGetArrayPointer_Parallel(id);
   
   /* Set mesh spacings and subgrid indices for this PE. */
-  dx = data->dx;
-  dy = data->dy;
   ixsub = data->ixsub;
   jysub = data->jysub;
   

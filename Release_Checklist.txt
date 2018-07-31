@@ -8,7 +8,7 @@ web pages.
 
 1. Bug fixes - C solvers
 
-2. Bug fixes - Matlab
+2. Bug fixes - Matlab (This is no longer maintained as of 2016)
 
 3. Bug fixes - installation
 
@@ -28,31 +28,8 @@ web pages.
     src/ida/README
     src/idas/README
     src/kinsol/README
-    src/nvec_openmp/README
-    src/nvec_par/README
-    src/nvec_pthreads/README
-    src/nvec_ser/README
-    src/nvec_parhyp/README
-    src/nvec_petsc/README
-    src/nvec_cuda/README
-    src/nvec_raja/README
-    src/sunmat_band/README
-    src/sunmat_dense/README
-    src/sunmat_sparse/README
-    src/sunlinsol_band/README
-    src/sunlinsol_dense/README
-    src/sunlinsol_klu/README
-    src/sunlinsol_lapackband/README
-    src/sunlinsol_lapackdense/README
-    src/sunlinsol_pcg/README
-    src/sunlinsol_spbcgs/README
-    src/sunlinsol_spfgmr/README
-    src/sunlinsol_spgmr/README
-    src/sunlinsol_sptfqmr/README
-    src/sunlinsol_superlumt/README
-    src/sundials/README 
 
-9. Update version numbers of third party libraries in Install Guide 
+9. Update version numbers of third party libraries in Install Guide
    in doc directory.
 
 10. Update version numbers in source code, documentation, and tarscripts.
@@ -64,13 +41,13 @@ web pages.
     scripts/tarscript
     sundialsTB/install_STB.m (This is no longer maintained as of 2016)
     CMakeLists.txt
-    README
+    README.md
     README_DEV
-  
+
 11. Create the tarballs
-   Create the new distribution tarballs using the "tarscript" shell script 
-   under scripts/.  This also compiles the documents (user guides and example 
-   docs) and creates all tarballs in their final form, appropriate for 
+   Create the new distribution tarballs using the "tarscript" shell script
+   under scripts/.  This also compiles the documents (user guides and example
+   docs) and creates all tarballs in their final form, appropriate for
    uploading to the website.
 
 12. Update Internal Drupal Web pages for SUNDIALS:
@@ -78,30 +55,34 @@ web pages.
 
   a) Modify content (save edits on each page as you go)
        - Edit Main Page: https://computation-external.llnl.gov/projects/sundials
-           + Update Release History page: 
+           + Update Release History page:
              https://computation-external.llnl.gov/projects/sundials/release-history
-           + Add list of primary changes and child page containing 
-             full list of changes (this information is shared with 
+           + Add list of primary changes and child page containing
+             full list of changes (this information is shared with
              "Changes in ..." sections of user guides).
- 
-       - Edit Download Page:   
+
+       - Edit Download Page:
          https://computation-external.llnl.gov/projects/sundials/sundials-software
-           + Update main download table with new versions of solvers and 
+           + Update main download table with new versions of solvers and
              new sizes
            + Upload new documentation (pdf) files.
-           + Update Previous releases table with new entry for previous 
-             release of full SUNDIALS suite. 
+           + Update Previous releases table with new entry for previous
+             release of full SUNDIALS suite.
 
-       - Edit FAQ if necessary: 
+       - Edit Usage Notes Example Page if major release:
+           + Upload new cvRoberts_dns_negsol.c, cvDisc_dns.c, and cvsRoberts_FSA_dns_Switch.c
+             examples.
+
+       - Edit FAQ if necessary:
          https://computation-external.llnl.gov/projects/sundials/faq
- 
- b) Once each sub page is complete, ask for team review of draft pages.
+
+  b) Once each sub page is complete, ask for team review of draft pages.
      https://computation-external.llnl.gov/projects/sundials
 
-  c)  After team comments are included and saved, select the 
-      "Publishing options" button in the bottom left group of buttons on the 
-      draft page.  Select the Moderation state reflecting the amount of 
-      required review then Save.  This must be done for each page and is the 
+  c)  After team comments are included and saved, select the
+      "Publishing options" button in the bottom left group of buttons on the
+      draft page.  Select the Moderation state reflecting the amount of
+      required review then Save.  This must be done for each page and is the
       final action before pages are uploaded for external release.
 
 13. After final push, ensure web content and behavior is as expected:
@@ -118,8 +99,8 @@ Old stuff:
 9. Create PDF files for SundialsTB
     a) Create the PDF doc for SundialsTB by running the Matlab program texdoc.m
     available in sundialsTB/doc.
-    b) The program uses the m2html toolbox, freely available.  
-       It creates doc files in PS and PDF formats as sundialsTB.ps and 
+    b) The program uses the m2html toolbox, freely available.
+       It creates doc files in PS and PDF formats as sundialsTB.ps and
        sundialsTB.pdf.
     c) Follow Radu's instructions in sundials/sundialsTB/doc/README_texdoc
 
