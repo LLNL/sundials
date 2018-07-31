@@ -41,7 +41,7 @@ web pages.
     scripts/tarscript
     sundialsTB/install_STB.m (This is no longer maintained as of 2016)
     CMakeLists.txt
-    README
+    README.md
     README_DEV
 
 11. Create the tarballs
