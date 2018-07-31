@@ -99,7 +99,7 @@ independent of the actual {\nvector} implementation (which can be
 user-supplied), as well as allowing more than one {\nvector} module to
 be linked into an executable file.
 {\sundials} (and thus {\cvodes}) is supplied with serial, 
-MPI-parallel, and both openMP and Pthreads thread-parallel
+MPI-parallel, and both OpenMP and Pthreads thread-parallel
 {\nvector} implementations.
 \index{CVODES@{\cvodes}!relationship to {\cvode}, {\pvode}|)}
 
@@ -335,7 +335,7 @@ In interpolation routines for backward problems, added logic to bypass
 sensitivity interpolation if input sensitivity argument is NULL.
 
 New examples were added for use of sparse direct solvers within sensitivity
-integrations and for use of openMP.  
+integrations and for use of OpenMP.  
 
 Minor corrections and additions were made to the {\cvodes} solver, to the
 examples, to installation-related files, and to the user documentation.
@@ -399,7 +399,7 @@ function \id{fB2}: \id{y2} in place of \id{y3} in the third term of
 \id{Ith(yBdot,6)}.
 
 Two new {\nvector} modules have been added for thread-parallel computing
-environments --- one for openMP, denoted \id{NVECTOR\_OPENMP},
+environments --- one for OpenMP, denoted \id{NVECTOR\_OPENMP},
 and one for Pthreads, denoted \id{NVECTOR\_PTHREADS}.
 
 With this version of {\sundials}, support and documentation of the
@@ -438,7 +438,7 @@ either defined (with no value) or not defined.
 \subsection*{Changes in v2.6.0}
 
 Two new features related to the integration of ODE IVP problems were added 
-in this release: (a) a new linear solver module, based on Blas and Lapack 
+in this release: (a) a new linear solver module, based on BLAS and LAPACK 
 for both dense and banded matrices, and (b) an option to specify which direction 
 of zero-crossing is to be monitored while performing rootfinding. 
 
@@ -456,7 +456,7 @@ the adjoint module.
 The user interface has been further refined. Some of the API changes involve:
 (a) a reorganization of all linear solver modules into two families (besides 
 the existing family of scaled preconditioned iterative linear solvers,
-the direct solvers, including the new Lapack-based ones, were also organized 
+the direct solvers, including the new LAPACK-based ones, were also organized 
 into a {\em direct} family); (b) maintaining a single pointer to user data,
 optionally specified through a \id{Set}-type function; and (c) a general 
 streamlining of the preconditioner modules distributed with the solver.

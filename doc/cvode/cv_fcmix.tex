@@ -35,7 +35,7 @@ serial and parallel {\nvector} implementations.
 %% (\id{NEQ}, \id{NLOCAL}, \id{NGLOBAL}, \id{ML}, \id{MU}, etc.),
 %% the array of integer optional outputs (\id{IOUT}),
 %% and the user array of integer data (\id{IPAR}).
-%% EXCEPTION: In the case that Lapack linear solvers are to be used, the
+%% EXCEPTION: In the case that LAPACK linear solvers are to be used, the
 %% input arguments to \id{FCVLAPACKDENSE} or \id{FCVLAPACKBAND} (\id{NEQ},
 %% \id{ML}, and \id{MU}) must be declared to be consistent with {\CC} type \id{int}.
 %% This type consistency is particularly important when using {\cvode} and the
@@ -143,6 +143,11 @@ are as follows:
   \item \id{FCVDIAG}    
     interfaces to \id{CVDiag}.
  \end{itemize}
+\item Interface to the nonlinear solver interface
+  \begin{itemize}
+  \item \id{FCVNLSINIT}
+    interfaces to \id{CVSetNonlinearSolver}.
+ \end{itemize}
 
 \end{itemize}
 \index{FCVODE@{\fcvode} interface module!user-callable functions|)}
@@ -223,16 +228,15 @@ section of Chapter \ref{s:nvector}.
 \item\label{i:fcv_matrix_init} {\bf {\sunmatrix} module initialization}
 %%====================
 
-  In the case of a stiff system, the implicit \id{BDF} method involves the solution
-  of linear systems related to the Jacobian $J = \partial f / \partial y$
-  of the ODE system.  If using a Newton iteration with direct {\sunlinsol} linear solver
-  module and one of the {\sunmatrix} modules supplied with {\sundials}, 
+  If using a nonlinear solver that requires a linear solver (e.g., the default
+  Newton iteration) and the linear solver is a direct linear solver, then
+  one of the {\sunmatrix} modules supplied with {\sundials}, 
   the user must make a call of the form
 \begin{verbatim}
       CALL FSUN***MATINIT(...)
 \end{verbatim}
 in which the name and call sequence are as described in the appropriate
-section of Chapter \ref{s:sunmatrix}.  Note that the dense, band or
+section of Chapter \ref{s:sunmatrix}.  Note that the dense, band, or
 sparse matrix options are usable only in a serial or multi-threaded
 environment. 
 
@@ -241,9 +245,9 @@ environment.
 \item\label{i:fcv_linsol_init} {\bf {\sunlinsol} module initialization}
 %%====================
 
-  If using a Newton iteration with one of the {\sunlinsol} linear
-  solver modules supplied with {\sundials}, the user must make a call
-  of the form 
+  If using a nonlinear solver that requires a linear solver (e.g., the default
+  Newton iteration) and one of the {\sunlinsol} linear solver modules supplied
+  with {\sundials}, the user must make a call of the form
 \begin{verbatim}
       CALL FSUNBANDLINSOLINIT(...)
       CALL FSUNDENSELINSOLINIT(...)
@@ -258,7 +262,7 @@ environment.
       CALL FSUNSUPERLUMTINIT(...)
 \end{verbatim}
 in which the call sequence is as described in the appropriate
-section of Chapter \ref{s:sunlinsol}.  Note that the dense, band or
+section of Chapter \ref{s:sunlinsol}.  Note that the dense, band, or
 sparse solvers are usable only in a serial or multi-threaded
 environment.
 
@@ -282,6 +286,21 @@ where again the call sequences are described in the appropriate
 sections of Chapter \ref{s:sunlinsol}.
 
 %%====================
+\item\label{i:fcv_nonlinsol_init} {\bf {\sunnonlinsol} module initialization}
+%%====================
+
+  By default {\cvode} uses the {\sunnonlinsol} implementation of Newton's method
+  defined by the {\sunnonlinsolnewton} module (see \S\ref{s:sunnonlinsol_newton}).
+  To specify a non-default nonlinear solver in {\cvode}, the user's program must
+  create a {\sunnonlinsol} object by calling the appropriate Fortran interface
+  function to the constructor routine (see Chapter \ref{c:sunnonlinsol}). For
+  example, to create the {\sunnonlinsolfixedpoint} solver call the function
+\begin{verbatim}
+      CALL FSUNFIXEDPOINTINIT(...)
+\end{verbatim}
+  in which the call sequence is described in \S\ref{s:sunnonlinsol_fixedpoint}.
+
+%%====================
 \item {\bf Problem specification}
 %%====================
 
@@ -291,7 +310,7 @@ sections of Chapter \ref{s:sunlinsol}.
   \ucfunction{FCVMALLOC}
   {
     \begin{tabular}[t]{@{}r@{}l@{}l}
-        &CALL FCVMALLOC(&T0, Y0, METH, ITMETH, IATOL, RTOL, ATOL, \\
+        &CALL FCVMALLOC(&T0, Y0, METH, IATOL, RTOL, ATOL, \\
     {\&}&               &IOUT, ROUT, IPAR, RPAR, IER)
     \end{tabular}
   }
@@ -301,13 +320,11 @@ sections of Chapter \ref{s:sunlinsol}.
     allocates internal memory, and initializes {\cvode}.
   }
   {
-    \begin{args}[ITMETH]
+    \begin{args}[IATOL]
     \item[T0] is the initial value of $t$.
     \item[Y0] is an array of initial conditions.
     \item[METH] specifies the  basic integration method: 
       $1$ for Adams (nonstiff) or $2$ for BDF (stiff).
-    \item[ITMETH] specifies the nonlinear iteration method: 
-      $1$ for functional iteration or $2$ for Newton iteration.
     \item[IATOL] specifies the type for absolute tolerance \id{ATOL}:
       $1$ for scalar or $2$ for array. If \id{IATOL}$=3$, the arguments
       \id{RTOL} and \id{ATOL} are ignored and the user is expected to
@@ -368,7 +385,7 @@ sections of Chapter \ref{s:sunlinsol}.
 
   Call \id{FCVINSETIIN} and/or \id{FCVINSETRIN} to set desired optional inputs,
   if any.  See \S\ref{fcv_opt_inout} for details.
-
+  
 %%====================
 \item\label{i:fcvode_lin_solv_spec} {\bf Linear solver interface specification} 
 %%====================
@@ -425,7 +442,7 @@ sections of Chapter \ref{s:sunlinsol}.
   attempt to correct), or a negative value if \id{FCVDJAC} failed unrecoverably 
   (in which case the integration is halted).
   NOTE: The argument \id{NEQ} has a type consistent with {\CC} type \id{long int}
-  even in the case when the Lapack dense solver is to be used.
+  even in the case when the LAPACK dense solver is to be used.
 
   If the user's \id{FCVDJAC} uses difference quotient approximations, it
   may need to use the error weight array \id{EWT} and current stepsize \id{H}
@@ -477,7 +494,7 @@ sections of Chapter \ref{s:sunlinsol}.
   attempt to correct), or a negative value if \id{FCVBJAC} failed unrecoverably 
   (in which case the integration is halted).
   NOTE: The arguments \id{NEQ}, \id{MU}, \id{ML}, and \id{MDIM} have a type
-  consistent with {\CC} type \id{long int} even in the case when the Lapack band
+  consistent with {\CC} type \id{long int} even in the case when the LAPACK band
   solver is to be used.
 
   If the user's \id{FCVBJAC} uses difference quotient approximations, it
@@ -727,6 +744,24 @@ sections of Chapter \ref{s:sunlinsol}.
   Optional outputs specific to the {\cvdiag} case are listed in
   Table~\ref{t:fcvode_out}.
   
+%%====================
+\item\label{i:fcvode_nonlin_solv_spec} {\bf Nonlinear solver interface specification} 
+%%====================
+ 
+  If a non-default {\sunnonlinsol} object was created in step
+  \ref{i:fcv_nonlinsol_init}, the user must attach it to {\cvode} with
+  the call:
+\begin{verbatim}
+      CALL FCVNLSINIT(IER)
+\end{verbatim}
+  \id{IER} is an error return flag set on $0$ on success or $-1$ if an
+  error occurred.
+
+  Once attached, the user may specify non-default inputs for the
+  {\sunnonlinsol} object (e.g.~the maximum number of nonlinear
+  iterations) by calling appropriate Fortran interface routines (see Chapter
+  \ref{c:sunnonlinsol}). 
+
 %%====================
 \item {\bf Problem solution}
 %%====================

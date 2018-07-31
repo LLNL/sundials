@@ -17,6 +17,13 @@
 # external libraries enabled.
 # ------------------------------------------------------------------------------
 
+# check if a module was specified, otherwise default to all modules
+if [ "$#" -gt 0 ]; then
+    module=$1
+else
+    module="all"
+fi
+
 # set file permissions (rwxrwxr-x)
 umask 002
 
@@ -70,16 +77,44 @@ mkdir tarballs
 
 # run tarscript to create tarballs
 cd ../scripts
-./tarscript
+./tarscript $module
 
 # move tarballs to tarball directory
-mv ../../sundials-*.tar.gz $testdir/tarballs/.
-mv ../../arkode-*.tar.gz $testdir/tarballs/.
-mv ../../cvode-*.tar.gz $testdir/tarballs/.
-mv ../../cvodes-*.tar.gz $testdir/tarballs/.
-mv ../../ida-*.tar.gz $testdir/tarballs/.
-mv ../../idas-*.tar.gz $testdir/tarballs/.
-mv ../../kinsol-*.tar.gz $testdir/tarballs/.
+case $module in
+    all)
+        mv ../../sundials-*.tar.gz $testdir/tarballs/.
+        mv ../../arkode-*.tar.gz $testdir/tarballs/.
+        mv ../../cvode-*.tar.gz $testdir/tarballs/.
+        mv ../../cvodes-*.tar.gz $testdir/tarballs/.
+        mv ../../ida-*.tar.gz $testdir/tarballs/.
+        mv ../../idas-*.tar.gz $testdir/tarballs/.
+        mv ../../kinsol-*.tar.gz $testdir/tarballs/.
+        ;;
+    sundials)
+        mv ../../sundials-*.tar.gz $testdir/tarballs/.
+        ;;
+    arkode)
+        mv ../../arkode-*.tar.gz $testdir/tarballs/.
+        ;;
+    cvode)
+        mv ../../cvode-*.tar.gz $testdir/tarballs/.
+        ;;
+    cvodes)
+        mv ../../cvodes-*.tar.gz $testdir/tarballs/.
+        ;;
+    ida)
+        mv ../../ida-*.tar.gz $testdir/tarballs/.
+        ;;
+    idas)
+        mv ../../idas-*.tar.gz $testdir/tarballs/.
+        ;;
+    kinsol)
+        mv ../../kinsol-*.tar.gz $testdir/tarballs/.
+        ;;
+    *)
+        echo "Invalid module $module"
+        ;;
+esac
 
 cd $testdir/tarballs/.
 

@@ -15,7 +15,7 @@ C The following declaration specification should match C type long int.
       PARAMETER (NLOCAL=10)
 C
       INTEGER*4 LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNPE, LNLI, LNPS
-      INTEGER*4 LNCFL, NOUT, MYPE, NPES, IER, METH, ITMETH, IATOL
+      INTEGER*4 LNCFL, NOUT, MYPE, NPES, IER, METH, IATOL
       INTEGER*4 ITASK, IPRE, IGS, JOUT
       INTEGER*8 NST, NFE, NPSET, NPE, NPS, NNI, NLI
       INTEGER*8 NCFL, NETF, NCFN
@@ -53,7 +53,6 @@ C     Set input arguments.
       NEQ = NPES * NLOCAL
       T = 0.0D0
       METH = 2
-      ITMETH = 2
       IATOL = 1
       ITASK = 1
       IPRE = 1
@@ -114,7 +113,7 @@ C
          STOP
       ENDIF
 C
-      CALL FCVMALLOC(T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
+      CALL FCVMALLOC(T, Y, METH, IATOL, RTOL, ATOL,
      1               IOUT, ROUT, IPAR, RPAR, IER)
 C
       IF (IER .NE. 0) THEN

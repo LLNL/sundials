@@ -72,6 +72,12 @@ are as follows:
   \item \id{FSUNSUPERLUMTINIT} (defined by {\sunlinsolslumt}) 
     interfaces to \id{SUNSuperLUMT}.
   \end{itemize}
+\item
+  %% Interface to the {\sunnonlinsol} modules
+  %% \begin{itemize}
+  %% \item \id{FSUNNEWTONINIT} (defined by {\sunnonlinsolnewton}) 
+  %%   interfaces to \id{SUNNonlinSol\_Newton}.
+  %% \end{itemize}
 \item Interface to the main {\ida} module
   \begin{itemize}
   \item \id{FIDAMALLOC}
@@ -118,6 +124,11 @@ are as follows:
  \item \id{FIDASPILSSETPREC}
    interfaces to \id{IDASpilsSetPreconditioner}.
  \end{itemize}
+%% \item Interface to the nonlinear solver interfaces
+%%   \begin{itemize}
+%%   \item \id{FIDANLSINIT}    
+%%     interfaces to \id{IDASetNonlinearSolver}.
+%%  \end{itemize}
 
 \end{itemize}
 \index{FIDA@{\fida} interface module!user-callable functions|)}
@@ -253,6 +264,21 @@ modified using a call to the functions
 \end{verbatim}
 where again the call sequences are described in the appropriate
 sections of Chapter \ref{s:sunlinsol}.
+
+%% %%====================
+%% \item\label{i:fida_nonlinsol_init} {\bf {\sunnonlinsol} module initialization}
+%% %%====================
+
+%%   By default {\ida} uses the {\sunnonlinsol} implementation of Newton's method
+%%   defined by the {\sunnonlinsolnewton} module (see \S\ref{s:sunnonlinsol_newton}).
+%%   To specify a non-default nonlinear solver in {\ida}, the user's program must
+%%   create a {\sunnonlinsol} object by calling the appropriate Fortran interface
+%%   function to the constructor routine (see Chapter \ref{c:sunnonlinsol}). For
+%%   example, to create the {\sunnonlinsolfixedpoint} solver call the function
+%% \begin{verbatim}
+%%       CALL FSUNFIXEDPOINTINIT(...)
+%% \end{verbatim}
+%%   in which the call sequence is described in \S\ref{s:sunnonlinsol_fixedpoint}.
 
 \item {\bf Problem specification}
 
@@ -391,7 +417,7 @@ sections of Chapter \ref{s:sunlinsol}.
   The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
   and are the same as those passed to \id{FIDAMALLOC}.
   NOTE: The argument \id{NEQ} has a type consistent with {\CC} type \id{long int}
-  even in the case when the Lapack dense solver is to be used.
+  even in the case when the LAPACK dense solver is to be used.
 
   If the user's \id{FIDADJAC} uses difference quotient approximations, it
   may need to use the error weight array \id{EWT} and current stepsize \id{H}
@@ -435,7 +461,7 @@ sections of Chapter \ref{s:sunlinsol}.
   The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
   and are the same as those passed to \id{FIDAMALLOC}.
   NOTE: The arguments \id{NEQ}, \id{MU}, \id{ML}, and \id{MDIM} have a type
-  consistent with {\CC} type \id{long int} even in the case when the Lapack band
+  consistent with {\CC} type \id{long int} even in the case when the LAPACK band
   solver is to be used.
 
   If the user's \id{FIDABJAC} uses difference quotient approximations, it
@@ -667,6 +693,24 @@ sections of Chapter \ref{s:sunlinsol}.
   differential components of $\dot{y}$, or 2 for initializing all of $y$.
   \id{IER} is an error return flag, which is 0 for success, or negative
   for a failure (see \id{IDACalcIC} return values).
+
+%% %%====================
+%% \item\label{i:fida_nonlin_solv_spec} {\bf Nonlinear solver interface specification} 
+%% %%====================
+ 
+%%   If a non-default {\sunnonlinsol} object was created in step
+%%   \ref{i:fida_nonlinsol_init}, the user must attach it to {\ida} with
+%%   the call:
+%% \begin{verbatim}
+%%       CALL FIDANLSINIT(IER)
+%% \end{verbatim}
+%%   \id{IER} is an error return flag set on $0$ on success or $-1$ if an
+%%   error occurred.
+
+%%   Once attached, the user may specify non-default inputs for the
+%%   {\sunnonlinsol} object (e.g.~the maximum number of nonlinear
+%%   iterations) by calling appropriate Fortran interface routines (see Chapter
+%%   \ref{c:sunnonlinsol}). 
 
 \item {\bf Problem solution}
 

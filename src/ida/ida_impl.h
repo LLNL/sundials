@@ -45,6 +45,15 @@ extern "C" {
 #define MXORDP1          6           /* max. number of N_Vectors in phi */
 #define MXSTEP_DEFAULT   500         /* mxstep default value            */
 
+/* Return values for lower level routines used by IDASolve and functions
+   provided to the nonlinear solver */
+
+#define IDA_RES_RECVR       +1
+#define IDA_LSETUP_RECVR    +2
+#define IDA_LSOLVE_RECVR    +3
+#define IDA_CONSTR_RECVR    +5
+#define IDA_NLS_SETUP_RECVR +6
+
 /*
  * ----------------------------------------------------------------
  * Types : struct IDAMemRec, IDAMem
@@ -92,6 +101,9 @@ typedef struct IDAMemRec {
   N_Vector ida_ewt;         /* error weight vector                            */
   N_Vector ida_yy;          /* work space for y vector (= user's yret)        */
   N_Vector ida_yp;          /* work space for y' vector (= user's ypret)      */
+  N_Vector ida_yypredict;   /* predicted y vector                             */
+  N_Vector ida_yppredict;   /* predicted y' vector                            */
+  N_Vector ida_ypbeta;      /* beta vector = yp^(0) - y^(0)                   */
   N_Vector ida_delta;       /* residual vector                                */
   N_Vector ida_id;          /* bit vector for diff./algebraic components      */
   N_Vector ida_constraints; /* vector of inequality constraint options        */
@@ -157,7 +169,6 @@ typedef struct IDAMemRec {
   /* Limits */
 
   int ida_maxncf;        /* max numer of convergence failures                 */
-  int ida_maxcor;        /* max number of Newton corrections                  */
   int ida_maxnef;        /* max number of error test failures                 */
 
   int ida_maxord;        /* max value of method order k:                      */
@@ -201,6 +212,10 @@ typedef struct IDAMemRec {
   booleantype ida_MallocDone; /* set to SUNFALSE by IDACreate
                                  set to SUNTRUE by IDAMAlloc
                                  tested by IDAReInit and IDASolve             */
+
+  /* Nonlinear Solver */
+
+  SUNNonlinearSolver NLS; /* Sundials generic nonlinear solver object */
 
   /* Linear Solver Data */
 
@@ -369,6 +384,14 @@ void IDAProcessError(IDAMem IDA_mem,
 void IDAErrHandler(int error_code, const char *module, const char *function, 
                    char *msg, void *data);
 
+/* Norm functions */
+
+realtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w, booleantype mask);
+
+/* Nonlinear solver initialization function */
+
+int idaNlsInit(IDAMem IDA_mem);
+
 /*
  * =================================================================
  * I D A    E R R O R    M E S S A G E S
@@ -426,6 +449,7 @@ void IDAErrHandler(int error_code, const char *module, const char *function,
 #define MSG_Y0_FAIL_CONSTR "y0 fails to satisfy constraints."
 #define MSG_LSOLVE_NULL    "The linear solver's solve routine is NULL."
 #define MSG_LINIT_FAIL     "The linear solver's init routine failed."
+#define MSG_NLS_INIT_FAIL  "The nonlinear solver's init routine failed."
 
 /* IDACalcIC error messages */
 
@@ -474,7 +498,8 @@ void IDAErrHandler(int error_code, const char *module, const char *function,
 #define MSG_RTFUNC_FAILED  "At " MSG_TIME ", the rootfinding routine failed in an unrecoverable manner."
 #define MSG_NO_ROOT        "Rootfinding was not initialized."
 #define MSG_INACTIVE_ROOTS "At the end of the first step, there are still some root functions identically 0. This warning will not be issued again."
-
+#define MSG_NLS_INPUT_NULL "At " MSG_TIME "the nonlinear solver was passed a NULL input."
+#define MSG_NLS_SETUP_FAILED "At " MSG_TIME "the nonlinear solver setup failed unrecoverably."
 
 /* IDASet* / IDAGet* error messages */
 

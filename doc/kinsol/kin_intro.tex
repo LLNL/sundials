@@ -91,7 +91,7 @@ solvers in a manner independent of the actual {\nvector}
 implementation (which can be user-supplied), as well as allowing
 more than one {\nvector} module linked into an executable file.
 {\sundials} (and thus {\kinsol}) is supplied with serial, 
-MPI-parallel, and both openMP and Pthreads thread-parallel
+MPI-parallel, and both OpenMP and Pthreads thread-parallel
 {\nvector} implementations.
 
 \index{KINSOL@{\kinsol}!motivation for writing in C|(} There are
@@ -301,7 +301,7 @@ and to the user documentation.
 \subsection*{Changes in v2.9.0}
 
 Two additional {\nvector} implementations were added -- one for
-Hypre (parallel) vectors, and one for PetSC vectors.  These
+Hypre (parallel) vectors, and one for PETSc vectors.  These
 additions are accompanied by additions to various interface functions
 and to user documentation.
 
@@ -336,7 +336,7 @@ The functions FKINCREATE and FKININIT were added to split the FKINMALLOC
 routine into two pieces.  FKINMALLOC remains for backward compatibility, but
 documentation for it has been removed.
 
-A new examples was added for use of the openMP vector.
+A new examples was added for use of the OpenMP vector.
 
 Minor corrections and additions were made to the {\kinsol} solver, to the
 Fortran interfaces, to the examples, to installation-related files,
@@ -396,7 +396,7 @@ declarations are just \id{INTEGER}.  Corresponding minor corrections were
 made to the user guide.
 
 Two new {\nvector} modules have been added for thread-parallel computing
-environments --- one for openMP, denoted \id{NVECTOR\_OPENMP},
+environments --- one for OpenMP, denoted \id{NVECTOR\_OPENMP},
 and one for Pthreads, denoted \id{NVECTOR\_PTHREADS}.
 
 With this version of {\sundials}, support and documentation of the
@@ -429,13 +429,13 @@ either defined (with no value) or not defined.
 
 \subsection*{Changes in v2.6.0}
 
-This release introduces a new linear solver module, based on Blas and Lapack 
+This release introduces a new linear solver module, based on BLAS and LAPACK
 for both dense and banded matrices.
 
 The user interface has been further refined. Some of the API changes involve:
 (a) a reorganization of all linear solver modules into two families (besides 
 the already present family of scaled preconditioned iterative linear solvers,
-the direct solvers, including the new Lapack-based ones, were also organized 
+the direct solvers, including the new LAPACK-based ones, were also organized 
 into a {\em direct} family); (b) maintaining a single pointer to user data,
 optionally specified through a \id{Set}-type function; (c) a general 
 streamlining of the band-block-diagonal preconditioner module distributed 

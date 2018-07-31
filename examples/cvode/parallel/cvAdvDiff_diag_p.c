@@ -131,8 +131,8 @@ int main(int argc, char *argv[])
   SetIC(u, dx, local_N, my_base);  /* Initialize u vector */
 
   /* Call CVodeCreate to create the solver memory and specify the
-   * Adams-Moulton LMM and the use of a functional iteration */
-  cvode_mem = CVodeCreate(CV_ADAMS, CV_NEWTON);
+   * Adams-Moulton LMM */
+  cvode_mem = CVodeCreate(CV_ADAMS);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   retval = CVodeSetUserData(cvode_mem, data);

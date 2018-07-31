@@ -51,6 +51,11 @@ extern "C" {
 #define MXHNIL_DEFAULT   10             /* mxhnil default value   */
 #define MXSTEP_DEFAULT   500            /* mxstep default value   */
 
+/* Return values for lower level routines used by CVode and functions
+   provided to the nonlinear solver */
+
+#define RHSFUNC_RECVR +9
+
 /*
  * -----------------------------------------------------------------
  * Types : struct CVodeMemRec, CVodeMem
@@ -71,7 +76,6 @@ typedef struct CVodeMemRec {
   CVRhsFn cv_f;              /* y' = f(t,y(t))                                */
   void *cv_user_data;        /* user pointer passed to f                      */
   int cv_lmm;                /* lmm = CV_ADAMS or CV_BDF                      */
-  int cv_iter;               /* iter = CV_FUNCTIONAL or CV_NEWTON             */
   int cv_itol;               /* itol = CV_SS, CV_SV, CV_WF, CV_NN             */
 
   realtype cv_reltol;        /* relative tolerance                            */
@@ -103,6 +107,9 @@ typedef struct CVodeMemRec {
                           this vector is scaled to give the est. local err.   */
   N_Vector cv_tempv;   /* temporary storage vector                            */
   N_Vector cv_ftemp;   /* temporary storage vector                            */
+  N_Vector cv_vtemp1;  /* temporary storage vector                            */
+  N_Vector cv_vtemp2;  /* temporary storage vector                            */
+  N_Vector cv_vtemp3;  /* temporary storage vector                            */
 
   /*-----------------
     Tstop information
@@ -146,7 +153,6 @@ typedef struct CVodeMemRec {
   realtype cv_crate;            /* estimated corrector convergence rate       */
   realtype cv_acnrm;            /* | acor | wrms                              */
   realtype cv_nlscoef;          /* coeficient in nonlinear convergence test   */
-  int  cv_mnewt;                /* Newton iteration counter                   */
 
   /*------
     Limits 
@@ -190,6 +196,14 @@ typedef struct CVodeMemRec {
   sunindextype cv_liw1;        /* no. of integer words in 1 N_Vector              */ 
   long int cv_lrw;             /* no. of realtype words in CVODE work vectors     */
   long int cv_liw;             /* no. of integer words in CVODE work vectors      */
+
+  /*---------------------
+    Nonlinear Solver Data
+    ---------------------*/
+
+  SUNNonlinearSolver NLS;  /* Sundials generic nonlinear solver object */
+  int convfail;            /* flag to indicate when a Jacbian update may
+                              be needed */
 
   /*------------------
     Linear Solver Data 
@@ -430,6 +444,10 @@ void cvProcessError(CVodeMem cv_mem,
 void cvErrHandler(int error_code, const char *module, const char *function, 
 		  char *msg, void *data);
 
+/* Nonlinear solver initializtion function */
+
+int cvNlsInit(CVodeMem cv_mem);
+
 /*
  * =================================================================
  *   C V O D E    E R R O R    M E S S A G E S
@@ -468,7 +486,6 @@ void cvErrHandler(int error_code, const char *module, const char *function,
 #define MSGCV_CVMEM_FAIL "Allocation of cvode_mem failed."
 #define MSGCV_MEM_FAIL "A memory request failed."
 #define MSGCV_BAD_LMM  "Illegal value for lmm. The legal values are CV_ADAMS and CV_BDF."
-#define MSGCV_BAD_ITER  "Illegal value for iter. The legal values are CV_FUNCTIONAL and CV_NEWTON."
 #define MSGCV_NO_MALLOC "Attempt to call before CVodeInit."
 #define MSGCV_NEG_MAXORD "maxord <= 0 illegal."
 #define MSGCV_BAD_MAXORD  "Illegal attempt to increase maximum method order."
@@ -487,6 +504,7 @@ void cvErrHandler(int error_code, const char *module, const char *function,
 #define MSGCV_NULL_DKY "dky = NULL illegal."
 #define MSGCV_BAD_T "Illegal value for t." MSG_TIME_INT
 #define MSGCV_NO_ROOT "Rootfinding was not initialized."
+#define MSGCV_NLS_INIT_FAIL "The nonlinear solver's init routine failed."
 
 /* CVode Error Messages */
 
@@ -519,6 +537,8 @@ void cvErrHandler(int error_code, const char *module, const char *function,
 #define MSGCV_CLOSE_ROOTS "Root found at and very near " MSG_TIME "."
 #define MSGCV_BAD_TSTOP "The value " MSG_TIME_TSTOP " is behind current " MSG_TIME " in the direction of integration."
 #define MSGCV_INACTIVE_ROOTS "At the end of the first step, there are still some root functions identically 0. This warning will not be issued again."
+#define MSGCV_NLS_SETUP_FAILED "At " MSG_TIME "the nonlinear solver setup failed unrecoverably."
+#define MSGCV_NLS_INPUT_NULL "At " MSG_TIME "the nonlinear solver was passed a NULL input."
 
 #ifdef __cplusplus
 }

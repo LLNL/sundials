@@ -29,6 +29,7 @@ cv_usage.tex \
 cv_fcmix.tex \
 cv_nvec.tex \
 cv_newlinsolv.tex \
+cv_sunnonlinsol.tex \
 cv_constants.tex
 
 EX_FILES = \

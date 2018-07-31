@@ -61,8 +61,8 @@ Final statistics:
  average Krylov subspace dimension (NLI/NNI) =   0.973899E+00
  number of conv. failures.. nonlinear =  0 linear =   0
  number of error test failures =  28
- main solver real/int workspace sizes   =    2089     50
- linear solver real/int workspace sizes =  2450   22
+ main solver real/int workspace sizes   =    2689     53
+ linear solver real/int workspace sizes =  2456   22
 In CVBANDPRE:
  real/int workspace sizes =    2800    622
  number of f evaluations  =    45

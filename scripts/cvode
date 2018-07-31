@@ -38,6 +38,7 @@ $tar $tarfile $distrobase/src/cvode/cvode_impl.h
 $tar $tarfile $distrobase/src/cvode/cvode_io.c
 $tar $tarfile $distrobase/src/cvode/cvode_spils.c
 $tar $tarfile $distrobase/src/cvode/cvode_spils_impl.h
+$tar $tarfile $distrobase/src/cvode/cvode_nls.c
 
 echo "   --- Add fcvode module to $tarfile"
 
@@ -53,6 +54,7 @@ $tar $tarfile $distrobase/src/cvode/fcmix/fcvewt.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvjtimes.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvnulllinsol.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvnullmatrix.c
+$tar $tarfile $distrobase/src/cvode/fcmix/fcvnullnonlinsol.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvode.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvode.h
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvpreco.c

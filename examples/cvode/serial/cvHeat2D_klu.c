@@ -154,8 +154,9 @@ int main(void)
   rtol = ZERO;
   atol = RCONST(1.0e-8);
 
-  /* Call CVodeCreate to initialize solution */
-  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
+  /* Call CVodeCreate to create the solver memory and specify the 
+   * Backward Differentiation Formula */
+  cvode_mem = CVodeCreate(CV_BDF);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   retval = CVodeSetUserData(cvode_mem, data);

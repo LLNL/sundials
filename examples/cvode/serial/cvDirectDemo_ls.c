@@ -4,8 +4,9 @@
  * -----------------------------------------------------------------
  * Demonstration program for CVODE - direct linear solvers.
  * Two separate problems are solved using both the CV_ADAMS and CV_BDF
- * linear multistep methods in combination with CV_FUNCTIONAL and
- * CV_NEWTON iterations:
+ * linear multistep methods in combination with the
+ * SUNNONLINSOL_FIXEDPOINT and SUNNONLINSOL_NEWTON nonlinear solver
+ * modules:
  *
  * Problem 1: Van der Pol oscillator
  *   xdotdot - 3*(1 - x^2)*xdot + x = 0, x(0) = 2, xdot(0) = 0.
@@ -53,16 +54,18 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <cvode/cvode.h>                  /* prototypes for CVODE fcts., consts.      */
-#include <nvector/nvector_serial.h>       /* access to serial N_Vector                */
-#include <sunmatrix/sunmatrix_dense.h>    /* access to dense SUNMatrix                */
-#include <sunlinsol/sunlinsol_dense.h>    /* access to dense SUNLinearSolver          */
-#include <sunmatrix/sunmatrix_band.h>     /* access to band SUNMatrix                 */
-#include <sunlinsol/sunlinsol_band.h>     /* access to band SUNLinearSolver           */
-#include <cvode/cvode_direct.h>           /* access to CVDls interface                */
-#include <cvode/cvode_diag.h>             /* access to CVDIAG linear solver           */
-#include <sundials/sundials_types.h>      /* definition of realtype                   */
-#include <sundials/sundials_math.h>       /* contains the macros ABS, SUNSQR, and EXP */
+#include <cvode/cvode.h>                          /* prototypes for CVODE fcts., consts.          */
+#include <nvector/nvector_serial.h>               /* access to serial N_Vector                    */
+#include <sunmatrix/sunmatrix_dense.h>            /* access to dense SUNMatrix                    */
+#include <sunlinsol/sunlinsol_dense.h>            /* access to dense SUNLinearSolver              */
+#include <sunmatrix/sunmatrix_band.h>             /* access to band SUNMatrix                     */
+#include <sunlinsol/sunlinsol_band.h>             /* access to band SUNLinearSolver               */
+#include <cvode/cvode_direct.h>                   /* access to CVDls interface                    */
+#include <cvode/cvode_diag.h>                     /* access to CVDIAG linear solver               */
+#include "sunnonlinsol/sunnonlinsol_newton.h"     /* access to the newton SUNNonlinearSolver      */
+#include "sunnonlinsol/sunnonlinsol_fixedpoint.h" /* access to the fixed point SUNNonlinearSolver */
+#include <sundials/sundials_types.h>              /* definition of realtype                       */
+#include <sundials/sundials_math.h>               /* contains the macros ABS, SUNQR, and EXP      */
 
 /* Shared Problem Constants */
 
@@ -115,8 +118,8 @@ static void PrintHeader2(void);
 static void PrintOutput2(realtype t, realtype erm, int qu, realtype hu);
 static realtype MaxError(N_Vector y, realtype t);
 static int PrepareNextRun(void *cvode_mem, int lmm, int miter, N_Vector y, 
-                          SUNMatrix A, sunindextype mu, sunindextype ml,
-                          SUNLinearSolver LS);
+                          SUNMatrix* A, sunindextype mu, sunindextype ml,
+                          SUNLinearSolver* LS);
 static void PrintErrOutput(realtype tol_factor);
 static void PrintFinalStats(void *cvode_mem, int miter, realtype ero);
 static void PrintErrInfo(int nerr);
@@ -155,6 +158,7 @@ static int Problem1(void)
   N_Vector y;
   SUNMatrix A;
   SUNLinearSolver LS;
+  SUNNonlinearSolver NLS;
   void *cvode_mem;
   booleantype firstrun;
   int qu;
@@ -163,13 +167,14 @@ static int Problem1(void)
   y = NULL;
   A = NULL;
   LS = NULL;
+  NLS = NULL;
   cvode_mem = NULL;
 
   y = N_VNew_Serial(P1_NEQ);
   if(check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
   PrintIntro1();
 
-  cvode_mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL);
+  cvode_mem = CVodeCreate(CV_ADAMS);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   for (miter=FUNC; miter <= DIAG; miter++) {
@@ -179,18 +184,31 @@ static int Problem1(void)
 
     firstrun = (miter==FUNC);
     if (firstrun) {
+      /* initialize CVode */
       retval = CVodeInit(cvode_mem, f1, P1_T0, y);
       if(check_retval(&retval, "CVodeInit", 1)) return(1);
+      /* set scalar tolerances */
       retval = CVodeSStolerances(cvode_mem, reltol, abstol);
       if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
+      /* create fixed point nonlinear solver object */
+      NLS = SUNNonlinSol_FixedPoint(y, 0);
+      if(check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0)) return(1);
+      /* attach nonlinear solver object to CVode */
+      retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
+      if(check_retval(&retval, "CVodeSetNonlinearSolver", 1)) return(1);
     } else {
-      retval = CVodeSetIterType(cvode_mem, CV_NEWTON);
-      if(check_retval(&retval, "CVodeSetIterType", 1)) ++nerr;
+      /* reinitialize CVode */
       retval = CVodeReInit(cvode_mem, P1_T0, y);
       if(check_retval(&retval, "CVodeReInit", 1)) return(1);
+      /* create Newton nonlinear solver object */
+      NLS = SUNNonlinSol_Newton(y);
+      if(check_retval((void *)NLS, "SUNNonlinSol_Newton", 0)) return(1);
+      /* attach nonlinear solver object to CVode */
+      retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
+      if(check_retval(&retval, "CVodeSetNonlinearSolver", 1)) return(1);
     }
       
-    retval = PrepareNextRun(cvode_mem, CV_ADAMS, miter, y, A, 0, 0, LS);
+    retval = PrepareNextRun(cvode_mem, CV_ADAMS, miter, y, &A, 0, 0, &LS);
     if(check_retval(&retval, "PrepareNextRun", 1)) return(1);
 
     PrintHeader1();
@@ -221,8 +239,10 @@ static int Problem1(void)
   }
 
   CVodeFree(&cvode_mem);
+  LS = NULL;
+  A = NULL;
 
-  cvode_mem = CVodeCreate(CV_BDF, CV_FUNCTIONAL);
+  cvode_mem = CVodeCreate(CV_BDF);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   for (miter=FUNC; miter <= DIAG; miter++) {
@@ -232,18 +252,31 @@ static int Problem1(void)
       
     firstrun = (miter==FUNC);
     if (firstrun) {
+      /* initialize CVode */
       retval = CVodeInit(cvode_mem, f1, P1_T0, y);
       if(check_retval(&retval, "CVodeInit", 1)) return(1);
+      /* set scalar tolerances */
       retval = CVodeSStolerances(cvode_mem, reltol, abstol);
       if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
+      /* create fixed point nonlinear solver object */
+      NLS = SUNNonlinSol_FixedPoint(y, 0);
+      if(check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0)) return(1);
+      /* attach nonlinear solver object to CVode */
+      retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
+      if(check_retval(&retval, "CVodeSetNonlinearSolver", 1)) return(1);
     } else {
-      retval = CVodeSetIterType(cvode_mem, CV_NEWTON);
-      if(check_retval(&retval, "CVodeSetIterType", 1)) ++nerr;
+      /* reinitialize CVode */
       retval = CVodeReInit(cvode_mem, P1_T0, y);
       if(check_retval(&retval, "CVodeReInit", 1)) return(1);
+      /* create Newton nonlinear solver object */
+      NLS = SUNNonlinSol_Newton(y);
+      if(check_retval((void *)NLS, "SUNNonlinSol_Newton", 0)) return(1);
+      /* attach nonlinear solver object to CVode */
+      retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
+      if(check_retval(&retval, "CVodeSetNonlinearSolver", 1)) return(1);
     }
       
-    retval = PrepareNextRun(cvode_mem, CV_BDF, miter, y, A, 0, 0, LS);     
+    retval = PrepareNextRun(cvode_mem, CV_BDF, miter, y, &A, 0, 0, &LS);     
     if(check_retval(&retval, "PrepareNextRun", 1)) return(1);
 
     PrintHeader1();
@@ -352,6 +385,7 @@ static int Problem2(void)
   N_Vector y;
   SUNMatrix A;
   SUNLinearSolver LS;
+  SUNNonlinearSolver NLS;
   void *cvode_mem;
   booleantype firstrun;
   int qu, iout;
@@ -360,6 +394,7 @@ static int Problem2(void)
   y = NULL;
   A = NULL;
   LS = NULL;
+  NLS = NULL;
   cvode_mem = NULL;
 
   y = N_VNew_Serial(P2_NEQ);
@@ -367,7 +402,7 @@ static int Problem2(void)
 
   PrintIntro2();
 
-  cvode_mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL);
+  cvode_mem = CVodeCreate(CV_ADAMS);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   for (miter=FUNC; miter <= BAND_DQ; miter++) {
@@ -378,18 +413,31 @@ static int Problem2(void)
       
     firstrun = (miter==FUNC);
     if (firstrun) {
+      /* initialize CVode */
       retval = CVodeInit(cvode_mem, f2, P2_T0, y);
       if(check_retval(&retval, "CVodeInit", 1)) return(1);
+      /* set scalar tolerances */
       retval = CVodeSStolerances(cvode_mem, reltol, abstol);
       if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
+      /* create fixed point nonlinear solver object */
+      NLS = SUNNonlinSol_FixedPoint(y, 0);
+      if(check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0)) return(1);
+      /* attach nonlinear solver object to CVode */
+      retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
+      if(check_retval(&retval, "CVodeSetNonlinearSolver", 1)) return(1);
     } else {
-      retval = CVodeSetIterType(cvode_mem, CV_NEWTON);
-      if(check_retval(&retval, "CVodeSetIterType", 1)) ++nerr;
+      /* reinitialize CVode */
       retval = CVodeReInit(cvode_mem, P2_T0, y);
       if(check_retval(&retval, "CVodeReInit", 1)) return(1);
+      /* create Newton nonlinear solver object */
+      NLS = SUNNonlinSol_Newton(y);
+      if(check_retval((void *)NLS, "SUNNonlinSol_Newton", 0)) return(1);
+      /* attach nonlinear solver object to CVode */
+      retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
+      if(check_retval(&retval, "CVodeSetNonlinearSolver", 1)) return(1);
     }
       
-    retval = PrepareNextRun(cvode_mem, CV_ADAMS, miter, y, A, P2_MU, P2_ML, LS);
+    retval = PrepareNextRun(cvode_mem, CV_ADAMS, miter, y, &A, P2_MU, P2_ML, &LS);
     if(check_retval(&retval, "PrepareNextRun", 1)) return(1);
 
     PrintHeader2();
@@ -419,8 +467,12 @@ static int Problem2(void)
   }
 
   CVodeFree(&cvode_mem);
+  SUNLinSolFree(LS);
+  SUNMatDestroy(A);
+  LS = NULL;
+  A = NULL;
 
-  cvode_mem = CVodeCreate(CV_BDF, CV_FUNCTIONAL);
+  cvode_mem = CVodeCreate(CV_BDF);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   for (miter=FUNC; miter <= BAND_DQ; miter++) {
@@ -431,18 +483,31 @@ static int Problem2(void)
       
     firstrun = (miter==FUNC);
     if (firstrun) {
+      /* initialize CVode */
       retval = CVodeInit(cvode_mem, f2, P2_T0, y);
       if(check_retval(&retval, "CVodeInit", 1)) return(1);
+      /* set scalar tolerances */
       retval = CVodeSStolerances(cvode_mem, reltol, abstol);
       if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
+      /* create fixed point nonlinear solver object */
+      NLS = SUNNonlinSol_FixedPoint(y, 0);
+      if(check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0)) return(1);
+      /* attach nonlinear solver object to CVode */
+      retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
+      if(check_retval(&retval, "CVodeSetNonlinearSolver", 1)) return(1);
     } else {
-      retval = CVodeSetIterType(cvode_mem, CV_NEWTON);
-      if(check_retval(&retval, "CVodeSetIterType", 1)) ++nerr;
+      /* reinitialize CVode */
       retval = CVodeReInit(cvode_mem, P2_T0, y);
       if(check_retval(&retval, "CVodeReInit", 1)) return(1);
+      /* create Newton nonlinear solver object */
+      NLS = SUNNonlinSol_Newton(y);
+      if(check_retval((void *)NLS, "SUNNonlinSol_Newton", 0)) return(1);
+      /* attach nonlinear solver object to CVode */
+      retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
+      if(check_retval(&retval, "CVodeSetNonlinearSolver", 1)) return(1);
     }
 
-    retval = PrepareNextRun(cvode_mem, CV_BDF, miter, y, A, P2_MU, P2_ML, LS);
+    retval = PrepareNextRun(cvode_mem, CV_BDF, miter, y, &A, P2_MU, P2_ML, &LS);
     if(check_retval(&retval, "PrepareNextRun", 1)) return(1);
 
     PrintHeader2();
@@ -472,6 +537,8 @@ static int Problem2(void)
   }
 
   CVodeFree(&cvode_mem);
+  SUNLinSolFree(LS);
+  SUNMatDestroy(A);
   N_VDestroy(y);
 
   return(nerr);
@@ -601,10 +668,15 @@ static realtype MaxError(N_Vector y, realtype t)
 }
 
 static int PrepareNextRun(void *cvode_mem, int lmm, int miter, N_Vector y, 
-                          SUNMatrix A, sunindextype mu, sunindextype ml,
-                          SUNLinearSolver LS)
+                          SUNMatrix* A, sunindextype mu, sunindextype ml,
+                          SUNLinearSolver* LS)
 {
   int retval = CV_SUCCESS;
+
+  if (*LS)
+    SUNLinSolFree(*LS);
+  if (*A)
+    SUNMatDestroy(*A);
   
   printf("\n\n-------------------------------------------------------------");
   
@@ -617,7 +689,7 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter, N_Vector y,
   
   printf("Iteration               : ");
   if (miter == FUNC) {
-    printf("FUNCTIONAL\n");
+    printf("FIXEDPOINT\n");
   } else {
     printf("NEWTON\n");
     printf("Linear Solver           : ");
@@ -628,15 +700,15 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter, N_Vector y,
       printf("Dense, User-Supplied Jacobian\n");
 
       /* Create dense SUNMatrix for use in linear solves */
-      A = SUNDenseMatrix(P1_NEQ, P1_NEQ);
-      if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
+      *A = SUNDenseMatrix(P1_NEQ, P1_NEQ);
+      if(check_retval((void *)*A, "SUNDenseMatrix", 0)) return(1);
 
       /* Create dense SUNLinearSolver object for use by CVode */
-      LS = SUNDenseLinearSolver(y, A);
-      if(check_retval((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+      *LS = SUNDenseLinearSolver(y, *A);
+      if(check_retval((void *)*LS, "SUNDenseLinearSolver", 0)) return(1);
 
       /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
-      retval = CVDlsSetLinearSolver(cvode_mem, LS, A);
+      retval = CVDlsSetLinearSolver(cvode_mem, *LS, *A);
       if(check_retval(&retval, "CVDlsSetLinearSolver", 1)) return(1);
 
       /* Set the user-supplied Jacobian routine Jac */
@@ -648,15 +720,15 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter, N_Vector y,
       printf("Dense, Difference Quotient Jacobian\n");
 
       /* Create dense SUNMatrix for use in linear solves */
-      A = SUNDenseMatrix(P1_NEQ, P1_NEQ);
-      if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
+      *A = SUNDenseMatrix(P1_NEQ, P1_NEQ);
+      if(check_retval((void *)*A, "SUNDenseMatrix", 0)) return(1);
 
       /* Create dense SUNLinearSolver object for use by CVode */
-      LS = SUNDenseLinearSolver(y, A);
-      if(check_retval((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+      *LS = SUNDenseLinearSolver(y, *A);
+      if(check_retval((void *)*LS, "SUNDenseLinearSolver", 0)) return(1);
 
       /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
-      retval = CVDlsSetLinearSolver(cvode_mem, LS, A);
+      retval = CVDlsSetLinearSolver(cvode_mem, *LS, *A);
       if(check_retval(&retval, "CVDlsSetLinearSolver", 1)) return(1);
 
       /* Use a difference quotient Jacobian */
@@ -676,15 +748,15 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter, N_Vector y,
       printf("Band, User-Supplied Jacobian\n");
 
       /* Create band SUNMatrix for use in linear solves */
-      A = SUNBandMatrix(P2_NEQ, mu, ml, mu+ml);
-      if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
+      *A = SUNBandMatrix(P2_NEQ, mu, ml, mu+ml);
+      if(check_retval((void *)*A, "SUNBandMatrix", 0)) return(1);
 
       /* Create banded SUNLinearSolver object for use by CVode */
-      LS = SUNBandLinearSolver(y, A);
-      if(check_retval((void *)LS, "SUNBandLinearSolver", 0)) return(1);
+      *LS = SUNBandLinearSolver(y, *A);
+      if(check_retval((void *)*LS, "SUNBandLinearSolver", 0)) return(1);
 
       /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
-      retval = CVDlsSetLinearSolver(cvode_mem, LS, A);
+      retval = CVDlsSetLinearSolver(cvode_mem, *LS, *A);
       if(check_retval(&retval, "CVDlsSetLinearSolver", 1)) return(1);
 
       /* Set the user-supplied Jacobian routine Jac */
@@ -696,15 +768,15 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter, N_Vector y,
       printf("Band, Difference Quotient Jacobian\n");
 
       /* Create band SUNMatrix for use in linear solves */
-      A = SUNBandMatrix(P2_NEQ, mu, ml, mu+ml);
-      if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
+      *A = SUNBandMatrix(P2_NEQ, mu, ml, mu+ml);
+      if(check_retval((void *)*A, "SUNBandMatrix", 0)) return(1);
 
       /* Create banded SUNLinearSolver object for use by CVode */
-      LS = SUNBandLinearSolver(y, A);
-      if(check_retval((void *)LS, "SUNBandLinearSolver", 0)) return(1);
+      *LS = SUNBandLinearSolver(y, *A);
+      if(check_retval((void *)*LS, "SUNBandLinearSolver", 0)) return(1);
 
       /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
-      retval = CVDlsSetLinearSolver(cvode_mem, LS, A);
+      retval = CVDlsSetLinearSolver(cvode_mem, *LS, *A);
       if(check_retval(&retval, "CVDlsSetLinearSolver", 1)) return(1);
 
       /* Use a difference quotient Jacobian */

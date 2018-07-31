@@ -102,6 +102,8 @@ int main(void)
   mem = NULL;
   data = NULL;
   uu = up = constraints = id = res = NULL;
+  A = NULL;
+  LS = NULL;
 
   /* Create vectors uu, up, res, constraints, id. */
   uu = N_VNew_Serial(NEQ);

@@ -80,7 +80,9 @@
     FIDASPILSSETINCREMENTFACTOR  IDASpilsSetIncrementFactor
     FIDASPILSSETJAC              IDASpilsSetJacTimes
     FIDASPILSSETPREC             IDASpilsSetPreconditioner
- 
+
+    FIDANLSINIT                  IDASetNonlinearSolver
+
     FIDASOLVE                    IDASolve, IDAGet*, and IDA*Get*
  
     FIDAGETDKY                   IDAGetDky
@@ -585,7 +587,6 @@
                    0 = success, 
                   -1 = failure.
 
- 
   (5.4) To set various problem and solution parameters and allocate
       internal memory, make the following call:
 
@@ -666,7 +667,6 @@
                    0 = SUCCESS,
                   -1 = failure (see printed message for failure details).
 
- 
   (5.6) If the user program includes the FIDAEWT routine for the evaluation 
       of the error weights, the following call must be made
 
@@ -970,6 +970,7 @@ extern "C" {
 #define FIDA_GETDKY         SUNDIALS_F77_FUNC(fidagetdky, FIDAGETDKY)
 #define FIDA_GETERRWEIGHTS  SUNDIALS_F77_FUNC(fidageterrweights, FIDAGETERRWEIGHTS)
 #define FIDA_GETESTLOCALERR SUNDIALS_F77_FUNC(fidagetestlocalerr, FIDAGETESTLOCALERR)
+#define FIDA_NLSINIT        SUNDIALS_F77_FUNC(fidanlsinit, FIDANLSINIT)
 
 #else
 
@@ -1004,6 +1005,7 @@ extern "C" {
 #define FIDA_GETDKY         fidagetdky_
 #define FIDA_GETERRWEIGHTS  fidageterrweights_
 #define FIDA_GETESTLOCALERR fidagetestlocalerr_
+#define FIDA_NLSINIT        fidanlsinit_
 
 #endif
 
@@ -1041,6 +1043,8 @@ void FIDA_SPILSSETEPSLIN(realtype *eplifac, int *ier);
 void FIDA_SPILSSETINCREMENTFACTOR(realtype *dqincfac, int *ier);
 void FIDA_SPILSSETJAC(int *flag, int *ier);
 void FIDA_SPILSSETPREC(int *flag, int *ier);
+
+void FIDA_NLSINIT(int *ier);
 
 void FIDA_SOLVE(realtype *tout, realtype *tret, realtype *yret,
                 realtype *ypret, int *itask, int *ier);
@@ -1085,18 +1089,20 @@ int FIDAPSol(realtype t, N_Vector yy, N_Vector yp, N_Vector rr,
 int FIDAEwtSet(N_Vector yy, N_Vector ewt, void *user_data);
 
 void FIDANullMatrix();
+void FIDANullNonlinSol();
   
 /* Declarations for global variables shared amongst various routines */
-extern N_Vector F2C_IDA_vec;            /* defined in FNVECTOR module */
-extern N_Vector F2C_IDA_ypvec;          /* defined in fida.c */
-extern N_Vector F2C_IDA_ewtvec;         /* defined in fida.c */
-extern SUNMatrix F2C_IDA_matrix;        /* defined in FSUNMATRIX module */
-extern SUNLinearSolver F2C_IDA_linsol;  /* defined in FSUNLINSOL module */
-extern void *IDA_idamem;                /* defined in fida.c */
-extern long int *IDA_iout;              /* defined in fida.c */
-extern realtype *IDA_rout;              /* defined in fida.c */  
-extern int IDA_ls;                      /* defined in fida.c */
-extern int IDA_nrtfn;                   /* defined in fida.c */
+extern N_Vector F2C_IDA_vec;                 /* defined in FNVECTOR module */
+extern N_Vector F2C_IDA_ypvec;               /* defined in fida.c */
+extern N_Vector F2C_IDA_ewtvec;              /* defined in fida.c */
+extern SUNMatrix F2C_IDA_matrix;             /* defined in FSUNMATRIX module */
+extern SUNLinearSolver F2C_IDA_linsol;       /* defined in FSUNLINSOL module */
+extern SUNNonlinearSolver F2C_IDA_nonlinsol; /* defined in FSUNNONLINSOL module */
+extern void *IDA_idamem;                     /* defined in fida.c */
+extern long int *IDA_iout;                   /* defined in fida.c */
+extern realtype *IDA_rout;                   /* defined in fida.c */  
+extern int IDA_ls;                           /* defined in fida.c */
+extern int IDA_nrtfn;                        /* defined in fida.c */
 
 /* Linear solver IDs */
 enum { IDA_LS_ITERATIVE = 0,

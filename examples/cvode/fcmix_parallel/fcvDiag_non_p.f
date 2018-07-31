@@ -13,7 +13,7 @@ C The following declaration specification should match C type long int.
       PARAMETER (NLOCAL=2)
 C
       INTEGER*4 IER, MYPE, NPES, NOUT, LNST, LNFE, LNNI, LNCF, LNETF
-      INTEGER*4 METH, ITMETH, IATOL, ITASK, JOUT
+      INTEGER*4 METH, IATOL, ITASK, JOUT
       INTEGER*8 NST, NFE, NNI, NCFN, NETF
       DOUBLE PRECISION Y(128), ROUT(10), RPAR(1)
       DOUBLE PRECISION ATOL, RTOL, DTOUT, T, ALPHA, TOUT
@@ -48,7 +48,6 @@ C     Set input arguments.
       NEQ = NPES * NLOCAL
       T = 0.0D0
       METH = 1
-      ITMETH = 1
       IATOL = 1
       ITASK = 1
 c     Set parameter ALPHA
@@ -71,7 +70,7 @@ C
          WRITE(6,13) RTOL, ATOL
   13     FORMAT(' RTOL, ATOL = ', 2E10.1)
          WRITE(6,14)
-  14     FORMAT(' Method is ADAMS/FUNCTIONAL')
+  14     FORMAT(' Method is ADAMS/FIXEDPOINT')
          WRITE(6,15) NPES
   15     FORMAT(' Number of processors = ', I3//)
       ENDIF
@@ -85,12 +84,33 @@ C
          STOP
       ENDIF
 C
-      CALL FCVMALLOC(T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
+      CALL FCVMALLOC(T, Y, METH, IATOL, RTOL, ATOL,
      1               IOUT, ROUT, IPAR, RPAR, IER)
 C
       IF (IER .NE. 0) THEN
          WRITE(6,30) IER
   30     FORMAT(///' SUNDIALS_ERROR: FCVMALLOC returned IER = ', I5)
+         CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
+         STOP
+      ENDIF
+C
+C     Create Fixed Point Solver
+      CALL FSUNFIXEDPOINTINIT(1, 0, IER)
+C
+      IF (IER .NE. 0) THEN
+         WRITE(6,31) IER
+  31     FORMAT(
+     1   ///' SUNDIALS_ERROR: FSUNFIXEDPOINTINIT returned IER = ', I5)
+         CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
+         STOP
+      ENDIF
+C
+C     Attach Fixed Point Solver
+      CALL FCVNLSINIT(IER)
+C
+      IF (IER .NE. 0) THEN
+         WRITE(6,32) IER
+  32     FORMAT(///' SUNDIALS_ERROR: FCVNLSINIT returned IER = ', I5)
          CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
          STOP
       ENDIF

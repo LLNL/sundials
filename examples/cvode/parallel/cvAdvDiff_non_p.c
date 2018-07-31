@@ -17,7 +17,7 @@
  * central differencing, and with boundary values eliminated,
  * leaving an ODE system of size NEQ = MX.
  * This program solves the problem with the option for nonstiff
- * systems: ADAMS method and functional iteration.
+ * systems: ADAMS method and fixed-point iteration.
  * It uses scalar relative and absolute tolerances.
  * Output is printed at t = .5, 1.0, ..., 5.
  * Run statistics (optional outputs) are printed at the end.
@@ -31,10 +31,11 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <cvode/cvode.h>              /* prototypes for CVODE fcts., consts.    */
-#include <nvector/nvector_parallel.h> /* access to MPI-parallel N_Vector        */
-#include <sundials/sundials_types.h>  /* definition of type realtype            */
-#include <sundials/sundials_math.h>   /* definition of ABS and EXP              */
+#include <cvode/cvode.h>                          /* prototypes for CVODE fcts., consts.          */
+#include <nvector/nvector_parallel.h>             /* access to MPI-parallel N_Vector              */
+#include "sunnonlinsol/sunnonlinsol_fixedpoint.h" /* access to the fixed point SUNNonlinearSolver */
+#include <sundials/sundials_types.h>              /* definition of type realtype                  */
+#include <sundials/sundials_math.h>               /* definition of ABS and EXP                    */
 
 #include <mpi.h> /* MPI constants and types */
 
@@ -91,6 +92,7 @@ int main(int argc, char *argv[])
   int iout, retval, my_pe, npes;
   sunindextype local_N, nperpe, nrem, my_base;
   long int nst;
+  SUNNonlinearSolver NLS;
 
   MPI_Comm comm;
 
@@ -130,8 +132,8 @@ int main(int argc, char *argv[])
   SetIC(u, dx, local_N, my_base);  /* Initialize u vector */
 
   /* Call CVodeCreate to create the solver memory and specify the
-   * Adams-Moulton LMM and the use of a functional iteration */
-  cvode_mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL);
+   * Adams-Moulton LMM */
+  cvode_mem = CVodeCreate(CV_ADAMS);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   retval = CVodeSetUserData(cvode_mem, data);
@@ -147,6 +149,14 @@ int main(int argc, char *argv[])
    * and scalar absolute tolerances */
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
   if (check_retval(&retval, "CVodeSStolerances", 1, my_pe)) return(1);
+
+  /* create fixed point nonlinear solver object */
+  NLS = SUNNonlinSol_FixedPoint(u, 0);
+  if(check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0, my_pe)) return(1);
+
+  /* attach nonlinear solver object to CVode */
+  retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
+  if(check_retval(&retval, "CVodeSetNonlinearSolver", 1, my_pe)) return(1);
 
   if (my_pe == 0) PrintIntro(npes);
 
@@ -173,6 +183,7 @@ int main(int argc, char *argv[])
 
   N_VDestroy_Parallel(u);        /* Free the u vector */
   CVodeFree(&cvode_mem);         /* Free the integrator memory */
+  SUNNonlinSolFree(NLS);         /* Free the nonlinear solver memory */
   free(data);                    /* Free user data */
 
   MPI_Finalize();

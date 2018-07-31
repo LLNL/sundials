@@ -81,33 +81,6 @@ int CVodeSetErrFile(void *cvode_mem, FILE *errfp)
 }
 
 /* 
- * CVodeSetIterType
- *
- * Specifies the iteration type (CV_FUNCTIONAL or CV_NEWTON)
- */
-
-int CVodeSetIterType(void *cvode_mem, int iter)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeSetIterType", MSGCV_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if ((iter != CV_FUNCTIONAL) && (iter != CV_NEWTON)) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeSetIterType", MSGCV_BAD_ITER);
-    return (CV_ILL_INPUT);
-  }
-
-  cv_mem->cv_iter = iter;
-
-  return(CV_SUCCESS);
-}
-
-/* 
  * CVodeSetUserData
  *
  * Specifies the user data pointer for f
@@ -441,9 +414,12 @@ int CVodeSetMaxNonlinIters(void *cvode_mem, int maxcor)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  cv_mem->cv_maxcor = maxcor;
+  if (cv_mem->NLS == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeSetMaxNonlinIters", MSGCV_NO_MEM);
+    return (CV_MEM_NULL);
+  }
 
-  return(CV_SUCCESS);
+  return(SUNNonlinSolSetMaxIters(cv_mem->NLS, maxcor));
 }
 
 /* 
@@ -963,9 +939,12 @@ int CVodeGetNumNonlinSolvIters(void *cvode_mem, long int *nniters)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nniters = cv_mem->cv_nni;
+  if (cv_mem->NLS == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeGetNumNonlinSolvIters", MSGCV_NO_MEM);
+    return (CV_MEM_NULL);
+  }
 
-  return(CV_SUCCESS);
+  return(SUNNonlinSolGetNumIters(cv_mem->NLS, nniters));
 }
 
 /* 
@@ -1001,6 +980,7 @@ int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters,
                             long int *nncfails)
 {
   CVodeMem cv_mem;
+  int retval;
 
   if (cvode_mem==NULL) {
     cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeGetNonlinSolvStats", MSGCV_NO_MEM);
@@ -1009,10 +989,14 @@ int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters,
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nniters = cv_mem->cv_nni;
+  if (cv_mem->NLS == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeGetNonlinSolvStats", MSGCV_NO_MEM);
+    return (CV_MEM_NULL);
+  }
+  retval = SUNNonlinSolGetNumIters(cv_mem->NLS, nniters);
   *nncfails = cv_mem->cv_ncfn;
 
-  return(CV_SUCCESS);
+  return(retval);
 }
 
 /*-----------------------------------------------------------------*/
@@ -1092,7 +1076,13 @@ char *CVodeGetReturnFlagName(long int flag)
     break;
   case CV_TOO_CLOSE:
     sprintf(name,"CV_TOO_CLOSE");
-    break;    
+    break;
+  case CV_NLS_INIT_FAIL:
+    sprintf(name,"CV_NLS_INIT_FAIL");
+    break;
+  case CV_NLS_SETUP_FAIL:
+    sprintf(name,"CV_NLS_SETUPT_FAIL");
+    break;
   default:
     sprintf(name,"NONE");
   }
