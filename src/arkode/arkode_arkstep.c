@@ -2223,15 +2223,14 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
     /* If a linear solver 'setup' is supplied:
        Set interface 'convfail' flag, for eventual input to lsetup, and
        Decide whether or not to call setup routine */
+    step_mem->convfail = ((nflag == FIRST_CALL) || (nflag == PREV_ERR_FAIL)) ?
+      ARK_NO_FAILURES : ARK_FAIL_OTHER;
     if (step_mem->lsetup) {
-      step_mem->convfail = ((nflag == FIRST_CALL) || (nflag == PREV_ERR_FAIL)) ?
-        ARK_NO_FAILURES : ARK_FAIL_OTHER;
       callLSetup = (nflag == PREV_CONV_FAIL) || (nflag == PREV_ERR_FAIL) ||
         (ark_mem->firststage) || (step_mem->msbp < 0) ||
         (ark_mem->nst >= step_mem->nstlp + abs(step_mem->msbp)) ||
         (SUNRabs(step_mem->gamrat-ONE) > step_mem->dgmax);
     } else {
-      step_mem->convfail = ARK_NO_FAILURES;
       step_mem->crate = ONE;
       callLSetup = SUNFALSE;
     }
@@ -2395,6 +2394,61 @@ int arkStep_NlsFPFun(ARKodeMem ark_mem, N_Vector zpred, N_Vector z,
 
 
 /*---------------------------------------------------------------
+ arkStep_NlsConvTest
+
+ This routine check for convergence of the nonlinear solver.
+---------------------------------------------------------------*/
+int arkStep_NlsConvergenceTest(void *arkode_mem, N_Vector zcor, N_Vector delta,
+                               realtype tol, int curiter, N_Vector ewt)
+{
+  /* temporary variables */
+  ARKodeMem ark_mem;
+  ARKodeARKStepMem step_mem;
+  static realtype delp;
+  realtype delnrm, dcon;
+  int retval;
+
+  /* access ARKodeARKStepMem structure */
+  retval = arkStep_AccessStepMem(arkode_mem, "arkStep_NlsConvTest",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+
+  /* if the problem is linearly implicit, just return success */
+  if (step_mem->linear)
+    return(ARK_SUCCESS);
+
+  /* compute the norm of the correction */
+  delnrm = N_VWrmsNorm(delta, ewt);
+
+  /* update the stored estimate of the convergence rate (assumes linear convergence) */
+  if (curiter > 0)
+    step_mem->crate = SUNMAX(step_mem->crdown*step_mem->crate, delnrm/delp);
+
+  /* compute our scaled error norm for testing convergence */
+  dcon = SUNMIN(step_mem->crate, ONE) * delnrm / tol;
+
+  /* check for convergence; if so return with success */
+  if (dcon <= ONE)  return(ARK_SUCCESS);
+
+#ifndef FIXED_LIN_TOL
+  /* update forcing parameter for inexact linear solvers;
+     Note: if a user provides their own convergence test routine,
+     this will result in use of a fixed linear solver tolerance */
+  step_mem->eRNrm = SUNMIN(step_mem->crate, ONE) * delnrm * RCONST(0.1) * tol;
+#endif
+
+  /* check for divergence */
+  if ((curiter >= 1) && (delnrm > step_mem->rdiv*delp))
+    return(CONV_FAIL);
+
+  /* save norm of correction for next iteration */
+  delp = delnrm;
+
+  /* return with flag that there is more work to do */
+  return(TRY_AGAIN);
+}
+
+/*---------------------------------------------------------------
  arkStep_NlsNewton
 
  This routine handles the Newton iteration for implicit portions
@@ -2425,9 +2479,8 @@ int arkStep_NlsFPFun(ARKodeMem ark_mem, N_Vector zpred, N_Vector z,
 int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag)
 {
   N_Vector b, z, zcor;
-  int convfail, retval, ier, m, is;
-  booleantype callLSetup;
-  realtype del, delp, dcon;
+  int retval, ier, is;
+  booleantype callLSetup, jbad;
   ARKodeARKStepMem step_mem;
 
   /* access ARKodeARKStepMem structure */
@@ -2443,9 +2496,10 @@ int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag)
   zcor = ark_mem->tempv2;  /* rename tempv2 as zcor for readability */
   is   = step_mem->istage;
 
-  /* Set flag convfail, input to lsetup for its evaluation decision */
-  convfail = ((nflag == FIRST_CALL) || (nflag == PREV_ERR_FAIL)) ?
+  /* Set flags convfail, jbad -- inputs to lsetup for its evaluation decision */
+  step_mem->convfail = ((nflag == FIRST_CALL) || (nflag == PREV_ERR_FAIL)) ?
     ARK_NO_FAILURES : ARK_FAIL_OTHER;
+  jbad = SUNFALSE;
 
   /* Decide whether or not to call setup routine (if one exists) */
   if (step_mem->lsetup) {
@@ -2468,37 +2522,29 @@ int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag)
      failure with stale Jacobian). */
   for(;;) {
 
+    /* Set zcor to zero and load prediction into z vector */
+    N_VConst(ZERO, zcor);
+    N_VScale(ONE, step_mem->zpred, z);
+
+    /* compute the implicit RHS, put result into step_mem->Fi[is] */
     retval = step_mem->fi(ark_mem->tcur, step_mem->zpred,
                           step_mem->Fi[is], ark_mem->user_data);
     step_mem->nfi++;
     if (retval < 0) return(ARK_RHSFUNC_FAIL);
     if (retval > 0) return(RHSFUNC_RECVR);
 
+    /* compute the residual, put result into b */
+    retval = arkStep_NlsResid(ark_mem, zcor, step_mem->Fi[is], b);
+    if (retval != ARK_SUCCESS) {
+      ier = ARK_RHSFUNC_FAIL;
+      break;
+    }
+        
     /* update system matrix/factorization if necessary */
     if (callLSetup) {
-
-      /* Solver diagnostics reporting */
-      if (ark_mem->report)  fprintf(ark_mem->diagfp, "  lsetup\n");
-
-      /* call lsetup, using zcor, z and b as temporary vectors */
-      ier = step_mem->lsetup(ark_mem, convfail, ark_mem->tcur,
-                             step_mem->zpred, step_mem->Fi[is],
-                             &step_mem->jcur, zcor, z, b);
-      step_mem->nsetups++;
-      ark_mem->firststage = SUNFALSE;
-      step_mem->gamrat = step_mem->crate = ONE;
-      step_mem->gammap = step_mem->gamma;
-      step_mem->nstlp  = ark_mem->nst;
-
-      /* Return if lsetup failed */
-      if (ier < 0) return(ARK_LSETUP_FAIL);
-      if (ier > 0) return(CONV_FAIL);
+      ier = arkStep_NlsLSetup(zcor, step_mem->Fi[is], jbad, &step_mem->jcur, ark_mem);
+      if (ier != 0) break;
     }
-
-    /* Set zcor to zero and load prediction into z vector */
-    N_VConst(ZERO, zcor);
-    N_VScale(ONE, step_mem->zpred, z);
-
 
     /***********************************
      Do the modified Newton iteration:
@@ -2510,8 +2556,7 @@ int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag)
     */
 
     /* Initialize temporary variables for use in iteration */
-    step_mem->mnewt = m = 0;
-    del = delp = ZERO;
+    step_mem->mnewt = 0;
 
     /* Reset the stored residual norm (for iterative linear solvers) */
     step_mem->eRNrm = RCONST(0.1) * step_mem->nlscoef;
@@ -2519,32 +2564,18 @@ int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag)
     /* Looping point for Newton iteration */
     for(;;) {
 
-      /* Evaluate the nonlinear system residual, put result into b */
-      retval = arkStep_NlsResid(ark_mem, zcor, step_mem->Fi[is], b);
-      if (retval != ARK_SUCCESS) {
-        ier = ARK_RHSFUNC_FAIL;
-        break;
-      }
-
-#ifdef DEBUG_OUTPUT
- printf("residual\n");
- N_VPrint_Serial(b);
-#endif
-
-      /* Call the lsolve function, overwriting b with solution */
+      /* increment number of nonlinear solver iterations */
+      step_mem->nni++;
+ 
+      /* Call the lsolve wrapper function, overwriting b with solution */
+      /* retval = arkStep_NlsLSolve(zcor, b, ark_mem); */
       retval = step_mem->lsolve(ark_mem, b, ark_mem->tcur,
                                 z, step_mem->Fi[is],
                                 step_mem->eRNrm, step_mem->mnewt);
-      step_mem->nni++;
       if (retval < 0) {
         ier = ARK_LSOLVE_FAIL;
         break;
       }
-
-#ifdef DEBUG_OUTPUT
- printf("linear system solution\n");
- N_VPrint_Serial(b);
-#endif
 
       /* If lsolve had a recoverable failure and Jacobian data is
          not current, signal to try the solution again */
@@ -2556,62 +2587,31 @@ int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag)
         break;
       }
 
-      /* Get WRMS norm of correction; add to zcor and y */
-      del = N_VWrmsNorm(b, ark_mem->ewt);
+      /* Apply update to zcor and z */
       N_VLinearSum(ONE, zcor, ONE, b, zcor);
       N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, z);
 
-#ifdef DEBUG_OUTPUT
- printf("corrected solution\n");
- N_VPrint_Serial(z);
-#endif
-
-      /* Compute the nonlinear error estimate.  If m > 0, an estimate of the convergence
-         rate constant is stored in crate, and used in the subsequent estimates */
-      if (m > 0)
-        step_mem->crate = SUNMAX(step_mem->crdown*step_mem->crate, del/delp);
-      dcon = SUNMIN(step_mem->crate, ONE) * del / step_mem->nlscoef;
-
-      /* compute the forcing term for linear solver tolerance */
-      step_mem->eRNrm = SUNMIN(step_mem->crate, ONE) * del
-                        * RCONST(0.1) * step_mem->nlscoef;
-#ifdef FIXED_LIN_TOL
-      /* reset if a fixed linear solver tolerance is desired */
-      step_mem->eRNrm = RCONST(0.1) * step_mem->nlscoef;
-#endif
-
-#ifdef DEBUG_OUTPUT
- printf("Newton iter %i,  del = %"RSYM",  crate = %"RSYM"\n", m, del, step_mem->crate);
- printf("   dcon = %"RSYM"\n", dcon);
-#endif
-
-      /* Solver diagnostics reporting */
-      if (ark_mem->report)
-        fprintf(ark_mem->diagfp, "    newt  %i  %"RSYM"  %"RSYM"\n", m, del, dcon);
-
-      if (dcon <= ONE) {
+      /* test for convergence */
+      retval = arkStep_NlsConvergenceTest(ark_mem, zcor, b, step_mem->nlscoef,
+                                          step_mem->mnewt, ark_mem->ewt);
+      
+      /* if successful update Jacobian status and return */
+      if (retval == ARK_SUCCESS) {
         step_mem->jcur = SUNFALSE;
-        ier = ARK_SUCCESS;
+        return(ARK_SUCCESS);
+      }
+
+      /* check if the iteration should continue */
+      if (retval != TRY_AGAIN) break;
+
+      /* not yet converged. Increment mnewt and test for max allowed. */
+      step_mem->mnewt++;
+      if (step_mem->mnewt >= step_mem->maxcor) {
+        retval = CONV_FAIL;
         break;
       }
 
-      /* update Newton iteration counter */
-      step_mem->mnewt = ++m;
-
-      /* Stop at maxcor iterations or if iteration seems to be diverging.
-         If still not converged and Jacobian data is not current, signal
-         to try the solution again */
-      if ( (m == step_mem->maxcor) ||
-           ((m >= 2) && (del > step_mem->rdiv*delp)) ) {
-        if ((!step_mem->jcur) && (step_mem->lsetup))
-          ier = TRY_AGAIN;
-        else
-          ier = CONV_FAIL;
-        break;
-      }
-
-      /* Save norm of correction, evaluate fi, and loop again */
-      delp = del;
+      /* evaluate fi, update residual, and loop again */
       retval = step_mem->fi(ark_mem->tcur, z,
                             step_mem->Fi[step_mem->istage],
                             ark_mem->user_data);
@@ -2628,6 +2628,13 @@ int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag)
         break;
       }
 
+      /* Evaluate the nonlinear system residual, put result into b */
+      retval = arkStep_NlsResid(ark_mem, zcor, step_mem->Fi[is], b);
+      if (retval != ARK_SUCCESS) {
+        ier = ARK_RHSFUNC_FAIL;
+        break;
+      }
+
     }
     /* end modified Newton iteration */
     /*********************************/
@@ -2635,11 +2642,19 @@ int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag)
     /* If there is a convergence failure and the Jacobian-related
        data appears not to be current, loop again with a call to lsetup
        in which convfail=ARK_FAIL_BAD_J.  Otherwise return. */
-    if (ier != TRY_AGAIN) return(ier);
+    if ((retval > 0) && !(step_mem->jcur) && (step_mem->lsetup)) {
+      callLSetup = SUNTRUE;
+      jbad = SUNTRUE;
+      continue;
+    } else {
+      break;
+    }
 
-    callLSetup = SUNTRUE;
-    convfail = ARK_FAIL_BAD_J;
-  }
+  } /* end of setup loop */
+
+  /* all error returns exit here */
+  return(retval);
+
 }
 
 

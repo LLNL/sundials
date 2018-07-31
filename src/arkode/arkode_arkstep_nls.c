@@ -216,7 +216,7 @@ int arkStep_NlsLSetup(N_Vector zcor, N_Vector res, booleantype jbad,
      Note: ycur already contains zpred+zcor */
   step_mem->nsetups++;
   retval = step_mem->lsetup(ark_mem, step_mem->convfail, ark_mem->tcur,
-                            ark_mem->ycur, step_mem->Fi[step_mem->istage],
+                            step_mem->zpred, step_mem->Fi[step_mem->istage],
                             &step_mem->jcur, ark_mem->tempv1,
                             ark_mem->tempv2, ark_mem->tempv3);
 
@@ -258,6 +258,9 @@ int arkStep_NlsLSolve(N_Vector zcor, N_Vector b, void* arkode_mem)
   if (retval != SUN_NLS_SUCCESS)
     return(ARK_NLS_OP_ERR);
 
+  /* /\* update current solution for use by matrix-free iterative solvers *\/ */
+  /* N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur); */
+  
   /* call linear solver interface, and handle return value */
   retval = step_mem->lsolve(ark_mem, b, ark_mem->tcur,
                             ark_mem->ycur, step_mem->Fi[step_mem->istage],

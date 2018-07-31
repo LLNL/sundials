@@ -183,6 +183,8 @@ int arkStep_NlsResid(ARKodeMem ark_mem, N_Vector y,
                      N_Vector fy, N_Vector r);
 int arkStep_NlsFPFun(ARKodeMem ark_mem, N_Vector zpred, N_Vector z,
                      N_Vector ftemp, N_Vector tempv, N_Vector gz);
+int arkStep_NlsConvergenceTest(void *arkode_mem, N_Vector zcor, N_Vector delta,
+                               realtype tol, int curiter, N_Vector ewt);
 int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag);
 int arkStep_NlsAccelFP(ARKodeMem ark_mem, int nflag);
 int arkStep_AndersonAcc(ARKodeMem ark_mem, N_Vector gval,
