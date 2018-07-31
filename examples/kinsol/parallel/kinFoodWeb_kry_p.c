@@ -347,11 +347,10 @@ int main(int argc, char *argv[])
 
 static int funcprpr(N_Vector cc, N_Vector fval, void *user_data)
 {
-  realtype *cdata, *fvdata;
+  realtype *cdata;
   UserData data;
   
   cdata = N_VGetArrayPointer_Parallel(cc);
-  fvdata = N_VGetArrayPointer_Parallel(fval);
   data = (UserData) user_data;
   
   /* Call ccomm to do inter-processor communicaiton */

@@ -510,14 +510,13 @@ static void SetData(ProblemData d, MPI_Comm comm, int npes, int myId,
 static void SetSource(ProblemData d)
 {
   int *l_m, *m_start;
-  realtype *xmin, *xmax, *dx;
+  realtype *xmin, *dx;
   realtype x[DIM], g, *pdata;
   int i[DIM];
 
   l_m  = d->l_m;
   m_start = d->m_start;
   xmin = d->xmin;
-  xmax = d->xmax;
   dx = d->dx;
 
 
@@ -704,7 +703,7 @@ static int f_local(sunindextype Nlocal, realtype t, N_Vector y,
   realtype *Ydata, *dydata, *pdata;
   realtype dx[DIM], c, v[DIM], cl[DIM], cr[DIM];
   realtype adv[DIM], diff[DIM];
-  realtype xmin[DIM], xmax[DIM], x[DIM], x1;
+  realtype xmin[DIM], x[DIM], x1;
   int i[DIM], l_m[DIM], m_start[DIM], nbr_left[DIM], nbr_right[DIM], id;
   ProblemData d;
   int dim;
@@ -715,7 +714,6 @@ static int f_local(sunindextype Nlocal, realtype t, N_Vector y,
   id = d->myId;
   FOR_DIM {
     xmin[dim]      = d->xmin[dim];
-    xmax[dim]      = d->xmax[dim];
     l_m[dim]       = d->l_m[dim];
     m_start[dim]   = d->m_start[dim];
     dx[dim]        = d->dx[dim];
@@ -844,7 +842,7 @@ static int fB_local(sunindextype NlocalB, realtype t,
   realtype *YBdata, *dyBdata, *ydata;
   realtype dx[DIM], c, v[DIM], cl[DIM], cr[DIM];
   realtype adv[DIM], diff[DIM];
-  realtype xmin[DIM], xmax[DIM], x[DIM], x1;
+  realtype xmin[DIM], x[DIM], x1;
   int i[DIM], l_m[DIM], m_start[DIM], nbr_left[DIM], nbr_right[DIM], id;
   ProblemData d;
   int dim;
@@ -855,7 +853,6 @@ static int fB_local(sunindextype NlocalB, realtype t,
   id = d->myId;
   FOR_DIM {
     xmin[dim]      = d->xmin[dim];
-    xmax[dim]      = d->xmax[dim];
     l_m[dim]       = d->l_m[dim];
     m_start[dim]   = d->m_start[dim];
     dx[dim]        = d->dx[dim];
@@ -1060,7 +1057,7 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
   FILE *fid;
   char filename[20];
   int *l_m, *m_start, i[DIM],ip;
-  realtype *xmin, *xmax, *dx;
+  realtype *xmin, *dx;
   realtype x[DIM], *pdata, p, *qBdata, g;
 
   sprintf(filename,"grad%03d.m",myId);
@@ -1069,7 +1066,6 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
   l_m  = d->l_m;
   m_start = d->m_start;
   xmin = d->xmin;
-  xmax = d->xmax;
   dx = d->dx;
 
   qBdata = N_VGetArrayPointer_Parallel(qB);

@@ -70,6 +70,12 @@ int main(int argc, char *argv[])
   square = (matrows == matcols) ? 1 : 0;
   printf("\nDense matrix test: size %ld by %ld\n\n",
          (long int) matrows, (long int) matcols);
+
+  /* Initialize vectors and matrices to NULL */
+  x = NULL;
+  y = NULL;
+  A = NULL;
+  I = NULL;
   
   /* Create vectors and matrices */
   x = N_VNew_Serial(matcols);

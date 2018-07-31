@@ -21,10 +21,19 @@
 # Require a fairly recent cmake version
 cmake_minimum_required(VERSION 3.0.2)
 
-# Set CMake policy to allow examples to build
-if(COMMAND cmake_policy)
-  cmake_policy(SET CMP0003 NEW)
-endif(COMMAND cmake_policy)
+# Libraries linked via full path no longer produce linker search paths
+# Allows examples to build
+cmake_policy(SET CMP0003 NEW)
+
+# MACOSX_RPATH is enabled by default
+# Fixes dynamic loading on OSX
+if(POLICY CMP0042)
+  cmake_policy(SET CMP0042 NEW) # Added in CMake 3.0
+else()
+  if(APPLE)
+    set(CMAKE_MACOSX_RPATH 1)
+  endif()
+endif()
 
 # Project SUNDIALS (initially only C supported)
 # sets PROJECT_SOURCE_DIR and PROJECT_BINARY_DIR variables
@@ -1116,4 +1125,4 @@ INSTALL(
 # install license file
 INSTALL(
   FILES ${PROJECT_SOURCE_DIR}/LICENSE
-  DESTINATION .)
+  DESTINATION include/sundials)

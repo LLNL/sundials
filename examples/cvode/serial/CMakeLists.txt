@@ -24,10 +24,12 @@ SET(CVODE_examples
   "cvDirectDemo_ls\;develop"
   "cvDiurnal_kry_bp\;develop"
   "cvDiurnal_kry\;develop"
+  "cvDisc_dns\;develop"
   "cvKrylovDemo_ls\;develop"
   "cvKrylovDemo_prec\;develop"
   "cvRoberts_dns\;"
   "cvRoberts_dns_uw\;develop"
+  "cvRoberts_dns_negsol\;develop"
   #cvAdvDiffReac_kry\;develop" # not released
   )
 
