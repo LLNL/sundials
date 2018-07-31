@@ -75,32 +75,32 @@ endif()
 INSTALL(FILES ${lib_HEADERS} DESTINATION include/sunnonlinsol)
 
 # If FCMIX is enabled, build and install the F library
-# if(FCMIX_ENABLE AND F77_FOUND)
-#   set(flib_SOURCES fsunnonlinsol_fixedpoint.c)
+if(FCMIX_ENABLE AND F77_FOUND)
+  set(flib_SOURCES fsunnonlinsol_fixedpoint.c)
 
-#   if(BUILD_STATIC_LIBS)
-#     add_library(sundials_fsunnonlinsolfixedpoint_static STATIC ${flib_SOURCES})
-#     set_target_properties(sundials_fsunnonlinsolfixedpoint_static
-#       PROPERTIES OUTPUT_NAME sundials_fsunnonlinsolfixedpoint CLEAN_DIRECT_OUTPUT 1)
-#     install(TARGETS sundials_fsunnonlinsolfixedpoint_static DESTINATION lib)
-#   endif()
+  if(BUILD_STATIC_LIBS)
+    add_library(sundials_fsunnonlinsolfixedpoint_static STATIC ${flib_SOURCES})
+    set_target_properties(sundials_fsunnonlinsolfixedpoint_static
+      PROPERTIES OUTPUT_NAME sundials_fsunnonlinsolfixedpoint CLEAN_DIRECT_OUTPUT 1)
+    install(TARGETS sundials_fsunnonlinsolfixedpoint_static DESTINATION lib)
+  endif()
 
-#   if(BUILD_SHARED_LIBS)
-#     add_library(sundials_fsunnonlinsolfixedpoint_shared ${flib_SOURCES})
+  if(BUILD_SHARED_LIBS)
+    add_library(sundials_fsunnonlinsolfixedpoint_shared ${flib_SOURCES})
 
-#     # depends on fnvecserial and sunnonlinsolfixedpoint
-#     target_link_libraries(sundials_fsunnonlinsolfixedpoint_shared
-#       sundials_fnvecserial_shared
-#       sundials_sunnonlinsolfixedpoint_shared)
+    # depends on fnvecserial and sunnonlinsolfixedpoint
+    target_link_libraries(sundials_fsunnonlinsolfixedpoint_shared
+      sundials_fnvecserial_shared
+      sundials_sunnonlinsolfixedpoint_shared)
 
-#     set_target_properties(sundials_fsunnonlinsolfixedpoint_shared
-#       PROPERTIES OUTPUT_NAME sundials_fsunnonlinsolfixedpoint CLEAN_DIRECT_OUTPUT 1)
-#     set_target_properties(sundials_fsunnonlinsolfixedpoint_shared
-#       PROPERTIES VERSION ${sunnonlinsollib_VERSION} SOVERSION ${sunnonlinsollib_SOVERSION})
-#     install(TARGETS sundials_fsunnonlinsolfixedpoint_shared DESTINATION lib)
-#   endif()
+    set_target_properties(sundials_fsunnonlinsolfixedpoint_shared
+      PROPERTIES OUTPUT_NAME sundials_fsunnonlinsolfixedpoint CLEAN_DIRECT_OUTPUT 1)
+    set_target_properties(sundials_fsunnonlinsolfixedpoint_shared
+      PROPERTIES VERSION ${sunnonlinsollib_VERSION} SOVERSION ${sunnonlinsollib_SOVERSION})
+    install(TARGETS sundials_fsunnonlinsolfixedpoint_shared DESTINATION lib)
+  endif()
 
-# endif()
+endif()
 
 #
 message(STATUS "Added SUNNONLINSOL_FIXEDPOINT module")
