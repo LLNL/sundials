@@ -348,27 +348,35 @@ int arkStep_NlsResidual(N_Vector zcor, N_Vector r, void* arkode_mem)
   merely combines this old data with the current guess and
   implicit ODE RHS vector to compute the iteration function g.
 
-  At the ith stage, we compute the fixed-point iteration vector:
-     g(zc) = zc - zc + yn + h*sum_{j=0}^{i-1} Ae(i,j)*Fe(j)
-                          + h*sum_{j=0}^{i} Ai(i,j)*Fi(j)
+  At the ith stage, the new stage solution z should solve:
+     z = yn + h*sum_{j=0}^{i-1} Ae(i,j)*Fe(j)
+            + h*sum_{j=0}^{i} Ai(i,j)*Fi(j)
   <=>
-     g(zc) = yn + h*sum_{j=0}^{i-1} Ae(i,j)*Fe(j)
-                + h*sum_{j=0}^{i} Ai(i,j)*Fi(j)
+     z = yn + gamma*Fi(z) + h*sum_{j=0}^{i-1} ( Ae(i,j)*Fe(j)
+                                              + Ai(i,j)*Fi(j) )
   <=>
-     g = gamma*Fi(z) + (yn - zp + data)
-  where the current stage solution z = zp + zc, and where
-     zc is stored in the input, zcor
+     z = yn + gamma*Fi(z) + data
+  Our fixed-point problem is z=g(z), so the FP function is just:
+     g(z) = yn + gamma*Fi(z) + data
+  <=>
+     g(z) = zp - zp + gamma*Fi(z) + yn + data
+  <=>
+     g(z) = zp + gamma*Fi(z) + (yn - zp + data)
+  where the current nonlinear guess is z = zp + zc, and where
+     z is stored in the input, z
+     zp is stored in step_mem->zpred,
      (yn-zp+data) is stored in step_mem->sdata,
   so we really just compute:
-     z = zp + zc (store in ark_mem->ycur)
-     Fi(z) (store step_mem->Fi[step_mem->istage])
-     g = gamma*Fi(z) + step_mem->sdata
+     Fi(z) (store in step_mem->Fi[step_mem->istage])
+     g = zp + gamma*Fi(z) + step_mem->sdata
 ---------------------------------------------------------------*/
-int arkStep_NlsFPFunction(N_Vector zcor, N_Vector g, void* arkode_mem)
+int arkStep_NlsFPFunction(N_Vector z, N_Vector g, void* arkode_mem)
 {
   /* temporary variables */
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  realtype c[3];
+  N_Vector X[3];
   int retval;
 
   /* access ARKodeARKStepMem structure */
@@ -376,20 +384,23 @@ int arkStep_NlsFPFunction(N_Vector zcor, N_Vector g, void* arkode_mem)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  /* update stored 'ycur' value as stored predictor + current corrector */
-  N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
-
   /* compute implicit RHS and save for later */
-  retval = step_mem->fi(ark_mem->tcur, ark_mem->ycur,
+  retval = step_mem->fi(ark_mem->tcur, z,
                         step_mem->Fi[step_mem->istage],
                         ark_mem->user_data);
   step_mem->nfi++;
   if (retval < 0) return(ARK_RHSFUNC_FAIL);
   if (retval > 0) return(RHSFUNC_RECVR);
 
-  /* combine parts:  g = sdata + gamma*Fi(z) */
-  N_VLinearSum(ONE, step_mem->sdata, step_mem->gamma,
-               step_mem->Fi[step_mem->istage], g);
+  /* combine parts:  g = zpred + sdata + gamma*Fi(z) */
+  c[0] = ONE;
+  X[0] = step_mem->zpred;
+  c[1] = ONE;
+  X[1] = step_mem->sdata;
+  c[2] = step_mem->gamma;
+  X[2] = step_mem->Fi[step_mem->istage];
+  retval = N_VLinearCombination(3, c, X, g);
+  if (retval != 0)  return(ARK_VECTOROP_ERR);
   return(ARK_SUCCESS);
 }
 
