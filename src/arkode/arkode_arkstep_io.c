@@ -2109,6 +2109,17 @@ int ARKStepSetMaxNonlinIters(void *arkode_mem, int maxcor)
     step_mem->maxcor = maxcor;
   }
 
+  /* send argument to NLS structure if one is attached */
+  if (step_mem->NLS) {
+    retval = SUNNonlinSolSetMaxIters(step_mem->NLS, step_mem->maxcor);
+    if (retval != SUN_NLS_SUCCESS) {
+      arkProcessError(ark_mem, ARK_NLS_OP_ERR, "ARKode::ARKStep",
+                      "ARKStepSetMaxNonlinIters",
+                      "Error setting maxcor in SUNNonlinearSolver object");
+      return(ARK_NLS_OP_ERR);
+    }
+  }
+  
   return(ARK_SUCCESS);
 }
 
