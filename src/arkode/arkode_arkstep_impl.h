@@ -158,7 +158,7 @@ int arkStep_AttachMasssol(void* arkode_mem, ARKMassInitFn minit,
                           int msolve_type, void *mass_mem);
 void arkStep_DisableLSetup(void* arkode_mem);
 void arkStep_DisableMSetup(void* arkode_mem);
-int arkStep_Init(void* arkode_mem);
+int arkStep_Init(void* arkode_mem, int init_type);
 void* arkStep_GetLmem(void* arkode_mem);
 void* arkStep_GetMassMem(void* arkode_mem);
 ARKRhsFn arkStep_GetImplicitRHS(void* arkode_mem);

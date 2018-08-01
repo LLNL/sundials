@@ -230,7 +230,7 @@ typedef int (*ARKMassSolveFn)(void *arkode_mem, N_Vector b,
 typedef int (*ARKMassFreeFn)(void *arkode_mem);
 
 /* time stepper interface functions */
-typedef int (*ARKTimestepInitFn)(void* arkode_mem);
+typedef int (*ARKTimestepInitFn)(void* arkode_mem, int init_type);
 typedef int (*ARKTimestepAttachLinsolFn)(void* arkode_mem,
                                          ARKLinsolInitFn linit,
                                          ARKLinsolSetupFn lsetup,
@@ -774,9 +774,13 @@ typedef struct ARKodeMemRec {
 /*---------------------------------------------------------------
   ARKTimestepInitFn
   ---------------------------------------------------------------
-  This routine should complete initializations for a specific
-  ARKode time stepping module, such as (non)linear solver data,
-  Butcher table(s), counters and statistics.
+  This routine is called just prior to performing internal time 
+  steps (after all user "set" routines have been called) from 
+  within arkInitialSetup (init_type == 0) or arkPostResizeSetup
+  (init_type == 1).  It should complete initializations for a 
+  specific ARKode time stepping module, such as verifying 
+  compatibility of user-specified linear and nonlinear solver 
+  objects.  
 
   This routine should return 0 if it has successfully initialized
   the ARKode time stepper module and a negative value otherwise.

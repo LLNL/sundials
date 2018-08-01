@@ -143,23 +143,22 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, realtype t0, N_Vector y0)
   step_mem->fe = fe;
   step_mem->fi = fi;
 
-  /* /\* ADD THIS IN ONCE THE NEWTON NLS OBJECT HAS PASSED ALL ARKSTEP TESTS!!! *\/ */
-  /* /\* If an implicit component is to be solved, create default Newton NLS object *\/ */
-  /* if (step_mem->implicit)  { */
-  /*   NLS = NULL; */
-  /*   NLS = SUNNonlinSol_Newton(y0); */
-  /*   if (NLS == NULL) { */
-  /*     arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::ARKStep", */
-  /*                     "ARKStepCreate", "Error creating default Newton solver"); */
-  /*     return(NULL); */
-  /*   } */
-  /*   iret = ARKStepSetNonlinearSolver(ark_mem, NLS); */
-  /*   if (iret != ARK_SUCCESS) { */
-  /*     arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::ARKStep", */
-  /*                     "ARKStepCreate", "Error attaching default Newton solver"); */
-  /*     return(NULL); */
-  /*   } */
-  /* } */
+  /* If an implicit component is to be solved, create default Newton NLS object */
+  if (step_mem->implicit)  {
+    NLS = NULL;
+    NLS = SUNNonlinSol_Newton(y0);
+    if (NLS == NULL) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::ARKStep",
+                      "ARKStepCreate", "Error creating default Newton solver");
+      return(NULL);
+    }
+    iret = ARKStepSetNonlinearSolver(ark_mem, NLS);
+    if (iret != ARK_SUCCESS) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::ARKStep",
+                      "ARKStepCreate", "Error attaching default Newton solver");
+      return(NULL);
+    }
+  }
 
   /* Update the ARKode workspace requirements */
   ark_mem->liw += 41;  /* fcn/data ptr, int, long int, sunindextype, booleantype */
@@ -230,6 +229,7 @@ int ARKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
+  SUNNonlinearSolver NLS;
   sunindextype lrw1, liw1, lrw_diff, liw_diff;
   int ier, i, flag, retval;
 
@@ -291,7 +291,7 @@ int ARKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
   }
 
   /* Resize fixed-point solver memory */
-  if ( (step_mem->use_fp) && (step_mem->fp_mem == NULL) ) {
+  if ( (step_mem->use_fp) && (step_mem->fp_mem != NULL) ) {
     ier = arkResizeFPData(ark_mem, step_mem->fp_mem, resize,
                           resize_data, lrw_diff, liw_diff, y0);
     if (ier != ARK_SUCCESS) {
@@ -301,28 +301,45 @@ int ARKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
     }
   }
 
-  /* Re-initialize the linear solver (assumes that solver
-     memory has already been resized appropriately) */
-  if (step_mem->implicit) {
-    if (step_mem->linit != NULL) {
-      ier = step_mem->linit(ark_mem);
-      if (ier != 0) {
-        arkProcessError(ark_mem, ARK_LINIT_FAIL, "ARKode::ARKStep",
-                        "ARKStepResize", MSG_ARK_LINIT_FAIL);
-        return(ARK_LINIT_FAIL);
-      }
-    }
-  }
+  /* If a NLS object was previously used, destroy and recreate default Newton 
+     NLS object (can be replaced by user-defined object if desired) */
+  if (step_mem->NLS)  {
 
-  /* Re-initialize the mass matrix solver (assumes that solver
-     memory has already been resized appropriately) */
-  if (step_mem->minit != NULL) {
-    ier = step_mem->minit((void *) ark_mem);
-    if (ier != 0) {
-      arkProcessError(ark_mem, ARK_MASSINIT_FAIL, "ARKode::ARKStep",
-                      "ARKStepResize", MSG_ARK_MASSINIT_FAIL);
-      return(ARK_MASSINIT_FAIL);
+    /* destroy existing NLS object */
+    ier = SUNNonlinSolFree(step_mem->NLS);
+    if (ier != ARK_SUCCESS)  return(ier);
+    step_mem->NLS = NULL;
+    
+    /* create new Newton NLS object */
+    NLS = NULL;
+    NLS = SUNNonlinSol_Newton(y0);
+    if (NLS == NULL) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::ARKStep",
+                      "ARKStepResize", "Error creating default Newton solver");
+      return(ARK_MEM_FAIL);
     }
+
+    /* attach new Newton NLS object to ARKStep */
+    ier = ARKStepSetNonlinearSolver(ark_mem, NLS);
+    if (ier != ARK_SUCCESS) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::ARKStep",
+                      "ARKStepResize", "Error attaching default Newton solver");
+      return(ARK_MEM_FAIL);
+    }
+
+    /* initialize the updated nonlinear solver */
+    ier = arkStep_NlsInit(ark_mem);
+    if (ier != ARK_SUCCESS) {
+      arkProcessError(ark_mem, ARK_NLS_INIT_FAIL, "ARKode::ARKStep", "arkStep_Init",
+                      "Unable to initialize SUNNonlinearSolver object");
+      return(ARK_NLS_INIT_FAIL);
+    }
+
+    /* reset nonlinear solver counters */
+    step_mem->ncfn = 0;
+    step_mem->nni = 0;
+    step_mem->nsetups = 0;
+    
   }
 
   return(ARK_SUCCESS);
@@ -835,6 +852,10 @@ int arkStep_AttachLinsol(void* arkode_mem, ARKLinsolInitFn linit,
   step_mem->lmem        = lmem;
   step_mem->lsolve_type = lsolve_type;
 
+  /* Reset all linear solver counters */
+  step_mem->nsetups = 0;
+  step_mem->nstlp   = 0;
+  
   return(ARK_SUCCESS);
 }
 
@@ -1017,7 +1038,12 @@ int arkStep_GetGammas(void* arkode_mem, realtype *gamma,
 /*---------------------------------------------------------------
  arkStep_Init:
 
- Called from within arkInitialSetup, this routine:
+ This routine is called just prior to performing internal time 
+ steps (after all user "set" routines have been called) from 
+ within arkInitialSetup (init_type == 0) or arkPostResizeSetup
+ (init_type == 1).
+
+ With init_type == 0, this routine:
  - sets/checks the ARK Butcher tables to be used
  - allocates any memory that depends on the number of ARK stages,
    method order, or solver options
@@ -1025,10 +1051,18 @@ int arkStep_GetGammas(void* arkode_mem, realtype *gamma,
    linear solvers (if applicable)
  - initializes and sets up the system and mass matrix linear
    solvers (if applicable)
+ - initializes and sets up the nonlinear solver (if applicable)
  - allocates the interpolation data structure (if needed based
    on ARKStep solver options)
+
+ With init_type == 1, this routine:
+ - checks for consistency between the system and mass matrix
+   linear solvers (if applicable)
+ - initializes and sets up the system and mass matrix linear
+   solvers (if applicable)
+ - initializes and sets up the nonlinear solver (if applicable)
 ---------------------------------------------------------------*/
-int arkStep_Init(void* arkode_mem)
+int arkStep_Init(void* arkode_mem, int init_type)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
@@ -1040,78 +1074,103 @@ int arkStep_Init(void* arkode_mem)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  /* destroy adaptivity structure if fixed-stepping is requested */
-  if (ark_mem->fixedstep)
-    if (step_mem->hadapt_mem != NULL) {
-      free(step_mem->hadapt_mem);
-      step_mem->hadapt_mem = NULL;
+  /* perform initializations specific to init_type 0 */
+  if (init_type == 0) {
+  
+    /* destroy adaptivity structure if fixed-stepping is requested */
+    if (ark_mem->fixedstep)
+      if (step_mem->hadapt_mem != NULL) {
+        free(step_mem->hadapt_mem);
+        step_mem->hadapt_mem = NULL;
+      }
+    
+    /* Set first step growth factor */
+    if (step_mem->hadapt_mem != NULL)
+      step_mem->hadapt_mem->etamax = step_mem->hadapt_mem->etamx1;
+
+    /* Create Butcher tables (if not already set) */
+    ier = arkStep_SetButcherTables(ark_mem);
+    if (ier != ARK_SUCCESS) {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep", "arkStep_Init",
+                      "Could not create Butcher table(s)");
+      return(ARK_ILL_INPUT);
+    }
+    
+    /* Check that Butcher tables are OK */
+    ier = arkStep_CheckButcherTables(ark_mem);
+    if (ier != ARK_SUCCESS) {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
+                      "arkStep_Init", "Error in Butcher table(s)");
+      return(ARK_ILL_INPUT);
+    }
+    
+    /* note Butcher table space requirements */
+    ButcherTableSpace(step_mem->Be, &Bliw, &Blrw);
+    ark_mem->liw += Bliw;
+    ark_mem->lrw += Blrw;
+    ButcherTableSpace(step_mem->Bi, &Bliw, &Blrw);
+    ark_mem->liw += Bliw;
+    ark_mem->lrw += Blrw;
+    
+    /* Allocate ARK RHS vector memory, update storage requirements */
+    /*   Allocate Fe[0] ... Fe[stages-1] if needed */
+    if (step_mem->explicit) {
+      if (step_mem->Fe == NULL)
+        step_mem->Fe = (N_Vector *) calloc(step_mem->stages, sizeof(N_Vector));
+      for (j=0; j<step_mem->stages; j++) {
+        if (!arkAllocVec(ark_mem, ark_mem->ewt, &(step_mem->Fe[j])))
+          return(ARK_MEM_FAIL);
+      }
+      ark_mem->liw += step_mem->stages;  /* pointers */
+    }
+    
+    /*   Allocate Fi[0] ... Fi[stages-1] if needed */
+    if (step_mem->implicit) {
+      if (step_mem->Fi == NULL)
+        step_mem->Fi = (N_Vector *) calloc(step_mem->stages, sizeof(N_Vector));
+      for (j=0; j<step_mem->stages; j++) {
+        if (!arkAllocVec(ark_mem, ark_mem->ewt, &(step_mem->Fi[j])))
+          return(ARK_MEM_FAIL);
+      }
+      ark_mem->liw += step_mem->stages;  /* pointers */
+    }
+    
+    /* Allocate reusable arrays for fused vector interface */
+    if (step_mem->cvals == NULL) {
+      step_mem->cvals = (realtype *) calloc(2*step_mem->stages+1, sizeof(realtype));
+      if (step_mem->cvals == NULL)  return(ARK_MEM_FAIL);
+      ark_mem->lrw += (2*step_mem->stages + 1);
+    }
+    if (step_mem->Xvecs == NULL) {
+      step_mem->Xvecs = (N_Vector *) calloc(2*step_mem->stages+1, sizeof(N_Vector));
+      if (step_mem->Xvecs == NULL)  return(ARK_MEM_FAIL);
+      ark_mem->liw += (2*step_mem->stages + 1);   /* pointers */
     }
 
-  /* Set first step growth factor */
-  if (step_mem->hadapt_mem != NULL)
-    step_mem->hadapt_mem->etamax = step_mem->hadapt_mem->etamx1;
-
-  /* Create Butcher tables (if not already set) */
-  ier = arkStep_SetButcherTables(ark_mem);
-  if (ier != ARK_SUCCESS) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep", "arkStep_Init",
-                    "Could not create Butcher table(s)");
-    return(ARK_ILL_INPUT);
-  }
-
-  /* Check that Butcher tables are OK */
-  ier = arkStep_CheckButcherTables(ark_mem);
-  if (ier != ARK_SUCCESS) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
-                    "arkStep_Init", "Error in Butcher table(s)");
-    return(ARK_ILL_INPUT);
-  }
-
-  /* note Butcher table space requirements */
-  ButcherTableSpace(step_mem->Be, &Bliw, &Blrw);
-  ark_mem->liw += Bliw;
-  ark_mem->lrw += Blrw;
-  ButcherTableSpace(step_mem->Bi, &Bliw, &Blrw);
-  ark_mem->liw += Bliw;
-  ark_mem->lrw += Blrw;
-
-  /* Allocate ARK RHS vector memory, update storage requirements */
-  /*   Allocate Fe[0] ... Fe[stages-1] if needed */
-  if (step_mem->explicit) {
-    if (step_mem->Fe == NULL)
-      step_mem->Fe = (N_Vector *) calloc(step_mem->stages, sizeof(N_Vector));
-    for (j=0; j<step_mem->stages; j++) {
-      if (!arkAllocVec(ark_mem, ark_mem->ewt, &(step_mem->Fe[j])))
+    /* Allocate fixed-point solver memory */
+    if ( (step_mem->use_fp) && (step_mem->fp_mem == NULL) ){
+      step_mem->fp_mem = arkAllocFPData(ark_mem, step_mem->fp_m);
+      if (step_mem->fp_mem == NULL) {
+        arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::ARKStep", "arkStep_Init",
+                        "Unable to allocate fixed-point solver memory");
         return(ARK_MEM_FAIL);
+      }
     }
-    ark_mem->liw += step_mem->stages;  /* pointers */
-  }
 
-  /*   Allocate Fi[0] ... Fi[stages-1] if needed */
-  if (step_mem->implicit) {
-    if (step_mem->Fi == NULL)
-      step_mem->Fi = (N_Vector *) calloc(step_mem->stages, sizeof(N_Vector));
-    for (j=0; j<step_mem->stages; j++) {
-      if (!arkAllocVec(ark_mem, ark_mem->ewt, &(step_mem->Fi[j])))
+    /* Allocate interpolation memory (if unallocated, and needed) */
+    if ((ark_mem->interp == NULL) && (step_mem->predictor > 0)) {
+      ark_mem->interp = arkInterpCreate(ark_mem);
+      if (ark_mem->interp == NULL) {
+        arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::ARKStep", "arkStep_Init",
+                        "Unable to allocate interpolation structure");
         return(ARK_MEM_FAIL);
+      }
     }
-    ark_mem->liw += step_mem->stages;  /* pointers */
-  }
 
-  /* Allocate reusable arrays for fused vector interface */
-  if (step_mem->cvals == NULL) {
-    step_mem->cvals = (realtype *) calloc(2*step_mem->stages+1, sizeof(realtype));
-    if (step_mem->cvals == NULL)  return(ARK_MEM_FAIL);
-    ark_mem->lrw += (2*step_mem->stages + 1);
   }
-  if (step_mem->Xvecs == NULL) {
-    step_mem->Xvecs = (N_Vector *) calloc(2*step_mem->stages+1, sizeof(N_Vector));
-    if (step_mem->Xvecs == NULL)  return(ARK_MEM_FAIL);
-    ark_mem->liw += (2*step_mem->stages + 1);   /* pointers */
-  }
-
+  
   /* Check for consistency between linear system modules
-     (if lsolve is direct, msolve needs to match) */
+       (e.g., if lsolve is direct, msolve needs to match) */
   if (step_mem->mass_mem != NULL) {  /* M != I */
     if (step_mem->lsolve_type != step_mem->msolve_type) {
       arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep", "arkStep_Init",
@@ -1146,7 +1205,7 @@ int arkStep_Init(void* arkode_mem)
     }
   }
 
-  /* Check that lsolve function exists and (if needed) */
+  /* Check that lsolve function exists (if needed) */
   if (step_mem->implicit && !step_mem->use_fp && step_mem->NLS==NULL) {
     if (step_mem->lsolve == NULL) {
       arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
@@ -1162,26 +1221,6 @@ int arkStep_Init(void* arkode_mem)
       arkProcessError(ark_mem, ARK_LINIT_FAIL, "ARKode::ARKStep",
                       "arkStep_Init", MSG_ARK_LINIT_FAIL);
       return(ARK_LINIT_FAIL);
-    }
-  }
-
-  /* Allocate fixed-point solver memory */
-  if ( (step_mem->use_fp) && (step_mem->fp_mem == NULL) ){
-    step_mem->fp_mem = arkAllocFPData(ark_mem, step_mem->fp_m);
-    if (step_mem->fp_mem == NULL) {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::ARKStep", "arkStep_Init",
-                      "Unable to allocate fixed-point solver memory");
-      return(ARK_MEM_FAIL);
-    }
-  }
-
-  /* Allocate interpolation memory (if unallocated, and needed) */
-  if ((ark_mem->interp == NULL) && (step_mem->predictor > 0)) {
-    ark_mem->interp = arkInterpCreate(ark_mem);
-    if (ark_mem->interp == NULL) {
-      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::ARKStep", "arkStep_Init",
-                      "Unable to allocate interpolation structure");
-      return(ARK_MEM_FAIL);
     }
   }
 
@@ -2220,16 +2259,28 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
      use that; otherwise use a built-in routine */
   if (step_mem->NLS) {
 
-    /* If a linear solver 'setup' is supplied:
-       Set interface 'convfail' flag, for eventual input to lsetup, and
-       Decide whether or not to call setup routine */
-    step_mem->convfail = ((nflag == FIRST_CALL) || (nflag == PREV_ERR_FAIL)) ?
-      ARK_NO_FAILURES : ARK_FAIL_OTHER;
+    /* If a linear solver 'setup' is supplied, set various flags for 
+       determining whether it should be called */
     if (step_mem->lsetup) {
-      callLSetup = (nflag == PREV_CONV_FAIL) || (nflag == PREV_ERR_FAIL) ||
-        (ark_mem->firststage) || (step_mem->msbp < 0) ||
-        (ark_mem->nst >= step_mem->nstlp + abs(step_mem->msbp)) ||
+
+      /* Set interface 'convfail' flag for use inside lsetup */
+      if (step_mem->linear) {
+        step_mem->convfail = (nflag == FIRST_CALL) ? ARK_NO_FAILURES : ARK_FAIL_OTHER;
+      } else {
+        step_mem->convfail = ((nflag == FIRST_CALL) || (nflag == PREV_ERR_FAIL)) ?
+          ARK_NO_FAILURES : ARK_FAIL_OTHER;
+      }
+      
+      /* Decide whether to recommend call to lsetup within nonlinear solver */
+      callLSetup = (ark_mem->firststage) || (step_mem->msbp < 0) ||
         (SUNRabs(step_mem->gamrat-ONE) > step_mem->dgmax);
+      if (step_mem->linear) {   /* linearly-implicit problem */
+        callLSetup = callLSetup || (step_mem->linear_timedep);
+      } else {                  /* nonlinearly-implicit problem */
+        callLSetup = callLSetup ||
+          (nflag == PREV_CONV_FAIL) || (nflag == PREV_ERR_FAIL) ||
+          (ark_mem->nst >= step_mem->nstlp + abs(step_mem->msbp));
+      }
     } else {
       step_mem->crate = ONE;
       callLSetup = SUNFALSE;
@@ -2274,9 +2325,14 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
       return(arkStep_NlsAccelFP(ark_mem, nflag));
 
     /*   linearly implicit (one Newton iteration) */
-    if (step_mem->linear)
-      return(arkStep_Ls(ark_mem, nflag));
-
+    if (step_mem->linear) {
+      zcor0 = ark_mem->tempv2;
+      N_VConst(ZERO, zcor0);
+      retval = arkStep_Ls(ark_mem, nflag);
+      N_VLinearSum(ONE, step_mem->zpred, ONE, ark_mem->tempv2, ark_mem->ycur);
+      return(retval);
+    }
+    
     /*   Newton */
     /*      set a zero guess for correction */
     zcor0 = ark_mem->tempv2;
@@ -2533,7 +2589,7 @@ int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag)
     /* Set zcor to zero and load prediction into z vector */
     N_VConst(ZERO, zcor);
 
-    /* compute negative nonlinear residual, and put into b */
+    /* compute nonlinear residual, and put into b */
     retval = arkStep_NlsResidual(zcor, b, ark_mem);
     if (retval != SUN_NLS_SUCCESS) break;
 
@@ -2929,10 +2985,9 @@ int arkStep_AndersonAcc(ARKodeMem ark_mem, N_Vector gval,
 ---------------------------------------------------------------*/
 int arkStep_Ls(ARKodeMem ark_mem, int nflag)
 {
-  N_Vector b, z, zcor;
-  int convfail, retval, ier, is;
-  booleantype callLSetup;
-  realtype del;
+  N_Vector b, z, zcor, z0;
+  int retval, ier, is;
+  booleantype callLSetup, jbad;
   ARKodeARKStepMem step_mem;
 
   /* access ARKodeARKStepMem structure */
@@ -2946,10 +3001,12 @@ int arkStep_Ls(ARKodeMem ark_mem, int nflag)
   b    = ark_mem->tempv1;   /* rename tempv1 as b for readability */
   z    = ark_mem->ycur;     /* rename ycur as z for readability */
   zcor = ark_mem->tempv2;   /* rename tempv2 as zcor for readability */
+  z0   = step_mem->zpred;  /* rename zpred as z0 for readability */
   is   = step_mem->istage;
 
   /* Set flag convfail, input to lsetup for its evaluation decision */
-  convfail = (nflag == FIRST_CALL) ? ARK_NO_FAILURES : ARK_FAIL_OTHER;
+  step_mem->convfail = (nflag == FIRST_CALL) ? ARK_NO_FAILURES : ARK_FAIL_OTHER;
+  jbad = SUNFALSE;
 
   /* Decide whether or not to call setup routine (if one exists) */
   if (step_mem->lsetup) {
@@ -2960,67 +3017,43 @@ int arkStep_Ls(ARKodeMem ark_mem, int nflag)
     callLSetup = SUNFALSE;
   }
 
-  /* update implicit RHS, store in ark_mem->Fi[is] */
-  retval = step_mem->fi(ark_mem->tcur, step_mem->zpred,
-                           step_mem->Fi[is], ark_mem->user_data);
-  step_mem->nfi++;
-  if (retval < 0) return(ARK_RHSFUNC_FAIL);
-  if (retval > 0) return(RHSFUNC_RECVR);
+  /* Set zcor to zero and load prediction into z vector */
+  N_VConst(ZERO, zcor);
+
+  /* compute nonlinear residual, and put into b */
+  retval = arkStep_NlsResidual(zcor, b, ark_mem);
+  if (retval != SUN_NLS_SUCCESS)  return(retval);
 
   /* update system matrix/factorization if necessary */
   if (callLSetup) {
-
-    /* Solver diagnostics reporting */
-    if (ark_mem->report)  fprintf(ark_mem->diagfp, "  lsetup\n");
-
-    /* call lsetup, using zcor, z and b as temporary vectors */
-    ier = step_mem->lsetup(ark_mem, convfail, ark_mem->tcur,
-                              step_mem->zpred, step_mem->Fi[is],
-                              &step_mem->jcur, zcor, z, b);
-    step_mem->nsetups++;
-    callLSetup = SUNFALSE;
-    ark_mem->firststage = SUNFALSE;
-    step_mem->gamrat = step_mem->crate = ONE;
-    step_mem->gammap = step_mem->gamma;
-    step_mem->nstlp  = ark_mem->nst;
-
-    /* Return if lsetup failed */
-    if (ier < 0) return(ARK_LSETUP_FAIL);
-    if (ier > 0) return(CONV_FAIL);
+    ier = arkStep_NlsLSetup(zcor, b, jbad, &(step_mem->jcur), ark_mem);
+    if (ier != 0)  return(ier);
   }
-
-  /* Set zcor to zero and load prediction into y vector */
-  N_VConst(ZERO, zcor);
-  N_VScale(ONE, step_mem->zpred, z);
 
 
   /* Do a single Newton iteration */
 
   /*   Initialize temporary variables for use in iteration */
   step_mem->mnewt = 0;
-  del = ZERO;
 
   /*   Set the stored residual norm to force an "accurate" initial linear solve */
   step_mem->eRNrm = RCONST(0.1) * step_mem->nlscoef;
 
-  /*   Evaluate the nonlinear system residual, put result into b */
-  retval = arkStep_NlsResid(ark_mem, zcor, step_mem->Fi[is], b);
-  if (retval != ARK_SUCCESS)  return (ARK_RHSFUNC_FAIL);
-
-  /*   Call the lsolve function */
-  retval = step_mem->lsolve(ark_mem, b, ark_mem->tcur, z, step_mem->Fi[is],
-                            step_mem->eRNrm, step_mem->mnewt);
+  /* increment number of nonlinear solver iterations */
   step_mem->nni++;
+
+  /* compute the negative of the nonlinear residual for the linera system rhs */
+  N_VScale(-ONE, b, b);
+      
+  /*   Call the lsolve function */
+  N_VLinearSum(ONE, z0, ONE, zcor, ark_mem->ycur);
+  retval = step_mem->lsolve(ark_mem, b, ark_mem->tcur,
+                            ark_mem->ycur, step_mem->Fi[is],
+                            step_mem->eRNrm, step_mem->mnewt);
   if (retval != 0)  return (ARK_LSOLVE_FAIL);
 
-  /*   Get WRMS norm of correction; add correction to zcor and z */
-  del = N_VWrmsNorm(b, ark_mem->ewt);
+  /* Apply update to zcor */
   N_VLinearSum(ONE, zcor, ONE, b, zcor);
-  N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, z);
-
-  /*   Solver diagnostics reporting */
-  if (ark_mem->report)
-    fprintf(ark_mem->diagfp, "    newt  %i  %"RSYM"  %g\n", 0, del, 0.0);
 
   /* clean up and return */
   step_mem->jcur = SUNFALSE;

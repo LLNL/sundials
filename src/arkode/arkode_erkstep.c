@@ -502,18 +502,28 @@ void ERKStepPrintMem(void* arkode_mem, FILE* outfile)
 /*---------------------------------------------------------------
  erkStep_Init:
 
- Called from within arkInitialSetup, this routine:
+ This routine is called just prior to performing internal time 
+ steps (after all user "set" routines have been called) from 
+ within arkInitialSetup (init_type == 0) or arkPostResizeSetup
+ (init_type == 1).
+
+ With init_type == 0, this routine:
  - sets/checks the ARK Butcher tables to be used
  - allocates any memory that depends on the number of ARK
    stages, method order, or solver options
+
+ With init_type == 1, this routine does nothing.
 ---------------------------------------------------------------*/
-int erkStep_Init(void* arkode_mem)
+int erkStep_Init(void* arkode_mem, int init_type)
 {
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
   sunindextype Blrw, Bliw;
   int ier, j;
 
+  /* immediately return if init_type == 1 */
+  if (init_type == 1)  return(ARK_SUCCESS);
+  
   /* access ARKodeERKStepMem structure */
   if (arkode_mem==NULL) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",

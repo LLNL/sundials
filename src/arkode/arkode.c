@@ -1163,7 +1163,7 @@ int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0)
   ark_mem->rwt_is_ewt = SUNTRUE;
 
   /* Indicate that problem size is new */
-  ark_mem->resized = SUNTRUE;
+  ark_mem->resized    = SUNTRUE;
   ark_mem->firststage = SUNTRUE;
 
   /* Problem has been successfully initialized */
@@ -1829,7 +1829,7 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
                     "arkInitialSetup", "Time stepper module is missing");
     return(ARK_ILL_INPUT);
   }
-  retval = ark_mem->step_init(ark_mem);
+  retval = ark_mem->step_init(ark_mem, 0);
   if (retval != ARK_SUCCESS) {
     arkProcessError(ark_mem, retval, "ARKode", "arkInitialSetup",
                     "Error in initialization of time stepper module");
@@ -2030,6 +2030,19 @@ int arkPostResizeSetup(ARKodeMem ark_mem)
                       MSG_ARK_BAD_TSTOP, ark_mem->tstop, ark_mem->tcur);
       return(ARK_ILL_INPUT);
     }
+  }
+
+  /* re-initialize the time stepper module */
+  if (ark_mem->step_init == NULL) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
+                    "arkPostResizeSetup", "Time stepper module is missing");
+    return(ARK_ILL_INPUT);
+  }
+  retval = ark_mem->step_init(ark_mem, 1);
+  if (retval != ARK_SUCCESS) {
+    arkProcessError(ark_mem, retval, "ARKode", "arkPostResizeSetup",
+                    "Error in re-initialization of time stepper module");
+    return(retval);
   }
 
   /* Check for zeros of root function g at and near t0. */
