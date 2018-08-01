@@ -129,7 +129,7 @@ int ARKStepSetNonlinearSolver(void *arkode_mem, SUNNonlinearSolver NLS)
 
 
 /*---------------------------------------------------------------
-  Interface routines supplied to SUNNonlinearSolver module
+  Utility routines called by ARKStep 
   ---------------------------------------------------------------*/
 
 /*---------------------------------------------------------------
@@ -188,6 +188,102 @@ int arkStep_NlsInit(ARKodeMem ark_mem)
   return(ARK_SUCCESS);
 }
 
+
+/*---------------------------------------------------------------
+ arkStep_Nls
+
+ This routine attempts to solve the nonlinear system associated
+ with a single implicit step of the linear multistep method.
+ It calls the supplied SUNNonlinearSolver object to perform the
+ solve.
+
+ Upon entry, the predicted solution is held in step_mem->zpred;
+ this array is never changed throughout this routine.  If an
+ initial attempt at solving the nonlinear system fails (e.g. due
+ to a stale Jacobian), this allows for new attempts at the
+ solution.
+
+ Upon a successful solve, the solution is held in ark_mem->ycur.
+---------------------------------------------------------------*/
+int arkStep_Nls(ARKodeMem ark_mem, int nflag)
+{
+  ARKodeARKStepMem step_mem;
+  booleantype callLSetup;
+  N_Vector zcor0;
+  int retval;
+
+  /* access ARKodeARKStepMem structure */
+  if (ark_mem->step_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "arkStep_Nls", MSG_ARKSTEP_NO_MEM);
+    return(ARK_MEM_NULL);
+  }
+  step_mem = (ARKodeARKStepMem) ark_mem->step_mem;
+
+  /* If a linear solver 'setup' is supplied, set various flags for 
+     determining whether it should be called */
+  if (step_mem->lsetup) {
+
+    /* Set interface 'convfail' flag for use inside lsetup */
+    if (step_mem->linear) {
+      step_mem->convfail = (nflag == FIRST_CALL) ? ARK_NO_FAILURES : ARK_FAIL_OTHER;
+    } else {
+      step_mem->convfail = ((nflag == FIRST_CALL) || (nflag == PREV_ERR_FAIL)) ?
+        ARK_NO_FAILURES : ARK_FAIL_OTHER;
+    }
+    
+    /* Decide whether to recommend call to lsetup within nonlinear solver */
+    callLSetup = (ark_mem->firststage) || (step_mem->msbp < 0) ||
+      (SUNRabs(step_mem->gamrat-ONE) > step_mem->dgmax);
+    if (step_mem->linear) {   /* linearly-implicit problem */
+      callLSetup = callLSetup || (step_mem->linear_timedep);
+    } else {                  /* nonlinearly-implicit problem */
+      callLSetup = callLSetup ||
+        (nflag == PREV_CONV_FAIL) || (nflag == PREV_ERR_FAIL) ||
+        (ark_mem->nst >= step_mem->nstlp + abs(step_mem->msbp));
+    }
+  } else {
+    step_mem->crate = ONE;
+    callLSetup = SUNFALSE;
+  }
+  
+  /* call nonlinear solver based on method type:
+     FP methods solve for the updated solution directly, but
+     Newton uses predictor-corrector form */
+  if (SUNNonlinSolGetType(step_mem->NLS) == SUNNONLINEARSOLVER_STATIONARY) {
+    
+    /* solve the nonlinear system, place solution directly in ycur */
+    retval = SUNNonlinSolSolve(step_mem->NLS, step_mem->zpred, ark_mem->ycur, ark_mem->ewt,
+                               step_mem->nlscoef, callLSetup, ark_mem);
+    
+  } else {
+    
+    /* set a zero guess for correction */
+    zcor0 = ark_mem->tempv4;
+    N_VConst(ZERO, zcor0);
+    
+    /* Reset the stored residual norm (for iterative linear solvers) */
+    step_mem->eRNrm = RCONST(0.1) * step_mem->nlscoef;
+    
+    /* solve the nonlinear system for the actual correction */
+    retval = SUNNonlinSolSolve(step_mem->NLS, zcor0, step_mem->zcor, ark_mem->ewt,
+                               step_mem->nlscoef, callLSetup, ark_mem);
+    
+    /* apply the correction to construct ycur */
+    N_VLinearSum(ONE, step_mem->zcor, ONE, step_mem->zpred, ark_mem->ycur);
+    
+  }
+  
+  /* on successful solve, reset the jcur flag */
+  if (retval == ARK_SUCCESS)  step_mem->jcur = SUNFALSE;
+  
+  return(retval);
+}
+
+
+/*---------------------------------------------------------------
+  Interface routines supplied to SUNNonlinearSolver module
+  ---------------------------------------------------------------*/
 
 /*---------------------------------------------------------------
   arkStep_NlsLSetup:

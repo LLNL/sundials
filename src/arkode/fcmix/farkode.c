@@ -336,10 +336,6 @@ void FARK_SETIIN(char key_name[], long int *ival, int *ier) {
     *ier = ARKStepSetLinear(ARK_arkodemem, (int) *ival);
   else if (!strncmp(key_name, "NONLINEAR", 9))
     *ier = ARKStepSetNonlinear(ARK_arkodemem);
-  else if (!strncmp(key_name, "FIXEDPOINT", 10))
-    *ier = ARKStepSetFixedPoint(ARK_arkodemem, (long int) *ival);
-  else if (!strncmp(key_name, "NEWTON", 6))
-    *ier = ARKStepSetNewton(ARK_arkodemem);
   else if (!strncmp(key_name, "EXPLICIT", 8))
     *ier = ARKStepSetExplicit(ARK_arkodemem);
   else if (!strncmp(key_name, "IMPLICIT", 8))

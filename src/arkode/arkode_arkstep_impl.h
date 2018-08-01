@@ -101,11 +101,6 @@ typedef struct ARKodeARKStepMemRec {
   int      convfail;     /* NLS fail flag (for interface routines)   */
   booleantype jcur;      /* is Jacobian info for lin solver current? */
 
-  /* Fixed-point Solver Data */
-  booleantype use_fp;  /* flag for fixed-point solver vs Newton    */
-  long int    fp_m;    /* number of vectors to use in acceleration */
-  ARKodeFPMem fp_mem;  /* accelerated fixed-point solver structure */
-
   /* Linear Solver Data */
   ARKLinsolInitFn  linit;
   ARKLinsolSetupFn lsetup;
@@ -179,18 +174,6 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess);
 int arkStep_StageSetup(ARKodeMem ark_mem);
 int arkStep_NlsInit(ARKodeMem ark_mem);
 int arkStep_Nls(ARKodeMem ark_mem, int nflag);
-int arkStep_NlsResid(ARKodeMem ark_mem, N_Vector y,
-                     N_Vector fy, N_Vector r);
-int arkStep_NlsFPFun(ARKodeMem ark_mem, N_Vector zpred, N_Vector z,
-                     N_Vector ftemp, N_Vector tempv, N_Vector gz);
-int arkStep_NlsConvergenceTest(void *arkode_mem, N_Vector zcor, N_Vector delta,
-                               realtype tol, int curiter, N_Vector ewt);
-int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag);
-int arkStep_NlsAccelFP(ARKodeMem ark_mem, int nflag);
-int arkStep_AndersonAcc(ARKodeMem ark_mem, N_Vector gval,
-                        N_Vector fv, N_Vector x, N_Vector xold,
-                        int iter);
-int arkStep_Ls(ARKodeMem ark_mem, int nflag);
 int arkStep_HandleNFlag(ARKodeMem ark_mem, int *nflagPtr, int *ncfPtr);
 
 int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm);

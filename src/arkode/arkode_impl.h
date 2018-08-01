@@ -44,7 +44,6 @@ extern "C" {
 #define MAXNCF           10      /* maxncf default value */
 #define MXHNIL           10      /* mxhnil default value */
 #define MAXCOR           3       /* maxcor default value */
-#define FP_ACCEL_M       3       /* fp_m default value */
 
 /* Numeric constants */
 #define ZERO   RCONST(0.0)      /* real 0.0     */
@@ -285,31 +284,6 @@ typedef struct ARKodeMassMemRec {
                                   0=iterative; 1=direct; 2=custom */
 
 } *ARKodeMassMem;
-
-
-/*---------------------------------------------------------------
-  Types : struct ARKodeFPMemRec, ARKodeFPMem
-  ---------------------------------------------------------------
-  The type ARKodeFPMem is type pointer to struct ARKodeFPMemRec.
-  This structure contains data pertaining to the use of the
-  [accelerated] fixed-point nonlinear solver.
-  ---------------------------------------------------------------*/
-typedef struct ARKodeFPMemRec {
-
-  long int  m;      /* number of acceleration vectors to use   */
-  long int *imap;   /* array of length m                       */
-  realtype *R;      /* array of length m*m                     */
-  realtype *gamma;  /* array of length m                       */
-  realtype *cvals;  /* array of length m+1 for fused vector op */
-  N_Vector *df;     /* vector array of length m                */
-  N_Vector *dg;     /* vector array of length m                */
-  N_Vector *q;      /* vector array of length m                */
-  N_Vector *Xvecs;  /* array of length m+1 for fused vector op */
-  N_Vector  fval;   /* temporary N_Vectors                     */
-  N_Vector  fold;
-  N_Vector  gold;
-
-} *ARKodeFPMem;
 
 
 /*---------------------------------------------------------------
@@ -922,16 +896,6 @@ booleantype arkCheckNvector(N_Vector tmpl);
 booleantype arkAllocVectors(ARKodeMem ark_mem,
                             N_Vector tmpl);
 void arkFreeVectors(ARKodeMem ark_mem);
-
-ARKodeFPMem arkAllocFPData(ARKodeMem ark_mem, long int m);
-int arkResizeFPData(ARKodeMem ark_mem,
-                    ARKodeFPMem fp_mem,
-                    ARKVecResizeFn resize,
-                    void *resize_data,
-                    sunindextype lrw_diff,
-                    sunindextype liw_diff,
-                    N_Vector tmpl);
-void arkFreeFPData(ARKodeMem ark_mem, ARKodeFPMem fp_mem);
 
 int arkInitialSetup(ARKodeMem ark_mem, realtype tout);
 int arkPostResizeSetup(ARKodeMem ark_mem);

@@ -571,9 +571,6 @@ int ARKStepSetDefaults(void* arkode_mem)
   step_mem->rdiv             = RDIV;           /* nonlinear divergence tolerance */
   step_mem->dgmax            = DGMAX;          /* max step change before recomputing J or P */
   step_mem->msbp             = MSBP;           /* max steps between updates to J or P */
-  step_mem->use_fp           = SUNFALSE;       /* use Newton solver */
-  step_mem->fp_m             = FP_ACCEL_M;     /* num Anderson acceleration vectors */
-  step_mem->fp_mem           = NULL;
   step_mem->stages           = 0;              /* no stages */
   step_mem->istage           = 0;              /* current stage */
   step_mem->Be               = NULL;           /* no Butcher tables */
@@ -696,9 +693,6 @@ int ARKStepSetOptimalParams(void *arkode_mem)
       break;
     }
 
-    /* newton vs fixed-point */
-    if (step_mem->use_fp)  step_mem->maxcor = 10;
-
     /*    imex */
   } else {
     switch (step_mem->q) {
@@ -754,9 +748,6 @@ int ARKStepSetOptimalParams(void *arkode_mem)
       break;
     }
 
-    /* newton vs fixed-point */
-    if (step_mem->use_fp)  step_mem->maxcor = 10;
-
   }
   return(ARK_SUCCESS);
 }
@@ -808,8 +799,8 @@ int ARKStepSetOrder(void *arkode_mem, int ord)
 
   Specifies that the implicit portion of the problem is linear,
   and to tighten the linear solver tolerances while taking only
-  one Newton iteration.  Not useful when used in combination with
-  the fixed-point solver.  Automatically tightens DeltaGammaMax
+  one Newton iteration.  DO NOT USE IN COMBINATION WITH THE 
+  FIXED-POINT SOLVER.  Automatically tightens DeltaGammaMax
   to ensure that step size changes cause Jacobian recomputation.
 
   The argument should be 1 or 0, where 1 indicates that the
@@ -860,63 +851,6 @@ int ARKStepSetNonlinear(void *arkode_mem)
   step_mem->linear = SUNFALSE;
   step_mem->linear_timedep = SUNTRUE;
   step_mem->dgmax = DGMAX;
-
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
-  ARKStepSetFixedPoint:
-
-  Specifies that the implicit portion of the problem should be
-  solved using the accelerated fixed-point solver instead of the
-  Newton iteration.  Allowed values for the dimension of the
-  acceleration space, fp_m, must be non-negative.  Illegal
-  values imply to use the default.
-  ---------------------------------------------------------------*/
-int ARKStepSetFixedPoint(void *arkode_mem, long int fp_m)
-{
-  ARKodeMem ark_mem;
-  ARKodeARKStepMem step_mem;
-  int retval;
-
-  /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetFixedPoint",
-                                 &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
-
-  /* set parameters */
-  step_mem->use_fp = SUNTRUE;
-  if (fp_m < 0) {
-    step_mem->fp_m = FP_ACCEL_M;
-  } else {
-    step_mem->fp_m = fp_m;
-  }
-
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
-  ARKStepSetNewton:
-
-  Specifies that the implicit portion of the problem should be
-  solved using the modified Newton solver.  Used to undo a
-  previous call to ARKStepSetFixedPoint.
-  ---------------------------------------------------------------*/
-int ARKStepSetNewton(void *arkode_mem)
-{
-  ARKodeMem ark_mem;
-  ARKodeARKStepMem step_mem;
-  int retval;
-
-  /* access ARKodeARKStepMem structure */
-  retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetNewton",
-                                 &ark_mem, &step_mem);
-  if (retval != ARK_SUCCESS)  return(retval);
-
-  /* set parameters */
-  step_mem->use_fp = SUNFALSE;
 
   return(ARK_SUCCESS);
 }

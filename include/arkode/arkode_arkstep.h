@@ -346,15 +346,6 @@ ARKodeButcherTable ARKStepLoadButcherTable(int imethod);
  specifies that the implicit portion of the problem is nonlinear.
  Used to undo a previous call to ARKStepSetLinear
 
- ARKStepSetFixedPoint  [SUNFALSE]
- specifies that the implicit portion of the problem should use
- the accelerated fixed-point solver.
-
- ARKStepSetNewton   [SUNTRUE]
- specifies that the implicit portion of the problem should use
- the modified Newton solver.  Used to undo a previous call to
- ARKStepSetFixedPoint
-
  ARKStepSetExplicit   [SUNFALSE]
  specifies that implicit portion of problem is disabled, and
  to use an explicit RK method.
@@ -485,8 +476,6 @@ SUNDIALS_EXPORT int ARKStepSetNonlinearSolver(void *arkode_mem,
                                               SUNNonlinearSolver NLS);
 SUNDIALS_EXPORT int ARKStepSetLinear(void *arkode_mem, int timedepend);
 SUNDIALS_EXPORT int ARKStepSetNonlinear(void *arkode_mem);
-SUNDIALS_EXPORT int ARKStepSetFixedPoint(void *arkode_mem, long int fp_m);
-SUNDIALS_EXPORT int ARKStepSetNewton(void *arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetExplicit(void *arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetImplicit(void *arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetImEx(void *arkode_mem);
