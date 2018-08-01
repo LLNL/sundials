@@ -116,7 +116,7 @@ int ARKStepSetNonlinearSolver(void *arkode_mem, SUNNonlinearSolver NLS)
   }
 
   /* set default nonlinear iterations */
-  retval = SUNNonlinSolSetMaxIters(step_mem->NLS, MAXCOR);
+  retval = SUNNonlinSolSetMaxIters(step_mem->NLS, step_mem->maxcor);
   if (retval != ARK_SUCCESS) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
                     "ARKStepSetNonlinearSolver",
