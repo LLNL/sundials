@@ -211,13 +211,15 @@ int arkStep_NlsLSetup(N_Vector zcor, N_Vector res, booleantype jbad,
   if (jbad)
     step_mem->convfail = ARK_FAIL_BAD_J;
 
-  /* Use ARkode's tempv1, tempv2 and tempv3 as
-     temporary vectors for the linear solver setup routine
-     Note: ycur already contains zpred+zcor */
+  /* update 'ycur' value as stored predictor + current corrector */
+  N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
+
+  /* Use ARKode's tempv1, tempv2 and tempv3 as
+     temporary vectors for the linear solver setup routine */
   step_mem->nsetups++;
   retval = step_mem->lsetup(ark_mem, step_mem->convfail, ark_mem->tcur,
-                            step_mem->zpred, step_mem->Fi[step_mem->istage],
-                            &step_mem->jcur, ark_mem->tempv1,
+                            ark_mem->ycur, step_mem->Fi[step_mem->istage],
+                            &(step_mem->jcur), ark_mem->tempv1,
                             ark_mem->tempv2, ark_mem->tempv3);
 
   /* update Jacobian status */
@@ -258,9 +260,9 @@ int arkStep_NlsLSolve(N_Vector zcor, N_Vector b, void* arkode_mem)
   if (retval != SUN_NLS_SUCCESS)
     return(ARK_NLS_OP_ERR);
 
-  /* /\* update current solution for use by matrix-free iterative solvers *\/ */
-  /* N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur); */
-  
+  /* update 'ycur' value as stored predictor + current corrector */
+  N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
+
   /* call linear solver interface, and handle return value */
   retval = step_mem->lsolve(ark_mem, b, ark_mem->tcur,
                             ark_mem->ycur, step_mem->Fi[step_mem->istage],
@@ -310,7 +312,7 @@ int arkStep_NlsResidual(N_Vector zcor, N_Vector r, void* arkode_mem)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  /* update stored 'ycur' value as stored predictor + current corrector */
+  /* update 'ycur' value as stored predictor + current corrector */
   N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
 
   /* compute implicit RHS and save for later */
@@ -366,7 +368,7 @@ int arkStep_NlsResidual(N_Vector zcor, N_Vector r, void* arkode_mem)
   <=>
      g(z) = zp + gamma*Fi(z) + (yn - zp + data)
   where the current nonlinear guess is z = zp + zc, and where
-     z is stored in the input, z
+     z is stored in the input, z,
      zp is stored in step_mem->zpred,
      (yn-zp+data) is stored in step_mem->sdata,
   so we really just compute:
@@ -466,7 +468,7 @@ int arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
 #ifndef FIXED_LIN_TOL
   /* update forcing parameter for inexact linear solvers;
      Note: if a user provides their own convergence test routine,
-     this will result in use of a fixed linear solver tolerance */
+     it will result in use of a _fixed_ linear solver tolerance */
   step_mem->eRNrm = SUNMIN(step_mem->crate, ONE) * delnrm * RCONST(0.1) * tol;
 #endif
 
