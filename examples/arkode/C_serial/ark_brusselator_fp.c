@@ -224,8 +224,8 @@ int main()
 
   /* Clean up and return with successful completion */
   N_VDestroy(y);               /* Free y vector */
-  SUNNonlinSolFree(NLS);       /* Free nonlinear solver */
-  ARKStepFree(&arkode_mem);    /* Free integrator memory */
+  ARKStepFree(&arkode_mem);    /* Free integrator memory (note: this automatically 
+                                  frees the SUNNonlinearSolver object) */
   return 0;
 }
 
