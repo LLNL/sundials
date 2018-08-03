@@ -123,6 +123,7 @@ void FARK_MALLOC(realtype *t0, realtype *y0, int *imex,
     ARK_arkodemem = ARKStepCreate(FARKfe, NULL, *t0, F2C_ARKODE_vec);
     FARKNullMatrix();
     FARKNullLinsol();
+    FARKNullNonlinsol();
     break;
   case 2:  /* imex */
     ARK_arkodemem = ARKStepCreate(FARKfe, FARKfi, *t0, F2C_ARKODE_vec);
@@ -542,6 +543,18 @@ void FARK_STOPDIAGNOSTICS(int *ier) {
     return;
   }
   *ier = fclose(ark_mem->diagfp);
+  return;
+}
+
+/*=============================================================*/
+
+/* Fortran interface to C routine ARKStepSetNonlinearSolver */
+void FARK_NLSINIT(int *ier) {
+  if ( (ARK_arkodemem == NULL) || (F2C_ARKODE_nonlinsol == NULL) ) {
+    *ier = -1;
+    return;
+  }
+  *ier = ARKStepSetNonlinearSolver(ARK_arkodemem, F2C_ARKODE_nonlinsol);
   return;
 }
 

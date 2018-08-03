@@ -72,6 +72,7 @@ extern "C" {
 #define FARK_SETRESTOLERANCE     SUNDIALS_F77_FUNC(farksetrestolerance,     FARKSETRESTOLERANCE)
 #define FARK_SETDIAGNOSTICS      SUNDIALS_F77_FUNC(farksetdiagnostics,      FARKSETDIAGNOSTICS)
 #define FARK_STOPDIAGNOSTICS     SUNDIALS_F77_FUNC(farkstopdiagnostics,     FARKSTOPDIAGNOSTICS)
+#define FARK_NLSINIT             SUNDIALS_F77_FUNC(farknlsinit,             FARKNLSINIT)
 #define FARK_DLSINIT             SUNDIALS_F77_FUNC(farkdlsinit,             FARKDLSINIT)
 #define FARK_DLSMASSINIT         SUNDIALS_F77_FUNC(farkdlsmassinit,         FARKDLSMASSINIT)
 #define FARK_SPILSINIT           SUNDIALS_F77_FUNC(farkspilsinit,           FARKSPILSINIT)
@@ -146,6 +147,7 @@ extern "C" {
 #define FARK_SETRESTOLERANCE     farksetrestolerance_
 #define FARK_SETDIAGNOSTICS      farksetdiagnostics_
 #define FARK_STOPDIAGNOSTICS     farkstopdiagnostics_
+#define FARK_NLSINIT             farknlsinit_
 #define FARK_DLSINIT             farkdlsinit_
 #define FARK_DLSMASSINIT         farkdlsmassinit_
 #define FARK_SPILSINIT           farkspilsinit_
@@ -245,6 +247,8 @@ extern "C" {
   void FARK_SETDIAGNOSTICS(char fname[], int *flen, int *ier);
   void FARK_STOPDIAGNOSTICS(int *ier);
 
+  void FARK_NLSINIT(int *ier);
+  
   void FARK_DLSINIT(int *ier);
   void FARK_DLSMASSINIT(int *time_dep, int *ier);
 
@@ -343,13 +347,17 @@ extern "C" {
 
   void FARKNullMatrix();
   void FARKNullLinsol();
+  void FARKNullNonlinsol();
   
-  /* Declarations for global variables shared amongst various routines */
-  extern N_Vector F2C_ARKODE_vec;             /* defined in FNVECTOR module */
-  extern SUNMatrix F2C_ARKODE_matrix;         /* defined in FSUNMATRIX module */
-  extern SUNMatrix F2C_ARKODE_mass_matrix;  
-  extern SUNLinearSolver F2C_ARKODE_linsol;   /* defined in FSUNLINSOL module */
-  extern SUNLinearSolver F2C_ARKODE_mass_sol; 
+  /* Declarations for global variables shared amongst various routines; 
+     each of these is defined in the implementation routines for the Fortran
+     interface for their vector/matrix/linear solver/nonlinear solver modules */
+  extern N_Vector F2C_ARKODE_vec;
+  extern SUNMatrix F2C_ARKODE_matrix;
+  extern SUNMatrix F2C_ARKODE_mass_matrix;
+  extern SUNLinearSolver F2C_ARKODE_linsol;
+  extern SUNLinearSolver F2C_ARKODE_mass_sol;
+  extern SUNNonlinearSolver F2C_ARKODE_nonlinsol;
 
   extern void *ARK_arkodemem;     /* defined in farkode.c */
   extern long int *ARK_iout;      /* defined in farkode.c */
