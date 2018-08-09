@@ -418,24 +418,24 @@ Species 6
 
  Final statistics for this run:
 
- ARKStep real workspace length          = 3124
- ARKStep integer workspace length       =  126
- SUNSPGMR real workspace length        = 2648
- SUNSPGMR integer workspace length     =   22
- Number of steps                       =  258
- Number of f-s (explicit)              =    0
- Number of f-s (implicit)              = 4238
- Number of f-s (SPGMR)                 = 8818
- Number of f-s (TOTAL)                 = 8818
- Number of setups                      =  109
- Number of nonlinear iterations        = 2839
- Number of linear iterations           = 8818
- Number of preconditioner evaluations  =  109
- Number of preconditioner solves       = 11560
- Number of error test failures         =   20
- Number of nonlinear conv. failures    =    9
- Number of linear convergence failures =  508
- Average Krylov subspace dimension     = 3.106
+ ARKStep real workspace length          = 3124 
+ ARKStep integer workspace length       =  126 
+ SUNSPGMR real workspace length        = 2648 
+ SUNSPGMR integer workspace length     =   22 
+ Number of steps                       =  258 
+ Number of f-s (explicit)              =    0 
+ Number of f-s (implicit)              = 4238 
+ Number of f-s (SPGMR)                 = 8818 
+ Number of f-s (TOTAL)                 = 8818 
+ Number of setups                      =  109 
+ Number of nonlinear iterations        = 2839 
+ Number of linear iterations           = 8818 
+ Number of preconditioner evaluations  =  109 
+ Number of preconditioner solves       = 11560 
+ Number of error test failures         =   20 
+ Number of nonlinear conv. failures    =    9 
+ Number of linear convergence failures =  508 
+ Average Krylov subspace dimension     = 3.106 
 
 
 ----------------------------------------------------------------------------
@@ -487,24 +487,24 @@ t =   1.00e+01  nst = 264  nfe = 0  nfi = 4356  nni = 2901  hu =    9.24e-02
 
  Final statistics for this run:
 
- ARKStep real workspace length          = 3164
- ARKStep integer workspace length       =  134
- SUNSPGMR real workspace length        = 2648
- SUNSPGMR integer workspace length     =   22
- Number of steps                       =  264
- Number of f-s (explicit)              =    0
- Number of f-s (implicit)              = 4356
- Number of f-s (SPGMR)                 = 9113
- Number of f-s (TOTAL)                 = 9113
- Number of setups                      =  106
- Number of nonlinear iterations        = 2901
- Number of linear iterations           = 9113
- Number of preconditioner evaluations  =  106
- Number of preconditioner solves       = 11919
- Number of error test failures         =   24
- Number of nonlinear conv. failures    =    8
- Number of linear convergence failures =  577
- Average Krylov subspace dimension     = 3.141
+ ARKStep real workspace length          = 3164 
+ ARKStep integer workspace length       =  134 
+ SUNSPGMR real workspace length        = 2648 
+ SUNSPGMR integer workspace length     =   22 
+ Number of steps                       =  264 
+ Number of f-s (explicit)              =    0 
+ Number of f-s (implicit)              = 4356 
+ Number of f-s (SPGMR)                 = 9113 
+ Number of f-s (TOTAL)                 = 9113 
+ Number of setups                      =  106 
+ Number of nonlinear iterations        = 2901 
+ Number of linear iterations           = 9113 
+ Number of preconditioner evaluations  =  106 
+ Number of preconditioner solves       = 11919 
+ Number of error test failures         =   24 
+ Number of nonlinear conv. failures    =    8 
+ Number of linear convergence failures =  577 
+ Average Krylov subspace dimension     = 3.141 
 
 
 ----------------------------------------------------------------------------
@@ -556,24 +556,24 @@ t =   1.00e+01  nst = 359  nfe = 0  nfi = 5723  nni = 3907  hu =    1.35e-01
 
  Final statistics for this run:
 
- ARKStep real workspace length          = 3204
- ARKStep integer workspace length       =  142
- SUNSPGMR real workspace length        = 2648
- SUNSPGMR integer workspace length     =   22
- Number of steps                       =  359
- Number of f-s (explicit)              =    0
- Number of f-s (implicit)              = 5723
- Number of f-s (SPGMR)                 = 12904
- Number of f-s (TOTAL)                 = 12904
- Number of setups                      =  253
- Number of nonlinear iterations        = 3907
- Number of linear iterations           = 12904
- Number of preconditioner evaluations  =  253
- Number of preconditioner solves       = 16594
- Number of error test failures         =    0
- Number of nonlinear conv. failures    =  103
- Number of linear convergence failures = 1072
- Average Krylov subspace dimension     = 3.303
+ ARKStep real workspace length          = 3204 
+ ARKStep integer workspace length       =  142 
+ SUNSPGMR real workspace length        = 2648 
+ SUNSPGMR integer workspace length     =   22 
+ Number of steps                       =  359 
+ Number of f-s (explicit)              =    0 
+ Number of f-s (implicit)              = 5723 
+ Number of f-s (SPGMR)                 = 12904 
+ Number of f-s (TOTAL)                 = 12904 
+ Number of setups                      =  253 
+ Number of nonlinear iterations        = 3907 
+ Number of linear iterations           = 12904 
+ Number of preconditioner evaluations  =  253 
+ Number of preconditioner solves       = 16594 
+ Number of error test failures         =    0 
+ Number of nonlinear conv. failures    =  103 
+ Number of linear convergence failures = 1072 
+ Average Krylov subspace dimension     = 3.303 
 
 
 ----------------------------------------------------------------------------
@@ -625,24 +625,24 @@ t =   1.00e+01  nst = 359  nfe = 0  nfi = 5729  nni = 3912  hu =    1.31e-01
 
  Final statistics for this run:
 
- ARKStep real workspace length          = 3244
- ARKStep integer workspace length       =  150
- SUNSPGMR real workspace length        = 2648
- SUNSPGMR integer workspace length     =   22
- Number of steps                       =  359
- Number of f-s (explicit)              =    0
- Number of f-s (implicit)              = 5729
- Number of f-s (SPGMR)                 = 12934
- Number of f-s (TOTAL)                 = 12934
- Number of setups                      =  254
- Number of nonlinear iterations        = 3912
- Number of linear iterations           = 12934
- Number of preconditioner evaluations  =  254
- Number of preconditioner solves       = 16627
- Number of error test failures         =    0
- Number of nonlinear conv. failures    =  103
- Number of linear convergence failures = 1076
- Average Krylov subspace dimension     = 3.306
+ ARKStep real workspace length          = 3244 
+ ARKStep integer workspace length       =  150 
+ SUNSPGMR real workspace length        = 2648 
+ SUNSPGMR integer workspace length     =   22 
+ Number of steps                       =  359 
+ Number of f-s (explicit)              =    0 
+ Number of f-s (implicit)              = 5729 
+ Number of f-s (SPGMR)                 = 12934 
+ Number of f-s (TOTAL)                 = 12934 
+ Number of setups                      =  254 
+ Number of nonlinear iterations        = 3912 
+ Number of linear iterations           = 12934 
+ Number of preconditioner evaluations  =  254 
+ Number of preconditioner solves       = 16627 
+ Number of error test failures         =    0 
+ Number of nonlinear conv. failures    =  103 
+ Number of linear convergence failures = 1076 
+ Average Krylov subspace dimension     = 3.306 
 
 
 ----------------------------------------------------------------------------
