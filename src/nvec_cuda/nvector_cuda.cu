@@ -37,6 +37,7 @@ using namespace suncudavec;
  * Type definitions
  */
 
+typedef suncudavec::Vector<realtype, sunindextype> vector_type;
 
 /* ----------------------------------------------------------------
  * Returns vector type ID. Used to identify vector implementation
@@ -100,8 +101,8 @@ N_Vector N_VNewEmpty_Cuda(sunindextype length)
   ops->nvlinearsumvectorarray         = N_VLinearSumVectorArray_Cuda;
   ops->nvscalevectorarray             = N_VScaleVectorArray_Cuda;
   ops->nvconstvectorarray             = N_VConstVectorArray_Cuda;
-  ops->nvwrmsnormvectorarray          = N_VWrmsNormVectorArray_Cuda;
-  ops->nvwrmsnormmaskvectorarray      = N_VWrmsNormMaskVectorArray_Cuda;
+  ops->nvwrmsnormvectorarray          = NULL; // N_VWrmsNormVectorArray_Cuda;
+  ops->nvwrmsnormmaskvectorarray      = NULL; // N_VWrmsNormMaskVectorArray_Cuda;
   ops->nvscaleaddmultivectorarray     = N_VScaleAddMultiVectorArray_Cuda;
   ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Cuda;
 
@@ -124,7 +125,7 @@ N_Vector N_VNew_Cuda(SUNDIALS_Comm comm,
   if (v == NULL)
     return(NULL);
 
-  v->content = new Vector<realtype, sunindextype>(comm, local_length, global_length);
+  v->content = new vector_type(comm, local_length, global_length);
 
   return(v);
 }
@@ -133,7 +134,7 @@ N_Vector N_VNew_Cuda(SUNDIALS_Comm comm,
 N_Vector N_VMake_Cuda(N_VectorContent_Cuda c)
 {
   N_Vector v;
-  Vector<realtype, sunindextype>* x = static_cast<Vector<realtype, sunindextype>*>(c);
+  vector_type* x = static_cast<vector_type*>(c);
   sunindextype length = x->size();
 
   v = NULL;
@@ -150,7 +151,7 @@ N_Vector N_VMake_Cuda(N_VectorContent_Cuda c)
  */
 sunindextype N_VGetLength_Cuda(N_Vector v)
 {
-  Vector<realtype, sunindextype>* xd = static_cast<Vector<realtype, sunindextype>*>(v->content);
+  vector_type* xd = static_cast<vector_type*>(v->content);
   return xd->size();
 }
 
@@ -160,7 +161,7 @@ sunindextype N_VGetLength_Cuda(N_Vector v)
 
 realtype *N_VGetHostArrayPointer_Cuda(N_Vector x)
 {
-  Vector<realtype, sunindextype>* xv = static_cast<Vector<realtype, sunindextype>*>(x->content);
+  vector_type* xv = static_cast<vector_type*>(x->content);
   return (xv->host());
 }
 
@@ -170,7 +171,7 @@ realtype *N_VGetHostArrayPointer_Cuda(N_Vector x)
 
 realtype *N_VGetDeviceArrayPointer_Cuda(N_Vector x)
 {
-  Vector<realtype, sunindextype>* xv = static_cast<Vector<realtype, sunindextype>*>(x->content);
+  vector_type* xv = static_cast<vector_type*>(x->content);
   return (xv->device());
 }
 
@@ -180,7 +181,7 @@ realtype *N_VGetDeviceArrayPointer_Cuda(N_Vector x)
 
 void N_VCopyToDevice_Cuda(N_Vector x)
 {
-  Vector<realtype, sunindextype>* xv = static_cast<Vector<realtype, sunindextype>*>(x->content);
+  vector_type* xv = static_cast<vector_type*>(x->content);
   xv->copyToDev();
 }
 
@@ -190,7 +191,7 @@ void N_VCopyToDevice_Cuda(N_Vector x)
 
 void N_VCopyFromDevice_Cuda(N_Vector x)
 {
-  Vector<realtype, sunindextype>* xv = static_cast<Vector<realtype, sunindextype>*>(x->content);
+  vector_type* xv = static_cast<vector_type*>(x->content);
   xv->copyFromDev();
 }
 
@@ -210,7 +211,7 @@ void N_VPrint_Cuda(N_Vector x)
 void N_VPrintFile_Cuda(N_Vector x, FILE *outfile)
 {
   sunindextype i;
-  Vector<realtype, sunindextype>* xd = static_cast<Vector<realtype, sunindextype>*>(x->content);
+  vector_type* xd = static_cast<vector_type*>(x->content);
 
   for (i = 0; i < xd->size(); i++) {
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -303,8 +304,8 @@ N_Vector N_VCloneEmpty_Cuda(N_Vector w)
 N_Vector N_VClone_Cuda(N_Vector w)
 {
   N_Vector v;
-  Vector<realtype, sunindextype>* wdat = static_cast<Vector<realtype, sunindextype>*>(w->content);
-  Vector<realtype, sunindextype>* vdat = new Vector<realtype, sunindextype>(*wdat);
+  vector_type* wdat = static_cast<vector_type*>(w->content);
+  vector_type* vdat = new vector_type(*wdat);
   v = NULL;
   v = N_VCloneEmpty_Cuda(w);
   if (v == NULL) return(NULL);
@@ -317,7 +318,7 @@ N_Vector N_VClone_Cuda(N_Vector w)
 
 void N_VDestroy_Cuda(N_Vector v)
 {
-  Vector<realtype, sunindextype>* x = static_cast<Vector<realtype, sunindextype>*>(v->content);
+  vector_type* x = static_cast<vector_type*>(v->content);
   if (x != NULL) {
     delete x;
     v->content = NULL;
@@ -342,67 +343,67 @@ void N_VSpace_Cuda(N_Vector X, sunindextype *lrw, sunindextype *liw)
 
 void N_VConst_Cuda(realtype a, N_Vector X)
 {
-  auto xvec = extract<realtype, sunindextype>(X);
+  vector_type *xvec = extract<realtype, sunindextype>(X);
   setConst(a, *xvec);
 }
 
 void N_VLinearSum_Cuda(realtype a, N_Vector X, realtype b, N_Vector Y, N_Vector Z)
 {
-  const auto xvec = extract<realtype, sunindextype>(X);
-  const auto yvec = extract<realtype, sunindextype>(Y);
-  auto zvec = extract<realtype, sunindextype>(Z);
+  const vector_type *xvec = extract<realtype, sunindextype>(X);
+  const vector_type *yvec = extract<realtype, sunindextype>(Y);
+  vector_type *zvec = extract<realtype, sunindextype>(Z);
   linearSum(a, *xvec, b, *yvec, *zvec);
 }
 
 void N_VProd_Cuda(N_Vector X, N_Vector Y, N_Vector Z)
 {
-  const auto xvec = extract<realtype, sunindextype>(X);
-  const auto yvec = extract<realtype, sunindextype>(Y);
-  auto zvec = extract<realtype, sunindextype>(Z);
+  const vector_type *xvec = extract<realtype, sunindextype>(X);
+  const vector_type *yvec = extract<realtype, sunindextype>(Y);
+  vector_type *zvec = extract<realtype, sunindextype>(Z);
   prod(*xvec, *yvec, *zvec);
 }
 
 void N_VDiv_Cuda(N_Vector X, N_Vector Y, N_Vector Z)
 {
-  const auto xvec = extract<realtype, sunindextype>(X);
-  const auto yvec = extract<realtype, sunindextype>(Y);
-  auto zvec = extract<realtype, sunindextype>(Z);
+  const vector_type *xvec = extract<realtype, sunindextype>(X);
+  const vector_type *yvec = extract<realtype, sunindextype>(Y);
+  vector_type *zvec = extract<realtype, sunindextype>(Z);
   div(*xvec, *yvec, *zvec);
 }
 
 void N_VScale_Cuda(realtype a, N_Vector X, N_Vector Z)
 {
-  const auto xvec = extract<realtype, sunindextype>(X);
-  auto zvec = extract<realtype, sunindextype>(Z);
+  const vector_type *xvec = extract<realtype, sunindextype>(X);
+  vector_type *zvec = extract<realtype, sunindextype>(Z);
   scale(a, *xvec, *zvec);
 }
 
 void N_VAbs_Cuda(N_Vector X, N_Vector Z)
 {
-  const auto xvec = extract<realtype, sunindextype>(X);
-  auto zvec = extract<realtype, sunindextype>(Z);
+  const vector_type *xvec = extract<realtype, sunindextype>(X);
+  vector_type *zvec = extract<realtype, sunindextype>(Z);
   absVal(*xvec, *zvec);
 }
 
 void N_VInv_Cuda(N_Vector X, N_Vector Z)
 {
-  const auto xvec = extract<realtype, sunindextype>(X);
-  auto zvec = extract<realtype, sunindextype>(Z);
+  const vector_type *xvec = extract<realtype, sunindextype>(X);
+  vector_type *zvec = extract<realtype, sunindextype>(Z);
   inv(*xvec, *zvec);
 }
 
 void N_VAddConst_Cuda(N_Vector X, realtype b, N_Vector Z)
 {
-  const auto xvec = extract<realtype, sunindextype>(X);
-  auto zvec = extract<realtype, sunindextype>(Z);
+  const vector_type *xvec = extract<realtype, sunindextype>(X);
+  vector_type *zvec = extract<realtype, sunindextype>(Z);
   addConst(b, *xvec, *zvec);
 }
 
 realtype N_VDotProd_Cuda(N_Vector X, N_Vector Y)
 {
   SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
-  const auto xvec = extract<realtype, sunindextype>(X);
-  const auto yvec = extract<realtype, sunindextype>(Y);
+  const vector_type *xvec = extract<realtype, sunindextype>(X);
+  const vector_type *yvec = extract<realtype, sunindextype>(Y);
 
   realtype sum = dotProd(*xvec, *yvec);
 
@@ -413,7 +414,7 @@ realtype N_VDotProd_Cuda(N_Vector X, N_Vector Y)
 realtype N_VMaxNorm_Cuda(N_Vector X)
 {
   SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
-  const auto xvec = extract<realtype, sunindextype>(X);
+  const vector_type *xvec = extract<realtype, sunindextype>(X);
 
   realtype locmax = maxNorm(*xvec);
 
@@ -425,8 +426,8 @@ realtype N_VWrmsNorm_Cuda(N_Vector X, N_Vector W)
 {
   SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
   const sunindextype Nglob = getGlobalSize<realtype,sunindextype>(X);
-  const auto xvec = extract<realtype, sunindextype>(X);
-  const auto wvec = extract<realtype, sunindextype>(W);
+  const vector_type *xvec = extract<realtype, sunindextype>(X);
+  const vector_type *wvec = extract<realtype, sunindextype>(W);
 
   realtype sum = wL2NormSquare(*xvec, *wvec);
 
@@ -438,9 +439,9 @@ realtype N_VWrmsNormMask_Cuda(N_Vector X, N_Vector W, N_Vector Id)
 {
   SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
   const sunindextype Nglob = getGlobalSize<realtype,sunindextype>(X);
-  const auto xvec = extract<realtype, sunindextype>(X);
-  const auto wvec = extract<realtype, sunindextype>(W);
-  const auto ivec = extract<realtype, sunindextype>(Id);
+  const vector_type *xvec = extract<realtype, sunindextype>(X);
+  const vector_type *wvec = extract<realtype, sunindextype>(W);
+  const vector_type *ivec = extract<realtype, sunindextype>(Id);
 
   realtype sum = wL2NormSquareMask(*xvec, *wvec, *ivec);
 
@@ -451,7 +452,7 @@ realtype N_VWrmsNormMask_Cuda(N_Vector X, N_Vector W, N_Vector Id)
 realtype N_VMin_Cuda(N_Vector X)
 {
   SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
-  const auto xvec = extract<realtype, sunindextype>(X);
+  const vector_type *xvec = extract<realtype, sunindextype>(X);
 
   realtype locmin = findMin(*xvec);
 
@@ -462,8 +463,8 @@ realtype N_VMin_Cuda(N_Vector X)
 realtype N_VWL2Norm_Cuda(N_Vector X, N_Vector W)
 {
   SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
-  const auto xvec = extract<realtype, sunindextype>(X);
-  const auto wvec = extract<realtype, sunindextype>(W);
+  const vector_type *xvec = extract<realtype, sunindextype>(X);
+  const vector_type *wvec = extract<realtype, sunindextype>(W);
 
   realtype sum = wL2NormSquare(*xvec, *wvec);
 
@@ -474,7 +475,7 @@ realtype N_VWL2Norm_Cuda(N_Vector X, N_Vector W)
 realtype N_VL1Norm_Cuda(N_Vector X)
 {
   SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
-  const auto xvec = extract<realtype, sunindextype>(X);
+  const vector_type *xvec = extract<realtype, sunindextype>(X);
 
   realtype sum = L1Norm(*xvec);
 
@@ -484,16 +485,16 @@ realtype N_VL1Norm_Cuda(N_Vector X)
 
 void N_VCompare_Cuda(realtype c, N_Vector X, N_Vector Z)
 {
-  const auto xvec = extract<realtype, sunindextype>(X);
-  auto zvec = extract<realtype, sunindextype>(Z);
+  const vector_type *xvec = extract<realtype, sunindextype>(X);
+  vector_type *zvec = extract<realtype, sunindextype>(Z);
   compare(c, *xvec, *zvec);
 }
 
 booleantype N_VInvTest_Cuda(N_Vector X, N_Vector Z)
 {
   SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
-  const auto xvec = extract<realtype, sunindextype>(X);
-  const auto zvec = extract<realtype, sunindextype>(Z);
+  const vector_type *xvec = extract<realtype, sunindextype>(X);
+  vector_type *zvec = extract<realtype, sunindextype>(Z);
 
   realtype locmin = invTest(*xvec, *zvec);
 
@@ -502,15 +503,14 @@ booleantype N_VInvTest_Cuda(N_Vector X, N_Vector Z)
 }
 
 /*
- * TODO:Fix bug in N_VConstrMask_Cuda kernel.
- * Currently an inefficient workaround is implemented.
+ * Creates mask for variables violating constraints
  */
 booleantype N_VConstrMask_Cuda(N_Vector C, N_Vector X, N_Vector M)
 {
   SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
-  const auto cvec = extract<realtype, sunindextype>(C);
-  const auto xvec = extract<realtype, sunindextype>(X);
-  auto mvec = extract<realtype, sunindextype>(M);
+  const vector_type *cvec = extract<realtype, sunindextype>(C);
+  const vector_type *xvec = extract<realtype, sunindextype>(X);
+  vector_type *mvec = extract<realtype, sunindextype>(M);
 
   realtype locsum = constrMask(*cvec, *xvec, *mvec);
 
@@ -521,8 +521,8 @@ booleantype N_VConstrMask_Cuda(N_Vector C, N_Vector X, N_Vector M)
 realtype N_VMinQuotient_Cuda(N_Vector num, N_Vector denom)
 {
   SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(num);
-  const auto numvec = extract<realtype, sunindextype>(num);
-  const auto denvec = extract<realtype, sunindextype>(denom);
+  const vector_type *numvec = extract<realtype, sunindextype>(num);
+  const vector_type *denvec = extract<realtype, sunindextype>(denom);
 
   realtype locmin = minQuotient(*numvec, *denvec);
 
@@ -540,12 +540,12 @@ realtype N_VMinQuotient_Cuda(N_Vector num, N_Vector denom)
 int N_VLinearCombination_Cuda(int nvec, realtype* c, N_Vector* X, N_Vector Z)
 {
   cudaError_t err;
-  Vector<realtype, sunindextype>** Xv;
-  Vector<realtype, sunindextype>*  Zv;
+  vector_type** Xv;
+  vector_type*  Zv;
 
   Zv = extract<realtype, sunindextype>(Z);
 
-  Xv = new Vector<realtype, sunindextype>*[nvec];
+  Xv = new vector_type*[nvec];
   for (int i=0; i<nvec; i++)
     Xv[i] = extract<realtype, sunindextype>(X[i]);
 
@@ -553,10 +553,7 @@ int N_VLinearCombination_Cuda(int nvec, realtype* c, N_Vector* X, N_Vector Z)
 
   delete[] Xv;
 
-  if (err != cudaSuccess)
-    return(-1);
-  else
-    return(0);
+  return err == cudaSuccess ? 0 : -1;
 }
 
 
@@ -564,17 +561,17 @@ int N_VScaleAddMulti_Cuda(int nvec, realtype* c, N_Vector X, N_Vector* Y,
                            N_Vector* Z)
 {
   cudaError_t err;
-  Vector<realtype, sunindextype>*  Xv;
-  Vector<realtype, sunindextype>** Yv;
-  Vector<realtype, sunindextype>** Zv;
+  vector_type*  Xv;
+  vector_type** Yv;
+  vector_type** Zv;
 
   Xv = extract<realtype, sunindextype>(X);
 
-  Yv = new Vector<realtype, sunindextype>*[nvec];
+  Yv = new vector_type*[nvec];
   for (int i=0; i<nvec; i++)
     Yv[i] = extract<realtype, sunindextype>(Y[i]);
 
-  Zv = new Vector<realtype, sunindextype>*[nvec];
+  Zv = new vector_type*[nvec];
   for (int i=0; i<nvec; i++)
     Zv[i] = extract<realtype, sunindextype>(Z[i]);
 
@@ -583,10 +580,7 @@ int N_VScaleAddMulti_Cuda(int nvec, realtype* c, N_Vector X, N_Vector* Y,
   delete[] Yv;
   delete[] Zv;
 
-  if (err != cudaSuccess)
-    return(-1);
-  else
-    return(0);
+  return err == cudaSuccess ? 0 : -1;
 }
 
 
@@ -595,12 +589,12 @@ int N_VDotProdMulti_Cuda(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods)
   cudaError_t err;
   SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(x);
   sunindextype N = getGlobalSize<realtype, sunindextype>(x);
-  Vector<realtype, sunindextype>*  Xv;
-  Vector<realtype, sunindextype>** Yv;
+  vector_type*  Xv;
+  vector_type** Yv;
 
   Xv = extract<realtype, sunindextype>(x);
 
-  Yv = new Vector<realtype, sunindextype>*[nvec];
+  Yv = new vector_type*[nvec];
   for (int i=0; i<nvec; i++)
     Yv[i] = extract<realtype, sunindextype>(Y[i]);
 
@@ -625,19 +619,19 @@ int N_VLinearSumVectorArray_Cuda(int nvec, realtype a, N_Vector* X, realtype b,
                                  N_Vector* Y, N_Vector* Z)
 {
   cudaError_t err;
-  Vector<realtype, sunindextype>** Xv;
-  Vector<realtype, sunindextype>** Yv;
-  Vector<realtype, sunindextype>** Zv;
+  vector_type** Xv;
+  vector_type** Yv;
+  vector_type** Zv;
 
-  Xv = new Vector<realtype, sunindextype>*[nvec];
+  Xv = new vector_type*[nvec];
   for (int i=0; i<nvec; i++)
     Xv[i] = extract<realtype, sunindextype>(X[i]);
 
-  Yv = new Vector<realtype, sunindextype>*[nvec];
+  Yv = new vector_type*[nvec];
   for (int i=0; i<nvec; i++)
     Yv[i] = extract<realtype, sunindextype>(Y[i]);
 
-  Zv = new Vector<realtype, sunindextype>*[nvec];
+  Zv = new vector_type*[nvec];
   for (int i=0; i<nvec; i++)
     Zv[i] = extract<realtype, sunindextype>(Z[i]);
 
@@ -647,24 +641,21 @@ int N_VLinearSumVectorArray_Cuda(int nvec, realtype a, N_Vector* X, realtype b,
   delete[] Yv;
   delete[] Zv;
 
-  if (err != cudaSuccess)
-    return(-1);
-  else
-    return(0);
+  return err == cudaSuccess ? 0 : -1;
 }
 
 
 int N_VScaleVectorArray_Cuda(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
 {
   cudaError_t err;
-  Vector<realtype, sunindextype>** Xv;
-  Vector<realtype, sunindextype>** Zv;
+  vector_type** Xv;
+  vector_type** Zv;
 
-  Xv = new Vector<realtype, sunindextype>*[nvec];
+  Xv = new vector_type*[nvec];
   for (int i=0; i<nvec; i++)
     Xv[i] = extract<realtype, sunindextype>(X[i]);
 
-  Zv = new Vector<realtype, sunindextype>*[nvec];
+  Zv = new vector_type*[nvec];
   for (int i=0; i<nvec; i++)
     Zv[i] = extract<realtype, sunindextype>(Z[i]);
 
@@ -673,19 +664,16 @@ int N_VScaleVectorArray_Cuda(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
   delete[] Xv;
   delete[] Zv;
 
-  if (err != cudaSuccess)
-    return(-1);
-  else
-    return(0);
+  return err == cudaSuccess ? 0 : -1;
 }
 
 
 int N_VConstVectorArray_Cuda(int nvec, realtype c, N_Vector* Z)
 {
   cudaError_t err;
-  Vector<realtype, sunindextype>** Zv;
+  vector_type** Zv;
 
-  Zv = new Vector<realtype, sunindextype>*[nvec];
+  Zv = new vector_type*[nvec];
   for (int i=0; i<nvec; i++)
     Zv[i] = extract<realtype, sunindextype>(Z[i]);
 
@@ -693,10 +681,7 @@ int N_VConstVectorArray_Cuda(int nvec, realtype c, N_Vector* Z)
 
   delete[] Zv;
 
-  if (err != cudaSuccess)
-    return(-1);
-  else
-    return(0);
+  return err == cudaSuccess ? 0 : -1;
 }
 
 
@@ -706,14 +691,14 @@ int N_VWrmsNormVectorArray_Cuda(int nvec, N_Vector* X, N_Vector* W,
   cudaError_t err;
   SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X[0]);
   sunindextype N = getGlobalSize<realtype, sunindextype>(X[0]);
-  Vector<realtype, sunindextype>** Xv;
-  Vector<realtype, sunindextype>** Wv;
+  vector_type** Xv;
+  vector_type** Wv;
 
-  Xv = new Vector<realtype, sunindextype>*[nvec];
+  Xv = new vector_type*[nvec];
   for (int k=0; k<nvec; k++)
     Xv[k] = extract<realtype, sunindextype>(X[k]);
 
-  Wv = new Vector<realtype, sunindextype>*[nvec];
+  Wv = new vector_type*[nvec];
   for (int k=0; k<nvec; k++)
     Wv[k] = extract<realtype, sunindextype>(W[k]);
 
@@ -738,15 +723,15 @@ int N_VWrmsNormMaskVectorArray_Cuda(int nvec, N_Vector* X, N_Vector* W,
   cudaError_t err;
   SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X[0]);
   sunindextype N = getGlobalSize<realtype, sunindextype>(X[0]);
-  Vector<realtype, sunindextype>** Xv;
-  Vector<realtype, sunindextype>** Wv;
-  Vector<realtype, sunindextype>*  IDv;
+  vector_type** Xv;
+  vector_type** Wv;
+  vector_type*  IDv;
 
-  Xv = new Vector<realtype, sunindextype>*[nvec];
+  Xv = new vector_type*[nvec];
   for (int k=0; k<nvec; k++)
     Xv[k] = extract<realtype, sunindextype>(X[k]);
 
-  Wv = new Vector<realtype, sunindextype>*[nvec];
+  Wv = new vector_type*[nvec];
   for (int k=0; k<nvec; k++)
     Wv[k] = extract<realtype, sunindextype>(W[k]);
 
@@ -771,20 +756,20 @@ int N_VScaleAddMultiVectorArray_Cuda(int nvec, int nsum, realtype* c,
                                       N_Vector* X, N_Vector** Y, N_Vector** Z)
 {
   cudaError_t err;
-  Vector<realtype, sunindextype>** Xv;
-  Vector<realtype, sunindextype>** Yv;
-  Vector<realtype, sunindextype>** Zv;
+  vector_type** Xv;
+  vector_type** Yv;
+  vector_type** Zv;
 
-  Xv = new Vector<realtype, sunindextype>*[nvec];
+  Xv = new vector_type*[nvec];
   for (int k=0; k<nvec; k++)
     Xv[k] = extract<realtype, sunindextype>(X[k]);
 
-  Yv = new Vector<realtype, sunindextype>*[nsum*nvec];
+  Yv = new vector_type*[nsum*nvec];
   for (int k=0; k<nvec; k++)
     for (int j=0; j<nsum; j++)
       Yv[k*nsum+j] = extract<realtype, sunindextype>(Y[j][k]);
 
-  Zv = new Vector<realtype, sunindextype>*[nsum*nvec];
+  Zv = new vector_type*[nsum*nvec];
   for (int k=0; k<nvec; k++)
     for (int j=0; j<nsum; j++)
       Zv[k*nsum+j] = extract<realtype, sunindextype>(Z[j][k]);
@@ -795,10 +780,7 @@ int N_VScaleAddMultiVectorArray_Cuda(int nvec, int nsum, realtype* c,
   delete[] Yv;
   delete[] Zv;
 
-  if (err != cudaSuccess)
-    return(-1);
-  else
-    return(0);
+  return err == cudaSuccess ? 0 : -1;
 }
 
 
@@ -806,15 +788,15 @@ int N_VLinearCombinationVectorArray_Cuda(int nvec, int nsum, realtype* c,
                                          N_Vector** X, N_Vector* Z)
 {
   cudaError_t err;
-  Vector<realtype, sunindextype>** Xv;
-  Vector<realtype, sunindextype>** Zv;
+  vector_type** Xv;
+  vector_type** Zv;
 
-  Xv = new Vector<realtype, sunindextype>*[nsum*nvec];
+  Xv = new vector_type*[nsum*nvec];
   for (int k=0; k<nvec; k++)
     for (int j=0; j<nsum; j++)
       Xv[k*nsum+j] = extract<realtype, sunindextype>(X[j][k]);
 
-  Zv = new Vector<realtype, sunindextype>*[nvec];
+  Zv = new vector_type*[nvec];
   for (int k=0; k<nvec; k++)
     Zv[k] = extract<realtype, sunindextype>(Z[k]);
 
@@ -823,10 +805,7 @@ int N_VLinearCombinationVectorArray_Cuda(int nvec, int nsum, realtype* c,
   delete[] Xv;
   delete[] Zv;
 
-  if (err != cudaSuccess)
-    return(-1);
-  else
-    return(0);
+  return err == cudaSuccess ? 0 : -1;
 }
 
 } // extern "C"

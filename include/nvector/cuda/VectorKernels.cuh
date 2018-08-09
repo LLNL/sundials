@@ -565,10 +565,9 @@ invTestKernel(const T *x, T *z, T *out, I n)
 
 /*
  * Checks if inequality constraints are satisfied. Constraint check
- * results are stored in vector 'm'. A reduction is performed to set a
- * flag > 0 if any of the constraints is violated.
- *
- * TODO: There seems to be a bug in this kernel or associated driver!
+ * results are stored in vector 'm'. A sum reduction over all elements
+ * of 'm' is performed to find if any of the constraints is violated.
+ * If all constraints are satisfied sum == 0.
  *
  */
 template <typename T, typename I>
@@ -1106,7 +1105,6 @@ inline T constraintMask1(const Vector<T,I>& c, const Vector<T,I>& x, Vector<T,I>
   unsigned shMemSize          = block*sizeof(T);
   Vector<T,I> buffer(grid);
 
-  //math_kernels::setConstKernel<T,I><<<grid, block>>>(0.0, m.device(), m.size());
   math_kernels::constraintMaskKernel1<T,I><<< grid, block, shMemSize >>>(c.device(), x.device(), m.device(), buffer.device(), x.size());
 
   unsigned n = grid;
