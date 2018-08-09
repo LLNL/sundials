@@ -210,7 +210,6 @@ interface routines.
 
 ARKode is written in C, with C++ and Fortran interfaces.
 
-
 ARKode is developed by \href{http://www.smu.edu}{Southern Methodist University}, with support by the \href{http://www.doe.gov}{US Department of Energy} through the \href{http://www.fastmath-scidac.org/}{FASTMath} SciDAC Institute, under subcontract
 B598130 from \href{http://www.llnl.gov}{Lawrence Livermore National Laboratory}.
 
@@ -301,13 +300,8 @@ preconditioner routines.
 \section{Changes from previous versions}
 \label{Introduction:changes-from-previous-versions}
 
-\subsection{Changes in v3.0.0-dev.1}
-\label{Introduction:changes-in-v3-0-0-dev.1}
-
-No changes were made to ARKode in this release.
-
-\subsection{Changes in v3.0.0-dev}
-\label{Introduction:changes-in-v3-0-0-dev}
+\subsection{Changes since v3.0.0-dev.1}
+\label{Introduction:changes-since-v3-0-0-dev-1}
 The ARKode library has been entirely rewritten to support a modular
 approach to one-step methods, which should allow rapid research and
 development of novel integration methods without affecting existing
@@ -328,6 +322,14 @@ Simplified the prototype for the user-supplied time step adaptivity
 function, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn()}}}}, to supply only the method order of
 accuracy (instead of both the method and embedding orders).
 
+
+\subsection{Changes in v3.0.0-dev.1}
+\label{Introduction:changes-in-v3-0-0-dev-1}
+No changes were made to ARKode in this release.
+
+
+\subsection{Changes in v3.0.0-dev}
+\label{Introduction:changes-in-v3-0-0-dev}
 Three fused vector operations and seven vector array operations have
 been added to the NVECTOR API. These \emph{optional} operations
 are intended to increase data reuse in vector operations, reduce
@@ -351,20 +353,20 @@ trying to locate and use an MPI installation. The native CMake FindMPI
 module is now used to locate an MPI installation. The options for
 setting MPI compiler wrappers and the executable for running MPI
 programs have been updated to align with those in native CMake FindMPI
-module. This included changing \code{MPI\_MPICC} to
-\code{MPI\_C\_COMPILER}, \code{MPI\_MPICXX} to \code{MPI\_CXX\_COMPILER},
-combining \code{MPI\_MPIF77} and \code{MPI\_MPIF90} to
-\code{MPI\_Fortran\_COMPILER}, and changing \code{MPI\_RUN\_COMMAND} to
-\code{MPIEXEC\_EXECUTABLE}. When a Fortran name-mangling scheme is needed (e.g.,
-\code{LAPACK\_ENABLE} is \code{ON}) the build system will infer the scheme
-from the Fortran compiler. If a Fortran compiler is not available or
-the inferred or default scheme needs to be overridden, the advanced
-options \code{SUNDIALS\_F77\_FUNC\_CASE} and
+module. This included changing \code{MPI\_MPICC} to \code{MPI\_C\_COMPILER},
+\code{MPI\_MPICXX} to \code{MPI\_CXX\_COMPILER}, combining \code{MPI\_MPIF77} and
+\code{MPI\_MPIF90} to \code{MPI\_Fortran\_COMPILER}, and changing
+\code{MPI\_RUN\_COMMAND} to \code{MPIEXEC\_EXECUTABLE}. When a Fortran name-mangling
+scheme is needed (e.g., \code{LAPACK\_ENABLE} is \code{ON}) the build system
+will infer the scheme from the Fortran compiler. If a Fortran compiler
+is not available or the inferred or default scheme needs to be
+overridden, the advanced options \code{SUNDIALS\_F77\_FUNC\_CASE} and
 \code{SUNDIALS\_F77\_FUNC\_UNDERSCORES} can be used to manually set the
 name-mangling scheme and bypass trying to infer the scheme.
 Additionally, parts of the main CMakeLists.txt file were moved
 to new files in the \code{src} and \code{example} directories to make the
 CMake configuration file structure more modular.
+
 
 \subsection{Changes in v2.1.2}
 \label{Introduction:changes-in-v2-1-2}
@@ -373,7 +375,7 @@ using rpath by default to locate shared libraries on OSX.
 
 Fixed Windows specific problem where sunindextype was not correctly
 defined when using 64-bit integers for the SUNDIALS index type. On Windows
-sunindextype is now defined as the MSVC basic type \texttt{\_\_int64}.
+sunindextype is now defined as the MSVC basic type \code{\_\_int64}.
 
 Added sparse SUNMatrix ``Reallocate'' routine to allow specification of
 the nonzero storage.
@@ -389,10 +391,11 @@ target matrix contained sufficient storage for the sum, but had the
 wrong sparsity pattern.  The sum now occurs in-place, by performing
 the sum backwards in the existing storage.  However, it is still more
 efficient if the user-supplied Jacobian routine allocates storage for
-the sum $I+\gamma J$ or $M+\gamma J$ manually (with zero entries if
-needed).
+the sum \(I+\gamma J\) or \(M+\gamma J\) manually (with zero
+entries if needed).
 
-Changed LICENSE install path to \texttt{instdir/include/sundials}.
+Changed LICENSE install path to \code{instdir/include/sundials}.
+
 
 \subsection{Changes in v2.1.1}
 \label{Introduction:changes-in-v2-1-1}
@@ -1331,7 +1334,6 @@ and history,
   1, & \quad\text{if the previous step had an error test failure}.
 \end{cases}\end{split}\notag
 \end{gather}
-
 A flowchart detailing how the time steps are modified at each
 iteration to ensure solver convergence and successful steps is given
 in the figure below.  Here, all norms correspond to the WRMS norm, and
@@ -3319,7 +3321,6 @@ defining the implicit portion of the right-hand side function in
 \item {}
 \emph{y0} -- the initial condition vector \(y(t_0)\)
 
-
 \end{itemize}
 
 \end{description}
@@ -3846,6 +3847,7 @@ solve process, so if additional storage is required within the
 \code{SUNMatrix} object (e.g. for factorization of a banded
 matrix), ensure that the input object is allocated with sufficient
 size.
+
 When using sparse linear solvers, it is typically much more
 efficient to supply \emph{J} so that it includes the full sparsity
 pattern of the Newton system matrices \({\mathcal A} =
@@ -5032,7 +5034,6 @@ If \emph{user\_data} is needed in user linear solver or preconditioner
 functions, the call to this function must be made \emph{before} the call
 to specify the linear solver.
 
-
 \end{fulllineitems}
 
 \index{ARKStepSetMaxErrTestFails (C function)}
@@ -5103,7 +5104,6 @@ method have been set.  These values resulted from repeated testing
 of ARKStep's solvers on a variety of training problems.  However,
 all problems are different, so these values may not be optimal for
 all users.
-
 
 \end{fulllineitems}
 
@@ -7954,9 +7954,6 @@ the corresponding constant.
 
 \end{fulllineitems}
 
-
-
-
 \index{ARKStepGetNumExpSteps (C function)}
 
 \begin{fulllineitems}
@@ -9675,7 +9672,6 @@ Output the current Butcher table(s)
 \\
 \hline\end{tabulary}
 
-
 \index{ARKStepWriteParameters (C function)}
 
 \begin{fulllineitems}
@@ -9740,7 +9736,6 @@ valid values match those for the function \code{ERKStepSetARKTableNum()}.
 \end{itemize}
 
 \end{description}
-
 
 \end{fulllineitems}
 
@@ -16404,6 +16399,8 @@ must return \emph{IER = 0}.
 
 
 \end{enumerate}
+
+
 \chapter{Using ERKStep for C and C++ Applications}
 \label{ERKStep_c_interface/index:using-erkstep-for-c-and-c-applications}\label{ERKStep_c_interface/index::doc}\label{ERKStep_c_interface/index:erkstep-cinterface}
 This chapter is concerned with the use of the ERKStep time-stepping
@@ -20321,6 +20318,7 @@ instead destroy the vector \emph{y} and clone a new vector \emph{y} off of
 \emph{ytemplate}.
 
 \end{fulllineitems}
+
 
 
 \chapter{Vector Data Structures}

@@ -639,12 +639,12 @@ illustration only.
    .. note:: Setting this option to ``ON`` will trigger several additional
 	     options related to MPI.
 
-:index:`MPI_MPICC <MPI_MPICC (CMake option)>`
+:index:`MPI_C_COMPILER <MPI_C_COMPILER (CMake option)>`
    ``mpicc`` program
 
    Default:
 
-:index:`MPI_MPICXX <MPI_MPICXX (CMake option)>`
+:index:`MPI_CXX_COMPILER <MPI_CXX_COMPILER (CMake option)>`
    ``mpicxx`` program
 
    Default:
@@ -656,8 +656,8 @@ illustration only.
              without setting any additional configuration options
              other than ``MPI_ENABLE``.
 
-:index:`MPI_MPIF77 <MPI_MPIF77 (CMake option)>`
-   ``mpif77`` program
+:index:`MPI_Fortran_COMPILER <MPI_Fortran_COMPILER (CMake option)>`
+   ``mpifort`` program
 
    Default:
 
@@ -665,17 +665,7 @@ illustration only.
              (``MPI_ENABLE`` is ``ON``) and Fortran-C support is
              enabled (``FCMIX_ENABLE`` is ``ON``).
 
-:index:`MPI_MPIF90 <MPI_MPIF90 (CMake option)>`
-   ``mpif90`` program
-
-   Default:
-
-   .. note:: This option is triggered only if MPI is enabled
-             (``MPI_ENABLE`` is ``ON``), Fortran-C support is enabled
-             (``FCMIX_ENABLE`` is ``ON``), and Fortran90 examples are enabled
-             (``EXAMPLES_ENABLE_F90`` is ``ON``).
-
-:index:`MPI_RUN_COMMAND <MPI_RUN_COMMAND (CMake option)>`
+:index:`MPIEXEC_EXECUTABLE <MPIEXEC_EXECUTABLE (CMake option)>`
    Specify run command for MPI
 
    Default: ``mpirun``
