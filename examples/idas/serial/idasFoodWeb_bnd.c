@@ -403,7 +403,7 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
                                UserData webdata)
 {
   sunindextype loc, yloc, is, jx, jy, np;
-  realtype xx, yy, xyfactor, fac;
+  realtype xx, yy, xyfactor;
   realtype *ccv, *cpv, *idv;
   
   ccv = N_VGetArrayPointer(cc);
@@ -420,7 +420,6 @@ static void SetInitialProfiles(N_Vector cc, N_Vector cp, N_Vector id,
       xyfactor = RCONST(16.0)*xx*(ONE-xx)*yy*(ONE-yy);
       xyfactor *= xyfactor;
       loc = yloc + NUM_SPECIES*jx;
-      fac = ONE + ALPHA * xx * yy + BETA * sin(FOURPI*xx) * sin(FOURPI*yy);
 
       for (is = 0; is < NUM_SPECIES; is++) {
         if (is < np) {

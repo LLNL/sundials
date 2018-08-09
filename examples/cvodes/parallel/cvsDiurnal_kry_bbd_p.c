@@ -724,7 +724,7 @@ static int flocal(sunindextype Nlocal, realtype t, N_Vector u,
   realtype c1rt, c2rt, cydn, cyup, hord1, hord2, horad1, horad2;
   realtype qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, ydn, yup;
   realtype q4coef, dely, verdco, hordco, horaco;
-  int i, lx, ly, jx, jy;
+  int i, lx, ly, jy;
   int isubx, isuby;
   sunindextype nvmxsub, nvmxsub2, offsetu, offsetue;
   UserData data;
@@ -817,8 +817,6 @@ static int flocal(sunindextype Nlocal, realtype t, N_Vector u,
     cydn = verdco*SUNRexp(RCONST(0.2)*ydn);
     cyup = verdco*SUNRexp(RCONST(0.2)*yup);
     for (lx = 0; lx < MXSUB; lx++) {
-
-      jx = lx + isubx*MXSUB;
 
       /* Extract c1 and c2, and set kinetic rate terms */
 

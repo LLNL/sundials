@@ -13,9 +13,9 @@
  * -----------------------------------------------------------------------------
  * This is the header file for the SUNNonlinearSolver module implementation of
  * Newton's method.
- * 
+ *
  * Part I defines the solver-specific content structure.
- * 
+ *
  * Part II contains prototypes for the solver constructor and operations.
  * ---------------------------------------------------------------------------*/
 
@@ -43,10 +43,10 @@ struct _SUNNonlinearSolverContent_Newton {
   SUNNonlinSolConvTestFn CTest;  /* nonlinear solver convergence test function */
 
   /* nonlinear solver variables */
-  N_Vector    delta;     /* Newton correction vector                               */
+  N_Vector    delta;     /* Newton update vector                                   */
   booleantype jcur;      /* Jacobian status, current = SUNTRUE / stale = SUNFALSE  */
-  int         mnewt;     /* current number of Newton iterations in a solve attempt */
-  int         maxiters;  /* maximum number of Newton iterations in a solve attempt */
+  int         curiter;   /* current number of iterations in a solve attempt        */
+  int         maxiters;  /* maximum number of iterations in a solve attempt        */
   long int    niters;    /* total number of nonlinear iterations across all solves */
 };
 
@@ -55,7 +55,7 @@ typedef struct _SUNNonlinearSolverContent_Newton *SUNNonlinearSolverContent_Newt
 /* -----------------------------------------------------------------------------
  * II: Exported functions
  * ---------------------------------------------------------------------------*/
- 
+
 /* Constructor to create solver and allocates memory */
 SUNDIALS_EXPORT SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y);
 

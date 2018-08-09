@@ -3,13 +3,13 @@
 #                 Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # LLNS/SMU Copyright Start
-# Copyright (c) 2017, Southern Methodist University and 
+# Copyright (c) 2017, Southern Methodist University and
 # Lawrence Livermore National Security
 #
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Southern Methodist University and Lawrence Livermore 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Southern Methodist University and Lawrence Livermore
 # National Laboratory under Contract DE-AC52-07NA27344.
-# Produced at Southern Methodist University and the Lawrence 
+# Produced at Southern Methodist University and the Lawrence
 # Livermore National Laboratory.
 #
 # All rights reserved.
@@ -25,8 +25,8 @@ SET(cvode_SOURCES
   cvode.c
   cvode_bandpre.c
   cvode_bbdpre.c
-  cvode_diag.c        
-  cvode_direct.c        
+  cvode_diag.c
+  cvode_direct.c
   cvode_io.c
   cvode_spils.c
   cvode_nls.c
@@ -69,10 +69,10 @@ SET(sunlinsol_SOURCES
   )
 
 # Add variable sunnonlinsol_SOURCES with the common SUNNonlinearSolver sources
-# which will also be included in the IDA library
+# which will also be included in the CVODE library
 SET(sunnonlinsol_SOURCES
   ${sundials_SOURCE_DIR}/src/sunnonlinsol/newton/sunnonlinsol_newton.c
-  ${sundials_SOURCE_DIR}/src/sunnonlinsol/fixedpoint/sunnonlinsol_fixedpoint.c ## >>>>>>> REMOVE
+  ${sundials_SOURCE_DIR}/src/sunnonlinsol/fixedpoint/sunnonlinsol_fixedpoint.c
   )
 
 # Add variable cvode_HEADERS with the exported CVODE header files
@@ -93,14 +93,14 @@ ADD_PREFIX(${sundials_SOURCE_DIR}/include/cvode/ cvode_HEADERS)
 INCLUDE_DIRECTORIES(.)
 INCLUDE_DIRECTORIES(../sundials)
 
-# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY 
+# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
 ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 
 # Build the static library
 IF(BUILD_STATIC_LIBS)
 
   # Add the build target for the static CVODE library
-  ADD_LIBRARY(sundials_cvode_static STATIC 
+  ADD_LIBRARY(sundials_cvode_static STATIC
     ${cvode_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES}
     ${sunnonlinsol_SOURCES})
 
@@ -117,7 +117,7 @@ ENDIF(BUILD_STATIC_LIBS)
 IF(BUILD_SHARED_LIBS)
 
   # Add the build target for the CVODE library
-  ADD_LIBRARY(sundials_cvode_shared SHARED 
+  ADD_LIBRARY(sundials_cvode_shared SHARED
     ${cvode_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES}
     ${sunnonlinsol_SOURCES})
 

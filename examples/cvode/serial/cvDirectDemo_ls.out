@@ -8,7 +8,7 @@ Problem 1: Van der Pol oscillator
 -------------------------------------------------------------
 
 Linear Multistep Method : ADAMS
-Iteration               : FUNCTIONAL
+Iteration               : FIXEDPOINT
 
      t           x              xdot         qu     hu 
    1.39284     1.68010e+00   -2.91056e-01    5    9.8626e-02
@@ -126,7 +126,7 @@ Linear Solver           : Diagonal Jacobian
 -------------------------------------------------------------
 
 Linear Multistep Method : BDF
-Iteration               : FUNCTIONAL
+Iteration               : FIXEDPOINT
 
      t           x              xdot         qu     hu 
    1.39284     1.68010e+00   -2.91056e-01    4    9.6100e-02
@@ -253,7 +253,7 @@ triangular matrix derived from 2-D advection PDE
 -------------------------------------------------------------
 
 Linear Multistep Method : ADAMS
-Iteration               : FUNCTIONAL
+Iteration               : FIXEDPOINT
 
       t        max.err      qu     hu 
      0.010    1.4690e-07    3     1.1459e-02
@@ -375,7 +375,7 @@ Linear Solver           : Band, Difference Quotient Jacobian
 -------------------------------------------------------------
 
 Linear Multistep Method : BDF
-Iteration               : FUNCTIONAL
+Iteration               : FIXEDPOINT
 
       t        max.err      qu     hu 
      0.010    5.5931e-07    2     8.1257e-03

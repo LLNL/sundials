@@ -36,7 +36,7 @@ C
       IMPLICIT NONE
 C
       INTEGER*4 IER, LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNJE, LNGE
-      INTEGER*4 METH, ITMETH, ITOL, ITASK, JOUT, NOUT, IERROOT
+      INTEGER*4 METH, ITOL, ITASK, JOUT, NOUT, IERROOT
       INTEGER*4 INFO(2)
       INTEGER*4 I
 C The following declaration specification should match C type long int
@@ -59,8 +59,6 @@ C     initial y components
       Y(3) = 0.0D0
 C     basic integration method, 2 for BDF
       METH = 2
-C     nonlinear iteration method, 2 for Newton iteration
-      ITMETH = 2
 C     type for absolute tolerance, 2 for array
       ITOL = 2
 C     scalar relative tolerance
@@ -111,8 +109,8 @@ C     initialize KLU sparse direct linear solver module
       ENDIF
 
 C     Call FCVMALLOC to create the solver memory and specify the 
-C     Backward Differentiation Formula and the use of a Newton iteration
-      CALL FCVMALLOC(T0, Y, METH, ITMETH, ITOL, RTOL, ATOL,
+C     Backward Differentiation Formula
+      CALL FCVMALLOC(T0, Y, METH, ITOL, RTOL, ATOL,
      1               IOUT, ROUT, IPAR, RPAR, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER

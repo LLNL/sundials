@@ -248,9 +248,9 @@ static int g(realtype t, N_Vector y, realtype *gout, void *user_data)
 static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J, 
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype y1, y2, y3;
+  realtype y2, y3;
 
-  y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
+  y2 = Ith(y,2); y3 = Ith(y,3);
 
   IJth(J,1,1) = RCONST(-0.04);
   IJth(J,1,2) = RCONST(1.0e4)*y3;

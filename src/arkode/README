@@ -1,5 +1,5 @@
                              ARKODE
-                   Release 3.0.0-dev, May 2018
+                  Release 3.0.0-dev.1, July 2018
                        Daniel R. Reynolds
                   Department of Mathematics, SMU
 
@@ -57,11 +57,13 @@ chapter in the ARKODE User Guide.
 C. Releases
 -----------
 
-v. 3.0.0-dev - May  2018
-v. 2.1.1     - May  2018
-v. 2.1.0     - Nov. 2017
-v. 2.0.0     - Sep. 2017
-v. 1.1.0     - Sep. 2016
-v. 1.0.2     - Aug. 2015
-v. 1.0.1     - Mar. 2015
-v. 1.0.0     - Mar. 2015
+v. 3.0.0-dev.1 - Jul. 2018
+v. 3.0.0-dev   - May  2018
+v. 2.1.2       - Jul. 2018
+v. 2.1.1       - May  2018
+v. 2.1.0       - Nov. 2017
+v. 2.0.0       - Sep. 2017
+v. 1.1.0       - Sep. 2016
+v. 1.0.2       - Aug. 2015
+v. 1.0.1       - Mar. 2015
+v. 1.0.0       - Mar. 2015

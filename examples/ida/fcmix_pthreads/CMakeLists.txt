@@ -67,7 +67,7 @@ FOREACH(example_tuple ${FIDA_examples})
     EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
-  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
    # install example source and out files
   IF(EXAMPLES_INSTALL)

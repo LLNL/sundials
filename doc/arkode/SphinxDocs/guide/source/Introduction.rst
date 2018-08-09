@@ -102,8 +102,9 @@ Changes from previous versions
 --------------------------------
 
 
-Changes in v3.0.0-dev
-^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Changes since v3.0.0-dev.1
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The ARKode library has been entirely rewritten to support a modular
 approach to one-step methods, which should allow rapid research and
@@ -124,6 +125,19 @@ details on the updated infrastructure.
 Simplified the prototype for the user-supplied time step adaptivity
 function, :c:func:`ARKAdaptFn()`, to supply only the method order of
 accuracy (instead of both the method and embedding orders).
+
+
+
+
+Changes in v3.0.0-dev.1
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+No changes were made to ARKode in this release.
+
+
+
+Changes in v3.0.0-dev
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Three fused vector operations and seven vector array operations have
 been added to the NVECTOR API. These *optional* operations
@@ -151,7 +165,7 @@ programs have been updated to align with those in native CMake FindMPI
 module. This included changing ``MPI_MPICC`` to ``MPI_C_COMPILER``,
 ``MPI_MPICXX`` to ``MPI_CXX_COMPILER``, combining ``MPI_MPIF77`` and
 ``MPI_MPIF90`` to ``MPI_Fortran_COMPILER``, and changing
-``MPI_RUN_COMMAND`` to ``MPIEXEC``. When a Fortran name-mangling
+``MPI_RUN_COMMAND`` to ``MPIEXEC_EXECUTABLE``. When a Fortran name-mangling
 scheme is needed (e.g., ``LAPACK_ENABLE`` is ``ON``) the build system
 will infer the scheme from the Fortran compiler. If a Fortran compiler
 is not available or the inferred or default scheme needs to be
@@ -161,6 +175,37 @@ name-mangling scheme and bypass trying to infer the scheme.
 Additionally, parts of the main CMakeLists.txt file were moved
 to new files in the ``src`` and ``example`` directories to make the
 CMake configuration file structure more modular.
+
+
+Changes in v2.1.2
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Updated the minimum required version of CMake to 2.8.12 and enabled
+using rpath by default to locate shared libraries on OSX.
+
+Fixed Windows specific problem where sunindextype was not correctly
+defined when using 64-bit integers for the SUNDIALS index type. On Windows
+sunindextype is now defined as the MSVC basic type ``__int64``.
+
+Added sparse SUNMatrix "Reallocate" routine to allow specification of
+the nonzero storage.
+
+Updated the KLU SUNLinearSolver module to set constants for the two
+reinitialization types, and fixed a bug in the full reinitialization
+approach where the sparse SUNMatrix pointer would go out of scope on
+some architectures.
+
+Updated the "ScaleAdd" and "ScaleAddI" implementations in the
+sparse SUNMatrix module to more optimally handle the case where the
+target matrix contained sufficient storage for the sum, but had the
+wrong sparsity pattern.  The sum now occurs in-place, by performing
+the sum backwards in the existing storage.  However, it is still more
+efficient if the user-supplied Jacobian routine allocates storage for
+the sum :math:`I+\gamma J` or :math:`M+\gamma J` manually (with zero
+entries if needed).
+
+Changed LICENSE install path to ``instdir/include/sundials``.
+
 
 
 Changes in v2.1.1
@@ -177,7 +222,7 @@ of just re-initialized).
 Fixed C++11 compiler errors/warnings about incompatible use of string
 literals.
 
-Updated KLU SUNLINEARSOLVER module to use a ``typedef`` for the
+Updated KLU SUNLinearSolver module to use a ``typedef`` for the
 precision-specific solve function to be used (to avoid compiler
 warnings).
 

@@ -30,12 +30,18 @@ SUNNonlinearSolver_Type SUNNonlinSolGetType(SUNNonlinearSolver NLS)
 
 int SUNNonlinSolInitialize(SUNNonlinearSolver NLS)
 {
-  return((int) NLS->ops->initialize(NLS));
+  if (NLS->ops->initialize)
+    return((int) NLS->ops->initialize(NLS));
+  else
+    return(SUN_NLS_SUCCESS);
 }
 
 int SUNNonlinSolSetup(SUNNonlinearSolver NLS, N_Vector y, void* mem)
 {
-  return((int) NLS->ops->setup(NLS, y, mem));
+  if (NLS->ops->setup)
+    return((int) NLS->ops->setup(NLS, y, mem));
+  else
+    return(SUN_NLS_SUCCESS);
 }
 
 int SUNNonlinSolSolve(SUNNonlinearSolver NLS,
@@ -50,8 +56,24 @@ int SUNNonlinSolFree(SUNNonlinearSolver NLS)
 {
   if (NLS == NULL) return(SUN_NLS_SUCCESS);
   if (NLS->ops == NULL) return(SUN_NLS_SUCCESS);
-  if (NLS->ops->free == NULL) return(SUN_NLS_SUCCESS);
-  return(NLS->ops->free(NLS));
+
+  if (NLS->ops->free) {
+    return(NLS->ops->free(NLS));
+  } else {
+    /* free the content structure */
+    if (NLS->content) {
+      free(NLS->content);
+      NLS->content = NULL;
+    }
+    /* free the ops structure */
+    if (NLS->ops) {
+      free(NLS->ops);
+      NLS->ops = NULL;
+    }
+    /* free the nonlinear solver */
+    free(NLS);
+    return(SUN_NLS_SUCCESS);
+  }
 }
 
 /* -----------------------------------------------------------------------------

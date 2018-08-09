@@ -4,7 +4,7 @@ Diagonal test problem:
  parameter alpha =    2.500
  ydot_i = -alpha*i * y_i (i = 1,...,NEQ)
  RTOL, ATOL =    0.1E-04   0.1E-09
- Method is ADAMS/FUNCTIONAL
+ Method is ADAMS/FIXEDPOINT
  Number of processors =   2
 
 

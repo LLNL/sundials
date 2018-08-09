@@ -28,9 +28,9 @@ information:
   \item[last\_flag] - last error return flag from internal function evaluations,
   \item[first\_factorize] - flag indicating whether the factorization
     has ever been performed, 
-  \item[Symbolic] - {\klu} storage structure for symbolic factorization components,
-  \item[Numeric] - {\klu} storage structure for numeric factorization components,
-  \item[Common] - storage structure for common {\klu} solver components,
+  \item[symbolic] - {\klu} storage structure for symbolic factorization components,
+  \item[numeric] - {\klu} storage structure for numeric factorization components,
+  \item[common] - storage structure for common {\klu} solver components,
   \item[klu\_solver] -- pointer to the appropriate {\klu} solver function
     (depending on whether it is using a CSR or CSC sparse matrix).
 \end{description}
@@ -81,8 +81,8 @@ following operations:
   $\varepsilon$ is the double-precision unit roundoff), then a new
   factorization is performed.
 \item The module includes the routine \id{SUNKLUReInit}, that 
-  can be called by the user to force a full refactorization at the
-  next ``setup'' call. 
+  can be called by the user to force a full or partial refactorization
+  at the next ``setup'' call. 
 \item The ``solve'' call performs pivoting and forward and
   backward substitution using the stored {\klu} data structures.  We
   note that in this solve {\klu} operates on the native data arrays
@@ -164,14 +164,15 @@ user-callable routines:
   The \id{reinit\_type} argument governs the level of
   reinitialization.  The allowed values are: 
   \begin{itemize}
-  \item[1] The Jacobian matrix will be destroyed and a new one will be
-    allocated based on the \id{nnz} value passed to this call.  New
-    symbolic and numeric factorizations will be completed at the next
-    solver setup.
-  \item[2] Only symbolic and numeric factorizations will be completed.
-    It is assumed that the Jacobian size has not exceeded the size of
-    \id{nnz} given in the sparse matrix provided to the original
-    constructor routine (or the previous \id{SUNKLUReInit} call). 
+  \item \texttt{SUNKLU\_REINIT\_FULL} -- The Jacobian matrix will be destroyed
+    and a new one will be allocated based on the \id{nnz} value passed
+    to this call.  New symbolic and numeric factorizations will be
+    completed at the next solver setup. 
+  \item \texttt{SUNKLU\_REINIT\_PARTIAL} -- Only symbolic and numeric 
+    factorizations will be completed.  It is assumed that the Jacobian 
+    size has not exceeded the size of \id{nnz} given in the sparse 
+    matrix provided to the original constructor routine (or the
+    previous \id{SUNKLUReInit} call). 
   \end{itemize}
   
   This routine assumes no other changes to solver use are necessary.
@@ -230,7 +231,7 @@ Fortran interfaces for the system and mass matrix solvers:
 \begin{itemize}
 \item \id{FSUNKLUReInit(code, NNZ, reinit\_type, ier)} -- \id{NNZ}
   should be commensurate with a C \id{long int} and \id{reinit\_type}
-  should be commensurate with a C \id{int}
+  should be commensurate with a C \id{int} (1 = `FULL', 2 = `PARTIAL')
 \item \id{FSUNMassKLUReInit(NNZ, reinit\_type, ier)}
 \item \id{FSUNKLUSetOrdering(code, ordering, ier)} -- \id{ordering}
   should be commensurate with a C \id{int}

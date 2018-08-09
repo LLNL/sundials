@@ -15,5 +15,5 @@
 # ------------------------------------------------------------------------------
 
 # Always add the Newton examples
-ADD_SUBDIRECTORY(newton)
-ADD_SUBDIRECTORY(full_newton)
+add_subdirectory(newton)
+add_subdirectory(fixedpoint)

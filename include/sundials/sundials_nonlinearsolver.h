@@ -20,7 +20,7 @@
  *     such solvers
  *
  * We consider iterative nonlinear solvers for systems in both root finding
- * (F(y) = 0) or stationary (G(y) = y) form. As a result, some of the routines
+ * (F(y) = 0) or fixed-point (G(y) = y) form. As a result, some of the routines
  * are applicable only to one type of nonlinear solver (as noted in the comments
  * below).
  * -----------------------------------------------------------------------------
@@ -78,12 +78,12 @@ typedef struct _generic_SUNNonlinearSolver *SUNNonlinearSolver;
  *
  * These type names may be modified, but at a minimum a client nonlinear solver
  * and/or time integrator will want to know whether the system is defined
- * as a root finding (F(y) = 0) or stationary (G(y) = y) problem.
+ * as a root finding (F(y) = 0) or fixed-point (G(y) = y) problem.
  * ---------------------------------------------------------------------------*/
 
 typedef enum {
   SUNNONLINEARSOLVER_ROOTFIND,
-  SUNNONLINEARSOLVER_STATIONARY
+  SUNNONLINEARSOLVER_FIXEDPOINT
 } SUNNonlinearSolver_Type;
 
 /* -----------------------------------------------------------------------------

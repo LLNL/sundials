@@ -16,20 +16,21 @@
  * ---------------------------------------------------------------------------*/
 
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 
 #include <sunnonlinsol/sunnonlinsol_newton.h>
 #include <sundials/sundials_math.h>
 
-#define ZERO RCONST(0.0) /* real 0.0 */
-#define ONE  RCONST(1.0) /* real 1.0 */
-
 /* Content structure accessibility macros  */
 #define NEWTON_CONTENT(S) ( (SUNNonlinearSolverContent_Newton)(S->content) )
 
-/* =============================================================================
- * Constructor to create a new Newton solver
- * ===========================================================================*/
+/* Constant macros */
+#define ONE  RCONST(1.0) /* real 1.0 */
+
+/*==============================================================================
+  Constructor to create a new Newton solver
+  ============================================================================*/
 
 SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y)
 {
@@ -77,6 +78,9 @@ SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y)
   content = (SUNNonlinearSolverContent_Newton) malloc(sizeof *content);
   if (content == NULL) { free(ops); free(NLS); return(NULL); }
 
+  /* Initialize all components of content to 0/NULL */
+  memset(content, 0, sizeof(struct _SUNNonlinearSolverContent_Newton));
+
   /* Fill content */
   content->Sys      = NULL;
   content->LSetup   = NULL;
@@ -84,7 +88,7 @@ SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y)
   content->CTest    = NULL;
   content->delta    = N_VClone(y);
   content->jcur     = SUNFALSE;
-  content->mnewt    = 0;
+  content->curiter  = 0;
   content->maxiters = 3;
   content->niters   = 0;
 
@@ -99,9 +103,9 @@ SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y)
 }
 
 
-/* =============================================================================
- * GetType, Initialize, Setup, Solve, and Free operations
- * ===========================================================================*/
+/*==============================================================================
+  GetType, Initialize, Setup, Solve, and Free operations
+  ============================================================================*/
 
 SUNNonlinearSolver_Type SUNNonlinSolGetType_Newton(SUNNonlinearSolver NLS)
 {
@@ -112,8 +116,7 @@ SUNNonlinearSolver_Type SUNNonlinSolGetType_Newton(SUNNonlinearSolver NLS)
 int SUNNonlinSolInitialize_Newton(SUNNonlinearSolver NLS)
 {
   /* check that the nonlinear solver is non-null */
-  if (NLS == NULL)
-    return(SUN_NLS_MEM_NULL);
+  if (NLS == NULL) return(SUN_NLS_MEM_NULL);
 
   /* check that all required function pointers have been set */
   if ( (NEWTON_CONTENT(NLS)->Sys    == NULL) ||
@@ -132,32 +135,33 @@ int SUNNonlinSolInitialize_Newton(SUNNonlinearSolver NLS)
 }
 
 
-/* -----------------------------------------------------------------------------
- * SUNNonlinSolSolve_Newton: Performs the nonlinear solve F(y) = 0
- *
- * Successful solve return code:
- *  SUN_NLS_SUCCESS = 0
- *
- * Recoverable failure return codes (positive):
- *   SUN_NLS_CONV_RECVR
- *   *_RHSFUNC_RECVR (ODEs) or *_RES_RECVR (DAEs)
- *   *_LSETUP_RECVR
- *   *_LSOLVE_RECVR
- *
- * Unrecoverable failure return codes (negative):
- *   *_MEM_NULL
- *   *_RHSFUNC_FAIL (ODEs) or *_RES_FAIL (DAEs)
- *   *_LSETUP_FAIL
- *   *_LSOLVE_FAIL
- *
- * Note return values beginning with * are package specific values returned by
- * the Sys, LSetup, and Solve functions provided to the nonlinear solver.
- * ---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------
+  SUNNonlinSolSolve_Newton: Performs the nonlinear solve F(y) = 0
+
+  Successful solve return code:
+    SUN_NLS_SUCCESS = 0
+
+  Recoverable failure return codes (positive):
+    SUN_NLS_CONV_RECVR
+    *_RHSFUNC_RECVR (ODEs) or *_RES_RECVR (DAEs)
+    *_LSETUP_RECVR
+    *_LSOLVE_RECVR
+
+  Unrecoverable failure return codes (negative):
+    *_MEM_NULL
+    *_RHSFUNC_FAIL (ODEs) or *_RES_FAIL (DAEs)
+    *_LSETUP_FAIL
+    *_LSOLVE_FAIL
+
+  Note return values beginning with * are package specific values returned by
+  the Sys, LSetup, and LSolve functions provided to the nonlinear solver.
+  ----------------------------------------------------------------------------*/
 int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
                              N_Vector y0, N_Vector y,
                              N_Vector w, realtype tol,
                              booleantype callLSetup, void* mem)
 {
+  /* local variables */
   int retval;
   booleantype jbad;
   N_Vector delta;
@@ -170,16 +174,19 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
        (mem == NULL) )
     return(SUN_NLS_MEM_NULL);
 
-  /* shortcut to correction vector */
+  /* set local shortcut variables */
   delta = NEWTON_CONTENT(NLS)->delta;
 
   /* assume the Jacobian is good */
   jbad = SUNFALSE;
 
-  /* looping point for Jacobian/preconditioner setup attempts */
+  /* looping point for attempts at solution of the nonlinear system:
+       Evaluate the nonlinear residual function (store in delta)
+       Setup the linear solver if necessary
+       Preform Newton iteraion */
   for(;;) {
 
-    /* compute the residual */
+    /* compute the nonlinear residual, store in delta */
     retval = NEWTON_CONTENT(NLS)->Sys(y0, delta, mem);
     if (retval != SUN_NLS_SUCCESS) break;
 
@@ -191,8 +198,8 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
       if (retval != SUN_NLS_SUCCESS) break;
     }
 
-    /* initialize counter mnewt */
-    NEWTON_CONTENT(NLS)->mnewt = 0;
+    /* initialize counter curiter */
+    NEWTON_CONTENT(NLS)->curiter = 0;
 
     /* load prediction into y */
     N_VScale(ONE, y0, y);
@@ -200,17 +207,17 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
     /* looping point for Newton iteration. Break out on any error. */
     for(;;) {
 
-      /* increment number of nonlinear solver iterations */
+      /* increment nonlinear solver iteration counter */
       NEWTON_CONTENT(NLS)->niters++;
 
       /* compute the negative of the residual for the linear system rhs */
       N_VScale(-ONE, delta, delta);
 
-      /* solve the linear system to get correction vector delta */
+      /* solve the linear system to get Newton update delta */
       retval = NEWTON_CONTENT(NLS)->LSolve(y, delta, mem);
       if (retval != SUN_NLS_SUCCESS) break;
 
-      /* apply delta to y */
+      /* update the Newton iterate */
       N_VLinearSum(ONE, y, ONE, delta, y);
 
       /* test for convergence */
@@ -222,17 +229,17 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
         return(SUN_NLS_SUCCESS);
       }
 
-      /* check if the iteration should continue */
+      /* check if the iteration should continue; otherwise exit Newton loop */
       if (retval != SUN_NLS_CONTINUE) break;
 
-      /* not yet converged. Increment mnewt and test for max allowed. */
-      NEWTON_CONTENT(NLS)->mnewt++;
-      if (NEWTON_CONTENT(NLS)->mnewt >= NEWTON_CONTENT(NLS)->maxiters) {
+      /* not yet converged. Increment curiter and test for max allowed. */
+      NEWTON_CONTENT(NLS)->curiter++;
+      if (NEWTON_CONTENT(NLS)->curiter >= NEWTON_CONTENT(NLS)->maxiters) {
         retval = SUN_NLS_CONV_RECVR;
         break;
       }
 
-      /* evaluate the nonlinear residual and check return value */
+      /* compute the nonlinear residual, store in delta */
       retval = NEWTON_CONTENT(NLS)->Sys(y, delta, mem);
       if (retval != SUN_NLS_SUCCESS) break;
 
@@ -288,9 +295,9 @@ int SUNNonlinSolFree_Newton(SUNNonlinearSolver NLS)
 }
 
 
-/* =============================================================================
- * Set functions
- * ===========================================================================*/
+/*==============================================================================
+  Set functions
+  ============================================================================*/
 
 int SUNNonlinSolSetSysFn_Newton(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn)
 {
@@ -363,9 +370,9 @@ int SUNNonlinSolSetMaxIters_Newton(SUNNonlinearSolver NLS, int maxiters)
 }
 
 
-/* =============================================================================
- * Get functions
- * ===========================================================================*/
+/*==============================================================================
+  Get functions
+  ============================================================================*/
 
 int SUNNonlinSolGetNumIters_Newton(SUNNonlinearSolver NLS, long int *niters)
 {
@@ -386,7 +393,7 @@ int SUNNonlinSolGetCurIter_Newton(SUNNonlinearSolver NLS, int *iter)
     return(SUN_NLS_MEM_NULL);
 
   /* return the current nonlinear solver iteration count */
-  *iter = NEWTON_CONTENT(NLS)->mnewt;
+  *iter = NEWTON_CONTENT(NLS)->curiter;
   return(SUN_NLS_SUCCESS);
 }
 

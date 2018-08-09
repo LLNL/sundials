@@ -55,8 +55,12 @@ typedef struct ARKodeInterpMemRec {
   N_Vector fnew;    /* f(t,y) at end of last successful step       */
   N_Vector yold;    /* y at beginning of last successful step      */
   N_Vector ynew;    /* y at end of last successful step            */
+  N_Vector fa;      /* f(t,y) used in higher-order interpolation   */
+  N_Vector fb;      /* f(t,y) used in higher-order interpolation   */
   realtype told;    /* t at beginning of last successful step      */
   realtype tnew;    /* t at end of last successful step            */
+  realtype t_fa;    /* t when fa was last evaluated                */
+  realtype t_fb;    /* t when fb was last evaluated                */
   realtype h;       /* last successful step size                   */
   int order;        /* interpolation order                         */
 

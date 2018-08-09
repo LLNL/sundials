@@ -71,14 +71,14 @@ extern "C" {
 
 /**************************************************************************/
 
-void FCV_MALLOC(realtype *t0, realtype *y0, 
-                int *meth, int *itmeth, int *iatol, 
+void FCV_MALLOC(realtype *t0, realtype *y0,
+                int *meth, int *iatol,
                 realtype *rtol, realtype *atol,
                 long int *iout, realtype *rout,
                 long int *ipar, realtype *rpar,
                 int *ier)
 {
-  int lmm, iter;
+  int lmm;
   N_Vector Vatol;
   FCVUserData CV_userdata;
 
@@ -95,6 +95,7 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
   /* Initialize all pointers to NULL */
   CV_cvodemem = NULL;
   Vatol = NULL;
+  FCVNullNonlinSol();
 
   /* initialize global constants to disable each option */
   CV_nrtfn = 0;
@@ -102,18 +103,10 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
   
   /* Create CVODE object */
   lmm = (*meth == 1) ? CV_ADAMS : CV_BDF;
-  iter = (*itmeth == 1) ? CV_FUNCTIONAL : CV_NEWTON;
-  CV_cvodemem = CVodeCreate(lmm, iter);
+  CV_cvodemem = CVodeCreate(lmm);
   if (CV_cvodemem == NULL) {
     *ier = -1;
     return;
-  }
-
-  /* If using a functional iteration, initialize NULL F2C_CVODE_linsol 
-     and F2C_CVODE_matrix objects */
-  if (iter == CV_FUNCTIONAL) {
-    FCVNullMatrix();
-    FCVNullLinsol();
   }
   
   /* Set and attach user data */
@@ -474,6 +467,10 @@ void FCV_FREE ()
     SUNMatDestroy(F2C_CVODE_matrix);
   if (F2C_CVODE_linsol)
     SUNLinSolFree(F2C_CVODE_linsol);
+  /* already freed by CVodeFree */
+  if (F2C_CVODE_nonlinsol)
+    F2C_CVODE_nonlinsol = NULL;
+  return;
 }
 
 /***************************************************************************/
@@ -499,4 +496,20 @@ int FCVf(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   FCV_FUN(&t, ydata, dydata, CV_userdata->ipar, CV_userdata->rpar, &ier);
 
   return(ier);
+}
+
+/* Fortran interface to C routine CVodeSetNonlinearSolver; see 
+   fcvode.h for further details */
+void FCV_NLSINIT(int *ier) {
+  if ( (CV_cvodemem == NULL) || (F2C_CVODE_nonlinsol == NULL) ) {
+    *ier = -1;
+    return;
+  }
+  if (((CVodeMem) CV_cvodemem)->cv_lsolve == NULL) {
+    FCVNullMatrix();
+    FCVNullLinsol();
+  }
+
+  *ier = CVodeSetNonlinearSolver(CV_cvodemem, F2C_CVODE_nonlinsol);
+  return;
 }

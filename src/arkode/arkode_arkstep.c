@@ -290,7 +290,7 @@ int ARKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
     }
   }
 
-  /* If a NLS object was previously used, destroy and recreate default Newton 
+  /* If a NLS object was previously used, destroy and recreate default Newton
      NLS object (can be replaced by user-defined object if desired) */
   if (step_mem->NLS)  {
 
@@ -298,7 +298,7 @@ int ARKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
     ier = SUNNonlinSolFree(step_mem->NLS);
     if (ier != ARK_SUCCESS)  return(ier);
     step_mem->NLS = NULL;
-    
+
     /* create new Newton NLS object */
     NLS = NULL;
     NLS = SUNNonlinSol_Newton(y0);
@@ -328,7 +328,7 @@ int ARKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
     step_mem->ncfn    = 0;
     step_mem->nni     = 0;
     step_mem->nsetups = 0;
-    
+
   }
 
   return(ARK_SUCCESS);
@@ -818,7 +818,7 @@ int arkStep_AttachLinsol(void* arkode_mem, ARKLinsolInitFn linit,
   /* Reset all linear solver counters */
   step_mem->nsetups = 0;
   step_mem->nstlp   = 0;
-  
+
   return(ARK_SUCCESS);
 }
 
@@ -1001,8 +1001,8 @@ int arkStep_GetGammas(void* arkode_mem, realtype *gamma,
 /*---------------------------------------------------------------
  arkStep_Init:
 
- This routine is called just prior to performing internal time 
- steps (after all user "set" routines have been called) from 
+ This routine is called just prior to performing internal time
+ steps (after all user "set" routines have been called) from
  within arkInitialSetup (init_type == 0) or arkPostResizeSetup
  (init_type == 1).
 
@@ -1039,14 +1039,14 @@ int arkStep_Init(void* arkode_mem, int init_type)
 
   /* perform initializations specific to init_type 0 */
   if (init_type == 0) {
-  
+
     /* destroy adaptivity structure if fixed-stepping is requested */
     if (ark_mem->fixedstep)
       if (step_mem->hadapt_mem != NULL) {
         free(step_mem->hadapt_mem);
         step_mem->hadapt_mem = NULL;
       }
-    
+
     /* Set first step growth factor */
     if (step_mem->hadapt_mem != NULL)
       step_mem->hadapt_mem->etamax = step_mem->hadapt_mem->etamx1;
@@ -1058,7 +1058,7 @@ int arkStep_Init(void* arkode_mem, int init_type)
                       "Could not create Butcher table(s)");
       return(ARK_ILL_INPUT);
     }
-    
+
     /* Check that Butcher tables are OK */
     ier = arkStep_CheckButcherTables(ark_mem);
     if (ier != ARK_SUCCESS) {
@@ -1066,7 +1066,7 @@ int arkStep_Init(void* arkode_mem, int init_type)
                       "arkStep_Init", "Error in Butcher table(s)");
       return(ARK_ILL_INPUT);
     }
-    
+
     /* note Butcher table space requirements */
     ButcherTableSpace(step_mem->Be, &Bliw, &Blrw);
     ark_mem->liw += Bliw;
@@ -1074,7 +1074,7 @@ int arkStep_Init(void* arkode_mem, int init_type)
     ButcherTableSpace(step_mem->Bi, &Bliw, &Blrw);
     ark_mem->liw += Bliw;
     ark_mem->lrw += Blrw;
-    
+
     /* Allocate ARK RHS vector memory, update storage requirements */
     /*   Allocate Fe[0] ... Fe[stages-1] if needed */
     if (step_mem->explicit) {
@@ -1086,7 +1086,7 @@ int arkStep_Init(void* arkode_mem, int init_type)
       }
       ark_mem->liw += step_mem->stages;  /* pointers */
     }
-    
+
     /*   Allocate Fi[0] ... Fi[stages-1] if needed */
     if (step_mem->implicit) {
       if (step_mem->Fi == NULL)
@@ -1097,7 +1097,7 @@ int arkStep_Init(void* arkode_mem, int init_type)
       }
       ark_mem->liw += step_mem->stages;  /* pointers */
     }
-    
+
     /* Allocate reusable arrays for fused vector interface */
     if (step_mem->cvals == NULL) {
       step_mem->cvals = (realtype *) calloc(2*step_mem->stages+1, sizeof(realtype));
@@ -1121,7 +1121,7 @@ int arkStep_Init(void* arkode_mem, int init_type)
     }
 
   }
-  
+
   /* Check for consistency between linear system modules
        (e.g., if lsolve is direct, msolve needs to match) */
   if (step_mem->mass_mem != NULL) {  /* M != I */
@@ -1624,7 +1624,7 @@ int arkStep_TakeStep(void* arkode_mem)
 /*---------------------------------------------------------------
  arkStep_AccessStepMem:
 
- Shortcut routine to unpack ark_mem and step_mem structures from 
+ Shortcut routine to unpack ark_mem and step_mem structures from
  void* pointer.  If either is missing it returns ARK_MEM_NULL.
 ---------------------------------------------------------------*/
 int arkStep_AccessStepMem(void* arkode_mem, const char *fname,

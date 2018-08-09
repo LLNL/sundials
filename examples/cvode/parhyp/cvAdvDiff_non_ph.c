@@ -20,7 +20,7 @@
  * central differencing, and with boundary values eliminated,
  * leaving an ODE system of size NEQ = MX.
  * This program solves the problem with the option for nonstiff
- * systems: ADAMS method and functional iteration.
+ * systems: ADAMS method and fixed-point iteration.
  * It uses scalar relative and absolute tolerances.
  * Output is printed at t = .5, 1.0, ..., 5.
  * Run statistics (optional outputs) are printed at the end.
@@ -37,10 +37,11 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <cvode/cvode.h>              /* prototypes for CVODE fcts. */
-#include <sundials/sundials_types.h>  /* definition of realtype */
-#include <sundials/sundials_math.h>   /* definition of EXP */
-#include <nvector/nvector_parhyp.h>   /* nvector implementation */
+#include <cvode/cvode.h>                          /* prototypes for CVODE fcts.                   */
+#include <sundials/sundials_types.h>              /* definition of realtype                       */
+#include <sundials/sundials_math.h>               /* definition of EXP                            */
+#include <nvector/nvector_parhyp.h>               /* nvector implementation                       */
+#include "sunnonlinsol/sunnonlinsol_fixedpoint.h" /* access to the fixed point SUNNonlinearSolver */
 
 #include <HYPRE.h>
 #include <HYPRE_IJ_mv.h>
@@ -87,7 +88,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 
 /* Private function to check function return values */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
+static int check_retval(void *returnvalue, const char *funcname, int opt, int id);
 
 /***************************** Main Program ******************************/
 
@@ -97,11 +98,12 @@ int main(int argc, char *argv[])
   N_Vector u;
   UserData data;
   void *cvode_mem;
-  int iout, flag, my_pe, npes;
+  int iout, retval, my_pe, npes;
   long int nst;
   HYPRE_Int local_N, nperpe, nrem, my_base;
   HYPRE_ParVector Upar; /* Declare HYPRE parallel vector */
   HYPRE_IJVector  Uij;  /* Declare "IJ" interface to HYPRE vector */
+  SUNNonlinearSolver NLS;
 
   MPI_Comm comm;
 
@@ -128,7 +130,7 @@ int main(int argc, char *argv[])
 
   /* Allocate user defined data */
   data = (UserData) malloc(sizeof *data);  /* Allocate data memory */
-  if(check_flag((void *)data, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
+  if(check_retval((void *)data, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
 
   data->comm = comm;
   data->npes = npes;
@@ -147,26 +149,34 @@ int main(int argc, char *argv[])
   HYPRE_IJVectorGetObject(Uij, (void**) &Upar);
 
   u = N_VMake_ParHyp(Upar);  /* Create wrapper u around hypre vector */
-  if(check_flag((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
+  if(check_retval((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
   
   /* Call CVodeCreate to create the solver memory and specify the 
-   * Adams-Moulton LMM and the use of a functional iteration */
-  cvode_mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL);
-  if(check_flag((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
+   * Adams-Moulton LMM */
+  cvode_mem = CVodeCreate(CV_ADAMS);
+  if(check_retval((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVodeSetUserData(cvode_mem, data);
-  if(check_flag(&flag, "CVodeSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeSetUserData(cvode_mem, data);
+  if(check_retval(&retval, "CVodeSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in u'=f(t,u), the inital time T0, and
    * the initial dependent variable vector u. */
-  flag = CVodeInit(cvode_mem, f, T0, u);
-  if(check_flag(&flag, "CVodeInit", 1, my_pe)) return(1);
+  retval = CVodeInit(cvode_mem, f, T0, u);
+  if(check_retval(&retval, "CVodeInit", 1, my_pe)) return(1);
 
   /* Call CVodeSStolerances to specify the scalar relative tolerance
    * and scalar absolute tolerances */
-  flag = CVodeSStolerances(cvode_mem, reltol, abstol);
-  if (check_flag(&flag, "CVodeSStolerances", 1, my_pe)) return(1);
+  retval = CVodeSStolerances(cvode_mem, reltol, abstol);
+  if (check_retval(&retval, "CVodeSStolerances", 1, my_pe)) return(1);
+
+  /* create fixed point nonlinear solver object */
+  NLS = SUNNonlinSol_FixedPoint(u, 0);
+  if(check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0, my_pe)) return(1);
+
+  /* attach nonlinear solver object to CVode */
+  retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
+  if(check_retval(&retval, "CVodeSetNonlinearSolver", 1, my_pe)) return(1);
 
   if (my_pe == 0) PrintIntro(npes);
 
@@ -180,11 +190,11 @@ int main(int argc, char *argv[])
   /* In loop over output points, call CVode, print results, test for error */
 
   for (iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
-    flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
-    if(check_flag(&flag, "CVode", 1, my_pe)) break;
+    retval = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
+    if(check_retval(&retval, "CVode", 1, my_pe)) break;
     umax = N_VMaxNorm(u);
-    flag = CVodeGetNumSteps(cvode_mem, &nst);
-    check_flag(&flag, "CVodeGetNumSteps", 1, my_pe);
+    retval = CVodeGetNumSteps(cvode_mem, &nst);
+    check_retval(&retval, "CVodeGetNumSteps", 1, my_pe);
     if (my_pe == 0) PrintData(t, umax, nst);
   }
 
@@ -259,18 +269,18 @@ static void PrintData(realtype t, realtype umax, long int nst)
 static void PrintFinalStats(void *cvode_mem)
 {
   long int nst, nfe, nni, ncfn, netf;
-  int flag;
+  int retval;
   
-  flag = CVodeGetNumSteps(cvode_mem, &nst);
-  check_flag(&flag, "CVodeGetNumSteps", 1, 0);
-  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  check_flag(&flag, "CVodeGetNumRhsEvals", 1, 0);
-  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-  check_flag(&flag, "CVodeGetNumErrTestFails", 1, 0);
-  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1, 0);
-  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1, 0);
+  retval = CVodeGetNumSteps(cvode_mem, &nst);
+  check_retval(&retval, "CVodeGetNumSteps", 1, 0);
+  retval = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  check_retval(&retval, "CVodeGetNumRhsEvals", 1, 0);
+  retval = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  check_retval(&retval, "CVodeGetNumErrTestFails", 1, 0);
+  retval = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  check_retval(&retval, "CVodeGetNumNonlinSolvIters", 1, 0);
+  retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1, 0);
 
   printf("\nFinal Statistics: \n\n");
   printf("nst = %-6ld  nfe  = %-6ld  ", nst, nfe);
@@ -360,31 +370,31 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 /* Check function return value...
      opt == 0 means SUNDIALS function allocates memory so check if
               returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if
-              flag >= 0
+     opt == 1 means SUNDIALS function returns an integer value so check if
+              retval >= 0
      opt == 2 means function allocates memory so check if returned
               NULL pointer */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt, int id)
+static int check_retval(void *returnvalue, const char *funcname, int opt, int id)
 {
-  int *errflag;
+  int *retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n",
             id, funcname);
     return(1); }
 
-  /* Check if flag < 0 */
+  /* Check if retval < 0 */
   else if (opt == 1) {
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
-              id, funcname, *errflag);
+    retval = (int *) returnvalue;
+    if (*retval < 0) {
+      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with retval = %d\n\n",
+              id, funcname, *retval);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
             id, funcname);
     return(1); }

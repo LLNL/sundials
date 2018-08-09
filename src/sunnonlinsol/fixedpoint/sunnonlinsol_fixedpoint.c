@@ -1,6 +1,6 @@
-/*-----------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
- *-----------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  * LLNS/SMU Copyright Start
  * Copyright (c) 2018, Southern Methodist University and
  * Lawrence Livermore National Security
@@ -14,10 +14,10 @@
  * All rights reserved.
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
- *-----------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  * This is the implementation file for the SUNNonlinearSolver module
  * implementation of the Anderson-accelerated Fixed-Point method.
- *---------------------------------------------------------------------------*/
+ * ---------------------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <string.h>
@@ -30,16 +30,16 @@
 int AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval, N_Vector x,
                        N_Vector xold, int iter);
 
-/* Content structure accessibility macros  */
+/* Content structure accessibility macros */
 #define FP_CONTENT(S)  ( (SUNNonlinearSolverContent_FixedPoint)(S->content) )
 
 /* Constant macros */
 #define ONE  RCONST(1.0)
 #define ZERO RCONST(0.0)
 
-/*=============================================================================
+/*==============================================================================
   Constructor to create a new fixed point solver
-  ===========================================================================*/
+  ============================================================================*/
 
 SUNNonlinearSolver SUNNonlinSol_FixedPoint(N_Vector y, int m)
 {
@@ -75,8 +75,8 @@ SUNNonlinearSolver SUNNonlinSol_FixedPoint(N_Vector y, int m)
   ops->solve       = SUNNonlinSolSolve_FixedPoint;
   ops->free        = SUNNonlinSolFree_FixedPoint;
   ops->setsysfn    = SUNNonlinSolSetSysFn_FixedPoint;
-  ops->setlsetupfn = NULL;  /* no setup needed */
-  ops->setlsolvefn = NULL;  /* no setup needed */
+  ops->setlsetupfn = NULL;  /* no lsetup needed */
+  ops->setlsolvefn = NULL;  /* no lsolve needed */
   ops->setctestfn  = SUNNonlinSolSetConvTestFn_FixedPoint;
   ops->setmaxiters = SUNNonlinSolSetMaxIters_FixedPoint;
   ops->getnumiters = SUNNonlinSolGetNumIters_FixedPoint;
@@ -114,13 +114,13 @@ SUNNonlinearSolver SUNNonlinSol_FixedPoint(N_Vector y, int m)
 }
 
 
-/*=============================================================================
+/*==============================================================================
   GetType, Initialize, Setup, Solve, and Free operations
-  ===========================================================================*/
+  ============================================================================*/
 
 SUNNonlinearSolver_Type SUNNonlinSolGetType_FixedPoint(SUNNonlinearSolver NLS)
 {
-  return(SUNNONLINEARSOLVER_STATIONARY);
+  return(SUNNONLINEARSOLVER_FIXEDPOINT);
 }
 
 
@@ -129,10 +129,10 @@ int SUNNonlinSolInitialize_FixedPoint(SUNNonlinearSolver NLS)
   int m = FP_CONTENT(NLS)->m;
 
   /* check that the nonlinear solver is non-null */
-  if (NLS == NULL)  return(SUN_NLS_MEM_NULL);
+  if (NLS == NULL) return(SUN_NLS_MEM_NULL);
 
   /* check that all required function pointers have been set */
-  if ( (FP_CONTENT(NLS)->Sys   == NULL) || (FP_CONTENT(NLS)->CTest == NULL) )
+  if ( (FP_CONTENT(NLS)->Sys == NULL) || (FP_CONTENT(NLS)->CTest == NULL) )
     return(SUN_NLS_MEM_NULL);
 
   /* reset the total number of nonlinear solver iterations */
@@ -201,7 +201,7 @@ int SUNNonlinSolInitialize_FixedPoint(SUNNonlinearSolver NLS)
     *_RHSFUNC_FAIL (ODEs) or *_RES_FAIL (DAEs)
 
   Note that return values beginning with * are package specific values returned
-  by the Sys, and Solve functions provided to the nonlinear solver.
+  by the Sys function provided to the nonlinear solver.
   ---------------------------------------------------------------------------*/
 int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
                                  N_Vector y, N_Vector w, realtype tol,
@@ -220,7 +220,7 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
   gy    = FP_CONTENT(NLS)->gy;
   delta = FP_CONTENT(NLS)->delta;
 
-  /* Load prediction into y */
+  /* load prediction into y */
   N_VScale(ONE, y0, y);
 
   /* Looping point for attempts at solution of the nonlinear system:
@@ -245,7 +245,7 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
       retval = AndersonAccelerate(NLS, gy, y, yprev, FP_CONTENT(NLS)->curiter);
     }
 
-    /* increment nonlinear solver iteration counters */
+    /* increment nonlinear solver iteration counter */
     FP_CONTENT(NLS)->niters++;
 
     /* compute change in solution, and call the convergence test function */
@@ -343,9 +343,9 @@ int SUNNonlinSolFree_FixedPoint(SUNNonlinearSolver NLS)
 }
 
 
-/*=============================================================================
+/*==============================================================================
   Set functions
-  ===========================================================================*/
+  ============================================================================*/
 
 int SUNNonlinSolSetSysFn_FixedPoint(SUNNonlinearSolver NLS, SUNNonlinSolSysFn SysFn)
 {
@@ -390,9 +390,9 @@ int SUNNonlinSolSetMaxIters_FixedPoint(SUNNonlinearSolver NLS, int maxiters)
 }
 
 
-/*=============================================================================
+/*==============================================================================
   Get functions
-  ===========================================================================*/
+  ============================================================================*/
 
 int SUNNonlinSolGetNumIters_FixedPoint(SUNNonlinearSolver NLS, long int *niters)
 {
@@ -446,7 +446,7 @@ int SUNNonlinSolGetSysFn_FixedPoint(SUNNonlinearSolver NLS, SUNNonlinSolSysFn *S
   Possible return values:
     SUN_NLS_MEM_NULL --> a required item was missing from memory
     SUN_NLS_SUCCESS  --> successful completion
----------------------------------------------------------------*/
+  -------------------------------------------------------------*/
 int AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
                        N_Vector x, N_Vector xold, int iter)
 {
@@ -515,7 +515,7 @@ int AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
 
   } else {   /* we've filled the acceleration subspace, so start recycling */
 
-    /* Delete left-most column vector from QR factorization */
+    /* delete left-most column vector from QR factorization */
     for (i = 0; i < maa-1; i++) {
       a = R[(i+1)*maa + i];
       b = R[(i+1)*maa + i+1];
@@ -538,12 +538,12 @@ int AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
       N_VScale(ONE, vtemp, Q[i]);
     }
 
-    /* Shift R to the left by one */
+    /* ahift R to the left by one */
     for (i = 1; i < maa; i++)
       for (j = 0; j < maa-1; j++)
         R[(i-1)*maa + j] = R[i*maa + j];
 
-    /* Add the new df vector */
+    /* add the new df vector */
     N_VScale(ONE, df[i_pt], vtemp);
     for (j = 0; j < maa-1; j++) {
       R[(maa-1)*maa+j] = N_VDotProd(Q[j], vtemp);
@@ -552,7 +552,7 @@ int AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
     R[(maa-1)*maa+maa-1] = SUNRsqrt( N_VDotProd(vtemp, vtemp) );
     N_VScale((ONE/R[(maa-1)*maa+maa-1]), vtemp, Q[maa-1]);
 
-    /* Update the iteration map */
+    /* update the iteration map */
     j = 0;
     for (i = i_pt+1; i < maa; i++)
       ipt_map[j++] = i;
@@ -560,13 +560,13 @@ int AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
       ipt_map[j++] = i;
   }
 
-  /* Solve least squares problem and update solution */
+  /* solve least squares problem and update solution */
   lAA = iter;
   if (maa < iter)  lAA = maa;
   retval = N_VDotProdMulti(lAA, fv, Q, gamma);
   if (retval != 0)  return(SUN_NLS_VECTOROP_ERR);
 
-  /*    set arrays for fused vector operation */
+  /* set arrays for fused vector operation */
   cvals[0] = ONE;
   Xvecs[0] = gval;
   nvec = 1;
@@ -583,7 +583,7 @@ int AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
     nvec += 1;
   }
 
-  /*    update solution */
+  /* update solution */
   retval = N_VLinearCombination(nvec, cvals, Xvecs, x);
   if (retval != 0)  return(SUN_NLS_VECTOROP_ERR);
 

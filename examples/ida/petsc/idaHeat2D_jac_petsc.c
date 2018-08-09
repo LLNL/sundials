@@ -88,7 +88,7 @@ static void PrintOutput(int id, void *mem, realtype t, N_Vector uu);
 
 static void PrintFinalStats(void *mem);
 
-static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
+static int check_retval(void *returnvalue, const char *funcname, int opt, int id);
 
 /*
  *--------------------------------------------------------------------
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
   MPI_Comm comm;
   void *mem;
   UserData data;
-  int iout, thispe, ier, npes;
+  int iout, thispe, retval, npes;
   sunindextype Neq, local_N;
   realtype rtol, atol, t0, t1, tout, tret;
   N_Vector uu, up, constraints, id, res;
@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
   /* Allocate and initialize the data structure and N-vectors. */
 
   data = (UserData) malloc(sizeof *data);
-  if(check_flag((void *)data, "malloc", 2, thispe)) 
+  if(check_retval((void *)data, "malloc", 2, thispe)) 
     MPI_Abort(comm, 1);
   data->da = NULL;
 
@@ -173,23 +173,23 @@ int main(int argc, char *argv[])
 
   /* Make N_Vector wrapper for uvec */
   uu = N_VMake_Petsc(uvec);
-  if(check_flag((void *)uu, "N_VNew_Petsc", 0, thispe)) 
+  if(check_retval((void *)uu, "N_VNew_Petsc", 0, thispe)) 
     MPI_Abort(comm, 1);
 
   up = N_VClone(uu);
-  if(check_flag((void *)up, "N_VNew_Petsc", 0, thispe)) 
+  if(check_retval((void *)up, "N_VNew_Petsc", 0, thispe)) 
     MPI_Abort(comm, 1);
 
   res = N_VClone(uu);
-  if(check_flag((void *)res, "N_VNew_Petsc", 0, thispe)) 
+  if(check_retval((void *)res, "N_VNew_Petsc", 0, thispe)) 
     MPI_Abort(comm, 1);
 
   constraints = N_VClone(uu);
-  if(check_flag((void *)constraints, "N_VNew_Petsc", 0, thispe)) 
+  if(check_retval((void *)constraints, "N_VNew_Petsc", 0, thispe)) 
     MPI_Abort(comm, 1);
 
   id = N_VClone(uu);
-  if(check_flag((void *)id, "N_VNew_Petsc", 0, thispe)) 
+  if(check_retval((void *)id, "N_VNew_Petsc", 0, thispe)) 
     MPI_Abort(comm, 1);
 
   /* Initialize the uu, up, id, and res profiles. */
@@ -210,34 +210,34 @@ int main(int argc, char *argv[])
   /* Call IDACreate and IDAMalloc to initialize solution. */
 
   mem = IDACreate();
-  if(check_flag((void *)mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
+  if(check_retval((void *)mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASetUserData(mem, data);
-  if(check_flag(&ier, "IDASetUserData", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDASetUserData(mem, data);
+  if(check_retval(&retval, "IDASetUserData", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASetSuppressAlg(mem, SUNTRUE);
-  if(check_flag(&ier, "IDASetSuppressAlg", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDASetSuppressAlg(mem, SUNTRUE);
+  if(check_retval(&retval, "IDASetSuppressAlg", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASetId(mem, id);
-  if(check_flag(&ier, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDASetId(mem, id);
+  if(check_retval(&retval, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASetConstraints(mem, constraints);
-  if(check_flag(&ier, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDASetConstraints(mem, constraints);
+  if(check_retval(&retval, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
   N_VDestroy_Petsc(constraints);  
 
-  ier = IDAInit(mem, resHeat, t0, uu, up);
-  if(check_flag(&ier, "IDAInit", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDAInit(mem, resHeat, t0, uu, up);
+  if(check_retval(&retval, "IDAInit", 1, thispe)) MPI_Abort(comm, 1);
   
-  ier = IDASStolerances(mem, rtol, atol);
-  if(check_flag(&ier, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDASStolerances(mem, rtol, atol);
+  if(check_retval(&retval, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Call IDASpgmr to specify the linear solver. */
 
-  ier = IDAPETScKSP(mem, comm, &Jac);
-  if(check_flag(&ier, "IDAKSP", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDAPETScKSP(mem, comm, &Jac);
+  if(check_retval(&retval, "IDAKSP", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDAPETScSetJacFn(mem, jacHeat);
-  if(check_flag(&ier, "IDAPETScSetJacFn", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDAPETScSetJacFn(mem, jacHeat);
+  if(check_retval(&retval, "IDAPETScSetJacFn", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Create Newton SUNNonlinearSolver object */
   NLS = SUNNonlinSol_Newton(uu);
@@ -256,8 +256,8 @@ int main(int argc, char *argv[])
 
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) {
 
-    ier = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
-    if(check_flag(&ier, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
+    retval = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
+    if(check_retval(&retval, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
 
     PrintOutput(thispe, mem, tret, uu);
 
@@ -557,29 +557,29 @@ static void PrintOutput(int id, void *mem, realtype t, N_Vector uu)
 {
   realtype hused, umax;
   long int nst, nni, nje, nre, nreLS=0, nli, npe, nps=0;
-  int kused, ier;
+  int kused, retval;
 
   umax = N_VMaxNorm(uu);
 
   if (id == 0) {
 
-    ier = IDAGetLastOrder(mem, &kused);
-    check_flag(&ier, "IDAGetLastOrder", 1, id);
-    ier = IDAGetNumSteps(mem, &nst);
-    check_flag(&ier, "IDAGetNumSteps", 1, id);
-    ier = IDAGetNumNonlinSolvIters(mem, &nni);
-    check_flag(&ier, "IDAGetNumNonlinSolvIters", 1, id);
-    ier = IDAGetNumResEvals(mem, &nre);
-    check_flag(&ier, "IDAGetNumResEvals", 1, id);
-    ier = IDAGetLastStep(mem, &hused);
-    check_flag(&ier, "IDAGetLastStep", 1, id);
-    ier = IDAPETScGetNumJacEvals(mem, &nje);
-    check_flag(&ier, "IDAPETScGetNumJtimesEvals", 1, id);
-    ier = IDAPETScGetNumLinIters(mem, &nli);
-    check_flag(&ier, "IDAPETScGetNumLinIters", 1, id);
-//     ier = IDASpilsGetNumResEvals(mem, &nreLS);
-//     check_flag(&ier, "IDASpilsGetNumResEvals", 1, id);
-//     ier = IDASpilsGetNumPrecEvals(mem, &npe);
+    retval = IDAGetLastOrder(mem, &kused);
+    check_retval(&retval, "IDAGetLastOrder", 1, id);
+    retval = IDAGetNumSteps(mem, &nst);
+    check_retval(&retval, "IDAGetNumSteps", 1, id);
+    retval = IDAGetNumNonlinSolvIters(mem, &nni);
+    check_retval(&retval, "IDAGetNumNonlinSolvIters", 1, id);
+    retval = IDAGetNumResEvals(mem, &nre);
+    check_retval(&retval, "IDAGetNumResEvals", 1, id);
+    retval = IDAGetLastStep(mem, &hused);
+    check_retval(&retval, "IDAGetLastStep", 1, id);
+    retval = IDAPETScGetNumJacEvals(mem, &nje);
+    check_retval(&retval, "IDAPETScGetNumJtimesEvals", 1, id);
+    retval = IDAPETScGetNumLinIters(mem, &nli);
+    check_retval(&retval, "IDAPETScGetNumLinIters", 1, id);
+//     retval = IDASpilsGetNumResEvals(mem, &nreLS);
+//     check_retval(&retval, "IDASpilsGetNumResEvals", 1, id);
+//     retval = IDASpilsGetNumPrecEvals(mem, &npe);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)  
     printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld        %9.2Le  %3ld    \n",
@@ -616,32 +616,32 @@ static void PrintFinalStats(void *mem)
  * Check function return value...
  *   opt == 0 means SUNDIALS function allocates memory so check if
  *            returned NULL pointer
- *   opt == 1 means SUNDIALS function returns a flag so check if
- *            flag >= 0
+ *   opt == 1 means SUNDIALS function returns an integer value so check if
+ *            retval >= 0
  *   opt == 2 means function allocates memory so check if returned
  *            NULL pointer 
  */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt, int id)
+static int check_retval(void *returnvalue, const char *funcname, int opt, int id)
 {
-  int *errflag;
+  int *retval;
 
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL) {
     /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
     fprintf(stderr, 
             "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n", 
             id, funcname);
     return(1); 
   } else if (opt == 1) {
-    /* Check if flag < 0 */
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
+    /* Check if retval < 0 */
+    retval = (int *) returnvalue;
+    if (*retval < 0) {
       fprintf(stderr, 
-              "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n", 
-              id, funcname, *errflag);
+              "\nSUNDIALS_ERROR(%d): %s() failed with retval = %d\n\n", 
+              id, funcname, *retval);
       return(1); 
     }
-  } else if (opt == 2 && flagvalue == NULL) {
+  } else if (opt == 2 && returnvalue == NULL) {
     /* Check if function returned NULL pointer - no memory allocated */
     fprintf(stderr, 
             "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n", 

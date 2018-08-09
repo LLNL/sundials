@@ -26,6 +26,7 @@ SET(fida_SOURCES
   fidaewt.c
   fidajtimes.c
   fidanullmatrix.c
+  fidanullnonlinsol.c
   fidapreco.c
   fidaroot.c
   fidasparse.c

@@ -2,7 +2,7 @@
 \chapter{IDA Constants}\label{c:constants}
 %%========================================================================
 
-Below we list all input and output constants used by the main solver and 
+Below we list all input and output constants used by the main solver and
 linear solver modules, together with their numerical values and a short
 description of their meaning.
 
@@ -79,6 +79,7 @@ description of their meaning.
 \id{IDA\_LINESEARCH\_FAIL}& -13 & The line search failed. \\
 \id{IDA\_NO\_RECOVERY}    & -14 & The residual function, linear solver setup function, or linear solver solve function had a recoverable failure, but \id{IDACalcIC} could not recover. \\
 \id{IDA\_NLS\_INIT\_FAIL} & -15 & The nonlinear solver's init routine failed. \\
+\id{IDA\_NLS\_SETUP\_FAIL}& -16 & The nonlinear solver's setup routine failed. \\
 \id{IDA\_MEM\_NULL}       & -20 & The \id{ida\_mem} argument was \id{NULL}. \\
 \id{IDA\_MEM\_FAIL}       & -21 & A memory allocation failed. \\
 \id{IDA\_ILL\_INPUT}      & -22 & One of the function inputs is illegal. \\
@@ -130,4 +131,4 @@ description of their meaning.
 
 %\input{spils_constants}
 
-\end{xtabular*} 
+\end{xtabular*}

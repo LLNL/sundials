@@ -869,7 +869,7 @@ int arkEvolve(ARKodeMem ark_mem, realtype tout, N_Vector yout,
 int arkGetDky(ARKodeMem ark_mem, realtype t, int k, N_Vector dky)
 {
   realtype s, tfuzz, tp, tn1;
-  int retval, degree;
+  int retval;
 
   /* Check all inputs for legality */
   if (ark_mem == NULL) {
@@ -881,11 +881,6 @@ int arkGetDky(ARKodeMem ark_mem, realtype t, int k, N_Vector dky)
     arkProcessError(ark_mem, ARK_BAD_DKY, "ARKode", "arkGetDky",
                     MSG_ARK_NULL_DKY);
     return(ARK_BAD_DKY);
-  }
-  if ((k < 0) || (k > 3)) {
-    arkProcessError(ark_mem, ARK_BAD_K, "ARKode", "arkGetDky",
-                    MSG_ARK_BAD_K);
-    return(ARK_BAD_K);
   }
   if (ark_mem->interp == NULL) {
     arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode", "arkGetDky",
@@ -909,8 +904,8 @@ int arkGetDky(ARKodeMem ark_mem, realtype t, int k, N_Vector dky)
 
   /* call arkInterpEvaluate to evaluate result */
   s = (t - ark_mem->tcur) / ark_mem->h;
-  degree = (k > ark_mem->dense_q) ? k : ark_mem->dense_q;
-  retval = arkInterpEvaluate(ark_mem, ark_mem->interp, s, k, degree, dky);
+  retval = arkInterpEvaluate(ark_mem, ark_mem->interp, s,
+                             k, ark_mem->dense_q, dky);
   if (retval != ARK_SUCCESS) {
     arkProcessError(ark_mem, retval, "ARKode", "arkGetDky",
                     "Error calling arkInterpEvaluate");

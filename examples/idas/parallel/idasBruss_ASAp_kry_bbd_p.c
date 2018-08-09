@@ -210,7 +210,7 @@ int main(int argc, char *argv[])
   UserData data;
   sunindextype SystemSize, local_N, mudq, mldq, mukeep, mlkeep;
   realtype rtol, atol, t0, tout, tret;
-  N_Vector uv, uvp, resid, id, uvB, uvpB, residB, qB;
+  N_Vector uv, uvp, resid, id, uvB, uvpB, residB;
   int thispe, npes, maxl, retval;
 
   int nckpnt, indexB;
@@ -342,8 +342,6 @@ int main(int argc, char *argv[])
   uvB    = N_VNew_Parallel(comm, local_N, SystemSize);
   uvpB   = N_VNew_Parallel(comm, local_N, SystemSize);
   residB = N_VNew_Parallel(comm, local_N, SystemSize);
-  qB = N_VNew_Parallel(comm, local_N, SystemSize);
-
 
   retval = IDACreateB(ida_mem, &indexB);
 
@@ -453,14 +451,13 @@ static void InitUserData(UserData data, int thispe, int npes,
 static void SetInitialProfiles(N_Vector uv, N_Vector uvp, N_Vector id,
                                N_Vector resid, UserData data)
 {
-  int ixsub, jysub, mxsub, mysub, nsmxsub, ix, jy;
+  int ixsub, jysub, mxsub, mysub, ix, jy;
   realtype *idxy, dx, dy, x, y, *uvxy, *uvxy1, L, npex, npey;
 
   ixsub = data->ixsub;
   jysub = data->jysub;
   mxsub = data->mxsub;
   mysub = data->mysub;
-  nsmxsub = data->nsmxsub;
   npex = data->npex;
   npey = data->npey;
   dx = data->dx;
@@ -543,19 +540,16 @@ static void SetInitialProfilesB(N_Vector uv, N_Vector uvp,
                                N_Vector uvB, N_Vector uvpB,
                                N_Vector residB, UserData data)
 {
-  int ixsub, jysub, mxsub, mysub, nsmxsub, ix, jy;
-  realtype dx, dy, *uvxy, *uvBxy, *uvpBxy, npex, npey;
+  int ixsub, jysub, mxsub, mysub, ix, jy;
+  realtype *uvxy, *uvBxy, *uvpBxy, npex, npey;
   realtype B;
 
   ixsub = data->ixsub;
   jysub = data->jysub;
   mxsub = data->mxsub;
   mysub = data->mxsub;
-  nsmxsub = data->nsmxsub;
   npex = data->npex;
   npey = data->npey;
-  dx = data->dx;
-  dy = data->dy;
   B = data->B;
 
   /* Loop over grid, load (lambda, mu) values. */
@@ -719,7 +713,7 @@ static void PrintSol(void* ida_mem, N_Vector uv, N_Vector uvp,
 {
   FILE* fout;
   realtype *uvxy;
-  int ix, jy, mxsub, mysub, npex, npey, ixsub, jysub, nsmxsub, thispe, i, j;
+  int ix, jy, mxsub, mysub, npex, ixsub, jysub, thispe, i, j;
   char szFilename[128];
 
   thispe = data->thispe;
@@ -733,15 +727,12 @@ static void PrintSol(void* ida_mem, N_Vector uv, N_Vector uvp,
   }
 
   npex = data->npex;
-  npey = data->npey;
 
   mxsub = data->mxsub;
   mysub = data->mysub;
 
   ixsub = data->ixsub;  
   jysub = data->jysub;
-
-  nsmxsub = data->nsmxsub; 
 
   for (jy=0; jy<mysub; jy++) {
 
@@ -771,7 +762,7 @@ static void PrintAdjSol(N_Vector uvB, N_Vector uvpB, UserData data)
 {
   FILE* fout;
   realtype *uvxy;
-  int ix, jy, mxsub, mysub, npex, npey, ixsub, jysub, nsmxsub, thispe;
+  int ix, jy, mxsub, mysub, thispe;
   char szFilename[128];
 
   thispe = data->thispe;
@@ -784,16 +775,8 @@ static void PrintAdjSol(N_Vector uvB, N_Vector uvpB, UserData data)
     return;
   }
 
-  npex = data->npex;
-  npey = data->npey;
-
   mxsub = data->mxsub;
   mysub = data->mysub;
-
-  ixsub = data->ixsub;  
-  jysub = data->jysub;
-
-  nsmxsub = data->nsmxsub; 
 
   for (jy=0; jy<mysub; jy++) {
     for (ix=0; ix<mxsub; ix++) {
@@ -935,7 +918,7 @@ static int res(realtype tt,
   /* Call reslocal to calculate the local portion of residual vector. */
   retval = reslocal(Nlocal, tt, uv, uvp, rr, user_data);
   
-  return(0);
+  return(retval);
 }
 
 /*
@@ -1343,7 +1326,7 @@ static int resB(realtype tt, N_Vector yy, N_Vector yp,
   /* Call reslocal to calculate the local portion of residual vector. */
   retval = resBlocal(Nlocal, tt,  yy, yp, yyB, ypB, rrB, user_dataB);
 
-  return(0);
+  return(retval);
 }
 
 
@@ -1354,16 +1337,16 @@ static int resBlocal(sunindextype Nlocal, realtype tt,
                      void *user_dataB)
 {
   realtype *uvBdata, *uvBxy, *uvpBxy, *uvxy, *rrBxy;
-  realtype dx2, dy2, xx, yy;
+  realtype dx2, dy2;
   realtype dcxli, dcxui, dcyli, dcyui;
   int locc, locce, ylocce;
   int ix, jy, i, ixstart, ixend, jystart, jyend, is;
   UserData data;
-  realtype A, B;
+  realtype B;
 
   data = (UserData) user_dataB;
 
-  A = data->A; B = data->B;
+  B = data->B;
  
 
   /* Get data pointers, subgrid data, array sizes, work array cext. */
@@ -1425,12 +1408,9 @@ static int resBlocal(sunindextype Nlocal, realtype tt,
 
   for (jy = jystart; jy < mysub-jyend; jy++) { 
     ylocce = (jy+1)*nsmxsub2;
-    yy     = (jy+jysub*mysub)*dy;
 
     for (ix = ixstart; ix < mxsub-ixend; ix++) {
       locce = ylocce + (ix+1)*NUM_SPECIES;
-      xx = (ix + ixsub*mxsub)*dx;
-
       
       uvxy  = IJ_Vptr(uv  ,ix,jy);
       uvBxy = IJ_Vptr(uvB ,ix,jy);

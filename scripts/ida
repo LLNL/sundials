@@ -51,6 +51,7 @@ $tar $tarfile $distrobase/src/ida/fcmix/fidadense.c
 $tar $tarfile $distrobase/src/ida/fcmix/fidaewt.c
 $tar $tarfile $distrobase/src/ida/fcmix/fidajtimes.c
 $tar $tarfile $distrobase/src/ida/fcmix/fidanullmatrix.c
+$tar $tarfile $distrobase/src/ida/fcmix/fidanullnonlinsol.c
 $tar $tarfile $distrobase/src/ida/fcmix/fidapreco.c
 $tar $tarfile $distrobase/src/ida/fcmix/fidaroot.c
 $tar $tarfile $distrobase/src/ida/fcmix/fidaroot.h

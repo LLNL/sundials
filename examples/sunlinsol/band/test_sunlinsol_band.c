@@ -104,8 +104,7 @@ int main(int argc, char *argv[])
   if (fails) {
     printf("FAIL: SUNLinSol SUNMatScaleAddI failure\n");
 
-    /* Free solver, matrix and vectors */
-    SUNLinSolFree(LS);
+    /* Free matrices and vectors */
     SUNMatDestroy(A);
     SUNMatDestroy(B);
     N_VDestroy(x);
@@ -124,8 +123,7 @@ int main(int argc, char *argv[])
   if (fails) {
     printf("FAIL: SUNLinSol SUNMatMatvec failure\n");
 
-    /* Free solver, matrix and vectors */
-    SUNLinSolFree(LS);
+    /* Free matrices and vectors */
     SUNMatDestroy(A);
     SUNMatDestroy(B);
     N_VDestroy(x);

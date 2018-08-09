@@ -33,7 +33,7 @@ C
       PARAMETER (MX=10, MY=10)
 C
       INTEGER*4 LNST, LNFE, LNSETUP, LNNI, LNCF, LNPE, LNLI, LNPS
-      INTEGER*4 LNCFL, LH, LQ, METH, ITMETH, IATOL, ITASK
+      INTEGER*4 LNCFL, LH, LQ, METH, IATOL, ITASK
       INTEGER*4 LNETF, IER, MAXL, JPRETYPE, IGSTYPE, JOUT
       INTEGER*4 LLENRW, LLENIW, LLENRWLS, LLENIWLS
 C The following declaration specification should match C type long int.
@@ -60,7 +60,6 @@ C     Set other input arguments.
       NEQ = 2*MX*MY
       T = 0.0D0
       METH = 2
-      ITMETH = 2
       IATOL = 1
       ATOL = RTOL * FLOOR
       ITASK = 1
@@ -92,7 +91,7 @@ C     Initialize SPGMR linear solver module
       ENDIF
 C     
 C     Initialize CVODE
-      CALL FCVMALLOC(T, U, METH, ITMETH, IATOL, RTOL, ATOL,
+      CALL FCVMALLOC(T, U, METH, IATOL, RTOL, ATOL,
      1               IOUT, ROUT, IPAR, RPAR, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
