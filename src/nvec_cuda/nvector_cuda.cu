@@ -21,6 +21,7 @@
 
 #include <nvector/cuda/Vector.hpp>
 #include <nvector/cuda/VectorKernels.cuh>
+#include <nvector/cuda/VectorArrayKernels.cuh>
 #include <sundials/sundials_mpi.h>
 
 #define ZERO   RCONST(0.0)
@@ -31,6 +32,10 @@
 extern "C" {
 
 using namespace suncudavec;
+
+/*
+ * Type definitions
+ */
 
 
 /* ----------------------------------------------------------------
@@ -507,7 +512,7 @@ booleantype N_VConstrMask_Cuda(N_Vector C, N_Vector X, N_Vector M)
   const auto xvec = extract<realtype, sunindextype>(X);
   auto mvec = extract<realtype, sunindextype>(M);
 
-  realtype locsum = constraintMask1(*cvec, *xvec, *mvec);
+  realtype locsum = constrMask(*cvec, *xvec, *mvec);
 
   realtype globsum = SUNDIALS_Reduce(locsum, 1, comm);
   return (globsum < HALF);
