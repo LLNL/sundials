@@ -20,8 +20,6 @@
 # Examples using SUNDIALS linear solvers
 SET(CVODE_examples
   "cvAdvDiff_non_ph\;2\;2\;develop"
-#  "cvDiurnal_kry_bbd_ph\;2\;4\;develop"
-#  "cvHeat2D_ph\;2\;2\;develop"
   )
 
 IF(MPI_C_COMPILER)

@@ -68,9 +68,10 @@ algebraic system to be solved at each step:
     h_n^{-1} \sum_{i=0}^q \alpha_{n,i}y_{n-i} \right) = 0 \, .
 \end{equation}
 %
-Regardless of the method options, the solution of the nonlinear system
-(\ref{e:DAE_nls}) is accomplished with some form of Newton iteration.
-This leads to a linear system for each Newton correction, of the form
+By default {\ida} solves (\ref{e:DAE_nls}) with a Newton iteration but {\ida}
+also allows for user-defined nonlinear solvers (see Chapter
+\ref{c:sunnonlinsol}). Each Newton iteration requires the solution of a linear
+system of the form
 \begin{equation}\label{e:DAE_Newtoncorr}
   J [y_{n(m+1)} - y_{n(m)}] = -G(y_{n(m)})  \, , 
 \end{equation}
@@ -82,12 +83,13 @@ Here $J$ is some approximation to the system Jacobian
   = \frac{\partial F}{\partial y} + 
   \alpha\frac{\partial F}{\partial \dot{y}} \, ,
 \end{equation}
-where $\alpha = \alpha_{n,0}/h_n$.  The scalar $\alpha$ changes 
+where $\alpha = \alpha_{n,0}/h_n$. The scalar $\alpha$ changes 
 whenever the step size or method order changes.
 
-For the solution of the linear systems within the Newton corrections, 
+For the solution of the linear systems within the Newton iteration, 
 {\ida} provides several choices, including the option of a user-supplied
-linear solver module. The linear solver modules distributed with {\sundials}
+linear solver module (see Chapter \ref{s:sunlinsol}). The linear solver modules
+distributed with {\sundials}
 are organized in two families, a {\em direct} family comprising direct linear 
 solvers for dense, banded, or sparse matrices and a {\em spils} family comprising
 scaled preconditioned iterative (Krylov) linear solvers. 
@@ -95,9 +97,9 @@ scaled preconditioned iterative (Krylov) linear solvers.
 The methods offered through these modules are as follows:
 \begin{itemize}
 \item dense direct solvers, using either an internal implementation or 
-  a Blas/Lapack implementation (serial or threaded vector modules only),
+  a BLAS/LAPACK implementation (serial or threaded vector modules only),
 \item band direct solvers, using either an internal implementation or 
-  a Blas/Lapack implementation (serial or threaded vector modules only),
+  a BLAS/LAPACK implementation (serial or threaded vector modules only),
 \item sparse direct solver interfaces, using either the KLU sparse solver
   library \cite{DaPa:10,KLU_site}, or the thread-enabled SuperLU\_MT sparse
   solver library \cite{Li:05,DGL:99,SuperLUMT_site} (serial or threaded 
@@ -120,7 +122,7 @@ because it combines established methods for stiff integration,
 nonlinear iteration, and Krylov (linear) iteration with a
 problem-specific treatment of the dominant source of stiffness, in the
 form of the user-supplied preconditioner matrix \cite{BrHi:89}. 
-For the {\em spils} linear solvers,  preconditioning is allowed
+For the {\em spils} linear solvers, preconditioning is allowed
 only on the left (see \S\ref{s:preconditioning}).
 %%
 Note that the dense, band, and sparse direct linear solvers can only be 
@@ -145,15 +147,16 @@ usually drop the subscript WRMS on norms in what follows.
 
 % Newton iteration
 %-----------------
-In the case of a direct linear solver (dense, band, or sparse), the nonlinear 
-iteration (\ref{e:DAE_Newtoncorr}) is a Modified Newton iteration, in
+In the case of a direct linear solver (dense, band, or sparse), the default Newton 
+iteration is a Modified Newton iteration, in
 that the Jacobian $J$ is fixed (and usually out of date), with a coefficient 
 $\bar\alpha$ in place of $\alpha$ in $J$. When using one of the Krylov methods
-{\spgmr}, {\spbcg}, or {\sptfqmr} as the linear solver, the iteration is an
-Inexact Newton iteration, using the current Jacobian (through matrix-free products
-$Jv$), in which the linear residual $J\Delta y + G$ is nonzero but controlled.
+({\spgmr}, {\spbcg}, {\sptfqmr}, {\spfgmr} or {\pcg}) as the linear
+solver, the it is an Inexact Newton iteration, using the
+current Jacobian (through matrix-free products $Jv$), in which the
+linear residual $J\Delta y + G$ is nonzero but controlled. 
 The Jacobian matrix $J$ (direct cases) or preconditioner matrix $P$ 
-({\spgmr}/{\spbcg}/{\sptfqmr} case) is updated when:
+(iterative cases) is updated when:
 \begin{itemize}
 \item starting the problem,
 \item the value $\bar\alpha$ at the last update is such that
@@ -166,13 +169,13 @@ To reduce storage costs on an update, Jacobian information is always
 reevaluated from scratch.
 
 We note that with the sparse direct solvers, the Jacobian {\em must}
-be supplied by a user routine in compressed-sparse-column format, as
-this is not approximated automatically within {\ida}.
+be supplied by a user routine, as this is not approximated
+automatically within {\ida}.
 
 
 % Newton convergence test
 %------------------------
-The stopping test for the Newton iteration
+The default stopping test for nonlinear solver iterations
 in {\ida} ensures that the iteration error $y_n - y_{n(m)}$ is small relative
 to $y$ itself. For this, we estimate the linear convergence rate at all 
 iterations $m>1$ as
@@ -180,7 +183,7 @@ iterations $m>1$ as
 R = \left( \frac{\delta_m}{\delta_1} \right)^{\frac{1}{m-1}} \, , 
 \end{equation*}
 where the $\delta_m = y_{n(m)} - y_{n(m-1)}$ is the correction at
-iteration $m=1,2,\ldots$. The Newton iteration is halted if $R>0.9$.
+iteration $m=1,2,\ldots$. The nonlinear solver iteration is halted if $R>0.9$.
 The convergence test at the $m$-th iteration is then
 \begin{equation}\label{e:DAE_nls_test}
 S \| \delta_m \| < 0.33 \, ,
@@ -192,29 +195,29 @@ value of $0.33$.
 The quantity $S$ is set to $S=20$ initially and whenever $J$ or $P$ is
 updated, and it is reset to $S=100$ on a step with $\alpha \neq \bar\alpha$.
 Note that at $m=1$, the convergence test (\ref{e:DAE_nls_test}) uses an old 
-value for $S$. Therefore, at the first Newton iteration, we make an additional
+value for $S$. Therefore, at the first nonlinear solver iteration, we make an additional
 test and stop the iteration if $\|\delta_1\| < 0.33 \cdot 10^{-4}$
 (since such a $\delta_1$ is probably just noise and therefore not appropriate 
 for use in evaluating $R$).
 %
-We allow only a small number (default value 4) of Newton iterations.
+We allow only a small number (default value 4) of nonlinear iterations.
 If convergence fails with $J$ or $P$ current, 
 we are forced to reduce the step size $h_n$, and we replace $h_n$ by $h_n/4$.
 The integration is halted after a preset number (default value 10)
-of convergence failures. Both the maximum allowable Newton iterations
-and the maximum nonlinear convergence failures can be changed by the user
+of convergence failures. Both the maximum number of allowable nonlinear iterations
+and the maximum number of nonlinear convergence failures can be changed by the user
 from their default values.
 
-When {\spgmr}, {\spbcg}, or {\sptfqmr} is used to solve the linear system, to
+When an iterative method is used to solve the linear system, to
 minimize the effect of linear iteration errors on the nonlinear and local integration
 error controls, we require the preconditioned linear residual to be small relative to
-the allowed error in the Newton iteration, i.e., 
+the allowed error in the nonlinear iteration, i.e., 
 $\| P^{-1}(Jx+G) \| < 0.05 \cdot 0.33$.
 The safety factor $0.05$ can be changed by the user.
 
 % Jacobian DQ approximations
 %---------------------------
-In the direct linear solver 
+In the dense and banded direct linear solver 
 cases, the Jacobian $J$ defined in (\ref{e:DAE_Jacobian}) 
 can be either supplied by the user or have {\ida} compute one internally 
 by difference quotients. In the latter case, we use the approximation
@@ -226,7 +229,9 @@ by difference quotients. In the latter case, we use the approximation
 \end{gather*}
 where $U$ is the unit roundoff, $h$ is the current step size, and $W_j$ is 
 the error weight for the component $y_j$ defined by (\ref{e:errwt}).
-In the {\spgmr}/{\spbcg}/{\sptfqmr} case, if a routine for $Jv$ is not
+We note that the sparse direct linear solver requires a user-supplied
+routine for $J$.
+In the case of an iterative linear solver, if a routine for $Jv$ is not
 supplied, such products are approximated by
 \begin{equation*}
 Jv = [F(t,y+\sigma v,\dot{y}+\alpha\sigma v) - F(t,y,\dot{y})]/\sigma \, ,
@@ -324,7 +329,7 @@ step size unless it can be doubled.  See \cite{BCP:96} for details.
 components of the solution vector $y$. Any of the following four constraints 
 can be imposed: $y_i > 0$, $y_i < 0$, $y_i \geq 0$, or $y_i \leq 0$. 
 The constraint satisfaction is tested after a successful nonlinear system solution. 
-If any constraint fails, we declare a convergence failure of the Newton iteration 
+If any constraint fails, we declare a convergence failure of the nonlinear iteration 
 and reduce the step size. Rather than cutting the step size by some arbitrary factor, 
 {\ida} estimates a new step size $h'$ using a linear approximation of the components 
 in $y$ that failed the constraint test (including a safety factor of $0.9$ to 
@@ -344,9 +349,9 @@ stop}}$.
 \section{Preconditioning}\label{s:preconditioning}
 %------------------------
 \index{preconditioning!advice on|(}
-When using a Newton method to solve the nonlinear system (\ref{e:DAE_Newtoncorr}),
-{\ida} makes repeated use of a linear solver to solve linear systems of the form
-$J \Delta y = - G$.
+When using a nonlinear solver that requires the solution of a linear system of
+the form $J \Delta y = - G$ (e.g., the default Newton iteration), {\ida} makes
+repeated use of a linear solver.
 If this linear system solve is done with one of the scaled preconditioned iterative 
 linear solvers, these solvers are rarely successful if used without preconditioning;
 it is generally necessary to precondition the system in order to obtain acceptable efficiency.  
@@ -355,7 +360,7 @@ or on both sides. The Krylov method is then applied to a system with the matrix 
 or $AP^{-1}$, or $P_L^{-1} A P_R^{-1}$, instead of $A$.  
 However, within {\ida}, preconditioning is allowed {\em only} on the left,
 so that the iterative method is applied to systems $(P^{-1}J)\Delta y = -P^{-1}G$.  
-Left preconditioning is required to make the norm of the linear residual in the Newton 
+Left preconditioning is required to make the norm of the linear residual in the nonlinear
 iteration meaningful; in general, $\| J \Delta y + G \|$ is meaningless, since the 
 weights used in the WRMS-norm correspond to $y$.
 
@@ -368,11 +373,11 @@ difficult.  Good choices are often problem-dependent (for example, see
 \cite{BrHi:89} for an extensive study of preconditioners for
 reaction-transport systems).
 
-Typical preconditioners used with {\ida} are based on approximations to the Newton 
+Typical preconditioners used with {\ida} are based on approximations to the 
 iteration matrix of the systems involved; in other words, 
 $P \approx \frac{\partial F}{\partial y} + \alpha\frac{\partial F}{\partial \dot{y}}$,
 where $\alpha$ is a scalar inversely proportional to the integration step size $h$.
-Because the Krylov iteration occurs within a Newton iteration and further
+Because the Krylov iteration occurs within a nonlinear solver iteration and further
 also within a time integration, and since each of these iterations has
 its own test for convergence, the preconditioner may use a very crude
 approximation, as long as it captures the dominant numerical

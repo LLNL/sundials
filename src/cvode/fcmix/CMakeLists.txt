@@ -10,6 +10,7 @@ SET(fcvode_SOURCES
   fcvjtimes.c
   fcvnulllinsol.c
   fcvnullmatrix.c
+  fcvnullnonlinsol.c
   fcvode.c
   fcvpreco.c
   fcvroot.c
@@ -61,6 +62,12 @@ IF(LAPACK_FOUND)
     )
 ENDIF()
 
+# Add variable sunnonlinsol_SOURCES with the common SUNNonlinearSolver sources
+# which will also be included in the CVODE library
+SET(sunnonlinsol_SOURCES
+  ${sundials_SOURCE_DIR}/src/sunnonlinsol/newton/fsunnonlinsol_newton.c
+  ${sundials_SOURCE_DIR}/src/sunnonlinsol/fixedpoint/fsunnonlinsol_fixedpoint.c
+  )
 
 # Add source directories to include directories for access to
 # implementation only header files (both for fcvode and cvode)
@@ -76,7 +83,8 @@ ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 
 # Add the build target for the FCVODE library
 ADD_LIBRARY(sundials_fcvode_static STATIC
-  ${fcvode_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES})
+  ${fcvode_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES}
+  ${sunnonlinsol_SOURCES})
 
 # Set the library name and make sure it is not deleted
 SET_TARGET_PROPERTIES(sundials_fcvode_static

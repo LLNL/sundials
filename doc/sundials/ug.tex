@@ -55,35 +55,37 @@
 \setlength{\topmargin}{0.0in}
 
 %----- VERSIONS AND UCRL NUMBERS OF SUNDIALS CODES
-\newcommand{\sunrelease}{v4.0.0-dev}
 
-\newcommand{\cvrelease}{v4.0.0-dev}
+\newcommand{\sunrelease}{v4.0.0-dev.1}
+
+\newcommand{\cvrelease}{v4.0.0-dev.1}
 \newcommand{\cvucrlug}{UCRL-SM-208108}
 \newcommand{\cvucrlex}{UCRL-SM-208110}
 
-\newcommand{\cvsrelease}{v4.0.0-dev}
+\newcommand{\cvsrelease}{v4.0.0-dev.1}
 \newcommand{\cvsucrlug}{UCRL-SM-208111}
 \newcommand{\cvsucrlex}{UCRL-SM-208115}
 
-\newcommand{\idarelease}{v4.0.0-dev}
+\newcommand{\idarelease}{v4.0.0-dev.1}
 \newcommand{\idaucrlug}{UCRL-SM-208112}
 \newcommand{\idaucrlex}{UCRL-SM-208113}
 
-\newcommand{\idasrelease}{v3.0.0-dev}
+\newcommand{\idasrelease}{v3.0.0-dev.1}
 \newcommand{\idasucrlug}{UCRL-SM-234051}
 \newcommand{\idasucrlex}{LLNL-TR-437091}
 
-\newcommand{\kinrelease}{v4.0.0-dev}
+\newcommand{\kinrelease}{v4.0.0-dev.1}
 \newcommand{\kinucrlug}{UCRL-SM-208116}
 \newcommand{\kinucrlex}{UCRL-SM-208114}
 
-\newcommand{\arkrelease}{v3.0.0-dev}
+\newcommand{\arkrelease}{v3.0.0-dev.1}
 \newcommand{\arkucrlug}{LLNL-SM-668082}
 \newcommand{\arkucrlex}{????-??-??????}
 
 %----- SUNDIALS MODULES
 \newcommand{\sundials}{{\normalfont\scshape sundials}}
 \newcommand{\shared}{{\normalfont\scshape shared}}
+%----- Vectors:
 \newcommand{\nvector}{{\normalfont\scshape nvector}}
 \newcommand{\fnvector}{{\normalfont\scshape fnvector}}
 \newcommand{\nvecs}{{\normalfont\scshape nvector\_serial}}
@@ -95,11 +97,13 @@
 \newcommand{\nveccuda}{{\normalfont\scshape nvector\_cuda}}
 \newcommand{\nvecraja}{{\normalfont\scshape nvector\_raja}}
 \newcommand{\nvecspc}{{\normalfont\scshape nvector\_spcparallel}}
+%----- Matrices:
 \newcommand{\sunmatrix}{{\normalfont\scshape sunmatrix}}
 \newcommand{\fsunmatrix}{{\normalfont\scshape fsunmatrix}}
 \newcommand{\sunmatband}{{\normalfont\scshape sunmatrix\_band}}
 \newcommand{\sunmatdense}{{\normalfont\scshape sunmatrix\_dense}}
 \newcommand{\sunmatsparse}{{\normalfont\scshape sunmatrix\_sparse}}
+%----- Linear Solvers:
 \newcommand{\sunlinsol}{{\normalfont\scshape sunlinsol}}
 \newcommand{\fsunlinsol}{{\normalfont\scshape fsunlinsol}}
 \newcommand{\sunlinsolband}{{\normalfont\scshape sunlinsol\_band}}
@@ -113,6 +117,12 @@
 \newcommand{\sunlinsolspbcgs}{{\normalfont\scshape sunlinsol\_spbcgs}}
 \newcommand{\sunlinsolsptfqmr}{{\normalfont\scshape sunlinsol\_sptfqmr}}
 \newcommand{\sunlinsolpcg}{{\normalfont\scshape sunlinsol\_pcg}}
+%----- Nonlinear Solvers:
+\newcommand{\sunnonlinsol}{{\normalfont\scshape sunnonlinsol}}
+\newcommand{\fsunnonlinsol}{{\normalfont\scshape fsunnonlinsol}}
+\newcommand{\sunnonlinsolnewton}{{\normalfont\scshape sunnonlinsol\_newton}}
+\newcommand{\sunnonlinsolfixedpoint}{{\normalfont\scshape sunnonlinsol\_fixedpoint}}
+%----- Packages:
 \newcommand{\cvode}{{\normalfont\scshape cvode}}
 \newcommand{\pvode}{{\normalfont\scshape pvode}}
 \newcommand{\cvodes}{{\normalfont\scshape cvodes}}
@@ -134,6 +144,7 @@
 \newcommand{\raja}{{\normalfont\scshape raja}}
 
 %----- CVODE and CVODES COMPONENTS
+\newcommand{\cvnls}{{\normalfont\scshape cvnls}}
 \newcommand{\cvdls}{{\normalfont\scshape cvdls}}
 \newcommand{\cvsls}{{\normalfont\scshape cvsls}}
 \newcommand{\cvcls}{{\normalfont\scshape cvcls}}
@@ -177,6 +188,7 @@
 \newcommand{\fkinsol}{{\normalfont\scshape fkinsol}}
 
 %----- IDA and IDAS COMPONENTS
+\newcommand{\idanls}{{\normalfont\scshape idanls}}
 \newcommand{\idadls}{{\normalfont\scshape idadls}}
 \newcommand{\idacls}{{\normalfont\scshape idacls}}
 \newcommand{\idasls}{{\normalfont\scshape idasls}}
@@ -233,6 +245,7 @@
 \newcommand{\A}{App. }
 
 %------ Index entries
+
 \newcommand{\ID}[1]{{\tt #1}{\index{#1@\texttt{#1}}}}
 %\newcommand{\ID}[1]{{\tt #1}{\index{#1@\texttt{#1}|textbf}}}
 % NOTE: the above version confuses hyperref...

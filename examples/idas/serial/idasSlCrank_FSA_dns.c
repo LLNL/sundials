@@ -488,15 +488,13 @@ static int ressc(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *use
 static int rhsQ(realtype t, N_Vector yy, N_Vector yp, N_Vector qdot, void *user_data)
 {
   realtype v1, v2, v3;
-  realtype m1, J1, m2, J2, a;
+  realtype J1, m2, J2;
   UserData data;
   
   data = (UserData) user_data;
   J1 = data->J1;
-  m1 = data->m1;
   m2 = data->m2;
   J2 = data->J2;
-  a  = data->a;
 
   v1 = Ith(yy,4);
   v2 = Ith(yy,5);
@@ -512,16 +510,15 @@ static int rhsQS(int Ns, realtype t, N_Vector yy, N_Vector yp,
                  void *user_data,  N_Vector yytmp, N_Vector yptmp, N_Vector tmpQS)
 {
   realtype v1, v2, v3;
-  realtype m1, J1, m2, J2, a;
+  realtype J1, m2, J2;
   UserData data;
   realtype s1, s2, s3;
   
   data = (UserData) user_data;
+
   J1 = data->J1;
-  m1 = data->m1;
   m2 = data->m2;
   J2 = data->J2;
-  a  = data->a;
 
   v1 = Ith(yy,4);
   v2 = Ith(yy,5);

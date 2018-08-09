@@ -169,7 +169,7 @@ static void Fweb(realtype tcalc, N_Vector cc, N_Vector crate, UserData webdata);
 static void WebRates(realtype xx, realtype yy, realtype *cxy, realtype *ratesxy, 
                      UserData webdata);
 static realtype dotprod(sunindextype size, realtype *x1, realtype *x2);
-static int check_flag(void *flagvalue, char *funcname, int opt);
+static int check_retval(void *returnvalue, char *funcname, int opt);
 
 /*
  *--------------------------------------------------------------------
@@ -182,7 +182,7 @@ int main()
   void *mem;
   UserData webdata;
   N_Vector cc, cp, id;
-  int iout, jx, jy, flag;
+  int iout, jx, jy, retval;
   sunindextype maxl;
   realtype rtol, atol, t0, tout, tret;
   SUNLinearSolver LS;
@@ -210,13 +210,13 @@ int main()
   /* Allocate N-vectors and initialize cc, cp, and id. */
 
   cc  = N_VNew_Serial(NEQ);
-  if(check_flag((void *)cc, "N_VNew_Serial", 0)) return(1);
+  if(check_retval((void *)cc, "N_VNew_Serial", 0)) return(1);
 
   cp  = N_VNew_Serial(NEQ);
-  if(check_flag((void *)cp, "N_VNew_Serial", 0)) return(1);
+  if(check_retval((void *)cp, "N_VNew_Serial", 0)) return(1);
 
   id  = N_VNew_Serial(NEQ);
-  if(check_flag((void *)id, "N_VNew_Serial", 0)) return(1);
+  if(check_retval((void *)id, "N_VNew_Serial", 0)) return(1);
   
   SetInitialProfiles(cc, cp, id, webdata);
   
@@ -229,19 +229,19 @@ int main()
   /* Call IDACreate and IDAMalloc to initialize IDA. */
   
   mem = IDACreate();
-  if(check_flag((void *)mem, "IDACreate", 0)) return(1);
+  if(check_retval((void *)mem, "IDACreate", 0)) return(1);
 
-  flag = IDASetUserData(mem, webdata);
-  if(check_flag(&flag, "IDASetUserData", 1)) return(1);
+  retval = IDASetUserData(mem, webdata);
+  if(check_retval(&retval, "IDASetUserData", 1)) return(1);
 
-  flag = IDASetId(mem, id);
-  if(check_flag(&flag, "IDASetId", 1)) return(1);
+  retval = IDASetId(mem, id);
+  if(check_retval(&retval, "IDASetId", 1)) return(1);
 
-  flag = IDAInit(mem, resweb, t0, cc, cp);
-  if(check_flag(&flag, "IDAInit", 1)) return(1);
+  retval = IDAInit(mem, resweb, t0, cc, cp);
+  if(check_retval(&retval, "IDAInit", 1)) return(1);
 
-  flag = IDASStolerances(mem, rtol, atol);
-  if(check_flag(&flag, "IDASStolerances", 1)) return(1);
+  retval = IDASStolerances(mem, rtol, atol);
+  if(check_retval(&retval, "IDASStolerances", 1)) return(1);
 
   webdata->ida_mem = mem;
 
@@ -249,25 +249,25 @@ int main()
      and maximum Krylov dimension maxl */
   maxl = 16;
   LS = SUNSPGMR(cc, PREC_LEFT, maxl);
-  if(check_flag((void *)LS, "SUNSPGMR", 0)) return(1);
+  if(check_retval((void *)LS, "SUNSPGMR", 0)) return(1);
 
   /* IDA recommends allowing up to 5 restarts (default is 0) */
-  flag = SUNSPGMRSetMaxRestarts(LS, 5);
-  if(check_flag(&flag, "SUNSPGMRSetMaxRestarts", 1)) return(1);
+  retval = SUNSPGMRSetMaxRestarts(LS, 5);
+  if(check_retval(&retval, "SUNSPGMRSetMaxRestarts", 1)) return(1);
 
   /* Attach the linear sovler */
-  flag = IDASpilsSetLinearSolver(mem, LS);
-  if(check_flag(&flag, "IDASpilsSetLinearSolver", 1)) return(1);
+  retval = IDASpilsSetLinearSolver(mem, LS);
+  if(check_retval(&retval, "IDASpilsSetLinearSolver", 1)) return(1);
 
   /* Set the preconditioner solve and setup functions */
-  flag = IDASpilsSetPreconditioner(mem, Precond, PSolve);
-  if(check_flag(&flag, "IDASpilsSetPreconditioner", 1)) return(1);
+  retval = IDASpilsSetPreconditioner(mem, Precond, PSolve);
+  if(check_retval(&retval, "IDASpilsSetPreconditioner", 1)) return(1);
 
   /* Call IDACalcIC (with default options) to correct the initial values. */
 
   tout = RCONST(0.001);
-  flag = IDACalcIC(mem, IDA_YA_YDP_INIT, tout);
-  if(check_flag(&flag, "IDACalcIC", 1)) return(1);
+  retval = IDACalcIC(mem, IDA_YA_YDP_INIT, tout);
+  if(check_retval(&retval, "IDACalcIC", 1)) return(1);
   
   /* Print heading, basic parameters, and initial values. */
 
@@ -278,8 +278,8 @@ int main()
   
   for (iout = 1; iout <= NOUT; iout++) {
     
-    flag = IDASolve(mem, tout, &tret, cc, cp, IDA_NORMAL);
-    if(check_flag(&flag, "IDASolve", 1)) return(flag);
+    retval = IDASolve(mem, tout, &tret, cc, cp, IDA_NORMAL);
+    if(check_retval(&retval, "IDASolve", 1)) return(retval);
     
     PrintOutput(mem, cc, tret);
     
@@ -376,7 +376,7 @@ static int Precond(realtype tt,
 		   N_Vector cc, N_Vector cp, N_Vector rr, 
 		   realtype cj, void *user_data)
 {
-  int flag;
+  int retval;
   realtype uround, xx, yy, del_x, del_y;
   realtype **Pxy, *ratesxy, *Pxycol, *cxy, *cpxy, *ewtxy, cctmp;
   realtype inc, fac, sqru, perturb_rates[NUM_SPECIES];
@@ -395,10 +395,10 @@ static int Precond(realtype tt,
 
   mem = webdata->ida_mem;
   ewt = webdata->ewt;
-  flag = IDAGetErrWeights(mem, ewt);
-  if(check_flag(&flag, "IDAGetErrWeights", 1)) return(1);
-  flag = IDAGetCurrentStep(mem, &hh);
-  if(check_flag(&flag, "IDAGetCurrentStep", 1)) return(1);
+  retval = IDAGetErrWeights(mem, ewt);
+  if(check_retval(&retval, "IDAGetErrWeights", 1)) return(1);
+  retval = IDAGetCurrentStep(mem, &hh);
+  if(check_retval(&retval, "IDAGetCurrentStep", 1)) return(1);
 
   for (jy = 0; jy < MY; jy++) {
     yy = jy * del_y;
@@ -614,16 +614,16 @@ static void PrintHeader(sunindextype maxl, realtype rtol, realtype atol)
 
 static void PrintOutput(void *mem, N_Vector c, realtype t)
 {
-  int i, kused, flag;
+  int i, kused, retval;
   long int nst;
   realtype *c_bl, *c_tr, hused;
 
-  flag = IDAGetLastOrder(mem, &kused);
-  check_flag(&flag, "IDAGetLastOrder", 1);
-  flag = IDAGetNumSteps(mem, &nst);
-  check_flag(&flag, "IDAGetNumSteps", 1);
-  flag = IDAGetLastStep(mem, &hused);
-  check_flag(&flag, "IDAGetLastStep", 1);
+  retval = IDAGetLastOrder(mem, &kused);
+  check_retval(&retval, "IDAGetLastOrder", 1);
+  retval = IDAGetNumSteps(mem, &nst);
+  check_retval(&retval, "IDAGetNumSteps", 1);
+  retval = IDAGetLastStep(mem, &hused);
+  check_retval(&retval, "IDAGetLastStep", 1);
   
   c_bl = IJ_Vptr(c,0,0);
   c_tr = IJ_Vptr(c,MX-1,MY-1);
@@ -655,22 +655,22 @@ static void PrintOutput(void *mem, N_Vector c, realtype t)
 static void PrintFinalStats(void *mem)
 { 
   long int nst, nre, sli, netf, nps, npevals, nrevalsLS;
-  int flag;
+  int retval;
 
-  flag = IDAGetNumSteps(mem, &nst);
-  check_flag(&flag, "IDAGetNumSteps", 1);
-  flag = IDASpilsGetNumLinIters(mem, &sli);
-  check_flag(&flag, "IDAGetNumNonlinSolvIters", 1);
-  flag = IDAGetNumResEvals(mem, &nre);
-  check_flag(&flag, "IDAGetNumResEvals", 1);
-  flag = IDAGetNumErrTestFails(mem, &netf);
-  check_flag(&flag, "IDAGetNumErrTestFails", 1);
-  flag = IDASpilsGetNumPrecSolves(mem, &nps);
-  check_flag(&flag, "IDAGetNumNonlinSolvConvFails", 1);
-  flag = IDASpilsGetNumPrecEvals(mem, &npevals);
-  check_flag(&flag, "IDADlsGetNumJacEvals", 1);
-  flag = IDASpilsGetNumResEvals(mem, &nrevalsLS);
-  check_flag(&flag, "IDADlsGetNumResEvals", 1);
+  retval = IDAGetNumSteps(mem, &nst);
+  check_retval(&retval, "IDAGetNumSteps", 1);
+  retval = IDASpilsGetNumLinIters(mem, &sli);
+  check_retval(&retval, "IDAGetNumNonlinSolvIters", 1);
+  retval = IDAGetNumResEvals(mem, &nre);
+  check_retval(&retval, "IDAGetNumResEvals", 1);
+  retval = IDAGetNumErrTestFails(mem, &netf);
+  check_retval(&retval, "IDAGetNumErrTestFails", 1);
+  retval = IDASpilsGetNumPrecSolves(mem, &nps);
+  check_retval(&retval, "IDAGetNumNonlinSolvConvFails", 1);
+  retval = IDASpilsGetNumPrecEvals(mem, &npevals);
+  check_retval(&retval, "IDADlsGetNumJacEvals", 1);
+  retval = IDASpilsGetNumResEvals(mem, &nrevalsLS);
+  check_retval(&retval, "IDADlsGetNumResEvals", 1);
 
   printf("-----------------------------------------------------------\n");
   printf("Final run statistics: \n\n");
@@ -776,32 +776,32 @@ static realtype dotprod(sunindextype size, realtype *x1, realtype *x2)
  * Check function return value...
  *   opt == 0 means SUNDIALS function allocates memory so check if
  *            returned NULL pointer
- *   opt == 1 means SUNDIALS function returns a flag so check if
- *            flag >= 0
+ *   opt == 1 means SUNDIALS function returns an integer value so check if
+ *            retval >= 0
  *   opt == 2 means function allocates memory so check if returned
  *            NULL pointer 
  */
 
-static int check_flag(void *flagvalue, char *funcname, int opt)
+static int check_retval(void *returnvalue, char *funcname, int opt)
 {
-  int *errflag;
+  int *retval;
 
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL) {
     /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
     fprintf(stderr, 
             "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", 
             funcname);
     return(1);
   } else if (opt == 1) {
-    /* Check if flag < 0 */
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
+    /* Check if retval < 0 */
+    retval = (int *) returnvalue;
+    if (*retval < 0) {
       fprintf(stderr, 
-              "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", 
-              funcname, *errflag);
+              "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n", 
+              funcname, *retval);
       return(1); 
     }
-  } else if (opt == 2 && flagvalue == NULL) {
+  } else if (opt == 2 && returnvalue == NULL) {
     /* Check if function returned NULL pointer - no memory allocated */
     fprintf(stderr, 
             "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", 

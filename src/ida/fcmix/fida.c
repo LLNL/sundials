@@ -91,6 +91,7 @@ void FIDA_MALLOC(realtype *t0, realtype *yy0, realtype *yp0,
   IDA_idamem = NULL;
   Vatol = NULL;
   F2C_IDA_ypvec = F2C_IDA_ewtvec = NULL;
+  FIDANullNonlinSol();
 
   /* Create IDA object */
   IDA_idamem = IDACreate();
@@ -569,7 +570,7 @@ void FIDA_FREE(void)
   /* free main integrator memory structure */
   IDAFree(&IDA_idamem);
 
-  /* free interface vectors / matrices / linear solvers */
+  /* free interface vectors / matrices / linear solvers / nonlinear solver */
   N_VSetArrayPointer(NULL, F2C_IDA_vec);
   N_VDestroy(F2C_IDA_vec);
   N_VSetArrayPointer(NULL, F2C_IDA_ypvec);
@@ -582,6 +583,9 @@ void FIDA_FREE(void)
     SUNMatDestroy(F2C_IDA_matrix);
   if (F2C_IDA_linsol)
     SUNLinSolFree(F2C_IDA_linsol);
+  /* already freed by IDAFree */
+  if (F2C_IDA_nonlinsol)
+    F2C_IDA_nonlinsol = NULL;
   return;
 }
 
@@ -612,4 +616,17 @@ int FIDAresfn(realtype t, N_Vector yy, N_Vector yp,
               IDA_userdata->ipar, IDA_userdata->rpar, &ier);
 
   return(ier);
+}
+
+/*************************************************/
+
+/* Fortran interface to C routine IDASetNonlinearSolver; see 
+   fida.h for further details */
+void FIDA_NLSINIT(int *ier) {
+  if ( (IDA_idamem == NULL) || (F2C_IDA_nonlinsol == NULL) ) {
+    *ier = -1;
+    return;
+  }
+  *ier = IDASetNonlinearSolver(IDA_idamem, F2C_IDA_nonlinsol);
+  return;
 }

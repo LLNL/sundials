@@ -81,6 +81,8 @@
  *   FCVSPILSSETJAC             CVSpilsSetJacTimes
  *   FCVSPILSSETPREC            CVSpilsSetPreconditioner
  *
+ *   FCVNLSINIT                 CVSetNonlinearSolver
+ *
  *   FCVODE                     CVode, CVodeGet*, and CV*Get*
  *   FCVDKY                     CVodeGetDky
  * 
@@ -571,7 +573,7 @@
  * (5.4) To set various problem and solution parameters and allocate
  *   internal memory, make the following call:
  *
- *       CALL FCVMALLOC(T0, Y0, METH, ITMETH, IATOL, RTOL, ATOL,
+ *       CALL FCVMALLOC(T0, Y0, METH, IATOL, RTOL, ATOL,
  *      1               IOUT, ROUT, IPAR, RPAR, IER)
  *
  *   The arguments are:
@@ -580,9 +582,6 @@
  *      METH   = flag denoting basic integration method [int, input]:
  *                   1 = Adams (nonstiff), 
  *                   2 = BDF (stiff)
- *      ITMETH = flag denoting nonlinear iteration method [int, input]: 
- *                   1 = functional iteration, 
- *                   2 = Newton iter.
  *      IATOL  = flag denoting type for absolute tolerance ATOL [int, input]: 
  *                   1 = scalar, 
  *                   2 = array.
@@ -744,7 +743,7 @@
  *       CALL FCVREINIT(T0, Y0, IATOL, RTOL, ATOL, IER)
  *
  *   The arguments have the same names and meanings as those of FCVMALLOC,
- *   except that METH and ITMETH have been omitted from the argument list 
+ *   except that METH has been omitted from the argument list
  *   (being unchanged for the new problem).  
  *   FCVREINIT performs the same initializations as FCVMALLOC, but does no memory 
  *   allocation, using instead the existing internal memory created by the
@@ -929,6 +928,7 @@ extern "C" {
 #define FCV_EWT            SUNDIALS_F77_FUNC(fcvewt, FCVEWT)
 #define FCV_GETERRWEIGHTS  SUNDIALS_F77_FUNC(fcvgeterrweights, FCVGETERRWEIGHTS)
 #define FCV_GETESTLOCALERR SUNDIALS_F77_FUNC(fcvgetestlocalerr, FCVGETESTLOCALERR)
+#define FCV_NLSINIT        SUNDIALS_F77_FUNC(fcvnlsinit, FCVNLSINIT)
 
 #else
 
@@ -959,6 +959,7 @@ extern "C" {
 #define FCV_EWT            fcvewt_
 #define FCV_GETERRWEIGHTS  fcvgeterrweights_
 #define FCV_GETESTLOCALERR fcvgetestlocalerr_
+#define FCV_NLSINIT        fcvnlsinit_
 
 #endif
 
@@ -972,7 +973,7 @@ extern "C" {
   /* Prototypes of exported functions */
 
   void FCV_MALLOC(realtype *t0, realtype *y0,
-                  int *meth, int *itmeth, int *iatol,
+                  int *meth, int *iatol,
                   realtype *rtol, realtype *atol,
                   long int *iout, realtype *rout,
                   long int *ipar, realtype *rpar,
@@ -998,6 +999,8 @@ extern "C" {
   void FCV_SPILSSETPREC(int *flag, int *ier);
   
   void FCV_DIAG(int *ier);
+
+  void FCV_NLSINIT(int *ier);
 
   void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier);
 
@@ -1043,12 +1046,14 @@ extern "C" {
 
   void FCVNullMatrix();
   void FCVNullLinsol();
+  void FCVNullNonlinSol();
 
   /* Declarations for global variables shared amongst various routines */
 
-  extern N_Vector F2C_CVODE_vec;             /* defined in FNVECTOR module */
-  extern SUNMatrix F2C_CVODE_matrix;         /* defined in FSUNMATRIX module */
-  extern SUNLinearSolver F2C_CVODE_linsol;   /* defined in FSUNLINSOL module */
+  extern N_Vector F2C_CVODE_vec;                 /* defined in FNVECTOR module      */
+  extern SUNMatrix F2C_CVODE_matrix;             /* defined in FSUNMATRIX module    */
+  extern SUNLinearSolver F2C_CVODE_linsol;       /* defined in FSUNLINSOL module    */
+  extern SUNNonlinearSolver F2C_CVODE_nonlinsol; /* defined in FSUNNONLINSOL module */
 
   extern void *CV_cvodemem;        /* defined in fcvode.c */
   extern long int *CV_iout;        /* defined in fcvode.c */

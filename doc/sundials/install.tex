@@ -86,9 +86,9 @@ higher and a working {\CC} compiler.  On Unix-like operating systems, it
 also requires Make (and \id{curses}, including its development libraries,
 for the GUI front end to CMake, \id{ccmake}), while on Windows it
 requires Visual Studio.  While many Linux distributions offer CMake,
-the version included may be out of date.  Many new CMake
-features have been added recently, and you should download the latest
-version from {\tt http://www.cmake.org}.  Build instructions for CMake
+the version included may be out of date. CMake is continually adding new
+features, and the latest version can be downloaded from 
+{\tt http://www.cmake.org}. Build instructions for CMake
 (only necessary for Unix-like systems) can be found on the CMake website.
 Once CMake is installed, Linux/Unix users will be able to use \id{ccmake},
 while Windows users will be able to use \id{CMakeSetup}.
@@ -1022,7 +1022,7 @@ are to be used in building a preconditioner.
 %---------------------------------------------------------------------------
 
 \newlength{\colLenOne}
-\settowidth{\colLenOne}{{\sunlinsollapdense}}
+\settowidth{\colLenOne}{{\sunnonlinsolfixedpoint}}
 
 \newlength{\colLenTwo}
 \settowidth{\colLenTwo}{Header files}
@@ -1046,13 +1046,20 @@ are to be used in building a preconditioner.
 {\shared}
  & Libraries    & n/a  & \\
 \cline{2-4}
- & Header files & sundials/sundials\_config.h        & sundials/sundials\_fconfig.h  \\
- &              & sundials/sundials\_types.h         & sundials/sundials\_math.h     \\
- &              & sundials/sundials\_nvector.h       & sundials/sundials\_fnvector.h \\
- &              & sundials/sundials\_iterative.h     & sundials/sundials\_direct.h   \\
- &              & sundials/sundials\_dense.h         & sundials/sundials\_band.h     \\
- &              & sundials/sundials\_matrix.h        & sundials/sundials\_version.h  \\
- &              & sundials/sundials\_linearsolver.h  & \\
+& Header files & sundials/sundials\_config.h           & \\
+&              & sundials/sundials\_fconfig.h          & \\
+&              & sundials/sundials\_types.h            & \\
+&              & sundials/sundials\_math.h             & \\
+&              & sundials/sundials\_nvector.h          & \\
+&              & sundials/sundials\_fnvector.h         & \\
+&              & sundials/sundials\_matrix.h           & \\
+&              & sundials/sundials\_linearsolver.h     & \\
+&              & sundials/sundials\_iterative.h        & \\
+&              & sundials/sundials\_direct.h           & \\
+&              & sundials/sundials\_dense.h            & \\
+&              & sundials/sundials\_band.h             & \\
+&              & sundials/sundials\_nonlinearsolver.h  & \\
+&              & sundials/sundials\_version.h          & \\
 \hline
 %% --------------------------------------------------
 {\nvecs}
@@ -1203,6 +1210,20 @@ are to be used in building a preconditioner.
  &              & libsundials\_fsunlinsolsuperlumt.a        & \\ 
 \cline{2-4}
  & Header files & sunlinsol/sunlinsol\_superlumt.h          & \\ 
+\hline
+%% --------------------------------------------------
+{\sunnonlinsolnewton}
+ & Libraries    & libsundials\_sunnonlinsolnewton.{\em lib} & \\
+ &              & libsundials\_fsunnonlinsolnewton.a        & \\
+\cline{2-4}
+ & Header files & sunnonlinsol/sunnonlinsol\_newton.h       & \\
+\hline
+%% --------------------------------------------------
+{\sunnonlinsolfixedpoint}
+ & Libraries    & libsundials\_sunnonlinsolfixedpoint.{\em lib} & \\
+ &              & libsundials\_fsunnonlinsolfixedpoint.a        & \\
+\cline{2-4}
+ & Header files & sunnonlinsol/sunnonlinsol\_fixedpoint.h       & \\
 \hline
 %% --------------------------------------------------
 {\cvode}

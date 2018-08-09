@@ -2,8 +2,8 @@
 \chapter{Introduction}\label{s:intro}
 %===================================================================================
 
-{\cvode} is part of a software family called {\sundials}: 
-SUite of Nonlinear and DIfferential/ALgebraic equation Solvers~\cite{HBGLSSW:05}.  
+{\cvode} is part of a software family called {\sundials}:
+SUite of Nonlinear and DIfferential/ALgebraic equation Solvers~\cite{HBGLSSW:05}.
 This suite consists of {\cvode}, {\arkode}, {\kinsol}, and {\ida}, and variants
 of these with sensitivity analysis capabilities.
 %
@@ -12,8 +12,8 @@ of these with sensitivity analysis capabilities.
 %---------------------------------
 
 \index{CVODE@{\cvode}!relationship to {\vode}, {\vodpk}|(}
-{\F} solvers for ODE initial value problems are widespread and heavily used. 
-Two solvers that have been written at LLNL in the past are {\vode}~\cite{BBH:89} 
+{\F} solvers for ODE initial value problems are widespread and heavily used.
+Two solvers that have been written at LLNL in the past are {\vode}~\cite{BBH:89}
 and {\vodpk}~\cite{Byr:92}.
 {\vode}\index{VODE@{\vode}} is a general purpose solver that includes methods for
 both stiff and nonstiff systems, and in the stiff case uses direct methods (full or
@@ -37,8 +37,8 @@ FGMRES (Flexible Generalized Minimum RESidual)~\cite{Saa:93},
 Bi-CGStab (Bi-Conjugate Gradient Stabilized)~\cite{Van:92}, TFQMR
 (Transpose-Free Quasi-Minimal Residual)~\cite{Fre:93}, and PCG
 (Preconditioned Conjugate Gradient)~\cite{HeSt:52} linear iterative
-methods.  As Krylov methods, these require almost no  
-matrix storage for solving the Newton equations as compared to direct 
+methods.  As Krylov methods, these require almost no
+matrix storage for solving the Newton equations as compared to direct
 methods. However, the algorithms allow for a user-supplied preconditioner
 matrix, and for most problems preconditioning is essential for an
 efficient solution.
@@ -80,9 +80,9 @@ writing the {\sundials} solvers in a manner independent of the actual
 allowing more than one {\nvector} module linked into an executable file.
 {\sundials} (and thus {\cvode}) is supplied with six different {\nvector}
 implementations:
-serial, MPI-parallel, and both openMP and Pthreads thread-parallel
+serial, MPI-parallel, and both OpenMP and Pthreads thread-parallel
 {\nvector} implementations, a Hypre parallel implementation,
-and a PetSC implementation.
+and a PETSc implementation.
 \index{CVODE@{\cvode}!relationship to {\cvode}, {\pvode}|)}
 
 \index{CVODE@{\cvode}!motivation for writing in C|(}
@@ -99,6 +99,69 @@ in extended {\F}.
 
 \section{Changes from previous versions}
 
+\subsection*{Changes in v4.0.0-dev.1}
+
+An API for encapsulating the nonlinear solvers used in {\sundials} implicit
+integrators has been introduced. The goal of this API is to ease the
+introduction of new nonlinear solver options in {\sundials} integrators and
+allow for external or user-supplied nonlinear solvers. The {\sunnonlinsol} API
+and provided {\sunnonlinsol} modules are described in
+Chapter~\ref{c:sunnonlinsol} and follow the same object oriented design and
+implementation used by the {\nvector}, {\sunmatrix}, and {\sunlinsol} modules.
+
+{\sunnonlinsol} modules are intended to solve nonlinear systems formulated as
+either a rootfinding problem $F(y)=0$ or a fixed-point problem $G(y)=y$.
+Currently two {\sunnonlinsol} implementations are provided,
+{\sunnonlinsolnewton} and {\sunnonlinsolfixedpoint}. These replicate the
+previous integrator specific implementations of a Newton iteration and a
+fixed-point iteration (previously referred to as a functional iteration),
+respectively. Additionally, the fixed-point iteration can use Anderson's method
+to accelerate convergence. Example programs using each of these nonlinear solver
+modules in a standalone manner have been added and all {\cvode} example programs
+have been updated to use generic {\sunnonlinsol} modules.
+
+With the introduction of {\sunnonlinsol} modules, the input parameter \id{iter}
+to \id{CVodeCreate} has been removed as well as the constants \id{CV\_NEWTON}
+and \id{CV\_FUNCTIONAL}. Similarly, the \id{ITMETH} parameter has been removed
+from the Fortran interface function \id{FCVMALLOC}. Instead of specifying the
+nonlinear iteration type when creating the {\cvode} memory structure, {\cvode}
+uses the {\sunnonlinsolnewton} module implementation of a Newton iteration by
+default. To use the fixed-point nonlinear solver with {\cvode} a user must do
+the following:
+\begin{enumerate}
+\item include the header \id{sunnonlinsol/sunnonlinsol\_fixedpoint.h} to access
+  the\\
+  \noindent{\sunnonlinsolfixedpoint} module,
+\item create a nonlinear solver object by calling the fixed-point
+  constructor
+\vspace{-1ex}
+\begin{verbatim}  
+  NLS = SUNNonlinSol_FixedPoint(y, m);
+\end{verbatim}
+\vspace{-1ex}
+  where \id{NLS} is the nonlinear solver object of type \id{SUNNonlinearSolver},
+  \id{y} is an \id{NVector} the size of the ODE system, and \id{m} is the number
+  of acceleration vectors (see \S\ref{s:sunnonlinsol_fixedpoint} for more
+  detail), and 
+\item after initializing {\cvode} with \id{CVodeInit}, call
+\vspace{-1ex}
+\begin{verbatim}  
+  retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
+\end{verbatim}
+\vspace{-1ex}
+  to attach the nonlinear solver object to the {\cvode} memory structure.
+\end{enumerate}
+User-supplied nonlinear solver modules adhering to the {\sunnonlinsol} API for
+solving $F(y)=0$ or $G(y)=y$ can be used with {\cvode} by following the same
+include, create, and attach process just described for the
+{\sunnonlinsolfixedpoint} module.
+
+As a result of this new nonlinear solver object creation and attachment approach,
+the function \id{CVodeSetIterType} has been removed. {\cvode} functions for
+setting the nonlinear solver options (e.g., \id{CVodeSetMaxNonlinIters}) or
+getting nonlinear solver statistics (e.g., \id{CVodeGetNumNonlinSolvIters})
+remain unchanged and internally call generic {\sunnonlinsol} functions.
+
 \subsection*{Changes in v4.0.0-dev}
 
 Three fused vector operations and seven vector array operations have
@@ -106,7 +169,7 @@ been added to the {\nvector} API. These \textit{optional} operations
 are intended to increase data reuse in vector operations, reduce
 parallel communication on distributed memory systems, and lower the
 number of kernel launches on systems with accelerators. The new
-operations are 
+operations are
 \id{N\_VLinearCombination},
 \id{N\_VScaleAddMulti},
 \id{N\_VDotProdMulti},
@@ -144,6 +207,40 @@ scheme. Additionally, parts of the main CMakeLists.txt file were moved
 to new files in the \id{src} and \id{example} directories to make the
 CMake configuration file structure more modular.
 
+\subsection*{Changes in v3.1.2}
+
+The changes in this minor release include the following:
+\begin{itemize}
+\item Updated the minimum required version of CMake to 2.8.12 and enabled
+  using rpath by default to locate shared libraries on OSX.
+\item Fixed Windows specific problem where \id{sunindextype} was not correctly 
+  defined when using 64-bit integers for the {\sundials} index type. On Windows
+  \id{sunindextype} is now defined as the MSVC basic type \id{\_\_int64}.
+\item Added sparse SUNMatrix ``Reallocate'' routine to allow specification of
+  the nonzero storage.
+\item Updated the KLU SUNLinearSolver module to set constants for the two
+  reinitialization types, and fixed a bug in the full reinitialization
+  approach where the sparse SUNMatrix pointer would go out of scope on
+  some architectures.
+\item Updated the ``ScaleAdd'' and ``ScaleAddI'' implementations in the
+  sparse SUNMatrix module to more optimally handle the case where the
+  target matrix contained sufficient storage for the sum, but had the
+  wrong sparsity pattern.  The sum now occurs in-place, by performing
+  the sum backwards in the existing storage.  However, it is still more
+  efficient if the user-supplied Jacobian routine allocates storage for
+  the sum $I+\gamma J$ manually (with zero entries if needed).
+\item Added the following examples from the usage notes page of the SUNDIALS website,
+  and updated them to work with SUNDIALS 3.x:
+  \begin{itemize}
+  \item \id{cvDisc\_dns.c}, which demonstrates using CVODE with 
+    discontinuous solutions or RHS.
+  \item \id{cvRoberts\_dns\_negsol.c}, which illustrates the 
+    use of the RHS function return value to control unphysical negative
+    concentrations.
+  \end{itemize}
+\item Changed the LICENSE install path to \id{instdir/include/sundials}.
+\end{itemize}
+
 \subsection*{Changes in v3.1.1}
 
 The changes in this minor release include the following:
@@ -154,13 +251,13 @@ The changes in this minor release include the following:
 \item Fixed a potential memory leak in the {\spgmr} and {\spfgmr} linear
   solvers: if ``Initialize'' was called multiple times then the solver
   memory was reallocated (without being freed).
-  
+
 \item Updated KLU SUNLINEARSOLVER module to use a \id{typedef} for the
-  precision-specific solve function to be used (to avoid compiler 
-  warnings).  
+  precision-specific solve function to be used (to avoid compiler
+  warnings).
 
 \item Added missing typecasts for some \id{(void*)} pointers (again, to
-  avoid compiler warnings). 
+  avoid compiler warnings).
 
 \item Bugfix in \id{sunmatrix\_sparse.c} where we had used \id{int}
   instead of \id{sunindextype} in one location.
@@ -175,7 +272,7 @@ The changes in this minor release include the following:
 
 \item Fixed compilation issue with GCC 7.3.0 and Fortran programs that do
   not require a {\sunmatrix} or {\sunlinsol} module (e.g., iterative
-  linear solvers or functional iteration).
+  linear solvers or fixed-point iteration).
 \end{itemize}
 In addition to the changes above, minor corrections were also made to the
 example programs, build system, and user documentation.
@@ -191,10 +288,10 @@ installing with \id{make install} respectively.
 
 \subsection*{Changes in v3.0.0}
 
-All interfaces to matrix structures and linear solvers 
-have been reworked, and all example programs have been updated. 
+All interfaces to matrix structures and linear solvers
+have been reworked, and all example programs have been updated.
 The goal of the redesign of these interfaces was to provide more encapsulation
-and ease in interfacing custom linear solvers and interoperability 
+and ease in interfacing custom linear solvers and interoperability
 with linear solver libraries.
 Specific changes include:
 \begin{itemize}
@@ -229,26 +326,26 @@ Specific changes include:
 \end{itemize}
 
 Two additional {\nvector} implementations were added -- one for
-CUDA and one for RAJA vectors.  
+CUDA and one for RAJA vectors.
 These vectors are supplied to provide very basic support for running
 on GPU architectures.  Users are advised that these vectors both move all data
 to the GPU device upon construction, and speedup will only be realized if the
 user also conducts the right-hand-side function evaluation on the device.
 In addition, these vectors assume the problem fits on one GPU.
-Further information about RAJA, users are referred to th web site, 
+Further information about RAJA, users are referred to th web site,
 https://software.llnl.gov/RAJA/.
 These additions are accompanied by additions to various interface functions
 and to user documentation.
 
 All indices for data structures were updated to a new \id{sunindextype} that
-can be configured to be a 32- or 64-bit integer data index type. 
+can be configured to be a 32- or 64-bit integer data index type.
 \id{sunindextype} is defined to be \id{int32\_t} or \id{int64\_t} when portable types are
 supported, otherwise it is defined as \id{int} or \id{long int}.
-The Fortran interfaces continue to use \id{long int} for indices, except for 
+The Fortran interfaces continue to use \id{long int} for indices, except for
 their sparse matrix interface that now uses the new \id{sunindextype}.
-This new flexible capability for index types includes interfaces to 
-PETSc, hypre, SuperLU\_MT, and KLU with 
-either 32-bit or 64-bit capabilities depending how the user configures 
+This new flexible capability for index types includes interfaces to
+PETSc, hypre, SuperLU\_MT, and KLU with
+either 32-bit or 64-bit capabilities depending how the user configures
 {\sundials}.
 
 To avoid potential namespace conflicts, the macros defining \id{booleantype}
@@ -260,31 +357,31 @@ routines for all packages.  It is assumed that all necessary data
 for user-provided preconditioner operations will be allocated and
 stored in user-provided data structures.
 
-The file \id{include/sundials\_fconfig.h} was added. This file contains 
+The file \id{include/sundials\_fconfig.h} was added. This file contains
 {\sundials} type information for use in Fortran programs.
 
 Added functions \id{SUNDIALSGetVersion} and \id{SUNDIALSGetVersionNumber} to
 get {\sundials} release version information at runtime.
 
-The build system was expanded to support many of the xSDK-compliant keys. 
+The build system was expanded to support many of the xSDK-compliant keys.
 The xSDK is a movement in scientific software to provide a foundation for the
-rapid and efficient production of high-quality, 
+rapid and efficient production of high-quality,
 sustainable extreme-scale scientific applications.  More information can
 be found at, https://xsdk.info.
 
 In addition, numerous changes were made to the build system.
-These include the addition of separate \id{BLAS\_ENABLE} and \id{BLAS\_LIBRARIES} 
+These include the addition of separate \id{BLAS\_ENABLE} and \id{BLAS\_LIBRARIES}
 CMake variables, additional error checking during CMake configuration,
-minor bug fixes, and renaming CMake options to enable/disable examples 
+minor bug fixes, and renaming CMake options to enable/disable examples
 for greater clarity and an added option to enable/disable Fortran 77 examples.
-These changes included changing \id{EXAMPLES\_ENABLE} to \id{EXAMPLES\_ENABLE\_C}, 
-changing \id{CXX\_ENABLE} to \id{EXAMPLES\_ENABLE\_CXX}, changing \id{F90\_ENABLE} to 
+These changes included changing \id{EXAMPLES\_ENABLE} to \id{EXAMPLES\_ENABLE\_C},
+changing \id{CXX\_ENABLE} to \id{EXAMPLES\_ENABLE\_CXX}, changing \id{F90\_ENABLE} to
 \id{EXAMPLES\_ENABLE\_F90}, and adding an \id{EXAMPLES\_ENABLE\_F77} option.
 
-A bug fix was made in \id{CVodeFree} to call \id{lfree} unconditionally 
+A bug fix was made in \id{CVodeFree} to call \id{lfree} unconditionally
 (if non-NULL).
- 
-Corrections and additions were made to the examples, 
+
+Corrections and additions were made to the examples,
 to installation-related files,
 and to the user documentation.
 
@@ -306,12 +403,12 @@ are initialized upon linear solver instantiation as well as at the
 beginning of the problem solution.
 
 In {\fcvode}, corrections were made to three Fortran interface
-functions.  Missing Fortran interface routines were added so that 
-users can supply the sparse Jacobian routine when using sparse direct 
+functions.  Missing Fortran interface routines were added so that
+users can supply the sparse Jacobian routine when using sparse direct
 solvers.
 
 A memory leak was fixed in the banded preconditioner interface.
-In addition, updates were done to return integers from linear solver 
+In addition, updates were done to return integers from linear solver
 and preconditioner 'free' functions.
 
 The Krylov linear solver Bi-CGstab was enhanced by removing a redundant
@@ -319,7 +416,7 @@ dot product.  Various additions and corrections were made to the
 interfaces to the sparse solvers KLU and SuperLU\_MT, including support
 for CSR format when using KLU.
 
-New examples were added for use of the openMP vector and for use of 
+New examples were added for use of the OpenMP vector and for use of
 sparse direct solvers from Fortran.
 
 Minor corrections and additions were made to the {\cvode} solver, to the
@@ -334,7 +431,7 @@ an interface to the sparse direct solver KLU was added.
 Second, an interface to SuperLU\_MT, the multi-threaded version of
 SuperLU, was added as a thread-parallel sparse direct solver option,
 to be used with the serial version of the NVECTOR module.
-As part of these additions, a sparse matrix (CSC format) structure 
+As part of these additions, a sparse matrix (CSC format) structure
 was added to {\cvode}.
 
 Otherwise, only relatively minor modifications were made to the
@@ -378,7 +475,7 @@ declarations are just \id{INTEGER}.  Corresponding minor corrections were
 made to the user guide.
 
 Two new {\nvector} modules have been added for thread-parallel computing
-environments --- one for openMP, denoted \id{NVECTOR\_OPENMP},
+environments --- one for OpenMP, denoted \id{NVECTOR\_OPENMP},
 and one for Pthreads, denoted \id{NVECTOR\_PTHREADS}.
 
 With this version of {\sundials}, support and documentation of the
@@ -412,22 +509,22 @@ either defined (with no value) or not defined.
 \subsection*{Changes in v2.6.0}
 
 Two new features were added in this release: (a) a new linear solver module,
-based on Blas and Lapack for both dense and banded matrices, and (b) an option
+based on BLAS and LAPACK for both dense and banded matrices, and (b) an option
 to specify which direction of zero-crossing is to be monitored while performing
-rootfinding. 
+rootfinding.
 
 The user interface has been further refined. Some of the API changes involve:
-(a) a reorganization of all linear solver modules into two families (besides 
+(a) a reorganization of all linear solver modules into two families (besides
 the existing family of scaled preconditioned iterative linear solvers,
-the direct solvers, including the new Lapack-based ones, were also organized 
+the direct solvers, including the new LAPACK-based ones, were also organized
 into a {\em direct} family); (b) maintaining a single pointer to user data,
-optionally specified through a \id{Set}-type function; and (c) a general 
+optionally specified through a \id{Set}-type function; and (c) a general
 streamlining of the preconditioner modules distributed with the solver.
 
 \subsection*{Changes in v2.5.0}
 
-The main changes in this release involve a rearrangement of the entire 
-{\sundials} source tree (see \S\ref{ss:sun_org}). At the user interface 
+The main changes in this release involve a rearrangement of the entire
+{\sundials} source tree (see \S\ref{ss:sun_org}). At the user interface
 level, the main impact is in the mechanism of including {\sundials} header
 files which must now include the relative path (e.g. \id{\#include <cvode/cvode.h>}).
 Additional changes were made to the build system: all exported header files are
@@ -436,9 +533,9 @@ now installed in separate subdirectories of the instaltion {\em include} directo
 The functions in the generic dense linear solver (\id{sundials\_dense} and
 \id{sundials\_smalldense}) were modified to work for rectangular $m \times n$
 matrices ($m \le n$), while the factorization and solution functions were
-renamed to \id{DenseGETRF}/\id{denGETRF} and \id{DenseGETRS}/\id{denGETRS}, 
+renamed to \id{DenseGETRF}/\id{denGETRF} and \id{DenseGETRS}/\id{denGETRS},
 respectively.
-The factorization and solution functions in the generic band linear solver were 
+The factorization and solution functions in the generic band linear solver were
 renamed \id{BandGBTRF} and \id{BandGBTRS}, respectively.
 
 \subsection*{Changes in v2.4.0}
@@ -452,7 +549,7 @@ At the same time, function type names for Scaled Preconditioned Iterative
 Linear Solvers were added for the user-supplied Jacobian-times-vector and
 preconditioner setup and solve functions.
 
-The deallocation functions now take as arguments the address of the respective 
+The deallocation functions now take as arguments the address of the respective
 memory block pointer.
 
 To reduce the possibility of conflicts, the names of all header files have
@@ -478,7 +575,7 @@ The changes in this minor {\sundials} release affect only the build system.
 
 The major changes from the previous version involve a redesign of the
 user interface across the entire {\sundials} suite. We have eliminated the
-mechanism of providing optional inputs and extracting optional statistics 
+mechanism of providing optional inputs and extracting optional statistics
 from the solver through the \id{iopt} and \id{ropt} arrays. Instead,
 {\cvode} now provides a set of routines (with prefix \id{CVodeSet})
 to change the default values for various quantities controlling the
@@ -489,7 +586,7 @@ and {\id{Get}-type} routines. For more details see \S\ref{ss:optional_input}
 and \S\ref{ss:optional_output}.
 
 Additionally, the interfaces to several user-supplied routines
-(such as those providing Jacobians and preconditioner information) 
+(such as those providing Jacobians and preconditioner information)
 were simplified by reducing the number
 of arguments. The same information that was previously accessible
 through such arguments can now be obtained through {\id{Get}-type}
@@ -498,14 +595,14 @@ functions.
 The rootfinding feature was added, whereby the roots of a set of given
 functions may be computed during the integration of the ODE system.
 
-Installation of {\cvode} (and all of {\sundials}) has been completely 
+Installation of {\cvode} (and all of {\sundials}) has been completely
 redesigned and is now based on configure scripts.
 
 
 \section{Reading this User Guide}\label{ss:reading}
 
-This user guide is a combination of general usage instructions. 
-Specific example programs are provided as a separate document.  
+This user guide is a combination of general usage instructions.
+Specific example programs are provided as a separate document.
 We expect that some readers will want to
 concentrate on the general instructions, while others will refer
 mostly to the examples, and the organization is intended to
@@ -517,12 +614,13 @@ casual user, with a small IVP problem only, can get by with reading
 \S\ref{sss:cvode} only, and looking at examples in~\cite{cvode_ex}.
 
 In a different direction, a more expert user with an IVP problem may want to
-(a) use a package preconditioner (\S\ref{ss:preconds}), 
+(a) use a package preconditioner (\S\ref{ss:preconds}),
 (b) supply his/her own Jacobian or preconditioner routines (\S\ref{ss:user_fct_sim}),
-(c) do multiple runs of problems of the same size (\S\ref{sss:cvreinit}), 
-(d) supply a new {\nvector} module (Chapter \ref{s:nvector}), or even 
+(c) do multiple runs of problems of the same size (\S\ref{sss:cvreinit}),
+(d) supply a new {\nvector} module (Chapter \ref{s:nvector}),
 (e) supply new {\sunlinsol} and/or {\sunmatrix} modules (Chapters
-\ref{s:sunmatrix} and \ref{s:sunlinsol}).
+\ref{s:sunmatrix} and \ref{s:sunlinsol}), or even
+(f) supply new {\sunnonlinsol} modules (Chapter \ref{c:sunnonlinsol}).
 
 The structure of this document is as follows:
 \begin{itemize}
@@ -535,7 +633,7 @@ The structure of this document is as follows:
 \item
   The following chapter describes the structure of the {\sundials} suite
   of solvers (\S\ref{ss:sun_org}) and the software organization of the {\cvode}
-  solver (\S\ref{ss:cvode_org}). 
+  solver (\S\ref{ss:cvode_org}).
 \item
   Chapter \ref{s:simulation} is the main usage document for {\cvode} for
   {\CC} applications.  It includes a complete description of the user interface
@@ -552,7 +650,7 @@ The structure of this document is as follows:
   Chapter \ref{s:sunmatrix} gives a brief overview of the generic
   {\sunmatrix} module shared among the various components of
   {\sundials}, and details on the {\sunmatrix} implementations
-  provided with {\sundials}: 
+  provided with {\sundials}:
   a dense implementation (\S\ref{ss:sunmat_dense}),
   a banded implementation (\S\ref{ss:sunmat_band}) and
   a sparse implementation (\S\ref{ss:sunmat_sparse}).
@@ -572,6 +670,9 @@ The structure of this document is as follows:
 %%   Chapter \ref{s:gen_linsolv} describes in detail the generic linear
 %%   solvers shared by all {\sundials} solvers.
 \item
+  Chapter \ref{c:sunnonlinsol} describes the {\sunnonlinsol} API and nonlinear
+  solver implementations shared among the various components of {\sundials}.
+\item
   Finally, in the appendices, we provide detailed instructions for the installation
   of {\cvode}, within the structure of {\sundials} (Appendix \ref{c:install}), as well
   as a list of all the constants used for input to and output from {\cvode} functions
@@ -579,10 +680,10 @@ The structure of this document is as follows:
 \end{itemize}
 
 Finally, the reader should be aware of the following notational conventions
-in this user guide:  program listings and identifiers (such as \id{CVodeInit}) 
-within textual explanations appear in typewriter type style; 
+in this user guide:  program listings and identifiers (such as \id{CVodeInit})
+within textual explanations appear in typewriter type style;
 fields in {\CC} structures (such as {\em content}) appear in italics;
-and packages or modules, such as {\cvdls}, are written in all capitals. 
+and packages or modules, such as {\cvdls}, are written in all capitals.
 Usage and installation instructions that constitute important warnings
 are marked with a triangular symbol {\warn} in the margin.
 

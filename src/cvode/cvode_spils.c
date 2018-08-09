@@ -881,7 +881,7 @@ int cvSpilsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 {
   realtype bnorm;
   CVSpilsMem cvspils_mem;
-  int nli_inc, retval;
+  int curiter, nli_inc, retval;
   
   /* Return immediately if cv_mem or cv_mem->cv_lmem are NULL */
   if (cv_mem == NULL) {
@@ -896,11 +896,14 @@ int cvSpilsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   }
   cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
 
+  /* get current nonlinear solver iteration */
+  retval = SUNNonlinSolGetCurIter(cv_mem->NLS, &curiter);
+
   /* Test norm(b); if small, return x = 0 or x = b */
   cvspils_mem->deltar = cvspils_mem->eplifac * cv_mem->cv_tq[4]; 
   bnorm = N_VWrmsNorm(b, weight);
   if (bnorm <= cvspils_mem->deltar) {
-    if (cv_mem->cv_mnewt > 0) N_VConst(ZERO, b); 
+    if (curiter > 0) N_VConst(ZERO, b);
     return(0);
   }
 
@@ -958,8 +961,8 @@ int cvSpilsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   case SUNLS_RES_REDUCED:
     /* allow reduction but not solution on first Newton iteration, 
        otherwise return with a recoverable failure */
-    if (cv_mem->cv_mnewt == 0) return(0);
-    else                       return(1);
+    if (curiter == 0) return(0);
+    else              return(1);
     break;
   case SUNLS_CONV_FAIL:
   case SUNLS_ATIMES_FAIL_REC:

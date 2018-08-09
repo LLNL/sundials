@@ -55,8 +55,8 @@ Approved for public release; further dissemination unlimited
 \clearpage
 }
 
-\title{User Documentation for ARKode v3.0.0-dev\\
-       (SUNDIALS v4.0.0-dev)}
+\title{User Documentation for ARKode v3.0.0-dev.1\\
+       (SUNDIALS v4.0.0-dev.1)}
 \author{
   Daniel R. Reynolds$^1$, David J. Gardner$^2$, \\
   Alan C. Hindmarsh$^2$, Carol S. Woodward$^2$ \\
@@ -301,6 +301,11 @@ preconditioner routines.
 \section{Changes from previous versions}
 \label{Introduction:changes-from-previous-versions}
 
+\subsection{Changes in v3.0.0-dev.1}
+\label{Introduction:changes-in-v3-0-0-dev.1}
+
+No changes were made to ARKode in this release.
+
 \subsection{Changes in v3.0.0-dev}
 \label{Introduction:changes-in-v3-0-0-dev}
 The ARKode library has been entirely rewritten to support a modular
@@ -361,6 +366,33 @@ Additionally, parts of the main CMakeLists.txt file were moved
 to new files in the \code{src} and \code{example} directories to make the
 CMake configuration file structure more modular.
 
+\subsection{Changes in v2.1.2}
+\label{Introduction:changes-in-v2-1-2}
+Updated the minimum required version of CMake to 2.8.12 and enabled
+using rpath by default to locate shared libraries on OSX.
+
+Fixed Windows specific problem where sunindextype was not correctly
+defined when using 64-bit integers for the SUNDIALS index type. On Windows
+sunindextype is now defined as the MSVC basic type \texttt{\_\_int64}.
+
+Added sparse SUNMatrix ``Reallocate'' routine to allow specification of
+the nonzero storage.
+
+Updated the KLU SUNLinearSolver module to set constants for the two
+reinitialization types, and fixed a bug in the full reinitialization
+approach where the sparse SUNMatrix pointer would go out of scope on
+some architectures.
+
+Updated the ``ScaleAdd'' and ``ScaleAddI'' implementations in the
+sparse SUNMatrix module to more optimally handle the case where the
+target matrix contained sufficient storage for the sum, but had the
+wrong sparsity pattern.  The sum now occurs in-place, by performing
+the sum backwards in the existing storage.  However, it is still more
+efficient if the user-supplied Jacobian routine allocates storage for
+the sum $I+\gamma J$ or $M+\gamma J$ manually (with zero entries if
+needed).
+
+Changed LICENSE install path to \texttt{instdir/include/sundials}.
 
 \subsection{Changes in v2.1.1}
 \label{Introduction:changes-in-v2-1-1}
@@ -375,7 +407,7 @@ of just re-initialized).
 Fixed C++11 compiler errors/warnings about incompatible use of string
 literals.
 
-Updated KLU SUNLINEARSOLVER module to use a \code{typedef} for the
+Updated KLU SUNLinearSolver module to use a \code{typedef} for the
 precision-specific solve function to be used (to avoid compiler
 warnings).
 

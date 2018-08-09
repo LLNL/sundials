@@ -86,7 +86,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
                              N_Vector res);
 static void PrintHeader(realtype rtol, realtype atol, int linsolver);
 static void PrintOutput(void *mem, realtype t, N_Vector uu, int linsolver);
-static int check_flag(void *flagvalue, const char *funcname, int opt);
+static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 /*
  *--------------------------------------------------------------------
@@ -99,7 +99,7 @@ int main(void)
   void *mem;
   UserData data;
   N_Vector uu, up, constraints, res;
-  int ier, iout, linsolver;
+  int retval, iout, linsolver;
   realtype rtol, atol, t0, t1, tout, tret;
   long int netf, ncfn, ncfl;
   SUNLinearSolver LS;
@@ -112,20 +112,20 @@ int main(void)
   /* Allocate N-vectors and the user data structure. */
 
   uu = N_VNew_Serial(NEQ);
-  if(check_flag((void *)uu, "N_VNew_Serial", 0)) return(1);
+  if(check_retval((void *)uu, "N_VNew_Serial", 0)) return(1);
 
   up = N_VNew_Serial(NEQ);
-  if(check_flag((void *)up, "N_VNew_Serial", 0)) return(1);
+  if(check_retval((void *)up, "N_VNew_Serial", 0)) return(1);
 
   res = N_VNew_Serial(NEQ);
-  if(check_flag((void *)res, "N_VNew_Serial", 0)) return(1);
+  if(check_retval((void *)res, "N_VNew_Serial", 0)) return(1);
 
   constraints = N_VNew_Serial(NEQ);
-  if(check_flag((void *)constraints, "N_VNew_Serial", 0)) return(1);
+  if(check_retval((void *)constraints, "N_VNew_Serial", 0)) return(1);
 
   data = (UserData) malloc(sizeof *data);
   data->pp = NULL;
-  if(check_flag((void *)data, "malloc", 2)) return(1);
+  if(check_retval((void *)data, "malloc", 2)) return(1);
 
   /* Assign parameters in the user data structure. */
 
@@ -133,7 +133,7 @@ int main(void)
   data->dx = ONE/(MGRID-ONE);
   data->coeff = ONE/(data->dx * data->dx);
   data->pp = N_VNew_Serial(NEQ);
-  if(check_flag((void *)data->pp, "N_VNew_Serial", 0)) return(1);
+  if(check_retval((void *)data->pp, "N_VNew_Serial", 0)) return(1);
 
   /* Initialize uu, up. */
 
@@ -153,20 +153,20 @@ int main(void)
   /* Call IDACreate and IDAMalloc to initialize solution */
 
   mem = IDACreate();
-  if(check_flag((void *)mem, "IDACreate", 0)) return(1);
+  if(check_retval((void *)mem, "IDACreate", 0)) return(1);
 
-  ier = IDASetUserData(mem, data);
-  if(check_flag(&ier, "IDASetUserData", 1)) return(1);
+  retval = IDASetUserData(mem, data);
+  if(check_retval(&retval, "IDASetUserData", 1)) return(1);
 
-  ier = IDASetConstraints(mem, constraints);
-  if(check_flag(&ier, "IDASetConstraints", 1)) return(1);
+  retval = IDASetConstraints(mem, constraints);
+  if(check_retval(&retval, "IDASetConstraints", 1)) return(1);
   N_VDestroy(constraints);
 
-  ier = IDAInit(mem, resHeat, t0, uu, up);
-  if(check_flag(&ier, "IDAInit", 1)) return(1);
+  retval = IDAInit(mem, resHeat, t0, uu, up);
+  if(check_retval(&retval, "IDAInit", 1)) return(1);
 
-  ier = IDASStolerances(mem, rtol, atol);
-  if(check_flag(&ier, "IDASStolerances", 1)) return(1);
+  retval = IDASStolerances(mem, rtol, atol);
+  if(check_retval(&retval, "IDASStolerances", 1)) return(1);
 
   /* START: Loop through SPGMR, SPBCG and SPTFQMR linear solver modules */
   for (linsolver = 0; linsolver < 3; ++linsolver) {
@@ -177,8 +177,8 @@ int main(void)
       SetInitialProfile(data, uu, up, res);
 
       /* Re-initialize IDA */
-      ier = IDAReInit(mem, t0, uu, up);
-      if (check_flag(&ier, "IDAReInit", 1)) return(1);
+      retval = IDAReInit(mem, t0, uu, up);
+      if (check_retval(&retval, "IDAReInit", 1)) return(1);
 
     }
 
@@ -198,11 +198,11 @@ int main(void)
       /* Call SUNSPGMR to specify the linear solver SPGMR with
          left preconditioning and the default maximum Krylov dimension */
       LS = SUNSPGMR(uu, PREC_LEFT, 0);
-      if(check_flag((void *)LS, "SUNSPGMR", 0)) return(1);
+      if(check_retval((void *)LS, "SUNSPGMR", 0)) return(1);
 
       /* Attach the linear solver */
-      ier = IDASpilsSetLinearSolver(mem, LS);
-      if(check_flag(&ier, "IDASpilsSetLinearSolver", 1)) return 1;
+      retval = IDASpilsSetLinearSolver(mem, LS);
+      if(check_retval(&retval, "IDASpilsSetLinearSolver", 1)) return 1;
 
       break;
 
@@ -217,11 +217,11 @@ int main(void)
       /* Call SUNSPBCGS to specify the linear solver SPBCGS with
          left preconditioning and the default maximum Krylov dimension */
       LS = SUNSPBCGS(uu, PREC_LEFT, 0);
-      if(check_flag((void *)LS, "SUNSPBCGS", 0)) return(1);
+      if(check_retval((void *)LS, "SUNSPBCGS", 0)) return(1);
 
       /* Attach the linear solver */
-      ier = IDASpilsSetLinearSolver(mem, LS);
-      if(check_flag(&ier, "IDASpilsSetLinearSolver", 1)) return 1;
+      retval = IDASpilsSetLinearSolver(mem, LS);
+      if(check_retval(&retval, "IDASpilsSetLinearSolver", 1)) return 1;
 
       break;
 
@@ -236,19 +236,19 @@ int main(void)
       /* Call SUNSPTFQMR to specify the linear solver SPTFQMR with
          left preconditioning and the default maximum Krylov dimension */
       LS = SUNSPTFQMR(uu, PREC_LEFT, 0);
-      if(check_flag((void *)LS, "SUNSPTFQMR", 0)) return(1);
+      if(check_retval((void *)LS, "SUNSPTFQMR", 0)) return(1);
 
       /* Attach the linear solver */
-      ier = IDASpilsSetLinearSolver(mem, LS);
-      if(check_flag(&ier, "IDASpilsSetLinearSolver", 1)) return 1;
+      retval = IDASpilsSetLinearSolver(mem, LS);
+      if(check_retval(&retval, "IDASpilsSetLinearSolver", 1)) return 1;
 
       break;
 
     }
 
     /* Specify preconditioner */
-    ier = IDASpilsSetPreconditioner(mem, PsetupHeat, PsolveHeat);
-    if(check_flag(&ier, "IDASpilsSetPreconditioner", 1)) return(1);
+    retval = IDASpilsSetPreconditioner(mem, PsetupHeat, PsolveHeat);
+    if(check_retval(&retval, "IDASpilsSetPreconditioner", 1)) return(1);
 
     /* Print output heading. */
     PrintHeader(rtol, atol, linsolver);
@@ -262,20 +262,20 @@ int main(void)
     /* Loop over output times, call IDASolve, and print results. */
 
     for (tout = t1,iout = 1; iout <= NOUT ; iout++, tout *= TWO) {
-      ier = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
-      if(check_flag(&ier, "IDASolve", 1)) return(1);
+      retval = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
+      if(check_retval(&retval, "IDASolve", 1)) return(1);
       PrintOutput(mem, tret, uu, linsolver);
     }
 
     /* Print remaining counters. */
-    ier = IDAGetNumErrTestFails(mem, &netf);
-    check_flag(&ier, "IDAGetNumErrTestFails", 1);
+    retval = IDAGetNumErrTestFails(mem, &netf);
+    check_retval(&retval, "IDAGetNumErrTestFails", 1);
 
-    ier = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
-    check_flag(&ier, "IDAGetNumNonlinSolvConvFails", 1);
+    retval = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+    check_retval(&retval, "IDAGetNumNonlinSolvConvFails", 1);
 
-    ier = IDASpilsGetNumConvFails(mem, &ncfl);
-    check_flag(&ier, "IDASpilsGetNumConvFails", 1);
+    retval = IDASpilsGetNumConvFails(mem, &ncfl);
+    check_retval(&retval, "IDASpilsGetNumConvFails", 1);
 
     printf("\nError test failures            = %ld\n", netf);
     printf("Nonlinear convergence failures = %ld\n", ncfn);
@@ -515,31 +515,31 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu, int linsolver)
 {
   realtype hused, umax;
   long int nst, nni, nje, nre, nreLS, nli, npe, nps;
-  int kused, ier;
+  int kused, retval;
   
   umax = N_VMaxNorm(uu);
 
-  ier = IDAGetLastOrder(mem, &kused);
-  check_flag(&ier, "IDAGetLastOrder", 1);
-  ier = IDAGetNumSteps(mem, &nst);
-  check_flag(&ier, "IDAGetNumSteps", 1);
-  ier = IDAGetNumNonlinSolvIters(mem, &nni);
-  check_flag(&ier, "IDAGetNumNonlinSolvIters", 1);
-  ier = IDAGetNumResEvals(mem, &nre);
-  check_flag(&ier, "IDAGetNumResEvals", 1);
-  ier = IDAGetLastStep(mem, &hused);
-  check_flag(&ier, "IDAGetLastStep", 1);
+  retval = IDAGetLastOrder(mem, &kused);
+  check_retval(&retval, "IDAGetLastOrder", 1);
+  retval = IDAGetNumSteps(mem, &nst);
+  check_retval(&retval, "IDAGetNumSteps", 1);
+  retval = IDAGetNumNonlinSolvIters(mem, &nni);
+  check_retval(&retval, "IDAGetNumNonlinSolvIters", 1);
+  retval = IDAGetNumResEvals(mem, &nre);
+  check_retval(&retval, "IDAGetNumResEvals", 1);
+  retval = IDAGetLastStep(mem, &hused);
+  check_retval(&retval, "IDAGetLastStep", 1);
 
-  ier = IDASpilsGetNumJtimesEvals(mem, &nje);
-  check_flag(&ier, "IDASpilsGetNumJtimesEvals", 1);
-  ier = IDASpilsGetNumLinIters(mem, &nli);
-  check_flag(&ier, "IDASpilsGetNumLinIters", 1);
-  ier = IDASpilsGetNumResEvals(mem, &nreLS);
-  check_flag(&ier, "IDASpilsGetNumResEvals", 1);
-  ier = IDASpilsGetNumPrecEvals(mem, &npe);
-  check_flag(&ier, "IDASpilsGetPrecEvals", 1);
-  ier = IDASpilsGetNumPrecSolves(mem, &nps);
-  check_flag(&ier, "IDASpilsGetNumPrecSolves", 1);
+  retval = IDASpilsGetNumJtimesEvals(mem, &nje);
+  check_retval(&retval, "IDASpilsGetNumJtimesEvals", 1);
+  retval = IDASpilsGetNumLinIters(mem, &nli);
+  check_retval(&retval, "IDASpilsGetNumLinIters", 1);
+  retval = IDASpilsGetNumResEvals(mem, &nreLS);
+  check_retval(&retval, "IDASpilsGetNumResEvals", 1);
+  retval = IDASpilsGetNumPrecEvals(mem, &npe);
+  check_retval(&retval, "IDASpilsGetPrecEvals", 1);
+  retval = IDASpilsGetNumPrecSolves(mem, &nps);
+  check_retval(&retval, "IDASpilsGetNumPrecSolves", 1);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
   printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le  %3ld %3ld\n",
@@ -557,32 +557,32 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu, int linsolver)
  * Check function return value...
  *   opt == 0 means SUNDIALS function allocates memory so check if
  *            returned NULL pointer
- *   opt == 1 means SUNDIALS function returns a flag so check if
- *            flag >= 0
+ *   opt == 1 means SUNDIALS function returns an integer value so check if
+ *            retval >= 0
  *   opt == 2 means function allocates memory so check if returned
  *            NULL pointer 
  */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt)
+static int check_retval(void *returnvalue, const char *funcname, int opt)
 {
-  int *errflag;
+  int *retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, 
             "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", 
             funcname);
     return(1);
   } else if (opt == 1) {
-    /* Check if flag < 0 */
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
+    /* Check if retval < 0 */
+    retval = (int *) returnvalue;
+    if (*retval < 0) {
       fprintf(stderr, 
-              "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", 
-              funcname, *errflag);
+              "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n", 
+              funcname, *retval);
       return(1); 
     }
-  } else if (opt == 2 && flagvalue == NULL) {
+  } else if (opt == 2 && returnvalue == NULL) {
     /* Check if function returned NULL pointer - no memory allocated */
     fprintf(stderr, 
             "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", 

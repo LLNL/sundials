@@ -26,19 +26,20 @@ SET(fida_SOURCES
   fidaewt.c
   fidajtimes.c
   fidanullmatrix.c
+  fidanullnonlinsol.c
   fidapreco.c
   fidaroot.c
   fidasparse.c
   )
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
-# also be included in the ARKODE library
+# also be included in the IDA library
 SET(shared_SOURCES
   ${sundials_SOURCE_DIR}/src/nvec_ser/fnvector_serial.c
   )
 
 # Add variable sunmatrix_SOURCES with the common SUNMatrix sources which will
-# also be included in the ARKODE library
+# also be included in the IDA library
 SET(sunmatrix_SOURCES
   ${sundials_SOURCE_DIR}/src/sunmat_band/fsunmatrix_band.c
   ${sundials_SOURCE_DIR}/src/sunmat_dense/fsunmatrix_dense.c
@@ -46,7 +47,7 @@ SET(sunmatrix_SOURCES
   )
 
 # Add variable sunlinsol_SOURCES with the common SUNLinearSolver sources which will
-# also be included in the ARKODE library
+# also be included in the IDA library
 SET(sunlinsol_SOURCES
   ${sundials_SOURCE_DIR}/src/sunlinsol_band/fsunlinsol_band.c
   ${sundials_SOURCE_DIR}/src/sunlinsol_dense/fsunlinsol_dense.c
@@ -76,6 +77,11 @@ IF(LAPACK_FOUND)
     )
 ENDIF()
 
+# Add variable sunnonlinsol_SOURCES with the common SUNNonlinearSolver sources
+# which will also be included in the IDA library
+SET(sunnonlinsol_SOURCES
+  ${sundials_SOURCE_DIR}/src/sunnonlinsol/newton/fsunnonlinsol_newton.c
+  )
 
 # Add source directories to include directories for access to
 # implementation only header files (both for fida and ida)
@@ -91,7 +97,8 @@ ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 
 # Add the build target for the FIDA library
 ADD_LIBRARY(sundials_fida_static STATIC
-  ${fida_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES})
+  ${fida_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES}
+  ${sunnonlinsol_SOURCES})
 
 # Set the library name and make sure it is not deleted
 SET_TARGET_PROPERTIES(sundials_fida_static

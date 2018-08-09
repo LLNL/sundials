@@ -79,7 +79,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data);
 
 /* Private function to check function return values */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
+static int check_retval(void *returnvalue, const char *funcname, int opt, int id);
 
 /***************************** Main Program ******************************/
 
@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
   N_Vector u;
   UserData data;
   void *cvode_mem;
-  int iout, flag, my_pe, npes;
+  int iout, retval, my_pe, npes;
   sunindextype local_N, nperpe, nrem, my_base;
   long int nst;
 
@@ -112,14 +112,14 @@ int main(int argc, char *argv[])
   my_base = (my_pe < nrem) ? my_pe*local_N : my_pe*nperpe + nrem;
 
   data = (UserData) malloc(sizeof *data);  /* Allocate data memory */
-  if(check_flag((void *)data, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
+  if(check_retval((void *)data, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
 
   data->comm = comm;
   data->npes = npes;
   data->my_pe = my_pe;
 
   u = N_VNew_Parallel(comm, local_N, NEQ);  /* Allocate u vector */
-  if(check_flag((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
+  if(check_retval((void *)u, "N_VNew", 0, my_pe)) MPI_Abort(comm, 1);
 
   reltol = ZERO;  /* Set the tolerances */
   abstol = ATOL;
@@ -131,27 +131,27 @@ int main(int argc, char *argv[])
   SetIC(u, dx, local_N, my_base);  /* Initialize u vector */
 
   /* Call CVodeCreate to create the solver memory and specify the
-   * Adams-Moulton LMM and the use of a functional iteration */
-  cvode_mem = CVodeCreate(CV_ADAMS, CV_NEWTON);
-  if(check_flag((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
+   * Adams-Moulton LMM */
+  cvode_mem = CVodeCreate(CV_ADAMS);
+  if(check_retval((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVodeSetUserData(cvode_mem, data);
-  if(check_flag(&flag, "CVodeSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeSetUserData(cvode_mem, data);
+  if(check_retval(&retval, "CVodeSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in u'=f(t,u), the inital time T0, and
    * the initial dependent variable vector u. */
-  flag = CVodeInit(cvode_mem, f, T0, u);
-  if(check_flag(&flag, "CVodeInit", 1, my_pe)) return(1);
+  retval = CVodeInit(cvode_mem, f, T0, u);
+  if(check_retval(&retval, "CVodeInit", 1, my_pe)) return(1);
 
   /* Call CVodeSStolerances to specify the scalar relative tolerance
    * and scalar absolute tolerances */
-  flag = CVodeSStolerances(cvode_mem, reltol, abstol);
-  if (check_flag(&flag, "CVodeSStolerances", 1, my_pe)) return(1);
+  retval = CVodeSStolerances(cvode_mem, reltol, abstol);
+  if (check_retval(&retval, "CVodeSStolerances", 1, my_pe)) return(1);
 
   /* Call CVDiag to create and attach CVODE-specific diagonal linear solver */
-  flag = CVDiag(cvode_mem);
-  if(check_flag(&flag, "CVDiag", 1, my_pe)) return(1);
+  retval = CVDiag(cvode_mem);
+  if(check_retval(&retval, "CVDiag", 1, my_pe)) return(1);
 
   if (my_pe == 0) PrintIntro(npes);
 
@@ -165,11 +165,11 @@ int main(int argc, char *argv[])
   /* In loop over output points, call CVode, print results, test for error */
 
   for (iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
-    flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
-    if(check_flag(&flag, "CVode", 1, my_pe)) break;
+    retval = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
+    if(check_retval(&retval, "CVode", 1, my_pe)) break;
     umax = N_VMaxNorm(u);
-    flag = CVodeGetNumSteps(cvode_mem, &nst);
-    check_flag(&flag, "CVodeGetNumSteps", 1, my_pe);
+    retval = CVodeGetNumSteps(cvode_mem, &nst);
+    check_retval(&retval, "CVodeGetNumSteps", 1, my_pe);
     if (my_pe == 0) PrintData(t, umax, nst);
   }
 
@@ -241,18 +241,18 @@ static void PrintData(realtype t, realtype umax, long int nst)
 static void PrintFinalStats(void *cvode_mem)
 {
   long int nst, nfe, nni, ncfn, netf;
-  int flag;
+  int retval;
 
-  flag = CVodeGetNumSteps(cvode_mem, &nst);
-  check_flag(&flag, "CVodeGetNumSteps", 1, 0);
-  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  check_flag(&flag, "CVodeGetNumRhsEvals", 1, 0);
-  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-  check_flag(&flag, "CVodeGetNumErrTestFails", 1, 0);
-  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1, 0);
-  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1, 0);
+  retval = CVodeGetNumSteps(cvode_mem, &nst);
+  check_retval(&retval, "CVodeGetNumSteps", 1, 0);
+  retval = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  check_retval(&retval, "CVodeGetNumRhsEvals", 1, 0);
+  retval = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  check_retval(&retval, "CVodeGetNumErrTestFails", 1, 0);
+  retval = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  check_retval(&retval, "CVodeGetNumNonlinSolvIters", 1, 0);
+  retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1, 0);
 
   printf("\nFinal Statistics: \n\n");
   printf("nst = %-6ld  nfe  = %-6ld  ", nst, nfe);
@@ -268,7 +268,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   realtype ui, ult, urt, hordc, horac, hdiff, hadv;
   realtype *udata, *dudata, *z;
   int i;
-  int npes, my_pe, my_length, my_pe_m1, my_pe_p1, last_pe, my_last;
+  int npes, my_pe, my_length, my_pe_m1, my_pe_p1, last_pe;
   UserData data;
   MPI_Status status;
   MPI_Comm comm;
@@ -292,7 +292,6 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   my_pe_m1 = my_pe - 1;
   my_pe_p1 = my_pe + 1;
   last_pe = npes - 1;
-  my_last = my_length - 1;
 
   /* Store local segment of u in the working array z. */
    for (i = 1; i <= my_length; i++)
@@ -333,31 +332,31 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 /* Check function return value...
      opt == 0 means SUNDIALS function allocates memory so check if
               returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if
-              flag >= 0
+     opt == 1 means SUNDIALS function returns an integer value so check if
+              retval >= 0
      opt == 2 means function allocates memory so check if returned
               NULL pointer */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt, int id)
+static int check_retval(void *returnvalue, const char *funcname, int opt, int id)
 {
-  int *errflag;
+  int *retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n",
             id, funcname);
     return(1); }
 
-  /* Check if flag < 0 */
+  /* Check if retval < 0 */
   else if (opt == 1) {
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
-              id, funcname, *errflag);
+    retval = (int *) returnvalue;
+    if (*retval < 0) {
+      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with retval = %d\n\n",
+              id, funcname, *retval);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
             id, funcname);
     return(1); }

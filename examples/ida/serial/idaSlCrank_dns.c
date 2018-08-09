@@ -54,7 +54,7 @@ void force(N_Vector yy, realtype *Q, UserData data);
 static void PrintHeader(realtype rtol, realtype atol, N_Vector y);
 static void PrintOutput(void *mem, realtype t, N_Vector y);
 static void PrintFinalStats(void *mem);
-static int check_flag(void *flagvalue, const char *funcname, int opt);
+static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 /*
  *--------------------------------------------------------------------
@@ -70,7 +70,7 @@ int main(void)
   N_Vector yy, yp, id;
   realtype rtol, atol;
   realtype t0, tf, tout, dt, tret;
-  int flag, iout;
+  int retval, iout;
   SUNMatrix A;
   SUNLinearSolver LS;
 
@@ -116,23 +116,23 @@ int main(void)
 
   /* IDA initialization */
   mem = IDACreate();
-  flag = IDAInit(mem, ressc, t0, yy, yp);
-  flag = IDASStolerances(mem, rtol, atol);
-  flag = IDASetUserData(mem, data);
-  flag = IDASetId(mem, id);
-  flag = IDASetSuppressAlg(mem, SUNTRUE);
+  retval = IDAInit(mem, ressc, t0, yy, yp);
+  retval = IDASStolerances(mem, rtol, atol);
+  retval = IDASetUserData(mem, data);
+  retval = IDASetId(mem, id);
+  retval = IDASetSuppressAlg(mem, SUNTRUE);
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(NEQ, NEQ);
-  if(check_flag((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object */
   LS = SUNDenseLinearSolver(yy, A);
-  if(check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+  if(check_retval((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
 
   /* Attach the matrix and linear solver */
-  flag = IDADlsSetLinearSolver(mem, LS, A);
-  if(check_flag(&flag, "IDADlsSetLinearSolver", 1)) return(1);
+  retval = IDADlsSetLinearSolver(mem, LS, A);
+  if(check_retval(&retval, "IDADlsSetLinearSolver", 1)) return(1);
 
   PrintHeader(rtol, atol, yy);
 
@@ -143,8 +143,8 @@ int main(void)
   tout = dt;
   for (iout=1; iout<NOUT; iout++) {
     tout = iout*dt;
-    flag = IDASolve(mem, tout, &tret, yy, yp, IDA_NORMAL);
-    if (flag < 0) break;
+    retval = IDASolve(mem, tout, &tret, yy, yp, IDA_NORMAL);
+    if (retval < 0) break;
 
     PrintOutput(mem,tret,yy);
 
@@ -326,15 +326,15 @@ static void PrintHeader(realtype rtol, realtype atol, N_Vector y)
 static void PrintOutput(void *mem, realtype t, N_Vector y)
 {
   realtype *yval;
-  int flag, kused;
+  int retval, kused;
   long int nst;
   realtype hused;
 
   yval  = N_VGetArrayPointer(y);
 
-  flag = IDAGetLastOrder(mem, &kused);
-  flag = IDAGetNumSteps(mem, &nst);
-  flag = IDAGetLastStep(mem, &hused);
+  retval = IDAGetLastOrder(mem, &kused);
+  retval = IDAGetNumSteps(mem, &nst);
+  retval = IDAGetLastStep(mem, &hused);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%10.4Le %12.4Le %12.4Le %12.4Le %3ld  %1d %12.4Le\n", 
@@ -348,16 +348,16 @@ static void PrintOutput(void *mem, realtype t, N_Vector y)
 
 static void PrintFinalStats(void *mem)
 {
-  int flag;
+  int retval;
   long int nst, nni, nje, nre, nreLS, netf, ncfn;
 
-  flag = IDAGetNumSteps(mem, &nst);
-  flag = IDAGetNumResEvals(mem, &nre);
-  flag = IDADlsGetNumJacEvals(mem, &nje);
-  flag = IDAGetNumNonlinSolvIters(mem, &nni);
-  flag = IDAGetNumErrTestFails(mem, &netf);
-  flag = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
-  flag = IDADlsGetNumResEvals(mem, &nreLS);
+  retval = IDAGetNumSteps(mem, &nst);
+  retval = IDAGetNumResEvals(mem, &nre);
+  retval = IDADlsGetNumJacEvals(mem, &nje);
+  retval = IDAGetNumNonlinSolvIters(mem, &nni);
+  retval = IDAGetNumErrTestFails(mem, &netf);
+  retval = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
+  retval = IDADlsGetNumResEvals(mem, &nreLS);
 
   printf("\nFinal Run Statistics: \n\n");
   printf("Number of steps                    = %ld\n", nst);
@@ -372,31 +372,31 @@ static void PrintFinalStats(void *mem)
  * Check function return value...
  *   opt == 0 means SUNDIALS function allocates memory so check if
  *            returned NULL pointer
- *   opt == 1 means SUNDIALS function returns a flag so check if
- *            flag >= 0
+ *   opt == 1 means SUNDIALS function returns an integer value so check if
+ *            retval >= 0
  *   opt == 2 means function allocates memory so check if returned
  *            NULL pointer 
  */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt)
+static int check_retval(void *returnvalue, const char *funcname, int opt)
 {
-  int *errflag;
+  int *retval;
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, 
             "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", 
             funcname);
     return(1);
   } else if (opt == 1) {
-    /* Check if flag < 0 */
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
+    /* Check if retval < 0 */
+    retval = (int *) returnvalue;
+    if (*retval < 0) {
       fprintf(stderr, 
-              "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", 
-              funcname, *errflag);
+              "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n", 
+              funcname, *retval);
       return(1); 
     }
-  } else if (opt == 2 && flagvalue == NULL) {
+  } else if (opt == 2 && returnvalue == NULL) {
     /* Check if function returned NULL pointer - no memory allocated */
     fprintf(stderr, 
             "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", 

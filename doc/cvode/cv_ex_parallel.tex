@@ -11,7 +11,7 @@ for $u=u(t,x)$
    + 0.5\frac{\partial u}{\partial x}  \label{PDE1}
 \end{equation}
 for $0 \leq t \leq 5, ~~ 0\leq x \leq 2$, and subject to homogeneous
-Dirichlet boundary conditions and initial values given by 
+Dirichlet boundary conditions and initial values given by
 \begin{eqnarray}
 u(t,0) &=& 0 ~,~~~~u(t,2) = 0 ~, \label{BCIC1} \\
 u(0,x) &=& x(2-x)e^{2x} ~. \nonumber
@@ -20,7 +20,7 @@ A system of \id{MX} ODEs is obtained by discretizing the $x$-axis with \id{MX}+2
 grid points and replacing the first and second order spatial derivatives
 with their central difference approximations. Since the value of $u$ is
 constant at the two endpoints, the semi-discrete equations for those points
-can be eliminated.  With $u_{i}$ as the approximation to $u(t,x_{i})$, 
+can be eliminated.  With $u_{i}$ as the approximation to $u(t,x_{i})$,
 $x_{i} = i(\Delta x)$, and $\Delta x = 2/($\id{MX}$+1)$, the resulting system of
 ODEs, $\dot{u} = f(t,u)$, can now be written:
 \begin{equation}
@@ -41,8 +41,8 @@ vector to its right-hand neighbor, and acquire the first component of that
 neighbor's block. If the processor is the first ($0$th) or last processor,
 then communication to the left or right (respectively) is not required.
 
-This problem uses the Adams (non-stiff) integration formula and functional
-iteration.  It is unrealistically simple, but serves to illustrate
+This problem uses the Adams (non-stiff) integration formula and fixed-point
+nonlinear solver.  It is unrealistically simple, but serves to illustrate
 use of the parallel version of CVODE.
 
 The \id{cvAdvDiff\_non\_p.c} file begins with \id{\#include} declarations for
@@ -97,7 +97,7 @@ The \id{cvAdvDiff\_non\_p.c} file includes a routine \id{check\_flag} that check
 return values from calls in \id{main}.  This routine was written to be used
 by any parallel {\sundials} application.
 
-The output below is for \id{cvAdvDiff\_non\_p} with \id{MX} = 10 and four processors. 
+The output below is for \id{cvAdvDiff\_non\_p} with \id{MX} = 10 and four processors.
 Varying the number of processors will alter the output, only because
 of roundoff-level differences in various vector operations.  The fairly
 high value of \id{ncfn} indicates that this problem is on the borderline
@@ -114,9 +114,9 @@ of being stiff.
 As an example of using {\cvode} with the Krylov linear solver
 {\sunlinsolspgmr}, iterative linear solver interfce {\cvspils}, and
 the parallel MPI {\nvecp} module, we describe a test problem based on
-the system PDEs given above for the \id{cvDiurnal\_kry} example.   
+the system PDEs given above for the \id{cvDiurnal\_kry} example.
 As before, we discretize the PDE system with central differencing, to
-obtain an ODE system $\dot{u} = f(t,u)$ representing (\ref{cvDiurnalpde}).  
+obtain an ODE system $\dot{u} = f(t,u)$ representing (\ref{cvDiurnalpde}).
 But in this case, the discrete solution vector is distributed over
 many processors.  Specifically, we may think of the processors as
 being laid out in a rectangle, and each processor being assigned a
@@ -125,7 +125,7 @@ there are \id{NPEX} processors in the $x$ direction and \id{NPEY}
 processors in the $y$ direction, then the overall grid size is
 \id{MX}$\times$\id{MY} with \id{MX}$=$\id{NPEX}$\times$\id{MXSUB} and
 \id{MY}$=$\id{NPEY}$\times$\id{MYSUB}, and the size of the ODE system is
-$2\cdot$\id{MX}$\cdot$\id{MY}.  
+$2\cdot$\id{MX}$\cdot$\id{MY}.
 
 To compute $f$ in this setting, the processors pass and receive
 information as follows.  The solution components for the bottom row of
@@ -154,13 +154,13 @@ preconditioner is generated, for re-use later under certain conditions.
 The organization of the \id{cvDiurnal\_kry\_p} program deserves some comments. The
 right-hand side routine \id{f} calls two other routines: \id{ucomm}, which
 carries out inter-processor communication; and \id{fcalc}, which operates on
-local data only and contains the actual calculation of $f(t,u)$. The 
+local data only and contains the actual calculation of $f(t,u)$. The
 \id{ucomm} function in turn calls three routines which do, respectively,
 non-blocking receive operations, blocking send operations, and
 receive-waiting. All three use MPI, and transmit data from the local \id{u}
 vector into a local working array \id{uext}, an extended copy of \id{u}.
 The \id{fcalc} function copies \id{u} into \id{uext}, so that the
-calculation of $f(t,u)$ can be done conveniently by operations on 
+calculation of $f(t,u)$ can be done conveniently by operations on
 \id{uext} only.  Most other features of \id{cvDiurnal\_kry\_p.c} are the same as
 in \id{cvDiurnal\_kry.c}, except for extra logic involved with distributed
 vectors.
@@ -205,7 +205,7 @@ are made to reset the initial values (\id{SetInitialProfiles}), the main solver
 memory (\id{CVodeReInit}), the {\cvbbdpre} memory (\id{CVBBDPrecReInit}),
 as well as the preconditioner type (\id{SUNSPGMRSetPrecType}).
 
-Sample output from \id{cvDiurnal\_kry\_bbd\_p} follows, again using $5 \times 5$ subgrids 
+Sample output from \id{cvDiurnal\_kry\_bbd\_p} follows, again using $5 \times 5$ subgrids
 on a $2 \times 2$ processor grid.  The performance of the preconditioner,
 as measured by the number of Krylov iterations per Newton iteration,
 \id{nli/nni}, is very close to that of \id{cvDiurnal\_kry\_p} when preconditioning is on

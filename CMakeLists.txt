@@ -21,10 +21,19 @@
 # Require a fairly recent cmake version
 cmake_minimum_required(VERSION 3.0.2)
 
-# Set CMake policy to allow examples to build
-if(COMMAND cmake_policy)
-  cmake_policy(SET CMP0003 NEW)
-endif(COMMAND cmake_policy)
+# Libraries linked via full path no longer produce linker search paths
+# Allows examples to build
+cmake_policy(SET CMP0003 NEW)
+
+# MACOSX_RPATH is enabled by default
+# Fixes dynamic loading on OSX
+if(POLICY CMP0042)
+  cmake_policy(SET CMP0042 NEW) # Added in CMake 3.0
+else()
+  if(APPLE)
+    set(CMAKE_MACOSX_RPATH 1)
+  endif()
+endif()
 
 # Project SUNDIALS (initially only C supported)
 # sets PROJECT_SOURCE_DIR and PROJECT_BINARY_DIR variables
@@ -33,7 +42,7 @@ PROJECT(sundials C)
 # Set some variables with info on the SUNDIALS project
 SET(PACKAGE_BUGREPORT "woodward6@llnl.gov")
 SET(PACKAGE_NAME "SUNDIALS")
-SET(PACKAGE_STRING "SUNDIALS 4.0.0-dev")
+SET(PACKAGE_STRING "SUNDIALS 4.0.0-dev.1")
 SET(PACKAGE_TARNAME "sundials")
 
 # set SUNDIALS version numbers
@@ -41,7 +50,7 @@ SET(PACKAGE_TARNAME "sundials")
 SET(PACKAGE_VERSION_MAJOR "4")
 SET(PACKAGE_VERSION_MINOR "0")
 SET(PACKAGE_VERSION_PATCH "0")
-SET(PACKAGE_VERSION_LABEL "dev")
+SET(PACKAGE_VERSION_LABEL "dev.1")
 
 IF(PACKAGE_VERSION_LABEL)
   SET(PACKAGE_VERSION "${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}-${PACKAGE_VERSION_LABEL}")
@@ -96,6 +105,9 @@ SET(sunmatrixlib_SOVERSION "2")
 
 SET(sunlinsollib_VERSION "2.0.0")
 SET(sunlinsollib_SOVERSION "2")
+
+SET(sunnonlinsollib_VERSION "1.0.0")
+SET(sunnonlinsollib_SOVERSION "1")
 
 # Specify the location of additional CMAKE modules
 SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/config)
@@ -1113,4 +1125,4 @@ INSTALL(
 # install license file
 INSTALL(
   FILES ${PROJECT_SOURCE_DIR}/LICENSE
-  DESTINATION .)
+  DESTINATION include/sundials)

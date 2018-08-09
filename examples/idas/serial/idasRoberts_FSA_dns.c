@@ -130,6 +130,7 @@ int main(int argc, char *argv[])
   y       = NULL;
   yS      = NULL;
   ypS     = NULL;
+  yQS     = NULL;
 
   /* Process arguments */
   ProcessArgs(argc, argv, &sensi, &sensi_meth, &err_con);
@@ -369,7 +370,7 @@ static int res(realtype t, N_Vector yy, N_Vector yp, N_Vector resval, void *user
   UserData data;
   realtype p1, p2, p3;
   realtype y1, y2, y3;
-  realtype yp1, yp2, yp3;
+  realtype yp1, yp2;
 
   data = (UserData) user_data;
   p1 = data->p[0];
@@ -382,7 +383,6 @@ static int res(realtype t, N_Vector yy, N_Vector yp, N_Vector resval, void *user
 
   yp1 = Ith(yp,1);
   yp2 = Ith(yp,2);
-  yp3 = Ith(yp,3);
 
   Ith(resval,1) = yp1 + p1*y1 - p2*y2*y3;
   Ith(resval,2) = yp2 - p1*y1 + p2*y2*y3 + p3*y2*y2;
@@ -405,9 +405,8 @@ static int resS(int Ns, realtype t,
   UserData data;
   realtype p1, p2, p3;
   realtype y1, y2, y3;
-  realtype yp1, yp2, yp3;
   realtype s1, s2, s3;
-  realtype sd1, sd2, sd3;
+  realtype sd1, sd2;
   realtype rs1, rs2, rs3;
   int is;
 
@@ -420,10 +419,6 @@ static int resS(int Ns, realtype t,
   y2 = Ith(yy,2);
   y3 = Ith(yy,3);
 
-  yp1 = Ith(yp,1);
-  yp2 = Ith(yp,2);
-  yp3 = Ith(yp,3);
-
   for (is=0; is<NS; is++) {
 
     s1 = Ith(yyS[is],1);
@@ -432,7 +427,6 @@ static int resS(int Ns, realtype t,
 
     sd1 = Ith(ypS[is],1);
     sd2 = Ith(ypS[is],2);
-    sd3 = Ith(ypS[is],3);
 
     rs1 = sd1 + p1*s1 - p2*y3*s2 - p2*y2*s3;
     rs2 = sd2 - p1*s1 + p2*y3*s2 + p2*y2*s3 + 2*p3*y2*s2;

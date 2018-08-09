@@ -28,6 +28,7 @@ SET(ida_SOURCES
   ida_ic.c
   ida_io.c
   ida_spils.c
+  ida_nls.c
   )
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
@@ -36,6 +37,7 @@ SET(shared_SOURCES
   ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_matrix.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_linearsolver.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_nonlinearsolver.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_math.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_band.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_dense.c
@@ -65,6 +67,12 @@ SET(sunlinsol_SOURCES
   ${sundials_SOURCE_DIR}/src/sunlinsol_pcg/sunlinsol_pcg.c
   )
 
+# Add variable sunnonlinsol_SOURCES with the common SUNNonlinearSolver sources
+# which will also be included in the IDA library
+SET(sunnonlinsol_SOURCES
+  ${sundials_SOURCE_DIR}/src/sunnonlinsol/newton/sunnonlinsol_newton.c
+  )
+
 # Add variable ida_HEADERS with the exported IDA header files
 SET(ida_HEADERS
   ida.h
@@ -79,7 +87,6 @@ ADD_PREFIX(${sundials_SOURCE_DIR}/include/ida/ ida_HEADERS)
 # Add source directories to include directories for access to
 # implementation only header files.
 INCLUDE_DIRECTORIES(.)
-INCLUDE_DIRECTORIES(../sundials)
 
 # Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY 
 ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
@@ -89,7 +96,8 @@ IF(BUILD_STATIC_LIBS)
 
   # Add the build target for the static IDA library
   ADD_LIBRARY(sundials_ida_static STATIC 
-    ${ida_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES})
+    ${ida_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES}
+    ${sunnonlinsol_SOURCES})
 
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_ida_static
@@ -105,7 +113,8 @@ IF(BUILD_SHARED_LIBS)
 
   # Add the build target for the IDA library
   ADD_LIBRARY(sundials_ida_shared SHARED
-    ${ida_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES})
+    ${ida_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES}
+    ${sunnonlinsol_SOURCES})
 
   IF(UNIX)
     TARGET_LINK_LIBRARIES(sundials_ida_shared m)

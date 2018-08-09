@@ -34,7 +34,7 @@ serial and parallel {\nvector} implementations.
 %% the optional input (\id{IVAL}), the problem size and bandwidth parameters
 %% (\id{NEQ}, \id{NLOCAL}, \id{NGLOBAL}, \id{ML}, \id{MU}, etc.),
 %% and the array of integer optional outputs (\id{IOUT}).
-%% EXCEPTION: In the case that Lapack linear solvers are to be used, the
+%% EXCEPTION: In the case that LAPACK linear solvers are to be used, the
 %% input arguments to \id{FKINLAPACKDENSE} or \id{FKINLAPACKBAND} (\id{NEQ},
 %% \id{ML}, and \id{MU}) must be declared to be consistent with {\CC} type \id{int}.
 %% This type consistency is particularly important when using
@@ -385,7 +385,7 @@ sections of Chapter \ref{s:sunlinsol}.
   will attempt to correct), or a negative value if \id{FKDJAC} failed
   unrecoverably (in which case the solution process is halted).
   NOTE: The argument \id{NEQ} has a type consistent with {\CC} type \id{long int}
-  even in the case when the Lapack dense solver is to be used.
+  even in the case when the LAPACK dense solver is to be used.
 
   If the \id{FKDJAC} routine is provided, then, 
   following the call to \id{FKINDLSINIT}, the user must make the call:
@@ -426,7 +426,7 @@ sections of Chapter \ref{s:sunlinsol}.
   attempt to correct), or a negative value if \id{FKBJAC} failed unrecoverably
   (in which case the solution process is halted).
   NOTE: The arguments \id{NEQ}, \id{MU}, \id{ML}, and \id{MDIM} have a type
-  consistent with {\CC} type \id{long int} even in the case when the Lapack band
+  consistent with {\CC} type \id{long int} even in the case when the LAPACK band
   solver is to be used.
 
   If the \id{FKBJAC} routine is provided, then, following the call to \id{FKINDLSINIT},

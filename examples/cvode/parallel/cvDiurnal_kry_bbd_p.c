@@ -154,7 +154,7 @@ static int flocal(sunindextype Nlocal, realtype t, N_Vector u,
 
 /* Private function to check function return values */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
+static int check_retval(void *returnvalue, const char *funcname, int opt, int id);
 
 /***************************** Main Program ******************************/
 
@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
   void *cvode_mem;
   realtype abstol, reltol, t, tout;
   N_Vector u;
-  int iout, my_pe, npes, flag, jpre;
+  int iout, my_pe, npes, retval, jpre;
   sunindextype neq, local_N, mudq, mldq, mukeep, mlkeep;
   MPI_Comm comm;
 
@@ -196,51 +196,51 @@ int main(int argc, char *argv[])
 
   /* Allocate and load user data block */
   data = (UserData) malloc(sizeof *data);
-  if(check_flag((void *)data, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
+  if(check_retval((void *)data, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
   InitUserData(my_pe, local_N, comm, data);
 
   /* Allocate and initialize u, and set tolerances */ 
   u = N_VNew_Parallel(comm, local_N, neq);
-  if(check_flag((void *)u, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
+  if(check_retval((void *)u, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
   SetInitialProfiles(u, data);
   abstol = ATOL;
   reltol = RTOL;
 
   /* Call CVodeCreate to create the solver memory and specify the 
-   * Backward Differentiation Formula and the use of a Newton iteration */
-  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
-  if(check_flag((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
+   * Backward Differentiation Formula */
+  cvode_mem = CVodeCreate(CV_BDF);
+  if(check_retval((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Set the pointer to user-defined data */
-  flag = CVodeSetUserData(cvode_mem, data);
-  if(check_flag(&flag, "CVodeSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeSetUserData(cvode_mem, data);
+  if(check_retval(&retval, "CVodeSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in u'=f(t,u), the inital time T0, and
    * the initial dependent variable vector u. */
-  flag = CVodeInit(cvode_mem, f, T0, u);
-  if(check_flag(&flag, "CVodeInit", 1, my_pe)) return(1);
+  retval = CVodeInit(cvode_mem, f, T0, u);
+  if(check_retval(&retval, "CVodeInit", 1, my_pe)) return(1);
 
   /* Call CVodeSStolerances to specify the scalar relative tolerance
    * and scalar absolute tolerances */
-  flag = CVodeSStolerances(cvode_mem, reltol, abstol);
-  if (check_flag(&flag, "CVodeSStolerances", 1, my_pe)) return(1);
+  retval = CVodeSStolerances(cvode_mem, reltol, abstol);
+  if (check_retval(&retval, "CVodeSStolerances", 1, my_pe)) return(1);
 
   /* Create SPGMR solver structure -- use left preconditioning 
      and the default Krylov dimension maxl */
   LS = SUNSPGMR(u, PREC_LEFT, 0);
-  if (check_flag((void *)LS, "SUNSPGMR", 0, my_pe)) MPI_Abort(comm, 1);
+  if (check_retval((void *)LS, "SUNSPGMR", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Attach SPGMR solver structure to CVSpils interface */
-  flag = CVSpilsSetLinearSolver(cvode_mem, LS);
-  if (check_flag(&flag, "CVSpilsSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVSpilsSetLinearSolver(cvode_mem, LS);
+  if (check_retval(&retval, "CVSpilsSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Initialize BBD preconditioner */
   mudq = mldq = NVARS*MXSUB;
   mukeep = mlkeep = NVARS;
-  flag = CVBBDPrecInit(cvode_mem, local_N, mudq, mldq, 
+  retval = CVBBDPrecInit(cvode_mem, local_N, mudq, mldq, 
                        mukeep, mlkeep, ZERO, flocal, NULL);
-  if(check_flag(&flag, "CVBBDPrecInit", 1, my_pe)) MPI_Abort(comm, 1);
+  if(check_retval(&retval, "CVBBDPrecInit", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Print heading */
   if (my_pe == 0) PrintIntro(npes, mudq, mldq, mukeep, mlkeep);
@@ -254,14 +254,14 @@ int main(int argc, char *argv[])
 
     SetInitialProfiles(u, data);
 
-    flag = CVodeReInit(cvode_mem, T0, u);
-    if(check_flag(&flag, "CVodeReInit", 1, my_pe)) MPI_Abort(comm, 1);
+    retval = CVodeReInit(cvode_mem, T0, u);
+    if(check_retval(&retval, "CVodeReInit", 1, my_pe)) MPI_Abort(comm, 1);
 
-    flag = CVBBDPrecReInit(cvode_mem, mudq, mldq, ZERO);
-    if(check_flag(&flag, "CVBBDPrecReInit", 1, my_pe)) MPI_Abort(comm, 1);
+    retval = CVBBDPrecReInit(cvode_mem, mudq, mldq, ZERO);
+    if(check_retval(&retval, "CVBBDPrecReInit", 1, my_pe)) MPI_Abort(comm, 1);
 
-    flag = SUNSPGMRSetPrecType(LS, PREC_RIGHT);
-    check_flag(&flag, "SUNSPGMRSetPrecType", 1, my_pe);
+    retval = SUNSPGMRSetPrecType(LS, PREC_RIGHT);
+    check_retval(&retval, "SUNSPGMRSetPrecType", 1, my_pe);
 
     if (my_pe == 0) {
       printf("\n\n-------------------------------------------------------");
@@ -279,8 +279,8 @@ int main(int argc, char *argv[])
   /* In loop over output points, call CVode, print results, test for error */
 
   for (iout = 1, tout = TWOHR; iout <= NOUT; iout++, tout += TWOHR) {
-    flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
-    if(check_flag(&flag, "CVode", 1, my_pe)) break;
+    retval = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
+    if(check_retval(&retval, "CVode", 1, my_pe)) break;
     PrintOutput(cvode_mem, my_pe, comm, u, t);
   }
 
@@ -396,7 +396,7 @@ static void PrintIntro(int npes, sunindextype mudq, sunindextype mldq,
 static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm, 
                         N_Vector u, realtype t)
 {
-  int qu, flag, npelast;
+  int qu, retval, npelast;
   long int nst;
   sunindextype i0, i1;
   realtype hu, *uarray, tempu[2];
@@ -422,12 +422,12 @@ static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
   if (my_pe == 0) {
     if (npelast != 0)
       MPI_Recv(&tempu[0], 2, PVEC_REAL_MPI_TYPE, npelast, 0, comm, &status);
-    flag = CVodeGetNumSteps(cvode_mem, &nst);
-    check_flag(&flag, "CVodeGetNumSteps", 1, my_pe);
-    flag = CVodeGetLastOrder(cvode_mem, &qu);
-    check_flag(&flag, "CVodeGetLastOrder", 1, my_pe);
-    flag = CVodeGetLastStep(cvode_mem, &hu);
-    check_flag(&flag, "CVodeGetLastStep", 1, my_pe);
+    retval = CVodeGetNumSteps(cvode_mem, &nst);
+    check_retval(&retval, "CVodeGetNumSteps", 1, my_pe);
+    retval = CVodeGetLastOrder(cvode_mem, &qu);
+    check_retval(&retval, "CVodeGetLastOrder", 1, my_pe);
+    retval = CVodeGetLastStep(cvode_mem, &hu);
+    check_retval(&retval, "CVodeGetLastStep", 1, my_pe);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf("t = %.2Le   no. steps = %ld   order = %d   stepsize = %.2Le\n",
            t, nst, qu, hu);
@@ -456,35 +456,35 @@ static void PrintFinalStats(void *cvode_mem)
   long int lenrwBBDP, leniwBBDP;
   long int nst, nfe, nsetups, nni, ncfn, netf, ngevalsBBDP;
   long int nli, npe, nps, ncfl, nfeLS;
-  int flag;
+  int retval;
 
-  flag = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);
-  check_flag(&flag, "CVodeGetWorkSpace", 1, 0);
-  flag = CVodeGetNumSteps(cvode_mem, &nst);
-  check_flag(&flag, "CVodeGetNumSteps", 1, 0);
-  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  check_flag(&flag, "CVodeGetNumRhsEvals", 1, 0);
-  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  check_flag(&flag, "CVodeGetNumLinSolvSetups", 1, 0);
-  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-  check_flag(&flag, "CVodeGetNumErrTestFails", 1, 0);
-  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1, 0);
-  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1, 0);
+  retval = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);
+  check_retval(&retval, "CVodeGetWorkSpace", 1, 0);
+  retval = CVodeGetNumSteps(cvode_mem, &nst);
+  check_retval(&retval, "CVodeGetNumSteps", 1, 0);
+  retval = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  check_retval(&retval, "CVodeGetNumRhsEvals", 1, 0);
+  retval = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  check_retval(&retval, "CVodeGetNumLinSolvSetups", 1, 0);
+  retval = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  check_retval(&retval, "CVodeGetNumErrTestFails", 1, 0);
+  retval = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  check_retval(&retval, "CVodeGetNumNonlinSolvIters", 1, 0);
+  retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1, 0);
 
-  flag = CVSpilsGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
-  check_flag(&flag, "CVSpilsGetWorkSpace", 1, 0);
-  flag = CVSpilsGetNumLinIters(cvode_mem, &nli);
-  check_flag(&flag, "CVSpilsGetNumLinIters", 1, 0);
-  flag = CVSpilsGetNumPrecEvals(cvode_mem, &npe);
-  check_flag(&flag, "CVSpilsGetNumPrecEvals", 1, 0);
-  flag = CVSpilsGetNumPrecSolves(cvode_mem, &nps);
-  check_flag(&flag, "CVSpilsGetNumPrecSolves", 1, 0);
-  flag = CVSpilsGetNumConvFails(cvode_mem, &ncfl);
-  check_flag(&flag, "CVSpilsGetNumConvFails", 1, 0);
-  flag = CVSpilsGetNumRhsEvals(cvode_mem, &nfeLS);
-  check_flag(&flag, "CVSpilsGetNumRhsEvals", 1, 0);
+  retval = CVSpilsGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
+  check_retval(&retval, "CVSpilsGetWorkSpace", 1, 0);
+  retval = CVSpilsGetNumLinIters(cvode_mem, &nli);
+  check_retval(&retval, "CVSpilsGetNumLinIters", 1, 0);
+  retval = CVSpilsGetNumPrecEvals(cvode_mem, &npe);
+  check_retval(&retval, "CVSpilsGetNumPrecEvals", 1, 0);
+  retval = CVSpilsGetNumPrecSolves(cvode_mem, &nps);
+  check_retval(&retval, "CVSpilsGetNumPrecSolves", 1, 0);
+  retval = CVSpilsGetNumConvFails(cvode_mem, &ncfl);
+  check_retval(&retval, "CVSpilsGetNumConvFails", 1, 0);
+  retval = CVSpilsGetNumRhsEvals(cvode_mem, &nfeLS);
+  check_retval(&retval, "CVSpilsGetNumRhsEvals", 1, 0);
 
   printf("\nFinal Statistics: \n\n");
   printf("lenrw   = %5ld     leniw   = %5ld\n"  , lenrw, leniw);
@@ -496,10 +496,10 @@ static void PrintFinalStats(void *cvode_mem)
   printf("npe     = %5ld     nps     = %5ld\n"  , npe, nps);
   printf("ncfn    = %5ld     ncfl    = %5ld\n\n", ncfn, ncfl);
 
-  flag = CVBBDPrecGetWorkSpace(cvode_mem, &lenrwBBDP, &leniwBBDP);
-  check_flag(&flag, "CVBBDPrecGetWorkSpace", 1, 0);
-  flag = CVBBDPrecGetNumGfnEvals(cvode_mem, &ngevalsBBDP);
-  check_flag(&flag, "CVBBDPrecGetNumGfnEvals", 1, 0);
+  retval = CVBBDPrecGetWorkSpace(cvode_mem, &lenrwBBDP, &leniwBBDP);
+  check_retval(&retval, "CVBBDPrecGetWorkSpace", 1, 0);
+  retval = CVBBDPrecGetNumGfnEvals(cvode_mem, &ngevalsBBDP);
+  check_retval(&retval, "CVBBDPrecGetNumGfnEvals", 1, 0);
   printf("In CVBBDPRE: real/integer local work space sizes = %ld, %ld\n",
 	 lenrwBBDP, leniwBBDP);
   printf("             no. flocal evals. = %ld\n",ngevalsBBDP);
@@ -722,7 +722,7 @@ static int flocal(sunindextype Nlocal, realtype t, N_Vector u,
   realtype c1rt, c2rt, cydn, cyup, hord1, hord2, horad1, horad2;
   realtype qq1, qq2, qq3, qq4, rkin1, rkin2, s, vertd1, vertd2, ydn, yup;
   realtype q4coef, dely, verdco, hordco, horaco;
-  int i, lx, ly, jx, jy;
+  int i, lx, ly, jy;
   int isubx, isuby;
   sunindextype nvmxsub, nvmxsub2, offsetu, offsetue;
   UserData data;
@@ -816,8 +816,6 @@ static int flocal(sunindextype Nlocal, realtype t, N_Vector u,
     cyup = verdco*SUNRexp(RCONST(0.2)*yup);
     for (lx = 0; lx < MXSUB; lx++) {
 
-      jx = lx + isubx*MXSUB;
-
       /* Extract c1 and c2, and set kinetic rate terms */
 
       offsetue = (lx+1)*NVARS + (ly+1)*nvmxsub2;
@@ -864,31 +862,31 @@ static int flocal(sunindextype Nlocal, realtype t, N_Vector u,
 /* Check function return value...
      opt == 0 means SUNDIALS function allocates memory so check if
               returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if
-              flag >= 0
+     opt == 1 means SUNDIALS function returns an integer value so check if
+              retval >= 0
      opt == 2 means function allocates memory so check if returned
               NULL pointer */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt, int id)
+static int check_retval(void *returnvalue, const char *funcname, int opt, int id)
 {
-  int *errflag;
+  int *retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n",
             id, funcname);
     return(1); }
 
-  /* Check if flag < 0 */
+  /* Check if retval < 0 */
   else if (opt == 1) {
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
-              id, funcname, *errflag);
+    retval = (int *) returnvalue;
+    if (*retval < 0) {
+      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with retval = %d\n\n",
+              id, funcname, *retval);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
             id, funcname);
     return(1); }

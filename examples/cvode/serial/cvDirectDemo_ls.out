@@ -8,7 +8,7 @@ Problem 1: Van der Pol oscillator
 -------------------------------------------------------------
 
 Linear Multistep Method : ADAMS
-Iteration               : FUNCTIONAL
+Iteration               : FIXEDPOINT
 
      t           x              xdot         qu     hu 
    1.39284     1.68010e+00   -2.91056e-01    5    9.8626e-02
@@ -18,8 +18,8 @@ Iteration               : FUNCTIONAL
 
  Final statistics for this run:
 
- CVode real workspace length              =  123 
- CVode integer workspace length           =   57 
+ CVode real workspace length              =  129 
+ CVode integer workspace length           =   60 
  Number of steps                          =  196 
  Number of f-s                            =  391 
  Number of setups                         =    0 
@@ -44,8 +44,8 @@ Linear Solver           : Dense, User-Supplied Jacobian
 
  Final statistics for this run:
 
- CVode real workspace length              =  123 
- CVode integer workspace length           =   57 
+ CVode real workspace length              =  129 
+ CVode integer workspace length           =   60 
  Number of steps                          =  266 
  Number of f-s                            =  366 
  Number of setups                         =   46 
@@ -75,8 +75,8 @@ Linear Solver           : Dense, Difference Quotient Jacobian
 
  Final statistics for this run:
 
- CVode real workspace length              =  123 
- CVode integer workspace length           =   57 
+ CVode real workspace length              =  129 
+ CVode integer workspace length           =   60 
  Number of steps                          =  195 
  Number of f-s                            =  268 
  Number of setups                         =   34 
@@ -106,8 +106,8 @@ Linear Solver           : Diagonal Jacobian
 
  Final statistics for this run:
 
- CVode real workspace length              =  123 
- CVode integer workspace length           =   57 
+ CVode real workspace length              =  129 
+ CVode integer workspace length           =   60 
  Number of steps                          =  238 
  Number of f-s                            =  330 
  Number of setups                         =   40 
@@ -126,7 +126,7 @@ Linear Solver           : Diagonal Jacobian
 -------------------------------------------------------------
 
 Linear Multistep Method : BDF
-Iteration               : FUNCTIONAL
+Iteration               : FIXEDPOINT
 
      t           x              xdot         qu     hu 
    1.39284     1.68010e+00   -2.91056e-01    4    9.6100e-02
@@ -136,8 +136,8 @@ Iteration               : FUNCTIONAL
 
  Final statistics for this run:
 
- CVode real workspace length              =  109 
- CVode integer workspace length           =   50 
+ CVode real workspace length              =  115 
+ CVode integer workspace length           =   53 
  Number of steps                          =  262 
  Number of f-s                            =  498 
  Number of setups                         =    0 
@@ -162,8 +162,8 @@ Linear Solver           : Dense, User-Supplied Jacobian
 
  Final statistics for this run:
 
- CVode real workspace length              =  109 
- CVode integer workspace length           =   50 
+ CVode real workspace length              =  115 
+ CVode integer workspace length           =   53 
  Number of steps                          =  265 
  Number of f-s                            =  358 
  Number of setups                         =   40 
@@ -193,8 +193,8 @@ Linear Solver           : Dense, Difference Quotient Jacobian
 
  Final statistics for this run:
 
- CVode real workspace length              =  109 
- CVode integer workspace length           =   50 
+ CVode real workspace length              =  115 
+ CVode integer workspace length           =   53 
  Number of steps                          =  276 
  Number of f-s                            =  367 
  Number of setups                         =   40 
@@ -224,8 +224,8 @@ Linear Solver           : Diagonal Jacobian
 
  Final statistics for this run:
 
- CVode real workspace length              =  109 
- CVode integer workspace length           =   50 
+ CVode real workspace length              =  115 
+ CVode integer workspace length           =   53 
  Number of steps                          =  266 
  Number of f-s                            =  360 
  Number of setups                         =   39 
@@ -253,7 +253,7 @@ triangular matrix derived from 2-D advection PDE
 -------------------------------------------------------------
 
 Linear Multistep Method : ADAMS
-Iteration               : FUNCTIONAL
+Iteration               : FIXEDPOINT
 
       t        max.err      qu     hu 
      0.010    1.4690e-07    3     1.1459e-02
@@ -264,8 +264,8 @@ Iteration               : FUNCTIONAL
 
  Final statistics for this run:
 
- CVode real workspace length              =  514 
- CVode integer workspace length           =   57 
+ CVode real workspace length              =  589 
+ CVode integer workspace length           =   60 
  Number of steps                          =  341 
  Number of f-s                            =  602 
  Number of setups                         =    0 
@@ -291,8 +291,8 @@ Linear Solver           : Diagonal Jacobian
 
  Final statistics for this run:
 
- CVode real workspace length              =  514 
- CVode integer workspace length           =   57 
+ CVode real workspace length              =  589 
+ CVode integer workspace length           =   60 
  Number of steps                          =  154 
  Number of f-s                            =  219 
  Number of setups                         =   33 
@@ -323,8 +323,8 @@ Linear Solver           : Band, User-Supplied Jacobian
 
  Final statistics for this run:
 
- CVode real workspace length              =  514 
- CVode integer workspace length           =   57 
+ CVode real workspace length              =  589 
+ CVode integer workspace length           =   60 
  Number of steps                          =  149 
  Number of f-s                            =  184 
  Number of setups                         =   32 
@@ -355,8 +355,8 @@ Linear Solver           : Band, Difference Quotient Jacobian
 
  Final statistics for this run:
 
- CVode real workspace length              =  514 
- CVode integer workspace length           =   57 
+ CVode real workspace length              =  589 
+ CVode integer workspace length           =   60 
  Number of steps                          =  124 
  Number of f-s                            =  142 
  Number of setups                         =   24 
@@ -375,7 +375,7 @@ Linear Solver           : Band, Difference Quotient Jacobian
 -------------------------------------------------------------
 
 Linear Multistep Method : BDF
-Iteration               : FUNCTIONAL
+Iteration               : FIXEDPOINT
 
       t        max.err      qu     hu 
      0.010    5.5931e-07    2     8.1257e-03
@@ -386,8 +386,8 @@ Iteration               : FUNCTIONAL
 
  Final statistics for this run:
 
- CVode real workspace length              =  339 
- CVode integer workspace length           =   50 
+ CVode real workspace length              =  414 
+ CVode integer workspace length           =   53 
  Number of steps                          =  372 
  Number of f-s                            =  693 
  Number of setups                         =    0 
@@ -413,8 +413,8 @@ Linear Solver           : Diagonal Jacobian
 
  Final statistics for this run:
 
- CVode real workspace length              =  339 
- CVode integer workspace length           =   50 
+ CVode real workspace length              =  414 
+ CVode integer workspace length           =   53 
  Number of steps                          =  180 
  Number of f-s                            =  271 
  Number of setups                         =   47 
@@ -445,8 +445,8 @@ Linear Solver           : Band, User-Supplied Jacobian
 
  Final statistics for this run:
 
- CVode real workspace length              =  339 
- CVode integer workspace length           =   50 
+ CVode real workspace length              =  414 
+ CVode integer workspace length           =   53 
  Number of steps                          =  119 
  Number of f-s                            =  144 
  Number of setups                         =   25 
@@ -477,8 +477,8 @@ Linear Solver           : Band, Difference Quotient Jacobian
 
  Final statistics for this run:
 
- CVode real workspace length              =  339 
- CVode integer workspace length           =   50 
+ CVode real workspace length              =  414 
+ CVode integer workspace length           =   53 
  Number of steps                          =  121 
  Number of f-s                            =  145 
  Number of setups                         =   24 

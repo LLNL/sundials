@@ -30,7 +30,7 @@ C
       DATA XMAX/2.0D0/, YMAX/1.0D0/
 C
       INTEGER*4 LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNJE
-      INTEGER*4 IER, METH, ITMETH, IATOL, ITASK, JOUT
+      INTEGER*4 IER, METH, IATOL, ITASK, JOUT
 C The following declaration specification should match C type long int.
       INTEGER*8 NEQ, IOUT(25), IPAR(2), MU, ML
       DOUBLE PRECISION RTOL, ATOL, T0, T, TOUT, DTOUT, UNORM 
@@ -44,7 +44,6 @@ C
       NEQ = MX*MY
       T0 = 0.0D0
       METH = 2
-      ITMETH = 2
       IATOL = 1
       RTOL = 0.0D0
       ATOL = 1.0D-5
@@ -80,7 +79,7 @@ C     initialize banded linear solver module
         STOP
       ENDIF
 C
-      CALL FCVMALLOC(T0, U, METH, ITMETH, IATOL, RTOL, ATOL,
+      CALL FCVMALLOC(T0, U, METH, IATOL, RTOL, ATOL,
      1               IOUT, ROUT, IPAR, RPAR, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER

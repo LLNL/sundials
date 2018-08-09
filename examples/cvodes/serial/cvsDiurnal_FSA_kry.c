@@ -335,7 +335,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   realtype *ydata, *dydata;
   int jx, jz, idn, iup, ileft, iright;
   UserData data;
-  realtype Q1, Q2, C3, A3, A4, KH, VEL, KV0;
+  realtype Q1, Q2, C3, A3, A4;
 
   data = (UserData) user_data;
   ydata = N_VGetArrayPointer(y);
@@ -348,9 +348,6 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   C3 = data->p[2];
   A3 = data->p[3];
   A4 = data->p[4];
-  KH = data->p[5];
-  VEL = data->p[6];
-  KV0 = data->p[7];
 
   /* Set diurnal rate coefficients. */
 
@@ -441,7 +438,7 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
   int ier, jx, jz;
   realtype *ydata, **a, **j;
   UserData data;
-  realtype Q1, Q2, C3, A3, A4, KH, VEL, KV0;
+  realtype Q1, Q2, C3;
 
   /* Make local copies of pointers in user_data, and of pointer to y's data */
   data = (UserData) user_data;
@@ -454,11 +451,6 @@ static int Precond(realtype tn, N_Vector y, N_Vector fy, booleantype jok,
   Q1 = data->p[0];
   Q2 = data->p[1];
   C3 = data->p[2];
-  A3 = data->p[3];
-  A4 = data->p[4];
-  KH = data->p[5];
-  VEL = data->p[6];
-  KV0 = data->p[7];
 
   if (jok) {
 
