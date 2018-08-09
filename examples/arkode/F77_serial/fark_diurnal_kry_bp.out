@@ -66,7 +66,7 @@ Final statistics:
  average Krylov subspace dimension (NLI/NNI) =   0.185844E+01
  number of conv. failures.. nonlinear =  0 linear =   0
  number of error test failures =  24
- main solver real/int workspace sizes   =  2500  124
+ main solver real/int workspace sizes   =  2900  126
  linear solver real/int workspace sizes =  2456   22
 In ARKBANDPRE:
  real/int workspace sizes =  2800  622
