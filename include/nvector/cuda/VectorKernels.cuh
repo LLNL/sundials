@@ -238,6 +238,107 @@ sumReduceKernel(const T *x, T *out, I n)
 
 
 /*
+ *
+ *
+ */
+template <typename T, typename I>
+__global__ void
+constraintMaskKernel(const T *c, const T *x, T *m, T *out, I n)
+{
+  extern __shared__ T shmem[];
+
+  I tid = threadIdx.x;
+  I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
+
+  T sum = 0.0;
+//   m[i] = m[i+blockDim.x] = 0.0;
+//   __syncthreads();
+
+  // Test true if constraints violated
+  bool test1 = (abs(c[i]) > 1.5 && x[i]*c[i] <= 0.0) ||
+               (abs(c[i]) > 0.5 && x[i]*c[i] <  0.0);
+
+  // Test true if constraints violated
+  bool test2 = (abs(c[i + blockDim.x]) > 1.5 && x[i + blockDim.x]*c[i + blockDim.x] <= 0.0) ||
+               (abs(c[i + blockDim.x]) > 0.5 && x[i + blockDim.x]*c[i + blockDim.x] <  0.0);
+
+  // First reduction step before storing data in shared memory.
+//   m[i] = (i < n && test1) ? 1.0 : 0.0;
+//   sum =  m[i];
+//   m[i+blockDim.x] = (i+blockDim.x < n && test2) ? 1.0 : 0.0;
+//   sum += m[i+blockDim.x];
+  if (i < n && test1){
+    m[i] = 1.0;
+    sum = 1.0; //m[i];
+  }
+  //else m[i] = 0.0;
+  if (i + blockDim.x < n && test2) {
+    m[i+blockDim.x] = 1.0;
+    sum += 1.0; //m[i+blockDim.x];
+  }
+  //else m[i+blockDim.x] = 0.0;
+  shmem[tid] = sum;
+  __syncthreads();
+
+  // Perform reduction block-wise in shared memory.
+  for (I j = blockDim.x/2; j > 0; j >>= 1) {
+    if (tid < j) {
+      sum += shmem[tid + j];
+      shmem[tid] = sum;
+    }
+    __syncthreads();
+  }
+
+  // Copy reduction result for each block to global memory
+  if (tid == 0)
+    out[blockIdx.x] = sum;
+}
+
+/*
+ *
+ *
+ */
+template <typename T, typename I>
+__global__ void
+constraintMaskKernel1(const T *c, const T *x, T *m, T *out, I n)
+{
+  extern __shared__ T shmem[];
+
+  I tid = threadIdx.x;
+  I gid = blockIdx.x*(blockDim.x) + threadIdx.x;
+
+  T sum = 0.0;
+
+  // Test true if constraints violated
+  bool test = (abs(c[gid]) > 1.5 && x[gid]*c[gid] <= 0.0) ||
+              (abs(c[gid]) > 0.5 && x[gid]*c[gid] <  0.0);
+
+//  m[gid] = 0.0;
+
+  if (gid < n && test){
+    m[gid] = 1.0;
+    sum = m[gid];
+  }
+
+  shmem[tid] = sum;
+  __syncthreads();
+
+  // Perform reduction block-wise in shared memory.
+  for (I j = blockDim.x/2; j > 0; j >>= 1) {
+    if (tid < j) {
+      sum += shmem[tid + j];
+      shmem[tid] = sum;
+    }
+    __syncthreads();
+  }
+
+  // Copy reduction result for each block to global memory
+  if (tid == 0)
+    out[blockIdx.x] = sum;
+}
+
+
+/*
  * Dot product of two vectors.
  *
  */
@@ -1257,7 +1358,7 @@ inline T constrMask(const Vector<T,I>& c, const Vector<T,I>& x, Vector<T,I>& m)
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
 
-  math_kernels::constrMaskKernel<T,I><<< grid, block, shMemSize >>>(c.device(), x.device(), m.device(), p.devBuffer(), x.size());
+  math_kernels::constraintMaskKernel<T,I><<< grid, block, shMemSize >>>(c.device(), x.device(), m.device(), p.devBuffer(), x.size());
 
   unsigned n = grid;
   unsigned nmax = 2*block;
@@ -1321,6 +1422,67 @@ inline T minQuotient(const Vector<T,I>& num, const Vector<T,I>& den)
   }
   return gpu_result;
 }
+
+
+template <typename T, typename I>
+inline T constraintMask(const Vector<T,I>& c, const Vector<T,I>& x, Vector<T,I>& m)
+{
+  // Set partitioning
+  ReducePartitioning<T, I>& p = x.partReduce();
+  unsigned grid               = p.grid();
+  unsigned block              = p.block();
+  unsigned shMemSize          = p.shmem();
+
+  math_kernels::setConstKernel<T,I><<<x.partStream().grid(), x.partStream().block()>>>(0.0, m.device(), x.size());
+  math_kernels::constraintMaskKernel<T,I><<< grid, block, shMemSize >>>(c.device(), x.device(), m.device(), p.devBuffer(), x.size());
+
+  unsigned n = grid;
+  unsigned nmax = 2*block;
+  while (n > nmax)
+  {
+    // Recompute partitioning
+    p.setPartitioning(n, grid, block, shMemSize);
+
+    // Rerun reduction kernel
+    math_kernels::sumReduceKernel<T,I><<< grid, block, shMemSize >>>(p.devBuffer(), p.devBuffer(), n);
+    n = grid;
+  }
+
+  // Finish reduction on CPU if there are less than two blocks of data left.
+  p.copyFromDevBuffer(n);
+
+  T gpu_result = p.hostBuffer()[0];
+  for (unsigned int i=1; i<n; i++)
+  {
+    gpu_result += p.hostBuffer()[i];
+  }
+  return gpu_result;
+}
+
+template <typename T, typename I>
+inline T constraintMask1(const Vector<T,I>& c, const Vector<T,I>& x, Vector<T,I>& m)
+{
+  // Set partitioning
+  StreamPartitioning<T, I>& q = x.partStream();
+  unsigned grid               = q.grid();
+  unsigned block              = q.block();
+  unsigned shMemSize          = block*sizeof(T);
+  Vector<T,I> buffer(grid);
+
+  math_kernels::setConstKernel<T,I><<<grid, block>>>(0.0, m.device(), m.size());
+  math_kernels::constraintMaskKernel1<T,I><<< grid, block, shMemSize >>>(c.device(), x.device(), m.device(), buffer.device(), x.size());
+
+  unsigned n = grid;
+
+  buffer.copyFromDev();
+  T gpu_result = buffer.host()[0];
+  for (unsigned int i=1; i<n; i++)
+  {
+    gpu_result += buffer.host()[i];
+  }
+  return gpu_result;
+}
+
 
 
 /*
