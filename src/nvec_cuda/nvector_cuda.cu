@@ -502,45 +502,6 @@ booleantype N_VInvTest_Cuda(N_Vector X, N_Vector Z)
  */
 booleantype N_VConstrMask_Cuda(N_Vector C, N_Vector X, N_Vector M)
 {
-//   N_VCopyFromDevice_Cuda(C);
-//   N_VCopyFromDevice_Cuda(X);
-//   N_VCopyFromDevice_Cuda(M);
-//
-//   const realtype *cd = getHostData<realtype, sunindextype>(C);
-//   const realtype *xd = getHostData<realtype, sunindextype>(X);
-//   realtype *md = getHostData<realtype, sunindextype>(M);
-//
-//   SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
-//   realtype temp = ONE;
-//   sunindextype i;
-//   sunindextype N = getSize<realtype, sunindextype>(X);
-//   sunindextype N_global = getGlobalSize<realtype, sunindextype>(X);
-//
-//   for (i = 0; i < N; i++) {
-//     md[i] = ZERO;
-//     if (cd[i] == ZERO) continue;
-//     if (cd[i] > ONEPT5 || cd[i] < -ONEPT5) {
-//       if (xd[i]*cd[i] <= ZERO) { temp = ZERO; md[i] = ONE; }
-//       continue;
-//     }
-//     if (cd[i] > HALF || cd[i] < -HALF) {
-//       if (xd[i]*cd[i] < ZERO ) { temp = ZERO; md[i] = ONE; }
-//     }
-//   }
-//
-//   N_VCopyToDevice_Cuda(M);
-//
-//   temp = SUNDIALS_Reduce(temp, 3, comm);
-//
-//   booleantype retval;
-//   if (temp == ONE) retval = SUNTRUE;
-//   else retval = SUNFALSE;
-//   //printf("ConstraintMask: retval = %d\n", retval);
-//   return retval;
-
-//   if (temp == ONE) return(SUNTRUE);
-//   else return(SUNFALSE);
-
   SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
   const auto cvec = extract<realtype, sunindextype>(C);
   const auto xvec = extract<realtype, sunindextype>(X);
@@ -549,7 +510,6 @@ booleantype N_VConstrMask_Cuda(N_Vector C, N_Vector X, N_Vector M)
   realtype locsum = constraintMask1(*cvec, *xvec, *mvec);
 
   realtype globsum = SUNDIALS_Reduce(locsum, 1, comm);
-//  printf("ConstraintMask: globsum = %d\n", globsum < HALF);
   return (globsum < HALF);
 }
 

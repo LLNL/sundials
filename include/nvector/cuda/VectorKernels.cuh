@@ -309,17 +309,21 @@ constraintMaskKernel1(const T *c, const T *x, T *m, T *out, I n)
 
   T sum = 0.0;
 
-  // Test true if constraints violated
-  bool test = (abs(c[gid]) > 1.5 && x[gid]*c[gid] <= 0.0) ||
-              (abs(c[gid]) > 0.5 && x[gid]*c[gid] <  0.0);
+  // m[gid] = 0.0;
+  // __syncthreads();
 
-//  m[gid] = 0.0;
-
-  if (gid < n && test){
-    m[gid] = 1.0;
+  if (gid < n){
+    // Test true if constraints violated
+    bool test = (abs(c[gid]) > 1.5 && x[gid]*c[gid] <= 0.0) ||
+                (abs(c[gid]) > 0.5 && x[gid]*c[gid] <  0.0);
+    if(test){
+      m[gid] = 1.0;
+    } else {
+      m[gid] = 0.0;
+    }
     sum = m[gid];
   }
-
+  
   shmem[tid] = sum;
   __syncthreads();
 
@@ -631,19 +635,25 @@ constrMaskKernel(const T *c, const T *x, T *m, T *out, I n)
 
   I tid = threadIdx.x;
   I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
-
+  T sum = 0.0;
+  
   // First reduction step before storing data in shared memory.
 
-  // test1 = true if constraints violated
-  bool test1 = (std::abs(c[i]) > 1.5 && c[i]*x[i] <= 0.0) ||
-               (std::abs(c[i]) > 0.5 && c[i]*x[i] <  0.0);
-  T sum = m[i] = (i < n && test1) ? 1.0 : 0.0;
-
-  // test2 = true if constraints violated
-  bool test2 = (std::abs(c[i + blockDim.x]) > 1.5 && c[i + blockDim.x]*x[i + blockDim.x] <= 0.0) ||
-               (std::abs(c[i + blockDim.x]) > 0.5 && c[i + blockDim.x]*x[i + blockDim.x] <  0.0);
-  m[i+blockDim.x] = (i+blockDim.x < n && test2) ? 1.0 : 0.0;
-  sum += m[i+blockDim.x];
+  if (i < n){
+    // test1 = true if constraints violated
+    bool test1 = (std::abs(c[i]) > 1.5 && c[i]*x[i] <= 0.0) ||
+                 (std::abs(c[i]) > 0.5 && c[i]*x[i] <  0.0);
+    m[i] = test1 ? 1.0 : 0.0;
+    sum = m[i];
+  }
+  
+  if (i + blockDim.x < n) {
+    // test2 = true if constraints violated
+    bool test2 = (std::abs(c[i + blockDim.x]) > 1.5 && c[i + blockDim.x]*x[i + blockDim.x] <= 0.0) ||
+                 (std::abs(c[i + blockDim.x]) > 0.5 && c[i + blockDim.x]*x[i + blockDim.x] <  0.0);
+    m[i+blockDim.x] = test2 ? 1.0 : 0.0;
+    sum += m[i+blockDim.x];
+  }
 
   shmem[tid] = sum;
   __syncthreads();
@@ -1469,7 +1479,7 @@ inline T constraintMask1(const Vector<T,I>& c, const Vector<T,I>& x, Vector<T,I>
   unsigned shMemSize          = block*sizeof(T);
   Vector<T,I> buffer(grid);
 
-  math_kernels::setConstKernel<T,I><<<grid, block>>>(0.0, m.device(), m.size());
+  //math_kernels::setConstKernel<T,I><<<grid, block>>>(0.0, m.device(), m.size());
   math_kernels::constraintMaskKernel1<T,I><<< grid, block, shMemSize >>>(c.device(), x.device(), m.device(), buffer.device(), x.size());
 
   unsigned n = grid;
