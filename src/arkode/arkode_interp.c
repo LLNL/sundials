@@ -387,10 +387,6 @@ int arkInterpEvaluate(void* arkode_mem, ARKodeInterpMem interp,
   h5 = h*h4;
   h6 = h*h5;
 
-  /* set shortcuts to ark_mem temporary vectors for fa and fb */
-  fa = ark_mem->tempv3;
-  fb = ark_mem->tempv4;
-
   /* determine polynomial order q */
   q = SUNMAX(order, 0);        /* respect lower bound  */
   /* q = SUNMIN(q, 3);            /\* respect max possible *\/ */
