@@ -91,7 +91,7 @@ int ARKStepSetNonlinearSolver(void *arkode_mem, SUNNonlinearSolver NLS)
   /* set the nonlinear residual/fixed-point function, based on solver type */
   if (SUNNonlinSolGetType(NLS) == SUNNONLINEARSOLVER_ROOTFIND) {
     retval = SUNNonlinSolSetSysFn(step_mem->NLS, arkStep_NlsResidual);
-  } else if (SUNNonlinSolGetType(NLS) ==  SUNNONLINEARSOLVER_STATIONARY) {
+  } else if (SUNNonlinSolGetType(NLS) ==  SUNNONLINEARSOLVER_FIXEDPOINT) {
     retval = SUNNonlinSolSetSysFn(step_mem->NLS, arkStep_NlsFPFunction);
   } else {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
@@ -250,7 +250,7 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
   /* call nonlinear solver based on method type:
      FP methods solve for the updated solution directly, but
      Newton uses predictor-corrector form */
-  if (SUNNonlinSolGetType(step_mem->NLS) == SUNNONLINEARSOLVER_STATIONARY) {
+  if (SUNNonlinSolGetType(step_mem->NLS) == SUNNONLINEARSOLVER_FIXEDPOINT) {
     
     /* solve the nonlinear system, place solution directly in ycur */
     retval = SUNNonlinSolSolve(step_mem->NLS, step_mem->zpred, ark_mem->ycur, ark_mem->ewt,
