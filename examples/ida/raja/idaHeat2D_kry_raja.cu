@@ -1,6 +1,9 @@
 /* -----------------------------------------------------------------
- * Programmer(s): Allan Taylor, Alan Hindmarsh and
- *                Radu Serban @ LLNL
+ * Programmer(s): Slaven Peles @ LLNL
+ * -----------------------------------------------------------------
+ * Acknowledgements: This example is based on idaHeat2D_kry
+ *                   example by Allan Taylor, Alan Hindmarsh and
+ *                   Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Example problem for IDA: 2D heat equation, serial, GMRES.
  *
@@ -24,17 +27,20 @@
  * ..., 10.24. Two cases are run -- with the Gram-Schmidt type
  * being Modified in the first case, and Classical in the second.
  * The second run uses IDAReInit.
+ *
+ * This example uses RAJA hardware abstraction layer to create
+ * an executable that runs on a GPU device.
  * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
-#include <ida/ida.h>                   /* prototypes for IDA methods           */
-#include <nvector/nvector_raja.h>      /* access to RAJA N_Vector              */
-#include <ida/ida_spils.h>             /* access to IDASpils interface         */
-#include <sunlinsol/sunlinsol_spgmr.h> /* access to spgmr SUNLinearSolver      */
-#include <sundials/sundials_types.h>   /* definition of type realtype          */
+#include <ida/ida.h>                   /* prototypes for IDA methods      */
+#include <nvector/nvector_raja.h>      /* access to RAJA N_Vector         */
+#include <ida/ida_spils.h>             /* access to IDASpils interface    */
+#include <sunlinsol/sunlinsol_spgmr.h> /* access to spgmr SUNLinearSolver */
+#include <sundials/sundials_types.h>   /* definition of type realtype     */
 
 #include <RAJA/RAJA.hpp>
 
@@ -303,7 +309,7 @@ int main(int argc, char *argv[])
 #ifdef SUNDIALS_MPI_ENABLED
   MPI_Finalize();
 #endif
-  
+
   return(0);
 }
 
@@ -340,19 +346,21 @@ int resHeat(realtype tt,
   coeff = data->coeff;
   mm    = data->mm;
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zero, mm*mm, [=] __device__(sunindextype loc) {
-    sunindextype i = loc % mm;
-    sunindextype j = loc / mm;
-    if (j==0 || j==mm-1 || i==0 || i==mm-1) {
-      /* Initialize rr to uu, to take care of boundary equations. */
-      rr_data[loc] = uu_data[loc];
-    } else {
-      /* Loop over interior points; set res = up - (central difference). */
-      realtype dif1 = uu_data[loc-1]  + uu_data[loc+1]  - TWO * uu_data[loc];
-      realtype dif2 = uu_data[loc-mm] + uu_data[loc+mm] - TWO * uu_data[loc];
-      rr_data[loc] = up_data[loc] - coeff * ( dif1 + dif2 );
+  RAJA::forall<RAJA::cuda_exec<256> >(zero, mm*mm,
+    [=] __device__(sunindextype loc) {
+      sunindextype i = loc % mm;
+      sunindextype j = loc / mm;
+      if (j==0 || j==mm-1 || i==0 || i==mm-1) {
+        /* Initialize rr to uu, to take care of boundary equations. */
+        rr_data[loc] = uu_data[loc];
+      } else {
+        /* Loop over interior points; set res = up - (central difference). */
+        realtype dif1 = uu_data[loc-1]  + uu_data[loc+1]  - TWO * uu_data[loc];
+        realtype dif2 = uu_data[loc-mm] + uu_data[loc+mm] - TWO * uu_data[loc];
+        rr_data[loc] = up_data[loc] - coeff * ( dif1 + dif2 );
+      }
     }
-  });
+  );
 
   return(0);
 }
@@ -388,17 +396,19 @@ int PsetupHeat(realtype tt,
   mm = data->mm;
   realtype coeff = data->coeff;
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zero, mm*mm, [=] __device__(sunindextype loc) {
-    sunindextype i = loc % mm;
-    sunindextype j = loc / mm;
-    if (j==0 || j==mm-1 || i==0 || i==mm-1) {
-      /* Set ppv to one, to take care of boundary equations. */
-      ppv[loc] = ONE;
-    } else {
-      /* Loop over interior points; ppv_i = 1/J_ii */
-      ppv[loc] = ONE/(c_j + FOUR*coeff);
+  RAJA::forall<RAJA::cuda_exec<256> >(zero, mm*mm,
+    [=] __device__(sunindextype loc) {
+      sunindextype i = loc % mm;
+      sunindextype j = loc / mm;
+      if (j==0 || j==mm-1 || i==0 || i==mm-1) {
+        /* Set ppv to one, to take care of boundary equations. */
+        ppv[loc] = ONE;
+      } else {
+        /* Loop over interior points; ppv_i = 1/J_ii */
+        ppv[loc] = ONE/(c_j + FOUR*coeff);
+      }
     }
-  });
+  );
 
   return(0);
 }
@@ -466,13 +476,15 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
   updata = N_VGetDeviceArrayPointer_Raja(up);
   mm1 = mm - 1;
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zero, mm*mm, [=] __device__(sunindextype loc) {
-    sunindextype i = loc % mm;
-    sunindextype j = loc / mm;
-    if (j==0 || j==mm1 || i==0 || i==mm1) {
-      updata[loc] = ZERO;
+  RAJA::forall<RAJA::cuda_exec<256> >(zero, mm*mm,
+    [=] __device__(sunindextype loc) {
+      sunindextype i = loc % mm;
+      sunindextype j = loc / mm;
+      if (j==0 || j==mm1 || i==0 || i==mm1) {
+        updata[loc] = ZERO;
+      }
     }
-  });
+  );
 
   return(0);
 }

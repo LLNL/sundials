@@ -26,6 +26,9 @@
  * It uses scalar relative and absolute tolerances.
  * Output is printed at t = .1, .2, ..., 1.
  * Run statistics (optional outputs) are printed at the end.
+ *
+ * This example uses RAJA hardware abstraction layer to create
+ * an executable that runs on a GPU device.
  * -----------------------------------------------------------------
  */
 
@@ -289,25 +292,27 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 
   const sunindextype zero = 0;
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zero, NEQ, [=] __device__(sunindextype index) {
-    sunindextype i = index/MY;
-    sunindextype j = index%MY;
+  RAJA::forall<RAJA::cuda_exec<256> >(zero, NEQ,
+    [=] __device__(sunindextype index) {
+      sunindextype i = index/MY;
+      sunindextype j = index%MY;
 
-    realtype uab = udata[index];
+      realtype uab = udata[index];
 
-    realtype udn = (j == 0)    ? ZERO : udata[index - 1];
-    realtype uup = (j == MY-1) ? ZERO : udata[index + 1];
-    realtype ult = (i == 0)    ? ZERO : udata[index - MY];
-    realtype urt = (i == MX-1) ? ZERO : udata[index + MY];
+      realtype udn = (j == 0)    ? ZERO : udata[index - 1];
+      realtype uup = (j == MY-1) ? ZERO : udata[index + 1];
+      realtype ult = (i == 0)    ? ZERO : udata[index - MY];
+      realtype urt = (i == MX-1) ? ZERO : udata[index + MY];
 
-    /* Set diffusion and advection terms and load into udot */
+      /* Set diffusion and advection terms and load into udot */
 
-    realtype hdiff = hordc*(ult -TWO*uab + urt);
-    realtype hadv  = horac*(urt - ult);
-    realtype vdiff = verdc*(udn -TWO*uab + uup);
+      realtype hdiff = hordc*(ult -TWO*uab + urt);
+      realtype hadv  = horac*(urt - ult);
+      realtype vdiff = verdc*(udn -TWO*uab + uup);
 
-    dudata[index] = hdiff + hadv + vdiff;
-  });
+      dudata[index] = hdiff + hadv + vdiff;
+    }
+  );
 
   return(0);
 }
@@ -337,16 +342,18 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
 
   N_VConst(ZERO, Jv);
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zero, NEQ, [=] __device__(sunindextype index) {
-    sunindextype i = index/MY;
-    sunindextype j = index%MY;
+  RAJA::forall<RAJA::cuda_exec<256> >(zero, NEQ,
+    [=] __device__(sunindextype index) {
+      sunindextype i = index/MY;
+      sunindextype j = index%MY;
 
-    Jvdata[index] = -TWO*(verdc+hordc) * vdata[index];
-    if (i !=    0) Jvdata[index] += (hordc - horac) * vdata[index-MY];
-    if (i != MX-1) Jvdata[index] += (hordc + horac) * vdata[index+MY];
-    if (j !=    0) Jvdata[index] += verdc * vdata[index-1];
-    if (j != MY-1) Jvdata[index] += verdc * vdata[index+1];
-  });
+      Jvdata[index] = -TWO*(verdc+hordc) * vdata[index];
+      if (i !=    0) Jvdata[index] += (hordc - horac) * vdata[index-MY];
+      if (i != MX-1) Jvdata[index] += (hordc + horac) * vdata[index+MY];
+      if (j !=    0) Jvdata[index] += verdc * vdata[index-1];
+      if (j != MY-1) Jvdata[index] += verdc * vdata[index+1];
+    }
+  );
 
   return(0);
 }

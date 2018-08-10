@@ -13,7 +13,7 @@
 # For details, see the LICENSE file.
 # LLNS Copyright End
 # ---------------------------------------------------------------
-# CMakeLists.txt file for CVODE raja examples
+# CMakeLists.txt file for CVODE RAJA examples
 # ---------------------------------------------------------------
 
 # Example lists are tuples "name\;type" where the type is

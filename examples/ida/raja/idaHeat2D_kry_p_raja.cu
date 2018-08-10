@@ -1,7 +1,10 @@
-/*
+/* -----------------------------------------------------------------
+ * Programmer(s): Slaven Peles @ LLNL
  * -----------------------------------------------------------------
- * Programmer(s): Daniel R. Reynolds @ SMU
- *         Allan Taylor, Alan Hindmarsh and Radu Serban @ LLNL
+ * Acknowledgements: This example is based on idaHeat2D_kry_p
+ *                   example by Daniel R. Reynolds @ SMU and
+ *                   Allan Taylor, Alan Hindmarsh and
+ *                   Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * Example problem for IDA: 2D heat equation, parallel, GMRES.
  *
@@ -28,6 +31,10 @@
  * for all components. Local error testing on the boundary values
  * is suppressed. Output is taken at t = 0, .01, .02, .04,
  * ..., 10.24.
+ *
+ * This example uses RAJA hardware abstraction layer to create
+ * an executable that runs on GPU devices in a distributed memory
+ * environment.
  * -----------------------------------------------------------------
  */
 
@@ -211,7 +218,8 @@ int main(int argc, char *argv[])
 
   /* Allocate user data extended vector and MPI buffers */
   ier = AllocUserData(thispe, comm, uu, data);
-  if(check_flag(&ier, "AllocUserData", 1, thispe)) MPI_Abort(comm, 1);
+  if(check_flag(&ier, "AllocUserData", 1, thispe))
+    MPI_Abort(comm, 1);
 
 
   /* Initialize the uu, up, id, and res profiles. */
@@ -229,37 +237,47 @@ int main(int argc, char *argv[])
   /* Call IDACreate and IDAMalloc to initialize solution. */
 
   ida_mem = IDACreate();
-  if(check_flag((void *)ida_mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
+  if(check_flag((void *)ida_mem, "IDACreate", 0, thispe))
+    MPI_Abort(comm, 1);
 
   ier = IDASetUserData(ida_mem, data);
-  if(check_flag(&ier, "IDASetUserData", 1, thispe)) MPI_Abort(comm, 1);
+  if(check_flag(&ier, "IDASetUserData", 1, thispe))
+    MPI_Abort(comm, 1);
 
   ier = IDASetSuppressAlg(ida_mem, SUNTRUE);
-  if(check_flag(&ier, "IDASetSuppressAlg", 1, thispe)) MPI_Abort(comm, 1);
+  if(check_flag(&ier, "IDASetSuppressAlg", 1, thispe))
+    MPI_Abort(comm, 1);
 
   ier = IDASetId(ida_mem, id);
-  if(check_flag(&ier, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
+  if(check_flag(&ier, "IDASetId", 1, thispe))
+    MPI_Abort(comm, 1);
 
   ier = IDASetConstraints(ida_mem, constraints);
-  if(check_flag(&ier, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
+  if(check_flag(&ier, "IDASetConstraints", 1, thispe))
+    MPI_Abort(comm, 1);
   N_VDestroy(constraints);
 
   ier = IDAInit(ida_mem, resHeat, t0, uu, up);
-  if(check_flag(&ier, "IDAInit", 1, thispe)) MPI_Abort(comm, 1);
+  if(check_flag(&ier, "IDAInit", 1, thispe))
+    MPI_Abort(comm, 1);
 
   ier = IDASStolerances(ida_mem, rtol, atol);
-  if(check_flag(&ier, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
+  if(check_flag(&ier, "IDASStolerances", 1, thispe))
+    MPI_Abort(comm, 1);
 
   /* Call SUNSPGMR and IDASetLinearSolver to specify the linear solver. */
 
   LS = SUNSPGMR(uu, PREC_LEFT, 0);  /* use default maxl */
-  if(check_flag((void *)LS, "SUNSPGMR", 0, thispe)) MPI_Abort(comm, 1);
+  if(check_flag((void *)LS, "SUNSPGMR", 0, thispe))
+    MPI_Abort(comm, 1);
 
   ier = IDASpilsSetLinearSolver(ida_mem, LS);
-  if(check_flag(&ier, "IDASpilsSetLinearSolver", 1, thispe)) MPI_Abort(comm, 1);
+  if(check_flag(&ier, "IDASpilsSetLinearSolver", 1, thispe))
+    MPI_Abort(comm, 1);
 
   ier = IDASpilsSetPreconditioner(ida_mem, PsetupHeat, PsolveHeat);
-  if(check_flag(&ier, "IDASpilsSetPreconditioner", 1, thispe)) MPI_Abort(comm, 1);
+  if(check_flag(&ier, "IDASpilsSetPreconditioner", 1, thispe))
+    MPI_Abort(comm, 1);
 
   /* Print output heading (on processor 0 only) and intial solution  */
 
@@ -271,7 +289,8 @@ int main(int argc, char *argv[])
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) {
 
     ier = IDASolve(ida_mem, tout, &tret, uu, up, IDA_NORMAL);
-    if(check_flag(&ier, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
+    if(check_flag(&ier, "IDASolve", 1, thispe))
+      MPI_Abort(comm, 1);
 
     PrintOutput(thispe, ida_mem, tret, uu);
 
@@ -385,12 +404,14 @@ int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
   j0  = (jysub == 0);
 
   /* Set inverse of the preconditioner; ppv must be on the device */
-  RAJA::forall<RAJA::cuda_exec<256> >(zero, (mxsub - ibc)*(mysub - jbc), [=] __device__(sunindextype tid) {
-    sunindextype j = tid / (mxsub - ibc) + j0;
-    sunindextype i = tid % (mxsub - ibc) + i0;
+  RAJA::forall<RAJA::cuda_exec<256> >(zero, (mxsub - ibc)*(mysub - jbc),
+    [=] __device__(sunindextype tid) {
+      sunindextype j = tid / (mxsub - ibc) + j0;
+      sunindextype i = tid % (mxsub - ibc) + i0;
 
-    ppv[i + j*mxsub] = pelinv;
-  });
+      ppv[i + j*mxsub] = pelinv;
+    }
+  );
 
   return(0);
 }
@@ -506,12 +527,14 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
   /* Copy local segment of u vector into the working extended array uext.
      This completes uext prior to the computation of the rr vector.
      uext and uuv must be on the device.     */
-  RAJA::forall<RAJA::cuda_exec<256> >(zero, mxsub*mysub, [=] __device__(sunindextype tid) {
-    sunindextype j = tid/mxsub;
-    sunindextype i = tid%mxsub;
+  RAJA::forall<RAJA::cuda_exec<256> >(zero, mxsub*mysub,
+    [=] __device__(sunindextype tid) {
+      sunindextype j = tid/mxsub;
+      sunindextype i = tid%mxsub;
 
-    uext[(i+1) + (j+1)*mxsub2] = uuv[i + j*mxsub];
-  });
+      uext[(i+1) + (j+1)*mxsub2] = uuv[i + j*mxsub];
+    }
+  );
 
   /* Set loop limits for the interior of the local subgrid. */
 
@@ -522,17 +545,19 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
   j0  = (jysub == 0);
 
   /* Compute local residual; uext, upv, and resv must be on the device */
-  RAJA::forall<RAJA::cuda_exec<256> >(zero, (mxsub - ibc)*(mysub - jbc), [=] __device__(sunindextype tid) {
-    sunindextype j = tid/(mxsub - ibc) + j0;
-    sunindextype i = tid%(mxsub - ibc) + i0;
-    sunindextype locu  = i + j*mxsub;
-    sunindextype locue = (i+1) + (j+1)*mxsub2;
+  RAJA::forall<RAJA::cuda_exec<256> >(zero, (mxsub - ibc)*(mysub - jbc),
+    [=] __device__(sunindextype tid) {
+      sunindextype j = tid/(mxsub - ibc) + j0;
+      sunindextype i = tid%(mxsub - ibc) + i0;
+      sunindextype locu  = i + j*mxsub;
+      sunindextype locue = (i+1) + (j+1)*mxsub2;
 
-    realtype termx   = coeffx * (uext[locue-1]      + uext[locue+1]);
-    realtype termy   = coeffy * (uext[locue-mxsub2] + uext[locue+mxsub2]);
-    realtype termctr = coeffxy * uext[locue];
-    resv[locu] = upv[locu] - (termx + termy - termctr);
-  });
+      realtype termx   = coeffx * (uext[locue-1]      + uext[locue+1]);
+      realtype termy   = coeffy * (uext[locue-mxsub2] + uext[locue+mxsub2]);
+      realtype termctr = coeffxy * uext[locue];
+      resv[locu] = upv[locu] - (termx + termy - termctr);
+    }
+  );
 
   return(0);
 
@@ -565,9 +590,11 @@ static int BSend(MPI_Comm comm, int thispe,
 
   if (jysub != 0) {
     // Device kernel here to copy from uarray to the buffer on the device
-    RAJA::forall<RAJA::cuda_exec<256> >(zero, mxsub, [=] __device__(sunindextype lx) {
-      d_bufbottom[lx] = uarray[lx];
-    });
+    RAJA::forall<RAJA::cuda_exec<256> >(zero, mxsub,
+      [=] __device__(sunindextype lx) {
+        d_bufbottom[lx] = uarray[lx];
+      }
+    );
     // Copy buffer to the host
     err = cudaMemcpy(h_bufbottom, d_bufbottom, mxsub*sizeof(realtype), cudaMemcpyDeviceToHost);
     if (err != cudaSuccess) {
@@ -583,9 +610,11 @@ static int BSend(MPI_Comm comm, int thispe,
 
   if (jysub != npey-1) {
     // Device kernel here to copy from uarray to the buffer on the device
-    RAJA::forall<RAJA::cuda_exec<256> >(zero, mxsub, [=] __device__(sunindextype lx) {
-      d_buftop[lx] = uarray[(mysub-1)*mxsub + lx];
-    });
+    RAJA::forall<RAJA::cuda_exec<256> >(zero, mxsub,
+      [=] __device__(sunindextype lx) {
+        d_buftop[lx] = uarray[(mysub-1)*mxsub + lx];
+      }
+    );
     // Copy buffer to the host
     err = cudaMemcpy(h_buftop, d_buftop, mxsub*sizeof(realtype), cudaMemcpyDeviceToHost);
     if (err != cudaSuccess) {
@@ -600,9 +629,11 @@ static int BSend(MPI_Comm comm, int thispe,
 
   if (ixsub != 0) {
     // Device kernel here to copy from uarray to the buffer on the device
-    RAJA::forall<RAJA::cuda_exec<256> >(zero, mysub, [=] __device__(sunindextype ly) {
-      d_bufleft[ly] = uarray[ly*mxsub];
-    });
+    RAJA::forall<RAJA::cuda_exec<256> >(zero, mysub,
+      [=] __device__(sunindextype ly) {
+        d_bufleft[ly] = uarray[ly*mxsub];
+      }
+    );
     // Copy buffer to the host
     err = cudaMemcpy(h_bufleft, d_bufleft, mysub*sizeof(realtype), cudaMemcpyDeviceToHost);
     if (err != cudaSuccess) {
@@ -617,9 +648,11 @@ static int BSend(MPI_Comm comm, int thispe,
 
   if (ixsub != npex-1) {
     // Device kernel here to copy from uarray to the buffer on the device
-    RAJA::forall<RAJA::cuda_exec<256> >(zero, mysub, [=] __device__(sunindextype ly) {
-      d_bufright[ly] = uarray[ly*mxsub + (mxsub-1)];
-    });
+    RAJA::forall<RAJA::cuda_exec<256> >(zero, mysub,
+      [=] __device__(sunindextype ly) {
+        d_bufright[ly] = uarray[ly*mxsub + (mxsub-1)];
+      }
+    );
     // Copy buffer to the host
     err = cudaMemcpy(h_bufright, d_bufright, mysub*sizeof(realtype), cudaMemcpyDeviceToHost);
     if (err != cudaSuccess) {
@@ -725,9 +758,11 @@ static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
       return -1;
     }
     /* Copy the bottom dev_recv_buff to uext. */
-    RAJA::forall<RAJA::cuda_exec<256> >(zero, mxsub, [=] __device__(sunindextype lx) {
-      uext[1 + lx] = d_bufbottom[lx];
-    });
+    RAJA::forall<RAJA::cuda_exec<256> >(zero, mxsub,
+      [=] __device__(sunindextype lx) {
+        uext[1 + lx] = d_bufbottom[lx];
+      }
+    );
   }
 
   /* If jysub < NPEY-1, receive data for top x-line of uext. */
@@ -740,9 +775,11 @@ static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
       return -1;
     }
     /* Copy the top dev_recv_buff to uext. */
-    RAJA::forall<RAJA::cuda_exec<256> >(zero, mxsub, [=] __device__(sunindextype lx) {
-      uext[(1 + mysub1*mxsub2) + lx] = d_buftop[lx];
-    });
+    RAJA::forall<RAJA::cuda_exec<256> >(zero, mxsub,
+      [=] __device__(sunindextype lx) {
+        uext[(1 + mysub1*mxsub2) + lx] = d_buftop[lx];
+      }
+    );
   }
 
   /* If ixsub > 0, receive data for left y-line of uext (via bufleft). */
@@ -755,9 +792,11 @@ static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
       return -1;
     }
     /* Copy the left dev_recv_buff to uext. */
-    RAJA::forall<RAJA::cuda_exec<256> >(zero, mysub, [=] __device__(sunindextype ly) {
-      uext[(ly+1)*mxsub2] = d_bufleft[ly];
-    });
+    RAJA::forall<RAJA::cuda_exec<256> >(zero, mysub,
+      [=] __device__(sunindextype ly) {
+        uext[(ly+1)*mxsub2] = d_bufleft[ly];
+      }
+    );
   }
 
   /* If ixsub < NPEX-1, receive data for right y-line of uext (via bufright). */
@@ -770,9 +809,11 @@ static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
       return -1;
     }
     /* Copy the right dev_recv_buff to uext. */
-    RAJA::forall<RAJA::cuda_exec<256> >(zero, mysub, [=] __device__(sunindextype ly) {
-      uext[(ly+2)*mxsub2 - 1] = d_bufright[ly];
-    });
+    RAJA::forall<RAJA::cuda_exec<256> >(zero, mysub,
+      [=] __device__(sunindextype ly) {
+        uext[(ly+2)*mxsub2 - 1] = d_bufright[ly];
+      }
+    );
   }
 
   return(0);
