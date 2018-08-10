@@ -25,10 +25,20 @@
 #define ONE    RCONST(1.0)
 #define ONEPT5 RCONST(1.5)
 
+// RAJA defines
+#define CUDA_BLOCK_SIZE 256
+#define RAJA_NODE_TYPE RAJA::cuda_exec< CUDA_BLOCK_SIZE >
+#define RAJA_REDUCE_TYPE RAJA::cuda_reduce< CUDA_BLOCK_SIZE >
+#define RAJA_LAMBDA [=] __device__
+
 extern "C" {
 
 using namespace sunrajavec;
 
+// Type defines
+typedef sunrajavec::Vector<realtype, sunindextype> vector_type;
+
+// Static constants
 static constexpr sunindextype zeroIdx = 0;
 
 /* ----------------------------------------------------------------
@@ -116,7 +126,7 @@ N_Vector N_VNew_Raja(SUNDIALS_Comm comm,
   v = N_VNewEmpty_Raja(local_length);
   if (v == NULL) return(NULL);
 
-  v->content = new Vector<realtype, sunindextype>(comm, local_length, global_length);
+  v->content = new vector_type(comm, local_length, global_length);
 
   return(v);
 }
@@ -125,7 +135,7 @@ N_Vector N_VNew_Raja(SUNDIALS_Comm comm,
 N_Vector N_VMake_Raja(N_VectorContent_Raja c)
 {
   N_Vector v;
-  Vector<realtype, sunindextype>* x = static_cast<Vector<realtype, sunindextype>*>(c);
+  vector_type* x = static_cast<vector_type*>(c);
   sunindextype length = x->size();
 
   v = NULL;
@@ -143,7 +153,7 @@ N_Vector N_VMake_Raja(N_VectorContent_Raja c)
  */
 sunindextype N_VGetLength_Raja(N_Vector v)
 {
-  Vector<realtype, sunindextype>* xd = static_cast<Vector<realtype, sunindextype>*>(v->content);
+  vector_type* xd = static_cast<vector_type*>(v->content);
   return xd->size();
 }
 
@@ -153,7 +163,7 @@ sunindextype N_VGetLength_Raja(N_Vector v)
 
 realtype *N_VGetHostArrayPointer_Raja(N_Vector x)
 {
-  Vector<realtype, sunindextype>* xv = static_cast<Vector<realtype, sunindextype>*>(x->content);
+  vector_type* xv = static_cast<vector_type*>(x->content);
   return (xv->host());
 }
 
@@ -163,7 +173,7 @@ realtype *N_VGetHostArrayPointer_Raja(N_Vector x)
 
 realtype *N_VGetDeviceArrayPointer_Raja(N_Vector x)
 {
-  Vector<realtype, sunindextype>* xv = static_cast<Vector<realtype, sunindextype>*>(x->content);
+  vector_type* xv = static_cast<vector_type*>(x->content);
   return (xv->device());
 }
 
@@ -173,7 +183,7 @@ realtype *N_VGetDeviceArrayPointer_Raja(N_Vector x)
 
 void N_VCopyToDevice_Raja(N_Vector x)
 {
-  Vector<realtype, sunindextype>* xv = static_cast<Vector<realtype, sunindextype>*>(x->content);
+  vector_type* xv = static_cast<vector_type*>(x->content);
   xv->copyToDev();
 }
 
@@ -183,7 +193,7 @@ void N_VCopyToDevice_Raja(N_Vector x)
 
 void N_VCopyFromDevice_Raja(N_Vector x)
 {
-  Vector<realtype, sunindextype>* xv = static_cast<Vector<realtype, sunindextype>*>(x->content);
+  vector_type* xv = static_cast<vector_type*>(x->content);
   xv->copyFromDev();
 }
 
@@ -296,8 +306,8 @@ N_Vector N_VCloneEmpty_Raja(N_Vector w)
 N_Vector N_VClone_Raja(N_Vector w)
 {
   N_Vector v;
-  Vector<realtype, sunindextype>* wdat = static_cast<Vector<realtype, sunindextype>*>(w->content);
-  Vector<realtype, sunindextype>* vdat = new Vector<realtype, sunindextype>(*wdat);
+  vector_type* wdat = static_cast<vector_type*>(w->content);
+  vector_type* vdat = new vector_type(*wdat);
   v = NULL;
   v = N_VCloneEmpty_Raja(w);
   if (v == NULL) return(NULL);
@@ -310,7 +320,7 @@ N_Vector N_VClone_Raja(N_Vector w)
 
 void N_VDestroy_Raja(N_Vector v)
 {
-  Vector<realtype, sunindextype>* x = static_cast<Vector<realtype, sunindextype>*>(v->content);
+  vector_type* x = static_cast<vector_type*>(v->content);
   if (x != NULL) {
     delete x;
     v->content = NULL;
@@ -338,7 +348,7 @@ void N_VConst_Raja(realtype c, N_Vector Z)
   const sunindextype N = getSize<realtype, sunindextype>(Z);
   realtype *zdata = getDevData<realtype, sunindextype>(Z);
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
+  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N, RAJA_LAMBDA(sunindextype i) {
      zdata[i] = c;
   });
 }
@@ -350,9 +360,11 @@ void N_VLinearSum_Raja(realtype a, N_Vector X, realtype b, N_Vector Y, N_Vector 
   const sunindextype N = getSize<realtype, sunindextype>(X);
   realtype *zdata = getDevData<realtype, sunindextype>(Z);
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
-     zdata[i] = a*xdata[i] + b*ydata[i];
-  });
+  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+    RAJA_LAMBDA(sunindextype i) {
+      zdata[i] = a*xdata[i] + b*ydata[i];
+    }
+  );
 }
 
 void N_VProd_Raja(N_Vector X, N_Vector Y, N_Vector Z)
@@ -362,9 +374,11 @@ void N_VProd_Raja(N_Vector X, N_Vector Y, N_Vector Z)
   const sunindextype N = getSize<realtype, sunindextype>(X);
   realtype *zdata = getDevData<realtype, sunindextype>(Z);
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
-     zdata[i] = xdata[i] * ydata[i];
-  });
+  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+    RAJA_LAMBDA(sunindextype i) {
+      zdata[i] = xdata[i] * ydata[i];
+    }
+  );
 }
 
 void N_VDiv_Raja(N_Vector X, N_Vector Y, N_Vector Z)
@@ -374,9 +388,11 @@ void N_VDiv_Raja(N_Vector X, N_Vector Y, N_Vector Z)
   const sunindextype N = getSize<realtype, sunindextype>(X);
   realtype *zdata = getDevData<realtype, sunindextype>(Z);
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
-     zdata[i] = xdata[i] / ydata[i];
-  });
+  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+    RAJA_LAMBDA(sunindextype i) {
+      zdata[i] = xdata[i] / ydata[i];
+    }
+  );
 }
 
 void N_VScale_Raja(realtype c, N_Vector X, N_Vector Z)
@@ -385,9 +401,11 @@ void N_VScale_Raja(realtype c, N_Vector X, N_Vector Z)
   const sunindextype N = getSize<realtype, sunindextype>(X);
   realtype *zdata = getDevData<realtype, sunindextype>(Z);
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
-     zdata[i] = c * xdata[i];
-  });
+  RAJA::forall<RAJA_NODE_TYPE >(zeroIdx, N,
+    RAJA_LAMBDA(sunindextype i) {
+      zdata[i] = c * xdata[i];
+    }
+  );
 }
 
 void N_VAbs_Raja(N_Vector X, N_Vector Z)
@@ -396,9 +414,11 @@ void N_VAbs_Raja(N_Vector X, N_Vector Z)
   const sunindextype N = getSize<realtype, sunindextype>(X);
   realtype *zdata = getDevData<realtype, sunindextype>(Z);
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
-     zdata[i] = abs(xdata[i]);
-  });
+  RAJA::forall<RAJA_NODE_TYPE >(zeroIdx, N,
+    RAJA_LAMBDA(sunindextype i) {
+      zdata[i] = abs(xdata[i]);
+    }
+  );
 }
 
 void N_VInv_Raja(N_Vector X, N_Vector Z)
@@ -407,9 +427,11 @@ void N_VInv_Raja(N_Vector X, N_Vector Z)
   const sunindextype N = getSize<realtype, sunindextype>(X);
   realtype *zdata = getDevData<realtype, sunindextype>(Z);
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
-     zdata[i] = ONE / xdata[i];
-  });
+  RAJA::forall<RAJA_NODE_TYPE >(zeroIdx, N,
+    RAJA_LAMBDA(sunindextype i) {
+      zdata[i] = ONE / xdata[i];
+    }
+  );
 }
 
 void N_VAddConst_Raja(N_Vector X, realtype b, N_Vector Z)
@@ -418,9 +440,11 @@ void N_VAddConst_Raja(N_Vector X, realtype b, N_Vector Z)
   const sunindextype N = getSize<realtype, sunindextype>(X);
   realtype *zdata = getDevData<realtype, sunindextype>(Z);
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
-     zdata[i] = xdata[i] + b;
-  });
+  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+    RAJA_LAMBDA(sunindextype i) {
+      zdata[i] = xdata[i] + b;
+    }
+  );
 }
 
 realtype N_VDotProd_Raja(N_Vector X, N_Vector Y)
@@ -429,10 +453,12 @@ realtype N_VDotProd_Raja(N_Vector X, N_Vector Y)
   const realtype *ydata = getDevData<realtype, sunindextype>(Y);
   const sunindextype N = getSize<realtype, sunindextype>(X);
 
-  RAJA::ReduceSum<RAJA::cuda_reduce<128>, realtype> gpu_result(0.0);
-  RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {
-    gpu_result += xdata[i] * ydata[i] ;
-  });
+  RAJA::ReduceSum< RAJA_REDUCE_TYPE, realtype> gpu_result(0.0);
+  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+    RAJA_LAMBDA(sunindextype i) {
+      gpu_result += xdata[i] * ydata[i] ;
+    }
+  );
 
   /* Reduce across MPI processes */
   realtype sum = static_cast<realtype>(gpu_result);
@@ -446,10 +472,12 @@ realtype N_VMaxNorm_Raja(N_Vector X)
   const realtype *xdata = getDevData<realtype, sunindextype>(X);
   const sunindextype N = getSize<realtype, sunindextype>(X);
 
-  RAJA::ReduceMax<RAJA::cuda_reduce<128>, realtype> gpu_result(0.0);
-  RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {
-    gpu_result.max(abs(xdata[i]));
-  });
+  RAJA::ReduceMax< RAJA_REDUCE_TYPE, realtype> gpu_result(0.0);
+  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+    RAJA_LAMBDA(sunindextype i) {
+      gpu_result.max(abs(xdata[i]));
+    }
+  );
 
   /* Reduce across MPI processes */
   realtype maximum = static_cast<realtype>(gpu_result);
@@ -464,10 +492,12 @@ realtype N_VWrmsNorm_Raja(N_Vector X, N_Vector W)
   const sunindextype N = getSize<realtype, sunindextype>(X);
   const sunindextype Nglobal = getGlobalSize<realtype, sunindextype>(X);
 
-  RAJA::ReduceSum<RAJA::cuda_reduce<128>, realtype> gpu_result(0.0);
-  RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {
-    gpu_result += (xdata[i] * wdata[i] * xdata[i] * wdata[i]);
-  });
+  RAJA::ReduceSum< RAJA_REDUCE_TYPE, realtype> gpu_result(0.0);
+  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+    RAJA_LAMBDA(sunindextype i) {
+      gpu_result += (xdata[i] * wdata[i] * xdata[i] * wdata[i]);
+    }
+  );
 
   /* Reduce across MPI processes */
   realtype sum = static_cast<realtype>(gpu_result);
@@ -483,11 +513,13 @@ realtype N_VWrmsNormMask_Raja(N_Vector X, N_Vector W, N_Vector ID)
   const sunindextype N = getSize<realtype, sunindextype>(X);
   const sunindextype Nglobal = getGlobalSize<realtype, sunindextype>(X);
 
-  RAJA::ReduceSum<RAJA::cuda_reduce<128>, realtype> gpu_result(0.0);
-  RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {
+  RAJA::ReduceSum< RAJA_REDUCE_TYPE, realtype> gpu_result(0.0);
+  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+    RAJA_LAMBDA(sunindextype i) {
       if (iddata[i] > ZERO)
         gpu_result += (xdata[i] * wdata[i] * xdata[i] * wdata[i]);
-  });
+    }
+  );
 
   /* Reduce across MPI processes */
   realtype sum = static_cast<realtype>(gpu_result);
@@ -500,10 +532,12 @@ realtype N_VMin_Raja(N_Vector X)
   const realtype *xdata = getDevData<realtype, sunindextype>(X);
   const sunindextype N = getSize<realtype, sunindextype>(X);
 
-  RAJA::ReduceMin<RAJA::cuda_reduce<128>, realtype> gpu_result(std::numeric_limits<realtype>::max());
-  RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {
-    gpu_result.min(xdata[i]);
-  });
+  RAJA::ReduceMin< RAJA_REDUCE_TYPE, realtype> gpu_result(std::numeric_limits<realtype>::max());
+  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+    RAJA_LAMBDA(sunindextype i) {
+      gpu_result.min(xdata[i]);
+    }
+  );
 
   /* Reduce across MPI processes */
   realtype minumum = static_cast<realtype>(gpu_result);
@@ -517,10 +551,12 @@ realtype N_VWL2Norm_Raja(N_Vector X, N_Vector W)
   const realtype *wdata = getDevData<realtype, sunindextype>(W);
   const sunindextype N = getSize<realtype, sunindextype>(X);
 
-  RAJA::ReduceSum<RAJA::cuda_reduce<128>, realtype> gpu_result(0.0);
-  RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {
-    gpu_result += (xdata[i] * wdata[i] * xdata[i] * wdata[i]);
-  });
+  RAJA::ReduceSum< RAJA_REDUCE_TYPE, realtype> gpu_result(0.0);
+  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+    RAJA_LAMBDA(sunindextype i) {
+      gpu_result += (xdata[i] * wdata[i] * xdata[i] * wdata[i]);
+    }
+  );
 
   /* Reduce across MPI processes */
   realtype sum = static_cast<realtype>(gpu_result);
@@ -533,10 +569,12 @@ realtype N_VL1Norm_Raja(N_Vector X)
   const realtype *xdata = getDevData<realtype, sunindextype>(X);
   const sunindextype N = getSize<realtype, sunindextype>(X);
 
-  RAJA::ReduceSum<RAJA::cuda_reduce<128>, realtype> gpu_result(0.0);
-  RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {
-    gpu_result += (abs(xdata[i]));
-  });
+  RAJA::ReduceSum< RAJA_REDUCE_TYPE, realtype> gpu_result(0.0);
+  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+    RAJA_LAMBDA(sunindextype i) {
+      gpu_result += (abs(xdata[i]));
+    }
+  );
 
   /* Reduce across MPI processes */
   realtype sum = static_cast<realtype>(gpu_result);
@@ -550,9 +588,11 @@ void N_VCompare_Raja(realtype c, N_Vector X, N_Vector Z)
   const sunindextype N = getSize<realtype, sunindextype>(X);
   realtype *zdata = getDevData<realtype, sunindextype>(Z);
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
-     zdata[i] = abs(xdata[i]) >= c ? ONE : ZERO;
-  });
+  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+    RAJA_LAMBDA(sunindextype i) {
+      zdata[i] = abs(xdata[i]) >= c ? ONE : ZERO;
+    }
+  );
 }
 
 booleantype N_VInvTest_Raja(N_Vector x, N_Vector z)
@@ -561,14 +601,16 @@ booleantype N_VInvTest_Raja(N_Vector x, N_Vector z)
   const sunindextype N = getSize<realtype, sunindextype>(x);
   realtype *zdata = getDevData<realtype, sunindextype>(z);
 
-  RAJA::ReduceSum<RAJA::cuda_reduce<128>, realtype> gpu_result(ZERO);
-  RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {
-    if (xdata[i] == ZERO) {
-      gpu_result += ONE;
-    } else {
-      zdata[i] = ONE/xdata[i];
+  RAJA::ReduceSum< RAJA_REDUCE_TYPE, realtype> gpu_result(ZERO);
+  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+    RAJA_LAMBDA(sunindextype i) {
+      if (xdata[i] == ZERO) {
+        gpu_result += ONE;
+      } else {
+        zdata[i] = ONE/xdata[i];
+      }
     }
-  });
+  );
 
   /* Reduce across MPI processes */
   realtype minimum = static_cast<realtype>(gpu_result);
@@ -585,13 +627,15 @@ booleantype N_VConstrMask_Raja(N_Vector c, N_Vector x, N_Vector m)
   const sunindextype N = getSize<realtype, sunindextype>(x);
   realtype *mdata = getDevData<realtype, sunindextype>(m);
 
-  RAJA::ReduceSum<RAJA::cuda_reduce<128>, realtype> gpu_result(ZERO);
-  RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {
-    bool test = (abs(cdata[i]) > ONEPT5 && cdata[i]*xdata[i] <= ZERO) ||
-                (abs(cdata[i]) > HALF   && cdata[i]*xdata[i] <  ZERO);
-    mdata[i] = test ? ONE : ZERO;
-    gpu_result += mdata[i];
-  });
+  RAJA::ReduceSum< RAJA_REDUCE_TYPE, realtype> gpu_result(ZERO);
+  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+    RAJA_LAMBDA(sunindextype i) {
+      bool test = (abs(cdata[i]) > ONEPT5 && cdata[i]*xdata[i] <= ZERO) ||
+                  (abs(cdata[i]) > HALF   && cdata[i]*xdata[i] <  ZERO);
+      mdata[i] = test ? ONE : ZERO;
+      gpu_result += mdata[i];
+    }
+  );
 
   /* Reduce across MPI processes */
   realtype sum = static_cast<realtype>(gpu_result);
@@ -607,11 +651,13 @@ realtype N_VMinQuotient_Raja(N_Vector num, N_Vector denom)
   const realtype *ddata = getDevData<realtype, sunindextype>(denom);
   const sunindextype N = getSize<realtype, sunindextype>(num);
 
-  RAJA::ReduceMin<RAJA::cuda_reduce<128>, realtype> gpu_result(std::numeric_limits<realtype>::max());
-  RAJA::forall<RAJA::cuda_exec<128> >(zeroIdx, N, [=] __device__(sunindextype i) {
-    if (ddata[i] != ZERO)
-      gpu_result.min(ndata[i]/ddata[i]);
-  });
+  RAJA::ReduceMin< RAJA_REDUCE_TYPE, realtype> gpu_result(std::numeric_limits<realtype>::max());
+  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+    RAJA_LAMBDA(sunindextype i) {
+      if (ddata[i] != ZERO)
+        gpu_result.min(ndata[i]/ddata[i]);
+    }
+  );
 
   /* Reduce across MPI processes */
   realtype minimum = static_cast<realtype>(gpu_result);
@@ -652,11 +698,13 @@ int N_VLinearCombination_Raja(int nvec, realtype* c, N_Vector* X, N_Vector z)
   err = cudaMemcpy(d_Xd, h_Xd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
   if (err != cudaSuccess) return cudaGetLastError();
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
+  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+    RAJA_LAMBDA(sunindextype i) {
       d_zd[i] = d_c[0] * d_Xd[0][i];
       for (int j=1; j<nvec; j++)
         d_zd[i] += d_c[j] * d_Xd[j][i];
-    });
+    }
+  );
 
   // Free host array
   delete[] h_Xd;
@@ -707,10 +755,12 @@ int N_VScaleAddMulti_Raja(int nvec, realtype* c, N_Vector x, N_Vector* Y, N_Vect
   err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
   if (err != cudaSuccess) return cudaGetLastError();
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
+  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+    RAJA_LAMBDA(sunindextype i) {
       for (int j=0; j<nvec; j++)
         d_Zd[j][i] = d_c[j] * d_xd[i] + d_Yd[j][i];
-    });
+    }
+  );
 
   // Free host array
   delete[] h_Yd;
@@ -775,10 +825,12 @@ int N_VLinearSumVectorArray_Raja(int nvec,
   err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
   if (err != cudaSuccess) return cudaGetLastError();
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
+  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+    RAJA_LAMBDA(sunindextype i) {
       for (int j=0; j<nvec; j++)
         d_Zd[j][i] = a * d_Xd[j][i] + b * d_Yd[j][i];
-    });
+    }
+  );
 
   // Free host array
   delete[] h_Xd;
@@ -832,10 +884,12 @@ int N_VScaleVectorArray_Raja(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
   err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
   if (err != cudaSuccess) return cudaGetLastError();
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
+  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+    RAJA_LAMBDA(sunindextype i) {
       for (int j=0; j<nvec; j++)
         d_Zd[j][i] = d_c[j] * d_Xd[j][i];
-    });
+    }
+  );
 
   // Free host array
   delete[] h_Xd;
@@ -869,10 +923,12 @@ int N_VConstVectorArray_Raja(int nvec, realtype c, N_Vector* Z)
   err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
   if (err != cudaSuccess) return cudaGetLastError();
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
+  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+    RAJA_LAMBDA(sunindextype i) {
       for (int j=0; j<nvec; j++)
         d_Zd[j][i] = c;
-    });
+    }
+  );
 
   // Free host array
   delete[] h_Zd;
@@ -886,7 +942,7 @@ int N_VConstVectorArray_Raja(int nvec, realtype c, N_Vector* Z)
 
 
 int N_VScaleAddMultiVectorArray_Raja(int nvec, int nsum, realtype* c,
-                                      N_Vector* X, N_Vector** Y, N_Vector** Z)
+                                     N_Vector* X, N_Vector** Y, N_Vector** Z)
 {
   cudaError_t err;
 
@@ -933,11 +989,13 @@ int N_VScaleAddMultiVectorArray_Raja(int nvec, int nsum, realtype* c,
   err = cudaMemcpy(d_Zd, h_Zd, nsum*nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
   if (err != cudaSuccess) return cudaGetLastError();
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
+  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+    RAJA_LAMBDA(sunindextype i) {
       for (int j=0; j<nvec; j++)
         for (int k=0; k<nsum; k++)
           d_Zd[j*nsum+k][i] = d_c[k] * d_Xd[j][i] + d_Yd[j*nsum+k][i];
-    });
+    }
+  );
 
   // Free host array
   delete[] h_Xd;
@@ -993,14 +1051,16 @@ int N_VLinearCombinationVectorArray_Raja(int nvec, int nsum, realtype* c,
   err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
   if (err != cudaSuccess) return cudaGetLastError();
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
+  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+    RAJA_LAMBDA(sunindextype i) {
       for (int j=0; j<nvec; j++) {
         d_Zd[j][i] = d_c[0] * d_Xd[j*nsum][i];
         for (int k=1; k<nsum; k++) {
           d_Zd[j][i] += d_c[k] * d_Xd[j*nsum+k][i];
         }
       }
-    });
+    }
+  );
 
   // Free host array
   delete[] h_Xd;
