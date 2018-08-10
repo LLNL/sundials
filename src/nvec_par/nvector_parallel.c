@@ -21,6 +21,7 @@
 
 #include <nvector/nvector_parallel.h>
 #include <sundials/sundials_math.h>
+#include <sundials/sundials_mpi.h>
 
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
@@ -35,8 +36,6 @@
 
 /* Private function prototypes */
 
-/* Reduction operations add/max/min over the processor group */
-static realtype VAllReduce_Parallel(realtype d, int op, MPI_Comm comm);
 /* z=x */
 static void VCopy_Parallel(N_Vector x, N_Vector z);
 /* z=x+y */
@@ -732,7 +731,7 @@ realtype N_VDotProd_Parallel(N_Vector x, N_Vector y)
 
   for (i = 0; i < N; i++) sum += xd[i]*yd[i];
 
-  gsum = VAllReduce_Parallel(sum, 1, comm);
+  gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
 
   return(gsum);
 }
@@ -755,7 +754,7 @@ realtype N_VMaxNorm_Parallel(N_Vector x)
     if (SUNRabs(xd[i]) > max) max = SUNRabs(xd[i]);
   }
 
-  gmax = VAllReduce_Parallel(max, 2, comm);
+  gmax = SUNMPI_Allreduce_scalar(max, 2, comm);
 
   return(gmax);
 }
@@ -780,7 +779,7 @@ realtype N_VWrmsNorm_Parallel(N_Vector x, N_Vector w)
     sum += SUNSQR(prodi);
   }
 
-  gsum = VAllReduce_Parallel(sum, 1, comm);
+  gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
 
   return(SUNRsqrt(gsum/N_global));
 }
@@ -808,7 +807,7 @@ realtype N_VWrmsNormMask_Parallel(N_Vector x, N_Vector w, N_Vector id)
     }
   }
 
-  gsum = VAllReduce_Parallel(sum, 1, comm);
+  gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
 
   return(SUNRsqrt(gsum/N_global));
 }
@@ -838,7 +837,7 @@ realtype N_VMin_Parallel(N_Vector x)
 
   }
 
-  gmin = VAllReduce_Parallel(min, 3, comm);
+  gmin = SUNMPI_Allreduce_scalar(min, 3, comm);
 
   return(gmin);
 }
@@ -862,7 +861,7 @@ realtype N_VWL2Norm_Parallel(N_Vector x, N_Vector w)
     sum += SUNSQR(prodi);
   }
 
-  gsum = VAllReduce_Parallel(sum, 1, comm);
+  gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
 
   return(SUNRsqrt(gsum));
 }
@@ -883,7 +882,7 @@ realtype N_VL1Norm_Parallel(N_Vector x)
   for (i = 0; i<N; i++)
     sum += SUNRabs(xd[i]);
 
-  gsum = VAllReduce_Parallel(sum, 1, comm);
+  gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
 
   return(gsum);
 }
@@ -927,7 +926,7 @@ booleantype N_VInvTest_Parallel(N_Vector x, N_Vector z)
       zd[i] = ONE/xd[i];
   }
 
-  gval = VAllReduce_Parallel(val, 3, comm);
+  gval = SUNMPI_Allreduce_scalar(val, 3, comm);
 
   if (gval == ZERO)
     return(SUNFALSE);
@@ -969,7 +968,7 @@ booleantype N_VConstrMask_Parallel(N_Vector c, N_Vector x, N_Vector m)
   }
 
   /* Find max temp across all MPI ranks */
-  temp = VAllReduce_Parallel(temp, 2, comm);
+  temp = SUNMPI_Allreduce_scalar(temp, 2, comm);
 
   /* Return false if any constraint was violated */
   return (temp == ONE) ? SUNFALSE : SUNTRUE;
@@ -1003,7 +1002,7 @@ realtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom)
     }
   }
 
-  return(VAllReduce_Parallel(min, 3, comm));
+  return(SUNMPI_Allreduce_scalar(min, 3, comm));
 }
 
 
@@ -1163,7 +1162,7 @@ int N_VDotProdMulti_Parallel(int nvec, N_Vector x, N_Vector* Y, realtype* dotpro
       dotprods[i] += xd[j] * yd[j];
     }
   }
-  MPI_Allreduce(MPI_IN_PLACE, dotprods, nvec, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
+  SUNMPI_Allreduce(dotprods, nvec, 1, comm);
 
   return(0);
 }
@@ -1319,7 +1318,7 @@ int N_VWrmsNormVectorArray_Parallel(int nvec, N_Vector* X, N_Vector* W, realtype
       nrm[i] += SUNSQR(xd[j] * wd[j]);
     }
   }
-  MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
+  SUNMPI_Allreduce(nrm, nvec, 1, comm);
 
   for (i=0; i<nvec; i++)
     nrm[i] = SUNRsqrt(nrm[i]/Ng);
@@ -1363,7 +1362,7 @@ int N_VWrmsNormMaskVectorArray_Parallel(int nvec, N_Vector* X, N_Vector* W,
         nrm[i] += SUNSQR(xd[j] * wd[j]);
     }
   }
-  MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
+  SUNMPI_Allreduce(nrm, nvec, 1, comm);
 
   for (i=0; i<nvec; i++)
     nrm[i] = SUNRsqrt(nrm[i]/Ng);
@@ -1609,34 +1608,6 @@ int N_VLinearCombinationVectorArray_Parallel(int nvec, int nsum,
  * private functions
  * -----------------------------------------------------------------
  */
-
-static realtype VAllReduce_Parallel(realtype d, int op, MPI_Comm comm)
-{
-  /*
-   * This function does a global reduction.  The operation is
-   *   sum if op = 1,
-   *   max if op = 2,
-   *   min if op = 3.
-   * The operation is over all processors in the communicator
-   */
-
-  realtype out;
-
-  switch (op) {
-   case 1: MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
-           break;
-
-   case 2: MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_MAX, comm);
-           break;
-
-   case 3: MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_MIN, comm);
-           break;
-
-   default: break;
-  }
-
-  return(out);
-}
 
 static void VCopy_Parallel(N_Vector x, N_Vector z)
 {

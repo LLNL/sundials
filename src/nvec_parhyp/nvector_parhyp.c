@@ -1,6 +1,5 @@
 /* -----------------------------------------------------------------
- * Programmer(s): Jean M. Sexton @ SMU
- *                Slaven Peles @ LLNL
+ * Programmer(s): Slaven Peles @ LLNL and Jean M. Sexton @ SMU
  * -----------------------------------------------------------------
  * Based on work by Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                  and Aaron Collier @ LLNL
@@ -15,8 +14,8 @@
  * For details, see the LICENSE file.
  * LLNS Copyright End
  * -----------------------------------------------------------------
- * This is the implementation file for a parhyp MPI implementation
- * of the NVECTOR package.
+ * This is the implementation file for a HYPRE ParVector wrapper
+ * for the NVECTOR package.
  * -----------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -24,6 +23,7 @@
 
 #include <nvector/nvector_parhyp.h>
 #include <sundials/sundials_math.h>
+#include <sundials/sundials_mpi.h>
 
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
@@ -116,16 +116,10 @@
 
 /* Private function prototypes */
 
-/* Reduction operations add/max/min over the processor group */
-static realtype VAllReduce_ParHyp(realtype d, int op, MPI_Comm comm);
-/* z=x */
-/* static void VCopy_ParHyp(N_Vector x, N_Vector z); */
 /* z=x+y */
 static void VSum_ParHyp(N_Vector x, N_Vector y, N_Vector z);
 /* z=x-y */
 static void VDiff_ParHyp(N_Vector x, N_Vector y, N_Vector z);
-/* z=-x */
-/* static void VNeg_ParHyp(N_Vector x, N_Vector z); */
 /* z=c(x+y) */
 static void VScaleSum_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z);
 /* z=c(x-y) */
@@ -134,10 +128,6 @@ static void VScaleDiff_ParHyp(realtype c, N_Vector x, N_Vector y, N_Vector z);
 static void VLin1_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z);
 /* z=ax-y */
 static void VLin2_ParHyp(realtype a, N_Vector x, N_Vector y, N_Vector z);
-/* y <- ax+y */
-/* static void Vaxpy_ParHyp(realtype a, N_Vector x, N_Vector y); */
-/* x <- ax */
-/* static void VScaleBy_ParHyp(realtype a, N_Vector x); */
 
 /*
  * -----------------------------------------------------------------
@@ -796,7 +786,7 @@ realtype N_VMaxNorm_ParHyp(N_Vector x)
     if (SUNRabs(xd[i]) > max) max = SUNRabs(xd[i]);
   }
 
-  gmax = VAllReduce_ParHyp(max, 2, comm);
+  gmax = SUNMPI_Allreduce_scalar(max, 2, comm);
 
   return(gmax);
 }
@@ -821,7 +811,7 @@ realtype N_VWrmsNorm_ParHyp(N_Vector x, N_Vector w)
     sum += SUNSQR(prodi);
   }
 
-  gsum = VAllReduce_ParHyp(sum, 1, comm);
+  gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
 
   return(SUNRsqrt(gsum/N_global));
 }
@@ -849,7 +839,7 @@ realtype N_VWrmsNormMask_ParHyp(N_Vector x, N_Vector w, N_Vector id)
     }
   }
 
-  gsum = VAllReduce_ParHyp(sum, 1, comm);
+  gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
 
   return(SUNRsqrt(gsum/N_global));
 }
@@ -880,7 +870,7 @@ realtype N_VMin_ParHyp(N_Vector x)
 
   }
 
-  gmin = VAllReduce_ParHyp(min, 3, comm);
+  gmin = SUNMPI_Allreduce_scalar(min, 3, comm);
 
   return(gmin);
 }
@@ -904,7 +894,7 @@ realtype N_VWL2Norm_ParHyp(N_Vector x, N_Vector w)
     sum += SUNSQR(prodi);
   }
 
-  gsum = VAllReduce_ParHyp(sum, 1, comm);
+  gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
 
   return(SUNRsqrt(gsum));
 }
@@ -925,7 +915,7 @@ realtype N_VL1Norm_ParHyp(N_Vector x)
   for (i = 0; i<N; i++)
     sum += SUNRabs(xd[i]);
 
-  gsum = VAllReduce_ParHyp(sum, 1, comm);
+  gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
 
   return(gsum);
 }
@@ -969,7 +959,7 @@ booleantype N_VInvTest_ParHyp(N_Vector x, N_Vector z)
       zd[i] = ONE/xd[i];
   }
 
-  gval = VAllReduce_ParHyp(val, 3, comm);
+  gval = SUNMPI_Allreduce_scalar(val, 3, comm);
 
   if (gval == ZERO)
     return(SUNFALSE);
@@ -1011,7 +1001,7 @@ booleantype N_VConstrMask_ParHyp(N_Vector c, N_Vector x, N_Vector m)
   }
 
   /* Find max temp across all MPI ranks */
-  temp = VAllReduce_ParHyp(temp, 2, comm);
+  temp = SUNMPI_Allreduce_scalar(temp, 2, comm);
 
   /* Return false if any constraint was violated */
   return (temp == ONE) ? SUNFALSE : SUNTRUE;
@@ -1045,7 +1035,7 @@ realtype N_VMinQuotient_ParHyp(N_Vector num, N_Vector denom)
     }
   }
 
-  return(VAllReduce_ParHyp(min, 3, comm));
+  return(SUNMPI_Allreduce_scalar(min, 3, comm));
 }
 
 
@@ -1207,7 +1197,7 @@ int N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods
       dotprods[i] += xd[j] * yd[j];
     }
   }
-  MPI_Allreduce(MPI_IN_PLACE, dotprods, nvec, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
+  SUNMPI_Allreduce(dotprods, nvec, 1, comm);
 
   return(0);
 }
@@ -1365,7 +1355,7 @@ int N_VWrmsNormVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W, realtype* 
       nrm[i] += SUNSQR(xd[j] * wd[j]);
     }
   }
-  MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
+  SUNMPI_Allreduce(nrm, nvec, 1, comm);
 
   for (i=0; i<nvec; i++)
     nrm[i] = SUNRsqrt(nrm[i]/Ng);
@@ -1409,7 +1399,7 @@ int N_VWrmsNormMaskVectorArray_ParHyp(int nvec, N_Vector* X, N_Vector* W,
         nrm[i] += SUNSQR(xd[j] * wd[j]);
     }
   }
-  MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
+  SUNMPI_Allreduce(nrm, nvec, 1, comm);
 
   for (i=0; i<nvec; i++)
     nrm[i] = SUNRsqrt(nrm[i]/Ng);
@@ -1655,35 +1645,6 @@ int N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
  * private functions
  * -----------------------------------------------------------------
  */
-
-static realtype VAllReduce_ParHyp(realtype d, int op, MPI_Comm comm)
-{
-  /*
-   * This function does a global reduction.  The operation is
-   *   sum if op = 1,
-   *   max if op = 2,
-   *   min if op = 3.
-   * The operation is over all processors in the communicator
-   */
-
-  realtype out;
-
-  switch (op) {
-   case 1: MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
-           break;
-
-   case 2: MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_MAX, comm);
-           break;
-
-   case 3: MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_MIN, comm);
-           break;
-
-   default: break;
-  }
-
-  return(out);
-}
-
 
 static void VSum_ParHyp(N_Vector x, N_Vector y, N_Vector z)
 {

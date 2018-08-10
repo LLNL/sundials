@@ -1,6 +1,6 @@
 /* -----------------------------------------------------------------
  * Programmer(s): Slaven Peles @ LLNL
- *
+ * -----------------------------------------------------------------
  * Based on N_Vector_Parallel by Scott D. Cohen, Alan C. Hindmarsh,
  * Radu Serban, and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -23,6 +23,7 @@
 
 #include <nvector/nvector_petsc.h>
 #include <sundials/sundials_math.h>
+#include <sundials/sundials_mpi.h>
 
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
@@ -101,16 +102,6 @@
 #define NV_COMM_PTC(v)       ( NV_CONTENT_PTC(v)->comm )
 
 
-/* Private function prototypes */
-
-/* Reduction operations add/max/min over the processor group */
-static realtype VAllReduce_Petsc(realtype d, int op, MPI_Comm comm);
-
-/*
- * -----------------------------------------------------------------
- * exported functions
- * -----------------------------------------------------------------
- */
 
 /* ----------------------------------------------------------------
  * Returns vector type ID. Used to identify vector implementation
@@ -702,7 +693,7 @@ realtype N_VWrmsNorm_Petsc(N_Vector x, N_Vector w)
   VecRestoreArray(xv, &xd);
   VecRestoreArray(wv, &wd);
 
-  global_sum = VAllReduce_Petsc(sum, 1, comm);
+  global_sum = SUNMPI_Allreduce_scalar(sum, 1, comm);
   return (SUNRsqrt(global_sum/N_global));
 }
 
@@ -735,7 +726,7 @@ realtype N_VWrmsNormMask_Petsc(N_Vector x, N_Vector w, N_Vector id)
   VecRestoreArray(wv, &wd);
   VecRestoreArray(idv, &idd);
 
-  global_sum = VAllReduce_Petsc(sum, 1, comm);
+  global_sum = SUNMPI_Allreduce_scalar(sum, 1, comm);
   return (SUNRsqrt(global_sum/N_global));
 }
 
@@ -771,7 +762,7 @@ realtype N_VWL2Norm_Petsc(N_Vector x, N_Vector w)
   VecRestoreArray(xv, &xd);
   VecRestoreArray(wv, &wd);
 
-  global_sum = VAllReduce_Petsc(sum, 1, comm);
+  global_sum = SUNMPI_Allreduce_scalar(sum, 1, comm);
   return (SUNRsqrt(global_sum));
 }
 
@@ -828,7 +819,7 @@ booleantype N_VInvTest_Petsc(N_Vector x, N_Vector z)
   VecRestoreArray(xv, &xd);
   VecRestoreArray(zv, &zd);
 
-  val = VAllReduce_Petsc(val, 3, comm);
+  val = SUNMPI_Allreduce_scalar(val, 3, comm);
 
   if (val == ZERO)
     return(SUNFALSE);
@@ -876,7 +867,7 @@ booleantype N_VConstrMask_Petsc(N_Vector c, N_Vector x, N_Vector m)
   VecRestoreArray(mv, &md);
 
   /* Find max temp across all MPI ranks */
-  temp = VAllReduce_Petsc(temp, 2, comm);
+  temp = SUNMPI_Allreduce_scalar(temp, 2, comm);
 
   /* Return false if any constraint was violated */
   return (temp == ONE) ? SUNFALSE : SUNTRUE;
@@ -914,7 +905,7 @@ realtype N_VMinQuotient_Petsc(N_Vector num, N_Vector denom)
   VecRestoreArray(nv, &nd);
   VecRestoreArray(dv, &dd);
 
-  return(VAllReduce_Petsc(minval, 3, comm));
+  return(SUNMPI_Allreduce_scalar(minval, 3, comm));
 }
 
 
@@ -1211,7 +1202,7 @@ int N_VWrmsNormVectorArray_Petsc(int nvec, N_Vector* X, N_Vector* W, realtype* n
     VecRestoreArray(NV_PVEC_PTC(X[i]), &xd);
     VecRestoreArray(NV_PVEC_PTC(W[i]), &wd);
   }
-  ier = MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
+  SUNMPI_Allreduce(nrm, nvec, 1, comm);
 
   for (i=0; i<nvec; i++)
     nrm[i] = SUNRsqrt(nrm[i]/Ng);
@@ -1257,7 +1248,7 @@ int N_VWrmsNormMaskVectorArray_Petsc(int nvec, N_Vector* X, N_Vector* W,
   }
   VecRestoreArray(NV_PVEC_PTC(id), &idd);
 
-  ier = MPI_Allreduce(MPI_IN_PLACE, nrm, nvec, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
+  SUNMPI_Allreduce(nrm, nvec, 1, comm);
 
   for (i=0; i<nvec; i++)
     nrm[i] = SUNRsqrt(nrm[i]/Ng);
@@ -1507,40 +1498,4 @@ int N_VLinearCombinationVectorArray_Petsc(int nvec, int nsum,
   return(0);
 }
 
-
-/*
- * -----------------------------------------------------------------
- * private functions
- * -----------------------------------------------------------------
- */
-
-static realtype VAllReduce_Petsc(realtype d, int op, MPI_Comm comm)
-{
-  /*
-   * This function does a global reduction.  The operation is
-   *   sum if op = 1,
-   *   max if op = 2,
-   *   min if op = 3.
-   * The operation is over all processors in the communicator
-   */
-
-  PetscErrorCode ierr;
-  realtype out;
-
-  switch (op) {
-   case 1: ierr = MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
-           break;
-
-   case 2: ierr = MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_MAX, comm);
-           break;
-
-   case 3: ierr = MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_MIN, comm);
-           break;
-
-   default: break;
-  }
-  CHKERRABORT(comm, ierr);
-
-  return(out);
-}
 

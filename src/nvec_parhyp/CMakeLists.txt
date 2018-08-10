@@ -3,8 +3,8 @@
 # ---------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Lawrence Livermore National Laboratory in part under
 # Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
@@ -29,7 +29,10 @@ SET(nvecparhyp_SOURCES nvector_parhyp.c)
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the NVECPARHYP library
-SET(shared_SOURCES sundials_math.c)
+SET(shared_SOURCES
+  sundials_math.c
+  sundials_mpi.c
+  )
 ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
 
 # Add variable nvecparhyp_HEADERS with the exported NVECPARHYP header files
@@ -40,7 +43,7 @@ ADD_PREFIX(${sundials_SOURCE_DIR}/include/nvector/ nvecparhyp_HEADERS)
 INCLUDE_DIRECTORIES(.)
 INCLUDE_DIRECTORIES(${HYPRE_INCLUDE_DIR})
 
-# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY 
+# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
 ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 
 # Rules for building and installing the static library:
@@ -71,7 +74,7 @@ IF(BUILD_SHARED_LIBS)
 
   SET_TARGET_PROPERTIES(sundials_nvecparhyp_shared
     PROPERTIES OUTPUT_NAME sundials_nvecparhyp CLEAN_DIRECT_OUTPUT 1)
-  SET_TARGET_PROPERTIES(sundials_nvecparhyp_shared 
+  SET_TARGET_PROPERTIES(sundials_nvecparhyp_shared
     PROPERTIES VERSION ${nveclib_VERSION} SOVERSION ${nveclib_SOVERSION})
   INSTALL(TARGETS sundials_nvecparhyp_shared DESTINATION lib)
 ENDIF(BUILD_SHARED_LIBS)
