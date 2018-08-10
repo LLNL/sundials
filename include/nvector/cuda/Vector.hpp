@@ -157,12 +157,12 @@ public:
       std::cerr << "Failed to copy vector from device to host (error code " << err << ")!\n";
   }
 
-  StreamPartitioning<T, I>& partStream() const
+  ThreadPartitioning<T, I>& partStream() const
   {
     return *partStream_;
   }
 
-  ReducePartitioning<T, I>& partReduce() const
+  ThreadPartitioning<T, I>& partReduce() const
   {
     return *partReduce_;
   }
@@ -173,8 +173,8 @@ private:
   I global_size_;
   T* h_vec_;
   T* d_vec_;
-  StreamPartitioning<T, I>* partStream_;
-  ReducePartitioning<T, I>* partReduce_;
+  ThreadPartitioning<T, I>* partStream_;
+  ThreadPartitioning<T, I>* partReduce_;
   bool ownPartitioning_;
   SUNDIALS_Comm comm_;
 };

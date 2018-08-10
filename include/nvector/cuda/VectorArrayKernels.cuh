@@ -358,7 +358,7 @@ inline cudaError_t linearCombination(int nvec, T* c, Vector<T,I>** X, Vector<T,I
   if (err != cudaSuccess) return cudaGetLastError();
 
   // Set partitioning
-  StreamPartitioning<T, I>& p = X[0]->partStream();
+  ThreadPartitioning<T, I>& p = X[0]->partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
 
@@ -414,7 +414,7 @@ inline cudaError_t scaleAddMulti(int nvec, T* c, Vector<T,I>* X,
   if (err != cudaSuccess) return cudaGetLastError();
 
   // Set partitioning
-  StreamPartitioning<T, I>& p = Z[0]->partStream();
+  ThreadPartitioning<T, I>& p = Z[0]->partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
 
@@ -456,7 +456,7 @@ inline cudaError_t dotProdMulti(int nvec, Vector<T,I>* x, Vector<T,I>** Y,
   if (err != cudaSuccess) return cudaGetLastError();
 
   // Set partitioning
-  ReducePartitioning<T, I>& p = x->partReduce();
+  ThreadPartitioning<T, I>& p = x->partReduce();
   unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = nvec*block*sizeof(T);
@@ -559,7 +559,7 @@ inline cudaError_t linearSumVectorArray(int nvec, T a, Vector<T,I>** X, T b,
   if (err != cudaSuccess) return cudaGetLastError();
 
   // Set partitioning
-  StreamPartitioning<T, I>& p = Z[0]->partStream();
+  ThreadPartitioning<T, I>& p = Z[0]->partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
 
@@ -619,7 +619,7 @@ inline cudaError_t scaleVectorArray(int nvec, T* c, Vector<T,I>** X,
   if (err != cudaSuccess) return cudaGetLastError();
 
   // Set partitioning
-  StreamPartitioning<T, I>& p = Z[0]->partStream();
+  ThreadPartitioning<T, I>& p = Z[0]->partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
 
@@ -658,7 +658,7 @@ inline cudaError_t constVectorArray(int nvec, T c, Vector<T,I>** Z)
   if (err != cudaSuccess) return cudaGetLastError();
 
   // Set partitioning
-  StreamPartitioning<T, I>& p = Z[0]->partStream();
+  ThreadPartitioning<T, I>& p = Z[0]->partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
 
@@ -705,7 +705,7 @@ inline cudaError_t wL2NormSquareVectorArray(int nvec, Vector<T,I>** X,
   if (err != cudaSuccess) return cudaGetLastError();
 
   // Set partitioning
-  ReducePartitioning<T, I>& p = X[0]->partReduce();
+  ThreadPartitioning<T, I>& p = X[0]->partReduce();
   unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = nvec*block*sizeof(T);
@@ -797,7 +797,7 @@ inline cudaError_t wL2NormSquareMaskVectorArray(int nvec, Vector<T,I>** X,
   if (err != cudaSuccess) return cudaGetLastError();
 
   // Set partitioning
-  ReducePartitioning<T, I>& p = X[0]->partReduce();
+  ThreadPartitioning<T, I>& p = X[0]->partReduce();
   unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = nvec*block*sizeof(T);
@@ -907,7 +907,7 @@ inline cudaError_t scaleAddMultiVectorArray(int nvec, int nsum, T* c,
   if (err != cudaSuccess) return cudaGetLastError();
 
   // Set partitioning
-  StreamPartitioning<T, I>& p = Z[0]->partStream();
+  ThreadPartitioning<T, I>& p = Z[0]->partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
 
@@ -968,7 +968,7 @@ inline cudaError_t linearCombinationVectorArray(int nvec, int nsum, T* c,
   if (err != cudaSuccess) return cudaGetLastError();
 
   // Set partitioning
-  StreamPartitioning<T, I>& p = Z[0]->partStream();
+  ThreadPartitioning<T, I>& p = Z[0]->partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
 

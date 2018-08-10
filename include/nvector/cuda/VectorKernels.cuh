@@ -668,7 +668,7 @@ template <typename T, typename I>
 inline cudaError_t setConst(T a, Vector<T,I>& X)
 {
   // Set partitioning
-  StreamPartitioning<T, I>& p = X.partStream();
+  ThreadPartitioning<T, I>& p = X.partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
 
@@ -680,7 +680,7 @@ template <typename T, typename I>
 inline cudaError_t linearSum(T a, const Vector<T,I>& X, T b, const Vector<T,I>& Y, Vector<T,I>& Z)
 {
   // Set partitioning
-  StreamPartitioning<T, I>& p = X.partStream();
+  ThreadPartitioning<T, I>& p = X.partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
 
@@ -692,7 +692,7 @@ template <typename T, typename I>
 inline cudaError_t prod(const Vector<T,I>& X, const Vector<T,I>& Y, Vector<T,I>& Z)
 {
   // Set partitioning
-  StreamPartitioning<T, I>& p = X.partStream();
+  ThreadPartitioning<T, I>& p = X.partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
 
@@ -704,7 +704,7 @@ template <typename T, typename I>
 inline cudaError_t div(const Vector<T,I>& X, const Vector<T,I>& Y, Vector<T,I>& Z)
 {
   // Set partitioning
-  StreamPartitioning<T, I>& p = X.partStream();
+  ThreadPartitioning<T, I>& p = X.partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
 
@@ -716,7 +716,7 @@ template <typename T, typename I>
 inline cudaError_t scale(T const a, const Vector<T,I>& X, Vector<T,I>& Z)
 {
   // Set partitioning
-  StreamPartitioning<T, I>& p = X.partStream();
+  ThreadPartitioning<T, I>& p = X.partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
 
@@ -728,7 +728,7 @@ template <typename T, typename I>
 inline cudaError_t absVal(const Vector<T,I>& X, Vector<T,I>& Z)
 {
   // Set partitioning
-  StreamPartitioning<T, I>& p = X.partStream();
+  ThreadPartitioning<T, I>& p = X.partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
 
@@ -740,7 +740,7 @@ template <typename T, typename I>
 inline cudaError_t inv(const Vector<T,I>& X, Vector<T,I>& Z)
 {
   // Set partitioning
-  StreamPartitioning<T, I>& p = X.partStream();
+  ThreadPartitioning<T, I>& p = X.partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
 
@@ -752,7 +752,7 @@ template <typename T, typename I>
 inline cudaError_t addConst(T const a, const Vector<T,I>& X, Vector<T,I>& Z)
 {
   // Set partitioning
-  StreamPartitioning<T, I>& p = X.partStream();
+  ThreadPartitioning<T, I>& p = X.partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
 
@@ -765,7 +765,7 @@ template <typename T, typename I>
 inline cudaError_t compare(T const c, const Vector<T,I>& X, Vector<T,I>& Z)
 {
   // Set partitioning
-  StreamPartitioning<T, I>& p = X.partStream();
+  ThreadPartitioning<T, I>& p = X.partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
 
@@ -778,7 +778,7 @@ template <typename T, typename I>
 inline T dotProd(const Vector<T,I>& x, const Vector<T,I>& y)
 {
   // Set partitioning
-  ReducePartitioning<T, I>& p = x.partReduce();
+  ThreadPartitioning<T, I>& p = x.partReduce();
   unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
@@ -812,7 +812,7 @@ template <typename T, typename I>
 inline T maxNorm(const Vector<T,I>& x)
 {
   // Set partitioning
-  ReducePartitioning<T, I>& p = x.partReduce();
+  ThreadPartitioning<T, I>& p = x.partReduce();
   unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
@@ -847,7 +847,7 @@ template <typename T, typename I>
 inline T wL2NormSquareMask(const Vector<T,I>& x, const Vector<T,I>& w, const Vector<T,I>& id)
 {
   // Set partitioning
-  ReducePartitioning<T, I>& p = x.partReduce();
+  ThreadPartitioning<T, I>& p = x.partReduce();
   unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
@@ -883,7 +883,7 @@ inline T findMin(const Vector<T,I>& x)
   T maxVal = std::numeric_limits<T>::max();
 
   // Set partitioning
-  ReducePartitioning<T, I>& p = x.partReduce();
+  ThreadPartitioning<T, I>& p = x.partReduce();
   unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
@@ -919,7 +919,7 @@ template <typename T, typename I>
 inline T wL2NormSquare(const Vector<T,I>& x, const Vector<T,I>& y)
 {
   // Set partitioning
-  ReducePartitioning<T, I>& p = x.partReduce();
+  ThreadPartitioning<T, I>& p = x.partReduce();
   unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
@@ -954,7 +954,7 @@ template <typename T, typename I>
 inline T L1Norm(const Vector<T,I>& x)
 {
   // Set partitioning
-  ReducePartitioning<T, I>& p = x.partReduce();
+  ThreadPartitioning<T, I>& p = x.partReduce();
   unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
@@ -989,7 +989,7 @@ template <typename T, typename I>
 inline T invTest(const Vector<T,I>& x, Vector<T,I>& z)
 {
   // Set partitioning
-  ReducePartitioning<T, I>& p = x.partReduce();
+  ThreadPartitioning<T, I>& p = x.partReduce();
   unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
@@ -1024,7 +1024,7 @@ template <typename T, typename I>
 inline T constrMask(const Vector<T,I>& c, const Vector<T,I>& x, Vector<T,I>& m)
 {
   // Set partitioning
-  ReducePartitioning<T, I>& p = x.partReduce();
+  ThreadPartitioning<T, I>& p = x.partReduce();
   unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
@@ -1062,7 +1062,7 @@ inline T minQuotient(const Vector<T,I>& num, const Vector<T,I>& den)
   const T maxVal = std::numeric_limits<T>::max();
 
   // Set partitioning
-  ReducePartitioning<T, I>& p = num.partReduce();
+  ThreadPartitioning<T, I>& p = num.partReduce();
   unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
@@ -1099,7 +1099,7 @@ template <typename T, typename I>
 inline T constraintMask1(const Vector<T,I>& c, const Vector<T,I>& x, Vector<T,I>& m)
 {
   // Set partitioning
-  StreamPartitioning<T, I>& q = x.partStream();
+  ThreadPartitioning<T, I>& q = x.partStream();
   unsigned grid               = q.grid();
   unsigned block              = q.block();
   unsigned shMemSize          = block*sizeof(T);
