@@ -4,8 +4,8 @@
 # -----------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Lawrence Livermore National Laboratory in part under
 # Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
@@ -26,25 +26,31 @@ exec_prefix  = @exec_prefix@
 includedir   = @includedir@
 libdir       = @libdir@
 
-NVCC     = @CUDA_NVCC_EXECUTABLE@
-NVCCFLAGS = 
 CPP      = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CXX      = @CXX@
 CXXFLAGS = @CXXFLAGS@
+NVCC     = @CUDA_NVCC_EXECUTABLE@
+NVCCFLAGS =
 LDFLAGS  = @LDFLAGS@
 LIBS     = @LIBS@
 CUDALIBS = @CUDA_CUDART_LIBRARY@
 
 LINKFLAGS = -Xlinker ,-rpath,@libdir@
 
-TMP_INCS = ${includedir}
+MPICC       = @MPI_CXX_COMPILER@
+MPI_INC_DIR = @MPI_CXX_HEADER_DIR@
+MPI_LIB_DIR = @MPI_LINK_FLAGS@
+MPI_LIBS    = @MPI_mpi_LIBRARY@ @MPI_mpicxx_LIBRARY@
+MPI_FLAGS   = @MPI_FLAGS@
+
+TMP_INCS = ${includedir} ${MPI_INC_DIR}
 INCLUDES = $(addprefix -I, ${TMP_INCS})
 
 TMP_LIBRARIES_SUNDIALS = @SOLVER_LIB@ sundials_nveccuda
 LIBRARIES_SUNDIALS = ${addprefix -l, ${TMP_LIBRARIES_SUNDIALS}}
 
-LIBRARIES = ${LIBRARIES_SUNDIALS} ${LIBS}
+LIBRARIES = ${LIBRARIES_SUNDIALS} ${LIBS} ${MPI_LIBS}
 
 EXAMPLES = @EXAMPLES@ @EXAMPLES_BL@
 EXAMPLES_DEPENDENCIES = @EXAMPLES_DEPENDENCIES@

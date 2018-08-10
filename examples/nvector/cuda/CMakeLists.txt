@@ -36,7 +36,6 @@ ENDIF()
 SET(nvector_examples_dependencies
   test_nvector
   sundials_nvector
-  sundials_math
   )
 
 # Add source directory to include directories
@@ -52,6 +51,14 @@ ENDIF()
 
 # Set-up linker flags and link libraries
 SET(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS})
+
+IF(MPI_C_COMPILER)
+  # use MPI wrapper as the compiler
+  SET(CMAKE_C_COMPILER ${MPI_C_COMPILER})
+ELSE()
+  # add MPI_INCLUDE_PATH to include directories
+  INCLUDE_DIRECTORIES(${MPI_CXX_INCLUDE_PATH})
+ENDIF()
 
 
 # Add the build and install targets for each example
@@ -77,8 +84,7 @@ FOREACH(example_tuple ${nvector_cuda_examples})
   IF(NOT TARGET ${example})
     # example source files
     CUDA_ADD_EXECUTABLE(${example} ${example}.cu
-      ../test_nvector.c ../../../src/sundials/sundials_nvector.c
-      ../../../src/sundials/sundials_math.c)
+      ../test_nvector.c ../../../src/sundials/sundials_nvector.c)
 
     # folder to organize targets in an IDE
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
@@ -115,7 +121,6 @@ FOREACH(example_tuple ${nvector_cuda_examples})
       ../test_nvector.c
       ../test_nvector.h
       ../../../src/sundials/sundials_nvector.c
-      ../../../src/sundials/sundials_math.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/cuda)
   ENDIF()
 
