@@ -782,31 +782,14 @@ ENDIF(PTHREAD_ENABLE)
 # Find CUDA
 # -------------------------------------------------------------
 
-# disable CUDA if a working C++ compiler is not found
-IF(CUDA_ENABLE AND (NOT CXX_FOUND))
-  PRINT_WARNING("C++ compiler required for CUDA support" "Disabling CUDA")
-  FORCE_VARIABLE(CUDA_ENABLE BOOL "CUDA disabled" OFF)
-ENDIF()
-
 if(CUDA_ENABLE)
-  include(CheckCXXCompilerFlag)
-  CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-
-  IF(COMPILER_SUPPORTS_CXX11)
-    set(CMAKE_CXX_STANDARD 11)
-  ELSE()
-    PRINT_WARNING("C++11 compliant compiler required for RAJA support" "Disabling RAJA")
-    FORCE_VARIABLE(RAJA_ENABLE BOOL "RAJA disabled" OFF)
-  ENDIF()
-
   find_package(CUDA)
-
   if (CUDA_FOUND)
-    #message("CUDA found!")
-    set(CUDA_NVCC_FLAGS "-lineinfo")
+    set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -lineinfo")
   else()
     message(STATUS "Disabling CUDA support, could not find CUDA.")
   endif()
+  USE_CXX_STD(11)
 endif(CUDA_ENABLE)
 
 # -------------------------------------------------------------
@@ -814,33 +797,20 @@ endif(CUDA_ENABLE)
 # -------------------------------------------------------------
 
 # disable RAJA if CUDA is not enabled/working
-IF(RAJA_ENABLE AND (NOT CUDA_FOUND))
+if(RAJA_ENABLE AND (NOT CUDA_FOUND))
   PRINT_WARNING("CUDA is required for RAJA support" "Please enable CUDA and RAJA")
   FORCE_VARIABLE(RAJA_ENABLE BOOL "RAJA disabled" OFF)
-ENDIF()
-
-# Check if C++11 compiler is available
-IF(RAJA_ENABLE)
-  include(CheckCXXCompilerFlag)
-  CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-
-  IF(COMPILER_SUPPORTS_CXX11)
-    set(CMAKE_CXX_STANDARD 11)
-  ELSE()
-    PRINT_WARNING("C++11 compliant compiler required for RAJA support" "Disabling RAJA")
-    FORCE_VARIABLE(RAJA_ENABLE BOOL "RAJA disabled" OFF)
-  ENDIF()
-ENDIF()
+endif()
 
 if(RAJA_ENABLE)
   # Look for CMake configuration file in RAJA installation
-  find_package(RAJA CONFIGS)
+  find_package(RAJA)
   if (RAJA_FOUND)
-    #message("RAJA found!")
     include_directories(${RAJA_INCLUDE_DIR})
     set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} ${RAJA_NVCC_FLAGS})
   else()
-    PRINT_WARNING("RAJA configuration not found" "Please set RAJA_DIR to provide path to RAJA CMake configuration file.")
+    PRINT_WARNING("RAJA configuration not found"
+                  "Please set RAJA_DIR to provide path to RAJA CMake configuration file.")
   endif()
 endif(RAJA_ENABLE)
 
