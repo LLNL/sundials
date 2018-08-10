@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
   long int netf, ncfn, ncfl;
   SUNLinearSolver LS;
   int npes;
-  SUNDIALS_Comm comm;
+  SUNMPI_Comm comm;
 
   mem = NULL;
   data = NULL;

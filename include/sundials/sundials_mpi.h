@@ -25,9 +25,9 @@
 #ifdef SUNDIALS_MPI_ENABLED
 
 #include <mpi.h>
-typedef MPI_Comm SUNDIALS_Comm;
+typedef MPI_Comm SUNMPI_Comm;
 #else
-typedef int SUNDIALS_Comm;
+typedef int SUNMPI_Comm;
   /* #warning "SUNDIALS_MPI_ENABLED not defined! \n" */
 #endif
 
@@ -35,9 +35,9 @@ typedef int SUNDIALS_Comm;
 extern "C" {
 #endif
 
-SUNDIALS_EXPORT realtype SUNMPI_Allreduce_scalar(realtype d, int op, SUNDIALS_Comm comm);
-SUNDIALS_EXPORT void SUNMPI_Allreduce(realtype *d, int nvec, int op, SUNDIALS_Comm comm);
-SUNDIALS_EXPORT void SUNMPI_Comm_size(SUNDIALS_Comm comm, int *npes);
+SUNDIALS_EXPORT realtype SUNMPI_Allreduce_scalar(realtype d, int op, SUNMPI_Comm comm);
+SUNDIALS_EXPORT void SUNMPI_Allreduce(realtype *d, int nvec, int op, SUNMPI_Comm comm);
+SUNDIALS_EXPORT void SUNMPI_Comm_size(SUNMPI_Comm comm, int *npes);
 
 #ifdef __cplusplus
 }

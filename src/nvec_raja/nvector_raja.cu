@@ -119,7 +119,7 @@ N_Vector N_VNewEmpty_Raja(sunindextype length)
 }
 
 
-N_Vector N_VNew_Raja(SUNDIALS_Comm comm,
+N_Vector N_VNew_Raja(SUNMPI_Comm comm,
                      sunindextype local_length,
                      sunindextype global_length)
 {
@@ -337,7 +337,7 @@ void N_VDestroy_Raja(N_Vector v)
 
 void N_VSpace_Raja(N_Vector X, sunindextype *lrw, sunindextype *liw)
 {
-  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
   int npes;
 
   SUNMPI_Comm_size(comm, &npes);
@@ -465,7 +465,7 @@ realtype N_VDotProd_Raja(N_Vector X, N_Vector Y)
 
   /* Reduce across MPI processes */
   realtype sum = static_cast<realtype>(gpu_result);
-  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
   realtype gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
   return gsum;
 }
@@ -484,7 +484,7 @@ realtype N_VMaxNorm_Raja(N_Vector X)
 
   /* Reduce across MPI processes */
   realtype maximum = static_cast<realtype>(gpu_result);
-  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
   return SUNMPI_Allreduce_scalar(maximum, 2, comm);
 }
 
@@ -504,7 +504,7 @@ realtype N_VWrmsNorm_Raja(N_Vector X, N_Vector W)
 
   /* Reduce across MPI processes */
   realtype sum = static_cast<realtype>(gpu_result);
-  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
   return std::sqrt(SUNMPI_Allreduce_scalar(sum, 1, comm)/Nglobal);
 }
 
@@ -526,7 +526,7 @@ realtype N_VWrmsNormMask_Raja(N_Vector X, N_Vector W, N_Vector ID)
 
   /* Reduce across MPI processes */
   realtype sum = static_cast<realtype>(gpu_result);
-  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
   return std::sqrt(SUNMPI_Allreduce_scalar(sum, 1, comm)/Nglobal);
 }
 
@@ -544,7 +544,7 @@ realtype N_VMin_Raja(N_Vector X)
 
   /* Reduce across MPI processes */
   realtype minumum = static_cast<realtype>(gpu_result);
-  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
   return SUNMPI_Allreduce_scalar(minumum, 3, comm);
 }
 
@@ -563,7 +563,7 @@ realtype N_VWL2Norm_Raja(N_Vector X, N_Vector W)
 
   /* Reduce across MPI processes */
   realtype sum = static_cast<realtype>(gpu_result);
-  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
   return std::sqrt(SUNMPI_Allreduce_scalar(sum, 1, comm));
 }
 
@@ -581,7 +581,7 @@ realtype N_VL1Norm_Raja(N_Vector X)
 
   /* Reduce across MPI processes */
   realtype sum = static_cast<realtype>(gpu_result);
-  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
   return SUNMPI_Allreduce_scalar(sum, 1, comm);
 }
 
@@ -617,7 +617,7 @@ booleantype N_VInvTest_Raja(N_Vector x, N_Vector z)
 
   /* Reduce across MPI processes */
   realtype minimum = static_cast<realtype>(gpu_result);
-  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(x);
+  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(x);
   realtype global_minimum = SUNMPI_Allreduce_scalar(minimum, 3, comm);
 
   return (global_minimum < HALF);
@@ -642,7 +642,7 @@ booleantype N_VConstrMask_Raja(N_Vector c, N_Vector x, N_Vector m)
 
   /* Reduce across MPI processes */
   realtype sum = static_cast<realtype>(gpu_result);
-  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(x);
+  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(x);
   realtype global_sum = SUNMPI_Allreduce_scalar(sum, 1, comm);
 
   return (global_sum < HALF);
@@ -664,7 +664,7 @@ realtype N_VMinQuotient_Raja(N_Vector num, N_Vector denom)
 
   /* Reduce across MPI processes */
   realtype minimum = static_cast<realtype>(gpu_result);
-  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(num);
+  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(num);
   return SUNMPI_Allreduce_scalar(minimum, 3, comm);
 }
 

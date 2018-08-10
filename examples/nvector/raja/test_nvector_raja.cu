@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 {
   int           fails = 0;    /* counter for test failures  */
   N_Vector      W, X, Y, Z;   /* test vectors               */
-  SUNDIALS_Comm comm;
+  SUNMPI_Comm comm;
   int           nprocs, myid; /* Number of procs, proc id  */
   const int     print_timing = 0;
   sunindextype  global_length, local_length;

@@ -100,7 +100,7 @@ typedef struct _N_VectorContent_Raja *N_VectorContent_Raja;
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNew_Raja(SUNDIALS_Comm comm,
+SUNDIALS_EXPORT N_Vector N_VNew_Raja(SUNMPI_Comm comm,
                                      sunindextype local_length,
                                      sunindextype global_length);
 

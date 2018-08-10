@@ -51,7 +51,7 @@ typedef struct _UserData
 
 /* User defined functions */
 
-static N_Vector SetIC(SUNDIALS_Comm comm, UserData data);
+static N_Vector SetIC(SUNMPI_Comm comm, UserData data);
 static UserData SetUserData(int argc, char *argv[]);
 static int RHS(realtype t, N_Vector u, N_Vector udot, void *userData);
 static int Jtv(N_Vector v, N_Vector Jv, realtype t, N_Vector u, N_Vector fu, void *userData, N_Vector tmp);
@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
   //int iout;
   int flag;
   int npes;
-  SUNDIALS_Comm comm;
+  SUNMPI_Comm comm;
 
   u = NULL;
   data = NULL;
@@ -183,7 +183,7 @@ int main(int argc, char *argv[])
  *-------------------------------
  */
 
-N_Vector SetIC(SUNDIALS_Comm comm, UserData data)
+N_Vector SetIC(SUNMPI_Comm comm, UserData data)
 {
   const sunindextype Nx = data->Nx;
   const realtype hx = data->hx;

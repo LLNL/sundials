@@ -104,7 +104,7 @@ int main(int argc, char** argv)
   int iout, flag;
   long int nst;
   int npes;
-  SUNDIALS_Comm comm;
+  SUNMPI_Comm comm;
 
   u = NULL;
   data = NULL;

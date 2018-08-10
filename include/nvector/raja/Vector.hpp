@@ -46,7 +46,7 @@ public:
     allocate();
   }
 
-  Vector(SUNDIALS_Comm comm, I N, I Nglobal)
+  Vector(SUNMPI_Comm comm, I N, I Nglobal)
   : size_(N),
     mem_size_(N*sizeof(T)),
     global_size_(Nglobal),
@@ -101,7 +101,7 @@ public:
     return global_size_;
   }
 
-  SUNDIALS_Comm comm()
+  SUNMPI_Comm comm()
   {
     return comm_;
   }
@@ -146,7 +146,7 @@ private:
   I global_size_;
   T* h_vec_;
   T* d_vec_;
-  SUNDIALS_Comm comm_;
+  SUNMPI_Comm comm_;
 };
 
 
@@ -186,7 +186,7 @@ inline I getGlobalSize(N_Vector v)
 
 // Get MPI communicator
 template <typename T, typename I>
-inline SUNDIALS_Comm getMPIComm(N_Vector v)
+inline SUNMPI_Comm getMPIComm(N_Vector v)
 {
   Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
   return vp->comm();

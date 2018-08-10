@@ -101,7 +101,7 @@ typedef struct _N_VectorContent_Cuda *N_VectorContent_Cuda;
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNew_Cuda(SUNDIALS_Comm comm,
+SUNDIALS_EXPORT N_Vector N_VNew_Cuda(SUNMPI_Comm comm,
                                      sunindextype local_length,
                                      sunindextype global_length);
 

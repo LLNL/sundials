@@ -145,7 +145,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
 
 int main(int argc, char *argv[])
 {
-  SUNDIALS_Comm comm;
+  SUNMPI_Comm comm;
   void *ida_mem;
   SUNLinearSolver LS;
   UserData data;

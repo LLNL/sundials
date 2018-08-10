@@ -114,7 +114,7 @@ N_Vector N_VNewEmpty_Cuda(sunindextype length)
 }
 
 
-N_Vector N_VNew_Cuda(SUNDIALS_Comm comm,
+N_Vector N_VNew_Cuda(SUNMPI_Comm comm,
                      sunindextype local_length,
                      sunindextype global_length)
 {
@@ -332,7 +332,7 @@ void N_VDestroy_Cuda(N_Vector v)
 
 void N_VSpace_Cuda(N_Vector X, sunindextype *lrw, sunindextype *liw)
 {
-  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
   int npes;
 
   SUNMPI_Comm_size(comm, &npes);
@@ -401,7 +401,7 @@ void N_VAddConst_Cuda(N_Vector X, realtype b, N_Vector Z)
 
 realtype N_VDotProd_Cuda(N_Vector X, N_Vector Y)
 {
-  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
   const vector_type *xvec = extract<realtype, sunindextype>(X);
   const vector_type *yvec = extract<realtype, sunindextype>(Y);
 
@@ -413,7 +413,7 @@ realtype N_VDotProd_Cuda(N_Vector X, N_Vector Y)
 
 realtype N_VMaxNorm_Cuda(N_Vector X)
 {
-  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
   const vector_type *xvec = extract<realtype, sunindextype>(X);
 
   realtype locmax = maxNorm(*xvec);
@@ -424,7 +424,7 @@ realtype N_VMaxNorm_Cuda(N_Vector X)
 
 realtype N_VWrmsNorm_Cuda(N_Vector X, N_Vector W)
 {
-  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
   const sunindextype Nglob = getGlobalSize<realtype,sunindextype>(X);
   const vector_type *xvec = extract<realtype, sunindextype>(X);
   const vector_type *wvec = extract<realtype, sunindextype>(W);
@@ -437,7 +437,7 @@ realtype N_VWrmsNorm_Cuda(N_Vector X, N_Vector W)
 
 realtype N_VWrmsNormMask_Cuda(N_Vector X, N_Vector W, N_Vector Id)
 {
-  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
   const sunindextype Nglob = getGlobalSize<realtype,sunindextype>(X);
   const vector_type *xvec = extract<realtype, sunindextype>(X);
   const vector_type *wvec = extract<realtype, sunindextype>(W);
@@ -451,7 +451,7 @@ realtype N_VWrmsNormMask_Cuda(N_Vector X, N_Vector W, N_Vector Id)
 
 realtype N_VMin_Cuda(N_Vector X)
 {
-  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
   const vector_type *xvec = extract<realtype, sunindextype>(X);
 
   realtype locmin = findMin(*xvec);
@@ -462,7 +462,7 @@ realtype N_VMin_Cuda(N_Vector X)
 
 realtype N_VWL2Norm_Cuda(N_Vector X, N_Vector W)
 {
-  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
   const vector_type *xvec = extract<realtype, sunindextype>(X);
   const vector_type *wvec = extract<realtype, sunindextype>(W);
 
@@ -474,7 +474,7 @@ realtype N_VWL2Norm_Cuda(N_Vector X, N_Vector W)
 
 realtype N_VL1Norm_Cuda(N_Vector X)
 {
-  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
   const vector_type *xvec = extract<realtype, sunindextype>(X);
 
   realtype sum = L1Norm(*xvec);
@@ -492,7 +492,7 @@ void N_VCompare_Cuda(realtype c, N_Vector X, N_Vector Z)
 
 booleantype N_VInvTest_Cuda(N_Vector X, N_Vector Z)
 {
-  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
   const vector_type *xvec = extract<realtype, sunindextype>(X);
   vector_type *zvec = extract<realtype, sunindextype>(Z);
 
@@ -507,7 +507,7 @@ booleantype N_VInvTest_Cuda(N_Vector X, N_Vector Z)
  */
 booleantype N_VConstrMask_Cuda(N_Vector C, N_Vector X, N_Vector M)
 {
-  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
   const vector_type *cvec = extract<realtype, sunindextype>(C);
   const vector_type *xvec = extract<realtype, sunindextype>(X);
   vector_type *mvec = extract<realtype, sunindextype>(M);
@@ -520,7 +520,7 @@ booleantype N_VConstrMask_Cuda(N_Vector C, N_Vector X, N_Vector M)
 
 realtype N_VMinQuotient_Cuda(N_Vector num, N_Vector denom)
 {
-  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(num);
+  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(num);
   const vector_type *numvec = extract<realtype, sunindextype>(num);
   const vector_type *denvec = extract<realtype, sunindextype>(denom);
 
@@ -587,7 +587,7 @@ int N_VScaleAddMulti_Cuda(int nvec, realtype* c, N_Vector X, N_Vector* Y,
 int N_VDotProdMulti_Cuda(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods)
 {
   cudaError_t err;
-  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(x);
+  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(x);
   sunindextype N = getGlobalSize<realtype, sunindextype>(x);
   vector_type*  Xv;
   vector_type** Yv;
@@ -689,7 +689,7 @@ int N_VWrmsNormVectorArray_Cuda(int nvec, N_Vector* X, N_Vector* W,
                                 realtype* norms)
 {
   cudaError_t err;
-  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X[0]);
+  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X[0]);
   sunindextype N = getGlobalSize<realtype, sunindextype>(X[0]);
   vector_type** Xv;
   vector_type** Wv;
@@ -721,7 +721,7 @@ int N_VWrmsNormMaskVectorArray_Cuda(int nvec, N_Vector* X, N_Vector* W,
                                     N_Vector id, realtype* norms)
 {
   cudaError_t err;
-  SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X[0]);
+  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X[0]);
   sunindextype N = getGlobalSize<realtype, sunindextype>(X[0]);
   vector_type** Xv;
   vector_type** Wv;

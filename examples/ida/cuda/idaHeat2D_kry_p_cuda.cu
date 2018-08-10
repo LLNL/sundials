@@ -330,7 +330,7 @@ void CopyFromRightBuffer(const realtype *bufright, realtype *uext,
 
 int main(int argc, char *argv[])
 {
-  SUNDIALS_Comm comm;
+  SUNMPI_Comm comm;
   void *ida_mem;
   SUNLinearSolver LS;
   UserData data;
