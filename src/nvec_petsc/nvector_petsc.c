@@ -1,13 +1,13 @@
 /* -----------------------------------------------------------------
  * Programmer(s): Slaven Peles @ LLNL
- * 
- * Based on N_Vector_Parallel by Scott D. Cohen, Alan C. Hindmarsh, 
+ *
+ * Based on N_Vector_Parallel by Scott D. Cohen, Alan C. Hindmarsh,
  * Radu Serban, and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Lawrence Livermore National Laboratory in part under
  * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
@@ -40,7 +40,7 @@
 
 /*
  * -----------------------------------------------------------------
- * Simplifying macros NV_CONTENT_PTC, NV_OWN_DATA_PTC, 
+ * Simplifying macros NV_CONTENT_PTC, NV_OWN_DATA_PTC,
  *                    NV_LOCLENGTH_PTC, NV_GLOBLENGTH_PTC,
  *                    NV_COMM_PTC
  * -----------------------------------------------------------------
@@ -52,7 +52,7 @@
  *
  * (1) NV_CONTENT_PTC
  *
- *     This routines gives access to the contents of the PETSc 
+ *     This routines gives access to the contents of the PETSc
  *     vector wrapper N_Vector.
  *
  *     The assignment v_cont = NV_CONTENT_PTC(v) sets v_cont to be
@@ -64,7 +64,7 @@
  *     These routines give access to the individual parts of
  *     the content structure of a PETSc N_Vector wrapper.
  *
- *     NV_PVEC_PTC(v) returns the PETSc vector (Vec) object. 
+ *     NV_PVEC_PTC(v) returns the PETSc vector (Vec) object.
  *
  *     The assignment v_llen = NV_LOCLENGTH_PTC(v) sets v_llen to
  *     be the length of the local part of the vector v. The call
@@ -80,7 +80,7 @@
  *
  *     The assignment v_comm = NV_COMM_PTC(v) sets v_comm to be the
  *     MPI communicator of the vector v. The assignment
- *     NV_COMM_PTC(v) = comm_v should NOT be used! It will change 
+ *     NV_COMM_PTC(v) = comm_v should NOT be used! It will change
  *     the value stored in the N_Vector content structure, but it
  *     will NOT change the MPI communicator of the actual PETSc
  *     vector.
@@ -113,7 +113,7 @@ static realtype VAllReduce_Petsc(realtype d, int op, MPI_Comm comm);
  */
 
 /* ----------------------------------------------------------------
- * Returns vector type ID. Used to identify vector implementation 
+ * Returns vector type ID. Used to identify vector implementation
  * from abstract N_Vector interface.
  */
 N_Vector_ID N_VGetVectorID_Petsc(N_Vector v)
@@ -127,7 +127,7 @@ N_Vector_ID N_VGetVectorID_Petsc(N_Vector v)
  * PETSc vector.
  */
 
-N_Vector N_VNewEmpty_Petsc(MPI_Comm comm, 
+N_Vector N_VNewEmpty_Petsc(MPI_Comm comm,
                            sunindextype local_length,
                            sunindextype global_length)
 {
@@ -144,13 +144,13 @@ N_Vector N_VNewEmpty_Petsc(MPI_Comm comm,
   if (Nsum != global_length) {
     fprintf(stderr, BAD_N);
     return(NULL);
-  } 
+  }
 
   /* Create vector */
   v = NULL;
   v = (N_Vector) malloc(sizeof *v);
   if (v == NULL) return(NULL);
-  
+
   /* Create vector operation structure */
   ops = NULL;
   ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
@@ -202,10 +202,10 @@ N_Vector N_VNewEmpty_Petsc(MPI_Comm comm,
   /* Create content */
   content = NULL;
   content = (N_VectorContent_Petsc) malloc(sizeof(struct _N_VectorContent_Petsc));
-  if (content == NULL) { 
-    free(ops); 
-    free(v); 
-    return(NULL); 
+  if (content == NULL) {
+    free(ops);
+    free(v);
+    return(NULL);
   }
 
   /* Attach lengths and communicator */
@@ -224,7 +224,7 @@ N_Vector N_VNewEmpty_Petsc(MPI_Comm comm,
 
 
 
-/* ---------------------------------------------------------------- 
+/* ----------------------------------------------------------------
  * Function to create an N_Vector wrapper for a PETSc vector.
  */
 
@@ -238,9 +238,9 @@ N_Vector N_VMake_Petsc(Vec pvec)
   VecGetLocalSize(pvec, &local_length);
   VecGetSize(pvec, &global_length);
   PetscObjectGetComm((PetscObject) pvec, &comm);
-  
+
   v = N_VNewEmpty_Petsc(comm, local_length, global_length);
-  if (v == NULL) 
+  if (v == NULL)
      return(NULL);
 
   /* Attach data */
@@ -250,7 +250,7 @@ N_Vector N_VMake_Petsc(Vec pvec)
   return(v);
 }
 
-/* ---------------------------------------------------------------- 
+/* ----------------------------------------------------------------
  * Function to create an array of new PETSc vector wrappers.
  */
 
@@ -277,7 +277,7 @@ N_Vector *N_VCloneVectorArray_Petsc(int count, N_Vector w)
   return(vs);
 }
 
-/* ---------------------------------------------------------------- 
+/* ----------------------------------------------------------------
  * Function to create an array of new PETSc vector wrappers with
  * empty (NULL) PETSc vectors.
  */
@@ -315,14 +315,14 @@ void N_VDestroyVectorArray_Petsc(N_Vector *vs, int count)
 
   for (j = 0; j < count; j++) N_VDestroy_Petsc(vs[j]);
 
-  free(vs); 
+  free(vs);
   vs = NULL;
 
   return;
 }
 
-/* ---------------------------------------------------------------- 
- * Function to extract PETSc vector 
+/* ----------------------------------------------------------------
+ * Function to extract PETSc vector
  */
 
 Vec N_VGetVector_Petsc(N_Vector v)
@@ -330,7 +330,7 @@ Vec N_VGetVector_Petsc(N_Vector v)
   return NV_PVEC_PTC(v);
 }
 
-/* ---------------------------------------------------------------- 
+/* ----------------------------------------------------------------
  * Function to print the global data in a PETSc vector to stdout
  */
 
@@ -338,13 +338,13 @@ void N_VPrint_Petsc(N_Vector x)
 {
   Vec xv = NV_PVEC_PTC(x);
   MPI_Comm comm = NV_COMM_PTC(x);
-  
+
   VecView(xv, PETSC_VIEWER_STDOUT_(comm));
 
   return;
 }
 
-/* ---------------------------------------------------------------- 
+/* ----------------------------------------------------------------
  * Function to print the global data in a PETSc vector to fname
  */
 
@@ -381,15 +381,15 @@ N_Vector N_VCloneEmpty_Petsc(N_Vector w)
   v = NULL;
   v = (N_Vector) malloc(sizeof *v);
   if (v == NULL) return(NULL);
-  
+
   /* Create vector operation structure */
   ops = NULL;
   ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
-  if (ops == NULL) { 
-    free(v); 
-    return(NULL); 
+  if (ops == NULL) {
+    free(v);
+    return(NULL);
   }
-  
+
   ops->nvgetvectorid     = w->ops->nvgetvectorid;
   ops->nvclone           = w->ops->nvclone;
   ops->nvcloneempty      = w->ops->nvcloneempty;
@@ -403,7 +403,7 @@ N_Vector N_VCloneEmpty_Petsc(N_Vector w)
   ops->nvconst        = w->ops->nvconst;
   ops->nvprod         = w->ops->nvprod;
   ops->nvdiv          = w->ops->nvdiv;
-  ops->nvscale        = w->ops->nvscale; 
+  ops->nvscale        = w->ops->nvscale;
   ops->nvabs          = w->ops->nvabs;
   ops->nvinv          = w->ops->nvinv;
   ops->nvaddconst     = w->ops->nvaddconst;
@@ -433,13 +433,13 @@ N_Vector N_VCloneEmpty_Petsc(N_Vector w)
   ops->nvscaleaddmultivectorarray     = w->ops->nvscaleaddmultivectorarray;
   ops->nvlinearcombinationvectorarray = w->ops->nvlinearcombinationvectorarray;
 
-  /* Create content */  
+  /* Create content */
   content = NULL;
   content = (N_VectorContent_Petsc) malloc(sizeof(struct _N_VectorContent_Petsc));
-  if (content == NULL) { 
-    free(ops); 
-    free(v); 
-    return(NULL); 
+  if (content == NULL) {
+    free(ops);
+    free(v);
+    return(NULL);
   }
 
   /* Attach lengths and communicator */
@@ -461,11 +461,11 @@ N_Vector N_VClone_Petsc(N_Vector w)
   N_Vector v = NULL;
   Vec pvec   = NULL;
   Vec wvec   = NV_PVEC_PTC(w);
-  
+
   /* PetscErrorCode ierr; */
-  
+
   v = N_VCloneEmpty_Petsc(w);
-  if (v == NULL) 
+  if (v == NULL)
     return(NULL);
 
   /* Create data */
@@ -473,17 +473,17 @@ N_Vector N_VClone_Petsc(N_Vector w)
   /* Allocate empty PETSc vector */
   pvec = (Vec) malloc(sizeof(Vec));
   if(pvec == NULL) {
-    N_VDestroy_Petsc(v); 
+    N_VDestroy_Petsc(v);
     return(NULL);
   }
-    
-  /* ierr = */ 
+
+  /* ierr = */
   VecDuplicate(wvec, &pvec);
   if(pvec == NULL) {
-    N_VDestroy_Petsc(v); 
+    N_VDestroy_Petsc(v);
     return(NULL);
   }
-    
+
   /* Attach data */
   NV_OWN_DATA_PTC(v) = SUNTRUE;
   NV_PVEC_PTC(v)     = pvec;
@@ -497,12 +497,12 @@ void N_VDestroy_Petsc(N_Vector v)
     VecDestroy(&(NV_PVEC_PTC(v)));
     NV_PVEC_PTC(v) = NULL;
   }
-  
-  free(v->content); 
+
+  free(v->content);
   v->content = NULL;
-  free(v->ops); 
+  free(v->ops);
   v->ops = NULL;
-  free(v); 
+  free(v);
   v = NULL;
 
   return;
@@ -515,7 +515,7 @@ void N_VSpace_Petsc(N_Vector v, sunindextype *lrw, sunindextype *liw)
 
   comm = NV_COMM_PTC(v);
   MPI_Comm_size(comm, &npes);
-  
+
   *lrw = NV_GLOBLENGTH_PTC(v);
   *liw = 2*npes;
 
@@ -543,14 +543,14 @@ void N_VLinearSum_Petsc(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector
   Vec xv = NV_PVEC_PTC(x);
   Vec yv = NV_PVEC_PTC(y);
   Vec zv = NV_PVEC_PTC(z);
-  
+
   if (x == y) {
     N_VScale_Petsc(a + b, x, z); /* z <~ ax+bx */
     return;
   }
 
   if (z == y) {
-    if (b == ONE) { 
+    if (b == ONE) {
       VecAXPY(yv, a, xv);   /* BLAS usage: axpy  y <- ax+y */
       return;
     }
@@ -559,7 +559,7 @@ void N_VLinearSum_Petsc(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector
   }
 
   if (z == x) {
-    if (a == ONE) { 
+    if (a == ONE) {
       VecAXPY(xv, b, yv);   /* BLAS usage: axpy  x <- by+x */
       return;
     }
@@ -572,7 +572,7 @@ void N_VLinearSum_Petsc(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector
      (1) a == other, b == 0.0 - user should have called N_VScale
      (2) a == 0.0, b == other - user should have called N_VScale
      (3) a,b == other, a !=b, a != -b */
-  
+
   VecAXPBYPCZ(zv, a, b, 0.0, xv, yv); /* PETSc, probably not optimal */
 
   return;
@@ -583,7 +583,7 @@ void N_VConst_Petsc(realtype c, N_Vector z)
   Vec zv = NV_PVEC_PTC(z);
 
   VecSet(zv, c);
-  
+
   return;
 }
 
@@ -592,9 +592,9 @@ void N_VProd_Petsc(N_Vector x, N_Vector y, N_Vector z)
   Vec xv = NV_PVEC_PTC(x);
   Vec yv = NV_PVEC_PTC(y);
   Vec zv = NV_PVEC_PTC(z);
-  
+
   VecPointwiseMult(zv, xv, yv);
-  
+
   return;
 }
 
@@ -618,8 +618,8 @@ void N_VScale_Petsc(realtype c, N_Vector x, N_Vector z)
     VecScale(xv, c);
     return;
   }
-  
-  VecAXPBY(zv, c, 0.0, xv); 
+
+  VecAXPBY(zv, c, 0.0, xv);
 
   return;
 }
@@ -631,8 +631,8 @@ void N_VAbs_Petsc(N_Vector x, N_Vector z)
 
   if(z != x)
     VecCopy(xv, zv); /* copy x~>z */
-  VecAbs(zv); 
-  
+  VecAbs(zv);
+
   return;
 }
 
@@ -665,9 +665,9 @@ realtype N_VDotProd_Petsc(N_Vector x, N_Vector y)
   Vec xv = NV_PVEC_PTC(x);
   Vec yv = NV_PVEC_PTC(y);
   PetscScalar dotprod;
-  
+
   VecDot(xv, yv, &dotprod);
-  
+
   return dotprod;
 }
 
@@ -675,9 +675,9 @@ realtype N_VMaxNorm_Petsc(N_Vector x)
 {
   Vec xv = NV_PVEC_PTC(x);
   PetscReal norm;
-  
+
   VecNorm(xv, NORM_INFINITY, &norm);
-  
+
   return norm;
 }
 
@@ -693,7 +693,7 @@ realtype N_VWrmsNorm_Petsc(N_Vector x, N_Vector w)
   PetscScalar *wd;
   PetscReal sum = ZERO;
   realtype global_sum;
-  
+
   VecGetArray(xv, &xd);
   VecGetArray(wv, &wd);
   for (i = 0; i < N; i++) {
@@ -701,9 +701,9 @@ realtype N_VWrmsNorm_Petsc(N_Vector x, N_Vector w)
   }
   VecRestoreArray(xv, &xd);
   VecRestoreArray(wv, &wd);
-  
+
   global_sum = VAllReduce_Petsc(sum, 1, comm);
-  return (SUNRsqrt(global_sum/N_global)); 
+  return (SUNRsqrt(global_sum/N_global));
 }
 
 realtype N_VWrmsNormMask_Petsc(N_Vector x, N_Vector w, N_Vector id)
@@ -712,7 +712,7 @@ realtype N_VWrmsNormMask_Petsc(N_Vector x, N_Vector w, N_Vector id)
   sunindextype N        = NV_LOCLENGTH_PTC(x);
   sunindextype N_global = NV_GLOBLENGTH_PTC(x);
   MPI_Comm comm     = NV_COMM_PTC(x);
-  
+
   Vec xv = NV_PVEC_PTC(x);
   Vec wv = NV_PVEC_PTC(w);
   Vec idv = NV_PVEC_PTC(id);
@@ -721,7 +721,7 @@ realtype N_VWrmsNormMask_Petsc(N_Vector x, N_Vector w, N_Vector id)
   PetscScalar *idd;
   PetscReal sum = ZERO;
   realtype global_sum;
-  
+
   VecGetArray(xv, &xd);
   VecGetArray(wv, &wd);
   VecGetArray(idv, &idd);
@@ -736,7 +736,7 @@ realtype N_VWrmsNormMask_Petsc(N_Vector x, N_Vector w, N_Vector id)
   VecRestoreArray(idv, &idd);
 
   global_sum = VAllReduce_Petsc(sum, 1, comm);
-  return (SUNRsqrt(global_sum/N_global)); 
+  return (SUNRsqrt(global_sum/N_global));
 }
 
 realtype N_VMin_Petsc(N_Vector x)
@@ -744,9 +744,9 @@ realtype N_VMin_Petsc(N_Vector x)
   Vec xv = NV_PVEC_PTC(x);
   PetscReal minval;
   PetscInt i;
-  
+
   VecMin(xv, &i, &minval);
-  
+
   return minval;
 }
 
@@ -762,7 +762,7 @@ realtype N_VWL2Norm_Petsc(N_Vector x, N_Vector w)
   PetscScalar *wd;
   PetscReal sum = ZERO;
   realtype global_sum;
-  
+
   VecGetArray(xv, &xd);
   VecGetArray(wv, &wd);
   for (i = 0; i < N; i++) {
@@ -772,16 +772,16 @@ realtype N_VWL2Norm_Petsc(N_Vector x, N_Vector w)
   VecRestoreArray(wv, &wd);
 
   global_sum = VAllReduce_Petsc(sum, 1, comm);
-  return (SUNRsqrt(global_sum)); 
+  return (SUNRsqrt(global_sum));
 }
 
 realtype N_VL1Norm_Petsc(N_Vector x)
 {
   Vec xv = NV_PVEC_PTC(x);
   PetscReal norm;
-  
+
   VecNorm(xv, NORM_1, &norm);
-  
+
   return norm;
 }
 
@@ -816,11 +816,11 @@ booleantype N_VInvTest_Petsc(N_Vector x, N_Vector z)
   PetscScalar *xd;
   PetscScalar *zd;
   PetscReal val = ONE;
-  
+
   VecGetArray(xv, &xd);
   VecGetArray(zv, &zd);
   for (i = 0; i < N; i++) {
-    if (xd[i] == ZERO) 
+    if (xd[i] == ZERO)
       val = ZERO;
     else
       zd[i] = ONE/xd[i];
@@ -841,13 +841,16 @@ booleantype N_VConstrMask_Petsc(N_Vector c, N_Vector x, N_Vector m)
   sunindextype i;
   sunindextype N = NV_LOCLENGTH_PTC(x);
   MPI_Comm comm = NV_COMM_PTC(x);
-  realtype minval = ONE;
+  realtype temp;
+  booleantype test;
   Vec xv = NV_PVEC_PTC(x);
   Vec cv = NV_PVEC_PTC(c);
   Vec mv = NV_PVEC_PTC(m);
   PetscScalar *xd;
   PetscScalar *cd;
   PetscScalar *md;
+
+  temp = ZERO;
 
   VecGetArray(xv, &xd);
   VecGetArray(cv, &cd);
@@ -856,31 +859,33 @@ booleantype N_VConstrMask_Petsc(N_Vector c, N_Vector x, N_Vector m)
     PetscReal cc = (PetscReal) cd[i]; /* <~ Drop imaginary parts if any. */
     PetscReal xx = (PetscReal) xd[i]; /* <~ Constraints defined on Re{x} */
     md[i] = ZERO;
-    if (cc == ZERO) continue;
-    if (cc > ONEPT5 || cc < -ONEPT5) {
-      if (xx*cc <= ZERO) { minval = ZERO; md[i] = ONE; }
+
+    /* Continue if no constraints were set for the variable */
+    if (cc == ZERO)
       continue;
-    }
-    if (cc > HALF || cc < -HALF) {
-      if (xx*cc < ZERO ) { minval = ZERO; md[i] = ONE; }
+
+    /* Check if a set constraint has been violated */
+    test = (SUNRabs(cc) > ONEPT5 && xx*cc <= ZERO) ||
+           (SUNRabs(cc) > HALF   && xx*cc <  ZERO);
+    if (test) {
+      temp = md[i] = ONE;
     }
   }
   VecRestoreArray(xv, &xd);
   VecRestoreArray(cv, &cd);
   VecRestoreArray(mv, &md);
 
-  minval = VAllReduce_Petsc(minval, 3, comm);
+  /* Find max temp across all MPI ranks */
+  temp = VAllReduce_Petsc(temp, 2, comm);
 
-  if (minval == ONE) 
-    return(SUNTRUE);
-  else
-    return(SUNFALSE);
+  /* Return false if any constraint was violated */
+  return (temp == ONE) ? SUNFALSE : SUNTRUE;
 }
 
 realtype N_VMinQuotient_Petsc(N_Vector num, N_Vector denom)
 {
   booleantype notEvenOnce = SUNTRUE;
-  sunindextype i; 
+  sunindextype i;
   sunindextype N    = NV_LOCLENGTH_PTC(num);
   MPI_Comm comm = NV_COMM_PTC(num);
 
@@ -895,10 +900,10 @@ realtype N_VMinQuotient_Petsc(N_Vector num, N_Vector denom)
   for (i = 0; i < N; i++) {
     PetscReal nr = (PetscReal) nd[i];
     PetscReal dr = (PetscReal) dd[i];
-    if (dr == ZERO) 
+    if (dr == ZERO)
       continue;
     else {
-      if (!notEvenOnce) 
+      if (!notEvenOnce)
         minval = SUNMIN(minval, nr/dr);
       else {
         minval = nr/dr;
@@ -961,7 +966,7 @@ int N_VLinearCombination_Petsc(int nvec, realtype* c, N_Vector* X, N_Vector z)
    */
   if (X[0] == z) {
     VecScale(zv, c[0]);
-    VecMAXPY(zv, nvec-1, c+1, xv+1);    
+    VecMAXPY(zv, nvec-1, c+1, xv+1);
     return(0);
   }
 
@@ -1058,7 +1063,7 @@ int N_VDotProdMulti_Petsc(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods)
 
 int N_VLinearSumVectorArray_Petsc(int nvec,
                                   realtype a, N_Vector* X,
-                                  realtype b, N_Vector* Y, 
+                                  realtype b, N_Vector* Y,
                                   N_Vector* Z)
 {
   int          i;
@@ -1199,7 +1204,7 @@ int N_VWrmsNormVectorArray_Petsc(int nvec, N_Vector* X, N_Vector* W, realtype* n
   for (i=0; i<nvec; i++) {
     VecGetArray(NV_PVEC_PTC(X[i]), &xd);
     VecGetArray(NV_PVEC_PTC(W[i]), &wd);
-    nrm[i] = ZERO;   
+    nrm[i] = ZERO;
     for (j=0; j<Nl; j++) {
       nrm[i] += PetscSqr(PetscAbsScalar(xd[j] * wd[j]));
     }
@@ -1242,7 +1247,7 @@ int N_VWrmsNormMaskVectorArray_Petsc(int nvec, N_Vector* X, N_Vector* W,
   for (i=0; i<nvec; i++) {
     VecGetArray(NV_PVEC_PTC(X[i]), &xd);
     VecGetArray(NV_PVEC_PTC(W[i]), &wd);
-    nrm[i] = ZERO;   
+    nrm[i] = ZERO;
     for (j=0; j<Nl; j++) {
       if (idd[j] > ZERO)
         nrm[i] += SUNSQR(xd[j] * wd[j]);
@@ -1383,7 +1388,7 @@ int N_VLinearCombinationVectorArray_Petsc(int nvec, int nsum,
    * --------------------------- */
 
   if (nvec == 1) {
-  
+
     /* should have called N_VScale */
     if (nsum == 1) {
       N_VScale_Petsc(c[0], X[0][0], Z[0]);
@@ -1427,7 +1432,7 @@ int N_VLinearCombinationVectorArray_Petsc(int nvec, int nsum,
     free(ctmp);
     return(0);
   }
-  
+
   /* should have called N_VLinearSumVectorArray */
   if (nsum == 2) {
     N_VLinearSumVectorArray_Petsc(nvec, c[0], X[0], c[1], X[1], Z);
@@ -1511,12 +1516,12 @@ int N_VLinearCombinationVectorArray_Petsc(int nvec, int nsum,
 
 static realtype VAllReduce_Petsc(realtype d, int op, MPI_Comm comm)
 {
-  /* 
+  /*
    * This function does a global reduction.  The operation is
    *   sum if op = 1,
    *   max if op = 2,
    *   min if op = 3.
-   * The operation is over all processors in the communicator 
+   * The operation is over all processors in the communicator
    */
 
   PetscErrorCode ierr;
