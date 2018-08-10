@@ -50,6 +50,7 @@ $tar $tarfile $distrobase/include/sundials/sundials_config.in
 $tar $tarfile $distrobase/include/sundials/sundials_fconfig.in
 $tar $tarfile $distrobase/include/sundials/sundials_types.h
 $tar $tarfile $distrobase/include/sundials/sundials_mpi_types.h
+$tar $tarfile $distrobase/include/sundials/sundials_mpi.h
 $tar $tarfile $distrobase/include/sundials/sundials_matrix.h
 $tar $tarfile $distrobase/include/sundials/sundials_linearsolver.h
 $tar $tarfile $distrobase/include/sundials/sundials_math.h
@@ -60,7 +61,6 @@ $tar $tarfile $distrobase/include/sundials/sundials_direct.h
 $tar $tarfile $distrobase/include/sundials/sundials_sparse.h
 $tar $tarfile $distrobase/include/sundials/sundials_band.h
 $tar $tarfile $distrobase/include/sundials/sundials_lapack.h
-$tar $tarfile $distrobase/include/sundials/sundials_mpi_types.h
 $tar $tarfile $distrobase/include/sundials/sundials_spgmr.h
 $tar $tarfile $distrobase/include/sundials/sundials_spfgmr.h
 $tar $tarfile $distrobase/include/sundials/sundials_spbcgs.h
@@ -82,6 +82,7 @@ $tar $tarfile $distrobase/include/nvector/nvector_raja.h
 $tar $tarfile $distrobase/include/nvector/cuda/ThreadPartitioning.hpp
 $tar $tarfile $distrobase/include/nvector/cuda/Vector.hpp
 $tar $tarfile $distrobase/include/nvector/cuda/VectorKernels.cuh
+$tar $tarfile $distrobase/include/nvector/cuda/VectorArrayKernels.cuh
 $tar $tarfile $distrobase/include/nvector/raja/Vector.hpp
 
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_band.h
@@ -108,6 +109,7 @@ $tar $tarfile $distrobase/src/sundials/LICENSE
 $tar $tarfile $distrobase/src/sundials/CMakeLists.txt
 $tar $tarfile $distrobase/src/sundials/sundials_math.c
 $tar $tarfile $distrobase/src/sundials/sundials_matrix.c
+$tar $tarfile $distrobase/src/sundials/sundials_mpi.c
 $tar $tarfile $distrobase/src/sundials/sundials_linearsolver.c
 $tar $tarfile $distrobase/src/sundials/sundials_nvector.c
 $tar $tarfile $distrobase/src/sundials/sundials_dense.c
