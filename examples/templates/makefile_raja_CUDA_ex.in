@@ -4,8 +4,8 @@
 # -----------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Lawrence Livermore National Laboratory in part under
 # Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
@@ -28,7 +28,7 @@ libdir       = @libdir@
 
 NVCC      = @CUDA_NVCC_EXECUTABLE@
 NVCCFLAGS =
-RAJAFLAGS = -std=c++11 --expt-extended-lambda 
+RAJAFLAGS = -std=c++11 --expt-extended-lambda
 
 CPP      = @CPP@
 CPPFLAGS = @CPPFLAGS@
@@ -39,14 +39,20 @@ LIBS     = @LIBS@
 
 LINKFLAGS = -Xlinker ,-rpath,@libdir@
 
+MPICC       = @MPI_CXX_COMPILER@
+MPI_INC_DIR = @MPI_CXX_HEADER_DIR@
+MPI_LIB_DIR = @MPI_LINK_FLAGS@
+MPI_LIBS    = @MPI_mpi_LIBRARY@ @MPI_mpicxx_LIBRARY@
+MPI_FLAGS   = @MPI_FLAGS@
+
 CUDALIBS = @CUDA_CUDART_LIBRARY@
 RAJALIBDIR = @RAJA_LIB_DIR@
 
 INCLUDES_RAJA = @RAJA_INCLUDE_DIR@
 
-TMP_INCS = ${includedir} ${INCLUDES_RAJA}
+TMP_INCS = ${includedir} ${INCLUDES_RAJA} ${MPI_INC_DIR}
 INCLUDES = $(addprefix -I, ${TMP_INCS})
-LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecraja -lRAJA ${CUDALIBS} ${LIBS}
+LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecraja -lRAJA ${CUDALIBS} ${LIBS} ${MPI_LIBS}
 
 EXAMPLES = @EXAMPLES@ @EXAMPLES_BL@
 EXAMPLES_DEPENDENCIES = @EXAMPLES_DEPENDENCIES@
