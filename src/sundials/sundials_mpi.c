@@ -16,7 +16,7 @@
 
 #include <sundials/sundials_mpi.h>
 
-realtype SUNDIALS_Reduce(realtype d, int op, SUNDIALS_Comm comm)
+realtype SUNMPI_Allreduce_scalar(realtype d, int op, SUNDIALS_Comm comm)
 {
   /*
    * This function does a global reduction.  The operation is
@@ -50,11 +50,11 @@ realtype SUNDIALS_Reduce(realtype d, int op, SUNDIALS_Comm comm)
   /* If MPI is not enabled don't do reduction */
   return d;
 
-#endif // ifdef SUNDIALS_MPI_ENABLED
+#endif /* ifdef SUNDIALS_MPI_ENABLED */
 }
 
 
-void SUNDIALS_Allreduce(realtype *d, int nvec, int op, SUNDIALS_Comm comm)
+void SUNMPI_Allreduce(realtype *d, int nvec, int op, SUNDIALS_Comm comm)
 {
   /*
    * This function does a global reduction.  The operation is
@@ -83,11 +83,11 @@ void SUNDIALS_Allreduce(realtype *d, int nvec, int op, SUNDIALS_Comm comm)
 
   /* If MPI is not enabled don't do reduction */
 
-#endif // ifdef SUNDIALS_MPI_ENABLED
+#endif /* ifdef SUNDIALS_MPI_ENABLED */
 }
 
 
-void SUNDIALS_Comm_size(SUNDIALS_Comm comm, int *npes)
+void SUNMPI_Comm_size(SUNDIALS_Comm comm, int *npes)
 {
 #ifdef SUNDIALS_MPI_ENABLED
   MPI_Comm_size(comm, npes);

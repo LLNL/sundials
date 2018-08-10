@@ -35,9 +35,9 @@ typedef int SUNDIALS_Comm;
 extern "C" {
 #endif
 
-SUNDIALS_EXPORT realtype SUNDIALS_Reduce(realtype d, int op, SUNDIALS_Comm comm);
-SUNDIALS_EXPORT void SUNDIALS_Allreduce(realtype *d, int nvec, int op, SUNDIALS_Comm comm);
-SUNDIALS_EXPORT void SUNDIALS_Comm_size(SUNDIALS_Comm comm, int *npes);
+SUNDIALS_EXPORT realtype SUNMPI_Allreduce_scalar(realtype d, int op, SUNDIALS_Comm comm);
+SUNDIALS_EXPORT void SUNMPI_Allreduce(realtype *d, int nvec, int op, SUNDIALS_Comm comm);
+SUNDIALS_EXPORT void SUNMPI_Comm_size(SUNDIALS_Comm comm, int *npes);
 
 #ifdef __cplusplus
 }

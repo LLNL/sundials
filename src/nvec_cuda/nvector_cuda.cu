@@ -335,7 +335,7 @@ void N_VSpace_Cuda(N_Vector X, sunindextype *lrw, sunindextype *liw)
   SUNDIALS_Comm comm = getMPIComm<realtype, sunindextype>(X);
   int npes;
 
-  SUNDIALS_Comm_size(comm, &npes);
+  SUNMPI_Comm_size(comm, &npes);
 
   *lrw = getGlobalSize<realtype, sunindextype>(X);
   *liw = 2*npes;
@@ -407,7 +407,7 @@ realtype N_VDotProd_Cuda(N_Vector X, N_Vector Y)
 
   realtype sum = dotProd(*xvec, *yvec);
 
-  realtype gsum = SUNDIALS_Reduce(sum, 1, comm);
+  realtype gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
   return gsum;
 }
 
@@ -418,7 +418,7 @@ realtype N_VMaxNorm_Cuda(N_Vector X)
 
   realtype locmax = maxNorm(*xvec);
 
-  realtype globmax = SUNDIALS_Reduce(locmax, 2, comm);
+  realtype globmax = SUNMPI_Allreduce_scalar(locmax, 2, comm);
   return globmax;
 }
 
@@ -431,7 +431,7 @@ realtype N_VWrmsNorm_Cuda(N_Vector X, N_Vector W)
 
   realtype sum = wL2NormSquare(*xvec, *wvec);
 
-  realtype gsum = SUNDIALS_Reduce(sum, 1, comm);
+  realtype gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
   return std::sqrt(gsum/Nglob);
 }
 
@@ -445,7 +445,7 @@ realtype N_VWrmsNormMask_Cuda(N_Vector X, N_Vector W, N_Vector Id)
 
   realtype sum = wL2NormSquareMask(*xvec, *wvec, *ivec);
 
-  realtype gsum = SUNDIALS_Reduce(sum, 1, comm);
+  realtype gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
   return std::sqrt(gsum/Nglob);
 }
 
@@ -456,7 +456,7 @@ realtype N_VMin_Cuda(N_Vector X)
 
   realtype locmin = findMin(*xvec);
 
-  realtype globmin = SUNDIALS_Reduce(locmin, 3, comm);
+  realtype globmin = SUNMPI_Allreduce_scalar(locmin, 3, comm);
   return globmin;
 }
 
@@ -468,7 +468,7 @@ realtype N_VWL2Norm_Cuda(N_Vector X, N_Vector W)
 
   realtype sum = wL2NormSquare(*xvec, *wvec);
 
-  realtype gsum = SUNDIALS_Reduce(sum, 1, comm);
+  realtype gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
   return std::sqrt(gsum);
 }
 
@@ -479,7 +479,7 @@ realtype N_VL1Norm_Cuda(N_Vector X)
 
   realtype sum = L1Norm(*xvec);
 
-  realtype gsum = SUNDIALS_Reduce(sum, 1, comm);
+  realtype gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
   return gsum;
 }
 
@@ -498,7 +498,7 @@ booleantype N_VInvTest_Cuda(N_Vector X, N_Vector Z)
 
   realtype locmin = invTest(*xvec, *zvec);
 
-  realtype globmin = SUNDIALS_Reduce(locmin, 3, comm);
+  realtype globmin = SUNMPI_Allreduce_scalar(locmin, 3, comm);
   return (globmin < HALF);
 }
 
@@ -514,7 +514,7 @@ booleantype N_VConstrMask_Cuda(N_Vector C, N_Vector X, N_Vector M)
 
   realtype locsum = constrMask(*cvec, *xvec, *mvec);
 
-  realtype globsum = SUNDIALS_Reduce(locsum, 1, comm);
+  realtype globsum = SUNMPI_Allreduce_scalar(locsum, 1, comm);
   return (globsum < HALF);
 }
 
@@ -526,7 +526,7 @@ realtype N_VMinQuotient_Cuda(N_Vector num, N_Vector denom)
 
   realtype locmin = minQuotient(*numvec, *denvec);
 
-  realtype globmin = SUNDIALS_Reduce(locmin, 3, comm);
+  realtype globmin = SUNMPI_Allreduce_scalar(locmin, 3, comm);
   return globmin;
 }
 
@@ -602,7 +602,7 @@ int N_VDotProdMulti_Cuda(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods)
 
   delete[] Yv;
 
-  SUNDIALS_Allreduce(dotprods, nvec, 1, comm);
+  SUNMPI_Allreduce(dotprods, nvec, 1, comm);
 
   return err == cudaSuccess ? 0 : -1;
 }
@@ -707,7 +707,7 @@ int N_VWrmsNormVectorArray_Cuda(int nvec, N_Vector* X, N_Vector* W,
   delete[] Xv;
   delete[] Wv;
 
-  SUNDIALS_Allreduce(norms, nvec, 1, comm);
+  SUNMPI_Allreduce(norms, nvec, 1, comm);
 
   for (int k=0; k<nvec; ++k) {
     norms[k] = std::sqrt(norms[k]/N);
@@ -742,7 +742,7 @@ int N_VWrmsNormMaskVectorArray_Cuda(int nvec, N_Vector* X, N_Vector* W,
   delete[] Xv;
   delete[] Wv;
 
-  SUNDIALS_Allreduce(norms, nvec, 1, comm);
+  SUNMPI_Allreduce(norms, nvec, 1, comm);
 
   for (int k=0; k<nvec; ++k) {
     norms[k] = std::sqrt(norms[k]/N);
