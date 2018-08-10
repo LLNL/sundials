@@ -28,8 +28,8 @@
 typedef MPI_Comm SUNDIALS_Comm;
 #else
 typedef int SUNDIALS_Comm;
-  #warning "SUNDIALS_MPI_ENABLED not defined!"
-#endif // ifdef SUNDIALS_MPI_ENABLED
+  /* #warning "SUNDIALS_MPI_ENABLED not defined! \n" */
+#endif
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {

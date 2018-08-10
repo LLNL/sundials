@@ -67,11 +67,12 @@ int main(int argc, char *argv[])
   comm = MPI_COMM_WORLD;
   MPI_Comm_size(comm, &nprocs);
   MPI_Comm_rank(comm, &myid);
-  global_length = nprocs*local_length;
 #else
   comm = 0;
-  global_length = local_length;
+  myid = 0;
+  nprocs = 1;
 #endif
+  global_length = nprocs*local_length;
 
   if (myid == 0)
     printf("\nRunning with vector length %ld \n\n", (long) global_length);

@@ -94,5 +94,5 @@ void SUNMPI_Comm_size(SUNDIALS_Comm comm, int *npes)
 #else
   *npes = 1;
 #endif
-};
+}
 
