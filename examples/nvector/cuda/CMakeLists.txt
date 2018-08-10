@@ -11,7 +11,7 @@
 # For details, see the LICENSE file.
 # LLNS Copyright End
 # ---------------------------------------------------------------
-# CMakeLists.txt file for cuda nvector examples
+# CMakeLists.txt file for CUDA nvector examples
 # ---------------------------------------------------------------
 
 # Example lists are tuples "name\;args\;nodes\;tasks\;type" where the

@@ -37,11 +37,9 @@ INCLUDE_DIRECTORIES(. ${CUDA_INCLUDE_PATH} ${MPI_CXX_INCLUDE_PATH})
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(IDA_LIB sundials_ida_static)
   SET(NVECS_LIB sundials_nveccuda_static)
-#  SET(NVECS_LIB sundials_nvecraja_static) # temporary, for testing only
 ELSE()
   SET(IDA_LIB sundials_ida_shared)
   SET(NVECS_LIB sundials_nveccuda_shared)
-#  SET(NVECS_LIB sundials_nvecraja_shared) # temporary, for testing only
 ENDIF()
 
 # Set-up linker flags and link libraries

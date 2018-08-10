@@ -11,7 +11,7 @@
  * For details, see the LICENSE file.
  * LLNS Copyright End
  * -----------------------------------------------------------------
- * This is the implementation file for a serial implementation
+ * This is the implementation file for a MPI+CUDA implementation
  * of the NVECTOR package.
  * -----------------------------------------------------------------*/
 

@@ -13,7 +13,7 @@
 # For details, see the LICENSE file.
 # LLNS Copyright End
 # ---------------------------------------------------------------
-# CMakeLists.txt file for CVODE cuda examples
+# CMakeLists.txt file for CVODE CUDA examples
 # ---------------------------------------------------------------
 
 # Example lists are tuples "name\;type" where the type is

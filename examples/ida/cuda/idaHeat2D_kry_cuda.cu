@@ -88,7 +88,9 @@ static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 
 /*
- * CUDA kernels
+ *--------------------------------------------------------------------
+ * CUDA Kernels
+ *--------------------------------------------------------------------
  */
 
 __global__
@@ -416,21 +418,6 @@ int resHeat(realtype tt,
 
   resHeatKernel<<<grid, block>>>(uu_data, up_data, rr_data, mm, coeff);
 
-//   const sunindextype zero = 0;
-//   RAJA::forall<RAJA::cuda_exec<256> >(zero, mm*mm, [=] __device__(sunindextype loc) {
-//     sunindextype i = loc % mm;
-//     sunindextype j = loc / mm;
-//     if (j==0 || j==mm-1 || i==0 || i==mm-1) {
-//       /* Initialize rr to uu, to take care of boundary equations. */
-//       rr_data[loc] = uu_data[loc];
-//     } else {
-//       /* Loop over interior points; set res = up - (central difference). */
-//       realtype dif1 = uu_data[loc-1]  + uu_data[loc+1]  - TWO * uu_data[loc];
-//       realtype dif2 = uu_data[loc-mm] + uu_data[loc+mm] - TWO * uu_data[loc];
-//       rr_data[loc] = up_data[loc] - coeff * ( dif1 + dif2 );
-//     }
-//   });
-
   return(0);
 }
 
@@ -468,19 +455,6 @@ int PsetupHeat(realtype tt,
   unsigned grid = (mm*mm + block - 1) / block;
 
   PsetupHeatKernel<<<grid, block>>>(ppv, mm, c_j, coeff);
-
-//   const sunindextype zero = 0;
-//   RAJA::forall<RAJA::cuda_exec<256> >(zero, mm*mm, [=] __device__(sunindextype loc) {
-//     sunindextype i = loc % mm;
-//     sunindextype j = loc / mm;
-//     if (j==0 || j==mm-1 || i==0 || i==mm-1) {
-//       /* Set ppv to one, to take care of boundary equations. */
-//       ppv[loc] = ONE;
-//     } else {
-//       /* Loop over interior points; ppv_i = 1/J_ii */
-//       ppv[loc] = ONE/(c_j + FOUR*coeff);
-//     }
-//   });
 
   return(0);
 }
@@ -550,15 +524,6 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
   unsigned grid = (mm*mm + block - 1) / block;
 
   setInitHeatKernel<<<grid, block>>>(updata, mm);
-
-//   const sunindextype zero = 0;
-//   RAJA::forall<RAJA::cuda_exec<256> >(zero, mm*mm, [=] __device__(sunindextype loc) {
-//     sunindextype i = loc % mm;
-//     sunindextype j = loc / mm;
-//     if (j==0 || j==mm-1 || i==0 || i==mm-1) {
-//       updata[loc] = ZERO;
-//     }
-//   });
 
   return(0);
 }
