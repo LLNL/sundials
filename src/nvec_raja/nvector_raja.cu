@@ -10,6 +10,9 @@
  * All rights reserved.
  * For details, see the LICENSE file.
  * LLNS Copyright End
+ * -----------------------------------------------------------------
+ * This is the implementation file for a MPI+RAJA implementation
+ * of the NVECTOR package.
  * -----------------------------------------------------------------*/
 
 #include <stdio.h>
