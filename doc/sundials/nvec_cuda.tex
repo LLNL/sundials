@@ -13,8 +13,8 @@ class Vector {
   I mem_size_;
   T* h_vec_;
   T* d_vec_;
-  StreamPartitioning<T, I>* partStream_;
-  ReducePartitioning<T, I>* partReduce_;
+  ThreadPartitioning<T, I>* partStream_;
+  ThreadPartitioning<T, I>* partReduce_;
   bool ownPartitioning_;
   
   ...
@@ -22,9 +22,9 @@ class Vector {
 \end{verbatim}
 
 The class members are vector size (length), size of the vector data memory block, pointers
-to vector data on the host and the device, pointers to classes \id{StreamPartitioning}
-and \id{ReducePartitioning}, which handle thread partitioning for streaming and 
-reduction vector kernels, respectively, and a boolean flag that signals if the
+to vector data on the host and the device, pointers to \id{ThreadPartitioning}
+implementations that handle thread partitioning for streaming and 
+reduction vector kernels, and a boolean flag that signals if the
 vector owns the thread partitioning. The class \id{Vector} inherits from the empty structure
 \begin{verbatim} 
 struct _N_VectorContent_Cuda {
