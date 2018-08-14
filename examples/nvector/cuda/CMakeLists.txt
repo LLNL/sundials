@@ -39,7 +39,16 @@ SET(nvector_examples_dependencies
   )
 
 # Add source directory to include directories
-INCLUDE_DIRECTORIES(. .. ${MPI_CXX_INCLUDE_PATH})
+INCLUDE_DIRECTORIES(. ..)
+
+IF(MPI_C_COMPILER)
+  # use MPI wrapper as the compiler
+  SET(CMAKE_C_COMPILER ${MPI_C_COMPILER})
+  SET(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
+ELSE()
+  # add MPI_INCLUDE_PATH to include directories
+  INCLUDE_DIRECTORIES(${MPI_CXX_INCLUDE_PATH})
+ENDIF()
 
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
@@ -51,15 +60,6 @@ ENDIF()
 
 # Set-up linker flags and link libraries
 SET(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS})
-
-IF(MPI_C_COMPILER)
-  # use MPI wrapper as the compiler
-  SET(CMAKE_C_COMPILER ${MPI_C_COMPILER})
-ELSE()
-  # add MPI_INCLUDE_PATH to include directories
-  INCLUDE_DIRECTORIES(${MPI_CXX_INCLUDE_PATH})
-ENDIF()
-
 
 # Add the build and install targets for each example
 FOREACH(example_tuple ${nvector_cuda_examples})
@@ -133,7 +133,7 @@ IF(EXAMPLES_INSTALL)
   INSTALL(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/cuda)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
-  SET(SOLVER_LIB "sundials_nveccuda")
+  SET(SOLVER_LIB "")
 
   EXAMPLES2STRING(nvector_cuda_examples EXAMPLES)
   EXAMPLES2STRING(nvector_examples_dependencies EXAMPLES_DEPENDENCIES)

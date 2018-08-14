@@ -30,7 +30,16 @@ ELSE()
 ENDIF()
 
 # Add source directory to include directories
-INCLUDE_DIRECTORIES(. ${CUDA_INCLUDE_PATH} ${MPI_CXX_INCLUDE_PATH})
+INCLUDE_DIRECTORIES(.)
+
+IF(MPI_C_COMPILER)
+  # use MPI wrapper as the compiler
+  SET(CMAKE_C_COMPILER ${MPI_C_COMPILER})
+  SET(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
+ELSE()
+  # add MPI_INCLUDE_PATH to include directories
+  INCLUDE_DIRECTORIES(${MPI_CXX_INCLUDE_PATH})
+ENDIF()
 
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE

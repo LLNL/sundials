@@ -27,12 +27,16 @@ PROJECT(@SOLVER@_CUDA_cuda_examples)
 # Use same compilers you used to build SUNDIALS to build examples
 set(CMAKE_C_COMPILER @CMAKE_C_COMPILER@)
 set(CMAKE_CXX_COMPILER @CMAKE_CXX_COMPILER@)
+set(CUDA_HOST_COMPILER @CUDA_HOST_COMPILER@)
 
 # Set the location of the CUDA toolkit used to build SUNDIALS
 set(CUDA_TOOLKIT_ROOT_DIR @CUDA_TOOLKIT_ROOT_DIR@)
 
 # Get the CUDA toolkit used to build sundials
 find_package(CUDA)
+
+# Use C++11
+set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -std c++11")
 
 MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
 
@@ -50,7 +54,7 @@ SET(SUNDIALS_INC_DIR
   "Location of SUNDIALS header files")
 
 # Add path to SUNDIALS header files
-INCLUDE_DIRECTORIES(${SUNDIALS_INC_DIR} @MPI_CXX_HEADER_DIR@)
+INCLUDE_DIRECTORIES(${SUNDIALS_INC_DIR} @MPI_CXX_INCLUDE_PATH@)
 
 # Set search path for SUNDIALS libraries
 SET(SUNDIALS_LIB_DIR @libdir@)

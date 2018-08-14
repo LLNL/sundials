@@ -26,23 +26,19 @@ exec_prefix  = @exec_prefix@
 includedir   = @includedir@
 libdir       = @libdir@
 
-CPP      = @CPP@
-CPPFLAGS = @CPPFLAGS@
-CXX      = @CXX@
-CXXFLAGS = @CXXFLAGS@
-NVCC     = @CUDA_NVCC_EXECUTABLE@
-NVCCFLAGS = -std=c++11
-LDFLAGS  = @LDFLAGS@
-LIBS     = @LIBS@
-CUDALIBS = @CUDA_CUDART_LIBRARY@
+CC      	= @CMAKE_C_COMPILER@
+CFLAGS    = @CMAKE_C_FLAGS@
+CXX       = @CMAKE_CXX_COMPILER@
+LDFLAGS   = @LDFLAGS@
+LIBS      = @LIBS@
+NVCC      = @CUDA_NVCC_EXECUTABLE@
+NVCCFLAGS = -std c++11
+CUDALIBS  = @CUDA_CUDART_LIBRARY@
+CUDALIBDIR= $(dir ${CUDALIBS})
 
-LINKFLAGS = -Xlinker ,-rpath,@libdir@
+LINKFLAGS = -Wl,-rpath,${libdir}:${CUDALIBDIR}
 
-MPICC       = @MPI_CXX_COMPILER@
-MPI_INC_DIR = @MPI_CXX_HEADER_DIR@
-MPI_LIB_DIR = @MPI_LINK_FLAGS@
-MPI_LIBS    = @MPI_mpi_LIBRARY@ @MPI_mpicxx_LIBRARY@
-MPI_FLAGS   = @MPI_FLAGS@
+MPI_INC_DIR = @MPI_CXX_INCLUDE_PATH@
 
 TMP_INCS = ${includedir} ${MPI_INC_DIR}
 INCLUDES = $(addprefix -I, ${TMP_INCS})
@@ -50,7 +46,7 @@ INCLUDES = $(addprefix -I, ${TMP_INCS})
 TMP_LIBRARIES_SUNDIALS = @SOLVER_LIB@ sundials_nveccuda
 LIBRARIES_SUNDIALS = ${addprefix -l, ${TMP_LIBRARIES_SUNDIALS}}
 
-LIBRARIES = ${LIBRARIES_SUNDIALS} ${LIBS} ${MPI_LIBS}
+LIBRARIES = ${LIBRARIES_SUNDIALS} ${LIBS} ${CUDALIBS}
 
 EXAMPLES = @EXAMPLES@ @EXAMPLES_BL@
 EXAMPLES_DEPENDENCIES = @EXAMPLES_DEPENDENCIES@
@@ -63,17 +59,18 @@ OBJECTS_DEPENDENCIES = ${EXAMPLES_DEPENDENCIES:=.o}
 .SUFFIXES : .o .cu
 
 .c.o :
-	${NVCC} ${CPPFLAGS} ${NVCCFLAGS} ${INCLUDES} -c $<
+	${CC} ${CFLAGS} -I${includedir} -c $<
 
 .cu.o :
-	${NVCC} ${CPPFLAGS} ${NVCCFLAGS} ${INCLUDES} -c $<
+	${NVCC} ${NVCCFLAGS} -I${includedir} -I${MPI_INC_DIR} -c $<
 
 # -----------------------------------------------------------------------------------------
 
 all: ${OBJECTS}
 	@for i in ${EXAMPLES} ; do \
-	  echo "${NVCC} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${NVCCFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LINKFLAGS}" ; \
-	  ${NVCC} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${NVCCFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${CUDALIBS} ${LINKFLAGS} ; \
+	  echo "${CXX} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LINKFLAGS}" ; \
+	  ${CXX} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${LDFLAGS} -I${includedir} \
+			-L${libdir} ${LIBRARIES} ${LINKFLAGS} ; \
 	done
 
 ${OBJECTS}: ${OBJECTS_DEPENDENCIES}
