@@ -43,7 +43,7 @@ MPI_INC_DIR = @MPI_CXX_INCLUDE_PATH@
 TMP_INCS = ${includedir} ${MPI_INC_DIR}
 INCLUDES = $(addprefix -I, ${TMP_INCS})
 
-TMP_LIBRARIES_SUNDIALS = @SOLVER_LIB@ sundials_nveccuda
+TMP_LIBRARIES_SUNDIALS = @SOLVER_LIB@ sundials_nveccuda 
 LIBRARIES_SUNDIALS = ${addprefix -l, ${TMP_LIBRARIES_SUNDIALS}}
 
 LIBRARIES = ${LIBRARIES_SUNDIALS} ${LIBS} ${CUDALIBS}
@@ -62,13 +62,13 @@ OBJECTS_DEPENDENCIES = ${EXAMPLES_DEPENDENCIES:=.o}
 	${CC} ${CFLAGS} -I${includedir} -c $<
 
 .cu.o :
-	${NVCC} ${NVCCFLAGS} -I${includedir} -I${MPI_INC_DIR} -c $<
+	${NVCC} ${NVCCFLAGS} ${INCLUDES} -c $<
 
 # -----------------------------------------------------------------------------------------
 
 all: ${OBJECTS}
 	@for i in ${EXAMPLES} ; do \
-	  echo "${CXX} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LINKFLAGS}" ; \
+	  echo "${CXX} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${LDFLAGS} -I${includedir} -L${libdir} ${LIBRARIES} ${LINKFLAGS}" ; \
 	  ${CXX} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${LDFLAGS} -I${includedir} \
 			-L${libdir} ${LIBRARIES} ${LINKFLAGS} ; \
 	done

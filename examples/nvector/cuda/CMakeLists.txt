@@ -133,7 +133,7 @@ IF(EXAMPLES_INSTALL)
   INSTALL(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/cuda)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
-  SET(SOLVER_LIB "")
+  SET(SOLVER_LIB "sundials_nveccuda")
 
   EXAMPLES2STRING(nvector_cuda_examples EXAMPLES)
   EXAMPLES2STRING(nvector_examples_dependencies EXAMPLES_DEPENDENCIES)
