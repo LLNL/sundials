@@ -789,7 +789,9 @@ if(CUDA_ENABLE)
   else()
     message(STATUS "Disabling CUDA support, could not find CUDA.")
   endif()
-  USE_CXX_STD(11)
+  if(NOT RAJA_ENABLE)
+    USE_CXX_STD(11)
+  endif()
 endif(CUDA_ENABLE)
 
 # -------------------------------------------------------------
