@@ -726,6 +726,14 @@ if(EXAMPLES_ENABLE_CXX OR CUDA_ENABLE OR RAJA_ENABLE)
   include(SundialsCXX)
 endif()
 
+# C++11 is needed if:
+#   (a) CUDA is enabled
+# C++11 should not be enabled if
+#   (a) RAJA is enabled (they provide a std flag)
+if (CXX_FOUND AND CUDA_ENABLE AND (NOT RAJA_ENABLE))
+  USE_CXX_STD(11)
+endif()
+
 # ---------------------------------------------------------------
 # Decide how to compile MPI codes.
 # ---------------------------------------------------------------
@@ -788,9 +796,6 @@ if(CUDA_ENABLE)
     set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -lineinfo")
   else()
     message(STATUS "Disabling CUDA support, could not find CUDA.")
-  endif()
-  if(NOT RAJA_ENABLE)
-    USE_CXX_STD(11)
   endif()
 endif(CUDA_ENABLE)
 
