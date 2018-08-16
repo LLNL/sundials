@@ -50,6 +50,9 @@ IF(USE_XSDK_DEFAULTS)
   # disable Fortran-C interface, FCMIX defaults to OFF
   SHOW_VARIABLE(XSDK_ENABLE_FORTRAN BOOL "Enable Fortran-C support" OFF)
 
+  # disable CUDA by default
+  SHOW_VARIABLE(XSDK_ENABLE_CUDA BOOL "Enable CUDA support" OFF)
+
   # disable BLAS by default
   SHOW_VARIABLE(TPL_ENABLE_BLAS BOOL "Enable BLAS support" OFF)
 
@@ -128,6 +131,14 @@ IF(DEFINED XSDK_ENABLE_FORTRAN)
   MARK_AS_ADVANCED(FORCE FCMIX_ENABLE)
 ENDIF()
 
+# XSDK_ENABLE_CUDA => CUDA_ENABLE
+IF(DEFINED XSDK_ENABLE_CUDA)
+  MESSAGE("Replacing CUDA_ENABLE with XSDK_ENABLE_CUDA")
+  SET(DOCSTR "Enable CUDA support")
+
+  FORCE_VARIABLE(CUDA_ENABLE BOOL "${DOCSTR}" "${XSDK_ENABLE_CUDA}")
+  MARK_AS_ADVANCED(FORCE CUDA_ENABLE)
+ENDIF()
 
 # ---------------------------------------------------------------
 # BLAS
