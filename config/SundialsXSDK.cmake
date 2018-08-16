@@ -68,6 +68,8 @@ IF(USE_XSDK_DEFAULTS)
   # disable hypre by default
   SHOW_VARIABLE(TPL_ENABLE_HYPRE BOOL "Enable hypre support" OFF)
 
+  # disable RAJA by default
+  SHOW_VARIABLE(TPL_ENABLE_RAJA BOOL "Enable RAJA support" OFF)
 ENDIF()
 
 # ---------------------------------------------------------------
@@ -311,4 +313,27 @@ IF(TPL_ENABLE_PETSC)
   FORCE_VARIABLE(PETSC_LIBRARY STRING "${DOCSTR}" "${TPL_PETSC_LIBRARIES}")
   MARK_AS_ADVANCED(FORCE PETSC_LIBRARY)
   MARK_AS_ADVANCED(FORCE PETSC_LIBRARY_DIR)
+ENDIF()
+
+# ---------------------------------------------------------------
+# RAJA
+# ---------------------------------------------------------------
+
+# TPL_ENABLE_RAJA => RAJA_ENABLE
+IF(DEFINED TPL_ENABLE_RAJA)
+  MESSAGE("Replacing RAJA_ENABLE with TPL_ENABLE_RAJA")
+  SET(DOCSTR "Enable RAJA support")
+
+  FORCE_VARIABLE(RAJA_ENABLE BOOL "${DOCSTR}" "${TPL_ENABLE_RAJA}")
+  MARK_AS_ADVANCED(FORCE RAJA_ENABLE)
+ENDIF()
+
+# TPL_RAJA_DIR => RAJA_DIR
+IF(TPL_ENABLE_RAJA)
+  MESSAGE("Replacing RAJA_DIR with TPL_RAJA_DIR")
+  SET(DOCSTR "RAJA include directory")
+
+  SHOW_VARIABLE(TPL_RAJA_DIR STRING "${DOCSTR}" "${TPL_RAJA_DIR}")
+  FORCE_VARIABLE(RAJA_DIR STRING "${DOCSTR}" "${TPL_RAJA_DIR}")
+  MARK_AS_ADVANCED(FORCE RAJA_DIR)
 ENDIF()
