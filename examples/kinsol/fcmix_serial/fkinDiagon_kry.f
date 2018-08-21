@@ -1,8 +1,18 @@
       program fkinDiagon_kry
-c     ----------------------------------------------------------------
+c     --------------------------------------------------------------------
 c     Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and
 c                    Radu Serban @ LLNL
-c     ----------------------------------------------------------------
+c     --------------------------------------------------------------------
+c     LLNS Copyright Start
+c     Copyright (c) 2017, Lawrence Livermore National Security
+c     This work was performed under the auspices of the U.S. Department 
+c     of Energy by Lawrence Livermore National Laboratory in part under 
+c     Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
+c     Produced at the Lawrence Livermore National Laboratory.
+c     All rights reserved.
+c     For details, see the LICENSE file.
+c     LLNS Copyright End
+c     --------------------------------------------------------------------
 c     Simple diagonal test with Fortran interface, using user-supplied
 c     preconditioner setup and solve routines (supplied in Fortran).
 c
@@ -14,7 +24,7 @@ c
 c     No scaling is done.
 c     An approximate diagonal preconditioner is used.
 c
-c     ----------------------------------------------------------------
+c     --------------------------------------------------------------------
 c
       implicit none
 
