@@ -346,7 +346,7 @@ int resHeat(realtype tt,
   coeff = data->coeff;
   mm    = data->mm;
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zero, mm*mm,
+  RAJA::forall<RAJA::cuda_exec<256> >(RAJA::RangeSegment(zero, mm*mm),
     [=] __device__(sunindextype loc) {
       sunindextype i = loc % mm;
       sunindextype j = loc / mm;
@@ -396,7 +396,7 @@ int PsetupHeat(realtype tt,
   mm = data->mm;
   realtype coeff = data->coeff;
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zero, mm*mm,
+  RAJA::forall<RAJA::cuda_exec<256> >(RAJA::RangeSegment(zero, mm*mm),
     [=] __device__(sunindextype loc) {
       sunindextype i = loc % mm;
       sunindextype j = loc / mm;
@@ -476,7 +476,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
   updata = N_VGetDeviceArrayPointer_Raja(up);
   mm1 = mm - 1;
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zero, mm*mm,
+  RAJA::forall<RAJA::cuda_exec<256> >(RAJA::RangeSegment(zero, mm*mm),
     [=] __device__(sunindextype loc) {
       sunindextype i = loc % mm;
       sunindextype j = loc / mm;

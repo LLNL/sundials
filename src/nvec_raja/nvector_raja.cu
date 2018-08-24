@@ -351,7 +351,7 @@ void N_VConst_Raja(realtype c, N_Vector Z)
   const sunindextype N = getSize<realtype, sunindextype>(Z);
   realtype *zdata = getDevData<realtype, sunindextype>(Z);
 
-  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N, RAJA_LAMBDA(sunindextype i) {
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N), RAJA_LAMBDA(sunindextype i) {
      zdata[i] = c;
   });
 }
@@ -363,7 +363,7 @@ void N_VLinearSum_Raja(realtype a, N_Vector X, realtype b, N_Vector Y, N_Vector 
   const sunindextype N = getSize<realtype, sunindextype>(X);
   realtype *zdata = getDevData<realtype, sunindextype>(Z);
 
-  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
       zdata[i] = a*xdata[i] + b*ydata[i];
     }
@@ -377,7 +377,7 @@ void N_VProd_Raja(N_Vector X, N_Vector Y, N_Vector Z)
   const sunindextype N = getSize<realtype, sunindextype>(X);
   realtype *zdata = getDevData<realtype, sunindextype>(Z);
 
-  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
       zdata[i] = xdata[i] * ydata[i];
     }
@@ -391,7 +391,7 @@ void N_VDiv_Raja(N_Vector X, N_Vector Y, N_Vector Z)
   const sunindextype N = getSize<realtype, sunindextype>(X);
   realtype *zdata = getDevData<realtype, sunindextype>(Z);
 
-  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
       zdata[i] = xdata[i] / ydata[i];
     }
@@ -404,7 +404,7 @@ void N_VScale_Raja(realtype c, N_Vector X, N_Vector Z)
   const sunindextype N = getSize<realtype, sunindextype>(X);
   realtype *zdata = getDevData<realtype, sunindextype>(Z);
 
-  RAJA::forall<RAJA_NODE_TYPE >(zeroIdx, N,
+  RAJA::forall<RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
       zdata[i] = c * xdata[i];
     }
@@ -417,7 +417,7 @@ void N_VAbs_Raja(N_Vector X, N_Vector Z)
   const sunindextype N = getSize<realtype, sunindextype>(X);
   realtype *zdata = getDevData<realtype, sunindextype>(Z);
 
-  RAJA::forall<RAJA_NODE_TYPE >(zeroIdx, N,
+  RAJA::forall<RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
       zdata[i] = abs(xdata[i]);
     }
@@ -430,7 +430,7 @@ void N_VInv_Raja(N_Vector X, N_Vector Z)
   const sunindextype N = getSize<realtype, sunindextype>(X);
   realtype *zdata = getDevData<realtype, sunindextype>(Z);
 
-  RAJA::forall<RAJA_NODE_TYPE >(zeroIdx, N,
+  RAJA::forall<RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
       zdata[i] = ONE / xdata[i];
     }
@@ -443,7 +443,7 @@ void N_VAddConst_Raja(N_Vector X, realtype b, N_Vector Z)
   const sunindextype N = getSize<realtype, sunindextype>(X);
   realtype *zdata = getDevData<realtype, sunindextype>(Z);
 
-  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
       zdata[i] = xdata[i] + b;
     }
@@ -457,7 +457,7 @@ realtype N_VDotProd_Raja(N_Vector X, N_Vector Y)
   const sunindextype N = getSize<realtype, sunindextype>(X);
 
   RAJA::ReduceSum< RAJA_REDUCE_TYPE, realtype> gpu_result(0.0);
-  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
       gpu_result += xdata[i] * ydata[i] ;
     }
@@ -476,7 +476,7 @@ realtype N_VMaxNorm_Raja(N_Vector X)
   const sunindextype N = getSize<realtype, sunindextype>(X);
 
   RAJA::ReduceMax< RAJA_REDUCE_TYPE, realtype> gpu_result(0.0);
-  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
       gpu_result.max(abs(xdata[i]));
     }
@@ -496,7 +496,7 @@ realtype N_VWrmsNorm_Raja(N_Vector X, N_Vector W)
   const sunindextype Nglobal = getGlobalSize<realtype, sunindextype>(X);
 
   RAJA::ReduceSum< RAJA_REDUCE_TYPE, realtype> gpu_result(0.0);
-  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
       gpu_result += (xdata[i] * wdata[i] * xdata[i] * wdata[i]);
     }
@@ -517,7 +517,7 @@ realtype N_VWrmsNormMask_Raja(N_Vector X, N_Vector W, N_Vector ID)
   const sunindextype Nglobal = getGlobalSize<realtype, sunindextype>(X);
 
   RAJA::ReduceSum< RAJA_REDUCE_TYPE, realtype> gpu_result(0.0);
-  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
       if (iddata[i] > ZERO)
         gpu_result += (xdata[i] * wdata[i] * xdata[i] * wdata[i]);
@@ -536,7 +536,7 @@ realtype N_VMin_Raja(N_Vector X)
   const sunindextype N = getSize<realtype, sunindextype>(X);
 
   RAJA::ReduceMin< RAJA_REDUCE_TYPE, realtype> gpu_result(std::numeric_limits<realtype>::max());
-  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
       gpu_result.min(xdata[i]);
     }
@@ -555,7 +555,7 @@ realtype N_VWL2Norm_Raja(N_Vector X, N_Vector W)
   const sunindextype N = getSize<realtype, sunindextype>(X);
 
   RAJA::ReduceSum< RAJA_REDUCE_TYPE, realtype> gpu_result(0.0);
-  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
       gpu_result += (xdata[i] * wdata[i] * xdata[i] * wdata[i]);
     }
@@ -573,7 +573,7 @@ realtype N_VL1Norm_Raja(N_Vector X)
   const sunindextype N = getSize<realtype, sunindextype>(X);
 
   RAJA::ReduceSum< RAJA_REDUCE_TYPE, realtype> gpu_result(0.0);
-  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
       gpu_result += (abs(xdata[i]));
     }
@@ -591,7 +591,7 @@ void N_VCompare_Raja(realtype c, N_Vector X, N_Vector Z)
   const sunindextype N = getSize<realtype, sunindextype>(X);
   realtype *zdata = getDevData<realtype, sunindextype>(Z);
 
-  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
       zdata[i] = abs(xdata[i]) >= c ? ONE : ZERO;
     }
@@ -605,7 +605,7 @@ booleantype N_VInvTest_Raja(N_Vector x, N_Vector z)
   realtype *zdata = getDevData<realtype, sunindextype>(z);
 
   RAJA::ReduceSum< RAJA_REDUCE_TYPE, realtype> gpu_result(ZERO);
-  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
       if (xdata[i] == ZERO) {
         gpu_result += ONE;
@@ -631,7 +631,7 @@ booleantype N_VConstrMask_Raja(N_Vector c, N_Vector x, N_Vector m)
   realtype *mdata = getDevData<realtype, sunindextype>(m);
 
   RAJA::ReduceSum< RAJA_REDUCE_TYPE, realtype> gpu_result(ZERO);
-  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
       bool test = (abs(cdata[i]) > ONEPT5 && cdata[i]*xdata[i] <= ZERO) ||
                   (abs(cdata[i]) > HALF   && cdata[i]*xdata[i] <  ZERO);
@@ -655,7 +655,7 @@ realtype N_VMinQuotient_Raja(N_Vector num, N_Vector denom)
   const sunindextype N = getSize<realtype, sunindextype>(num);
 
   RAJA::ReduceMin< RAJA_REDUCE_TYPE, realtype> gpu_result(std::numeric_limits<realtype>::max());
-  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
       if (ddata[i] != ZERO)
         gpu_result.min(ndata[i]/ddata[i]);
@@ -701,7 +701,7 @@ int N_VLinearCombination_Raja(int nvec, realtype* c, N_Vector* X, N_Vector z)
   err = cudaMemcpy(d_Xd, h_Xd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
   if (err != cudaSuccess) return cudaGetLastError();
 
-  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
       d_zd[i] = d_c[0] * d_Xd[0][i];
       for (int j=1; j<nvec; j++)
@@ -758,7 +758,7 @@ int N_VScaleAddMulti_Raja(int nvec, realtype* c, N_Vector x, N_Vector* Y, N_Vect
   err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
   if (err != cudaSuccess) return cudaGetLastError();
 
-  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
       for (int j=0; j<nvec; j++)
         d_Zd[j][i] = d_c[j] * d_xd[i] + d_Yd[j][i];
@@ -828,7 +828,7 @@ int N_VLinearSumVectorArray_Raja(int nvec,
   err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
   if (err != cudaSuccess) return cudaGetLastError();
 
-  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
       for (int j=0; j<nvec; j++)
         d_Zd[j][i] = a * d_Xd[j][i] + b * d_Yd[j][i];
@@ -887,7 +887,7 @@ int N_VScaleVectorArray_Raja(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
   err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
   if (err != cudaSuccess) return cudaGetLastError();
 
-  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
       for (int j=0; j<nvec; j++)
         d_Zd[j][i] = d_c[j] * d_Xd[j][i];
@@ -926,7 +926,7 @@ int N_VConstVectorArray_Raja(int nvec, realtype c, N_Vector* Z)
   err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
   if (err != cudaSuccess) return cudaGetLastError();
 
-  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
       for (int j=0; j<nvec; j++)
         d_Zd[j][i] = c;
@@ -992,7 +992,7 @@ int N_VScaleAddMultiVectorArray_Raja(int nvec, int nsum, realtype* c,
   err = cudaMemcpy(d_Zd, h_Zd, nsum*nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
   if (err != cudaSuccess) return cudaGetLastError();
 
-  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
       for (int j=0; j<nvec; j++)
         for (int k=0; k<nsum; k++)
@@ -1054,7 +1054,7 @@ int N_VLinearCombinationVectorArray_Raja(int nvec, int nsum, realtype* c,
   err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
   if (err != cudaSuccess) return cudaGetLastError();
 
-  RAJA::forall< RAJA_NODE_TYPE >(zeroIdx, N,
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
       for (int j=0; j<nvec; j++) {
         d_Zd[j][i] = d_c[0] * d_Xd[j*nsum][i];

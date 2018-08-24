@@ -292,7 +292,7 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 
   const sunindextype zero = 0;
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zero, NEQ,
+  RAJA::forall<RAJA::cuda_exec<256> >(RAJA::RangeSegment(zero, NEQ),
     [=] __device__(sunindextype index) {
       sunindextype i = index/MY;
       sunindextype j = index%MY;
@@ -342,7 +342,7 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
 
   N_VConst(ZERO, Jv);
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zero, NEQ,
+  RAJA::forall<RAJA::cuda_exec<256> >(RAJA::RangeSegment(zero, NEQ),
     [=] __device__(sunindextype index) {
       sunindextype i = index/MY;
       sunindextype j = index%MY;

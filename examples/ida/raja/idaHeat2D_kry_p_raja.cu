@@ -404,7 +404,7 @@ int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
   j0  = (jysub == 0);
 
   /* Set inverse of the preconditioner; ppv must be on the device */
-  RAJA::forall<RAJA::cuda_exec<256> >(zero, (mxsub - ibc)*(mysub - jbc),
+  RAJA::forall<RAJA::cuda_exec<256> >(RAJA::RangeSegment(zero, (mxsub - ibc)*(mysub - jbc)),
     [=] __device__(sunindextype tid) {
       sunindextype j = tid / (mxsub - ibc) + j0;
       sunindextype i = tid % (mxsub - ibc) + i0;
@@ -527,7 +527,7 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
   /* Copy local segment of u vector into the working extended array uext.
      This completes uext prior to the computation of the rr vector.
      uext and uuv must be on the device.     */
-  RAJA::forall<RAJA::cuda_exec<256> >(zero, mxsub*mysub,
+  RAJA::forall<RAJA::cuda_exec<256> >(RAJA::RangeSegment(zero, mxsub*mysub),
     [=] __device__(sunindextype tid) {
       sunindextype j = tid/mxsub;
       sunindextype i = tid%mxsub;
@@ -545,7 +545,7 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
   j0  = (jysub == 0);
 
   /* Compute local residual; uext, upv, and resv must be on the device */
-  RAJA::forall<RAJA::cuda_exec<256> >(zero, (mxsub - ibc)*(mysub - jbc),
+  RAJA::forall<RAJA::cuda_exec<256> >(RAJA::RangeSegment(zero, (mxsub - ibc)*(mysub - jbc)),
     [=] __device__(sunindextype tid) {
       sunindextype j = tid/(mxsub - ibc) + j0;
       sunindextype i = tid%(mxsub - ibc) + i0;
@@ -590,7 +590,7 @@ static int BSend(MPI_Comm comm, int thispe,
 
   if (jysub != 0) {
     // Device kernel here to copy from uarray to the buffer on the device
-    RAJA::forall<RAJA::cuda_exec<256> >(zero, mxsub,
+    RAJA::forall<RAJA::cuda_exec<256> >(RAJA::RangeSegment(zero, mxsub),
       [=] __device__(sunindextype lx) {
         d_bufbottom[lx] = uarray[lx];
       }
@@ -610,7 +610,7 @@ static int BSend(MPI_Comm comm, int thispe,
 
   if (jysub != npey-1) {
     // Device kernel here to copy from uarray to the buffer on the device
-    RAJA::forall<RAJA::cuda_exec<256> >(zero, mxsub,
+    RAJA::forall<RAJA::cuda_exec<256> >(RAJA::RangeSegment(zero, mxsub),
       [=] __device__(sunindextype lx) {
         d_buftop[lx] = uarray[(mysub-1)*mxsub + lx];
       }
@@ -629,7 +629,7 @@ static int BSend(MPI_Comm comm, int thispe,
 
   if (ixsub != 0) {
     // Device kernel here to copy from uarray to the buffer on the device
-    RAJA::forall<RAJA::cuda_exec<256> >(zero, mysub,
+    RAJA::forall<RAJA::cuda_exec<256> >(RAJA::RangeSegment(zero, mysub),
       [=] __device__(sunindextype ly) {
         d_bufleft[ly] = uarray[ly*mxsub];
       }
@@ -648,7 +648,7 @@ static int BSend(MPI_Comm comm, int thispe,
 
   if (ixsub != npex-1) {
     // Device kernel here to copy from uarray to the buffer on the device
-    RAJA::forall<RAJA::cuda_exec<256> >(zero, mysub,
+    RAJA::forall<RAJA::cuda_exec<256> >(RAJA::RangeSegment(zero, mysub),
       [=] __device__(sunindextype ly) {
         d_bufright[ly] = uarray[ly*mxsub + (mxsub-1)];
       }
@@ -758,7 +758,7 @@ static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
       return -1;
     }
     /* Copy the bottom dev_recv_buff to uext. */
-    RAJA::forall<RAJA::cuda_exec<256> >(zero, mxsub,
+    RAJA::forall<RAJA::cuda_exec<256> >(RAJA::RangeSegment(zero, mxsub),
       [=] __device__(sunindextype lx) {
         uext[1 + lx] = d_bufbottom[lx];
       }
@@ -775,7 +775,7 @@ static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
       return -1;
     }
     /* Copy the top dev_recv_buff to uext. */
-    RAJA::forall<RAJA::cuda_exec<256> >(zero, mxsub,
+    RAJA::forall<RAJA::cuda_exec<256> >(RAJA::RangeSegment(zero, mxsub),
       [=] __device__(sunindextype lx) {
         uext[(1 + mysub1*mxsub2) + lx] = d_buftop[lx];
       }
@@ -792,7 +792,7 @@ static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
       return -1;
     }
     /* Copy the left dev_recv_buff to uext. */
-    RAJA::forall<RAJA::cuda_exec<256> >(zero, mysub,
+    RAJA::forall<RAJA::cuda_exec<256> >(RAJA::RangeSegment(zero, mysub),
       [=] __device__(sunindextype ly) {
         uext[(ly+1)*mxsub2] = d_bufleft[ly];
       }
@@ -809,7 +809,7 @@ static int BRecvWait(MPI_Request request[], int ixsub, int jysub,
       return -1;
     }
     /* Copy the right dev_recv_buff to uext. */
-    RAJA::forall<RAJA::cuda_exec<256> >(zero, mysub,
+    RAJA::forall<RAJA::cuda_exec<256> >(RAJA::RangeSegment(zero, mysub),
       [=] __device__(sunindextype ly) {
         uext[(ly+2)*mxsub2 - 1] = d_bufright[ly];
       }
