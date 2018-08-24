@@ -23,6 +23,9 @@ SET(nvecraja_SOURCES
 # Tell compiler it is a CUDA source
 set_source_files_properties(${nvecraja_SOURCES} PROPERTIES CUDA_SOURCE_PROPERTY_FORMAT OBJ)
 
+# Set C++ compiler flags to include RAJA flags
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${RAJA_COMPILE_FLAGS})
+
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the NVECRAJA library
 SET(shared_SOURCES

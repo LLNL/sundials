@@ -25,6 +25,9 @@ SET(CVODE_examples
   #"cvAdvDiffReac_kry_raja\;develop"
   )
 
+# Set C++ compiler flags to include RAJA flags
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${RAJA_COMPILE_FLAGS})
+
 # Add source directory to include directories
 INCLUDE_DIRECTORIES(. ${RAJA_INCLUDE_PATH} ${MPI_CXX_INCLUDE_PATH})
 
