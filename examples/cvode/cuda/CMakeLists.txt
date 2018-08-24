@@ -26,15 +26,12 @@ SET(CVODE_examples
   )
 
 # Add source directory to include directories
-INCLUDE_DIRECTORIES(.)
+INCLUDE_DIRECTORIES(. ${MPI_CXX_INCLUDE_PATH})
 
 IF(MPI_C_COMPILER)
   # use MPI wrapper as the compiler
   SET(CMAKE_C_COMPILER ${MPI_C_COMPILER})
   SET(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
-ELSE()
-  # add MPI_INCLUDE_PATH to include directories
-  INCLUDE_DIRECTORIES(${MPI_CXX_INCLUDE_PATH})
 ENDIF()
 
 # Specify libraries to link against (through the target that was used to
