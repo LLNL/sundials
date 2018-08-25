@@ -56,17 +56,11 @@ int main(int argc, char *argv[])
 
   local_length = 1000;
 
-#ifdef SUNDIALS_MPI_ENABLED
-  /* Get processor number and total number of processes */
-  MPI_Init(&argc, &argv);
-  comm = MPI_COMM_WORLD;
-  MPI_Comm_size(comm, &nprocs);
-  MPI_Comm_rank(comm, &myid);
-#else
-  comm = 0;
-  myid = 0;
-  nprocs = 1;
-#endif
+  SUNMPI_Init(&argc, &argv);
+  comm = SUNMPI_COMM_WORLD;
+  SUNMPI_Comm_size(comm, &nprocs);
+  SUNMPI_Comm_rank(comm, &myid);
+
   global_length = nprocs*local_length;
 
   if (myid == 0)
@@ -74,7 +68,7 @@ int main(int argc, char *argv[])
 
   /* Create vectors */
   W = N_VNewEmpty_Cuda(local_length);
-  X = N_VNew_Cuda(comm, local_length, global_length);
+  X = N_VNew_MPI_Cuda(comm, local_length, global_length);
 
   /* NVector Tests */
 
@@ -148,9 +142,7 @@ int main(int argc, char *argv[])
     }
   }
 
-#ifdef SUNDIALS_MPI_ENABLED
-  MPI_Finalize();
-#endif
+  SUNMPI_Finalize();
 
   return(fails);
 }

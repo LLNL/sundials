@@ -81,6 +81,7 @@ typedef struct _N_VectorContent_Cuda *N_VectorContent_Cuda;
  *
  * CONSTRUCTORS:
  *    N_VNew_Cuda
+ *    N_VNew_MPI_Cuda
  *    N_VNewEmpty_Cuda
  *    N_VMake_Cuda
  * DESTRUCTORS:
@@ -97,13 +98,25 @@ typedef struct _N_VectorContent_Cuda *N_VectorContent_Cuda;
  * -----------------------------------------------------------------
  * Function : N_VNew_Cuda
  * -----------------------------------------------------------------
- * This function creates and allocates memory for a CUDA vector.
+ * This function creates and allocates memory for a CUDA vector on
+ * a single node.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNew_Cuda(SUNMPI_Comm comm,
-                                     sunindextype local_length,
-                                     sunindextype global_length);
+SUNDIALS_EXPORT N_Vector N_VNew_Cuda(sunindextype length);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : N_VNew_Cuda
+ * -----------------------------------------------------------------
+ * This function creates and allocates memory for a distributed
+ * memory CUDA vector.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT N_Vector N_VNew_MPI_Cuda(SUNMPI_Comm comm,
+                                         sunindextype local_length,
+                                         sunindextype global_length);
 
 /*
  * -----------------------------------------------------------------

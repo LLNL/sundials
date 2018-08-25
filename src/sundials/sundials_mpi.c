@@ -16,6 +16,54 @@
 
 #include <sundials/sundials_mpi.h>
 
+int SUNMPI_Init(int* argc, char*** argv)
+{
+#ifdef SUNDIALS_MPI_ENABLED
+  return MPI_Init(argc, argv);
+#else
+  return 0;
+#endif
+}
+
+int SUNMPI_Finalize()
+{
+#ifdef SUNDIALS_MPI_ENABLED
+  return MPI_Finalize();
+#else
+  return 0;
+#endif
+}
+
+int SUNMPI_Abort(SUNMPI_Comm comm, int errorcode)
+{
+#ifdef SUNDIALS_MPI_ENABLED
+  return MPI_Abort(comm, errorcode);
+#else
+  return 0;
+#endif
+}
+
+int SUNMPI_Comm_size(SUNMPI_Comm comm, int *size)
+{
+#ifdef SUNDIALS_MPI_ENABLED
+  return MPI_Comm_size(comm, size);
+#else
+  *size = 1;
+  return 0;
+#endif
+}
+
+int SUNMPI_Comm_rank(SUNMPI_Comm comm, int* rank)
+{
+#ifdef SUNDIALS_MPI_ENABLED
+  return MPI_Comm_rank(comm, rank);
+#else
+  *rank = 0;
+  return 0;
+#endif
+}
+
+
 realtype SUNMPI_Allreduce_scalar(realtype d, int op, SUNMPI_Comm comm)
 {
   /*
@@ -86,13 +134,4 @@ void SUNMPI_Allreduce(realtype *d, int nvec, int op, SUNMPI_Comm comm)
 #endif /* ifdef SUNDIALS_MPI_ENABLED */
 }
 
-
-void SUNMPI_Comm_size(SUNMPI_Comm comm, int *npes)
-{
-#ifdef SUNDIALS_MPI_ENABLED
-  MPI_Comm_size(comm, npes);
-#else
-  *npes = 1;
-#endif
-}
 

@@ -22,7 +22,6 @@
 #include <nvector/cuda/Vector.hpp>
 #include <nvector/cuda/VectorKernels.cuh>
 #include <nvector/cuda/VectorArrayKernels.cuh>
-#include <sundials/sundials_mpi.h>
 
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
@@ -114,7 +113,13 @@ N_Vector N_VNewEmpty_Cuda(sunindextype length)
 }
 
 
-N_Vector N_VNew_Cuda(SUNMPI_Comm comm,
+N_Vector N_VNew_Cuda(sunindextype length)
+{
+  return N_VNew_MPI_Cuda(SUNMPI_COMM_WORLD, length, length);
+}
+
+
+N_Vector N_VNew_MPI_Cuda(SUNMPI_Comm comm,
                      sunindextype local_length,
                      sunindextype global_length)
 {

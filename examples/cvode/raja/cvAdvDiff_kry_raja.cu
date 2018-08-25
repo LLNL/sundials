@@ -111,14 +111,9 @@ int main(int argc, char** argv)
   LS = NULL;
   cvode_mem = NULL;
 
-#ifdef SUNDIALS_MPI_ENABLED
-  MPI_Init(&argc, &argv);
-  comm = MPI_COMM_WORLD;
-  MPI_Comm_size(comm, &npes);
-#else
-  comm = 0;
-  npes = 1;
-#endif
+  SUNMPI_Init(&argc, &argv);
+  comm = SUNMPI_COMM_WORLD;
+  SUNMPI_Comm_size(comm, &npes);
 
   if (npes != 1) {
     printf("Warning: This test case works only with one MPI rank!");
@@ -134,7 +129,7 @@ int main(int argc, char** argv)
   abstol = ATOL;
 
   /* Create a RAJA vector with initial values */
-  u = N_VNew_Raja(comm, data->NEQ, data->NEQ);  /* Allocate u vector */
+  u = N_VNew_Raja(data->NEQ);  /* Allocate u vector */
   if(check_flag((void*)u, "N_VNew_Raja", 0)) return(1);
   SetIC(u, data);  /* Initialize u vector */
 
@@ -190,9 +185,7 @@ int main(int argc, char** argv)
   CVodeFree(&cvode_mem);  /* Free the integrator memory */
   free(data);             /* Free the user data */
 
-#ifdef SUNDIALS_MPI_ENABLED
-  MPI_Finalize();
-#endif
+  SUNMPI_Finalize();
 
   return(0);
 }
@@ -369,8 +362,8 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
 static void PrintHeader(realtype reltol, realtype abstol, realtype umax, UserData data)
 {
   printf("\n2-D Advection-Diffusion Equation\n");
-  printf("Mesh dimensions = %d X %d\n", data->MX, data->MY);
-  printf("Total system size = %d\n", data->NEQ);
+  printf("Mesh dimensions = %ld X %ld\n", (long) data->MX, (long) data->MY);
+  printf("Total system size = %ld\n", (long) data->NEQ);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Tolerance parameters: reltol = %Lg   abstol = %Lg\n\n",
          reltol, abstol);

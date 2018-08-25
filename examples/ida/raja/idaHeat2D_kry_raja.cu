@@ -44,10 +44,6 @@
 
 #include <RAJA/RAJA.hpp>
 
-#ifdef SUNDIALS_MPI_ENABLED
-#include <mpi.h>
-#endif
-
 /* Problem Constants */
 
 #define NOUT  11
@@ -115,14 +111,9 @@ int main(int argc, char *argv[])
   uu = up = constraints = res = NULL;
   LS = NULL;
 
-#ifdef SUNDIALS_MPI_ENABLED
-  MPI_Init(&argc, &argv);
-  comm = MPI_COMM_WORLD;
-  MPI_Comm_size(comm, &npes);
-#else
-  comm = 0;
-  npes = 1;
-#endif
+  SUNMPI_Init(&argc, &argv);
+  comm = SUNMPI_COMM_WORLD;
+  SUNMPI_Comm_size(comm, &npes);
 
   if (npes != 1) {
     printf("Warning: This test case works only with one MPI rank!");
@@ -142,7 +133,7 @@ int main(int argc, char *argv[])
 
   /* Allocate N-vectors and the user data structure objects. */
 
-  uu = N_VNew_Raja(comm, data->neq, data->neq);
+  uu = N_VNew_Raja(data->neq);
   if(check_flag((void *)uu, "N_VNew_Serial", 0)) return(1);
 
   up = N_VClone(uu);
@@ -306,9 +297,7 @@ int main(int argc, char *argv[])
   N_VDestroy(data->pp);
   free(data);
 
-#ifdef SUNDIALS_MPI_ENABLED
-  MPI_Finalize();
-#endif
+  SUNMPI_Finalize();
 
   return(0);
 }

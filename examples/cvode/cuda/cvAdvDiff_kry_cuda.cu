@@ -167,14 +167,9 @@ int main(int argc, char** argv)
   LS = NULL;
   cvode_mem = NULL;
 
-#ifdef SUNDIALS_MPI_ENABLED
-  MPI_Init(&argc, &argv);
-  comm = MPI_COMM_WORLD;
-  MPI_Comm_size(comm, &npes);
-#else
-  comm = 0;
-  npes = 1;
-#endif
+  SUNMPI_Init(&argc, &argv);
+  comm = SUNMPI_COMM_WORLD;
+  SUNMPI_Comm_size(comm, &npes);
 
   if (npes != 1) {
     printf("Warning: This test case works only with one MPI rank!");
@@ -189,7 +184,7 @@ int main(int argc, char** argv)
   abstol = ATOL;
 
   /* Create a CUDA vector with initial values */
-  u = N_VNew_Cuda(comm, data->NEQ, data->NEQ);  /* Allocate u vector */
+  u = N_VNew_Cuda(data->NEQ);  /* Allocate u vector */
   if(check_flag((void*)u, "N_VNew_Cuda", 0)) return(1);
 
   SetIC(u, data);  /* Initialize u vector */
@@ -246,9 +241,7 @@ int main(int argc, char** argv)
   CVodeFree(&cvode_mem);  /* Free the integrator memory */
   free(data);             /* Free the user data */
 
-#ifdef SUNDIALS_MPI_ENABLED
-  MPI_Finalize();
-#endif
+  SUNMPI_Finalize();
 
   return(0);
 }

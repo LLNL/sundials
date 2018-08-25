@@ -19,8 +19,9 @@
 #include <stdlib.h>
 
 #include <nvector/raja/Vector.hpp>
+#include <nvector/nvector_raja.h>
+
 #include <RAJA/RAJA.hpp>
-#include <sundials/sundials_mpi.h>
 
 
 #define ZERO   RCONST(0.0)
@@ -119,9 +120,15 @@ N_Vector N_VNewEmpty_Raja(sunindextype length)
 }
 
 
-N_Vector N_VNew_Raja(SUNMPI_Comm comm,
-                     sunindextype local_length,
-                     sunindextype global_length)
+N_Vector N_VNew_Raja(sunindextype length)
+{
+  return N_VNew_MPI_Raja(SUNMPI_COMM_WORLD, length, length);
+}
+
+
+N_Vector N_VNew_MPI_Raja(SUNMPI_Comm comm,
+                         sunindextype local_length,
+                         sunindextype global_length)
 {
   N_Vector v;
 

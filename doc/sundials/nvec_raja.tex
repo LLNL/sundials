@@ -4,27 +4,27 @@
 The {\nvecraja} module is an experimental {\nvector} implementation using the
 \href{https://software.llnl.gov/RAJA/}{\raja} hardware abstraction layer.
 In this implementation, {\raja}
-allows for {\sundials} vector kernels to run on GPU devices. The module is intended for users 
-who are already familiar with {\raja} and GPU programming. Building this vector 
-module requires a C++11 compliant compiler and a CUDA software development toolkit. 
-Besides the {\cuda} backend, {\raja} has other backends such as serial, OpenMP, 
+allows for {\sundials} vector kernels to run on GPU devices. The module is intended for users
+who are already familiar with {\raja} and GPU programming. Building this vector
+module requires a C++11 compliant compiler and a CUDA software development toolkit.
+Besides the {\cuda} backend, {\raja} has other backends such as serial, OpenMP,
 and OpenAC. These backends are not used in this {\sundials} release.
 Class \id{Vector} in namespace \id{sunrajavec} manages the vector data layout:
-\begin{verbatim} 
+\begin{verbatim}
 template <class T, class I>
 class Vector {
   I size_;
   I mem_size_;
   T* h_vec_;
   T* d_vec_;
-  
+
   ...
 };
 \end{verbatim}
-The class members are: vector size (length), size of the vector data memory block, 
+The class members are: vector size (length), size of the vector data memory block,
 and pointers to vector data on the host and on the device. The class \id{Vector}
 inherits from an empty structure
-\begin{verbatim} 
+\begin{verbatim}
 struct _N_VectorContent_Raja {
 };
 \end{verbatim}
@@ -32,7 +32,7 @@ to interface the C++ class with the {\nvector} C code. When instantiated, the cl
 \id{Vector} will allocate memory on both the host and the device. Due to the rapid
 progress of {\raja} development, we expect that the \id{sunrajavec::Vector}
 class will change frequently in future {\sundials} releases. The code is
-structured so that it can tolerate significant changes in the 
+structured so that it can tolerate significant changes in the
 \id{sunrajavec::Vector} class without requiring changes to the user API.
 
 %%
@@ -44,25 +44,25 @@ The installed module library to link to is
 where \id{\em.lib} is typically \id{.so} for shared libraries
 and \id{.a} for static libraries.
 
-Unlike other native {\sundials} vector types, {\nvecraja} does not provide macros 
+Unlike other native {\sundials} vector types, {\nvecraja} does not provide macros
 to access its member variables.Instead, user should use standalone functions in
-namespace \id{sunrajavec}. 
+namespace \id{sunrajavec}.
 \begin{itemize}
 
-\item 
+\item
   \ID{getDevData(N\_Vector v)}
 
   This function takes \id{N\_Vector} as an argument and returns raw pointer to vector
   data on the device (GPU). It is users responsibility to ensure correct vector is
   passed as the argument.
-  
-\item 
+
+\item
   \ID{getHostData(N\_Vector v)}
 
   This function takes \id{N\_Vector} as an argument and returns raw pointer to vector
   data on the host (CPU memory). It is users responsibility to ensure correct vector is
   passed as the argument.
-  
+
 \item \ID{getSize(N\_Vector v)}
 
   Returns vector's local length.
@@ -76,7 +76,7 @@ namespace \id{sunrajavec}.
 \item \ID{getMPICom(N\_Vector v)}
 
   Takes \id{N\_Vector} as an argument and returns sundials communicator of type
-  \id{SUNDIALS\_Comm}. 
+  \id{SUNDIALS\_Comm}.
 
 \end{itemize}
 
@@ -85,7 +85,7 @@ namespace \id{sunrajavec}.
 %%
 %%--------------------------------------------
 %%
-The {\nvecraja} module defines the implementations of all vector operations listed 
+The {\nvecraja} module defines the implementations of all vector operations listed
 in Tables \ref{t:nvecops}, \ref{t:nvecfusedops}, and \ref{t:nvecarrayops}, except
 for \id{N\_VDotProdMulti}, \id{N\_VWrmsNormVectorArray}, and
 \id{N\_VWrmsNormMaskVectorArray} as support for arrays of reduction vectors is not
@@ -95,7 +95,7 @@ implementation in the futrue. Additionally vector \id{N\_VGetArrayPointer} and
 As such, this vector cannot be used with {\sundials} Fortran interfaces,
 nor with {\sundials} direct solvers and preconditioners.
 The {\nvecraja} module provides separate functions to access data on the host
-and on the device. It also provides methods for copying data from the host to 
+and on the device. It also provides methods for copying data from the host to
 the device and vice versa. Usage examples of {\nvecraja} are provided in
 some example programs for {\cvode} \cite{cvode_ex}.
 
@@ -107,46 +107,60 @@ The module {\nvecraja}  provides the following additional user-callable routines
 %%
 \begin{itemize}
 
-  
+
 %%--------------------------------------
 
-\item \ID{N\_VNew\_Raja}
- 
+\item \ID{N\_VNew\_MPI\_Raja}
+
   This function creates and allocates memory for a {\raja} \id{N\_Vector}.
   The memory is allocated on both host and device. Its arguments are local
-  and global vector lengths, as well as the {\sundials} communicator. If   
+  and global vector lengths, as well as the {\sundials} communicator. If
   {\sundials} is built with MPI support, the communicator is MPI communicator.
-  Otherwise, it is an integer number and is ignored by \id{N\_VNew\_Raja}.
+  Otherwise, it is an integer number and is ignored by \id{N\_VNew\_MPI\_Raja}.
   If {\sundials} is built without MPI support local and global vector
   lengths must be the same.
 
 \begin{verbatim}
-N_Vector N_VNew_Raja(sunindextype local_length,
-                     sunindextype global_length,
-                     SUNDIALS_Comm comm);
+N_Vector N_VNew_Raja(SUNDIALS_Comm comm,
+                     sunindextype local_length,
+                     sunindextype global_length);
 \end{verbatim}
 
-  
+
+%%--------------------------------------
+
+\item \ID{N\_VNew\_Raja}
+
+  This function creates and allocates memory for a {\raja} \id{N\_Vector}
+  on a single node. The memory is allocated on both host and device.
+  Its only argument is vector length. Use this constructor when {\sundials}
+  is built without MPI support.
+
+\begin{verbatim}
+N_Vector N_VNew_Raja(sunindextype length);
+\end{verbatim}
+
+
 %%--------------------------------------
 
 \item \ID{N\_VNewEmpty\_Raja}
- 
+
   This function creates a new {\nvector} wrapper with the pointer to
-  the wrapped {\raja} vector set to (\id{NULL}). It is used by the 
-  \id{N\_VNew\_Raja}, \id{N\_VMake\_Raja}, and \id{N\_VClone\_Raja} 
-  implementations. 
+  the wrapped {\raja} vector set to (\id{NULL}). It is used by the
+  \id{N\_VNew\_Raja}, \id{N\_VMake\_Raja}, and \id{N\_VClone\_Raja}
+  implementations.
 
 \begin{verbatim}
 N_Vector N_VNewEmpty_Raja(sunindextype vec_length);
 \end{verbatim}
 
-  
+
 %%--------------------------------------
 
 \item \ID{N\_VMake\_Raja}
-  
+
   This function creates and allocates memory for an {\nvecraja}
-  wrapper around a user-provided \id{sunrajavec::Vector} class. 
+  wrapper around a user-provided \id{sunrajavec::Vector} class.
   Its only argument is of type \id{N\_VectorContent\_Raja}, which
   is the pointer to the class.
 
@@ -158,7 +172,7 @@ N_Vector N_VMake_Raja(N_VectorContent_Raja c);
 
 
 \item \ID{N\_VGetLength\_Raja}
- 
+
  This function returns the length of the vector.
 
  \verb|sunindextype N_VGetLength_Raja(N_Vector v);|
@@ -166,7 +180,7 @@ N_Vector N_VMake_Raja(N_VectorContent_Raja c);
 %%--------------------------------------
 
 \item \ID{N\_VGetHostArrayPointer\_Raja}
- 
+
  This function returns a pointer to the vector data on the host.
 
  \verb|realtype *N_VGetHostArrayPointer_Raja(N_Vector v);|
@@ -175,7 +189,7 @@ N_Vector N_VMake_Raja(N_VectorContent_Raja c);
 %%--------------------------------------
 
 \item \ID{N\_VGetDeviceArrayPointer\_Raja}
- 
+
  This function returns a pointer to the vector data on the device.
 
  \verb|realtype *N_VGetDeviceArrayPointer_Raja(N_Vector v);|
@@ -184,7 +198,7 @@ N_Vector N_VMake_Raja(N_VectorContent_Raja c);
 %%--------------------------------------
 
 \item \ID{N\_VCopyToDevice\_Raja}
- 
+
  This function copies host vector data to the device.
 
  \verb|realtype *N_VCopyToDevice_Raja(N_Vector v);|
@@ -193,7 +207,7 @@ N_Vector N_VMake_Raja(N_VectorContent_Raja c);
 %%--------------------------------------
 
 \item \ID{N\_VCopyFromDevice\_Raja}
- 
+
  This function copies vector data from the device to the host.
 
  \verb|realtype *N_VCopyFromDevice_Raja(N_Vector v);|
@@ -202,17 +216,17 @@ N_Vector N_VMake_Raja(N_VectorContent_Raja c);
 %%--------------------------------------
 
 \item \ID{N\_VPrint\_Raja}
-  
+
   This function prints the content of a {\raja} vector to \id{stdout}.
-     
+
   \verb|void N_VPrint_Raja(N_Vector v);|
 
 %%--------------------------------------
 
 \item \ID{N\_VPrintFile\_Raja}
-  
+
   This function prints the content of a {\raja} vector to \id{outfile}.
-     
+
   \verb|void N_VPrintFile_Raja(N_Vector v, FILE *outfile);|
 
 
@@ -220,15 +234,15 @@ N_Vector N_VMake_Raja(N_VectorContent_Raja c);
 %%
 %%------------------------------------
 %%
-\paragraph{\bf Notes} 
-           
+\paragraph{\bf Notes}
+
 \begin{itemize}
-                                        
+
 \item
-  When there is a need to access components of an \id{N\_Vector\_Raja}, \id{v}, 
-  it is recommeded to use functions \id{N\_VGetDeviceArrayPointer\_Raja} or 
-  \id{N\_VGetHostArrayPointer\_Raja}.        
-                                                               
+  When there is a need to access components of an \id{N\_Vector\_Raja}, \id{v},
+  it is recommeded to use functions \id{N\_VGetDeviceArrayPointer\_Raja} or
+  \id{N\_VGetHostArrayPointer\_Raja}.
+
 % \item
 %   {\warn}Unlike in other {\nvector} implementations, vector data will always be
 %   deleted when invoking \id{N\_VDestroy\_Raja} and \id{N\_VDestroyVectorArray\_Raja},
@@ -238,7 +252,7 @@ N_Vector N_VMake_Raja(N_VectorContent_Raja c);
 \item
   {\warn}To maximize efficiency, vector operations in the {\nvecraja} implementation
   that have more than one \id{N\_Vector} argument do not check for
-  consistent internal representations of these vectors. It is the user's 
+  consistent internal representations of these vectors. It is the user's
   responsibility to ensure that such routines are called with \id{N\_Vector}
   arguments that were all created with the same internal representations.
 

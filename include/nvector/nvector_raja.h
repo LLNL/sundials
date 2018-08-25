@@ -79,6 +79,7 @@ typedef struct _N_VectorContent_Raja *N_VectorContent_Raja;
  *
  * CONSTRUCTORS:
  *    N_VNew_Raja
+ *    N_VNew_MPI_Raja
  *    N_VNewEmpty_Raja
  *    N_VMake_Raja
  * DESTRUCTORS:
@@ -96,13 +97,25 @@ typedef struct _N_VectorContent_Raja *N_VectorContent_Raja;
  * -----------------------------------------------------------------
  * Function : N_VNew_Raja
  * -----------------------------------------------------------------
- * This function creates and allocates memory for a RAJA vector.
+ * This function creates and allocates memory for a RAJA vector on
+ * a single node.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNew_Raja(SUNMPI_Comm comm,
-                                     sunindextype local_length,
-                                     sunindextype global_length);
+SUNDIALS_EXPORT N_Vector N_VNew_Raja(sunindextype length);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : N_VNew_MPI_Raja
+ * -----------------------------------------------------------------
+ * This function creates and allocates memory for a distributed
+ * memory RAJA vector.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT N_Vector N_VNew_MPI_Raja(SUNMPI_Comm comm,
+                                         sunindextype local_length,
+                                         sunindextype global_length);
 
 /*
  * -----------------------------------------------------------------
