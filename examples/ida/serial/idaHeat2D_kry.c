@@ -49,7 +49,7 @@
 
 /* User data type */
 
-typedef struct {  
+typedef struct {
   sunindextype mm;  /* number of grid points */
   realtype dx;
   realtype coeff;
@@ -61,18 +61,18 @@ typedef struct {
 int resHeat(realtype tres, N_Vector uu, N_Vector up,
             N_Vector resval, void *user_data);
 
-int PsetupHeat(realtype tt, 
-               N_Vector uu, N_Vector up, N_Vector rr, 
+int PsetupHeat(realtype tt,
+               N_Vector uu, N_Vector up, N_Vector rr,
                realtype c_j, void *prec_data);
 
-int PsolveHeat(realtype tt, 
-               N_Vector uu, N_Vector up, N_Vector rr, 
-               N_Vector rvec, N_Vector zvec, 
+int PsolveHeat(realtype tt,
+               N_Vector uu, N_Vector up, N_Vector rr,
+               N_Vector rvec, N_Vector zvec,
                realtype c_j, realtype delta, void *prec_data);
 
 /* Prototypes for private functions */
 
-static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, 
+static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
                              N_Vector res);
 static void PrintHeader(realtype rtol, realtype atol);
 static void PrintOutput(void *mem, realtype t, N_Vector uu);
@@ -93,13 +93,11 @@ int main()
   realtype rtol, atol, t0, t1, tout, tret;
   long int netf, ncfn, ncfl;
   SUNLinearSolver LS;
-  SUNNonlinearSolver NLS;
 
   mem = NULL;
   data = NULL;
   uu = up = constraints = res = NULL;
   LS = NULL;
-  NLS = NULL;
 
   /* Allocate N-vectors and the user data structure. */
 
@@ -140,7 +138,7 @@ int main()
   t0   = ZERO;
   t1   = RCONST(0.01);
   rtol = ZERO;
-  atol = RCONST(1.0e-3); 
+  atol = RCONST(1.0e-3);
 
   /* Call IDACreate and IDAMalloc to initialize solution */
 
@@ -177,23 +175,15 @@ int main()
   retval = IDASpilsSetPreconditioner(mem, PsetupHeat, PsolveHeat);
   if(check_retval(&retval, "IDASpilsSetPreconditioner", 1)) return(1);
 
-  /* Create Newton SUNNonlinearSolver object */
-  NLS = SUNNonlinSol_Newton(uu);
-  if(check_flag((void *)NLS, "SUNNonlinSol_Newton", 0)) return(1);
-
-  /* Attach the nonlinear solver */
-  ier = IDASetNonlinearSolver(mem, NLS);
-  if(check_flag(&ier, "IDASetNonlinearSolver", 1)) return(1);
-
   /* Print output heading. */
   PrintHeader(rtol, atol);
-  
-  /* 
+
+  /*
    * -------------------------------------------------------------------------
-   * CASE I 
+   * CASE I
    * -------------------------------------------------------------------------
    */
-  
+
   /* Print case number, output table heading, and initial line of table. */
 
   printf("\n\nCase 1: gsytpe = MODIFIED_GS\n");
@@ -224,24 +214,24 @@ int main()
   printf("Nonlinear convergence failures = %ld\n", ncfn);
   printf("Linear convergence failures    = %ld\n", ncfl);
 
-  /* 
+  /*
    * -------------------------------------------------------------------------
    * CASE II
    * -------------------------------------------------------------------------
    */
-  
+
   /* Re-initialize uu, up. */
 
   SetInitialProfile(data, uu, up, res);
-  
+
   /* Re-initialize IDA and SPGMR */
 
   retval = IDAReInit(mem, t0, uu, up);
   if(check_retval(&retval, "IDAReInit", 1)) return(1);
-  
+
   retval = SUNSPGMRSetGSType(LS, CLASSICAL_GS);
-  if(check_retval(&retval, "SUNSPGMRSetGSType",1)) return(1); 
-  
+  if(check_retval(&retval, "SUNSPGMRSetGSType",1)) return(1);
+
   /* Print case number, output table heading, and initial line of table. */
 
   printf("\n\nCase 2: gstype = CLASSICAL_GS\n");
@@ -275,7 +265,6 @@ int main()
   /* Free Memory */
 
   IDAFree(&mem);
-  SUNNonlinSolFree(NLS);
   SUNLinSolFree(LS);
 
   N_VDestroy(uu);
@@ -295,34 +284,34 @@ int main()
  */
 
 /*
- * resHeat: heat equation system residual function (user-supplied)      
- * This uses 5-point central differencing on the interior points, and   
- * includes algebraic equations for the boundary values.                
- * So for each interior point, the residual component has the form      
- *    res_i = u'_i - (central difference)_i                             
- * while for each boundary point, it is res_i = u_i.                     
+ * resHeat: heat equation system residual function (user-supplied)
+ * This uses 5-point central differencing on the interior points, and
+ * includes algebraic equations for the boundary values.
+ * So for each interior point, the residual component has the form
+ *    res_i = u'_i - (central difference)_i
+ * while for each boundary point, it is res_i = u_i.
  */
 
-int resHeat(realtype tt, 
-            N_Vector uu, N_Vector up, N_Vector rr, 
+int resHeat(realtype tt,
+            N_Vector uu, N_Vector up, N_Vector rr,
             void *user_data)
 {
   sunindextype i, j, offset, loc, mm;
   realtype *uu_data, *up_data, *rr_data, coeff, dif1, dif2;
   UserData data;
-  
-  uu_data = N_VGetArrayPointer(uu); 
-  up_data = N_VGetArrayPointer(up); 
+
+  uu_data = N_VGetArrayPointer(uu);
+  up_data = N_VGetArrayPointer(up);
   rr_data = N_VGetArrayPointer(rr);
 
   data = (UserData) user_data;
-  
+
   coeff = data->coeff;
   mm    = data->mm;
-  
+
   /* Initialize rr to uu, to take care of boundary equations. */
   N_VScale(ONE, uu, rr);
-  
+
   /* Loop over interior points; set res = up - (central difference). */
   for (j = 1; j < MGRID-1; j++) {
     offset = mm*j;
@@ -338,31 +327,31 @@ int resHeat(realtype tt,
 }
 
 /*
- * PsetupHeat: setup for diagonal preconditioner for idaHeat2D_kry.   
- *                                                                 
- * The optional user-supplied functions PsetupHeat and          
- * PsolveHeat together must define the left preconditoner        
- * matrix P approximating the system Jacobian matrix               
- *                   J = dF/du + cj*dF/du'                         
- * (where the DAE system is F(t,u,u') = 0), and solve the linear   
- * systems P z = r.   This is done in this case by keeping only    
- * the diagonal elements of the J matrix above, storing them as    
- * inverses in a vector pp, when computed in PsetupHeat, for    
- * subsequent use in PsolveHeat.                                 
- *                                                                 
- * In this instance, only cj and data (user data structure, with    
- * pp etc.) are used from the PsetupdHeat argument list.         
+ * PsetupHeat: setup for diagonal preconditioner for idaHeat2D_kry.
+ *
+ * The optional user-supplied functions PsetupHeat and
+ * PsolveHeat together must define the left preconditoner
+ * matrix P approximating the system Jacobian matrix
+ *                   J = dF/du + cj*dF/du'
+ * (where the DAE system is F(t,u,u') = 0), and solve the linear
+ * systems P z = r.   This is done in this case by keeping only
+ * the diagonal elements of the J matrix above, storing them as
+ * inverses in a vector pp, when computed in PsetupHeat, for
+ * subsequent use in PsolveHeat.
+ *
+ * In this instance, only cj and data (user data structure, with
+ * pp etc.) are used from the PsetupdHeat argument list.
  */
-  
-int PsetupHeat(realtype tt, 
-               N_Vector uu, N_Vector up, N_Vector rr, 
+
+int PsetupHeat(realtype tt,
+               N_Vector uu, N_Vector up, N_Vector rr,
                realtype c_j, void *prec_data)
 {
-  
+
   sunindextype i, j, offset, loc, mm;
   realtype *ppv, pelinv;
   UserData data;
-  
+
   data = (UserData) prec_data;
   ppv = N_VGetArrayPointer(data->pp);
   mm = data->mm;
@@ -370,10 +359,10 @@ int PsetupHeat(realtype tt,
   /* Initialize the entire vector to 1., then set the interior points to the
      correct value for preconditioning. */
   N_VConst(ONE,data->pp);
-  
+
   /* Compute the inverse of the preconditioner diagonal elements. */
-  pelinv = ONE/(c_j + FOUR*data->coeff); 
-  
+  pelinv = ONE/(c_j + FOUR*data->coeff);
+
   for (j = 1; j < mm-1; j++) {
     offset = mm * j;
     for (i = 1; i < mm-1; i++) {
@@ -381,20 +370,20 @@ int PsetupHeat(realtype tt,
       ppv[loc] = pelinv;
     }
   }
-  
-  return(0);  
+
+  return(0);
 }
 
 /*
- * PsolveHeat: solve preconditioner linear system.              
- * This routine multiplies the input vector rvec by the vector pp 
- * containing the inverse diagonal Jacobian elements (previously  
- * computed in PrecondHeateq), returning the result in zvec.      
+ * PsolveHeat: solve preconditioner linear system.
+ * This routine multiplies the input vector rvec by the vector pp
+ * containing the inverse diagonal Jacobian elements (previously
+ * computed in PrecondHeateq), returning the result in zvec.
  */
 
-int PsolveHeat(realtype tt, 
-               N_Vector uu, N_Vector up, N_Vector rr, 
-               N_Vector rvec, N_Vector zvec, 
+int PsolveHeat(realtype tt,
+               N_Vector uu, N_Vector up, N_Vector rr,
+               N_Vector rvec, N_Vector zvec,
                realtype c_j, realtype delta, void *prec_data)
 {
   UserData data;
@@ -413,7 +402,7 @@ int PsolveHeat(realtype tt,
  * SetInitialProfile: routine to initialize u and up vectors.
  */
 
-static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, 
+static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
                              N_Vector res)
 {
   sunindextype mm, mm1, i, j, offset, loc;
@@ -424,7 +413,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
   udata = N_VGetArrayPointer(uu);
   updata = N_VGetArrayPointer(up);
 
-  /* Initialize uu on all grid points. */ 
+  /* Initialize uu on all grid points. */
   mm1 = mm - 1;
   for (j = 0; j < mm; j++) {
     yfact = data->dx * j;
@@ -435,7 +424,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
       udata[loc] = RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
     }
   }
-  
+
   /* Initialize up vector to 0. */
   N_VConst(ZERO, up);
 
@@ -453,7 +442,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
       if (j == 0 || j == mm1 || i == 0 || i == mm1 ) updata[loc] = ZERO;
     }
   }
-  
+
   return(0);
   }
 
@@ -469,9 +458,9 @@ static void PrintHeader(realtype rtol, realtype atol)
   printf(" polynomial initial conditions.\n");
   printf("         Mesh dimensions: %d x %d", MGRID, MGRID);
   printf("        Total system size: %d\n\n", NEQ);
-#if defined(SUNDIALS_EXTENDED_PRECISION) 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n", rtol, atol);
-#elif defined(SUNDIALS_DOUBLE_PRECISION) 
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
@@ -489,7 +478,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
   realtype hused, umax;
   long int nst, nni, nje, nre, nreLS, nli, npe, nps;
   int kused, retval;
-  
+
   umax = N_VMaxNorm(uu);
 
   retval = IDAGetLastOrder(mem, &kused);
@@ -513,10 +502,10 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
   retval = IDASpilsGetNumPrecSolves(mem, &nps);
   check_retval(&retval, "IDASpilsGetNumPrecSolves", 1);
 
-#if defined(SUNDIALS_EXTENDED_PRECISION) 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
   printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le  %3ld %3ld\n",
          t, umax, kused, nst, nni, nje, nre, nreLS, hused, npe, nps);
-#elif defined(SUNDIALS_DOUBLE_PRECISION) 
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e  %3ld %3ld\n",
          t, umax, kused, nst, nni, nje, nre, nreLS, hused, npe, nps);
 #else
@@ -532,7 +521,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
  *   opt == 1 means SUNDIALS function returns an integer value so check if
  *            retval >= 0
  *   opt == 2 means function allocates memory so check if returned
- *            NULL pointer 
+ *            NULL pointer
  */
 
 static int check_retval(void *returnvalue, const char *funcname, int opt)
@@ -541,23 +530,23 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && returnvalue == NULL) {
-    fprintf(stderr, 
-            "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", 
+    fprintf(stderr,
+            "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
     return(1);
   } else if (opt == 1) {
     /* Check if retval < 0 */
     retval = (int *) returnvalue;
     if (*retval < 0) {
-      fprintf(stderr, 
-              "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n", 
+      fprintf(stderr,
+              "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
               funcname, *retval);
-      return(1); 
+      return(1);
     }
   } else if (opt == 2 && returnvalue == NULL) {
     /* Check if function returned NULL pointer - no memory allocated */
-    fprintf(stderr, 
-            "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", 
+    fprintf(stderr,
+            "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
     return(1);
   }

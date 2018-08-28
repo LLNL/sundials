@@ -1,8 +1,8 @@
 /* -----------------------------------------------------------------
  * Programmer(s): Carol Woodward @ LLNL  (based on idaRoberts_dns.c)
  * -----------------------------------------------------------------
- * This simple example problem for IDA, due to Robertson, 
- * is from chemical kinetics, and consists of the following three 
+ * This simple example problem for IDA, due to Robertson,
+ * is from chemical kinetics, and consists of the following three
  * equations:
  *
  *      dy1/dt = -.04*y1 + 1.e4*y2*y3
@@ -43,7 +43,7 @@
 
 /* Prototypes of functions called by IDA */
 
-int resrob(realtype tres, N_Vector yy, N_Vector yp, 
+int resrob(realtype tres, N_Vector yy, N_Vector yp,
            N_Vector resval, void *user_data);
 
 static int grob(realtype t, N_Vector yy, N_Vector yp,
@@ -82,7 +82,6 @@ int main(void)
   int rootsfound[2];
   SUNMatrix A;
   SUNLinearSolver LS;
-  SUNNonlinearSolver NLS;
   sunindextype nnz;
 
   mem = NULL;
@@ -90,7 +89,6 @@ int main(void)
   yval = ypval = atval = NULL;
   A = NULL;
   LS = NULL;
-  NLS = NULL;
 
   /* Allocate N-vectors. */
   yy = N_VNew_Serial(NEQ);
@@ -109,7 +107,7 @@ int main(void)
   ypval = N_VGetArrayPointer(yp);
   ypval[0]  = RCONST(-0.04);
   ypval[1]  = RCONST(0.04);
-  ypval[2]  = ZERO;  
+  ypval[2]  = ZERO;
 
   rtol = RCONST(1.0e-4);
 
@@ -157,14 +155,6 @@ int main(void)
   retval = IDADlsSetJacFn(mem, jacrobCSR);
   if(check_retval(&retval, "IDADlsSetJacFn", 1)) return(1);
 
-  /* Create Newton SUNNonlinearSolver object */
-  NLS = SUNNonlinSol_Newton(yy);
-  if(check_flag((void *)NLS, "SUNNonlinSol_Newton", 0)) return(1);
-
-  /* Attach the nonlinear solver */
-  retval = IDASetNonlinearSolver(mem, NLS);
-  if(check_flag(&retval, "IDASetNonlinearSolver", 1)) return(1);
-
   /* In loop, call IDASolve, print results, and test for error.
      Break out of loop when NOUT preset output times have been reached. */
 
@@ -195,14 +185,13 @@ int main(void)
 
   /* Free memory */
   IDAFree(&mem);
-  SUNNonlinSolFree(NLS);
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
   N_VDestroy(yy);
   N_VDestroy(yp);
 
   return(0);
-  
+
 }
 
 /*
@@ -212,15 +201,15 @@ int main(void)
  */
 
 /*
- * Define the system residual function. 
+ * Define the system residual function.
  */
 
 int resrob(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data)
 {
   realtype *yval, *ypval, *rval;
 
-  yval = N_VGetArrayPointer(yy); 
-  ypval = N_VGetArrayPointer(yp); 
+  yval = N_VGetArrayPointer(yy);
+  ypval = N_VGetArrayPointer(yp);
   rval = N_VGetArrayPointer(rr);
 
   rval[0]  = RCONST(-0.04)*yval[0] + RCONST(1.0e4)*yval[1]*yval[2];
@@ -232,7 +221,7 @@ int resrob(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data
 }
 
 /*
- * Root function routine. Compute functions g_i(t,y) for i = 0,1. 
+ * Root function routine. Compute functions g_i(t,y) for i = 0,1.
  */
 
 static int grob(realtype t, N_Vector yy, N_Vector yp, realtype *gout,
@@ -240,7 +229,7 @@ static int grob(realtype t, N_Vector yy, N_Vector yp, realtype *gout,
 {
   realtype *yval, y1, y3;
 
-  yval = N_VGetArrayPointer(yy); 
+  yval = N_VGetArrayPointer(yy);
   y1 = yval[0]; y3 = yval[2];
   gout[0] = y1 - RCONST(0.0001);
   gout[1] = y3 - RCONST(0.01);
@@ -249,10 +238,10 @@ static int grob(realtype t, N_Vector yy, N_Vector yp, realtype *gout,
 }
 
 /*
- * Define the Jacobian function. 
+ * Define the Jacobian function.
  */
 
-int jacrobCSC(realtype tt,  realtype cj, 
+int jacrobCSC(realtype tt,  realtype cj,
               N_Vector yy, N_Vector yp, N_Vector resvec,
               SUNMatrix JJ, void *user_data,
               N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
@@ -299,9 +288,9 @@ int jacrobCSC(realtype tt,  realtype cj,
 }
 
 /*
- * Define the Jacobian function, where Jacobian is CSR matrix. 
+ * Define the Jacobian function, where Jacobian is CSR matrix.
  */
-int jacrobCSR(realtype tt,  realtype cj, 
+int jacrobCSR(realtype tt,  realtype cj,
               N_Vector yy, N_Vector yp, N_Vector resvec,
               SUNMatrix JJ, void *user_data,
               N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
@@ -310,9 +299,9 @@ int jacrobCSR(realtype tt,  realtype cj,
   sunindextype *rowptrs = SUNSparseMatrix_IndexPointers(JJ);
   sunindextype *colvals = SUNSparseMatrix_IndexValues(JJ);
   realtype *data = SUNSparseMatrix_Data(JJ);
-  
-  yval = N_VGetArrayPointer(yy);  
-  
+
+  yval = N_VGetArrayPointer(yy);
+
   SUNMatZero(JJ);
 
   rowptrs[0] = 0;
@@ -353,7 +342,7 @@ int jacrobCSR(realtype tt,  realtype cj,
  *--------------------------------------------------------------------
  */
 
-/* 
+/*
  * Print first lines of output (problem description)
  */
 
@@ -410,13 +399,13 @@ static void PrintOutput(void *mem, realtype t, N_Vector y)
   retval = IDAGetLastStep(mem, &hused);
   check_retval(&retval, "IDAGetLastStep", 1);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("%10.4Le %12.4Le %12.4Le %12.4Le | %3ld  %1d %12.4Le\n", 
+  printf("%10.4Le %12.4Le %12.4Le %12.4Le | %3ld  %1d %12.4Le\n",
          t, yval[0], yval[1], yval[2], nst, kused, hused);
 #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  printf("%10.4e %12.4e %12.4e %12.4e | %3ld  %1d %12.4e\n", 
+  printf("%10.4e %12.4e %12.4e %12.4e | %3ld  %1d %12.4e\n",
          t, yval[0], yval[1], yval[2], nst, kused, hused);
 #else
-  printf("%10.4e %12.4e %12.4e %12.4e | %3ld  %1d %12.4e\n", 
+  printf("%10.4e %12.4e %12.4e %12.4e | %3ld  %1d %12.4e\n",
          t, yval[0], yval[1], yval[2], nst, kused, hused);
 #endif
 }
@@ -468,7 +457,7 @@ static void PrintFinalStats(void *mem)
  *   opt == 1 means SUNDIALS function returns an integer value so check if
  *            retval >= 0
  *   opt == 2 means function allocates memory so check if returned
- *            NULL pointer 
+ *            NULL pointer
  */
 
 static int check_retval(void *returnvalue, const char *funcname, int opt)
@@ -476,23 +465,23 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
   int *retval;
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && returnvalue == NULL) {
-    fprintf(stderr, 
-            "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", 
+    fprintf(stderr,
+            "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
     return(1);
   } else if (opt == 1) {
     /* Check if retval < 0 */
     retval = (int *) returnvalue;
     if (*retval < 0) {
-      fprintf(stderr, 
-              "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n", 
+      fprintf(stderr,
+              "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
               funcname, *retval);
-      return(1); 
+      return(1);
     }
   } else if (opt == 2 && returnvalue == NULL) {
     /* Check if function returned NULL pointer - no memory allocated */
-    fprintf(stderr, 
-            "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", 
+    fprintf(stderr,
+            "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
     return(1);
   }

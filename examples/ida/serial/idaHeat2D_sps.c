@@ -99,7 +99,6 @@ int main(void)
   realtype rtol, atol, t0, t1, tout, tret;
   SUNMatrix A;
   SUNLinearSolver LS;
-  SUNNonlinearSolver NLS;
   sunindextype nnz;
 
   mem = NULL;
@@ -185,14 +184,6 @@ int main(void)
   }
   if(check_retval(&retval, "IDADlsSetJacFn", 1)) return(1);
 
-  /* Create Newton SUNNonlinearSolver object */
-  NLS = SUNNonlinSol_Newton(uu);
-  if(check_flag((void *)NLS, "SUNNonlinSol_Newton", 0)) return(1);
-
-  /* Attach the nonlinear solver */
-  ier = IDASetNonlinearSolver(mem, NLS);
-  if(check_flag(&ier, "IDASetNonlinearSolver", 1)) return(1);
-
   /* Call IDACalcIC to correct the initial values. */
 
   retval = IDACalcIC(mem, IDA_YA_YDP_INIT, t1);
@@ -223,7 +214,6 @@ int main(void)
   printf("\n netf = %ld,   ncfn = %ld \n", netf, ncfn);
 
   IDAFree(&mem);
-  SUNNonlinSolFree(NLS);
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
   N_VDestroy(uu);
