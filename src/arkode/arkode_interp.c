@@ -100,8 +100,8 @@ ARKodeInterpMem arkInterpCreate(void* arkode_mem)
   /* initialize time values */
   interp_mem->told = ark_mem->tcur;
   interp_mem->tnew = ark_mem->tcur;
-  interp_mem->t_fa = NAN;
-  interp_mem->t_fb = NAN;
+  interp_mem->t_fa = RCONST(0.0);
+  interp_mem->t_fb = RCONST(0.0);
   interp_mem->h    = RCONST(0.0);
 
   return(interp_mem);
@@ -163,8 +163,8 @@ int arkInterpResize(void* arkode_mem, ARKodeInterpMem interp_mem,
   /* reinitialize time values */
   interp_mem->told = ark_mem->tcur;
   interp_mem->tnew = ark_mem->tcur;
-  interp_mem->t_fa = NAN;
-  interp_mem->t_fb = NAN;
+  interp_mem->t_fa = RCONST(0.0);
+  interp_mem->t_fb = RCONST(0.0);
   interp_mem->h    = RCONST(0.0);
 
   return(ARK_SUCCESS);
