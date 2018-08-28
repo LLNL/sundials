@@ -418,8 +418,8 @@ Species 6
 
  Final statistics for this run:
 
- ARKStep real workspace length          = 3124
- ARKStep integer workspace length       =  126
+ ARKStep real workspace length          = 3556
+ ARKStep integer workspace length       =  128
  SUNSPGMR real workspace length        = 2648
  SUNSPGMR integer workspace length     =   22
  Number of steps                       =  258
@@ -487,8 +487,8 @@ t =   1.00e+01  nst = 264  nfe = 0  nfi = 4356  nni = 2901  hu =    9.24e-02
 
  Final statistics for this run:
 
- ARKStep real workspace length          = 3164
- ARKStep integer workspace length       =  134
+ ARKStep real workspace length          = 3596
+ ARKStep integer workspace length       =  136
  SUNSPGMR real workspace length        = 2648
  SUNSPGMR integer workspace length     =   22
  Number of steps                       =  264
@@ -556,8 +556,8 @@ t =   1.00e+01  nst = 359  nfe = 0  nfi = 5723  nni = 3907  hu =    1.35e-01
 
  Final statistics for this run:
 
- ARKStep real workspace length          = 3204
- ARKStep integer workspace length       =  142
+ ARKStep real workspace length          = 3636
+ ARKStep integer workspace length       =  144
  SUNSPGMR real workspace length        = 2648
  SUNSPGMR integer workspace length     =   22
  Number of steps                       =  359
@@ -625,8 +625,8 @@ t =   1.00e+01  nst = 359  nfe = 0  nfi = 5729  nni = 3912  hu =    1.31e-01
 
  Final statistics for this run:
 
- ARKStep real workspace length          = 3244
- ARKStep integer workspace length       =  150
+ ARKStep real workspace length          = 3676
+ ARKStep integer workspace length       =  152
  SUNSPGMR real workspace length        = 2648
  SUNSPGMR integer workspace length     =   22
  Number of steps                       =  359
