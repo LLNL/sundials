@@ -14,7 +14,7 @@ CalcIC called to correct initial concentrations
   t        bottom-left  top-right    | nst  k      h
 -----------------------------------------------------------
 
-0.00e+00   5.0038e-01   1.4996e+00   |   0  0   1.0000e-07
+0.00e+00   5.0038e-01   1.4996e+00   |   0  0   1.0000e-06
            1.0019e+00   5.9981e+00   |
 
 1.00e-03   4.9944e-01   1.5076e+00   |  11  1   5.1200e-04
@@ -40,17 +40,17 @@ CalcIC called to correct initial concentrations
 Final statistics: 
 
 Number of steps                    = 152
-Number of residual evaluations     = 1243
-Number of nonlinear iterations     = 165
+Number of residual evaluations     = 972
+Number of nonlinear iterations     = 164
 Number of error test failures      = 1
-Number of nonlinear conv. failures = 1
+Number of nonlinear conv. failures = 0
 
-Number of linear iterations        = 1047
+Number of linear iterations        = 806
 Number of linear conv. failures    = 0
 
-Number of preconditioner setups    = 16
-Number of preconditioner solves    = 1635
-Number of local residual evals.    = 2656
+Number of preconditioner setups    = 15
+Number of preconditioner solves    = 1304
+Number of local residual evals.    = 2490
 
 
 The average of u on the domain:
