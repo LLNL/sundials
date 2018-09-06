@@ -75,7 +75,8 @@ typedef struct ARKodeARKStepMemRec {
   int             maxnef;      /* max error test fails in one step */
 
   /* (Non)Linear solver parameters & data */
-  SUNNonlinearSolver NLS;   /* generic SUNNonlinearSolver object   */
+  SUNNonlinearSolver NLS;   /* generic SUNNonlinearSolver object     */
+  booleantype     ownNLS;   /* flag indicating ownership of NLS      */
   realtype gamma;        /* gamma = h * A(i,i)                       */
   realtype gammap;       /* gamma at the last setup call             */
   realtype gamrat;       /* gamma / gammap                           */

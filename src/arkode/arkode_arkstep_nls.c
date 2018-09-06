@@ -87,6 +87,7 @@ int ARKStepSetNonlinearSolver(void *arkode_mem, SUNNonlinearSolver NLS)
 
   /* set SUNNonlinearSolver pointer */
   step_mem->NLS = NLS;
+  step_mem->ownNLS = SUNFALSE;
 
   /* set the nonlinear residual/fixed-point function, based on solver type */
   if (SUNNonlinSolGetType(NLS) == SUNNONLINEARSOLVER_ROOTFIND) {

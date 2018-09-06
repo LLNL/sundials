@@ -144,6 +144,7 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, realtype t0, N_Vector y0)
   step_mem->fi = fi;
 
   /* If an implicit component is to be solved, create default Newton NLS object */
+  step_mem->ownNLS = SUNFALSE;
   if (step_mem->implicit)  {
     NLS = NULL;
     NLS = SUNNonlinSol_Newton(y0);
@@ -158,6 +159,7 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, realtype t0, N_Vector y0)
                       "ARKStepCreate", "Error attaching default Newton solver");
       return(NULL);
     }
+    step_mem->ownNLS = SUNTRUE;
   }
 
   /* Update the ARKode workspace requirements */
@@ -298,6 +300,7 @@ int ARKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
     ier = SUNNonlinSolFree(step_mem->NLS);
     if (ier != ARK_SUCCESS)  return(ier);
     step_mem->NLS = NULL;
+    step_mem->ownNLS = SUNFALSE;
 
     /* create new Newton NLS object */
     NLS = NULL;
@@ -315,6 +318,7 @@ int ARKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
                       "ARKStepResize", "Error attaching default Newton solver");
       return(ARK_MEM_FAIL);
     }
+    step_mem->ownNLS = SUNTRUE;
 
     /* initialize the updated nonlinear solver */
     ier = arkStep_NlsInit(ark_mem);
@@ -595,11 +599,11 @@ void ARKStepFree(void **arkode_mem)
       ark_mem->lrw -= Blrw;
     }
 
-    /* free the nonlinear solver memory */
-    if (step_mem->NLS != NULL) {
+    /* free the nonlinear solver memory (if applicable) */
+    if ((step_mem->NLS != NULL) && (step_mem->ownNLS)) {
       SUNNonlinSolFree(step_mem->NLS);
-      step_mem->NLS = NULL;
     }
+    step_mem->NLS = NULL;
 
     /* free the linear solver memory */
     if (step_mem->lfree != NULL) {
