@@ -130,7 +130,7 @@ referenced.
    solution units differ considerably from the equation units,
    absolute tolerances for the equation residuals (nonlinear and
    linear) may be specified separately through calls to
-   :c:func:`ARKStepResStolerance()`, :c:func:`ARKStepResVtolerance()` or
+   :c:func:`ARKStepResStolerance()`, :c:func:`ARKStepResVtolerance()`, or
    :c:func:`ARKStepResFtolerance()`.
 
 6. Set optional inputs
@@ -159,10 +159,10 @@ referenced.
 
 9. Set linear solver optional inputs
 
-    Call ``*Set*`` functions from the selected linear solver module
-    to change optional inputs specific to that linear solver.  See the
-    documentation for each SUNLINSOL module in the section
-    :ref:`SUNLinSol` for details.
+   Call ``*Set*`` functions from the selected linear solver module
+   to change optional inputs specific to that linear solver.  See the
+   documentation for each SUNLINSOL module in the section
+   :ref:`SUNLinSol` for details.
 
 10. Attach linear solver module
 
@@ -198,7 +198,7 @@ referenced.
 
 12. Specify rootfinding problem
 
-    Optionally, call :c:func:`ARKodeRootInit()` to initialize a rootfinding
+    Optionally, call :c:func:`ARKStepRootInit()` to initialize a rootfinding
     problem to be solved during the integration of the ODE system. See
     the section :ref:`ARKStep_CInterface.RootFinding` for general details, and
     the section :ref:`ARKStep_CInterface.OptionalInputs` for relevant optional

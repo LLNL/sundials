@@ -34,7 +34,7 @@ of each:
   :math:`\dot{y} = f(t,y)` based on Adams and BDF methods;
 - CVODES, a linear multistep solver for stiff and nonstiff ODEs with
   sensitivity analysis capabilities;
-- ARKode, a Runge-Kutta based solver for stiff, nonstiff and mixed ODE systems;
+- ARKode, a Runge-Kutta based solver for stiff, nonstiff, and mixed ODE systems;
 - IDA, a linear multistep solver for differential-algebraic systems
   :math:`F(t,y,\dot{y}) = 0` based on BDF methods;
 - IDAS, a linear multistep solver for differential-algebraic systems with sensitivity

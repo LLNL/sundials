@@ -55,8 +55,8 @@ Approved for public release; further dissemination unlimited
 \clearpage
 }
 
-\title{User Documentation for ARKode v3.0.0-dev.1\\
-       (SUNDIALS v4.0.0-dev.1)}
+\title{User Documentation for ARKode v3.0.0-dev.2\\
+       (SUNDIALS v4.0.0-dev.2)}
 \author{
   Daniel R. Reynolds$^1$, David J. Gardner$^2$, \\
   Alan C. Hindmarsh$^2$, Carol S. Woodward$^2$ \\
@@ -216,8 +216,8 @@ B598130 from \href{http://www.llnl.gov}{Lawrence Livermore National Laboratory}.
 
 \chapter{Introduction}
 \label{Introduction:introduction}\label{Introduction:id1}\label{Introduction::doc}\label{Introduction:arkode-documentation}
-The ARKode infrastructure provides an adaptive-step time integration
-package for stiff, nonstiff and mixed stiff/nonstiff systems of
+The ARKode infrastructure provides adaptive-step time integration
+modules for stiff, nonstiff and mixed stiff/nonstiff systems of
 ordinary differential equations (ODEs).  ARKode itself is structured
 to support a wide range of one-step (but multi-stage) methods,
 allowing for rapid development of parallel implementations of
@@ -278,14 +278,14 @@ with adaptive explicit methods of orders 2-8.
 For problems that include nonzero implicit term \(f_I(t,y)\), the
 resulting implicit system (assumed nonlinear, unless specified
 otherwise) is solved approximately at each integration step, using a
-Newton method, modified Newton method, Inexact Newton method, or an
+modified Newton method, inexact Newton method, or an
 accelerated fixed-point solver.  For the Newton-based methods and the
 serial or threaded NVECTOR modules in SUNDIALS, ARKode may use a
 variety of linear solvers provided with SUNDIALS, including both
 direct (dense, band, or sparse) and preconditioned Krylov iterative
 (GMRES \phantomsection\label{Introduction:id2}{\hyperref[References:ss1986]{\emph{{[}SS1986{]}}}}, BiCGStab \phantomsection\label{Introduction:id3}{\hyperref[References:v1992]{\emph{{[}V1992{]}}}}, TFQMR \phantomsection\label{Introduction:id4}{\hyperref[References:f1993]{\emph{{[}F1993{]}}}}, FGMRES \phantomsection\label{Introduction:id5}{\hyperref[References:s1993]{\emph{{[}S1993{]}}}},
 or PCG \phantomsection\label{Introduction:id6}{\hyperref[References:hs1952]{\emph{{[}HS1952{]}}}}) linear solvers.  When used with the MPI-based
-parallel, PETSc, \emph{hypre}, CUDA and Raja NVECTOR modules, or a
+parallel, PETSc, \emph{hypre}, CUDA, and Raja NVECTOR modules, or a
 user-provided vector data structure, only the Krylov solvers are
 available, although a user may supply their own linear solver for any
 data structures if desired.  For the serial or threaded vector
@@ -300,8 +300,8 @@ preconditioner routines.
 \section{Changes from previous versions}
 \label{Introduction:changes-from-previous-versions}
 
-\subsection{Changes since v3.0.0-dev.1}
-\label{Introduction:changes-since-v3-0-0-dev-1}
+\subsection{Changes in v3.0.0-dev.2}
+\label{Introduction:changes-in-v3-0-0-dev-2}
 The ARKode library has been entirely rewritten to support a modular
 approach to one-step methods, which should allow rapid research and
 development of novel integration methods without affecting existing
@@ -857,31 +857,38 @@ autonomous (\(f=f(y)\)).  In general, the time integration methods
 within ARKode support additive splittings of this right-hand side
 function, as described in the subsections that follow.  Through these
 splittings, the time-stepping methods currently supplied with ARKode
-are designed to solve stiff, nonstiff and mixed stiff/nonstiff
+are designed to solve stiff, nonstiff, or mixed stiff/nonstiff
 problems.  Roughly speaking, stiffness is characterized by the
 presence of at least one rapidly damped mode, whose time constant is
 small compared to the time scale of the solution itself.
 
 In the sub-sections that follow, we elaborate on the numerical
-methods utilized in ARKode.  We first discuss the shared features of
-the time stepping modules that comprise ARKode, including their usage
-modes, {\hyperref[Mathematics:mathematics-interpolation]{\emph{\DUspan{}{interpolation module}}}}, and
-{\hyperref[Mathematics:mathematics-rootfinding]{\emph{\DUspan{}{rootfinding capabilities}}}}.  We then
-discuss the current suite of time-stepping modules supplied with
-ARKode, including the ARKStep module for {\hyperref[Mathematics:mathematics-ark]{\emph{\DUspan{}{additive
-Runge-Kutta methods}}}} and the ERKStep module that
-is optimized for {\hyperref[Mathematics:mathematics-erk]{\emph{\DUspan{}{explicit Runge-Kutta methods}}}}.
-We then discuss the {\hyperref[Mathematics:mathematics-adaptivity]{\emph{\DUspan{}{adaptive temporal error controllers}}}} shared by the time-stepping modules,
-including discussion of our choice of norms for measuring errors
-within various components of the solver.
+methods utilized in ARKode.  We first discuss the ``single-step'' nature
+of the ARKode infrastructure, including its usage modes and approaches
+for interpolated solution output.  We then discuss the current suite
+of time-stepping modules supplied with ARKode, including the ARKStep
+module for {\hyperref[Mathematics:mathematics-ark]{\emph{\DUspan{}{additive Runge-Kutta methods}}}} and
+the ERKStep module that is optimized for {\hyperref[Mathematics:mathematics-erk]{\emph{\DUspan{}{explicit Runge-Kutta
+methods}}}}. We then discuss the {\hyperref[Mathematics:mathematics-adaptivity]{\emph{\DUspan{}{adaptive
+temporal error controllers}}}} shared by the
+time-stepping modules, including discussion of our choice of norms for
+measuring errors within various components of the solver.
 
-We conclude this section by discussing the nonlinear and linear solver
-strategies used by ARKode's time-stepping modules for solving implicit
-algebraic systems that arise in computing each stage: {\hyperref[Mathematics:mathematics-nonlinear]{\emph{\DUspan{}{nonlinear
-solvers}}}}, {\hyperref[Mathematics:mathematics-linear]{\emph{\DUspan{}{linear solvers}}}}, {\hyperref[Mathematics:mathematics-preconditioning]{\emph{\DUspan{}{preconditioners}}}},  {\hyperref[Mathematics:mathematics-error]{\emph{\DUspan{}{error control}}}} within iterative nonlinear and linear solvers,
-algorithms for {\hyperref[Mathematics:mathematics-predictors]{\emph{\DUspan{}{initial predictors}}}} for
-implicit stage solutions, and approaches for handling
+We then discuss the nonlinear and linear solver strategies used by
+ARKode's time-stepping modules for solving implicit algebraic systems
+that arise in computing each stage and/or step:
+{\hyperref[Mathematics:mathematics-nonlinear]{\emph{\DUspan{}{nonlinear solvers}}}},
+{\hyperref[Mathematics:mathematics-linear]{\emph{\DUspan{}{linear solvers}}}},
+{\hyperref[Mathematics:mathematics-preconditioning]{\emph{\DUspan{}{preconditioners}}}},
+{\hyperref[Mathematics:mathematics-error]{\emph{\DUspan{}{error control}}}} within iterative nonlinear
+and linear solvers, algorithms for
+{\hyperref[Mathematics:mathematics-predictors]{\emph{\DUspan{}{initial predictors}}}} for implicit stage
+solutions, and approaches for handling
 {\hyperref[Mathematics:mathematics-masssolve]{\emph{\DUspan{}{non-identity mass-matrices}}}}.
+We conclude with a section describing ARKode's {\hyperref[Mathematics:mathematics-rootfinding]{\emph{\DUspan{}{rootfinding
+capabilities}}}}, that may be used to stop
+integration of a problem prematurely based on traversal of roots in
+user-specified functions.
 
 
 \section{Adaptive single-step methods}
@@ -995,103 +1002,6 @@ these are not currently implemented due to their increased computing
 and storage costs.  However, these may be added in future releases.
 
 
-\section{Rootfinding}
-\label{Mathematics:mathematics-rootfinding}\label{Mathematics:rootfinding}
-Many of the time-stepping modules in ARKode also support a rootfinding
-feature.  This means that, while integrating the IVP \eqref{Mathematics-IVP}, these
-can also find the roots of a set of user-defined functions
-\(g_i(t,y)\) that depend on \(t\) and the solution vector
-\(y = y(t)\). The number of these root functions is arbitrary, and
-if more than one \(g_i\) is found to have a root in any given
-interval, the various root locations are found and reported in the
-order that they occur on the \(t\) axis, in the direction of
-integration.
-
-Generally, this rootfinding feature finds only roots of odd
-multiplicity, corresponding to changes in sign of \(g_i(t,
-y(t))\), denoted \(g_i(t)\) for short. If a user root function has
-a root of even multiplicity (no sign change), it will almost certainly
-be missed due to the realities of floating-point arithmetic.  If such
-a root is desired, the user should reformulate the root function so
-that it changes sign at the desired root.
-
-The basic scheme used is to check for sign changes of any
-\(g_i(t)\) over each time step taken, and then (when a sign change
-is found) to hone in on the root (or roots) with a modified secant
-method \phantomsection\label{Mathematics:id1}{\hyperref[References:hs1980]{\emph{{[}HS1980{]}}}}.  In addition, each time \(g\) is
-evaluated, ARKode checks to see if \(g_i(t) = 0\) exactly, and if
-so it reports this as a root.  However, if an exact zero of any
-\(g_i\) is found at a point \(t\), ARKode computes
-\(g(t+\delta)\) for a small increment \(\delta\), slightly
-further in the direction of integration, and if any
-\(g_i(t+\delta) = 0\) also, ARKode stops and reports an
-error. This way, each time ARKode takes a time step, it is guaranteed
-that the values of all \(g_i\) are nonzero at some past value of
-\(t\), beyond which a search for roots is to be done.
-
-At any given time in the course of the time-stepping, after suitable
-checking and adjusting has been done, ARKode has an interval
-\((t_\text{lo}, t_\text{hi}]\) in which roots of the
-\(g_i(t)\) are to be sought, such that \(t_\text{hi}\) is
-further ahead in the direction of integration, and all
-\(g_i(t_\text{lo}) \ne 0\).  The endpoint \(t_\text{hi}\) is
-either \(t_n\), the end of the time step last taken, or the next
-requested output time \(t_\text{out}\) if this comes sooner. The
-endpoint \(t_\text{lo}\) is either \(t_{n-1}\), or the last
-output time \(t_\text{out}\) (if this occurred within the last
-step), or the last root location (if a root was just located within
-this step), possibly adjusted slightly toward \(t_n\) if an exact
-zero was found. The algorithm checks \(g(t_\text{hi})\) for zeros, and
-it checks for sign changes in \((t_\text{lo}, t_\text{hi})\). If no sign
-changes are found, then either a root is reported (if some
-\(g_i(t_\text{hi}) = 0\)) or we proceed to the next time interval
-(starting at \(t_\text{hi}\)). If one or more sign changes were found,
-then a loop is entered to locate the root to within a rather tight
-tolerance, given by
-\begin{gather}
-\begin{split}\tau = 100\, U\, (|t_n| + |h|)\qquad (\text{where}\; U = \text{unit roundoff}).\end{split}\notag
-\end{gather}
-Whenever sign changes are seen in two or more root functions, the one
-deemed most likely to have its root occur first is the one with the
-largest value of
-\(\left|g_i(t_\text{hi})\right| / \left| g_i(t_\text{hi}) - g_i(t_\text{lo})\right|\),
-corresponding to the closest to \(t_\text{lo}\) of the secant method
-values. At each pass through the loop, a new value \(t_\text{mid}\) is
-set, strictly within the search interval, and the values of
-\(g_i(t_\text{mid})\) are checked. Then either \(t_\text{lo}\) or
-\(t_\text{hi}\) is reset to \(t_\text{mid}\) according to which
-subinterval is found to have the sign change. If there is none in
-\((t_\text{lo}, t_\text{mid})\) but some \(g_i(t_\text{mid}) = 0\), then that
-root is reported. The loop continues until \(\left|t_\text{hi} -
-t_\text{lo} \right| < \tau\), and then the reported root location is
-\(t_\text{hi}\).  In the loop to locate the root of \(g_i(t)\), the
-formula for \(t_\text{mid}\) is
-\begin{gather}
-\begin{split}t_\text{mid} = t_\text{hi} -
-\frac{g_i(t_\text{hi}) (t_\text{hi} - t_\text{lo})}{g_i(t_\text{hi}) - \alpha g_i(t_\text{lo})} ,\end{split}\notag
-\end{gather}
-where \(\alpha\) is a weight parameter. On the first two passes
-through the loop, \(\alpha\) is set to 1, making \(t_\text{mid}\)
-the secant method value. Thereafter, \(\alpha\) is reset according
-to the side of the subinterval (low vs high, i.e. toward
-\(t_\text{lo}\) vs toward \(t_\text{hi}\)) in which the sign change was
-found in the previous two passes. If the two sides were opposite,
-\(\alpha\) is set to 1. If the two sides were the same, \(\alpha\)
-is halved (if on the low side) or doubled (if on the high side). The
-value of \(t_\text{mid}\) is closer to \(t_\text{lo}\) when
-\(\alpha < 1\) and closer to \(t_\text{hi}\) when \(\alpha > 1\).
-If the above value of \(t_\text{mid}\) is within \(\tau /2\) of
-\(t_\text{lo}\) or \(t_\text{hi}\), it is adjusted inward, such that its
-fractional distance from the endpoint (relative to the interval size)
-is between 0.1 and 0.5 (with 0.5 being the midpoint), and the actual
-distance from the endpoint is at least \(\tau/2\).
-
-Finally, we note that when running in parallel, ARKode's rootfinding
-module assumes that the entire set of root defining functions
-\(g_i(t,y)\) is replicated on every MPI task.  Since in these
-cases the vector \(y\) is distributed across tasks, it is the
-user's responsibility to perform any necessary inter-task
-communication to ensure that \(g_i(t,y)\) is identical on each task.
 
 
 \section{ARKStep -- Additive Runge-Kutta methods}
@@ -1147,7 +1057,7 @@ allows the possibility for different explicit and implicit stage
 times, i.e. \(c^E\) need not equal \(c^I\).
 
 The user of ARKStep must choose appropriately between one of three
-classes of methods: \emph{ImEx}, \emph{explicit} and \emph{implicit}.  All of
+classes of methods: \emph{ImEx}, \emph{explicit}, and \emph{implicit}.  All of
 ARKode's available Butcher tables encoding the coefficients
 \(c^E\), \(c^I\), \(A^E\), \(A^I\), \(b^E\),
 \(b^I\), \(\tilde{b}^E\) and \(\tilde{b}^I\) are further
@@ -1156,7 +1066,7 @@ described in the {\hyperref[Butcher:butcher]{\emph{\DUspan{}{Appendix: Butcher t
 For mixed stiff/nonstiff problems, a user should provide both of the
 functions \(f_E\) and \(f_I\) that define the IVP system.  For
 such problems, ARKStep currently implements the ARK methods proposed in
-\phantomsection\label{Mathematics:id2}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}, allowing for methods having order of accuracy \(q =
+\phantomsection\label{Mathematics:id1}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}, allowing for methods having order of accuracy \(q =
 \{3,4,5\}\); the tables for these methods are given in the section
 {\hyperref[Butcher:butcher-additive]{\emph{\DUspan{}{Additive Butcher tables}}}}.  Additionally, user-defined ARK tables are
 supported.
@@ -1241,7 +1151,7 @@ absolute tolerances, namely
 \phantomsection\label{Mathematics:equation-EWT}\begin{gather}
 \begin{split}w_i = \frac{1}{RTOL\cdot |y_{n-1,i}| + ATOL_i}.\end{split}\label{Mathematics-EWT}
 \end{gather}
-Since \(1/w_i\) represents a tolerance in the ith component of the
+Since \(1/w_i\) represents a tolerance in the \(i\)-th component of the
 solution vector \(y\), a vector whose WRMS norm is 1 is regarded
 as ``small.''  For brevity, unless specified otherwise we will drop the
 subscript WRMS on norms in the remainder of this section.
@@ -1265,7 +1175,7 @@ will use \eqref{Mathematics-EWT} when computing all error norms.
 \section{Time step adaptivity}
 \label{Mathematics:time-step-adaptivity}\label{Mathematics:mathematics-adaptivity}
 A critical component of IVP ``solvers'' (rather than just
-time-steppers) is their adaptive control of local truncation error.
+time-steppers) is their adaptive control of local truncation error (LTE).
 At every step, we estimate the local error, and ensure that it
 satisfies tolerance conditions.  If this local error test fails, then
 the step is recomputed with a reduced step size.  To this end, the
@@ -1274,11 +1184,11 @@ modules admit an embedded solution \(\tilde{y}_n\), as shown in
 equations \eqref{Mathematics-ARK} and \eqref{Mathematics-ERK}.  Generally, these embedded
 solutions attain a slightly lower order of accuracy than the computed
 solution \(y_n\).  Denoting the order of accuracy for \(y_n\)
-as \(p\) and for \(\tilde{y}_n\) as \(q\), most of these
-embedded methods satisfy \(p = q-1\).  These values of \(p\)
-and \(q\) correspond to the \emph{global} orders of accuracy for the
-method  and embedding, hence each admit local truncation errors
-satisfying \phantomsection\label{Mathematics:id3}{\hyperref[References:hw1993]{\emph{{[}HW1993{]}}}}
+as \(q\) and for \(\tilde{y}_n\) as \(p\), most of these
+embedded methods satisfy \(p = q-1\).  These values of \(q\)
+and \(p\) correspond to the \emph{global} orders of accuracy for the
+method and embedding, hence each admit local truncation errors
+satisfying \phantomsection\label{Mathematics:id2}{\hyperref[References:hw1993]{\emph{{[}HW1993{]}}}}
 \phantomsection\label{Mathematics:equation-AsymptoticErrors}\begin{gather}
 \begin{split}\| y_n - y(t_n) \| = C h_n^{q+1} + \mathcal O(h_n^{q+2}), \\
 \| \tilde{y}_n - y(t_n) \| = D h_n^{p+1} + \mathcal O(h_n^{p+2}),\end{split}\label{Mathematics-AsymptoticErrors}
@@ -1293,8 +1203,7 @@ estimates, we have
 \le D h_n^{p+1} + \mathcal O(h_n^{p+2}).\end{split}\notag
 \end{gather}
 We therefore use the norm of the difference between \(y_n\) and
-\(\tilde{y}_n\) as an estimate for the local truncation error
-(LTE) at the step \(n\)
+\(\tilde{y}_n\) as an estimate for the LTE at the step \(n\)
 \phantomsection\label{Mathematics:equation-LTE}\begin{gather}
 \begin{split}M T_n = \beta \left(y_n - \tilde{y}_n\right) =
 \beta h_n \sum_{i=1}^{s} \left[
@@ -1315,11 +1224,11 @@ the section {\hyperref[Mathematics:mathematics-adaptivity-errorcontrol]{\emph{\D
 test fails, the step is rejected and a new step size \(h'\) is
 then computed using the same error controller as for successful steps.
 A new attempt at the step is made, and the error test is repeated.  If
-it fails twice, then \(h'/h\) is limited above to 0.3, and limited
-below to 0.1 after an additional step failure.  After seven error test
-failures, control is returned to the user with a failure message.  We
-note that all of the constants listed above are only the default
-values; each may be modified by the user.
+the error test fails twice, then \(h'/h\) is limited above to 0.3,
+and limited below to 0.1 after an additional step failure.  After
+seven error test failures, control is returned to the user with a
+failure message.  We note that all of the constants listed above are
+only the default values; each may be modified by the user.
 
 We define the step size ratio between a prospective step \(h'\)
 and a completed step \(h\) as \(\eta\), i.e. \(\eta = h'
@@ -1352,7 +1261,8 @@ iterative linear solve, where this construction is computationally
 expensive, and where convergence can be seriously hindered through use
 of an inaccurate matrix.  To accommodate these scenarios, the step is
 left unchanged when \(\eta \in [\eta_L, \eta_U]\).  The default
-values for this interval are \(\eta_L = 1\) and \(\eta_U = 1.5\).
+values for this interval are \(\eta_L = 1\) and \(\eta_U =
+1.5\), and may be modified by the user.
 
 We note that any choices for \(\eta\) (or equivalently,
 \(h'\)) are subsequently constrained by the optional user-supplied
@@ -1386,8 +1296,8 @@ control algorithms, as specified in the subsections below.
 \subsubsection{PID controller}
 \label{Mathematics:mathematics-adaptivity-errorcontrol-pid}\label{Mathematics:pid-controller}
 This is the default time adaptivity controller used by the ARKStep and
-ERKStep modules.  It derives from those found in \phantomsection\label{Mathematics:id4}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}, \phantomsection\label{Mathematics:id5}{\hyperref[References:s1998]{\emph{{[}S1998{]}}}}, \phantomsection\label{Mathematics:id6}{\hyperref[References:s2003]{\emph{{[}S2003{]}}}} and
-\phantomsection\label{Mathematics:id7}{\hyperref[References:s2006]{\emph{{[}S2006{]}}}}, and uses all three of the local error estimates
+ERKStep modules.  It derives from those found in \phantomsection\label{Mathematics:id3}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}, \phantomsection\label{Mathematics:id4}{\hyperref[References:s1998]{\emph{{[}S1998{]}}}}, \phantomsection\label{Mathematics:id5}{\hyperref[References:s2003]{\emph{{[}S2003{]}}}} and
+\phantomsection\label{Mathematics:id6}{\hyperref[References:s2006]{\emph{{[}S2006{]}}}}, and uses all three of the local error estimates
 \(\varepsilon_n\), \(\varepsilon_{n-1}\) and
 \(\varepsilon_{n-2}\) in determination of a prospective step size,
 \begin{gather}
@@ -1395,15 +1305,15 @@ ERKStep modules.  It derives from those found in \phantomsection\label{Mathemati
      \varepsilon_{n-2}^{-k_3/p},\end{split}\notag
 \end{gather}
 where the constants \(k_1\), \(k_2\) and \(k_3\) default
-to 0.58, 0.21 and 0.1, respectively.  In this estimate, a floor of
-\(\varepsilon > 10^{-10}\) is enforced to avoid division-by-zero
-errors.
+to 0.58, 0.21 and 0.1, respectively, and may be modied by the user.
+In this estimate, a floor of \(\varepsilon > 10^{-10}\) is
+enforced to avoid division-by-zero errors.
 
 
 \subsubsection{PI controller}
 \label{Mathematics:pi-controller}\label{Mathematics:mathematics-adaptivity-errorcontrol-pi}
 Like with the previous method, the PI controller derives from those
-found in \phantomsection\label{Mathematics:id8}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}, \phantomsection\label{Mathematics:id9}{\hyperref[References:s1998]{\emph{{[}S1998{]}}}}, \phantomsection\label{Mathematics:id10}{\hyperref[References:s2003]{\emph{{[}S2003{]}}}} and \phantomsection\label{Mathematics:id11}{\hyperref[References:s2006]{\emph{{[}S2006{]}}}}, but it differs in
+found in \phantomsection\label{Mathematics:id7}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}, \phantomsection\label{Mathematics:id8}{\hyperref[References:s1998]{\emph{{[}S1998{]}}}}, \phantomsection\label{Mathematics:id9}{\hyperref[References:s2003]{\emph{{[}S2003{]}}}} and \phantomsection\label{Mathematics:id10}{\hyperref[References:s2006]{\emph{{[}S2006{]}}}}, but it differs in
 that it only uses the two most recent step sizes in its adaptivity
 algorithm,
 \begin{gather}
@@ -1411,9 +1321,6 @@ algorithm,
 \end{gather}
 Here, the default values of \(k_1\) and \(k_2\) default
 to 0.8 and 0.31, respectively, though they may be changed by the user.
-As with the previous controller, at initialization \(k_1 = k_2 =
-1.0\), and the floor of \(10^{-10}\) is enforced on the local error
-estimates.
 
 
 \subsubsection{I controller}
@@ -1429,7 +1336,7 @@ By default, \(k_1=1\), but that may be modified by the user.
 
 \subsubsection{Explicit Gustafsson controller}
 \label{Mathematics:explicit-gustafsson-controller}\label{Mathematics:mathematics-adaptivity-errorcontrol-egus}
-This step adaptivity algorithm was proposed in \phantomsection\label{Mathematics:id12}{\hyperref[References:g1991]{\emph{{[}G1991{]}}}}, and
+This step adaptivity algorithm was proposed in \phantomsection\label{Mathematics:id11}{\hyperref[References:g1991]{\emph{{[}G1991{]}}}}, and
 is primarily useful with explicit Runge-Kutta methods.
 In the notation of our earlier controllers, it has the form
 \phantomsection\label{Mathematics:equation-expGus}\begin{gather}
@@ -1441,13 +1348,13 @@ In the notation of our earlier controllers, it has the form
 \end{cases}\end{split}\label{Mathematics-expGus}
 \end{gather}
 The default values of \(k_1\) and \(k_2\) are 0.367 and 0.268,
-respectively.
+respectively, and may be modified by the user.
 
 
 \subsubsection{Implicit Gustafsson controller}
 \label{Mathematics:mathematics-adaptivity-errorcontrol-igus}\label{Mathematics:implicit-gustafsson-controller}
 A version of the above controller suitable for implicit Runge-Kutta
-methods was introduced in \phantomsection\label{Mathematics:id13}{\hyperref[References:g1994]{\emph{{[}G1994{]}}}}, and has the form
+methods was introduced in \phantomsection\label{Mathematics:id12}{\hyperref[References:g1994]{\emph{{[}G1994{]}}}}, and has the form
 \phantomsection\label{Mathematics:equation-impGus}\begin{gather}
 \begin{split}h' = \begin{cases}
    h_1 \varepsilon_1^{-1/p}, &\quad\text{on the first step}, \\
@@ -1472,7 +1379,7 @@ equation \eqref{Mathematics-impGus}, and selects
 Here, equation \eqref{Mathematics-expGus} uses \(k_1\) and
 \(k_2\) with default values of 0.367 and 0.268, while equation
 \eqref{Mathematics-impGus} sets both parameters to the input \(k_3\) that
-defaults to 0.95.
+defaults to 0.95.  All of these values may be modified by the user.
 
 
 \subsubsection{User-supplied controller}
@@ -1493,7 +1400,7 @@ i.e. \(f_E(t,y) \ne 0\) in ARKStep or for any problem in
 ERKStep, explicit and ImEx Runge-Kutta methods may benefit from
 additional user-supplied information regarding the explicit stability
 region.  All ARKode adaptivity methods utilize estimates of the local
-error.  It is often the case that such local error control will be
+error, and it is often the case that such local error control will be
 sufficient for method stability, since unstable steps will typically
 exceed the error control tolerances.  However, for problems in which
 \(f_E(t,y)\) includes even moderately stiff components, and
@@ -1565,16 +1472,19 @@ Additional information on this mode is provided in the sections
 
 \section{Algebraic solvers}
 \label{Mathematics:algebraic-solvers}\label{Mathematics:mathematics-algebraicsolvers}
-More specifically, when using the ARKStep time-stepping module for a
-problem involving either a nonzero implicit component, \(f_I(t,y)
-\ne 0\), or a non-identity mass matrix, \(M \ne I\), systems of
-linear or nonlinear algebraic equations must be solved at each stage
-and/or step of the method.  This section therefore focuses on the
-variety of mathematical methods provided in the ARKode infrastructure
-for such problems, including {\hyperref[Mathematics:mathematics-nonlinear]{\emph{\DUspan{}{nonlinear solvers}}}}, {\hyperref[Mathematics:mathematics-linear]{\emph{\DUspan{}{linear solvers}}}},
-{\hyperref[Mathematics:mathematics-preconditioning]{\emph{\DUspan{}{preconditioners}}}}, {\hyperref[Mathematics:mathematics-error]{\emph{\DUspan{}{iterative
-solver error control}}}}, {\hyperref[Mathematics:mathematics-predictors]{\emph{\DUspan{}{implicit predictors}}}}, and techniques used for simplifying the
-above solves when using non-time-dependent {\hyperref[Mathematics:mathematics-masssolve]{\emph{\DUspan{}{mass-matrices}}}}.
+When solving a problem involving either a nonzero implicit component,
+\(f_I(t,y) \ne 0\), or a non-identity mass matrix,
+\(M \ne I\), systems of linear or nonlinear algebraic equations
+must be solved at each stage and/or step of the method.  This section
+therefore focuses on the variety of mathematical methods provided in
+the ARKode infrastructure for such problems, including
+{\hyperref[Mathematics:mathematics-nonlinear]{\emph{\DUspan{}{nonlinear solvers}}}},
+{\hyperref[Mathematics:mathematics-linear]{\emph{\DUspan{}{linear solvers}}}},
+{\hyperref[Mathematics:mathematics-preconditioning]{\emph{\DUspan{}{preconditioners}}}},
+{\hyperref[Mathematics:mathematics-error]{\emph{\DUspan{}{iterative solver error control}}}},
+{\hyperref[Mathematics:mathematics-predictors]{\emph{\DUspan{}{implicit predictors}}}}, and techniques
+used for simplifying the above solves when using non-time-dependent
+{\hyperref[Mathematics:mathematics-masssolve]{\emph{\DUspan{}{mass-matrices}}}}.
 
 
 \subsection{Nonlinear solver methods}
@@ -1601,8 +1511,8 @@ on \(y\) then \eqref{Mathematics-Residual} corresponds to a nonlinear system of
 equations; if \(f_I(t,y)\) depends linearly on \(y\) then this
 is a linear system of equations.
 
-For systems of either type, ARKStep allows a choice of solution
-strategy. The default solver choice is a variant of \index{Newton's
+For systems of either type, ARKode provides a choice of solution
+strategies. The default solver choice is a variant of \index{Newton's
 method}Newton's
 method,
 \phantomsection\label{Mathematics:equation-Newton_iteration}\begin{gather}
@@ -1623,14 +1533,15 @@ J(t,z) = \frac{\partial f_I(t,z)}{\partial z}, \quad\text{and}\quad
 \gamma = h_n A^I_{i,i}.\end{split}\label{Mathematics-NewtonMatrix}
 \end{gather}
 When the problem involves an identity mass matrix, then as an
-alternate to Newton's method, ARKStep may instead solve for each stage
-\(z_i, i=1,\ldots,s\) using a \index{fixed point iteration}fixed point iteration
+alternative to Newton's method, ARKode provides a \index{fixed point
+iteration}fixed point
+iteration for solving the stages \(z_i, i=1,\ldots,s\),
 \phantomsection\label{Mathematics:equation-AAFP_iteration}\begin{gather}
 \begin{split}z_i^{(m+1)} = \Phi\left(z_i^{(m)}\right) \equiv z_i^{(m)} -
 G\left(z_i^{(m)}\right), \quad m=0,1,\ldots\end{split}\label{Mathematics-AAFP_iteration}
 \end{gather}
 This iteration may additionally be improved using a technique
-called ``Anderson acceleration''  \phantomsection\label{Mathematics:id14}{\hyperref[References:wn2011]{\emph{{[}WN2011{]}}}}.  Unlike with Newton's
+called ``Anderson acceleration''  \phantomsection\label{Mathematics:id13}{\hyperref[References:wn2011]{\emph{{[}WN2011{]}}}}.  Unlike with Newton's
 method, these methods \emph{do not} require the solution of a linear system
 at each iteration, instead opting for solution of a low-dimensional
 least-squares solution to construct the nonlinear update.
@@ -1639,10 +1550,10 @@ Finally, if the user specifies that \(f_I(t,y)\) depends linearly
 on \(y\), and if the Newton-based nonlinear solver is chosen, then
 the problem \eqref{Mathematics-Residual} will be solved using only a single Newton
 iteration. In this case, an additional user-supplied argument
-indicates whether this Jacobian is time-dependent or not, signaling to
-ARKStep whether the Jacobian or preconditioner needs to be recomputed
+indicates whether this Jacobian is time-dependent or not, signaling
+whether the Jacobian or preconditioner needs to be recomputed
 at each stage or time step, or if it can be reused throughout the full
-ARKStep simulation.
+simulation.
 
 The optimal choice of solver (Newton vs fixed-point) is highly
 problem dependent.  Since fixed-point solvers do not require the
@@ -1658,18 +1569,18 @@ improvement is most significant for ``small'' values, e.g. \(1\le
 m_k\le 5\), and that larger values of \(m_k\) may not result in
 improved convergence.
 
-While ARKStep uses a Newton-based iteration as its default solver due
+While a Newton-based iteration is the default solver due
 to its increased robustness on very stiff problems, we strongly
 recommend that users also consider the fixed-point solver when
 attempting a new problem.
 
 For either the Newton or fixed-point solvers, it is well-known that
 both the efficiency and robustness of the algorithm intimately depend
-on the choice of a good initial guess.  In ARKStep, the initial guess
+on the choice of a good initial guess.  The initial guess
 for these solvers is a prediction \(z_i^{(0)}\) that is computed
 explicitly from previously-computed data (e.g. \(y_{n-2}\),
 \(y_{n-1}\), and \(z_j\) where \(j<i\)).  Additional
-information on the specific ARKStep predictor algorithms
+information on the specific predictor algorithms
 is provided in the following section, {\hyperref[Mathematics:mathematics-predictors]{\emph{\DUspan{}{Implicit predictors}}}}.
 
 
@@ -1677,7 +1588,7 @@ is provided in the following section, {\hyperref[Mathematics:mathematics-predict
 \label{Mathematics:linear-solver-methods}\label{Mathematics:mathematics-linear}
 When a Newton-based method is chosen for solving each nonlinear
 system, a linear system of equations must be solved at each nonlinear
-iteration.  For this solve ARKStep provides several choices, including
+iteration.  For this solve ARKode provides several choices, including
 the option of a user-supplied linear solver module.  The linear solver
 modules distributed with SUNDIALS are organized into two families: a
 \emph{direct} family comprising direct linear solvers for dense, banded or
@@ -1697,8 +1608,8 @@ only),
 
 \item {}
 sparse direct solvers, using either the KLU sparse matrix library
-\phantomsection\label{Mathematics:id15}{\hyperref[References:klu]{\emph{{[}KLU{]}}}}, or the OpenMP or PThreads-enabled SuperLU\_MT sparse matrix
-library \phantomsection\label{Mathematics:id16}{\hyperref[References:superlumt]{\emph{{[}SuperLUMT{]}}}} {[}Note that users will need to download and
+\phantomsection\label{Mathematics:id14}{\hyperref[References:klu]{\emph{{[}KLU{]}}}}, or the OpenMP or PThreads-enabled SuperLU\_MT sparse matrix
+library \phantomsection\label{Mathematics:id15}{\hyperref[References:superlumt]{\emph{{[}SuperLUMT{]}}}} {[}Note that users will need to download and
 install the KLU or SuperLU\_MT packages independent of ARKode{]},
 
 \item {}
@@ -1706,7 +1617,7 @@ SPGMR, a scaled, preconditioned GMRES (Generalized Minimal Residual)
 solver,
 
 \item {}
-SPFGMR, a scaled, preconditioned Flexible GMRES (Generalized Minimal
+SPFGMR, a scaled, preconditioned FGMRES (Flexible Generalized Minimal
 Residual) solver,
 
 \item {}
@@ -1729,7 +1640,7 @@ Krylov method can yield a powerful tool because it combines
 established methods for stiff integration, nonlinear solver iteration,
 and Krylov (linear) iteration with a problem-specific treatment of the
 dominant sources of stiffness, in the form of a user-supplied
-preconditioner matrix \phantomsection\label{Mathematics:id17}{\hyperref[References:bh1989]{\emph{{[}BH1989{]}}}}.  We note that the direct linear
+preconditioner matrix \phantomsection\label{Mathematics:id16}{\hyperref[References:bh1989]{\emph{{[}BH1989{]}}}}.  We note that the direct linear
 solver interfaces provided by SUNDIALS are only designed to be used
 with the serial and threaded vector representations.
 
@@ -1737,9 +1648,8 @@ with the serial and threaded vector representations.
 
 \subsubsection{Direct linear solvers}
 \label{Mathematics:index-11}\label{Mathematics:direct-linear-solvers}\label{Mathematics:mathematics-linear-direct}
-In the case that a direct linear solver is used, ARKStep utilizes
-either a Newton or a \emph{modified Newton iteration}.  The difference
-between these is that in a modified Newton method, the matrix
+In the case that a direct linear solver is used, a \emph{modified Newton
+iteration} is utilized.  In a modified Newton method, the matrix
 \({\mathcal A}\) is held fixed for multiple Newton iterations.
 More precisely, each Newton iteration is computed from the modified
 equation
@@ -1757,8 +1667,7 @@ size \(\tilde{h}\) upon which the modified equation rely, are
 merely values of these quantities from a previous iteration.  In other
 words, the matrix \(\tilde{\mathcal A}\) is only computed rarely,
 and reused for repeated solves.  The frequency at which
-\(\tilde{\mathcal A}\) is recomputed, and hence the choice between
-normal and modified Newton iterations, defaults to 20, but may be
+\(\tilde{\mathcal A}\) is recomputed defaults to 20, but may be
 modified by the user.
 
 When using the dense and band solvers for the linear systems
@@ -1768,7 +1677,7 @@ In the case of differencing, we use the standard approximation
 \begin{gather}
 \begin{split}J_{i,j}(t,z) \approx \frac{f_{I,i}(t,z+\sigma_j e_j) - f_{I,i}(t,z)}{\sigma_j},\end{split}\notag
 \end{gather}
-where \(e_j\) is the jth unit vector, and the increments
+where \(e_j\) is the \(j\)-th unit vector, and the increments
 \(\sigma_j\) are given by
 \begin{gather}
 \begin{split}\sigma_j = \max\left\{ \sqrt{U}\, |z_j|, \frac{\sigma_0}{w_j} \right\}.\end{split}\notag
@@ -1788,13 +1697,13 @@ be supplied by a user routine.
 
 \subsubsection{Iterative linear solvers}
 \label{Mathematics:mathematics-linear-iterative}\label{Mathematics:index-12}\label{Mathematics:iterative-linear-solvers}
-In the case that an iterative linear solver is chosen, ARKStep utilizes a
-Newton method variant called an \emph{Inexact Newton iteration}.  Here, the
+In the case that an iterative linear solver is chosen, an \emph{inexact
+Newton iteration} is utilized.  Here, the
 matrix \({\mathcal A}\) is not itself constructed since the
 algorithms only require the product of this matrix with a given
 vector.  Additionally, each Newton system \eqref{Mathematics-Newton_system} is not
 solved completely, since these linear solvers are iterative (hence the
-``inexact'' in the name). As a result. for these linear solvers
+``inexact'' in the name). As a result, for these linear solvers
 \({\mathcal A}\) is applied in a matrix-free manner,
 \begin{gather}
 \begin{split}{\mathcal A}(t,z)\, v = Mv - \gamma\, J(t,z)\, v.\end{split}\notag
@@ -1811,7 +1720,7 @@ where the increment \(\sigma = 1/\|v\|\) to ensure that
 \(\|\sigma v\| = 1\).
 
 As with the modified Newton method that reused \({\mathcal A}\)
-between solves, ARKStep's inexact Newton iteration may also recompute
+between solves, the inexact Newton iteration may also recompute
 the preconditioner \(P\) infrequently to balance the high costs
 of matrix construction and factorization against the reduced
 convergence rate that may result from a stale preconditioner.
@@ -1822,18 +1731,20 @@ convergence rate that may result from a stale preconditioner.
 \label{Mathematics:updating-the-linear-solver}\label{Mathematics:mathematics-linear-setup}\label{Mathematics:index-13}
 In cases where recomputation of the Newton matrix
 \(\tilde{\mathcal A}\) or preconditioner \(P\) is lagged,
-ARKStep will force recomputation of these structures only in the
+these structures will be recomputed only in the
 following circumstances:
 \begin{itemize}
 \item {}
 when starting the problem,
 
 \item {}
-when more than 20 steps have been taken since the last update,
+when more than 20 steps have been taken since the last update (this
+value may be modified by the user),
 
 \item {}
-when the value \(\bar{\gamma}\) of \(\gamma\) at the last
-update satisfies \(\left|\gamma/\bar{\gamma} - 1\right| > 0.2\),
+when the value \(\tilde{\gamma}\) of \(\gamma\) at the last
+update satisfies \(\left|\gamma/\tilde{\gamma} - 1\right| >
+0.2\) (this value may be modified by the user),
 
 \item {}
 when a non-fatal convergence failure just occurred,
@@ -1863,8 +1774,8 @@ more than 50 steps have been taken since the last evaluation,
 
 \item {}
 a convergence failure occurred with an outdated matrix, and the
-value \(\bar{\gamma}\) of \(\gamma\) at the last update
-satisfies \(\left|\gamma/\bar{\gamma} - 1\right| > 0.2\),
+value \(\tilde{\gamma}\) of \(\gamma\) at the last update
+satisfies \(\left|\gamma/\tilde{\gamma} - 1\right| > 0.2\),
 
 \item {}
 a convergence failure occurred that forced a step size reduction, or
@@ -1883,8 +1794,7 @@ the above heuristics specify, since the increased rate of
 linear/nonlinear solver convergence may more than account for the
 additional cost of Jacobian/preconditioner construction.  To this end,
 a user may specify that the system matrix \({\mathcal A}\) and/or
-preconditioner \(P\) should be recomputed more frequently, or even
-at every Newton iteration.
+preconditioner \(P\) should be recomputed more frequently.
 
 As will be further discussed in the section
 {\hyperref[Mathematics:mathematics-preconditioning]{\emph{\DUspan{}{Preconditioning}}}}, in the case of most Krylov methods,
@@ -1898,14 +1808,14 @@ preconditioner setup and solve operations.
 
 \subsubsection{Nonlinear iteration error control}
 \label{Mathematics:nonlinear-iteration-error-control}\label{Mathematics:mathematics-error-nonlinear}
-The stopping test for all of the nonlinear solver algorithms in the
-ARKStep time-stepping module is related to the temporal local error
-test, with the goal of keeping the nonlinear iteration errors from
-interfering with local error control.  Denoting the final computed
-value of each stage solution as \(z_i^{(m)}\), and the true stage
-solution solving \eqref{Mathematics-Residual} as \(z_i\), we want to ensure that
-the iteration error \(z_i - z_i^{(m)}\) is ``small'' (recall that a
-norm less than 1 is already considered within an acceptable tolerance).
+The stopping test for all of the nonlinear solver algorithms is
+related to the temporal local error test, with the goal of keeping the
+nonlinear iteration errors from interfering with local error control.
+Denoting the final computed value of each stage solution as
+\(z_i^{(m)}\), and the true stage solution solving \eqref{Mathematics-Residual}
+as \(z_i\), we want to ensure that the iteration error
+\(z_i - z_i^{(m)}\) is ``small'' (recall that a norm less than 1 is
+already considered within an acceptable tolerance).
 
 To this end, we first estimate the linear convergence rate \(R_i\)
 of the nonlinear iteration.  We initialize \(R_i=1\), and reset it
@@ -1962,13 +1872,14 @@ the preconditioned linear residual satisfies
 \phantomsection\label{Mathematics:equation-LinearTolerance}\begin{gather}
 \begin{split}\|r\| \le \frac{\epsilon_L \epsilon}{10}.\end{split}\label{Mathematics-LinearTolerance}
 \end{gather}
-Here \(\epsilon\) is the same value as that used above for the
+Here \(\epsilon\) is the same value as that is used above for the
 nonlinear error control.  The factor of 10 is used to ensure that the
 linear solver error does not adversely affect the nonlinear solver
 convergence.  Smaller values for the parameter \(\epsilon_L\) are
 typically useful for strongly nonlinear or very stiff ODE systems,
 while easier ODE systems may benefit from a value closer to 1.  The
-default value is \(\epsilon_L = 0.05\).  We note that for linearly
+default value is \(\epsilon_L = 0.05\), which may be modified by
+the user.  We note that for linearly
 implicit problems the tolerance \eqref{Mathematics-LinearTolerance} is similarly
 used for the single Newton iteration.
 
@@ -1976,7 +1887,7 @@ used for the single Newton iteration.
 \subsection{Preconditioning}
 \label{Mathematics:mathematics-preconditioning}\label{Mathematics:preconditioning}
 When using an inexact Newton method to solve the nonlinear system
-\eqref{Mathematics-Residual}, ARKStep makes repeated use of an iterative method to solve
+\eqref{Mathematics-Residual}, an iterative method is used repeatedly to solve
 linear systems of the form \({\mathcal A}x = b\), where \(x\) is a
 correction vector and \(b\) is a residual vector.  If this
 iterative method is one of the scaled preconditioned iterative linear
@@ -2000,7 +1911,7 @@ cost-effective the matrix \(P\) (or matrices \(P_L\) and
 \(P_R\)) should be reasonably efficient to evaluate and solve.
 Finding an optimal point in this trade-off between rapid
 convergence and low cost can be quite challenging.  Good choices are
-often problem-dependent (for example, see \phantomsection\label{Mathematics:id18}{\hyperref[References:bh1989]{\emph{{[}BH1989{]}}}} for an
+often problem-dependent (for example, see \phantomsection\label{Mathematics:id17}{\hyperref[References:bh1989]{\emph{{[}BH1989{]}}}} for an
 extensive study of preconditioners for reaction-transport systems).
 
 Most of the iterative linear solvers supplied with SUNDIALS allow for
@@ -2021,7 +1932,7 @@ assumes a symmetric matrix \({\mathcal A}\), since the PCG
 algorithm in fact applies the single preconditioner matrix \(P\)
 in both left/right fashion as \(P^{-1/2} {\mathcal A} P^{-1/2}\).
 
-Typical preconditioners used with ARKStep are based on approximations
+Typical preconditioners are based on approximations
 to the system Jacobian, \(J = \partial f_I / \partial y\).  Since
 the Newton iteration matrix involved is \({\mathcal A} = M -
 \gamma J\), any approximation \(\bar{J}\) to \(J\) yields a
@@ -2040,23 +1951,22 @@ the Newton-Krylov method with no preconditioning.
 
 \subsection{Implicit predictors}
 \label{Mathematics:implicit-predictors}\label{Mathematics:mathematics-predictors}
-For problems with implicit components, ARKStep will employ a prediction
-algorithm for constructing the initial guesses for each implicit
+For problems with implicit components, a prediction algorithm is
+employed for constructing the initial guesses for each implicit
 Runge-Kutta stage, \(z_i^{(0)}\).  As is well-known with nonlinear
 solvers, the selection of a good initial guess can have dramatic
 effects on both the speed and robustness of the solve, making the
 difference between rapid quadratic convergence versus divergence of
-the iteration.  To this end, ARKStep implements a variety of
-prediction algorithms that may be selected by the user.  In each case,
-the stage guesses \(z_i^{(0)}\) are constructed explicitly using
-readily-available information, including the previous step solutions
-\(y_{n-1}\) and \(y_{n-2}\), as well as any previous stage
-solutions \(z_j, \quad j<i\).  In most cases, prediction is
-performed by constructing an interpolating polynomial through
-existing data, which is then evaluated at the desired stage time
-to provide an inexpensive but (hopefully) reasonable prediction of the
-stage solution.  Specifically, for most Runge-Kutta methods each stage
-solution satisfies
+the iteration.  To this end, a variety of prediction algorithms are
+provided.  In each case, the stage guesses \(z_i^{(0)}\) are
+constructed explicitly using readily-available information, including
+the previous step solutions \(y_{n-1}\) and \(y_{n-2}\), as
+well as any previous stage solutions \(z_j, \quad j<i\).  In most
+cases, prediction is performed by constructing an interpolating
+polynomial through existing data, which is then evaluated at the
+desired stage time to provide an inexpensive but (hopefully)
+reasonable prediction of the stage solution.  Specifically, for most
+Runge-Kutta methods each stage solution satisfies
 \begin{gather}
 \begin{split}z_i \approx y(t^I_{n,i}),\end{split}\notag
 \end{gather}
@@ -2076,7 +1986,7 @@ interval are well-known, with higher-order polynomials and predictions
 further outside the interval resulting in the greatest potential
 inaccuracies.
 
-The prediction algorithms available in ARKStep therefore
+The prediction algorithms available in ARKode therefore
 construct a variety of interpolants \(p_q(t)\), having
 different polynomial order and using different interpolation data, to
 support `optimal' choices for different types of problems, as
@@ -2098,12 +2008,12 @@ solution values (e.g. a negative density or temperature).
 
 \subsubsection{Maximum order predictor}
 \label{Mathematics:maximum-order-predictor}\label{Mathematics:mathematics-predictors-max}
-At the opposite end of the spectrum, ARKStep can utilize ARKode's
-{\hyperref[Mathematics:mathematics-interpolation]{\emph{\DUspan{}{interpolation module}}}} to construct a
-higher-order polynomial interpolant, \(p_q(t)\), based on the two
+At the opposite end of the spectrum, ARKode's
+{\hyperref[Mathematics:mathematics-interpolation]{\emph{\DUspan{}{interpolation module}}}} can be used to
+construct a higher-order polynomial interpolant, \(p_q(t)\), based on the two
 most-recently-computed solutions,
 \(\left\{ y_{n-2}, f_{n-2}, y_{n-1}, f_{n-1} \right\}\).
-ARKStep can then utilize \(p_q(t)\) to extrapolate predicted stage
+This can then be used to extrapolate predicted stage
 solutions for each stage time \(t^I_{n,i}\).  This polynomial
 order is the same as that specified by the user for dense output.
 
@@ -2174,7 +2084,7 @@ currently implemented, so selection of this predictor in the case that
 
 \subsubsection{Minimum correction predictor}
 \label{Mathematics:minimum-correction-predictor}\label{Mathematics:mathematics-predictors-minimumcorrection}
-The last ARKStep predictor is not interpolation based; instead it
+The last predictor is not interpolation based; instead it
 utilizes all existing stage information from the current step to
 create a predictor containing all but the current stage solution.
 Specifically, as discussed in equations \eqref{Mathematics-ARK} and \eqref{Mathematics-Residual},
@@ -2200,7 +2110,7 @@ currently implemented, so selection of this predictor in the case that
 
 \subsection{Mass matrix solver}
 \label{Mathematics:mass-matrix-solver}\label{Mathematics:mathematics-masssolve}
-Within the ARKStep algorithms described above, there are multiple
+Within the algorithms described above, there are multiple
 locations where a matrix-vector product
 \phantomsection\label{Mathematics:equation-mass_multiply}\begin{gather}
 \begin{split}b = M v\end{split}\label{Mathematics-mass_multiply}
@@ -2213,18 +2123,18 @@ are required.
 
 Of course, for problems in which \(M=I\) both of these operators
 are trivial.  However for problems with non-identity \(M\),
-ARKStep may handle these linear solves \eqref{Mathematics-mass_solve} using either
+these linear solves \eqref{Mathematics-mass_solve} may be handled using either
 an iterative linear solver or a direct linear solver, in the same
 manner as described in the section {\hyperref[Mathematics:mathematics-linear]{\emph{\DUspan{}{Linear solver methods}}}} for
 solving the linear Newton systems.
 
 At present, for DIRK and ARK problems using a direct solver for
-the Newton nonlinear iterations, the type of matrix (dense, band or
+the Newton nonlinear iterations, the type of matrix (dense, band, or
 sparse) for the Jacobian matrix \(J\) must match the type of mass
 matrix \(M\), since these are combined to form the Newton system
 matrix \(\tilde{\mathcal A}\).  When direct methods are employed,
 the user must supply a routine to compute \(M\) in either dense,
-band or sparse form to match the structure of \({\mathcal A}\),
+band, or sparse form to match the structure of \({\mathcal A}\),
 with a user-supplied routine of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKDlsMassFn]{\emph{\code{ARKDlsMassFn()}}}}.  This
 matrix structure is used internally to perform any requisite mass
 matrix-vector products \eqref{Mathematics-mass_multiply}.
@@ -2283,6 +2193,103 @@ In total, these require only two mass-matrix linear solves
 completion of a time step that meets the solution accuracy
 requirements.  When fixed time-stepping is used (\(h_n=h\)), the
 solve \eqref{Mathematics-mass_solve_LTE} is not performed at each attempted step.
+\section{Rootfinding}
+\label{Mathematics:mathematics-rootfinding}\label{Mathematics:rootfinding}
+Many of the time-stepping modules in ARKode also support a rootfinding
+feature.  This means that, while integrating the IVP \eqref{Mathematics-IVP}, these
+can also find the roots of a set of user-defined functions
+\(g_i(t,y)\) that depend on \(t\) and the solution vector
+\(y = y(t)\). The number of these root functions is arbitrary, and
+if more than one \(g_i\) is found to have a root in any given
+interval, the various root locations are found and reported in the
+order that they occur on the \(t\) axis, in the direction of
+integration.
+
+Generally, this rootfinding feature finds only roots of odd
+multiplicity, corresponding to changes in sign of \(g_i(t,
+y(t))\), denoted \(g_i(t)\) for short. If a user root function has
+a root of even multiplicity (no sign change), it will almost certainly
+be missed due to the realities of floating-point arithmetic.  If such
+a root is desired, the user should reformulate the root function so
+that it changes sign at the desired root.
+
+The basic scheme used is to check for sign changes of any
+\(g_i(t)\) over each time step taken, and then (when a sign change
+is found) to home in on the root (or roots) with a modified secant
+method \phantomsection\label{Mathematics:id18}{\hyperref[References:hs1980]{\emph{{[}HS1980{]}}}}.  In addition, each time \(g\) is
+evaluated, ARKode checks to see if \(g_i(t) = 0\) exactly, and if
+so it reports this as a root.  However, if an exact zero of any
+\(g_i\) is found at a point \(t\), ARKode computes
+\(g(t+\delta)\) for a small increment \(\delta\), slightly
+further in the direction of integration, and if any
+\(g_i(t+\delta) = 0\) also, ARKode stops and reports an
+error. This way, each time ARKode takes a time step, it is guaranteed
+that the values of all \(g_i\) are nonzero at some past value of
+\(t\), beyond which a search for roots is to be done.
+
+At any given time in the course of the time-stepping, after suitable
+checking and adjusting has been done, ARKode has an interval
+\((t_\text{lo}, t_\text{hi}]\) in which roots of the
+\(g_i(t)\) are to be sought, such that \(t_\text{hi}\) is
+further ahead in the direction of integration, and all
+\(g_i(t_\text{lo}) \ne 0\).  The endpoint \(t_\text{hi}\) is
+either \(t_n\), the end of the time step last taken, or the next
+requested output time \(t_\text{out}\) if this comes sooner. The
+endpoint \(t_\text{lo}\) is either \(t_{n-1}\), or the last
+output time \(t_\text{out}\) (if this occurred within the last
+step), or the last root location (if a root was just located within
+this step), possibly adjusted slightly toward \(t_n\) if an exact
+zero was found. The algorithm checks \(g(t_\text{hi})\) for zeros, and
+it checks for sign changes in \((t_\text{lo}, t_\text{hi})\). If no sign
+changes are found, then either a root is reported (if some
+\(g_i(t_\text{hi}) = 0\)) or we proceed to the next time interval
+(starting at \(t_\text{hi}\)). If one or more sign changes were found,
+then a loop is entered to locate the root to within a rather tight
+tolerance, given by
+\begin{gather}
+\begin{split}\tau = 100\, U\, (|t_n| + |h|)\qquad (\text{where}\; U = \text{unit roundoff}).\end{split}\notag
+\end{gather}
+Whenever sign changes are seen in two or more root functions, the one
+deemed most likely to have its root occur first is the one with the
+largest value of
+\(\left|g_i(t_\text{hi})\right| / \left| g_i(t_\text{hi}) - g_i(t_\text{lo})\right|\),
+corresponding to the closest to \(t_\text{lo}\) of the secant method
+values. At each pass through the loop, a new value \(t_\text{mid}\) is
+set, strictly within the search interval, and the values of
+\(g_i(t_\text{mid})\) are checked. Then either \(t_\text{lo}\) or
+\(t_\text{hi}\) is reset to \(t_\text{mid}\) according to which
+subinterval is found to have the sign change. If there is none in
+\((t_\text{lo}, t_\text{mid})\) but some \(g_i(t_\text{mid}) = 0\), then that
+root is reported. The loop continues until \(\left|t_\text{hi} -
+t_\text{lo} \right| < \tau\), and then the reported root location is
+\(t_\text{hi}\).  In the loop to locate the root of \(g_i(t)\), the
+formula for \(t_\text{mid}\) is
+\begin{gather}
+\begin{split}t_\text{mid} = t_\text{hi} -
+\frac{g_i(t_\text{hi}) (t_\text{hi} - t_\text{lo})}{g_i(t_\text{hi}) - \alpha g_i(t_\text{lo})} ,\end{split}\notag
+\end{gather}
+where \(\alpha\) is a weight parameter. On the first two passes
+through the loop, \(\alpha\) is set to 1, making \(t_\text{mid}\)
+the secant method value. Thereafter, \(\alpha\) is reset according
+to the side of the subinterval (low vs high, i.e. toward
+\(t_\text{lo}\) vs toward \(t_\text{hi}\)) in which the sign change was
+found in the previous two passes. If the two sides were opposite,
+\(\alpha\) is set to 1. If the two sides were the same, \(\alpha\)
+is halved (if on the low side) or doubled (if on the high side). The
+value of \(t_\text{mid}\) is closer to \(t_\text{lo}\) when
+\(\alpha < 1\) and closer to \(t_\text{hi}\) when \(\alpha > 1\).
+If the above value of \(t_\text{mid}\) is within \(\tau /2\) of
+\(t_\text{lo}\) or \(t_\text{hi}\), it is adjusted inward, such that its
+fractional distance from the endpoint (relative to the interval size)
+is between 0.1 and 0.5 (with 0.5 being the midpoint), and the actual
+distance from the endpoint is at least \(\tau/2\).
+
+Finally, we note that when running in parallel, ARKode's rootfinding
+module assumes that the entire set of root defining functions
+\(g_i(t,y)\) is replicated on every MPI task.  Since in these
+cases the vector \(y\) is distributed across tasks, it is the
+user's responsibility to perform any necessary inter-task
+communication to ensure that \(g_i(t,y)\) is identical on each task.
 
 
 \chapter{Code Organization}
@@ -2312,7 +2319,7 @@ CVODES, a linear multistep solver for stiff and nonstiff ODEs with
 sensitivity analysis capabilities;
 
 \item {}
-ARKode, a Runge-Kutta based solver for stiff, nonstiff and mixed ODE systems;
+ARKode, a Runge-Kutta based solver for stiff, nonstiff, and mixed ODE systems;
 
 \item {}
 IDA, a linear multistep solver for differential-algebraic systems
@@ -2482,17 +2489,17 @@ language setting.  The following sections discuss the header files and
 the layout of the user's main program, and provide descriptions of the
 ARKStep user-callable functions and user-supplied functions.
 
-The example programs described in the companion document \phantomsection\label{ARKStep_c_interface/index:id1}{\hyperref[References:r2013]{\emph{{[}R2013{]}}}} may
+The example programs described in the companion document \phantomsection\label{ARKStep_c_interface/index:id1}{\hyperref[References:r2018]{\emph{{[}R2018{]}}}} may
 be helpful. Those codes may be used as templates for new codes and are
 included in the ARKode package \code{examples} subdirectory.
 
 Users with applications written in Fortran should see the chapter
 {\hyperref[ARKStep_f_interface/index:fortraninterface]{\emph{\DUspan{}{FARKODE, an Interface Module for FORTRAN Applications}}}}, which describes the Fortran/C interface
 module for ARKStep, and may look to the Fortran example programs also
-described in the companion document \phantomsection\label{ARKStep_c_interface/index:id2}{\hyperref[References:r2013]{\emph{{[}R2013{]}}}}.  These codes are also
+described in the companion document \phantomsection\label{ARKStep_c_interface/index:id2}{\hyperref[References:r2018]{\emph{{[}R2018{]}}}}.  These codes are also
 located in the ARKode package \code{examples} directory.
 
-The user should be aware that not all SUNLINSOL, SUNMATRIX and
+The user should be aware that not all SUNLINSOL, SUNMATRIX, and
 preconditioning modules are compatible with all NVECTOR
 implementations.  Details on compatability are given in the
 documentation for each SUNMATRIX (see {\hyperref[sunmatrix/index:sunmatrix]{\emph{\DUspan{}{Matrix Data Structures}}}}) and each
@@ -2512,7 +2519,7 @@ convenience the full list is provided separately in the section
 {\hyperref[Constants:constants]{\emph{\DUspan{}{Appendix: ARKode Constants}}}}.
 
 The relevant information on using ARKStep's C and C++ interfaces is
-detailed in the following sub-sections:
+detailed in the following sub-sections.
 
 
 \section{Access to library and header files}
@@ -2530,7 +2537,7 @@ ARKode. The relevant library files are
 \code{libdir/libsundials\_arkode.lib},
 
 \item {}
-\code{libdir/libsundials\_nvec*.lib} (one or two files),
+\code{libdir/libsundials\_nvec*.lib},
 
 \end{itemize}
 
@@ -2637,7 +2644,7 @@ will work with both index storage types except for any calls to index storage-sp
 external libraries. (Our \code{C} and \code{C++} example programs use \code{sunindextype}.)
 Users can, however, use any one of \code{int}, \code{long int}, \code{int32\_t}, \code{int64\_t} or
 \code{long long int} in their code, assuming that this usage is consistent with the typedef
-for \code{sunindextype} on their architecture). Thus, a previously existing piece of ANSI
+for \code{sunindextype} on their architecture. Thus, a previously existing piece of ANSI
 C code can use SUNDIALS without modifying the code to use \code{sunindextype},
 so long as the SUNDIALS libraries use the appropriate index storage type (for details
 see the section {\hyperref[Install:installation]{\emph{\DUspan{}{ARKode Installation Procedure}}}}).
@@ -2905,7 +2912,7 @@ If a problem with non-identity mass matrix is used, and the
 solution units differ considerably from the equation units,
 absolute tolerances for the equation residuals (nonlinear and
 linear) may be specified separately through calls to
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepResStolerance]{\emph{\code{ARKStepResStolerance()}}}}, {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepResVtolerance]{\emph{\code{ARKStepResVtolerance()}}}} or
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepResStolerance]{\emph{\code{ARKStepResStolerance()}}}}, {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepResVtolerance]{\emph{\code{ARKStepResVtolerance()}}}}, or
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepResFtolerance]{\emph{\code{ARKStepResFtolerance()}}}}.
 
 \item {}
@@ -2937,13 +2944,11 @@ particular SUNLINSOL implementation.
 
 \item {}
 Set linear solver optional inputs
-\begin{quote}
 
 Call \code{*Set*} functions from the selected linear solver module
 to change optional inputs specific to that linear solver.  See the
 documentation for each SUNLINSOL module in the section
 {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Linear Solver Data Structures}}}} for details.
-\end{quote}
 
 \item {}
 Attach linear solver module
@@ -2982,7 +2987,7 @@ section {\hyperref[ARKStep_c_interface/User_callable:arkstep-cinterface-optional
 \item {}
 Specify rootfinding problem
 
-Optionally, call \code{ARKodeRootInit()} to initialize a rootfinding
+Optionally, call {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepRootInit]{\emph{\code{ARKStepRootInit()}}}} to initialize a rootfinding
 problem to be solved during the integration of the ODE system. See
 the section {\hyperref[ARKStep_c_interface/User_callable:arkstep-cinterface-rootfinding]{\emph{\DUspan{}{Rootfinding initialization function}}}} for general details, and
 the section {\hyperref[ARKStep_c_interface/User_callable:arkstep-cinterface-optionalinputs]{\emph{\DUspan{}{Optional input functions}}}} for relevant optional
@@ -3289,11 +3294,12 @@ skipped for a casual use of ARKode's ARKStep module. In any case,
 refer to the preceding section, {\hyperref[ARKStep_c_interface/Skeleton:arkstep-cinterface-skeleton]{\emph{\DUspan{}{A skeleton of the user's main program}}}},
 for the correct order of these calls.
 
-On an error, each user-callable function returns a negative value and
-sends an error message to the error handler routine, which prints the
-message on \code{stderr} by default. However, the user can set a file as
-error output or can provide her own error handler function
-(see the section {\hyperref[ARKStep_c_interface/User_callable:arkstep-cinterface-optionalinputs]{\emph{\DUspan{}{Optional input functions}}}} for details).
+On an error, each user-callable function returns a negative value (or
+\code{NULL} if the function returns a pointer) and sends an error message
+to the error handler routine, which prints the message to \code{stderr}
+by default. However, the user can set a file as error output or can
+provide her own error handler function (see the section
+{\hyperref[ARKStep_c_interface/User_callable:arkstep-cinterface-optionalinputs]{\emph{\DUspan{}{Optional input functions}}}} for details).
 
 
 \subsection{ARKStep initialization and deallocation functions}
@@ -3377,7 +3383,7 @@ are given by
 \end{Verbatim}
 
 This vector is used in all error and convergence tests, which use a
-weighted RMS norm on all error-like vectors v:
+weighted RMS norm on all error-like vectors \(v\):
 \begin{gather}
 \begin{split}\|v\|_{WRMS} = \left( \frac{1}{N} \sum_{i=1}^N (v_i\; ewt_i)^2 \right)^{1/2},\end{split}\notag
 \end{gather}
@@ -3521,7 +3527,7 @@ are given by
 
 This residual weight vector is used in all iterative solver
 convergence tests, which similarly use a weighted RMS norm on all
-residual-like vectors v:
+residual-like vectors \(v\):
 \begin{gather}
 \begin{split}\|v\|_{WRMS} = \left( \frac{1}{N} \sum_{i=1}^N (v_i\; rwt_i)^2 \right)^{1/2},\end{split}\notag
 \end{gather}
@@ -3638,7 +3644,7 @@ that implements the residual weight vector computation.
 \subsubsection{General advice on the choice of tolerances}
 \label{ARKStep_c_interface/User_callable:general-advice-on-the-choice-of-tolerances}
 For many users, the appropriate choices for tolerance values in
-\code{reltol}, \code{abstol} and \code{rabstol} are a concern. The following pieces
+\code{reltol}, \code{abstol}, and \code{rabstol} are a concern. The following pieces
 of advice are relevant.
 \begin{enumerate}
 \item {}
@@ -3661,7 +3667,7 @@ scalar) or \code{abstol{[}i{]}} (if a vector) needs to be set to that
 noise level. If the different components have different noise
 levels, then \code{abstol} should be a vector.  For example, see the
 example problem \code{ark\_robertson.c}, and the discussion
-of it in the ARKode Examples Documentation \phantomsection\label{ARKStep_c_interface/User_callable:id1}{\hyperref[References:r2013]{\emph{{[}R2013{]}}}}.  In that
+of it in the ARKode Examples Documentation {[}R2013{]}.  In that
 problem, the three components vary between 0 and 1, and have
 different noise levels; hence the \code{atols} vector therein. It is
 impossible to give any general advice on \code{abstol} values,
@@ -3685,8 +3691,8 @@ individual step. The final (global) errors are an accumulation of
 those per-step errors, where that accumulation factor is
 problem-dependent.  A general rule of thumb is to reduce the
 tolerances by a factor of 10 from the actual desired limits on
-errors.  I.e. if you want .01\% relative accuracy (globally), a good
-choice for \code{reltol} is \(10^{-5}\).  But in any case, it is
+errors.  So if you want .01\% relative accuracy (globally), a good
+choice for \code{reltol} is \(10^{-5}\).  In any case, it is
 a good idea to do a few experiments with the tolerances to see how
 the computed solution values vary as tolerances are reduced.
 
@@ -3748,7 +3754,7 @@ unsuccessful.
 \subsection{Linear solver interface functions}
 \label{ARKStep_c_interface/User_callable:linear-solver-interface-functions}\label{ARKStep_c_interface/User_callable:arkstep-cinterface-linearsolvers}
 As previously explained, the Newton iterations used in solving
-implicit systems within ARKStep requires the solution of linear
+implicit systems within ARKStep require the solution of linear
 systems of the form
 \begin{gather}
 \begin{split}{\mathcal A}\left(z_i^{(m)}\right) \delta^{(m+1)} = -G\left(z_i^{(m)}\right)\end{split}\notag
@@ -4010,7 +4016,7 @@ header file  \code{arkode/arkode\_direct.h}.
 the independent variable (\(M = M(t)\)) or not (\(M
 \ne M(t)\)).  \code{SUNTRUE} indicates time-dependence of the
 mass matrix.
-\emph{Currently, only values of ``SUNFALSE'' are supported}
+\emph{Currently, only values of ``SUNFALSE'' are supported}.
 
 \end{itemize}
 
@@ -4083,7 +4089,7 @@ solver interface.  Its use requires inclusion of the header file
 the independent variable (\(M = M(t)\)) or not (\(M
 \ne M(t)\)).  \code{SUNTRUE} indicates time-dependence of the
 mass matrix.
-\emph{Currently, only values of ``SUNFALSE'' are supported}
+\emph{Currently, only values of ``SUNFALSE'' are supported}.
 
 \end{itemize}
 
@@ -4212,47 +4218,45 @@ Integrates the ODE over an interval in \(t\).
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {}
-\emph{tout} -- the next time at which a computed solution is desired
+\emph{tout} -- the next time at which a computed solution is desired.
 
 \item {}
-\emph{yout} -- the computed solution vector
+\emph{yout} -- the computed solution vector.
 
 \item {}
-\emph{tret} -- the time corresponding to \emph{yout} (output)
+\emph{tret} -- the time corresponding to \emph{yout} (output).
 
 \item {}
 \emph{itask} -- a flag indicating the job of the solver for the next
 user step.
 
-The \emph{ARK\_NORMAL} option causes the solver to take internal steps
-until it has reached or just passed the user-specified \emph{tout}
-parameter. The solver then interpolates in order to return an
-approximate value of \(y(tout)\).  This interpolation may be
-slightly less accurate than the full time step solutions
-produced by the solver, since the interpolation uses a cubic
-Hermite polynomial even when the RK method is of higher order.
+The \emph{ARK\_NORMAL} option causes the solver to take internal
+steps until it has just overtaken a user-specified output
+time, \emph{tout}, in the direction of integration,
+i.e. \(t_{n-1} <\) \emph{tout} \(\le t_{n}\) for forward
+integration, or \(t_{n} \le\) \emph{tout} \(< t_{n-1}\) for
+backward integration.  It will then compute an approximation
+to the solution \(y`(*tout*) by interpolation (using one
+of the dense output routines described in the section
+:ref:`Mathematics.Interpolation\)).
 
-If full method accuracy is desired, issue a call to
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetStopTime]{\emph{\code{ARKStepSetStopTime()}}}} before the call to
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepEvolve]{\emph{\code{ARKStepEvolve()}}}} to specify a fixed stop time to
-end the time step and return to the user.  Once the integrator
-returns at a \emph{tstop} time, any future testing for \emph{tstop} is
-disabled (and can be re-enabled only though a new call to
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetStopTime]{\emph{\code{ARKStepSetStopTime()}}}}).
-
-The \emph{ARK\_ONE\_STEP} option tells the solver to take just one
-internal step and then return the solution at the point
-reached by that step.
+The \emph{ARK\_ONE\_STEP} option tells the solver to only take a
+single internal step \(y_{n-1} \to y_{n}\) and then return
+control back to the calling program.  If this step will
+overtake \emph{tout} then the solver will again return an
+interpolated result; otherwise it will return a copy of the
+internal solution \(y_{n}\) in the vector \emph{yout}
 
 \end{itemize}
 
 \item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
 \item {}
-\emph{ARK\_SUCCESS} if successful
+\emph{ARK\_SUCCESS} if successful.
 
 \item {}
 \emph{ARK\_ROOT\_RETURN} if {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepEvolve]{\emph{\code{ARKStepEvolve()}}}} succeeded, and
-found one or more roots.  If \emph{nrtfn} is greater than 1, call
+found one or more roots.  If the number of root functions,
+\emph{nrtfn}, is greater than 1, call
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepGetRootInfo]{\emph{\code{ARKStepGetRootInfo()}}}} to see which \(g_i\) were
 found to have a root at (\emph{*tret}).
 
@@ -4272,8 +4276,6 @@ returned at \emph{tstop}.
 the solver was either illegal or missing.  Details will be
 provided in the error message.  Typical causes of this failure:
 \begin{enumerate}
-\item {}
-The tolerances have not been set.
 
 \item {}
 A component of the error weight vector became zero during
@@ -4348,6 +4350,16 @@ variable. All failure return values are negative and so testing the
 return argument for negative values will trap all
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepEvolve]{\emph{\code{ARKStepEvolve()}}}} failures.
 
+Since interpolation may reduce the accuracy in the reported
+solution, if full method accuracy is desired the user should issue
+a call to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetStopTime]{\emph{\code{ARKStepSetStopTime()}}}} before the call to
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepEvolve]{\emph{\code{ARKStepEvolve()}}}} to specify a fixed stop time to
+end the time step and return to the user.  Upon return from
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepEvolve]{\emph{\code{ARKStepEvolve()}}}}, a copy of the internal solution
+\(y_{n}\) will be returned in the vector \emph{yout}.  Once the
+integrator returns at a \emph{tstop} time, any future testing for
+\emph{tstop} is disabled (and can be re-enabled only though a new call
+to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetStopTime]{\emph{\code{ARKStepSetStopTime()}}}}).
 On any error return in which one or more internal steps were taken
 by {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepEvolve]{\emph{\code{ARKStepEvolve()}}}}, the returned values of \emph{tret} and
 \emph{yout} correspond to the farthest point reached in the integration.
@@ -4556,7 +4568,7 @@ root-finding (those can be reset using {\hyperref[ARKStep_c_interface/User_calla
 
 \begin{fulllineitems}
 \phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetDenseOrder}\pysiglinewithargsret{int \bfcode{ARKStepSetDenseOrder}}{void*\emph{ arkode\_mem}, int\emph{ dord}}{}
-Specifies the order of accuracy for the polynomial interpolant
+Specifies the degree of the polynomial interpolant
 used for dense output (i.e. interpolation of solution output values
 and implicit method predictors).
 \begin{description}
@@ -4565,7 +4577,7 @@ and implicit method predictors).
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {}
-\emph{dord} -- requested polynomial order of accuracy
+\emph{dord} -- requested polynomial order of accuracy.
 
 \end{itemize}
 
@@ -4583,7 +4595,7 @@ and implicit method predictors).
 
 \end{description}
 
-\textbf{Notes:} Allowed values are between 0 and \code{min(q,3)}, where \code{q} is
+\textbf{Notes:} Allowed values are between 0 and \code{min(q,5)}, where \code{q} is
 the order of the overall integration method.
 
 \end{fulllineitems}
@@ -4600,7 +4612,7 @@ all ARKStep step adaptivity and solver information is written.
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {}
-\emph{diagfp} -- pointer to the diagnostics output file
+\emph{diagfp} -- pointer to the diagnostics output file.
 
 \end{itemize}
 
@@ -4664,7 +4676,7 @@ function is used.
 
 Passing a \code{NULL} value disables all future error message output
 (except for the case wherein the ARKStep memory pointer is
-\code{NULL}.  This use of the function is strongly discouraged.
+\code{NULL}).  This use of the function is strongly discouraged.
 
 If used, this routine should be called before any other
 optional input functions, in order to take effect for subsequent
@@ -4688,7 +4700,7 @@ in handling error messages.
 
 \item {}
 \emph{eh\_data} -- pointer to user data passed to \emph{ehfun} every time
-it is called
+it is called.
 
 \end{itemize}
 
@@ -4723,7 +4735,7 @@ fixed time step size to use for all internal steps.
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {}
-\emph{hfixed} -- value of the fixed step size to use
+\emph{hfixed} -- value of the fixed step size to use.
 
 \end{itemize}
 
@@ -4793,7 +4805,7 @@ initialization or re-initialization.
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {}
-\emph{hin} -- value of the initial step to be attempted \((\ge 0)\)
+\emph{hin} -- value of the initial step to be attempted \((\ne 0)\)
 
 \end{itemize}
 
@@ -4907,7 +4919,7 @@ Specifies the upper bound on the magnitude of the time step size.
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {}
-\emph{hmax} -- maximum absolute value of the time step size \((\ge 0)\)
+\emph{hmax} -- maximum absolute value of the time step size \((\ge 0)\).
 
 \end{itemize}
 
@@ -4940,7 +4952,7 @@ Specifies the lower bound on the magnitude of the time step size.
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {}
-\emph{hmin} -- minimum absolute value of the time step size \((\ge 0)\)
+\emph{hmin} -- minimum absolute value of the time step size \((\ge 0)\).
 
 \end{itemize}
 
@@ -5048,7 +5060,7 @@ permitted in attempting one step, before returning with an error.
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {}
-\emph{maxnef} -- maximum allowed number of error test failures \((>0)\)
+\emph{maxnef} -- maximum allowed number of error test failures \((>0)\).
 
 \end{itemize}
 
@@ -5169,7 +5181,7 @@ internal
 \begin{fulllineitems}
 \phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetOrder}\pysiglinewithargsret{int \bfcode{ARKStepSetOrder}}{void*\emph{ arkode\_mem}, int\emph{ ord}}{}
 Specifies the order of accuracy for the ARK/DIRK/ERK integration
-method in the ARK time-stepper module.
+method.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {}
@@ -5244,7 +5256,7 @@ pointers \emph{fe} or \emph{fi} passed to {\hyperref[ARKStep_c_interface/User_ca
 \begin{fulllineitems}
 \phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetExplicit}\pysiglinewithargsret{int \bfcode{ARKStepSetExplicit}}{void*\emph{ arkode\_mem}}{}
 Specifies that the implicit portion of problem is disabled,
-and to use an explicit RK method in the ARK time-stepper module.
+and to use an explicit RK method.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {}
@@ -5435,6 +5447,8 @@ or ARK method.
 \end{description}
 
 \textbf{Notes:}
+The allowable values for both the \emph{itable} and \emph{etable} arguments
+corresponding to built-in tables may be found {\hyperref[Butcher:butcher]{\emph{\DUspan{}{Appendix: Butcher tables}}}}.
 
 To choose an explicit table, set \emph{itable} to a negative value.  This
 automatically calls {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetExplicit]{\emph{\code{ARKStepSetExplicit()}}}}.  However, if
@@ -5554,7 +5568,7 @@ Explicit stability function
  &
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetStabilityFn]{\emph{\code{ARKStepSetStabilityFn()}}}}
  &
-internal
+none
 \\
 \hline\end{tabulary}
 
@@ -5621,7 +5635,7 @@ parameters (1), or that they will be supplied in the
 \item {}
 \emph{pq} -- flag denoting whether to use the embedding order of
 accuracy \emph{p} (0) or the method order of accuracy \emph{q} (1)
-within the adaptivity algorithm.  \emph{p} is the ARKStep default.
+within the adaptivity algorithm.  \emph{p} is the default.
 
 \item {}
 \emph{adapt\_params{[}0{]}} -- \(k_1\) parameter within accuracy-based adaptivity algorithms.
@@ -6166,7 +6180,8 @@ ARKStep memory block, it cannot be changed after the first call to
 \begin{fulllineitems}
 \phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetNewton}\pysiglinewithargsret{int \bfcode{ARKStepSetNewton}}{void*\emph{ arkode\_mem}}{}
 Specifies that the implicit portion of the problem should be solved
-using the modified Newton solver.
+using the modified or inexact Newton solver, depending on the type
+of linear solver attached to ARKStep.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {}
@@ -6230,8 +6245,8 @@ single Newton iteration.  Calls {\hyperref[ARKStep_c_interface/User_callable:c.A
 to enforce Jacobian recomputation when the step size ratio changes
 by more than 100 times the unit roundoff (since nonlinear
 convergence is not tested).  Only applicable when used in
-combination with the modified Newton iteration (not the fixed-point
-solver).
+combination with the modified or inexact Newton iteration (not the
+fixed-point solver).
 
 \end{fulllineitems}
 
@@ -6508,8 +6523,8 @@ linear solver setup routine (default is 0.2).
 \phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetMaxStepsBetweenLSet}\pysiglinewithargsret{int \bfcode{ARKStepSetMaxStepsBetweenLSet}}{void*\emph{ arkode\_mem}, int\emph{ msbp}}{}
 Specifies the frequency of calls to the linear solver setup
 routine.  Positive values specify the number of time steps between
-setup calls; negative values force recomputation at each Newton
-step; zero values reset to the default.
+setup calls; negative values force recomputation at each stage
+solve; zero values reset to the default.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {}
@@ -6517,8 +6532,8 @@ step; zero values reset to the default.
 
 \item {}
 \emph{msbp} -- maximum number of time steps between linear solver
-setup calls, or flag to force recomputation at each Newton
-iteration (default is 20).
+setup calls, or flag to force recomputation at each stage
+solve (default is 20).
 
 \end{itemize}
 
@@ -6710,6 +6725,8 @@ ARKDLS interface.
 
 \item {}
 \emph{ARKDLS\_MASSMEM\_NULL} if the mass matrix solver memory was \code{NULL}
+\item {} 
+\emph{ARKDLS\_ILL\_INPUT} if an argument has an illegal value
 
 \end{itemize}
 
@@ -6781,7 +6798,7 @@ user-supplied, since there is no default value.  \emph{mtimes} must be
 of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKSpilsMassTimesVecFn]{\emph{\code{ARKSpilsMassTimesVecFn()}}}}, and can be specified
 through a call to the  {\hyperref[ARKStep_c_interface/User_callable:c.ARKSpilsSetMassTimes]{\emph{\code{ARKSpilsSetMassTimes()}}}} routine.
 As with the user-supplied preconditioner functions, the evaluation and
-processing of any Jacobian-related data needed by the user's
+processing of any mass matrix-related data needed by the user's
 mass-matrix-times-vector function is done in the optional user-supplied
 function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKSpilsMassTimesSetupFn]{\emph{\code{ARKSpilsMassTimesSetupFn}}}} (see the section
 {\hyperref[ARKStep_c_interface/User_supplied:arkstep-cinterface-usersupplied]{\emph{\DUspan{}{User-supplied functions}}}} for specification details).
@@ -6902,7 +6919,7 @@ interface has been initialized through a call to
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKSpilsSetLinearSolver]{\emph{\code{ARKSpilsSetLinearSolver()}}}}.
 
 The function types {\hyperref[ARKStep_c_interface/User_supplied:c.ARKSpilsJacTimesSetupFn]{\emph{\code{ARKSpilsJacTimesSetupFn}}}} and
-{\hyperref[ARKStep_c_interface/User_supplied:c.ARKSpilsJacTimesVecFn]{\emph{\code{ARKSpilsJacTimesVecFn}}}} is described in the section
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKSpilsJacTimesVecFn]{\emph{\code{ARKSpilsJacTimesVecFn}}}} are described in the section
 {\hyperref[ARKStep_c_interface/User_supplied:arkstep-cinterface-usersupplied]{\emph{\DUspan{}{User-supplied functions}}}}.
 
 \end{fulllineitems}
@@ -7206,9 +7223,9 @@ Specifies the direction of zero-crossings to be located and returned.
 
 \item {}
 \emph{rootdir} -- state array of length \emph{nrtfn}, the number of root
-functions \(g_i\), as specified in the call to the function
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepRootInit]{\emph{\code{ARKStepRootInit()}}}}.  If \code{rootdir{[}i{]} == 0} then
-crossing in either direction for \(g_i\) should be
+functions \(g_i\) (the value of \emph{nrtfn} was supplied in
+the call to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepRootInit]{\emph{\code{ARKStepRootInit()}}}}).  If \code{rootdir{[}i{]} ==
+0} then crossing in either direction for \(g_i\) should be
 reported.  A value of +1 or -1 indicates that the solver
 should report only zero-crossings where \(g_i\) is
 increasing or decreasing, respectively.
@@ -7227,11 +7244,10 @@ increasing or decreasing, respectively.
 
 \end{itemize}
 
-\item[{\textbf{Notes:} The default behavior is to monitor for both zero-crossing}] \leavevmode
-directions.
 
 \end{description}
 
+\textbf{Notes:} The default behavior is to monitor for both zero-crossing directions.
 \end{fulllineitems}
 
 \index{ARKStepSetNoInactiveRootWarn (C function)}
@@ -7474,7 +7490,7 @@ the version information.
 
 \begin{fulllineitems}
 \phantomsection\label{ARKStep_c_interface/User_callable:c.SUNDIALSGetVersionNumber}\pysiglinewithargsret{int \bfcode{SUNDIALSGetVersionNumber}}{int\emph{ *major}, int\emph{ *minor}, int\emph{ *patch}, char\emph{ *label}, int\emph{ len}}{}
-This routine The function sets integers for the SUNDIALS major,
+This routine sets integers for the SUNDIALS major,
 minor, and patch release numbers and fills a string with the
 release label if applicable.
 \begin{description}
@@ -8190,7 +8206,7 @@ to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepEvolve]{\emph{\code{ARK
 The \emph{ele} vector, together with the \emph{eweight} vector from
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepGetErrWeights]{\emph{\code{ARKStepGetErrWeights()}}}}, can be used to determine how the
 various components of the system contributed to the estimated local
-error test.  Specifically, that error test uses the RMS norm of a
+error test.  Specifically, that error test uses the WRMS norm of a
 vector whose components are the products of the components of these
 two vectors.  Thus, for example, if there were recent error test
 failures, the components causing the failures are those with largest
@@ -8431,9 +8447,11 @@ have a root.
 
 \item {}
 \emph{rootsfound} -- array of length \emph{nrtfn} with the indices of the
-user functions \(g_i\) found to have a root.  For
-\(i = 0 \ldots\) \emph{nrtfn}-1, \code{rootsfound{[}i{]}} is nonzero
-if \(g_i\) has a root, and 0 if not.
+user functions \(g_i\) found to have a root (the value of
+\emph{nrtfn} was supplied in the call to
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepRootInit]{\emph{\code{ARKStepRootInit()}}}}).  For \(i = 0 \ldots\)
+\emph{nrtfn}-1, \code{rootsfound{[}i{]}} is nonzero if \(g_i\) has a
+root, and 0 if not.
 
 \end{itemize}
 
@@ -9683,7 +9701,7 @@ Outputs all ARKStep solver parameters to the provided file pointer.
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {}
-\emph{fp} -- pointer to use for printing the solver parameters
+\emph{fp} -- pointer to use for printing the solver parameters.
 
 \end{itemize}
 
@@ -9717,7 +9735,8 @@ Retrieves a specified explicit Butcher table.  The
 for the function {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepGetCurrentButcherTables]{\emph{\code{ARKStepGetCurrentButcherTables()}}}}.  The
 prototype for this function, as well as the integer names for each
 provided method, are defined in the header file
-\code{arkode/arkode\_butcher\_erk.h}.
+\code{arkode/arkode\_butcher\_erk.h}.  For further information on these
+tables and their corresponding identifiers, see {\hyperref[Butcher:butcher]{\emph{\DUspan{}{Appendix: Butcher tables}}}}.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {}
@@ -9749,7 +9768,8 @@ Retrieves a specified diagonally-implicit Butcher table.  The
 for the function {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepGetCurrentButcherTables]{\emph{\code{ARKStepGetCurrentButcherTables()}}}}.  The
 prototype for this function, as well as the integer names for each
 provided method, are defined in the header file
-\code{arkode/arkode\_butcher\_dirk.h}.
+\code{arkode/arkode\_butcher\_dirk.h}.  For further information on these
+tables and their corresponding identifiers, see {\hyperref[Butcher:butcher]{\emph{\DUspan{}{Appendix: Butcher tables}}}}.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {}
@@ -9782,7 +9802,7 @@ Outputs the current Butcher table(s) to the provided file pointer.
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {}
-\emph{fp} -- pointer to use for printing the Butcher table(s)
+\emph{fp} -- pointer to use for printing the Butcher table(s).
 
 \end{itemize}
 
@@ -9844,7 +9864,7 @@ One important use of the {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepR
 treating of jump discontinuities in the RHS function.  Except in cases
 of fairly small jumps, it is usually more efficient to stop at each
 point of discontinuity and restart the integrator with a readjusted
-ODE model, using a call to one of these two routines.  To stop when
+ODE model, using a call to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepReInit]{\emph{\code{ARKStepReInit()}}}}.  To stop when
 the location of the discontinuity is known, simply make that location
 a value of \code{tout}.  To stop when the location of the discontinuity
 is determined by the solution, use the rootfinding feature.  In either
@@ -9960,7 +9980,7 @@ scale (i.e. the next step will be of size \emph{h*hscale}).
 
 \item {}
 \emph{t0} -- the current value of the independent variable
-\(t_0\) (this must be consistent with \emph{ynew}.
+\(t_0\) (this must be consistent with \emph{ynew}).
 
 \item {}
 \emph{resize} -- the user-supplied vector resize function (of type
@@ -10030,7 +10050,7 @@ problem).
 
 If scalar-valued tolerances or a tolerance function was specified
 through either {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSStolerances]{\emph{\code{ARKStepSStolerances()}}}} or
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepWFtolerances]{\emph{\code{ARKStepWFtolerances()}}}}, then these will remain valid. and no
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepWFtolerances]{\emph{\code{ARKStepWFtolerances()}}}}, then these will remain valid and no
 further action is necessary.
 
 \begin{notice}{note}{Note:}
@@ -10113,7 +10133,7 @@ value of the independent variable \(t\) and state vector \(y\).
 \emph{t} -- the current value of the independent variable.
 
 \item {}
-\emph{y} -- the current value of the dependent variable vector, \(y(t)\).
+\emph{y} -- the current value of the dependent variable vector, \(y\).
 
 \item {}
 \emph{ydot} -- the output vector that forms a portion of the ODE RHS \(f_E(t,y) + f_I(t,y)\).
@@ -10162,7 +10182,7 @@ warning messages to the file pointed to by \emph{errfp} (see
 \begin{fulllineitems}
 \phantomsection\label{ARKStep_c_interface/User_supplied:c.ARKErrHandlerFn}\pysiglinewithargsret{typedef void \bfcode{(*ARKErrHandlerFn)}}{int\emph{ error\_code}, const char*\emph{ module}, const char*\emph{ function}, char*\emph{ msg}, void*\emph{ user\_data}}{}
 This function processes error and warning messages from
-ARKStep and is sub-modules.
+ARKStep and its sub-modules.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {}
@@ -10298,37 +10318,39 @@ as the maximum value such that the error estimates remain below 1.
 \index{ARKAdaptFn (C type)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_supplied:c.ARKAdaptFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKAdaptFn)}}{N\_Vector\emph{ y}, realtype\emph{ t}, realtype\emph{ h1}, realtype\emph{ h2}, realtype\emph{ h3}, realtype\emph{ e1}, realtype\emph{ e2}, realtype\emph{ e3}, int\emph{ q}, realtype*\emph{ hnew}, void*\emph{ user\_data}}{}
+\phantomsection\label{ARKStep_c_interface/User_supplied:c.ARKAdaptFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKAdaptFn)}}{N\_Vector\emph{ y}, realtype\emph{ t}, realtype\emph{ h1}, realtype\emph{ h2}, realtype\emph{ h3}, realtype\emph{ e1}, realtype\emph{ e2}, realtype\emph{ e3}, int\emph{ q}, int\emph{ p}, realtype*\emph{ hnew}, void*\emph{ user\_data}}{}
 This function implements a time step adaptivity algorithm
 that chooses \(h\) satisfying the error tolerances.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {}
-\emph{y} -- the current value of the dependent variable vector, \(y(t)\).
+\emph{y} -- the current value of the dependent variable vector.
 
 \item {}
 \emph{t} -- the current value of the independent variable.
 
 \item {}
-\emph{h1} -- the current step size, \(t_m - t_{m-1}\).
+\emph{h1} -- the current step size, \(t_n - t_{n-1}\).
 
 \item {}
-\emph{h2} -- the previous step size, \(t_{m-1} - t_{m-2}\).
+\emph{h2} -- the previous step size, \(t_{n-1} - t_{n-2}\).
 
 \item {}
-\emph{h3} -- the step size \(t_{m-2}-t_{m-3}\).
+\emph{h3} -- the step size \(t_{n-2}-t_{n-3}\).
 
 \item {}
-\emph{e1} -- the error estimate from the current step, \(m\).
+\emph{e1} -- the error estimate from the current step, \(n\).
 
 \item {}
-\emph{e2} -- the error estimate from the previous step, \(m-1\).
+\emph{e2} -- the error estimate from the previous step, \(n-1\).
 
 \item {}
-\emph{e3} -- the error estimate from the step \(m-2\).
+\emph{e3} -- the error estimate from the step \(n-2\).
 
 \item {}
 \emph{q} -- the global order of accuracy for the method.
+\item {} 
+\emph{p} -- the global order of accuracy for the embedded method.
 
 \item {}
 \emph{hnew} -- the output value of the next step size.
@@ -10371,10 +10393,10 @@ explicit portions of the ImEx ODE system.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {}
-\emph{y} -- the current value of the dependent variable vector, \(y(t)\).
+\emph{y} -- the current value of the dependent variable vector.
 
 \item {}
-\emph{t} -- the current value of the independent variable
+\emph{t} -- the current value of the independent variable.
 
 \item {}
 \emph{hstab} -- the output value with the absolute value of the
@@ -10415,10 +10437,10 @@ This function implements a vector-valued function
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {}
-\emph{t} -- the current value of the independent variable
+\emph{t} -- the current value of the independent variable.
 
 \item {}
-\emph{y} -- the current value of the dependent variable vector, \(y(t)\).
+\emph{y} -- the current value of the dependent variable vector.
 
 \item {}
 \emph{gout} -- the output array, of length \emph{nrtfn}, with components \(g_i(t,y)\).
@@ -10657,7 +10679,7 @@ file \code{sundials\_types.h}.
 
 \subsection{Jacobian information (matrix-vector setup)}
 \label{ARKStep_c_interface/User_supplied:arkstep-cinterface-jtsetupfn}\label{ARKStep_c_interface/User_supplied:jacobian-information-matrix-vector-setup}
-If the user's Jacobian-times-vector requires that any Jacobian-related data
+If the user's Jacobian-times-vector routine requires that any Jacobian-related data
 be preprocessed or evaluated, then this needs to be done in a
 user-supplied function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKSpilsJacTimesSetupFn]{\emph{\code{ARKSpilsJacTimesSetupFn}}}},
 defined as follows:
@@ -10721,8 +10743,9 @@ the user must provide a function of type
 preconditioning matrix.  Here \(P\) should approximate (at least
 crudely) the Newton matrix \(A=M-\gamma J\), where \(M\) is
 the mass matrix (typically \(M=I\) unless working in a
-finite-element setting) and \(J = \frac{\partial f_I}{\partial
-y}\)  If preconditioning is done on both sides, the product of the two
+finite-element setting) and
+\(J = \frac{\partial f_I}{\partial y}\).
+If preconditioning is done on both sides, the product of the two
 preconditioner matrices should approximate \(A\).
 \index{ARKSpilsPrecSolveFn (C type)}
 
@@ -10882,8 +10905,6 @@ approximation.
 This function computes the mass matrix \(M\) (or an approximation to it).
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
-\item {}
-\emph{N} -- the size of the ODE system.
 
 \item {}
 \emph{t} -- the current value of the independent variable.
@@ -11008,7 +11029,7 @@ in which case the integration is halted.
 
 \subsection{Mass matrix information (matrix-vector setup)}
 \label{ARKStep_c_interface/User_supplied:arkstep-cinterface-mtsetupfn}\label{ARKStep_c_interface/User_supplied:mass-matrix-information-matrix-vector-setup}
-If the user's mass-matrix-times-vector requires that any mass
+If the user's mass-matrix-times-vector routine requires that any mass
 matrix-related data be preprocessed or evaluated, then this needs to
 be done in a user-supplied function of type
 {\hyperref[ARKStep_c_interface/User_supplied:c.ARKSpilsMassTimesSetupFn]{\emph{\code{ARKSpilsMassTimesSetupFn}}}}, defined as follows:
@@ -11205,15 +11226,16 @@ The efficiency of Krylov iterative methods for the solution of linear
 systems can be greatly enhanced through preconditioning.  For problems
 in which the user cannot define a more effective, problem-specific
 preconditioner, ARKode provides two internal preconditioner modules
-that may be used by ARKStep: a banded preconditioner for serial
-problems (ARKBANDPRE) and a band-block-diagonal preconditioner  for
-parallel problems (ARKBBDPRE).
+that may be used by ARKStep: a banded preconditioner for serial and
+threaded problems (ARKBANDPRE) and a band-block-diagonal
+preconditioner for parallel problems (ARKBBDPRE).
 
 
 \subsection{A serial banded preconditioner module}
 \label{ARKStep_c_interface/Preconditioners:arkstep-cinterface-bandpre}\label{ARKStep_c_interface/Preconditioners:a-serial-banded-preconditioner-module}
 This preconditioner provides a band matrix preconditioner for use with
-the ARKSPILS iterative linear solver interface, in a serial setting.
+the ARKSPILS iterative linear solver interface, in a serial or
+threaded setting.
 It requires that the problem be set up using either the
 NVECTOR\_SERIAL, NVECTOR\_OPENMP or NVECTOR\_PTHREADS module, due to data
 access patterns.  It also currently requires that the problem involve
@@ -11237,7 +11259,7 @@ accurate, it may speed convergence of the Krylov iteration.
 \label{ARKStep_c_interface/Preconditioners:arkbandpre-usage}
 In order to use the ARKBANDPRE module, the user need not define
 any additional functions.  In addition to the header files required
-for the remainder of the ODE problem (see the section
+for the integration of the ODE problem (see the section
 {\hyperref[ARKStep_c_interface/General:arkstep-cinterface-headers]{\emph{\DUspan{}{Access to library and header files}}}}), to use the ARKBANDPRE module, the user's
 program must include the header file \code{arkode\_bandpre.h} which
 declares the needed function prototypes.  The following is a summary
@@ -11350,7 +11372,7 @@ allocates required (internal) memory for it.
 \emph{ARKSPILS\_SUCCESS} if no errors occurred
 
 \item {}
-\emph{ARKSPILS\_MEM\_NULL} if the integrator memory is \code{NULL}
+\emph{ARKSPILS\_MEM\_NULL} if the ARKStep memory is \code{NULL}
 
 \item {}
 \emph{ARKSPILS\_LMEM\_NULL} if the linear solver memory is \code{NULL}
@@ -11398,7 +11420,7 @@ ARKBANDPRE workspace.
 \emph{ARKSPILS\_SUCCESS} if no errors occurred
 
 \item {}
-\emph{ARKSPILS\_MEM\_NULL} if the integrator memory is \code{NULL}
+\emph{ARKSPILS\_MEM\_NULL} if the ARKStep memory is \code{NULL}
 
 \item {}
 \emph{ARKSPILS\_LMEM\_NULL} if the linear solver memory is \code{NULL}
@@ -11443,7 +11465,7 @@ preconditioner setup function.
 \emph{ARKSPILS\_SUCCESS} if no errors occurred
 
 \item {}
-\emph{ARKSPILS\_MEM\_NULL} if the integrator memory is \code{NULL}
+\emph{ARKSPILS\_MEM\_NULL} if the ARKStep memory is \code{NULL}
 
 \item {}
 \emph{ARKSPILS\_LMEM\_NULL} if the linear solver memory is \code{NULL}
@@ -11705,7 +11727,7 @@ When creating the iterative linear solver object, specify the type
 of preconditioning (\code{PREC\_LEFT} or \code{PREC\_RIGHT}) to use.
 
 \item {}
-Set linear solver optional inputs
+\emph{Set linear solver optional inputs}
 
 \item {}
 \emph{Attach linear solver module}
@@ -11816,7 +11838,7 @@ computation of \(g(t,y)\).
 \emph{ARKSPILS\_SUCCESS} if no errors occurred
 
 \item {}
-\emph{ARKSPILS\_MEM\_NULL} if the integrator memory is \code{NULL}
+\emph{ARKSPILS\_MEM\_NULL} if the ARKStep memory is \code{NULL}
 
 \item {}
 \emph{ARKSPILS\_LMEM\_NULL} if the linear solver memory is \code{NULL}
@@ -11861,8 +11883,8 @@ to change any of the following: the half-bandwidths \emph{mudq} and
 \emph{mldq} used in the difference-quotient Jacobian approximations, the
 relative increment \emph{dqrely}, or one of the user-supplied functions
 \emph{gloc} and \emph{cfn}. If there is a change in any of the linear solver
-inputs, an additional call to the \code{Set'{'} routines provided by the
-{}`{}`SUNLinearSolver} module, and/or one or more of the
+inputs, an additional call to the ``Set'' routines provided by the
+\code{SUNLinearSolver} module, and/or one or more of the
 corresponding \code{ARKSpilsSet***} functions, must also be made (in
 the proper order).
 \index{ARKBBDPrecReInit (C function)}
@@ -11896,7 +11918,7 @@ passing \emph{dqrely} = 0.0.
 \emph{ARKSPILS\_SUCCESS} if no errors occurred
 
 \item {}
-\emph{ARKSPILS\_MEM\_NULL} if the integrator memory is \code{NULL}
+\emph{ARKSPILS\_MEM\_NULL} if the ARKStep memory is \code{NULL}
 
 \item {}
 \emph{ARKSPILS\_LMEM\_NULL} if the linear solver memory is \code{NULL}
@@ -11942,7 +11964,7 @@ ARKBBDPRE workspace.
 \emph{ARKSPILS\_SUCCESS} if no errors occurred
 
 \item {}
-\emph{ARKSPILS\_MEM\_NULL} if the integrator memory is \code{NULL}
+\emph{ARKSPILS\_MEM\_NULL} if the ARKStep memory is \code{NULL}
 
 \item {}
 \emph{ARKSPILS\_LMEM\_NULL} if the linear solver memory is \code{NULL}
@@ -11988,7 +12010,7 @@ preconditioner setup function.
 \emph{ARKSPILS\_SUCCESS} if no errors occurred
 
 \item {}
-\emph{ARKSPILS\_MEM\_NULL} if the integrator memory is \code{NULL}
+\emph{ARKSPILS\_MEM\_NULL} if the ARKStep memory is \code{NULL}
 
 \item {}
 \emph{ARKSPILS\_LMEM\_NULL} if the linear solver memory is \code{NULL}
@@ -13411,7 +13433,7 @@ interface this is provided through the user-supplied function:
 \index{FARKADAPT() (fortran subroutine)|textbf}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_f_interface/Usage:f/_/FARKADAPT}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FARKADAPT}}{\emph{Y}, \emph{T}, \emph{H1}, \emph{H2}, \emph{H3}, \emph{E1}, \emph{E2}, \emph{E3}, \emph{Q}, \emph{HNEW}, \emph{IPAR}, \emph{RPAR}, \emph{IER}}{}
+\phantomsection\label{ARKStep_f_interface/Usage:f/_/FARKADAPT}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FARKADAPT}}{\emph{Y}, \emph{T}, \emph{H1}, \emph{H2}, \emph{H3}, \emph{E1}, \emph{E2}, \emph{E3}, \emph{Q}, \emph{P}, \emph{HNEW}, \emph{IPAR}, \emph{RPAR}, \emph{IER}}{}
 It must set the new step size \emph{HNEW} based on the three previous
 steps (\emph{H1}, \emph{H2}, \emph{H3}) and the three previous error estimates
 (\emph{E1}, \emph{E2}, \emph{E3}).
@@ -13443,6 +13465,8 @@ steps (\emph{H1}, \emph{H2}, \emph{H3}) and the three previous error estimates
 
 \item {}
 \emph{Q} (\code{int}, input) -- global order of accuracy for RK method.
+\item {} 
+\emph{P} (\code{int}, input) -- global order of accuracy for RK embedded method.
 
 \item {}
 \emph{HNEW} (\code{realtype}, output) -- array containing the error weight vector.
@@ -16410,7 +16434,7 @@ files and the layout of the user's main program, and provide
 descriptions of the ERKStep user-callable functions and user-supplied
 functions.
 
-The example programs described in the companion document \phantomsection\label{ERKStep_c_interface/index:id1}{\hyperref[References:r2013]{\emph{{[}R2013{]}}}} may
+The example programs described in the companion document \phantomsection\label{ERKStep_c_interface/index:id1}{\hyperref[References:r2018]{\emph{{[}R2018{]}}}} may
 be helpful. Those codes may be used as templates for new codes and are
 included in the ARKode package \code{examples} subdirectory.
 
@@ -16420,18 +16444,133 @@ convenience the full list is provided separately in the section
 {\hyperref[Constants:constants]{\emph{\DUspan{}{Appendix: ARKode Constants}}}}.
 
 The relevant information on using ERKStep's C and C++ interfaces is
-detailed in the following sub-sections:
+detailed in the following sub-sections.
 
 
 \section{Access to library and header files}
 \label{ERKStep_c_interface/General:access-to-library-and-header-files}\label{ERKStep_c_interface/General:erkstep-cinterface-headers}\label{ERKStep_c_interface/General::doc}
-As stated previously for the ARKStep module, we assume that the
-ERKStep module has been installed with ARKode, following the procedure
-described in the section {\hyperref[Install:installation]{\emph{\DUspan{}{ARKode Installation Procedure}}}}.  Moreover, we will
-reference the same header file locations and data types as described
-in the Sections {\hyperref[ARKStep_c_interface/General:arkstep-cinterface-headers]{\emph{\DUspan{}{Access to library and header files}}}} and
-{\hyperref[ARKStep_c_interface/General:arkstep-cinterface-datatypes]{\emph{\DUspan{}{Data Types}}}}.
+At this point, it is assumed that the installation of ARKode,
+following the procedure described in the section {\hyperref[Install:installation]{\emph{\DUspan{}{ARKode Installation Procedure}}}},
+has been completed successfully.
 
+Regardless of where the user's application program resides, its
+associated compilation and load commands must make reference to the
+appropriate locations for the library and header files required by
+ARKode. The relevant library files are
+\begin{itemize}
+\item {} 
+\code{libdir/libsundials\_arkode.lib},
+
+\item {} 
+\code{libdir/libsundials\_nvec*.lib},
+
+\end{itemize}
+
+where the file extension \code{.lib} is typically \code{.so} for shared
+libraries and \code{.a} for static libraries.  The relevant header files
+are located in the subdirectories
+\begin{itemize}
+\item {} 
+\code{incdir/include/arkode}
+
+\item {} 
+\code{incdir/include/sundials}
+
+\item {} 
+\code{incdir/include/nvector}
+
+\end{itemize}
+
+The directories \code{libdir} and \code{incdir} are the installation library
+and include directories, respectively.  For a default installation,
+these are \code{instdir/lib} and \code{instdir/include}, respectively, where
+\code{instdir} is the directory where SUNDIALS was installed (see the
+section {\hyperref[Install:installation]{\emph{\DUspan{}{ARKode Installation Procedure}}}} for further details).
+
+
+\section{Data Types}
+\label{ERKStep_c_interface/General:data-types}\label{ERKStep_c_interface/General:erkstep-cinterface-datatypes}
+The \code{sundials\_types.h} file contains the definition of the variable
+type \code{realtype}, which is used by the SUNDIALS solvers for all
+floating-point data, the definition of the integer type
+\code{sunindextype}, which is used for vector and matrix indices, and
+\code{booleantype}, which is used for certain logic operations within
+SUNDIALS.
+
+
+\subsection{Floating point types}
+\label{ERKStep_c_interface/General:floating-point-types}
+The type ``\index{realtype}realtype'' can be set to
+\code{float}, \code{double}, or \code{long double}, depending on how SUNDIALS
+was installed (with the default being \code{double}). The user can change
+the precision of the SUNDIALS solvers' floating-point arithmetic at the
+configuration stage (see the section {\hyperref[Install:installation-cmake-options]{\emph{\DUspan{}{Configuration options (Unix/Linux)}}}}).
+
+Additionally, based on the current precision, \code{sundials\_types.h}
+defines the values \index{BIG\_REAL}BIG\_REAL to be the largest value
+representable as a \code{realtype}, \index{SMALL\_REAL}SMALL\_REAL to be the
+smallest positive value representable as a \code{realtype}, and
+\index{UNIT\_ROUNDOFF}UNIT\_ROUNDOFF to be the smallest realtype number,
+\(\varepsilon\), such that \(1.0 + \varepsilon \ne 1.0\).
+
+Within SUNDIALS, real constants may be set to have the appropriate
+precision by way of a macro called \index{RCONST}RCONST.  It is this macro
+that needs the ability to branch on the definition \code{realtype}.  In
+ANSI C, a floating-point constant with no suffix is stored as a
+\code{double}. Placing the suffix ``F'' at the end of a floating point
+constant makes it a \code{float}, whereas using the suffix ``L'' makes it a
+\code{long double}. For example,
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define A 1.0}
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define B 1.0F}
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define C 1.0L}
+\end{Verbatim}
+
+defines \code{A} to be a \code{double} constant equal to 1.0, \code{B} to be a
+\code{float} constant equal to 1.0, and \code{C} to be a \code{long double} constant
+equal to 1.0.  The macro call \code{RCONST(1.0)} automatically expands to
+1.0 if \code{realtype} is \code{double}, to \code{1.0F} if \code{realtype} is \code{float}, or
+to \code{1.0L} if \code{realtype} is \code{long double}. SUNDIALS uses the \code{RCONST}
+macro internally to declare all of its floating-point constants.
+
+A user program which uses the type \code{realtype} and the \code{RCONST} macro
+to handle floating-point constants is precision-independent, except for
+any calls to precision-specific standard math library functions.
+Users can, however, use the types \code{double}, \code{float}, or \code{long
+double} in their code (assuming that this usage is consistent with
+the size of \code{realtype} values that are passed to and from SUNDIALS).
+Thus, a previously existing piece of ANSI C code can use SUNDIALS
+without modifying the code to use \code{realtype}, so long as the
+SUNDIALS libraries have been compiled using the same precision (for
+details see the section {\hyperref[Install:installation]{\emph{\DUspan{}{ARKode Installation Procedure}}}}).
+
+
+\subsection{Integer types used for vector and matrix indices}
+\label{ERKStep_c_interface/General:integer-types-used-for-vector-and-matrix-indices}
+The type \code{sunindextype} can be either a 32- or 64-bit \emph{signed} integer.
+The default is the portable \code{int64\_t} type, and the user can change it
+to \code{int32\_t} at the configuration stage. The configuration system
+will detect if the compiler does not support portable types, and will
+replace \code{int32\_t} and \code{int64\_t} with \code{int} and \code{long int},
+respectively, to ensure use of the desired sizes on Linux, Mac OS X, and Windows
+platforms. SUNDIALS currently does not support \emph{unsigned} integer types
+for vector and matrix indices, although these could be added in the future if there
+is sufficient demand.
+
+A user program which uses \code{sunindextype} to handle vector and matrix indices
+will work with both index storage types except for any calls to index storage-specific
+external libraries. (Our \code{C} and \code{C++} example programs use \code{sunindextype}.)
+Users can, however, use any one of \code{int}, \code{long int}, \code{int32\_t}, \code{int64\_t} or
+\code{long long int} in their code, assuming that this usage is consistent with the typedef
+for \code{sunindextype} on their architecture. Thus, a previously existing piece of ANSI
+C code can use SUNDIALS without modifying the code to use \code{sunindextype},
+so long as the SUNDIALS libraries use the appropriate index storage type (for details
+see the section {\hyperref[Install:installation]{\emph{\DUspan{}{ARKode Installation Procedure}}}}).
+
+
+\section{Header Files}
+\label{ERKStep_c_interface/General:header-files}
 When using ERKStep, the calling program must include several header
 files so that various macros and data types can be used. The header
 file that is always required is:
@@ -16584,18 +16723,15 @@ section {\hyperref[ERKStep_c_interface/User_callable:erkstep-cinterface-optional
 
 \item {}
 Specify rootfinding problem
-\begin{quote}
 
 Optionally, call {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepRootInit]{\emph{\code{ERKStepRootInit()}}}} to initialize a rootfinding
 problem to be solved during the integration of the ODE system. See
 the section {\hyperref[ERKStep_c_interface/User_callable:erkstep-cinterface-rootfinding]{\emph{\DUspan{}{Rootfinding initialization function}}}} for general details, and
 the section {\hyperref[ERKStep_c_interface/User_callable:erkstep-cinterface-optionalinputs]{\emph{\DUspan{}{Optional input functions}}}} for relevant optional
 input calls.
-\end{quote}
 
 \item {}
 Advance solution in time
-\begin{quote}
 
 For each point at which output is desired, call
 
@@ -16607,15 +16743,12 @@ Here, \code{itask} specifies the return mode. The vector \code{yout}
 (which can be the same as the vector \code{y0} above) will contain
 \(y(t_\text{out})\). See the section
 {\hyperref[ERKStep_c_interface/User_callable:erkstep-cinterface-integration]{\emph{\DUspan{}{ERKStep solver function}}}} for details.
-\end{quote}
 
 \item {}
 Get optional outputs
-\begin{quote}
 
 Call \code{ERKStepGet*} functions to obtain optional output. See
 the section {\hyperref[ERKStep_c_interface/User_callable:erkstep-cinterface-optionaloutputs]{\emph{\DUspan{}{Optional output functions}}}} for details.
-\end{quote}
 
 \item {}
 Deallocate memory for solution vector
@@ -16653,11 +16786,12 @@ skipped for a casual use of ARKode's ERKStep module. In any case,
 refer to the preceding section, {\hyperref[ERKStep_c_interface/Skeleton:erkstep-cinterface-skeleton]{\emph{\DUspan{}{A skeleton of the user's main program}}}},
 for the correct order of these calls.
 
-On an error, each user-callable function returns a negative value and
-sends an error message to the error handler routine, which prints the
-message on \code{stderr} by default. However, the user can set a file as
-error output or can provide her own error handler function
-(see the section {\hyperref[ERKStep_c_interface/User_callable:erkstep-cinterface-optionalinputs]{\emph{\DUspan{}{Optional input functions}}}} for details).
+On an error, each user-callable function returns a negative value  (or
+\code{NULL} if the function returns a pointer) and sends an error message
+to the error handler routine, which prints the message to \code{stderr}
+by default. However, the user can set a file as error output or can
+provide her own error handler function (see the section
+{\hyperref[ERKStep_c_interface/User_callable:erkstep-cinterface-optionalinputs]{\emph{\DUspan{}{Optional input functions}}}} for details).
 
 
 \subsection{ERKStep initialization and deallocation functions}
@@ -16735,8 +16869,8 @@ are given by
 \PYG{n}{ewt}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]} \PYG{o}{=} \PYG{l+m+mf}{1.0}\PYG{o}{/}\PYG{p}{(}\PYG{n}{reltol}\PYG{o}{*}\PYG{n}{abs}\PYG{p}{(}\PYG{n}{y}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}\PYG{p}{)} \PYG{o}{+} \PYG{n}{abstol}\PYG{p}{[}\PYG{n}{i}\PYG{p}{]}\PYG{p}{)}\PYG{p}{;}
 \end{Verbatim}
 
-This vector is used in all error and convergence tests, which use a
-weighted RMS norm on all error-like vectors v:
+This vector is used in all error tests, which use a weighted RMS norm
+on all error-like vectors v:
 \begin{gather}
 \begin{split}\|v\|_{WRMS} = \left( \frac{1}{N} \sum_{i=1}^N (v_i\; ewt_i)^2 \right)^{1/2},\end{split}\notag
 \end{gather}
@@ -16882,7 +17016,7 @@ scalar) or \code{abstol{[}i{]}} (if a vector) needs to be set to that
 noise level. If the different components have different noise
 levels, then \code{abstol} should be a vector.  For example, see the
 example problem \code{ark\_robertson.c}, and the discussion
-of it in the ARKode Examples Documentation \phantomsection\label{ERKStep_c_interface/User_callable:id1}{\hyperref[References:r2013]{\emph{{[}R2013{]}}}}.  In that
+of it in the ARKode Examples Documentation {[}R2013{]}.  In that
 problem, the three components vary between 0 and 1, and have
 different noise levels; hence the \code{atols} vector therein. It is
 impossible to give any general advice on \code{abstol} values,
@@ -16897,8 +17031,8 @@ individual step. The final (global) errors are an accumulation of
 those per-step errors, where that accumulation factor is
 problem-dependent.  A general rule of thumb is to reduce the
 tolerances by a factor of 10 from the actual desired limits on
-errors.  I.e. if you want .01\% relative accuracy (globally), a good
-choice for \code{reltol} is \(10^{-5}\).  But in any case, it is
+errors.  So if you want .01\% relative accuracy (globally), a good
+choice for \code{reltol} is \(10^{-5}\).  In any case, it is
 a good idea to do a few experiments with the tolerances to see how
 the computed solution values vary as tolerances are reduced.
 
@@ -17036,47 +17170,45 @@ Integrates the ODE over an interval in \(t\).
 \emph{arkode\_mem} -- pointer to the ERKStep memory block.
 
 \item {}
-\emph{tout} -- the next time at which a computed solution is desired
+\emph{tout} -- the next time at which a computed solution is desired.
 
 \item {}
-\emph{yout} -- the computed solution vector
+\emph{yout} -- the computed solution vector.
 
 \item {}
-\emph{tret} -- the time corresponding to \emph{yout} (output)
+\emph{tret} -- the time corresponding to \emph{yout} (output).
 
 \item {}
 \emph{itask} -- a flag indicating the job of the solver for the next
 user step.
 
-The \emph{ARK\_NORMAL} option causes the solver to take internal steps
-until it has reached or just passed the user-specified \emph{tout}
-parameter. The solver then interpolates in order to return an
-approximate value of \(y(tout)\).  This interpolation may be
-slightly less accurate than the full time step solutions
-produced by the solver, since the interpolation uses a cubic
-Hermite polynomial even when the RK method is of higher order.
+The \emph{ARK\_NORMAL} option causes the solver to take internal
+steps until it has just overtaken a user-specified output
+time, \emph{tout}, in the direction of integration,
+i.e. \(t_{n-1} <\) \emph{tout} \(\le t_{n}\) for forward
+integration, or \(t_{n} \le\) \emph{tout} \(< t_{n-1}\) for
+backward integration.  It will then compute an approximation
+to the solution \(y`(*tout*) by interpolation (using one
+of the dense output routines described in the section
+:ref:`Mathematics.Interpolation\)).
 
-If full method accuracy is desired, issue a call to
-{\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetStopTime]{\emph{\code{ERKStepSetStopTime()}}}} before the call to
-{\hyperref[ERKStep_c_interface/User_callable:c.ERKStepEvolve]{\emph{\code{ERKStepEvolve()}}}} to specify a fixed stop time to
-end the time step and return to the user.  Once the integrator
-returns at a \emph{tstop} time, any future testing for \emph{tstop} is
-disabled (and can be re-enabled only though a new call to
-{\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetStopTime]{\emph{\code{ERKStepSetStopTime()}}}}).
-
-The \emph{ARK\_ONE\_STEP} option tells the solver to take just one
-internal step and then return the solution at the point
-reached by that step.
+The \emph{ARK\_ONE\_STEP} option tells the solver to only take a
+single internal step \(y_{n-1} \to y_{n}\) and then return
+control back to the calling program.  If this step will
+overtake \emph{tout} then the solver will again return an
+interpolated result; otherwise it will return a copy of the
+internal solution \(y_{n}\) in the vector \emph{yout}
 
 \end{itemize}
 
 \item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
 \item {}
-\emph{ARK\_SUCCESS} if successful
+\emph{ARK\_SUCCESS} if successful.
 
 \item {}
 \emph{ARK\_ROOT\_RETURN} if {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepEvolve]{\emph{\code{ERKStepEvolve()}}}} succeeded, and
-found one or more roots.  If \emph{nrtfn} is greater than 1, call
+found one or more roots.  If the number of root functions,
+\emph{nrtfn}, is greater than 1, call
 {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepGetRootInfo]{\emph{\code{ERKStepGetRootInfo()}}}} to see which \(g_i\) were
 found to have a root at (\emph{*tret}).
 
@@ -17096,8 +17228,6 @@ returned at \emph{tstop}.
 the solver was either illegal or missing.  Details will be
 provided in the error message.  Typical causes of this failure:
 \begin{enumerate}
-\item {}
-The tolerances have not been set.
 
 \item {}
 A component of the error weight vector became zero during
@@ -17137,6 +17267,16 @@ variable. All failure return values are negative and so testing the
 return argument for negative values will trap all
 {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepEvolve]{\emph{\code{ERKStepEvolve()}}}} failures.
 
+Since interpolation may reduce the accuracy in the reported
+solution, if full method accuracy is desired the user should issue
+a call to {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetStopTime]{\emph{\code{ERKStepSetStopTime()}}}} before the call to
+{\hyperref[ERKStep_c_interface/User_callable:c.ERKStepEvolve]{\emph{\code{ERKStepEvolve()}}}} to specify a fixed stop time to
+end the time step and return to the user.  Upon return from
+{\hyperref[ERKStep_c_interface/User_callable:c.ERKStepEvolve]{\emph{\code{ERKStepEvolve()}}}}, a copy of the internal solution
+\(y_{n}\) will be returned in the vector \emph{yout}.  Once the
+integrator returns at a \emph{tstop} time, any future testing for
+\emph{tstop} is disabled (and can be re-enabled only though a new call
+to {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetStopTime]{\emph{\code{ERKStepSetStopTime()}}}}).
 On any error return in which one or more internal steps were taken
 by {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepEvolve]{\emph{\code{ERKStepEvolve()}}}}, the returned values of \emph{tret} and
 \emph{yout} correspond to the farthest point reached in the integration.
@@ -17329,16 +17469,15 @@ root-finding (those can be reset using {\hyperref[ERKStep_c_interface/User_calla
 
 \begin{fulllineitems}
 \phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetDenseOrder}\pysiglinewithargsret{int \bfcode{ERKStepSetDenseOrder}}{void*\emph{ arkode\_mem}, int\emph{ dord}}{}
-Specifies the order of accuracy for the polynomial interpolant
-used for dense output (i.e. interpolation of solution output values
-and implicit method predictors).
+Specifies the degree of the polynomial interpolant
+used for dense output (i.e. interpolation of solution output values).
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {}
 \emph{arkode\_mem} -- pointer to the ERKStep memory block.
 
 \item {}
-\emph{dord} -- requested polynomial order of accuracy
+\emph{dord} -- requested polynomial order of accuracy.
 
 \end{itemize}
 
@@ -17356,7 +17495,7 @@ and implicit method predictors).
 
 \end{description}
 
-\textbf{Notes:} Allowed values are between 0 and \code{min(q,3)}, where \code{q} is
+\textbf{Notes:} Allowed values are between 0 and \code{min(q,5)}, where \code{q} is
 the order of the overall integration method.
 
 \end{fulllineitems}
@@ -17373,7 +17512,7 @@ all ERKStep step adaptivity and solver information is written.
 \emph{arkode\_mem} -- pointer to the ERKStep memory block.
 
 \item {}
-\emph{diagfp} -- pointer to the diagnostics output file
+\emph{diagfp} -- pointer to the diagnostics output file.
 
 \end{itemize}
 
@@ -17437,7 +17576,7 @@ function is used.
 
 Passing a \code{NULL} value disables all future error message output
 (except for the case wherein the ERKStep memory pointer is
-\code{NULL}.  This use of the function is strongly discouraged.
+\code{NULL}).  This use of the function is strongly discouraged.
 
 If used, this routine should be called before any other
 optional input functions, in order to take effect for subsequent
@@ -17461,7 +17600,7 @@ in handling error messages.
 
 \item {}
 \emph{eh\_data} -- pointer to user data passed to \emph{ehfun} every time
-it is called
+it is called.
 
 \end{itemize}
 
@@ -17496,7 +17635,7 @@ fixed time step size to use for all internal steps.
 \emph{arkode\_mem} -- pointer to the ERKStep memory block.
 
 \item {}
-\emph{hfixed} -- value of the fixed step size to use
+\emph{hfixed} -- value of the fixed step size to use.
 
 \end{itemize}
 
@@ -17565,7 +17704,7 @@ initialization or re-initialization.
 \emph{arkode\_mem} -- pointer to the ERKStep memory block.
 
 \item {}
-\emph{hin} -- value of the initial step to be attempted \((\ge 0)\)
+\emph{hin} -- value of the initial step to be attempted \((\ne 0)\)
 
 \end{itemize}
 
@@ -17679,7 +17818,7 @@ Specifies the upper bound on the magnitude of the time step size.
 \emph{arkode\_mem} -- pointer to the ERKStep memory block.
 
 \item {}
-\emph{hmax} -- maximum absolute value of the time step size \((\ge 0)\)
+\emph{hmax} -- maximum absolute value of the time step size \((\ge 0)\).
 
 \end{itemize}
 
@@ -17712,7 +17851,7 @@ Specifies the lower bound on the magnitude of the time step size.
 \emph{arkode\_mem} -- pointer to the ERKStep memory block.
 
 \item {}
-\emph{hmin} -- minimum absolute value of the time step size \((\ge 0)\)
+\emph{hmin} -- minimum absolute value of the time step size \((\ge 0)\).
 
 \end{itemize}
 
@@ -17802,9 +17941,6 @@ attaches it to the main ERKStep memory block.
 user-supplied functions for which it is an argument; otherwise
 \code{NULL} is passed.
 
-If \emph{user\_data} is needed in user linear solver or preconditioner
-functions, the call to this function must be made \emph{before} the call
-to specify the linear solver.
 
 \end{fulllineitems}
 
@@ -17820,7 +17956,7 @@ permitted in attempting one step, before returning with an error.
 \emph{arkode\_mem} -- pointer to the ERKStep memory block.
 
 \item {}
-\emph{maxnef} -- maximum allowed number of error test failures \((>0)\)
+\emph{maxnef} -- maximum allowed number of error test failures \((>0)\).
 
 \end{itemize}
 
@@ -17883,8 +18019,7 @@ internal
 
 \begin{fulllineitems}
 \phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetOrder}\pysiglinewithargsret{int \bfcode{ERKStepSetOrder}}{void*\emph{ arkode\_mem}, int\emph{ ord}}{}
-Specifies the order of accuracy for the integration method in the
-ERK time-stepper module.
+Specifies the order of accuracy for the ERK integration method.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {}
@@ -17922,8 +18057,7 @@ ERKStep memory block, it cannot be changed after the first call to
 
 \begin{fulllineitems}
 \phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetERKTable}\pysiglinewithargsret{int \bfcode{ERKStepSetERKTable}}{void*\emph{ arkode\_mem}, int\emph{ s}, int\emph{ q}, int\emph{ p}, realtype*\emph{ c}, realtype*\emph{ A}, realtype*\emph{ b}, realtype*\emph{ bembed}}{}
-Specifies a customized Butcher table for the ERK time-stepping
-module to use.
+Specifies a customized Butcher table for the ERK method.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {}
@@ -17985,8 +18119,7 @@ set the desired time step size.
 
 \begin{fulllineitems}
 \phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetERKTableNum}\pysiglinewithargsret{int \bfcode{ERKStepSetERKTableNum}}{void*\emph{ arkode\_mem}, int\emph{ etable}}{}
-Indicates to use a specific built-in Butcher table for use by the
-ERK time-stepping module.
+Indicates to use a specific built-in Butcher table for the ERK method.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {}
@@ -18109,7 +18242,7 @@ Explicit stability function
  &
 {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetStabilityFn]{\emph{\code{ERKStepSetStabilityFn()}}}}
  &
-internal
+none
 \\
 \hline\end{tabulary}
 
@@ -18176,7 +18309,7 @@ parameters (1), or that they will be supplied in the
 \item {}
 \emph{pq} -- flag denoting whether to use the embedding order of
 accuracy \emph{p} (0) or the method order of accuracy \emph{q} (1)
-within the adaptivity algorithm.  \emph{p} is the ERKStep default.
+within the adaptivity algorithm.  \emph{p} is the default.
 
 \item {}
 \emph{adapt\_params{[}0{]}} -- \(k_1\) parameter within accuracy-based adaptivity algorithms.
@@ -18577,9 +18710,9 @@ Specifies the direction of zero-crossings to be located and returned.
 
 \item {}
 \emph{rootdir} -- state array of length \emph{nrtfn}, the number of root
-functions \(g_i\), as specified in the call to the function
-{\hyperref[ERKStep_c_interface/User_callable:c.ERKStepRootInit]{\emph{\code{ERKStepRootInit()}}}}.  If \code{rootdir{[}i{]} == 0} then
-crossing in either direction for \(g_i\) should be
+functions \(g_i\)  (the value of \emph{nrtfn} was supplied in
+the call to {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepRootInit]{\emph{\code{ERKStepRootInit()}}}}).  If \code{rootdir{[}i{]} ==
+0} then crossing in either direction for \(g_i\) should be
 reported.  A value of +1 or -1 indicates that the solver
 should report only zero-crossings where \(g_i\) is
 increasing or decreasing, respectively.
@@ -18598,10 +18731,9 @@ increasing or decreasing, respectively.
 
 \end{itemize}
 
-\item[{\textbf{Notes:} The default behavior is to monitor for both zero-crossing}] \leavevmode
-directions.
-
 \end{description}
+
+\textbf{Notes:}  The default behavior is to monitor for both zero-crossing directions.
 
 \end{fulllineitems}
 
@@ -18734,7 +18866,7 @@ Output routines regarding root-finding results are in the subsection
 
 \item {}
 General usability routines (e.g. to print the current ERKStep
-parameters, or output the current Butcher table(s)) are in the
+parameters, or output the current Butcher table) are in the
 subsection {\hyperref[ERKStep_c_interface/User_callable:erkstep-cinterface-erkstepextraoutputs]{\emph{\DUspan{}{General usability functions}}}}.
 
 \end{enumerate}
@@ -18803,7 +18935,7 @@ the version information.
 
 \begin{fulllineitems}
 \phantomsection\label{ERKStep_c_interface/User_callable:c.SUNDIALSGetVersionNumber}\pysiglinewithargsret{int \bfcode{SUNDIALSGetVersionNumber}}{int\emph{ *major}, int\emph{ *minor}, int\emph{ *patch}, char\emph{ *label}, int\emph{ len}}{}
-This routine The function sets integers for the SUNDIALS major,
+This routine sets integers for the SUNDIALS major,
 minor, and patch release numbers and fills a string with the
 release label if applicable.
 \begin{description}
@@ -18929,7 +19061,7 @@ No. of local error test failures that have occurred
 {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepGetNumErrTestFails]{\emph{\code{ERKStepGetNumErrTestFails()}}}}
 \\
 \hline
-Current ERK and DIRK Butcher tables
+Current ERK Butcher table
  &
 {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepGetCurrentButcherTable]{\emph{\code{ERKStepGetCurrentButcherTable()}}}}
 \\
@@ -19036,8 +19168,7 @@ specified by the user through a call to
 {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetInitStep]{\emph{\code{ERKStepSetInitStep()}}}}, this value may have been changed by
 ERKStep to ensure that the step size fell within the prescribed
 bounds \((h_{min} \le h_0 \le h_{max})\), or to satisfy the
-local error test condition, or to ensure convergence of the
-nonlinear solver.
+local error test condition.
 
 \end{fulllineitems}
 
@@ -19338,7 +19469,7 @@ Returns the cumulative number of steps attempted by the solver (so far).
 \begin{fulllineitems}
 \phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepGetNumRhsEvals}\pysiglinewithargsret{int \bfcode{ERKStepGetNumRhsEvals}}{void*\emph{ arkode\_mem}, long int*\emph{ nf\_evals}}{}
 Returns the number of calls to the user's right-hand
-side functions, \(f_E\) and \(f_I\) (so far).
+side function, \(f\) (so far).
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {}
@@ -19473,7 +19604,7 @@ to {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepEvolve]{\emph{\code{ERK
 The \emph{ele} vector, together with the \emph{eweight} vector from
 {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepGetErrWeights]{\emph{\code{ERKStepGetErrWeights()}}}}, can be used to determine how the
 various components of the system contributed to the estimated local
-error test.  Specifically, that error test uses the RMS norm of a
+error test.  Specifically, that error test uses the WRMS norm of a
 vector whose components are the products of the components of these
 two vectors.  Thus, for example, if there were recent error test
 failures, the components causing the failures are those with largest
@@ -19557,9 +19688,11 @@ have a root.
 
 \item {}
 \emph{rootsfound} -- array of length \emph{nrtfn} with the indices of the
-user functions \(g_i\) found to have a root.  For
-\(i = 0 \ldots\) \emph{nrtfn}-1, \code{rootsfound{[}i{]}} is nonzero
-if \(g_i\) has a root, and 0 if not.
+user functions \(g_i\) found to have a root (the value of
+\emph{nrtfn} was supplied in the call to
+{\hyperref[ERKStep_c_interface/User_callable:c.ERKStepRootInit]{\emph{\code{ERKStepRootInit()}}}}).  For \(i = 0 \ldots\)
+\emph{nrtfn}-1, \code{rootsfound{[}i{]}} is nonzero if \(g_i\) has a
+root, and 0 if not.
 
 \end{itemize}
 
@@ -19619,7 +19752,7 @@ user's root function \(g\).
 \label{ERKStep_c_interface/User_callable:erkstep-cinterface-erkstepextraoutputs}\label{ERKStep_c_interface/User_callable:general-usability-functions}
 The following optional routines may be called by a user to inquire
 about existing solver parameters, to retrieve stored Butcher tables,
-write the current Butcher table(s), or even to test a provided Butcher
+write the current Butcher table, or even to test a provided Butcher
 table to determine its analytical order of accuracy.  While none of
 these would typically be called during the course of solving an
 initial value problem, these may be useful for users wishing to better
@@ -19643,7 +19776,7 @@ Retrieve a given explicit Butcher table by its unique name
 {\hyperref[ERKStep_c_interface/User_callable:c.ARKodeLoadButcherTable_ERK]{\emph{\code{ARKodeLoadButcherTable\_ERK()}}}}
 \\
 \hline
-Output the current Butcher table(s)
+Output the current Butcher table
  &
 {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepWriteButcher]{\emph{\code{ERKStepWriteButcher()}}}}
 \\
@@ -19660,7 +19793,7 @@ Outputs all ERKStep solver parameters to the provided file pointer.
 \emph{arkode\_mem} -- pointer to the ERKStep memory block.
 
 \item {}
-\emph{fp} -- pointer to use for printing the solver parameters
+\emph{fp} -- pointer to use for printing the solver parameters.
 
 \end{itemize}
 
@@ -19694,7 +19827,8 @@ Retrieves a specified explicit Butcher table.  The
 for the function {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepGetCurrentButcherTable]{\emph{\code{ERKStepGetCurrentButcherTable()}}}}.  The
 prototype for this function, as well as the integer names for each
 provided method, are defined in the header file
-\code{arkode/arkode\_butcher\_erk.h}.
+\code{arkode/arkode\_butcher\_erk.h}.  For further information on these
+tables and their corresponding identifiers, see {\hyperref[Butcher:butcher]{\emph{\DUspan{}{Appendix: Butcher tables}}}}.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {}
@@ -19727,7 +19861,7 @@ Outputs the current Butcher table to the provided file pointer.
 \emph{arkode\_mem} -- pointer to the ERKStep memory block.
 
 \item {}
-\emph{fp} -- pointer to use for printing the Butcher table
+\emph{fp} -- pointer to use for printing the Butcher table.
 
 \end{itemize}
 
@@ -19888,7 +20022,7 @@ scale (i.e. the next step will be of size \emph{h*hscale}).
 
 \item {}
 \emph{t0} -- the current value of the independent variable
-\(t_0\) (this must be consistent with \emph{ynew}.
+\(t_0\) (this must be consistent with \emph{ynew}).
 
 \item {}
 \emph{resize} -- the user-supplied vector resize function (of type
@@ -19934,7 +20068,7 @@ call to {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepResize]{\emph{\cod
 
 If scalar-valued tolerances or a tolerance function was specified
 through either {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSStolerances]{\emph{\code{ERKStepSStolerances()}}}} or
-{\hyperref[ERKStep_c_interface/User_callable:c.ERKStepWFtolerances]{\emph{\code{ERKStepWFtolerances()}}}}, then these will remain valid. and no
+{\hyperref[ERKStep_c_interface/User_callable:c.ERKStepWFtolerances]{\emph{\code{ERKStepWFtolerances()}}}}, then these will remain valid and no
 further action is necessary.
 
 \begin{notice}{note}{Note:}
@@ -19992,7 +20126,7 @@ value of the independent variable \(t\) and state vector \(y\).
 \emph{t} -- the current value of the independent variable.
 
 \item {}
-\emph{y} -- the current value of the dependent variable vector, \(y(t)\).
+\emph{y} -- the current value of the dependent variable vector.
 
 \item {}
 \emph{ydot} -- the output vector that forms the ODE RHS \(f(t,y)\).
@@ -20037,7 +20171,7 @@ warning messages to the file pointed to by \emph{errfp} (see
 \begin{fulllineitems}
 \phantomsection\label{ERKStep_c_interface/User_supplied:c.ARKErrHandlerFn}\pysiglinewithargsret{typedef void \bfcode{(*ARKErrHandlerFn)}}{int\emph{ error\_code}, const char*\emph{ module}, const char*\emph{ function}, char*\emph{ msg}, void*\emph{ user\_data}}{}
 This function processes error and warning messages from
-ERKStep and is sub-modules.
+ERKStep and its sub-modules.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {}
@@ -20127,37 +20261,39 @@ as the maximum value such that the error estimates remain below 1.
 \index{ARKAdaptFn (C type)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_supplied:c.ARKAdaptFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKAdaptFn)}}{N\_Vector\emph{ y}, realtype\emph{ t}, realtype\emph{ h1}, realtype\emph{ h2}, realtype\emph{ h3}, realtype\emph{ e1}, realtype\emph{ e2}, realtype\emph{ e3}, int\emph{ q}, realtype*\emph{ hnew}, void*\emph{ user\_data}}{}
+\phantomsection\label{ERKStep_c_interface/User_supplied:c.ARKAdaptFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKAdaptFn)}}{N\_Vector\emph{ y}, realtype\emph{ t}, realtype\emph{ h1}, realtype\emph{ h2}, realtype\emph{ h3}, realtype\emph{ e1}, realtype\emph{ e2}, realtype\emph{ e3}, int\emph{ q}, int\emph{ p}, realtype*\emph{ hnew}, void*\emph{ user\_data}}{}
 This function implements a time step adaptivity algorithm
 that chooses \(h\) satisfying the error tolerances.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {}
-\emph{y} -- the current value of the dependent variable vector, \(y(t)\).
+\emph{y} -- the current value of the dependent variable vector.
 
 \item {}
 \emph{t} -- the current value of the independent variable.
 
 \item {}
-\emph{h1} -- the current step size, \(t_m - t_{m-1}\).
+\emph{h1} -- the current step size, \(t_n - t_{n-1}\).
 
 \item {}
-\emph{h2} -- the previous step size, \(t_{m-1} - t_{m-2}\).
+\emph{h2} -- the previous step size, \(t_{n-1} - t_{n-2}\).
 
 \item {}
-\emph{h3} -- the step size \(t_{m-2}-t_{m-3}\).
+\emph{h3} -- the step size \(t_{n-2}-t_{n-3}\).
 
 \item {}
-\emph{e1} -- the error estimate from the current step, \(m\).
+\emph{e1} -- the error estimate from the current step, \(n\).
 
 \item {}
-\emph{e2} -- the error estimate from the previous step, \(m-1\).
+\emph{e2} -- the error estimate from the previous step, \(n-1\).
 
 \item {}
-\emph{e3} -- the error estimate from the step \(m-2\).
+\emph{e3} -- the error estimate from the step \(n-2\).
 
 \item {}
 \emph{q} -- the global order of accuracy for the method.
+\item {} 
+\emph{p} -- the global order of accuracy for the embedded method.
 
 \item {}
 \emph{hnew} -- the output value of the next step size.
@@ -20199,10 +20335,10 @@ This function predicts the maximum stable step size for the ODE system.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {}
-\emph{y} -- the current value of the dependent variable vector, \(y(t)\).
+\emph{y} -- the current value of the dependent variable vector.
 
 \item {}
-\emph{t} -- the current value of the independent variable
+\emph{t} -- the current value of the independent variable.
 
 \item {}
 \emph{hstab} -- the output value with the absolute value of the
@@ -20243,10 +20379,10 @@ This function implements a vector-valued function
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {}
-\emph{t} -- the current value of the independent variable
+\emph{t} -- the current value of the independent variable.
 
 \item {}
-\emph{y} -- the current value of the dependent variable vector, \(y(t)\).
+\emph{y} -- the current value of the dependent variable vector.
 
 \item {}
 \emph{gout} -- the output array, of length \emph{nrtfn}, with components \(g_i(t,y)\).
@@ -33140,10 +33276,10 @@ X.S. Li. An Overview of SuperLU: Algorithms,
 Implementation, and User Interface. \emph{ACM
 Trans. Math. Soft.}, 31:302-325, 2005.
 }
-\bibitem[R2013]{R2013}{\phantomsection\label{References:r2013}
+\bibitem[R2018]{R2018}{\phantomsection\label{References:r2018} 
 D.R. Reynolds. ARKode Example Documentation. Technical
 Report, Southern Methodist University Center for Scientific
-Computation, 2013.
+Computation, 2018.
 }
 \bibitem[SS1986]{SS1986}{\phantomsection\label{References:ss1986}
 Y. Saad and M.H. Schultz. GMRES: A Generalized Minimal Residual

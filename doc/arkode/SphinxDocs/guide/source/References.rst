@@ -128,9 +128,9 @@
 	   Implementation, and User Interface. *ACM
 	   Trans. Math. Soft.*, 31:302-325, 2005.
 
-.. [R2013] D.R. Reynolds. ARKode Example Documentation. Technical
+.. [R2018] D.R. Reynolds. ARKode Example Documentation. Technical
 	   Report, Southern Methodist University Center for Scientific
-	   Computation, 2013.
+	   Computation, 2018.
 
 .. [SS1986] Y. Saad and M.H. Schultz. GMRES: A Generalized Minimal Residual
             Algorithm for Solving Nonsymmetric Linear Systems.

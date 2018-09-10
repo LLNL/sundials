@@ -1,7 +1,7 @@
 ..
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
-   Copyright (c) 2013, Southern Methodist University.
+   Copyright (c) 2018, Southern Methodist University.
    All rights reserved.
    For details, see the LICENSE file.
    ----------------------------------------------------------------
@@ -133,29 +133,29 @@ referenced.
 
 7. Specify rootfinding problem
 
-    Optionally, call :c:func:`ERKStepRootInit()` to initialize a rootfinding
-    problem to be solved during the integration of the ODE system. See
-    the section :ref:`ERKStep_CInterface.RootFinding` for general details, and
-    the section :ref:`ERKStep_CInterface.OptionalInputs` for relevant optional
-    input calls.
+   Optionally, call :c:func:`ERKStepRootInit()` to initialize a rootfinding
+   problem to be solved during the integration of the ODE system. See
+   the section :ref:`ERKStep_CInterface.RootFinding` for general details, and
+   the section :ref:`ERKStep_CInterface.OptionalInputs` for relevant optional
+   input calls.
 
 8. Advance solution in time
 
-    For each point at which output is desired, call
+   For each point at which output is desired, call
 
-    .. code-block:: c
+   .. code-block:: c
 
-       ier = ERKStepEvolve(arkode_mem, tout, yout, &tret, itask);
+      ier = ERKStepEvolve(arkode_mem, tout, yout, &tret, itask);
 
-    Here, ``itask`` specifies the return mode. The vector ``yout``
-    (which can be the same as the vector ``y0`` above) will contain
-    :math:`y(t_\text{out})`. See the section
-    :ref:`ERKStep_CInterface.Integration` for details.
+   Here, ``itask`` specifies the return mode. The vector ``yout``
+   (which can be the same as the vector ``y0`` above) will contain
+   :math:`y(t_\text{out})`. See the section
+   :ref:`ERKStep_CInterface.Integration` for details.
 
 9. Get optional outputs
 
-    Call ``ERKStepGet*`` functions to obtain optional output. See
-    the section :ref:`ERKStep_CInterface.OptionalOutputs` for details.
+   Call ``ERKStepGet*`` functions to obtain optional output. See
+   the section :ref:`ERKStep_CInterface.OptionalOutputs` for details.
 
 10. Deallocate memory for solution vector
 

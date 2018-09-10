@@ -138,9 +138,9 @@ void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE *outfile)
 ---------------------------------------------------------------*/
 int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
              N_Vector ycur, realtype tcur, realtype hcur,
-             int k, long int nst)
+             int q, int p, booleantype pq, long int nst)
 {
-  int ier;
+  int ier, k;
   realtype h_acc, h_cfl, int_dir;
   ARKodeMem ark_mem;
   if (arkode_mem == NULL) {
@@ -150,6 +150,9 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
   }
   ark_mem = (ARKodeMem) arkode_mem;
 
+  /* Set k as either p or q, based on pq flag */
+  k = (pq) ? q : p;
+  
   /* Call algorithm-specific error adaptivity method */
   switch (hadapt_mem->imethod) {
   case(0):    /* PID controller */
@@ -178,7 +181,7 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
                              hadapt_mem->ehist[0],
                              hadapt_mem->ehist[1],
                              hadapt_mem->ehist[2],
-                             k, &h_acc, hadapt_mem->HAdapt_data);
+                             q, p, &h_acc, hadapt_mem->HAdapt_data);
     break;
   default:
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkAdapt",

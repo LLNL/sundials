@@ -230,15 +230,15 @@ typedef void (*ARKErrHandlerFn)(int error_code, const char *module,
  A function which sets the new time step h, must have type
  ARKAdaptFn.  The function takes as input the current dependent
  variable y, the current time t, the last 3 step sizes h,
- the last 3 error estimates, the method order q, and a
- pointer to user data. The function must set the scalar step size
- for the upcoming time step.  This value will subsequently be
- bounded by the user-supplied values for the minimum and maximum
- allowed time step, and the time step satisfying the explicit
- stability restriction.  The user_data parameter is the same as
- that passed by the user to the *StepSetUserData routine.  This
- user-supplied pointer is passed to the function every time it
- is called.
+ the last 3 error estimates, the method order q, the embedding 
+ order p, and a pointer to user data. The function must set the 
+ scalar step size for the upcoming time step.  This value will 
+ subsequently be bounded by the user-supplied values for the 
+ minimum and maximum allowed time step, and the time step 
+ satisfying the explicit stability restriction.  The user_data 
+ parameter is the same as that passed by the user to the 
+ *StepSetUserData routine.  This user-supplied pointer is 
+ passed to the function every time it is called.
 
  An ARKAdaptFn must return 0 if the new time step has been
  successfuly set and a non-zero value otherwise.
@@ -246,8 +246,8 @@ typedef void (*ARKErrHandlerFn)(int error_code, const char *module,
 typedef int (*ARKAdaptFn)(N_Vector y, realtype t, realtype h1,
                           realtype h2, realtype h3,
                           realtype e1, realtype e2,
-                          realtype e3, int q, realtype *hnew,
-                          void *user_data);
+                          realtype e3, int q, int p,
+                          realtype *hnew, void *user_data);
 
 /*---------------------------------------------------------------
  Type : ARKExpStabFn

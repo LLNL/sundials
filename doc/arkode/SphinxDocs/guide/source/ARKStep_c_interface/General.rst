@@ -23,7 +23,7 @@ appropriate locations for the library and header files required by
 ARKode. The relevant library files are
 
 - ``libdir/libsundials_arkode.lib``,
-- ``libdir/libsundials_nvec*.lib`` (one or two files),
+- ``libdir/libsundials_nvec*.lib``,
 
 where the file extension ``.lib`` is typically ``.so`` for shared
 libraries and ``.a`` for static libraries.  The relevant header files
@@ -124,7 +124,7 @@ will work with both index storage types except for any calls to index storage-sp
 external libraries. (Our ``C`` and ``C++`` example programs use ``sunindextype``.)
 Users can, however, use any one of ``int``, ``long int``, ``int32_t``, ``int64_t`` or
 ``long long int`` in their code, assuming that this usage is consistent with the typedef
-for ``sunindextype`` on their architecture). Thus, a previously existing piece of ANSI
+for ``sunindextype`` on their architecture. Thus, a previously existing piece of ANSI
 C code can use SUNDIALS without modifying the code to use ``sunindextype``,
 so long as the SUNDIALS libraries use the appropriate index storage type (for details
 see the section :ref:`Installation`).

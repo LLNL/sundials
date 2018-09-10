@@ -44,35 +44,39 @@ autonomous (:math:`f=f(y)`).  In general, the time integration methods
 within ARKode support additive splittings of this right-hand side
 function, as described in the subsections that follow.  Through these
 splittings, the time-stepping methods currently supplied with ARKode
-are designed to solve stiff, nonstiff and mixed stiff/nonstiff
+are designed to solve stiff, nonstiff, or mixed stiff/nonstiff
 problems.  Roughly speaking, stiffness is characterized by the
 presence of at least one rapidly damped mode, whose time constant is
 small compared to the time scale of the solution itself.
 
 In the sub-sections that follow, we elaborate on the numerical
-methods utilized in ARKode.  We first discuss the shared features of
-the time stepping modules that comprise ARKode, including their usage
-modes, :ref:`interpolation module <Mathematics.Interpolation>`, and
-:ref:`rootfinding capabilities <Mathematics.Rootfinding>`.  We then
-discuss the current suite of time-stepping modules supplied with
-ARKode, including the ARKStep module for :ref:`additive
-Runge-Kutta methods <Mathematics.ARK>` and the ERKStep module that
-is optimized for :ref:`explicit Runge-Kutta methods <Mathematics.ERK>`.
-We then discuss the :ref:`adaptive temporal error controllers
-<Mathematics.Adaptivity>` shared by the time-stepping modules,
-including discussion of our choice of norms for measuring errors
-within various components of the solver. 
+methods utilized in ARKode.  We first discuss the "single-step" nature
+of the ARKode infrastructure, including its usage modes and approaches
+for interpolated solution output.  We then discuss the current suite
+of time-stepping modules supplied with ARKode, including the ARKStep
+module for :ref:`additive Runge-Kutta methods <Mathematics.ARK>` and
+the ERKStep module that is optimized for :ref:`explicit Runge-Kutta
+methods <Mathematics.ERK>`. We then discuss the :ref:`adaptive
+temporal error controllers <Mathematics.Adaptivity>` shared by the
+time-stepping modules, including discussion of our choice of norms for
+measuring errors within various components of the solver.
 
-We conclude this section by discussing the nonlinear and linear solver
-strategies used by ARKode's time-stepping modules for solving implicit
-algebraic systems that arise in computing each stage: :ref:`nonlinear
-solvers <Mathematics.Nonlinear>`, :ref:`linear solvers
-<Mathematics.Linear>`, :ref:`preconditioners
-<Mathematics.Preconditioning>`,  :ref:`error control
-<Mathematics.Error>` within iterative nonlinear and linear solvers,
-algorithms for :ref:`initial predictors <Mathematics.Predictors>` for
-implicit stage solutions, and approaches for handling 
+We then discuss the nonlinear and linear solver strategies used by
+ARKode's time-stepping modules for solving implicit algebraic systems
+that arise in computing each stage and/or step:
+:ref:`nonlinear solvers <Mathematics.Nonlinear>`,
+:ref:`linear solvers <Mathematics.Linear>`,
+:ref:`preconditioners <Mathematics.Preconditioning>`,
+:ref:`error control <Mathematics.Error>` within iterative nonlinear
+and linear solvers, algorithms for
+:ref:`initial predictors <Mathematics.Predictors>` for implicit stage
+solutions, and approaches for handling
 :ref:`non-identity mass-matrices <Mathematics.MassSolve>`.
+
+We conclude with a section describing ARKode's :ref:`rootfinding
+capabilities <Mathematics.Rootfinding>`, that may be used to stop
+integration of a problem prematurely based on traversal of roots in
+user-specified functions.
 
 
 
@@ -196,112 +200,6 @@ and storage costs.  However, these may be added in future releases.
 
 
 
-.. _Mathematics.Rootfinding:
-
-Rootfinding
-===============
-
-Many of the time-stepping modules in ARKode also support a rootfinding
-feature.  This means that, while integrating the IVP :eq:`IVP`, these
-can also find the roots of a set of user-defined functions
-:math:`g_i(t,y)` that depend on :math:`t` and the solution vector
-:math:`y = y(t)`. The number of these root functions is arbitrary, and
-if more than one :math:`g_i` is found to have a root in any given
-interval, the various root locations are found and reported in the
-order that they occur on the :math:`t` axis, in the direction of
-integration.
-
-Generally, this rootfinding feature finds only roots of odd
-multiplicity, corresponding to changes in sign of :math:`g_i(t,
-y(t))`, denoted :math:`g_i(t)` for short. If a user root function has
-a root of even multiplicity (no sign change), it will almost certainly
-be missed due to the realities of floating-point arithmetic.  If such
-a root is desired, the user should reformulate the root function so
-that it changes sign at the desired root.
-
-The basic scheme used is to check for sign changes of any
-:math:`g_i(t)` over each time step taken, and then (when a sign change
-is found) to hone in on the root (or roots) with a modified secant
-method [HS1980]_.  In addition, each time :math:`g` is
-evaluated, ARKode checks to see if :math:`g_i(t) = 0` exactly, and if
-so it reports this as a root.  However, if an exact zero of any
-:math:`g_i` is found at a point :math:`t`, ARKode computes
-:math:`g(t+\delta)` for a small increment :math:`\delta`, slightly
-further in the direction of integration, and if any
-:math:`g_i(t+\delta) = 0` also, ARKode stops and reports an
-error. This way, each time ARKode takes a time step, it is guaranteed
-that the values of all :math:`g_i` are nonzero at some past value of
-:math:`t`, beyond which a search for roots is to be done.
-
-At any given time in the course of the time-stepping, after suitable
-checking and adjusting has been done, ARKode has an interval
-:math:`(t_\text{lo}, t_\text{hi}]` in which roots of the
-:math:`g_i(t)` are to be sought, such that :math:`t_\text{hi}` is
-further ahead in the direction of integration, and all
-:math:`g_i(t_\text{lo}) \ne 0`.  The endpoint :math:`t_\text{hi}` is
-either :math:`t_n`, the end of the time step last taken, or the next
-requested output time :math:`t_\text{out}` if this comes sooner. The
-endpoint :math:`t_\text{lo}` is either :math:`t_{n-1}`, or the last
-output time :math:`t_\text{out}` (if this occurred within the last
-step), or the last root location (if a root was just located within
-this step), possibly adjusted slightly toward :math:`t_n` if an exact
-zero was found. The algorithm checks :math:`g(t_\text{hi})` for zeros, and
-it checks for sign changes in :math:`(t_\text{lo}, t_\text{hi})`. If no sign
-changes are found, then either a root is reported (if some
-:math:`g_i(t_\text{hi}) = 0`) or we proceed to the next time interval
-(starting at :math:`t_\text{hi}`). If one or more sign changes were found,
-then a loop is entered to locate the root to within a rather tight
-tolerance, given by
-
-.. math::
-   \tau = 100\, U\, (|t_n| + |h|)\qquad (\text{where}\; U = \text{unit roundoff}).
-
-Whenever sign changes are seen in two or more root functions, the one
-deemed most likely to have its root occur first is the one with the
-largest value of
-:math:`\left|g_i(t_\text{hi})\right| / \left| g_i(t_\text{hi}) - g_i(t_\text{lo})\right|`,
-corresponding to the closest to :math:`t_\text{lo}` of the secant method
-values. At each pass through the loop, a new value :math:`t_\text{mid}` is
-set, strictly within the search interval, and the values of
-:math:`g_i(t_\text{mid})` are checked. Then either :math:`t_\text{lo}` or
-:math:`t_\text{hi}` is reset to :math:`t_\text{mid}` according to which
-subinterval is found to have the sign change. If there is none in
-:math:`(t_\text{lo}, t_\text{mid})` but some :math:`g_i(t_\text{mid}) = 0`, then that
-root is reported. The loop continues until :math:`\left|t_\text{hi} -
-t_\text{lo} \right| < \tau`, and then the reported root location is
-:math:`t_\text{hi}`.  In the loop to locate the root of :math:`g_i(t)`, the
-formula for :math:`t_\text{mid}` is
-
-.. math::
-   t_\text{mid} = t_\text{hi} -
-   \frac{g_i(t_\text{hi}) (t_\text{hi} - t_\text{lo})}{g_i(t_\text{hi}) - \alpha g_i(t_\text{lo})} ,
-
-where :math:`\alpha` is a weight parameter. On the first two passes
-through the loop, :math:`\alpha` is set to 1, making :math:`t_\text{mid}`
-the secant method value. Thereafter, :math:`\alpha` is reset according
-to the side of the subinterval (low vs high, i.e. toward
-:math:`t_\text{lo}` vs toward :math:`t_\text{hi}`) in which the sign change was
-found in the previous two passes. If the two sides were opposite,
-:math:`\alpha` is set to 1. If the two sides were the same, :math:`\alpha`
-is halved (if on the low side) or doubled (if on the high side). The
-value of :math:`t_\text{mid}` is closer to :math:`t_\text{lo}` when
-:math:`\alpha < 1` and closer to :math:`t_\text{hi}` when :math:`\alpha > 1`.
-If the above value of :math:`t_\text{mid}` is within :math:`\tau /2` of
-:math:`t_\text{lo}` or :math:`t_\text{hi}`, it is adjusted inward, such that its
-fractional distance from the endpoint (relative to the interval size)
-is between 0.1 and 0.5 (with 0.5 being the midpoint), and the actual
-distance from the endpoint is at least :math:`\tau/2`.
-
-Finally, we note that when running in parallel, ARKode's rootfinding
-module assumes that the entire set of root defining functions
-:math:`g_i(t,y)` is replicated on every MPI task.  Since in these
-cases the vector :math:`y` is distributed across tasks, it is the
-user's responsibility to perform any necessary inter-task
-communication to ensure that :math:`g_i(t,y)` is identical on each task.
-
-
-
-
 .. _Mathematics.ARK:
 
 ARKStep -- Additive Runge-Kutta methods
@@ -358,7 +256,7 @@ allows the possibility for different explicit and implicit stage
 times, i.e. :math:`c^E` need not equal :math:`c^I`.
 
 The user of ARKStep must choose appropriately between one of three
-classes of methods: *ImEx*, *explicit* and *implicit*.  All of
+classes of methods: *ImEx*, *explicit*, and *implicit*.  All of
 ARKode's available Butcher tables encoding the coefficients
 :math:`c^E`, :math:`c^I`, :math:`A^E`, :math:`A^I`, :math:`b^E`,
 :math:`b^I`, :math:`\tilde{b}^E` and :math:`\tilde{b}^I` are further
@@ -479,7 +377,7 @@ absolute tolerances, namely
    w_i = \frac{1}{RTOL\cdot |y_{n-1,i}| + ATOL_i}.
    :label: EWT
 
-Since :math:`1/w_i` represents a tolerance in the ith component of the
+Since :math:`1/w_i` represents a tolerance in the :math:`i`-th component of the
 solution vector :math:`y`, a vector whose WRMS norm is 1 is regarded
 as "small."  For brevity, unless specified otherwise we will drop the
 subscript WRMS on norms in the remainder of this section.
@@ -510,7 +408,7 @@ Time step adaptivity
 =======================
 
 A critical component of IVP "solvers" (rather than just
-time-steppers) is their adaptive control of local truncation error.
+time-steppers) is their adaptive control of local truncation error (LTE).
 At every step, we estimate the local error, and ensure that it
 satisfies tolerance conditions.  If this local error test fails, then
 the step is recomputed with a reduced step size.  To this end, the
@@ -519,10 +417,10 @@ modules admit an embedded solution :math:`\tilde{y}_n`, as shown in
 equations :eq:`ARK` and :eq:`ERK`.  Generally, these embedded
 solutions attain a slightly lower order of accuracy than the computed
 solution :math:`y_n`.  Denoting the order of accuracy for :math:`y_n`
-as :math:`p` and for :math:`\tilde{y}_n` as :math:`q`, most of these
-embedded methods satisfy :math:`p = q-1`.  These values of :math:`p`
-and :math:`q` correspond to the *global* orders of accuracy for the
-method  and embedding, hence each admit local truncation errors
+as :math:`q` and for :math:`\tilde{y}_n` as :math:`p`, most of these
+embedded methods satisfy :math:`p = q-1`.  These values of :math:`q`
+and :math:`p` correspond to the *global* orders of accuracy for the
+method and embedding, hence each admit local truncation errors
 satisfying [HW1993]_
 
 .. math::
@@ -541,8 +439,7 @@ estimates, we have
    \le D h_n^{p+1} + \mathcal O(h_n^{p+2}).
 
 We therefore use the norm of the difference between :math:`y_n` and
-:math:`\tilde{y}_n` as an estimate for the local truncation error
-(LTE) at the step :math:`n`
+:math:`\tilde{y}_n` as an estimate for the LTE at the step :math:`n`
 
 .. math::
    M T_n = \beta \left(y_n - \tilde{y}_n\right) =
@@ -565,11 +462,11 @@ the section :ref:`Mathematics.Adaptivity.ErrorControl`.  If the error
 test fails, the step is rejected and a new step size :math:`h'` is
 then computed using the same error controller as for successful steps.
 A new attempt at the step is made, and the error test is repeated.  If
-it fails twice, then :math:`h'/h` is limited above to 0.3, and limited
-below to 0.1 after an additional step failure.  After seven error test
-failures, control is returned to the user with a failure message.  We
-note that all of the constants listed above are only the default
-values; each may be modified by the user.
+the error test fails twice, then :math:`h'/h` is limited above to 0.3,
+and limited below to 0.1 after an additional step failure.  After
+seven error test failures, control is returned to the user with a
+failure message.  We note that all of the constants listed above are
+only the default values; each may be modified by the user.
 
 We define the step size ratio between a prospective step :math:`h'`
 and a completed step :math:`h` as :math:`\eta`, i.e. :math:`\eta = h'
@@ -605,7 +502,8 @@ iterative linear solve, where this construction is computationally
 expensive, and where convergence can be seriously hindered through use
 of an inaccurate matrix.  To accommodate these scenarios, the step is
 left unchanged when :math:`\eta \in [\eta_L, \eta_U]`.  The default
-values for this interval are :math:`\eta_L = 1` and :math:`\eta_U = 1.5`.
+values for this interval are :math:`\eta_L = 1` and :math:`\eta_U =
+1.5`, and may be modified by the user.
 
 We note that any choices for :math:`\eta` (or equivalently,
 :math:`h'`) are subsequently constrained by the optional user-supplied
@@ -657,9 +555,9 @@ ERKStep modules.  It derives from those found in [KC2003]_, [S1998]_, [S2003]_ a
         \varepsilon_{n-2}^{-k_3/p},
 
 where the constants :math:`k_1`, :math:`k_2` and :math:`k_3` default
-to 0.58, 0.21 and 0.1, respectively.  In this estimate, a floor of
-:math:`\varepsilon > 10^{-10}` is enforced to avoid division-by-zero
-errors.
+to 0.58, 0.21 and 0.1, respectively, and may be modied by the user.
+In this estimate, a floor of :math:`\varepsilon > 10^{-10}` is
+enforced to avoid division-by-zero errors.
 
 
 
@@ -678,9 +576,6 @@ algorithm,
 
 Here, the default values of :math:`k_1` and :math:`k_2` default
 to 0.8 and 0.31, respectively, though they may be changed by the user.
-As with the previous controller, at initialization :math:`k_1 = k_2 =
-1.0`, and the floor of :math:`10^{-10}` is enforced on the local error
-estimates.
 
 
 
@@ -720,7 +615,7 @@ In the notation of our earlier controllers, it has the form
    :label: expGus
 
 The default values of :math:`k_1` and :math:`k_2` are 0.367 and 0.268,
-respectively.
+respectively, and may be modified by the user.
 
 
 
@@ -764,7 +659,7 @@ equation :eq:`impGus`, and selects
 Here, equation :eq:`expGus` uses :math:`k_1` and
 :math:`k_2` with default values of 0.367 and 0.268, while equation
 :eq:`impGus` sets both parameters to the input :math:`k_3` that
-defaults to 0.95.
+defaults to 0.95.  All of these values may be modified by the user.
 
 
 
@@ -796,7 +691,7 @@ i.e. :math:`f_E(t,y) \ne 0` in ARKStep or for any problem in
 ERKStep, explicit and ImEx Runge-Kutta methods may benefit from
 additional user-supplied information regarding the explicit stability
 region.  All ARKode adaptivity methods utilize estimates of the local
-error.  It is often the case that such local error control will be
+error, and it is often the case that such local error control will be
 sufficient for method stability, since unstable steps will typically
 exceed the error control tolerances.  However, for problems in which
 :math:`f_E(t,y)` includes even moderately stiff components, and
@@ -877,19 +772,19 @@ Additional information on this mode is provided in the sections
 Algebraic solvers
 ===============================
 
-More specifically, when using the ARKStep time-stepping module for a
-problem involving either a nonzero implicit component, :math:`f_I(t,y)
-\ne 0`, or a non-identity mass matrix, :math:`M \ne I`, systems of
-linear or nonlinear algebraic equations must be solved at each stage
-and/or step of the method.  This section therefore focuses on the
-variety of mathematical methods provided in the ARKode infrastructure
-for such problems, including :ref:`nonlinear solvers
-<Mathematics.Nonlinear>`, :ref:`linear solvers <Mathematics.Linear>`,
-:ref:`preconditioners <Mathematics.Preconditioning>`, :ref:`iterative
-solver error control <Mathematics.Error>`, :ref:`implicit predictors 
-<Mathematics.Predictors>`, and techniques used for simplifying the
-above solves when using non-time-dependent :ref:`mass-matrices
-<Mathematics.MassSolve>`.
+When solving a problem involving either a nonzero implicit component,
+:math:`f_I(t,y) \ne 0`, or a non-identity mass matrix,
+:math:`M \ne I`, systems of linear or nonlinear algebraic equations
+must be solved at each stage and/or step of the method.  This section
+therefore focuses on the variety of mathematical methods provided in
+the ARKode infrastructure for such problems, including
+:ref:`nonlinear solvers <Mathematics.Nonlinear>`,
+:ref:`linear solvers <Mathematics.Linear>`,
+:ref:`preconditioners <Mathematics.Preconditioning>`,
+:ref:`iterative solver error control <Mathematics.Error>`,
+:ref:`implicit predictors <Mathematics.Predictors>`, and techniques
+used for simplifying the above solves when using non-time-dependent
+:ref:`mass-matrices <Mathematics.MassSolve>`.
 
 
 
@@ -926,8 +821,8 @@ on :math:`y` then :eq:`Residual` corresponds to a nonlinear system of
 equations; if :math:`f_I(t,y)` depends linearly on :math:`y` then this
 is a linear system of equations.
 
-For systems of either type, ARKStep allows a choice of solution
-strategy. The default solver choice is a variant of :index:`Newton's
+For systems of either type, ARKode provides a choice of solution
+strategies. The default solver choice is a variant of :index:`Newton's
 method`,
 
 .. math::
@@ -952,8 +847,8 @@ in which
    :label: NewtonMatrix
 
 When the problem involves an identity mass matrix, then as an
-alternate to Newton's method, ARKStep may instead solve for each stage
-:math:`z_i, i=1,\ldots,s` using a :index:`fixed point iteration`
+alternative to Newton's method, ARKode provides a :index:`fixed point
+iteration` for solving the stages :math:`z_i, i=1,\ldots,s`,
 
 .. math::
    z_i^{(m+1)} = \Phi\left(z_i^{(m)}\right) \equiv z_i^{(m)} -
@@ -970,10 +865,10 @@ Finally, if the user specifies that :math:`f_I(t,y)` depends linearly
 on :math:`y`, and if the Newton-based nonlinear solver is chosen, then
 the problem :eq:`Residual` will be solved using only a single Newton
 iteration. In this case, an additional user-supplied argument
-indicates whether this Jacobian is time-dependent or not, signaling to
-ARKStep whether the Jacobian or preconditioner needs to be recomputed
+indicates whether this Jacobian is time-dependent or not, signaling
+whether the Jacobian or preconditioner needs to be recomputed 
 at each stage or time step, or if it can be reused throughout the full
-ARKStep simulation.
+simulation.
 
 The optimal choice of solver (Newton vs fixed-point) is highly
 problem dependent.  Since fixed-point solvers do not require the
@@ -989,18 +884,18 @@ improvement is most significant for "small" values, e.g. :math:`1\le
 m_k\le 5`, and that larger values of :math:`m_k` may not result in
 improved convergence.
 
-While ARKStep uses a Newton-based iteration as its default solver due
+While a Newton-based iteration is the default solver due
 to its increased robustness on very stiff problems, we strongly
 recommend that users also consider the fixed-point solver when
 attempting a new problem.
 
 For either the Newton or fixed-point solvers, it is well-known that
 both the efficiency and robustness of the algorithm intimately depend
-on the choice of a good initial guess.  In ARKStep, the initial guess
+on the choice of a good initial guess.  The initial guess
 for these solvers is a prediction :math:`z_i^{(0)}` that is computed
 explicitly from previously-computed data (e.g. :math:`y_{n-2}`,
 :math:`y_{n-1}`, and :math:`z_j` where :math:`j<i`).  Additional
-information on the specific ARKStep predictor algorithms
+information on the specific predictor algorithms
 is provided in the following section, :ref:`Mathematics.Predictors`.
 
 
@@ -1012,7 +907,7 @@ Linear solver methods
 
 When a Newton-based method is chosen for solving each nonlinear
 system, a linear system of equations must be solved at each nonlinear
-iteration.  For this solve ARKStep provides several choices, including
+iteration.  For this solve ARKode provides several choices, including
 the option of a user-supplied linear solver module.  The linear solver
 modules distributed with SUNDIALS are organized into two families: a
 *direct* family comprising direct linear solvers for dense, banded or
@@ -1032,7 +927,7 @@ modules are as follows:
   install the KLU or SuperLU_MT packages independent of ARKode],
 * SPGMR, a scaled, preconditioned GMRES (Generalized Minimal Residual)
   solver,
-* SPFGMR, a scaled, preconditioned Flexible GMRES (Generalized Minimal
+* SPFGMR, a scaled, preconditioned FGMRES (Flexible Generalized Minimal
   Residual) solver,
 * SPBCGS, a scaled, preconditioned Bi-CGStab (Bi-Conjugate Gradient
   Stable) solver,
@@ -1059,9 +954,8 @@ with the serial and threaded vector representations.
 Direct linear solvers
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-In the case that a direct linear solver is used, ARKStep utilizes
-either a Newton or a *modified Newton iteration*.  The difference
-between these is that in a modified Newton method, the matrix
+In the case that a direct linear solver is used, a *modified Newton
+iteration* is utilized.  In a modified Newton method, the matrix
 :math:`{\mathcal A}` is held fixed for multiple Newton iterations.
 More precisely, each Newton iteration is computed from the modified
 equation
@@ -1083,8 +977,7 @@ size :math:`\tilde{h}` upon which the modified equation rely, are
 merely values of these quantities from a previous iteration.  In other
 words, the matrix :math:`\tilde{\mathcal A}` is only computed rarely,
 and reused for repeated solves.  The frequency at which
-:math:`\tilde{\mathcal A}` is recomputed, and hence the choice between
-normal and modified Newton iterations, defaults to 20, but may be
+:math:`\tilde{\mathcal A}` is recomputed defaults to 20, but may be
 modified by the user.
 
 When using the dense and band solvers for the linear systems
@@ -1095,7 +988,7 @@ In the case of differencing, we use the standard approximation
 .. math::
    J_{i,j}(t,z) \approx \frac{f_{I,i}(t,z+\sigma_j e_j) - f_{I,i}(t,z)}{\sigma_j},
 
-where :math:`e_j` is the jth unit vector, and the increments
+where :math:`e_j` is the :math:`j`-th unit vector, and the increments
 :math:`\sigma_j` are given by
 
 .. math::
@@ -1121,13 +1014,13 @@ be supplied by a user routine.
 Iterative linear solvers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In the case that an iterative linear solver is chosen, ARKStep utilizes a
-Newton method variant called an *Inexact Newton iteration*.  Here, the
+In the case that an iterative linear solver is chosen, an *inexact
+Newton iteration* is utilized.  Here, the
 matrix :math:`{\mathcal A}` is not itself constructed since the
 algorithms only require the product of this matrix with a given
 vector.  Additionally, each Newton system :eq:`Newton_system` is not
 solved completely, since these linear solvers are iterative (hence the
-"inexact" in the name). As a result. for these linear solvers
+"inexact" in the name). As a result, for these linear solvers
 :math:`{\mathcal A}` is applied in a matrix-free manner,
 
 .. math::
@@ -1146,7 +1039,7 @@ where the increment :math:`\sigma = 1/\|v\|` to ensure that
 :math:`\|\sigma v\| = 1`.
 
 As with the modified Newton method that reused :math:`{\mathcal A}`
-between solves, ARKStep's inexact Newton iteration may also recompute
+between solves, the inexact Newton iteration may also recompute
 the preconditioner :math:`P` infrequently to balance the high costs
 of matrix construction and factorization against the reduced
 convergence rate that may result from a stale preconditioner.
@@ -1162,13 +1055,15 @@ Updating the linear solver
 
 In cases where recomputation of the Newton matrix
 :math:`\tilde{\mathcal A}` or preconditioner :math:`P` is lagged,
-ARKStep will force recomputation of these structures only in the
+these structures will be recomputed only in the
 following circumstances:
 
 * when starting the problem,
-* when more than 20 steps have been taken since the last update,
-* when the value :math:`\bar{\gamma}` of :math:`\gamma` at the last
-  update satisfies :math:`\left|\gamma/\bar{\gamma} - 1\right| > 0.2`,
+* when more than 20 steps have been taken since the last update (this
+  value may be modified by the user),
+* when the value :math:`\tilde{\gamma}` of :math:`\gamma` at the last
+  update satisfies :math:`\left|\gamma/\tilde{\gamma} - 1\right| >
+  0.2` (this value may be modified by the user),
 * when a non-fatal convergence failure just occurred,
 * when an error test failure just occurred, or
 * if the problem is linearly implicit and :math:`\gamma` has
@@ -1185,8 +1080,8 @@ update :math:`P`) when:
 * starting the problem,
 * more than 50 steps have been taken since the last evaluation,
 * a convergence failure occurred with an outdated matrix, and the
-  value :math:`\bar{\gamma}` of :math:`\gamma` at the last update
-  satisfies :math:`\left|\gamma/\bar{\gamma} - 1\right| > 0.2`,
+  value :math:`\tilde{\gamma}` of :math:`\gamma` at the last update
+  satisfies :math:`\left|\gamma/\tilde{\gamma} - 1\right| > 0.2`,
 * a convergence failure occurred that forced a step size reduction, or
 * if the problem is linearly implicit and :math:`\gamma` has
   changed by a factor larger than 100 times machine epsilon.
@@ -1200,8 +1095,7 @@ the above heuristics specify, since the increased rate of
 linear/nonlinear solver convergence may more than account for the
 additional cost of Jacobian/preconditioner construction.  To this end,
 a user may specify that the system matrix :math:`{\mathcal A}` and/or
-preconditioner :math:`P` should be recomputed more frequently, or even
-at every Newton iteration.
+preconditioner :math:`P` should be recomputed more frequently.
 
 As will be further discussed in the section
 :ref:`Mathematics.Preconditioning`, in the case of most Krylov methods,
@@ -1223,14 +1117,14 @@ Iteration Error Control
 Nonlinear iteration error control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The stopping test for all of the nonlinear solver algorithms in the
-ARKStep time-stepping module is related to the temporal local error
-test, with the goal of keeping the nonlinear iteration errors from
-interfering with local error control.  Denoting the final computed
-value of each stage solution as :math:`z_i^{(m)}`, and the true stage
-solution solving :eq:`Residual` as :math:`z_i`, we want to ensure that
-the iteration error :math:`z_i - z_i^{(m)}` is "small" (recall that a
-norm less than 1 is already considered within an acceptable tolerance).
+The stopping test for all of the nonlinear solver algorithms is
+related to the temporal local error test, with the goal of keeping the
+nonlinear iteration errors from interfering with local error control.
+Denoting the final computed value of each stage solution as
+:math:`z_i^{(m)}`, and the true stage solution solving :eq:`Residual`
+as :math:`z_i`, we want to ensure that the iteration error
+:math:`z_i - z_i^{(m)}` is "small" (recall that a norm less than 1 is
+already considered within an acceptable tolerance).
 
 To this end, we first estimate the linear convergence rate :math:`R_i`
 of the nonlinear iteration.  We initialize :math:`R_i=1`, and reset it
@@ -1297,13 +1191,14 @@ the preconditioned linear residual satisfies
    \|r\| \le \frac{\epsilon_L \epsilon}{10}.
    :label: LinearTolerance
 
-Here :math:`\epsilon` is the same value as that used above for the
+Here :math:`\epsilon` is the same value as that is used above for the
 nonlinear error control.  The factor of 10 is used to ensure that the
 linear solver error does not adversely affect the nonlinear solver
 convergence.  Smaller values for the parameter :math:`\epsilon_L` are
 typically useful for strongly nonlinear or very stiff ODE systems,
 while easier ODE systems may benefit from a value closer to 1.  The
-default value is :math:`\epsilon_L = 0.05`.  We note that for linearly
+default value is :math:`\epsilon_L = 0.05`, which may be modified by
+the user.  We note that for linearly
 implicit problems the tolerance :eq:`LinearTolerance` is similarly
 used for the single Newton iteration.
 
@@ -1316,7 +1211,7 @@ Preconditioning
 ------------------------------------
 
 When using an inexact Newton method to solve the nonlinear system
-:eq:`Residual`, ARKStep makes repeated use of an iterative method to solve
+:eq:`Residual`, an iterative method is used repeatedly to solve
 linear systems of the form :math:`{\mathcal A}x = b`, where :math:`x` is a
 correction vector and :math:`b` is a residual vector.  If this
 iterative method is one of the scaled preconditioned iterative linear
@@ -1362,7 +1257,7 @@ assumes a symmetric matrix :math:`{\mathcal A}`, since the PCG
 algorithm in fact applies the single preconditioner matrix :math:`P`
 in both left/right fashion as :math:`P^{-1/2} {\mathcal A} P^{-1/2}`.
 
-Typical preconditioners used with ARKStep are based on approximations
+Typical preconditioners are based on approximations
 to the system Jacobian, :math:`J = \partial f_I / \partial y`.  Since
 the Newton iteration matrix involved is :math:`{\mathcal A} = M -
 \gamma J`, any approximation :math:`\bar{J}` to :math:`J` yields a
@@ -1386,23 +1281,22 @@ the Newton-Krylov method with no preconditioning.
 Implicit predictors
 ------------------------------------
 
-For problems with implicit components, ARKStep will employ a prediction
-algorithm for constructing the initial guesses for each implicit
+For problems with implicit components, a prediction algorithm is 
+employed for constructing the initial guesses for each implicit
 Runge-Kutta stage, :math:`z_i^{(0)}`.  As is well-known with nonlinear
 solvers, the selection of a good initial guess can have dramatic
 effects on both the speed and robustness of the solve, making the
 difference between rapid quadratic convergence versus divergence of
-the iteration.  To this end, ARKStep implements a variety of
-prediction algorithms that may be selected by the user.  In each case,
-the stage guesses :math:`z_i^{(0)}` are constructed explicitly using
-readily-available information, including the previous step solutions
-:math:`y_{n-1}` and :math:`y_{n-2}`, as well as any previous stage
-solutions :math:`z_j, \quad j<i`.  In most cases, prediction is
-performed by constructing an interpolating polynomial through
-existing data, which is then evaluated at the desired stage time
-to provide an inexpensive but (hopefully) reasonable prediction of the
-stage solution.  Specifically, for most Runge-Kutta methods each stage
-solution satisfies
+the iteration.  To this end, a variety of prediction algorithms are
+provided.  In each case, the stage guesses :math:`z_i^{(0)}` are
+constructed explicitly using readily-available information, including
+the previous step solutions :math:`y_{n-1}` and :math:`y_{n-2}`, as
+well as any previous stage solutions :math:`z_j, \quad j<i`.  In most
+cases, prediction is performed by constructing an interpolating
+polynomial through existing data, which is then evaluated at the
+desired stage time to provide an inexpensive but (hopefully)
+reasonable prediction of the stage solution.  Specifically, for most
+Runge-Kutta methods each stage solution satisfies
 
 .. math::
    z_i \approx y(t^I_{n,i}),
@@ -1425,7 +1319,7 @@ interval are well-known, with higher-order polynomials and predictions
 further outside the interval resulting in the greatest potential
 inaccuracies.
 
-The prediction algorithms available in ARKStep therefore
+The prediction algorithms available in ARKode therefore
 construct a variety of interpolants :math:`p_q(t)`, having
 different polynomial order and using different interpolation data, to
 support 'optimal' choices for different types of problems, as
@@ -1455,12 +1349,12 @@ solution values (e.g. a negative density or temperature).
 Maximum order predictor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-At the opposite end of the spectrum, ARKStep can utilize ARKode's
-:ref:`interpolation module <Mathematics.Interpolation>` to construct a
-higher-order polynomial interpolant, :math:`p_q(t)`, based on the two
+At the opposite end of the spectrum, ARKode's
+:ref:`interpolation module <Mathematics.Interpolation>` can be used to
+construct a higher-order polynomial interpolant, :math:`p_q(t)`, based on the two
 most-recently-computed solutions,
 :math:`\left\{ y_{n-2}, f_{n-2}, y_{n-1}, f_{n-1} \right\}`.
-ARKStep can then utilize :math:`p_q(t)` to extrapolate predicted stage
+This can then be used to extrapolate predicted stage
 solutions for each stage time :math:`t^I_{n,i}`.  This polynomial
 order is the same as that specified by the user for dense output.
 
@@ -1551,7 +1445,7 @@ currently implemented, so selection of this predictor in the case that
 Minimum correction predictor
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The last ARKStep predictor is not interpolation based; instead it
+The last predictor is not interpolation based; instead it
 utilizes all existing stage information from the current step to
 create a predictor containing all but the current stage solution.
 Specifically, as discussed in equations :eq:`ARK` and :eq:`Residual`,
@@ -1585,7 +1479,7 @@ currently implemented, so selection of this predictor in the case that
 Mass matrix solver
 ------------------------------------
 
-Within the ARKStep algorithms described above, there are multiple
+Within the algorithms described above, there are multiple
 locations where a matrix-vector product
 
 .. math::
@@ -1602,18 +1496,18 @@ are required.
 
 Of course, for problems in which :math:`M=I` both of these operators
 are trivial.  However for problems with non-identity :math:`M`,
-ARKStep may handle these linear solves :eq:`mass_solve` using either
+these linear solves :eq:`mass_solve` may be handled using either
 an iterative linear solver or a direct linear solver, in the same
 manner as described in the section :ref:`Mathematics.Linear` for
 solving the linear Newton systems.
 
 At present, for DIRK and ARK problems using a direct solver for
-the Newton nonlinear iterations, the type of matrix (dense, band or
+the Newton nonlinear iterations, the type of matrix (dense, band, or
 sparse) for the Jacobian matrix :math:`J` must match the type of mass
 matrix :math:`M`, since these are combined to form the Newton system
 matrix :math:`\tilde{\mathcal A}`.  When direct methods are employed,
 the user must supply a routine to compute :math:`M` in either dense,
-band or sparse form to match the structure of :math:`{\mathcal A}`,
+band, or sparse form to match the structure of :math:`{\mathcal A}`,
 with a user-supplied routine of type :c:func:`ARKDlsMassFn()`.  This
 matrix structure is used internally to perform any requisite mass
 matrix-vector products :eq:`mass_multiply`.
@@ -1679,3 +1573,109 @@ In total, these require only two mass-matrix linear solves
 completion of a time step that meets the solution accuracy
 requirements.  When fixed time-stepping is used (:math:`h_n=h`), the
 solve :eq:`mass_solve_LTE` is not performed at each attempted step.
+
+
+
+
+.. _Mathematics.Rootfinding:
+
+Rootfinding
+===============
+
+Many of the time-stepping modules in ARKode also support a rootfinding
+feature.  This means that, while integrating the IVP :eq:`IVP`, these
+can also find the roots of a set of user-defined functions
+:math:`g_i(t,y)` that depend on :math:`t` and the solution vector
+:math:`y = y(t)`. The number of these root functions is arbitrary, and
+if more than one :math:`g_i` is found to have a root in any given
+interval, the various root locations are found and reported in the
+order that they occur on the :math:`t` axis, in the direction of
+integration.
+
+Generally, this rootfinding feature finds only roots of odd
+multiplicity, corresponding to changes in sign of :math:`g_i(t,
+y(t))`, denoted :math:`g_i(t)` for short. If a user root function has
+a root of even multiplicity (no sign change), it will almost certainly
+be missed due to the realities of floating-point arithmetic.  If such
+a root is desired, the user should reformulate the root function so
+that it changes sign at the desired root.
+
+The basic scheme used is to check for sign changes of any
+:math:`g_i(t)` over each time step taken, and then (when a sign change
+is found) to home in on the root (or roots) with a modified secant
+method [HS1980]_.  In addition, each time :math:`g` is
+evaluated, ARKode checks to see if :math:`g_i(t) = 0` exactly, and if
+so it reports this as a root.  However, if an exact zero of any
+:math:`g_i` is found at a point :math:`t`, ARKode computes
+:math:`g(t+\delta)` for a small increment :math:`\delta`, slightly
+further in the direction of integration, and if any
+:math:`g_i(t+\delta) = 0` also, ARKode stops and reports an
+error. This way, each time ARKode takes a time step, it is guaranteed
+that the values of all :math:`g_i` are nonzero at some past value of
+:math:`t`, beyond which a search for roots is to be done.
+
+At any given time in the course of the time-stepping, after suitable
+checking and adjusting has been done, ARKode has an interval
+:math:`(t_\text{lo}, t_\text{hi}]` in which roots of the
+:math:`g_i(t)` are to be sought, such that :math:`t_\text{hi}` is
+further ahead in the direction of integration, and all
+:math:`g_i(t_\text{lo}) \ne 0`.  The endpoint :math:`t_\text{hi}` is
+either :math:`t_n`, the end of the time step last taken, or the next
+requested output time :math:`t_\text{out}` if this comes sooner. The
+endpoint :math:`t_\text{lo}` is either :math:`t_{n-1}`, or the last
+output time :math:`t_\text{out}` (if this occurred within the last
+step), or the last root location (if a root was just located within
+this step), possibly adjusted slightly toward :math:`t_n` if an exact
+zero was found. The algorithm checks :math:`g(t_\text{hi})` for zeros, and
+it checks for sign changes in :math:`(t_\text{lo}, t_\text{hi})`. If no sign
+changes are found, then either a root is reported (if some
+:math:`g_i(t_\text{hi}) = 0`) or we proceed to the next time interval
+(starting at :math:`t_\text{hi}`). If one or more sign changes were found,
+then a loop is entered to locate the root to within a rather tight
+tolerance, given by
+
+.. math::
+   \tau = 100\, U\, (|t_n| + |h|)\qquad (\text{where}\; U = \text{unit roundoff}).
+
+Whenever sign changes are seen in two or more root functions, the one
+deemed most likely to have its root occur first is the one with the
+largest value of
+:math:`\left|g_i(t_\text{hi})\right| / \left| g_i(t_\text{hi}) - g_i(t_\text{lo})\right|`,
+corresponding to the closest to :math:`t_\text{lo}` of the secant method
+values. At each pass through the loop, a new value :math:`t_\text{mid}` is
+set, strictly within the search interval, and the values of
+:math:`g_i(t_\text{mid})` are checked. Then either :math:`t_\text{lo}` or
+:math:`t_\text{hi}` is reset to :math:`t_\text{mid}` according to which
+subinterval is found to have the sign change. If there is none in
+:math:`(t_\text{lo}, t_\text{mid})` but some :math:`g_i(t_\text{mid}) = 0`, then that
+root is reported. The loop continues until :math:`\left|t_\text{hi} -
+t_\text{lo} \right| < \tau`, and then the reported root location is
+:math:`t_\text{hi}`.  In the loop to locate the root of :math:`g_i(t)`, the
+formula for :math:`t_\text{mid}` is
+
+.. math::
+   t_\text{mid} = t_\text{hi} -
+   \frac{g_i(t_\text{hi}) (t_\text{hi} - t_\text{lo})}{g_i(t_\text{hi}) - \alpha g_i(t_\text{lo})} ,
+
+where :math:`\alpha` is a weight parameter. On the first two passes
+through the loop, :math:`\alpha` is set to 1, making :math:`t_\text{mid}`
+the secant method value. Thereafter, :math:`\alpha` is reset according
+to the side of the subinterval (low vs high, i.e. toward
+:math:`t_\text{lo}` vs toward :math:`t_\text{hi}`) in which the sign change was
+found in the previous two passes. If the two sides were opposite,
+:math:`\alpha` is set to 1. If the two sides were the same, :math:`\alpha`
+is halved (if on the low side) or doubled (if on the high side). The
+value of :math:`t_\text{mid}` is closer to :math:`t_\text{lo}` when
+:math:`\alpha < 1` and closer to :math:`t_\text{hi}` when :math:`\alpha > 1`.
+If the above value of :math:`t_\text{mid}` is within :math:`\tau /2` of
+:math:`t_\text{lo}` or :math:`t_\text{hi}`, it is adjusted inward, such that its
+fractional distance from the endpoint (relative to the interval size)
+is between 0.1 and 0.5 (with 0.5 being the midpoint), and the actual
+distance from the endpoint is at least :math:`\tau/2`.
+
+Finally, we note that when running in parallel, ARKode's rootfinding
+module assumes that the entire set of root defining functions
+:math:`g_i(t,y)` is replicated on every MPI task.  Since in these
+cases the vector :math:`y` is distributed across tasks, it is the
+user's responsibility to perform any necessary inter-task
+communication to ensure that :math:`g_i(t,y)` is identical on each task.

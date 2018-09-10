@@ -1,7 +1,7 @@
 ..
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
-   Copyright (c) 2013, Southern Methodist University.
+   Copyright (c) 2018, Southern Methodist University.
    All rights reserved.
    For details, see the LICENSE file.
    ----------------------------------------------------------------
@@ -54,7 +54,7 @@ specify the right-hand side of the ODE system:
 
    **Arguments:**
       * *t* -- the current value of the independent variable.
-      * *y* -- the current value of the dependent variable vector, :math:`y(t)`.
+      * *y* -- the current value of the dependent variable vector.
       * *ydot* -- the output vector that forms the ODE RHS :math:`f(t,y)`.
       * *user_data* -- the `user_data` pointer that was passed to :c:func:`ERKStepSetUserData()`.
 
@@ -94,7 +94,7 @@ warning messages to the file pointed to by `errfp` (see
 .. c:type:: typedef void (*ARKErrHandlerFn)(int error_code, const char* module, const char* function, char* msg, void* user_data)
 
    This function processes error and warning messages from
-   ERKStep and is sub-modules.
+   ERKStep and its sub-modules.
 
    **Arguments:**
       * *error_code* -- the error code.
@@ -166,21 +166,22 @@ as the maximum value such that the error estimates remain below 1.
 
 
 
-.. c:type:: typedef int (*ARKAdaptFn)(N_Vector y, realtype t, realtype h1, realtype h2, realtype h3, realtype e1, realtype e2, realtype e3, int q, realtype* hnew, void* user_data)
+.. c:type:: typedef int (*ARKAdaptFn)(N_Vector y, realtype t, realtype h1, realtype h2, realtype h3, realtype e1, realtype e2, realtype e3, int q, int p, realtype* hnew, void* user_data)
 
    This function implements a time step adaptivity algorithm
    that chooses :math:`h` satisfying the error tolerances.
 
    **Arguments:**
-      * *y* -- the current value of the dependent variable vector, :math:`y(t)`.
+      * *y* -- the current value of the dependent variable vector.
       * *t* -- the current value of the independent variable.
-      * *h1* -- the current step size, :math:`t_m - t_{m-1}`.
-      * *h2* -- the previous step size, :math:`t_{m-1} - t_{m-2}`.
-      * *h3* -- the step size :math:`t_{m-2}-t_{m-3}`.
-      * *e1* -- the error estimate from the current step, :math:`m`.
-      * *e2* -- the error estimate from the previous step, :math:`m-1`.
-      * *e3* -- the error estimate from the step :math:`m-2`.
+      * *h1* -- the current step size, :math:`t_n - t_{n-1}`.
+      * *h2* -- the previous step size, :math:`t_{n-1} - t_{n-2}`.
+      * *h3* -- the step size :math:`t_{n-2}-t_{n-3}`.
+      * *e1* -- the error estimate from the current step, :math:`n`.
+      * *e2* -- the error estimate from the previous step, :math:`n-1`.
+      * *e3* -- the error estimate from the step :math:`n-2`.
       * *q* -- the global order of accuracy for the method.
+      * *p* -- the global order of accuracy for the embedded method.
       * *hnew* -- the output value of the next step size.
       * *user_data* -- a pointer to user data, the same as the
         *h_data* parameter that was passed to :c:func:`ERKStepSetAdaptivityFn()`.
@@ -216,8 +217,8 @@ step, and the accuracy-based time step.
    This function predicts the maximum stable step size for the ODE system.
 
    **Arguments:**
-      * *y* -- the current value of the dependent variable vector, :math:`y(t)`.
-      * *t* -- the current value of the independent variable
+      * *y* -- the current value of the dependent variable vector.
+      * *t* -- the current value of the independent variable.
       * *hstab* -- the output value with the absolute value of the
  	maximum stable step size.
       * *user_data* -- a pointer to user data, the same as the
@@ -251,8 +252,8 @@ ODE system, the user must supply a function of type :c:type:`ARKRootFn`.
    :math:`g_i(t,y)` are sought.
 
    **Arguments:**
-      * *t* -- the current value of the independent variable
-      * *y* -- the current value of the dependent variable vector, :math:`y(t)`.
+      * *t* -- the current value of the independent variable.
+      * *y* -- the current value of the dependent variable vector.
       * *gout* -- the output array, of length *nrtfn*, with components :math:`g_i(t,y)`.
       * *user_data* -- a pointer to user data, the same as the
         *user_data* parameter that was passed to :c:func:`ERKStepSetUserData()`.

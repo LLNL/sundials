@@ -551,7 +551,7 @@ of those built-in to ARKStep.  In ARKStep's C/C++ interface, this would be
 provided by a function of type :c:func:`ARKAdaptFn()`; in the Fortran
 interface this is provided through the user-supplied function:
 
-.. f:subroutine:: FARKADAPT(Y, T, H1, H2, H3, E1, E2, E3, Q, HNEW, IPAR, RPAR, IER)
+.. f:subroutine:: FARKADAPT(Y, T, H1, H2, H3, E1, E2, E3, Q, P, HNEW, IPAR, RPAR, IER)
 
    It must set the new step size *HNEW* based on the three previous
    steps (*H1*, *H2*, *H3*) and the three previous error estimates
@@ -567,6 +567,7 @@ interface this is provided through the user-supplied function:
       * *E2* (``realtype``, input) -- estimated temporal error in previous step.
       * *E3* (``realtype``, input) -- estimated temporal error in previous-previous step.
       * *Q* (``int``, input) -- global order of accuracy for RK method.
+      * *P* (``int``, input) -- global order of accuracy for RK embedded method.
       * *HNEW* (``realtype``, output) -- array containing the error weight vector.
       * *IPAR* (``long int``, input) -- array containing the integer
 	user data that was passed to :f:func:`FARKMALLOC()`.

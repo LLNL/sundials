@@ -1,7 +1,7 @@
 ..
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
-   Copyright (c) 2013, Southern Methodist University.
+   Copyright (c) 2018, Southern Methodist University.
    All rights reserved.
    For details, see the LICENSE file.
    ----------------------------------------------------------------
@@ -21,7 +21,7 @@ files and the layout of the user's main program, and provide
 descriptions of the ERKStep user-callable functions and user-supplied
 functions.
 
-The example programs described in the companion document [R2013]_ may
+The example programs described in the companion document [R2018]_ may
 be helpful. Those codes may be used as templates for new codes and are
 included in the ARKode package ``examples`` subdirectory.
 
@@ -31,7 +31,7 @@ convenience the full list is provided separately in the section
 :ref:`Constants`.
 
 The relevant information on using ERKStep's C and C++ interfaces is
-detailed in the following sub-sections:
+detailed in the following sub-sections.
 
 .. toctree::
    :maxdepth: 1
