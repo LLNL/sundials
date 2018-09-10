@@ -22,11 +22,12 @@ skipped for a casual use of ARKode's ARKStep module. In any case,
 refer to the preceding section, :ref:`ARKStep_CInterface.Skeleton`,
 for the correct order of these calls.
 
-On an error, each user-callable function returns a negative value and
-sends an error message to the error handler routine, which prints the
-message on ``stderr`` by default. However, the user can set a file as
-error output or can provide her own error handler function
-(see the section :ref:`ARKStep_CInterface.OptionalInputs` for details).
+On an error, each user-callable function returns a negative value (or
+``NULL`` if the function returns a pointer) and sends an error message
+to the error handler routine, which prints the message to ``stderr``
+by default. However, the user can set a file as error output or can
+provide her own error handler function (see the section
+:ref:`ARKStep_CInterface.OptionalInputs` for details). 
 
 
 
@@ -96,7 +97,7 @@ are given by
    ewt[i] = 1.0/(reltol*abs(y[i]) + abstol[i]);
 
 This vector is used in all error and convergence tests, which use a
-weighted RMS norm on all error-like vectors v:
+weighted RMS norm on all error-like vectors :math:`v`:
 
 .. math::
     \|v\|_{WRMS} = \left( \frac{1}{N} \sum_{i=1}^N (v_i\; ewt_i)^2 \right)^{1/2},
@@ -187,7 +188,7 @@ are given by
 
 This residual weight vector is used in all iterative solver
 convergence tests, which similarly use a weighted RMS norm on all
-residual-like vectors v:
+residual-like vectors :math:`v`:
 
 .. math::
     \|v\|_{WRMS} = \left( \frac{1}{N} \sum_{i=1}^N (v_i\; rwt_i)^2 \right)^{1/2},
@@ -255,7 +256,7 @@ General advice on the choice of tolerances
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 For many users, the appropriate choices for tolerance values in
-``reltol``, ``abstol`` and ``rabstol`` are a concern. The following pieces
+``reltol``, ``abstol``, and ``rabstol`` are a concern. The following pieces
 of advice are relevant.
 
 (1) The scalar relative tolerance ``reltol`` is to be set to control
@@ -298,8 +299,8 @@ of advice are relevant.
     those per-step errors, where that accumulation factor is
     problem-dependent.  A general rule of thumb is to reduce the
     tolerances by a factor of 10 from the actual desired limits on
-    errors.  I.e. if you want .01% relative accuracy (globally), a good
-    choice for ``reltol`` is :math:`10^{-5}`.  But in any case, it is
+    errors.  So if you want .01% relative accuracy (globally), a good
+    choice for ``reltol`` is :math:`10^{-5}`.  In any case, it is
     a good idea to do a few experiments with the tolerances to see how
     the computed solution values vary as tolerances are reduced.
 
@@ -359,7 +360,7 @@ Linear solver interface functions
 -------------------------------------------
 
 As previously explained, the Newton iterations used in solving
-implicit systems within ARKStep requires the solution of linear
+implicit systems within ARKStep require the solution of linear
 systems of the form
 
 .. math::
@@ -580,7 +581,7 @@ modules.
         the independent variable (:math:`M = M(t)`) or not (:math:`M
         \ne M(t)`).  ``SUNTRUE`` indicates time-dependence of the
         mass matrix.
-        *Currently, only values of "SUNFALSE" are supported*
+        *Currently, only values of "SUNFALSE" are supported*.
 
    **Return value:**
       * *ARKDLS_SUCCESS*   if successful
@@ -638,7 +639,7 @@ modules.
         the independent variable (:math:`M = M(t)`) or not (:math:`M
         \ne M(t)`).  ``SUNTRUE`` indicates time-dependence of the
         mass matrix.
-        *Currently, only values of "SUNFALSE" are supported*
+        *Currently, only values of "SUNFALSE" are supported*.
 
    **Return value:**
       * *ARKSPILS_SUCCESS*   if successful
@@ -743,38 +744,36 @@ has requested rootfinding.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *tout* -- the next time at which a computed solution is desired
-      * *yout* -- the computed solution vector
-      * *tret* -- the time corresponding to *yout* (output)
+      * *tout* -- the next time at which a computed solution is desired.
+      * *yout* -- the computed solution vector.
+      * *tret* -- the time corresponding to *yout* (output).
       * *itask* -- a flag indicating the job of the solver for the next
         user step.
 
-	The *ARK_NORMAL* option causes the solver to take internal steps
-	until it has reached or just passed the user-specified *tout*
-	parameter. The solver then interpolates in order to return an
-	approximate value of :math:`y(tout)`.  This interpolation may be
-        slightly less accurate than the full time step solutions
-	produced by the solver, since the interpolation uses a cubic
-	Hermite polynomial even when the RK method is of higher order.
+	The *ARK_NORMAL* option causes the solver to take internal
+        steps until it has just overtaken a user-specified output
+        time, *tout*, in the direction of integration,
+        i.e. :math:`t_{n-1} <` *tout* :math:`\le t_{n}` for forward
+        integration, or :math:`t_{n} \le` *tout* :math:`< t_{n-1}` for
+        backward integration.  It will then compute an approximation
+        to the solution :math:`y`(*tout*) by interpolation (using one
+        of the dense output routines described in the section
+        :ref:`Mathematics.Interpolation`). 
 
-	If full method accuracy is desired, issue a call to
-        :c:func:`ARKStepSetStopTime()` before the call to
-        :c:func:`ARKStepEvolve()` to specify a fixed stop time to
-        end the time step and return to the user.  Once the integrator
-        returns at a `tstop` time, any future testing for *tstop* is
-        disabled (and can be re-enabled only though a new call to
-	:c:func:`ARKStepSetStopTime()`).
-
-	The *ARK_ONE_STEP* option tells the solver to take just one
-	internal step and then return the solution at the point
-	reached by that step.
+	The *ARK_ONE_STEP* option tells the solver to only take a
+        single internal step :math:`y_{n-1} \to y_{n}` and then return
+        control back to the calling program.  If this step will
+        overtake *tout* then the solver will again return an
+        interpolated result; otherwise it will return a copy of the
+        internal solution :math:`y_{n}` in the vector *yout*
 
    **Return value:**
-      * *ARK_SUCCESS* if successful
+      * *ARK_SUCCESS* if successful.
       * *ARK_ROOT_RETURN* if :c:func:`ARKStepEvolve()` succeeded, and
-        found one or more roots.  If *nrtfn* is greater than 1, call
+        found one or more roots.  If the number of root functions,
+        *nrtfn*, is greater than 1, call
         :c:func:`ARKStepGetRootInfo()` to see which :math:`g_i` were
-        found to have a root at (*\*tret*).
+        found to have a root at (*\*tret*). 
       * *ARK_TSTOP_RETURN* if :c:func:`ARKStepEvolve()` succeeded and
         returned at *tstop*.
       * *ARK_MEM_NULL* if the *arkode_mem* argument was ``NULL``.
@@ -784,17 +783,15 @@ has requested rootfinding.
         the solver was either illegal or missing.  Details will be
         provided in the error message.  Typical causes of this failure:
 
-	(a) The tolerances have not been set.
-
-	(b) A component of the error weight vector became zero during
+	(a) A component of the error weight vector became zero during
 	    internal time-stepping.
 
-	(c) The linear solver initialization function (called by the
+	(b) The linear solver initialization function (called by the
 	    user after calling :c:func:`ARKStepCreate()`) failed to set
 	    the linear solver-specific *lsolve* field in
 	    *arkode_mem*.
 
-	(d) A root of one of the root functions was found both at a
+	(c) A root of one of the root functions was found both at a
 	    point :math:`t` and also very near :math:`t`.
 
       * *ARK_TOO_MUCH_WORK* if the solver took *mxstep* internal steps
@@ -830,6 +827,17 @@ has requested rootfinding.
    variable. All failure return values are negative and so testing the
    return argument for negative values will trap all
    :c:func:`ARKStepEvolve()` failures.
+
+   Since interpolation may reduce the accuracy in the reported
+   solution, if full method accuracy is desired the user should issue
+   a call to :c:func:`ARKStepSetStopTime()` before the call to
+   :c:func:`ARKStepEvolve()` to specify a fixed stop time to
+   end the time step and return to the user.  Upon return from
+   :c:func:`ARKStepEvolve()`, a copy of the internal solution
+   :math:`y_{n}` will be returned in the vector *yout*.  Once the
+   integrator returns at a *tstop* time, any future testing for
+   *tstop* is disabled (and can be re-enabled only though a new call
+   to :c:func:`ARKStepSetStopTime()`).
 
    On any error return in which one or more internal steps were taken
    by :c:func:`ARKStepEvolve()`, the returned values of *tret* and
@@ -925,20 +933,20 @@ Set 'optimal' adaptivity parameters for a method    :c:func:`ARKStepSetOptimalPa
 
 .. c:function:: int ARKStepSetDenseOrder(void* arkode_mem, int dord)
 
-   Specifies the order of accuracy for the polynomial interpolant
+   Specifies the degree of the polynomial interpolant
    used for dense output (i.e. interpolation of solution output values
    and implicit method predictors).
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *dord* -- requested polynomial order of accuracy
+      * *dord* -- requested polynomial order of accuracy.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
       * *ARK_ILL_INPUT* if an argument has an illegal value
 
-   **Notes:** Allowed values are between 0 and ``min(q,3)``, where ``q`` is
+   **Notes:** Allowed values are between 0 and ``min(q,5)``, where ``q`` is
    the order of the overall integration method.
 
 
@@ -950,7 +958,7 @@ Set 'optimal' adaptivity parameters for a method    :c:func:`ARKStepSetOptimalPa
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *diagfp* -- pointer to the diagnostics output file
+      * *diagfp* -- pointer to the diagnostics output file.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -987,7 +995,7 @@ Set 'optimal' adaptivity parameters for a method    :c:func:`ARKStepSetOptimalPa
 
    Passing a ``NULL`` value disables all future error message output
    (except for the case wherein the ARKStep memory pointer is
-   ``NULL``.  This use of the function is strongly discouraged.
+   ``NULL``).  This use of the function is strongly discouraged.
 
    If used, this routine should be called before any other
    optional input functions, in order to take effect for subsequent
@@ -1004,7 +1012,7 @@ Set 'optimal' adaptivity parameters for a method    :c:func:`ARKStepSetOptimalPa
       * *arkode_mem* -- pointer to the ARKStep memory block.
       * *ehfun* -- name of user-supplied error handler function.
       * *eh_data* -- pointer to user data passed to *ehfun* every time
-        it is called
+        it is called.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -1024,7 +1032,7 @@ Set 'optimal' adaptivity parameters for a method    :c:func:`ARKStepSetOptimalPa
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *hfixed* -- value of the fixed step size to use
+      * *hfixed* -- value of the fixed step size to use.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -1080,7 +1088,7 @@ Set 'optimal' adaptivity parameters for a method    :c:func:`ARKStepSetOptimalPa
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *hin* -- value of the initial step to be attempted :math:`(\ge 0)`
+      * *hin* -- value of the initial step to be attempted :math:`(\ne 0)`
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -1148,7 +1156,7 @@ Set 'optimal' adaptivity parameters for a method    :c:func:`ARKStepSetOptimalPa
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *hmax* -- maximum absolute value of the time step size :math:`(\ge 0)`
+      * *hmax* -- maximum absolute value of the time step size :math:`(\ge 0)`.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -1165,7 +1173,7 @@ Set 'optimal' adaptivity parameters for a method    :c:func:`ARKStepSetOptimalPa
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *hmin* -- minimum absolute value of the time step size :math:`(\ge 0)`
+      * *hmin* -- minimum absolute value of the time step size :math:`(\ge 0)`.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -1226,7 +1234,7 @@ Set 'optimal' adaptivity parameters for a method    :c:func:`ARKStepSetOptimalPa
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *maxnef* -- maximum allowed number of error test failures :math:`(>0)`
+      * *maxnef* -- maximum allowed number of error test failures :math:`(>0)`.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -1285,7 +1293,7 @@ Specify additive RK table numbers  :c:func:`ARKStepSetARKTableNum()`  internal
 .. c:function:: int ARKStepSetOrder(void* arkode_mem, int ord)
 
    Specifies the order of accuracy for the ARK/DIRK/ERK integration
-   method in the ARK time-stepper module.
+   method.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
@@ -1330,7 +1338,7 @@ Specify additive RK table numbers  :c:func:`ARKStepSetARKTableNum()`  internal
 .. c:function:: int ARKStepSetExplicit(void* arkode_mem)
 
    Specifies that the implicit portion of problem is disabled,
-   and to use an explicit RK method in the ARK time-stepper module.
+   and to use an explicit RK method.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
@@ -1442,6 +1450,9 @@ Specify additive RK table numbers  :c:func:`ARKStepSetARKTableNum()`  internal
 
    **Notes:**
 
+   The allowable values for both the *itable* and *etable* arguments
+   corresponding to built-in tables may be found :ref:`Butcher`.
+   
    To choose an explicit table, set *itable* to a negative value.  This
    automatically calls :c:func:`ARKStepSetExplicit()`.  However, if
    the problem is posed in explicit form, i.e. :math:`\dot{y} =
@@ -1489,7 +1500,7 @@ Maximum first step growth factor                :c:func:`ARKStepSetMaxFirstGrowt
 Maximum general step growth factor              :c:func:`ARKStepSetMaxGrowth()`         20.0
 Time step safety factor                         :c:func:`ARKStepSetSafetyFactor()`      0.96
 Error fails before MaxEFailGrowth takes effect  :c:func:`ARKStepSetSmallNumEFails()`    2
-Explicit stability function                     :c:func:`ARKStepSetStabilityFn()`       internal
+Explicit stability function                     :c:func:`ARKStepSetStabilityFn()`       none
 ==============================================  ======================================  ========
 
 
@@ -1530,7 +1541,7 @@ Explicit stability function                     :c:func:`ARKStepSetStabilityFn()
 	*adapt_params* argument (0).
       * *pq* -- flag denoting whether to use the embedding order of
 	accuracy *p* (0) or the method order of accuracy *q* (1)
-	within the adaptivity algorithm.  *p* is the ARKStep default.
+	within the adaptivity algorithm.  *p* is the default.
       * *adapt_params[0]* -- :math:`k_1` parameter within accuracy-based adaptivity algorithms.
       * *adapt_params[1]* -- :math:`k_2` parameter within accuracy-based adaptivity algorithms.
       * *adapt_params[2]* -- :math:`k_3` parameter within accuracy-based adaptivity algorithms.
@@ -1810,7 +1821,8 @@ Maximum number of convergence failures         :c:func:`ARKStepSetMaxConvFails()
 .. c:function:: int ARKStepSetNewton(void* arkode_mem)
 
    Specifies that the implicit portion of the problem should be solved
-   using the modified Newton solver.
+   using the modified or inexact Newton solver, depending on the type
+   of linear solver attached to ARKStep.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
@@ -1846,8 +1858,8 @@ Maximum number of convergence failures         :c:func:`ARKStepSetMaxConvFails()
    to enforce Jacobian recomputation when the step size ratio changes
    by more than 100 times the unit roundoff (since nonlinear
    convergence is not tested).  Only applicable when used in
-   combination with the modified Newton iteration (not the fixed-point
-   solver).
+   combination with the modified or inexact Newton iteration (not the
+   fixed-point solver).
 
 
 
@@ -2004,14 +2016,14 @@ Maximum number of convergence failures         :c:func:`ARKStepSetMaxConvFails()
 
    Specifies the frequency of calls to the linear solver setup
    routine.  Positive values specify the number of time steps between
-   setup calls; negative values force recomputation at each Newton
-   step; zero values reset to the default.
+   setup calls; negative values force recomputation at each stage
+   solve; zero values reset to the default.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
       * *msbp* -- maximum number of time steps between linear solver
-	setup calls, or flag to force recomputation at each Newton
-	iteration (default is 20).
+	setup calls, or flag to force recomputation at each stage
+        solve (default is 20).
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -2141,6 +2153,7 @@ data may be specified through :c:func:`ARKStepSetUserData()`.
       * *ARKDLS_SUCCESS*  if successful
       * *ARKDLS_MEM_NULL*  if the ARKStep memory was ``NULL``
       * *ARKDLS_MASSMEM_NULL* if the mass matrix solver memory was ``NULL``
+      * *ARKDLS_ILL_INPUT* if an argument has an illegal value
 
    **Notes:** This routine must be called after the ARKDLS mass matrix
    solver interface has been initialized through a call to
@@ -2210,7 +2223,7 @@ user-supplied, since there is no default value.  *mtimes* must be
 of type :c:func:`ARKSpilsMassTimesVecFn()`, and can be specified
 through a call to the  :c:func:`ARKSpilsSetMassTimes()` routine.
 As with the user-supplied preconditioner functions, the evaluation and
-processing of any Jacobian-related data needed by the user's
+processing of any mass matrix-related data needed by the user's
 mass-matrix-times-vector function is done in the optional user-supplied
 function of type :c:type:`ARKSpilsMassTimesSetupFn` (see the section
 :ref:`ARKStep_CInterface.UserSupplied` for specification details).
@@ -2277,7 +2290,7 @@ Mass matrix preconditioning functions               :c:func:`ARKSpilsSetMassPrec
    :c:func:`ARKSpilsSetLinearSolver()`.
 
    The function types :c:type:`ARKSpilsJacTimesSetupFn` and
-   :c:type:`ARKSpilsJacTimesVecFn` is described in the section
+   :c:type:`ARKSpilsJacTimesVecFn` are described in the section
    :ref:`ARKStep_CInterface.UserSupplied`.
 
 
@@ -2461,9 +2474,9 @@ Disable inactive root warnings          :c:func:`ARKStepSetNoInactiveRootWarn()`
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
       * *rootdir* -- state array of length *nrtfn*, the number of root
-        functions :math:`g_i`, as specified in the call to the function
-        :c:func:`ARKStepRootInit()`.  If ``rootdir[i] == 0`` then
-	crossing in either direction for :math:`g_i` should be
+        functions :math:`g_i` (the value of *nrtfn* was supplied in
+        the call to :c:func:`ARKStepRootInit()`).  If ``rootdir[i] ==
+        0`` then crossing in either direction for :math:`g_i` should be
 	reported.  A value of +1 or -1 indicates that the solver
 	should report only zero-crossings where :math:`g_i` is
 	increasing or decreasing, respectively.
@@ -2473,8 +2486,7 @@ Disable inactive root warnings          :c:func:`ARKStepSetNoInactiveRootWarn()`
       * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
       * *ARK_ILL_INPUT* if an argument has an illegal value
 
-   **Notes:** The default behavior is to monitor for both zero-crossing
-      directions.
+   **Notes:** The default behavior is to monitor for both zero-crossing directions.
 
 
 
@@ -2657,7 +2669,7 @@ information at runtime.
 
 .. c:function:: int SUNDIALSGetVersionNumber(int *major, int *minor, int *patch, char *label, int len)
 
-   This routine The function sets integers for the SUNDIALS major,
+   This routine sets integers for the SUNDIALS major,
    minor, and patch release numbers and fills a string with the
    release label if applicable.
 
@@ -3025,7 +3037,7 @@ Single accessor to many statistics at once           :c:func:`ARKStepGetTimestep
    The *ele* vector, together with the *eweight* vector from
    :c:func:`ARKStepGetErrWeights()`, can be used to determine how the
    various components of the system contributed to the estimated local
-   error test.  Specifically, that error test uses the RMS norm of a
+   error test.  Specifically, that error test uses the WRMS norm of a
    vector whose components are the products of the components of these
    two vectors.  Thus, for example, if there were recent error test
    failures, the components causing the failures are those with largest
@@ -3161,9 +3173,11 @@ No. of calls to user root function                   :c:func:`ARKStepGetNumGEval
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
       * *rootsfound* -- array of length *nrtfn* with the indices of the
-        user functions :math:`g_i` found to have a root.  For
-	:math:`i = 0 \ldots` *nrtfn*-1, ``rootsfound[i]`` is nonzero
-        if :math:`g_i` has a root, and 0 if not.
+        user functions :math:`g_i` found to have a root (the value of
+        *nrtfn* was supplied in the call to
+        :c:func:`ARKStepRootInit()`).  For :math:`i = 0 \ldots`
+        *nrtfn*-1, ``rootsfound[i]`` is nonzero if :math:`g_i` has a 
+        root, and 0 if not. 
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -3832,7 +3846,7 @@ Output the current Butcher table(s)                          :c:func:`ARKStepWri
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *fp* -- pointer to use for printing the solver parameters
+      * *fp* -- pointer to use for printing the solver parameters.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -3854,7 +3868,8 @@ Output the current Butcher table(s)                          :c:func:`ARKStepWri
    for the function :c:func:`ARKStepGetCurrentButcherTables()`.  The
    prototype for this function, as well as the integer names for each
    provided method, are defined in the header file
-   ``arkode/arkode_butcher_erk.h``.
+   ``arkode/arkode_butcher_erk.h``.  For further information on these
+   tables and their corresponding identifiers, see :ref:`Butcher`.
 
    **Arguments:**
       * *emethod* -- integer input specifying the given Butcher table --
@@ -3873,7 +3888,8 @@ Output the current Butcher table(s)                          :c:func:`ARKStepWri
    for the function :c:func:`ARKStepGetCurrentButcherTables()`.  The
    prototype for this function, as well as the integer names for each
    provided method, are defined in the header file
-   ``arkode/arkode_butcher_dirk.h``.
+   ``arkode/arkode_butcher_dirk.h``.  For further information on these
+   tables and their corresponding identifiers, see :ref:`Butcher`.
 
    **Arguments:**
       * *imethod* -- integer input specifying the given Butcher table --
@@ -3890,7 +3906,7 @@ Output the current Butcher table(s)                          :c:func:`ARKStepWri
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *fp* -- pointer to use for printing the Butcher table(s)
+      * *fp* -- pointer to use for printing the Butcher table(s).
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -3947,7 +3963,7 @@ One important use of the :c:func:`ARKStepReInit()` function is in the
 treating of jump discontinuities in the RHS function.  Except in cases
 of fairly small jumps, it is usually more efficient to stop at each
 point of discontinuity and restart the integrator with a readjusted
-ODE model, using a call to one of these two routines.  To stop when
+ODE model, using a call to :c:func:`ARKStepReInit()`.  To stop when
 the location of the discontinuity is known, simply make that location
 a value of ``tout``.  To stop when the location of the discontinuity
 is determined by the solution, use the rootfinding feature.  In either
@@ -4038,7 +4054,7 @@ rescale the upcoming time step by the specified factor.  If a value
       * *hscale* -- the desired scaling factor for the dynamical time
 	scale (i.e. the next step will be of size *h\*hscale*).
       * *t0* -- the current value of the independent variable
-	:math:`t_0` (this must be consistent with *ynew*.
+	:math:`t_0` (this must be consistent with *ynew*).
       * *resize* -- the user-supplied vector resize function (of type
 	:c:func:`ARKVecResizeFn()`.
       * *resize_data* -- the user-supplied data structure to be passed
@@ -4091,7 +4107,7 @@ problem).
 
 If scalar-valued tolerances or a tolerance function was specified
 through either :c:func:`ARKStepSStolerances()` or
-:c:func:`ARKStepWFtolerances()`, then these will remain valid. and no
+:c:func:`ARKStepWFtolerances()`, then these will remain valid and no
 further action is necessary.
 
 

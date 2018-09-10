@@ -13,8 +13,8 @@
 Introduction
 ============
 
-The ARKode infrastructure provides an adaptive-step time integration
-package for stiff, nonstiff and mixed stiff/nonstiff systems of
+The ARKode infrastructure provides adaptive-step time integration
+modules for stiff, nonstiff and mixed stiff/nonstiff systems of
 ordinary differential equations (ODEs).  ARKode itself is structured
 to support a wide range of one-step (but multi-stage) methods,
 allowing for rapid development of parallel implementations of
@@ -77,14 +77,14 @@ with adaptive explicit methods of orders 2-8.
 For problems that include nonzero implicit term :math:`f_I(t,y)`, the
 resulting implicit system (assumed nonlinear, unless specified
 otherwise) is solved approximately at each integration step, using a
-Newton method, modified Newton method, Inexact Newton method, or an
+modified Newton method, inexact Newton method, or an
 accelerated fixed-point solver.  For the Newton-based methods and the
 serial or threaded NVECTOR modules in SUNDIALS, ARKode may use a
 variety of linear solvers provided with SUNDIALS, including both
 direct (dense, band, or sparse) and preconditioned Krylov iterative
 (GMRES [SS1986]_, BiCGStab [V1992]_, TFQMR [F1993]_, FGMRES [S1993]_,
 or PCG [HS1952]_) linear solvers.  When used with the MPI-based
-parallel, PETSc, *hypre*, CUDA and Raja NVECTOR modules, or a
+parallel, PETSc, *hypre*, CUDA, and Raja NVECTOR modules, or a
 user-provided vector data structure, only the Krylov solvers are
 available, although a user may supply their own linear solver for any
 data structures if desired.  For the serial or threaded vector
@@ -103,7 +103,7 @@ Changes from previous versions
 
 
 
-Changes since v3.0.0-dev.1
+Changes in v3.0.0-dev.2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The ARKode library has been entirely rewritten to support a modular

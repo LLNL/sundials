@@ -91,7 +91,7 @@ ARKodeHAdaptMem arkAdaptInit();
 void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE *outfile);
 int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
              N_Vector ycur, realtype tcur, realtype hcur,
-             int k, long int nst);
+             int q, int p, booleantype pq, long int nst);
 int arkAdaptPID(ARKodeHAdaptMem hadapt_mem, int k, 
                 realtype hcur, realtype *hnew);
 int arkAdaptPI(ARKodeHAdaptMem hadapt_mem, int k, 

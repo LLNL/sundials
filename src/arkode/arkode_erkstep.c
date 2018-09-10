@@ -1162,7 +1162,7 @@ int erkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
 int erkStep_DoErrorTest(ARKodeMem ark_mem, int *nefPtr, realtype dsm)
 {
   realtype ehist2, hhist2;
-  int retval, k;
+  int retval;
   ARKodeHAdaptMem hadapt_mem;
   ARKodeERKStepMem step_mem;
 
@@ -1209,9 +1209,9 @@ int erkStep_DoErrorTest(ARKodeMem ark_mem, int *nefPtr, realtype dsm)
   hadapt_mem->hhist[0] = ark_mem->h;
 
   /* Compute accuracy-based time step estimate (updated ark_eta) */
-  k = (step_mem->hadapt_pq) ? step_mem->q : step_mem->p;
   retval = arkAdapt((void*) ark_mem, step_mem->hadapt_mem, ark_mem->ycur,
-                    ark_mem->tcur, ark_mem->h, k, ark_mem->nst);
+                    ark_mem->tcur, ark_mem->h, step_mem->q, step_mem->p,
+                    step_mem->hadapt_pq, ark_mem->nst);
   if (retval != ARK_SUCCESS)  return(ARK_ERR_FAILURE);
 
   /* Revert error history array */
@@ -1245,7 +1245,7 @@ int erkStep_DoErrorTest(ARKodeMem ark_mem, int *nefPtr, realtype dsm)
 ---------------------------------------------------------------*/
 int erkStep_PrepareNextStep(ARKodeMem ark_mem, realtype dsm)
 {
-  int retval, k;
+  int retval;
   ARKodeERKStepMem step_mem;
 
   /* access ARKodeERKStepMem structure */
@@ -1286,10 +1286,10 @@ int erkStep_PrepareNextStep(ARKodeMem ark_mem, realtype dsm)
 
   /* Adjust ark_eta in arkAdapt */
   if (step_mem->hadapt_mem != NULL) {
-    k = (step_mem->hadapt_pq) ? step_mem->q : step_mem->p;
     retval = arkAdapt((void*) ark_mem, step_mem->hadapt_mem,
                       ark_mem->ycur, ark_mem->tn + ark_mem->h,
-                      ark_mem->h, k, ark_mem->nst+1);
+                      ark_mem->h, step_mem->q, step_mem->p,
+                      step_mem->hadapt_pq, ark_mem->nst+1);
     if (retval != ARK_SUCCESS)  return(ARK_ERR_FAILURE);
   }
 

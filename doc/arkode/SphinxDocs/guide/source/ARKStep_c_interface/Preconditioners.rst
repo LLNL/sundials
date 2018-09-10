@@ -18,9 +18,9 @@ The efficiency of Krylov iterative methods for the solution of linear
 systems can be greatly enhanced through preconditioning.  For problems
 in which the user cannot define a more effective, problem-specific
 preconditioner, ARKode provides two internal preconditioner modules
-that may be used by ARKStep: a banded preconditioner for serial
-problems (ARKBANDPRE) and a band-block-diagonal preconditioner  for
-parallel problems (ARKBBDPRE).
+that may be used by ARKStep: a banded preconditioner for serial and
+threaded problems (ARKBANDPRE) and a band-block-diagonal
+preconditioner for parallel problems (ARKBBDPRE).
 
 
 .. _ARKStep_CInterface.BandPre:
@@ -29,7 +29,8 @@ A serial banded preconditioner module
 -------------------------------------------
 
 This preconditioner provides a band matrix preconditioner for use with
-the ARKSPILS iterative linear solver interface, in a serial setting.
+the ARKSPILS iterative linear solver interface, in a serial or
+threaded setting.
 It requires that the problem be set up using either the
 NVECTOR_SERIAL, NVECTOR_OPENMP or NVECTOR_PTHREADS module, due to data
 access patterns.  It also currently requires that the problem involve
@@ -55,7 +56,7 @@ ARKBANDPRE usage
 
 In order to use the ARKBANDPRE module, the user need not define
 any additional functions.  In addition to the header files required
-for the remainder of the ODE problem (see the section
+for the integration of the ODE problem (see the section
 :ref:`ARKStep_CInterface.Headers`), to use the ARKBANDPRE module, the user's
 program must include the header file ``arkode_bandpre.h`` which
 declares the needed function prototypes.  The following is a summary
@@ -142,7 +143,7 @@ by calling the following function:
 
    **Return value:**
       * *ARKSPILS_SUCCESS* if no errors occurred
-      * *ARKSPILS_MEM_NULL* if the integrator memory is ``NULL``
+      * *ARKSPILS_MEM_NULL* if the ARKStep memory is ``NULL``
       * *ARKSPILS_LMEM_NULL* if the linear solver memory is ``NULL``
       * *ARKSPILS_ILL_INPUT* if an input has an illegal value
       * *ARKSPILS_MEM_FAIL* if a memory allocation request failed
@@ -170,7 +171,7 @@ the ARKBANDPRE module:
 
    **Return value:**
       * *ARKSPILS_SUCCESS* if no errors occurred
-      * *ARKSPILS_MEM_NULL* if the integrator memory is ``NULL``
+      * *ARKSPILS_MEM_NULL* if the ARKStep memory is ``NULL``
       * *ARKSPILS_LMEM_NULL* if the linear solver memory is ``NULL``
       * *ARKSPILS_PMEM_NULL* if the preconditioner memory is ``NULL``
 
@@ -197,7 +198,7 @@ the ARKBANDPRE module:
 
    **Return value:**
       * *ARKSPILS_SUCCESS* if no errors occurred
-      * *ARKSPILS_MEM_NULL* if the integrator memory is ``NULL``
+      * *ARKSPILS_MEM_NULL* if the ARKStep memory is ``NULL``
       * *ARKSPILS_LMEM_NULL* if the linear solver memory is ``NULL``
       * *ARKSPILS_PMEM_NULL* if the preconditioner memory is ``NULL``
 
@@ -429,7 +430,7 @@ that are unchanged from the skeleton program presented in
    When creating the iterative linear solver object, specify the type
    of preconditioning (``PREC_LEFT`` or ``PREC_RIGHT``) to use.
 
-8. Set linear solver optional inputs
+8. *Set linear solver optional inputs*
 
 9. *Attach linear solver module*
 
@@ -509,7 +510,7 @@ and attached to the integrator by calling the following functions:
 
    **Return value:**
       * *ARKSPILS_SUCCESS* if no errors occurred
-      * *ARKSPILS_MEM_NULL* if the integrator memory is ``NULL``
+      * *ARKSPILS_MEM_NULL* if the ARKStep memory is ``NULL``
       * *ARKSPILS_LMEM_NULL* if the linear solver memory is ``NULL``
       * *ARKSPILS_ILL_INPUT* if an input has an illegal value
       * *ARKSPILS_MEM_FAIL* if a memory allocation request failed
@@ -543,7 +544,7 @@ to change any of the following: the half-bandwidths *mudq* and
 *mldq* used in the difference-quotient Jacobian approximations, the
 relative increment *dqrely*, or one of the user-supplied functions
 *gloc* and *cfn*. If there is a change in any of the linear solver
-inputs, an additional call to the ``Set'' routines provided by the
+inputs, an additional call to the "Set" routines provided by the
 ``SUNLinearSolver`` module, and/or one or more of the
 corresponding ``ARKSpilsSet***`` functions, must also be made (in
 the proper order).
@@ -566,7 +567,7 @@ the proper order).
 
    **Return value:**
       * *ARKSPILS_SUCCESS* if no errors occurred
-      * *ARKSPILS_MEM_NULL* if the integrator memory is ``NULL``
+      * *ARKSPILS_MEM_NULL* if the ARKStep memory is ``NULL``
       * *ARKSPILS_LMEM_NULL* if the linear solver memory is ``NULL``
       * *ARKSPILS_PMEM_NULL* if the preconditioner memory is ``NULL``
 
@@ -592,7 +593,7 @@ the ARKBBDPRE module:
 
    **Return value:**
       * *ARKSPILS_SUCCESS* if no errors occurred
-      * *ARKSPILS_MEM_NULL* if the integrator memory is ``NULL``
+      * *ARKSPILS_MEM_NULL* if the ARKStep memory is ``NULL``
       * *ARKSPILS_LMEM_NULL* if the linear solver memory is ``NULL``
       * *ARKSPILS_PMEM_NULL* if the preconditioner memory is ``NULL``
 
@@ -620,7 +621,7 @@ the ARKBBDPRE module:
 
    **Return value:**
       * *ARKSPILS_SUCCESS* if no errors occurred
-      * *ARKSPILS_MEM_NULL* if the integrator memory is ``NULL``
+      * *ARKSPILS_MEM_NULL* if the ARKStep memory is ``NULL``
       * *ARKSPILS_LMEM_NULL* if the linear solver memory is ``NULL``
       * *ARKSPILS_PMEM_NULL* if the preconditioner memory is ``NULL``
 

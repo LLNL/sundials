@@ -72,7 +72,7 @@ specify the explicit and/or implicit portions of the ODE system:
 
    **Arguments:**
       * *t* -- the current value of the independent variable.
-      * *y* -- the current value of the dependent variable vector, :math:`y(t)`.
+      * *y* -- the current value of the dependent variable vector, :math:`y`.
       * *ydot* -- the output vector that forms a portion of the ODE RHS :math:`f_E(t,y) + f_I(t,y)`.
       * *user_data* -- the `user_data` pointer that was passed to :c:func:`ARKStepSetUserData()`.
 
@@ -116,7 +116,7 @@ warning messages to the file pointed to by `errfp` (see
 .. c:type:: typedef void (*ARKErrHandlerFn)(int error_code, const char* module, const char* function, char* msg, void* user_data)
 
    This function processes error and warning messages from
-   ARKStep and is sub-modules.
+   ARKStep and its sub-modules.
 
    **Arguments:**
       * *error_code* -- the error code.
@@ -227,21 +227,22 @@ as the maximum value such that the error estimates remain below 1.
 
 
 
-.. c:type:: typedef int (*ARKAdaptFn)(N_Vector y, realtype t, realtype h1, realtype h2, realtype h3, realtype e1, realtype e2, realtype e3, int q, realtype* hnew, void* user_data)
+.. c:type:: typedef int (*ARKAdaptFn)(N_Vector y, realtype t, realtype h1, realtype h2, realtype h3, realtype e1, realtype e2, realtype e3, int q, int p, realtype* hnew, void* user_data)
 
    This function implements a time step adaptivity algorithm
    that chooses :math:`h` satisfying the error tolerances.
 
    **Arguments:**
-      * *y* -- the current value of the dependent variable vector, :math:`y(t)`.
+      * *y* -- the current value of the dependent variable vector.
       * *t* -- the current value of the independent variable.
-      * *h1* -- the current step size, :math:`t_m - t_{m-1}`.
-      * *h2* -- the previous step size, :math:`t_{m-1} - t_{m-2}`.
-      * *h3* -- the step size :math:`t_{m-2}-t_{m-3}`.
-      * *e1* -- the error estimate from the current step, :math:`m`.
-      * *e2* -- the error estimate from the previous step, :math:`m-1`.
-      * *e3* -- the error estimate from the step :math:`m-2`.
+      * *h1* -- the current step size, :math:`t_n - t_{n-1}`.
+      * *h2* -- the previous step size, :math:`t_{n-1} - t_{n-2}`.
+      * *h3* -- the step size :math:`t_{n-2}-t_{n-3}`.
+      * *e1* -- the error estimate from the current step, :math:`n`.
+      * *e2* -- the error estimate from the previous step, :math:`n-1`.
+      * *e3* -- the error estimate from the step :math:`n-2`.
       * *q* -- the global order of accuracy for the method.
+      * *p* -- the global order of accuracy for the embedded method.
       * *hnew* -- the output value of the next step size.
       * *user_data* -- a pointer to user data, the same as the
         *h_data* parameter that was passed to :c:func:`ARKStepSetAdaptivityFn()`.
@@ -278,8 +279,8 @@ step, and the accuracy-based time step.
    explicit portions of the ImEx ODE system.
 
    **Arguments:**
-      * *y* -- the current value of the dependent variable vector, :math:`y(t)`.
-      * *t* -- the current value of the independent variable
+      * *y* -- the current value of the dependent variable vector.
+      * *t* -- the current value of the independent variable.
       * *hstab* -- the output value with the absolute value of the
  	maximum stable step size.
       * *user_data* -- a pointer to user data, the same as the
@@ -313,8 +314,8 @@ ODE system, the user must supply a function of type :c:type:`ARKRootFn`.
    :math:`g_i(t,y)` are sought.
 
    **Arguments:**
-      * *t* -- the current value of the independent variable
-      * *y* -- the current value of the dependent variable vector, :math:`y(t)`.
+      * *t* -- the current value of the independent variable.
+      * *y* -- the current value of the dependent variable vector.
       * *gout* -- the output array, of length *nrtfn*, with components :math:`g_i(t,y)`.
       * *user_data* -- a pointer to user data, the same as the
         *user_data* parameter that was passed to :c:func:`ARKStepSetUserData()`.
@@ -519,7 +520,7 @@ products.
 Jacobian information (matrix-vector setup)
 --------------------------------------------------------------
 
-If the user's Jacobian-times-vector requires that any Jacobian-related data
+If the user's Jacobian-times-vector routine requires that any Jacobian-related data
 be preprocessed or evaluated, then this needs to be done in a
 user-supplied function of type :c:type:`ARKSpilsJacTimesSetupFn`,
 defined as follows:
@@ -574,8 +575,9 @@ the user must provide a function of type
 preconditioning matrix.  Here :math:`P` should approximate (at least
 crudely) the Newton matrix :math:`A=M-\gamma J`, where :math:`M` is
 the mass matrix (typically :math:`M=I` unless working in a
-finite-element setting) and :math:`J = \frac{\partial f_I}{\partial
-y}`  If preconditioning is done on both sides, the product of the two
+finite-element setting) and
+:math:`J = \frac{\partial f_I}{\partial y}`.
+If preconditioning is done on both sides, the product of the two
 preconditioner matrices should approximate :math:`A`.
 
 
@@ -702,7 +704,6 @@ approximation.
    This function computes the mass matrix :math:`M` (or an approximation to it).
 
    **Arguments:**
-      * *N* -- the size of the ODE system.
       * *t* -- the current value of the independent variable.
       * *M* -- the output mass matrix.
       * *user_data* -- a pointer to user data, the same as the
@@ -849,7 +850,7 @@ compute matrix-vector products :math:`Mv`.
 Mass matrix information (matrix-vector setup)
 --------------------------------------------------------------
 
-If the user's mass-matrix-times-vector requires that any mass
+If the user's mass-matrix-times-vector routine requires that any mass
 matrix-related data be preprocessed or evaluated, then this needs to
 be done in a user-supplied function of type
 :c:type:`ARKSpilsMassTimesSetupFn`, defined as follows:

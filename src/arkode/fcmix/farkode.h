@@ -337,7 +337,7 @@ extern "C" {
 
   int FARKAdapt(N_Vector y, realtype t, realtype h1, realtype h2,
                 realtype h3, realtype e1, realtype e2, realtype e3,
-                int q, realtype *hnew, void *user_data);
+                int q, int p, realtype *hnew, void *user_data);
 
   int FARKExpStab(N_Vector y, realtype t, realtype *hstab, void *user_data);
 

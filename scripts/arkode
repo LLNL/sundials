@@ -31,7 +31,7 @@ $tar $tarfile $distrobase/src/arkode/CMakeLists.txt
 
 $tar $tarfile $distrobase/src/arkode/arkode.c
 $tar $tarfile $distrobase/src/arkode/arkode_adapt.c
-$tar $tarfile $distrobase/src/arkode/arkode_adapt_impl.c
+$tar $tarfile $distrobase/src/arkode/arkode_adapt_impl.h
 $tar $tarfile $distrobase/src/arkode/arkode_arkstep.c
 $tar $tarfile $distrobase/src/arkode/arkode_arkstep_impl.h
 $tar $tarfile $distrobase/src/arkode/arkode_arkstep_io.c
@@ -52,7 +52,7 @@ $tar $tarfile $distrobase/src/arkode/arkode_interp.c
 $tar $tarfile $distrobase/src/arkode/arkode_interp_impl.h
 $tar $tarfile $distrobase/src/arkode/arkode_io.c
 $tar $tarfile $distrobase/src/arkode/arkode_root.c
-$tar $tarfile $distrobase/src/arkode/arkode_root_impl.c
+$tar $tarfile $distrobase/src/arkode/arkode_root_impl.h
 $tar $tarfile $distrobase/src/arkode/arkode_spils.c
 $tar $tarfile $distrobase/src/arkode/arkode_spils_impl.h
 
