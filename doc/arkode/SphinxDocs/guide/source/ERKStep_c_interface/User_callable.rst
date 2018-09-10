@@ -45,9 +45,9 @@ ERKStep initialization and deallocation functions
    **Arguments:**
       * *f* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
         defining the right-hand side function in
-        :math:`\dot{y} = f(t,y)`
-      * *t0* -- the initial value of :math:`t`
-      * *y0* -- the initial condition vector :math:`y(t_0)`
+        :math:`\dot{y} = f(t,y)`.
+      * *t0* -- the initial value of :math:`t`.
+      * *y0* -- the initial condition vector :math:`y(t_0)`.
 
    **Return value:**  If successful, a pointer to initialized problem memory
    of type ``void*``, to be passed to all user-facing ERKStep routines
@@ -112,8 +112,8 @@ Alternatively, the user may supply a custom function to supply the
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ERKStep memory block.
-      * *reltol* -- scalar relative tolerance
-      * *abstol* -- scalar absolute tolerance
+      * *reltol* -- scalar relative tolerance.
+      * *abstol* -- scalar absolute tolerance.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -131,9 +131,9 @@ Alternatively, the user may supply a custom function to supply the
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ERKStep memory block.
-      * *reltol* -- scalar relative tolerance
+      * *reltol* -- scalar relative tolerance.
       * *abstol* -- vector containing the absolute tolerances for each
-        solution component
+        solution component.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -635,7 +635,7 @@ Maximum no. of ERKStep error test failures          :c:func:`ERKStepSetMaxErrTes
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ERKStep memory block.
-      * *hin* -- value of the initial step to be attempted :math:`(\ne 0)`
+      * *hin* -- value of the initial step to be attempted :math:`(\ne 0)`.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -660,7 +660,7 @@ Maximum no. of ERKStep error test failures          :c:func:`ERKStepSetMaxErrTes
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ERKStep memory block.
-      * *mxhnil* -- maximum allowed number of warning messages (>0).
+      * *mxhnil* -- maximum allowed number of warning messages :math:`(>0)`.
 
    **Return value:**
       * *ARK_SUCCESS* if successful

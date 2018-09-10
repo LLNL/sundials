@@ -194,7 +194,7 @@ the ARKBANDPRE module:
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *nfevalsBP* -- number of calls to :math:`f_I`
+      * *nfevalsBP* -- number of calls to :math:`f_I`.
 
    **Return value:**
       * *ARKSPILS_SUCCESS* if no errors occurred
@@ -344,10 +344,10 @@ communicated between processes by *cfn*, and that are then used by
    fills the vector *glocal* as a function of *t* and *y*.
 
    **Arguments:**
-      * *Nlocal* -- the local vector length
-      * *t* -- the value of the independent variable
-      * *y* -- the value of the dependent variable vector on this process
-      * *glocal* -- the output vector of :math:`g(t,y)` on this process
+      * *Nlocal* -- the local vector length.
+      * *t* -- the value of the independent variable.
+      * *y* -- the value of the dependent variable vector on this process.
+      * *glocal* -- the output vector of :math:`g(t,y)` on this process.
       * *user_data* -- a pointer to user data, the same as the
         *user_data* parameter passed to :c:func:`ARKStepSetUserData()`.
 
@@ -374,9 +374,9 @@ communicated between processes by *cfn*, and that are then used by
    above, using the input vector *y*.
 
    **Arguments:**
-      *  *Nlocal* -- the local vector length
-      * *t* -- the value of the independent variable
-      * *y* -- the value of the dependent variable vector on this process
+      *  *Nlocal* -- the local vector length.
+      * *t* -- the value of the independent variable.
+      * *y* -- the value of the dependent variable vector on this process.
       * *user_data* -- a pointer to user data, the same as the
         *user_data* parameter passed to :c:func:`ARKStepSetUserData()`.
 

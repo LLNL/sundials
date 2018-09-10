@@ -72,7 +72,7 @@ specify the explicit and/or implicit portions of the ODE system:
 
    **Arguments:**
       * *t* -- the current value of the independent variable.
-      * *y* -- the current value of the dependent variable vector, :math:`y`.
+      * *y* -- the current value of the dependent variable vector.
       * *ydot* -- the output vector that forms a portion of the ODE RHS :math:`f_E(t,y) + f_I(t,y)`.
       * *user_data* -- the `user_data` pointer that was passed to :c:func:`ARKStepSetUserData()`.
 
