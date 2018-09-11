@@ -885,6 +885,7 @@ and linear solvers, algorithms for
 {\hyperref[Mathematics:mathematics-predictors]{\emph{\DUspan{}{initial predictors}}}} for implicit stage
 solutions, and approaches for handling
 {\hyperref[Mathematics:mathematics-masssolve]{\emph{\DUspan{}{non-identity mass-matrices}}}}.
+
 We conclude with a section describing ARKode's {\hyperref[Mathematics:mathematics-rootfinding]{\emph{\DUspan{}{rootfinding
 capabilities}}}}, that may be used to stop
 integration of a problem prematurely based on traversal of roots in
@@ -1000,8 +1001,6 @@ h(\tau+2\tau^2+\tau^3)\,f_{n}.\end{split}\notag
 We note that although interpolants of order \(> 3\) are possible,
 these are not currently implemented due to their increased computing
 and storage costs.  However, these may be added in future releases.
-
-
 
 
 \section{ARKStep -- Additive Runge-Kutta methods}
@@ -2193,6 +2192,8 @@ In total, these require only two mass-matrix linear solves
 completion of a time step that meets the solution accuracy
 requirements.  When fixed time-stepping is used (\(h_n=h\)), the
 solve \eqref{Mathematics-mass_solve_LTE} is not performed at each attempted step.
+
+
 \section{Rootfinding}
 \label{Mathematics:mathematics-rootfinding}\label{Mathematics:rootfinding}
 Many of the time-stepping modules in ARKode also support a rootfinding
@@ -3314,18 +3315,18 @@ solved using the ARKStep time-stepping module in ARKode.
 \item {}
 \emph{fe} -- the name of the C function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the explicit portion of the right-hand side function in
-\(M\, \dot{y} = f_E(t,y) + f_I(t,y)\)
+\(M\, \dot{y} = f_E(t,y) + f_I(t,y)\).
 
 \item {}
 \emph{fi} -- the name of the C function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the implicit portion of the right-hand side function in
-\(M\, \dot{y} = f_E(t,y) + f_I(t,y)\)
+\(M\, \dot{y} = f_E(t,y) + f_I(t,y)\).
 
 \item {}
-\emph{t0} -- the initial value of \(t\)
+\emph{t0} -- the initial value of \(t\).
 
 \item {}
-\emph{y0} -- the initial condition vector \(y(t_0)\)
+\emph{y0} -- the initial condition vector \(y(t_0)\).
 
 \end{itemize}
 
@@ -3402,10 +3403,10 @@ This function specifies scalar relative and absolute tolerances.
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {}
-\emph{reltol} -- scalar relative tolerance
+\emph{reltol} -- scalar relative tolerance.
 
 \item {}
-\emph{abstol} -- scalar absolute tolerance
+\emph{abstol} -- scalar absolute tolerance.
 
 \end{itemize}
 
@@ -3441,11 +3442,11 @@ each vector component).
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {}
-\emph{reltol} -- scalar relative tolerance
+\emph{reltol} -- scalar relative tolerance.
 
 \item {}
 \emph{abstol} -- vector containing the absolute tolerances for each
-solution component
+solution component.
 
 \end{itemize}
 
@@ -3548,7 +3549,7 @@ This function specifies a scalar absolute residual tolerance.
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {}
-\emph{rabstol} -- scalar absolute residual tolerance
+\emph{rabstol} -- scalar absolute residual tolerance.
 
 \end{itemize}
 
@@ -3583,7 +3584,7 @@ This function specifies a vector of absolute residual tolerances.
 
 \item {}
 \emph{rabstol} -- vector containing the absolute residual
-tolerances for each solution component
+tolerances for each solution component.
 
 \end{itemize}
 
@@ -4276,7 +4277,6 @@ returned at \emph{tstop}.
 the solver was either illegal or missing.  Details will be
 provided in the error message.  Typical causes of this failure:
 \begin{enumerate}
-
 \item {}
 A component of the error weight vector became zero during
 internal time-stepping.
@@ -4360,6 +4360,7 @@ end the time step and return to the user.  Upon return from
 integrator returns at a \emph{tstop} time, any future testing for
 \emph{tstop} is disabled (and can be re-enabled only though a new call
 to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetStopTime]{\emph{\code{ARKStepSetStopTime()}}}}).
+
 On any error return in which one or more internal steps were taken
 by {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepEvolve]{\emph{\code{ARKStepEvolve()}}}}, the returned values of \emph{tret} and
 \emph{yout} correspond to the farthest point reached in the integration.
@@ -4805,7 +4806,7 @@ initialization or re-initialization.
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {}
-\emph{hin} -- value of the initial step to be attempted \((\ne 0)\)
+\emph{hin} -- value of the initial step to be attempted \((\ne 0)\).
 
 \end{itemize}
 
@@ -4845,7 +4846,7 @@ ARKStep will instead return with an error.
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {}
-\emph{mxhnil} -- maximum allowed number of warning messages (\textgreater{}0).
+\emph{mxhnil} -- maximum allowed number of warning messages \((>0)\).
 
 \end{itemize}
 
@@ -5447,6 +5448,7 @@ or ARK method.
 \end{description}
 
 \textbf{Notes:}
+
 The allowable values for both the \emph{itable} and \emph{etable} arguments
 corresponding to built-in tables may be found {\hyperref[Butcher:butcher]{\emph{\DUspan{}{Appendix: Butcher tables}}}}.
 
@@ -6044,20 +6046,6 @@ Function name
 Default
 }\\
 \hline
-Specify use of the fixed-point stage solver
- &
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetFixedPoint]{\emph{\code{ARKStepSetFixedPoint()}}}}
- &
-\code{SUNFALSE}
-\\
-\hline
-Specify use of the Newton stage solver
- &
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetNewton]{\emph{\code{ARKStepSetNewton()}}}}
- &
-\code{SUNTRUE}
-\\
-\hline
 Specify linearly implicit \(f_I\)
  &
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetLinear]{\emph{\code{ARKStepSetLinear()}}}}
@@ -6128,85 +6116,6 @@ Maximum number of convergence failures
 10
 \\
 \hline\end{tabulary}
-
-\index{ARKStepSetFixedPoint (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetFixedPoint}\pysiglinewithargsret{int \bfcode{ARKStepSetFixedPoint}}{void*\emph{ arkode\_mem}, long int\emph{ fp\_m}}{}
-Specifies that the implicit portion of the problem should be solved
-using the accelerated fixed-point solver instead of the modified
-Newton iteration, and provides the maximum dimension of the
-acceleration subspace.
-\begin{description}
-\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
-\item {}
-\emph{arkode\_mem} -- pointer to the ARKStep memory block.
-
-\item {}
-\emph{fp\_m} -- number of vectors to store within the Anderson
-acceleration subspace (0 indicates use of a basic fixed-point
-iteration).
-
-\end{itemize}
-
-\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
-\item {}
-\emph{ARK\_SUCCESS} if successful
-
-\item {}
-\emph{ARK\_MEM\_NULL} if the ARKStep memory is \code{NULL}
-
-\item {}
-\emph{ARK\_ILL\_INPUT} if an argument has an illegal value
-
-\end{itemize}
-
-\end{description}
-
-\textbf{Notes:} Since the accelerated fixed-point solver has a slower
-rate of convergence than the Newton iteration (but each iteration
-is typically much more efficient), it is recommended that the
-maximum nonlinear correction iterations be increased through a call
-to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetMaxNonlinIters]{\emph{\code{ARKStepSetMaxNonlinIters()}}}}.
-
-Since \emph{fp\_m} affects the memory requirements for the internal
-ARKStep memory block, it cannot be changed after the first call to
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepEvolve]{\emph{\code{ARKStepEvolve()}}}}, unless {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepReInit]{\emph{\code{ARKStepReInit()}}}} is called.
-
-\end{fulllineitems}
-
-\index{ARKStepSetNewton (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetNewton}\pysiglinewithargsret{int \bfcode{ARKStepSetNewton}}{void*\emph{ arkode\_mem}}{}
-Specifies that the implicit portion of the problem should be solved
-using the modified or inexact Newton solver, depending on the type
-of linear solver attached to ARKStep.
-\begin{description}
-\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
-\item {}
-\emph{arkode\_mem} -- pointer to the ARKStep memory block.
-
-\end{itemize}
-
-\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
-\item {}
-\emph{ARK\_SUCCESS} if successful
-
-\item {}
-\emph{ARK\_MEM\_NULL} if the ARKStep memory is \code{NULL}
-
-\item {}
-\emph{ARK\_ILL\_INPUT} if an argument has an illegal value
-
-\end{itemize}
-
-\end{description}
-
-\textbf{Notes:} This is the default behavior of ARKStep, so the function
-is primarily useful to undo a previous call to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetFixedPoint]{\emph{\code{ARKStepSetFixedPoint()}}}}.
-
-\end{fulllineitems}
 
 \index{ARKStepSetLinear (C function)}
 
@@ -6725,6 +6634,7 @@ ARKDLS interface.
 
 \item {}
 \emph{ARKDLS\_MASSMEM\_NULL} if the mass matrix solver memory was \code{NULL}
+
 \item {} 
 \emph{ARKDLS\_ILL\_INPUT} if an argument has an illegal value
 
@@ -7169,8 +7079,7 @@ by the ARKSPILS interface.
 matrix solver interface has been initialized through a call to
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKSpilsSetMassLinearSolver]{\emph{\code{ARKSpilsSetMassLinearSolver()}}}}.
 
-The default is \code{NULL} for both arguments (i.e. no
-preconditioning).
+The default is \code{NULL} for both arguments (i.e. no preconditioning).
 
 Both of the function types {\hyperref[ARKStep_c_interface/User_supplied:c.ARKSpilsMassPrecSetupFn]{\emph{\code{ARKSpilsMassPrecSetupFn()}}}} and
 {\hyperref[ARKStep_c_interface/User_supplied:c.ARKSpilsMassPrecSolveFn]{\emph{\code{ARKSpilsMassPrecSolveFn()}}}} are described in the section
@@ -7244,10 +7153,10 @@ increasing or decreasing, respectively.
 
 \end{itemize}
 
-
 \end{description}
 
 \textbf{Notes:} The default behavior is to monitor for both zero-crossing directions.
+
 \end{fulllineitems}
 
 \index{ARKStepSetNoInactiveRootWarn (C function)}
@@ -10133,7 +10042,7 @@ value of the independent variable \(t\) and state vector \(y\).
 \emph{t} -- the current value of the independent variable.
 
 \item {}
-\emph{y} -- the current value of the dependent variable vector, \(y\).
+\emph{y} -- the current value of the dependent variable vector.
 
 \item {}
 \emph{ydot} -- the output vector that forms a portion of the ODE RHS \(f_E(t,y) + f_I(t,y)\).
@@ -10349,6 +10258,7 @@ that chooses \(h\) satisfying the error tolerances.
 
 \item {}
 \emph{q} -- the global order of accuracy for the method.
+
 \item {} 
 \emph{p} -- the global order of accuracy for the embedded method.
 
@@ -10905,7 +10815,6 @@ approximation.
 This function computes the mass matrix \(M\) (or an approximation to it).
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
-
 \item {}
 \emph{t} -- the current value of the independent variable.
 
@@ -11456,7 +11365,7 @@ preconditioner setup function.
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {}
-\emph{nfevalsBP} -- number of calls to \(f_I\)
+\emph{nfevalsBP} -- number of calls to \(f_I\).
 
 \end{itemize}
 
@@ -11608,16 +11517,16 @@ fills the vector \emph{glocal} as a function of \emph{t} and \emph{y}.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {}
-\emph{Nlocal} -- the local vector length
+\emph{Nlocal} -- the local vector length.
 
 \item {}
-\emph{t} -- the value of the independent variable
+\emph{t} -- the value of the independent variable.
 
 \item {}
-\emph{y} -- the value of the dependent variable vector on this process
+\emph{y} -- the value of the dependent variable vector on this process.
 
 \item {}
-\emph{glocal} -- the output vector of \(g(t,y)\) on this process
+\emph{glocal} -- the output vector of \(g(t,y)\) on this process.
 
 \item {}
 \emph{user\_data} -- a pointer to user data, the same as the
@@ -11653,13 +11562,13 @@ above, using the input vector \emph{y}.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {}
-\emph{Nlocal} -- the local vector length
+\emph{Nlocal} -- the local vector length.
 
 \item {}
-\emph{t} -- the value of the independent variable
+\emph{t} -- the value of the independent variable.
 
 \item {}
-\emph{y} -- the value of the dependent variable vector on this process
+\emph{y} -- the value of the dependent variable vector on this process.
 
 \item {}
 \emph{user\_data} -- a pointer to user data, the same as the
@@ -12990,12 +12899,12 @@ ARKStep routine
 \hline
 \code{FIXEDPOINT}
  &
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetFixedPoint]{\emph{\code{ARKStepSetFixedPoint()}}}}
+\code{ARKStepSetFixedPoint()}
 \\
 \hline
 \code{NEWTON}
  &
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetNewton]{\emph{\code{ARKStepSetNewton()}}}}
+\code{ARKStepSetNewton()}
 \\
 \hline
 \code{EXPLICIT}
@@ -13465,6 +13374,7 @@ steps (\emph{H1}, \emph{H2}, \emph{H3}) and the three previous error estimates
 
 \item {}
 \emph{Q} (\code{int}, input) -- global order of accuracy for RK method.
+
 \item {} 
 \emph{P} (\code{int}, input) -- global order of accuracy for RK embedded method.
 
@@ -16806,13 +16716,13 @@ be solved using the ERKStep time-stepping module in ARKode.
 \item {}
 \emph{f} -- the name of the C function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the right-hand side function in
-\(\dot{y} = f(t,y)\)
+\(\dot{y} = f(t,y)\).
 
 \item {}
-\emph{t0} -- the initial value of \(t\)
+\emph{t0} -- the initial value of \(t\).
 
 \item {}
-\emph{y0} -- the initial condition vector \(y(t_0)\)
+\emph{y0} -- the initial condition vector \(y(t_0)\).
 
 \end{itemize}
 
@@ -16889,10 +16799,10 @@ This function specifies scalar relative and absolute tolerances.
 \emph{arkode\_mem} -- pointer to the ERKStep memory block.
 
 \item {}
-\emph{reltol} -- scalar relative tolerance
+\emph{reltol} -- scalar relative tolerance.
 
 \item {}
-\emph{abstol} -- scalar absolute tolerance
+\emph{abstol} -- scalar absolute tolerance.
 
 \end{itemize}
 
@@ -16928,11 +16838,11 @@ each vector component).
 \emph{arkode\_mem} -- pointer to the ERKStep memory block.
 
 \item {}
-\emph{reltol} -- scalar relative tolerance
+\emph{reltol} -- scalar relative tolerance.
 
 \item {}
 \emph{abstol} -- vector containing the absolute tolerances for each
-solution component
+solution component.
 
 \end{itemize}
 
@@ -17228,7 +17138,6 @@ returned at \emph{tstop}.
 the solver was either illegal or missing.  Details will be
 provided in the error message.  Typical causes of this failure:
 \begin{enumerate}
-
 \item {}
 A component of the error weight vector became zero during
 internal time-stepping.
@@ -17277,6 +17186,7 @@ end the time step and return to the user.  Upon return from
 integrator returns at a \emph{tstop} time, any future testing for
 \emph{tstop} is disabled (and can be re-enabled only though a new call
 to {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetStopTime]{\emph{\code{ERKStepSetStopTime()}}}}).
+
 On any error return in which one or more internal steps were taken
 by {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepEvolve]{\emph{\code{ERKStepEvolve()}}}}, the returned values of \emph{tret} and
 \emph{yout} correspond to the farthest point reached in the integration.
@@ -17704,7 +17614,7 @@ initialization or re-initialization.
 \emph{arkode\_mem} -- pointer to the ERKStep memory block.
 
 \item {}
-\emph{hin} -- value of the initial step to be attempted \((\ne 0)\)
+\emph{hin} -- value of the initial step to be attempted \((\ne 0)\).
 
 \end{itemize}
 
@@ -17744,7 +17654,7 @@ ERKStep will instead return with an error.
 \emph{arkode\_mem} -- pointer to the ERKStep memory block.
 
 \item {}
-\emph{mxhnil} -- maximum allowed number of warning messages (\textgreater{}0).
+\emph{mxhnil} -- maximum allowed number of warning messages \((>0)\).
 
 \end{itemize}
 
@@ -17940,7 +17850,6 @@ attaches it to the main ERKStep memory block.
 \textbf{Notes:} If specified, the pointer to \emph{user\_data} is passed to all
 user-supplied functions for which it is an argument; otherwise
 \code{NULL} is passed.
-
 
 \end{fulllineitems}
 
@@ -20292,6 +20201,7 @@ that chooses \(h\) satisfying the error tolerances.
 
 \item {}
 \emph{q} -- the global order of accuracy for the method.
+
 \item {} 
 \emph{p} -- the global order of accuracy for the embedded method.
 
