@@ -386,8 +386,8 @@ The following get functions allow {\sundials} integrators to retrieve nonlinear
 solver statistics. The routine for getting the current total number of
 iterations (\id{SUNNonlinSolGetNumIters} is optional. The routine for getting
 the current nonlinear solver iteration (\id{SUNNonlinSolGetCurIter}) is required
-when using the convergence test provided by the {\sundials} integrator or when
-using a {\sunlinsol} spils linear solver otherwise,
+when using the convergence test provided by the {\sundials} integrator
+or by the {\arkode} and {\cvode} linear solver interfaces.  Otherwise,
 \id{SUNNonlinSolGetCurIter} is optional.
 
 \ucfunction{SUNNonlinSolGetNumIters}

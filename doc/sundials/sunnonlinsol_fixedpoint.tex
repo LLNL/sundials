@@ -66,7 +66,7 @@ iterations and the stopping criteria for the fixed point iteration are
 supplied by the {\sundials} integrator when {\sunnonlinsolfixedpoint}
 is attached to it.  Both the maximum number of iterations and the
 convergence test function may be modified by the user by calling
-\id{SUNNonlinSolSetMaxIters} and \id{SUNNonlinSolSetConvTest}
+\id{SUNNonlinSolSetMaxIters} and \id{SUNNonlinSolSetConvTestFn}
 functions after attaching the {\sunnonlinsolfixedpoint} object to the
 integrator.
 
@@ -107,7 +107,7 @@ Since the accelerated fixed point iteration
 \eqref{e:fixed_point_iteration} does not require the setup or solution
 of any linear systems, the {\sunnonlinsolfixedpoint} module implements
 all of the functions defined in sections \ref{ss:sunnonlinsol_corefn} --
-\ref{ss:sunnonlinsol_getfn} except for the \id{SUNNonlinSolveSetup},
+\ref{ss:sunnonlinsol_getfn} except for the \id{SUNNonlinSolSetup},
 \id{SUNNonlinSolSetLSetupFn}, and \\ \noindent
 \id{SUNNonlinSolSetLSolveFn} functions, that are set to \id{NULL}.
 The {\sunnonlinsolfixedpoint} functions have the same names as those
