@@ -37,16 +37,18 @@ Note that NVECTOR_PETSC requires SUNDIALS to be built with MPI support.
 
 
 The NVECTOR_PETSC module defines implementations of all vector
-operations listed in the section :ref:`NVectors.Ops`, except for
+operations listed in the sections :ref:`NVectors.Ops`,
+:ref:`NVectors.FusedOps` and :ref:`NVectors.ArrayOps`, except for 
 ``N_VGetArrayPointer`` and ``N_VSetArrayPointer``.  As such, this
 vector cannot be used with SUNDIALS Fortran interfaces.  When access
 to raw vector data is needed, it is recommended to extract the PETSc
 vector first, and then use PETSc methods to access the data.  Usage
 examples of NVECTOR_PETSC is provided in example programs for IDA.
 
-The names of vector operations are obtained from those in the section
-:ref:`NVectors.Ops` by appending the suffice ``_Petsc``
-(e.g. ``N_VDestroy_Petsc``).  The module NVECTOR_PETSC provides the
+The names of vector operations are obtained from those in the sections
+:ref:`NVectors.Ops`, :ref:`NVectors.FusedOps` and
+:ref:`NVectors.ArrayOps` by appending the suffice ``_Petsc``
+(e.g. ``N_VDestroy_Petsc``).  The module NVECTOR_PETSC provides the 
 following additional user-callable routines:
 
 

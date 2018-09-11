@@ -116,16 +116,53 @@ optimized implementation for explicit Runge-Kutta methods (reduced
 storage and number of calls to the ODE right-hand side function).
 This restructure has resulted in numerous small changes to the user
 interface, particularly the suite of "Set" routines for user-provided
-solver parameters and and "Get" routines to access solver statistics.
-Aside from affecting the names of these routines, user-level changes
-have been kept to a minimum.  However, we recommend that users consult
-both this documentation and the ARKode example programs for further
-details on the updated infrastructure.
+solver parameters and and "Get" routines to access solver statistics,
+that are now prefixed with ``ARKStep`` or ``ERKStep`` instead of
+``ARKode``.  Aside from affecting the names of these routines,
+user-level changes have been kept to a minimum.  However, we recommend
+that users consult both this documentation and the ARKode example
+programs for further details on the updated infrastructure.
+
+An API for encapsulating the nonlinear solvers used in SUNDIALS
+implicit integrators has been introduced. The goal of this API is to
+ease the introduction of new nonlinear solver options in SUNDIALS
+integrators and allow for external or user-supplied nonlinear
+solvers. The SUNNonlinSol API and provided SUNNonlinearSolver modules
+are described in Chapter :ref:`SUNNonlinSol` and follow the same
+object oriented design and implementation used by the NVector,
+SUNMatrix, and SUNLinSol modules. 
+
+SUNNonlinSol modules are intended to solve nonlinear systems formulated as
+either a rootfinding problem :math:`F(y)=0` or a fixed-point problem
+:math:`G(y)=y`. Currently two SUNNonlinSol implementations are provided,
+SUNNonlinSol_Newton and SUNNonlinSol_FixedPoint. These replicate the
+previous integrator specific implementations of a Newton iteration and
+an accelerated fixed-point iteration, respectively.  Example programs
+using each of these nonlinear solver modules in a standalone manner
+have been added and all relevant ARKode example programs have been
+updated to use generic SUNNonlinSol modules. 
+
+As with previous versions, ARKode will use the Newton solver (now
+provided by SUNNonlinSol_Newton) by default.  Use of the
+:c:func:`ARKStepSetLinear()` routine (previously named
+``ARKodeSetLinear``) will indicate that the problem is
+linearly-implicit, using only a single Newton iteration per implicit
+stage.  Users wishing to switch to the acclerated fixed-point solver
+are now required to create a SUNNonlinSol_FixedPoint object and attach
+that to ARKode, instead of calling the previous
+``ARKodeSetFixedPoint`` routine.  See the documentation sections
+:ref:`ARKStep_CInterface.Skeleton`,
+:ref:`ARKStep_CInterface.NonlinearSolvers` and
+:ref:`SUNNonlinSol_FixedPoint` for further details, or the serial C
+example program ``ark_brusselator_fp.c`` for an example.
 
 Simplified the prototype for the user-supplied time step adaptivity
 function, :c:func:`ARKAdaptFn()`, to supply only the method order of
 accuracy (instead of both the method and embedding orders).
 
+ARKode's dense output infrastructure has been improved to support
+higher-degree Hermite polynomial interpolants (up to degree 5) over
+the last successful time step.
 
 
 

@@ -34,7 +34,7 @@ The following is a list of the example functions in ``test_sunlinsol.c``:
 
 * ``Test_SUNLinSolSolve``: Given a ``SUNMatrix`` object :math:`A`, 
   ``N_Vector`` objects :math:`x` and :math:`b` (where :math:`Ax=b`)
-  and a desired solution tolerance \texttt{tol}, this routine clones
+  and a desired solution tolerance ``tol``, this routine clones
   :math:`x` into a new vector :math:`y`, calls ``SUNLinSolSolve`` to
   fill :math:`y` as the solution to :math:`Ay=b` (to the input
   tolerance), verifies that each entry in :math:`x` and :math:`y`

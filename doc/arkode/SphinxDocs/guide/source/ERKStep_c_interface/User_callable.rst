@@ -186,7 +186,7 @@ of advice are relevant.
     noise level. If the different components have different noise
     levels, then ``abstol`` should be a vector.  For example, see the
     example problem ``ark_robertson.c``, and the discussion
-    of it in the ARKode Examples Documentation [R2013]_.  In that
+    of it in the ARKode Examples Documentation [R2018]_.  In that
     problem, the three components vary between 0 and 1, and have
     different noise levels; hence the ``atols`` vector therein. It is
     impossible to give any general advice on ``abstol`` values,

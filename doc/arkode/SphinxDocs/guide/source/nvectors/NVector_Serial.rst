@@ -116,8 +116,9 @@ version.
 
 
 The NVECTOR_SERIAL module defines serial implementations of all vector
-operations listed in the section :ref:`NVectors.Ops`.  Their names are
-obtained from those in that section by appending the suffix
+operations listed in the sections :ref:`NVectors.Ops`,
+:ref:`NVectors.FusedOps` and :ref:`NVectors.ArrayOps`.  Their names
+are obtained from those in those sections by appending the suffix
 ``_Serial`` (e.g. ``N_VDestroy_Serial``).  The module NVECTOR_SERIAL
 provides the following additional user-callable routines:
 

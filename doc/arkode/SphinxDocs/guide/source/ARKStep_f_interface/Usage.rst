@@ -236,6 +236,39 @@ sections of the Chapter :ref:`SUNLinSol`.
 
 
 
+
+
+
+.. _FInterface.SUNNonlinSol:
+
+SUNNONLINSOL module initialization
+--------------------------------------
+
+If using a non-default nonlinear solver method, the user must make a call
+of the form
+
+.. code::
+
+   CALL FSUNNEWTONINIT(4, IER)
+   CALL FSUNFIXEDPOINTINIT(4, M, IER)
+
+in which the specific arguments are as described in the
+appropriate section of the Chapter :ref:`SUNNonlinSol`.
+
+Once one of these has been initialized, its solver parameters may be
+modified using a call to the functions
+
+.. code::
+
+   CALL FSUNNEWTONSETMAXITERS(4, MAXITERS, IER)
+   CALL FSUNFIXEDPOINTSETMAXITERS(4, MAXITERS, IER)
+
+where again the call sequences are described in the appropriate
+sections of the Chapter :ref:`SUNNonlinSol`.
+
+
+
+
 .. _FInterface.Problem:
 
 Problem specification
@@ -353,8 +386,6 @@ Key                      ARKStep routine
 ``DENSE_ORDER``          :c:func:`ARKStepSetDenseOrder()`
 ``LINEAR``               :c:func:`ARKStepSetLinear()`
 ``NONLINEAR``            :c:func:`ARKStepSetNonlinear()`
-``FIXEDPOINT``           :c:func:`ARKStepSetFixedPoint()`
-``NEWTON``               :c:func:`ARKStepSetNewton()`
 ``EXPLICIT``             :c:func:`ARKStepSetExplicit()`
 ``IMPLICIT``             :c:func:`ARKStepSetImplicit()`
 ``IMEX``                 :c:func:`ARKStepSetImEx()`
@@ -632,6 +663,27 @@ This routine is enabled by a call to the activation routine:
    Note: The call to :f:func:`FARKEXPSTABSET()` must occur *after* the call
    to :f:func:`FARKMALLOC()`.
 
+
+
+
+.. _FInterface.NonlinearSolver:
+
+Nonlinear solver module specification
+----------------------------------------------
+
+To use a non-default nonlinear solver algorithm, then after it has
+been initialized in step :ref:`FInterface.SUNNonlinSol` above, the
+user of FARKODE must attach it to ARKSTEP by calling :f:func:`FARKNLSINIT()` routine:
+
+
+.. f:subroutine:: FARKNLSINIT(IER)
+
+   Interfaces with the :c:func:`ARKStepSetNonlinearSolver()` function to
+   specify use of a non-default nonlinear solver module.
+
+   **Arguments:**
+      * *IER* (``int``, output) -- return flag (0 if success, -1 if a memory allocation
+        error occurred, -2 for an illegal input).
 
 
 

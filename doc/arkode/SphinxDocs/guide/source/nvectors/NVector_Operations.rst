@@ -14,9 +14,10 @@
 Description of the NVECTOR operations
 =========================================
 
-For each of the ``N_Vector`` operations, we give the name, usage
-of the function, and a description of its mathematical operations
-below.
+The standard vector operations defined by the generic ``N_Vector``
+module are defined as follows.  For each of these operations, we give
+the name, usage of the function, and a description of its mathematical
+operations below.
 
 
 .. c:function:: N_Vector_ID N_VGetVectorID(N_Vector w)
@@ -126,7 +127,7 @@ below.
    ``realtype`` scalars and *x* and *y* are of type ``N_Vector``:
 
    .. math::
-      z_i = a x_i + b y_i, \quad i=1,\ldots,n. 
+      z_i = a x_i + b y_i, \quad i=0,\ldots,n-1. 
 
    Usage:
 
@@ -140,7 +141,7 @@ below.
    Sets all components of the ``N_Vector`` *z* to ``realtype`` *c*:
 
    .. math::
-      z_i = c, \quad i=1,\ldots,n. 
+      z_i = c, \quad i=0,\ldots,n-1. 
 
    Usage:
 
@@ -155,7 +156,7 @@ below.
    ``N_Vector`` inputs *x* and *y*:
 
    .. math::
-      z_i = x_i y_i, \quad i=1,\ldots,n.
+      z_i = x_i y_i, \quad i=0,\ldots,n-1.
  
    Usage:
  
@@ -170,7 +171,7 @@ below.
    ``N_Vector`` inputs *x* and *y*: 
 
    .. math::
-      z_i = \frac{x_i}{y_i}, \quad i=1,\ldots,n.
+      z_i = \frac{x_i}{y_i}, \quad i=0,\ldots,n-1.
 
    The :math:`y_i` may not be tested for 0 values. It should only be
    called with a *y* that is guaranteed to have all nonzero components.  
@@ -188,7 +189,7 @@ below.
    returns the result in *z*:
 
    .. math::
-      z_i = c x_i, \quad i=1,\ldots,n.
+      z_i = c x_i, \quad i=0,\ldots,n-1.
 
    Usage:
 
@@ -203,7 +204,7 @@ below.
    values of the components of the ``N_Vector`` *x*: 
 
    .. math::
-      y_i = |x_i|, \quad i=1,\ldots,n.
+      y_i = |x_i|, \quad i=0,\ldots,n-1.
 
    Usage:
 
@@ -218,7 +219,7 @@ below.
    the components of the ``N_Vector`` *x*: 
 
    .. math::
-      z_i = 1.0/x_i, \quad i=1,\ldots,n.
+      z_i = 1.0/x_i, \quad i=0,\ldots,n-1.
 
    This routine may not check for division by 0.  It should be called
    only with an *x* which is guaranteed to have all nonzero components.
@@ -236,7 +237,7 @@ below.
    returns the result in the ``N_Vector`` *z*:
 
    .. math::
-      z_i = x_i+b, \quad i=1,\ldots,n.
+      z_i = x_i+b, \quad i=0,\ldots,n-1.
 
    Usage:
 
@@ -250,7 +251,7 @@ below.
    Returns the value of the dot-product of the ``N_Vectors`` *x* and *y*:
 
    .. math::
-      d = \sum_{i=1}^{n} x_i y_i.
+      d = \sum_{i=0}^{n-1} x_i y_i.
 
    Usage:
 
@@ -265,7 +266,7 @@ below.
    ``N_Vector`` *x*:
 
    .. math::
-      m = \max_{1\le i\le n} |x_i|.
+      m = \max_{0\le i\le n-1} |x_i|.
 
    Usage: 
  
@@ -280,7 +281,7 @@ below.
    with (positive) ``realtype`` weight vector *w*: 
  
    .. math::
-      m = \left( \frac1n \sum_{i=1}^{n} \left(x_i w_i\right)^2\right)^{1/2}.  
+      m = \sqrt{\left( \sum_{i=0}^{n-1} (x_i w_i)^2 \right) / n}
 
    Usage:
 
@@ -292,14 +293,14 @@ below.
 .. c:function:: realtype N_VWrmsNormMask(N_Vector x, N_Vector w, N_Vector id)
 
    Returns the weighted root mean square norm of the ``N_Vector`` *x*
-   with (positive) ``realtype`` weight vector *w* built using only the
-   elements of *x* corresponding to nonzero elements of the
+   with ``realtype`` weight vector *w* built using only the
+   elements of *x* corresponding to positive elements of the
    ``N_Vector`` *id*:
   
    .. math::
-      m = \left( \frac1n \sum_{i=1}^{n} \left(x_i w_i H(id_i)\right)^2 \right)^{1/2}, 
+      m = \sqrt{\left( \sum_{i=0}^{n-1} (x_i w_i H(id_i))^2 \right) / n}, 
 
-   where :math:`H(id_i)=1` for :math:`id_i > 0` and is zero otherwise.
+   where :math:`H(\alpha)=\begin{cases} 1 & \alpha>0\\ 0 & \alpha \leq 0\end{cases}`.
       
    .. code-block:: c
 
@@ -310,7 +311,7 @@ below.
    Returns the smallest element of the ``N_Vector`` *x*: 
 
    .. math::
-      m = \min_{1\le i\le n} x_i.
+      m = \min_{0\le i\le n-1} x_i.
 
    Usage:
 
@@ -324,7 +325,7 @@ below.
    *x* with ``realtype`` weight vector *w*: 
 
    .. math::
-      m = \left(\sum_{i=1}^{n}\left(x_i w_i\right)^2\right)^{1/2}.  
+      m = \sqrt{\sum_{i=0}^{n-1}\left(x_i w_i\right)^2}.  
 
    Usage:
 
@@ -337,7 +338,7 @@ below.
    Returns the :math:`l_1` norm of the ``N_Vector`` *x*: 
 
    .. math::
-      m = \sum_{i=1}^{n} |x_i|. 
+      m = \sum_{i=0}^{n-1} |x_i|. 
 
    Usage:
 
@@ -350,7 +351,7 @@ below.
 
    Compares the components of the ``N_Vector`` *x* to the ``realtype``
    scalar *c* and returns an ``N_Vector`` *z* such that for all
-   :math:`1\le i\le n`,
+   :math:`0\le i\le n-1`,
 
    .. math::
       z_i = \begin{cases} 1.0 &\quad\text{if}\; |x_i| \ge c,\\
@@ -369,7 +370,7 @@ below.
    zero values: 
 
    .. math::
-      z_i = 1.0/x_i, \quad i=1,\ldots,n.  
+      z_i = 1.0/x_i, \quad i=0,\ldots,n-1.  
 
    This routine returns a boolean assigned to ``SUNTRUE`` if all
    components of *x* are nonzero (successful inversion) and returns
@@ -411,7 +412,7 @@ below.
    termwise dividing the elements of *n* by the elements in *d*:
 
    .. math::
-      \min_{i=1,\ldots,n} \frac{\text{num}_i}{\text{denom}_i}. 
+      \min_{i=0,\ldots,n-1} \frac{\text{num}_i}{\text{denom}_i}. 
 
    A zero element in *denom* will be skipped.  If no such quotients
    are found, then the large value ``BIG_REAL`` (defined in the header
@@ -424,13 +425,21 @@ below.
       minq = N_VMinQuotient(num, denom);
 
 
-The following fused and vector array operations are *optional*. These
+      
+.. _NVectors.FusedOps:
+
+Description of the NVECTOR fused operations
+---------------------------------------------
+
+The following fused vector operations are *optional*. These
 operations are intended to increase data reuse, reduce parallel
 communication on distributed memory systems, and lower the number of
 kernel launches on systems with accelerators. If a particular NVECTOR 
-implementation defines one of the fused or vector array operations as
+implementation defines one of the fused vector operations as
 ``NULL``, the NVECTOR interface will call one of the above standard
-vector operations as necessary.
+vector operations as necessary.  As above, for each operation, we give
+the name, usage of the function, and a description of its mathematical
+operations below.
 
 
 .. c:function:: int N_VLinearCombination(int nv, realtype* c, N_Vector* X, N_Vector z)
@@ -438,7 +447,7 @@ vector operations as necessary.
    This routine computes the linear combination of *nv* vectors with :math:`n` elements:
 
    .. math::
-      z_i = \sum_{j=1}^{nv} c_j x_{j,i}, \quad i=1,\ldots,n,
+      z_i = \sum_{j=0}^{nv-1} c_j x_{j,i}, \quad i=0,\ldots,n-1,
 
    where :math:`c` is an array of :math:`nv` scalars, :math:`x_j` is a
    vector in the vector array *X*, and *z* is the output
@@ -458,7 +467,7 @@ vector operations as necessary.
    This routine scales and adds one vector to *nv* vectors with :math:`n` elements:
 
    .. math::
-      z_{j,i} = c_j x_i + y_{j,i}, \quad j=1,\ldots,nv \quad i=1,\ldots,n,
+      z_{j,i} = c_j x_i + y_{j,i}, \quad j=0,\ldots,nv-1 \quad i=0,\ldots,n-1,
 
    where *c* is an array of scalars, *x* is a vector, :math:`y_j` is a
    vector in the vector array *Y*, and :math:`z_j` is an output vector
@@ -475,10 +484,10 @@ vector operations as necessary.
 .. c:function:: int N_VDotProdMulti(int nv, N_Vector x, N_Vector* Y, realtype* d)
 
    This routine computes the dot product of a vector with *nv* vectors
-   having :math:`n` elements:   
+   having :math:`n` elements:
 
    .. math::
-      d_j = \sum_{i}^{n} x_i y_{j,i}, \quad j=1,\ldots,nv,
+      d_j = \sum_{i=0}^{n-1} x_i y_{j,i}, \quad j=0,\ldots,nv-1,
 
    where *d* is an array of scalars containing the computed dot
    products, *x* is a vector, and :math:`y_j` is a vector the vector
@@ -492,12 +501,28 @@ vector operations as necessary.
       ier = N_VDotProdMulti(nv, x, Y, d);
 
 
+.. _NVectors.ArrayOps:
+
+Description of the NVECTOR vector array operations
+---------------------------------------------------
+
+The following vector array operations are also *optional*. As with the
+fused vector operations, these are intended to increase data reuse,
+reduce parallel communication on distributed memory systems, and lower
+the number of kernel launches on systems with accelerators. If a
+particular NVECTOR implementation defines one of the fused or vector
+array operations as ``NULL``, the NVECTOR interface will call one of
+the above standard vector operations as necessary.  As above, for each
+operation, we give the name, usage of the function, and a description
+of its mathematical operations below.
+
+      
 .. c:function:: int N_VLinearSumVectorArray(int nv, realtype a, N_Vector X, realtype b, N_Vector* Y, N_Vector* Z)
 
    This routine computes the linear sum of two vector arrays of *nv* vectors with :math:`n` elements:
 
    .. math::
-      z_{j,i} = a x_{j,i} + b y_{j,i}, \quad i=1,\ldots,n \quad j=1,\ldots,nv,
+      z_{j,i} = a x_{j,i} + b y_{j,i}, \quad i=0,\ldots,n-1 \quad j=0,\ldots,nv-1,
 
    where *a* and *b* are scalars, :math:`x_j` and :math:`y_j` are
    vectors in the vector arrays *X* and *Y* respectively, and
@@ -517,7 +542,7 @@ vector operations as necessary.
    in a vector array of *nv* vectors by a potentially different constant: 
 
    .. math::
-      z_{j,i} = c_j x_{j,i}, \quad i=1,\ldots,n \quad j=1,\ldots,nv,
+      z_{j,i} = c_j x_{j,i}, \quad i=0,\ldots,n-1 \quad j=0,\ldots,nv-1,
 
    where *c* is an array of scalars, :math:`x_j` is a vector in the
    vector array *X*, and :math:`z_j` is a vector in the output vector
@@ -536,7 +561,7 @@ vector operations as necessary.
    a vector array of *nv* vectors to the same value: 
 
    .. math::
-      z_{j,i} = c, \quad i=1,\ldots,n \quad j=1,\ldots,nv,
+      z_{j,i} = c, \quad i=0,\ldots,n-1 \quad j=0,\ldots,nv-1,
 
    where *c* is a scalar and :math:`z_j` is a vector in the vector
    array *Z*. The operation returns 0 for success and a non-zero value otherwise.
@@ -554,7 +579,7 @@ vector operations as necessary.
    vector in a vector array: 
 
    .. math::
-      m_j = \left( \frac1n \sum_{i=1}^{n} \left(x_{j,i} w_{j,i}\right)^2\right)^{1/2}, \quad j=1,\ldots,nv,
+      m_j = \left( \frac1n \sum_{i=0}^{n-1} \left(x_{j,i} w_{j,i}\right)^2\right)^{1/2}, \quad j=0,\ldots,nv-1,
 
    where :math:`x_j` is a vector in the vector array *X*, :math:`w_j`
    is a weight vector in the vector array *W*, and *m* is the output
@@ -574,7 +599,7 @@ vector operations as necessary.
    each vector in a vector array:
 
    .. math::
-      m_j = \left( \frac1n \sum_{i=1}^{n} \left(x_{j,i} w_{j,i} H(id_i)\right)^2 \right)^{1/2}, \quad j=1,\ldots,nv,
+      m_j = \left( \frac1n \sum_{i=0}^{n-1} \left(x_{j,i} w_{j,i} H(id_i)\right)^2 \right)^{1/2}, \quad j=0,\ldots,nv-1,
 
    where :math:`H(id_i)=1` for :math:`id_i > 0` and is zero otherwise,
    :math:`x_j` is a vector in the vector array *X*, :math:`w_j` is a
@@ -596,7 +621,7 @@ vector operations as necessary.
    *nsum* other vector arrays: 
 
    .. math::
-      z_{k,j,i} = c_k x_{j,i} + y_{k,j,i}, \quad i=1,\ldots,n \quad j=1,\ldots,nv, \quad k=1,\ldots,nsum
+      z_{k,j,i} = c_k x_{j,i} + y_{k,j,i}, \quad i=0,\ldots,n-1 \quad j=0,\ldots,nv-1, \quad k=0,\ldots,nsum-1
 
    where *c* is an array of scalars, :math:`x_j` is a vector in the
    vector array *X*, :math:`y_{k,j}` is a vector in the array of
@@ -608,7 +633,7 @@ vector operations as necessary.
 
    .. code-block:: c
                    
-      ier = N_VScaleAddMultiVectorArray(nv, ns, c, x, YY, ZZ);
+      ier = N_VScaleAddMultiVectorArray(nv, nsum, c, x, YY, ZZ);
 
 
 .. c:function:: int N_VLinearCombinationVectorArray(int nv, int nsum, realtype* c, N_Vector** XX, N_Vector* Z)
@@ -617,7 +642,7 @@ vector operations as necessary.
    arrays containing *nv* vectors: 
 
    .. math::
-      z_{j,i} = \sum_{k=1}^{nsum} c_k x_{k,j,i}, \quad i=1,\ldots,n \quad j=1,\ldots,nv,
+      z_{j,i} = \sum_{k=0}^{nsum-1} c_k x_{k,j,i}, \quad i=0,\ldots,n-1 \quad j=0,\ldots,nv-1,
 
    where *c* is an array of scalars, :math:`x_{k,j}` is a vector in
    array of vector arrays *XX*, and :math:`z_{j,i}` is an output
@@ -630,5 +655,5 @@ vector operations as necessary.
 
    .. code-block:: c
                    
-      ier = N_VLinearCombinationVectorArray(nv, ns, c, XX, Z);
+      ier = N_VLinearCombinationVectorArray(nv, nsum, c, XX, Z);
 

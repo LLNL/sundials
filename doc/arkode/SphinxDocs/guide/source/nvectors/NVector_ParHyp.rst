@@ -42,7 +42,8 @@ to access its member variables.
 
 
 The NVECTOR_PARHYP module defines implementations of all vector
-operations listed in the section :ref:`NVectors.Ops`, except for
+operations listed in the sections :ref:`NVectors.Ops`,
+:ref:`NVectors.FusedOps` and :ref:`NVectors.ArrayOps`, except for 
 ``N_VSetArrayPointer`` and ``N_VGetArrayPointer``, because accessing
 raw vector data is handled by low-level HYPRE functions.  As such,
 this vector is not available for use with SUNDIALS Fortran
@@ -52,8 +53,9 @@ access the data.  Usage examples of NVECTOR_PARHYP are provided in
 the ``cvAdvDiff_non_ph.c`` example programs for CVODE and the
 ``ark_diurnal_kry_ph.c`` example program for ARKode.
 
-The names of parhyp methods are obtained from those in the section
-:ref:`NVectors.Ops` by appending the suffix ``_ParHyp``
+The names of parhyp methods are obtained from those in the sections
+:ref:`NVectors.Ops`, :ref:`NVectors.FusedOps` and
+:ref:`NVectors.ArrayOps` by appending the suffix ``_ParHyp`` 
 (e.g. ``N_VDestroy_ParHyp``).  The module {\nvecph} provides the
 following additional user-callable routines:
 

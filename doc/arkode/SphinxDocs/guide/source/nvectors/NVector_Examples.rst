@@ -87,13 +87,11 @@ The following is a list of the example functions in ``test_nvector.c``:
 
 * ``Test_N_VDotProd``: Calculate dot product of two vectors.
 
-* ``Test_N_VMaxNorm``: Create vector with known values, find and validate max norm.
+* ``Test_N_VMaxNorm``: Create vector with known values, find and validate the max norm.
 
-* ``Test_N_VWrmsNorm``: Create vector of known values, find and validate weighted root mean square.
+* ``Test_N_VWrmsNorm``: Create vector of known values, find and validate the weighted root mean square.
 
-* ``Test_N_VWrmsNormMask``: Case 1: Create vector of known values, find and validate weighted root mean square using all elements.
-
-* ``Test_N_VWrmsNormMask``: Case 2: Create vector of known values, find and validate weighted root mean square using no elements.
+* ``Test_N_VWrmsNormMask``: Create vector of known values, find and validate the weighted root mean square using all elements except one.
 
 * ``Test_N_VMin``: Create vector, find and validate the min.
 

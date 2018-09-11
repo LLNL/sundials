@@ -142,8 +142,9 @@ vector. The suffix ``_PT`` in the names denotes the Pthreads version.
 
 
 The NVECTOR_PTHREADS module defines Pthreads implementations of all vector
-operations listed in the section :ref:`NVectors.Ops`.  Their names are
-obtained from those in that section by appending the suffix
+operations listed in the sections :ref:`NVectors.Ops`,
+:ref:`NVectors.FusedOps` and :ref:`NVectors.ArrayOps`.  Their names
+are obtained from those in those sections by appending the suffix
 ``_Pthreads`` (e.g. N_VDestroy_Pthreads).  The module NVECTOR_PTHREADS
 provides the following additional user-callable routines:
 

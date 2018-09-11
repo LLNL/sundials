@@ -277,7 +277,7 @@ of advice are relevant.
     noise level. If the different components have different noise
     levels, then ``abstol`` should be a vector.  For example, see the
     example problem ``ark_robertson.c``, and the discussion
-    of it in the ARKode Examples Documentation [R2013]_.  In that
+    of it in the ARKode Examples Documentation [R2018]_.  In that
     problem, the three components vary between 0 and 1, and have
     different noise levels; hence the ``atols`` vector therein. It is
     impossible to give any general advice on ``abstol`` values,
@@ -676,6 +676,45 @@ modules.
    ``N_Vector`` module.  Additional compatibility limitations
    for each ``SUNLinearSolver`` object (i.e. required
    ``N_Vector`` routines) are described in the section :ref:`SUNLinSol`.
+
+
+.. _ARKStep_CInterface.NonlinearSolvers:
+
+Nonlinear solver interface functions
+-------------------------------------------
+
+To specify a generic nonlinear solver object to ARKStep, after the
+call to :c:func:`ARKStepCreate()` but before any calls to
+:c:func:`ARKStepEvolve()`, the user's program must create the
+appropriate SUNNonlinSol object and call
+:c:func:`ARKStepSetNonlinearSolver()`, as documented below. The first
+argument passed to this function is the ARKStep memory pointer
+returned by :c:func:`ARKStepCreate()`; the second argument passed to
+this function is the desired SUNNonlinSol object to use for solving
+the nonlinear system for each implicit stage. A call to this function
+attaches the nonlinear solver to the main ARKStep integrator. 
+
+
+.. c:function:: int ARKStepSetNonlinearSolver(void* arkode_mem, SUNNonlinearSolver NLS)
+
+   This function specifies the ``SUNNonlinearSolver`` object
+   that ARKStep should use for implicit stage solves.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *NLS* -- the ``SUNNonlinearSolver`` object to use.
+
+   **Return value:**
+      * *ARK_SUCCESS*   if successful
+      * *ARK_MEM_NULL*  if the ARKStep memory was ``NULL``
+      * *ARK_MEM_FAIL*  if there was a memory allocation failure
+      * *ARK_ILL_INPUT* if ARKStep is incompatible with the
+        provided *NLS* input object.
+
+   **Notes:**  ARKStep will use the Newton SUNNonlinSol module by
+   default; a call to this routine replaces that module with the
+   supplied *NLS* object.
+
 
 
 
@@ -1809,6 +1848,9 @@ Maximum number of convergence failures         :c:func:`ARKStepSetMaxConvFails()
    convergence is not tested).  Only applicable when used in
    combination with the modified or inexact Newton iteration (not the
    fixed-point solver).
+
+   The only SUNNonlinearSolver module that is compatible with the
+   :c:func:`ARKStepSetLinear()` option is the Newton solver.
 
 
 
@@ -3049,6 +3091,9 @@ Single accessor to all nonlinear solver statistics   :c:func:`ARKStepGetNonlinSo
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
 
+   **Notes:** This is only accumulated for the 'life' of the nonlinear
+   solver object; the counter is reset whenever a new nonlinear solver
+   module is 'attached' to ARKStep, or when ARKStep is resized.
 
 
 .. c:function:: int ARKStepGetNumNonlinSolvIters(void* arkode_mem, long int* nniters)
@@ -3063,6 +3108,10 @@ Single accessor to all nonlinear solver statistics   :c:func:`ARKStepGetNonlinSo
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
+
+   **Notes:** This is only accumulated for the 'life' of the nonlinear
+   solver object; the counter is reset whenever a new nonlinear solver
+   module is 'attached' to ARKStep, or when ARKStep is resized.
 
 
 
@@ -3079,6 +3128,10 @@ Single accessor to all nonlinear solver statistics   :c:func:`ARKStepGetNonlinSo
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
 
+   **Notes:** This is only accumulated for the 'life' of the nonlinear
+   solver object; the counter is reset whenever a new nonlinear solver
+   module is 'attached' to ARKStep, or when ARKStep is resized.
+
 
 
 .. c:function:: int ARKStepGetNonlinSolvStats(void* arkode_mem, long int* nniters, long int* nncfails)
@@ -3093,6 +3146,10 @@ Single accessor to all nonlinear solver statistics   :c:func:`ARKStepGetNonlinSo
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
+
+   **Notes:** These are only accumulated for the 'life' of the
+   nonlinear solver object; the counters are reset whenever a new
+   nonlinear solver module is 'attached' to ARKStep, or when ARKStep is resized.
 
 
 
