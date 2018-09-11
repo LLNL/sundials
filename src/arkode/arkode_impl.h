@@ -976,7 +976,8 @@ int arkPredict_VariableOrder(ARKodeMem ark_mem, realtype tau,
 int arkPredict_CutoffOrder(ARKodeMem ark_mem, realtype tau,
                            N_Vector yguess);
 int arkPredict_Bootstrap(ARKodeMem ark_mem, realtype hj,
-                         realtype tau, N_Vector yguess);
+                         realtype tau, int nvec, realtype *cvals,
+                         N_Vector *Xvecs, N_Vector yguess);
 
 
 /*===============================================================

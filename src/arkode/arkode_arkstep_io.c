@@ -1869,7 +1869,7 @@ int ARKStepSetDeltaGammaMax(void *arkode_mem, realtype dgmax)
   Specifies the user-provided linear setup decision constant
   msbp.  Positive values give the number of time steps to wait
   before calling lsetup; negative values imply recomputation of
-  lsetup at each Newton iteration; a zero value implies a reset
+  lsetup at each nonlinear solve; a zero value implies a reset
   to the default.
   ---------------------------------------------------------------*/
 int ARKStepSetMaxStepsBetweenLSet(void *arkode_mem, int msbp)

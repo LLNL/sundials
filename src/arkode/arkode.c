@@ -2456,15 +2456,17 @@ int arkPredict_CutoffOrder(ARKodeMem ark_mem, realtype tau, N_Vector yguess)
   using a quadratic Hermite interpolating polynomial, based on
   the data {y_n, f(t_n,y_n), f(t_n+hj,z_j)}.
 
-  Note: it is assumed that f(t_n+hj,z_j) is stored in 'yguess'
-  on input.
+  Note: we assume that ftemp = f(t_n+hj,z_j) can be computed via 
+     N_VLinearCombination(nvec, cvals, Xvecs, ftemp),
+  i.e. the inputs cvals[0:nvec-1] and Xvecs[0:nvec-1] may be 
+  combined to form f(t_n+hj,z_j).
   ---------------------------------------------------------------*/
 int arkPredict_Bootstrap(ARKodeMem ark_mem, realtype hj,
-                         realtype tau, N_Vector yguess)
+                         realtype tau, int nvec, realtype *cvals,
+                         N_Vector *Xvecs, N_Vector yguess)
 {
   realtype a0, a1, a2;
-  realtype cvals[3];
-  N_Vector Xvecs[3];
+  int i;
 
   /* verify that ark_mem and interpolation structure are provided */
   if (ark_mem == NULL) {
@@ -2485,16 +2487,19 @@ int arkPredict_Bootstrap(ARKodeMem ark_mem, realtype hj,
   a2 = tau*tau/TWO/hj;
   a1 = tau - a2;
 
-  /* set arrays for fused vector operation */
-  cvals[0] = a2;
-  Xvecs[0] = yguess;
-  cvals[1] = a0;
-  Xvecs[1] = ark_mem->yn;
-  cvals[2] = a1;
-  Xvecs[2] = ark_mem->interp->fnew;
+  /* set arrays for fused vector operation; shift inputs for 
+     f(t_n+hj,z_j) to end of queue */
+  for (i=0; i<nvec; i++) {
+    cvals[2+i] = a2*cvals[i];
+    Xvecs[2+i] = Xvecs[i];
+  }
+  cvals[0] = a0;
+  Xvecs[0] = ark_mem->yn;
+  cvals[1] = a1;
+  Xvecs[1] = ark_mem->interp->fnew;
 
   /* call fused vector operation to compute prediction */
-  return(N_VLinearCombination(3, cvals, Xvecs, yguess));
+  return(N_VLinearCombination(nvec+2, cvals, Xvecs, yguess));
 }
 
 

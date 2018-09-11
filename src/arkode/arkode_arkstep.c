@@ -1103,15 +1103,16 @@ int arkStep_Init(void* arkode_mem, int init_type)
     }
 
     /* Allocate reusable arrays for fused vector interface */
+    j = (2*step_mem->stages+1 > 4) ? 2*step_mem->stages+1 : 4;
     if (step_mem->cvals == NULL) {
-      step_mem->cvals = (realtype *) calloc(2*step_mem->stages+1, sizeof(realtype));
+      step_mem->cvals = (realtype *) calloc(j, sizeof(realtype));
       if (step_mem->cvals == NULL)  return(ARK_MEM_FAIL);
-      ark_mem->lrw += (2*step_mem->stages + 1);
+      ark_mem->lrw += j;
     }
     if (step_mem->Xvecs == NULL) {
-      step_mem->Xvecs = (N_Vector *) calloc(2*step_mem->stages+1, sizeof(N_Vector));
+      step_mem->Xvecs = (N_Vector *) calloc(j, sizeof(N_Vector));
       if (step_mem->Xvecs == NULL)  return(ARK_MEM_FAIL);
-      ark_mem->liw += (2*step_mem->stages + 1);   /* pointers */
+      ark_mem->liw += j;   /* pointers */
     }
 
     /* Allocate interpolation memory (if unallocated, and needed) */
@@ -1985,10 +1986,7 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
            stage, c_j, to use. *****/
 
     /* this approach will not work (for now) when using a non-identity mass matrix */
-    if (step_mem->mass_mem != NULL)  {
-      N_VScale(ONE, ark_mem->yn, yguess);
-      break;
-    }
+    if (step_mem->mass_mem) break;
 
     /* determine if any previous stages in step meet criteria */
     jstage = -1;
@@ -2018,11 +2016,9 @@ int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
       Xvecs[nvec] = step_mem->Fe[jstage];
       nvec += 1;
     }
-    retval = N_VLinearCombination(nvec, cvals, Xvecs, yguess);
-    if (retval != ARK_SUCCESS)  break;
 
     /* call predictor routine */
-    retval = arkPredict_Bootstrap(ark_mem, h, tau, yguess);
+    retval = arkPredict_Bootstrap(ark_mem, h, tau, nvec, cvals, Xvecs, yguess);
     if (retval == ARK_SUCCESS)  return(ARK_SUCCESS);
     break;
 
