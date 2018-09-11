@@ -418,9 +418,9 @@ Species 6
 
  Final statistics for this run:
 
- ARKode real workspace length          = 3298 
- ARKode integer workspace length       =   55 
- SUNSPGMR real workspace length        = 2642 
+ ARKStep real workspace length          = 3124 
+ ARKStep integer workspace length       =  126 
+ SUNSPGMR real workspace length        = 2648 
  SUNSPGMR integer workspace length     =   22 
  Number of steps                       =  258 
  Number of f-s (explicit)              =    0 
@@ -487,9 +487,9 @@ t =   1.00e+01  nst = 264  nfe = 0  nfi = 4356  nni = 2901  hu =    9.24e-02
 
  Final statistics for this run:
 
- ARKode real workspace length          = 3298 
- ARKode integer workspace length       =   55 
- SUNSPGMR real workspace length        = 2642 
+ ARKStep real workspace length          = 3164 
+ ARKStep integer workspace length       =  134 
+ SUNSPGMR real workspace length        = 2648 
  SUNSPGMR integer workspace length     =   22 
  Number of steps                       =  264 
  Number of f-s (explicit)              =    0 
@@ -556,9 +556,9 @@ t =   1.00e+01  nst = 359  nfe = 0  nfi = 5723  nni = 3907  hu =    1.35e-01
 
  Final statistics for this run:
 
- ARKode real workspace length          = 3298 
- ARKode integer workspace length       =   55 
- SUNSPGMR real workspace length        = 2642 
+ ARKStep real workspace length          = 3204 
+ ARKStep integer workspace length       =  142 
+ SUNSPGMR real workspace length        = 2648 
  SUNSPGMR integer workspace length     =   22 
  Number of steps                       =  359 
  Number of f-s (explicit)              =    0 
@@ -625,9 +625,9 @@ t =   1.00e+01  nst = 359  nfe = 0  nfi = 5729  nni = 3912  hu =    1.31e-01
 
  Final statistics for this run:
 
- ARKode real workspace length          = 3298 
- ARKode integer workspace length       =   55 
- SUNSPGMR real workspace length        = 2642 
+ ARKStep real workspace length          = 3244 
+ ARKStep integer workspace length       =  150 
+ SUNSPGMR real workspace length        = 2648 
  SUNSPGMR integer workspace length     =   22 
  Number of steps                       =  359 
  Number of f-s (explicit)              =    0 

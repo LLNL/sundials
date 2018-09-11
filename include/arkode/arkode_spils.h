@@ -16,7 +16,7 @@
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
  * Header file for the Scaled, Preconditioned Iterative Linear 
- * Solver interface in ARKODE.
+ * Solver interface in ARKode.
  *--------------------------------------------------------------*/
 
 #ifndef _ARKSPILS_H
@@ -443,7 +443,7 @@ typedef int (*ARKSpilsMassPrecSolveFn)(realtype t, N_Vector r,
 
  The return value is one of:
     ARKSPILS_SUCCESS   if successful
-    ARKSPILS_MEM_NULL  if the ARKODE memory was NULL
+    ARKSPILS_MEM_NULL  if the ARKode memory was NULL
     ARKSPILS_ILL_INPUT if the linear solver memory was NULL
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKSpilsSetLinearSolver(void *arkode_mem, 
@@ -480,7 +480,7 @@ SUNDIALS_EXPORT int ARKSpilsSetMassLinearSolver(void *arkode_mem,
 
  ARKSpilsSetJacTimes specifies the jtsetup and jtimes functions. 
                 Default is to use an internal finite difference 
-		approximation routine (no setup).
+                approximation routine (no setup).
 
  ARKSpilsSetMassTimes specifies the mtsetup and mtimes functions. 
                 Note that there do not exist built-in finite-
@@ -562,7 +562,7 @@ SUNDIALS_EXPORT int ARKSpilsSetMassTimes(void *arkode_mem,
 
  ARKSpilsGetLastMassFlag returns the last error flag set by any of
                  the ARKSPILS interface functions on the mass 
-		 matrix solve.
+                 matrix solve.
 
  The return value of ARKSpilsGet* is one of:
     ARKSPILS_SUCCESS   if successful

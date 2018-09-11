@@ -22,11 +22,20 @@ INSTALL(CODE "MESSAGE(\"\nInstall ARKODE\n\")")
 # Add variable arkode_SOURCES with the sources for the ARKODE library
 SET(arkode_SOURCES
   arkode.c
+  arkode_adapt.c
+  arkode_arkstep.c
+  arkode_arkstep_io.c
   arkode_bandpre.c
   arkode_bbdpre.c
   arkode_butcher.c
+  arkode_butcher_dirk.c
+  arkode_butcher_erk.c
   arkode_direct.c        
+  arkode_erkstep.c
+  arkode_erkstep_io.c
+  arkode_interp.c
   arkode_io.c
+  arkode_root.c
   arkode_spils.c
   )
 
@@ -68,8 +77,13 @@ SET(sunlinsol_SOURCES
 # Add variable arkode_HEADERS with the exported ARKODE header files
 SET(arkode_HEADERS
   arkode.h
+  arkode_arkstep.h
   arkode_bandpre.h
   arkode_bbdpre.h
+  arkode_butcher.h
+  arkode_butcher_erk.h
+  arkode_butcher_dirk.h
+  arkode_erkstep.h
   arkode_direct.h
   arkode_spils.h
   )

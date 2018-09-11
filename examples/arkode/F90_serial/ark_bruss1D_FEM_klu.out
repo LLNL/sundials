@@ -1,7 +1,16 @@
 ARKode solver parameters:
-  Method order 4
   Dense output order 3
+  Solver relative tolerance = 1e-06
+  Solver absolute tolerance = 1e-11
+  Absolute residual tolerance = 1e-11
+
+ARKStep time step module parameters:
+  Method order 4
   Implicit integrator
+  Maximum step increase (first step) = 10000
+  Step reduction factor on multiple error fails = 0.3
+  Minimum error fails before above factor is used = 2
+  Step reduction factor on nonlinear convergence failure = 0.25
   Time step adaptivity method 0
      Safety factor = 0.96
      Bias factor = 1.5
@@ -11,15 +20,9 @@ ARKode solver parameters:
      k1 = 0.58
      k2 = 0.21
      k3 = 0.1
-  Solver relative tolerance = 1e-06
-  Solver absolute tolerance = 1e-11
-  Absolute residual tolerance = 1e-11
+  Default explicit stability function
   Maximum number of error test failures = 7
   Maximum number of convergence test failures = 10
-  Maximum step increase (first step) = 10000
-  Step reduction factor on multiple error fails = 0.3
-  Minimum error fails before above factor is used = 2
-  Step reduction factor on nonlinear convergence failure = 0.25
   Implicit predictor method = 0
   Implicit solver tolerance coefficient = 0.1
   Maximum number of nonlinear corrections = 3

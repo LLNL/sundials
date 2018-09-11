@@ -19,6 +19,6 @@ Analytical ODE test problem:
 
 Final Solver Statistics:
    Internal solver steps = 97 (attempted = 97)
-   Total RHS evals:  Fe = 586,  Fi = 0
+   Total RHS evals = 489
    Total number of error test failures = 0
 

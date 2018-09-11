@@ -35,9 +35,9 @@ extern "C" {
 #endif
 
   extern void FARK_DMASS(long int *N, realtype *T,
-			 realtype *DMASS, long int *IPAR,
-			 realtype *RPAR, realtype *V1,
-			 realtype *V2, realtype *V3, int *ier);
+                         realtype *DMASS, long int *IPAR,
+                         realtype *RPAR, realtype *V1,
+                         realtype *V2, realtype *V3, int *ier);
 
 #ifdef __cplusplus
 }
@@ -57,7 +57,7 @@ void FARK_DENSESETMASS(int *ier)
 /* C interface to user-supplied Fortran routine FARKDMASS; see
    farkode.h for additional information  */
 int FARKDenseMass(realtype t, SUNMatrix M, void *user_data,
-		  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+                  N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   int ier;
   realtype *massdata, *v1data, *v2data, *v3data;
@@ -72,7 +72,7 @@ int FARKDenseMass(realtype t, SUNMatrix M, void *user_data,
   ARK_userdata = (FARKUserData) user_data;
 
   FARK_DMASS(&N, &t, massdata, ARK_userdata->ipar, ARK_userdata->rpar,
-	     v1data, v2data, v3data, &ier);
+             v1data, v2data, v3data, &ier);
   return(ier);
 }
 

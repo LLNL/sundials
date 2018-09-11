@@ -112,27 +112,28 @@ int arkDlsBandDQJac(realtype t, N_Vector y, N_Vector fy,
                     N_Vector tmp2);
 
 /* generic linit/lsetup/lsolve/lfree interface routines for ARKode to call */
-int arkDlsInitialize(ARKodeMem ark_mem);
+int arkDlsInitialize(void *arkode_mem);
 
-int arkDlsSetup(ARKodeMem ark_mem, int convfail, N_Vector ypred,
-                N_Vector fpred, booleantype *jcurPtr, 
+int arkDlsSetup(void *arkode_mem, int convfail, realtype tpred,
+                N_Vector ypred, N_Vector fpred, booleantype *jcurPtr, 
                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3); 
 
-int arkDlsSolve(ARKodeMem ark_mem, N_Vector b, N_Vector ycur, N_Vector fcur);
+int arkDlsSolve(void *arkode_mem, N_Vector b, realtype tcur, 
+                N_Vector ycur, N_Vector fcur, realtype eRnrm, int mnewt);
 
-int arkDlsFree(ARKodeMem ark_mem);
+int arkDlsFree(void *arkode_mem);
 
 /* generic minit/msetup/mmult/msolve/mfree routines for ARKode to call */  
-int arkDlsMassInitialize(ARKodeMem ark_mem);
+int arkDlsMassInitialize(void *arkode_mem);
   
-int arkDlsMassSetup(ARKodeMem ark_mem, N_Vector vtemp1,
+int arkDlsMassSetup(void *arkode_mem, N_Vector vtemp1,
                     N_Vector vtemp2, N_Vector vtemp3); 
 
-int arkDlsMassMult(ARKodeMem ark_mem, N_Vector v, N_Vector Mv);
+int arkDlsMassMult(void *arkode_mem, N_Vector v, N_Vector Mv);
 
-int arkDlsMassSolve(ARKodeMem ark_mem, N_Vector b);
+int arkDlsMassSolve(void *arkode_mem, N_Vector b, realtype nlscoef);
 
-int arkDlsMassFree(ARKodeMem ark_mem);
+int arkDlsMassFree(void *arkode_mem);
 
 /* Auxilliary functions */
 int arkDlsInitializeCounters(ARKDlsMem arkdls_mem);

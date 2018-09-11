@@ -52,7 +52,6 @@ int main(int argc, char *argv[])
   int              print_timing;
   HYPRE_Int       *partitioning;                /* Vector Partitioning       */
   HYPRE_ParVector  Xhyp;                        /* Instantiate hypre parallel vector */
-  int              mpierr;                      /* mpi error flag            */
 
   /* check input and set vector length */
   if (argc < 3) {
@@ -177,7 +176,7 @@ int main(int argc, char *argv[])
   }
 
   /* check if any other process failed */
-  mpierr = MPI_Allreduce(&fails, &globfails, 1, MPI_INT, MPI_MAX, comm);
+  (void) MPI_Allreduce(&fails, &globfails, 1, MPI_INT, MPI_MAX, comm);
 
   /* Free hypre template vector */
   HYPRE_ParVectorDestroy(Xhyp);

@@ -39,7 +39,7 @@ extern "C" {
   extern void FARK_MTSETUP(realtype *T, long int *IPAR, 
                            realtype *RPAR, int *IER);
   extern void FARK_MTIMES(realtype *V, realtype *MV, realtype *T, 
-			  long int *IPAR, realtype *RPAR, int *IER);
+                          long int *IPAR, realtype *RPAR, int *IER);
 
 #ifdef __cplusplus
 }
@@ -54,7 +54,7 @@ void FARK_SPILSSETMASS(int *ier)
   ARKodeMem ark_mem;
   ark_mem = (ARKodeMem) ARK_arkodemem;
   *ier = ARKSpilsSetMassTimes(ARK_arkodemem, FARKMTSetup, 
-                              FARKMtimes, ark_mem->ark_user_data);
+                              FARKMtimes, ark_mem->user_data);
 }
 
 /*=============================================================*/
@@ -82,7 +82,7 @@ int FARKMtimes(N_Vector v, N_Vector Mv, realtype t, void *user_data)
   Mvdata = N_VGetArrayPointer(Mv);
   ARK_userdata = (FARKUserData) user_data;
   FARK_MTIMES(vdata, Mvdata, &t, ARK_userdata->ipar, 
-	      ARK_userdata->rpar, &ier);
+              ARK_userdata->rpar, &ier);
   return(ier);
 }
 
