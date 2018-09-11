@@ -145,7 +145,7 @@ int ARKDlsSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
     free(arkdls_mem); arkdls_mem = NULL;
     return(ier);
   }
-
+  
   return(ARKDLS_SUCCESS);
 }
 
@@ -818,7 +818,7 @@ int arkDlsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
                     "Time step module is missing implicit RHS fcn");
     return(ARKDLS_ILL_INPUT);
   }
-
+  
   /* access matrix dimension */
   N = SUNDenseMatrix_Rows(Jac);
 
@@ -909,7 +909,7 @@ int arkDlsBandDQJac(realtype t, N_Vector y, N_Vector fy,
                     "Time step module is missing implicit RHS fcn");
     return(ARKDLS_ILL_INPUT);
   }
-
+  
   /* access matrix dimensions */
   N = SUNBandMatrix_Columns(Jac);
   mupper = SUNBandMatrix_UpperBandwidth(Jac);
@@ -1211,7 +1211,7 @@ int arkDlsSolve(void* arkode_mem, N_Vector b, realtype tcur,
                     "An error occurred in ark_step_getgammas");
     return(retval);
   }
-
+ 
   /* call the generic linear system solver, and copy b to x */
   retval = SUNLinSolSolve(arkdls_mem->LS, arkdls_mem->A,
                           arkdls_mem->x, b, ZERO);
@@ -1408,7 +1408,7 @@ int arkDlsMassMult(void *arkode_mem, N_Vector v, N_Vector Mv)
     arkProcessError(NULL, ARKDLS_MEM_NULL, "ARKDLS",
                     "arkDlsMassMult", MSGD_ARKMEM_NULL);
     return(ARKDLS_MEM_NULL);
-  }
+  } 
   ark_mem = (ARKodeMem) arkode_mem;
   ark_step_massmem = ark_mem->step_getmassmem((void*) ark_mem);
   if (ark_step_massmem == NULL) {

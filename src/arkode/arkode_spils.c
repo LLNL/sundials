@@ -1355,7 +1355,7 @@ int ARKSpilsPSolve(void *arkode_mem, N_Vector r, N_Vector z,
                     "An error occurred in ark_step_getgammas");
     return(retval);
   }
-
+  
   /* call the user-supplied psolve routine, and accumulate count */
   retval = arkspils_mem->psolve(arkspils_mem->tcur,
                                 arkspils_mem->ycur,
