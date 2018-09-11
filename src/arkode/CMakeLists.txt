@@ -80,7 +80,6 @@ SET(sunlinsol_SOURCES
 # also be included in the ARKODE library
 SET(sunnonlinsol_SOURCES
   ${sundials_SOURCE_DIR}/src/sunnonlinsol/newton/sunnonlinsol_newton.c
-  ${sundials_SOURCE_DIR}/src/sunnonlinsol/full_newton/sunnonlinsol_full_newton.c
   ${sundials_SOURCE_DIR}/src/sunnonlinsol/fixedpoint/sunnonlinsol_fixedpoint.c
   )
 
