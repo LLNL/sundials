@@ -25,8 +25,6 @@
 
 #include "cvode_impl.h"
 #include <sundials/sundials_types.h>
-#include "sunnonlinsol/sunnonlinsol_newton.h"
-#include "sunnonlinsol/sunnonlinsol_fixedpoint.h"
 
 #define ZERO RCONST(0.0)
 #define ONE  RCONST(1.0)

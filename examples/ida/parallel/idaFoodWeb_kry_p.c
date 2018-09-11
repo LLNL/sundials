@@ -104,7 +104,6 @@
 #include <sundials/sundials_dense.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
-#include <sunnonlinsol/sunnonlinsol_newton.h>
 
 #include <mpi.h>
 

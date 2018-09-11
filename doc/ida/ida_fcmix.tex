@@ -682,18 +682,6 @@ sections of Chapter \ref{s:sunlinsol}.
   {\warn} If the user calls \id{FIDASPILSSETPREC}, the subroutine \id{FIDAPSET}
   must be provided, even if it is not needed, and it must return \id{IER = 0}.
 
-%%====================
-\item\label{i:fida_nonlin_solv_spec} {\bf Nonlinear solver interface specification}
-%%====================
-
-  To attach the {\sunnonlinsolnewton} object created in step
-  \ref{i:fida_nonlinsol_init} the following call must be made
-\begin{verbatim}
-      CALL FIDANLSINIT(IER)
-\end{verbatim}
-  where \id{IER} is an error return flag set on $0$ on success or $-1$
-  if a memory failure occurred.
-
 \item {\bf Correct initial values}
 
   Optionally, to correct the initial values $y$ and/or $\dot{y}$, make the call

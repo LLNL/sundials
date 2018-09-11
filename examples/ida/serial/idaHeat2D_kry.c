@@ -34,7 +34,6 @@
 #include <nvector/nvector_serial.h>           /* access to serial N_Vector            */
 #include <ida/ida_spils.h>                    /* access to IDASpils interface         */
 #include <sunlinsol/sunlinsol_spgmr.h>        /* access to spgmr SUNLinearSolver      */
-#include <sunnonlinsol/sunnonlinsol_newton.h> /* access to Newton SUNNonlinearSolver  */
 #include <sundials/sundials_types.h>          /* definition of type realtype          */
 
 /* Problem Constants */

@@ -38,7 +38,6 @@
 #include <sunlinsol/sunlinsol_spgmr.h>        /* access to SPGMR SUNLinearSolver   */
 #include <sunlinsol/sunlinsol_spbcgs.h>       /* access to SPBCGS SUNLinearSolver  */
 #include <sunlinsol/sunlinsol_sptfqmr.h>      /* access to SPTFQMR SUNLinearSolver */
-#include <sunnonlinsol/sunnonlinsol_newton.h> /* access to Newton SUNNonlinearSolver  */
 #include <nvector/nvector_serial.h>           /* serial N_Vector types, fct. and macros */
 #include <sundials/sundials_types.h>          /* definition of realtype */
 

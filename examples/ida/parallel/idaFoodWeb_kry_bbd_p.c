@@ -104,7 +104,6 @@
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_dense.h>
 #include <sundials/sundials_math.h>
-#include <sunnonlinsol/sunnonlinsol_newton.h>
 
 #include <mpi.h>
 
@@ -228,7 +227,6 @@ int main(int argc, char *argv[])
   MPI_Comm comm;
   void *ida_mem;
   SUNLinearSolver LS;
-  SUNNonlinearSolver NLS;
   UserData webdata;
   sunindextype SystemSize, local_N, mudq, mldq, mukeep, mlkeep;
   realtype rtol, atol, t0, tout, tret;
@@ -238,7 +236,6 @@ int main(int argc, char *argv[])
   cc = cp = res = id = NULL;
   webdata = NULL;
   LS = NULL;
-  NLS = NULL;
   ida_mem = NULL;
 
   /* Set communicator, and get processor number and total number of PE's. */
@@ -368,7 +365,6 @@ int main(int argc, char *argv[])
   N_VDestroy_Parallel(id);
 
   IDAFree(&ida_mem);
-  SUNNonlinSolFree(NLS);
   SUNLinSolFree(LS);
 
   destroyMat(webdata->acoef);

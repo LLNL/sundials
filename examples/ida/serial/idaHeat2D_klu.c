@@ -35,7 +35,6 @@
 #include <sunmatrix/sunmatrix_sparse.h>       /* access to sparse SUNMatrix           */
 #include <sunlinsol/sunlinsol_klu.h>          /* access to KLU linear solver          */
 #include <ida/ida_direct.h>                   /* access to IDADls interface           */
-#include <sunnonlinsol/sunnonlinsol_newton.h> /* access to Newton SUNNonlinearSolver  */
 #include <sundials/sundials_types.h>          /* defs. of realtype, sunindextype      */
 #include <sundials/sundials_math.h>           /* defs. of SUNRabs, SUNRexp, etc.      */
 

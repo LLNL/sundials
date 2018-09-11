@@ -87,7 +87,6 @@
 #include <ida/ida_spils.h>                    /* access to IDASpils interface         */
 #include <sunlinsol/sunlinsol_spgmr.h>        /* access to spgmr SUNLinearSolver      */
 #include <sundials/sundials_dense.h>          /* use generic dense solver in precond. */
-#include <sunnonlinsol/sunnonlinsol_newton.h> /* access to Newton SUNNonlinearSolver  */
 #include <sundials/sundials_types.h>          /* definition of type realtype          */
 #include <sundials/sundials_math.h>           /* macros SUNRabs, SUNRsqrt, etc.       */
 

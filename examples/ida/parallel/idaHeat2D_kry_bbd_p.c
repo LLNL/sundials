@@ -43,7 +43,6 @@
 #include <nvector/nvector_parallel.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
-#include <sunnonlinsol/sunnonlinsol_newton.h>
 
 #include <mpi.h>
 

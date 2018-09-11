@@ -35,7 +35,6 @@
 #include <sunmatrix/sunmatrix_band.h>         /* access to band SUNMatrix             */
 #include <sunlinsol/sunlinsol_band.h>         /* access to band SUNLinearSolver       */
 #include <ida/ida_direct.h>                   /* access to IDADls interface           */
-#include <sunnonlinsol/sunnonlinsol_newton.h> /* access to Newton SUNNonlinearSolver  */
 #include <sundials/sundials_types.h>          /* definition of type realtype          */
 
 /* Problem Constants */

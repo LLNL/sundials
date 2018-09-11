@@ -106,7 +106,6 @@
 #include <nvector/nvector_openmp.h>
 #include <sundials/sundials_direct.h>
 #include <sundials/sundials_types.h>
-#include <sunnonlinsol/sunnonlinsol_newton.h>
 
 #ifdef _OPENMP
 #include <omp.h>

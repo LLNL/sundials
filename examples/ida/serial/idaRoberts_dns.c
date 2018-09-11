@@ -164,14 +164,6 @@ int main(void)
   retval = IDASetNonlinearSolver(mem, NLS);
   if(check_retval(&retval, "IDASetNonlinearSolver", 1)) return(1);
 
-  /* Create Newton SUNNonlinearSolver object */
-  NLS = SUNNonlinSol_Newton(yy);
-  if(check_retval((void *)NLS, "SUNNonlinSol_Newton", 0)) return(1);
-
-  /* Attach the nonlinear solver */
-  retval = IDASetNonlinearSolver(mem, NLS);
-  if(check_retval(&retval, "IDASetNonlinearSolver", 1)) return(1);
-
   /* In loop, call IDASolve, print results, and test for error.
      Break out of loop when NOUT preset output times have been reached. */
 

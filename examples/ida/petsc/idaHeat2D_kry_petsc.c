@@ -47,7 +47,6 @@
 #include <nvector/nvector_petsc.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
-#include <sunnonlinsol/sunnonlinsol_newton.h>
 
 #include <mpi.h>
 #include <petscdm.h>
