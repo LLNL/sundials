@@ -319,14 +319,6 @@ int ARKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
     }
     step_mem->ownNLS = SUNTRUE;
 
-    /* /\* initialize the updated nonlinear solver *\/ */
-    /* ier = arkStep_NlsInit(ark_mem); */
-    /* if (ier != ARK_SUCCESS) { */
-    /*   arkProcessError(ark_mem, ARK_NLS_INIT_FAIL, "ARKode::ARKStep", "arkStep_Init", */
-    /*                   "Unable to initialize SUNNonlinearSolver object"); */
-    /*   return(ARK_NLS_INIT_FAIL); */
-    /* } */
-
     /* reset nonlinear solver counters */
     step_mem->ncfn    = 0;
     step_mem->nsetups = 0;
