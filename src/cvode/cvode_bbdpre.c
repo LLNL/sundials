@@ -37,6 +37,7 @@
 #define MIN_INC_MULT RCONST(1000.0)
 #define ZERO         RCONST(0.0)
 #define ONE          RCONST(1.0)
+#define TWO          RCONST(2.0)
 
 /* Prototypes of functions CVBBDPrecSetup and CVBBDPrecSolve */
 static int CVBBDPrecSetup(realtype t, N_Vector y, N_Vector fy, 
@@ -613,9 +614,10 @@ static int CVBBDDQJac(CVBBDPrecData pdata, realtype t, N_Vector y,
                       N_Vector gy, N_Vector ytemp, N_Vector gtemp)
 {
   CVodeMem cv_mem;
-  realtype gnorm, minInc, inc, inc_inv;
+  realtype gnorm, minInc, inc, inc_inv, yj, conj;
   sunindextype group, i, j, width, ngroups, i1, i2;
-  realtype *y_data, *ewt_data, *gy_data, *gtemp_data, *ytemp_data, *col_j;
+  realtype *y_data, *ewt_data, *gy_data, *gtemp_data;
+  realtype *ytemp_data, *col_j, *cns_data;
   int retval;
 
   cv_mem = (CVodeMem) pdata->cvode_mem;
@@ -640,6 +642,8 @@ static int CVBBDDQJac(CVBBDPrecData pdata, realtype t, N_Vector y,
   ewt_data   =  N_VGetArrayPointer(cv_mem->cv_ewt);
   ytemp_data =  N_VGetArrayPointer(ytemp);
   gtemp_data =  N_VGetArrayPointer(gtemp);
+  if (cv_mem->cv_constraints != NULL)
+    cns_data =  N_VGetArrayPointer(cv_mem->cv_constraints);
 
   /* Set minimum increment based on uround and norm of g */
   gnorm = N_VWrmsNorm(gy, cv_mem->cv_ewt);
@@ -657,6 +661,15 @@ static int CVBBDDQJac(CVBBDPrecData pdata, realtype t, N_Vector y,
     /* Increment all y_j in group */
     for(j=group-1; j < pdata->n_local; j+=width) {
       inc = SUNMAX(pdata->dqrely * SUNRabs(y_data[j]), minInc/ewt_data[j]);
+      yj = y_data[j];
+
+      /* Adjust sign(inc) again if yj has an inequality constraint. */
+      if (cv_mem->cv_constraints != NULL) {
+        conj = cns_data[j];
+        if (SUNRabs(conj) == ONE)      {if ((yj+inc)*conj < ZERO)  inc = -inc;}
+        else if (SUNRabs(conj) == TWO) {if ((yj+inc)*conj <= ZERO) inc = -inc;}
+      }
+
       ytemp_data[j] += inc;
     }
 
@@ -668,9 +681,18 @@ static int CVBBDDQJac(CVBBDPrecData pdata, realtype t, N_Vector y,
 
     /* Restore ytemp, then form and load difference quotients */
     for (j=group-1; j < pdata->n_local; j+=width) {
+      yj = y_data[j];
       ytemp_data[j] = y_data[j];
       col_j = SUNBandMatrix_Column(pdata->savedJ,j);
       inc = SUNMAX(pdata->dqrely * SUNRabs(y_data[j]), minInc/ewt_data[j]);
+
+      /* Adjust sign(inc) as before. */
+      if (cv_mem->cv_constraints != NULL) {
+        conj = cns_data[j];
+        if (SUNRabs(conj) == ONE)      {if ((yj+inc)*conj < ZERO)  inc = -inc;}
+        else if (SUNRabs(conj) == TWO) {if ((yj+inc)*conj <= ZERO) inc = -inc;}
+      }
+
       inc_inv = ONE/inc;
       i1 = SUNMAX(0, j-pdata->mukeep);
       i2 = SUNMIN(j + pdata->mlkeep, pdata->n_local-1);

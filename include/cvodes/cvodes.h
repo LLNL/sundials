@@ -209,6 +209,7 @@ extern "C" {
 #define CV_REPTD_RHSFUNC_ERR    -10
 #define CV_UNREC_RHSFUNC_ERR    -11
 #define CV_RTFUNC_FAIL          -12
+#define CV_CONSTR_FAIL          -13
 
 #define CV_MEM_FAIL             -20
 #define CV_MEM_NULL             -21
@@ -994,6 +995,23 @@ SUNDIALS_EXPORT void CVodeQuadSensFree(void *cvode_mem);
  *                         | test.
  *                         | [0.1]
  *                         |
+ * CVodeSetConstraints     | an N_vector defining inequality
+ *                         | constraints for each component of the
+ *                         | solution vector y. If a given element
+ *                         | of this vector has values +2 or -2,
+ *                         | then the corresponding component of y
+ *                         | will be constrained to be > 0.0 or
+ *                         | < 0.0, respectively, while if it is +1
+ *                         | or -1, the y component is constrained
+ *                         | to be >= 0.0 or <= 0.0, respectively.
+ *                         | If a component of constraints is 0.0,
+ *                         | then no constraint is imposed on the
+ *                         | corresponding component of y.
+ *                         | The presence of a non-NULL constraints
+ *                         | vector that is not 0.0 (ZERO) in all
+ *                         | components will cause constraint
+ *                         | checking to be performed.
+ *                         |
  * -----------------------------------------------------------------
  *                         |
  * CVodeSetIterType        | Changes the current nonlinear iteration
@@ -1032,6 +1050,7 @@ SUNDIALS_EXPORT int CVodeSetMaxErrTestFails(void *cvode_mem, int maxnef);
 SUNDIALS_EXPORT int CVodeSetMaxNonlinIters(void *cvode_mem, int maxcor);
 SUNDIALS_EXPORT int CVodeSetMaxConvFails(void *cvode_mem, int maxncf);
 SUNDIALS_EXPORT int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef);
+SUNDIALS_EXPORT int CVodeSetConstraints(void *cvode_mem, N_Vector constraints);
 
 SUNDIALS_EXPORT int CVodeSetIterType(void *cvode_mem, int iter);
 
@@ -1227,6 +1246,9 @@ SUNDIALS_EXPORT int CVodeSensToggleOff(void *cvode_mem);
  *
  * CV_TOO_MUCH_ACC: The solver could not satisfy the accuracy
  *                 demanded by the user for some internal step.
+ *
+ * CV_CONSTR_FAIL: The inequality constraints were violated,
+ *                 and the solver was unable to recover.
  *
  * CV_ERR_FAILURE: Error test failures occurred too many times
  *                 (= MXNEF = 7) during one internal time step or
@@ -1846,7 +1868,7 @@ SUNDIALS_EXPORT int CVodeSetStabLimDetB(void *cvode_mem, int which, booleantype 
 SUNDIALS_EXPORT int CVodeSetInitStepB(void *cvode_mem, int which, realtype hinB);
 SUNDIALS_EXPORT int CVodeSetMinStepB(void *cvode_mem, int which, realtype hminB);
 SUNDIALS_EXPORT int CVodeSetMaxStepB(void *cvode_mem, int which, realtype hmaxB);
-      
+SUNDIALS_EXPORT int CVodeSetConstraintsB(void *cvode_mem, int which, N_Vector constraintsB);      
 SUNDIALS_EXPORT int CVodeSetQuadErrConB(void *cvode_mem, int which, booleantype errconQB);
 
 /*

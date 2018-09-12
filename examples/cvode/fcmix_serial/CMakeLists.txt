@@ -24,6 +24,7 @@ SET(FCVODE_examples
   "fcvDiurnal_kry_bp\;develop"
   "fcvDiurnal_kry\;develop"
   "fcvRoberts_dns\;develop"
+  "fcvRoberts_dns_constraints\;develop"
   )
 
 # Examples using LAPACK linear solvers

@@ -22,23 +22,24 @@ In addition, there is an example using OpenMP.
 
     & Serial examples & Parallel examples \\ \hline
 
-    IVP & \id{cvsRoberts\_dns}     \id{cvsRoberts\_dnsL}    & \id{cvsAdvDiff\_non\_p}      \\
-    {}  & \id{cvsRoberts\_dns\_uw} \id{cvsRoberts\_klu}     & \id{cvsDiurnal\_kry\_p}      \\
-    {}  & \id{cvsRoberts\_sps}     \id{cvsAdvDiff\_bnd}     & \id{cvsDiurnal\_kry\_bbd\_p} \\
-    {}  & \id{cvsAdvDiff\_bndL}    \id{cvsDiurnal\_kry}     & {}                           \\
-    {}  & \id{cvsDiurnal\_kry\_bp} \id{cvsDirectDemo\_ls}   & {}                           \\
-    {}  & \id{cvsKrylovDemo\_ls}   \id{cvsKrylovDemo\_prec} & {}                           \\
+    IVP & \id{cvsRoberts\_dns}     \id{cvsRoberts\_dnsL}             & \id{cvsAdvDiff\_non\_p}      \\
+    {}  & \id{cvsRoberts\_dns\_uw} \id{cvsRoberts\_dns\_constraints} & \id{cvsDiurnal\_kry\_p}      \\
+    {}  & \id{cvsRoberts\_klu}     \id{cvsRoberts\_sps}              & \id{cvsDirunal\_kry\_bbd\_p} \\
+    {}  & \id{cvsAdvDiff\_bnd}     \id{cvsAdvDiff\_bndL}             & {}                           \\
+    {}  & \id{cvsDirunal\_kry}     \id{cvsDiurnal\_kry\_bp}          & {}                           \\
+    {}  & \id{cvsDirectDemo\_ls}   \id{cvsKrylovDemo\_ls}            & {}                           \\
+    {}  & \id{cvsKrylovDemo\_prec}                                   & {}                           \\
     \hline
     
-    FSA & \id{cvsRoberts\_FSA\_dns} \id{cvsRoberts\_FSA\_klu} & \id{cvsAdvDiff\_FSA\_non\_p} \\
-    {}  & \id{cvsRoberts\_FSA\_sps}                           & \id{cvsDiurnal\_FSA\_kry\_p} \\
-    {}  & \id{cvsAdvDiff\_FSA\_non} \id{cvsDiurnal\_FSA\_kry} & {}                           \\
+    FSA & \id{cvsRoberts\_FSA\_dns} \id{cvsRoberts\_FSA\_dns\_constraints} & \id{cvsAdvDiff\_FSA\_non\_p} \\
+    {}  & \id{cvsRoberts\_FSA\_klu} \id{cvsRoberts\_FSA\_sps}              & \id{cvsDiurnal\_FSA\_kry\_p} \\
+    {}  & \id{cvsAdvDiff\_FSA\_non} \id{cvsDiurnal\_FSA\_kry}              & {}                           \\
     \hline
     
-    ASA & \id{cvsRoberts\_ASAi\_dns} \id{cvsRoberts\_ASAi\_klu} & \id{cvsAdvDiff\_ASAp\_non\_p}      \\
-    {}  & \id{cvsRoberts\_ASAi\_sps} \id{cvsAdvDiff\_ASAi\_bnd} & \id{cvsAtmDisp\_ASAi\_kry\_bbd\_p} \\
-    {}  & \id{cvsFoodWeb\_ASAi\_kry} \id{cvsFoodWeb\_ASAp\_kry} & {}             \\
-    {}  & \id{cvsHessian\_ASA\_FSA}                             & {}                                 \\
+    ASA & \id{cvsRoberts\_ASAi\_dns} \id{cvsRoberts\_ASAi\_dns\_constraints} & \id{cvsAdvDiff\_ASAp\_non\_p}      \\
+    {}  & \id{cvsRoberts\_ASAi\_klu} \id{cvsRoberts\_ASAi\_sps}              & \id{cvsAtmDisp\_ASAi\_kry\_bbd\_p} \\
+    {}  & \id{cvsAdvDiff\_ASAi\_bnd} \id{cvsFoodWeb\_ASAi\_kry}              & {}                                 \\
+    {}  & \id{cvsFoodWeb\_ASAp\_kry} \id{cvsHessian\_ASA\_FSA}               & {}                                 \\
     \hline
 
 
@@ -89,6 +90,9 @@ following serial examples (using the {\nvecs} module):
   This program solves the problem with the BDF method and Newton          
   iteration, with the {\cvdense} linear solver and a user-supplied    
   Jacobian routine.  It also uses the rootfinding feature of {\cvodes}.
+\item \id{cvsRoberts\_dns\_constraints}
+  is the same as \id{cvsRoberts\_dns} but imposes the constraint
+  $u \geq 0.0$ for all components.
 \item \id{cvsRoberts\_dnsL}
   is the same as \id{cvsRoberts\_dns} but uses the Lapack implementation of {\cvdense}.
 \item \id{cvsRoberts\_dns\_uw}
@@ -174,6 +178,9 @@ following serial examples (using the {\nvecs} module):
   iteration with the {\cvdense} linear solver, and a user-supplied    
   Jacobian routine. It also uses the user-supplied error
   weight function feature of {\cvodes}.
+\item \id{cvsRoberts\_FSA\_dns\_constraints}
+  is the same as \id{cvsRoberts\_FSA\_dns} but imposes the constraint
+  $u \geq 0.0$ for all components.
 \item \id{cvsRoberts\_FSA\_klu}
   is the same as \id{cvsRoberts\_FSA\_dns} but uses the KLU sparse direct linear solver.
 \item \id{cvsRoberts\_FSA\_sps}
@@ -206,6 +213,9 @@ following serial examples (using the {\nvecs} module):
   This program solves both the forward and backward problems with the BDF method, 
   Newton iteration with the {\cvdense} linear solver, and user-supplied    
   Jacobian routines.
+\item \id{cvsRoberts\_ASAi\_dns\_constraints}
+  is the same as \id{cvsRoberts\_ASAi\_dns} but imposes the constraint
+  $u \geq 0.0$ for all components.
 \item \id{cvsRoberts\_ASAi\_klu}
   is the same as \id{cvsRoberts\_ASAi\_dns} but uses the KLU sparse direct linear solver.
 \item \id{cvsRoberts\_ASAi\_sps}

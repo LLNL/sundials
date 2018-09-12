@@ -99,6 +99,15 @@ in extended {\F}.
 
 \section{Changes from previous versions}
 
+\subsection*{Changes in v3.2.0}
+
+Support for optional inequality constraints on individual components of the
+solution vector has been added to {\cvode} and {\cvodes}. See Chapter
+\ref{s:math} and the description of \id{CVodeSetConstraints} in
+\S\ref{sss:optin_main} for more details. Use of \id{CVodeSetConstraints}
+requires the {\nvector} operations \id{N\_MinQuotient}, \id{N\_VConstrMask}, and
+\id{N\_VCompare} that were not previously required by {\cvode} and {\cvodes}.
+
 \subsection*{Changes in v3.1.2}
 
 The changes in this minor release include the following:

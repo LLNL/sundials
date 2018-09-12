@@ -815,20 +815,29 @@ sections of Chapter \ref{s:sunlinsol}.
 
 In order to keep the number of user-callable {\fcvode} interface routines to
 a minimum, optional inputs to the {\cvode} solver are passed through only
-two routines: \Id{FCVSETIIN} for integer optional inputs and \Id{FCVSETRIN}
-for real optional inputs. These functions should be called as follows:
+three routines: \Id{FCVSETIIN} for integer optional inputs, \Id{FCVSETRIN}
+for real optional inputs, and \Id{FCVSETVIN} for real vector (array) optional
+inputs. These functions should be called as follows:
 \begin{verbatim}
       CALL FCVSETIIN(KEY, IVAL, IER)
       CALL FCVSETRIN(KEY, RVAL, IER)
+      CALL FCVSETVIN(KEY, VVAL, IER)
 \end{verbatim}
 where \id{KEY} is a quoted string indicating which optional input is set
 (see Table \ref{t:fcvode_in}),
 \id{IVAL} is the integer input value to be used,
-\id{RVAL} is the real input value to be used, and
+\id{RVAL} is the real input value to be used,
+\id{VVAL} is the real input array to be used, and
 \id{IER} is an integer return flag which is set to $0$ on success and 
 a negative value if a failure occurred.
 The integer \id{IVAL} should be declared in a manner consistent with {\CC}
 type \id{long int}.
+
+When using \id{FCVSETVIN} to specify optional constraints on the
+solution vector (\id{KEY = 'CONSTR\_VEC'}) the components in the
+array \id{VVAL} should be one of $-2.0$, $-1.0$, $0.0$, $1.0$, or $2.0$.
+See the description of \id{CVodeSetConstraints} (\S\ref{sss:optin_main})
+for details.
 
 The optional outputs from the {\cvode} solver are accessed not through
 individual functions, but rather through a pair of arrays, \Id{IOUT}
@@ -870,6 +879,13 @@ and \S\ref{ss:optional_output}.
 \Id{MIN\_STEP}    & Minimum absolute step size & $0.0$ \\
 \Id{STOP\_TIME}   & Value of $t_{stop}$ & undefined \\
 \Id{NLCONV\_COEF} & Coefficient in the nonlinear convergence test & $0.1$ \\
+\hline
+\multicolumn{3}{c}{}\\
+\multicolumn{3}{c}{Real vector optional inputs (\id{FCVSETVIN})}\\
+\hline
+{\bf Key} & {\bf Optional Input} & Default value \\
+\hline
+\Id{CONSTR\_VEC} & Inequality constraints on solution & undefined \\
 \hline
 \end{tabular}
 \end{table}

@@ -81,9 +81,11 @@ $tar $tarfile $distrobase/examples/cvode/serial/cvKrylovDemo_ls.out
 $tar $tarfile $distrobase/examples/cvode/serial/cvKrylovDemo_prec.c
 $tar $tarfile $distrobase/examples/cvode/serial/cvKrylovDemo_prec.out
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dns.c
+$tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dns.out
+$tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dns_constraints.c
+$tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dns_constraints.out
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dnsL.c
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dnsL.out
-$tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dns.out
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dns_uw.c
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dns_uw.out
 $tar $tarfile $distrobase/examples/cvode/serial/cvRoberts_dns_negsol.c
@@ -103,6 +105,8 @@ $tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvDiurnal_kry.f
 $tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvDiurnal_kry.out
 $tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvRoberts_dns.f
 $tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvRoberts_dns.out
+$tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvRoberts_dns_constraints.f
+$tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvRoberts_dns_constraints.out
 $tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvRoberts_dnsL.f
 $tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvRoberts_dnsL.out
 $tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvRoberts_klu.f

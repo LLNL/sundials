@@ -1726,7 +1726,8 @@ flag = IDASetConstraints(ida\_mem, constraints);
   \item[\Id{IDA\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
   \item[\Id{IDA\_ILL\_INPUT}]
-    The constraints vector contains illegal values.
+    The constraints vector contains illegal values or the simultaneous corrector
+    option has been selected when doing forward sensitivity analysis.
   \end{args}
 }
 {
@@ -1734,6 +1735,10 @@ flag = IDASetConstraints(ida\_mem, constraints);
   all components will cause constraint checking to be performed.
   However, a call with $0.0$ in all components of \id{constraints} will 
   result in an illegal input return.
+
+  Constraint checking when doing forward sensitivity analysis with the
+  simultaneous corrector option is currently disallowed and will result in an
+  illegal input return.
 }
 \index{optional input!solver|)}
 

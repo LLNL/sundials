@@ -288,6 +288,32 @@ void FCV_SETRIN(char key_name[], realtype *rval, int *ier)
 
 /***************************************************************************/
 
+void FCV_SETVIN(char key_name[], realtype *vval, int *ier)
+{
+  N_Vector Vec;
+
+  *ier = 0;
+
+  if (!strncmp(key_name,"CONSTR_VEC",10)) {
+    Vec = NULL;
+    Vec = N_VCloneEmpty(F2C_CVODE_vec);
+    if (Vec == NULL) {
+      *ier = -1;
+      return;
+    }
+    N_VSetArrayPointer(vval, Vec);
+    CVodeSetConstraints(CV_cvodemem, Vec);
+    N_VDestroy(Vec);
+  }
+  else {
+    *ier = -99;
+    fprintf(stderr, "FCVSETVIN: Unrecognized key. \n\n");
+  }
+
+}
+
+/***************************************************************************/
+
 void FCV_DLSINIT(int *ier) {
   if ( (CV_cvodemem == NULL) || (F2C_CVODE_linsol == NULL) || 
        (F2C_CVODE_matrix == NULL) ) {

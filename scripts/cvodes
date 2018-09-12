@@ -75,10 +75,14 @@ $tar $tarfile $distrobase/examples/cvodes/serial/cvsKrylovDemo_prec.c
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsKrylovDemo_prec.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_ASAi_dns.c
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_ASAi_dns.out
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_ASAi_dns_constraints.c
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_ASAi_dns_constraints.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_dns.c
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_dns.out
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_dns_constraints.c
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_dns_constraints.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_dnsL.c
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_dnsL.out
-$tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_dns.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_ASAi_klu.c
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_ASAi_klu.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_ASAi_sps.c
@@ -90,6 +94,8 @@ $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_FSA_dns_-sensi_sim_t
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_FSA_dns_-sensi_stg1_t.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_FSA_dns_Switch.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_FSA_dns_Switch.c
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_FSA_dns_constraints.c
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_FSA_dns_constraints_-sensi_stg1_t.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_FSA_klu.c
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_FSA_klu_-sensi_stg1_t.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_FSA_sps.c

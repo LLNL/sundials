@@ -418,8 +418,8 @@ int cvDlsDQJac(realtype t, N_Vector y, N_Vector fy,
 int cvDlsDenseDQJac(realtype t, N_Vector y, N_Vector fy, 
                     SUNMatrix Jac, CVodeMem cv_mem, N_Vector tmp1)
 {
-  realtype fnorm, minInc, inc, inc_inv, yjsaved, srur;
-  realtype *y_data, *ewt_data;
+  realtype fnorm, minInc, inc, inc_inv, yjsaved, srur, conj;
+  realtype *y_data, *ewt_data, *cns_data;
   N_Vector ftemp, jthCol;
   sunindextype j, N;
   int retval = 0;
@@ -437,9 +437,11 @@ int cvDlsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
   /* Create an empty vector for matrix column calculations */
   jthCol = N_VCloneEmpty(tmp1);
 
-  /* Obtain pointers to the data for ewt, y */
+  /* Obtain pointers to the data for various vectors */
   ewt_data = N_VGetArrayPointer(cv_mem->cv_ewt);
   y_data   = N_VGetArrayPointer(y);
+  if (cv_mem->cv_constraints != NULL)
+    cns_data = N_VGetArrayPointer(cv_mem->cv_constraints);
 
   /* Set minimum increment based on uround and norm of f */
   srur = SUNRsqrt(cv_mem->cv_uround);
@@ -455,6 +457,14 @@ int cvDlsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
 
     yjsaved = y_data[j];
     inc = SUNMAX(srur*SUNRabs(yjsaved), minInc/ewt_data[j]);
+
+    /* Adjust sign(inc) if y_j has an inequality constraint. */
+    if (cv_mem->cv_constraints != NULL) {
+      conj = cns_data[j];
+      if (SUNRabs(conj) == ONE)      {if ((yjsaved+inc)*conj < ZERO)  inc = -inc;}
+      else if (SUNRabs(conj) == TWO) {if ((yjsaved+inc)*conj <= ZERO) inc = -inc;}
+    }
+
     y_data[j] += inc;
 
     retval = cv_mem->cv_f(t, y, ftemp, cv_mem->cv_user_data);
@@ -492,8 +502,9 @@ int cvDlsBandDQJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
                    CVodeMem cv_mem, N_Vector tmp1, N_Vector tmp2)
 {
   N_Vector ftemp, ytemp;
-  realtype fnorm, minInc, inc, inc_inv, srur;
-  realtype *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
+  realtype fnorm, minInc, inc, inc_inv, srur, conj;
+  realtype *col_j, *ewt_data, *fy_data, *ftemp_data;
+  realtype *y_data, *ytemp_data, *cns_data;
   sunindextype group, i, j, width, ngroups, i1, i2;
   int retval = 0;
   sunindextype N, mupper, mlower;
@@ -517,6 +528,8 @@ int cvDlsBandDQJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
   ftemp_data = N_VGetArrayPointer(ftemp);
   y_data     = N_VGetArrayPointer(y);
   ytemp_data = N_VGetArrayPointer(ytemp);
+  if (cv_mem->cv_constraints != NULL)
+    cns_data = N_VGetArrayPointer(cv_mem->cv_constraints);
 
   /* Load ytemp with y = predicted y vector */
   N_VScale(ONE, y, ytemp);
@@ -537,6 +550,14 @@ int cvDlsBandDQJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
     /* Increment all y_j in group */
     for(j=group-1; j < N; j+=width) {
       inc = SUNMAX(srur*SUNRabs(y_data[j]), minInc/ewt_data[j]);
+
+      /* Adjust sign(inc) if yj has an inequality constraint. */
+      if (cv_mem->cv_constraints != NULL) {
+        conj = cns_data[j];
+        if (SUNRabs(conj) == ONE)      {if ((ytemp_data[j]+inc)*conj < ZERO)  inc = -inc;}
+        else if (SUNRabs(conj) == TWO) {if ((ytemp_data[j]+inc)*conj <= ZERO) inc = -inc;}
+      }
+
       ytemp_data[j] += inc;
     }
 
@@ -550,6 +571,14 @@ int cvDlsBandDQJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
       ytemp_data[j] = y_data[j];
       col_j = SUNBandMatrix_Column(Jac, j);
       inc = SUNMAX(srur*SUNRabs(y_data[j]), minInc/ewt_data[j]);
+
+      /* Adjust sign(inc) as before. */
+      if (cv_mem->cv_constraints != NULL) {
+        conj = cns_data[j];
+        if (SUNRabs(conj) == ONE)      {if ((ytemp_data[j]+inc)*conj < ZERO)  inc = -inc;}
+        else if (SUNRabs(conj) == TWO) {if ((ytemp_data[j]+inc)*conj <= ZERO) inc = -inc;}
+      }
+
       inc_inv = ONE/inc;
       i1 = SUNMAX(0, j-mupper);
       i2 = SUNMIN(j+mlower, N-1);

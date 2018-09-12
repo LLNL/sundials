@@ -28,9 +28,8 @@
  *
  * The system is solved with CVODE using the direct sparse linear system
  * solver, half-bandwidths equal to M, and default
- * difference-quotient Jacobian. For purposes of illustration,
- * The constraints u >= 0 are posed for all components. Output is 
- * taken at t = 0, .01, .02, .04, ..., 10.24.
+ * difference-quotient Jacobian.
+ * Output is taken at t = 0, .01, .02, .04, ..., 10.24.
  * -----------------------------------------------------------------*/
 
 //////////////////////////////////////////////////////////////////////////
@@ -122,7 +121,7 @@ int main(void)
 {
   void *cvode_mem;
   UserData data;
-  N_Vector uu, constraints, res; 
+  N_Vector uu, res; 
   SUNMatrix A;
   SUNLinearSolver LS;
   int flag, iout;
@@ -133,15 +132,13 @@ int main(void)
   
   cvode_mem = NULL;
   data = NULL;
-  uu = constraints = res = NULL;
+  uu = res = NULL;
   A = NULL;
   LS = NULL;
 
-  /* Create vectors uu, up, res, constraints, id. */
+  /* Create vectors uu, up, res, id. */
   uu = N_VNew_Serial(NEQ);
   if(check_flag((void *)uu, "N_VNew_Serial", 0)) return(1);
-  constraints = N_VNew_Serial(NEQ);
-  if(check_flag((void *)constraints, "N_VNew_Serial", 0)) return(1);
   res = N_VNew_Serial(NEQ);
   if(check_flag((void *)res, "N_VNew_Serial", 0)) return(1);
  
@@ -155,9 +152,6 @@ int main(void)
   /* Initialize uu, up. */
   SetInitialProfile(data, uu, res);
 
-  /* Set constraints to all 1's for nonnegative solution values. */
-  N_VConst(ONE, constraints);
-
   /* Set remaining input parameters. */
   t0   = ZERO;
   t1   = RCONST(0.01);
@@ -170,12 +164,6 @@ int main(void)
 
   flag = CVodeSetUserData(cvode_mem, data);
   if(check_flag(&flag, "CVodeSetUserData", 1)) return(1);
-
-  /*
-  flag = IDASetConstraints(cvode_mem, constraints);
-  if(check_flag(&flag, "IDASetConstraints", 1)) return(1);
-  */
-  N_VDestroy(constraints);
 
   flag = CVodeInit(cvode_mem, f, t0, uu);
   if(check_flag(&flag, "CVodeInit", 1)) return(1);
@@ -689,7 +677,6 @@ static void PrintHeader(realtype rtol, realtype atol)
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
-  //  printf("Constraints set to force all solution components >= 0. \n");
   printf("Linear solver: CVKLU, sparse direct solver \n");
   printf("       difference quotient Jacobian \n");
   /* Print output table heading and initial line of table. */
