@@ -254,7 +254,7 @@ function for creating a ``SUNNonlinearSolver`` object.
                   
    **Arguments:**
       * *CODE* (``int``, input) -- flag denoting the SUNDIALS solver
-        this matrix will be used for: CVODE=1, IDA=2, KINSOL=3, ARKode=4.
+        this matrix will be used for: CVODE=1, IDA=2, ARKode=4.
       * *M* (``int``, input) -- the number of acceleration vectors.
       * *IER* (``int``, output) -- return flag (0 success, -1 for
         failure).  See printed message for details in case

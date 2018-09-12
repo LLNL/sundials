@@ -187,7 +187,7 @@ parameters. Only the routine for setting the nonlinear system defining function
   
 .. c:function:: int SUNNonlinSolSetLSolveFn(SUNNonlinearSolver NLS, SUNNonlinSolLSolveFn SolveFn)
 
-   The *optional* function :c:func`SUNNonlinSolSetLSolveFn()` is
+   The *optional* function :c:func:`SUNNonlinSolSetLSolveFn()` is
    called by SUNDIALS integrators to provide the nonlinear solver with
    access to its linear solver solve function. 
 
@@ -285,7 +285,8 @@ using a SUNLinSol spils linear solver otherwise,
    The function :c:func:`SUNNonlinSolGetCurIter()` returns the
    iteration index of the current nonlinear solve. This function is
    *required* when using SUNDIALS integrator-provided convergence
-   tests and *optional* for user supplied convergence test functions.
+   tests or when using a SUNLinSol spils linear solver otherwise, and
+    *optional* for user supplied convergence test functions. 
 
    **Arguments:**
       * *NLS* -- a SUNNonlinSol object
@@ -376,7 +377,7 @@ module are defined in the header file
    successul solve, a positive value for a recoverable error, and a
    negative value for an unrecoverable error.
 
-   **Notes:**    The :c:type`SUNNonlinLSolveFn()` function solves the
+   **Notes:**    The :c:type:`SUNNonlinLSolveFn()` function solves the
    linear system :math:`Ax=b` where :math:`A = \frac{\partial
    F}{\partial y}` is the linearization of the nonlinear residual
    function :math:`F(y) = 0`. SUNNonlinSol implementations that do not
