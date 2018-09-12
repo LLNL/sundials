@@ -53,7 +53,7 @@ typedef struct
 
 /* User defined functions */
 
-static N_Vector SetIC(SUNMPI_Comm comm, UserData data);
+static N_Vector SetIC(UserData data);
 static UserData SetUserData(int argc, char *argv[]);
 static int RHS(realtype t, N_Vector u, N_Vector udot, void *userData);
 static int Jtv(N_Vector v, N_Vector Jv, realtype t, N_Vector u, N_Vector fu, void *userData, N_Vector tmp);
@@ -87,31 +87,15 @@ int main(int argc, char *argv[])
   void *cvode_mem;
   //int iout;
   int flag;
-  int npes;
-  SUNMPI_Comm comm;
 
   u = NULL;
   data = NULL;
   LS = NULL;
   cvode_mem = NULL;
-
-#ifdef SUNDIALS_MPI_ENABLED
-  MPI_Init(&argc, &argv);
-  comm = MPI_COMM_WORLD;
-  MPI_Comm_size(comm, &npes);
-#else
-  comm = 0;
-  npes = 1;
-#endif
-
-  if (npes != 1) {
-    printf("Warning: This test case works only with one MPI rank!");
-    return -1;
-  }
-
+  
   /* Allocate memory, set problem data and initial values */
   data = SetUserData(argc, argv);
-  u = SetIC(comm, data);
+  u = SetIC(data);
 
   reltol = RCONST(1.0e-5);         /* scalar relative tolerance */
   abstol = reltol * RCONST(100.0); /* scalar absolute tolerance */
@@ -172,10 +156,6 @@ int main(int argc, char *argv[])
   free(data);
   CVodeFree(&cvode_mem);
 
-#ifdef SUNDIALS_MPI_ENABLED
-  MPI_Finalize();
-#endif
-
   return(0);
 }
 
@@ -186,13 +166,13 @@ int main(int argc, char *argv[])
  *-------------------------------
  */
 
-N_Vector SetIC(SUNMPI_Comm comm, UserData data)
+N_Vector SetIC(UserData data)
 {
   const sunindextype Nx = data->Nx;
   const realtype hx = data->hx;
   const realtype hy = data->hy;
 
-  N_Vector u = N_VNew_Raja(comm, data->NEQ, data->NEQ);
+  N_Vector u = N_VNew_Raja(data->NEQ);
   realtype *udat = N_VGetHostArrayPointer_Raja(u);
 
   sunindextype i, j, index;

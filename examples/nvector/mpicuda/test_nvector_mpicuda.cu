@@ -19,7 +19,7 @@
 #include <stdlib.h>
 
 #include <sundials/sundials_types.h>
-#include <nvector/nvector_cuda.h>
+#include <nvector/nvector_mpicuda.h>
 #include <sundials/sundials_math.h>
 #include "test_nvector.h"
 
@@ -30,8 +30,10 @@ int main(int argc, char *argv[])
 {
   int           fails = 0;    /* counter for test failures  */
   N_Vector      W, X, Y, Z;   /* test vectors               */
+  MPI_Comm comm;
+  int           nprocs, myid; /* Number of procs, proc id  */
   const int     print_timing = 0;
-  sunindextype  length;
+  sunindextype  global_length, local_length;
 
 
 //   /* check input and set vector length */
@@ -40,8 +42,8 @@ int main(int argc, char *argv[])
 //     return(-1);
 //   }
 //
-//   length = atol(argv[1]);
-//   if (length <= 0) {
+//   local_length = atol(argv[1]);
+//   if (local_length <= 0) {
 //     printf("ERROR: length of vector must be a positive integer \n");
 //     return(-1);
 //   }
@@ -50,69 +52,78 @@ int main(int argc, char *argv[])
 
   SetTiming(print_timing);
 
-  length = 1000;
+  local_length = 1000;
 
-  printf("\nRunning with vector length %ld \n\n", (long) length);
+  MPI_Init(&argc, &argv);
+  comm = MPI_COMM_WORLD;
+  MPI_Comm_size(comm, &nprocs);
+  MPI_Comm_rank(comm, &myid);
+
+  global_length = nprocs*local_length;
+
+  if (myid == 0)
+    printf("\nRunning with vector length %ld \n\n", (long) global_length);
 
   /* Create vectors */
-  W = N_VNewEmpty_Cuda(length);
-  X = N_VNew_Cuda(length);
+  W = N_VNewEmpty_Cuda(local_length);
+  X = N_VNew_Cuda(comm, local_length, global_length);
 
   /* NVector Tests */
 
   /* CUDA specific tests */
 
   /* Memory allocation tests */
-  fails += Test_N_VCloneEmpty(X, 0);
-  fails += Test_N_VClone(X, length, 0);
-  fails += Test_N_VCloneEmptyVectorArray(5, X, 0);
-  fails += Test_N_VCloneVectorArray(5, X, length, 0);
+  fails += Test_N_VCloneEmpty(X, myid);
+  fails += Test_N_VClone(X, local_length, myid);
+  fails += Test_N_VCloneEmptyVectorArray(5, X, myid);
+  fails += Test_N_VCloneVectorArray(5, X, local_length, myid);
 
   Y = N_VClone_Cuda(X);
   Z = N_VClone_Cuda(X);
 
   /* Skipped tests */
-  /*   fails += Test_N_VSetArrayPointer(W, length, 0); */
-  /*   fails += Test_N_VGetArrayPointer(X, length, 0); */
+  /*   fails += Test_N_VSetArrayPointer(W, local_length, myid); */
+  /*   fails += Test_N_VGetArrayPointer(X, local_length, myid); */
 
   /* Vector operation tests */
-  fails += Test_N_VConst(X, length, 0);
-  fails += Test_N_VLinearSum(X, Y, Z, length, 0);
-  fails += Test_N_VProd(X, Y, Z, length, 0);
-  fails += Test_N_VDiv(X, Y, Z, length, 0);
-  fails += Test_N_VScale(X, Z, length, 0);
-  fails += Test_N_VAbs(X, Z, length, 0);
-  fails += Test_N_VInv(X, Z, length, 0);
-  fails += Test_N_VAddConst(X, Z, length, 0);
-  fails += Test_N_VDotProd(X, Y, length, length, 0);
-  fails += Test_N_VMaxNorm(X, length, 0);
-  fails += Test_N_VWrmsNorm(X, Y, length, 0);
-  fails += Test_N_VWrmsNormMask(X, Y, Z, length, length, 0);
-  fails += Test_N_VMin(X, length, 0);
-  fails += Test_N_VWL2Norm(X, Y, length, length, 0);
-  fails += Test_N_VL1Norm(X, length, length, 0);
-  fails += Test_N_VCompare(X, Z, length, 0);
-  fails += Test_N_VInvTest(X, Z, length, 0);
-  fails += Test_N_VConstrMask(X, Y, Z, length, 0);
-  fails += Test_N_VMinQuotient(X, Y, length, 0);
+  fails += Test_N_VConst(X, local_length, myid);
+  fails += Test_N_VLinearSum(X, Y, Z, local_length, myid);
+  fails += Test_N_VProd(X, Y, Z, local_length, myid);
+  fails += Test_N_VDiv(X, Y, Z, local_length, myid);
+  fails += Test_N_VScale(X, Z, local_length, myid);
+  fails += Test_N_VAbs(X, Z, local_length, myid);
+  fails += Test_N_VInv(X, Z, local_length, myid);
+  fails += Test_N_VAddConst(X, Z, local_length, myid);
+  fails += Test_N_VDotProd(X, Y, local_length, global_length, myid);
+  fails += Test_N_VMaxNorm(X, local_length, myid);
+  fails += Test_N_VWrmsNorm(X, Y, local_length, myid);
+  fails += Test_N_VWrmsNormMask(X, Y, Z, local_length, global_length, myid);
+  fails += Test_N_VMin(X, local_length, myid);
+  fails += Test_N_VWL2Norm(X, Y, local_length, global_length, myid);
+  fails += Test_N_VL1Norm(X, local_length, global_length, myid);
+  fails += Test_N_VCompare(X, Z, local_length, myid);
+  fails += Test_N_VInvTest(X, Z, local_length, myid);
+  fails += Test_N_VConstrMask(X, Y, Z, local_length, myid);
+  fails += Test_N_VMinQuotient(X, Y, local_length, myid);
 
   /* Fused vector operation tests (optional) */
-  fails += Test_N_VLinearCombination(X, length, 0);
-  fails += Test_N_VScaleAddMulti(X, length, 0);
-  fails += Test_N_VDotProdMulti(X, length, length, 0);
+  fails += Test_N_VLinearCombination(X, local_length, myid);
+  fails += Test_N_VScaleAddMulti(X, local_length, myid);
+  fails += Test_N_VDotProdMulti(X, local_length, global_length, myid);
 
   /* Vector array operation tests (optional) */
-  fails += Test_N_VLinearSumVectorArray(X, length, 0);
-  fails += Test_N_VScaleVectorArray(X, length, 0);
-  fails += Test_N_VConstVectorArray(X, length, 0);
-  fails += Test_N_VWrmsNormVectorArray(X, length, 0);
-  fails += Test_N_VWrmsNormMaskVectorArray(X, length, length, 0);
-  fails += Test_N_VScaleAddMultiVectorArray(X, length, 0);
-  fails += Test_N_VLinearCombinationVectorArray(X, length, 0);
+  fails += Test_N_VLinearSumVectorArray(X, local_length, myid);
+  fails += Test_N_VScaleVectorArray(X, local_length, myid);
+  fails += Test_N_VConstVectorArray(X, local_length, myid);
+  fails += Test_N_VWrmsNormVectorArray(X, local_length, myid);
+  fails += Test_N_VWrmsNormMaskVectorArray(X, local_length, global_length, myid);
+  fails += Test_N_VScaleAddMultiVectorArray(X, local_length, myid);
+  fails += Test_N_VLinearCombinationVectorArray(X, local_length, myid);
 
 //   sunindextype lrw, liw;
 //   N_VSpace_Cuda(X, &lrw, &liw);
-//   printf("lrw = %ld, liw = %ld\n", lrw, liw);
+//   if (myid == 0)
+//     printf("lrw = %ld, liw = %ld\n", lrw, liw);
 
   /* Free vectors */
   N_VDestroy(W);
@@ -121,11 +132,15 @@ int main(int argc, char *argv[])
   N_VDestroy(Z);
 
   /* Print result */
-  if (fails) {
-    printf("FAIL: NVector module failed %i tests \n \n", fails);
-  } else {
-    printf("SUCCESS: NVector module passed all tests \n \n");
+  if (myid == 0) {
+    if (fails) {
+      printf("FAIL: NVector module failed %i tests \n \n", fails);
+    } else {
+      printf("SUCCESS: NVector module passed all tests \n \n");
+    }
   }
+
+  MPI_Finalize();
 
   return(fails);
 }

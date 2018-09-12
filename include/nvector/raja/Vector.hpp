@@ -28,8 +28,14 @@
 #include <cstdlib>
 #include <iostream>
 
-#include <nvector/nvector_raja.h>
+#include <sundials/sundials_config.h>
+#include <sundials/sundials_mpi.h>
 
+#if SUNDIALS_MPI_ENABLED
+#include <nvector/nvector_mpiraja.h>
+#else
+#include <nvector/nvector_raja.h>
+#endif
 
 namespace sunrajavec
 {

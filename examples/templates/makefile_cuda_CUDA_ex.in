@@ -1,6 +1,6 @@
 # -*- mode: makefile -*-
 # -----------------------------------------------------------------
-# Programmer: Slaven Peles @ LLNL
+# Programmer: Slaven Peles, Cody Balos @ LLNL
 # -----------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
@@ -26,27 +26,28 @@ exec_prefix  = @exec_prefix@
 includedir   = @includedir@
 libdir       = @libdir@
 
-CC      	= @CMAKE_C_COMPILER@
-CFLAGS    = @CMAKE_C_FLAGS@
-CXX       = @CMAKE_CXX_COMPILER@
-LDFLAGS   = @LDFLAGS@
-LIBS      = @LIBS@
-NVCC      = @CUDA_NVCC_EXECUTABLE@
-NVCCFLAGS = -std c++11
-CUDALIBS  = @CUDA_CUDART_LIBRARY@
-CUDALIBDIR= $(dir ${CUDALIBS})
-
-LINKFLAGS = -Wl,-rpath,${libdir}:${CUDALIBDIR}
-
+CC      	  = @CMAKE_C_COMPILER@
+CFLAGS      = @CMAKE_C_FLAGS@
+CXX         = @CMAKE_CXX_COMPILER@
+LDFLAGS     = @LDFLAGS@ -Wl,-rpath,${libdir}:${CUDALIBDIR}
+LIBS        = @LIBS@
 MPI_INC_DIR = @MPI_CXX_INCLUDE_PATH@
+NVCC        = @CUDA_NVCC_EXECUTABLE@
+NVCCFLAGS   = $(subst ;, ,@CUDA_NVCC_FLAGS@)
+CUDALIBS    = @CUDA_CUDART_LIBRARY@
+CUDALIBDIR  = $(dir ${CUDALIBS})
 
-TMP_INCS = ${includedir} ${MPI_INC_DIR}
-INCLUDES = $(addprefix -I, ${TMP_INCS})
+TMP_INCS 		 = ${includedir}
+INCLUDES 		 = $(addprefix -I, ${TMP_INCS})
+TMP_INCS     = ${includedir} ${MPI_INC_DIR}
+NVCCINCLUDES = $(addprefix -I, ${TMP_INCS})
 
-TMP_LIBRARIES_SUNDIALS = @SOLVER_LIB@ sundials_nveccuda 
-LIBRARIES_SUNDIALS = ${addprefix -l, ${TMP_LIBRARIES_SUNDIALS}}
+TMP_LIBDIRS  = ${libdir}
+LIBDIRS      = $(addprefix -L, ${TMP_LIBDIRS})
 
-LIBRARIES = ${LIBRARIES_SUNDIALS} ${LIBS} ${CUDALIBS}
+TMP_SUNDIALSLIBS = @SOLVER_LIB@ @NVECTOR_LIB@ 
+SUNDIALSLIBS     = $(addprefix -l, ${TMP_SUNDIALSLIBS})
+LIBRARIES = ${SUNDIALSLIBS} ${CUDALIBS} ${LIBS}
 
 EXAMPLES = @EXAMPLES@ @EXAMPLES_BL@
 EXAMPLES_DEPENDENCIES = @EXAMPLES_DEPENDENCIES@
@@ -59,18 +60,17 @@ OBJECTS_DEPENDENCIES = ${EXAMPLES_DEPENDENCIES:=.o}
 .SUFFIXES : .o .cu
 
 .c.o :
-	${CC} ${CFLAGS} -I${includedir} -c $<
+	${CC} ${CFLAGS} ${INCLUDES} -c $<
 
 .cu.o :
-	${NVCC} ${NVCCFLAGS} ${INCLUDES} -c $<
+	${NVCC} ${NVCCFLAGS} ${NVCCINCLUDES} -c $<
 
 # -----------------------------------------------------------------------------------------
 
 all: ${OBJECTS}
 	@for i in ${EXAMPLES} ; do \
-	  echo "${CXX} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${LDFLAGS} -I${includedir} -L${libdir} ${LIBRARIES} ${LINKFLAGS}" ; \
-	  ${CXX} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${LDFLAGS} -I${includedir} \
-			-L${libdir} ${LIBRARIES} ${LINKFLAGS} ; \
+	  echo "${CXX} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${INCLUDES} ${LIBDIRS} ${LIBRARIES} ${LDFLAGS}"; \
+	  ${CXX} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${INCLUDES} ${LIBDIRS} ${LIBRARIES} ${LDFLAGS}; \
 	done
 
 ${OBJECTS}: ${OBJECTS_DEPENDENCIES}

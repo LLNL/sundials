@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  Slaven Peles, and Cody Balos @ LLNL
+# Programmer:  Slaven Peles, and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
@@ -18,30 +18,38 @@
 # type is develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS raja nvector
-SET(nvector_raja_examples
-  "test_nvector_raja\;\;\;\;"          # run sequentially
-  "test_nvector_raja\;1000 0\;\;\;"    # run sequentially with arguments
-)
+IF(MPI_C_FOUND)
+  SET(nvector_raja_examples
+    "test_nvector_mpiraja\;\;1\;4\;"        # run parallel on 4 procs
+    "test_nvector_mpiraja\;1000 0\;1\;4\;"  # run parallel on 4 procs with arguments
+     )
+ENDIF()
 
 # Dependencies for nvector examples
 SET(nvector_examples_dependencies
   test_nvector
   sundials_nvector
   sundials_math
-)
+  )
 
 # Set C++ compiler flags to include RAJA flags
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${RAJA_COMPILE_FLAGS})
 
 # Add source directory to include directories
-INCLUDE_DIRECTORIES(. ..)
+INCLUDE_DIRECTORIES(. .. ${MPI_CXX_INCLUDE_PATH})
+
+IF(MPI_C_COMPILER)
+  # use MPI wrapper as the compiler
+  SET(CMAKE_C_COMPILER ${MPI_C_COMPILER})
+  SET(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
+ENDIF()
 
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 IF(LINK_LIBRARY_TYPE MATCHES "static")
-  SET(NVECS_LIB sundials_nveccudaraja_static)
+  SET(NVECS_LIB sundials_nvecmpicudaraja_static)
 ELSE()
-  SET(NVECS_LIB sundials_nveccudaraja_shared)
+  SET(NVECS_LIB sundials_nvecmpicudaraja_shared)
 ENDIF()
 
 # Set-up linker flags and link libraries
@@ -76,7 +84,7 @@ FOREACH(example_tuple ${nvector_raja_examples})
 
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
-    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${CUDA_LIBRARIES})
+    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${CUDA_LIBRARIES} ${MPI_CXX_LIBRARIES})
   ENDIF()
 
   # check if example args are provided and set the test name
@@ -109,7 +117,7 @@ FOREACH(example_tuple ${nvector_raja_examples})
       ../test_nvector.h
       ../../../src/sundials/sundials_nvector.c
       ../../../src/sundials/sundials_math.c
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/raja)
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpiraja)
   ENDIF()
 
 ENDFOREACH(example_tuple ${nvector_raja_examples})
@@ -118,10 +126,10 @@ ENDFOREACH(example_tuple ${nvector_raja_examples})
 IF(EXAMPLES_INSTALL)
 
   # Install the README file
-  INSTALL(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/raja)
+  INSTALL(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpiraja)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
-  SET(NVECTOR_LIB "sundials_nveccudaraja")
+  SET(NVECTOR_LIB "sundials_nvecmpicudaraja")
 
   EXAMPLES2STRING(nvector_raja_examples EXAMPLES)
   EXAMPLES2STRING(nvector_examples_dependencies EXAMPLES_DEPENDENCIES)
@@ -133,14 +141,14 @@ IF(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   CONFIGURE_FILE(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_raja_CUDA_ex.in
-    ${PROJECT_BINARY_DIR}/examples/nvector/raja/CMakeLists.txt
+    ${PROJECT_BINARY_DIR}/examples/nvector/mpiraja/CMakeLists.txt
     @ONLY
     )
 
   # install CMakelists.txt
   INSTALL(
-    FILES ${PROJECT_BINARY_DIR}/examples/nvector/raja/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/raja
+    FILES ${PROJECT_BINARY_DIR}/examples/nvector/mpiraja/CMakeLists.txt
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpiraja
     )
 
   # On UNIX-type platforms, we also  generate and install a makefile for
@@ -151,13 +159,13 @@ IF(EXAMPLES_INSTALL)
     # generate Makefile and place it in the binary dir
     CONFIGURE_FILE(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_raja_CUDA_ex.in
-      ${PROJECT_BINARY_DIR}/examples/nvector/raja/Makefile_ex
+      ${PROJECT_BINARY_DIR}/examples/nvector/mpiraja/Makefile_ex
       @ONLY
       )
     # install the configured Makefile_ex as Makefile
     INSTALL(
-      FILES ${PROJECT_BINARY_DIR}/examples/nvector/raja/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/raja
+      FILES ${PROJECT_BINARY_DIR}/examples/nvector/mpiraja/Makefile_ex
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpiraja
       RENAME Makefile
       )
   ENDIF(UNIX)

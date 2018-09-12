@@ -16,53 +16,15 @@
 
 #include <sundials/sundials_mpi.h>
 
-int SUNMPI_Init(int* argc, char*** argv)
-{
-#ifdef SUNDIALS_MPI_ENABLED
-  return MPI_Init(argc, argv);
-#else
-  return 0;
-#endif
-}
-
-int SUNMPI_Finalize()
-{
-#ifdef SUNDIALS_MPI_ENABLED
-  return MPI_Finalize();
-#else
-  return 0;
-#endif
-}
-
-int SUNMPI_Abort(SUNMPI_Comm comm, int errorcode)
-{
-#ifdef SUNDIALS_MPI_ENABLED
-  return MPI_Abort(comm, errorcode);
-#else
-  return 0;
-#endif
-}
-
 int SUNMPI_Comm_size(SUNMPI_Comm comm, int *size)
 {
-#ifdef SUNDIALS_MPI_ENABLED
+#if SUNDIALS_MPI_ENABLED
   return MPI_Comm_size(comm, size);
 #else
   *size = 1;
   return 0;
 #endif
 }
-
-int SUNMPI_Comm_rank(SUNMPI_Comm comm, int* rank)
-{
-#ifdef SUNDIALS_MPI_ENABLED
-  return MPI_Comm_rank(comm, rank);
-#else
-  *rank = 0;
-  return 0;
-#endif
-}
-
 
 realtype SUNMPI_Allreduce_scalar(realtype d, int op, SUNMPI_Comm comm)
 {
@@ -74,7 +36,7 @@ realtype SUNMPI_Allreduce_scalar(realtype d, int op, SUNMPI_Comm comm)
    * The operation is over all processors in the communicator
    */
 
-#ifdef SUNDIALS_MPI_ENABLED
+#if SUNDIALS_MPI_ENABLED
 
   realtype out;
 
@@ -112,7 +74,7 @@ void SUNMPI_Allreduce(realtype *d, int nvec, int op, SUNMPI_Comm comm)
    * The operation is over all processors in the communicator
    */
 
-#ifdef SUNDIALS_MPI_ENABLED
+#if SUNDIALS_MPI_ENABLED
 
   switch (op) {
    case 1: MPI_Allreduce(MPI_IN_PLACE, d, nvec, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);

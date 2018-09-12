@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  Slaven Peles @ LLNL
+# Programmer:  Slaven Peles, and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # Based on CMakeLists.txt in cvode/serial by Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -29,16 +29,16 @@ SET(CVODE_examples
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${RAJA_COMPILE_FLAGS})
 
 # Add source directory to include directories
-INCLUDE_DIRECTORIES(. ${RAJA_INCLUDE_PATH} ${MPI_CXX_INCLUDE_PATH})
+INCLUDE_DIRECTORIES(. ${RAJA_INCLUDE_PATH})
 
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(CVODE_LIB sundials_cvode_static)
-  SET(NVECS_LIB sundials_nvecraja_static)
+  SET(NVECS_LIB sundials_nveccudaraja_static)
 ELSE()
   SET(CVODE_LIB sundials_cvode_shared)
-  SET(NVECS_LIB sundials_nvecraja_shared)
+  SET(NVECS_LIB sundials_nveccudaraja_shared)
 ENDIF()
 
 # Set-up linker flags and link libraries
@@ -66,7 +66,7 @@ FOREACH(example_tuple ${CVODE_examples})
     EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
-  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${MPI_CXX_LIBRARIES})
+  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
   # install example source and out files
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.cu ${example}.out
@@ -85,6 +85,7 @@ IF(EXAMPLES_INSTALL)
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   SET(SOLVER "CVODE")
   SET(SOLVER_LIB "sundials_cvode")
+  SET(NVECTOR_LIB "sundials_nveccudaraja")
 
   EXAMPLES2STRING(CVODE_examples EXAMPLES)
 

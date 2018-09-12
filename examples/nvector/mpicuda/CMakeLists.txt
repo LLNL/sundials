@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  Slaven Peles, and Cody Balos @ LLNL
+# Programmer:  Slaven Peles @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
@@ -11,45 +11,50 @@
 # For details, see the LICENSE file.
 # LLNS Copyright End
 # ---------------------------------------------------------------
-# CMakeLists.txt file for raja nvector examples
+# CMakeLists.txt file for CUDA nvector examples
 # ---------------------------------------------------------------
 
 # Example lists are tuples "name\;args\;nodes\;tasks\;type" where the
 # type is develop for examples excluded from 'make test' in releases
 
-# Examples using SUNDIALS raja nvector
-SET(nvector_raja_examples
-  "test_nvector_raja\;\;\;\;"          # run sequentially
-  "test_nvector_raja\;1000 0\;\;\;"    # run sequentially with arguments
-)
+# Examples using SUNDIALS cuda nvector
+IF(MPI_C_FOUND)
+  SET(nvector_cuda_examples
+    "test_nvector_mpicuda\;\;\;\;"          # run sequentially
+    "test_nvector_mpicuda\;1000 0\;\;\;"    # run sequentially with arguments
+    "test_nvector_mpicuda\;\;1\;4\;"        # run parallel on 4 procs
+    "test_nvector_mpicuda\;1000 0\;1\;4\;"  # run parallel on 4 procs with arguments
+     )
+ENDIF()
 
 # Dependencies for nvector examples
 SET(nvector_examples_dependencies
   test_nvector
   sundials_nvector
-  sundials_math
-)
-
-# Set C++ compiler flags to include RAJA flags
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${RAJA_COMPILE_FLAGS})
+  )
 
 # Add source directory to include directories
-INCLUDE_DIRECTORIES(. ..)
+INCLUDE_DIRECTORIES(. .. ${MPI_CXX_INCLUDE_PATH})
+
+IF(MPI_C_COMPILER)
+  # use MPI wrapper as the compiler
+  SET(CMAKE_C_COMPILER ${MPI_C_COMPILER})
+  SET(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
+ENDIF()
 
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 IF(LINK_LIBRARY_TYPE MATCHES "static")
-  SET(NVECS_LIB sundials_nveccudaraja_static)
+  SET(NVECS_LIB sundials_nvecmpicuda_static)
 ELSE()
-  SET(NVECS_LIB sundials_nveccudaraja_shared)
+  SET(NVECS_LIB sundials_nvecmpicuda_shared)
 ENDIF()
 
 # Set-up linker flags and link libraries
-SET(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS} -L${RAJA_LIB_PATH} -lRAJA)
-
+SET(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 
 # Add the build and install targets for each example
-FOREACH(example_tuple ${nvector_raja_examples})
+FOREACH(example_tuple ${nvector_cuda_examples})
 
   # parse the example tuple
   LIST(GET example_tuple 0 example)
@@ -71,15 +76,15 @@ FOREACH(example_tuple ${nvector_raja_examples})
   IF(NOT TARGET ${example})
     # example source files
     CUDA_ADD_EXECUTABLE(${example} ${example}.cu
-      ../test_nvector.c ../../../src/sundials/sundials_nvector.c
-      ../../../src/sundials/sundials_math.c)
+      ../test_nvector.c ../../../src/sundials/sundials_nvector.c)
 
+    # folder to organize targets in an IDE
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
-    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${CUDA_LIBRARIES})
+    # libraries to link against
+    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${CUDA_LIBRARIES} ${MPI_CXX_LIBRARIES})
   ENDIF()
 
-  # check if example args are provided and set the test name
   # check if example args are provided and set the test name
   IF("${example_args}" STREQUAL "")
     IF("${number_of_tasks}" STREQUAL "")
@@ -108,22 +113,21 @@ FOREACH(example_tuple ${nvector_raja_examples})
       ../test_nvector.c
       ../test_nvector.h
       ../../../src/sundials/sundials_nvector.c
-      ../../../src/sundials/sundials_math.c
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/raja)
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpicuda)
   ENDIF()
 
-ENDFOREACH(example_tuple ${nvector_raja_examples})
+ENDFOREACH(example_tuple ${nvector_cuda_examples})
 
 
 IF(EXAMPLES_INSTALL)
 
   # Install the README file
-  INSTALL(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/raja)
+  INSTALL(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpicuda)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
-  SET(NVECTOR_LIB "sundials_nveccudaraja")
+  SET(NVECTOR_LIB "sundials_nvecmpicuda")
 
-  EXAMPLES2STRING(nvector_raja_examples EXAMPLES)
+  EXAMPLES2STRING(nvector_cuda_examples EXAMPLES)
   EXAMPLES2STRING(nvector_examples_dependencies EXAMPLES_DEPENDENCIES)
 
   # Regardless of the platform we're on, we will generate and install
@@ -132,15 +136,15 @@ IF(EXAMPLES_INSTALL)
 
   # generate CMakelists.txt in the binary directory
   CONFIGURE_FILE(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_raja_CUDA_ex.in
-    ${PROJECT_BINARY_DIR}/examples/nvector/raja/CMakeLists.txt
+    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_cuda_CUDA_ex.in
+    ${PROJECT_BINARY_DIR}/examples/nvector/mpicuda/CMakeLists.txt
     @ONLY
     )
 
   # install CMakelists.txt
   INSTALL(
-    FILES ${PROJECT_BINARY_DIR}/examples/nvector/raja/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/raja
+    FILES ${PROJECT_BINARY_DIR}/examples/nvector/mpicuda/CMakeLists.txt
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpicuda
     )
 
   # On UNIX-type platforms, we also  generate and install a makefile for
@@ -150,14 +154,14 @@ IF(EXAMPLES_INSTALL)
   IF(UNIX)
     # generate Makefile and place it in the binary dir
     CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_raja_CUDA_ex.in
-      ${PROJECT_BINARY_DIR}/examples/nvector/raja/Makefile_ex
+      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_cuda_CUDA_ex.in
+      ${PROJECT_BINARY_DIR}/examples/nvector/mpicuda/Makefile_ex
       @ONLY
       )
     # install the configured Makefile_ex as Makefile
     INSTALL(
-      FILES ${PROJECT_BINARY_DIR}/examples/nvector/raja/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/raja
+      FILES ${PROJECT_BINARY_DIR}/examples/nvector/mpicuda/Makefile_ex
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpicuda
       RENAME Makefile
       )
   ENDIF(UNIX)

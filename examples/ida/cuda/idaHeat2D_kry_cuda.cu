@@ -172,22 +172,11 @@ int main(int argc, char *argv[])
   realtype rtol, atol, t0, t1, tout, tret;
   long int netf, ncfn, ncfl;
   SUNLinearSolver LS;
-  int npes;
-  SUNMPI_Comm comm;
 
   mem = NULL;
   data = NULL;
   uu = up = constraints = res = NULL;
   LS = NULL;
-
-  SUNMPI_Init(&argc, &argv);
-  comm = SUNMPI_COMM_WORLD;
-  SUNMPI_Comm_size(comm, &npes);
-
-  if (npes != 1) {
-    printf("Warning: This test case works only with one MPI rank!");
-    return -1;
-  }
 
   /* Assign parameters in the user data structure. */
 
@@ -365,8 +354,6 @@ int main(int argc, char *argv[])
 
   N_VDestroy(data->pp);
   free(data);
-
-  SUNMPI_Finalize();
 
   return(0);
 }

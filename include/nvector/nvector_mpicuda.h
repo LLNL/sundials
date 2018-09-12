@@ -11,10 +11,10 @@
  * For details, see the LICENSE file.
  * LLNS Copyright End
  * -----------------------------------------------------------------
- * This is the header file for the CUDA implementation of the
+ * This is the header file for the MPI+CUDA implementation of the
  * NVECTOR module.
  *
- * Part I contains declarations specific to the CUDA
+ * Part I contains declarations specific to the MPI+CUDA
  * implementation of the supplied NVECTOR module.
  *
  * Part II contains the prototype for the constructor N_VNew_Cuda
@@ -44,7 +44,9 @@
 #ifndef _NVECTOR_CUDA_H
 #define _NVECTOR_CUDA_H
 
+#include <mpi.h>
 #include <stdio.h>
+
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_config.h>
 
@@ -95,12 +97,14 @@ typedef struct _N_VectorContent_Cuda *N_VectorContent_Cuda;
  * -----------------------------------------------------------------
  * Function : N_VNew_Cuda
  * -----------------------------------------------------------------
- * This function creates and allocates memory for a CUDA vector on
- * a single node.
+ * This function creates and allocates memory for a distributed
+ * memory CUDA vector.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNew_Cuda(sunindextype length);
+SUNDIALS_EXPORT N_Vector N_VNew_Cuda(MPI_Comm comm,
+                                     sunindextype local_length,
+                                     sunindextype global_length);
 
 /*
  * -----------------------------------------------------------------

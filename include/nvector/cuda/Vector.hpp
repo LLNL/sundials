@@ -31,7 +31,14 @@
 #include <cuda_runtime.h>
 #include "ThreadPartitioning.hpp"
 
+#include <sundials/sundials_config.h>
+#include <sundials/sundials_mpi.h>
+
+#if SUNDIALS_MPI_ENABLED
+#include <nvector/nvector_mpicuda.h>
+#else
 #include <nvector/nvector_cuda.h>
+#endif
 
 namespace suncudavec
 {

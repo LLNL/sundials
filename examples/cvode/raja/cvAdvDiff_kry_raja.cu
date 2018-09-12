@@ -103,22 +103,11 @@ int main(int argc, char** argv)
   void *cvode_mem;
   int iout, flag;
   long int nst;
-  int npes;
-  SUNMPI_Comm comm;
 
   u = NULL;
   data = NULL;
   LS = NULL;
   cvode_mem = NULL;
-
-  SUNMPI_Init(&argc, &argv);
-  comm = SUNMPI_COMM_WORLD;
-  SUNMPI_Comm_size(comm, &npes);
-
-  if (npes != 1) {
-    printf("Warning: This test case works only with one MPI rank!");
-    return -1;
-  }
 
   /* Set model parameters */
   data = SetUserData(argc, argv);
@@ -184,8 +173,6 @@ int main(int argc, char** argv)
   N_VDestroy(u);          /* Free the u vector */
   CVodeFree(&cvode_mem);  /* Free the integrator memory */
   free(data);             /* Free the user data */
-
-  SUNMPI_Finalize();
 
   return(0);
 }

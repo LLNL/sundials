@@ -23,7 +23,6 @@ SET(IDA_examples
   "idaFoodWeb_kry_p\;1\;4\;develop"
   "idaHeat2D_kry_bbd_p\;1\;4\;develop"
   "idaHeat2D_kry_p\;1\;4\;develop"
-#  "idaHeat2D_kry_p_raja\;1\;4\;develop"
   )
 
 IF(MPI_C_COMPILER)

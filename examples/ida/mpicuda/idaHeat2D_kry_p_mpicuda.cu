@@ -39,10 +39,11 @@
 #include <string.h>
 
 #include <ida/ida.h>
-#include <nvector/nvector_cuda.h>
+#include <nvector/nvector_mpicuda.h>
 #include <ida/ida_spils.h>
 #include <sunlinsol/sunlinsol_spgmr.h>
 #include <sundials/sundials_types.h>
+#include <sundials/sundials_mpi_types.h>
 #include <sundials/sundials_math.h>
 
 #define ZERO  RCONST(0.0)
@@ -69,7 +70,7 @@ typedef struct {
   realtype    *dev_send_buff;
   realtype    *dev_recv_buff;
   N_Vector     pp;    /* vector of diagonal preconditioner elements */
-  SUNMPI_Comm  comm;
+  MPI_Comm  comm;
 } *UserData;
 
 /* User-supplied residual function and supporting routines */
@@ -325,7 +326,7 @@ void CopyFromRightBuffer(const realtype *bufright, realtype *uext,
 
 int main(int argc, char *argv[])
 {
-  SUNMPI_Comm comm;
+  MPI_Comm comm;
   void *ida_mem;
   SUNLinearSolver LS;
   UserData data;
@@ -341,15 +342,15 @@ int main(int argc, char *argv[])
 
   /* Get processor number and total number of pe's. */
 
-  SUNMPI_Init(&argc, &argv);
-  comm = SUNMPI_COMM_WORLD;
-  SUNMPI_Comm_size(comm, &npes);
-  SUNMPI_Comm_rank(comm, &thispe);
+  MPI_Init(&argc, &argv);
+  comm = MPI_COMM_WORLD;
+  MPI_Comm_size(comm, &npes);
+  MPI_Comm_rank(comm, &thispe);
 
   /* Allocate and initialize the data structure */
   data = (UserData) malloc(sizeof *data);
   if(check_flag((void *)data, "malloc", 2, thispe))
-    SUNMPI_Abort(comm, 1);
+    MPI_Abort(comm, 1);
 
   InitUserData(thispe, comm, data);
 
@@ -360,7 +361,7 @@ int main(int argc, char *argv[])
               "\nMPI_ERROR(0): npes = %d is not equal to NPEX*NPEY = %d\n",
               npes, data->npex * data->npey);
     free(data);
-    SUNMPI_Finalize();
+    MPI_Finalize();
     return(1);
   }
 
@@ -371,29 +372,29 @@ int main(int argc, char *argv[])
 
   /* Allocate and initialize N-vectors. */
 
-  uu = N_VNew_MPI_Cuda(comm, local_N, Neq);
+  uu = N_VNew_Cuda(comm, local_N, Neq);
   if(check_flag((void *)uu, "N_VNew_Parallel", 0, thispe))
-    SUNMPI_Abort(comm, 1);
+    MPI_Abort(comm, 1);
 
   up = N_VClone(uu);
   if(check_flag((void *)up, "N_VClone", 0, thispe))
-    SUNMPI_Abort(comm, 1);
+    MPI_Abort(comm, 1);
 
   res = N_VClone(uu);
   if(check_flag((void *)res, "N_VClone", 0, thispe))
-    SUNMPI_Abort(comm, 1);
+    MPI_Abort(comm, 1);
 
   constraints = N_VClone(uu);
   if(check_flag((void *)constraints, "N_VClone", 0, thispe))
-    SUNMPI_Abort(comm, 1);
+    MPI_Abort(comm, 1);
 
   id = N_VClone(uu);
   if(check_flag((void *)id, "N_VClone", 0, thispe))
-    SUNMPI_Abort(comm, 1);
+    MPI_Abort(comm, 1);
 
   /* Allocate user data extended vector and MPI buffers */
   ier = AllocUserData(thispe, comm, uu, data);
-  if(check_flag(&ier, "AllocUserData", 1, thispe)) SUNMPI_Abort(comm, 1);
+  if(check_flag(&ier, "AllocUserData", 1, thispe)) MPI_Abort(comm, 1);
 
 
   /* Initialize the uu, up, id, and res profiles. */
@@ -411,37 +412,37 @@ int main(int argc, char *argv[])
   /* Call IDACreate and IDAMalloc to initialize solution. */
 
   ida_mem = IDACreate();
-  if(check_flag((void *)ida_mem, "IDACreate", 0, thispe)) SUNMPI_Abort(comm, 1);
+  if(check_flag((void *)ida_mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
 
   ier = IDASetUserData(ida_mem, data);
-  if(check_flag(&ier, "IDASetUserData", 1, thispe)) SUNMPI_Abort(comm, 1);
+  if(check_flag(&ier, "IDASetUserData", 1, thispe)) MPI_Abort(comm, 1);
 
   ier = IDASetSuppressAlg(ida_mem, SUNTRUE);
-  if(check_flag(&ier, "IDASetSuppressAlg", 1, thispe)) SUNMPI_Abort(comm, 1);
+  if(check_flag(&ier, "IDASetSuppressAlg", 1, thispe)) MPI_Abort(comm, 1);
 
   ier = IDASetId(ida_mem, id);
-  if(check_flag(&ier, "IDASetId", 1, thispe)) SUNMPI_Abort(comm, 1);
+  if(check_flag(&ier, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
 
   ier = IDASetConstraints(ida_mem, constraints);
-  if(check_flag(&ier, "IDASetConstraints", 1, thispe)) SUNMPI_Abort(comm, 1);
+  if(check_flag(&ier, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
   N_VDestroy(constraints);
 
   ier = IDAInit(ida_mem, resHeat, t0, uu, up);
-  if(check_flag(&ier, "IDAInit", 1, thispe)) SUNMPI_Abort(comm, 1);
+  if(check_flag(&ier, "IDAInit", 1, thispe)) MPI_Abort(comm, 1);
 
   ier = IDASStolerances(ida_mem, rtol, atol);
-  if(check_flag(&ier, "IDASStolerances", 1, thispe)) SUNMPI_Abort(comm, 1);
+  if(check_flag(&ier, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Call SUNSPGMR and IDASetLinearSolver to specify the linear solver. */
 
   LS = SUNSPGMR(uu, PREC_LEFT, 0);  /* use default maxl */
-  if(check_flag((void *)LS, "SUNSPGMR", 0, thispe)) SUNMPI_Abort(comm, 1);
+  if(check_flag((void *)LS, "SUNSPGMR", 0, thispe)) MPI_Abort(comm, 1);
 
   ier = IDASpilsSetLinearSolver(ida_mem, LS);
-  if(check_flag(&ier, "IDASpilsSetLinearSolver", 1, thispe)) SUNMPI_Abort(comm, 1);
+  if(check_flag(&ier, "IDASpilsSetLinearSolver", 1, thispe)) MPI_Abort(comm, 1);
 
   ier = IDASpilsSetPreconditioner(ida_mem, PsetupHeat, PsolveHeat);
-  if(check_flag(&ier, "IDASpilsSetPreconditioner", 1, thispe)) SUNMPI_Abort(comm, 1);
+  if(check_flag(&ier, "IDASpilsSetPreconditioner", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Print output heading (on processor 0 only) and intial solution  */
 
@@ -453,7 +454,7 @@ int main(int argc, char *argv[])
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) {
 
     ier = IDASolve(ida_mem, tout, &tret, uu, up, IDA_NORMAL);
-    if(check_flag(&ier, "IDASolve", 1, thispe)) SUNMPI_Abort(comm, 1);
+    if(check_flag(&ier, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
 
     PrintOutput(thispe, ida_mem, tret, uu);
 
@@ -476,7 +477,7 @@ int main(int argc, char *argv[])
   DeleteUserData(data);
   free(data);
 
-  SUNMPI_Finalize();
+  MPI_Finalize();
 
   return(0);
 
@@ -996,7 +997,7 @@ static int AllocUserData(int thispe, MPI_Comm comm, N_Vector uu, UserData data)
   /* An N-vector to hold preconditioner. */
   data->pp = N_VClone(uu);
   if(data->pp == NULL) {
-    SUNMPI_Abort(comm, 1);
+    MPI_Abort(comm, 1);
     return -1;
   }
 
@@ -1005,7 +1006,7 @@ static int AllocUserData(int thispe, MPI_Comm comm, N_Vector uu, UserData data)
   if(err != cudaSuccess) {
     printf("Failed to allocate uext ... \n");
     N_VDestroy(data->pp);
-    SUNMPI_Abort(comm, 1);
+    MPI_Abort(comm, 1);
     return -1;
   }
 
@@ -1014,7 +1015,7 @@ static int AllocUserData(int thispe, MPI_Comm comm, N_Vector uu, UserData data)
   if(data->host_send_buff == NULL) {
     N_VDestroy(data->pp);
     free(data->uext);
-    SUNMPI_Abort(comm, 1);
+    MPI_Abort(comm, 1);
     return -1;
   }
 
@@ -1023,7 +1024,7 @@ static int AllocUserData(int thispe, MPI_Comm comm, N_Vector uu, UserData data)
     N_VDestroy(data->pp);
     free(data->uext);
     free(data->host_send_buff);
-    SUNMPI_Abort(comm, 1);
+    MPI_Abort(comm, 1);
     return -1;
   }
 
@@ -1035,7 +1036,7 @@ static int AllocUserData(int thispe, MPI_Comm comm, N_Vector uu, UserData data)
     cudaFree(data->uext);
     free(data->host_send_buff);
     free(data->host_recv_buff);
-    SUNMPI_Abort(comm, 1);
+    MPI_Abort(comm, 1);
     return -1;
   }
 
@@ -1048,7 +1049,7 @@ static int AllocUserData(int thispe, MPI_Comm comm, N_Vector uu, UserData data)
     free(data->host_send_buff);
     free(data->host_recv_buff);
     cudaFree(data->dev_send_buff);
-    SUNMPI_Abort(comm, 1);
+    MPI_Abort(comm, 1);
     return -1;
   }
 

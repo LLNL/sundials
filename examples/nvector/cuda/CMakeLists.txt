@@ -18,19 +18,10 @@
 # type is develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS cuda nvector
-IF(MPI_C_FOUND)
-  SET(nvector_cuda_examples
-    "test_nvector_cuda\;\;\;\;"          # run sequentially
-    "test_nvector_cuda\;1000 0\;\;\;"    # run sequentially with arguments
-    "test_nvector_cuda\;\;1\;4\;"        # run parallel on 4 procs
-    "test_nvector_cuda\;1000 0\;1\;4\;"  # run parallel on 4 procs with arguments
-     )
-ELSE()
-  SET(nvector_cuda_examples
-    "test_nvector_cuda\;\;\;\;"          # run sequentially
-    "test_nvector_cuda\;1000 0\;\;\;"    # run sequentially with arguments
-     )
-ENDIF()
+SET(nvector_cuda_examples
+  "test_nvector_cuda\;\;\;\;"          # run sequentially
+  "test_nvector_cuda\;1000 0\;\;\;"    # run sequentially with arguments
+   )
 
 # Dependencies for nvector examples
 SET(nvector_examples_dependencies
@@ -39,13 +30,7 @@ SET(nvector_examples_dependencies
   )
 
 # Add source directory to include directories
-INCLUDE_DIRECTORIES(. .. ${MPI_CXX_INCLUDE_PATH})
-
-IF(MPI_C_COMPILER)
-  # use MPI wrapper as the compiler
-  SET(CMAKE_C_COMPILER ${MPI_C_COMPILER})
-  SET(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
-ENDIF()
+INCLUDE_DIRECTORIES(. ..)
 
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
@@ -87,7 +72,7 @@ FOREACH(example_tuple ${nvector_cuda_examples})
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
     # libraries to link against
-    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${CUDA_LIBRARIES} ${MPI_CXX_LIBRARIES})
+    TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${CUDA_LIBRARIES})
   ENDIF()
 
   # check if example args are provided and set the test name
@@ -108,7 +93,6 @@ FOREACH(example_tuple ${nvector_cuda_examples})
   # add example to regression tests
   SUNDIALS_ADD_TEST(${test_name} ${example}
     TEST_ARGS ${example_args}
-    MPI_NPROCS ${number_of_tasks}
     EXAMPLE_TYPE ${example_type}
     NODIFF)
 
@@ -130,7 +114,7 @@ IF(EXAMPLES_INSTALL)
   INSTALL(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/cuda)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
-  SET(SOLVER_LIB "sundials_nveccuda")
+  SET(NVECTOR_LIB "sundials_nveccuda")
 
   EXAMPLES2STRING(nvector_cuda_examples EXAMPLES)
   EXAMPLES2STRING(nvector_examples_dependencies EXAMPLES_DEPENDENCIES)

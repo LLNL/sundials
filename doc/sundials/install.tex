@@ -1046,13 +1046,13 @@ are to be used in building a preconditioner.
 {\shared}
  & Libraries    & n/a  & \\
 \cline{2-4}
- & Header files & sundials/sundials\_config.h        & sundials/sundials\_fconfig.h  \\
- &              & sundials/sundials\_types.h         & sundials/sundials\_math.h     \\
- &              & sundials/sundials\_nvector.h       & sundials/sundials\_fnvector.h \\
- &              & sundials/sundials\_iterative.h     & sundials/sundials\_direct.h   \\
- &              & sundials/sundials\_dense.h         & sundials/sundials\_band.h     \\
- &              & sundials/sundials\_matrix.h        & sundials/sundials\_version.h  \\
- &              & sundials/sundials\_linearsolver.h  & \\
+ & Header files & sundials/sundials\_config.h        & sundials/sundials\_fconfig.h    \\
+ &              & sundials/sundials\_types.h         & sundials/sundials\_math.h       \\
+ &              & sundials/sundials\_nvector.h       & sundials/sundials\_fnvector.h   \\
+ &              & sundials/sundials\_iterative.h     & sundials/sundials\_direct.h     \\
+ &              & sundials/sundials\_dense.h         & sundials/sundials\_band.h       \\
+ &              & sundials/sundials\_matrix.h        & sundials/sundials\_version.h    \\
+ &              & sundials/sundials\_linearsolver.h  & sundials/sundials\_mpi\_types.h \\
 \hline
 %% --------------------------------------------------
 {\nvecs}
@@ -1092,18 +1092,22 @@ are to be used in building a preconditioner.
 \hline
 %% --------------------------------------------------
 {\nveccuda}
- & Libraries    & libsundials\_nveccuda.{\em lib}     & \\ 
+ & Libraries    & libsundials\_nveccuda.{\em lib}     & \\
+ & Libraries    & libsundials\_nvecmpicuda.{\em lib}  & \\
 \cline{2-4}
  & Header files & nvector/nvector\_cuda.h             & \\
+ &              & nvector/nvector\_mpicuda.h          & \\
  &              & nvector/cuda/ThreadPartitioning.hpp & \\
  &              & nvector/cuda/Vector.hpp             & \\
  &              & nvector/cuda/VectorKernels.cuh      & \\
 \hline
 %% --------------------------------------------------
 {\nvecraja}
- & Libraries    & libsundials\_nvecraja.{\em lib} & \\ 
+ & Libraries    & libsundials\_nveccudaraja.{\em lib}     & \\
+ & Libraries    & libsundials\_nveccudampiraja.{\em lib} & \\
 \cline{2-4}
  & Header files & nvector/nvector\_raja.h         & \\
+ &              & nvector/nvector\_mpiraja.h      & \\
  &              & nvector/raja/Vector.hpp         & \\
 \hline
 %% --------------------------------------------------

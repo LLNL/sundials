@@ -726,11 +726,30 @@ if(EXAMPLES_ENABLE_CXX OR CUDA_ENABLE OR RAJA_ENABLE)
   include(SundialsCXX)
 endif()
 
+# ---------------------------------------------------------------
+# Setup CUDA. Since CUDA is its own language we do this
+# separate from the TPLs.
+# ---------------------------------------------------------------
+
+if(CUDA_ENABLE)
+  find_package(CUDA)
+  if (CUDA_FOUND)
+    set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -lineinfo")
+  else()
+    message(STATUS "Disabling CUDA support, could not find CUDA.")
+    set(CUDA_ENABLE OFF)
+  endif()
+endif(CUDA_ENABLE)
+
+# ---------------------------------------------------------------
+# Now that all languages are setup, we can configure them more.
+# ---------------------------------------------------------------
+
 # C++11 is needed if:
 #   (a) CUDA is enabled
 # C++11 should not be enabled if
 #   (a) RAJA is enabled (they provide a std flag)
-if (CXX_FOUND AND CUDA_ENABLE AND (NOT RAJA_ENABLE))
+if (CXX_FOUND AND CUDA_ENABLE AND CUDA_FOUND AND (NOT RAJA_ENABLE))
   USE_CXX_STD(11)
 endif()
 
@@ -746,7 +765,7 @@ if(MPI_ENABLE)
     print_warning("MPI not functional"
       "Parallel support will not be provided")
   else()
-    set(IS_MPI_ENABLED "#define SUNDIALS_MPI_ENABLED 1")
+    set(IS_MPI_ENABLED "#ifndef SUNDIALS_MPI_ENABLED\n#define SUNDIALS_MPI_ENABLED 1\n#endif")
   endif()
 
 endif()
@@ -785,19 +804,6 @@ IF(PTHREAD_ENABLE)
     message(STATUS "Disabling Pthreads support, could not determine compiler flags")
   endif()
 ENDIF(PTHREAD_ENABLE)
-
-# -------------------------------------------------------------
-# Find CUDA
-# -------------------------------------------------------------
-
-if(CUDA_ENABLE)
-  find_package(CUDA)
-  if (CUDA_FOUND)
-    set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -lineinfo")
-  else()
-    message(STATUS "Disabling CUDA support, could not find CUDA.")
-  endif()
-endif(CUDA_ENABLE)
 
 # -------------------------------------------------------------
 # Find RAJA
@@ -1022,7 +1028,6 @@ ELSE()
   SET (PETSC_DISABLED TRUE CACHE INTERNAL "GUI - return when first set")
 
 ENDIF()
-
 
 # ===============================================================
 # Add source and configuration files

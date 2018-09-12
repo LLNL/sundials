@@ -22,7 +22,7 @@
 #include <sundials/sundials_mpi_types.h>
 
 
-#ifdef SUNDIALS_MPI_ENABLED
+#if SUNDIALS_MPI_ENABLED
 
 #include <mpi.h>
 #define SUNMPI_COMM_WORLD MPI_COMM_WORLD
@@ -42,11 +42,7 @@ typedef int SUNMPI_Comm;
 extern "C" {
 #endif
 
-SUNDIALS_EXPORT int SUNMPI_Init(int *argc, char ***argv);
-SUNDIALS_EXPORT int SUNMPI_Finalize();
-SUNDIALS_EXPORT int SUNMPI_Abort(SUNMPI_Comm comm, int errorcode);
 SUNDIALS_EXPORT int SUNMPI_Comm_size(SUNMPI_Comm comm, int *size);
-SUNDIALS_EXPORT int SUNMPI_Comm_rank(SUNMPI_Comm comm, int *rank);
 SUNDIALS_EXPORT realtype SUNMPI_Allreduce_scalar(realtype d, int op, SUNMPI_Comm comm);
 SUNDIALS_EXPORT void SUNMPI_Allreduce(realtype *d, int nvec, int op, SUNMPI_Comm comm);
 

@@ -1,6 +1,6 @@
 # -*- mode: cmake -*-
 # -----------------------------------------------------------------
-# Programmer: Slaven Peles @ LLNL
+# Programmer: Slaven Peles, and Cody Balos @ LLNL
 # -----------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
@@ -64,10 +64,18 @@ FIND_LIBRARY(SUNDIALS_SOLVER_LIB
   @SOLVER_LIB@ ${SUNDIALS_LIB_DIR}
   DOC "@SOLVER@ library")
 
+IF(NOT SUNDIALS_SOLVER_LIB)
+  SET(SUNDIALS_SOLVER_LIB "")
+ENDIF()
+
 # Find the NVECTOR library
 FIND_LIBRARY(SUNDIALS_NVEC_LIB
-  sundials_nveccuda ${SUNDIALS_LIB_DIR}
+  @NVECTOR_LIB@ ${SUNDIALS_LIB_DIR}
   DOC "NVECTOR library")
+
+IF(NOT SUNDIALS_NVEC_LIB)
+  SET(SUNDIALS_NVEC_LIB "")
+ENDIF()
 
 # Set additional libraries
 SET(SUNDIALS_EXTRA_LIB @LIBS@ CACHE STRING "Additional libraries")

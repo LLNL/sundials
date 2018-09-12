@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  Slaven Peles @ LLNL
+# Programmer:  Slaven Peles, and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # Based on CMakeLists.txt in cvode/serial by Radu Serban @ LLNL
 # ---------------------------------------------------------------
@@ -26,13 +26,7 @@ SET(CVODE_examples
   )
 
 # Add source directory to include directories
-INCLUDE_DIRECTORIES(. ${MPI_CXX_INCLUDE_PATH})
-
-IF(MPI_C_COMPILER)
-  # use MPI wrapper as the compiler
-  SET(CMAKE_C_COMPILER ${MPI_C_COMPILER})
-  SET(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
-ENDIF()
+INCLUDE_DIRECTORIES(.)
 
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
@@ -46,7 +40,6 @@ ENDIF()
 
 # Set-up linker flags and link libraries
 SET(SUNDIALS_LIBS ${CVODE_LIB} ${NVECS_LIB} ${EXTRA_LINK_LIBS})
-
 
 # Add the build and install targets for each CVODE example
 FOREACH(example_tuple ${CVODE_examples})
@@ -69,7 +62,7 @@ FOREACH(example_tuple ${CVODE_examples})
     EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
-  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${MPI_CXX_LIBRARIES})
+  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
 
   # install example source and out files
   IF(EXAMPLES_INSTALL)
@@ -89,6 +82,7 @@ IF(EXAMPLES_INSTALL)
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   SET(SOLVER "CVODE")
   SET(SOLVER_LIB "sundials_cvode")
+  SET(NVECTOR_LIB "sundials_nveccuda")
 
   EXAMPLES2STRING(CVODE_examples EXAMPLES)
 

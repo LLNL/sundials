@@ -51,7 +51,7 @@ typedef struct _UserData
 
 /* User defined functions */
 
-static N_Vector SetIC(SUNMPI_Comm comm, UserData data);
+static N_Vector SetIC(MPI_Comm comm, UserData data);
 static UserData SetUserData(int argc, char *argv[]);
 static int RHS(realtype t, N_Vector u, N_Vector udot, void *userData);
 static int Jtv(N_Vector v, N_Vector Jv, realtype t, N_Vector u, N_Vector fu, void *userData, N_Vector tmp);
@@ -86,17 +86,19 @@ int main(int argc, char *argv[])
   //int iout;
   int flag;
   int npes;
-  SUNMPI_Comm comm;
+  MPI_Comm comm;
 
   u = NULL;
   data = NULL;
   cvode_mem = NULL;
 
-#ifdef SUNDIALS_MPI_ENABLED
+#if SUNDIALS_MPI_ENABLED
+#warning "MPI ENABLED"
   MPI_Init(&argc, &argv);
   comm = MPI_COMM_WORLD;
   MPI_Comm_size(comm, &npes);
 #else
+#warning "MPI NOT ENABLED"
   comm = 0;
   npes = 1;
 #endif
@@ -169,7 +171,7 @@ int main(int argc, char *argv[])
   free(data);
   CVodeFree(&cvode_mem);
 
-#ifdef SUNDIALS_MPI_ENABLED
+#if SUNDIALS_MPI_ENABLED
   MPI_Finalize();
 #endif
 
@@ -183,13 +185,13 @@ int main(int argc, char *argv[])
  *-------------------------------
  */
 
-N_Vector SetIC(SUNMPI_Comm comm, UserData data)
+N_Vector SetIC(MPI_Comm comm, UserData data)
 {
   const sunindextype Nx = data->Nx;
   const realtype hx = data->hx;
   const realtype hy = data->hy;
 
-  N_Vector y     = N_VNew_Cuda(comm, data->NEQ, data->NEQ);
+  N_Vector y     = N_VNew_Cuda(data->NEQ);
   realtype *ydat = N_VGetHostArrayPointer_Cuda(y);
   sunindextype i, j, index;
 

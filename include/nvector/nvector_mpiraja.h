@@ -44,7 +44,9 @@
 #ifndef _NVECTOR_RAJA_H
 #define _NVECTOR_RAJA_H
 
+#include <mpi.h>
 #include <stdio.h>
+
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_config.h>
 
@@ -92,14 +94,16 @@ typedef struct _N_VectorContent_Raja *N_VectorContent_Raja;
 
 /*
  * -----------------------------------------------------------------
- * Function : N_VNew_Raja
+ * Function : N_VNew_MPI_Raja
  * -----------------------------------------------------------------
- * This function creates and allocates memory for a RAJA vector on
- * a single node.
+ * This function creates and allocates memory for a distributed
+ * memory RAJA vector.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNew_Raja(sunindextype length);
+SUNDIALS_EXPORT N_Vector N_VNew_Raja(MPI_Comm comm,
+                                     sunindextype local_length,
+                                     sunindextype global_length);
 
 /*
  * -----------------------------------------------------------------

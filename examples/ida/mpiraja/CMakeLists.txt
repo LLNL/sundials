@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  Slaven Peles, Cody J. Balos @ LLNL
+# Programmer:  Slaven Peles, and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
@@ -18,24 +18,32 @@
 # 'develop' for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-SET(IDA_examples
-    "idaHeat2D_kry_raja\;develop"
-   )
+IF(MPI_C_FOUND)
+  SET(IDA_examples
+      "idaHeat2D_kry_p_mpiraja\;1\;4\;develop"
+     )
+ENDIF()
+
+IF(MPI_C_COMPILER)
+  # use MPI wrapper as the compiler
+  SET(CMAKE_C_COMPILER ${MPI_C_COMPILER})
+  SET(CMAKE_CXX_COMPILER ${MPI_CXX_COMPILER})
+ENDIF()
 
 # Set C++ compiler flags to include RAJA flags
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${RAJA_COMPILE_FLAGS})
 
 # Add source directory to include directories
-INCLUDE_DIRECTORIES(. ${RAJA_INCLUDE_PATH})
+INCLUDE_DIRECTORIES(. ${RAJA_INCLUDE_PATH} ${MPI_CXX_INCLUDE_PATH})
 
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(IDA_LIB sundials_ida_static)
-  SET(NVECS_LIB sundials_nveccudaraja_static)
+  SET(NVECS_LIB sundials_nvecmpicudaraja_static)
 ELSE()
   SET(IDA_LIB sundials_ida_shared)
-  SET(NVECS_LIB sundials_nveccudaraja_shared)
+  SET(NVECS_LIB sundials_nvecmpicudaraja_shared)
 ENDIF()
 
 # Set-up linker flags and link libraries
@@ -47,7 +55,9 @@ FOREACH(example_tuple ${IDA_examples})
 
   # parse the example tuple
   list(GET example_tuple 0 example)
-  list(GET example_tuple 1 example_type)
+  list(GET example_tuple 1 number_of_nodes)
+  list(GET example_tuple 2 number_of_tasks)
+  list(GET example_tuple 3 example_type)
 
   set_source_files_properties(${example}.cu PROPERTIES CUDA_SOURCE_PROPERTY_FORMAT OBJ)
 
@@ -58,16 +68,17 @@ FOREACH(example_tuple ${IDA_examples})
 
   # add example to regression tests
   SUNDIALS_ADD_TEST(${example} ${example}
+    MPI_NPROCS ${number_of_tasks}
     ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
     ANSWER_FILE ${example}.out
     EXAMPLE_TYPE ${example_type})
 
   # libraries to link against
-  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${MPI_CXX_LIBRARIES})
   # install example source and out files
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.cu ${example}.out
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/raja)
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/mpiraja)
   ENDIF()
 
 ENDFOREACH(example_tuple ${IDA_examples})
@@ -77,12 +88,12 @@ ENDFOREACH(example_tuple ${IDA_examples})
 IF(EXAMPLES_INSTALL)
 
   # Install the README file
-  INSTALL(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/raja)
+  INSTALL(FILES README DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/mpiraja)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   SET(SOLVER "IDA")
   SET(SOLVER_LIB "sundials_ida")
-  SET(NVECTOR_LIB "sundials_nveccudaraja")
+  SET(NVECTOR_LIB "sundials_nvecmpicudaraja")
 
   EXAMPLES2STRING(IDA_examples EXAMPLES)
 
@@ -93,14 +104,14 @@ IF(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   CONFIGURE_FILE(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_raja_CUDA_ex.in
-    ${PROJECT_BINARY_DIR}/examples/ida/raja/CMakeLists.txt
+    ${PROJECT_BINARY_DIR}/examples/ida/mpiraja/CMakeLists.txt
     @ONLY
     )
 
   # install CMakelists.txt
   INSTALL(
-    FILES ${PROJECT_BINARY_DIR}/examples/ida/raja/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/raja
+    FILES ${PROJECT_BINARY_DIR}/examples/ida/mpiraja/CMakeLists.txt
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/mpiraja
     )
 
   # On UNIX-type platforms, we also  generate and install a makefile for
@@ -111,13 +122,13 @@ IF(EXAMPLES_INSTALL)
     # generate Makefile and place it in the binary dir
     CONFIGURE_FILE(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_raja_CUDA_ex.in
-      ${PROJECT_BINARY_DIR}/examples/ida/raja/Makefile_ex
+      ${PROJECT_BINARY_DIR}/examples/ida/mpiraja/Makefile_ex
       @ONLY
       )
     # install the configured Makefile_ex as Makefile
     INSTALL(
-      FILES ${PROJECT_BINARY_DIR}/examples/ida/raja/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/raja
+      FILES ${PROJECT_BINARY_DIR}/examples/ida/mpiraja/Makefile_ex
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/ida/mpiraja
       RENAME Makefile
       )
   ENDIF(UNIX)
