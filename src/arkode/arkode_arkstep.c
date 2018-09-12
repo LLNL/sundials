@@ -203,7 +203,6 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, realtype t0, N_Vector y0)
   step_mem->nfi          = 0;
   step_mem->ncfn         = 0;
   step_mem->netf         = 0;
-  step_mem->nni          = 0;
   step_mem->nsetups      = 0;
   step_mem->nstlp        = 0;
 
@@ -330,7 +329,6 @@ int ARKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
 
     /* reset nonlinear solver counters */
     step_mem->ncfn    = 0;
-    step_mem->nni     = 0;
     step_mem->nsetups = 0;
 
   }
@@ -406,7 +404,6 @@ int ARKStepReInit(void* arkode_mem, ARKRhsFn fe,
   step_mem->nfi          = 0;
   step_mem->ncfn         = 0;
   step_mem->netf         = 0;
-  step_mem->nni          = 0;
   step_mem->nsetups      = 0;
   step_mem->nstlp        = 0;
 
@@ -715,7 +712,6 @@ void ARKStepPrintMem(void* arkode_mem, FILE* outfile)
   fprintf(outfile,"ARKStep: nfi = %li\n", step_mem->nfi);
   fprintf(outfile,"ARKStep: ncfn = %li\n", step_mem->ncfn);
   fprintf(outfile,"ARKStep: netf = %li\n", step_mem->netf);
-  fprintf(outfile,"ARKStep: nni = %li\n", step_mem->nni);
   fprintf(outfile,"ARKStep: nsetups = %li\n", step_mem->nsetups);
   fprintf(outfile,"ARKStep: nstlp = %li\n", step_mem->nstlp);
 

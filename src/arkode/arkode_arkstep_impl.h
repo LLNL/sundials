@@ -126,7 +126,6 @@ typedef struct ARKodeARKStepMemRec {
   long int nfi;           /* num fi calls                       */
   long int ncfn;          /* num corrector convergence failures */
   long int netf;          /* num error test failures            */
-  long int nni;           /* num Newton iterations performed    */
   long int nsetups;       /* num setup calls                    */
 
   /* Reusable arrays for fused vector operations */

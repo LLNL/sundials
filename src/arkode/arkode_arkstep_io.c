@@ -799,7 +799,7 @@ int ARKStepSetOrder(void *arkode_mem, int ord)
 
   Specifies that the implicit portion of the problem is linear,
   and to tighten the linear solver tolerances while taking only
-  one Newton iteration.  DO NOT USE IN COMBINATION WITH THE 
+  one Newton iteration.  DO NOT USE IN COMBINATION WITH THE
   FIXED-POINT SOLVER.  Automatically tightens DeltaGammaMax
   to ensure that step size changes cause Jacobian recomputation.
 
@@ -1877,7 +1877,7 @@ int ARKStepSetMaxStepsBetweenLSet(void *arkode_mem, int msbp)
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
   int retval;
-  
+
   /* access ARKodeARKStepMem structure */
   retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetMaxStepsBetweenLSet",
                                  &ark_mem, &step_mem);
@@ -2036,6 +2036,14 @@ int ARKStepSetMaxNonlinIters(void *arkode_mem, int maxcor)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
+  /* Return error message if no NLS module is present */
+  if (step_mem->NLS == NULL) {
+    arkProcessError(ark_mem, ARK_NLS_OP_ERR, "ARKode::ARKStep",
+                    "ARKStepSetMaxNonlinIters",
+                    "No SUNNonlinearSolver object is present");
+    return(ARK_ILL_INPUT);
+  }
+
   /* argument <= 0 sets default, otherwise set input */
   if (maxcor <= 0) {
     step_mem->maxcor = MAXCOR;
@@ -2043,17 +2051,15 @@ int ARKStepSetMaxNonlinIters(void *arkode_mem, int maxcor)
     step_mem->maxcor = maxcor;
   }
 
-  /* send argument to NLS structure if one is attached */
-  if (step_mem->NLS) {
-    retval = SUNNonlinSolSetMaxIters(step_mem->NLS, step_mem->maxcor);
-    if (retval != SUN_NLS_SUCCESS) {
-      arkProcessError(ark_mem, ARK_NLS_OP_ERR, "ARKode::ARKStep",
-                      "ARKStepSetMaxNonlinIters",
-                      "Error setting maxcor in SUNNonlinearSolver object");
-      return(ARK_NLS_OP_ERR);
-    }
+  /* send argument to NLS structure */
+  retval = SUNNonlinSolSetMaxIters(step_mem->NLS, step_mem->maxcor);
+  if (retval != SUN_NLS_SUCCESS) {
+    arkProcessError(ark_mem, ARK_NLS_OP_ERR, "ARKode::ARKStep",
+                    "ARKStepSetMaxNonlinIters",
+                    "Error setting maxcor in SUNNonlinearSolver object");
+    return(ARK_NLS_OP_ERR);
   }
-  
+
   return(ARK_SUCCESS);
 }
 
@@ -2345,7 +2351,8 @@ int ARKStepGetNumNonlinSolvIters(void *arkode_mem, long int *nniters)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  /* set output from step_mem */
+  /* if a NLS object is present, set output from that; otherwise
+     we took zero iterations */
   if (step_mem->NLS) {
     retval = SUNNonlinSolGetNumIters(step_mem->NLS, nniters);
     if (retval != SUN_NLS_SUCCESS) {
@@ -2355,7 +2362,7 @@ int ARKStepGetNumNonlinSolvIters(void *arkode_mem, long int *nniters)
       return(ARK_NLS_OP_ERR);
     }
   } else {
-    *nniters = step_mem->nni;
+    *nniters = 0;
   }
 
   return(ARK_SUCCESS);
@@ -2402,7 +2409,8 @@ int ARKStepGetNonlinSolvStats(void *arkode_mem, long int *nniters,
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
-  /* set outputs from step_mem */
+  /* set outputs from NLS module and step_mem structure (if present);
+     otherwise there were zero iterations and no nonlinear failures */
   if (step_mem->NLS) {
     retval = SUNNonlinSolGetNumIters(step_mem->NLS, nniters);
     if (retval != SUN_NLS_SUCCESS) {
@@ -2411,10 +2419,11 @@ int ARKStepGetNonlinSolvStats(void *arkode_mem, long int *nniters,
                       "Error retrieving nniters from SUNNonlinearSolver");
       return(ARK_NLS_OP_ERR);
     }
+    *nncfails = step_mem->ncfn;
   } else {
-    *nniters = step_mem->nni;
+    *nniters = 0;
+    *nncfails = 0;
   }
-  *nncfails = step_mem->ncfn;
 
   return(ARK_SUCCESS);
 }
