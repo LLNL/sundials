@@ -37,8 +37,6 @@
 #define ZERO   RCONST(0.0)
 #define ONE    RCONST(1.0)
 
-#define FIXED_LIN_TOL
-
 
 /*===============================================================
   Exported functions
@@ -139,7 +137,8 @@ int ARKStepSetNonlinearSolver(void *arkode_mem, SUNNonlinearSolver NLS)
   This routine attaches the linear solver 'setup' and 'solve'
   routines to the nonlinear solver object, and then initializes
   the nonlinear solver object itself.  This should only be
-  called at the start of a simulation, or after a re-init.
+  called at the start of a simulation, after a re-init, or after 
+  a re-size.
 ---------------------------------------------------------------*/
 int arkStep_NlsInit(ARKodeMem ark_mem)
 {
@@ -148,7 +147,7 @@ int arkStep_NlsInit(ARKodeMem ark_mem)
 
   /* access ARKodeARKStepMem structure */
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
                     "arkStep_NlsInit", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -215,7 +214,7 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
 
   /* access ARKodeARKStepMem structure */
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
                     "arkStep_Nls", MSG_ARKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -308,9 +307,6 @@ int arkStep_NlsLSetup(N_Vector zcor, N_Vector res, booleantype jbad,
   if (jbad)
     step_mem->convfail = ARK_FAIL_BAD_J;
 
-  /* update 'ycur' value as stored predictor + current corrector */
-  N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
-
   /* Use ARKode's tempv1, tempv2 and tempv3 as
      temporary vectors for the linear solver setup routine */
   step_mem->nsetups++;
@@ -357,9 +353,6 @@ int arkStep_NlsLSolve(N_Vector zcor, N_Vector b, void* arkode_mem)
   if (retval != SUN_NLS_SUCCESS)
     return(ARK_NLS_OP_ERR);
 
-  /* update 'ycur' value as stored predictor + current corrector */
-  N_VLinearSum(ONE, step_mem->zpred, ONE, zcor, ark_mem->ycur);
-
   /* call linear solver interface, and handle return value */
   retval = step_mem->lsolve(ark_mem, b, ark_mem->tcur,
                             ark_mem->ycur, step_mem->Fi[step_mem->istage],
@@ -375,11 +368,11 @@ int arkStep_NlsLSolve(N_Vector zcor, N_Vector b, void* arkode_mem)
 /*---------------------------------------------------------------
   arkStep_NlsResidual:
 
-  This routine evaluates the negative nonlinear residual for the
-  additive Runge-Kutta method.  It assumes that any data from
-  previous time steps/stages is contained in step_mem, and
-  merely combines this old data with the current implicit ODE RHS
-  vector to compute the nonlinear residual r.
+  This routine evaluates the nonlinear residual for the additive 
+  Runge-Kutta method.  It assumes that any data from previous 
+  time steps/stages is contained in step_mem, and merely combines 
+  this old data with the current implicit ODE RHS vector to 
+  compute the nonlinear residual r.
 
   At the ith stage, we compute the residual vector:
      r = M*z - M*yn - h*sum_{j=0}^{i-1} Ae(i,j)*Fe(j)
@@ -561,13 +554,6 @@ int arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
 
   /* check for convergence; if so return with success */
   if (dcon <= ONE)  return(SUN_NLS_SUCCESS);
-
-#ifndef FIXED_LIN_TOL
-  /* update forcing parameter for inexact linear solvers;
-     Note: if a user provides their own convergence test routine,
-     it will result in use of a _fixed_ linear solver tolerance */
-  step_mem->eRNrm = SUNMIN(step_mem->crate, ONE) * delnrm * RCONST(0.1) * tol;
-#endif
 
   /* check for divergence */
   if ((m >= 1) && (delnrm > step_mem->rdiv*delp))
