@@ -34,6 +34,7 @@ are located in the subdirectories
 - ``incdir/include/nvector``
 - ``incdir/include/sunmatrix``
 - ``incdir/include/sunlinsol``
+- ``incdir/include/sunnonlinsol``
 
 The directories ``libdir`` and ``incdir`` are the installation library
 and include directories, respectively.  For a default installation,
@@ -158,19 +159,33 @@ type.
 If the user includes a non-trivial implicit component to their
 ODE system, then each time step will require a nonlinear solver for
 the resulting systems of equations.  ARKode allows an accelerated
-fixed point iteration and Newton-based iterations for this solver; if
-a Newton method is used then a linear solver module header file may
-also be required.  Similarly, if the ODE system involves a
-non-identity mass matrix :math:`M \ne I`, then each time
-step will require a linear solver for systems of the form
-:math:`Mx=b`.  The header files corresponding to the various linear
-solver interfaces and linear solver modules available for use with
-ARKode for either the Newton solver or for mass-matrix solves, are:
+fixed point iteration and Newton-based iterations for this solver; the
+default being the Newton-based solver.  If a user wishes to instead
+use the fixed point solver, or wishes to customize usage of the Newton
+solver module, they must include one of the header files:
+
+- ``sunnonlinsol/sunnonlinsol_newton.h``, which allows user access to
+  the generic Newton nonlinear solver module constructor and
+  customization routines.
+
+- ``sunnonlinsol/sunnonlinsol_fixedpoint.h``, which allows user access
+  to the Anderson-accelerated fixed point nonlinear solver constructor
+  and customization routines.
+
+If the Newton method was either specifically chosen above, or if it
+is used by default, then a linear solver module header file will also
+be required.  Similarly, if the ODE system involves a non-identity
+mass matrix :math:`M \ne I`, then each time step will require a linear
+solver for systems of the form :math:`Mx=b`.  The header files
+corresponding to the  linear
+solver modules available for use with ARKode for either the Newton
+solver or for mass-matrix solves, are: 
 
 - ``arkode/arkode_direct.h``, which is used with the ARKDLS direct
   linear solver interface to access direct solvers (for both implicit
   Newton systems and mass matrix systems) with the following header
   files:
+
 
   - ``sunlinsol/sunlinsol_dense.h``,
     which is used with the dense linear solver module,
@@ -247,3 +262,4 @@ preconditioner, etc.  For example, if preconditioning for an iterative
 linear solver were performed using the ARKBBDPRE module, the header
 ``arkode/arkode_bbdpre.h`` is needed to access the preconditioner
 initialization routines.
+

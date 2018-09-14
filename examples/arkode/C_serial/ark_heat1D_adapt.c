@@ -94,7 +94,7 @@ int main() {
   realtype refine = 3.e-3;     /* adaptivity refinement tolerance */
   realtype k = 0.5;            /* heat conductivity */
   sunindextype i;
-  long int nni, nni_cur=0, nni_tot=0, nli, nli_tot=0;
+  long int nni, nni_tot=0, nli, nli_tot=0;
   int iout=0;
 
   /* general problem variables */
@@ -208,9 +208,8 @@ int main() {
     iout++;
     printf(" %4i  %19.15"ESYM"  %19.15"ESYM"  %19.15"ESYM"  %li   %2li  %3li\n",
            iout, olddt, newdt, SUNRsqrt(N_VDotProd(y,y)/udata->N),
-           (long int) udata->N, nni-nni_cur, nli);
-    nni_cur = nni;
-    nni_tot = nni;
+           (long int) udata->N, nni, nli);
+    nni_tot += nni;
     nli_tot += nli;
 
     /* output results and current mesh to disk */

@@ -108,6 +108,11 @@ extern "C" {
 #define ARK_POSTPROCESS_FAIL     -28
 #define ARK_VECTOROP_ERR         -29
 
+#define ARK_NLS_INIT_FAIL        -30
+#define ARK_NLS_SETUP_FAIL       -31
+#define ARK_NLS_SETUP_RECVR      -32
+#define ARK_NLS_OP_ERR           -33
+
 
 /*===============================================================
                           FUNCTION TYPES

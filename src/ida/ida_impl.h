@@ -2,14 +2,14 @@
  * -----------------------------------------------------------------
  * $Revision$
  * $Date$
- * ----------------------------------------------------------------- 
+ * -----------------------------------------------------------------
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Lawrence Livermore National Laboratory in part under
  * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
@@ -31,7 +31,7 @@
 extern "C" {
 #endif
 
-/* 
+/*
  * =================================================================
  *   M A I N    I N T E G R A T O R    M E M O R Y    B L O C K
  * =================================================================
@@ -71,17 +71,17 @@ typedef struct IDAMemRec {
 
   IDAResFn       ida_res;            /* F(t,y(t),y'(t))=0; the function F     */
   void          *ida_user_data;      /* user pointer passed to res            */
-    
+
   int            ida_itol;           /* itol = IDA_SS, IDA_SV, IDA_WF, IDA_NN */
   realtype       ida_rtol;           /* relative tolerance                    */
-  realtype       ida_Satol;          /* scalar absolute tolerance             */  
-  N_Vector       ida_Vatol;          /* vector absolute tolerance             */  
+  realtype       ida_Satol;          /* scalar absolute tolerance             */
+  N_Vector       ida_Vatol;          /* vector absolute tolerance             */
   booleantype    ida_user_efun;      /* SUNTRUE if user provides efun         */
   IDAEwtFn       ida_efun;           /* function to set ewt                   */
   void          *ida_edata;          /* user pointer passed to efun           */
-  
 
-  booleantype    ida_constraintsSet; /* constraints vector present: 
+
+  booleantype    ida_constraintsSet; /* constraints vector present:
                                         do constraints calc                   */
   booleantype    ida_suppressalg;    /* SUNTRUE means suppress algebraic vars
                                         in local error tests                  */
@@ -223,9 +223,9 @@ typedef struct IDAMemRec {
 
   int (*ida_linit)(struct IDAMemRec *idamem);
 
-  int (*ida_lsetup)(struct IDAMemRec *idamem, N_Vector yyp, 
-                    N_Vector ypp, N_Vector resp, 
-                    N_Vector tempv1, N_Vector tempv2, N_Vector tempv3); 
+  int (*ida_lsetup)(struct IDAMemRec *idamem, N_Vector yyp,
+                    N_Vector ypp, N_Vector resp,
+                    N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
   int (*ida_lsolve)(struct IDAMemRec *idamem, N_Vector b, N_Vector weight,
                     N_Vector ycur, N_Vector ypcur, N_Vector rescur);
@@ -236,7 +236,7 @@ typedef struct IDAMemRec {
 
   /* Linear Solver specific memory */
 
-  void *ida_lmem;           
+  void *ida_lmem;
 
   /* Flag to indicate successful ida_linit call */
 
@@ -274,94 +274,94 @@ typedef struct IDAMemRec {
 
 /*
  * =================================================================
- *     I N T E R F A C E   T O    L I N E A R   S O L V E R S     
+ *     I N T E R F A C E   T O    L I N E A R   S O L V E R S
  * =================================================================
  */
 
 /*
  * -----------------------------------------------------------------
- * int (*ida_linit)(IDAMem IDA_mem);                               
+ * int (*ida_linit)(IDAMem IDA_mem);
  * -----------------------------------------------------------------
- * The purpose of ida_linit is to allocate memory for the          
- * solver-specific fields in the structure *(idamem->ida_lmem) and 
- * perform any needed initializations of solver-specific memory,   
- * such as counters/statistics. An (*ida_linit) should return      
- * 0 if it has successfully initialized the IDA linear solver and 
+ * The purpose of ida_linit is to allocate memory for the
+ * solver-specific fields in the structure *(idamem->ida_lmem) and
+ * perform any needed initializations of solver-specific memory,
+ * such as counters/statistics. An (*ida_linit) should return
+ * 0 if it has successfully initialized the IDA linear solver and
  * a non-zero value otherwise. If an error does occur, an appropriate
  * message should be sent to the error handler function.
  * ----------------------------------------------------------------
- */                                                                 
+ */
 
 /*
  * -----------------------------------------------------------------
- * int (*ida_lsetup)(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,   
- *                   N_Vector resp, N_Vector tempv1, 
- *                   N_Vector tempv2, N_Vector tempv3);  
+ * int (*ida_lsetup)(IDAMem IDA_mem, N_Vector yyp, N_Vector ypp,
+ *                   N_Vector resp, N_Vector tempv1,
+ *                   N_Vector tempv2, N_Vector tempv3);
  * -----------------------------------------------------------------
- * The job of ida_lsetup is to prepare the linear solver for       
- * subsequent calls to ida_lsolve. Its parameters are as follows:  
- *                                                                 
- * idamem - problem memory pointer of type IDAMem. See the big     
- *          typedef earlier in this file.                          
- *                                                                 
- * yyp   - the predicted y vector for the current IDA internal     
- *         step.                                                   
- *                                                                 
- * ypp   - the predicted y' vector for the current IDA internal    
- *         step.                                                   
- *                                                                 
- * resp  - F(tn, yyp, ypp).                                        
- *                                                                 
- * tempv1, tempv2, tempv3 - temporary N_Vectors provided for use   
- *         by ida_lsetup.                                          
- *                                                                 
+ * The job of ida_lsetup is to prepare the linear solver for
+ * subsequent calls to ida_lsolve. Its parameters are as follows:
+ *
+ * idamem - problem memory pointer of type IDAMem. See the big
+ *          typedef earlier in this file.
+ *
+ * yyp   - the predicted y vector for the current IDA internal
+ *         step.
+ *
+ * ypp   - the predicted y' vector for the current IDA internal
+ *         step.
+ *
+ * resp  - F(tn, yyp, ypp).
+ *
+ * tempv1, tempv2, tempv3 - temporary N_Vectors provided for use
+ *         by ida_lsetup.
+ *
  * The ida_lsetup routine should return 0 if successful,
- * a positive value for a recoverable error, and a negative value 
+ * a positive value for a recoverable error, and a negative value
  * for an unrecoverable error.
  * -----------------------------------------------------------------
- */                                                                 
+ */
 
 /*
  * -----------------------------------------------------------------
- * int (*ida_lsolve)(IDAMem IDA_mem, N_Vector b, N_Vector weight,  
- *                   N_Vector ycur, N_Vector ypcur, N_Vector rescur);  
+ * int (*ida_lsolve)(IDAMem IDA_mem, N_Vector b, N_Vector weight,
+ *                   N_Vector ycur, N_Vector ypcur, N_Vector rescur);
  * -----------------------------------------------------------------
- * ida_lsolve must solve the linear equation P x = b, where        
- * P is some approximation to the system Jacobian                  
- *                  J = (dF/dy) + cj (dF/dy')                      
- * evaluated at (tn,ycur,ypcur) and the RHS vector b is input.     
- * The N-vector ycur contains the solver's current approximation   
- * to y(tn), ypcur contains that for y'(tn), and the vector rescur 
- * contains the N-vector residual F(tn,ycur,ypcur).                
- * The solution is to be returned in the vector b. 
- *                                                                 
+ * ida_lsolve must solve the linear equation P x = b, where
+ * P is some approximation to the system Jacobian
+ *                  J = (dF/dy) + cj (dF/dy')
+ * evaluated at (tn,ycur,ypcur) and the RHS vector b is input.
+ * The N-vector ycur contains the solver's current approximation
+ * to y(tn), ypcur contains that for y'(tn), and the vector rescur
+ * contains the N-vector residual F(tn,ycur,ypcur).
+ * The solution is to be returned in the vector b.
+ *
  * The ida_lsolve routine should return 0 if successful,
- * a positive value for a recoverable error, and a negative value 
+ * a positive value for a recoverable error, and a negative value
  * for an unrecoverable error.
  * -----------------------------------------------------------------
- */                                                                 
+ */
 
 /*
  * -----------------------------------------------------------------
- * int (*ida_lperf)(IDAMem IDA_mem, int perftask);                 
+ * int (*ida_lperf)(IDAMem IDA_mem, int perftask);
  * -----------------------------------------------------------------
- * ida_lperf is called two places in IDA where linear solver       
- * performance data is required by IDA. For perftask = 0, an       
- * initialization of performance variables is performed, while for 
- * perftask = 1, the performance is evaluated.                     
+ * ida_lperf is called two places in IDA where linear solver
+ * performance data is required by IDA. For perftask = 0, an
+ * initialization of performance variables is performed, while for
+ * perftask = 1, the performance is evaluated.
  * -----------------------------------------------------------------
- */                                                                 
+ */
 
 /*
  * -----------------------------------------------------------------
- * int (*ida_lfree)(IDAMem IDA_mem);                               
+ * int (*ida_lfree)(IDAMem IDA_mem);
  * -----------------------------------------------------------------
- * ida_lfree should free up any memory allocated by the linear     
- * solver. This routine is called once a problem has been          
- * completed and the linear solver is no longer needed.  It should 
+ * ida_lfree should free up any memory allocated by the linear
+ * solver. This routine is called once a problem has been
+ * completed and the linear solver is no longer needed.  It should
  * return 0 upon success, nonzero on failure.
  * -----------------------------------------------------------------
- */                                                                 
+ */
 
 /*
  * =================================================================
@@ -375,13 +375,13 @@ int IDAEwtSet(N_Vector ycur, N_Vector weight, void *data);
 
 /* High level error handler */
 
-void IDAProcessError(IDAMem IDA_mem, 
-                     int error_code, const char *module, const char *fname, 
+void IDAProcessError(IDAMem IDA_mem,
+                     int error_code, const char *module, const char *fname,
                      const char *msgfmt, ...);
 
 /* Prototype of internal errHandler function */
 
-void IDAErrHandler(int error_code, const char *module, const char *function, 
+void IDAErrHandler(int error_code, const char *module, const char *function,
                    char *msg, void *data);
 
 /* Norm functions */
@@ -478,7 +478,7 @@ int idaNlsInit(IDAMem IDA_mem);
 #define MSG_BAD_HINIT      "Initial step is not towards tout."
 #define MSG_BAD_TSTOP      "The value " MSG_TIME_TSTOP " is behind current " MSG_TIME "in the direction of integration."
 #define MSG_CLOSE_ROOTS    "Root found at and very near " MSG_TIME "."
-#define MSG_MAX_STEPS      "At " MSG_TIME ", mxstep steps taken before reaching tout." 
+#define MSG_MAX_STEPS      "At " MSG_TIME ", mxstep steps taken before reaching tout."
 #define MSG_EWT_NOW_FAIL   "At " MSG_TIME "the user-provide EwtSet function failed."
 #define MSG_EWT_NOW_BAD    "At " MSG_TIME "some ewt component has become <= 0.0."
 #define MSG_TOO_MUCH_ACC   "At " MSG_TIME "too much accuracy requested."

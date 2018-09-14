@@ -18,7 +18,7 @@
  * system of size N = MGRID^2. Here MGRID = 10.
  *
  * The system is solved with IDA using the sparse linear system
- * solver and a user supplied Jacobian. 
+ * solver and a user supplied Jacobian.
  * For purposes of illustration,
  * IDACalcIC is called to compute correct values at the boundary,
  * given incorrect values as input initial guesses. The constraints
@@ -31,13 +31,13 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <ida/ida.h>                       /* prototypes for IDA fcts., consts.    */
-#include <nvector/nvector_serial.h>        /* access to serial N_Vector            */
-#include <sunmatrix/sunmatrix_sparse.h>    /* access to sparse SUNMatrix           */
-#include <sunlinsol/sunlinsol_superlumt.h> /* access to superlumt linear solver    */
-#include <ida/ida_direct.h>                /* access to IDADls interface           */
-#include <sundials/sundials_types.h>       /* defs. of realtype, sunindextype      */
-#include <sundials/sundials_math.h>        /* defs. of SUNRabs, SUNRexp, etc.      */
+#include <ida/ida.h>                          /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>           /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_sparse.h>       /* access to sparse SUNMatrix           */
+#include <sunlinsol/sunlinsol_superlumt.h>    /* access to superlumt linear solver    */
+#include <ida/ida_direct.h>                   /* access to IDADls interface           */
+#include <sundials/sundials_types.h>          /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>           /* defs. of SUNRabs, SUNRexp, etc.      */
 
 /* Problem Constants */
 
@@ -62,13 +62,13 @@ typedef struct {
 
 int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval, void *user_data);
 
-int jacHeat(realtype tt,  realtype cj, 
+int jacHeat(realtype tt,  realtype cj,
 	    N_Vector yy, N_Vector yp, N_Vector resvec,
 	    SUNMatrix JJ, void *user_data,
 	    N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
 
 /* Exact same setup as jacHeat. Function needed for special case MGRID=3  */
-int jacHeat3(realtype tt,  realtype cj, 
+int jacHeat3(realtype tt,  realtype cj,
              N_Vector yy, N_Vector yp, N_Vector resvec,
              SUNMatrix JJ, void *user_data,
              N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
@@ -77,7 +77,7 @@ int jacHeat3(realtype tt,  realtype cj,
 
 static void PrintHeader(realtype rtol, realtype atol);
 static void PrintOutput(void *mem, realtype t, N_Vector u);
-static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, 
+static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
                              N_Vector id, N_Vector res);
 
 static int check_retval(void *returnvalue, const char *funcname, int opt);
@@ -99,7 +99,7 @@ int main(void)
   SUNMatrix A;
   SUNLinearSolver LS;
   sunindextype nnz;
-  
+
   mem = NULL;
   data = NULL;
   uu = up = constraints = id = res = NULL;
@@ -190,21 +190,21 @@ int main(void)
 
   /* Print output heading. */
   PrintHeader(rtol, atol);
-  
+
   PrintOutput(mem, t0, uu);
 
 
   /* Loop over output times, call IDASolve, and print results. */
-  
+
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) {
-    
+
     retval = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
     if(check_retval(&retval, "IDASolve", 1)) return(1);
 
     PrintOutput(mem, tret, uu);
-  
+
   }
-  
+
   /* Print remaining counters and free memory. */
   retval = IDAGetNumErrTestFails(mem, &netf);
   check_retval(&retval, "IDAGetNumErrTestFails", 1);
@@ -231,53 +231,53 @@ int main(void)
  */
 
 /*
- * heatres: heat equation system residual function                       
- * This uses 5-point central differencing on the interior points, and    
- * includes algebraic equations for the boundary values.                 
- * So for each interior point, the residual component has the form       
- *    res_i = u'_i - (central difference)_i                              
- * while for each boundary point, it is res_i = u_i.                     
+ * heatres: heat equation system residual function
+ * This uses 5-point central differencing on the interior points, and
+ * includes algebraic equations for the boundary values.
+ * So for each interior point, the residual component has the form
+ *    res_i = u'_i - (central difference)_i
+ * while for each boundary point, it is res_i = u_i.
  */
 
-int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval, 
+int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval,
             void *user_data)
 {
   sunindextype mm, i, j, offset, loc;
   realtype *uv, *upv, *resv, coeff;
   UserData data;
-  
+
   uv = N_VGetArrayPointer(uu); upv = N_VGetArrayPointer(up); resv = N_VGetArrayPointer(resval);
 
   data = (UserData)user_data;
   mm = data->mm;
   coeff = data->coeff;
-  
+
   /* Initialize resval to uu, to take care of boundary equations. */
   N_VScale(ZERO, uu, resval);
-  
+
   /* Loop over interior points; set res = up - (central difference). */
   for (j = 1; j < mm-1; j++) {
     offset = mm*j;
     for (i = 1; i < mm-1; i++) {
       loc = offset + i;
-      resv[loc] = upv[loc] - coeff * 
+      resv[loc] = upv[loc] - coeff *
 	  (uv[loc-1] + uv[loc+1] + uv[loc-mm] + uv[loc+mm] - RCONST(4.0)*uv[loc]);
     }
   }
-  
+
   return(0);
 
 }
 
 /* Jacobian matrix setup for MGRID=3  */
-int jacHeat3(realtype tt,  realtype cj, 
+int jacHeat3(realtype tt,  realtype cj,
              N_Vector yy, N_Vector yp, N_Vector resvec,
              SUNMatrix JJ, void *user_data,
              N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
   realtype dx =  ONE/(MGRID - ONE);
   realtype beta = RCONST(4.0)/(dx*dx) + cj;
-  
+
   sunindextype *colptrs = SUNSparseMatrix_IndexPointers(JJ);
   sunindextype *rowvals = SUNSparseMatrix_IndexValues(JJ);
   realtype *data = SUNSparseMatrix_Data(JJ);
@@ -285,7 +285,7 @@ int jacHeat3(realtype tt,  realtype cj,
   SUNMatZero(JJ);
 
   /*
-   * set up number of elements in each column 
+   * set up number of elements in each column
    */
   colptrs[0]  = 0;
   colptrs[1]  = 1;
@@ -297,23 +297,23 @@ int jacHeat3(realtype tt,  realtype cj,
   colptrs[7]  = 10;
   colptrs[8]  = 12;
   colptrs[9]  = 13;
-  
+
   /*
-   * set up data and row values stored 
+   * set up data and row values stored
    */
 
   data[0] = ONE;
-  rowvals[0] = 0;  
+  rowvals[0] = 0;
   data[1] = ONE;
   rowvals[1] = 1;
   data[2] = -ONE/(dx*dx);
-  rowvals[2] = 4;  
+  rowvals[2] = 4;
   data[3] = ONE;
   rowvals[3] = 2;
   data[4] = ONE;
   rowvals[4] = 3;
   data[5] = -ONE/(dx*dx);
-  rowvals[5] = 4;  
+  rowvals[5] = 4;
   data[6] = beta;
   rowvals[6] = 4;
   data[7] = -ONE/(dx*dx);
@@ -321,7 +321,7 @@ int jacHeat3(realtype tt,  realtype cj,
   data[8] = ONE;
   rowvals[8] = 5;
   data[9] = ONE;
-  rowvals[9] = 6; 
+  rowvals[9] = 6;
   data[10] = -ONE/(dx*dx);
   rowvals[10] = 4;
   data[11] = ONE;
@@ -333,7 +333,7 @@ int jacHeat3(realtype tt,  realtype cj,
 }
 
 /* Jacobian matrix setup for MGRID>=4  */
-int jacHeat(realtype tt,  realtype cj, 
+int jacHeat(realtype tt,  realtype cj,
             N_Vector yy, N_Vector yp, N_Vector resvec,
             SUNMatrix JJ, void *user_data,
             N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
@@ -351,12 +351,12 @@ int jacHeat(realtype tt,  realtype cj,
 
   SUNMatZero(JJ);
 
-  /* 
+  /*
    *-----------------------------------------------
-   * set up number of elements in each column 
+   * set up number of elements in each column
    *-----------------------------------------------
    */
-  
+
   /**** first column block ****/
   colptrs[0] = 0;
   colptrs[1] = 1;
@@ -371,27 +371,27 @@ int jacHeat(realtype tt,  realtype cj,
   for(i=0;i<MGRID-4;i++) colptrs[MGRID+3+i] = (colptrs[MGRID+3+i-1])+4;
   colptrs[2*MGRID-1] = 2*MGRID+4*(MGRID-2)-2;
   colptrs[2*MGRID] = 2*MGRID+4*(MGRID-2);
-  
+
   /**** repeated (MGRID-4 times) middle column blocks ****/
   for(i=0;i<MGRID-4;i++){
     colptrs[2*MGRID+1+repeat]   = (colptrs[2*MGRID+1+repeat-1])+2;
     colptrs[2*MGRID+1+repeat+1] = (colptrs[2*MGRID+1+repeat])+4;
-    
+
     /* count by fives in the middle */
-    for(j=0;j<MGRID-4;j++) colptrs[2*MGRID+1+repeat+2+j] = 
+    for(j=0;j<MGRID-4;j++) colptrs[2*MGRID+1+repeat+2+j] =
 			  (colptrs[2*MGRID+1+repeat+1+j])+5;
-   
+
     colptrs[2*MGRID+1+repeat+(MGRID-4)+2] = (colptrs[2*MGRID+1+repeat+(MGRID-4)+1])+4;
-    colptrs[2*MGRID+1+repeat+(MGRID-4)+3] = (colptrs[2*MGRID+1+repeat+(MGRID-4)+2])+2;  
+    colptrs[2*MGRID+1+repeat+(MGRID-4)+3] = (colptrs[2*MGRID+1+repeat+(MGRID-4)+2])+2;
 
     repeat+=MGRID; /* shift that accounts for accumulated number of columns */
   }
-  
+
   /**** last-1 column block ****/
   colptrs[MGRID*MGRID-2*MGRID+1] = TOTAL-2*MGRID-4*(MGRID-2)+2;
   colptrs[MGRID*MGRID-2*MGRID+2] = TOTAL-2*MGRID-4*(MGRID-2)+5;
   /* count by fours in the middle */
-  for(i=0;i<MGRID-4;i++) colptrs[MGRID*MGRID-2*MGRID+3+i] = 
+  for(i=0;i<MGRID-4;i++) colptrs[MGRID*MGRID-2*MGRID+3+i] =
 			(colptrs[MGRID*MGRID-2*MGRID+3+i-1])+4;
   colptrs[MGRID*MGRID-MGRID-1] = TOTAL-2*MGRID;
   colptrs[MGRID*MGRID-MGRID]   = TOTAL-2*MGRID+2;
@@ -399,11 +399,11 @@ int jacHeat(realtype tt,  realtype cj,
   /**** last column block ****/
   colptrs[MGRID*MGRID-MGRID+1] = TOTAL-MGRID-(MGRID-2)+1;
   /* count by twos in the middle */
-  for(i=0;i<MGRID-2;i++) colptrs[MGRID*MGRID-MGRID+2+i] = 
+  for(i=0;i<MGRID-2;i++) colptrs[MGRID*MGRID-MGRID+2+i] =
 			(colptrs[MGRID*MGRID-MGRID+2+i-1])+2;
   colptrs[MGRID*MGRID-1] = TOTAL-1;
   colptrs[MGRID*MGRID]   = TOTAL;
-  
+
 
   /*
    *-----------------------------------------------
@@ -433,13 +433,13 @@ int jacHeat(realtype tt,  realtype cj,
   data[2*MGRID+4*(MGRID-2)-3] = -ONE/(dx*dx);
   data[2*MGRID+4*(MGRID-2)-2] = -ONE/(dx*dx);
   data[2*MGRID+4*(MGRID-2)-1] = ONE;
-    
+
   /**** repeated (MGRID-4 times) middle column blocks ****/
   repeat=0;
   for(i=0;i<MGRID-4;i++){
     data[2*MGRID+4*(MGRID-2)+repeat]   = ONE;
     data[2*MGRID+4*(MGRID-2)+repeat+1] = -ONE/(dx*dx);
-    
+
     data[2*MGRID+4*(MGRID-2)+repeat+2] = -ONE/(dx*dx);
     data[2*MGRID+4*(MGRID-2)+repeat+3] = beta;
     data[2*MGRID+4*(MGRID-2)+repeat+4] = -ONE/(dx*dx);
@@ -454,18 +454,18 @@ int jacHeat(realtype tt,  realtype cj,
       data[2*MGRID+4*(MGRID-2)+repeat+9+5*j]  = -ONE/(dx*dx);
       data[2*MGRID+4*(MGRID-2)+repeat+10+5*j] = -ONE/(dx*dx);
     }
-    
+
     data[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+6] = -ONE/(dx*dx);
     data[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+7] = -ONE/(dx*dx);
     data[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+8] = beta;
     data[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+9] = -ONE/(dx*dx);
-    
+
     data[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+10] = -ONE/(dx*dx);
     data[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+11] = ONE;
-    
+
     repeat+=MGRID+4*(MGRID-2); /* shift that accounts for accumulated columns and elements */
   }
-  
+
   /**** last-1 column block ****/
   data[TOTAL-6*(MGRID-2)-4] = ONE;
   data[TOTAL-6*(MGRID-2)-3] = -ONE/(dx*dx);
@@ -489,10 +489,10 @@ int jacHeat(realtype tt,  realtype cj,
   for(i=TOTAL-2*(MGRID-2)-1;i<TOTAL-2;i+=2) data[i] = -ONE/(dx*dx);
   for(i=TOTAL-2*(MGRID-2)  ;i<TOTAL-1;i+=2) data[i] = ONE;
   data[TOTAL-1] = ONE;
-  
+
   /*
    *-----------------------------------------------
-   * row values 
+   * row values
    *-----------------------------------------------
    */
 
@@ -501,7 +501,7 @@ int jacHeat(realtype tt,  realtype cj,
   /* alternating pattern in data, separate loop for each pattern */
   for(i=1;i<MGRID+(MGRID-2)  ;i+=2) rowvals[i] = (i+1)/2;
   for(i=2;i<MGRID+(MGRID-2)-1;i+=2) rowvals[i] = i/2+MGRID; /* i+1 unnecessary here */
-  
+
   /**** second column block ****/
   rowvals[MGRID+MGRID-2] = MGRID;
   rowvals[MGRID+MGRID-1] = MGRID+1;
@@ -518,18 +518,18 @@ int jacHeat(realtype tt,  realtype cj,
   rowvals[2*MGRID+4*(MGRID-2)-3] = 2*MGRID+(MGRID-2);
   rowvals[2*MGRID+4*(MGRID-2)-2] = MGRID+(MGRID-2);
   rowvals[2*MGRID+4*(MGRID-2)-1] = MGRID+(MGRID-2)+1;
-  
+
   /**** repeated (MGRID-4 times) middle column blocks ****/
   repeat=0;
   for(i=0;i<MGRID-4;i++){
     rowvals[2*MGRID+4*(MGRID-2)+repeat]   = MGRID+(MGRID-2)+2+MGRID*i;
     rowvals[2*MGRID+4*(MGRID-2)+repeat+1] = MGRID+(MGRID-2)+2+MGRID*i+1;
-    
+
     rowvals[2*MGRID+4*(MGRID-2)+repeat+2] = MGRID+(MGRID-2)+2+MGRID*i+1-MGRID;
     rowvals[2*MGRID+4*(MGRID-2)+repeat+3] = MGRID+(MGRID-2)+2+MGRID*i+1;
     rowvals[2*MGRID+4*(MGRID-2)+repeat+4] = MGRID+(MGRID-2)+2+MGRID*i+2; /* *this */
     rowvals[2*MGRID+4*(MGRID-2)+repeat+5] = MGRID+(MGRID-2)+2+MGRID*i+1+MGRID;
-    
+
     /* 5 in 5*j chosen since there are 5 elements in each column */
     /* column repeats MGRID-4 times within the outer loop */
     for(j=0;j<MGRID-4;j++){
@@ -539,7 +539,7 @@ int jacHeat(realtype tt,  realtype cj,
       rowvals[2*MGRID+4*(MGRID-2)+repeat+9+5*j]  = MGRID+(MGRID-2)+2+MGRID*i+2+1+j;
       rowvals[2*MGRID+4*(MGRID-2)+repeat+10+5*j] = MGRID+(MGRID-2)+2+MGRID*i+1+MGRID+1+j;
     }
-    
+
     rowvals[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+6] = MGRID+(MGRID-2)+2+MGRID*i-2;
     rowvals[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+7] = MGRID+(MGRID-2)+2+MGRID*i-2+MGRID-1;
     rowvals[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+8] = MGRID+(MGRID-2)+2+MGRID*i-2+MGRID; /* *this+MGRID */
@@ -547,11 +547,11 @@ int jacHeat(realtype tt,  realtype cj,
 
     rowvals[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+10] = MGRID+(MGRID-2)+2+MGRID*i-2+MGRID;
     rowvals[2*MGRID+4*(MGRID-2)+repeat+(MGRID-4)*5+11] = MGRID+(MGRID-2)+2+MGRID*i-2+MGRID+1;
-    
-    repeat+=MGRID+4*(MGRID-2); /* shift that accounts for accumulated columns and elements */
-  }  
 
-  
+    repeat+=MGRID+4*(MGRID-2); /* shift that accounts for accumulated columns and elements */
+  }
+
+
   /**** last-1 column block ****/
   rowvals[TOTAL-6*(MGRID-2)-4] = MGRID*MGRID-1-2*(MGRID-1)-1;
   rowvals[TOTAL-6*(MGRID-2)-3] = MGRID*MGRID-1-2*(MGRID-1); /* starting with this as base */
@@ -573,7 +573,7 @@ int jacHeat(realtype tt,  realtype cj,
   rowvals[TOTAL-2*(MGRID-2)-2] = MGRID*MGRID-MGRID;
   /* alternating pattern in data, separate loop for each pattern  */
   for(i=0;i<(MGRID-2);i++) rowvals[TOTAL-2*(MGRID-2)-1+2*i] = MGRID*MGRID-2*MGRID+1+i;
-  for(i=0;i<(MGRID-2);i++) rowvals[TOTAL-2*(MGRID-2)  +2*i] = MGRID*MGRID-MGRID+1+i;  
+  for(i=0;i<(MGRID-2);i++) rowvals[TOTAL-2*(MGRID-2)  +2*i] = MGRID*MGRID-MGRID+1+i;
   rowvals[TOTAL-1] = MGRID*MGRID-1;
 
   return(0);
@@ -587,18 +587,18 @@ int jacHeat(realtype tt,  realtype cj,
  */
 
 /*
- * SetInitialProfile: routine to initialize u, up, and id vectors.       
+ * SetInitialProfile: routine to initialize u, up, and id vectors.
  */
 
-static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, 
+static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
                              N_Vector id, N_Vector res)
 {
   realtype xfact, yfact, *udata, *updata, *iddata;
   sunindextype mm, mm1, i, j, offset, loc;
-  
+
   mm = data->mm;
   mm1 = mm - 1;
-  
+
   udata = N_VGetArrayPointer(uu);
   updata = N_VGetArrayPointer(up);
   iddata = N_VGetArrayPointer(id);
@@ -606,7 +606,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
   /* Initialize id to 1's. */
   N_VConst(ONE, id);
 
-  /* Initialize uu on all grid points. */ 
+  /* Initialize uu on all grid points. */
   for (j = 0; j < mm; j++) {
     yfact = data->dx * j;
     offset = mm*j;
@@ -616,13 +616,13 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
       udata[loc] = RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
     }
   }
-  
+
   /* Initialize up vector to 0. */
   N_VConst(ZERO, up);
 
   /* heatres sets res to negative of ODE RHS values at interior points. */
   heatres(ZERO, uu, up, res, data);
-  
+
   /* Copy -res into up to get correct interior initial up values. */
   N_VScale(-ONE, res, up);
 
@@ -635,12 +635,12 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
         udata[loc] = BVAL; updata[loc] = ZERO; iddata[loc] = ZERO; }
     }
   }
-  
+
   return(0);
 
 }
 
-/* 
+/*
  * Print first lines of output (problem description)
  */
 
@@ -652,9 +652,9 @@ static void PrintHeader(realtype rtol, realtype atol)
   printf(" polynomial initial conditions.\n");
   printf("          Mesh dimensions: %d x %d", MGRID, MGRID);
   printf("        Total system size: %d\n\n", NEQ);
-#if defined(SUNDIALS_EXTENDED_PRECISION) 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n", rtol, atol);
-#elif defined(SUNDIALS_DOUBLE_PRECISION) 
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
@@ -687,7 +687,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
   int kused;
 
   umax = N_VMaxNorm(uu);
-  
+
   retval = IDAGetLastOrder(mem, &kused);
   check_retval(&retval, "IDAGetLastOrder", 1);
   retval = IDAGetNumSteps(mem, &nst);
@@ -701,10 +701,10 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
   retval = IDADlsGetNumJacEvals(mem, &nje);
   check_retval(&retval, "IDADlsGetNumJacEvals", 1);
 
-#if defined(SUNDIALS_EXTENDED_PRECISION) 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
   printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %9.2Le \n",
          t, umax, kused, nst, nni, nje, nre, hused);
-#elif defined(SUNDIALS_DOUBLE_PRECISION) 
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %9.2e \n",
          t, umax, kused, nst, nni, nje, nre, hused);
 #else
@@ -714,14 +714,14 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
 
 }
 
-/* 
+/*
  * Check function return value...
  *   opt == 0 means SUNDIALS function allocates memory so check if
  *            returned NULL pointer
  *   opt == 1 means SUNDIALS function returns an integer value so check if
  *            retval >= 0
  *   opt == 2 means function allocates memory so check if returned
- *            NULL pointer 
+ *            NULL pointer
  */
 
 static int check_retval(void *returnvalue, const char *funcname, int opt)
@@ -730,23 +730,23 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && returnvalue == NULL) {
-    fprintf(stderr, 
-            "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", 
+    fprintf(stderr,
+            "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
     return(1);
   } else if (opt == 1) {
     /* Check if retval < 0 */
     retval = (int *) returnvalue;
     if (*retval < 0) {
-      fprintf(stderr, 
-              "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n", 
+      fprintf(stderr,
+              "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
               funcname, *retval);
-      return(1); 
+      return(1);
     }
   } else if (opt == 2 && returnvalue == NULL) {
     /* Check if function returned NULL pointer - no memory allocated */
-    fprintf(stderr, 
-            "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", 
+    fprintf(stderr,
+            "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
     return(1);
   }

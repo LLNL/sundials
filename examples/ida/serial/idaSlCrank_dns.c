@@ -15,13 +15,13 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <ida/ida.h>                   /* prototypes for IDA fcts., consts.    */
-#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
-#include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
-#include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
-#include <ida/ida_direct.h>            /* access to IDADls interface           */
-#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
-#include <sundials/sundials_math.h>    /* defs. of SUNRabs, SUNRexp, etc.      */
+#include <ida/ida.h>                          /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>           /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_dense.h>        /* access to dense SUNMatrix            */
+#include <sunlinsol/sunlinsol_dense.h>        /* access to dense SUNLinearSolver      */
+#include <ida/ida_direct.h>                   /* access to IDADls interface           */
+#include <sundials/sundials_types.h>          /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>           /* defs. of SUNRabs, SUNRexp, etc.      */
 
 /* Problem Constants */
 
@@ -44,7 +44,7 @@ typedef struct {
   realtype F;
 } *UserData;
 
-int ressc(realtype tres, N_Vector yy, N_Vector yp, 
+int ressc(realtype tres, N_Vector yy, N_Vector yp,
            N_Vector resval, void *user_data);
 
 void setIC(N_Vector yy, N_Vector yp, UserData data);
@@ -163,7 +163,7 @@ int main(void)
   N_VDestroy(id);
 
   return(0);
-  
+
 }
 
 void setIC(N_Vector yy, N_Vector yp, UserData data)
@@ -182,7 +182,7 @@ void setIC(N_Vector yy, N_Vector yp, UserData data)
   J1 = data->J1;
   m2 = data->m2;
   J2 = data->J2;
-  
+
   q = pi/TWO;
   p = asin(-a);
   x = cos(p);
@@ -190,7 +190,7 @@ void setIC(N_Vector yy, N_Vector yp, UserData data)
   NV_Ith_S(yy,0) = q;
   NV_Ith_S(yy,1) = x;
   NV_Ith_S(yy,2) = p;
-  
+
   force(yy, Q, data);
 
   NV_Ith_S(yp,3) = Q[0]/J1;
@@ -203,7 +203,7 @@ void force(N_Vector yy, realtype *Q, UserData data)
 {
   realtype a, k, c, l0, F;
   realtype q, x, p;
-  realtype qd, xd, pd;  
+  realtype qd, xd, pd;
   realtype s1, c1, s2, c2, s21, c21;
   realtype l2, l, ld;
   realtype f, fl;
@@ -250,7 +250,7 @@ int ressc(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data)
   realtype a, J1, m2, J2;
   realtype *yval, *ypval, *rval;
   realtype q, x, p;
-  realtype qd, xd, pd;  
+  realtype qd, xd, pd;
   realtype lam1, lam2, mu1, mu2;
   realtype s1, c1, s2, c2;
 
@@ -288,11 +288,11 @@ int ressc(realtype tres, N_Vector yy, N_Vector yp, N_Vector rr, void *user_data)
 
   rval[0] = ypval[0] - qd + a*s1*mu1 - a*c1*mu2;
   rval[1] = ypval[1] - xd + mu1;
-  rval[2] = ypval[2] - pd + s2*mu1 - c2*mu2; 
+  rval[2] = ypval[2] - pd + s2*mu1 - c2*mu2;
 
   rval[3] = J1*ypval[3] - Q[0] + a*s1*lam1 - a*c1*lam2;
   rval[4] = m2*ypval[4] - Q[1] + lam1;
-  rval[5] = J2*ypval[5] - Q[2] + s2*lam1 - c2*lam2; 
+  rval[5] = J2*ypval[5] - Q[2] + s2*lam1 - c2*lam2;
 
   rval[6] = x - c2 - a*c1;
   rval[7] = -s2 - a*s1;
@@ -337,10 +337,10 @@ static void PrintOutput(void *mem, realtype t, N_Vector y)
   retval = IDAGetLastStep(mem, &hused);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
-  printf("%10.4Le %12.4Le %12.4Le %12.4Le %3ld  %1d %12.4Le\n", 
+  printf("%10.4Le %12.4Le %12.4Le %12.4Le %3ld  %1d %12.4Le\n",
          t, yval[0], yval[1], yval[2], nst, kused, hused);
 #else
-  printf("%10.4e %12.4e %12.4e %12.4e %3ld  %1d %12.4e\n", 
+  printf("%10.4e %12.4e %12.4e %12.4e %3ld  %1d %12.4e\n",
          t, yval[0], yval[1], yval[2], nst, kused, hused);
 #endif
 }
@@ -375,7 +375,7 @@ static void PrintFinalStats(void *mem)
  *   opt == 1 means SUNDIALS function returns an integer value so check if
  *            retval >= 0
  *   opt == 2 means function allocates memory so check if returned
- *            NULL pointer 
+ *            NULL pointer
  */
 
 static int check_retval(void *returnvalue, const char *funcname, int opt)
@@ -383,23 +383,23 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
   int *retval;
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && returnvalue == NULL) {
-    fprintf(stderr, 
-            "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", 
+    fprintf(stderr,
+            "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
     return(1);
   } else if (opt == 1) {
     /* Check if retval < 0 */
     retval = (int *) returnvalue;
     if (*retval < 0) {
-      fprintf(stderr, 
-              "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n", 
+      fprintf(stderr,
+              "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
               funcname, *retval);
-      return(1); 
+      return(1);
     }
   } else if (opt == 2 && returnvalue == NULL) {
     /* Check if function returned NULL pointer - no memory allocated */
-    fprintf(stderr, 
-            "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", 
+    fprintf(stderr,
+            "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
     return(1);
   }

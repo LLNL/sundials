@@ -104,8 +104,16 @@ module, namely ``N_VScale``, which performs the scaling of a vector
    }
 
 The subsection :ref:`NVectors.Ops` contains a complete list of all
-vector operations defined by the generic NVECTOR module.  Finally, we
-note that the generic NVECTOR module defines the functions
+standard vector operations defined by the generic NVECTOR module.  The
+subsections :ref:`NVectors.FusedOps` and :ref:`NVectors.ArrayOps` list
+*optional* fused and vector array operations respectively. These
+operations are intended to increase data reuse, reduce parallel communication on
+distributed memory systems, and lower the number of kernel launches on systems with
+accelerators. If a particular NVECTOR implementation defines one of the fused or
+vector array operations as ``NULL``, the NVECTOR interface will call one of the
+standard vector operations as necessary.
+
+Finally, we note that the generic NVECTOR module defines the functions
 ``N_VCloneVectorArray`` and ``N_VCloneVectorArrayEmpty``. Both
 functions create (by cloning) an array of *count* variables of type
 ``N_Vector``, each of the same type as an existing ``N_Vector``. Their
@@ -119,7 +127,7 @@ prototypes are:
 and their definitions are based on the implementation-specific
 ``N_VClone`` and ``N_VCloneEmpty`` operations, respectively. 
 
-Similarly, an array of variables of type ``N_Vector`` can be destroyed
+An array of variables of type ``N_Vector`` can be destroyed
 by calling ``N_VDestroyVectorArray``, whose prototype is 
 
 .. code-block:: c
@@ -131,7 +139,7 @@ and whose definition is based on the implementation-specific
 
 
 
-In particular, any implementation of the NVECTOR module **must**:
+A particular implementation of the NVECTOR module **must**:
 
 * Specify the *content* field of the ``N_Vector``.
 
@@ -139,10 +147,7 @@ In particular, any implementation of the NVECTOR module **must**:
   names of these routines should be unique to that implementation in
   order to permit using more than one NVECTOR module (each with
   different ``N_Vector`` internal data representations) in the same
-  code.  We further note that not all of the defined operations are
-  required for each solver in SUNDIALS.  The list of required
-  operations for use with ARKode is given in the section
-  :reF:`NVectors.ARKode`. 
+  code.
 
 * Define and implement user-callable constructor and destructor
   routines to create and free a ``N_Vector`` with the new *content*

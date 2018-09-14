@@ -488,7 +488,7 @@ int arkInterpEvaluate(void* arkode_mem, ARKodeInterpMem interp,
       if (retval != 0)  return(ARK_RHSFUNC_FAIL);
     /*   interp->t_fa = tval; */
     /* } */
-    
+
     /* evaluate desired function */
     if (d == 0) {
       a[0] = -SIX*tau2 - RCONST(16.0)*tau3 - RCONST(9.0)*tau4;

@@ -16,6 +16,10 @@
    References
    ==========
 
+.. [A1965] D.G. Anderson, Iterative Procedures for Nonlinear Integral
+           Equations, *J. Assoc. Comput. Machinery*,
+           12:547-560, 1965. 
+
 .. [B1985] Bank et al., Transient Simulation of Silicon Devices and 
            Circuits, *IEEE Trans. CAD*, 4:436-451, 1985.
 
@@ -27,9 +31,16 @@
 .. [BS1989] P. Bogacki and L.F. Shampine. A 3(2) pair of Runge–Kutta
 	    formulas, *Appl. Math. Lett.*, 2:321–325, 1989.
 
+.. [B1987] P.N. Brown. A local convergence theory for combined
+           inexact-Newton/finite difference projection
+           methods. *SIAM J. Numer. Anal.*, 24:407-434, 1987. 
+
 .. [BH1989] P.N. Brown and A.C. Hindmarsh. Reduced Storage
 	    Matrix Methods in Stiff ODE Systems. *J. Appl. Math. &
 	    Comp.*, 31:49-91, 1989.
+
+.. [BS1990] P.N. Brown and Y. Saad. Hybrid Krylov Methods for
+            Nonlinear Systems of Equations. *SIAM J. Sci. Stat. Comput.*, 11:450-481, 1990. 
 
 .. [B2008] J.C. Butcher, Numerical Methods for Ordinary Differential
 	   Equations. Wiley, 2nd edition, Chicester, England, 2008.
@@ -57,13 +68,24 @@
 	    a direct sparse solver for circuit simulation
 	    problems. *ACM Trans. Math. Soft.*, 37, 2010.
 
+.. [DES1982] R.S. Dembo, S.C. Eisenstat and T. Steihaug.  Inexact
+             Newton Methods. *SIAM J. Numer. Anal.*, 19:400-408, 1982.
+
 .. [DGL1999] J.W. Demmel, J.R. Gilbert and X.S. Li. An Asynchronous
 	     Parallel Supernodal Algorithm for Sparse Gaussian
 	     Elimination. *SIAM J. Matrix Analysis and Applications*,
 	     20:915-952, 1999.
 
+.. [DS1996] J.E. Dennis and R.B. Schnabel.  Numerical Methods for
+            Unconstrained Optimization and Nonlinear Equations. SIAM,
+            Philadelphia, 1996.
+
 .. [F2015] R. Falgout and U.M. Yang. Hypre user's manual. *LLNL
 	   Technical Report*, 2015.
+
+.. [FS2009] H. Fang and Y. Saad. Two classes of secant methods for
+            nonlinear acceleration. *Numer. Linear Algebra Appl.*,
+            16:197-21, 2009.
 
 .. [F1969] E. Fehlberg. Low-order classical Runge-Kutta formulas with
 	   step size control and their application to some heat
@@ -113,6 +135,9 @@
             Layer: Overview and Status. Technical Report
             LLNL-TR-661403, LLNL, September 2014. 
             
+.. [K1995] C.T. Kelley.  Iterative Methods for Solving Linear and
+           Nonlinear Equations. SIAM, Philadelphia, 1995. 
+            
 .. [KC2003] C.A. Kennedy and M.H. Carpenter. Additive Runge-Kutta
 	    schemes for convection-diffusion-reaction
 	    equations. *Appl. Numer. Math.*, 44:139-181, 2003. 
@@ -127,6 +152,10 @@
 .. [L2005] X.S. Li. An Overview of SuperLU: Algorithms,
 	   Implementation, and User Interface. *ACM
 	   Trans. Math. Soft.*, 31:302-325, 2005.
+
+.. [LWWY2012] P.A. Lott, H.F. Walker, C.S. Woodward and U.M. Yang. An
+              Accelerated Picard Method for Nonlinear Systems Related to
+              Variably Saturated Flow, *Adv. Wat. Resour.*, 38:92-101, 2012.
 
 .. [R2018] D.R. Reynolds. ARKode Example Documentation. Technical
 	   Report, Southern Methodist University Center for Scientific

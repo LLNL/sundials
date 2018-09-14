@@ -141,9 +141,10 @@ distributed memory parallel version.
 
 
 The NVECTOR_PARALLEL module defines parallel implementations of all
-vector operations listed in the section :ref:`NVectors.Ops`.  Their
-names are obtained from those that section by appending the suffix
-``_Parallel`` (e.g. ``N_VDestroy_Parallel``).   The module
+vector operations listed in the sections :ref:`NVectors.Ops`,
+:ref:`NVectors.FusedOps` and :ref:`NVectors.ArrayOps`.  Their 
+names are obtained from those in those sections by appending the
+suffix ``_Parallel`` (e.g. ``N_VDestroy_Parallel``).   The module
 NVECTOR_PARALLEL provides the following additional user-callable
 routines:
 

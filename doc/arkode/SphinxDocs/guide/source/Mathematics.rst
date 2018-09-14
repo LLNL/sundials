@@ -151,7 +151,7 @@ extrapolation of solutions to :math:`t` outside this interval
 (e.g. to construct predictors for iterative nonlinear and linear
 solvers).  To this end, ARKode currently supports construction of
 polynomial interpolants :math:`p_q(t)` of polynomial order up to
-:math:`q=3`, although this polynomial order may be adjusted by the
+:math:`q=5`, although this polynomial order may be adjusted by the
 user.
 
 These interpolants are either of Lagrange or Hermite form, and
@@ -193,7 +193,7 @@ we then construct the interpolants :math:`p_q(t)` as follows:
      (1-3\tau^2-2\tau^3)\,y_{n} + h(\tau^2+\tau^3)\,f_{n-1} +
      h(\tau+2\tau^2+\tau^3)\,f_{n}.
 
-We note that although interpolants of order :math:`> 3` are possible,
+We note that although interpolants of order :math:`> 5` are possible,
 these are not currently implemented due to their increased computing
 and storage costs.  However, these may be added in future releases.
 
@@ -936,15 +936,15 @@ modules are as follows:
 * PCG, a preconditioned CG (Conjugate Gradient method) solver for
   symmetric linear systems.
 
-For large stiff systems where direct methods are infeasible, the
+For large stiff systems where direct methods are often infeasible, the
 combination of an implicit integrator and a preconditioned
 Krylov method can yield a powerful tool because it combines
 established methods for stiff integration, nonlinear solver iteration,
 and Krylov (linear) iteration with a problem-specific treatment of the
 dominant sources of stiffness, in the form of a user-supplied
 preconditioner matrix [BH1989]_.  We note that the direct linear
-solver interfaces provided by SUNDIALS are only designed to be used
-with the serial and threaded vector representations.
+solver modules currently provided by SUNDIALS are only designed to be
+used with the serial and threaded vector representations.
 
 
 .. index:: modified Newton iteration
@@ -977,8 +977,8 @@ size :math:`\tilde{h}` upon which the modified equation rely, are
 merely values of these quantities from a previous iteration.  In other
 words, the matrix :math:`\tilde{\mathcal A}` is only computed rarely,
 and reused for repeated solves.  The frequency at which
-:math:`\tilde{\mathcal A}` is recomputed defaults to 20, but may be
-modified by the user.
+:math:`\tilde{\mathcal A}` is recomputed defaults to 20 time steps,
+but may be modified by the user.
 
 When using the dense and band solvers for the linear systems
 :eq:`modified_Newton_system`, the Jacobian :math:`J` may be supplied
@@ -1215,7 +1215,7 @@ When using an inexact Newton method to solve the nonlinear system
 linear systems of the form :math:`{\mathcal A}x = b`, where :math:`x` is a
 correction vector and :math:`b` is a residual vector.  If this
 iterative method is one of the scaled preconditioned iterative linear
-solvers supplied with ARKode, their efficiency may benefit
+solvers supplied with SUNDIALS, their efficiency may benefit
 tremendously from preconditioning. A system :math:`{\mathcal A}x=b`
 can be preconditioned using any one of:
 

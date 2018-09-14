@@ -30,12 +30,12 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <ida/ida.h>                   /* prototypes for IDA fcts., consts.    */
-#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
-#include <sunmatrix/sunmatrix_band.h>  /* access to band SUNMatrix             */
-#include <sunlinsol/sunlinsol_band.h>  /* access to band SUNLinearSolver       */
-#include <ida/ida_direct.h>            /* access to IDADls interface           */
-#include <sundials/sundials_types.h>   /* definition of type realtype          */
+#include <ida/ida.h>                          /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>           /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_band.h>         /* access to band SUNMatrix             */
+#include <sunlinsol/sunlinsol_band.h>         /* access to band SUNLinearSolver       */
+#include <ida/ida_direct.h>                   /* access to IDADls interface           */
+#include <sundials/sundials_types.h>          /* definition of type realtype          */
 
 /* Problem Constants */
 
@@ -63,7 +63,7 @@ int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval, void *user
 
 static void PrintHeader(realtype rtol, realtype atol);
 static void PrintOutput(void *mem, realtype t, N_Vector u);
-static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, 
+static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
                              N_Vector id, N_Vector res);
 
 static int check_retval(void *returnvalue, const char *funcname, int opt);
@@ -85,7 +85,7 @@ int main(void)
   realtype rtol, atol, t0, t1, tout, tret;
   SUNMatrix A;
   SUNLinearSolver LS;
-  
+
   mem = NULL;
   data = NULL;
   uu = up = constraints = id = res = NULL;
@@ -164,21 +164,21 @@ int main(void)
 
   /* Print output heading. */
   PrintHeader(rtol, atol);
-  
+
   PrintOutput(mem, t0, uu);
 
 
   /* Loop over output times, call IDASolve, and print results. */
-  
+
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) {
-    
+
     retval = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
     if(check_retval(&retval, "IDASolve", 1)) return(1);
 
     PrintOutput(mem, tret, uu);
-  
+
   }
-  
+
   /* Print remaining counters and free memory. */
   retval = IDAGetNumErrTestFails(mem, &netf);
   check_retval(&retval, "IDAGetNumErrTestFails", 1);
@@ -205,40 +205,40 @@ int main(void)
  */
 
 /*
- * heatres: heat equation system residual function                       
- * This uses 5-point central differencing on the interior points, and    
- * includes algebraic equations for the boundary values.                 
- * So for each interior point, the residual component has the form       
- *    res_i = u'_i - (central difference)_i                              
- * while for each boundary point, it is res_i = u_i.                     
+ * heatres: heat equation system residual function
+ * This uses 5-point central differencing on the interior points, and
+ * includes algebraic equations for the boundary values.
+ * So for each interior point, the residual component has the form
+ *    res_i = u'_i - (central difference)_i
+ * while for each boundary point, it is res_i = u_i.
  */
 
-int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval, 
+int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval,
             void *user_data)
 {
   sunindextype mm, i, j, offset, loc;
   realtype *uv, *upv, *resv, coeff;
   UserData data;
-  
+
   uv = N_VGetArrayPointer(uu); upv = N_VGetArrayPointer(up); resv = N_VGetArrayPointer(resval);
 
   data = (UserData)user_data;
   mm = data->mm;
   coeff = data->coeff;
-  
+
   /* Initialize resval to uu, to take care of boundary equations. */
   N_VScale(ONE, uu, resval);
-  
+
   /* Loop over interior points; set res = up - (central difference). */
   for (j = 1; j < mm-1; j++) {
     offset = mm*j;
     for (i = 1; i < mm-1; i++) {
       loc = offset + i;
-      resv[loc] = upv[loc] - coeff * 
+      resv[loc] = upv[loc] - coeff *
 	  (uv[loc-1] + uv[loc+1] + uv[loc-mm] + uv[loc+mm] - RCONST(4.0)*uv[loc]);
     }
   }
-  
+
   return(0);
 
 }
@@ -250,18 +250,18 @@ int heatres(realtype tres, N_Vector uu, N_Vector up, N_Vector resval,
  */
 
 /*
- * SetInitialProfile: routine to initialize u, up, and id vectors.       
+ * SetInitialProfile: routine to initialize u, up, and id vectors.
  */
 
-static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up, 
+static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
                              N_Vector id, N_Vector res)
 {
   realtype xfact, yfact, *udata, *updata, *iddata;
   sunindextype mm, mm1, i, j, offset, loc;
-  
+
   mm = data->mm;
   mm1 = mm - 1;
-  
+
   udata = N_VGetArrayPointer(uu);
   updata = N_VGetArrayPointer(up);
   iddata = N_VGetArrayPointer(id);
@@ -269,7 +269,7 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
   /* Initialize id to 1's. */
   N_VConst(ONE, id);
 
-  /* Initialize uu on all grid points. */ 
+  /* Initialize uu on all grid points. */
   for (j = 0; j < mm; j++) {
     yfact = data->dx * j;
     offset = mm*j;
@@ -279,13 +279,13 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
       udata[loc] = RCONST(16.0) * xfact * (ONE - xfact) * yfact * (ONE - yfact);
     }
   }
-  
+
   /* Initialize up vector to 0. */
   N_VConst(ZERO, up);
 
   /* heatres sets res to negative of ODE RHS values at interior points. */
   heatres(ZERO, uu, up, res, data);
-  
+
   /* Copy -res into up to get correct interior initial up values. */
   N_VScale(-ONE, res, up);
 
@@ -298,12 +298,12 @@ static int SetInitialProfile(UserData data, N_Vector uu, N_Vector up,
         udata[loc] = BVAL; updata[loc] = ZERO; iddata[loc] = ZERO; }
     }
   }
-  
+
   return(0);
 
 }
 
-/* 
+/*
  * Print first lines of output (problem description)
  */
 
@@ -315,9 +315,9 @@ static void PrintHeader(realtype rtol, realtype atol)
   printf(" polynomial initial conditions.\n");
   printf("          Mesh dimensions: %d x %d", MGRID, MGRID);
   printf("        Total system size: %d\n\n", NEQ);
-#if defined(SUNDIALS_EXTENDED_PRECISION) 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("Tolerance parameters:  rtol = %Lg   atol = %Lg\n", rtol, atol);
-#elif defined(SUNDIALS_DOUBLE_PRECISION) 
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
@@ -350,7 +350,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
   int kused;
 
   umax = N_VMaxNorm(uu);
-  
+
   retval = IDAGetLastOrder(mem, &kused);
   check_retval(&retval, "IDAGetLastOrder", 1);
   retval = IDAGetNumSteps(mem, &nst);
@@ -366,10 +366,10 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
   retval = IDADlsGetNumResEvals(mem, &nreLS);
   check_retval(&retval, "IDADlsGetNumResEvals", 1);
 
-#if defined(SUNDIALS_EXTENDED_PRECISION) 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
   printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le \n",
          t, umax, kused, nst, nni, nje, nre, nreLS, hused);
-#elif defined(SUNDIALS_DOUBLE_PRECISION) 
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
   printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2e \n",
          t, umax, kused, nst, nni, nje, nre, nreLS, hused);
 #else
@@ -379,14 +379,14 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
 
 }
 
-/* 
+/*
  * Check function return value...
  *   opt == 0 means SUNDIALS function allocates memory so check if
  *            returned NULL pointer
  *   opt == 1 means SUNDIALS function returns an integer value so check if
  *            retval >= 0
  *   opt == 2 means function allocates memory so check if returned
- *            NULL pointer 
+ *            NULL pointer
  */
 
 static int check_retval(void *returnvalue, const char *funcname, int opt)
@@ -395,23 +395,23 @@ static int check_retval(void *returnvalue, const char *funcname, int opt)
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && returnvalue == NULL) {
-    fprintf(stderr, 
-            "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", 
+    fprintf(stderr,
+            "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
     return(1);
   } else if (opt == 1) {
     /* Check if retval < 0 */
     retval = (int *) returnvalue;
     if (*retval < 0) {
-      fprintf(stderr, 
-              "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n", 
+      fprintf(stderr,
+              "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
               funcname, *retval);
-      return(1); 
+      return(1);
     }
   } else if (opt == 2 && returnvalue == NULL) {
     /* Check if function returned NULL pointer - no memory allocated */
-    fprintf(stderr, 
-            "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", 
+    fprintf(stderr,
+            "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
     return(1);
   }

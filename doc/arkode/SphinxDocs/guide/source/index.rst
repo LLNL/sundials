@@ -59,6 +59,7 @@ B598130 from `Lawrence Livermore National Laboratory
    nvectors/index.rst
    sunmatrix/index.rst
    sunlinsol/index.rst
+   sunnonlinsol/index.rst
    Install
    Constants
    Butcher

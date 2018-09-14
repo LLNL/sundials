@@ -62,13 +62,14 @@ MPI support.
 
 
 The NVECTOR_RAJA module defines the implementations of all vector
-operations listed in the section :ref:`NVectors.Ops`, except for
+operations listed in the sections :ref:`NVectors.Ops`,
+:ref:`NVectors.FusedOps` and :ref:`NVectors.ArrayOps`, except for 
 ``N_VDotProdMulti``, ``N_VWrmsNormVectorArray``,
-``N_VWrmsNormMaskVectorArray`` as support for arrays of reductio
-nvectors is not yet supported in RAJA.  These functions will be added
+``N_VWrmsNormMaskVectorArray`` as support for arrays of reduction
+vectors is not yet supported in RAJA.  These functions will be added
 to the NVECTOR_RAJA implementation in the future.  Additionally, the
 operations ``N_VGetArrayPointer`` and ``N_VSetArrayPointer`` are not
-implemented in the RAJA vector.  As such, this
+implemented by the RAJA vector.  As such, this
 vector cannot be used with SUNDIALS Fortran interfaces, nor with
 SUNDIALS direct solvers and preconditioners. The NVECTOR_RAJA module
 provides separate functions to access data on the host and on the
@@ -76,8 +77,9 @@ device. It also provides methods for copying from the host to the
 device and vice versa. Usage examples of NVECTOR_RAJA are provided in  
 some example programs for CVODE [HSR2017]_.
 
-The names of vector operations are obtained from those in the section
-:ref:`NVectors.Ops` by appending the suffix ``_Raja``
+The names of vector operations are obtained from those in the sections
+:ref:`NVectors.Ops`, :ref:`NVectors.FusedOps` and
+:ref:`NVectors.ArrayOps` by appending the suffix ``_Raja`` 
 (e.g. ``N_VDestroy_Raja``).  The module NVECTOR_RAJA 
 provides the following additional user-callable routines:
 

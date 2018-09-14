@@ -246,13 +246,18 @@ int arkResize(ARKodeMem ark_mem, N_Vector y0, realtype hscale,
   ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
                      liw_diff, y0, &ark_mem->yn);
   if (ier != ARK_SUCCESS)  return(ier);
-  /*     tempv */
+  /*     tempv* */
   ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
                      liw_diff, y0, &ark_mem->tempv1);
   if (ier != ARK_SUCCESS)  return(ier);
-  /*     tempv2 */
   ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
                      liw_diff, y0, &ark_mem->tempv2);
+  if (ier != ARK_SUCCESS)  return(ier);
+  ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+                     liw_diff, y0, &ark_mem->tempv3);
+  if (ier != ARK_SUCCESS)  return(ier);
+  ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+                     liw_diff, y0, &ark_mem->tempv4);
   if (ier != ARK_SUCCESS)  return(ier);
 
 
@@ -1153,7 +1158,7 @@ int arkInit(ARKodeMem ark_mem, realtype t0, N_Vector y0)
   ark_mem->rwt_is_ewt = SUNTRUE;
 
   /* Indicate that problem size is new */
-  ark_mem->resized = SUNTRUE;
+  ark_mem->resized    = SUNTRUE;
   ark_mem->firststage = SUNTRUE;
 
   /* Problem has been successfully initialized */
@@ -1316,6 +1321,14 @@ void arkPrintMem(ARKodeMem ark_mem, FILE *outfile)
     fprintf(outfile, "ark_tempv2:\n");
     N_VPrint_Serial(ark_mem->tempv2);
   }
+  if (ark_mem->tempv3 != NULL) {
+    fprintf(outfile, "ark_tempv3:\n");
+    N_VPrint_Serial(ark_mem->tempv3);
+  }
+  if (ark_mem->tempv4 != NULL) {
+    fprintf(outfile, "ark_tempv4:\n");
+    N_VPrint_Serial(ark_mem->tempv4);
+  }
 #endif
 
 }
@@ -1450,15 +1463,14 @@ int arkResizeVec(ARKodeMem ark_mem, ARKVecResizeFn resize,
 /*---------------------------------------------------------------
   arkAllocVectors:
 
-  This routine allocates the ARKode vectors ewt, yn, tempv1,
-  tempv2 and ftemp.  If any of these vectors already exist, they
-  are left alone.  Otherwise, it will allocate each vector by
-  cloning the input vector. If all memory allocations are
-  successful, arkAllocVectors returns SUNTRUE. Otherwise all
-  vector memory is freed and arkAllocVectors returns SUNFALSE.
-  This routine also updates the optional outputs lrw and liw,
-  which are (respectively) the lengths of the real and integer
-  work spaces.
+  This routine allocates the ARKode vectors ewt, yn, tempv* and
+  ftemp.  If any of these vectors already exist, they are left
+  alone.  Otherwise, it will allocate each vector by cloning the
+  input vector. If all memory allocations are successful,
+  arkAllocVectors returns SUNTRUE. Otherwise all vector memory
+  is freed and arkAllocVectors returns SUNFALSE.  This routine
+  also updates the optional outputs lrw and liw, which are
+  (respectively) the lengths of the real and integer work spaces.
   ---------------------------------------------------------------*/
 booleantype arkAllocVectors(ARKodeMem ark_mem, N_Vector tmpl)
 {
@@ -1482,6 +1494,14 @@ booleantype arkAllocVectors(ARKodeMem ark_mem, N_Vector tmpl)
   if (!arkAllocVec(ark_mem, tmpl, &ark_mem->tempv2))
     return(SUNFALSE);
 
+  /* Allocate tempv3 if needed */
+  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->tempv3))
+    return(SUNFALSE);
+
+  /* Allocate tempv4 if needed */
+  if (!arkAllocVec(ark_mem, tmpl, &ark_mem->tempv4))
+    return(SUNFALSE);
+
   return(SUNTRUE);
 }
 
@@ -1499,281 +1519,10 @@ void arkFreeVectors(ARKodeMem ark_mem)
     arkFreeVec(ark_mem, &ark_mem->rwt);
   arkFreeVec(ark_mem, &ark_mem->tempv1);
   arkFreeVec(ark_mem, &ark_mem->tempv2);
+  arkFreeVec(ark_mem, &ark_mem->tempv3);
+  arkFreeVec(ark_mem, &ark_mem->tempv4);
   arkFreeVec(ark_mem, &ark_mem->yn);
   arkFreeVec(ark_mem, &ark_mem->Vabstol);
-}
-
-
-/*---------------------------------------------------------------
-  arkAllocFPData
-
-  This routine allocates all required memory for performing the
-  accelerated fixed-point solver.
-  ---------------------------------------------------------------*/
-ARKodeFPMem arkAllocFPData(ARKodeMem ark_mem, long int maa)
-{
-  ARKodeFPMem fp_mem;
-
-  /* ensure that DotProd function is defined */
-  if (ark_mem->ewt->ops->nvdotprod == NULL) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
-                    "arkAllocFPData", MSG_ARK_BAD_NVECTOR);
-    return(NULL);
-  }
-
-  /* Create FP solver structure */
-  fp_mem = (ARKodeFPMem) malloc(sizeof(struct ARKodeFPMemRec));
-  if (fp_mem == NULL) {
-    arkProcessError(NULL, 0, "ARKode", "arkAllocFPData",
-                    MSG_ARK_ARKMEM_FAIL);
-    return(NULL);
-  }
-
-  /* Zero out fp_mem */
-  memset(fp_mem, 0, sizeof(struct ARKodeFPMemRec));
-
-  /* set acceleration subspace size */
-  fp_mem->m = maa;
-
-  /* Allocate fval */
-  if (!arkAllocVec(ark_mem, ark_mem->ewt, &fp_mem->fval)) {
-    arkFreeFPData(ark_mem, fp_mem);
-    return(NULL);
-  }
-
-  /* Allocate fold */
-  if (!arkAllocVec(ark_mem, ark_mem->ewt, &fp_mem->fold)) {
-    arkFreeFPData(ark_mem, fp_mem);
-    return(NULL);
-  }
-
-  /* Allocate gold */
-  if (!arkAllocVec(ark_mem, ark_mem->ewt, &fp_mem->gold)) {
-    arkFreeFPData(ark_mem, fp_mem);
-    return(NULL);
-  }
-
-  /* Allocate df if needed */
-  if (maa > 0) {
-    fp_mem->df = N_VCloneVectorArray(maa, ark_mem->ewt);
-    if (fp_mem->df == NULL) {
-      arkFreeFPData(ark_mem, fp_mem);
-      return(NULL);
-    }
-    ark_mem->lrw += maa*ark_mem->lrw1;
-    ark_mem->liw += maa*ark_mem->liw1;
-  }
-
-  /* Allocate dg if needed */
-  if (maa > 0) {
-    fp_mem->dg = N_VCloneVectorArray(maa, ark_mem->ewt);
-    if (fp_mem->dg == NULL) {
-      arkFreeFPData(ark_mem, fp_mem);
-      return(NULL);
-    }
-    ark_mem->lrw += maa*ark_mem->lrw1;
-    ark_mem->liw += maa*ark_mem->liw1;
-  }
-
-  /* Allocate q if needed */
-  if (maa > 0) {
-    fp_mem->q = N_VCloneVectorArray(maa, ark_mem->ewt);
-    if (fp_mem->q == NULL) {
-      arkFreeFPData(ark_mem, fp_mem);
-      return(NULL);
-    }
-    ark_mem->lrw += maa*ark_mem->lrw1;
-    ark_mem->liw += maa*ark_mem->liw1;
-  }
-
-  /* Allocate R if needed */
-  if (maa > 0) {
-    fp_mem->R = (realtype *) malloc((maa*maa) * sizeof(realtype));
-    if (fp_mem->R == NULL) {
-      arkFreeFPData(ark_mem, fp_mem);
-      return(NULL);
-    }
-    ark_mem->lrw += maa*maa;
-  }
-
-  /* Allocate gamma if needed */
-  if (maa > 0) {
-    fp_mem->gamma = (realtype *) malloc(maa * sizeof(realtype));
-    if (fp_mem->gamma == NULL) {
-      arkFreeFPData(ark_mem, fp_mem);
-      return(NULL);
-    }
-    ark_mem->lrw += maa;
-  }
-
-  /* Allocate imap if needed */
-  if (maa > 0) {
-    fp_mem->imap = (long int *) malloc(maa * sizeof(long int));
-    if (fp_mem->imap == NULL) {
-      arkFreeFPData(ark_mem, fp_mem);
-      return(NULL);
-    }
-    ark_mem->liw += maa;
-  }
-
-  /* Allocate fused-vector pointer arrays (if needed) */
-  if (maa > 0) {
-    fp_mem->cvals = (realtype *) malloc((maa+1) * sizeof(realtype));
-    if (fp_mem->cvals == NULL) {
-      arkFreeFPData(ark_mem, fp_mem);
-      return(NULL);
-    }
-    ark_mem->lrw += maa+1;
-  }
-  if (maa > 0) {
-    fp_mem->Xvecs = (N_Vector *) malloc((maa+1) * sizeof(N_Vector));
-    if (fp_mem->Xvecs == NULL) {
-      arkFreeFPData(ark_mem, fp_mem);
-      return(NULL);
-    }
-  }
-
-  return(fp_mem);
-}
-
-/*---------------------------------------------------------------
-  arkResizeFPData
-
-  This routine resizes all required memory for the accelerated
-  fixed-point solver (called from arkResize()).
-  ---------------------------------------------------------------*/
-int arkResizeFPData(ARKodeMem ark_mem, ARKodeFPMem fp_mem,
-                    ARKVecResizeFn resize, void *resize_data,
-                    sunindextype lrw_diff, sunindextype liw_diff,
-                    N_Vector tmpl)
-{
-  int ier, i;
-  if (fp_mem == NULL) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode", "arkResizeFPData",
-                    "Fixed point solver memory unallocated");
-    return(ARK_ILL_INPUT);
-  }
-
-  /* Resize fval if needed */
-  ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                     liw_diff, tmpl, &fp_mem->fval);
-  if (ier != ARK_SUCCESS)  return(ier);
-
-  /* Resize fold if needed */
-  ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                     liw_diff, tmpl, &fp_mem->fold);
-  if (ier != ARK_SUCCESS)  return(ier);
-
-  /* Resize gold if needed */
-  ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                     liw_diff, tmpl, &fp_mem->gold);
-  if (ier != ARK_SUCCESS)  return(ier);
-
-  /* Resize df if needed */
-  if ((fp_mem->df != NULL) && (fp_mem->m > 0)) {
-    for (i=0; i<fp_mem->m; i++) {
-      ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                         liw_diff, tmpl, &fp_mem->df[i]);
-      if (ier != ARK_SUCCESS)  return(ier);
-    }
-  }
-
-  /* Resize dg if needed */
-  if ((fp_mem->dg != NULL) && (fp_mem->m > 0)) {
-    for (i=0; i<fp_mem->m; i++) {
-      ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                         liw_diff, tmpl, &fp_mem->dg[i]);
-      if (ier != ARK_SUCCESS)  return(ier);
-    }
-  }
-
-  /* Resize q if needed */
-  if ((fp_mem->q != NULL) && (fp_mem->m > 0)) {
-    for (i=0; i<fp_mem->m; i++) {
-      ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                         liw_diff, tmpl, &fp_mem->q[i]);
-      if (ier != ARK_SUCCESS)  return(ier);
-    }
-  }
-
-  return(ARK_SUCCESS);
-}
-
-
-/*---------------------------------------------------------------
-  arkFreeFPData
-
-  This routine frees all memory allocated by arkAllocFPData.
-  ---------------------------------------------------------------*/
-void arkFreeFPData(ARKodeMem ark_mem, ARKodeFPMem fp_mem)
-{
-  /* free fval if needed */
-  arkFreeVec(ark_mem, &fp_mem->fval);
-
-  /* free fold if needed */
-  arkFreeVec(ark_mem, &fp_mem->fold);
-
-  /* free gold if needed */
-  arkFreeVec(ark_mem, &fp_mem->gold);
-
-  /* free df if needed */
-  if ((fp_mem->df != NULL) && (fp_mem->m>0)) {
-    N_VDestroyVectorArray(fp_mem->df, fp_mem->m);
-    fp_mem->df = NULL;
-    ark_mem->lrw -= fp_mem->m * ark_mem->lrw1;
-    ark_mem->liw -= fp_mem->m * ark_mem->liw1;
-  }
-
-  /* free dg if needed */
-  if ((fp_mem->dg != NULL) && (fp_mem->m>0)) {
-    N_VDestroyVectorArray(fp_mem->dg, fp_mem->m);
-    fp_mem->dg = NULL;
-    ark_mem->lrw -= fp_mem->m * ark_mem->lrw1;
-    ark_mem->liw -= fp_mem->m * ark_mem->liw1;
-  }
-
-  /* free q if needed */
-  if ((fp_mem->q != NULL) && (fp_mem->m>0)) {
-    N_VDestroyVectorArray(fp_mem->q, fp_mem->m);
-    fp_mem->q = NULL;
-    ark_mem->lrw -= fp_mem->m * ark_mem->lrw1;
-    ark_mem->liw -= fp_mem->m * ark_mem->liw1;
-  }
-
-  /* free R if needed */
-  if (fp_mem->R != NULL) {
-    free(fp_mem->R);
-    fp_mem->R = NULL;
-    ark_mem->lrw -= fp_mem->m * fp_mem->m;
-  }
-
-  /* free gamma if needed */
-  if (fp_mem->gamma != NULL) {
-    free(fp_mem->gamma);
-    fp_mem->gamma = NULL;
-    ark_mem->lrw -= fp_mem->m;
-  }
-
-  /* free imap if needed */
-  if (fp_mem->imap != NULL) {
-    free(fp_mem->imap);
-    fp_mem->imap = NULL;
-    ark_mem->liw -= fp_mem->m;
-  }
-
-  /* free fused-vector pointer arrays if needed */
-  if (fp_mem->cvals != NULL) {
-    free(fp_mem->cvals);
-    fp_mem->cvals = NULL;
-    ark_mem->lrw -= (fp_mem->m+1);
-  }
-  if (fp_mem->Xvecs != NULL) {
-    free(fp_mem->Xvecs);
-    fp_mem->Xvecs = NULL;
-  }
-
-  /* free fp_mem structure */
-  free(fp_mem);
 }
 
 
@@ -1802,7 +1551,7 @@ int arkInitialSetup(ARKodeMem ark_mem, realtype tout)
                     "arkInitialSetup", "Time stepper module is missing");
     return(ARK_ILL_INPUT);
   }
-  retval = ark_mem->step_init(ark_mem);
+  retval = ark_mem->step_init(ark_mem, 0);
   if (retval != ARK_SUCCESS) {
     arkProcessError(ark_mem, retval, "ARKode", "arkInitialSetup",
                     "Error in initialization of time stepper module");
@@ -2003,6 +1752,19 @@ int arkPostResizeSetup(ARKodeMem ark_mem)
                       MSG_ARK_BAD_TSTOP, ark_mem->tstop, ark_mem->tcur);
       return(ARK_ILL_INPUT);
     }
+  }
+
+  /* re-initialize the time stepper module */
+  if (ark_mem->step_init == NULL) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
+                    "arkPostResizeSetup", "Time stepper module is missing");
+    return(ARK_ILL_INPUT);
+  }
+  retval = ark_mem->step_init(ark_mem, 1);
+  if (retval != ARK_SUCCESS) {
+    arkProcessError(ark_mem, retval, "ARKode", "arkPostResizeSetup",
+                    "Error in re-initialization of time stepper module");
+    return(retval);
   }
 
   /* Check for zeros of root function g at and near t0. */
@@ -2470,6 +2232,11 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
     arkProcessError(ark_mem, ARK_MASSSOLVE_FAIL, "ARKode", "ARKode",
                     MSG_ARK_MASSSOLVE_FAIL);
     break;
+  case ARK_NLS_SETUP_FAIL:
+    arkProcessError(ark_mem, ARK_NLS_SETUP_FAIL, "ARKode", "ARKode",
+                    "At t = %Lg the nonlinear solver setup failed unrecoverably",
+                    (long double) ark_mem->tcur);
+    break;
   default:
     return(ARK_SUCCESS);
   }
@@ -2689,15 +2456,17 @@ int arkPredict_CutoffOrder(ARKodeMem ark_mem, realtype tau, N_Vector yguess)
   using a quadratic Hermite interpolating polynomial, based on
   the data {y_n, f(t_n,y_n), f(t_n+hj,z_j)}.
 
-  Note: it is assumed that f(t_n+hj,z_j) is stored in 'yguess'
-  on input.
+  Note: we assume that ftemp = f(t_n+hj,z_j) can be computed via 
+     N_VLinearCombination(nvec, cvals, Xvecs, ftemp),
+  i.e. the inputs cvals[0:nvec-1] and Xvecs[0:nvec-1] may be 
+  combined to form f(t_n+hj,z_j).
   ---------------------------------------------------------------*/
 int arkPredict_Bootstrap(ARKodeMem ark_mem, realtype hj,
-                         realtype tau, N_Vector yguess)
+                         realtype tau, int nvec, realtype *cvals,
+                         N_Vector *Xvecs, N_Vector yguess)
 {
   realtype a0, a1, a2;
-  realtype cvals[3];
-  N_Vector Xvecs[3];
+  int i;
 
   /* verify that ark_mem and interpolation structure are provided */
   if (ark_mem == NULL) {
@@ -2718,16 +2487,19 @@ int arkPredict_Bootstrap(ARKodeMem ark_mem, realtype hj,
   a2 = tau*tau/TWO/hj;
   a1 = tau - a2;
 
-  /* set arrays for fused vector operation */
-  cvals[0] = a2;
-  Xvecs[0] = yguess;
-  cvals[1] = a0;
-  Xvecs[1] = ark_mem->yn;
-  cvals[2] = a1;
-  Xvecs[2] = ark_mem->interp->fnew;
+  /* set arrays for fused vector operation; shift inputs for 
+     f(t_n+hj,z_j) to end of queue */
+  for (i=0; i<nvec; i++) {
+    cvals[2+i] = a2*cvals[i];
+    Xvecs[2+i] = Xvecs[i];
+  }
+  cvals[0] = a0;
+  Xvecs[0] = ark_mem->yn;
+  cvals[1] = a1;
+  Xvecs[1] = ark_mem->interp->fnew;
 
   /* call fused vector operation to compute prediction */
-  return(N_VLinearCombination(3, cvals, Xvecs, yguess));
+  return(N_VLinearCombination(nvec+2, cvals, Xvecs, yguess));
 }
 
 

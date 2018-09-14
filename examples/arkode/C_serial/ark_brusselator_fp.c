@@ -59,9 +59,10 @@
 /* Header files */
 #include <stdio.h>
 #include <math.h>
-#include <arkode/arkode_arkstep.h>    /* prototypes for ARKStep fcts., consts */
-#include <nvector/nvector_serial.h>   /* serial N_Vector types, fcts., macros */
-#include <sundials/sundials_types.h>  /* def. of type 'realtype' */
+#include <arkode/arkode_arkstep.h>                  /* prototypes for ARKStep fcts., consts */
+#include <nvector/nvector_serial.h>                 /* serial N_Vector types, fcts., macros */
+#include <sunnonlinsol/sunnonlinsol_fixedpoint.h>   /* access to FP nonlinear solver        */
+#include <sundials/sundials_types.h>                /* def. of type 'realtype'              */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
 #define GSYM "Lg"
@@ -98,9 +99,10 @@ int main()
   realtype rdata[3];
 
   /* general problem variables */
-  int flag;                      /* reusable error-checking flag */
-  N_Vector y = NULL;             /* empty vector for storing solution */
-  void *arkode_mem = NULL;       /* empty ARKode memory structure */
+  int flag;                       /* reusable error-checking flag */
+  N_Vector y = NULL;              /* empty vector for storing solution */
+  SUNNonlinearSolver NLS = NULL;  /* empty nonlinear solver object */
+  void *arkode_mem = NULL;        /* empty ARKode memory structure */
   FILE *UFID;
   realtype t, tout;
   int iout;
@@ -152,13 +154,17 @@ int main()
   arkode_mem = ARKStepCreate(fe, fi, T0, y);
   if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) return 1;
 
+  /* Initialize fixed-point nonlinear solver and attach to ARKStep */
+  NLS = SUNNonlinSol_FixedPoint(y, fp_m);
+  if (check_flag((void *)NLS, "SUNNonlinSol_FixedPoint", 0)) return 1;
+  flag = ARKStepSetNonlinearSolver(arkode_mem, NLS);
+  if (check_flag(&flag, "ARKStepSetNonlinearSolver", 1)) return 1;
+
   /* Set routines */
   flag = ARKStepSetUserData(arkode_mem, (void *) rdata);     /* Pass rdata to user functions */
   if (check_flag(&flag, "ARKStepSetUserData", 1)) return 1;
   flag = ARKStepSStolerances(arkode_mem, reltol, abstol);    /* Specify tolerances */
   if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
-  flag = ARKStepSetFixedPoint(arkode_mem, fp_m);             /* Specify fixed-point solver */
-  if (check_flag(&flag, "ARKStepSetFixedPoint", 1)) return 1;
   flag = ARKStepSetMaxNonlinIters(arkode_mem, maxcor);       /* Increase default iterations */
   if (check_flag(&flag, "ARKStepSetMaxNonlinIters", 1)) return 1;
 
@@ -219,6 +225,7 @@ int main()
   /* Clean up and return with successful completion */
   N_VDestroy(y);               /* Free y vector */
   ARKStepFree(&arkode_mem);    /* Free integrator memory */
+  SUNNonlinSolFree(NLS);       /* Free NLS object */
   return 0;
 }
 

@@ -1,16 +1,16 @@
 /*
- * ----------------------------------------------------------------- 
+ * -----------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
  *                Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2017, Southern Methodist University and 
+ * Copyright (c) 2017, Southern Methodist University and
  * Lawrence Livermore National Security
  *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Southern Methodist University and Lawrence Livermore
  * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
+ * Produced at Southern Methodist University and the Lawrence
  * Livermore National Laboratory.
  *
  * All rights reserved.
@@ -55,13 +55,13 @@ int CVSpilsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS)
 
   /* Return immediately if any input is NULL */
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSPILS", 
+    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSPILS",
 		    "CVSpilsSetLinearSolver", MSGS_CVMEM_NULL);
     return(CVSPILS_MEM_NULL);
   }
   if (LS == NULL) {
-    cvProcessError(NULL, CVSPILS_ILL_INPUT, "CVSPILS", 
-		    "CVSpilsSetLinearSolver", 
+    cvProcessError(NULL, CVSPILS_ILL_INPUT, "CVSPILS",
+		    "CVSpilsSetLinearSolver",
                     "LS must be non-NULL");
     return(CVSPILS_ILL_INPUT);
   }
@@ -69,15 +69,15 @@ int CVSpilsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS)
 
   /* Test if solver and vector are compatible with SPILS */
   if (SUNLinSolGetType(LS) != SUNLINEARSOLVER_ITERATIVE) {
-    cvProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVSPILS", 
-                    "CVSpilsSetLinearSolver", 
+    cvProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVSPILS",
+                    "CVSpilsSetLinearSolver",
                     "Non-iterative LS supplied to CVSpils interface");
     return(CVSPILS_ILL_INPUT);
   }
   if ( (cv_mem->cv_tempv->ops->nvlinearsum == NULL) ||
        (cv_mem->cv_tempv->ops->nvconst == NULL) ||
        (cv_mem->cv_tempv->ops->nvdotprod == NULL) ){
-    cvProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVSPILS", 
+    cvProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVSPILS",
                     "CVSpilsSetLinearSolver", MSGS_BAD_NVECTOR);
     return(CVSPILS_ILL_INPUT);
   }
@@ -90,19 +90,19 @@ int CVSpilsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS)
   cv_mem->cv_lsetup = cvSpilsSetup;
   cv_mem->cv_lsolve = cvSpilsSolve;
   cv_mem->cv_lfree  = cvSpilsFree;
-  
+
   /* Get memory for CVSpilsMemRec */
   cvspils_mem = NULL;
   cvspils_mem = (CVSpilsMem) malloc(sizeof(struct CVSpilsMemRec));
   if (cvspils_mem == NULL) {
-    cvProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVSPILS", 
+    cvProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVSPILS",
                     "CVSpilsSetLinearSolver", MSGS_MEM_FAIL);
     return(CVSPILS_MEM_FAIL);
   }
 
   /* set SUNLinearSolver pointer */
   cvspils_mem->LS = LS;
-  
+
   /* Set defaults for Jacobian-related fields */
   cvspils_mem->jtimesDQ = SUNTRUE;
   cvspils_mem->jtsetup = NULL;
@@ -126,16 +126,16 @@ int CVSpilsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS)
   /* Attach default CVSpils interface routines to iterative LS */
   retval = SUNLinSolSetATimes(LS, cv_mem, CVSpilsATimes);
   if (retval != SUNLS_SUCCESS) {
-    cvProcessError(cv_mem, CVSPILS_SUNLS_FAIL, "CVSPILS", 
-                    "CVSpilsSetLinearSolver", 
+    cvProcessError(cv_mem, CVSPILS_SUNLS_FAIL, "CVSPILS",
+                    "CVSpilsSetLinearSolver",
                     "Error in calling SUNLinSolSetATimes");
     free(cvspils_mem); cvspils_mem = NULL;
     return(CVSPILS_SUNLS_FAIL);
   }
   retval = SUNLinSolSetPreconditioner(LS, cv_mem, NULL, NULL);
   if (retval != SUNLS_SUCCESS) {
-    cvProcessError(cv_mem, CVSPILS_SUNLS_FAIL, "CVSPILS", 
-                    "CVSpilsSetLinearSolver", 
+    cvProcessError(cv_mem, CVSPILS_SUNLS_FAIL, "CVSPILS",
+                    "CVSpilsSetLinearSolver",
                     "Error in calling SUNLinSolSetPreconditioner");
     free(cvspils_mem); cvspils_mem = NULL;
     return(CVSPILS_SUNLS_FAIL);
@@ -144,7 +144,7 @@ int CVSpilsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS)
   /* Allocate memory for ytemp and x */
   cvspils_mem->ytemp = N_VClone(cv_mem->cv_tempv);
   if (cvspils_mem->ytemp == NULL) {
-    cvProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVSPILS", 
+    cvProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVSPILS",
                     "CVSpilsSetLinearSolver", MSGS_MEM_FAIL);
     free(cvspils_mem); cvspils_mem = NULL;
     return(CVSPILS_MEM_FAIL);
@@ -152,7 +152,7 @@ int CVSpilsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS)
 
   cvspils_mem->x = N_VClone(cv_mem->cv_tempv);
   if (cvspils_mem->x == NULL) {
-    cvProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVSPILS", 
+    cvProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVSPILS",
                     "CVSpilsSetLinearSolver", MSGS_MEM_FAIL);
     N_VDestroy(cvspils_mem->ytemp);
     free(cvspils_mem); cvspils_mem = NULL;
@@ -161,7 +161,7 @@ int CVSpilsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS)
 
   /* Compute sqrtN from a dot product */
   N_VConst(ONE, cvspils_mem->ytemp);
-  cvspils_mem->sqrtN = SUNRsqrt( N_VDotProd(cvspils_mem->ytemp, 
+  cvspils_mem->sqrtN = SUNRsqrt( N_VDotProd(cvspils_mem->ytemp,
                                             cvspils_mem->ytemp) );
 
   /* Attach linear solver memory to integrator memory */
@@ -208,7 +208,7 @@ int CVSpilsSetEpsLin(void *cvode_mem, realtype eplifac)
 }
 
 
-int CVSpilsSetPreconditioner(void *cvode_mem, 
+int CVSpilsSetPreconditioner(void *cvode_mem,
                              CVSpilsPrecSetupFn psetup,
                              CVSpilsPrecSolveFn psolve)
 {
@@ -239,11 +239,11 @@ int CVSpilsSetPreconditioner(void *cvode_mem,
   /* notify iterative linear solver to call CVSpils interface routines */
   cvspils_psetup = (psetup == NULL) ? NULL : CVSpilsPSetup;
   cvspils_psolve = (psolve == NULL) ? NULL : CVSpilsPSolve;
-  retval = SUNLinSolSetPreconditioner(cvspils_mem->LS, cv_mem, 
+  retval = SUNLinSolSetPreconditioner(cvspils_mem->LS, cv_mem,
                                       cvspils_psetup, cvspils_psolve);
   if (retval != SUNLS_SUCCESS) {
-    cvProcessError(cv_mem, CVSPILS_SUNLS_FAIL, "CVSPILS", 
-                   "CVSpilsSetPreconditioner", 
+    cvProcessError(cv_mem, CVSPILS_SUNLS_FAIL, "CVSPILS",
+                   "CVSpilsSetPreconditioner",
                    "Error in calling SUNLinSolSetPreconditioner");
     return(CVSPILS_SUNLS_FAIL);
   }
@@ -274,7 +274,7 @@ int CVSpilsSetJacTimes(void *cvode_mem,
   }
   cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
 
-  /* store function pointers for user-supplied routines in CVSpils 
+  /* store function pointers for user-supplied routines in CVSpils
      interface (NULL jtimes implies use of DQ default) */
   if (jtimes != NULL) {
     cvspils_mem->jtimesDQ = SUNFALSE;
@@ -287,8 +287,8 @@ int CVSpilsSetJacTimes(void *cvode_mem,
   /* notify iterative linear solver to call CVSpils interface routines */
   retval = SUNLinSolSetATimes(cvspils_mem->LS, cv_mem, CVSpilsATimes);
   if (retval != SUNLS_SUCCESS) {
-    cvProcessError(cv_mem, CVSPILS_SUNLS_FAIL, "CVSPILS", 
-                    "CVSpilsSetJacTimes", 
+    cvProcessError(cv_mem, CVSPILS_SUNLS_FAIL, "CVSPILS",
+                    "CVSpilsSetJacTimes",
                     "Error in calling SUNLinSolSetATimes");
     return(CVSPILS_SUNLS_FAIL);
   }
@@ -552,7 +552,7 @@ char *CVSpilsGetReturnFlagName(long int flag)
   switch(flag) {
   case CVSPILS_SUCCESS:
     sprintf(name,"CVSPILS_SUCCESS");
-    break; 
+    break;
   case CVSPILS_MEM_NULL:
     sprintf(name,"CVSPILS_MEM_NULL");
     break;
@@ -586,7 +586,7 @@ char *CVSpilsGetReturnFlagName(long int flag)
   CVSpilsATimes
 
   This routine generates the matrix-vector product z = Mv, where
-  M = I - gamma*J. The product J*v is obtained by calling the jtimes 
+  M = I - gamma*J. The product J*v is obtained by calling the jtimes
   routine. It is then scaled by -gamma and added to v to obtain M*v.
   The return value is the same as the value returned by jtimes --
   0 if successful, nonzero otherwise.
@@ -599,13 +599,13 @@ int CVSpilsATimes(void *cvode_mem, N_Vector v, N_Vector z)
 
   /* Return immediately if cvode_mem or cv_mem->cv_lmem are NULL */
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSPILS", 
+    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSPILS",
                    "CVSpilsATimes", MSGS_CVMEM_NULL);
     return(CVSPILS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
   if (cv_mem->cv_lmem == NULL) {
-    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS", 
+    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS",
                    "CVSpilsATimes", MSGS_LMEM_NULL);
     return(CVSPILS_LMEM_NULL);
   }
@@ -628,9 +628,9 @@ int CVSpilsATimes(void *cvode_mem, N_Vector v, N_Vector z)
 /*---------------------------------------------------------------
  CVSpilsPSetup:
 
- This routine interfaces between the generic iterative linear 
- solvers and the user's psetup routine.  It passes to psetup all 
- required state information from cvode_mem.  Its return value 
+ This routine interfaces between the generic iterative linear
+ solvers and the user's psetup routine.  It passes to psetup all
+ required state information from cvode_mem.  Its return value
  is the same as that returned by psetup. Note that the generic
  iterative linear solvers guarantee that CVSpilsPSetup will only
  be called in the case that the user's psetup routine is non-NULL.
@@ -643,41 +643,41 @@ int CVSpilsPSetup(void *cvode_mem)
 
   /* Return immediately if cvode_mem or cv_mem->cv_lmem are NULL */
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSPILS", 
+    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSPILS",
                    "CVSpilsPSetup", MSGS_CVMEM_NULL);
     return(CVSPILS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
   if (cv_mem->cv_lmem == NULL) {
-    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS", 
+    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS",
                    "CVSpilsPSetup", MSGS_LMEM_NULL);
     return(CVSPILS_LMEM_NULL);
   }
   cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
 
-  /* Call user pset routine to update preconditioner and possibly 
+  /* Call user pset routine to update preconditioner and possibly
      reset jcur (pass !jbad as update suggestion) */
-  retval = cvspils_mem->pset(cv_mem->cv_tn, 
-                             cvspils_mem->ycur, 
-                             cvspils_mem->fcur, 
+  retval = cvspils_mem->pset(cv_mem->cv_tn,
+                             cvspils_mem->ycur,
+                             cvspils_mem->fcur,
                              !(cvspils_mem->jbad),
                              &cv_mem->cv_jcur,
-                             cv_mem->cv_gamma, 
+                             cv_mem->cv_gamma,
                              cvspils_mem->P_data);
-  return(retval);     
+  return(retval);
 }
 
 
 /*-----------------------------------------------------------------
   CVSpilsPSolve
 
-  This routine interfaces between the generic SUNLinSolSolve 
+  This routine interfaces between the generic SUNLinSolSolve
   routine and the user's psolve routine.  It passes to psolve all
-  required state information from cvode_mem.  Its return value is 
-  the same as that returned by psolve. Note that the generic 
-  SUNLinSol solver guarantees that CVSpilsPSolve will not be called 
-  in the case in which preconditioning is not done. This is the 
-  only case in which the user's psolve routine is allowed to be 
+  required state information from cvode_mem.  Its return value is
+  the same as that returned by psolve. Note that the generic
+  SUNLinSol solver guarantees that CVSpilsPSolve will not be called
+  in the case in which preconditioning is not done. This is the
+  only case in which the user's psolve routine is allowed to be
   NULL.
   -----------------------------------------------------------------*/
 int CVSpilsPSolve(void *cvode_mem, N_Vector r, N_Vector z,
@@ -689,13 +689,13 @@ int CVSpilsPSolve(void *cvode_mem, N_Vector r, N_Vector z,
 
   /* Return immediately if cvode_mem or cv_mem->cv_lmem are NULL */
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSPILS", 
+    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSPILS",
                    "CVSpilsPSolve", MSGS_CVMEM_NULL);
     return(CVSPILS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
   if (cv_mem->cv_lmem == NULL) {
-    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS", 
+    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS",
                    "CVSpilsPSolve", MSGS_LMEM_NULL);
     return(CVSPILS_LMEM_NULL);
   }
@@ -707,7 +707,7 @@ int CVSpilsPSolve(void *cvode_mem, N_Vector r, N_Vector z,
                                cv_mem->cv_gamma, tol, lr,
                                cvspils_mem->P_data);
   cvspils_mem->nps++;
-  return(retval);     
+  return(retval);
 }
 
 
@@ -715,11 +715,11 @@ int CVSpilsPSolve(void *cvode_mem, N_Vector r, N_Vector z,
   CVSpilsDQJtimes
 
   This routine generates a difference quotient approximation to
-  the Jacobian times vector f_y(t,y) * v. The approximation is 
+  the Jacobian times vector f_y(t,y) * v. The approximation is
   Jv = vnrm[f(y + v/vnrm) - f(y)], where vnrm = (WRMS norm of v) is
   input, i.e. the WRMS norm of v/vnrm is 1.
   -----------------------------------------------------------------*/
-int CVSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t, 
+int CVSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
                     N_Vector y, N_Vector fy,
                     void *cvode_mem, N_Vector work)
 {
@@ -730,13 +730,13 @@ int CVSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 
   /* Return immediately if cvode_mem or cv_mem->cv_lmem are NULL */
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSPILS", 
+    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSPILS",
                    "CVSpilsDQJtimes", MSGS_CVMEM_NULL);
     return(CVSPILS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
   if (cv_mem->cv_lmem == NULL) {
-    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS", 
+    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS",
                    "CVSpilsDQJtimes", MSGS_LMEM_NULL);
     return(CVSPILS_LMEM_NULL);
   }
@@ -751,7 +751,7 @@ int CVSpilsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
     N_VLinearSum(sig, v, ONE, y, work);
 
     /* Set Jv = f(tn, y+sig*v) */
-    retval = cv_mem->cv_f(t, work, Jv, cv_mem->cv_user_data); 
+    retval = cv_mem->cv_f(t, work, Jv, cv_mem->cv_user_data);
     cvspils_mem->nfes++;
     if (retval == 0) break;
     if (retval < 0)  return(-1);
@@ -781,17 +781,17 @@ int cvSpilsInitialize(CVodeMem cv_mem)
 
   /* Return immediately if cv_mem or cv_mem->cv_lmem are NULL */
   if (cv_mem == NULL) {
-    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSPILS", 
+    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSPILS",
                    "cvSpilsInitialize", MSGS_CVMEM_NULL);
     return(CVSPILS_MEM_NULL);
   }
   if (cv_mem->cv_lmem == NULL) {
-    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS", 
+    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS",
                    "cvSpilsInitialize", MSGS_LMEM_NULL);
     return(CVSPILS_LMEM_NULL);
   }
   cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
-  
+
   cvSpilsInitializeCounters(cvspils_mem);
 
   /* Set Jacobian-related fields, based on jtimesDQ */
@@ -803,7 +803,7 @@ int cvSpilsInitialize(CVodeMem cv_mem)
     cvspils_mem->j_data = cv_mem->cv_user_data;
   }
 
-  /* if psetup is not present, then cvSpilsSetup does not need to be 
+  /* if psetup is not present, then cvSpilsSetup does not need to be
      called, so set the lsetup function to NULL */
   if (cvspils_mem->pset == NULL)  cv_mem->cv_lsetup = NULL;
 
@@ -828,12 +828,12 @@ int cvSpilsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 
   /* Return immediately if cv_mem or cv_mem->cv_lmem are NULL */
   if (cv_mem == NULL) {
-    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSPILS", 
+    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSPILS",
                    "cvSpilsSetup", MSGS_CVMEM_NULL);
     return(CVSPILS_MEM_NULL);
   }
   if (cv_mem->cv_lmem == NULL) {
-    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS", 
+    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS",
                    "cvSpilsSetup", MSGS_LMEM_NULL);
     return(CVSPILS_LMEM_NULL);
   }
@@ -845,13 +845,13 @@ int cvSpilsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 
   /* Use nst, gamma/gammap, and convfail to set J/P eval. flag jok */
   dgamma = SUNRabs((cv_mem->cv_gamma/cv_mem->cv_gammap) - ONE);
-  cvspils_mem->jbad = (cv_mem->cv_nst == 0) || 
+  cvspils_mem->jbad = (cv_mem->cv_nst == 0) ||
     (cv_mem->cv_nst > cvspils_mem->nstlpre + CVSPILS_MSBPRE) ||
     ((convfail == CV_FAIL_BAD_J) && (dgamma < CVSPILS_DGMAX)) ||
     (convfail == CV_FAIL_OTHER);
   *jcurPtr = cvspils_mem->jbad;
-  
-  /* Call LS setup routine -- the LS will call CVSpilsPSetup, who will 
+
+  /* Call LS setup routine -- the LS will call CVSpilsPSetup, who will
      pass the heuristic suggestions above to the user code(s) */
   retval = SUNLinSolSetup(cvspils_mem->LS, NULL);
 
@@ -860,7 +860,7 @@ int cvSpilsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
     cvspils_mem->npe++;
     cvspils_mem->nstlpre = cv_mem->cv_nst;
   }
-  
+
   /* Update jcur flag if we suggested an update */
   if (cvspils_mem->jbad) *jcurPtr = SUNTRUE;
 
@@ -871,9 +871,9 @@ int cvSpilsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
 /*-----------------------------------------------------------------
   cvSpilsSolve
 
-  This routine interfaces between CVode and the generic 
-  SUNLinearSolver object LS, by setting the appropriate tolerance 
-  and scaling vectors, calling the solver, and accumulating 
+  This routine interfaces between CVode and the generic
+  SUNLinearSolver object LS, by setting the appropriate tolerance
+  and scaling vectors, calling the solver, and accumulating
   statistics from the solve for use/reporting by CVode.
   -----------------------------------------------------------------*/
 int cvSpilsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
@@ -882,15 +882,15 @@ int cvSpilsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   realtype bnorm;
   CVSpilsMem cvspils_mem;
   int curiter, nli_inc, retval;
-  
+
   /* Return immediately if cv_mem or cv_mem->cv_lmem are NULL */
   if (cv_mem == NULL) {
-    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSPILS", 
+    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVSPILS",
                    "cvSpilsSolve", MSGS_CVMEM_NULL);
     return(CVSPILS_MEM_NULL);
   }
   if (cv_mem->cv_lmem == NULL) {
-    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS", 
+    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVSPILS",
                    "cvSpilsSolve", MSGS_LMEM_NULL);
     return(CVSPILS_LMEM_NULL);
   }
@@ -900,19 +900,19 @@ int cvSpilsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
   retval = SUNNonlinSolGetCurIter(cv_mem->NLS, &curiter);
 
   /* Test norm(b); if small, return x = 0 or x = b */
-  cvspils_mem->deltar = cvspils_mem->eplifac * cv_mem->cv_tq[4]; 
+  cvspils_mem->deltar = cvspils_mem->eplifac * cv_mem->cv_tq[4];
   bnorm = N_VWrmsNorm(b, weight);
   if (bnorm <= cvspils_mem->deltar) {
     if (curiter > 0) N_VConst(ZERO, b);
     return(0);
   }
 
-  /* Set vectors ycur and fcur for use by the Atimes and Psolve 
+  /* Set vectors ycur and fcur for use by the Atimes and Psolve
      interface routines */
   cvspils_mem->ycur = ynow;
   cvspils_mem->fcur = fnow;
 
-  /* Set input tolerance and initial guess x = 0 to LS */  
+  /* Set input tolerance and initial guess x = 0 to LS */
   cvspils_mem->delta = cvspils_mem->deltar * cvspils_mem->sqrtN;
   N_VConst(ZERO, cvspils_mem->x);
 
@@ -921,23 +921,23 @@ int cvSpilsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
                                       weight,
                                       weight);
   if (retval != SUNLS_SUCCESS) {
-    cvProcessError(cv_mem, CVSPILS_SUNLS_FAIL, "CVSPILS", "cvSpilsSolve", 
+    cvProcessError(cv_mem, CVSPILS_SUNLS_FAIL, "CVSPILS", "cvSpilsSolve",
                     "Error in calling SUNLinSolSetScalingVectors");
     return(CVSPILS_SUNLS_FAIL);
   }
 
   /* If a user-provided jtsetup routine is supplied, call that here */
   if (cvspils_mem->jtsetup) {
-    retval = cvspils_mem->jtsetup(cv_mem->cv_tn, ynow, fnow, 
+    retval = cvspils_mem->jtsetup(cv_mem->cv_tn, ynow, fnow,
                                   cvspils_mem->j_data);
     cvspils_mem->njtsetup++;
     if (retval != 0) {
-      cvProcessError(cv_mem, retval, "CVSPILS", 
+      cvProcessError(cv_mem, retval, "CVSPILS",
                       "cvSpilsSolve", MSGS_JTSETUP_FAILED);
       return(retval);
     }
   }
-  
+
   /* Call solver, and copy x to b */
   retval = SUNLinSolSolve(cvspils_mem->LS, NULL, cvspils_mem->x,
                           b, cvspils_mem->delta);
@@ -945,7 +945,7 @@ int cvSpilsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
 
   /* Retrieve solver statistics */
   nli_inc = SUNLinSolNumIters(cvspils_mem->LS);
-  
+
   /* Increment counters nli and ncfl */
   cvspils_mem->nli += nli_inc;
   if (retval != SUNLS_SUCCESS) cvspils_mem->ncfl++;
@@ -959,7 +959,7 @@ int cvSpilsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
     return(0);
     break;
   case SUNLS_RES_REDUCED:
-    /* allow reduction but not solution on first Newton iteration, 
+    /* allow reduction but not solution on first Newton iteration,
        otherwise return with a recoverable failure */
     if (curiter == 0) return(0);
     else              return(1);
@@ -980,24 +980,24 @@ int cvSpilsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
     return(-1);
     break;
   case SUNLS_PACKAGE_FAIL_UNREC:
-    cvProcessError(cv_mem, SUNLS_PACKAGE_FAIL_UNREC, "CVSPILS", 
+    cvProcessError(cv_mem, SUNLS_PACKAGE_FAIL_UNREC, "CVSPILS",
                    "cvSpilsSolve",
                     "Failure in SUNLinSol external package");
     return(-1);
     break;
   case SUNLS_ATIMES_FAIL_UNREC:
-    cvProcessError(cv_mem, SUNLS_ATIMES_FAIL_UNREC, "CVSPILS", 
-                   "cvSpilsSolve", MSGS_JTIMES_FAILED);    
+    cvProcessError(cv_mem, SUNLS_ATIMES_FAIL_UNREC, "CVSPILS",
+                   "cvSpilsSolve", MSGS_JTIMES_FAILED);
     return(-1);
     break;
   case SUNLS_PSOLVE_FAIL_UNREC:
-    cvProcessError(cv_mem, SUNLS_PSOLVE_FAIL_UNREC, "CVSPILS", 
+    cvProcessError(cv_mem, SUNLS_PSOLVE_FAIL_UNREC, "CVSPILS",
                    "cvSpilsSolve", MSGS_PSOLVE_FAILED);
     return(-1);
     break;
   }
-  
-  return(0); 
+
+  return(0);
 }
 
 
@@ -1032,10 +1032,10 @@ int cvSpilsFree(CVodeMem cv_mem)
 
   /* Free preconditioner memory (if applicable) */
   if (cvspils_mem->pfree)  cvspils_mem->pfree(cv_mem);
-  
+
   /* free CVSpils interface structure */
   free(cv_mem->cv_lmem);
-  
+
   return(CVSPILS_SUCCESS);
 }
 

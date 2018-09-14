@@ -260,7 +260,7 @@ static int idaNlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del, real
   /* get the current nonlinear solver iteration count */
   retval = SUNNonlinSolGetCurIter(NLS, &m);
   if (retval != IDA_SUCCESS) return(IDA_MEM_NULL);
-  
+
   /* test for convergence, first directly, then with rate estimate. */
   if (m == 0){
     oldnrm = delnrm;

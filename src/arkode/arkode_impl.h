@@ -44,7 +44,6 @@ extern "C" {
 #define MAXNCF           10      /* maxncf default value */
 #define MXHNIL           10      /* mxhnil default value */
 #define MAXCOR           3       /* maxcor default value */
-#define FP_ACCEL_M       3       /* fp_m default value */
 
 /* Numeric constants */
 #define ZERO   RCONST(0.0)      /* real 0.0     */
@@ -230,7 +229,7 @@ typedef int (*ARKMassSolveFn)(void *arkode_mem, N_Vector b,
 typedef int (*ARKMassFreeFn)(void *arkode_mem);
 
 /* time stepper interface functions */
-typedef int (*ARKTimestepInitFn)(void* arkode_mem);
+typedef int (*ARKTimestepInitFn)(void* arkode_mem, int init_type);
 typedef int (*ARKTimestepAttachLinsolFn)(void* arkode_mem,
                                          ARKLinsolInitFn linit,
                                          ARKLinsolSetupFn lsetup,
@@ -288,31 +287,6 @@ typedef struct ARKodeMassMemRec {
 
 
 /*---------------------------------------------------------------
-  Types : struct ARKodeFPMemRec, ARKodeFPMem
-  ---------------------------------------------------------------
-  The type ARKodeFPMem is type pointer to struct ARKodeFPMemRec.
-  This structure contains data pertaining to the use of the
-  [accelerated] fixed-point nonlinear solver.
-  ---------------------------------------------------------------*/
-typedef struct ARKodeFPMemRec {
-
-  long int  m;      /* number of acceleration vectors to use   */
-  long int *imap;   /* array of length m                       */
-  realtype *R;      /* array of length m*m                     */
-  realtype *gamma;  /* array of length m                       */
-  realtype *cvals;  /* array of length m+1 for fused vector op */
-  N_Vector *df;     /* vector array of length m                */
-  N_Vector *dg;     /* vector array of length m                */
-  N_Vector *q;      /* vector array of length m                */
-  N_Vector *Xvecs;  /* array of length m+1 for fused vector op */
-  N_Vector  fval;   /* temporary N_Vectors                     */
-  N_Vector  fold;
-  N_Vector  gold;
-
-} *ARKodeFPMem;
-
-
-/*---------------------------------------------------------------
   Types : struct ARKodeMemRec, ARKodeMem
   ---------------------------------------------------------------
   The type ARKodeMem is type pointer to struct ARKodeMemRec.
@@ -364,8 +338,10 @@ typedef struct ARKodeMemRec {
   N_Vector ycur;    /* pointer to user-provided solution memory; used as
                        evolving solution by the timestepper modules      */
   N_Vector yn;      /* solution from the last successful step            */
-  N_Vector tempv1;  /* temporary storage vector                          */
-  N_Vector tempv2;
+  N_Vector tempv1;  /* temporary storage vectors (for local use and by   */
+  N_Vector tempv2;  /*    time-stepping modules) */
+  N_Vector tempv3;
+  N_Vector tempv4;
 
   /* Temporal interpolation module */
   ARKodeInterpMem interp;
@@ -772,9 +748,13 @@ typedef struct ARKodeMemRec {
 /*---------------------------------------------------------------
   ARKTimestepInitFn
   ---------------------------------------------------------------
-  This routine should complete initializations for a specific
-  ARKode time stepping module, such as (non)linear solver data,
-  Butcher table(s), counters and statistics.
+  This routine is called just prior to performing internal time 
+  steps (after all user "set" routines have been called) from 
+  within arkInitialSetup (init_type == 0) or arkPostResizeSetup
+  (init_type == 1).  It should complete initializations for a 
+  specific ARKode time stepping module, such as verifying 
+  compatibility of user-specified linear and nonlinear solver 
+  objects.  
 
   This routine should return 0 if it has successfully initialized
   the ARKode time stepper module and a negative value otherwise.
@@ -917,16 +897,6 @@ booleantype arkAllocVectors(ARKodeMem ark_mem,
                             N_Vector tmpl);
 void arkFreeVectors(ARKodeMem ark_mem);
 
-ARKodeFPMem arkAllocFPData(ARKodeMem ark_mem, long int m);
-int arkResizeFPData(ARKodeMem ark_mem,
-                    ARKodeFPMem fp_mem,
-                    ARKVecResizeFn resize,
-                    void *resize_data,
-                    sunindextype lrw_diff,
-                    sunindextype liw_diff,
-                    N_Vector tmpl);
-void arkFreeFPData(ARKodeMem ark_mem, ARKodeFPMem fp_mem);
-
 int arkInitialSetup(ARKodeMem ark_mem, realtype tout);
 int arkPostResizeSetup(ARKodeMem ark_mem);
 int arkStopTests(ARKodeMem ark_mem, realtype tout, N_Vector yout,
@@ -1006,7 +976,8 @@ int arkPredict_VariableOrder(ARKodeMem ark_mem, realtype tau,
 int arkPredict_CutoffOrder(ARKodeMem ark_mem, realtype tau,
                            N_Vector yguess);
 int arkPredict_Bootstrap(ARKodeMem ark_mem, realtype hj,
-                         realtype tau, N_Vector yguess);
+                         realtype tau, int nvec, realtype *cvals,
+                         N_Vector *Xvecs, N_Vector yguess);
 
 
 /*===============================================================

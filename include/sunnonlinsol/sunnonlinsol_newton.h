@@ -13,9 +13,9 @@
  * -----------------------------------------------------------------------------
  * This is the header file for the SUNNonlinearSolver module implementation of
  * Newton's method.
- * 
+ *
  * Part I defines the solver-specific content structure.
- * 
+ *
  * Part II contains prototypes for the solver constructor and operations.
  * ---------------------------------------------------------------------------*/
 
@@ -55,7 +55,7 @@ typedef struct _SUNNonlinearSolverContent_Newton *SUNNonlinearSolverContent_Newt
 /* -----------------------------------------------------------------------------
  * II: Exported functions
  * ---------------------------------------------------------------------------*/
- 
+
 /* Constructor to create solver and allocates memory */
 SUNDIALS_EXPORT SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y);
 

@@ -63,8 +63,9 @@ variables. Note that NVECTOR_CUDA requires SUNDIALS to be built with
 MPI support. 
 
 
-The NVECTOR_CUDA module defines implementations of all vector
-operations listed in the section :ref:`NVectors.Ops`, except for
+The NVECTOR_CUDA module defines implementations of all standard vector
+operations defined in the sections :ref:`NVectors.Ops`,
+:ref:`NVectors.FusedOps`, and  :ref:`NVectors.ArrayOps`, except for
 ``N_VGetArrayPointer`` and ``N_VSetArrayPointer``.  As such, this
 vector cannot be used with SUNDIALS Fortran interfaces, nor with
 SUNDIALS direct solvers and preconditioners. This support will be
@@ -74,10 +75,12 @@ device. It also provides methods for copying from the host to the
 device and vice versa. Usage examples of NVECTOR_CUDA are provided in  
 example programs for CVODE [HSR2017]_.
 
-The names of vector operations are obtained from those in the section
-:ref:`NVectors.Ops` by appending the suffix ``_Cuda``
-(e.g. ``N_VDestroy_Cuda``).  The module NVECTOR_CUDA 
-provides the following additional user-callable routines:
+The names of vector operations are obtained from those in the sections
+:ref:`NVectors.Ops`, :ref:`NVectors.FusedOps` and
+:ref:`NVectors.ArrayOps` by appending the suffix ``_Cuda``
+(e.g. ``N_VDestroy_Cuda``).  The module NVECTOR_CUDA provides the
+following additional user-callable routines:
+     
 
 
 .. c:function:: N_Vector N_VNew_Cuda(sunindextype vec_length)

@@ -196,7 +196,34 @@ referenced.
     optional inputs specific to that linear solver interface. See the
     section :ref:`ARKStep_CInterface.OptionalInputs` for details.
 
-12. Specify rootfinding problem
+12. Create nonlinear solver object
+
+    If the problem involves an implicit component, and if a non-default
+    nonlinear solver object will be used for implicit stage solves,
+    then the desired nonlinear solver object must be created by using
+    the appropriate functions defined by the particular SUNNONLINSOL 
+    implementation. 
+
+13. Attach nonlinear solver module
+
+    If a nonlinear solver object was created above, then it must be
+    attached to ARKStep using the call (for details see the
+    section :ref:`ARKStep_CInterface.NonlinearSolvers`):
+
+    .. code-block:: c
+
+       ier = ARKStepSetNonlinearSolver(...);
+
+14. Set nonlinear solver optional inputs
+
+    Call the appropriate set functions for the selected nonlinear
+    solver module to change optional inputs specific to that nonlinear
+    solver.  These *must* be called after attaching the nonlinear
+    solver to ARKStep, otherwise the optional inputs will be
+    overridden by ARKStep defaults.  See the section
+    :ref:`SUNNonlinSol` for more information on optional inputs.
+
+15. Specify rootfinding problem
 
     Optionally, call :c:func:`ARKStepRootInit()` to initialize a rootfinding
     problem to be solved during the integration of the ODE system. See
@@ -204,7 +231,7 @@ referenced.
     the section :ref:`ARKStep_CInterface.OptionalInputs` for relevant optional
     input calls.
 
-13. Advance solution in time
+16. Advance solution in time
 
     For each point at which output is desired, call
 
@@ -217,12 +244,12 @@ referenced.
     :math:`y(t_\text{out})`. See the section
     :ref:`ARKStep_CInterface.Integration` for details.
 
-14. Get optional outputs
+17. Get optional outputs
 
     Call ``ARKStepGet*`` functions to obtain optional output. See
     the section :ref:`ARKStep_CInterface.OptionalOutputs` for details.
 
-15. Deallocate memory for solution vector
+18. Deallocate memory for solution vector
 
     Upon completion of the integration, deallocate memory for the
     vector ``y`` (or ``yout``) by calling the destructor function:
@@ -231,18 +258,18 @@ referenced.
 
        N_VDestroy(y);
 
-16. Free solver memory
+19. Free solver memory
 
     Call ``ARKStepFree(&arkode_mem)`` to free the memory allocated for
-    the ARKStep module.
+    the ARKStep module (and any nonlinear solver module).
 
-17. Free linear solver and matrix memory
+20. Free linear solver and matrix memory
 
     Call :c:func:`SUNLinSolFree()` and (possibly)
     :c:func:`SUNMatDestroy()` to free any memory allocated for the
     linear solver and matrix objects created above.
 
-18. Finalize MPI, if used
+21. Finalize MPI, if used
 
     Call ``MPI_Finalize`` to terminate MPI.
 

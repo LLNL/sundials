@@ -35,7 +35,6 @@ extern "C" {
   ===============================================================*/
 
 
-
 /*===============================================================
   ARK time step module data structure
   ===============================================================*/
@@ -62,6 +61,7 @@ typedef struct ARKodeARKStepMemRec {
   N_Vector *Fi;           /* implicit RHS at each stage */
   N_Vector  sdata;        /* old stage data in residual */
   N_Vector  zpred;        /* predicted stage solution   */
+  N_Vector  zcor;         /* stage correction           */
   int q;                  /* method order               */
   int p;                  /* embedding order            */
   int istage;             /* current stage              */
@@ -75,34 +75,32 @@ typedef struct ARKodeARKStepMemRec {
   int             maxnef;      /* max error test fails in one step */
 
   /* (Non)Linear solver parameters & data */
-  realtype gamma;      /* gamma = h * A(i,i)                       */
-  realtype gammap;     /* gamma at the last setup call             */
-  realtype gamrat;     /* gamma / gammap                           */
-  realtype dgmax;      /* call lsetup if |gamma/gammap-1| >= dgmax */
+  SUNNonlinearSolver NLS;   /* generic SUNNonlinearSolver object     */
+  booleantype     ownNLS;   /* flag indicating ownership of NLS      */
+  realtype gamma;        /* gamma = h * A(i,i)                       */
+  realtype gammap;       /* gamma at the last setup call             */
+  realtype gamrat;       /* gamma / gammap                           */
+  realtype dgmax;        /* call lsetup if |gamma/gammap-1| >= dgmax */
 
-  int      predictor;  /* implicit prediction method to use        */
-  realtype crdown;     /* nonlinear conv rate estimation constant  */
-  realtype rdiv;       /* nonlin divergence if del/delp > rdiv     */
-  realtype crate;      /* estimated nonlin convergence rate        */
-  realtype eRNrm;      /* estimated residual norm, used in nonlin
-                          and linear solver convergence tests      */
-  realtype nlscoef;    /* coefficient in nonlin. convergence test  */
-  int      mnewt;      /* internal Newton iteration counter        */
+  int      predictor;    /* implicit prediction method to use        */
+  realtype crdown;       /* nonlinear conv rate estimation constant  */
+  realtype rdiv;         /* nonlin divergence if del/delp > rdiv     */
+  realtype crate;        /* estimated nonlin convergence rate        */
+  realtype eRNrm;        /* estimated residual norm, used in nonlin
+                            and linear solver convergence tests      */
+  realtype nlscoef;      /* coefficient in nonlin. convergence test  */
+  int      mnewt;        /* internal Newton iteration counter        */
 
-  int      msbp;       /* positive => max # steps between lsetup
-                          negative => call at each Newton iter     */
-  long int nstlp;      /* step number of last setup call           */
+  int      msbp;         /* positive => max # steps between lsetup
+                            negative => call at each Newton iter     */
+  long int nstlp;        /* step number of last setup call           */
 
-  int      maxcor;     /* max num iterations for solving the
-                          nonlinear equation                       */
-  int      maxncf;     /* max num nonlin. conv. fails in one step  */
+  int      maxcor;       /* max num iterations for solving the
+                            nonlinear equation                       */
+  int      maxncf;       /* max num nonlin. conv. fails in one step  */
 
-  booleantype jcur;    /* is Jacobian info for lin solver current? */
-
-  /* Fixed-point Solver Data */
-  booleantype use_fp;  /* flag for fixed-point solver vs Newton    */
-  long int    fp_m;    /* number of vectors to use in acceleration */
-  ARKodeFPMem fp_mem;  /* accelerated fixed-point solver structure */
+  int      convfail;     /* NLS fail flag (for interface routines)   */
+  booleantype jcur;      /* is Jacobian info for lin solver current? */
 
   /* Linear Solver Data */
   ARKLinsolInitFn  linit;
@@ -128,7 +126,6 @@ typedef struct ARKodeARKStepMemRec {
   long int nfi;           /* num fi calls                       */
   long int ncfn;          /* num corrector convergence failures */
   long int netf;          /* num error test failures            */
-  long int nni;           /* num Newton iterations performed    */
   long int nsetups;       /* num setup calls                    */
 
   /* Reusable arrays for fused vector operations */
@@ -156,7 +153,7 @@ int arkStep_AttachMasssol(void* arkode_mem, ARKMassInitFn minit,
                           int msolve_type, void *mass_mem);
 void arkStep_DisableLSetup(void* arkode_mem);
 void arkStep_DisableMSetup(void* arkode_mem);
-int arkStep_Init(void* arkode_mem);
+int arkStep_Init(void* arkode_mem, int init_type);
 void* arkStep_GetLmem(void* arkode_mem);
 void* arkStep_GetMassMem(void* arkode_mem);
 ARKRhsFn arkStep_GetImplicitRHS(void* arkode_mem);
@@ -168,20 +165,15 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
 int arkStep_TakeStep(void* arkode_mem);
 
 /* Internal utility routines */
+int arkStep_AccessStepMem(void* arkode_mem, const char *fname,
+                          ARKodeMem *ark_mem, ARKodeARKStepMem *step_mem);
 booleantype arkStep_CheckNVector(N_Vector tmpl);
 int arkStep_SetButcherTables(ARKodeMem ark_mem);
 int arkStep_CheckButcherTables(ARKodeMem ark_mem);
 int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess);
 int arkStep_StageSetup(ARKodeMem ark_mem);
+int arkStep_NlsInit(ARKodeMem ark_mem);
 int arkStep_Nls(ARKodeMem ark_mem, int nflag);
-int arkStep_NlsResid(ARKodeMem ark_mem, N_Vector y,
-                     N_Vector fy, N_Vector r);
-int arkStep_NlsNewton(ARKodeMem ark_mem, int nflag);
-int arkStep_NlsAccelFP(ARKodeMem ark_mem, int nflag);
-int arkStep_AndersonAcc(ARKodeMem ark_mem, N_Vector gval,
-                        N_Vector fv, N_Vector x, N_Vector xold,
-                        int iter, realtype *R, realtype *gamma);
-int arkStep_Ls(ARKodeMem ark_mem, int nflag);
 int arkStep_HandleNFlag(ARKodeMem ark_mem, int *nflagPtr, int *ncfPtr);
 
 int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm);
@@ -189,12 +181,22 @@ int arkStep_DoErrorTest(ARKodeMem ark_mem, int *nflagPtr,
                         int *nefPtr, realtype dsm);
 int arkStep_PrepareNextStep(ARKodeMem ark_mem, realtype dsm);
 
+/* private functions passed to nonlinear solver */
+int arkStep_NlsResidual(N_Vector yy, N_Vector res, void* arkode_mem);
+int arkStep_NlsFPFunction(N_Vector yy, N_Vector res, void* arkode_mem);
+int arkStep_NlsLSetup(N_Vector yy, N_Vector res, booleantype jbad,
+                      booleantype* jcur, void* arkode_mem);
+int arkStep_NlsLSolve(N_Vector yy, N_Vector delta, void* arkode_mem);
+int arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
+                        realtype tol, N_Vector ewt, void* arkode_mem);
+
 /*===============================================================
   Reusable ARKStep Error Messages
   ===============================================================*/
 
 /* Initialization and I/O error messages */
 #define MSG_ARKSTEP_NO_MEM    "Time step module memory is NULL."
+#define MSG_NLS_INIT_FAIL     "The nonlinear solver's init routine failed."
 
 #ifdef __cplusplus
 }

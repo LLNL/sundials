@@ -824,6 +824,21 @@ char *arkGetReturnFlagName(long int flag)
   case ARK_TOO_CLOSE:
     sprintf(name,"ARK_TOO_CLOSE");
     break;
+  case ARK_POSTPROCESS_FAIL:
+    sprintf(name,"ARK_POSTPROCESS_FAIL");
+    break;
+  case ARK_VECTOROP_ERR:
+    sprintf(name,"ARK_VECTOROP_ERR");
+    break;
+  case ARK_NLS_INIT_FAIL:
+    sprintf(name,"ARK_NLS_INIT_FAIL");
+    break;
+  case ARK_NLS_SETUP_FAIL:
+    sprintf(name,"ARK_NLS_SETUP_FAIL");
+    break;
+  case ARK_NLS_OP_ERR:
+    sprintf(name,"ARK_NLS_OP_ERR");
+    break;
   default:
     sprintf(name,"NONE");
   }

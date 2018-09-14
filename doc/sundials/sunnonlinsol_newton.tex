@@ -11,7 +11,7 @@ linking to the \id{libsundials\_sunnonlinsolnewton} module library.
 
 To find the solution to
 \begin{equation}\label{e:newton_sys}
-  F(y) = 0 \, 
+  F(y) = 0 \,
 \end{equation}
 given an initial guess $y^{(0)}$, Newton's method computes a series of
 approximate solutions
@@ -24,7 +24,7 @@ is the solution of the linear system
   A(y^{(m)}) \delta^{(m+1)} = -F(y^{(m)}) \, ,
 \end{equation}
 in which $A$ is the Jacobian matrix
-\begin{equation}\label{e:newton_mat} 
+\begin{equation}\label{e:newton_mat}
   A \equiv \partial F / \partial y \, .
 \end{equation}
 Depending on the linear solver used, the {\sunnonlinsolnewton} module
@@ -56,12 +56,12 @@ routine. We refer to the discussion of nonlinear solver strategies
 provided in Chapter \ref{s:math} for details on this decision.
 
 The default maximum number of iterations and the stopping criteria for
-the Newton iteration are supplied by the {\sundials} integrator when 
-{\sunnonlinsolnewton} is attached to it.  Both the maximum number of 
+the Newton iteration are supplied by the {\sundials} integrator when
+{\sunnonlinsolnewton} is attached to it.  Both the maximum number of
 iterations and the convergence test function may be modified by the
 user by calling the \id{SUNNonlinSolSetMaxIters} and/or
-\id{SUNNonlinSolSetConvTest} functions after attaching the
-{\sunnonlinsolnewton} object to the integrator. 
+\id{SUNNonlinSolSetConvTestFn} functions after attaching the
+{\sunnonlinsolnewton} object to the integrator.
 
 % ====================================================================
 \subsection{SUNNonlinearSolver\_Newton functions}

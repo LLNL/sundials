@@ -142,8 +142,9 @@ vector. The suffix ``_OMP`` in the names denotes the OpenMP version.
 
 
 The NVECTOR_OPENMP module defines OpenMP implementations of all vector
-operations listed in the section :ref:`NVectors.Ops`.  Their names are
-obtained from those in that section by appending the suffix
+operations listed in the sections :ref:`NVectors.Ops`,
+:ref:`NVectors.FusedOps` and :ref:`NVectors.ArrayOps`.  Their names
+are obtained from those in those sections by appending the suffix
 ``_OpenMP`` (e.g. ``N_VDestroy_OpenMP``).  The module NVECTOR_OPENMP
 provides the following additional user-callable routines:
 

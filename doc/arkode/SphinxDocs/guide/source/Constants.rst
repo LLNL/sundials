@@ -293,6 +293,19 @@ Shared ARKode output constants
 :index:`ARK_VECTOROP_ERR`  (-29):
    An error occurred when calling an NVECTOR routine.
 
+:index:`ARK_NLS_INIT_FAIL`  (-30):
+   An error occurred when initializing a SUNNonlinearSolver module.
+
+:index:`ARK_NLS_SETUP_FAIL`  (-31):
+   A non-recoverable error occurred when setting up a
+   SUNNonlinearSolver module. 
+
+:index:`ARK_NLS_SETUP_RECVR`  (-32):
+   A recoverable error occurred when setting up a SUNNonlinearSolver module.
+   
+:index:`ARK_NLS_OP_ERR`  (-33):
+   An error occurred when calling a set/get routine in a SUNNonlinearSolver module.
+
 
 
 ARKDLS linear solver modules
