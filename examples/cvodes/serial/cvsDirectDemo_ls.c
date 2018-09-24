@@ -134,7 +134,7 @@ static int Jac2(realtype tn, N_Vector y, N_Vector fy, SUNMatrix J, void *user_da
 
 /* Private function to check function return values */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt);
+static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 /* Implementation */
 
@@ -152,7 +152,7 @@ int main(void)
 static int Problem1(void)
 {
   realtype reltol=RTOL, abstol=ATOL, t, tout, ero, er;
-  int miter, flag, temp_flag, iout, nerr=0;
+  int miter, retval, temp_retval, iout, nerr=0;
   N_Vector y;
   SUNMatrix A;
   SUNLinearSolver LS;
@@ -167,11 +167,11 @@ static int Problem1(void)
   cvode_mem = NULL;
 
   y = N_VNew_Serial(P1_NEQ);
-  if(check_flag((void *)y, "N_VNew_Serial", 0)) return(1);
+  if(check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
   PrintIntro1();
 
   cvode_mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL);
-  if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   for (miter=FUNC; miter <= DIAG; miter++) {
     ero = ZERO;
@@ -180,31 +180,31 @@ static int Problem1(void)
 
     firstrun = (miter==FUNC);
     if (firstrun) {
-      flag = CVodeInit(cvode_mem, f1, P1_T0, y);
-      if(check_flag(&flag, "CVodeInit", 1)) return(1);
-      flag = CVodeSStolerances(cvode_mem, reltol, abstol);
-      if(check_flag(&flag, "CVodeSStolerances", 1)) return(1);
+      retval = CVodeInit(cvode_mem, f1, P1_T0, y);
+      if(check_retval(&retval, "CVodeInit", 1)) return(1);
+      retval = CVodeSStolerances(cvode_mem, reltol, abstol);
+      if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
     } else {
-      flag = CVodeSetIterType(cvode_mem, CV_NEWTON);
-      if(check_flag(&flag, "CVodeSetIterType", 1)) ++nerr;
-      flag = CVodeReInit(cvode_mem, P1_T0, y);
-      if(check_flag(&flag, "CVodeReInit", 1)) return(1);
+      retval = CVodeSetIterType(cvode_mem, CV_NEWTON);
+      if(check_retval(&retval, "CVodeSetIterType", 1)) ++nerr;
+      retval = CVodeReInit(cvode_mem, P1_T0, y);
+      if(check_retval(&retval, "CVodeReInit", 1)) return(1);
     }
       
-    flag = PrepareNextRun(cvode_mem, CV_ADAMS, miter, y, A, 0, 0, LS);
-    if(check_flag(&flag, "PrepareNextRun", 1)) return(1);
+    retval = PrepareNextRun(cvode_mem, CV_ADAMS, miter, y, A, 0, 0, LS);
+    if(check_retval(&retval, "PrepareNextRun", 1)) return(1);
 
     PrintHeader1();
 
     for(iout=1, tout=P1_T1; iout <= P1_NOUT; iout++, tout += P1_DTOUT) {
-      flag = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
-      check_flag(&flag, "CVode", 1);
-      temp_flag = CVodeGetLastOrder(cvode_mem, &qu);
-      if(check_flag(&temp_flag, "CVodeGetLastOrder", 1)) ++nerr;
-      temp_flag = CVodeGetLastStep(cvode_mem, &hu);
-      if(check_flag(&temp_flag, "CVodeGetLastStep", 1)) ++nerr;
+      retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
+      check_retval(&retval, "CVode", 1);
+      temp_retval = CVodeGetLastOrder(cvode_mem, &qu);
+      if(check_retval(&temp_retval, "CVodeGetLastOrder", 1)) ++nerr;
+      temp_retval = CVodeGetLastStep(cvode_mem, &hu);
+      if(check_retval(&temp_retval, "CVodeGetLastStep", 1)) ++nerr;
       PrintOutput1(t, NV_Ith_S(y,0), NV_Ith_S(y,1), qu, hu);
-      if (flag != CV_SUCCESS) {
+      if (retval != CV_SUCCESS) {
         nerr++;
         break;
       }
@@ -224,7 +224,7 @@ static int Problem1(void)
   CVodeFree(&cvode_mem);
 
   cvode_mem = CVodeCreate(CV_BDF, CV_FUNCTIONAL);
-  if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   for (miter=FUNC; miter <= DIAG; miter++) {
     ero = ZERO;
@@ -233,31 +233,31 @@ static int Problem1(void)
       
     firstrun = (miter==FUNC);
     if (firstrun) {
-      flag = CVodeInit(cvode_mem, f1, P1_T0, y);
-      if(check_flag(&flag, "CVodeInit", 1)) return(1);
-      flag = CVodeSStolerances(cvode_mem, reltol, abstol);
-      if(check_flag(&flag, "CVodeSStolerances", 1)) return(1);
+      retval = CVodeInit(cvode_mem, f1, P1_T0, y);
+      if(check_retval(&retval, "CVodeInit", 1)) return(1);
+      retval = CVodeSStolerances(cvode_mem, reltol, abstol);
+      if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
     } else {
-      flag = CVodeSetIterType(cvode_mem, CV_NEWTON);
-      if(check_flag(&flag, "CVodeSetIterType", 1)) ++nerr;
-      flag = CVodeReInit(cvode_mem, P1_T0, y);
-      if(check_flag(&flag, "CVodeReInit", 1)) return(1);
+      retval = CVodeSetIterType(cvode_mem, CV_NEWTON);
+      if(check_retval(&retval, "CVodeSetIterType", 1)) ++nerr;
+      retval = CVodeReInit(cvode_mem, P1_T0, y);
+      if(check_retval(&retval, "CVodeReInit", 1)) return(1);
     }
       
-    flag = PrepareNextRun(cvode_mem, CV_BDF, miter, y, A, 0, 0, LS);     
-    if(check_flag(&flag, "PrepareNextRun", 1)) return(1);
+    retval = PrepareNextRun(cvode_mem, CV_BDF, miter, y, A, 0, 0, LS);     
+    if(check_retval(&retval, "PrepareNextRun", 1)) return(1);
 
     PrintHeader1();
       
     for(iout=1, tout=P1_T1; iout <= P1_NOUT; iout++, tout += P1_DTOUT) {
-      flag = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
-      check_flag(&flag, "CVode", 1);
-      temp_flag = CVodeGetLastOrder(cvode_mem, &qu);
-      if(check_flag(&temp_flag, "CVodeGetLastOrder", 1)) ++nerr;
-      temp_flag = CVodeGetLastStep(cvode_mem, &hu);
-      if(check_flag(&temp_flag, "CVodeGetLastStep", 1)) ++nerr;
+      retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
+      check_retval(&retval, "CVode", 1);
+      temp_retval = CVodeGetLastOrder(cvode_mem, &qu);
+      if(check_retval(&temp_retval, "CVodeGetLastOrder", 1)) ++nerr;
+      temp_retval = CVodeGetLastStep(cvode_mem, &hu);
+      if(check_retval(&temp_retval, "CVodeGetLastStep", 1)) ++nerr;
       PrintOutput1(t, NV_Ith_S(y,0), NV_Ith_S(y,1), qu, hu);
-      if (flag != CV_SUCCESS) {
+      if (retval != CV_SUCCESS) {
         nerr++;
         break;
       }
@@ -349,7 +349,7 @@ static int Jac1(realtype tn, N_Vector y, N_Vector fy, SUNMatrix J,
 static int Problem2(void)
 {
   realtype reltol=RTOL, abstol=ATOL, t, tout, er, erm, ero;
-  int miter, flag, temp_flag, nerr=0;
+  int miter, retval, temp_retval, nerr=0;
   N_Vector y;
   SUNMatrix A;
   SUNLinearSolver LS;
@@ -364,12 +364,12 @@ static int Problem2(void)
   cvode_mem = NULL;
 
   y = N_VNew_Serial(P2_NEQ);
-  if(check_flag((void *)y, "N_VNew_Serial", 0)) return(1);
+  if(check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
 
   PrintIntro2();
 
   cvode_mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL);
-  if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   for (miter=FUNC; miter <= BAND_DQ; miter++) {
     if ((miter==DENSE_USER) || (miter==DENSE_DQ)) continue;
@@ -379,32 +379,32 @@ static int Problem2(void)
       
     firstrun = (miter==FUNC);
     if (firstrun) {
-      flag = CVodeInit(cvode_mem, f2, P2_T0, y);
-      if(check_flag(&flag, "CVodeInit", 1)) return(1);
-      flag = CVodeSStolerances(cvode_mem, reltol, abstol);
-      if(check_flag(&flag, "CVodeSStolerances", 1)) return(1);
+      retval = CVodeInit(cvode_mem, f2, P2_T0, y);
+      if(check_retval(&retval, "CVodeInit", 1)) return(1);
+      retval = CVodeSStolerances(cvode_mem, reltol, abstol);
+      if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
     } else {
-      flag = CVodeSetIterType(cvode_mem, CV_NEWTON);
-      if(check_flag(&flag, "CVodeSetIterType", 1)) ++nerr;
-      flag = CVodeReInit(cvode_mem, P2_T0, y);
-      if(check_flag(&flag, "CVodeReInit", 1)) return(1);
+      retval = CVodeSetIterType(cvode_mem, CV_NEWTON);
+      if(check_retval(&retval, "CVodeSetIterType", 1)) ++nerr;
+      retval = CVodeReInit(cvode_mem, P2_T0, y);
+      if(check_retval(&retval, "CVodeReInit", 1)) return(1);
     }
       
-    flag = PrepareNextRun(cvode_mem, CV_ADAMS, miter, y, A, P2_MU, P2_ML, LS);
-    if(check_flag(&flag, "PrepareNextRun", 1)) return(1);
+    retval = PrepareNextRun(cvode_mem, CV_ADAMS, miter, y, A, P2_MU, P2_ML, LS);
+    if(check_retval(&retval, "PrepareNextRun", 1)) return(1);
 
     PrintHeader2();
 
     for(iout=1, tout=P2_T1; iout <= P2_NOUT; iout++, tout*=P2_TOUT_MULT) {
-      flag = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
-      check_flag(&flag, "CVode", 1);
+      retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
+      check_retval(&retval, "CVode", 1);
       erm = MaxError(y, t);
-      temp_flag = CVodeGetLastOrder(cvode_mem, &qu);
-      if(check_flag(&temp_flag, "CVodeGetLastOrder", 1)) ++nerr;
-      temp_flag = CVodeGetLastStep(cvode_mem, &hu);
-      if(check_flag(&temp_flag, "CVodeGetLastStep", 1)) ++nerr;
+      temp_retval = CVodeGetLastOrder(cvode_mem, &qu);
+      if(check_retval(&temp_retval, "CVodeGetLastOrder", 1)) ++nerr;
+      temp_retval = CVodeGetLastStep(cvode_mem, &hu);
+      if(check_retval(&temp_retval, "CVodeGetLastStep", 1)) ++nerr;
       PrintOutput2(t, erm, qu, hu);
-      if (flag != CV_SUCCESS) {
+      if (retval != CV_SUCCESS) {
         nerr++;
         break;
       }
@@ -422,7 +422,7 @@ static int Problem2(void)
   CVodeFree(&cvode_mem);
 
   cvode_mem = CVodeCreate(CV_BDF, CV_FUNCTIONAL);
-  if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   for (miter=FUNC; miter <= BAND_DQ; miter++) {
     if ((miter==DENSE_USER) || (miter==DENSE_DQ)) continue;
@@ -432,32 +432,32 @@ static int Problem2(void)
       
     firstrun = (miter==FUNC);
     if (firstrun) {
-      flag = CVodeInit(cvode_mem, f2, P2_T0, y);
-      if(check_flag(&flag, "CVodeInit", 1)) return(1);
-      flag = CVodeSStolerances(cvode_mem, reltol, abstol);
-      if(check_flag(&flag, "CVodeSStolerances", 1)) return(1);
+      retval = CVodeInit(cvode_mem, f2, P2_T0, y);
+      if(check_retval(&retval, "CVodeInit", 1)) return(1);
+      retval = CVodeSStolerances(cvode_mem, reltol, abstol);
+      if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
     } else {
-      flag = CVodeSetIterType(cvode_mem, CV_NEWTON);
-      if(check_flag(&flag, "CVodeSetIterType", 1)) ++nerr;
-      flag = CVodeReInit(cvode_mem, P2_T0, y);
-      if(check_flag(&flag, "CVodeReInit", 1)) return(1);
+      retval = CVodeSetIterType(cvode_mem, CV_NEWTON);
+      if(check_retval(&retval, "CVodeSetIterType", 1)) ++nerr;
+      retval = CVodeReInit(cvode_mem, P2_T0, y);
+      if(check_retval(&retval, "CVodeReInit", 1)) return(1);
     }
 
-    flag = PrepareNextRun(cvode_mem, CV_BDF, miter, y, A, P2_MU, P2_ML, LS);
-    if(check_flag(&flag, "PrepareNextRun", 1)) return(1);
+    retval = PrepareNextRun(cvode_mem, CV_BDF, miter, y, A, P2_MU, P2_ML, LS);
+    if(check_retval(&retval, "PrepareNextRun", 1)) return(1);
 
     PrintHeader2();
       
     for(iout=1, tout=P2_T1; iout <= P2_NOUT; iout++, tout*=P2_TOUT_MULT) {
-      flag = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
-      check_flag(&flag, "CVode", 1);
+      retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
+      check_retval(&retval, "CVode", 1);
       erm = MaxError(y, t);
-      temp_flag = CVodeGetLastOrder(cvode_mem, &qu);
-      if(check_flag(&temp_flag, "CVodeGetLastOrder", 1)) ++nerr;
-      temp_flag = CVodeGetLastStep(cvode_mem, &hu);
-      if(check_flag(&temp_flag, "CVodeGetLastStep", 1)) ++nerr;
+      temp_retval = CVodeGetLastOrder(cvode_mem, &qu);
+      if(check_retval(&temp_retval, "CVodeGetLastOrder", 1)) ++nerr;
+      temp_retval = CVodeGetLastStep(cvode_mem, &hu);
+      if(check_retval(&temp_retval, "CVodeGetLastStep", 1)) ++nerr;
       PrintOutput2(t, erm, qu, hu);
-      if (flag != CV_SUCCESS) {
+      if (retval != CV_SUCCESS) {
         nerr++;
         break;
       }
@@ -606,7 +606,7 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter, N_Vector y,
                           SUNMatrix A, sunindextype mu, sunindextype ml,
                           SUNLinearSolver LS)
 {
-  int flag = CV_SUCCESS;
+  int retval = CV_SUCCESS;
   
   printf("\n\n-------------------------------------------------------------");
   
@@ -631,19 +631,19 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter, N_Vector y,
 
       /* Create dense SUNMatrix for use in linear solves */
       A = SUNDenseMatrix(P1_NEQ, P1_NEQ);
-      if(check_flag((void *)A, "SUNDenseMatrix", 0)) return(1);
+      if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
       /* Create dense SUNLinearSolver object for use by CVode */
       LS = SUNDenseLinearSolver(y, A);
-      if(check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+      if(check_retval((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
 
       /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
-      flag = CVDlsSetLinearSolver(cvode_mem, LS, A);
-      if(check_flag(&flag, "CVDlsSetLinearSolver", 1)) return(1);
+      retval = CVDlsSetLinearSolver(cvode_mem, LS, A);
+      if(check_retval(&retval, "CVDlsSetLinearSolver", 1)) return(1);
 
       /* Set the user-supplied Jacobian routine Jac */
-      flag = CVDlsSetJacFn(cvode_mem, Jac1);
-      if(check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
+      retval = CVDlsSetJacFn(cvode_mem, Jac1);
+      if(check_retval(&retval, "CVDlsSetJacFn", 1)) return(1);
       break;
 
     case DENSE_DQ : 
@@ -651,27 +651,27 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter, N_Vector y,
 
       /* Create dense SUNMatrix for use in linear solves */
       A = SUNDenseMatrix(P1_NEQ, P1_NEQ);
-      if(check_flag((void *)A, "SUNDenseMatrix", 0)) return(1);
+      if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
       /* Create dense SUNLinearSolver object for use by CVode */
       LS = SUNDenseLinearSolver(y, A);
-      if(check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+      if(check_retval((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
 
       /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
-      flag = CVDlsSetLinearSolver(cvode_mem, LS, A);
-      if(check_flag(&flag, "CVDlsSetLinearSolver", 1)) return(1);
+      retval = CVDlsSetLinearSolver(cvode_mem, LS, A);
+      if(check_retval(&retval, "CVDlsSetLinearSolver", 1)) return(1);
 
       /* Use a difference quotient Jacobian */
-      flag = CVDlsSetJacFn(cvode_mem, NULL);
-      if(check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
+      retval = CVDlsSetJacFn(cvode_mem, NULL);
+      if(check_retval(&retval, "CVDlsSetJacFn", 1)) return(1);
       break;
 
     case DIAG : 
       printf("Diagonal Jacobian\n");
      
       /* Call CVDiag to initialize and attach the CVode-specific diagonal linear solver */
-      flag = CVDiag(cvode_mem);
-      if(check_flag(&flag, "CVDiag", 1)) return(1);
+      retval = CVDiag(cvode_mem);
+      if(check_retval(&retval, "CVDiag", 1)) return(1);
       break;
 
     case BAND_USER : 
@@ -679,19 +679,19 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter, N_Vector y,
 
       /* Create band SUNMatrix for use in linear solves */
       A = SUNBandMatrix(P2_NEQ, mu, ml, mu+ml);
-      if(check_flag((void *)A, "SUNBandMatrix", 0)) return(1);
+      if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
 
       /* Create banded SUNLinearSolver object for use by CVode */
       LS = SUNBandLinearSolver(y, A);
-      if(check_flag((void *)LS, "SUNBandLinearSolver", 0)) return(1);
+      if(check_retval((void *)LS, "SUNBandLinearSolver", 0)) return(1);
 
       /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
-      flag = CVDlsSetLinearSolver(cvode_mem, LS, A);
-      if(check_flag(&flag, "CVDlsSetLinearSolver", 1)) return(1);
+      retval = CVDlsSetLinearSolver(cvode_mem, LS, A);
+      if(check_retval(&retval, "CVDlsSetLinearSolver", 1)) return(1);
 
       /* Set the user-supplied Jacobian routine Jac */
-      flag = CVDlsSetJacFn(cvode_mem, Jac2);
-      if(check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
+      retval = CVDlsSetJacFn(cvode_mem, Jac2);
+      if(check_retval(&retval, "CVDlsSetJacFn", 1)) return(1);
       break;
 
     case BAND_DQ  :   
@@ -699,24 +699,24 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter, N_Vector y,
 
       /* Create band SUNMatrix for use in linear solves */
       A = SUNBandMatrix(P2_NEQ, mu, ml, mu+ml);
-      if(check_flag((void *)A, "SUNBandMatrix", 0)) return(1);
+      if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
 
       /* Create banded SUNLinearSolver object for use by CVode */
       LS = SUNBandLinearSolver(y, A);
-      if(check_flag((void *)LS, "SUNBandLinearSolver", 0)) return(1);
+      if(check_retval((void *)LS, "SUNBandLinearSolver", 0)) return(1);
 
       /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
-      flag = CVDlsSetLinearSolver(cvode_mem, LS, A);
-      if(check_flag(&flag, "CVDlsSetLinearSolver", 1)) return(1);
+      retval = CVDlsSetLinearSolver(cvode_mem, LS, A);
+      if(check_retval(&retval, "CVDlsSetLinearSolver", 1)) return(1);
 
       /* Use a difference quotient Jacobian */
-      flag = CVDlsSetJacFn(cvode_mem, NULL);
-      if(check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
+      retval = CVDlsSetJacFn(cvode_mem, NULL);
+      if(check_retval(&retval, "CVDlsSetJacFn", 1)) return(1);
       break;
     }
   }
 
-  return(flag);
+  return(retval);
 }
 
 static void PrintErrOutput(realtype tol_factor)
@@ -736,22 +736,22 @@ static void PrintFinalStats(void *cvode_mem, int miter, realtype ero)
 {
   long int lenrw, leniw, lenrwLS, leniwLS;
   long int nst, nfe, nsetups, nni, ncfn, netf, nje, nfeLS;
-  int flag;
+  int retval;
 
-  flag = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);
-  check_flag(&flag, "CVodeGetWorkSpace", 1);
-  flag = CVodeGetNumSteps(cvode_mem, &nst);
-  check_flag(&flag, "CVodeGetNumSteps", 1);
-  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  check_flag(&flag, "CVodeGetNumRhsEvals", 1);
-  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  check_flag(&flag, "CVodeGetNumLinSolvSetups", 1);
-  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-  check_flag(&flag, "CVodeGetNumErrTestFails", 1);
-  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1);
-  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
+  retval = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);
+  check_retval(&retval, "CVodeGetWorkSpace", 1);
+  retval = CVodeGetNumSteps(cvode_mem, &nst);
+  check_retval(&retval, "CVodeGetNumSteps", 1);
+  retval = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  check_retval(&retval, "CVodeGetNumRhsEvals", 1);
+  retval = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  check_retval(&retval, "CVodeGetNumLinSolvSetups", 1);
+  retval = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  check_retval(&retval, "CVodeGetNumErrTestFails", 1);
+  retval = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  check_retval(&retval, "CVodeGetNumNonlinSolvIters", 1);
+  retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1);
 
   printf("\n Final statistics for this run:\n\n");
   printf(" CVode real workspace length              = %4ld \n",  lenrw);
@@ -765,18 +765,18 @@ static void PrintFinalStats(void *cvode_mem, int miter, realtype ero)
   
   if (miter != FUNC) {
     if (miter != DIAG) {
-      flag = CVDlsGetNumJacEvals(cvode_mem, &nje);
-      check_flag(&flag, "CVDlsGetNumJacEvals", 1);
-      flag = CVDlsGetNumRhsEvals(cvode_mem, &nfeLS);
-      check_flag(&flag, "CVDlsGetNumRhsEvals", 1);
-      flag = CVDlsGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
-      check_flag(&flag, "CVDlsGetWorkSpace", 1);
+      retval = CVDlsGetNumJacEvals(cvode_mem, &nje);
+      check_retval(&retval, "CVDlsGetNumJacEvals", 1);
+      retval = CVDlsGetNumRhsEvals(cvode_mem, &nfeLS);
+      check_retval(&retval, "CVDlsGetNumRhsEvals", 1);
+      retval = CVDlsGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
+      check_retval(&retval, "CVDlsGetWorkSpace", 1);
     } else {
       nje = nsetups;
-      flag = CVDiagGetNumRhsEvals(cvode_mem, &nfeLS);
-      check_flag(&flag, "CVDiagGetNumRhsEvals", 1);
-      flag = CVDiagGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
-      check_flag(&flag, "CVDiagGetWorkSpace", 1);
+      retval = CVDiagGetNumRhsEvals(cvode_mem, &nfeLS);
+      check_retval(&retval, "CVDiagGetNumRhsEvals", 1);
+      retval = CVDiagGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
+      check_retval(&retval, "CVDiagGetWorkSpace", 1);
     }
     printf(" Linear solver real workspace length      = %4ld \n", lenrwLS);
     printf(" Linear solver integer workspace length   = %4ld \n", leniwLS);
@@ -803,31 +803,31 @@ static void PrintErrInfo(int nerr)
 /* Check function return value...
      opt == 0 means SUNDIALS function allocates memory so check if
               returned NULL pointer
-     opt == 1 means SUNDIALS function returns a flag so check if
-              flag >= 0
+     opt == 1 means SUNDIALS function returns an integer value so check if
+              retval < 0
      opt == 2 means function allocates memory so check if returned
               NULL pointer */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt)
+static int check_retval(void *returnvalue, const char *funcname, int opt)
 {
-  int *errflag;
+  int *retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
     return(1); }
 
-  /* Check if flag < 0 */
+  /* Check if retval < 0 */
   else if (opt == 1) {
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
-              funcname, *errflag);
+    retval = (int *) returnvalue;
+    if (*retval < 0) {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
+              funcname, *retval);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
             funcname);
     return(1); }

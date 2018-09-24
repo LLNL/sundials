@@ -94,7 +94,7 @@ static void SetICback(N_Vector uB, sunindextype my_base);
 static realtype Xintgr(realtype *z, sunindextype l, realtype dx);
 static realtype Compute_g(N_Vector u, UserData data);
 static void PrintOutput(realtype g_val, N_Vector uB, UserData data);
-static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
+static int check_retval(void *returnvalue, const char *funcname, int opt, int id);
 
 /*
  *--------------------------------------------------------------------
@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
   N_Vector uB;
 
   realtype dx, t, g_val;
-  int flag, my_pe, nprocs, npes, ncheck;
+  int retval, my_pe, nprocs, npes, ncheck;
   sunindextype local_N=0, nperpe, nrem, my_base=-1;
 
   MPI_Comm comm;
@@ -164,7 +164,7 @@ int main(int argc, char *argv[])
     Allocate and load user data structure
     -------------------------------------*/
   data = (UserData) malloc(sizeof *data);
-  if (check_flag((void *)data , "malloc", 2, my_pe)) MPI_Abort(comm, 1);
+  if (check_retval((void *)data , "malloc", 2, my_pe)) MPI_Abort(comm, 1);
   data->p[0] = ONE;
   data->p[1] = RCONST(0.5);
   dx = data->dx = XMAX/((realtype)(MX+1));
@@ -187,29 +187,29 @@ int main(int argc, char *argv[])
 
   /* Allocate and initialize forward variables */
   u = N_VNew_Parallel(comm, local_N, NEQ);
-  if (check_flag((void *)u, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
+  if (check_retval((void *)u, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
   SetIC(u, dx, local_N, my_base);
 
   /* Allocate CVODES memory for forward integration */
   cvode_mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL);
-  if (check_flag((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVodeSetUserData(cvode_mem, data);
-  if (check_flag(&flag, "CVodeSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeSetUserData(cvode_mem, data);
+  if (check_retval(&retval, "CVodeSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVodeInit(cvode_mem, f, T0, u);
-  if (check_flag(&flag, "CVodeInit", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeInit(cvode_mem, f, T0, u);
+  if (check_retval(&retval, "CVodeInit", 1, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVodeSStolerances(cvode_mem, reltol, abstol);
-  if (check_flag(&flag, "CVodeSStolerances", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeSStolerances(cvode_mem, reltol, abstol);
+  if (check_retval(&retval, "CVodeSStolerances", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Allocate combined forward/backward memory */
-  flag = CVodeAdjInit(cvode_mem, STEPS, CV_HERMITE);
-  if (check_flag(&flag, "CVadjInit", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeAdjInit(cvode_mem, STEPS, CV_HERMITE);
+  if (check_retval(&retval, "CVadjInit", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Integrate to TOUT and collect check point information */
-  flag = CVodeF(cvode_mem, TOUT, u, &t, CV_NORMAL, &ncheck);
-  if (check_flag(&flag, "CVodeF", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeF(cvode_mem, TOUT, u, &t, CV_NORMAL, &ncheck);
+  if (check_retval(&retval, "CVodeF", 1, my_pe)) MPI_Abort(comm, 1);
 
   /*---------------------------
     Compute and value of g(t_f)
@@ -229,33 +229,33 @@ int main(int argc, char *argv[])
 
     /* Allocate work space */
     data->z1 = (realtype *)malloc(local_N*sizeof(realtype));
-    if (check_flag((void *)data->z1, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
+    if (check_retval((void *)data->z1, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
     data->z2 = (realtype *)malloc(local_N*sizeof(realtype));
-    if (check_flag((void *)data->z2, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
+    if (check_retval((void *)data->z2, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
 
   }
 
   /* Allocate and initialize backward variables */
   uB = N_VNew_Parallel(comm, local_N, NEQ+NP);
-  if (check_flag((void *)uB, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
+  if (check_retval((void *)uB, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
   SetICback(uB, my_base);
 
   /* Allocate CVODES memory for the backward integration */
-  flag = CVodeCreateB(cvode_mem, CV_ADAMS, CV_FUNCTIONAL, &indexB);
-  if (check_flag(&flag, "CVodeCreateB", 1, my_pe)) MPI_Abort(comm, 1);
-  flag = CVodeSetUserDataB(cvode_mem, indexB, data);
-  if (check_flag(&flag, "CVodeSetUserDataB", 1, my_pe)) MPI_Abort(comm, 1);
-  flag = CVodeInitB(cvode_mem, indexB, fB, TOUT, uB);
-  if (check_flag(&flag, "CVodeInitB", 1, my_pe)) MPI_Abort(comm, 1);
-  flag = CVodeSStolerancesB(cvode_mem, indexB, reltol, abstol);
-  if (check_flag(&flag, "CVodeSStolerancesB", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeCreateB(cvode_mem, CV_ADAMS, CV_FUNCTIONAL, &indexB);
+  if (check_retval(&retval, "CVodeCreateB", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeSetUserDataB(cvode_mem, indexB, data);
+  if (check_retval(&retval, "CVodeSetUserDataB", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeInitB(cvode_mem, indexB, fB, TOUT, uB);
+  if (check_retval(&retval, "CVodeInitB", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeSStolerancesB(cvode_mem, indexB, reltol, abstol);
+  if (check_retval(&retval, "CVodeSStolerancesB", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Integrate to T0 */
-  flag = CVodeB(cvode_mem, T0, CV_NORMAL);
-  if (check_flag(&flag, "CVodeB", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeB(cvode_mem, T0, CV_NORMAL);
+  if (check_retval(&retval, "CVodeB", 1, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVodeGetB(cvode_mem, indexB, &t, uB);
-  if (check_flag(&flag, "CVodeGetB", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeGetB(cvode_mem, indexB, &t, uB);
+  if (check_retval(&retval, "CVodeGetB", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Print results (adjoint states and quadrature variables) */
   PrintOutput(g_val, uB, data);
@@ -621,7 +621,7 @@ static void PrintOutput(realtype g_val, N_Vector uB, UserData data)
 #endif
 
     mu = (realtype *)malloc(NEQ*sizeof(realtype));
-    if (check_flag((void *)mu, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
+    if (check_retval((void *)mu, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
 
     indx = 0;
     for ( i = 0; i < npes; i++) {
@@ -657,32 +657,32 @@ static void PrintOutput(realtype g_val, N_Vector uB, UserData data)
  * Check function return value.
  *    opt == 0 means SUNDIALS function allocates memory so check if
  *             returned NULL pointer
- *    opt == 1 means SUNDIALS function returns a flag so check if
- *             flag >= 0
+ *    opt == 1 means SUNDIALS function returns an integer value so check if
+ *             retval < 0
  *    opt == 2 means function allocates memory so check if returned
  *             NULL pointer 
  */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt, int id)
+static int check_retval(void *returnvalue, const char *funcname, int opt, int id)
 {
-  int *errflag;
+  int *retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n",
 	    id, funcname);
     return(1); }
 
-  /* Check if flag < 0 */
+  /* Check if retval < 0 */
   else if (opt == 1) {
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
-	      id, funcname, *errflag);
+    retval = (int *) returnvalue;
+    if (*retval < 0) {
+      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with retval = %d\n\n",
+	      id, funcname, *retval);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
 	    id, funcname);
     return(1); }

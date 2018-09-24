@@ -406,7 +406,7 @@ static void PrintFinalStats(void *cvode_mem)
      opt == 0 means SUNDIALS function allocates memory so check if
               returned NULL pointer
      opt == 1 means SUNDIALS function returns an integer value so check if
-              retval >= 0
+              retval < 0
      opt == 2 means function allocates memory so check if returned
               NULL pointer */
 

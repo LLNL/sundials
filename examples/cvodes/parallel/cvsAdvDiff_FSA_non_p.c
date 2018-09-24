@@ -97,7 +97,7 @@ static void SetIC(N_Vector u, realtype dx, sunindextype my_length, sunindextype 
 static void PrintOutput(void *cvode_mem, int my_pe, realtype t, N_Vector u);
 static void PrintOutputS(int my_pe, N_Vector *uS);
 static void PrintFinalStats(void *cvode_mem, booleantype sensi); 
-static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
+static int check_retval(void *returnvalue, const char *funcname, int opt, int id);
 
 /*
  *--------------------------------------------------------------------
@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
   N_Vector u;
   UserData data;
   void *cvode_mem;
-  int iout, flag, my_pe, npes;
+  int iout, retval, my_pe, npes;
   sunindextype local_N, nperpe, nrem, my_base;
 
   realtype *pbar;
@@ -147,19 +147,19 @@ int main(int argc, char *argv[])
   /* USER DATA STRUCTURE */
   data = (UserData) malloc(sizeof *data); /* Allocate data memory */
   data->p = NULL;
-  if(check_flag((void *)data, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
+  if(check_retval((void *)data, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
   data->comm = comm;
   data->npes = npes;
   data->my_pe = my_pe;
   data->p = (realtype *) malloc(NP * sizeof(realtype));
-  if(check_flag((void *)data->p, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
+  if(check_retval((void *)data->p, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
   dx = data->dx = XMAX/((realtype)(MX+1));
   data->p[0] = RCONST(1.0);
   data->p[1] = RCONST(0.5);
 
   /* INITIAL STATES */
   u = N_VNew_Parallel(comm, local_N, NEQ);    /* Allocate u vector */
-  if(check_flag((void *)u, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
+  if(check_retval((void *)u, "N_VNew_Parallel", 0, my_pe)) MPI_Abort(comm, 1);
   SetIC(u, dx, local_N, my_base);    /* Initialize u vector */
 
   /* TOLERANCES */
@@ -168,15 +168,15 @@ int main(int argc, char *argv[])
 
   /* CVODE_CREATE & CVODE_MALLOC */
   cvode_mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL);
-  if(check_flag((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
+  if(check_retval((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVodeSetUserData(cvode_mem, data);
-  if(check_flag(&flag, "CVodeSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeSetUserData(cvode_mem, data);
+  if(check_retval(&retval, "CVodeSetUserData", 1, my_pe)) MPI_Abort(comm, 1);
 
-  flag = CVodeInit(cvode_mem, f, T0, u);
-  if(check_flag(&flag, "CVodeInit", 1, my_pe)) MPI_Abort(comm, 1);
-  flag = CVodeSStolerances(cvode_mem, reltol, abstol);
-  if(check_flag(&flag, "CVodeSStolerances", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeInit(cvode_mem, f, T0, u);
+  if(check_retval(&retval, "CVodeInit", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeSStolerances(cvode_mem, reltol, abstol);
+  if(check_retval(&retval, "CVodeSStolerances", 1, my_pe)) MPI_Abort(comm, 1);
 
  
   if (my_pe == 0) {
@@ -187,34 +187,34 @@ int main(int argc, char *argv[])
   if(sensi) {
 
     plist = (int *) malloc(NS * sizeof(int));
-    if(check_flag((void *)plist, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
+    if(check_retval((void *)plist, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
     for(is=0; is<NS; is++)
       plist[is] = is; /* sensitivity w.r.t. i-th parameter */
 
     pbar  = (realtype *) malloc(NS * sizeof(realtype));
-    if(check_flag((void *)pbar, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
+    if(check_retval((void *)pbar, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
     for(is=0; is<NS; is++) pbar[is] = data->p[plist[is]];
 
     uS = N_VCloneVectorArray_Parallel(NS, u);
-    if(check_flag((void *)uS, "N_VCloneVectorArray_Parallel", 0, my_pe)) 
+    if(check_retval((void *)uS, "N_VCloneVectorArray_Parallel", 0, my_pe)) 
       MPI_Abort(comm, 1);
     for(is=0;is<NS;is++)
       N_VConst(ZERO,uS[is]);
 
-    flag = CVodeSensInit1(cvode_mem, NS, sensi_meth, NULL, uS);
-    if(check_flag(&flag, "CVodeSensInit1", 1, my_pe)) MPI_Abort(comm, 1);
+    retval = CVodeSensInit1(cvode_mem, NS, sensi_meth, NULL, uS);
+    if(check_retval(&retval, "CVodeSensInit1", 1, my_pe)) MPI_Abort(comm, 1);
 
-    flag = CVodeSensEEtolerances(cvode_mem);
-    if(check_flag(&flag, "CVodeSensEEtolerances", 1, my_pe)) MPI_Abort(comm, 1);
+    retval = CVodeSensEEtolerances(cvode_mem);
+    if(check_retval(&retval, "CVodeSensEEtolerances", 1, my_pe)) MPI_Abort(comm, 1);
 
-    flag = CVodeSetSensErrCon(cvode_mem, err_con);
-    if(check_flag(&flag, "CVodeSetSensErrCon", 1, my_pe)) MPI_Abort(comm, 1);
+    retval = CVodeSetSensErrCon(cvode_mem, err_con);
+    if(check_retval(&retval, "CVodeSetSensErrCon", 1, my_pe)) MPI_Abort(comm, 1);
 
-    flag = CVodeSetSensDQMethod(cvode_mem, CV_CENTERED, ZERO);
-    if(check_flag(&flag, "CVodeSetSensDQMethod", 1, my_pe)) MPI_Abort(comm, 1);
+    retval = CVodeSetSensDQMethod(cvode_mem, CV_CENTERED, ZERO);
+    if(check_retval(&retval, "CVodeSetSensDQMethod", 1, my_pe)) MPI_Abort(comm, 1);
 
-    flag = CVodeSetSensParams(cvode_mem, data->p, pbar, plist);
-    if(check_flag(&flag, "CVodeSetSensParams", 1, my_pe)) MPI_Abort(comm, 1);
+    retval = CVodeSetSensParams(cvode_mem, data->p, pbar, plist);
+    if(check_retval(&retval, "CVodeSetSensParams", 1, my_pe)) MPI_Abort(comm, 1);
 
     if(my_pe == 0) {
       printf("Sensitivity: YES ");
@@ -244,12 +244,12 @@ int main(int argc, char *argv[])
 
   for (iout=1, tout=T1; iout <= NOUT; iout++, tout += DTOUT) {
 
-    flag = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
-    if(check_flag(&flag, "CVode", 1, my_pe)) break;
+    retval = CVode(cvode_mem, tout, u, &t, CV_NORMAL);
+    if(check_retval(&retval, "CVode", 1, my_pe)) break;
     PrintOutput(cvode_mem, my_pe, t, u);
     if (sensi) {
-      flag = CVodeGetSens(cvode_mem, &t, uS);
-      if(check_flag(&flag, "CVodeGetSens", 1, my_pe)) break;
+      retval = CVodeGetSens(cvode_mem, &t, uS);
+      if(check_retval(&retval, "CVodeGetSens", 1, my_pe)) break;
       PrintOutputS(my_pe, uS);
     }
     if (my_pe == 0)
@@ -446,15 +446,15 @@ static void SetIC(N_Vector u, realtype dx, sunindextype my_length,
 static void PrintOutput(void *cvode_mem, int my_pe, realtype t, N_Vector u)
 {
   long int nst;
-  int qu, flag;
+  int qu, retval;
   realtype hu, umax;
 
-  flag = CVodeGetNumSteps(cvode_mem, &nst);
-  check_flag(&flag, "CVodeGetNumSteps", 1, my_pe);
-  flag = CVodeGetLastOrder(cvode_mem, &qu);
-  check_flag(&flag, "CVodeGetLastOrder", 1, my_pe);
-  flag = CVodeGetLastStep(cvode_mem, &hu);
-  check_flag(&flag, "CVodeGetLastStep", 1, my_pe);
+  retval = CVodeGetNumSteps(cvode_mem, &nst);
+  check_retval(&retval, "CVodeGetNumSteps", 1, my_pe);
+  retval = CVodeGetLastOrder(cvode_mem, &qu);
+  check_retval(&retval, "CVodeGetLastOrder", 1, my_pe);
+  retval = CVodeGetLastStep(cvode_mem, &hu);
+  check_retval(&retval, "CVodeGetLastStep", 1, my_pe);
 
   umax = N_VMaxNorm(u);
 
@@ -525,34 +525,34 @@ static void PrintFinalStats(void *cvode_mem, booleantype sensi)
   long int nst;
   long int nfe, nsetups, nni, ncfn, netf;
   long int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
-  int flag;
+  int retval;
 
-  flag = CVodeGetNumSteps(cvode_mem, &nst);
-  check_flag(&flag, "CVodeGetNumSteps", 1, 0);
-  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  check_flag(&flag, "CVodeGetNumRhsEvals", 1, 0);
-  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  check_flag(&flag, "CVodeGetNumLinSolvSetups", 1, 0);
-  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-  check_flag(&flag, "CVodeGetNumErrTestFails", 1, 0);
-  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1, 0);
-  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1, 0);
+  retval = CVodeGetNumSteps(cvode_mem, &nst);
+  check_retval(&retval, "CVodeGetNumSteps", 1, 0);
+  retval = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  check_retval(&retval, "CVodeGetNumRhsEvals", 1, 0);
+  retval = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  check_retval(&retval, "CVodeGetNumLinSolvSetups", 1, 0);
+  retval = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  check_retval(&retval, "CVodeGetNumErrTestFails", 1, 0);
+  retval = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  check_retval(&retval, "CVodeGetNumNonlinSolvIters", 1, 0);
+  retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1, 0);
 
   if (sensi) {
-    flag = CVodeGetSensNumRhsEvals(cvode_mem, &nfSe);
-    check_flag(&flag, "CVodeGetSensNumRhsEvals", 1, 0);
-    flag = CVodeGetNumRhsEvalsSens(cvode_mem, &nfeS);
-    check_flag(&flag, "CVodeGetNumRhsEvalsSens", 1, 0);
-    flag = CVodeGetSensNumLinSolvSetups(cvode_mem, &nsetupsS);
-    check_flag(&flag, "CVodeGetSensNumLinSolvSetups", 1, 0);
-    flag = CVodeGetSensNumErrTestFails(cvode_mem, &netfS);
-    check_flag(&flag, "CVodeGetSensNumErrTestFails", 1, 0);
-    flag = CVodeGetSensNumNonlinSolvIters(cvode_mem, &nniS);
-    check_flag(&flag, "CVodeGetSensNumNonlinSolvIters", 1, 0);
-    flag = CVodeGetSensNumNonlinSolvConvFails(cvode_mem, &ncfnS);
-    check_flag(&flag, "CVodeGetSensNumNonlinSolvConvFails", 1, 0);
+    retval = CVodeGetSensNumRhsEvals(cvode_mem, &nfSe);
+    check_retval(&retval, "CVodeGetSensNumRhsEvals", 1, 0);
+    retval = CVodeGetNumRhsEvalsSens(cvode_mem, &nfeS);
+    check_retval(&retval, "CVodeGetNumRhsEvalsSens", 1, 0);
+    retval = CVodeGetSensNumLinSolvSetups(cvode_mem, &nsetupsS);
+    check_retval(&retval, "CVodeGetSensNumLinSolvSetups", 1, 0);
+    retval = CVodeGetSensNumErrTestFails(cvode_mem, &netfS);
+    check_retval(&retval, "CVodeGetSensNumErrTestFails", 1, 0);
+    retval = CVodeGetSensNumNonlinSolvIters(cvode_mem, &nniS);
+    check_retval(&retval, "CVodeGetSensNumNonlinSolvIters", 1, 0);
+    retval = CVodeGetSensNumNonlinSolvConvFails(cvode_mem, &ncfnS);
+    check_retval(&retval, "CVodeGetSensNumNonlinSolvConvFails", 1, 0);
   }
 
   printf("\nFinal Statistics\n\n");
@@ -574,32 +574,32 @@ static void PrintFinalStats(void *cvode_mem, booleantype sensi)
  * Check function return value...
  *   opt == 0 means SUNDIALS function allocates memory so check if
  *            returned NULL pointer
- *   opt == 1 means SUNDIALS function returns a flag so check if
- *            flag >= 0
+ *   opt == 1 means SUNDIALS function returns an integer value so check if
+ *            retval < 0
  *   opt == 2 means function allocates memory so check if returned
  *            NULL pointer 
  */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt, int id)
+static int check_retval(void *returnvalue, const char *funcname, int opt, int id)
 {
-  int *errflag;
+  int *retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n",
 	    id, funcname);
     return(1); }
 
-  /* Check if flag < 0 */
+  /* Check if retval < 0 */
   else if (opt == 1) {
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n",
-	      id, funcname, *errflag);
+    retval = (int *) returnvalue;
+    if (*retval < 0) {
+      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with retval = %d\n\n",
+	      id, funcname, *retval);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
 	    id, funcname);
     return(1); }
