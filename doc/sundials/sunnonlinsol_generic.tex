@@ -20,11 +20,14 @@ the definition of functions supplied to a nonlinear solver implementation in
 section \ref{ss:sunnonlinsol_sunsuppliedfn}. A table of nonlinear solver return
 codes is given in section \ref{ss:sunnonlinsol_returncodes}. The
 \id{SUNNonlinearSolver} type and the generic {\sunnonlinsol} module are defined
-in section \ref{ss:sunnonlinsol_generic}. Finally, section
-\ref{ss:sunnonlinsol_custom} lists the requirements for supplying a custom
-{\sunnonlinsol} module. Users wishing to supply their own {\sunnonlinsol} module
-are encouraged to use the {\sunnonlinsol} implementations provided with
-{\sundials} as a template for supplying custom nonlinear solver modules.
+in section \ref{ss:sunnonlinsol_generic}. Section \ref{ss:sunnonlinsol_sens}
+describes how {\sunnonlinsol} models interface with {\sundials} integrators
+providing sensitivity analysis capabilities ({\cvodes} and {\idas}). Finally,
+section \ref{ss:sunnonlinsol_custom} lists the requirements for supplying a
+custom {\sunnonlinsol} module. Users wishing to supply their own {\sunnonlinsol}
+module are encouraged to use the {\sunnonlinsol} implementations provided with
+{\sundials} as a template for supplying custom nonlinear solver
+modules.
 
 
 % ====================================================================
@@ -776,6 +779,136 @@ int SUNNonlinSolSolve(SUNNonlinearSolver NLS,
 }
 \end{verbatim}
 
+
+% ====================================================================
+\subsection{Usage with sensitivity enabled integrators}
+\label{ss:sunnonlinsol_sens}
+% ====================================================================
+
+When used with {\sundials} packages that support sensitivity analysis
+capabilities (e.g., {\cvodes} and {\idas}) a special {\nvector} module is used
+to interface with {\sunnonlinsol} modules for solves involving sensitivity
+vectors stored in an {\nvector} array. As described below, the {\nvecwrap}
+module is an {\nvector} implementation where the vector content is an {\nvector}
+array. This wrapper vector allows {\sunnonlinsol} modules to operate on data
+stored as a collection of vectors.
+
+For all {\sundials}-provided {\sunnonlinsol} modules a special constructor
+wrapper is provided so users do not need to interact directly with the
+{\nvecwrap} module. These constructors follow the naming
+convention \id{SUNNonlinSol\_***Sens(count,...)} where \id{***} is the name of
+the {\sunnonlinsol} module, \id{count} is the size of the vector wrapper,
+and \id{...} are the module-specific constructor arguments. 
+
+% ====================================================================
+\subsubsection*{The NVECTOR\_SENSWRAPPER module}
+\label{ss:sunnonlinsol_senswrapper}
+% ====================================================================
+
+This section describes the {\nvecwrap} implementation of an {\nvector}. To
+access the {\nvecwrap} module, include the header file
+\id{sundials/sundials\_nvector\_senswrapper.h}.
+
+The {\nvecwrap} module defines an \id{N\_Vector} implementing all of the
+standard vectors operations defined in Table \ref{t:nvecops} but with some
+changes to how operations are computed in order to accommodate operating on a
+collection of vectors.
+\begin{enumerate}
+
+\item Element-wise vector operations are computed on a vector-by-vector basis. For
+example, the linear sum of two wrappers containing $n_v$ vectors of length $n$,
+\id{N\_VLinearSum(a,x,b,y,z)}, is computed as
+\begin{equation*}
+z_{j,i} = a x_{j,i} + b y_{j,i}, \quad i=0,\ldots,n-1, \quad j=0,\ldots,n_v-1.
+\end{equation*}
+
+\item The dot product of two wrappers containing $n_v$ vectors of length $n$ is
+computed as if it were the dot product of two vectors of length $n n_v$.
+Thus \id{d = N\_VDotProd(x,y)} is
+\begin{equation*}
+d = \sum_{j=0}^{n_v-1} \sum_{i=0}^{n-1} x_{j,i} y_{j,i}.
+\end{equation*}
+
+\item All norms are computed as the maximum of the individual norms of the $n_v$ vectors
+in the wrapper. For example, the weighted root mean square norm
+\id{m = N\_VWrmsNorm(x, w)} is
+\begin{equation*}
+m = \max_{j} \sqrt{ \left( \frac1n \sum_{i=0}^{n-1} \left(x_{j,i}
+w_{j,i}\right)^2\right) }
+\end{equation*}
+
+\end{enumerate}
+To enable usage alongside other {\nvector} modules the {\nvecwrap} functions
+implementing vector operations have \id{\_SensWrapper} appended to the
+generic vector operation name.
+
+The {\nvecwrap} module provides the following constructors for creating an
+{\nvecwrap}:
+\ucfunction{N\_VNewEmpty\_SensWrapper}
+{
+  w = N\_VNewEmpty\_SensWrapper(count);
+}
+{
+  The function \ID{N\_VNewEmpty\_SensWrapper} creates an empty {\nvecwrap}
+  wrapper with space for \id{count} vectors.
+}
+{
+  \begin{args}[count]
+  \item[count] (\id{int})
+    the number of vectors the wrapper will contain.
+  \end{args}
+}
+{
+  The return value \id{w} (of type \id{N\_Vector}) will be a {\nvector} object
+  if the constructor exits successfully, otherwise \id{w} will be \id{NULL}.
+}
+{}
+%
+\ucfunction{N\_VNew\_SensWrapper}
+{
+  w = N\_VNew\_SensWrapper(count, y);
+}
+{
+  The function \ID{N\_VNew\_SensWrapper} creates an {\nvecwrap}
+  wrapper containing \id{count} vectors cloned from \id{y}.
+}
+{
+  \begin{args}[count]
+  \item[count] (\id{int})
+    the number of vectors the wrapper will contain.
+  \item[y] (\id{N\_Vector})
+    the template vectors to use in creating the vector wrapper.
+  \end{args}
+}
+{
+  The return value \id{w} (of type \id{N\_Vector}) will be a {\nvector} object
+  if the constructor exits successfully, otherwise \id{w} will be \id{NULL}.
+}
+{}
+
+The {\nvecwrap} implementation of the {\nvector} module defines
+the \textit{content} field of the \id{N\_Vector} to be a structure containing
+an \id{N\_Vector} array, the number of vectors in the vector array, and a
+boolean flag indicating ownership of the vectors in the vector array.
+%
+\begin{verbatim} 
+struct _N_VectorContent_SensWrapper {
+  N_Vector* vecs;
+  int nvecs;
+  booleantype own_vecs;
+};
+\end{verbatim}
+%
+The following macros are provided to access the content of an {\nvecwrap}
+vector.
+\begin{itemize}
+ \item \id{NV\_CONTENT\_SW(v)}   - provides access to the content structure
+ \item \id{NV\_VECS\_SW(v)}      - provides access to the vector array
+ \item \id{NV\_NVECS\_SW(v)}     - provides access to the number of vectors
+ \item \id{NV\_OWN\_VECS\_SW(v)} - provides access to the ownership flag
+ \item \id{NV\_VEC\_SW(v,i)}     - provides access to the \id{i}-th vector in
+ the  vector array
+\end{itemize}
 
 % ====================================================================
 \subsection{Implementing a Custom SUNNonlinearSolver Module}

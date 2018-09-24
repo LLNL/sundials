@@ -292,15 +292,18 @@ int IDASetMaxNonlinIters(void *ida_mem, int maxcor)
   IDAMem IDA_mem;
 
   if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDASetMaxNonlinIters", MSG_NO_MEM);
-    return (IDA_MEM_NULL);
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA",
+                    "IDASetMaxNonlinIters", MSG_NO_MEM);
+    return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
+  /* check that the NLS is non-NULL */
   if (IDA_mem->NLS == NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDASetMaxNonlinIters", MSG_NO_MEM);
-    return (IDA_MEM_NULL);
+    IDAProcessError(NULL, IDA_MEM_FAIL, "IDA",
+                    "IDASetMaxNonlinIters", MSG_MEM_FAIL);
+    return(IDA_MEM_FAIL);
   }
 
   return(SUNNonlinSolSetMaxIters(IDA_mem->NLS, maxcor));
@@ -1011,21 +1014,29 @@ int IDAGetNumNonlinSolvIters(void *ida_mem, long int *nniters)
   int retval;
 
   if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAGetNumNonlinSolvIters", MSG_NO_MEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA",
+                    "IDAGetNumNonlinSolvIters", MSG_NO_MEM);
     return(IDA_MEM_NULL);
   }
 
   IDA_mem = (IDAMem) ida_mem;
 
+  /* get number of iterations for IC calc */
   *nniters = IDA_mem->ida_nni;
 
-  if (IDA_mem->NLS != NULL) {
-    retval = SUNNonlinSolGetNumIters(IDA_mem->NLS, &nls_iters);
-    if (retval != IDA_SUCCESS)
-      return(retval);
-    else
-      *nniters += nls_iters;
+  /* check that the NLS is non-NULL */
+  if (IDA_mem->NLS == NULL) {
+    IDAProcessError(NULL, IDA_MEM_FAIL, "IDA",
+                    "IDAGetNumNonlinSolvIters", MSG_MEM_FAIL);
+    return(IDA_MEM_FAIL);
   }
+
+  /* get number of iterations from the NLS */
+  retval = SUNNonlinSolGetNumIters(IDA_mem->NLS, &nls_iters);
+  if (retval != IDA_SUCCESS) return(retval);
+
+  /* update the number of nonlinear iterations */  
+  *nniters += nls_iters;
 
   return(IDA_SUCCESS);
 }
@@ -1057,7 +1068,8 @@ int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters, long int *nncfails)
   int retval;
 
   if (ida_mem==NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDA", "IDAGetNonlinSolvStats", MSG_NO_MEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDA",
+                    "IDAGetNonlinSolvStats", MSG_NO_MEM);
     return(IDA_MEM_NULL);
   }
 
@@ -1066,13 +1078,19 @@ int IDAGetNonlinSolvStats(void *ida_mem, long int *nniters, long int *nncfails)
   *nniters  = IDA_mem->ida_nni;
   *nncfails = IDA_mem->ida_ncfn;
 
-  if (IDA_mem->NLS != NULL) {
-    retval = SUNNonlinSolGetNumIters(IDA_mem->NLS, &nls_iters);
-    if (retval != IDA_SUCCESS)
-      return(retval);
-    else
-      *nniters += nls_iters;
+  /* check that the NLS is non-NULL */
+  if (IDA_mem->NLS == NULL) {
+    IDAProcessError(NULL, IDA_MEM_FAIL, "IDA",
+                    "IDAGetNonlinSolvStats", MSG_MEM_FAIL);
+    return(IDA_MEM_FAIL);
   }
+
+  /* get number of iterations from the NLS */
+  retval = SUNNonlinSolGetNumIters(IDA_mem->NLS, &nls_iters);
+  if (retval != IDA_SUCCESS) return(retval);
+  
+  /* update the number of nonlinear iterations */
+  *nniters += nls_iters;
 
   return(IDA_SUCCESS);
 }

@@ -78,10 +78,19 @@ sensitivity analysis} \begin{Steps}
   \textcolor{gray}{\bf Create linear solver object}
 
 \item
+  \textcolor{gray}{\bf Attach linear solver module}
+
+\item
   \textcolor{gray}{\bf Set linear solver optional inputs}
 
 \item
-  \textcolor{gray}{\bf Attach linear solver module}
+  \textcolor{gray}{\bf Create nonlinear solver object}
+
+\item
+  \textcolor{gray}{\bf Attach nonlinear solver module}
+
+\item
+  \textcolor{gray}{\bf Set nonlinear solver optional inputs}
 
 \item
   \textcolor{gray}{\bf Initialize quadrature problem, if not sensitivity-dependent}
@@ -188,6 +197,35 @@ sensitivity analysis} \begin{Steps}
   optional inputs that control the behavior of {\idas} in computing forward 
   sensitivities.  See \S\ref{ss:sens_optional_input}.
 
+\item 
+  {\bf Create sensitivity nonlinear solver object} (\textit{optional})
+
+  If using a non-default nonlinear solver, then create the desired nonlinear
+  solver object by calling the appropriate constructor function defined by the
+  particular {\sunnonlinsol} implementation (e.g.,
+  \id{NLS = SUNNonlinSol\_***Sens(...);} where \id{***} is the name of the nonlinear
+  solver (see Chapter \ref{c:sunnonlinsol} for details).
+
+\item
+  {\bf Attach the sensitvity nonlinear solver module} (\textit{optional})
+
+  If using a non-default nonlinear solver, then initialize the nonlinear solver
+  interface by attaching the nonlinear solver object by calling \id{ier =
+  }\Id{IDASetNonlinearSolverSensSim}\id{(ida\_mem, NLS);} when using the
+  simultaneous corrector method or \id{ier =
+  }\Id{IDASetNonlinearSolverSensStg}\id{(ida\_mem, NLS);} when using the
+  staggered corrector method (see \S\ref{sss:idafwd_nonlin_solv_init} for details).
+
+\item
+  {\bf Set sensitivity nonlinear solver optional inputs} (\textit{optional})
+
+  Call the appropriate set functions for the selected nonlinear solver module to
+  change optional inputs specific to that nonlinear solver. These \textit{must}
+  be called after \id{IDASensInit} if using the default nonlinear solver or after
+  attaching a new nonlinear solver to {\idas}, otherwise the optional inputs will
+  be overridden by {\idas} defaults. See Chapter \ref{c:sunnonlinsol} for more
+  information on optional inputs.
+
 \item
   \textcolor{gray}{\bf Correct initial values}
 
@@ -230,6 +268,9 @@ sensitivity analysis} \begin{Steps}
 
 \item
   \textcolor{gray}{\bf Free solver memory}
+
+\item
+  \textcolor{gray}{\bf Free nonlinear solver memory}
   
 \item
   \textcolor{gray}{\bf Free vector specification memory}
@@ -564,7 +605,112 @@ the call to \id{IDASensInit}.
 }
 {}
 
+%%==================================================================================
+\subsection{Forward sensitivity nonlinear solver interface functions}
+\label{sss:idafwd_nonlin_solv_init}
 
+As in the pure DAE case, when computing solution sensitivities using forward
+sensitivitiy analysis {\idas} uses the {\sunnonlinsol} implementation of
+Newton's method defined by the {\sunnonlinsolnewton} module (see
+\S\ref{s:sunnonlinsol_newton}). To specify a different nonlinear solver in
+{\idas}, the user's program must create a {\sunnonlinsol} object by calling
+the appropriate constructor routine.  The user must then attach the
+{\sunnonlinsol} object to {\idas} by calling either
+\Id{IDASetNonlinearSolverSensSim} when using the simultaneous 
+corrector method, or \Id{IDASetNonlinearSolver} (see
+\S\ref{sss:nonlin_solv_init}) and \\ \noindent
+\Id{IDASetNonlinearSolverSensStg} when using
+the staggered corrector method, as documented below.
+
+When changing the nonlinear solver in {\idas}, \id{IDASetNonlinearSolver} must
+be called after \id{IDAInit}; similarly \id{IDASetNonlinearSolverSensSim} and
+\id{IDASetNonlinearSolverStg} must be called after \id{IDASensInit}. If any
+calls to \id{IDASolve} have been made, then {\idas} will need to be
+reinitialized by calling \id{IDAReInit} to ensure that the nonlinear solver is
+initialized correctly before any subsequent calls to \id{IDASolve}.
+
+The first argument passed to the routines
+\id{IDASetNonlinearSolverSensSim} and \\ \noindent
+\id{IDASetNonlinearSolverSensStg} is the {\idas} memory pointer returned by
+\id{IDACreate} and the second argument is the {\sunnonlinsol} object to use for
+solving the nonlinear system \ref{e:DAE_nls}. A call to this function attaches
+the nonlinear solver to the main {\idas} integrator. We note that at present,
+the {\sunnonlinsol} object \emph{must be of type}
+\id{SUNNONLINEARSOLVER\_ROOTFIND}.
+
+\ucfunction{IDASetNonlinearSolverSensSim}
+{
+  flag = IDASetNonlinearSolverSensSim(ida\_mem, NLS);
+}
+{
+  The function \ID{IDASetNonLinearSolverSensSim} attaches a {\sunnonlinsol}
+  object (\id{NLS}) to {\idas} when using the \id{IDA\_SIMULTANEOUS} approach to
+  correct the state and sensitivity variables at the same time.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory block.
+  \item[NLS] (\id{SUNNonlinearSolver})
+    {\sunnonlinsol} object to use for solving nonlinear systems.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDA\_ILL\_INPUT]
+  \item[\Id{IDA\_SUCCESS}]
+    The nonlinear solver was successfully attached.
+  \item[\Id{IDA\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDA\_ILL\_INPUT}]
+    The {\sunnonlinsol} object is \id{NULL}, does not implement the required
+    nonlinear solver operations, is not of the correct type, or the residual
+    function, convergence test function, or maximum number of nonlinear
+    iterations could not be set.
+  \end{args}
+}
+{}
+
+
+\ucfunction{IDASetNonlinearSolverSensStg}
+{
+  flag = IDASetNonlinearSolverSensStg(ida\_mem, NLS);
+}
+{
+  The function \ID{IDASetNonLinearSolverSensStg} attaches a {\sunnonlinsol}
+  object (\id{NLS}) to {\idas} when using the \id{IDA\_STAGGERED} approach to
+  correct the sensitivity variables after the correction of the state variables.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory block.
+  \item[NLS] (\id{SUNNonlinearSolver})
+    {\sunnonlinsol} object to use for solving nonlinear systems.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDA\_ILL\_INPUT]
+  \item[\Id{IDA\_SUCCESS}]
+    The nonlinear solver was successfully attached.
+  \item[\Id{IDA\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDA\_ILL\_INPUT}]
+    The {\sunnonlinsol} object is \id{NULL}, does not implement the required
+    nonlinear solver operations, is not of the correct type, or the residual
+    function, convergence test function, or maximum number of nonlinear
+    iterations could not be set.
+  \end{args}
+}
+{
+  This function only attaches the {\sunnonlinsol} object for correcting the
+  sensitivity variables. To attach a {\sunnonlinsol} object for the state
+  variable correction use \Id{IDASetNonlinearSolver} (see
+  \S\ref{sss:nonlin_solv_init}).
+}
+
+%%==============================================================================
 \subsection{Forward sensitivity initial condition calculation function}
 \label{sss:idasenscalcic}
 
@@ -970,7 +1116,7 @@ Maximum no. of nonlinear iterations & \id{IDASetSensMaxNonlinIters} & 3 \\
   \item[\Id{IDA\_SUCCESS}] 
     The optional value has been successfully set.
   \item[\Id{IDA\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
+    The \id{ida\_mem} pointer or the {\sunnonlinsol} module is \id{NULL}.
   \end{args}
 }
 {
@@ -1241,7 +1387,7 @@ Sens. nonlinear solver statistics as a group & \id{IDAGetSensNonlinSolvStats} \\
   \item[\Id{IDA\_SUCCESS}] 
     The optional output value has been successfully set.
   \item[\Id{IDA\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
+    The \id{ida\_mem} pointer or the {\sunnonlinsol} module is \id{NULL}.
   \item[\Id{IDA\_NO\_SENS}]
     Forward sensitivity analysis was not initialized.
   \end{args}
@@ -1310,7 +1456,7 @@ Sens. nonlinear solver statistics as a group & \id{IDAGetSensNonlinSolvStats} \\
   \item[\Id{IDA\_SUCCESS}] 
     The optional output values have been successfully set.
   \item[\Id{IDA\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
+    The \id{ida\_mem} pointer or the {\sunnonlinsol} module is \id{NULL}.
   \item[\Id{IDA\_NO\_SENS}]
     Forward sensitivity analysis was not initialized.
   \end{args}

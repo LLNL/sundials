@@ -1,3 +1,7 @@
+Changes to SUNDIALS in release 4.0.0-dev.2
+
+ARKode and IDAS were updated to use the SUNNONLINSOL API.
+
 Changes to SUNDIALS in release 4.0.0-dev.1
 
 An API for encapsulating the nonlinear solvers used in SUNDIALS implicit

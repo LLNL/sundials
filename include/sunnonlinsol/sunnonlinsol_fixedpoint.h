@@ -72,6 +72,7 @@ typedef struct _SUNNonlinearSolverContent_FixedPoint *SUNNonlinearSolverContent_
 
 /* Constructor to create solver and allocates memory */
 SUNDIALS_EXPORT SUNNonlinearSolver SUNNonlinSol_FixedPoint(N_Vector y, int m);
+SUNDIALS_EXPORT SUNNonlinearSolver SUNNonlinSol_FixedPointSens(int count, N_Vector y, int m);
 
 /* core functions */
 SUNDIALS_EXPORT SUNNonlinearSolver_Type SUNNonlinSolGetType_FixedPoint(SUNNonlinearSolver NLS);

@@ -27,6 +27,7 @@ set(lib_SOURCES sunnonlinsol_fixedpoint.c)
 set(shared_SOURCES
   ${sundials_SOURCE_DIR}/src/sundials/sundials_math.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector_senswrapper.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_nonlinearsolver.c
   )
 

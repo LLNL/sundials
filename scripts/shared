@@ -71,6 +71,7 @@ $tar $tarfile $distrobase/include/sundials/sundials_klu_impl.h
 $tar $tarfile $distrobase/include/sundials/sundials_superlumt_impl.h
 $tar $tarfile $distrobase/include/sundials/sundials_version.h
 $tar $tarfile $distrobase/include/sundials/sundials_nonlinearsolver.h
+$tar $tarfile $distrobase/include/sundials/sundials_nvector_senswrapper.h
 
 $tar $tarfile $distrobase/include/nvector/nvector_serial.h
 $tar $tarfile $distrobase/include/nvector/nvector_parallel.h
@@ -125,6 +126,7 @@ $tar $tarfile $distrobase/src/sundials/sundials_pcg.c
 $tar $tarfile $distrobase/src/sundials/sundials_iterative.c
 $tar $tarfile $distrobase/src/sundials/sundials_version.c
 $tar $tarfile $distrobase/src/sundials/sundials_nonlinearsolver.c
+$tar $tarfile $distrobase/src/sundials/sundials_nvector_senswrapper.c
 
 echo "   --- Add nvecser module to $tarfile"
 

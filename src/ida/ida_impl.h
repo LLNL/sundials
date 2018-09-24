@@ -103,17 +103,17 @@ typedef struct IDAMemRec {
   N_Vector ida_yp;          /* work space for y' vector (= user's ypret)      */
   N_Vector ida_yypredict;   /* predicted y vector                             */
   N_Vector ida_yppredict;   /* predicted y' vector                            */
-  N_Vector ida_ypbeta;      /* beta vector = yp^(0) - y^(0)                   */
   N_Vector ida_delta;       /* residual vector                                */
   N_Vector ida_id;          /* bit vector for diff./algebraic components      */
   N_Vector ida_constraints; /* vector of inequality constraint options        */
-  N_Vector ida_savres;      /* saved residual vector (= tempv1)               */
+  N_Vector ida_savres;      /* saved residual vector                          */
   N_Vector ida_ee;          /* accumulated corrections to y vector, but
                                set equal to estimated local errors upon
                                successful return                              */
   N_Vector ida_mm;          /* mask vector in constraints tests (= tempv2)    */
   N_Vector ida_tempv1;      /* work space vector                              */
   N_Vector ida_tempv2;      /* work space vector                              */
+  N_Vector ida_tempv3;      /* work space vector                              */
   N_Vector ida_ynew;        /* work vector for y in IDACalcIC (= tempv2)      */
   N_Vector ida_ypnew;       /* work vector for yp in IDACalcIC (= ee)         */
   N_Vector ida_delnew;      /* work vector for delta in IDACalcIC (= phi[2])  */
@@ -216,6 +216,8 @@ typedef struct IDAMemRec {
   /* Nonlinear Solver */
 
   SUNNonlinearSolver NLS; /* Sundials generic nonlinear solver object */
+  booleantype ownNLS;     /* flag indicating if IDA created the nonlinear
+                             solver object */
 
   /* Linear Solver Data */
 

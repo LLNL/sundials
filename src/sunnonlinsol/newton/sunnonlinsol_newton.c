@@ -21,6 +21,7 @@
 
 #include <sunnonlinsol/sunnonlinsol_newton.h>
 #include <sundials/sundials_math.h>
+#include <sundials/sundials_nvector_senswrapper.h>
 
 /* Content structure accessibility macros  */
 #define NEWTON_CONTENT(S) ( (SUNNonlinearSolverContent_Newton)(S->content) )
@@ -45,8 +46,7 @@ SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y)
   if ( (y->ops->nvclone     == NULL) ||
        (y->ops->nvdestroy   == NULL) ||
        (y->ops->nvscale     == NULL) ||
-       (y->ops->nvlinearsum == NULL) ||
-       (y->ops->nvwrmsnorm  == NULL) )
+       (y->ops->nvlinearsum == NULL) )
     return(NULL);
 
   /* Create nonlinear linear solver */
@@ -99,6 +99,29 @@ SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y)
   NLS->content = content;
   NLS->ops     = ops;
 
+  return(NLS);
+}
+
+
+/*==============================================================================
+  Constructor wrapper to create a new Newton solver for sensitivity solvers
+  ============================================================================*/
+
+SUNNonlinearSolver SUNNonlinSol_NewtonSens(int count, N_Vector y)
+{
+  SUNNonlinearSolver NLS;
+  N_Vector w;
+
+  /* create sensitivity vector wrapper */
+  w = N_VNew_SensWrapper(count, y);
+
+  /* create nonlinear solver using sensitivity vector wrapper */
+  NLS = SUNNonlinSol_Newton(w);
+
+  /* free sensitivity vector wrapper */
+  N_VDestroy(w);
+
+  /* return NLS object */
   return(NLS);
 }
 

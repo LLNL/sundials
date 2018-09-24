@@ -13,13 +13,13 @@ stands for Implicit Differential-Algebraic solver with Sensitivity capabilities.
 {\idas} is an extension of the {\ida} solver within {\sundials}, itself 
 based on {\daspk}~\cite{BHP:94,BHP:98}; however, like all {\sundials} solvers,
 {\idas} is written in ANSI-standard C rather than {\F}77.  
-Its most notable features are that, 
-(1) in the solution of the underlying nonlinear system at each time step, it 
-offers a choice of Newton/direct methods and a choice of Inexact Newton/Krylov
-(iterative) methods;
+Its most notable features are that,
+(1) in the solution of the underlying nonlinear system at each time
+step, it offers a choice of Newton/direct methods and a choice of
+Inexact Newton/Krylov (iterative) methods;
 (2) it is written in a {\em data-independent} manner in that it acts
-on generic vectors without any assumptions on the underlying organization
-of the data; and
+on generic vectors and matrices without any assumptions on the
+underlying organization of the data; and
 (3) it provides a flexible, extensible framework for sensitivity analysis,
 using either {\em forward} or {\em adjoint} methods.
 Thus {\idas} shares significant modules previously written within CASC
@@ -86,6 +86,16 @@ in extended {\F}.
 
 
 \section{Changes from previous versions}
+
+\subsection*{Changes in v3.0.0-dev.2}
+
+{\idas} was updated to use the {\sunnonlinsol} API. By default {\idas} uses the
+{\sunnonlinsolnewton} module implementation of a Newton iteration. Since {\idas}
+previously only used an internal implementation of a Newton iteration for
+nonlinear solves, no changes are required to user programs and functions for
+setting the nonlinear solver options (e.g., \id{IDASetMaxNonlinIters}) or
+getting nonlinear solver statistics (e.g., \id{IDAGetNumNonlinSolvIters}) remain
+unchanged and internally call generic {\sunnonlinsol} functions.
 
 \subsection*{Changes in v3.0.0-dev.1}
 
@@ -301,6 +311,7 @@ Corrections and additions were made to the examples,
 to installation-related files,
 and to the user documentation.
 
+
 \subsection*{Changes in v1.3.0}
 
 Two additional {\nvector} implementations were added -- one for
@@ -497,6 +508,9 @@ Chapter \ref{s:sunmatrix} gives a brief overview of the generic
 %% \item
 %%   Chapter \ref{s:gen_linsolv} describes in detail the generic linear
 %%   solvers shared by all {\sundials} solvers.
+\item
+  Chapter \ref{c:sunnonlinsol} describes the {\sunnonlinsol} API and nonlinear
+  solver implementations shared among the various components of {\sundials}.
 \item
   Finally, in the appendices, we provide detailed instructions for the installation
   of {\idas}, within the structure of {\sundials} (Appendix \ref{c:install}), as

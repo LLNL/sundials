@@ -108,7 +108,7 @@ include a {\sunnonlinsol} implementation header file, of the form
 includes the header file \Id{sundials\_nonlinearsolver.h} which
 defines the abstract \Id{SUNNonlinearSolver} data type.
 
-If the using a nonlinear solver that requires the solution of a linear
+If using a nonlinear solver that requires the solution of a linear
 system of the form (\ref{e:DAE_Newtoncorr}) (e.g., the default Newton
 iteration), a linear solver module header file is also required.
 \index{IDA@{\ida} linear solvers!header files}
@@ -316,8 +316,8 @@ specific name of the function to be called or macro to be referenced.
 \item\label{i:matrix}
   {\bf Create matrix object}
 
-  If a nonlinear solver requiring a linear solve will be used (e.g., the
-  the default Newton iteration) and the linear solver will be a direct linear
+  If a nonlinear solver requiring a linear solver will be used (e.g., the
+  default Newton iteration) and the linear solver will be a direct linear
   solver, then a template Jacobian matrix must be created by calling the
   appropriate constructor function defined by the particular {\sunmatrix}
   implementation.
@@ -373,16 +373,17 @@ serial or threaded environment.
 \item\label{i:nonlin_solver_interface}
   {\bf Attach nonlinear solver module} (\textit{optional})
 
-  If using a non-default nonlinear solver, then initialize the {\idanls}
-  nonlinear solver interface by attaching the nonlinear solver object by calling
-  \id{ier = }\Id{IDASetNonlinearSolver}\id{(ida\_mem, NLS);}
+  If using a non-default nonlinear solver, then initialize the nonlinear solver
+  interface by attaching the nonlinear solver object by calling
+  \id{ier = }\Id{IDASetNonlinearSolver}\id{(ida\_mem, NLS);}  (see
+  \S\ref{sss:nonlin_solv_init} for details).
 
 \item
   {\bf Set nonlinear solver optional inputs} (\textit{optional})
 
   Call the appropriate set functions for the selected nonlinear solver module to
   change optional inputs specific to that nonlinear solver. These \textit{must}
-  be called after \id{CVodeInit} if using the default nonlinear solver or after
+  be called after \id{IDAInit} if using the default nonlinear solver or after
   attaching a new nonlinear solver to {\ida}, otherwise the optional inputs will
   be overridden by {\ida} defaults. See Chapter \ref{c:sunnonlinsol} for more
   information on optional inputs.
@@ -757,10 +758,10 @@ the computed values is unsuccessful.
 %%
 \subsection{Linear solver interface functions}\label{sss:lin_solv_init}
 
-As previously explained, a if the nonlinear solver requires the solution of
-linear systems of the from (\ref{e:DAE_Newtoncorr}) (e.g., the default Newton
-iteration, there are two {\ida} linear solvers currently available for this
-task: {\idadls} and {\idaspils}.
+As previously explained, if the nonlinear solver requires the solution of
+linear systems of the form (\ref{e:DAE_Newtoncorr}) (e.g., the default Newton
+iteration, there are two {\ida} linear solver interfaces currently
+available for this task: {\idadls} and {\idaspils}.
 
 The first corresponds to the use of Direct Linear Solvers, and
 utilizes {\sunmatrix} objects to store the Jacobian
@@ -787,7 +788,7 @@ either of the functions \Id{IDADlsSetLinearSolver} or
 \Id{IDASpilsSetLinearSolver}, as documented below.  The first argument
 passed to these functions is the {\ida} memory pointer returned by
 \id{IDACreate}; the second argument passed to these functions is the
-desired {\sunlinsol} object to use for solving systems.  A call
+desired {\sunlinsol} object to use for solving linear systems.  A call
 to one of these functions initializes the appropriate {\ida} linear
 solver interface, linking this to the main {\ida} integrator, and
 allows the user to specify parameters which are specific to a
@@ -820,7 +821,7 @@ question, as described in Chapters \ref{s:sunmatrix} and
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[LS] (\id{SUNLinearSolver})
-    {\sunlinsol} object to use for solving linear systems of the from
+    {\sunlinsol} object to use for solving linear systems of the form
     (\ref{e:DAE_Newtoncorr}.
   \item[J] (\id{SUNMatrix})
     {\sunmatrix} object for used as a template for the Jacobian (must
@@ -874,7 +875,7 @@ question, as described in Chapters \ref{s:sunmatrix} and
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
   \item[LS] (\id{SUNLinearSolver})
-    {\sunlinsol} object to use for solving linear systems of the from
+    {\sunlinsol} object to use for solving linear systems of the form
     (\ref{e:DAE_Newtoncorr}.
   \end{args}
 }
@@ -905,27 +906,29 @@ question, as described in Chapters \ref{s:sunmatrix} and
 %%
 %%==================================================================================
 %%
-\subsection{Nonlinear solver interface function}\label{sss:nonlin_solv_init}
+\subsection{Nonlinear solver interface function}
+\label{sss:nonlin_solv_init}
 
 By default {\ida} uses the {\sunnonlinsol} implementation of Newton's method
 defined by the {\sunnonlinsolnewton} module (see \S\ref{s:sunnonlinsol_newton}).
 To specify a different nonlinear solver in {\ida}, the user's program must
-create a {\sunnonlinsol} object by calling the appropriate constructor routine
-and attach the {\sunnonlinsol} object to {\ida} by calling
+create a {\sunnonlinsol} object by calling the appropriate constructor routine.
+The user must then attach the {\sunnonlinsol} object to {\ida} by calling
 \Id{IDASetNonlinearSolver}, as documented below.
 
-When changing the nonlinear solve in {\ida}, \id{IDASetNonlinearSolver} must be
-called after \id{IDAInit}. If any calls to \id{IDASolve} have been made, then
-{\ida} will need to be reinitialized by calling \id{IDAReInit} to ensure the
-nonlinear solver is initialized correctly before any subsequent calls to
-\id{IDASolve}.
+When changing the nonlinear solver in {\ida}, \id{IDASetNonlinearSolver} must
+be called after \id{IDAInit}. If any calls to \id{IDASolve} have been made, then
+{\ida} will need to be reinitialized by calling \id{IDAReInit} to ensure
+that the nonlinear solver is initialized correctly before any subsequent calls
+to \id{IDASolve}.
 
-The first argument passed to \id{IDASetNonlinearSolver} is the {\ida} memory
-pointer returned by \id{IDACreate} and the second argument is the
-{\sunnonlinsol} object to use for solving the nonlinear system \ref{e:DAE_nls}.
+The first argument passed to the routine \id{IDASetNonlinearSolver} is the
+{\ida} memory pointer returned by \id{IDACreate} and the second argument is
+the {\sunnonlinsol} object to use for solving the nonlinear system
+\ref{e:DAE_nls}.
 A call to this function attaches the nonlinear solver to the main {\ida}
-integrator. We note that at present, the {\sunnonlinsol} object \emph{must be of type}
-\id{SUNNONLINEARSOLVER\_ROOTFIND}.
+integrator. We note that at present, the {\sunnonlinsol} object
+\emph{must be of type} \id{SUNNONLINEARSOLVER\_ROOTFIND}.
 
 \ucfunction{IDASetNonlinearSolver}
 {
@@ -939,7 +942,7 @@ integrator. We note that at present, the {\sunnonlinsol} object \emph{must be of
   \begin{args}[ida\_mem]
   \item[ida\_mem] (\id{void *})
     pointer to the {\ida} memory block.
-  \item[LS] (\id{SUNNonlinearSolver})
+  \item[NLS] (\id{SUNNonlinearSolver})
     {\sunnonlinsol} object to use for solving nonlinear systems.
   \end{args}
 }
@@ -4785,10 +4788,10 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
   \textcolor{gray}{\bf Initialize MPI}
 
 \item
-  \textcolor{gray}{\bf Set problem dimensions}
+  \textcolor{gray}{\bf Set problem dimensions etc.}
 
 \item
-  \textcolor{gray}{\bf Set vector of initial values}
+  \textcolor{gray}{\bf Set vectors of initial values}
 
 \item
   \textcolor{gray}{\bf Create {\ida} object}
@@ -4812,7 +4815,7 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
   \textcolor{gray}{\bf Set linear solver optional inputs}
 
 \item \label{i:bbdpre_attach}
-  {\bf Attach iterative linear solver module}
+  {\bf Attach linear solver module}
 
 \item \label{i:bbdpre_init}
   {\bf Initialize the {\idabbdpre} preconditioner module}
@@ -4839,6 +4842,15 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
   optional input function.
 
 \item
+  \textcolor{gray}{\bf Create nonlinear solver object}
+
+\item
+  \textcolor{gray}{\bf Attach nonlinear solver module}
+
+\item
+  \textcolor{gray}{\bf Set nonlinear solver optional inputs}
+
+\item
   \textcolor{gray}{\bf Correct initial values}
 
 \item
@@ -4855,10 +4867,13 @@ program presented in \S\ref{ss:skeleton_sim} are grayed-out.
   \id{IDABBDPrecGetWorkSpace} and \id{IDABBDPrecGetNumGfnEvals}.
 
 \item
-  \textcolor{gray}{\bf Deallocate memory for solution vector}
+  \textcolor{gray}{\bf Deallocate memory for solution vectors}
 
 \item
   \textcolor{gray}{\bf Free solver memory}
+
+\item
+  \textcolor{gray}{\bf Free nonlinear solver memory}
 
 \item
   \textcolor{gray}{\bf Free linear solver memory}

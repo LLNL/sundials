@@ -183,6 +183,7 @@ int main(int argc, char *argv[])
 
   N_VDestroy_Parallel(u);        /* Free the u vector */
   CVodeFree(&cvode_mem);         /* Free the integrator memory */
+  SUNNonlinSolFree(NLS);         /* Free the nonlinear solver */
   free(data);                    /* Free user data */
 
   MPI_Finalize();

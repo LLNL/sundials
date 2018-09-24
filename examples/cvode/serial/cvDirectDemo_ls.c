@@ -239,6 +239,8 @@ static int Problem1(void)
   }
 
   CVodeFree(&cvode_mem);
+  SUNNonlinSolFree(NLS);
+  NLS = NULL;
   LS = NULL;
   A = NULL;
 
@@ -307,6 +309,7 @@ static int Problem1(void)
   }
 
   CVodeFree(&cvode_mem);
+  SUNNonlinSolFree(NLS);
   N_VDestroy(y);
 
   return(nerr);
@@ -467,8 +470,10 @@ static int Problem2(void)
   }
 
   CVodeFree(&cvode_mem);
+  SUNNonlinSolFree(NLS);
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
+  NLS = NULL;
   LS = NULL;
   A = NULL;
 
@@ -537,6 +542,7 @@ static int Problem2(void)
   }
 
   CVodeFree(&cvode_mem);
+  SUNNonlinSolFree(NLS);
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
   N_VDestroy(y);

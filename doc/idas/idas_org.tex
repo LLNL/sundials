@@ -23,7 +23,7 @@ The overall organization of the {\idas} package is shown in Figure
 \caption [Overall structure diagram of the {\ida} package]
 {Overall structure diagram of the {\ida} package.
   Modules specific to {\ida} begin with ``IDA'' ({\idadls},
-  {\idaspils}, and {\idabbdpre}), all other items correspond
+  {\idaspils}, {\idabbdpre}, and {\idanls}), all other items correspond
   to generic solver and auxiliary modules. 
   Note also that the LAPACK, {\klu} and {\superlumt} support is
   through interfaces to external packages. 
@@ -32,13 +32,20 @@ The overall organization of the {\idas} package is shown in Figure
 \end{figure}
 The central integration module, implemented in the files \id{idas.h},
 \id{idas\_impl.h}, and \id{idas.c}, deals with the evaluation of integration 
-coefficients, the Newton iteration process, estimation of local error,
+coefficients, estimation of local error,
 selection of stepsize and order, and interpolation to user output
-points, among other issues.  Although this module contains logic for
-the basic Newton iteration algorithm, it has no knowledge of the
-method being used to solve the linear systems that arise.  For any
-given user problem, one of the linear system solver interfaces is specified, and
-is then invoked as needed during the integration. 
+points, among other issues.
+
+{\idas} utilizes generic linear and nonlinear solver modules defined by the
+{\sunlinsol} API (see Chapter \ref{s:sunlinsol}) and {\sunnonlinsol} API (see
+Chapter \ref{c:sunnonlinsol}) respectively. As such, {\idas} has no knowledge
+of the method being used to solve the linear and nonlinear systems that
+arise in each time step. For any given user problem, there exists a single
+nonlinear solver interface and, if necessary, one of the linear system solver
+interfaces is specified, and invoked as needed during the integration. While
+{\sundials} includes a fixed-point nonlinear solver module, it is not currently
+supported in {\idas} (note the fixed-point module is listed in Figure
+\ref{f:sunorg1} but not Figure \ref{f:idasorg}).
 
 In addition, if forward sensitivity analysis is turned on, the main module 
 will integrate the forward sensitivity equations simultaneously with the original
@@ -114,24 +121,23 @@ fixed, thus allowing the central module to be completely independent
 of the linear system method.
 \index{IDAS@{\idas} linear solvers!implementation details|)} 
 
-These modules are also decomposed in another way.
-\index{generic linear solvers!use in {\idas}|(} 
-Each of the modules ({\idadense} etc.) consists of an
-interface built on top of a generic linear system solver ({\dense}
-etc.).  The interface deals with the use of the particular method in
-the {\idas} context, whereas the generic solver is independent of the
-context.  While some of the generic linear system solvers ({\dense},
-{\band}, {\spgmr}, {\spbcg}, and {\sptfqmr}) were written with
-{\sundials} in mind, they are intended to be usable anywhere as
-general-purpose solvers.  This separation also allows for any generic
-solver to be replaced by an improved version, with no necessity to
-revise the {\idas} package elsewhere. 
-\index{generic linear solvers!use in {\idas}|)}
+%These modules are also decomposed in another way.
+%\index{generic linear solvers!use in {\idas}|(} 
+%Each of the modules ({\idadense} etc.) consists of an
+%interface built on top of a generic linear system solver ({\dense}
+%etc.).  The interface deals with the use of the particular method in
+%the {\idas} context, whereas the generic solver is independent of the
+%context.  While some of the generic linear system solvers ({\dense},
+%{\band}, {\spgmr}, {\spbcg}, and {\sptfqmr}) were written with
+%{\sundials} in mind, they are intended to be usable anywhere as
+%general-purpose solvers.  This separation also allows for any generic
+%solver to be replaced by an improved version, with no necessity to
+%revise the {\idas} package elsewhere. 
+%\index{generic linear solvers!use in {\idas}|)}
 
-{\idas} also provides a preconditioner module,
-{\idabbdpre}, that works in conjunction with {\nvecp} and generates a 
-preconditioner that is a block-diagonal matrix with each block being 
-a banded matrix.
+{\idas} also provides a preconditioner module, {\idabbdpre}, that works
+in conjunction with {\nvecp} and generates a preconditioner that is a
+block-diagonal matrix with each block being a banded matrix.
 
 All state information used by {\idas} to solve a given problem is saved
 in a structure, and a pointer to that structure is returned to the

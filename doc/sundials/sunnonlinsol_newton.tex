@@ -68,8 +68,9 @@ user by calling the \id{SUNNonlinSolSetMaxIters} and/or
 \label{ss:sunnonlinsolnewton_functions}
 % ====================================================================
 
-The {\sunnonlinsolnewton} module provides the following constructor
-for creating the \\ \noindent
+The {\sunnonlinsolnewton} module provides the following constructors
+for creating a \\ \noindent
+% --------------------------------------------------------------------
 \id{SUNNonlinearSolver} object.
 
 \ucfunction{SUNNonlinSol\_Newton}
@@ -83,6 +84,36 @@ for creating the \\ \noindent
 }
 {
   \begin{args}[y]
+  \item[y] (\id{N\_Vector})
+    a template for cloning vectors needed within the solver.
+  \end{args}
+}
+{
+  The return value \id{NLS} (of type \id{SUNNonlinearSolver}) will be
+  a {\sunnonlinsol} object if the constructor exits successfully,
+  otherwise \id{NLS} will be \id{NULL}.
+}
+{}
+% --------------------------------------------------------------------
+\ucfunction{SUNNonlinSol\_NewtonSens}
+{
+  NLS = SUNNonlinSol\_NewtonSens(count, y);
+}
+{
+  The function \ID{SUNNonlinSol\_NewtonSens} creates a
+  \id{SUNNonlinearSolver} object for use with {\sundials} sensitivity enabled
+  integrators ({\cvodes} and {\idas}) to solve nonlinear systems of the form
+  $F(y) = 0$ using Newton's method.
+}
+{
+  \begin{args}[count]
+  \item[count] (\id{int})
+    the number of vectors in the nonlinear solve. When integrating a system
+    containing \id{Ns} sensitivities the value of \id{count} is:
+    \begin{itemize}
+      \item \id{Ns+1} if using a \textit{simultaneous} corrector approach.
+      \item \id{Ns} if using a \textit{staggered} corrector approach.
+    \end{itemize}
   \item[y] (\id{N\_Vector})
     a template for cloning vectors needed within the solver.
   \end{args}

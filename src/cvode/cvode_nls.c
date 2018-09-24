@@ -80,6 +80,10 @@ int CVodeSetNonlinearSolver(void *cvode_mem, SUNNonlinearSolver NLS)
   /* set SUNNonlinearSolver pointer */
   cv_mem->NLS = NLS;
 
+  /* Set NLS ownership flag. If this function was called to attach the default
+     NLS, CVODE will set the flag to SUNTRUE after this function returns. */
+  cv_mem->ownNLS = SUNFALSE;
+
   /* set the nonlinear system function */
   if (SUNNonlinSolGetType(NLS) == SUNNONLINEARSOLVER_ROOTFIND) {
     retval = SUNNonlinSolSetSysFn(cv_mem->NLS, cvNlsResidual);
@@ -133,7 +137,7 @@ int cvNlsInit(CVodeMem cvode_mem)
     retval = SUNNonlinSolSetLSetupFn(cvode_mem->NLS, NULL);
 
   if (retval != CV_SUCCESS) {
-    cvProcessError(cvode_mem, CV_ILL_INPUT, "CVODE", "cvInitialSetup",
+    cvProcessError(cvode_mem, CV_ILL_INPUT, "CVODE", "cvNlsInit",
                    "Setting the linear solver setup function failed");
     return(CV_NLS_INIT_FAIL);
   }
@@ -145,7 +149,7 @@ int cvNlsInit(CVodeMem cvode_mem)
     retval = SUNNonlinSolSetLSolveFn(cvode_mem->NLS, NULL);
 
   if (retval != CV_SUCCESS) {
-    cvProcessError(cvode_mem, CV_ILL_INPUT, "CVODE", "cvInitialSetup",
+    cvProcessError(cvode_mem, CV_ILL_INPUT, "CVODE", "cvNlsInit",
                    "Setting linear solver solve function failed");
     return(CV_NLS_INIT_FAIL);
   }
@@ -154,7 +158,7 @@ int cvNlsInit(CVodeMem cvode_mem)
   retval = SUNNonlinSolInitialize(cvode_mem->NLS);
 
   if (retval != CV_SUCCESS) {
-    cvProcessError(cvode_mem, CV_ILL_INPUT, "CVODE", "cvInitialSetup",
+    cvProcessError(cvode_mem, CV_ILL_INPUT, "CVODE", "cvNlsInit",
                    MSGCV_NLS_INIT_FAIL);
     return(CV_NLS_INIT_FAIL);
   }

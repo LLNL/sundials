@@ -75,8 +75,8 @@ integrator.
 \label{ss:sunnonlinsolfixedpoint_functions}
 % ====================================================================
 
-The {\sunnonlinsolfixedpoint} module provides the following constructor
-for creating the\\ \noindent
+The {\sunnonlinsolfixedpoint} module provides the following constructors
+for creating a\\ \noindent
 \id{SUNNonlinearSolver} object.
 % --------------------------------------------------------------------
 \ucfunction{SUNNonlinSol\_FixedPoint}
@@ -94,6 +94,38 @@ for creating the\\ \noindent
     a template for cloning vectors needed within the solver
   \item[m] (\id{int})
     the number of acceleration vectors to use
+  \end{args}
+}
+{
+  The return value \id{NLS} (of type \id{SUNNonlinearSolver}) will be
+  a {\sunnonlinsol} object if the constructor exits successfully,
+  otherwise \id{NLS} will be \id{NULL}.
+}
+{}
+% --------------------------------------------------------------------
+\ucfunction{SUNNonlinSol\_FixedPointSens}
+{
+  NLS = SUNNonlinSol\_FixedPointSens(count, y, m);
+}
+{
+  The function \ID{SUNNonlinSol\_FixedPointSens} creates a
+  \id{SUNNonlinearSolver} object for use with {\sundials} sensitivity enabled
+  integrators ({\cvodes} and {\idas}) to solve nonlinear systems of the form
+  $G(y) = y$. 
+}
+{
+  \begin{args}[count]
+  \item[count] (\id{int})
+    the number of vectors in the nonlinear solve. When integrating a system
+    containing \id{Ns} sensitivities the value of \id{count} is:
+    \begin{itemize}
+      \item \id{Ns+1} if using a \textit{simultaneous} corrector approach.
+      \item \id{Ns} if using a \textit{staggered} corrector approach.
+    \end{itemize}
+  \item[y] (\id{N\_Vector})
+    a template for cloning vectors needed within the solver.
+  \item[m] (\id{int})
+    the number of acceleration vectors to use.
   \end{args}
 }
 {

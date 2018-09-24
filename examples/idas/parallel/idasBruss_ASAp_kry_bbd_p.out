@@ -40,15 +40,15 @@ Number of local residual evals.    = 1462
 
 Final statistics: 
 
-Number of steps                    = 99
-Number of residual evaluations     = 268
-Number of nonlinear iterations     = 118
+Number of steps                    = 106
+Number of residual evaluations     = 276
+Number of nonlinear iterations     = 125
 Number of error test failures      = 0
 Number of nonlinear conv. failures = 0
 
-Number of linear iterations        = 150
+Number of linear iterations        = 151
 Number of linear conv. failures    = 0
 
-Number of preconditioner setups    = 16
-Number of preconditioner solves    = 268
-Number of local residual evals.    = 1376
+Number of preconditioner setups    = 18
+Number of preconditioner solves    = 276
+Number of local residual evals.    = 1548

@@ -386,6 +386,10 @@ void *CVodeCreate(int lmm)
   cv_mem->cv_VabstolMallocDone = SUNFALSE;
   cv_mem->cv_MallocDone        = SUNFALSE;
 
+  /* Initialize nonlinear solver variables */
+  cv_mem->NLS    = NULL;
+  cv_mem->ownNLS = SUNFALSE;
+
   /* Return pointer to CVODE memory block */
 
   return((void *)cv_mem);
@@ -469,6 +473,8 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
 
   /* attach the nonlinear solver to the CVODE memory */
   retval = CVodeSetNonlinearSolver(cv_mem, NLS);
+
+  /* check that the nonlinear solver was successfully attached */
   if (retval != CV_SUCCESS) {
     cvProcessError(cv_mem, retval, "CVODE", "CVodeInit",
                    "Setting the nonlinear solver failed");
@@ -476,6 +482,9 @@ int CVodeInit(void *cvode_mem, CVRhsFn f, realtype t0, N_Vector y0)
     SUNNonlinSolFree(NLS);
     return(CV_MEM_FAIL);
   }
+
+  /* set ownership flag */
+  cv_mem->ownNLS = SUNTRUE;
 
   /* All error checking is complete at this point */
 
@@ -1480,7 +1489,11 @@ void CVodeFree(void **cvode_mem)
 
   cvFreeVectors(cv_mem);
 
-  SUNNonlinSolFree(cv_mem->NLS);
+  /* if CVODE created the nonlinear solver object then free it */
+  if (cv_mem->ownNLS) {
+    SUNNonlinSolFree(cv_mem->NLS);
+    cv_mem->ownNLS = SUNFALSE;
+  }
 
   if (cv_mem->cv_lfree != NULL) cv_mem->cv_lfree(cv_mem);
 

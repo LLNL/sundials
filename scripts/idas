@@ -35,6 +35,9 @@ $tar $tarfile $distrobase/src/idas/idas_impl.h
 $tar $tarfile $distrobase/src/idas/idas_io.c
 $tar $tarfile $distrobase/src/idas/idas_spils.c
 $tar $tarfile $distrobase/src/idas/idas_spils_impl.h
+$tar $tarfile $distrobase/src/idas/idas_nls.c
+$tar $tarfile $distrobase/src/idas/idas_nls_sim.c
+$tar $tarfile $distrobase/src/idas/idas_nls_stg.c
 
 echo "   --- Add idas examples to $tarfile"
 

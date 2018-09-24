@@ -25,10 +25,14 @@
 
 #include <sunnonlinsol/sunnonlinsol_fixedpoint.h>
 #include <sundials/sundials_math.h>
+#include <sundials/sundials_nvector_senswrapper.h>
 
 /* Internal utility routines */
-int AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval, N_Vector x,
-                       N_Vector xold, int iter);
+static int AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval, N_Vector x,
+                              N_Vector xold, int iter);
+
+static int AllocateContent(SUNNonlinearSolver NLS, N_Vector tmpl);
+static void FreeContent(SUNNonlinearSolver NLS);
 
 /* Content structure accessibility macros */
 #define FP_CONTENT(S)  ( (SUNNonlinearSolverContent_FixedPoint)(S->content) )
@@ -46,6 +50,7 @@ SUNNonlinearSolver SUNNonlinSol_FixedPoint(N_Vector y, int m)
   SUNNonlinearSolver NLS;
   SUNNonlinearSolver_Ops ops;
   SUNNonlinearSolverContent_FixedPoint content;
+  int retval;
 
   /* Check that the supplied N_Vector is non-NULL */
   if (y == NULL) return(NULL);
@@ -68,6 +73,15 @@ SUNNonlinearSolver SUNNonlinSol_FixedPoint(N_Vector y, int m)
   ops = (SUNNonlinearSolver_Ops) malloc(sizeof *ops);
   if (ops == NULL) { free(NLS); return(NULL); }
 
+  /* Create nonlinear solver content structure */
+  content = NULL;
+  content = (SUNNonlinearSolverContent_FixedPoint) malloc(sizeof *content);
+  if (content == NULL) { free(ops); free(NLS); return(NULL); }
+
+  /* Attach content and ops */
+  NLS->content = content;
+  NLS->ops     = ops;
+
   /* Attach operations */
   ops->gettype     = SUNNonlinSolGetType_FixedPoint;
   ops->initialize  = SUNNonlinSolInitialize_FixedPoint;
@@ -82,34 +96,52 @@ SUNNonlinearSolver SUNNonlinSol_FixedPoint(N_Vector y, int m)
   ops->getnumiters = SUNNonlinSolGetNumIters_FixedPoint;
   ops->getcuriter  = SUNNonlinSolGetCurIter_FixedPoint;
 
-  /* Create content */
-  content = NULL;
-  content = (SUNNonlinearSolverContent_FixedPoint) malloc(sizeof *content);
-  if (content == NULL) { free(ops); free(NLS); return(NULL); }
-
   /* Initialize all components of content to 0/NULL */
   memset(content, 0, sizeof(struct _SUNNonlinearSolverContent_FixedPoint));
 
   /* Fill general content */
-  content->Sys   = NULL;
-  content->CTest = NULL;
-  content->m     = m;
-  content->yprev = N_VClone(y);
-  if (content->yprev == NULL) { free(content); free(ops); free(NLS); return(NULL); }
-  content->gy = N_VClone(y);
-  if (content->gy == NULL) { N_VDestroy(content->yprev); free(content); free(ops);
-    free(NLS); return(NULL); }
-  content->delta = N_VClone(y);
-  if (content->delta == NULL) { N_VDestroy(content->gy); N_VDestroy(content->yprev);
-    free(content); free(ops); free(NLS); return(NULL); }
+  content->Sys      = NULL;
+  content->CTest    = NULL;
+  content->m        = m;
   content->curiter  = 0;
   content->maxiters = 3;
   content->niters   = 0;
 
-  /* Attach content and ops */
-  NLS->content = content;
-  NLS->ops     = ops;
+  /* Fill allocatable content */
+  retval = AllocateContent(NLS, y);
 
+  if (retval != SUN_NLS_SUCCESS) {
+    NLS->content = NULL;
+    NLS->ops = NULL;
+    free(content);
+    free(ops);
+    free(NLS);
+    return(NULL);
+  }
+
+  return(NLS);
+}
+
+
+/*==============================================================================
+  Constructor wrapper to create a new fixed point solver for sensitivity solvers
+  ============================================================================*/
+
+SUNNonlinearSolver SUNNonlinSol_FixedPointSens(int count, N_Vector y, int m)
+{
+  SUNNonlinearSolver NLS;
+  N_Vector w;
+
+  /* create sensitivity vector wrapper */
+  w = N_VNew_SensWrapper(count, y);
+
+  /* create nonlinear solver using sensitivity vector wrapper */
+  NLS = SUNNonlinSol_FixedPoint(w, m);
+
+  /* free sensitivity vector wrapper */
+  N_VDestroy(w);
+
+  /* return NLS object */
   return(NLS);
 }
 
@@ -126,8 +158,6 @@ SUNNonlinearSolver_Type SUNNonlinSolGetType_FixedPoint(SUNNonlinearSolver NLS)
 
 int SUNNonlinSolInitialize_FixedPoint(SUNNonlinearSolver NLS)
 {
-  int m = FP_CONTENT(NLS)->m;
-
   /* check that the nonlinear solver is non-null */
   if (NLS == NULL) return(SUN_NLS_MEM_NULL);
 
@@ -138,50 +168,6 @@ int SUNNonlinSolInitialize_FixedPoint(SUNNonlinearSolver NLS)
   /* reset the total number of nonlinear solver iterations */
   FP_CONTENT(NLS)->niters = 0;
 
-  /* Allocate all m-dependent content */
-  if (m > 0) {
-
-    FP_CONTENT(NLS)->fold = N_VClone(FP_CONTENT(NLS)->yprev);
-    if (FP_CONTENT(NLS)->fold == NULL) {
-      SUNNonlinSolFree_FixedPoint(NLS); return(SUN_NLS_MEM_FAIL); }
-
-    FP_CONTENT(NLS)->gold = N_VClone(FP_CONTENT(NLS)->yprev);
-    if (FP_CONTENT(NLS)->gold == NULL) {
-      SUNNonlinSolFree_FixedPoint(NLS); return(SUN_NLS_MEM_FAIL); }
-
-    FP_CONTENT(NLS)->imap = (int *) malloc(m * sizeof(int));
-    if (FP_CONTENT(NLS)->imap == NULL) {
-      SUNNonlinSolFree_FixedPoint(NLS); return(SUN_NLS_MEM_FAIL); }
-
-    FP_CONTENT(NLS)->R = (realtype *) malloc((m*m) * sizeof(realtype));
-    if (FP_CONTENT(NLS)->R == NULL) {
-      SUNNonlinSolFree_FixedPoint(NLS); return(SUN_NLS_MEM_FAIL); }
-
-    FP_CONTENT(NLS)->gamma = (realtype *) malloc(m * sizeof(realtype));
-    if (FP_CONTENT(NLS)->gamma == NULL) {
-      SUNNonlinSolFree_FixedPoint(NLS); return(SUN_NLS_MEM_FAIL); }
-
-    FP_CONTENT(NLS)->cvals = (realtype *) malloc((m+1) * sizeof(realtype));
-    if (FP_CONTENT(NLS)->cvals == NULL) {
-      SUNNonlinSolFree_FixedPoint(NLS); return(SUN_NLS_MEM_FAIL); }
-
-    FP_CONTENT(NLS)->df = N_VCloneVectorArray(m, FP_CONTENT(NLS)->yprev);
-    if (FP_CONTENT(NLS)->df == NULL) {
-      SUNNonlinSolFree_FixedPoint(NLS); return(SUN_NLS_MEM_FAIL); }
-
-    FP_CONTENT(NLS)->dg = N_VCloneVectorArray(m, FP_CONTENT(NLS)->yprev);
-    if (FP_CONTENT(NLS)->dg == NULL) {
-      SUNNonlinSolFree_FixedPoint(NLS); return(SUN_NLS_MEM_FAIL); }
-
-    FP_CONTENT(NLS)->q = N_VCloneVectorArray(m, FP_CONTENT(NLS)->yprev);
-    if (FP_CONTENT(NLS)->q == NULL) {
-      SUNNonlinSolFree_FixedPoint(NLS); return(SUN_NLS_MEM_FAIL); }
-
-    FP_CONTENT(NLS)->Xvecs = (N_Vector *) malloc((m+1) * sizeof(N_Vector));
-    if (FP_CONTENT(NLS)->Xvecs == NULL) {
-      SUNNonlinSolFree_FixedPoint(NLS); return(SUN_NLS_MEM_FAIL); }
-
-  }
   return(SUN_NLS_SUCCESS);
 }
 
@@ -274,59 +260,7 @@ int SUNNonlinSolFree_FixedPoint(SUNNonlinearSolver NLS)
 
   /* free items from content structure, then the structure itself */
   if (NLS->content) {
-
-    if (FP_CONTENT(NLS)->yprev) {
-      N_VDestroy(FP_CONTENT(NLS)->yprev);
-      FP_CONTENT(NLS)->yprev = NULL; }
-
-    if (FP_CONTENT(NLS)->gy) {
-      N_VDestroy(FP_CONTENT(NLS)->gy);
-      FP_CONTENT(NLS)->gy = NULL; }
-
-    if (FP_CONTENT(NLS)->fold) {
-      N_VDestroy(FP_CONTENT(NLS)->fold);
-      FP_CONTENT(NLS)->fold = NULL; }
-
-    if (FP_CONTENT(NLS)->gold) {
-      N_VDestroy(FP_CONTENT(NLS)->gold);
-      FP_CONTENT(NLS)->gold = NULL; }
-
-    if (FP_CONTENT(NLS)->delta) {
-      N_VDestroy(FP_CONTENT(NLS)->delta);
-      FP_CONTENT(NLS)->delta = NULL; }
-
-    if (FP_CONTENT(NLS)->imap) {
-      free(FP_CONTENT(NLS)->imap);
-      FP_CONTENT(NLS)->imap = NULL; }
-
-    if (FP_CONTENT(NLS)->R) {
-      free(FP_CONTENT(NLS)->R);
-      FP_CONTENT(NLS)->R = NULL; }
-
-    if (FP_CONTENT(NLS)->gamma) {
-      free(FP_CONTENT(NLS)->gamma);
-      FP_CONTENT(NLS)->gamma = NULL; }
-
-    if (FP_CONTENT(NLS)->cvals) {
-      free(FP_CONTENT(NLS)->cvals);
-      FP_CONTENT(NLS)->cvals = NULL; }
-
-    if (FP_CONTENT(NLS)->df) {
-      N_VDestroyVectorArray(FP_CONTENT(NLS)->df, FP_CONTENT(NLS)->m);
-      FP_CONTENT(NLS)->df = NULL; }
-
-    if (FP_CONTENT(NLS)->dg) {
-      N_VDestroyVectorArray(FP_CONTENT(NLS)->dg, FP_CONTENT(NLS)->m);
-      FP_CONTENT(NLS)->dg = NULL; }
-
-    if (FP_CONTENT(NLS)->q) {
-      N_VDestroyVectorArray(FP_CONTENT(NLS)->q, FP_CONTENT(NLS)->m);
-      FP_CONTENT(NLS)->q = NULL; }
-
-    if (FP_CONTENT(NLS)->Xvecs) {
-      free(FP_CONTENT(NLS)->Xvecs);
-      FP_CONTENT(NLS)->Xvecs = NULL; }
-
+    FreeContent(NLS);
     free(NLS->content);
     NLS->content = NULL;
   }
@@ -334,7 +268,8 @@ int SUNNonlinSolFree_FixedPoint(SUNNonlinearSolver NLS)
   /* free the ops structure */
   if (NLS->ops) {
     free(NLS->ops);
-    NLS->ops = NULL; }
+    NLS->ops = NULL;
+  }
 
   /* free the overall NLS structure */
   free(NLS);
@@ -447,8 +382,8 @@ int SUNNonlinSolGetSysFn_FixedPoint(SUNNonlinearSolver NLS, SUNNonlinSolSysFn *S
     SUN_NLS_MEM_NULL --> a required item was missing from memory
     SUN_NLS_SUCCESS  --> successful completion
   -------------------------------------------------------------*/
-int AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
-                       N_Vector x, N_Vector xold, int iter)
+static int AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
+                              N_Vector x, N_Vector xold, int iter)
 {
   /* local variables */
   int       nvec, retval, i_pt, i, j, lAA, maa, *ipt_map;
@@ -588,4 +523,121 @@ int AndersonAccelerate(SUNNonlinearSolver NLS, N_Vector gval,
   if (retval != 0)  return(SUN_NLS_VECTOROP_ERR);
 
   return(SUN_NLS_SUCCESS);
+}
+
+static int AllocateContent(SUNNonlinearSolver NLS, N_Vector y)
+{
+  int m = FP_CONTENT(NLS)->m;
+
+  FP_CONTENT(NLS)->yprev = N_VClone(y);
+  if (FP_CONTENT(NLS)->yprev == NULL) { FreeContent(NLS); return(SUN_NLS_MEM_FAIL); }
+
+  FP_CONTENT(NLS)->gy = N_VClone(y);
+  if (FP_CONTENT(NLS)->gy == NULL) { FreeContent(NLS); return(SUN_NLS_MEM_FAIL); }
+
+  FP_CONTENT(NLS)->delta = N_VClone(y);
+  if (FP_CONTENT(NLS)->delta == NULL) { FreeContent(NLS); return(SUN_NLS_MEM_FAIL); }
+
+  /* Allocate all m-dependent content */
+  if (m > 0) {
+
+    FP_CONTENT(NLS)->fold = N_VClone(y);
+    if (FP_CONTENT(NLS)->fold == NULL) {
+      FreeContent(NLS); return(SUN_NLS_MEM_FAIL); }
+
+    FP_CONTENT(NLS)->gold = N_VClone(y);
+    if (FP_CONTENT(NLS)->gold == NULL) {
+      FreeContent(NLS); return(SUN_NLS_MEM_FAIL); }
+
+    FP_CONTENT(NLS)->imap = (int *) malloc(m * sizeof(int));
+    if (FP_CONTENT(NLS)->imap == NULL) {
+      FreeContent(NLS); return(SUN_NLS_MEM_FAIL); }
+
+    FP_CONTENT(NLS)->R = (realtype *) malloc((m*m) * sizeof(realtype));
+    if (FP_CONTENT(NLS)->R == NULL) {
+      FreeContent(NLS); return(SUN_NLS_MEM_FAIL); }
+
+    FP_CONTENT(NLS)->gamma = (realtype *) malloc(m * sizeof(realtype));
+    if (FP_CONTENT(NLS)->gamma == NULL) {
+      FreeContent(NLS); return(SUN_NLS_MEM_FAIL); }
+
+    FP_CONTENT(NLS)->cvals = (realtype *) malloc((m+1) * sizeof(realtype));
+    if (FP_CONTENT(NLS)->cvals == NULL) {
+      FreeContent(NLS); return(SUN_NLS_MEM_FAIL); }
+
+    FP_CONTENT(NLS)->df = N_VCloneVectorArray(m, y);
+    if (FP_CONTENT(NLS)->df == NULL) {
+      FreeContent(NLS); return(SUN_NLS_MEM_FAIL); }
+
+    FP_CONTENT(NLS)->dg = N_VCloneVectorArray(m, y);
+    if (FP_CONTENT(NLS)->dg == NULL) {
+      FreeContent(NLS); return(SUN_NLS_MEM_FAIL); }
+
+    FP_CONTENT(NLS)->q = N_VCloneVectorArray(m, y);
+    if (FP_CONTENT(NLS)->q == NULL) {
+      FreeContent(NLS); return(SUN_NLS_MEM_FAIL); }
+
+    FP_CONTENT(NLS)->Xvecs = (N_Vector *) malloc((m+1) * sizeof(N_Vector));
+    if (FP_CONTENT(NLS)->Xvecs == NULL) {
+      FreeContent(NLS); return(SUN_NLS_MEM_FAIL); }
+  }
+
+  return(SUN_NLS_SUCCESS);
+}
+
+static void FreeContent(SUNNonlinearSolver NLS)
+{
+  if (FP_CONTENT(NLS)->yprev) {
+    N_VDestroy(FP_CONTENT(NLS)->yprev);
+    FP_CONTENT(NLS)->yprev = NULL; }
+
+  if (FP_CONTENT(NLS)->gy) {
+    N_VDestroy(FP_CONTENT(NLS)->gy);
+    FP_CONTENT(NLS)->gy = NULL; }
+
+  if (FP_CONTENT(NLS)->fold) {
+    N_VDestroy(FP_CONTENT(NLS)->fold);
+    FP_CONTENT(NLS)->fold = NULL; }
+
+  if (FP_CONTENT(NLS)->gold) {
+    N_VDestroy(FP_CONTENT(NLS)->gold);
+    FP_CONTENT(NLS)->gold = NULL; }
+
+  if (FP_CONTENT(NLS)->delta) {
+    N_VDestroy(FP_CONTENT(NLS)->delta);
+    FP_CONTENT(NLS)->delta = NULL; }
+
+  if (FP_CONTENT(NLS)->imap) {
+    free(FP_CONTENT(NLS)->imap);
+    FP_CONTENT(NLS)->imap = NULL; }
+
+  if (FP_CONTENT(NLS)->R) {
+    free(FP_CONTENT(NLS)->R);
+    FP_CONTENT(NLS)->R = NULL; }
+
+  if (FP_CONTENT(NLS)->gamma) {
+    free(FP_CONTENT(NLS)->gamma);
+    FP_CONTENT(NLS)->gamma = NULL; }
+
+  if (FP_CONTENT(NLS)->cvals) {
+    free(FP_CONTENT(NLS)->cvals);
+    FP_CONTENT(NLS)->cvals = NULL; }
+
+  if (FP_CONTENT(NLS)->df) {
+    N_VDestroyVectorArray(FP_CONTENT(NLS)->df, FP_CONTENT(NLS)->m);
+    FP_CONTENT(NLS)->df = NULL; }
+
+  if (FP_CONTENT(NLS)->dg) {
+    N_VDestroyVectorArray(FP_CONTENT(NLS)->dg, FP_CONTENT(NLS)->m);
+    FP_CONTENT(NLS)->dg = NULL; }
+
+  if (FP_CONTENT(NLS)->q) {
+    N_VDestroyVectorArray(FP_CONTENT(NLS)->q, FP_CONTENT(NLS)->m);
+    FP_CONTENT(NLS)->q = NULL; }
+
+  if (FP_CONTENT(NLS)->Xvecs) {
+    free(FP_CONTENT(NLS)->Xvecs);
+    FP_CONTENT(NLS)->Xvecs = NULL; }
+
+  return;
 }

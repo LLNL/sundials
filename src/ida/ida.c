@@ -331,7 +331,8 @@ void *IDACreate(void)
   IDA_mem->ida_MallocDone = SUNFALSE;
 
   /* Initialize nonlinear solver pointer */
-  IDA_mem->NLS = NULL;
+  IDA_mem->NLS    = NULL;
+  IDA_mem->ownNLS = SUNFALSE;
 
   /* Return pointer to IDA memory block */
   return((void *)IDA_mem);
@@ -419,8 +420,10 @@ int IDAInit(void *ida_mem, IDAResFn res,
     return(IDA_MEM_FAIL);
   }
 
-  /* attach the nonlinear solver to the CVODE memory */
+  /* attach the nonlinear solver to the IDA memory */
   retval = IDASetNonlinearSolver(IDA_mem, NLS);
+
+  /* check that the nonlinear solver was successfully attached */
   if (retval != IDA_SUCCESS) {
     IDAProcessError(IDA_mem, retval, "IDA", "IDAInit",
                     "Setting the nonlinear solver failed");
@@ -428,6 +431,9 @@ int IDAInit(void *ida_mem, IDAResFn res,
     SUNNonlinSolFree(NLS);
     return(IDA_MEM_FAIL);
   }
+
+  /* set ownership flag */
+  IDA_mem->ownNLS = SUNTRUE;
 
   /* All error checking is complete at this point */
 
@@ -1359,7 +1365,11 @@ void IDAFree(void **ida_mem)
 
   IDAFreeVectors(IDA_mem);
 
-  SUNNonlinSolFree(IDA_mem->NLS);
+  /* if IDA created the nonlinear solver object then free it */
+  if (IDA_mem->ownNLS) {
+    SUNNonlinSolFree(IDA_mem->NLS);
+    IDA_mem->ownNLS = SUNFALSE;
+  }
 
   if (IDA_mem->ida_lfree != NULL)
     IDA_mem->ida_lfree(IDA_mem);
@@ -1431,7 +1441,7 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
 {
   int i, j, maxcol;
 
-  /* Allocate ewt, ee, delta, ypredict, yppredict, ypbeta, tempv1, tempv2 */
+  /* Allocate ewt, ee, delta, ypredict, yppredict, savres, tempv1, tempv2, tempv3 */
 
   IDA_mem->ida_ewt = N_VClone(tmpl);
   if (IDA_mem->ida_ewt == NULL) return(SUNFALSE);
@@ -1466,8 +1476,8 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
     return(SUNFALSE);
   }
 
-  IDA_mem->ida_ypbeta = N_VClone(tmpl);
-  if (IDA_mem->ida_ypbeta == NULL) {
+  IDA_mem->ida_savres = N_VClone(tmpl);
+  if (IDA_mem->ida_savres == NULL) {
     N_VDestroy(IDA_mem->ida_ewt);
     N_VDestroy(IDA_mem->ida_ee);
     N_VDestroy(IDA_mem->ida_delta);
@@ -1483,23 +1493,35 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
     N_VDestroy(IDA_mem->ida_delta);
     N_VDestroy(IDA_mem->ida_yypredict);
     N_VDestroy(IDA_mem->ida_yppredict);
-    N_VDestroy(IDA_mem->ida_ypbeta);
+    N_VDestroy(IDA_mem->ida_savres);
     return(SUNFALSE);
   }
 
-  IDA_mem->ida_tempv2= N_VClone(tmpl);
+  IDA_mem->ida_tempv2 = N_VClone(tmpl);
   if (IDA_mem->ida_tempv2 == NULL) {
     N_VDestroy(IDA_mem->ida_ewt);
     N_VDestroy(IDA_mem->ida_ee);
     N_VDestroy(IDA_mem->ida_delta);
     N_VDestroy(IDA_mem->ida_yypredict);
     N_VDestroy(IDA_mem->ida_yppredict);
-    N_VDestroy(IDA_mem->ida_ypbeta);
+    N_VDestroy(IDA_mem->ida_savres);
     N_VDestroy(IDA_mem->ida_tempv1);
     return(SUNFALSE);
   }
 
-  IDA_mem->ida_savres = IDA_mem->ida_tempv1;
+  IDA_mem->ida_tempv3 = N_VClone(tmpl);
+  if (IDA_mem->ida_tempv3 == NULL) {
+    N_VDestroy(IDA_mem->ida_ewt);
+    N_VDestroy(IDA_mem->ida_ee);
+    N_VDestroy(IDA_mem->ida_delta);
+    N_VDestroy(IDA_mem->ida_yypredict);
+    N_VDestroy(IDA_mem->ida_yppredict);
+    N_VDestroy(IDA_mem->ida_savres);
+    N_VDestroy(IDA_mem->ida_tempv1);
+    N_VDestroy(IDA_mem->ida_tempv2);
+    return(SUNFALSE);
+  }
+
 
   /* Allocate phi[0] ... phi[maxord].  Make sure phi[2] and phi[3] are
   allocated (for use as temporary vectors), regardless of maxord.       */
@@ -1513,17 +1535,18 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
       N_VDestroy(IDA_mem->ida_delta);
       N_VDestroy(IDA_mem->ida_yypredict);
       N_VDestroy(IDA_mem->ida_yppredict);
-      N_VDestroy(IDA_mem->ida_ypbeta);
+      N_VDestroy(IDA_mem->ida_savres);
       N_VDestroy(IDA_mem->ida_tempv1);
       N_VDestroy(IDA_mem->ida_tempv2);
+      N_VDestroy(IDA_mem->ida_tempv3);
       for (i=0; i < j; i++) N_VDestroy(IDA_mem->ida_phi[i]);
       return(SUNFALSE);
     }
   }
 
   /* Update solver workspace lengths  */
-  IDA_mem->ida_lrw += (maxcol + 9)*IDA_mem->ida_lrw1;
-  IDA_mem->ida_liw += (maxcol + 9)*IDA_mem->ida_liw1;
+  IDA_mem->ida_lrw += (maxcol + 10)*IDA_mem->ida_lrw1;
+  IDA_mem->ida_liw += (maxcol + 10)*IDA_mem->ida_liw1;
 
   /* Store the value of maxord used here */
   IDA_mem->ida_maxord_alloc = IDA_mem->ida_maxord;
@@ -1546,14 +1569,15 @@ static void IDAFreeVectors(IDAMem IDA_mem)
   N_VDestroy(IDA_mem->ida_delta);
   N_VDestroy(IDA_mem->ida_yypredict);
   N_VDestroy(IDA_mem->ida_yppredict);
-  N_VDestroy(IDA_mem->ida_ypbeta);
+  N_VDestroy(IDA_mem->ida_savres);
   N_VDestroy(IDA_mem->ida_tempv1);
   N_VDestroy(IDA_mem->ida_tempv2);
+  N_VDestroy(IDA_mem->ida_tempv3);
   maxcol = SUNMAX(IDA_mem->ida_maxord_alloc,3);
   for(j=0; j <= maxcol; j++) N_VDestroy(IDA_mem->ida_phi[j]);
 
-  IDA_mem->ida_lrw -= (maxcol + 6)*IDA_mem->ida_lrw1;
-  IDA_mem->ida_liw -= (maxcol + 6)*IDA_mem->ida_liw1;
+  IDA_mem->ida_lrw -= (maxcol + 10)*IDA_mem->ida_lrw1;
+  IDA_mem->ida_liw -= (maxcol + 10)*IDA_mem->ida_liw1;
 
   if (IDA_mem->ida_VatolMallocDone) {
     N_VDestroy(IDA_mem->ida_Vatol);
@@ -2267,27 +2291,28 @@ static int IDANls(IDAMem IDA_mem)
     IDA_mem->ida_cjratio = IDA_mem->ida_cj / IDA_mem->ida_cjold;
     temp1 = (ONE - XRATE) / (ONE + XRATE);
     temp2 = ONE/temp1;
-    {if (IDA_mem->ida_cjratio < temp1 || IDA_mem->ida_cjratio > temp2) callLSetup = SUNTRUE;}
-    {if (IDA_mem->ida_cj != IDA_mem->ida_cjlast) IDA_mem->ida_ss=HUNDRED;}
+    if (IDA_mem->ida_cjratio < temp1 || IDA_mem->ida_cjratio > temp2) callLSetup = SUNTRUE;
+    if (IDA_mem->ida_cj != IDA_mem->ida_cjlast) IDA_mem->ida_ss = HUNDRED;
   }
+
+  /* initial guess for the correction to the predictor */
+  N_VConst(ZERO, IDA_mem->ida_delta);
 
   /* call nonlinear solver setup if it exists */
   if ((IDA_mem->NLS)->ops->setup) {
-    retval = SUNNonlinSolSetup(IDA_mem->NLS, IDA_mem->ida_phi[0], IDA_mem);
+    retval = SUNNonlinSolSetup(IDA_mem->NLS, IDA_mem->ida_delta, IDA_mem);
     if (retval < 0) return(IDA_NLS_SETUP_FAIL);
     if (retval > 0) return(IDA_NLS_SETUP_RECVR);
   }
 
   /* solve the nonlinear system */
   retval = SUNNonlinSolSolve(IDA_mem->NLS,
-                             IDA_mem->ida_yypredict, IDA_mem->ida_yy,
+                             IDA_mem->ida_delta, IDA_mem->ida_ee,
                              IDA_mem->ida_ewt, IDA_mem->ida_epsNewt,
                              callLSetup, IDA_mem);
 
-  /* compute the cumulative correction vector */
-  N_VLinearSum(ONE, IDA_mem->ida_yy, -ONE, IDA_mem->ida_yypredict, IDA_mem->ida_ee);
-
-  /* compute corrected yp */
+  /* update yy and yp based on the final correction from the nonlinear solve */
+  N_VLinearSum(ONE, IDA_mem->ida_yypredict, ONE, IDA_mem->ida_ee, IDA_mem->ida_yy);
   N_VLinearSum(ONE, IDA_mem->ida_yppredict, IDA_mem->ida_cj, IDA_mem->ida_ee, IDA_mem->ida_yp);
 
   /* return if nonlinear solver failed */
@@ -2355,10 +2380,6 @@ static void IDAPredict(IDAMem IDA_mem)
 
   (void) N_VLinearCombination(IDA_mem->ida_kk, IDA_mem->ida_gamma+1,
                               IDA_mem->ida_phi+1, IDA_mem->ida_yppredict);
-
-  /* compute ypbeta = yp^(0) - cj * y^(0) for updating yp in NLS iterations */
-  N_VLinearSum(ONE, IDA_mem->ida_yppredict,
-               -IDA_mem->ida_cj, IDA_mem->ida_yypredict, IDA_mem->ida_ypbeta);
 }
 
 /*

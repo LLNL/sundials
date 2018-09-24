@@ -415,8 +415,8 @@ int CVodeSetMaxNonlinIters(void *cvode_mem, int maxcor)
   cv_mem = (CVodeMem) cvode_mem;
 
   if (cv_mem->NLS == NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeSetMaxNonlinIters", MSGCV_NO_MEM);
-    return (CV_MEM_NULL);
+    cvProcessError(NULL, CV_MEM_FAIL, "CVODE", "CVodeSetMaxNonlinIters", MSGCV_MEM_FAIL);
+    return (CV_MEM_FAIL);
   }
 
   return(SUNNonlinSolSetMaxIters(cv_mem->NLS, maxcor));
@@ -940,8 +940,8 @@ int CVodeGetNumNonlinSolvIters(void *cvode_mem, long int *nniters)
   cv_mem = (CVodeMem) cvode_mem;
 
   if (cv_mem->NLS == NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeGetNumNonlinSolvIters", MSGCV_NO_MEM);
-    return (CV_MEM_NULL);
+    cvProcessError(NULL, CV_MEM_FAIL, "CVODE", "CVodeGetNumNonlinSolvIters", MSGCV_MEM_FAIL);
+    return (CV_MEM_FAIL);
   }
 
   return(SUNNonlinSolGetNumIters(cv_mem->NLS, nniters));
@@ -990,8 +990,8 @@ int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters,
   cv_mem = (CVodeMem) cvode_mem;
 
   if (cv_mem->NLS == NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeGetNonlinSolvStats", MSGCV_NO_MEM);
-    return (CV_MEM_NULL);
+    cvProcessError(NULL, CV_MEM_FAIL, "CVODE", "CVodeGetNonlinSolvStats", MSGCV_MEM_FAIL);
+    return (CV_MEM_FAIL);
   }
   retval = SUNNonlinSolGetNumIters(cv_mem->NLS, nniters);
   *nncfails = cv_mem->cv_ncfn;

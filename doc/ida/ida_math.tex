@@ -147,14 +147,14 @@ usually drop the subscript WRMS on norms in what follows.
 
 % Newton iteration
 %-----------------
-In the case of a direct linear solver (dense, band, or sparse), the default Newton 
+In the case of a direct linear solver (dense, band, or sparse), the default Newton
 iteration is a Modified Newton iteration, in
 that the Jacobian $J$ is fixed (and usually out of date), with a coefficient 
 $\bar\alpha$ in place of $\alpha$ in $J$. When using one of the Krylov methods
 ({\spgmr}, {\spbcg}, {\sptfqmr}, {\spfgmr} or {\pcg}) as the linear
-solver, the it is an Inexact Newton iteration, using the
+solver, the Newton iteration is an Inexact Newton iteration, using the
 current Jacobian (through matrix-free products $Jv$), in which the
-linear residual $J\Delta y + G$ is nonzero but controlled. 
+linear residual $J\Delta y + G$ is nonzero but controlled.
 The Jacobian matrix $J$ (direct cases) or preconditioner matrix $P$ 
 (iterative cases) is updated when:
 \begin{itemize}

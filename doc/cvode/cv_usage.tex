@@ -375,9 +375,10 @@ serial or threaded environment.
 \item\label{i:nonlin_solver_interface}
   {\bf Attach nonlinear solver module} (\textit{optional})
 
-  If using a non-default nonlinear solver, then initialize the {\cvnls}
-  nonlinear solver interface by attaching the nonlinear solver object by calling
-  \id{ier = }\Id{CVodeSetNonlinearSolver}\id{(cvode\_mem, NLS);}
+  If using a non-default nonlinear solver, then initialize the nonlinear solver
+  interface by attaching the nonlinear solver object by calling
+  \id{ier = }\Id{CVodeSetNonlinearSolver}\id{(cvode\_mem, NLS);}  (see
+  \S\ref{sss:nonlin_solv_init} for details).
 
 \item
   {\bf Set nonlinear solver optional inputs} (\textit{optional})
@@ -962,26 +963,28 @@ memory pointer returned by \id{CVodeCreate}.
 %%
 %%==================================================================================
 %%
-\subsection{Nonlinear solver interface function}\label{ss:nonlin_solv_init}
+\subsection{Nonlinear solver interface function}
+\label{ss:nonlin_solv_init}
 
 By default {\cvode} uses the {\sunnonlinsol} implementation of Newton's method
 defined by the {\sunnonlinsolnewton} module (see \S\ref{s:sunnonlinsol_newton}).
 To specify a different nonlinear solver in {\cvode}, the user's program must
-create a {\sunnonlinsol} object by calling the appropriate constructor routine
-and attach the {\sunnonlinsol} object by calling \Id{CVodeSetNonlinearSolver},
-as documented below.
+create a {\sunnonlinsol} object by calling the appropriate constructor routine.
+The user must then attach the {\sunnonlinsol} object by calling
+\Id{CVodeSetNonlinearSolver}, as documented below.
 
 When changing the nonlinear solve in {\cvode}, \id{CVodeSetNonlinearSolver} must
 be called after \id{CVodeInit}. If any calls to \id{CVode} have been made, then
-{\cvode} will need to be reinitialized by calling \id{CVodeReInit} to ensure the
-nonlinear solver is initialized correctly before any subsequent calls to
-\id{CVode}.
+{\cvode} will need to be reinitialized by calling \id{CVodeReInit} to ensure
+that the nonlinear solver is initialized correctly before any subsequent calls
+to \id{CVode}.
 
-The first argument passed to \id{CVodeSetNonlinearSolver} is the {\cvode} memory
-pointer returned by \id{CVodeCreate} and the second argument is the
-{\sunnonlinsol} object to use for solving the nonlinear system
-(\ref{e:nonlinear}) or (\ref{e:nonlinear_fixedpoint}). A call to this function
-attaches the nonlinear solver to the main {\cvode} integrator.
+The first argument passed to the routine \id{CVodeSetNonlinearSolver} is the
+{\cvode} memory pointer returned by \id{CVodeCreate} and the second argument is
+the {\sunnonlinsol} object to use for solving the nonlinear system
+(\ref{e:nonlinear}) or (\ref{e:nonlinear_fixedpoint}).
+A call to this function attaches the nonlinear solver to the main {\cvode}
+integrator.
 
 \ucfunction{CVodeSetNonlinearSolver}
 {
@@ -995,7 +998,7 @@ attaches the nonlinear solver to the main {\cvode} integrator.
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[LS] (\id{SUNNonlinearSolver})
+  \item[NLS] (\id{SUNNonlinearSolver})
     {\sunnonlinsol} object to use for solving nonlinear systems
     (\ref{e:nonlinear}) or (\ref{e:nonlinear_fixedpoint}).
   \end{args}

@@ -202,6 +202,8 @@ typedef struct CVodeMemRec {
     ---------------------*/
 
   SUNNonlinearSolver NLS;  /* Sundials generic nonlinear solver object */
+  booleantype ownNLS;      /* flag indicating if CVODE created the nonlinear
+                              solver object */
   int convfail;            /* flag to indicate when a Jacbian update may
                               be needed */
 

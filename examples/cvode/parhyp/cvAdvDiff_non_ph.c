@@ -204,6 +204,7 @@ int main(int argc, char *argv[])
   N_VDestroy(u);              /* Free hypre vector wrapper */
   HYPRE_IJVectorDestroy(Uij); /* Free the underlying hypre vector */
   CVodeFree(&cvode_mem);      /* Free the integrator memory */
+  SUNNonlinSolFree(NLS);      /* Free the nonlinear solver */
   free(data);                 /* Free user data */
 
   MPI_Finalize();
