@@ -282,6 +282,41 @@ preconditioner routines.
 \section{Changes from previous versions}
 \label{Introduction:changes-from-previous-versions}
 
+\subsection{Changes in vX.X.X}
+\label{Introduction:changes-in-vX-X-X}
+
+Added hybrid MPI/CUDA and MPI/RAJA vectors to allow use of more 
+than one MPI rank when using a GPU system.  The vectors assume one GPU 
+device per MPI rank.
+
+Changed the name of the RAJA {\nvector} library to libsundials\_nveccudaraja.\texttt{lib}
+from libsundials\_nvecraja.\texttt{lib} to better reflect that we only support
+CUDA as a backend for RAJA currently.
+
+CMake 3.1.3 is now the minimum required CMake version.
+
+Several changes were made to the build system. If MPI is enabled and
+MPI compiler wrappers are not set, the build system will check if
+\code{CMAKE\_<language>\_COMPILER} can compile MPI programs before
+trying to locate and use an MPI installation. The native CMake FindMPI
+module is now used to locate an MPI installation. The options for
+setting MPI compiler wrappers and the executable for running MPI
+programs have been updated to align with those in native CMake FindMPI
+module. This included changing \code{MPI\_MPICC} to
+\code{MPI\_C\_COMPILER}, \code{MPI\_MPICXX} to \code{MPI\_CXX\_COMPILER},
+combining \code{MPI\_MPIF77} and \code{MPI\_MPIF90} to
+\code{MPI\_Fortran\_COMPILER}, and changing \code{MPI\_RUN\_COMMAND} to
+\code{MPIEXEC\_EXECUTABLE}. When a Fortran name-mangling scheme is needed (e.g.,
+\code{LAPACK\_ENABLE} is \code{ON}) the build system will infer the scheme
+from the Fortran compiler. If a Fortran compiler is not available or
+the inferred or default scheme needs to be overridden, the advanced
+options \code{SUNDIALS\_F77\_FUNC\_CASE} and
+\code{SUNDIALS\_F77\_FUNC\_UNDERSCORES} can be used to manually set the
+name-mangling scheme and bypass trying to infer the
+scheme. Additionally, parts of the main CMakeLists.txt file were moved
+to new files in the \code{src} and \code{example} directories to make the
+CMake configuration file structure more modular.
+
 \subsection{Changes in v2.1.2}
 \label{Introduction:changes-in-v2-1-2}
 Updated the minimum required version of CMake to 2.8.12 and enabled
@@ -26442,12 +26477,12 @@ Setting this option to \code{ON} will trigger several additional
 options related to MPI.
 \end{notice}
 
-\item[{\index{MPI\_MPICC (CMake option)}MPI\_MPICC}] \leavevmode
+\item[{\index{MPI\_C\_COMPILER (CMake option)}MPI\_C\_COMPILER}] \leavevmode
 \code{mpicc} program
 
 Default:
 
-\item[{\index{MPI\_MPICXX (CMake option)}MPI\_MPICXX}] \leavevmode
+\item[{\index{MPI\_CXX\_COMPILER (CMake option)}MPI\_CXX\_COMPILER}] \leavevmode
 \code{mpicxx} program
 
 Default:
@@ -26461,8 +26496,8 @@ without setting any additional configuration options
 other than \code{MPI\_ENABLE}.
 \end{notice}
 
-\item[{\index{MPI\_MPIF77 (CMake option)}MPI\_MPIF77}] \leavevmode
-\code{mpif77} program
+\item[{\index{MPI\_Fortran\_COMPILER (CMake option)}MPI\_Fortran\_COMPILER}] \leavevmode
+\code{mpifort} program
 
 Default:
 
@@ -26472,19 +26507,7 @@ This option is triggered only if MPI is enabled
 enabled (\code{FCMIX\_ENABLE} is \code{ON}).
 \end{notice}
 
-\item[{\index{MPI\_MPIF90 (CMake option)}MPI\_MPIF90}] \leavevmode
-\code{mpif90} program
-
-Default:
-
-\begin{notice}{note}{Note:}
-This option is triggered only if MPI is enabled
-(\code{MPI\_ENABLE} is \code{ON}), Fortran-C support is enabled
-(\code{FCMIX\_ENABLE} is \code{ON}), and Fortran90 examples are enabled
-(\code{EXAMPLES\_ENABLE\_F90} is \code{ON}).
-\end{notice}
-
-\item[{\index{MPI\_RUN\_COMMAND (CMake option)}MPI\_RUN\_COMMAND}] \leavevmode
+\item[{\index{MPIEXEC\_EXECUTABLE (CMake option)}MPIEXEC\_EXECUTABLE}] \leavevmode
 Specify run command for MPI
 
 Default: \code{mpirun}

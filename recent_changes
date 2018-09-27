@@ -1,10 +1,38 @@
 Changes to SUNDIALS since Release of July 31, 2018.
 
+* Added hybrid MPI/CUDA and MPI/RAJA vectors to allow use of more than one 
+  MPI rank when using a GPU system.  The vectors assume one GPU device per 
+  MPI rank.
+
+* Changed the name of the RAJA {\nvector} library to libsundials\_nveccudaraja.\texttt{lib}
+  from libsundials\_nvecraja.\texttt{lib} to better reflect that we only support
+  CUDA as a backend for RAJA currently.
+
+* Increased CMake minimum version to 3.1.3
+
 * Add constraint handling feature to CVODE and CVODES.
 
 * Fixed a bug in IDAS where the saved residual value used in the nonlinear
   solve for consistent initial conditions was passed as temporary workspace and
   could be overwritten.
+
+* Several changes were made to the build system. If MPI is enabled and MPI  
+  compiler wrappers are not set, the build system will check if
+  CMAKE_<language>_COMPILER can compile MPI programs before trying to locate and
+  use an MPI installation. The native CMake FindMPI module is now used to locate
+  an MPI installation. The options for setting MPI compiler wrappers and the
+  executable for running MPI programs have been updated to align with those in
+  native CMake FindMPI module. This included changing MPI_MPICC to MPI_C_COMPILER,
+  MPI_MPICXX to MPI_CXX_COMPILER combining MPI_MPIF77 and MPI_MPIF90 to
+  MPI_Fortran_COMPILER, and changing MPI_RUN_COMMAND to MPIEXEC. When a Fortran
+  name-mangling scheme is needed (e.g., LAPACK_ENABLE is ON) the build system will
+  infer the scheme from the Fortran compiler. If a Fortran compiler is not
+  available or the inferred or default scheme needs to be overridden, the advanced
+  options SUNDIALS_F77_FUNC_CASE and SUNDIALS_F77_FUNC_UNDERSCORES can be used to
+  manually set the name-mangling scheme and bypass trying to infer the scheme.
+  Additionally, parts of the main CMakeLists.txt file were moved to new files in
+  the src and example directories to make the CMake configuration file structure
+  more modular.
 
 Changes to SUNDIALS since Release of May. 7, 2018.
 

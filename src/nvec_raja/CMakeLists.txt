@@ -3,45 +3,48 @@
 # ---------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Lawrence Livermore National Laboratory in part under
 # Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
 # For details, see the LICENSE file.
 # LLNS Copyright End
 # ---------------------------------------------------------------
-# CMakeLists.txt file for the cuda NVECTOR library
+# CMakeLists.txt file for the RAJA NVECTOR library
 
 INSTALL(CODE "MESSAGE(\"\nInstall NVECTOR_RAJA\n\")")
 
-# Add variable nveccuda_SOURCES with the sources for the NVECRAJA lib
-SET(nvecraja_SOURCES 
+# Add variable nvecraja_SOURCES with the sources for the NVECRAJA lib
+SET(nvecraja_SOURCES
   nvector_raja.cu
 )
 
 # Tell compiler it is a CUDA source
 set_source_files_properties(${nvecraja_SOURCES} PROPERTIES CUDA_SOURCE_PROPERTY_FORMAT OBJ)
 
+# Set C++ compiler flags to include RAJA flags
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${RAJA_COMPILE_FLAGS})
+
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the NVECRAJA library
-SET(shared_SOURCES 
+SET(shared_SOURCES
   sundials_math.c
+  sundials_mpi.c
 )
 ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
 
 # Add variable nveccuda_HEADERS with the exported NVECRAJA header files
-SET(nvecraja_HEADERS
-  nvector_raja.h 
-#  raja/Vector.hpp 
-#  raja/VectorKernels.cuh
-)
+SET(nvecraja_HEADERS nvector_raja.h)
+IF (MPI_ENABLE)
+  LIST(APPEND nvecraja_HEADERS nvector_mpiraja.h)
+ENDIF()
 ADD_PREFIX(${sundials_SOURCE_DIR}/include/nvector/ nvecraja_HEADERS)
 
 # Add source directory to include directories
-INCLUDE_DIRECTORIES(.)
+INCLUDE_DIRECTORIES(. ${MPI_CXX_INCLUDE_PATH})
 
-# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY 
+# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
 ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 
 # Rules for building and installing the static library:
@@ -49,11 +52,27 @@ ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 #  - Set the library name and make sure it is not deleted
 #  - Install the NVECRAJA library
 IF(BUILD_STATIC_LIBS)
-  CUDA_ADD_LIBRARY(sundials_nvecraja_static STATIC ${nvecraja_SOURCES})
-  SET_TARGET_PROPERTIES(sundials_nvecraja_static
-    PROPERTIES OUTPUT_NAME sundials_nvecraja CLEAN_DIRECT_OUTPUT 1
+  # ----------------------- CUDA only
+  # The FindCUDA module does not properly forward compile options using target_* commands.
+  # So as long as we use it (required in CMake < 3.8), we have to manually add compile
+  # options in the CUDA_ADD_* commands.
+  CUDA_ADD_LIBRARY(sundials_nveccudaraja_static STATIC
+    ${nvecraja_SOURCES} ${shared_SOURCES}
+    OPTIONS -DSUNDIALS_MPI_ENABLED=0
   )
-  INSTALL(TARGETS sundials_nvecraja_static DESTINATION lib)
+  TARGET_COMPILE_DEFINITIONS(sundials_nveccudaraja_static PUBLIC -DSUNDIALS_MPI_ENABLED=0)
+  SET_TARGET_PROPERTIES(sundials_nveccudaraja_static
+    PROPERTIES OUTPUT_NAME sundials_nveccudaraja CLEAN_DIRECT_OUTPUT 1
+  )
+  INSTALL(TARGETS sundials_nveccudaraja_static DESTINATION lib)
+  # MPI+CUDA
+  IF(MPI_ENABLE)
+    CUDA_ADD_LIBRARY(sundials_nvecmpicudaraja_static STATIC ${nvecraja_SOURCES} ${shared_SOURCES})
+    SET_TARGET_PROPERTIES(sundials_nvecmpicudaraja_static
+      PROPERTIES OUTPUT_NAME sundials_nvecmpicudaraja CLEAN_DIRECT_OUTPUT 1
+    )
+    INSTALL(TARGETS sundials_nvecmpicudaraja_static DESTINATION lib)
+  ENDIF()
 ENDIF(BUILD_STATIC_LIBS)
 
 # Rules for building and installing the shared library:
@@ -62,17 +81,27 @@ ENDIF(BUILD_STATIC_LIBS)
 #  - Set VERSION and SOVERSION for shared libraries
 #  - Install the NVECRAJA library
 IF(BUILD_SHARED_LIBS)
-  CUDA_ADD_LIBRARY(sundials_nvecraja_shared SHARED ${nvecraja_SOURCES})
-  SET_TARGET_PROPERTIES(sundials_nvecraja_shared
-    PROPERTIES OUTPUT_NAME sundials_nvecraja CLEAN_DIRECT_OUTPUT 1
+  # ----------------------- CUDA only
+  CUDA_ADD_LIBRARY(sundials_nveccudaraja_shared SHARED
+    ${nvecraja_SOURCES} ${shared_SOURCES}
+    OPTIONS -DSUNDIALS_MPI_ENABLED=0
   )
-  SET_TARGET_PROPERTIES(sundials_nvecraja_shared
-    PROPERTIES VERSION ${nveclib_VERSION} SOVERSION ${nveclib_SOVERSION}
+  TARGET_COMPILE_DEFINITIONS(sundials_nveccudaraja_shared PUBLIC -DSUNDIALS_MPI_ENABLED=0)
+  SET_TARGET_PROPERTIES(sundials_nveccudaraja_shared
+    PROPERTIES OUTPUT_NAME sundials_nveccudaraja CLEAN_DIRECT_OUTPUT 1
+               VERSION ${nveclib_VERSION} SOVERSION ${nveclib_SOVERSION}
   )
-#  SET_TARGET_PROPERTIES(sundials_nvecraja_shared 
-#    PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE
-#  )
-  INSTALL(TARGETS sundials_nvecraja_shared DESTINATION lib)
+  INSTALL(TARGETS sundials_nveccudaraja_shared DESTINATION lib)
+
+  # ----------------------- MPI+CUDA
+  IF(MPI_ENABLE)
+    CUDA_ADD_LIBRARY(sundials_nvecmpicudaraja_shared SHARED ${nvecraja_SOURCES} ${shared_SOURCES})
+    SET_TARGET_PROPERTIES(sundials_nvecmpicudaraja_shared
+      PROPERTIES OUTPUT_NAME sundials_nvecmpicudaraja CLEAN_DIRECT_OUTPUT 1
+                 VERSION ${nveclib_VERSION} SOVERSION ${nveclib_SOVERSION}
+    )
+    INSTALL(TARGETS sundials_nvecmpicudaraja_shared DESTINATION lib)
+  ENDIF()
 ENDIF(BUILD_SHARED_LIBS)
 
 # Install the NVECRAJA header files

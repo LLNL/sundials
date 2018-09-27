@@ -57,6 +57,8 @@ $tar $tarfile $distrobase/src/ida/fcmix/fidasparse.c
 
 echo "   --- Add ida examples to $tarfile"
 
+$tar $tarfile $distrobase/examples/ida/CMakeLists.txt
+
 $tar $tarfile $distrobase/examples/ida/serial/README
 $tar $tarfile $distrobase/examples/ida/serial/CMakeLists.txt
 $tar $tarfile $distrobase/examples/ida/serial/idaFoodWeb_bnd.c
@@ -109,6 +111,26 @@ $tar $tarfile $distrobase/examples/ida/parallel/idaHeat2D_kry_bbd_p.c
 $tar $tarfile $distrobase/examples/ida/parallel/idaHeat2D_kry_bbd_p.out
 $tar $tarfile $distrobase/examples/ida/parallel/idaHeat2D_kry_p.c
 $tar $tarfile $distrobase/examples/ida/parallel/idaHeat2D_kry_p.out
+
+$tar $tarfile $distrobase/examples/ida/cuda/README
+$tar $tarfile $distrobase/examples/ida/cuda/CMakeLists.txt
+$tar $tarfile $distrobase/examples/ida/cuda/idaHeat2D_kry_cuda.cu
+$tar $tarfile $distrobase/examples/ida/cuda/idaHeat2D_kry_cuda.out
+
+$tar $tarfile $distrobase/examples/ida/mpicuda/README
+$tar $tarfile $distrobase/examples/ida/mpicuda/CMakeLists.txt
+$tar $tarfile $distrobase/examples/ida/mpicuda/idaHeat2D_kry_p_mpicuda.cu
+$tar $tarfile $distrobase/examples/ida/mpicuda/idaHeat2D_kry_p_mpicuda.out
+
+$tar $tarfile $distrobase/examples/ida/raja/README
+$tar $tarfile $distrobase/examples/ida/raja/CMakeLists.txt
+$tar $tarfile $distrobase/examples/ida/raja/idaHeat2D_kry_raja.cu
+$tar $tarfile $distrobase/examples/ida/raja/idaHeat2D_kry_raja.out
+
+$tar $tarfile $distrobase/examples/ida/mpiraja/README
+$tar $tarfile $distrobase/examples/ida/mpiraja/CMakeLists.txt
+$tar $tarfile $distrobase/examples/ida/mpiraja/idaHeat2D_kry_p_mpiraja.cu
+$tar $tarfile $distrobase/examples/ida/mpiraja/idaHeat2D_kry_p_mpiraja.out
 
 $tar $tarfile $distrobase/examples/ida/fcmix_parallel/README
 $tar $tarfile $distrobase/examples/ida/fcmix_parallel/CMakeLists.txt

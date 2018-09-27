@@ -3,30 +3,30 @@
 %
 The {\nveccuda} module is an experimental {\nvector} implementation in the {\cuda} language.
 The module allows for {\sundials} vector kernels to run on GPU devices. It is intended for users
-who are already familiar with {\cuda} and GPU programming. Building this vector 
-module requires a CUDA compiler and, by extension, a C++ compiler. The class \id{Vector} 
-in namespace \id{suncudavec} manages vector data layout: 
-\begin{verbatim} 
+who are already familiar with {\cuda} and GPU programming. Building this vector
+module requires a CUDA compiler and, by extension, a C++ compiler. The class \id{Vector}
+in namespace \id{suncudavec} manages vector data layout:
+\begin{verbatim}
 template <class T, class I>
 class Vector {
   I size_;
   I mem_size_;
   T* h_vec_;
   T* d_vec_;
-  StreamPartitioning<T, I>* partStream_;
-  ReducePartitioning<T, I>* partReduce_;
+  ThreadPartitioning<T, I>* partStream_;
+  ThreadPartitioning<T, I>* partReduce_;
   bool ownPartitioning_;
-  
+
   ...
 };
 \end{verbatim}
 
 The class members are vector size (length), size of the vector data memory block, pointers
-to vector data on the host and the device, pointers to classes \id{StreamPartitioning}
-and \id{ReducePartitioning}, which handle thread partitioning for streaming and 
-reduction vector kernels, respectively, and a boolean flag that signals if the
+to vector data on the host and the device, pointers to \id{ThreadPartitioning}
+implementations that handle thread partitioning for streaming and
+reduction vector kernels, and a boolean flag that signals if the
 vector owns the thread partitioning. The class \id{Vector} inherits from the empty structure
-\begin{verbatim} 
+\begin{verbatim}
 struct _N_VectorContent_Cuda {
 };
 \end{verbatim}
@@ -34,77 +34,131 @@ to interface the C++ class with the {\nvector} C code. When instantiated, the cl
 \id{Vector} will allocate memory on both the host and the device. Due to the rapid
 progress of {\cuda} development, we expect that the \id{suncudavec::Vector}
 class will change frequently in future {\sundials} releases. The code is
-structured so that it can tolerate significant changes in the 
+structured so that it can tolerate significant changes in the
 \id{suncudavec::Vector} class without requiring changes to the user API.
 
 %%
 %%--------------------------------------------
 
-The header file to include when using this module is \id{nvector\_cuda.h}.
-The installed module library to link to is
-\id{libsundials\_nveccuda.\textit{lib}}
-where \id{\em.lib} is typically \id{.so} for shared libraries and \id{.a}
-for static libraries.
+The {\nveccuda} module can be utilized for single-node parallelism or in a distributed context with MPI.
+The header file to include when using this module for single-node parallelism is \id{nvector\_cuda.h}.
+The header file to include when using this module in the distributed case is \id{nvector\_mpicuda.h}.
+Note that only the {\nveccuda} constructor signature differs between the two header files.
+The installed module libraries to link to are \id{libsundials\_nveccuda.\textit{lib}} in the single-node case,
+or \id{libsundials\_nvecmpicuda.\textit{lib}} in the distributed case. Only one one of these libraries may be linked to when creating an executable or library. {\sundials} must be built with MPI support if the distributed library is desired. The extension, \id{\em.lib}, is typically \id{.so} for shared libraries and \id{.a} for static libraries.
 
-Unlike other native {\sundials} vector types, {\nveccuda} does not provide macros 
-to access its member variables.
+Unlike other native {\sundials} vector types, {\nveccuda} does not provide macros
+to access its member variables. Instead, user should use the accessor functions in
+the namespace \id{suncudavec}.
+\begin{itemize}
+
+\item
+  \ID{getDevData(N\_Vector v)}
+
+  This function takes an \id{N\_Vector} as an argument and returns a raw pointer to the vector
+  data on the device (GPU). It is the user's responsibility to ensure that the vector argument 
+  is of the correct \id{N\_Vector} type.
+
+\item
+  \ID{getHostData(N\_Vector v)}
+
+  This function takes a \id{N\_Vector} as an argument and returns a raw pointer to the vector
+  data on the host (CPU memory). It is the user's responsibility to ensure that the vector argument 
+  is of the correct \id{N\_Vector} type.
+
+\item \ID{getSize(N\_Vector v)}
+
+  Returns the vector's local length.
+
+
+\item \ID{getGlobalSize(N\_Vector v)}
+
+  Returns the vector's global length.
+
+
+\item \ID{getMPIComm(N\_Vector v)}
+
+  Takes a \id{N\_Vector} as an argument and returns a sundials communicator of type
+  \id{SUNDIALS\_Comm}.
+
+\end{itemize}
+
 %Note that {\nveccuda} requires {\sundials} to be built with {\mpi} support.
 
 %%
 %%--------------------------------------------
 %%
-The {\nveccuda} module defines implementations of all vector operations listed 
-in Table \ref{t:nvecops}, except for \verb|N_VGetArrayPointer| and 
-\verb|N_VSetArrayPointer|. 
-As such, this vector cannot be used with {\sundials} Fortran interfaces,
-nor with {\sundials} direct solvers and preconditioners. This support
-will be added in subsequent {\sundials} releases. 
-The {\nveccuda} module provides separate functions to access data on the host
-and on the device. It also provides methods for copying from the host to 
+The {\nveccuda} module defines implementations of all vector operations listed
+in Table \ref{t:nvecops}, except for \id{N\_VGetArrayPointer} and \id{N\_VSetArrayPointer}.
+As such, this vector cannot be used with the {\sundials} Fortran interfaces,
+nor with the {\sundials} direct solvers and preconditioners. Instead,
+the {\nveccuda} module provides separate functions to access data on the host
+and on the device. It also provides methods for copying from the host to
 the device and vice versa. Usage examples of {\nveccuda} are provided in
 some example programs for {\cvode} \cite{cvode_ex}.
 
-The names of vector operations are obtained from those in 
+The names of vector operations are obtained from those in
 Table \ref{t:nvecops} by appending the suffix \id{\_Cuda} (e.g. \id{N\_VDestroy\_Cuda}).
 The module {\nveccuda}  provides the following additional user-callable routines:
 %%
 %%
 \begin{itemize}
 
-  
+
 %%--------------------------------------
 
 \item \ID{N\_VNew\_Cuda}
- 
+
+  \textit{Note: this function signature is defined in the header \id{nvector\_mpicuda.h}
+    and should be used when using this module in a distributed context.}
   This function creates and allocates memory for a {\cuda} \id{N\_Vector}.
-  The memory is allocated on both host and device. Its only argument is the 
-  vector length. 
+  The memory is allocated on both host and device. Its arguments are local
+  and global vector lengths, as well as the {\mpi} communicator. Use this 
+  constructor with the \id{libsundials\_nvecmpicuda}.\text{lib} library.
 
 \begin{verbatim}
-N_Vector N_VNew_Cuda(sunindextype vec_length);
+N_Vector N_VNew_Cuda(MPI_Comm comm,
+                     sunindextype local_length,
+                     sunindextype global_length);
 \end{verbatim}
 
-  
+
+%%--------------------------------------
+
+\item \ID{N\_VNew\_Cuda}
+
+  \textit{Note: this function signature is defined in the header \id{nvector\_cuda.h}
+    and should be used when using this module for single-node parallelism.}
+  This function creates and allocates memory for a {\cuda} \id{N\_Vector}
+  on a single node. The memory is allocated on both host and device.
+  Its only argument is vector length. Use this constructor with the 
+  \id{libsundials\_nveccuda}.\text{lib} library.
+
+\begin{verbatim}
+N_Vector N_VNew_Cuda(sunindextype length);
+\end{verbatim}
+
+
 %%--------------------------------------
 
 \item \ID{N\_VNewEmpty\_Cuda}
- 
+
   This function creates a new {\nvector} wrapper with the pointer to
-  the wrapped {\cuda} vector set to (\id{NULL}). It is used by the 
-  \id{N\_VNew\_Cuda}, \id{N\_VMake\_Cuda}, and \id{N\_VClone\_Cuda} 
-  implementations. 
+  the wrapped {\cuda} vector set to (\id{NULL}). It is used by the
+  \id{N\_VNew\_Cuda}, \id{N\_VMake\_Cuda}, and \id{N\_VClone\_Cuda}
+  implementations.
 
 \begin{verbatim}
 N_Vector N_VNewEmpty_Cuda(sunindextype vec_length);
 \end{verbatim}
 
-  
+
 %%--------------------------------------
 
 \item \ID{N\_VMake\_Cuda}
-  
+
   This function creates and allocates memory for an {\nveccuda}
-  wrapper around a user-provided \id{suncudavec::Vector} class. 
+  wrapper around a user-provided \id{suncudavec::Vector} class.
   Its only argument is of type \id{N\_VectorContent\_Cuda}, which
   is the pointer to the class.
 
@@ -115,40 +169,8 @@ N_Vector N_VMake_Cuda(N_VectorContent_Cuda c);
 %%--------------------------------------
 
 
-\item \ID{N\_VCloneVectorArray\_Cuda}
- 
-  This function creates (by cloning) an array of \id{count} {\nveccuda} vectors.
- 
-\begin{verbatim}
-N_Vector *N_VCloneVectorArray_Cuda(int count, N_Vector w);
-\end{verbatim}
-
-%%--------------------------------------
-
-\item \ID{N\_VCloneVectorArrayEmpty\_Cuda}
- 
-  This function creates (by cloning) an array of \id{count} {\nveccuda} vectors,
-  each with pointers to {\cuda} vectors set to (\id{NULL}).
- 
-\begin{verbatim}
-N_Vector *N_VCloneVectorArrayEmpty_Cuda(int count, N_Vector w);
-\end{verbatim}
-
-%%--------------------------------------
-
-\item \ID{N\_VDestroyVectorArray\_Cuda}
- 
- This function frees memory allocated for the array of \id{count} variables of
- type \id{N\_Vector} created with \id{N\_VCloneVectorArray\_Cuda} or with
- \id{N\_VCloneVectorArrayEmpty\_Cuda}.
- 
-
- \verb|void N_VDestroyVectorArray_Cuda(N_Vector *vs, int count);|
-
-%%--------------------------------------
-
 \item \ID{N\_VGetLength\_Cuda}
- 
+
  This function returns the length of the vector.
 
  \verb|sunindextype N_VGetLength_Cuda(N_Vector v);|
@@ -156,7 +178,7 @@ N_Vector *N_VCloneVectorArrayEmpty_Cuda(int count, N_Vector w);
 %%--------------------------------------
 
 \item \ID{N\_VGetHostArrayPointer\_Cuda}
- 
+
  This function returns a pointer to the vector data on the host.
 
  \verb|realtype *N_VGetHostArrayPointer_Cuda(N_Vector v);|
@@ -165,7 +187,7 @@ N_Vector *N_VCloneVectorArrayEmpty_Cuda(int count, N_Vector w);
 %%--------------------------------------
 
 \item \ID{N\_VGetDeviceArrayPointer\_Cuda}
- 
+
  This function returns a pointer to the vector data on the device.
 
  \verb|realtype *N_VGetDeviceArrayPointer_Cuda(N_Vector v);|
@@ -174,7 +196,7 @@ N_Vector *N_VCloneVectorArrayEmpty_Cuda(int count, N_Vector w);
 %%--------------------------------------
 
 \item \ID{N\_VCopyToDevice\_Cuda}
- 
+
  This function copies host vector data to the device.
 
  \verb|realtype *N_VCopyToDevice_Cuda(N_Vector v);|
@@ -183,7 +205,7 @@ N_Vector *N_VCloneVectorArrayEmpty_Cuda(int count, N_Vector w);
 %%--------------------------------------
 
 \item \ID{N\_VCopyFromDevice\_Cuda}
- 
+
  This function copies vector data from the device to the host.
 
  \verb|realtype *N_VCopyFromDevice_Cuda(N_Vector v);|
@@ -192,17 +214,17 @@ N_Vector *N_VCloneVectorArrayEmpty_Cuda(int count, N_Vector w);
 %%--------------------------------------
 
 \item \ID{N\_VPrint\_Cuda}
-  
-  This function prints the content of a {\cuda} vector to \id{stdout}. 
-    
+
+  This function prints the content of a {\cuda} vector to \id{stdout}.
+
   \verb|void N_VPrint_Cuda(N_Vector v);|
 
 %%--------------------------------------
 
 \item \ID{N\_VPrintFile\_Cuda}
-  
-  This function prints the content of a {\cuda} vector to \id{outfile}. 
-    
+
+  This function prints the content of a {\cuda} vector to \id{outfile}.
+
   \verb|void N_VPrintFile_Cuda(N_Vector v, FILE *outfile);|
 
 
@@ -210,15 +232,15 @@ N_Vector *N_VCloneVectorArrayEmpty_Cuda(int count, N_Vector w);
 %%
 %%------------------------------------
 %%
-\paragraph{\bf Notes} 
-           
+\paragraph{\bf Notes}
+
 \begin{itemize}
-                                        
+
 \item
-  When there is a need to access components of an \id{N\_Vector\_Cuda}, \id{v}, 
-  it is recommeded to use functions \id{N\_VGetDeviceArrayPointer\_Cuda} or 
-  \id{N\_VGetHostArrayPointer\_Cuda}.        
-                                                               
+  When there is a need to access components of an \id{N\_Vector\_Cuda}, \id{v},
+  it is recommeded to use functions \id{N\_VGetDeviceArrayPointer\_Cuda} or
+  \id{N\_VGetHostArrayPointer\_Cuda}.
+
 % \item
 %   {\warn}Unlike in other {\nvector} implementations, vector data will always be
 %   deleted when invoking \id{N\_VDestroy\_Cuda} and \id{N\_VDestroyVectorArray\_Cuda},
@@ -228,7 +250,7 @@ N_Vector *N_VCloneVectorArrayEmpty_Cuda(int count, N_Vector w);
 \item
   {\warn}To maximize efficiency, vector operations in the {\nveccuda} implementation
   that have more than one \id{N\_Vector} argument do not check for
-  consistent internal representations of these vectors. It is the user's 
+  consistent internal representations of these vectors. It is the user's
   responsibility to ensure that such routines are called with \id{N\_Vector}
   arguments that were all created with the same internal representations.
 
