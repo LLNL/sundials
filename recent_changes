@@ -1,5 +1,8 @@
 Changes to SUNDIALS since Release of July 31, 2018.
 
+* Fixed a thread-safety issue in CVODES and IDAS when using adjoint sensitivity
+  analysis.
+
 * Added hybrid MPI/CUDA and MPI/RAJA vectors to allow use of more than one 
   MPI rank when using a GPU system.  The vectors assume one GPU device per 
   MPI rank.

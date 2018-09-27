@@ -708,6 +708,9 @@ struct CVadjMemRec {
 
   /* Number of steps between 2 check points */
   long int ca_nsteps;
+
+  /* Last index used in CVAfindIndex */
+  long int ca_ilast;
   
   /* Storage for data from forward runs */
   struct DtpntMemRec **dt_mem;
