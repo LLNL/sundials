@@ -148,7 +148,7 @@ defines the types ``realtype``,  ``sunindextype`` and ``booleantype``
 and the constants ``SUNFALSE`` and ``SUNTRUE``, so a user program does
 not need to include ``sundials_types.h`` directly.
 
-Additionally, the calling program must also include an NVECTOR
+Additionally, the calling program must also include a NVECTOR
 implementation header file, of the form ``nvector/nvector_***.h``,
 corresponding to the user's preferred data layout and form of
 parallelism.  See the section :ref:`NVectors` for details for the
@@ -158,26 +158,23 @@ type.
 
 If the user includes a non-trivial implicit component to their
 ODE system, then each time step will require a nonlinear solver for
-the resulting systems of equations.  ARKode allows an accelerated
-fixed point iteration and Newton-based iterations for this solver; the
-default being the Newton-based solver.  If a user wishes to instead
-use the fixed point solver, or wishes to customize usage of the Newton
-solver module, they must include one of the header files:
+the resulting systems of equations -- the default for this is a
+modified Newton iteration.  If using a non-default nonlinear solver
+module, or when interacting with a SUNNONLINSOL module directly, the
+calling program must also include a SUNNONLINSOL header file, of the
+form ``sunnonlinsol/sunnonlinsol_***.h`` where ``***`` is the name of
+the nonlinear solver module (see the section :ref:`SUNNonlinSol` for
+more information).  This file in turn includes the header file
+``sundials_nonlinearsolver.h`` which defines the abstract
+``SUNNonlinearSolver`` data type.
 
-- ``sunnonlinsol/sunnonlinsol_newton.h``, which allows user access to
-  the generic Newton nonlinear solver module constructor and
-  customization routines.
-
-- ``sunnonlinsol/sunnonlinsol_fixedpoint.h``, which allows user access
-  to the Anderson-accelerated fixed point nonlinear solver constructor
-  and customization routines.
-
-If the Newton method was either specifically chosen above, or if it
-is used by default, then a linear solver module header file will also
+If using a nonlinear solver that requires the solution of a linear
+system of the form :math:`\mathcal{A}x=b` (e.g., the default Newton
+iteration), then a linear solver module header file will also
 be required.  Similarly, if the ODE system involves a non-identity
 mass matrix :math:`M \ne I`, then each time step will require a linear
 solver for systems of the form :math:`Mx=b`.  The header files
-corresponding to the  linear
+corresponding to the linear
 solver modules available for use with ARKode for either the Newton
 solver or for mass-matrix solves, are: 
 

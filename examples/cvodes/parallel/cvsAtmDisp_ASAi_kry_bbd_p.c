@@ -273,7 +273,7 @@ int main(int argc, char *argv[])
   N_VConst(ZERO, q);
 
   /* Create CVODES object, attach user data, and allocate space */
-  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
+  cvode_mem = CVodeCreate(CV_BDF);
   if(check_retval(cvode_mem, "CVodeCreate", 0, myId)) MPI_Abort(comm, 1);
 
   retval = CVodeSetUserData(cvode_mem, d);
@@ -359,7 +359,7 @@ int main(int argc, char *argv[])
   N_VConst(ZERO, qB);
 
   /* Create and allocate backward CVODE memory */
-  retval = CVodeCreateB(cvode_mem, CV_BDF, CV_NEWTON, &indexB);
+  retval = CVodeCreateB(cvode_mem, CV_BDF, &indexB);
   if(check_retval(&retval, "CVodeCreateB", 1, myId)) MPI_Abort(comm, 1);
   
   retval = CVodeSetUserDataB(cvode_mem, indexB, d);
@@ -1118,6 +1118,8 @@ static int PrintFinalStats(void *cvode_mem)
   printf("nsetups = %6ld     netf  = %6ld\n"  , nsetups, netf);
   printf("npe     = %6ld     nps   = %6ld\n"  , npe, nps);
   printf("ncfn    = %6ld     ncfl  = %6ld\n\n", ncfn, ncfl); 
+
+  return(0);
 }
 
 /*

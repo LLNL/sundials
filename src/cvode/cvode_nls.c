@@ -192,8 +192,9 @@ static int cvNlsLSetup(N_Vector ycor, N_Vector res, booleantype jbad,
   /* update Jacobian status */
   *jcur = cv_mem->cv_jcur;
 
-  cv_mem->cv_gamrat = cv_mem->cv_crate = ONE;
+  cv_mem->cv_gamrat = ONE;
   cv_mem->cv_gammap = cv_mem->cv_gamma;
+  cv_mem->cv_crate  = ONE;
   cv_mem->cv_nstlp  = cv_mem->cv_nst;
 
   if (retval < 0) return(CV_LSETUP_FAIL);
@@ -253,7 +254,7 @@ static int cvNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector delta,
   dcon = del * SUNMIN(ONE, cv_mem->cv_crate) / tol;
 
   if (dcon <= ONE) {
-    cv_mem->cv_acnrm = (m==0) ? del : N_VWrmsNorm(ycor, cv_mem->cv_ewt);
+    cv_mem->cv_acnrm = (m==0) ? del : N_VWrmsNorm(ycor, ewt);
     return(CV_SUCCESS); /* Nonlinear system was solved successfully */
   }
 

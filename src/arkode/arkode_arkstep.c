@@ -591,6 +591,7 @@ void ARKStepFree(void **arkode_mem)
     /* free the nonlinear solver memory (if applicable) */
     if ((step_mem->NLS != NULL) && (step_mem->ownNLS)) {
       SUNNonlinSolFree(step_mem->NLS);
+      step_mem->ownNLS = SUNFALSE;
     }
     step_mem->NLS = NULL;
 

@@ -47,6 +47,7 @@
 #include <nvector/nvector_parallel.h>
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
+#include "sunnonlinsol/sunnonlinsol_fixedpoint.h" /* access to the fixed point SUNNonlinearSolver */
 
 #include <mpi.h>
 
@@ -117,6 +118,8 @@ int main(int argc, char *argv[])
   realtype dx, t, g_val;
   int retval, my_pe, nprocs, npes, ncheck;
   sunindextype local_N=0, nperpe, nrem, my_base=-1;
+
+  SUNNonlinearSolver NLS, NLSB;
 
   MPI_Comm comm;
 
@@ -191,7 +194,7 @@ int main(int argc, char *argv[])
   SetIC(u, dx, local_N, my_base);
 
   /* Allocate CVODES memory for forward integration */
-  cvode_mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL);
+  cvode_mem = CVodeCreate(CV_ADAMS);
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   retval = CVodeSetUserData(cvode_mem, data);
@@ -202,6 +205,14 @@ int main(int argc, char *argv[])
 
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
   if (check_retval(&retval, "CVodeSStolerances", 1, my_pe)) MPI_Abort(comm, 1);
+
+  /* create fixed point nonlinear solver object */
+  NLS = SUNNonlinSol_FixedPoint(u, 0);
+  if(check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0, my_pe)) MPI_Abort(comm, 1);
+
+  /* attach nonlinear solver object to CVode */
+  retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
+  if(check_retval(&retval, "CVodeSetNonlinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Allocate combined forward/backward memory */
   retval = CVodeAdjInit(cvode_mem, STEPS, CV_HERMITE);
@@ -241,14 +252,25 @@ int main(int argc, char *argv[])
   SetICback(uB, my_base);
 
   /* Allocate CVODES memory for the backward integration */
-  retval = CVodeCreateB(cvode_mem, CV_ADAMS, CV_FUNCTIONAL, &indexB);
+  retval = CVodeCreateB(cvode_mem, CV_ADAMS, &indexB);
   if (check_retval(&retval, "CVodeCreateB", 1, my_pe)) MPI_Abort(comm, 1);
+
   retval = CVodeSetUserDataB(cvode_mem, indexB, data);
   if (check_retval(&retval, "CVodeSetUserDataB", 1, my_pe)) MPI_Abort(comm, 1);
+
   retval = CVodeInitB(cvode_mem, indexB, fB, TOUT, uB);
   if (check_retval(&retval, "CVodeInitB", 1, my_pe)) MPI_Abort(comm, 1);
+
   retval = CVodeSStolerancesB(cvode_mem, indexB, reltol, abstol);
   if (check_retval(&retval, "CVodeSStolerancesB", 1, my_pe)) MPI_Abort(comm, 1);
+
+  /* create fixed point nonlinear solver object */
+  NLSB = SUNNonlinSol_FixedPoint(uB, 0);
+  if(check_retval((void *)NLSB, "SUNNonlinSol_FixedPoint", 0, my_pe)) MPI_Abort(comm, 1);
+
+  /* attach nonlinear solver object to CVode */
+  retval = CVodeSetNonlinearSolverB(cvode_mem, indexB, NLSB);
+  if(check_retval(&retval, "CVodeSetNonlinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Integrate to T0 */
   retval = CVodeB(cvode_mem, T0, CV_NORMAL);
@@ -264,7 +286,9 @@ int main(int argc, char *argv[])
   /* Free memory */
   N_VDestroy_Parallel(u);
   N_VDestroy_Parallel(uB);
-  CVodeFree(&cvode_mem);  
+  CVodeFree(&cvode_mem);
+  SUNNonlinSolFree(NLS);
+  SUNNonlinSolFree(NLSB);
 
   if (my_pe != npes) {
     free(data->z1);

@@ -252,7 +252,7 @@ SUNLINEARSOLVER\_CUSTOM      & Custom solvers     & 2 \\
   solver is approximate then it should attempt to solve to
   the specified \id{realtype} tolerance \id{tol} in a weighted 2-norm.
   If the solver does not support scaling then it should just use a
-  2-norm. \\
+  2-norm.
 \\[2mm]
 %%
 \id{SUNLinSolFree} & \id{ier = SUNLinSolFree(LS);} \\
@@ -689,7 +689,8 @@ appropriate number of command-line arguments.
 \item \id{Test\_SUNLinSolSolve}: Given a {\sunmatrix} object $A$,
   {\nvector} objects $x$ and $b$ (where $Ax=b$) and a desired solution
   tolerance \texttt{tol}, this routine clones $x$ into a new vector $y$,
-  calls \id{SUNLinSolSolve} to fill $y$ as the solution to $Ay=b$ (to
+  calls \\ \noindent
+  \id{SUNLinSolSolve} to fill $y$ as the solution to $Ay=b$ (to
   the input tolerance), verifies that each entry in $x$ and $y$
   match to within \texttt{10*tol}, and overwrites $x$ with $y$ prior
   to returning (in case the calling routine would like to investigate
@@ -697,10 +698,12 @@ appropriate number of command-line arguments.
 \item \id{Test\_SUNLinSolSetATimes} (iterative solvers only): Verifies that
   \id{SUNLinSolSetATimes} can be called and returns successfully.
 \item \id{Test\_SUNLinSolSetPreconditioner} (iterative solvers only):
-  Verifies that \id{SUNLinSolSetPreconditioner} can be called and
+  Verifies that \\ \noindent
+  \id{SUNLinSolSetPreconditioner} can be called and
   returns successfully.
 \item \id{Test\_SUNLinSolSetScalingVectors} (iterative solvers only):  
-  Verifies that \id{SUNLinSolSetScalingVectors} can be called and
+  Verifies that \\ \noindent
+  \id{SUNLinSolSetScalingVectors} can be called and
   returns successfully.
 \item \id{Test\_SUNLinSolLastFlag}: Verifies that \id{SUNLinSolLastFlag} can
   be called, and outputs the result to \texttt{stdout}.
@@ -720,8 +723,10 @@ order.  For either direct or iterative linear
 solvers, \id{Test\_SUNLinSolInitialize} must be called
 before \id{Test\_SUNLinSolSetup}, which must be called
 before \id{Test\_SUNLinSolSolve}.  Additionally, for iterative linear
-solvers \id{Test\_SUNLinSolSetATimes}, \id{Test\_SUNLinSolSetPreconditioner}
-and \id{Test\_SUNLinSolSetScalingVectors} should be called
+solvers \\ \noindent
+\id{Test\_SUNLinSolSetATimes}, \id{Test\_SUNLinSolSetPreconditioner}
+and \\ \noindent
+\id{Test\_SUNLinSolSetScalingVectors} should be called
 before \id{Test\_SUNLinSolInitialize};
 similarly \id{Test\_SUNLinSolNumIters}, \id{Test\_SUNLinSolResNorm}
 and \id{Test\_SUNLinSolResid} should be called

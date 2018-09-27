@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
   Ith(y,3) = Y3;
 
   /* Create CVODES object */
-  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
+  cvode_mem = CVodeCreate(CV_BDF);
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Allocate space for CVODES */

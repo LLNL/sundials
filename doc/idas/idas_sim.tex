@@ -101,10 +101,11 @@ which defines the abstract \Id{N\_Vector} data type.
 If using a non-default nonlinear solver module, or when interacting
 with a {\sunnonlinsol} module directly, the calling program must also
 include a {\sunnonlinsol} implementation header file, of the form
-\id{sunnonlinsol/sunnonlinsol\_***.h}.  See Chapter
-\ref{c:sunnonlinsol} for the appropriate name.  This file in turn
-includes the header file \Id{sundials\_nonlinearsolver.h} which
-defines the abstract \Id{SUNNonlinearSolver} data type.
+\id{sunnonlinsol/sunnonlinsol\_***.h} where \id{***} is the name of the
+nonlinear solver module (see Chapter \ref{c:sunnonlinsol} for more
+information). This file in turn includes the header file
+\Id{sundials\_nonlinearsolver.h} which defines the abstract
+\Id{SUNNonlinearSolver} data type.
 
 If using a nonlinear solver that requires the solution of a linear
 system of the form (\ref{e:DAE_Newtoncorr}) (e.g., the default Newton
@@ -205,10 +206,10 @@ routines.
 %%====================================================================
 The following is a skeleton of the user's main program (or calling program)
 for the integration of a DAE IVP. Most of the steps are independent of the
-{\nvector}, {\sunmatrix}, and {\sunlinsol} implementations used.
-For the steps that are not, refer to
-Chapter \ref{s:nvector}, \ref{s:sunmatrix}, and \ref{s:sunlinsol} for the
-specific name of the function to be called or macro to be referenced.
+{\nvector}, {\sunmatrix}, {\sunlinsol}, and {\sunnonlinsol} implementations
+used. For the steps that are not, refer to Chapter \ref{s:nvector},
+\ref{s:sunmatrix}, \ref{s:sunlinsol}, and \ref{c:sunnonlinsol} for the specific
+name of the function to be called or macro to be referenced.
 %%
 \index{User main program!IDAS@{\idas} usage}
 \begin{Steps}
@@ -320,8 +321,8 @@ specific name of the function to be called or macro to be referenced.
   appropriate constructor function defined by the particular {\sunmatrix}
   implementation.
 
-NOTE: The dense, banded, and sparse matrix objects are usable only in a
-serial or threaded environment.
+  NOTE: The dense, banded, and sparse matrix objects are usable only in a
+  serial or threaded environment.
 
 \item\label{i:lin_solver}
   {\bf Create linear solver object}
@@ -362,11 +363,11 @@ serial or threaded environment.
 \item\label{i:nonlin_solver}
   {\bf Create nonlinear solver object} (\textit{optional})
 
-  If using a non-default nonlinear solver, then create the desired nonlinear
-  solver object by calling the appropriate constructor function defined by the
-  particular {\sunnonlinsol} implementation (e.g.,
-  \id{NLS = SUNNonlinSol\_***(...);} where \id{***} is the name of the nonlinear
-  solver (see Chapter \ref{c:sunnonlinsol} for details).
+  If using a non-default nonlinear solver (see \S\ref{sss:nonlin_solv_init}),
+  then create the desired nonlinear solver object by calling the appropriate
+  constructor function defined by the particular {\sunnonlinsol} implementation
+  (e.g., \id{NLS = SUNNonlinSol\_***(...);} where \id{***} is the name of the
+  nonlinear solver (see Chapter \ref{c:sunnonlinsol} for details).
 
 \item\label{i:nonlin_solver_interface}
   {\bf Attach nonlinear solver module} (\textit{optional})
@@ -959,10 +960,10 @@ integrator. We note that at present, the {\sunnonlinsol} object
   \end{args}
 }
 {
-  When forward sensitivity analysis capabilities are enabled and the staggered
-  corrector approach is used this function is used to set the nonlinear solver
-  method for correcting state variables (see \S\ref{sss:idafwd_nonlin_solv_init}
-  for more details).
+  When forward sensitivity analysis capabilities are enabled and the
+  \id{IDA\_STAGGERED} corrector method is used this
+  function sets the nonlinear solver method for correcting state variables (see
+  \S\ref{sss:idafwd_nonlin_solv_init} for more details).
 }
 
 %%
@@ -1665,7 +1666,9 @@ flag = IDASetMaxNonlinIters(ida\_mem, maxcor);
   \item[\Id{IDA\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{IDA\_MEM\_NULL}]
-    The \id{ida\_mem} pointer or the {\sunnonlinsol} module is \id{NULL}.
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDA\_MEM\_FAIL}]
+    The {\sunnonlinsol} module is \id{NULL}.
   \end{args}
 }
 {
@@ -3141,7 +3144,9 @@ These optional output functions are described next.
   \item[IDA\_SUCCESS]
     The optional output value has been successfully set.
   \item[\Id{IDA\_MEM\_NULL}]
-    The \id{ida\_mem} pointer or the {\sunnonlinsol} module is \id{NULL}.
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDA\_MEM\_FAIL}]
+    The {\sunnonlinsol} module is \id{NULL}.
   \end{args}
 }
 {}
@@ -3199,7 +3204,9 @@ These optional output functions are described next.
   \item[IDA\_SUCCESS]
     The optional output value has been successfully set.
   \item[\Id{IDA\_MEM\_NULL}]
-    The \id{ida\_mem} pointer or the {\sunnonlinsol} module is \id{NULL}.
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDA\_MEM\_FAIL}]
+    The {\sunnonlinsol} module is \id{NULL}.
   \end{args}
 }
 {}

@@ -125,8 +125,8 @@ int main(int argc, char *argv[])
   NV_Ith_S(abstol,2) = RCONST(1e-6);
 
   /* Call CVodeCreate to create the solver memory and specify the
-   * Backward Differentiation Formula and the use of a Newton iteration. */
-  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
+   * Backward Differentiation Formula */
+  cvode_mem = CVodeCreate(CV_BDF);
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
@@ -491,9 +491,17 @@ static void PrintFinalStats(void *cvode_mem, UserData data)
     retval = CVodeGetSensNumRhsEvals(cvode_mem, &nfSe);
     retval = CVodeGetNumRhsEvalsSens(cvode_mem, &nfeS);
     retval = CVodeGetSensNumLinSolvSetups(cvode_mem, &nsetupsS);
-    retval = CVodeGetSensNumErrTestFails(cvode_mem, &netfS);
-    retval = CVodeGetSensNumNonlinSolvIters(cvode_mem, &nniS);
-    retval = CVodeGetSensNumNonlinSolvConvFails(cvode_mem, &ncfnS);
+    if (data->errconS)
+      retval = CVodeGetSensNumErrTestFails(cvode_mem, &netfS);
+    else
+      netfS = 0;
+    if (data->meth == CV_STAGGERED) {
+      retval = CVodeGetSensNumNonlinSolvIters(cvode_mem, &nniS);
+      retval = CVodeGetSensNumNonlinSolvConvFails(cvode_mem, &ncfnS);
+    } else {
+      nniS = 0;
+      ncfnS = 0;
+    }
   }
 
   retval = CVDlsGetNumJacEvals(cvode_mem, &njeD);
@@ -509,7 +517,7 @@ static void PrintFinalStats(void *cvode_mem, UserData data)
   printf("   njeD    = %5ld    nfeD     = %5ld\n", njeD, nfeD);
 
   if(data->sensi) {
-    printf("   -----------------------------------\n");
+    printf("   -----------------------------------\n");  /* simultaneous corrector method */
     printf("   nfSe    = %5ld    nfeS     = %5ld\n", nfSe, nfeS);
     printf("   netfs   = %5ld    nsetupsS = %5ld\n", netfS, nsetupsS);
     printf("   nniS    = %5ld    ncfnS    = %5ld\n", nniS, ncfnS);

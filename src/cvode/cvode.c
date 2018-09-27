@@ -1493,6 +1493,7 @@ void CVodeFree(void **cvode_mem)
   if (cv_mem->ownNLS) {
     SUNNonlinSolFree(cv_mem->NLS);
     cv_mem->ownNLS = SUNFALSE;
+    cv_mem->NLS = NULL;
   }
 
   if (cv_mem->cv_lfree != NULL) cv_mem->cv_lfree(cv_mem);
@@ -2549,7 +2550,7 @@ static int cvNls(CVodeMem cv_mem, int nflag)
   flag = SUNNonlinSolSolve(cv_mem->NLS, cv_mem->cv_tempv, cv_mem->cv_acor,
                            cv_mem->cv_ewt, cv_mem->cv_tq[4], callSetup, cv_mem);
 
-  /* update the state based on the final correction from the nonlinear solve */
+  /* update the state based on the final correction from the nonlinear solver */
   N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, cv_mem->cv_acor, cv_mem->cv_y);
 
   /* if the solve is successful, update Jacobian status */

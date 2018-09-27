@@ -65,7 +65,7 @@
 #include "sunnonlinsol/sunnonlinsol_newton.h"     /* access to the newton SUNNonlinearSolver      */
 #include "sunnonlinsol/sunnonlinsol_fixedpoint.h" /* access to the fixed point SUNNonlinearSolver */
 #include <sundials/sundials_types.h>              /* definition of realtype                       */
-#include <sundials/sundials_math.h>               /* contains the macros ABS, SUNQR, and EXP      */
+#include <sundials/sundials_math.h>               /* contains the macros ABS, SUNSQR, and EXP     */
 
 /* Shared Problem Constants */
 

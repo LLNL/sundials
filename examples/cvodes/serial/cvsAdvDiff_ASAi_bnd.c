@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
 
   printf("\nCreate and allocate CVODES memory for forward runs\n");
 
-  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
+  cvode_mem = CVodeCreate(CV_BDF);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   retval = CVodeSetUserData(cvode_mem, data);
@@ -219,7 +219,7 @@ int main(int argc, char *argv[])
 
   printf("\nCreate and allocate CVODES memory for backward run\n");
 
-  retval = CVodeCreateB(cvode_mem, CV_BDF, CV_NEWTON, &indexB);
+  retval = CVodeCreateB(cvode_mem, CV_BDF, &indexB);
   if(check_retval(&retval, "CVodeCreateB", 1)) return(1);
 
   retval = CVodeSetUserDataB(cvode_mem, indexB, data);

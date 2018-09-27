@@ -30,10 +30,8 @@ Final Statistics for forward pb.
   nsetupsS:     0
  Nonlinear iterations:
   nni:        163
-  nniS:         0
  Convergence failures:
   ncfn:         0
-  ncfnS:        0
 
 ---------------------------------------------
 Backward integration ... (2 adjoint problems)

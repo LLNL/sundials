@@ -101,22 +101,28 @@ skeleton program presented in :ref:`ARKStep_CInterface.Skeleton` are
     function or solve function through calls to the ARKSpilsSet*
     optional input functions.
 
-12. *Specify rootfinding problem*
+12. *Create nonlinear solver object*
 
-13. *Advance solution in time*
+13. *Attach nonlinear solver module*
 
-14. Get optional outputs
+14. *Set nonlinear solver optional inputs*
+    
+15. *Specify rootfinding problem*
+    
+16. *Advance solution in time*
+
+17. Get optional outputs
 
     Additional optional outputs associated with ARKBANDPRE are
     available by way of the two routines described below,
     :c:func:`ARKBandPrecGetWorkSpace()` and
     :c:func:`ARKBandPrecGetNumRhsEvals()`.
 
-15. *Deallocate memory for solution vector*
+18. *Deallocate memory for solution vector*
 
-16. *Free solver memory*
+19. *Free solver memory*
 
-17. *Free linear solver memory*
+20. *Free linear solver memory*
 
 
 
@@ -453,24 +459,30 @@ that are unchanged from the skeleton program presented in
     function or solve function through calls to ARKSPILS optional
     input functions.
 
-12. *Specify rootfinding problem*
+12. *Create nonlinear solver object*
 
-13. *Advance solution in time*
+13. *Attach nonlinear solver module*
+    
+14. *Set nonlinear solver optional inputs*
 
-14. *Get optional outputs*
+15. *Specify rootfinding problem*
+
+16. *Advance solution in time*
+
+17. *Get optional outputs*
 
     Additional optional outputs associated with ARKBBDPRE are
     available through the routines
     :c:func:`ARKBBDPrecGetWorkSpace()` and
     :c:func:`ARKBBDPrecGetNumGfnEvals()`.
 
-15. *Deallocate memory for solution vector*
+18. *Deallocate memory for solution vector*
 
-16. *Free solver memory*
+19. *Free solver memory*
 
-17. *Free linear solver memory*
+20. *Free linear solver memory*
 
-18. *Finalize MPI*
+21. *Finalize MPI*
 
 
 

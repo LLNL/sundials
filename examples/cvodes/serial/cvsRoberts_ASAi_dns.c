@@ -199,8 +199,8 @@ int main(int argc, char *argv[])
   printf("Create and allocate CVODES memory for forward runs\n");
 
   /* Call CVodeCreate to create the solver memory and specify the 
-     Backward Differentiation Formula and the use of a Newton iteration */
-  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
+     Backward Differentiation Formula */
+  cvode_mem = CVodeCreate(CV_BDF);
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
@@ -339,7 +339,7 @@ int main(int argc, char *argv[])
 
   /* Call CVodeCreateB to specify the solution method for the backward 
      problem. */
-  retval = CVodeCreateB(cvode_mem, CV_BDF, CV_NEWTON, &indexB);
+  retval = CVodeCreateB(cvode_mem, CV_BDF, &indexB);
   if (check_retval(&retval, "CVodeCreateB", 1)) return(1);
 
   /* Call CVodeInitB to allocate internal memory and initialize the 

@@ -683,14 +683,20 @@ modules.
 Nonlinear solver interface functions
 -------------------------------------------
 
-To specify a generic nonlinear solver object to ARKStep, after the
+When changing the nonlinear solver in ARKStep, after the
 call to :c:func:`ARKStepCreate()` but before any calls to
 :c:func:`ARKStepEvolve()`, the user's program must create the
 appropriate SUNNonlinSol object and call
-:c:func:`ARKStepSetNonlinearSolver()`, as documented below. The first
-argument passed to this function is the ARKStep memory pointer
-returned by :c:func:`ARKStepCreate()`; the second argument passed to
-this function is the desired SUNNonlinSol object to use for solving
+:c:func:`ARKStepSetNonlinearSolver()`, as documented below.  If any
+calls to :c:func:`ARKStepEvolve()` have been made, then ARKStep will
+need to be reinitialized by calling :c:func:`ARKStepReInit()` to
+ensure that the nonlinear solver is initialized correctly before any
+subsequent calls to :c:func:`ARKStepEvolve()`.
+
+The first argument passed to the routine
+:c:func:`ARKStepSetNonlinearSolver()` is the ARKStep memory pointer
+returned by :c:func:`ARKStepCreate()`; the second argument passed
+to this function is the desired SUNNonlinSol object to use for solving
 the nonlinear system for each implicit stage. A call to this function
 attaches the nonlinear solver to the main ARKStep integrator. 
 
@@ -1922,7 +1928,8 @@ Maximum number of convergence failures         :c:func:`ARKStepSetMaxConvFails()
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
-      * *ARK_ILL_INPUT* if an argument has an illegal value
+      * *ARK_ILL_INPUT* if an argument has an illegal value or if the SUNNONLINSOL module is ``NULL``
+      * *ARK_NLS_OP_ERR* if the SUNNONLINSOL object returned a failure flag
 
    **Notes:** The default value is 3; set *maxcor* :math:`\le 0`
    to specify this default.
@@ -3108,6 +3115,7 @@ Single accessor to all nonlinear solver statistics   :c:func:`ARKStepGetNonlinSo
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
+      * *ARK_NLS_OP_ERR* if the SUNNONLINSOL object returned a failure flag
 
    **Notes:** This is only accumulated for the 'life' of the nonlinear
    solver object; the counter is reset whenever a new nonlinear solver
@@ -3146,6 +3154,7 @@ Single accessor to all nonlinear solver statistics   :c:func:`ARKStepGetNonlinSo
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
+      * *ARK_NLS_OP_ERR* if the SUNNONLINSOL object returned a failure flag
 
    **Notes:** These are only accumulated for the 'life' of the
    nonlinear solver object; the counters are reset whenever a new

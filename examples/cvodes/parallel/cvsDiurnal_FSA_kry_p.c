@@ -187,7 +187,8 @@ static void fcalc(realtype t, realtype udata[], realtype dudata[], UserData data
 static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
                         realtype t, N_Vector u);
 static void PrintOutputS(int my_pe, MPI_Comm comm, N_Vector *uS);
-static void PrintFinalStats(void *cvode_mem, booleantype sensi); 
+static void PrintFinalStats(void *cvode_mem, booleantype sensi,
+                            booleantype err_con, int sensi_meth);
 static int check_retval(void *returnvalue, const char *funcname, int opt, int id);
 
 /*
@@ -260,7 +261,7 @@ int main(int argc, char *argv[])
   abstol = ATOL; reltol = RTOL;
 
   /* Create CVODES object, set optional input, allocate memory */
-  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
+  cvode_mem = CVodeCreate(CV_BDF);
   if (check_retval((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   retval = CVodeSetUserData(cvode_mem, data);
@@ -361,7 +362,7 @@ int main(int argc, char *argv[])
   }
 
   /* Print final statistics */  
-  if (my_pe == 0) PrintFinalStats(cvode_mem, sensi);
+  if (my_pe == 0) PrintFinalStats(cvode_mem, sensi, err_con, sensi_meth);
 
   /* Free memory */
   N_VDestroy_Parallel(u);
@@ -1189,7 +1190,8 @@ static void PrintOutputS(int my_pe, MPI_Comm comm, N_Vector *uS)
  * Print final statistics from the CVODES memory.
  */
 
-static void PrintFinalStats(void *cvode_mem, booleantype sensi) 
+static void PrintFinalStats(void *cvode_mem, booleantype sensi,
+                            booleantype err_con, int sensi_meth) 
 {
   long int nst;
   long int nfe, nsetups, nni, ncfn, netf;
@@ -1216,12 +1218,21 @@ static void PrintFinalStats(void *cvode_mem, booleantype sensi)
     check_retval(&retval, "CVodeGetNumRhsEvalsSens", 1, 0);
     retval = CVodeGetSensNumLinSolvSetups(cvode_mem, &nsetupsS);
     check_retval(&retval, "CVodeGetSensNumLinSolvSetups", 1, 0);
-    retval = CVodeGetSensNumErrTestFails(cvode_mem, &netfS);
-    check_retval(&retval, "CVodeGetSensNumErrTestFails", 1, 0);
-    retval = CVodeGetSensNumNonlinSolvIters(cvode_mem, &nniS);
-    check_retval(&retval, "CVodeGetSensNumNonlinSolvIters", 1, 0);
-    retval = CVodeGetSensNumNonlinSolvConvFails(cvode_mem, &ncfnS);
-    check_retval(&retval, "CVodeGetSensNumNonlinSolvConvFails", 1, 0);
+    if (err_con) {
+      retval = CVodeGetSensNumErrTestFails(cvode_mem, &netfS);
+      check_retval(&retval, "CVodeGetSensNumErrTestFails", 1, 0);
+    } else {
+      netfS = 0;
+    }
+    if ((sensi_meth == CV_STAGGERED) || (sensi_meth == CV_STAGGERED1)) {
+      retval = CVodeGetSensNumNonlinSolvIters(cvode_mem, &nniS);
+      check_retval(&retval, "CVodeGetSensNumNonlinSolvIters", 1, 0);
+      retval = CVodeGetSensNumNonlinSolvConvFails(cvode_mem, &ncfnS);
+      check_retval(&retval, "CVodeGetSensNumNonlinSolvConvFails", 1, 0);
+    } else {
+      nniS = 0;
+      ncfnS = 0;
+    }
   }
 
   printf("\nFinal Statistics\n\n");

@@ -32,14 +32,17 @@ not already described in Chapter \ref{s:simulation}.
 %%
 The following is a skeleton of the user's main program as an application of
 {\idas}. The user program is to have these steps in the order indicated, 
-unless otherwise noted. For the sake of brevity, we defer many of the details to 
-the later sections.
-As in \S\ref{ss:skeleton_sim}, most steps are independent of the {\nvector}
-implementation used.
-Where this is not the case, refer to Chapter \ref{s:nvector} for specific names.
+unless otherwise noted. For the sake of brevity, we defer many of the details
+to the later sections.
+As in \S\ref{ss:skeleton_sim}, most steps are independent of
+the {\nvector}, {\sunmatrix}, {\sunlinsol}, and {\sunnonlinsol} 
+implementations used. For the steps that are not, refer to Chapters
+\ref{s:nvector}, \ref{s:sunmatrix}, \ref{s:sunlinsol}, and \ref{c:sunnonlinsol}
+for the specific name of the function to be called or macro to be referenced.
+
 Steps that are unchanged from the skeleton programs presented in
-\S\ref{ss:skeleton_sim}, \S\ref{s:forward_usage}, and \S\ref{s:forward_quad_usage},
-are grayed out.
+\S\ref{ss:skeleton_sim}, \S\ref{s:forward_usage}, and
+\S\ref{s:forward_quad_usage}, are grayed out.
 
 \index{User main program!Adjoint sensitivity analysis}
 \begin{Steps}
@@ -50,8 +53,9 @@ are grayed out.
   The \id{idas.h} header file also defines additional types, constants, and
   function prototypes for the adjoint sensitivity module user-callable functions.
   In addition, the main program should include an {\nvector} implementation
-  header file (for the particular implementation used) and, if Newton iteration 
-  was selected, the main header file of the desired linear solver module.
+  header file (for the particular implementation used) and, if a nonlinear
+  solver requiring a linear solver (e.g., the default Newton iteration) will be
+  used, the header file of the desired linear solver module.
 
 \item
   \textcolor{gray}{\bf Initialize parallel or multi-threaded environment}
@@ -87,6 +91,15 @@ are grayed out.
 
 \item
   \textcolor{gray}{\bf Attach linear solver module for the forward problem}
+
+\item
+  \textcolor{gray}{\bf Create nonlinear solver module for the forward problem}
+
+\item
+  \textcolor{gray}{\bf Attach nonlinear solver module for the forward problem}
+
+\item
+  \textcolor{gray}{\bf Set nonlinear solver optional inputs for the forward problem}
 
 \item
   \textcolor{gray}{\bf Initialize quadrature problem or problems for forward
@@ -175,10 +188,11 @@ are grayed out.
 \item \label{i:matrixB}
   {\bf Create matrix object for the backward problem}
 
-  If a direct linear solver is to be used within a Newton iteration
-  then a template Jacobian matrix must be created by using the
-  appropriate functions defined by the particular {\sunmatrix}
-  implementation. 
+  If a nonlinear solver requiring a linear solve will be used (e.g., the
+  the default Newton iteration) and the linear solver will be a direct linear
+  solver, then a template Jacobian matrix must be created by calling the
+  appropriate constructor function defined by the particular {\sunmatrix}
+  implementation.
   
   NOTE: The dense, banded, and sparse matrix objects are usable only in a
   serial or threaded environment.
@@ -189,9 +203,10 @@ are grayed out.
 \item \label{i:lin_solverB}
   {\bf Create linear solver object for the backward problem}
 
-  Create the linear solver object for the backward problem by
-  using the appropriate functions defined by the particular {\sunlinsol}
-  implementation desired. 
+  If a nonlinear solver requiring a linear solver is chosen (e.g., the default
+  Newton iteration), then the desired linear solver object for the backward
+  problem must be created by calling the appropriate constructor function
+  defined by the particular {\sunlinsol} implementation.
   
   Note that it is not required to use the same linear solver module for both the forward 
   and the backward problems; for example, the forward problem could be solved
@@ -203,6 +218,37 @@ are grayed out.
   Call \id{IDADlsSet*B} or \id{IDASpilsSet*B} functions to change optional
   inputs specific to that linear solver interface. 
   See \S\ref{ss:optional_input_b} for details.
+
+\item\label{i:lin_solver_interfaceB}
+  {\bf Attach linear solver module for the backward problem}
+
+  If a nonlinear solver requiring a linear solver is chosen for the backward
+  problem (e.g., the default Newton iteration), then initialize the {\idadls} or
+  {\idaspils} linear solver interface by attaching the linear solver object (and
+  matrix object, if applicable) with one of the following calls (for details see
+  \S\ref{sss:lin_solv_init}):
+
+  \id{ier = }\Id{IDADlsSetLinearSolverB}\id{(...);}
+
+  \id{ier = }\Id{IDASpilsSetLinearSolverB}\id{(...);}
+
+\item
+  {\bf Create nonlinear solver object for the backward problem} (\textit{optional})
+
+  If using a non-default nonlinear solver for the backward problem, then create
+  the desired nonlinear solver object by calling the appropriate constructor
+  function defined by the particular {\sunnonlinsol} implementation e.g.,
+  \id{NLSB = SUNNonlinSol\_***(...);} where \id{***} is the name of the
+  nonlinear solver (see Chapter \ref{c:sunnonlinsol} for details).
+
+\item
+  {\bf Attach nonlinear solver module for the backward problem} (\textit{optional})
+
+  If using a non-default nonlinear solver for the backward problem, then
+  initialize the nonlinear solver interface by attaching the nonlinear solver
+  object by calling \\ \noindent
+  \id{ier = }\Id{IDASetNonlinearSolverB}\id{(idaode\_mem, NLSB);}
+  (see \S\ref{sss:nonlin_solv_init} for details).
 
 \item \label{i:quadB}
   {\bf Initialize quadrature calculation}
@@ -243,7 +289,10 @@ are grayed out.
   followed by a call to \id{IDAAdjInit}.
 
 \item
-  {\bf Free linear solver and matrix memory for the backward problem}
+  {\bf Free the nonlinear solver memory for the forward and backward problems}
+
+\item
+  {\bf Free linear solver and matrix memory for the forward and backward problems}
 
 \item
   \textcolor{gray}{\bf Finalize MPI, if used}
@@ -890,7 +939,7 @@ problem using one of the following functions.
   \item[which] (\id{int})
     represents the identifier of the backward problem returned by \id{IDACreateB}.
   \item[LS] (\id{SUNLinearSolver})
-    {\sunlinsol} object to use for solving Newton linear systems for the backward problem. 
+    {\sunlinsol} object to use for solving linear systems for the backward problem. 
   \item[A] (\id{SUNMatrix})
     {\sunmatrix} object for used as a template for the Jacobian for the backward
     problem (must have a type compatible with the linear solver object).
@@ -945,7 +994,7 @@ problem using one of the following functions.
   \item[which] (\id{int})
     represents the identifier of the backward problem returned by \id{IDACreateB}.
   \item[LS] (\id{SUNLinearSolver})
-    {\sunlinsol} object to use for solving Newton linear systems for the backward problem. 
+    {\sunlinsol} object to use for solving linear systems for the backward problem. 
   \end{args}
 }
 {
@@ -1272,6 +1321,7 @@ within the list managed by {\idas}.
 
 The optional input functions defined for the backward problem are:
 \begin{verbatim}
+  flag = IDASetNonlinearSolverB(ida_mem, which, NLSB);
   flag = IDASetUserDataB(ida_mem, which, user_dataB);
   flag = IDASetMaxOrdB(ida_mem, which, maxordB);
   flag = IDASetMaxNumStepsB(ida_mem, which, mxstepsB);
@@ -1329,7 +1379,8 @@ with the second used when the backward problem depends on the forwrad sensitivit
   \item[\Id{IDADLS\_NO\_ADJ}]
     The function \id{IDAAdjInit} has not been previously called.
   \item[\Id{IDADLS\_LMEM\_NULL}]
-    The linear solver has not been initialized with a call to \id{IDADlsSetLinearSolverB}.
+    The linear solver has not been initialized with a call to \\ \noindent
+    \id{IDADlsSetLinearSolverB}.
   \item[\Id{IDADLS\_ILL\_INPUT}]
     The parameter \id{which} represented an invalid identifier.
   \end{args}
@@ -1368,7 +1419,8 @@ with the second used when the backward problem depends on the forwrad sensitivit
   \item[\Id{IDADLS\_NO\_ADJ}]
     The function \id{IDAAdjInit} has not been previously called.
   \item[\Id{IDADLS\_LMEM\_NULL}]
-    The linear solver has not been initialized with a call to \id{IDADlsSetLinearSolverB}.
+    The linear solver has not been initialized with a call to \\ \noindent
+    \id{IDADlsSetLinearSolverB}.
   \item[\Id{IDADLS\_ILL\_INPUT}]
     The parameter \id{which} represented an invalid identifier.
   \end{args}
@@ -1572,7 +1624,7 @@ problem through the following functions:
 {
   The function \ID{IDASpilsSetEpsLinB} specifies the factor by
   which the Krylov linear solver's convergence test constant is reduced
-  from the Newton iteration test constant. (See \S\ref{ss:ivp_sol}).
+  from the nonlinear iteration test constant. (See \S\ref{ss:ivp_sol}).
   This routine can be used in both the cases wherethe backward problem
   does and does not depend on the forward sensitvities.
 }
@@ -2511,7 +2563,8 @@ provide a function of type \ID{IDADlsJacFnB} or \ID{IDADlsJacFnBS}
 If the {\idaspils} solver interface is selected for the backward problem
 (i.e., \id{IDASpilsSetLinearSolverB} is called in the steps described in
 \S\ref{ss:skeleton_adj}), the user may
-provide a function of type \Id{IDASpilsJacTimesVecFnB} or 
+provide a function of type \\ \noindent
+ \Id{IDASpilsJacTimesVecFnB} or 
 \Id{IDASpilsJacTimesVecFnBS} in the following form,
 to compute matrix-vector products $Jv$. If such a function is not supplied,
 the default is a difference quotient approximation to these products.

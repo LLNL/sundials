@@ -140,7 +140,10 @@ The module {\nvecpthreads} provides the following additional user-callable routi
 
  (This function does {\em not} allocate memory for \id{v\_data} itself.)
 
- \verb|N_Vector N_VMake_Pthreads(sunindextype vec_length, realtype *v_data, int num_threads);|
+\begin{verbatim}
+N_Vector N_VMake_Pthreads(sunindextype vec_length, realtype *v_data,
+                          int num_threads);
+\end{verbatim}
 
 %%--------------------------------------
 

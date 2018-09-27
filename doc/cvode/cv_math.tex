@@ -47,7 +47,7 @@ $\alpha_{n,0} = -1$.  See \cite{ByHi:75} and \cite{JaSD:80}.
 %-----------------
 \index{nonlinear system!definition|(}
 For either choice of formula, a nonlinear system must be solved (approximately)
-at each integration step. This nonlinear system can formulated as
+at each integration step. This nonlinear system can be formulated as
 either a rootfinding problem
 \begin{equation}\label{e:nonlinear}
   F(y^n) \equiv y^n - h_n \beta_{n,0} f(t_n,y^n) - a_n = 0 \, ,
@@ -74,7 +74,7 @@ in which
 The exact variation of the Newton iteration depends on the choice of linear
 solver and is discussed below and in \S\ref{s:sunnonlinsol_newton}. For nonstiff
 systems, a \textit{fixed-point iteration} (previously referred
-  to as a functional iteration in this guide) solving
+to as a functional iteration in this guide) solving
 (\ref{e:nonlinear_fixedpoint}) is also available. This involves evaluations of
 $f$ only and can (optionally) use Anderson's method \cite{Anderson65,
 Walker-Ni09, Fang-Saad09, LWWY11} to accelerate convergence (see

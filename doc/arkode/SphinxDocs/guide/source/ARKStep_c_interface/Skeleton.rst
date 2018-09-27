@@ -16,11 +16,11 @@ A skeleton of the user's main program
 
 The following is a skeleton of the user's main program (or calling
 program) for the integration of an ODE IVP using the ARKStep module.
-Most of the steps are independent of the NVECTOR, SUNMATRIX, and
-SUNLINSOL implementations used.  For the steps that are not, refer to
-the sections :ref:`NVectors`, :ref:`SUNMatrix`  and :ref:`SUNLinSol`
-for the specific name of the function to be called or macro to be
-referenced.
+Most of the steps are independent of the NVECTOR, SUNMATRIX, SUNLINSOL
+and SUNNONLINSOL implementations used.  For the steps that are not,
+refer to the sections :ref:`NVectors`, :ref:`SUNMatrix`,
+:ref:`SUNLinSol`, and  :ref:`SUNNonlinSol` for the specific name of
+the function to be called or macro to be referenced.
 
 .. index:: User main program
 
@@ -199,10 +199,13 @@ referenced.
 12. Create nonlinear solver object
 
     If the problem involves an implicit component, and if a non-default
-    nonlinear solver object will be used for implicit stage solves,
+    nonlinear solver object will be used for implicit stage solves
+    (see the section :ref:`ARKStep_CInterface.NonlinearSolvers`),
     then the desired nonlinear solver object must be created by using
     the appropriate functions defined by the particular SUNNONLINSOL 
-    implementation. 
+    implementation (e.g., ``NLS = SUNNonlinSol_***(...);`` where
+    ``***`` is the name of the nonlinear solver (see the section
+    :ref:`SUNNonlinSol` for details).
 
 13. Attach nonlinear solver module
 

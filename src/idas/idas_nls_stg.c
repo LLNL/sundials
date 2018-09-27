@@ -88,8 +88,8 @@ int IDASetNonlinearSolverSensStg(void *ida_mem, SUNNonlinearSolver NLS)
     return(IDA_ILL_INPUT);
   }
 
-  /* check that staggered corrector was selected */
-  if (!(IDA_mem->ida_ism == IDA_STAGGERED)) {
+  /* check that the staggered corrector was selected */
+  if (IDA_mem->ida_ism != IDA_STAGGERED) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS",
                     "IDASetNonlinearSolverSensStg",
                     "Sensitivity solution method is not IDA_STAGGERED");

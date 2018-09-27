@@ -252,7 +252,7 @@ int main()
       
       firstrun = (jpre == PREC_LEFT) && (gstype == MODIFIED_GS);
       if (firstrun) {
-        cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
+        cvode_mem = CVodeCreate(CV_BDF);
         if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
         wdata->cvode_mem = cvode_mem;

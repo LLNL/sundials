@@ -2540,13 +2540,13 @@ located in the ARKode package \code{examples} directory.
 
 The user should be aware that not all SUNLINSOL, SUNMATRIX, and
 preconditioning modules are compatible with all NVECTOR
-implementations.  Details on compatability are given in the
+implementations.  Details on compatibility are given in the
 documentation for each SUNMATRIX (see {\hyperref[sunmatrix/index:sunmatrix]{\emph{\DUspan{}{Matrix Data Structures}}}}) and each
 SUNLINSOL module (see {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Linear Solver Data Structures}}}}). For example, NVECTOR\_PARALLEL
 is not compatible with the dense, banded, or sparse SUNMATRIX types,
 or with the corresponding dense, banded, or sparse SUNLINSOL modules.
 Please check the sections {\hyperref[sunmatrix/index:sunmatrix]{\emph{\DUspan{}{Matrix Data Structures}}}} and {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Linear Solver Data Structures}}}} to
-verify compatability between these modules.  In addition to that
+verify compatibility between these modules.  In addition to that
 documentation, we note that the ARKBANDPRE preconditioning module is
 only compatible with the NVECTOR\_SERIAL, NVECTOR\_OPENMP or
 NVECTOR\_PTHREADS vector implementations, and the preconditioner module
@@ -2711,7 +2711,7 @@ defines the types \code{realtype},  \code{sunindextype} and \code{booleantype}
 and the constants \code{SUNFALSE} and \code{SUNTRUE}, so a user program does
 not need to include \code{sundials\_types.h} directly.
 
-Additionally, the calling program must also include an NVECTOR
+Additionally, the calling program must also include a NVECTOR
 implementation header file, of the form \code{nvector/nvector\_***.h},
 corresponding to the user's preferred data layout and form of
 parallelism.  See the section {\hyperref[nvectors/index:nvectors]{\emph{\DUspan{}{Vector Data Structures}}}} for details for the
@@ -2721,30 +2721,23 @@ type.
 
 If the user includes a non-trivial implicit component to their
 ODE system, then each time step will require a nonlinear solver for
-the resulting systems of equations.  ARKode allows an accelerated
-fixed point iteration and Newton-based iterations for this solver; the
-default being the Newton-based solver.  If a user wishes to instead
-use the fixed point solver, or wishes to customize usage of the Newton
-solver module, they must include one of the header files:
-\begin{itemize}
-\item {} 
-\code{sunnonlinsol/sunnonlinsol\_newton.h}, which allows user access to
-the generic Newton nonlinear solver module constructor and
-customization routines.
+the resulting systems of equations -- the default for this is a
+modified Newton iteration.  If using a non-default nonlinear solver
+module, or when interacting with a SUNNONLINSOL module directly, the
+calling program must also include a SUNNONLINSOL header file, of the
+form \code{sunnonlinsol/sunnonlinsol\_***.h} where \code{***} is the name of
+the nonlinear solver module (see the section {\hyperref[sunnonlinsol/index:sunnonlinsol]{\emph{\DUspan{}{Nonlinear Solver Data Structures}}}} for
+more information).  This file in turn includes the header file
+\code{sundials\_nonlinearsolver.h} which defines the abstract
+\code{SUNNonlinearSolver} data type.
 
-\item {} 
-\code{sunnonlinsol/sunnonlinsol\_fixedpoint.h}, which allows user access
-to the Anderson-accelerated fixed point nonlinear solver constructor
-and customization routines.
-
-\end{itemize}
-
-If the Newton method was either specifically chosen above, or if it
-is used by default, then a linear solver module header file will also
+If using a nonlinear solver that requires the solution of a linear
+system of the form \(\mathcal{A}x=b\) (e.g., the default Newton
+iteration), then a linear solver module header file will also
 be required.  Similarly, if the ODE system involves a non-identity
 mass matrix \(M \ne I\), then each time step will require a linear
 solver for systems of the form \(Mx=b\).  The header files
-corresponding to the  linear
+corresponding to the linear
 solver modules available for use with ARKode for either the Newton
 solver or for mass-matrix solves, are:
 \begin{itemize}
@@ -2853,11 +2846,11 @@ initialization routines.
 \label{ARKStep_c_interface/Skeleton:arkstep-cinterface-skeleton}\label{ARKStep_c_interface/Skeleton::doc}\label{ARKStep_c_interface/Skeleton:a-skeleton-of-the-user-s-main-program}
 The following is a skeleton of the user's main program (or calling
 program) for the integration of an ODE IVP using the ARKStep module.
-Most of the steps are independent of the NVECTOR, SUNMATRIX, and
-SUNLINSOL implementations used.  For the steps that are not, refer to
-the sections {\hyperref[nvectors/index:nvectors]{\emph{\DUspan{}{Vector Data Structures}}}}, {\hyperref[sunmatrix/index:sunmatrix]{\emph{\DUspan{}{Matrix Data Structures}}}}  and {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Linear Solver Data Structures}}}}
-for the specific name of the function to be called or macro to be
-referenced.
+Most of the steps are independent of the NVECTOR, SUNMATRIX, SUNLINSOL
+and SUNNONLINSOL implementations used.  For the steps that are not,
+refer to the sections {\hyperref[nvectors/index:nvectors]{\emph{\DUspan{}{Vector Data Structures}}}}, {\hyperref[sunmatrix/index:sunmatrix]{\emph{\DUspan{}{Matrix Data Structures}}}},
+{\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Linear Solver Data Structures}}}}, and  {\hyperref[sunnonlinsol/index:sunnonlinsol]{\emph{\DUspan{}{Nonlinear Solver Data Structures}}}} for the specific name of
+the function to be called or macro to be referenced.
 
 \index{User main program}\begin{enumerate}
 \item {}
@@ -3047,10 +3040,13 @@ section {\hyperref[ARKStep_c_interface/User_callable:arkstep-cinterface-optional
 Create nonlinear solver object
 
 If the problem involves an implicit component, and if a non-default
-nonlinear solver object will be used for implicit stage solves,
+nonlinear solver object will be used for implicit stage solves
+(see the section {\hyperref[ARKStep_c_interface/User_callable:arkstep-cinterface-nonlinearsolvers]{\emph{\DUspan{}{Nonlinear solver interface functions}}}}),
 then the desired nonlinear solver object must be created by using
 the appropriate functions defined by the particular SUNNONLINSOL
-implementation.
+implementation (e.g., \code{NLS = SUNNonlinSol\_***(...);} where
+\code{***} is the name of the nonlinear solver (see the section
+{\hyperref[sunnonlinsol/index:sunnonlinsol]{\emph{\DUspan{}{Nonlinear Solver Data Structures}}}} for details).
 
 \item {} 
 Attach nonlinear solver module
@@ -3073,9 +3069,6 @@ solver to ARKStep, otherwise the optional inputs will be
 overridden by ARKStep defaults.  See the section
 {\hyperref[sunnonlinsol/index:sunnonlinsol]{\emph{\DUspan{}{Nonlinear Solver Data Structures}}}} for more information on optional inputs.
 
-\end{enumerate}
-\begin{enumerate}
-\setcounter{enumi}{11}
 \item {}
 Specify rootfinding problem
 
@@ -3099,9 +3092,6 @@ Here, \code{itask} specifies the return mode. The vector \code{yout}
 \(y(t_\text{out})\). See the section
 {\hyperref[ARKStep_c_interface/User_callable:arkstep-cinterface-integration]{\emph{\DUspan{}{ARKStep solver function}}}} for details.
 
-\end{enumerate}
-\begin{enumerate}
-\setcounter{enumi}{14}
 \item {}
 Get optional outputs
 
@@ -4235,14 +4225,20 @@ for each \code{SUNLinearSolver} object (i.e. required
 
 \subsection{Nonlinear solver interface functions}
 \label{ARKStep_c_interface/User_callable:nonlinear-solver-interface-functions}\label{ARKStep_c_interface/User_callable:arkstep-cinterface-nonlinearsolvers}
-To specify a generic nonlinear solver object to ARKStep, after the
+When changing the nonlinear solver in ARKStep, after the
 call to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepCreate]{\emph{\code{ARKStepCreate()}}}} but before any calls to
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepEvolve]{\emph{\code{ARKStepEvolve()}}}}, the user's program must create the
 appropriate SUNNonlinSol object and call
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetNonlinearSolver]{\emph{\code{ARKStepSetNonlinearSolver()}}}}, as documented below. The first
-argument passed to this function is the ARKStep memory pointer
-returned by {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepCreate]{\emph{\code{ARKStepCreate()}}}}; the second argument passed to
-this function is the desired SUNNonlinSol object to use for solving
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetNonlinearSolver]{\emph{\code{ARKStepSetNonlinearSolver()}}}}, as documented below.  If any
+calls to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepEvolve]{\emph{\code{ARKStepEvolve()}}}} have been made, then ARKStep will
+need to be reinitialized by calling {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepReInit]{\emph{\code{ARKStepReInit()}}}} to
+ensure that the nonlinear solver is initialized correctly before any
+subsequent calls to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepEvolve]{\emph{\code{ARKStepEvolve()}}}}.
+
+The first argument passed to the routine
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetNonlinearSolver]{\emph{\code{ARKStepSetNonlinearSolver()}}}} is the ARKStep memory pointer
+returned by {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepCreate]{\emph{\code{ARKStepCreate()}}}}; the second argument passed
+to this function is the desired SUNNonlinSol object to use for solving
 the nonlinear system for each implicit stage. A call to this function
 attaches the nonlinear solver to the main ARKStep integrator.
 \index{ARKStepSetNonlinearSolver (C function)}
@@ -6428,7 +6424,10 @@ iterations permitted per RK stage within each time step.
 \emph{ARK\_MEM\_NULL} if the ARKStep memory is \code{NULL}
 
 \item {}
-\emph{ARK\_ILL\_INPUT} if an argument has an illegal value
+\emph{ARK\_ILL\_INPUT} if an argument has an illegal value or if the SUNNONLINSOL module is \code{NULL}
+
+\item {} 
+\emph{ARK\_NLS\_OP\_ERR} if the SUNNONLINSOL object returned a failure flag
 
 \end{itemize}
 
@@ -8409,6 +8408,9 @@ performed (so far).
 \item {}
 \emph{ARK\_MEM\_NULL} if the ARKStep memory was \code{NULL}
 
+\item {} 
+\emph{ARK\_NLS\_OP\_ERR} if the SUNNONLINSOL object returned a failure flag
+
 \end{itemize}
 
 \end{description}
@@ -8476,6 +8478,9 @@ Returns all of the nonlinear solver statistics in a single call.
 
 \item {}
 \emph{ARK\_MEM\_NULL} if the ARKStep memory was \code{NULL}
+
+\item {} 
+\emph{ARK\_NLS\_OP\_ERR} if the SUNNONLINSOL object returned a failure flag
 
 \end{itemize}
 
@@ -11392,6 +11397,15 @@ function or solve function through calls to the ARKSpilsSet*
 optional input functions.
 
 \item {}
+\emph{Create nonlinear solver object}
+
+\item {} 
+\emph{Attach nonlinear solver module}
+
+\item {} 
+\emph{Set nonlinear solver optional inputs}
+
+\item {} 
 \emph{Specify rootfinding problem}
 
 \item {}
@@ -11830,6 +11844,15 @@ function or solve function through calls to ARKSPILS optional
 input functions.
 
 \item {}
+\emph{Create nonlinear solver object}
+
+\item {} 
+\emph{Attach nonlinear solver module}
+
+\item {} 
+\emph{Set nonlinear solver optional inputs}
+
+\item {} 
 \emph{Specify rootfinding problem}
 
 \item {}
@@ -30671,7 +30694,7 @@ that do not require setup may set this operation to \code{NULL}.
 
 \begin{fulllineitems}
 \phantomsection\label{sunnonlinsol/SUNNonlinSol_API:c.SUNNonlinSolSetLSolveFn}\pysiglinewithargsret{int \bfcode{SUNNonlinSolSetLSolveFn}}{SUNNonlinearSolver\emph{ NLS}, {\hyperref[sunnonlinsol/SUNNonlinSol_API:c.SUNNonlinSolLSolveFn]{\emph{SUNNonlinSolLSolveFn}}}\emph{ SolveFn}}{}
-The \emph{optional} function :c:func{}`SUNNonlinSolSetLSolveFn(){}` is
+The \emph{optional} function {\hyperref[sunnonlinsol/SUNNonlinSol_API:c.SUNNonlinSolSetLSolveFn]{\emph{\code{SUNNonlinSolSetLSolveFn()}}}} is
 called by SUNDIALS integrators to provide the nonlinear solver with
 access to its linear solver solve function.
 \begin{description}
@@ -30802,7 +30825,11 @@ successful call, and a negative value for a failure.
 The function {\hyperref[sunnonlinsol/SUNNonlinSol_API:c.SUNNonlinSolGetCurIter]{\emph{\code{SUNNonlinSolGetCurIter()}}}} returns the
 iteration index of the current nonlinear solve. This function is
 \emph{required} when using SUNDIALS integrator-provided convergence
-tests and \emph{optional} for user supplied convergence test functions.
+tests or when using a SUNLinSol spils linear solver otherwise, and
+\begin{quote}
+
+\emph{optional} for user supplied convergence test functions.
+\end{quote}
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
@@ -30936,7 +30963,7 @@ solve on input and the solution to the linear system on output.
 successul solve, a positive value for a recoverable error, and a
 negative value for an unrecoverable error.
 
-\textbf{Notes:}    The :c:type{}`SUNNonlinLSolveFn(){}` function solves the
+\textbf{Notes:}    The \code{SUNNonlinLSolveFn()} function solves the
 linear system \(Ax=b\) where \(A = \frac{\partial
 F}{\partial y}\) is the linearization of the nonlinear residual
 function \(F(y) = 0\). SUNNonlinSol implementations that do not
@@ -31388,7 +31415,7 @@ been initialized.
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
 \emph{CODE} (\code{int}, input) -- flag denoting the SUNDIALS solver
-this matrix will be used for: CVODE=1, IDA=2, KINSOL=3, ARKode=4.
+this matrix will be used for: CVODE=1, IDA=2, ARKode=4.
 
 \item {} 
 \emph{IER} (\code{int}, output) -- return flag (0 success, -1 for
@@ -31677,7 +31704,7 @@ been initialized.
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
 \emph{CODE} (\code{int}, input) -- flag denoting the SUNDIALS solver
-this matrix will be used for: CVODE=1, IDA=2, KINSOL=3, ARKode=4.
+this matrix will be used for: CVODE=1, IDA=2, ARKode=4.
 
 \item {} 
 \emph{M} (\code{int}, input) -- the number of acceleration vectors.

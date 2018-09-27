@@ -31,12 +31,12 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <cvodes/cvodes.h>            /* prototypes for CVODE fcts. */
-#include <nvector/nvector_parallel.h> /* definition of N_Vector and macros */
-#include <sundials/sundials_types.h>  /* definition of realtype */
-#include <sundials/sundials_math.h>   /* definition of EXP */
-
-#include <mpi.h>                      /* MPI constants and types */
+#include <cvodes/cvodes.h>                        /* prototypes for CVODE fcts. */
+#include <nvector/nvector_parallel.h>             /* definition of N_Vector and macros */
+#include <sundials/sundials_types.h>              /* definition of realtype */
+#include <sundials/sundials_math.h>               /* definition of EXP */
+#include "sunnonlinsol/sunnonlinsol_fixedpoint.h" /* access to the fixed point SUNNonlinearSolver */
+#include <mpi.h>                                  /* MPI constants and types */
 
 /* Problem Constants */
 
@@ -91,12 +91,14 @@ int main(int argc, char *argv[])
   int iout, retval, my_pe, npes;
   long int nst;
   sunindextype local_N, nperpe, nrem, my_base;
+  SUNNonlinearSolver NLS;
 
   MPI_Comm comm;
 
   u = NULL;
   data = NULL;
   cvode_mem = NULL;
+  NLS = NULL;
 
   /* Get processor number, total number of pe's, and my_pe. */
   MPI_Init(&argc, &argv);
@@ -130,8 +132,8 @@ int main(int argc, char *argv[])
   SetIC(u, dx, local_N, my_base);  /* Initialize u vector */
 
   /* Call CVodeCreate to create the solver memory and specify the 
-   * Adams-Moulton LMM and the use of a functional iteration */
-  cvode_mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL);
+   * Adams-Moulton LMM */
+  cvode_mem = CVodeCreate(CV_ADAMS);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   retval = CVodeSetUserData(cvode_mem, data);
@@ -147,6 +149,14 @@ int main(int argc, char *argv[])
    * and scalar absolute tolerances */
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
   if (check_retval(&retval, "CVodeSStolerances", 1, my_pe)) MPI_Abort(comm, 1);
+
+  /* create fixed point nonlinear solver object */
+  NLS = SUNNonlinSol_FixedPoint(u, 0);
+  if(check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0, my_pe)) MPI_Abort(comm, 1);
+
+  /* attach nonlinear solver object to CVode */
+  retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
+  if(check_retval(&retval, "CVodeSetNonlinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
 
   if (my_pe == 0) PrintIntro(npes);
 
@@ -173,6 +183,7 @@ int main(int argc, char *argv[])
 
   N_VDestroy_Parallel(u);        /* Free the u vector */
   CVodeFree(&cvode_mem);         /* Free the integrator memory */
+  SUNNonlinSolFree(NLS);         /* Free the nonlinear solver */
   free(data);                    /* Free user data */
 
   MPI_Finalize();

@@ -3239,6 +3239,7 @@ void IDAFree(void **ida_mem)
   if (IDA_mem->ownNLS) {
     SUNNonlinSolFree(IDA_mem->NLS);
     IDA_mem->ownNLS = SUNFALSE;
+    IDA_mem->NLS = NULL;
   }
 
   free(*ida_mem);
@@ -3307,10 +3308,12 @@ void IDASensFree(void *ida_mem)
   if (IDA_mem->ownNLSsim) {
     SUNNonlinSolFree(IDA_mem->NLSsim);
     IDA_mem->ownNLSsim = SUNFALSE;
+    IDA_mem->NLSsim = NULL;
   }
   if (IDA_mem->ownNLSstg) {
     SUNNonlinSolFree(IDA_mem->NLSstg);
     IDA_mem->ownNLSstg = SUNFALSE;
+    IDA_mem->NLSstg = NULL;
   }
 }
 
@@ -4152,22 +4155,24 @@ int IDAInitialSetup(IDAMem IDA_mem)
     return(IDA_NLS_INIT_FAIL);
   }
 
-  if (IDA_mem->NLSsim != NULL)
+  if (IDA_mem->NLSsim != NULL) {
     ier = idaNlsInitSensSim(IDA_mem);
 
-  if (ier != IDA_SUCCESS) {
-    IDAProcessError(IDA_mem, IDA_NLS_INIT_FAIL, "IDAS",
-                    "IDAInitialSetup", MSG_NLS_INIT_FAIL);
-    return(IDA_NLS_INIT_FAIL);
+    if (ier != IDA_SUCCESS) {
+      IDAProcessError(IDA_mem, IDA_NLS_INIT_FAIL, "IDAS",
+                      "IDAInitialSetup", MSG_NLS_INIT_FAIL);
+      return(IDA_NLS_INIT_FAIL);
+    }
   }
 
-  if (IDA_mem->NLSstg != NULL)
+  if (IDA_mem->NLSstg != NULL) {
     ier = idaNlsInitSensStg(IDA_mem);
 
-  if (ier != IDA_SUCCESS) {
-    IDAProcessError(IDA_mem, IDA_NLS_INIT_FAIL, "IDAS",
-                    "IDAInitialSetup", MSG_NLS_INIT_FAIL);
-    return(IDA_NLS_INIT_FAIL);
+    if (ier != IDA_SUCCESS) {
+      IDAProcessError(IDA_mem, IDA_NLS_INIT_FAIL, "IDAS",
+                      "IDAInitialSetup", MSG_NLS_INIT_FAIL);
+      return(IDA_NLS_INIT_FAIL);
+    }
   }
 
   return(IDA_SUCCESS);
@@ -5282,7 +5287,11 @@ static int IDANls(IDAMem IDA_mem)
 
   /* call nonlinear solver setup if it exists */
   if ((IDA_mem->NLS)->ops->setup) {
-    retval = SUNNonlinSolSetup(IDA_mem->NLS, IDA_mem->ida_delta, IDA_mem);
+    if (sensi_sim)
+      retval = SUNNonlinSolSetup(IDA_mem->NLS, IDA_mem->ycor0Sim, IDA_mem);
+    else
+      retval = SUNNonlinSolSetup(IDA_mem->NLS, IDA_mem->ida_delta, IDA_mem);
+
     if (retval < 0) return(IDA_NLS_SETUP_FAIL);
     if (retval > 0) return(IDA_NLS_SETUP_RECVR);
   }
@@ -5299,10 +5308,11 @@ static int IDANls(IDAMem IDA_mem)
                                IDA_mem->ida_ewt, IDA_mem->ida_epsNewt,
                                callLSetup, IDA_mem);
 
-  /* update using the final correction from the nonlinear solver */
+  /* update the state using the final correction from the nonlinear solver */
   N_VLinearSum(ONE, IDA_mem->ida_yypredict, ONE, IDA_mem->ida_ee, IDA_mem->ida_yy);
   N_VLinearSum(ONE, IDA_mem->ida_yppredict, IDA_mem->ida_cj, IDA_mem->ida_ee, IDA_mem->ida_yp);
 
+  /* update the sensitivities based on the final correction from the nonlinear solver */
   if (sensi_sim) {
     N_VLinearSumVectorArray(IDA_mem->ida_Ns,
                             ONE, IDA_mem->ida_yySpredict,

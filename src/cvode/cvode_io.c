@@ -980,7 +980,6 @@ int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters,
                             long int *nncfails)
 {
   CVodeMem cv_mem;
-  int retval;
 
   if (cvode_mem==NULL) {
     cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeGetNonlinSolvStats", MSGCV_NO_MEM);
@@ -989,14 +988,15 @@ int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters,
 
   cv_mem = (CVodeMem) cvode_mem;
 
+  *nncfails = cv_mem->cv_ncfn;
+
   if (cv_mem->NLS == NULL) {
     cvProcessError(NULL, CV_MEM_FAIL, "CVODE", "CVodeGetNonlinSolvStats", MSGCV_MEM_FAIL);
     return (CV_MEM_FAIL);
   }
-  retval = SUNNonlinSolGetNumIters(cv_mem->NLS, nniters);
-  *nncfails = cv_mem->cv_ncfn;
 
-  return(retval);
+  return(SUNNonlinSolGetNumIters(cv_mem->NLS, nniters));
+
 }
 
 /*-----------------------------------------------------------------*/

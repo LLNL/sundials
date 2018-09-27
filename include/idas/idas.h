@@ -1978,6 +1978,9 @@ SUNDIALS_EXPORT int IDASetConstraintsB(void *ida_mem, int which,
 
 SUNDIALS_EXPORT int IDASetQuadErrConB(void *ida_mem, int which, int errconQB);
 
+SUNDIALS_EXPORT int IDASetNonlinearSolverB(void *ida_mem, int which,
+                                           SUNNonlinearSolver NLS);
+
 /*
  * =================================================================
  *

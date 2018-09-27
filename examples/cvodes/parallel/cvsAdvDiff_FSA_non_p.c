@@ -54,6 +54,7 @@
 #include <nvector/nvector_parallel.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
+#include "sunnonlinsol/sunnonlinsol_fixedpoint.h" /* access to the fixed point SUNNonlinearSolver */
 
 #include <mpi.h>
 
@@ -96,7 +97,8 @@ static void WrongArgs(int my_pe, char *name);
 static void SetIC(N_Vector u, realtype dx, sunindextype my_length, sunindextype my_base);
 static void PrintOutput(void *cvode_mem, int my_pe, realtype t, N_Vector u);
 static void PrintOutputS(int my_pe, N_Vector *uS);
-static void PrintFinalStats(void *cvode_mem, booleantype sensi); 
+static void PrintFinalStats(void *cvode_mem, booleantype sensi,
+                            booleantype err_con, int sensi_meth);
 static int check_retval(void *returnvalue, const char *funcname, int opt, int id);
 
 /*
@@ -119,6 +121,8 @@ int main(int argc, char *argv[])
   N_Vector *uS;
   booleantype sensi, err_con;
   int sensi_meth;
+
+  SUNNonlinearSolver NLS, NLSsens;
 
   MPI_Comm comm;
 
@@ -167,7 +171,7 @@ int main(int argc, char *argv[])
   abstol = ATOL;
 
   /* CVODE_CREATE & CVODE_MALLOC */
-  cvode_mem = CVodeCreate(CV_ADAMS, CV_FUNCTIONAL);
+  cvode_mem = CVodeCreate(CV_ADAMS);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0, my_pe)) MPI_Abort(comm, 1);
 
   retval = CVodeSetUserData(cvode_mem, data);
@@ -175,9 +179,17 @@ int main(int argc, char *argv[])
 
   retval = CVodeInit(cvode_mem, f, T0, u);
   if(check_retval(&retval, "CVodeInit", 1, my_pe)) MPI_Abort(comm, 1);
+
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
   if(check_retval(&retval, "CVodeSStolerances", 1, my_pe)) MPI_Abort(comm, 1);
 
+  /* create fixed point nonlinear solver object */
+  NLS = SUNNonlinSol_FixedPoint(u, 0);
+  if(check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0, my_pe)) MPI_Abort(comm, 1);
+
+  /* attach nonlinear solver object to CVode */
+  retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
+  if(check_retval(&retval, "CVodeSetNonlinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
  
   if (my_pe == 0) {
     printf("\n1-D advection-diffusion equation, mesh size =%3d \n", MX);
@@ -215,6 +227,24 @@ int main(int argc, char *argv[])
 
     retval = CVodeSetSensParams(cvode_mem, data->p, pbar, plist);
     if(check_retval(&retval, "CVodeSetSensParams", 1, my_pe)) MPI_Abort(comm, 1);
+
+    /* create sensitivity fixed point nonlinear solver object */
+    if (sensi_meth == CV_SIMULTANEOUS)
+      NLSsens = SUNNonlinSol_FixedPointSens(NS+1, u, 0);
+    else if(sensi_meth == CV_STAGGERED)
+      NLSsens = SUNNonlinSol_FixedPointSens(NS, u, 0);
+    else
+      NLSsens = SUNNonlinSol_FixedPoint(u, 0);
+    if(check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0, my_pe)) MPI_Abort(comm, 1);
+
+    /* attach nonlinear solver object to CVode */
+    if (sensi_meth == CV_SIMULTANEOUS)
+      retval = CVodeSetNonlinearSolverSensSim(cvode_mem, NLSsens);
+    else if(sensi_meth == CV_STAGGERED)
+      retval = CVodeSetNonlinearSolverSensStg(cvode_mem, NLSsens);
+    else
+      retval = CVodeSetNonlinearSolverSensStg1(cvode_mem, NLSsens);
+    if(check_retval(&retval, "CVodeSetNonlinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
 
     if(my_pe == 0) {
       printf("Sensitivity: YES ");
@@ -259,7 +289,7 @@ int main(int argc, char *argv[])
 
   /* Print final statistics */
   if (my_pe == 0) 
-    PrintFinalStats(cvode_mem, sensi);
+    PrintFinalStats(cvode_mem, sensi, err_con, sensi_meth);
 
   /* Free memory */
   N_VDestroy(u);                   /* Free the u vector              */
@@ -268,8 +298,10 @@ int main(int argc, char *argv[])
   free(data->p);                   /* Free the p vector              */
   free(data);                      /* Free block of UserData         */
   CVodeFree(&cvode_mem);           /* Free the CVODES problem memory */
+  SUNNonlinSolFree(NLS);
   free(pbar);
   if(sensi) free(plist);
+  if(sensi) SUNNonlinSolFree(NLSsens);
 
   MPI_Finalize();
 
@@ -520,7 +552,8 @@ static void PrintOutputS(int my_pe, N_Vector *uS)
  * Print some final statistics located in the iopt array 
  */
 
-static void PrintFinalStats(void *cvode_mem, booleantype sensi) 
+static void PrintFinalStats(void *cvode_mem, booleantype sensi,
+                            booleantype err_con, int sensi_meth)
 {
   long int nst;
   long int nfe, nsetups, nni, ncfn, netf;
@@ -548,11 +581,21 @@ static void PrintFinalStats(void *cvode_mem, booleantype sensi)
     retval = CVodeGetSensNumLinSolvSetups(cvode_mem, &nsetupsS);
     check_retval(&retval, "CVodeGetSensNumLinSolvSetups", 1, 0);
     retval = CVodeGetSensNumErrTestFails(cvode_mem, &netfS);
-    check_retval(&retval, "CVodeGetSensNumErrTestFails", 1, 0);
-    retval = CVodeGetSensNumNonlinSolvIters(cvode_mem, &nniS);
-    check_retval(&retval, "CVodeGetSensNumNonlinSolvIters", 1, 0);
-    retval = CVodeGetSensNumNonlinSolvConvFails(cvode_mem, &ncfnS);
-    check_retval(&retval, "CVodeGetSensNumNonlinSolvConvFails", 1, 0);
+    if (err_con) {
+      retval = CVodeGetSensNumErrTestFails(cvode_mem, &netfS);
+      check_retval(&retval, "CVodeGetSensNumErrTestFails", 1, 0);
+    } else {
+      netfS = 0;
+    }
+    if ((sensi_meth == CV_STAGGERED) || (sensi_meth == CV_STAGGERED1)) {
+      retval = CVodeGetSensNumNonlinSolvIters(cvode_mem, &nniS);
+      check_retval(&retval, "CVodeGetSensNumNonlinSolvIters", 1, 0);
+      retval = CVodeGetSensNumNonlinSolvConvFails(cvode_mem, &ncfnS);
+      check_retval(&retval, "CVodeGetSensNumNonlinSolvConvFails", 1, 0);
+    } else {
+      nniS = 0;
+      ncfnS = 0;
+    }
   }
 
   printf("\nFinal Statistics\n\n");

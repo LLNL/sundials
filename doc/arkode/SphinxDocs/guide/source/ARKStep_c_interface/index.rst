@@ -32,13 +32,13 @@ located in the ARKode package ``examples`` directory.
 
 The user should be aware that not all SUNLINSOL, SUNMATRIX, and
 preconditioning modules are compatible with all NVECTOR
-implementations.  Details on compatability are given in the
+implementations.  Details on compatibility are given in the
 documentation for each SUNMATRIX (see :ref:`SUNMatrix`) and each
 SUNLINSOL module (see :ref:`SUNLinSol`). For example, NVECTOR_PARALLEL
 is not compatible with the dense, banded, or sparse SUNMATRIX types,
 or with the corresponding dense, banded, or sparse SUNLINSOL modules.
 Please check the sections :ref:`SUNMatrix` and :ref:`SUNLinSol` to
-verify compatability between these modules.  In addition to that
+verify compatibility between these modules.  In addition to that
 documentation, we note that the ARKBANDPRE preconditioning module is
 only compatible with the NVECTOR_SERIAL, NVECTOR_OPENMP or
 NVECTOR_PTHREADS vector implementations, and the preconditioner module

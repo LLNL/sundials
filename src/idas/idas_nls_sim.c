@@ -88,8 +88,8 @@ int IDASetNonlinearSolverSensSim(void *ida_mem, SUNNonlinearSolver NLS)
     return(IDA_ILL_INPUT);
   }
 
-  /* check that simultaneous corrector was selected */
-  if (!(IDA_mem->ida_ism == IDA_SIMULTANEOUS)) {
+  /* check that the simultaneous corrector was selected */
+  if (IDA_mem->ida_ism != IDA_SIMULTANEOUS) {
     IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDAS",
                     "IDASetNonlinearSolverSensSim",
                     "Sensitivity solution method is not IDA_SIMULTANEOUS");
@@ -223,15 +223,17 @@ int idaNlsInitSensSim(IDAMem IDA_mem)
 }
 
 
-static int idaNlsLSetupSensSim(N_Vector ycorSim, N_Vector resSim, booleantype jbad,
-                               booleantype* jcur, void* ida_mem)
+static int idaNlsLSetupSensSim(N_Vector ycorSim, N_Vector resSim,
+                               booleantype jbad, booleantype* jcur,
+                               void* ida_mem)
 {
   IDAMem IDA_mem;
   int retval;
   N_Vector res;
 
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "idaNlsLSetupSensSim", MSG_NO_MEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS",
+                    "idaNlsLSetupSensSim", MSG_NO_MEM);
     return(IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
@@ -266,26 +268,34 @@ static int idaNlsLSolveSensSim(N_Vector ycorSim, N_Vector deltaSim, void* ida_me
   IDAMem IDA_mem;
   int retval, is;
   N_Vector delta;
+  N_Vector *deltaS;
 
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "idaNlsLSolveSensSim", MSG_NO_MEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS",
+                    "idaNlsLSolveSensSim", MSG_NO_MEM);
     return(IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
 
   /* extract state update vector from the vector wrapper */
-  delta  = NV_VEC_SW(deltaSim,0);
+  delta = NV_VEC_SW(deltaSim,0);
 
-  retval = IDA_mem->ida_lsolve(IDA_mem, delta, IDA_mem->ida_ewt, IDA_mem->ida_yy, IDA_mem->ida_yp,
+  /* solve the state linear system */
+  retval = IDA_mem->ida_lsolve(IDA_mem, delta, IDA_mem->ida_ewt,
+                               IDA_mem->ida_yy, IDA_mem->ida_yp,
                                IDA_mem->ida_savres);
 
   if (retval < 0) return(IDA_LSOLVE_FAIL);
   if (retval > 0) return(IDA_LSOLVE_RECVR);
 
-  for(is=0;is<IDA_mem->ida_Ns;is++) {
-    retval = IDA_mem->ida_lsolve(IDA_mem, NV_VEC_SW(deltaSim,is+1),
-                                 IDA_mem->ida_ewtS[is], IDA_mem->ida_yy,
-                                 IDA_mem->ida_yp, IDA_mem->ida_savres);
+  /* extract sensitivity deltas from the vector wrapper */
+  deltaS = NV_VECS_SW(deltaSim)+1;
+
+  /* solve the sensitivity linear systems */
+  for(is=0; is<IDA_mem->ida_Ns; is++) {
+    retval = IDA_mem->ida_lsolve(IDA_mem, deltaS[is], IDA_mem->ida_ewtS[is],
+                                 IDA_mem->ida_yy, IDA_mem->ida_yp,
+                                 IDA_mem->ida_savres);
 
     if (retval < 0) return(IDA_LSOLVE_FAIL);
     if (retval > 0) return(IDA_LSOLVE_RECVR);
@@ -300,9 +310,11 @@ static int idaNlsResidualSensSim(N_Vector ycorSim, N_Vector resSim, void* ida_me
   IDAMem IDA_mem;
   int retval;
   N_Vector ycor, res;
+  N_Vector *ycorS, *resS;
 
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "idaNlsResidualSensSim", MSG_NO_MEM);
+    IDAProcessError(NULL, IDA_MEM_NULL, "IDAS",
+                    "idaNlsResidualSensSim", MSG_NO_MEM);
     return(IDA_MEM_NULL);
   }
   IDA_mem = (IDAMem) ida_mem;
@@ -328,18 +340,22 @@ static int idaNlsResidualSensSim(N_Vector ycorSim, N_Vector resSim, void* ida_me
   if (retval < 0) return(IDA_RES_FAIL);
   if (retval > 0) return(IDA_RES_RECVR);
 
+  /* extract sensitivity and residual vectors from the vector wrapper */
+  ycorS = NV_VECS_SW(ycorSim)+1;
+  resS  = NV_VECS_SW(resSim)+1;
+
   /* update yS and ypS based on the current correction */
   N_VLinearSumVectorArray(IDA_mem->ida_Ns,
                           ONE, IDA_mem->ida_yySpredict,
-                          ONE, NV_VECS_SW(ycorSim)+1, IDA_mem->ida_yyS);
+                          ONE, ycorS, IDA_mem->ida_yyS);
   N_VLinearSumVectorArray(IDA_mem->ida_Ns,
                           ONE, IDA_mem->ida_ypSpredict,
-                          IDA_mem->ida_cj, NV_VECS_SW(ycorSim)+1, IDA_mem->ida_ypS);
+                          IDA_mem->ida_cj, ycorS, IDA_mem->ida_ypS);
 
   /* evaluate sens residual */
   retval = IDA_mem->ida_resS(IDA_mem->ida_Ns, IDA_mem->ida_tn,
                              IDA_mem->ida_yy, IDA_mem->ida_yp, res,
-                             IDA_mem->ida_yyS, IDA_mem->ida_ypS, NV_VECS_SW(resSim)+1,
+                             IDA_mem->ida_yyS, IDA_mem->ida_ypS, resS,
                              IDA_mem->ida_user_dataS, IDA_mem->ida_tmpS1,
                              IDA_mem->ida_tmpS2, IDA_mem->ida_tmpS3);
 

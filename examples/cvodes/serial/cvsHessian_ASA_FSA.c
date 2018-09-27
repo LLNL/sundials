@@ -174,7 +174,7 @@ int main(int argc, char *argv[])
 
   /* Create and initialize forward problem */
 
-  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
+  cvode_mem = CVodeCreate(CV_BDF);
   if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   retval = CVodeInit(cvode_mem, f, t0, y);
@@ -301,7 +301,7 @@ int main(int argc, char *argv[])
      First backward problem
      -------------------------*/
 
-  retval = CVodeCreateB(cvode_mem, CV_BDF, CV_NEWTON, &indexB1);
+  retval = CVodeCreateB(cvode_mem, CV_BDF, &indexB1);
   if(check_retval(&retval, "CVodeCreateB", 1)) return(1);
 
   retval = CVodeInitBS(cvode_mem, indexB1, fB1, tf, yB1);
@@ -338,7 +338,7 @@ int main(int argc, char *argv[])
      Second backward problem
      -------------------------*/
 
-  retval = CVodeCreateB(cvode_mem, CV_BDF, CV_NEWTON, &indexB2);
+  retval = CVodeCreateB(cvode_mem, CV_BDF, &indexB2);
   if(check_retval(&retval, "CVodeCreateB", 1)) return(1);
 
   retval = CVodeInitBS(cvode_mem, indexB2, fB2, tf, yB2);
@@ -443,7 +443,7 @@ int main(int argc, char *argv[])
   printf("del_p = %g\n\n",dp);
 #endif
 
-  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
+  cvode_mem = CVodeCreate(CV_BDF);
 
   N_VConst(ONE, y);
   N_VConst(ZERO, yQ);
@@ -915,7 +915,7 @@ void PrintFwdStats(void *cvode_mem)
 {
   long int nst, nfe, nsetups, nni, ncfn, netf;
   long int nfQe, netfQ;
-  long int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
+  long int nfSe, nfeS, nsetupsS, netfS;
   long int nfQSe, netfQS;
 
   int qlast, qcur;
@@ -935,8 +935,6 @@ void PrintFwdStats(void *cvode_mem)
 
   retval = CVodeGetSensStats(cvode_mem, &nfSe, &nfeS, &netfS, &nsetupsS);
 
-  retval = CVodeGetSensNonlinSolvStats(cvode_mem, &nniS, &ncfnS);
-
   retval = CVodeGetQuadSensStats(cvode_mem, &nfQSe, &netfQS);
 
 
@@ -950,9 +948,9 @@ void PrintFwdStats(void *cvode_mem)
   printf(" Linear solver setups:\n");
   printf("  nsetups:  %5ld\n  nsetupsS: %5ld\n", nsetups, nsetupsS);
   printf(" Nonlinear iterations:\n");
-  printf("  nni:      %5ld\n  nniS:     %5ld\n", nni, nniS);
+  printf("  nni:      %5ld\n", nni);
   printf(" Convergence failures:\n");
-  printf("  ncfn:     %5ld\n  ncfnS:    %5ld\n", ncfn, ncfnS);
+  printf("  ncfn:     %5ld\n", ncfn);
 
   printf("\n");
 
