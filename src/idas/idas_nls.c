@@ -259,7 +259,6 @@ static int idaNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del,
   int m, retval;
   realtype delnrm;
   realtype rate;
-  static realtype oldnrm;
 
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDA_MEM_NULL, "IDAS", "idaNlsConvTest", MSG_NO_MEM);
@@ -276,10 +275,10 @@ static int idaNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector del,
 
   /* test for convergence, first directly, then with rate estimate. */
   if (m == 0){
-    oldnrm = delnrm;
+    IDA_mem->ida_oldnrm = delnrm;
     if (delnrm <= PT0001 * IDA_mem->ida_toldel) return(SUN_NLS_SUCCESS);
   } else {
-    rate = SUNRpowerR( delnrm/oldnrm, ONE/m );
+    rate = SUNRpowerR( delnrm/IDA_mem->ida_oldnrm, ONE/m );
     if (rate > RATEMAX) return(SUN_NLS_CONV_RECVR);
     IDA_mem->ida_ss = rate/(ONE - rate);
   }

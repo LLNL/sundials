@@ -279,6 +279,7 @@ typedef struct CVodeMemRec {
 
   realtype cv_crate;           /* est. corrector conv. rate in Nls            */
   realtype cv_crateS;          /* est. corrector conv. rate in NlsStgr        */
+  realtype cv_delp;            /* norm of previous nonlinear solver update    */
   realtype cv_acnrm;           /* | acor |                                    */
   realtype cv_acnrmQ;          /* | acorQ |                                   */
   realtype cv_acnrmS;          /* | acorS |                                   */

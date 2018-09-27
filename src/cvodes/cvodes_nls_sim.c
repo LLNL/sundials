@@ -326,7 +326,6 @@ static int cvNlsConvTestSensSim(SUNNonlinearSolver NLS,
   int m, retval;
   realtype del, delS, Del;
   realtype dcon;
-  static realtype Delp;
   N_Vector ycor, delta, ewt;
   N_Vector *ycorS, *deltaS, *ewtS;
 
@@ -369,7 +368,7 @@ static int cvNlsConvTestSensSim(SUNNonlinearSolver NLS,
      (and this explains why we have to carry around del and delS).
   */
   if (m > 0) {
-    cv_mem->cv_crate = SUNMAX(CRDOWN * cv_mem->cv_crate, Del/Delp);
+    cv_mem->cv_crate = SUNMAX(CRDOWN * cv_mem->cv_crate, Del/cv_mem->cv_delp);
   }
   dcon = Del * SUNMIN(ONE, cv_mem->cv_crate) / tol;
 
@@ -385,10 +384,10 @@ static int cvNlsConvTestSensSim(SUNNonlinearSolver NLS,
   }
 
   /* check if the iteration seems to be diverging */
-  if ((m >= 1) && (Del > RDIV*Delp)) return(SUN_NLS_CONV_RECVR);
+  if ((m >= 1) && (Del > RDIV*cv_mem->cv_delp)) return(SUN_NLS_CONV_RECVR);
 
   /* Save norm of correction and loop again */
-  Delp = Del;
+  cv_mem->cv_delp = Del;
 
   /* Not yet converged */
   return(SUN_NLS_CONTINUE);

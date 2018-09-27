@@ -86,6 +86,7 @@ typedef struct ARKodeARKStepMemRec {
   realtype crdown;       /* nonlinear conv rate estimation constant  */
   realtype rdiv;         /* nonlin divergence if del/delp > rdiv     */
   realtype crate;        /* estimated nonlin convergence rate        */
+  realtype delp;         /* norm of previous nonlinear solver update */
   realtype eRNrm;        /* estimated residual norm, used in nonlin
                             and linear solver convergence tests      */
   realtype nlscoef;      /* coefficient in nonlin. convergence test  */

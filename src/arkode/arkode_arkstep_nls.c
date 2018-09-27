@@ -525,7 +525,6 @@ int arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
   /* temporary variables */
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
-  static realtype delp;
   realtype delnrm, dcon;
   int m, retval;
 
@@ -547,7 +546,7 @@ int arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
 
   /* update the stored estimate of the convergence rate (assumes linear convergence) */
   if (m > 0)
-    step_mem->crate = SUNMAX(step_mem->crdown*step_mem->crate, delnrm/delp);
+    step_mem->crate = SUNMAX(step_mem->crdown*step_mem->crate, delnrm/step_mem->delp);
 
   /* compute our scaled error norm for testing convergence */
   dcon = SUNMIN(step_mem->crate, ONE) * delnrm / tol;
@@ -556,11 +555,11 @@ int arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
   if (dcon <= ONE)  return(SUN_NLS_SUCCESS);
 
   /* check for divergence */
-  if ((m >= 1) && (delnrm > step_mem->rdiv*delp))
+  if ((m >= 1) && (delnrm > step_mem->rdiv*step_mem->delp))
     return(SUN_NLS_CONV_RECVR);
 
   /* save norm of correction for next iteration */
-  delp = delnrm;
+  step_mem->delp = delnrm;
 
   /* return with flag that there is more work to do */
   return(SUN_NLS_CONTINUE);

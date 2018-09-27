@@ -162,6 +162,7 @@ typedef struct IDAMemRec {
   realtype ida_cjold;    /* cj value saved from last call to lsetup           */
   realtype ida_cjratio;  /* ratio of cj values: cj/cjold                      */
   realtype ida_ss;       /* scalar used in Newton iteration convergence test  */
+  realtype ida_oldnrm;   /* norm of previous nonlinear solver update          */
   realtype ida_epsNewt;  /* test constant in Newton convergence test          */
   realtype ida_epcon;    /* coeficient of the Newton covergence test          */
   realtype ida_toldel;   /* tolerance in direct test on Newton corrections    */

@@ -231,7 +231,6 @@ static int cvNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector delta,
   int m, retval;
   realtype del;
   realtype dcon;
-  static realtype delp;
 
   if (cvode_mem == NULL) {
     cvProcessError(NULL, CV_MEM_NULL, "CVODE", "cvNlsConvTest", MSGCV_NO_MEM);
@@ -249,7 +248,7 @@ static int cvNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector delta,
   /* Test for convergence. If m > 0, an estimate of the convergence
      rate constant is stored in crate, and used in the test.        */
   if (m > 0) {
-    cv_mem->cv_crate = SUNMAX(CRDOWN * cv_mem->cv_crate, del/delp);
+    cv_mem->cv_crate = SUNMAX(CRDOWN * cv_mem->cv_crate, del/cv_mem->cv_delp);
   }
   dcon = del * SUNMIN(ONE, cv_mem->cv_crate) / tol;
 
@@ -259,10 +258,10 @@ static int cvNlsConvTest(SUNNonlinearSolver NLS, N_Vector ycor, N_Vector delta,
   }
 
   /* check if the iteration seems to be diverging */
-  if ((m >= 1) && (del > RDIV*delp)) return(SUN_NLS_CONV_RECVR);
+  if ((m >= 1) && (del > RDIV*cv_mem->cv_delp)) return(SUN_NLS_CONV_RECVR);
 
   /* Save norm of correction and loop again */
-  delp = del;
+  cv_mem->cv_delp = del;
 
   /* Not yet converged */
   return(SUN_NLS_CONTINUE);
