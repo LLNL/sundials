@@ -282,14 +282,19 @@ preconditioner routines.
 \section{Changes from previous versions}
 \label{Introduction:changes-from-previous-versions}
 
-\subsection{Changes in vX.X.X}
+\subsection{Changes in v2.2.0}
 \label{Introduction:changes-in-vX-X-X}
+Fixed problem with index types which would occur with some compilers
+(e.g. armclang) that did not define \texttt{\_\_STDC\_VERSION\_\_}.
+
+Deprecate current behavior of the \texttt{SUNDIALS\_INDEX\_TYPE} CMake
+option. Add \texttt{SUNDIALS\_INDEX\_SIZE} CMake option.
 
 Added hybrid MPI/CUDA and MPI/RAJA vectors to allow use of more 
 than one MPI rank when using a GPU system.  The vectors assume one GPU 
 device per MPI rank.
 
-Changed the name of the RAJA {\nvector} library to libsundials\_nveccudaraja.\texttt{lib}
+Changed the name of the RAJA \texttt{nvector} library to libsundials\_nveccudaraja.\texttt{lib}
 from libsundials\_nvecraja.\texttt{lib} to better reflect that we only support
 CUDA as a backend for RAJA currently.
 

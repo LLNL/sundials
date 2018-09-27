@@ -1,5 +1,6 @@
 # ---------------------------------------------------------------
-# Programmer(s):  Radu Serban, David Gardner, and Slaven Peles @ LLNL
+# Programmer: Radu Serban, David J. Gardner, Cody J. Balos,
+#             and Slaven Peles @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
@@ -231,20 +232,12 @@ ENDIF(SUNDIALS_PRECISION MATCHES "EXTENDED")
 # Option to specify index type
 # ---------------------------------------------------------------
 
-SET(DOCSTR "Signed 64-bit (int64_t) or signed 32-bit (int32_t) integer")
-SHOW_VARIABLE(SUNDIALS_INDEX_TYPE STRING "${DOCSTR}" "int64_t")
-
-# prepare substitution variable INDEX_TYPE for sundials_config.h
-STRING(TOUPPER ${SUNDIALS_INDEX_TYPE} SUNDIALS_INDEX_TYPE)
-SET(INDEX_TYPE "#define SUNDIALS_${SUNDIALS_INDEX_TYPE} 1")
-
-# prepare substitution variable FINDEX_TYPE for sundials_fconfig.h
-IF(SUNDIALS_INDEX_TYPE MATCHES "INT32_T")
-  SET(FINDEX_TYPE "4")
-ENDIF(SUNDIALS_INDEX_TYPE MATCHES "INT32_T")
-IF(SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
-  SET(FINDEX_TYPE "8")
-ENDIF(SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
+SET(DOCSTR "Signed 64-bit (64) or signed 32-bit (32) integer")
+SHOW_VARIABLE(SUNDIALS_INDEX_SIZE STRING "${DOCSTR}" "64")
+SET(DOCSTR "Integer type to use for indices in SUNDIALS")
+SHOW_VARIABLE(SUNDIALS_INDEX_TYPE STRING "${DOCSTR}" "")
+MARK_AS_ADVANCED(SUNDIALS_INDEX_TYPE)
+include(SundialsIndexSize)
 
 # ---------------------------------------------------------------
 # Enable Fortran interface?
@@ -379,8 +372,8 @@ IF(LAPACK_ENABLE AND SUNDIALS_PRECISION MATCHES "EXTENDED")
 ENDIF()
 
 # LAPACK does not support 64-bit integer index types
-IF(LAPACK_ENABLE AND SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
-  PRINT_WARNING("LAPACK is not compatible with ${SUNDIALS_INDEX_TYPE} integers"
+IF(LAPACK_ENABLE AND SUNDIALS_INDEX_SIZE MATCHES "64")
+  PRINT_WARNING("LAPACK is not compatible with ${SUNDIALS_INDEX_SIZE} integers"
                 "Disabling LAPACK")
   SET(LAPACK_ENABLE OFF CACHE BOOL "LAPACK is disabled" FORCE)
 ENDIF()

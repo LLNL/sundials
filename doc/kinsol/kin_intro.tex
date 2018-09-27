@@ -109,7 +109,15 @@ interfacing the solver to applications written in {\F}.
 
 \section{Changes from previous versions}
 
-\subsection*{Changes in vX.X.X}
+\subsection*{Changes in v3.2.0}
+
+The changes in this release include the following:
+\begin{itemize}
+\item Fixed problem with index types which would occur with some compilers
+  (e.g. armclang) that did not define \id{\_\_STDC\_VERSION\_\_}.
+\item Deprecate current behavior of the \id{SUNDIALS\_INDEX\_TYPE} CMake
+  option. Add \id{SUNDIALS\_INDEX\_SIZE} CMake option.
+\end{itemize}
 
 Added hybrid MPI/CUDA and MPI/RAJA vectors to allow use of more 
 than one MPI rank when using a GPU system.  The vectors assume one GPU 

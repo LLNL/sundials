@@ -219,7 +219,7 @@ IF(SUPERLUMT_FOUND)
     # Answer files were generated with int32_t and minor differences in output
     # occur causing a false positive when testing. These tests can be re-enabled
     # when type specific answer files are added.
-    IF(SUNDIALS_INDEX_TYPE MATCHES "INT32_T")
+    IF(SUNDIALS_INDEX_SIZE MATCHES "32")
       # add example to regression tests
       SUNDIALS_ADD_TEST(${example} ${example}
         ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}

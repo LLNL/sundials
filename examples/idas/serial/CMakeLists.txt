@@ -293,7 +293,7 @@ IF(SUPERLUMT_FOUND)
     # Answer files were generated with int32_t and minor differences in output
     # occur causing a false positive when testing. These tests can be re-enabled
     # when type specific answer files are added.
-    IF(SUNDIALS_INDEX_TYPE MATCHES "INT32_T")
+    IF(SUNDIALS_INDEX_SIZE MATCHES "32")
 
       # add example to regression tests
       SUNDIALS_ADD_TEST(${test_name} ${example}
@@ -302,7 +302,7 @@ IF(SUPERLUMT_FOUND)
         ANSWER_FILE ${test_name}.out
         EXAMPLE_TYPE ${example_type})
 
-    ENDIF(SUNDIALS_INDEX_TYPE MATCHES "INT32_T")
+    ENDIF(SUNDIALS_INDEX_SIZE MATCHES "32")
 
     # find all .out files for this example
     FILE(GLOB example_out ${example}.out*)

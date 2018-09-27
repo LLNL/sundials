@@ -31,6 +31,7 @@ $tar $tarfile $distrobase/config/SundialsCXX.cmake
 $tar $tarfile $distrobase/config/SundialsDeprecated.cmake
 $tar $tarfile $distrobase/config/SundialsFortran.cmake
 $tar $tarfile $distrobase/config/SundialsHypre.cmake
+$tar $tarfile $distrobase/config/SundialsIndexSize.cmake
 $tar $tarfile $distrobase/config/SundialsKLU.cmake
 $tar $tarfile $distrobase/config/SundialsLapack.cmake
 $tar $tarfile $distrobase/config/SundialsMPI.cmake

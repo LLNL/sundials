@@ -87,7 +87,18 @@ in extended {\F}.
 
 \section{Changes from previous versions}
 
-\subsection*{Changes in v3.2.0}
+\subsection*{Changes in v2.2.0}
+
+The changes in this release include the following:
+\begin{itemize}
+\item Fixed problem with index types which would occur with some compilers
+  (e.g. armclang) that did not define \id{\_\_STDC\_VERSION\_\_}.
+\item Deprecate current behavior of the \id{SUNDIALS\_INDEX\_TYPE} CMake
+  option. Add \id{SUNDIALS\_INDEX\_SIZE} CMake option.
+\item Fixed a bug in {\idas} where the saved residual value used in the nonlinear
+solve for consistent initial conditions was passed as temporary workspace and
+could be overwritten.
+\end{itemize}
 
 Fixed a thread-safety issue when using ajdoint sensitivity analysis.
 
@@ -100,10 +111,6 @@ from libsundials\_nvecraja.\texttt{lib} to better reflect that we only support
 CUDA as a backend for RAJA currently.
 
 CMake 3.1.3 is now the minimum required CMake version.
-
-Fixed a bug in {\idas} where the saved residual value used in the nonlinear
-solve for consistent initial conditions was passed as temporary workspace and
-could be overwritten.
 
 Several changes were made to the build system. If MPI is enabled and
 MPI compiler wrappers are not set, the build system will check if

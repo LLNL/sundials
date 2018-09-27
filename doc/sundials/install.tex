@@ -562,10 +562,28 @@ a typical configuration on a Linux system and are provided as illustration only.
   only be used if a Fortran compiler is not available or to override
   the inferred or default (\id{one}) scheme if one can not be
   determined. If used, \id{SUNDIALS\_F77\_FUNC\_CASE} must also be set.
-\item[\id{SUNDIALS\_INDEX\_TYPE}] - 
-  Integer type used for {\sundials} indices, options are: \id{int32\_t} or \id{int64\_t}
+\item[\id{SUNDIALS\_INDEX\_TYPE}] - \textbf{advanced}
   \\
-  Default: \id{int64\_t}
+  Integer type used for {\sundials} indices. The size must match the size provided for
+  the \id{SUNDIALS\_INDEX\_SIZE} option.
+  \\
+  Default:
+  \\
+  Note:
+  In past SUNDIALS versions, a user could set this option to \id{INT64\_T} to use 64-bit
+  integers, or \id{INT32\_T} to use 32-bit integers. Starting in SUNDIALS 3.2.0, these 
+  special values are deprecated. For SUNDIALS 3.2.0 and up, a user will only need to use
+  the \id{SUNDIALS\_INDEX\_SIZE} option in most cases.
+\item[\id{SUNDIALS\_INDEX\_SIZE}] -
+  Integer size (in bits) used for indices in {\sundials}, options are: \id{32} or \id{64}
+  \\
+  Default: \id{64}
+  \\
+  Note: 
+  The build system tries to find an integer type of appropriate size. Candidate 64-bit
+  integer types are (in order of preference): \id{int64\_t}, \id{\_\_int64}, \id{long long}, and \id{long}. 
+  Candidate 32-bit integers are (in order of preference): \id{int32\_t}, \id{int}, and \id{long}.
+  The advanced option, \id{SUNDIALS\_INDEX\_TYPE} can be used to provide a type not listed here.
 \item[\id{SUNDIALS\_PRECISION}] -   
   Precision used in {\sundials}, options are: \id{double}, \id{single}, or \id{extended}
   \\
@@ -720,7 +738,7 @@ corresponding {\sundials} options if applicable.
   \\
   Default: \id{32}
   \\
-  {\sundials} equivalent: \id{SUNDIALS\_INDEX\_TYPE}
+  {\sundials} equivalent: \id{SUNDIALS\_INDEX\_SIZE}
 \item[\id{XSDK\_PRECISION}] -
   Precision used in {\sundials}, options are: \id{double}, \id{single}, or \id{quad}
   \\
