@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  David Gardner and Slaven Peles @ LLNL
+# Programmer:  David Gardner, Slaven Peles, and Cody Balos @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
@@ -41,3 +41,24 @@ IF(EXAMPLES_ENABLE_F77 AND F77_FOUND)
     ADD_SUBDIRECTORY(fcmix_parallel)
   ENDIF()
 ENDIF()
+
+# cuda examples
+IF(EXAMPLES_ENABLE_CUDA)
+  IF(CUDA_ENABLE AND CUDA_FOUND)
+    ADD_SUBDIRECTORY(cuda)
+    IF(MPI_ENABLE AND MPI_C_FOUND)
+      ADD_SUBDIRECTORY(mpicuda)
+    ENDIF()
+  ENDIF()
+ENDIF(EXAMPLES_ENABLE_CUDA)
+
+# raja examples
+IF(EXAMPLES_ENABLE_RAJA)
+  IF(RAJA_ENABLE AND RAJA_FOUND)
+    ADD_SUBDIRECTORY(raja)
+    IF(MPI_ENABLE AND MPI_C_FOUND)
+      ADD_SUBDIRECTORY(mpiraja)
+    ENDIF()
+  ENDIF()
+ENDIF(EXAMPLES_ENABLE_RAJA)
+

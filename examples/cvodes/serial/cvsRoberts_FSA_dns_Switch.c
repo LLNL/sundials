@@ -74,7 +74,7 @@ static int fS(int Ns, realtype t, N_Vector y, N_Vector ydot,
 /* Prototypes of private functions */
 static int runCVode(void *cvode_mem, N_Vector y, N_Vector *yS, UserData data);
 static void PrintHeader(UserData data);
-static void PrintFinalStats(void *cvode_mem, UserData data);
+static int PrintFinalStats(void *cvode_mem, UserData data);
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 
@@ -327,9 +327,10 @@ static int runCVode(void *cvode_mem, N_Vector y, N_Vector *yS, UserData data)
 
   /* Call CVode in CV_NORMAL mode */
   retval = CVode(cvode_mem, T1, y, &t, CV_NORMAL);
-
+  if (retval != 0) return(retval);
+  
   /* Print final statistics */
-  PrintFinalStats(cvode_mem, data);
+  retval = PrintFinalStats(cvode_mem, data);
   printf("\n");
 
   return(retval);
@@ -472,7 +473,7 @@ static void PrintHeader(UserData data)
  * Print some final statistics from the CVODES memory.
  */
 
-static void PrintFinalStats(void *cvode_mem, UserData data)
+static int PrintFinalStats(void *cvode_mem, UserData data)
 {
   long int nst;
   long int nfe, nsetups, nni, ncfn, netf;
@@ -522,6 +523,8 @@ static void PrintFinalStats(void *cvode_mem, UserData data)
     printf("   netfs   = %5ld    nsetupsS = %5ld\n", netfS, nsetupsS);
     printf("   nniS    = %5ld    ncfnS    = %5ld\n", nniS, ncfnS);
   }
+
+  return(retval);
 }
 
 /*

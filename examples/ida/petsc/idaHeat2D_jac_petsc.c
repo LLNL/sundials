@@ -1,13 +1,19 @@
-/*
- * -----------------------------------------------------------------
- * $Revision: 4396 $
- * $Date: 2015-02-26 16:59:39 -0800 (Thu, 26 Feb 2015) $
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Slaven Peles @ LLNL
  * (based on PETSc TS example 15 and a SUNDIALS example by
  *  Allan Taylor, Alan Hindmarsh and Radu Serban)
  * -----------------------------------------------------------------
- * Example problem for IDA: 2D heat equation, using PETSc linear
+ * LLNS Copyright Start
+ * Copyright (c) 2017, Lawrence Livermore National Security
+ * This work was performed under the auspices of the U.S. Department 
+ * of Energy by Lawrence Livermore National Laboratory in part under 
+ * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see the LICENSE file.
+ * LLNS Copyright End
+ * -----------------------------------------------------------------
+ * Example problem for IDA: 2D heat equation, using PETSc linear 
  * solver and vector.
  *
  * This example solves a discretized 2D heat equation problem.

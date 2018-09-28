@@ -203,7 +203,9 @@ typedef struct CVodeMemRec {
   N_Vector cv_vtemp2;         /* temporary storage vector                     */
   N_Vector cv_vtemp3;         /* temporary storage vector                     */
 
-  
+  N_Vector cv_mm;             /* mask vector in constraints tests             */
+  N_Vector cv_constraints;    /* vector of inequality constraint options      */
+
   /*--------------------------
     Quadrature Related Vectors 
     --------------------------*/
@@ -449,6 +451,7 @@ typedef struct CVodeMemRec {
 
   booleantype cv_VabstolMallocDone;
   booleantype cv_MallocDone;
+  booleantype cv_constraintsMallocDone;
 
   booleantype cv_VabstolQMallocDone;
   booleantype cv_QuadMallocDone;
@@ -769,6 +772,9 @@ struct CVadjMemRec {
 
   /* Number of steps between 2 check points */
   long int ca_nsteps;
+
+  /* Last index used in CVAfindIndex */
+  long int ca_ilast;
   
   /* Storage for data from forward runs */
   struct DtpntMemRec **dt_mem;
@@ -1050,9 +1056,12 @@ int cvNlsInitSensStg1(CVodeMem cv_mem);
 #define MSGCV_BAD_ABSTOL "abstol has negative component(s) (illegal)."
 #define MSGCV_NULL_ABSTOL "abstol = NULL illegal."
 #define MSGCV_NULL_Y0 "y0 = NULL illegal."
+#define MSGCV_Y0_FAIL_CONSTR "y0 fails to satisfy constraints."
+#define MSGCV_BAD_ISM_CONSTR "Constraints can not be enforced while forward sensitivity is used with simultaneous method"
 #define MSGCV_NULL_F "f = NULL illegal."
 #define MSGCV_NULL_G "g = NULL illegal."
 #define MSGCV_BAD_NVECTOR "A required vector operation is not implemented."
+#define MSGCV_BAD_CONSTR "Illegal values in constraints vector."
 #define MSGCV_BAD_K "Illegal value for k."
 #define MSGCV_NULL_DKY "dky = NULL illegal."
 #define MSGCV_BAD_T "Illegal value for t." MSG_TIME_INT
@@ -1113,6 +1122,7 @@ int cvNlsInitSensStg1(CVodeMem cv_mem);
 #define MSGCV_CONV_FAILS "At " MSG_TIME_H ", the corrector convergence test failed repeatedly or with |h| = hmin."
 #define MSGCV_SETUP_FAILED "At " MSG_TIME ", the setup routine failed in an unrecoverable manner."
 #define MSGCV_SOLVE_FAILED "At " MSG_TIME ", the solve routine failed in an unrecoverable manner."
+#define MSGCV_FAILED_CONSTR "At " MSG_TIME ", unable to satisfy inequality constraints."
 #define MSGCV_RHSFUNC_FAILED "At " MSG_TIME ", the right-hand side routine failed in an unrecoverable manner."
 #define MSGCV_RHSFUNC_UNREC "At " MSG_TIME ", the right-hand side failed in a recoverable manner, but no recovery is possible."
 #define MSGCV_RHSFUNC_REPTD "At " MSG_TIME " repeated recoverable right-hand side function errors."

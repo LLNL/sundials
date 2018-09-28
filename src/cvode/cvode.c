@@ -45,7 +45,9 @@
 #define POINT2  RCONST(0.2)     /* real 0.2     */
 #define FOURTH  RCONST(0.25)    /* real 0.25    */
 #define HALF    RCONST(0.5)     /* real 0.5     */
+#define PT9     RCONST(0.9)     /* real 0.9     */
 #define ONE     RCONST(1.0)     /* real 1.0     */
+#define ONEPT5  RCONST(1.50)    /* real 1.5     */
 #define TWO     RCONST(2.0)     /* real 2.0     */
 #define THREE   RCONST(3.0)     /* real 3.0     */
 #define FOUR    RCONST(4.0)     /* real 4.0     */
@@ -266,6 +268,9 @@ static void cvSetTqBDF(CVodeMem cv_mem, realtype hsum, realtype alpha0,
 
 static int cvNls(CVodeMem cv_mem, int nflag);
 
+static int cvCheckConstraints(CVodeMem cv_mem);
+
+
 static int cvHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
                          int *ncfPtr);
 
@@ -359,6 +364,8 @@ void *CVodeCreate(int lmm)
   cv_mem->cv_maxncf     = MXNCF;
   cv_mem->cv_nlscoef    = CORTES;
   cv_mem->convfail      = CV_NO_FAILURES;
+  cv_mem->cv_constraints = NULL;
+  cv_mem->cv_constraintsSet = SUNFALSE;
 
   /* Initialize root finding variables */
 
@@ -383,8 +390,9 @@ void *CVodeCreate(int lmm)
 
   /* No mallocs have been done yet */
 
-  cv_mem->cv_VabstolMallocDone = SUNFALSE;
-  cv_mem->cv_MallocDone        = SUNFALSE;
+  cv_mem->cv_VabstolMallocDone     = SUNFALSE;
+  cv_mem->cv_MallocDone            = SUNFALSE;
+  cv_mem->cv_constraintsMallocDone = SUNFALSE;
 
   /* Initialize nonlinear solver variables */
   cv_mem->NLS    = NULL;
@@ -1671,6 +1679,12 @@ static void cvFreeVectors(CVodeMem cv_mem)
     cv_mem->cv_lrw -= cv_mem->cv_lrw1;
     cv_mem->cv_liw -= cv_mem->cv_liw1;
   }
+
+  if (cv_mem->cv_constraintsMallocDone) {
+    N_VDestroy(cv_mem->cv_constraints);
+    cv_mem->cv_lrw -= cv_mem->cv_lrw1;
+    cv_mem->cv_liw -= cv_mem->cv_liw1;
+  }
 }
 
 /*
@@ -1684,6 +1698,7 @@ static void cvFreeVectors(CVodeMem cv_mem)
 static int cvInitialSetup(CVodeMem cv_mem)
 {
   int ier;
+  booleantype conOK;
 
   /* Did the user specify tolerances? */
   if (cv_mem->cv_itol == CV_NN) {
@@ -1694,6 +1709,15 @@ static int cvInitialSetup(CVodeMem cv_mem)
   /* Set data for efun */
   if (cv_mem->cv_user_efun) cv_mem->cv_e_data = cv_mem->cv_user_data;
   else                      cv_mem->cv_e_data = cv_mem;
+
+  /* Check to see if y0 satisfies constraints */
+  if (cv_mem->cv_constraintsSet) {
+    conOK = N_VConstrMask(cv_mem->cv_constraints, cv_mem->cv_zn[0], cv_mem->cv_tempv);
+    if (!conOK) {
+      cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "cvInitialSetup", MSGCV_Y0_FAIL_CONSTR);
+      return(CV_ILL_INPUT);
+    }
+  }
 
   /* Load initial error weights */
   ier = cv_mem->cv_efun(cv_mem->cv_zn[0], cv_mem->cv_ewt, cv_mem->cv_e_data);
@@ -2556,8 +2580,73 @@ static int cvNls(CVodeMem cv_mem, int nflag)
   /* if the solve is successful, update Jacobian status */
   if (flag == CV_SUCCESS) cv_mem->cv_jcur = SUNFALSE;
 
+  /* If there was an error, return it. Otherwise, check constraints */
+  if (flag != CV_SUCCESS)
+    return(flag);
+
+  if (cv_mem->cv_constraintsSet)
+    flag = cvCheckConstraints(cv_mem);
+
   return(flag);
 }
+
+/*
+ * cvCheckConstraints
+ *
+ * This routine determines if the constraints of the problem
+ * are satisfied by the proposed step
+ *
+ * Possible return values are:
+ *
+ *   CV_SUCCESS    ---> allows stepping forward
+ *
+ *   CONSTR_RECVR  ---> values failed to satisfy constraints
+ */
+
+static int cvCheckConstraints(CVodeMem cv_mem)
+{
+  booleantype constraintsPassed;
+  realtype vnorm;
+  cv_mem->cv_mm = cv_mem->cv_ftemp;
+
+  /* Get mask vector mm, set where constraints failed */
+
+  constraintsPassed = N_VConstrMask(cv_mem->cv_constraints,
+                                    cv_mem->cv_y, cv_mem->cv_mm);
+  if (constraintsPassed) return(CV_SUCCESS);
+  else {
+    N_VCompare(ONEPT5, cv_mem->cv_constraints, cv_mem->cv_tempv);
+    /* a, where a[i]=1 when |c[i]|=2; c the vector of constraints */
+    N_VProd(cv_mem->cv_tempv, cv_mem->cv_constraints,
+            cv_mem->cv_tempv);                        /* a * c */
+    N_VDiv(cv_mem->cv_tempv, cv_mem->cv_ewt,
+           cv_mem->cv_tempv);                         /* a * c * wt */
+    N_VLinearSum(ONE, cv_mem->cv_y, -PT1,
+                 cv_mem->cv_tempv, cv_mem->cv_tempv); /* y - 0.1 * a * c * wt */
+    N_VProd(cv_mem->cv_tempv, cv_mem->cv_mm,
+            cv_mem->cv_tempv);                        /* v = mm*(y-0.1*a*c*wt) */
+
+    vnorm = N_VWrmsNorm(cv_mem->cv_tempv, cv_mem->cv_ewt); /*  ||v||  */
+
+    /* If vector v of constraint corrections is small in
+       norm, correct and accept this step */
+    if (vnorm <= cv_mem->cv_tq[4]) {
+      N_VLinearSum(ONE, cv_mem->cv_acor, -ONE,
+                   cv_mem->cv_tempv, cv_mem->cv_acor);    /* acor <- acor - v */
+      return(CV_SUCCESS);
+    }
+    else {
+      /* Constraints not met - reduce h by computing eta = h'/h */
+      N_VLinearSum(ONE, cv_mem->cv_zn[0], -ONE, cv_mem->cv_y, cv_mem->cv_tempv);
+      N_VProd(cv_mem->cv_mm, cv_mem->cv_tempv, cv_mem->cv_tempv);
+      cv_mem->cv_eta = PT9*N_VMinQuotient(cv_mem->cv_zn[0], cv_mem->cv_tempv);
+      cv_mem->cv_eta = SUNMAX(cv_mem->cv_eta, PT1);
+      return(CONSTR_RECVR);
+    }
+  }
+  return(CV_SUCCESS);
+}
+
 
 
 /*
@@ -2622,9 +2711,10 @@ static int cvHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
     if (nflag == RHSFUNC_RECVR)      return(CV_REPTD_RHSFUNC_ERR);
   }
 
-  /* Reduce step size; return to reattempt the step */
-
-  cv_mem->cv_eta = SUNMAX(ETACF, cv_mem->cv_hmin / SUNRabs(cv_mem->cv_h));
+  /* Reduce step size; return to reattempt the step
+     Note that if nflag = CONSTR_RECVR, then eta was already set in cvCheckConstraints */
+  if (nflag != CONSTR_RECVR)
+    cv_mem->cv_eta = SUNMAX(ETACF, cv_mem->cv_hmin / SUNRabs(cv_mem->cv_h));
   *nflagPtr = PREV_CONV_FAIL;
   cvRescale(cv_mem);
 
@@ -3005,6 +3095,9 @@ static int cvHandleFailure(CVodeMem cv_mem, int flag)
     break;
   case CV_NLS_SETUP_FAIL:
     cvProcessError(cv_mem, CV_NLS_SETUP_FAIL, "CVODE", "CVode", MSGCV_NLS_SETUP_FAILED,
+    break;
+  case CV_CONSTR_FAIL:
+    cvProcessError(cv_mem, CV_CONSTR_FAIL, "CVODE", "CVode", MSGCV_FAILED_CONSTR,
                    cv_mem->cv_tn);
     break;
   default:

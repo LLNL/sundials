@@ -144,6 +144,9 @@ int IDAAdjInit(void *ida_mem, long int steps, int interp)
   IDAADJ_mem->ia_interpType = interp;
   IDAADJ_mem->ia_nsteps = steps;
 
+  /* Last index used in IDAAfindIndex, initailize to invalid value */
+  IDAADJ_mem->ia_ilast = -1;
+
   /* Allocate space for the array of Data Point structures. */
   if (IDAAdataMalloc(IDA_mem) == SUNFALSE) {
     free(IDAADJ_mem); IDAADJ_mem = NULL;
@@ -3129,7 +3132,6 @@ static int IDAAfindIndex(IDAMem ida_mem, realtype t,
 {
   IDAadjMem IDAADJ_mem;
   IDAMem IDA_mem;
-  static long int ilast;
   DtpntMem *dt_mem;
   int sign;
   booleantype to_left, to_right;
@@ -3145,21 +3147,21 @@ static int IDAAfindIndex(IDAMem ida_mem, realtype t,
 
   /* If this is the first time we use new data */
   if (IDAADJ_mem->ia_newData) {
-    ilast     = IDAADJ_mem->ia_np-1;
+    IDAADJ_mem->ia_ilast     = IDAADJ_mem->ia_np-1;
     *newpoint = SUNTRUE;
     IDAADJ_mem->ia_newData   = SUNFALSE;
   }
 
   /* Search for indx starting from ilast */
-  to_left  = ( sign*(t - dt_mem[ilast-1]->t) < ZERO);
-  to_right = ( sign*(t - dt_mem[ilast]->t)   > ZERO);
+  to_left  = ( sign*(t - dt_mem[IDAADJ_mem->ia_ilast-1]->t) < ZERO);
+  to_right = ( sign*(t - dt_mem[IDAADJ_mem->ia_ilast]->t)   > ZERO);
 
   if ( to_left ) {
     /* look for a new indx to the left */
 
     *newpoint = SUNTRUE;
     
-    *indx = ilast;
+    *indx = IDAADJ_mem->ia_ilast;
     for(;;) {
       if ( *indx == 0 ) break;
       if ( sign*(t - dt_mem[*indx-1]->t) <= ZERO ) (*indx)--;
@@ -3167,9 +3169,9 @@ static int IDAAfindIndex(IDAMem ida_mem, realtype t,
     }
 
     if ( *indx == 0 )
-      ilast = 1;
+      IDAADJ_mem->ia_ilast = 1;
     else
-      ilast = *indx;
+      IDAADJ_mem->ia_ilast = *indx;
 
     if ( *indx == 0 ) {
       /* t is beyond leftmost limit. Is it too far? */  
@@ -3183,18 +3185,18 @@ static int IDAAfindIndex(IDAMem ida_mem, realtype t,
 
     *newpoint = SUNTRUE;
 
-    *indx = ilast;
+    *indx = IDAADJ_mem->ia_ilast;
     for(;;) {
       if ( sign*(t - dt_mem[*indx]->t) > ZERO) (*indx)++;
       else                                     break;
     }
 
-    ilast = *indx;
+    IDAADJ_mem->ia_ilast = *indx;
 
   } else {
     /* ilast is still OK */
 
-    *indx = ilast;
+    *indx = IDAADJ_mem->ia_ilast;
 
   }
   return(IDA_SUCCESS);

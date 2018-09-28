@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  David Gardner and Slaven Peles @ LLNL
+# Programmer:  David Gardner, Slaven Peles, and Cody Balos @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
@@ -39,8 +39,14 @@ ENDIF()
 
 IF(CUDA_FOUND)
   ADD_SUBDIRECTORY(cuda)
+  IF(MPI_C_FOUND)
+    ADD_SUBDIRECTORY(mpicuda)
+  ENDIF()
 ENDIF()
 
 IF(RAJA_FOUND)
   ADD_SUBDIRECTORY(raja)
+  IF(MPI_C_FOUND)
+    ADD_SUBDIRECTORY(mpiraja)
+  ENDIF()
 ENDIF()

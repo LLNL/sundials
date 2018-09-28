@@ -3,8 +3,8 @@
 # ---------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Lawrence Livermore National Laboratory in part under
 # Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
@@ -28,19 +28,20 @@ SET(nvecparallel_SOURCES nvector_parallel.c)
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the NVECPARALLEL library
-SET(shared_SOURCES 
+SET(shared_SOURCES
   ${sundials_SOURCE_DIR}/src/sundials/sundials_math.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_mpi.c
   )
 
 # Add variable nvecparallel_HEADERS with the exported NVECPARALLEL header files
-SET(nvecparallel_HEADERS 
+SET(nvecparallel_HEADERS
   ${sundials_SOURCE_DIR}/include/nvector/nvector_parallel.h
   )
 
 # Add source directory to include directories
 INCLUDE_DIRECTORIES(.)
 
-# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY 
+# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
 ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 
 # Rules for building and installing the static library:
@@ -68,7 +69,7 @@ IF(BUILD_SHARED_LIBS)
 
   SET_TARGET_PROPERTIES(sundials_nvecparallel_shared
     PROPERTIES OUTPUT_NAME sundials_nvecparallel CLEAN_DIRECT_OUTPUT 1)
-  SET_TARGET_PROPERTIES(sundials_nvecparallel_shared 
+  SET_TARGET_PROPERTIES(sundials_nvecparallel_shared
     PROPERTIES VERSION ${nveclib_VERSION} SOVERSION ${nveclib_SOVERSION})
   INSTALL(TARGETS sundials_nvecparallel_shared DESTINATION lib)
 ENDIF(BUILD_SHARED_LIBS)

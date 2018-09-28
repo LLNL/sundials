@@ -2,6 +2,16 @@
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
+ * LLNS Copyright Start
+ * Copyright (c) 2017, Lawrence Livermore National Security
+ * This work was performed under the auspices of the U.S. Department 
+ * of Energy by Lawrence Livermore National Laboratory in part under 
+ * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see the LICENSE file.
+ * LLNS Copyright End
+ * -----------------------------------------------------------------
  * Example problem:
  *
  * An ODE system is generated from the following 2-species diurnal
@@ -543,7 +553,7 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
                N_Vector u, N_Vector fu,
                void *user_data, N_Vector tmp)
 {
-  realtype c1, c2, c1dn, c2dn, c1up, c2up, c1lt, c2lt, c1rt, c2rt;
+  realtype c1, c2;
   realtype v1, v2, v1dn, v2dn, v1up, v2up, v1lt, v2lt, v1rt, v2rt;
   realtype Jv1, Jv2;
   realtype cydn, cyup;
@@ -604,11 +614,6 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
       v1 = IJKth(vdata,1,jx,jy); 
       v2 = IJKth(vdata,2,jx,jy);
 
-      c1dn = IJKth(udata,1,jx,jy+idn);
-      c2dn = IJKth(udata,2,jx,jy+idn);
-      c1up = IJKth(udata,1,jx,jy+iup);
-      c2up = IJKth(udata,2,jx,jy+iup);
-
       v1dn = IJKth(vdata,1,jx,jy+idn);
       v2dn = IJKth(vdata,2,jx,jy+idn);
       v1up = IJKth(vdata,1,jx,jy+iup);
@@ -616,11 +621,6 @@ static int jtv(N_Vector v, N_Vector Jv, realtype t,
 
       ileft = (jx == 0) ? 1 : -1;
       iright =(jx == MX-1) ? -1 : 1;
-
-      c1lt = IJKth(udata,1,jx+ileft,jy); 
-      c2lt = IJKth(udata,2,jx+ileft,jy);
-      c1rt = IJKth(udata,1,jx+iright,jy);
-      c2rt = IJKth(udata,2,jx+iright,jy);
 
       v1lt = IJKth(vdata,1,jx+ileft,jy); 
       v2lt = IJKth(vdata,2,jx+ileft,jy);

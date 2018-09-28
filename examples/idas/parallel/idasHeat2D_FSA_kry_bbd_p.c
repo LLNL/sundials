@@ -3,6 +3,20 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2017, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
+ * This work was performed under the auspices of the U.S. Department 
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
+ * All rights reserved.
+ * For details, see the LICENSE file.
+ * LLNS/SMU Copyright End
+ * -----------------------------------------------------------------
  * Example problem for IDAS: FSA for 2D heat equation, parallel,
  * GMRES, IDABBDPRE.
  *
@@ -488,8 +502,10 @@ static int reslocal(sunindextype Nlocal, realtype tres,
   ixend   = mxsub-1;
   jybegin = 0;
   jyend   = mysub-1;
-  if (ixsub == 0) ixbegin++; if (ixsub == npex-1) ixend--;
-  if (jysub == 0) jybegin++; if (jysub == npey-1) jyend--;
+  if (ixsub == 0) ixbegin++;
+  if (ixsub == npex-1) ixend--;
+  if (jysub == 0) jybegin++;
+  if (jysub == npey-1) jyend--;
   
   /* Loop over all grid points in local subgrid. */
   

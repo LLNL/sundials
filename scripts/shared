@@ -31,6 +31,7 @@ $tar $tarfile $distrobase/config/SundialsCXX.cmake
 $tar $tarfile $distrobase/config/SundialsDeprecated.cmake
 $tar $tarfile $distrobase/config/SundialsFortran.cmake
 $tar $tarfile $distrobase/config/SundialsHypre.cmake
+$tar $tarfile $distrobase/config/SundialsIndexSize.cmake
 $tar $tarfile $distrobase/config/SundialsKLU.cmake
 $tar $tarfile $distrobase/config/SundialsLapack.cmake
 $tar $tarfile $distrobase/config/SundialsMPI.cmake
@@ -50,6 +51,7 @@ $tar $tarfile $distrobase/include/sundials/sundials_config.in
 $tar $tarfile $distrobase/include/sundials/sundials_fconfig.in
 $tar $tarfile $distrobase/include/sundials/sundials_types.h
 $tar $tarfile $distrobase/include/sundials/sundials_mpi_types.h
+$tar $tarfile $distrobase/include/sundials/sundials_mpi.h
 $tar $tarfile $distrobase/include/sundials/sundials_matrix.h
 $tar $tarfile $distrobase/include/sundials/sundials_linearsolver.h
 $tar $tarfile $distrobase/include/sundials/sundials_math.h
@@ -60,7 +62,6 @@ $tar $tarfile $distrobase/include/sundials/sundials_direct.h
 $tar $tarfile $distrobase/include/sundials/sundials_sparse.h
 $tar $tarfile $distrobase/include/sundials/sundials_band.h
 $tar $tarfile $distrobase/include/sundials/sundials_lapack.h
-$tar $tarfile $distrobase/include/sundials/sundials_mpi_types.h
 $tar $tarfile $distrobase/include/sundials/sundials_spgmr.h
 $tar $tarfile $distrobase/include/sundials/sundials_spfgmr.h
 $tar $tarfile $distrobase/include/sundials/sundials_spbcgs.h
@@ -80,7 +81,9 @@ $tar $tarfile $distrobase/include/nvector/nvector_petsc.h
 $tar $tarfile $distrobase/include/nvector/nvector_pthreads.h
 $tar $tarfile $distrobase/include/nvector/nvector_openmp.h
 $tar $tarfile $distrobase/include/nvector/nvector_cuda.h
+$tar $tarfile $distrobase/include/nvector/nvector_mpicuda.h
 $tar $tarfile $distrobase/include/nvector/nvector_raja.h
+$tar $tarfile $distrobase/include/nvector/nvector_mpiraja.h
 $tar $tarfile $distrobase/include/nvector/cuda/ThreadPartitioning.hpp
 $tar $tarfile $distrobase/include/nvector/cuda/Vector.hpp
 $tar $tarfile $distrobase/include/nvector/cuda/VectorKernels.cuh
@@ -112,6 +115,7 @@ $tar $tarfile $distrobase/src/CMakeLists.txt
 $tar $tarfile $distrobase/src/sundials/CMakeLists.txt
 $tar $tarfile $distrobase/src/sundials/sundials_math.c
 $tar $tarfile $distrobase/src/sundials/sundials_matrix.c
+$tar $tarfile $distrobase/src/sundials/sundials_mpi.c
 $tar $tarfile $distrobase/src/sundials/sundials_linearsolver.c
 $tar $tarfile $distrobase/src/sundials/sundials_nvector.c
 $tar $tarfile $distrobase/src/sundials/sundials_dense.c
@@ -321,8 +325,12 @@ $tar $tarfile $distrobase/examples/nvector/pthreads/test_nvector_pthreads.c
 $tar $tarfile $distrobase/examples/nvector/pthreads/CMakeLists.txt
 $tar $tarfile $distrobase/examples/nvector/cuda/test_nvector_cuda.cu
 $tar $tarfile $distrobase/examples/nvector/cuda/CMakeLists.txt
+$tar $tarfile $distrobase/examples/nvector/mpicuda/test_nvector_mpicuda.cu
+$tar $tarfile $distrobase/examples/nvector/mpicuda/CMakeLists.txt
 $tar $tarfile $distrobase/examples/nvector/raja/test_nvector_raja.cu
 $tar $tarfile $distrobase/examples/nvector/raja/CMakeLists.txt
+$tar $tarfile $distrobase/examples/nvector/mpiraja/test_nvector_mpiraja.cu
+$tar $tarfile $distrobase/examples/nvector/mpiraja/CMakeLists.txt
 $tar $tarfile $distrobase/examples/nvector/test_nvector.c
 $tar $tarfile $distrobase/examples/nvector/test_nvector.h
 

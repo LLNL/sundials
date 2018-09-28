@@ -50,6 +50,11 @@
  */
 @INDEX_TYPE@
 
+/* Define the type of vector indices in SUNDIALS 'sunindextype'.
+ * The macro will be defined with a type of the appropriate size.
+ */
+#define SUNDIALS_INDEX_TYPE @SUNDIALS_CINDEX_TYPE@
+
 /* Use generic math functions 
  * If it was decided that generic math functions can be used, then
  *     #define SUNDIALS_USE_GENERIC_MATH
@@ -79,6 +84,11 @@
  *     #define SUNDIALS_KLU 
  */
 #cmakedefine SUNDIALS_KLU
+
+/* Set if SUNDIALS is built with MPI support.
+ * 
+ */
+@IS_MPI_ENABLED@
 
 /* FNVECTOR: Allow user to specify different MPI communicator
  * If it was found that the MPI implementation supports MPI_Comm_f2c, then

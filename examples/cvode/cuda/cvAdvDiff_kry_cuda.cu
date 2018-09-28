@@ -2,9 +2,19 @@
  * -----------------------------------------------------------------
  * Programmer(s): Slaven Peles @ LLNL
  * -----------------------------------------------------------------
- * Acknowledgements: This example is based on cvAdvDiff_bnd 
- *                   example by Scott D. Cohen, Alan C. 
+ * Acknowledgements: This example is based on cvAdvDiff_bnd
+ *                   example by Scott D. Cohen, Alan C.
  *                   Hindmarsh and Radu Serban @ LLNL
+ * -----------------------------------------------------------------
+ * LLNS Copyright Start
+ * Copyright (c) 2017, Lawrence Livermore National Security
+ * This work was performed under the auspices of the U.S. Department 
+ * of Energy by Lawrence Livermore National Laboratory in part under 
+ * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see the LICENSE file.
+ * LLNS Copyright End
  * -----------------------------------------------------------------
  * Example problem:
  *
@@ -67,11 +77,11 @@ __global__ void fKernel(const realtype *u, realtype *udot,
 
   /* Loop over all grid points. */
   tid = blockDim.x * blockIdx.x + threadIdx.x;
-  
+
   if (tid < MX*MY) {
     i = tid/MY;
     j = tid%MY;
-    
+
     uij = u[tid];
     udn = (j ==    0) ? ZERO : u[tid - 1];
     uup = (j == MY-1) ? ZERO : u[tid + 1];
@@ -79,7 +89,7 @@ __global__ void fKernel(const realtype *u, realtype *udot,
     urt = (i == MX-1) ? ZERO : u[tid + MY];
 
     /* Set diffusion and advection terms and load into udot */
-    
+
     hdiff = hordc*(ult - TWO*uij + urt);
     hadv  = horac*(urt - ult);
     vdiff = verdc*(uup - TWO*uij + udn);
@@ -96,13 +106,13 @@ __global__ void jtvKernel(const realtype *vdata, realtype *Jvdata,
 
   /* Loop over all grid points. */
   tid = blockDim.x * blockIdx.x + threadIdx.x;
-  
+
   if (tid < MX*MY) {
-      
+
     i = tid/MY;
     j = tid%MY;
-      
-      
+
+
     /* set the tid-th element of Jv */
 
     Jvdata[tid] = -TWO*(verdc+hordc) * vdata[tid];

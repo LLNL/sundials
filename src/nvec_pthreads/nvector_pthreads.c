@@ -2229,25 +2229,14 @@ static void *N_VConstrMask_PT(void *thread_data)
   for (i = start; i < end; i++) {
     md[i] = ZERO;
 
-    /* c[i] = 0, do nothing */
+    /* Continue if no constraints were set for the variable */
     if (cd[i] == ZERO)
       continue;
 
-    /* c[i] = +/- 2, check x[i] > or < 0 */
-    if (cd[i] > ONEPT5 || cd[i] < -ONEPT5) {
-      if (xd[i]*cd[i] <= ZERO) {
-	local_val = ONE;
-	md[i] = ONE;
-      }
-      continue;
-    }
-
-    /* c[i] = +/- 1, check x[i] >= or <= 0 */
-    if (cd[i] > HALF || cd[i] < -HALF) {
-      if (xd[i]*cd[i] < ZERO) {
-	local_val = ONE;
-	md[i] = ONE;
-      }
+    /* Check if a set constraint has been violated */
+    if ((SUNRabs(cd[i]) > ONEPT5 && xd[i]*cd[i] <= ZERO) ||
+        (SUNRabs(cd[i]) > HALF   && xd[i]*cd[i] <  ZERO)) {
+      local_val = md[i] = ONE;
     }
   }
 
