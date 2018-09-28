@@ -180,7 +180,7 @@ typedef int (*ARKLocalFn)(sunindextype Nlocal, realtype t,
  unrecoverable error occurred.
 ---------------------------------------------------------------*/
 typedef int (*ARKCommFn)(sunindextype Nlocal, realtype t, 
-			 N_Vector y, void *user_data);
+                         N_Vector y, void *user_data);
 
 
 /*---------------------------------------------------------------
@@ -225,12 +225,12 @@ typedef int (*ARKCommFn)(sunindextype Nlocal, realtype t,
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKBBDPrecInit(void *arkode_mem, 
                                    sunindextype Nlocal, 
-				   sunindextype mudq, 
+                                   sunindextype mudq, 
                                    sunindextype mldq, 
-				   sunindextype mukeep, 
+                                   sunindextype mukeep, 
                                    sunindextype mlkeep, 
-				   realtype dqrely,
-				   ARKLocalFn gloc,
+                                   realtype dqrely,
+                                   ARKLocalFn gloc,
                                    ARKCommFn cfn);
 
 
@@ -255,7 +255,7 @@ SUNDIALS_EXPORT int ARKBBDPrecInit(void *arkode_mem,
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKBBDPrecReInit(void *arkode_mem, 
                                      sunindextype mudq, 
-				     sunindextype mldq, 
+                                     sunindextype mldq, 
                                      realtype dqrely);
 
 
@@ -274,10 +274,10 @@ SUNDIALS_EXPORT int ARKBBDPrecReInit(void *arkode_mem,
 ---------------------------------------------------------------*/
 
 SUNDIALS_EXPORT int ARKBBDPrecGetWorkSpace(void *arkode_mem, 
-					   long int *lenrwLS, 
-					   long int *leniwLS);
+                                           long int *lenrwLS, 
+                                           long int *leniwLS);
 SUNDIALS_EXPORT int ARKBBDPrecGetNumGfnEvals(void *arkode_mem, 
-					     long int *ngevalsBBDP);
+                                             long int *ngevalsBBDP);
 
 #ifdef __cplusplus
 }

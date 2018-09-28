@@ -3,20 +3,333 @@
 %%
 
 The {\sptfqmr} (Scaled, Preconditioned, Transpose-Free Quasi-Minimum
-Residual \cite{Fre:93}) implementation of the {\sunlinsol} module 
+Residual \cite{Fre:93}) implementation of the {\sunlinsol} module
 provided with {\sundials}, {\sunlinsolsptfqmr}, is an iterative linear
 solver that is designed to be compatible with any {\nvector}
 implementation (serial, threaded, parallel, and user-supplied) that
-supports a minimal subset of operations (\id{N\_VClone}, 
+supports a minimal subset of operations (\id{N\_VClone},
 \id{N\_VDotProd}, \id{N\_VScale}, \id{N\_VLinearSum}, \id{N\_VProd},
 \id{N\_VConst}, \id{N\_VDiv}, and \id{N\_VDestroy}).  Unlike the
 {\spgmr} and {\spfgmr} algorithms, {\sptfqmr} requires a fixed amount of
 memory that does not increase with the number of allowed iterations.
 
+%---------------------------------------------------------------------------
+\subsection{{\sunlinsolsptfqmr} usage}\label{ss:sunlinsol_sptfqmr_usage}
+
+The header file to include when using this module
+is \id{sunlinsol/sunlinsol\_sptfqmr.h}. The {\sunlinsolsptfqmr} module
+is accessible from all {\sundials} solvers \textit{without}
+linking to the \\ \noindent
+\id{libsundials\_sunlinsolsptfqmr} module library.
+
+
+The module {\sunlinsolsptfqmr} provides the following
+user-callable routines:
+% --------------------------------------------------------------------
+\ucfunction{SUNLinSol\_SPTFQMR}
+{
+  LS = SUNLinSol\_SPTFQMR(y, pretype, maxl);
+}
+{
+  The function \ID{SUNLinSol\_SPTFQMR} creates and allocates memory for
+  a {\sptfqmr} \id{SUNLinearSolver}.
+}
+{
+  \begin{args}[pretype]
+  \item[y] (\id{N\_Vector})
+    a template for cloning vectors needed within the solver
+  \item[pretype] (\id{int})
+    flag indicating the desired type of preconditioning, allowed
+    values are:
+    \begin{itemize}
+    \item \id{PREC\_NONE} (0)
+    \item \id{PREC\_LEFT} (1)
+    \item \id{PREC\_RIGHT} (2)
+    \item \id{PREC\_BOTH} (3)
+    \end{itemize}
+    Any other integer input will result in the default (no
+    preconditioning).
+  \item[maxl] (\id{int})
+    the number of linear iterations to allow; values $\le0$ will
+    result in the default value (5).
+  \end{args}
+}
+{
+  This returns a \id{SUNLinearSolver} object.  If either \id{y} is
+  incompatible then this routine will return \id{NULL}.
+}
+{
+  This routine will perform consistency checks to ensure that it is
+  called with a consistent {\nvector} implementation (i.e.~that it
+  supplies the requisite vector operations).  If \id{y} is
+  incompatible, then this routine will return \id{NULL}.
+
+  We note that some {\sundials} solvers are designed to only work
+  with left preconditioning ({\ida} and {\idas}) and others with only
+  right preconditioning ({\kinsol}). While it is possible to configure
+  a {\sunlinsolsptfqmr} object to use any of the preconditioning options
+  with these solvers, this use mode is not supported and may result in
+  inferior performance.
+}
+% --------------------------------------------------------------------
+\ucfunction{SUNLinSol\_SPTFQMRSetPrecType}
+{
+  retval = SUNLinSol\_SPTFQMRSetPrecType(LS, pretype);
+}
+{
+  The function \ID{SUNLinSol\_SPTFQMRSetPrecType} updates the type of
+  preconditioning to use in the {\sunlinsolsptfqmr} object.
+}
+{
+  \begin{args}[pretype]
+  \item[LS] (\id{SUNLinearSolver})
+    the {\sunlinsolsptfqmr} object to update
+  \item[pretype] (\id{int})
+    flag indicating the desired type of preconditioning, allowed
+    values match those discussed in \id{SUNLinSol\_SPTFQMR}.
+  \end{args}
+}
+{
+  This routine will return with one of the error codes
+  \id{SUNLS\_ILL\_INPUT} (illegal \id{pretype}), \id{SUNLS\_MEM\_NULL}
+  (\id{S} is \id{NULL}) or \id{SUNLS\_SUCCESS}.
+}
+{
+}
+% --------------------------------------------------------------------
+\ucfunction{SUNLinSol\_SPTFQMRSetMaxl}
+{
+  retval = SUNLinSol\_SPTFQMRSetMaxl(LS, maxl);
+}
+{
+  The function \ID{SUNLinSol\_SPTFQMRSetMaxl} updates the number of
+  linear solver iterations to allow.
+}
+{
+  \begin{args}[maxl]
+  \item[LS] (\id{SUNLinearSolver})
+    the {\sunlinsolsptfqmr} object to update
+  \item[maxl] (\id{int})
+    flag indicating the number of iterations to allow; values $\le0$
+    will result in the default value (5)
+  \end{args}
+}
+{
+  This routine will return with one of the error codes
+  \id{SUNLS\_MEM\_NULL} (\id{S} is \id{NULL}) or \id{SUNLS\_SUCCESS}.
+}
+{
+}
+% --------------------------------------------------------------------
+%%
+For backwards compatibility, we also provide the wrapper functions,
+each with identical input and output arguments to the routines that
+they wrap:
+\begin{itemize}
+
+\item \ID{SUNSPTFQMR}
+
+  Wrapper function for \ID{SUNLinSol\_SPTFQMR}
+
+\item \ID{SUNSPTFQMRSetPrecType}
+
+  Wrapper function for \ID{SUNLinSol\_SPTFQMRSetPrecType}
+
+\item \ID{SUNSPTFQMRSetMaxl}
+
+  Wrapper function for \ID{SUNLinSol\_SPTFQMRSetMaxl}
+
+\end{itemize}
+%%
+%%------------------------------------
+%%
+For solvers that include a Fortran interface module, the
+{\sunlinsolsptfqmr} module also includes a Fortran-callable function
+for creating a \id{SUNLinearSolver} object.
+% --------------------------------------------------------------------
+\ucfunction{FSUNSPTFQMRINIT}
+{
+  FSUNSPTFQMRINIT(code, pretype, maxl, ier)
+}
+{
+  The function \ID{FSUNSPTFQMRINIT} can be called for Fortran programs
+  to create a {\sunlinsolsptfqmr} object.
+}
+{
+  \begin{args}[pretype]
+  \item[code] (\id{int*})
+    is an integer input specifying the solver id (1 for {\cvode}, 2
+    for {\ida}, 3 for {\kinsol}, and 4 for {\arkode}).
+  \item[pretype] (\id{int*})
+    flag indicating desired preconditioning type
+  \item[maxl] (\id{int*})
+    flag indicating number of iterations to allow
+  \end{args}
+}
+{
+  \id{ier} is a return completion flag equal to \id{0} for a success
+  return and \id{-1} otherwise. See printed message for details in case
+  of failure.
+}
+{
+  This routine must be called \emph{after} the {\nvector} object has
+  been initialized.
+
+  Allowable values for \id{pretype} and \id{maxl} are the same as for
+  the C function \ID{SUNLinSol\_SPTFQMR}.
+}
+% --------------------------------------------------------------------
+Additionally, when using
+{\arkode} with a non-identity mass matrix, the {\sunlinsolsptfqmr} module
+includes a Fortran-callable function for creating a
+\id{SUNLinearSolver} mass matrix solver object.
+% --------------------------------------------------------------------
+\ucfunction{FSUNMASSSPTFQMRINIT}
+{
+  FSUNMASSSPTFQMRINIT(pretype, maxl, ier)
+}
+{
+  The function \ID{FSUNMASSSPTFQMRINIT} can be called for Fortran programs
+  to create a {\sunlinsolsptfqmr} object for mass matrix linear systems.
+}
+{
+  \begin{args}[pretype]
+  \item[pretype] (\id{int*})
+    flag indicating desired preconditioning type
+  \item[maxl] (\id{int*})
+    flag indicating number of iterations to allow
+  \end{args}
+}
+{
+  \id{ier} is a \id{int} return completion flag equal to \id{0} for a success
+  return and \id{-1} otherwise. See printed message for details in case
+  of failure.
+}
+{
+  This routine must be called \emph{after} the {\nvector} object has
+  been initialized.
+
+  Allowable values for \id{pretype} and \id{maxl} are the same as for
+  the C function \ID{SUNLinSol\_SPTFQMR}.
+}
+% --------------------------------------------------------------------
+The \id{SUNLinSol\_SPTFQMRSetPrecType} and
+\id{SUNLinSol\_SPTFQMRSetMaxl} routines also support Fortran
+interfaces for the system and mass matrix solvers.
+
+
+% --------------------------------------------------------------------
+\ucfunction{FSUNSPTFQMRSETPRECTYPE}
+{
+  FSUNSPTFQMRSETPRECTYPE(code, pretype, ier)
+}
+{
+  The function \ID{FSUNSPTFQMRSETPRECTYPE} can be called for Fortran
+  programs to change the type of preconditioning to use.
+}
+{
+  \begin{args}[pretype]
+  \item[code] (\id{int*})
+    is an integer input specifying the solver id (1 for {\cvode}, 2
+    for {\ida}, 3 for {\kinsol}, and 4 for {\arkode}).
+  \item[pretype] (\id{int*})
+    flag indication the type of preconditioning to use.
+  \end{args}
+}
+{
+  \id{ier} is a \id{int} return completion flag equal to \id{0} for a success
+  return and \id{-1} otherwise. See printed message for details in case
+  of failure.
+}
+{
+  See \id{SUNLinSol\_SPTFQMRSetPrecType} for complete further documentation of
+  this routine.
+}
+% --------------------------------------------------------------------
+\ucfunction{FSUNMASSSPTFQMRSETPRECTYPE}
+{
+  FSUNMASSSPTFQMRSETPRECTYPE(pretype, ier)
+}
+{
+  The function \ID{FSUNMASSSPTFQMRSETPRECTYPE} can be called for Fortran
+  programs to change the type of preconditioning for mass matrix
+  linear systems.
+}
+{
+  The arguments are identical to \id{FSUNSPTFQMRSETPRECTYPE} above,
+  except that \id{code} is not needed since mass matrix linear systems
+  only arise in {\arkode}.
+}
+{
+  \id{ier} is a \id{int} return completion flag equal to \id{0} for a success
+  return and \id{-1} otherwise. See printed message for details in case
+  of failure.
+}
+{
+  See \id{SUNLinSol\_SPTFQMRSetPrecType} for complete further documentation of
+  this routine.
+}
+% --------------------------------------------------------------------
+\ucfunction{FSUNSPTFQMRSETMAXL}
+{
+  FSUNSPTFQMRSETMAXL(code, maxl, ier)
+}
+{
+  The function \ID{FSUNSPTFQMRSETMAXL} can be called for Fortran
+  programs to change the maximum number of iterations to allow.
+}
+{
+  \begin{args}[maxl]
+  \item[code] (\id{int*})
+    is an integer input specifying the solver id (1 for {\cvode}, 2
+    for {\ida}, 3 for {\kinsol}, and 4 for {\arkode}).
+  \item[maxl] (\id{int*})
+    the number of iterations to allow
+  \end{args}
+}
+{
+  \id{ier} is a \id{int} return completion flag equal to \id{0} for a success
+  return and \id{-1} otherwise. See printed message for details in case
+  of failure.
+}
+{
+  See \id{SUNLinSol\_SPTFQMRSetMaxl} for complete further documentation of
+  this routine.
+}
+% --------------------------------------------------------------------
+\ucfunction{FSUNMASSSPTFQMRSETMAXL}
+{
+  FSUNMASSSPTFQMRSETMAXL(maxl, ier)
+}
+{
+  The function \ID{FSUNMASSSPTFQMRSETMAXL} can be called for Fortran
+  programs to change the type of preconditioning for mass matrix
+  linear systems.
+}
+{
+  The arguments are identical to \id{FSUNSPTFQMRSETMAXL} above, except that
+  \id{code} is not needed since mass matrix linear systems only arise
+  in {\arkode}.
+}
+{
+  \id{ier} is a \id{int} return completion flag equal to \id{0} for a success
+  return and \id{-1} otherwise. See printed message for details in case
+  of failure.
+}
+{
+  See \id{SUNLinSol\_SPTFQMRSetMaxl} for complete further documentation of
+  this routine.
+}
+% --------------------------------------------------------------------
+
+%---------------------------------------------------------------------------
+\subsection{{\sunlinsolsptfqmr} description}\label{ss:sunlinsol_sptfqmr_description}
+
+
 The {\sunlinsolsptfqmr} module defines the {\em content} field of a
 \id{SUNLinearSolver} to be the following structure:
 %%
-\begin{verbatim} 
+\begin{verbatim}
 struct _SUNLinearSolverContent_SPTFQMR {
   int maxl;
   int pretype;
@@ -76,12 +389,12 @@ This solver is constructed to perform the following operations:
 \item User-facing ``set'' routines may be called to modify default
   solver parameters.
 \item Additional ``set'' routines are called by the {\sundials} solver
-  that interfaces with {\sunlinsolsptfqmr} to supply the 
+  that interfaces with {\sunlinsolsptfqmr} to supply the
   \id{ATimes}, \id{PSetup}, and \id{Psolve} function pointers and
   \id{s1} and \id{s2} scaling vectors.
 \item In the ``initialize'' call, the solver parameters are checked
   for validity.
-\item In the ``setup'' call, any non-\id{NULL} 
+\item In the ``setup'' call, any non-\id{NULL}
   \id{PSetup} function is called.  Typically, this is provided by
   the {\sundials} solver itself, that translates between the
   generic \id{PSetup} function and the
@@ -91,19 +404,13 @@ This solver is constructed to perform the following operations:
   supplied.
 \end{itemize}
 
-\noindent The header file to include when using this module 
-is \id{sunlinsol/sunlinsol\_sptfqmr.h}. The {\sunlinsolsptfqmr} module
-is accessible from all {\sundials} solvers \textit{without}
-linking to the \\
-\id{libsundials\_sunlinsolsptfqmr} module library. \\
-
 %%
 %%----------------------------------------------
 %%
 
 \noindent The {\sunlinsolsptfqmr} module defines implementations of all
-``iterative'' linear solver operations listed in Table
-\ref{t:sunlinsolops}:
+``iterative'' linear solver operations listed in Sections
+\ref{ss:sunlinsol_CoreFn}-\ref{ss:sunlinsol_GetFn}:
 \begin{itemize}
 \item \id{SUNLinSolGetType\_SPTFQMR}
 \item \id{SUNLinSolInitialize\_SPTFQMR}
@@ -118,95 +425,4 @@ linking to the \\
 \item \id{SUNLinSolLastFlag\_SPTFQMR}
 \item \id{SUNLinSolSpace\_SPTFQMR}
 \item \id{SUNLinSolFree\_SPTFQMR}
-\end{itemize}
-The module {\sunlinsolsptfqmr} provides the following additional
-user-callable routines: 
-%%
-\begin{itemize}
-
-%%--------------------------------------
-
-\item \ID{SUNSPTFQMR}
-
-  This constructor function creates and allocates memory for a {\sptfqmr}
-  \id{SUNLinearSolver}.  Its arguments are an {\nvector}, the desired
-  type of preconditioning, and the number of linear iterations to
-  allow.
-
-  This routine will perform consistency checks to ensure that it is
-  called with a consistent {\nvector} implementation (i.e.~that it
-  supplies the requisite vector operations).  If \id{y} is
-  incompatible, then this routine will return \id{NULL}.
-
-  A \id{maxl} argument that is $\le0$ will result in the default
-  value (5).
-
-  Allowable inputs for \id{pretype} are \id{PREC\_NONE} (0),
-  \id{PREC\_LEFT} (1), \id{PREC\_RIGHT} (2) and \id{PREC\_BOTH} (3);
-  any other integer input will result in the default (no
-  preconditioning).
-  We note that some {\sundials} solvers are designed to only work
-  with left preconditioning ({\ida} and {\idas}) and others with only
-  right preconditioning ({\kinsol}). While it is possible to configure
-  a {\sunlinsolsptfqmr} object to use any of the preconditioning options
-  with these solvers, this use mode is not supported and may result in
-  inferior performance.
-
-  \verb|SUNLinearSolver SUNSPTFQMR(N_Vector y, int pretype, int maxl);|
-
-%%--------------------------------------
-
-\item \ID{SUNSPTFQMRSetPrecType}
-
-  This function updates the type of preconditioning to use.  Supported
-  values are \id{PREC\_NONE} (0), \id{PREC\_LEFT} (1),
-  \id{PREC\_RIGHT} (2), and \id{PREC\_BOTH} (3).  
-
-  This routine will return with one of the error codes
-  \id{SUNLS\_ILL\_INPUT} (illegal \id{pretype}), \id{SUNLS\_MEM\_NULL}
-  (\id{S} is \id{NULL}), or \id{SUNLS\_SUCCESS}.
-  
-  \verb|int SUNSPTFQMRSetPrecType(SUNLinearSolver S, int pretype);|
-
-%%--------------------------------------
-
-\item \ID{SUNSPTFQMRSetMaxl}
-
-  This function updates the number of linear solver iterations to allow.  
-
-  A \id{maxl} argument that is $\le0$ will result in the default
-  value (5).
-
-  This routine will return with one of the error codes
-  \id{SUNLS\_MEM\_NULL} (\id{S} is \id{NULL}) or \id{SUNLS\_SUCCESS}.
-  
-  \verb|int SUNSPTFQMRSetMaxl(SUNLinearSolver S, int maxl);|
-
-\end{itemize}
-%%
-%%------------------------------------
-%%
-For solvers that include a Fortran interface module, the
-{\sunlinsolsptfqmr} module also includes the Fortran-callable
-function \id{FSUNSPTFQMRInit(code, pretype, maxl, ier)} to initialize
-this {\sunlinsolsptfqmr} module for a given {\sundials} solver.
-Here \id{code} is an integer input solver id (1 for {\cvode}, 2 for {\ida}, 3
-for {\kinsol}, 4 for {\arkode}); \id{pretype} and \id{maxl} are the
-same as for the C function \ID{SUNSPTFQMR}; \id{ier} is an error return
-flag equal to 0 for success and -1 for failure.  All of these input
-arguments should be declared so as to match C type \id{int}.  This
-routine must be called \emph{after} the {\nvector} object has been
-initialized.  Additionally, when using {\arkode} with a non-identity
-mass matrix, the Fortran-callable function 
-\id{FSUNMassSPTFQMRInit(pretype, maxl, ier)} initializes this
-{\sunlinsolsptfqmr} module for solving mass matrix linear systems.
-
-The \id{SUNSPTFQMRSetPrecType} and \id{SUNSPTFQMRSetMaxl} routines also
-support Fortran interfaces for the system and mass matrix solvers (all
-arguments should be commensurate with a C \id{int}):
-\begin{itemize}
-\item \id{FSUNSPTFQMRSetPrecType(code, pretype, ier)} 
-\item \id{FSUNMassSPTFQMRSetPrecType(pretype, ier)}
-\item \id{FSUNSPTFQMRSetMaxl(code, maxl, ier)}
-\item \id{FSUNMassSPTFQMRSetMaxl(maxl, ier)}
 \end{itemize}

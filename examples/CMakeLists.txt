@@ -168,3 +168,6 @@ ADD_SUBDIRECTORY(sunmatrix)
 
 # Add the sunlinearsolver examples
 ADD_SUBDIRECTORY(sunlinsol)
+
+# Add the sunnonlinearsolver examples
+ADD_SUBDIRECTORY(sunnonlinsol)

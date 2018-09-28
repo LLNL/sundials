@@ -13,13 +13,13 @@ stands for Implicit Differential-Algebraic solver with Sensitivity capabilities.
 {\idas} is an extension of the {\ida} solver within {\sundials}, itself 
 based on {\daspk}~\cite{BHP:94,BHP:98}; however, like all {\sundials} solvers,
 {\idas} is written in ANSI-standard C rather than {\F}77.  
-Its most notable features are that, 
-(1) in the solution of the underlying nonlinear system at each time step, it 
-offers a choice of Newton/direct methods and a choice of Inexact Newton/Krylov
-(iterative) methods;
+Its most notable features are that,
+(1) in the solution of the underlying nonlinear system at each time
+step, it offers a choice of Newton/direct methods and a choice of
+Inexact Newton/Krylov (iterative) methods;
 (2) it is written in a {\em data-independent} manner in that it acts
-on generic vectors without any assumptions on the underlying organization
-of the data; and
+on generic vectors and matrices without any assumptions on the
+underlying organization of the data; and
 (3) it provides a flexible, extensible framework for sensitivity analysis,
 using either {\em forward} or {\em adjoint} methods.
 Thus {\idas} shares significant modules previously written within CASC
@@ -87,6 +87,37 @@ in extended {\F}.
 
 \section{Changes from previous versions}
 
+\subsection*{Changes in v3.0.0-dev.2}
+
+The names of all constructor routines for {\sundials}-provided
+{\sunlinsol} implementations have been updated to
+\id{SUNLinSol\_Band},
+\id{SUNLinSol\_Dense},
+\id{SUNLinSol\_KLU},
+\id{SUNLinSol\_LapackBand},
+\id{SUNLinSol\_LapackDense},
+\id{SUNLinSol\_PCG},
+\id{SUNLinSol\_SPBCGS},
+\id{SUNLinSol\_SPFGMR},
+\id{SUNLinSol\_SPGMR},
+\id{SUNLinSol\_SPTFQMR}, and
+\id{SUNLinSol\_SuperLUMT}.  Solver-specific ``set'' routine names have
+been similarly standardized.  While the previous routine names may
+still be used, these will be deprecated in future releases, so we
+recommend that users migrate to the new names soon.
+
+{\idas} was updated to use the {\sunnonlinsol} API. By default {\idas} uses the
+{\sunnonlinsolnewton} module implementation of a Newton iteration. Since {\idas}
+previously only used an internal implementation of a Newton iteration for
+nonlinear solves, no changes are required to user programs and functions for
+setting the nonlinear solver options (e.g., \id{IDASetMaxNonlinIters}) or
+getting nonlinear solver statistics (e.g., \id{IDAGetNumNonlinSolvIters}) remain
+unchanged and internally call generic {\sunnonlinsol} functions.
+
+\subsection*{Changes in v3.0.0-dev.1}
+
+No changes were made to {\idas} in this release.
+
 \subsection*{Changes in v3.0.0-dev}
 
 Three fused vector operations and seven vector array operations have
@@ -131,6 +162,31 @@ name-mangling scheme and bypass trying to infer the
 scheme. Additionally, parts of the main CMakeLists.txt file were moved
 to new files in the \id{src} and \id{example} directories to make the
 CMake configuration file structure more modular.
+
+\subsection*{Changes in v2.1.2}
+
+The changes in this minor release include the following:
+\begin{itemize}
+\item Updated the minimum required version of CMake to 2.8.12 and enabled
+  using rpath by default to locate shared libraries on OSX.
+\item Fixed Windows specific problem where \id{sunindextype} was not correctly 
+  defined when using 64-bit integers for the {\sundials} index type. On Windows
+  \id{sunindextype} is now defined as the MSVC basic type \id{\_\_int64}.
+\item Added sparse SUNMatrix ``Reallocate'' routine to allow specification of
+  the nonzero storage.
+\item Updated the KLU SUNLinearSolver module to set constants for the two
+  reinitialization types, and fixed a bug in the full reinitialization
+  approach where the sparse SUNMatrix pointer would go out of scope on
+  some architectures.
+\item Updated the ``ScaleAdd'' and ``ScaleAddI'' implementations in the
+  sparse SUNMatrix module to more optimally handle the case where the
+  target matrix contained sufficient storage for the sum, but had the
+  wrong sparsity pattern.  The sum now occurs in-place, by performing
+  the sum backwards in the existing storage.  However, it is still more
+  efficient if the user-supplied Jacobian routine allocates storage for
+  the sum $I+\gamma J$ manually (with zero entries if needed).
+\item Changed the LICENSE install path to \id{instdir/include/sundials}.
+\end{itemize}
 
 \subsection*{Changes in v2.1.1}
 
@@ -272,10 +328,11 @@ Corrections and additions were made to the examples,
 to installation-related files,
 and to the user documentation.
 
+
 \subsection*{Changes in v1.3.0}
 
 Two additional {\nvector} implementations were added -- one for
-Hypre (parallel) ParVector vectors, and one for PetSC vectors.  These
+Hypre (parallel) ParVector vectors, and one for PETSc vectors.  These
 additions are accompanied by additions to various interface functions
 and to user documentation.
 
@@ -309,7 +366,7 @@ dot product.  Various additions and corrections were made to the
 interfaces to the sparse solvers KLU and SuperLU\_MT, including support
 for CSR format when using KLU.
 
-New examples were added for use of the openMP vector and for use of 
+New examples were added for use of the OpenMP vector and for use of 
 sparse direct solvers within sensitivity integrations.
 
 Minor corrections and additions were made to the {\idas} solver, to the
@@ -362,7 +419,7 @@ In the User Guide, a paragraph was added in Section 6.2.1 on
 \id{IDAGetAdjY}.
 
 Two new {\nvector} modules have been added for thread-parallel computing
-environments --- one for openMP, denoted \id{NVECTOR\_OPENMP},
+environments --- one for OpenMP, denoted \id{NVECTOR\_OPENMP},
 and one for Pthreads, denoted \id{NVECTOR\_PTHREADS}.
 
 With this version of {\sundials}, support and documentation of the
@@ -468,6 +525,9 @@ Chapter \ref{s:sunmatrix} gives a brief overview of the generic
 %% \item
 %%   Chapter \ref{s:gen_linsolv} describes in detail the generic linear
 %%   solvers shared by all {\sundials} solvers.
+\item
+  Chapter \ref{c:sunnonlinsol} describes the {\sunnonlinsol} API and nonlinear
+  solver implementations shared among the various components of {\sundials}.
 \item
   Finally, in the appendices, we provide detailed instructions for the installation
   of {\idas}, within the structure of {\sundials} (Appendix \ref{c:install}), as

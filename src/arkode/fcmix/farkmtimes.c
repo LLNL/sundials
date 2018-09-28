@@ -16,17 +16,17 @@
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
  * The C functions FARKMTSetup and FARKMtimes are to interface 
- * between the ARKSPILS and ARKSPILSMASS modules and the 
- * user-supplied mass-matrix-vector setup/product routines
- * FARKMTSETUP and FARKJTIMES. Note the use of the generic names
- * FARK_MTSETUP and FARK_MTIMES in the code below.
+ * between the ARKLS and ARKLSMASS modules and the user-supplied 
+ * mass-matrix-vector setup/product routines FARKMTSETUP and 
+ * FARKJTIMES. Note the use of the generic names FARK_MTSETUP 
+ * and FARK_MTIMES in the code below.
  *--------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include "farkode.h"
 #include "arkode_impl.h"
-#include <arkode/arkode_spils.h>
+#include <arkode/arkode_arkstep.h>
 
 /*=============================================================*/
 
@@ -39,7 +39,7 @@ extern "C" {
   extern void FARK_MTSETUP(realtype *T, long int *IPAR, 
                            realtype *RPAR, int *IER);
   extern void FARK_MTIMES(realtype *V, realtype *MV, realtype *T, 
-			  long int *IPAR, realtype *RPAR, int *IER);
+                          long int *IPAR, realtype *RPAR, int *IER);
 
 #ifdef __cplusplus
 }
@@ -47,14 +47,20 @@ extern "C" {
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKSpilsSetMassTimes; see 
+/* ---DEPRECATED---
+   Fortran interface to C routine ARKStepSetMassTimes; see 
    farkode.h for further information */
 void FARK_SPILSSETMASS(int *ier)
+{ FARK_LSSETMASS(ier); }
+
+/* Fortran interface to C routine ARKStepSetMassTimes; see 
+   farkode.h for further information */
+void FARK_LSSETMASS(int *ier)
 {
   ARKodeMem ark_mem;
   ark_mem = (ARKodeMem) ARK_arkodemem;
-  *ier = ARKSpilsSetMassTimes(ARK_arkodemem, FARKMTSetup, 
-                              FARKMtimes, ark_mem->ark_user_data);
+  *ier = ARKStepSetMassTimes(ARK_arkodemem, FARKMTSetup, 
+                             FARKMtimes, ark_mem->user_data);
 }
 
 /*=============================================================*/
@@ -82,7 +88,7 @@ int FARKMtimes(N_Vector v, N_Vector Mv, realtype t, void *user_data)
   Mvdata = N_VGetArrayPointer(Mv);
   ARK_userdata = (FARKUserData) user_data;
   FARK_MTIMES(vdata, Mvdata, &t, ARK_userdata->ipar, 
-	      ARK_userdata->rpar, &ier);
+              ARK_userdata->rpar, &ier);
   return(ier);
 }
 

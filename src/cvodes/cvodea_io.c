@@ -82,31 +82,33 @@ int CVodeSetAdjNoSensi(void *cvode_mem)
  * -----------------------------------------------------------------
  */
 
-int CVodeSetIterTypeB(void *cvode_mem, int which, int iterB)
+int CVodeSetNonlinearSolverB(void *cvode_mem, int which, SUNNonlinearSolver NLS)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
   CVodeBMem cvB_mem;
   void *cvodeB_mem;
-  int flag;
 
   /* Check if cvode_mem exists */
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODEA", "CVodeSetIterTypeB", MSGCV_NO_MEM);
+    cvProcessError(NULL, CV_MEM_NULL, "CVODEA",
+                   "CVodeSetNonlinearSolverB", MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   /* Was ASA initialized? */
   if (cv_mem->cv_adjMallocDone == SUNFALSE) {
-    cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeSetIterTypeB", MSGCV_NO_ADJ);
+    cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA",
+                   "CVodeSetNonlinearSolverB", MSGCV_NO_ADJ);
     return(CV_NO_ADJ);
-  } 
+  }
   ca_mem = cv_mem->cv_adj_mem;
 
   /* Check which */
   if ( which >= ca_mem->ca_nbckpbs ) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeSetIterTypeB", MSGCV_BAD_WHICH);
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA",
+                   "CVodeSetNonlinearSolverB", MSGCV_BAD_WHICH);
     return(CV_ILL_INPUT);
   }
 
@@ -119,9 +121,7 @@ int CVodeSetIterTypeB(void *cvode_mem, int which, int iterB)
 
   cvodeB_mem = (void *) (cvB_mem->cv_mem);
 
-  flag = CVodeSetIterType(cvodeB_mem, iterB);
-  
-  return(flag);
+  return(CVodeSetNonlinearSolver(cvodeB_mem, NLS));
 }
 
 int CVodeSetUserDataB(void *cvode_mem, int which, void *user_dataB)

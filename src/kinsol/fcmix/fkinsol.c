@@ -28,8 +28,7 @@
 #include "fkinsol.h"     /* prototypes of interfaces and global vars. */
 #include "kinsol_impl.h" /* definition of KINMem type                 */
 
-#include <kinsol/kinsol_direct.h> /* prototypes for KINDLS interface routines   */
-#include <kinsol/kinsol_spils.h>  /* prototypes for KINSPILS interface routines */
+#include <kinsol/kinsol_ls.h> /* KINLS interface routine prototypes   */
 
 /*------------------------------------------------------------------
   definitions of global variables shared amongst various routines
@@ -38,7 +37,6 @@
 void *KIN_kinmem;
 long int *KIN_iout;
 realtype *KIN_rout;
-int KIN_ls;
 
 /*------------------------------------------------------------------
   private constants
@@ -241,37 +239,33 @@ void FKIN_SETVIN(char key_name[], realtype *vval, int *ier)
 }
 
 /*------------------------------------------------------------------
-  Function : FKIN_DLSINIT
+  Function : FKIN_LSINIT
   ------------------------------------------------------------------*/
 
-/* Fortran interface to C routine KINDlsSetLinearSolver */
-void FKIN_DLSINIT(int *ier) {
-  if ( (KIN_kinmem == NULL) || (F2C_KINSOL_linsol == NULL) ||
-       (F2C_KINSOL_matrix == NULL) ) {
-    *ier = -1;
-    return;
-  }
-  *ier = KINDlsSetLinearSolver(KIN_kinmem, F2C_KINSOL_linsol,
-                               F2C_KINSOL_matrix);
-  KIN_ls = KIN_LS_DIRECT;
-  return;
-}
-
-/*------------------------------------------------------------------
-  Function : FKIN_DLSINIT
-  ------------------------------------------------------------------*/
-
-/* Fortran interface to C routine KINSpilsSetLinearSolver */
-void FKIN_SPILSINIT(int *ier) {
+/* Fortran interface to C routine KINSetLinearSolver */
+void FKIN_LSINIT(int *ier) {
   if ( (KIN_kinmem == NULL) || (F2C_KINSOL_linsol == NULL) ) {
     *ier = -1;
     return;
   }
-  *ier = KINSpilsSetLinearSolver(KIN_kinmem, F2C_KINSOL_linsol);
-  FKINNullMatrix();
-  KIN_ls = KIN_LS_ITERATIVE;
+  *ier = KINSetLinearSolver(KIN_kinmem, F2C_KINSOL_linsol,
+                            F2C_KINSOL_matrix);
   return;
 }
+
+/*------------------------------------------------------------------
+  Function : FKIN_DLSINIT -- DEPRECATED
+  ------------------------------------------------------------------*/
+
+void FKIN_DLSINIT(int *ier)
+{ FKIN_LSINIT(ier); }
+
+/*------------------------------------------------------------------
+  Function : FKIN_SPILSINIT -- DEPRECATED
+  ------------------------------------------------------------------*/
+
+void FKIN_SPILSINIT(int *ier)
+{ FKIN_LSINIT(ier); }
 
 /*------------------------------------------------------------------
   Function : FKIN_SOL
@@ -334,26 +328,15 @@ void FKIN_SOL(realtype *uu, int *globalstrategy,
   KINGetFuncNorm(KIN_kinmem, &KIN_rout[0]);                  /* FNORM */
   KINGetStepLength(KIN_kinmem, &KIN_rout[1]);                /* SSTEP */
 
-  switch(KIN_ls) {
-
-  case KIN_LS_DIRECT:
-    KINDlsGetWorkSpace(KIN_kinmem, &KIN_iout[6], &KIN_iout[7]); /* LRW & LIW */
-    KINDlsGetLastFlag(KIN_kinmem, &KIN_iout[8]);                /* LSTF */
-    KINDlsGetNumFuncEvals(KIN_kinmem, &KIN_iout[9]);            /* NFE */
-    KINDlsGetNumJacEvals(KIN_kinmem, &KIN_iout[10]);            /* NJE */    
-    break;
-  case KIN_LS_ITERATIVE:
-    KINSpilsGetWorkSpace(KIN_kinmem, &KIN_iout[6], &KIN_iout[7]); /* LRW & LIW */
-    KINSpilsGetLastFlag(KIN_kinmem, &KIN_iout[8]);                /* LSTF */
-    KINSpilsGetNumFuncEvals(KIN_kinmem, &KIN_iout[9]);            /* NFE */
-    KINSpilsGetNumJtimesEvals(KIN_kinmem, &KIN_iout[10]);         /* NJE */
-    KINSpilsGetNumPrecEvals(KIN_kinmem, &KIN_iout[11]);           /* NPE */
-    KINSpilsGetNumPrecSolves(KIN_kinmem, &KIN_iout[12]);          /* NPS */
-    KINSpilsGetNumLinIters(KIN_kinmem, &KIN_iout[13]);            /* NLI */
-    KINSpilsGetNumConvFails(KIN_kinmem, &KIN_iout[14]);           /* NCFL */
-    break;
-
-  }
+  KINGetLinWorkSpace(KIN_kinmem, &KIN_iout[6], &KIN_iout[7]); /* LRW & LIW */
+  KINGetLastLinFlag(KIN_kinmem, &KIN_iout[8]);                /* LSTF */
+  KINGetNumLinFuncEvals(KIN_kinmem, &KIN_iout[9]);            /* NFE */
+  KINGetNumJacEvals(KIN_kinmem, &KIN_iout[10]);               /* NJE */    
+  KINGetNumJtimesEvals(KIN_kinmem, &KIN_iout[11]);            /* NJT */
+  KINGetNumPrecEvals(KIN_kinmem, &KIN_iout[12]);              /* NPE */
+  KINGetNumPrecSolves(KIN_kinmem, &KIN_iout[13]);             /* NPS */
+  KINGetNumLinIters(KIN_kinmem, &KIN_iout[14]);               /* NLI */
+  KINGetNumLinConvFails(KIN_kinmem, &KIN_iout[15]);           /* NCFL */
 
   return;
 }
@@ -368,7 +351,7 @@ void FKIN_FREE(void)
 
   kin_mem = (KINMem) KIN_kinmem;
 
-  /* free DLS/SPILS interface */
+  /* free LS interface */
   if (kin_mem->kin_lfree)
     kin_mem->kin_lfree(kin_mem);
   kin_mem->kin_lmem = NULL;

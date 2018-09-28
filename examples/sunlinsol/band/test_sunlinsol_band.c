@@ -33,7 +33,7 @@
 
 
 /* ----------------------------------------------------------------------
- * SUNBandLinearSolver Testing Routine
+ * SUNLinSol_Band Testing Routine
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[]) 
 {
@@ -104,8 +104,7 @@ int main(int argc, char *argv[])
   if (fails) {
     printf("FAIL: SUNLinSol SUNMatScaleAddI failure\n");
 
-    /* Free solver, matrix and vectors */
-    SUNLinSolFree(LS);
+    /* Free matrices and vectors */
     SUNMatDestroy(A);
     SUNMatDestroy(B);
     N_VDestroy(x);
@@ -124,8 +123,7 @@ int main(int argc, char *argv[])
   if (fails) {
     printf("FAIL: SUNLinSol SUNMatMatvec failure\n");
 
-    /* Free solver, matrix and vectors */
-    SUNLinSolFree(LS);
+    /* Free matrices and vectors */
     SUNMatDestroy(A);
     SUNMatDestroy(B);
     N_VDestroy(x);
@@ -136,7 +134,7 @@ int main(int argc, char *argv[])
   }
   
   /* Create banded linear solver */
-  LS = SUNBandLinearSolver(x, A);
+  LS = SUNLinSol_Band(x, A);
   
   /* Run Tests */
   fails += Test_SUNLinSolInitialize(LS, 0);

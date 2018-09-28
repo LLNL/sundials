@@ -1,25 +1,23 @@
 # -----------------------------------------------------------------
-# $Revision:$
-# $Date:$
-# -----------------------------------------------------------------
-# Programmer(s): Slaven Peles @ LLNL
+# Programmer(s): Slaven Peles, Cody Balos @ LLNL
 # -----------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Lawrence Livermore National Laboratory in part under
 # Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
 # For details, see the LICENSE file.
 # LLNS Copyright End
 # -----------------------------------------------------------------
-# Sources for IDAS documents
+# Makefile for IDAS developer documentation
 # -----------------------------------------------------------------
 
 USER_GUIDE = idas_guide
 EXAMPLES   = idas_examples
 
+# names of guide files
 UG_FILES = \
 ${USER_GUIDE}.tex \
 idas_intro.tex \
@@ -30,6 +28,7 @@ idas_fwd.tex \
 idas_adj.tex \
 idas_nvec.tex \
 idas_newlinsolv.tex \
+idas_sunnonlinsol.tex \
 idas_constants.tex
 
 EX_FILES = \

@@ -46,6 +46,15 @@ sunindextype GlobalVectorLength_DenseLS(N_Vector y);
 
 /*
  * -----------------------------------------------------------------
+ * deprecated wrapper functions
+ * -----------------------------------------------------------------
+ */
+
+SUNLinearSolver SUNDenseLinearSolver(N_Vector y, SUNMatrix A)
+{ return(SUNLinSol_Dense(y, A)); }
+
+/*
+ * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------
  */
@@ -54,7 +63,7 @@ sunindextype GlobalVectorLength_DenseLS(N_Vector y);
  * Function to create a new dense linear solver
  */
 
-SUNLinearSolver SUNDenseLinearSolver(N_Vector y, SUNMatrix A)
+SUNLinearSolver SUNLinSol_Dense(N_Vector y, SUNMatrix A)
 {
   SUNLinearSolver S;
   SUNLinearSolver_Ops ops;

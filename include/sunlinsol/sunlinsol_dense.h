@@ -77,12 +77,18 @@ typedef struct _SUNLinearSolverContent_Dense *SUNLinearSolverContent_Dense;
  * -----------------------------------------------------------------
  * PART II: functions exported by sunlinsol_dense
  * 
- * CONSTRUCTORS:
- *    SUNDenseLinearSolver creates and allocates memory for a 
- * 	 dense matrix solver
+ * CONSTRUCTOR:
+ *    SUNLinSol_Dense creates and allocates memory for a dense 
+ *       matrix solver
+ * 
+ *    SUNDenseLinearSolver (deprecated) wrapper for SUNLinSol_Dense
+ * 
  * -----------------------------------------------------------------
  */
 
+SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_Dense(N_Vector y, SUNMatrix A);
+  
+/* deprecated */
 SUNDIALS_EXPORT SUNLinearSolver SUNDenseLinearSolver(N_Vector y,
                                                      SUNMatrix A);
 

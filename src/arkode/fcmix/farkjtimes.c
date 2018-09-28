@@ -16,17 +16,16 @@
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
  * The C functions FARKJTSetup and FARKJtimes are to interface 
- * between the ARKSPILS module and the user-supplied 
- * Jacobian-vector product routines FARKJTSETUP and FARKJTIMES. 
- * Note the use of the generic names FARK_JTSETUP and FARK_JTIMES 
- * in the code below.
+ * between the ARKLS module and the user-supplied Jacobian-vector 
+ * product routines FARKJTSETUP and FARKJTIMES. Note use of the
+ * generic names FARK_JTSETUP and FARK_JTIMES in the code below.
  *--------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include "farkode.h"
 #include "arkode_impl.h"
-#include <arkode/arkode_spils.h>
+#include <arkode/arkode_arkstep.h>
 
 /*=============================================================*/
 
@@ -41,9 +40,9 @@ extern "C" {
                            realtype *RPAR, int *IER);
 
   extern void FARK_JTIMES(realtype *V, realtype *JV, realtype *T, 
-			  realtype *Y, realtype *FY, realtype *H,
-			  long int *IPAR, realtype *RPAR,
-			  realtype *WRK, int *IER);
+                          realtype *Y, realtype *FY, realtype *H,
+                          long int *IPAR, realtype *RPAR,
+                          realtype *WRK, int *IER);
 
 #ifdef __cplusplus
 }
@@ -51,14 +50,20 @@ extern "C" {
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKSpilsSetJacTimes; see 
+/* ---DEPRECATED---
+   Fortran interface to C routine ARKStepSetJacTimes; see 
    farkode.h for further information */
 void FARK_SPILSSETJAC(int *flag, int *ier)
+{ FARK_LSSETJAC(flag,ier); }
+
+/* Fortran interface to C routine ARKStepSetJacTimes; see 
+   farkode.h for further information */
+void FARK_LSSETJAC(int *flag, int *ier)
 {
   if (*flag == 0) {
-    *ier = ARKSpilsSetJacTimes(ARK_arkodemem, NULL, NULL);
+    *ier = ARKStepSetJacTimes(ARK_arkodemem, NULL, NULL);
   } else {
-    *ier = ARKSpilsSetJacTimes(ARK_arkodemem, FARKJTSetup, FARKJtimes);
+    *ier = ARKStepSetJacTimes(ARK_arkodemem, FARKJTSetup, FARKJtimes);
   }
   return;
 }
@@ -77,20 +82,20 @@ int FARKJTSetup(realtype t, N_Vector y, N_Vector fy, void *user_data)
   /* Initialize all pointers to NULL */
   ydata = fydata = NULL;
   
-  ARKodeGetLastStep(ARK_arkodemem, &h);
+  ARKStepGetLastStep(ARK_arkodemem, &h);
   ydata  = N_VGetArrayPointer(y);
   fydata = N_VGetArrayPointer(fy);
   ARK_userdata = (FARKUserData) user_data;
  
   FARK_JTSETUP(&t, ydata, fydata, &h, ARK_userdata->ipar, 
-	      ARK_userdata->rpar, &ier);
+              ARK_userdata->rpar, &ier);
   return(ier);
 }
 
 /* C interface to user-supplied Fortran routine FARKJTIMES; see
    farkode.h for further information */
 int FARKJtimes(N_Vector v, N_Vector Jv, realtype t, N_Vector y, 
-	       N_Vector fy, void *user_data, N_Vector work)
+               N_Vector fy, void *user_data, N_Vector work)
 {
   realtype *vdata, *Jvdata, *ydata, *fydata, *wkdata;
   realtype h;
@@ -100,7 +105,7 @@ int FARKJtimes(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
   /* Initialize all pointers to NULL */
   vdata = Jvdata = ydata = fydata = wkdata = NULL;
 
-  ARKodeGetLastStep(ARK_arkodemem, &h);
+  ARKStepGetLastStep(ARK_arkodemem, &h);
 
   vdata  = N_VGetArrayPointer(v);
   Jvdata = N_VGetArrayPointer(Jv);
@@ -111,7 +116,7 @@ int FARKJtimes(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
   ARK_userdata = (FARKUserData) user_data;
  
   FARK_JTIMES(vdata, Jvdata, &t, ydata, fydata, &h, ARK_userdata->ipar, 
-	      ARK_userdata->rpar, wkdata, &ier);
+              ARK_userdata->rpar, wkdata, &ier);
   return(ier);
 }
 

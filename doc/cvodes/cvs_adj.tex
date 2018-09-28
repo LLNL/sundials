@@ -33,15 +33,18 @@ already described in Chapter \ref{s:simulation}.
 %%
 
 The following is a skeleton of the user's main program as an application of
-{\cvodes}. The user program is to have these steps in the order indicated, 
-unless otherwise noted. For the sake of brevity, we defer many of the details to 
-the later sections.
-As in \S\ref{ss:skeleton_sim}, most steps are independent of the {\nvector}
-implementation used; where this is not the case, refer to Chapter
-\ref{s:nvector} for specifics.
+{\cvodes}. The user program is to have these steps in the order indicated,
+unless otherwise noted. For the sake of brevity, we defer many of the details
+to the later sections.
+As in \S\ref{ss:skeleton_sim}, most steps are independent of
+the {\nvector}, {\sunmatrix}, {\sunlinsol}, and {\sunnonlinsol} 
+implementations used. For the steps that are not, refer to Chapters
+\ref{s:nvector}, \ref{s:sunmatrix}, \ref{s:sunlinsol}, and \ref{c:sunnonlinsol}
+for the specific name of the function to be called or macro to be referenced.
+
 Steps that are unchanged from the skeleton programs presented in
-\S\ref{ss:skeleton_sim}, \S\ref{s:forward_usage}, and \S\ref{s:forward_quad_usage},
-are grayed out.
+\S\ref{ss:skeleton_sim}, \S\ref{s:forward_usage}, and
+\S\ref{s:forward_quad_usage}, are grayed out.
 
 \index{User main program!Adjoint sensitivity analysis}
 \begin{Steps}
@@ -52,8 +55,9 @@ are grayed out.
   The \id{cvodes.h} header file also defines additional types, constants, and
   function prototypes for the adjoint sensitivity module user-callable functions.
   In addition, the main program should include an {\nvector} implementation
-  header file (for the particular implementation used), and, if Newton
-  iteration was selected, the main header file of the desired linear solver module.
+  header file (for the particular implementation used), and, if a nonlinear
+  solver requiring a linear solver (e.g., the default Newton iteration) will be
+  used, the header file of the desired linear solver module. 
 
 \item
   \textcolor{gray}{\bf Initialize parallel or multi-threaded environment,
@@ -90,6 +94,15 @@ are grayed out.
 
 \item
   \textcolor{gray}{\bf Attach linear solver module for the forward problem}
+
+\item
+  \textcolor{gray}{\bf Create nonlinear solver module for the forward problem}
+
+\item
+  \textcolor{gray}{\bf Attach nonlinear solver module for the forward problem}
+
+\item
+  \textcolor{gray}{\bf Set nonlinear solver optional inputs for the forward problem}
 
 \item
   \textcolor{gray}{\bf Initialize quadrature problem or problems for forward
@@ -178,11 +191,12 @@ are grayed out.
 \item \label{i:matrixB}
   {\bf Create matrix object for the backward problem}
 
-  If a direct linear solver is to be used within a Newton iteration
-  then a template Jacobian matrix must be created by using the
-  appropriate functions defined by the particular {\sunmatrix}
-  implementation. 
-  
+  If a nonlinear solver requiring a linear solve will be used (e.g., the
+  the default Newton iteration) and the linear solver will be a direct linear
+  solver, then a template Jacobian matrix must be created by calling the
+  appropriate constructor function defined by the particular {\sunmatrix}
+  implementation.
+
   NOTE: The dense, banded, and sparse matrix objects are usable only in a
   serial or threaded environment.
 
@@ -192,9 +206,10 @@ are grayed out.
 \item \label{i:lin_solverB}
   {\bf Create linear solver object for the backward problem}
 
-  Create the linear solver object for the backward problem by
-  using the appropriate functions defined by the particular {\sunlinsol}
-  implementation desired. 
+  If a nonlinear solver requiring a linear solver is chosen (e.g., the default
+  Newton iteration), then the desired linear solver object for the backward
+  problem must be created by calling the appropriate constructor function
+  defined by the particular {\sunlinsol} implementation.
   
   Note that it is not required to use the same linear solver module for both the forward 
   and the backward problems; for example, the forward problem could be solved
@@ -207,6 +222,43 @@ are grayed out.
   Call \id{CVDlsSet*B} or \id{CVSpilsSet*B} functions to change optional
   inputs specific to that linear solver interface. 
   See \S\ref{ss:optional_input_b} for details.
+
+\item\label{i:lin_solver_interfaceB}
+  {\bf Attach linear solver module for the backward problem}
+
+  If a nonlinear solver requiring a linear solver is chosen for the backward
+  problem (e.g., the default Newton iteration), then initialize the {\cvdls} or
+  {\cvspils} linear solver interface by attaching the linear solver object (and
+  matrix object, if applicable) with one of the following calls (for details see
+  \S\ref{sss:lin_solv_init}):
+
+  \id{ier = }\Id{CVDlsSetLinearSolverB}\id{(...);}
+
+  \id{ier = }\Id{CVSpilsSetLinearSolverB}\id{(...);}
+
+  Alternately, if the {\cvodes}-specific diagonal linear solver module,
+  {\cvdiag}, is desired, initialize the linear solver module and
+  attach it to {\cvodes} with the call
+
+  \id{ier = }\Id{CVDiagB}\id{(...);}
+
+\item
+  {\bf Create nonlinear solver object for the backward problem} (\textit{optional})
+
+  If using a non-default nonlinear solver for the backward problem, then create
+  the desired nonlinear solver object by calling the appropriate constructor
+  function defined by the particular {\sunnonlinsol} implementation (e.g.,
+  \id{NLSB = SUNNonlinSol\_***(...);} where \id{***} is the name of the
+  nonlinear solver (see Chapter \ref{c:sunnonlinsol} for details).
+
+\item
+  {\bf Attach nonlinear solver module for the backward problem} (\textit{optional})
+
+  If using a non-default nonlinear solver for the backward problem, then
+  initialize the nonlinear solver interface by attaching the nonlinear solver
+  object by calling \\ \noindent
+  \id{ier = }\Id{CVodeSetNonlinearSolverB}\id{(cvode\_mem, NLSB);}
+  (see \S\ref{ss:nonlin_solv_init} for details).
 
 \item \label{i:quadB}
   {\bf Initialize quadrature calculation}
@@ -248,7 +300,10 @@ are grayed out.
   followed by a call to \id{CVodeAdjInit}.
 
 \item
-  {\bf Free linear solver and matrix memory for the backward problem}
+  {\bf Free the nonlinear solver memory for the forward and backward problems}
+
+\item
+  {\bf Free linear solver and matrix memory for the forward and backward problems}
 
 \item
   \textcolor{gray}{\bf Finalize MPI, if used}
@@ -523,7 +578,7 @@ and solution specifications, and allocate internal memory for the backward probl
 %%
 \ucfunction{CVodeCreateB}
 {
-  flag = CVodeCreateB(cvode\_mem, lmmB, iterB, \&which);
+  flag = CVodeCreateB(cvode\_mem, lmmB, \&which);
 }
 {
   The function \ID{CVodeCreateB} instantiates a {\cvodes} solver object and specifies 
@@ -536,9 +591,6 @@ and solution specifications, and allocate internal memory for the backward probl
   \item[lmmB] (\id{int})
     specifies the linear multistep method and may be one of two
     possible values: \Id{CV\_ADAMS} or \Id{CV\_BDF}.     
-  \item[iterB] (\id{int})
-    specifies the type of nonlinear solver iteration and may be
-    either \Id{CV\_NEWTON} or \Id{CV\_FUNCTIONAL}. 
   \item[which] (\id{int})
     contains the identifier assigned by {\cvodes} for the newly created backward 
     problem. Any call to \id{CVode*B} functions requires such an identifier.
@@ -851,9 +903,10 @@ problem using one of the following functions.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\idas} memory block.
   \item[which] (\id{int})
-    represents the identifier of the backward problem returned by \id{CVodeCreateB}.
+    represents the identifier of the backward problem returned by \\ \noindent
+    \id{CVodeCreateB}.
   \item[LS] (\id{SUNLinearSolver})
-    {\sunlinsol} object to use for solving Newton linear systems for the backward problem. 
+    {\sunlinsol} object to use for solving linear systems for the backward problem. 
   \item[A] (\id{SUNMatrix})
     {\sunmatrix} object for used as a template for the Jacobian for the backward
     problem (must have a type compatible with the linear solver object).
@@ -905,9 +958,10 @@ problem using one of the following functions.
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[which] (\id{int})
-    represents the identifier of the backward problem returned by \id{CVodeCreateB}.
+    represents the identifier of the backward problem returned by \\ \noindent
+    \id{CVodeCreateB}.
   \item[LS] (\id{SUNLinearSolver})
-    {\sunlinsol} object to use for solving Newton linear systems for the backward problem. 
+    {\sunlinsol} object to use for solving linear systems for the backward problem. 
   \end{args}
 }
 {
@@ -1134,8 +1188,8 @@ within the list managed by {\cvodes}.
 
 The optional input functions defined for the backward problem are:
 \begin{verbatim}
+  flag = CVodeSetNonlinearSolverB(cvode_mem, which, NLSB);
   flag = CVodeSetUserDataB(cvode_mem, which, user_dataB);
-  flag = CVodeSetIterTypeB(cvode_mem, which, iterB);
   flag = CVodeSetMaxOrdB(cvode_mem, which, maxordB);
   flag = CVodeSetMaxNumStepsB(cvode_mem, which, mxstepsB);
   flag = CVodeSetInitStepB(cvode_mem, which, hinB)
@@ -1192,7 +1246,8 @@ with the second used when the backward problem depends on the forwrad sensitivit
   \item[\Id{CVDLS\_NO\_ADJ}]
     The function \id{CVodeAdjInit} has not been previously called.
   \item[\Id{CVDLS\_LMEM\_NULL}]
-    The linear solver has not been initialized with a call to \id{CVDlsSetLinearSolverB}.
+    The linear solver has not been initialized with a call to \\ \noindent
+    \id{CVDlsSetLinearSolverB}.
   \item[\Id{CVDLS\_ILL\_INPUT}]
     The parameter \id{which} represented an invalid identifier.
   \end{args}
@@ -1231,7 +1286,8 @@ with the second used when the backward problem depends on the forwrad sensitivit
   \item[\Id{CVDLS\_NO\_ADJ}]
     The function \id{CVodeAdjInit} has not been previously called.
   \item[\Id{CVDLS\_LMEM\_NULL}]
-    The linear solver has not been initialized with a call to \id{CVDlsSetLinearSolverB}.
+    The linear solver has not been initialized with a call to \\ \noindent
+    \id{CVDlsSetLinearSolverB}.
   \item[\Id{CVDLS\_ILL\_INPUT}]
     The parameter \id{which} represented an invalid identifier.
   \end{args}
@@ -1429,7 +1485,7 @@ problem through the following functions:
 {
   The function \ID{CVSpilsSetEpsLinB} specifies the factor by
   which the Krylov linear solver's convergence test constant is reduced
-  from the Newton iteration test constant.
+  from the nonlinear iteration test constant.
   This routine can be used in both the cases wherethe backward problem
   does and does not depend on the forward sensitvities.
 }
@@ -2473,7 +2529,7 @@ user-supplied function of type \Id{CVSpilsJacTimesSetupFnB}, defined as follows:
 If preconditioning is used during integration of the backward problem, 
 then the user must provide a {\CC} function to solve the linear system 
 $Pz = r$, where $P$ may be either a left or a right preconditioner matrix.
-Here $P$ should approximate (at least crudely) the Newton matrix 
+Here $P$ should approximate (at least crudely) the matrix 
 $M_B = I - \gamma_B J_B$, where $J_B = \partial f_B/ \partial y_B$.  If
 preconditioning is done on both sides, the product of the two
 preconditioner matrices should approximate $M_B$.
@@ -2505,7 +2561,7 @@ This function must be of one of the following two types:
   \item[zvecB]
     is the computed output vector.
   \item[gammaB]
-    is the scalar appearing in the Newton matrix, $M_B = I - \gamma_B J_B$.
+    is the scalar appearing in the matrix, $M_B = I - \gamma_B J_B$.
   \item[deltaB]
     is an input tolerance to be used if an iterative method 
     is employed in the solution.
@@ -2551,7 +2607,7 @@ This function must be of one of the following two types:
   \item[zvecB]
     is the computed output vector.
   \item[gammaB]
-    is the scalar appearing in the Newton matrix, $M_B = I - \gamma_B J_B$.
+    is the scalar appearing in the matrix, $M_B = I - \gamma_B J_B$.
   \item[deltaB]
     is an input tolerance to be used if an iterative method 
     is employed in the solution.
@@ -2607,7 +2663,7 @@ user-supplied {\CC} function of one of the following two types:
     is an output flag which must be set to \id{SUNTRUE} if Jacobian-relatd data 
     was recomputed or \id{SUNFALSE} otherwise.
   \item[gammaB]
-    is the scalar appearing in the Newton matrix.
+    is the scalar appearing in the matrix $M_B = I - \gamma_B J_B$.
   \item[user\_dataB]
     is a pointer to user data --- the same as the \id{user\_dataB}
     parameter passed to \id{CVodeSetUserDataB}.
@@ -2655,7 +2711,7 @@ user-supplied {\CC} function of one of the following two types:
     is an output flag which must be set to \id{SUNTRUE} if Jacobian-relatd data 
     was recomputed or \id{SUNFALSE} otherwise.
   \item[gammaB]
-    is the scalar appearing in the Newton matrix.
+    is the scalar appearing in the matrix $M_B = I - \gamma_B J_B$.
   \item[user\_dataB]
     is a pointer to user data --- the same as the \id{user\_dataB}
     parameter passed to \id{CVodeSetUserDataB}.

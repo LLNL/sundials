@@ -35,6 +35,7 @@
 
 #include <stdio.h>
 #include <sundials/sundials_nvector.h>
+#include <sundials/sundials_nonlinearsolver.h>
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {
@@ -105,6 +106,8 @@ extern "C" {
 #define IDA_FIRST_RES_FAIL  -12
 #define IDA_LINESEARCH_FAIL -13
 #define IDA_NO_RECOVERY     -14
+#define IDA_NLS_INIT_FAIL   -15
+#define IDA_NLS_SETUP_FAIL  -16
 
 #define IDA_MEM_NULL        -20
 #define IDA_MEM_FAIL        -21
@@ -1713,6 +1716,19 @@ SUNDIALS_EXPORT void IDASensFree(void *ida_mem);
 
 SUNDIALS_EXPORT void IDAQuadSensFree(void* ida_mem);
 
+/*
+ * ----------------------------------------------------------------
+ * Function : IDASetNonlinearSolver*
+ * ----------------------------------------------------------------
+ * Set the nonlinear solver in IDAS
+ * ----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int IDASetNonlinearSolver(void *ida_mem, SUNNonlinearSolver NLS);
+SUNDIALS_EXPORT int IDASetNonlinearSolverSensSim(void *ida_mem, SUNNonlinearSolver NLS);
+SUNDIALS_EXPORT int IDASetNonlinearSolverSensStg(void *ida_mem, SUNNonlinearSolver NLS);
+
+
 /* 
  * =================================================================
  *
@@ -1961,6 +1977,9 @@ SUNDIALS_EXPORT int IDASetConstraintsB(void *ida_mem, int which,
                                        N_Vector constraintsB);
 
 SUNDIALS_EXPORT int IDASetQuadErrConB(void *ida_mem, int which, int errconQB);
+
+SUNDIALS_EXPORT int IDASetNonlinearSolverB(void *ida_mem, int which,
+                                           SUNNonlinearSolver NLS);
 
 /*
  * =================================================================

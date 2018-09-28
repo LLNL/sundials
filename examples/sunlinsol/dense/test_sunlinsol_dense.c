@@ -32,7 +32,7 @@
 
 
 /* ----------------------------------------------------------------------
- * SUNDenseLinearSolver Testing Routine
+ * SUNLinSol_Dense Testing Routine
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[]) 
 {
@@ -112,8 +112,7 @@ int main(int argc, char *argv[])
   if (fails) {
     printf("FAIL: SUNLinSol SUNMatMatvec failure\n");
 
-    /* Free solver, matrix and vectors */
-    SUNLinSolFree(LS);
+    /* Free matrices and vectors */
     SUNMatDestroy(A);
     SUNMatDestroy(B);
     SUNMatDestroy(I);
@@ -125,7 +124,7 @@ int main(int argc, char *argv[])
   }
 
   /* Create dense linear solver */
-  LS = SUNDenseLinearSolver(x, A);
+  LS = SUNLinSol_Dense(x, A);
   
   /* Run Tests */
   fails += Test_SUNLinSolInitialize(LS, 0);

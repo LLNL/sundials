@@ -36,7 +36,6 @@
 #include <nvector/nvector_serial.h>     /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_sparse.h> /* access to sparse SUNMatrix           */
 #include <sunlinsol/sunlinsol_klu.h>    /* access to KLU sparse direct solver   */
-#include <cvode/cvode_direct.h>         /* access to CVDls interface            */
 #include <sundials/sundials_types.h>    /* defs. of realtype, sunindextype      */
 
 /* User-defined vector and matrix accessor macro: Ith */
@@ -100,7 +99,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu);
 static void PrintFinalStats(void *cvode_mem);
 static int SetInitialProfile(UserData data, N_Vector uu, N_Vector res);
 
-static int check_flag(void *flagvalue, const char *funcname, int opt);
+static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 /*
  *--------------------------------------------------------------------
@@ -115,7 +114,7 @@ int main(void)
   N_Vector uu, constraints, res; 
   SUNMatrix A;
   SUNLinearSolver LS;
-  int flag, iout;
+  int retval, iout;
   sunindextype mu, ml, netf, ncfn;
   realtype rtol, atol, t0, t1, tout, tret;
 
@@ -129,15 +128,15 @@ int main(void)
 
   /* Create vectors uu, up, res, constraints, id. */
   uu = N_VNew_Serial(NEQ);
-  if(check_flag((void *)uu, "N_VNew_Serial", 0)) return(1);
+  if(check_retval((void *)uu, "N_VNew_Serial", 0)) return(1);
   constraints = N_VNew_Serial(NEQ);
-  if(check_flag((void *)constraints, "N_VNew_Serial", 0)) return(1);
+  if(check_retval((void *)constraints, "N_VNew_Serial", 0)) return(1);
   res = N_VNew_Serial(NEQ);
-  if(check_flag((void *)res, "N_VNew_Serial", 0)) return(1);
+  if(check_retval((void *)res, "N_VNew_Serial", 0)) return(1);
  
   /* Create and load problem data block. */
   data = (UserData) malloc(sizeof *data);
-  if(check_flag((void *)data, "malloc", 2)) return(1);
+  if(check_retval((void *)data, "malloc", 2)) return(1);
   data->mm = MGRID;
   data->dx = ONE/(MGRID - ONE);
   data->coeff = ONE/( (data->dx) * (data->dx) );
@@ -154,52 +153,53 @@ int main(void)
   rtol = ZERO;
   atol = RCONST(1.0e-8);
 
-  /* Call CVodeCreate to initialize solution */
-  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
-  if(check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+  /* Call CVodeCreate to create the solver memory and specify the 
+   * Backward Differentiation Formula */
+  cvode_mem = CVodeCreate(CV_BDF);
+  if(check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
-  flag = CVodeSetUserData(cvode_mem, data);
-  if(check_flag(&flag, "CVodeSetUserData", 1)) return(1);
+  retval = CVodeSetUserData(cvode_mem, data);
+  if(check_retval(&retval, "CVodeSetUserData", 1)) return(1);
 
   /*
-  flag = IDASetConstraints(cvode_mem, constraints);
-  if(check_flag(&flag, "IDASetConstraints", 1)) return(1);
+  retval = IDASetConstraints(cvode_mem, constraints);
+  if(check_retval(&retval, "IDASetConstraints", 1)) return(1);
   */
   N_VDestroy(constraints);
 
-  flag = CVodeInit(cvode_mem, f, t0, uu);
-  if(check_flag(&flag, "CVodeInit", 1)) return(1);
+  retval = CVodeInit(cvode_mem, f, t0, uu);
+  if(check_retval(&retval, "CVodeInit", 1)) return(1);
 
-  flag = CVodeSStolerances(cvode_mem, rtol, atol);
-  if(check_flag(&flag, "CVodeSStolerances", 1)) return(1);
+  retval = CVodeSStolerances(cvode_mem, rtol, atol);
+  if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
 
   /* Create sparse SUNMatrix for use in linear solves */
   nnz = NEQ * NEQ;
   A = SUNSparseMatrix(NEQ, NEQ, nnz, CSC_MAT);
-  if(check_flag((void *)A, "SUNSparseMatrix", 0)) return(1);
+  if(check_retval((void *)A, "SUNSparseMatrix", 0)) return(1);
 
   /* Create KLU solver object for use by CVode */
-  LS = SUNKLU(y, A);
-  if(check_flag((void *)LS, "SUNKLU", 0)) return(1);
+  LS = SUNLinSol_KLU(y, A);
+  if(check_retval((void *)LS, "SUNLinSol_KLU", 0)) return(1);
 
-  /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
-  flag = CVDlsSetLinearSolver(cvode_mem, LS, A);
-  if(check_flag(&flag, "CVDlsSetLinearSolver", 1)) return(1);
+  /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
+  retval = CVodeSetLinearSolver(cvode_mem, LS, A);
+  if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
 
   /* Set the user-supplied Jacobian routine Jac based pm size of Jac */
   if(MGRID >= 4){
-    flag = CVDlsSetJacFn(cvode_mem, jacHeat);
+    retval = CVodeSetJacFn(cvode_mem, jacHeat);
   }
   /* special case MGRID=3  */
   else if(MGRID==3){
-    flag = CVDlsSetJacFn(cvode_mem, jacHeat3);
+    retval = CVodeSetJacFn(cvode_mem, jacHeat3);
   }
   /* MGRID<=2 is pure boundary points, nothing to solve  */
   else{
     printf("MGRID size is too small to run.\n");
     return(1);
   }
-  if(check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
+  if(check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
 
   /* Print output heading. */
   PrintHeader(rtol, atol);
@@ -210,18 +210,18 @@ int main(void)
   
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) {
     
-    flag = CVode(cvode_mem, tout, uu, &tret, CV_NORMAL);
-    if(check_flag(&flag, "CVode", 1)) return(1);
+    retval = CVode(cvode_mem, tout, uu, &tret, CV_NORMAL);
+    if(check_retval(&retval, "CVode", 1)) return(1);
 
     PrintOutput(cvode_mem, tret, uu);
   
   }
   
   /* Print remaining counters and free memory. */
-  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-  check_flag(&flag, "CVodeGetNumErrTestFails", 1);
-  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
+  retval = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  check_retval(&retval, "CVodeGetNumErrTestFails", 1);
+  retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1);
   printf("\n netf = %ld,   ncfn = %ld \n", netf, ncfn);
 
   PrintFinalStats(cvode_mem);
@@ -694,25 +694,25 @@ static void PrintHeader(realtype rtol, realtype atol)
 
 static void PrintOutput(void *mem, realtype t, N_Vector uu)
 {
-  int flag;
+  int retval;
   realtype umax, hused;
   long int nst, nni, nje, nre, nreLS;
   int kused;
 
   umax = N_VMaxNorm(uu);
   
-  flag = CVodeGetLastOrder(mem, &kused);
-  check_flag(&flag, "CVodeGetLastOrder", 1);
-  flag = CVodeGetNumSteps(mem, &nst);
-  check_flag(&flag, "CVodeGetNumSteps", 1);
-  flag = CVodeGetNumNonlinSolvIters(mem, &nni);
-  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1);
-  //flag = CVodeGetNumResEvals(mem, &nre);
-  //check_flag(&flag, "CVodeGetNumResEvals", 1);
-  flag = CVodeGetLastStep(mem, &hused);
-  check_flag(&flag, "CVodeGetLastStep", 1);
-  flag = CVodeDlsGetNumJacEvals(mem, &nje);
-  check_flag(&flag, "CVodeDlsGetNumJacEvals", 1);
+  retval = CVodeGetLastOrder(mem, &kused);
+  check_retval(&retval, "CVodeGetLastOrder", 1);
+  retval = CVodeGetNumSteps(mem, &nst);
+  check_retval(&retval, "CVodeGetNumSteps", 1);
+  retval = CVodeGetNumNonlinSolvIters(mem, &nni);
+  check_retval(&retval, "CVodeGetNumNonlinSolvIters", 1);
+  //retval = CVodeGetNumResEvals(mem, &nre);
+  //check_retval(&retval, "CVodeGetNumResEvals", 1);
+  retval = CVodeGetLastStep(mem, &hused);
+  check_retval(&retval, "CVodeGetLastStep", 1);
+  retval = CVodeGetNumJacEvals(mem, &nje);
+  check_retval(&retval, "CVodeGetNumJacEvals", 1);
 
 /*
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
@@ -747,26 +747,26 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
 static void PrintFinalStats(void *cvode_mem)
 {
   long int nst, nfe, nsetups, nje, nni, ncfn, netf, nge;
-  int flag;
+  int retval;
 
-  flag = CVodeGetNumSteps(cvode_mem, &nst);
-  check_flag(&flag, "CVodeGetNumSteps", 1);
-  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  check_flag(&flag, "CVodeGetNumRhsEvals", 1);
-  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  check_flag(&flag, "CVodeGetNumLinSolvSetups", 1);
-  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-  check_flag(&flag, "CVodeGetNumErrTestFails", 1);
-  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1);
-  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
+  retval = CVodeGetNumSteps(cvode_mem, &nst);
+  check_retval(&retval, "CVodeGetNumSteps", 1);
+  retval = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  check_retval(&retval, "CVodeGetNumRhsEvals", 1);
+  retval = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  check_retval(&retval, "CVodeGetNumLinSolvSetups", 1);
+  retval = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  check_retval(&retval, "CVodeGetNumErrTestFails", 1);
+  retval = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  check_retval(&retval, "CVodeGetNumNonlinSolvIters", 1);
+  retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1);
 
-  flag = CVDlsGetNumJacEvals(cvode_mem, &nje);
-  check_flag(&flag, "CVDlsGetNumJacEvals", 1);
+  retval = CVodeGetNumJacEvals(cvode_mem, &nje);
+  check_retval(&retval, "CVodeGetNumJacEvals", 1);
 
-  flag = CVodeGetNumGEvals(cvode_mem, &nge);
-  check_flag(&flag, "CVodeGetNumGEvals", 1);
+  retval = CVodeGetNumGEvals(cvode_mem, &nge);
+  check_retval(&retval, "CVodeGetNumGEvals", 1);
 
   printf("\nFinal Statistics:\n");
   printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nje = %ld\n",
@@ -779,32 +779,32 @@ static void PrintFinalStats(void *cvode_mem)
  * Check function return value...
  *   opt == 0 means SUNDIALS function allocates memory so check if
  *            returned NULL pointer
- *   opt == 1 means SUNDIALS function returns a flag so check if
- *            flag >= 0
+ *   opt == 1 means SUNDIALS function returns an integer value so check if
+ *            retval < 0
  *   opt == 2 means function allocates memory so check if returned
  *            NULL pointer 
  */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt)
+static int check_retval(void *returnvalue, const char *funcname, int opt)
 {
-  int *errflag;
+  int *retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, 
             "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n", 
             funcname);
     return(1);
   } else if (opt == 1) {
-    /* Check if flag < 0 */
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
+    /* Check if retval < 0 */
+    retval = (int *) returnvalue;
+    if (*retval < 0) {
       fprintf(stderr, 
-              "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n", 
-              funcname, *errflag);
+              "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n", 
+              funcname, *retval);
       return(1); 
     }
-  } else if (opt == 2 && flagvalue == NULL) {
+  } else if (opt == 2 && returnvalue == NULL) {
     /* Check if function returned NULL pointer - no memory allocated */
     fprintf(stderr, 
             "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n", 

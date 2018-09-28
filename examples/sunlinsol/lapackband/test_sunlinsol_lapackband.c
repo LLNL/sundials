@@ -33,7 +33,7 @@
 
 
 /* ----------------------------------------------------------------------
- * SUNLapackBand Testing Routine
+ * SUNLinSol_LapackBand Testing Routine
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[]) 
 {
@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
   }
   
   /* Create banded linear solver */
-  LS = SUNLapackBand(x, A);
+  LS = SUNLinSol_LapackBand(x, A);
   
   /* Run Tests */
   fails += Test_SUNLinSolInitialize(LS, 0);

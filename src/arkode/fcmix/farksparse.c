@@ -15,7 +15,7 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * Fortran/C interface routines for ARKODE/ARDLS, for the case
+ * Fortran/C interface routines for ARKODE/ARKLS, for the case
  * of a user-supplied sparse Jacobian routine.
  *--------------------------------------------------------------*/
 
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include "farkode.h"
 #include "arkode_impl.h"
-#include <arkode/arkode_direct.h>
+#include <arkode/arkode_arkstep.h>
 #include <sunmatrix/sunmatrix_sparse.h>
 
 /*=============================================================*/
@@ -36,10 +36,10 @@ extern "C" {
 
  
   extern void FARK_SPJAC(realtype *T, realtype *Y, 
-			 realtype *FY, long int *N, 
+                         realtype *FY, long int *N, 
                          long int *NNZ, realtype *JDATA, 
                          sunindextype *JRVALS, sunindextype *JCPTRS, 
-			 realtype *H,  long int *IPAR,
+                         realtype *H,  long int *IPAR,
                          realtype *RPAR, realtype *V1,
                          realtype *V2, realtype *V3,
                          int *ier);
@@ -50,7 +50,7 @@ extern "C" {
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKDlsSetJacFn; see 
+/* Fortran interface to C routine ARKStepSetJacFn; see 
    farkode.h for further information */
 void FARK_SPARSESETJAC(int *ier)
 {
@@ -60,7 +60,7 @@ void FARK_SPARSESETJAC(int *ier)
                   "Sparse Fortran users must configure SUNDIALS with 64-bit integers.");
   *ier = 1;
 #else  
-  *ier = ARKDlsSetJacFn(ARK_arkodemem, FARKSparseJac);
+  *ier = ARKStepSetJacFn(ARK_arkodemem, FARKSparseJac);
 #endif
 }
 
@@ -69,8 +69,8 @@ void FARK_SPARSESETJAC(int *ier)
 /* C interface to user-supplied Fortran routine FARKSPJAC; see 
    farkode.h for additional information  */
 int FARKSparseJac(realtype t, N_Vector y, N_Vector fy, 
-		  SUNMatrix J, void *user_data, N_Vector vtemp1, 
-		  N_Vector vtemp2, N_Vector vtemp3)
+                  SUNMatrix J, void *user_data, N_Vector vtemp1, 
+                  N_Vector vtemp2, N_Vector vtemp3)
 {
   int ier;
   realtype *ydata, *fydata, *v1data, *v2data, *v3data, *Jdata;
@@ -79,7 +79,7 @@ int FARKSparseJac(realtype t, N_Vector y, N_Vector fy,
   sunindextype *indexvals, *indexptrs; 
   FARKUserData ARK_userdata;
 
-  ARKodeGetLastStep(ARK_arkodemem, &h);
+  ARKStepGetLastStep(ARK_arkodemem, &h);
   ydata   = N_VGetArrayPointer(y);
   fydata  = N_VGetArrayPointer(fy);
   v1data  = N_VGetArrayPointer(vtemp1);

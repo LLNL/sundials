@@ -11,10 +11,13 @@
 In Table \ref{t:sunmatuse} below, we list the matrix functions in the 
 {\sunmatrix} module used within the {\ida} package.
 The table also shows, for each function, which of the code modules uses
-the function. Neither the main {\ida} integrator nor the {\idaspils}
-interface call {\sunmatrix} functions directly, so the table columns
-are specific to the {\idadls} direct solver interface and the
-{\idabbdpre} preconditioner module.
+the function. The main {\ida} integrator does not call any
+{\sunmatrix} functions directly, so the table columns are specific to
+the {\idals} direct solver interface and the {\idabbdpre}
+preconditioner module.  We further note that the {\idals}
+interface only utilizes these routines when supplied with a
+\emph{matrix-based} linear solver, i.e., the {\sunmatrix} object
+passed to \Id{IDASetLinearSolver} was not \id{NULL}.
 
 At this point, we should emphasize that the {\ida} user does not need
 to know anything about the usage of matrix functions by the {\ida}
@@ -27,9 +30,9 @@ an implementation detail for the interested reader.
 \medskip
 \begin{tabular}{|r|c|c|} \hline
                                              & 
-\begin{sideways}{\idadls}      \end{sideways} & 
+\begin{sideways}{\idals}      \end{sideways} & 
 \begin{sideways}{\idabbdpre}   \end{sideways} \\ \hline\hline
-%                             DLS         BBD
+%                              LS         BBD
 \id{SUNMatGetID}         &    \cm    &           \\ \hline
 \id{SUNMatDestroy}       &           &    \cm    \\ \hline
 \id{SUNMatZero}          &    \cm    &    \cm    \\ \hline

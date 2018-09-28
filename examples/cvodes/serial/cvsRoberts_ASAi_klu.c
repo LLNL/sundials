@@ -128,7 +128,7 @@ static int fQB(realtype t, N_Vector y, N_Vector yB,
 static void PrintHead(realtype tB0);
 static void PrintOutput(realtype tfinal, N_Vector y, N_Vector yB, N_Vector qB);
 static void PrintOutput1(realtype time, realtype t, N_Vector y, N_Vector yB);
-static int check_flag(void *flagvalue, const char *funcname, int opt);
+static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 /*
  *--------------------------------------------------------------------
@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
   N_Vector yB, qB;
 
   realtype time;
-  int flag, nnz, ncheck;
+  int retval, nnz, ncheck;
 
   long int nst, nstB;
 
@@ -180,21 +180,21 @@ int main(int argc, char *argv[])
 
   /* User data structure */
   data = (UserData) malloc(sizeof *data);
-  if (check_flag((void *)data, "malloc", 2)) return(1);
+  if (check_retval((void *)data, "malloc", 2)) return(1);
   data->p[0] = RCONST(0.04);
   data->p[1] = RCONST(1.0e4);
   data->p[2] = RCONST(3.0e7);
 
   /* Initialize y */
   y = N_VNew_Serial(NEQ);
-  if (check_flag((void *)y, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
   Ith(y,1) = RCONST(1.0);
   Ith(y,2) = ZERO;
   Ith(y,3) = ZERO;
 
   /* Initialize q */
   q = N_VNew_Serial(1);
-  if (check_flag((void *)q, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)q, "N_VNew_Serial", 0)) return(1);
   Ith(q,1) = ZERO;
 
   /* Set the scalar realtive and absolute tolerances reltolQ and abstolQ */
@@ -205,85 +205,85 @@ int main(int argc, char *argv[])
   printf("Create and allocate CVODES memory for forward runs\n");
 
   /* Call CVodeCreate to create the solver memory and specify the 
-     Backward Differentiation Formula and the use of a Newton iteration */
-  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
-  if (check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+     Backward Differentiation Formula */
+  cvode_mem = CVodeCreate(CV_BDF);
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Call CVodeInit to initialize the integrator memory and specify the
      user's right hand side function in y'=f(t,y), the initial time T0, and
      the initial dependent variable vector y. */
-  flag = CVodeInit(cvode_mem, f, T0, y);
-  if (check_flag(&flag, "CVodeInit", 1)) return(1);
+  retval = CVodeInit(cvode_mem, f, T0, y);
+  if (check_retval(&retval, "CVodeInit", 1)) return(1);
 
   /* Call CVodeWFtolerances to specify a user-supplied function ewt that sets
      the multiplicative error weights w_i for use in the weighted RMS norm */
-  flag = CVodeWFtolerances(cvode_mem, ewt);
-  if (check_flag(&flag, "CVodeWFtolerances", 1)) return(1);
+  retval = CVodeWFtolerances(cvode_mem, ewt);
+  if (check_retval(&retval, "CVodeWFtolerances", 1)) return(1);
 
   /* Attach user data */
-  flag = CVodeSetUserData(cvode_mem, data);
-  if (check_flag(&flag, "CVodeSetUserData", 1)) return(1);
+  retval = CVodeSetUserData(cvode_mem, data);
+  if (check_retval(&retval, "CVodeSetUserData", 1)) return(1);
 
   /* Create sparse SUNMatrix for use in linear solves */
   nnz = NEQ * NEQ; /* max no. of nonzeros entries in the Jac */
   A = SUNSparseMatrix(NEQ, NEQ, nnz, CSC_MAT);
-  if (check_flag((void *)A, "SUNSparseMatrix", 0)) return(1);
+  if (check_retval((void *)A, "SUNSparseMatrix", 0)) return(1);
 
   /* Create KLU SUNLinearSolver object */
-  LS = SUNKLU(y, A);
-  if (check_flag((void *)LS, "SUNKLU", 0)) return(1);
+  LS = SUNLinSol_KLU(y, A);
+  if (check_retval((void *)LS, "SUNLinSol_KLU", 0)) return(1);
 
   /* Attach the matrix and linear solver for the forward problem */
-  flag = CVDlsSetLinearSolver(cvode_mem, LS, A);
-  if (check_flag(&flag, "CVDlsSetLinearSolver", 1)) return(1);
+  retval = CVDlsSetLinearSolver(cvode_mem, LS, A);
+  if (check_retval(&retval, "CVDlsSetLinearSolver", 1)) return(1);
 
   /* Set the user-supplied Jacobian routine for the forward problem */
-  flag = CVDlsSetJacFn(cvode_mem, Jac);
-  if (check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
+  retval = CVDlsSetJacFn(cvode_mem, Jac);
+  if (check_retval(&retval, "CVDlsSetJacFn", 1)) return(1);
 
   /* Call CVodeQuadInit to allocate initernal memory and initialize
      quadrature integration*/
-  flag = CVodeQuadInit(cvode_mem, fQ, q);
-  if (check_flag(&flag, "CVodeQuadInit", 1)) return(1);
+  retval = CVodeQuadInit(cvode_mem, fQ, q);
+  if (check_retval(&retval, "CVodeQuadInit", 1)) return(1);
 
   /* Call CVodeSetQuadErrCon to specify whether or not the quadrature variables
      are to be used in the step size control mechanism within CVODES. Call
      CVodeQuadSStolerances or CVodeQuadSVtolerances to specify the integration
      tolerances for the quadrature variables. */
-  flag = CVodeSetQuadErrCon(cvode_mem, SUNTRUE);
-  if (check_flag(&flag, "CVodeSetQuadErrCon", 1)) return(1);
+  retval = CVodeSetQuadErrCon(cvode_mem, SUNTRUE);
+  if (check_retval(&retval, "CVodeSetQuadErrCon", 1)) return(1);
 
   /* Call CVodeQuadSStolerances to specify scalar relative and absolute
      tolerances. */
-  flag = CVodeQuadSStolerances(cvode_mem, reltolQ, abstolQ);
-  if (check_flag(&flag, "CVodeQuadSStolerances", 1)) return(1);
+  retval = CVodeQuadSStolerances(cvode_mem, reltolQ, abstolQ);
+  if (check_retval(&retval, "CVodeQuadSStolerances", 1)) return(1);
 
   /* Allocate global memory */
 
   /* Call CVodeAdjInit to update CVODES memory block by allocting the internal 
      memory needed for backward integration.*/
   steps = STEPS; /* no. of integration steps between two consecutive ckeckpoints*/
-  flag = CVodeAdjInit(cvode_mem, steps, CV_HERMITE);
+  retval = CVodeAdjInit(cvode_mem, steps, CV_HERMITE);
   /*
-  flag = CVodeAdjInit(cvode_mem, steps, CV_POLYNOMIAL);
+  retval = CVodeAdjInit(cvode_mem, steps, CV_POLYNOMIAL);
   */
-  if (check_flag(&flag, "CVodeAdjInit", 1)) return(1);
+  if (check_retval(&retval, "CVodeAdjInit", 1)) return(1);
 
   /* Perform forward run */
   printf("Forward integration ... ");
 
   /* Call CVodeF to integrate the forward problem over an interval in time and
      saves checkpointing data */
-  flag = CVodeF(cvode_mem, TOUT, y, &time, CV_NORMAL, &ncheck);
-  if (check_flag(&flag, "CVodeF", 1)) return(1);
-  flag = CVodeGetNumSteps(cvode_mem, &nst);
-  if (check_flag(&flag, "CVodeGetNumSteps", 1)) return(1);
+  retval = CVodeF(cvode_mem, TOUT, y, &time, CV_NORMAL, &ncheck);
+  if (check_retval(&retval, "CVodeF", 1)) return(1);
+  retval = CVodeGetNumSteps(cvode_mem, &nst);
+  if (check_retval(&retval, "CVodeGetNumSteps", 1)) return(1);
 
   printf("done ( nst = %ld )\n",nst);
   printf("\nncheck = %d\n\n", ncheck);
 
-  flag = CVodeGetQuad(cvode_mem, &time, q);
-  if (check_flag(&flag, "CVodeGetQuad", 1)) return(1);
+  retval = CVodeGetQuad(cvode_mem, &time, q);
+  if (check_retval(&retval, "CVodeGetQuad", 1)) return(1);
 
   printf("--------------------------------------------------------\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -320,14 +320,14 @@ int main(int argc, char *argv[])
   
   /* Initialize yB */
   yB = N_VNew_Serial(NEQ);
-  if (check_flag((void *)yB, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)yB, "N_VNew_Serial", 0)) return(1);
   Ith(yB,1) = ZERO;
   Ith(yB,2) = ZERO;
   Ith(yB,3) = ZERO;
 
   /* Initialize qB */
   qB = N_VNew_Serial(NP);
-  if (check_flag((void *)qB, "N_VNew", 0)) return(1);
+  if (check_retval((void *)qB, "N_VNew", 0)) return(1);
   Ith(qB,1) = ZERO;
   Ith(qB,2) = ZERO;
   Ith(qB,3) = ZERO;
@@ -346,54 +346,54 @@ int main(int argc, char *argv[])
 
   /* Call CVodeCreateB to specify the solution method for the backward 
      problem. */
-  flag = CVodeCreateB(cvode_mem, CV_BDF, CV_NEWTON, &indexB);
-  if (check_flag(&flag, "CVodeCreateB", 1)) return(1);
+  retval = CVodeCreateB(cvode_mem, CV_BDF, &indexB);
+  if (check_retval(&retval, "CVodeCreateB", 1)) return(1);
 
   /* Call CVodeInitB to allocate internal memory and initialize the 
      backward problem. */
-  flag = CVodeInitB(cvode_mem, indexB, fB, TB1, yB);
-  if (check_flag(&flag, "CVodeInitB", 1)) return(1);
+  retval = CVodeInitB(cvode_mem, indexB, fB, TB1, yB);
+  if (check_retval(&retval, "CVodeInitB", 1)) return(1);
 
   /* Set the scalar relative and absolute tolerances. */
-  flag = CVodeSStolerancesB(cvode_mem, indexB, reltolB, abstolB);
-  if (check_flag(&flag, "CVodeSStolerancesB", 1)) return(1);
+  retval = CVodeSStolerancesB(cvode_mem, indexB, reltolB, abstolB);
+  if (check_retval(&retval, "CVodeSStolerancesB", 1)) return(1);
 
   /* Attach the user data for backward problem. */
-  flag = CVodeSetUserDataB(cvode_mem, indexB, data);
-  if (check_flag(&flag, "CVodeSetUserDataB", 1)) return(1);
+  retval = CVodeSetUserDataB(cvode_mem, indexB, data);
+  if (check_retval(&retval, "CVodeSetUserDataB", 1)) return(1);
 
 /* Create sparse SUNMatrix for use in linear solves */
   AB = SUNSparseMatrix(NEQ, NEQ, nnz, CSC_MAT);
-  if (check_flag((void *)A, "SUNSparseMatrix", 0)) return(1);
+  if (check_retval((void *)A, "SUNSparseMatrix", 0)) return(1);
 
   /* Create KLU SUNLinearSolver object */
-  LSB = SUNKLU(yB, AB);
-  if (check_flag((void *)LSB, "SUNKLU", 0)) return(1);
+  LSB = SUNLinSol_KLU(yB, AB);
+  if (check_retval((void *)LSB, "SUNLinSol_KLU", 0)) return(1);
 
   /* Attach the matrix and linear solver for the backward problem */
-  flag = CVDlsSetLinearSolverB(cvode_mem, indexB, LSB, AB);
-  if (check_flag(&flag, "CVDlsSetLinearSolverB", 1)) return(1);
+  retval = CVDlsSetLinearSolverB(cvode_mem, indexB, LSB, AB);
+  if (check_retval(&retval, "CVDlsSetLinearSolverB", 1)) return(1);
 
   /* Set the user-supplied Jacobian routine for the backward problem */
-  flag = CVDlsSetJacFnB(cvode_mem, indexB, JacB);
-  if (check_flag(&flag, "CVDlsSetJacFnB", 1)) return(1);
+  retval = CVDlsSetJacFnB(cvode_mem, indexB, JacB);
+  if (check_retval(&retval, "CVDlsSetJacFnB", 1)) return(1);
 
   /* Call CVodeQuadInitB to allocate internal memory and initialize backward
      quadrature integration. */
-  flag = CVodeQuadInitB(cvode_mem, indexB, fQB, qB);
-  if (check_flag(&flag, "CVodeQuadInitB", 1)) return(1);
+  retval = CVodeQuadInitB(cvode_mem, indexB, fQB, qB);
+  if (check_retval(&retval, "CVodeQuadInitB", 1)) return(1);
 
   /* Call CVodeSetQuadErrCon to specify whether or not the quadrature variables
      are to be used in the step size control mechanism within CVODES. Call
      CVodeQuadSStolerances or CVodeQuadSVtolerances to specify the integration
      tolerances for the quadrature variables. */
-  flag = CVodeSetQuadErrConB(cvode_mem, indexB, SUNTRUE);
-  if (check_flag(&flag, "CVodeSetQuadErrConB", 1)) return(1);
+  retval = CVodeSetQuadErrConB(cvode_mem, indexB, SUNTRUE);
+  if (check_retval(&retval, "CVodeSetQuadErrConB", 1)) return(1);
 
   /* Call CVodeQuadSStolerancesB to specify the scalar relative and absolute tolerances
      for the backward problem. */
-  flag = CVodeQuadSStolerancesB(cvode_mem, indexB, reltolB, abstolQB);
-  if (check_flag(&flag, "CVodeQuadSStolerancesB", 1)) return(1);
+  retval = CVodeQuadSStolerancesB(cvode_mem, indexB, reltolB, abstolQB);
+  if (check_retval(&retval, "CVodeQuadSStolerancesB", 1)) return(1);
 
   /* Backward Integration */
 
@@ -402,37 +402,37 @@ int main(int argc, char *argv[])
   /* First get results at t = TBout1 */
 
   /* Call CVodeB to integrate the backward ODE problem. */
-  flag = CVodeB(cvode_mem, TBout1, CV_NORMAL);
-  if (check_flag(&flag, "CVodeB", 1)) return(1);
+  retval = CVodeB(cvode_mem, TBout1, CV_NORMAL);
+  if (check_retval(&retval, "CVodeB", 1)) return(1);
 
   /* Call CVodeGetB to get yB of the backward ODE problem. */
-  flag = CVodeGetB(cvode_mem, indexB, &time, yB);
-  if (check_flag(&flag, "CVodeGetB", 1)) return(1);
+  retval = CVodeGetB(cvode_mem, indexB, &time, yB);
+  if (check_retval(&retval, "CVodeGetB", 1)) return(1);
 
   /* Call CVodeGetAdjY to get the interpolated value of the forward solution
      y during a backward integration. */
-  flag = CVodeGetAdjY(cvode_mem, TBout1, y);
-  if (check_flag(&flag, "CVodeGetAdjY", 1)) return(1);
+  retval = CVodeGetAdjY(cvode_mem, TBout1, y);
+  if (check_retval(&retval, "CVodeGetAdjY", 1)) return(1);
 
   PrintOutput1(time, TBout1, y, yB);
 
   /* Then at t = T0 */
 
-  flag = CVodeB(cvode_mem, T0, CV_NORMAL);
-  if (check_flag(&flag, "CVodeB", 1)) return(1);
+  retval = CVodeB(cvode_mem, T0, CV_NORMAL);
+  if (check_retval(&retval, "CVodeB", 1)) return(1);
   CVodeGetNumSteps(CVodeGetAdjCVodeBmem(cvode_mem, indexB), &nstB);
   printf("Done ( nst = %ld )\n", nstB);
 
-  flag = CVodeGetB(cvode_mem, indexB, &time, yB);
-  if (check_flag(&flag, "CVodeGetB", 1)) return(1);
+  retval = CVodeGetB(cvode_mem, indexB, &time, yB);
+  if (check_retval(&retval, "CVodeGetB", 1)) return(1);
 
   /* Call CVodeGetQuadB to get the quadrature solution vector after a 
      successful return from CVodeB. */
-  flag = CVodeGetQuadB(cvode_mem, indexB, &time, qB);
-  if (check_flag(&flag, "CVodeGetQuadB", 1)) return(1);
+  retval = CVodeGetQuadB(cvode_mem, indexB, &time, qB);
+  if (check_retval(&retval, "CVodeGetQuadB", 1)) return(1);
 
-  flag = CVodeGetAdjY(cvode_mem, T0, y);
-  if (check_flag(&flag, "CVodeGetAdjY", 1)) return(1);
+  retval = CVodeGetAdjY(cvode_mem, T0, y);
+  if (check_retval(&retval, "CVodeGetAdjY", 1)) return(1);
 
   PrintOutput(time, y, yB, qB);
 
@@ -448,42 +448,42 @@ int main(int argc, char *argv[])
 
   printf("Re-initialize CVODES memory for backward run\n");
 
-  flag = CVodeReInitB(cvode_mem, indexB, TB2, yB);
-  if (check_flag(&flag, "CVodeReInitB", 1)) return(1);
+  retval = CVodeReInitB(cvode_mem, indexB, TB2, yB);
+  if (check_retval(&retval, "CVodeReInitB", 1)) return(1);
 
-  flag = CVodeQuadReInitB(cvode_mem, indexB, qB); 
-  if (check_flag(&flag, "CVodeQuadReInitB", 1)) return(1);
+  retval = CVodeQuadReInitB(cvode_mem, indexB, qB); 
+  if (check_retval(&retval, "CVodeQuadReInitB", 1)) return(1);
 
   PrintHead(TB2);
 
   /* First get results at t = TBout1 */
 
-  flag = CVodeB(cvode_mem, TBout1, CV_NORMAL);
-  if (check_flag(&flag, "CVodeB", 1)) return(1);
+  retval = CVodeB(cvode_mem, TBout1, CV_NORMAL);
+  if (check_retval(&retval, "CVodeB", 1)) return(1);
 
-  flag = CVodeGetB(cvode_mem, indexB, &time, yB);
-  if (check_flag(&flag, "CVodeGetB", 1)) return(1);
+  retval = CVodeGetB(cvode_mem, indexB, &time, yB);
+  if (check_retval(&retval, "CVodeGetB", 1)) return(1);
 
-  flag = CVodeGetAdjY(cvode_mem, TBout1, y);
-  if (check_flag(&flag, "CVodeGetAdjY", 1)) return(1);
+  retval = CVodeGetAdjY(cvode_mem, TBout1, y);
+  if (check_retval(&retval, "CVodeGetAdjY", 1)) return(1);
 
   PrintOutput1(time, TBout1, y, yB);
 
   /* Then at t = T0 */
 
-  flag = CVodeB(cvode_mem, T0, CV_NORMAL);
-  if (check_flag(&flag, "CVodeB", 1)) return(1);
+  retval = CVodeB(cvode_mem, T0, CV_NORMAL);
+  if (check_retval(&retval, "CVodeB", 1)) return(1);
   CVodeGetNumSteps(CVodeGetAdjCVodeBmem(cvode_mem, indexB), &nstB);
   printf("Done ( nst = %ld )\n", nstB);
 
-  flag = CVodeGetB(cvode_mem, indexB, &time, yB);
-  if (check_flag(&flag, "CVodeGetB", 1)) return(1);
+  retval = CVodeGetB(cvode_mem, indexB, &time, yB);
+  if (check_retval(&retval, "CVodeGetB", 1)) return(1);
 
-  flag = CVodeGetQuadB(cvode_mem, indexB, &time, qB);
-  if (check_flag(&flag, "CVodeGetQuadB", 1)) return(1);
+  retval = CVodeGetQuadB(cvode_mem, indexB, &time, qB);
+  if (check_retval(&retval, "CVodeGetQuadB", 1)) return(1);
 
-  flag = CVodeGetAdjY(cvode_mem, T0, y);
-  if (check_flag(&flag, "CVodeGetAdjY", 1)) return(1);
+  retval = CVodeGetAdjY(cvode_mem, T0, y);
+  if (check_retval(&retval, "CVodeGetAdjY", 1)) return(1);
 
   PrintOutput(time, y, yB, qB);
 
@@ -827,32 +827,32 @@ static void PrintOutput(realtype tfinal, N_Vector y, N_Vector yB, N_Vector qB)
  * Check function return value.
  *    opt == 0 means SUNDIALS function allocates memory so check if
  *             returned NULL pointer
- *    opt == 1 means SUNDIALS function returns a flag so check if
- *             flag >= 0
+ *    opt == 1 means SUNDIALS function returns an integer value so check if
+ *             retval < 0
  *    opt == 2 means function allocates memory so check if returned
  *             NULL pointer 
  */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt)
+static int check_retval(void *returnvalue, const char *funcname, int opt)
 {
-  int *errflag;
+  int *retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
 	    funcname);
     return(1); }
 
-  /* Check if flag < 0 */
+  /* Check if retval < 0 */
   else if (opt == 1) {
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
-	      funcname, *errflag);
+    retval = (int *) returnvalue;
+    if (*retval < 0) {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
+	      funcname, *retval);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
 	    funcname);
     return(1); }

@@ -17,16 +17,17 @@ summarizes the basic structure of the package, although knowledge
 of this structure is not necessary for its use.
 
 The overall organization of the {\cvodes} package is shown in Figure
-\ref{f:cvsorg}.  The basic elements of the structure are a module for
+\ref{f:cvsorg}.
+The basic elements of the structure are a module for
 the basic integration algorithm (including forward sensitivity analysis),
 a module for adjoint sensitivity analysis, and support for the solution
-of linear systems that arise in the case of a stiff system.  
-\begin{figure}
+of nonlinear and linear systems that arise in the case of a stiff system.  
+\begin{figure}[!ht]
 {\centerline{\includegraphics[width=\textwidth]{cvsorg}}}
-\caption [Overall structure of the CVODES package]
-{Overall structure of the {\cvodes} package.
+\caption [Overall structure diagram of the {\cvodes} package]
+{Overall structure diagram of the {\cvodes} package.
   Modules specific to {\cvodes} begin with ``CV'' ({\cvdls}, {\cvdiag},
-  {\cvspils}, {\cvbbdpre} and {\cvbandpre}), all other items correspond
+  {\cvspils}, {\cvbbdpre}, {\cvbandpre}, and {\cvnls}), all other items correspond
   to generic solver and auxiliary modules. 
   Note also that the LAPACK, {\klu} and {\superlumt} support is
   through interfaces to external packages.  Users will need to
@@ -35,13 +36,17 @@ of linear systems that arise in the case of a stiff system.
 \end{figure}
 The central integration module, implemented in the files \id{cvode.h},
 \id{cvode\_impl.h}, and \id{cvode.c}, deals with the evaluation of integration
-coefficients, the functional or Newton iteration process, estimation of local
+coefficients, estimation of local
 error, selection of stepsize and order, and interpolation to user output
-points, among other issues.  Although this module contains logic for
-the basic Newton iteration algorithm, it has no knowledge of the
-method being used to solve the linear systems that arise.  For any
-given user problem, one of the linear system solver interfaces is
-specified, and is then invoked as needed during the integration. 
+points, among other issues.
+
+{\cvodes} utilizes generic linear and nonlinear solver modules defined by the
+{\sunlinsol} API (see Chapter \ref{s:sunlinsol}) and {\sunnonlinsol} API (see
+Chapter \ref{c:sunnonlinsol}), respectively. As such, {\cvodes} has no knowledge
+of the method being used to solve the linear and nonlinear systems that
+arise. For any given user problem, there exists a single nonlinear solver
+interface and, if necessary, one of the linear system solver interfaces is
+specified, and invoked as needed during the integration.
 
 In addition, if forward sensitivity analysis is turned on, the main module 
 will integrate the forward sensitivity equations simultaneously with the original
@@ -73,8 +78,8 @@ the solution of linear systems stored using one of the {\sundials} generic
 {\sunmatrix} implementations (dense, banded or sparse; see
 Chapter \ref{s:sunmatrix}).  It is assumed that the dominant cost for
 such solvers occurs in factorization of the linear system matrix $M$,
-so {\cvode} utilizes these solvers within its modified Newton
-nonlinear solve. 
+so the {\sunnonlinsolnewton} module utilizes these solvers within a modified
+Newton nonlinear solve.
 The {\em spils} linear solver interface, {\cvspils}, supports
 {\sunlinsol} implementations with type \id{SUNLINSOL\_ITERATIVE}
 (see Chapter \ref{s:sunlinsol}).  These linear solvers utilize scaled

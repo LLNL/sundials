@@ -75,6 +75,12 @@ int main(int argc, char *argv[])
   printf("\nBand matrix test: size %ld, bandwidths %ld %ld\n\n",
          (long int) cols, (long int) uband, (long int) lband);
 
+  /* Initialize vectors and matrices to NULL */
+  x = NULL;
+  y = NULL;
+  A = NULL;
+  I = NULL;
+  
   /* Create matrices and vectors */
   A = SUNBandMatrix(cols, uband, lband, uband);
   I = SUNBandMatrix(cols, 0, 0, 0);

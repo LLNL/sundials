@@ -216,7 +216,7 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
 
   /* Allocate memory for banded linear solver */
   pdata->LS = NULL;
-  pdata->LS = SUNBandLinearSolver(pdata->rlocal, pdata->PP);
+  pdata->LS = SUNLinSol_Band(pdata->rlocal, pdata->PP);
   if (pdata->LS == NULL) {
     N_VDestroy(pdata->zlocal);
     N_VDestroy(pdata->rlocal);

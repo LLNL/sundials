@@ -111,6 +111,8 @@ typedef long double realtype;
 
 #if __STDC_VERSION__ >= 199901L
 typedef int64_t sunindextype;
+#elif _MSC_VER >= 300
+typedef __int64 sunindextype;
 #else
 typedef long int sunindextype;
 #endif

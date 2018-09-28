@@ -104,7 +104,7 @@ extern "C" {
 
  The parameters of ARKBandPrecInit are as follows:
 
- arkode_mem is the pointer to ARKODE memory returned by ARKodeCreate.
+ arkode_mem is the pointer to ARKode memory returned by ARKodeCreate.
 
  N is the problem size.
 
@@ -125,7 +125,7 @@ extern "C" {
        internal representation by checking for required functions.
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKBandPrecInit(void *arkode_mem, sunindextype N, 
-				    sunindextype mu, sunindextype ml);
+                                    sunindextype mu, sunindextype ml);
 
 /*---------------------------------------------------------------
  Optional output functions : ARKBandPrecGet*
@@ -145,10 +145,10 @@ SUNDIALS_EXPORT int ARKBandPrecInit(void *arkode_mem, sunindextype N,
 ---------------------------------------------------------------*/
 
 SUNDIALS_EXPORT int ARKBandPrecGetWorkSpace(void *arkode_mem, 
-					    long int *lenrwLS, 
-					    long int *leniwLS);
+                                            long int *lenrwLS, 
+                                            long int *leniwLS);
 SUNDIALS_EXPORT int ARKBandPrecGetNumRhsEvals(void *arkode_mem, 
-					      long int *nfevalsBP);
+                                              long int *nfevalsBP);
 
 
 #ifdef __cplusplus

@@ -1,0 +1,284 @@
+This section describes the {\sunnonlinsol} implementation of a fixed point
+(functional) iteration with optional Anderson acceleration. To access the
+{\sunnonlinsolfixedpoint} module, include the header file
+\id{sunnonlinsol/sunnonlinsol\_fixedpoint.h}. We note that the
+{\sunnonlinsolfixedpoint} module is accessible from {\sundials} integrators
+\textit{without} separately linking to the\\
+\noindent\id{libsundials\_sunnonlinsolfixedpoint} module library. 
+
+% ====================================================================
+\subsection{SUNNonlinearSolver\_FixedPoint description}
+\label{ss:sunnonlinsolfixedpoint_math}
+% ====================================================================
+
+To find the solution to
+\begin{equation}\label{e:fixed_point_sys}
+  G(y) = y \, 
+\end{equation}
+given an initial guess $y^{(0)}$, the fixed point iteration computes a series of
+approximate solutions
+\begin{equation}\label{e:fixed_point_iteration}
+  y^{(n+1)} = G(y^{(n)})
+\end{equation}
+where $n$ is the iteration index. The convergence of this iteration may be
+accelerated using Anderson's method \cite{Anderson65, Walker-Ni09, Fang-Saad09,
+LWWY11}. With Anderson acceleration using subspace size $m$, the series of
+approximate solutions can be formulated as the linear combination
+\begin{equation}\label{e:accelerated_fixed_point_iteration}
+  y^{(n+1)} = \sum_{i=0}^{m_n} \alpha_i^{(n)} G(y^{(n-m_n+i)})
+\end{equation}
+where $m_n = \min\{m,n\}$ and the factors
+\begin{equation}
+\alpha^{(n)} =(\alpha_0^{(n)}, \ldots, \alpha_{m_n}^{(n)})
+\end{equation}
+solve the minimization problem $\min_\alpha  \| F_n \alpha^T \|_2$ under the
+constraint that $\sum_{i=0}^{m_n} \alpha_i = 1$ where 
+\begin{equation}
+F_{n} = (f_{n-m_n}, \ldots, f_{n}) 
+\end{equation}
+with $f_i = G(y^{(i)}) - y^{(i)}$. Due to this constraint, in the limit of $m=0$
+the accelerated fixed point iteration formula
+\eqref{e:accelerated_fixed_point_iteration} simplifies to the standard
+fixed point iteration \eqref{e:fixed_point_iteration}.
+
+Following the recommendations made in \cite{Walker-Ni09}, the
+{\sunnonlinsolfixedpoint} implementation computes the series of approximate
+solutions as
+\begin{equation}\label{e:accelerated_fixed_point_iteration_impl}
+y^{(n+1)} = G(y^{(n)})-\sum_{i=0}^{m_n-1} \gamma_i^{(n)} \Delta g_{n-m_n+i}
+\end{equation}
+with $\Delta g_i = G(y^{(i+1)}) - G(y^{(i)})$ and where the factors
+\begin{equation}
+\gamma^{(n)} =(\gamma_0^{(n)}, \ldots, \gamma_{m_n-1}^{(n)})
+\end{equation}
+solve the unconstrained minimization problem
+ $\min_\gamma \| f_n - \Delta F_n \gamma^T \|_2$ where 
+\begin{equation}
+\Delta F_{n} = (\Delta f_{n-m_n}, \ldots, \Delta f_{n-1}),
+\end{equation}
+with $\Delta f_i = f_{i+1} - f_i$. The least-squares problem is solved by
+applying a QR factorization to $\Delta F_n = Q_n R_n$ and solving
+ $R_n \gamma = Q_n^T f_n$.
+
+The acceleration subspace size $m$ is required when constructing the
+{\sunnonlinsolfixedpoint} object.  The default maximum number of
+iterations and the stopping criteria for the fixed point iteration are
+supplied by the {\sundials} integrator when {\sunnonlinsolfixedpoint}
+is attached to it.  Both the maximum number of iterations and the
+convergence test function may be modified by the user by calling
+\id{SUNNonlinSolSetMaxIters} and \id{SUNNonlinSolSetConvTestFn}
+functions after attaching the {\sunnonlinsolfixedpoint} object to the
+integrator.
+
+% ====================================================================
+\subsection{SUNNonlinearSolver\_FixedPoint functions}
+\label{ss:sunnonlinsolfixedpoint_functions}
+% ====================================================================
+
+The {\sunnonlinsolfixedpoint} module provides the following constructors
+for creating a\\ \noindent
+\id{SUNNonlinearSolver} object.
+% --------------------------------------------------------------------
+\ucfunction{SUNNonlinSol\_FixedPoint}
+{
+  NLS = SUNNonlinSol\_FixedPoint(y, m);
+}
+{
+  The function \ID{SUNNonlinSol\_FixedPoint} creates a
+  \id{SUNNonlinearSolver} object for use with {\sundials} integrators to
+  solve nonlinear systems of the form $G(y) = y$.
+}
+{
+  \begin{args}[y]
+  \item[y] (\id{N\_Vector})
+    a template for cloning vectors needed within the solver
+  \item[m] (\id{int})
+    the number of acceleration vectors to use
+  \end{args}
+}
+{
+  The return value \id{NLS} (of type \id{SUNNonlinearSolver}) will be
+  a {\sunnonlinsol} object if the constructor exits successfully,
+  otherwise \id{NLS} will be \id{NULL}.
+}
+{}
+% --------------------------------------------------------------------
+\ucfunction{SUNNonlinSol\_FixedPointSens}
+{
+  NLS = SUNNonlinSol\_FixedPointSens(count, y, m);
+}
+{
+  The function \ID{SUNNonlinSol\_FixedPointSens} creates a
+  \id{SUNNonlinearSolver} object for use with {\sundials} sensitivity enabled
+  integrators ({\cvodes} and {\idas}) to solve nonlinear systems of the form
+  $G(y) = y$. 
+}
+{
+  \begin{args}[count]
+  \item[count] (\id{int})
+    the number of vectors in the nonlinear solve. When integrating a system
+    containing \id{Ns} sensitivities the value of \id{count} is:
+    \begin{itemize}
+      \item \id{Ns+1} if using a \textit{simultaneous} corrector approach.
+      \item \id{Ns} if using a \textit{staggered} corrector approach.
+    \end{itemize}
+  \item[y] (\id{N\_Vector})
+    a template for cloning vectors needed within the solver.
+  \item[m] (\id{int})
+    the number of acceleration vectors to use.
+  \end{args}
+}
+{
+  The return value \id{NLS} (of type \id{SUNNonlinearSolver}) will be
+  a {\sunnonlinsol} object if the constructor exits successfully,
+  otherwise \id{NLS} will be \id{NULL}.
+}
+{}
+% --------------------------------------------------------------------
+Since the accelerated fixed point iteration
+\eqref{e:fixed_point_iteration} does not require the setup or solution
+of any linear systems, the {\sunnonlinsolfixedpoint} module implements
+all of the functions defined in sections \ref{ss:sunnonlinsol_corefn} --
+\ref{ss:sunnonlinsol_getfn} except for the \id{SUNNonlinSolSetup},
+\id{SUNNonlinSolSetLSetupFn}, and \\ \noindent
+\id{SUNNonlinSolSetLSolveFn} functions, that are set to \id{NULL}.
+The {\sunnonlinsolfixedpoint} functions have the same names as those
+defined by the generic {\sunnonlinsol} API with \id{\_FixedPoint}
+appended to the function name.  Unless using the
+{\sunnonlinsolfixedpoint} module as a standalone nonlinear solver the
+generic functions defined in sections \ref{ss:sunnonlinsol_corefn} --
+\ref{ss:sunnonlinsol_getfn} should be called in favor of the
+{\sunnonlinsolfixedpoint}-specific implementations. 
+
+The {\sunnonlinsolfixedpoint} module also defines the following additional
+user-callable function.
+% --------------------------------------------------------------------
+\ucfunction{SUNNonlinSolGetSysFn\_FixedPoint}
+{
+  retval = SUNNonlinSolGetSysFn\_FixedPoint(NLS, SysFn);
+}
+{
+  The function \ID{SUNNonlinSolGetSysFn\_FixedPoint} returns the fixed-point
+  function that defines the nonlinear system.
+}
+{
+  \begin{args}[SysFn]
+  \item[NLS] (\id{SUNNonlinearSolver})
+    a {\sunnonlinsol} object
+  \item[SysFn] (\id{SUNNonlinSolSysFn*})
+    the function defining the nonlinear system.
+  \end{args}
+}
+{
+  The return value \id{retval} (of type \id{int}) should be zero for a
+  successful call, and a negative value for a failure.
+}
+{
+  This function is intended for users that wish to evaluate the
+  fixed-point function in a custom convergence test function for the
+  {\sunnonlinsolfixedpoint} module. We note that {\sunnonlinsolfixedpoint}
+  will not leverage the results from any user calls to \id{SysFn}.
+}
+
+
+% ====================================================================
+\subsection{SUNNonlinearSolver\_FixedPoint content}
+\label{ss:sunnonlinsolfixedpoint_content}
+% ====================================================================
+
+The \textit{content} field of the {\sunnonlinsolfixedpoint} module is the
+following structure.
+%%
+%%
+\begin{verbatim}
+struct _SUNNonlinearSolverContent_FixedPoint {
+
+  SUNNonlinSolSysFn      Sys;
+  SUNNonlinSolConvTestFn CTest;
+
+  int       m;
+  int      *imap;
+  realtype *R;
+  realtype *gamma;
+  realtype *cvals;
+  N_Vector *df;
+  N_Vector *dg;
+  N_Vector *q;
+  N_Vector *Xvecs;
+  N_Vector  yprev;
+  N_Vector  gy;
+  N_Vector  fold;
+  N_Vector  gold;
+  N_Vector  delta;
+  int       curiter;
+  int       maxiters;
+  long int  niters;
+};
+\end{verbatim}
+%%
+%%
+The following entries of the \emph{content} field are always
+allocated:
+\begin{args}[maxiters]
+  \item[Sys]      - function for evaluating the nonlinear system,
+  \item[CTest]    - function for checking convergence of the fixed point iteration,
+  \item[yprev]    - \id{N\_Vector} used to store previous fixed-point iterate,
+  \item[gy]       - \id{N\_Vector} used to store $G(y)$ in fixed-point algorithm,
+  \item[delta]    - \id{N\_Vector} used to store difference between successive fixed-point iterates,
+  \item[curiter]  - the current number of iterations in the solve attempt,
+  \item[maxiters] - the maximum number of fixed-point iterations allowed in
+                    a solve, and
+  \item[niters]   - the total number of nonlinear iterations across all
+                    solves.
+  \item[m]        - number of acceleration vectors,
+\end{args}
+If Anderson acceleration is requested (i.e., $m>0$ in the call to
+\ID{SUNNonlinSol\_FixedPoint}), then the following items are also
+allocated within the \emph{content} field:
+\begin{args}[Xvecs]
+  \item[imap]  - index array used in acceleration algorithm (length \id{m})
+  \item[R]     - small matrix used in acceleration algorithm (length \id{m*m})
+  \item[gamma] - small vector used in acceleration algorithm (length \id{m})
+  \item[cvals] - small vector used in acceleration algorithm (length \id{m+1})
+  \item[df]    - array of \id{N\_Vectors} used in acceleration algorithm (length \id{m})
+  \item[dg]    - array of \id{N\_Vectors} used in acceleration algorithm (length \id{m})
+  \item[q]     - array of \id{N\_Vectors} used in acceleration algorithm (length \id{m})
+  \item[Xvecs] - \id{N\_Vector} pointer array used in acceleration algorithm (length \id{m+1})
+  \item[fold]  - \id{N\_Vector} used in acceleration algorithm
+  \item[gold]  - \id{N\_Vector} used in acceleration algorithm
+\end{args}
+
+
+% ====================================================================
+\subsection{SUNNonlinearSolver\_FixedPoint Fortran interface}
+\label{ss:sunnonlinsolfixedpoint_fortran}
+% ====================================================================
+
+For {\sundials} integrators that include a Fortran interface, the
+{\sunnonlinsolfixedpoint} module also includes a Fortran-callable
+function for creating a \id{SUNNonlinearSolver} object.
+\ucfunction{FSUNFIXEDPOINTINIT}
+{
+  FSUNFIXEDPOINTINIT(code, m, ier);
+}
+{
+  The function \ID{FSUNFIXEDPOINTINIT} can be called for Fortran programs
+  to create a\\
+  \id{SUNNonlinearSolver} object for use with {\sundials}
+  integrators to solve nonlinear systems of the form $G(y) = y$.
+}
+{
+  \begin{args}[code]
+  \item[code] (\id{int*})
+    is an integer input specifying the solver id (1 for {\cvode}, 2
+    for {\ida}, 3 for {\kinsol}, and 4 for {\arkode}).
+  \item[m] (\id{int*})
+    is an integer input specifying the number of acceleration vectors.
+  \end{args}
+}
+{
+  \id{ier} is a return completion flag equal to \id{0} for a success
+  return and \id{-1} otherwise. See printed message for details in case
+  of failure.
+}
+{}

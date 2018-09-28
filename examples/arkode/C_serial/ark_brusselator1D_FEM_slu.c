@@ -2,13 +2,13 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2015, Southern Methodist University and
  * Lawrence Livermore National Security
  *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Southern Methodist University and Lawrence Livermore
  * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
+ * Produced at Southern Methodist University and the Lawrence
  * Livermore National Laboratory.
  *
  * All rights reserved.
@@ -16,9 +16,9 @@
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
  * Example problem:
- * 
- * The following test simulates a brusselator problem from chemical 
- * kinetics.  This is a PDE system with 3 components, Y = [u,v,w], 
+ *
+ * The following test simulates a brusselator problem from chemical
+ * kinetics.  This is a PDE system with 3 components, Y = [u,v,w],
  * satisfying the equations,
  *    u_t = du*u_xx + a - (w+1)*u + v*u^2
  *    v_t = dv*v_xx + w*u - v*u^2
@@ -27,27 +27,27 @@
  *    u(0,x) =  a  + 0.1*sin(pi*x)
  *    v(0,x) = b/a + 0.1*sin(pi*x)
  *    w(0,x) =  b  + 0.1*sin(pi*x),
- * and with stationary boundary conditions, i.e. 
+ * and with stationary boundary conditions, i.e.
  *    u_t(t,0) = u_t(t,1) = 0
  *    v_t(t,0) = v_t(t,1) = 0
  *    w_t(t,0) = w_t(t,1) = 0.
- * 
- * Here, we use a piecewise linear Galerkin finite element 
- * discretization in space, where all element-wise integrals are 
- * computed using 3-node Gaussian quadrature (since we will have 
- * quartic polynomials in the reaction terms for the u_t and v_t 
- * equations, including the test function).  The time derivative 
- * terms for this system will include a mass matrix, giving rise 
+ *
+ * Here, we use a piecewise linear Galerkin finite element
+ * discretization in space, where all element-wise integrals are
+ * computed using 3-node Gaussian quadrature (since we will have
+ * quartic polynomials in the reaction terms for the u_t and v_t
+ * equations, including the test function).  The time derivative
+ * terms for this system will include a mass matrix, giving rise
  * to an ODE system of the form
  *      M y_t = L y + R(y),
- * where M is the block mass matrix for each component, L is 
- * the block Laplace operator for each component, and R(y) is 
- * a 3x3 block comprised of the nonlinear reaction terms for 
- * each component.  Since it it highly inefficient to rewrite 
+ * where M is the block mass matrix for each component, L is
+ * the block Laplace operator for each component, and R(y) is
+ * a 3x3 block comprised of the nonlinear reaction terms for
+ * each component.  Since it it highly inefficient to rewrite
  * this system as
  *      y_t = M^{-1}(L y + R(y)),
- * we solve this system using ARKode, with a user-supplied mass
- * matrix.  We therefore provide functions to evaluate the ODE RHS 
+ * we solve this system using ARKStep, with a user-supplied mass
+ * matrix.  We therefore provide functions to evaluate the ODE RHS
  *    f(t,y) = L y + R(y),
  * its Jacobian
  *    J(t,y) = L + dR/dy,
@@ -56,7 +56,7 @@
  * This program solves the problem with the DIRK method, using a
  * Newton iteration with the SuperLU_MT SUNLinearSolver.
  *
- * 100 outputs are printed at equal time intervals, and run 
+ * 100 outputs are printed at equal time intervals, and run
  * statistics are printed at the end.
  *---------------------------------------------------------------*/
 
@@ -64,11 +64,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <arkode/arkode.h>                  /* prototypes for ARKode fcts., consts. */
+#include <arkode/arkode_arkstep.h>          /* prototypes for ARKStep fcts., consts */
 #include <nvector/nvector_serial.h>         /* serial N_Vector types, fcts., macros */
 #include <sunmatrix/sunmatrix_sparse.h>     /* access to sparse SUNMatrix           */
 #include <sunlinsol/sunlinsol_superlumt.h>  /* access to SuperLU_MT SUNLinearSolver */
-#include <arkode/arkode_direct.h>           /* access to ARKDls interface           */
 #include <sundials/sundials_types.h>        /* defs. of realtype, sunindextype, etc */
 #include <sundials/sundials_math.h>         /* def. of SUNRsqrt, etc.               */
 
@@ -111,7 +110,7 @@
 
 
 /* user data structure */
-typedef struct {  
+typedef struct {
   sunindextype N;   /* number of intervals     */
   realtype *x;      /* mesh node locations     */
   realtype a;       /* constant forcing on u   */
@@ -129,8 +128,8 @@ typedef struct {
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 static int f_diff(realtype t, N_Vector y, N_Vector ydot, void *user_data);
 static int f_rx(realtype t, N_Vector y, N_Vector ydot, void *user_data);
-static int MassMatrix(realtype t, SUNMatrix M, void *user_data, 
-		      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
+static int MassMatrix(realtype t, SUNMatrix M, void *user_data,
+                      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 
@@ -209,9 +208,9 @@ int main(int argc, char *argv[]) {
   printf("    N = %li,  NEQ = %li\n", (long int) udata->N, (long int) NEQ);
   printf("    num_threads = %i\n", num_threads);
   printf("    problem parameters:  a = %"GSYM",  b = %"GSYM",  ep = %"GSYM"\n",
-	 udata->a, udata->b, udata->ep);
-  printf("    diffusion coefficients:  du = %"GSYM",  dv = %"GSYM",  dw = %"GSYM"\n", 
-	 udata->du, udata->dv, udata->dw);
+         udata->a, udata->b, udata->ep);
+  printf("    diffusion coefficients:  du = %"GSYM",  dv = %"GSYM",  dw = %"GSYM"\n",
+         udata->du, udata->dv, udata->dw);
   printf("    reltol = %.1"ESYM",  abstol = %.1"ESYM"\n\n", reltol, abstol);
 
   /* Initialize data structures */
@@ -228,7 +227,7 @@ int main(int argc, char *argv[]) {
   udata->tmp = N_VNew_Serial(NEQ);  /* temporary N_Vector inside udata */
   if (check_flag((void *) udata->tmp, "N_VNew_Serial", 0)) return 1;
 
-  /* allocate and set up spatial mesh; this [arbitrarily] clusters 
+  /* allocate and set up spatial mesh; this [arbitrarily] clusters
      more intervals near the end points of the interval */
   udata->x = (realtype *) malloc(N*sizeof(realtype));
   if (check_flag((void *)udata->x, "malloc", 2)) return 1;
@@ -262,49 +261,45 @@ int main(int argc, char *argv[]) {
   if (check_flag((void *)data, "N_VGetArrayPointer", 0)) return 1;
   for (i=0; i<N; i++)  data[IDX(i,2)] = ONE;
 
-  
-  /* Create the solver memory */
-  arkode_mem = ARKodeCreate();
-  if (check_flag((void *)arkode_mem, "ARKodeCreate", 0)) return 1;
 
-  /* Call ARKodeInit to initialize the integrator memory and specify the
-     right-hand side function in y'=f(t,y), the inital time T0, and
-     the initial dependent variable vector y.  Note: since this
+  /* Call ARKStepCreate to initialize the ARK timestepper module and
+     specify the right-hand side function in y'=f(t,y), the inital time
+     T0, and the initial dependent variable vector y.  Note: since this
      problem is fully implicit, we set f_E to NULL and f_I to f. */
-  flag = ARKodeInit(arkode_mem, NULL, f, T0, y);
-  if (check_flag(&flag, "ARKodeInit", 1)) return 1;
+  arkode_mem = ARKStepCreate(NULL, f, T0, y);
+  if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) return 1;
 
   /* Set routines */
-  flag = ARKodeSetUserData(arkode_mem, (void *) udata);     /* Pass udata to user functions */
-  if (check_flag(&flag, "ARKodeSetUserData", 1)) return 1;
-  flag = ARKodeSStolerances(arkode_mem, reltol, abstol);    /* Specify tolerances */
-  if (check_flag(&flag, "ARKodeSStolerances", 1)) return 1;
-  flag = ARKodeResStolerance(arkode_mem, abstol);           /* Specify residual tolerance */
-  if (check_flag(&flag, "ARKodeResStolerance", 1)) return 1;
+  flag = ARKStepSetUserData(arkode_mem, (void *) udata);     /* Pass udata to user functions */
+  if (check_flag(&flag, "ARKStepSetUserData", 1)) return 1;
+  flag = ARKStepSStolerances(arkode_mem, reltol, abstol);    /* Specify tolerances */
+  if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
+  flag = ARKStepResStolerance(arkode_mem, abstol);           /* Specify residual tolerance */
+  if (check_flag(&flag, "ARKStepResStolerance", 1)) return 1;
 
   /* Initialize sparse matrix data structure and SuperLU_MT solvers (system and mass) */
   NNZ = 15*NEQ;
   A = SUNSparseMatrix(NEQ, NEQ, NNZ, CSC_MAT);
   if (check_flag((void *)A, "SUNSparseMatrix", 0)) return 1;
-  LS = SUNSuperLUMT(y, A, num_threads);
-  if (check_flag((void *)LS, "SUNSuperLUMT", 0)) return 1;
+  LS = SUNLinSol_SuperLUMT(y, A, num_threads);
+  if (check_flag((void *)LS, "SUNLinSol_SuperLUMT", 0)) return 1;
   M = SUNSparseMatrix(NEQ, NEQ, NNZ, CSC_MAT);
   if (check_flag((void *)M, "SUNSparseMatrix", 0)) return 1;
-  MLS = SUNSuperLUMT(y, M, num_threads);
-  if (check_flag((void *)MLS, "SUNSuperLUMT", 0)) return 1;
-  
-  /* Attach the matrix, linear solver, and Jacobian construction routine to ARKode */
-  flag = ARKDlsSetLinearSolver(arkode_mem, LS, A);        /* Attach matrix and LS */
-  if (check_flag(&flag, "ARKDlsSetLinearSolver", 1)) return 1;
-  flag = ARKDlsSetJacFn(arkode_mem, Jac);                 /* Supply Jac routine */
-  if (check_flag(&flag, "ARKDlsSetJacFn", 1)) return 1;
+  MLS = SUNLinSol_SuperLUMT(y, M, num_threads);
+  if (check_flag((void *)MLS, "SUNLinSol_SuperLUMT", 0)) return 1;
 
-  /* Attach the mass matrix, linear solver and construction routines to ARKode;
-     notify ARKode that the mass matrix is not time-dependent */
-  flag = ARKDlsSetMassLinearSolver(arkode_mem, MLS, M, SUNFALSE);   /* Attach matrix and LS */
-  if (check_flag(&flag, "ARKDlsSetMassLinearSolver", 1)) return 1;
-  flag = ARKDlsSetMassFn(arkode_mem, MassMatrix);                /* Supply M routine */
-  if (check_flag(&flag, "ARKDlsSetMassFn", 1)) return 1;
+  /* Attach the matrix, linear solver, and Jacobian construction routine to ARKStep */
+  flag = ARKStepSetLinearSolver(arkode_mem, LS, A);        /* Attach matrix and LS */
+  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
+  flag = ARKStepSetJacFn(arkode_mem, Jac);                 /* Supply Jac routine */
+  if (check_flag(&flag, "ARKStepSetJacFn", 1)) return 1;
+
+  /* Attach the mass matrix, linear solver and construction routines to ARKStep;
+     notify ARKStep that the mass matrix is not time-dependent */
+  flag = ARKStepSetMassLinearSolver(arkode_mem, MLS, M, SUNFALSE);   /* Attach matrix and LS */
+  if (check_flag(&flag, "ARKStepSetMassLinearSolver", 1)) return 1;
+  flag = ARKStepSetMassFn(arkode_mem, MassMatrix);                /* Supply M routine */
+  if (check_flag(&flag, "ARKStepSetMassFn", 1)) return 1;
 
   /* output mesh to disk */
   FID=fopen("bruss_FEM_mesh.txt","w");
@@ -326,7 +321,7 @@ int main(int argc, char *argv[]) {
   fprintf(VFID,"\n");
   fprintf(WFID,"\n");
 
-  /* Main time-stepping loop: calls ARKode to perform the integration, then
+  /* Main time-stepping loop: calls ARKStepEvolve to perform the integration, then
      prints results.  Stops when the final time has been reached */
   t  = T0;
   dTout = Tf/Nt;
@@ -335,8 +330,8 @@ int main(int argc, char *argv[]) {
   printf("   ----------------------------------------------\n");
   for (iout=0; iout<Nt; iout++) {
 
-    flag = ARKode(arkode_mem, tout, y, &t, ARK_NORMAL);    /* call integrator */
-    if (check_flag(&flag, "ARKode", 1)) break;
+    flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);    /* call integrator */
+    if (check_flag(&flag, "ARKStepEvolve", 1)) break;
     u = N_VWL2Norm(y,umask);                               /* access/print solution statistics */
     u = SUNRsqrt(u*u/N);
     v = N_VWL2Norm(y,vmask);
@@ -366,28 +361,28 @@ int main(int argc, char *argv[]) {
   fclose(WFID);
 
   /* Print some final statistics */
-  flag = ARKodeGetNumSteps(arkode_mem, &nst);
-  check_flag(&flag, "ARKodeGetNumSteps", 1);
-  flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
-  check_flag(&flag, "ARKodeGetNumStepAttempts", 1);
-  flag = ARKodeGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(&flag, "ARKodeGetNumRhsEvals", 1);
-  flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
-  check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1);
-  flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
-  check_flag(&flag, "ARKodeGetNumErrTestFails", 1);
-  flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
-  check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1);
-  flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
-  check_flag(&flag, "ARKodeGetNumNonlinSolvConvFails", 1);
-  flag = ARKDlsGetNumMassSetups(arkode_mem, &nmset);
-  check_flag(&flag, "ARKDlsGetNumMassSetups", 1);
-  flag = ARKDlsGetNumMassSolves(arkode_mem, &nms);
-  check_flag(&flag, "ARKDlsGetNumMassSolves", 1);
-  flag = ARKDlsGetNumMassMult(arkode_mem, &nMv);
-  check_flag(&flag, "ARKDlsGetNumMassMult", 1);
-  flag = ARKDlsGetNumJacEvals(arkode_mem, &nje);
-  check_flag(&flag, "ARKDlsGetNumJacEvals", 1);
+  flag = ARKStepGetNumSteps(arkode_mem, &nst);
+  check_flag(&flag, "ARKStepGetNumSteps", 1);
+  flag = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
+  check_flag(&flag, "ARKStepGetNumStepAttempts", 1);
+  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
+  check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
+  flag = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
+  check_flag(&flag, "ARKStepGetNumLinSolvSetups", 1);
+  flag = ARKStepGetNumErrTestFails(arkode_mem, &netf);
+  check_flag(&flag, "ARKStepGetNumErrTestFails", 1);
+  flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
+  check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1);
+  flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
+  check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1);
+  flag = ARKStepGetNumMassSetups(arkode_mem, &nmset);
+  check_flag(&flag, "ARKStepGetNumMassSetups", 1);
+  flag = ARKStepGetNumMassSolves(arkode_mem, &nms);
+  check_flag(&flag, "ARKStepGetNumMassSolves", 1);
+  flag = ARKStepGetNumMassMult(arkode_mem, &nMv);
+  check_flag(&flag, "ARKStepGetNumMassMult", 1);
+  flag = ARKStepGetNumJacEvals(arkode_mem, &nje);
+  check_flag(&flag, "ARKStepGetNumJacEvals", 1);
 
   printf("\nFinal Solver Statistics:\n");
   printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);
@@ -410,7 +405,7 @@ int main(int argc, char *argv[]) {
   N_VDestroy(udata->tmp);
   free(udata->x);
   free(udata);
-  ARKodeFree(&arkode_mem);         /* Free integrator memory */
+  ARKStepFree(&arkode_mem);        /* Free integrator memory */
   SUNLinSolFree(LS);               /* Free linear solvers */
   SUNLinSolFree(MLS);
   SUNMatDestroy(A);                /* Free matrices */
@@ -425,7 +420,7 @@ int main(int argc, char *argv[]) {
 
 
 /* Routine to compute the ODE RHS function f(t,y), where system is of the form
-        M y_t = f(t,y) := Ly + R(y) 
+        M y_t = f(t,y) := Ly + R(y)
    This routine only computes the f(t,y), leaving (M y_t) alone. */
 static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data) {
 
@@ -438,11 +433,11 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data) {
   /* add reaction terms to RHS */
   ier = f_rx(t, y, ydot, user_data);
   if (ier != 0)  return ier;
-  
+
   /* add diffusion terms to RHS */
   ier = f_diff(t, y, ydot, user_data);
   if (ier != 0)  return ier;
-  
+
   return 0;
 }
 
@@ -465,7 +460,7 @@ static int f_diff(realtype t, N_Vector y, N_Vector ydot, void *user_data) {
   realtype xl, xr, f1;
   booleantype left, right;
   realtype *Ydata, *RHSdata;
-  
+
   /* access data arrays */
   Ydata = N_VGetArrayPointer(y);
   if (check_flag((void *)Ydata, "N_VGetArrayPointer", 0)) return 1;
@@ -502,7 +497,7 @@ static int f_diff(realtype t, N_Vector y, N_Vector ydot, void *user_data) {
       /*  v */
       f1 = -dv * Eval_x(vl,vr,xl,xr) * ChiL_x(xl,xr);
       RHSdata[IDX(i,1)] += Quad(f1,f1,f1,xl,xr);
-      
+
       /*  w */
       f1 = -dw * Eval_x(wl,wr,xl,xr) * ChiL_x(xl,xr);
       RHSdata[IDX(i,2)] += Quad(f1,f1,f1,xl,xr);
@@ -589,7 +584,7 @@ static int f_rx(realtype t, N_Vector y, N_Vector ydot, void *user_data) {
       w = Eval(wl,wr,xl,xr,X3(xl,xr));
       f3 = (a - (w+ONE)*u + v*u*u) * ChiL(xl,xr,X3(xl,xr));
       RHSdata[IDX(i,0)] += Quad(f1,f2,f3,xl,xr);
-    
+
       /*  v */
       u = Eval(ul,ur,xl,xr,X1(xl,xr));
       v = Eval(vl,vr,xl,xr,X1(xl,xr));
@@ -604,7 +599,7 @@ static int f_rx(realtype t, N_Vector y, N_Vector ydot, void *user_data) {
       w = Eval(wl,wr,xl,xr,X3(xl,xr));
       f3 = (w*u - v*u*u) * ChiL(xl,xr,X3(xl,xr));
       RHSdata[IDX(i,1)] += Quad(f1,f2,f3,xl,xr);
-    
+
       /*  w */
       u = Eval(ul,ur,xl,xr,X1(xl,xr));
       v = Eval(vl,vr,xl,xr,X1(xl,xr));
@@ -636,7 +631,7 @@ static int f_rx(realtype t, N_Vector y, N_Vector ydot, void *user_data) {
       w = Eval(wl,wr,xl,xr,X3(xl,xr));
       f3 = (a - (w+ONE)*u + v*u*u) * ChiR(xl,xr,X3(xl,xr));
       RHSdata[IDX(i+1,0)] += Quad(f1,f2,f3,xl,xr);
-    
+
       /*  v */
       u = Eval(ul,ur,xl,xr,X1(xl,xr));
       v = Eval(vl,vr,xl,xr,X1(xl,xr));
@@ -651,7 +646,7 @@ static int f_rx(realtype t, N_Vector y, N_Vector ydot, void *user_data) {
       w = Eval(wl,wr,xl,xr,X3(xl,xr));
       f3 = (w*u - v*u*u) * ChiR(xl,xr,X3(xl,xr));
       RHSdata[IDX(i+1,1)] += Quad(f1,f2,f3,xl,xr);
-    
+
       /*  w */
       u = Eval(ul,ur,xl,xr,X1(xl,xr));
       v = Eval(vl,vr,xl,xr,X1(xl,xr));
@@ -689,7 +684,7 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
     printf("Jacobian calculation error: matrix is the wrong size!\n");
     return 1;
   }
-  
+
   /* Fill in the Laplace matrix */
   ier = LaplaceMatrix(J, udata);
   if (ier != 0) {
@@ -707,7 +702,7 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
       return 1;
     }
   }
-      
+
   /* Add in the Jacobian of the reaction terms matrix */
   ier = ReactionJac(y, udata->R, udata);
   if (ier != 0) {
@@ -728,8 +723,8 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
 
 
 /* Routine to compute the mass matrix multiplying y_t. */
-static int MassMatrix(realtype t, SUNMatrix M, void *user_data, 
-		      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3) {
+static int MassMatrix(realtype t, SUNMatrix M, void *user_data,
+                      N_Vector tmp1, N_Vector tmp2, N_Vector tmp3) {
 
   /* user data structure */
   UserData udata = (UserData) user_data;
@@ -916,7 +911,7 @@ static int LaplaceMatrix(SUNMatrix L, UserData udata)
   sunindextype *colptrs = SUNSparseMatrix_IndexPointers(L);
   sunindextype *rowvals = SUNSparseMatrix_IndexValues(L);
   realtype *data = SUNSparseMatrix_Data(L);
-  
+
   /* clear out matrix */
   SUNMatZero(L);
 
@@ -1360,7 +1355,7 @@ static int ReactionJac(N_Vector y, SUNMatrix Jac, UserData udata)
     opt == 1 means SUNDIALS function returns a flag so check if
              flag >= 0
     opt == 2 means function allocates memory so check if returned
-             NULL pointer  
+             NULL pointer
 */
 static int check_flag(void *flagvalue, const char *funcname, int opt)
 {
@@ -1369,7 +1364,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return 1; }
 
   /* Check if flag < 0 */
@@ -1377,13 +1372,13 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
     errflag = (int *) flagvalue;
     if (*errflag < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
-	      funcname, *errflag);
+              funcname, *errflag);
       return 1; }}
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && flagvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return 1; }
 
   return 0;

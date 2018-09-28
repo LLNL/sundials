@@ -3,13 +3,13 @@
 #                 Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # LLNS/SMU Copyright Start
-# Copyright (c) 2017, Southern Methodist University and 
+# Copyright (c) 2017, Southern Methodist University and
 # Lawrence Livermore National Security
 #
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Southern Methodist University and Lawrence Livermore 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Southern Methodist University and Lawrence Livermore
 # National Laboratory under Contract DE-AC52-07NA27344.
-# Produced at Southern Methodist University and the Lawrence 
+# Produced at Southern Methodist University and the Lawrence
 # Livermore National Laboratory.
 #
 # All rights reserved.
@@ -31,6 +31,10 @@ SET(cvodes_SOURCES
   cvodes_diag.c
   cvodes_direct.c
   cvodes_spils.c
+  cvodes_nls.c
+  cvodes_nls_sim.c
+  cvodes_nls_stg.c
+  cvodes_nls_stg1.c
   )
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
@@ -39,12 +43,14 @@ SET(shared_SOURCES
   ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_matrix.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_linearsolver.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_nonlinearsolver.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_math.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_band.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_dense.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_direct.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_iterative.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_version.c
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector_senswrapper.c
   ${sundials_SOURCE_DIR}/src/nvec_ser/nvector_serial.c
   )
 
@@ -68,6 +74,13 @@ SET(sunlinsol_SOURCES
   ${sundials_SOURCE_DIR}/src/sunlinsol_pcg/sunlinsol_pcg.c
   )
 
+# Add variable sunnonlinsol_SOURCES with the common SUNNonlinearSolver sources
+# which will also be included in the CVODES library
+SET(sunnonlinsol_SOURCES
+  ${sundials_SOURCE_DIR}/src/sunnonlinsol/newton/sunnonlinsol_newton.c
+  ${sundials_SOURCE_DIR}/src/sunnonlinsol/fixedpoint/sunnonlinsol_fixedpoint.c
+  )
+
 # Add variable cvodes_HEADERS with the exported CVODES header files
 SET(cvodes_HEADERS
   cvodes.h
@@ -86,15 +99,16 @@ ADD_PREFIX(${sundials_SOURCE_DIR}/include/cvodes/ cvodes_HEADERS)
 INCLUDE_DIRECTORIES(.)
 INCLUDE_DIRECTORIES(../sundials)
 
-# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY 
+# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
 ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 
 # Build the static library
 IF(BUILD_STATIC_LIBS)
 
   # Add the build target for the static CVODES library
-  ADD_LIBRARY(sundials_cvodes_static STATIC 
-    ${cvodes_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES})
+  ADD_LIBRARY(sundials_cvodes_static STATIC
+    ${cvodes_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES}
+    ${sunnonlinsol_SOURCES})
 
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_cvodes_static
@@ -109,8 +123,9 @@ ENDIF(BUILD_STATIC_LIBS)
 IF(BUILD_SHARED_LIBS)
 
   # Add the build target for the CVODES library
-  ADD_LIBRARY(sundials_cvodes_shared SHARED 
-    ${cvodes_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES})
+  ADD_LIBRARY(sundials_cvodes_shared SHARED
+    ${cvodes_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES}
+    ${sunnonlinsol_SOURCES})
 
   IF(UNIX)
     TARGET_LINK_LIBRARIES(sundials_cvodes_shared m)

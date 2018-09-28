@@ -43,6 +43,7 @@ def main():
     cmakeLogFile = "Oops - didn't get this far!"
     testLogFile  = "Oops - didn't get this far!"
     sunTestDir   = "Oops - didn't get this far!"
+    msg          = "Oops - didn't get this far!"
 
     todayDate = time.strftime("%Y-%m-%d")
     
@@ -130,21 +131,23 @@ def main():
         cmd = cmd + "-DKLU_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/suitesparse/4.5.3/lib \ \n"
         # enable hypre
         cmd = cmd + "-DHYPRE_ENABLE=ON \ \n"
-        cmd = cmd + "-DHYPRE_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/hypre/2.11.1/include \ \n"
-        cmd = cmd + "-DHYPRE_LIBRARY=/usr/casc/sundials/apps/rh6/hypre/2.11.1/lib/libHYPRE.a \ \n"
+        cmd = cmd + "-DHYPRE_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/hypre/2.11.1_long_int_fpic/include \ \n"
+        cmd = cmd + "-DHYPRE_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/hypre/2.11.1_long_int_fpic/lib \ \n"
         # enable PETSc
         cmd = cmd + "-DPETSC_ENABLE=ON \ \n"
-        cmd = cmd + "-DPETSC_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/petsc/3.7.2/include \ \n"
-        cmd = cmd + "-DPETSC_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/petsc/3.7.2/lib \ \n"
+        cmd = cmd + "-DPETSC_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/petsc/3.7.2_long_int/include \ \n"
+        cmd = cmd + "-DPETSC_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/petsc/3.7.2_long_int/lib \ \n"
         # enable openmp
         cmd = cmd + "-DOPENMP_ENABLE=ON \ \n"
         # enable pthreads
         cmd = cmd + "-DPTHREAD_ENABLE=ON \ \n"
         # enable SUPERLU_MT
         cmd = cmd + "-DSUPERLUMT_ENABLE=ON \ \n"
-        cmd = cmd + "-DSUPERLUMT_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_3.1/SRC \ \n"
-        cmd = cmd + "-DSUPERLUMT_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_3.1/lib \ \n"
+        cmd = cmd + "-DSUPERLUMT_INCLUDE_DIR=/usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_3.1_long_int_fpic/SRC \ \n"
+        cmd = cmd + "-DSUPERLUMT_LIBRARY_DIR=/usr/casc/sundials/apps/rh6/superlu_mt/SuperLU_MT_3.1_long_int_fpic/lib \ \n"
         cmd = cmd + "-DSUPERLUMT_THREAD_TYPE=Pthread \ \n"
+        # turn on development tests
+        cmd = cmd + "-DSUNDIALS_DEVTESTS=ON \ \n"
         # specify source
         cmd = cmd + sunSrcDir
         # redirect output to config log file
@@ -205,7 +208,7 @@ def main():
 # ===============================================================================
 
 #
-# redirect system output to log file and screen
+# class to redirect system output to log file and screen
 #
 class Logger(object):
     def __init__(self, logFile):
@@ -282,8 +285,11 @@ def cleanup(msg, startTime, sunTestDir, buildLogFile, buildLogFileName,
             cmakeLogFile, makeLogFile, testLogFile):
 
     # move log file to test directory
-    finalBuildLogFile = os.path.join(sunTestDir, buildLogFileName)
-    os.rename(buildLogFile, finalBuildLogFile)
+    if (os.path.isdir(sunTestDir)):
+        finalBuildLogFile = os.path.join(sunTestDir, buildLogFileName)
+        os.rename(buildLogFile, finalBuildLogFile)
+    else:
+        finalBuildLogFile = buildLogFile
     
     # print closing info
     print "\n" + msg

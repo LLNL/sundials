@@ -1,6 +1,6 @@
 
 
-Demonstration program for ARKODE - ARKSPGMR linear solver
+Demonstration program for ARKODE - SPGMR linear solver
 
 Food web problem with ns species, ns = 6
 Predator-prey interaction and diffusion on a 2-D square
@@ -418,10 +418,10 @@ Species 6
 
  Final statistics for this run:
 
- ARKode real workspace length          = 3298 
- ARKode integer workspace length       =   55 
- SUNSPGMR real workspace length        = 2642 
- SUNSPGMR integer workspace length     =   22 
+ ARKStep real workspace length         = 3556 
+ ARKStep integer workspace length      =  128 
+ ARKLS real workspace length           = 2647 
+ ARKLS integer workspace length        =   42 
  Number of steps                       =  258 
  Number of f-s (explicit)              =    0 
  Number of f-s (implicit)              = 4238 
@@ -487,10 +487,10 @@ t =   1.00e+01  nst = 264  nfe = 0  nfi = 4356  nni = 2901  hu =    9.24e-02
 
  Final statistics for this run:
 
- ARKode real workspace length          = 3298 
- ARKode integer workspace length       =   55 
- SUNSPGMR real workspace length        = 2642 
- SUNSPGMR integer workspace length     =   22 
+ ARKStep real workspace length         = 3596 
+ ARKStep integer workspace length      =  136 
+ ARKLS real workspace length           = 2647 
+ ARKLS integer workspace length        =   42 
  Number of steps                       =  264 
  Number of f-s (explicit)              =    0 
  Number of f-s (implicit)              = 4356 
@@ -556,10 +556,10 @@ t =   1.00e+01  nst = 359  nfe = 0  nfi = 5723  nni = 3907  hu =    1.35e-01
 
  Final statistics for this run:
 
- ARKode real workspace length          = 3298 
- ARKode integer workspace length       =   55 
- SUNSPGMR real workspace length        = 2642 
- SUNSPGMR integer workspace length     =   22 
+ ARKStep real workspace length         = 3636 
+ ARKStep integer workspace length      =  144 
+ ARKLS real workspace length           = 2647 
+ ARKLS integer workspace length        =   42 
  Number of steps                       =  359 
  Number of f-s (explicit)              =    0 
  Number of f-s (implicit)              = 5723 
@@ -625,10 +625,10 @@ t =   1.00e+01  nst = 359  nfe = 0  nfi = 5729  nni = 3912  hu =    1.31e-01
 
  Final statistics for this run:
 
- ARKode real workspace length          = 3298 
- ARKode integer workspace length       =   55 
- SUNSPGMR real workspace length        = 2642 
- SUNSPGMR integer workspace length     =   22 
+ ARKStep real workspace length         = 3676 
+ ARKStep integer workspace length      =  152 
+ ARKLS real workspace length           = 2647 
+ ARKLS integer workspace length        =   42 
  Number of steps                       =  359 
  Number of f-s (explicit)              =    0 
  Number of f-s (implicit)              = 5729 

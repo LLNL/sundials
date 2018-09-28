@@ -42,30 +42,29 @@
    FKINSETIIN, FKINSETRIN, FKINSETVIN interface to KINSet* functions
    FKINSOL interfaces to KINSol and KINGet* functions
    FKINFREE interfaces to KINFree
-   FKINDLSINIT interface to KINDlsSetLineaerSolver
-   FKINSPILSINIT interface to KINSpilsSetLineaerSolver
-   FKINDENSESETJAC interface to KINDlsSetJacFn
-   FKINBANDSETJAC interface to KINDlsSetJacFn
-   FKINSPARSESETJAC interface to KINDlsSetJacFn
-   FKINSPILSSETJAC interface to KINSpilsSetJacTimes
-   FKINSPILSSETPREC interface to KINSpilsSetPreconditioner
+   FKINLSINIT interface to KINSetLinearSolver
+   FKINDENSESETJAC interface to KINSetJacFn
+   FKINBANDSETJAC interface to KINSetJacFn
+   FKINSPARSESETJAC interface to KINSetJacFn
+   FKINLSSETJAC interface to KINSetJacTimes
+   FKINLSSETPREC interface to KINSetPreconditioner
 
  The user-supplied functions, each with the corresponding interface function
  which calls it (and its type within KINSOL), are as follows:
 
    FKFUN    : called by the interface function FKINfunc of type KINSysFn
    FKDJAC   : called by the interface function FKINDenseJac of type
-              KINDlsJacFn
+              KINLsJacFn
    FKBJAC   : called by the interface function FKINBandJac of type
-              KINDlsJacFn
+              KINLsJacFn
    FKINSPJAC: called by the interface function FKINSparseJac of type 
-              KINDlsJacFn
+              KINLsJacFn
    FKJTIMES : called by the interface function FKINJtimes of type
-              KINSpilsJacTimesVecFn
+              KINLsJacTimesVecFn
    FKPSOL   : called by the interface function FKINPSol of type
-              KINSpilsPrecSolveFn
+              KINLsPrecSolveFn
    FKPSET   : called by the interface function FKINPSet of type
-              KINSpilsPrecSetupFn
+              KINLsPrecSetupFn
 
  In contrast to the case of direct use of KINSOL, the names of all 
  user-supplied routines here are fixed, in order to maximize portability for
@@ -276,7 +275,7 @@
          CALL FKININIT(IOUT, ROUT, IER)
 
        The arguments are:
-         IOUT        = array of length at least 15 for integer optional outputs
+         IOUT        = array of length at least 16 for integer optional outputs
                        (declare as INTEGER*8)
          ROUT        = array of length at least 2 for real optional outputs
          IER         = return completion flag. Values are 0 = success, and
@@ -291,7 +290,7 @@
 
  (6.1s) DENSE treatment of the linear systems (NVECTOR_SERIAL only):
   
-        To initialize a dense matrix structure for stroing the system Jacobian
+        To initialize a dense matrix structure for storing the system Jacobian
         and for use within a direct linear solver, the user must call:
   
           CALL FSUNDENSEMATINIT(3, M, N, IER)
@@ -318,7 +317,7 @@
         To attach the dense linear solver structure the user must call
         the following:
 
-          CALL FKINDLSINIT(IER)
+          CALL FKINLSINIT(IER)
 
         The arguments are:
             IER  = return completion flag [int, output]:
@@ -365,7 +364,7 @@
         To attach the banded linear solver structure the user must call
         the following:
 
-          CALL FKINDLSINIT(IER)
+          CALL FKINLSINIT(IER)
 
         The arguments are:
             IER  = return completion flag [int, output]:
@@ -415,7 +414,7 @@
         To attach the sparse linear solver structure the user must call
         the following:
 
-          CALL FKINDLSINIT(IER)
+          CALL FKINLSINIT(IER)
 
         The arguments are:
             IER  = return completion flag [int, output]:
@@ -459,16 +458,6 @@
         documentation for details), and IER is the return completion flag (0 = success
         and -1 = failure).
 
-        Optional outputs specific to the KLU case are:
-          LSTF    = IOUT(8)  from KINSlsGetLastFlag
-          NJES    = IOUT(10) from KINSlsGetNumJacEvals
-        See the KINSOL manual for descriptions.
-    
-        Optional outputs specific to the SUPERLUMT case are:
-          LSTF    = IOUT(8)  from KINSlsGetLastFlag
-          NJES    = IOUT(10) from KINSlsGetNumJacEvals
-        See the KINSOL manual for descriptions.
-  
  (6.4) Scaled Preconditioned Iterative linear Solvers (SPILS):
 
        To initialize a SPILS treatment of the linear system, the user must call one
@@ -491,7 +480,7 @@
         To attach the iterative linear solver structure the user must call
         the following:
 
-          CALL FKINSPILSINIT(IER)
+          CALL FKINLSINIT(IER)
 
         The arguments are:
             IER  = return completion flag [int, output]:
@@ -530,7 +519,7 @@
        If the user program includes the FKJTIMES routine for the evaluation
        of the Jacobian-vector product, the following call must be made:
 
-         CALL FKINSPILSSETJAC(FLAG, IER)
+         CALL FKINLSSETJAC(FLAG, IER)
 
        The argument FLAG = 0 specifies using the internal finite differences
        approximation to the Jacobian-vector product, while FLAG = 1 specifies
@@ -539,7 +528,7 @@
        Usage of the user-supplied routines FKPSET and FKPSOL for the setup and
        solution of the preconditioned linear system is specified by calling:
 
-         CALL FKINSPILSSETPREC(FLAG, IER)
+         CALL FKINLSSETPREC(FLAG, IER)
 
        where FLAG = 0 indicates no FKPSET or FKPSOL (default) and FLAG = 1
        specifies using FKPSET and FKPSOL. The user-supplied routines FKPSET
@@ -615,26 +604,19 @@
        FNORM  = ROUT(1) = final scaled norm of f(u)
        STEPL  = ROUT(2) = scaled last step length
 
-     The following optional outputs are specific to the SPGMR/SPFGMR/SPBCG/SPTFQMR
-     module:
+     The following optional outputs arise from the KINLS module:
 
        LRW    = IOUT( 7) = real workspace size for the linear solver module
        LIW    = IOUT( 8) = integer workspace size for the linear solver module
        LSTF   = IOUT( 9) = last flag returned by linear solver
-       NFE    = IOUT(10) = number of f evaluations for DQ Jacobian
-       NJE    = IOUT(11) = number of Jacobian-vector product evaluations
-       NPE    = IOUT(12) = number of preconditioner evaluations
-       NPS    = IOUT(13) = number of preconditioner solves
-       NLI    = IOUT(14) = number of linear (Krylov) iterations
-       NCFL   = IOUT(15) = number of linear convergence failures
-
-     The following optional outputs are specific to the DENSE/BAND module:
-
-       LRW    = IOUT( 7) = real workspace size for the linear solver module
-       LIW    = IOUT( 8) = integer workspace size for the linear solver module
-       LSTF   = IOUT( 9) = last flag returned by linear solver
-       NFE    = IOUT(10) = number of f evaluations for DQ Jacobian
+       NFE    = IOUT(10) = number of f evaluations for DQ Jacobian or
+                           Jacobian*vector approximation
        NJE    = IOUT(11) = number of Jacobian evaluations
+       NJT    = IOUT(12) = number of Jacobian-vector product evaluations
+       NPE    = IOUT(13) = number of preconditioner evaluations
+       NPS    = IOUT(14) = number of preconditioner solves
+       NLI    = IOUT(15) = number of linear (Krylov) iterations
+       NCFL   = IOUT(16) = number of linear convergence failures
 
 *******************************************************************************/
 
@@ -669,20 +651,26 @@ extern "C" {
 #define FKIN_SETVIN         SUNDIALS_F77_FUNC(fkinsetvin, FKINSETVIN)
 #define FKIN_SOL            SUNDIALS_F77_FUNC(fkinsol, FKINSOL)
 #define FKIN_FREE           SUNDIALS_F77_FUNC(fkinfree, FKINFREE)
-#define FKIN_DLSINIT        SUNDIALS_F77_FUNC(fkindlsinit, FKINDLSINIT)
-#define FKIN_SPILSINIT      SUNDIALS_F77_FUNC(fkinspilsinit, FKINSPILSINIT)
+#define FKIN_LSINIT         SUNDIALS_F77_FUNC(fkinlsinit, FKINLSINIT)
+#define FKIN_LSSETJAC       SUNDIALS_F77_FUNC(fkinlssetjac, FKINLSSETJAC)
+#define FKIN_LSSETPREC      SUNDIALS_F77_FUNC(fkinlssetprec, FKINLSSETPREC)
+#define FK_PSET             SUNDIALS_F77_FUNC(fkpset, FKPSET)
+#define FK_PSOL             SUNDIALS_F77_FUNC(fkpsol, FKPSOL)
 #define FKIN_DENSESETJAC    SUNDIALS_F77_FUNC(fkindensesetjac, FKINDENSESETJAC)
 #define FK_DJAC             SUNDIALS_F77_FUNC(fkdjac, FKDJAC)
 #define FKIN_BANDSETJAC     SUNDIALS_F77_FUNC(fkinbandsetjac, FKINBANDSETJAC)
 #define FK_BJAC             SUNDIALS_F77_FUNC(fkbjac, FKBJAC)
 #define FKIN_SPARSESETJAC   SUNDIALS_F77_FUNC(fkinsparsesetjac, FKINSPARSESETJAC)  
 #define FKIN_SPJAC          SUNDIALS_F77_FUNC(fkinspjac, FKINSPJAC)
-#define FKIN_SPILSSETJAC    SUNDIALS_F77_FUNC(fkinspilssetjac, FKINSPILSSETJAC)
 #define FK_JTIMES           SUNDIALS_F77_FUNC(fkjtimes, FKJTIMES)
-#define FKIN_SPILSSETPREC   SUNDIALS_F77_FUNC(fkinspilssetprec, FKINSPILSSETPREC)
-#define FK_PSET             SUNDIALS_F77_FUNC(fkpset, FKPSET)
-#define FK_PSOL             SUNDIALS_F77_FUNC(fkpsol, FKPSOL)
 #define FK_FUN              SUNDIALS_F77_FUNC(fkfun, FKFUN)
+
+/*---DEPRECATED---*/
+#define FKIN_DLSINIT        SUNDIALS_F77_FUNC(fkindlsinit, FKINDLSINIT)
+#define FKIN_SPILSINIT      SUNDIALS_F77_FUNC(fkinspilsinit, FKINSPILSINIT)
+#define FKIN_SPILSSETJAC    SUNDIALS_F77_FUNC(fkinspilssetjac, FKINSPILSSETJAC)
+#define FKIN_SPILSSETPREC   SUNDIALS_F77_FUNC(fkinspilssetprec, FKINSPILSSETPREC)
+/*----------------*/
 
 #else
 
@@ -694,21 +682,27 @@ extern "C" {
 #define FKIN_SETVIN         fkinsetvin_
 #define FKIN_SOL            fkinsol_
 #define FKIN_FREE           fkinfree_
-#define FKIN_DLSINIT        fkindlsinit_
-#define FKIN_SPILSINIT      fkinspilsinit_
+#define FKIN_LSINIT         fkinlsinit_
+#define FKIN_LSSETJAC       fkinlssetjac_
+#define FK_JTIMES           fkjtimes_
+#define FKIN_LSSETPREC      fkinlssetprec_
 #define FKIN_DENSESETJAC    fkindensesetjac_
 #define FK_DJAC             fkdjac_
 #define FKIN_BANDSETJAC     fkinbandsetjac_
 #define FK_BJAC             fkbjac_
 #define FKIN_SPARSESETJAC   fkinsparsesetjac_
 #define FKIN_SPJAC          fkinspjac_
-#define FKIN_SPILSSETJAC    fkinspilssetjac_
-#define FK_JTIMES           fkjtimes_
-#define FKIN_SPILSSETPREC   fkinspilssetprec_
 #define FK_PSET             fkpset_
 #define FK_PSOL             fkpsol_
 #define FK_FUN              fkfun_
 
+/*---DEPRECATED---*/
+#define FKIN_DLSINIT        fkindlsinit_
+#define FKIN_SPILSINIT      fkinspilsinit_
+#define FKIN_SPILSSETJAC    fkinspilssetjac_
+#define FKIN_SPILSSETPREC   fkinspilssetprec_
+/*----------------*/
+  
 #endif
 
 /*------------------------------------------------------------------
@@ -723,15 +717,20 @@ void FKIN_SETIIN(char key_name[], long int *ival, int *ier);
 void FKIN_SETRIN(char key_name[], realtype *rval, int *ier);
 void FKIN_SETVIN(char key_name[], realtype *vval, int *ier);
 
-void FKIN_DLSINIT(int *ier);
+void FKIN_LSINIT(int *ier);
+void FKIN_LSSETJAC(int *flag, int *ier);
+void FKIN_LSSETPREC(int *flag, int *ier);
 void FKIN_DENSESETJAC(int *flag, int *ier);
 void FKIN_BANDSETJAC(int *flag, int *ier);
 void FKIN_SPARSESETJAC(int *ier);
 
+/*---DEPRECATED---*/
+void FKIN_DLSINIT(int *ier);
 void FKIN_SPILSINIT(int *ier);
 void FKIN_SPILSSETJAC(int *flag, int *ier);
 void FKIN_SPILSSETPREC(int *flag, int *ier);
-
+/*----------------*/
+  
 void FKIN_SOL(realtype *uu, int *globalstrategy, 
               realtype *uscale , realtype *fscale, int *ier);
 
@@ -776,12 +775,6 @@ extern SUNLinearSolver F2C_KINSOL_linsol; /* defined in FSUNLINSOL module */
 extern void *KIN_kinmem;                  /* defined in fkinsol.c         */
 extern long int *KIN_iout;                /* defined in fkinsol.c         */
 extern realtype *KIN_rout;                /* defined in fkinsol.c         */
-extern int KIN_ls;                        /* defined in fkinsol.c         */
-
-/* Linear solver IDs */
-enum { KIN_LS_ITERATIVE = 0,
-       KIN_LS_DIRECT = 1,
-       KIN_LS_CUSTOM = 2 };
 
 #ifdef __cplusplus
 }

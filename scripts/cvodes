@@ -40,6 +40,10 @@ $tar $tarfile $distrobase/src/cvodes/cvodes_impl.h
 $tar $tarfile $distrobase/src/cvodes/cvodes_io.c
 $tar $tarfile $distrobase/src/cvodes/cvodes_spils.c
 $tar $tarfile $distrobase/src/cvodes/cvodes_spils_impl.h
+$tar $tarfile $distrobase/src/cvodes/cvodes_nls.c
+$tar $tarfile $distrobase/src/cvodes/cvodes_nls_sim.c
+$tar $tarfile $distrobase/src/cvodes/cvodes_nls_stg.c
+$tar $tarfile $distrobase/src/cvodes/cvodes_nls_stg1.c
 
 echo "   --- Add cvodes examples to $tarfile"
 
@@ -90,6 +94,8 @@ $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_dns_uw.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_FSA_dns.c
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_FSA_dns_-sensi_sim_t.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_FSA_dns_-sensi_stg1_t.out
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_FSA_dns_Switch.out
+$tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_FSA_dns_Switch.c
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_FSA_klu.c
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_FSA_klu_-sensi_stg1_t.out
 $tar $tarfile $distrobase/examples/cvodes/serial/cvsRoberts_FSA_sps.c

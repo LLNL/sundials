@@ -6,7 +6,128 @@ The band implementation of the {\sunlinsol} module provided with
 {\sundials}, {\sunlinsolband}, is designed to be used with the
 corresponding {\sunmatband} matrix type, and one of the serial or
 shared-memory {\nvector} implementations ({\nvecs}, {\nvecopenmp} or
-{\nvecpthreads}).  The {\sunlinsolband} module defines the {\em
+{\nvecpthreads}).
+
+
+%---------------------------------------------------------------------------
+\subsection{{\sunlinsolband} usage}\label{ss:sunlinsol_band_usage}
+
+The header file to include when using this module is
+\id{sunlinsol/sunlinsol\_band.h}. The {\sunlinsolband} module 
+is accessible from all {\sundials} solvers \textit{without}
+linking to the \\ \noindent
+\id{libsundials\_sunlinsolband} module library.
+
+The module {\sunlinsolband} provides the following user-callable constructor routine: 
+%%
+% --------------------------------------------------------------------
+\ucfunction{SUNLinSol\_Band}
+{
+  LS = SUNLinSol\_Band(y, A);
+}
+{
+  The function \ID{SUNLinSol\_Band} creates and allocates memory for
+  a band \id{SUNLinearSolver} object.
+}
+{
+  \begin{args}[y]
+  \item[y] (\id{N\_Vector})
+    a template for cloning vectors needed within the solver
+  \item[A] (\id{SUNMatrix})
+    a {\sunmatband} matrix template for cloning matrices needed
+    within the solver 
+  \end{args}
+}
+{
+  This returns a \id{SUNLinearSolver} object.  If either \id{A} or
+  \id{y} are incompatible then this routine will return \id{NULL}.
+}
+{
+  This routine will perform consistency checks to ensure that it is
+  called with consistent {\nvector} and {\sunmatrix} implementations.
+  These are currently limited to the {\sunmatdense} matrix type and
+  the {\nvecs}, {\nvecopenmp}, and {\nvecpthreads} vector types.  As
+  additional compatible matrix and vector implementations are added to
+  {\sundials}, these will be included within this compatibility check.
+
+  Additionally, this routine will verify that the input matrix \id{A}
+  is allocated with appropriate upper bandwidth storage for the $LU$
+  factorization.
+}
+% --------------------------------------------------------------------
+%%
+For backwards compatibility, we also provide the wrapper functions:
+\begin{itemize}
+
+\item \ID{SUNBandLinearSolver}
+
+  Wrapper function for \ID{SUNLinSol\_Band}, with identical input and
+  output arguments.
+
+\end{itemize}
+%%
+%%------------------------------------
+%%
+For solvers that include a Fortran interface module, the {\sunlinsolband}
+module also includes a Fortran-callable function for creating a
+\id{SUNLinearSolver} object.
+\ucfunction{FSUNBANDLINSOLINIT}
+{
+  FSUNBANDLINSOLINIT(code, ier)
+}
+{
+  The function \ID{FSUNBANDLINSOLINIT} can be called for Fortran programs
+  to create a band \id{SUNLinearSolver} object.
+}
+{
+  \begin{args}[code]
+  \item[code] (\id{int*})
+    is an integer input specifying the solver id (1 for {\cvode}, 2
+    for {\ida}, 3 for {\kinsol}, and 4 for {\arkode}).
+  \end{args}
+}
+{
+  \id{ier} is a return completion flag equal to \id{0} for a success
+  return and \id{-1} otherwise. See printed message for details in case
+  of failure.
+}
+{
+  This routine must be
+  called \emph{after} both the {\nvector} and {\sunmatrix} objects have
+  been initialized.
+}
+Additionally, when using {\arkode} with a non-identity
+mass matrix, the {\sunlinsolband} module includes a Fortran-callable
+function for creating a \id{SUNLinearSolver} mass matrix solver
+object.
+\ucfunction{FSUNMASSBANDLINSOLINIT}
+{
+  FSUNMASSBANDLINSOLINIT(ier)
+}
+{
+  The function \ID{FSUNMASSBANDLINSOLINIT} can be called for Fortran programs
+  to create a band \id{SUNLinearSolver} object for mass matrix linear
+  systems.
+}
+{
+}
+{
+  \id{ier} is a \id{int} return completion flag equal to \id{0} for a success
+  return and \id{-1} otherwise. See printed message for details in case
+  of failure.
+}
+{
+  This routine must be
+  called \emph{after} both the {\nvector} and {\sunmatrix} mass-matrix
+  objects have been initialized.
+}
+
+%---------------------------------------------------------------------------
+\subsection{{\sunlinsolband} description}\label{ss:sunlinsol_band_description}
+
+
+
+The {\sunlinsolband} module defines the {\em
 content} field of a \id{SUNLinearSolver} to be the following structure:
 %%
 \begin{verbatim} 
@@ -46,19 +167,13 @@ This solver is constructed to perform the following operations:
 \end{itemize}
 
 
-\noindent The header file to include when using this module 
-is \id{sunlinsol/sunlinsol\_band.h}. The {\sunlinsolband} module
-is accessible from all {\sundials} solvers \textit{without}
-linking to the \\
-\id{libsundials\_sunlinsolband} module library. \\
-
 %%
 %%----------------------------------------------
 %%
 
 \noindent The {\sunlinsolband} module defines band implementations of all
-``direct'' linear solver operations listed in
-Table \ref{t:sunlinsolops}:
+``direct'' linear solver operations listed in Sections
+\ref{ss:sunlinsol_CoreFn}-\ref{ss:sunlinsol_GetFn}:
 \begin{itemize}
 \item \id{SUNLinSolGetType\_Band}
 \item \id{SUNLinSolInitialize\_Band} -- this does nothing, since all
@@ -72,51 +187,3 @@ Table \ref{t:sunlinsolops}:
   for \id{N}, \id{last\_flag}, and \id{pivots}.
 \item \id{SUNLinSolFree\_Band}
 \end{itemize}
-The module {\sunlinsolband} provides the following additional
-user-callable constructor routine: 
-%%
-\begin{itemize}
-
-%%--------------------------------------
-
-\item \ID{SUNBandLinearSolver}
-
-  This function creates and allocates memory for a band \id{SUNLinearSolver}.
-  Its arguments are an {\nvector} and {\sunmatrix}, that it uses to
-  determine the linear system size and to assess compatibility with
-  the linear solver implementation.
-
-  This routine will perform consistency checks to ensure that it is
-  called with consistent {\nvector} and {\sunmatrix} implementations.
-  These are currently limited to the {\sunmatband} matrix type and
-  the {\nvecs}, {\nvecopenmp}, and {\nvecpthreads} vector types.  As
-  additional compatible matrix and vector implementations are added to
-  {\sundials}, these will be included within this compatibility check.
-
-  Additionally, this routine will verify that the input matrix \id{A}
-  is allocated with appropriate upper bandwidth storage for the $LU$
-  factorization.
-
-  If either \id{A} or \id{y} are incompatible then this routine will
-  return \id{NULL}.
-
-  \verb|SUNLinearSolver SUNBandLinearSolver(N_Vector y, SUNMatrix A);|
-
-\end{itemize}
-%%
-%%------------------------------------
-%%
-For solvers that include a Fortran interface module, the {\sunlinsolband}
-module also includes the Fortran-callable
-function \id{FSUNBandLinSolInit(code, ier)} to initialize
-this {\sunlinsolband} module for a given {\sundials} solver.
-Here \id{code} is an integer input solver id (1 for {\cvode}, 2 for {\ida}, 3
-for {\kinsol}, 4 for {\arkode}); \id{ier} is an error return flag 
-equal to 0 for success and -1 for failure. Both \id{code} and \id{ier}
-are declared to match C type \id{int}.
-This routine must be called \emph{after} both the
-{\nvector} and {\sunmatrix} objects have been initialized.
-Additionally, when using {\arkode} with a non-identity mass matrix, the
-Fortran-callable function \id{FSUNMassBandLinSolInit(ier)}  
-initializes this {\sunlinsolband} module for solving mass matrix
-linear systems.

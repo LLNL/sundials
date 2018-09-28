@@ -20,7 +20,7 @@
  * -----------------------------------------------------------------
  * This file contains implementations of the banded difference
  * quotient Jacobian-based preconditioner and solver routines for
- * use with the CVSPILS linear solver interface.
+ * use with the CVLS linear solver interface.
  * -----------------------------------------------------------------
  */
 
@@ -29,7 +29,7 @@
 
 #include "cvode_impl.h"
 #include "cvode_bandpre_impl.h"
-#include "cvode_spils_impl.h"
+#include "cvode_ls_impl.h"
 #include <sundials/sundials_math.h>
 
 #define MIN_INC_MULT RCONST(1000.0)
@@ -65,40 +65,40 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
                    sunindextype mu, sunindextype ml)
 {
   CVodeMem cv_mem;
-  CVSpilsMem cvspils_mem;
+  CVLsMem cvls_mem;
   CVBandPrecData pdata;
   sunindextype mup, mlp, storagemu;
   int flag;
 
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVBANDPRE",
+    cvProcessError(NULL, CVLS_MEM_NULL, "CVBANDPRE",
                    "CVBandPrecInit", MSGBP_MEM_NULL);
-    return(CVSPILS_MEM_NULL);
+    return(CVLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
-  /* Test if the SPILS linear solver interface has been attached */
+  /* Test if the CVLS linear solver interface has been attached */
   if (cv_mem->cv_lmem == NULL) {
-    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVBANDPRE",
+    cvProcessError(cv_mem, CVLS_LMEM_NULL, "CVBANDPRE",
                    "CVBandPrecInit", MSGBP_LMEM_NULL);
-    return(CVSPILS_LMEM_NULL);
+    return(CVLS_LMEM_NULL);
   }
-  cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
+  cvls_mem = (CVLsMem) cv_mem->cv_lmem;
 
   /* Test compatibility of NVECTOR package with the BAND preconditioner */
   if(cv_mem->cv_tempv->ops->nvgetarraypointer == NULL) {
-    cvProcessError(cv_mem, CVSPILS_ILL_INPUT, "CVBANDPRE",
+    cvProcessError(cv_mem, CVLS_ILL_INPUT, "CVBANDPRE",
                    "CVBandPrecInit", MSGBP_BAD_NVECTOR);
-    return(CVSPILS_ILL_INPUT);
+    return(CVLS_ILL_INPUT);
   }
 
   /* Allocate data memory */
   pdata = NULL;
   pdata = (CVBandPrecData) malloc(sizeof *pdata);
   if (pdata == NULL) {
-    cvProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVBANDPRE",
+    cvProcessError(cv_mem, CVLS_MEM_FAIL, "CVBANDPRE",
                    "CVBandPrecInit", MSGBP_MEM_FAIL);
-    return(CVSPILS_MEM_FAIL);
+    return(CVLS_MEM_FAIL);
   }
 
   /* Load pointers and bandwidths into pdata block. */
@@ -115,9 +115,9 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
   pdata->savedJ = SUNBandMatrix(N, mup, mlp, mup);
   if (pdata->savedJ == NULL) {
     free(pdata); pdata = NULL;
-    cvProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVBANDPRE",
+    cvProcessError(cv_mem, CVLS_MEM_FAIL, "CVBANDPRE",
                    "CVBandPrecInit", MSGBP_MEM_FAIL);
-    return(CVSPILS_MEM_FAIL);
+    return(CVLS_MEM_FAIL);
   }
 
   /* Allocate memory for banded preconditioner. */
@@ -127,21 +127,21 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
   if (pdata->savedP == NULL) {
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
-    cvProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVBANDPRE",
+    cvProcessError(cv_mem, CVLS_MEM_FAIL, "CVBANDPRE",
                    "CVBandPrecInit", MSGBP_MEM_FAIL);
-    return(CVSPILS_MEM_FAIL);
+    return(CVLS_MEM_FAIL);
   }
 
   /* Allocate memory for banded linear solver */
   pdata->LS = NULL;
-  pdata->LS = SUNBandLinearSolver(cv_mem->cv_tempv, pdata->savedP);
+  pdata->LS = SUNLinSol_Band(cv_mem->cv_tempv, pdata->savedP);
   if (pdata->LS == NULL) {
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
-    cvProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVBANDPRE",
+    cvProcessError(cv_mem, CVLS_MEM_FAIL, "CVBANDPRE",
                    "CVBandPrecInit", MSGBP_MEM_FAIL);
-    return(CVSPILS_MEM_FAIL);
+    return(CVLS_MEM_FAIL);
   }
 
   /* allocate memory for temporary N_Vectors */
@@ -152,9 +152,9 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;
-    cvProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVBANDPRE", 
+    cvProcessError(cv_mem, CVLS_MEM_FAIL, "CVBANDPRE", 
                     "CVBandPrecInit", MSGBP_MEM_FAIL);
-    return(CVSPILS_MEM_FAIL);
+    return(CVLS_MEM_FAIL);
   }
   pdata->tmp2 = NULL;
   pdata->tmp2 = N_VClone(cv_mem->cv_tempv);
@@ -164,9 +164,9 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
     SUNMatDestroy(pdata->savedJ);
     N_VDestroy(pdata->tmp1);
     free(pdata); pdata = NULL;
-    cvProcessError(cv_mem, CVSPILS_MEM_FAIL, "CVBANDPRE", 
+    cvProcessError(cv_mem, CVLS_MEM_FAIL, "CVBANDPRE", 
                     "CVBandPrecInit", MSGBP_MEM_FAIL);
-    return(CVSPILS_MEM_FAIL);
+    return(CVLS_MEM_FAIL);
   }
 
   /* initialize band linear solver object */
@@ -178,25 +178,25 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
     N_VDestroy(pdata->tmp1);
     N_VDestroy(pdata->tmp2);
     free(pdata); pdata = NULL;
-    cvProcessError(cv_mem, CVSPILS_SUNLS_FAIL, "CVBANDPRE", 
+    cvProcessError(cv_mem, CVLS_SUNLS_FAIL, "CVBANDPRE", 
                     "CVBandPrecInit", MSGBP_SUNLS_FAIL);
-    return(CVSPILS_SUNLS_FAIL);
+    return(CVLS_SUNLS_FAIL);
   }
   
   /* make sure P_data is free from any previous allocations */
-  if (cvspils_mem->pfree)
-    cvspils_mem->pfree(cv_mem);
+  if (cvls_mem->pfree)
+    cvls_mem->pfree(cv_mem);
 
-  /* Point to the new P_data field in the SPILS memory */
-  cvspils_mem->P_data = pdata;
+  /* Point to the new P_data field in the LS memory */
+  cvls_mem->P_data = pdata;
 
   /* Attach the pfree function */
-  cvspils_mem->pfree = CVBandPrecFree;
+  cvls_mem->pfree = CVBandPrecFree;
 
   /* Attach preconditioner solve and setup functions */
-  flag = CVSpilsSetPreconditioner(cvode_mem,
-                                  CVBandPrecSetup,
-                                  CVBandPrecSolve);
+  flag = CVodeSetPreconditioner(cvode_mem,
+                                CVBandPrecSetup,
+                                CVBandPrecSolve);
   return(flag);
 }
 
@@ -205,32 +205,32 @@ int CVBandPrecGetWorkSpace(void *cvode_mem, long int *lenrwBP,
                             long int *leniwBP)
 {
   CVodeMem cv_mem;
-  CVSpilsMem cvspils_mem;
+  CVLsMem cvls_mem;
   CVBandPrecData pdata;
   sunindextype lrw1, liw1;
   long int lrw, liw;
   int flag;
   
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVBANDPRE",
+    cvProcessError(NULL, CVLS_MEM_NULL, "CVBANDPRE",
                    "CVBandPrecGetWorkSpace", MSGBP_MEM_NULL);
-    return(CVSPILS_MEM_NULL);
+    return(CVLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (cv_mem->cv_lmem == NULL) {
-    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVBANDPRE",
+    cvProcessError(cv_mem, CVLS_LMEM_NULL, "CVBANDPRE",
                    "CVBandPrecGetWorkSpace", MSGBP_LMEM_NULL);
-    return(CVSPILS_LMEM_NULL);
+    return(CVLS_LMEM_NULL);
   }
-  cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
+  cvls_mem = (CVLsMem) cv_mem->cv_lmem;
 
-  if (cvspils_mem->P_data == NULL) {
-    cvProcessError(cv_mem, CVSPILS_PMEM_NULL, "CVBANDPRE",
+  if (cvls_mem->P_data == NULL) {
+    cvProcessError(cv_mem, CVLS_PMEM_NULL, "CVBANDPRE",
                    "CVBandPrecGetWorkSpace", MSGBP_PMEM_NULL);
-    return(CVSPILS_PMEM_NULL);
+    return(CVLS_PMEM_NULL);
   } 
-  pdata = (CVBandPrecData) cvspils_mem->P_data;
+  pdata = (CVBandPrecData) cvls_mem->P_data;
 
   /* sum space requirements for all objects in pdata */
   *leniwBP = 4;
@@ -259,40 +259,40 @@ int CVBandPrecGetWorkSpace(void *cvode_mem, long int *lenrwBP,
     *lenrwBP += lrw;
   }
 
-  return(CVSPILS_SUCCESS);
+  return(CVLS_SUCCESS);
 }
 
 
 int CVBandPrecGetNumRhsEvals(void *cvode_mem, long int *nfevalsBP)
 {
   CVodeMem cv_mem;
-  CVSpilsMem cvspils_mem;
+  CVLsMem cvls_mem;
   CVBandPrecData pdata;
 
   if (cvode_mem == NULL) {
-    cvProcessError(NULL, CVSPILS_MEM_NULL, "CVBANDPRE",
+    cvProcessError(NULL, CVLS_MEM_NULL, "CVBANDPRE",
                    "CVBandPrecGetNumRhsEvals", MSGBP_MEM_NULL);
-    return(CVSPILS_MEM_NULL);
+    return(CVLS_MEM_NULL);
   }
   cv_mem = (CVodeMem) cvode_mem;
 
   if (cv_mem->cv_lmem == NULL) {
-    cvProcessError(cv_mem, CVSPILS_LMEM_NULL, "CVBANDPRE",
+    cvProcessError(cv_mem, CVLS_LMEM_NULL, "CVBANDPRE",
                    "CVBandPrecGetNumRhsEvals", MSGBP_LMEM_NULL);
-    return(CVSPILS_LMEM_NULL);
+    return(CVLS_LMEM_NULL);
   }
-  cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
+  cvls_mem = (CVLsMem) cv_mem->cv_lmem;
 
-  if (cvspils_mem->P_data == NULL) {
-    cvProcessError(cv_mem, CVSPILS_PMEM_NULL, "CVBANDPRE",
+  if (cvls_mem->P_data == NULL) {
+    cvProcessError(cv_mem, CVLS_PMEM_NULL, "CVBANDPRE",
                    "CVBandPrecGetNumRhsEvals", MSGBP_PMEM_NULL);
-    return(CVSPILS_PMEM_NULL);
+    return(CVLS_PMEM_NULL);
   } 
-  pdata = (CVBandPrecData) cvspils_mem->P_data;
+  pdata = (CVBandPrecData) cvls_mem->P_data;
 
   *nfevalsBP = pdata->nfeBP;
 
-  return(CVSPILS_SUCCESS);
+  return(CVLS_SUCCESS);
 }
 
 
@@ -450,14 +450,14 @@ static int CVBandPrecSolve(realtype t, N_Vector y, N_Vector fy,
 
 static int CVBandPrecFree(CVodeMem cv_mem)
 {
-  CVSpilsMem cvspils_mem;
+  CVLsMem cvls_mem;
   CVBandPrecData pdata;
 
   if (cv_mem->cv_lmem == NULL) return(0);
-  cvspils_mem = (CVSpilsMem) cv_mem->cv_lmem;
+  cvls_mem = (CVLsMem) cv_mem->cv_lmem;
   
-  if (cvspils_mem->P_data == NULL) return(0);
-  pdata = (CVBandPrecData) cvspils_mem->P_data;
+  if (cvls_mem->P_data == NULL) return(0);
+  pdata = (CVBandPrecData) cvls_mem->P_data;
 
   SUNLinSolFree(pdata->LS);
   SUNMatDestroy(pdata->savedP);

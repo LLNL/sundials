@@ -553,7 +553,7 @@ int CVodeF(void *cvode_mem, realtype tout, N_Vector yout,
  */
 
 
-int CVodeCreateB(void *cvode_mem, int lmmB, int iterB, int *which)
+int CVodeCreateB(void *cvode_mem, int lmmB, int *which)
 {
   CVodeMem cv_mem;
   CVadjMem ca_mem;
@@ -585,7 +585,7 @@ int CVodeCreateB(void *cvode_mem, int lmmB, int iterB, int *which)
 
   /* Create and set a new CVODES object for the backward problem */
 
-  cvodeB_mem = CVodeCreate(lmmB, iterB);
+  cvodeB_mem = CVodeCreate(lmmB);
   if (cvodeB_mem == NULL) {
     cvProcessError(cv_mem, CV_MEM_FAIL, "CVODEA", "CVodeCreateB", MSGCV_MEM_FAIL);
     return(CV_MEM_FAIL);

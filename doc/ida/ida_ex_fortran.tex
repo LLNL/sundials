@@ -16,9 +16,11 @@ The \id{fidaRoberts\_dns} example is a {\F} equivalent of the
 
 The main program begins with declarations and initializations.  
 It calls the routines \id{FNVINITS}, \id{FIDAMALLOC}, \id{FIDAROOTINIT}, 
-\id{FIDADENSE}, and \id{FIDADENSESETJAC}, to initialize the {\nvecs} module, 
-the main solver memory, the rootfinding module, and the {\idadense} module, 
-and to specify user-supplied Jacobian routine, respectively.
+\id{FSUNDENSEMATINIT}, \id{FSUNDENSELINSOLINIT}, \id{FIDALSINIT}, and
+\id{FIDADENSESETJAC}, to initialize the {\nvecs} module, the main
+solver memory, the rootfinding module, the {\sunmatdense} module, the
+{\sunlinsoldense} module, attach these to {\ida}, and to specify
+user-supplied Jacobian routine, respectively. 
 It calls \id{FIDASOLVE} in a loop over \id{TOUT} values, with printing of
 the solution values and performance data (current order and step count
 from the \id{IOUT} array, and current step size from the \id{ROUT} array).
@@ -69,8 +71,9 @@ vector, respectively).  A call to \id{FIDASETIIN} and two calls to
 \id{FIDASETVIN} are made to suppress error control on the algebraic
 variables, and to supply the \id{ID} array and constraints array (making
 the computed solution non-negative).  The call to \id{FIDAMALLOC}
-initializes the {\fida} main memory, and the calls to \id{FIDASPGMR} and
-\id{FIDABBDINIT} and initialize the {\fidabbd} module.
+initializes the {\fida} main memory.  The calls to
+\id{FSUNSPGMRINIT}, \id{FSUNSPGMRSETMAXRS}, \id{FIDALSINIT} and
+\id{FIDABBDINIT} create and initialize the {\spgmr} solver and {\fidabbd} module.
 
 In the first loop over \id{TOUT} values, the main program calls \id{FIDASOLVE}
 and prints the max-norm of the solution and selected counters.  When finished,
