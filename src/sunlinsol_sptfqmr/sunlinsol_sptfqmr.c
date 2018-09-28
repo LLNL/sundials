@@ -44,6 +44,21 @@
 
 /*
  * -----------------------------------------------------------------
+ * deprecated wrapper functions
+ * -----------------------------------------------------------------
+ */
+
+SUNLinearSolver SUNSPTFQMR(N_Vector y, int pretype, int maxl)
+{ return(SUNLinSol_SPTFQMR(y, pretype, maxl)); }
+
+int SUNSPTFQMRSetPrecType(SUNLinearSolver S, int pretype)
+{ return(SUNLinSol_SPTFQMRSetPrecType(S, pretype)); }
+
+int SUNSPTFQMRSetMaxl(SUNLinearSolver S, int maxl)
+{ return(SUNLinSol_SPTFQMRSetMaxl(S, maxl)); }
+
+/*
+ * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------
  */
@@ -52,7 +67,7 @@
  * Function to create a new SPTFQMR linear solver
  */
 
-SUNLinearSolver SUNSPTFQMR(N_Vector y, int pretype, int maxl)
+SUNLinearSolver SUNLinSol_SPTFQMR(N_Vector y, int pretype, int maxl)
 {
   SUNLinearSolver S;
   SUNLinearSolver_Ops ops;
@@ -148,7 +163,7 @@ SUNLinearSolver SUNSPTFQMR(N_Vector y, int pretype, int maxl)
  * Function to set the type of preconditioning for SPTFQMR to use 
  */
 
-SUNDIALS_EXPORT int SUNSPTFQMRSetPrecType(SUNLinearSolver S, int pretype) 
+SUNDIALS_EXPORT int SUNLinSol_SPTFQMRSetPrecType(SUNLinearSolver S, int pretype) 
 {
   /* Check for legal pretype */ 
   if ((pretype != PREC_NONE)  && (pretype != PREC_LEFT) &&
@@ -169,7 +184,7 @@ SUNDIALS_EXPORT int SUNSPTFQMRSetPrecType(SUNLinearSolver S, int pretype)
  * Function to set the maximum number of iterations for SPTFQMR to use 
  */
 
-SUNDIALS_EXPORT int SUNSPTFQMRSetMaxl(SUNLinearSolver S, int maxl) 
+SUNDIALS_EXPORT int SUNLinSol_SPTFQMRSetMaxl(SUNLinearSolver S, int maxl) 
 {
   /* Check for non-NULL SUNLinearSolver */
   if (S == NULL) return(SUNLS_MEM_NULL);

@@ -108,11 +108,11 @@ C     Call FCVROOTINIT to specify the root function g with 2 components
         STOP
       ENDIF
 
-C     attach the matrix and linear solver modules to CVDls interface
-      CALL FCVDLSINIT(IER)
+C     attach the matrix and linear solver modules to CVLs interface
+      CALL FCVLSINIT(IER)
       IF (IER .NE. 0) THEN
         WRITE(6,40) IER
- 40     FORMAT(///' SUNDIALS_ERROR: FCVDLSINIT returned IER = ', I5)
+ 40     FORMAT(///' SUNDIALS_ERROR: FCVLSINIT returned IER = ', I5)
         CALL FCVFREE
         STOP
       ENDIF

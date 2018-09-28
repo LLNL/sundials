@@ -35,7 +35,7 @@ Final statistics:
  number of conv. failures.. nonlinear =   0  linear =   0
  number of error test failures =   5
  main solver real/int workspace sizes   =   349   92
- linear solver real/int workspace sizes =   296   58
+ linear solver real/int workspace sizes =   294   78
 In CVBBDPRE:
  real/int local workspace =   100   60
  number of g evals. =    12
@@ -70,7 +70,7 @@ Final statistics:
  number of conv. failures.. nonlinear =   0  linear =   0
  number of error test failures =   5
  main solver real/int workspace sizes   =   349   92
- linear solver real/int workspace sizes =   296   58
+ linear solver real/int workspace sizes =   294   78
 In CVBBDPRE:
  real/int local workspace =   100   60
  number of g evals. =    12

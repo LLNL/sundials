@@ -36,7 +36,6 @@
 #include <nvector/nvector_serial.h>     /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_sparse.h> /* access to sparse SUNMatrix           */
 #include <sunlinsol/sunlinsol_klu.h>    /* access to KLU sparse direct solver   */
-#include <cvode/cvode_direct.h>         /* access to CVDls interface            */
 #include <sundials/sundials_types.h>    /* defs. of realtype, sunindextype      */
 
 /* User-defined vector and matrix accessor macro: Ith */
@@ -180,27 +179,27 @@ int main(void)
   if(check_retval((void *)A, "SUNSparseMatrix", 0)) return(1);
 
   /* Create KLU solver object for use by CVode */
-  LS = SUNKLU(y, A);
-  if(check_retval((void *)LS, "SUNKLU", 0)) return(1);
+  LS = SUNLinSol_KLU(y, A);
+  if(check_retval((void *)LS, "SUNLinSol_KLU", 0)) return(1);
 
-  /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
-  retval = CVDlsSetLinearSolver(cvode_mem, LS, A);
-  if(check_retval(&retval, "CVDlsSetLinearSolver", 1)) return(1);
+  /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
+  retval = CVodeSetLinearSolver(cvode_mem, LS, A);
+  if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
 
   /* Set the user-supplied Jacobian routine Jac based pm size of Jac */
   if(MGRID >= 4){
-    retval = CVDlsSetJacFn(cvode_mem, jacHeat);
+    retval = CVodeSetJacFn(cvode_mem, jacHeat);
   }
   /* special case MGRID=3  */
   else if(MGRID==3){
-    retval = CVDlsSetJacFn(cvode_mem, jacHeat3);
+    retval = CVodeSetJacFn(cvode_mem, jacHeat3);
   }
   /* MGRID<=2 is pure boundary points, nothing to solve  */
   else{
     printf("MGRID size is too small to run.\n");
     return(1);
   }
-  if(check_retval(&retval, "CVDlsSetJacFn", 1)) return(1);
+  if(check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
 
   /* Print output heading. */
   PrintHeader(rtol, atol);
@@ -712,8 +711,8 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
   //check_retval(&retval, "CVodeGetNumResEvals", 1);
   retval = CVodeGetLastStep(mem, &hused);
   check_retval(&retval, "CVodeGetLastStep", 1);
-  retval = CVodeDlsGetNumJacEvals(mem, &nje);
-  check_retval(&retval, "CVodeDlsGetNumJacEvals", 1);
+  retval = CVodeGetNumJacEvals(mem, &nje);
+  check_retval(&retval, "CVodeGetNumJacEvals", 1);
 
 /*
 #if defined(SUNDIALS_EXTENDED_PRECISION) 
@@ -763,8 +762,8 @@ static void PrintFinalStats(void *cvode_mem)
   retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1);
 
-  retval = CVDlsGetNumJacEvals(cvode_mem, &nje);
-  check_retval(&retval, "CVDlsGetNumJacEvals", 1);
+  retval = CVodeGetNumJacEvals(cvode_mem, &nje);
+  check_retval(&retval, "CVodeGetNumJacEvals", 1);
 
   retval = CVodeGetNumGEvals(cvode_mem, &nge);
   check_retval(&retval, "CVodeGetNumGEvals", 1);

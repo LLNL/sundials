@@ -62,7 +62,7 @@ Final statistics:
  number of conv. failures.. nonlinear =  0 linear =   0
  number of error test failures =  28
  main solver real/int workspace sizes   =    2689     53
- linear solver real/int workspace sizes =  2456   22
+ linear solver real/int workspace sizes =  2454   42
 In CVBANDPRE:
  real/int workspace sizes =    2800    622
  number of f evaluations  =    45

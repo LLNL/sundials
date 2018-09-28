@@ -331,17 +331,18 @@ ODE system, the user must supply a function of type :c:type:`ARKRootFn`.
 
 .. _ARKStep_CInterface.JacobianFn:
 
-Jacobian information (direct method Jacobian)
+Jacobian construction (matrix-based linear solvers)
 --------------------------------------------------------------
 
-If the direct linear solver interface is used (i.e.,
-:c:func:`ARKDlsSetLinearSolver()` is called in the section
-:ref:`ARKStep_CInterface.Skeleton`), the user may provide a function of type
-:c:type:`ARKDlsJacFn` to provide the Jacobian approximation.
+If a matrix-based linear solver module is used (i.e., a non-NULL
+``SUNMatrix`` object was supplied to
+:c:func:`ARKStepSetLinearSolver()` in section
+:ref:`ARKStep_CInterface.Skeleton`), the user may provide a
+function of type :c:type:`ARKLsJacFn` to provide the Jacobian approximation.
 
 
 
-.. c:type:: typedef int (*ARKDlsJacFn)(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac, void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+.. c:type:: typedef int (*ARKLsJacFn)(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac, void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 
    This function computes the Jacobian matrix :math:`J =
    \frac{\partial f_I}{\partial y}` (or an approximation to it).
@@ -356,16 +357,16 @@ If the direct linear solver interface is used (i.e.,
         *user_data* parameter that was passed to :c:func:`ARKStepSetUserData()`.
       * *tmp1*, *tmp2*, *tmp3* -- pointers to memory allocated to
         variables of type ``N_Vector`` which can be used by an
-        ARKDlsacFn as temporary storage or work space.
+        ARKLsJacFn as temporary storage or work space.
 
    **Return value:**
-   An *ARKDlsJacFn* function should return 0 if successful, a positive
+   An *ARKLsJacFn* function should return 0 if successful, a positive
    value if a recoverable error occurred (in which case ARKStep will
-   attempt to correct, while ARKDLS sets *last_flag* to
-   *ARKDLS_JACFUNC_RECVR*), or a negative value if it failed
+   attempt to correct, while ARKLS sets *last_flag* to
+   *ARKLS_JACFUNC_RECVR*), or a negative value if it failed
    unrecoverably (in which case the integration is halted,
-   :c:func:`ARKStepEvolve()` returns *ARK_LSETUP_FAIL* and ARKDLS sets
-   *last_flag* to *ARKDLS_JACFUNC_UNRECVR*).
+   :c:func:`ARKStepEvolve()` returns *ARK_LSETUP_FAIL* and ARKLS sets
+   *last_flag* to *ARKLS_JACFUNC_UNRECVR*).
 
    **Notes:** Information regarding the structure of the specific
    ``SUNMatrix`` structure (e.g.~number of rows, upper/lower
@@ -377,7 +378,7 @@ If the direct linear solver interface is used (i.e.,
    matrix :math:`J(t,y)` is zeroed out, so only nonzero elements need
    to be loaded into *Jac*.
 
-   If the user's :c:type:`ARKDlsJacFn` function uses difference
+   If the user's :c:type:`ARKLsJacFn` function uses difference
    quotient approximations, then it may need to access quantities not
    in the argument list.  These include the current step size, the
    error weights, etc.  To obtain these, the user will need to add a
@@ -468,19 +469,19 @@ If the direct linear solver interface is used (i.e.,
 
 .. _ARKStep_CInterface.JTimesFn:
 
-Jacobian information (matrix-vector product)
+Jacobian-vector product (matrix-free linear solvers)
 --------------------------------------------------------------
 
-If the ARKSPILS solver interface is selected
-(i.e. :c:func:`ARKSpilsSetLinearSolver()` is called in the
-section :ref:`ARKStep_CInterface.Skeleton`), the user may provide a function
-of type :c:type:`ARKSpilsJacTimesVecFn` in the following form, to
-compute matrix-vector products :math:`Jv`. If such a function is not
-supplied, the default is a difference quotient approximation to these
-products.
+If a matrix-free linear solver is to be used for the implicit stage
+solves (i.e., a NULL-valued SUNMATRIX argument was supplied to
+:c:func:`ARKStepSetLinearSolver()` in the section
+:ref:`ARKStep_CInterface.Skeleton`), the user may provide a function
+of type :c:type:`ARKLsJacTimesVecFn` in the following form, to compute
+matrix-vector products :math:`Jv`. If such a function is not supplied,
+the default is a difference quotient approximation to these products.
 
 
-.. c:type:: typedef int (*ARKSpilsJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t, N_Vector y, N_Vector fy, void* user_data, N_Vector tmp)
+.. c:type:: typedef int (*ARKLsJacTimesVecFn)(N_Vector v, N_Vector Jv, realtype t, N_Vector y, N_Vector fy, void* user_data, N_Vector tmp)
 
    This function computes the product :math:`Jv =
    \left(\frac{\partial f_I}{\partial y}\right)v` (or an approximation to it).
@@ -502,7 +503,7 @@ products.
    result in an unrecoverable error of the generic Krylov solver,
    in which case the integration is halted.
 
-   **Notes:** If the user's :c:type:`ARKSpilsJacTimesVecFn` function
+   **Notes:** If the user's :c:type:`ARKLsJacTimesVecFn` function
    uses difference quotient approximations, it may need to access
    quantities not in the argument list.  These include the current
    step size, the error weights, etc.  To obtain these, the
@@ -517,16 +518,16 @@ products.
 
 .. _ARKStep_CInterface.JTSetupFn:
 
-Jacobian information (matrix-vector setup)
+Jacobian-vector product setup (matrix-free linear solvers)
 --------------------------------------------------------------
 
 If the user's Jacobian-times-vector routine requires that any Jacobian-related data
 be preprocessed or evaluated, then this needs to be done in a
-user-supplied function of type :c:type:`ARKSpilsJacTimesSetupFn`,
+user-supplied function of type :c:type:`ARKLsJacTimesSetupFn`,
 defined as follows:
 
 
-.. c:type:: typedef int (*ARKSpilsJacTimesSetupFn)(realtype t, N_Vector y, N_Vector fy, void* user_data)
+.. c:type:: typedef int (*ARKLsJacTimesSetupFn)(realtype t, N_Vector y, N_Vector fy, void* user_data)
 
    This function preprocesses and/or evaluates any Jacobian-related
    data needed by the Jacobian-times-vector routine.
@@ -550,7 +551,7 @@ defined as follows:
    function can use any auxiliary data that is computed and saved
    during the evaluation of the implicit ODE right-hand side.
 
-   If the user's :c:type:`ARKSpilsJacTimesSetupFn` function uses
+   If the user's :c:type:`ARKLsJacTimesSetupFn` function uses
    difference quotient approximations, it may need to access
    quantities not in the argument list.  These include the current
    step size, the error weights, etc.  To obtain these, the
@@ -565,24 +566,23 @@ defined as follows:
 
 .. _ARKStep_CInterface.PrecSolveFn:
 
-Preconditioning (linear system solution)
+Preconditioner solve (iterative linear solvers)
 --------------------------------------------------------------
 
-If preconditioning is used with the ARKSPILS solver interface, then
-the user must provide a function of type
-:c:type:`ARKSpilsPrecSolveFn` to solve the linear system
-:math:`Pz=r`, where :math:`P` may be either a left or right
+If a user-supplied preconditioner is to be used with a SUNLinSol
+solver module, then the user must provide a function of type
+:c:type:`ARKLsPrecSolveFn` to solve the linear system :math:`Pz=r`,
+where :math:`P` corresponds to either a left or right
 preconditioning matrix.  Here :math:`P` should approximate (at least
 crudely) the Newton matrix :math:`A=M-\gamma J`, where :math:`M` is
 the mass matrix (typically :math:`M=I` unless working in a
-finite-element setting) and
-:math:`J = \frac{\partial f_I}{\partial y}`.
-If preconditioning is done on both sides, the product of the two
+finite-element setting) and :math:`J = \frac{\partial f_I}{\partial
+y}`  If preconditioning is done on both sides, the product of the two
 preconditioner matrices should approximate :math:`A`.
 
 
 
-.. c:type:: typedef int (*ARKSpilsPrecSolveFn)(realtype t, N_Vector y, N_Vector fy, N_Vector r, N_Vector z, realtype gamma, realtype delta, int lr, void* user_data)
+.. c:type:: typedef int (*ARKLsPrecSolveFn)(realtype t, N_Vector y, N_Vector fy, N_Vector r, N_Vector z, realtype gamma, realtype delta, int lr, void* user_data)
 
    This function solves the preconditioner system :math:`Pz=r`.
 
@@ -619,15 +619,15 @@ preconditioner matrices should approximate :math:`A`.
 
 .. _ARKStep_CInterface.PrecSetupFn:
 
-Preconditioning (Jacobian data)
+Preconditioner setup (iterative linear solvers)
 --------------------------------------------------------------
 
-If the user's preconditioner requires that any data be preprocessed or
-evaluated, then these actions need to occur within a user-supplied
-function of type :c:type:`ARKSpilsPrecSetupFn`.
+If the user's preconditioner routine requires that any data be
+preprocessed or evaluated, then these actions need to occur within a
+user-supplied function of type :c:type:`ARKLsPrecSetupFn`.
 
 
-.. c:type:: typedef int (*ARKSpilsPrecSetupFn)(realtype t, N_Vector y, N_Vector fy, booleantype jok, booleantype* jcurPtr, realtype gamma, void* user_data)
+.. c:type:: typedef int (*ARKLsPrecSetupFn)(realtype t, N_Vector y, N_Vector fy, booleantype jok, booleantype* jcurPtr, realtype gamma, void* user_data)
 
    This function preprocesses and/or evaluates Jacobian-related
    data needed by the preconditioner.
@@ -674,7 +674,7 @@ function of type :c:type:`ARKSpilsPrecSetupFn`.
    preconditioner solve function, but rather is called only as often
    as needed to achieve convergence in the Newton iteration.
 
-   If the user's :c:type:`ARKSpilsPrecSetupFn` function uses
+   If the user's :c:type:`ARKLsPrecSetupFn` function uses
    difference quotient approximations, it may need to access
    quantities not in the call list. These include the current step
    size, the error weights, etc.  To obtain these, the user will need
@@ -688,18 +688,18 @@ function of type :c:type:`ARKSpilsPrecSetupFn`.
 
 .. _ARKStep_CInterface.MassFn:
 
-Mass matrix information (direct method mass matrix)
+Mass matrix construction (matrix-based linear solvers)
 ---------------------------------------------------------------
 
-If the direct mass matrix linear solver interface is
-used (i.e., :c:func:`ARKDlsSetMassLinearSolver()` is called in the
-section :ref:`ARKStep_CInterface.Skeleton`), the user must provide a function
-of type :c:type:`ARKDlsMassFn` to provide the mass matrix
+If a matrix-based mass-matrix linear solver is used (i.e., a non-NULL
+SUNMATRIX was supplied to :c:func:`ARKStepSetMassLinearSolver()` in
+the section :ref:`ARKStep_CInterface.Skeleton`), the user must provide a function
+of type :c:type:`ARKLsMassFn` to provide the mass matrix
 approximation.
 
 
 
-.. c:type:: typedef int (*ARKDlsMassFn)(realtype t, SUNMatrix M, void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
+.. c:type:: typedef int (*ARKLsMassFn)(realtype t, SUNMatrix M, void* user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 
    This function computes the mass matrix :math:`M` (or an approximation to it).
 
@@ -710,14 +710,14 @@ approximation.
         *user_data* parameter that was passed to :c:func:`ARKStepSetUserData()`.
       * *tmp1*, *tmp2*, *tmp3* -- pointers to memory allocated to
         variables of type ``N_Vector`` which can be used by an
-        ARKDlsDenseMassFn as temporary storage or work space.
+        ARKLsMassFn as temporary storage or work space.
 
    **Return value:**
-   An *ARKDlsMassFn* function should return 0 if successful, or a
+   An *ARKLsMassFn* function should return 0 if successful, or a
    negative value if it failed unrecoverably (in which case the
    integration is halted, :c:func:`ARKStepEvolve()` returns
-   *ARK_MASSSETUP_FAIL* and ARKDLS sets *last_flag* to
-   *ARKDLS_MASSFUNC_UNRECVR*).
+   *ARK_MASSSETUP_FAIL* and ARKLS sets *last_flag* to
+   *ARKLS_MASSFUNC_UNRECVR*).
 
    **Notes:** Information regarding the structure of the specific
    ``SUNMatrix`` structure (e.g.~number of rows, upper/lower
@@ -815,18 +815,19 @@ approximation.
 
 .. _ARKStep_CInterface.MTimesFn:
 
-Mass matrix information (matrix-vector product)
+Mass matrix-vector product (matrix-free linear solvers)
 --------------------------------------------------------------
 
-If the ARKSPILS solver interface is selected
-(i.e. :c:func:`ARKSpilsSetMassLinearSolver()` is called in the
-section :ref:`ARKStep_CInterface.Skeleton`), the user must provide a function
-of type :c:type:`ARKSpilsMassTimesVecFn` in the following form, to
+If a matrix-free linear solver is to be used for mass-matrix linear
+systems (i.e., a NULL-valued SUNMATRIX argument was supplied to
+:c:func:`ARKStepSetMassLinearSolver()` in the section
+:ref:`ARKStep_CInterface.Skeleton`), the user *must* provide a
+function of type :c:type:`ARKLsMassTimesVecFn` in the following form, to
 compute matrix-vector products :math:`Mv`.
 
 
 
-.. c:type:: typedef int (*ARKSpilsMassTimesVecFn)(N_Vector v, N_Vector Mv, realtype t, void* mtimes_data)
+.. c:type:: typedef int (*ARKLsMassTimesVecFn)(N_Vector v, N_Vector Mv, realtype t, void* mtimes_data)
 
    This function computes the product :math:`M*v` (or an approximation to it).
 
@@ -835,7 +836,7 @@ compute matrix-vector products :math:`Mv`.
       * *Mv* -- the output vector computed.
       * *t* -- the current value of the independent variable.
       * *mtimes_data* -- a pointer to user data, the same as the
-        *mtimes_data* parameter that was passed to :c:func:`ARKSpilsSetMassTimes()`.
+        *mtimes_data* parameter that was passed to :c:func:`ARKStepSetMassTimes()`.
 
    **Return value:**
    The value to be returned by the mass-matrix-vector product
@@ -847,17 +848,17 @@ compute matrix-vector products :math:`Mv`.
 
 .. _ARKStep_CInterface.MTSetupFn:
 
-Mass matrix information (matrix-vector setup)
+Mass matrix-vector product setup (matrix-free linear solvers)
 --------------------------------------------------------------
 
 If the user's mass-matrix-times-vector routine requires that any mass
 matrix-related data be preprocessed or evaluated, then this needs to
 be done in a user-supplied function of type
-:c:type:`ARKSpilsMassTimesSetupFn`, defined as follows:
+:c:type:`ARKLsMassTimesSetupFn`, defined as follows:
 
 
 
-.. c:type:: typedef int (*ARKSpilsMassTimesSetupFn)(realtype t, void* mtimes_data)
+.. c:type:: typedef int (*ARKLsMassTimesSetupFn)(realtype t, void* mtimes_data)
 
    This function preprocesses and/or evaluates any mass-matrix-related
    data needed by the mass-matrix-times-vector routine.
@@ -865,32 +866,32 @@ be done in a user-supplied function of type
    **Arguments:**
       * *t* -- the current value of the independent variable.
       * *mtimes_data* -- a pointer to user data, the same as the
-        *mtimes_data* parameter that was passed to :c:func:`ARKSpilsSetMassTimes()`.
+        *mtimes_data* parameter that was passed to :c:func:`ARKStepSetMassTimes()`.
 
    **Return value:**
    The value to be returned by the mass-matrix-vector setup
    function should be 0 if successful. Any other return value will
-   result in an unrecoverable error of the ARKSPILS mass matrix solver
+   result in an unrecoverable error of the ARKLS mass matrix solver
    interface, in which case the integration is halted.
 
 
 
 .. _ARKStep_CInterface.MassPrecSolveFn:
 
-Mass matrix preconditioning (linear system solution)
+Mass matrix preconditioner solve (iterative linear solvers)
 --------------------------------------------------------------
 
-If preconditioning is used with the ARKSPILS mass matrix solver
-interface, then the user must provide a function of type
-:c:type:`ARKSpilsMassPrecSolveFn` to solve the linear system
-:math:`Pz=r`, where :math:`P` may be either a left or right
+If a user-supplied preconditioner is to be used with a SUNLINEAR
+solver module for mass matrix linear systems, then the user must
+provide a function of type :c:type:`ARKLsMassPrecSolveFn` to solve the
+linear system :math:`Pz=r`, where :math:`P` may be either a left or right
 preconditioning matrix.  Here :math:`P` should approximate (at least
 crudely) the mass matrix :math:`M`.  If preconditioning is done on
 both sides, the product of the two preconditioner matrices should
 approximate :math:`M`.
 
 
-.. c:type:: typedef int (*ARKSpilsMassPrecSolveFn)(realtype t, N_Vector r, N_Vector z, realtype delta, int lr, void* user_data)
+.. c:type:: typedef int (*ARKLsMassPrecSolveFn)(realtype t, N_Vector r, N_Vector z, realtype delta, int lr, void* user_data)
 
    This function solves the preconditioner system :math:`Pz=r`.
 
@@ -923,17 +924,17 @@ approximate :math:`M`.
 
 .. _ARKStep_CInterface.MassPrecSetupFn:
 
-Mass matrix preconditioning (mass matrix data)
+Mass matrix preconditioner setup (iterative linear solvers)
 --------------------------------------------------------------
 
-If the user's mass matrix preconditioner requires that any problem
-data be preprocessed or evaluated, then these actions need to occur
-within a user-supplied function of type
-:c:type:`ARKSpilsMassPrecSetupFn`.
+If the user's mass matrix preconditioner above requires that any
+problem data be preprocessed or evaluated, then these actions need to
+occur within a user-supplied function of type
+:c:type:`ARKLsMassPrecSetupFn`.
 
 
 
-.. c:type:: typedef int (*ARKSpilsMassPrecSetupFn)(realtype t, void* user_data)
+.. c:type:: typedef int (*ARKLsMassPrecSetupFn)(realtype t, void* user_data)
 
    This function preprocesses and/or evaluates mass-matrix-related
    data needed by the preconditioner.
@@ -957,9 +958,9 @@ within a user-supplied function of type
    these may be required if the mass matrix can change as a function
    of time.
 
-   If both this function and a :c:type:`ARKSpilsMassTimesSetupFn` are
+   If both this function and a :c:type:`ARKLsMassTimesSetupFn` are
    supplied, all calls to this function will be preceded by a call to
-   the :c:type:`ARKSpilsMassTimesSetupFn`, so any setup performed
+   the :c:type:`ARKLsMassTimesSetupFn`, so any setup performed
    there may be reused.
 
 

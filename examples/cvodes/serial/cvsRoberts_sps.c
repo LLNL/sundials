@@ -150,8 +150,8 @@ int main()
   if(check_retval((void *)A, "SUNSparseMatrix", 0)) return(1);
 
   /* Create SuperLUMT solver object for use by CVode (one thread) */
-  LS = SUNSuperLUMT(y, A, 1);
-  if(check_retval((void *)LS, "SUNSuperLUMT", 0)) return(1);
+  LS = SUNLinSol_SuperLUMT(y, A, 1);
+  if(check_retval((void *)LS, "SUNLinSol_SuperLUMT", 0)) return(1);
 
   /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
   retval = CVDlsSetLinearSolver(cvode_mem, LS, A);

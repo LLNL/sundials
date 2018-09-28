@@ -23,10 +23,10 @@
  * The PDE system is treated by central differences on a uniform
  * 10 x 10 mesh, with simple polynomial initial profiles.
  * The problem is solved with CVODE, with the BDF/GMRES,
- * BDF/Bi-CGStab, and BDF/TFQMR methods (i.e. using the SUNSPGMR,
- * SUNSPBCGS and SUNSPTFQMR linear solvers) and the block-diagonal
- * part of the Newton matrix as a left preconditioner. A copy of
- * the block-diagonal part of the Jacobian is saved and
+ * BDF/Bi-CGStab, and BDF/TFQMR methods (i.e. using the SUNLinSol_SPGMR,
+ * SUNLinSol_SPBCGS and SUNLinSol_SPTFQMR linear solvers) and the
+ * block-diagonal part of the Newton matrix as a left preconditioner.
+ * A copy of the block-diagonal part of the Jacobian is saved and
  * conditionally reused within the Precond routine.
  * -----------------------------------------------------------------*/
 
@@ -228,10 +228,10 @@ int main(void)
       printf(" \n| SPGMR |\n");
       printf(" -------\n");
 
-      /* Call SUNSPGMR to specify the linear solver SPGMR 
+      /* Call SUNLinSol_SPGMR to specify the linear solver SPGMR 
 	 with left preconditioning and the default Krylov dimension */
-      LS = SUNSPGMR(u, PREC_LEFT, 0);
-      if(check_retval((void *)LS, "SUNSPGMR", 0)) return(1);
+      LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0);
+      if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
       retval = CVSpilsSetLinearSolver(cvode_mem, LS);
       if(check_retval(&retval, "CVSpilsSetLinearSolver", 1)) return 1;
@@ -246,10 +246,10 @@ int main(void)
       printf(" \n| SPBCGS |\n");
       printf(" -------\n");
 
-      /* Call SUNSPBCGS to specify the linear solver SPBCGS
+      /* Call SUNLinSol_SPBCGS to specify the linear solver SPBCGS
 	 with left preconditioning and the maximum Krylov dimension maxl */
-      LS = SUNSPBCGS(u, PREC_LEFT, 0);
-      if(check_retval((void *)LS, "SUNSPBCGS", 0)) return(1);
+      LS = SUNLinSol_SPBCGS(u, PREC_LEFT, 0);
+      if(check_retval((void *)LS, "SUNLinSol_SPBCGS", 0)) return(1);
 
       retval = CVSpilsSetLinearSolver(cvode_mem, LS);
       if(check_retval(&retval, "CVSpilsSetLinearSolver", 1)) return 1;
@@ -264,10 +264,10 @@ int main(void)
       printf(" \n| SPTFQMR |\n");
       printf(" ---------\n");
 
-      /* Call SUNSPTFQMR to specify the linear solver SPTFQMR 
+      /* Call SUNLinSol_SPTFQMR to specify the linear solver SPTFQMR 
 	 with left preconditioning and the maximum Krylov dimension maxl */
-      LS = SUNSPTFQMR(u, PREC_LEFT, 0);
-      if(check_retval((void *)LS, "SUNSPTFQMR", 0)) return(1);
+      LS = SUNLinSol_SPTFQMR(u, PREC_LEFT, 0);
+      if(check_retval((void *)LS, "SUNLinSol_SPTFQMR", 0)) return(1);
 
       retval = CVSpilsSetLinearSolver(cvode_mem, LS);
       if(check_retval(&retval, "CVSpilsSetLinearSolver", 1)) return 1;

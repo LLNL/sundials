@@ -188,8 +188,8 @@ int main(int argc, char *argv[])
   if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
 
   /* Create banded SUNLinearSolver object for use by CVode */
-  LS = SUNBandLinearSolver(u, A);
-  if(check_retval((void *)LS, "SUNBandLinearSolver", 0)) return(1);
+  LS = SUNLinSol_Band(u, A);
+  if(check_retval((void *)LS, "SUNLinSol_Band", 0)) return(1);
   
   /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
   retval = CVDlsSetLinearSolver(cvode_mem, LS, A);

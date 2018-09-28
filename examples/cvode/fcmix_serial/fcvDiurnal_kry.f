@@ -52,7 +52,7 @@ C
       DATA TWOHR/7200.0D0/, RTOL/1.0D-5/, FLOOR/100.0D0/,
      &     JPRETYPE/1/, IGSTYPE/1/, MAXL/0/, DELT/0.0D0/
       DATA LNST/3/, LNFE/4/, LNETF/5/,  LNCF/6/, LNNI/7/, LNSETUP/8/, 
-     &     LQ/9/, LNPE/18/, LNLI/20/, LNPS/19/, LNCFL/21/
+     &     LQ/9/, LNPE/20/, LNLI/22/, LNPS/21/, LNCFL/23/
       DATA LH/2/
 C
 C     Load problem constants into IPAR, RPAR, and set initial values
@@ -101,17 +101,17 @@ C     Initialize CVODE
         STOP
       ENDIF
 C
-C     attach linear solver module to CVSpils interface
-      CALL FCVSPILSINIT(IER)
+C     attach linear solver module to CVLs interface
+      CALL FCVLSINIT(IER)
       IF (IER .NE. 0) THEN
         WRITE(6,40) IER
- 40     FORMAT(///' SUNDIALS_ERROR: FCVSPILSINIT returned IER = ',I5)
+ 40     FORMAT(///' SUNDIALS_ERROR: FCVLSINIT returned IER = ',I5)
         CALL FCVFREE
         STOP
       ENDIF
 C     
-C     attach preconditioner to CVSpils interface
-      CALL FCVSPILSSETPREC(1, IER)
+C     attach preconditioner to CVLs interface
+      CALL FCVLSSETPREC(1, IER)
 C
 C Loop over output points, call FCVODE, print sample solution values.
       TOUT = TWOHR

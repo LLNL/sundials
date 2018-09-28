@@ -44,6 +44,21 @@
 
 /*
  * -----------------------------------------------------------------
+ * deprecated wrapper functions
+ * -----------------------------------------------------------------
+ */
+
+SUNLinearSolver SUNSPBCGS(N_Vector y, int pretype, int maxl)
+{ return(SUNLinSol_SPBCGS(y, pretype, maxl)); }
+
+int SUNSPBCGSSetPrecType(SUNLinearSolver S, int pretype)
+{ return(SUNLinSol_SPBCGSSetPrecType(S, pretype)); }
+
+int SUNSPBCGSSetMaxl(SUNLinearSolver S, int maxl)
+{ return(SUNLinSol_SPBCGSSetMaxl(S, maxl)); }
+
+/*
+ * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------
  */
@@ -52,7 +67,7 @@
  * Function to create a new SPBCGS linear solver
  */
 
-SUNLinearSolver SUNSPBCGS(N_Vector y, int pretype, int maxl)
+SUNLinearSolver SUNLinSol_SPBCGS(N_Vector y, int pretype, int maxl)
 {
   SUNLinearSolver S;
   SUNLinearSolver_Ops ops;
@@ -142,7 +157,7 @@ SUNLinearSolver SUNSPBCGS(N_Vector y, int pretype, int maxl)
  * Function to set the type of preconditioning for SPBCGS to use 
  */
 
-SUNDIALS_EXPORT int SUNSPBCGSSetPrecType(SUNLinearSolver S, int pretype) 
+SUNDIALS_EXPORT int SUNLinSol_SPBCGSSetPrecType(SUNLinearSolver S, int pretype) 
 {
   /* Check for legal pretype */ 
   if ((pretype != PREC_NONE)  && (pretype != PREC_LEFT) &&
@@ -163,7 +178,7 @@ SUNDIALS_EXPORT int SUNSPBCGSSetPrecType(SUNLinearSolver S, int pretype)
  * Function to set the maximum number of iterations for SPBCGS to use 
  */
 
-SUNDIALS_EXPORT int SUNSPBCGSSetMaxl(SUNLinearSolver S, int maxl) 
+SUNDIALS_EXPORT int SUNLinSol_SPBCGSSetMaxl(SUNLinearSolver S, int maxl) 
 {
   /* Check for non-NULL SUNLinearSolver */
   if (S == NULL) return(SUNLS_MEM_NULL);

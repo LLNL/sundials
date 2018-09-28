@@ -30,12 +30,11 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <ida/ida.h>                          /* prototypes for IDA fcts., consts.    */
-#include <nvector/nvector_serial.h>           /* access to serial N_Vector            */
-#include <sunmatrix/sunmatrix_band.h>         /* access to band SUNMatrix             */
-#include <sunlinsol/sunlinsol_band.h>         /* access to band SUNLinearSolver       */
-#include <ida/ida_direct.h>                   /* access to IDADls interface           */
-#include <sundials/sundials_types.h>          /* definition of type realtype          */
+#include <ida/ida.h>                   /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_band.h>  /* access to band SUNMatrix             */
+#include <sunlinsol/sunlinsol_band.h>  /* access to band SUNLinearSolver       */
+#include <sundials/sundials_types.h>   /* definition of type realtype          */
 
 /* Problem Constants */
 
@@ -150,12 +149,12 @@ int main(void)
   if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
 
   /* Create banded SUNLinearSolver object */
-  LS = SUNBandLinearSolver(uu, A);
-  if(check_retval((void *)LS, "SUNBandLinearSolver", 0)) return(1);
+  LS = SUNLinSol_Band(uu, A);
+  if(check_retval((void *)LS, "SUNLinSol_Band", 0)) return(1);
 
   /* Attach the matrix and linear solver */
-  retval = IDADlsSetLinearSolver(mem, LS, A);
-  if(check_retval(&retval, "IDADlsSetLinearSolver", 1)) return(1);
+  retval = IDASetLinearSolver(mem, LS, A);
+  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
 
   /* Call IDACalcIC to correct the initial values. */
 
@@ -361,10 +360,10 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
   check_retval(&retval, "IDAGetNumResEvals", 1);
   retval = IDAGetLastStep(mem, &hused);
   check_retval(&retval, "IDAGetLastStep", 1);
-  retval = IDADlsGetNumJacEvals(mem, &nje);
-  check_retval(&retval, "IDADlsGetNumJacEvals", 1);
-  retval = IDADlsGetNumResEvals(mem, &nreLS);
-  check_retval(&retval, "IDADlsGetNumResEvals", 1);
+  retval = IDAGetNumJacEvals(mem, &nje);
+  check_retval(&retval, "IDAGetNumJacEvals", 1);
+  retval = IDAGetNumLinResEvals(mem, &nreLS);
+  check_retval(&retval, "IDAGetNumLinResEvals", 1);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le \n",

@@ -115,8 +115,8 @@ int main(int argc, char *argv[])
   if (check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* create dense linear solver */
-  LS  = SUNDenseLinearSolver(y, A);
-  if (check_retval((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+  LS  = SUNLinSol_Dense(y, A);
+  if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* initialize the linear solver */
   retval = SUNLinSolInitialize(LS);

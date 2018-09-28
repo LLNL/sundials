@@ -24,7 +24,6 @@
 #include <kinsol/kinsol.h>                 /* access to KINSOL func., consts.   */
 #include <nvector/nvector_serial.h>        /* access to serial N_Vector         */
 #include <sunmatrix/sunmatrix_sparse.h>    /* access to sparse SUNMatrix        */
-#include <kinsol/kinsol_direct.h>          /* access to KINDls interface        */
 #include <sunlinsol/sunlinsol_superlumt.h> /* access to SuperLUMT linear solver */
 #include <sundials/sundials_types.h>       /* defs. of realtype, sunindextype   */
 #include <sundials/sundials_math.h>        /* access to SUNRsqrt                */
@@ -118,16 +117,16 @@ int main()
 
   /* Create SuperLUMT solver object */
   num_threads = 2; /* number fo threads to use */
-  LS = SUNSuperLUMT(y, J, num_threads);
-  if(check_flag((void *)LS, "SUNSuperLUMT", 0)) return(1);
+  LS = SUNLinSol_SuperLUMT(y, J, num_threads);
+  if(check_flag((void *)LS, "SUNLinSol_SuperLUMT", 0)) return(1);
 
   /* Attach the SuperLU_MT linear solver */
-  flag = KINDlsSetLinearSolver(kmem, LS, J);
-  if(check_flag(&flag, "KINDlsSetLinearSolver", 1)) return(1);
+  flag = KINSetLinearSolver(kmem, LS, J);
+  if(check_flag(&flag, "KINSetLinearSolver", 1)) return(1);
 
   /* Set the Jacobian function */
-  flag = KINDlsSetJacFn(kmem, jac);
-  if (check_flag(&flag, "KINDlsSetJacFn", 1)) return(1);
+  flag = KINSetJacFn(kmem, jac);
+  if (check_flag(&flag, "KINSetJacFn", 1)) return(1);
 
   /* Indicate exact Newton */
 
@@ -570,8 +569,8 @@ static void PrintFinalStats(void *kmem)
   flag = KINGetNumFuncEvals(kmem, &nfe);
   check_flag(&flag, "KINGetNumFuncEvals", 1);
 
-  flag = KINDlsGetNumJacEvals(kmem, &nje);
-  check_flag(&flag, "KINDlsGetNumJacEvals", 1);
+  flag = KINGetNumJacEvals(kmem, &nje);
+  check_flag(&flag, "KINGetNumJacEvals", 1);
 
   printf("\nFinal Statistics.. \n");
   printf("nni    = %5ld    nfe   = %5ld \n", nni, nfe);

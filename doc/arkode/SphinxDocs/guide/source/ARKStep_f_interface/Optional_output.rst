@@ -25,7 +25,7 @@ IOUT and ROUT arrays
 In the Fortran interface, the optional outputs from the
 :f:func:`FARKODE()` solver are accessed not through individual
 functions, but rather through a pair of user-allocated arrays, *IOUT*
-(having ``long int`` type) of dimension at least 29, and *ROUT*
+(having ``long int`` type) of dimension at least 35, and *ROUT*
 (having ``realtype`` type) of dimension at least 6.  These arrays must
 be allocated by the user program that calls :f:func:`FARKODE()`, that
 passes them through the Fortran interface as arguments to
@@ -38,11 +38,8 @@ In the following tables, :ref:`FInterface.IOUTTable` and
 arrays by index, naming them according to their role with the main
 ARKStep solver, and list the relevant ARKStep C/C++ function that is
 actually called to extract the output value.  Similarly, optional
-integer output values that are specific to the ARKDLS linear solver
-interface are listed in :ref:`FInterface.DlsIOUTTable`, while
-integer optional output values specific to the ARKSPILS iterative
-linear solver interface are listed in
-:ref:`FInterface.SpilsIOUTTable`.
+integer output values that are specific to the ARKLS linear solver
+interface are listed in :ref:`FInterface.LsIOUTTable`.
 
 For more details on the optional inputs and outputs to ARKStep, see
 the sections :ref:`ARKStep_CInterface.OptionalInputs` and
@@ -97,9 +94,9 @@ Table: Optional FARKODE real outputs
 
 
 
-.. _FInterface.DlsIOUTTable:
+.. _FInterface.LsIOUTTable:
 
-Table: Optional ARKDLS interface outputs
+Table: Optional ARKLS interface outputs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. cssclass:: table-bordered
@@ -107,18 +104,24 @@ Table: Optional ARKDLS interface outputs
 ==============  ===============  ===================================================
 *IOUT* Index    Optional output  ARKStep function
 ==============  ===============  ===================================================
-14              LENRWLS          :c:func:`ARKDlsGetWorkSpace()`
-15              LENIWLS          :c:func:`ARKDlsGetWorkSpace()`
-16              LSTF             :c:func:`ARKDlsGetLastFlag()`
-17              NFELS            :c:func:`ARKDlsGetNumRhsEvals()`
-18              NJE              :c:func:`ARKDlsGetNumJacEvals()`
+14              LENRWLS          :c:func:`ARKLsGetWorkSpace()`
+15              LENIWLS          :c:func:`ARKLsGetWorkSpace()`
+16              LSTF             :c:func:`ARKLsGetLastFlag()`
+17              NFELS            :c:func:`ARKLsGetNumRhsEvals()`
+18              NJE              :c:func:`ARKLsGetNumJacEvals()`
+19              NJTS             :c:func:`ARKLsGetNumJTSetupEvals()`
+20              NJTV             :c:func:`ARKLsGetNumJtimesEvals()`
+21              NPE              :c:func:`ARKLsGetNumPrecEvals()`
+22              NPS              :c:func:`ARKLsGetNumPrecSolves()`
+23              NLI              :c:func:`ARKLsGetNumLinIters()`
+24              NCFL             :c:func:`ARKLsGetNumConvFails()`
 ==============  ===============  ===================================================
 
 
 
-.. _FInterface.DlsMassIOUTTable:
+.. _FInterface.LsMassIOUTTable:
 
-Table: Optional ARKDLS mass interface outputs
+Table: Optional ARKLS mass interface outputs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. cssclass:: table-bordered
@@ -126,56 +129,17 @@ Table: Optional ARKDLS mass interface outputs
 ==============  ===============  ===================================================
 *IOUT* Index    Optional output  ARKStep function
 ==============  ===============  ===================================================
-23              LENRWMS          :c:func:`ARKDlsGetMassWorkSpace()`
-24              LENIWMS          :c:func:`ARKDlsGetMassWorkSpace()`
-25              LSTMF            :c:func:`ARKDlsGetLastMassFlag()`
-26              NMSET            :c:func:`ARKDlsGetNumMassSetups()`
-27              NMSOL            :c:func:`ARKDlsGetNumMassSolves()`
-28              NMMUL            :c:func:`ARKDlsGetNumMassMult()`
-==============  ===============  ===================================================
-
-
-
-.. _FInterface.SpilsIOUTTable:
-
-Table: Optional ARKSPILS interface outputs
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. cssclass:: table-bordered
-
-==============  ===============  ===================================================
-*IOUT* Index    Optional output  ARKStep function
-==============  ===============  ===================================================
-14              LENRWLS          :c:func:`ARKSpilsGetWorkSpace()`
-15              LENIWLS          :c:func:`ARKSpilsGetWorkSpace()`
-16              LSTF             :c:func:`ARKSpilsGetLastFlag()`
-17              NFELS            :c:func:`ARKSpilsGetNumRhsEvals()`
-18              NJTV             :c:func:`ARKSpilsGetNumJtimesEvals()`
-19              NPE              :c:func:`ARKSpilsGetNumPrecEvals()`
-20              NPS              :c:func:`ARKSpilsGetNumPrecSolves()`
-21              NLI              :c:func:`ARKSpilsGetNumLinIters()`
-22              NCFL             :c:func:`ARKSpilsGetNumConvFails()`
-==============  ===============  ===================================================
-
-
-
-.. _FInterface.SpilsMassIOUTTable:
-
-Table: Optional ARKSPILS mass interface outputs
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. cssclass:: table-bordered
-
-==============  ===============  ===================================================
-*IOUT* Index    Optional output  ARKStep function
-==============  ===============  ===================================================
-23              LENRWMS          :c:func:`ARKSpilsGetMassWorkSpace()`
-24              LENIWMS          :c:func:`ARKSpilsGetMassWorkSpace()`
-25              LSTMF            :c:func:`ARKSpilsGetLastMassFlag()`
-26              NMPE             :c:func:`ARKSpilsGetNumMassPrecEvals()`
-27              NMPS             :c:func:`ARKSpilsGetNumMassPrecSolves()`
-28              NMLI             :c:func:`ARKSpilsGetNumMassIters()`
-29              NMCFL            :c:func:`ARKSpilsGetNumMassConvFails()`
+25              LENRWMS          :c:func:`ARKLsGetMassWorkSpace()`
+26              LENIWMS          :c:func:`ARKLsGetMassWorkSpace()`
+27              LSTMF            :c:func:`ARKLsGetLastMassFlag()`
+28              NMSET            :c:func:`ARKLsGetNumMassSetups()`
+29              NMSOL            :c:func:`ARKLsGetNumMassSolves()`
+30              NMTSET           :c:func:`ARKLsGetNumMTSetups()`
+31              NMMUL            :c:func:`ARKLsGetNumMassMult()`
+32              NMPE             :c:func:`ARKLsGetNumMassPrecEvals()`
+33              NMPS             :c:func:`ARKLsGetNumMassPrecSolves()`
+34              NMLI             :c:func:`ARKLsGetNumMassIters()`
+35              NMCFL            :c:func:`ARKLsGetNumMassConvFails()`
 ==============  ===============  ===================================================
 
 

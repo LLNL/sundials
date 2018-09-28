@@ -180,8 +180,8 @@ int main(int argc, char *argv[])
   if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
 
   /* Create banded SUNLinearSolver for the forward problem */
-  LS = SUNBandLinearSolver(u, A);
-  if(check_retval((void *)LS, "SUNBandLinearSolver", 0)) return(1);
+  LS = SUNLinSol_Band(u, A);
+  if(check_retval((void *)LS, "SUNLinSol_Band", 0)) return(1);
 
   /* Attach the matrix and linear solver */
   retval = CVDlsSetLinearSolver(cvode_mem, LS, A);
@@ -236,8 +236,8 @@ int main(int argc, char *argv[])
   if(check_retval((void *)AB, "SUNBandMatrix", 0)) return(1);
 
   /* Create banded SUNLinearSolver for the backward problem */
-  LSB = SUNBandLinearSolver(uB, AB);
-  if(check_retval((void *)LSB, "SUNBandLinearSolver", 0)) return(1);
+  LSB = SUNLinSol_Band(uB, AB);
+  if(check_retval((void *)LSB, "SUNLinSol_Band", 0)) return(1);
 
   /* Attach the matrix and linear solver */
   retval = CVDlsSetLinearSolverB(cvode_mem, indexB, LSB, AB);

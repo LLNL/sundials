@@ -223,8 +223,8 @@ int main(int argc, char *argv[])
 
   /* Create SuperLUMT SUNLinearSolver object (one thread) */
   nthreads = 1;
-  LS = SUNSuperLUMT(yy, A, nthreads);
-  if(check_retval((void *)LS, "SUNSuperLUMT", 0)) return(1);
+  LS = SUNLinSol_SuperLUMT(yy, A, nthreads);
+  if(check_retval((void *)LS, "SUNLinSol_SuperLUMT", 0)) return(1);
 
   /* Attach the matrix and linear solver */
   retval = IDADlsSetLinearSolver(ida_mem, LS, A);
@@ -362,8 +362,8 @@ int main(int argc, char *argv[])
   if(check_retval((void *)AB, "SUNSparseMatrix", 0)) return(1);
 
   /* Create SuperLUMT SUNLinearSolver object (one thread) */
-  LSB = SUNSuperLUMT(yB, AB, nthreads);
-  if(check_retval((void *)LSB, "SUNSuperLUMT", 0)) return(1);
+  LSB = SUNLinSol_SuperLUMT(yB, AB, nthreads);
+  if(check_retval((void *)LSB, "SUNLinSol_SuperLUMT", 0)) return(1);
 
   /* Attach the matrix and linear solver */
   retval = IDADlsSetLinearSolverB(ida_mem, indexB, LSB, AB);

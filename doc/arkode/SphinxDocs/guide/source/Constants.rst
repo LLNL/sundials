@@ -308,71 +308,45 @@ Shared ARKode output constants
 
 
 
-ARKDLS linear solver modules
+ARKLS linear solver modules
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:index:`ARKDLS_SUCCESS`  (0):
+:index:`ARKLS_SUCCESS`  (0):
    Successful function return.
 
-:index:`ARKDLS_MEM_NULL`  (-1):
+:index:`ARKLS_MEM_NULL`  (-1):
    The ``arkode_mem`` argument was ``NULL``.
 
-:index:`ARKDLS_LMEM_NULL`  (-2):
-   The ARKDLS linear solver has not been initialized.
+:index:`ARKLS_LMEM_NULL`  (-2):
+   The ARKLS linear solver interface has not been initialized.
 
-:index:`ARKDLS_ILL_INPUT`  (-3):
-   The ARKDLS solver is not compatible with
-   the current NVECTOR module.
-
-:index:`ARKDLS_MEM_FAIL`  (-4):
-   A memory allocation request failed.
-
-:index:`ARKDLS_MASSMEM_FAIL`  (-5):
-   A memory allocation request failed for the mass matrix solver.
-
-:index:`ARKDLS_JACFUNC_UNRECVR`  (-6):
-   The Jacobian function failed in an
-   unrecoverable manner.
-
-:index:`ARKDLS_JACFUNC_RECVR`  (-7):
-   The Jacobian function had a recoverable error.
-
-:index:`ARKDLS_MASSFUNC_UNRECVR`  (-8):
-   The mass matrix function failed in an
-   unrecoverable manner.
-
-:index:`ARKDLS_MASSFUNC_RECVR`  (-9):
-   The mass matrix function had a recoverable error.
-
-:index:`ARKDLS_SUNMAT_FAIL`  (-10):
-   An error occurred with the current SUNMATRIX module.
-
-
-
-ARKSPILS linear solver modules
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-:index:`ARKSPILS_SUCCESS`  (0):
-   Successful function return.
-
-:index:`ARKSPILS_MEM_NULL`  (-1):
-   The ``arkode_mem`` argument was ``NULL``.
-
-:index:`ARKSPILS_LMEM_NULL`  (-2):
-   The ARKSPILS linear solver has not been initialized.
-
-:index:`AKRSPILS_ILL_INPUT`  (-3):
-   The ARKSPILS solver is not compatible with
+:index:`ARKLS_ILL_INPUT`  (-3):
+   The ARKLS solver interface is not compatible with
    the current NVECTOR module, or an input value was illegal.
 
-:index:`ARKSPILS_MEM_FAIL`  (-4):
+:index:`ARKLS_MEM_FAIL`  (-4):
    A memory allocation request failed.
 
-:index:`ARKSPILS_PMEM_FAIL`  (-5):
+:index:`ARKLS_PMEM_NULL`  (-5):
    The preconditioner module has not been initialized.
 
-:index:`ARKSPILS_MASSMEM_FAIL`  (-6):
-   A memory allocation request failed in the mass matrix solver.
+:index:`ARKLS_MASSMEM_NULL`  (-6):
+   The ARKLS mass-matrix linear solver interface has not been initialized.
 
-:index:`ARKSPILS_SUNLS_FAIL`  (-10):
+:index:`ARKLS_JACFUNC_UNRECVR`  (-7):
+   The Jacobian function failed in an unrecoverable manner.
+
+:index:`ARKLS_JACFUNC_RECVR`  (-8):
+   The Jacobian function had a recoverable error.
+
+:index:`ARKLS_MASSFUNC_UNRECVR`  (-9):
+   The mass matrix function failed in an unrecoverable manner.
+
+:index:`ARKLS_MASSFUNC_RECVR`  (-10):
+   The mass matrix function had a recoverable error.
+
+:index:`ARKLS_SUNMAT_FAIL`  (-11):
+   An error occurred with the current SUNMATRIX module.
+
+:index:`ARKLS_SUNLS_FAIL`  (-12):
    An error occurred with the current SUNLINSOL module.

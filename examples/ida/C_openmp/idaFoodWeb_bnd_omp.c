@@ -100,7 +100,6 @@
 #include <math.h>
 
 #include <ida/ida.h>
-#include <ida/ida_direct.h>
 #include <sunmatrix/sunmatrix_band.h>
 #include <sunlinsol/sunlinsol_band.h>
 #include <nvector/nvector_openmp.h>
@@ -263,10 +262,10 @@ int main(int argc, char *argv[])
   smu = mu+ml;
   A = SUNBandMatrix(NEQ, mu, ml, smu);
   if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
-  LS = SUNBandLinearSolver(cc, A);
-  if(check_retval((void *)LS, "SUNBandLinearSolver", 0)) return(1);
-  retval = IDADlsSetLinearSolver(ida_mem, LS, A);
-  if(check_retval(&retval, "IDADlsSetLinearSolver", 1)) return(1);
+  LS = SUNLinSol_Band(cc, A);
+  if(check_retval((void *)LS, "SUNLinSol_Band", 0)) return(1);
+  retval = IDASetLinearSolver(ida_mem, LS, A);
+  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
 
   /* Call IDACalcIC (with default options) to correct the initial values. */
 
@@ -569,10 +568,10 @@ static void PrintFinalStats(void *ida_mem)
   check_retval(&retval, "IDAGetNumErrTestFails", 1);
   retval = IDAGetNumNonlinSolvConvFails(ida_mem, &ncfn);
   check_retval(&retval, "IDAGetNumNonlinSolvConvFails", 1);
-  retval = IDADlsGetNumJacEvals(ida_mem, &nje);
-  check_retval(&retval, "IDADlsGetNumJacEvals", 1);
-  retval = IDADlsGetNumResEvals(ida_mem, &nreLS);
-  check_retval(&retval, "IDADlsGetNumResEvals", 1);
+  retval = IDAGetNumJacEvals(ida_mem, &nje);
+  check_retval(&retval, "IDAGetNumJacEvals", 1);
+  retval = IDAGetNumLinResEvals(ida_mem, &nreLS);
+  check_retval(&retval, "IDAGetNumLinResEvals", 1);
 
   printf("-----------------------------------------------------------\n");
   printf("Final run statistics: \n\n");

@@ -67,7 +67,7 @@ Final statistics:
  number of conv. failures.. nonlinear =  0 linear =   0
  number of error test failures =  24
  main solver real/int workspace sizes   =  3300  128
- linear solver real/int workspace sizes =  2456   22
+ linear solver real/int workspace sizes =  2455   42
 In ARKBANDPRE:
  real/int workspace sizes =  2800  622
  number of f evaluations  =   600

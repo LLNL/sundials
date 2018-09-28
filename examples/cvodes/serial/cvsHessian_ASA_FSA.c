@@ -191,8 +191,8 @@ int main(int argc, char *argv[])
   if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create banded SUNLinearSolver for the forward problem */
-  LS = SUNDenseLinearSolver(y, A);
-  if(check_retval((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+  LS = SUNLinSol_Dense(y, A);
+  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
   retval = CVDlsSetLinearSolver(cvode_mem, LS, A);
@@ -326,9 +326,9 @@ int main(int argc, char *argv[])
   AB1 = SUNDenseMatrix(2*Neq, 2*Neq);
   if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
-  /* Create banded SUNLinearSolver for the forward problem */
-  LSB1 = SUNDenseLinearSolver(yB1, AB1);
-  if(check_retval((void *)LSB1, "SUNDenseLinearSolver", 0)) return(1);
+  /* Create dense SUNLinearSolver for the forward problem */
+  LSB1 = SUNLinSol_Dense(yB1, AB1);
+  if(check_retval((void *)LSB1, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
   retval = CVDlsSetLinearSolverB(cvode_mem, indexB1, LSB1, AB1);
@@ -363,9 +363,9 @@ int main(int argc, char *argv[])
   AB2 = SUNDenseMatrix(2*Neq, 2*Neq);
   if(check_retval((void *)AB2, "SUNDenseMatrix", 0)) return(1);
 
-  /* Create banded SUNLinearSolver for the forward problem */
-  LSB2 = SUNDenseLinearSolver(yB2, AB2);
-  if(check_retval((void *)LSB2, "SUNDenseLinearSolver", 0)) return(1);
+  /* Create dense SUNLinearSolver for the forward problem */
+  LSB2 = SUNLinSol_Dense(yB2, AB2);
+  if(check_retval((void *)LSB2, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
   retval = CVDlsSetLinearSolverB(cvode_mem, indexB2, LSB2, AB2);
@@ -461,9 +461,9 @@ int main(int argc, char *argv[])
   A = SUNDenseMatrix(Neq, Neq);
   if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
-  /* Create banded SUNLinearSolver for the forward problem */
-  LS = SUNDenseLinearSolver(y, A);
-  if(check_retval((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+  /* Create dense SUNLinearSolver for the forward problem */
+  LS = SUNLinSol_Dense(y, A);
+  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
   retval = CVDlsSetLinearSolver(cvode_mem, LS, A);

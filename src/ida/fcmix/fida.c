@@ -27,8 +27,7 @@
 #include <string.h>
 #include "fida.h"            /* function names, prototypes, global variables   */
 #include "ida_impl.h"        /* definition of IDAMem type                      */
-#include <ida/ida_direct.h>  /* prototypes for IDADLS interface routines       */
-#include <ida/ida_spils.h>   /* prototypes for IDASPILS interface routines     */
+#include <ida/ida_ls.h>      /* prototypes for IDALS interface routines        */
 
 /*************************************************/
 
@@ -39,7 +38,6 @@ N_Vector F2C_IDA_ypvec, F2C_IDA_ewtvec;
 void *IDA_idamem;
 long int *IDA_iout;
 realtype *IDA_rout;
-int IDA_ls;
 int IDA_nrtfn;
 
 /*************************************************/
@@ -368,55 +366,54 @@ void FIDA_CALCIC(int *icopt, realtype *tout1, int *ier)
 
 /*************************************************/
 
-/* Fortran interface to C routine IDADlsSetLinearSolver; see 
+/* Fortran interface to C routine IDASetLinearSolver; see 
    fida.h for further details */
-void FIDA_DLSINIT(int *ier) {
-  if ( (IDA_idamem == NULL) || (F2C_IDA_linsol == NULL) || 
-       (F2C_IDA_matrix == NULL) ) {
-    *ier = -1;
-    return;
-  }
-  *ier = IDADlsSetLinearSolver(IDA_idamem, F2C_IDA_linsol, 
-                               F2C_IDA_matrix);
-  IDA_ls = IDA_LS_DIRECT;
-  return;
-}
-
-
-/*************************************************/
-
-/* Fortran interface to C routine IDASpilsSetLinearSolver; see 
-   fida.h for further details */
-void FIDA_SPILSINIT(int *ier) {
+void FIDA_LSINIT(int *ier) {
   if ( (IDA_idamem == NULL) || (F2C_IDA_linsol == NULL) ) {
     *ier = -1;
     return;
   }
-  *ier = IDASpilsSetLinearSolver(IDA_idamem, F2C_IDA_linsol);
-  FIDANullMatrix();
-  IDA_ls = IDA_LS_ITERATIVE;
+  *ier = IDASetLinearSolver(IDA_idamem, F2C_IDA_linsol, 
+                            F2C_IDA_matrix);
   return;
+}
+
+
+/*************************************************/
+
+/*** DEPRECATED ***/
+void FIDA_DLSINIT(int *ier)
+{ FIDA_LSINIT(ier); }
+
+/*************************************************/
+
+/*** DEPRECATED ***/
+void FIDA_SPILSINIT(int *ier) {
+  FIDANullMatrix();
+  FIDA_LSINIT(ier);
 }
 
 /*************************************************/
 
-/* Fortran interfaces to C "set" routines for the IDASpils solver; 
+/* Fortran interfaces to C "set" routines for the IDALS solver; 
    see fida.h for further details */
-void FIDA_SPILSSETEPSLIN(realtype *eplifac, int *ier) {
-  if (IDA_ls == IDA_LS_ITERATIVE)
-    *ier = IDASpilsSetEpsLin(IDA_idamem, *eplifac);
-  else
-    *ier = 1;
+void FIDA_LSSETEPSLIN(realtype *eplifac, int *ier) {
+  *ier = IDASetEpsLin(IDA_idamem, *eplifac);
   return;
 }
 
-void FIDA_SPILSSETINCREMENTFACTOR(realtype *dqincfac, int *ier) {
-  if (IDA_ls == IDA_LS_ITERATIVE)
-    *ier = IDASpilsSetIncrementFactor(IDA_idamem, *dqincfac);
-  else
-    *ier = 1;
+void FIDA_LSSETINCREMENTFACTOR(realtype *dqincfac, int *ier) {
+  *ier = IDASetIncrementFactor(IDA_idamem, *dqincfac);
   return;
 }
+
+/*** DEPRECATED ***/
+void FIDA_SPILSSETEPSLIN(realtype *eplifac, int *ier)
+{ FIDA_LSSETEPSLIN(eplifac, ier); }
+
+/*** DEPRECATED ***/
+void FIDA_SPILSSETINCREMENTFACTOR(realtype *dqincfac, int *ier) 
+{ FIDA_LSSETINCREMENTFACTOR(dqincfac, ier); }
 
 
 /*************************************************/
@@ -468,26 +465,18 @@ void FIDA_SOLVE(realtype *tout, realtype *tret, realtype *yret,
   /* Root finding is on */
   if (IDA_nrtfn != 0)
     IDAGetNumGEvals(IDA_idamem, &IDA_iout[11]); /* NGE */
-  
-  switch(IDA_ls) {
-  case IDA_LS_DIRECT:
-    IDADlsGetWorkSpace(IDA_idamem, &IDA_iout[12], &IDA_iout[13]);   /* LENRWLS, LENIWLS */
-    IDADlsGetLastFlag(IDA_idamem, &IDA_iout[14]);                   /* LSTF */
-    IDADlsGetNumResEvals(IDA_idamem, &IDA_iout[15]);                /* NRE */
-    IDADlsGetNumJacEvals(IDA_idamem, &IDA_iout[16]);                /* NJE */
-    break;
-  case IDA_LS_ITERATIVE:
-    IDASpilsGetWorkSpace(IDA_idamem, &IDA_iout[12], &IDA_iout[13]); /* LENRWLS, LENIWLS */
-    IDASpilsGetLastFlag(IDA_idamem, &IDA_iout[14]);                 /* LSTF */
-    IDASpilsGetNumResEvals(IDA_idamem, &IDA_iout[15]);              /* NRE */
-    IDASpilsGetNumJtimesEvals(IDA_idamem, &IDA_iout[16]);           /* NJE */
-    IDASpilsGetNumPrecEvals(IDA_idamem, &IDA_iout[17]);             /* NPE */
-    IDASpilsGetNumPrecSolves(IDA_idamem, &IDA_iout[18]);            /* NPS */
-    IDASpilsGetNumLinIters(IDA_idamem, &IDA_iout[19]);              /* NLI */
-    IDASpilsGetNumConvFails(IDA_idamem, &IDA_iout[20]);             /* NCFL */
-    break;
-  }
 
+  /* Linear solver optional outputs */
+  IDAGetLinWorkSpace(IDA_idamem, &IDA_iout[12], &IDA_iout[13]);   /* LENRWLS, LENIWLS */
+  IDAGetLastLinFlag(IDA_idamem, &IDA_iout[14]);                   /* LSTF */
+  IDAGetNumLinResEvals(IDA_idamem, &IDA_iout[15]);                /* NRE */
+  IDAGetNumJacEvals(IDA_idamem, &IDA_iout[16]);                   /* NJE */
+  IDAGetNumJTSetupEvals(IDA_idamem, &IDA_iout[17]);               /* NJTS */
+  IDAGetNumJtimesEvals(IDA_idamem, &IDA_iout[18]);                /* NJT */
+  IDAGetNumPrecEvals(IDA_idamem, &IDA_iout[19]);                  /* NPE */
+  IDAGetNumPrecSolves(IDA_idamem, &IDA_iout[20]);                 /* NPS */
+  IDAGetNumLinIters(IDA_idamem, &IDA_iout[21]);                   /* NLI */
+  IDAGetNumLinConvFails(IDA_idamem, &IDA_iout[22]);               /* NCFL */
 
   return;
 }
@@ -557,7 +546,7 @@ void FIDA_FREE(void)
 
   ida_mem = (IDAMem) IDA_idamem;
 
-  /* free DLS/SPILS interface */
+  /* free IDALS interface */
   if (ida_mem->ida_lfree)
     ida_mem->ida_lfree(ida_mem);
   ida_mem->ida_lmem = NULL;

@@ -41,7 +41,7 @@ Final statistics:
  number of conv. failures.. nonlinear =   0  linear =   0
  number of error test failures =   0
  main solver real/int workspace sizes   =   740  240
- linear solver real/int workspace sizes =   536  106
+ linear solver real/int workspace sizes =   535  126
 In ARKBBDPRE:
  real/int local workspace =   160   72
  number of g evals. =    12
@@ -81,7 +81,7 @@ Final statistics:
  number of conv. failures.. nonlinear =   0  linear =   0
  number of error test failures =   0
  main solver real/int workspace sizes   =   780  248
- linear solver real/int workspace sizes =   536  106
+ linear solver real/int workspace sizes =   535  126
 In ARKBBDPRE:
  real/int local workspace =   160   72
  number of g evals. =    12

@@ -16,7 +16,7 @@
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
  * The C functions FARKPSet and FARKPSol are to interface between 
- * the ARKSPILS module and the user-supplied preconditioner 
+ * the ARKLS module and the user-supplied preconditioner 
  * setup/solve routines FARKPSET and FARKPSOL. Note the use of 
  * the generic names FARK_PSET and FARK_PSOL in the code below.
  *--------------------------------------------------------------*/
@@ -25,7 +25,7 @@
 #include <stdlib.h>
 #include "farkode.h"
 #include "arkode_impl.h"
-#include <arkode/arkode_spils.h>
+#include <arkode/arkode_arkstep.h>
 
 /*=============================================================*/
 
@@ -51,15 +51,21 @@ extern "C" {
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKSpilsSetPreconditioner; see 
+/* ---DEPRECATED---
+   Fortran interface to C routine ARKStepSetPreconditioner; see 
    farkode.h for further details */
 void FARK_SPILSSETPREC(int *flag, int *ier)
+{ FARK_LSSETPREC(flag, ier); }
+
+/* Fortran interface to C routine ARKStepSetPreconditioner; see 
+   farkode.h for further details */
+void FARK_LSSETPREC(int *flag, int *ier)
 {
   if (*flag == 0) {
-    *ier = ARKSpilsSetPreconditioner(ARK_arkodemem, NULL, NULL);
+    *ier = ARKStepSetPreconditioner(ARK_arkodemem, NULL, NULL);
   } else {
-    *ier = ARKSpilsSetPreconditioner(ARK_arkodemem, 
-                                     FARKPSet, FARKPSol);
+    *ier = ARKStepSetPreconditioner(ARK_arkodemem, 
+                                    FARKPSet, FARKPSol);
   }
   return;
 }

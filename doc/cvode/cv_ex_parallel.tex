@@ -112,7 +112,7 @@ of being stiff.
 \subsection{A user preconditioner example: cvDiurnal\_kry\_p}\label{ss:cvDiurnal_p}
 
 As an example of using {\cvode} with the Krylov linear solver
-{\sunlinsolspgmr}, iterative linear solver interfce {\cvspils}, and
+{\sunlinsolspgmr}, {\cvls} linear solver interface, and
 the parallel MPI {\nvecp} module, we describe a test problem based on
 the system PDEs given above for the \id{cvDiurnal\_kry} example.
 As before, we discretize the PDE system with central differencing, to
@@ -203,7 +203,7 @@ In \id{cvDiurnal\_kry\_bbd\_p.c}, the problem is solved twice --- first with pre
 on the left, and then on the right.  Thus prior to the second solution, calls
 are made to reset the initial values (\id{SetInitialProfiles}), the main solver
 memory (\id{CVodeReInit}), the {\cvbbdpre} memory (\id{CVBBDPrecReInit}),
-as well as the preconditioner type (\id{SUNSPGMRSetPrecType}).
+as well as the preconditioner type (\id{SUNLinSol\_SPGMRSetPrecType}).
 
 Sample output from \id{cvDiurnal\_kry\_bbd\_p} follows, again using $5 \times 5$ subgrids
 on a $2 \times 2$ processor grid.  The performance of the preconditioner,

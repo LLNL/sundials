@@ -6,10 +6,10 @@
  * Example program for IDA: Food web, parallel, GMRES, IDABBD
  * preconditioner.
  *
- * This example program for IDA uses SUNSPGMR as the linear solver.
+ * This example program for IDA uses SUNLinSol_SPGMR as the linear solver.
  * It is written for a parallel computer system and uses the
  * IDABBDPRE band-block-diagonal preconditioner module for the
- * SUNSPGMR package. 
+ * SUNLinSol_SPGMR package. 
  *
  * The mathematical problem solved in this example is a DAE system
  * that arises from a system of partial differential equations after
@@ -68,7 +68,7 @@
  * submeshes, processor by processor, with an MXSUB by MYSUB mesh
  * on each of NPEX * NPEY processors.
  *
- * The DAE system is solved by IDA using the SUNSPGMR linear solver,
+ * The DAE system is solved by IDA using the SUNLinSol_SPGMR linear solver,
  * in conjunction with the preconditioner module IDABBDPRE. The
  * preconditioner uses a 5-diagonal band-block-diagonal
  * approximation (half-bandwidths = 2). Output is printed at
@@ -309,11 +309,11 @@ int main(int argc, char *argv[])
   retval = IDASStolerances(ida_mem, rtol, atol);
   if(check_retval(&retval, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
 
-  /* Call SUNSPGMR and IDASpilsSetLinearSolver to specify the linear solver */
+  /* Call SUNLinSol_SPGMR and IDASpilsSetLinearSolver to specify the linear solver */
 
   maxl = 16;
-  LS = SUNSPGMR(cc, PREC_LEFT, maxl);
-  if(check_retval((void *)LS, "SUNSPGMR", 0, thispe)) MPI_Abort(comm, 1);
+  LS = SUNLinSol_SPGMR(cc, PREC_LEFT, maxl);
+  if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0, thispe)) MPI_Abort(comm, 1);
   retval = IDASpilsSetLinearSolver(ida_mem, LS);
   if(check_retval(&retval, "IDASpilsSetLinearSolver", 1, thispe)) MPI_Abort(comm, 1);
 
@@ -524,7 +524,7 @@ static void PrintHeader(sunindextype SystemSize, int maxl,
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
-  printf("Linear solver: SUNSPGMR     Max. Krylov dimension maxl: %d\n", maxl);
+  printf("Linear solver: SUNLinSol_SPGMR     Max. Krylov dimension maxl: %d\n", maxl);
   printf("Preconditioner: band-block-diagonal (IDABBDPRE), with parameters\n");
   printf("     mudq = %ld,  mldq = %ld,  mukeep = %ld,  mlkeep = %ld\n",
          (long int) mudq, (long int) mldq, (long int) mukeep, (long int) mlkeep);

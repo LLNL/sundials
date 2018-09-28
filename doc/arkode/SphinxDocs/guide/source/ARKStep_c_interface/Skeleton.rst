@@ -133,81 +133,121 @@ the function to be called or macro to be referenced.
    :c:func:`ARKStepResStolerance()`, :c:func:`ARKStepResVtolerance()`, or
    :c:func:`ARKStepResFtolerance()`.
 
-6. Set optional inputs
+6. Create matrix object
 
-   Call ``ARKStepSet*`` functions to change any optional inputs that
-   control the behavior of ARKStep from their default values. See the
-   section :ref:`ARKStep_CInterface.OptionalInputs` for details.
+   If a nonlinear solver requiring a linear solver will be used (e.g.,
+   a Newton iteration) and the linear solver will be a matrix-based linear
+   solver, then a template Jacobian matrix must be created by using the
+   appropriate functions defined by the particular SUNMATRIX
+   implementation.
 
-7. Create matrix object
+   For the SUNDIALS-supplied SUNMATRIX implementations, the
+   matrix object may be created using a call of the form
 
-   If a matrix-based linear solver is to be used within a Newton
-   iteration or for solving non-identity mass matrix systems, then a
-   template Jacobian and/or mass matrix must be created by using the
+   .. code-block:: c
+
+      SUNMatrix A = SUNBandMatrix(...);
+
+   or
+
+   .. code-block:: c
+
+      SUNMatrix A = SUNDenseMatrix(...);
+
+   or
+
+   .. code-block:: c
+
+      SUNMatrix A = SUNSparseMatrix(...);
+
+
+   Similarly, if the problem involves a non-identity mass matrix, and
+   the mass-matrix linear systems will be solved using a direct linear
+   solver, then a template mass matrix must be created by using the
    appropriate functions defined by the particular SUNMATRIX
    implementation.
 
    NOTE: The dense, banded, and sparse matrix objects are usable only in a
    serial or threaded environment.
 
-8. Create linear solver object
+7. Create linear solver object
 
-   If a Newton iteration is chosen, or if the problem involves a
-   non-identity mass matrix, then the desired linear solver object(s)
-   must be created by using the appropriate functions defined by the
-   particular SUNLINSOL implementation.
+   If a nonlinear solver requiring a linear solver will be used (e.g.,
+   a Newton iteration), or if the problem involves a non-identity mass
+   matrix, then the desired linear solver object(s) must be created by
+   using the appropriate functions defined by the particular SUNLINSOL
+   implementation.
 
-9. Set linear solver optional inputs
+   For any of the SUNDIALS-supplied SUNLINSOL implementations, the
+   linear solver object may be created using a call of the form
+
+   .. code-block:: c
+
+      SUNLinearSolver LS = SUNLinSol_*(...);
+
+   where ``*`` can be replaced with "Dense", "SPGMR", or other
+   options, as discussed in the sections
+   :ref:`ARKStep_CInterface.LinearSolvers` and :ref:`SUNLinSol`.
+
+8. Set linear solver optional inputs
 
    Call ``*Set*`` functions from the selected linear solver module
    to change optional inputs specific to that linear solver.  See the
    documentation for each SUNLINSOL module in the section
    :ref:`SUNLinSol` for details.
 
-10. Attach linear solver module
+9. Attach linear solver module
 
-    If a Newton iteration is chosen for implicit or ImEx methods,
-    initialize the ARKDLS or ARKSPILS linear solver interface by
-    attaching the linear solver object (and Jacobian matrix object, if
-    applicable) with one of the following calls (for details see the
-    section :ref:`ARKStep_CInterface.LinearSolvers`):
+   If a linear solver was created above for implicit stage solves,
+   initialize the ARKLS linear solver interface by attaching the
+   linear solver object (and Jacobian matrix object, if applicable)
+   with the call (for details see the section :ref:`ARKStep_CInterface.LinearSolvers`):
 
-    .. code-block:: c
+   .. code-block:: c
 
-       ier = ARKDlsSetLinearSolver(...);
+      ier = ARKStepSetLinearSolver(...);
 
-       ier = ARKSpilsSetLinearSolver(...);
+   Similarly, if the problem involves a non-identity mass matrix,
+   initialize the ARKLS mass matrix linear solver interface by
+   attaching the mass linear solver object (and mass matrix object,
+   if applicable) with the call (for details see the section
+   :ref:`ARKStep_CInterface.LinearSolvers`):
 
-    Similarly, if the problem involves a non-identity mass matrix,
-    initialize the ARKDLS or ARKSPILS mass matrix linear solver
-    interface by attaching the mass linear solver object (and mass
-    matrix object, if applicable) with one of the following calls (for
-    details see the section :ref:`ARKStep_CInterface.LinearSolvers`):
+   .. code-block:: c
 
-    .. code-block:: c
+      ier = ARKStepSetMassLinearSolver(...);
 
-       ier = ARKDlsSetMassLinearSolver(...);
+10. Set optional inputs
 
-       ier = ARKSpilsSetMassLinearSolver(...);
-
-11. Set linear solver interface optional inputs
-
-    Call ``ARKDlsSet*`` or ``ARKSpilsSet*`` functions to change
-    optional inputs specific to that linear solver interface. See the
+    Call ``ARKStepSet*`` functions to change any optional inputs that
+    control the behavior of ARKStep from their default values. See the
     section :ref:`ARKStep_CInterface.OptionalInputs` for details.
 
-12. Create nonlinear solver object
+11. Create nonlinear solver object
 
     If the problem involves an implicit component, and if a non-default
     nonlinear solver object will be used for implicit stage solves
     (see the section :ref:`ARKStep_CInterface.NonlinearSolvers`),
     then the desired nonlinear solver object must be created by using
-    the appropriate functions defined by the particular SUNNONLINSOL 
+    the appropriate functions defined by the particular SUNNONLINSOL
     implementation (e.g., ``NLS = SUNNonlinSol_***(...);`` where
     ``***`` is the name of the nonlinear solver (see the section
     :ref:`SUNNonlinSol` for details).
 
-13. Attach nonlinear solver module
+    For the SUNDIALS-supplied SUNNONLINSOL implementations, the
+    nonlinear solver object may be created using a call of the form
+
+    .. code-block:: c
+
+       SUNNonlinearSolver NLS = SUNNonlinSol_Newton(...);
+
+    or
+
+    .. code-block:: c
+
+       SUNNonlinearSolver NLS = SUNNonlinSol_FixedPoint(...);
+
+12. Attach nonlinear solver module
 
     If a nonlinear solver object was created above, then it must be
     attached to ARKStep using the call (for details see the
@@ -217,7 +257,7 @@ the function to be called or macro to be referenced.
 
        ier = ARKStepSetNonlinearSolver(...);
 
-14. Set nonlinear solver optional inputs
+13. Set nonlinear solver optional inputs
 
     Call the appropriate set functions for the selected nonlinear
     solver module to change optional inputs specific to that nonlinear
@@ -226,7 +266,7 @@ the function to be called or macro to be referenced.
     overridden by ARKStep defaults.  See the section
     :ref:`SUNNonlinSol` for more information on optional inputs.
 
-15. Specify rootfinding problem
+14. Specify rootfinding problem
 
     Optionally, call :c:func:`ARKStepRootInit()` to initialize a rootfinding
     problem to be solved during the integration of the ODE system. See
@@ -234,7 +274,7 @@ the function to be called or macro to be referenced.
     the section :ref:`ARKStep_CInterface.OptionalInputs` for relevant optional
     input calls.
 
-16. Advance solution in time
+15. Advance solution in time
 
     For each point at which output is desired, call
 
@@ -247,12 +287,12 @@ the function to be called or macro to be referenced.
     :math:`y(t_\text{out})`. See the section
     :ref:`ARKStep_CInterface.Integration` for details.
 
-17. Get optional outputs
+16. Get optional outputs
 
     Call ``ARKStepGet*`` functions to obtain optional output. See
     the section :ref:`ARKStep_CInterface.OptionalOutputs` for details.
 
-18. Deallocate memory for solution vector
+17. Deallocate memory for solution vector
 
     Upon completion of the integration, deallocate memory for the
     vector ``y`` (or ``yout``) by calling the destructor function:
@@ -261,18 +301,18 @@ the function to be called or macro to be referenced.
 
        N_VDestroy(y);
 
-19. Free solver memory
+18. Free solver memory
 
     Call ``ARKStepFree(&arkode_mem)`` to free the memory allocated for
     the ARKStep module (and any nonlinear solver module).
 
-20. Free linear solver and matrix memory
+19. Free linear solver and matrix memory
 
     Call :c:func:`SUNLinSolFree()` and (possibly)
     :c:func:`SUNMatDestroy()` to free any memory allocated for the
     linear solver and matrix objects created above.
 
-21. Finalize MPI, if used
+20. Finalize MPI, if used
 
     Call ``MPI_Finalize`` to terminate MPI.
 

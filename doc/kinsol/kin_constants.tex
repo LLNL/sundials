@@ -10,7 +10,7 @@ description of their meaning.
 %% Supertabular setings
 
 \newlength{\tcolone}
-\settowidth{\tcolone}{\id{SPTFQMR\_PSOLVE\_FAIL\_UNREC}}
+\settowidth{\tcolone}{\id{KIN\_LINSOLV\_NO\_RECOVERY}}
 \newlength{\tcoltwo}
 \settowidth{\tcoltwo}{-20}
 \newlength{\tcolthree}
@@ -41,7 +41,7 @@ description of their meaning.
 \id{KIN\_LINESEARCH}      & 1 & Use linesearch globalization.
 
 \\\hline
-\multicolumn{3}{c}{\bf Iterative linear solver module}\\
+\multicolumn{3}{c}{\bf Iterative linear solver modules}\\
 \hline\\
 
 \id{PREC\_NONE}    & 0 & No preconditioning \\
@@ -82,30 +82,17 @@ description of their meaning.
 \id{KIN\_REPTD\_SYSFUNC\_ERR}   & -15 & The system function had repeated recoverable errors. \\
 
 \\\hline
-\multicolumn{3}{c}{\bf {\kindls} linear solver module}\\
+\multicolumn{3}{c}{\bf {\kinls} linear solver interface}\\
 \hline\\
 
-\id{KINDLS\_SUCCESS}    &  0 & Successful function return. \\
-\id{KINDLS\_MEM\_NULL}  & -1 & The \id{kin\_mem} argument was \id{NULL}.\\
-\id{KINDLS\_LMEM\_NULL} & -2 & The {\kindls} linear solver has not been initialized.\\
-\id{KINDLS\_ILL\_INPUT} & -3 & The {\kindls} solver is not compatible with the current {\nvector} module.\\
-\id{KINDLS\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
-\id{KINDLS\_JACFUNC\_UNRECVR} & -5 & The Jacobian function failed in an unrecoverable manner. \\
-\id{KINDLS\_JACFUNC\_RECVR}   & -6 & The Jacobian function had a recoverable error. \\
-\id{KINDLS\_SUNMAT\_FAIL}     & -7 & An error occurred with the current {\sunmatrix} module. \\
-
-\\ \hline
-\multicolumn{3}{c}{\bf {\kinspils} linear solver modules}\\
-\hline\\
-
-\id{KINSPILS\_SUCCESS}    &  0 & Successful function return. \\
-\id{KINSPILS\_MEM\_NULL}  & -1 & The \id{kin\_mem} argument was \id{NULL}.\\
-\id{KINSPILS\_LMEM\_NULL} & -2 & The {\kinspils} linear solver has not been initialized.\\
-\id{KINSPILS\_ILL\_INPUT} & -3 & The {\kinspils} solver is not compatible with the current {\nvector} module, or an input value was illegal.\\
-\id{KINSPILS\_MEM\_FAIL}  & -4 & A memory allocation request failed.\\
-\id{KINSPILS\_PMEM\_NULL} & -5 & The preconditioner module has not been initialized. \\
-\id{KINSPILS\_SUNLS\_FAIL}& -6 & An error occurred with the current {\sunlinsol} module. \\
-
-%\input{spils_constants}
+\id{KINLS\_SUCCESS}       &  0 & Successful function return. \\
+\id{KINLS\_MEM\_NULL}     & -1 & The \id{kin\_mem} argument was \id{NULL}.\\
+\id{KINLS\_LMEM\_NULL}    & -2 & The {\kinls} linear solver has not been initialized.\\
+\id{KINLS\_ILL\_INPUT}    & -3 & The {\kinls} solver is not compatible with the current {\nvector} module, or an input value was illegal.\\
+\id{KINLS\_MEM\_FAIL}     & -4 & A memory allocation request failed.\\
+\id{KINLS\_PMEM\_NULL}    & -5 & The preconditioner module has not been initialized. \\
+\id{KINLS\_JACFUNC\_ERR}  & -6 & The Jacobian function failed \\
+\id{KINLS\_SUNMAT\_FAIL}  & -7 & An error occurred with the current {\sunmatrix} module. \\
+\id{KINLS\_SUNLS\_FAIL}   & -8 & An error occurred with the current {\sunlinsol} module. \\
 
 \end{xtabular*} 

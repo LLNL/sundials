@@ -20,7 +20,7 @@
 #include "fkinsol.h"
 #include "kinsol_impl.h"
 
-#include <kinsol/kinsol_direct.h>
+#include <kinsol/kinsol_ls.h>
 #include <sunmatrix/sunmatrix_sparse.h>
 
 /*=============================================================*/
@@ -52,7 +52,7 @@ void FKIN_SPARSESETJAC(int *ier)
                   "Sparse Fortran users must configure SUNDIALS with 64-bit integers.");
   *ier = 1;
 #else
-  *ier = KINDlsSetJacFn(KIN_kinmem, FKINSparseJac);
+  *ier = KINSetJacFn(KIN_kinmem, FKINSparseJac);
 #endif
 }
 

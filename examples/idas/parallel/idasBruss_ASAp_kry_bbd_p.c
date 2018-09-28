@@ -5,7 +5,7 @@
  * Example program for IDAS: Brusselator, parallel, GMRES, IDABBD
  * preconditioner, ASA
  *
- * This example program for IDAS uses SUNSPGMR as the linear solver.
+ * This example program for IDAS uses SUNLinSol_SPGMR as the linear solver.
  * It is written for a parallel computer system and uses the
  * IDABBDPRE band-block-diagonal preconditioner module for the
  * IDASPILS interface.
@@ -285,10 +285,10 @@ int main(int argc, char *argv[])
   retval = IDASStolerances(ida_mem, rtol, atol);
   if(check_retval(&retval, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
 
-  /* Call SUNSPGMR and IDASpilsSetLinearSolver to specify the IDAS linear solver */
-  maxl = 16;                               /* max dimension of the Krylov subspace */
-  LS = SUNSPGMR(uv, PREC_LEFT, maxl);      /* IDA only allows left preconditioning */
-  if(check_retval((void *)LS, "SUNSPGMR", 0, thispe)) MPI_Abort(comm, 1);
+  /* Call SUNLinSol_SPGMR and IDASpilsSetLinearSolver to specify the IDAS linear solver */
+  maxl = 16;                                      /* max dimension of the Krylov subspace */
+  LS = SUNLinSol_SPGMR(uv, PREC_LEFT, maxl);      /* IDA only allows left preconditioning */
+  if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0, thispe)) MPI_Abort(comm, 1);
 
   retval = IDASpilsSetLinearSolver(ida_mem, LS);
   if(check_retval(&retval, "IDASpilsSetLinearSolver", 1, thispe)) MPI_Abort(comm, 1);
@@ -360,10 +360,10 @@ int main(int argc, char *argv[])
   retval = IDASStolerancesB(ida_mem, indexB, rtol, atol);
   if(check_retval(&retval, "IDASStolerancesB", 1, thispe)) MPI_Abort(comm, 1);
 
-  /* Call SUNSPGMR and IDASpilsSetLinearSolverB to specify the IDAS linear solver */
+  /* Call SUNLinSol_SPGMR and IDASpilsSetLinearSolverB to specify the IDAS linear solver */
   maxl = 16;
-  LS_B = SUNSPGMR(uv, PREC_LEFT, maxl);
-  if(check_retval((void *)LS_B, "SUNSPGMR", 0, thispe)) MPI_Abort(comm, 1);
+  LS_B = SUNLinSol_SPGMR(uv, PREC_LEFT, maxl);
+  if(check_retval((void *)LS_B, "SUNLinSol_SPGMR", 0, thispe)) MPI_Abort(comm, 1);
 
   retval = IDASpilsSetLinearSolverB(ida_mem, indexB, LS_B);
   if(check_retval(&retval, "IDASpilsSetLinearSolverB", 1, thispe)) MPI_Abort(comm, 1);
@@ -633,7 +633,7 @@ static void PrintHeader(sunindextype SystemSize, int maxl,
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
-  printf("Linear solver: SUNSPGMR     Max. Krylov dimension maxl: %d\n", maxl);
+  printf("Linear solver: SUNLinSol_SPGMR     Max. Krylov dimension maxl: %d\n", maxl);
   printf("Preconditioner: band-block-diagonal (IDABBDPRE), with parameters\n");
   printf("     mudq = %ld,  mldq = %ld,  mukeep = %ld,  mlkeep = %ld\n",
          (long int) mudq, (long int) mldq, (long int) mukeep, (long int) mlkeep);

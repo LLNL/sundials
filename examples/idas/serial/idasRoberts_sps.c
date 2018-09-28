@@ -138,8 +138,8 @@ int main(void)
   if(check_retval((void *)A, "SUNSparseMatrix", 0)) return(1);
 
   /* Create SuperLUMT SUNLinearSolver object (one thread) */
-  LS = SUNSuperLUMT(yy, A, 1);
-  if(check_retval((void *)LS, "SUNSuperLUMT", 0)) return(1);
+  LS = SUNLinSol_SuperLUMT(yy, A, 1);
+  if(check_retval((void *)LS, "SUNLinSol_SuperLUMT", 0)) return(1);
 
   /* Attach the matrix and linear solver */
   retval = IDADlsSetLinearSolver(mem, LS, A);

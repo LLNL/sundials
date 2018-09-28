@@ -24,13 +24,12 @@
 #include <stdio.h>
 #include <math.h>
 
-#include <ida/ida.h>                          /* prototypes for IDA fcts., consts.    */
-#include <nvector/nvector_serial.h>           /* access to serial N_Vector            */
-#include <sunmatrix/sunmatrix_sparse.h>       /* access to sparse SUNMatrix           */
-#include <sunlinsol/sunlinsol_klu.h>          /* access to KLU linear solver          */
-#include <ida/ida_direct.h>                   /* access to IDADls interface           */
-#include <sundials/sundials_types.h>          /* defs. of realtype, sunindextype      */
-#include <sundials/sundials_math.h>           /* defs. of SUNRabs, SUNRexp, etc.      */
+#include <ida/ida.h>                       /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>        /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_sparse.h>    /* access to sparse SUNMatrix           */
+#include <sunlinsol/sunlinsol_klu.h>       /* access to KLU linear solver          */
+#include <sundials/sundials_types.h>       /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>        /* defs. of SUNRabs, SUNRexp, etc.      */
 
 /* Problem Constants */
 
@@ -143,16 +142,16 @@ int main(void)
   if(check_retval((void *)A, "SUNSparseMatrix", 0)) return(1);
 
   /* Create KLU SUNLinearSolver object */
-  LS = SUNKLU(yy, A);
-  if(check_retval((void *)LS, "SUNKLU", 0)) return(1);
+  LS = SUNLinSol_KLU(yy, A);
+  if(check_retval((void *)LS, "SUNLinSol_KLU", 0)) return(1);
 
   /* Attach the matrix and linear solver */
-  retval = IDADlsSetLinearSolver(mem, LS, A);
-  if(check_retval(&retval, "IDADlsSetLinearSolver", 1)) return(1);
+  retval = IDASetLinearSolver(mem, LS, A);
+  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
 
   /* Set the user-supplied Jacobian routine */
-  retval = IDADlsSetJacFn(mem, jacrobCSR);
-  if(check_retval(&retval, "IDADlsSetJacFn", 1)) return(1);
+  retval = IDASetJacFn(mem, jacrobCSR);
+  if(check_retval(&retval, "IDASetJacFn", 1)) return(1);
 
   /* In loop, call IDASolve, print results, and test for error.
      Break out of loop when NOUT preset output times have been reached. */
@@ -183,6 +182,7 @@ int main(void)
   PrintFinalStats(mem);
 
   /* Free memory */
+
   IDAFree(&mem);
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
@@ -428,8 +428,8 @@ static void PrintFinalStats(void *mem)
   check_retval(&retval, "IDAGetNumSteps", 1);
   retval = IDAGetNumResEvals(mem, &nre);
   check_retval(&retval, "IDAGetNumResEvals", 1);
-  retval = IDADlsGetNumJacEvals(mem, &nje);
-  check_retval(&retval, "IDADlsGetNumJacEvals", 1);
+  retval = IDAGetNumJacEvals(mem, &nje);
+  check_retval(&retval, "IDAGetNumJacEvals", 1);
   retval = IDAGetNumNonlinSolvIters(mem, &nni);
   check_retval(&retval, "IDAGetNumNonlinSolvIters", 1);
   retval = IDAGetNumErrTestFails(mem, &netf);

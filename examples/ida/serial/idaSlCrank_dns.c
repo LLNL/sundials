@@ -15,13 +15,12 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <ida/ida.h>                          /* prototypes for IDA fcts., consts.    */
-#include <nvector/nvector_serial.h>           /* access to serial N_Vector            */
-#include <sunmatrix/sunmatrix_dense.h>        /* access to dense SUNMatrix            */
-#include <sunlinsol/sunlinsol_dense.h>        /* access to dense SUNLinearSolver      */
-#include <ida/ida_direct.h>                   /* access to IDADls interface           */
-#include <sundials/sundials_types.h>          /* defs. of realtype, sunindextype      */
-#include <sundials/sundials_math.h>           /* defs. of SUNRabs, SUNRexp, etc.      */
+#include <ida/ida.h>                   /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
+#include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
+#include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>    /* defs. of SUNRabs, SUNRexp, etc.      */
 
 /* Problem Constants */
 
@@ -127,12 +126,12 @@ int main(void)
   if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object */
-  LS = SUNDenseLinearSolver(yy, A);
-  if(check_retval((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+  LS = SUNLinSol_Dense(yy, A);
+  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
-  retval = IDADlsSetLinearSolver(mem, LS, A);
-  if(check_retval(&retval, "IDADlsSetLinearSolver", 1)) return(1);
+  retval = IDASetLinearSolver(mem, LS, A);
+  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
 
   PrintHeader(rtol, atol, yy);
 
@@ -353,11 +352,11 @@ static void PrintFinalStats(void *mem)
 
   retval = IDAGetNumSteps(mem, &nst);
   retval = IDAGetNumResEvals(mem, &nre);
-  retval = IDADlsGetNumJacEvals(mem, &nje);
+  retval = IDAGetNumJacEvals(mem, &nje);
   retval = IDAGetNumNonlinSolvIters(mem, &nni);
   retval = IDAGetNumErrTestFails(mem, &netf);
   retval = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
-  retval = IDADlsGetNumResEvals(mem, &nreLS);
+  retval = IDAGetNumLinResEvals(mem, &nreLS);
 
   printf("\nFinal Run Statistics: \n\n");
   printf("Number of steps                    = %ld\n", nst);

@@ -9,20 +9,29 @@
 \section{SUNLinearSolver functions used by IDA}
 
 In Table \ref{t:sunlinsoluse} below, we list the linear solver
-functions in the {\sunlinsol} module used within the {\ida} package.
-The table also shows, for each function, which of the code modules uses
-the function.  In general, the main {\ida} integrator considers
-three categories of linear solvers, \emph{direct}, \emph{iterative}
-and \emph{custom}, with interfaces accessible in the {\ida} header
-files \id{ida\_direct.h} ({\idadls}), \id{ida\_spils.h}
-({\idaspils}) and \id{ida\_customls.h} ({\idacls}), respectively.
-Hence, the table columns reference the use of {\sunlinsol}
-functions by each of these solver interfaces.
+functions in the {\sunlinsol} module used within the {\idals}
+interface in the {\ida} package.  In general, {\idals} considers two
+non-overlapping categories of linear solvers: \emph{matrix-based} and
+\emph{matrix-free}, determined based on whether the {\sunmatrix}
+object \id{J} passed to \Id{IDASetLinearSolver} was not \id{NULL}.
+
+Additionally, {\idals} will consider a linear solver of either type as
+\emph{iterative} if it self-identifies as
+\id{SUNLINEARSOLVER\_ITERATIVE} (via the \Id{SUNLinSolGetType}
+routine).  Since both matrix-based and matrix-free linear solvers may
+be iterative, we only list {\sunlinsol} routines that are specifically
+called based on this type; these routines are \emph{in addition to} those
+listed for the other two categories.
 
 As with the {\sunmatrix} module, we emphasize that the {\ida} user
 does not need to know detailed usage of linear solver functions by the
-{\ida} code modules in order to use {\ida}. This information is
+{\ida} code modules in order to use {\ida}. The information is
 presented as an implementation detail for the interested reader.
+
+The linear solver functions listed below are marked with \cm to
+indicate that they are required, or with $\dagger$ to indicate that
+they are only called if they are non-\id{NULL} in the {\sunlinsol}
+implementation that is being used.  
 
 \begin{table}[htb]
 \centering
@@ -30,31 +39,27 @@ presented as an implementation detail for the interested reader.
 \medskip
 \begin{tabular}{|r|c|c|c|} \hline
                                              & 
-\begin{sideways}{\idadls}      \end{sideways} & 
-\begin{sideways}{\idaspils}    \end{sideways} & 
-\begin{sideways}{\idacls}      \end{sideways} \\ \hline\hline
-%                                    DLS        SPILS       CLS
-\id{SUNLinSolGetType}           &    \cm    &    \cm    & $\dagger$ \\ \hline
-\id{SUNLinSolSetATimes}         &           &    \cm    & $\dagger$ \\ \hline
-\id{SUNLinSolSetPreconditioner} &           &    \cm    & $\dagger$ \\ \hline
-\id{SUNLinSolSetScalingVectors} &           &    \cm    & $\dagger$ \\ \hline
-\id{SUNLinSolInitialize}        &    \cm    &    \cm    &    \cm    \\ \hline
-\id{SUNLinSolSetup}             &    \cm    &    \cm    &    \cm    \\ \hline
-\id{SUNLinSolSolve}             &    \cm    &    \cm    &    \cm    \\ \hline
-\id{SUNLinSolNumIters}          &           &    \cm    & $\dagger$ \\ \hline
-\id{SUNLinSolResNorm}           &           &    \cm    & $\dagger$ \\ \hline
-\id{SUNLinSolResid}             &           &    \cm    & $\dagger$ \\ \hline
-\id{SUNLinSolLastFlag}          &           &           &           \\ \hline
-\id{SUNLinSolFree}              &           &           &           \\ \hline
-\id{SUNLinSolSpace}             & $\dagger$ & $\dagger$ & $\dagger$ \\ \hline
+\begin{sideways}{Matrix-Based}      \end{sideways} & 
+\begin{sideways}{Matrix-Free}       \end{sideways} & 
+\begin{sideways}{Iterative}         \end{sideways} \\ \hline\hline
+%                                 mat-based   mat-free    iterative
+\id{SUNLinSolGetType}           &    \cm    &    \cm    &           \\ \hline
+\id{SUNLinSolSetATimes}         &           &    \cm    &           \\ \hline
+\id{SUNLinSolSetPreconditioner} &           &           & $\dagger$ \\ \hline
+\id{SUNLinSolSetScalingVectors} & $\dagger$ & $\dagger$ &           \\ \hline
+\id{SUNLinSolInitialize}        &    \cm    &    \cm    &           \\ \hline
+\id{SUNLinSolSetup}             &    \cm    &    \cm    &           \\ \hline
+\id{SUNLinSolSolve}             &    \cm    &    \cm    &           \\ \hline
+\id{SUNLinSolNumIters}          &           &           &    \cm    \\ \hline
+\id{SUNLinSolResid}             &           &           &    \cm    \\ \hline
+$^1$\id{SUNLinSolLastFlag}      &           &           &           \\ \hline
+\id{SUNLinSolFree}              &    \cm    &    \cm    &           \\ \hline
+\id{SUNLinSolSpace}             & $\dagger$ & $\dagger$ &           \\ \hline
 \end{tabular}
 \end{table}
 
-The linear solver functions listed in Table \ref{t:sunlinsolops} with
-a $\dagger$ symbol are optionally used, in that these are only called
-if they are implemented in the {\sunlinsol} module that is being used
-(i.e.~their function pointers are non-\id{NULL}).  Also, although
-{\ida} does not call the \id{SUNLinSolLastFlag} or \id{SUNLinSolFree}
-routines directly, these are available for users to query linear
-solver issues and free linear solver memory directly. 
-
+\begin{itemize}
+\item[1.] Although {\idals} does not call \id{SUNLinSolLastFlag}
+  directly, this routine is available for users to query linear solver
+  issues directly.
+\end{itemize}

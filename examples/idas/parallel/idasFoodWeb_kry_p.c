@@ -5,7 +5,7 @@
  * Example program for IDA: Food web, parallel, GMRES, user
  * preconditioner.
  *
- * This example program for IDAS uses SUNSPGMR as the linear solver.
+ * This example program for IDAS uses SUNLinSol_SPGMR as the linear solver.
  * It is written for a parallel computer system and uses a
  * block-diagonal preconditioner (setup and solve routines) for the
  * IDASPILS interface.
@@ -67,9 +67,9 @@
  * submeshes, processor by processor, with an MXSUB by MYSUB mesh
  * on each of NPEX * NPEY processors.
  *
- * The DAE system is solved by IDAS using the SUNSPGMR linear
+ * The DAE system is solved by IDAS using the SUNLinSol_SPGMR linear
  * solver, which uses the preconditioned GMRES iterative method to
- * solve linear systems. The precondtioner supplied to SUNSPGMR is
+ * solve linear systems. The precondtioner supplied to SUNLinSol_SPGMR is
  * the block-diagonal part of the Jacobian with ns by ns blocks
  * arising from the reaction terms only. Output is printed at
  * t = 0, .001, .01, .1, .4, .7, 1.
@@ -320,16 +320,16 @@ int main(int argc, char *argv[])
 
   webdata->ida_mem = ida_mem;
 
-  /* Call SUNSPGMR and IDASpilsSetLinearSolver to specify the linear solver 
+  /* Call SUNLinSol_SPGMR and IDASpilsSetLinearSolver to specify the linear solver 
      to IDA, and specify the supplied [left] preconditioner routines 
      (Precondbd & PSolvebd).  maxl (Krylov subspace dim.) is set to 16. */
 
   maxl = 16;
-  LS = SUNSPGMR(cc, PREC_LEFT, maxl);
-  if (check_retval((void *)LS, "SUNSPGMR", 0, thispe)) MPI_Abort(comm, 1);
+  LS = SUNLinSol_SPGMR(cc, PREC_LEFT, maxl);
+  if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0, thispe)) MPI_Abort(comm, 1);
 
-  retval = SUNSPGMRSetMaxRestarts(LS, 5);  /* IDA recommends allowing up to 5 restarts */
-  if(check_retval(&retval, "SUNSPGMRSetMaxRestarts", 1, thispe)) MPI_Abort(comm, 1);
+  retval = SUNLinSol_SPGMRSetMaxRestarts(LS, 5);  /* IDA recommends allowing up to 5 restarts */
+  if(check_retval(&retval, "SUNLinSol_SPGMRSetMaxRestarts", 1, thispe)) MPI_Abort(comm, 1);
 
   retval = IDASpilsSetLinearSolver(ida_mem, LS);
   if (check_retval(&retval, "IDASpilsSetLinearSolver", 1, thispe)) 
@@ -573,7 +573,7 @@ static void PrintHeader(sunindextype SystemSize, int maxl,
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
-  printf("Linear solver: SUNSPGMR     Max. Krylov dimension maxl: %d\n", maxl);
+  printf("Linear solver: SUNLinSol_SPGMR     Max. Krylov dimension maxl: %d\n", maxl);
   printf("Preconditioner: block diagonal, block size ns,"); 
   printf(" via difference quotients\n");
   printf("CalcIC called to correct initial predator concentrations \n\n");

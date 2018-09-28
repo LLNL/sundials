@@ -7,7 +7,7 @@
  * IDABBDPRE.
  *
  * This example solves a discretized 2D heat equation problem.
- * This version uses the Krylov solver SUNSPGMR and BBD
+ * This version uses the Krylov solver SUNLinSol_SPGMR and BBD
  * preconditioning.
  *
  * The DAE system solved is a spatial discretization of the PDE
@@ -24,7 +24,7 @@
  * processors.
  *
  * The system is solved with IDA using the Krylov linear solver
- * SUNSPGMR in conjunction with the preconditioner module IDABBDPRE.
+ * SUNLinSol_SPGMR in conjunction with the preconditioner module IDABBDPRE.
  * The preconditioner uses a tridiagonal approximation
  * (half-bandwidths = 1). The constraints u >= 0 are posed for all
  * components. Local error testing on the boundary values is
@@ -229,13 +229,13 @@ int main(int argc, char *argv[])
    * ----------------------------- 
    */
 
-  /* Call SUNSPGMR and IDASpilsSetLinearSolver to specify the linear solver. */
-  LS = SUNSPGMR(uu, PREC_LEFT, 0);  /* IDA recommends left-preconditioning only;
-                                       0 indicates to use default maxl value */
-  if(check_retval((void *)LS, "SUNSPGMR", 0, thispe)) MPI_Abort(comm, 1);
+  /* Call SUNLinSol_SPGMR and IDASpilsSetLinearSolver to specify the linear solver. */
+  LS = SUNLinSol_SPGMR(uu, PREC_LEFT, 0);  /* IDA recommends left-preconditioning only;
+                                              0 indicates to use default maxl value */
+  if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0, thispe)) MPI_Abort(comm, 1);
 
-  retval = SUNSPGMRSetMaxRestarts(LS, 5);  /* IDA recommends allowing up to 5 restarts */
-  if(check_retval(&retval, "SUNSPGMRSetMaxRestarts", 1, thispe)) MPI_Abort(comm, 1);
+  retval = SUNLinSol_SPGMRSetMaxRestarts(LS, 5);  /* IDA recommends allowing up to 5 restarts */
+  if(check_retval(&retval, "SUNLinSol_SPGMRSetMaxRestarts", 1, thispe)) MPI_Abort(comm, 1);
 
   retval = IDASpilsSetLinearSolver(ida_mem, LS);
   if(check_retval(&retval, "IDASpilsSetLinearSolver", 1, thispe)) MPI_Abort(comm, 1);
@@ -722,7 +722,7 @@ static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol)
     printf("Constraints set to force all solution components >= 0. \n");
     printf("SUPPRESSALG = SUNTRUE to suppress local error testing on");
     printf(" all boundary components. \n");
-    printf("Linear solver: SUNSPGMR.    ");
+    printf("Linear solver: SUNLinSol_SPGMR.    ");
     printf("Preconditioner: IDABBDPRE - Banded-block-diagonal.\n"); 
 
 }

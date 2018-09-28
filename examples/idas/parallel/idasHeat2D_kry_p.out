@@ -8,7 +8,7 @@ Subgrid dimensions: 5 x 5        Processor array: 2 x 2
 Tolerance parameters:  rtol = 0   atol = 0.001
 Constraints set to force all solution components >= 0. 
 SUPPRESSALG = SUNTRUE to suppress local error testing on all boundary components. 
-Linear solver: SUNSPGMR  Preconditioner: diagonal elements only.
+Linear solver: SUNLinSol_SPGMR  Preconditioner: diagonal elements only.
 
    Output Summary (umax = max-norm of solution) 
 

@@ -28,7 +28,6 @@
 #include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
 #include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
-#include <cvode/cvode_direct.h>        /* access to CVDls interface            */
 #include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
 
 /* Problem Constants */
@@ -128,12 +127,12 @@ int main()
   if(check_flag((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object for use by CVode */
-  LS = SUNDenseLinearSolver(y, A);
-  if(check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+  LS = SUNLinSol_Dense(y, A);
+  if(check_flag((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
-  /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
-  flag = CVDlsSetLinearSolver(cvode_mem, LS, A);
-  if(check_flag(&flag, "CVDlsSetLinearSolver", 1)) return(1);
+  /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
+  flag = CVodeSetLinearSolver(cvode_mem, LS, A);
+  if(check_flag(&flag, "CVodeSetLinearSolver", 1)) return(1);
 
   /* Case 1: ignore negative solution components */
   printf("Ignore negative solution components\n\n");
@@ -253,10 +252,10 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
 
-  flag = CVDlsGetNumJacEvals(cvode_mem, &nje);
-  check_flag(&flag, "CVDlsGetNumJacEvals", 1);
-  flag = CVDlsGetNumRhsEvals(cvode_mem, &nfeLS);
-  check_flag(&flag, "CVDlsGetNumRhsEvals", 1);
+  flag = CVodeGetNumJacEvals(cvode_mem, &nje);
+  check_flag(&flag, "CVodeGetNumJacEvals", 1);
+  flag = CVodeGetNumLinRhsEvals(cvode_mem, &nfeLS);
+  check_flag(&flag, "CVodeGetNumLinRhsEvals", 1);
 
   printf("\nFinal Statistics:\n");
   printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nfeLS = %-6ld nje = %ld\n",

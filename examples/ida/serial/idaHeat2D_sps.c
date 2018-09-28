@@ -31,13 +31,12 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <ida/ida.h>                          /* prototypes for IDA fcts., consts.    */
-#include <nvector/nvector_serial.h>           /* access to serial N_Vector            */
-#include <sunmatrix/sunmatrix_sparse.h>       /* access to sparse SUNMatrix           */
-#include <sunlinsol/sunlinsol_superlumt.h>    /* access to superlumt linear solver    */
-#include <ida/ida_direct.h>                   /* access to IDADls interface           */
-#include <sundials/sundials_types.h>          /* defs. of realtype, sunindextype      */
-#include <sundials/sundials_math.h>           /* defs. of SUNRabs, SUNRexp, etc.      */
+#include <ida/ida.h>                       /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>        /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_sparse.h>    /* access to sparse SUNMatrix           */
+#include <sunlinsol/sunlinsol_superlumt.h> /* access to superlumt linear solver    */
+#include <sundials/sundials_types.h>       /* defs. of realtype, sunindextype      */
+#include <sundials/sundials_math.h>        /* defs. of SUNRabs, SUNRexp, etc.      */
 
 /* Problem Constants */
 
@@ -164,24 +163,24 @@ int main(void)
   if(check_retval((void*)A, "SUNSparseMtarix", 0)) return(1);
 
   /* Create SuperLUMT SUNLinearSolver object (one thread) */
-  LS = SUNSuperLUMT(uu, A, 1);
-  if(check_retval((void *)LS, "SUNSuperLUMT", 0)) return(1);
+  LS = SUNLinSol_SuperLUMT(uu, A, 1);
+  if(check_retval((void *)LS, "SUNLinSol_SuperLUMT", 0)) return(1);
 
   /* Attach the matrix and linear solver */
-  retval = IDADlsSetLinearSolver(mem, LS, A);
-  if(check_retval(&retval, "IDADlsSetLinearSolver", 1)) return(1);
+  retval = IDASetLinearSolver(mem, LS, A);
+  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
 
   /* Set the user-supplied Jacobian routine */
   if(MGRID >= 4){
-    retval = IDADlsSetJacFn(mem, jacHeat);
+    retval = IDASetJacFn(mem, jacHeat);
   } else if(MGRID == 3) {
-    retval = IDADlsSetJacFn(mem, jacHeat3);
+    retval = IDASetJacFn(mem, jacHeat3);
   } else {
     /* MGRID<=2 is pure boundary points, nothing to solve */
     printf("MGRID size is too small to run.\n");
     return(1);
   }
-  if(check_retval(&retval, "IDADlsSetJacFn", 1)) return(1);
+  if(check_retval(&retval, "IDASetJacFn", 1)) return(1);
 
   /* Call IDACalcIC to correct the initial values. */
 
@@ -698,8 +697,8 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu)
   check_retval(&retval, "IDAGetNumResEvals", 1);
   retval = IDAGetLastStep(mem, &hused);
   check_retval(&retval, "IDAGetLastStep", 1);
-  retval = IDADlsGetNumJacEvals(mem, &nje);
-  check_retval(&retval, "IDADlsGetNumJacEvals", 1);
+  retval = IDAGetNumJacEvals(mem, &nje);
+  check_retval(&retval, "IDAGetNumJacEvals", 1);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %9.2Le \n",

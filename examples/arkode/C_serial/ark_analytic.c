@@ -41,7 +41,6 @@
 #include <nvector/nvector_serial.h>        /* serial N_Vector types, fcts., macros */
 #include <sunmatrix/sunmatrix_dense.h>     /* access to dense SUNMatrix            */
 #include <sunlinsol/sunlinsol_dense.h>     /* access to dense SUNLinearSolver      */
-#include <arkode/arkode_direct.h>          /* access to ARKDls interface           */
 #include <sundials/sundials_types.h>       /* definition of type realtype          */
 #include <sundials/sundials_math.h>
 
@@ -115,14 +114,14 @@ int main()
   /* Initialize dense matrix data structure and solver */
   A = SUNDenseMatrix(NEQ, NEQ);
   if (check_flag((void *)A, "SUNDenseMatrix", 0)) return 1;
-  LS = SUNDenseLinearSolver(y, A);
-  if (check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return 1;
+  LS = SUNLinSol_Dense(y, A);
+  if (check_flag((void *)LS, "SUNLinSol_Dense", 0)) return 1;
 
   /* Linear solver interface */
-  flag = ARKDlsSetLinearSolver(arkode_mem, LS, A);        /* Attach matrix and linear solver */
-  if (check_flag(&flag, "ARKDlsSetLinearSolver", 1)) return 1;
-  flag = ARKDlsSetJacFn(arkode_mem, Jac);                 /* Set Jacobian routine */
-  if (check_flag(&flag, "ARKDlsSetJacFn", 1)) return 1;
+  flag = ARKStepSetLinearSolver(arkode_mem, LS, A);        /* Attach matrix and linear solver */
+  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
+  flag = ARKStepSetJacFn(arkode_mem, Jac);                 /* Set Jacobian routine */
+  if (check_flag(&flag, "ARKStepSetJacFn", 1)) return 1;
 
   /* Specify linearly implicit RHS, with non-time-dependent Jacobian */
   flag = ARKStepSetLinear(arkode_mem, 0);
@@ -173,10 +172,10 @@ int main()
   check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1);
   flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
   check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1);
-  flag = ARKDlsGetNumJacEvals(arkode_mem, &nje);
-  check_flag(&flag, "ARKDlsGetNumJacEvals", 1);
-  flag = ARKDlsGetNumRhsEvals(arkode_mem, &nfeLS);
-  check_flag(&flag, "ARKDlsGetNumRhsEvals", 1);
+  flag = ARKStepGetNumJacEvals(arkode_mem, &nje);
+  check_flag(&flag, "ARKStepGetNumJacEvals", 1);
+  flag = ARKStepGetNumLinRhsEvals(arkode_mem, &nfeLS);
+  check_flag(&flag, "ARKStepGetNumLinRhsEvals", 1);
 
   printf("\nFinal Solver Statistics:\n");
   printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);

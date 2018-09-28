@@ -295,6 +295,39 @@ int ARKStepSetPostprocessStepFn(void *arkode_mem,
   return(arkSetPostprocessStepFn(ark_mem, ProcessStep));
 }
 
+/*---------------------------------------------------------------
+ These wrappers for ARKLs module 'set' routines all are
+ documented in arkode_arkstep.h.
+---------------------------------------------------------------*/
+int ARKStepSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
+                           SUNMatrix A) {
+  return(arkLSSetLinearSolver(arkode_mem, LS, A)); }
+int ARKStepSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
+                               SUNMatrix M, booleantype time_dep) {
+  return(arkLSSetMassLinearSolver(arkode_mem, LS, M, time_dep)); }
+int ARKStepSetJacFn(void *arkode_mem, ARKLsJacFn jac) {
+  return(arkLSSetJacFn(arkode_mem, jac)); }
+int ARKStepSetMassFn(void *arkode_mem, ARKLsMassFn mass) {
+  return(arkLSSetMassFn(arkode_mem, mass)); }
+int ARKStepSetMaxStepsBetweenJac(void *arkode_mem, long int msbj) {
+  return(arkLSSetMaxStepsBetweenJac(arkode_mem, msbj)); }
+int ARKStepSetEpsLin(void *arkode_mem, realtype eplifac) {
+  return(arkLSSetEpsLin(arkode_mem, eplifac)); }
+int ARKStepSetMassEpsLin(void *arkode_mem, realtype eplifac) {
+  return(arkLSSetMassEpsLin(arkode_mem, eplifac)); }
+int ARKStepSetPreconditioner(void *arkode_mem, ARKLsPrecSetupFn psetup,
+                             ARKLsPrecSolveFn psolve) {
+  return(arkLSSetPreconditioner(arkode_mem, psetup, psolve)); }
+int ARKStepSetMassPreconditioner(void *arkode_mem, ARKLsMassPrecSetupFn psetup,
+                                 ARKLsMassPrecSolveFn psolve) {
+  return(arkLSSetMassPreconditioner(arkode_mem, psetup, psolve)); }
+int ARKStepSetJacTimes(void *arkode_mem, ARKLsJacTimesSetupFn jtsetup,
+                       ARKLsJacTimesVecFn jtimes) {
+  return(arkLSSetJacTimes(arkode_mem, jtsetup, jtimes)); }
+int ARKStepSetMassTimes(void *arkode_mem, ARKLsMassTimesSetupFn msetup,
+                        ARKLsMassTimesVecFn mtimes, void *mtimes_data) {
+  return(arkLSSetMassTimes(arkode_mem, msetup, mtimes, mtimes_data)); }
+
 
 
 /*===============================================================
@@ -500,6 +533,55 @@ int ARKStepGetStepStats(void *arkode_mem, long int *nsteps,
 ---------------------------------------------------------------*/
 char *ARKStepGetReturnFlagName(long int flag)
 { return(arkGetReturnFlagName(flag)); }
+
+/*---------------------------------------------------------------
+ These wrappers for ARKLs module 'get' routines all are
+ documented in arkode_arkstep.h.
+---------------------------------------------------------------*/
+int ARKStepGetLinWorkSpace(void *arkode_mem, long int *lenrwLS, long int *leniwLS) {
+  return(arkLSGetWorkSpace(arkode_mem, lenrwLS, leniwLS)); }
+int ARKStepGetNumJacEvals(void *arkode_mem, long int *njevals) {
+  return(arkLSGetNumJacEvals(arkode_mem, njevals)); }
+int ARKStepGetNumPrecEvals(void *arkode_mem, long int *npevals) {
+  return(arkLSGetNumPrecEvals(arkode_mem, npevals)); }
+int ARKStepGetNumPrecSolves(void *arkode_mem, long int *npsolves) {
+  return(arkLSGetNumPrecSolves(arkode_mem, npsolves)); }
+int ARKStepGetNumLinIters(void *arkode_mem, long int *nliters) {
+  return(arkLSGetNumLinIters(arkode_mem, nliters)); }
+int ARKStepGetNumLinConvFails(void *arkode_mem, long int *nlcfails) {
+  return(arkLSGetNumConvFails(arkode_mem, nlcfails)); }
+int ARKStepGetNumJTSetupEvals(void *arkode_mem, long int *njtsetups) {
+  return(arkLSGetNumJTSetupEvals(arkode_mem, njtsetups)); }
+int ARKStepGetNumJtimesEvals(void *arkode_mem, long int *njvevals) {
+  return(arkLSGetNumJtimesEvals(arkode_mem, njvevals)); }
+int ARKStepGetNumLinRhsEvals(void *arkode_mem, long int *nfevalsLS) {
+  return(arkLSGetNumRhsEvals(arkode_mem, nfevalsLS)); } 
+int ARKStepGetLastLinFlag(void *arkode_mem, long int *flag) {
+  return(arkLSGetLastFlag(arkode_mem, flag)); }
+
+int ARKStepGetMassWorkSpace(void *arkode_mem, long int *lenrwMLS, long int *leniwMLS) {
+  return(arkLSGetMassWorkSpace(arkode_mem, lenrwMLS, leniwMLS)); }
+int ARKStepGetNumMassSetups(void *arkode_mem, long int *nmsetups) {
+  return(arkLSGetNumMassSetups(arkode_mem, nmsetups)); }
+int ARKStepGetNumMassMult(void *arkode_mem, long int *nmvevals) {
+  return(arkLSGetNumMassMult(arkode_mem, nmvevals)); }
+int ARKStepGetNumMassSolves(void *arkode_mem, long int *nmsolves) {
+  return(arkLSGetNumMassSolves(arkode_mem, nmsolves)); }
+int ARKStepGetNumMassPrecEvals(void *arkode_mem, long int *nmpevals) {
+  return(arkLSGetNumMassPrecEvals(arkode_mem, nmpevals)); }
+int ARKStepGetNumMassPrecSolves(void *arkode_mem, long int *nmpsolves) {
+  return(arkLSGetNumMassPrecSolves(arkode_mem, nmpsolves)); }
+int ARKStepGetNumMassIters(void *arkode_mem, long int *nmiters) {
+  return(arkLSGetNumMassIters(arkode_mem, nmiters)); }
+int ARKStepGetNumMassConvFails(void *arkode_mem, long int *nmcfails) {
+  return(arkLSGetNumMassConvFails(arkode_mem, nmcfails)); }
+int ARKStepGetNumMTSetups(void *arkode_mem, long int *nmtsetups) {
+  return(arkLSGetNumMTSetups(arkode_mem, nmtsetups)); }
+int ARKStepGetLastMassFlag(void *arkode_mem, long int *flag) {
+  return(arkLSGetLastMassFlag(arkode_mem, flag)); }
+
+char *ARKStepGetLinReturnFlagName(long int flag) {
+  return(arkLSGetReturnFlagName(flag)); }
 
 
 

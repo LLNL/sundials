@@ -33,7 +33,7 @@
 
 
 /* ----------------------------------------------------------------------
- * SUNBandLinearSolver Testing Routine
+ * SUNLinSol_Band Testing Routine
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[]) 
 {
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
   }
   
   /* Create banded linear solver */
-  LS = SUNBandLinearSolver(x, A);
+  LS = SUNLinSol_Band(x, A);
   
   /* Run Tests */
   fails += Test_SUNLinSolInitialize(LS, 0);

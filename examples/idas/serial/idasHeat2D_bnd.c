@@ -150,8 +150,8 @@ int main(void)
   if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
 
   /* Create banded SUNLinearSolver object */
-  LS = SUNBandLinearSolver(uu, A);
-  if(check_retval((void *)LS, "SUNBandLinearSolver", 0)) return(1);
+  LS = SUNLinSol_Band(uu, A);
+  if(check_retval((void *)LS, "SUNLinSol_Band", 0)) return(1);
 
   /* Attach the matrix and linear solver */
   retval = IDADlsSetLinearSolver(mem, LS, A);

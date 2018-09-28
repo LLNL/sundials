@@ -6,7 +6,123 @@ The LAPACK dense implementation of the {\sunlinsol} module provided
 with {\sundials}, {\sunlinsollapdense}, is designed to be used with the 
 corresponding {\sunmatdense} matrix type, and one of the serial or
 shared-memory {\nvector} implementations ({\nvecs}, {\nvecopenmp}, or
-{\nvecpthreads}).  The {\sunlinsollapdense} module defines the {\em
+{\nvecpthreads}).
+
+%---------------------------------------------------------------------------
+\subsection{{\sunlinsollapdense} usage}\label{ss:sunlinsol_lapdense_usage}
+
+The header file to include when using this module 
+is \id{sunlinsol/sunlinsol\_lapackdense.h}. The installed module
+library to link to is
+\id{libsundials\_sunlinsollapackdense.\textit{lib}}
+where \id{\em.lib} is typically \id{.so} for shared libraries and
+\id{.a} for static libraries.
+
+The module {\sunlinsollapdense} provides the following user-callable constructor routine: 
+%%
+% --------------------------------------------------------------------
+\ucfunction{SUNLinSol\_LapackDense}
+{
+  LS = SUNLinSol\_LapackDense(y, A);
+}
+{
+  The function \ID{SUNLinSol\_LapackDense} creates and allocates
+  memory for a LAPACK-based, dense \id{SUNLinearSolver} object.
+}
+{
+  \begin{args}[y]
+  \item[y] (\id{N\_Vector})
+    a template for cloning vectors needed within the solver
+  \item[A] (\id{SUNMatrix})
+    a {\sunmatdense} matrix template for cloning matrices needed
+    within the solver 
+  \end{args}
+}
+{
+  This returns a \id{SUNLinearSolver} object.  If either \id{A} or
+  \id{y} are incompatible then this routine will return \id{NULL}.
+}
+{
+  This routine will perform consistency checks to ensure that it is
+  called with consistent {\nvector} and {\sunmatrix} implementations.
+  These are currently limited to the {\sunmatdense} matrix type and
+  the {\nvecs}, {\nvecopenmp}, and {\nvecpthreads} vector types.  As
+  additional compatible matrix and vector implementations are added to
+  {\sundials}, these will be included within this compatibility check.
+}
+% --------------------------------------------------------------------
+%%
+For backwards compatibility, we also provide the wrapper function,
+\begin{itemize}
+
+\item \ID{SUNLapackDense}
+
+  Wrapper function for \ID{SUNLinSol\_LapackDense}, with identical input and
+  output arguments.
+  
+\end{itemize}
+%%
+%%------------------------------------
+%%
+For solvers that include a Fortran interface module, the
+{\sunlinsollapdense} module also includes a Fortran-callable function
+for creating a \id{SUNLinearSolver} object.
+\ucfunction{FSUNLAPACKDENSEINIT}
+{
+  FSUNLAPACKDENSEINIT(code, ier)
+}
+{
+  The function \ID{FSUNLAPACKDENSEINIT} can be called for Fortran programs
+  to create a LAPACK-based dense \id{SUNLinearSolver} object.
+}
+{
+  \begin{args}[code]
+  \item[code] (\id{int*})
+    is an integer input specifying the solver id (1 for {\cvode}, 2
+    for {\ida}, 3 for {\kinsol}, and 4 for {\arkode}).
+  \end{args}
+}
+{
+  \id{ier} is a return completion flag equal to \id{0} for a success
+  return and \id{-1} otherwise. See printed message for details in case
+  of failure.
+}
+{
+  This routine must be
+  called \emph{after} both the {\nvector} and {\sunmatrix} objects have
+  been initialized.
+}
+Additionally, when using {\arkode} with a non-identity
+mass matrix, the {\sunlinsollapdense} module includes a Fortran-callable
+function for creating a \id{SUNLinearSolver} mass matrix solver
+object.
+\ucfunction{FSUNMASSLAPACKDENSEINIT}
+{
+  FSUNMASSLAPACKDENSEINIT(ier)
+}
+{
+  The function \ID{FSUNMASSLAPACKDENSEINIT} can be called for Fortran programs
+  to create a LAPACK-based, dense \id{SUNLinearSolver} object for mass
+  matrix linear systems.
+}
+{
+}
+{
+  \id{ier} is a \id{int} return completion flag equal to \id{0} for a success
+  return and \id{-1} otherwise. See printed message for details in case
+  of failure.
+}
+{
+  This routine must be
+  called \emph{after} both the {\nvector} and {\sunmatrix} mass-matrix
+  objects have been initialized.
+}
+
+
+%---------------------------------------------------------------------------
+\subsection{{\sunlinsollapdense} description}\label{ss:sunlinsol_lapdense_description}
+
+The {\sunlinsollapdense} module defines the {\em
 content} field of a \\
 \noindent\id{SUNLinearSolver} to be the following structure:
 %%
@@ -57,20 +173,13 @@ This solver is constructed to perform the following operations:
   cost).
 \end{itemize}
 
-\noindent The header file to include when using this module 
-is \id{sunlinsol/sunlinsol\_lapackdense.h}. The installed module
-library to link to is
-\id{libsundials\_sunlinsollapackdense.\textit{lib}}
-where \id{\em.lib} is typically \id{.so} for shared libraries and
-\id{.a} for static libraries. \\
-
 %%
 %%----------------------------------------------
 %%
 
 \noindent The {\sunlinsollapdense} module defines dense implementations of all
-``direct'' linear solver operations listed in
-Table \ref{t:sunlinsolops}:
+``direct'' linear solver operations listed in Sections
+\ref{ss:sunlinsol_CoreFn}-\ref{ss:sunlinsol_GetFn}:
 \begin{itemize}
 \item \id{SUNLinSolGetType\_LapackDense}
 \item \id{SUNLinSolInitialize\_LapackDense} -- this does nothing, since all
@@ -86,47 +195,3 @@ Table \ref{t:sunlinsolops}:
   for \id{N}, \id{last\_flag}, and \id{pivots}.
 \item \id{SUNLinSolFree\_LapackDense}
 \end{itemize}
-The module {\sunlinsollapdense} provides the following additional
-user-callable constructor routine: 
-%%
-\begin{itemize}
-
-%%--------------------------------------
-
-\item \ID{SUNLapackDense}
-
-  This function creates and allocates memory for a LAPACK dense
-  \id{SUNLinearSolver}.  Its arguments are an {\nvector} and
-  {\sunmatrix}, that it uses to determine the linear system size and
-  to assess compatibility with the linear solver implementation.
-
-  This routine will perform consistency checks to ensure that it is
-  called with consistent {\nvector} and {\sunmatrix} implementations.
-  These are currently limited to the {\sunmatdense} matrix type and
-  the {\nvecs}, {\nvecopenmp}, and {\nvecpthreads} vector types.  As
-  additional compatible matrix and vector implementations are added to
-  {\sundials}, these will be included within this compatibility check.
-
-  If either \id{A} or \id{y} are incompatible then this routine will
-  return \id{NULL}.
-
-  \verb|SUNLinearSolver SUNLapackDense(N_Vector y, SUNMatrix A);|
-
-\end{itemize}
-%%
-%%------------------------------------
-%%
-For solvers that include a Fortran interface module, the
-{\sunlinsollapdense} module also includes the Fortran-callable
-function \id{FSUNLapackDenseInit(code, ier)} to initialize
-this {\sunlinsollapdense} module for a given {\sundials} solver.
-Here \id{code} is an integer input solver id (1 for {\cvode}, 2 for {\ida}, 3
-for {\kinsol}, 4 for {\arkode}); \id{ier} is an error return flag 
-equal to 0 for success and -1 for failure. Both \id{code} and \id{ier}
-are declared to match C type \id{int}.
-This routine must be called \emph{after} both the
-{\nvector} and {\sunmatrix} objects have been initialized.
-Additionally, when using {\arkode} with a non-identity mass matrix, the
-Fortran-callable function \id{FSUNMassLapackDenseInit(ier)}  
-initializes this {\sunlinsollapdense} module for solving mass matrix
-linear systems.

@@ -29,9 +29,9 @@ A serial banded preconditioner module
 -------------------------------------------
 
 This preconditioner provides a band matrix preconditioner for use with
-the ARKSPILS iterative linear solver interface, in a serial or
-threaded setting.
-It requires that the problem be set up using either the
+iterative SUNLINSOL modules through the ARKLS linear solver interface,
+in a serial or threaded setting. It requires that the problem be set
+up using either the
 NVECTOR_SERIAL, NVECTOR_OPENMP or NVECTOR_PTHREADS module, due to data
 access patterns.  It also currently requires that the problem involve
 an identity mass matrix, i.e. :math:`M = I`.
@@ -74,18 +74,16 @@ skeleton program presented in :ref:`ARKStep_CInterface.Skeleton` are
 
 5. *Specify integration tolerances*
 
-6. *Set optional inputs*
-
-7. Create iterative linear solver object
+6. Create iterative linear solver object
 
    When creating the iterative linear solver object, specify the type
    of preconditioning (``PREC_LEFT`` or ``PREC_RIGHT``) to use.
 
-8. *Set linear solver optional inputs*
+7. *Set linear solver optional inputs*
 
-9. *Attach linear solver module*
+8. *Attach linear solver module*
 
-10. Initialize the ARKBANDPRE preconditioner module
+9. Initialize the ARKBANDPRE preconditioner module
 
     Specify the upper and lower half-bandwidths (``mu`` and ``ml``,
     respectively) and call
@@ -95,34 +93,34 @@ skeleton program presented in :ref:`ARKStep_CInterface.Skeleton` are
     to allocate memory and initialize the internal preconditioner
     data.
 
-11. *Set linear solver interface optional inputs*
+10. *Set optional inputs*
 
-    Note that the user should not overwrite the preconditioner setup
-    function or solve function through calls to the ARKSpilsSet*
-    optional input functions.
+    Note that the user should not call
+    :c:func:`ARKStepSetPreconditioner()` as it will overwrite the
+    preconditioner setup and solve functions.
 
-12. *Create nonlinear solver object*
+11. *Create nonlinear solver object*
 
-13. *Attach nonlinear solver module*
+12. *Attach nonlinear solver module*
 
-14. *Set nonlinear solver optional inputs*
-    
-15. *Specify rootfinding problem*
-    
-16. *Advance solution in time*
+13. *Set nonlinear solver optional inputs*
 
-17. Get optional outputs
+14. *Specify rootfinding problem*
+
+15. *Advance solution in time*
+
+16. Get optional outputs
 
     Additional optional outputs associated with ARKBANDPRE are
     available by way of the two routines described below,
     :c:func:`ARKBandPrecGetWorkSpace()` and
     :c:func:`ARKBandPrecGetNumRhsEvals()`.
 
-18. *Deallocate memory for solution vector*
+17. *Deallocate memory for solution vector*
 
-19. *Free solver memory*
+18. *Free solver memory*
 
-20. *Free linear solver memory*
+19. *Free linear solver memory*
 
 
 
@@ -148,11 +146,11 @@ by calling the following function:
       * *ml* -- lower half-bandwidth of the Jacobian approximation.
 
    **Return value:**
-      * *ARKSPILS_SUCCESS* if no errors occurred
-      * *ARKSPILS_MEM_NULL* if the ARKStep memory is ``NULL``
-      * *ARKSPILS_LMEM_NULL* if the linear solver memory is ``NULL``
-      * *ARKSPILS_ILL_INPUT* if an input has an illegal value
-      * *ARKSPILS_MEM_FAIL* if a memory allocation request failed
+      * *ARKLS_SUCCESS* if no errors occurred
+      * *ARKLS_MEM_NULL* if the ARKStep memory is ``NULL``
+      * *ARKLS_LMEM_NULL* if the linear solver memory is ``NULL``
+      * *ARKLS_ILL_INPUT* if an input has an illegal value
+      * *ARKLS_MEM_FAIL* if a memory allocation request failed
 
    **Notes:** The banded approximate Jacobian will have nonzero elements
    only in locations :math:`(i,j)` with *ml* :math:`\le j-i \le` *mu*.
@@ -176,10 +174,10 @@ the ARKBANDPRE module:
       * *leniwLS* -- the number of integer values in the  ARKBANDPRE workspace.
 
    **Return value:**
-      * *ARKSPILS_SUCCESS* if no errors occurred
-      * *ARKSPILS_MEM_NULL* if the ARKStep memory is ``NULL``
-      * *ARKSPILS_LMEM_NULL* if the linear solver memory is ``NULL``
-      * *ARKSPILS_PMEM_NULL* if the preconditioner memory is ``NULL``
+      * *ARKLS_SUCCESS* if no errors occurred
+      * *ARKLS_MEM_NULL* if the ARKStep memory is ``NULL``
+      * *ARKLS_LMEM_NULL* if the linear solver memory is ``NULL``
+      * *ARKLS_PMEM_NULL* if the preconditioner memory is ``NULL``
 
    **Notes:** The workspace requirements reported by this routine
    correspond only to memory allocated within the ARKBANDPRE module
@@ -187,7 +185,7 @@ the ARKBANDPRE module:
    object, and temporary vectors).
 
    The workspaces referred to here exist in addition to those given by
-   the corresponding function :c:func:`ARKSpilsGetWorkspace()`.
+   the corresponding function :c:func:`ARKStepGetLSWorkspace()`.
 
 
 
@@ -203,14 +201,14 @@ the ARKBANDPRE module:
       * *nfevalsBP* -- number of calls to :math:`f_I`.
 
    **Return value:**
-      * *ARKSPILS_SUCCESS* if no errors occurred
-      * *ARKSPILS_MEM_NULL* if the ARKStep memory is ``NULL``
-      * *ARKSPILS_LMEM_NULL* if the linear solver memory is ``NULL``
-      * *ARKSPILS_PMEM_NULL* if the preconditioner memory is ``NULL``
+      * *ARKLS_SUCCESS* if no errors occurred
+      * *ARKLS_MEM_NULL* if the ARKStep memory is ``NULL``
+      * *ARKLS_LMEM_NULL* if the linear solver memory is ``NULL``
+      * *ARKLS_PMEM_NULL* if the preconditioner memory is ``NULL``
 
    **Notes:**  The counter *nfevalsBP* is distinct from the counter
    *nfevalsLS* returned by the corresponding function
-   :c:func:`ARKSpilsGetNumRhsEvals()` and also from *nfi_evals* returned by
+   :c:func:`ARKStepGetNumLSRhsEvals()` and also from *nfi_evals* returned by
    :c:func:`ARKStepGetNumRhsEvals()`.  The total number of right-hand
    side function evaluations is the sum of all three of these
    counters, plus the *nfe_evals* counter for :math:`f_E` calls
@@ -244,7 +242,7 @@ It is included in a software module within the ARKode package, and is
 accessible within the ARKStep time stepping module.  This
 preconditioning module works with the parallel vector module
 NVECTOR_PARALLEL and is usable with any of the Krylov iterative linear
-solvers through the ARKSPILS interface. It generates a preconditioner
+solvers through the ARKLS interface. It generates a preconditioner
 that is a block-diagonal matrix with each block being a band
 matrix. The blocks need not have the same number of super- and
 sub-diagonals and these numbers may vary from block to block. This
@@ -429,60 +427,58 @@ that are unchanged from the skeleton program presented in
 
 5. *Specify integration tolerances*
 
-6. *Set optional inputs*
-
-7. Create iterative linear solver object
+6. Create iterative linear solver object
 
    When creating the iterative linear solver object, specify the type
    of preconditioning (``PREC_LEFT`` or ``PREC_RIGHT``) to use.
 
-8. *Set linear solver optional inputs*
+7. *Set linear solver optional inputs*
 
-9. *Attach linear solver module*
+8. *Attach linear solver module*
 
-10. Initialize the ARKBBDPRE preconditioner module
+9. Initialize the ARKBBDPRE preconditioner module
 
-    Specify the upper and lower half-bandwidths for computation
-    ``mudq`` and ``mldq``, the upper and lower half-bandwidths for
-    storage ``mukeep`` and ``mlkeep``, and call
+   Specify the upper and lower half-bandwidths for computation
+   ``mudq`` and ``mldq``, the upper and lower half-bandwidths for
+   storage ``mukeep`` and ``mlkeep``, and call
 
-    ``ier = ARKBBDPrecInit(arkode_mem, Nlocal, mudq, mldq, mukeep, mlkeep, dqrely, gloc, cfn);``
+   ``ier = ARKBBDPrecInit(arkode_mem, Nlocal, mudq, mldq, mukeep, mlkeep, dqrely, gloc, cfn);``
 
-    to allocate memory and initialize the internal preconditioner
-    data. The last two arguments of :c:func:`ARKBBDPrecInit()` are the
-    two user-supplied functions of type :c:func:`ARKLocalFn()` and
-    :c:func:`ARKCommFn()` described above, respectively.
+   to allocate memory and initialize the internal preconditioner
+   data. The last two arguments of :c:func:`ARKBBDPrecInit()` are the
+   two user-supplied functions of type :c:func:`ARKLocalFn()` and
+   :c:func:`ARKCommFn()` described above, respectively.
 
-11. *Set the linear solver interface optional inputs*
+10. *Set optional inputs*
 
-    Note that the user should not overwrite the preconditioner setup
-    function or solve function through calls to ARKSPILS optional
-    input functions.
+    Note that the user should not call
+    :c:func:`ARKStepSetPreconditioner()` as it will overwrite the
+    preconditioner setup and solve functions.
 
-12. *Create nonlinear solver object*
+11. *Create nonlinear solver object*
 
-13. *Attach nonlinear solver module*
-    
-14. *Set nonlinear solver optional inputs*
+12. *Attach nonlinear solver module*
 
-15. *Specify rootfinding problem*
+13. *Set nonlinear solver optional inputs*
 
-16. *Advance solution in time*
+14. *Specify rootfinding problem*
 
-17. *Get optional outputs*
+15. *Advance solution in time*
+
+16. *Get optional outputs*
 
     Additional optional outputs associated with ARKBBDPRE are
     available through the routines
     :c:func:`ARKBBDPrecGetWorkSpace()` and
     :c:func:`ARKBBDPrecGetNumGfnEvals()`.
 
-18. *Deallocate memory for solution vector*
+17. *Deallocate memory for solution vector*
 
-19. *Free solver memory*
+18. *Free solver memory*
 
-20. *Free linear solver memory*
+19. *Free linear solver memory*
 
-21. *Finalize MPI*
+20. *Finalize MPI*
 
 
 
@@ -521,11 +517,11 @@ and attached to the integrator by calling the following functions:
         computation of :math:`g(t,y)`.
 
    **Return value:**
-      * *ARKSPILS_SUCCESS* if no errors occurred
-      * *ARKSPILS_MEM_NULL* if the ARKStep memory is ``NULL``
-      * *ARKSPILS_LMEM_NULL* if the linear solver memory is ``NULL``
-      * *ARKSPILS_ILL_INPUT* if an input has an illegal value
-      * *ARKSPILS_MEM_FAIL* if a memory allocation request failed
+      * *ARKLS_SUCCESS* if no errors occurred
+      * *ARKLS_MEM_NULL* if the ARKStep memory is ``NULL``
+      * *ARKLS_LMEM_NULL* if the linear solver memory is ``NULL``
+      * *ARKLS_ILL_INPUT* if an input has an illegal value
+      * *ARKLS_MEM_FAIL* if a memory allocation request failed
 
    **Notes:**  If one of the half-bandwidths *mudq* or *mldq* to be used
    in the difference quotient calculation of the approximate Jacobian is
@@ -557,9 +553,8 @@ to change any of the following: the half-bandwidths *mudq* and
 relative increment *dqrely*, or one of the user-supplied functions
 *gloc* and *cfn*. If there is a change in any of the linear solver
 inputs, an additional call to the "Set" routines provided by the
-``SUNLinearSolver`` module, and/or one or more of the
-corresponding ``ARKSpilsSet***`` functions, must also be made (in
-the proper order).
+SUNLINSOL module, and/or one or more of the corresponding
+``ARKStepSet***`` functions, must also be made (in the proper order).
 
 
 .. c:function:: int ARKBBDPrecReInit(void* arkode_mem, sunindextype mudq, sunindextype mldq, realtype dqrely)
@@ -578,10 +573,10 @@ the proper order).
         passing *dqrely* = 0.0.
 
    **Return value:**
-      * *ARKSPILS_SUCCESS* if no errors occurred
-      * *ARKSPILS_MEM_NULL* if the ARKStep memory is ``NULL``
-      * *ARKSPILS_LMEM_NULL* if the linear solver memory is ``NULL``
-      * *ARKSPILS_PMEM_NULL* if the preconditioner memory is ``NULL``
+      * *ARKLS_SUCCESS* if no errors occurred
+      * *ARKLS_MEM_NULL* if the ARKStep memory is ``NULL``
+      * *ARKLS_LMEM_NULL* if the linear solver memory is ``NULL``
+      * *ARKLS_PMEM_NULL* if the preconditioner memory is ``NULL``
 
    **Notes:**  If one of the half-bandwidths *mudq* or *mldq* is
    negative or exceeds the value *Nlocal*-1, it is replaced by 0 or
@@ -604,10 +599,10 @@ the ARKBBDPRE module:
       * *leniwBBDP* -- the number of integer values in the  ARKBBDPRE workspace.
 
    **Return value:**
-      * *ARKSPILS_SUCCESS* if no errors occurred
-      * *ARKSPILS_MEM_NULL* if the ARKStep memory is ``NULL``
-      * *ARKSPILS_LMEM_NULL* if the linear solver memory is ``NULL``
-      * *ARKSPILS_PMEM_NULL* if the preconditioner memory is ``NULL``
+      * *ARKLS_SUCCESS* if no errors occurred
+      * *ARKLS_MEM_NULL* if the ARKStep memory is ``NULL``
+      * *ARKLS_LMEM_NULL* if the linear solver memory is ``NULL``
+      * *ARKLS_PMEM_NULL* if the preconditioner memory is ``NULL``
 
    **Notes:**  The workspace requirements reported by this routine
    correspond only to memory allocated within the ARKBBDPRE module
@@ -615,7 +610,7 @@ the ARKBBDPRE module:
    object, temporary vectors). These values are local to each process.
 
    The workspaces referred to here exist in addition to those given by
-   the corresponding function :c:func:`ARKSpilsGetWorkSpace()`.
+   the corresponding function :c:func:`ARKStepGetLSWorkSpace()`.
 
 
 
@@ -632,10 +627,10 @@ the ARKBBDPRE module:
         *gloc* function.
 
    **Return value:**
-      * *ARKSPILS_SUCCESS* if no errors occurred
-      * *ARKSPILS_MEM_NULL* if the ARKStep memory is ``NULL``
-      * *ARKSPILS_LMEM_NULL* if the linear solver memory is ``NULL``
-      * *ARKSPILS_PMEM_NULL* if the preconditioner memory is ``NULL``
+      * *ARKLS_SUCCESS* if no errors occurred
+      * *ARKLS_MEM_NULL* if the ARKStep memory is ``NULL``
+      * *ARKLS_LMEM_NULL* if the linear solver memory is ``NULL``
+      * *ARKLS_PMEM_NULL* if the preconditioner memory is ``NULL``
 
 
 In addition to the *ngevalsBBDP* *gloc* evaluations, the costs
@@ -644,4 +639,4 @@ factorizations, *nlinsetups* calls to *cfn*, *npsolves* banded
 backsolve calls, and *nfevalsLS* right-hand side function
 evaluations, where *nlinsetups* is an optional ARKStep output and
 *npsolves* and *nfevalsLS* are linear solver optional outputs (see
-the table :ref:`ARKStep_CInterface.ARKSpilsOutputs`).
+the table :ref:`ARKStep_CInterface.ARKLsOutputs`).

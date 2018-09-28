@@ -69,17 +69,15 @@
  *   FCVSETRIN                  CVodeSet* (real arguments)
  *   FCVEWTSET                  CVodeWFtolerances
  *
- *   FCVDLSINIT                 CVDlsSetLinearSolver
- *   FCVDENSESETJAC             CVDlsSetJacFn
- *   FCVBANDSETJAC              CVDlsSetJacFn
- *   FCVSPARSESETJAC            CVDlsSetJacFn
+ *   FCVLSINIT                  CVodeSetLinearSolver
+ *   FCVLSSETEPSLIN             CVodeSetEpsLin
+ *   FCVLSSETJAC                CVodeSetJacTimes
+ *   FCVLSSETPREC               CVodeSetPreconditioner
+ *   FCVDENSESETJAC             CVodeSetJacFn
+ *   FCVBANDSETJAC              CVodeSetJacFn
+ *   FCVSPARSESETJAC            CVodeSetJacFn
  *
  *   FCVDIAG                    CVDiag
- *
- *   FCVSPILSINIT               CVSpilsSetLinearSolver
- *   FCVSPILSSETEPSLIN          CVSpilsSetEpsLin
- *   FCVSPILSSETJAC             CVSpilsSetJacTimes
- *   FCVSPILSSETPREC            CVSpilsSetPreconditioner
  *
  *   FCVNLSINIT                 CVSetNonlinearSolver
  *
@@ -98,13 +96,13 @@
  *   Fortran:           Interface Fcn:           CVODE Type:
  *   -------------      ------------------       -----------------------
  *   FCVFUN             FCVf                     CVRhsFn
- *   FCVDJAC            FCVDenseJac              CVDlsJacFn
- *   FCVBJAC            FCVBandJac               CVDlsJacFn
- *   FCVSPJAC           FCVSparseJac             CVDlsJacFn
- *   FCVPSET            FCVPSet                  CVSpilsPrecSetupFn
- *   FCVPSOL            FCVPSol                  CVSpilsPrecSolveFn
- *   FCVJTSETUP         FCVJTSetup               CVSpilsJacTimesSetupFn
- *   FCVJTIMES          FCVJtimes                CVSpilsJacTimesVecFn
+ *   FCVDJAC            FCVDenseJac              CVLsJacFn
+ *   FCVBJAC            FCVBandJac               CVLsJacFn
+ *   FCVSPJAC           FCVSparseJac             CVLsJacFn
+ *   FCVPSET            FCVPSet                  CVLsPrecSetupFn
+ *   FCVPSOL            FCVPSol                  CVLsPrecSolveFn
+ *   FCVJTSETUP         FCVJTSetup               CVLsJacTimesSetupFn
+ *   FCVJTIMES          FCVJtimes                CVLsJacTimesVecFn
  *   FCVEWT             FCVEwtSet                CVEwtFn
  *   -------------      ------------------       -----------------------
  *
@@ -303,12 +301,12 @@
  * (2) Optional user-supplied Jacobian-vector product setup routine: 
  *   FCVJTSETUP
  *
- *   As an option when using the CVSpils iterative linear solver 
- *   interface, the user may supply a routine that computes the product of 
- *   the system Jacobian J = dfi(t,y)/dy and a given vector v, as well as 
- *   a routine to set up any user data structures in preparation for the 
- *   matrix-vector product.  If a 'setup' routine is supplied, it must 
- *   have the following form:
+ *   As an option when using the CVLS linear solver interface with a 
+ *   matrix-free linear solver, the user may supply a routine that computes 
+ *   the product of the system Jacobian J = dfi(t,y)/dy and a given vector v, 
+ *   as well as a routine to set up any user data structures in preparation 
+ *   for the matrix-vector product.  If a 'setup' routine is supplied, it 
+ *   must have the following form:
  *
  *       SUBROUTINE FCVJTSETUP(T, Y, FY, H, IPAR, RPAR, IER)
  *
@@ -361,9 +359,10 @@
  * (3) Optional user-supplied preconditioner setup/solve routines: FCVPSET 
  *   and FCVPSOL
  *
- *     As an option when using the CVSPILS linear solver interface, the 
- *     user may supply routines to setup and apply the preconditioner.  
- *     If supplied, these must have the following form:
+ *     As an option when using the CVLS linear solver interface and an 
+ *     iterative linear solver, the user may supply routines to setup and
+ *     apply the preconditioner.  If supplied, these must have the 
+ *     following form:
  *
  *       SUBROUTINE FCVPSET(T,Y,FY,JOK,JCUR,GAMMA,H,IPAR,RPAR,IER)
  *
@@ -454,12 +453,12 @@
  *                         FSUNSPTFQMRINIT / FSUNSUPERLUMTINIT /
  *                         FSUNSUPERLUMTSETORDERING,
  *                      FCVMALLOC,
- *                      FCVDLSINIT / FCVSPILSINIT,
+ *                      FCVLSINIT,
  *                      FCVREINIT
  *
  *   NOTE: the initialization order is important!  It *must* proceed as 
  *   shown: vector, matrix (if used), linear solver (if used), CVode, 
- *   CVDls/CVSpils, reinit.
+ *   CVLs, reinit.
  * 
  * (5.1s) To initialize the a vector specification for storing the solution 
  *   data, the user must make one of the following calls:
@@ -625,25 +624,14 @@
  *           UROUND  = ROUT( 6) from UNIT_ROUNDOFF
  *   See the CVODE manual for details. 
  *
- * (5.5) If a direct linear solver was created in step (5.3) then it must be 
+ * (5.5) If a linear solver was created in step (5.3) then it must be 
  *   attached to CVode.  If the user called any one of FSUNBANDLINSOLINIT, 
  *   FSUNDENSELINSOLINIT, FSUNKLUINIT, FSUNLAPACKBANDINIT, 
- *   FSUNLAPACKDENSEINIT, or FSUNSUPERLUMTINIT, then this must be 
- *   attached to the CVDLS interface using the command:
- *
- *       CALL FCVDLSINIT(IER)
- *
- *   The arguments are:
- *	IER  = return completion flag [int, output]:
- *                  0 = SUCCESS,
- *                 -1 = failure (see printed message for failure details).
- *
- * (5.5) If an iterative linear solver was created in step (5.3) then it must 
- *   be attached to CVode.  If the user called any one of FSUNPCGINIT, 
+ *   FSUNLAPACKDENSEINIT, FSUNSUPERLUMTINIT, FSUNPCGINIT, 
  *   FSUNSPBCGSINIT, FSUNSPFGMRINIT, FSUNSPGMRINIT, or FSUNSPTFQMRINIT, 
- *   then this must be attached to the CVSPILS interface using the command:
+ *   then this must be attached to the CVLS interface using the command:
  *
- *       CALL FCVSPILSINIT(IER)
+ *       CALL FCVLSINIT(IER)
  *
  *   The arguments are:
  *	IER  = return completion flag [int, output]:
@@ -672,7 +660,7 @@
  *
  * (5.7) If the user program includes the FCVBJAC routine for the 
  *   evaluation of the band approximation to the Jacobian, then following 
- *   the call to FCVDLSINIT, the following call must be made 
+ *   the call to FCVLSINIT, the following call must be made 
  *
  *       CALL FCVBANDSETJAC(FLAG, IER)
  *
@@ -683,7 +671,7 @@
  * 
  *   If the user program includes the FCVDJAC routine for the evaluation 
  *   of the dense approximation to the Jacobian, then after the call to 
- *   FCVDLSINIT, the following call must be made 
+ *   FCVLSINIT, the following call must be made 
  *
  *       CALL FCVDENSESETJAC(FLAG, IER)
  *
@@ -695,7 +683,7 @@
  *   When using a sparse matrix and linear solver the user must provide the
  *   FCVSPJAC routine for the evaluation of the sparse approximation to 
  *   the Jacobian.  To indicate that this routine has been provided, after 
- *   the call to FCVDLSINIT, the following call must be made 
+ *   the call to FCVLSINIT, the following call must be made 
  *
  *       CALL FCVSPARSESETJAC(IER)
  *
@@ -703,10 +691,10 @@
  *
  * (5.8) If the user program includes the FCVJTSETUP and FCVJTIMES 
  *   routines for setup of a Jacobian-times-vector product (for use with 
- *   the CVSpils interface), then after creating the CVSpils interface, 
+ *   the CVLS interface), then after creating the CVLS interface, 
  *   the following call must be made:
  *
- *       CALL FCVSPILSSETJAC(FLAG, IER)
+ *       CALL FCVLSSETJAC(FLAG, IER)
  *
  *   with the int FLAG=1 to specify that FCVJTSETUP and FCVJTIMES are 
  *   provided and should be used; FLAG=0 specifies a reset to the internal 
@@ -715,9 +703,9 @@
  * 
  * (5.9) If the user program includes the FCVPSET and FCVPSOL routines 
  *   for supplying a preconditioner to an iterative linear solver, then 
- *   after creating the CVSpils interface, the following call must be made
+ *   after creating the CVLS interface, the following call must be made
  *
- *       CALL FCVSPILSSETPREC(FLAG, IER)
+ *       CALL FCVLSSETPREC(FLAG, IER)
  *
  *   with the int FLAG=1.  If FLAG=0 then preconditioning with these 
  *   routines will be disabled. The return flag IER=0 if successful, 
@@ -725,7 +713,7 @@
  *
  * (5.10) If the user wishes to use one of CVode's built-in preconditioning 
  *   modules, FCVBP or FCVBBD, then that should be initialized after 
- *   creating the CVSpils interface using one of the calls
+ *   creating the CVLS interface using one of the calls
  *
  *       CALL FCVBPINIT(NEQ, MU, ML, IER)
  *       CALL FCVBBDINIT(NLOCAL, MUDQ, MLDQ, MU, ML, DQRELY, IER)
@@ -787,26 +775,21 @@
  *
  * -----------------------------------------------------------------------------
  *
- * (6) Optional outputs from DLS and SPILS linear solvers (stored in the 
+ * (6) Optional outputs from CVLS linear solvers (stored in the 
  *   IOUT array that was passed to FCVMALLOC)
  *
- *   Optional outputs specific to the CVDLS interface:
- *        LENRWLS  = IOUT(13) from CVDlsGetWorkSpace (realtype space)
- *        LENIWLS  = IOUT(14) from CVDlsGetWorkSpace (integer space)
- *        LSTF     = IOUT(15) from CVDlsGetLastFlag
- *        NFELS    = IOUT(16) from CVDlsGetNumRhsEvals
- *        NJED     = IOUT(17) from CVDlsGetNumJacEvals
- *
- *   Optional outputs specific to the CVSPILS interface:
- *        LENRWLS  = IOUT(13) from CVSpilsGetWorkSpace
- *        LENIWLS  = IOUT(14) from CVSpilsGetWorkSpace
- *        LSTF     = IOUT(15) from CVSpilsGetLastFlag
- *        NFELS    = IOUT(16) from CVSpilsGetNumRhsEvals
- *        NJTV     = IOUT(17) from CVSpilsGetNumJtimesEvals
- *        NPE      = IOUT(18) from CVSpilsGetNumPrecEvals
- *        NPS      = IOUT(19) from CVSpilsGetNumPrecSolves
- *        NLI      = IOUT(20) from CVSpilsGetNumLinIters
- *        NCFL     = IOUT(21) from CVSpilsGetNumConvFails
+ *   Optional outputs specific to the CVLS interface:
+ *        LENRWLS  = IOUT(13) from CVodeGetLinWorkSpace (realtype space)
+ *        LENIWLS  = IOUT(14) from CVodeGetLinWorkSpace (integer space)
+ *        LSTF     = IOUT(15) from CVodeGetLastLinFlag
+ *        NFELS    = IOUT(16) from CVodeGetNumLinRhsEvals
+ *        NJE      = IOUT(17) from CVodeGetNumJacEvals
+ *        NJTS     = IOUT(18) from CVodeGetNumJTSetupEvals
+ *        NJTV     = IOUT(19) from CVodeGetNumJtimesEvals
+ *        NPE      = IOUT(20) from CVodeGetNumPrecEvals
+ *        NPS      = IOUT(21) from CVodeGetNumPrecSolves
+ *        NLI      = IOUT(22) from CVodeGetNumLinIters
+ *        NCFL     = IOUT(23) from CVodeGetNumLinConvFails
  *
  *   Optional outputs specific to the DIAG case are:
  *        LENRWLS  = IOUT(13) from CVDiagGetWorkSpace
@@ -876,7 +859,7 @@
  * (10) Memory freeing: FCVFREE 
  *
  *   To free the internal memory created by the calls to FCVMALLOC, 
- *   FCVDLSINIT/FCVSPILSINIT and FNVINIT*, make the call
+ *   FCVLSINIT and FNVINIT*, make the call
  *
  *       CALL FCVFREE
  * 
@@ -906,13 +889,13 @@ extern "C" {
 #define FCV_SETIIN         SUNDIALS_F77_FUNC(fcvsetiin, FCVSETIIN)
 #define FCV_SETRIN         SUNDIALS_F77_FUNC(fcvsetrin, FCVSETRIN)
 #define FCV_EWTSET         SUNDIALS_F77_FUNC(fcvewtset, FCVEWTSET)
-#define FCV_DLSINIT        SUNDIALS_F77_FUNC(fcvdlsinit, FCVDLSINIT)
+#define FCV_LSINIT         SUNDIALS_F77_FUNC(fcvlsinit, FCVLSINIT)
+#define FCV_LSSETJAC       SUNDIALS_F77_FUNC(fcvlssetjac, FCVLSSETJAC)
+#define FCV_LSSETPREC      SUNDIALS_F77_FUNC(fcvlssetprec, FCVLSSETPREC)
+#define FCV_LSSETEPSLIN    SUNDIALS_F77_FUNC(fcvlssetepslin, FCVLSSETEPSLIN)
 #define FCV_DENSESETJAC    SUNDIALS_F77_FUNC(fcvdensesetjac, FCVDENSESETJAC)
 #define FCV_BANDSETJAC     SUNDIALS_F77_FUNC(fcvbandsetjac, FCVBANDSETJAC)
 #define FCV_SPARSESETJAC   SUNDIALS_F77_FUNC(fcvsparsesetjac, FCVSPARSESETJAC)  
-#define FCV_SPILSINIT      SUNDIALS_F77_FUNC(fcvspilsinit, FCVSPILSINIT)
-#define FCV_SPILSSETJAC    SUNDIALS_F77_FUNC(fcvspilssetjac, FCVSPILSSETJAC)
-#define FCV_SPILSSETPREC   SUNDIALS_F77_FUNC(fcvspilssetprec, FCVSPILSSETPREC)
 #define FCV_DIAG           SUNDIALS_F77_FUNC(fcvdiag, FCVDIAG)
 #define FCV_CVODE          SUNDIALS_F77_FUNC(fcvode, FCVODE)
 #define FCV_DKY            SUNDIALS_F77_FUNC(fcvdky, FCVDKY)
@@ -930,6 +913,13 @@ extern "C" {
 #define FCV_GETESTLOCALERR SUNDIALS_F77_FUNC(fcvgetestlocalerr, FCVGETESTLOCALERR)
 #define FCV_NLSINIT        SUNDIALS_F77_FUNC(fcvnlsinit, FCVNLSINIT)
 
+/*---DEPRECATED---*/
+#define FCV_DLSINIT        SUNDIALS_F77_FUNC(fcvdlsinit, FCVDLSINIT)
+#define FCV_DLSSETJAC      SUNDIALS_F77_FUNC(fcvdlssetjac, FCVDLSSETJAC)
+#define FCV_SPILSINIT      SUNDIALS_F77_FUNC(fcvspilsinit, FCVSPILSINIT)
+#define FCV_SPILSSETPREC   SUNDIALS_F77_FUNC(fcvspilssetprec, FCVSPILSSETPREC)
+/*----------------*/
+
 #else
 
 #define FCV_MALLOC         fcvmalloc_
@@ -937,13 +927,13 @@ extern "C" {
 #define FCV_SETIIN         fcvsetiin_
 #define FCV_SETRIN         fcvsetrin_
 #define FCV_EWTSET         fcvewtset_
-#define FCV_DLSINIT        fcvdlsinit_
+#define FCV_LSINIT         fcvlsinit_
+#define FCV_LSSETJAC       fcvlssetjac_
+#define FCV_LSSETPREC      fcvlssetprec_
+#define FCV_LSSETEPSLIN    fcvlssetepslin_
 #define FCV_DENSESETJAC    fcvdensesetjac_
 #define FCV_BANDSETJAC     fcvbandsetjac_
 #define FCV_SPARSESETJAC   fcvsparsesetjac_
-#define FCV_SPILSINIT      fcvspilsinit_
-#define FCV_SPILSSETJAC    fcvspilssetjac_
-#define FCV_SPILSSETPREC   fcvspilssetprec_
 #define FCV_DIAG           fcvdiag_
 #define FCV_CVODE          fcvode_
 #define FCV_DKY            fcvdky_
@@ -961,6 +951,13 @@ extern "C" {
 #define FCV_GETESTLOCALERR fcvgetestlocalerr_
 #define FCV_NLSINIT        fcvnlsinit_
 
+/*---DEPRECATED---*/
+#define FCV_DLSINIT        fcvdlsinit_
+#define FCV_SPILSINIT      fcvspilsinit_
+#define FCV_SPILSINIT      fcvspilsinit_
+#define FCV_SPILSSETPREC   fcvspilssetprec_
+/*----------------*/
+  
 #endif
 
   /* Type for user data */
@@ -989,14 +986,21 @@ extern "C" {
 
   void FCV_EWTSET(int *flag, int *ier);
 
-  void FCV_DLSINIT(int *ier);
+  void FCV_LSINIT(int *ier);
+  void FCV_LSSETJAC(int *flag, int *ier);
+  void FCV_LSSETPREC(int *flag, int *ier);
+  void FCV_LSSETEPSLIN(realtype *eplifac, int *ier);
   void FCV_DENSESETJAC(int *flag, int *ier);
   void FCV_BANDSETJAC(int *flag, int *ier);
   void FCV_SPARSESETJAC(int *ier);
 
+/*---DEPRECATED---*/
+  void FCV_DLSINIT(int *ier);
+  void FCV_DLSSETJAC(int *flag, int *ier);
   void FCV_SPILSINIT(int *ier);
-  void FCV_SPILSSETJAC(int *flag, int *ier);
   void FCV_SPILSSETPREC(int *flag, int *ier);
+  void FCV_SPILSSETEPSLIN(realtype *eplifac, int *ier);
+/*----------------*/
   
   void FCV_DIAG(int *ier);
 
@@ -1063,8 +1067,7 @@ extern "C" {
 
   /* Linear solver IDs */
 
-  enum { CV_LS_ITERATIVE = 0, CV_LS_DIRECT = 1,
-         CV_LS_DIAG = 2, CV_LS_CUSTOM = 3 };
+  enum { CV_LS_STD = 0, CV_LS_DIAG = 1 };
 
 #ifdef __cplusplus
 }

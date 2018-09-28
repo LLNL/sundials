@@ -5,7 +5,7 @@
  * Example program for IDA: Food web problem, OpenMP, GMRES,
  * user-supplied preconditioner
  *
- * This example program uses SUNSPGMR as the linear
+ * This example program uses SUNLinSol_SPGMR as the linear
  * solver, and IDACalcIC for initial condition calculation.
  *
  * The mathematical problem solved in this example is a DAE system
@@ -59,7 +59,7 @@
  * The PDEs are discretized by central differencing on a MX by MY
  * mesh.
  *
- * The DAE system is solved by IDA using the SUNSPGMR linear solver.
+ * The DAE system is solved by IDA using the SUNLinSol_SPGMR linear solver.
  * Output is printed at t = 0, .001, .01, .1, .4, .7, 1.
  *
  * Optionally, we can set the number of threads from environment
@@ -100,7 +100,6 @@
 #include <math.h>
 
 #include <ida/ida.h>
-#include <ida/ida_spils.h>
 #include <sunlinsol/sunlinsol_spgmr.h>
 #include <nvector/nvector_openmp.h>
 #include <sundials/sundials_dense.h>
@@ -275,18 +274,18 @@ int main(int argc, char *argv[])
 
   webdata->ida_mem = ida_mem;
 
-  /* Create SUNSPGMR linear solver, attach to IDA, and set
+  /* Create SUNLinSol_SPGMR linear solver, attach to IDA, and set
      preconditioning routines. */
 
   maxl = 16;                               /* max dimension of the Krylov subspace */
-  LS = SUNSPGMR(cc, PREC_LEFT, maxl);      /* IDA only allows left preconditioning */
-  if(check_retval((void *)LS, "SUNSPGMR", 0)) return(1);
+  LS = SUNLinSol_SPGMR(cc, PREC_LEFT, maxl);      /* IDA only allows left preconditioning */
+  if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
-  retval = IDASpilsSetLinearSolver(ida_mem, LS);
-  if(check_retval(&retval, "IDASpilsSetLinearSolver", 1)) return(1);
+  retval = IDASetLinearSolver(ida_mem, LS, NULL);
+  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
 
-  retval = IDASpilsSetPreconditioner(ida_mem, Precond, PSolve);
-  if(check_retval(&retval, "IDASpilsSetPreconditioner", 1)) return(1);
+  retval = IDASetPreconditioner(ida_mem, Precond, PSolve);
+  if(check_retval(&retval, "IDASetPreconditioner", 1)) return(1);
 
   /* Call IDACalcIC (with default options) to correct the initial values. */
 
@@ -621,7 +620,7 @@ static void PrintHeader(int maxl, realtype rtol, realtype atol)
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
-  printf("Linear solver: SUNSPGMR, maxl = %d\n",maxl);
+  printf("Linear solver: SUNLinSol_SPGMR, maxl = %d\n",maxl);
   printf("CalcIC called to correct initial predator concentrations.\n\n");
   printf("-----------------------------------------------------------\n");
   printf("  t        bottom-left  top-right");
@@ -683,18 +682,18 @@ static void PrintFinalStats(void *ida_mem)
 
   retval = IDAGetNumSteps(ida_mem, &nst);
   check_retval(&retval, "IDAGetNumSteps", 1);
-  retval = IDASpilsGetNumLinIters(ida_mem, &sli);
-  check_retval(&retval, "IDAGetNumNonlinSolvIters", 1);
+  retval = IDAGetNumLinIters(ida_mem, &sli);
+  check_retval(&retval, "IDAGetNumLinIters", 1);
   retval = IDAGetNumResEvals(ida_mem, &nre);
   check_retval(&retval, "IDAGetNumResEvals", 1);
   retval = IDAGetNumErrTestFails(ida_mem, &netf);
   check_retval(&retval, "IDAGetNumErrTestFails", 1);
-  retval = IDASpilsGetNumPrecSolves(ida_mem, &nps);
-  check_retval(&retval, "IDAGetNumNonlinSolvConvFails", 1);
-  retval = IDASpilsGetNumPrecEvals(ida_mem, &npevals);
-  check_retval(&retval, "IDADlsGetNumJacEvals", 1);
-  retval = IDASpilsGetNumResEvals(ida_mem, &nrevalsLS);
-  check_retval(&retval, "IDADlsGetNumResEvals", 1);
+  retval = IDAGetNumPrecSolves(ida_mem, &nps);
+  check_retval(&retval, "IDAGetNumPrecSolves", 1);
+  retval = IDAGetNumPrecEvals(ida_mem, &npevals);
+  check_retval(&retval, "IDAGetNumPrecEvals", 1);
+  retval = IDAGetNumLinResEvals(ida_mem, &nrevalsLS);
+  check_retval(&retval, "IDAGetNumLinResEvals", 1);
 
   printf("-----------------------------------------------------------\n");
   printf("Final run statistics: \n\n");

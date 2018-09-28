@@ -24,7 +24,6 @@
 #include <kinsol/kinsol.h>             /* access to KINSOL func., consts. */
 #include <nvector/nvector_serial.h>    /* access to serial N_Vector       */
 #include <sunmatrix/sunmatrix_band.h>  /* access to band SUNMatrix        */
-#include <kinsol/kinsol_direct.h>      /* access to KINDls interface      */
 #include <sunlinsol/sunlinsol_band.h>  /* access to band SUNLinearSolver  */
 #include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype */
 #include <sundials/sundials_math.h>    /* access to SUNRexp               */
@@ -140,22 +139,22 @@ int main()
    * Create band SUNLinearSolver
    * --------------------------- */
 
-  LS = SUNBandLinearSolver(y, J);
-  if(check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+  LS = SUNLinSol_Band(y, J);
+  if(check_flag((void *)LS, "SUNLinSol_Band", 0)) return(1);
 
   /* -------------------------
    * Attach band linear solver
    * ------------------------- */
 
-  flag = KINDlsSetLinearSolver(kmem, LS, J);
-  if(check_flag(&flag, "KINDlsSetLinearSolver", 1)) return(1);
+  flag = KINSetLinearSolver(kmem, LS, J);
+  if(check_flag(&flag, "KINSetLinearSolver", 1)) return(1);
 
   /* -------------------------
    * Set Jacobian function
    * ------------------------- */
 
-  flag = KINDlsSetJacFn(kmem, jac);
-  if (check_flag(&flag, "KINDlsSetJacFn", 1)) return(1);
+  flag = KINSetJacFn(kmem, jac);
+  if (check_flag(&flag, "KINSetJacFn", 1)) return(1);
 
   /* -------------
    * Initial guess
@@ -382,15 +381,15 @@ static void PrintFinalStats(void *kmem)
 
   /* Band linear solver statistics */
 
-  flag = KINDlsGetNumJacEvals(kmem, &nje);
-  check_flag(&flag, "KINDlsGetNumJacEvals", 1);
-  flag = KINDlsGetNumFuncEvals(kmem, &nfeD);
-  check_flag(&flag, "KINDlsGetNumFuncEvals", 1);
+  flag = KINGetNumJacEvals(kmem, &nje);
+  check_flag(&flag, "KINGetNumJacEvals", 1);
+  flag = KINGetNumLinFuncEvals(kmem, &nfeD);
+  check_flag(&flag, "KINGetNumLinFuncEvals", 1);
 
   /* Band linear solver workspace size */
 
-  flag = KINDlsGetWorkSpace(kmem, &lenrwB, &leniwB);
-  check_flag(&flag, "KINDlsGetWorkSpace", 1);
+  flag = KINGetLinWorkSpace(kmem, &lenrwB, &leniwB);
+  check_flag(&flag, "KINGetLinWorkSpace", 1);
 
   printf("\nFinal Statistics.. \n\n");
   printf("nni      = %6ld    nfe     = %6ld \n", nni, nfe);

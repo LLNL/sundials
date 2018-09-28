@@ -157,14 +157,14 @@ int main()
   retval = IDASStolerances(mem, rtol, atol);
   if(check_retval(&retval, "IDASStolerances", 1)) return(1);
 
-  /* Create the linear solver SUNSPGMR with left preconditioning
+  /* Create the linear solver SUNLinSol_SPGMR with left preconditioning
      and the default Krylov dimension */
-  LS = SUNSPGMR(uu, PREC_LEFT, 0);
-  if(check_retval((void *)LS, "SUNSPGMR", 0)) return(1);
+  LS = SUNLinSol_SPGMR(uu, PREC_LEFT, 0);
+  if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
   /* IDA recommends allowing up to 5 restarts (default is 0) */
-  retval = SUNSPGMRSetMaxRestarts(LS, 5);
-  if(check_retval(&retval, "SUNSPGMRSetMaxRestarts", 1)) return(1);
+  retval = SUNLinSol_SPGMRSetMaxRestarts(LS, 5);
+  if(check_retval(&retval, "SUNLinSol_SPGMRSetMaxRestarts", 1)) return(1);
 
   /* Attach the linear sovler */
   retval = IDASpilsSetLinearSolver(mem, LS);
@@ -228,8 +228,8 @@ int main()
   retval = IDAReInit(mem, t0, uu, up);
   if(check_retval(&retval, "IDAReInit", 1)) return(1);
   
-  retval = SUNSPGMRSetGSType(LS, CLASSICAL_GS);
-  if(check_retval(&retval, "SUNSPGMRSetGSType",1)) return(1); 
+  retval = SUNLinSol_SPGMRSetGSType(LS, CLASSICAL_GS);
+  if(check_retval(&retval, "SUNLinSol_SPGMRSetGSType",1)) return(1); 
   
   /* Print case number, output table heading, and initial line of table. */
 

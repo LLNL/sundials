@@ -45,7 +45,7 @@
  *
  * This program solves the problem with the DIRK method, using a
  * Newton iteration.  The inner linear systems are solved using
- * the SUNKLU linear solver.
+ * the SUNLinSol_KLU linear solver.
  *
  * 100 outputs are printed at equal intervals, and run statistics
  * are printed at the end.
@@ -59,7 +59,6 @@
 #include <nvector/nvector_serial.h>      /* serial N_Vector types, fcts., macros */
 #include <sunmatrix/sunmatrix_sparse.h>  /* access to sparse SUNMatrix           */
 #include <sunlinsol/sunlinsol_klu.h>     /* access to KLU SUNLinearSolver        */
-#include <arkode/arkode_direct.h>        /* access to ARKDls interface           */
 #include <sundials/sundials_types.h>     /* defs. of realtype, sunindextype, etc */
 #include <sundials/sundials_math.h>      /* def. of SUNRsqrt, etc.               */
 
@@ -227,14 +226,14 @@ int main()
   NNZ = 5*NEQ;
   A = SUNSparseMatrix(NEQ, NEQ, NNZ, CSC_MAT);
   if (check_flag((void *)A, "SUNSparseMatrix", 0)) return 1;
-  LS = SUNKLU(y, A);
-  if (check_flag((void *)LS, "SUNKLU", 0)) return 1;
+  LS = SUNLinSol_KLU(y, A);
+  if (check_flag((void *)LS, "SUNLinSol_KLU", 0)) return 1;
 
   /* Attach the matrix, linear solver, and Jacobian construction routine to ARKStep */
-  flag = ARKDlsSetLinearSolver(arkode_mem, LS, A);        /* Attach matrix and LS */
-  if (check_flag(&flag, "ARKDlsSetLinearSolver", 1)) return 1;
-  flag = ARKDlsSetJacFn(arkode_mem, Jac);                 /* Supply Jac routine */
-  if (check_flag(&flag, "ARKDlsSetJacFn", 1)) return 1;
+  flag = ARKStepSetLinearSolver(arkode_mem, LS, A);        /* Attach matrix and LS */
+  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
+  flag = ARKStepSetJacFn(arkode_mem, Jac);                 /* Supply Jac routine */
+  if (check_flag(&flag, "ARKStepSetJacFn", 1)) return 1;
 
    /* output spatial mesh to disk */
   FID = fopen("bruss_mesh.txt","w");
@@ -310,8 +309,8 @@ int main()
   check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1);
   flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
   check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1);
-  flag = ARKDlsGetNumJacEvals(arkode_mem, &nje);
-  check_flag(&flag, "ARKDlsGetNumJacEvals", 1);
+  flag = ARKStepGetNumJacEvals(arkode_mem, &nje);
+  check_flag(&flag, "ARKStepGetNumJacEvals", 1);
 
   printf("\nFinal Solver Statistics:\n");
   printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);

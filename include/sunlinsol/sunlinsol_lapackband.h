@@ -90,13 +90,18 @@ typedef struct _SUNLinearSolverContent_LapackBand *SUNLinearSolverContent_Lapack
  * PART II: functions exported by sunlinsol_lapackband
  * 
  * CONSTRUCTOR:
- *    SUNLapackBand creates and allocates memory for a LAPACK banded 
- *      matrix solver
+ *    SUNLinSol_LapackBand creates and allocates memory for a 
+ *      LAPACK banded matrix solver
  *
- * OTHER:
+ *    SUNLapackBand (deprecated) wrapper for SUNLinSol_LapackBand
+ *
  * -----------------------------------------------------------------
  */
 
+SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_LapackBand(N_Vector y,
+                                                     SUNMatrix A);
+  
+/* deprecated */
 SUNDIALS_EXPORT SUNLinearSolver SUNLapackBand(N_Vector y, SUNMatrix A);
 
 /*

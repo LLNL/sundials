@@ -289,9 +289,9 @@ int main(int argc, char *argv[])
   if(check_retval(&retval, "CVodeSStolerances", 1, myId)) MPI_Abort(comm, 1);
 
   /* create and attach linear solver */
-  LS = SUNSPGMR(y, PREC_LEFT, 0);
-  if(check_retval(LS, "SUNSPGMR", 0, myId)) MPI_Abort(comm, 1);
-  
+  LS = SUNLinSol_SPGMR(y, PREC_LEFT, 0);
+  if(check_retval(LS, "SUNLinSol_SPGMR", 0, myId)) MPI_Abort(comm, 1);
+
   retval = CVSpilsSetLinearSolver(cvode_mem, LS);
   if(check_retval(&retval, "CVodeSpilsSetLinearSolver", 1, myId)) MPI_Abort(comm, 1);
   

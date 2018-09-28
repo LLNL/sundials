@@ -83,7 +83,6 @@
 
 #include <kinsol/kinsol.h>               /* access to KINSOL func., consts.      */
 #include <nvector/nvector_serial.h>      /* access to serial N_Vector            */
-#include <kinsol/kinsol_spils.h>         /* access to KINSpils interface         */
 #include <sunlinsol/sunlinsol_spgmr.h>   /* access to SPGMR SUNLinearSolver      */
 #include <sunlinsol/sunlinsol_spbcgs.h>  /* access to SPBCGS SUNLinearSolver     */ 
 #include <sunlinsol/sunlinsol_sptfqmr.h> /* access to SPTFQMR SUNLinearSolver    */
@@ -256,20 +255,20 @@ int main(void)
       printf(" \n| SPGMR |\n");
       printf(" -------\n");
 
-      /* Create SUNSPGMR object with right preconditioning and the 
+      /* Create SUNLinSol_SPGMR object with right preconditioning and the 
          maximum Krylov dimension maxl */
       maxl = 15; 
-      LS = SUNSPGMR(cc, PREC_RIGHT, maxl);
-      if(check_flag((void *)LS, "SUNSPGMR", 0)) return(1);
+      LS = SUNLinSol_SPGMR(cc, PREC_RIGHT, maxl);
+      if(check_flag((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
       /* Attach the linear solver to KINSOL */
-      flag = KINSpilsSetLinearSolver(kmem, LS);
-      if (check_flag(&flag, "KINSpilsSetLinearSolver", 1)) return 1;
+      flag = KINSetLinearSolver(kmem, LS, NULL);
+      if (check_flag(&flag, "KINSetLinearSolver", 1)) return 1;
 
       /* Set the maximum number of restarts */
       maxlrst = 2;
-      flag = SUNSPGMRSetMaxRestarts(LS, maxlrst);
-      if (check_flag(&flag, "SUNSPGMRSpilsSetMaxRestarts", 1)) return(1);
+      flag = SUNLinSol_SPGMRSetMaxRestarts(LS, maxlrst);
+      if (check_flag(&flag, "SUNLinSol_SPGMRSetMaxRestarts", 1)) return(1);
 
       break;
 
@@ -281,15 +280,15 @@ int main(void)
       printf(" \n| SPBCGS |\n");
       printf(" --------\n");
 
-      /* Create SUNSPBCGS object with right preconditioning and the 
+      /* Create SUNLinSol_SPBCGS object with right preconditioning and the 
          maximum Krylov dimension maxl */
       maxl = 15; 
-      LS = SUNSPBCGS(cc, PREC_RIGHT, maxl);
-      if(check_flag((void *)LS, "SUNSPBCGS", 0)) return(1);
+      LS = SUNLinSol_SPBCGS(cc, PREC_RIGHT, maxl);
+      if(check_flag((void *)LS, "SUNLinSol_SPBCGS", 0)) return(1);
 
       /* Attach the linear solver to KINSOL */
-      flag = KINSpilsSetLinearSolver(kmem, LS);
-      if (check_flag(&flag, "KINSpilsSetLinearSolver", 1)) return 1;
+      flag = KINSetLinearSolver(kmem, LS, NULL);
+      if (check_flag(&flag, "KINSetLinearSolver", 1)) return 1;
 
       break;
 
@@ -301,15 +300,15 @@ int main(void)
       printf(" \n| SPTFQMR |\n");
       printf(" ---------\n");
 
-      /* Create SUNSPTFQMR object with right preconditioning and the 
+      /* Create SUNLinSol_SPTFQMR object with right preconditioning and the 
          maximum Krylov dimension maxl */
       maxl = 25; 
-      LS = SUNSPTFQMR(cc, PREC_RIGHT, maxl);
-      if(check_flag((void *)LS, "SUNSPTFQMR", 0)) return(1);
+      LS = SUNLinSol_SPTFQMR(cc, PREC_RIGHT, maxl);
+      if(check_flag((void *)LS, "SUNLinSol_SPTFQMR", 0)) return(1);
 
       /* Attach the linear solver to KINSOL */
-      flag = KINSpilsSetLinearSolver(kmem, LS);
-      if (check_flag(&flag, "KINSpilsSetLinearSolver", 1)) return 1;
+      flag = KINSetLinearSolver(kmem, LS, NULL);
+      if (check_flag(&flag, "KINSetLinearSolver", 1)) return 1;
 
       break;
 
@@ -321,28 +320,28 @@ int main(void)
       printf(" \n| SPFGMR |\n");
       printf(" -------\n");
 
-      /* Create SUNSPFGMR object with right preconditioning and the 
+      /* Create SUNLinSol_SPFGMR object with right preconditioning and the 
          maximum Krylov dimension maxl */
       maxl = 15; 
-      LS = SUNSPFGMR(cc, PREC_RIGHT, maxl);
-      if(check_flag((void *)LS, "SUNSPFGMR", 0)) return(1);
+      LS = SUNLinSol_SPFGMR(cc, PREC_RIGHT, maxl);
+      if(check_flag((void *)LS, "SUNLinSol_SPFGMR", 0)) return(1);
 
       /* Attach the linear solver to KINSOL */
-      flag = KINSpilsSetLinearSolver(kmem, LS);
-      if (check_flag(&flag, "KINSpilsSetLinearSolver", 1)) return 1;
+      flag = KINSetLinearSolver(kmem, LS, NULL);
+      if (check_flag(&flag, "KINSetLinearSolver", 1)) return 1;
 
       /* Set the maximum number of restarts */
       maxlrst = 2;
-      flag = SUNSPGMRSetMaxRestarts(LS, maxlrst);
-      if (check_flag(&flag, "SUNSPGMRSpilsSetMaxRestarts", 1)) return(1);
+      flag = SUNLinSol_SPGMRSetMaxRestarts(LS, maxlrst);
+      if (check_flag(&flag, "SUNLinSol_SPGMRSetMaxRestarts", 1)) return(1);
 
       break;
 
     }
 
     /* Set preconditioner functions */
-    flag = KINSpilsSetPreconditioner(kmem, PrecSetupBD, PrecSolveBD);
-    if (check_flag(&flag, "KINSpilsSetPreconditioner", 1)) return(1);
+    flag = KINSetPreconditioner(kmem, PrecSetupBD, PrecSolveBD);
+    if (check_flag(&flag, "KINSetPreconditioner", 1)) return(1);
     
     /* Print out the problem size, solution parameters, initial guess. */
     PrintHeader(globalstrategy, maxl, maxlrst, fnormtol, scsteptol, linsolver);
@@ -849,16 +848,16 @@ static void PrintFinalStats(void *kmem, int linsolver)
   flag = KINGetNumFuncEvals(kmem, &nfe);
   check_flag(&flag, "KINGetNumFuncEvals", 1);
 
-  flag = KINSpilsGetNumLinIters(kmem, &nli);
-  check_flag(&flag, "KINSpilsGetNumLinIters", 1);
-  flag = KINSpilsGetNumPrecEvals(kmem, &npe);
-  check_flag(&flag, "KINSpilsGetNumPrecEvals", 1);
-  flag = KINSpilsGetNumPrecSolves(kmem, &nps);
-  check_flag(&flag, "KINSpilsGetNumPrecSolves", 1);
-  flag = KINSpilsGetNumConvFails(kmem, &ncfl);
-  check_flag(&flag, "KINSpilsGetNumConvFails", 1);
-  flag = KINSpilsGetNumFuncEvals(kmem, &nfeSG);
-  check_flag(&flag, "KINSpilsGetNumFuncEvals", 1);
+  flag = KINGetNumLinIters(kmem, &nli);
+  check_flag(&flag, "KINGetNumLinIters", 1);
+  flag = KINGetNumPrecEvals(kmem, &npe);
+  check_flag(&flag, "KINGetNumPrecEvals", 1);
+  flag = KINGetNumPrecSolves(kmem, &nps);
+  check_flag(&flag, "KINGetNumPrecSolves", 1);
+  flag = KINGetNumLinConvFails(kmem, &ncfl);
+  check_flag(&flag, "KINGetNumLinConvFails", 1);
+  flag = KINGetNumLinFuncEvals(kmem, &nfeSG);
+  check_flag(&flag, "KINGetNumLinFuncEvals", 1);
 
   printf("Final Statistics.. \n");
   printf("nni    = %5ld    nli   = %5ld\n", nni, nli);

@@ -70,16 +70,14 @@
 
     FIDAEWTSET                   IDAWFtolerances
 
-    FIDADLSINIT                  IDADlsSetLinearSolver
-    FIDADENSESETJAC              IDADlsSetJacFn
-    FIDABANDSETJAC               IDADlsSetJacFn
-    FIDASPARSESETJAC             IDADlsSetJacFn
-
-    FIDASPILSINIT                IDASpilsSetLinearSolver
-    FIDASPILSSETEPSLIN           IDASpilsSetEpsLin
-    FIDASPILSSETINCREMENTFACTOR  IDASpilsSetIncrementFactor
-    FIDASPILSSETJAC              IDASpilsSetJacTimes
-    FIDASPILSSETPREC             IDASpilsSetPreconditioner
+    FIDALSINIT                   IDASetLinearSolver
+    FIDALSSETEPSLIN              IDASetEpsLin
+    FIDALSSETINCREMENTFACTOR     IDASetIncrementFactor
+    FIDALSSETJAC                 IDASetJacTimes
+    FIDALSSETPREC                IDASetPreconditioner
+    FIDADENSESETJAC              IDASetJacFn
+    FIDABANDSETJAC               IDASetJacFn
+    FIDASPARSESETJAC             IDASetJacFn
 
     FIDANLSINIT                  IDASetNonlinearSolver
 
@@ -100,13 +98,13 @@
     Fortran:           Interface Fcn:           IDA Type:
     -------------      ------------------       -----------------------
     FIDARESFUN         FIDAresfn                IDAResFn
-    FIDADJAC           FIDADenseJac             IDADlsJacFn
-    FIDABJAC           FIDABandJac              IDADlsJacFn
-    FIDASPJAC          FIDASparseJac            IDADlsJacFn
-    FIDAPSET           FIDAPSet                 IDASpilsPrecSetupFn
-    FIDAPSOL           FIDAPSol                 IDASpilsPrecSolveFn
-    FIDAJTSETUP        FIDAJTSetup              IDASpilsJacTimesSetupFn
-    FIDAJTIMES         FIDAJtimes               IDASpilsJacTimesVecFn
+    FIDADJAC           FIDADenseJac             IDALsJacFn
+    FIDABJAC           FIDABandJac              IDALsJacFn
+    FIDASPJAC          FIDASparseJac            IDALsJacFn
+    FIDAPSET           FIDAPSet                 IDALsPrecSetupFn
+    FIDAPSOL           FIDAPSol                 IDALsPrecSolveFn
+    FIDAJTSETUP        FIDAJTSetup              IDALsJacTimesSetupFn
+    FIDAJTIMES         FIDAJtimes               IDALsJacTimesVecFn
     FIDAEWT            FIDAEwtSet               IDAEwtFn
     -------------      ------------------       -----------------------
 
@@ -318,12 +316,12 @@
   (2) Optional user-supplied Jacobian-vector product setup routine:
       FIDAJTSETUP
 
-      As an option when using the IDASpils iterative linear solver
-      interface, the user may supply a routine that computes the product of
-      the system Jacobian J = dF/dy' + c_j*dF/dy and a given vector v, as
-      well as a routine to set up any user data structures in preparation
-      for the matrix-vector product.  If a 'setup' routine is supplied,
-      it must have the following form:
+      As an option when using the IDALS linear solver interface with a 
+      matrix-free linear solver module, the user may supply a routine that 
+      computes the product of the system Jacobian J = dF/dy' + c_j*dF/dy 
+      and a given vector v, as well as a routine to set up any user data 
+      structures in preparation for the matrix-vector product.  If a 
+      'setup' routine is supplied, it must have the following form:
 
         SUBROUTINE FIDAJTSETUP(T, Y, YP, R, CJ, EWT, H, IPAR, RPAR, IER)
 
@@ -349,10 +347,11 @@
 
   (2) Optional user-supplied Jacobian-vector product routine: FIDAJTIMES
 
-      As an option when using the IDASpils linear solver interface, the
-      user may supply a routine that computes the product of the system
-      Jacobian J = dF/dy' + c_j*dF/dy and a given vector v.  If supplied,
-      it must have the following form:
+      As an option when using the IDALS linear solver interface with a 
+      matrix-free linear solver module, the user may supply a routine 
+      that computes the product of the system Jacobian 
+      J = dF/dy' + c_j*dF/dy and a given vector v.  If supplied, it must 
+      have the following form:
 
          SUBROUTINE FIDAJTIMES(T, Y, YP, R, V, FJV, CJ, EWT, H,
         1                      IPAR, RPAR, WK1, WK2, IER)
@@ -382,9 +381,10 @@
   (3) Optional user-supplied preconditioner setup/solve routines: FIDAPSET
       and FIDAPSOL
 
-      As an option when using the IDASPILS linear solver interface, the
-      user may supply routines to setup and apply the preconditioner.
-      If supplied, these must have the following form:
+      As an option when using the IDALS linear solver interface and an 
+      iterative linear solver module, the user may supply routines to 
+      setup and apply the preconditioner.  If supplied, these must have 
+      the following form:
 
         SUBROUTINE FIDAPSET(T, Y, YP, R, CJ, EWT, H, IPAR, RPAR, IER)
 
@@ -470,16 +470,16 @@
                           FSUNSPGMRINIT / FSUNSPTFQMRINIT / FSUNSUPERLUMTINIT /
                           FSUNSUPERLUMTSETORDERING,
                        FIDAMALLOC,
-                       FIDADLSINIT / FIDASPILSINIT
+                       FIDALSINIT
                        FIDAREINIT,
                        FIDATOLREINIT,
                        FIDACALCIC,
 
       NOTE: the initialization order is important!  It *must* proceed as
       shown: vector, matrix (if used), linear solver (if used), IDA,
-      IDADls/IDASpils, reinit.
+      IDALS, reinit.
 
-  (5.1s) To initialize the a vector specification for storing the solution
+  (5.1) To initialize the a vector specification for storing the solution
       data, the user must make one of the following calls:
 
         (serial)
@@ -642,32 +642,17 @@
             UNITRND = ROUT( 6) -> UNIT_ROUNDOFF
       See the IDA manual for details.
 
-  (5.5) If a direct linear solver was created in step (5.3) then it must be
-      attached to IDA.  If the user called any one of FSUNBANDLINSOLINIT,
-      FSUNDENSELINSOLINIT, FSUNKLUINIT, FSUNLAPACKBANDINIT,
-      FSUNLAPACKDENSEINIT, or FSUNSUPERLUMTINIT, then this must be
-      attached to the IDADLS interface using the command:
+  (5.5) To attach the linear solver created in step (5.3) to the 
+      IDALS interface, using the command:
 
-        CALL FIDADLSINIT(IER)
+        CALL FIDALSINIT(IER)
 
       The arguments are:
             IER  = return completion flag [int, output]:
                    0 = SUCCESS,
                   -1 = failure (see printed message for failure details).
 
-  (5.6) If an iterative linear solver was created in step (5.3) then it must
-      be attached to IDA.  If the user called any one of FSUNPCGINIT,
-      FSUNSPBCGSINIT, FSUNSPFGMRINIT, FSUNSPGMRINIT, or FSUNSPTFQMRINIT,
-      then this must be attached to the IDASPILS interface using the command:
-
-        CALL FIDASPILSINIT(IER)
-
-      The arguments are:
-            IER  = return completion flag [int, output]:
-                   0 = SUCCESS,
-                  -1 = failure (see printed message for failure details).
-
-  (5.7) If the user program includes the FIDAEWT routine for the evaluation
+  (5.6) If the user program includes the FIDAEWT routine for the evaluation
       of the error weights, the following call must be made
 
         CALL FIDAEWTSET(FLAG, IER)
@@ -676,9 +661,9 @@
       FLAG = 0 resets to the default EWT formulation.
       The return flag IER is 0 if successful, and nonzero otherwise.
 
-  (5.8) If the user program includes the FIDABJAC routine for the
+  (5.7) If the user program includes the FIDABJAC routine for the
       evaluation of the band approximation to the Jacobian, then following
-      the call to FIDADLSINIT, the following call must be made
+      the call to FIDALSINIT, the following call must be made
 
         CALL FIDABANDSETJAC(FLAG, IER)
 
@@ -689,7 +674,7 @@
 
       If the user program includes the FIDADJAC routine for the evaluation
       of the dense approximation to the Jacobian, then after the call to
-      FIDADLSINIT, the following call must be made
+      FIDALSINIT, the following call must be made
 
         CALL FIDADENSESETJAC(FLAG, IER)
 
@@ -701,37 +686,36 @@
       When using a sparse matrix and linear solver the user must provide the
       FIDASPJAC routine for the evaluation of the sparse approximation to
       the Jacobian.  To indicate that this routine has been provided, after
-      the call to FIDADLSINIT, the following call must be made
+      the call to FIDALSINIT, the following call must be made
 
         CALL FIDASPARSESETJAC(IER)
 
       The int return flag IER=0 if successful, and nonzero otherwise.
 
- (5.9) If the user program includes the FIDAJTSETUP and FIDAJTIMES
-      routines for setup of a Jacobian-times-vector product (for use with
-      the IDASpils interface), then after creating the IDASpils interface,
-      the following call must be made:
+  (5.8) If the user program includes the FIDAJTSETUP and FIDAJTIMES
+      routines for setup of a Jacobian-times-vector product, then after 
+      creating the IDALS interface, the following call must be made:
 
-        CALL FIDASPILSSETJAC(FLAG, IER)
+        CALL FIDALSSETJAC(FLAG, IER)
 
       with the int FLAG=1 to specify that FIDAJTSETUP and FIDAJTIMES are
       provided and should be used; FLAG=0 specifies a reset to the internal
       finite difference approximation to this product).  The int return
       flag IER=0 if successful, and nonzero otherwise.
 
-  (5.10) If the user program includes the FIDAPSET and FIDAPSOL routines
+  (5.9) If the user program includes the FIDAPSET and FIDAPSOL routines
       for supplying a preconditioner to an iterative linear solver, then
-      after creating the IDASpils interface, the following call must be made
+      after creating the IDALS interface, the following call must be made
 
-        CALL FIDASPILSSETPREC(FLAG, IER)
+        CALL FIDALSSETPREC(FLAG, IER)
 
       with the int FLAG=1.  If FLAG=0 then preconditioning with these
       routines will be disabled. The return flag IER=0 if successful,
       nonzero otherwise.
 
-  (5.11) If the user wishes to use one of IDAode's built-in preconditioning
+  (5.10) If the user wishes to use one of IDA's built-in preconditioning
       module, FIDABBD, then that should be initialized after creating the
-      IDASpils interface using the call
+      IDALS interface using the call
 
         CALL FIDABBDINIT(NLOCAL, MUDQ, MLDQ, MU, ML, DQRELY, IER)
 
@@ -739,7 +723,7 @@
       requirements of user-supplied functions on which these preconditioning
       modules rely, may be found in the header file fidabbd.h.
 
-  (5.12) To set various integer optional inputs, make the folowing call:
+  (5.11) To set various integer optional inputs, make the folowing call:
 
         CALL FIDASETIIN(KEY, VALUE, IER)
 
@@ -750,7 +734,7 @@
       SUPPRESS_ALG, MAX_NSTEPS_IC, MAX_NITERS_IC, MAX_NJE_IC, LS_OFF_IC.
       The int return flag IER is 0 if successful, and nonzero otherwise.
 
-  (5.13) To set various real optional inputs, make the folowing call:
+  (5.12) To set various real optional inputs, make the folowing call:
 
         CALL FIDASETRIN(KEY, VALUE, IER)
 
@@ -761,7 +745,7 @@
       NLCONV_COEF. The int return flag IER is 0 if successful, and nonzero
       otherwise.
 
-  (5.14) To set the vector of variable IDs or the vector of constraints,
+  (5.13) To set the vector of variable IDs or the vector of constraints,
       make the following call:
 
         CALL FIDASETVIN(KEY, ARRAY, IER)
@@ -770,7 +754,7 @@
       KEY is one of: ID_VEC or CONSTR_VEC.  The int return flag IER is 0
       if successful, and nonzero otherwise.
 
-  (5.15) To re-initialize the FIDA solver for the solution of a new problem
+  (5.14) To re-initialize the FIDA solver for the solution of a new problem
       of the same size as one already solved, make the following call:
 
         CALL FIDAREINIT(T0, Y0, YP0, IATOL, RTOL, ATOL, ID, CONSTR, IER)
@@ -782,14 +766,14 @@
       The subsequent calls to attach the linear system solver is only needed
       if the matrix or linear solver objects have been re-created.
 
-  (5.16) To modify the tolerance parameters, make the following call:
+  (5.15) To modify the tolerance parameters, make the following call:
 
         CALL FIDATOLREINIT(IATOL, RTOL, ATOL, IER)
 
       The arguments have the same names and meanings as those of FIDAMALLOC.
       FIDATOLREINIT simply calls IDASetTolerances with the given arguments.
 
-  (5.17) To compute consistent initial conditions for an index-one DAE system,
+  (5.16) To compute consistent initial conditions for an index-one DAE system,
       make the following call:
 
         CALL FIDACALCIC(ICOPT, TOUT, IER)
@@ -803,7 +787,7 @@
                  be requested from FIDASOLVE [realtype, input].
          IER   = return completion flag [int, output].
 
-  (5.18) The SUNKLU solver will reuse much of the factorization information
+  (5.17) The FSUNKLU solver will reuse much of the factorization information
       from one solve to the next.  If at any time the user wants to force a
       full refactorization or if the number of nonzeros in the Jacobian
       matrix changes, the user should make the call
@@ -819,26 +803,20 @@
 
   -----------------------------------------------------------------------------
 
-  (6) Optional outputs from DLS and SPILS linear solvers (stored in the
+  (6) Optional outputs from the IDALS linear solver interface (stored in the
       IOUT array that was passed to FIDAMALLOC)
 
-      Optional outputs specific to the IDADLS interface:
-         LENRWLS = IOUT(13) -> IDADlsGetWorkSpace
-         LENIWLS = IOUT(14) -> IDADlsGetWorkSpace
-         LSTF    = IOUT(15) -> IDADlsGetLastFlag
-         NRELS   = IOUT(16) -> IDADlsGetNumResEvals
-         NJE     = IOUT(17) -> IDADlsGetNumJacEvals
-
-      Optional outputs specific to the SPGMR case are:
-         LENRWLS = IOUT(13) -> IDASpilsGetWorkSpace
-         LENIWLS = IOUT(14) -> IDASpilsGetWorkSpace
-         LSTF    = IOUT(15) -> IDASpilsGetLastFlag
-         NRELS   = IOUT(16) -> IDASpilsGetResEvals
-         NJE     = IOUT(17) -> IDASpilsGetJtimesEvals
-         NPE     = IOUT(18) -> IDASpilsGetPrecEvals
-         NPS     = IOUT(19) -> IDASpilsGetPrecSolves
-         NLI     = IOUT(20) -> IDASpilsGetLinIters
-         NLCF    = IOUT(21) -> IDASpilsGetConvFails
+         LENRWLS = IOUT(13) -> IDAGetLinWorkSpace
+         LENIWLS = IOUT(14) -> IDAGetLinWorkSpace
+         LSTF    = IOUT(15) -> IDAGetLastLinFlag
+         NRELS   = IOUT(16) -> IDAGetNumLinResEvals
+         NJE     = IOUT(17) -> IDAGetNumJacEvals
+         NJTS    = IOUT(18) -> IDAGetJTSetupEvals
+         NJT     = IOUT(19) -> IDAGetJtimesEvals
+         NPE     = IOUT(20) -> IDAGetPrecEvals
+         NPS     = IOUT(21) -> IDAGetPrecSolves
+         NLI     = IOUT(22) -> IDAGetLinIters
+         NLCF    = IOUT(23) -> IDAGetLinConvFails
 
       See the IDA manual for more detailed descriptions of any of the
       above.
@@ -917,7 +895,7 @@
   (11) Memory freeing: FIDAFREE
 
       To the free the internal memory created by the calls to FIDAMALLOC,
-      FIDADLSINIT/FIDASPILSINIT, the generic linear solver and matrix modules,
+      FIDALSINIT, the generic linear solver and matrix modules,
       and FNVINIT*, make the following call:
 
         CALL FIDAFREE
@@ -948,20 +926,19 @@ extern "C" {
 #define FIDA_SOLVE          SUNDIALS_F77_FUNC(fidasolve, FIDASOLVE)
 #define FIDA_FREE           SUNDIALS_F77_FUNC(fidafree, FIDAFREE)
 #define FIDA_CALCIC         SUNDIALS_F77_FUNC(fidacalcic, FIDACALCIC)
-#define FIDA_DLSINIT        SUNDIALS_F77_FUNC(fidadlsinit, FIDADLSINIT)
-#define FIDA_SPILSINIT      SUNDIALS_F77_FUNC(fidaspilsinit,FIDASPILSINIT)
-#define FIDA_SPILSSETEPSLIN SUNDIALS_F77_FUNC(fidaspilssetepslin, FIDASPILSSETEPSLIN)
-#define FIDA_SPILSSETINCREMENTFACTOR SUNDIALS_F77_FUNC(fidaspilssetincrementfactor, FIDASPILSSETINCREMENTFACTOR)
+#define FIDA_LSINIT         SUNDIALS_F77_FUNC(fidalsinit, FIDALSINIT)
+#define FIDA_LSSETEPSLIN    SUNDIALS_F77_FUNC(fidalssetepslin, FIDALSSETEPSLIN)
+#define FIDA_LSSETINCREMENTFACTOR SUNDIALS_F77_FUNC(fidalssetincrementfactor, FIDALSSETINCREMENTFACTOR)
 #define FIDA_BANDSETJAC     SUNDIALS_F77_FUNC(fidabandsetjac, FIDABANDSETJAC)
 #define FIDA_BJAC           SUNDIALS_F77_FUNC(fidabjac, FIDABJAC)
 #define FIDA_DENSESETJAC    SUNDIALS_F77_FUNC(fidadensesetjac, FIDADENSESETJAC)
 #define FIDA_DJAC           SUNDIALS_F77_FUNC(fidadjac, FIDADJAC)
 #define FIDA_SPARSESETJAC   SUNDIALS_F77_FUNC(fidasparsesetjac, FIDASPARSESETJAC)
 #define FIDA_SPJAC          SUNDIALS_F77_FUNC(fidaspjac, FIDASPJAC)
-#define FIDA_SPILSSETJAC    SUNDIALS_F77_FUNC(fidaspilssetjac, FIDASPILSSETJAC)
+#define FIDA_LSSETJAC       SUNDIALS_F77_FUNC(fidalssetjac, FIDALSSETJAC)
 #define FIDA_JTSETUP        SUNDIALS_F77_FUNC(fidajtsetup, FIDAJTSETUP)
 #define FIDA_JTIMES         SUNDIALS_F77_FUNC(fidajtimes, FIDAJTIMES)
-#define FIDA_SPILSSETPREC   SUNDIALS_F77_FUNC(fidaspilssetprec, FIDASPILSSETPREC)
+#define FIDA_LSSETPREC      SUNDIALS_F77_FUNC(fidalssetprec, FIDALSSETPREC)
 #define FIDA_PSET           SUNDIALS_F77_FUNC(fidapset, FIDAPSET)
 #define FIDA_PSOL           SUNDIALS_F77_FUNC(fidapsol, FIDAPSOL)
 #define FIDA_RESFUN         SUNDIALS_F77_FUNC(fidaresfun, FIDARESFUN)
@@ -972,6 +949,15 @@ extern "C" {
 #define FIDA_GETESTLOCALERR SUNDIALS_F77_FUNC(fidagetestlocalerr, FIDAGETESTLOCALERR)
 #define FIDA_NLSINIT        SUNDIALS_F77_FUNC(fidanlsinit, FIDANLSINIT)
 
+/*** DEPRECATED ***/  
+#define FIDA_DLSINIT        SUNDIALS_F77_FUNC(fidadlsinit, FIDADLSINIT)
+#define FIDA_SPILSINIT      SUNDIALS_F77_FUNC(fidaspilsinit,FIDASPILSINIT)
+#define FIDA_SPILSSETEPSLIN SUNDIALS_F77_FUNC(fidaspilssetepslin, FIDASPILSSETEPSLIN)
+#define FIDA_SPILSSETINCREMENTFACTOR SUNDIALS_F77_FUNC(fidaspilssetincrementfactor, FIDASPILSSETINCREMENTFACTOR)
+#define FIDA_SPILSSETJAC    SUNDIALS_F77_FUNC(fidaspilssetjac, FIDASPILSSETJAC)
+#define FIDA_SPILSSETPREC   SUNDIALS_F77_FUNC(fidaspilssetprec, FIDASPILSSETPREC)
+/******************/  
+  
 #else
 
 #define FIDA_MALLOC         fidamalloc_
@@ -983,20 +969,19 @@ extern "C" {
 #define FIDA_SOLVE          fidasolve_
 #define FIDA_FREE           fidafree_
 #define FIDA_CALCIC         fidacalcic_
-#define FIDA_DLSINIT        fidadlsinit_
-#define FIDA_SPILSINIT      fidaspilsinit_
-#define FIDA_SPILSSETEPSLIN fidaspilssetepslin_
-#define FIDA_SPILSSETINCREMENTFACTOR fidaspilssetincrementfactor_
+#define FIDA_LSINIT         fidalsinit_
+#define FIDA_LSSETEPSLIN    fidalssetepslin_
+#define FIDA_LSSETINCREMENTFACTOR fidalssetincrementfactor_
 #define FIDA_BANDSETJAC     fidabandsetjac_
 #define FIDA_BJAC           fidabjac_
 #define FIDA_DENSESETJAC    fidadensesetjac_
 #define FIDA_DJAC           fidadjac_
 #define FIDA_SPARSESETJAC   fidasparsesetjac_
 #define FIDA_SPJAC          fidaspjac_
-#define FIDA_SPILSSETJAC    fidaspilssetjac_
+#define FIDA_LSSETJAC       fidalssetjac_
 #define FIDA_JTSETUP        fidajtsetup_
 #define FIDA_JTIMES         fidajtimes_
-#define FIDA_SPILSSETPREC   fidaspilssetprec_
+#define FIDA_LSSETPREC      fidalssetprec_
 #define FIDA_PSET           fidapset_
 #define FIDA_PSOL           fidapsol_
 #define FIDA_RESFUN         fidaresfun_
@@ -1007,6 +992,15 @@ extern "C" {
 #define FIDA_GETESTLOCALERR fidagetestlocalerr_
 #define FIDA_NLSINIT        fidanlsinit_
 
+/*** DEPRECATED ***/  
+#define FIDA_DLSINIT        fidadlsinit_
+#define FIDA_SPILSINIT      fidaspilsinit_
+#define FIDA_SPILSSETEPSLIN fidaspilssetepslin_
+#define FIDA_SPILSSETINCREMENTFACTOR fidaspilssetincrementfactor_
+#define FIDA_SPILSSETJAC    fidaspilssetjac_
+#define FIDA_SPILSSETPREC   fidaspilssetprec_
+/******************/  
+  
 #endif
 
 /* Type for user data */
@@ -1033,17 +1027,24 @@ void FIDA_SETVIN(char key_name[], realtype *vval, int *ier);
 void FIDA_TOLREINIT(int *iatol, realtype *rtol, realtype *atol, int *ier);
 void FIDA_CALCIC(int *icopt, realtype *tout1, int *ier);
 
-void FIDA_DLSINIT(int *ier);
+void FIDA_LSINIT(int *ier);
+void FIDA_LSSETEPSLIN(realtype *eplifac, int *ier);
+void FIDA_LSSETINCREMENTFACTOR(realtype *dqincfac, int *ier);
+void FIDA_LSSETJAC(int *flag, int *ier);
+void FIDA_LSSETPREC(int *flag, int *ier);
 void FIDA_DENSESETJAC(int *flag, int *ier);
 void FIDA_BANDSETJAC(int *flag, int *ier);
 void FIDA_SPARSESETJAC(int *ier);
 
+/*** DEPRECATED ***/  
+void FIDA_DLSINIT(int *ier);
 void FIDA_SPILSINIT(int *ier);
 void FIDA_SPILSSETEPSLIN(realtype *eplifac, int *ier);
 void FIDA_SPILSSETINCREMENTFACTOR(realtype *dqincfac, int *ier);
 void FIDA_SPILSSETJAC(int *flag, int *ier);
 void FIDA_SPILSSETPREC(int *flag, int *ier);
-
+/******************/  
+  
 void FIDA_NLSINIT(int *ier);
 
 void FIDA_SOLVE(realtype *tout, realtype *tret, realtype *yret,
@@ -1101,13 +1102,7 @@ extern SUNNonlinearSolver F2C_IDA_nonlinsol; /* defined in FSUNNONLINSOL module 
 extern void *IDA_idamem;                     /* defined in fida.c */
 extern long int *IDA_iout;                   /* defined in fida.c */
 extern realtype *IDA_rout;                   /* defined in fida.c */
-extern int IDA_ls;                           /* defined in fida.c */
 extern int IDA_nrtfn;                        /* defined in fida.c */
-
-/* Linear solver IDs */
-enum { IDA_LS_ITERATIVE = 0,
-       IDA_LS_DIRECT = 1,
-       IDA_LS_CUSTOM = 2 };
 
 #ifdef __cplusplus
 }

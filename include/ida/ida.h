@@ -1,7 +1,4 @@
 /*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
  * ----------------------------------------------------------------- 
  * Programmer(s): Allan G. Taylor, Alan C. Hindmarsh, Radu Serban,
  *                and Aaron Collier @ LLNL
@@ -35,6 +32,7 @@
 #include <stdio.h>
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_nonlinearsolver.h>
+#include <ida/ida_ls.h>
 
 #ifdef __cplusplus     /* wrapper to enable C++ usage */
 extern "C" {

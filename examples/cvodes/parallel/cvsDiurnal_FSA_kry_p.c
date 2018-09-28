@@ -30,7 +30,7 @@
  * is neq = 2*MX*MY.
  *
  * The solution with CVODES is done with the BDF/GMRES method (i.e.
- * using the SUNSPGMR linear solver) and the block-diagonal part of
+ * using the SUNLinSol_SPGMR linear solver) and the block-diagonal part of
  * the Newton matrix as a left preconditioner. A copy of the
  * block-diagonal part of the Jacobian is saved and conditionally
  * reused within the Precond routine.
@@ -69,7 +69,7 @@
 
 #include <cvodes/cvodes.h>              /* main CVODES header file */
 #include <cvodes/cvodes_spils.h>        /* defs. for CVSPILS fcts. and constants */
-#include <sunlinsol/sunlinsol_spgmr.h>  /* defs. for SUNSPGMR fcts. and constants */
+#include <sunlinsol/sunlinsol_spgmr.h>  /* defs. for SUNLinSol_SPGMR fcts. and constants */
 #include <nvector/nvector_parallel.h>   /* defs of par. NVECTOR fcts. and macros */
 #include <sundials/sundials_dense.h>    /* generic DENSE solver used in prec. */
 #include <sundials/sundials_math.h>     /* contains macros SQR and EXP */
@@ -278,8 +278,8 @@ int main(int argc, char *argv[])
 
   /* Create SPGMR solver structure -- use left preconditioning 
      and the default Krylov dimension maxl */
-  LS = SUNSPGMR(u, PREC_LEFT, 0);
-  if (check_retval((void *)LS, "SUNSPGMR", 0, my_pe)) MPI_Abort(comm, 1);
+  LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0);
+  if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0, my_pe)) MPI_Abort(comm, 1);
   
   /* Attach linear solver to CVSpils interface */
   retval = CVSpilsSetLinearSolver(cvode_mem, LS);

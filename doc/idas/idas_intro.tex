@@ -89,6 +89,23 @@ in extended {\F}.
 
 \subsection*{Changes in v3.0.0-dev.2}
 
+The names of all constructor routines for {\sundials}-provided
+{\sunlinsol} implementations have been updated to
+\id{SUNLinSol\_Band},
+\id{SUNLinSol\_Dense},
+\id{SUNLinSol\_KLU},
+\id{SUNLinSol\_LapackBand},
+\id{SUNLinSol\_LapackDense},
+\id{SUNLinSol\_PCG},
+\id{SUNLinSol\_SPBCGS},
+\id{SUNLinSol\_SPFGMR},
+\id{SUNLinSol\_SPGMR},
+\id{SUNLinSol\_SPTFQMR}, and
+\id{SUNLinSol\_SuperLUMT}.  Solver-specific ``set'' routine names have
+been similarly standardized.  While the previous routine names may
+still be used, these will be deprecated in future releases, so we
+recommend that users migrate to the new names soon.
+
 {\idas} was updated to use the {\sunnonlinsol} API. By default {\idas} uses the
 {\sunnonlinsolnewton} module implementation of a Newton iteration. Since {\idas}
 previously only used an internal implementation of a Newton iteration for

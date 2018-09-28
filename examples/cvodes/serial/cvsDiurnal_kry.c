@@ -20,7 +20,7 @@
  * The PDE system is treated by central differences on a uniform
  * 10 x 10 mesh, with simple polynomial initial profiles.
  * The problem is solved with CVODES, with the BDF/GMRES
- * method (i.e. using the SUNSPGMR linear solver) and the
+ * method (i.e. using the SUNLinSol_SPGMR linear solver) and the
  * block-diagonal part of the Newton matrix as a left
  * preconditioner. A copy of the block-diagonal part of the
  * Jacobian is saved and conditionally reused within the Precond
@@ -193,10 +193,10 @@ int main()
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
   if (check_retval(&retval, "CVodeSStolerances", 1)) return(1);
 
-  /* Call SUNSPGMR to specify the linear solver SUNSPGMR 
+  /* Call SUNLinSol_SPGMR to specify the linear solver SUNLinSol_SPGMR
    * with left preconditioning and the default Krylov dimension */
-  LS = SUNSPGMR(u, PREC_LEFT, 0);
-  if(check_retval((void *)LS, "SUNSPGMR", 0)) return(1);
+  LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0);
+  if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
   /* Call CVSpilsSetLinearSolver to attach the linear sovler to CVode */
   retval = CVSpilsSetLinearSolver(cvode_mem, LS);

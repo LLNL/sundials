@@ -41,26 +41,26 @@ following serial examples (using the {\nvecs} module):
 \item \id{kinFerTron\_dns}
   solves the Ferraris-Tronconi problem.
   \newline
-  This program solves the problem with the {\kindense} linear solver
+  This program solves the problem with the {\sunlinsoldense} linear solver
   and uses different combinations of globalization and Jacobian
   update strategies with different initial guesses.
 \item \id{kinFerTron\_klu}
   solves the same problem as in \id{kinFerTron\_dns}, but uses the
-  sparse direct solver KLU.
+  sparse direct solver KLU via the {\sunlinsolklu} module.
 
 \item \id{kinRoboKin\_dns}
   solves a nonlinear system from robot kinematics.
   \newline
-  This program solves the problem with the {\kindense} linear solver
+  This program solves the problem with the {\sunlinsoldense} linear solver
   and a user-supplied Jacobian routine.
 \item \id{kinRoboKin\_slu}
   is the same as \id{kinRoboKin\_dns} but uses the SuperLUMT sparse direct
-  linear solver.
+  linear solver via the {\sunlinsolslumt} module.
 
 \item \id{kinLaplace\_bnd}
   solves a simple 2-D elliptic PDE on a unit square.
  \newline
-  This program solves the problem with the {\kinband} linear solver.
+  This program solves the problem with the {\sunlinsolband} linear solver.
 \item \id{kinLaplace\_picard\_bnd}
   is the same as \id{kinLaplace\_bnd} but uses the Picard strategy.
 
@@ -71,13 +71,13 @@ following serial examples (using the {\nvecs} module):
   differential equations describing a six-species food web population
   model, with predator-prey interaction and diffusion on the unit
   square in two dimensions.
-  This program solves the problem with the {\kinspgmr} linear solver
-  and a user-supplied preconditioner. The preconditioner is a
+  This program solves the problem with the {\sunlinsolspgmr} linear
+  solver module and a user-supplied preconditioner. The preconditioner is a
   block-diagonal matrix based on the partial derivatives of the
   interaction terms only.
 \item \id{kinKrylovDemo\_ls}
   solves the same problem as \id{kinFoodWeb\_kry}, but with three Krylov
-  linear solvers: \id{kinspgmr}, \id{kinspbcg}, and \id{kinsptfqmr}.
+  linear solvers: {\sunlinsolspgmr}, {\sunlinsolspbcgs}, and {\sunlinsolsptfqmr}.
 \end{itemize}
 
 \vspace{0.2in}\noindent

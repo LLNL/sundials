@@ -175,8 +175,8 @@ int main(int argc, char *argv[])
   if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object */
-  LS = SUNDenseLinearSolver(yy, A);
-  if(check_retval((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+  LS = SUNLinSol_Dense(yy, A);
+  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
   retval = IDADlsSetLinearSolver(ida_mem, LS, A);
@@ -261,8 +261,8 @@ int main(int argc, char *argv[])
   if(check_retval((void *)AB1, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object */
-  LSB1 = SUNDenseLinearSolver(yyB1, AB1);
-  if(check_retval((void *)LSB1, "SUNDenseLinearSolver", 0)) return(1);
+  LSB1 = SUNLinSol_Dense(yyB1, AB1);
+  if(check_retval((void *)LSB1, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
   retval = IDADlsSetLinearSolverB(ida_mem, indexB1, LSB1, AB1);
@@ -302,8 +302,8 @@ int main(int argc, char *argv[])
   if(check_retval((void *)AB2, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object */
-  LSB2 = SUNDenseLinearSolver(yyB2, AB2);
-  if(check_retval((void *)LSB2, "SUNDenseLinearSolver", 0)) return(1);
+  LSB2 = SUNLinSol_Dense(yyB2, AB2);
+  if(check_retval((void *)LSB2, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
   retval = IDADlsSetLinearSolverB(ida_mem, indexB2, LSB2, AB2);
@@ -398,8 +398,8 @@ int main(int argc, char *argv[])
   if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object */
-  LS = SUNDenseLinearSolver(yy, A);
-  if(check_retval((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+  LS = SUNLinSol_Dense(yy, A);
+  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
   retval = IDADlsSetLinearSolver(ida_mem, LS, A);

@@ -230,8 +230,8 @@ int main(int argc, char *argv[])
   if (check_retval((void *)A, "SUNSparseMatrix", 0)) return(1);
 
   /* Create KLU SUNLinearSolver object */
-  LS = SUNKLU(y, A);
-  if (check_retval((void *)LS, "SUNKLU", 0)) return(1);
+  LS = SUNLinSol_KLU(y, A);
+  if (check_retval((void *)LS, "SUNLinSol_KLU", 0)) return(1);
 
   /* Attach the matrix and linear solver for the forward problem */
   retval = CVDlsSetLinearSolver(cvode_mem, LS, A);
@@ -367,8 +367,8 @@ int main(int argc, char *argv[])
   if (check_retval((void *)A, "SUNSparseMatrix", 0)) return(1);
 
   /* Create KLU SUNLinearSolver object */
-  LSB = SUNKLU(yB, AB);
-  if (check_retval((void *)LSB, "SUNKLU", 0)) return(1);
+  LSB = SUNLinSol_KLU(yB, AB);
+  if (check_retval((void *)LSB, "SUNLinSol_KLU", 0)) return(1);
 
   /* Attach the matrix and linear solver for the backward problem */
   retval = CVDlsSetLinearSolverB(cvode_mem, indexB, LSB, AB);

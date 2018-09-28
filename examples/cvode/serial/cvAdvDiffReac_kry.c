@@ -115,14 +115,18 @@ int main(int argc, char *argv[])
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
   if (check_retval(&retval, "CVodeSStolerances", 1)) return(1);
 
-  /* Call CVSpgmr to specify the linear solver CVSPGMR 
+  /* Call SUNLinSol_SPGMR to create the linear solver SPGMR 
    * with left preconditioning and the maximum Krylov dimension maxl */
-  retval = CVSpgmr(cvode_mem, PREC_NONE, 0);
-  if(check_retval(&retval, "CVSpgmr", 1)) return(1);
+  retval = SUNLinSol_SPGMR(cvode_mem, PREC_NONE, 0);
+  if(check_retval(&retval, "SUNLinSol_SPGMR", 1)) return(1);
+
+  /* Call CVodeSetLinearSolver to attach the linear solver to CVode */
+  retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
+  if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
 
   /* set the JAcobian-times-vector function */
-  retval = CVSpilsSetJacTimesVecFn(cvode_mem, Jtv);
-  if(check_retval(&retval, "CVSpilsSetJacTimesVecFn", 1)) return(1);
+  retval = CVodeSetJacTimesVecFn(cvode_mem, Jtv);
+  if(check_retval(&retval, "CVodeSetJacTimesVecFn", 1)) return(1);
 
 
   printf("Solving diffusion-advection-reaction problem with %d unknowns...\n", data->NEQ);
@@ -350,18 +354,18 @@ static void PrintFinalStats(void *cvode_mem)
   retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1);
 
-  retval = CVSpilsGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
-  check_retval(&retval, "CVSpilsGetWorkSpace", 1);
-  retval = CVSpilsGetNumLinIters(cvode_mem, &nli);
-  check_retval(&retval, "CVSpilsGetNumLinIters", 1);
-  retval = CVSpilsGetNumPrecEvals(cvode_mem, &npe);
-  check_retval(&retval, "CVSpilsGetNumPrecEvals", 1);
-  retval = CVSpilsGetNumPrecSolves(cvode_mem, &nps);
-  check_retval(&retval, "CVSpilsGetNumPrecSolves", 1);
-  retval = CVSpilsGetNumConvFails(cvode_mem, &ncfl);
-  check_retval(&retval, "CVSpilsGetNumConvFails", 1);
-  retval = CVSpilsGetNumRhsEvals(cvode_mem, &nfeLS);
-  check_retval(&retval, "CVSpilsGetNumRhsEvals", 1);
+  retval = CVodeGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
+  check_retval(&retval, "CVodeGetWorkSpace", 1);
+  retval = CVodeGetNumLinIters(cvode_mem, &nli);
+  check_retval(&retval, "CVodeGetNumLinIters", 1);
+  retval = CVodeGetNumPrecEvals(cvode_mem, &npe);
+  check_retval(&retval, "CVodeGetNumPrecEvals", 1);
+  retval = CVodeGetNumPrecSolves(cvode_mem, &nps);
+  check_retval(&retval, "CVodeGetNumPrecSolves", 1);
+  retval = CVodeGetNumConvFails(cvode_mem, &ncfl);
+  check_retval(&retval, "CVodeGetNumConvFails", 1);
+  retval = CVodeGetNumRhsEvals(cvode_mem, &nfeLS);
+  check_retval(&retval, "CVodeGetNumRhsEvals", 1);
 
   printf("\nFinal Statistics.. \n\n");
   printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw, leniw);

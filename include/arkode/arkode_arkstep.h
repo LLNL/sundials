@@ -25,6 +25,7 @@
 #include <sundials/sundials_linearsolver.h>
 #include <sundials/sundials_nonlinearsolver.h>
 #include <arkode/arkode.h>
+#include <arkode/arkode_ls.h>
 #include <arkode/arkode_butcher_erk.h>
 #include <arkode/arkode_butcher_dirk.h>
 
@@ -239,6 +240,43 @@ SUNDIALS_EXPORT int ARKStepResFtolerance(void *arkode_mem,
 
 
 /*---------------------------------------------------------------
+  ARKStepSetLinearSolver and ARKStepSetMassLinearSolver
+
+  These routines are required inputs for problems that require
+  a linear solver for either the implicit stage solves or 
+  non-identity mass matrix solves.
+
+  ARKStepSetLinearSolver specifies the SUNLinearSolver object 
+    that ARKode should use.  The 'LS' argument must be non-NULL, 
+    but A can be NULL if the solver requires no SUNMatrix object.
+
+  ARKStepSetMassLinearSolver specifies the SUNLinearSolver object 
+    that ARKode should use for mass-matrix systems.  The 'LS' 
+    argument must be non-NULL, but M can be NULL if the solver 
+    requires no SUNMatrix object.
+
+  NOTE: when solving an implicit or IMEX IVP with non-identity 
+  mass matrix and iterative linear solver, both the system and
+  mass solvers must be have the same type (i.e. you cannot 
+  combine a direct system solver with an iterative mass matrix 
+  solver, etc.).
+  
+  The return value is one of:
+     ARKLS_SUCCESS   if successful
+     ARKLS_MEM_NULL  if the ARKode memory was NULL
+     ARKLS_ILL_INPUT if the linear solver memory was NULL
+---------------------------------------------------------------*/
+SUNDIALS_EXPORT int ARKStepSetLinearSolver(void *arkode_mem, 
+                                           SUNLinearSolver LS,
+                                           SUNMatrix A);
+
+SUNDIALS_EXPORT int ARKStepSetMassLinearSolver(void *arkode_mem, 
+                                               SUNLinearSolver LS,
+                                               SUNMatrix M,
+                                               booleantype time_dep);
+  
+
+/*---------------------------------------------------------------
   ARKStepRootInit
 
   This initializes a rootfinding problem to be solved during the
@@ -278,196 +316,196 @@ ARKodeButcherTable ARKStepLoadButcherTable(int imethod);
 
 /*---------------------------------------------------------------
   ARKStep optional input specification functions -- ALL of these
-  must be called AFTER ARKStepCreate.
------------------------------------------------------------------
- The following functions can be called to set optional inputs
- to values other than the defaults given below.
+  must be called AFTER ARKStepCreate.  They can be called to set 
+  optional inputs to non-default values.
 
- Function [ default value ], Description
------------------------------------------------------------------
- ARKStepSetDefaults   [internal]
- resets all optional inputs to ARKStep default values.  Does not
- change problem-defining function pointers or user_data pointer.
- Also leaves alone any data structures/options related to
- root-finding (those can be reset using ARKodeRootInit).
+  Function   [default value]
+    Description
+  -----------------------------------------------------------------
+  ARKStepSetDefaults   [internal]
+    resets all optional inputs to ARKStep default values.  Does not
+    change problem-defining function pointers or user_data pointer.
+    Also leaves alone any data structures/options related to
+    root-finding (those can be reset using ARKodeRootInit).
+  
+  ARKStepSetOptimalParams   [internal]
+    sets all adaptivity and solver parameters to our 'best guess'
+    values, for a given integration method (ERK, DIRK, ARK) and a
+    given method order.  Should only be called after the method
+    order and integration method have been set.
 
- ARKStepSetOptimalParams   [internal]
- sets all adaptivity and solver parameters to our 'best guess'
- values, for a given integration method (ERK, DIRK, ARK) and a
- given method order.  Should only be called after the method
- order and integration method have been set.
+  ARKStepSetOrder  [4]
+    method order to be used by the solver.
 
- ARKStepSetOrder  [4]
- method order to be used by the solver.
+  ARKStepSetDenseOrder  [3]
+    polynomial order to be used for dense output.  Allowed values
+    are between 0 and min(q,5) (where q is the order of the
+    integrator)
 
- ARKStepSetDenseOrder  [3]
- polynomial order to be used for dense output.  Allowed values
- are between 0 and min(q,5) (where q is the order of the
- integrator)
+  ARKStepSetNonlinearSolver  [SUNNonlinsol_Newton]
+    attaches a non-default SUNNonlinearSolver object to be used in
+    solving for implicit stage solutions.
 
- ARKStepSetNonlinearSolver  [SUNNonlinsol_Newton]
- attaches a non-default SUNNonlinearSolver object to be used in
- solving for implicit stage solutions.
 
- ARKStepSetErrHandlerFn  [internal]
- user-provided ErrHandler function.
+  ARKStepSetErrHandlerFn  [internal]
+    user-provided ErrHandler function.
 
- ARKStepSetErrFile   [stderr]
- the file pointer for an error file where all ARKStep warning
- and error messages will be written if the default internal
- error handling function is used. This parameter can be stdout
- (standard output), stderr (standard error), or a file pointer
- (corresponding to a user error file opened for writing)
- returned by fopen.  If not called, then all messages will
- be written to stderr.
+  ARKStepSetErrFile   [stderr]
+    the file pointer for an error file where all ARKStep warning
+    and error messages will be written if the default internal
+    error handling function is used. This parameter can be stdout
+    (standard output), stderr (standard error), or a file pointer
+    (corresponding to a user error file opened for writing)
+    returned by fopen.  If not called, then all messages will
+    be written to stderr.
 
- ARKStepSetUserData  [NULL]
- a pointer to user data that will be passed to the user's fi
- and fe functions every time they are called.
+  ARKStepSetUserData  [NULL]
+    a pointer to user data that will be passed to the user's fi
+    and fe functions every time they are called.
 
- ARKStepSetDiagnostics  [NULL]
- the file pointer for a diagnostics file where all ARKStep
- adaptivity and solver information is written.  This parameter
- can be stdout or stderr, though the preferred approach is to
- specify a file pointer corresponding to a user diagnostics file
- opened for writing) returned by fopen.  If not called, or if
- called with a NULL file pointer, all diagnostics output is
- disabled.
- NOTE: when run in parallel, only one process should set a
- non-NULL value for this pointer, since statistics from all
- processes would be identical.
+  ARKStepSetDiagnostics  [NULL]
+    the file pointer for a diagnostics file where all ARKStep
+    adaptivity and solver information is written.  This parameter
+    can be stdout or stderr, though the preferred approach is to
+    specify a file pointer corresponding to a user diagnostics file
+    opened for writing) returned by fopen.  If not called, or if
+    called with a NULL file pointer, all diagnostics output is
+    disabled.
+    NOTE: when run in parallel, only one process should set a
+    non-NULL value for this pointer, since statistics from all
+    processes would be identical.
 
- ARKStepSetLinear  [SUNFALSE]
- specifies that the implicit portion of the problem is linear,
- and to tighten the linear solver tolerances while taking only
- one Newton iteration.
+  ARKStepSetLinear  [SUNFALSE]
+    specifies that the implicit portion of the problem is linear,
+    and to tighten the linear solver tolerances while taking only
+    one Newton iteration.
 
- ARKStepSetNonlinear  [SUNTRUE]
- specifies that the implicit portion of the problem is nonlinear.
- Used to undo a previous call to ARKStepSetLinear
+  ARKStepSetNonlinear  [SUNTRUE]
+    specifies that the implicit portion of the problem is nonlinear.
+    Used to undo a previous call to ARKStepSetLinear
 
- ARKStepSetExplicit   [SUNFALSE]
- specifies that implicit portion of problem is disabled, and
- to use an explicit RK method.
+  ARKStepSetExplicit   [SUNFALSE]
+    specifies that implicit portion of problem is disabled, and
+    to use an explicit RK method.
 
- ARKStepSetImplicit   [SUNFALSE]
- specifies that explicit portion of problem is disabled, and to
- use an implicit RK method.
+  ARKStepSetImplicit   [SUNFALSE]
+    specifies that explicit portion of problem is disabled, and to
+    use an implicit RK method.
 
- ARKStepSetImEx   [SUNTRUE]
- specifies that problem has both implicit and explicit parts,
- and to use an ARK method.
+  ARKStepSetImEx   [SUNTRUE]
+    specifies that problem has both implicit and explicit parts,
+    and to use an ARK method.
 
- ARKStepSetARKTables  [determined by ARKode based on order]
- specifies to use customized Butcher tables for the IMEX system.
+  ARKStepSetARKTables  [determined by ARKode based on order]
+    specifies to use customized Butcher tables for the IMEX system.
 
- ARKStepSetARKTableNum  [determined by ARKode based on order]
- specifies to use a built-in Butcher tables for the ImEx system.
- The integer arguments should match existing methods in
- ARKodeLoadButcherTable_ERK() and ARKodeLoadButcherTable_DIRK().
- Error-checking is performed to ensure that the tables exist.
+  ARKStepSetARKTableNum  [determined by ARKode based on order]
+    specifies to use a built-in Butcher tables for the ImEx system.
+    The integer arguments should match existing methods in
+    ARKodeLoadButcherTable_ERK() and ARKodeLoadButcherTable_DIRK().
+    Error-checking is performed to ensure that the tables exist.
 
- ARKStepSetMaxNumSteps  [500]
- maximum number of internal steps to be taken by the solver in
- its attempt to reach tout.
+  ARKStepSetMaxNumSteps  [500]
+    maximum number of internal steps to be taken by the solver in
+    its attempt to reach tout.
 
- ARKStepSetMaxHnilWarns  [10]
- maximum number of warning messages issued by the solver that
- t+h==t on the next internal step. A value of -1 means no such
- messages are issued.
+  ARKStepSetMaxHnilWarns  [10]
+    maximum number of warning messages issued by the solver that
+    t+h==t on the next internal step. A value of -1 means no such
+    messages are issued.
 
- ARKStepSetInitStep  [estimated internally]
- initial step size.
+  ARKStepSetInitStep  [estimated internally]
+    initial step size.
 
- ARKStepSetMinStep  [0.0]
- minimum absolute value of step size allowed.
+  ARKStepSetMinStep  [0.0]
+    minimum absolute value of step size allowed.
 
- ARKStepSetMaxStep  [infinity]
- maximum absolute value of step size allowed.
+  ARKStepSetMaxStep  [infinity]
+    maximum absolute value of step size allowed.
 
- ARKStepSetStopTime  [infinity]
- the independent variable value past which the solution is
- not to proceed.
+  ARKStepSetStopTime  [infinity]
+    the independent variable value past which the solution is
+    not to proceed.
 
- ARKStepSetFixedStep  [off]
- specifies to use a fixed step size throughout integration
+  ARKStepSetFixedStep  [off]
+    specifies to use a fixed step size throughout integration
 
- ARKStepSetCFLFraction  [0.5]
- safety factor to use for explicitly stable steps
+  ARKStepSetCFLFraction  [0.5]
+    safety factor to use for explicitly stable steps
 
- ARKStepSetSafetyFactor  [0.96]
- safety factor to use for error-based step adaptivity
+  ARKStepSetSafetyFactor  [0.96]
+    safety factor to use for error-based step adaptivity
 
- ARKStepSetErrorBias  [1.5]
- error bias factor to use in error-based step adaptivity
+  ARKStepSetErrorBias  [1.5]
+    error bias factor to use in error-based step adaptivity
 
- ARKStepSetMaxGrowth  [20.0]
- maximum growth factor for successive time steps (not
- including the first step).
+  ARKStepSetMaxGrowth  [20.0]
+    maximum growth factor for successive time steps (not
+    including the first step).
 
- ARKStepSetMaxFirstGrowth  [10000.0]
- maximum growth factor for first step.
+  ARKStepSetMaxFirstGrowth  [10000.0]
+    maximum growth factor for first step.
 
- ARKStepSetMaxEFailGrowth  [0.3]
- maximum growth factor after an error failure.
+  ARKStepSetMaxEFailGrowth  [0.3]
+    maximum growth factor after an error failure.
 
- ARKStepSetSmallNumEFails  [2]
- maximum number of error failures before MaxFailGrowth factor
- is used.
+  ARKStepSetSmallNumEFails  [2]
+    maximum number of error failures before MaxFailGrowth factor
+    is used.
 
- ARKStepSetMaxCFailGrowth  [0.25]
- maximum growth factor after a convergence failure.
+  ARKStepSetMaxCFailGrowth  [0.25]
+    maximum growth factor after a convergence failure.
 
- ARKStepSetFixedStepBounds  [1.0 1.5]
- step growth interval to force retention of the same step size
+  ARKStepSetFixedStepBounds  [1.0 1.5]
+    step growth interval to force retention of the same step size
 
- ARKStepSetAdaptivityMethod  [0]
- Method to use for time step adaptivity
+  ARKStepSetAdaptivityMethod  [0]
+    Method to use for time step adaptivity
 
- ARKStepSetAdaptivityFn  [internal]
- user-provided time step adaptivity function.
+  ARKStepSetAdaptivityFn  [internal]
+    user-provided time step adaptivity function.
 
- ARKStepSetNonlinCRDown  [0.3]
- user-provided nonlinear convergence rate constant.
+  ARKStepSetNonlinCRDown  [0.3]
+    user-provided nonlinear convergence rate constant.
 
- ARKStepSetNonlinRDiv  [2.3]
- user-provided nonlinear divergence ratio.
+  ARKStepSetNonlinRDiv  [2.3]
+    user-provided nonlinear divergence ratio.
 
- ARKStepSetDeltaGammaMax  [0.2]
- user-provided linear setup decision constant.
+  ARKStepSetDeltaGammaMax  [0.2]
+    user-provided linear setup decision constant.
 
- ARKStepSetMaxStepsBetweenLSet  [20]
- user-provided linear setup decision constant.
+  ARKStepSetMaxStepsBetweenLSet  [20]
+    user-provided linear setup decision constant.
 
- ARKStepSetPredictorMethod  [0]
- Method to use for predicting implicit solutions.
+  ARKStepSetPredictorMethod  [0]
+    Method to use for predicting implicit solutions.
 
- ARKStepSetStabilityFn  [internal]
- user-provided explicit time step stability function.
+  ARKStepSetStabilityFn  [internal]
+    user-provided explicit time step stability function.
 
- ARKStepSetMaxErrTestFails  [7]
- Maximum number of error test failures in attempting one step.
+  ARKStepSetMaxErrTestFails  [7]
+    Maximum number of error test failures in attempting one step.
 
- ARKStepSetMaxNonlinIters  [3]
- Maximum number of nonlinear solver iterations at one stage solution.
+  ARKStepSetMaxNonlinIters  [3]
+    Maximum number of nonlinear solver iterations at one stage solution.
 
- ARKStepSetMaxConvFails  [10]
- Maximum number of convergence failures allowed in attempting one step.
+  ARKStepSetMaxConvFails  [10]
+    Maximum number of convergence failures allowed in attempting one step.
+ 
+  ARKStepSetNonlinConvCoef  [0.1]
+    Coefficient in the nonlinear convergence test.
 
- ARKStepSetNonlinConvCoef  [0.1]
- Coefficient in the nonlinear convergence test.
+  ARKStepSetRootDirection  [both directions]
+    Specifies the direction of zero crossings to be monitored
 
- ARKStepSetRootDirection  [both directions]
- Specifies the direction of zero crossings to be monitored
-
- ARKStepSetNoInactiveRootWarn  [enabled]
- disable warning about possible g==0 at beginning of integration
------------------------------------------------------------------
- Return flag:
-   ARK_SUCCESS   if successful
-   ARK_MEM_NULL  if the arkode memory is NULL
-   ARK_ILL_INPUT if an argument has an illegal value
----------------------------------------------------------------*/
+  ARKStepSetNoInactiveRootWarn  [enabled]
+    disable warning about possible g==0 at beginning of integration
+  -----------------------------------------------------------------
+  Return flag:
+  ARK_SUCCESS   if successful
+  ARK_MEM_NULL  if the arkode memory is NULL
+  ARK_ILL_INPUT if an argument has an illegal value
+  ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKStepSetDefaults(void* arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetOptimalParams(void *arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetOrder(void *arkode_mem, int maxord);
@@ -575,6 +613,91 @@ SUNDIALS_EXPORT int ARKStepSetDiagnostics(void *arkode_mem,
 SUNDIALS_EXPORT int ARKStepSetPostprocessStepFn(void *arkode_mem,
                                                 ARKPostProcessStepFn ProcessStep);
 
+/*---------------------------------------------------------------
+  ARKStep linear solver interface optional input specification 
+  functions -- ALL of these must be called AFTER 
+  ARKStepSetLinearSolver and/or ARKStepSetMassLinearSolver.  
+
+  ARKStepSetJacFn specifies the Jacobian approximation routine to
+    be used when constructing J.  By default, a difference 
+    quotient approximation is used for dense/band SUNMatrix 
+    objects; for all other matrix types passed to 
+    ARKStepSetLinearSolver, this routine must be user-supplied).  
+    See "arkode/arkode_ls.h" for a complete description of the 
+    function prototype.
+
+  ARKStepSetMassFn specifies the mass matrix approximation routine 
+    to be used for constructing M.  This MUST be supplied if the 
+    SUNMatrix M supplied to ARKStepSetMassLinearSolver was 
+    non-NULL; otherwise it defaults to NULL.  See 
+    "arkode/arkode_ls.h" for a complete description of the 
+    function prototype.
+
+  ARKStepSetMaxStepsBetweenJac specifies the maximum number of time
+    steps to wait before recomputation of the Jacobian or 
+    recommendation to update the preconditioner.  This differs from 
+    the ARKStepSetMaxStepsBetweenLSet, which merely indicates the 
+    frequency with which the linear solver setup routine is called.  
+    Default value is 50.
+
+  ARKStepSetEpsLin specifies the factor by which the tolerance on
+    the nonlinear iteration is multiplied to get a tolerance on 
+    the linear iteration.  Default value is 0.05.
+
+  ARKStepSetMassEpsLin specifies the factor by which the tolerance
+    on the nonlinear iteration is multiplied to get a tolerance 
+    on the mass matrix linear iteration.  Default value is 0.05.
+
+  ARKStepSetPreconditioner specifies the PrecSetup and PrecSolve 
+    functions.  Default is NULL for both arguments (no 
+    preconditioning).  See "arkode/arkode_ls.h" for a complete 
+    description of the function prototype.
+
+  ARKStepSetMassPreconditioner specifies the mass matrix MPrecSetup
+    and MPrecSolve functions.  Default is NULL for both arguments
+    (no preconditioning).  See "arkode/arkode_ls.h" for a complete 
+    description of the function prototype.
+
+  ARKStepSetJacTimes specifies the jtsetup and jtimes functions. 
+    Default is to use an internal finite difference approximation
+    routine (no setup).  See "arkode/arkode_ls.h" for a complete 
+    description of the function prototype.
+
+  ARKStepSetMassTimes specifies the mtsetup and mtimes functions. 
+    Note that there do not exist built-in finite-difference 
+    approximation routines for this.  Hence, either 
+    ARKStepSetMassLinearSolver must have been called with non-NULL 
+    SUNMatrix M, or this function MUST be called with non-NULL 
+    'mtimes'.  See "arkode/arkode_ls.h" for a complete 
+    description of the function prototype.
+
+ The return value of ARKStepSet* is one of:
+    ARKLS_SUCCESS      if successful
+    ARKLS_MEM_NULL     if the arkode memory was NULL
+    ARKLS_LMEM_NULL    if the linear solver memory was NULL
+    ARKLS_MASSMEM_NULL if the mass matrix solver memory was NULL
+    ARKLS_ILL_INPUT    if an input has an illegal value
+---------------------------------------------------------------*/
+SUNDIALS_EXPORT int ARKStepSetJacFn(void *arkode_mem, ARKLsJacFn jac);
+SUNDIALS_EXPORT int ARKStepSetMassFn(void *arkode_mem, ARKLsMassFn mass);
+SUNDIALS_EXPORT int ARKStepSetMaxStepsBetweenJac(void *arkode_mem,
+                                                 long int msbj);
+SUNDIALS_EXPORT int ARKStepSetEpsLin(void *arkode_mem, realtype eplifac);
+SUNDIALS_EXPORT int ARKStepSetMassEpsLin(void *arkode_mem, realtype eplifac);
+SUNDIALS_EXPORT int ARKStepSetPreconditioner(void *arkode_mem, 
+                                             ARKLsPrecSetupFn psetup,
+                                             ARKLsPrecSolveFn psolve);
+SUNDIALS_EXPORT int ARKStepSetMassPreconditioner(void *arkode_mem, 
+                                                 ARKLsMassPrecSetupFn psetup,
+                                                 ARKLsMassPrecSolveFn psolve);
+SUNDIALS_EXPORT int ARKStepSetJacTimes(void *arkode_mem, 
+                                       ARKLsJacTimesSetupFn jtsetup,
+                                       ARKLsJacTimesVecFn jtimes);
+SUNDIALS_EXPORT int ARKStepSetMassTimes(void *arkode_mem, 
+                                        ARKLsMassTimesSetupFn msetup,
+                                        ARKLsMassTimesVecFn mtimes,
+                                        void *mtimes_data);
+  
 
 /*---------------------------------------------------------------
   ARKStepEvolve
@@ -727,66 +850,63 @@ SUNDIALS_EXPORT int ARKStepGetDky(void *arkode_mem, realtype t,
   related to the main integrator.
 
   ARKStepGetNumExpSteps returns the cumulative number of stability
-                        limited steps taken by the solver
+    limited steps taken by the solver
 
   ARKStepGetNumAccSteps returns the cumulative number of accuracy
-                        limited steps taken by the solver
+    limited steps taken by the solver
 
   ARKStepGetNumStepAttempts returns the total number of steps
-                            attempted by the solver
+    attempted by the solver
 
   ARKStepGetNumRhsEvals returns the number of calls to the user's
-                        fe and fi functions
+    fe and fi functions
 
   ARKStepGetNumLinSolvSetups returns the number of calls made to
-                             the linear solver's setup routine
+    the linear solver's setup routine
 
   ARKStepGetNumErrTestFails returns the number of local error test
-                            failures that have occured
+    failures that have occured
 
   ARKStepGetCurrentButcherTables returns the explicit and implicit
-                                 Butcher tables currently in use
+    Butcher tables currently in use
 
   ARKStepGetEstLocalErrors returns the vector of estimated local
-                           errors. The user must allocate space
-                           for ele.
+    errors. The user must allocate space for ele.
 
   ARKStepGetNumSteps returns the cumulative number of internal
-                     steps taken by the solver
+    steps taken by the solver
 
   ARKStepGetActualInitStep returns the actual initial step size
-                           used by ARKStep
+    used by ARKStep
 
   ARKStepGetLastStep returns the step size for the last internal
-                     step
+    step
 
   ARKStepGetCurrentStep returns the step size to be attempted on
-                        the next internal step
+    the next internal step
 
   ARKStepGetCurrentTime returns the current internal time reached
-                        by the solver
+    by the solver
 
   ARKStepGetTolScaleFactor returns a suggested factor by which the
-                           user's tolerances should be scaled when
-                           too much accuracy has been requested for
-                           some internal step
+    user's tolerances should be scaled when too much accuracy has 
+    been requested for some internal step
 
   ARKStepGetErrWeights returns the current error weight vector.
-                       The user must allocate space for eweight.
+    The user must allocate space for eweight.
 
   ARKStepGetResWeights returns the current residual weight vector.
-                       The user must allocate space for rweight.
+    The user must allocate space for rweight.
 
   ARKStepGetWorkSpace returns the ARKStep real and integer workspaces
 
   ARKStepGetNumGEvals returns the number of calls to the user's
-                      g function (for rootfinding)
+    g function (for rootfinding)
 
   ARKStepGetRootInfo returns the indices for which g_i was found to
-                     have a root. The user must allocate space for
-                     rootsfound. For i = 0 ... nrtfn-1,
-                     rootsfound[i] = 1 if g_i has a root, and = 0
-                     if not.
+    have a root. The user must allocate space for rootsfound. For 
+    i = 0 ... nrtfn-1, rootsfound[i] = 1 if g_i has a root, 
+    and = 0  if not.
 
   The return value of ARKStepGet* is one of:
      ARK_SUCCESS   if successful
@@ -838,9 +958,9 @@ SUNDIALS_EXPORT int ARKStepGetRootInfo(void *arkode_mem,
                                        int *rootsfound);
 
 /*---------------------------------------------------------------
- As a convenience, the following functions provides the
- optional outputs in grouped form.
----------------------------------------------------------------*/
+  As a convenience, the following functions provides many of the
+  above optional outputs in grouped form.
+  ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKStepGetTimestepperStats(void *arkode_mem,
                                                long int *expsteps,
                                                long int *accsteps,
@@ -863,10 +983,10 @@ SUNDIALS_EXPORT int ARKStepGetStepStats(void *arkode_mem,
  and statistics related to the nonlinear solver.
 -----------------------------------------------------------------
  ARKStepGetNumNonlinSolvIters returns the number of nonlinear
-                             solver iterations performed.
+   solver iterations performed.
 
  ARKStepGetNumNonlinSolvConvFails returns the number of nonlinear
-                                 convergence failures.
+   convergence failures.
 ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKStepGetNumNonlinSolvIters(void *arkode_mem,
                                                 long int *nniters);
@@ -881,6 +1001,126 @@ SUNDIALS_EXPORT int ARKStepGetNonlinSolvStats(void *arkode_mem,
                                              long int *nniters,
                                              long int *nncfails);
 
+/*---------------------------------------------------------------
+ Linear solver optional output extraction functions
+-----------------------------------------------------------------
+ The following functions can be called to get optional outputs
+ and statistics related to the linear solvers.
+-----------------------------------------------------------------
+ ARKStepGetLinWorkSpace returns the real and integer workspace 
+   used by the ARKLs interface.
+
+ ARKStepGetNumJacEvals returns the number of calls made to the
+   Jacobian evaluation routine jac.
+
+ ARKStepGetNumPrecEvals returns the number of preconditioner
+   evaluations, i.e. the number of calls made
+   to PrecSetup with jok==SUNFALSE.
+
+ ARKStepGetNumPrecSolves returns the number of calls made to
+   PrecSolve.
+
+ ARKStepGetNumLinIters returns the number of linear iterations.
+
+ ARKStepGetNumLinConvFails returns the number of linear
+   convergence failures.
+
+ ARKStepGetNumJTSetupEvals returns the number of calls to jtsetup.
+ 
+ ARKStepGetNumJtimesEvals returns the number of calls to jtimes.
+
+ ARKStepGetNumLinRhsEvals returns the number of calls to the user
+   f routine due to perform finite difference Jacobian times 
+   vector evaluations or Jacobian matrix approximations.
+
+ ARKStepGetLastLinFlag returns the last error flag set by any of
+   the ARKLS interface functions.
+
+ ARKStepGetMassWorkSpace returns the real and integer workspace used
+   by the mass matrix ARKLs interface.
+
+ ARKStepGetNumMassSetups returns the number of calls made to the
+   mass matrix solver setup routine
+
+ ARKStepGetNumMassMult returns the number of calls to either the 
+   internal or user-supplied mtimes routine.
+
+ ARKStepGetNumMassSolves returns the number of calls made to the
+   mass matrix solver 'solve' routine
+
+ ARKStepGetNumMassPrecEvals returns the number of mass matrix 
+   preconditioner evaluations, i.e. the number of calls made to 
+   MPrecSetup.
+
+ ARKStepGetNumMassPrecSolves returns the number of calls made to
+   MPrecSolve.
+
+ ARKStepGetNumMassIters returns the number of mass matrix solver
+   iterations.
+
+ ARKStepGetNumMassConvFails returns the number of mass matrix solver
+   convergence failures.
+
+ ARKStepGetNumMTSetups returns the number of calls to mtsetup.
+
+ ARKStepGetLastMassFlag returns the last error flag set by any of
+   the ARKLs interface functions on the mass matrix solve.
+
+ ARKStepGetLinReturnFlagName returns the name of the constant 
+   associated with a ARKLS return flag.
+
+ The return value of the above routines is one of:
+    ARKLS_SUCCESS   if successful
+    ARKLS_MEM_NULL  if the arkode memory was NULL
+    ARKLS_LMEM_NULL if the linear solver memory was NULL
+---------------------------------------------------------------*/
+SUNDIALS_EXPORT int ARKStepGetLinWorkSpace(void *arkode_mem, 
+                                           long int *lenrwLS, 
+                                           long int *leniwLS);
+SUNDIALS_EXPORT int ARKStepGetNumJacEvals(void *arkode_mem, 
+                                          long int *njevals);
+SUNDIALS_EXPORT int ARKStepGetNumPrecEvals(void *arkode_mem, 
+                                           long int *npevals);
+SUNDIALS_EXPORT int ARKStepGetNumPrecSolves(void *arkode_mem, 
+                                            long int *npsolves);
+SUNDIALS_EXPORT int ARKStepGetNumLinIters(void *arkode_mem, 
+                                          long int *nliters);
+SUNDIALS_EXPORT int ARKStepGetNumLinConvFails(void *arkode_mem, 
+                                              long int *nlcfails);
+SUNDIALS_EXPORT int ARKStepGetNumJTSetupEvals(void *arkode_mem,
+                                              long int *njtsetups);
+SUNDIALS_EXPORT int ARKStepGetNumJtimesEvals(void *arkode_mem, 
+                                             long int *njvevals);
+SUNDIALS_EXPORT int ARKStepGetNumLinRhsEvals(void *arkode_mem, 
+                                             long int *nfevalsLS); 
+SUNDIALS_EXPORT int ARKStepGetLastLinFlag(void *arkode_mem, 
+                                          long int *flag);
+
+SUNDIALS_EXPORT int ARKStepGetMassWorkSpace(void *arkode_mem, 
+                                            long int *lenrwMLS, 
+                                            long int *leniwMLS);
+SUNDIALS_EXPORT int ARKStepGetNumMassSetups(void *arkode_mem, 
+                                            long int *nmsetups);
+SUNDIALS_EXPORT int ARKStepGetNumMassMult(void *arkode_mem, 
+                                          long int *nmvevals);
+SUNDIALS_EXPORT int ARKStepGetNumMassSolves(void *arkode_mem, 
+                                            long int *nmsolves);
+SUNDIALS_EXPORT int ARKStepGetNumMassPrecEvals(void *arkode_mem, 
+                                               long int *nmpevals);
+SUNDIALS_EXPORT int ARKStepGetNumMassPrecSolves(void *arkode_mem, 
+                                                long int *nmpsolves);
+SUNDIALS_EXPORT int ARKStepGetNumMassIters(void *arkode_mem, 
+                                           long int *nmiters);
+SUNDIALS_EXPORT int ARKStepGetNumMassConvFails(void *arkode_mem, 
+                                               long int *nmcfails);
+SUNDIALS_EXPORT int ARKStepGetNumMTSetups(void *arkode_mem,
+                                          long int *nmtsetups);
+SUNDIALS_EXPORT int ARKStepGetLastMassFlag(void *arkode_mem, 
+                                           long int *flag);
+
+SUNDIALS_EXPORT char *ARKStepGetLinReturnFlagName(long int flag);
+  
+  
 /*---------------------------------------------------------------
  The following function returns the name of the constant
  associated with a ARKStep return flag

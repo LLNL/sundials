@@ -42,7 +42,7 @@
  * neq = 2*MX*MY.
  *
  * The solution is done with the DIRK/GMRES method (i.e. using the
- * SUNSPGMR linear solver) and the block-diagonal part of the
+ * SUNLinSol_SPGMR linear solver) and the block-diagonal part of the
  * Newton matrix as a left preconditioner. A copy of the
  * block-diagonal part of the Jacobian is saved and conditionally
  * reused within the preconditioner routine.
@@ -64,7 +64,6 @@
 #include <nvector/nvector_parhyp.h>    /* declaration of N_Vector  */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver  */
 #include <sundials/sundials_dense.h>   /* prototypes for small dense fcts. */
-#include <arkode/arkode_spils.h>       /* access to ARKSpils interface     */
 #include <sundials/sundials_types.h>   /* definitions of realtype, booleantype */
 #include <sundials/sundials_math.h>    /* definition of macros SUNSQR and EXP */
 #include <mpi.h>                       /* MPI constants and types */
@@ -242,8 +241,8 @@ int main(int argc, char *argv[])
 
   /* Create SPGMR solver structure -- use left preconditioning
      and the default Krylov dimension maxl */
-  LS = SUNSPGMR(u, PREC_LEFT, 0);
-  if (check_flag((void *)LS, "SUNSPGMR", 0, my_pe)) MPI_Abort(comm, 1);
+  LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0);
+  if (check_flag((void *)LS, "SUNLinSol_SPGMR", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Call ARKStepCreate to initialize the integrator memory and specify the
      user's right hand side function in u'=fi(t,u) [here fe is NULL],
@@ -264,14 +263,14 @@ int main(int argc, char *argv[])
   flag = ARKStepSStolerances(arkode_mem, reltol, abstol);
   if (check_flag(&flag, "ARKStepSStolerances", 1, my_pe)) return(1);
 
-  /* Attach SPGMR solver structure to ARKSpils interface */
-  flag = ARKSpilsSetLinearSolver(arkode_mem, LS);
-  if (check_flag(&flag, "ARKSpilsSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
+  /* Attach SPGMR solver structure to ARKStep interface */
+  flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);
+  if (check_flag(&flag, "ARKStepSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Set preconditioner setup and solve routines Precond and PSolve,
      and the pointer to the user-defined block data */
-  flag = ARKSpilsSetPreconditioner(arkode_mem, Precond, PSolve);
-  if (check_flag(&flag, "ARKSpilsSetPreconditioner", 1, my_pe)) MPI_Abort(comm, 1);
+  flag = ARKStepSetPreconditioner(arkode_mem, Precond, PSolve);
+  if (check_flag(&flag, "ARKStepSetPreconditioner", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Print heading */
   if (my_pe == 0)
@@ -480,18 +479,18 @@ static void PrintFinalStats(void *arkode_mem)
   flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
   check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1, 0);
 
-  flag = ARKSpilsGetWorkSpace(arkode_mem, &lenrwLS, &leniwLS);
-  check_flag(&flag, "ARKSpilsGetWorkSpace", 1, 0);
-  flag = ARKSpilsGetNumLinIters(arkode_mem, &nli);
-  check_flag(&flag, "ARKSpilsGetNumLinIters", 1, 0);
-  flag = ARKSpilsGetNumPrecEvals(arkode_mem, &npe);
-  check_flag(&flag, "ARKSpilsGetNumPrecEvals", 1, 0);
-  flag = ARKSpilsGetNumPrecSolves(arkode_mem, &nps);
-  check_flag(&flag, "ARKSpilsGetNumPrecSolves", 1, 0);
-  flag = ARKSpilsGetNumConvFails(arkode_mem, &ncfl);
-  check_flag(&flag, "ARKSpilsGetNumConvFails", 1, 0);
-  flag = ARKSpilsGetNumRhsEvals(arkode_mem, &nfeLS);
-  check_flag(&flag, "ARKSpilsGetNumRhsEvals", 1, 0);
+  flag = ARKStepGetLinWorkSpace(arkode_mem, &lenrwLS, &leniwLS);
+  check_flag(&flag, "ARKStepGetLinWorkSpace", 1, 0);
+  flag = ARKStepGetNumLinIters(arkode_mem, &nli);
+  check_flag(&flag, "ARKStepGetNumLinIters", 1, 0);
+  flag = ARKStepGetNumPrecEvals(arkode_mem, &npe);
+  check_flag(&flag, "ARKStepGetNumPrecEvals", 1, 0);
+  flag = ARKStepGetNumPrecSolves(arkode_mem, &nps);
+  check_flag(&flag, "ARKStepGetNumPrecSolves", 1, 0);
+  flag = ARKStepGetNumLinConvFails(arkode_mem, &ncfl);
+  check_flag(&flag, "ARKStepGetNumLinConvFails", 1, 0);
+  flag = ARKStepGetNumLinRhsEvals(arkode_mem, &nfeLS);
+  check_flag(&flag, "ARKStepGetNumLinRhsEvals", 1, 0);
 
   printf("\nFinal Statistics: \n\n");
   printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw, leniw);

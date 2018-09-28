@@ -5,7 +5,7 @@
  * Example program for IDAS: Food web problem, OpenMP, GMRES, 
  * user-supplied preconditioner
  *
- * This example program uses SUNSPGMR as the linear 
+ * This example program uses SUNLinSol_SPGMR as the linear 
  * solver, and IDACalcIC for initial condition calculation.
  *
  * The mathematical problem solved in this example is a DAE system
@@ -59,7 +59,7 @@
  * The PDEs are discretized by central differencing on a MX by MY
  * mesh.
  *
- * The DAE system is solved by IDAS using the SUNSPGMR linear solver.
+ * The DAE system is solved by IDAS using the SUNLinSol_SPGMR linear solver.
  * Output is printed at t = 0, .001, .01, .1, .4, .7, 1.
  *
  * Optionally, we can set the number of threads from environment 
@@ -275,12 +275,12 @@ int main(int argc, char *argv[])
 
   webdata->ida_mem = ida_mem;
 
-  /* Create SUNSPGMR linear solver, attach to IDA, and set 
+  /* Create SUNLinSol_SPGMR linear solver, attach to IDA, and set 
      preconditioning routines. */
 
-  maxl = 16;                               /* max dimension of the Krylov subspace */
-  LS = SUNSPGMR(cc, PREC_LEFT, maxl);      /* IDA only allows left preconditioning */
-  if(check_retval((void *)LS, "SUNSPGMR", 0)) return(1);
+  maxl = 16;                                      /* max dimension of the Krylov subspace */
+  LS = SUNLinSol_SPGMR(cc, PREC_LEFT, maxl);      /* IDA only allows left preconditioning */
+  if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
   retval = IDASpilsSetLinearSolver(ida_mem, LS);
   if(check_retval(&retval, "IDASpilsSetLinearSolver", 1)) return(1);
@@ -621,7 +621,7 @@ static void PrintHeader(sunindextype maxl, realtype rtol, realtype atol)
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
-  printf("Linear solver: SUNSPGMR, maxl = %ld\n",(long int) maxl);
+  printf("Linear solver: SUNLinSol_SPGMR, maxl = %ld\n",(long int) maxl);
   printf("CalcIC called to correct initial predator concentrations.\n\n");
   printf("-----------------------------------------------------------\n");
   printf("  t        bottom-left  top-right");

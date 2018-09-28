@@ -28,8 +28,7 @@
 #include "farkode.h"
 #include "arkode_impl.h"
 #include <sundials/sundials_matrix.h>
-#include <arkode/arkode_direct.h>
-#include <arkode/arkode_spils.h>
+#include <arkode/arkode_ls.h>
 #include <arkode/arkode_arkstep.h>
 
 /*=============================================================*/
@@ -108,8 +107,8 @@ void FARK_MALLOC(realtype *t0, realtype *y0, int *imex,
 
   /* initialize global constants to disable each option */
   ARK_nrtfn = 0;
-  ARK_ls = -1;
-  ARK_mass_ls = -1;
+  ARK_ls = SUNFALSE;
+  ARK_mass_ls = SUNFALSE;
 
   /* Set data in F2C_ARKODE_vec to y0 */
   N_VSetArrayPointer(y0, F2C_ARKODE_vec);
@@ -560,83 +559,82 @@ void FARK_NLSINIT(int *ier) {
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKDlsSetLinearSolver; see
+/* ---DEPRECATED---
+   Fortran interface to C routine ARKStepSetLinearSolver; see
    farkode.h for further details */
-void FARK_DLSINIT(int *ier) {
-  if ( (ARK_arkodemem == NULL) || (F2C_ARKODE_linsol == NULL) ||
-       (F2C_ARKODE_matrix == NULL) ) {
-    *ier = -1;
-    return;
-  }
-  *ier = ARKDlsSetLinearSolver(ARK_arkodemem, F2C_ARKODE_linsol,
-                               F2C_ARKODE_matrix);
-  ARK_ls = ARK_LS_DIRECT;
-  return;
-}
+void FARK_DLSINIT(int *ier)
+{ FARK_LSINIT(ier); }
 
-/* Fortran interface to C routine ARKDlsSetMassLinearSolver; see
+/* ---DEPRECATED---
+   Fortran interface to C routine ARKStepSetMassLinearSolver; see
    farkode.h for further details */
-void FARK_DLSMASSINIT(int *time_dep, int *ier) {
-  if ( (ARK_arkodemem == NULL) || (F2C_ARKODE_mass_sol == NULL) ||
-       (F2C_ARKODE_mass_matrix == NULL) ) {
-    *ier = -1;
-    return;
-  }
-  *ier = ARKDlsSetMassLinearSolver(ARK_arkodemem, F2C_ARKODE_mass_sol,
-                                   F2C_ARKODE_mass_matrix, *time_dep);
-  ARK_mass_ls = ARK_LS_DIRECT;
-  return;
-}
+void FARK_DLSMASSINIT(int *time_dep, int *ier)
+{ FARK_LSMASSINIT(time_dep, ier); }
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKSpilsSetLinearSolver; see
+/* ---DEPRECATED---
+   Fortran interface to C routine ARKStepSetLinearSolver; see
    farkode.h for further details */
-void FARK_SPILSINIT(int *ier) {
+void FARK_SPILSINIT(int *ier)
+{ FARK_LSINIT(ier); }
+
+/* ---DEPRECATED---
+   Fortran interface to C routine ARKStepSetMassLinearSolver; see
+   farkode.h for further details */
+void FARK_SPILSMASSINIT(int *time_dep, int *ier)
+{ FARK_LSMASSINIT(time_dep, ier); }
+
+/*=============================================================*/
+
+/* ---DEPRECATED---
+   Fortran interfaces to C "set" routines for the ARKStep linear
+   solver; see farkode.h for further details */
+void FARK_SPILSSETEPSLIN(realtype *eplifac, int *ier)
+{ FARK_LSSETEPSLIN(eplifac, ier); }
+
+void FARK_SPILSSETMASSEPSLIN(realtype *eplifac, int *ier)
+{ FARK_LSSETMASSEPSLIN(eplifac, ier); }
+
+/*=============================================================*/
+
+/* Fortran interface to C routine ARKStepSetLinearSolver; see
+   farkode.h for further details */
+void FARK_LSINIT(int *ier) {
   if ( (ARK_arkodemem == NULL) || (F2C_ARKODE_linsol == NULL) ) {
     *ier = -1;
     return;
   }
-  *ier = ARKSpilsSetLinearSolver(ARK_arkodemem, F2C_ARKODE_linsol);
-  FARKNullMatrix();
-  ARK_ls = ARK_LS_ITERATIVE;
+  *ier = ARKStepSetLinearSolver(ARK_arkodemem, F2C_ARKODE_linsol,
+                                F2C_ARKODE_matrix);
+  ARK_ls = SUNTRUE;
   return;
 }
 
-/* Fortran interface to C routine ARKSpilsSetMassLinearSolver; see
+/* Fortran interface to C routine ARKStepSetMassLinearSolver; see
    farkode.h for further details */
-void FARK_SPILSMASSINIT(int *time_dep, int *ier) {
+void FARK_LSMASSINIT(int *time_dep, int *ier) {
   if ( (ARK_arkodemem == NULL) || (F2C_ARKODE_mass_sol == NULL) ) {
     *ier = -1;
     return;
   }
-  *ier = ARKSpilsSetMassLinearSolver(ARK_arkodemem,
-                                     F2C_ARKODE_mass_sol,
-                                     *time_dep);
-  FARKNullMatrix();
-  ARK_mass_ls = ARK_LS_ITERATIVE;
+  *ier = ARKStepSetMassLinearSolver(ARK_arkodemem,
+                                    F2C_ARKODE_mass_sol,
+                                    F2C_ARKODE_mass_matrix, 
+                                    *time_dep);
+  ARK_mass_ls = SUNTRUE;
   return;
 }
 
 /*=============================================================*/
 
-/* Fortran interfaces to C "set" routines for the ARKSpils solver;
-   see farkode.h for further details */
-void FARK_SPILSSETEPSLIN(realtype *eplifac, int *ier) {
-  if (ARK_ls == ARK_LS_ITERATIVE)
-    *ier = ARKSpilsSetEpsLin(ARK_arkodemem, *eplifac);
-  else
-    *ier = 1;
-  return;
-}
+/* Fortran interfaces to C "set" routines for the ARKStep linear
+   solver; see farkode.h for further details */
+void FARK_LSSETEPSLIN(realtype *eplifac, int *ier)
+{ *ier = ARKStepSetEpsLin(ARK_arkodemem, *eplifac); }
 
-void FARK_SPILSSETMASSEPSLIN(realtype *eplifac, int *ier) {
-  if (ARK_mass_ls == ARK_LS_ITERATIVE)
-    *ier = ARKSpilsSetMassEpsLin(ARK_arkodemem, *eplifac);
-  else
-    *ier = 1;
-  return;
-}
+void FARK_LSSETMASSEPSLIN(realtype *eplifac, int *ier)
+{ *ier = ARKStepSetMassEpsLin(ARK_arkodemem, *eplifac); }
 
 /*=============================================================*/
 
@@ -684,40 +682,31 @@ void FARK_ARKODE(realtype *tout, realtype *t, realtype *y,
     ARKStepGetNumGEvals(ARK_arkodemem, &ARK_iout[12]);  /* NGE */
 
   /* Attach linear solver outputs */
-  switch(ARK_ls) {
-  case ARK_LS_DIRECT:
-    ARKDlsGetWorkSpace(ARK_arkodemem, &ARK_iout[13], &ARK_iout[14]);  /* LENRWLS, LENIWLS */
-    ARKDlsGetLastFlag(ARK_arkodemem, &ARK_iout[15]);                  /* LSTF  */
-    ARKDlsGetNumRhsEvals(ARK_arkodemem, &ARK_iout[16]);               /* NFELS */
-    ARKDlsGetNumJacEvals(ARK_arkodemem, &ARK_iout[17]);               /* NJE   */
-    break;
-  case ARK_LS_ITERATIVE:
-    ARKSpilsGetWorkSpace(ARK_arkodemem, &ARK_iout[13], &ARK_iout[14]); /* LENRWLS, LENIWLS */
-    ARKSpilsGetLastFlag(ARK_arkodemem, &ARK_iout[15]);                 /* LSTF  */
-    ARKSpilsGetNumRhsEvals(ARK_arkodemem, &ARK_iout[16]);              /* NFELS */
-    ARKSpilsGetNumJtimesEvals(ARK_arkodemem, &ARK_iout[17]);           /* NJTV  */
-    ARKSpilsGetNumPrecEvals(ARK_arkodemem, &ARK_iout[18]);             /* NPE   */
-    ARKSpilsGetNumPrecSolves(ARK_arkodemem, &ARK_iout[19]);            /* NPS   */
-    ARKSpilsGetNumLinIters(ARK_arkodemem, &ARK_iout[20]);              /* NLI   */
-    ARKSpilsGetNumConvFails(ARK_arkodemem, &ARK_iout[21]);             /* NCFL  */
+  if (ARK_ls) {
+    ARKStepGetLinWorkSpace(ARK_arkodemem, &ARK_iout[13], &ARK_iout[14]); /* LENRWLS, LENIWLS */
+    ARKStepGetLastLinFlag(ARK_arkodemem,     &ARK_iout[15]);            /* LSTF  */
+    ARKStepGetNumLinRhsEvals(ARK_arkodemem,  &ARK_iout[16]);            /* NFELS */
+    ARKStepGetNumJacEvals(ARK_arkodemem,     &ARK_iout[17]);            /* NJE   */
+    ARKStepGetNumJTSetupEvals(ARK_arkodemem, &ARK_iout[18]);            /* NJTS  */
+    ARKStepGetNumJtimesEvals(ARK_arkodemem,  &ARK_iout[19]);            /* NJTV  */
+    ARKStepGetNumPrecEvals(ARK_arkodemem,    &ARK_iout[20]);            /* NPE   */
+    ARKStepGetNumPrecSolves(ARK_arkodemem,   &ARK_iout[21]);            /* NPS   */
+    ARKStepGetNumLinIters(ARK_arkodemem,     &ARK_iout[22]);            /* NLI   */
+    ARKStepGetNumLinConvFails(ARK_arkodemem, &ARK_iout[23]);            /* NCFL  */
   }
-
+  
   /* Attach mass matrix linear solver outputs */
-  switch(ARK_mass_ls) {
-  case ARK_LS_DIRECT:
-    ARKDlsGetMassWorkSpace(ARK_arkodemem, &ARK_iout[22], &ARK_iout[23]);  /* LENRWMS, LENIWMS */
-    ARKDlsGetLastMassFlag(ARK_arkodemem, &ARK_iout[24]);                  /* LSTMF */
-    ARKDlsGetNumMassSetups(ARK_arkodemem, &ARK_iout[25]);                 /* NMSETUP */
-    ARKDlsGetNumMassSolves(ARK_arkodemem, &ARK_iout[26]);                 /* NMSOLVES */
-    ARKDlsGetNumMassMult(ARK_arkodemem, &ARK_iout[27]);                   /* NMMULTS */
-    break;
-  case ARK_LS_ITERATIVE:
-    ARKSpilsGetMassWorkSpace(ARK_arkodemem, &ARK_iout[22], &ARK_iout[23]); /* LENRWMS, LENIWMS */
-    ARKSpilsGetLastMassFlag(ARK_arkodemem, &ARK_iout[24]);                 /* LSTMF */
-    ARKSpilsGetNumMassPrecEvals(ARK_arkodemem, &ARK_iout[25]);             /* NMPE  */
-    ARKSpilsGetNumMassPrecSolves(ARK_arkodemem, &ARK_iout[26]);            /* NMPS  */
-    ARKSpilsGetNumMassIters(ARK_arkodemem, &ARK_iout[27]);                 /* NMLI  */
-    ARKSpilsGetNumMassConvFails(ARK_arkodemem, &ARK_iout[28]);             /* NMCFL */
+  if(ARK_mass_ls) {
+    ARKStepGetMassWorkSpace(ARK_arkodemem, &ARK_iout[24], &ARK_iout[25]); /* LENRWMS, LENIWMS */
+    ARKStepGetLastMassFlag(ARK_arkodemem,      &ARK_iout[26]);            /* LSTMF  */
+    ARKStepGetNumMassSetups(ARK_arkodemem,     &ARK_iout[27]);            /* NMSET  */
+    ARKStepGetNumMassSolves(ARK_arkodemem,     &ARK_iout[28]);            /* NMSOL  */
+    ARKStepGetNumMTSetups(ARK_arkodemem,       &ARK_iout[29]);            /* NMTSET */
+    ARKStepGetNumMassMult(ARK_arkodemem,       &ARK_iout[30]);            /* NMMUL  */
+    ARKStepGetNumMassPrecEvals(ARK_arkodemem,  &ARK_iout[31]);            /* NMPE   */
+    ARKStepGetNumMassPrecSolves(ARK_arkodemem, &ARK_iout[32]);            /* NMPS   */
+    ARKStepGetNumMassIters(ARK_arkodemem,      &ARK_iout[33]);            /* NMLI   */
+    ARKStepGetNumMassConvFails(ARK_arkodemem,  &ARK_iout[34]);            /* NMCFL  */
   }
   return;
 }

@@ -9,20 +9,29 @@
 \section{SUNLinearSolver functions used by KINSOL}
 
 In Table \ref{t:sunlinsoluse} below, we list the linear solver
-functions in the {\sunlinsol} module used within the {\kinsol} package.
-The table also shows, for each function, which of the code modules uses
-the function.  In general, the main {\kinsol} integrator considers
-three categories of linear solvers, \emph{direct}, \emph{iterative}
-and \emph{custom}, with interfaces accessible in the {\kinsol} header
-files \id{kinsol\_direct.h} ({\kindls}), \id{kinsol\_spils.h}
-({\kinspils}) and \id{kinsol\_customls.h} ({\kincls}), respectively.
-Hence, the the table columns reference the use of {\sunlinsol}
-functions by each of these solver interfaces.
+functions in the {\sunlinsol} module used within the {\kinls}
+interface in the {\kinsol} package.  In general, {\kinls} considers two
+non-overlapping categories of linear solvers: \emph{matrix-based} and
+\emph{matrix-free}, determined based on whether the {\sunmatrix}
+object \id{J} passed to \Id{KINSetLinearSolver} was not \id{NULL}.
+
+Additionally, {\kinls} will consider a linear solver of either type as
+\emph{iterative} if it self-identifies as
+\id{SUNLINEARSOLVER\_ITERATIVE} (via the \Id{SUNLinSolGetType}
+routine).  Since both matrix-based and matrix-free linear solvers may
+be iterative, we only list {\sunlinsol} routines that are specifically
+called based on this type; these routines are \emph{in addition to} those
+listed for the other two categories.
 
 As with the {\sunmatrix} module, we emphasize that the {\kinsol} user
 does not need to know detailed usage of linear solver functions by the
 {\kinsol} code modules in order to use {\kinsol}. The information is
 presented as an implementation detail for the interested reader.
+
+The linear solver functions listed below are marked with \cm to
+indicate that they are required, or with $\dagger$ to indicate that
+they are only called if they are non-\id{NULL} in the {\sunlinsol}
+implementation that is being used.  
 
 \begin{table}[htb]
 \centering
@@ -30,31 +39,34 @@ presented as an implementation detail for the interested reader.
 \medskip
 \begin{tabular}{|r|c|c|c|} \hline
                                              & 
-\begin{sideways}{\kindls}      \end{sideways} & 
-\begin{sideways}{\kinspils}    \end{sideways} & 
-\begin{sideways}{\kincls}      \end{sideways} \\ \hline\hline
-%                                    DLS        SPILS       CLS
-\id{SUNLinSolGetType}           &    \cm    &    \cm    & $\dagger$ \\ \hline
-\id{SUNLinSolSetATimes}         &           &    \cm    & $\dagger$ \\ \hline
-\id{SUNLinSolSetPreconditioner} &           &    \cm    & $\dagger$ \\ \hline
-\id{SUNLinSolSetScalingVectors} &           &    \cm    & $\dagger$ \\ \hline
-\id{SUNLinSolInitialize}        &    \cm    &    \cm    &    \cm    \\ \hline
-\id{SUNLinSolSetup}             &    \cm    &    \cm    &    \cm    \\ \hline
-\id{SUNLinSolSolve}             &    \cm    &    \cm    &    \cm    \\ \hline
-\id{SUNLinSolNumIters}          &           &    \cm    & $\dagger$ \\ \hline
-\id{SUNLinSolResNorm}           &           &    \cm    & $\dagger$ \\ \hline
-\id{SUNLinSolResid}             &           &    \cm    & $\dagger$ \\ \hline
-\id{SUNLinSolLastFlag}          &           &           &           \\ \hline
-\id{SUNLinSolFree}              &           &           &           \\ \hline
-\id{SUNLinSolSpace}             & $\dagger$ & $\dagger$ & $\dagger$ \\ \hline
+\begin{sideways}{Matrix-Based}      \end{sideways} & 
+\begin{sideways}{Matrix-Free}       \end{sideways} & 
+\begin{sideways}{Iterative}         \end{sideways} \\ \hline\hline
+%                                 mat-based   mat-free    iterative
+\id{SUNLinSolGetType}           &    \cm    &    \cm    &           \\ \hline
+\id{SUNLinSolSetATimes}         &           &    \cm    &           \\ \hline
+\id{SUNLinSolSetPreconditioner} &           &           & $\dagger$ \\ \hline
+\id{SUNLinSolSetScalingVectors} & $\dagger$ & $\dagger$ &           \\ \hline
+\id{SUNLinSolInitialize}        &    \cm    &    \cm    &           \\ \hline
+\id{SUNLinSolSetup}             &    \cm    &    \cm    &           \\ \hline
+\id{SUNLinSolSolve}             &    \cm    &    \cm    &           \\ \hline
+$^1$\id{SUNLinSolNumIters}      &           &           & $\dagger$ \\ \hline
+$^2$\id{SUNLinSolResNorm}       &           &           & $\dagger$ \\ \hline
+$^3$\id{SUNLinSolLastFlag}      &           &           &           \\ \hline
+\id{SUNLinSolFree}              &    \cm    &    \cm    &           \\ \hline
+\id{SUNLinSolSpace}             & $\dagger$ & $\dagger$ &           \\ \hline
 \end{tabular}
 \end{table}
 
-The linear solver functions listed in Table \ref{t:sunlinsolops} with
-a $\dagger$ symbol are optionally used, in that these are only called
-if they are implemented in the {\sunlinsol} module that is being used
-(i.e.~their function pointers are non-\id{NULL}).  Also, although
-{\kinsol} does not call the \id{SUNLinSolLastFlag} or \id{SUNLinSolFree}
-routines directly, these are available for users to query linear
-solver issues and free linear solver memory directly. 
-
+\begin{itemize}
+\item[1.] \id{SUNLinSolNumIters} is only used to accumulate overall
+  iterative linear solver statistics.  If it is not implemented by
+  the {\sunlinsol} module, then {\kinls} will consider all solves as
+  requiring zero iterations.
+\item[2.] Although \id{SUNLinSolResNorm} is optional, if it is not
+  implemented by the {\sunlinsol} then {\kinls} will consider all 
+   solves a being \emph{exact}.
+\item[3.] Although {\kinls} does not call \id{SUNLinSolLastFlag}
+  directly, this routine is available for users to query linear solver
+  issues directly.
+\end{itemize}

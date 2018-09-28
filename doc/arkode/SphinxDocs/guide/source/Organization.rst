@@ -103,58 +103,50 @@ during the integration process.
 
    *ARKode organization*: Overall structure of the ARKode package.
    Modules specific to ARKode are the timesteppers, linear solver
-   interfaces and preconditioners: ARKSTEP, ERKSTEP, ARKDLS, ARKSPILS,
-   ARKBBDPRE, ARKBANDPRE; all other items correspond to generic solver
+   interfaces and preconditioners: ARKSTEP, ERKSTEP, ARKBBDPRE,
+   ARKBANDPRE; all other items correspond to generic solver 
    and auxiliary modules.  Note also that the LAPACK, KLU and
    SuperLU_MT support is through interfaces to external packages.
    Users will need to download and compile those packages independently.
 
-For solving these linear systems, ARKode presently includes two linear
-solver interfaces.  The *direct* linear solver interface, ARKDLS,
-supports SUNLINSOL implementations with type ``SUNLINSOL_DIRECT`` (see
-:ref:`SUNLinSol`).  These linear solvers utilize direct methods for
-the solution of linear systems stored using one of the SUNDIALS generic
-SUNMATRIX implementations (dense, banded or sparse; see
-:ref:`SUNMatrix`).  It is assumed that the dominant cost for such
-solvers occurs in factorization of the linear system matrix :math:`A`,
-so ARKode utilizes these solvers within its modified Newton nonlinear solve.
-The *iterative* linear solver interface, ARKSPILS, supports SUNLINSOL
-implementations with type ``SUNLINSOL_ITERATIVE`` (see
-:ref:`SUNLinSol`).  These linear solvers utilize scaled preconditioned
-iterative methods.  It is assumed that these methods are implemented
-in a "matrix-free" manner, wherein only the action of the
-matrix-vector product :math:`Av` is required.  Since ARKode can
-operate on any valid SUNLINSOL implementation of ``SUNLINSOL_DIRECT``
-or ``SUNLINSOL_ITERATIVE`` types, the set of linear solver modules
-available to ARKode will expand as new SUNLINSOL modules are developed.
+For solving these linear systems, ARKode's linear solver interface
+supports both direct and iterative linear solvers built using the
+generic SUNLINSOL API (see :ref:`SUNLinSol`).  These solvers may
+utilize a SUNMATRIX object for storing Jacobian information, or they
+may be matrix-free.  Since ARKode can operate on any valid SUNLINSOL
+implementation, the set of linear solver modules available to ARKode
+will expand as new SUNLINSOL modules are developed. 
 
-Within the ARKDLS interface, the package includes algorithms for the
-approximation of dense or banded Jacobians through difference
-quotients, but the user also has the option of supplying the Jacobian
-(or an approximation to it) directly.  This user-supplied
-routine is required when using sparse Jacobian matrices, since
-standard difference quotient approximations do not leverage the
-inherent sparsity of the problem.  Additionally, when solving problems
-with non-identity mass matrices using the ARKDLS interface, a
-user-supplied routine is required for providing the mass matrix.
+For users employing dense or banded Jacobians, ARKode includes
+algorithms for their approximation  through difference quotients,
+although the user also has the option of supplying a routine to
+compute the Jacobian (or an approximation to it) directly.  This
+user-supplied routine is required when using sparse or user-supplied
+Jacobian matrices. 
 
-Within the ARKSPILS interface, the package includes an algorithm for
-the approximation by difference quotients of the product
+For users employing iterative linear solvers, ARKode includes an
+algorithm for the approximation by difference quotients of the product
 :math:`Av`. Again, the user has the option of providing routines for
 this operation, in two phases: setup (preprocessing of Jacobian data)
-and multiplication.  When using ARKSPILS to solve problems with
-non-identity mass matrices, corresponding user-supplied routines for
-computing the product :math:`Mv` are required.  For preconditioned
-iterative methods for either the system or mass matrix solves, the
-preconditioning must be supplied by the user, again in two phases:
-setup and solve.  While there is no default choice of preconditioner
-analogous to the difference-quotient approximation in the direct case,
-the references [BH1989]_ and [B1992]_, together with the example and
-demonstration programs included with ARKode and CVODE, offer
-considerable assistance in building simple preconditioners.
+and multiplication.
 
-Each ARKode linear solver interface consists of four primary phases,
-devoted to
+When solve problems with non-identity mass matrices, corresponding
+user-supplied routines for computing either the mass matrix :math:`M`
+or the product :math:`Mv` are required.  Additionally, the type of
+linear solver module (iterative, dense-direct, band-direct,
+sparse-direct) used for both the IVP system and mass matrix must
+match. 
+
+For preconditioned iterative methods for either the system or mass
+matrix solves, the preconditioning must be supplied by the user, again
+in two phases: setup and solve.  While there is no default choice of
+preconditioner analogous to the difference-quotient approximation in
+the direct case, the references [BH1989]_ and [B1992]_, together with
+the example and demonstration programs included with ARKode and CVODE,
+offer considerable assistance in building simple preconditioners.
+
+ARKode's linear solver interface consists of four primary phases,
+devoted to 
 
 (1) memory allocation and initialization,
 (2) setup of the matrix/preconditioner data involved,

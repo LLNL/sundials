@@ -43,6 +43,23 @@
 
 /*
  * -----------------------------------------------------------------
+ * deprecated wrapper functions
+ * -----------------------------------------------------------------
+ */
+SUNLinearSolver SUNSPGMR(N_Vector y, int pretype, int maxl)
+{ return(SUNLinSol_SPGMR(y, pretype, maxl)); }
+
+int SUNSPGMRSetPrecType(SUNLinearSolver S, int pretype)
+{ return(SUNLinSol_SPGMRSetPrecType(S, pretype)); }
+
+int SUNSPGMRSetGSType(SUNLinearSolver S, int gstype)
+{ return(SUNLinSol_SPGMRSetGSType(S, gstype)); }
+
+int SUNSPGMRSetMaxRestarts(SUNLinearSolver S, int maxrs)
+{ return(SUNLinSol_SPGMRSetMaxRestarts(S, maxrs)); }
+
+/*
+ * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------
  */
@@ -51,7 +68,7 @@
  * Function to create a new SPGMR linear solver
  */
 
-SUNLinearSolver SUNSPGMR(N_Vector y, int pretype, int maxl)
+SUNLinearSolver SUNLinSol_SPGMR(N_Vector y, int pretype, int maxl)
 {
   SUNLinearSolver S;
   SUNLinearSolver_Ops ops;
@@ -139,7 +156,7 @@ SUNLinearSolver SUNSPGMR(N_Vector y, int pretype, int maxl)
  * Function to set the type of preconditioning for SPGMR to use 
  */
 
-SUNDIALS_EXPORT int SUNSPGMRSetPrecType(SUNLinearSolver S, int pretype) 
+SUNDIALS_EXPORT int SUNLinSol_SPGMRSetPrecType(SUNLinearSolver S, int pretype) 
 {
   /* Check for legal pretype */ 
   if ((pretype != PREC_NONE)  && (pretype != PREC_LEFT) &&
@@ -160,7 +177,7 @@ SUNDIALS_EXPORT int SUNSPGMRSetPrecType(SUNLinearSolver S, int pretype)
  * Function to set the type of Gram-Schmidt orthogonalization for SPGMR to use
  */
 
-SUNDIALS_EXPORT int SUNSPGMRSetGSType(SUNLinearSolver S, int gstype)
+SUNDIALS_EXPORT int SUNLinSol_SPGMRSetGSType(SUNLinearSolver S, int gstype)
 {
   /* Check for legal gstype */ 
   if ((gstype != MODIFIED_GS) && (gstype != CLASSICAL_GS)) {
@@ -180,7 +197,7 @@ SUNDIALS_EXPORT int SUNSPGMRSetGSType(SUNLinearSolver S, int gstype)
  * Function to set the maximum number of GMRES restarts to allow
  */
 
-SUNDIALS_EXPORT int SUNSPGMRSetMaxRestarts(SUNLinearSolver S, int maxrs)
+SUNDIALS_EXPORT int SUNLinSol_SPGMRSetMaxRestarts(SUNLinearSolver S, int maxrs)
 {
   /* Illegal maxrs implies use of default value */ 
   if (maxrs < 0)

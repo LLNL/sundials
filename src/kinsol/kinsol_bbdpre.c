@@ -16,7 +16,7 @@
  * This file contains implementations of routines for a
  * band-block-diagonal preconditioner, i.e. a block-diagonal
  * matrix with banded blocks, for use with KINSol and the 
- * KINSPILS linear solver interface.
+ * KINLS linear solver interface.
  *
  * Note: With only one process, a banded matrix results
  * rather than a b-b-d matrix with banded blocks. Diagonal
@@ -27,7 +27,7 @@
 #include <stdlib.h>
 
 #include "kinsol_impl.h"
-#include "kinsol_spils_impl.h"
+#include "kinsol_ls_impl.h"
 #include "kinsol_bbdpre_impl.h"
 
 #include <sundials/sundials_math.h>
@@ -67,42 +67,42 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
                    KINBBDLocalFn gloc, KINBBDCommFn gcomm)
 {
   KINMem kin_mem;
-  KINSpilsMem kinspils_mem;
+  KINLsMem kinls_mem;
   KBBDPrecData pdata;
   sunindextype muk, mlk, storage_mu, lrw1, liw1;
   long int lrw, liw;
   int flag;
 
   if (kinmem == NULL) {
-    KINProcessError(NULL, KINSPILS_MEM_NULL, "KINBBDPRE",
+    KINProcessError(NULL, KINLS_MEM_NULL, "KINBBDPRE",
                     "KINBBDPrecInit", MSGBBD_MEM_NULL);
-    return(KINSPILS_MEM_NULL);
+    return(KINLS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
-  /* Test if the SPILS linear solver interface has been created */
+  /* Test if the LS linear solver interface has been created */
   if (kin_mem->kin_lmem == NULL) {
-    KINProcessError(kin_mem, KINSPILS_LMEM_NULL, "KINBBDPRE",
+    KINProcessError(kin_mem, KINLS_LMEM_NULL, "KINBBDPRE",
                     "KINBBDPrecInit", MSGBBD_LMEM_NULL);
-    return(KINSPILS_LMEM_NULL);
+    return(KINLS_LMEM_NULL);
   }
-  kinspils_mem = (KINSpilsMem) kin_mem->kin_lmem;
+  kinls_mem = (KINLsMem) kin_mem->kin_lmem;
 
   /* Test compatibility of NVECTOR package with the BBD preconditioner */
   /* Note: Do NOT need to check for N_VScale since has already been checked for in KINSOL */
   if (kin_mem->kin_vtemp1->ops->nvgetarraypointer == NULL) {
-    KINProcessError(kin_mem, KINSPILS_ILL_INPUT, "KINBBDPRE",
+    KINProcessError(kin_mem, KINLS_ILL_INPUT, "KINBBDPRE",
                     "KINBBDPrecInit", MSGBBD_BAD_NVECTOR);
-    return(KINSPILS_ILL_INPUT);
+    return(KINLS_ILL_INPUT);
   }
 
   /* Allocate data memory */
   pdata = NULL;
   pdata = (KBBDPrecData) malloc(sizeof *pdata);
   if (pdata == NULL) {
-    KINProcessError(kin_mem, KINSPILS_MEM_FAIL,
+    KINProcessError(kin_mem, KINLS_MEM_FAIL,
                     "KINBBDPRE", "KINBBDPrecInit", MSGBBD_MEM_FAIL);
-    return(KINSPILS_MEM_FAIL);
+    return(KINLS_MEM_FAIL);
   }
 
   /* Set pointers to gloc and gcomm; load half-bandwidths */
@@ -124,9 +124,9 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
   pdata->PP = SUNBandMatrix(Nlocal, muk, mlk, storage_mu);
   if (pdata->PP == NULL) {
     free(pdata); pdata = NULL;
-    KINProcessError(kin_mem, KINSPILS_MEM_FAIL, "KINBBDPRE",
+    KINProcessError(kin_mem, KINLS_MEM_FAIL, "KINBBDPRE",
                     "KINBBDPrecInit", MSGBBD_MEM_FAIL);
-    return(KINSPILS_MEM_FAIL);
+    return(KINLS_MEM_FAIL);
   }
 
   /* Allocate memory for temporary N_Vectors */
@@ -135,9 +135,9 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
   if (pdata->zlocal == NULL) {
     SUNMatDestroy(pdata->PP);
     free(pdata); pdata = NULL;
-    KINProcessError(kin_mem, KINSPILS_MEM_FAIL, "KINBBDPRE", 
+    KINProcessError(kin_mem, KINLS_MEM_FAIL, "KINBBDPRE", 
                     "KINBBDPrecInit", MSGBBD_MEM_FAIL);
-    return(KINSPILS_MEM_FAIL);
+    return(KINLS_MEM_FAIL);
   }
 
   pdata->rlocal = NULL;
@@ -146,9 +146,9 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
     N_VDestroy(pdata->zlocal);
     SUNMatDestroy(pdata->PP);
     free(pdata); pdata = NULL;
-    KINProcessError(kin_mem, KINSPILS_MEM_FAIL, "KINBBDPRE",
+    KINProcessError(kin_mem, KINLS_MEM_FAIL, "KINBBDPRE",
                     "KINBBDPrecInit", MSGBBD_MEM_FAIL);
-    return(KINSPILS_MEM_FAIL);
+    return(KINLS_MEM_FAIL);
   }
 
   pdata->tempv1 = NULL;
@@ -158,9 +158,9 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
     N_VDestroy(pdata->rlocal);
     SUNMatDestroy(pdata->PP);
     free(pdata); pdata = NULL;
-    KINProcessError(kin_mem, KINSPILS_MEM_FAIL, "KINBBDPRE",
+    KINProcessError(kin_mem, KINLS_MEM_FAIL, "KINBBDPRE",
                     "KINBBDPrecInit", MSGBBD_MEM_FAIL);
-    return(KINSPILS_MEM_FAIL);
+    return(KINLS_MEM_FAIL);
   }
 
   pdata->tempv2 = NULL;
@@ -171,9 +171,9 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
     N_VDestroy(pdata->tempv1);
     SUNMatDestroy(pdata->PP);
     free(pdata); pdata = NULL;
-    KINProcessError(kin_mem, KINSPILS_MEM_FAIL, "KINBBDPRE",
+    KINProcessError(kin_mem, KINLS_MEM_FAIL, "KINBBDPRE",
                     "KINBBDPrecInit", MSGBBD_MEM_FAIL);
-    return(KINSPILS_MEM_FAIL);
+    return(KINLS_MEM_FAIL);
   }
 
   pdata->tempv3 = NULL;
@@ -185,14 +185,14 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
     N_VDestroy(pdata->tempv2);
     SUNMatDestroy(pdata->PP);
     free(pdata); pdata = NULL;
-    KINProcessError(kin_mem, KINSPILS_MEM_FAIL, "KINBBDPRE",
+    KINProcessError(kin_mem, KINLS_MEM_FAIL, "KINBBDPRE",
                     "KINBBDPrecInit", MSGBBD_MEM_FAIL);
-    return(KINSPILS_MEM_FAIL);
+    return(KINLS_MEM_FAIL);
   }
 
   /* Allocate memory for banded linear solver */
   pdata->LS = NULL;
-  pdata->LS = SUNBandLinearSolver(pdata->zlocal, pdata->PP);
+  pdata->LS = SUNLinSol_Band(pdata->zlocal, pdata->PP);
   if (pdata->LS == NULL) {
     N_VDestroy(pdata->zlocal);
     N_VDestroy(pdata->rlocal);
@@ -201,9 +201,9 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
     N_VDestroy(pdata->tempv3);
     SUNMatDestroy(pdata->PP);
     free(pdata); pdata = NULL;
-    KINProcessError(kin_mem, KINSPILS_MEM_FAIL, "KINBBDPRE",
+    KINProcessError(kin_mem, KINLS_MEM_FAIL, "KINBBDPRE",
                     "KINBBDPrecInit", MSGBBD_MEM_FAIL);
-    return(KINSPILS_MEM_FAIL);
+    return(KINLS_MEM_FAIL);
   }
 
   /* initialize band linear solver object */
@@ -217,9 +217,9 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
     SUNMatDestroy(pdata->PP);
     SUNLinSolFree(pdata->LS);
     free(pdata); pdata = NULL;
-    KINProcessError(kin_mem, KINSPILS_SUNLS_FAIL, "KINBBDPRE",
+    KINProcessError(kin_mem, KINLS_SUNLS_FAIL, "KINBBDPRE",
                     "KINBBDPrecInit", MSGBBD_SUNLS_FAIL);
-    return(KINSPILS_SUNLS_FAIL);
+    return(KINLS_SUNLS_FAIL);
   }
 
   /* Set rel_uu based on input value dq_rel_uu (0 implies default) */
@@ -259,19 +259,18 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
   pdata->nge = 0;
 
   /* make sure pdata is free from any previous allocations */
-  if (kinspils_mem->pfree != NULL)
-    kinspils_mem->pfree(kin_mem);
+  if (kinls_mem->pfree != NULL)
+    kinls_mem->pfree(kin_mem);
 
-  /* Point to the new pdata field in the SPILS memory */
-  kinspils_mem->pdata = pdata;
+  /* Point to the new pdata field in the LS memory */
+  kinls_mem->pdata = pdata;
 
   /* Attach the pfree function */
-  kinspils_mem->pfree = KINBBDPrecFree;
+  kinls_mem->pfree = KINBBDPrecFree;
 
   /* Attach preconditioner solve and setup functions */
-  flag = KINSpilsSetPreconditioner(kinmem,
-                                   KINBBDPrecSetup,
-                                   KINBBDPrecSolve);
+  flag = KINSetPreconditioner(kinmem, KINBBDPrecSetup,
+                              KINBBDPrecSolve);
 
   return(flag);
 }
@@ -285,34 +284,34 @@ int KINBBDPrecGetWorkSpace(void *kinmem,
                            long int *leniwBBDP)
 {
   KINMem kin_mem;
-  KINSpilsMem kinspils_mem;
+  KINLsMem kinls_mem;
   KBBDPrecData pdata;
 
   if (kinmem == NULL) {
-    KINProcessError(NULL, KINSPILS_MEM_NULL, "KINBBDPRE",
+    KINProcessError(NULL, KINLS_MEM_NULL, "KINBBDPRE",
                     "KINBBDPrecGetWorkSpace", MSGBBD_MEM_NULL);
-    return(KINSPILS_MEM_NULL);
+    return(KINLS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   if (kin_mem->kin_lmem == NULL) {
-    KINProcessError(kin_mem, KINSPILS_LMEM_NULL, "KINBBDPRE",
+    KINProcessError(kin_mem, KINLS_LMEM_NULL, "KINBBDPRE",
                     "KINBBDPrecGetWorkSpace", MSGBBD_LMEM_NULL);
-    return(KINSPILS_LMEM_NULL);
+    return(KINLS_LMEM_NULL);
   }
-  kinspils_mem = (KINSpilsMem) kin_mem->kin_lmem;
+  kinls_mem = (KINLsMem) kin_mem->kin_lmem;
 
-  if (kinspils_mem->pdata == NULL) {
-    KINProcessError(kin_mem, KINSPILS_PMEM_NULL, "KINBBDPRE",
+  if (kinls_mem->pdata == NULL) {
+    KINProcessError(kin_mem, KINLS_PMEM_NULL, "KINBBDPRE",
                     "KINBBDPrecGetWorkSpace", MSGBBD_PMEM_NULL);
-    return(KINSPILS_PMEM_NULL);
+    return(KINLS_PMEM_NULL);
   } 
-  pdata = (KBBDPrecData) kinspils_mem->pdata;
+  pdata = (KBBDPrecData) kinls_mem->pdata;
 
   *lenrwBBDP = pdata->rpwsize;
   *leniwBBDP = pdata->ipwsize;
 
-  return(KINSPILS_SUCCESS);
+  return(KINLS_SUCCESS);
 }
 
 /*------------------------------------------------------------------
@@ -322,33 +321,33 @@ int KINBBDPrecGetNumGfnEvals(void *kinmem,
                              long int *ngevalsBBDP)
 {
   KINMem kin_mem;
-  KINSpilsMem kinspils_mem;
+  KINLsMem kinls_mem;
   KBBDPrecData pdata;
 
   if (kinmem == NULL) {
-    KINProcessError(NULL, KINSPILS_MEM_NULL, "KINBBDPRE",
+    KINProcessError(NULL, KINLS_MEM_NULL, "KINBBDPRE",
                     "KINBBDPrecGetNumGfnEvals", MSGBBD_MEM_NULL);
-    return(KINSPILS_MEM_NULL);
+    return(KINLS_MEM_NULL);
   }
   kin_mem = (KINMem) kinmem;
 
   if (kin_mem->kin_lmem == NULL) {
-    KINProcessError(kin_mem, KINSPILS_LMEM_NULL, "KINBBDPRE",
+    KINProcessError(kin_mem, KINLS_LMEM_NULL, "KINBBDPRE",
                     "KINBBDPrecGetNumGfnEvals", MSGBBD_LMEM_NULL);
-    return(KINSPILS_LMEM_NULL);
+    return(KINLS_LMEM_NULL);
   }
-  kinspils_mem = (KINSpilsMem) kin_mem->kin_lmem;
+  kinls_mem = (KINLsMem) kin_mem->kin_lmem;
 
-  if (kinspils_mem->pdata == NULL) {
-    KINProcessError(kin_mem, KINSPILS_PMEM_NULL, "KINBBDPRE",
+  if (kinls_mem->pdata == NULL) {
+    KINProcessError(kin_mem, KINLS_PMEM_NULL, "KINBBDPRE",
                     "KINBBDPrecGetNumGfnEvals", MSGBBD_PMEM_NULL);
-    return(KINSPILS_PMEM_NULL);
+    return(KINLS_PMEM_NULL);
   } 
-  pdata = (KBBDPrecData) kinspils_mem->pdata;
+  pdata = (KBBDPrecData) kinls_mem->pdata;
 
   *ngevalsBBDP = pdata->nge;
 
-  return(KINSPILS_SUCCESS);
+  return(KINLS_SUCCESS);
 }
 
 
@@ -479,14 +478,14 @@ static int KINBBDPrecSolve(N_Vector uu, N_Vector uscale,
   ------------------------------------------------------------------*/
 static int KINBBDPrecFree(KINMem kin_mem)
 {
-  KINSpilsMem kinspils_mem;
+  KINLsMem kinls_mem;
   KBBDPrecData pdata;
   
   if (kin_mem->kin_lmem == NULL) return(0);
-  kinspils_mem = (KINSpilsMem) kin_mem->kin_lmem;
+  kinls_mem = (KINLsMem) kin_mem->kin_lmem;
   
-  if (kinspils_mem->pdata == NULL) return(0);
-  pdata = (KBBDPrecData) kinspils_mem->pdata;
+  if (kinls_mem->pdata == NULL) return(0);
+  pdata = (KBBDPrecData) kinls_mem->pdata;
 
   SUNLinSolFree(pdata->LS);
   N_VDestroy(pdata->zlocal);

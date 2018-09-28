@@ -33,13 +33,12 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <ida/ida.h>                          /* main integrator header file       */
-#include <ida/ida_spils.h>                    /* access to IDASpils interface      */
-#include <sunlinsol/sunlinsol_spgmr.h>        /* access to SPGMR SUNLinearSolver   */
-#include <sunlinsol/sunlinsol_spbcgs.h>       /* access to SPBCGS SUNLinearSolver  */
-#include <sunlinsol/sunlinsol_sptfqmr.h>      /* access to SPTFQMR SUNLinearSolver */
-#include <nvector/nvector_serial.h>           /* serial N_Vector types, fct. and macros */
-#include <sundials/sundials_types.h>          /* definition of realtype */
+#include <ida/ida.h>                     /* main integrator header file       */
+#include <sunlinsol/sunlinsol_spgmr.h>   /* access to SPGMR SUNLinearSolver   */
+#include <sunlinsol/sunlinsol_spbcgs.h>  /* access to SPBCGS SUNLinearSolver  */
+#include <sunlinsol/sunlinsol_sptfqmr.h> /* access to SPTFQMR SUNLinearSolver */
+#include <nvector/nvector_serial.h>      /* serial N_Vector types, fct. and macros */
+#include <sundials/sundials_types.h>     /* definition of realtype */
 
 /* Problem Constants */
 
@@ -195,14 +194,14 @@ int main(void)
       printf(" \n| SPGMR |\n");
       printf(" -------\n");
 
-      /* Call SUNSPGMR to specify the linear solver SPGMR with
+      /* Call SUNLinSol_SPGMR to specify the linear solver SPGMR with
          left preconditioning and the default maximum Krylov dimension */
-      LS = SUNSPGMR(uu, PREC_LEFT, 0);
-      if(check_retval((void *)LS, "SUNSPGMR", 0)) return(1);
+      LS = SUNLinSol_SPGMR(uu, PREC_LEFT, 0);
+      if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
       /* Attach the linear solver */
-      retval = IDASpilsSetLinearSolver(mem, LS);
-      if(check_retval(&retval, "IDASpilsSetLinearSolver", 1)) return 1;
+      retval = IDASetLinearSolver(mem, LS, NULL);
+      if(check_retval(&retval, "IDASetLinearSolver", 1)) return 1;
 
       break;
 
@@ -214,14 +213,14 @@ int main(void)
       printf(" \n| SPBCGS |\n");
       printf(" -------\n");
 
-      /* Call SUNSPBCGS to specify the linear solver SPBCGS with
+      /* Call SUNLinSol_SPBCGS to specify the linear solver SPBCGS with
          left preconditioning and the default maximum Krylov dimension */
-      LS = SUNSPBCGS(uu, PREC_LEFT, 0);
-      if(check_retval((void *)LS, "SUNSPBCGS", 0)) return(1);
+      LS = SUNLinSol_SPBCGS(uu, PREC_LEFT, 0);
+      if(check_retval((void *)LS, "SUNLinSol_SPBCGS", 0)) return(1);
 
       /* Attach the linear solver */
-      retval = IDASpilsSetLinearSolver(mem, LS);
-      if(check_retval(&retval, "IDASpilsSetLinearSolver", 1)) return 1;
+      retval = IDASetLinearSolver(mem, LS, NULL);
+      if(check_retval(&retval, "IDASetLinearSolver", 1)) return 1;
 
       break;
 
@@ -233,22 +232,22 @@ int main(void)
       printf(" \n| SPTFQMR |\n");
       printf(" ---------\n");
 
-      /* Call SUNSPTFQMR to specify the linear solver SPTFQMR with
+      /* Call SUNLinSol_SPTFQMR to specify the linear solver SPTFQMR with
          left preconditioning and the default maximum Krylov dimension */
-      LS = SUNSPTFQMR(uu, PREC_LEFT, 0);
-      if(check_retval((void *)LS, "SUNSPTFQMR", 0)) return(1);
+      LS = SUNLinSol_SPTFQMR(uu, PREC_LEFT, 0);
+      if(check_retval((void *)LS, "SUNLinSol_SPTFQMR", 0)) return(1);
 
       /* Attach the linear solver */
-      retval = IDASpilsSetLinearSolver(mem, LS);
-      if(check_retval(&retval, "IDASpilsSetLinearSolver", 1)) return 1;
+      retval = IDASetLinearSolver(mem, LS, NULL);
+      if(check_retval(&retval, "IDASetLinearSolver", 1)) return 1;
 
       break;
 
     }
 
     /* Specify preconditioner */
-    retval = IDASpilsSetPreconditioner(mem, PsetupHeat, PsolveHeat);
-    if(check_retval(&retval, "IDASpilsSetPreconditioner", 1)) return(1);
+    retval = IDASetPreconditioner(mem, PsetupHeat, PsolveHeat);
+    if(check_retval(&retval, "IDASetPreconditioner", 1)) return(1);
 
     /* Print output heading. */
     PrintHeader(rtol, atol, linsolver);
@@ -274,8 +273,8 @@ int main(void)
     retval = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
     check_retval(&retval, "IDAGetNumNonlinSolvConvFails", 1);
 
-    retval = IDASpilsGetNumConvFails(mem, &ncfl);
-    check_retval(&retval, "IDASpilsGetNumConvFails", 1);
+    retval = IDAGetNumLinConvFails(mem, &ncfl);
+    check_retval(&retval, "IDAGetNumLinConvFails", 1);
 
     printf("\nError test failures            = %ld\n", netf);
     printf("Nonlinear convergence failures = %ld\n", ncfn);
@@ -530,16 +529,16 @@ static void PrintOutput(void *mem, realtype t, N_Vector uu, int linsolver)
   retval = IDAGetLastStep(mem, &hused);
   check_retval(&retval, "IDAGetLastStep", 1);
 
-  retval = IDASpilsGetNumJtimesEvals(mem, &nje);
-  check_retval(&retval, "IDASpilsGetNumJtimesEvals", 1);
-  retval = IDASpilsGetNumLinIters(mem, &nli);
-  check_retval(&retval, "IDASpilsGetNumLinIters", 1);
-  retval = IDASpilsGetNumResEvals(mem, &nreLS);
-  check_retval(&retval, "IDASpilsGetNumResEvals", 1);
-  retval = IDASpilsGetNumPrecEvals(mem, &npe);
-  check_retval(&retval, "IDASpilsGetPrecEvals", 1);
-  retval = IDASpilsGetNumPrecSolves(mem, &nps);
-  check_retval(&retval, "IDASpilsGetNumPrecSolves", 1);
+  retval = IDAGetNumJtimesEvals(mem, &nje);
+  check_retval(&retval, "IDAGetNumJtimesEvals", 1);
+  retval = IDAGetNumLinIters(mem, &nli);
+  check_retval(&retval, "IDAGetNumLinIters", 1);
+  retval = IDAGetNumLinResEvals(mem, &nreLS);
+  check_retval(&retval, "IDAGetNumLinResEvals", 1);
+  retval = IDAGetNumPrecEvals(mem, &npe);
+  check_retval(&retval, "IDAGetNumPrecEvals", 1);
+  retval = IDAGetNumPrecSolves(mem, &nps);
+  check_retval(&retval, "IDAGetNumPrecSolves", 1);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le  %3ld %3ld\n",

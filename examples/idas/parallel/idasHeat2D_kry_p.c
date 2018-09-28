@@ -6,7 +6,7 @@
  * Example problem for IDA: 2D heat equation, parallel, GMRES.
  *
  * This example solves a discretized 2D heat equation problem.
- * This version uses the Krylov solver SUNSPGMR.
+ * This version uses the Krylov solver SUNLinSol_SPGMR.
  *
  * The DAE system solved is a spatial discretization of the PDE
  *          du/dt = d^2u/dx^2 + d^2u/dy^2
@@ -22,9 +22,9 @@
  * processors.
  *
  * The system is solved with IDA using the Krylov linear solver
- * SUNSPGMR. The preconditioner uses the diagonal elements of the
+ * SUNLinSol_SPGMR. The preconditioner uses the diagonal elements of the
  * Jacobian only. Routines for preconditioning, required by
- * SUNSPGMR, are supplied here. The constraints u >= 0 are posed
+ * SUNLinSol_SPGMR, are supplied here. The constraints u >= 0 are posed
  * for all components. Local error testing on the boundary values
  * is suppressed. Output is taken at t = 0, .01, .02, .04,
  * ..., 10.24.
@@ -229,10 +229,10 @@ int main(int argc, char *argv[])
   retval = IDASStolerances(ida_mem, rtol, atol);
   if(check_retval(&retval, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
 
-  /* Call SUNSPGMR and IDASetLinearSolver to specify the linear solver. */
+  /* Call SUNLinSol_SPGMR and IDASetLinearSolver to specify the linear solver. */
 
-  LS = SUNSPGMR(uu, PREC_LEFT, 0);  /* use default maxl */
-  if(check_retval((void *)LS, "SUNSPGMR", 0, thispe)) MPI_Abort(comm, 1);
+  LS = SUNLinSol_SPGMR(uu, PREC_LEFT, 0);  /* use default maxl */
+  if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0, thispe)) MPI_Abort(comm, 1);
 
   retval = IDASpilsSetLinearSolver(ida_mem, LS);
   if(check_retval(&retval, "IDASpilsSetLinearSolver", 1, thispe)) MPI_Abort(comm, 1);
@@ -769,7 +769,7 @@ static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol)
   printf("Constraints set to force all solution components >= 0. \n");
   printf("SUPPRESSALG = SUNTRUE to suppress local error testing on ");
   printf("all boundary components. \n");
-  printf("Linear solver: SUNSPGMR  ");
+  printf("Linear solver: SUNLinSol_SPGMR  ");
   printf("Preconditioner: diagonal elements only.\n"); 
   
   /* Print output table heading and initial line of table. */

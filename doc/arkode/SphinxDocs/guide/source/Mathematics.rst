@@ -951,11 +951,11 @@ used with the serial and threaded vector representations.
 
 .. _Mathematics.Linear.Direct:
 
-Direct linear solvers
-^^^^^^^^^^^^^^^^^^^^^^^
+Matrix-based linear solvers
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In the case that a direct linear solver is used, a *modified Newton
-iteration* is utilized.  In a modified Newton method, the matrix
+In the case that a matrix-based linear solver is used, a *modified
+Newton iteration* is utilized.  In a modified newton iteration, the matrix
 :math:`{\mathcal A}` is held fixed for multiple Newton iterations.
 More precisely, each Newton iteration is computed from the modified
 equation
@@ -980,7 +980,7 @@ and reused for repeated solves.  The frequency at which
 :math:`\tilde{\mathcal A}` is recomputed defaults to 20 time steps,
 but may be modified by the user.
 
-When using the dense and band solvers for the linear systems
+When using the dense and band SUNMatrix objects for the linear systems
 :eq:`modified_Newton_system`, the Jacobian :math:`J` may be supplied
 by a user routine, or approximated internally by finite-differences.
 In the case of differencing, we use the standard approximation
@@ -1002,8 +1002,8 @@ band case, the columns of :math:`J` are computed in groups, using the
 Curtis-Powell-Reid algorithm, with the number of :math:`f_I`
 evaluations equal to the matrix bandwidth.
 
-We note that with the sparse direct solvers, the Jacobian *must*
-be supplied by a user routine.
+We note that with sparse and user-supplied SUNMatrix objects, the
+Jacobian *must* be supplied by a user routine.
 
 
 
@@ -1011,17 +1011,17 @@ be supplied by a user routine.
 
 .. _Mathematics.Linear.Iterative:
 
-Iterative linear solvers
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Matrix-free iterative linear solvers
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In the case that an iterative linear solver is chosen, an *inexact
-Newton iteration* is utilized.  Here, the
+In the case that a matrix-free iterative linear solver is chosen,
+an *inexact Newton iteration* is utilized.  Here, the
 matrix :math:`{\mathcal A}` is not itself constructed since the
 algorithms only require the product of this matrix with a given
 vector.  Additionally, each Newton system :eq:`Newton_system` is not
 solved completely, since these linear solvers are iterative (hence the
-"inexact" in the name). As a result, for these linear solvers
-:math:`{\mathcal A}` is applied in a matrix-free manner,
+"inexact" in the name). As a result. for these linear solvers
+:math:`{\mathcal A}` is applied in a matrix-free manner, 
 
 .. math::
    {\mathcal A}(t,z)\, v = Mv - \gamma\, J(t,z)\, v.
@@ -1087,9 +1087,9 @@ update :math:`P`) when:
   changed by a factor larger than 100 times machine epsilon.
 
 
-However, for direct linear solvers and preconditioners that do not
+However, for linear solvers and preconditioners that do not
 rely on costly matrix construction and factorization operations
-(e.g. when using an iterative multigrid method as preconditioner), it
+(e.g. when using a geometric multigrid method as preconditioner), it
 may be more efficient to update these structures more frequently than
 the above heuristics specify, since the increased rate of
 linear/nonlinear solver convergence may more than account for the
@@ -1496,23 +1496,23 @@ are required.
 
 Of course, for problems in which :math:`M=I` both of these operators
 are trivial.  However for problems with non-identity :math:`M`,
-these linear solves :eq:`mass_solve` may be handled using either
-an iterative linear solver or a direct linear solver, in the same
-manner as described in the section :ref:`Mathematics.Linear` for
-solving the linear Newton systems.
+these linear solves :eq:`mass_solve` may be handled using 
+any valid linear solver module, in the same manner as described in the
+section :ref:`Mathematics.Linear` for solving the linear Newton
+systems. 
 
-At present, for DIRK and ARK problems using a direct solver for
-the Newton nonlinear iterations, the type of matrix (dense, band, or
-sparse) for the Jacobian matrix :math:`J` must match the type of mass
-matrix :math:`M`, since these are combined to form the Newton system
-matrix :math:`\tilde{\mathcal A}`.  When direct methods are employed,
-the user must supply a routine to compute :math:`M` in either dense,
-band, or sparse form to match the structure of :math:`{\mathcal A}`,
-with a user-supplied routine of type :c:func:`ARKDlsMassFn()`.  This
-matrix structure is used internally to perform any requisite mass
-matrix-vector products :eq:`mass_multiply`.
+At present, for DIRK and ARK problems using a matrix-based solver for
+the Newton nonlinear iterations, the type of matrix (dense, band,
+sparse, or custom) for the Jacobian matrix :math:`J` must match the
+type of mass matrix :math:`M`, since these are combined to form the
+Newton system matrix :math:`\tilde{\mathcal A}`.  When matrix-based
+methods are employed, the user must supply a routine to compute
+:math:`M` in the appropriate form to match the structure of
+:math:`{\mathcal A}`, with a user-supplied routine of type
+:c:func:`ARKLsMassFn()`.  This matrix structure is used internally to
+perform any requisite mass matrix-vector products :eq:`mass_multiply`.
 
-When iterative methods are selected, a routine must be supplied to
+When matrix-free methods are selected, a routine must be supplied to
 perform the mass-matrix-vector product, :math:`Mv`.  As with iterative
 solvers for the Newton systems, preconditioning may be applied to aid
 in solution of the mass matrix systems :eq:`mass_solve`.  When using an

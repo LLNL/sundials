@@ -170,8 +170,8 @@ int main()
   if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object */
-  LS = SUNDenseLinearSolver(yy, A);
-  if(check_retval((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+  LS = SUNLinSol_Dense(yy, A);
+  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
   retval = IDADlsSetLinearSolver(mem, LS, A);
@@ -244,8 +244,8 @@ int main()
   if(check_retval((void *)AB, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object */
-  LSB = SUNDenseLinearSolver(yB, AB);
-  if(check_retval((void *)LSB, "SUNDenseLinearSolver", 0)) return(1);
+  LSB = SUNLinSol_Dense(yB, AB);
+  if(check_retval((void *)LSB, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
   retval = IDADlsSetLinearSolverB(mem, indexB, LSB, AB);

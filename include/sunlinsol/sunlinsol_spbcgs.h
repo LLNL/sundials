@@ -182,19 +182,38 @@ typedef struct _SUNLinearSolverContent_SPBCGS *SUNLinearSolverContent_SPBCGS;
  * PART II: functions exported by sunlinsol_spbcgs
  * 
  * CONSTRUCTOR:
- *    SUNSPBCGS creates and allocates memory for a SPBCGS solver
+ *    SUNLinSol_SPBCGS creates and allocates memory for a SPBCGS solver
+ *
+ *    SUNSPBCGS (deprecated) wrapper for SUNLinSol_SPBCGS
  *
  * "SET" ROUTINES:
- *    SUNSPBCGSSetPrecType updates the type of preconditioning to 
- *       use.  Supported values are PREC_NONE, PREC_LEFT, PREC_RIGHT 
+ *    SUNLinSol_SPBCGSSetPrecType updates the type of preconditioning 
+ *       to use.  Supported values are PREC_NONE, PREC_LEFT, PREC_RIGHT 
  *       and PREC_BOTH.
- *    SUNSPBCGSSetMaxl updates the maximum number of iterations to 
- *       allow in the solver.
+ *    SUNLinSol_SPBCGSSetMaxl updates the maximum number of iterations
+ *       to allow in the solver.
+ *
+ *    SUNSPBCGSSetPrecType (deprecated) wrapper for 
+ *       SUNLinSol_SPBCGSSetPrecType
+ *    SUNSPBCGSSetMaxl (deprecated) wrapper for 
+ *       SUNLinSol_SPBCGSSetMaxl
+ *
  * -----------------------------------------------------------------
  */
 
+SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_SPBCGS(N_Vector y,
+                                                 int pretype,
+                                                 int maxl);
+SUNDIALS_EXPORT int SUNLinSol_SPBCGSSetPrecType(SUNLinearSolver S,
+                                                int pretype);
+SUNDIALS_EXPORT int SUNLinSol_SPBCGSSetMaxl(SUNLinearSolver S,
+                                            int maxl);
+
+/* deprecated */
 SUNDIALS_EXPORT SUNLinearSolver SUNSPBCGS(N_Vector y, int pretype, int maxl);
+/* deprecated */
 SUNDIALS_EXPORT int SUNSPBCGSSetPrecType(SUNLinearSolver S, int pretype);
+/* deprecated */
 SUNDIALS_EXPORT int SUNSPBCGSSetMaxl(SUNLinearSolver S, int maxl);
 
 /*

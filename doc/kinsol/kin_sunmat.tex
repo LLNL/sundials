@@ -11,10 +11,12 @@
 In Table \ref{t:sunmatuse} below, we list the matrix functions in the 
 {\sunmatrix} module used within the {\kinsol} package.
 The table also shows, for each function, which of the code modules uses
-the function. Neither the main {\kinsol} integrator or the {\kinspils}
-interface call {\sunmatrix} functions directly, so the table columns
-are specific to the {\kindls} direct solver interface and the
-{\kinbbdpre} preconditioner module.
+the function. The main {\kinsol} integrator does not call any
+{\sunmatrix} functions directly, so the table columns are specific to
+the {\kinls} interface and the {\kinbbdpre} preconditioner module.  We
+further note that the {\kinls} interface only utilizes these routines
+when supplied with a \emph{matrix-based} linear solver, i.e., the
+{\sunmatrix} object passed to \Id{KINSetLinearSolver} was not \id{NULL}.
 
 At this point, we should emphasize that the {\kinsol} user does not need
 to know anything about the usage of matrix functions by the {\kinsol}
@@ -27,9 +29,9 @@ an implementation detail for the interested reader.
 \medskip
 \begin{tabular}{|r|c|c|} \hline
                                              & 
-\begin{sideways}{\kindls}      \end{sideways} & 
+\begin{sideways}{\kinls}       \end{sideways} & 
 \begin{sideways}{\kinbbdpre}   \end{sideways} \\ \hline\hline
-%                             DLS         BBD
+%                             KINLS       BBD
 \id{SUNMatGetID}         &    \cm    &           \\ \hline
 \id{SUNMatDestroy}       &           &    \cm    \\ \hline
 \id{SUNMatZero}          &    \cm    &    \cm    \\ \hline
@@ -45,4 +47,9 @@ functions listed in Table \ref{t:sunmatops} that are {\em not} used by
 {\kinsol} are: \id{SUNMatCopy}, \id{SUNMatClone}, \id{SUNMatScaleAdd},
 \id{SUNMatScaleAddI} and \id{SUNMatMatvec}. Therefore a user-supplied
 {\sunmatrix} module for {\kinsol} could omit these functions.
+
+We note that the {\kinbbdpre} preconditioner module is hard-coded to
+use the {\sundials}-supplied band {\sunmatrix} type, so the most
+useful information above for user-supplied {\sunmatrix}
+implementations is the column relating the {\kinls} requirements. 
 

@@ -29,8 +29,8 @@
  * neq = 2*MX*MY.
  *
  * The solution is done with the BDF/GMRES method (i.e. using the
- * SUNSPGMR linear solver) and a block-diagonal matrix with banded
- * blocks as a preconditioner, using the CVBBDPRE module.
+ * SUNLinSol_SPGMR linear solver) and a block-diagonal matrix with 
+ * banded blocks as a preconditioner, using the CVBBDPRE module.
  * Each block is generated using difference quotients, with
  * half-bandwidths mudq = mldq = 2*MXSUB, but the retained banded
  * blocks have half-bandwidths mukeep = mlkeep = 2.
@@ -55,7 +55,6 @@
 #include <cvode/cvode.h>               /* prototypes for CVODE fcts., consts.  */
 #include <nvector/nvector_parallel.h>  /* access to MPI-parallel N_Vector      */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver      */
-#include <cvode/cvode_spils.h>         /* access to CVSpils interface          */
 #include <cvode/cvode_bbdpre.h>        /* access to CVBBDPRE module            */
 #include <sundials/sundials_types.h>   /* definitions of realtype, booleantype */
 #include <sundials/sundials_math.h>    /* definition of macros SUNSQR and EXP  */
@@ -228,12 +227,12 @@ int main(int argc, char *argv[])
 
   /* Create SPGMR solver structure -- use left preconditioning 
      and the default Krylov dimension maxl */
-  LS = SUNSPGMR(u, PREC_LEFT, 0);
-  if (check_retval((void *)LS, "SUNSPGMR", 0, my_pe)) MPI_Abort(comm, 1);
+  LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0);
+  if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0, my_pe)) MPI_Abort(comm, 1);
 
-  /* Attach SPGMR solver structure to CVSpils interface */
-  retval = CVSpilsSetLinearSolver(cvode_mem, LS);
-  if (check_retval(&retval, "CVSpilsSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
+  /* Attach SPGMR solver structure to CVode interface */
+  retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Initialize BBD preconditioner */
   mudq = mldq = NVARS*MXSUB;
@@ -248,7 +247,7 @@ int main(int argc, char *argv[])
   /* Loop over jpre (= PREC_LEFT, PREC_RIGHT), and solve the problem */
   for (jpre = PREC_LEFT; jpre <= PREC_RIGHT; jpre++) {
 
-  /* On second run, re-initialize u, the integrator, CVBBDPRE, and CVSPGMR */
+  /* On second run, re-initialize u, the integrator, CVBBDPRE, and SPGMR */
 
   if (jpre == PREC_RIGHT) {
 
@@ -260,8 +259,8 @@ int main(int argc, char *argv[])
     retval = CVBBDPrecReInit(cvode_mem, mudq, mldq, ZERO);
     if(check_retval(&retval, "CVBBDPrecReInit", 1, my_pe)) MPI_Abort(comm, 1);
 
-    retval = SUNSPGMRSetPrecType(LS, PREC_RIGHT);
-    check_retval(&retval, "SUNSPGMRSetPrecType", 1, my_pe);
+    retval = SUNLinSol_SPGMRSetPrecType(LS, PREC_RIGHT);
+    if(check_retval(&retval, "SUNLinSol_SPGMRSetPrecType", 1, my_pe)) MPI_Abort(comm, 1);
 
     if (my_pe == 0) {
       printf("\n\n-------------------------------------------------------");
@@ -473,18 +472,18 @@ static void PrintFinalStats(void *cvode_mem)
   retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1, 0);
 
-  retval = CVSpilsGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
-  check_retval(&retval, "CVSpilsGetWorkSpace", 1, 0);
-  retval = CVSpilsGetNumLinIters(cvode_mem, &nli);
-  check_retval(&retval, "CVSpilsGetNumLinIters", 1, 0);
-  retval = CVSpilsGetNumPrecEvals(cvode_mem, &npe);
-  check_retval(&retval, "CVSpilsGetNumPrecEvals", 1, 0);
-  retval = CVSpilsGetNumPrecSolves(cvode_mem, &nps);
-  check_retval(&retval, "CVSpilsGetNumPrecSolves", 1, 0);
-  retval = CVSpilsGetNumConvFails(cvode_mem, &ncfl);
-  check_retval(&retval, "CVSpilsGetNumConvFails", 1, 0);
-  retval = CVSpilsGetNumRhsEvals(cvode_mem, &nfeLS);
-  check_retval(&retval, "CVSpilsGetNumRhsEvals", 1, 0);
+  retval = CVodeGetLinWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
+  check_retval(&retval, "CVodeGetLinWorkSpace", 1, 0);
+  retval = CVodeGetNumLinIters(cvode_mem, &nli);
+  check_retval(&retval, "CVodeGetNumLinIters", 1, 0);
+  retval = CVodeGetNumPrecEvals(cvode_mem, &npe);
+  check_retval(&retval, "CVodeGetNumPrecEvals", 1, 0);
+  retval = CVodeGetNumPrecSolves(cvode_mem, &nps);
+  check_retval(&retval, "CVodeGetNumPrecSolves", 1, 0);
+  retval = CVodeGetNumLinConvFails(cvode_mem, &ncfl);
+  check_retval(&retval, "CVodeGetNumLinConvFails", 1, 0);
+  retval = CVodeGetNumLinRhsEvals(cvode_mem, &nfeLS);
+  check_retval(&retval, "CVodeGetNumLinRhsEvals", 1, 0);
 
   printf("\nFinal Statistics: \n\n");
   printf("lenrw   = %5ld     leniw   = %5ld\n"  , lenrw, leniw);

@@ -117,10 +117,10 @@ c
          call fidafree
          stop
       endif
-      call fidadlsinit(ier)
+      call fidalsinit(ier)
       if (ier .ne. 0) then
          write(6,35) ier
- 35      format(///' SUNDIALS_ERROR: FIDADLSINIT returned IER = ', i5)
+ 35      format(///' SUNDIALS_ERROR: FIDALSINIT returned IER = ', i5)
          call fidafree
          stop
       endif

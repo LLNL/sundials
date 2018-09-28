@@ -32,7 +32,7 @@
  *
  * This program solves the problem with either an ERK or DIRK
  * method.  For the DIRK method, we use a Newton iteration with
- * the SUNPCG linear solver, and a user-supplied Jacobian-vector
+ * the SUNLinSol_PCG linear solver, and a user-supplied Jacobian-vector
  * product routine.
  *
  * 100 outputs are printed at equal intervals, and run statistics
@@ -46,7 +46,6 @@
 #include <arkode/arkode_arkstep.h>    /* prototypes for ARKStep fcts., consts */
 #include <nvector/nvector_serial.h>   /* serial N_Vector types, fcts., macros */
 #include <sunlinsol/sunlinsol_pcg.h>  /* access to PCG SUNLinearSolver        */
-#include <arkode/arkode_spils.h>      /* access to ARKSpils interface         */
 #include <sundials/sundials_types.h>  /* defs. of realtype, sunindextype, etc */
 #include <sundials/sundials_math.h>   /* def. of SUNRsqrt, etc.               */
 
@@ -134,14 +133,14 @@ int main() {
   if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
 
   /* Initialize PCG solver -- no preconditioning, with up to N iterations  */
-  LS = SUNPCG(y, 0, N);
-  if (check_flag((void *)LS, "SUNPCG", 0)) return 1;
+  LS = SUNLinSol_PCG(y, 0, N);
+  if (check_flag((void *)LS, "SUNLinSol_PCG", 0)) return 1;
 
   /* Linear solver interface -- set user-supplied J*v routine (no 'jtsetup' required) */
-  flag = ARKSpilsSetLinearSolver(arkode_mem, LS);        /* Attach linear solver to ARKStep */
-  if (check_flag(&flag, "ARKSpilsSetLinearSolver", 1)) return 1;
-  flag = ARKSpilsSetJacTimes(arkode_mem, NULL, Jac);     /* Set the Jacobian routine */
-  if (check_flag(&flag, "ARKSpilsSetJacTimes", 1)) return 1;
+  flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);       /* Attach linear solver to ARKStep */
+  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
+  flag = ARKStepSetJacTimes(arkode_mem, NULL, Jac);     /* Set the Jacobian routine */
+  if (check_flag(&flag, "ARKStepSetJacTimes", 1)) return 1;
 
   /* Specify linearly implicit RHS, with non-time-dependent Jacobian */
   flag = ARKStepSetLinear(arkode_mem, 0);
@@ -203,12 +202,12 @@ int main() {
   check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1);
   flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
   check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1);
-  flag = ARKSpilsGetNumLinIters(arkode_mem, &nli);
-  check_flag(&flag, "ARKSpilsGetNumLinIters", 1);
-  flag = ARKSpilsGetNumJtimesEvals(arkode_mem, &nJv);
-  check_flag(&flag, "ARKSpilsGetNumJtimesEvals", 1);
-  flag = ARKSpilsGetNumConvFails(arkode_mem, &nlcf);
-  check_flag(&flag, "ARKSpilsGetNumConvFails", 1);
+  flag = ARKStepGetNumLinIters(arkode_mem, &nli);
+  check_flag(&flag, "ARKStepGetNumLinIters", 1);
+  flag = ARKStepGetNumJtimesEvals(arkode_mem, &nJv);
+  check_flag(&flag, "ARKStepGetNumJtimesEvals", 1);
+  flag = ARKStepGetNumLinConvFails(arkode_mem, &nlcf);
+  check_flag(&flag, "ARKStepGetNumLinConvFails", 1);
 
   printf("\nFinal Solver Statistics:\n");
   printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);

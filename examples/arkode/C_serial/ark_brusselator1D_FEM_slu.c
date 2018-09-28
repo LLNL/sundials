@@ -68,7 +68,6 @@
 #include <nvector/nvector_serial.h>         /* serial N_Vector types, fcts., macros */
 #include <sunmatrix/sunmatrix_sparse.h>     /* access to sparse SUNMatrix           */
 #include <sunlinsol/sunlinsol_superlumt.h>  /* access to SuperLU_MT SUNLinearSolver */
-#include <arkode/arkode_direct.h>           /* access to ARKDls interface           */
 #include <sundials/sundials_types.h>        /* defs. of realtype, sunindextype, etc */
 #include <sundials/sundials_math.h>         /* def. of SUNRsqrt, etc.               */
 
@@ -282,25 +281,25 @@ int main(int argc, char *argv[]) {
   NNZ = 15*NEQ;
   A = SUNSparseMatrix(NEQ, NEQ, NNZ, CSC_MAT);
   if (check_flag((void *)A, "SUNSparseMatrix", 0)) return 1;
-  LS = SUNSuperLUMT(y, A, num_threads);
-  if (check_flag((void *)LS, "SUNSuperLUMT", 0)) return 1;
+  LS = SUNLinSol_SuperLUMT(y, A, num_threads);
+  if (check_flag((void *)LS, "SUNLinSol_SuperLUMT", 0)) return 1;
   M = SUNSparseMatrix(NEQ, NEQ, NNZ, CSC_MAT);
   if (check_flag((void *)M, "SUNSparseMatrix", 0)) return 1;
-  MLS = SUNSuperLUMT(y, M, num_threads);
-  if (check_flag((void *)MLS, "SUNSuperLUMT", 0)) return 1;
+  MLS = SUNLinSol_SuperLUMT(y, M, num_threads);
+  if (check_flag((void *)MLS, "SUNLinSol_SuperLUMT", 0)) return 1;
 
   /* Attach the matrix, linear solver, and Jacobian construction routine to ARKStep */
-  flag = ARKDlsSetLinearSolver(arkode_mem, LS, A);        /* Attach matrix and LS */
-  if (check_flag(&flag, "ARKDlsSetLinearSolver", 1)) return 1;
-  flag = ARKDlsSetJacFn(arkode_mem, Jac);                 /* Supply Jac routine */
-  if (check_flag(&flag, "ARKDlsSetJacFn", 1)) return 1;
+  flag = ARKStepSetLinearSolver(arkode_mem, LS, A);        /* Attach matrix and LS */
+  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
+  flag = ARKStepSetJacFn(arkode_mem, Jac);                 /* Supply Jac routine */
+  if (check_flag(&flag, "ARKStepSetJacFn", 1)) return 1;
 
   /* Attach the mass matrix, linear solver and construction routines to ARKStep;
      notify ARKStep that the mass matrix is not time-dependent */
-  flag = ARKDlsSetMassLinearSolver(arkode_mem, MLS, M, SUNFALSE);   /* Attach matrix and LS */
-  if (check_flag(&flag, "ARKDlsSetMassLinearSolver", 1)) return 1;
-  flag = ARKDlsSetMassFn(arkode_mem, MassMatrix);                /* Supply M routine */
-  if (check_flag(&flag, "ARKDlsSetMassFn", 1)) return 1;
+  flag = ARKStepSetMassLinearSolver(arkode_mem, MLS, M, SUNFALSE);   /* Attach matrix and LS */
+  if (check_flag(&flag, "ARKStepSetMassLinearSolver", 1)) return 1;
+  flag = ARKStepSetMassFn(arkode_mem, MassMatrix);                /* Supply M routine */
+  if (check_flag(&flag, "ARKStepSetMassFn", 1)) return 1;
 
   /* output mesh to disk */
   FID=fopen("bruss_FEM_mesh.txt","w");
@@ -376,14 +375,14 @@ int main(int argc, char *argv[]) {
   check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1);
   flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
   check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1);
-  flag = ARKDlsGetNumMassSetups(arkode_mem, &nmset);
-  check_flag(&flag, "ARKDlsGetNumMassSetups", 1);
-  flag = ARKDlsGetNumMassSolves(arkode_mem, &nms);
-  check_flag(&flag, "ARKDlsGetNumMassSolves", 1);
-  flag = ARKDlsGetNumMassMult(arkode_mem, &nMv);
-  check_flag(&flag, "ARKDlsGetNumMassMult", 1);
-  flag = ARKDlsGetNumJacEvals(arkode_mem, &nje);
-  check_flag(&flag, "ARKDlsGetNumJacEvals", 1);
+  flag = ARKStepGetNumMassSetups(arkode_mem, &nmset);
+  check_flag(&flag, "ARKStepGetNumMassSetups", 1);
+  flag = ARKStepGetNumMassSolves(arkode_mem, &nms);
+  check_flag(&flag, "ARKStepGetNumMassSolves", 1);
+  flag = ARKStepGetNumMassMult(arkode_mem, &nMv);
+  check_flag(&flag, "ARKStepGetNumMassMult", 1);
+  flag = ARKStepGetNumJacEvals(arkode_mem, &nje);
+  check_flag(&flag, "ARKStepGetNumJacEvals", 1);
 
   printf("\nFinal Solver Statistics:\n");
   printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);

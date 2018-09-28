@@ -671,7 +671,7 @@ void ARKStepPrintMem(void* arkode_mem, FILE* outfile)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
-  int i, retval;
+  int retval;
 
   /* access ARKodeARKStepMem structure */
   retval = arkStep_AccessStepMem(arkode_mem, "ARKStepPrintMem",
@@ -1903,12 +1903,10 @@ int arkStep_CheckButcherTables(ARKodeMem ark_mem)
 ---------------------------------------------------------------*/
 int arkStep_Predict(ARKodeMem ark_mem, int istage, N_Vector yguess)
 {
-  int i, retval, ord, jstage, nvec;
+  int i, retval, jstage, nvec;
   realtype tau;
-  realtype h, a0, a1, a2;
+  realtype h;
   ARKodeARKStepMem step_mem;
-  realtype tau_tol = 0.5;
-  realtype tau_tol2 = 0.75;
   realtype* cvals;
   N_Vector* Xvecs;
 

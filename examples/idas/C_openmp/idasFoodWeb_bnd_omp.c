@@ -263,8 +263,8 @@ int main(int argc, char *argv[])
   smu = mu+ml;
   A = SUNBandMatrix(NEQ, mu, ml, smu);
   if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
-  LS = SUNBandLinearSolver(cc, A);
-  if(check_retval((void *)LS, "SUNBandLinearSolver", 0)) return(1);
+  LS = SUNLinSol_Band(cc, A);
+  if(check_retval((void *)LS, "SUNLinSol_Band", 0)) return(1);
   retval = IDADlsSetLinearSolver(ida_mem, LS, A);
   if(check_retval(&retval, "IDADlsSetLinearSolver", 1)) return(1);
 

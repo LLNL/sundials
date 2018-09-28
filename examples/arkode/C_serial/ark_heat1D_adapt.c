@@ -35,7 +35,7 @@
  * [0, 1], but as the simulation proceeds the mesh is adapted.
  *
  * This program solves the problem with a DIRK method, solved with
- * a Newton iteration and SUNPCG linear solver, with a user-supplied
+ * a Newton iteration and SUNLinSol_PCG linear solver, with a user-supplied
  * Jacobian-vector product routine.
  *---------------------------------------------------------------*/
 
@@ -46,7 +46,6 @@
 #include <arkode/arkode_arkstep.h>    /* prototypes for ARKStep fcts., consts */
 #include <nvector/nvector_serial.h>   /* serial N_Vector types, fcts., macros */
 #include <sunlinsol/sunlinsol_pcg.h>  /* access to PCG SUNLinearSolver        */
-#include <arkode/arkode_spils.h>      /* access to ARKSpils interface         */
 #include <sundials/sundials_types.h>  /* defs. of realtype, sunindextype, etc */
 #include <sundials/sundials_math.h>   /* def. of SUNRsqrt, etc.               */
 
@@ -163,14 +162,14 @@ int main() {
   if (check_flag(&flag, "ARKStepSetLinear", 1)) return 1;
 
   /* Initialize PCG solver -- no preconditioning, with up to N iterations  */
-  LS = SUNPCG(y, 0, N);
-  if (check_flag((void *)LS, "SUNPCG", 0)) return 1;
+  LS = SUNLinSol_PCG(y, 0, N);
+  if (check_flag((void *)LS, "SUNLinSol_PCG", 0)) return 1;
 
   /* Linear solver interface -- set user-supplied J*v routine (no 'jtsetup' required) */
-  flag = ARKSpilsSetLinearSolver(arkode_mem, LS);        /* Attach linear solver to ARKStep */
-  if (check_flag(&flag, "ARKSpilsSetLinearSolver", 1)) return 1;
-  flag = ARKSpilsSetJacTimes(arkode_mem, NULL, Jac);     /* Set the Jacobian routine */
-  if (check_flag(&flag, "ARKSpilsSetJacTimes", 1)) return 1;
+  flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);        /* Attach linear solver to ARKStep */
+  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
+  flag = ARKStepSetJacTimes(arkode_mem, NULL, Jac);     /* Set the Jacobian routine */
+  if (check_flag(&flag, "ARKStepSetJacTimes", 1)) return 1;
 
   /* Main time-stepping loop: calls ARKStepEvolve to perform the integration, then
      prints results.  Stops when the final time has been reached */
@@ -201,8 +200,8 @@ int main() {
     if (check_flag(&flag, "ARKStepGetCurrentStep", 1)) return 1;
     flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
     if (check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1)) return 1;
-    flag = ARKSpilsGetNumLinIters(arkode_mem, &nli);
-    if (check_flag(&flag, "ARKSpilsGetNumLinIters", 1)) return 1;
+    flag = ARKStepGetNumLinIters(arkode_mem, &nli);
+    if (check_flag(&flag, "ARKStepGetNumLinIters", 1)) return 1;
 
     /* print current solution stats */
     iout++;
@@ -249,14 +248,14 @@ int main() {
     flag = ARKStepResize(arkode_mem, y, hscale, t, NULL, NULL);
     if (check_flag(&flag, "ARKStepResize", 1)) return 1;
 
-    /* destroy and re-allocate linear solver memory; reattach to ARKSpils interface */
+    /* destroy and re-allocate linear solver memory; reattach to ARKStep interface */
     SUNLinSolFree(LS);
-    LS = SUNPCG(y, 0, N);
-    if (check_flag((void *)LS, "SUNPCG", 0)) return 1;
-    flag = ARKSpilsSetLinearSolver(arkode_mem, LS);
-    if (check_flag(&flag, "ARKSpilsSetLinearSolver", 1)) return 1;
-    flag = ARKSpilsSetJacTimes(arkode_mem, NULL, Jac);
-    if (check_flag(&flag, "ARKSpilsSetJacTimes", 1)) return 1;
+    LS = SUNLinSol_PCG(y, 0, N);
+    if (check_flag((void *)LS, "SUNLinSol_PCG", 0)) return 1;
+    flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);
+    if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
+    flag = ARKStepSetJacTimes(arkode_mem, NULL, Jac);
+    if (check_flag(&flag, "ARKStepSetJacTimes", 1)) return 1;
 
   }
   printf(" ----------------------------------------------------------------------------------------\n");

@@ -153,9 +153,9 @@ int main()
   A = SUNDenseMatrix(NEQ, NEQ);
   if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
-  /* Create SUNLapackDense solver object for use by CVode */
-  LS = SUNLapackDense(y, A);
-  if(check_retval((void *)LS, "SUNLapackDense", 0)) return(1);
+  /* Create SUNLinSol_LapackDense solver object for use by CVode */
+  LS = SUNLinSol_LapackDense(y, A);
+  if(check_retval((void *)LS, "SUNLinSol_LapackDense", 0)) return(1);
 
   /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
   retval = CVDlsSetLinearSolver(cvode_mem, LS, A);

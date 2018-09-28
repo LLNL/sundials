@@ -150,8 +150,8 @@ int main()
   if(check_retval((void *)A, "SUNSparseMatrix", 0)) return(1);
 
   /* Create KLU solver object for use by CVode */
-  LS = SUNKLU(y, A);
-  if(check_retval((void *)LS, "SUNKLU", 0)) return(1);
+  LS = SUNLinSol_KLU(y, A);
+  if(check_retval((void *)LS, "SUNLinSol_KLU", 0)) return(1);
 
   /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
   retval = CVDlsSetLinearSolver(cvode_mem, LS, A);

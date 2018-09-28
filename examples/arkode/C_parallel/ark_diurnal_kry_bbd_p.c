@@ -41,7 +41,7 @@
  * neq = 2*MX*MY.
  *
  * The solution is done with the DIRK/GMRES method (i.e. using the
- * SUNSPGMR linear solver) and a block-diagonal matrix with banded
+ * SUNLinSol_SPGMR linear solver) and a block-diagonal matrix with banded
  * blocks as a preconditioner, using the ARKBBDPRE module.
  * Each block is generated using difference quotients, with
  * half-bandwidths mudq = mldq = 2*MXSUB, but the retained banded
@@ -64,7 +64,6 @@
 #include <arkode/arkode_arkstep.h>      /* prototypes for ARKStep fcts., consts */
 #include <nvector/nvector_parallel.h>   /* access to MPI-parallel N_Vector  */
 #include <sunlinsol/sunlinsol_spgmr.h>  /* access to SPGMR SUNLinearSolver  */
-#include <arkode/arkode_spils.h>        /* access to ARKSpils interface     */
 #include <arkode/arkode_bbdpre.h>       /* access to ARKBBDPRE module       */
 #include <sundials/sundials_types.h>    /* SUNDIALS type definitions        */
 #include <sundials/sundials_math.h>     /* definition of macros SUNSQR, EXP */
@@ -207,8 +206,8 @@ int main(int argc, char *argv[])
 
   /* Create SPGMR solver structure -- use left preconditioning
      and the default Krylov dimension maxl */
-  LS = SUNSPGMR(u, PREC_LEFT, 0);
-  if (check_flag((void *)LS, "SUNSPGMR", 0, my_pe)) MPI_Abort(comm, 1);
+  LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0);
+  if (check_flag((void *)LS, "SUNLinSol_SPGMR", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Call ARKStepCreate to initialize the integrator memory and specify the
      user's right hand side function in u'=fi(t,u) [here fe is NULL],
@@ -229,9 +228,9 @@ int main(int argc, char *argv[])
   flag = ARKStepSStolerances(arkode_mem, reltol, abstol);
   if (check_flag(&flag, "ARKStepSStolerances", 1, my_pe)) return(1);
 
-  /* Attach SPGMR solver structure to ARKSpils interface */
-  flag = ARKSpilsSetLinearSolver(arkode_mem, LS);
-  if (check_flag(&flag, "ARKSpilsSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
+  /* Attach SPGMR solver structure to ARKStep interface */
+  flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);
+  if (check_flag(&flag, "ARKStepSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Initialize BBD preconditioner */
   mudq = mldq = NVARS*MXSUB;
@@ -258,8 +257,8 @@ int main(int argc, char *argv[])
       flag = ARKBBDPrecReInit(arkode_mem, mudq, mldq, ZERO);
       if(check_flag(&flag, "ARKBBDPrecReInit", 1, my_pe)) MPI_Abort(comm, 1);
 
-      flag = SUNSPGMRSetPrecType(LS, PREC_RIGHT);
-      check_flag(&flag, "SUNSPGMRSetPrecType", 1, my_pe);
+      flag = SUNLinSol_SPGMRSetPrecType(LS, PREC_RIGHT);
+      if(check_flag(&flag, "SUNLinSol_SPGMRSetPrecType", 1, my_pe)) MPI_Abort(comm, 1);
 
       if (my_pe == 0) {
         printf("\n\n-------------------------------------------------------");
@@ -455,18 +454,18 @@ static void PrintFinalStats(void *arkode_mem)
   flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
   check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1, 0);
 
-  flag = ARKSpilsGetWorkSpace(arkode_mem, &lenrwLS, &leniwLS);
-  check_flag(&flag, "ARKSpilsGetWorkSpace", 1, 0);
-  flag = ARKSpilsGetNumLinIters(arkode_mem, &nli);
-  check_flag(&flag, "ARKSpilsGetNumLinIters", 1, 0);
-  flag = ARKSpilsGetNumPrecEvals(arkode_mem, &npe);
-  check_flag(&flag, "ARKSpilsGetNumPrecEvals", 1, 0);
-  flag = ARKSpilsGetNumPrecSolves(arkode_mem, &nps);
-  check_flag(&flag, "ARKSpilsGetNumPrecSolves", 1, 0);
-  flag = ARKSpilsGetNumConvFails(arkode_mem, &ncfl);
-  check_flag(&flag, "ARKSpilsGetNumConvFails", 1, 0);
-  flag = ARKSpilsGetNumRhsEvals(arkode_mem, &nfeLS);
-  check_flag(&flag, "ARKSpilsGetNumRhsEvals", 1, 0);
+  flag = ARKStepGetLinWorkSpace(arkode_mem, &lenrwLS, &leniwLS);
+  check_flag(&flag, "ARKStepGetLinWorkSpace", 1, 0);
+  flag = ARKStepGetNumLinIters(arkode_mem, &nli);
+  check_flag(&flag, "ARKStepGetNumLinIters", 1, 0);
+  flag = ARKStepGetNumPrecEvals(arkode_mem, &npe);
+  check_flag(&flag, "ARKStepGetNumPrecEvals", 1, 0);
+  flag = ARKStepGetNumPrecSolves(arkode_mem, &nps);
+  check_flag(&flag, "ARKStepGetNumPrecSolves", 1, 0);
+  flag = ARKStepGetNumLinConvFails(arkode_mem, &ncfl);
+  check_flag(&flag, "ARKStepGetNumLinConvFails", 1, 0);
+  flag = ARKStepGetNumLinRhsEvals(arkode_mem, &nfeLS);
+  check_flag(&flag, "ARKStepGetNumLinRhsEvals", 1, 0);
 
   printf("\nFinal Statistics: \n\n");
   printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw, leniw);

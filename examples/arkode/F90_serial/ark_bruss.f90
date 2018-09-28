@@ -58,7 +58,7 @@ program driver
   real(kind=REALTYPE), parameter :: T0=0.d0, Tf=10.d0
   real(kind=REALTYPE) :: dTout, Tout, Tcur, rtol, atol, rout(6)
   integer   :: it, Nt, ier
-  integer*8 :: iout(22)
+  integer*8 :: iout(35)
   real(kind=REALTYPE), dimension(NEQ) :: y
 
   ! real/integer parameters to pass through to supplied functions
@@ -133,14 +133,14 @@ program driver
      stop
   endif
 
-  ! attach matrix and linear solver modules to ARKDls interface
-  call FARKDlsInit(ier)
+  ! attach matrix and linear solver modules to ARKLs interface
+  call FARKLsInit(ier)
   if (ier < 0) then
-     write(0,*) 'Error in FARKDlsInit = ',ier
+     write(0,*) 'Error in FARKLsInit = ',ier
      stop
   endif
-
-  ! notify ARKDls module of user-supplied Jacobian construction routine
+  
+  ! notify ARKLs module of user-supplied Jacobian construction routine
   call FARKDenseSetJac(1, ier)
   if (ier < 0) then
      write(0,*) 'Error in FARKDenseSetJac = ',ier

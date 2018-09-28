@@ -24,10 +24,9 @@ INSTALL(CODE "MESSAGE(\"\nInstall IDA\n\")")
 SET(ida_SOURCES
   ida.c
   ida_bbdpre.c
-  ida_direct.c
   ida_ic.c
   ida_io.c
-  ida_spils.c
+  ida_ls.c
   ida_nls.c
   )
 
@@ -79,6 +78,7 @@ SET(ida_HEADERS
   ida.h
   ida_bbdpre.h
   ida_direct.h
+  ida_ls.h
   ida_spils.h
   )
 

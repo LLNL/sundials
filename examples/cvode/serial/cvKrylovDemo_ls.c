@@ -23,10 +23,10 @@
  * The PDE system is treated by central differences on a uniform
  * 10 x 10 mesh, with simple polynomial initial profiles.
  * The problem is solved with CVODE, with the BDF/GMRES,
- * BDF/Bi-CGStab, and BDF/TFQMR methods (i.e. using the SUNSPGMR,
- * SUNSPBCGS and SUNSPTFQMR linear solvers) and the block-diagonal
- * part of the Newton matrix as a left preconditioner. A copy of
- * the block-diagonal part of the Jacobian is saved and
+ * BDF/Bi-CGStab, and BDF/TFQMR methods (i.e. using the SUNLinSol_SPGMR,
+ * SUNLinSol_SPBCGS and SUNLinSol_SPTFQMR linear solvers) and the
+ * block-diagonal part of the Newton matrix as a left preconditioner.
+ * A copy of the block-diagonal part of the Jacobian is saved and
  * conditionally reused within the Precond routine.
  * -----------------------------------------------------------------*/
 
@@ -35,7 +35,6 @@
 #include <math.h>
 
 #include <cvode/cvode.h>                 /* main integrator header file       */
-#include <cvode/cvode_spils.h>           /* access to CVSpils interface       */
 #include <sunlinsol/sunlinsol_spgmr.h>   /* access to SPGMR SUNLinearSolver   */
 #include <sunlinsol/sunlinsol_spbcgs.h>  /* access to SPBCGS SUNLinearSolver  */
 #include <sunlinsol/sunlinsol_sptfqmr.h> /* access to SPTFQMR SUNLinearSolver */
@@ -228,13 +227,13 @@ int main(void)
       printf(" \n| SPGMR |\n");
       printf(" -------\n");
 
-      /* Call SUNSPGMR to specify the linear solver SPGMR with
+      /* Call SUNLinSol_SPGMR to specify the linear solver SPGMR with
          left preconditioning and the default maximum Krylov dimension */
-      LS = SUNSPGMR(u, PREC_LEFT, 0);
-      if(check_retval((void *)LS, "SUNSPGMR", 0)) return(1);
+      LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0);
+      if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
-      retval = CVSpilsSetLinearSolver(cvode_mem, LS);
-      if(check_retval(&retval, "CVSpilsSetLinearSolver", 1)) return 1;
+      retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
+      if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return 1;
 
       break;
 
@@ -246,13 +245,13 @@ int main(void)
       printf(" \n| SPBCGS |\n");
       printf(" -------\n");
 
-      /* Call SUNSPBCGS to specify the linear solver SPBCGS with
+      /* Call SUNLinSol_SPBCGS to specify the linear solver SPBCGS with
          left preconditioning and the default maximum Krylov dimension */
-      LS = SUNSPBCGS(u, PREC_LEFT, 0);
-      if(check_retval((void *)LS, "SUNSPBCGS", 0)) return(1);
+      LS = SUNLinSol_SPBCGS(u, PREC_LEFT, 0);
+      if(check_retval((void *)LS, "SUNLinSol_SPBCGS", 0)) return(1);
 
-      retval = CVSpilsSetLinearSolver(cvode_mem, LS);
-      if(check_retval(&retval, "CVSpilsSetLinearSolver", 1)) return 1;
+      retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
+      if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return 1;
 
       break;
 
@@ -264,13 +263,13 @@ int main(void)
       printf(" \n| SPTFQMR |\n");
       printf(" ---------\n");
 
-      /* Call SUNSPTFQMR to specify the linear solver SPTFQMR with
+      /* Call SUNLinSol_SPTFQMR to specify the linear solver SPTFQMR with
          left preconditioning and the default maximum Krylov dimension */
-      LS = SUNSPTFQMR(u, PREC_LEFT, 0);
-      if(check_retval((void *)LS, "SUNSPTFQMR", 0)) return(1);
+      LS = SUNLinSol_SPTFQMR(u, PREC_LEFT, 0);
+      if(check_retval((void *)LS, "SUNLinSol_SPTFQMR", 0)) return(1);
 
-      retval = CVSpilsSetLinearSolver(cvode_mem, LS);
-      if(check_retval(&retval, "CVSpilsSetLinearSolver", 1)) return 1;
+      retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
+      if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return 1;
 
       break;
 
@@ -279,8 +278,8 @@ int main(void)
 
     /* Set preconditioner setup and solve routines Precond and PSolve,
        and the pointer to the user-defined block data */
-    retval = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve);
-    if(check_retval(&retval, "CVSpilsSetPreconditioner", 1)) return(1);
+    retval = CVodeSetPreconditioner(cvode_mem, Precond, PSolve);
+    if(check_retval(&retval, "CVodeSetPreconditioner", 1)) return(1);
 
     /* In loop over output points, call CVode, print results, test for error */
     printf(" \n2-species diurnal advection-diffusion problem\n\n");
@@ -453,18 +452,18 @@ static void PrintFinalStats(void *cvode_mem, int linsolver)
   retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1);
 
-  retval = CVSpilsGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
-  check_retval(&retval, "CVSpilsGetWorkSpace", 1);
-  retval = CVSpilsGetNumLinIters(cvode_mem, &nli);
-  check_retval(&retval, "CVSpilsGetNumLinIters", 1);
-  retval = CVSpilsGetNumPrecEvals(cvode_mem, &npe);
-  check_retval(&retval, "CVSpilsGetNumPrecEvals", 1);
-  retval = CVSpilsGetNumPrecSolves(cvode_mem, &nps);
-  check_retval(&retval, "CVSpilsGetNumPrecSolves", 1);
-  retval = CVSpilsGetNumConvFails(cvode_mem, &ncfl);
-  check_retval(&retval, "CVSpilsGetNumConvFails", 1);
-  retval = CVSpilsGetNumRhsEvals(cvode_mem, &nfeLS);
-  check_retval(&retval, "CVSpilsGetNumRhsEvals", 1);
+  retval = CVodeGetLinWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
+  check_retval(&retval, "CVodeGetLinWorkSpace", 1);
+  retval = CVodeGetNumLinIters(cvode_mem, &nli);
+  check_retval(&retval, "CVodeGetNumLinIters", 1);
+  retval = CVodeGetNumPrecEvals(cvode_mem, &npe);
+  check_retval(&retval, "CVodeGetNumPrecEvals", 1);
+  retval = CVodeGetNumPrecSolves(cvode_mem, &nps);
+  check_retval(&retval, "CVodeGetNumPrecSolves", 1);
+  retval = CVodeGetNumLinConvFails(cvode_mem, &ncfl);
+  check_retval(&retval, "CVodeGetNumLinConvFails", 1);
+  retval = CVodeGetNumLinRhsEvals(cvode_mem, &nfeLS);
+  check_retval(&retval, "CVodeGetNumLinRhsEvals", 1);
 
   printf("\nFinal Statistics.. \n\n");
   printf("lenrw   = %5ld     leniw   = %5ld\n"  , lenrw, leniw);

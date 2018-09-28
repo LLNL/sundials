@@ -195,10 +195,10 @@ int main(void)
       printf(" \n| SPGMR |\n");
       printf(" -------\n");
 
-      /* Call SUNSPGMR to specify the linear solver SPGMR with
+      /* Call SUNLinSol_SPGMR to specify the linear solver SPGMR with
          left preconditioning and the default maximum Krylov dimension */
-      LS = SUNSPGMR(uu, PREC_LEFT, 0);
-      if(check_retval((void *)LS, "SUNSPGMR", 0)) return(1);
+      LS = SUNLinSol_SPGMR(uu, PREC_LEFT, 0);
+      if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
       /* Attach the linear solver */
       retval = IDASpilsSetLinearSolver(mem, LS);
@@ -214,10 +214,10 @@ int main(void)
       printf(" \n| SPBCGS |\n");
       printf(" -------\n");
 
-      /* Call SUNSPBCGS to specify the linear solver SPBCGS with
+      /* Call SUNLinSol_SPBCGS to specify the linear solver SPBCGS with
          left preconditioning and the default maximum Krylov dimension */
-      LS = SUNSPBCGS(uu, PREC_LEFT, 0);
-      if(check_retval((void *)LS, "SUNSPBCGS", 0)) return(1);
+      LS = SUNLinSol_SPBCGS(uu, PREC_LEFT, 0);
+      if(check_retval((void *)LS, "SUNLinSol_SPBCGS", 0)) return(1);
 
       /* Attach the linear solver */
       retval = IDASpilsSetLinearSolver(mem, LS);
@@ -233,10 +233,10 @@ int main(void)
       printf(" \n| SPTFQMR |\n");
       printf(" ---------\n");
 
-      /* Call SUNSPTFQMR to specify the linear solver SPTFQMR with
+      /* Call SUNLinSol_SPTFQMR to specify the linear solver SPTFQMR with
          left preconditioning and the default maximum Krylov dimension */
-      LS = SUNSPTFQMR(uu, PREC_LEFT, 0);
-      if(check_retval((void *)LS, "SUNSPTFQMR", 0)) return(1);
+      LS = SUNLinSol_SPTFQMR(uu, PREC_LEFT, 0);
+      if(check_retval((void *)LS, "SUNLinSol_SPTFQMR", 0)) return(1);
 
       /* Attach the linear solver */
       retval = IDASpilsSetLinearSolver(mem, LS);

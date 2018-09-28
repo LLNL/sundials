@@ -202,8 +202,8 @@ int main(int argc, char *argv[])
 
   /* Create SuperLUMT SUNLinearSolver object (one thread) */
   nthreads = 1;
-  LS = SUNSuperLUMT(y, A, nthreads);
-  if(check_retval((void *)LS, "SUNSuperLUMT", 0)) return(1);
+  LS = SUNLinSol_SuperLUMT(y, A, nthreads);
+  if(check_retval((void *)LS, "SUNLinSol_SuperLUMT", 0)) return(1);
 
   /* Attach the matrix and linear solver */
   retval = IDADlsSetLinearSolver(ida_mem, LS, A);

@@ -137,7 +137,7 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
 
   /* Allocate memory for banded linear solver */
   pdata->LS = NULL;
-  pdata->LS = SUNBandLinearSolver(cv_mem->cv_tempv, pdata->savedP);
+  pdata->LS = SUNLinSol_Band(cv_mem->cv_tempv, pdata->savedP);
   if (pdata->LS == NULL) {
     SUNMatDestroy(pdata->savedP);
     SUNMatDestroy(pdata->savedJ);

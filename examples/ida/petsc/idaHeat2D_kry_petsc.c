@@ -9,7 +9,7 @@
  * Example problem for IDA: 2D heat equation, PETSc vector, GMRES.
  *
  * This example solves a discretized 2D heat equation problem.
- * This version uses the Krylov solver SUNSPGMR.
+ * This version uses the Krylov solver SUNLinSol_SPGMR.
  *
  * The DAE system solved is a spatial discretization of the PDE
  *          du/dt = d^2u/dx^2 + d^2u/dy^2
@@ -25,9 +25,9 @@
  * processors.
  *
  * The system is solved with IDA using the Krylov linear solver
- * SUNSPGMR. The preconditioner uses the diagonal elements of the
+ * SUNLinSol_SPGMR. The preconditioner uses the diagonal elements of the
  * Jacobian only. Routines for preconditioning, required by
- * SUNSPGMR, are supplied here. The constraints u >= 0 are posed
+ * SUNLinSol_SPGMR, are supplied here. The constraints u >= 0 are posed
  * for all components. Local error testing on the boundary values
  * is suppressed. Output is taken at t = 0, .01, .02, .04,
  * ..., 10.24.
@@ -42,7 +42,6 @@
 #include <math.h>
 
 #include <ida/ida.h>
-#include <ida/ida_spils.h>
 #include <sunlinsol/sunlinsol_spgmr.h>
 #include <nvector/nvector_petsc.h>
 #include <sundials/sundials_types.h>
@@ -238,16 +237,16 @@ int main(int argc, char *argv[])
   retval = IDASStolerances(ida_mem, rtol, atol);
   if(check_retval(&retval, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
 
-  /* Call SUNSPGMR and IDASetLinearSolver to specify the linear solver. */
+  /* Call SUNLinSol_SPGMR and IDASetLinearSolver to specify the linear solver. */
 
-  LS = SUNSPGMR(uu, PREC_LEFT, 0);  /* use default maxl */
-  if(check_retval((void *)LS, "SUNSPGMR", 0, thispe)) MPI_Abort(comm, 1);
+  LS = SUNLinSol_SPGMR(uu, PREC_LEFT, 0);  /* use default maxl */
+  if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0, thispe)) MPI_Abort(comm, 1);
 
-  retval = IDASpilsSetLinearSolver(ida_mem, LS);
-  if(check_retval(&retval, "IDASpilsSetLinearSolver", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDASetLinearSolver(ida_mem, LS, NULL);
+  if(check_retval(&retval, "IDASetLinearSolver", 1, thispe)) MPI_Abort(comm, 1);
 
-  retval = IDASpilsSetPreconditioner(ida_mem, PsetupHeat, PsolveHeat);
-  if(check_retval(&retval, "IDASpilsSetPreconditioner", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDASetPreconditioner(ida_mem, PsetupHeat, PsolveHeat);
+  if(check_retval(&retval, "IDASetPreconditioner", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Print output heading (on processor 0 only) and intial solution  */
 
@@ -609,7 +608,7 @@ static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol)
   printf("Constraints set to force all solution components >= 0. \n");
   printf("SUPPRESSALG = SUNTRUE to suppress local error testing on ");
   printf("all boundary components. \n");
-  printf("Linear solver: SUNSPGMR  ");
+  printf("Linear solver: SUNLinSol_SPGMR  ");
   printf("Preconditioner: diagonal elements only.\n");
   printf("This example uses PETSc vector.\n");
 
@@ -643,16 +642,16 @@ static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu)
     check_retval(&retval, "IDAGetNumResEvals", 1, id);
     retval = IDAGetLastStep(ida_mem, &hused);
     check_retval(&retval, "IDAGetLastStep", 1, id);
-    retval = IDASpilsGetNumJtimesEvals(ida_mem, &nje);
-    check_retval(&retval, "IDASpilsGetNumJtimesEvals", 1, id);
-    retval = IDASpilsGetNumLinIters(ida_mem, &nli);
-    check_retval(&retval, "IDASpilsGetNumLinIters", 1, id);
-    retval = IDASpilsGetNumResEvals(ida_mem, &nreLS);
-    check_retval(&retval, "IDASpilsGetNumResEvals", 1, id);
-    retval = IDASpilsGetNumPrecEvals(ida_mem, &npe);
-    check_retval(&retval, "IDASpilsGetPrecEvals", 1, id);
-    retval = IDASpilsGetNumPrecSolves(ida_mem, &nps);
-    check_retval(&retval, "IDASpilsGetNumPrecSolves", 1, id);
+    retval = IDAGetNumJtimesEvals(ida_mem, &nje);
+    check_retval(&retval, "IDAGetNumJtimesEvals", 1, id);
+    retval = IDAGetNumLinIters(ida_mem, &nli);
+    check_retval(&retval, "IDAGetNumLinIters", 1, id);
+    retval = IDAGetNumLinResEvals(ida_mem, &nreLS);
+    check_retval(&retval, "IDAGetNumLinResEvals", 1, id);
+    retval = IDAGetNumPrecEvals(ida_mem, &npe);
+    check_retval(&retval, "IDAGetNumPrecEvals", 1, id);
+    retval = IDAGetNumPrecSolves(ida_mem, &nps);
+    check_retval(&retval, "IDAGetNumPrecSolves", 1, id);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le  %3ld %3ld\n",
@@ -678,7 +677,7 @@ static void PrintFinalStats(void *ida_mem)
 
   IDAGetNumErrTestFails(ida_mem, &netf);
   IDAGetNumNonlinSolvConvFails(ida_mem, &ncfn);
-  IDASpilsGetNumConvFails(ida_mem, &ncfl);
+  IDAGetNumLinConvFails(ida_mem, &ncfl);
 
   printf("\nError test failures            = %ld\n", netf);
   printf("Nonlinear convergence failures = %ld\n", ncfn);

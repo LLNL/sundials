@@ -82,12 +82,11 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <ida/ida.h>                          /* prototypes for IDA fcts., consts.    */
-#include <nvector/nvector_serial.h>           /* access to serial N_Vector            */
-#include <sunmatrix/sunmatrix_band.h>         /* access to band SUNMatrix             */
-#include <sunlinsol/sunlinsol_band.h>         /* access to band SUNLinearSolver       */
-#include <ida/ida_direct.h>                   /* access to IDADls interface           */
-#include <sundials/sundials_types.h>          /* definition of type realtype          */
+#include <ida/ida.h>                   /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
+#include <sunmatrix/sunmatrix_band.h>  /* access to band SUNMatrix             */
+#include <sunlinsol/sunlinsol_band.h>  /* access to band SUNLinearSolver       */
+#include <sundials/sundials_types.h>   /* definition of type realtype          */
 
 /* Problem Constants. */
 
@@ -230,12 +229,12 @@ int main()
   if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
 
   /* Create banded SUNLinearSolver object */
-  LS = SUNBandLinearSolver(cc, A);
-  if(check_retval((void *)LS, "SUNBandLinearSolver", 0)) return(1);
+  LS = SUNLinSol_Band(cc, A);
+  if(check_retval((void *)LS, "SUNLinSol_Band", 0)) return(1);
 
   /* Attach the matrix and linear solver */
-  retval = IDADlsSetLinearSolver(mem, LS, A);
-  if(check_retval(&retval, "IDADlsSetLinearSolver", 1)) return(1);
+  retval = IDASetLinearSolver(mem, LS, A);
+  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
 
   /* Call IDACalcIC (with default options) to correct the initial values. */
 
@@ -536,10 +535,10 @@ static void PrintFinalStats(void *mem)
   check_retval(&retval, "IDAGetNumErrTestFails", 1);
   retval = IDAGetNumNonlinSolvConvFails(mem, &ncfn);
   check_retval(&retval, "IDAGetNumNonlinSolvConvFails", 1);
-  retval = IDADlsGetNumJacEvals(mem, &nje);
-  check_retval(&retval, "IDADlsGetNumJacEvals", 1);
-  retval = IDADlsGetNumResEvals(mem, &nreLS);
-  check_retval(&retval, "IDADlsGetNumResEvals", 1);
+  retval = IDAGetNumJacEvals(mem, &nje);
+  check_retval(&retval, "IDAGetNumJacEvals", 1);
+  retval = IDAGetNumLinResEvals(mem, &nreLS);
+  check_retval(&retval, "IDAGetNumLinResEvals", 1);
 
   printf("-----------------------------------------------------------\n");
   printf("Final run statistics: \n\n");

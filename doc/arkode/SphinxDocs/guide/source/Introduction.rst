@@ -123,6 +123,26 @@ user-level changes have been kept to a minimum.  However, we recommend
 that users consult both this documentation and the ARKode example
 programs for further details on the updated infrastructure.
 
+ARKode's previous direct and iterative linear solver interfaces,
+ARKDLS and ARKSPILS, have been merged into a single unified linear solver
+interface, ARKLS, to support any valid SUNLINSOL module.  The user
+interface for the new ARKLS module is very similar to the previous
+ARKDLS and ARKSPILS interfaces.  Additionally, we note that {\F} users
+will need to enlarge their \id{iout} array of optional integer
+outputs, and update the indices that they query for certain
+linear-solver-related statistics.
+
+The names of all constructor routines for SUNDIALS-provided SUNLinSol
+implementations have been updated to ``SUNLinSol_Band``, ``SUNLinSol_Dense``,
+``SUNLinSol_KLU``, ``SUNLinSol_LapackBand``, ``SUNLinSol_LapackDense``,
+``SUNLinSol_PCG``, ``SUNLinSol_SPBCGS``, ``SUNLinSol_SPFGMR``,
+``SUNLinSol_SPGMR``, ``SUNLinSol_SPTFQMR``, and
+``SUNLinSol_SuperLUMT``.  Solver-specific "set" routine names have
+been similarly standardized.  To minimize challenges in user migration
+to the new names, the previous routine names may still be used; these
+will be deprecated in future releases, so we recommend that users
+migrate to the new names soon.
+
 An API for encapsulating the nonlinear solvers used in SUNDIALS
 implicit integrators has been introduced. The goal of this API is to
 ease the introduction of new nonlinear solver options in SUNDIALS
@@ -130,7 +150,7 @@ integrators and allow for external or user-supplied nonlinear
 solvers. The SUNNonlinSol API and provided SUNNonlinearSolver modules
 are described in Chapter :ref:`SUNNonlinSol` and follow the same
 object oriented design and implementation used by the NVector,
-SUNMatrix, and SUNLinSol modules. 
+SUNMatrix, and SUNLinSol modules.
 
 SUNNonlinSol modules are intended to solve nonlinear systems formulated as
 either a rootfinding problem :math:`F(y)=0` or a fixed-point problem
@@ -140,7 +160,7 @@ previous integrator specific implementations of a Newton iteration and
 an accelerated fixed-point iteration, respectively.  Example programs
 using each of these nonlinear solver modules in a standalone manner
 have been added and all relevant ARKode example programs have been
-updated to use generic SUNNonlinSol modules. 
+updated to use generic SUNNonlinSol modules.
 
 As with previous versions, ARKode will use the Newton solver (now
 provided by SUNNonlinSol_Newton) by default.  Use of the
@@ -212,6 +232,17 @@ name-mangling scheme and bypass trying to infer the scheme.
 Additionally, parts of the main CMakeLists.txt file were moved
 to new files in the ``src`` and ``example`` directories to make the
 CMake configuration file structure more modular.
+
+
+Changes in v2.2.0
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Fixed a problem with index types which would occur with some compilers
+(e.g. armclang) that did not define ``__STDC_VERSION__``.
+
+Deprecated the current behavior of the ``SUNDIALS_INDEX_TYPE`` CMake
+option, and added the ``SUNDIALS_INDEX_SIZE`` CMake option to take its
+place.
 
 
 Changes in v2.1.2

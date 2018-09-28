@@ -1231,8 +1231,9 @@ are to be used in building a preconditioner.
  & Libraries    & libsundials\_cvode.{\em lib} & libsundials\_fcvode.a \\
 \cline{2-4}
  & Header files & cvode/cvode.h                & cvode/cvode\_impl.h   \\
- &              & cvode/cvode\_direct.h        & cvode/cvode\_spils.h  \\
- &              & cvode/cvode\_bandpre.h       & cvode/cvode\_bbdpre.h \\
+ &              & cvode/cvode\_direct.h        & cvode/cvode\_ls.h \\
+ &              & cvode/cvode\_spils.h         & cvode/cvode\_bandpre.h \\
+ &              & cvode/cvode\_bbdpre.h        &  \\
 \hline
 %% --------------------------------------------------
 {\cvodes}
@@ -1246,9 +1247,9 @@ are to be used in building a preconditioner.
 {\arkode}
  & Libraries    & libsundials\_arkode.{\em lib} & libsundials\_farkode.a \\
 \cline{2-4}
- & Header files & arkode/arkode.h               & arkode/arkode\_impl.h   \\
- &              & arkode/arkode\_direct.h       & arkode/arkode\_spils.h  \\
- &              & arkode/arkode\_bandpre.h      & arkode/arkode\_bbdpre.h \\
+ & Header files & arkode/arkode.h               & arkode/arkode\_impl.h    \\
+ &              & arkode/arkode\_ls.h           & arkode/arkode\_bandpre.h \\
+ &              & arkode/arkode\_bbdpre.h       &  \\
 \hline
 %% --------------------------------------------------
 {\ida}
@@ -1270,9 +1271,9 @@ are to be used in building a preconditioner.
 {\kinsol}
  & Libraries    & libsundials\_kinsol.{\em lib} & libsundials\_fkinsol.a \\
 \cline{2-4}
- & Header files & kinsol/kinsol.h               & kinsol/kinsol\_impl.h     \\
- &              & kinsol/kinsol\_direct.h       & kinsol/kinsol\_spils.h    \\
- &              & kinsol/kinsol\_bbdpre.h       & \\
+ & Header files & kinsol/kinsol.h               & kinsol/kinsol\_impl.h   \\
+ &              & kinsol/kinsol\_direct.h       & kinsol/kinsol\_ls.h     \\
+ &              & kinsol/kinsol\_spils.h        & kinsol/kinsol\_bbdpre.h \\
 \hline
  %% --------------------------------------------------
 \end{xtabular}

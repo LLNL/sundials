@@ -82,13 +82,12 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <ida/ida.h>                          /* prototypes for IDA fcts., consts.    */
-#include <nvector/nvector_serial.h>           /* access to serial N_Vector            */
-#include <ida/ida_spils.h>                    /* access to IDASpils interface         */
-#include <sunlinsol/sunlinsol_spgmr.h>        /* access to spgmr SUNLinearSolver      */
-#include <sundials/sundials_dense.h>          /* use generic dense solver in precond. */
-#include <sundials/sundials_types.h>          /* definition of type realtype          */
-#include <sundials/sundials_math.h>           /* macros SUNRabs, SUNRsqrt, etc.       */
+#include <ida/ida.h>                   /* prototypes for IDA fcts., consts.    */
+#include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
+#include <sunlinsol/sunlinsol_spgmr.h> /* access to spgmr SUNLinearSolver      */
+#include <sundials/sundials_dense.h>   /* use generic dense solver in precond. */
+#include <sundials/sundials_types.h>   /* definition of type realtype          */
+#include <sundials/sundials_math.h>    /* macros SUNRabs, SUNRsqrt, etc.       */
 
 /* Problem Constants. */
 
@@ -245,23 +244,23 @@ int main()
 
   webdata->ida_mem = mem;
 
-  /* Create the linear solver SUNSPGMR with left preconditioning
+  /* Create the linear solver SUNLinSol_SPGMR with left preconditioning
      and maximum Krylov dimension maxl */
   maxl = 16;
-  LS = SUNSPGMR(cc, PREC_LEFT, maxl);
-  if(check_retval((void *)LS, "SUNSPGMR", 0)) return(1);
+  LS = SUNLinSol_SPGMR(cc, PREC_LEFT, maxl);
+  if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
   /* IDA recommends allowing up to 5 restarts (default is 0) */
-  retval = SUNSPGMRSetMaxRestarts(LS, 5);
-  if(check_retval(&retval, "SUNSPGMRSetMaxRestarts", 1)) return(1);
+  retval = SUNLinSol_SPGMRSetMaxRestarts(LS, 5);
+  if(check_retval(&retval, "SUNLinSol_SPGMRSetMaxRestarts", 1)) return(1);
 
   /* Attach the linear sovler */
-  retval = IDASpilsSetLinearSolver(mem, LS);
-  if(check_retval(&retval, "IDASpilsSetLinearSolver", 1)) return(1);
+  retval = IDASetLinearSolver(mem, LS, NULL);
+  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
 
   /* Set the preconditioner solve and setup functions */
-  retval = IDASpilsSetPreconditioner(mem, Precond, PSolve);
-  if(check_retval(&retval, "IDASpilsSetPreconditioner", 1)) return(1);
+  retval = IDASetPreconditioner(mem, Precond, PSolve);
+  if(check_retval(&retval, "IDASetPreconditioner", 1)) return(1);
 
   /* Call IDACalcIC (with default options) to correct the initial values. */
 
@@ -659,18 +658,18 @@ static void PrintFinalStats(void *mem)
 
   retval = IDAGetNumSteps(mem, &nst);
   check_retval(&retval, "IDAGetNumSteps", 1);
-  retval = IDASpilsGetNumLinIters(mem, &sli);
-  check_retval(&retval, "IDAGetNumNonlinSolvIters", 1);
+  retval = IDAGetNumLinIters(mem, &sli);
+  check_retval(&retval, "IDAGetNumLinIters", 1);
   retval = IDAGetNumResEvals(mem, &nre);
   check_retval(&retval, "IDAGetNumResEvals", 1);
   retval = IDAGetNumErrTestFails(mem, &netf);
   check_retval(&retval, "IDAGetNumErrTestFails", 1);
-  retval = IDASpilsGetNumPrecSolves(mem, &nps);
-  check_retval(&retval, "IDAGetNumNonlinSolvConvFails", 1);
-  retval = IDASpilsGetNumPrecEvals(mem, &npevals);
-  check_retval(&retval, "IDADlsGetNumJacEvals", 1);
-  retval = IDASpilsGetNumResEvals(mem, &nrevalsLS);
-  check_retval(&retval, "IDADlsGetNumResEvals", 1);
+  retval = IDAGetNumPrecSolves(mem, &nps);
+  check_retval(&retval, "IDAGetNumPrecSolves", 1);
+  retval = IDAGetNumPrecEvals(mem, &npevals);
+  check_retval(&retval, "IDAGetNumPrecEvals", 1);
+  retval = IDAGetNumLinResEvals(mem, &nrevalsLS);
+  check_retval(&retval, "IDAGetNumLinResEvals", 1);
 
   printf("-----------------------------------------------------------\n");
   printf("Final run statistics: \n\n");

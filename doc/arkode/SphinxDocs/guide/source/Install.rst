@@ -717,7 +717,7 @@ illustration only.
    Note: The build system will attempt to infer the Fortran
    name-mangling scheme using the Fortran compiler. This option should
    only be used if a Fortran compiler is not available or to override
-   the inferred or default (``lower``) scheme if one can not be 
+   the inferred or default (``lower``) scheme if one can not be
    determined. If used, ``SUNDIALS_F77_FUNC_UNDERSCORES`` must also
    be set.
 
@@ -730,13 +730,33 @@ illustration only.
    Note: The build system will attempt to infer the Fortran
    name-mangling scheme using the Fortran compiler. This option should
    only be used if a Fortran compiler is not available or to override
-   the inferred or default (``one``) scheme if one can not be 
+   the inferred or default (``one``) scheme if one can not be
    determined. If used, ``SUNDIALS_F77_FUNC_CASE`` must also be set.
 
-:index:`SUNDIALS_INDEX_TYPE <SUNDIALS_INDEX_TYPE (CMake option)>`
-   Integer type used for SUNDIALS indices, options are: ``int32_t`` or ``int64_t``
+:index:`SUNDIALS_INDEX_TYPE <SUNDIALS_INDEX_TYPE (CMake option)>` (advanced)
+   Integer type used for SUNDIALS indices.  The size must match the size provided for
+   the ``SUNDIALS_INDEX_SIZE`` option.
 
-   Default: ``int64_t``
+   Default:
+
+   Note: In past SUNDIALS versions, a user could set this option to
+   ``INT64_T`` to use 64-bit integers, or ``INT32_T`` to use 32-bit
+   integers. Starting in SUNDIALS 3.2.0, these special values are
+   deprecated. For SUNDIALS 3.2.0 and up, a user will only need to use
+   the ``SUNDIALS_INDEX_SIZE`` option in most cases.
+
+:index:`SUNDIALS_INDEX_SIZE <SUNDIALS_INDEX_SIZE (CMake option)>`
+   Integer size (in bits) used for indices in SUNDIALS, options are: ``32`` or ``64``
+
+   Default: ``64``
+
+   Note: The build system tries to find an integer type of appropriate
+   size. Candidate 64-bit integer types are (in order of preference):
+   ``int64_t``, ``__int64``, ``long long``, and ``long``.  Candidate
+   32-bit integers are (in order of preference): ``int32_t``,
+   ``int``, and ``long``.  The advanced option,
+   ``SUNDIALS_INDEX_TYPE`` can be used to provide a type not listed
+   here.
 
 :index:`SUNDIALS_PRECISION <SUNDIALS_PRECISION (CMake option)>`
    Precision used in SUNDIALS, options are: ``double``, ``single`` or
@@ -929,7 +949,7 @@ activated by setting ``USE_XSDK_DEFAULTS`` to ``ON``.
 
    Default: ``32``
 
-   SUNDIALS equivalent: ``SUNDIALS_INDEX_TYPE``
+   SUNDIALS equivalent: ``SUNDIALS_INDEX_SIZE``
 
 :index:`XSDK_PRECISION <XSDK_PRECISION (xSDK CMake option)>`
    Precision used in SUNDIALS, options are: ``double``, ``single``, or ``quad``
@@ -1025,7 +1045,7 @@ variable can be set to the desired library. Example:
 
 .. note:: When allowing CMake to automatically locate the LAPACK
           library, CMake *may* also locate the corresponding BLAS
-          library. 
+          library.
 
           If a working Fortran compiler is not available to infer the
           Fortran name-mangling scheme, the options
@@ -1034,7 +1054,7 @@ variable can be set to the desired library. Example:
           bypass the check for a Fortran compiler and define the
           name-mangling scheme. The defaults for these options in
           earlier versions of SUNDIALS were ``lower`` and ``one``,
-          respectively. 
+          respectively.
 
 
 
@@ -1070,7 +1090,7 @@ variable can be set to the desired libraries.
 
 .. note:: When allowing CMake to automatically locate the LAPACK
           library, CMake *may* also locate the corresponding BLAS
-          library. 
+          library.
 
           If a working Fortran compiler is not available to infer the
           Fortran name-mangling scheme, the options
@@ -1079,7 +1099,7 @@ variable can be set to the desired libraries.
           bypass the check for a Fortran compiler and define the
           name-mangling scheme. The defaults for these options in
           earlier versions of SUNDIALS were ``lower`` and ``one``,
-          respectively. 
+          respectively.
 
 
 
@@ -1164,7 +1184,7 @@ NVIDIA drivers. Both are available for download from the NVIDIA website:
 `https://developer.nvidia.com/cuda-downloads
 <https://developer.nvidia.com/cuda-downloads>`_. To enable CUDA,
 set ``CUDA_ENABLE`` to ``ON``. If CUDA is installed in a nonstandard
-location, you may be prompted to set the variable 
+location, you may be prompted to set the variable
 ``CUDA_TOOLKIT_ROOT_DIR`` with your CUDA Toolkit installation
 path. To enable CUDA examples, set ``EXAMPLES_ENABLE_CUDA`` to ``ON``.
 
@@ -1457,6 +1477,7 @@ Table: SUNDIALS libraries and header files
 |                         |              | ``cvode/cvode_diag.h``,                     |
 |                         |              | ``cvode/cvode_direct.h``,                   |
 |                         |              | ``cvode/cvode_impl.h``,                     |
+|                         |              | ``cvode/cvode_ls.h``,                       |
 |                         |              | ``cvode/cvode_spils.h``,                    |
 +-------------------------+--------------+---------------------------------------------+
 | CVODES                  | Libraries    | ``libsundials_cvodes.LIB``                  |
@@ -1490,6 +1511,7 @@ Table: SUNDIALS libraries and header files
 |                         |              | ``ida/ida_bbdpre.h``,                       |
 |                         |              | ``ida/ida_direct.h``,                       |
 |                         |              | ``ida/ida_impl.h``,                         |
+|                         |              | ``ida/ida_ls.h``,                           |
 |                         |              | ``ida/ida_spils.h``,                        |
 +-------------------------+--------------+---------------------------------------------+
 | IDAS                    | Libraries    | ``libsundials_idas.LIB``                    |
@@ -1507,5 +1529,6 @@ Table: SUNDIALS libraries and header files
 |                         |              | ``kinsol/kinsol_bbdpre.h``,                 |
 |                         |              | ``kinsol/kinsol_direct.h``,                 |
 |                         |              | ``kinsol/kinsol_impl.h``,                   |
+|                         |              | ``kinsol/kinsol_ls.h``,                     |
 |                         |              | ``kinsol/kinsol_spils.h``,                  |
 +-------------------------+--------------+---------------------------------------------+

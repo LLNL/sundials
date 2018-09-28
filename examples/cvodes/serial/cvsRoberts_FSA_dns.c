@@ -176,8 +176,8 @@ int main(int argc, char *argv[])
   if (check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver */
-  LS = SUNDenseLinearSolver(y, A);
-  if (check_retval((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+  LS = SUNLinSol_Dense(y, A);
+  if (check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
   retval = CVDlsSetLinearSolver(cvode_mem, LS, A);

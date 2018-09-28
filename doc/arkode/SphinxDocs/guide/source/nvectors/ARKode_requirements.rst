@@ -18,13 +18,23 @@ NVECTOR functions required by ARKode
 In the table below, we list the vector functions in the ``N_Vector``
 module that are called within the ARKode package.  The table also
 shows, for each function, which ARKode module uses the function.  
-The ARKode column shows function usage within the main time-stepping
-modules and the shared ARKode infrastructure,  while the remaining
-columns show function usage within the ARKode linear solver
-interfaces, the ARKBANDPRE and ARKBBDPRE preconditioner modules, and
-the FARKODE module.  Here ARKDLS stands for the direct linear solver
-interface in ARKode, and ARKSPILS stands for the scaled,
-preconditioned, iterative linear solver interface in ARKode.
+The ARKSTEP and ERKSTEP columns show function usage within the main
+time-stepping modules and the shared ARKode infrastructure,  while the
+remaining columns show function usage within the ARKLS linear solver
+interface, the ARKBANDPRE and ARKBBDPRE preconditioner modules, and
+the FARKODE module.
+
+Note that since FARKODE is built on top of ARKode, and therefore
+requires the same ``N_Vector`` routines, in the FARKODE column we only
+list the routines that the FARKODE interface directly utilizes.
+
+Note that for ARKLS we only list the ``N_Vector`` routines used
+directly by ARKLS, each ``SUNLinearSolver`` module may have additional
+requirements that are not listed here.  In addition, specific
+``SUNNonlinearSolver`` modules attached to ARKode may have additional
+``N_Vector`` requirements.  For additional requirements by specific
+``SUNLinearSolver`` and ``SUNNonlinearSolver`` modules, please see the
+accompanying sections :ref:`SUNLinSol` and :ref:`SUNNonlinSol`. 
 
 At this point, we should emphasize that the user does not need to know
 anything about ARKode's usage of vector functions in order to use
@@ -39,44 +49,34 @@ omit these functions from their implementation.
 
 .. cssclass:: table-bordered
 
-====================  =============  ======  ===========  ==========  =========  =============
-Routine               ARKode         ARKDLS  ARKSPILS     ARKBANDPRE  ARKBBDPRE  FARKODE
-====================  =============  ======  ===========  ==========  =========  =============
-N_VAbs                X                                                          X
-N_VAddConst           X                                                          X
-N_VClone              X                      X                                   X
-N_VCloneEmpty                                                                    X
-N_VConst              X              X       X                                   X
-N_VDestroy            X                      X                                   X
-N_VDiv                X                      X                                   X
-N_VDotProd            X\ :sup:`1`            X                                   X\ :sup:`1`
-N_VGetArrayPointer                   X                    X           X          X
-N_VGetVectorID  
-N_VInv                X                                                          X
-N_VLinearSum          X              X       X                                   X
-N_VMaxNorm            X                                                          X
-N_VMin                X                                                          X
-N_VProd                                      X   
-N_VScale              X              X       X            X           X          X
-N_VSetArrayPointer                   X                                           X
-N_VSpace              X\ :sup:`2`                                                X\ :sup:`2`
-N_VWrmsNorm           X              X       X            X           X          X
-N_VLinearCombination  X                      X   
-N_VDotProdMulti       X\ :sup:`3`            X\ :sup:`3`
-====================  =============  ======  ===========  ==========  =========  =============
+==============================  =======  =======  ===========  ==========  =========  =======
+Routine                         ARKSTEP  ERKSTEP  ARKLS        ARKBANDPRE  ARKBBDPRE  FARKODE
+==============================  =======  =======  ===========  ==========  =========  =======
+N_VAbs                          X        X
+N_VAddConst                     X        X
+N_VClone                        X        X        X
+N_VCloneEmpty                                                                         X
+N_VConst                        X        X        X                                   X
+N_VDestroy                      X        X        X                                   X
+N_VDiv                          X        X
+N_VDotProd                                        X
+N_VGetArrayPointer                                X\ :sup:`1`  X           X          X
+N_VInv                          X        X
+N_VLinearSum                    X        X        X
+N_VMaxNorm                      X        X
+N_VMin                          X        X                                            X
+N_VScale                        X        X        X            X           X
+N_VSetArrayPointer                                X\ :sup:`1`                         X
+N_VSpace\ :sup:`2`              X        X        X            X           X
+N_VWrmsNorm                     X        X        X            X           X
+N_VLinearCombination\ :sup:`3`  X        X
+==============================  =======  =======  ===========  ==========  =========  =======
 
-1. The :c:func:`N_VDotProd()` function is only used by the main
-   ARKode integrator module when the fixed-point nonlinear solver is
-   specified; when solving an explicit problem or when using a Newton
-   solver with direct linear solver, it need not be
-   supplied by the ``N_Vector`` implementation.
+1. This is only required with dense or band matrix-based linear solver modules, 
+   where the default difference-quotient Jacobian approximation is used.
 
-2. The :c:func:`N_VSpace()` function is only informational, and need
-   not be supplied by the ``N_Vector`` implementation.
+2. The :c:func:`N_VSpace()` function is only informational, and will
+   only be called if provided by the ``N_Vector`` implementation.
 
-3. The optional function :c:func:`N_VDotProdMulti()` is only used when
-   the Anderson acceleration fixed point solver is used or when
-   classical Gram-Schmidt is used with the SPGMR or SPFGMR iterative
-   linear solvers.  The remaining fused vector and vector array
-   operations are unused and a user-supplied NVECTOR module for ARKode
-   could omit these operations.
+3. The :c:func:`N_VLinearCombination()` function is in fact optional;
+   if it is not supplied then :c:func:`N_VLinearSum()` will be used instead.

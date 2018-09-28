@@ -424,8 +424,9 @@ or by the {\arkode} and {\cvode} linear solver interfaces.  Otherwise,
 {
   The function \ID{SUNNonlinSolGetCurIter} returns the iteration index
   of the current nonlinear solve. This function is \textit{required}
-  when using {\sundials} integrator-provided convergence tests and
-  \textit{optional} for user supplied convergence test functions.
+  when using {\sundials} integrator-provided convergence tests or
+  when using a {\sunlinsol} spils linear solver; otherwise it is 
+  \textit{optional}.
 }
 {
   \begin{args}[numiters]

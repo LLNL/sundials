@@ -11,14 +11,105 @@
 
 .. _SUNLinSol_LapackBand:
 
-The SUNLINSOL_LAPACKBAND Module
+The SUNLinSol_LapackBand Module
 ======================================
 
 The LAPACK band implementation of the ``SUNLinearSolver`` module provided
-with SUNDIALS, SUNLINSOL_LAPACKBAND, is designed to be used with the
+with SUNDIALS, SUNLinSol_LapackBand, is designed to be used with the
 corresponding SUNMATRIX_BAND matrix type, and one of the serial or
 shared-memory ``N_Vector`` implementations (NVECTOR_SERIAL, NVECTOR_OPENMP, or
-NVECTOR_PTHREADS).  The SUNLINSOL_LAPACKBAND module defines the
+NVECTOR_PTHREADS).  The
+
+.. _SUNLinSol_LapackBand.Usage:
+
+SUNLinSol_LapackBand Usage
+-------------------------------
+
+The header file to be included when using this module
+is ``sunlinsol/sunlinsol_lapackband.h``.  The installed module
+library to link to is
+``libsundials_sunlinsollapackband`` *.lib*
+where *.lib* is typically ``.so`` for shared libraries and
+``.a`` for static libraries.
+
+The module SUNLinSol_LapackBand provides the following
+user-callable routine:
+
+
+.. c:function:: SUNLinearSolver SUNLinSol_LapackBand(N_Vector y, SUNMatrix A)
+
+   This function creates and allocates memory for a LAPACK band
+   ``SUNLinearSolver``.  Its arguments are an ``N_Vector`` and
+   ``SUNMatrix``, that it uses to determine the linear system size and
+   to assess compatibility with the linear solver implementation.
+
+   This routine will perform consistency checks to ensure that it is
+   called with consistent ``N_Vector`` and ``SUNMatrix`` implementations.
+   These are currently limited to the SUNMATRIX_BAND matrix type and
+   the NVECTOR_SERIAL, NVECTOR_OPENMP, and NVECTOR_PTHREADS vector
+   types.  As additional compatible matrix and vector implementations
+   are added to SUNDIALS, these will be included within this
+   compatibility check.
+
+   Additionally, this routine will verify that the input matrix ``A``
+   is allocated with appropriate upper bandwidth storage for the
+   :math:`LU` factorization.
+
+   If either ``A`` or ``y`` are incompatible then this routine will
+   return ``NULL``.
+
+   
+For backwards compatibility, we also provide the wrapper function,
+
+.. c:function:: SUNLinearSolver SUNLapackBand(N_Vector y, SUNMatrix A)
+
+   Wrapper function for :c:func:`SUNLinSol_LapackBand()`, with
+   identical input and output arguments.
+
+                
+For solvers that include a Fortran interface module, the
+SUNLinSol_LapackBand module also includes the Fortran-callable
+function :f:func:`FSUNLapackBandInit()` to initialize this
+SUNLinSol_LapackBand module for a given SUNDIALS solver.
+
+.. f:subroutine:: FSUNLapackBandInit(CODE, IER)
+
+   Initializes a banded LAPACK ``SUNLinearSolver`` structure for
+   use in a SUNDIALS package.
+
+   This routine must be called *after* both the ``N_Vector`` and
+   ``SUNMatrix`` objects have been initialized.
+
+   **Arguments:**
+      * *CODE* (``int``, input) -- flag denoting the SUNDIALS solver
+        this matrix will be used for: CVODE=1, IDA=2, KINSOL=3, ARKode=4.
+      * *IER* (``int``, output) -- return flag (0 success, -1 for failure).
+
+Additionally, when using ARKode with a non-identity mass matrix, the
+Fortran-callable function :f:func:`FSUNMassLapackBandInit()`
+initializes this SUNLinSol_LapackBand module for solving mass matrix
+linear systems.
+
+.. f:subroutine:: FSUNMassLapackBandInit(IER)
+
+   Initializes a banded LAPACK ``SUNLinearSolver`` structure for
+   use in solving mass matrix systems in ARKode.
+
+   This routine must be called *after* both the ``N_Vector`` and
+   ``SUNMatrix`` objects have been initialized.
+
+   **Arguments:**
+      * *IER* (``int``, output) -- return flag (0 success, -1 for failure).
+
+
+        
+.. _SUNLinSol_LapackBand.Description:
+
+SUNLinSol_LapackBand Description
+-----------------------------------
+
+
+SUNLinSol_LapackBand module defines the
 *content* field of a ``SUNLinearSolver`` to be the following structure:
 
 .. code-block:: c
@@ -41,13 +132,13 @@ information:
   evaluations.
 
 
-The SUNLINSOL_LAPACKBAND module is a ``SUNLinearSolver`` wrapper for
+The SUNLinSol_LapackBand module is a ``SUNLinearSolver`` wrapper for
 the LAPACK band matrix factorization and solve routines, ``*GBTRF``
 and ``*GBTRS``, where ``*`` is either ``D`` or ``S``, depending on
 whether SUNDIALS was configured to have ``realtype`` set to
 ``double`` or ``single``, respectively (see section
 :ref:`ARKStep_CInterface.DataTypes` for details).
-In order to use the SUNLINSOL_LAPACKBAND module it is assumed
+In order to use the SUNLinSol_LapackBand module it is assumed
 that LAPACK has been installed on the system prior to installation of
 SUNDIALS, and that SUNDIALS has been configured appropriately to
 link with LAPACK (see section
@@ -56,7 +147,7 @@ that since there do not exist 128-bit floating-point factorization and
 solve routines in LAPACK, this interface cannot be compiled when
 using ``extended`` precision for ``realtype``.  Similarly, since
 there do not exist 64-bit integer LAPACK routines, the
-SUNLINSOL_LAPACKBAND module also cannot be compiled when using
+SUNLinSol_LapackBand module also cannot be compiled when using
 ``int64_t`` for the ``sunindextype``.
 
 This solver is constructed to perform the following operations:
@@ -80,12 +171,9 @@ This solver is constructed to perform the following operations:
   have upper bandwidth as big as ``smu = MIN(N-1,mu+ml)``. The lower
   triangular factor :math:`L` has lower bandwidth ``ml``.
 
-The header file to be included when using this module
-is ``sunlinsol/sunlinsol_lapackband.h``.
-
-The SUNLINSOL_LAPACKBAND module defines band implementations of all
+The SUNLinSol_LapackBand module defines band implementations of all
 "direct" linear solver operations listed in the section
-:ref:`SUNLinSol.Ops`:
+:ref:`SUNLinSol.API`:
 
 * ``SUNLinSolGetType_LapackBand``
 
@@ -107,63 +195,3 @@ The SUNLINSOL_LAPACKBAND module defines band implementations of all
 
 * ``SUNLinSolFree_LapackBand``
 
-The module SUNLINSOL_LAPACKBAND provides the following additional
-user-callable routine:
-
-
-
-.. c:function:: SUNLinearSolver SUNLapackBand(N_Vector y, SUNMatrix A)
-
-   This function creates and allocates memory for a LAPACK band
-   ``SUNLinearSolver``.  Its arguments are an ``N_Vector`` and
-   ``SUNMatrix``, that it uses to determine the linear system size and
-   to assess compatibility with the linear solver implementation.
-
-   This routine will perform consistency checks to ensure that it is
-   called with consistent ``N_Vector`` and ``SUNMatrix`` implementations.
-   These are currently limited to the SUNMATRIX_BAND matrix type and
-   the NVECTOR_SERIAL, NVECTOR_OPENMP, and NVECTOR_PTHREADS vector
-   types.  As additional compatible matrix and vector implementations
-   are added to SUNDIALS, these will be included within this
-   compatibility check.
-
-   Additionally, this routine will verify that the input matrix ``A``
-   is allocated with appropriate upper bandwidth storage for the
-   :math:`LU` factorization.
-
-   If either ``A`` or ``y`` are incompatible then this routine will
-   return ``NULL``.
-
-For solvers that include a Fortran interface module, the
-SUNLINSOL_LAPACKBAND module also includes the Fortran-callable
-function :f:func:`FSUNLapackBandInit()` to initialize this
-SUNLINSOL_LAPACKBAND module for a given SUNDIALS solver.
-
-.. f:subroutine:: FSUNLapackBandInit(CODE, IER)
-
-   Initializes a banded LAPACK ``SUNLinearSolver`` structure for
-   use in a SUNDIALS package.
-
-   This routine must be called *after* both the ``N_Vector`` and
-   ``SUNMatrix`` objects have been initialized.
-
-   **Arguments:**
-      * *CODE* (``int``, input) -- flag denoting the SUNDIALS solver
-        this matrix will be used for: CVODE=1, IDA=2, KINSOL=3, ARKode=4.
-      * *IER* (``int``, output) -- return flag (0 success, -1 for failure).
-
-Additionally, when using ARKode with a non-identity mass matrix, the
-Fortran-callable function :f:func:`FSUNMassLapackBandInit()`
-initializes this SUNLINSOL_LAPACKBAND module for solving mass matrix
-linear systems.
-
-.. f:subroutine:: FSUNMassLapackBandInit(IER)
-
-   Initializes a banded LAPACK ``SUNLinearSolver`` structure for
-   use in solving mass matrix systems in ARKode.
-
-   This routine must be called *after* both the ``N_Vector`` and
-   ``SUNMatrix`` objects have been initialized.
-
-   **Arguments:**
-      * *IER* (``int``, output) -- return flag (0 success, -1 for failure).

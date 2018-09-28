@@ -29,10 +29,7 @@ immediately extensible to new user-defined linear solver objects.
 .. toctree::
    :maxdepth: 1
 
-   SUNLinSol_Description
-   SUNLinSol_Operations
-   SUNLinSol_Compatibility
-   SUNLinSol_ErrorCodes
+   SUNLinSol_API
    SUNLinSol_Dense
    SUNLinSol_Band
    SUNLinSol_LapackDense

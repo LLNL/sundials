@@ -222,8 +222,8 @@ int main(int argc, char *argv[])
   if(check_retval((void *)A, "SUNSparseMatrix", 0)) return(1);
 
   /* Create KLU SUNLinearSolver object (one thread) */
-  LS = SUNKLU(yy, A);
-  if(check_retval((void *)LS, "SUNKLU", 0)) return(1);
+  LS = SUNLinSol_KLU(yy, A);
+  if(check_retval((void *)LS, "SUNLinSol_KLU", 0)) return(1);
 
   /* Attach the matrix and linear solver */
   retval = IDADlsSetLinearSolver(ida_mem, LS, A);
@@ -361,8 +361,8 @@ int main(int argc, char *argv[])
   if(check_retval((void *)AB, "SUNSparseMatrix", 0)) return(1);
 
   /* Create KLU SUNLinearSolver object (one thread) */
-  LSB = SUNKLU(yB, AB);
-  if(check_retval((void *)LSB, "SUNKLU", 0)) return(1);
+  LSB = SUNLinSol_KLU(yB, AB);
+  if(check_retval((void *)LSB, "SUNLinSol_KLU", 0)) return(1);
 
   /* Attach the matrix and linear solver */
   retval = IDADlsSetLinearSolverB(ida_mem, indexB, LSB, AB);

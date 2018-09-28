@@ -439,7 +439,6 @@ void ERKStepPrintMem(void* arkode_mem, FILE* outfile)
 {
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
-  int i;
 
   /* access ARKodeERKStepMem structure */
   if (arkode_mem==NULL) {
@@ -1087,7 +1086,6 @@ int erkStep_CheckButcherTable(ARKodeMem ark_mem)
 int erkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
 {
   /* local data */
-  realtype hb;
   int ier, j, nvec;
   N_Vector y, yerr;
   realtype* cvals;

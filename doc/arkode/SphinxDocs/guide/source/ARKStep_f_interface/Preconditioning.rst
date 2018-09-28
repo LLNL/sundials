@@ -33,7 +33,7 @@ ARKStep solver with the serial or threaded NVector modules
 (:ref:`NVectors.NVSerial`, :ref:`NVectors.OpenMP` or
 :ref:`NVectors.Pthreads`), and the combination of the ARKBANDPRE
 preconditioner module (see the section :ref:`ARKStep_CInterface.BandPre`) with
-the ARKSPILS interface and any of the Krylov iterative linear solvers.
+the ARKStep linear solver interface and any of the Krylov iterative linear solvers.
 
 The two user-callable functions in this package, with the
 corresponding ARKStep function around which they wrap, are:
@@ -69,13 +69,12 @@ are unchanged from the main program described in the section
 
 6. Linear solver interface specification
 
-   First, initialize the ARKSPILS iterative linear solver interface by
-   calling :f:func:`FARKSPILSINIT()`.
+   First, initialize the ARKStep linear solver interface by calling :f:func:`FARKLSINIT()`.
 
-   Optionally, to specify that ARKSPILS should use the supplied
+   Optionally, to specify that ARKStep should use the supplied
    :f:func:`FARKJTIMES()` and :f:func:`FARKJTSETUP()` routines, the
-   user should call :f:func:`FARKSPILSSETJAC()` with FLAG :math:`\ne 0`,
-   as described in the section :ref:`FInterface.SPILS`.
+   user should call :f:func:`FARKLSSETJAC()` with FLAG :math:`\ne 0`,
+   as described in the section :ref:`FInterface.Iterative`.
 
    Then, to initialize the ARKBANDPRE preconditioner, call the
    routine :f:func:`FARKBPINIT()`, as follows:
@@ -102,8 +101,8 @@ are unchanged from the main program described in the section
 
 8. ARKBANDPRE optional outputs
 
-   Optional outputs specific to the ARKSPILS interface are listed in
-   :ref:`FInterface.SpilsIOUTTable`.  To obtain the optional outputs
+   Optional outputs for ARKStep's linear solver interface are listed in
+   :ref:`FInterface.LsIOUTTable`.  To obtain the optional outputs
    associated with the ARKBANDPRE module, the user should call the
    :f:func:`FARKBPOPT()`, as specified below:
 
@@ -167,18 +166,18 @@ calls it (and its type within ARKBBDPRE or ARKStep).
 
 .. cssclass:: table-bordered
 
-+--------------------------+------------------------+-------------------------------------+
-| FARKBBD routine          | ARKStep routine        | ARKStep interface                   |
-| (FORTRAN, user-supplied) | (C, interface)         | function type                       |
-+==========================+========================+=====================================+
-| :f:func:`FARKGLOCFN()`   | FARKgloc               | :c:func:`ARKLocalFn()`              |
-+--------------------------+------------------------+-------------------------------------+
-| :f:func:`FARKCOMMFN()`   | FARKcfn                | :c:func:`ARKCommFn()`               |
-+--------------------------+------------------------+-------------------------------------+
-| :f:func:`FARKJTIMES()`   | FARKJtimes             | :c:func:`ARKSpilsJacTimesVecFn()`   |
-+--------------------------+------------------------+-------------------------------------+
-| :f:func:`FARKJTSETUP()`  | FARKJTSetup            | :c:func:`ARKSpilsJacTimesSetupFn()` |
-+--------------------------+------------------------+-------------------------------------+
++--------------------------+------------------------+----------------------------------+
+| FARKBBD routine          | ARKStep routine        | ARKStep interface                |
+| (FORTRAN, user-supplied) | (C, interface)         | function type                    |
++==========================+========================+==================================+
+| :f:func:`FARKGLOCFN()`   | FARKgloc               | :c:func:`ARKLocalFn()`           |
++--------------------------+------------------------+----------------------------------+
+| :f:func:`FARKCOMMFN()`   | FARKcfn                | :c:func:`ARKCommFn()`            |
++--------------------------+------------------------+----------------------------------+
+| :f:func:`FARKJTIMES()`   | FARKJtimes             | :c:func:`ARKLsJacTimesVecFn()`   |
++--------------------------+------------------------+----------------------------------+
+| :f:func:`FARKJTSETUP()`  | FARKJTSetup            | :c:func:`ARKLsJacTimesSetupFn()` |
++--------------------------+------------------------+----------------------------------+
 
 As with the rest of the FARKODE routines, the names of all
 user-supplied routines here are fixed, in order to maximize
@@ -208,13 +207,13 @@ unchanged from the main program described in the section
 
 6. Linear solver interface specification
 
-   First, initialize the ARKSPILS iterative linear solver interface by
-   calling :f:func:`FARKSPILSINIT()`.
+   First, initialize ARKStep's linear solver interface by
+   calling :f:func:`FARKLSINIT()`.
 
-   Optionally, to specify that ARKSPILS should use the supplied
+   Optionally, to specify that ARKStep should use the supplied
    :f:func:`FARKJTIMES()` and :f:func:`FARKJTSETUP()` routines, the
-   user should call :f:func:`FARKSPILSSETJAC()` with FLAG :math:`\ne 0`,
-   as described in the section :ref:`FInterface.SPILS`.
+   user should call :f:func:`FARKLSSETJAC()` with FLAG :math:`\ne 0`,
+   as described in the section :ref:`FInterface.Iterative`.
 
    Then, to initialize the ARKBBDPRE preconditioner, call the function
    :f:func:`FARKBBDINIT()`, as described below:
@@ -254,9 +253,9 @@ unchanged from the main program described in the section
 
 8. ARKBBDPRE optional outputs
 
-   Optional outputs specific to the ARKSPILS interface are listed in
-   :ref:`FInterface.SpilsIOUTTable`.  To obtain the optional outputs
-   associated with the ARKBBDPRE module, the user should call
+   Optional outputs from the ARKStep linear solver interface are
+   listed in :ref:`FInterface.LsIOUTTable`.  To obtain the optional
+   outputs associated with the ARKBBDPRE module, the user should call
    :f:func:`FARKBBDOPT()`, as specified below:
 
 
@@ -310,7 +309,7 @@ unchanged from the main program described in the section
     then a call to one of :f:func:`FSUNSPGMRINIT()`,
     :f:func:`FSUNSPBCGSINIT()`, :f:func:`FSUNSPTFQMRINIT()`,
     :f:func:`FSUNSPFGMRINIT()` or :f:func:`FSUNPCGINIT()`, followed by
-    a call to :f:func:`FARKSPILSINIT()` must also be made; in this case
+    a call to :f:func:`FARKLSINIT()` must also be made; in this case
     the linear solver memory is reallocated.
 
 
@@ -343,7 +342,7 @@ unchanged from the main program described in the section
     then a call to one of :f:func:`FSUNSPGMRINIT()`,
     :f:func:`FSUNSPBCGSINIT()`, :f:func:`FSUNSPTFQMRINIT()`,
     :f:func:`FSUNSPFGMRINIT()` or :f:func:`FSUNPCGINIT()`, followed by
-    a call to :f:func:`FARKSPILSINIT()` must also be made; in this case
+    a call to :f:func:`FARKLSINIT()` must also be made; in this case
     the linear solver memory is reallocated.
 
 

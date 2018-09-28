@@ -201,8 +201,8 @@ int main(int argc, char *argv[])
   if(check_retval((void *)A, "SUNSparseMatrix", 0)) return(1);
 
   /* Create KLU SUNLinearSolver object (one thread) */
-  LS = SUNKLU(y, A);
-  if(check_retval((void *)LS, "SUNKLU", 0)) return(1);
+  LS = SUNLinSol_KLU(y, A);
+  if(check_retval((void *)LS, "SUNLinSol_KLU", 0)) return(1);
 
   /* Attach the matrix and linear solver */
   retval = IDADlsSetLinearSolver(ida_mem, LS, A);

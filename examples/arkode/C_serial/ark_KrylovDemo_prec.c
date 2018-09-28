@@ -58,7 +58,7 @@
  *
  * The resulting ODE system is stiff.
  *
- * The ODE system is solved using Newton iteration and the SUNSPGMR
+ * The ODE system is solved using Newton iteration and the SUNLinSol_SPGMR
  * linear solver (scaled preconditioned GMRES).
  *
  * The preconditioner matrix used is the product of two matrices:
@@ -72,10 +72,10 @@
  * The product preconditoner is applied on the left and on the
  * right. In each case, both the modified and classical Gram-Schmidt
  * options are tested.
- * In the series of runs, ARKStepCreate, SUNSPGMR and
- * ARKSpilsSetLinearSolver are called only for the first run, whereas
- * ARKStepReInit, SUNSPGMRSetPrecType, and SUNSPGMRSetGSType are called
- * for each of the remaining three runs.
+ * In the series of runs, ARKStepCreate, SUNLinSol_SPGMR and
+ * ARKStepSetLinearSolver are called only for the first run, whereas
+ * ARKStepReInit, SUNLinSol_SPGMRSetPrecType, and SUNLinSol_SPGMRSetGSType 
+ * are called for each of the remaining three runs.
  *
  * A problem description, performance statistics at selected output
  * times, and final statistics are written to standard output.
@@ -101,9 +101,8 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <arkode/arkode_arkstep.h>      /* prototypes for ARKStep fcts., consts */
+#include <arkode/arkode_arkstep.h>      /* prototypes for ARKStep fcts., consts        */
 #include <sunlinsol/sunlinsol_spgmr.h>  /* access to SPGMR SUNLinearSolver             */
-#include <arkode/arkode_spils.h>        /* access to ARKSpils interface                */
 #include <nvector/nvector_serial.h>     /* serial N_Vector types, fct. and macros      */
 #include <sundials/sundials_dense.h>    /* use generic DENSE solver in preconditioning */
 #include <sundials/sundials_types.h>    /* definition of realtype                      */
@@ -143,14 +142,14 @@
 #define NGRP  (NGX*NGY)
 #define ITMAX 5
 
-/* CVodeInit Constants */
+/* Init Constants */
 
 #define NEQ  (NS*MX*MY)
 #define T0   ZERO
 #define RTOL RCONST(1.0e-5)
 #define ATOL RCONST(1.0e-5)
 
-/* CVSpgmr Constants */
+/* Spgmr Constants */
 
 #define MAXL 0     /* => use default = MIN(NEQ, 5)            */
 #define DELT ZERO  /* => use default = 0.05                   */
@@ -261,7 +260,7 @@ int main()
       CInit(c, wdata);
       PrintHeader(jpre, gstype);
 
-      /* Call ARKStepCreate or ARKStepReInit, then ARKSpgmr to set up problem */
+      /* Call ARKStepCreate or ARKStepReInit, then SPGMR to set up problem */
 
       firstrun = (jpre == PREC_LEFT) && (gstype == MODIFIED_GS);
       if (firstrun) {
@@ -282,30 +281,31 @@ int main()
         flag = ARKStepSetNonlinConvCoef(arkode_mem, 1.e-3);
         if(check_flag(&flag, "ARKStepSetNonlinConvCoef", 1)) return(1);
 
-        LS = SUNSPGMR(c, jpre, MAXL);
-        if(check_flag((void *)LS, "SUNSPGMR", 0)) return(1);
+        LS = SUNLinSol_SPGMR(c, jpre, MAXL);
+        if(check_flag((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
-        flag = ARKSpilsSetLinearSolver(arkode_mem, LS);
-        if(check_flag(&flag, "ARKSpilsSetLinearSolver", 1)) return 1;
+        flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);
+        if(check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
 
-        flag = SUNSPGMRSetGSType(LS, gstype);
-        if(check_flag(&flag, "SUNSPGMRSetGSType", 1)) return(1);
+        flag = SUNLinSol_SPGMRSetGSType(LS, gstype);
+        if(check_flag(&flag, "SUNLinSol_SPGMRSetGSType", 1)) return(1);
 
-        flag = ARKSpilsSetEpsLin(arkode_mem, DELT);
-        if(check_flag(&flag, "ARKSpilsSetEpsLin", 1)) return(1);
+        flag = ARKStepSetEpsLin(arkode_mem, DELT);
+        if(check_flag(&flag, "ARKStepSetEpsLin", 1)) return(1);
 
-        flag = ARKSpilsSetPreconditioner(arkode_mem, Precond, PSolve);
-        if(check_flag(&flag, "ARKSpilsSetPreconditioner", 1)) return(1);
-
+        flag = ARKStepSetPreconditioner(arkode_mem, Precond, PSolve);
+        if(check_flag(&flag, "ARKStepSetPreconditioner", 1)) return(1);
+        
       } else {
 
         flag = ARKStepReInit(arkode_mem, NULL, f, T0, c);
         if(check_flag(&flag, "ARKStepReInit", 1)) return(1);
 
-        flag = SUNSPGMRSetPrecType(LS, jpre);
-        check_flag(&flag, "SUNSPGMRSetPrecType", 1);
-        flag = SUNSPGMRSetGSType(LS, gstype);
-        if(check_flag(&flag, "SUNSPGMRSetGSType", 1)) return(1);
+        flag = SUNLinSol_SPGMRSetPrecType(LS, jpre);
+        if(check_flag(&flag, "SUNLinSol_SPGMRSetPrecType", 1)) return(1);
+
+        flag = SUNLinSol_SPGMRSetGSType(LS, gstype);
+        if(check_flag(&flag, "SUNLinSol_SPGMRSetGSType", 1)) return(1);
 
       }
 
@@ -465,7 +465,7 @@ static void CInit(N_Vector c, WebData wdata)
 
 static void PrintIntro(void)
 {
-  printf("\n\nDemonstration program for ARKODE - ARKSPGMR linear solver\n\n");
+  printf("\n\nDemonstration program for ARKODE - SPGMR linear solver\n\n");
   printf("Food web problem with ns species, ns = %d\n", NS);
   printf("Predator-prey interaction and diffusion on a 2-D square\n\n");
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -608,24 +608,24 @@ static void PrintFinalStats(void *arkode_mem)
   flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
   check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1);
 
-  flag = ARKSpilsGetWorkSpace(arkode_mem, &lenrwLS, &leniwLS);
-  check_flag(&flag, "ARKSpilsGetWorkSpace", 1);
-  flag = ARKSpilsGetNumLinIters(arkode_mem, &nli);
-  check_flag(&flag, "ARKSpilsGetNumLinIters", 1);
-  flag = ARKSpilsGetNumPrecEvals(arkode_mem, &npe);
-  check_flag(&flag, "ARKSpilsGetNumPrecEvals", 1);
-  flag = ARKSpilsGetNumPrecSolves(arkode_mem, &nps);
-  check_flag(&flag, "ARKSpilsGetNumPrecSolves", 1);
-  flag = ARKSpilsGetNumConvFails(arkode_mem, &ncfl);
-  check_flag(&flag, "ARKSpilsGetNumConvFails", 1);
-  flag = ARKSpilsGetNumRhsEvals(arkode_mem, &nfeLS);
-  check_flag(&flag, "ARKSpilsGetNumRhsEvals", 1);
+  flag = ARKStepGetLinWorkSpace(arkode_mem, &lenrwLS, &leniwLS);
+  check_flag(&flag, "ARKStepGetLinWorkSpace", 1);
+  flag = ARKStepGetNumLinIters(arkode_mem, &nli);
+  check_flag(&flag, "ARKStepGetNumLinIters", 1);
+  flag = ARKStepGetNumPrecEvals(arkode_mem, &npe);
+  check_flag(&flag, "ARKStepGetNumPrecEvals", 1);
+  flag = ARKStepGetNumPrecSolves(arkode_mem, &nps);
+  check_flag(&flag, "ARKStepGetNumPrecSolves", 1);
+  flag = ARKStepGetNumLinConvFails(arkode_mem, &ncfl);
+  check_flag(&flag, "ARKStepGetNumLinConvFails", 1);
+  flag = ARKStepGetNumLinRhsEvals(arkode_mem, &nfeLS);
+  check_flag(&flag, "ARKStepGetNumLinRhsEvals", 1);
 
   printf("\n\n Final statistics for this run:\n\n");
-  printf(" ARKStep real workspace length          = %4ld \n", lenrw);
-  printf(" ARKStep integer workspace length       = %4ld \n", leniw);
-  printf(" SUNSPGMR real workspace length        = %4ld \n", lenrwLS);
-  printf(" SUNSPGMR integer workspace length     = %4ld \n", leniwLS);
+  printf(" ARKStep real workspace length         = %4ld \n", lenrw);
+  printf(" ARKStep integer workspace length      = %4ld \n", leniw);
+  printf(" ARKLS real workspace length           = %4ld \n", lenrwLS);
+  printf(" ARKLS integer workspace length        = %4ld \n", leniwLS);
   printf(" Number of steps                       = %4ld \n", nst);
   printf(" Number of f-s (explicit)              = %4ld \n", nfe);
   printf(" Number of f-s (implicit)              = %4ld \n", nfi);

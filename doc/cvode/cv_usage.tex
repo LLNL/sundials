@@ -85,7 +85,8 @@ and data types can be used. The header file that is always required is:
 \begin{itemize}
 \item  \Id{cvode/cvode.h},
   the main header file for {\cvode}, which defines the several
-  types and various constants, and includes function prototypes.
+  types and various constants, and includes function prototypes.  This
+  includes the header file for {\cvls}, \Id{cvode/cvode\_ls.h}.
 \end{itemize}
 %%
 Note that \id{cvode.h} includes \Id{sundials\_types.h},
@@ -93,7 +94,7 @@ which defines the types \id{realtype}, \id{sunindextype}, and \id{booleantype}
 and the constants \id{SUNFALSE} and \id{SUNTRUE}.
 
 The calling program must also include an {\nvector} implementation header file,
-of the form \id{nvector/nvector\_***.h}.  See Chapter \ref{s:nvector}
+of the form \\ \noindent \id{nvector/nvector\_***.h}.  See Chapter \ref{s:nvector}
 for the appropriate name.  This file in turn includes the header file
 \Id{sundials\_nvector.h} which defines the abstract \Id{N\_Vector} data type.
 
@@ -110,14 +111,11 @@ If using a nonlinear solver that requires the solution of a linear
 system of the form (\ref{e:Newton}) (e.g., the default Newton iteration),
 then a linear solver module header file will be required.
 \index{CVODE@{\cvode} linear solvers!header files}
-The header files corresponding to the various linear solver
-interfaces and linear solver modules available for use with
-{\cvode} are:
+The header files corresponding to the linear solver modules
+available for use with {\cvode} are:
 %%
 \begin{itemize}
-\item \Id{cvode/cvode\_direct.h},
-  which is used with the {\cvdls} direct linear solver interface to
-  access direct solvers with the following header files:
+\item Direct linear solvers:
   \begin{itemize}
   \item \Id{sunlinsol/sunlinsol\_dense.h},
     which is used with the dense linear solver module,
@@ -144,9 +142,7 @@ interfaces and linear solver modules available for use with
     module, {\sunlinsolslumt};
   \end{itemize}
 
-\item \Id{cvode/cvode\_spils.h},
-  which is used with the {\cvspils} iterative linear solver interface to
-  access iterative solvers with the following header files:
+\item Iterative linear solvers:
   \begin{itemize}
   \item \Id{sunlinsol/sunlinsol\_spgmr.h},
     which is used with the scaled, preconditioned GMRES Krylov linear
@@ -303,21 +299,27 @@ for the specific name of the function to be called or macro to be referenced.
   directly the weights used in evaluating WRMS vector norms.
   See \S\ref{sss:cvtolerances} for details.
 
-\item
-  {\bf Set optional inputs}
-
-  Call \id{CVodeSet*} functions to change any
-  optional inputs that control the behavior of {\cvode} from their default values.
-  See \S\ref{sss:optin_main} for details.
-
 \item\label{i:matrix}
   {\bf Create matrix object}
 
   If a nonlinear solver requiring a linear solve will be used (e.g., the
-  the default Newton iteration) and the linear solver will be a direct linear
+  default Newton iteration) and the linear solver will be a matrix-based linear
   solver, then a template Jacobian matrix must be created by calling the
   appropriate constructor function defined by the particular {\sunmatrix}
   implementation.
+
+  For the {\sundials}-supplied {\sunmatrix} implementations, the
+  matrix object may be created using a call of the form
+
+  \id{SUNMatrix J = }\Id{SUNBandMatrix}\id{(...);}
+
+   or
+
+  \id{SUNMatrix J = }\Id{SUNDenseMatrix}\id{(...);}
+
+   or
+
+  \id{SUNMatrix J = }\Id{SUNSparseMatrix}\id{(...);}
 
   NOTE: The dense, banded, and sparse matrix objects are usable only in a
   serial or threaded environment.
@@ -329,6 +331,14 @@ for the specific name of the function to be called or macro to be referenced.
   Newton iteration), then the desired linear solver object must be created by
   calling the appropriate constructor function defined by the particular
   {\sunlinsol} implementation.
+
+  For any of the {\sundials}-supplied {\sunlinsol} implementations,
+  the linear solver object may be created using a call of the form
+
+  \id{SUNLinearSolver LS = SUNLinSol\_*(...);}
+
+  where \id{*} can be replaced with ``Dense'', ``SPGMR'', or other
+  options, as discussed in \S\ref{sss:lin_solv_init} and Chapter {\ref{s:sunlinsol}}.
 
 \item
   {\bf Set linear solver optional inputs}
@@ -342,14 +352,12 @@ for the specific name of the function to be called or macro to be referenced.
   {\bf Attach linear solver module}
 
   If a nonlinear solver requiring a linear solver is chosen (e.g., the default
-  Newton iteration), then initialize the {\cvdls} or {\cvspils} linear solver
+  Newton iteration), then initialize the {\cvls} linear solver
   interface by attaching the linear solver object (and matrix object, if
-  applicable) with one of the following calls (for details see
+  applicable) with the call (for details see
   \S\ref{sss:lin_solv_init}):
 
-  \id{ier = }\Id{CVDlsSetLinearSolver}\id{(...);}
-
-  \id{ier = }\Id{CVSpilsSetLinearSolver}\id{(...);}
+  \id{ier = }\Id{CVodeSetLinearSolver}\id{(...);}
 
   Alternately, if the {\cvode}-specific diagonal linear solver module,
   {\cvdiag}, is desired, initialize the linear solver module and
@@ -358,11 +366,11 @@ for the specific name of the function to be called or macro to be referenced.
   \id{ier = }\Id{CVDiag}\id{(...);}
 
 \item
-  {\bf Set linear solver interface optional inputs}
+  {\bf Set optional inputs}
 
-  Call \id{CVDlsSet*} or \id{CVSpilsSet*} functions to change optional
-  inputs specific to that linear solver interface.
-  See \S\ref{ss:optional_input} for details.
+  Call \id{CVodeSet*} functions to change any
+  optional inputs that control the behavior of {\cvode} from their default values.
+  See \S\ref{sss:optin_main} and \S\ref{ss:optional_input} for details.
 
 \item\label{i:nonlin_solver}
   {\bf Create nonlinear solver object} (\textit{optional})
@@ -765,52 +773,82 @@ unsuccessful.
 
 As previously explained, if the nonlinear solver requires the solution of
 linear systems of the form (\ref{e:Newton}) (e.g., the default Newton
-iteration), there are three {\cvode} linear solver interfaces currently
-available for this task: {\cvdls}, {\cvdiag} and {\cvspils}.
+iteration), there are two {\cvode} linear solver interfaces currently
+available for this task: {\cvls} and {\cvdiag}.
 
-The first corresponds to the use of Direct Linear Solvers, and
-utilizes {\sunmatrix} objects to store the Jacobian
-$J = \partial{f}/\partial{y}$, the matrix $M = I-\gamma J$, and
-factorizations used throughout the solution process.
+The first corresponds to the main linear solver interface in {\cvode},
+that supports all valid {\sunlinsol} modules.  Here, matrix-based
+{\sunlinsol} modules utilize {\sunmatrix} objects to store the
+approximate Jacobian matrix $J = \partial{f}/\partial{y}$, the Newton
+matrix $M = I-\gamma J$, and factorizations used throughout the
+solution process.  Conversely, matrix-free {\sunlinsol} modules
+instead use iterative methods to solve the Newton systems of
+equations, and only require the \emph{action} of the Jacobian on a
+vector, $Jv$.  With most of these methods, preconditioning can be done
+on the left only, the right only, on both the left and right, or not
+at all.  The exceptions to this rule are {\spfgmr} that supports right
+preconditioning only and {\pcg} that performs symmetric
+preconditioning.  For the specification of a preconditioner, see the
+iterative linear solver sections in \S\ref{ss:optional_input} and
+\S\ref{ss:user_fct_sim}.
 
-The {\cvdiag} linear solver is also a direct linear solver, but it
-only uses a diagonal approximation to $J$.
+If preconditioning is done, user-supplied functions define linear
+operators corresponding to left and right preconditioner matrices
+$P_1$ and $P_2$ (either of which could be the identity matrix), such
+that the product $P_1 P_2$ approximates the matrix $M = I - \gamma J$
+of (\ref{e:Newtonmat}).
 
-The third corresponds to the use of Scaled, Preconditioned, Iterative
-Linear Solvers, utilizing matrix-free Krylov methods to solve the
-linear systems of equations.  With most of these methods,
-preconditioning can be done on the left only, on the right only, on
-both the left and the right, or not at all.  The exceptions to this
-rule are {\spfgmr} that supports right preconditioning only and
-{\pcg} that performs symmetric preconditioning.  For the specification
-of a preconditioner, see the iterative linear solver sections
-in \S\ref{ss:optional_input} and \S\ref{ss:user_fct_sim}.
+The {\cvdiag} linear solver interface supports a direct linear solver,
+that uses only a diagonal approximation to $J$.
 
-If preconditioning is done, user-supplied functions define left and right
-preconditioner matrices $P_1$ and $P_2$ (either of which could be the identity
-matrix), such that the product $P_1 P_2$ approximates the matrix
-$M = I - \gamma J$ of (\ref{e:Newtonmat}).
 
 \index{CVODE@{\cvode} linear solvers!selecting one|(}
 To specify a generic linear solver to {\cvode}, after the call to
 \id{CVodeCreate} but before any calls to \id{CVode}, the user's
-program must create the appropriate {\sunlinsol} object and call
-either of the functions \Id{CVDlsSetLinearSolver} or
-\Id{CVSpilsSetLinearSolver}, as documented below.  The first argument
-passed to these functions is the {\cvode} memory pointer returned by
-\id{CVodeCreate}; the second argument passed to these functions is the
-desired {\sunlinsol} object to use for solving linear systems.  A call
-to one of these functions initializes the appropriate {\cvode} linear
-solver interface, linking this to the main {\cvode} integrator, and
-allows the user to specify parameters which are specific to a
-particular solver interface.
-%%
-The use of each of the generic linear solvers involves certain
-constants and possibly some macros, that are likely to be needed in
+program must create the appropriate \Id{SUNLinearSolver} object and call
+the function \Id{CVodeSetLinearSolver}, as documented below.
+To create the \id{SUNLinearSolver} object, the user may call one of
+the {\sundials}-packaged {\sunlinsol} module constructor routines via
+a call of the form
+
+\begin{verbatim}
+      SUNLinearSolver LS = SUNLinSol_*(...);
+\end{verbatim}
+
+The current list of such constructor routines includes
+\Id{SUNLinSol\_Dense},
+\Id{SUNLinSol\_Band}, \\ \noindent
+\Id{SUNLinSol\_LapackDense},
+\Id{SUNLinSol\_LapackBand},
+\Id{SUNLinSol\_KLU},
+\Id{SUNLinSol\_SuperLUMT}, \\ \noindent
+\Id{SUNLinSol\_SPGMR},
+\Id{SUNLinSol\_SPFGMR},
+\Id{SUNLinSol\_SPBCGS},
+\Id{SUNLinSol\_SPTFQMR}, and
+\Id{SUNLinSol\_PCG}.
+
+Alternately, a user-supplied
+\id{SUNLinearSolver} module may be created and used instead.  The use
+of each of the generic linear solvers involves certain constants,
+functions and possibly some macros, that are likely to be needed in
 the user code.  These are available in the corresponding header file
 associated with the specific {\sunmatrix} or {\sunlinsol} module in
 question, as described in Chapters \ref{s:sunmatrix} and
 \ref{s:sunlinsol}.
+
+Once this solver object has been constructed, the user should attach
+it to {\cvode} via a call to \Id{CVodeSetLinearSolver}.  The first
+argument passed to this function is the {\cvode} memory pointer
+returned by \id{CVodeCreate}; the second argument is the desired
+{\sunlinsol} object to use for solving linear systems.  The third
+argument is an optional {\sunmatrix} object to accompany matrix-based
+{\sunlinsol} inputs (for matrix-free linear solvers, the third
+argument should be \id{NULL}).  A call to this function initializes
+the {\cvls} linear solver interface, linking it to the main {\cvode}
+integrator, and allows the user to specify additional parameters and
+routines pertinent to their choice of linear solver.
+%%
 
 To instead specify the {\cvode}-specific diagonal linear solver
 interface, the user's program must call \Id{CVDiag}, as documented
@@ -818,19 +856,17 @@ below.  The first argument passed to this function is the {\cvode}
 memory pointer returned by \id{CVodeCreate}.
 \index{CVODE@{\cvode} linear solver interfaces!selecting one|)}
 
-\index{CVODE@{\cvode} linear solver interfaces!CVDLS@{\cvdls}}
-\index{CVDLS@{\cvdls} linear solver!SUNLINEARSOLVER@{\sunlinsol} compatibility}
-\ucfunction{CVDlsSetLinearSolver}
+\index{CVODE@{\cvode} linear solver interfaces!CVLS@{\cvls}}
+\index{CVLS@{\cvls} generic linear solver!SUNLINEARSOLVER@{\sunlinsol} compatibility}
+\ucfunction{CVodeSetLinearSolver}
 {
-  flag = CVDlsSetLinearSolver(cvode\_mem, LS, J);
+  flag = CVodeSetLinearSolver(cvode\_mem, LS, J);
 }
 {
-  The function \ID{CVDlsSetLinearSolver} attaches a direct
-  {\sunlinsol} object \id{LS} and corresponding template
-  Jacobian {\sunmatrix} object \id{J} to {\cvode}, initializing the
-  {\cvdls} direct linear solver interface.
-
-  The user's main program must include the \id{cvode\_direct.h} header file.
+  The function \ID{CVodeSetLinearSolver} attaches a generic {\sunlinsol}
+  object \id{LS} and corresponding template Jacobian {\sunmatrix}
+  object \id{J} (if applicable) to {\cvode}, initializing the
+  {\cvls} linear solver interface.
 }
 {
   \begin{args}[cvode\_mem]
@@ -840,84 +876,50 @@ memory pointer returned by \id{CVodeCreate}.
     {\sunlinsol} object to use for solving linear systems of the form
     (\ref{e:Newton}).
   \item[J] (\id{SUNMatrix})
-    {\sunmatrix} object for used as a template for the Jacobian (must
-    have a type compatible with the linear solver object).
+    {\sunmatrix} object for used as a template for the Jacobian (or
+    \id{NULL} if not applicable).
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}
-  \item[\Id{CVDLS\_SUCCESS}]
-    The {\cvdls} initialization was successful.
-  \item[\Id{CVDLS\_MEM\_NULL}]
+  \item[\Id{CVLS\_SUCCESS}]
+    The {\cvls} initialization was successful.
+  \item[\Id{CVLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVDLS\_ILL\_INPUT}]
-    The {\cvdls} solver is not compatible with the \id{LS} or
+  \item[\Id{CVLS\_ILL\_INPUT}]
+    The {\cvls} interface is not compatible with the \id{LS} or
     \id{J} input objects or is incompatible with the current
     {\nvector} module.
-  \item[\Id{CVDLS\_MEM\_FAIL}]
-    A memory allocation request failed.
-  \end{args}
-}
-{
-  The {\cvdls} linear solver interface is not compatible with all
-  implementations of the {\sunlinsol} and {\nvector}
-  modules.  Specifically, {\cvdls} requires use of a \emph{direct}
-  {\sunlinsol} object and a serial or theaded {\nvector}
-  module. Additional compatibility limitations for each
-  {\sunlinsol} object (i.e.~{\sunmatrix} and {\nvector} object
-  compatibility) are described in Chapter \ref{s:sunlinsol}.
-}
-%%
-%%
-%%
-\index{CVODE@{\cvode} linear solver interfaces!CVSPILS@{\cvspils}}
-\index{CVSPILS@{\cvspils} linear solver!SUNLINEARSOLVER@{\sunlinsol} compatibility}
-\ucfunction{CVSpilsSetLinearSolver}
-{
-  flag = CVSpilsSetLinearSolver(cvode\_mem, LS);
-}
-{
-  The function \ID{CVSpilsSetLinearSolver} attaches an iterative
-  {\sunlinsol} object \id{LS} to {\cvode}, initializing the
-  {\cvspils} scaled, preconditioned, iterative linear solver
-  interface.
-
-  The user's main program must include the \id{cvode\_spils.h} header
-  file.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvode} memory block.
-  \item[LS] (\id{SUNLinearSolver})
-    {\sunlinsol} object to use for solving linear systems of the form
-    (\ref{e:Newton}).
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}
-  \item[\Id{CVSPILS\_SUCCESS}]
-    The {\cvspils} initialization was successful.
-  \item[\Id{CVSPILS\_MEM\_NULL}]
-    The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVSPILS\_ILL\_INPUT}]
-    The {\cvspils} solver is not compatible with the \id{LS} object
-    or is incompatible with the current {\nvector} module.
-  \item[\Id{CVSPILS\_MEM\_FAIL}]
-    A memory allocation request failed.
-  \item[\Id{CVSPILS\_SUNLS\_FAIL}]
+  \item[\Id{CVLS\_SUNLS\_FAIL}]
     A call to the \id{LS} object failed.
+  \item[\Id{CVLS\_MEM\_FAIL}]
+    A memory allocation request failed.
   \end{args}
 }
 {
-  The {\cvspils} linear solver interface is not compatible with all
-  implementations of the {\sunlinsol} and {\nvector}
-  modules.  Specifically, {\cvspils} requires use of an
-  \emph{iterative} {\sunlinsol} object.  Additional compatibility
-  limitations for each {\sunlinsol} object (i.e.~required {\nvector}
-  routines) are described in Chapter \ref{s:sunlinsol}.
+  If \id{LS} is a matrix-based linear solver, then the template
+  Jacobian matrix \id{J} will be used in the solve process, so if
+  additional storage is required within the {\sunmatrix} object
+  (e.g. for factorization of a banded matrix), ensure that the input
+  object is allocated with sufficient size (see the documentation of
+  the particular {\sunmatrix} type in Chapter \ref{s:sunmatrix} for
+  further information).
+
+  When using sparse linear solvers, it is typically much more
+  efficient to supply \id{J} so that it includes the full sparsity
+  pattern of the Newton system matrices $M=I-\gamma J$, even if \id{J}
+  itself has zeros in nonzero locations of $I$.  The reasoning for
+  this is that $M$ is constructed in-place, on top of the
+  user-specified values of \id{J}, so if the sparsity pattern in
+  \id{J} is insufficient to store $M$ then it will need to be resized
+  internally by {\cvode}.
+
+  The previous routines \Id{CVDlsSetLinearSolver} and
+  \Id{CVSpilsSetLinearSolver} are now wrappers for this routine, and may
+  still be used for backward-compatibility.  However, these will be
+  deprecated in future releases, so we recommend that users transition
+  to the new routine name soon.
 }
 %%
 %%
@@ -955,8 +957,8 @@ memory pointer returned by \id{CVodeCreate}.
   \end{args}
 }
 {
-  The {\cvdiag} solver is the simplest of all of the current {\cvode}
-  linear solver interfaces.  The {\cvdiag} solver uses an approximate
+  The {\cvdiag} solver is the simplest of all of the available {\cvode}
+  linear solvers.  The {\cvdiag} solver uses an approximate
   diagonal Jacobian formed by way of a difference quotient. The user
   does {\em not} have the option of supplying a function to compute an
   approximate diagonal Jacobian.
@@ -1163,11 +1165,11 @@ But these modes are modified if the user has set a stop time (with
     Either convergence test failures occurred too many times (\id{MXNCF = 10}) during
     one internal time step, or with $|h| = h_{min}$.
   \item[\Id{CV\_LINIT\_FAIL}]
-    The linear solver's initialization function failed.
+    The linear solver interface's initialization function failed.
   \item[\Id{CV\_LSETUP\_FAIL}]
-    The linear solver's setup function failed in an unrecoverable manner.
+    The linear solver interface's setup function failed in an unrecoverable manner.
   \item[\Id{CV\_LSOLVE\_FAIL}]
-    The linear solver's solve function failed in an unrecoverable manner.
+    The linear solver interface's solve function failed in an unrecoverable manner.
   \item[\Id{CV\_RHSFUNC\_FAIL}]
     The right-hand side function failed in an unrecoverable manner.
   \item[\Id{CV\_FIRST\_RHSFUNC\_FAIL}]
@@ -1224,7 +1226,7 @@ will catch all errors.
 
 \begin{table}
 \centering
-\caption{Optional inputs for {\cvode}, {\cvdls}, and {\cvspils}}
+\caption{Optional inputs for {\cvode} and {\cvls}}
 \label{t:optional_input}
 \medskip
 \begin{tabular}{|l|l|l|}\hline
@@ -1251,15 +1253,13 @@ Coefficient in the nonlinear convergence test & \id{CVodeSetNonlinConvCoef} & 0.
 Direction of zero-crossing & \id{CVodeSetRootDirection} & both \\
 Disable rootfinding warnings & \id{CVodeSetNoInactiveRootWarn} & none \\
 \hline
-\multicolumn{3}{|c|}{\bf CVDLS linear solver interface} \\
+\multicolumn{3}{|c|}{\bf CVLS linear solver interface} \\
 \hline
-Jacobian function & \id{CVDlsSetJacFn} & DQ\\
-\hline
-\multicolumn{3}{|c|}{\bf CVSPILS linear solver interface} \\
-\hline
-Preconditioner functions & \id{CVSpilsSetPreconditioner} & NULL, NULL \\
-Jacobian-times-vector functions & \id{CVSpilsSetJacTimes} & NULL, DQ \\
-Ratio between linear and nonlinear tolerances & \id{CVSpilsSetEpsLin} & 0.05 \\
+Jacobian / preconditioner update frequency & \id{CVodeSetMaxStepsBetweenJac} & 50\\
+Jacobian function & \id{CVodeSetJacFn} & DQ\\
+Jacobian-times-vector functions & \id{CVodeSetJacTimes} & NULL, DQ \\
+Preconditioner functions & \id{CVodeSetPreconditioner} & NULL, NULL \\
+Ratio between linear and nonlinear tolerances & \id{CVodeSetEpsLin} & 0.05 \\
 \hline
 \end{tabular}
 \end{table}
@@ -1780,22 +1780,89 @@ flag = CVodeSetNonlinConvCoef(cvode\_mem, nlscoef);
 
 
 %%==============================================================================
-\subsubsection{Direct linear solver interface optional input functions}
-\label{sss:optin_dls}
+\subsubsection{Linear solver interface optional input functions}
+\label{sss:optin_ls}
 %%==============================================================================
-\index{optional input!direct linear solver interface|(}
-\index{CVDLS@{\cvdls} linear solver interface!optional input|(}
-The \index{CVDLS@{\cvdls} linear solver interface!Jacobian approximation used by}
-{\cvdls} solver interface needs a function to compute an approximation to
-the Jacobian matrix $J(t,y)$.  This function must be of type \id{CVDlsJacFn}.
+\index{optional input!generic linear solver interface|(}
+\index{CVLS@{\cvls} linear solver interface!optional input|(}
+
+The mathematical explanation of the linear solver methods
+available to {\cvode} is provided in \S\ref{ss:ivp_sol}.  We
+group the user-callable routines into four categories: general
+routines concerning the overall {\cvls} linear solver interface,
+optional inputs for matrix-based linear solvers, optional inputs for
+matrix-free linear solvers, and optional inputs for iterative linear
+solvers.  We note that the matrix-based and matrix-free groups are
+mutually exclusive, whereas the ``iterative'' tag can apply to either
+case. \\
+
+
+As discussed in \S\ref{ss:ivp_sol}, {\cvode} strives to reuse matrix
+and preconditioner data for as many solves as possible to amortize the
+high costs of matrix construction and factorization.  To that end,
+{\cvode} provides a user-callable routine to modify this behavior.  To
+this end, we recall that the Newton system matrices are $M(t,y) = I -
+\gamma J(t,y)$, where the right-hand side function has Jacobian matrix
+$J(t,y) = \frac{\partial f(t,y)}{\partial y}$.
+
+The matrix or preconditioner for $M$ can only be updated within a call
+to the linear solver `setup' routine.  In general, the frequency with
+which this setup routine is called may be controlled with the
+\id{msbj} argument to \id{CVodeSetMaxStepsBetweenJac}.
+
+\index{Jacobian update frequency!optional input}
+\index{Preconditioner update frequency!optional input}
+\ucfunction{CVodeSetMaxStepsBetweenJac}
+{
+  retval = CVodeSetMaxStepsBetweenJac(cvode\_mem, msbj);
+}
+{
+  The function \ID{CVodeSetMaxStepsBetweenJac} specifies the maximum
+  number of time steps to wait before recomputation of the Jacobian or
+  recommendation to update the preconditioner.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[msbj] (\id{long int})
+    maximum number of time steps to wait before
+    Jacobian/preconditioner reconstruction.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}
+  \item[\Id{CVLS\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{CVLS\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The {\cvls} linear solver interface has not been initialized.
+  \end{args}
+}
+{
+  If \id{msbj} is less than 1, the default value of 50 will be used.
+
+  This function must be called \emph{after} the {\cvls} linear solver
+  interface has been initialized through a call to
+  \id{CVodeSetLinearSolver}.
+}
+
+
+\index{optional input!matrix-based linear solver|(}
+\index{CVLS@{\cvls} linear solver interface!Jacobian approximation used by}
+When using matrix-based linear solver modules, the
+{\cvls} solver interface needs a function to compute an approximation to
+the Jacobian matrix $J(t,y)$.  This function must be of type \id{CVLsJacFn}.
 The user can supply a Jacobian function, or if using a
-dense or banded matrix $J$ can use the default internal difference
+dense or banded matrix $J$, can use the default internal difference
 quotient approximation
 \index{Jacobian approximation function!difference quotient}
-that comes with the {\cvdls} solver.
-To specify a user-supplied Jacobian function \id{jac}, {\cvdls} provides
-the function \id{CVDlsSetJacFn}.
-The {\cvdls} interface passes the pointer \id{user\_data}
+that comes with the {\cvls} solver.
+To specify a user-supplied Jacobian function \id{jac}, {\cvls} provides
+the function \id{CVodeSetJacFn}.
+The {\cvls} interface passes the pointer \id{user\_data}
 to the Jacobian function. This allows the user to
 create an arbitrary structure with relevant problem data and access it
 during the execution of the user-supplied Jacobian function, without
@@ -1803,195 +1870,232 @@ using global data in the program.
 The pointer \id{user\_data} may be specified through \id{CVodeSetUserData}.
 %%
 \index{Jacobian approximation function!user-supplied}
-\ucfunction{CVDlsSetJacFn}
+\ucfunction{CVodeSetJacFn}
 {
-  flag = CVDlsSetJacFn(cvode\_mem, jac);
+  flag = CVodeSetJacFn(cvode\_mem, jac);
 }
 {
-  The function \ID{CVDlsSetJacFn} specifies the Jacobian
-  approximation function to be used.
+  The function \ID{CVodeSetJacFn} specifies the Jacobian
+  approximation function to be used for a matrix-based solver within
+  the {\cvls} interface.
 }
 {
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[jac] (\id{CVDlsJacFn})
+  \item[jac] (\id{CVLsJacFn})
     user-defined Jacobian approximation function.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}
-  \item[\Id{CVDLS\_SUCCESS}]
+  \item[\Id{CVLS\_SUCCESS}]
     The optional value has been successfully set.
-  \item[\Id{CVDLS\_MEM\_NULL}]
+  \item[\Id{CVLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVDLS\_LMEM\_NULL}]
-    The {\cvdls} linear solver interface has not been initialized.
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The {\cvls} linear solver interface has not been initialized.
   \end{args}
 }
 {
-  By default, {\cvdls} uses an internal difference quotient function
+  This function must be called \emph{after} the {\cvls} linear solver
+  interface has been initialized through a call to
+  \id{CVodeSetLinearSolver}.
+
+  By default, {\cvls} uses an internal difference quotient function
   for dense and band matrices.  If \id{NULL} is passed to \id{jac},
   this default function is used.  An error will occur if no \id{jac}
-  is supplied when using a sparse matrix.
+  is supplied when using other matrix types.
 
-  The function type \id{CVDlsJacFn} is described in \S\ref{ss:jacFn}.
+  The function type \id{CVLsJacFn} is described in \S\ref{ss:jacFn}.
+
+  The previous routine \Id{CVDlsSetJacFn} is now a wrapper for this
+  routine, and may still be used for backward-compatibility.  However,
+  this will be deprecated in future releases, so we recommend that
+  users transition to the new routine name soon.
 }
 %%
-\index{optional input!direct linear solver interface|)}
-\index{CVDLS@{\cvdls} linear solver interface!optional input|)}
-
-
-%%==============================================================================
-\subsubsection{Iterative linear solver interface optional input functions}\label{sss:optin_spils}
-%%==============================================================================
-\index{optional input!iterative linear solver|(}
-\index{CVSPILS@{\cvspils} linear solver interface!optional input|(}
-\index{preconditioning!user-supplied|(}
-If preconditioning is utilized with the {\cvspils} linear
-solver interface, then the user must supply a preconditioner solve
-function \id{psolve} and specify its name in a call to
-\id{CVSpilsSetPreconditioner}.
-\index{CVSPILS@{\cvspils} linear solver interface!preconditioner solve function}
 %%
-The evaluation and preprocessing of any Jacobian-related data needed
-by the user's preconditioner solve function is done in the optional
-user-supplied function \id{psetup}. Both of these functions are
-fully specified in \S\ref{ss:user_fct_sim}.
-If used, the \id{psetup} function should also be specified in the call to\\
-\noindent\id{CVSpilsSetPreconditioner}.
-\index{CVSPILS@{\cvspils} linear solver interface!preconditioner setup function}
+\index{optional input!matrix-based linear solver|)}
+%%
+%%
+%%
+\index{optional input!matrix-free linear solver|(}
+\index{CVLS@{\cvls} linear solver interface!Jacobian-vector product approximation used by}
+When using matrix-free linear solver modules, The {\cvls} solver
+interface requires a function to compute an approximation to the
+product between the Jacobian matrix $J(t,y)$ and a vector $v$. The
+user can supply a Jacobian-times-vector approximation function or use
+the default internal difference quotient function
+\index{Jacobian approximation function!Jacobian times vector!difference quotient}
+that comes with the {\cvls} interface.  A user-defined Jacobian-vector
+function must be of type \id{CVLsJacTimesVecFn} and
+can be specified through a call to \id{CVodeSetJacTimes} (see
+\S\ref{ss:jtimesFn} for specification details).
+The evaluation and processing of any Jacobian-related data needed by
+the user's Jacobian-times-vector function may be done in the optional
+user-supplied function \id{jtsetup} (see \S\ref{ss:jtsetupFn} for
+specification details).
 
 The pointer \id{user\_data} received through \id{CVodeSetUserData} (or
 a pointer to \id{NULL} if \id{user\_data} was not specified)
-is passed to the preconditioner \id{psetup} and \id{psolve} functions.
-This allows the user to create an arbitrary structure with relevant problem data
-and access it during the execution of the user-supplied preconditioner functions
+is passed to the Jacobian-times-vector setup and product functions, \id{jtsetup} and
+\id{jtimes}, each time they are called.  This allows the user to
+create an arbitrary structure with relevant problem data and access it
+during the execution of the user-supplied functions
 without using global data in the program.
-
-\index{CVSPILS@{\cvspils} linear solver interface!Jacobian approximation used by}
-The {\cvspils} solver interface requires a function to compute an
-approximation to the product between the Jacobian matrix $J(t,y)$ and
-a vector $v$. The user can supply a Jacobian-times-vector
-approximation function or use the default internal difference quotient function
-\index{Jacobian approximation function!Jacobian times vector!difference quotient}
-that comes with the {\cvspils} interface.  A user-defined Jacobian-vector
-function must be of type \id{CVSpilsJacTimesVecFn} and
-can be specified through a call to \id{CVSpilsSetJacTimes} (see
-\S\ref{ss:jtimesFn} for specification details).
 %%
-As with the user-supplied preconditioner functions, the evaluation and
-processing of any Jacobian-related data needed by the user's
-Jacobian-times-vector function is done in the optional user-supplied
-function \id{jtsetup} (see \S\ref{ss:jtsetupFn} for specification
-details).  As with the preconditioner functions, a pointer to the user-defined
-data structure, \id{user\_data}, specified through
-\id{CVodeSetUserData} (or a \id{NULL} pointer otherwise) is passed to
-the Jacobian-times-vector setup and product functions, \id{jtsetup} and
-\id{jtimes}, each time they are called.
-
-\index{CVSPILS@{\cvspils} linear solver interface!convergence test}
-Finally, as described in Section \ref{ss:ivp_sol}, the {\cvspils}
-interface requires that iterative linear solvers stop when the norm of
-the preconditioned residual is less than $0.05 \cdot (0.1 \epsilon)$,
-where $\epsilon$ is the nonlinear solver tolerance.  The user may
-adjust this linear solver tolerance by calling the function
-\id{CVSpilsSetEpsLin}.
-%%
-%%
-\ucfunction{CVSpilsSetPreconditioner}
-{
-  flag = CVSpilsSetPreconditioner(cvode\_mem, psetup, psolve);
-}
-{
-  The function \ID{CVSpilsSetPreconditioner} specifies the preconditioner
-  setup and solve functions.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvode} memory block.
-  \item[psetup] (\id{CVSpilsPrecSetupFn})
-    user-defined preconditioner setup function.
-    Pass \id{NULL} if no setup is necessary.
-  \item[psolve] (\id{CVSpilsPrecSolveFn})
-    user-defined preconditioner solve function.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVSPILS\_LMEM\_NULL]
-  \item[\Id{CVSPILS\_SUCCESS}]
-    The optional values have been successfully set.
-  \item[\Id{CVSPILS\_MEM\_NULL}]
-    The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVSPILS\_LMEM\_NULL}]
-    The {\cvspils} linear solver has not been initialized.
-  \item[\Id{CVSPILS\_SUNLS\_FAIL}]
-    An error occurred when setting up preconditioning in the
-    {\sunlinsol} object used by the {\cvspils} interface.
-  \end{args}
-}
-{
-   The function type \id{CVSpilsPrecSolveFn} is described in \S\ref{ss:psolveFn}.
-   The function type \id{CVSpilsPrecSetupFn} is described in \S\ref{ss:precondFn}.
-}
-%%
-%%
-\index{preconditioning!user-supplied|)}
 \index{Jacobian approximation function!Jacobian times vector!user-supplied}
-\ucfunction{CVSpilsSetJacTimes}
+\ucfunction{CVodeSetJacTimes}
 {
-  flag = CVSpilsSetJacTimes(cvode\_mem, jtsetup, jtimes);
+  flag = CVodeSetJacTimes(cvode\_mem, jtsetup, jtimes);
 }
 {
-  The function \ID{CVSpilsSetJacTimes} specifies the Jacobian-vector
+  The function \ID{CVSetJacTimes} specifies the Jacobian-vector
   setup and product functions.
 }
 {
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
-  \item[jtsetup] (\id{CVSpilsJacTimesSetupFn})
+  \item[jtsetup] (\id{CVLsJacTimesSetupFn})
     user-defined Jacobian-vector setup function.
     Pass \id{NULL} if no setup is necessary.
-  \item[jtimes] (\id{CVSpilsJacTimesVecFn})
+  \item[jtimes] (\id{CVLsJacTimesVecFn})
     user-defined Jacobian-vector product function.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVSPILS\_LMEM\_NULL]
-  \item[\Id{CVSPILS\_SUCCESS}]
+  \begin{args}[CVLS\_LMEM\_NULL]
+  \item[\Id{CVLS\_SUCCESS}]
     The optional value has been successfully set.
-  \item[\Id{CVSPILS\_MEM\_NULL}]
+  \item[\Id{CVLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVSPILS\_LMEM\_NULL}]
-    The {\cvspils} linear solver has not been initialized.
-  \item[\Id{CVSPILS\_SUNLS\_FAIL}]
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The {\cvls} linear solver has not been initialized.
+  \item[\Id{CVLS\_SUNLS\_FAIL}]
     An error occurred when setting up the system matrix-times-vector
-    routines in the {\sunlinsol} object used by the {\cvspils}
+    routines in the {\sunlinsol} object used by the {\cvls}
     interface.
   \end{args}
 }
 {
-  By default, the {\cvspils} linear solvers use an internal difference
-  quotient function.  If \id{NULL} is passed to \id{jtimes}, this
-  default function is used.
+  The default is to use an internal finite difference quotient for
+  \id{jtimes} and to omit \id{jtsetup}.  If \id{NULL} is passed to
+  \id{jtimes}, these defaults are used.  A user may specify
+  non-\id{NULL} \id{jtimes} and \id{NULL} \id{jtsetup} inputs.
 
-  The function type \id{CVSpilsJacTimesSetupFn} is described in \S\ref{ss:jtsetupFn}.
+  This function must be called \emph{after} the {\cvls} linear solver
+  interface has been initialized through a call to
+  \id{CVodeSetLinearSolver}.
 
-  The function type \id{CVSpilsJacTimesVecFn} is described in \S\ref{ss:jtimesFn}.
+  The function type \id{CVLsJacTimesSetupFn} is described in \S\ref{ss:jtsetupFn}.
+
+  The function type \id{CVLsJacTimesVecFn} is described in \S\ref{ss:jtimesFn}.
+
+  The previous routine \Id{CVSpilsSetJacTimes} is now a wrapper for
+  this routine, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new routine name soon.
 }
 %%
 %%
-\ucfunction{CVSpilsSetEpsLin}
+\index{optional input!matrix-free linear solver|)}
+%%
+%%
+%%
+%%
+\index{optional input!iterative linear solver|(}
+\index{preconditioning!user-supplied|(}
+When using an iterative linear solver, the user may supply a
+preconditioning operator to aid in solution of the system.  This
+operator consists of two user-supplied functions, \id{psetup} and
+\id{psolve}, that are supplied to {\cvode} using the function
+\Id{CVodeSetPreconditioner}.  The \id{psetup} function supplied to
+this routine should handle evaluation and preprocessing of any
+Jacobian data needed by the user's preconditioner solve function,
+\id{psolve}.  The user data pointer received through
+\id{CVodeSetUserData} (or a pointer to \id{NULL} if user data was not
+specified) is passed to the \id{psetup} and \id{psolve} functions.
+This allows the user to create an arbitrary structure with relevant
+problem data and access it during the execution of the user-supplied
+preconditioner functions without using global data in the program.
+
+Also, as described in \S\ref{ss:ivp_sol}, the {\cvls} interface
+requires that iterative linear solvers stop when the norm of the
+preconditioned residual satisfies
+\[
+  \|r\| \le \frac{\epsilon_L \epsilon}{10}
+\]
+where $\epsilon$ is the nonlinear solver tolerance, and the default
+$\epsilon_L = 0.05$; this value may be modified by the user through
+the \id{CVodeSetEpsLin} function.
+
+
+\index{CVLS@{\cvls} linear solver interface!preconditioner setup function}
+\index{CVLS@{\cvls} linear solver interface!preconditioner solve function}
+\ucfunction{CVodeSetPreconditioner}
 {
-  flag = CVSpilsSetEpsLin(cvode\_mem, eplifac);
+  flag = CVodeSetPreconditioner(cvode\_mem, psetup, psolve);
 }
 {
-  The function \ID{CVSpilsSetEpsLin} specifies the factor by
+  The function \ID{CVodeSetPreconditioner} specifies the preconditioner
+  setup and solve functions.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[psetup] (\id{CVLsPrecSetupFn})
+    user-defined preconditioner setup function.
+    Pass \id{NULL} if no setup is necessary.
+  \item[psolve] (\id{CVLsPrecSolveFn})
+    user-defined preconditioner solve function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CVLS\_LMEM\_NULL]
+  \item[\Id{CVLS\_SUCCESS}]
+    The optional values have been successfully set.
+  \item[\Id{CVLS\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The {\cvls} linear solver has not been initialized.
+  \item[\Id{CVLS\_SUNLS\_FAIL}]
+    An error occurred when setting up preconditioning in the
+    {\sunlinsol} object used by the {\cvls} interface.
+  \end{args}
+}
+{
+  The default is \id{NULL} for both arguments (i.e., no
+  preconditioning).
+
+  This function must be called \emph{after} the {\cvls} linear solver
+  interface has been initialized through a call to
+  \id{CVodeSetLinearSolver}.
+
+  The function type \id{CVLsPrecSolveFn} is described in \S\ref{ss:psolveFn}.
+
+  The function type \id{CVLsPrecSetupFn} is described in \S\ref{ss:precondFn}.
+
+  The previous routine \Id{CVSpilsSetPreconditioner} is now a wrapper
+  for this routine, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new routine name soon.
+}
+\index{preconditioning!user-supplied|)}
+%%
+%%
+\index{CVLS@{\cvls} linear solver interface!convergence test}
+\ucfunction{CVodeSetEpsLin}
+{
+  flag = CVodeSetEpsLin(cvode\_mem, eplifac);
+}
+{
+  The function \ID{CVodeSetEpsLin} specifies the factor by
   which the Krylov linear solver's convergence test constant is
   reduced from the nonlinear solver test constant.
 }
@@ -2006,25 +2110,38 @@ adjust this linear solver tolerance by calling the function
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVSPILS\_ILL\_INPUT]
-  \item[\Id{CVSPILS\_SUCCESS}]
+  \begin{args}[CVLS\_ILL\_INPUT]
+  \item[\Id{CVLS\_SUCCESS}]
     The optional value has been successfully set.
-  \item[\Id{CVSPILS\_MEM\_NULL}]
+  \item[\Id{CVLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVSPILS\_LMEM\_NULL}]
-    The {\cvspils} linear solver has not been initialized.
-  \item[\Id{CVSPILS\_ILL\_INPUT}]
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The {\cvls} linear solver has not been initialized.
+  \item[\Id{CVLS\_ILL\_INPUT}]
     The factor \id{eplifac} is negative.
   \end{args}
 }
 {
   The default value is $0.05$.
 
+  This function must be called \emph{after} the {\cvls} linear solver
+  interface has been initialized through a call to
+  \id{CVodeSetLinearSolver}.
+
   If \id{eplifac}$ = 0.0$ is passed, the default value is used.
+
+  The previous routine \Id{CVSpilsSetEpsLin} is now a wrapper for this
+  routine, and may still be used for backward-compatibility.  However,
+  this will be deprecated in future releases, so we recommend that
+  users transition to the new routine name soon.
 }
 %%
-\index{CVSPILS@{\cvspils} linear solver interface!optional input|)}
+%%
 \index{optional input!iterative linear solver|)}
+\index{CVLS@{\cvls} linear solver interface!optional input||)}
+\index{optional input!generic linear solver interface|)}
+
+
 
 %%==============================================================================
 \subsubsection{Rootfinding optional input functions}\label{sss:optin_root}
@@ -2180,7 +2297,7 @@ compared among runs with differing input options to suggest which set
 of options is most efficient.  The ratio \id{nniters/nsteps} measures
 the performance of the nonlinear solver in solving the nonlinear
 systems at each time step; typical values for this range from 1.1 to
-1.8.  The ratio \id{njevals/nniters} (in the case of a direct linear
+1.8.  The ratio \id{njevals/nniters} (in the case of a matrix-based linear
 solver), and the ratio \id{npevals/nniters} (in the case of an
 iterative linear solver) measure the overall degree of nonlinearity
 in these systems, and also the quality of the approximate Jacobian or
@@ -2194,14 +2311,14 @@ preconditioner.
 \vspace*{.2in}
 
 \newlength{\colAA}
-\settowidth{\colAA}{No. of r.h.s. calls for finite diff. Jacobian-vector evals.}
+\settowidth{\colAA}{No. of r.h.s. calls for finite diff. Jacobian[-vector] evals.}
 \newlength{\colBB}
 \settowidth{\colBB}{\id{CVodeGetNumNonlinSolvConvFails}}
 
 
 \begin{table}
 \centering
-\caption{Optional outputs from {\cvode}, {\cvdls}, {\cvdiag}, and {\cvspils}}
+\caption{Optional outputs from {\cvode}, {\cvls}, and {\cvdiag}}
 \label{t:optional_output}
 \medskip
 \begin{tabular}{|p{\colAA}|p{\colBB}|}
@@ -2233,13 +2350,19 @@ Array showing roots found & \id{CvodeGetRootInfo} \\
 No. of calls to user root function & \id{CVodeGetNumGEvals} \\
 Name of constant associated with a return flag & \id{CVodeGetReturnFlagName} \\
 \hline
-\multicolumn{2}{|c|}{\bf CVDLS linear solver interface} \\
+\multicolumn{2}{|c|}{\bf CVLS linear solver interface} \\
 \hline
-Size of real and integer workspaces & \id{CVDlsGetWorkSpace} \\
-No. of Jacobian evaluations & \id{CVDlsGetNumJacEvals} \\
-No. of r.h.s. calls for finite diff. Jacobian evals. & \id{CVDlsGetNumRhsEvals} \\
-Last return from a linear solver function & \id{CVDlsGetLastFlag} \\
-Name of constant associated with a return flag & \id{CVDlsGetReturnFlagName} \\
+Size of real and integer workspaces & \id{CVodeGetLinWorkSpace} \\
+No. of Jacobian evaluations & \id{CVodeGetNumJacEvals} \\
+No. of r.h.s. calls for finite diff. Jacobian[-vector] evals. & \id{CVodeGetNumLinRhsEvals} \\
+No. of linear iterations & \id{CVodeGetNumLinIters} \\
+No. of linear convergence failures & \id{CVodeGetNumLinConvFails} \\
+No. of preconditioner evaluations & \id{CVodeGetNumPrecEvals} \\
+No. of preconditioner solves & \id{CVodeGetNumPrecSolves} \\
+No. of Jacobian-vector setup evaluations & \id{CVodeGetNumJTSetupEvals} \\
+No. of Jacobian-vector product evaluations & \id{CVodeGetNumJtimesEvals} \\
+Last return from a linear solver function & \id{CVodeGetLastLinFlag} \\
+Name of constant associated with a return flag & \id{CVodeGetLinReturnFlagName} \\
 \hline
 \multicolumn{2}{|c|}{\bf CVDIAG linear solver interface} \\
 \hline
@@ -2247,19 +2370,6 @@ Size of {\cvdiag} real and integer workspaces & \id{CVDiagGetWorkSpace} \\
 No. of r.h.s. calls for finite diff. Jacobian evals. & \id{CVDiagGetNumRhsEvals} \\
 Last return from a {\cvdiag} function & \id{CVDiagGetLastFlag} \\
 Name of constant associated with a return flag & \id{CVDiagGetReturnFlagName} \\
-\hline
-\multicolumn{2}{|c|}{\bf CVSPILS linear solver interface} \\
-\hline
-Size of real and integer workspaces & \id{CVSpilsGetWorkSpace} \\
-No. of linear iterations & \id{CVSpilsGetNumLinIters} \\
-No. of linear convergence failures & \id{CVSpilsGetNumConvFails} \\
-No. of preconditioner evaluations & \id{CVSpilsGetNumPrecEvals} \\
-No. of preconditioner solves & \id{CVSpilsGetNumPrecSolves} \\
-No. of Jacobian-vector setup evaluations & \id{CVSpilsGetNumJTSetupEvals} \\
-No. of Jacobian-vector product evaluations & \id{CVSpilsGetNumJtimesEvals} \\
-No. of r.h.s. calls for finite diff. Jacobian-vector evals. & \id{CVSpilsGetNumRhsEvals} \\
-Last return from a linear solver function & \id{CVSpilsGetLastFlag} \\
-Name of constant associated with a return flag & \id{CVSpilsGetReturnFlagName} \\
 \hline
 \end{tabular}
 \end{table}
@@ -2997,67 +3107,78 @@ There are two optional output functions associated with rootfinding.
 {}
 
 %%==============================================================================
-\subsubsection{Direct linear solver interface optional output functions}
-\label{sss:optout_dls}
+\subsubsection{{\cvls} linear solver interface optional output functions}
+\label{sss:optout_ls}
 %%==============================================================================
-\index{optional output!direct linear solver interface|(}
-\index{CVDLS@{\cvdls} linear solver interface!optional output|(}
-The following optional outputs are available from the {\cvdls} modules:
-workspace requirements, number of calls to the Jacobian routine, number of
-calls to the right-hand side routine for finite-difference Jacobian approximation,
-and last return value from a {\cvdls} function.
+\index{optional output!generic linear solver interface|(}
+\index{CVLS@{\cvls} linear solver interface!optional output|(}
+The following optional outputs are available from the {\cvls} modules:
+workspace requirements,
+number of calls to the Jacobian routine,
+number of calls to the right-hand side routine for finite-difference Jacobian or Jacobian-vector product approximation,
+number of linear iterations,
+number of linear convergence failures,
+number of calls to the preconditioner setup and solve routines,
+number of calls to the Jacobian-vector setup and product routines,
+and last return value from a linear solver function.
 Note that, where the name of an output would otherwise conflict with
 the name of an optional output from the main solver, a suffix \id{LS}
 (for Linear Solver) has been added (e.g. \id{lenrwLS}).
 %%
 %%
-\index{CVDLS@{\cvdls} linear solver interface!memory requirements}
-\index{memory requirements!CVDLS@{\cvdls} linear solver interface}
-\ucfunction{CVDlsGetWorkSpace}
+\index{CVLS@{\cvls} linear solver interface!memory requirements}
+\index{memory requirements!CVLS@{\cvls} linear solver interface}
+\ucfunction{CVodeGetLinWorkSpace}
 {
-  flag = CVDlsGetWorkSpace(cvode\_mem, \&lenrwLS, \&leniwLS);
+  flag = CVodeGetLinWorkSpace(cvode\_mem, \&lenrwLS, \&leniwLS);
 }
 {
-  The function \ID{CVDlsGetWorkSpace} returns the sizes of the real and
-  integer workspaces used by the {\cvdls} linear solver interface.
+  The function \ID{CVodeGetLinWorkSpace} returns the sizes of the real and
+  integer workspaces used by the {\cvls} linear solver interface.
 }
 {
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
   \item[lenrwLS] (\id{long int})
-    the number of \id{realtype} values in the {\cvdls} workspace.
+    the number of \id{realtype} values in the {\cvls} workspace.
   \item[leniwLS] (\id{long int})
-    the number of integer values in the {\cvdls} workspace.
+    the number of integer values in the {\cvls} workspace.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVDLS\_LMEM\_NULL]
-  \item[\Id{CVDLS\_SUCCESS}]
+  \begin{args}[CVLS\_LMEM\_NULL]
+  \item[\Id{CVLS\_SUCCESS}]
     The optional output values have been successfully set.
-  \item[\Id{CVDLS\_MEM\_NULL}]
+  \item[\Id{CVLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVDLS\_LMEM\_NULL}]
-    The {\cvdls} linear solver has not been initialized.
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The {\cvls} linear solver has not been initialized.
   \end{args}
 }
 {
   The workspace requirements reported by this routine correspond only
   to memory allocated within this interface and to memory allocated by
   the {\sunlinsol} object attached to it.  The template Jacobian
-  matrix allocated by the user outside of {\cvdls} is not included in
+  matrix allocated by the user outside of {\cvls} is not included in
   this report.
+
+  The previous routines \Id{CVDlsGetWorkspace} and
+  \Id{CVSpilsGetWorkspace} are now wrappers for this routine, and may
+  still be used for backward-compatibility.  However, these will be
+  deprecated in future releases, so we recommend that users transition
+  to the new routine name soon.
 }
 %%
 %%
-\ucfunction{CVDlsGetNumJacEvals}
+\ucfunction{CVodeGetNumJacEvals}
 {
-  flag = CVDlsGetNumJacEvals(cvode\_mem, \&njevals);
+  flag = CVodeGetNumJacEvals(cvode\_mem, \&njevals);
 }
 {
-  The function \ID{CVDlsGetNumJacEvals} returns the
-  number of calls made to the {\cvdls} Jacobian approximation
+  The function \ID{CVodeGetNumJacEvals} returns the
+  number of calls made to the {\cvls} Jacobian approximation
   function.
 }
 {
@@ -3070,26 +3191,32 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVDLS\_LMEM\_NULL]
-  \item[\Id{CVDLS\_SUCCESS}]
+  \begin{args}[CVLS\_LMEM\_NULL]
+  \item[\Id{CVLS\_SUCCESS}]
     The optional output value has been successfully set.
-  \item[\Id{CVDLS\_MEM\_NULL}]
+  \item[\Id{CVLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVDLS\_LMEM\_NULL}]
-    The {\cvdls} linear solver has not been initialized.
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The {\cvls} linear solver has not been initialized.
   \end{args}
 }
-{}
-%%
-%%
-\ucfunction{CVDlsGetNumRhsEvals}
 {
-  flag = CVDlsGetNumRhsEvals(cvode\_mem, \&nfevalsLS);
+  The previous routine \Id{CVDlsGetNumJacEvals} is now a wrapper for
+  this routine, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new routine name soon.
+}
+%%
+%%
+\ucfunction{CVodeGetNumLinRhsEvals}
+{
+  flag = CVodeGetNumLinRhsEvals(cvode\_mem, \&nfevalsLS);
 }
 {
-  The function \ID{CVDlsGetNumRhsEvals} returns the
+  The function \ID{CVodeGetNumLinRhsEvals} returns the
   number of calls made to the user-supplied right-hand side function
-  due to the finite difference Jacobian approximation.
+  due to the finite difference Jacobian approximation or finite
+  difference Jacobian-vector product approximation.
 }
 {
   \begin{args}[cvode\_mem]
@@ -3101,146 +3228,33 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVDLS\_LMEM\_NULL]
-  \item[\Id{CVDLS\_SUCCESS}]
+  \begin{args}[CVLS\_LMEM\_NULL]
+  \item[\Id{CVLS\_SUCCESS}]
     The optional output value has been successfully set.
-  \item[\Id{CVDLS\_MEM\_NULL}]
+  \item[\Id{CVLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVDLS\_LMEM\_NULL}]
-    The {\cvdls} linear solver has not been initialized.
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The {\cvls} linear solver has not been initialized.
   \end{args}
 }
 {
   The value \id{nfevalsLS} is incremented only if one of the default
-  internal difference quotient functions (dense or banded) is
-  used.
-}
-%%
-%%
-\ucfunction{CVDlsGetLastFlag}
-{
-  flag = CVDlsGetLastFlag(cvode\_mem, \&lsflag);
-}
-{
-  The function \ID{CVDlsGetLastFlag} returns the
-  last return value from a {\cvdls} routine.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvode} memory block.
-  \item[lsflag] (\id{long int})
-    the value of the last return flag from a {\cvdls} function.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVDLS\_LMEM\_NULL]
-  \item[\Id{CVDLS\_SUCCESS}]
-    The optional output value has been successfully set.
-  \item[\Id{CVDLS\_MEM\_NULL}]
-    The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVDLS\_LMEM\_NULL}]
-    The {\cvdls} linear solver has not been initialized.
-  \end{args}
-}
-{
-  If the {\sunlinsoldense} or {\sunlinsolband} setup function failed
-  (\id{CVode} returned \id{CV\_LSETUP\_FAIL}), then the value of
-  \id{lsflag} is equal to the column index (numbered from one) at
-  which a zero diagonal element was encountered during the LU
-  factorization of the (dense or banded) Jacobian matrix.
-}
-%%
-%%
-\ucfunction{CVDlsGetReturnFlagName}
-{
-  name = CVDlsGetReturnFlagName(lsflag);
-}
-{
-  The function \ID{CVDlsGetReturnFlagName} returns the
-  name of the {\cvdls} constant corresponding to \id{lsflag}.
-}
-{
-  The only argument, of type \id{long int}, is a return flag from a {\cvdls}
-  function.
-}
-{
-  The return value is a string containing the name of the corresponding constant.
+  internal difference quotient functions is used.
 
-  If $1 \leq $ \id{lsflag} $ \leq N$ (LU factorization failed), this routine
-  returns ``NONE''.
-}
-{}
-\index{CVDLS@{\cvdls} linear solver interface!optional output|)}
-\index{optional output!direct linear solver interface|)}
-
-
-%%==============================================================================
-\subsubsection{Iterative linear solver interface optional output functions}
-\label{sss:optout_spils}
-%%==============================================================================
-\index{optional output!iterative linear solver interface|(}
-\index{CVSPILS@{\cvspils} linear solver interface!optional output|(}
-The following optional outputs are available from the {\cvspils}
-modules: workspace requirements, number of linear iterations, number of
-linear convergence failures, number of calls to the preconditioner
-setup and solve routines, number of calls to the Jacobian-vector
-setup and product routines, number of calls to the right-hand side
-routine for finite-difference Jacobian-vector product approximation,
-and last return value from a linear solver function.
-Note that, where the name of an output would otherwise conflict with
-the name of an optional output from the main solver, a suffix \id{LS}
-(for Linear Solver) has been added (e.g.  \id{lenrwLS}).
-%%
-%%
-\index{CVSPILS@{\cvspils} linear solver interface!memory requirements}
-\index{memory requirements!CVSPILS@{\cvspils} linear solver interface}
-\ucfunction{CVSpilsGetWorkSpace}
-{
-  flag = CVSpilsGetWorkSpace(cvode\_mem, \&lenrwLS, \&leniwLS);
-}
-{
-  The function \ID{CVSpilsGetWorkSpace} returns the global sizes of the
-  {\cvspils} real and integer workspaces.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvode} memory block.
-  \item[lenrwLS] (\id{long int})
-    the number of \id{realtype} values in the {\cvspils} workspace.
-  \item[leniwLS] (\id{long int})
-    the number of integer values in the {\cvspils} workspace.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVSPILS\_LMEM\_NULL]
-  \item[\Id{CVSPILS\_SUCCESS}]
-    The optional output value has been successfully set.
-  \item[\Id{CVSPILS\_MEM\_NULL}]
-    The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVSPILS\_LMEM\_NULL}]
-    The {\cvspils} linear solver has not been initialized.
-  \end{args}
-}
-{
-  The workspace requirements reported by this routine correspond only
-  to memory allocated within this interface and to memory allocated by
-  the {\sunlinsol} object attached to it.
-
-  In a parallel setting, the above values are global (i.e., summed over all
-  processors).
+  The previous routines \Id{CVDlsGetNumRhsEvals} and
+  \Id{CVSpilsGetNumRhsEvals} are now wrappers for this routine, and may
+  still be used for backward-compatibility.  However, these will be
+  deprecated in future releases, so we recommend that users transition
+  to the new routine name soon.
 }
 %%
 %%
-\ucfunction{CVSpilsGetNumLinIters}
+\ucfunction{CVodeGetNumLinIters}
 {
-  flag = CVSpilsGetNumLinIters(cvode\_mem, \&nliters);
+  flag = CVodeGetNumLinIters(cvode\_mem, \&nliters);
 }
 {
-  The function \ID{CVSpilsGetNumLinIters} returns the
+  The function \ID{CVodeGetNumLinIters} returns the
   cumulative number of linear iterations.
 }
 {
@@ -3253,24 +3267,29 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVSPILS\_LMEM\_NULL]
-  \item[\Id{CVSPILS\_SUCCESS}]
+  \begin{args}[CVLS\_LMEM\_NULL]
+  \item[\Id{CVLS\_SUCCESS}]
     The optional output value has been successfully set.
-  \item[\Id{CVSPILS\_MEM\_NULL}]
+  \item[\Id{CVLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVSPILS\_LMEM\_NULL}]
-    The {\cvspils} linear solver has not been initialized.
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The {\cvls} linear solver has not been initialized.
   \end{args}
 }
-{}
-%%
-%%
-\ucfunction{CVSpilsGetNumConvFails}
 {
-  flag = CVSpilsGetNumConvFails(cvode\_mem, \&nlcfails);
+  The previous routine \Id{CVSpilsGetNumLinIters} is now a wrapper for
+  this routine, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new routine name soon.
+}
+%%
+%%
+\ucfunction{CVodeGetNumLinConvFails}
+{
+  flag = CVodeGetNumLinConvFails(cvode\_mem, \&nlcfails);
 }
 {
-  The function \ID{CVSpilsGetNumConvFails} returns the
+  The function \ID{CVodeGetNumLinConvFails} returns the
   cumulative number of linear convergence failures.
 }
 {
@@ -3283,24 +3302,29 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVSPILS\_LMEM\_NULL]
-  \item[\Id{CVSPILS\_SUCCESS}]
+  \begin{args}[CVLS\_LMEM\_NULL]
+  \item[\Id{CVLS\_SUCCESS}]
     The optional output value has been successfully set.
-  \item[\Id{CVSPILS\_MEM\_NULL}]
+  \item[\Id{CVLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVSPILS\_LMEM\_NULL}]
-    The {\cvspils} linear solver has not been initialized.
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The {\cvls} linear solver has not been initialized.
   \end{args}
 }
-{}
-%%
-%%
-\ucfunction{CVSpilsGetNumPrecEvals}
 {
-  flag = CVSpilsGetNumPrecEvals(cvode\_mem, \&npevals);
+  The previous routine \Id{CVSpilsGetNumConvFails} is now a wrapper for
+  this routine, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new routine name soon.
+}
+%%
+%%
+\ucfunction{CVodeGetNumPrecEvals}
+{
+  flag = CVodeGetNumPrecEvals(cvode\_mem, \&npevals);
 }
 {
-  The function \ID{CVSpilsGetNumPrecEvals} returns the
+  The function \ID{CVodeGetNumPrecEvals} returns the
   number of preconditioner evaluations, i.e., the number of
   calls made to \id{psetup} with \id{jok = SUNFALSE}.
 }
@@ -3314,24 +3338,29 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVSPILS\_LMEM\_NULL]
-  \item[\Id{CVSPILS\_SUCCESS}]
+  \begin{args}[CVLS\_LMEM\_NULL]
+  \item[\Id{CVLS\_SUCCESS}]
     The optional output value has been successfully set.
-  \item[\Id{CVSPILS\_MEM\_NULL}]
+  \item[\Id{CVLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVSPILS\_LMEM\_NULL}]
-    The {\cvspils} linear solver has not been initialized.
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The {\cvls} linear solver has not been initialized.
   \end{args}
 }
-{}
-%%
-%%
-\ucfunction{CVSpilsGetNumPrecSolves}
 {
-  flag = CVSpilsGetNumPrecSolves(cvode\_mem, \&npsolves);
+  The previous routine \Id{CVSpilsGetNumPrecEvals} is now a wrapper for
+  this routine, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new routine name soon.
+}
+%%
+%%
+\ucfunction{CVodeGetNumPrecSolves}
+{
+  flag = CVodeGetNumPrecSolves(cvode\_mem, \&npsolves);
 }
 {
-  The function \ID{CVSpilsGetNumPrecSolves} returns the
+  The function \ID{CVodeGetNumPrecSolves} returns the
   cumulative number of calls made to the preconditioner
   solve function, \id{psolve}.
 }
@@ -3345,24 +3374,29 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVSPILS\_LMEM\_NULL]
-  \item[\Id{CVSPILS\_SUCCESS}]
+  \begin{args}[CVLS\_LMEM\_NULL]
+  \item[\Id{CVLS\_SUCCESS}]
     The optional output value has been successfully set.
-  \item[\Id{CVSPILS\_MEM\_NULL}]
+  \item[\Id{CVLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVSPILS\_LMEM\_NULL}]
-    The {\cvspils} linear solver has not been initialized.
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The {\cvls} linear solver has not been initialized.
   \end{args}
 }
-{}
-%%
-%%
-\ucfunction{CVSpilsGetNumJTSetupEvals}
 {
-  flag = CVSpilsGetNumJTSetupEvals(cvode\_mem, \&njtsetup);
+  The previous routine \Id{CVSpilsGetNumPrecSolves} is now a wrapper for
+  this routine, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new routine name soon.
+}
+%%
+%%
+\ucfunction{CVodeGetNumJTSetupEvals}
+{
+  flag = CVodeGetNumJTSetupEvals(cvode\_mem, \&njtsetup);
 }
 {
-  The function \ID{CVSpilsGetNumJTSetupEvals} returns the
+  The function \ID{CVodeGetNumJTSetupEvals} returns the
   cumulative number of calls made to the Jacobian-vector setup
   function \id{jtsetup}.
 }
@@ -3376,24 +3410,29 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}
-  \item[\Id{CVSPILS\_SUCCESS}]
+  \begin{args}[CVLS\_LMEM\_NULL]
+  \item[\Id{CVLS\_SUCCESS}]
     The optional output value has been successfully set.
-  \item[\Id{CVSPILS\_MEM\_NULL}]
+  \item[\Id{CVLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVSPILS\_LMEM\_NULL}]
-    The {\cvspils} linear solver has not been initialized.
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The {\cvls} linear solver has not been initialized.
   \end{args}
 }
-{}
-%%
-%%
-\ucfunction{CVSpilsGetNumJtimesEvals}
 {
-  flag = CVSpilsGetNumJtimesEvals(cvode\_mem, \&njvevals);
+  The previous routine \Id{CVSpilsGetNumJTSetupEvals} is now a wrapper for
+  this routine, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new routine name soon.
+}
+%%
+%%
+\ucfunction{CVodeGetNumJtimesEvals}
+{
+  flag = CVodeGetNumJtimesEvals(cvode\_mem, \&njvevals);
 }
 {
-  The function \ID{CVSpilsGetNumJtimesEvals} returns the
+  The function \ID{CVodeGetNumJtimesEvals} returns the
   cumulative number of calls made to the Jacobian-vector function
   \id{jtimes}.
 }
@@ -3407,90 +3446,68 @@ the name of an optional output from the main solver, a suffix \id{LS}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}
-  \item[\Id{CVSPILS\_SUCCESS}]
+  \begin{args}[CVLS\_LMEM\_NULL]
+  \item[\Id{CVLS\_SUCCESS}]
     The optional output value has been successfully set.
-  \item[\Id{CVSPILS\_MEM\_NULL}]
+  \item[\Id{CVLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVSPILS\_LMEM\_NULL}]
-    The {\cvspils} linear solver has not been initialized.
-  \end{args}
-}
-{}
-%%
-%%
-\ucfunction{CVSpilsGetNumRhsEvals}
-{
-  flag = CVSpilsGetNumRhsEvals(cvode\_mem, \&nfevalsLS);
-}
-{
-  The function \ID{CVSpilsGetNumRhsEvals} returns the
-  number of calls to the user right-hand side function for
-  finite difference Jacobian-vector product approximation.
-}
-{
-  \begin{args}
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvode} memory block.
-  \item[nfevalsLS] (\id{long int})
-    the number of calls to the user right-hand side function.
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The {\cvls} linear solver has not been initialized.
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}
-  \item[\Id{CVSPILS\_SUCCESS}]
-    The optional output value has been successfully set.
-  \item[\Id{CVSPILS\_MEM\_NULL}]
-    The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVSPILS\_LMEM\_NULL}]
-    The {\cvspils} linear solver has not been initialized.
-  \end{args}
-}
-{
-  The value \id{nfevalsLS} is incremented only if the default
-  \id{CVSpilsDQJtimes} difference quotient function is used.
+  The previous routine \Id{CVSpilsGetNumJtimesEvals} is now a wrapper for
+  this routine, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new routine name soon.
 }
 %%
 %%
-\ucfunction{CVSpilsGetLastFlag}
+\ucfunction{CVodeGetLastLinFlag}
 {
-  flag = CVSpilsGetLastFlag(cvode\_mem, \&lsflag);
+  flag = CVodeGetLastLinFlag(cvode\_mem, \&lsflag);
 }
 {
-  The function \ID{CVSpilsGetLastFlag} returns the
-  last return value from a {\cvspils} routine.
+  The function \ID{CVodeGetLastLinFlag} returns the
+  last return value from a {\cvls} routine.
 }
 {
-  \begin{args}
+  \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
     pointer to the {\cvode} memory block.
   \item[lsflag] (\id{long int})
-    the value of the last return flag from a {\cvspils} function.
+    the value of the last return flag from a {\cvls} function.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVSPILS\_LMEM\_NULL]
-  \item[\Id{CVSPILS\_SUCCESS}]
+  \begin{args}[CVLS\_LMEM\_NULL]
+  \item[\Id{CVLS\_SUCCESS}]
     The optional output value has been successfully set.
-  \item[\Id{CVSPILS\_MEM\_NULL}]
+  \item[\Id{CVLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVSPILS\_LMEM\_NULL}]
-    The {\cvspils} linear solver has not been initialized.
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The {\cvls} linear solver has not been initialized.
   \end{args}
 }
 {
-  If the {\cvspils} setup function failed (\id{CVode} returned
-  \id{CV\_LSETUP\_FAIL}), \id{lsflag} will be \id{SUNLS\_PSET\_FAIL\_UNREC},
+  If the {\cvls} setup function failed (i.e., \id{CVode} returned
+  \id{CV\_LSETUP\_FAIL}) when using the {\sunlinsoldense} or
+  {\sunlinsolband} modules, then the value of \id{lsflag} is equal to
+  the column index (numbered from one) at which a zero diagonal
+  element was encountered during the LU factorization of the (dense or
+  banded) Jacobian matrix.
+
+  If the {\cvls} setup function failed when using another {\sunlinsol}
+  module, then \id{lsflag} will be \id{SUNLS\_PSET\_FAIL\_UNREC},
   \id{SUNLS\_ASET\_FAIL\_UNREC}, or \id{SUNLS\_PACKAGE\_FAIL\_UNREC}.
 
-  If the {\cvspils} solve function failed (\id{CVode} returned
-  \id{CV\_LSOLVE\_FAIL}), \id{lsflag} contains the error return flag from
-  the {\sunlinsol} object, which will be one of:
+  If the {\cvls} solve function failed (i.e., \id{CVode} returned
+  \id{CV\_LSOLVE\_FAIL}), then \id{lsflag} contains the error return
+  flag from the {\sunlinsol} object, which will be one of:
   \id{SUNLS\_MEM\_NULL}, indicating that the {\sunlinsol} memory is \id{NULL};
   \id{SUNLS\_ATIMES\_FAIL\_UNREC}, indicating an unrecoverable failure in the
-  $J*v$ function;
+  $Jv$ function;
   \id{SUNLS\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
   function \id{psolve} failed unrecoverably;
   \id{SUNLS\_GS\_FAIL}, indicating a failure in the Gram-Schmidt
@@ -3499,26 +3516,46 @@ the name of an optional output from the main solver, a suffix \id{LS}
   singular during the QR solve phase ({\spgmr} and {\spfgmr} only); or
   \id{SUNLS\_PACKAGE\_FAIL\_UNREC}, indicating an unrecoverable
   failure in an external iterative linear solver package.
+
+  The previous routines \Id{CVDlsGetLastFlag} and
+  \Id{CVSpilsGetLastFlag} are now wrappers for this routine, and may
+  still be used for backward-compatibility.  However, these will be
+  deprecated in future releases, so we recommend that users transition
+  to the new routine name soon.
 }
 %%
 %%
-\ucfunction{CVSpilsGetReturnFlagName}
+\ucfunction{CVodeGetLinReturnFlagName}
 {
-  name = CVSpilsGetReturnFlagName(lsflag);
+  name = CVodeGetLinReturnFlagName(lsflag);
 }
 {
-  The function \ID{CVSpilsGetReturnFlagName} returns the
-  name of the {\cvspils} constant corresponding to \id{lsflag}.
+  The function \ID{CVodeGetLinReturnFlagName} returns the
+  name of the {\cvls} constant corresponding to \id{lsflag}.
 }
 {
-  The only argument, of type \id{long int}, is a return flag from a {\cvspils} function.
+  The only argument, of type \id{long int}, is a return flag from a {\cvls}
+  function.
 }
 {
   The return value is a string containing the name of the corresponding constant.
+
+  If $1 \leq $ \id{lsflag} $ \leq N$ (LU factorization failed), this routine
+  returns ``NONE''.
 }
-{}
-\index{CVSPILS@{\cvspils} linear solver interface!optional output|)}
-\index{optional output!iterative linear solver interface|)}
+{
+  The previous routines \Id{CVDlsGetReturnFlagName} and
+  \Id{CVSpilsGetReturnFlagName} are now wrappers for this routine, and may
+  still be used for backward-compatibility.  However, these will be
+  deprecated in future releases, so we recommend that users transition
+  to the new routine name soon.
+}
+%%
+%%
+\index{CVLS@{\cvls} linear solver interface!optional output|)}
+\index{optional output!generic linear solver interface|)}
+
+
 
 
 %%==============================================================================
@@ -3687,7 +3724,7 @@ value for \id{maxord} is specified.
 
 If there are changes to the linear solver specifications, make the
 appropriate calls to either the linear solver objects themselves, or
-to the {\cvdls} or {\cvspils} interface routines, as described in
+to the {\cvls} interface routines, as described in
 \S\ref{sss:lin_solv_init}.  Otherwise, all solver inputs set
 previously remain in effect.
 
@@ -3945,21 +3982,20 @@ the user must supply a {\CC} function of type \Id{CVRootFn}, defined as follows:
 
 
 %%==============================================================================
-\subsection{Jacobian information (direct method Jacobian)}
+\subsection{Jacobian construction (matrix-based linear solvers)}
 \label{ss:jacFn}
 %%==============================================================================
 \index{Jacobian approximation function!user-supplied|(}
 
-If the direct linear solver interface is used (i.e.,
-\Id{CVDlsSetLinearSolver} is called in the steps described in
-\S\ref{ss:skeleton_sim}), the user may
-provide a function of type \Id{CVDlsJacFn} defined as follows:
+If a matrix-based linear solver module is used (i.e., a non-\id{NULL}
+{\sunmatrix} object was supplied to \Id{CVodeSetLinearSolver}), the user may
+provide a function of type \Id{CVLsJacFn} defined as follows:
 %%
-\usfunction{CVDlsJacFn}
+\usfunction{CVLsJacFn}
 {
-  typedef (*CVDlsJacFn)(&realtype t, N\_Vector y, N\_Vector fy, \\
-                        &SUNMatrix Jac, void *user\_data,\\
-                        &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
+  typedef (*CVLsJacFn)(&realtype t, N\_Vector y, N\_Vector fy, \\
+                       &SUNMatrix Jac, void *user\_data,\\
+                       &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
 }
 {
   This function computes the Jacobian matrix $J = \partial f / \partial y$
@@ -3984,16 +4020,16 @@ provide a function of type \Id{CVDlsJacFn} defined as follows:
   \item[tmp3]
     are pointers to memory allocated
     for variables of type \id{N\_Vector} which can be used by a
-    \id{CVDlsJacFn} function as temporary storage or work space.
+    \id{CVLsJacFn} function as temporary storage or work space.
   \end{args}
 }
 {
-  A \id{CVDlsJacFn} should return 0 if successful, a positive value if a recoverable
-  error occurred (in which case {\cvode} will attempt to correct, while {\cvdls} sets
-  \id{last\_flag} to \Id{CVDLS\_JACFUNC\_RECVR}), or a negative
+  A \id{CVLsJacFn} should return 0 if successful, a positive value if a recoverable
+  error occurred (in which case {\cvode} will attempt to correct, while {\cvls} sets
+  \id{last\_flag} to \Id{CVLS\_JACFUNC\_RECVR}), or a negative
   value if it failed unrecoverably (in which case the integration is halted, \id{CVode}
-  returns \Id{CV\_LSETUP\_FAIL} and {\cvdls} sets \id{last\_flag} to
-  \Id{CVDLS\_JACFUNC\_UNRECVR}).
+  returns \Id{CV\_LSETUP\_FAIL} and {\cvls} sets \id{last\_flag} to
+  \Id{CVLS\_JACFUNC\_UNRECVR}).
 }
 {
   Information regarding the structure of the specific {\sunmatrix}
@@ -4006,7 +4042,7 @@ provide a function of type \Id{CVDlsJacFn} defined as follows:
   matrix $J(t,y)$ is zeroed out, so only nonzero elements need to be
   loaded into \id{Jac}.
 
-  If the user's \id{CVDlsJacFn} function uses difference quotient
+  If the user's \id{CVLsJacFn} function uses difference quotient
   approximations, then it may need to access quantities not in the
   argument list.  These include the current step size, the error
   weights, etc.  To obtain these, the user will need to add a pointer
@@ -4086,27 +4122,31 @@ provide a function of type \Id{CVDlsJacFn} defined as follows:
   \Id{SM\_NNZ\_S} or the routine \Id{SUNSparseMatrix\_NNZ}.  The
   {\sunmatsparse} type and accessor macros are documented in
   \S\ref{ss:sunmat_sparse}.
+
+  The previous function type \Id{CVDlsJacFn} is identical to
+  \id{CVLsJacFn}, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new function type name soon.
 }
 \index{Jacobian approximation function!user-supplied|)}
 
 
 %%==============================================================================
-\subsection{Jacobian information (matrix-vector product)}\label{ss:jtimesFn}
+\subsection{Jacobian-vector product (matrix-free linear solvers)}\label{ss:jtimesFn}
 %%==============================================================================
 \index{Jacobian approximation function!Jacobian-vector product!user-supplied|(}
 
-If the {\cvspils} solver interface is selected
-(i.e., \id{CVSpilsSetLinearSolver} is called in the steps described in
-\S\ref{ss:skeleton_sim}), the user may
-provide a function of type \Id{CVSpilsJacTimesVecFn} in the following form,
+If a matrix-free linear solver is to be used (i.e., a \id{NULL}-valued
+{\sunmatrix} was supplied to \\ \noindent \id{CVodeSetLinearSolver}), the user may
+provide a function of type \Id{CVLsJacTimesVecFn} in the following form,
 to compute matrix-vector products $Jv$. If such a function is not supplied,
 the default is a difference quotient approximation to these products.
 
-\usfunction{CVSpilsJacTimesVecFn}
+\usfunction{CVLsJacTimesVecFn}
 {
-  typedef int (*CVSpilsJacTimesVecFn)&(N\_Vector v, N\_Vector Jv, \\
-                                     &realtype t, N\_Vector y, N\_Vector fy,\\
-                                     &void *user\_data, N\_Vector tmp);
+  typedef int (*CVLsJacTimesVecFn)&(N\_Vector v, N\_Vector Jv, \\
+                                  &realtype t, N\_Vector y, N\_Vector fy,\\
+                                  &void *user\_data, N\_Vector tmp);
 }
 {
   This function computes the product $J v = (\partial f / \partial y) v$
@@ -4140,31 +4180,37 @@ the default is a difference quotient approximation to these products.
 {
   This function must return a value of $J*v$ that uses the {\it current}
   value of $J$, i.e. as evaluated at the current $(t,y)$.
-  \newline
-  If the user's \id{CVSpilsJacTimesVecFn} function uses difference quotient
+
+  If the user's \id{CVLsJacTimesVecFn} function uses difference quotient
   approximations, it may need to access quantities not in the argument
   list. These include the current step size, the error weights, etc.
   To obtain these, the user will need to add a pointer to \id{cv\_mem}
   to \id{user\_data} and then use the \id{CVodeGet*} functions described in
   \S\ref{sss:optout_main}. The unit roundoff can be accessed as
   \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
+
+  The previous function type \Id{CVSpilsJacTimesVecFn} is identical to
+  \id{CVLsJacTimesVecFn}, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new function type name soon.
 }
 \index{Jacobian approximation function!Jacobian-vector product!user-supplied|)}
 
 
 %%==============================================================================
-\subsection{Jacobian information (matrix-vector setup)}\label{ss:jtsetupFn}
+\subsection{Jacobian-vector product setup (matrix-free linear solvers)}\label{ss:jtsetupFn}
 %%==============================================================================
 \index{Jacobian approximation function!Jacobian-vector setup|(}
 
-If the user's Jacobian-times-vector requires that any Jacobian-related data
-be preprocessed or evaluated, then this needs to be done in a
-user-supplied function of type \Id{CVSpilsJacTimesSetupFn}, defined as follows:
+If the user's Jacobian-times-vector routine requires that any
+Jacobian-related data be preprocessed or evaluated, then this needs to
+be done in a user-supplied function of type \Id{CVLsJacTimesSetupFn},
+defined as follows:
 
-\usfunction{CVSpilsJacTimesSetupFn}
+\usfunction{CVLsJacTimesSetupFn}
 {
-  typedef int (*CVSpilsJacTimesSetupFn)(&realtype t, N\_Vector y, \\
-                                        &N\_Vector fy, void *user\_data);
+  typedef int (*CVLsJacTimesSetupFn)(&realtype t, N\_Vector y, \\
+                                     &N\_Vector fy, void *user\_data);
 }
 {
   This function preprocesses and/or evaluates Jacobian-related data needed
@@ -4194,37 +4240,44 @@ user-supplied function of type \Id{CVSpilsJacTimesSetupFn}, defined as follows:
   Thus, the setup function can use any auxiliary data that is computed
   and saved during the evaluation of the ODE right-hand side.
 
-  If the user's \id{CVSpilsJacTimesSetupFn} function uses difference quotient
+  If the user's \id{CVLsJacTimesSetupFn} function uses difference quotient
   approximations, it may need to access quantities not in the argument
   list. These include the current step size, the error weights, etc.
   To obtain these, the user will need to add a pointer to \id{cv\_mem}
   to \id{user\_data} and then use the \id{CVodeGet*} functions described in
   \S\ref{sss:optout_main}. The unit roundoff can be accessed as
   \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
+
+  The previous function type \Id{CVSpilsJacTimesSetupFn} is identical
+  to\\ \noindent \id{CVLsJacTimesSetupFn}, and may still be used for
+  backward-compatibility.  However, this will be deprecated in future
+  releases, so we recommend that users transition to the new function
+  type name soon.
 }
 \index{Jacobian approximation function!Jacobian-vector setup|)}
 
 
 %%==============================================================================
-\subsection{Preconditioning (linear system solution)} \label{ss:psolveFn}
+\subsection{Preconditioner solve (iterative linear solvers)} \label{ss:psolveFn}
 %%==============================================================================
 \index{preconditioning!user-supplied}
-\index{CVSPILS@{\cvspils} linear solver interface!preconditioner solve function}
+\index{CVLS@{\cvls} linear solver interface!preconditioner solve function}
 
-If preconditioning is used, then the user must provide a function to
-solve the linear system $Pz = r$, where $P$ may be either a left or
-right preconditioner matrix.  Here $P$ should approximate (at least crudely)
-the matrix $M = I - \gamma J$, where $J = \partial f/ \partial y$.
-If preconditioning is done on both sides, the product of the two preconditioner
-matrices should approximate $M$.
-This function must be of type \Id{CVSpilsPrecSolveFn}, defined as follows:
+If a user-supplied preconditioner is to be used with a {\sunlinsol}
+solver module, then the user must provide a function to solve the
+linear system $Pz = r$, where $P$ may be either a left or right
+preconditioner matrix.  Here $P$ should approximate (at least crudely)
+the matrix $M = I - \gamma J$, where $J = \partial f/ \partial y$. If
+preconditioning is done on both sides, the product of the two
+preconditioner matrices should approximate $M$.
+This function must be of type \Id{CVLsPrecSolveFn}, defined as follows:
 %%
 %%
-\usfunction{CVSpilsPrecSolveFn}
+\usfunction{CVLsPrecSolveFn}
 {
-  typedef int (*CVSpilsPrecSolveFn)(&realtype t, N\_Vector y, N\_Vector fy,\\
-                                    &N\_Vector r, N\_Vector z, realtype gamma,\\
-                                    &realtype delta, int lr, void *user\_data);
+  typedef int (*CVLsPrecSolveFn)(&realtype t, N\_Vector y, N\_Vector fy,\\
+                                 &N\_Vector r, N\_Vector z, realtype gamma,\\
+                                 &realtype delta, int lr, void *user\_data);
 }
 {
   This function solves the preconditioned system $Pz = r$.
@@ -4266,22 +4319,27 @@ This function must be of type \Id{CVSpilsPrecSolveFn}, defined as follows:
   positive for a recoverable error (in which case the step will be retried), or
   negative for an unrecoverable error (in which case the integration is halted).
 }
-{}
+{
+  The previous function type \Id{CVSpilsPrecSolveFn} is identical to
+  \id{CVLsPrecSolveFn}, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new function type name soon.
+}
 
 %%==============================================================================
-\subsection{Preconditioning (Jacobian data)}\label{ss:precondFn}
+\subsection{Preconditioner setup (iterative linear solvers)}\label{ss:precondFn}
 %%==============================================================================
 \index{preconditioning!user-supplied}
-\index{CVSPILS@{\cvspils} linear solver interface!preconditioner setup function}
+\index{CVLS@{\cvls} linear solver interface!preconditioner setup function}
 
 If the user's preconditioner requires that any Jacobian-related data
 be preprocessed or evaluated, then this needs to be done in a
-user-supplied function of type \Id{CVSpilsPrecSetupFn}, defined as follows:
-\usfunction{CVSpilsPrecSetupFn}
+user-supplied function of type \Id{CVLsPrecSetupFn}, defined as follows:
+\usfunction{CVLsPrecSetupFn}
 {
-  typedef int (*CVSpilsPrecSetupFn)(&realtype t, N\_Vector y, N\_Vector fy,\\
-                                    &booleantype jok, booleantype *jcurPtr,\\
-                                    &realtype gamma, void *user\_data);
+  typedef int (*CVLsPrecSetupFn)(&realtype t, N\_Vector y, N\_Vector fy,\\
+                                 &booleantype jok, booleantype *jcurPtr,\\
+                                 &realtype gamma, void *user\_data);
 }
 {
   This function preprocesses and/or evaluates Jacobian-related data needed
@@ -4339,13 +4397,18 @@ user-supplied function of type \Id{CVSpilsPrecSetupFn}, defined as follows:
   solve function, but rather is called only as often as needed to achieve
   convergence in the nonlinear solver.
 
-  If the user's \id{CVSpilsPrecSetupFn} function uses difference quotient
+  If the user's \id{CVLsPrecSetupFn} function uses difference quotient
   approximations, it may need to access quantities not in the call
   list. These include the current step size, the error weights, etc.
   To obtain these, the user will need to add a pointer to \id{cv\_mem}
   to \id{user\_data} and then use the \id{CVodeGet*} functions described in
   \S\ref{sss:optout_main}. The unit roundoff can be accessed as
   \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
+
+  The previous function type \Id{CVSpilsPrecSetupFn} is identical to
+  \id{CVLsPrecSetupFn}, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new function type name soon.
 }
 
 
@@ -4367,7 +4430,8 @@ a band-block-diagonal preconditioner module {\cvbbdpre}.
 \index{preconditioning!banded}
 
 This preconditioner provides a band matrix preconditioner for use with
-the {\cvspils} iterative linear solver interface, in a serial setting.
+iterative {\sunlinsol} modules through the {\cvls} linear solver
+interface, in a serial setting.
 It uses difference quotients of the ODE right-hand side function \id{f} to
 generate a band matrix of bandwidth $m_l + m_u + 1$, where the number of
 super-diagonals ($m_u$, the upper half-bandwidth) and sub-diagonals
@@ -4415,9 +4479,6 @@ unchanged from the skeleton program presented in
   \textcolor{gray}{\bf Specify integration tolerances}
 
 \item
-  \textcolor{gray}{\bf Set optional inputs}
-
-\item
   {\bf Create linear solver object}
 
   When creating the iterative linear solver object, specify the type
@@ -4439,10 +4500,10 @@ unchanged from the skeleton program presented in
   to allocate memory and initialize the internal preconditioner data.
 
 \item
-  \textcolor{gray}{\bf Set linear solver interface optional inputs}
+  \textcolor{gray}{\bf Set optional inputs}
 
   Note that the user should not overwrite the preconditioner setup function
-  or solve function through calls to the \id{CVSpilsSetPreconditioner}
+  or solve function through calls to the \id{CVodeSetPreconditioner}
   optional input function.
 
 \item
@@ -4512,16 +4573,16 @@ by calling the following function:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVSPILS\_ILL\_INPUT]
-  \item[CVSPILS\_SUCCESS]
+  \begin{args}[CVLS\_ILL\_INPUT]
+  \item[CVLS\_SUCCESS]
     The call to \id{CVBandPrecInit} was successful.
-  \item[\id{CVSPILS\_MEM\_NULL}]
+  \item[\id{CVLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer was \id{NULL}.
-  \item[\Id{CVSPILS\_MEM\_FAIL}]
+  \item[\Id{CVLS\_MEM\_FAIL}]
     A memory allocation request has failed.
-  \item[\Id{CVSPILS\_LMEM\_NULL}]
-    A {\cvspils} linear solver memory was not attached.
-  \item[\Id{CVSPILS\_ILL\_INPUT}]
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    A {\cvls} linear solver memory was not attached.
+  \item[\Id{CVLS\_ILL\_INPUT}]
     The supplied vector implementation was not compatible with block
     band preconditioner.
   \end{args}
@@ -4562,10 +4623,10 @@ the {\cvbandpre} module:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVSPILS\_PMEM\_NULL]
-  \item[\Id{CVSPILS\_SUCCESS}]
+  \begin{args}[CVLS\_PMEM\_NULL]
+  \item[\Id{CVLS\_SUCCESS}]
     The optional output values have been successfully set.
-  \item[\Id{CVSPILS\_PMEM\_NULL}]
+  \item[\Id{CVLS\_PMEM\_NULL}]
     The {\cvbandpre} preconditioner has not been initialized.
   \end{args}
 }
@@ -4576,7 +4637,7 @@ the {\cvbandpre} module:
   matrix approximation, banded {\sunlinsol} object, and temporary vectors).
 
   The workspaces referred to here exist in addition to those given by the
-  corresponding function \id{CVSpilsGetWorkSpace}.
+  corresponding function \id{CVodeGetLinWorkSpace}.
 }
 %%
 %%
@@ -4600,17 +4661,17 @@ the {\cvbandpre} module:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVSPILS\_PMEM\_NULL]
-  \item[\Id{CVSPILS\_SUCCESS}]
+  \begin{args}[CVLS\_PMEM\_NULL]
+  \item[\Id{CVLS\_SUCCESS}]
     The optional output value has been successfully set.
-  \item[\Id{CVSPILS\_PMEM\_NULL}]
+  \item[\Id{CVLS\_PMEM\_NULL}]
     The {\cvbandpre} preconditioner has not been initialized.
   \end{args}
 }
 {
 The counter \id{nfevalsBP} is distinct from the counter \id{nfevalsLS}
-returned by the corresponding function \id{CVSpilsGetNumRhsEvals} and
-\id{nfevals} returned by \id{CVodeGetNumRhsEvals}.
+returned by the corresponding function \id{CVodeGetNumLinRhsEvals} and
+\id{nfevals} returned by\\ \noindent \id{CVodeGetNumRhsEvals}.
 The total number of right-hand side function evaluations is the
 sum of all three of these counters.
 }
@@ -4640,7 +4701,7 @@ rather broad class of PDE-based problems.  It has been successfully
 used for several realistic, large-scale problems \cite{HiTa:98} and is
 included in a software module within the {\cvode} package. This module
 works with the parallel vector module {\nvecp} and is usable with any of
-the Krylov iterative linear solvers through the {\cvspils} interface.
+the Krylov iterative linear solvers through the {\cvls} interface.
 It generates a preconditioner that is a block-diagonal matrix with
 each block being a band matrix. The blocks need not have the same
 number of super- and sub-diagonals and these numbers may vary from
@@ -4671,7 +4732,7 @@ and each of the blocks $g_m(t, \bar{y}_m)$ is uncoupled from the others.
 
 The preconditioner associated with this decomposition has the form
 \begin{equation}
-  P= diag[P_1, P_2, \ldots, P_M]
+  P= \operatorname{diag}[P_1, P_2, \ldots, P_M]
 \end{equation}
 where
 \begin{equation}
@@ -4829,9 +4890,6 @@ unchanged from the skeleton program presented in \S\ref{ss:skeleton_sim} are gra
   \textcolor{gray}{\bf Specify integration tolerances}
 
 \item
-  \textcolor{gray}{\bf Set optional inputs}
-
-\item
   {\bf Create linear solver object}
 
   When creating the iterative linear solver object, specify the type
@@ -4861,10 +4919,10 @@ unchanged from the skeleton program presented in \S\ref{ss:skeleton_sim} are gra
    functions described above.
 
 \item
-  \textcolor{gray}{\bf Set linear solver interface optional inputs}
+  \textcolor{gray}{\bf Set optional inputs}
 
   Note that the user should not overwrite the preconditioner setup function
-  or solve function through calls to the \id{CVSpilsSetPreconditioner}
+  or solve function through calls to the \id{CVodeSetPreconditioner}
   optional input function.
 
 \item
@@ -4953,16 +5011,16 @@ the {\cvbbdpre} preconditioner module are described next.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVSPILS\_ILL\_INPUT]
-  \item[CVSPILS\_SUCCESS]
+  \begin{args}[CVLS\_ILL\_INPUT]
+  \item[CVLS\_SUCCESS]
     The call to \id{CVBBDPrecInit} was successful.
-  \item[\id{CVSPILS\_MEM\_NULL}]
+  \item[\id{CVLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer was \id{NULL}.
-  \item[\Id{CVSPILS\_MEM\_FAIL}]
+  \item[\Id{CVLS\_MEM\_FAIL}]
     A memory allocation request has failed.
-  \item[\Id{CVSPILS\_LMEM\_NULL}]
-    A {\cvspils} linear solver was not attached.
-  \item[\Id{CVSPILS\_ILL\_INPUT}]
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    A {\cvls} linear solver was not attached.
+  \item[\Id{CVLS\_ILL\_INPUT}]
     The supplied vector implementation was not compatible with block
     band preconditioner.
   \end{args}
@@ -4996,7 +5054,7 @@ can be made to change any of the following: the half-bandwidths \id{mudq} and
 increment \id{dqrely}, or one of the user-supplied functions \id{gloc} and \id{cfn}.
 If there is a change in any of the linear solver inputs, an additional call
 to the ``Set'' routines provided by the {\sunlinsol} module, and/or
-one or more of the corresponding \id{CVSpilsSet***} functions, must
+one or more of the corresponding {\cvls} ``set'' functions, must
 also be made (in the proper order).
 
 \ucfunction{CVBBDPrecReInit}
@@ -5022,14 +5080,14 @@ also be made (in the proper order).
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVSPILS\_PMEM\_NULL]
-  \item[CVSPILS\_SUCCESS]
+  \begin{args}[CVLS\_PMEM\_NULL]
+  \item[CVLS\_SUCCESS]
     The call to \id{CVBBDPrecReInit} was successful.
-  \item[\id{CVSPILS\_MEM\_NULL}]
+  \item[\id{CVLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer was \id{NULL}.
-  \item[\Id{CVSPILS\_LMEM\_NULL}]
-    A {\cvspils} linear solver memory was not attached.
-  \item[\Id{CVSPILS\_PMEM\_NULL}]
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    A {\cvls} linear solver memory was not attached.
+  \item[\Id{CVLS\_PMEM\_NULL}]
     The function \id{CVBBDPrecInit} was not previously called.
   \end{args}
 }
@@ -5068,12 +5126,12 @@ the {\cvbbdpre} module:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVSPILS\_PMEM\_NULL]
-  \item[CVSPILS\_SUCCESS]
+  \begin{args}[CVLS\_PMEM\_NULL]
+  \item[CVLS\_SUCCESS]
     The optional output value has been successfully set.
-  \item[\id{CVSPILS\_MEM\_NULL}]
+  \item[\id{CVLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer was \id{NULL}.
-  \item[\Id{CVSPILS\_PMEM\_NULL}]
+  \item[\Id{CVLS\_PMEM\_NULL}]
     The {\cvbbdpre} preconditioner has not been initialized.
   \end{args}
 }
@@ -5085,7 +5143,7 @@ the {\cvbbdpre} module:
   These values are local to each process.
 
   The workspaces referred to here exist in addition to those given by the
-  corresponding function \id{CVSpilsGetWorkSpace}.
+  corresponding function \id{CVodeGetLinWorkSpace}.
 }
 %%
 %%
@@ -5109,12 +5167,12 @@ the {\cvbbdpre} module:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[CVSPILS\_PMEM\_NULL]
-  \item[CVSPILS\_SUCCESS]
+  \begin{args}[CVLS\_PMEM\_NULL]
+  \item[CVLS\_SUCCESS]
     The optional output value has been successfully set.
-  \item[\id{CVSPILS\_MEM\_NULL}]
+  \item[\id{CVLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer was \id{NULL}.
-  \item[\Id{CVSPILS\_PMEM\_NULL}]
+  \item[\Id{CVLS\_PMEM\_NULL}]
     The {\cvbbdpre} preconditioner has not been initialized.
   \end{args}
 }

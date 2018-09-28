@@ -157,9 +157,9 @@ int main(void)
   A = SUNBandMatrix(NEQ, MY, MY, 2*MY);
   if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
 
-  /* Create SUNLapackBand solver object for use by CVode */
-  LS = SUNLapackBand(u, A);
-  if(check_retval((void *)LS, "SUNLapackBand", 0)) return(1);
+  /* Create SUNLinSol_LapackBand solver object for use by CVode */
+  LS = SUNLinSol_LapackBand(u, A);
+  if(check_retval((void *)LS, "SUNLinSol_LapackBand", 0)) return(1);
   
   /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
   retval = CVDlsSetLinearSolver(cvode_mem, LS, A);

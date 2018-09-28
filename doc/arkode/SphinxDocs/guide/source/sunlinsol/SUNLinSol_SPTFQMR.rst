@@ -11,12 +11,12 @@
 
 .. _SUNLinSol_SPTFQMR:
 
-The SUNLINSOL_SPTFQMR Module
+The SUNLinSol_SPTFQMR Module
 ======================================
 
 The SPTFQMR (Scaled, Preconditioned, Transpose-Free Quasi-Minimum
 Residual [F1993]_) implementation of the ``SUNLinearSolver`` module 
-provided with SUNDIALS, SUNLINSOL_SPTFQMR, is an iterative linear
+provided with SUNDIALS, SUNLinSol_SPTFQMR, is an iterative linear
 solver that is designed to be compatible with any ``N_Vector``
 implementation (serial, threaded, parallel, and user-supplied) that
 supports a minimal subset of operations (:c:func:`N_VClone()`, 
@@ -26,7 +26,186 @@ supports a minimal subset of operations (:c:func:`N_VClone()`,
 SPFGMR algorithms, SPTFQMR requires a fixed amount of memory that does
 not increase with the number of allowed iterations. 
 
-The SUNLINSOL_SPTFQMR module defines the *content* field of a
+
+
+.. _SUNLinSol_SPTFQMR.Usage:
+
+SUNLinSol_SPTFQMR Usage
+------------------------
+
+The header file to be included when using this module 
+is ``sunlinsol/sunlinsol_sptfqmr.h``.  The SUNLinSol_SPTFQMR module
+is accessible from all SUNDIALS solvers *without*
+linking to the ``libsundials_sunlinsolsptfqmr`` module library.
+
+The module SUNLinSol_SPTFQMR provides the following user-callable routines: 
+
+
+.. c:function:: SUNLinearSolver SUNLinSol_SPTFQMR(N_Vector y, int pretype, int maxl)
+
+   This constructor function creates and allocates memory for a SPTFQMR
+   ``SUNLinearSolver``.  Its arguments are an ``N_Vector``, the desired
+   type of preconditioning, and the number of linear iterations to
+   allow.
+
+   This routine will perform consistency checks to ensure that it is
+   called with a consistent ``N_Vector`` implementation (i.e. that it
+   supplies the requisite vector operations).  If ``y`` is
+   incompatible, then this routine will return ``NULL``.
+
+   A ``maxl`` argument that is :math:`\le0` will result in the default
+   value (5).
+
+   Allowable inputs for ``pretype`` are ``PREC_NONE`` (0),
+   ``PREC_LEFT`` (1), ``PREC_RIGHT`` (2) and ``PREC_BOTH`` (3);
+   any other integer input will result in the default (no
+   preconditioning).  We note that some SUNDIALS solvers are designed
+   to only work with left preconditioning (IDA and IDAS) and others
+   with only right preconditioning (KINSOL). While it is possible to
+   configure a SUNLinSol_SPTFQMR object to use any of the
+   preconditioning options with these solvers, this use mode is not
+   supported and may result in inferior performance.
+
+
+.. c:function:: int SUNLinSol_SPTFQMRSetPrecType(SUNLinearSolver S, int pretype)
+
+   This function updates the type of preconditioning to use.  Supported
+   values are ``PREC_NONE`` (0), ``PREC_LEFT`` (1),
+   ``PREC_RIGHT`` (2), and ``PREC_BOTH`` (3).  
+
+   This routine will return with one of the error codes
+   ``SUNLS_ILL_INPUT`` (illegal ``pretype``), ``SUNLS_MEM_NULL``
+   (``S`` is ``NULL``), or ``SUNLS_SUCCESS``.
+  
+
+.. c:function:: int SUNLinSol_SPTFQMRSetMaxl(SUNLinearSolver S, int maxl)
+
+   This function updates the number of linear solver iterations to
+   allow.   
+
+   A ``maxl`` argument that is :math:`\le0` will result in the default
+   value (5).
+ 
+   This routine will return with one of the error codes
+   ``SUNLS_MEM_NULL`` (``S`` is ``NULL``) or ``SUNLS_SUCCESS``.
+
+
+For backwards compatibility, we also provide the wrapper functions,
+each with identical input and output arguments to the routines that
+they wrap:
+
+.. c:function:: SUNLinearSolver SUNSPTFQMR(N_Vector y, int pretype, int maxl)
+
+   Wrapper function for :c:func:`SUNLinSol_SPTFQMR()`
+
+.. c:function:: int SUNSPTFQMRSetPrecType(SUNLinearSolver S, int pretype)
+
+   Wrapper function for :c:func:`SUNLinSol_SPTFQMRSetPrecType()`
+
+.. c:function:: int SUNSPTFQMRSetMaxl(SUNLinearSolver S, int maxl)
+
+   Wrapper function for :c:func:`SUNLinSol_SPTFQMRSetMaxl()`
+                
+
+For solvers that include a Fortran interface module, the
+SUNLinSol_SPTFQMR module also includes the Fortran-callable
+function :f:func:`FSUNSPTFQMRInit()` to initialize
+this SUNLinSol_SPTFQMR module for a given SUNDIALS solver.
+
+.. f:subroutine:: FSUNSPTFQMRInit(CODE, PRETYPE, MAXL, IER)
+
+   Initializes a SPTFQMR ``SUNLinearSolver`` structure for
+   use in a SUNDIALS package. 
+
+   This routine must be called *after* the ``N_Vector`` object has
+   been initialized. 
+                  
+   **Arguments:**
+      * *CODE* (``int``, input) -- flag denoting the SUNDIALS solver
+        this matrix will be used for: CVODE=1, IDA=2, KINSOL=3, ARKode=4.
+      * *PRETYPE* (``int``, input) -- flag denoting type of
+        preconditioning to use: none=0, left=1, right=2, both=3.
+      * *MAXL* (``int``, input) -- number of SPTFQMR iterations to allow.
+      * *IER* (``int``, output) -- return flag (0 success, -1 for failure).
+
+Additionally, when using ARKode with a non-identity mass matrix, the
+Fortran-callable function  :f:func:`FSUNMassSPTFQMRInit()` initializes
+this SUNLinSol_SPTFQMR module for solving mass matrix linear systems.
+
+.. f:subroutine:: FSUNMassSPTFQMRInit(PRETYPE, MAXL, IER)
+
+   Initializes a SPTFQMR ``SUNLinearSolver`` structure for use in
+   solving mass matrix systems in ARKode.
+
+   This routine must be called *after* the ``N_Vector`` object has
+   been initialized. 
+                  
+   **Arguments:**
+      * *PRETYPE* (``int``, input) -- flag denoting type of
+        preconditioning to use: none=0, left=1, right=2, both=3.
+      * *MAXL* (``int``, input) -- number of SPTFQMR iterations to allow.
+      * *IER* (``int``, output) -- return flag (0 success, -1 for failure).
+
+The :c:func:`SUNLinSol_SPTFQMRSetPrecType()` and
+:c:func:`SUNLinSol_SPTFQMRSetMaxl()` routines also support Fortran interfaces
+for the system and mass matrix solvers:
+
+.. f:subroutine:: FSUNSPTFQMRSetPrecType(CODE, PRETYPE, IER)
+   
+   Fortran interface to :c:func:`SUNLinSol_SPTFQMRSetPrecType()` for system
+   linear solvers.  
+
+   This routine must be called *after* :f:func:`FSUNSPTFQMRInit()` has
+   been called.
+                  
+   **Arguments:** all should have type ``int``, and have meanings
+   identical to those listed above.
+
+
+.. f:subroutine:: FSUNMassSPTFQMRSetPrecType(PRETYPE, IER)
+   
+   Fortran interface to :c:func:`SUNLinSol_SPTFQMRSetPrecType()` for mass matrix
+   linear solvers in ARKode.
+
+   This routine must be called *after* :f:func:`FSUNMassSPTFQMRInit()` has
+   been called.
+                  
+   **Arguments:** all should have type ``int``, and have meanings
+   identical to those listed above.
+
+   
+.. f:subroutine:: FSUNSPTFQMRSetMaxl(CODE, MAXL, IER)
+   
+   Fortran interface to :c:func:`SUNLinSol_SPTFQMRSetMaxl()` for system
+   linear solvers.  
+
+   This routine must be called *after* :f:func:`FSUNSPTFQMRInit()` has
+   been called.
+                  
+   **Arguments:** all should have type ``int``, and have meanings
+   identical to those listed above.
+
+
+.. f:subroutine:: FSUNMassSPTFQMRSetMaxl(MAXL, IER)
+   
+   Fortran interface to :c:func:`SUNLinSol_SPTFQMRSetMaxl()` for mass matrix
+   linear solvers in ARKode.
+
+   This routine must be called *after* :f:func:`FSUNMassSPTFQMRInit()` has
+   been called.
+                  
+   **Arguments:** all should have type ``int``, and have meanings
+   identical to those listed above.
+
+
+
+.. _SUNLinSol_SPTFQMR.Description:
+
+SUNLinSol_SPTFQMR Description
+---------------------------------
+
+
+The SUNLinSol_SPTFQMR module defines the *content* field of a
 ``SUNLinearSolver`` to be the following structure:
 
 .. code-block:: c
@@ -107,7 +286,7 @@ This solver is constructed to perform the following operations:
   solver parameters.
 
 * Additional "set" routines are called by the SUNDIALS solver
-  that interfaces with SUNLINSOL_SPTFQMR to supply the 
+  that interfaces with SUNLinSol_SPTFQMR to supply the 
   ``ATimes``, ``PSetup``, and ``Psolve`` function pointers and
   ``s1`` and ``s2`` scaling vectors.
 
@@ -124,12 +303,9 @@ This solver is constructed to perform the following operations:
   supplied.
 
   
-The header file to be included when using this module 
-is ``sunlinsol/sunlinsol_sptfqmr.h``.
-
-The SUNLINSOL_SPTFQMR module defines implementations of all
+The SUNLinSol_SPTFQMR module defines implementations of all
 "iterative" linear solver operations listed in the section
-:ref:`SUNLinSol.Ops`: 
+:ref:`SUNLinSol.API`: 
 
 * ``SUNLinSolGetType_SPTFQMR``
 
@@ -157,146 +333,3 @@ The SUNLINSOL_SPTFQMR module defines implementations of all
 
 * ``SUNLinSolFree_SPTFQMR``
 
-The module SUNLINSOL_SPTFQMR provides the following additional
-user-callable routines: 
-
-
-.. c:function:: SUNLinearSolver SUNSPTFQMR(N_Vector y, int pretype, int maxl)
-
-   This constructor function creates and allocates memory for a SPTFQMR
-   ``SUNLinearSolver``.  Its arguments are an ``N_Vector``, the desired
-   type of preconditioning, and the number of linear iterations to
-   allow.
-
-   This routine will perform consistency checks to ensure that it is
-   called with a consistent ``N_Vector`` implementation (i.e. that it
-   supplies the requisite vector operations).  If ``y`` is
-   incompatible, then this routine will return ``NULL``.
-
-   A ``maxl`` argument that is :math:`\le0` will result in the default
-   value (5).
-
-   Allowable inputs for ``pretype`` are ``PREC_NONE`` (0),
-   ``PREC_LEFT`` (1), ``PREC_RIGHT`` (2) and ``PREC_BOTH`` (3);
-   any other integer input will result in the default (no
-   preconditioning).  We note that some SUNDIALS solvers are designed
-   to only work with left preconditioning (IDA and IDAS) and others
-   with only right preconditioning (KINSOL). While it is possible to
-   configure a SUNLINSOL_SPTFQMR object to use any of the
-   preconditioning options with these solvers, this use mode is not
-   supported and may result in inferior performance.
-
-
-.. c:function:: int SUNSPTFQMRSetPrecType(SUNLinearSolver S, int pretype)
-
-   This function updates the type of preconditioning to use.  Supported
-   values are ``PREC_NONE`` (0), ``PREC_LEFT`` (1),
-   ``PREC_RIGHT`` (2), and ``PREC_BOTH`` (3).  
-
-   This routine will return with one of the error codes
-   ``SUNLS_ILL_INPUT`` (illegal ``pretype``), ``SUNLS_MEM_NULL``
-   (``S`` is ``NULL``), or ``SUNLS_SUCCESS``.
-  
-
-.. c:function:: int SUNSPTFQMRSetMaxl(SUNLinearSolver S, int maxl)
-
-   This function updates the number of linear solver iterations to
-   allow.   
-
-   A ``maxl`` argument that is :math:`\le0` will result in the default
-   value (5).
- 
-   This routine will return with one of the error codes
-   ``SUNLS_MEM_NULL`` (``S`` is ``NULL``) or ``SUNLS_SUCCESS``.
-
-
-   
-For solvers that include a Fortran interface module, the
-SUNLINSOL_SPTFQMR module also includes the Fortran-callable
-function :f:func:`FSUNSPTFQMRInit()` to initialize
-this SUNLINSOL_SPTFQMR module for a given SUNDIALS solver.
-
-.. f:subroutine:: FSUNSPTFQMRInit(CODE, PRETYPE, MAXL, IER)
-
-   Initializes a SPTFQMR ``SUNLinearSolver`` structure for
-   use in a SUNDIALS package. 
-
-   This routine must be called *after* the ``N_Vector`` object has
-   been initialized. 
-                  
-   **Arguments:**
-      * *CODE* (``int``, input) -- flag denoting the SUNDIALS solver
-        this matrix will be used for: CVODE=1, IDA=2, KINSOL=3, ARKode=4.
-      * *PRETYPE* (``int``, input) -- flag denoting type of
-        preconditioning to use: none=0, left=1, right=2, both=3.
-      * *MAXL* (``int``, input) -- number of SPTFQMR iterations to allow.
-      * *IER* (``int``, output) -- return flag (0 success, -1 for failure).
-
-Additionally, when using ARKode with a non-identity mass matrix, the
-Fortran-callable function  :f:func:`FSUNMassSPTFQMRInit()` initializes
-this SUNLINSOL_SPTFQMR module for solving mass matrix linear systems.
-
-.. f:subroutine:: FSUNMassSPTFQMRInit(PRETYPE, MAXL, IER)
-
-   Initializes a SPTFQMR ``SUNLinearSolver`` structure for use in
-   solving mass matrix systems in ARKode.
-
-   This routine must be called *after* the ``N_Vector`` object has
-   been initialized. 
-                  
-   **Arguments:**
-      * *PRETYPE* (``int``, input) -- flag denoting type of
-        preconditioning to use: none=0, left=1, right=2, both=3.
-      * *MAXL* (``int``, input) -- number of SPTFQMR iterations to allow.
-      * *IER* (``int``, output) -- return flag (0 success, -1 for failure).
-
-The :c:func:`SUNSPTFQMRSetPrecType()` and
-:c:func:`SUNSPTFQMRSetMaxl()` routines also support Fortran interfaces
-for the system and mass matrix solvers:
-
-.. f:subroutine:: FSUNSPTFQMRSetPrecType(CODE, PRETYPE, IER)
-   
-   Fortran interface to :c:func:`SUNSPTFQMRSetPrecType()` for system
-   linear solvers.  
-
-   This routine must be called *after* :f:func:`FSUNSPTFQMRInit()` has
-   been called.
-                  
-   **Arguments:** all should have type ``int``, and have meanings
-   identical to those listed above.
-
-
-.. f:subroutine:: FSUNMassSPTFQMRSetPrecType(PRETYPE, IER)
-   
-   Fortran interface to :c:func:`SUNSPTFQMRSetPrecType()` for mass matrix
-   linear solvers in ARKode.
-
-   This routine must be called *after* :f:func:`FSUNMassSPTFQMRInit()` has
-   been called.
-                  
-   **Arguments:** all should have type ``int``, and have meanings
-   identical to those listed above.
-
-   
-.. f:subroutine:: FSUNSPTFQMRSetMaxl(CODE, MAXL, IER)
-   
-   Fortran interface to :c:func:`SUNSPTFQMRSetMaxl()` for system
-   linear solvers.  
-
-   This routine must be called *after* :f:func:`FSUNSPTFQMRInit()` has
-   been called.
-                  
-   **Arguments:** all should have type ``int``, and have meanings
-   identical to those listed above.
-
-
-.. f:subroutine:: FSUNMassSPTFQMRSetMaxl(MAXL, IER)
-   
-   Fortran interface to :c:func:`SUNSPTFQMRSetMaxl()` for mass matrix
-   linear solvers in ARKode.
-
-   This routine must be called *after* :f:func:`FSUNMassSPTFQMRInit()` has
-   been called.
-                  
-   **Arguments:** all should have type ``int``, and have meanings
-   identical to those listed above.

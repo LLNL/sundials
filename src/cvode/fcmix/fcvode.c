@@ -32,8 +32,7 @@
 #include "fcvode.h"                    /* actual function names, prototypes, global vars.*/ 
 #include "cvode_impl.h"                /* definition of CVodeMem type                    */
 #include <sundials/sundials_matrix.h>
-#include <cvode/cvode_direct.h>
-#include <cvode/cvode_spils.h>
+#include <cvode/cvode_ls.h>
 #include <cvode/cvode_diag.h>
 
 
@@ -281,30 +280,37 @@ void FCV_SETRIN(char key_name[], realtype *rval, int *ier)
 
 /***************************************************************************/
 
-void FCV_DLSINIT(int *ier) {
-  if ( (CV_cvodemem == NULL) || (F2C_CVODE_linsol == NULL) || 
-       (F2C_CVODE_matrix == NULL) ) {
+void FCV_LSINIT(int *ier) {
+  if ( (CV_cvodemem == NULL) || (F2C_CVODE_linsol == NULL) ) {
     *ier = -1;
     return;
   }
-  *ier = CVDlsSetLinearSolver(CV_cvodemem, F2C_CVODE_linsol, 
+  *ier = CVodeSetLinearSolver(CV_cvodemem, F2C_CVODE_linsol, 
                               F2C_CVODE_matrix);
-  CV_ls = CV_LS_DIRECT;
+  CV_ls = CV_LS_STD;
   return;
 }
 
 /***************************************************************************/
 
-void FCV_SPILSINIT(int *ier) {
-  if ( (CV_cvodemem == NULL) || (F2C_CVODE_linsol == NULL) ) {
-    *ier = -1;
-    return;
-  }
-  *ier = CVSpilsSetLinearSolver(CV_cvodemem, F2C_CVODE_linsol);
-  FCVNullMatrix();
-  CV_ls = CV_LS_ITERATIVE;
-  return;
-}
+/* ---DEPRECATED--- */
+void FCV_DLSINIT(int *ier)
+{ FCV_LSINIT(ier); }
+
+/***************************************************************************/
+
+/* ---DEPRECATED--- */
+void FCV_SPILSINIT(int *ier)
+{ FCV_LSINIT(ier); }
+
+/*=============================================================*/
+
+/* ---DEPRECATED--- */
+void FCV_SPILSSETEPSLIN(realtype *eplifac, int *ier)
+{ FCV_LSSETEPSLIN(eplifac, ier); }
+
+void FCV_LSSETEPSLIN(realtype *eplifac, int *ier)
+{ *ier = CVodeSetEpsLin(CV_cvodemem, *eplifac); }
 
 /***************************************************************************/
 
@@ -368,21 +374,17 @@ void FCV_CVODE(realtype *tout, realtype *t, realtype *y, int *itask, int *ier)
     CVodeGetNumGEvals(CV_cvodemem, &CV_iout[11]);         /* NGE     */
   
   switch(CV_ls) {
-  case CV_LS_DIRECT:
-    CVDlsGetWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]);   /* LENRWLS,LENIWLS */
-    CVDlsGetLastFlag(CV_cvodemem, &CV_iout[14]);                  /* LSTF */
-    CVDlsGetNumRhsEvals(CV_cvodemem, &CV_iout[15]);               /* NFELS */
-    CVDlsGetNumJacEvals(CV_cvodemem, &CV_iout[16]);               /* NJE */
-    break;
-  case CV_LS_ITERATIVE:
-    CVSpilsGetWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]); /* LENRWLS,LENIWLS */
-    CVSpilsGetLastFlag(CV_cvodemem, &CV_iout[14]);                /* LSTF */
-    CVSpilsGetNumRhsEvals(CV_cvodemem, &CV_iout[15]);             /* NFELS */
-    CVSpilsGetNumJtimesEvals(CV_cvodemem, &CV_iout[16]);          /* NJTV */
-    CVSpilsGetNumPrecEvals(CV_cvodemem, &CV_iout[17]);            /* NPE */
-    CVSpilsGetNumPrecSolves(CV_cvodemem, &CV_iout[18]);           /* NPS */
-    CVSpilsGetNumLinIters(CV_cvodemem, &CV_iout[19]);             /* NLI */
-    CVSpilsGetNumConvFails(CV_cvodemem, &CV_iout[20]);            /* NCFL */
+  case CV_LS_STD:
+    CVodeGetLinWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]);   /* LENRWLS,LENIWLS */
+    CVodeGetLastLinFlag(CV_cvodemem, &CV_iout[14]);                  /* LSTF */
+    CVodeGetNumLinRhsEvals(CV_cvodemem, &CV_iout[15]);               /* NFELS */
+    CVodeGetNumJacEvals(CV_cvodemem, &CV_iout[16]);                  /* NJE */
+    CVodeGetNumJTSetupEvals(CV_cvodemem, &CV_iout[17]);              /* NJTS */
+    CVodeGetNumJtimesEvals(CV_cvodemem, &CV_iout[18]);               /* NJTV */
+    CVodeGetNumPrecEvals(CV_cvodemem, &CV_iout[19]);                 /* NPE */
+    CVodeGetNumPrecSolves(CV_cvodemem, &CV_iout[20]);                /* NPS */
+    CVodeGetNumLinIters(CV_cvodemem, &CV_iout[21]);                  /* NLI */
+    CVodeGetNumLinConvFails(CV_cvodemem, &CV_iout[22]);              /* NCFL */
     break;
   case CV_LS_DIAG:
     CVDiagGetWorkSpace(CV_cvodemem, &CV_iout[12], &CV_iout[13]);  /* LENRWLS,LENIWLS */

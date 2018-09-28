@@ -39,7 +39,7 @@ following ten serial examples (using the {\nvecs} module):
   solves a chemical kinetics problem consisting of three rate equations.
   \newline
   This program solves the problem with the BDF method and Newton
-  iteration, with the {\sunlinsoldense} linear solver, {\cvdls}
+  iteration, with the {\sunlinsoldense} linear solver, {\cvls}
   interface, and a user-supplied Jacobian routine.  It also uses the
   rootfinding feature of {\cvode}.
 \item \id{cvRoberts\_dnsL}
@@ -58,7 +58,7 @@ following ten serial examples (using the {\nvecs} module):
   solves the semi-discrete form of an advection-diffusion equation in 2-D.
   \newline
   This program solves the problem with the BDF method and Newton
-  iteration, with the {\sunlinsolband} linear solver, {\cvdls}
+  iteration, with the {\sunlinsolband} linear solver, {\cvls}
   interface, and a user-supplied Jacobian routine.
 \item \id{cvAdvDiff\_bndL}
   is the same as \id{cvAdvDiff\_bnd} but uses the LAPACK
@@ -68,7 +68,7 @@ following ten serial examples (using the {\nvecs} module):
   advection-diffusion PDE system in 2-D.
   \newline
   The problem is solved with the BDF/GMRES method (i.e.
-  using the {\sunlinsolspgmr} linear solver and {\cvspils} interface)
+  using the {\sunlinsolspgmr} linear solver and {\cvls} interface)
   and the block-diagonal part of the Newton matrix as a left
   preconditioner. A copy of the block-diagonal part of the Jacobian is
   saved and conditionally reused within the preconditioner setup routine.
@@ -109,7 +109,7 @@ following ten serial examples (using the {\nvecs} module):
   \newline
   The ODE system is solved using Newton iteration, the
   {\sunlinsolspgmr} linear solver (scaled preconditioned GMRES), and
-  {\cvspils} interface.
+  {\cvls} interface.
   \newline
   The preconditioner matrix used is the product of two matrices:
   (1) a matrix, only defined implicitly, based on a fixed number of

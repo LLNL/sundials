@@ -147,16 +147,19 @@ usually drop the subscript WRMS on norms in what follows.
 
 % Newton iteration
 %-----------------
-In the case of a direct linear solver (dense, band, or sparse), the default Newton
-iteration is a Modified Newton iteration, in
-that the Jacobian $J$ is fixed (and usually out of date), with a coefficient 
-$\bar\alpha$ in place of $\alpha$ in $J$. When using one of the Krylov methods
-({\spgmr}, {\spbcg}, {\sptfqmr}, {\spfgmr} or {\pcg}) as the linear
-solver, the Newton iteration is an Inexact Newton iteration, using the
-current Jacobian (through matrix-free products $Jv$), in which the
-linear residual $J\Delta y + G$ is nonzero but controlled.
-The Jacobian matrix $J$ (direct cases) or preconditioner matrix $P$ 
-(iterative cases) is updated when:
+In the case of a matrix-based linear solver, the default Newton
+iteration is a Modified Newton iteration, in that the Jacobian $J$ is
+fixed (and usually out of date) throughout the nonlinear iterations,
+with a coefficient $\bar\alpha$ in place of $\alpha$ in $J$.  However,
+in the case that a matrix-free iterative linear solver is used, the
+default Newton iteration is an Inexact Newton iteration, in which $J$
+is applied in a matrix-free manner, with matrix-vector products $Jv$
+obtained by either difference quotients or a user-supplied routine.
+In this case, the linear residual $J\Delta y + G$ is nonzero but controlled. 
+With the default Newton iteration, the matrix $J$ and preconditioner
+matrix $P$ are updated as infrequently as possible to balance the high
+costs of matrix operations against other costs.  Specifically, this
+matrix update occurs when:
 \begin{itemize}
 \item starting the problem,
 \item the value $\bar\alpha$ at the last update is such that
@@ -168,9 +171,6 @@ and preprocessing with the slow convergence due to infrequent updates.
 To reduce storage costs on an update, Jacobian information is always
 reevaluated from scratch.
 
-We note that with the sparse direct solvers, the Jacobian {\em must}
-be supplied by a user routine, as this is not approximated
-automatically within {\ida}.
 
 
 % Newton convergence test
@@ -209,16 +209,17 @@ and the maximum number of nonlinear convergence failures can be changed by the u
 from their default values.
 
 When an iterative method is used to solve the linear system, to
-minimize the effect of linear iteration errors on the nonlinear and local integration
-error controls, we require the preconditioned linear residual to be small relative to
-the allowed error in the nonlinear iteration, i.e., 
+minimize the effect of linear iteration errors on the nonlinear and
+local integration error controls, we require the preconditioned linear
+residual to be small relative to the allowed error in the nonlinear
+iteration, i.e.,  
 $\| P^{-1}(Jx+G) \| < 0.05 \cdot 0.33$.
 The safety factor $0.05$ can be changed by the user.
 
 % Jacobian DQ approximations
 %---------------------------
-In the dense and banded direct linear solver 
-cases, the Jacobian $J$ defined in (\ref{e:DAE_Jacobian}) 
+When the Jacobian is stored using either dense or band {\sunmatrix}
+objects, the Jacobian $J$ defined in (\ref{e:DAE_Jacobian}) 
 can be either supplied by the user or have {\ida} compute one internally 
 by difference quotients. In the latter case, we use the approximation
 \begin{gather*}
@@ -229,8 +230,9 @@ by difference quotients. In the latter case, we use the approximation
 \end{gather*}
 where $U$ is the unit roundoff, $h$ is the current step size, and $W_j$ is 
 the error weight for the component $y_j$ defined by (\ref{e:errwt}).
-We note that the sparse direct linear solver requires a user-supplied
-routine for $J$.
+We note that with sparse and user-supplied {\sunmatrix} objects, the
+Jacobian \emph{must} be supplied by a user routine.
+
 In the case of an iterative linear solver, if a routine for $Jv$ is not
 supplied, such products are approximated by
 \begin{equation*}
@@ -353,7 +355,7 @@ When using a nonlinear solver that requires the solution of a linear system of
 the form $J \Delta y = - G$ (e.g., the default Newton iteration), {\ida} makes
 repeated use of a linear solver.
 If this linear system solve is done with one of the scaled preconditioned iterative 
-linear solvers, these solvers are rarely successful if used without preconditioning;
+linear solvers supplied with {\sundials}, these solvers are rarely successful if used without preconditioning;
 it is generally necessary to precondition the system in order to obtain acceptable efficiency.  
 A system $A x = b$ can be preconditioned on the left, on the right,
 or on both sides. The Krylov method is then applied to a system with the matrix $P^{-1}A$, 

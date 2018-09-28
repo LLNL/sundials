@@ -54,7 +54,6 @@
 #include "arkode/arkode_arkstep.h"    // prototypes for ARKStep fcts., consts
 #include "nvector/nvector_parallel.h" // parallel N_Vector types, fcts., macros
 #include "sunlinsol/sunlinsol_pcg.h"  // access to PCG SUNLinearSolver
-#include "arkode/arkode_spils.h"      // access to ARKSpils interface
 #include "sundials/sundials_types.h"  // def. of type 'realtype'
 #include "mpi.h"                      // MPI header file
 
@@ -72,9 +71,10 @@ using namespace std;
 
 // accessor macros between (x,y) location and 1D NVector array
 #define IDX(x,y,n) ((n)*(y)+(x))
-#define PI RCONST(3.1415926535897932)
-#define ONE RCONST(1.0)
-#define TWO RCONST(2.0)
+#define PI   RCONST(3.141592653589793238462643383279502884197169)
+#define ZERO RCONST(0.0)
+#define ONE  RCONST(1.0)
+#define TWO  RCONST(2.0)
 
 // user data structure
 typedef struct {
@@ -133,7 +133,7 @@ int main(int argc, char* argv[]) {
   realtype T0 = RCONST(0.0);   // initial time
   realtype Tf = RCONST(0.3);   // final time
   int Nt = 20;                 // total number of output times
-  sunindextype nx = 60;            // spatial mesh size
+  sunindextype nx = 60;        // spatial mesh size
   sunindextype ny = 120;
   realtype kx = 0.5;           // heat conductivity coefficients
   realtype ky = 0.75;
@@ -164,8 +164,8 @@ int main(int argc, char* argv[]) {
   udata->ny = ny;
   udata->kx = kx;
   udata->ky = ky;
-  udata->dx = RCONST(1.0)/(1.0*nx-1.0);   // x mesh spacing
-  udata->dy = RCONST(1.0)/(1.0*ny-1.0);   // y mesh spacing
+  udata->dx = ONE/(ONE*nx-ONE);   // x mesh spacing
+  udata->dy = ONE/(ONE*ny-ONE);   // y mesh spacing
 
   // Set up parallel decomposition
   flag = SetupDecomp(udata);
@@ -198,8 +198,8 @@ int main(int argc, char* argv[]) {
   if (check_flag((void *) udata->d, "N_VNew_Parallel", 0)) return 1;
 
   // Initialize linear solver data structure
-  LS = SUNPCG(y, 1, 20);
-  if (check_flag((void *) LS, "SUNPCG", 0)) return 1;
+  LS = SUNLinSol_PCG(y, 1, 20);
+  if (check_flag((void *) LS, "SUNLinSol_PCG", 0)) return 1;
 
   // fill in the heat source array
   data = N_VGetArrayPointer(udata->h);
@@ -224,10 +224,10 @@ int main(int argc, char* argv[]) {
   if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
 
   // Linear solver interface
-  flag = ARKSpilsSetLinearSolver(arkode_mem, LS);             // Attach linear solver
-  if (check_flag(&flag, "ARKPcg", 1)) return 1;
-  flag = ARKSpilsSetPreconditioner(arkode_mem, PSet, PSol);   // Specify the Preconditoner
-  if (check_flag(&flag, "ARKSpilsSetPreconditioner", 1)) return 1;
+  flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);             // Attach linear solver
+  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
+  flag = ARKStepSetPreconditioner(arkode_mem, PSet, PSol);   // Specify the Preconditoner
+  if (check_flag(&flag, "ARKStepSetPreconditioner", 1)) return 1;
 
   // Specify linearly implicit RHS, with non-time-dependent preconditioner
   flag = ARKStepSetLinear(arkode_mem, 0);
@@ -301,15 +301,16 @@ int main(int argc, char* argv[]) {
   if (check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1)) return 1;
   flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
   if (check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1)) return 1;
-  flag = ARKSpilsGetNumLinIters(arkode_mem, &nli);
-  if (check_flag(&flag, "ARKSpilsGetNumLinIters", 1)) return 1;
-  flag = ARKSpilsGetNumJtimesEvals(arkode_mem, &nJv);
-  if (check_flag(&flag, "ARKSpilsGetNumJtimesEvals", 1)) return 1;
-  flag = ARKSpilsGetNumConvFails(arkode_mem, &nlcf);
-  if (check_flag(&flag, "ARKSpilsGetNumConvFails", 1)) return 1;
-  flag = ARKSpilsGetNumPrecEvals(arkode_mem, &npe);
-  if (check_flag(&flag, "ARKSpilsGetNumPrecEvals", 1)) return 1;
-  flag = ARKSpilsGetNumPrecSolves(arkode_mem, &nps);
+  flag = ARKStepGetNumLinIters(arkode_mem, &nli);
+  if (check_flag(&flag, "ARKStepGetNumLinIters", 1)) return 1;
+  flag = ARKStepGetNumJtimesEvals(arkode_mem, &nJv);
+  if (check_flag(&flag, "ARKStepGetNumJtimesEvals", 1)) return 1;
+  flag = ARKStepGetNumLinConvFails(arkode_mem, &nlcf);
+  if (check_flag(&flag, "ARKStepGetNumLinConvFails", 1)) return 1;
+  flag = ARKStepGetNumPrecEvals(arkode_mem, &npe);
+  if (check_flag(&flag, "ARKStepGetNumPrecEvals", 1)) return 1;
+  flag = ARKStepGetNumPrecSolves(arkode_mem, &nps);
+  if (check_flag(&flag, "ARKStepGetNumPrecSolves", 1)) return 1;
 
   if (outproc) {
     cout << "\nFinal Solver Statistics:\n";
@@ -432,7 +433,7 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
   }
 
   // add in heat source
-  N_VLinearSum(1.0, ydot, 1.0, udata->h, ydot);
+  N_VLinearSum(ONE, ydot, ONE, udata->h, ydot);
   return 0;                                      // Return with success
 }
 
@@ -782,10 +783,10 @@ static int InitUserData(UserData *udata)
   udata->je = 0;
   udata->nxl = 0;
   udata->nyl = 0;
-  udata->dx = 0.0;
-  udata->dy = 0.0;
-  udata->kx = 0.0;
-  udata->ky = 0.0;
+  udata->dx = ZERO;
+  udata->dy = ZERO;
+  udata->kx = ZERO;
+  udata->ky = ZERO;
   udata->h = NULL;
   udata->d = NULL;
   udata->comm = MPI_COMM_WORLD;

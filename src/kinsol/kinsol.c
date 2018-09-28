@@ -71,7 +71,6 @@
 #include <math.h>
 
 #include "kinsol_impl.h"
-#include "kinsol_spils_impl.h"
 #include <sundials/sundials_math.h>
 
 /* 

@@ -42,7 +42,7 @@
  * MY mesh. The resulting ODE system is stiff.
  *
  * The ODE system is solved by CVODES using Newton iteration and
- * the SUNSPGMR linear solver (scaled preconditioned GMRES).
+ * the SUNLinSol_SPGMR linear solver (scaled preconditioned GMRES).
  *
  * The preconditioner matrix used is the product of two matrices:
  * (1) A matrix, only defined implicitly, based on a fixed number
@@ -259,9 +259,9 @@ int main(int argc, char *argv[])
   retval = CVodeSStolerances(cvode_mem, reltol, abstol);
   if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
 
-  /* Create SUNSPGMR linear solver for forward run */
-  LS = SUNSPGMR(c, PREC_LEFT, 0);
-  if(check_retval((void *)LS, "SUNSPGMR", 0)) return(1);
+  /* Create SUNLinSol_SPGMR linear solver for forward run */
+  LS = SUNLinSol_SPGMR(c, PREC_LEFT, 0);
+  if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
   /* Attach the linear sovler */
   retval = CVSpilsSetLinearSolver(cvode_mem, LS);
@@ -315,9 +315,9 @@ int main(int argc, char *argv[])
 
   wdata->indexB = indexB;
 
-  /* Create SUNSPGMR linear solver for backward run */
-  LSB = SUNSPGMR(cB, PREC_LEFT, 0);
-  if(check_retval((void *)LSB, "SUNSPGMR", 0)) return(1);
+  /* Create SUNLinSol_SPGMR linear solver for backward run */
+  LSB = SUNLinSol_SPGMR(cB, PREC_LEFT, 0);
+  if(check_retval((void *)LSB, "SUNLinSol_SPGMR", 0)) return(1);
 
   /* Attach the linear sovler */
   retval = CVSpilsSetLinearSolverB(cvode_mem, indexB, LSB);

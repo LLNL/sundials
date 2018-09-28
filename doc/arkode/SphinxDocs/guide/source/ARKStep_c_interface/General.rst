@@ -141,7 +141,7 @@ file that is always required is:
 - ``arkode/arkode_arkstep.h``, the main header file for the ARKStep
   time-stepping module, which defines the several types and various
   constants, includes function prototypes, and includes the shared
-  ``arkode/arkode.h`` header file.
+  ``arkode/arkode.h`` and ``arkode/arkode_ls.h`` header files.
 
 Note that ``arkode.h`` includes ``sundials_types.h`` directly, which
 defines the types ``realtype``,  ``sunindextype`` and ``booleantype``
@@ -178,11 +178,7 @@ corresponding to the linear
 solver modules available for use with ARKode for either the Newton
 solver or for mass-matrix solves, are: 
 
-- ``arkode/arkode_direct.h``, which is used with the ARKDLS direct
-  linear solver interface to access direct solvers (for both implicit
-  Newton systems and mass matrix systems) with the following header
-  files:
-
+- Direct linear solvers:
 
   - ``sunlinsol/sunlinsol_dense.h``,
     which is used with the dense linear solver module,
@@ -208,10 +204,7 @@ solver or for mass-matrix solves, are:
     which is used with the SuperLU_MT sparse linear solver interface
     module, SUNLINSOL_SUPERLUMT;
 
-- ``arkode/arkode_spils.h``, which is used with the ARKSPILS iterative
-  linear solver interface to access iterative solvers (for both
-  implicit Newton systems and mass matrix systems) with the following
-  header files:
+- Iterative linear solvers:
 
   - ``sunlinsol/sunlinsol_spgmr.h``,
     which is used with the scaled, preconditioned GMRES Krylov linear

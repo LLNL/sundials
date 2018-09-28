@@ -47,30 +47,30 @@ are as follows:
 \item
   Interface to the {\sunlinsol} modules
   \begin{itemize}
-  \item \id{FSUNBANDLINSOLINIT} (defined by {\sunlinsolband})
-    interfaces to \id{SUNBandLinearSolver}.
-  \item \id{FSUNDENSELINSOLINIT} (defined by {\sunlinsoldense})
-    interfaces to \id{SUNDenseLinearSolver}.
-  \item \id{FSUNKLUINIT} (defined by {\sunlinsolklu})
-    interfaces to \id{SUNKLU}.
-  \item \id{FSUNKLUREINIT} (defined by {\sunlinsolklu})
-    interfaces to \id{SUNKLUReinit}.
-  \item \id{FSUNLAPACKBANDINIT} (defined by {\sunlinsollapband})
-    interfaces to \id{SUNLapackBand}.
-  \item \id{FSUNLAPACKDENSEINIT} (defined by {\sunlinsollapdense})
-    interfaces to \id{SUNLapackDense}.
-  \item \id{FSUNPCGINIT} (defined by {\sunlinsolpcg})
-    interfaces to \id{SUNPCG}.
-  \item \id{FSUNSPBCGSINIT} (defined by {\sunlinsolspbcgs})
-    interfaces to \id{SUNSPBCGS}.
-  \item \id{FSUNSPFGMRINIT} (defined by {\sunlinsolspfgmr})
-    interfaces to \id{SUNSPFGMR}.
-  \item \id{FSUNSPGMRINIT} (defined by {\sunlinsolspgmr})
-    interfaces to \id{SUNSPGMR}.
-  \item \id{FSUNSPTFQMRINIT} (defined by {\sunlinsolsptfqmr})
-    interfaces to \id{SUNSPTFQMR}.
-  \item \id{FSUNSUPERLUMTINIT} (defined by {\sunlinsolslumt})
-    interfaces to \id{SUNSuperLUMT}.
+  \item \id{FSUNBANDLINSOLINIT} (defined by {\sunlinsolband}) 
+    interfaces to \id{SUNLinSol\_Band}.
+  \item \id{FSUNDENSELINSOLINIT} (defined by {\sunlinsoldense}) 
+    interfaces to \id{SUNLinSol\_Dense}.
+  \item \id{FSUNKLUINIT} (defined by {\sunlinsolklu}) 
+    interfaces to \id{SUNLinSol\_KLU}.
+  \item \id{FSUNKLUREINIT} (defined by {\sunlinsolklu}) 
+    interfaces to \id{SUNLinSol\_KLUReinit}.
+  \item \id{FSUNLAPACKBANDINIT} (defined by {\sunlinsollapband}) 
+    interfaces to \\ \noindent \id{SUNLinSol\_LapackBand}.
+  \item \id{FSUNLAPACKDENSEINIT} (defined by {\sunlinsollapdense}) 
+    interfaces to \\ \noindent \id{SUNLinSol\_LapackDense}.
+  \item \id{FSUNPCGINIT} (defined by {\sunlinsolpcg}) 
+    interfaces to \id{SUNLinSol\_PCG}.
+  \item \id{FSUNSPBCGSINIT} (defined by {\sunlinsolspbcgs}) 
+    interfaces to \id{SUNLinSol\_SPBCGS}.
+  \item \id{FSUNSPFGMRINIT} (defined by {\sunlinsolspfgmr}) 
+    interfaces to \id{SUNLinSol\_SPFGMR}.
+  \item \id{FSUNSPGMRINIT} (defined by {\sunlinsolspgmr}) 
+    interfaces to \id{SUNLinSol\_SPGMR}.
+  \item \id{FSUNSPTFQMRINIT} (defined by {\sunlinsolsptfqmr}) 
+    interfaces to \id{SUNLinSol\_SPTFQMR}.
+  \item \id{FSUNSUPERLUMTINIT} (defined by {\sunlinsolslumt}) 
+    interfaces to \\ \noindent \id{SUNLinSol\_SuperLUMT}.
   \end{itemize}
 \item
   %% Interface to the {\sunnonlinsol} modules
@@ -105,24 +105,22 @@ are as follows:
   \item \id{FIDAFREE}
     interfaces to \id{IDAFree}.
   \end{itemize}
-\item Interface to the linear solver interfaces
+\item Interface to the {\idals} module
   \begin{itemize}
-  \item \id{FIDADLSINIT}
-    interfaces to \id{IDADlsSetLinearSolver}.
+  \item \id{FIDALSINIT}
+    interfaces to \id{IDASetLinearSolver}.
+  \item \id{FIDALSSETEPSLIN}
+    interfaces to \id{IDASetEpsLin}
+  \item \id{FIDALSSETJAC}
+   interfaces to \id{IDASetJacTimes}.
+ \item \id{FIDALSSETPREC}
+   interfaces to \id{IDASetPreconditioner}.
   \item \id{FIDADENSESETJAC}
-    interfaces to \id{IDADlsSetJacFn}.
+    interfaces to \id{IDASetJacFn}.
   \item \id{FIDABANDSETJAC}
-    interfaces to \id{IDADlsSetJacFn}.
+    interfaces to \id{IDASetJacFn}.
   \item \id{FIDASPARSESETJAC}
-    interfaces to \id{IDASlsSetJacFn}.
-  \item \id{FIDASPILSINIT}
-    interfaces to \id{IDASpilsSetLinearSolver}
-  \item \id{FIDASPILSSETEPSLIN}
-    interfaces to \id{IDASpilsSetEpsLin}
-  \item \id{FIDASPILSSETJAC}
-   interfaces to \id{IDASpilsSetJacTimes}.
- \item \id{FIDASPILSSETPREC}
-   interfaces to \id{IDASpilsSetPreconditioner}.
+    interfaces to \id{IDASetJacFn}.
  \end{itemize}
 %% \item Interface to the nonlinear solver interfaces
 %%   \begin{itemize}
@@ -142,13 +140,13 @@ function which calls it (and its type within {\ida}), are as follows:
 ({\F}, user-supplied)  &  ({\CC}, interface) & interface function \\ \hline\hline
 \id{FIDARESFUN} & \id{FIDAresfn}    & \id{IDAResFn} \\
 \id{FIDAEWT}    & \id{FIDAEwtSet}   & \id{IDAEwtFn} \\
-\id{FIDADJAC}   & \id{FIDADenseJac} & \id{IDADlsJacFn} \\
-\id{FIDABJAC}   & \id{FIDABandJac}  & \id{IDADlsJacFn} \\
-\id{FIDASPJAC}  & \id{FIDASparseJac}& \id{IDADlsJacFn} \\
-\id{FIDAPSOL}   & \id{FIDAPSol}     & \id{IDASpilsPrecSolveFn} \\
-\id{FIDAPSET}   & \id{FIDAPSet}     & \id{IDASpilsPrecSetupFn} \\
-\id{FIDAJTIMES} & \id{FIDAJtimes}   & \id{IDASpilsJacTimesVecFn} \\
-\id{FIDAJTSETUP}& \id{FIDAJTSetup}  & \id{IDASpilsJacTimesSetupFn} \\
+\id{FIDADJAC}   & \id{FIDADenseJac} & \id{IDALsJacFn} \\
+\id{FIDABJAC}   & \id{FIDABandJac}  & \id{IDALsJacFn} \\
+\id{FIDASPJAC}  & \id{FIDASparseJac}& \id{IDALsJacFn} \\
+\id{FIDAPSOL}   & \id{FIDAPSol}     & \id{IDALsPrecSolveFn} \\
+\id{FIDAPSET}   & \id{FIDAPSet}     & \id{IDALsPrecSetupFn} \\
+\id{FIDAJTIMES} & \id{FIDAJtimes}   & \id{IDALsJacTimesVecFn} \\
+\id{FIDAJTSETUP}& \id{FIDAJTSetup}  & \id{IDALsJacTimesSetupFn} \\
 \end{tabular}
 \end{center}
 In contrast to the case of direct use of {\ida}, and of most {\F} DAE
@@ -175,7 +173,9 @@ preconditioner modules, are each described in later sections.
 \index{User main program!FIDA@{\fida} usage}
 \begin{Steps}
 
+%%====================
 \item {\bf Residual function specification}
+%%====================
 
   The user must, in all cases, supply the following {\F} routine
   \index{FIDARESFUN@\texttt{FIDARESFUN}}
@@ -192,7 +192,9 @@ preconditioner modules, are each described in later sections.
   \id{IER} = 1 if it had a recoverable failure, or
   \id{IER} = -1 if it had a non-recoverable failure.
 
+%%====================
 \item  {\bf {\nvector} module initialization}
+%%====================
 
   If using one of the {\nvector} modules supplied with {\sundials},
   the user must make a call of the form
@@ -280,7 +282,9 @@ sections of Chapter \ref{s:sunlinsol}.
 %% \end{verbatim}
 %%   in which the call sequence is described in \S\ref{s:sunnonlinsol_fixedpoint}.
 
+%%====================
 \item {\bf Problem specification}
+%%====================
 
   To set various problem and solution parameters and allocate
   internal memory, make the following call:
@@ -364,7 +368,9 @@ sections of Chapter \ref{s:sunlinsol}.
   Call \id{FIDASETIIN}, \id{FIDASETRIN}, and/or \id{FIDASETVIN} to set desired
   optional inputs, if any.  See \S\ref{fida_opt_inout} for details.
 
+%%====================
 \item\label{i:fida_lin_solv_spec} {\bf Linear solver interface specification}
+%%====================
 
   The variable-order, variable-coefficient \id{BDF} method used by {\ida} involves
   the solution of linear systems related to the system Jacobian
@@ -373,32 +379,29 @@ sections of Chapter \ref{s:sunlinsol}.
   To attach the linear solver (and optionally the matrix) objects
   initialized in steps \ref{i:fida_matrix_init} and
   \ref{i:fida_linsol_init} above, the user of {\fida} must initialize
-  the {\idadls} or {\idaspils} linear solver interface.
-
-  %%-------------------------------------------------
-
-  {\bf {\idadls} direct linear solver interface}
-  \index{IDADLS@{\idadls} linear solver interface!use in {\fida}}
-
-  To attach a direct {\sunlinsol} object and corresponding
-  {\sunmatrix} object to the {\idadls} interface, then following calls
-  to initialize the {\sunlinsol} and {\sunmatrix} objects in steps
-  \ref{i:fida_matrix_init} and \ref{i:fida_linsol_init} above, the user
-  must make the call:
-  \index{FIDADLSINIT@\texttt{FIDADLSINIT}}
+  the {\idals} linear solver interface.  To attach any {\sunlinsol}
+  object (and optional {\sunmatrix} object) to {\ida}, then following
+  calls to initialize the {\sunlinsol} (and {\sunmatrix}) object(s) in
+  steps \ref{i:fida_matrix_init} and \ref{i:fida_linsol_init} above,
+  the user must make the call:
+  \index{FIDALSINIT@\texttt{FIDALSINIT}}
 \begin{verbatim}
-      CALL FIDADLSINIT(IER)
+      CALL FIDALSINIT(IER)
 \end{verbatim}
   \id{IER} is an error return flag set on $0$ on success or $-1$ if a memory
   failure occurred.
 
-  Optional outputs specific to the {\idadls} case are listed in
-  Table~\ref{t:fida_out}.
+  The previous routines \Id{FIDADLSINIT} and \Id{FIDASPILSINIT} are now
+  wrappers for this routine, and may still be used for
+  backward-compatibility.  However, these will be deprecated in future
+  releases, so we recommend that users transition to the new routine
+  name soon.
 
-  {\bf {\idadls} with dense Jacobian matrix}
+  {\bf {\idals} with dense Jacobian matrix}
   \index{Jacobian approximation function!dense!use in {\fida}}
-  As an option when using the {\idadls} interface with
-  {\sunlinsoldense} or {\sunlinsollapdense} linear solvers, the user
+
+  As an option when using the {\idals} interface with the
+  {\sunlinsoldense} or \\ \noindent {\sunlinsollapdense} linear solvers, the user
   may supply a routine that computes a dense approximation of the
   system Jacobian  $J$. If supplied, it must
   have the following form:
@@ -425,7 +428,7 @@ sections of Chapter \ref{s:sunlinsol}.
   roundoff, which can be obtained as the optional output \id{ROUT(6)},
   passed from the calling program to this routine using \id{COMMON}.
 
-  If the \id{FIDADJAC} routine is provided, then, following the call to \id{FIDADLSINIT}
+  If the \id{FIDADJAC} routine is provided, then, following the call to \id{FIDALSINIT}
   the user must make the call:
   \index{FIDADENSESETJAC@\texttt{FIDADENSESETJAC}}
 \begin{verbatim}
@@ -437,9 +440,10 @@ sections of Chapter \ref{s:sunlinsol}.
 
   %%-------------------------------------------------
 
-  {\bf {\idadls} with band Jacobian matrix}
+  {\bf {\idals} with band Jacobian matrix}
   \index{Jacobian approximation function!band!use in {\fida}}
-   As an option when using the {\idadls} interface with
+  
+  As an option when using the {\idals} interface with the
   {\sunlinsolband} or {\sunlinsollapband} linear solvers, the user may
   supply a routine that computes a band approximation of the system
   Jacobian  $J$. If supplied, it must have the following form:
@@ -471,7 +475,7 @@ sections of Chapter \ref{s:sunlinsol}.
   passed from the calling program to this routine using \id{COMMON}.
 
   If the \id{FIDABJAC} routine is provided, then, following the call to
-  \id{FIDADLSINIT}, the user must make the call:
+  \id{FIDALSINIT}, the user must make the call:
   \index{FIDABANDSETJAC@\texttt{FIDABANDSETJAC}}
 \begin{verbatim}
       CALL FIDABANDSETJAC (FLAG, IER)
@@ -482,12 +486,13 @@ sections of Chapter \ref{s:sunlinsol}.
 
   %%-------------------------------------------------
 
-  {\bf {\idadls} with sparse Jacobian matrix}
+  {\bf {\idals} with sparse Jacobian matrix}
   \index{Jacobian approximation function!sparse!use in {\fida}}
-   When using the {\idadls} interface with {\sunlinsolklu} or
+  
+  When using the {\idals} interface with the {\sunlinsolklu} or
   {\sunlinsolslumt} linear solvers, the user must
   supply the \id{FIDASPJAC} routine that computes a
-  compressed-sparse-column or compressed-sparse-row if using KLU
+  compressed-sparse-column (CSC) or compressed-sparse-row (CSR)
   approximation of the system Jacobian
   $J = \partial F / \partial y + c_j \partial F / \partial \dot{y}$.
   If supplied, it must have the following form:
@@ -501,26 +506,25 @@ sections of Chapter \ref{s:sunlinsol}.
   values), \id{JINDEXVALS} (row [or column] indices for each nonzero), \id{JINDEXPTRS} (indices
   for start of each column [or row]), with the Jacobian matrix at the current
   $(t, y)$ in CSC [or CSR] form (see \id{sunmatrix\_sparse.h} for more information).
- The arguments are \id{T}, the current time; \id{CJ}, scalar in the system
- proportional to the inverse step size; \id{Y}, an array containing
- state variables; \id{YP}, an array containing state derivatives;
- \id{R}, an array containing the system nonlinear residual;
- \id{N}, the number of matrix rows/columns
- in the Jacobian; \id{NNZ}, allocated length of nonzero storage; \id{JDATA},
- nonzero values in the Jacobian (of length \id{NNZ});
- \id{JINDEXVALS}, row [or column] indices for each nonzero in Jacobian (of length \id{NNZ});
- \id{JINDEXPTRS}, pointers to each Jacobian column [or row] in the two preceding arrays
- (of length \id{N}+1); \id{H}, the current step size;
- \id{IPAR}, an array containing integer user data that was
- passed to \id{FIDAMALLOC}; \id{RPAR}, an array containing real user
- data that was passed to \id{FIDAMALLOC};
- \id{WK*}, work arrays containing temporary workspace
- of same size as \id{Y}; and \id{IER}, error return code (0 if successful,
- $>0$ if a recoverable error occurred, or $<0$ if an unrecoverable error occurred.)
-
+  The arguments are \id{T}, the current time; \id{CJ}, scalar in the system
+  proportional to the inverse step size; \id{Y}, an array containing
+  state variables; \id{YP}, an array containing state derivatives;
+  \id{R}, an array containing the system nonlinear residual;
+  \id{N}, the number of matrix rows/columns
+  in the Jacobian; \id{NNZ}, allocated length of nonzero storage; \id{JDATA},
+  nonzero values in the Jacobian (of length \id{NNZ});
+  \id{JINDEXVALS}, row [or column] indices for each nonzero in Jacobian (of length \id{NNZ});
+  \id{JINDEXPTRS}, pointers to each Jacobian column [or row] in the two preceding arrays
+  (of length \id{N}+1); \id{H}, the current step size;
+  \id{IPAR}, an array containing integer user data that was
+  passed to \id{FIDAMALLOC}; \id{RPAR}, an array containing real user
+  data that was passed to \id{FIDAMALLOC};
+  \id{WK*}, work arrays containing temporary workspace
+  of same size as \id{Y}; and \id{IER}, error return code (0 if successful,
+  $>0$ if a recoverable error occurred, or $<0$ if an unrecoverable error occurred.)
 
   To indicate that the \id{FIDASPJAC} routine has been provided, then
-  following the call to \id{FIDADLSINIT}, the
+  following the call to \id{FIDALSINIT}, the
   following call must be made
   \index{FIDASPARSESETJAC@\texttt{FIDASPARSESETJAC}}
 \begin{verbatim}
@@ -531,58 +535,10 @@ sections of Chapter \ref{s:sunlinsol}.
 
 %%-------------------------------------------------
 
-  {\bf {\idaspils} iterative linear solver interface}
-  \index{IDASPILS@{\idaspils} linear solver interface!use in {\fida}}
-
-  To attach an iterative {\sunlinsol} object to the {\idaspils}
-  interface, then following the call to initialize the {\sunlinsol}
-  object in step \ref{i:fida_linsol_init} above, the user must make the
-  call:
-  \index{FIDASPILSINIT@\texttt{FIDASPILSINIT}}
-\begin{verbatim}
-      CALL FIDASPILSINIT(IER)
-\end{verbatim}
-  \id{IER} is an error return flag set on $0$ on success or $-1$ if a memory
-  failure occurred.
-
-  Optional outputs specific to the {\idaspils} case are listed in
-  Table~\ref{t:fida_out}.
-  %%-------------------------------------------------
-  %%
-
-  {\bf Functions used by {\idaspils}}
-
-  Optional user-supplied routines \id{FIDAJTIMES} and \id{FIDAJTSETUP}
-  (see below), can be provided for Jacobian-vector products.  If they
-  are, then, following the call to \id{FIDASPILSINIT}, the user must
-  make the call:
-  \index{FIDASPILSSETJAC@\texttt{FIDASPILSSETJAC}}
-\begin{verbatim}
-      CALL FIDASPILSSETJAC (FLAG, IER)
-\end{verbatim}
-  with \id{FLAG} $\neq 0$.  The return flag \id{IER} is 0 if successful,
-  or negative if a memory error occurred.
-
-  If preconditioning is to be done, then the user must call
-  \index{FIDASPILSSETPREC@\texttt{FIDASPILSSETPREC}}
-\begin{verbatim}
-      CALL FIDASPILSSETPREC (FLAG, IER)
-\end{verbatim}
-  with \id{FLAG} $\neq 0$.  The return flag \id{IER} is 0 if successful,
-  or negative if a memory error occurred.  In addition, the user must
-  supply preconditioner routines \id{FIDAPSET} and \id{FIDAPSOL}.
-
-  %%-------------------------------------------------
-
-  {\bf User-supplied routines for {\idaspils}}
-
-  With treatment of the linear systems by any of the Krylov iterative
-  solvers, there are four optional user-supplied routines ---
-  \id{FIDAJTIMES}, \id{FIDAJTSETUP}, \id{FIDAPSOL}, and \id{FIDAPSET}.
-  The specifications for these routines are given below.
-
+  {\bf {\idals} with Jacobian-vector product}
   \index{Jacobian approximation function!Jacobian times vector!use in {\fida}}
-  As an option when using the {\idaspils} linear solver interface, the user may
+
+  As an option when using the {\idals} linear solver interface, the user may
   supply a routine that computes the product of the system Jacobian
   $J = \partial F / \partial y + \alpha \partial F / \partial \dot{y}$
   and a given vector $v$.  If supplied, it must have the following form:
@@ -624,11 +580,33 @@ sections of Chapter \ref{s:sunlinsol}.
   The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
   and are the same as those passed to \id{FIDAMALLOC}.
 
-  {\warn}If the user calls \id{FIDASPILSSETJAC}, the routine \id{FIDAJTSETUP} must
+  To indicate that the \id{FIDAJTIMES} and \id{FIDAJTSETUP} routines
+  have been provided, then following the call to \id{FIDALSINIT}, the
+  following call must be made
+  \index{FIDALSSETJAC@\texttt{FIDALSSETJAC}}
+\begin{verbatim}
+      CALL FIDALSSETJAC (FLAG, IER)
+\end{verbatim}
+  with \id{FLAG} $\neq 0$.  The return flag \id{IER} is 0 if successful,
+  or negative if a memory error occurred.
+
+  The previous routine \Id{FIDASPILSETJAC} is now a wrapper for this
+  routine, and may still be used for backward-compatibility.  However,
+  this will be deprecated in future releases, so we recommend that
+  users transition to the new routine name soon.
+  
+  {\warn}If the user calls \id{FIDALSSETJAC}, the routine \id{FIDAJTSETUP} must
   be provided, even if it is not needed, and it must return \id{IER=0}.
 
-  If preconditioning is to be included, the following routine must be
-  supplied, for solution of the preconditioner linear system:
+
+%%-------------------------------------------------
+
+  {\bf {\idals} with preconditioning}
+  \index{Preconditioner setup routine!use in {\fida}}
+  \index{Preconditioner solve routine!use in {\fida}}
+
+  If user-supplied preconditioning is to be performed, the following
+  routine must be supplied for solution of the preconditioner linear system:
   \index{FIDAPSOL@\texttt{FIDAPSOL}}
 \begin{verbatim}
       SUBROUTINE FIDAPSOL(T, Y, YP, R, RV, ZV, CJ, DELTA, EWT,
@@ -679,21 +657,24 @@ sections of Chapter \ref{s:sunlinsol}.
   roundoff, which can be obtained as the optional output \id{ROUT(6)},
   passed from the calling program to this routine using \id{COMMON}.
 
-  {\warn} If the user calls \id{FIDASPILSSETPREC}, the subroutine \id{FIDAPSET}
-  must be provided, even if it is not needed, and it must return \id{IER = 0}.
-
-\item {\bf Correct initial values}
-
-  Optionally, to correct the initial values $y$ and/or $\dot{y}$, make the call
+  To indicate that the \id{FIDAPSET} and \id{FIDAPSOL} routines are
+  supplied, then following the call to \id{FIDALSINIT}, the user must call 
+  \index{FIDALSSETPREC@\texttt{FIDALSSETPREC}}
 \begin{verbatim}
-      CALL FIDACALCIC (ICOPT, TOUT1, IER)
+      CALL FIDALSSETPREC (FLAG, IER)
 \end{verbatim}
-  (See \S\ref{ss:ivp_sol} for details.)  The arguments are as follows:
-  \id{ICOPT} is 1 for initializing the algebraic components of $y$ and
-  differential components of $\dot{y}$, or 2 for initializing all of $y$.
-  \id{IER} is an error return flag, which is 0 for success, or negative
-  for a failure (see \id{IDACalcIC} return values).
+  with \id{FLAG} $\neq 0$.  The return flag \id{IER} is 0 if successful,
+  or negative if a memory error occurred.  In addition, the user must
+  supply preconditioner routines \id{FIDAPSET} and \id{FIDAPSOL}.
 
+  The previous routine \Id{FIDASPILSETPREC} is now a wrapper for this
+  routine, and may still be used for backward-compatibility.  However,
+  this will be deprecated in future releases, so we recommend that
+  users transition to the new routine name soon.
+  
+  {\warn} If the user calls \id{FIDALSSETPREC}, the subroutine \id{FIDAPSET}
+  must be provided, even if it is not needed, and it must return \id{IER = 0}.
+  
 %% %%====================
 %% \item\label{i:fida_nonlin_solv_spec} {\bf Nonlinear solver interface specification}
 %% %%====================
@@ -712,7 +693,23 @@ sections of Chapter \ref{s:sunlinsol}.
 %%   iterations) by calling appropriate Fortran interface routines (see Chapter
 %%   \ref{c:sunnonlinsol}).
 
+%%====================
+\item {\bf Correct initial values}
+%%====================
+
+  Optionally, to correct the initial values $y$ and/or $\dot{y}$, make the call
+\begin{verbatim}
+      CALL FIDACALCIC (ICOPT, TOUT1, IER)
+\end{verbatim}
+  (See \S\ref{ss:ivp_sol} for details.)  The arguments are as follows:
+  \id{ICOPT} is 1 for initializing the algebraic components of $y$ and
+  differential components of $\dot{y}$, or 2 for initializing all of $y$.
+  \id{IER} is an error return flag, which is 0 for success, or negative
+  for a failure (see \id{IDACalcIC} return values).
+
+%%====================
 \item {\bf Problem solution}
+%%====================
 
   Carrying out the integration is accomplished by making calls as follows:
   \index{FIDASOLVE@\texttt{FIDASOLVE}}
@@ -733,7 +730,9 @@ sections of Chapter \ref{s:sunlinsol}.
   The current values of the optional outputs are available in \id{IOUT} and
   \id{ROUT} (see Table~\ref{t:fida_out}).
 
+%%====================
 \item {\bf Additional solution output}
+%%====================
 
   After a successful return from \id{FIDASOLVE}, the routine \id{FIDAGETDKY} may
   be called to get interpolated values of $y$ or any derivative $d^k y/dt^k$
@@ -753,7 +752,9 @@ sections of Chapter \ref{s:sunlinsol}.
   The return flag \id{IER} is set to $0$ upon successful return, or to a
   negative value to indicate an illegal input.
 
+%%====================
 \item {\bf Problem reinitialization}
+%%====================
 
   To re-initialize the {\ida} solver for the solution of a new problem
   of the same size as one already solved, make the following call:
@@ -768,17 +769,17 @@ sections of Chapter \ref{s:sunlinsol}.
 
   Following this call, if the choice of linear solver is being changed
   then a user must make a call to create the alternate {\sunlinsol}
-  module and then attach it to the {\idadls} or {\idaspils} interface,
-  as shown above.  If only linear solver parameters are being modified,
-  then these calls may be made without re-attaching to the {\idadls} or
-  {\idaspils} interface.
+  module and then attach it to the {\idals} interface, as shown above.
+  If only linear solver parameters are being modified, then these
+  calls may be made without re-attaching to the {\idals} interface.
 
 
+%%====================
 \item {\bf Memory deallocation}
+%%====================
 
   To free the internal memory created by the call to \id{FIDAMALLOC},
-  \id{FIDADLSINIT}/\id{FIDASPILSINIT}, \id{FNVINIT*} and
-  \id{FSUN***MATINIT},
+  \id{FIDALSINIT}, \id{FNVINIT*} and \id{FSUN***MATINIT},
   make the call
   \index{FIDAFREE@\texttt{FIDAFREE}}
 \begin{verbatim}
@@ -908,25 +909,19 @@ and \S\ref{ss:optional_output}.
 11 & \id{NBCKTRKOPS}& \id{IDAGetNumBacktrackOps} \\
 12 & \id{NGE}       & \id{IDAGetNumGEvals} \\
 \hline
-\multicolumn{3}{|c|}{{\idadls} linear solver interface}\\
+\multicolumn{3}{|c|}{{\idals} linear solver interface}\\
 \hline
-13 &  \id{LENRWLS}  & \id{IDADlsGetWorkSpace} \\
-14 &  \id{LENIWLS}  & \id{IDADlsGetWorkSpace} \\
-15 &  \id{LS\_FLAG} & \id{IDADlsGetLastFlag} \\
-16 &  \id{NRELS}    & \id{IDADlsGetNumResEvals} \\
-17 &  \id{NJE}      & \id{IDADlsGetNumJacEvals} \\
-\hline
-\multicolumn{3}{|c|}{{\idaspils} linear solver interface}\\
-\hline
-13 &  \id{LENRWLS}  & \id{IDASpilsGetWorkSpace} \\
-14 &  \id{LENIWLS}  & \id{IDASpilsGetWorkSpace} \\
-15 &  \id{LS\_FLAG} & \id{IDASpilsGetLastFlag} \\
-16 &  \id{NRELS}    & \id{IDASpilsGetNumResEvals} \\
-17 &  \id{NJE}      & \id{IDASpilsGetNumJtimesEvals} \\
-18 &  \id{NPE}      & \id{IDASpilsGetNumPrecEvals} \\
-19 &  \id{NPS}      & \id{IDASpilsGetNumPrecSolves} \\
-20 &  \id{NLI}      & \id{IDASpilsGetNumLinIters} \\
-21 &  \id{NCFL}     & \id{IDASpilsGetNumConvFails} \\
+13 &  \id{LENRWLS}  & \id{IDAGetLinWorkSpace} \\
+14 &  \id{LENIWLS}  & \id{IDAGetLinWorkSpace} \\
+15 &  \id{LS\_FLAG} & \id{IDAGetLastLinFlag} \\
+16 &  \id{NRELS}    & \id{IDAGetNumLinResEvals} \\
+17 &  \id{NJE}      & \id{IDAGetNumJacEvals} \\
+18 &  \id{NJTS}     & \id{IDAGetNumJTSetupEvals} \\
+19 &  \id{NJT}      & \id{IDAGetNumJtimesEvals} \\
+20 &  \id{NPE}      & \id{IDAGetNumPrecEvals} \\
+21 &  \id{NPS}      & \id{IDAGetNumPrecSolves} \\
+22 &  \id{NLI}      & \id{IDAGetNumLinIters} \\
+23 &  \id{NCFL}     & \id{IDAGetNumLinConvFails} \\
 \hline
 \multicolumn{3}{c}{}\\
 \multicolumn{3}{c}{Real output array \id{ROUT}}\\\hline
@@ -1091,8 +1086,8 @@ type within {\idabbdpre} or {\ida}):
 {\fidabbd} routine ({\F})  &  {\ida} function ({\CC}) & {\ida} function type \\\hline
 \id{FIDAGLOCFN}  & \id{FIDAgloc}     & \id{IDABBDLocalFn} \\
 \id{FIDACOMMFN}  & \id{FIDAcfn}      & \id{IDABBDCommFn} \\
-\id{FIDAJTIMES} & \id{FIDAJtimes}   & \id{IDASpilsJacTimesVecFn} \\
-\id{FIDAJTSETUP}& \id{FIDAJTSetup}  & \id{IDASpilsJacTimesSetupFn} \\
+\id{FIDAJTIMES}  & \id{FIDAJtimes}   & \id{IDALsJacTimesVecFn} \\
+\id{FIDAJTSETUP} & \id{FIDAJTSetup}  & \id{IDALsJacTimesSetupFn} \\
 \end{tabular}
 \end{center}
 As with the rest of the {\fida} routines, the names of all user-supplied routines
@@ -1121,10 +1116,10 @@ from the main program described in \S\ref{ss:fida_usage} are grayed-out.
 
 \item \textcolor{gray}{\bf Set optional inputs}
 
-\item \textcolor{gray}{\bf Iterative linear solver interface specification}
+\item \textcolor{gray}{\bf Linear solver interface specification}
 
-  Initialize the {\idaspils} iterative linear solver interface
-  by calling \id{FIDASPILSINIT}.
+  Initialize the {\idals} iterative linear solver interface
+  by calling \id{FIDALSINIT}.
 
 \item {\bf BBD preconditioner initialization}
 
@@ -1148,6 +1143,8 @@ from the main program described in \S\ref{ss:fida_usage} are grayed-out.
   \id{IER} is a return completion flag.  A value of $0$ indicates success, while
   a value of $-1$ indicates that a memory failure occurred or that an input had
   an illegal value.
+
+\item \textcolor{gray}{\bf Correct initial values}
 
 \item \textcolor{gray}{\bf Problem solution}
 
@@ -1191,7 +1188,7 @@ from the main program described in \S\ref{ss:fida_usage} are grayed-out.
   If the value of \id{MU} or \id{ML} is being changed, then a call to
   \id{FIDABBDINIT} must be made.  Finally, if there is a change in any of the
   linear solver inputs, then a call to one of \id{FSUN****INIT},
-  followed by a call to \id{FIDASPILSINIT} must
+  followed by a call to \id{FIDALSINIT} must
   also be made; in this case the linear solver memory is reallocated.
 
 \item \textcolor{gray}{\bf Memory deallocation}

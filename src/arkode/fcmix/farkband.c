@@ -15,7 +15,7 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * Fortran/C interface routines for ARKODE/ARKDLS, for the case
+ * Fortran/C interface routines for ARKODE/ARKLS, for the case
  * of a user-supplied Jacobian approximation routine.
  *--------------------------------------------------------------*/
 
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include "farkode.h"
 #include "arkode_impl.h"
-#include <arkode/arkode_direct.h>
+#include <arkode/arkode_arkstep.h>
 #include <sunmatrix/sunmatrix_band.h>
 
 
@@ -49,14 +49,14 @@ extern "C" {
 
 /*=============================================================*/
 
-/* Fortran interface routine to ARKDlsSetJacFn; see farkode.h
+/* Fortran interface routine to ARKStepSetJacFn; see farkode.h
    for further details */
 void FARK_BANDSETJAC(int *flag, int *ier)
 {
   if (*flag == 0) {
-    *ier = ARKDlsSetJacFn(ARK_arkodemem, NULL);
+    *ier = ARKStepSetJacFn(ARK_arkodemem, NULL);
   } else {
-    *ier = ARKDlsSetJacFn(ARK_arkodemem, FARKBandJac);
+    *ier = ARKStepSetJacFn(ARK_arkodemem, FARKBandJac);
   }
   return;
 }

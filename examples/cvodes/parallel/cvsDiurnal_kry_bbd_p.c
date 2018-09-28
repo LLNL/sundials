@@ -30,7 +30,7 @@
  * neq = 2*MX*MY.
  *
  * The solution is done with the BDF/GMRES method (i.e. using the
- * SUNSPGMR linear solver) and a block-diagonal matrix with banded
+ * SUNLinSol_SPGMR linear solver) and a block-diagonal matrix with banded
  * blocks as a preconditioner, using the CVBBDPRE module.
  * Each block is generated using difference quotients, with
  * half-bandwidths mudq = mldq = 2*MXSUB, but the retained banded
@@ -56,7 +56,7 @@
 #include <cvodes/cvodes.h>              /* prototypes for CVODE fcts. */
 #include <cvodes/cvodes_spils.h>        /* prototypes and constants for CVSpils interface */
 #include <cvodes/cvodes_bbdpre.h>       /* prototypes for CVBBDPRE module */
-#include <sunlinsol/sunlinsol_spgmr.h>  /* prototypes and constants for SUNSPGMR solver */
+#include <sunlinsol/sunlinsol_spgmr.h>  /* prototypes and constants for SUNLinSol_SPGMR solver */
 #include <nvector/nvector_parallel.h>   /* definition N_Vector */
 #include <sundials/sundials_types.h>    /* definitions of realtype, booleantype */
 #include <sundials/sundials_math.h>     /* definition of macros SUNSQR and EXP */
@@ -229,8 +229,8 @@ int main(int argc, char *argv[])
 
   /* Create SPGMR solver structure -- use left preconditioning 
      and the default Krylov dimension maxl */
-  LS = SUNSPGMR(u, PREC_LEFT, 0);
-  if (check_retval((void *)LS, "SUNSPGMR", 0, my_pe)) MPI_Abort(comm, 1);
+  LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0);
+  if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0, my_pe)) MPI_Abort(comm, 1);
   
   /* Attach the linear solver to the CVSpils interface */
   retval = CVSpilsSetLinearSolver(cvode_mem, LS);
@@ -262,8 +262,8 @@ int main(int argc, char *argv[])
     retval = CVBBDPrecReInit(cvode_mem, mudq, mldq, ZERO);
     if(check_retval(&retval, "CVBBDPrecReInit", 1, my_pe)) MPI_Abort(comm, 1);
 
-    retval = SUNSPGMRSetPrecType(LS, PREC_RIGHT);
-    if(check_retval(&retval, "SUNSPGMRSetPrecType", 1, my_pe)) MPI_Abort(comm, 1);
+    retval = SUNLinSol_SPGMRSetPrecType(LS, PREC_RIGHT);
+    if(check_retval(&retval, "SUNLinSol_SPGMRSetPrecType", 1, my_pe)) MPI_Abort(comm, 1);
 
     if (my_pe == 0) {
       printf("\n\n-------------------------------------------------------");

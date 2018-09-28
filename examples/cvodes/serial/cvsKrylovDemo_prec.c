@@ -45,7 +45,7 @@
  *
  * The resulting ODE system is stiff.
  *
- * The ODE system is solved using Newton iteration and the SUNSPGMR
+ * The ODE system is solved using Newton iteration and the SUNLinSol_SPGMR
  * linear solver (scaled preconditioned GMRES).
  *
  * The preconditioner matrix used is the product of two matrices:
@@ -59,10 +59,10 @@
  * The product preconditoner is applied on the left and on the
  * right. In each case, both the modified and classical Gram-Schmidt
  * options are tested.
- * In the series of runs, CVodeInit, SUNSPGMR, and 
+ * In the series of runs, CVodeInit, SUNLinSol_SPGMR, and 
  * CVDlsSetLinearSolver are called only for the first run, whereas 
- * CVodeReInit, SUNSPGMRSetPrecType, and SUNSPGMRSetGSType are called
- * for each of the remaining three runs.
+ * CVodeReInit, SUNLinSol_SPGMRSetPrecType, and SUNSLinSol_PGMRSetGSType
+ * are called for each of the remaining three runs.
  *
  * A problem description, performance statistics at selected output
  * times, and final statistics are written to standard output.
@@ -243,13 +243,13 @@ int main()
   /* Loop over jpre and gstype (four cases) */
   for (jpre = PREC_LEFT; jpre <= PREC_RIGHT; jpre++) {
     for (gstype = MODIFIED_GS; gstype <= CLASSICAL_GS; gstype++) {
-      
+
       /* Initialize c and print heading */
       CInit(c, wdata);
       PrintHeader(jpre, gstype);
 
-      /* Call CVodeInit or CVodeReInit, then SUNSPGMR to set up problem */
-      
+      /* Call CVodeInit or CVodeReInit, then SUNLinSol_SPGMR to set up problem */
+
       firstrun = (jpre == PREC_LEFT) && (gstype == MODIFIED_GS);
       if (firstrun) {
         cvode_mem = CVodeCreate(CV_BDF);
@@ -266,14 +266,14 @@ int main()
         retval = CVodeSStolerances(cvode_mem, reltol, abstol);
         if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
 
-        LS = SUNSPGMR(c, jpre, MAXL);
-        if(check_retval((void *)LS, "SUNSPGMR", 0)) return(1);
+        LS = SUNLinSol_SPGMR(c, jpre, MAXL);
+        if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
         retval = CVSpilsSetLinearSolver(cvode_mem, LS);
         if(check_retval(&retval, "CVSpilsSetLinearSolver", 1)) return 1;
 
-        retval = SUNSPGMRSetGSType(LS, gstype);
-        if(check_retval(&retval, "SUNSPGMRSetGSType", 1)) return(1);
+        retval = SUNLinSol_SPGMRSetGSType(LS, gstype);
+        if(check_retval(&retval, "SUNLinSol_SPGMRSetGSType", 1)) return(1);
 
         retval = CVSpilsSetEpsLin(cvode_mem, DELT);
         if(check_retval(&retval, "CVSpilsSetEpsLin", 1)) return(1);
@@ -286,10 +286,10 @@ int main()
         retval = CVodeReInit(cvode_mem, T0, c);
         if(check_retval(&retval, "CVodeReInit", 1)) return(1);
 
-        retval = SUNSPGMRSetPrecType(LS, jpre);
-        check_retval(&retval, "SUNSPGMRSetPrecType", 1);
-        retval = SUNSPGMRSetGSType(LS, gstype);
-        if(check_retval(&retval, "SUNSPGMRSetGSType", 1)) return(1);
+        retval = SUNLinSol_SPGMRSetPrecType(LS, jpre);
+        if(check_retval(&retval, "SUNLinSol_SPGMRSetPrecType", 1)) return(1);
+        retval = SUNLinSol_SPGMRSetGSType(LS, gstype);
+        if(check_retval(&retval, "SUNLinSol_SPGMRSetGSType", 1)) return(1);
 
       }
       

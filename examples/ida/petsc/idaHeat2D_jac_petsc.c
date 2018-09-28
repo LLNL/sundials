@@ -11,7 +11,7 @@
  * solver and vector.
  *
  * This example solves a discretized 2D heat equation problem.
- * This version uses the Krylov solver IDASpgmr.
+ * This version uses the Krylov solver Spgmr.
  *
  * The DAE system solved is a spatial discretization of the PDE
  *          du/dt = d^2u/dx^2 + d^2u/dy^2
@@ -228,7 +228,7 @@ int main(int argc, char *argv[])
   retval = IDASStolerances(mem, rtol, atol);
   if(check_retval(&retval, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
 
-  /* Call IDASpgmr to specify the linear solver. */
+  /* Call Spgmr to specify the linear solver. */
 
   retval = IDAPETScKSP(mem, comm, &Jac);
   if(check_retval(&retval, "IDAKSP", 1, thispe)) MPI_Abort(comm, 1);
@@ -527,7 +527,7 @@ static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol)
   printf("Constraints set to force all solution components >= 0. \n");
   printf("SUPPRESSALG = SUNTRUE to suppress local error testing on ");
   printf("all boundary components. \n");
-  printf("Linear solver: IDASPGMR  ");
+  printf("Linear solver: SPGMR  ");
   printf("Preconditioner: diagonal elements only.\n");
   printf("This example uses PETSc vector and linear solver.\n");
 
@@ -565,9 +565,10 @@ static void PrintOutput(int id, void *mem, realtype t, N_Vector uu)
     check_retval(&retval, "IDAPETScGetNumJtimesEvals", 1, id);
     retval = IDAPETScGetNumLinIters(mem, &nli);
     check_retval(&retval, "IDAPETScGetNumLinIters", 1, id);
-//     retval = IDASpilsGetNumResEvals(mem, &nreLS);
-//     check_retval(&retval, "IDASpilsGetNumResEvals", 1, id);
-//     retval = IDASpilsGetNumPrecEvals(mem, &npe);
+//     retval = IDAGetNumLinResEvals(mem, &nreLS);
+//     check_retval(&retval, "IDAGetNumLinResEvals", 1, id);
+//     retval = IDAGetNumPrecEvals(mem, &npe);
+//     check_retval(&retval, "IDAGetNumPrecEvals", 1, id);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld        %9.2Le  %3ld    \n",

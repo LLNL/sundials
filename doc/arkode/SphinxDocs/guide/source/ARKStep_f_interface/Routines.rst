@@ -57,47 +57,69 @@ Interface to the SUNMATRIX modules
 * :f:func:`FSUNSPARSEMATINIT()` (defined by SUNMATRIX_SPARSE) interfaces
   to :c:func:`SUNSparseMatrix()`.
 
+  
 Interface to the SUNLINSOL modules
 ------------------------------------------
 
 * :f:func:`FSUNBANDLINSOLINIT()` (defined by SUNLINSOL_BAND)
-  interfaces to :c:func:`SUNBandLinearSolver()`.
+  interfaces to :c:func:`SUNLinSol_Band()`.
 
 * :f:func:`FSUNDENSELINSOLINIT()` (defined by SUNLINSOL_DENSE)
-  interfaces to :c:func:`SUNDenseLinearSolver()`.
+  interfaces to :c:func:`SUNLinSol_Dense()`.
 
 * :f:func:`FSUNKLUINIT()` (defined by SUNLINSOL_KLU)
-  interfaces to :c:func:`SUNKLU()`.
+  interfaces to :c:func:`SUNLinSol_KLU()`.
 
 * :f:func:`FSUNKLUREINIT()` (defined by SUNLINSOL_KLU)
-  interfaces to :c:func:`SUNKLUReinit()`.
+  interfaces to :c:func:`SUNLinSol_KLUReinit()`.
 
 * :f:func:`FSUNLAPACKBANDINIT()` (defined by SUNLINSOL_LAPACKBAND)
-  interfaces to :c:func:`SUNLapackBand()`.
+  interfaces to :c:func:`SUNLinSol_LapackBand()`.
 
 * :f:func:`FSUNLAPACKDENSEINIT()` (defined by SUNLINSOL_LAPACKDENSE)
-  interfaces to :c:func:`SUNLapackDense()`.
+  interfaces to :c:func:`SUNLinSol_LapackDense()`.
 
 * :f:func:`FSUNPCGINIT()` (defined by SUNLINSOL_PCG)
-  interfaces to :c:func:`SUNPCG()`.
+  interfaces to :c:func:`SUNLinSol_PCG()`.
 
 * :f:func:`FSUNSPBCGSINIT()` (defined by SUNLINSOL_SPBCGS)
-  interfaces to :c:func:`SUNSPBCGS()`.
+  interfaces to :c:func:`SUNLinSol_SPBCGS()`.
 
 * :f:func:`FSUNSPFGMRINIT()` (defined by SUNLINSOL_SPFGMR)
-  interfaces to :c:func:`SUNSPFGMR()`.
+  interfaces to :c:func:`SUNLinSol_SPFGMR()`.
 
 * :f:func:`FSUNSPGMRINIT()` (defined by SUNLINSOL_SPGMR)
-  interfaces to :c:func:`SUNSPGMR()`.
+  interfaces to :c:func:`SUNLinSol_SPGMR()`.
 
 * :f:func:`FSUNSPTFQMRINIT()` (defined by SUNLINSOL_SPTFQMR)
-  interfaces to :c:func:`SUNSPTFQMR()`.
+  interfaces to :c:func:`SUNLinSol_SPTFQMR()`.
 
 * :f:func:`FSUNSUPERLUMTINIT()` (defined by SUNLINSOL_SUPERLUMT)
-  interfaces to :c:func:`SUNSuperLUMT()`.
+  interfaces to :c:func:`SUNLinSol_SuperLUMT()`.
 
 
 
+  
+Interface to the SUNNONLINSOL modules
+------------------------------------------
+
+* :f:func:`FSUNNEWTONINIT()` (defined by SUNNONLINSOL_NEWTON)
+  interfaces to :c:func:`SUNNonlinSol_Newton()`.
+
+* :f:func:`FSUNNEWTONSETMAXITERS()` (defined by SUNNONLINSOL_NEWTON)
+  interfaces to :c:func:`SUNNonlinSolSetMaxIters()` for a
+  SUNNONLINSOL_NEWTON object.
+
+* :f:func:`FSUNFIXEDPOINTINIT()` (defined by SUNNONLINSOL_FIXEDPOINT)
+  interfaces to :c:func:`SUNNonlinSol_Newton()`.
+
+* :f:func:`FSUNFIXEDPOINTSETMAXITERS()` (defined by SUNNONLINSOL_FIXEDPOINT)
+  interfaces to :c:func:`SUNNonlinSolSetMaxIters()` for a
+  SUNNONLINSOL_FIXEDPOINT object.
+
+
+
+  
 Interface to the main ARKODE module
 --------------------------------------
 
@@ -147,46 +169,48 @@ Interface to the main ARKODE module
 
 
 
+Interface to the system nonlinear solver interface
+----------------------------------------------------
+
+* :f:func:`FARKNLSINIT()` interfaces to :c:func:`ARKStepSetNonlinearSolver()`.
+
+
+     
 Interface to the system linear solver interfaces
 --------------------------------------------------
 
-* :f:func:`FARKDLSINIT()` interfaces to :c:func:`ARKDlsSetLinearSolver()`.
+* :f:func:`FARKLSINIT()` interfaces to :c:func:`ARKStepSetLinearSolver()`.
 
-* :f:func:`FARKDENSESETJAC()` interfaces to :c:func:`ARKDlsSetJacFn()`.
+* :f:func:`FARKDENSESETJAC()` interfaces to :c:func:`ARKStepSetJacFn()`.
 
-* :f:func:`FARKBANDSETJAC()` interfaces to :c:func:`ARKDlsSetJacFn()`.
+* :f:func:`FARKBANDSETJAC()` interfaces to :c:func:`ARKStepSetJacFn()`.
 
-* :f:func:`FARKSPARSESETJAC()` interfaces to :c:func:`ARKDlsSetJacFn()`.
+* :f:func:`FARKSPARSESETJAC()` interfaces to :c:func:`ARKStepSetJacFn()`.
 
-* :f:func:`FARKSPILSINIT()` interfaces to :c:func:`ARKSpilsSetLinearSolver()`
+* :f:func:`FARKLSSETEPSLIN()` interfaces to :c:func:`ARKStepSetEpsLin()`.
 
-* :f:func:`FARKSPILSSETEPSLIN()` interfaces to :c:func:`ARKSpilsSetEpsLin()`.
+* :f:func:`FARKLSSETJAC()` interfaces to :c:func:`ARKStepSetJacTimes()`.
 
-* :f:func:`FARKSPILSSETJAC()` interfaces to :c:func:`ARKSpilsSetJacTimes()`.
-
-* :f:func:`FARKSPILSSETPREC()` interfaces to :c:func:`ARKSpilsSetPreconditioner()`.
+* :f:func:`FARKLSSETPREC()` interfaces to :c:func:`ARKStepSetPreconditioner()`.
 
 
 
 Interface to the mass matrix linear solver interfaces
 -------------------------------------------------------
 
-* :f:func:`FARKDLSMASSINIT()` interfaces to :c:func:`ARKDlsSetMassLinearSolver()`.
+* :f:func:`FARKLSMASSINIT()` interfaces to :c:func:`ARKStepSetMassLinearSolver()`.
 
-* :f:func:`FARKDENSESETMASS()` interfaces to :c:func:`ARKDlsSetMassFn()`.
+* :f:func:`FARKDENSESETMASS()` interfaces to :c:func:`ARKStepSetMassFn()`.
 
-* :f:func:`FARKBANDSETMASS()` interfaces to :c:func:`ARKDlsSetMassFn()`.
+* :f:func:`FARKBANDSETMASS()` interfaces to :c:func:`ARKStepSetMassFn()`.
 
-* :f:func:`FARKSPARSESETMASS()` interfaces to :c:func:`ARKDlsSetMassFn()`.
+* :f:func:`FARKSPARSESETMASS()` interfaces to :c:func:`ARKStepSetMassFn()`.
 
-* :f:func:`FARKSPILSMASSINIT()` interfaces to :c:func:`ARKSpilsSetMassLinearSolver()`.
+* :f:func:`FARKLSSETMASSEPSLIN()` interfaces to :c:func:`ARKStepSetMassEpsLin()`.
 
-* :f:func:`FARKSPILSSETMASSEPSLIN()` interfaces to :c:func:`ARKSpilsSetMassEpsLin()`.
+* :f:func:`FARKLSSETMASS()` interfaces to :c:func:`ARKStepSetMassTimes()`.
 
-* :f:func:`FARKSPILSSETMASS()` interfaces to :c:func:`ARKSpilsSetMassTimes()`.
-
-* :f:func:`FARKSPILSSETMASSPREC()` interfaces to
-  :c:func:`ARKSpilsSetMassPreconditioner()`.
+* :f:func:`FARKLSSETMASSPREC()` interfaces to :c:func:`ARKStepSetMassPreconditioner()`.
 
 
 
@@ -225,41 +249,41 @@ which is required whenever a sparse matrix solver is used:
 
 .. cssclass:: table-bordered
 
-+--------------------------+--------------------------------------+----------------------------------+
-| FARKODE routine          | ARKStep interface                    | FARKODE "activation" routine     |
-| (FORTRAN, user-supplied) | function type                        |                                  |
-+==========================+======================================+==================================+
-| :f:func:`FARKDJAC()`     | :c:func:`ARKDlsJacFn()`              | :f:func:`FARKDENSESETJAC()`      |
-+--------------------------+--------------------------------------+----------------------------------+
-| :f:func:`FARKBJAC()`     | :c:func:`ARKDlsJacFn()`              | :f:func:`FARKBANDSETJAC()`       |
-+--------------------------+--------------------------------------+----------------------------------+
-| :f:func:`FARKSPJAC()`    | :c:func:`ARKDlsJacFn()`              | :f:func:`FARKSPARSESETJAC()`     |
-+--------------------------+--------------------------------------+----------------------------------+
-| :f:func:`FARKDMASS()`    | :c:func:`ARKDlsMassFn()`             | :f:func:`FARKDENSESETMASS()`     |
-+--------------------------+--------------------------------------+----------------------------------+
-| :f:func:`FARKBMASS()`    | :c:func:`ARKDlsMassFn()`             | :f:func:`FARKBANDSETMASS()`      |
-+--------------------------+--------------------------------------+----------------------------------+
-| :f:func:`FARKSPMASS()`   | :c:func:`ARKDlsMassFn()`             | :f:func:`FARKSPARSESETMASS()`    |
-+--------------------------+--------------------------------------+----------------------------------+
-| :f:func:`FARKPSET()`     | :c:func:`ARKSpilsPrecSetupFn()`      | :f:func:`FARKSPILSSETPREC()`     |
-+--------------------------+--------------------------------------+----------------------------------+
-| :f:func:`FARKPSOL()`     | :c:func:`ARKSpilsPrecSolveFn()`      | :f:func:`FARKSPILSSETPREC()`     |
-+--------------------------+--------------------------------------+----------------------------------+
-| :f:func:`FARKJTSETUP()`  | :c:func:`ARKSpilsJacTimesSetupFn()`  | :f:func:`FARKSPILSSETJAC()`      |
-+--------------------------+--------------------------------------+----------------------------------+
-| :f:func:`FARKJTIMES()`   | :c:func:`ARKSpilsJacTimesVecFn()`    | :f:func:`FARKSPILSSETJAC()`      |
-+--------------------------+--------------------------------------+----------------------------------+
-| :f:func:`FARKMASSPSET()` | :c:func:`ARKSpilsMassPrecSetupFn()`  | :f:func:`FARKSPILSSETMASSPREC()` |
-+--------------------------+--------------------------------------+----------------------------------+
-| :f:func:`FARKMASSPSOL()` | :c:func:`ARKSpilsMassPrecSolveFn()`  | :f:func:`FARKSPILSSETMASSPREC()` |
-+--------------------------+--------------------------------------+----------------------------------+
-| :f:func:`FARKMTSETUP()`  | :c:func:`ARKSpilsMassTimesSetupFn()` | :f:func:`FARKSPILSSETMASS()`     |
-+--------------------------+--------------------------------------+----------------------------------+
-| :f:func:`FARKMTIMES()`   | :c:func:`ARKSpilsMassTimesVecFn()`   | :f:func:`FARKSPILSSETMASS()`     |
-+--------------------------+--------------------------------------+----------------------------------+
-| :f:func:`FARKEWT()`      | :c:func:`ARKEwtFn()`                 | :f:func:`FARKEWTSET()`           |
-+--------------------------+--------------------------------------+----------------------------------+
-| :f:func:`FARKADAPT()`    | :c:func:`ARKAdaptFn()`               | :f:func:`FARKADAPTSET()`         |
-+--------------------------+--------------------------------------+----------------------------------+
-| :f:func:`FARKEXPSTAB()`  | :c:func:`ARKExpStabFn()`             | :f:func:`FARKEXPSTABSET()`       |
-+--------------------------+--------------------------------------+----------------------------------+
++--------------------------+-----------------------------------+-------------------------------+
+| FARKODE routine          | ARKStep interface                 | FARKODE "activation" routine  |
+| (FORTRAN, user-supplied) | function type                     |                               |
++==========================+===================================+===============================+
+| :f:func:`FARKDJAC()`     | :c:func:`ARKLsJacFn()`            | :f:func:`FARKDENSESETJAC()`   |
++--------------------------+-----------------------------------+-------------------------------+
+| :f:func:`FARKBJAC()`     | :c:func:`ARKLsJacFn()`            | :f:func:`FARKBANDSETJAC()`    |
++--------------------------+-----------------------------------+-------------------------------+
+| :f:func:`FARKSPJAC()`    | :c:func:`ARKLsJacFn()`            | :f:func:`FARKSPARSESETJAC()`  |
++--------------------------+-----------------------------------+-------------------------------+
+| :f:func:`FARKDMASS()`    | :c:func:`ARKLsMassFn()`           | :f:func:`FARKDENSESETMASS()`  |
++--------------------------+-----------------------------------+-------------------------------+
+| :f:func:`FARKBMASS()`    | :c:func:`ARKLsMassFn()`           | :f:func:`FARKBANDSETMASS()`   |
++--------------------------+-----------------------------------+-------------------------------+
+| :f:func:`FARKSPMASS()`   | :c:func:`ARKLsMassFn()`           | :f:func:`FARKSPARSESETMASS()` |
++--------------------------+-----------------------------------+-------------------------------+
+| :f:func:`FARKPSET()`     | :c:func:`ARKLsPrecSetupFn()`      | :f:func:`FARKLSSETPREC()`     |
++--------------------------+-----------------------------------+-------------------------------+
+| :f:func:`FARKPSOL()`     | :c:func:`ARKLsPrecSolveFn()`      | :f:func:`FARKLSSETPREC()`     |
++--------------------------+-----------------------------------+-------------------------------+
+| :f:func:`FARKJTSETUP()`  | :c:func:`ARKLsJacTimesSetupFn()`  | :f:func:`FARKLSSETJAC()`      |
++--------------------------+-----------------------------------+-------------------------------+
+| :f:func:`FARKJTIMES()`   | :c:func:`ARKLsJacTimesVecFn()`    | :f:func:`FARKLSSETJAC()`      |
++--------------------------+-----------------------------------+-------------------------------+
+| :f:func:`FARKMASSPSET()` | :c:func:`ARKLsMassPrecSetupFn()`  | :f:func:`FARKLSSETMASSPREC()` |
++--------------------------+-----------------------------------+-------------------------------+
+| :f:func:`FARKMASSPSOL()` | :c:func:`ARKLsMassPrecSolveFn()`  | :f:func:`FARKLSSETMASSPREC()` |
++--------------------------+-----------------------------------+-------------------------------+
+| :f:func:`FARKMTSETUP()`  | :c:func:`ARKLsMassTimesSetupFn()` | :f:func:`FARKLSSETMASS()`     |
++--------------------------+-----------------------------------+-------------------------------+
+| :f:func:`FARKMTIMES()`   | :c:func:`ARKLsMassTimesVecFn()`   | :f:func:`FARKLSSETMASS()`     |
++--------------------------+-----------------------------------+-------------------------------+
+| :f:func:`FARKEWT()`      | :c:func:`ARKEwtFn()`              | :f:func:`FARKEWTSET()`        |
++--------------------------+-----------------------------------+-------------------------------+
+| :f:func:`FARKADAPT()`    | :c:func:`ARKAdaptFn()`            | :f:func:`FARKADAPTSET()`      |
++--------------------------+-----------------------------------+-------------------------------+
+| :f:func:`FARKEXPSTAB()`  | :c:func:`ARKExpStabFn()`          | :f:func:`FARKEXPSTABSET()`    |
++--------------------------+-----------------------------------+-------------------------------+

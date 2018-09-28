@@ -31,13 +31,12 @@ SET(arkode_SOURCES
   arkode_butcher.c
   arkode_butcher_dirk.c
   arkode_butcher_erk.c
-  arkode_direct.c
   arkode_erkstep.c
   arkode_erkstep_io.c
   arkode_interp.c
   arkode_io.c
+  arkode_ls.c
   arkode_root.c
-  arkode_spils.c
   )
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
@@ -94,8 +93,7 @@ SET(arkode_HEADERS
   arkode_butcher_erk.h
   arkode_butcher_dirk.h
   arkode_erkstep.h
-  arkode_direct.h
-  arkode_spils.h
+  arkode_ls.h
   )
 
 # Add prefix with complete path to the ARKODE header files

@@ -47,6 +47,15 @@ sunindextype GlobalVectorLength_BandLS(N_Vector y);
 
 /*
  * -----------------------------------------------------------------
+ * deprecated wrapper functions
+ * -----------------------------------------------------------------
+ */
+
+SUNLinearSolver SUNBandLinearSolver(N_Vector y, SUNMatrix A)
+{ return(SUNLinSol_Band(y, A)); }
+
+/*
+ * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------
  */
@@ -55,7 +64,7 @@ sunindextype GlobalVectorLength_BandLS(N_Vector y);
  * Function to create a new band linear solver
  */
 
-SUNLinearSolver SUNBandLinearSolver(N_Vector y, SUNMatrix A)
+SUNLinearSolver SUNLinSol_Band(N_Vector y, SUNMatrix A)
 {
   SUNLinearSolver S;
   SUNLinearSolver_Ops ops;

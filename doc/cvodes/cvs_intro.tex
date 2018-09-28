@@ -98,7 +98,7 @@ particular implementation (such as serial or parallel) of
 independent of the actual {\nvector} implementation (which can be
 user-supplied), as well as allowing more than one {\nvector} module to
 be linked into an executable file.
-{\sundials} (and thus {\cvodes}) is supplied with serial, 
+{\sundials} (and thus {\cvodes}) is supplied with serial,
 MPI-parallel, and both OpenMP and Pthreads thread-parallel
 {\nvector} implementations.
 \index{CVODES@{\cvodes}!relationship to {\cvode}, {\pvode}|)}
@@ -130,6 +130,23 @@ function \id{CVodeSetIterType} has been removed. {\cvodes} functions for
 setting the nonlinear solver options (e.g., \id{CVodeSetMaxNonlinIters}) or
 getting nonlinear solver statistics (e.g., \id{CVodeGetNumNonlinSolvIters})
 remain unchanged and internally call generic {\sunnonlinsol} functions.
+
+The names of all constructor routines for {\sundials}-provided
+{\sunlinsol} implementations have been updated to
+\id{SUNLinSol\_Band},
+\id{SUNLinSol\_Dense},
+\id{SUNLinSol\_KLU},
+\id{SUNLinSol\_LapackBand},
+\id{SUNLinSol\_LapackDense},
+\id{SUNLinSol\_PCG},
+\id{SUNLinSol\_SPBCGS},
+\id{SUNLinSol\_SPFGMR},
+\id{SUNLinSol\_SPGMR},
+\id{SUNLinSol\_SPTFQMR}, and
+\id{SUNLinSol\_SuperLUMT}.  Solver-specific ``set'' routine names have
+been similarly standardized.  While the previous routine names may
+still be used, these will be deprecated in future releases, so we
+recommend that users migrate to the new names soon.
 
 \subsection*{Changes in v4.0.0-dev.1}
 
@@ -186,7 +203,7 @@ The changes in this minor release include the following:
 \begin{itemize}
 \item Updated the minimum required version of CMake to 2.8.12 and enabled
   using rpath by default to locate shared libraries on OSX.
-\item Fixed Windows specific problem where \id{sunindextype} was not correctly 
+\item Fixed Windows specific problem where \id{sunindextype} was not correctly
   defined when using 64-bit integers for the {\sundials} index type. On Windows
   \id{sunindextype} is now defined as the MSVC basic type \id{\_\_int64}.
 \item Added sparse SUNMatrix ``Reallocate'' routine to allow specification of
@@ -202,7 +219,7 @@ The changes in this minor release include the following:
   the sum backwards in the existing storage.  However, it is still more
   efficient if the user-supplied Jacobian routine allocates storage for
   the sum $I+\gamma J$ manually (with zero entries if needed).
-\item Added new example, \id{cvRoberts\_FSA\_dns\_Switch.c}, which demonstrates 
+\item Added new example, \id{cvRoberts\_FSA\_dns\_Switch.c}, which demonstrates
   switching on/off forward sensitivity computations. This example came from
   the usage notes page of the SUNDIALS website.
 \item The misnamed function \id{CVSpilsSetJacTimesSetupFnBS} has been
@@ -381,7 +398,7 @@ dot product.  Various additions and corrections were made to the
 interfaces to the sparse solvers KLU and SuperLU\_MT, including support
 for CSR format when using KLU.
 
-In interpolation routines for backward problems, added logic to bypass 
+In interpolation routines for backward problems, added logic to bypass
 sensitivity interpolation if input sensitivity argument is NULL.
 
 New examples were added for use of sparse direct solvers within sensitivity
@@ -488,20 +505,20 @@ either defined (with no value) or not defined.
 
 \subsection*{Changes in v2.6.0}
 
-Two new features related to the integration of ODE IVP problems were added 
-in this release: (a) a new linear solver module, based on BLAS and LAPACK 
-for both dense and banded matrices, and (b) an option to specify which direction 
-of zero-crossing is to be monitored while performing rootfinding. 
+Two new features related to the integration of ODE IVP problems were added
+in this release: (a) a new linear solver module, based on BLAS and LAPACK
+for both dense and banded matrices, and (b) an option to specify which direction
+of zero-crossing is to be monitored while performing rootfinding.
 
 This version also includes several new features related to sensitivity analysis,
 among which are: (a) support for integration of quadrature equations depending
 on both the states and forward sensitivity (and thus support for forward sensitivity
-analysis of quadrature equations), (b) support for simultaneous integration of 
+analysis of quadrature equations), (b) support for simultaneous integration of
 multiple backward problems based on the same underlying ODE (e.g., for use
 in an {\em forward-over-adjoint} method for computing second order derivative
-information), (c) support for backward integration of ODEs and quadratures 
-depending on both forward states and sensitivities (e.g., for use in computing 
-second-order derivative information), and (d) support for reinitialization of 
+information), (c) support for backward integration of ODEs and quadratures
+depending on both forward states and sensitivities (e.g., for use in computing
+second-order derivative information), and (d) support for reinitialization of
 the adjoint module.
 
 The user interface has been further refined. Some of the API changes involve:
@@ -511,8 +528,8 @@ the direct solvers, including the new LAPACK-based ones, were also organized
 into a {\em direct} family); (b) maintaining a single pointer to user data,
 optionally specified through a \id{Set}-type function; and (c) a general
 streamlining of the preconditioner modules distributed with the solver.
-Moreover, the prototypes of all functions related to integration of backward 
-problems were modified to support the simultaneous integration of multiple 
+Moreover, the prototypes of all functions related to integration of backward
+problems were modified to support the simultaneous integration of multiple
 problems. All backward problems defined by the user are internally managed
 through a linked list and identified in the user interface through a
 unique identifier.
@@ -529,7 +546,7 @@ now installed in separate subdirectories of the instaltion {\em include} directo
 
 In the adjoint solver module, the following two bugs were fixed: in \id{CVodeF}
 the solver was sometimes incorrectly taking an additional step before
-returning control to the user (in \id{CV\_NORMAL} mode) thus leading to 
+returning control to the user (in \id{CV\_NORMAL} mode) thus leading to
 a failure in the interpolated output function; in \id{CVodeB}, while searching
 for the current check point, the solver was sometimes reaching outside the
 integration interval resulting in a segmentation fault.
@@ -582,14 +599,14 @@ systems has been further improved to make it more robust.
 \subsection*{Changes in v2.1.2}
 
 A bug was fixed in the \id{CVode} function that was potentially
-leading to erroneous behaviour of the rootfinding procedure on the 
+leading to erroneous behaviour of the rootfinding procedure on the
 integration first step.
 
 \subsection*{Changes in v2.1.1}
 
 This {\cvodes} release includes bug fixes related to forward sensitivity
 computations (possible loss of accuray on a BDF order increase and incorrect
-logic in testing user-supplied absolute tolerances). 
+logic in testing user-supplied absolute tolerances).
 In addition, we have added the option of activating and deactivating
 forward sensitivity calculations on successive {\cvodes} runs without memory
 allocation/deallocation.
@@ -637,8 +654,8 @@ There are different possible levels of usage of {\cvodes}. The most
 casual user, with a small IVP problem only, can get by with reading
 \S\ref{ss:ivp_sol}, then Chapter \ref{s:simulation} through
 \S\ref{sss:cvode} only, and looking at examples in~\cite{cvodes_ex}.
-In addition, to solve a forward sensitivity problem the user should read 
-\S\ref{ss:fwd_sensi}, followed by Chapter \ref{s:forward} through 
+In addition, to solve a forward sensitivity problem the user should read
+\S\ref{ss:fwd_sensi}, followed by Chapter \ref{s:forward} through
 \S\ref{ss:sensi_get} only, and look at examples in~\cite{cvodes_ex}.
 
 In a different direction, a more expert user with an IVP problem may want to
@@ -655,8 +672,8 @@ An advanced user with a forward sensitivity problem may also want to
 sensitivity parameters (\S\ref{ss:sensi_malloc}), or (c) extract additional
 diagnostic information (\S\ref{ss:sensi_get}).
 %
-A user with an adjoint sensitivity problem needs to understand the IVP 
-solution approach at the desired level and also go through 
+A user with an adjoint sensitivity problem needs to understand the IVP
+solution approach at the desired level and also go through
 \S\ref{ss:adj_sensi} for a short mathematical description of the adjoint
 approach, Chapter \ref{s:adjoint} for the usage of the adjoint module in {\cvodes},
 and the examples in~\cite{cvodes_ex}.
@@ -692,9 +709,9 @@ The structure of this document is as follows:
   additonal optional user-defined routines.
 \item
   Chapter \ref{s:adjoint} describes the usage of {\cvodes} for adjoint
-  sensitivity analysis. We begin by describing the {\cvodes} checkpointing 
+  sensitivity analysis. We begin by describing the {\cvodes} checkpointing
   implementation for interpolation of the original IVP solution during
-  integration of the adjoint system backward in time, and with 
+  integration of the adjoint system backward in time, and with
   an overview of a user's main program. Following that we provide complete
   descriptions of the user-callable interface routines for adjoint sensitivity
   analysis as well as descriptions of the required additional user-defined routines.

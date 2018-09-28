@@ -322,6 +322,19 @@ for the specific name of the function to be called or macro to be referenced.
   appropriate constructor function defined by the particular {\sunmatrix}
   implementation.
 
+  For the {\sundials}-supplied {\sunmatrix} implementations, the
+  matrix object may be created using a call of the form
+
+  \id{SUNMatrix J = }\Id{SUNBandMatrix}\id{(...);}
+
+   or
+
+  \id{SUNMatrix J = }\Id{SUNDenseMatrix}\id{(...);}
+
+   or
+
+  \id{SUNMatrix J = }\Id{SUNSparseMatrix}\id{(...);}
+
   NOTE: The dense, banded, and sparse matrix objects are usable only in a
   serial or threaded environment.
 
@@ -332,6 +345,14 @@ for the specific name of the function to be called or macro to be referenced.
   Newton iteration), then the desired linear solver object must be created by
   calling the appropriate constructor function defined by the particular
   {\sunlinsol} implementation.
+
+  For any of the {\sundials}-supplied {\sunlinsol} implementations,
+  the linear solver object may be created using a call of the form
+
+  \id{SUNLinearSolver LS = SUNLinSol\_*(...);}
+
+  where \id{*} can be replaced with ``Dense'', ``SPGMR'', or other
+  options, as discussed in Chapter {\ref{s:sunlinsol}}.
 
 \item
   {\bf Set linear solver optional inputs}
