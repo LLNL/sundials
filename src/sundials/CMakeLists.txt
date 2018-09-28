@@ -3,8 +3,8 @@
 # ---------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Lawrence Livermore National Laboratory in part under
 # Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
@@ -13,7 +13,7 @@
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the generic SUNDIALS modules
 
-# From here we only install the generic SUNDIALS headers. 
+# From here we only install the generic SUNDIALS headers.
 # The implementations themselves are incorporated in the individual SUNDIALS solver libraries.
 
 INSTALL(CODE "MESSAGE(\"\nInstall shared components\n\")")
@@ -28,7 +28,11 @@ SET(sundials_HEADERS
   sundials_linearsolver.h
   sundials_math.h
   sundials_matrix.h
+  sundials_mpi.h
+  sundials_mpi_types.h
   sundials_nonlinearsolver.h
+  sundials_mpi.h
+  sundials_mpi_types.h
   sundials_nvector.h
   sundials_pcg.h
   sundials_sparse.h
@@ -39,11 +43,6 @@ SET(sundials_HEADERS
   sundials_types.h
   sundials_version.h
   )
-
-# append header file with sundials MPI type macros if using MPI
-IF(MPI_C_FOUND)
-  LIST(APPEND sundials_HEADERS sundials_mpi_types.h)
-ENDIF()
 
 # Add prefix with complete path to the SUNDIALS header files
 ADD_PREFIX(${sundials_SOURCE_DIR}/include/sundials/ sundials_HEADERS)

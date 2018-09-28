@@ -1,6 +1,16 @@
 /* -----------------------------------------------------------------
  * Programmer(s): Chris Nguyen
  * -----------------------------------------------------------------
+ * LLNS Copyright Start
+ * Copyright (c) 2017, Lawrence Livermore National Security
+ * This work was performed under the auspices of the U.S. Department 
+ * of Energy by Lawrence Livermore National Laboratory in part under 
+ * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see the LICENSE file.
+ * LLNS Copyright End
+ * -----------------------------------------------------------------
  * Example problem for CVODE: 2D heat equation, serial, sparse.
  * Based on idaHeat2D_klu.c and cvRoberts_klu.c
  *
@@ -18,9 +28,8 @@
  *
  * The system is solved with CVODE using the direct sparse linear system
  * solver, half-bandwidths equal to M, and default
- * difference-quotient Jacobian. For purposes of illustration,
- * The constraints u >= 0 are posed for all components. Output is 
- * taken at t = 0, .01, .02, .04, ..., 10.24.
+ * difference-quotient Jacobian.
+ * Output is taken at t = 0, .01, .02, .04, ..., 10.24.
  * -----------------------------------------------------------------*/
 
 //////////////////////////////////////////////////////////////////////////
@@ -679,7 +688,6 @@ static void PrintHeader(realtype rtol, realtype atol)
 #else
   printf("Tolerance parameters:  rtol = %g   atol = %g\n", rtol, atol);
 #endif
-  //  printf("Constraints set to force all solution components >= 0. \n");
   printf("Linear solver: CVKLU, sparse direct solver \n");
   printf("       difference quotient Jacobian \n");
   /* Print output table heading and initial line of table. */

@@ -67,6 +67,7 @@
  *   FCVREINIT                  CVReInit
  *   FCVSETIIN                  CVodeSet* (integer arguments)
  *   FCVSETRIN                  CVodeSet* (real arguments)
+ *   FCVSETVIN                  CVodeSet* (vector arguments)
  *   FCVEWTSET                  CVodeWFtolerances
  *
  *   FCVLSINIT                  CVodeSetLinearSolver
@@ -773,6 +774,14 @@
  *   be one of the following: INIT_STEP, MAX_STEP, MIN_STEP, STOP_TIME,
  *   NLCONV_COEF.  The int return flag IER is 0 if successful, and <0 otherwise.
  *
+ * (5.15) To set the vector of constraints, make the following call:
+ *
+ *      CALL CVSETVIN(KEY, ARRAY, IER)
+ *
+ *    where ARRAY is an array of realtype and the quoted character string
+ *    KEY is CONSTR_VEC.  The int return flag IER is 0 if successful, and
+ *    nonzero otherwise.
+ * 
  * -----------------------------------------------------------------------------
  *
  * (6) Optional outputs from CVLS linear solvers (stored in the 
@@ -888,6 +897,7 @@ extern "C" {
 #define FCV_REINIT         SUNDIALS_F77_FUNC(fcvreinit, FCVREINIT)
 #define FCV_SETIIN         SUNDIALS_F77_FUNC(fcvsetiin, FCVSETIIN)
 #define FCV_SETRIN         SUNDIALS_F77_FUNC(fcvsetrin, FCVSETRIN)
+#define FCV_SETVIN         SUNDIALS_F77_FUNC(fcvsetvin, FCVSETVIN)
 #define FCV_EWTSET         SUNDIALS_F77_FUNC(fcvewtset, FCVEWTSET)
 #define FCV_LSINIT         SUNDIALS_F77_FUNC(fcvlsinit, FCVLSINIT)
 #define FCV_LSSETJAC       SUNDIALS_F77_FUNC(fcvlssetjac, FCVLSSETJAC)
@@ -926,6 +936,7 @@ extern "C" {
 #define FCV_REINIT         fcvreinit_
 #define FCV_SETIIN         fcvsetiin_
 #define FCV_SETRIN         fcvsetrin_
+#define FCV_SETVIN         fcvsetvin_
 #define FCV_EWTSET         fcvewtset_
 #define FCV_LSINIT         fcvlsinit_
 #define FCV_LSSETJAC       fcvlssetjac_
@@ -984,6 +995,7 @@ extern "C" {
 
   void FCV_SETRIN(char key_name[], realtype *rval, int *ier);
 
+  void FCV_SETVIN(char key_name[], realtype *vval, int *ier);
   void FCV_EWTSET(int *flag, int *ier);
 
   void FCV_LSINIT(int *ier);

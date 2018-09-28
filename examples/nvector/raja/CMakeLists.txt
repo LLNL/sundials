@@ -1,10 +1,10 @@
 # ---------------------------------------------------------------
-# Programmer:  Slaven Peles @ LLNL
+# Programmer:  Slaven Peles, and Cody Balos @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Lawrence Livermore National Laboratory in part under
 # Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
@@ -14,12 +14,12 @@
 # CMakeLists.txt file for raja nvector examples
 # ---------------------------------------------------------------
 
-# Example lists are tuples "name\;args\;type" where the type is
-# 'develop' for examples excluded from 'make test' in releases
+# Example lists are tuples "name\;args\;nodes\;tasks\;type" where the
+# type is develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS raja nvector
 SET(nvector_raja_examples
-  "test_nvector_raja\;10000 0\;"
+  "test_nvector_raja\;1000 0\;\;\;"
   )
 
 # Dependencies for nvector examples
@@ -27,21 +27,24 @@ SET(nvector_examples_dependencies
   test_nvector
   sundials_nvector
   sundials_math
-  )
+)
+
+# Set C++ compiler flags to include RAJA flags
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${RAJA_COMPILE_FLAGS})
 
 # Add source directory to include directories
-INCLUDE_DIRECTORIES(. .. ${CUDA_TOOLKIT_ROOT_DIR}/samples/common/inc)
+INCLUDE_DIRECTORIES(. ..)
 
-# Specify libraries to link against (through the target that was used to 
+# Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 IF(LINK_LIBRARY_TYPE MATCHES "static")
-  SET(NVECS_LIB sundials_nvecraja_static)
+  SET(NVECS_LIB sundials_nveccudaraja_static)
 ELSE()
-  SET(NVECS_LIB sundials_nvecraja_shared)
+  SET(NVECS_LIB sundials_nveccudaraja_shared)
 ENDIF()
 
 # Set-up linker flags and link libraries
-SET(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS} -L${RAJA_LIB_PATH} -lRAJA) 
+SET(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS} -L${RAJA_LIB_PATH} -lRAJA)
 
 
 # Add the build and install targets for each example
@@ -50,7 +53,9 @@ FOREACH(example_tuple ${nvector_raja_examples})
   # parse the example tuple
   LIST(GET example_tuple 0 example)
   LIST(GET example_tuple 1 example_args)
-  LIST(GET example_tuple 2 example_type)
+  LIST(GET example_tuple 2 number_of_nodes)
+  LIST(GET example_tuple 3 number_of_tasks)
+  LIST(GET example_tuple 4 example_type)
 
   # This is used to get around DLL linkage issue since we are
   # manually including sundials_nvector.c here, which is normally in
@@ -67,22 +72,32 @@ FOREACH(example_tuple ${nvector_raja_examples})
     CUDA_ADD_EXECUTABLE(${example} ${example}.cu
       ../test_nvector.c ../../../src/sundials/sundials_nvector.c
       ../../../src/sundials/sundials_math.c)
-    
+
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} ${CUDA_LIBRARIES})
   ENDIF()
 
   # check if example args are provided and set the test name
+  # check if example args are provided and set the test name
   IF("${example_args}" STREQUAL "")
-    SET(test_name ${example})
+    IF("${number_of_tasks}" STREQUAL "")
+      SET(test_name ${example})
+    ELSE()
+      STRING(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks})
+    ENDIF()
   ELSE()
-    STRING(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+    IF("${number_of_tasks}" STREQUAL "")
+      STRING(REGEX REPLACE " " "_" test_name ${example}_${example_args})
+    ELSE()
+      STRING(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks}_${example_args})
+    ENDIF()
   ENDIF()
 
   # add example to regression tests
   SUNDIALS_ADD_TEST(${test_name} ${example}
     TEST_ARGS ${example_args}
+    MPI_NPROCS ${number_of_tasks}
     EXAMPLE_TYPE ${example_type}
     NODIFF)
 
@@ -105,13 +120,13 @@ IF(EXAMPLES_INSTALL)
   INSTALL(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/raja)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
-  SET(SOLVER_LIB "sundials_nvecraja")
+  SET(NVECTOR_LIB "sundials_nveccudaraja")
 
   EXAMPLES2STRING(nvector_raja_examples EXAMPLES)
   EXAMPLES2STRING(nvector_examples_dependencies EXAMPLES_DEPENDENCIES)
 
-  # Regardless of the platform we're on, we will generate and install 
-  # CMakeLists.txt file for building the examples. This file  can then 
+  # Regardless of the platform we're on, we will generate and install
+  # CMakeLists.txt file for building the examples. This file  can then
   # be used as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
@@ -127,8 +142,8 @@ IF(EXAMPLES_INSTALL)
     DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/raja
     )
 
-  # On UNIX-type platforms, we also  generate and install a makefile for 
-  # building the examples. This makefile can then be used as a template 
+  # On UNIX-type platforms, we also  generate and install a makefile for
+  # building the examples. This makefile can then be used as a template
   # for the user's own programs.
 
   IF(UNIX)
@@ -140,7 +155,7 @@ IF(EXAMPLES_INSTALL)
       )
     # install the configured Makefile_ex as Makefile
     INSTALL(
-      FILES ${PROJECT_BINARY_DIR}/examples/nvector/raja/Makefile_ex 
+      FILES ${PROJECT_BINARY_DIR}/examples/nvector/raja/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/raja
       RENAME Makefile
       )

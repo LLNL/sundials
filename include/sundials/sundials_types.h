@@ -101,32 +101,12 @@ typedef long double realtype;
  *------------------------------------------------------------------
  * Defines integer type to be used for vector and matrix indices.
  * User can build sundials to use 32- or 64-bit signed integers.
- * If compiler does not support portable data types, 'int' is used
- * in place of 32- and 'long int' is used in place of 64-bit 
- * integer.
+ * If compiler does not support portable data types, the SUNDIALS
+ * CMake build system tries to find a type of the desired size. 
  *------------------------------------------------------------------
  */
 
-#if defined(SUNDIALS_INT64_T)
-
-#if __STDC_VERSION__ >= 199901L
-typedef int64_t sunindextype;
-#elif _MSC_VER >= 300
-typedef __int64 sunindextype;
-#else
-typedef long int sunindextype;
-#endif
-
-#elif defined(SUNDIALS_INT32_T)
-
-#if __STDC_VERSION__ >= 199901L
-typedef int32_t sunindextype;
-#else
-typedef int sunindextype;
-#endif
-
-#endif
-
+typedef SUNDIALS_INDEX_TYPE sunindextype;
 
 /*
  *------------------------------------------------------------------

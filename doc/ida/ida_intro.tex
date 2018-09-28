@@ -178,27 +178,50 @@ implementation the {\nvector} interface will automatically call
 standard {\nvector} operations as necessary. Details on the new
 operations can be found in Chapter \ref{s:nvector}.
 
-Several changes were made to the build system. If MPI is enabled and
-MPI compiler wrappers are not set, the build system will check if
-\id{CMAKE\_<language>\_COMPILER} can compile MPI programs before
-trying to locate and use an MPI installation. The native CMake FindMPI
-module is now used to locate an MPI installation. The options for
-setting MPI compiler wrappers and the executable for running MPI
-programs have been updated to align with those in native CMake FindMPI
-module. This included changing \id{MPI\_MPICC} to
-\id{MPI\_C\_COMPILER}, \id{MPI\_MPICXX} to \id{MPI\_CXX\_COMPILER},
-combining \id{MPI\_MPIF77} and \id{MPI\_MPIF90} to
-\id{MPI\_Fortran\_COMPILER}, and changing \id{MPI\_RUN\_COMMAND} to
-\id{MPIEXEC\_EXECUTABLE}. When a Fortran name-mangling scheme is needed (e.g.,
-\id{LAPACK\_ENABLE} is \id{ON}) the build system will infer the scheme
-from the Fortran compiler. If a Fortran compiler is not available or
-the inferred or default scheme needs to be overridden, the advanced
-options \id{SUNDIALS\_F77\_FUNC\_CASE} and
-\id{SUNDIALS\_F77\_FUNC\_UNDERSCORES} can be used to manually set the
-name-mangling scheme and bypass trying to infer the
-scheme. Additionally, parts of the main CMakeLists.txt file were moved
-to new files in the \id{src} and \id{example} directories to make the
-CMake configuration file structure more modular.
+\subsection*{Changes in v3.2.0}
+
+Fixed a problem with setting \id{sunindextype} which would occur
+with some compilers (e.g. armclang) that did not define \id{\_\_STDC\_VERSION\_\_}.
+\\
+\\
+\noindent Added hybrid MPI/CUDA and MPI/RAJA vectors to allow use of more 
+than one MPI rank when using a GPU system.  The vectors assume one GPU 
+device per MPI rank.
+\\
+\\
+\noindent Changed the name of the RAJA {\nvector} library to
+\id{libsundials\_nveccudaraja.lib} from \newline
+\id{libsundials\_nvecraja.lib} to better reflect that we only support CUDA
+as a backend for RAJA currently.
+\\
+\\
+\noindent Several changes were made to the build system:
+\begin{itemize}
+\item CMake 3.1.3 is now the minimum required CMake version.
+\item Deprecate the behavior of the \id{SUNDIALS\_INDEX\_TYPE} CMake option and
+  added the \newline 
+  \id{SUNDIALS\_INDEX\_SIZE} CMake option to select the \id{sunindextype}
+  integer size.
+\item The native CMake FindMPI module is now used to locate an MPI installation.
+\item If MPI is enabled and MPI compiler wrappers are not set, the build system 
+  will check if \id{CMAKE\_<language>\_COMPILER} can compile MPI programs before
+  trying to locate and use an MPI installation.
+\item The previous options for setting MPI compiler wrappers and the executable
+  for running MPI programs have been have been depreated. The new options that
+  align with those used in native CMake FindMPI module are
+  \id{MPI\_C\_COMPILER}, \id{MPI\_CXX\_COMPILER}, \id{MPI\_Fortran\_COMPILER},
+  and \id{MPIEXEC\_EXECUTABLE}.
+\item When a Fortran name-mangling scheme is needed (e.g., \id{LAPACK\_ENABLE}
+  is \id{ON}) the build system will infer the scheme from the Fortran
+  compiler. If a Fortran compiler is not available or the inferred or default
+  scheme needs to be overridden, the advanced options
+  \id{SUNDIALS\_F77\_FUNC\_CASE} and \id{SUNDIALS\_F77\_FUNC\_UNDERSCORES} can
+  be used to manually set the name-mangling scheme and bypass trying to infer
+  the scheme. 
+\item Parts of the main CMakeLists.txt file were moved to new files in the
+  \id{src} and \id{example} directories to make the CMake configuration file
+  structure more modular.
+\end{itemize}
 
 \subsection*{Changes in v3.1.2}
 

@@ -340,6 +340,18 @@ inherited from {\vode} and {\vodpk}, are documented in
 \cite{BBH:89,Byr:92,Hin:00}.  They are also summarized in
 \cite{HBGLSSW:05}.
 
+% Additional constraints on y components
+%---------------------------------------
+{\cvodes} permits the user to impose optional inequality constraints on individual
+components of the solution vector $y$. Any of the following four constraints
+can be imposed: $y_i > 0$, $y_i < 0$, $y_i \geq 0$, or $y_i \leq 0$.
+The constraint satisfaction is tested after a successful nonlinear system solution.
+If any constraint fails, we declare a convergence failure of the Newton iteration
+and reduce the step size. Rather than cutting the step size by some arbitrary factor,
+{\cvodes} estimates a new step size $h'$ using a linear approximation ofthe components
+in $y$ that failed the constraint test (including a afety factor of $0.9$ to
+cover the strict inequality case).
+
 % Output modes
 %-------------
 \index{output mode}

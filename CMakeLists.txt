@@ -1,5 +1,6 @@
 # ---------------------------------------------------------------
-# Programmer(s):  Radu Serban, David Gardner, and Slaven Peles @ LLNL
+# Programmer: Radu Serban, David J. Gardner, Cody J. Balos,
+#             and Slaven Peles @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
@@ -19,11 +20,13 @@
 # ---------------------------------------------------------------
 
 # Require a fairly recent cmake version
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.1.3)
 
 # Libraries linked via full path no longer produce linker search paths
 # Allows examples to build
-cmake_policy(SET CMP0003 NEW)
+if(COMMAND cmake_policy)
+  cmake_policy(SET CMP0003 NEW)
+endif(COMMAND cmake_policy)
 
 # MACOSX_RPATH is enabled by default
 # Fixes dynamic loading on OSX
@@ -232,20 +235,12 @@ ENDIF(SUNDIALS_PRECISION MATCHES "EXTENDED")
 # Option to specify index type
 # ---------------------------------------------------------------
 
-SET(DOCSTR "Signed 64-bit (int64_t) or signed 32-bit (int32_t) integer")
-SHOW_VARIABLE(SUNDIALS_INDEX_TYPE STRING "${DOCSTR}" "int64_t")
-
-# prepare substitution variable INDEX_TYPE for sundials_config.h
-STRING(TOUPPER ${SUNDIALS_INDEX_TYPE} SUNDIALS_INDEX_TYPE)
-SET(INDEX_TYPE "#define SUNDIALS_${SUNDIALS_INDEX_TYPE} 1")
-
-# prepare substitution variable FINDEX_TYPE for sundials_fconfig.h
-IF(SUNDIALS_INDEX_TYPE MATCHES "INT32_T")
-  SET(FINDEX_TYPE "4")
-ENDIF(SUNDIALS_INDEX_TYPE MATCHES "INT32_T")
-IF(SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
-  SET(FINDEX_TYPE "8")
-ENDIF(SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
+SET(DOCSTR "Signed 64-bit (64) or signed 32-bit (32) integer")
+SHOW_VARIABLE(SUNDIALS_INDEX_SIZE STRING "${DOCSTR}" "64")
+SET(DOCSTR "Integer type to use for indices in SUNDIALS")
+SHOW_VARIABLE(SUNDIALS_INDEX_TYPE STRING "${DOCSTR}" "")
+MARK_AS_ADVANCED(SUNDIALS_INDEX_TYPE)
+include(SundialsIndexSize)
 
 # ---------------------------------------------------------------
 # Enable Fortran interface?
@@ -380,8 +375,8 @@ IF(LAPACK_ENABLE AND SUNDIALS_PRECISION MATCHES "EXTENDED")
 ENDIF()
 
 # LAPACK does not support 64-bit integer index types
-IF(LAPACK_ENABLE AND SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
-  PRINT_WARNING("LAPACK is not compatible with ${SUNDIALS_INDEX_TYPE} integers"
+IF(LAPACK_ENABLE AND SUNDIALS_INDEX_SIZE MATCHES "64")
+  PRINT_WARNING("LAPACK is not compatible with ${SUNDIALS_INDEX_SIZE} integers"
                 "Disabling LAPACK")
   SET(LAPACK_ENABLE OFF CACHE BOOL "LAPACK is disabled" FORCE)
 ENDIF()
@@ -739,6 +734,33 @@ if(EXAMPLES_ENABLE_CXX OR CUDA_ENABLE OR RAJA_ENABLE)
 endif()
 
 # ---------------------------------------------------------------
+# Setup CUDA. Since CUDA is its own language we do this
+# separate from the TPLs.
+# ---------------------------------------------------------------
+
+if(CUDA_ENABLE)
+  find_package(CUDA)
+  if (CUDA_FOUND)
+    set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -lineinfo")
+  else()
+    message(STATUS "Disabling CUDA support, could not find CUDA.")
+    set(CUDA_ENABLE OFF)
+  endif()
+endif(CUDA_ENABLE)
+
+# ---------------------------------------------------------------
+# Now that all languages are setup, we can configure them more.
+# ---------------------------------------------------------------
+
+# C++11 is needed if:
+#   (a) CUDA is enabled
+# C++11 should not be enabled if
+#   (a) RAJA is enabled (they provide a std flag)
+if (CXX_FOUND AND CUDA_ENABLE AND CUDA_FOUND AND (NOT RAJA_ENABLE))
+  USE_CXX_STD(11)
+endif()
+
+# ---------------------------------------------------------------
 # Decide how to compile MPI codes.
 # ---------------------------------------------------------------
 
@@ -749,6 +771,8 @@ if(MPI_ENABLE)
   if(NOT MPI_C_FOUND)
     print_warning("MPI not functional"
       "Parallel support will not be provided")
+  else()
+    set(IS_MPI_ENABLED "#ifndef SUNDIALS_MPI_ENABLED\n#define SUNDIALS_MPI_ENABLED 1\n#endif")
   endif()
 
 endif()
@@ -789,58 +813,24 @@ IF(PTHREAD_ENABLE)
 ENDIF(PTHREAD_ENABLE)
 
 # -------------------------------------------------------------
-# Find CUDA
-# -------------------------------------------------------------
-
-# disable CUDA if a working C++ compiler is not found
-IF(CUDA_ENABLE AND (NOT CXX_FOUND))
-  PRINT_WARNING("C++ compiler required for CUDA support" "Disabling CUDA")
-  FORCE_VARIABLE(CUDA_ENABLE BOOL "CUDA disabled" OFF)
-ENDIF()
-
-if(CUDA_ENABLE)
-  find_package(CUDA)
-
-  if (CUDA_FOUND)
-    #message("CUDA found!")
-    set(CUDA_NVCC_FLAGS "-lineinfo")
-  else()
-    message(STATUS "Disabling CUDA support, could not find CUDA.")
-  endif()
-endif(CUDA_ENABLE)
-
-# -------------------------------------------------------------
 # Find RAJA
 # -------------------------------------------------------------
 
 # disable RAJA if CUDA is not enabled/working
-IF(RAJA_ENABLE AND (NOT CUDA_FOUND))
+if(RAJA_ENABLE AND (NOT CUDA_FOUND))
   PRINT_WARNING("CUDA is required for RAJA support" "Please enable CUDA and RAJA")
   FORCE_VARIABLE(RAJA_ENABLE BOOL "RAJA disabled" OFF)
-ENDIF()
-
-# Check if C++11 compiler is available
-IF(RAJA_ENABLE)
-  include(CheckCXXCompilerFlag)
-  CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-
-  IF(COMPILER_SUPPORTS_CXX11)
-    set(CMAKE_CXX_STANDARD 11)
-  ELSE()
-    PRINT_WARNING("C++11 compliant compiler required for RAJA support" "Disabling RAJA")
-    FORCE_VARIABLE(RAJA_ENABLE BOOL "RAJA disabled" OFF)
-  ENDIF()
-ENDIF()
+endif()
 
 if(RAJA_ENABLE)
   # Look for CMake configuration file in RAJA installation
-  find_package(RAJA CONFIGS)
+  find_package(RAJA)
   if (RAJA_FOUND)
-    #message("RAJA found!")
     include_directories(${RAJA_INCLUDE_DIR})
     set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} ${RAJA_NVCC_FLAGS})
   else()
-    PRINT_WARNING("RAJA configuration not found" "Please set RAJA_DIR to provide path to RAJA CMake configuration file.")
+    PRINT_WARNING("RAJA configuration not found"
+                  "Please set RAJA_DIR to provide path to RAJA CMake configuration file.")
   endif()
 endif(RAJA_ENABLE)
 
@@ -1045,7 +1035,6 @@ ELSE()
   SET (PETSC_DISABLED TRUE CACHE INTERNAL "GUI - return when first set")
 
 ENDIF()
-
 
 # ===============================================================
 # Add source and configuration files

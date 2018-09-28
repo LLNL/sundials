@@ -1,8 +1,5 @@
 /*
  * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
  * Programmer(s): Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -25,8 +22,8 @@
  *
  */
 
-#ifndef _NVECTOR_HPP_
-#define _NVECTOR_HPP_
+#ifndef _NVECTOR_CUDA_HPP_
+#define _NVECTOR_CUDA_HPP_
 
 #include <cstdlib>
 #include <iostream>
@@ -34,7 +31,14 @@
 #include <cuda_runtime.h>
 #include "ThreadPartitioning.hpp"
 
+#include <sundials/sundials_config.h>
+#include <sundials/sundials_mpi.h>
+
+#if SUNDIALS_MPI_ENABLED
+#include <nvector/nvector_mpicuda.h>
+#else
 #include <nvector/nvector_cuda.h>
+#endif
 
 namespace suncudavec
 {
@@ -55,13 +59,28 @@ public:
     allocate();
   }
 
+  Vector(SUNMPI_Comm comm, I N, I Nglobal)
+  : size_(N),
+    mem_size_(N*sizeof(T)),
+    global_size_(Nglobal),
+    comm_(comm)
+  {
+    // Set partitioning
+    partStream_ = new StreamPartitioning<T, I>(N, 256);
+    partReduce_ = new ReducePartitioning<T, I>(N, 256);
+
+    allocate();
+  }
+
   /// Copy constructor does not copy values
   explicit Vector(const Vector& v)
   : size_(v.size()),
     mem_size_(size_*sizeof(T)),
+    global_size_(v.global_size_),
     partStream_(v.partStream_),
     partReduce_(v.partReduce_),
-    ownPartitioning_(false)
+    ownPartitioning_(false),
+    comm_(v.comm_)
   {
     allocate();
   }
@@ -101,6 +120,16 @@ public:
     return size_;
   }
 
+  int sizeGlobal() const
+  {
+    return global_size_;
+  }
+
+  SUNMPI_Comm comm()
+  {
+    return comm_;
+  }
+
   T* host()
   {
     return h_vec_;
@@ -135,12 +164,12 @@ public:
       std::cerr << "Failed to copy vector from device to host (error code " << err << ")!\n";
   }
 
-  StreamPartitioning<T, I>& partStream() const
+  ThreadPartitioning<T, I>& partStream() const
   {
     return *partStream_;
   }
 
-  ReducePartitioning<T, I>& partReduce() const
+  ThreadPartitioning<T, I>& partReduce() const
   {
     return *partReduce_;
   }
@@ -148,43 +177,68 @@ public:
 private:
   I size_;
   I mem_size_;
+  I global_size_;
   T* h_vec_;
   T* d_vec_;
-  StreamPartitioning<T, I>* partStream_;
-  ReducePartitioning<T, I>* partReduce_;
+  ThreadPartitioning<T, I>* partStream_;
+  ThreadPartitioning<T, I>* partReduce_;
   bool ownPartitioning_;
+  SUNMPI_Comm comm_;
 };
 
 
 
-
-
-// Vector extractor
+// Extract Vector from N_Vector
 template <typename T, typename I>
-inline Vector<T, I> *extract(N_Vector v)
-{ 
+inline Vector<T, I>* extract(N_Vector v)
+{
   return static_cast<Vector<T, I>*>(v->content);
 }
 
 // Get Vector device data
 template <typename T, typename I>
-inline T *getDevData(N_Vector v)
+inline T* getDevData(N_Vector v)
 {
-  Vector<T,I> *vp = static_cast<Vector<T, I>*>(v->content);
+  Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
   return vp->device();
+}
+
+// Get Vector host data
+template <typename T, typename I>
+inline T* getHostData(N_Vector v)
+{
+  Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
+  return vp->host();
 }
 
 // Get Vector length
 template <typename T, typename I>
 inline I getSize(N_Vector v)
 {
-  Vector<T,I> *vp = static_cast<Vector<T, I>*>(v->content);
+  Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
   return vp->size();
 }
+
+// Get Vector length
+template <typename T, typename I>
+inline I getGlobalSize(N_Vector v)
+{
+  Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
+  return vp->sizeGlobal();
+}
+
+// Get MPI communicator
+template <typename T, typename I>
+inline SUNMPI_Comm getMPIComm(N_Vector v)
+{
+  Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
+  return vp->comm();
+}
+
 
 } // namespace suncudavec
 
 
 
 
-#endif // _NVECTOR_HPP_
+#endif // _NVECTOR_CUDA_HPP_

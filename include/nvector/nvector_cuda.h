@@ -1,10 +1,10 @@
-/* ----------------------------------------------------------------- 
+/* -----------------------------------------------------------------
  * Programmer(s): Slaven Peles @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Lawrence Livermore National Laboratory in part under
  * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
@@ -46,13 +46,14 @@
 
 #include <stdio.h>
 #include <sundials/sundials_nvector.h>
+#include <sundials/sundials_config.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
-    
-    
+
+
 /*
  * -----------------------------------------------------------------
  * PART I: CUDA implementation of N_Vector
@@ -75,16 +76,13 @@ typedef struct _N_VectorContent_Cuda *N_VectorContent_Cuda;
 /*
  * -----------------------------------------------------------------
  * PART II: functions exported by nvector_cuda
- * 
+ *
  * CONSTRUCTORS:
  *    N_VNew_Cuda
  *    N_VNewEmpty_Cuda
  *    N_VMake_Cuda
- *    N_VCloneVectorArray_Cuda
- *    N_VCloneVectorArrayEmpty_Cuda
  * DESTRUCTORS:
  *    N_VDestroy_Cuda
- *    N_VDestroyVectorArray_Cuda
  * OTHER:
  *    N_VGetHostArrayPointer_Cuda
  *    N_VGetDeviceArrayPointer_Cuda
@@ -97,11 +95,12 @@ typedef struct _N_VectorContent_Cuda *N_VectorContent_Cuda;
  * -----------------------------------------------------------------
  * Function : N_VNew_Cuda
  * -----------------------------------------------------------------
- * This function creates and allocates memory for a CUDA vector.
+ * This function creates and allocates memory for a CUDA vector on
+ * a single node.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNew_Cuda(sunindextype vec_length);
+SUNDIALS_EXPORT N_Vector N_VNew_Cuda(sunindextype length);
 
 /*
  * -----------------------------------------------------------------
@@ -124,39 +123,6 @@ SUNDIALS_EXPORT N_Vector N_VNewEmpty_Cuda(sunindextype vec_length);
  */
 
 SUNDIALS_EXPORT N_Vector N_VMake_Cuda(N_VectorContent_Cuda c);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VCloneVectorArray_Cuda
- * -----------------------------------------------------------------
- * This function creates an array of 'count' CUDA vectors by
- * cloning a given vector w.
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT N_Vector *N_VCloneVectorArray_Cuda(int count, N_Vector w);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VCloneVectorArrayEmpty_Cuda
- * -----------------------------------------------------------------
- * This function creates an array of 'count' CUDA vectors each
- * with an empty (NULL) data array by cloning w.
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT N_Vector *N_VCloneVectorArrayEmpty_Cuda(int count, N_Vector w);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VDestroyVectorArray_Cuda
- * -----------------------------------------------------------------
- * This function frees an array of CUDA vectors created with 
- * N_VCloneVectorArray_Cuda or N_VCloneVectorArrayEmpty_Cuda.
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT void N_VDestroyVectorArray_Cuda(N_Vector *vs, int count);
 
 /*
  * -----------------------------------------------------------------

@@ -1197,6 +1197,9 @@ But these modes are modified if the user has set a stop time (with
     The linear solver's setup function failed in an unrecoverable manner.
   \item[\Id{CV\_LSOLVE\_FAIL}]
     The linear solver's solve function failed in an unrecoverable manner.
+  \item[\Id{CV\_CONSTR\_FAIL}]
+    The inequality constraints were violated and the solver was unable
+    to recover.
   \item[\Id{CV\_RHSFUNC\_FAIL}]
     The right-hand side function failed in an unrecoverable manner.
   \item[\Id{CV\_FIRST\_RHSFUNC\_FAIL}]
@@ -1277,6 +1280,7 @@ Maximum no. of error test failures & \id{CVodeSetMaxErrTestFails} & 7 \\
 Maximum no. of nonlinear iterations & \id{CVodeSetMaxNonlinIters} & 3 \\
 Maximum no. of convergence failures & \id{CVodeSetMaxConvFails} & 10 \\
 Coefficient in the nonlinear convergence test & \id{CVodeSetNonlinConvCoef} & 0.1 \\
+Inequality constraints on solution & \id{CVodeSetConstraints} & \id{NULL} \\
 Direction of zero-crossing & \id{CVodeSetRootDirection} & both \\
 Disable rootfinding warnings & \id{CVodeSetNoInactiveRootWarn} & none \\
 \hline
@@ -1413,10 +1417,10 @@ flag = CVodeSetErrHandlerFn(cvode\_mem, ehfun, eh\_data);
 %%
 \ucfunction{CVodeSetMaxOrd}
 {
-flag = CVodeSetMaxOrder(cvode\_mem, maxord);
+flag = CVodeSetMaxOrd(cvode\_mem, maxord);
 }
 {
-  The function \ID{CVodeSetMaxOrder} specifies the maximum order of the
+  The function \ID{CVodeSetMaxOrd} specifies the maximum order of the 
   linear multistep method.
 }
 {
@@ -1805,8 +1809,92 @@ flag = CVodeSetNonlinConvCoef(cvode\_mem, nlscoef);
 {
   The default value is $0.1$.
 }
-\index{optional input!solver|)}
+%%
+\ucfunction{CVodeSetIterType}
+{
+flag = CVodeSetIterType(cvode\_mem, iter);
+}
+{
+  The function \ID{CVodeSetIterType} resets the nonlinear solver
+  iteration type to \Id{iter}.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvodes} memory block.
+  \item[iter] (\id{int})
+    specifies the type of nonlinear solver iteration and may be
+    either \Id{CV\_NEWTON} or \Id{CV\_FUNCTIONAL}. 
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[CV\_ILL\_INPUT]
+  \item[\Id{CV\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CV\_ILL\_INPUT}]
+    The \id{iter} value passed is neither \Id{CV\_NEWTON} nor \Id{CV\_FUNCTIONAL}.
+  \end{args}
+}
+{
+  The nonlinear solver iteration type is initially specified in the call
+  to \id{CVodeCreate} (see \S\ref{sss:cvodemalloc}). This function call is
+  needed only if \id{iter} is being changed from its value in the prior call 
+  to \id{CVodeCreate}.
+}
+%
+%
+\ucfunction{CVodeSetConstraints}
+{
+flag = CVodeSetConstraints(cvode\_mem, constraints);
+}
+{
+  The function \ID{CVodeSetConstraints} specifies a vector defining
+  inequality constraints for each component of the solution vector $y$.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvodes} memory block.
+  \item[constraints] (\id{N\_Vector})
+    vector of constraint flags. If \id{constraints[i]} is
+    \begin{itemize}
+    \item[$0.0$] then no constraint is imposed on $y_i$.
+    \item[$1.0$] then $y_i$ will be constrained to be $y_i \ge 0.0$.
+    \item[$-1.0$] then $y_i$ will be constrained to be $y_i \le 0.0$.
+    \item[$2.0$] then $y_i$ will be constrained to be $y_i > 0.0$.
+    \item[$-2.0$] then $y_i$ will be constrained to be $y_i < 0.0$.
+    \end{itemize}
+  \end{args}
+}
+{
+  The return value of \id{flag} (of type \id{int}) is one of 
+  \begin{args}[CV\_ILL\_INPUT]
+  \item[\Id{CV\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{CV\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CV\_ILL\_INPUT}]
+    The constraints vector contains illegal values or the simultaneous corrector
+    option has been selected when doing forward sensitivity analysis.
+  \end{args}
+} 
+{
+  The presence of a non-\id{NULL} constraints vector that is not $0.0$ in
+  all components will cause constraint checking to be performed.
+  However, a call with $0.0$ in all components of \id{constraints} will
+  result in an illegal input return. A \id{NULL} constraints vector will disable
+  constraint checking.
 
+  Constraint checking when doing forward sensitivity analysis with the
+  simultaneous corrector option is currently disallowed and will result in an
+  illegal input return.
+}
+
+
+\index{optional input!solver|)}
 
 %%==============================================================================
 \subsubsection{Direct linear solver interface optional input functions}
@@ -2351,6 +2439,8 @@ These optional output functions are described next.
   \begin{itemize}
   \item base value: \id{lenrw} $= 96 + ($\id{maxord+5}$)*N_r + 3*$\id{nrtfn};
   \item using \id{CVodeSVtolerances}: \id{lenrw} $=$ \id{lenrw} $+ N_r$;
+  \item with constraint checking (see \id{CVodeSetConstraints});
+    \id{lenrw} $=$ \id{lenrw} $+ N_r$;
   \end{itemize}
   where $N_r$ is the number of real words in one \id{N\_Vector} ($\approx N$).
 
@@ -2359,12 +2449,13 @@ These optional output functions are described next.
   \begin{itemize}
   \item base value: \id{leniw} $= 40 + ($\id{maxord+5}$)*N_i ~ + ~ $\id{nrtfn};
   \item using \id{CVodeSVtolerances}: \id{leniw} $=$ \id{leniw} $+ N_i$;
+  \item with constraint checking: \id{lenrw} $=$ \id{lenrw} $+ N_i$;
   \end{itemize}
   where $N_i$ is the number of integer words in one \id{N\_Vector}
   (= 1 for {\nvecs} and 2*\id{npes} for {\nvecp} and \id{npes} processors).
 
-  For the default value of \id{maxord}, no rootfinding, and without
-  using \id{CVodeSVtolerances}, these lengths are given roughly by:
+  For the default value of \id{maxord}, no rootfinding, no constraints, and 
+  without using \id{CVodeSVtolerances}, these lengths are given roughly by:
   \begin{itemize}
   \item For the Adams method: \id{lenrw} $= 96 + 17N$ and \id{leniw} $= 57$
   \item For the BDF method: \id{lenrw} $= 96 + 10N$ and \id{leniw} $= 50$

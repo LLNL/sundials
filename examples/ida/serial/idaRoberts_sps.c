@@ -1,8 +1,18 @@
 /* -----------------------------------------------------------------
  * Programmer(s): Carol Woodward @ LLNL  (based on idaRoberts_dns.c)
  * -----------------------------------------------------------------
- * This simple example problem for IDA, due to Robertson,
- * is from chemical kinetics, and consists of the following three
+ * LLNS Copyright Start
+ * Copyright (c) 2017, Lawrence Livermore National Security
+ * This work was performed under the auspices of the U.S. Department 
+ * of Energy by Lawrence Livermore National Laboratory in part under 
+ * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see the LICENSE file.
+ * LLNS Copyright End
+ * -----------------------------------------------------------------
+ * This simple example problem for IDA, due to Robertson, 
+ * is from chemical kinetics, and consists of the following three 
  * equations:
  *
  *      dy1/dt = -.04*y1 + 1.e4*y2*y3

@@ -416,6 +416,46 @@ int CVodeSetMaxStepB(void *cvode_mem, int which, realtype hmaxB)
   return(flag);
 }
 
+int CVodeSetConstraintsB(void *cvode_mem, int which, N_Vector constraintsB)
+{
+  CVodeMem cv_mem;
+  CVadjMem ca_mem;
+  CVodeBMem cvB_mem;
+  void *cvodeB_mem;
+  int flag;
+
+  /* Is cvode_mem valid? */
+  if (cvode_mem == NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODEA", "CVodeSetConstraintsB", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* Is ASA initialized? */
+  if (cv_mem->cv_adjMallocDone == SUNFALSE) {
+    cvProcessError(cv_mem, CV_NO_ADJ, "CVODEA", "CVodeSetConstraintsB", MSGCV_NO_ADJ);
+  }
+  ca_mem = cv_mem->cv_adj_mem;
+
+  /* Check the value of which */
+  if ( which >= ca_mem->ca_nbckpbs ) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODEA", "CVodeSetConstraintsB", MSGCV_BAD_WHICH);
+    return(CV_ILL_INPUT);
+  }
+
+  /* Find the CVodeBMem entry in the linked list corresponding to 'which'. */
+  cvB_mem = ca_mem->cvB_mem;
+  while (cvB_mem != NULL) {
+    if ( which == cvB_mem->cv_index) break;
+    /* advance */
+    cvB_mem = cvB_mem->cv_next;
+  }
+  cvodeB_mem = (void *) cvB_mem->cv_mem;
+
+  flag = CVodeSetConstraints(cvodeB_mem, constraintsB);
+  return(flag);
+}
+
 /*
  * CVodeSetQuad*B
  *

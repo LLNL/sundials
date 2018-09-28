@@ -1,4 +1,14 @@
-C     ----------------------------------------------------------------
+C     --------------------------------------------------------------------
+C     LLNS Copyright Start
+C     Copyright (c) 2017, Lawrence Livermore National Security
+C     This work was performed under the auspices of the U.S. Department 
+C     of Energy by Lawrence Livermore National Laboratory in part under 
+C     Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
+C     Produced at the Lawrence Livermore National Laboratory.
+C     All rights reserved.
+C     For details, see the LICENSE file.
+C     LLNS Copyright End
+C     --------------------------------------------------------------------
 C     FCVODE Example Problem: Robertson kinetics, direct linear solver
 C                             with dense user Jacobian.
 C
@@ -24,7 +34,7 @@ C     Jacobian routine, and prints results at t = .4, 4., ..., 4.e10.
 C     It uses ITOL = 2 and ATOL much smaller for y2 than y1 or y3
 C     because y2 has much smaller values. At the end of the run,
 C     various counters of interest are printed.
-C     ----------------------------------------------------------------
+C     --------------------------------------------------------------------
 C
       IMPLICIT NONE
 C

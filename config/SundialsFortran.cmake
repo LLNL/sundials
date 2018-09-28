@@ -281,7 +281,6 @@ if(NEED_FORTRAN_NAME_MANGLING)
 
     # name-mangling scheme has been set
     set(NEED_FORTRAN_NAME_MANGLING FALSE)
-  
   else(FTEST_OK)
     message(STATUS "Determining Fortran name-mangling scheme... FAILED")
   endif(FTEST_OK)

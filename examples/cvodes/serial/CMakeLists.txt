@@ -35,10 +35,13 @@ SET(CVODES_examples
   "cvsKrylovDemo_ls\;\;develop"
   "cvsKrylovDemo_prec\;\;develop"
   "cvsRoberts_ASAi_dns\;\;develop"
+  "cvsRoberts_ASAi_dns_constraints\;\;develop"
   "cvsRoberts_dns\;\;"
+  "cvsRoberts_dns_constraints\;\;develop"
   "cvsRoberts_dns_uw\;\;develop"
   "cvsRoberts_FSA_dns\;-sensi stg1 t\;develop"
   "cvsRoberts_FSA_dns_Switch\;\;develop"
+  "cvsRoberts_FSA_dns_constraints\;-sensi stg1 t\;develop"
   )
 
 # Examples using LAPACK linear solvers

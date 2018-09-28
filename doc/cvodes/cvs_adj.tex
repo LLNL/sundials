@@ -1196,6 +1196,7 @@ The optional input functions defined for the backward problem are:
   flag = CVodeSetMinStepB(cvode_mem, which, hminB);
   flag = CVodeSetMaxStepB(cvode_mem, which, hmaxB);
   flag = CVodeSetStabLimDetB(cvode_mem, which, stldetB);
+  flag = CVodeSetConstraintsB(cvode_mem, which, constraintsB);
 \end{verbatim}
 Their return value \id{flag} (of type \id{int}) can have any of the return values 
 of their counterparts, but it can also be \Id{CV\_NO\_ADJ} if \id{CVodeAdjInit} 

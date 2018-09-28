@@ -1,18 +1,18 @@
 # -*- mode: makefile -*-
 # -----------------------------------------------------------------
-# Programmer: Slaven Peles @ LLNL
+# Programmer: Slaven Peles, Cody Balos @ LLNL
 # -----------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Lawrence Livermore National Laboratory in part under
 # Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
 # For details, see the LICENSE file.
 # LLNS Copyright End
 # -----------------------------------------------------------------
-# Makefile for @SOLVER@ Raja (CUDA) examples
+# Makefile for @SOLVER@ RAJA examples
 #
 # This file is generated from a template using various variables
 # set at configuration time. It can be used as a template for
@@ -26,27 +26,31 @@ exec_prefix  = @exec_prefix@
 includedir   = @includedir@
 libdir       = @libdir@
 
-NVCC      = @CUDA_NVCC_EXECUTABLE@
-NVCCFLAGS =
-RAJAFLAGS = -std=c++11 --expt-extended-lambda 
+CC      	  = @CMAKE_C_COMPILER@
+CFLAGS      = @CMAKE_C_FLAGS@
+CXX         = @CMAKE_CXX_COMPILER@
+LDFLAGS     = @LDFLAGS@ -Wl,-rpath,${libdir}:${CUDALIBDIR}
+LIBS        = @LIBS@
+MPI_INC_DIR = @MPI_CXX_INCLUDE_PATH@
+NVCC        = @CUDA_NVCC_EXECUTABLE@
+NVCCFLAGS   = $(subst ;, ,@CUDA_NVCC_FLAGS@)
+CUDALIBS    = @CUDA_CUDART_LIBRARY@
+CUDALIBDIR  = $(dir ${CUDALIBS})
+RAJA_INC_DIR= @RAJA_INCLUDE_PATH@
+RAJA_LIB_DIR= @RAJA_LIB_DIR@
+RAJALIBS    = -lRAJA
 
-CPP      = @CPP@
-CPPFLAGS = @CPPFLAGS@
-CXX      = @CXX@
-CXXFLAGS = @CXXFLAGS@
-LDFLAGS  = @LDFLAGS@
-LIBS     = @LIBS@
+TMP_INCS 		 = ${includedir} ${RAJA_INC_DIR}
+INCLUDES 		 = $(addprefix -I, ${TMP_INCS})
+TMP_INCS     = ${includedir} ${RAJA_INC_DIR} ${MPI_INC_DIR}
+NVCCINCLUDES = $(addprefix -I, ${TMP_INCS})
 
-LINKFLAGS = -Xlinker ,-rpath,@libdir@
+TMP_LIBDIRS  = ${libdir} ${RAJA_LIB_DIR}
+LIBDIRS      = $(addprefix -L, ${TMP_LIBDIRS})
 
-CUDALIBS = @CUDA_CUDART_LIBRARY@
-RAJALIBDIR = @RAJA_LIB_DIR@
-
-INCLUDES_RAJA = @RAJA_INCLUDE_DIR@
-
-TMP_INCS = ${includedir} ${INCLUDES_RAJA}
-INCLUDES = $(addprefix -I, ${TMP_INCS})
-LIBRARIES = -l@SOLVER_LIB@ -lsundials_nvecraja -lRAJA ${CUDALIBS} ${LIBS}
+TMP_SUNDIALSLIBS = @SOLVER_LIB@ @NVECTOR_LIB@ 
+SUNDIALSLIBS     = $(addprefix -l, ${TMP_SUNDIALSLIBS})
+LIBRARIES = ${SUNDIALSLIBS} ${RAJALIBS} ${CUDALIBS} ${LIBS}
 
 EXAMPLES = @EXAMPLES@ @EXAMPLES_BL@
 EXAMPLES_DEPENDENCIES = @EXAMPLES_DEPENDENCIES@
@@ -59,17 +63,17 @@ OBJECTS_DEPENDENCIES = ${EXAMPLES_DEPENDENCIES:=.o}
 .SUFFIXES : .o .cu
 
 .c.o :
-	${NVCC} ${CXXFLAGS} ${RAJAFLAGS} ${INCLUDES} -c $<
+	${CC} ${CFLAGS} ${INCLUDES} -c $<
 
 .cu.o :
-	${NVCC} ${NVCCFLAGS} ${CXXFLAGS} ${RAJAFLAGS} ${INCLUDES} -c $<
+	${NVCC} ${NVCCFLAGS} ${NVCCINCLUDES} -c $<
 
 # -----------------------------------------------------------------------------------------
 
 all: ${OBJECTS}
 	@for i in ${EXAMPLES} ; do \
-	  echo "${NVCC} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${NVCCFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} ${LIBRARIES} ${LINKFLAGS}" ; \
-	  ${NVCC} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${NVCCFLAGS} ${LDFLAGS} ${INCLUDES} -L${libdir} -L${RAJALIBDIR} ${LIBRARIES} ${LINKFLAGS} ; \
+	  echo "${CXX} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${INCLUDES} ${LIBDIRS} ${LIBRARIES} ${LDFLAGS}"; \
+	  ${CXX} -o $${i} $${i}.o ${OBJECTS_DEPENDENCIES} ${INCLUDES} ${LIBDIRS} ${LIBRARIES} ${LDFLAGS}; \
 	done
 
 ${OBJECTS}: ${OBJECTS_DEPENDENCIES}

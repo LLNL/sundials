@@ -30,6 +30,7 @@ SET(CVODE_examples
   "cvRoberts_dns\;"
   "cvRoberts_dns_uw\;develop"
   "cvRoberts_dns_negsol\;develop"
+  "cvRoberts_dns_constraints\;develop"
   #cvAdvDiffReac_kry\;develop" # not released
   )
 

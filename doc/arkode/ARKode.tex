@@ -404,37 +404,47 @@ will automatically call standard NVECTOR operations as
 necessary. Details on the new operations can be found in Chapter
 {\hyperref[nvectors/NVector_Description:nvectors-description]{\emph{\DUspan{}{Description of the NVECTOR Modules}}}}.
 
-Several changes were made to the SUNDIALS build system. If MPI is
-enabled and MPI compiler wrappers are not set, the build system will
-check if \code{CMAKE\_\textless{}language\textgreater{}\_COMPILER} can compile MPI programs before
-trying to locate and use an MPI installation. The native CMake FindMPI
-module is now used to locate an MPI installation. The options for
-setting MPI compiler wrappers and the executable for running MPI
-programs have been updated to align with those in native CMake FindMPI
-module. This included changing \code{MPI\_MPICC} to \code{MPI\_C\_COMPILER},
-\code{MPI\_MPICXX} to \code{MPI\_CXX\_COMPILER}, combining \code{MPI\_MPIF77} and
-\code{MPI\_MPIF90} to \code{MPI\_Fortran\_COMPILER}, and changing
-\code{MPI\_RUN\_COMMAND} to \code{MPIEXEC\_EXECUTABLE}. When a Fortran name-mangling
-scheme is needed (e.g., \code{LAPACK\_ENABLE} is \code{ON}) the build system
-will infer the scheme from the Fortran compiler. If a Fortran compiler
-is not available or the inferred or default scheme needs to be
-overridden, the advanced options \code{SUNDIALS\_F77\_FUNC\_CASE} and
-\code{SUNDIALS\_F77\_FUNC\_UNDERSCORES} can be used to manually set the
-name-mangling scheme and bypass trying to infer the scheme.
-Additionally, parts of the main CMakeLists.txt file were moved
-to new files in the \code{src} and \code{example} directories to make the
-CMake configuration file structure more modular.
-
-
 \subsection{Changes in v2.2.0}
 \label{Introduction:changes-in-v2-2-0}
-Fixed a problem with index types which would occur with some compilers
-(e.g. armclang) that did not define \code{\_\_STDC\_VERSION\_\_}.
+Fixed a problem with setting \texttt{sunindextype} which would occur
+with some compilers (e.g. armclang) that did not define \texttt{\_\_STDC\_VERSION\_\_}.
 
-Deprecated the current behavior of the \code{SUNDIALS\_INDEX\_TYPE} CMake
-option, and added the \code{SUNDIALS\_INDEX\_SIZE} CMake option to take its
-place.
+Added hybrid MPI/CUDA and MPI/RAJA vectors to allow use of more 
+than one MPI rank when using a GPU system.  The vectors assume one GPU 
+device per MPI rank.
 
+Changed the name of the RAJA NVECTOR library to
+\texttt{libsundials\_nveccudaraja.lib} from
+\texttt{libsundials\_nvecraja.lib} to better reflect that we only support CUDA
+as a backend for RAJA currently.
+
+Several changes were made to the build system:
+\begin{itemize}
+\item CMake 3.1.3 is now the minimum required CMake version.
+\item Deprecate the behavior of the \texttt{SUNDIALS\_INDEX\_TYPE} CMake option and
+  added the
+  \texttt{SUNDIALS\_INDEX\_SIZE} CMake option to select the \texttt{sunindextype}
+  integer size.
+\item The native CMake FindMPI module is now used to locate an MPI installation.
+\item If MPI is enabled and MPI compiler wrappers are not set, the build system 
+  will check if \texttt{CMAKE\_<language>\_COMPILER} can compile MPI programs before
+  trying to locate and use an MPI installation.
+\item The previous options for setting MPI compiler wrappers and the executable
+  for running MPI programs have been have been depreated. The new options that
+  align with those used in native CMake FindMPI module are
+  \texttt{MPI\_C\_COMPILER}, \texttt{MPI\_CXX\_COMPILER}, \texttt{MPI\_Fortran\_COMPILER},
+  and \texttt{MPIEXEC\_EXECUTABLE}.
+\item When a Fortran name-mangling scheme is needed (e.g., \texttt{LAPACK\_ENABLE}
+  is \texttt{ON}) the build system will infer the scheme from the Fortran
+  compiler. If a Fortran compiler is not available or the inferred or default
+  scheme needs to be overridden, the advanced options
+  \texttt{SUNDIALS\_F77\_FUNC\_CASE} and \texttt{SUNDIALS\_F77\_FUNC\_UNDERSCORES} can
+  be used to manually set the name-mangling scheme and bypass trying to infer
+  the scheme. 
+\item Parts of the main CMakeLists.txt file were moved to new files in the
+  \texttt{src} and \texttt{example} directories to make the CMake configuration file
+  structure more modular.
+\end{itemize}
 
 \subsection{Changes in v2.1.2}
 \label{Introduction:changes-in-v2-1-2}
