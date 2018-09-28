@@ -115,6 +115,9 @@ typedef struct CVodeMemRec {
   CVEwtFn cv_efun;            /* function to set ewt                           */
   void *cv_e_data;            /* user pointer passed to efun                   */
 
+  booleantype cv_constraintsSet; /* constraints vector present:
+                                    do constraints calc                        */
+
   /*-----------------------
     Quadrature Related Data 
     -----------------------*/

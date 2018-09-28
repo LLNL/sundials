@@ -82,7 +82,7 @@ static void force(N_Vector yy, realtype *Q, UserData data);
 /* Prototypes of private functions */
 static void PrintHeader(realtype rtol, realtype avtol, N_Vector y);
 static void PrintOutput(void *mem, realtype t, N_Vector y);
-static void PrintFinalStats(void *mem);
+static int PrintFinalStats(void *mem);
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 /*

@@ -88,7 +88,7 @@ static int rhsQS(int Ns, realtype t, N_Vector yy, N_Vector yp,
 static void setIC(N_Vector yy, N_Vector yp, UserData data);
 static void force(N_Vector yy, realtype *Q, UserData data);
 
-static void PrintFinalStats(void *mem);
+static int PrintFinalStats(void *mem);
 static int check_retval(void *returnvalue, const char *funcname, int opt);
 /*
  *--------------------------------------------------------------------
@@ -198,7 +198,7 @@ int main(void)
   printf("done!\n");
 
   retval = PrintFinalStats(mem);
-  if (check_flag(&retval, "PrintFinalStats", 1)) return(1);
+  if (check_retval(&retval, "PrintFinalStats", 1)) return(1);
 
   IDAGetQuad(mem, &tret, q);
   printf("--------------------------------------------\n");

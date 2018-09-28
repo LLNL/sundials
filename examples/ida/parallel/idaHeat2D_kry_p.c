@@ -166,7 +166,7 @@ int main(int argc, char *argv[])
 
   /* Allocate and initialize the data structure */
   data = (UserData) malloc(sizeof *data);
-  if(check_flag((void *)data, "malloc", 2, thispe))
+  if(check_retval((void *)data, "malloc", 2, thispe))
     MPI_Abort(comm, 1);
 
   InitUserData(thispe, comm, data);
@@ -210,8 +210,8 @@ int main(int argc, char *argv[])
     MPI_Abort(comm, 1);
 
   /* Allocate user data extended vector and MPI buffers */
-  ier = AllocUserData(thispe, comm, uu, data);
-  if(check_flag(&ier, "AllocUserData", 1, thispe)) MPI_Abort(comm, 1);
+  retval = AllocUserData(thispe, comm, uu, data);
+  if(check_retval(&retval, "AllocUserData", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Initialize the uu, up, id, and res profiles. */
   SetInitialProfile(uu, up, id, res, data);

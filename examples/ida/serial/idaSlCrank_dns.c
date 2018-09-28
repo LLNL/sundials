@@ -353,7 +353,7 @@ static int PrintOutput(void *mem, realtype t, N_Vector y)
          t, yval[0], yval[1], yval[2], nst, kused, hused);
 #endif
 
-  return(flag);
+  return(retval);
 }
 
 
@@ -378,7 +378,7 @@ static int PrintFinalStats(void *mem)
   printf("Number of error test failures      = %ld\n", netf);
   printf("Number of nonlinear conv. failures = %ld\n", ncfn);
 
-  return(flag);
+  return(retval);
 }
 
 /*

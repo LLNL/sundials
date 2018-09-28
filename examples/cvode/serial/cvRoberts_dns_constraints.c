@@ -3,6 +3,16 @@
  * Based on prior version by: Scott D. Cohen, Alan C. Hindmarsh and
  *                            Radu Serban @ LLNL
  * -----------------------------------------------------------------
+ * LLNS Copyright Start
+ * Copyright (c) 2017, Lawrence Livermore National Security
+ * This work was performed under the auspices of the U.S. Department 
+ * of Energy by Lawrence Livermore National Laboratory in part under 
+ * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see the LICENSE file.
+ * LLNS Copyright End
+ * -----------------------------------------------------------------
  * Example problem:
  * 
  * The following is a simple example problem, with the coding
@@ -31,7 +41,6 @@
 #include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
 #include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
-#include <cvode/cvode_direct.h>        /* access to CVDls interface            */
 #include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
 
 /* User-defined vector and matrix accessor macros: Ith, IJth */
@@ -91,7 +100,7 @@ static void PrintFinalStats(void *cvode_mem);
 
 /* Private function to check function return values */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt);
+static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 /* Private function to check computed solution */
 
@@ -111,7 +120,7 @@ int main()
   SUNMatrix A;
   SUNLinearSolver LS;
   void *cvode_mem;
-  int flag, flagr, iout;
+  int retval, retvalr, iout;
   int rootsfound[2];
 
   y = abstol = constraints = NULL;
@@ -121,11 +130,11 @@ int main()
 
   /* Create serial vector of length NEQ for I.C., abstol, and constraints */
   y = N_VNew_Serial(NEQ);
-  if (check_flag((void *)y, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
   abstol = N_VNew_Serial(NEQ); 
-  if (check_flag((void *)abstol, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)abstol, "N_VNew_Serial", 0)) return(1);
   constraints = N_VNew_Serial(NEQ);
-  if (check_flag((void *)constraints, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)constraints, "N_VNew_Serial", 0)) return(1);
 
   /* Initialize y */
   Ith(y,1) = Y1;
@@ -143,44 +152,44 @@ int main()
   N_VConst(ONE, constraints);
 
   /* Call CVodeCreate to create the solver memory and specify the 
-   * Backward Differentiation Formula and the use of a Newton iteration */
-  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
-  if (check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
+   * Backward Differentiation Formula */
+  cvode_mem = CVodeCreate(CV_BDF);
+  if (check_retval((void *)cvode_mem, "CVodeCreate", 0)) return(1);
   
   /* Call CVodeInit to initialize the integrator memory and specify the
    * user's right hand side function in y'=f(t,y), the inital time T0, and
    * the initial dependent variable vector y. */
-  flag = CVodeInit(cvode_mem, f, T0, y);
-  if (check_flag(&flag, "CVodeInit", 1)) return(1);
+  retval = CVodeInit(cvode_mem, f, T0, y);
+  if (check_retval(&retval, "CVodeInit", 1)) return(1);
 
   /* Call CVodeSVtolerances to specify the scalar relative tolerance
    * and vector absolute tolerances */
-  flag = CVodeSVtolerances(cvode_mem, reltol, abstol);
-  if (check_flag(&flag, "CVodeSVtolerances", 1)) return(1);
+  retval = CVodeSVtolerances(cvode_mem, reltol, abstol);
+  if (check_retval(&retval, "CVodeSVtolerances", 1)) return(1);
 
   /* Call CVodeRootInit to specify the root function g with 2 components */
-  flag = CVodeRootInit(cvode_mem, 2, g);
-  if (check_flag(&flag, "CVodeRootInit", 1)) return(1);
+  retval = CVodeRootInit(cvode_mem, 2, g);
+  if (check_retval(&retval, "CVodeRootInit", 1)) return(1);
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(NEQ, NEQ);
-  if(check_flag((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object for use by CVode */
-  LS = SUNDenseLinearSolver(y, A);
-  if(check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+  LS = SUNLinSol_Dense(y, A);
+  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
-  /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
-  flag = CVDlsSetLinearSolver(cvode_mem, LS, A);
-  if(check_flag(&flag, "CVDlsSetLinearSolver", 1)) return(1);
+  /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
+  retval = CVodeSetLinearSolver(cvode_mem, LS, A);
+  if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
 
   /* Set the user-supplied Jacobian routine Jac */
-  flag = CVDlsSetJacFn(cvode_mem, Jac);
-  if(check_flag(&flag, "CVDlsSetJacFn", 1)) return(1);
+  retval = CVodeSetJacFn(cvode_mem, Jac);
+  if(check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
 
   /* Call CVodeSetConstraints to initialize constraints */
-  flag = CVodeSetConstraints(cvode_mem, constraints);
-  if(check_flag(&flag, "CVodeSetConstraints", 1)) return(1);
+  retval = CVodeSetConstraints(cvode_mem, constraints);
+  if(check_retval(&retval, "CVodeSetConstraints", 1)) return(1);
 
   /* In loop, call CVode, print results, and test for error.
      Break out of loop when NOUT preset output times have been reached.  */
@@ -188,17 +197,17 @@ int main()
 
   iout = 0;  tout = T1;
   while(1) {
-    flag = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
+    retval = CVode(cvode_mem, tout, y, &t, CV_NORMAL);
     PrintOutput(t, Ith(y,1), Ith(y,2), Ith(y,3));
 
-    if (flag == CV_ROOT_RETURN) {
-      flagr = CVodeGetRootInfo(cvode_mem, rootsfound);
-      if (check_flag(&flagr, "CVodeGetRootInfo", 1)) return(1);
+    if (retval == CV_ROOT_RETURN) {
+      retvalr = CVodeGetRootInfo(cvode_mem, rootsfound);
+      if (check_retval(&retvalr, "CVodeGetRootInfo", 1)) return(1);
       PrintRootInfo(rootsfound[0],rootsfound[1]);
     }
 
-    if (check_flag(&flag, "CVode", 1)) break;
-    if (flag == CV_SUCCESS) {
+    if (check_retval(&retval, "CVode", 1)) break;
+    if (retval == CV_SUCCESS) {
       iout++;
       tout *= TMULT;
     }
@@ -210,7 +219,7 @@ int main()
   PrintFinalStats(cvode_mem);
 
   /* check the solution error */
-  flag = check_ans(y, t, reltol, abstol);
+  retval = check_ans(y, t, reltol, abstol);
 
   /* Free y, abstol, and constraints vectors */
   N_VDestroy(y);
@@ -226,7 +235,7 @@ int main()
   /* Free the matrix memory */
   SUNMatDestroy(A);
 
-  return(flag);
+  return(retval);
 }
 
 
@@ -327,28 +336,28 @@ static void PrintRootInfo(int root_f1, int root_f2)
 static void PrintFinalStats(void *cvode_mem)
 {
   long int nst, nfe, nsetups, nje, nfeLS, nni, ncfn, netf, nge;
-  int flag;
+  int retval;
 
-  flag = CVodeGetNumSteps(cvode_mem, &nst);
-  check_flag(&flag, "CVodeGetNumSteps", 1);
-  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  check_flag(&flag, "CVodeGetNumRhsEvals", 1);
-  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  check_flag(&flag, "CVodeGetNumLinSolvSetups", 1);
-  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-  check_flag(&flag, "CVodeGetNumErrTestFails", 1);
-  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  check_flag(&flag, "CVodeGetNumNonlinSolvIters", 1);
-  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
-  check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
+  retval = CVodeGetNumSteps(cvode_mem, &nst);
+  check_retval(&retval, "CVodeGetNumSteps", 1);
+  retval = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  check_retval(&retval, "CVodeGetNumRhsEvals", 1);
+  retval = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  check_retval(&retval, "CVodeGetNumLinSolvSetups", 1);
+  retval = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  check_retval(&retval, "CVodeGetNumErrTestFails", 1);
+  retval = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  check_retval(&retval, "CVodeGetNumNonlinSolvIters", 1);
+  retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1);
 
-  flag = CVDlsGetNumJacEvals(cvode_mem, &nje);
-  check_flag(&flag, "CVDlsGetNumJacEvals", 1);
-  flag = CVDlsGetNumRhsEvals(cvode_mem, &nfeLS);
-  check_flag(&flag, "CVDlsGetNumRhsEvals", 1);
+  retval = CVodeGetNumJacEvals(cvode_mem, &nje);
+  check_retval(&retval, "CVodeGetNumJacEvals", 1);
+  retval = CVodeGetNumLinRhsEvals(cvode_mem, &nfeLS);
+  check_retval(&retval, "CVodeGetNumLinRhsEvals", 1);
 
-  flag = CVodeGetNumGEvals(cvode_mem, &nge);
-  check_flag(&flag, "CVodeGetNumGEvals", 1);
+  retval = CVodeGetNumGEvals(cvode_mem, &nge);
+  check_retval(&retval, "CVodeGetNumGEvals", 1);
 
   printf("\nFinal Statistics:\n");
   printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nfeLS = %-6ld nje = %ld\n",
@@ -361,32 +370,32 @@ static void PrintFinalStats(void *cvode_mem)
  * Check function return value...
  *   opt == 0 means SUNDIALS function allocates memory so check if
  *            returned NULL pointer
- *   opt == 1 means SUNDIALS function returns a flag so check if
- *            flag >= 0
+ *   opt == 1 means SUNDIALS function returns an integer value so check if
+ *            retval < 0
  *   opt == 2 means function allocates memory so check if returned
  *            NULL pointer 
  */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt)
+static int check_retval(void *returnvalue, const char *funcname, int opt)
 {
-  int *errflag;
+  int *retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
 	    funcname);
     return(1); }
 
-  /* Check if flag < 0 */
+  /* Check if retval < 0 */
   else if (opt == 1) {
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
-	      funcname, *errflag);
+    retval = (int *) returnvalue;
+    if (*retval < 0) {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
+	      funcname, *retval);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
 	    funcname);
     return(1); }

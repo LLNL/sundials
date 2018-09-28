@@ -86,7 +86,7 @@ typedef struct CVodeMemRec {
   void *cv_e_data;           /* user pointer passed to efun                   */
 
   booleantype cv_constraintsSet; /* constraints vector present:
-                                    do constraints calc                           */
+                                    do constraints calc                       */
 
   /*-----------------------
     Nordsieck History Array

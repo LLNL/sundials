@@ -500,6 +500,8 @@ static int cvStgrNls(CVodeMem cv_mem);
 static int cvStgr1Nls(CVodeMem cv_mem, int is);
 static int cvQuadSensNls(CVodeMem cv_mem);
 
+static int cvCheckConstraints(CVodeMem cv_mem);
+
 static int cvHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
                          int *ncfPtr, long int *ncfnPtr);
 
@@ -6440,8 +6442,14 @@ static int cvNls(CVodeMem cv_mem, int nflag)
                             ONE, cv_mem->cv_acorS, cv_mem->cv_yS);
   }
 
-  /* if the solve is successful, update Jacobian status */
-  if (flag == CV_SUCCESS) cv_mem->cv_jcur = SUNFALSE;
+  /* if the solve failed return */
+  if (flag != CV_SUCCESS) return(flag);
+
+  /* solve successful, update Jacobian status and check constraints */
+  cv_mem->cv_jcur = SUNFALSE;
+
+  if (cv_mem->cv_constraintsSet)
+    flag = cvCheckConstraints(cv_mem);
 
   return(flag);
 
@@ -6732,9 +6740,9 @@ static int cvHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
   /* Return if failed unrecoverably */
   if (nflag < 0) return(nflag);
 
-  /* At this point, nflag = SUN_NLS_CONV_RECVR, RHSFUNC_RECVR, or SRHSFUNC_RECVR; 
-     increment ncf */
-  
+  /* At this point, nflag = SUN_NLS_CONV_RECVR, CONSTR_RECVR, RHSFUNC_RECVR,
+     or SRHSFUNC_RECVR; increment ncf */
+
   (*ncfPtr)++;
   cv_mem->cv_etamax = ONE;
 
@@ -6746,6 +6754,7 @@ static int cvHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
   if ((SUNRabs(cv_mem->cv_h) <= cv_mem->cv_hmin*ONEPSM) ||
       (*ncfPtr == cv_mem->cv_maxncf)) {
     if (nflag == SUN_NLS_CONV_RECVR) return(CV_CONV_FAILURE);
+    if (nflag == CONSTR_RECVR)       return(CV_CONSTR_FAIL);
     if (nflag == RHSFUNC_RECVR)      return(CV_REPTD_RHSFUNC_ERR);    
     if (nflag == QRHSFUNC_RECVR)     return(CV_REPTD_QRHSFUNC_ERR);    
     if (nflag == SRHSFUNC_RECVR)     return(CV_REPTD_SRHSFUNC_ERR);    

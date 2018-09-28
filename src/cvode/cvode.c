@@ -106,6 +106,8 @@
 #define PREV_CONV_FAIL   +7
 #define PREV_ERR_FAIL    +8
 
+#define CONSTR_RECVR	 +10
+
 /*
  * Control constants for lower-level rootfinding functions
  * -------------------------------------------------------
@@ -2577,12 +2579,11 @@ static int cvNls(CVodeMem cv_mem, int nflag)
   /* update the state based on the final correction from the nonlinear solver */
   N_VLinearSum(ONE, cv_mem->cv_zn[0], ONE, cv_mem->cv_acor, cv_mem->cv_y);
 
-  /* if the solve is successful, update Jacobian status */
-  if (flag == CV_SUCCESS) cv_mem->cv_jcur = SUNFALSE;
+  /* if the solve failed return */
+  if (flag != CV_SUCCESS) return(flag);
 
-  /* If there was an error, return it. Otherwise, check constraints */
-  if (flag != CV_SUCCESS)
-    return(flag);
+  /* solve successful, update Jacobian status and check constraints */
+  cv_mem->cv_jcur = SUNFALSE;
 
   if (cv_mem->cv_constraintsSet)
     flag = cvCheckConstraints(cv_mem);
@@ -2703,12 +2704,13 @@ static int cvHandleNFlag(CVodeMem cv_mem, int *nflagPtr, realtype saved_t,
   cv_mem->cv_etamax = ONE;
 
   /* If we had maxncf failures or |h| = hmin,
-     return CV_CONV_FAILURE or CV_REPTD_RHSFUNC_ERR. */
+     return SUN_NLS_CONV_RECVR, CV_CONSTR_FAIL, or CV_REPTD_RHSFUNC_ERR. */
 
   if ((SUNRabs(cv_mem->cv_h) <= cv_mem->cv_hmin*ONEPSM) ||
       (*ncfPtr == cv_mem->cv_maxncf)) {
     if (nflag == SUN_NLS_CONV_RECVR) return(CV_CONV_FAILURE);
     if (nflag == RHSFUNC_RECVR)      return(CV_REPTD_RHSFUNC_ERR);
+    if (nflag == CONSTR_RECVR)       return(CV_CONSTR_FAIL);
   }
 
   /* Reduce step size; return to reattempt the step
@@ -3095,6 +3097,7 @@ static int cvHandleFailure(CVodeMem cv_mem, int flag)
     break;
   case CV_NLS_SETUP_FAIL:
     cvProcessError(cv_mem, CV_NLS_SETUP_FAIL, "CVODE", "CVode", MSGCV_NLS_SETUP_FAILED,
+                   cv_mem->cv_tn);
     break;
   case CV_CONSTR_FAIL:
     cvProcessError(cv_mem, CV_CONSTR_FAIL, "CVODE", "CVode", MSGCV_FAILED_CONSTR,

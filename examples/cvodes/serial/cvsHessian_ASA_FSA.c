@@ -274,8 +274,8 @@ int main(int argc, char *argv[])
 
   printf("Final Statistics for forward pb.\n");
   printf("--------------------------------\n");
-  flag = PrintFwdStats(cvode_mem);
-  if (check_flag(&flag, "PrintFwdStats", 1)) return(1);
+  retval = PrintFwdStats(cvode_mem);
+  if (check_retval(&retval, "PrintFwdStats", 1)) return(1);
 
   /* Initializations for backward problems */
 
@@ -413,13 +413,13 @@ int main(int argc, char *argv[])
 
   printf("Final Statistics for backward pb. 1\n");
   printf("-----------------------------------\n");
-  flag = PrintBckStats(cvode_mem, indexB1);
-  if (check_flag(&flag, "PrintBckStats", 1)) return(1);
+  retval = PrintBckStats(cvode_mem, indexB1);
+  if (check_retval(&retval, "PrintBckStats", 1)) return(1);
   
   printf("Final Statistics for backward pb. 2\n");
   printf("-----------------------------------\n");
-  flag = PrintBckStats(cvode_mem, indexB2);
-  if (check_flag(&flag, "PrintBckStats", 1)) return(1);
+  retval = PrintBckStats(cvode_mem, indexB2);
+  if (check_retval(&retval, "PrintBckStats", 1)) return(1);
 
   /* Free memory */
 
@@ -956,7 +956,7 @@ int PrintFwdStats(void *cvode_mem)
 
   printf("\n");
 
-  return(flag);
+  return(retval);
 }
 
 
@@ -997,7 +997,7 @@ int PrintBckStats(void *cvode_mem, int idx)
 
   printf("\n");
 
-  return(flag);
+  return(retval);
 }
 
 /*
