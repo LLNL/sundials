@@ -28,6 +28,8 @@ SET(sundials_HEADERS
   sundials_linearsolver.h
   sundials_math.h
   sundials_matrix.h
+  sundials_mpi.h
+  sundials_mpi_types.h
   sundials_nonlinearsolver.h
   sundials_mpi.h
   sundials_mpi_types.h
@@ -41,11 +43,6 @@ SET(sundials_HEADERS
   sundials_types.h
   sundials_version.h
   )
-
-# append header file with sundials MPI type macros if using MPI
-IF(MPI_C_FOUND)
-  LIST(APPEND sundials_HEADERS sundials_mpi_types.h)
-ENDIF()
 
 # Add prefix with complete path to the SUNDIALS header files
 ADD_PREFIX(${sundials_SOURCE_DIR}/include/sundials/ sundials_HEADERS)

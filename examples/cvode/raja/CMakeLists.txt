@@ -22,6 +22,7 @@
 # Examples using SUNDIALS linear solvers
 SET(CVODE_examples
   "cvAdvDiff_kry_raja\;develop"
+  #"cvAdvDiffReac_kry_raja\;develop"
   )
 
 # Set C++ compiler flags to include RAJA flags

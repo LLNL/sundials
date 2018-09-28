@@ -87,6 +87,7 @@ $tar $tarfile $distrobase/include/nvector/nvector_mpiraja.h
 $tar $tarfile $distrobase/include/nvector/cuda/ThreadPartitioning.hpp
 $tar $tarfile $distrobase/include/nvector/cuda/Vector.hpp
 $tar $tarfile $distrobase/include/nvector/cuda/VectorKernels.cuh
+$tar $tarfile $distrobase/include/nvector/cuda/VectorArrayKernels.cuh
 $tar $tarfile $distrobase/include/nvector/raja/Vector.hpp
 
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_band.h

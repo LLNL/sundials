@@ -356,7 +356,7 @@ N_Vector N_VCloneEmpty_OpenMP(N_Vector w)
   ops->nvconst        = w->ops->nvconst;
   ops->nvprod         = w->ops->nvprod;
   ops->nvdiv          = w->ops->nvdiv;
-  ops->nvscale        = w->ops->nvscale; 
+  ops->nvscale        = w->ops->nvscale;
   ops->nvabs          = w->ops->nvabs;
   ops->nvinv          = w->ops->nvinv;
   ops->nvaddconst     = w->ops->nvaddconst;
@@ -1115,7 +1115,7 @@ int N_VLinearCombination_OpenMP(int nvec, realtype* c, N_Vector* X, N_Vector z)
   sunindextype j, N;
   realtype*    zd=NULL;
   realtype*    xd=NULL;
-  
+
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
 
@@ -1315,7 +1315,7 @@ int N_VDotProdMulti_OpenMP(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods
 
 int N_VLinearSumVectorArray_OpenMP(int nvec,
                                    realtype a, N_Vector* X,
-                                   realtype b, N_Vector* Y, 
+                                   realtype b, N_Vector* Y,
                                    N_Vector* Z)
 {
   int          i;
@@ -1673,7 +1673,7 @@ int N_VLinearCombinationVectorArray_OpenMP(int nvec, int nsum,
 
   realtype*    ctmp;
   N_Vector*    Y;
-  
+
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
   if (nsum < 1) return(-1);
@@ -1683,7 +1683,7 @@ int N_VLinearCombinationVectorArray_OpenMP(int nvec, int nsum,
    * --------------------------- */
 
   if (nvec == 1) {
-  
+
     /* should have called N_VScale */
     if (nsum == 1) {
       N_VScale_OpenMP(c[0], X[0][0], Z[0]);
@@ -1727,7 +1727,7 @@ int N_VLinearCombinationVectorArray_OpenMP(int nvec, int nsum,
     free(ctmp);
     return(0);
   }
-  
+
   /* should have called N_VLinearSumVectorArray */
   if (nsum == 2) {
     N_VLinearSumVectorArray_OpenMP(nvec, c[0], X[0], c[1], X[1], Z);

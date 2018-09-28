@@ -716,11 +716,13 @@ int N_VLinearCombination_Raja(int nvec, realtype* c, N_Vector* X, N_Vector z)
   err = cudaMemcpy(d_Xd, h_Xd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
   if (err != cudaSuccess) return cudaGetLastError();
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
+    RAJA_LAMBDA(sunindextype i) {
       d_zd[i] = d_c[0] * d_Xd[0][i];
       for (int j=1; j<nvec; j++)
         d_zd[i] += d_c[j] * d_Xd[j][i];
-    });
+    }
+  );
 
   // Free host array
   delete[] h_Xd;
@@ -771,10 +773,12 @@ int N_VScaleAddMulti_Raja(int nvec, realtype* c, N_Vector x, N_Vector* Y, N_Vect
   err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
   if (err != cudaSuccess) return cudaGetLastError();
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
+    RAJA_LAMBDA(sunindextype i) {
       for (int j=0; j<nvec; j++)
         d_Zd[j][i] = d_c[j] * d_xd[i] + d_Yd[j][i];
-    });
+    }
+  );
 
   // Free host array
   delete[] h_Yd;
@@ -839,10 +843,12 @@ int N_VLinearSumVectorArray_Raja(int nvec,
   err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
   if (err != cudaSuccess) return cudaGetLastError();
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
+    RAJA_LAMBDA(sunindextype i) {
       for (int j=0; j<nvec; j++)
         d_Zd[j][i] = a * d_Xd[j][i] + b * d_Yd[j][i];
-    });
+    }
+  );
 
   // Free host array
   delete[] h_Xd;
@@ -896,10 +902,12 @@ int N_VScaleVectorArray_Raja(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
   err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
   if (err != cudaSuccess) return cudaGetLastError();
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
+    RAJA_LAMBDA(sunindextype i) {
       for (int j=0; j<nvec; j++)
         d_Zd[j][i] = d_c[j] * d_Xd[j][i];
-    });
+    }
+  );
 
   // Free host array
   delete[] h_Xd;
@@ -933,10 +941,12 @@ int N_VConstVectorArray_Raja(int nvec, realtype c, N_Vector* Z)
   err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
   if (err != cudaSuccess) return cudaGetLastError();
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
+    RAJA_LAMBDA(sunindextype i) {
       for (int j=0; j<nvec; j++)
         d_Zd[j][i] = c;
-    });
+    }
+  );
 
   // Free host array
   delete[] h_Zd;
@@ -950,7 +960,7 @@ int N_VConstVectorArray_Raja(int nvec, realtype c, N_Vector* Z)
 
 
 int N_VScaleAddMultiVectorArray_Raja(int nvec, int nsum, realtype* c,
-                                      N_Vector* X, N_Vector** Y, N_Vector** Z)
+                                     N_Vector* X, N_Vector** Y, N_Vector** Z)
 {
   cudaError_t err;
 
@@ -997,11 +1007,13 @@ int N_VScaleAddMultiVectorArray_Raja(int nvec, int nsum, realtype* c,
   err = cudaMemcpy(d_Zd, h_Zd, nsum*nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
   if (err != cudaSuccess) return cudaGetLastError();
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
+    RAJA_LAMBDA(sunindextype i) {
       for (int j=0; j<nvec; j++)
         for (int k=0; k<nsum; k++)
           d_Zd[j*nsum+k][i] = d_c[k] * d_Xd[j][i] + d_Yd[j*nsum+k][i];
-    });
+    }
+  );
 
   // Free host array
   delete[] h_Xd;
@@ -1057,14 +1069,16 @@ int N_VLinearCombinationVectorArray_Raja(int nvec, int nsum, realtype* c,
   err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
   if (err != cudaSuccess) return cudaGetLastError();
 
-  RAJA::forall<RAJA::cuda_exec<256> >(zeroIdx, N, [=] __device__(sunindextype i) {
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
+    RAJA_LAMBDA(sunindextype i) {
       for (int j=0; j<nvec; j++) {
         d_Zd[j][i] = d_c[0] * d_Xd[j*nsum][i];
         for (int k=1; k<nsum; k++) {
           d_Zd[j][i] += d_c[k] * d_Xd[j*nsum+k][i];
         }
       }
-    });
+    }
+  );
 
   // Free host array
   delete[] h_Xd;

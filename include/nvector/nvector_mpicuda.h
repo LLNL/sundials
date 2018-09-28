@@ -1,5 +1,9 @@
 /* -----------------------------------------------------------------
+<<<<<<< HEAD
  * Programmer(s): Cody Balos @ LLNL
+=======
+ * Programmer(s): Slaven Peles @ LLNL
+>>>>>>> Feature/GPU
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
@@ -229,6 +233,35 @@ SUNDIALS_EXPORT void N_VCompare_Cuda(realtype c, N_Vector x, N_Vector z);
 SUNDIALS_EXPORT booleantype N_VInvTest_Cuda(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT booleantype N_VConstrMask_Cuda(N_Vector c, N_Vector x, N_Vector m);
 SUNDIALS_EXPORT realtype N_VMinQuotient_Cuda(N_Vector num, N_Vector denom);
+
+/* fused vector operations */
+SUNDIALS_EXPORT int N_VLinearCombination_Cuda(int nvec, realtype* c, N_Vector* X,
+                                              N_Vector Z);
+SUNDIALS_EXPORT int N_VScaleAddMulti_Cuda(int nvec, realtype* c, N_Vector X,
+                                          N_Vector* Y, N_Vector* Z);
+SUNDIALS_EXPORT int N_VDotProdMulti_Cuda(int nvec, N_Vector x, N_Vector* Y,
+                                         realtype* dotprods);
+
+/* vector array operations */
+SUNDIALS_EXPORT int N_VLinearSumVectorArray_Cuda(int nvec,
+                                                 realtype a, N_Vector* X,
+                                                 realtype b, N_Vector* Y,
+                                                 N_Vector* Z);
+SUNDIALS_EXPORT int N_VScaleVectorArray_Cuda(int nvec, realtype* c, N_Vector* X,
+                                             N_Vector* Z);
+SUNDIALS_EXPORT int N_VConstVectorArray_Cuda(int nvec, realtype c, N_Vector* Z);
+SUNDIALS_EXPORT int N_VScaleAddMultiVectorArray_Cuda(int nvec, int nsum,
+                                                     realtype* a, N_Vector* X,
+                                                     N_Vector** Y, N_Vector** Z);
+SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_Cuda(int nvec, int nsum,
+                                                         realtype* c,
+                                                         N_Vector** X,
+                                                         N_Vector* Z);
+SUNDIALS_EXPORT int N_VWrmsNormVectorArray_Cuda(int nvec, N_Vector* X,
+                                                N_Vector* W, realtype* nrm);
+SUNDIALS_EXPORT int N_VWrmsNormMaskVectorArray_Cuda(int nvec, N_Vector* X,
+                                                    N_Vector* W, N_Vector id,
+                                                    realtype* nrm);
 
 #ifdef __cplusplus
 }

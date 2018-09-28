@@ -47,6 +47,7 @@ int main(int argc, char *argv[])
 
   print_timing = atoi(argv[2]);
   SetTiming(print_timing);
+  length = 1000;
 
   printf("\nRunning with vector length %ld \n\n", (long) length);
 

@@ -70,16 +70,13 @@ the namespace \id{suncudavec}.
 
   Returns the vector's local length.
 
-
 \item \ID{getGlobalSize(N\_Vector v)}
 
   Returns the vector's global length.
 
-
 \item \ID{getMPIComm(N\_Vector v)}
 
   Takes a \id{N\_Vector} as an argument and returns a sundials communicator of type
-  \id{SUNDIALS\_Comm}.
 
 \end{itemize}
 
@@ -88,7 +85,7 @@ the namespace \id{suncudavec}.
 %%
 %%--------------------------------------------
 %%
-The {\nveccuda} module defines implementations of all vector operations listed 
+The {\nveccuda} module defines implementations of all vector operations listed
 in Tables \ref{t:nvecops}, \ref{t:nvecfusedops}, and \ref{t:nvecarrayops}, except
 for \id{N\_VGetArrayPointer} and \id{N\_VSetArrayPointer}.
 As such, this vector cannot be used with the {\sundials} Fortran interfaces,

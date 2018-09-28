@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
   fails += Test_N_VWrmsNormMaskVectorArray(X, length, length, 0);
   fails += Test_N_VScaleAddMultiVectorArray(X, length, 0);
   fails += Test_N_VLinearCombinationVectorArray(X, length, 0);
- 
+  
   /* Free vectors */
   N_VDestroy(W);
   N_VDestroy(X);

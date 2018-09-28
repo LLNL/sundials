@@ -1,5 +1,9 @@
 /* -----------------------------------------------------------------
+<<<<<<< HEAD
  * Programmer(s): Cody Balos @ LLNL
+=======
+ * Programmer(s): Slaven Peles @ LLNL
+>>>>>>> Feature/GPU
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
@@ -232,6 +236,28 @@ SUNDIALS_EXPORT booleantype N_VInvTest_Raja(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT booleantype N_VConstrMask_Raja(N_Vector c, N_Vector x, N_Vector m);
 SUNDIALS_EXPORT realtype N_VMinQuotient_Raja(N_Vector num, N_Vector denom);
 
+/* fused vector operations */
+SUNDIALS_EXPORT int N_VLinearCombination_Raja(int nvec, realtype* c, N_Vector* X,
+                                              N_Vector z);
+SUNDIALS_EXPORT int N_VScaleAddMulti_Raja(int nvec, realtype* c, N_Vector x,
+                                          N_Vector* Y, N_Vector* Z);
+
+/* vector array operations */
+SUNDIALS_EXPORT int N_VLinearSumVectorArray_Raja(int nvec,
+                                                 realtype a, N_Vector* X,
+                                                 realtype b, N_Vector* Y,
+                                                 N_Vector* Z);
+SUNDIALS_EXPORT int N_VScaleVectorArray_Raja(int nvec, realtype* c, N_Vector* X,
+                                             N_Vector* Z);
+SUNDIALS_EXPORT int N_VConstVectorArray_Raja(int nvec, realtype c, N_Vector* Z);
+SUNDIALS_EXPORT int N_VScaleAddMultiVectorArray_Raja(int nvec, int nsum,
+                                                     realtype* a,
+                                                     N_Vector* X, N_Vector** Y,
+                                                     N_Vector** Z);
+SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_Raja(int nvec, int nsum,
+                                                         realtype* c,
+                                                         N_Vector** X,
+                                                         N_Vector* Z);
 #ifdef __cplusplus
 }
 #endif

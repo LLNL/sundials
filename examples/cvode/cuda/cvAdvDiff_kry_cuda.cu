@@ -454,9 +454,9 @@ static void PrintFinalStats(void *cvode_mem)
   check_retval(&retval, "CVodeGetNumLinRhsEvals", 1);
 
   printf("\nFinal Statistics.. \n\n");
-  printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw, leniw);
-  printf("lenrwLS = %5ld     leniwLS = %5ld\n", lenrwLS, leniwLS);
-  printf("nst     = %5ld\n"                  , nst);
+  printf("lenrw   = %5ld     leniw   = %5ld\n"  , lenrw, leniw);
+  printf("lenrwLS = %5ld     leniwLS = %5ld\n"  , lenrwLS, leniwLS);
+  printf("nst     = %5ld\n"                     , nst);
   printf("nfe     = %5ld     nfeLS   = %5ld\n"  , nfe, nfeLS);
   printf("nni     = %5ld     nli     = %5ld\n"  , nni, nli);
   printf("nsetups = %5ld     netf    = %5ld\n"  , nsetups, netf);
