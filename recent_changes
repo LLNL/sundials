@@ -108,7 +108,7 @@ Changes to SUNDIALS in release 4.0.0-dev
   necessary. Details on the new operations can be found in the user guide
   Chapter on the NVECTOR API.
 
-Changes to SUNDIALS since Release of Jul. 31 2018.
+Changes to SUNDIALS in release 3.2.0
 
 * Fixed problem with index types which would occur with some compilers
   (e.g. armclang) that did not define __STDC_VERSION__. The fix includes
