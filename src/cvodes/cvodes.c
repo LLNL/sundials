@@ -4300,10 +4300,11 @@ static int cvHin(CVodeMem cv_mem, realtype tout)
 
     if (!hgOK) {
       /* Exit if this is the first or second pass. No recovery possible */
-      if (count1 <= 2) 
+      if (count1 <= 2) {
         if (retval == RHSFUNC_RECVR)  return(CV_REPTD_RHSFUNC_ERR);
         if (retval == QRHSFUNC_RECVR) return(CV_REPTD_QRHSFUNC_ERR);
         if (retval == SRHSFUNC_RECVR) return(CV_REPTD_SRHSFUNC_ERR);
+      }
       /* We have a fall-back option. The value hs is a previous hnew which
          passed through f(). Use it and break */
       hnew = hs;

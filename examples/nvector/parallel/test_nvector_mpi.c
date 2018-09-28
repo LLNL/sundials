@@ -40,7 +40,6 @@ int main(int argc, char *argv[])
   N_Vector     W, X, Y, Z;                  /* test vectors              */
   MPI_Comm     comm;                        /* MPI Communicator          */
   int          nprocs, myid;                /* Number of procs, proc id  */
-  int          mpierr;                      /* mpi error flag            */
 
   /* Get processor number and total number of processes */
   MPI_Init(&argc, &argv);
@@ -105,7 +104,7 @@ int main(int argc, char *argv[])
   }
 
   /* check if any other process failed */
-  mpierr = MPI_Allreduce(&fails, &globfails, 1, MPI_INT, MPI_MAX, comm);
+  (void)  MPI_Allreduce(&fails, &globfails, 1, MPI_INT, MPI_MAX, comm);
   
   MPI_Finalize();
 

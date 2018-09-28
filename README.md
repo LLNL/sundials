@@ -68,6 +68,7 @@ your question to the SUNDIALS [mailing list](https://computation.llnl.gov/projec
 ## Release History ##
 Date     | SUNDIALS | ARKODE | CVODE | CVODES | IDA   | IDAS  | KINSOL
 ---------|----------|--------|-------|--------|-------|-------|--------
+Sep 2018 | 3.2.0    | 2.2.0  | 3.2.0 | 3.2.0  | 3.2.0 | 2.2.0 | 3.2.0
 Jul 2018 | 3.1.2    | 2.1.2  | 3.1.2 | 3.1.2  | 3.1.2 | 2.1.2 | 3.1.2
 May 2018 | 3.1.1    | 2.1.1  | 3.1.1 | 3.1.1  | 3.1.1 | 2.1.1 | 3.1.1
 Nov 2017 | 3.1.0    | 2.1.0  | 3.1.0 | 3.1.0  | 3.1.0 | 2.1.0 | 3.1.0

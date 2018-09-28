@@ -76,8 +76,8 @@ static int fB2(realtype t, N_Vector y, N_Vector *yS,
 static int fQB2(realtype t, N_Vector y, N_Vector *yS,
                 N_Vector yB, N_Vector qBdot, void *user_dataB);
 
-void PrintFwdStats(void *cvode_mem);
-void PrintBckStats(void *cvode_mem, int idx);
+int PrintFwdStats(void *cvode_mem);
+int PrintBckStats(void *cvode_mem, int idx);
 
 /* Private function to check function return values */
 
@@ -274,8 +274,8 @@ int main(int argc, char *argv[])
 
   printf("Final Statistics for forward pb.\n");
   printf("--------------------------------\n");
-  PrintFwdStats(cvode_mem);
-
+  flag = PrintFwdStats(cvode_mem);
+  if (check_flag(&flag, "PrintFwdStats", 1)) return(1);
 
   /* Initializations for backward problems */
 
@@ -413,11 +413,13 @@ int main(int argc, char *argv[])
 
   printf("Final Statistics for backward pb. 1\n");
   printf("-----------------------------------\n");
-  PrintBckStats(cvode_mem, indexB1);
-
+  flag = PrintBckStats(cvode_mem, indexB1);
+  if (check_flag(&flag, "PrintBckStats", 1)) return(1);
+  
   printf("Final Statistics for backward pb. 2\n");
   printf("-----------------------------------\n");
-  PrintBckStats(cvode_mem, indexB2);
+  flag = PrintBckStats(cvode_mem, indexB2);
+  if (check_flag(&flag, "PrintBckStats", 1)) return(1);
 
   /* Free memory */
 
@@ -911,7 +913,7 @@ static int fQB2(realtype t, N_Vector y, N_Vector *yS,
  *--------------------------------------------------------------------
  */
 
-void PrintFwdStats(void *cvode_mem)
+int PrintFwdStats(void *cvode_mem)
 {
   long int nst, nfe, nsetups, nni, ncfn, netf;
   long int nfQe, netfQ;
@@ -956,10 +958,11 @@ void PrintFwdStats(void *cvode_mem)
 
   printf("\n");
 
+  return(flag);
 }
 
 
-void PrintBckStats(void *cvode_mem, int idx)
+int PrintBckStats(void *cvode_mem, int idx)
 {
   void *cvode_mem_bck;
 
@@ -996,7 +999,7 @@ void PrintBckStats(void *cvode_mem, int idx)
 
   printf("\n");
 
-
+  return(flag);
 }
 
 /*

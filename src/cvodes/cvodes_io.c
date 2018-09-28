@@ -539,7 +539,7 @@ int CVodeSetConstraints(void *cvode_mem, N_Vector constraints)
   CVodeMem cv_mem;
   realtype temptest;
 
-  if (cv_mem==NULL) {
+  if (cvode_mem==NULL) {
     cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetConstraints", MSGCV_NO_MEM);
     return(CV_MEM_NULL);
   }

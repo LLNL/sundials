@@ -82,7 +82,7 @@ static void force(N_Vector yy, realtype *Q, UserData data);
 /* Prototypes of private functions */
 static void PrintHeader(realtype rtol, realtype avtol, N_Vector y);
 static void PrintOutput(void *mem, realtype t, N_Vector y);
-static void PrintFinalStats(void *mem);
+static int PrintFinalStats(void *mem);
 static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 /*
@@ -177,7 +177,8 @@ int main(void)
     if (tret > TEND) break;
   }
 
-  PrintFinalStats(mem);
+  flag = PrintFinalStats(mem);
+  if (check_flag(&flag, "PrintFinalStats", 1)) return(1);
 
   IDAGetQuad(mem, &tret, q);
   printf("--------------------------------------------\n");
@@ -408,7 +409,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector y)
 }
 
 
-static void PrintFinalStats(void *mem)
+static int PrintFinalStats(void *mem)
 {
   int flag;
   long int nst, nni, nje, nre, nreLS, netf, ncfn;
@@ -428,6 +429,8 @@ static void PrintFinalStats(void *mem)
   printf("Number of nonlinear iterations     = %ld\n", nni);
   printf("Number of error test failures      = %ld\n", netf);
   printf("Number of nonlinear conv. failures = %ld\n", ncfn);
+
+  return(flag);
 }
 
 /*

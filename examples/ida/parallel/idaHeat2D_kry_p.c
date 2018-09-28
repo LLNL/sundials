@@ -382,8 +382,10 @@ int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
   ixend   = mxsub-1;
   jybegin = 0;
   jyend   = mysub-1;
-  if (ixsub == 0) ixbegin++; if (ixsub == npex-1) ixend--;
-  if (jysub == 0) jybegin++; if (jysub == npey-1) jyend--;
+  if (ixsub == 0) ixbegin++;
+  if (ixsub == npex-1) ixend--;
+  if (jysub == 0) jybegin++;
+  if (jysub == npey-1) jyend--;
 
   /* Load the inverse of the preconditioner diagonal elements
      in loop over all the local subgrid. */
@@ -512,8 +514,10 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
   ixend   = mxsub-1;
   jybegin = 0;
   jyend   = mysub-1;
-  if (ixsub == 0) ixbegin++; if (ixsub == npex-1) ixend--;
-  if (jysub == 0) jybegin++; if (jysub == npey-1) jyend--;
+  if (ixsub == 0) ixbegin++;
+  if (ixsub == npex-1) ixend--;
+  if (jysub == 0) jybegin++;
+  if (jysub == npey-1) jyend--;
 
   /* Loop over all grid points in local subgrid. */
 

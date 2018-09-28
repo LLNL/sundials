@@ -502,8 +502,10 @@ static int reslocal(sunindextype Nlocal, realtype tres,
   ixend   = mxsub-1;
   jybegin = 0;
   jyend   = mysub-1;
-  if (ixsub == 0) ixbegin++; if (ixsub == npex-1) ixend--;
-  if (jysub == 0) jybegin++; if (jysub == npey-1) jyend--;
+  if (ixsub == 0) ixbegin++;
+  if (ixsub == npex-1) ixend--;
+  if (jysub == 0) jybegin++;
+  if (jysub == npey-1) jyend--;
   
   /* Loop over all grid points in local subgrid. */
   

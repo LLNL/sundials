@@ -62,8 +62,8 @@ void force(N_Vector yy, realtype *Q, UserData data);
 
 /* Prototypes of private functions */
 static void PrintHeader(realtype rtol, realtype atol, N_Vector y);
-static void PrintOutput(void *mem, realtype t, N_Vector y);
-static void PrintFinalStats(void *mem);
+static int PrintOutput(void *mem, realtype t, N_Vector y);
+static int PrintFinalStats(void *mem);
 static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 /*
@@ -148,7 +148,7 @@ int main(void)
 
   /* In loop, call IDASolve, print results, and test for error. */
 
-  PrintOutput(mem,t0,yy);
+  flag = PrintOutput(mem,t0,yy);
 
   tout = dt;
   for (iout=1; iout<NOUT; iout++) {
@@ -156,11 +156,11 @@ int main(void)
     flag = IDASolve(mem, tout, &tret, yy, yp, IDA_NORMAL);
     if (flag < 0) break;
 
-    PrintOutput(mem,tret,yy);
+    flag = PrintOutput(mem,tret,yy);
 
   }
 
-  PrintFinalStats(mem);
+  flag = PrintFinalStats(mem);
 
   /* Free memory */
 
@@ -333,7 +333,7 @@ static void PrintHeader(realtype rtol, realtype atol, N_Vector y)
   printf("-----------------------------------------------------------------------\n");
 }
 
-static void PrintOutput(void *mem, realtype t, N_Vector y)
+static int PrintOutput(void *mem, realtype t, N_Vector y)
 {
   realtype *yval;
   int flag, kused;
@@ -353,10 +353,12 @@ static void PrintOutput(void *mem, realtype t, N_Vector y)
   printf("%10.4e %12.4e %12.4e %12.4e %3ld  %1d %12.4e\n", 
          t, yval[0], yval[1], yval[2], nst, kused, hused);
 #endif
+
+  return(flag);
 }
 
 
-static void PrintFinalStats(void *mem)
+static int PrintFinalStats(void *mem)
 {
   int flag;
   long int nst, nni, nje, nre, nreLS, netf, ncfn;
@@ -376,6 +378,8 @@ static void PrintFinalStats(void *mem)
   printf("Number of nonlinear iterations     = %ld\n", nni);
   printf("Number of error test failures      = %ld\n", netf);
   printf("Number of nonlinear conv. failures = %ld\n", ncfn);
+
+  return(flag);
 }
 
 /*

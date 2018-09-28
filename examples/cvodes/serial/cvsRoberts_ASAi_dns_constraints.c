@@ -559,11 +559,11 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
                void *user_data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
-  realtype y1, y2, y3;
+  realtype y2, y3;
   UserData data;
   realtype p1, p2, p3;
  
-  y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
+  y2 = Ith(y,2); y3 = Ith(y,3);
   data = (UserData) user_data;
   p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
  
@@ -616,10 +616,10 @@ static int ewt(N_Vector y, N_Vector w, void *user_data)
 static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *user_dataB)
 {
   UserData data;
-  realtype y1, y2, y3;
+  realtype y2, y3;
   realtype p1, p2, p3;
   realtype l1, l2, l3;
-  realtype l21, l32, y23;
+  realtype l21, l32;
   
   data = (UserData) user_dataB;
 
@@ -627,7 +627,7 @@ static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *user_da
   p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
 
   /* The y vector */
-  y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
+  y2 = Ith(y,2); y3 = Ith(y,3);
   
   /* The lambda vector */
   l1 = Ith(yB,1); l2 = Ith(yB,2); l3 = Ith(yB,3);
@@ -635,7 +635,6 @@ static int fB(realtype t, N_Vector y, N_Vector yB, N_Vector yBdot, void *user_da
   /* Temporary variables */
   l21 = l2-l1;
   l32 = l3-l2;
-  y23 = y2*y3;
 
   /* Load yBdot */
   Ith(yBdot,1) = - p1*l21;
@@ -653,7 +652,7 @@ static int JacB(realtype t, N_Vector y, N_Vector yB, N_Vector fyB, SUNMatrix JB,
                 void *user_dataB, N_Vector tmp1B, N_Vector tmp2B, N_Vector tmp3B)
 {
   UserData data;
-  realtype y1, y2, y3;
+  realtype y2, y3;
   realtype p1, p2, p3;
   
   data = (UserData) user_dataB;
@@ -662,7 +661,7 @@ static int JacB(realtype t, N_Vector y, N_Vector yB, N_Vector fyB, SUNMatrix JB,
   p1 = data->p[0]; p2 = data->p[1]; p3 = data->p[2];
 
   /* The y vector */
-  y1 = Ith(y,1); y2 = Ith(y,2); y3 = Ith(y,3);
+  y2 = Ith(y,2); y3 = Ith(y,3);
 
   /* Load JB */
   IJth(JB,1,1) = p1;     IJth(JB,1,2) = -p1;             IJth(JB,1,3) = ZERO;
