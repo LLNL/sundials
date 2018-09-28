@@ -3189,11 +3189,20 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
     return(SUNFALSE);
   }
 
+  IDA_mem->ida_savres = N_VClone(tmpl);
+  if (IDA_mem->ida_savres == NULL) {
+    N_VDestroy(IDA_mem->ida_ewt);
+    N_VDestroy(IDA_mem->ida_ee);
+    N_VDestroy(IDA_mem->ida_delta);
+    return(SUNFALSE);
+  }
+
   IDA_mem->ida_tempv1 = N_VClone(tmpl);
   if (IDA_mem->ida_tempv1 == NULL) {
     N_VDestroy(IDA_mem->ida_ewt);
     N_VDestroy(IDA_mem->ida_ee);
     N_VDestroy(IDA_mem->ida_delta);
+    N_VDestroy(IDA_mem->ida_savres);
     return(SUNFALSE);
   }
 
@@ -3202,11 +3211,10 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
     N_VDestroy(IDA_mem->ida_ewt);
     N_VDestroy(IDA_mem->ida_ee);
     N_VDestroy(IDA_mem->ida_delta);
+    N_VDestroy(IDA_mem->ida_savres);
     N_VDestroy(IDA_mem->ida_tempv1);
     return(SUNFALSE);
   }
-
-  IDA_mem->ida_savres = IDA_mem->ida_tempv1;
 
   /* Allocate phi[0] ... phi[maxord].  Make sure phi[2] and phi[3] are
   allocated (for use as temporary vectors), regardless of maxord.       */
@@ -3218,6 +3226,7 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
       N_VDestroy(IDA_mem->ida_ewt);
       N_VDestroy(IDA_mem->ida_ee);
       N_VDestroy(IDA_mem->ida_delta);
+      N_VDestroy(IDA_mem->ida_savres);
       N_VDestroy(IDA_mem->ida_tempv1);
       N_VDestroy(IDA_mem->ida_tempv2);
       for (i=0; i < j; i++)
@@ -3227,8 +3236,8 @@ static booleantype IDAAllocVectors(IDAMem IDA_mem, N_Vector tmpl)
   }
 
   /* Update solver workspace lengths  */
-  IDA_mem->ida_lrw += (maxcol + 6)*IDA_mem->ida_lrw1;
-  IDA_mem->ida_liw += (maxcol + 6)*IDA_mem->ida_liw1;
+  IDA_mem->ida_lrw += (maxcol + 7)*IDA_mem->ida_lrw1;
+  IDA_mem->ida_liw += (maxcol + 7)*IDA_mem->ida_liw1;
 
   /* Store the value of maxord used here */
   IDA_mem->ida_maxord_alloc = IDA_mem->ida_maxord;
@@ -3249,6 +3258,7 @@ static void IDAFreeVectors(IDAMem IDA_mem)
   N_VDestroy(IDA_mem->ida_ewt);       IDA_mem->ida_ewt = NULL;
   N_VDestroy(IDA_mem->ida_ee);         IDA_mem->ida_ee = NULL;
   N_VDestroy(IDA_mem->ida_delta);   IDA_mem->ida_delta = NULL;
+  N_VDestroy(IDA_mem->ida_savres); IDA_mem->ida_savres = NULL;
   N_VDestroy(IDA_mem->ida_tempv1); IDA_mem->ida_tempv1 = NULL;
   N_VDestroy(IDA_mem->ida_tempv2); IDA_mem->ida_tempv2 = NULL;
   maxcol = SUNMAX(IDA_mem->ida_maxord_alloc,3);
@@ -3257,8 +3267,8 @@ static void IDAFreeVectors(IDAMem IDA_mem)
     IDA_mem->ida_phi[j] = NULL;
   }
 
-  IDA_mem->ida_lrw -= (maxcol + 6)*IDA_mem->ida_lrw1;
-  IDA_mem->ida_liw -= (maxcol + 6)*IDA_mem->ida_liw1;
+  IDA_mem->ida_lrw -= (maxcol + 7)*IDA_mem->ida_lrw1;
+  IDA_mem->ida_liw -= (maxcol + 7)*IDA_mem->ida_liw1;
 
   if (IDA_mem->ida_VatolMallocDone) {
     N_VDestroy(IDA_mem->ida_Vatol); IDA_mem->ida_Vatol = NULL;

@@ -257,7 +257,6 @@ static int Jac(realtype t, N_Vector y, N_Vector fy,
   SUNMatrix V  = SUNDenseMatrix(3,3);          // create temporary SUNMatrix objects
   SUNMatrix D  = SUNDenseMatrix(3,3);          // create temporary SUNMatrix objects
   SUNMatrix Vi = SUNDenseMatrix(3,3);          // create temporary SUNMatrix objects
-  sunindextype N = SUNDenseMatrix_Rows(J);
 
   SUNMatZero(V);        // initialize temporary matrices to zero
   SUNMatZero(D);        // (not technically required)

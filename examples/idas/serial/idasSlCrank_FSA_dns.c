@@ -1,6 +1,16 @@
 /* -----------------------------------------------------------------
  * Programmer: Radu Serban and Cosmin Petra @ LLNL
  * -----------------------------------------------------------------
+ * LLNS Copyright Start
+ * Copyright (c) 2017, Lawrence Livermore National Security
+ * This work was performed under the auspices of the U.S. Department 
+ * of Energy by Lawrence Livermore National Laboratory in part under 
+ * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
+ * Produced at the Lawrence Livermore National Laboratory.
+ * All rights reserved.
+ * For details, see the LICENSE file.
+ * LLNS Copyright End
+ * -----------------------------------------------------------------
  * Simulation of a slider-crank mechanism modelled with 3 generalized
  * coordinates: crank angle, connecting bar angle, and slider location.
  * The mechanism moves under the action of a constant horizontal 
@@ -78,7 +88,7 @@ static int rhsQS(int Ns, realtype t, N_Vector yy, N_Vector yp,
 static void setIC(N_Vector yy, N_Vector yp, UserData data);
 static void force(N_Vector yy, realtype *Q, UserData data);
 
-static void PrintFinalStats(void *mem);
+static int PrintFinalStats(void *mem);
 static int check_flag(void *flagvalue, const char *funcname, int opt);
 /*
  *--------------------------------------------------------------------
@@ -187,7 +197,8 @@ int main(void)
 
   printf("done!\n");
 
-  PrintFinalStats(mem);
+  flag = PrintFinalStats(mem);
+  if (check_flag(&flag, "PrintFinalStats", 1)) return(1);
 
   IDAGetQuad(mem, &tret, q);
   printf("--------------------------------------------\n");
@@ -540,7 +551,7 @@ static int rhsQS(int Ns, realtype t, N_Vector yy, N_Vector yp,
   return(0);
 }
 
-static void PrintFinalStats(void *mem)
+static int PrintFinalStats(void *mem)
 {
   int flag;
   long int nst, nni, nje, nre, nreLS, netf, ncfn;
@@ -560,6 +571,8 @@ static void PrintFinalStats(void *mem)
   printf("Number of nonlinear iterations     = %ld\n", nni);
   printf("Number of error test failures      = %ld\n", netf);
   printf("Number of nonlinear conv. failures = %ld\n", ncfn);
+
+  return(flag);
 }
 
 

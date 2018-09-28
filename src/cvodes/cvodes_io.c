@@ -28,8 +28,10 @@
 #include <sundials/sundials_math.h>
 #include <sundials/sundials_types.h>
 
-#define ZERO RCONST(0.0)
-#define ONE  RCONST(1.0)
+#define ZERO   RCONST(0.0)
+#define HALF   RCONST(0.5)
+#define ONE    RCONST(1.0)
+#define TWOPT5 RCONST(2.5)
 
 /* 
  * =================================================================
@@ -523,6 +525,69 @@ int CVodeSetNoInactiveRootWarn(void *cvode_mem)
 
   cv_mem->cv_mxgnull = 0;
   
+  return(CV_SUCCESS);
+}
+
+/*
+ * CVodeSetConstraints
+ *
+ * Setup for constraint handling feature
+ */
+
+int CVodeSetConstraints(void *cvode_mem, N_Vector constraints)
+{
+  CVodeMem cv_mem;
+  realtype temptest;
+
+  if (cvode_mem==NULL) {
+    cvProcessError(NULL, CV_MEM_NULL, "CVODES", "CVodeSetConstraints", MSGCV_NO_MEM);
+    return(CV_MEM_NULL);
+  }
+
+  cv_mem = (CVodeMem) cvode_mem;
+
+  /* If there are no constraints, destroy data structures */
+  if (constraints == NULL) {
+    if (cv_mem->cv_constraintsMallocDone) {
+      N_VDestroy(cv_mem->cv_constraints);
+      cv_mem->cv_lrw -= cv_mem->cv_lrw1;
+      cv_mem->cv_liw -= cv_mem->cv_liw1;
+    }
+    cv_mem->cv_constraintsMallocDone = SUNFALSE;
+    cv_mem->cv_constraintsSet = SUNFALSE;
+    return(CV_SUCCESS);
+  }
+
+  /* Test if required vector ops. are defined */
+
+  if (constraints->ops->nvdiv         == NULL ||
+      constraints->ops->nvmaxnorm     == NULL ||
+      constraints->ops->nvcompare     == NULL ||
+      constraints->ops->nvconstrmask  == NULL ||
+      constraints->ops->nvminquotient == NULL) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetConstraints", MSGCV_BAD_NVECTOR);
+    return(CV_ILL_INPUT);
+  }
+
+  /* Check the constraints vector */
+  temptest = N_VMaxNorm(constraints);
+  if ((temptest > TWOPT5) || (temptest < HALF)) {
+    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODES", "CVodeSetConstraints", MSGCV_BAD_CONSTR);
+    return(CV_ILL_INPUT);
+  }
+
+  if ( !(cv_mem->cv_constraintsMallocDone) ) {
+    cv_mem->cv_constraints = N_VClone(constraints);
+    cv_mem->cv_lrw += cv_mem->cv_lrw1;
+    cv_mem->cv_liw += cv_mem->cv_liw1;
+    cv_mem->cv_constraintsMallocDone = SUNTRUE;
+  }
+
+  /* Load the constraints vector */
+  N_VScale(ONE, constraints, cv_mem->cv_constraints);
+
+  cv_mem->cv_constraintsSet = SUNTRUE;
+
   return(CV_SUCCESS);
 }
 

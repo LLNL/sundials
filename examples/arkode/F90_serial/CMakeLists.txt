@@ -36,7 +36,7 @@ SET(FARKODE_examples_BL
 
 # Add sparse solvers examples for 64-bit indextype configurations only,
 # not compatible with 32-bit indextype
-IF(SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
+IF(SUNDIALS_INDEX_SIZE MATCHES "64")
 
   # Examples using KLU linear solver
   SET(FARKODE_examples_KLU

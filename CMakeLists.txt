@@ -1,5 +1,6 @@
 # ---------------------------------------------------------------
-# Programmer:  Radu Serban @ LLNL
+# Programmer: Radu Serban, David J. Gardner, Cody J. Balos,
+#             and Slaven Peles @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
@@ -18,12 +19,14 @@
 # Initial commands
 # ---------------------------------------------------------------
 
-# Minimum required version of cmake
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.12)
+# Require a fairly recent cmake version
+cmake_minimum_required(VERSION 3.1.3)
 
 # Libraries linked via full path no longer produce linker search paths
 # Allows examples to build
-cmake_policy(SET CMP0003 NEW)
+if(COMMAND cmake_policy)
+  cmake_policy(SET CMP0003 NEW)
+endif(COMMAND cmake_policy)
 
 # MACOSX_RPATH is enabled by default
 # Fixes dynamic loading on OSX
@@ -42,14 +45,14 @@ PROJECT(sundials C)
 # Set some variables with info on the SUNDIALS project
 SET(PACKAGE_BUGREPORT "woodward6@llnl.gov")
 SET(PACKAGE_NAME "SUNDIALS")
-SET(PACKAGE_STRING "SUNDIALS 3.1.2")
+SET(PACKAGE_STRING "SUNDIALS 3.2.0")
 SET(PACKAGE_TARNAME "sundials")
 
 # set SUNDIALS version numbers
 # (use "" for the version label if none is needed)
 SET(PACKAGE_VERSION_MAJOR "3")
-SET(PACKAGE_VERSION_MINOR "1")
-SET(PACKAGE_VERSION_PATCH "2")
+SET(PACKAGE_VERSION_MINOR "2")
+SET(PACKAGE_VERSION_PATCH "0")
 SET(PACKAGE_VERSION_LABEL "")
 
 IF(PACKAGE_VERSION_LABEL)
@@ -76,34 +79,34 @@ MARK_AS_ADVANCED(CLEAR
 
 # Specify the VERSION and SOVERSION for shared libraries
 
-SET(arkodelib_VERSION "2.1.2")
+SET(arkodelib_VERSION "2.2.0")
 SET(arkodelib_SOVERSION "2")
 
-SET(cvodelib_VERSION "3.1.2")
+SET(cvodelib_VERSION "3.2.0")
 SET(cvodelib_SOVERSION "3")
 
-SET(cvodeslib_VERSION "3.1.2")
+SET(cvodeslib_VERSION "3.2.0")
 SET(cvodeslib_SOVERSION "3")
 
-SET(idalib_VERSION "3.1.2")
+SET(idalib_VERSION "3.2.0")
 SET(idalib_SOVERSION "3")
 
-SET(idaslib_VERSION "2.1.2")
+SET(idaslib_VERSION "2.2.0")
 SET(idaslib_SOVERSION "2")
 
-SET(kinsollib_VERSION "3.1.2")
+SET(kinsollib_VERSION "3.2.0")
 SET(kinsollib_SOVERSION "3")
 
 SET(cpodeslib_VERSION "0.0.0")
 SET(cpodeslib_SOVERSION "0")
 
-SET(nveclib_VERSION "3.1.2")
+SET(nveclib_VERSION "3.2.0")
 SET(nveclib_SOVERSION "3")
 
-SET(sunmatrixlib_VERSION "1.1.2")
+SET(sunmatrixlib_VERSION "1.2.0")
 SET(sunmatrixlib_SOVERSION "1")
 
-SET(sunlinsollib_VERSION "1.1.2")
+SET(sunlinsollib_VERSION "1.2.0")
 SET(sunlinsollib_SOVERSION "1")
 
 # Specify the location of additional CMAKE modules
@@ -185,7 +188,7 @@ MARK_AS_ADVANCED(FORCE
   CMAKE_C_FLAGS_RELEASE
   CMAKE_C_FLAGS_RELWITHDEBINFO)
 
-# Only show flags for the current build type it is set
+# Only show flags for the current build type if it is set
 # NOTE: Build specific flags are appended those in CMAKE_C_FLAGS
 IF(CMAKE_BUILD_TYPE)
   IF(CMAKE_BUILD_TYPE MATCHES "Debug")
@@ -229,20 +232,12 @@ ENDIF(SUNDIALS_PRECISION MATCHES "EXTENDED")
 # Option to specify index type
 # ---------------------------------------------------------------
 
-SET(DOCSTR "Signed 64-bit (int64_t) or signed 32-bit (int32_t) integer")
-SHOW_VARIABLE(SUNDIALS_INDEX_TYPE STRING "${DOCSTR}" "int64_t")
-
-# prepare substitution variable INDEX_TYPE for sundials_config.h
-STRING(TOUPPER ${SUNDIALS_INDEX_TYPE} SUNDIALS_INDEX_TYPE)
-SET(INDEX_TYPE "#define SUNDIALS_${SUNDIALS_INDEX_TYPE} 1")
-
-# prepare substitution variable FINDEX_TYPE for sundials_fconfig.h
-IF(SUNDIALS_INDEX_TYPE MATCHES "INT32_T")
-  SET(FINDEX_TYPE "4")
-ENDIF(SUNDIALS_INDEX_TYPE MATCHES "INT32_T")
-IF(SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
-  SET(FINDEX_TYPE "8")
-ENDIF(SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
+SET(DOCSTR "Signed 64-bit (64) or signed 32-bit (32) integer")
+SHOW_VARIABLE(SUNDIALS_INDEX_SIZE STRING "${DOCSTR}" "64")
+SET(DOCSTR "Integer type to use for indices in SUNDIALS")
+SHOW_VARIABLE(SUNDIALS_INDEX_TYPE STRING "${DOCSTR}" "")
+MARK_AS_ADVANCED(SUNDIALS_INDEX_TYPE)
+include(SundialsIndexSize)
 
 # ---------------------------------------------------------------
 # Enable Fortran interface?
@@ -250,7 +245,7 @@ ENDIF(SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
 
 # Fortran interface is disabled by default
 SET(DOCSTR "Enable Fortran-C support")
-SHOW_VARIABLE(FCMIX_ENABLE BOOL "${DOCSTR}" OFF)
+OPTION(FCMIX_ENABLE "${DOCSTR}" OFF)
 
 # Check that at least one solver with a Fortran interface is built
 IF(NOT BUILD_ARKODE AND NOT BUILD_CVODE AND NOT BUILD_IDA AND NOT BUILD_KINSOL)
@@ -377,8 +372,8 @@ IF(LAPACK_ENABLE AND SUNDIALS_PRECISION MATCHES "EXTENDED")
 ENDIF()
 
 # LAPACK does not support 64-bit integer index types
-IF(LAPACK_ENABLE AND SUNDIALS_INDEX_TYPE MATCHES "INT64_T")
-  PRINT_WARNING("LAPACK is not compatible with ${SUNDIALS_INDEX_TYPE} integers"
+IF(LAPACK_ENABLE AND SUNDIALS_INDEX_SIZE MATCHES "64")
+  PRINT_WARNING("LAPACK is not compatible with ${SUNDIALS_INDEX_SIZE} integers"
                 "Disabling LAPACK")
   SET(LAPACK_ENABLE OFF CACHE BOOL "LAPACK is disabled" FORCE)
 ENDIF()
@@ -468,7 +463,7 @@ ENDIF()
 # C++ examples (off by default) are an option only if ARKode is enabled
 SET(DOCSTR "Build ARKode C++ examples")
 IF(BUILD_ARKODE)
-  SHOW_VARIABLE(EXAMPLES_ENABLE_CXX BOOL "${DOCSTR}" OFF)
+  OPTION(EXAMPLES_ENABLE_CXX "${DOCSTR}" OFF)
 ELSE()
   # set back to OFF (in case was ON)
   IF(EXAMPLES_ENABLE_CXX)
@@ -483,14 +478,7 @@ ENDIF()
 # built and the Fortran interface is enabled
 SET(DOCSTR "Build ARKode F90 examples")
 IF(FCMIX_ENABLE AND BUILD_ARKODE)
-  SHOW_VARIABLE(EXAMPLES_ENABLE_F90 BOOL "${DOCSTR}" OFF)
-  # Fortran90 examples do not support single or extended precision
-  # NOTE: This check can be removed after Fortran configure file is integrated into examples
-  IF(SUNDIALS_PRECISION MATCHES "EXTENDED" OR SUNDIALS_PRECISION MATCHES "SINGLE")
-    PRINT_WARNING("F90 examples are not compatible with ${SUNDIALS_PRECISION} precision"
-                  "EXAMPLES_ENABLE_F90")
-    FORCE_VARIABLE(EXAMPLES_ENABLE_F90 BOOL "Fortran90 examples are disabled" OFF)
-  ENDIF()
+  OPTION(EXAMPLES_ENABLE_F90 "${DOCSTR}" OFF)
 ELSE()
   # set back to OFF (in case was ON)
   IF(EXAMPLES_ENABLE_F90)
@@ -504,7 +492,7 @@ ENDIF()
 # CUDA examples (off by default)
 SET(DOCSTR "Build SUNDIALS CUDA examples")
 IF(CUDA_ENABLE)
-  SHOW_VARIABLE(EXAMPLES_ENABLE_CUDA BOOL "${DOCSTR}" OFF)
+  OPTION(EXAMPLES_ENABLE_CUDA "${DOCSTR}" OFF)
 ELSE()
   IF(EXAMPLES_ENABLE_CUDA)
     PRINT_WARNING("EXAMPLES_ENABLE_CUDA is ON but CUDA_ENABLE is OFF"
@@ -516,7 +504,7 @@ ENDIF()
 # RAJA examples (off by default)
 SET(DOCSTR "Build SUNDIALS RAJA examples")
 IF(RAJA_ENABLE)
-  SHOW_VARIABLE(EXAMPLES_ENABLE_RAJA BOOL "${DOCSTR}" OFF)
+  OPTION(EXAMPLES_ENABLE_RAJA "${DOCSTR}" OFF)
 ELSE()
   IF(EXAMPLES_ENABLE_RAJA)
     PRINT_WARNING("EXAMPLES_ENABLE_RAJA is ON but RAJA_ENABLE is OFF"
@@ -554,7 +542,7 @@ IF(EXAMPLES_ENABLED)
   ENDIF(BUILD_SHARED_LIBS)
 
   # Enable installing examples by default
-  SHOW_VARIABLE(EXAMPLES_INSTALL BOOL "Install example files" ON)
+  OPTION(EXAMPLES_INSTALL "Install example files" ON)
 
   # If examples are to be exported, check where we should install them.
   IF(EXAMPLES_INSTALL)
@@ -579,7 +567,6 @@ IF(EXAMPLES_ENABLED)
       FILE(MAKE_DIRECTORY ${TEST_INSTALL_DIR})
     ENDIF()
 
-
   ELSE(EXAMPLES_INSTALL)
 
     HIDE_VARIABLE(EXAMPLES_INSTALL_PATH)
@@ -596,14 +583,61 @@ ELSE(EXAMPLES_ENABLED)
 
 ENDIF(EXAMPLES_ENABLED)
 
-# ---------------------------------------------------------------
+# ==============================================================================
+# Advanced (hidden) options
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Manually specify the Fortran name-mangling scheme
+#
+# The build system tries to infer the Fortran name-mangling scheme using a
+# Fortran compiler and defaults to using lower case and one underscore if the
+# scheme can not be determined. If a working Fortran compiler is not available
+# or the user needs to override the inferred or default scheme, the following
+# options specify the case and number of appended underscores corresponding to
+# the Fortran name-mangling scheme of symbol names that do not themselves
+# contain underscores. This is all we really need for the FCMIX and LAPACK
+# interfaces. A working Fortran compiler is only necessary for building Fortran
+# example programs.
+# ------------------------------------------------------------------------------
+
+# The case to use in the name-mangling scheme
+show_variable(SUNDIALS_F77_FUNC_CASE STRING
+  "case of Fortran function names (lower/upper)"
+  "")
+
+# The number of underscores of appended in the name-mangling scheme
+show_variable(SUNDIALS_F77_FUNC_UNDERSCORES STRING
+  "number of underscores appended to Fortran function names (none/one/two)"
+  "")
+
+# Hide the name-mangling varibales as advanced options
+mark_as_advanced(FORCE SUNDIALS_F77_FUNC_CASE)
+mark_as_advanced(FORCE SUNDIALS_F77_FUNC_UNDERSCORES)
+
+# If used, both case and underscores must be set
+if((NOT SUNDIALS_F77_FUNC_CASE) AND SUNDIALS_F77_FUNC_UNDERSCORES)
+  message(FATAL_ERROR
+    "If SUNDIALS_F77_FUNC_UNDERSCORES is set, SUNDIALS_F77_FUNC_CASE must also be set.")
+endif()
+
+if(SUNDIALS_F77_FUNC_CASE AND (NOT SUNDIALS_F77_FUNC_UNDERSCORES))
+  message(FATAL_ERROR
+    "If SUNDIALS_F77_FUNC_CASE is set, SUNDIALS_F77_FUNC_UNDERSCORES must also be set.")
+endif()
+
+# ------------------------------------------------------------------------------
 # Include development examples in regression tests?
-# ---------------------------------------------------------------
+#
+# NOTE: Development examples are currently used for internal testing and may
+# produce erroneous failures when run on different systems as the pass/fail
+# status is determined by comparing the output against a saved output file.
+# ------------------------------------------------------------------------------
 OPTION(SUNDIALS_DEVTESTS "Include development tests in make test" OFF)
 MARK_AS_ADVANCED(FORCE SUNDIALS_DEVTESTS)
 
 # ===============================================================
-# Add any other necessary compiler flags & definitions
+# Add any platform specifc settings
 # ===============================================================
 
 # Under Windows, add compiler directive to inhibit warnings
@@ -617,199 +651,137 @@ IF(APPLE)
   SET(CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS "${CMAKE_SHARED_LIBRARY_CREATE_C_FLAGS} -undefined dynamic_lookup")
 ENDIF(APPLE)
 
-# ---------------------------------------------------------------
-# A Fortran compiler is needed if:
-# (a) FCMIX is enabled
-# (b) BLAS is enabled (for the name-mangling scheme)
-# (c) LAPACK is enabled (for the name-mangling scheme)
-# ---------------------------------------------------------------
-
-IF(FCMIX_ENABLE OR BLAS_ENABLE OR LAPACK_ENABLE)
-  INCLUDE(SundialsFortran)
-  IF(NOT F77_FOUND AND FCMIX_ENABLE)
-    PRINT_WARNING("Fortran compiler not functional"
-                  "FCMIX support will not be provided")
-  ENDIF()
-ENDIF()
+# ===============================================================
+# Fortran and C++ settings
+# ===============================================================
 
 # ---------------------------------------------------------------
-# A Fortran90 compiler is needed if:
-# (a) F90 ARKODE examples are enabled
+# A Fortran compiler is needed to:
+# (a) Determine the name-mangling scheme if FCMIX, BLAS, or
+#     LAPACK are enabled
+# (b) Compile example programs if F77 or F90 examples are enabled
 # ---------------------------------------------------------------
 
-IF(EXAMPLES_ENABLE_F90)
-  INCLUDE(SundialsFortran90)
-  IF(NOT F90_FOUND)
-    PRINT_WARNING("Fortran90 compiler not functional"
-                  "F90 support will not be provided")
-  ENDIF()
-ENDIF()
+# Do we need a Fortran name-mangling scheme?
+if(FCMIX_ENABLE OR BLAS_ENABLE OR LAPACK_ENABLE)
+  set(NEED_FORTRAN_NAME_MANGLING TRUE)
+endif()
+
+# Did the user provide a name-mangling scheme?
+if(SUNDIALS_F77_FUNC_CASE AND SUNDIALS_F77_FUNC_UNDERSCORES)
+
+  STRING(TOUPPER ${SUNDIALS_F77_FUNC_CASE} SUNDIALS_F77_FUNC_CASE)
+  STRING(TOUPPER ${SUNDIALS_F77_FUNC_UNDERSCORES} SUNDIALS_F77_FUNC_UNDERSCORES)
+
+  # Based on the given case and number of underscores, set the C preprocessor
+  # macro definitions. Since SUNDIALS never uses symbols names containing
+  # underscores we set the name-mangling schemes to be the same. In general,
+  # names of symbols with and without underscore may be mangled differently
+  # (e.g. g77 mangles mysub to mysub_ and my_sub to my_sub__)
+  if(SUNDIALS_F77_FUNC_CASE MATCHES "LOWER")
+    if(SUNDIALS_F77_FUNC_UNDERSCORES MATCHES "NONE")
+      set(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) name")
+      set(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) name")
+    elseif(SUNDIALS_F77_FUNC_UNDERSCORES MATCHES "ONE")
+      set(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) name ## _")
+      SET(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) name ## _")
+    elseif(SUNDIALS_F77_FUNC_UNDERSCORES MATCHES "TWO")
+      set(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) name ## __")
+      set(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) name ## __")
+    else()
+      message(FATAL_ERROR "Invalid SUNDIALS_F77_FUNC_UNDERSCORES option.")
+    endif()
+  elseif(SUNDIALS_F77_FUNC_CASE MATCHES "UPPER")
+    if(SUNDIALS_F77_FUNC_UNDERSCORES MATCHES "NONE")
+      set(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) NAME")
+      set(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) NAME")
+    elseif(SUNDIALS_F77_FUNC_UNDERSCORES MATCHES "ONE")
+      set(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) NAME ## _")
+      set(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) NAME ## _")
+    elseif(SUNDIALS_F77_FUNC_UNDERSCORES MATCHES "TWO")
+      set(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) NAME ## __")
+      set(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) NAME ## __")
+    else()
+      message(FATAL_ERROR "Invalid SUNDIALS_F77_FUNC_UNDERSCORES option.")
+    endif()
+  else()
+    message(FATAL_ERROR "Invalid SUNDIALS_F77_FUNC_CASE option.")
+  endif()
+
+  # name-mangling scheme has been manually set
+  set(NEED_FORTRAN_NAME_MANGLING FALSE)
+
+endif()
+
+# Do we need a Fortran compiler to figure out the name-mangling scheme or
+# for building example programs?
+if(EXAMPLES_ENABLE_F77 OR EXAMPLES_ENABLE_F90 OR NEED_FORTRAN_NAME_MANGLING)
+  include(SundialsFortran)
+endif()
 
 # ---------------------------------------------------------------
 # A C++ compiler is needed if:
-# (a) C++ ARKODE examples are enabled
+# (a) C++ examples are enabled
 # (b) CUDA is enabled
 # (c) RAJA is enabled
 # ---------------------------------------------------------------
 
-IF(EXAMPLES_ENABLE_CXX OR CUDA_ENABLE OR RAJA_ENABLE)
-  INCLUDE(SundialsCXX)
-  IF(NOT CXX_FOUND)
-    PRINT_WARNING("C++ compiler not functional"
-                  "C++ support will not be provided")
-  ENDIF()
-ENDIF()
+if(EXAMPLES_ENABLE_CXX OR CUDA_ENABLE OR RAJA_ENABLE)
+  include(SundialsCXX)
+endif()
 
 # ---------------------------------------------------------------
-# Check if we need an alternate way of specifying the Fortran
-# name-mangling scheme if we were unable to infer it using a
-# compiler.
-# Ask the user to specify the case and number of appended underscores
-# corresponding to the Fortran name-mangling scheme of symbol names
-# that do not themselves contain underscores (recall that this is all
-# we really need for the interfaces to LAPACK).
-# Note: the default scheme is lower case - one underscore
+# Setup CUDA. Since CUDA is its own language we do this
+# separate from the TPLs.
 # ---------------------------------------------------------------
 
-IF(BLAS_ENABLE OR LAPACK_ENABLE AND NOT F77SCHEME_FOUND)
-  # Specify the case for the Fortran name-mangling scheme
-  SHOW_VARIABLE(SUNDIALS_F77_FUNC_CASE STRING
-    "case of Fortran function names (lower/upper)"
-    "lower")
-  # Specify the number of appended underscores for the Fortran name-mangling scheme
-  SHOW_VARIABLE(SUNDIALS_F77_FUNC_UNDERSCORES STRING
-    "number of underscores appended to Fortran function names"
-    "one")
-  # Based on the given case and number of underscores,
-  # set the C preprocessor macro definition
-  IF(${SUNDIALS_F77_FUNC_CASE} MATCHES "lower")
-    IF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "none")
-      SET(CMAKE_Fortran_SCHEME_NO_UNDERSCORES "mysub")
-    ENDIF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "none")
-    IF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "one")
-      SET(CMAKE_Fortran_SCHEME_NO_UNDERSCORES "mysub_")
-    ENDIF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "one")
-    IF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "two")
-      SET(CMAKE_Fortran_SCHEME_NO_UNDERSCORES "mysub__")
-    ENDIF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "two")
-  ELSE(${SUNDIALS_F77_FUNC_CASE} MATCHES "lower")
-    IF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "none")
-      SET(CMAKE_Fortran_SCHEME_NO_UNDERSCORES "MYSUB")
-    ENDIF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "none")
-    IF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "one")
-      SET(CMAKE_Fortran_SCHEME_NO_UNDERSCORES "MYSUB_")
-    ENDIF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "one")
-    IF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "two")
-      SET(CMAKE_Fortran_SCHEME_NO_UNDERSCORES "MYSUB__")
-    ENDIF(${SUNDIALS_F77_FUNC_UNDERSCORES} MATCHES "two")
-  ENDIF(${SUNDIALS_F77_FUNC_CASE} MATCHES "lower")
-  # Since the SUNDIALS codes never use symbol names containing
-  # underscores, set a default scheme (probably wrong) for symbols
-  # with underscores.
-  SET(CMAKE_Fortran_SCHEME_WITH_UNDERSCORES "my_sub_")
-  # We now "have" a scheme.
-  SET(F77SCHEME_FOUND TRUE)
-ENDIF(BLAS_ENABLE OR LAPACK_ENABLE AND NOT F77SCHEME_FOUND)
+if(CUDA_ENABLE)
+  find_package(CUDA)
+  if (CUDA_FOUND)
+    set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -lineinfo")
+  else()
+    message(STATUS "Disabling CUDA support, could not find CUDA.")
+    set(CUDA_ENABLE OFF)
+  endif()
+endif(CUDA_ENABLE)
 
 # ---------------------------------------------------------------
-# If we have a name-mangling scheme (either automatically
-# inferred or provided by the user), set the SUNDIALS
-# compiler preprocessor macro definitions.
+# Now that all languages are setup, we can configure them more.
 # ---------------------------------------------------------------
 
-SET(F77_MANGLE_MACRO1 "")
-SET(F77_MANGLE_MACRO2 "")
-
-IF(F77SCHEME_FOUND)
-  # Symbols WITHOUT underscores
-  IF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "mysub")
-    SET(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) name")
-  ENDIF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "mysub")
-  IF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "mysub_")
-    SET(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) name ## _")
-  ENDIF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "mysub_")
-  IF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "mysub__")
-    SET(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) name ## __")
-  ENDIF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "mysub__")
-  IF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MYSUB")
-    SET(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) NAME")
-  ENDIF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MYSUB")
-  IF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MYSUB_")
-    SET(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) NAME ## _")
-  ENDIF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MYSUB_")
-  IF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MYSUB__")
-    SET(F77_MANGLE_MACRO1 "#define SUNDIALS_F77_FUNC(name,NAME) NAME ## __")
-  ENDIF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MYSUB__")
-  # Symbols with underscores
-  IF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "my_sub")
-    SET(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) name")
-  ENDIF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "my_sub")
-  IF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "my_sub_")
-    SET(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) name ## _")
-  ENDIF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "my_sub_")
-  IF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "my_sub__")
-    SET(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) name ## __")
-  ENDIF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "my_sub__")
-  IF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MY_SUB")
-    SET(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) NAME")
-  ENDIF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MY_SUB")
-  IF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MY_SUB_")
-    SET(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) NAME ## _")
-  ENDIF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MY_SUB_")
-  IF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MY_SUB__")
-    SET(F77_MANGLE_MACRO2 "#define SUNDIALS_F77_FUNC_(name,NAME) NAME ## __")
-  ENDIF(${CMAKE_Fortran_SCHEME_NO_UNDERSCORES} MATCHES "MY_SUB__")
-ENDIF(F77SCHEME_FOUND)
+# C++11 is needed if:
+#   (a) CUDA is enabled
+# C++11 should not be enabled if
+#   (a) RAJA is enabled (they provide a std flag)
+if (CXX_FOUND AND CUDA_ENABLE AND CUDA_FOUND AND (NOT RAJA_ENABLE))
+  USE_CXX_STD(11)
+endif()
 
 # ---------------------------------------------------------------
 # Decide how to compile MPI codes.
 # ---------------------------------------------------------------
 
-IF(MPI_ENABLE)
-  # show command to run MPI codes (defaults to mpirun)
-  SHOW_VARIABLE(MPI_RUN_COMMAND STRING "MPI run command" "mpirun")
+if(MPI_ENABLE)
 
-  INCLUDE(SundialsMPIC)
-  IF(MPIC_FOUND)
-    IF(CXX_FOUND AND EXAMPLES_ENABLE_CXX)
-      INCLUDE(SundialsMPICXX)
-    ENDIF()
-    IF(F77_FOUND AND EXAMPLES_ENABLE_F77)
-      INCLUDE(SundialsMPIF)
-    ENDIF()
-    IF(F90_FOUND AND EXAMPLES_ENABLE_F90)
-      INCLUDE(SundialsMPIF90)
-    ENDIF()
-  ELSE()
-    PRINT_WARNING("MPI not functional"
-                  "Parallel support will not be provided")
-  ENDIF()
+  include(SundialsMPI)
 
-  IF(MPIC_MPI2)
-    SET(F77_MPI_COMM_F2C "#define SUNDIALS_MPI_COMM_F2C 1")
-  ELSE()
-    SET(F77_MPI_COMM_F2C "#define SUNDIALS_MPI_COMM_F2C 0")
-  ENDIF()
+  if(NOT MPI_C_FOUND)
+    print_warning("MPI not functional"
+      "Parallel support will not be provided")
+  else()
+    set(IS_MPI_ENABLED "#ifndef SUNDIALS_MPI_ENABLED\n#define SUNDIALS_MPI_ENABLED 1\n#endif")
+  endif()
 
-ELSE()
+endif()
 
-  HIDE_VARIABLE(MPI_INCLUDE_PATH)
-  HIDE_VARIABLE(MPI_LIBRARIES)
-  HIDE_VARIABLE(MPI_EXTRA_LIBRARIES)
-  HIDE_VARIABLE(MPI_MPICC)
-  HIDE_VARIABLE(MPI_MPICXX)
-  HIDE_VARIABLE(MPI_MPIF77)
-  HIDE_VARIABLE(MPI_MPIF90)
-
-ENDIF(MPI_ENABLE)
-
-# ---------------------------------------------------------------
-# If using MPI with C++, disable C++ extensions (for known wrappers)
-# ---------------------------------------------------------------
-
-# IF(MPICXX_FOUND)
-#   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMPICH_SKIP_MPICXX -DOMPI_SKIP_MPICXX -DLAM_BUILDING")
-# ENDIF(MPICXX_FOUND)
+# always define FMPI_COMM_F2C in sundials_fconfig.h file
+if(MPIC_MPI2)
+  set(F77_MPI_COMM_F2C "#define SUNDIALS_MPI_COMM_F2C 1")
+  set(FMPI_COMM_F2C ".true.")
+else()
+  set(F77_MPI_COMM_F2C "#define SUNDIALS_MPI_COMM_F2C 0")
+  set(FMPI_COMM_F2C ".false.")
+endif()
 
 # -------------------------------------------------------------
 # Find OpenMP
@@ -838,58 +810,24 @@ IF(PTHREAD_ENABLE)
 ENDIF(PTHREAD_ENABLE)
 
 # -------------------------------------------------------------
-# Find CUDA
-# -------------------------------------------------------------
-
-# disable CUDA if a working C++ compiler is not found
-IF(CUDA_ENABLE AND (NOT CXX_FOUND))
-  PRINT_WARNING("C++ compiler required for CUDA support" "Disabling CUDA")
-  FORCE_VARIABLE(CUDA_ENABLE BOOL "CUDA disabled" OFF)
-ENDIF()
-
-if(CUDA_ENABLE)
-  find_package(CUDA)
-
-  if (CUDA_FOUND)
-    #message("CUDA found!")
-    set(CUDA_NVCC_FLAGS "-lineinfo")
-  else()
-    message(STATUS "Disabling CUDA support, could not find CUDA.")
-  endif()
-endif(CUDA_ENABLE)
-
-# -------------------------------------------------------------
 # Find RAJA
 # -------------------------------------------------------------
 
 # disable RAJA if CUDA is not enabled/working
-IF(RAJA_ENABLE AND (NOT CUDA_FOUND))
+if(RAJA_ENABLE AND (NOT CUDA_FOUND))
   PRINT_WARNING("CUDA is required for RAJA support" "Please enable CUDA and RAJA")
   FORCE_VARIABLE(RAJA_ENABLE BOOL "RAJA disabled" OFF)
-ENDIF()
-
-# Check if C++11 compiler is available
-IF(RAJA_ENABLE)
-  include(CheckCXXCompilerFlag)
-  CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-
-  IF(COMPILER_SUPPORTS_CXX11)
-    set(CMAKE_CXX_STANDARD 11)
-  ELSE()
-    PRINT_WARNING("C++11 compliant compiler required for RAJA support" "Disabling RAJA")
-    FORCE_VARIABLE(RAJA_ENABLE BOOL "RAJA disabled" OFF)
-  ENDIF()
-ENDIF()
+endif()
 
 if(RAJA_ENABLE)
   # Look for CMake configuration file in RAJA installation
-  find_package(RAJA CONFIGS)
+  find_package(RAJA)
   if (RAJA_FOUND)
-    #message("RAJA found!")
     include_directories(${RAJA_INCLUDE_DIR})
     set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} ${RAJA_NVCC_FLAGS})
   else()
-    PRINT_WARNING("RAJA configuration not found" "Please set RAJA_DIR to provide path to RAJA CMake configuration file.")
+    PRINT_WARNING("RAJA configuration not found"
+                  "Please set RAJA_DIR to provide path to RAJA CMake configuration file.")
   endif()
 endif(RAJA_ENABLE)
 
@@ -922,10 +860,6 @@ IF(BLAS_ENABLE)
 
 ELSE()
 
-  IF(NOT LAPACK_ENABLE)
-    HIDE_VARIABLE(SUNDIALS_F77_FUNC_CASE)
-    HIDE_VARIABLE(SUNDIALS_F77_FUNC_UNDERSCORES)
-  ENDIF()
   HIDE_VARIABLE(BLAS_LIBRARIES)
 
 ENDIF()
@@ -955,10 +889,6 @@ IF(LAPACK_ENABLE)
 
 ELSE()
 
-  IF(NOT BLAS_ENABLE)
-    HIDE_VARIABLE(SUNDIALS_F77_FUNC_CASE)
-    HIDE_VARIABLE(SUNDIALS_F77_FUNC_UNDERSCORES)
-  ENDIF()
   HIDE_VARIABLE(LAPACK_LIBRARIES)
 
 ENDIF()
@@ -1103,7 +1033,6 @@ ELSE()
 
 ENDIF()
 
-
 # ===============================================================
 # Add source and configuration files
 # ===============================================================
@@ -1131,111 +1060,7 @@ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/include ${PROJECT_BINARY_DIR}/include)
 # Add selected modules to the build system
 # ---------------------------------------------------------------
 
-# Shared components
-
-ADD_SUBDIRECTORY(src/sundials)
-ADD_SUBDIRECTORY(src/nvec_ser)
-ADD_SUBDIRECTORY(src/sunmat_dense)
-ADD_SUBDIRECTORY(src/sunmat_band)
-ADD_SUBDIRECTORY(src/sunmat_sparse)
-ADD_SUBDIRECTORY(src/sunlinsol_band)
-ADD_SUBDIRECTORY(src/sunlinsol_dense)
-IF(KLU_FOUND)
-  ADD_SUBDIRECTORY(src/sunlinsol_klu)
-ENDIF(KLU_FOUND)
-IF(SUPERLUMT_FOUND)
-  ADD_SUBDIRECTORY(src/sunlinsol_superlumt)
-ENDIF(SUPERLUMT_FOUND)
-IF(LAPACK_FOUND)
-  ADD_SUBDIRECTORY(src/sunlinsol_lapackband)
-  ADD_SUBDIRECTORY(src/sunlinsol_lapackdense)
-ENDIF(LAPACK_FOUND)
-ADD_SUBDIRECTORY(src/sunlinsol_spgmr)
-ADD_SUBDIRECTORY(src/sunlinsol_spfgmr)
-ADD_SUBDIRECTORY(src/sunlinsol_spbcgs)
-ADD_SUBDIRECTORY(src/sunlinsol_sptfqmr)
-ADD_SUBDIRECTORY(src/sunlinsol_pcg)
-IF(MPIC_FOUND)
-  ADD_SUBDIRECTORY(src/nvec_par)
-ENDIF(MPIC_FOUND)
-
-IF(HYPRE_FOUND)
-  ADD_SUBDIRECTORY(src/nvec_parhyp)
-ENDIF(HYPRE_FOUND)
-
-IF(OPENMP_FOUND)
-  ADD_SUBDIRECTORY(src/nvec_openmp)
-ENDIF(OPENMP_FOUND)
-
-IF(PTHREADS_FOUND)
-  ADD_SUBDIRECTORY(src/nvec_pthreads)
-ENDIF(PTHREADS_FOUND)
-
-IF(PETSC_FOUND)
-  ADD_SUBDIRECTORY(src/nvec_petsc)
-ENDIF(PETSC_FOUND)
-
-IF(CUDA_FOUND)
-  ADD_SUBDIRECTORY(src/nvec_cuda)
-ENDIF(CUDA_FOUND)
-
-IF(RAJA_FOUND)
-  ADD_SUBDIRECTORY(src/nvec_raja)
-ENDIF(RAJA_FOUND)
-
-# ARKODE library
-
-IF(BUILD_ARKODE)
-  ADD_SUBDIRECTORY(src/arkode)
-  IF(FCMIX_ENABLE AND F77_FOUND)
-    ADD_SUBDIRECTORY(src/arkode/fcmix)
-  ENDIF(FCMIX_ENABLE AND F77_FOUND)
-ENDIF(BUILD_ARKODE)
-
-# CVODE library
-
-IF(BUILD_CVODE)
-  ADD_SUBDIRECTORY(src/cvode)
-  IF(FCMIX_ENABLE AND F77_FOUND)
-    ADD_SUBDIRECTORY(src/cvode/fcmix)
-  ENDIF(FCMIX_ENABLE AND F77_FOUND)
-ENDIF(BUILD_CVODE)
-
-# CVODES library
-
-IF(BUILD_CVODES)
-  ADD_SUBDIRECTORY(src/cvodes)
-ENDIF(BUILD_CVODES)
-
-# IDA library
-
-IF(BUILD_IDA)
-  ADD_SUBDIRECTORY(src/ida)
-  IF(FCMIX_ENABLE AND F77_FOUND)
-    ADD_SUBDIRECTORY(src/ida/fcmix)
-  ENDIF(FCMIX_ENABLE AND F77_FOUND)
-ENDIF(BUILD_IDA)
-
-# IDAS library
-
-IF(BUILD_IDAS)
-  ADD_SUBDIRECTORY(src/idas)
-ENDIF(BUILD_IDAS)
-
-# KINSOL library
-
-IF(BUILD_KINSOL)
-  ADD_SUBDIRECTORY(src/kinsol)
-  IF(FCMIX_ENABLE AND F77_FOUND)
-    ADD_SUBDIRECTORY(src/kinsol/fcmix)
-  ENDIF(FCMIX_ENABLE AND F77_FOUND)
-ENDIF(BUILD_KINSOL)
-
-# CPODES library
-
-IF(BUILD_CPODES)
-  ADD_SUBDIRECTORY(src/cpodes)
-ENDIF(BUILD_CPODES)
+ADD_SUBDIRECTORY(src)
 
 # ---------------------------------------------------------------
 # Include the subdirectories corresponding to various examples
@@ -1259,354 +1084,11 @@ IF(EXAMPLES_ENABLED)
 
   # enable regression testing with 'make test'
   IF(TESTRUNNER)
-    ENABLE_TESTING()
+    INCLUDE(CTest)
   ENDIF()
 
-  # set variables used in generating CMake and Makefiles for examples
-  IF(EXAMPLES_INSTALL)
-
-    SET(SHELL "sh")
-    SET(prefix "${CMAKE_INSTALL_PREFIX}")
-    SET(exec_prefix "${CMAKE_INSTALL_PREFIX}")
-    SET(includedir "${prefix}/include")
-    SET(libdir "${exec_prefix}/lib")
-    SET(CPP "${CMAKE_C_COMPILER}")
-    SET(CPPFLAGS "${CMAKE_C_FLAGS_RELEASE}")
-    SET(CC "${CMAKE_C_COMPILER}")
-    SET(CFLAGS "${CMAKE_C_FLAGS_RELEASE}")
-    SET(LDFLAGS "${CMAKE_EXE_LINKER_FLAGS_RELEASE}")
-    LIST2STRING(EXTRA_LINK_LIBS LIBS)
-
-    IF(CXX_FOUND)
-      SET(CXX "${CMAKE_CXX_COMPILER}")
-      SET(CXX_LNKR "${CMAKE_CXX_COMPILER}")
-      SET(CXXFLAGS "${CMAKE_CXX_FLAGS_RELEASE}")
-      SET(CXX_LDFLAGS "${CMAKE_CXX_FLAGS_RELEASE}")
-      LIST2STRING(EXTRA_LINK_LIBS CXX_LIBS)
-    ENDIF(CXX_FOUND)
-
-    IF(F77_FOUND)
-      SET(F77 "${CMAKE_Fortran_COMPILER}")
-      SET(F77_LNKR "${CMAKE_Fortran_COMPILER}")
-      SET(FFLAGS "${CMAKE_Fortran_FLAGS_RELEASE}")
-      SET(F77_LDFLAGS "${CMAKE_Fortran_FLAGS_RELEASE}")
-      LIST2STRING(EXTRA_LINK_LIBS F77_LIBS)
-    ENDIF(F77_FOUND)
-
-    IF(F90_FOUND)
-      SET(F90 "${CMAKE_Fortran_COMPILER}")
-      SET(F90_LNKR "${CMAKE_Fortran_COMPILER}")
-      SET(F90FLAGS "${CMAKE_Fortran_FLAGS_RELEASE}")
-      SET(F90_LDFLAGS "${CMAKE_Fortran_FLAGS_RELEASE}")
-      LIST2STRING(EXTRA_LINK_LIBS F90_LIBS)
-    ENDIF(F90_FOUND)
-
-    IF(SUPERLUMT_FOUND)
-      LIST2STRING(SUPERLUMT_LIBRARIES SUPERLUMT_LIBS)
-      SET(SUPERLUMT_LIBS "${SUPERLUMT_LINKER_FLAGS} ${SUPERLUMT_LIBS}")
-    ENDIF(SUPERLUMT_FOUND)
-
-    IF(KLU_FOUND)
-      LIST2STRING(KLU_LIBRARIES KLU_LIBS)
-      SET(KLU_LIBS "${KLU_LINKER_FLAGS} ${KLU_LIBS}")
-    ENDIF(KLU_FOUND)
-
-    IF(BLAS_FOUND)
-      LIST2STRING(BLAS_LIBRARIES BLAS_LIBS)
-    ENDIF(BLAS_FOUND)
-
-    IF(LAPACK_FOUND)
-      LIST2STRING(LAPACK_LIBRARIES LAPACK_LIBS)
-    ENDIF(LAPACK_FOUND)
-
-    IF(MPIC_FOUND)
-      IF(MPI_MPICC)
-        SET(MPICC "${MPI_MPICC}")
-        SET(MPI_INC_DIR ".")
-        SET(MPI_LIB_DIR ".")
-        SET(MPI_LIBS "")
-        SET(MPI_FLAGS "")
-      ELSE(MPI_MPICC)
-        SET(MPICC "${CMAKE_C_COMPILER}")
-        SET(MPI_INC_DIR "${MPI_INCLUDE_PATH}")
-        SET(MPI_LIB_DIR ".")
-        LIST2STRING(MPI_LIBRARIES MPI_LIBS)
-      ENDIF(MPI_MPICC)
-      SET(HYPRE_INC_DIR "${HYPRE_INCLUDE_DIR}")
-      SET(HYPRE_LIB_DIR "${HYPRE_LIBRARY_DIR}")
-      SET(HYPRE_LIBS "${HYPRE_LIBRARIES}")
-    ENDIF(MPIC_FOUND)
-
-    IF(MPICXX_FOUND)
-      IF(MPI_MPICXX)
-        SET(MPICXX "${MPI_MPICXX}")
-      ELSE(MPI_MPICXX)
-        SET(MPICXX "${CMAKE_CXX_COMPILER}")
-        LIST2STRING(MPI_LIBRARIES MPI_LIBS)
-      ENDIF(MPI_MPICXX)
-    ENDIF(MPICXX_FOUND)
-
-    IF(MPIF_FOUND)
-      IF(MPI_MPIF77)
-        SET(MPIF77 "${MPI_MPIF77}")
-        SET(MPIF77_LNKR "${MPI_MPIF77}")
-      ELSE(MPI_MPIF77)
-        SET(MPIF77 "${CMAKE_Fortran_COMPILER}")
-        SET(MPIF77_LNKR "${CMAKE_Fortran_COMPILER}")
-        SET(MPI_INC_DIR "${MPI_INCLUDE_PATH}")
-        SET(MPI_LIB_DIR ".")
-        LIST2STRING(MPI_LIBRARIES MPI_LIBS)
-      ENDIF(MPI_MPIF77)
-    ENDIF(MPIF_FOUND)
-
-    IF(MPIF90_FOUND)
-      IF(MPI_MPIF90)
-        SET(MPIF90 "${MPI_MPIF90}")
-        SET(MPIF90_LNKR "${MPI_MPIF90}")
-      ELSE(MPI_MPIF90)
-        SET(MPIF90 "${CMAKE_Fortran_COMPILER}")
-        SET(MPIF90_LNKR "${CMAKE_Fortran_COMPILER}")
-        LIST2STRING(MPI_LIBRARIES MPI_LIBS)
-      ENDIF(MPI_MPIF90)
-    ENDIF(MPIF90_FOUND)
-
-  ENDIF(EXAMPLES_INSTALL)
-
-  # add ARKode examples
-  IF(BUILD_ARKODE)
-    # C examples
-    IF(EXAMPLES_ENABLE_C)
-      ADD_SUBDIRECTORY(examples/arkode/C_serial)
-      IF(OPENMP_FOUND)
-        ADD_SUBDIRECTORY(examples/arkode/C_openmp)
-      ENDIF()
-      IF(MPIC_FOUND)
-        ADD_SUBDIRECTORY(examples/arkode/C_parallel)
-      ENDIF()
-      IF(HYPRE_ENABLE AND HYPRE_FOUND)
-        ADD_SUBDIRECTORY(examples/arkode/C_parhyp)
-      ENDIF()
-    ENDIF()
-    # C++ examples
-    IF(EXAMPLES_ENABLE_CXX)
-      IF(CXX_FOUND)
-        ADD_SUBDIRECTORY(examples/arkode/CXX_serial)
-      ENDIF()
-      IF(MPICXX_FOUND)
-        ADD_SUBDIRECTORY(examples/arkode/CXX_parallel)
-      ENDIF()
-    ENDIF()
-    # F77 examples
-    IF(EXAMPLES_ENABLE_F77)
-      IF(F77_FOUND)
-        ADD_SUBDIRECTORY(examples/arkode/F77_serial)
-      ENDIF()
-      IF(MPIF_FOUND)
-        ADD_SUBDIRECTORY(examples/arkode/F77_parallel)
-      ENDIF()
-    ENDIF()
-    # F90 examples
-    IF(EXAMPLES_ENABLE_F90)
-      IF(F90_FOUND)
-        ADD_SUBDIRECTORY(examples/arkode/F90_serial)
-      ENDIF()
-      IF(MPIF90_FOUND)
-        ADD_SUBDIRECTORY(examples/arkode/F90_parallel)
-      ENDIF()
-    ENDIF()
-  ENDIF(BUILD_ARKODE)
-
-  # add CVODE examples
-  IF(BUILD_CVODE)
-    # C examples
-    IF(EXAMPLES_ENABLE_C)
-      ADD_SUBDIRECTORY(examples/cvode/serial)
-      IF(OPENMP_FOUND)
-        ADD_SUBDIRECTORY(examples/cvode/C_openmp)
-      ENDIF()
-      IF(MPIC_FOUND)
-        ADD_SUBDIRECTORY(examples/cvode/parallel)
-      ENDIF()
-      IF(HYPRE_ENABLE AND HYPRE_FOUND)
-        ADD_SUBDIRECTORY(examples/cvode/parhyp)
-      ENDIF()
-    ENDIF()
-    # Fortran examples
-    IF(EXAMPLES_ENABLE_F77)
-      IF(F77_FOUND)
-        ADD_SUBDIRECTORY(examples/cvode/fcmix_serial)
-      ENDIF()
-      IF(MPIF_FOUND)
-        ADD_SUBDIRECTORY(examples/cvode/fcmix_parallel)
-      ENDIF()
-    ENDIF()
-    # cuda examples
-    IF(EXAMPLES_ENABLE_CUDA)
-      IF(CUDA_ENABLE AND CUDA_FOUND)
-        ADD_SUBDIRECTORY(examples/cvode/cuda)
-      ENDIF()
-    ENDIF(EXAMPLES_ENABLE_CUDA)
-    # raja examples
-    IF(EXAMPLES_ENABLE_RAJA)
-      IF(RAJA_ENABLE AND RAJA_FOUND)
-        ADD_SUBDIRECTORY(examples/cvode/raja)
-      ENDIF()
-    ENDIF(EXAMPLES_ENABLE_RAJA)
-  ENDIF(BUILD_CVODE)
-
-  # add CVODES Examples
-  IF(BUILD_CVODES)
-    # C examples
-    IF(EXAMPLES_ENABLE_C)
-      ADD_SUBDIRECTORY(examples/cvodes/serial)
-      IF(MPIC_FOUND)
-        ADD_SUBDIRECTORY(examples/cvodes/parallel)
-      ENDIF()
-      IF(OPENMP_FOUND)
-        ADD_SUBDIRECTORY(examples/cvodes/C_openmp)
-      ENDIF()
-    ENDIF()
-  ENDIF(BUILD_CVODES)
-
-  # add IDA examples
-  IF(BUILD_IDA)
-    # C examples
-    IF(EXAMPLES_ENABLE_C)
-      ADD_SUBDIRECTORY(examples/ida/serial)
-      IF(OPENMP_FOUND)
-        ADD_SUBDIRECTORY(examples/ida/C_openmp)
-      ENDIF()
-      IF(MPIC_FOUND)
-        ADD_SUBDIRECTORY(examples/ida/parallel)
-      ENDIF()
-      IF(PETSC_FOUND)
-        ADD_SUBDIRECTORY(examples/ida/petsc)
-      ENDIF()
-    ENDIF()
-    # Fortran examples
-    IF(EXAMPLES_ENABLE_F77)
-      IF(F77_FOUND)
-        ADD_SUBDIRECTORY(examples/ida/fcmix_serial)
-      ENDIF()
-      IF(OPENMP_FOUND)
-        ADD_SUBDIRECTORY(examples/ida/fcmix_openmp)
-      ENDIF()
-      IF(PTHREADS_FOUND)
-	ADD_SUBDIRECTORY(examples/ida/fcmix_pthreads)
-      ENDIF()
-      IF(MPIF_FOUND)
-        ADD_SUBDIRECTORY(examples/ida/fcmix_parallel)
-      ENDIF()
-    ENDIF()
-  ENDIF(BUILD_IDA)
-
-  # add IDAS examples
-  IF(BUILD_IDAS)
-    # C examples
-    IF(EXAMPLES_ENABLE_C)
-      ADD_SUBDIRECTORY(examples/idas/serial)
-      IF(OPENMP_FOUND)
-        ADD_SUBDIRECTORY(examples/idas/C_openmp)
-      ENDIF()
-      IF(MPIC_FOUND)
-        ADD_SUBDIRECTORY(examples/idas/parallel)
-      ENDIF()
-    ENDIF()
-  ENDIF(BUILD_IDAS)
-
-  # add KINSOL examples
-  IF(BUILD_KINSOL)
-    # C examples
-    IF(EXAMPLES_ENABLE_C)
-      ADD_SUBDIRECTORY(examples/kinsol/serial)
-      IF(OPENMP_FOUND)
-        # the only example here need special handling from testrunner (not yet implemented)
-        ADD_SUBDIRECTORY(examples/kinsol/C_openmp)
-      ENDIF()
-      IF(MPIC_FOUND)
-        ADD_SUBDIRECTORY(examples/kinsol/parallel)
-      ENDIF()
-    ENDIF()
-    # Fortran examples
-    IF(EXAMPLES_ENABLE_F77)
-      IF(F77_FOUND)
-        ADD_SUBDIRECTORY(examples/kinsol/fcmix_serial)
-      ENDIF()
-      IF(MPIF_FOUND)
-        ADD_SUBDIRECTORY(examples/kinsol/fcmix_parallel)
-      ENDIF()
-    ENDIF()
-  ENDIF(BUILD_KINSOL)
-
-  # add CPODES examples
-  IF(BUILD_CPODES)
-    IF(EXAMPLES_ENABLE_C)
-      ADD_SUBDIRECTORY(examples/cpodes/serial)
-      IF(MPIC_FOUND)
-        ADD_SUBDIRECTORY(examples/cpodes/parallel)
-      ENDIF()
-    ENDIF()
-  ENDIF(BUILD_CPODES)
-
-  # Always add the nvector serial examples
-  ADD_SUBDIRECTORY(examples/nvector/serial)
-
-  # # Always add the serial sunmatrix dense/band/sparse examples
-  ADD_SUBDIRECTORY(examples/sunmatrix/dense)
-  ADD_SUBDIRECTORY(examples/sunmatrix/band)
-  ADD_SUBDIRECTORY(examples/sunmatrix/sparse)
-
-  # # Always add the serial sunlinearsolver dense/band/spils examples
-  ADD_SUBDIRECTORY(examples/sunlinsol/band)
-  ADD_SUBDIRECTORY(examples/sunlinsol/dense)
-  IF(KLU_FOUND)
-    ADD_SUBDIRECTORY(examples/sunlinsol/klu)
-  ENDIF(KLU_FOUND)
-  IF(SUPERLUMT_FOUND)
-    ADD_SUBDIRECTORY(examples/sunlinsol/superlumt)
-  ENDIF(SUPERLUMT_FOUND)
-  IF(LAPACK_FOUND)
-    ADD_SUBDIRECTORY(examples/sunlinsol/lapackband)
-    ADD_SUBDIRECTORY(examples/sunlinsol/lapackdense)
-  ENDIF(LAPACK_FOUND)
-  ADD_SUBDIRECTORY(examples/sunlinsol/spgmr/serial)
-  ADD_SUBDIRECTORY(examples/sunlinsol/spfgmr/serial)
-  ADD_SUBDIRECTORY(examples/sunlinsol/spbcgs/serial)
-  ADD_SUBDIRECTORY(examples/sunlinsol/sptfqmr/serial)
-  ADD_SUBDIRECTORY(examples/sunlinsol/pcg/serial)
-
-  IF(MPIC_FOUND)
-      ADD_SUBDIRECTORY(examples/nvector/parallel)
-      ADD_SUBDIRECTORY(examples/sunlinsol/spgmr/parallel)
-      ADD_SUBDIRECTORY(examples/sunlinsol/spfgmr/parallel)
-      ADD_SUBDIRECTORY(examples/sunlinsol/spbcgs/parallel)
-      ADD_SUBDIRECTORY(examples/sunlinsol/sptfqmr/parallel)
-      #ADD_SUBDIRECTORY(examples/sunlinsol/pcg/parallel)
-  ENDIF(MPIC_FOUND)
-
-  IF(HYPRE_FOUND)
-      ADD_SUBDIRECTORY(examples/nvector/parhyp)
-  ENDIF()
-
-  IF(PTHREADS_FOUND)
-      ADD_SUBDIRECTORY(examples/nvector/pthreads)
-  ENDIF()
-
-  IF(OPENMP_FOUND)
-      ADD_SUBDIRECTORY(examples/nvector/C_openmp)
-  ENDIF()
-
-  IF(PETSC_FOUND)
-      ADD_SUBDIRECTORY(examples/nvector/petsc)
-  ENDIF()
-
-  IF(CUDA_FOUND)
-      ADD_SUBDIRECTORY(examples/nvector/cuda)
-  ENDIF(CUDA_FOUND)
-
-  IF(RAJA_FOUND)
-      ADD_SUBDIRECTORY(examples/nvector/raja)
-  ENDIF(RAJA_FOUND)
+  # Add SUNDIALS examples
+  ADD_SUBDIRECTORY(examples)
 
 ENDIF(EXAMPLES_ENABLED)
 

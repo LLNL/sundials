@@ -1,11 +1,11 @@
 # -*- mode: cmake -*-
 # -----------------------------------------------------------------
-# Programmer: Slaven Peles @ LLNL
+# Programmer: Slaven Peles, and Cody Balos @ LLNL
 # -----------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Lawrence Livermore National Laboratory in part under
 # Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
@@ -24,11 +24,19 @@ cmake_minimum_required(VERSION 2.8)
 # Specify project name
 PROJECT(@SOLVER@_CUDA_cuda_examples)
 
+# Use same compilers you used to build SUNDIALS to build examples
+set(CMAKE_C_COMPILER @CMAKE_C_COMPILER@)
+set(CMAKE_CXX_COMPILER @CMAKE_CXX_COMPILER@)
+set(CUDA_HOST_COMPILER @CUDA_HOST_COMPILER@)
+
 # Set the location of the CUDA toolkit used to build SUNDIALS
 set(CUDA_TOOLKIT_ROOT_DIR @CUDA_TOOLKIT_ROOT_DIR@)
 
 # Get the CUDA toolkit used to build sundials
 find_package(CUDA)
+
+# Use C++11
+set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -std c++11")
 
 MARK_AS_ADVANCED(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
 
@@ -46,9 +54,9 @@ SET(SUNDIALS_INC_DIR
   "Location of SUNDIALS header files")
 
 # Add path to SUNDIALS header files
-INCLUDE_DIRECTORIES(${SUNDIALS_INC_DIR})
+INCLUDE_DIRECTORIES(${SUNDIALS_INC_DIR} @MPI_CXX_INCLUDE_PATH@)
 
-# Set search path for SUNDIALS libraries 
+# Set search path for SUNDIALS libraries
 SET(SUNDIALS_LIB_DIR @libdir@)
 
 # Find the SUNDIALS solver's library
@@ -56,10 +64,18 @@ FIND_LIBRARY(SUNDIALS_SOLVER_LIB
   @SOLVER_LIB@ ${SUNDIALS_LIB_DIR}
   DOC "@SOLVER@ library")
 
+IF(NOT SUNDIALS_SOLVER_LIB)
+  SET(SUNDIALS_SOLVER_LIB "")
+ENDIF()
+
 # Find the NVECTOR library
 FIND_LIBRARY(SUNDIALS_NVEC_LIB
-  sundials_nveccuda ${SUNDIALS_LIB_DIR}
+  @NVECTOR_LIB@ ${SUNDIALS_LIB_DIR}
   DOC "NVECTOR library")
+
+IF(NOT SUNDIALS_NVEC_LIB)
+  SET(SUNDIALS_NVEC_LIB "")
+ENDIF()
 
 # Set additional libraries
 SET(SUNDIALS_EXTRA_LIB @LIBS@ CACHE STRING "Additional libraries")
@@ -74,7 +90,7 @@ FOREACH(example ${examples})
   CUDA_ADD_EXECUTABLE(${example} ${example}.cu ${examples_dependencies})
 
   # libraries to link against
-  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})
+  TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS} @MPI_CXX_LIBRARIES@)
 
 ENDFOREACH(example ${examples})
- 
+

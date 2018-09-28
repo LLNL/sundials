@@ -1,4 +1,14 @@
-C     ----------------------------------------------------------------
+C     --------------------------------------------------------------------
+C     LLNS Copyright Start
+C     Copyright (c) 2017, Lawrence Livermore National Security
+C     This work was performed under the auspices of the U.S. Department 
+C     of Energy by Lawrence Livermore National Laboratory in part under 
+C     Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
+C     Produced at the Lawrence Livermore National Laboratory.
+C     All rights reserved.
+C     For details, see the LICENSE file.
+C     LLNS Copyright End
+C     --------------------------------------------------------------------
 C     FCVODE Example Problem: Advection-diffusion, band linear solver
 C                             with banded user Jacobian.
 C
@@ -18,7 +28,7 @@ C     interface routine package. This solution uses the BDF method,
 C     a user-supplied banded Jacobian routine, and scalar relative and
 C     absolute tolerances. It prints results at t = .1, .2, ..., 1.0.
 C     At the end of the run, various counters of interest are printed.
-C     ----------------------------------------------------------------
+C     --------------------------------------------------------------------
 C
       IMPLICIT NONE
 C

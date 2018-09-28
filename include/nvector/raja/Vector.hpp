@@ -28,7 +28,14 @@
 #include <cstdlib>
 #include <iostream>
 
+#include <sundials/sundials_config.h>
+#include <sundials/sundials_mpi.h>
+
+#if SUNDIALS_MPI_ENABLED
+#include <nvector/nvector_mpiraja.h>
+#else
 #include <nvector/nvector_raja.h>
+#endif
 
 namespace sunrajavec
 {
@@ -37,7 +44,19 @@ template <typename T, typename I>
 class Vector : public _N_VectorContent_Raja
 {
 public:
-  Vector(I N) : size_(N), mem_size_(N*sizeof(T))
+  Vector(I N)
+  : size_(N),
+    mem_size_(N*sizeof(T)),
+    comm_(0)
+  {
+    allocate();
+  }
+
+  Vector(SUNMPI_Comm comm, I N, I Nglobal)
+  : size_(N),
+    mem_size_(N*sizeof(T)),
+    global_size_(Nglobal),
+    comm_(comm)
   {
     allocate();
   }
@@ -45,7 +64,9 @@ public:
   /// Copy constructor does not copy values
   explicit Vector(const Vector& v)
   : size_(v.size()),
-    mem_size_(size_*sizeof(T))
+    mem_size_(size_*sizeof(T)),
+    global_size_(v.global_size_),
+    comm_(v.comm_)
   {
     allocate();
   }
@@ -81,6 +102,16 @@ public:
     return size_;
   }
 
+  int sizeGlobal() const
+  {
+    return global_size_;
+  }
+
+  SUNMPI_Comm comm()
+  {
+    return comm_;
+  }
+
   T* host()
   {
     return h_vec_;
@@ -105,21 +136,23 @@ public:
   {
     cudaError_t err = cudaMemcpy(d_vec_, h_vec_, mem_size_, cudaMemcpyHostToDevice);
     if(err != cudaSuccess)
-      std::cout << "Failed to copy vector from host to device (error code " << err << ")!\n";
+      std::cerr << "Failed to copy vector from host to device (error code " << err << ")!\n";
   }
 
   void copyFromDev()
   {
     cudaError_t err = cudaMemcpy(h_vec_, d_vec_, mem_size_, cudaMemcpyDeviceToHost);
     if(err != cudaSuccess)
-      std::cout << "Failed to copy vector from device to host (error code " << err << ")!\n";
+      std::cerr << "Failed to copy vector from device to host (error code " << err << ")!\n";
   }
 
 private:
   I size_;
   I mem_size_;
+  I global_size_;
   T* h_vec_;
   T* d_vec_;
+  SUNMPI_Comm comm_;
 };
 
 
@@ -147,6 +180,22 @@ inline I getSize(N_Vector v)
 {
   Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
   return vp->size();
+}
+
+// Get Vector length
+template <typename T, typename I>
+inline I getGlobalSize(N_Vector v)
+{
+  Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
+  return vp->sizeGlobal();
+}
+
+// Get MPI communicator
+template <typename T, typename I>
+inline SUNMPI_Comm getMPIComm(N_Vector v)
+{
+  Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
+  return vp->comm();
 }
 
 

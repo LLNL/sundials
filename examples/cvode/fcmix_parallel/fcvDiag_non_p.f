@@ -1,6 +1,16 @@
-C     ----------------------------------------------------------------
+C     --------------------------------------------------------------------
+C     LLNS Copyright Start
+C     Copyright (c) 2017, Lawrence Livermore National Security
+C     This work was performed under the auspices of the U.S. Department 
+C     of Energy by Lawrence Livermore National Laboratory in part under 
+C     Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
+C     Produced at the Lawrence Livermore National Laboratory.
+C     All rights reserved.
+C     For details, see the LICENSE file.
+C     LLNS Copyright End
+C     --------------------------------------------------------------------
 C     Diagonal ODE example. Nonstiff case: alpha = 10/NEQ.
-C     ----------------------------------------------------------------
+C     --------------------------------------------------------------------
 C
 C     Include MPI-Fortran header file for MPI_COMM_WORLD, MPI types.
 C

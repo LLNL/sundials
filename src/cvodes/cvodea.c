@@ -160,6 +160,9 @@ int CVodeAdjInit(void *cvode_mem, long int steps, int interp)
 
   ca_mem->ca_nsteps = steps;
 
+  /* Last index used in CVAfindIndex, initailize to invalid value */
+  ca_mem->ca_ilast = -1;
+
   /* Allocate space for the array of Data Point structures */
 
   ca_mem->dt_mem = NULL;
@@ -2078,7 +2081,6 @@ static int CVAfindIndex(CVodeMem cv_mem, realtype t,
                         long int *indx, booleantype *newpoint)
 {
   CVadjMem ca_mem;
-  static long int ilast;
   DtpntMem *dt_mem;
   int sign;
   booleantype to_left, to_right;
@@ -2093,21 +2095,21 @@ static int CVAfindIndex(CVodeMem cv_mem, realtype t,
 
   /* If this is the first time we use new data */
   if (ca_mem->ca_IMnewData) {
-    ilast     = ca_mem->ca_np-1;
+    ca_mem->ca_ilast = ca_mem->ca_np-1;
     *newpoint = SUNTRUE;
-    ca_mem->ca_IMnewData   = SUNFALSE;
+    ca_mem->ca_IMnewData = SUNFALSE;
   }
 
   /* Search for indx starting from ilast */
-  to_left  = ( sign*(t - dt_mem[ilast-1]->t) < ZERO);
-  to_right = ( sign*(t - dt_mem[ilast]->t)   > ZERO);
+  to_left  = ( sign*(t - dt_mem[ca_mem->ca_ilast-1]->t) < ZERO);
+  to_right = ( sign*(t - dt_mem[ca_mem->ca_ilast]->t)   > ZERO);
 
   if ( to_left ) {
     /* look for a new indx to the left */
 
     *newpoint = SUNTRUE;
     
-    *indx = ilast;
+    *indx = ca_mem->ca_ilast;
     for(;;) {
       if ( *indx == 0 ) break;
       if ( sign*(t - dt_mem[*indx-1]->t) <= ZERO ) (*indx)--;
@@ -2115,9 +2117,9 @@ static int CVAfindIndex(CVodeMem cv_mem, realtype t,
     }
 
     if ( *indx == 0 )
-      ilast = 1;
+      ca_mem->ca_ilast = 1;
     else
-      ilast = *indx;
+      ca_mem->ca_ilast = *indx;
 
     if ( *indx == 0 ) {
       /* t is beyond leftmost limit. Is it too far? */  
@@ -2131,19 +2133,19 @@ static int CVAfindIndex(CVodeMem cv_mem, realtype t,
 
     *newpoint = SUNTRUE;
 
-    *indx = ilast;
+    *indx = ca_mem->ca_ilast;
     for(;;) {
       if ( sign*(t - dt_mem[*indx]->t) > ZERO) (*indx)++;
       else                                     break;
     }
 
-    ilast = *indx;
+    ca_mem->ca_ilast = *indx;
 
 
   } else {
     /* ilast is still OK */
 
-    *indx = ilast;
+    *indx = ca_mem->ca_ilast;
 
   }
 

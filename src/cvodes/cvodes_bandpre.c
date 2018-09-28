@@ -34,6 +34,7 @@
 #define MIN_INC_MULT RCONST(1000.0)
 #define ZERO         RCONST(0.0)
 #define ONE          RCONST(1.0)
+#define TWO          RCONST(2.0)
 
 /* Prototypes of cvBandPrecSetup and cvBandPrecSolve */
 static int cvBandPrecSetup(realtype t, N_Vector y, N_Vector fy, 
@@ -486,9 +487,10 @@ static int cvBandPrecDQJac(CVBandPrecData pdata, realtype t, N_Vector y,
                            N_Vector fy, N_Vector ftemp, N_Vector ytemp)
 {
   CVodeMem cv_mem;
-  realtype fnorm, minInc, inc, inc_inv, srur;
+  realtype fnorm, minInc, inc, inc_inv, yj, srur, conj;
   sunindextype group, i, j, width, ngroups, i1, i2;
-  realtype *col_j, *ewt_data, *fy_data, *ftemp_data, *y_data, *ytemp_data;
+  realtype *col_j, *ewt_data, *fy_data, *ftemp_data;
+  realtype *y_data, *ytemp_data, *cns_data;
   int retval;
 
   cv_mem = (CVodeMem) pdata->cvode_mem;
@@ -499,6 +501,8 @@ static int cvBandPrecDQJac(CVBandPrecData pdata, realtype t, N_Vector y,
   ftemp_data = N_VGetArrayPointer(ftemp);
   y_data     = N_VGetArrayPointer(y);
   ytemp_data = N_VGetArrayPointer(ytemp);
+  if (cv_mem->cv_constraints != NULL)
+    cns_data  = N_VGetArrayPointer(cv_mem->cv_constraints);
 
   /* Load ytemp with y = predicted y vector. */
   N_VScale(ONE, y, ytemp);
@@ -518,6 +522,15 @@ static int cvBandPrecDQJac(CVBandPrecData pdata, realtype t, N_Vector y,
     /* Increment all y_j in group. */
     for(j = group-1; j < pdata->N; j += width) {
       inc = SUNMAX(srur*SUNRabs(y_data[j]), minInc/ewt_data[j]);
+      yj = y_data[j];
+
+      /* Adjust sign(inc) again if yj has an inequality constraint. */
+      if (cv_mem->cv_constraints != NULL) {
+        conj = cns_data[j];
+        if (SUNRabs(conj) == ONE)      {if ((yj+inc)*conj < ZERO)  inc = -inc;}
+        else if (SUNRabs(conj) == TWO) {if ((yj+inc)*conj <= ZERO) inc = -inc;}
+      }
+
       ytemp_data[j] += inc;
     }
 
@@ -528,9 +541,18 @@ static int cvBandPrecDQJac(CVBandPrecData pdata, realtype t, N_Vector y,
 
     /* Restore ytemp, then form and load difference quotients. */
     for (j = group-1; j < pdata->N; j += width) {
+      yj = y_data[j];
       ytemp_data[j] = y_data[j];
       col_j = SUNBandMatrix_Column(pdata->savedJ,j);
       inc = SUNMAX(srur*SUNRabs(y_data[j]), minInc/ewt_data[j]);
+
+      /* Adjust sign(inc) as before. */
+      if (cv_mem->cv_constraints != NULL) {
+        conj = cns_data[j];
+        if (SUNRabs(conj) == ONE)      {if ((yj+inc)*conj < ZERO)  inc = -inc;}
+        else if (SUNRabs(conj) == TWO) {if ((yj+inc)*conj <= ZERO) inc = -inc;}
+      }
+
       inc_inv = ONE/inc;
       i1 = SUNMAX(0, j-pdata->mu);
       i2 = SUNMIN(j + pdata->ml, pdata->N - 1);

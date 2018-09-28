@@ -66,7 +66,7 @@ static int rhsQ(realtype t, N_Vector yy, N_Vector yp,
 
 static void PrintHeader(realtype rtol, realtype avtol, N_Vector y);
 static void PrintOutput(void *mem, realtype t, N_Vector y);
-static void PrintFinalStats(void *mem);
+static int PrintFinalStats(void *mem);
 static int check_flag(void *flagvalue, const char *funcname, int opt);
 
 /* Main program */
@@ -205,8 +205,9 @@ int main()
 #endif  
   printf("--------------------------------------------------------\n\n");
 
-  PrintFinalStats(mem);
-
+  flag = PrintFinalStats(mem);
+  if (check_flag(&flag, "PrintFinalStats", 1)) return(1);
+  
   IDAFree(&mem);
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
@@ -331,7 +332,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector y)
 }
 
 
-static void PrintFinalStats(void *mem)
+static int PrintFinalStats(void *mem)
 {
   int flag;
   long int nst, nni, nje, nre, nreLS, netf, ncfn;
@@ -351,6 +352,8 @@ static void PrintFinalStats(void *mem)
   printf("Number of nonlinear iterations     = %ld\n", nni);
   printf("Number of error test failures      = %ld\n", netf);
   printf("Number of nonlinear conv. failures = %ld\n", ncfn);
+
+  return(flag);
 }
 
 

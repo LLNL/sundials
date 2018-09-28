@@ -1,6 +1,6 @@
 # SUNDIALS: SUite of Nonlinear and DIfferential/ALgebraic equation Solvers #
 
-#### David Gardner, Alan Hindmarsh, Slaven Peles, Daniel Reynolds, Radu Serban, and Carol Woodward ####
+#### Cody Balos, David Gardner, Alan Hindmarsh, Slaven Peles, Daniel Reynolds, Radu Serban, and Carol Woodward ####
 Center for Applied Scientific Computing, Lawrence Livermore National Laboratory
 
 SUNDIALS is a family of software packages implemented with the goal of
@@ -68,6 +68,7 @@ your question to the SUNDIALS [mailing list](https://computation.llnl.gov/projec
 ## Release History ##
 Date     | SUNDIALS | ARKODE | CVODE | CVODES | IDA   | IDAS  | KINSOL
 ---------|----------|--------|-------|--------|-------|-------|--------
+Sep 2018 | 3.2.0    | 2.2.0  | 3.2.0 | 3.2.0  | 3.2.0 | 2.2.0 | 3.2.0
 Jul 2018 | 3.1.2    | 2.1.2  | 3.1.2 | 3.1.2  | 3.1.2 | 2.1.2 | 3.1.2
 May 2018 | 3.1.1    | 2.1.1  | 3.1.1 | 3.1.1  | 3.1.1 | 2.1.1 | 3.1.1
 Nov 2017 | 3.1.0    | 2.1.0  | 3.1.0 | 3.1.0  | 3.1.0 | 2.1.0 | 3.1.0
@@ -89,13 +90,14 @@ Jul 2002 | 1.0      |        | 2.0   | 1.0    | 2.0   |       | 2.0
 
 ## Authors ##
 The SUNDIALS Team: Carol S. Woodward, Daniel R. Reynolds, Alan C. Hindmarsh,
-David J. Gardner, and Slaven Peles. We thank Radu Serban for significant and
-critical past contributions.
+David J. Gardner, Slaven Peles, and Cody J. Balos. We thank Radu Serban for
+significant and critical past contributions.
 
 We also acknowledge past contributions of Scott Cohen, Peter N. Brown,
 George Byrne, Allan G. Taylor, Steven L. Lee, Keith E. Grant, Aaron Collier,
 Lawrence E. Banks, Steve Smith, Cosmin Petra, John Loffeld, Dan Shumaker,
-Ulrike Yang, Hilari Tiedeman, Ting Yan, Jean Sexton, and Chris White.
+Ulrike Yang, James Almgren-Bell, Shelby Lockhart, Hilari Tiedeman, Ting Yan, 
+Jean Sexton, and Chris White.
 
 ### Citing SUNDIALS ###
 We ask users of SUNDIALS to cite the following paper in any publications

@@ -708,6 +708,9 @@ struct IDAadjMemRec {
   /* Number of steps between 2 check points */
   long int ia_nsteps;
     
+  /* Last index used in IDAAfindIndex */
+  long int ia_ilast;
+
   /* Storage for data from forward runs */
   struct DtpntMemRec **dt_mem;
     

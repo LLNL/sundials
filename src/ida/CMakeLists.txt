@@ -65,12 +65,6 @@ SET(sunlinsol_SOURCES
   ${sundials_SOURCE_DIR}/src/sunlinsol_pcg/sunlinsol_pcg.c
   )
 
-# IF(PETSC_FOUND)
-#    # use MPI_MPICC as the compiler
-#    SET(CMAKE_C_COMPILER ${MPI_MPICC})
-#    LIST(APPEND ida_SOURCES ida_petsc.c)
-# ENDIF()
-
 # Add variable ida_HEADERS with the exported IDA header files
 SET(ida_HEADERS
   ida.h

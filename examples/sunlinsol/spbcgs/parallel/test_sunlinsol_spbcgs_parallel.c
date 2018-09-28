@@ -101,7 +101,6 @@ int main(int argc, char *argv[])
 {
   int             fails=0;          /* counter for test failures */
   int             passfail=0 ;      /* overall pass/fail flag    */
-  int             mpierr;           /* mpi error flag            */
   SUNLinearSolver LS;               /* linear solver object      */
   N_Vector        xhat, x, b;       /* test vectors              */
   UserData        ProbData;         /* problem data structure    */
@@ -404,7 +403,7 @@ int main(int argc, char *argv[])
   }
 
   /* check if any other process failed */
-  mpierr = MPI_Allreduce(&passfail, &fails, 1, MPI_INT, MPI_MAX, ProbData.comm);
+  (void) MPI_Allreduce(&passfail, &fails, 1, MPI_INT, MPI_MAX, ProbData.comm);
   
   /* Free solver and vectors */
   SUNLinSolFree(LS);

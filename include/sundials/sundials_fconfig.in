@@ -41,7 +41,7 @@ parameter (REALTYPE=@FPRECISION_LEVEL@)
 !          8  (64BIT)
 !
 integer SUNINDEXTYPE
-parameter (SUNINDEXTYPE=@FINDEX_TYPE@)
+parameter (SUNINDEXTYPE=@SUNDIALS_FINDEX_TYPE@)
 
 !     If building with MPI enabled, define the logical flag 
 !     "SUNDIALS_MPI_COMM_F2C" indicating whether the user can specify

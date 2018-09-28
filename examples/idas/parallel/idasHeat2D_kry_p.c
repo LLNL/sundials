@@ -3,6 +3,20 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *         Allan Taylor, Alan Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
+ * LLNS/SMU Copyright Start
+ * Copyright (c) 2017, Southern Methodist University and 
+ * Lawrence Livermore National Security
+ *
+ * This work was performed under the auspices of the U.S. Department 
+ * of Energy by Southern Methodist University and Lawrence Livermore 
+ * National Laboratory under Contract DE-AC52-07NA27344.
+ * Produced at Southern Methodist University and the Lawrence 
+ * Livermore National Laboratory.
+ *
+ * All rights reserved.
+ * For details, see the LICENSE file.
+ * LLNS/SMU Copyright End
+ * -----------------------------------------------------------------
  * Example problem for IDA: 2D heat equation, parallel, GMRES.
  *
  * This example solves a discretized 2D heat equation problem.
@@ -360,8 +374,10 @@ int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
   ixend   = mxsub-1;
   jybegin = 0;
   jyend   = mysub-1;
-  if (ixsub == 0) ixbegin++; if (ixsub == npex-1) ixend--;
-  if (jysub == 0) jybegin++; if (jysub == npey-1) jyend--;
+  if (ixsub == 0) ixbegin++;
+  if (ixsub == npex-1) ixend--;
+  if (jysub == 0) jybegin++;
+  if (jysub == npey-1) jyend--;
   pelinv = ONE/(c_j + data->coeffxy); 
   
   /* Load the inverse of the preconditioner diagonal elements
@@ -492,8 +508,10 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
   ixend   = mxsub-1;
   jybegin = 0;
   jyend   = mysub-1;
-  if (ixsub == 0) ixbegin++; if (ixsub == npex-1) ixend--;
-  if (jysub == 0) jybegin++; if (jysub == npey-1) jyend--;
+  if (ixsub == 0) ixbegin++;
+  if (ixsub == npex-1) ixend--;
+  if (jysub == 0) jybegin++;
+  if (jysub == npey-1) jyend--;
   
   /* Loop over all grid points in local subgrid. */
 
