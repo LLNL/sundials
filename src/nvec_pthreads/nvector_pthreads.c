@@ -2211,7 +2211,6 @@ static void *N_VConstrMask_PT(void *thread_data)
   realtype *cd, *xd, *md;
   realtype local_val, *global_val;
   Pthreads_Data *my_data;
-  booleantype test;
 
   /* extract thread data */
   my_data = (Pthreads_Data *) thread_data;

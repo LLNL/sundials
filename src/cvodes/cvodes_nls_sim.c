@@ -327,7 +327,7 @@ static int cvNlsConvTestSensSim(SUNNonlinearSolver NLS,
   realtype del, delS, Del;
   realtype dcon;
   N_Vector ycor, delta, ewt;
-  N_Vector *ycorS, *deltaS, *ewtS;
+  N_Vector *deltaS, *ewtS;
 
   if (cvode_mem == NULL) {
     cvProcessError(NULL, CV_MEM_NULL, "CVODES",
@@ -338,7 +338,6 @@ static int cvNlsConvTestSensSim(SUNNonlinearSolver NLS,
 
   /* extract the current state and sensitivity corrections */
   ycor  = NV_VEC_SW(ycorSim,0);
-  ycorS = NV_VECS_SW(ycorSim)+1;
 
   /* extract state and sensitivity deltas */
   delta  = NV_VEC_SW(deltaSim,0);

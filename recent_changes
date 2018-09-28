@@ -1,6 +1,31 @@
 Changes to SUNDIALS in release 4.0.0-dev.2
 
-ARKode and IDAS were updated to use the SUNNONLINSOL API.
+ARKode, CVODES, and IDAS have been updated to use the SUNNONLINSOL API.
+
+The ARKode library has been entirely rewritten to support a modular approach to
+one-step methods, which should allow rapid research and development of novel
+integration methods without affecting existing solver functionality.
+
+The direct and iterative linear solver interfaces in ARKode, CVODE, IDA, and
+KINSOL have been merged into a single unified linear solver interface to support
+any valid SUNLINSOL module. The unified interface is very similar to the previous
+DLS and SPILS interfaces. To minimize challenges in user migration to the unified
+linear solver interface, the previous DLS and SPILS routines for CVODE, IDA,
+and KINSOL may still be used; these will be deprecated in future releases, so we
+recommend that users migrate to the new names soon. Additionally, we note that
+Fortran  users will need to enlarge their iout array of optional integer outputs,
+and update the indices that they query for certain linear-solver-related statistics.
+
+The names of all constructor routines for SUNDIALS-provided SUNLinSol
+implementations have been updated to follow the naming convention SUNLinSol_*
+where * is the name of the linear solver e.g., Dense, KLU, SPGMR, PCG, etc.
+Solver-specific ``set'' routine names have been similarly standardized. To
+minimize challenges in user migration to the new names, the previous routine
+names may still be used; these will be deprecated in future releases, so we
+recommend that users migrate to the new names soon.
+
+ARKode's dense output infrastructure has been improved to support higher-degree
+Hermite polynomial interpolants (up to degree 5) over the last successful time step.
 
 Changes to SUNDIALS in release 4.0.0-dev.1
 
