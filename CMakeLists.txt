@@ -42,6 +42,10 @@ endif()
 # sets PROJECT_SOURCE_DIR and PROJECT_BINARY_DIR variables
 PROJECT(sundials C)
 
+# Get correct build paths automatically
+
+INCLUDE(GNUInstallDirs)
+
 # Set some variables with info on the SUNDIALS project
 SET(PACKAGE_BUGREPORT "woodward6@llnl.gov")
 SET(PACKAGE_NAME "SUNDIALS")
