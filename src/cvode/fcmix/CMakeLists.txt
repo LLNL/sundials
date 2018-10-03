@@ -83,7 +83,7 @@ SET_TARGET_PROPERTIES(sundials_fcvode_static
   PROPERTIES OUTPUT_NAME sundials_fcvode CLEAN_DIRECT_OUTPUT 1)
 
 # Install the FCVODE library
-INSTALL(TARGETS sundials_fcvode_static DESTINATION lib)
+INSTALL(TARGETS sundials_fcvode_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 #
 MESSAGE(STATUS "Added CVODE FCMIX module")

@@ -54,7 +54,7 @@ IF(BUILD_STATIC_LIBS)
   ADD_LIBRARY(sundials_nvecparhyp_static STATIC ${nvecparhyp_SOURCES} ${shared_SOURCES})
   SET_TARGET_PROPERTIES(sundials_nvecparhyp_static
     PROPERTIES OUTPUT_NAME sundials_nvecparhyp CLEAN_DIRECT_OUTPUT 1)
-  INSTALL(TARGETS sundials_nvecparhyp_static DESTINATION lib)
+  INSTALL(TARGETS sundials_nvecparhyp_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
 ENDIF(BUILD_STATIC_LIBS)
 
 # Rules for building and installing the shared library:
@@ -76,7 +76,7 @@ IF(BUILD_SHARED_LIBS)
     PROPERTIES OUTPUT_NAME sundials_nvecparhyp CLEAN_DIRECT_OUTPUT 1)
   SET_TARGET_PROPERTIES(sundials_nvecparhyp_shared
     PROPERTIES VERSION ${nveclib_VERSION} SOVERSION ${nveclib_SOVERSION})
-  INSTALL(TARGETS sundials_nvecparhyp_shared DESTINATION lib)
+  INSTALL(TARGETS sundials_nvecparhyp_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
 ENDIF(BUILD_SHARED_LIBS)
 
 # Install the NVECPARHYP header files

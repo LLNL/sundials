@@ -107,7 +107,7 @@ SET_TARGET_PROPERTIES(sundials_farkode_static
   PROPERTIES OUTPUT_NAME sundials_farkode CLEAN_DIRECT_OUTPUT 1)
 
 # Install the FARKODE library
-INSTALL(TARGETS sundials_farkode_static DESTINATION lib)
+INSTALL(TARGETS sundials_farkode_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 #
 MESSAGE(STATUS "Added ARKODE FCMIX module")
