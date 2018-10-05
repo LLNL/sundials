@@ -282,8 +282,15 @@ preconditioner routines.
 \section{Changes from previous versions}
 \label{Introduction:changes-from-previous-versions}
 
+\subsection{Changes in v2.2.1}
+\label{Introduction:changes-in-v2.2.1}
+Fixed library installation path for multiarch systems. This fix changes the default
+library installation path to \texttt{CMAKE\_INSTALL\_PREFIX/CMAKE\_INSTALL\_LIBDIR}
+from \texttt{CMAKE\_INSTALL\_PREFIX/lib}. \texttt{CMAKE\_INSTALL\_LIBDIR} is automatically
+set, but is available as a CMAKE option that can modified.
+
 \subsection{Changes in v2.2.0}
-\label{Introduction:changes-in-vX-X-X}
+\label{Introduction:changes-in-v2.2.0}
 Fixed a problem with setting \texttt{sunindextype} which would occur
 with some compilers (e.g. armclang) that did not define \texttt{\_\_STDC\_VERSION\_\_}.
 

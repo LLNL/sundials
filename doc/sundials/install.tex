@@ -34,8 +34,9 @@ The explanations of the installation procedure begins with a few common observat
   \item[{\em instdir}]
     is the directory under which the {\sundials} exported header files
     and libraries will be installed. Typically, header files are exported under a directory
-    {\em instdir}\id{/include} while libraries are installed under {\em instdir}\id{/lib},
-    with {\em instdir} specified at configuration time.
+    {\em instdir}\id{/include} while libraries are installed under {\em instdir}\id{/CMAKE\_INSTALL\_LIBDIR},
+    with {\em instdir} and\\
+    \id{CMAKE\_INSTALL\_LIBDIR} specified at configuration time.
   \end{description}
 
 \item For {\sundials} CMake-based installation, in-source builds are prohibited; in other words, the
@@ -373,8 +374,16 @@ a typical configuration on a Linux system and are provided as illustration only.
   \\
   Note: The user must have write access to the location specified through
   this option. Exported {\sundials} header files and libraries will be 
-  installed under subdirectories \id{include} and \id{lib} of 
-  \id{CMAKE\_INSTALL\_PREFIX}, respectively.
+  installed under subdirectories \id{include} and
+  \id{CMAKE\_INSTALL\_LIBDIR} of \id{CMAKE\_INSTALL\_PREFIX}, respectively.
+\item[\id{CMAKE\_INSTALL\_LIBDIR}] -
+  Library installation directory
+  \\
+  Default:
+  \\
+  Note: This is the directory within \id{CMAKE\_INSTALL\_PREFIX} that the {\sundials}
+  libraries will be installed under. The default is automatically set based on the
+  operating system using the GNUInstallDirs CMake module.
 \item[\id{CUDA\_ENABLE}] -
   Build the {\sundials} {\cuda} vector module.
   \\
@@ -1013,10 +1022,10 @@ Using the CMake {\sundials} build system, the command
 \end{verbatim}
 will install the libraries under {\em libdir} and the public header
 files under {\em includedir}. The values for these directories are
-{\em instdir}\id{/lib} and {\em instdir}\id{/include},
+{\em instdir}\id{/CMAKE\_INSTALL\_LIBDIR} and {\em instdir}\id{/include},
 respectively. The location can be changed by setting the CMake variable \id{CMAKE\_INSTALL\_PREFIX}.
-Although all installed libraries reside under {\em libdir}\id{/lib}, the public header files
-are further organized into subdirectories under {\em includedir}\id{/include}.
+Although all installed libraries reside under {\em libdir}\id{/CMAKE\_INSTALL\_LIBDIR}, the public
+header files are further organized into subdirectories under {\em includedir}\id{/include}.
 
 The installed libraries and exported header files are listed for
 reference in Table \ref{t:sundials_files}.

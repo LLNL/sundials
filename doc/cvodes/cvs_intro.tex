@@ -117,6 +117,14 @@ writing in C|)}
 
 \section{Changes from previous versions}
 
+\subsection*{Changes in v3.2.1}
+
+Fixed library installation path for multiarch systems. This fix changes the default
+library installation path to \id{CMAKE\_INSTALL\_PREFIX/CMAKE\_INSTALL\_LIBDIR}
+from \id{CMAKE\_INSTALL\_PREFIX/lib}.\\
+\id{CMAKE\_INSTALL\_LIBDIR} is automatically
+set, but is available as a CMake option that can modified.
+
 \subsection*{Changes in v3.2.0}
 
 Support for optional inequality constraints on individual components of the

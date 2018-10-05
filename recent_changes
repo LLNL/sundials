@@ -1,3 +1,10 @@
+Changes to SUNDIALS since Release of Sep. 28 2018.
+
+* Fixed library installation path for multiarch systems. This fix changes the default
+  library installation path to CMAKE_INSTALL_PREFIX/CMAKE_INSTALL_LIBDIR
+  from CMAKE_INSTALL_PREFIX/lib. CMAKE_INSTALL_LIBDIR is automatically set, but is
+  available as a CMAKE option that can modified.
+
 Changes to SUNDIALS since Release of Jul. 31 2018.
 
 * Fixed problem with index types which would occur with some compilers
@@ -12,8 +19,8 @@ Changes to SUNDIALS since Release of Jul. 31 2018.
   MPI rank when using a GPU system.  The vectors assume one GPU device per 
   MPI rank.
 
-* Changed the name of the RAJA {\nvector} library to libsundials\_nveccudaraja.\texttt{lib}
-  from libsundials\_nvecraja.\texttt{lib} to better reflect that we only support
+* Changed the name of the RAJA nvector library to libsundials_nveccudaraja.lib
+  from libsundials_nvecraja.lib to better reflect that we only support
   CUDA as a backend for RAJA currently.
 
 * Increased CMake minimum version to 3.1.3

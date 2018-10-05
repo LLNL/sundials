@@ -97,7 +97,7 @@ SET_TARGET_PROPERTIES(sundials_fkinsol_static
   PROPERTIES OUTPUT_NAME sundials_fkinsol CLEAN_DIRECT_OUTPUT 1)
 
 # Install the FKINSOL library
-INSTALL(TARGETS sundials_fkinsol_static DESTINATION lib)
+INSTALL(TARGETS sundials_fkinsol_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 #
 MESSAGE(STATUS "Added KINSOL FCMIX module")

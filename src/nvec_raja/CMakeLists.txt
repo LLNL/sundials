@@ -71,7 +71,7 @@ IF(BUILD_STATIC_LIBS)
     SET_TARGET_PROPERTIES(sundials_nvecmpicudaraja_static
       PROPERTIES OUTPUT_NAME sundials_nvecmpicudaraja CLEAN_DIRECT_OUTPUT 1
     )
-    INSTALL(TARGETS sundials_nvecmpicudaraja_static DESTINATION lib)
+    INSTALL(TARGETS sundials_nvecmpicudaraja_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
   ENDIF()
 ENDIF(BUILD_STATIC_LIBS)
 
@@ -100,7 +100,7 @@ IF(BUILD_SHARED_LIBS)
       PROPERTIES OUTPUT_NAME sundials_nvecmpicudaraja CLEAN_DIRECT_OUTPUT 1
                  VERSION ${nveclib_VERSION} SOVERSION ${nveclib_SOVERSION}
     )
-    INSTALL(TARGETS sundials_nvecmpicudaraja_shared DESTINATION lib)
+    INSTALL(TARGETS sundials_nvecmpicudaraja_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
   ENDIF()
 ENDIF(BUILD_SHARED_LIBS)
 

@@ -112,6 +112,12 @@ SET(sunlinsollib_SOVERSION "1")
 # Specify the location of additional CMAKE modules
 SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/config)
 
+# Get correct build paths automatically, but expose CMAKE_INSTALL_LIBDIR
+# as a regular cache variable so that a user can more easily see what
+# the library dir was set to be by GNUInstallDirs.
+INCLUDE(GNUInstallDirs)
+MARK_AS_ADVANCED(CLEAR CMAKE_INSTALL_LIBDIR)
+
 # ---------------------------------------------------------------
 # MACRO definitions
 # ---------------------------------------------------------------

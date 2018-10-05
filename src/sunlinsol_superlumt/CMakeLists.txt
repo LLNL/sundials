@@ -47,7 +47,7 @@ IF(BUILD_STATIC_LIBS)
   ADD_LIBRARY(sundials_sunlinsolsuperlumt_static STATIC ${sunlinsolsuperlumt_SOURCES} ${shared_SOURCES})
   SET_TARGET_PROPERTIES(sundials_sunlinsolsuperlumt_static
     PROPERTIES OUTPUT_NAME sundials_sunlinsolsuperlumt CLEAN_DIRECT_OUTPUT 1)
-  INSTALL(TARGETS sundials_sunlinsolsuperlumt_static DESTINATION lib)
+  INSTALL(TARGETS sundials_sunlinsolsuperlumt_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
 ENDIF(BUILD_STATIC_LIBS)
 
 # Rules for building and installing the shared library:
@@ -78,7 +78,7 @@ IF(BUILD_SHARED_LIBS)
     PROPERTIES OUTPUT_NAME sundials_sunlinsolsuperlumt CLEAN_DIRECT_OUTPUT 1)
   SET_TARGET_PROPERTIES(sundials_sunlinsolsuperlumt_shared
     PROPERTIES VERSION ${sunlinsollib_VERSION} SOVERSION ${sunlinsollib_SOVERSION})
-  INSTALL(TARGETS sundials_sunlinsolsuperlumt_shared DESTINATION lib)
+  INSTALL(TARGETS sundials_sunlinsolsuperlumt_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
 ENDIF(BUILD_SHARED_LIBS)
 
 # Install the SUNLINSOLSUPERLUMT header files
@@ -91,7 +91,7 @@ IF(FCMIX_ENABLE AND F77_FOUND)
     ADD_LIBRARY(sundials_fsunlinsolsuperlumt_static STATIC ${fsunlinsolsuperlumt_SOURCES})
     SET_TARGET_PROPERTIES(sundials_fsunlinsolsuperlumt_static
       PROPERTIES OUTPUT_NAME sundials_fsunlinsolsuperlumt CLEAN_DIRECT_OUTPUT 1)
-    INSTALL(TARGETS sundials_fsunlinsolsuperlumt_static DESTINATION lib)
+    INSTALL(TARGETS sundials_fsunlinsolsuperlumt_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
   ENDIF(BUILD_STATIC_LIBS)
 
   IF(BUILD_SHARED_LIBS)
@@ -107,7 +107,7 @@ IF(FCMIX_ENABLE AND F77_FOUND)
       PROPERTIES OUTPUT_NAME sundials_fsunlinsolsuperlumt CLEAN_DIRECT_OUTPUT 1)
     SET_TARGET_PROPERTIES(sundials_fsunlinsolsuperlumt_shared 
       PROPERTIES VERSION ${sunlinsollib_VERSION} SOVERSION ${sunlinsollib_SOVERSION})
-    INSTALL(TARGETS sundials_fsunlinsolsuperlumt_shared DESTINATION lib)
+    INSTALL(TARGETS sundials_fsunlinsolsuperlumt_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
   ENDIF(BUILD_SHARED_LIBS)
 
 ENDIF(FCMIX_ENABLE AND F77_FOUND)
