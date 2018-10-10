@@ -481,20 +481,21 @@ invTestKernel(const T *x, T *z, T *out, I n)
   T flag;
 
   // First reduction step before storing data in shared memory.
-  if (i < n && x[i] == 0.0) {
-    flag = 1.0;
-  } else {
-    flag = 0.0;
-    z[i] = 1.0/x[i];
+  if (i < n) {
+    if (x[i] == 0.0) {
+      flag = 1.0;
+    } else {
+      flag = 0.0;
+      z[i] = 1.0/x[i];
+    }
   }
 
-  if (i + blockDim.x < n && x[i + blockDim.x] == 0.0)
-  {
-    flag += 1.0;
-  }
-  else
-  {
-    z[i + blockDim.x] = 1.0/x[i + blockDim.x];
+  if (i + blockDim.x < n) {
+    if (x[i + blockDim.x] == 0.0) {
+      flag += 1.0;
+    } else {
+      z[i + blockDim.x] = 1.0/x[i + blockDim.x];
+    }
   }
 
   shmem[tid] = flag;

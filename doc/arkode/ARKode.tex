@@ -284,6 +284,9 @@ preconditioner routines.
 
 \subsection{Changes in v2.2.1}
 \label{Introduction:changes-in-v2.2.1}
+Fixed a bug in the CUDA NVECTOR where the \texttt{N\_VInvTest} operation could
+write beyond the allocated vector data.
+
 Fixed library installation path for multiarch systems. This fix changes the default
 library installation path to \texttt{CMAKE\_INSTALL\_PREFIX/CMAKE\_INSTALL\_LIBDIR}
 from \texttt{CMAKE\_INSTALL\_PREFIX/lib}. \texttt{CMAKE\_INSTALL\_LIBDIR} is automatically

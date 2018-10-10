@@ -101,11 +101,16 @@ in extended {\F}.
 
 \subsection*{Changes in v3.2.1}
 
-Fixed library installation path for multiarch systems. This fix changes the default
-library installation path to \id{CMAKE\_INSTALL\_PREFIX/CMAKE\_INSTALL\_LIBDIR}
-from \id{CMAKE\_INSTALL\_PREFIX/lib}.\\
-\id{CMAKE\_INSTALL\_LIBDIR} is automatically
-set, but is available as a CMake option that can modified.
+The changes in this minor release include the following:
+\begin{itemize}
+\item Fixed a bug in the {\cuda} {\nvector} where the \id{N\_VInvTest} operation
+  could write beyond the allocated vector data.
+\item Fixed library installation path for multiarch systems. This fix changes the default
+  library installation path to \id{CMAKE\_INSTALL\_PREFIX/CMAKE\_INSTALL\_LIBDIR}
+  from \id{CMAKE\_INSTALL\_PREFIX/lib}.\\
+  \id{CMAKE\_INSTALL\_LIBDIR} is automatically
+  set, but is available as a CMake option that can modified.
+\end{itemize}
 
 \subsection*{Changes in v3.2.0}
 
@@ -126,10 +131,10 @@ than one MPI rank when using a GPU system.  The vectors assume one GPU
 device per MPI rank.
 \\
 \\
-\noindent Changed the name of the RAJA {\nvector} library to
+\noindent Changed the name of the {\raja} {\nvector} library to
 \id{libsundials\_nveccudaraja.lib} from \newline
-\id{libsundials\_nvecraja.lib} to better reflect that we only support CUDA
-as a backend for RAJA currently.
+\id{libsundials\_nvecraja.lib} to better reflect that we only support {\cuda}
+as a backend for {\raja} currently.
 \\
 \\
 \noindent Several changes were made to the build system:
@@ -221,7 +226,7 @@ The changes in this minor release include the following:
 \item Fixed an indexing bug in the {\cuda} {\nvector} implementation of
   \id{N\_VWrmsNormMask} and revised the {\raja} {\nvector} implementation of
   \id{N\_VWrmsNormMask} to work with mask arrays using values other than zero or
-  one. Replaced \id{double} with \id{realtype} in the RAJA vector test functions.
+  one. Replaced \id{double} with \id{realtype} in the {\raja} vector test functions.
 
 \item Fixed compilation issue with GCC 7.3.0 and Fortran programs that do
   not require a {\sunmatrix} or {\sunlinsol} module (e.g., iterative
@@ -279,13 +284,13 @@ Specific changes include:
 \end{itemize}
 
 Two additional {\nvector} implementations were added -- one for
-CUDA and one for RAJA vectors.  
+{\cuda} and one for {\raja} vectors.  
 These vectors are supplied to provide very basic support for running
 on GPU architectures.  Users are advised that these vectors both move all data
 to the GPU device upon construction, and speedup will only be realized if the
 user also conducts the right-hand-side function evaluation on the device.
 In addition, these vectors assume the problem fits on one GPU.
-Further information about RAJA, users are referred to th web site, 
+Further information about {\raja}, users are referred to th web site, 
 https://software.llnl.gov/RAJA/.
 These additions are accompanied by additions to various interface functions
 and to user documentation.
