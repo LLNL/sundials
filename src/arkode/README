@@ -1,5 +1,5 @@
                              ARKODE
-                    Release 2.2.0, Sept 2018
+                    Release 2.2.1, Oct. 2018
                        Daniel R. Reynolds
                   Department of Mathematics, SMU
 
@@ -64,6 +64,7 @@ C. References
 D. Releases
 -----------
 
+v. 2.2.1 - Oct. 2018
 v. 2.2.0 - Sep. 2018
 v. 2.1.2 - Jul. 2018
 v. 2.1.1 - May  2018
