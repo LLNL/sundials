@@ -50,7 +50,7 @@ IF(BUILD_STATIC_LIBS)
   ADD_LIBRARY(sundials_sunlinsolspbcgs_static STATIC ${sunlinsolspbcgs_SOURCES} ${shared_SOURCES})
   SET_TARGET_PROPERTIES(sundials_sunlinsolspbcgs_static
     PROPERTIES OUTPUT_NAME sundials_sunlinsolspbcgs CLEAN_DIRECT_OUTPUT 1)
-  INSTALL(TARGETS sundials_sunlinsolspbcgs_static DESTINATION lib)
+  INSTALL(TARGETS sundials_sunlinsolspbcgs_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
 ENDIF(BUILD_STATIC_LIBS)
 
 # Rules for building and installing the shared library:
@@ -69,7 +69,7 @@ IF(BUILD_SHARED_LIBS)
     PROPERTIES OUTPUT_NAME sundials_sunlinsolspbcgs CLEAN_DIRECT_OUTPUT 1)
   SET_TARGET_PROPERTIES(sundials_sunlinsolspbcgs_shared
     PROPERTIES VERSION ${sunlinsollib_VERSION} SOVERSION ${sunlinsollib_SOVERSION})
-  INSTALL(TARGETS sundials_sunlinsolspbcgs_shared DESTINATION lib)
+  INSTALL(TARGETS sundials_sunlinsolspbcgs_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
 ENDIF(BUILD_SHARED_LIBS)
 
 # Install the SUNLINSOLSPBCGS header files
@@ -83,7 +83,7 @@ IF(FCMIX_ENABLE AND F77_FOUND)
     ADD_LIBRARY(sundials_fsunlinsolspbcgs_static STATIC ${fsunlinsolspbcgs_SOURCES})
     SET_TARGET_PROPERTIES(sundials_fsunlinsolspbcgs_static
       PROPERTIES OUTPUT_NAME sundials_fsunlinsolspbcgs CLEAN_DIRECT_OUTPUT 1)
-    INSTALL(TARGETS sundials_fsunlinsolspbcgs_static DESTINATION lib)
+    INSTALL(TARGETS sundials_fsunlinsolspbcgs_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
   ENDIF(BUILD_STATIC_LIBS)
 
   IF(BUILD_SHARED_LIBS)
@@ -98,7 +98,7 @@ IF(FCMIX_ENABLE AND F77_FOUND)
       PROPERTIES OUTPUT_NAME sundials_fsunlinsolspbcgs CLEAN_DIRECT_OUTPUT 1)
     SET_TARGET_PROPERTIES(sundials_fsunlinsolspbcgs_shared 
       PROPERTIES VERSION ${sunlinsollib_VERSION} SOVERSION ${sunlinsollib_SOVERSION})
-    INSTALL(TARGETS sundials_fsunlinsolspbcgs_shared DESTINATION lib)
+    INSTALL(TARGETS sundials_fsunlinsolspbcgs_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
   ENDIF(BUILD_SHARED_LIBS)
 
 ENDIF(FCMIX_ENABLE AND F77_FOUND)

@@ -98,6 +98,6 @@ SET_TARGET_PROPERTIES(sundials_fida_static
   PROPERTIES OUTPUT_NAME sundials_fida CLEAN_DIRECT_OUTPUT 1)
 
 # Install the FIDA library
-INSTALL(TARGETS sundials_fida_static DESTINATION lib)
+INSTALL(TARGETS sundials_fida_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
 #
 MESSAGE(STATUS "Added IDA FCMIX module")
