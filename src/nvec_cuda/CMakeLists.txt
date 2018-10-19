@@ -64,7 +64,7 @@ IF(BUILD_STATIC_LIBS)
     CUDA_ADD_LIBRARY(sundials_nvecmpicuda_static STATIC ${nveccuda_SOURCES} ${shared_SOURCES})
     SET_TARGET_PROPERTIES(sundials_nvecmpicuda_static
       PROPERTIES OUTPUT_NAME sundials_nvecmpicuda CLEAN_DIRECT_OUTPUT 1)
-    INSTALL(TARGETS sundials_nvecmpicuda_static DESTINATION lib)
+    INSTALL(TARGETS sundials_nvecmpicuda_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
   ENDIF()
 ENDIF(BUILD_STATIC_LIBS)
 
@@ -89,7 +89,7 @@ IF(BUILD_SHARED_LIBS)
     SET_TARGET_PROPERTIES(sundials_nvecmpicuda_shared
       PROPERTIES OUTPUT_NAME sundials_nvecmpicuda CLEAN_DIRECT_OUTPUT 1
                  VERSION ${nveclib_VERSION} SOVERSION ${nveclib_SOVERSION})
-    INSTALL(TARGETS sundials_nvecmpicuda_shared DESTINATION lib)
+    INSTALL(TARGETS sundials_nvecmpicuda_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
   ENDIF()
 ENDIF(BUILD_SHARED_LIBS)
 
