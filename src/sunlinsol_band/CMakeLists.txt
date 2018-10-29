@@ -48,7 +48,7 @@ IF(BUILD_STATIC_LIBS)
   ADD_LIBRARY(sundials_sunlinsolband_static STATIC ${sunlinsolband_SOURCES} ${shared_SOURCES})
   SET_TARGET_PROPERTIES(sundials_sunlinsolband_static
     PROPERTIES OUTPUT_NAME sundials_sunlinsolband CLEAN_DIRECT_OUTPUT 1)
-  INSTALL(TARGETS sundials_sunlinsolband_static DESTINATION lib)
+  INSTALL(TARGETS sundials_sunlinsolband_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
 ENDIF(BUILD_STATIC_LIBS)
 
 # Rules for building and installing the shared library:
@@ -66,7 +66,7 @@ IF(BUILD_SHARED_LIBS)
     PROPERTIES OUTPUT_NAME sundials_sunlinsolband CLEAN_DIRECT_OUTPUT 1)
   SET_TARGET_PROPERTIES(sundials_sunlinsolband_shared
     PROPERTIES VERSION ${sunlinsollib_VERSION} SOVERSION ${sunlinsollib_SOVERSION})
-  INSTALL(TARGETS sundials_sunlinsolband_shared DESTINATION lib)
+  INSTALL(TARGETS sundials_sunlinsolband_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
 ENDIF(BUILD_SHARED_LIBS)
 
 # Install the SUNLINSOLBAND header files
@@ -80,7 +80,7 @@ IF(FCMIX_ENABLE AND F77_FOUND)
     ADD_LIBRARY(sundials_fsunlinsolband_static STATIC ${fsunlinsolband_SOURCES})
     SET_TARGET_PROPERTIES(sundials_fsunlinsolband_static
       PROPERTIES OUTPUT_NAME sundials_fsunlinsolband CLEAN_DIRECT_OUTPUT 1)
-    INSTALL(TARGETS sundials_fsunlinsolband_static DESTINATION lib)
+    INSTALL(TARGETS sundials_fsunlinsolband_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
   ENDIF(BUILD_STATIC_LIBS)
 
   IF(BUILD_SHARED_LIBS)
@@ -96,7 +96,7 @@ IF(FCMIX_ENABLE AND F77_FOUND)
       PROPERTIES OUTPUT_NAME sundials_fsunlinsolband CLEAN_DIRECT_OUTPUT 1)
     SET_TARGET_PROPERTIES(sundials_fsunlinsolband_shared 
       PROPERTIES VERSION ${sunlinsollib_VERSION} SOVERSION ${sunlinsollib_SOVERSION})
-    INSTALL(TARGETS sundials_fsunlinsolband_shared DESTINATION lib)
+    INSTALL(TARGETS sundials_fsunlinsolband_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
   ENDIF(BUILD_SHARED_LIBS)
 
 ENDIF(FCMIX_ENABLE AND F77_FOUND)

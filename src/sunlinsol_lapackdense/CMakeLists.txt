@@ -49,7 +49,7 @@ IF(BUILD_STATIC_LIBS)
   ADD_LIBRARY(sundials_sunlinsollapackdense_static STATIC ${sunlinsollapackdense_SOURCES} ${shared_SOURCES})
   SET_TARGET_PROPERTIES(sundials_sunlinsollapackdense_static
     PROPERTIES OUTPUT_NAME sundials_sunlinsollapackdense CLEAN_DIRECT_OUTPUT 1)
-  INSTALL(TARGETS sundials_sunlinsollapackdense_static DESTINATION lib)
+  INSTALL(TARGETS sundials_sunlinsollapackdense_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
 ENDIF(BUILD_STATIC_LIBS)
 
 # Rules for building and installing the shared library:
@@ -74,7 +74,7 @@ IF(BUILD_SHARED_LIBS)
     PROPERTIES OUTPUT_NAME sundials_sunlinsollapackdense CLEAN_DIRECT_OUTPUT 1)
   SET_TARGET_PROPERTIES(sundials_sunlinsollapackdense_shared
     PROPERTIES VERSION ${sunlinsollib_VERSION} SOVERSION ${sunlinsollib_SOVERSION})
-  INSTALL(TARGETS sundials_sunlinsollapackdense_shared DESTINATION lib)
+  INSTALL(TARGETS sundials_sunlinsollapackdense_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
 ENDIF(BUILD_SHARED_LIBS)
 
 # Install the SUNLINSOLLAPACKDENSE header files
@@ -88,7 +88,7 @@ IF(FCMIX_ENABLE AND F77_FOUND)
     ADD_LIBRARY(sundials_fsunlinsollapackdense_static STATIC ${fsunlinsollapackdense_SOURCES})
     SET_TARGET_PROPERTIES(sundials_fsunlinsollapackdense_static
       PROPERTIES OUTPUT_NAME sundials_fsunlinsollapackdense CLEAN_DIRECT_OUTPUT 1)
-    INSTALL(TARGETS sundials_fsunlinsollapackdense_static DESTINATION lib)
+    INSTALL(TARGETS sundials_fsunlinsollapackdense_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
   ENDIF(BUILD_STATIC_LIBS)
 
   IF(BUILD_SHARED_LIBS)
@@ -104,7 +104,7 @@ IF(FCMIX_ENABLE AND F77_FOUND)
       PROPERTIES OUTPUT_NAME sundials_fsunlinsollapackdense CLEAN_DIRECT_OUTPUT 1)
     SET_TARGET_PROPERTIES(sundials_fsunlinsollapackdense_shared 
       PROPERTIES VERSION ${sunlinsollib_VERSION} SOVERSION ${sunlinsollib_SOVERSION})
-    INSTALL(TARGETS sundials_fsunlinsollapackdense_shared DESTINATION lib)
+    INSTALL(TARGETS sundials_fsunlinsollapackdense_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
   ENDIF(BUILD_SHARED_LIBS)
 
 ENDIF(FCMIX_ENABLE AND F77_FOUND)

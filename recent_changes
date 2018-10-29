@@ -133,6 +133,16 @@ Changes to SUNDIALS in release 4.0.0-dev
   necessary. Details on the new operations can be found in the user guide
   Chapter on the NVECTOR API.
 
+Changes to SUNDIALS in release 3.2.1
+
+* Fixed a bug in the CUDA NVECTOR where the N_VInvTest operation could write
+  beyond the allocated vector data.
+
+* Fixed library installation path for multiarch systems. This fix changes the default
+  library installation path to CMAKE_INSTALL_PREFIX/CMAKE_INSTALL_LIBDIR
+  from CMAKE_INSTALL_PREFIX/lib. CMAKE_INSTALL_LIBDIR is automatically set, but is
+  available as a CMAKE option that can modified.
+
 Changes to SUNDIALS in release 3.2.0
 
 * Fixed problem with index types which would occur with some compilers
@@ -147,8 +157,8 @@ Changes to SUNDIALS in release 3.2.0
   MPI rank when using a GPU system.  The vectors assume one GPU device per 
   MPI rank.
 
-* Changed the name of the RAJA {\nvector} library to libsundials\_nveccudaraja.\texttt{lib}
-  from libsundials\_nvecraja.\texttt{lib} to better reflect that we only support
+* Changed the name of the RAJA nvector library to libsundials_nveccudaraja.lib
+  from libsundials_nvecraja.lib to better reflect that we only support
   CUDA as a backend for RAJA currently.
 
 * Increased CMake minimum version to 3.1.3
