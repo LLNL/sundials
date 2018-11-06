@@ -49,7 +49,7 @@ IF(BUILD_STATIC_LIBS)
   ADD_LIBRARY(sundials_nvecspcpar_static STATIC ${nvecspcpar_SOURCES} ${shared_SOURCES})
   SET_TARGET_PROPERTIES(sundials_nvecspcpar_static
     PROPERTIES OUTPUT_NAME sundials_nvecspcpar CLEAN_DIRECT_OUTPUT 1)
-  INSTALL(TARGETS sundials_nvecspcpar_static DESTINATION lib)
+  INSTALL(TARGETS sundials_nvecspcpar_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
 ENDIF(BUILD_STATIC_LIBS)
 
 # Rules for building and installing the shared library:
@@ -63,7 +63,7 @@ IF(BUILD_SHARED_LIBS)
     PROPERTIES OUTPUT_NAME sundials_nvecspcpar CLEAN_DIRECT_OUTPUT 1)
   SET_TARGET_PROPERTIES(sundials_nvecspcpar_shared 
     PROPERTIES VERSION ${nveclib_VERSION} SOVERSION ${nveclib_SOVERSION})
-  INSTALL(TARGETS sundials_nvecspcpar_shared DESTINATION lib)
+  INSTALL(TARGETS sundials_nvecspcpar_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
 ENDIF(BUILD_SHARED_LIBS)
 
 # Install the NVECSPCPAR header files
@@ -76,7 +76,7 @@ IF(FCMIX_ENABLE AND MPI_Fortran_FOUND)
     ADD_LIBRARY(sundials_fnvecspcpar_static STATIC ${fnvecspcpar_SOURCES})
     SET_TARGET_PROPERTIES(sundials_fnvecspcpar_static
       PROPERTIES OUTPUT_NAME sundials_fnvecspcpar CLEAN_DIRECT_OUTPUT 1)
-    INSTALL(TARGETS sundials_fnvecspcpar_static DESTINATION lib)
+    INSTALL(TARGETS sundials_fnvecspcpar_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
   ENDIF(BUILD_STATIC_LIBS)
   IF(BUILD_SHARED_LIBS)
     ADD_LIBRARY(sundials_fnvecspcpar_shared SHARED ${fnvecspcpar_SOURCES})
@@ -84,7 +84,7 @@ IF(FCMIX_ENABLE AND MPI_Fortran_FOUND)
       PROPERTIES OUTPUT_NAME sundials_fnvecspcpar CLEAN_DIRECT_OUTPUT 1)
     SET_TARGET_PROPERTIES(sundials_fnvecspcpar_shared
       PROPERTIES VERSION ${nveclib_VERSION} SOVERSION ${nveclib_SOVERSION})
-    INSTALL(TARGETS sundials_fnvecspcpar_shared DESTINATION lib)
+    INSTALL(TARGETS sundials_fnvecspcpar_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
   ENDIF(BUILD_SHARED_LIBS)
 ENDIF()
 #

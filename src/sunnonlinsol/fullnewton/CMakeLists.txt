@@ -45,7 +45,7 @@ if(BUILD_STATIC_LIBS)
   add_library(sundials_sunnonlinsolfullnewton_static STATIC ${lib_SOURCES} ${shared_SOURCES})
   set_target_properties(sundials_sunnonlinsolfullnewton_static
     PROPERTIES OUTPUT_NAME sundials_sunnonlinsolfullnewton CLEAN_DIRECT_OUTPUT 1)
-  install(TARGETS sundials_sunnonlinsolfullnewton_static DESTINATION lib)
+  install(TARGETS sundials_sunnonlinsolfullnewton_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()
 
 # Rules for building and installing the shared library:
@@ -64,7 +64,7 @@ if(BUILD_SHARED_LIBS)
     PROPERTIES OUTPUT_NAME sundials_sunnonlinsolfullnewton CLEAN_DIRECT_OUTPUT 1)
   set_target_properties(sundials_sunnonlinsolfullnewton_shared
     PROPERTIES VERSION ${sunnonlinsollib_VERSION} SOVERSION ${sunnonlinsollib_SOVERSION})
-  install(TARGETS sundials_sunnonlinsolfullnewton_shared DESTINATION lib)
+  install(TARGETS sundials_sunnonlinsolfullnewton_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()
 
 # Install the header files
@@ -79,7 +79,7 @@ if(FCMIX_ENABLE AND F77_FOUND)
     add_library(sundials_fsunnonlinsolfullnewton_static STATIC ${flib_SOURCES})
     set_target_properties(sundials_fsunnonlinsolfullnewton_static
       PROPERTIES OUTPUT_NAME sundials_fsunnonlinsolfullnewton CLEAN_DIRECT_OUTPUT 1)
-    install(TARGETS sundials_fsunnonlinsolfullnewton_static DESTINATION lib)
+    install(TARGETS sundials_fsunnonlinsolfullnewton_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
   endif()
 
   if(BUILD_SHARED_LIBS)
@@ -94,7 +94,7 @@ if(FCMIX_ENABLE AND F77_FOUND)
       PROPERTIES OUTPUT_NAME sundials_fsunnonlinsolfullnewton CLEAN_DIRECT_OUTPUT 1)
     set_target_properties(sundials_fsunnonlinsolfullnewton_shared
       PROPERTIES VERSION ${sunnonlinsollib_VERSION} SOVERSION ${sunnonlinsollib_SOVERSION})
-    install(TARGETS sundials_fsunnonlinsolfullnewton_shared DESTINATION lib)
+    install(TARGETS sundials_fsunnonlinsolfullnewton_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
   endif()
 
 endif()

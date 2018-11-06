@@ -64,7 +64,7 @@ IF(BUILD_STATIC_LIBS)
   SET_TARGET_PROPERTIES(sundials_nveccudaraja_static
     PROPERTIES OUTPUT_NAME sundials_nveccudaraja CLEAN_DIRECT_OUTPUT 1
   )
-  INSTALL(TARGETS sundials_nveccudaraja_static DESTINATION lib)
+  INSTALL(TARGETS sundials_nveccudaraja_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
   # MPI+CUDA
   IF(MPI_ENABLE)
     CUDA_ADD_LIBRARY(sundials_nvecmpicudaraja_static STATIC ${nvecraja_SOURCES} ${shared_SOURCES})
@@ -91,7 +91,7 @@ IF(BUILD_SHARED_LIBS)
     PROPERTIES OUTPUT_NAME sundials_nveccudaraja CLEAN_DIRECT_OUTPUT 1
                VERSION ${nveclib_VERSION} SOVERSION ${nveclib_SOVERSION}
   )
-  INSTALL(TARGETS sundials_nveccudaraja_shared DESTINATION lib)
+  INSTALL(TARGETS sundials_nveccudaraja_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
   # ----------------------- MPI+CUDA
   IF(MPI_ENABLE)
