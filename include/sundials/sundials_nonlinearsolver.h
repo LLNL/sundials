@@ -134,6 +134,7 @@ struct _generic_SUNNonlinearSolver_Ops {
   int                     (*setmaxiters)(SUNNonlinearSolver, int);
   int                     (*getnumiters)(SUNNonlinearSolver, long int*);
   int                     (*getcuriter)(SUNNonlinearSolver, int*);
+  int                     (*getnumconvfails)(SUNNonlinearSolver, long int*);
 };
 
 /* A nonlinear solver is a structure with an implementation-dependent 'content'
@@ -184,6 +185,9 @@ SUNDIALS_EXPORT int SUNNonlinSolGetNumIters(SUNNonlinearSolver NLS,
 
 SUNDIALS_EXPORT int SUNNonlinSolGetCurIter(SUNNonlinearSolver NLS,
                                            int *iter);
+
+SUNDIALS_EXPORT int SUNNonlinSolGetNumConvFails(SUNNonlinearSolver NLS,
+                                                long int *nconvfails);
 
 /* -----------------------------------------------------------------------------
  * VI. SUNNonlinearSolver return codes

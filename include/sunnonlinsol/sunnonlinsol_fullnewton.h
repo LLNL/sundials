@@ -13,9 +13,9 @@
  * -----------------------------------------------------------------------------
  * This is the header file for the SUNNonlinearSolver module implementation of
  * a Full Newton iteration.
- * 
+ *
  * Part I defines the solver-specific content structure.
- * 
+ *
  * Part II contains prototypes for the solver constructor and operations.
  * ---------------------------------------------------------------------------*/
 
@@ -43,10 +43,11 @@ struct _SUNNonlinearSolverContent_FullNewton {
   SUNNonlinSolConvTestFn CTest;  /* nonlinear solver convergence test function */
 
   /* nonlinear solver variables */
-  N_Vector delta;     /* Newton correction vector                               */
-  int      mnewt;     /* current number of Newton iterations in a solve attempt */
-  int      maxiters;  /* maximum number of Newton iterations in a solve attempt */
-  long int niters;    /* total number of nonlinear iterations across all solves */
+  N_Vector delta;      /* Newton correction vector                               */
+  int      curiter;    /* current number of Newton iterations in a solve attempt */
+  int      maxiters;   /* maximum number of Newton iterations in a solve attempt */
+  long int niters;     /* total number of nonlinear iterations across all solves */
+  long int nconvfails; /* total number of convergence failures across all solves */
 };
 
 typedef struct _SUNNonlinearSolverContent_FullNewton *SUNNonlinearSolverContent_FullNewton;
@@ -92,6 +93,9 @@ SUNDIALS_EXPORT int SUNNonlinSolGetNumIters_FullNewton(SUNNonlinearSolver NLS,
 
 SUNDIALS_EXPORT int SUNNonlinSolGetCurIter_FullNewton(SUNNonlinearSolver NLS,
                                                       int *iter);
+
+SUNDIALS_EXPORT int SUNNonlinSolGetNumConvFails_FullNewton(SUNNonlinearSolver NLS,
+                                                           long int *nconvfails);
 
 SUNDIALS_EXPORT int SUNNonlinSolGetSysFn_FullNewton(SUNNonlinearSolver NLS,
                                                     SUNNonlinSolSysFn *SysFn);

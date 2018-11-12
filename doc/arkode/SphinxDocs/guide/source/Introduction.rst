@@ -176,10 +176,6 @@ that to ARKode, instead of calling the previous
 :ref:`SUNNonlinSol_FixedPoint` for further details, or the serial C
 example program ``ark_brusselator_fp.c`` for an example.
 
-Simplified the prototype for the user-supplied time step adaptivity
-function, :c:func:`ARKAdaptFn()`, to supply only the method order of
-accuracy (instead of both the method and embedding orders).
-
 ARKode's dense output infrastructure has been improved to support
 higher-degree Hermite polynomial interpolants (up to degree 5) over
 the last successful time step.
@@ -212,37 +208,69 @@ will automatically call standard NVECTOR operations as
 necessary. Details on the new operations can be found in Chapter
 :ref:`NVectors.Description`.
 
-Several changes were made to the SUNDIALS build system. If MPI is
-enabled and MPI compiler wrappers are not set, the build system will
-check if ``CMAKE_<language>_COMPILER`` can compile MPI programs before
-trying to locate and use an MPI installation. The native CMake FindMPI
-module is now used to locate an MPI installation. The options for
-setting MPI compiler wrappers and the executable for running MPI
-programs have been updated to align with those in native CMake FindMPI
-module. This included changing ``MPI_MPICC`` to ``MPI_C_COMPILER``,
-``MPI_MPICXX`` to ``MPI_CXX_COMPILER``, combining ``MPI_MPIF77`` and
-``MPI_MPIF90`` to ``MPI_Fortran_COMPILER``, and changing
-``MPI_RUN_COMMAND`` to ``MPIEXEC_EXECUTABLE``. When a Fortran name-mangling
-scheme is needed (e.g., ``LAPACK_ENABLE`` is ``ON``) the build system
-will infer the scheme from the Fortran compiler. If a Fortran compiler
-is not available or the inferred or default scheme needs to be
-overridden, the advanced options ``SUNDIALS_F77_FUNC_CASE`` and
-``SUNDIALS_F77_FUNC_UNDERSCORES`` can be used to manually set the
-name-mangling scheme and bypass trying to infer the scheme.
-Additionally, parts of the main CMakeLists.txt file were moved
-to new files in the ``src`` and ``example`` directories to make the
-CMake configuration file structure more modular.
+
+Changes in v2.2.1
+^^^^^^^^^^^^^^^^^^^^^^^
+
+Fixed a bug in the CUDA NVECTOR where the ``N_VInvTest`` operation could
+write beyond the allocated vector data.
+
+Fixed library installation path for multiarch systems. This fix changes the default
+library installation path to ``CMAKE_INSTALL_PREFIX/CMAKE_INSTALL_LIBDIR``
+from ``CMAKE_INSTALL_PREFIX/lib``. ``CMAKE_INSTALL_LIBDIR`` is automatically
+set, but is available as a CMAKE option that can modified.
 
 
 Changes in v2.2.0
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-Fixed a problem with index types which would occur with some compilers
-(e.g. armclang) that did not define ``__STDC_VERSION__``.
+Fixed a problem with setting ``sunindextype`` which would occur
+with some compilers (e.g. armclang) that did not define ``__STDC_VERSION__``.
 
-Deprecated the current behavior of the ``SUNDIALS_INDEX_TYPE`` CMake
-option, and added the ``SUNDIALS_INDEX_SIZE`` CMake option to take its
-place.
+Added hybrid MPI/CUDA and MPI/RAJA vectors to allow use of more
+than one MPI rank when using a GPU system.  The vectors assume one GPU
+device per MPI rank.
+
+Changed the name of the RAJA NVECTOR library to
+``libsundials_nveccudaraja.lib`` from
+``libsundials_nvecraja.lib`` to better reflect that we only support CUDA
+as a backend for RAJA currently.
+
+
+Several changes were made to the build system:
+
+* CMake 3.1.3 is now the minimum required CMake version.
+
+* Deprecate the behavior of the ``SUNDIALS_INDEX_TYPE`` CMake option and
+  added the
+  ``SUNDIALS_INDEX_SIZE`` CMake option to select the ``sunindextype``
+  integer size.
+
+* The native CMake FindMPI module is now used to locate an MPI
+  installation.
+
+* If MPI is enabled and MPI compiler wrappers are not set, the build system
+  will check if ``CMAKE_<language>_COMPILER`` can compile MPI programs before
+  trying to locate and use an MPI installation.
+
+* The previous options for setting MPI compiler wrappers and the executable
+  for running MPI programs have been have been depreated. The new options that
+  align with those used in native CMake FindMPI module are
+  ``MPI_C_COMPILER``, ``MPI_CXX_COMPILER``, ``MPI_Fortran_COMPILER``,
+  and ``MPIEXEC_EXECUTABLE``.
+
+* When a Fortran name-mangling scheme is needed (e.g., ``LAPACK_ENABLE``
+  is ``ON``) the build system will infer the scheme from the Fortran
+  compiler. If a Fortran compiler is not available or the inferred or default
+  scheme needs to be overridden, the advanced options
+  ``SUNDIALS_F77_FUNC_CASE`` and ``SUNDIALS_F77_FUNC_UNDERSCORES`` can
+  be used to manually set the name-mangling scheme and bypass trying to infer
+  the scheme.
+
+* Parts of the main CMakeLists.txt file were moved to new files in the
+  ``src`` and ``example`` directories to make the CMake configuration file
+  structure more modular.
+
 
 
 Changes in v2.1.2

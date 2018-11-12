@@ -257,12 +257,12 @@ SUNNonlinearSolver get functions
 ----------------------------------
 
 The following get functions allow SUNDIALS integrators to retrieve nonlinear
-solver statistics. The routine for getting the current total number of
-iterations (``SUNNonlinSolGetNumIters``) is optional.  The routine for getting
-the current nonlinear solver iteration (``SUNNonlinSolGetCurIter``) is required
-when using the convergence test provided by the SUNDIALS integrator or when
-using a SUNLinSol spils linear solver otherwise,
-``SUNNonlinSolGetCurIter`` is optional. 
+solver statistics. The routines to get the current total number of
+iterations (``SUNNonlinSolGetNumIters``) and number of convergence failures are
+optional. The routine to get the current nonlinear solver iteration
+(``SUNNonlinSolGetCurIter``) is required when using the convergence test
+provided by the SUNDIALS integrator or when using a SUNLinSol spils linear
+solver otherwise, ``SUNNonlinSolGetCurIter`` is optional. 
 
   
 .. c:function:: int SUNNonlinSolGetNumIters(SUNNonlinearSolver NLS, long int *niters)
@@ -296,6 +296,19 @@ using a SUNLinSol spils linear solver otherwise,
    **Return value:**  the return value should be zero for a
    successful call, and a negative value for a failure.
 
+ .. c:function:: int SUNNonlinSolGetNumConvFails(SUNNonlinearSolver NLS, long int *nconvfails)
+
+   The *optional* function :c:func:`SUNNonlinSolGetNumConvFails()` returns
+   the total number of nonlinear solver convergence failures. This may be
+   called by the SUNDIALS integrator to store the nonlinear solver
+   statistics, but may also be called by the user. 
+
+   **Arguments:**
+      * *NLS* -- a SUNNonlinSol object
+      * *nconvfails* -- the total number of nonlinear solver convergence failures.
+
+   **Return value:**  the return value should be zero for a
+   successful call, and a negative value for a failure.
 
 
 .. _SUNNonlinSol.SUNSuppliedFn:
@@ -495,6 +508,7 @@ structure is defined as
      int                     (*setmaxiters)(SUNNonlinearSolver, int);
      int                     (*getnumiters)(SUNNonlinearSolver, long int*);
      int                     (*getcuriter)(SUNNonlinearSolver, int*);
+     int                     (*getnumconvfails)(SUNNonlinearSolver, long int*);
    };
 
 The generic SUNNonlinSol module defines and implements the nonlinear

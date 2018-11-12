@@ -147,3 +147,15 @@ int SUNNonlinSolGetCurIter(SUNNonlinearSolver NLS, int *iter)
     return(SUN_NLS_SUCCESS);
   }
 }
+
+
+/* get the total number on nonlinear solve convergence failures (optional) */
+int SUNNonlinSolGetNumConvFails(SUNNonlinearSolver NLS, long int *nconvfails)
+{
+  if (NLS->ops->getnumconvfails) {
+    return((int) NLS->ops->getnumconvfails(NLS, nconvfails));
+  } else {
+    *nconvfails = 0;
+    return(SUN_NLS_SUCCESS);
+  }
+}

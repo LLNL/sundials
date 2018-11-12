@@ -372,10 +372,6 @@ that to ARKode, instead of calling the previous
 {\hyperref[sunnonlinsol/SUNNonlinSol_FixedPoint:sunnonlinsol-fixedpoint]{\emph{\DUspan{}{The SUNNonlinearSolver\_FixedPoint implementation}}}} for further details, or the serial C
 example program \code{ark\_brusselator\_fp.c} for an example.
 
-%% Simplified the prototype for the user-supplied time step adaptivity
-%% function, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn()}}}}, to supply only the method order of
-%% accuracy (instead of both the method and embedding orders).
-
 ARKode's dense output infrastructure has been improved to support
 higher-degree Hermite polynomial interpolants (up to degree 5) over
 the last successful time step.
@@ -404,57 +400,75 @@ will automatically call standard NVECTOR operations as
 necessary. Details on the new operations can be found in Chapter
 {\hyperref[nvectors/NVector_Description:nvectors-description]{\emph{\DUspan{}{Description of the NVECTOR Modules}}}}.
 
+
 \subsection{Changes in v2.2.1}
-\label{Introduction:changes-in-v2.2.1}
-Fixed a bug in the CUDA NVECTOR where the \texttt{N\_VInvTest} operation could
+\label{Introduction:changes-in-v2-2-1}
+Fixed a bug in the CUDA NVECTOR where the \code{N\_VInvTest} operation could
 write beyond the allocated vector data.
 
 Fixed library installation path for multiarch systems. This fix changes the default
-library installation path to \texttt{CMAKE\_INSTALL\_PREFIX/CMAKE\_INSTALL\_LIBDIR}
-from \texttt{CMAKE\_INSTALL\_PREFIX/lib}. \texttt{CMAKE\_INSTALL\_LIBDIR} is automatically
+library installation path to \code{CMAKE\_INSTALL\_PREFIX/CMAKE\_INSTALL\_LIBDIR}
+from \code{CMAKE\_INSTALL\_PREFIX/lib}. \code{CMAKE\_INSTALL\_LIBDIR} is automatically
 set, but is available as a CMAKE option that can modified.
 
+
 \subsection{Changes in v2.2.0}
-\label{Introduction:changes-in-v2.2.0}
-Fixed a problem with setting \texttt{sunindextype} which would occur
-with some compilers (e.g. armclang) that did not define \texttt{\_\_STDC\_VERSION\_\_}.
+\label{Introduction:changes-in-v2-2-0}
+Fixed a problem with setting \code{sunindextype} which would occur
+with some compilers (e.g. armclang) that did not define \code{\_\_STDC\_VERSION\_\_}.
 
 Added hybrid MPI/CUDA and MPI/RAJA vectors to allow use of more 
 than one MPI rank when using a GPU system.  The vectors assume one GPU 
 device per MPI rank.
 
 Changed the name of the RAJA NVECTOR library to
-\texttt{libsundials\_nveccudaraja.lib} from
-\texttt{libsundials\_nvecraja.lib} to better reflect that we only support CUDA
+\code{libsundials\_nveccudaraja.lib} from
+\code{libsundials\_nvecraja.lib} to better reflect that we only support CUDA
 as a backend for RAJA currently.
 
 Several changes were made to the build system:
 \begin{itemize}
-\item CMake 3.1.3 is now the minimum required CMake version.
-\item Deprecate the behavior of the \texttt{SUNDIALS\_INDEX\_TYPE} CMake option and
-  added the
-  \texttt{SUNDIALS\_INDEX\_SIZE} CMake option to select the \texttt{sunindextype}
-  integer size.
-\item The native CMake FindMPI module is now used to locate an MPI installation.
-\item If MPI is enabled and MPI compiler wrappers are not set, the build system 
-  will check if \texttt{CMAKE\_<language>\_COMPILER} can compile MPI programs before
-  trying to locate and use an MPI installation.
-\item The previous options for setting MPI compiler wrappers and the executable
-  for running MPI programs have been have been depreated. The new options that
-  align with those used in native CMake FindMPI module are
-  \texttt{MPI\_C\_COMPILER}, \texttt{MPI\_CXX\_COMPILER}, \texttt{MPI\_Fortran\_COMPILER},
-  and \texttt{MPIEXEC\_EXECUTABLE}.
-\item When a Fortran name-mangling scheme is needed (e.g., \texttt{LAPACK\_ENABLE}
-  is \texttt{ON}) the build system will infer the scheme from the Fortran
-  compiler. If a Fortran compiler is not available or the inferred or default
-  scheme needs to be overridden, the advanced options
-  \texttt{SUNDIALS\_F77\_FUNC\_CASE} and \texttt{SUNDIALS\_F77\_FUNC\_UNDERSCORES} can
-  be used to manually set the name-mangling scheme and bypass trying to infer
-  the scheme. 
-\item Parts of the main CMakeLists.txt file were moved to new files in the
-  \texttt{src} and \texttt{example} directories to make the CMake configuration file
-  structure more modular.
+\item {} 
+CMake 3.1.3 is now the minimum required CMake version.
+
+\item {} 
+Deprecate the behavior of the \code{SUNDIALS\_INDEX\_TYPE} CMake option and
+added the
+\code{SUNDIALS\_INDEX\_SIZE} CMake option to select the \code{sunindextype}
+integer size.
+
+\item {} 
+The native CMake FindMPI module is now used to locate an MPI
+installation.
+
+\item {} 
+If MPI is enabled and MPI compiler wrappers are not set, the build system
+will check if \code{CMAKE\_\textless{}language\textgreater{}\_COMPILER} can compile MPI programs before
+trying to locate and use an MPI installation.
+
+\item {} 
+The previous options for setting MPI compiler wrappers and the executable
+for running MPI programs have been have been depreated. The new options that
+align with those used in native CMake FindMPI module are
+\code{MPI\_C\_COMPILER}, \code{MPI\_CXX\_COMPILER}, \code{MPI\_Fortran\_COMPILER},
+and \code{MPIEXEC\_EXECUTABLE}.
+
+\item {} 
+When a Fortran name-mangling scheme is needed (e.g., \code{LAPACK\_ENABLE}
+is \code{ON}) the build system will infer the scheme from the Fortran
+compiler. If a Fortran compiler is not available or the inferred or default
+scheme needs to be overridden, the advanced options
+\code{SUNDIALS\_F77\_FUNC\_CASE} and \code{SUNDIALS\_F77\_FUNC\_UNDERSCORES} can
+be used to manually set the name-mangling scheme and bypass trying to infer
+the scheme.
+
+\item {} 
+Parts of the main CMakeLists.txt file were moved to new files in the
+\code{src} and \code{example} directories to make the CMake configuration file
+structure more modular.
+
 \end{itemize}
+
 
 \subsection{Changes in v2.1.2}
 \label{Introduction:changes-in-v2-1-2}
@@ -30900,12 +30914,12 @@ successful call, and a negative value for a failure
 \subsubsection{SUNNonlinearSolver get functions}
 \label{sunnonlinsol/SUNNonlinSol_API:sunnonlinearsolver-get-functions}\label{sunnonlinsol/SUNNonlinSol_API:sunnonlinsol-getfn}
 The following get functions allow SUNDIALS integrators to retrieve nonlinear
-solver statistics. The routine for getting the current total number of
-iterations (\code{SUNNonlinSolGetNumIters}) is optional.  The routine for getting
-the current nonlinear solver iteration (\code{SUNNonlinSolGetCurIter}) is required
-when using the convergence test provided by the SUNDIALS integrator or when
-using a SUNLinSol spils linear solver otherwise,
-\code{SUNNonlinSolGetCurIter} is optional.
+solver statistics. The routines to get the current total number of
+iterations (\code{SUNNonlinSolGetNumIters}) and number of convergence failures are
+optional. The routine to get the current nonlinear solver iteration
+(\code{SUNNonlinSolGetCurIter}) is required when using the convergence test
+provided by the SUNDIALS integrator or when using a SUNLinSol spils linear
+solver otherwise, \code{SUNNonlinSolGetCurIter} is optional.
 \index{SUNNonlinSolGetNumIters (C function)}
 
 \begin{fulllineitems}
@@ -30934,7 +30948,8 @@ successful call, and a negative value for a failure.
 \index{SUNNonlinSolGetCurIter (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{sunnonlinsol/SUNNonlinSol_API:c.SUNNonlinSolGetCurIter}\pysiglinewithargsret{int \bfcode{SUNNonlinSolGetCurIter}}{SUNNonlinearSolver\emph{ NLS}, int\emph{ *iter}}{}
+\phantomsection\label{sunnonlinsol/SUNNonlinSol_API:c.SUNNonlinSolGetCurIter}\pysiglinewithargsret{int \bfcode{SUNNonlinSolGetCurIter}}{SUNNonlinearSolver\emph{ NLS}, int\emph{ *iter}}{}~\begin{quote}
+
 The function {\hyperref[sunnonlinsol/SUNNonlinSol_API:c.SUNNonlinSolGetCurIter]{\emph{\code{SUNNonlinSolGetCurIter()}}}} returns the
 iteration index of the current nonlinear solve. This function is
 \emph{required} when using SUNDIALS integrator-provided convergence
@@ -30955,6 +30970,32 @@ starting from zero.
 
 \textbf{Return value:}  the return value should be zero for a
 successful call, and a negative value for a failure.
+\end{quote}
+\index{SUNNonlinSolGetNumConvFails (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunnonlinsol/SUNNonlinSol_API:c.SUNNonlinSolGetNumConvFails}\pysiglinewithargsret{int \bfcode{SUNNonlinSolGetNumConvFails}}{SUNNonlinearSolver\emph{ NLS}, long int\emph{ *nconvfails}}{}
+The \emph{optional} function {\hyperref[sunnonlinsol/SUNNonlinSol_API:c.SUNNonlinSolGetNumConvFails]{\emph{\code{SUNNonlinSolGetNumConvFails()}}}} returns
+the total number of nonlinear solver convergence failures. This may be
+called by the SUNDIALS integrator to store the nonlinear solver
+statistics, but may also be called by the user.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{NLS} -- a SUNNonlinSol object
+
+\item {} 
+\emph{nconvfails} -- the total number of nonlinear solver convergence failures.
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Return value:}  the return value should be zero for a
+successful call, and a negative value for a failure.
+
+\end{fulllineitems}
+
 
 \end{fulllineitems}
 
@@ -31243,6 +31284,7 @@ structure is defined as
   \PYG{k+kt}{int}                     \PYG{p}{(}\PYG{o}{*}\PYG{n}{setmaxiters}\PYG{p}{)}\PYG{p}{(}\PYG{n}{SUNNonlinearSolver}\PYG{p}{,} \PYG{k+kt}{int}\PYG{p}{)}\PYG{p}{;}
   \PYG{k+kt}{int}                     \PYG{p}{(}\PYG{o}{*}\PYG{n}{getnumiters}\PYG{p}{)}\PYG{p}{(}\PYG{n}{SUNNonlinearSolver}\PYG{p}{,} \PYG{k+kt}{long} \PYG{k+kt}{int}\PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
   \PYG{k+kt}{int}                     \PYG{p}{(}\PYG{o}{*}\PYG{n}{getcuriter}\PYG{p}{)}\PYG{p}{(}\PYG{n}{SUNNonlinearSolver}\PYG{p}{,} \PYG{k+kt}{int}\PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
+  \PYG{k+kt}{int}                     \PYG{p}{(}\PYG{o}{*}\PYG{n}{getnumconvfails}\PYG{p}{)}\PYG{p}{(}\PYG{n}{SUNNonlinearSolver}\PYG{p}{,} \PYG{k+kt}{long} \PYG{k+kt}{int}\PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{Verbatim}
 
@@ -31467,6 +31509,7 @@ following structure.
   \PYG{k+kt}{int}         \PYG{n}{curiter}\PYG{p}{;}
   \PYG{k+kt}{int}         \PYG{n}{maxiters}\PYG{p}{;}
   \PYG{k+kt}{long} \PYG{k+kt}{int}    \PYG{n}{niters}\PYG{p}{;}
+  \PYG{k+kt}{long} \PYG{k+kt}{int}    \PYG{n}{nconvfails}\PYG{p}{;}
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{Verbatim}
 
@@ -31501,6 +31544,10 @@ solve,
 
 \item {} 
 \code{niters} -- the total number of nonlinear iterations across all solves.
+
+\item {} 
+\code{nconvfails} -- the total number of nonlinear convergence failures across
+all solves.
 
 \end{itemize}
 
@@ -31720,6 +31767,7 @@ following structure.
   \PYG{k+kt}{int}       \PYG{n}{curiter}\PYG{p}{;}
   \PYG{k+kt}{int}       \PYG{n}{maxiters}\PYG{p}{;}
   \PYG{k+kt}{long} \PYG{k+kt}{int}  \PYG{n}{niters}\PYG{p}{;}
+  \PYG{k+kt}{long} \PYG{k+kt}{int}  \PYG{n}{nconvfails}\PYG{p}{;}
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{Verbatim}
 
@@ -31727,33 +31775,36 @@ The following entries of the \emph{content} field are always
 allocated:
 \begin{itemize}
 \item {} 
-\code{Sys}      -- function for evaluating the nonlinear system,
+\code{Sys}        -- function for evaluating the nonlinear system,
 
 \item {} 
-\code{CTest}    -- function for checking convergence of the fixed point iteration,
+\code{CTest}      -- function for checking convergence of the fixed point iteration,
 
 \item {} 
-\code{yprev}    -- \code{N\_Vector} used to store previous fixed-point iterate,
+\code{yprev}      -- \code{N\_Vector} used to store previous fixed-point iterate,
 
 \item {} 
-\code{gy}       -- \code{N\_Vector} used to store \(G(y)\) in fixed-point algorithm,
+\code{gy}         -- \code{N\_Vector} used to store \(G(y)\) in fixed-point algorithm,
 
 \item {} 
-\code{delta}    -- \code{N\_Vector} used to store difference between successive fixed-point iterates,
+\code{delta}      -- \code{N\_Vector} used to store difference between successive fixed-point iterates,
 
 \item {} 
-\code{curiter}  -- the current number of iterations in the solve attempt,
+\code{curiter}    -- the current number of iterations in the solve attempt,
 
 \item {} 
-\code{maxiters} -- the maximum number of fixed-point iterations allowed in
+\code{maxiters}   -- the maximum number of fixed-point iterations allowed in
 a solve, and
 
 \item {} 
-\code{niters}   -- the total number of nonlinear iterations across all
+\code{niters}     -- the total number of nonlinear iterations across all
 solves.
 
 \item {} 
-\code{m}        -- number of acceleration vectors,
+\code{nconvfails} -- the total number of nonlinear convergence failures across all solves.
+
+\item {} 
+\code{m}          -- number of acceleration vectors,
 
 \end{itemize}
 

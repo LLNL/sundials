@@ -45,23 +45,24 @@ struct _SUNNonlinearSolverContent_FixedPoint {
   SUNNonlinSolConvTestFn CTest;  /* convergence test function      */
 
   /* nonlinear solver variables */
-  int       m;         /* number of acceleration vectors to use          */
-  int      *imap;      /* array of length m                              */
-  realtype *R;         /* array of length m*m                            */
-  realtype *gamma;     /* array of length m                              */
-  realtype *cvals;     /* array of length m+1 for fused vector op        */
-  N_Vector *df;        /* vector array of length m                       */
-  N_Vector *dg;        /* vector array of length m                       */
-  N_Vector *q;         /* vector array of length m                       */
-  N_Vector *Xvecs;     /* array of length m+1 for fused vector op        */
-  N_Vector  yprev;     /* temporary vectors for performing solve         */
+  int       m;          /* number of acceleration vectors to use          */
+  int      *imap;       /* array of length m                              */
+  realtype *R;          /* array of length m*m                            */
+  realtype *gamma;      /* array of length m                              */
+  realtype *cvals;      /* array of length m+1 for fused vector op        */
+  N_Vector *df;         /* vector array of length m                       */
+  N_Vector *dg;         /* vector array of length m                       */
+  N_Vector *q;          /* vector array of length m                       */
+  N_Vector *Xvecs;      /* array of length m+1 for fused vector op        */
+  N_Vector  yprev;      /* temporary vectors for performing solve         */
   N_Vector  gy;
   N_Vector  fold;
   N_Vector  gold;
-  N_Vector  delta;     /* correction vector (change between 2 iterates)  */
-  int       curiter;   /* current iteration number in a solve attempt    */
-  int       maxiters;  /* maximum number of iterations per solve attempt */
-  long int  niters;    /* total number of iterations across all solves   */
+  N_Vector  delta;      /* correction vector (change between 2 iterates)  */
+  int       curiter;    /* current iteration number in a solve attempt    */
+  int       maxiters;   /* maximum number of iterations per solve attempt */
+  long int  niters;     /* total number of iterations across all solves   */
+  long int  nconvfails; /* total number of convergence failures           */
 };
 
 typedef struct _SUNNonlinearSolverContent_FixedPoint *SUNNonlinearSolverContent_FixedPoint;
@@ -102,6 +103,9 @@ SUNDIALS_EXPORT int SUNNonlinSolGetNumIters_FixedPoint(SUNNonlinearSolver NLS,
 
 SUNDIALS_EXPORT int SUNNonlinSolGetCurIter_FixedPoint(SUNNonlinearSolver NLS,
                                                       int *iter);
+
+SUNDIALS_EXPORT int SUNNonlinSolGetNumConvFails_FixedPoint(SUNNonlinearSolver NLS,
+                                                           long int *nconvfails);
 
 SUNDIALS_EXPORT int SUNNonlinSolGetSysFn_FixedPoint(SUNNonlinearSolver NLS,
                                                     SUNNonlinSolSysFn *SysFn);

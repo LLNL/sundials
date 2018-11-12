@@ -386,8 +386,9 @@ parameters. Only the routine for setting the nonlinear system defining function
 \label{ss:sunnonlinsol_getfn}
 % ====================================================================
 The following get functions allow {\sundials} integrators to retrieve nonlinear
-solver statistics. The routine for getting the current total number of
-iterations (\id{SUNNonlinSolGetNumIters} is optional. The routine for getting
+solver statistics. The routines to get the current total number of
+iterations (\id{SUNNonlinSolGetNumIters}) and number of convergence failures
+(\id{SUNNonlinSolGetNumConvFails}) are optional. The routine to get
 the current nonlinear solver iteration (\id{SUNNonlinSolGetCurIter}) is required
 when using the convergence test provided by the {\sundials} integrator
 or by the {\arkode} and {\cvode} linear solver interfaces.  Otherwise,
@@ -442,6 +443,31 @@ or by the {\arkode} and {\cvode} linear solver interfaces.  Otherwise,
   successful call, and a negative value for a failure.
 }
 {}
+% --------------------------------------------------------------------
+\ucfunction{SUNNonlinSolGetNumConvFails}
+{
+  retval = SUNNonlinSolGetNumConvFails(NLS, nconvfails);
+}
+{
+  The \textit{optional} function \ID{SUNNonlinSolGetNumConvFails} returns
+  the total number of nonlinear solver convergence failures. This may be
+  called by the {\sundials} integrator to store the nonlinear solver
+  statistics, but may also be called by the user.
+}
+{
+  \begin{args}[nconvfails]
+  \item[NLS] (\id{SUNNonlinearSolver})
+    a {\sunnonlinsol} object
+  \item[nconvfails] (\id{long int*})
+    the total number of nonlinear solver convergence failures.
+  \end{args}
+}
+{
+  The return value \id{retval} (of type \id{int}) should be zero for a
+  successful call, and a negative value for a failure.
+}
+{}
+% --------------------------------------------------------------------
 
 % ====================================================================
 \subsection{Functions provided by SUNDIALS integrators}
@@ -754,6 +780,7 @@ struct _generic_SUNNonlinearSolver_Ops {
   int                     (*setmaxiters)(SUNNonlinearSolver, int);
   int                     (*getnumiters)(SUNNonlinearSolver, long int*);
   int                     (*getcuriter)(SUNNonlinearSolver, int*);
+  int                     (*getnumconvfails)(SUNNonlinearSolver, long int*);
 };
 \end{verbatim}
 %%

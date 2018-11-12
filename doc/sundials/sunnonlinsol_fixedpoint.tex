@@ -213,24 +213,27 @@ struct _SUNNonlinearSolverContent_FixedPoint {
   int       curiter;
   int       maxiters;
   long int  niters;
+  long int  nconvfails;
 };
 \end{verbatim}
 %%
 %%
 The following entries of the \emph{content} field are always
 allocated:
-\begin{args}[maxiters]
-  \item[Sys]      - function for evaluating the nonlinear system,
-  \item[CTest]    - function for checking convergence of the fixed point iteration,
-  \item[yprev]    - \id{N\_Vector} used to store previous fixed-point iterate,
-  \item[gy]       - \id{N\_Vector} used to store $G(y)$ in fixed-point algorithm,
-  \item[delta]    - \id{N\_Vector} used to store difference between successive fixed-point iterates,
-  \item[curiter]  - the current number of iterations in the solve attempt,
-  \item[maxiters] - the maximum number of fixed-point iterations allowed in
-                    a solve, and
-  \item[niters]   - the total number of nonlinear iterations across all
-                    solves.
-  \item[m]        - number of acceleration vectors,
+\begin{args}[nconvfails]
+  \item[Sys]        - function for evaluating the nonlinear system,
+  \item[CTest]      - function for checking convergence of the fixed point iteration,
+  \item[yprev]      - \id{N\_Vector} used to store previous fixed-point iterate,
+  \item[gy]         - \id{N\_Vector} used to store $G(y)$ in fixed-point algorithm,
+  \item[delta]      - \id{N\_Vector} used to store difference between successive fixed-point iterates,
+  \item[curiter]    - the current number of iterations in the solve attempt,
+  \item[maxiters]   - the maximum number of fixed-point iterations allowed in
+                      a solve, and
+  \item[niters]     - the total number of nonlinear iterations across all
+                      solves.
+  \item[nconvfails] - the total number of nonlinear convergence failures across
+                      all solves.
+  \item[m]          - number of acceleration vectors,
 \end{args}
 If Anderson acceleration is requested (i.e., $m>0$ in the call to
 \ID{SUNNonlinSol\_FixedPoint}), then the following items are also
@@ -271,7 +274,7 @@ function for creating a \id{SUNNonlinearSolver} object.
   \begin{args}[code]
   \item[code] (\id{int*})
     is an integer input specifying the solver id (1 for {\cvode}, 2
-    for {\ida}, 3 for {\kinsol}, and 4 for {\arkode}).
+    for {\ida}, and 4 for {\arkode}).
   \item[m] (\id{int*})
     is an integer input specifying the number of acceleration vectors.
   \end{args}

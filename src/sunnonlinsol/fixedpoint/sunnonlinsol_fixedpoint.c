@@ -83,29 +83,31 @@ SUNNonlinearSolver SUNNonlinSol_FixedPoint(N_Vector y, int m)
   NLS->ops     = ops;
 
   /* Attach operations */
-  ops->gettype     = SUNNonlinSolGetType_FixedPoint;
-  ops->initialize  = SUNNonlinSolInitialize_FixedPoint;
-  ops->setup       = NULL;  /* no setup needed */
-  ops->solve       = SUNNonlinSolSolve_FixedPoint;
-  ops->free        = SUNNonlinSolFree_FixedPoint;
-  ops->setsysfn    = SUNNonlinSolSetSysFn_FixedPoint;
-  ops->setlsetupfn = NULL;  /* no lsetup needed */
-  ops->setlsolvefn = NULL;  /* no lsolve needed */
-  ops->setctestfn  = SUNNonlinSolSetConvTestFn_FixedPoint;
-  ops->setmaxiters = SUNNonlinSolSetMaxIters_FixedPoint;
-  ops->getnumiters = SUNNonlinSolGetNumIters_FixedPoint;
-  ops->getcuriter  = SUNNonlinSolGetCurIter_FixedPoint;
+  ops->gettype         = SUNNonlinSolGetType_FixedPoint;
+  ops->initialize      = SUNNonlinSolInitialize_FixedPoint;
+  ops->setup           = NULL;  /* no setup needed */
+  ops->solve           = SUNNonlinSolSolve_FixedPoint;
+  ops->free            = SUNNonlinSolFree_FixedPoint;
+  ops->setsysfn        = SUNNonlinSolSetSysFn_FixedPoint;
+  ops->setlsetupfn     = NULL;  /* no lsetup needed */
+  ops->setlsolvefn     = NULL;  /* no lsolve needed */
+  ops->setctestfn      = SUNNonlinSolSetConvTestFn_FixedPoint;
+  ops->setmaxiters     = SUNNonlinSolSetMaxIters_FixedPoint;
+  ops->getnumiters     = SUNNonlinSolGetNumIters_FixedPoint;
+  ops->getcuriter      = SUNNonlinSolGetCurIter_FixedPoint;
+  ops->getnumconvfails = SUNNonlinSolGetNumConvFails_FixedPoint;
 
   /* Initialize all components of content to 0/NULL */
   memset(content, 0, sizeof(struct _SUNNonlinearSolverContent_FixedPoint));
 
   /* Fill general content */
-  content->Sys      = NULL;
-  content->CTest    = NULL;
-  content->m        = m;
-  content->curiter  = 0;
-  content->maxiters = 3;
-  content->niters   = 0;
+  content->Sys        = NULL;
+  content->CTest      = NULL;
+  content->m          = m;
+  content->curiter    = 0;
+  content->maxiters   = 3;
+  content->niters     = 0;
+  content->nconvfails = 0;
 
   /* Fill allocatable content */
   retval = AllocateContent(NLS, y);
@@ -165,8 +167,9 @@ int SUNNonlinSolInitialize_FixedPoint(SUNNonlinearSolver NLS)
   if ( (FP_CONTENT(NLS)->Sys == NULL) || (FP_CONTENT(NLS)->CTest == NULL) )
     return(SUN_NLS_MEM_NULL);
 
-  /* reset the total number of nonlinear solver iterations */
-  FP_CONTENT(NLS)->niters = 0;
+  /* reset the total number of iterations and convergence failures */
+  FP_CONTENT(NLS)->niters     = 0;
+  FP_CONTENT(NLS)->nconvfails = 0;
 
   return(SUN_NLS_SUCCESS);
 }
@@ -243,12 +246,18 @@ int SUNNonlinSolSolve_FixedPoint(SUNNonlinearSolver NLS, N_Vector y0,
     /* return if successful */
     if (retval == SUN_NLS_SUCCESS)  return(SUN_NLS_SUCCESS);
 
-    /* check if the iterations should continue; otherwise return error flag */
-    if (retval != SUN_NLS_CONTINUE)  return(retval);
+    /* check if the iterations should continue; otherwise increment the
+       convergence failure count and return error flag */
+    if (retval != SUN_NLS_CONTINUE) {
+      FP_CONTENT(NLS)->nconvfails++;
+      return(retval);
+    }
 
   }
 
-  /* if we've reached this point, then we exhausted the iteration limit */
+  /* if we've reached this point, then we exhausted the iteration limit;
+     increment the convergence failure count and return */
+  FP_CONTENT(NLS)->nconvfails++;
   return(SUN_NLS_CONV_RECVR);
 }
 
@@ -349,6 +358,18 @@ int SUNNonlinSolGetCurIter_FixedPoint(SUNNonlinearSolver NLS, int *iter)
 
   /* return the current nonlinear solver iteration count */
   *iter = FP_CONTENT(NLS)->curiter;
+  return(SUN_NLS_SUCCESS);
+}
+
+
+int SUNNonlinSolGetNumConvFails_FixedPoint(SUNNonlinearSolver NLS, long int *nconvfails)
+{
+  /* check that the nonlinear solver is non-null */
+  if (NLS == NULL)
+    return(SUN_NLS_MEM_NULL);
+
+  /* return the total number of nonlinear convergence failures */
+  *nconvfails = FP_CONTENT(NLS)->nconvfails;
   return(SUN_NLS_SUCCESS);
 }
 

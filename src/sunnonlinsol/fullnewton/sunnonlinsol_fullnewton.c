@@ -59,18 +59,19 @@ SUNNonlinearSolver SUNNonlinSol_FullNewton(N_Vector y)
   if (ops == NULL) { free(NLS); return(NULL); }
 
   /* Attach operations */
-  ops->gettype     = SUNNonlinSolGetType_FullNewton;
-  ops->initialize  = SUNNonlinSolInitialize_FullNewton;
-  ops->setup       = NULL; /* no setup needed */
-  ops->solve       = SUNNonlinSolSolve_FullNewton;
-  ops->free        = SUNNonlinSolFree_FullNewton;
-  ops->setsysfn    = SUNNonlinSolSetSysFn_FullNewton;
-  ops->setlsetupfn = SUNNonlinSolSetLSetupFn_FullNewton;
-  ops->setlsolvefn = SUNNonlinSolSetLSolveFn_FullNewton;
-  ops->setctestfn  = SUNNonlinSolSetConvTestFn_FullNewton;
-  ops->setmaxiters = SUNNonlinSolSetMaxIters_FullNewton;
-  ops->getnumiters = SUNNonlinSolGetNumIters_FullNewton;
-  ops->getcuriter  = SUNNonlinSolGetCurIter_FullNewton;
+  ops->gettype         = SUNNonlinSolGetType_FullNewton;
+  ops->initialize      = SUNNonlinSolInitialize_FullNewton;
+  ops->setup           = NULL; /* no setup needed */
+  ops->solve           = SUNNonlinSolSolve_FullNewton;
+  ops->free            = SUNNonlinSolFree_FullNewton;
+  ops->setsysfn        = SUNNonlinSolSetSysFn_FullNewton;
+  ops->setlsetupfn     = SUNNonlinSolSetLSetupFn_FullNewton;
+  ops->setlsolvefn     = SUNNonlinSolSetLSolveFn_FullNewton;
+  ops->setctestfn      = SUNNonlinSolSetConvTestFn_FullNewton;
+  ops->setmaxiters     = SUNNonlinSolSetMaxIters_FullNewton;
+  ops->getnumiters     = SUNNonlinSolGetNumIters_FullNewton;
+  ops->getcuriter      = SUNNonlinSolGetCurIter_FullNewton;
+  ops->getnumconvfails = SUNNonlinSolGetNumConvFails_FullNewton;
 
   /* Create content */
   content = NULL;
@@ -78,14 +79,15 @@ SUNNonlinearSolver SUNNonlinSol_FullNewton(N_Vector y)
   if (content == NULL) { free(ops); free(NLS); return(NULL); }
 
   /* Fill content */
-  content->Sys      = NULL;
-  content->LSetup   = NULL;
-  content->LSolve   = NULL;
-  content->CTest    = NULL;
-  content->delta    = N_VClone(y);
-  content->mnewt    = 0;
-  content->maxiters = 3;
-  content->niters   = 0;
+  content->Sys        = NULL;
+  content->LSetup     = NULL;
+  content->LSolve     = NULL;
+  content->CTest      = NULL;
+  content->delta      = N_VClone(y);
+  content->curiter    = 0;
+  content->maxiters   = 3;
+  content->niters     = 0;
+  content->nconvfails = 0;
 
   /* check if clone was successful */
   if (content->delta == NULL) { free(ops); free(NLS); return(NULL); }
@@ -121,8 +123,9 @@ int SUNNonlinSolInitialize_FullNewton(SUNNonlinearSolver NLS)
     return(SUN_NLS_MEM_NULL);
   }
 
-  /* reset the total number of nonlinear solver iterations */
-  NEWTON_CONTENT(NLS)->niters = 0;
+  /* reset the total number of iterations and convergence failures */
+  NEWTON_CONTENT(NLS)->niters     = 0;
+  NEWTON_CONTENT(NLS)->nconvfails = 0;
 
   return(SUN_NLS_SUCCESS);
 }
@@ -176,8 +179,8 @@ int SUNNonlinSolSolve_FullNewton(SUNNonlinearSolver NLS,
   /* shortcut to correction vector */
   delta = NEWTON_CONTENT(NLS)->delta;
 
-  /* initialize counter mnewt */
-  NEWTON_CONTENT(NLS)->mnewt = 0;
+  /* initialize counter curiter */
+  NEWTON_CONTENT(NLS)->curiter = 0;
 
   /* load prediction into y */
   N_VScale(ONE, y0, y);
@@ -211,16 +214,21 @@ int SUNNonlinSolSolve_FullNewton(SUNNonlinearSolver NLS,
     /* test for convergence, return if successful */
     retval = NEWTON_CONTENT(NLS)->CTest(NLS, y, delta, tol, w, mem);
     if (retval == SUN_NLS_SUCCESS)  return(SUN_NLS_SUCCESS);
+
+    /* check if the iteration should continue; otherwise exit Newton loop */
     if (retval != SUN_NLS_CONTINUE) break;
 
-    /* not yet converged. Increment mnewt and test for max allowed. */
-    NEWTON_CONTENT(NLS)->mnewt++;
-    if (NEWTON_CONTENT(NLS)->mnewt >= NEWTON_CONTENT(NLS)->maxiters) {
+    /* not yet converged. Increment curiter and test for max allowed. */
+    NEWTON_CONTENT(NLS)->curiter++;
+    if (NEWTON_CONTENT(NLS)->curiter >= NEWTON_CONTENT(NLS)->maxiters) {
       retval = SUN_NLS_CONV_RECVR;
       break;
     }
 
   } /* end of Newton iteration loop */
+
+  /* increment number of convergence failures */
+  NEWTON_CONTENT(NLS)->nconvfails++;
 
   /* all error returns exit here */
   return(retval);
@@ -355,7 +363,19 @@ int SUNNonlinSolGetCurIter_FullNewton(SUNNonlinearSolver NLS, int *iter)
     return(SUN_NLS_MEM_NULL);
 
   /* return the current nonlinear solver iteration count */
-  *iter = NEWTON_CONTENT(NLS)->mnewt;
+  *iter = NEWTON_CONTENT(NLS)->curiter;
+  return(SUN_NLS_SUCCESS);
+}
+
+
+int SUNNonlinSolGetNumConvFails_FullNewton(SUNNonlinearSolver NLS, long int *nconvfails)
+{
+  /* check that the nonlinear solver is non-null */
+  if (NLS == NULL)
+    return(SUN_NLS_MEM_NULL);
+
+  /* return the total number of nonlinear convergence failures */
+  *nconvfails = NEWTON_CONTENT(NLS)->nconvfails;
   return(SUN_NLS_SUCCESS);
 }
 

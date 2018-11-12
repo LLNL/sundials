@@ -171,6 +171,7 @@ following structure.
      int         curiter;
      int         maxiters;
      long int    niters;
+     long int    nconvfails;
    };
 
 These entries of the *content* field contain the following
@@ -196,6 +197,8 @@ information:
 
 * ``niters`` -- the total number of nonlinear iterations across all solves.
 
+* ``nconvfails`` -- the total number of nonlinear convergence failures across
+  all solves.
   
 
 .. _SUNNonlinSolNewton.Fortran:

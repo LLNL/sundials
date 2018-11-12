@@ -198,22 +198,24 @@ following structure.
      int       curiter;
      int       maxiters;
      long int  niters;
+     long int  nconvfails;
    };
 
 The following entries of the *content* field are always
 allocated:
 
-* ``Sys``      -- function for evaluating the nonlinear system,
-* ``CTest``    -- function for checking convergence of the fixed point iteration,
-* ``yprev``    -- ``N_Vector`` used to store previous fixed-point iterate,
-* ``gy``       -- ``N_Vector`` used to store :math:`G(y)` in fixed-point algorithm,
-* ``delta``    -- ``N_Vector`` used to store difference between successive fixed-point iterates,
-* ``curiter``  -- the current number of iterations in the solve attempt,
-* ``maxiters`` -- the maximum number of fixed-point iterations allowed in
+* ``Sys``        -- function for evaluating the nonlinear system,
+* ``CTest``      -- function for checking convergence of the fixed point iteration,
+* ``yprev``      -- ``N_Vector`` used to store previous fixed-point iterate,
+* ``gy``         -- ``N_Vector`` used to store :math:`G(y)` in fixed-point algorithm,
+* ``delta``      -- ``N_Vector`` used to store difference between successive fixed-point iterates,
+* ``curiter``    -- the current number of iterations in the solve attempt,
+* ``maxiters``   -- the maximum number of fixed-point iterations allowed in
   a solve, and
-* ``niters``   -- the total number of nonlinear iterations across all
+* ``niters``     -- the total number of nonlinear iterations across all
   solves.
-* ``m``        -- number of acceleration vectors,
+* ``nconvfails`` -- the total number of nonlinear convergence failures across all solves.
+* ``m``          -- number of acceleration vectors,
 
 If Anderson acceleration is requested (i.e., :math:`m>0` in the call
 to :c:func:`SUNNonlinSol_FixedPoint()`), then the following items are also
