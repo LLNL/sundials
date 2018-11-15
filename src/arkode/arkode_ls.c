@@ -63,13 +63,14 @@ int arkLSSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
                     "arkLSSetLinearSolver", MSG_LS_ARKMEM_NULL);
     return(ARKLS_MEM_NULL);
   }
+  ark_mem = (ARKodeMem) arkode_mem;
+
   if (LS == NULL) {
-    arkProcessError(NULL, ARKLS_ILL_INPUT, "ARKLS",
+    arkProcessError(ark_mem, ARKLS_ILL_INPUT, "ARKLS",
                     "arkLSSetLinearSolver",
                     "LS must be non-NULL");
     return(ARKLS_ILL_INPUT);
   }
-  ark_mem = (ARKodeMem) arkode_mem;
 
   /* Test if solver is compatible with LS interface */
   if ( (LS->ops->gettype == NULL) ||
@@ -249,13 +250,14 @@ int arkLSSetMassLinearSolver(void *arkode_mem, SUNLinearSolver LS,
                     MSG_LS_ARKMEM_NULL);
     return(ARKLS_MEM_NULL);
   }
+  ark_mem = (ARKodeMem) arkode_mem;
+
   if (LS == NULL) {
-    arkProcessError(NULL, ARKLS_ILL_INPUT, "ARKLS",
+    arkProcessError(ark_mem, ARKLS_ILL_INPUT, "ARKLS",
                     "arkLSSetMassLinearSolver",
                     "LS must be non-NULL");
     return(ARKLS_ILL_INPUT);
   }
-  ark_mem = (ARKodeMem) arkode_mem;
 
   /* Test if solver is compatible with LS */
   if ( (ark_mem->tempv1->ops->nvconst == NULL) ||

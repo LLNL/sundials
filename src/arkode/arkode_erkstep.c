@@ -15,7 +15,7 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * This is the implementation file for ARKode's ARK time stepper
+ * This is the implementation file for ARKode's ERK time stepper
  * module.
  *--------------------------------------------------------------*/
 
@@ -54,20 +54,35 @@ void* ERKStepCreate(ARKRhsFn f, realtype t0, N_Vector y0)
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
   booleantype nvectorOK;
-  int iret;
+  int retval;
 
-  /* Create ark_mem structure */
-  ark_mem = arkCreate();
-  if (ark_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
-                    "ERKStepCreate", MSG_ARK_NO_MEM);
+  /* Check that f is supplied */
+  if (f == NULL) {
+    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ERKStep",
+                    "ERKStepCreate", MSG_ARK_NULL_F);
     return(NULL);
   }
 
   /* Check for legal input parameters */
-  if (y0==NULL) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ERKStep",
+  if (y0 == NULL) {
+    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ERKStep",
                     "ERKStepCreate", MSG_ARK_NULL_Y0);
+    return(NULL);
+  }
+
+  /* Test if all required vector operations are implemented */
+  nvectorOK = erkStep_CheckNVector(y0);
+  if (!nvectorOK) {
+    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ERKStep",
+                    "ERKStepCreate", MSG_ARK_BAD_NVECTOR);
+    return(NULL);
+  }
+
+  /* Create ark_mem structure and set default values */
+  ark_mem = arkCreate();
+  if (ark_mem==NULL) {
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
+                    "ERKStepCreate", MSG_ARK_NO_MEM);
     return(NULL);
   }
 
@@ -88,26 +103,11 @@ void* ERKStepCreate(ARKRhsFn f, realtype t0, N_Vector y0)
   ark_mem->step_mem     = (void*) step_mem;
 
   /* Set default values for ERKStep optional inputs */
-  iret = ERKStepSetDefaults((void *) ark_mem);
-  if (iret != ARK_SUCCESS) {
-    arkProcessError(ark_mem, iret, "ARKode::ERKStep",
+  retval = ERKStepSetDefaults((void *) ark_mem);
+  if (retval != ARK_SUCCESS) {
+    arkProcessError(ark_mem, retval, "ARKode::ERKStep",
                     "ERKStepCreate",
                     "Error setting default solver options");
-    return(NULL);
-  }
-
-  /* Check that f is supplied */
-  if (f == NULL) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ERKStep",
-                    "ERKStepCreate", MSG_ARK_NULL_F);
-    return(NULL);
-  }
-
-  /* Test if all required vector operations are implemented */
-  nvectorOK = erkStep_CheckNVector(y0);
-  if (!nvectorOK) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ERKStep",
-                    "ERKStepCreate", MSG_ARK_BAD_NVECTOR);
     return(NULL);
   }
 
@@ -138,9 +138,9 @@ void* ERKStepCreate(ARKRhsFn f, realtype t0, N_Vector y0)
   step_mem->netf         = 0;
 
   /* Initialize main ARKode infrastructure */
-  iret = arkInit(ark_mem, t0, y0);
-  if (iret != ARK_SUCCESS) {
-    arkProcessError(ark_mem, iret, "ARKode::ERKStep", "ERKStepCreate",
+  retval = arkInit(ark_mem, t0, y0);
+  if (retval != ARK_SUCCESS) {
+    arkProcessError(ark_mem, retval, "ARKode::ERKStep", "ERKStepCreate",
                     "Unable to initialize main ARKode infrastructure");
     return(NULL);
   }
@@ -150,33 +150,24 @@ void* ERKStepCreate(ARKRhsFn f, realtype t0, N_Vector y0)
 
 
 /*---------------------------------------------------------------
- ERKStepResize:
+  ERKStepResize:
 
- This routine resizes the memory within the ERKStep module.
- It first resizes the main ARKode infrastructure memory, and
- then resizes its own data.
----------------------------------------------------------------*/
+  This routine resizes the memory within the ERKStep module.
+  It first resizes the main ARKode infrastructure memory, and
+  then resizes its own data.
+  ---------------------------------------------------------------*/
 int ERKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
                   realtype t0, ARKVecResizeFn resize, void *resize_data)
 {
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
   sunindextype lrw1, liw1, lrw_diff, liw_diff;
-  int ier, i, flag;
+  int i, retval;
 
   /* access ARKodeERKStepMem structure */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
-                    "ERKStepResize", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
-                    "ERKStepResize", MSG_ERKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeERKStepMem) ark_mem->step_mem;
+  retval = erkStep_AccessStepMem(arkode_mem, "ERKStepReSize",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
 
   /* Determing change in vector sizes */
   lrw1 = liw1 = 0;
@@ -188,18 +179,18 @@ int ERKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
   ark_mem->liw1 = liw1;
 
   /* resize ARKode infrastructure memory */
-  flag = arkResize(ark_mem, y0, hscale, t0, resize, resize_data);
-  if (flag != ARK_SUCCESS) {
-    arkProcessError(ark_mem, flag, "ARKode::ERKStep", "ERKStepResize",
+  retval = arkResize(ark_mem, y0, hscale, t0, resize, resize_data);
+  if (retval != ARK_SUCCESS) {
+    arkProcessError(ark_mem, retval, "ARKode::ERKStep", "ERKStepResize",
                     "Unable to resize main ARKode infrastructure");
-    return(flag);
+    return(retval);
   }
 
   /* Resize the RHS vectors */
   for (i=0; i<step_mem->stages; i++) {
-    ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
+    retval = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
                        liw_diff, y0, &step_mem->F[i]);
-    if (ier != ARK_SUCCESS)  return(ier);
+    if (retval != ARK_SUCCESS)  return(retval);
   }
 
   return(ARK_SUCCESS);
@@ -210,45 +201,33 @@ int ERKStepReInit(void* arkode_mem, ARKRhsFn f, realtype t0, N_Vector y0)
 {
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
-  int iret;
+  int retval;
 
-  /* Check arkode_mem */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
-                    "ERKStepReInit", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-
-  /* Access ERKStep memory */
-  if (ark_mem->step_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
-                    "ERKStepReInit",
-                    "Missing time step module memory");
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeERKStepMem) ark_mem->step_mem;
-
-  /* Check for legal input parameters */
-  if (y0==NULL) {
-    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ERKStep",
-                    "ERKStepReInit", MSG_ARK_NULL_Y0);
-    return(ARK_ILL_INPUT);
-  }
-
-  /* ReInitialize main ARKode infrastructure */
-  iret = arkReInit(arkode_mem, t0, y0);
-  if (iret != ARK_SUCCESS) {
-    arkProcessError(ark_mem, iret, "ARKode::ERKStep", "ERKStepReInit",
-                    "Unable to initialize main ARKode infrastructure");
-    return(iret);
-  }
+  /* access ARKodeERKStepMem structure */
+  retval = erkStep_AccessStepMem(arkode_mem, "ERKStepReInit",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
 
   /* Check that f is supplied */
   if (f == NULL) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ERKStep",
                     "ERKStepReInit", MSG_ARK_NULL_F);
     return(ARK_ILL_INPUT);
+  }
+
+  /* Check for legal input parameters */
+  if (y0 == NULL) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ERKStep",
+                    "ERKStepReInit", MSG_ARK_NULL_Y0);
+    return(ARK_ILL_INPUT);
+  }
+
+  /* ReInitialize main ARKode infrastructure */
+  retval = arkReInit(arkode_mem, t0, y0);
+  if (retval != ARK_SUCCESS) {
+    arkProcessError(ark_mem, retval, "ARKode::ERKStep", "ERKStepReInit",
+                    "Unable to initialize main ARKode infrastructure");
+    return(retval);
   }
 
   /* Copy the input parameters into ARKode state */
@@ -389,8 +368,8 @@ void ERKStepFree(void **arkode_mem)
 
     /* free the Butcher table */
     if (step_mem->B != NULL) {
-      ButcherTableSpace(step_mem->B, &Bliw, &Blrw);
-      FreeButcherTable(step_mem->B);
+      ARKodeButcherTable_Space(step_mem->B, &Bliw, &Blrw);
+      ARKodeButcherTable_Free(step_mem->B);
       step_mem->B = NULL;
       ark_mem->liw -= Bliw;
       ark_mem->lrw -= Blrw;
@@ -429,30 +408,22 @@ void ERKStepFree(void **arkode_mem)
 
 
 /*---------------------------------------------------------------
- ERKStepPrintMem:
+  ERKStepPrintMem:
 
- This routine outputs the memory from the ERKStep structure and
- the main ARKode infrastructure to a specified file pointer
- (useful when debugging).
----------------------------------------------------------------*/
+  This routine outputs the memory from the ERKStep structure and
+  the main ARKode infrastructure to a specified file pointer
+  (useful when debugging).
+  ---------------------------------------------------------------*/
 void ERKStepPrintMem(void* arkode_mem, FILE* outfile)
 {
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
+  int retval;
 
   /* access ARKodeERKStepMem structure */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
-                    "ERKStepPrintMem", MSG_ARK_NO_MEM);
-    return;
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
-                    "ERKStepPrintMem", MSG_ERKSTEP_NO_MEM);
-    return;
-  }
-  step_mem = (ARKodeERKStepMem) ark_mem->step_mem;
+  retval = erkStep_AccessStepMem(arkode_mem, "ERKStepPrintMem",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return;
 
   /* output data from main ARKode infrastructure */
   arkPrintMem(ark_mem, outfile);
@@ -473,7 +444,7 @@ void ERKStepPrintMem(void* arkode_mem, FILE* outfile)
 
   /* output realtype quantities */
   fprintf(outfile,"ERKStep: Butcher table:\n");
-  WriteButcherTable(step_mem->B, outfile);
+  ARKodeButcherTable_Write(step_mem->B, outfile);
   if (step_mem->hadapt_mem != NULL) {
     fprintf(outfile,"ERKStep: timestep adaptivity structure:\n");
     arkPrintAdaptMem(step_mem->hadapt_mem, outfile);
@@ -499,43 +470,34 @@ void ERKStepPrintMem(void* arkode_mem, FILE* outfile)
   ---------------------------------------------------------------*/
 
 /*---------------------------------------------------------------
- erkStep_Init:
+  erkStep_Init:
 
- This routine is called just prior to performing internal time 
- steps (after all user "set" routines have been called) from 
- within arkInitialSetup (init_type == 0) or arkPostResizeSetup
- (init_type == 1).
+  This routine is called just prior to performing internal time 
+  steps (after all user "set" routines have been called) from 
+  within arkInitialSetup (init_type == 0) or arkPostResizeSetup
+  (init_type == 1).
 
- With init_type == 0, this routine:
- - sets/checks the ARK Butcher tables to be used
- - allocates any memory that depends on the number of ARK
-   stages, method order, or solver options
+  With init_type == 0, this routine:
+  - sets/checks the ARK Butcher tables to be used
+  - allocates any memory that depends on the number of ARK
+    stages, method order, or solver options
 
- With init_type == 1, this routine does nothing.
----------------------------------------------------------------*/
+  With init_type == 1, this routine does nothing.
+  ---------------------------------------------------------------*/
 int erkStep_Init(void* arkode_mem, int init_type)
 {
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
   sunindextype Blrw, Bliw;
-  int ier, j;
+  int retval, j;
 
   /* immediately return if init_type == 1 */
   if (init_type == 1)  return(ARK_SUCCESS);
   
   /* access ARKodeERKStepMem structure */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
-                    "erkStep_Init", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
-                    "erkStep_Init", MSG_ERKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeERKStepMem) ark_mem->step_mem;
+  retval = erkStep_AccessStepMem(arkode_mem, "erkStep_Init",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
 
   /* destroy adaptivity structure if fixed-stepping is requested */
   if (ark_mem->fixedstep)
@@ -549,23 +511,23 @@ int erkStep_Init(void* arkode_mem, int init_type)
     step_mem->hadapt_mem->etamax = step_mem->hadapt_mem->etamx1;
 
   /* Create Butcher table (if not already set) */
-  ier = erkStep_SetButcherTable(ark_mem);
-  if (ier != ARK_SUCCESS) {
+  retval = erkStep_SetButcherTable(ark_mem);
+  if (retval != ARK_SUCCESS) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ERKStep", "erkStep_Init",
                     "Could not create Butcher table");
     return(ARK_ILL_INPUT);
   }
 
   /* Check that Butcher table are OK */
-  ier = erkStep_CheckButcherTable(ark_mem);
-  if (ier != ARK_SUCCESS) {
+  retval = erkStep_CheckButcherTable(ark_mem);
+  if (retval != ARK_SUCCESS) {
     arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ERKStep",
                     "erkStep_Init", "Error in Butcher table");
     return(ARK_ILL_INPUT);
   }
 
   /* note Butcher table space requirements */
-  ButcherTableSpace(step_mem->B, &Bliw, &Blrw);
+  ARKodeButcherTable_Space(step_mem->B, &Bliw, &Blrw);
   ark_mem->liw += Bliw;
   ark_mem->lrw += Blrw;
 
@@ -596,27 +558,27 @@ int erkStep_Init(void* arkode_mem, int init_type)
 
 
 /*---------------------------------------------------------------
- erkStep_FullRHS:
+  erkStep_FullRHS:
 
- This is just a wrapper to call the user-supplied RHS function,
- f(t,y).
+  This is just a wrapper to call the user-supplied RHS function,
+  f(t,y).
 
- This will be called in one of three 'modes':
-     0 -> called at the beginning of a simulation
-     1 -> called at the end of a successful step
-     2 -> called elsewhere (e.g. for dense output)
+  This will be called in one of three 'modes':
+    0 -> called at the beginning of a simulation
+    1 -> called at the end of a successful step
+    2 -> called elsewhere (e.g. for dense output)
 
- If it is called in mode 0, we store the vectors f(t,y) in F[0]
- for possible reuse in the first stage of the subsequent time step.
+  If it is called in mode 0, we store the vectors f(t,y) in F[0]
+  for possible reuse in the first stage of the subsequent time step.
 
- If it is called in mode 1 and the method coefficients
- support it, we may just copy vectors F[stages] to fill f instead
- of calling f().
+  If it is called in mode 1 and the method coefficients
+  support it, we may just copy vectors F[stages] to fill f instead
+  of calling f().
 
- Mode 2 is only called for dense output in-between steps, so we
- strive to store the intermediate parts so that they do not
- interfere with the other two modes.
----------------------------------------------------------------*/
+  Mode 2 is only called for dense output in-between steps, so we
+  strive to store the intermediate parts so that they do not
+  interfere with the other two modes.
+  ---------------------------------------------------------------*/
 int erkStep_FullRHS(void* arkode_mem, realtype t,
                     N_Vector y, N_Vector f, int mode)
 {
@@ -626,18 +588,9 @@ int erkStep_FullRHS(void* arkode_mem, realtype t,
   booleantype recomputeRHS;
 
   /* access ARKodeERKStepMem structure */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
-                    "erkStep_FullRHS", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
-                    "erkStep_FullRHS", MSG_ERKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeERKStepMem) ark_mem->step_mem;
+  retval = erkStep_AccessStepMem(arkode_mem, "erkStep_FullRHS",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
 
   /* perform RHS functions contingent on 'mode' argument */
   switch(mode) {
@@ -718,15 +671,14 @@ int erkStep_FullRHS(void* arkode_mem, realtype t,
 
 
 /*---------------------------------------------------------------
- erkStep_TakeStep:
+  erkStep_TakeStep:
 
- This routine serves the primary purpose of the ERKStep module:
- it performs a single successful embedded ERK step (if possible).
- Multiple attempts may be taken in this process -- once a step
- completes with successful (non)linear solves at each stage and
- passes the error estimate, the routine returns successfully.
- If it cannot do so, it returns with an appropriate error flag.
----------------------------------------------------------------*/
+  This routine serves the primary purpose of the ERKStep module:
+  it performs a single successful embedded ERK step (if possible).
+  Multiple attempts may be taken in this process -- once a step
+  passes the error estimate, the routine returns successfully.
+  If it cannot do so, it returns with an appropriate error flag.
+  ---------------------------------------------------------------*/
 int erkStep_TakeStep(void* arkode_mem)
 {
   realtype dsm;
@@ -737,18 +689,9 @@ int erkStep_TakeStep(void* arkode_mem)
   ARKodeERKStepMem step_mem;
 
   /* access ARKodeERKStepMem structure */
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
-                    "erkStep_TakeStep", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
-                    "erkStep_TakeStep", MSG_ERKSTEP_NO_MEM);
-    return(ARK_MEM_NULL);
-  }
-  step_mem = (ARKodeERKStepMem) ark_mem->step_mem;
+  retval = erkStep_AccessStepMem(arkode_mem, "erkStep_TakeStep",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
 
   /* local shortcuts for fused vector operations */
   cvals = step_mem->cvals;
@@ -781,15 +724,6 @@ int erkStep_TakeStep(void* arkode_mem)
 #endif
 
       /* Set ycur to current stage solution */
-      /*   set arrays for fused vector operation */
-      /* cvals[0] = ONE; */
-      /* Xvecs[0] = ark_mem->yn; */
-      /* nvec = 1; */
-      /* for (j=0; j<is; j++) { */
-      /*   cvals[nvec] = ark_mem->h * step_mem->B->A[is][js]; */
-      /*   Xvecs[nvec] = step_mem->F[js]; */
-      /*   nvec += 1; */
-      /* } */
       nvec = 0;
       for (js=0; js<is; js++) {
         cvals[nvec] = ark_mem->h * step_mem->B->A[is][js];
@@ -871,54 +805,42 @@ int erkStep_TakeStep(void* arkode_mem)
 
 
 /*---------------------------------------------------------------
- erkStep_Resize:
+  Internal utility routines
+  ---------------------------------------------------------------*/
 
- This routine resizes the memory within the ERKStep module.
----------------------------------------------------------------*/
-int erkStep_Resize(void* arkode_mem, ARKVecResizeFn resize,
-                   void* resize_data, sunindextype lrw_diff,
-                   sunindextype liw_diff, N_Vector tmpl)
+/*---------------------------------------------------------------
+  erkStep_AccessStepMem:
+
+  Shortcut routine to unpack ark_mem and step_mem structures from
+  void* pointer.  If either is missing it returns ARK_MEM_NULL.
+  ---------------------------------------------------------------*/
+int erkStep_AccessStepMem(void* arkode_mem, const char *fname,
+                          ARKodeMem *ark_mem, ARKodeERKStepMem *step_mem)
 {
-  ARKodeMem ark_mem;
-  ARKodeERKStepMem step_mem;
-  int ier, i;
 
-  /* access ARKodeERKStepMem structure */
+  /* access ARKodeMem structure */
   if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
-                    "erkStep_Resize", MSG_ARK_NO_MEM);
+    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+                    fname, MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  ark_mem = (ARKodeMem) arkode_mem;
-  if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
-                    "erkStep_Resize", MSG_ERKSTEP_NO_MEM);
+  *ark_mem = (ARKodeMem) arkode_mem;
+  if ((*ark_mem)->step_mem==NULL) {
+    arkProcessError(*ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
+                    fname, MSG_ERKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
-  step_mem = (ARKodeERKStepMem) ark_mem->step_mem;
-
-  /* Resize the RHS vectors */
-  for (i=0; i<step_mem->stages; i++) {
-    ier = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                       liw_diff, tmpl, &step_mem->F[i]);
-    if (ier != ARK_SUCCESS)  return(ier);
-  }
-
+  *step_mem = (ARKodeERKStepMem) (*ark_mem)->step_mem;
   return(ARK_SUCCESS);
 }
 
 
 /*---------------------------------------------------------------
-  Internal utility routines
+  erkStep_CheckNVector:
+
+  This routine checks if all required vector operations are
+  present.  If any of them is missing it returns SUNFALSE.
   ---------------------------------------------------------------*/
-
-
-/*---------------------------------------------------------------
- erkStep_CheckNVector:
-
- This routine checks if all required vector operations are
- present.  If any of them is missing it returns SUNFALSE.
----------------------------------------------------------------*/
 booleantype erkStep_CheckNVector(N_Vector tmpl)
 {
   if ( (tmpl->ops->nvclone     == NULL) ||
@@ -933,11 +855,11 @@ booleantype erkStep_CheckNVector(N_Vector tmpl)
 
 
 /*---------------------------------------------------------------
- erkStep_SetButcherTable
+  erkStep_SetButcherTable
 
- This routine determines the ERK method to use, based on the
- desired accuracy.
----------------------------------------------------------------*/
+  This routine determines the ERK method to use, based on the
+  desired accuracy.
+  ---------------------------------------------------------------*/
 int erkStep_SetButcherTable(ARKodeMem ark_mem)
 {
   int etable;
@@ -945,7 +867,7 @@ int erkStep_SetButcherTable(ARKodeMem ark_mem)
 
   /* access ARKodeERKStepMem structure */
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ERKStep",
                     "erkStep_SetButcherTable", MSG_ERKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -988,7 +910,7 @@ int erkStep_SetButcherTable(ARKodeMem ark_mem)
   }
 
   if (etable > -1)
-    step_mem->B = ARKodeLoadButcherTable_ERK(etable);
+    step_mem->B = ARKodeButcherTable_LoadERK(etable);
 
   /* set [redundant] stored values for stage numbers and method orders */
   if (step_mem->B != NULL) {
@@ -1002,17 +924,17 @@ int erkStep_SetButcherTable(ARKodeMem ark_mem)
 
 
 /*---------------------------------------------------------------
- erkStep_CheckButcherTable
+  erkStep_CheckButcherTable
 
- This routine runs through the explicit Butcher table to ensure
- that it meets all necessary requirements, including:
-     strictly lower-triangular (ERK)
-     method order q > 0 (all)
-     embedding order q > 0 (all -- if adaptive time-stepping enabled)
-     stages > 0 (all)
+  This routine runs through the explicit Butcher table to ensure
+  that it meets all necessary requirements, including:
+    strictly lower-triangular (ERK)
+    method order q > 0 (all)
+    embedding order q > 0 (all -- if adaptive time-stepping enabled)
+    stages > 0 (all)
 
-Returns ARK_SUCCESS if tables pass, ARK_ILL_INPUT otherwise.
----------------------------------------------------------------*/
+  Returns ARK_SUCCESS if tables pass, ARK_ILL_INPUT otherwise.
+  ---------------------------------------------------------------*/
 int erkStep_CheckButcherTable(ARKodeMem ark_mem)
 {
   int i, j;
@@ -1022,11 +944,35 @@ int erkStep_CheckButcherTable(ARKodeMem ark_mem)
 
   /* access ARKodeERKStepMem structure */
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ERKStep",
                     "erkStep_CheckButcherTable", MSG_ERKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
   step_mem = (ARKodeERKStepMem) ark_mem->step_mem;
+
+  /* check that stages > 0 */
+  if (step_mem->stages < 1) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ERKStep",
+                    "erkStep_CheckButcherTable",
+                    "stages < 1!");
+    return(ARK_ILL_INPUT);
+  }
+
+  /* check that method order q > 0 */
+  if (step_mem->q < 1) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ERKStep",
+                    "erkStep_CheckButcherTable",
+                    "method order < 1!");
+    return(ARK_ILL_INPUT);
+  }
+
+  /* check that embedding order p > 0 */
+  if ((step_mem->p < 1) && (!ark_mem->fixedstep)) {
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ERKStep",
+                    "erkStep_CheckButcherTable",
+                    "embedding order < 1!");
+    return(ARK_ILL_INPUT);
+  }
 
   /* check that ERK table is strictly lower triangular */
   okay = SUNTRUE;
@@ -1035,33 +981,9 @@ int erkStep_CheckButcherTable(ARKodeMem ark_mem)
       if (SUNRabs(step_mem->B->A[i][j]) > tol)
         okay = SUNFALSE;
   if (!okay) {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ERKStep",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ERKStep",
                     "erkStep_CheckButcherTable",
                     "Ae Butcher table is implicit!");
-    return(ARK_ILL_INPUT);
-  }
-
-  /* check that method order q > 0 */
-  if (step_mem->q < 1) {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ERKStep",
-                    "erkStep_CheckButcherTable",
-                    "method order < 1!");
-    return(ARK_ILL_INPUT);
-  }
-
-  /* check that embedding order p > 0 */
-  if ((step_mem->p < 1) && (!ark_mem->fixedstep)) {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ERKStep",
-                    "erkStep_CheckButcherTable",
-                    "embedding order < 1!");
-    return(ARK_ILL_INPUT);
-  }
-
-  /* check that stages > 0 */
-  if (step_mem->stages < 1) {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ERKStep",
-                    "erkStep_CheckButcherTable",
-                    "stages < 1!");
     return(ARK_ILL_INPUT);
   }
 
@@ -1070,23 +992,23 @@ int erkStep_CheckButcherTable(ARKodeMem ark_mem)
 
 
 /*---------------------------------------------------------------
- erkStep_ComputeSolutions
+  erkStep_ComputeSolutions
 
- This routine calculates the final RK solution using the existing
- data.  This solution is placed directly in ark_ycur.  This routine
- also computes the error estimate ||y-ytilde||_WRMS, where ytilde
- is the embedded solution, and the norm weights come from
- ark_ewt.  This norm value is returned.  The vector form of this
- estimated error (y-ytilde) is stored in ark_tempv1, in case the
- calling routine wishes to examine the error locations.
+  This routine calculates the final RK solution using the existing
+  data.  This solution is placed directly in ark_ycur.  This routine
+  also computes the error estimate ||y-ytilde||_WRMS, where ytilde
+  is the embedded solution, and the norm weights come from
+  ark_ewt.  This norm value is returned.  The vector form of this
+  estimated error (y-ytilde) is stored in ark_tempv1, in case the
+  calling routine wishes to examine the error locations.
 
- Note: at this point in the step, the vector ark_tempv1 may be
- used as a temporary vector.
----------------------------------------------------------------*/
+  Note: at this point in the step, the vector ark_tempv1 may be
+  used as a temporary vector.
+  ---------------------------------------------------------------*/
 int erkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
 {
   /* local data */
-  int ier, j, nvec;
+  int retval, j, nvec;
   N_Vector y, yerr;
   realtype* cvals;
   N_Vector* Xvecs;
@@ -1094,7 +1016,7 @@ int erkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
 
   /* access ARKodeERKStepMem structure */
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ERKStep",
                     "erkStep_ComputeSolutions", MSG_ERKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1125,8 +1047,8 @@ int erkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
   nvec += 1;
 
   /*   call fused vector operation to do the work */
-  ier = N_VLinearCombination(nvec, cvals, Xvecs, y);
-  if (ier != 0) return(ARK_VECTOROP_ERR);
+  retval = N_VLinearCombination(nvec, cvals, Xvecs, y);
+  if (retval != 0) return(ARK_VECTOROP_ERR);
 
   /* Compute yerr (if step adaptivity enabled) */
   if (!ark_mem->fixedstep) {
@@ -1140,8 +1062,8 @@ int erkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
     }
 
     /* call fused vector operation to do the work */
-    ier = N_VLinearCombination(nvec, cvals, Xvecs, yerr);
-    if (ier != 0) return(ARK_VECTOROP_ERR);
+    retval = N_VLinearCombination(nvec, cvals, Xvecs, yerr);
+    if (retval != 0) return(ARK_VECTOROP_ERR);
 
     /* fill error norm */
     *dsm = N_VWrmsNorm(yerr, ark_mem->ewt);
@@ -1152,21 +1074,21 @@ int erkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
 
 
 /*---------------------------------------------------------------
- erkStep_DoErrorTest
+  erkStep_DoErrorTest
 
- This routine performs the local error test for the ARK method.
- The weighted local error norm dsm is passed in, and
- the test dsm ?<= 1 is made.
+  This routine performs the local error test for the ARK method.
+  The weighted local error norm dsm is passed in, and
+  the test dsm ?<= 1 is made.
 
- If the test passes, arkDoErrorTest returns ARK_SUCCESS.
+  If the test passes, arkDoErrorTest returns ARK_SUCCESS.
 
- If the test fails, we revert to the last successful solution
- time, and:
-   - if maxnef error test failures have occurred or if
-     SUNRabs(h) = hmin, we return ARK_ERR_FAILURE.
-   - otherwise: update time step factor eta based on local error
-     estimate and reduce h.
----------------------------------------------------------------*/
+  If the test fails, we revert to the last successful solution
+  time, and:
+    - if maxnef error test failures have occurred or if
+      SUNRabs(h) = hmin, we return ARK_ERR_FAILURE.
+    - otherwise: update time step factor eta based on local error
+      estimate and reduce h.
+  ---------------------------------------------------------------*/
 int erkStep_DoErrorTest(ARKodeMem ark_mem, int *nefPtr, realtype dsm)
 {
   realtype ehist2, hhist2;
@@ -1176,14 +1098,14 @@ int erkStep_DoErrorTest(ARKodeMem ark_mem, int *nefPtr, realtype dsm)
 
   /* access ARKodeERKStepMem structure */
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ERKStep",
                     "erkStep_DoErrorTest", MSG_ERKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
   step_mem = (ARKodeERKStepMem) ark_mem->step_mem;
 
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep", "arkDoErrorTest",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ERKStep", "arkDoErrorTest",
                     MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1242,15 +1164,15 @@ int erkStep_DoErrorTest(ARKodeMem ark_mem, int *nefPtr, realtype dsm)
 
 
 /*---------------------------------------------------------------
- erkStep_PrepareNextStep
+  erkStep_PrepareNextStep
 
- This routine handles ARK-specific updates following a successful
- step: copying the ARK result to the current solution vector,
- updating the error/step history arrays, and setting the
- prospective step size, hprime, for the next step.  Along with
- hprime, it sets the ratio eta=hprime/h.  It also updates other
- state variables related to a change of step size.
----------------------------------------------------------------*/
+  This routine handles ARK-specific updates following a successful
+  step: copying the ARK result to the current solution vector,
+  updating the error/step history arrays, and setting the
+  prospective step size, hprime, for the next step.  Along with
+  hprime, it sets the ratio eta=hprime/h.  It also updates other
+  state variables related to a change of step size.
+  ---------------------------------------------------------------*/
 int erkStep_PrepareNextStep(ARKodeMem ark_mem, realtype dsm)
 {
   int retval;
@@ -1258,7 +1180,7 @@ int erkStep_PrepareNextStep(ARKodeMem ark_mem, realtype dsm)
 
   /* access ARKodeERKStepMem structure */
   if (ark_mem->step_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ERKStep",
                     "erkStep_PrepareNextStep", MSG_ERKSTEP_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1313,5 +1235,5 @@ int erkStep_PrepareNextStep(ARKodeMem ark_mem, realtype dsm)
 
 
 /*===============================================================
-   EOF
-===============================================================*/
+  EOF
+  ===============================================================*/

@@ -435,8 +435,10 @@ void FARK_SETADAPTMETHOD(int *imethod, int *idefault, int *ipq,
    farkode.h for further details */
 void FARK_SETERKTABLE(int *s, int *q, int *p, realtype *c, realtype *A,
                       realtype *b, realtype *b2, int *ier) {
-  *ier = ARKStepSetARKTables(ARK_arkodemem, *s, *q, *p, NULL, c,
-                             NULL, A, NULL, b, NULL, b2);
+  ARKodeButcherTable Be;
+  Be = ARKodeButcherTable_Create(*s, *q, *p, c, A, b, b2);
+  *ier = ARKStepSetARKTables(ARK_arkodemem, *q, *p, NULL, Be);
+  ARKodeButcherTable_Free(Be);
   return;
 }
 
@@ -446,8 +448,10 @@ void FARK_SETERKTABLE(int *s, int *q, int *p, realtype *c, realtype *A,
    farkode.h for further details */
 void FARK_SETIRKTABLE(int *s, int *q, int *p, realtype *c, realtype *A,
                       realtype *b, realtype *b2, int *ier) {
-  *ier = ARKStepSetARKTables(ARK_arkodemem, *s, *q, *p, c, NULL,
-                             A, NULL, b, NULL, b2, NULL);
+  ARKodeButcherTable Bi;
+  Bi = ARKodeButcherTable_Create(*s, *q, *p, c, A, b, b2);
+  *ier = ARKStepSetARKTables(ARK_arkodemem, *q, *p, Bi, NULL);
+  ARKodeButcherTable_Free(Bi);
   return;
 }
 
@@ -459,8 +463,12 @@ void FARK_SETARKTABLES(int *s, int *q, int *p, realtype *ci,
                        realtype *ce, realtype *Ai, realtype *Ae,
                        realtype *bi, realtype *be, realtype *b2i,
                        realtype *b2e, int *ier) {
-  *ier = ARKStepSetARKTables(ARK_arkodemem, *s, *q, *p, ci,
-                             ce, Ai, Ae, bi, be, b2i, b2e);
+  ARKodeButcherTable Bi, Be;
+  Bi = ARKodeButcherTable_Create(*s, *q, *p, ci, Ai, bi, b2i);
+  Be = ARKodeButcherTable_Create(*s, *q, *p, ce, Ae, be, b2e);
+  *ier = ARKStepSetARKTables(ARK_arkodemem, *q, *p, Bi, Be);
+  ARKodeButcherTable_Free(Bi);
+  ARKodeButcherTable_Free(Be);
   return;
 }
 

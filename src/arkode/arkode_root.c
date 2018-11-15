@@ -37,14 +37,14 @@
 
 
 /*---------------------------------------------------------------
- arkRootInit:
+  arkRootInit:
 
- arkRootInit initializes a rootfinding problem to be solved
- during the integration of the ODE system.  It loads the root
- function pointer and the number of root functions, and allocates
- workspace memory.  The return value is ARK_SUCCESS = 0 if no
- errors occurred, or a negative value otherwise.
----------------------------------------------------------------*/
+  arkRootInit initializes a rootfinding problem to be solved
+  during the integration of the ODE system.  It loads the root
+  function pointer and the number of root functions, and allocates
+  workspace memory.  The return value is ARK_SUCCESS = 0 if no
+  errors occurred, or a negative value otherwise.
+  ---------------------------------------------------------------*/
 int arkRootInit(ARKodeMem ark_mem, int nrtfn, ARKRootFn g)
 {
   int i, nrt;
@@ -61,7 +61,7 @@ int arkRootInit(ARKodeMem ark_mem, int nrtfn, ARKRootFn g)
   if (ark_mem->root_mem == NULL) {
     ark_mem->root_mem = (ARKodeRootMem) malloc(sizeof(struct ARKodeRootMemRec));
     if (ark_mem->root_mem == NULL) {
-      arkProcessError(NULL, 0, "ARKode", "arkRootInit",
+      arkProcessError(ark_mem, 0, "ARKode", "arkRootInit",
                       MSG_ARK_ARKMEM_FAIL);
       return(ARK_MEM_FAIL);
     }
@@ -214,11 +214,11 @@ int arkRootInit(ARKodeMem ark_mem, int nrtfn, ARKRootFn g)
 
 
 /*---------------------------------------------------------------
- arkRootFree
+  arkRootFree
 
- This routine frees all memory associated with ARKode's
- rootfinding module.
----------------------------------------------------------------*/
+  This routine frees all memory associated with ARKode's
+  rootfinding module.
+  ---------------------------------------------------------------*/
 int arkRootFree(void* arkode_mem)
 {
   ARKodeMem ark_mem;
@@ -248,11 +248,11 @@ int arkRootFree(void* arkode_mem)
 
 
 /*---------------------------------------------------------------
- arkPrintRootMem
+  arkPrintRootMem
 
- This routine outputs the root-finding memory structure to a
- specified file pointer.
----------------------------------------------------------------*/
+  This routine outputs the root-finding memory structure to a
+  specified file pointer.
+  ---------------------------------------------------------------*/
 int arkPrintRootMem(void* arkode_mem, FILE *outfile)
 {
   int i;
@@ -299,16 +299,16 @@ int arkPrintRootMem(void* arkode_mem, FILE *outfile)
 
 
 /*---------------------------------------------------------------
- arkRootCheck1
+  arkRootCheck1
 
- This routine completes the initialization of rootfinding memory
- information, and checks whether g has a zero both at and very near
- the initial point of the IVP.
+  This routine completes the initialization of rootfinding memory
+  information, and checks whether g has a zero both at and very near
+  the initial point of the IVP.
 
- This routine returns an int equal to:
-  ARK_RTFUNC_FAIL < 0  if the g function failed, or
-  ARK_SUCCESS     = 0  otherwise.
----------------------------------------------------------------*/
+  This routine returns an int equal to:
+    ARK_RTFUNC_FAIL < 0  if the g function failed, or
+    ARK_SUCCESS     = 0  otherwise.
+  ---------------------------------------------------------------*/
 int arkRootCheck1(void* arkode_mem)
 {
   int i, retval;
@@ -369,25 +369,25 @@ int arkRootCheck1(void* arkode_mem)
 
 
 /*---------------------------------------------------------------
- arkRootCheck2
+  arkRootCheck2
 
- This routine checks for exact zeros of g at the last root found,
- if the last return was a root.  It then checks for a close pair of
- zeros (an error condition), and for a new root at a nearby point.
- The array glo = g(tlo) at the left endpoint of the search interval
- is adjusted if necessary to assure that all g_i are nonzero
- there, before returning to do a root search in the interval.
+  This routine checks for exact zeros of g at the last root found,
+  if the last return was a root.  It then checks for a close pair of
+  zeros (an error condition), and for a new root at a nearby point.
+  The array glo = g(tlo) at the left endpoint of the search interval
+  is adjusted if necessary to assure that all g_i are nonzero
+  there, before returning to do a root search in the interval.
 
- On entry, tlo = tretlast is the last value of tret returned by
- ARKode.  This may be the previous tn, the previous tout value, or
- the last root location.
+  On entry, tlo = tretlast is the last value of tret returned by
+  ARKode.  This may be the previous tn, the previous tout value, or
+  the last root location.
 
- This routine returns an int equal to:
-      ARK_RTFUNC_FAIL < 0 if the g function failed, or
-      CLOSERT         = 3 if a close pair of zeros was found, or
-      RTFOUND         = 1 if a new zero of g was found near tlo, or
-      ARK_SUCCESS     = 0 otherwise.
----------------------------------------------------------------*/
+  This routine returns an int equal to:
+    ARK_RTFUNC_FAIL < 0 if the g function failed, or
+    CLOSERT         = 3 if a close pair of zeros was found, or
+    RTFOUND         = 1 if a new zero of g was found near tlo, or
+    ARK_SUCCESS     = 0 otherwise.
+  ---------------------------------------------------------------*/
 int arkRootCheck2(void* arkode_mem)
 {
   int i, retval;
@@ -472,17 +472,17 @@ int arkRootCheck2(void* arkode_mem)
 
 
 /*---------------------------------------------------------------
- arkRootCheck3
+  arkRootCheck3
 
- This routine interfaces to arkRootfind to look for a root of g
- between tlo and either tn or tout, whichever comes first.
- Only roots beyond tlo in the direction of integration are sought.
+  This routine interfaces to arkRootfind to look for a root of g
+  between tlo and either tn or tout, whichever comes first.
+  Only roots beyond tlo in the direction of integration are sought.
 
- This routine returns an int equal to:
-      ARK_RTFUNC_FAIL < 0 if the g function failed, or
-      RTFOUND         = 1 if a root of g was found, or
-      ARK_SUCCESS     = 0 otherwise.
----------------------------------------------------------------*/
+  This routine returns an int equal to:
+    ARK_RTFUNC_FAIL < 0 if the g function failed, or
+    RTFOUND         = 1 if a root of g was found, or
+    ARK_SUCCESS     = 0 otherwise.
+  ---------------------------------------------------------------*/
 int arkRootCheck3(void* arkode_mem)
 {
   int i, retval, ier;
@@ -539,81 +539,81 @@ int arkRootCheck3(void* arkode_mem)
 
 
 /*---------------------------------------------------------------
- arkRootfind
+  arkRootfind
 
- This routine solves for a root of g(t) between tlo and thi, if
- one exists.  Only roots of odd multiplicity (i.e. with a change
- of sign in one of the g_i), or exact zeros, are found.
- Here the sign of tlo - thi is arbitrary, but if multiple roots
- are found, the one closest to tlo is returned.
+  This routine solves for a root of g(t) between tlo and thi, if
+  one exists.  Only roots of odd multiplicity (i.e. with a change
+  of sign in one of the g_i), or exact zeros, are found.
+  Here the sign of tlo - thi is arbitrary, but if multiple roots
+  are found, the one closest to tlo is returned.
 
- The method used is the Illinois algorithm, a modified secant method.
- Reference: Kathie L. Hiebert and Lawrence F. Shampine, Implicitly
- Defined Output Points for Solutions of ODEs, Sandia National
- Laboratory Report SAND80-0180, February 1980.
+  The method used is the Illinois algorithm, a modified secant method.
+  Reference: Kathie L. Hiebert and Lawrence F. Shampine, Implicitly
+  Defined Output Points for Solutions of ODEs, Sandia National
+  Laboratory Report SAND80-0180, February 1980.
 
- This routine uses the following parameters for communication:
+  This routine uses the following parameters for communication:
 
- nrtfn    = number of functions g_i, or number of components of
+  nrtfn    = number of functions g_i, or number of components of
             the vector-valued function g(t).  Input only.
 
- gfun     = user-defined function for g(t).  Its form is
-            (void) gfun(t, y, gt, user_data)
+  gfun     = user-defined function for g(t).  Its form is
+             (void) gfun(t, y, gt, user_data)
 
- rootdir  = in array specifying the direction of zero-crossings.
-            If rootdir[i] > 0, search for roots of g_i only if
-            g_i is increasing; if rootdir[i] < 0, search for
-            roots of g_i only if g_i is decreasing; otherwise
-            always search for roots of g_i.
+  rootdir  = in array specifying the direction of zero-crossings.
+             If rootdir[i] > 0, search for roots of g_i only if
+             g_i is increasing; if rootdir[i] < 0, search for
+             roots of g_i only if g_i is decreasing; otherwise
+             always search for roots of g_i.
 
- gactive  = array specifying whether a component of g should
-            or should not be monitored. gactive[i] is initially
-            set to SUNTRUE for all i=0,...,nrtfn-1, but it may be
-            reset to SUNFALSE if at the first step g[i] is 0.0
-            both at the I.C. and at a small perturbation of them.
-            gactive[i] is then set back on SUNTRUE only after the
-            corresponding g function moves away from 0.0.
+  gactive  = array specifying whether a component of g should
+             or should not be monitored. gactive[i] is initially
+             set to SUNTRUE for all i=0,...,nrtfn-1, but it may be
+             reset to SUNFALSE if at the first step g[i] is 0.0
+             both at the I.C. and at a small perturbation of them.
+             gactive[i] is then set back on SUNTRUE only after the
+             corresponding g function moves away from 0.0.
 
- nge      = cumulative counter for gfun calls.
+  nge      = cumulative counter for gfun calls.
 
- ttol     = a convergence tolerance for trout.  Input only.
-            When a root at trout is found, it is located only to
-            within a tolerance of ttol.  Typically, ttol should
-            be set to a value on the order of
+  ttol     = a convergence tolerance for trout.  Input only.
+             When a root at trout is found, it is located only to
+             within a tolerance of ttol.  Typically, ttol should
+             be set to a value on the order of
                100 * UROUND * max (SUNRabs(tlo), SUNRabs(thi))
-            where UROUND is the unit roundoff of the machine.
+             where UROUND is the unit roundoff of the machine.
 
- tlo, thi = endpoints of the interval in which roots are sought.
-            On input, and must be distinct, but tlo - thi may
-            be of either sign.  The direction of integration is
-            assumed to be from tlo to thi.  On return, tlo and thi
-            are the endpoints of the final relevant interval.
+  tlo, thi = endpoints of the interval in which roots are sought.
+             On input, and must be distinct, but tlo - thi may
+             be of either sign.  The direction of integration is
+             assumed to be from tlo to thi.  On return, tlo and thi
+             are the endpoints of the final relevant interval.
 
- glo, ghi = arrays of length nrtfn containing the vectors g(tlo)
-            and g(thi) respectively.  Input and output.  On input,
-            none of the glo[i] should be zero.
+  glo, ghi = arrays of length nrtfn containing the vectors g(tlo)
+             and g(thi) respectively.  Input and output.  On input,
+             none of the glo[i] should be zero.
 
- trout    = root location, if a root was found, or thi if not.
-            Output only.  If a root was found other than an exact
-            zero of g, trout is the endpoint thi of the final
-            interval bracketing the root, with size at most ttol.
+  trout    = root location, if a root was found, or thi if not.
+             Output only.  If a root was found other than an exact
+             zero of g, trout is the endpoint thi of the final
+             interval bracketing the root, with size at most ttol.
 
- grout    = array of length nrtfn containing g(trout) on return.
+  grout    = array of length nrtfn containing g(trout) on return.
 
- iroots   = int array of length nrtfn with root information.
-            Output only.  If a root was found, iroots indicates
-            which components g_i have a root at trout.  For
-            i = 0, ..., nrtfn-1, iroots[i] = 1 if g_i has a root
-            and g_i is increasing, iroots[i] = -1 if g_i has a
-            root and g_i is decreasing, and iroots[i] = 0 if g_i
-            has no roots or g_i varies in the direction opposite
-            to that indicated by rootdir[i].
+  iroots   = int array of length nrtfn with root information.
+             Output only.  If a root was found, iroots indicates
+             which components g_i have a root at trout.  For
+             i = 0, ..., nrtfn-1, iroots[i] = 1 if g_i has a root
+             and g_i is increasing, iroots[i] = -1 if g_i has a
+             root and g_i is decreasing, and iroots[i] = 0 if g_i
+             has no roots or g_i varies in the direction opposite
+             to that indicated by rootdir[i].
 
- This routine returns an int equal to:
-      ARK_RTFUNC_FAIL < 0 if the g function failed, or
-      RTFOUND         = 1 if a root of g was found, or
-      ARK_SUCCESS     = 0 otherwise.
----------------------------------------------------------------*/
+  This routine returns an int equal to:
+    ARK_RTFUNC_FAIL < 0 if the g function failed, or
+    RTFOUND         = 1 if a root of g was found, or
+    ARK_SUCCESS     = 0 otherwise.
+  ---------------------------------------------------------------*/
 int arkRootfind(void* arkode_mem)
 {
   realtype alpha, tmid, gfrac, maxfrac, fracint, fracsub;
@@ -790,5 +790,5 @@ int arkRootfind(void* arkode_mem)
 
 
 /*===============================================================
-   EOF
-===============================================================*/
+  EOF
+  ===============================================================*/

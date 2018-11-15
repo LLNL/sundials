@@ -15,14 +15,13 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * Header file for the Additive Runge Kutta time step module for ARKode.
+ * Header file for the Explicit Runge Kutta time step module for ARKode.
  *--------------------------------------------------------------*/
 
 #ifndef _ERKSTEP_H
 #define _ERKSTEP_H
 
 #include <sundials/sundials_nvector.h>
-#include <sundials/sundials_linearsolver.h>
 #include <arkode/arkode.h>
 #include <arkode/arkode_butcher_erk.h>
 
@@ -202,183 +201,181 @@ SUNDIALS_EXPORT int ERKStepRootInit(void *arkode_mem, int nrtfn,
 
   Utility routine to fill a pre-defined Butcher table structure
   ---------------------------------------------------------------*/
-ARKodeButcherTable ERKStepLoadButcherTable(int imethod);
+SUNDIALS_EXPORT ARKodeButcherTable ERKStepLoadButcherTable(int imethod);
 
 
 /*---------------------------------------------------------------
   ERKStep optional input specification functions -- ALL of these
   must be called AFTER ERKStepCreate.
------------------------------------------------------------------
- The following functions can be called to set optional inputs
- to values other than the defaults given below.
+  -----------------------------------------------------------------
+  The following functions can be called to set optional inputs
+  to values other than the defaults given below.
 
- Function                 |  Optional input / [ default value ]
------------------------------------------------------------------
- ERKStepSetDefaults       | resets all optional inputs to ERKStep
-                          | default values.  Does not change
-                          | problem-defining function pointers or
-                          | user_data pointer.  Also leaves alone
-                          | any data structures/options related
-                          | to root-finding (those can be reset
-                          | using ARKodeRootInit).
-                          | [internal]
-                          |
- ERKStepSetOrder          | method order to be used by the solver.
-                          | [4]
-                          |
- ERKStepSetDenseOrder     | polynomial order to be used for dense
-                          | output.  Allowed values are between 0
-                          | and min(q,5) (where q is the order of
-                          | the integrator)
-                          | [3]
-                          |
- ERKStepSetErrHandlerFn   | user-provided ErrHandler function.
-                          | [internal]
-                          |
- ERKStepSetErrFile        | the file pointer for an error file
-                          | where all ERKStep warning and error
-                          | messages will be written if the
-                          | default internal error handling
-                          | function is used. This parameter can
-                          | be stdout (standard output), stderr
-                          | (standard error), or a file pointer
-                          | (corresponding to a user error file
-                          | opened for writing) returned by fopen.
-                          | If not called, then all messages will
-                          | be written to stderr.
-                          | [stderr]
-                          |
- ERKStepSetUserData       | a pointer to user data that will be
-                          | passed to the user's f function every
-                          | time f is called.
-                          | [NULL]
-                          |
- ERKStepSetDiagnostics    | the file pointer for a diagnostics file
-                          | where all ERKStep adaptivity and solver
-                          | information is written.  This parameter can
-                          | be stdout or stderr, though the preferred
-                          | approach is to specify a file pointer
-                          | (corresponding to a user diagnostics file
-                          | opened for writing) returned by fopen.  If
-                          | not called, or if called with a NULL file
-                          | pointer, all diagnostics output is disabled.
-                          | NOTE: when run in parallel, only one process
-                          | should set a non-NULL value for this pointer,
-                          | since statistics from all processes would be
-                          | identical.
-                          | [NULL]
-                          |
- ERKStepSetERKTable       | specifies to use a customized Butcher
-                          | table for the explicit portion of the
-                          | system.  This automatically calls
-                          ! ERKStepSetExplicit
-                          | [determined by ARKode based on order]
-                          |
- ERKStepSetERKTableNum    | specifies to use a built-in Butcher
-                          | table for the explicit portion of the
-                          | system.  The integer argument should
-                          | match an existing method in
-                          | ARKodeLoadButcherTable() within the file
-                          | arkode_butcher.c.  Error-checking is
-                          | performed to ensure that the table
-                          | exists, and is not implicit.  This
-                          ! automatically calls ERKStepSetExplicit
-                          | [determined by ARKode based on order]
-                          |
- ERKStepSetMaxNumSteps    | maximum number of internal steps to be
-                          | taken by the solver in its attempt to
-                          | reach tout.
-                          | [500]
-                          |
- ERKStepSetMaxHnilWarns   | maximum number of warning messages
-                          | issued by the solver that t+h==t on
-                          | the next internal step. A value of -1
-                          | means no such messages are issued.
-                          | [10]
-                          |
- ERKStepSetInitStep       | initial step size.
-                          | [estimated internally]
-                          |
- ERKStepSetMinStep        | minimum absolute value of step size
-                          | allowed.
-                          | [0.0]
-                          |
- ERKStepSetMaxStep        | maximum absolute value of step size
-                          | allowed.
-                          | [infinity]
-                          |
- ERKStepSetStopTime       | the independent variable value past
-                          | which the solution is not to proceed.
-                          | [infinity]
-                          |
- ERKStepSetFixedStep      | specifies to use a fixed step size
-                          | throughout integration
-                          | [off]
-                          |
- ERKStepSetCFLFraction    | safety factor to use for explicitly
-                          ! stable steps
-                          | [0.5]
-                          |
- ERKStepSetSafetyFactor   | safety factor to use for error-based
-                          ! step adaptivity
-                          | [0.96]
-                          |
- ERKStepSetErrorBias      | error bias factor to use in error-based
-                          ! step adaptivity
-                          | [1.5]
-                          |
- ERKStepSetMaxGrowth      | maximum growth factor for successive
-                          ! time steps (not including the first step).
-                          | [20.0]
-                          |
- ERKStepSetMaxFirstGrowth | maximum growth factor for first step.
-                          | [10000.0]
-                          |
- ERKStepSetMaxEFailGrowth | maximum growth factor after an error failure.
-                          | [0.3]
-                          |
- ERKStepSetSmallNumEFails | maximum number of error failures before
-                          ! MaxFailGrowth factor is used.
-                          | [2]
-                          |
- ERKStepSetFixedStepBounds| step growth interval to force retention of
-                          ! the same step size
-                          | [1.0 1.5]
-                          |
- ERKStepSetAdaptivityMethod| Method to use for time step adaptivity
-                          | [0]
-                          |
- ERKStepSetAdaptivityFn   | user-provided time step adaptivity
-                          | function.
-                          | [internal]
-                          |
- ERKStepSetStabilityFn    | user-provided explicit time step
-                          | stability function.
-                          | [internal]
-                          |
- ERKStepSetMaxErrTestFails| Maximum number of error test failures
-                          | in attempting one step.
-                          | [7]
------------------------------------------------------------------
- ERKStepSetRootDirection      | Specifies the direction of zero
-                              | crossings to be monitored
-                              | [both directions]
-                              |
- ERKStepSetNoInactiveRootWarn | disable warning about possible
-                              | g==0 at beginning of integration
------------------------------------------------------------------
- Return flag:
-   ARK_SUCCESS   if successful
-   ARK_MEM_NULL  if the arkode memory is NULL
-   ARK_ILL_INPUT if an argument has an illegal value
----------------------------------------------------------------*/
+  Function                   |  Optional input / [ default value ]
+  -----------------------------------------------------------------
+  ERKStepSetDefaults         | resets all optional inputs to ERKStep
+                             | default values.  Does not change
+                             | problem-defining function pointers or
+                             | user_data pointer.  Also leaves alone
+                             | any data structures/options related
+                             | to root-finding (those can be reset
+                             | using ARKodeRootInit).
+                             | [internal]
+                             |
+  ERKStepSetOrder            | method order to be used by the solver.
+                             | [4]
+                             |
+  ERKStepSetDenseOrder       | polynomial order to be used for dense
+                             | output.  Allowed values are between 0
+                             | and min(q,5) (where q is the order of
+                             | the integrator)
+                             | [3]
+                             |
+  ERKStepSetErrHandlerFn     | user-provided ErrHandler function.
+                             | [internal]
+                             |
+  ERKStepSetErrFile          | the file pointer for an error file
+                             | where all ERKStep warning and error
+                             | messages will be written if the
+                             | default internal error handling
+                             | function is used. This parameter can
+                             | be stdout (standard output), stderr
+                             | (standard error), or a file pointer
+                             | (corresponding to a user error file
+                             | opened for writing) returned by fopen.
+                             | If not called, then all messages will
+                             | be written to stderr.
+                             | [stderr]
+                             |
+  ERKStepSetUserData         | a pointer to user data that will be
+                             | passed to the user's f function every
+                             | time f is called.
+                             | [NULL]
+                             |
+  ERKStepSetDiagnostics      | the file pointer for a diagnostics file
+                             | where all ERKStep adaptivity and solver
+                             | information is written.  This parameter can
+                             | be stdout or stderr, though the preferred
+                             | approach is to specify a file pointer
+                             | (corresponding to a user diagnostics file
+                             | opened for writing) returned by fopen.  If
+                             | not called, or if called with a NULL file
+                             | pointer, all diagnostics output is disabled.
+                             | NOTE: when run in parallel, only one process
+                             | should set a non-NULL value for this pointer,
+                             | since statistics from all processes would be
+                             | identical.
+                             | [NULL]
+                             |
+  ERKStepSetERKTable         | specifies to use a customized Butcher
+                             | table for the explicit portion of the
+                             | system.  This automatically calls
+                             | ERKStepSetExplicit
+                             | [determined by ARKode based on order]
+                             |
+  ERKStepSetERKTableNum      | specifies to use a built-in Butcher
+                             | table for the explicit portion of the
+                             | system.  The integer argument should
+                             | match an existing method in
+                             | ARKodeButcherTable_LoadERK() within the file
+                             | arkode_butcher.c.  Error-checking is
+                             | performed to ensure that the table
+                             | exists, and is not implicit.  This
+                             | automatically calls ERKStepSetExplicit
+                             | [determined by ARKode based on order]
+                             |
+  ERKStepSetMaxNumSteps      | maximum number of internal steps to be
+                             | taken by the solver in its attempt to
+                             | reach tout.
+                             | [500]
+                             |
+  ERKStepSetMaxHnilWarns     | maximum number of warning messages
+                             | issued by the solver that t+h==t on
+                             | the next internal step. A value of -1
+                             | means no such messages are issued.
+                             | [10]
+                             |
+  ERKStepSetInitStep         | initial step size.
+                             | [estimated internally]
+                             |
+  ERKStepSetMinStep          | minimum absolute value of step size
+                             | allowed.
+                             | [0.0]
+                             |
+  ERKStepSetMaxStep          | maximum absolute value of step size
+                             | allowed.
+                             | [infinity]
+                             |
+  ERKStepSetStopTime         | the independent variable value past
+                             | which the solution is not to proceed.
+                             | [infinity]
+                             |
+  ERKStepSetFixedStep        | specifies to use a fixed step size
+                             | throughout integration
+                             | [off]
+                             |
+  ERKStepSetCFLFraction      | safety factor to use for explicitly
+                             | stable steps
+                             | [0.5]
+                             |
+  ERKStepSetSafetyFactor     | safety factor to use for error-based
+                             | step adaptivity
+                             | [0.96]
+                             |
+  ERKStepSetErrorBias        | error bias factor to use in error-based
+                             | step adaptivity
+                             | [1.5]
+                             |
+  ERKStepSetMaxGrowth        | maximum growth factor for successive
+                             | time steps (not including the first step).
+                             | [20.0]
+                             |
+  ERKStepSetMaxFirstGrowth   | maximum growth factor for first step.
+                             | [10000.0]
+                             |
+  ERKStepSetMaxEFailGrowth   | maximum growth factor after an error failure.
+                             | [0.3]
+                             |
+  ERKStepSetSmallNumEFails   | maximum number of error failures before
+                             | MaxFailGrowth factor is used.
+                             | [2]
+                             |
+  ERKStepSetFixedStepBounds  | step growth interval to force retention of
+                             | the same step size
+                             | [1.0 1.5]
+                             |
+  ERKStepSetAdaptivityMethod | Method to use for time step adaptivity
+                             | [0]
+                             |
+  ERKStepSetAdaptivityFn     | user-provided time step adaptivity
+                             | function.
+                             | [internal]
+                             |
+  ERKStepSetStabilityFn      | user-provided explicit time step
+                             | stability function.
+                             | [internal]
+                             |
+  ERKStepSetMaxErrTestFails  | Maximum number of error test failures
+                             | in attempting one step.
+                             | [7]
+  -----------------------------------------------------------------
+  ERKStepSetRootDirection      | Specifies the direction of zero
+                               | crossings to be monitored
+                               | [both directions]
+                               |
+  ERKStepSetNoInactiveRootWarn | disable warning about possible
+                               | g==0 at beginning of integration
+  -----------------------------------------------------------------
+  Return flag:
+    ARK_SUCCESS   if successful
+    ARK_MEM_NULL  if the arkode memory is NULL
+    ARK_ILL_INPUT if an argument has an illegal value
+  ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ERKStepSetDefaults(void* arkode_mem);
 SUNDIALS_EXPORT int ERKStepSetOrder(void *arkode_mem, int maxord);
 SUNDIALS_EXPORT int ERKStepSetDenseOrder(void *arkode_mem, int dord);
-SUNDIALS_EXPORT int ERKStepSetERKTable(void *arkode_mem, int s,
-                                       int q, int p, realtype *c,
-                                       realtype *A, realtype *b,
-                                       realtype *bembed);
+SUNDIALS_EXPORT int ERKStepSetERKTable(void *arkode_mem,
+                                       ARKodeButcherTable B);
 SUNDIALS_EXPORT int ERKStepSetERKTableNum(void *arkode_mem, int itable);
 SUNDIALS_EXPORT int ERKStepSetCFLFraction(void *arkode_mem,
                                           realtype cfl_frac);
@@ -540,7 +537,7 @@ SUNDIALS_EXPORT int ERKStepSetPostprocessStepFn(void *arkode_mem,
 
   ARK_LSOLVE_FAIL:  The linear solver's solve routine failed in an
                     unrecoverable manner.
----------------------------------------------------------------*/
+  ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ERKStepEvolve(void *arkode_mem, realtype tout,
                                   N_Vector yout, realtype *tret,
                                   int itask);
@@ -581,7 +578,7 @@ SUNDIALS_EXPORT int ERKStepEvolve(void *arkode_mem, realtype tout,
     ARK_BAD_DKY:  The dky argument was NULL.
 
     ARK_MEM_NULL: The arkode_mem argument was NULL.
-    ---------------------------------------------------------------*/
+  ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ERKStepGetDky(void *arkode_mem, realtype t,
                                   int k, N_Vector dky);
 
@@ -690,9 +687,9 @@ SUNDIALS_EXPORT int ERKStepGetRootInfo(void *arkode_mem,
                                        int *rootsfound);
 
 /*---------------------------------------------------------------
- As a convenience, the following functions provide the
- optional outputs in grouped form.
----------------------------------------------------------------*/
+  As a convenience, the following functions provide the
+  optional outputs in grouped form.
+  ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ERKStepGetTimestepperStats(void *arkode_mem,
                                                long int *expsteps,
                                                long int *accsteps,
@@ -707,25 +704,25 @@ SUNDIALS_EXPORT int ERKStepGetStepStats(void *arkode_mem,
                                         realtype *tcur);
 
 /*---------------------------------------------------------------
- The following function returns the name of the constant
- associated with a ERKStep return flag
----------------------------------------------------------------*/
+  The following function returns the name of the constant
+  associated with a ERKStep return flag
+  ---------------------------------------------------------------*/
 SUNDIALS_EXPORT char *ERKStepGetReturnFlagName(long int flag);
 
 /*---------------------------------------------------------------
- Function : ERKStepWriteParameters
------------------------------------------------------------------
- ERKStepWriteParameters outputs all timestepper module parameters
- to the provided file pointer.
----------------------------------------------------------------*/
+  Function : ERKStepWriteParameters
+  -----------------------------------------------------------------
+  ERKStepWriteParameters outputs all timestepper module parameters
+  to the provided file pointer.
+  ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ERKStepWriteParameters(void *arkode_mem, FILE *fp);
 
 /*---------------------------------------------------------------
- Function : ERKStepWriteButcher
------------------------------------------------------------------
- ERKStepWriteButcher outputs the Butcher tables to the
- provided file pointer.
----------------------------------------------------------------*/
+  Function : ERKStepWriteButcher
+  -----------------------------------------------------------------
+  ERKStepWriteButcher outputs the Butcher tables to the
+  provided file pointer.
+  ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ERKStepWriteButcher(void *arkode_mem, FILE *fp);
 
 /*---------------------------------------------------------------
@@ -734,7 +731,7 @@ SUNDIALS_EXPORT int ERKStepWriteButcher(void *arkode_mem, FILE *fp);
   This frees the problem memory arkode_mem allocated by
   ERKStepCreate. Its only argument is the pointer arkode_mem
   returned by ERKStepCreate.
----------------------------------------------------------------*/
+  ---------------------------------------------------------------*/
 SUNDIALS_EXPORT void ERKStepFree(void **arkode_mem);
 
 /*---------------------------------------------------------------
@@ -743,7 +740,7 @@ SUNDIALS_EXPORT void ERKStepFree(void **arkode_mem);
   This routine outputs the memory from the ERKStep structure and
   the main ARKode infrastructure to a specified file pointer
   (useful when debugging).
----------------------------------------------------------------*/
+  ---------------------------------------------------------------*/
 SUNDIALS_EXPORT void ERKStepPrintMem(void* arkode_mem, FILE* outfile);
 
 

@@ -2013,7 +2013,10 @@ static int IDAHandleFailure(IDAMem IDA_mem, int sflag)
       return(IDA_NLS_SETUP_FAIL);
   }
 
-  return (IDA_UNRECOGNISED_ERROR);   /* This return should never happen */
+  /* This return should never happen */
+  IDAProcessError(IDA_mem, IDA_UNRECOGNIZED_ERROR, "IDA", "IDASolve",
+                  "IDA encountered an unrecognized error. Please report this to the Sundials developers at sundials-users@llnl.gov");
+  return (IDA_UNRECOGNIZED_ERROR);
 }
 
 /*

@@ -46,7 +46,7 @@ extern "C" {
 #define MAX_DIRK_NUM            23
 
 /* Accessor routine to load built-in DIRK table */  
-ARKodeButcherTable ARKodeLoadButcherTable_DIRK(int imethod);
+SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_LoadDIRK(int imethod);
 
   
 #ifdef __cplusplus

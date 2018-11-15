@@ -99,7 +99,7 @@ extern "C" {
 #define IDA_BAD_DKY         -27
 #define IDA_VECTOROP_ERR    -28
 
-#define IDA_UNRECOGNISED_ERROR -99
+#define IDA_UNRECOGNIZED_ERROR -99
 
 /*
  * ----------------------------------------------------------------

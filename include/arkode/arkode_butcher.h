@@ -2,13 +2,13 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2017, Southern Methodist University and 
+ * Copyright (c) 2017, Southern Methodist University and
  * Lawrence Livermore National Security
  *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Southern Methodist University and Lawrence Livermore
  * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
+ * Produced at Southern Methodist University and the Lawrence
  * Livermore National Laboratory.
  *
  * All rights reserved.
@@ -44,10 +44,26 @@ typedef struct ARKodeButcherTableMem {
 
 
 /* Utility routines to allocate/free/output Butcher table structures */
-ARKodeButcherTable AllocButcherTable(int stages, booleantype embedded);
-void ButcherTableSpace(ARKodeButcherTable B, sunindextype *liw, sunindextype *lrw);
-void FreeButcherTable(ARKodeButcherTable B);
-void WriteButcherTable(ARKodeButcherTable B, FILE *outfile);
+SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_Alloc(int stages,
+                                                            booleantype embedded);
+SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_Create(int s, int q,
+                                                             int p,
+                                                             realtype *c,
+                                                             realtype *A,
+                                                             realtype *b,
+                                                             realtype *d);
+SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_Copy(ARKodeButcherTable B);
+SUNDIALS_EXPORT void ARKodeButcherTable_Space(ARKodeButcherTable B,
+                                              sunindextype *liw,
+                                              sunindextype *lrw);
+SUNDIALS_EXPORT void ARKodeButcherTable_Free(ARKodeButcherTable B);
+SUNDIALS_EXPORT void ARKodeButcherTable_Write(ARKodeButcherTable B, FILE *outfile);
+
+SUNDIALS_EXPORT int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int *q,
+                                                  int *p, FILE *outfile);
+SUNDIALS_EXPORT int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1,
+                                                     ARKodeButcherTable B2,
+                                                     int *q, int *p, FILE *outfile);
 
 #ifdef __cplusplus
 }

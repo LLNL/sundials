@@ -833,37 +833,35 @@ Specify explicit RK table number   :c:func:`ERKStepSetERKTableNum()`  internal
 
 
 
-.. c:function:: int ERKStepSetERKTable(void* arkode_mem, int s, int q, int p, realtype* c, realtype* A, realtype* b, realtype* bembed)
+.. c:function:: int ERKStepSetERKTable(void* arkode_mem, ARKodeButcherTable B)
 
    Specifies a customized Butcher table for the ERK method.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ERKStep memory block.
-      * *s* -- number of stages in the RK method.
-      * *q* -- global order of accuracy for the RK method.
-      * *p* -- global order of accuracy for the embedded RK method.
-      * *c* -- array (of length *s*) of stage times for the RK method.
-      * *A* -- array of coefficients defining the RK stages.  This should
-        be stored as a 1D array of size *s*s*, in row-major order.
-      * *b* -- array of coefficients (of length *s*) defining the time step solution.
-      * *bembed* -- array of coefficients (of length *s*) defining the embedded solution.
+      * *B* -- the Butcher table for the explicit RK method.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory is ``NULL``
       * *ARK_ILL_INPUT* if an argument has an illegal value
 
-   **Notes:** No error checking is performed to ensure that either *p*
-   or *q* correctly describe the coefficients that were input.
+   **Notes:**
 
-   Error checking is performed to ensure that *A* is strictly
+   For a description of the :c:type:`ARKodeButcherTable` type and related
+   functions for creating Butcher tables see :ref:`ARKodeButcherTable`.
+
+   No error checking is performed to ensure that either the method order *p* or
+   the embedding order *q* correctly describe the coefficients in the Butcher
+   table. 
+
+   Error checking is performed to ensure that the Butcher table is strictly
    lower-triangular (i.e. that it specifies an ERK method).
 
-   An input *bembed* of ``NULL`` will signal that ERKStep will run in
-   fixed-step mode (see :c:func:`ERKStepSetFixedStep()`); if called in
-   this manner the user *must* call either
-   :c:func:`ERKStepSetFixedStep()` or :c:func:`ERKStepSetInitStep()` to
-   set the desired time step size.
+   If the Butcher table does not contain an embedding, then ERKStep will run in
+   fixed-step mode (see :c:func:`ERKStepSetFixedStep()`); if called in this
+   manner the user *must* call either :c:func:`ERKStepSetFixedStep()` or
+   :c:func:`ERKStepSetInitStep()` to set the desired time step size.
 
 
 
@@ -1640,8 +1638,7 @@ Single accessor to many statistics at once           :c:func:`ERKStepGetTimestep
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ERKStep memory was ``NULL``
 
-   **Notes:**  The *ARKodeButcherTable* data structure is defined in
-   the header file ``arkode/arkode_butcher.h``.  It is defined as a
+   **Notes:**  The :c:type:`ARKodeButcherTable` data structure is defined as a
    pointer to the following C structure:
 
    .. code-block:: c
@@ -1658,6 +1655,7 @@ Single accessor to many statistics at once           :c:func:`ERKStepGetTimestep
 
       } *ARKodeButcherTable;
 
+      For more details see :ref:`ARKodeButcherTable`.
 
 .. c:function:: int ERKStepGetEstLocalErrors(void* arkode_mem, N_Vector ele)
 
@@ -1786,13 +1784,12 @@ understand ERKStep and/or specific Runge-Kutta methods.
 
 .. cssclass:: table-bordered
 
-===========================================================  ========================================
-Optional routine                                             Function name
-===========================================================  ========================================
-Output all ERKStep solver parameters                         :c:func:`ERKStepWriteParameters()`
-Retrieve a given explicit Butcher table by its unique name   :c:func:`ARKodeLoadButcherTable_ERK()`
-Output the current Butcher table                             :c:func:`ERKStepWriteButcher()`
-===========================================================  ========================================
+=====================================  ===================================
+Optional routine                       Function name
+=====================================  ===================================
+Output all ERKStep solver parameters   :c:func:`ERKStepWriteParameters()`
+Output the current Butcher table       :c:func:`ERKStepWriteButcher()`
+=====================================  ===================================
 
 
 
@@ -1815,26 +1812,6 @@ Output the current Butcher table                             :c:func:`ERKStepWri
    When run in parallel, only one process should set a non-NULL value
    for this pointer, since parameters for all processes would be
    identical.
-
-
-.. c:function:: ARKodeButcherTable ARKodeLoadButcherTable_ERK(int imethod)
-
-   Retrieves a specified explicit Butcher table.  The
-   *ARKodeButcherTable* data structure is defined in the header file
-   ``arkode/arkode_butcher.h``, and is described above in the notes
-   for the function :c:func:`ERKStepGetCurrentButcherTable()`.  The
-   prototype for this function, as well as the integer names for each
-   provided method, are defined in the header file
-   ``arkode/arkode_butcher_erk.h``.  For further information on these
-   tables and their corresponding identifiers, see :ref:`Butcher`.
-
-   **Arguments:**
-      * *imethod* -- integer input specifying the given Butcher table --
-        valid values match those for the function :c:func:`ERKStepSetERKTableNum()`.
-
-   **Return value:**
-      * *ARKodeButcherTable* structure if successful
-      * *NULL* pointer if *imethod* was invalid
 
 
 .. c:function:: int ERKStepWriteButcher(void* arkode_mem, FILE *fp)

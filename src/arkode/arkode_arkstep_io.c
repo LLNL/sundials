@@ -43,10 +43,10 @@
   ===============================================================*/
 
 /*---------------------------------------------------------------
- ARKStepSetDenseOrder: Specifies the polynomial order for dense
- output.  Positive values are sent to the interpolation module;
- negative values imply to use the default.
----------------------------------------------------------------*/
+  ARKStepSetDenseOrder: Specifies the polynomial order for dense
+  output.  Positive values are sent to the interpolation module;
+  negative values imply to use the default.
+  ---------------------------------------------------------------*/
 int ARKStepSetDenseOrder(void *arkode_mem, int dord)
 {
   ARKodeMem ark_mem;
@@ -60,8 +60,8 @@ int ARKStepSetDenseOrder(void *arkode_mem, int dord)
 }
 
 /*---------------------------------------------------------------
- ARKStepSetErrHandlerFn: Specifies the error handler function
----------------------------------------------------------------*/
+  ARKStepSetErrHandlerFn: Specifies the error handler function
+  ---------------------------------------------------------------*/
 int ARKStepSetErrHandlerFn(void *arkode_mem, ARKErrHandlerFn ehfun,
                            void *eh_data)
 {
@@ -76,9 +76,9 @@ int ARKStepSetErrHandlerFn(void *arkode_mem, ARKErrHandlerFn ehfun,
 }
 
 /*---------------------------------------------------------------
- ARKStepSetErrFile: Specifies the FILE pointer for output (NULL
- means no messages)
----------------------------------------------------------------*/
+  ARKStepSetErrFile: Specifies the FILE pointer for output (NULL
+  means no messages)
+  ---------------------------------------------------------------*/
 int ARKStepSetErrFile(void *arkode_mem, FILE *errfp)
 {
   ARKodeMem ark_mem;
@@ -92,8 +92,8 @@ int ARKStepSetErrFile(void *arkode_mem, FILE *errfp)
 }
 
 /*---------------------------------------------------------------
- ARKStepSetUserData: Specifies the user data pointer for f
----------------------------------------------------------------*/
+  ARKStepSetUserData: Specifies the user data pointer for f
+  ---------------------------------------------------------------*/
 int ARKStepSetUserData(void *arkode_mem, void *user_data)
 {
   ARKodeMem ark_mem;
@@ -107,10 +107,10 @@ int ARKStepSetUserData(void *arkode_mem, void *user_data)
 }
 
 /*---------------------------------------------------------------
- ARKStepSetDiagnostics: Specifies to enable solver diagnostics,
- and specifies the FILE pointer for output (diagfp==NULL
- disables output)
----------------------------------------------------------------*/
+  ARKStepSetDiagnostics: Specifies to enable solver diagnostics,
+  and specifies the FILE pointer for output (diagfp==NULL
+  disables output)
+  ---------------------------------------------------------------*/
 int ARKStepSetDiagnostics(void *arkode_mem, FILE *diagfp)
 {
   ARKodeMem ark_mem;
@@ -124,9 +124,9 @@ int ARKStepSetDiagnostics(void *arkode_mem, FILE *diagfp)
 }
 
 /*---------------------------------------------------------------
- ARKStepSetMaxNumSteps: Specifies the maximum number of
- integration steps
----------------------------------------------------------------*/
+  ARKStepSetMaxNumSteps: Specifies the maximum number of
+  integration steps
+  ---------------------------------------------------------------*/
 int ARKStepSetMaxNumSteps(void *arkode_mem, long int mxsteps)
 {
   ARKodeMem ark_mem;
@@ -140,9 +140,9 @@ int ARKStepSetMaxNumSteps(void *arkode_mem, long int mxsteps)
 }
 
 /*---------------------------------------------------------------
- ARKStepSetMaxHnilWarns: Specifies the maximum number of warnings
- for small h
----------------------------------------------------------------*/
+  ARKStepSetMaxHnilWarns: Specifies the maximum number of warnings
+  for small h
+  ---------------------------------------------------------------*/
 int ARKStepSetMaxHnilWarns(void *arkode_mem, int mxhnil)
 {
   ARKodeMem ark_mem;
@@ -156,8 +156,8 @@ int ARKStepSetMaxHnilWarns(void *arkode_mem, int mxhnil)
 }
 
 /*---------------------------------------------------------------
- ARKStepSetInitStep: Specifies the initial step size
----------------------------------------------------------------*/
+  ARKStepSetInitStep: Specifies the initial step size
+  ---------------------------------------------------------------*/
 int ARKStepSetInitStep(void *arkode_mem, realtype hin)
 {
   ARKodeMem ark_mem;
@@ -171,8 +171,8 @@ int ARKStepSetInitStep(void *arkode_mem, realtype hin)
 }
 
 /*---------------------------------------------------------------
- ARKStepSetMinStep: Specifies the minimum step size
----------------------------------------------------------------*/
+  ARKStepSetMinStep: Specifies the minimum step size
+  ---------------------------------------------------------------*/
 int ARKStepSetMinStep(void *arkode_mem, realtype hmin)
 {
   ARKodeMem ark_mem;
@@ -186,8 +186,8 @@ int ARKStepSetMinStep(void *arkode_mem, realtype hmin)
 }
 
 /*---------------------------------------------------------------
- ARKStepSetMaxStep: Specifies the maximum step size
----------------------------------------------------------------*/
+  ARKStepSetMaxStep: Specifies the maximum step size
+  ---------------------------------------------------------------*/
 int ARKStepSetMaxStep(void *arkode_mem, realtype hmax)
 {
   ARKodeMem ark_mem;
@@ -201,9 +201,9 @@ int ARKStepSetMaxStep(void *arkode_mem, realtype hmax)
 }
 
 /*---------------------------------------------------------------
- ARKStepSetStopTime: Specifies the time beyond which the
- integration is not to proceed.
----------------------------------------------------------------*/
+  ARKStepSetStopTime: Specifies the time beyond which the
+  integration is not to proceed.
+  ---------------------------------------------------------------*/
 int ARKStepSetStopTime(void *arkode_mem, realtype tstop)
 {
   ARKodeMem ark_mem;
@@ -217,17 +217,17 @@ int ARKStepSetStopTime(void *arkode_mem, realtype tstop)
 }
 
 /*---------------------------------------------------------------
- ARKStepSetFixedStep: Specifies to use a fixed time step size
- instead of performing any form of temporal adaptivity.  ARKStep
- will use this step size for all steps (unless tstop is set, in
- which case it may need to modify that last step approaching
- tstop.  If any solver failure occurs in the timestepping
- module, ARKStep will typically immediately return with an error
- message indicating that the selected step size cannot be used.
+  ARKStepSetFixedStep: Specifies to use a fixed time step size
+  instead of performing any form of temporal adaptivity.  ARKStep
+  will use this step size for all steps (unless tstop is set, in
+  which case it may need to modify that last step approaching
+  tstop.  If any solver failure occurs in the timestepping
+  module, ARKStep will typically immediately return with an error
+  message indicating that the selected step size cannot be used.
 
- Any nonzero argument will result in the use of that fixed step
- size; an argument of 0 will re-enable temporal adaptivity.
----------------------------------------------------------------*/
+  Any nonzero argument will result in the use of that fixed step
+  size; an argument of 0 will re-enable temporal adaptivity.
+  ---------------------------------------------------------------*/
 int ARKStepSetFixedStep(void *arkode_mem, realtype hfixed)
 {
   ARKodeMem ark_mem;
@@ -241,9 +241,9 @@ int ARKStepSetFixedStep(void *arkode_mem, realtype hfixed)
 }
 
 /*---------------------------------------------------------------
- ARKStepSetRootDirection: Specifies the direction of zero-crossings
- to be monitored.  The default is to monitor both crossings.
----------------------------------------------------------------*/
+  ARKStepSetRootDirection: Specifies the direction of zero-crossings
+  to be monitored.  The default is to monitor both crossings.
+  ---------------------------------------------------------------*/
 int ARKStepSetRootDirection(void *arkode_mem, int *rootdir)
 {
   ARKodeMem ark_mem;
@@ -257,10 +257,10 @@ int ARKStepSetRootDirection(void *arkode_mem, int *rootdir)
 }
 
 /*---------------------------------------------------------------
- ARKStepSetNoInactiveRootWarn:  Disables issuing a warning if
- some root function appears to be identically zero at the
- beginning of the integration
----------------------------------------------------------------*/
+  ARKStepSetNoInactiveRootWarn:  Disables issuing a warning if
+  some root function appears to be identically zero at the
+  beginning of the integration
+  ---------------------------------------------------------------*/
 int ARKStepSetNoInactiveRootWarn(void *arkode_mem)
 {
   ARKodeMem ark_mem;
@@ -274,14 +274,14 @@ int ARKStepSetNoInactiveRootWarn(void *arkode_mem)
 }
 
 /*---------------------------------------------------------------
- ARKStepSetPostprocessStepFn:  Specifies a user-provided step
- postprocessing function having type ARKPostProcessStepFn.  A
- NULL input function disables step postprocessing.
+  ARKStepSetPostprocessStepFn:  Specifies a user-provided step
+  postprocessing function having type ARKPostProcessStepFn.  A
+  NULL input function disables step postprocessing.
 
- IF THE SUPPLIED FUNCTION MODIFIES ANY OF THE ACTIVE STATE DATA,
- THEN ALL THEORETICAL GUARANTEES OF SOLUTION ACCURACY AND
- STABILITY ARE LOST.
----------------------------------------------------------------*/
+  IF THE SUPPLIED FUNCTION MODIFIES ANY OF THE ACTIVE STATE DATA,
+  THEN ALL THEORETICAL GUARANTEES OF SOLUTION ACCURACY AND
+  STABILITY ARE LOST.
+  ---------------------------------------------------------------*/
 int ARKStepSetPostprocessStepFn(void *arkode_mem,
                                 ARKPostProcessStepFn ProcessStep)
 {
@@ -296,9 +296,9 @@ int ARKStepSetPostprocessStepFn(void *arkode_mem,
 }
 
 /*---------------------------------------------------------------
- These wrappers for ARKLs module 'set' routines all are
- documented in arkode_arkstep.h.
----------------------------------------------------------------*/
+  These wrappers for ARKLs module 'set' routines all are
+  documented in arkode_arkstep.h.
+  ---------------------------------------------------------------*/
 int ARKStepSetLinearSolver(void *arkode_mem, SUNLinearSolver LS,
                            SUNMatrix A) {
   return(arkLSSetLinearSolver(arkode_mem, LS, A)); }
@@ -336,9 +336,9 @@ int ARKStepSetMassTimes(void *arkode_mem, ARKLsMassTimesSetupFn msetup,
   ===============================================================*/
 
 /*---------------------------------------------------------------
- ARKStepGetNumSteps:  Returns the current number of integration
- steps
----------------------------------------------------------------*/
+  ARKStepGetNumSteps:  Returns the current number of integration
+  steps
+  ---------------------------------------------------------------*/
 int ARKStepGetNumSteps(void *arkode_mem, long int *nsteps)
 {
   ARKodeMem ark_mem;
@@ -352,9 +352,9 @@ int ARKStepGetNumSteps(void *arkode_mem, long int *nsteps)
 }
 
 /*---------------------------------------------------------------
- ARKStepGetActualInitStep: Returns the step size used on the
- first step
----------------------------------------------------------------*/
+  ARKStepGetActualInitStep: Returns the step size used on the
+  first step
+  ---------------------------------------------------------------*/
 int ARKStepGetActualInitStep(void *arkode_mem, realtype *hinused)
 {
   ARKodeMem ark_mem;
@@ -368,9 +368,9 @@ int ARKStepGetActualInitStep(void *arkode_mem, realtype *hinused)
 }
 
 /*---------------------------------------------------------------
- ARKStepGetLastStep: Returns the step size used on the last
- successful step
----------------------------------------------------------------*/
+  ARKStepGetLastStep: Returns the step size used on the last
+  successful step
+  ---------------------------------------------------------------*/
 int ARKStepGetLastStep(void *arkode_mem, realtype *hlast)
 {
   ARKodeMem ark_mem;
@@ -384,9 +384,9 @@ int ARKStepGetLastStep(void *arkode_mem, realtype *hlast)
 }
 
 /*---------------------------------------------------------------
- ARKStepGetCurrentStep: Returns the step size to be attempted on
- the next step
----------------------------------------------------------------*/
+  ARKStepGetCurrentStep: Returns the step size to be attempted on
+  the next step
+  ---------------------------------------------------------------*/
 int ARKStepGetCurrentStep(void *arkode_mem, realtype *hcur)
 {
   ARKodeMem ark_mem;
@@ -400,9 +400,9 @@ int ARKStepGetCurrentStep(void *arkode_mem, realtype *hcur)
 }
 
 /*---------------------------------------------------------------
- ARKStepGetCurrentTime: Returns the current value of the
- independent variable
----------------------------------------------------------------*/
+  ARKStepGetCurrentTime: Returns the current value of the
+  independent variable
+  ---------------------------------------------------------------*/
 int ARKStepGetCurrentTime(void *arkode_mem, realtype *tcur)
 {
   ARKodeMem ark_mem;
@@ -416,9 +416,9 @@ int ARKStepGetCurrentTime(void *arkode_mem, realtype *tcur)
 }
 
 /*---------------------------------------------------------------
- ARKStepGetTolScaleFactor: Returns a suggested factor for scaling
- tolerances
----------------------------------------------------------------*/
+  ARKStepGetTolScaleFactor: Returns a suggested factor for scaling
+  tolerances
+  ---------------------------------------------------------------*/
 int ARKStepGetTolScaleFactor(void *arkode_mem, realtype *tolsfact)
 {
   ARKodeMem ark_mem;
@@ -432,9 +432,9 @@ int ARKStepGetTolScaleFactor(void *arkode_mem, realtype *tolsfact)
 }
 
 /*---------------------------------------------------------------
- ARKStepGetErrWeights: This routine returns the current error
- weight vector.
----------------------------------------------------------------*/
+  ARKStepGetErrWeights: This routine returns the current error
+  weight vector.
+  ---------------------------------------------------------------*/
 int ARKStepGetErrWeights(void *arkode_mem, N_Vector eweight)
 {
   ARKodeMem ark_mem;
@@ -448,9 +448,9 @@ int ARKStepGetErrWeights(void *arkode_mem, N_Vector eweight)
 }
 
 /*---------------------------------------------------------------
- ARKStepGetResWeights: This routine returns the current residual
- weight vector.
----------------------------------------------------------------*/
+  ARKStepGetResWeights: This routine returns the current residual
+  weight vector.
+  ---------------------------------------------------------------*/
 int ARKStepGetResWeights(void *arkode_mem, N_Vector rweight)
 {
   ARKodeMem ark_mem;
@@ -464,8 +464,8 @@ int ARKStepGetResWeights(void *arkode_mem, N_Vector rweight)
 }
 
 /*---------------------------------------------------------------
- ARKStepGetWorkSpace: Returns integrator work space requirements
----------------------------------------------------------------*/
+  ARKStepGetWorkSpace: Returns integrator work space requirements
+  ---------------------------------------------------------------*/
 int ARKStepGetWorkSpace(void *arkode_mem, long int *lenrw, long int *leniw)
 {
   ARKodeMem ark_mem;
@@ -479,9 +479,9 @@ int ARKStepGetWorkSpace(void *arkode_mem, long int *lenrw, long int *leniw)
 }
 
 /*---------------------------------------------------------------
- ARKStepGetNumGEvals: Returns the current number of calls to g
- (for rootfinding)
----------------------------------------------------------------*/
+  ARKStepGetNumGEvals: Returns the current number of calls to g
+  (for rootfinding)
+  ---------------------------------------------------------------*/
 int ARKStepGetNumGEvals(void *arkode_mem, long int *ngevals)
 {
   ARKodeMem ark_mem;
@@ -495,9 +495,9 @@ int ARKStepGetNumGEvals(void *arkode_mem, long int *ngevals)
 }
 
 /*---------------------------------------------------------------
- ARKStepGetRootInfo: Returns pointer to array rootsfound showing
- roots found
----------------------------------------------------------------*/
+  ARKStepGetRootInfo: Returns pointer to array rootsfound showing
+  roots found
+  ---------------------------------------------------------------*/
 int ARKStepGetRootInfo(void *arkode_mem, int *rootsfound)
 {
   ARKodeMem ark_mem;
@@ -511,8 +511,8 @@ int ARKStepGetRootInfo(void *arkode_mem, int *rootsfound)
 }
 
 /*---------------------------------------------------------------
- ARKStepGetStepStats: Returns step statistics
----------------------------------------------------------------*/
+  ARKStepGetStepStats: Returns step statistics
+  ---------------------------------------------------------------*/
 int ARKStepGetStepStats(void *arkode_mem, long int *nsteps,
                         realtype *hinused, realtype *hlast,
                         realtype *hcur, realtype *tcur)
@@ -528,16 +528,16 @@ int ARKStepGetStepStats(void *arkode_mem, long int *nsteps,
 }
 
 /*---------------------------------------------------------------
- ARKStepGetReturnFlagName: translates from return flags IDs to
- names
----------------------------------------------------------------*/
+  ARKStepGetReturnFlagName: translates from return flags IDs to
+  names
+  ---------------------------------------------------------------*/
 char *ARKStepGetReturnFlagName(long int flag)
 { return(arkGetReturnFlagName(flag)); }
 
 /*---------------------------------------------------------------
- These wrappers for ARKLs module 'get' routines all are
- documented in arkode_arkstep.h.
----------------------------------------------------------------*/
+  These wrappers for ARKLs module 'get' routines all are
+  documented in arkode_arkstep.h.
+  ---------------------------------------------------------------*/
 int ARKStepGetLinWorkSpace(void *arkode_mem, long int *lenrwLS, long int *leniwLS) {
   return(arkLSGetWorkSpace(arkode_mem, lenrwLS, leniwLS)); }
 int ARKStepGetNumJacEvals(void *arkode_mem, long int *njevals) {
@@ -602,7 +602,7 @@ int ARKStepSetDefaults(void* arkode_mem)
 {
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
-  int flag, retval;
+  int retval;
 
   /* access ARKodeARKStepMem structure */
   retval = arkStep_AccessStepMem(arkode_mem, "ARKStepSetDefaults",
@@ -610,12 +610,12 @@ int ARKStepSetDefaults(void* arkode_mem)
   if (retval != ARK_SUCCESS)  return(retval);
 
   /* Set default ARKode infrastructure parameters */
-  flag = arkSetDefaults(ark_mem);
-  if (flag != ARK_SUCCESS) {
+  retval = arkSetDefaults(ark_mem);
+  if (retval != ARK_SUCCESS) {
     arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetDefaults",
                     "Error setting ARKode infrastructure defaults");
-    return(flag);
+    return(retval);
   }
 
   /* Set default values for integrator optional inputs */
@@ -688,7 +688,7 @@ int ARKStepSetOptimalParams(void *arkode_mem)
 
   /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetOptimalParams",
                     MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
@@ -869,8 +869,8 @@ int ARKStepSetOrder(void *arkode_mem, int ord)
   step_mem->stages = 0;
   step_mem->istage = 0;
   step_mem->p = 0;
-  FreeButcherTable(step_mem->Be);  step_mem->Be = NULL;
-  FreeButcherTable(step_mem->Bi);  step_mem->Bi = NULL;
+  ARKodeButcherTable_Free(step_mem->Be);  step_mem->Be = NULL;
+  ARKodeButcherTable_Free(step_mem->Bi);  step_mem->Bi = NULL;
 
   return(ARK_SUCCESS);
 }
@@ -957,7 +957,7 @@ int ARKStepSetExplicit(void *arkode_mem)
 
   /* ensure that fe is defined */
   if (step_mem->fe == NULL) {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ARKStep",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
                     "ARKStepSetExplicit", MSG_ARK_MISSING_FE);
     return(ARK_ILL_INPUT);
   }
@@ -989,7 +989,7 @@ int ARKStepSetImplicit(void *arkode_mem)
 
   /* ensure that fi is defined */
   if (step_mem->fi == NULL) {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ARKStep",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
                     "ARKStepSetImplicit", MSG_ARK_MISSING_FI);
     return(ARK_ILL_INPUT);
   }
@@ -1021,12 +1021,12 @@ int ARKStepSetImEx(void *arkode_mem)
 
   /* ensure that fe and fi are defined */
   if (step_mem->fe == NULL) {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ARKStep",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
                     "ARKStepSetImEx", MSG_ARK_MISSING_FE);
     return(ARK_ILL_INPUT);
   }
   if (step_mem->fi == NULL) {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ARKStep",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
                     "ARKStepSetImEx", MSG_ARK_MISSING_FI);
     return(ARK_ILL_INPUT);
   }
@@ -1044,27 +1044,21 @@ int ARKStepSetImEx(void *arkode_mem)
 
   Specifies to use customized Butcher tables for the system.
 
-  If any of ci, Ai or bi are NULL, then this sets the integrator
-  in 'explicit' mode.
+  If Bi is NULL, then this sets the integrator in 'explicit' mode.
 
-  If any of ce, Ae or be are NULL, then this sets the integrator
-  in 'implicit' mode.
+  If Be is NULL, then this sets the integrator in 'implicit' mode.
 
-  Returns ARK_ILL_INPUT if at least one complete Butcher table
-  is not supplied.
+  Returns ARK_ILL_INPUT if both Butcher tables are not supplied.
 
-  If either de==NULL or di==NULL, then the method is
-  automatically flagged as a fixed-step method; a user MUST also
-  call either ARKStepSetFixedStep or ARKStepSetInitStep to set
-  the desired time step size.
+  If either table has d==NULL, then the method is automatically
+  flagged as a fixed-step method; a user MUST also call either
+  ARKStepSetFixedStep or ARKStepSetInitStep to set the desired
+  time step size.
   ---------------------------------------------------------------*/
-int ARKStepSetARKTables(void *arkode_mem, int s, int q, int p,
-                        realtype *ci, realtype *ce,
-                        realtype *Ai, realtype *Ae,
-                        realtype *bi, realtype *be,
-                        realtype *di, realtype *de)
+int ARKStepSetARKTables(void *arkode_mem, int q, int p,
+                        ARKodeButcherTable Bi, ARKodeButcherTable Be)
 {
-  int flag, i, j, retval;
+  int retval;
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
 
@@ -1073,154 +1067,144 @@ int ARKStepSetARKTables(void *arkode_mem, int s, int q, int p,
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
+  /* check for illegal inputs */
+  if ((Bi == NULL) && (Be == NULL)) {
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepSetARKTables",
+                    "At least one complete table must be supplied");
+    return(ARK_ILL_INPUT);
+  }
+
+  /* if both tables are set, check that they have the same number of stages */
+  if ((Bi != NULL) && (Be != NULL)) {
+    if (Bi->stages != Be->stages) {
+      arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
+                      "ARKStepSetARKTables",
+                      "At both tables must have the same number of stages");
+      return(ARK_ILL_INPUT);
+    }
+  }
+
   /* clear any existing parameters and Butcher tables */
   step_mem->stages = 0;
   step_mem->q = 0;
   step_mem->p = 0;
-  FreeButcherTable(step_mem->Be);  step_mem->Be = NULL;
-  FreeButcherTable(step_mem->Bi);  step_mem->Bi = NULL;
+  ARKodeButcherTable_Free(step_mem->Be);  step_mem->Be = NULL;
+  ARKodeButcherTable_Free(step_mem->Bi);  step_mem->Bi = NULL;
 
-
-  /* determine mode (implicit/explicit/ImEx), and perform
-     appropriate actions  */
-
-  /*     illegal inputs */
-  if ( ( (ci == NULL) || (Ai == NULL) || (bi == NULL) ) &&
-       ( (ce == NULL) || (Ae == NULL) || (be == NULL) ) )  {
-
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
-                    "ARKStepSetARKTables",
-                    "At least one complete table must be supplied");
-    return(ARK_ILL_INPUT);
-
+  /*
+   * determine mode (implicit/explicit/ImEx), and perform appropriate actions
+   */
 
   /* explicit */
-  } else if ((ci == NULL) || (Ai == NULL) || (bi == NULL)) {
+  if (Bi == NULL) {
 
-    /* set the relevant parameters */
-    step_mem->stages = s;
-    step_mem->q = q;
-    step_mem->p = p;
-    step_mem->Be = AllocButcherTable(s, (de != NULL));
-    step_mem->Be->q = q;
-    step_mem->Be->p = p;
-    for (i=0; i<s; i++) {
-      step_mem->Be->c[i] = ce[i];
-      step_mem->Be->b[i] = be[i];
-      for (j=0; j<s; j++) {
-        step_mem->Be->A[i][j] = Ae[i*s + j];
-      }
-    }
+    /* set the relevant parameters (use table q and p) */
+    step_mem->stages = Be->stages;
+    step_mem->q = Be->q;
+    step_mem->p = Be->p;
 
-    /* set embedding (if applicable), otherwise set as fixed-step method */
-    if (de == NULL) {
+    /* check for embedding and if applicable set as fixed-step method */
+    if (Be->d == NULL) {
       ark_mem->fixedstep = SUNTRUE;
       if (step_mem->hadapt_mem != NULL) {
         free(step_mem->hadapt_mem);
         step_mem->hadapt_mem = NULL;
       }
-    } else {
-      for (i=0; i<s; i++)
-        step_mem->Be->d[i] = de[i];
+    }
+
+    /* copy the table in step memory */
+    step_mem->Be = ARKodeButcherTable_Copy(Be);
+    if (step_mem->Be == NULL) {
+      arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
+                      "ARKStepSetARKTables", MSG_ARK_NO_MEM);
+      return(ARK_MEM_NULL);
     }
 
     /* set method as purely explicit */
-    flag = ARKStepSetExplicit(arkode_mem);
-    if (flag != ARK_SUCCESS) {
-      arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ARKStep",
+    retval = ARKStepSetExplicit(arkode_mem);
+    if (retval != ARK_SUCCESS) {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
                       "ARKStepSetARKTables",
                       "Error in ARKStepSetExplicit");
-      return(flag);
+      return(retval);
     }
-
 
   /* implicit */
-  } else if ((ce == NULL) || (Ae == NULL) || (be == NULL)) {
+  } else if (Be == NULL) {
 
-    /* set the relevant parameters */
-    step_mem->stages = s;
-    step_mem->q = q;
-    step_mem->p = p;
-    step_mem->Bi = AllocButcherTable(s, (di != NULL));
-    step_mem->Bi->q = q;
-    step_mem->Bi->p = p;
-    for (i=0; i<s; i++) {
-      step_mem->Bi->c[i] = ci[i];
-      step_mem->Bi->b[i] = bi[i];
-      for (j=0; j<s; j++) {
-        step_mem->Bi->A[i][j] = Ai[i*s + j];
-      }
-    }
+    /* set the relevant parameters (use table q and p) */
+    step_mem->stages = Bi->stages;
+    step_mem->q = Bi->q;
+    step_mem->p = Bi->p;
 
-    /* set embedding (if applicable), otherwise set as fixed-step method */
-    if (di == NULL) {
+    /* check for embedding and if applicable set as fixed-step method */
+    if (Bi->d == NULL) {
       ark_mem->fixedstep = SUNTRUE;
       if (step_mem->hadapt_mem != NULL) {
         free(step_mem->hadapt_mem);
         step_mem->hadapt_mem = NULL;
       }
-    } else {
-      for (i=0; i<s; i++)
-        step_mem->Bi->d[i] = di[i];
+    }
+
+    /* copy the table in step memory */
+    step_mem->Bi = ARKodeButcherTable_Copy(Bi);
+    if (step_mem->Bi == NULL) {
+      arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
+                      "ARKStepSetARKTables", MSG_ARK_NO_MEM);
+      return(ARK_MEM_NULL);
     }
 
     /* set method as purely implicit */
-    flag = ARKStepSetImplicit(arkode_mem);
-    if (flag != ARK_SUCCESS) {
-      arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ARKStep",
+    retval = ARKStepSetImplicit(arkode_mem);
+    if (retval != ARK_SUCCESS) {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
                       "ARKStepSetARKTables",
                       "Error in ARKStepSetImplicit");
       return(ARK_ILL_INPUT);
     }
 
-
   /* ImEx */
   } else {
 
-    /* set the relevant parameters */
-    step_mem->stages = s;
+    /* set the relevant parameters (use input q and p) */
+    step_mem->stages = Bi->stages;
     step_mem->q = q;
     step_mem->p = p;
-    step_mem->Be = AllocButcherTable(s, (de != NULL));
-    step_mem->Bi = AllocButcherTable(s, (di != NULL));
-    step_mem->Be->p = p;
-    step_mem->Bi->q = q;
-    step_mem->Be->q = q;
-    step_mem->Bi->p = p;
-    for (i=0; i<s; i++) {
-      step_mem->Be->c[i] = ce[i];
-      step_mem->Bi->c[i] = ci[i];
-      step_mem->Be->b[i] = be[i];
-      step_mem->Bi->b[i] = bi[i];
-      for (j=0; j<s; j++) {
-        step_mem->Be->A[i][j] = Ae[i*s + j];
-        step_mem->Bi->A[i][j] = Ai[i*s + j];
-      }
-    }
 
-    /* set embeddings (if applicable), otherwise set as fixed-step method */
-    if ((de == NULL) || (di == NULL)) {
+    /* check for embedding and if applicable set as fixed-step method */
+    if ((Be->d == NULL) || (Bi->d == NULL)) {
       ark_mem->fixedstep = SUNTRUE;
       if (step_mem->hadapt_mem != NULL) {
         free(step_mem->hadapt_mem);
         step_mem->hadapt_mem = NULL;
       }
-    } else {
-      for (i=0; i<s; i++) {
-        step_mem->Be->d[i] = de[i];
-        step_mem->Bi->d[i] = di[i];
-      }
+    }
+
+    /* copy the explicit table into step memory */
+    step_mem->Be = ARKodeButcherTable_Copy(Be);
+    if (step_mem->Be == NULL) {
+      arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
+                      "ARKStepSetARKTables", MSG_ARK_NO_MEM);
+      return(ARK_MEM_NULL);
+    }
+
+    /* copy the implicit table into step memory */
+    step_mem->Bi = ARKodeButcherTable_Copy(Bi);
+    if (step_mem->Bi == NULL) {
+      arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
+                      "ARKStepSetARKTables", MSG_ARK_NO_MEM);
+      return(ARK_MEM_NULL);
     }
 
     /* set method as ImEx */
-    flag = ARKStepSetImEx(arkode_mem);
-    if (flag != ARK_SUCCESS) {
-      arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ARKStep",
+    retval = ARKStepSetImEx(arkode_mem);
+    if (retval != ARK_SUCCESS) {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
                       "ARKStepSetARKTables",
                       "Error in ARKStepSetImEx");
       return(ARK_ILL_INPUT);
     }
-
   }
 
   return(ARK_SUCCESS);
@@ -1232,7 +1216,7 @@ int ARKStepSetARKTables(void *arkode_mem, int s, int q, int p,
 
   Specifies to use pre-existing Butcher tables for the system,
   based on the integer flags passed to
-  ARKodeLoadButcherTable_ERK() and ARKodeLoadButcherTable_DIRK()
+  ARKodeButcherTable_LoadERK() and ARKodeButcherTable_LoadDIRK()
   within the files arkode_butcher_erk.c and arkode_butcher_dirk.c
   (automatically calls ARKStepSetImEx).
 
@@ -1254,8 +1238,8 @@ int ARKStepSetARKTableNum(void *arkode_mem, int itable, int etable)
   step_mem->stages = 0;
   step_mem->q = 0;
   step_mem->p = 0;
-  FreeButcherTable(step_mem->Be);  step_mem->Be = NULL;
-  FreeButcherTable(step_mem->Bi);  step_mem->Bi = NULL;
+  ARKodeButcherTable_Free(step_mem->Be);  step_mem->Be = NULL;
+  ARKodeButcherTable_Free(step_mem->Bi);  step_mem->Bi = NULL;
 
 
   /* determine mode (implicit/explicit/ImEx), and perform
@@ -1263,7 +1247,7 @@ int ARKStepSetARKTableNum(void *arkode_mem, int itable, int etable)
 
   /*     illegal inputs */
   if ((itable < 0) && (etable < 0)) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetARKTableNum",
                     "At least one valid table number must be supplied");
     return(ARK_ILL_INPUT);
@@ -1274,16 +1258,16 @@ int ARKStepSetARKTableNum(void *arkode_mem, int itable, int etable)
 
     /* check that argument specifies an explicit table */
     if (etable<MIN_ERK_NUM || etable>MAX_ERK_NUM) {
-      arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+      arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
                       "ARKStepSetARKTableNum",
                       "Illegal ERK table number");
       return(ARK_ILL_INPUT);
     }
 
     /* fill in table based on argument */
-    step_mem->Be = ARKodeLoadButcherTable_ERK(etable);
+    step_mem->Be = ARKodeButcherTable_LoadERK(etable);
     if (step_mem->Be == NULL) {
-      arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+      arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
                       "ARKStepSetARKTableNum",
                       "Error setting explicit table with that index");
       return(ARK_ILL_INPUT);
@@ -1295,7 +1279,7 @@ int ARKStepSetARKTableNum(void *arkode_mem, int itable, int etable)
     /* set method as purely explicit */
     flag = ARKStepSetExplicit(arkode_mem);
     if (flag != ARK_SUCCESS) {
-      arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ARKStep",
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
                       "ARKStepSetARKTableNum",
                       "Error in ARKStepSetExplicit");
       return(flag);
@@ -1307,16 +1291,16 @@ int ARKStepSetARKTableNum(void *arkode_mem, int itable, int etable)
 
     /* check that argument specifies an implicit table */
     if (itable<MIN_DIRK_NUM || itable>MAX_DIRK_NUM) {
-      arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+      arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
                       "ARKStepSetARKTableNum",
                       "Illegal IRK table number");
       return(ARK_ILL_INPUT);
     }
 
     /* fill in table based on argument */
-    step_mem->Bi = ARKodeLoadButcherTable_DIRK(itable);
+    step_mem->Bi = ARKodeButcherTable_LoadDIRK(itable);
     if (step_mem->Bi == NULL) {
-      arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+      arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
                       "ARKStepSetARKTableNum",
                       "Error setting table with that index");
       return(ARK_ILL_INPUT);
@@ -1328,7 +1312,7 @@ int ARKStepSetARKTableNum(void *arkode_mem, int itable, int etable)
     /* set method as purely implicit */
     flag = ARKStepSetImplicit(arkode_mem);
     if (flag != ARK_SUCCESS) {
-      arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ARKStep",
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
                       "ARKStepSetARKTableNum",
                       "Error in ARKStepSetIxplicit");
       return(flag);
@@ -1342,23 +1326,23 @@ int ARKStepSetARKTableNum(void *arkode_mem, int itable, int etable)
     if ( !((etable == ARK324L2SA_ERK_4_2_3) && (itable == ARK324L2SA_DIRK_4_2_3)) &&
          !((etable == ARK436L2SA_ERK_6_3_4) && (itable == ARK436L2SA_DIRK_6_3_4)) &&
          !((etable == ARK548L2SA_ERK_8_4_5) && (itable == ARK548L2SA_DIRK_8_4_5)) ) {
-      arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ARKStep",
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
                       "ARKStepSetARKTableNum",
                       "Incompatible Butcher tables for ARK method");
       return(ARK_ILL_INPUT);
     }
 
     /* fill in tables based on arguments */
-    step_mem->Bi = ARKodeLoadButcherTable_DIRK(itable);
-    step_mem->Be = ARKodeLoadButcherTable_ERK(etable);
+    step_mem->Bi = ARKodeButcherTable_LoadDIRK(itable);
+    step_mem->Be = ARKodeButcherTable_LoadERK(etable);
     if (step_mem->Bi == NULL) {
-      arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+      arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
                       "ARKStepSetARKTableNum",
                       "Illegal IRK table number");
       return(ARK_ILL_INPUT);
     }
     if (step_mem->Be == NULL) {
-      arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+      arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
                       "ARKStepSetARKTableNum",
                       "Illegal ERK table number");
       return(ARK_ILL_INPUT);
@@ -1369,7 +1353,7 @@ int ARKStepSetARKTableNum(void *arkode_mem, int itable, int etable)
 
     /* set method as ImEx */
     if (ARKStepSetImEx(arkode_mem) != ARK_SUCCESS) {
-      arkProcessError(NULL, ARK_ILL_INPUT, "ARKode::ARKStep",
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
                       "ARKStepSetARKTableNum", MSG_ARK_MISSING_F);
       return(ARK_ILL_INPUT);
     }
@@ -1402,7 +1386,7 @@ int ARKStepSetCFLFraction(void *arkode_mem, realtype cfl_frac)
 
   /* access structure */
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetCFLFraction",
                     MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
@@ -1449,7 +1433,7 @@ int ARKStepSetSafetyFactor(void *arkode_mem, realtype safety)
 
   /* access structure */
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetSafetyFactoy",MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1494,7 +1478,7 @@ int ARKStepSetErrorBias(void *arkode_mem, realtype bias)
 
   /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetErrorBias", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1533,7 +1517,7 @@ int ARKStepSetMaxGrowth(void *arkode_mem, realtype mx_growth)
 
   /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetMaxGrowth", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1571,7 +1555,7 @@ int ARKStepSetFixedStepBounds(void *arkode_mem, realtype lb, realtype ub)
 
   /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetFixedStepBounds", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1613,7 +1597,7 @@ int ARKStepSetAdaptivityMethod(void *arkode_mem, int imethod,
 
   /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetAdaptivityMethod", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1685,7 +1669,7 @@ int ARKStepSetAdaptivityFn(void *arkode_mem, ARKAdaptFn hfun,
 
   /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetAdaptivityFn", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1727,7 +1711,7 @@ int ARKStepSetMaxFirstGrowth(void *arkode_mem, realtype etamx1)
 
   /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetMaxFirstGrowth",MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1765,7 +1749,7 @@ int ARKStepSetMaxEFailGrowth(void *arkode_mem, realtype etamxf)
 
   /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetMaxEFailGrowth", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1803,7 +1787,7 @@ int ARKStepSetSmallNumEFails(void *arkode_mem, int small_nef)
 
   /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetSmallNumEFails", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -1841,7 +1825,7 @@ int ARKStepSetMaxCFailGrowth(void *arkode_mem, realtype etacf)
 
   /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetMaxCFailGrowth", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -2023,7 +2007,7 @@ int ARKStepSetStabilityFn(void *arkode_mem, ARKExpStabFn EStab,
 
   /* access ARKodeHAdaptMem structure */
   if (step_mem->hadapt_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepSetStabilityFn", MSG_ARKADAPT_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -2534,7 +2518,7 @@ int ARKStepWriteParameters(void *arkode_mem, FILE *fp)
   /* output ARKode infrastructure parameters first */
   flag = arkWriteParameters(ark_mem, fp);
   if (flag != ARK_SUCCESS) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ARKStep",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
                     "ARKStepWriteParameters",
                     "Error writing ARKode infrastructure parameters");
     return(flag);
@@ -2615,7 +2599,7 @@ int ARKStepWriteParameters(void *arkode_mem, FILE *fp)
   ---------------------------------------------------------------*/
 int ARKStepWriteButcher(void *arkode_mem, FILE *fp)
 {
-  int i, j, retval;
+  int retval;
   ARKodeMem ark_mem;
   ARKodeARKStepMem step_mem;
 
@@ -2624,45 +2608,23 @@ int ARKStepWriteButcher(void *arkode_mem, FILE *fp)
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS)  return(retval);
 
+  /* check that Butcher table is non-NULL (otherwise report error) */
+  if ((step_mem->Be == NULL) && (step_mem->Bi == NULL)) {
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ARKStep",
+                    "ARKStepWriteButcher", "Butcher table memory is NULL");
+    return(ARK_MEM_NULL);
+  }
+
   /* print Butcher tables to file */
   fprintf(fp, "\nARKStep Butcher tables (stages = %i):\n", step_mem->stages);
   if (step_mem->explicit && (step_mem->Be != NULL)) {
     fprintf(fp, "  Explicit Butcher table:\n");
-    for (i=0; i<step_mem->stages; i++) {
-      fprintf(fp, "     %"RSYM"",step_mem->Be->c[i]);
-      for (j=0; j<step_mem->stages; j++)
-        fprintf(fp, " %"RSYM"",step_mem->Be->A[i][j]);
-      fprintf(fp,"\n");
-    }
-    fprintf(fp, "            ");
-    for (j=0; j<step_mem->stages; j++)
-      fprintf(fp, " %"RSYM"",step_mem->Be->b[j]);
-    fprintf(fp,"\n");
-    fprintf(fp, "            ");
-    if (step_mem->Be->d != NULL) {
-      for (j=0; j<step_mem->stages; j++)
-        fprintf(fp, " %"RSYM"",step_mem->Be->d[j]);
-      fprintf(fp,"\n");
-    }
+    ARKodeButcherTable_Write(step_mem->Be, fp);
   }
+  fprintf(fp, "\n");
   if (step_mem->implicit && (step_mem->Bi != NULL)) {
     fprintf(fp, "  Implicit Butcher table:\n");
-    for (i=0; i<step_mem->stages; i++) {
-      fprintf(fp, "     %"RSYM"",step_mem->Bi->c[i]);
-      for (j=0; j<step_mem->stages; j++)
-        fprintf(fp, " %"RSYM"",step_mem->Bi->A[i][j]);
-      fprintf(fp,"\n");
-    }
-    fprintf(fp, "            ");
-    for (j=0; j<step_mem->stages; j++)
-      fprintf(fp, " %"RSYM"",step_mem->Bi->b[j]);
-    fprintf(fp,"\n");
-    fprintf(fp, "            ");
-    if (step_mem->Bi->d != NULL) {
-      for (j=0; j<step_mem->stages; j++)
-        fprintf(fp, " %"RSYM"",step_mem->Bi->d[j]);
-      fprintf(fp,"\n");
-    }
+    ARKodeButcherTable_Write(step_mem->Bi, fp);
   }
   fprintf(fp, "\n");
 

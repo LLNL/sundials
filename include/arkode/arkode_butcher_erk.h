@@ -50,7 +50,7 @@ extern "C" {
 #define MAX_ERK_NUM             11
 
 /* Accessor routine to load built-in ERK table */  
-ARKodeButcherTable ARKodeLoadButcherTable_ERK(int imethod);
+SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_LoadERK(int imethod);
 
   
 #ifdef __cplusplus

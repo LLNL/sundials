@@ -621,51 +621,6 @@ modules.
 Nonlinear solver interface functions
 -------------------------------------------
 
-To specify a generic nonlinear solver object to ARKStep, after the
-call to :c:func:`ARKStepCreate()` but before any calls to
-:c:func:`ARKStepEvolve()`, the user's program must create the
-appropriate SUNNonlinSol object and call
-:c:func:`ARKStepSetNonlinearSolver()`, as documented below. The first
-argument passed to this function is the ARKStep memory pointer
-returned by :c:func:`ARKStepCreate()`; the second argument passed to
-this function is the desired SUNNonlinSol object to use for solving
-the nonlinear system for each implicit stage. A call to this function
-attaches the nonlinear solver to the main ARKStep integrator.
-
-The use of each of the generic nonlinear solvers involves certain
-routines to construct and modify options, that are likely to be needed in
-the user code.  These are available in the corresponding header file
-associated with the specific ``SUNNonlinearSolver`` module in
-question, as described in the section :ref:`SUNNonlinSol`.
-
-
-.. c:function:: int ARKStepSetNonlinearSolver(void* arkode_mem, SUNNonlinearSolver NLS)
-
-   This function specifies the ``SUNNonlinearSolver`` object
-   that ARKStep should use for implicit stage solves.
-
-   **Arguments:**
-      * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *NLS* -- the ``SUNNonlinearSolver`` object to use.
-
-   **Return value:**
-      * *ARK_SUCCESS*   if successful
-      * *ARK_MEM_NULL*  if the ARKStep memory was ``NULL``
-      * *ARK_MEM_FAIL*  if there was a memory allocation failure
-      * *ARK_ILL_INPUT* if ARKStep is incompatible with the
-        provided *NLS* input object.
-
-   **Notes:**  ARKStep will use the Newton SUNNonlinSol module by
-   default; a call to this routine replaces that module with the
-   supplied *NLS* object.
-
-
-
-.. _ARKStep_CInterface.NonlinearSolvers:
-
-Nonlinear solver interface functions
--------------------------------------------
-
 When changing the nonlinear solver in ARKStep, after the
 call to :c:func:`ARKStepCreate()` but before any calls to
 :c:func:`ARKStepEvolve()`, the user's program must create the
@@ -704,7 +659,7 @@ attaches the nonlinear solver to the main ARKStep integrator.
    default; a call to this routine replaces that module with the
    supplied *NLS* object.
 
-
+   
 
 
 .. _ARKStep_CInterface.RootFinding:
@@ -1403,26 +1358,17 @@ Specify additive RK table numbers  :c:func:`ARKStepSetARKTableNum()`  internal
 
 
 
-.. c:function:: int ARKStepSetARKTables(void* arkode_mem, int s, int q, int p, realtype* ci, realtype* ce, realtype* Ai, realtype* Ae, realtype* bi, realtype* be, realtype* b2i, realtype* b2e)
+.. c:function:: int ARKStepSetARKTables(void* arkode_mem, int q, int p, ARKodeButcherTable Bi, ARKodeButcherTable Be)
 
    Specifies a customized Butcher table (or pair) for the ERK, DIRK,
    or ARK method.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *s* -- number of stages in the RK method.
       * *q* -- global order of accuracy for the RK method.
       * *p* -- global order of accuracy for the embedded RK method.
-      * *ci* -- array (of length *s*) of stage times for the implicit RK method.
-      * *ce* -- array (of length *s*) of stage times for the explicit RK method.
-      * *Ai* -- array of coefficients defining the implicit RK stages.  This should
-        be stored as a 1D array of size *s*s*, in row-major order.
-      * *Ae* -- array of coefficients defining the explicit RK stages.  This should
-        be stored as a 1D array of size *s*s*, in row-major order.
-      * *bi* -- array of implicit coefficients (of length *s*) defining the time step solution.
-      * *be* -- array of explicit coefficients (of length *s*) defining the time step solution.
-      * *b2i* -- array of implicit coefficients (of length *s*) defining the embedded solution.
-      * *b2e* -- array of explicit coefficients (of length *s*) defining the embedded solution.
+      * *Bi* -- the Butcher table for the implicit RK method.
+      * *Be* -- the Butcher table for the explicit RK method.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -1431,26 +1377,31 @@ Specify additive RK table numbers  :c:func:`ARKStepSetARKTableNum()`  internal
 
    **Notes:**
 
-   To set an explicit table, at least one of the inputs *ci*, *Ai* or
-   *bi* must be ``NULL``.  This automatically calls
+   For a description of the :c:type:`ARKodeButcherTable` type and related
+   functions for creating Butcher tables see :ref:`ARKodeButcherTable`.
+
+   To set an explicit table, *Bi* must be ``NULL``.  This automatically calls
    :c:func:`ARKStepSetExplicit()`.  However, if the problem is posed
    in explicit form, i.e. :math:`\dot{y} = f(t,y)`, then we recommend
    that the ERKStep time-stepper module be used instead of ARKStep.
 
-   To set an implicit table, at least one of the inputs *ce*, *Ae* or
-   *be* must be ``NULL``.  This automatically calls
+   To set an implicit table, *Be* must be ``NULL``.  This automatically calls
    :c:func:`ARKStepSetImplicit()`.
 
-   If none of *ci*, *ce*, *Ai*, *Ae*, *bi* or *be* are ``NULL``, this
-   routine automatically calls :c:func:`ARKStepSetImEx()`.
+   If both *Bi* and *Be* are provided, this routine automatically calls
+   :c:func:`ARKStepSetImEx()`.
 
-   No error checking is performed to ensure that either *p* or *q*
-   correctly describe the coefficients that were input.
+   When only one table is provided (i.e., *Bi* or *Be* is ``NULL``) then the
+   input values of *q* and *p* are ignored and the global order of the method
+   and embedding (if applicable) are obtained Butcher tables. If both *Bi* and
+   *Be* are non-NULL then the input values of *q* and *p* are used. No error
+   checking is performed to ensure that either *p* or *q* correctly describe the
+   coefficients that were input.
 
-   Error checking is performed on *Ai* and *Ae* (if non-NULL) to ensure
+   Error checking is performed on *Bi* and *Be* (if non-NULL) to ensure
    that they specify DIRK and ERK methods, respectively.
 
-   If the inputs *b2i* or *b2e* are set to ``NULL`` (when the
+   If the inputs *Bi* or *Be* do not contain an embedding (when the
    corresponding explicit or implicit table is non-NULL), ARKStep
    will run in fixed-step mode (see :c:func:`ARKStepSetFixedStep()`);
    if called in this manner the user *must* call either
@@ -3075,7 +3026,7 @@ Single accessor to many statistics at once           :c:func:`ARKStepGetTimestep
 
 
 
-.. c:function:: int ARKStepGetCurrentButcherTables(void* arkode_mem, ARKStepButcherTable *Bi, ARKStepButcherTable *Be)
+.. c:function:: int ARKStepGetCurrentButcherTables(void* arkode_mem, ARKodeButcherTable *Bi, ARKodepButcherTable *Be)
 
    Returns the explicit and implicit Butcher tables
    currently in use by the solver.
@@ -3089,8 +3040,7 @@ Single accessor to many statistics at once           :c:func:`ARKStepGetTimestep
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
 
-   **Notes:**  The *ARKStepButcherTable* data structure is defined in
-   the header file ``arkode/arkode_butcher.h``.  It is defined as a
+   **Notes:**  The :c:type:`ARKodeButcherTable` data structure is defined as a
    pointer to the following C structure:
 
    .. code-block:: c
@@ -3106,6 +3056,8 @@ Single accessor to many statistics at once           :c:func:`ARKStepGetTimestep
         realtype *d;     /* embedding coefficients         */
 
       } *ARKStepButcherTable;
+
+   For more details see :ref:`ARKodeButcherTable`.
 
 
 .. c:function:: int ARKStepGetEstLocalErrors(void* arkode_mem, N_Vector ele)
@@ -3763,14 +3715,12 @@ understand ARKStep and/or specific Runge-Kutta methods.
 
 .. cssclass:: table-bordered
 
-===========================================================  ========================================
-Optional routine                                             Function name
-===========================================================  ========================================
-Output all ARKStep solver parameters                         :c:func:`ARKStepWriteParameters()`
-Retrieve a given explicit Butcher table by its unique name   :c:func:`ARKodeLoadButcherTable_ERK()`
-Retrieve a given implicit Butcher table by its unique name   :c:func:`ARKodeLoadButcherTable_DIRK()`
-Output the current Butcher table(s)                          :c:func:`ARKStepWriteButcher()`
-===========================================================  ========================================
+=====================================  ===================================
+Optional routine                       Function name
+=====================================  ===================================
+Output all ARKStep solver parameters   :c:func:`ARKStepWriteParameters()`
+Output the current Butcher table(s)    :c:func:`ARKStepWriteButcher()`
+=====================================  ===================================
 
 
 
@@ -3793,46 +3743,6 @@ Output the current Butcher table(s)                          :c:func:`ARKStepWri
    When run in parallel, only one process should set a non-NULL value
    for this pointer, since parameters for all processes would be
    identical.
-
-
-.. c:function:: ARKodeButcherTable ARKodeLoadButcherTable_ERK(int emethod)
-
-   Retrieves a specified explicit Butcher table.  The
-   *ARKodeButcherTable* data structure is defined in the header file
-   ``arkode/arkode_butcher.h``, and is described above in the notes
-   for the function :c:func:`ARKStepGetCurrentButcherTables()`.  The
-   prototype for this function, as well as the integer names for each
-   provided method, are defined in the header file
-   ``arkode/arkode_butcher_erk.h``.  For further information on these
-   tables and their corresponding identifiers, see :ref:`Butcher`.
-
-   **Arguments:**
-      * *emethod* -- integer input specifying the given Butcher table --
-        valid values match those for the function :c:func:`ERKStepSetARKTableNum()`.
-
-   **Return value:**
-      * *ARKodeButcherTable* structure if successful
-      * *NULL* pointer if *imethod* was invalid
-
-
-.. c:function:: ARKodeButcherTable ARKodeLoadButcherTable_DIRK(int imethod)
-
-   Retrieves a specified diagonally-implicit Butcher table.  The
-   *ARKodeButcherTable* data structure is defined in the header file
-   ``arkode/arkode_butcher.h``, and is described above in the notes
-   for the function :c:func:`ARKStepGetCurrentButcherTables()`.  The
-   prototype for this function, as well as the integer names for each
-   provided method, are defined in the header file
-   ``arkode/arkode_butcher_dirk.h``.  For further information on these
-   tables and their corresponding identifiers, see :ref:`Butcher`.
-
-   **Arguments:**
-      * *imethod* -- integer input specifying the given Butcher table --
-        valid values match those for the function :c:func:`ERKStepSetARKTableNum()`.
-
-   **Return value:**
-      * *ARKodeButcherTable* structure if successful
-      * *NULL* pointer if *imethod* was invalid
 
 
 .. c:function:: int ARKStepWriteButcher(void* arkode_mem, FILE *fp)

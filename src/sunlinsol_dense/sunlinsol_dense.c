@@ -27,7 +27,6 @@
 #include <sunlinsol/sunlinsol_dense.h>
 #include <sundials/sundials_math.h>
 
-#define ZERO RCONST(1.0)
 #define ONE  RCONST(1.0)
 
 /* Private function prototypes */

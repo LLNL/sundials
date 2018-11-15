@@ -2238,7 +2238,10 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
                     (long double) ark_mem->tcur);
     break;
   default:
-    return(ARK_SUCCESS);
+    /* This return should never happen */
+    arkProcessError(ark_mem, ARK_UNRECOGNIZED_ERROR, "ARKode", "ARKode",
+                    "ARKode encountered an unrecognized error. Please report this to the Sundials developers at sundials-users@llnl.gov");
+    return(ARK_UNRECOGNIZED_ERROR);
   }
 
   return(flag);
@@ -2353,7 +2356,7 @@ int arkPredict_MaximumOrder(ARKodeMem ark_mem, realtype tau, N_Vector yguess)
     return(ARK_MEM_NULL);
   }
   if (ark_mem->interp == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode",
                     "arkPredict_MaximumOrder",
                     "ARKodeInterpMem structure is NULL");
     return(ARK_MEM_NULL);
@@ -2387,7 +2390,7 @@ int arkPredict_VariableOrder(ARKodeMem ark_mem, realtype tau, N_Vector yguess)
     return(ARK_MEM_NULL);
   }
   if (ark_mem->interp == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode",
                     "arkPredict_VariableOrder",
                     "ARKodeInterpMem structure is NULL");
     return(ARK_MEM_NULL);
@@ -2430,7 +2433,7 @@ int arkPredict_CutoffOrder(ARKodeMem ark_mem, realtype tau, N_Vector yguess)
     return(ARK_MEM_NULL);
   }
   if (ark_mem->interp == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode",
                     "arkPredict_CutoffOrder",
                     "ARKodeInterpMem structure is NULL");
     return(ARK_MEM_NULL);
@@ -2476,7 +2479,7 @@ int arkPredict_Bootstrap(ARKodeMem ark_mem, realtype hj,
     return(ARK_MEM_NULL);
   }
   if (ark_mem->interp == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode",
                     "arkPredict_Bootstrap",
                     "ARKodeInterpMem structure is NULL");
     return(ARK_MEM_NULL);

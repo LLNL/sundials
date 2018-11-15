@@ -37,18 +37,18 @@
 
 
 /*===============================================================
- ARKode optional input utility functions
-===============================================================*/
+  ARKode optional input utility functions
+  ===============================================================*/
 
 /*---------------------------------------------------------------
- arkSetDefaults:
+  arkSetDefaults:
 
- Resets all optional inputs to ARKode default values.  Does not
- change problem-defining function pointers fe and fi or
- user_data pointer.  Also leaves alone any data
- structures/options related to root-finding (those can be reset
- using ARKodeRootInit).
----------------------------------------------------------------*/
+  Resets all optional inputs to ARKode default values.  Does not
+  change problem-defining function pointers fe and fi or
+  user_data pointer.  Also leaves alone any data
+  structures/options related to root-finding (those can be reset
+  using ARKodeRootInit).
+  ---------------------------------------------------------------*/
 int arkSetDefaults(ARKodeMem ark_mem)
 {
   if (ark_mem==NULL) {
@@ -88,12 +88,12 @@ int arkSetDefaults(ARKodeMem ark_mem)
 
 
 /*---------------------------------------------------------------
- arkSetDenseOrder:
+  arkSetDenseOrder:
 
- Specifies the polynomial order for dense output.  Positive
- values are sent to the interpolation module; negative values
- imply to use the default.
----------------------------------------------------------------*/
+  Specifies the polynomial order for dense output.  Positive
+  values are sent to the interpolation module; negative values
+  imply to use the default.
+  ---------------------------------------------------------------*/
 int arkSetDenseOrder(ARKodeMem ark_mem, int dord)
 {
   if (ark_mem==NULL) {
@@ -114,10 +114,10 @@ int arkSetDenseOrder(ARKodeMem ark_mem, int dord)
 
 
 /*---------------------------------------------------------------
- arkSetErrHandlerFn:
+  arkSetErrHandlerFn:
 
- Specifies the error handler function
----------------------------------------------------------------*/
+  Specifies the error handler function
+  ---------------------------------------------------------------*/
 int arkSetErrHandlerFn(ARKodeMem ark_mem, ARKErrHandlerFn ehfun,
                        void *eh_data)
 {
@@ -141,10 +141,10 @@ int arkSetErrHandlerFn(ARKodeMem ark_mem, ARKErrHandlerFn ehfun,
 
 
 /*---------------------------------------------------------------
- arkSetErrFile:
+  arkSetErrFile:
 
- Specifies the FILE pointer for output (NULL means no messages)
----------------------------------------------------------------*/
+  Specifies the FILE pointer for output (NULL means no messages)
+  ---------------------------------------------------------------*/
 int arkSetErrFile(ARKodeMem ark_mem, FILE *errfp)
 {
   if (ark_mem==NULL) {
@@ -158,10 +158,10 @@ int arkSetErrFile(ARKodeMem ark_mem, FILE *errfp)
 
 
 /*---------------------------------------------------------------
- arkSetUserData:
+  arkSetUserData:
 
- Specifies the user data pointer for f
----------------------------------------------------------------*/
+  Specifies the user data pointer for f
+  ---------------------------------------------------------------*/
 int arkSetUserData(ARKodeMem ark_mem, void *user_data)
 {
   if (ark_mem==NULL) {
@@ -175,11 +175,11 @@ int arkSetUserData(ARKodeMem ark_mem, void *user_data)
 
 
 /*---------------------------------------------------------------
- arkSetDiagnostics:
+  arkSetDiagnostics:
 
- Specifies to enable solver diagnostics, and specifies the FILE
- pointer for output (diagfp==NULL disables output)
----------------------------------------------------------------*/
+  Specifies to enable solver diagnostics, and specifies the FILE
+  pointer for output (diagfp==NULL disables output)
+  ---------------------------------------------------------------*/
 int arkSetDiagnostics(ARKodeMem ark_mem, FILE *diagfp)
 {
   if (ark_mem==NULL) {
@@ -200,10 +200,10 @@ int arkSetDiagnostics(ARKodeMem ark_mem, FILE *diagfp)
 
 
 /*---------------------------------------------------------------
- arkSetMaxNumSteps:
+  arkSetMaxNumSteps:
 
- Specifies the maximum number of integration steps
----------------------------------------------------------------*/
+  Specifies the maximum number of integration steps
+  ---------------------------------------------------------------*/
 int arkSetMaxNumSteps(ARKodeMem ark_mem, long int mxsteps)
 {
   if (ark_mem==NULL) {
@@ -223,10 +223,10 @@ int arkSetMaxNumSteps(ARKodeMem ark_mem, long int mxsteps)
 
 
 /*---------------------------------------------------------------
- arkSetMaxHnilWarns:
+  arkSetMaxHnilWarns:
 
- Specifies the maximum number of warnings for small h
----------------------------------------------------------------*/
+  Specifies the maximum number of warnings for small h
+  ---------------------------------------------------------------*/
 int arkSetMaxHnilWarns(ARKodeMem ark_mem, int mxhnil)
 {
   if (ark_mem==NULL) {
@@ -247,10 +247,10 @@ int arkSetMaxHnilWarns(ARKodeMem ark_mem, int mxhnil)
 
 
 /*---------------------------------------------------------------
- arkSetInitStep:
+  arkSetInitStep:
 
- Specifies the initial step size
----------------------------------------------------------------*/
+  Specifies the initial step size
+  ---------------------------------------------------------------*/
 int arkSetInitStep(ARKodeMem ark_mem, realtype hin)
 {
   if (ark_mem==NULL) {
@@ -271,10 +271,10 @@ int arkSetInitStep(ARKodeMem ark_mem, realtype hin)
 
 
 /*---------------------------------------------------------------
- arkSetMinStep:
+  arkSetMinStep:
 
- Specifies the minimum step size
----------------------------------------------------------------*/
+  Specifies the minimum step size
+  ---------------------------------------------------------------*/
 int arkSetMinStep(ARKodeMem ark_mem, realtype hmin)
 {
   if (ark_mem==NULL) {
@@ -304,10 +304,10 @@ int arkSetMinStep(ARKodeMem ark_mem, realtype hmin)
 
 
 /*---------------------------------------------------------------
- arkSetMaxStep:
+  arkSetMaxStep:
 
- Specifies the maximum step size
----------------------------------------------------------------*/
+  Specifies the maximum step size
+  ---------------------------------------------------------------*/
 int arkSetMaxStep(ARKodeMem ark_mem, realtype hmax)
 {
   realtype hmax_inv;
@@ -339,10 +339,10 @@ int arkSetMaxStep(ARKodeMem ark_mem, realtype hmax)
 
 
 /*---------------------------------------------------------------
- arkSetStopTime:
+  arkSetStopTime:
 
- Specifies the time beyond which the integration is not to proceed.
----------------------------------------------------------------*/
+  Specifies the time beyond which the integration is not to proceed.
+  ---------------------------------------------------------------*/
 int arkSetStopTime(ARKodeMem ark_mem, realtype tstop)
 {
   if (ark_mem==NULL) {
@@ -372,19 +372,19 @@ int arkSetStopTime(ARKodeMem ark_mem, realtype tstop)
 
 
 /*---------------------------------------------------------------
- arkSetFixedStep:
+  arkSetFixedStep:
 
- Specifies to use a fixed time step size instead of performing
- any form of temporal adaptivity.  ARKode will use this step size
- for all steps (unless tstop is set, in which case it may need to
- modify that last step approaching tstop.  If any solver failure
- occurs in the timestepping module, ARKode will typically
- immediately return with an error message indicating that the
- selected step size cannot be used.
+  Specifies to use a fixed time step size instead of performing
+  any form of temporal adaptivity.  ARKode will use this step size
+  for all steps (unless tstop is set, in which case it may need to
+  modify that last step approaching tstop.  If any solver failure
+  occurs in the timestepping module, ARKode will typically
+  immediately return with an error message indicating that the
+  selected step size cannot be used.
 
- Any nonzero argument will result in the use of that fixed step
- size; an argument of 0 will re-enable temporal adaptivity.
----------------------------------------------------------------*/
+  Any nonzero argument will result in the use of that fixed step
+  size; an argument of 0 will re-enable temporal adaptivity.
+  ---------------------------------------------------------------*/
 int arkSetFixedStep(ARKodeMem ark_mem, realtype hfixed)
 {
   if (ark_mem==NULL) {
@@ -406,11 +406,11 @@ int arkSetFixedStep(ARKodeMem ark_mem, realtype hfixed)
 
 
 /*---------------------------------------------------------------
- arkSetRootDirection:
+  arkSetRootDirection:
 
- Specifies the direction of zero-crossings to be monitored.
- The default is to monitor both crossings.
----------------------------------------------------------------*/
+  Specifies the direction of zero-crossings to be monitored.
+  The default is to monitor both crossings.
+  ---------------------------------------------------------------*/
 int arkSetRootDirection(ARKodeMem ark_mem, int *rootdir)
 {
   ARKodeRootMem ark_root_mem;
@@ -422,14 +422,14 @@ int arkSetRootDirection(ARKodeMem ark_mem, int *rootdir)
     return(ARK_MEM_NULL);
   }
   if (ark_mem->root_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode",
                     "arkSetRootDirection", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
   ark_root_mem = (ARKodeRootMem) ark_mem->root_mem;
 
   if (ark_root_mem->nrtfn == 0) {
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode",
+    arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode",
                     "arkSetRootDirection", MSG_ARK_NO_ROOT);
     return(ARK_ILL_INPUT);
   }
@@ -442,11 +442,11 @@ int arkSetRootDirection(ARKodeMem ark_mem, int *rootdir)
 
 
 /*---------------------------------------------------------------
- arkSetNoInactiveRootWarn:
+  arkSetNoInactiveRootWarn:
 
- Disables issuing a warning if some root function appears
- to be identically zero at the beginning of the integration
----------------------------------------------------------------*/
+  Disables issuing a warning if some root function appears
+  to be identically zero at the beginning of the integration
+  ---------------------------------------------------------------*/
 int arkSetNoInactiveRootWarn(ARKodeMem ark_mem)
 {
   ARKodeRootMem ark_root_mem;
@@ -456,7 +456,7 @@ int arkSetNoInactiveRootWarn(ARKodeMem ark_mem)
     return(ARK_MEM_NULL);
   }
   if (ark_mem->root_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode",
                     "arkSetNoInactiveRootWarn", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -469,16 +469,16 @@ int arkSetNoInactiveRootWarn(ARKodeMem ark_mem)
 
 
 /*---------------------------------------------------------------
- arkSetPostprocessStepFn:
+  arkSetPostprocessStepFn:
 
- Specifies a user-provided step postprocessing function having
- type ARKPostProcessStepFn.  A NULL input function disables step
- postprocessing.
+  Specifies a user-provided step postprocessing function having
+  type ARKPostProcessStepFn.  A NULL input function disables step
+  postprocessing.
 
- IF THE SUPPLIED FUNCTION MODIFIES ANY OF THE ACTIVE STATE DATA,
- THEN ALL THEORETICAL GUARANTEES OF SOLUTION ACCURACY AND
- STABILITY ARE LOST.
----------------------------------------------------------------*/
+  IF THE SUPPLIED FUNCTION MODIFIES ANY OF THE ACTIVE STATE DATA,
+  THEN ALL THEORETICAL GUARANTEES OF SOLUTION ACCURACY AND
+  STABILITY ARE LOST.
+  ---------------------------------------------------------------*/
 int arkSetPostprocessStepFn(ARKodeMem ark_mem,
                             ARKPostProcessStepFn ProcessStep)
 {
@@ -495,14 +495,14 @@ int arkSetPostprocessStepFn(ARKodeMem ark_mem,
 
 
 /*===============================================================
- ARKode optional output utility functions
-===============================================================*/
+  ARKode optional output utility functions
+  ===============================================================*/
 
 /*---------------------------------------------------------------
- arkGetNumSteps:
+  arkGetNumSteps:
 
- Returns the current number of integration steps
----------------------------------------------------------------*/
+  Returns the current number of integration steps
+  ---------------------------------------------------------------*/
 int arkGetNumSteps(ARKodeMem ark_mem, long int *nsteps)
 {
   if (ark_mem==NULL) {
@@ -516,10 +516,10 @@ int arkGetNumSteps(ARKodeMem ark_mem, long int *nsteps)
 
 
 /*---------------------------------------------------------------
- arkGetActualInitStep:
+  arkGetActualInitStep:
 
- Returns the step size used on the first step
----------------------------------------------------------------*/
+  Returns the step size used on the first step
+  ---------------------------------------------------------------*/
 int arkGetActualInitStep(ARKodeMem ark_mem, realtype *hinused)
 {
   if (ark_mem==NULL) {
@@ -533,10 +533,10 @@ int arkGetActualInitStep(ARKodeMem ark_mem, realtype *hinused)
 
 
 /*---------------------------------------------------------------
- arkGetLastStep:
+  arkGetLastStep:
 
- Returns the step size used on the last successful step
----------------------------------------------------------------*/
+  Returns the step size used on the last successful step
+  ---------------------------------------------------------------*/
 int arkGetLastStep(ARKodeMem ark_mem, realtype *hlast)
 {
   if (ark_mem==NULL) {
@@ -550,10 +550,10 @@ int arkGetLastStep(ARKodeMem ark_mem, realtype *hlast)
 
 
 /*---------------------------------------------------------------
- arkGetCurrentStep:
+  arkGetCurrentStep:
 
- Returns the step size to be attempted on the next step
----------------------------------------------------------------*/
+  Returns the step size to be attempted on the next step
+  ---------------------------------------------------------------*/
 int arkGetCurrentStep(ARKodeMem ark_mem, realtype *hcur)
 {
   if (ark_mem==NULL) {
@@ -567,10 +567,10 @@ int arkGetCurrentStep(ARKodeMem ark_mem, realtype *hcur)
 
 
 /*---------------------------------------------------------------
- arkGetCurrentTime:
+  arkGetCurrentTime:
 
- Returns the current value of the independent variable
----------------------------------------------------------------*/
+  Returns the current value of the independent variable
+  ---------------------------------------------------------------*/
 int arkGetCurrentTime(ARKodeMem ark_mem, realtype *tcur)
 {
   if (ark_mem==NULL) {
@@ -584,10 +584,10 @@ int arkGetCurrentTime(ARKodeMem ark_mem, realtype *tcur)
 
 
 /*---------------------------------------------------------------
- arkGetTolScaleFactor:
+  arkGetTolScaleFactor:
 
- Returns a suggested factor for scaling tolerances
----------------------------------------------------------------*/
+  Returns a suggested factor for scaling tolerances
+  ---------------------------------------------------------------*/
 int arkGetTolScaleFactor(ARKodeMem ark_mem, realtype *tolsfact)
 {
   if (ark_mem==NULL) {
@@ -601,10 +601,10 @@ int arkGetTolScaleFactor(ARKodeMem ark_mem, realtype *tolsfact)
 
 
 /*---------------------------------------------------------------
- arkGetErrWeights:
+  arkGetErrWeights:
 
- This routine returns the current error weight vector.
----------------------------------------------------------------*/
+  This routine returns the current error weight vector.
+  ---------------------------------------------------------------*/
 int arkGetErrWeights(ARKodeMem ark_mem, N_Vector eweight)
 {
   if (ark_mem==NULL) {
@@ -618,10 +618,10 @@ int arkGetErrWeights(ARKodeMem ark_mem, N_Vector eweight)
 
 
 /*---------------------------------------------------------------
- arkGetResWeights:
+  arkGetResWeights:
 
- This routine returns the current residual weight vector.
----------------------------------------------------------------*/
+  This routine returns the current residual weight vector.
+  ---------------------------------------------------------------*/
 int arkGetResWeights(ARKodeMem ark_mem, N_Vector rweight)
 {
   if (ark_mem==NULL) {
@@ -635,10 +635,10 @@ int arkGetResWeights(ARKodeMem ark_mem, N_Vector rweight)
 
 
 /*---------------------------------------------------------------
- arkGetWorkSpace:
+  arkGetWorkSpace:
 
- Returns integrator work space requirements
----------------------------------------------------------------*/
+  Returns integrator work space requirements
+  ---------------------------------------------------------------*/
 int arkGetWorkSpace(ARKodeMem ark_mem, long int *lenrw, long int *leniw)
 {
   if (ark_mem==NULL) {
@@ -653,10 +653,10 @@ int arkGetWorkSpace(ARKodeMem ark_mem, long int *lenrw, long int *leniw)
 
 
 /*---------------------------------------------------------------
- arkGetNumGEvals:
+  arkGetNumGEvals:
 
- Returns the current number of calls to g (for rootfinding)
----------------------------------------------------------------*/
+  Returns the current number of calls to g (for rootfinding)
+  ---------------------------------------------------------------*/
 int arkGetNumGEvals(ARKodeMem ark_mem, long int *ngevals)
 {
   ARKodeRootMem ark_root_mem;
@@ -666,7 +666,7 @@ int arkGetNumGEvals(ARKodeMem ark_mem, long int *ngevals)
     return(ARK_MEM_NULL);
   }
   if (ark_mem->root_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode",
                     "arkGetNumGEvals", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -679,10 +679,10 @@ int arkGetNumGEvals(ARKodeMem ark_mem, long int *ngevals)
 
 
 /*---------------------------------------------------------------
- arkGetRootInfo:
+  arkGetRootInfo:
 
- Returns pointer to array rootsfound showing roots found
----------------------------------------------------------------*/
+  Returns pointer to array rootsfound showing roots found
+  ---------------------------------------------------------------*/
 int arkGetRootInfo(ARKodeMem ark_mem, int *rootsfound)
 {
   int i;
@@ -693,7 +693,7 @@ int arkGetRootInfo(ARKodeMem ark_mem, int *rootsfound)
     return(ARK_MEM_NULL);
   }
   if (ark_mem->root_mem == NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode",
+    arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode",
                     "arkGetRootInfo", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
@@ -707,10 +707,10 @@ int arkGetRootInfo(ARKodeMem ark_mem, int *rootsfound)
 
 
 /*---------------------------------------------------------------
- arkGetStepStats:
+  arkGetStepStats:
 
- Returns step statistics
----------------------------------------------------------------*/
+  Returns step statistics
+  ---------------------------------------------------------------*/
 int arkGetStepStats(ARKodeMem ark_mem, long int *nsteps,
                     realtype *hinused, realtype *hlast,
                     realtype *hcur, realtype *tcur)
@@ -850,13 +850,13 @@ char *arkGetReturnFlagName(long int flag)
 
 /*===============================================================
   ARKode parameter output utility routine
-===============================================================*/
+  ===============================================================*/
 
 /*---------------------------------------------------------------
- arkodeWriteParameters:
+  arkodeWriteParameters:
 
- Outputs all solver parameters to the provided file pointer.
----------------------------------------------------------------*/
+  Outputs all solver parameters to the provided file pointer.
+  ---------------------------------------------------------------*/
 int arkWriteParameters(ARKodeMem ark_mem, FILE *fp)
 {
   if (ark_mem==NULL) {
@@ -904,5 +904,5 @@ int arkWriteParameters(ARKodeMem ark_mem, FILE *fp)
 
 
 /*---------------------------------------------------------------
-      EOF
----------------------------------------------------------------*/
+  EOF
+  ---------------------------------------------------------------*/

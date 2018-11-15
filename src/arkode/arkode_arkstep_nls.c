@@ -43,11 +43,11 @@
   ===============================================================*/
 
 /*---------------------------------------------------------------
- ARKStepSetNonlinearSolver:
+  ARKStepSetNonlinearSolver:
 
- This routine attaches a SUNNonlinearSolver object to the ARKStep
- module.
----------------------------------------------------------------*/
+  This routine attaches a SUNNonlinearSolver object to the ARKStep
+  module.
+  ---------------------------------------------------------------*/
 int ARKStepSetNonlinearSolver(void *arkode_mem, SUNNonlinearSolver NLS)
 {
   ARKodeMem ark_mem;
@@ -139,7 +139,7 @@ int ARKStepSetNonlinearSolver(void *arkode_mem, SUNNonlinearSolver NLS)
   the nonlinear solver object itself.  This should only be
   called at the start of a simulation, after a re-init, or after 
   a re-size.
----------------------------------------------------------------*/
+  ---------------------------------------------------------------*/
 int arkStep_NlsInit(ARKodeMem ark_mem)
 {
   ARKodeARKStepMem step_mem;
@@ -190,21 +190,21 @@ int arkStep_NlsInit(ARKodeMem ark_mem)
 
 
 /*---------------------------------------------------------------
- arkStep_Nls
+  arkStep_Nls
 
- This routine attempts to solve the nonlinear system associated
- with a single implicit step of the linear multistep method.
- It calls the supplied SUNNonlinearSolver object to perform the
- solve.
+  This routine attempts to solve the nonlinear system associated
+  with a single implicit step of the linear multistep method.
+  It calls the supplied SUNNonlinearSolver object to perform the
+  solve.
 
- Upon entry, the predicted solution is held in step_mem->zpred;
- this array is never changed throughout this routine.  If an
- initial attempt at solving the nonlinear system fails (e.g. due
- to a stale Jacobian), this allows for new attempts at the
- solution.
+  Upon entry, the predicted solution is held in step_mem->zpred;
+  this array is never changed throughout this routine.  If an
+  initial attempt at solving the nonlinear system fails (e.g. due
+  to a stale Jacobian), this allows for new attempts at the
+  solution.
 
- Upon a successful solve, the solution is held in ark_mem->ycur.
----------------------------------------------------------------*/
+  Upon a successful solve, the solution is held in ark_mem->ycur.
+  ---------------------------------------------------------------*/
 int arkStep_Nls(ARKodeMem ark_mem, int nflag)
 {
   ARKodeARKStepMem step_mem;
@@ -290,7 +290,7 @@ int arkStep_Nls(ARKodeMem ark_mem, int nflag)
 
   This routine wraps the ARKode linear solver interface 'setup'
   routine for use by the nonlinear solver object.
----------------------------------------------------------------*/
+  ---------------------------------------------------------------*/
 int arkStep_NlsLSetup(N_Vector zcor, N_Vector res, booleantype jbad,
                       booleantype* jcur, void* arkode_mem)
 {
@@ -336,7 +336,7 @@ int arkStep_NlsLSetup(N_Vector zcor, N_Vector res, booleantype jbad,
 
   This routine wraps the ARKode linear solver interface 'solve'
   routine for use by the nonlinear solver object.
----------------------------------------------------------------*/
+  ---------------------------------------------------------------*/
 int arkStep_NlsLSolve(N_Vector zcor, N_Vector b, void* arkode_mem)
 {
   ARKodeMem ark_mem;
@@ -387,7 +387,7 @@ int arkStep_NlsLSolve(N_Vector zcor, N_Vector b, void* arkode_mem)
      z = zp + zc (stored in ark_mem->ycur)
      Fi(z) (stored step_mem->Fi[step_mem->istage])
      r = M*zc - gamma*Fi(z) - step_mem->sdata
----------------------------------------------------------------*/
+  ---------------------------------------------------------------*/
 int arkStep_NlsResidual(N_Vector zcor, N_Vector r, void* arkode_mem)
 {
   /* temporary variables */
@@ -464,7 +464,7 @@ int arkStep_NlsResidual(N_Vector zcor, N_Vector r, void* arkode_mem)
   so we really just compute:
      Fi(z) (store in step_mem->Fi[step_mem->istage])
      g = zp + gamma*Fi(z) + step_mem->sdata
----------------------------------------------------------------*/
+  ---------------------------------------------------------------*/
 int arkStep_NlsFPFunction(N_Vector z, N_Vector g, void* arkode_mem)
 {
   /* temporary variables */
@@ -518,7 +518,7 @@ int arkStep_NlsFPFunction(N_Vector z, N_Vector g, void* arkode_mem)
       if the user specifies that the problem is linearly
       implicit, then we just declare 'success' no matter what
       is provided.
----------------------------------------------------------------*/
+  ---------------------------------------------------------------*/
 int arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
                         realtype tol, N_Vector ewt, void* arkode_mem)
 {
@@ -567,5 +567,5 @@ int arkStep_NlsConvTest(SUNNonlinearSolver NLS, N_Vector y, N_Vector del,
 
 
 /*===============================================================
-   EOF
-===============================================================*/
+  EOF
+  ===============================================================*/

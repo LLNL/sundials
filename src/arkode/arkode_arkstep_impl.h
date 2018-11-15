@@ -54,8 +54,8 @@ typedef struct ARKodeARKStepMemRec {
   ARKRhsFn     fi;
   booleantype  linear;          /* SUNTRUE if fi is linear        */
   booleantype  linear_timedep;  /* SUNTRUE if dfi/dy depends on t */
-  booleantype  explicit;        /* SUNTRUE if fi is enabled       */
-  booleantype  implicit;        /* SUNTRUE if fe is enabled       */
+  booleantype  explicit;        /* SUNTRUE if fe is enabled       */
+  booleantype  implicit;        /* SUNTRUE if fi is enabled       */
 
   /* ARK method storage and parameters */
   N_Vector *Fe;           /* explicit RHS at each stage */

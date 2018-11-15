@@ -45,7 +45,7 @@ extern "C" {
   ---------------------------------------------------------------
   The type ARKodeERKStepMem is type pointer to struct
   ARKodeERKStepMemRec.  This structure contains fields to
-  perform an additive Runge-Kutta time step.
+  perform an explicit Runge-Kutta time step.
   ---------------------------------------------------------------*/
 typedef struct ARKodeERKStepMemRec {
 
@@ -87,6 +87,8 @@ int erkStep_FullRHS(void* arkode_mem, realtype t,
 int erkStep_TakeStep(void* arkode_mem);
 
 /* Internal utility routines */
+int erkStep_AccessStepMem(void* arkode_mem, const char *fname,
+                          ARKodeMem *ark_mem, ARKodeERKStepMem *step_mem);
 booleantype erkStep_CheckNVector(N_Vector tmpl);
 int erkStep_SetButcherTable(ARKodeMem ark_mem);
 int erkStep_CheckButcherTable(ARKodeMem ark_mem);

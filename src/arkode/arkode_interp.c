@@ -364,8 +364,8 @@ int arkInterpEvaluate(void* arkode_mem, ARKodeInterpMem interp,
 {
   /* local variables */
   int q, retval;
-  realtype tval, a0, a1, tau2, tau3, tau4, tau5, tau6;
-  realtype h, h2, h3, h4, h5, h6;
+  realtype tval, a0, a1, tau2, tau3, tau4, tau5;
+  realtype h, h2, h3, h4, h5;
   realtype a[7];
   N_Vector X[7];
   ARKodeMem ark_mem;
@@ -379,13 +379,13 @@ int arkInterpEvaluate(void* arkode_mem, ARKodeInterpMem interp,
   tau3 = tau*tau2;
   tau4 = tau*tau3;
   tau5 = tau*tau4;
-  tau6 = tau*tau5;
+  /* tau6 = tau*tau5; */
   h = interp->h;
   h2 = h*h;
   h3 = h*h2;
   h4 = h*h3;
   h5 = h*h4;
-  h6 = h*h5;
+  /* h6 = h*h5; */
 
   /* determine polynomial order q */
   q = SUNMAX(order, 0);        /* respect lower bound  */

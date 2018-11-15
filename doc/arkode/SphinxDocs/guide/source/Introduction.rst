@@ -103,7 +103,7 @@ Changes from previous versions
 
 
 
-Changes in v3.0.0-dev.2
+Changes in v3.0.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The ARKode library has been entirely rewritten to support a modular
@@ -123,12 +123,17 @@ user-level changes have been kept to a minimum.  However, we recommend
 that users consult both this documentation and the ARKode example
 programs for further details on the updated infrastructure.
 
+As part of the ARKode restructuring an :c:type:`ARKodeButcherTable` structure
+has been added for storing Butcher tables. Functions for creating new Butcher
+tables and checking their analytic order are provided along with other utility
+routines. For more details see :ref:`ARKodeButcherTable`.
+
 ARKode's previous direct and iterative linear solver interfaces,
 ARKDLS and ARKSPILS, have been merged into a single unified linear solver
 interface, ARKLS, to support any valid SUNLINSOL module.  The user
 interface for the new ARKLS module is very similar to the previous
-ARKDLS and ARKSPILS interfaces.  Additionally, we note that {\F} users
-will need to enlarge their \id{iout} array of optional integer
+ARKDLS and ARKSPILS interfaces.  Additionally, we note that Fortran users
+will need to enlarge their ``iout`` array of optional integer
 outputs, and update the indices that they query for certain
 linear-solver-related statistics.
 
@@ -179,18 +184,6 @@ example program ``ark_brusselator_fp.c`` for an example.
 ARKode's dense output infrastructure has been improved to support
 higher-degree Hermite polynomial interpolants (up to degree 5) over
 the last successful time step.
-
-
-
-Changes in v3.0.0-dev.1
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-No changes were made to ARKode in this release.
-
-
-
-Changes in v3.0.0-dev
-^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Three fused vector operations and seven vector array operations have
 been added to the NVECTOR API. These *optional* operations

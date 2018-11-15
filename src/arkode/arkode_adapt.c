@@ -37,12 +37,12 @@
 
 
 /*---------------------------------------------------------------
- arkAdaptInit:
+  arkAdaptInit:
 
- This routine creates and sets default values in an
- ARKodeHAdaptMem structure.  This returns a non-NULL structure
- if no errors occurred, or a NULL value otherwise.
----------------------------------------------------------------*/
+  This routine creates and sets default values in an
+  ARKodeHAdaptMem structure.  This returns a non-NULL structure
+  if no errors occurred, or a NULL value otherwise.
+  ---------------------------------------------------------------*/
 ARKodeHAdaptMem arkAdaptInit()
 {
   ARKodeHAdaptMem hadapt_mem;
@@ -85,11 +85,11 @@ ARKodeHAdaptMem arkAdaptInit()
 
 
 /*---------------------------------------------------------------
- arkPrintAdaptMem
+  arkPrintAdaptMem
 
- This routine outputs the time step adaptivity memory structure
- to a specified file pointer.
----------------------------------------------------------------*/
+  This routine outputs the time step adaptivity memory structure
+  to a specified file pointer.
+  ---------------------------------------------------------------*/
 void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE *outfile)
 {
   if (hadapt_mem != NULL) {
@@ -132,10 +132,10 @@ void arkPrintAdaptMem(ARKodeHAdaptMem hadapt_mem, FILE *outfile)
 
 
 /*---------------------------------------------------------------
- arkAdapt is the time step adaptivity wrapper function.  This
- computes and sets the value of ark_eta inside of the ARKodeMem
- data structure.
----------------------------------------------------------------*/
+  arkAdapt is the time step adaptivity wrapper function.  This
+  computes and sets the value of ark_eta inside of the ARKodeMem
+  data structure.
+  ---------------------------------------------------------------*/
 int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
              N_Vector ycur, realtype tcur, realtype hcur,
              int q, int p, booleantype pq, long int nst)
@@ -259,8 +259,8 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
 
 
 /*---------------------------------------------------------------
- arkAdaptPID implements a PID time step control algorithm.
----------------------------------------------------------------*/
+  arkAdaptPID implements a PID time step control algorithm.
+  ---------------------------------------------------------------*/
 int arkAdaptPID(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
                 realtype *hnew)
 {
@@ -283,8 +283,8 @@ int arkAdaptPID(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
 
 
 /*---------------------------------------------------------------
- arkAdaptPI implements a PI time step control algorithm.
----------------------------------------------------------------*/
+  arkAdaptPI implements a PI time step control algorithm.
+  ---------------------------------------------------------------*/
 int arkAdaptPI(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
                realtype *hnew)
 {
@@ -305,8 +305,8 @@ int arkAdaptPI(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
 
 
 /*---------------------------------------------------------------
- arkAdaptI implements an I time step control algorithm.
----------------------------------------------------------------*/
+  arkAdaptI implements an I time step control algorithm.
+  ---------------------------------------------------------------*/
 int arkAdaptI(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
               realtype *hnew)
 {
@@ -325,9 +325,9 @@ int arkAdaptI(ARKodeHAdaptMem hadapt_mem, int k, realtype hcur,
 
 
 /*---------------------------------------------------------------
- arkAdaptExpGus implements the explicit Gustafsson time step
- control algorithm.
----------------------------------------------------------------*/
+  arkAdaptExpGus implements the explicit Gustafsson time step
+  control algorithm.
+  ---------------------------------------------------------------*/
 int arkAdaptExpGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
                    realtype hcur, realtype *hnew)
 {
@@ -357,9 +357,9 @@ int arkAdaptExpGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
 
 
 /*---------------------------------------------------------------
- arkAdaptImpGus implements the implicit Gustafsson time step
- control algorithm.
----------------------------------------------------------------*/
+  arkAdaptImpGus implements the implicit Gustafsson time step
+  control algorithm.
+  ---------------------------------------------------------------*/
 int arkAdaptImpGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
                    realtype hcur, realtype *hnew)
 {
@@ -390,9 +390,9 @@ int arkAdaptImpGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
 
 
 /*---------------------------------------------------------------
- arkAdaptImExGus implements a combination implicit/explicit
- Gustafsson time step control algorithm.
----------------------------------------------------------------*/
+  arkAdaptImExGus implements a combination implicit/explicit
+  Gustafsson time step control algorithm.
+  ---------------------------------------------------------------*/
 int arkAdaptImExGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
                     realtype hcur, realtype *hnew)
 {
@@ -427,5 +427,5 @@ int arkAdaptImExGus(ARKodeHAdaptMem hadapt_mem, int k, long int nst,
 
 
 /*===============================================================
-   EOF
-===============================================================*/
+  EOF
+  ===============================================================*/

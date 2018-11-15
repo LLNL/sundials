@@ -70,7 +70,7 @@ extern "C" {
   ARKStepCreate
 
   This creates an internal memory block for a problem to be
-  solved by ARKode, using the ERK time step module.  If successful,
+  solved by ARKode, using the ARK time step module.  If successful,
   it returns a pointer to initialized problem memory. This
   pointer should be passed to all ARKStep-related routines.
   If an initialization error occurs, this routine will print an
@@ -311,7 +311,7 @@ SUNDIALS_EXPORT int ARKStepRootInit(void *arkode_mem, int nrtfn,
 
   Utility routine to fill a pre-defined Butcher table structure
   ---------------------------------------------------------------*/
-ARKodeButcherTable ARKStepLoadButcherTable(int imethod);
+SUNDIALS_EXPORT ARKodeButcherTable ARKStepLoadButcherTable(int imethod);
 
 
 /*---------------------------------------------------------------
@@ -345,7 +345,6 @@ ARKodeButcherTable ARKStepLoadButcherTable(int imethod);
   ARKStepSetNonlinearSolver  [SUNNonlinsol_Newton]
     attaches a non-default SUNNonlinearSolver object to be used in
     solving for implicit stage solutions.
-
 
   ARKStepSetErrHandlerFn  [internal]
     user-provided ErrHandler function.
@@ -402,7 +401,7 @@ ARKodeButcherTable ARKStepLoadButcherTable(int imethod);
   ARKStepSetARKTableNum  [determined by ARKode based on order]
     specifies to use a built-in Butcher tables for the ImEx system.
     The integer arguments should match existing methods in
-    ARKodeLoadButcherTable_ERK() and ARKodeLoadButcherTable_DIRK().
+    ARKodeButcherTable_LoadERK() and ARKodeButcherTable_LoadDIRK().
     Error-checking is performed to ensure that the tables exist.
 
   ARKStepSetMaxNumSteps  [500]
@@ -517,20 +516,9 @@ SUNDIALS_EXPORT int ARKStepSetNonlinear(void *arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetExplicit(void *arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetImplicit(void *arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetImEx(void *arkode_mem);
-SUNDIALS_EXPORT int ARKStepSetERKTable(void *arkode_mem, int s,
-                                       int q, int p, realtype *c,
-                                       realtype *A, realtype *b,
-                                       realtype *bembed);
-SUNDIALS_EXPORT int ARKStepSetIRKTable(void *arkode_mem, int s,
-                                       int q, int p, realtype *c,
-                                       realtype *A, realtype *b,
-                                       realtype *bembed);
-SUNDIALS_EXPORT int ARKStepSetARKTables(void *arkode_mem, int s,
-                                        int q, int p,
-                                        realtype *ci, realtype *ce,
-                                        realtype *Ai, realtype *Ae,
-                                        realtype *bi, realtype *be,
-                                        realtype *b2i, realtype *b2e);
+SUNDIALS_EXPORT int ARKStepSetARKTables(void *arkode_mem, int q, int p,
+                                        ARKodeButcherTable Bi,
+                                        ARKodeButcherTable Be);
 SUNDIALS_EXPORT int ARKStepSetERKTableNum(void *arkode_mem, int itable);
 SUNDIALS_EXPORT int ARKStepSetIRKTableNum(void *arkode_mem, int itable);
 SUNDIALS_EXPORT int ARKStepSetARKTableNum(void *arkode_mem,
@@ -671,13 +659,13 @@ SUNDIALS_EXPORT int ARKStepSetPostprocessStepFn(void *arkode_mem,
     'mtimes'.  See "arkode/arkode_ls.h" for a complete 
     description of the function prototype.
 
- The return value of ARKStepSet* is one of:
+  The return value of ARKStepSet* is one of:
     ARKLS_SUCCESS      if successful
     ARKLS_MEM_NULL     if the arkode memory was NULL
     ARKLS_LMEM_NULL    if the linear solver memory was NULL
     ARKLS_MASSMEM_NULL if the mass matrix solver memory was NULL
     ARKLS_ILL_INPUT    if an input has an illegal value
----------------------------------------------------------------*/
+  ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKStepSetJacFn(void *arkode_mem, ARKLsJacFn jac);
 SUNDIALS_EXPORT int ARKStepSetMassFn(void *arkode_mem, ARKLsMassFn mass);
 SUNDIALS_EXPORT int ARKStepSetMaxStepsBetweenJac(void *arkode_mem,
@@ -798,7 +786,7 @@ SUNDIALS_EXPORT int ARKStepSetMassTimes(void *arkode_mem,
 
   ARK_LSOLVE_FAIL:  The linear solver's solve routine failed in an
                     unrecoverable manner.
----------------------------------------------------------------*/
+  ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKStepEvolve(void *arkode_mem, realtype tout,
                                   N_Vector yout, realtype *tret,
                                   int itask);
@@ -839,7 +827,7 @@ SUNDIALS_EXPORT int ARKStepEvolve(void *arkode_mem, realtype tout,
     ARK_BAD_DKY:  The dky argument was NULL.
 
     ARK_MEM_NULL: The arkode_mem argument was NULL.
-    ---------------------------------------------------------------*/
+  ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKStepGetDky(void *arkode_mem, realtype t,
                                   int k, N_Vector dky);
 
@@ -977,103 +965,103 @@ SUNDIALS_EXPORT int ARKStepGetStepStats(void *arkode_mem,
                                         realtype *tcur);
 
 /*---------------------------------------------------------------
- Nonlinear solver optional output extraction functions
------------------------------------------------------------------
- The following functions can be called to get optional outputs
- and statistics related to the nonlinear solver.
------------------------------------------------------------------
- ARKStepGetNumNonlinSolvIters returns the number of nonlinear
-   solver iterations performed.
+  Nonlinear solver optional output extraction functions
+  -----------------------------------------------------------------
+  The following functions can be called to get optional outputs
+  and statistics related to the nonlinear solver.
+  -----------------------------------------------------------------
+  ARKStepGetNumNonlinSolvIters returns the number of nonlinear
+    solver iterations performed.
 
- ARKStepGetNumNonlinSolvConvFails returns the number of nonlinear
-   convergence failures.
----------------------------------------------------------------*/
+  ARKStepGetNumNonlinSolvConvFails returns the number of nonlinear
+    convergence failures.
+  ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKStepGetNumNonlinSolvIters(void *arkode_mem,
                                                 long int *nniters);
 SUNDIALS_EXPORT int ARKStepGetNumNonlinSolvConvFails(void *arkode_mem,
                                                     long int *nncfails);
 
 /*---------------------------------------------------------------
- As a convenience, the following function provides the
- nonlinear solver optional outputs in a group.
----------------------------------------------------------------*/
+  As a convenience, the following function provides the
+  nonlinear solver optional outputs in a group.
+  ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKStepGetNonlinSolvStats(void *arkode_mem,
                                              long int *nniters,
                                              long int *nncfails);
 
 /*---------------------------------------------------------------
- Linear solver optional output extraction functions
------------------------------------------------------------------
- The following functions can be called to get optional outputs
- and statistics related to the linear solvers.
------------------------------------------------------------------
- ARKStepGetLinWorkSpace returns the real and integer workspace 
-   used by the ARKLs interface.
+  Linear solver optional output extraction functions
+  -----------------------------------------------------------------
+  The following functions can be called to get optional outputs
+  and statistics related to the linear solvers.
+  -----------------------------------------------------------------
+  ARKStepGetLinWorkSpace returns the real and integer workspace 
+    used by the ARKLs interface.
 
- ARKStepGetNumJacEvals returns the number of calls made to the
-   Jacobian evaluation routine jac.
-
- ARKStepGetNumPrecEvals returns the number of preconditioner
-   evaluations, i.e. the number of calls made
-   to PrecSetup with jok==SUNFALSE.
-
- ARKStepGetNumPrecSolves returns the number of calls made to
-   PrecSolve.
-
- ARKStepGetNumLinIters returns the number of linear iterations.
-
- ARKStepGetNumLinConvFails returns the number of linear
-   convergence failures.
-
- ARKStepGetNumJTSetupEvals returns the number of calls to jtsetup.
- 
- ARKStepGetNumJtimesEvals returns the number of calls to jtimes.
-
- ARKStepGetNumLinRhsEvals returns the number of calls to the user
-   f routine due to perform finite difference Jacobian times 
-   vector evaluations or Jacobian matrix approximations.
-
- ARKStepGetLastLinFlag returns the last error flag set by any of
-   the ARKLS interface functions.
-
- ARKStepGetMassWorkSpace returns the real and integer workspace used
-   by the mass matrix ARKLs interface.
-
- ARKStepGetNumMassSetups returns the number of calls made to the
-   mass matrix solver setup routine
-
- ARKStepGetNumMassMult returns the number of calls to either the 
-   internal or user-supplied mtimes routine.
-
- ARKStepGetNumMassSolves returns the number of calls made to the
-   mass matrix solver 'solve' routine
-
- ARKStepGetNumMassPrecEvals returns the number of mass matrix 
-   preconditioner evaluations, i.e. the number of calls made to 
-   MPrecSetup.
-
- ARKStepGetNumMassPrecSolves returns the number of calls made to
-   MPrecSolve.
-
- ARKStepGetNumMassIters returns the number of mass matrix solver
-   iterations.
-
- ARKStepGetNumMassConvFails returns the number of mass matrix solver
-   convergence failures.
-
- ARKStepGetNumMTSetups returns the number of calls to mtsetup.
-
- ARKStepGetLastMassFlag returns the last error flag set by any of
-   the ARKLs interface functions on the mass matrix solve.
-
- ARKStepGetLinReturnFlagName returns the name of the constant 
-   associated with a ARKLS return flag.
-
- The return value of the above routines is one of:
-    ARKLS_SUCCESS   if successful
-    ARKLS_MEM_NULL  if the arkode memory was NULL
-    ARKLS_LMEM_NULL if the linear solver memory was NULL
----------------------------------------------------------------*/
+  ARKStepGetNumJacEvals returns the number of calls made to the
+    Jacobian evaluation routine jac.
+  
+  ARKStepGetNumPrecEvals returns the number of preconditioner
+    evaluations, i.e. the number of calls made
+    to PrecSetup with jok==SUNFALSE.
+  
+  ARKStepGetNumPrecSolves returns the number of calls made to
+    PrecSolve.
+  
+  ARKStepGetNumLinIters returns the number of linear iterations.
+  
+  ARKStepGetNumLinConvFails returns the number of linear
+    convergence failures.
+  
+  ARKStepGetNumJTSetupEvals returns the number of calls to jtsetup.
+  
+  ARKStepGetNumJtimesEvals returns the number of calls to jtimes.
+  
+  ARKStepGetNumLinRhsEvals returns the number of calls to the user
+    f routine due to perform finite difference Jacobian times 
+    vector evaluations or Jacobian matrix approximations.
+  
+  ARKStepGetLastLinFlag returns the last error flag set by any of
+    the ARKLS interface functions.
+  
+  ARKStepGetMassWorkSpace returns the real and integer workspace used
+    by the mass matrix ARKLs interface.
+  
+  ARKStepGetNumMassSetups returns the number of calls made to the
+    mass matrix solver setup routine
+  
+  ARKStepGetNumMassMult returns the number of calls to either the 
+    internal or user-supplied mtimes routine.
+  
+  ARKStepGetNumMassSolves returns the number of calls made to the
+    mass matrix solver 'solve' routine
+  
+  ARKStepGetNumMassPrecEvals returns the number of mass matrix 
+    preconditioner evaluations, i.e. the number of calls made to 
+    MPrecSetup.
+  
+  ARKStepGetNumMassPrecSolves returns the number of calls made to
+    MPrecSolve.
+  
+  ARKStepGetNumMassIters returns the number of mass matrix solver
+    iterations.
+  
+  ARKStepGetNumMassConvFails returns the number of mass matrix solver
+    convergence failures.
+  
+  ARKStepGetNumMTSetups returns the number of calls to mtsetup.
+  
+  ARKStepGetLastMassFlag returns the last error flag set by any of
+    the ARKLs interface functions on the mass matrix solve.
+  
+  ARKStepGetLinReturnFlagName returns the name of the constant 
+    associated with a ARKLS return flag.
+  
+  The return value of the above routines is one of:
+     ARKLS_SUCCESS   if successful
+     ARKLS_MEM_NULL  if the arkode memory was NULL
+     ARKLS_LMEM_NULL if the linear solver memory was NULL
+  ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKStepGetLinWorkSpace(void *arkode_mem, 
                                            long int *lenrwLS, 
                                            long int *leniwLS);
@@ -1122,25 +1110,25 @@ SUNDIALS_EXPORT char *ARKStepGetLinReturnFlagName(long int flag);
   
   
 /*---------------------------------------------------------------
- The following function returns the name of the constant
- associated with a ARKStep return flag
----------------------------------------------------------------*/
+  The following function returns the name of the constant
+  associated with a ARKStep return flag
+  ---------------------------------------------------------------*/
 SUNDIALS_EXPORT char *ARKStepGetReturnFlagName(long int flag);
 
 /*---------------------------------------------------------------
- Function : ARKStepWriteParameters
------------------------------------------------------------------
- ARKStepWriteParameters outputs all timestepper module parameters
- to the provided file pointer.
----------------------------------------------------------------*/
+  Function : ARKStepWriteParameters
+  -----------------------------------------------------------------
+  ARKStepWriteParameters outputs all timestepper module parameters
+  to the provided file pointer.
+  ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKStepWriteParameters(void *arkode_mem, FILE *fp);
 
 /*---------------------------------------------------------------
- Function : ARKStepWriteButcher
------------------------------------------------------------------
- ARKStepWriteButcher outputs the Butcher tables to the
- provided file pointer.
----------------------------------------------------------------*/
+  Function : ARKStepWriteButcher
+  -----------------------------------------------------------------
+  ARKStepWriteButcher outputs the Butcher tables to the
+  provided file pointer.
+  ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKStepWriteButcher(void *arkode_mem, FILE *fp);
 
 /*---------------------------------------------------------------
@@ -1149,7 +1137,7 @@ SUNDIALS_EXPORT int ARKStepWriteButcher(void *arkode_mem, FILE *fp);
   This frees the problem memory arkode_mem allocated by
   ARKStepCreate. Its only argument is the pointer arkode_mem
   returned by ARKStepCreate.
----------------------------------------------------------------*/
+  ---------------------------------------------------------------*/
 SUNDIALS_EXPORT void ARKStepFree(void **arkode_mem);
 
 /*---------------------------------------------------------------
@@ -1158,7 +1146,7 @@ SUNDIALS_EXPORT void ARKStepFree(void **arkode_mem);
   This routine outputs the memory from the ARKStep structure and
   the main ARKode infrastructure to a specified file pointer
   (useful when debugging).
----------------------------------------------------------------*/
+  ---------------------------------------------------------------*/
 SUNDIALS_EXPORT void ARKStepPrintMem(void* arkode_mem, FILE* outfile);
 
 #ifdef __cplusplus

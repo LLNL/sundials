@@ -2,20 +2,20 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2015, Southern Methodist University and
  * Lawrence Livermore National Security
  *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Southern Methodist University and Lawrence Livermore
  * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
+ * Produced at Southern Methodist University and the Lawrence
  * Livermore National Laboratory.
  *
  * All rights reserved.
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * This is the implementation file for built-in ERK Butcher 
+ * This is the implementation file for built-in ERK Butcher
  * tables.
  *--------------------------------------------------------------*/
 
@@ -34,34 +34,34 @@
 
 
 /*---------------------------------------------------------------
- Returns Butcher table structure for pre-set Runge Kutta methods.  
+  Returns Butcher table structure for pre-set Runge Kutta methods.
 
- Input:  imeth -- integer key for the desired method (see below)
+  Input:  imeth -- integer key for the desired method (see below)
 
- Allowed 'method' names and properties (those in an ARK pair are 
- marked with a *).  All method names are of the form 
- <name>_s_p_q.  The 'QP' column denotes whether the coefficients 
- of the method are known precisely enough for use in 
- 'long double' (128-bit) calculations.
+  Allowed 'method' names and properties (those in an ARK pair are
+  marked with a *).  All method names are of the form
+  <name>_s_p_q.  The 'QP' column denotes whether the coefficients
+  of the method are known precisely enough for use in
+  'long double' (128-bit) calculations.
 
-   imeth                       QP 
-  --------------------------------
-   HEUN_EULER_2_1_2             Y
-   BOGACKI_SHAMPINE_4_2_3       Y
-   ARK324L2SA_ERK_4_2_3*        N
-   ZONNEVELD_5_3_4              Y
-   ARK436L2SA_ERK_6_3_4*        N
-   SAYFY_ABURUB_6_3_4           N
-   CASH_KARP_6_4_5              Y
-   FEHLBERG_6_4_5               Y
-   DORMAND_PRINCE_7_4_5         Y
-   ARK548L2SA_ERK_8_4_5*        N
-   VERNER_8_5_6                 Y
-   FEHLBERG_13_7_8              Y
-  --------------------------------
+     imeth                       QP
+    --------------------------------
+     HEUN_EULER_2_1_2             Y
+     BOGACKI_SHAMPINE_4_2_3       Y
+     ARK324L2SA_ERK_4_2_3*        N
+     ZONNEVELD_5_3_4              Y
+     ARK436L2SA_ERK_6_3_4*        N
+     SAYFY_ABURUB_6_3_4           N
+     CASH_KARP_6_4_5              Y
+     FEHLBERG_6_4_5               Y
+     DORMAND_PRINCE_7_4_5         Y
+     ARK548L2SA_ERK_8_4_5*        N
+     VERNER_8_5_6                 Y
+     FEHLBERG_13_7_8              Y
+    --------------------------------
 
----------------------------------------------------------------*/
-ARKodeButcherTable ARKodeLoadButcherTable_ERK(int imethod) 
+  ---------------------------------------------------------------*/
+ARKodeButcherTable ARKodeButcherTable_LoadERK(int imethod)
 {
 
   ARKodeButcherTable B;
@@ -71,10 +71,10 @@ ARKodeButcherTable ARKodeLoadButcherTable_ERK(int imethod)
   switch(imethod) {
 
   case(HEUN_EULER_2_1_2):    /* Heun-Euler-ERK */
-    B = AllocButcherTable(2, SUNTRUE);
+    B = ARKodeButcherTable_Alloc(2, SUNTRUE);
     B->q = 2;
     B->p = 1;
-      
+
     B->A[1][0] = RCONST(1.0);
 
     B->b[0] = RCONST(1.0)/RCONST(2.0);
@@ -86,7 +86,7 @@ ARKodeButcherTable ARKodeLoadButcherTable_ERK(int imethod)
     break;
 
   case(BOGACKI_SHAMPINE_4_2_3):    /* Bogacki-Shampine-ERK */
-    B = AllocButcherTable(4, SUNTRUE);
+    B = ARKodeButcherTable_Alloc(4, SUNTRUE);
     B->q = 3;
     B->p = 2;
     B->A[1][0] = RCONST(1.0)/RCONST(2.0);
@@ -110,7 +110,7 @@ ARKodeButcherTable ARKodeLoadButcherTable_ERK(int imethod)
     break;
 
   case(ARK324L2SA_ERK_4_2_3):    /* ARK3(2)4L[2]SA-ERK */
-    B = AllocButcherTable(4, SUNTRUE);
+    B = ARKodeButcherTable_Alloc(4, SUNTRUE);
     B->q = 3;
     B->p = 2;
     B->A[1][0] = RCONST(1767732205903.0)/RCONST(2027836641118.0);
@@ -136,7 +136,7 @@ ARKodeButcherTable ARKodeLoadButcherTable_ERK(int imethod)
     break;
 
   case(ZONNEVELD_5_3_4):    /* Zonneveld */
-    B = AllocButcherTable(5, SUNTRUE);
+    B = ARKodeButcherTable_Alloc(5, SUNTRUE);
     B->q = 4;
     B->p = 3;
     B->A[1][0] = RCONST(0.5);
@@ -165,7 +165,7 @@ ARKodeButcherTable ARKodeLoadButcherTable_ERK(int imethod)
     break;
 
   case(ARK436L2SA_ERK_6_3_4):    /* ARK4(3)6L[2]SA-ERK */
-    B = AllocButcherTable(6, SUNTRUE);
+    B = ARKodeButcherTable_Alloc(6, SUNTRUE);
     B->q = 4;
     B->p = 3;
     B->A[1][0] = RCONST(0.5);
@@ -204,12 +204,12 @@ ARKodeButcherTable ARKodeLoadButcherTable_ERK(int imethod)
     break;
 
   case(SAYFY_ABURUB_6_3_4):    /* Sayfy-Aburub-4-3-ERK */
-    B = AllocButcherTable(6, SUNTRUE);
+    B = ARKodeButcherTable_Alloc(6, SUNTRUE);
     B->q = 4;
     B->p = 3;
-    B->A[1][0] = RCONST(1.0)/RCONST(2.0); 
-    B->A[2][0] = RCONST(-1.0); 
-    B->A[2][1] = RCONST(2.0); 
+    B->A[1][0] = RCONST(1.0)/RCONST(2.0);
+    B->A[2][0] = RCONST(-1.0);
+    B->A[2][1] = RCONST(2.0);
     B->A[3][0] = RCONST(1.0)/RCONST(6.0);
     B->A[3][1] = RCONST(2.0)/RCONST(3.0);
     B->A[3][2] = RCONST(1.0)/RCONST(6.0);
@@ -240,7 +240,7 @@ ARKodeButcherTable ARKodeLoadButcherTable_ERK(int imethod)
     break;
 
   case(CASH_KARP_6_4_5):    /* Cash-Karp-ERK */
-    B = AllocButcherTable(6, SUNTRUE);
+    B = ARKodeButcherTable_Alloc(6, SUNTRUE);
     B->q = 5;
     B->p = 4;
     B->A[1][0] = RCONST(1.0)/RCONST(5.0);
@@ -278,7 +278,7 @@ ARKodeButcherTable ARKodeLoadButcherTable_ERK(int imethod)
     break;
 
   case(FEHLBERG_6_4_5):    /* Fehlberg-ERK */
-    B = AllocButcherTable(6, SUNTRUE);
+    B = ARKodeButcherTable_Alloc(6, SUNTRUE);
     B->q = 5;
     B->p = 4;
     B->A[1][0] = RCONST(1.0)/RCONST(4.0);
@@ -307,7 +307,7 @@ ARKodeButcherTable ARKodeLoadButcherTable_ERK(int imethod)
     B->d[2] = RCONST(1408.0)/RCONST(2565.0);
     B->d[3] = RCONST(2197.0)/RCONST(4104.0);
     B->d[4] = RCONST(-1.0)/RCONST(5.0);
-      
+
     B->c[1] = RCONST(1.0)/RCONST(4.0);
     B->c[2] = RCONST(3.0)/RCONST(8.0);
     B->c[3] = RCONST(12.0)/RCONST(13.0);
@@ -316,7 +316,7 @@ ARKodeButcherTable ARKodeLoadButcherTable_ERK(int imethod)
     break;
 
   case(DORMAND_PRINCE_7_4_5):    /* Dormand-Prince-ERK */
-    B = AllocButcherTable(7, SUNTRUE);
+    B = ARKodeButcherTable_Alloc(7, SUNTRUE);
     B->q = 5;
     B->p = 4;
     B->A[1][0] = RCONST(1.0)/RCONST(5.0);
@@ -362,7 +362,7 @@ ARKodeButcherTable ARKodeLoadButcherTable_ERK(int imethod)
     break;
 
   case(ARK548L2SA_ERK_8_4_5):    /* ARK5(4)8L[2]SA-ERK */
-    B = AllocButcherTable(8, SUNTRUE);
+    B = ARKodeButcherTable_Alloc(8, SUNTRUE);
     B->q = 5;
     B->p = 4;
     B->A[1][0] = RCONST(41.0)/RCONST(100.0);
@@ -413,7 +413,7 @@ ARKodeButcherTable ARKodeLoadButcherTable_ERK(int imethod)
     break;
 
   case(VERNER_8_5_6):    /* Verner-6-5 */
-    B = AllocButcherTable(8, SUNTRUE);
+    B = ARKodeButcherTable_Alloc(8, SUNTRUE);
     B->q = 6;
     B->p = 5;
     B->A[1][0] = RCONST(1.0)/RCONST(6.0);
@@ -467,7 +467,7 @@ ARKodeButcherTable ARKodeLoadButcherTable_ERK(int imethod)
     break;
 
   case(FEHLBERG_13_7_8):    /* Fehlberg-8-7 */
-    B = AllocButcherTable(13, SUNTRUE);
+    B = ARKodeButcherTable_Alloc(13, SUNTRUE);
     B->q = 8;
     B->p = 7;
     B->A[1][0] = RCONST(2.0)/RCONST(27.0);
@@ -557,8 +557,8 @@ ARKodeButcherTable ARKodeLoadButcherTable_ERK(int imethod)
 
   default:
 
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode", 
-                    "ARKodeLoadButcherTable_ERK",
+    arkProcessError(NULL, ARK_ILL_INPUT, "ARKode",
+                    "ARKodeButcherTable_LoadERK",
                     "Unknown Butcher table");
     return(NULL);
 
