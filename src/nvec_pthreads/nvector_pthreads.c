@@ -33,29 +33,28 @@
 #define ONE    RCONST(1.0)
 #define ONEPT5 RCONST(1.5)
 
-/* Private function prototypes */
-/* z=x */
-static void VCopy_Pthreads(N_Vector x, N_Vector z);
-/* z=x+y */
-static void VSum_Pthreads(N_Vector x, N_Vector y, N_Vector z);
-/* z=x-y */
-static void VDiff_Pthreads(N_Vector x, N_Vector y, N_Vector z);
-/* z=-x */
-static void VNeg_Pthreads(N_Vector x, N_Vector z);
-/* z=c(x+y) */
-static void VScaleSum_Pthreads(realtype c, N_Vector x, N_Vector y, N_Vector z);
-/* z=c(x-y) */
-static void VScaleDiff_Pthreads(realtype c, N_Vector x, N_Vector y, N_Vector z);
-/* z=ax+y */
-static void VLin1_Pthreads(realtype a, N_Vector x, N_Vector y, N_Vector z);
-/* z=ax-y */
-static void VLin2_Pthreads(realtype a, N_Vector x, N_Vector y, N_Vector z);
-/* y <- ax+y */
-static void Vaxpy_Pthreads(realtype a, N_Vector x, N_Vector y);
-/* x <- ax */
-static void VScaleBy_Pthreads(realtype a, N_Vector x);
+/* Private functions for special cases of vector operations */
+static void VCopy_Pthreads(N_Vector x, N_Vector z);                              /* z=x       */
+static void VSum_Pthreads(N_Vector x, N_Vector y, N_Vector z);                   /* z=x+y     */
+static void VDiff_Pthreads(N_Vector x, N_Vector y, N_Vector z);                  /* z=x-y     */
+static void VNeg_Pthreads(N_Vector x, N_Vector z);                               /* z=-x      */
+static void VScaleSum_Pthreads(realtype c, N_Vector x, N_Vector y, N_Vector z);  /* z=c(x+y)  */
+static void VScaleDiff_Pthreads(realtype c, N_Vector x, N_Vector y, N_Vector z); /* z=c(x-y)  */
+static void VLin1_Pthreads(realtype a, N_Vector x, N_Vector y, N_Vector z);      /* z=ax+y    */
+static void VLin2_Pthreads(realtype a, N_Vector x, N_Vector y, N_Vector z);      /* z=ax-y    */
+static void Vaxpy_Pthreads(realtype a, N_Vector x, N_Vector y);                  /* y <- ax+y */
+static void VScaleBy_Pthreads(realtype a, N_Vector x);                           /* x <- ax   */
 
-/* Pthread companion function prototypes */
+/* Private functions for special cases of vector array operations */
+static int VSumVectorArray_Pthreads(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z);                   /* Z=X+Y     */
+static int VDiffVectorArray_Pthreads(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z);                  /* Z=X-Y     */
+static int VScaleSumVectorArray_Pthreads(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z);  /* Z=c(X+Y)  */
+static int VScaleDiffVectorArray_Pthreads(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z); /* Z=c(X-Y)  */
+static int VLin1VectorArray_Pthreads(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z);      /* Z=aX+Y    */
+static int VLin2VectorArray_Pthreads(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z);      /* Z=aX-Y    */
+static int VaxpyVectorArray_Pthreads(int nvec, realtype a, N_Vector* X, N_Vector* Y);                   /* Y <- aX+Y */
+
+/* Pthread companion functions for vector operations */
 static void *N_VLinearSum_PT(void *thread_data);
 static void *N_VConst_PT(void *thread_data);
 static void *N_VProd_PT(void *thread_data);
@@ -65,16 +64,6 @@ static void *N_VAbs_PT(void *thread_data);
 static void *N_VInv_PT(void *thread_data);
 static void *N_VAddConst_PT(void *thread_data);
 static void *N_VCompare_PT(void *thread_data);
-static void *VCopy_PT(void *thread_data);
-static void *VSum_PT(void *thread_data);
-static void *VDiff_PT(void *thread_data);
-static void *VNeg_PT(void *thread_data);
-static void *VScaleSum_PT(void *thread_data);
-static void *VScaleDiff_PT(void *thread_data);
-static void *VLin1_PT(void *thread_data);
-static void *VLin2_PT(void *thread_data);
-static void *VScaleBy_PT(void *thread_data);
-static void *Vaxpy_PT(void *thread_data);
 static void *N_VDotProd_PT(void *thread_data);
 static void *N_VMaxNorm_PT(void *thread_data);
 static void *N_VWrmsNorm_PT(void *thread_data);
@@ -86,12 +75,24 @@ static void *N_VWrmsNormMask_PT(void *thread_data);
 static void *N_VConstrMask_PT(void *thread_data);
 static void *N_VMinQuotient_PT(void *thread_data);
 
-/* Fused vector operation companion function prototypes */
+/* Pthread companion functions special cases of vector operations */
+static void *VCopy_PT(void *thread_data);
+static void *VSum_PT(void *thread_data);
+static void *VDiff_PT(void *thread_data);
+static void *VNeg_PT(void *thread_data);
+static void *VScaleSum_PT(void *thread_data);
+static void *VScaleDiff_PT(void *thread_data);
+static void *VLin1_PT(void *thread_data);
+static void *VLin2_PT(void *thread_data);
+static void *VScaleBy_PT(void *thread_data);
+static void *Vaxpy_PT(void *thread_data);
+
+/* Pthread companion functions for fused vector operations */
 static void *N_VLinearCombination_PT(void *thread_data);
 static void *N_VScaleAddMulti_PT(void *thread_data);
 static void *N_VDotProdMulti_PT(void *thread_data);
 
-/* Vector array vector operation companion function prototypes */
+/* Pthread companion functions for vector array operations */
 static void *N_VLinearSumVectorArray_PT(void *thread_data);
 static void *N_VScaleVectorArray_PT(void *thread_data);
 static void *N_VConstVectorArray_PT(void *thread_data);
@@ -99,6 +100,15 @@ static void *N_VWrmsNormVectorArray_PT(void *thread_data);
 static void *N_VWrmsNormMaskVectorArray_PT(void *thread_data);
 static void *N_VScaleAddMultiVectorArray_PT(void *thread_data);
 static void *N_VLinearCombinationVectorArray_PT(void *thread_data);
+
+/* Pthread companion functions special cases of vector array operations */
+static void *VSumVectorArray_PT(void *thread_data);
+static void *VDiffVectorArray_PT(void *thread_data);
+static void *VScaleSumVectorArray_PT(void *thread_data);
+static void *VScaleDiffVectorArray_PT(void *thread_data);
+static void *VLin1VectorArray_PT(void *thread_data);
+static void *VLin2VectorArray_PT(void *thread_data);
+static void *VaxpyVectorArray_PT(void *thread_data);
 
 /* Function to determine loop values for threads */
 static void N_VSplitLoop(int myid, int *nthreads, sunindextype *N,
@@ -171,19 +181,19 @@ N_Vector N_VNewEmpty_Pthreads(sunindextype length, int num_threads)
   ops->nvconstrmask   = N_VConstrMask_Pthreads;
   ops->nvminquotient  = N_VMinQuotient_Pthreads;
 
-  /* fused vector operations */
-  ops->nvlinearcombination = N_VLinearCombination_Pthreads;
-  ops->nvscaleaddmulti     = N_VScaleAddMulti_Pthreads;
-  ops->nvdotprodmulti      = N_VDotProdMulti_Pthreads;
+  /* fused vector operations (optional, NULL means disabled by default) */
+  ops->nvlinearcombination = NULL;
+  ops->nvscaleaddmulti     = NULL;
+  ops->nvdotprodmulti      = NULL;
 
-  /* vector array operations */
-  ops->nvlinearsumvectorarray         = N_VLinearSumVectorArray_Pthreads;
-  ops->nvscalevectorarray             = N_VScaleVectorArray_Pthreads;
-  ops->nvconstvectorarray             = N_VConstVectorArray_Pthreads;
-  ops->nvwrmsnormvectorarray          = N_VWrmsNormVectorArray_Pthreads;
-  ops->nvwrmsnormmaskvectorarray      = N_VWrmsNormMaskVectorArray_Pthreads;
-  ops->nvscaleaddmultivectorarray     = N_VScaleAddMultiVectorArray_Pthreads;
-  ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Pthreads;
+  /* vector array operations (optional, NULL means disabled by default) */
+  ops->nvlinearsumvectorarray         = NULL;
+  ops->nvscalevectorarray             = NULL;
+  ops->nvconstvectorarray             = NULL;
+  ops->nvwrmsnormvectorarray          = NULL;
+  ops->nvwrmsnormmaskvectorarray      = NULL;
+  ops->nvscaleaddmultivectorarray     = NULL;
+  ops->nvlinearcombinationvectorarray = NULL;
 
   /* Create content */
   content = NULL;
@@ -2747,6 +2757,11 @@ int N_VLinearSumVectorArray_Pthreads(int nvec, realtype a, N_Vector* X,
   Pthreads_Data  *thread_data;
   pthread_attr_t attr;
 
+  realtype c;
+  N_Vector* V1;
+  N_Vector* V2;
+  booleantype test;
+
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
 
@@ -2755,6 +2770,62 @@ int N_VLinearSumVectorArray_Pthreads(int nvec, realtype a, N_Vector* X,
     N_VLinearSum_Pthreads(a, X[0], b, Y[0], Z[0]);
     return(0);
   }
+
+  /* BLAS usage: axpy y <- ax+y */
+  if ((b == ONE) && (Z == Y))
+    return(VaxpyVectorArray_Pthreads(nvec, a, X, Y));
+
+  /* BLAS usage: axpy x <- by+x */
+  if ((a == ONE) && (Z == X))
+    return(VaxpyVectorArray_Pthreads(nvec, b, Y, X));
+
+  /* Case: a == b == 1.0 */
+  if ((a == ONE) && (b == ONE))
+    return(VSumVectorArray_Pthreads(nvec, X, Y, Z));
+
+  /* Cases:                    */
+  /*   (1) a == 1.0, b = -1.0, */
+  /*   (2) a == -1.0, b == 1.0 */
+  if ((test = ((a == ONE) && (b == -ONE))) || ((a == -ONE) && (b == ONE))) {
+    V1 = test ? Y : X;
+    V2 = test ? X : Y;
+    return(VDiffVectorArray_Pthreads(nvec, V2, V1, Z));
+  }
+
+  /* Cases:                                                  */
+  /*   (1) a == 1.0, b == other or 0.0,                      */
+  /*   (2) a == other or 0.0, b == 1.0                       */
+  /* if a or b is 0.0, then user should have called N_VScale */
+  if ((test = (a == ONE)) || (b == ONE)) {
+    c  = test ? b : a;
+    V1 = test ? Y : X;
+    V2 = test ? X : Y;
+    return(VLin1VectorArray_Pthreads(nvec, c, V1, V2, Z));
+  }
+
+  /* Cases:                     */
+  /*   (1) a == -1.0, b != 1.0, */
+  /*   (2) a != 1.0, b == -1.0  */
+  if ((test = (a == -ONE)) || (b == -ONE)) {
+    c = test ? b : a;
+    V1 = test ? Y : X;
+    V2 = test ? X : Y;
+    return(VLin2VectorArray_Pthreads(nvec, c, V1, V2, Z));
+  }
+
+  /* Case: a == b                                                         */
+  /* catches case both a and b are 0.0 - user should have called N_VConst */
+  if (a == b)
+    return(VScaleSumVectorArray_Pthreads(nvec, a, X, Y, Z));
+
+  /* Case: a == -b */
+  if (a == -b)
+    return(VScaleDiffVectorArray_Pthreads(nvec, a, X, Y, Z));
+
+  /* Do all cases not handled above:                               */
+  /*   (1) a == other, b == 0.0 - user should have called N_VScale */
+  /*   (2) a == 0.0, b == other - user should have called N_VScale */
+  /*   (3) a,b == other, a !=b, a != -b                            */
 
   /* get vector length and data array */
   N           = NV_LENGTH_PT(Z[0]);
@@ -3660,7 +3731,7 @@ static void *N_VLinearCombinationVectorArray_PT(void *thread_data)
 
 /*
  * -----------------------------------------------------------------
- * private functions
+ * private functions for special cases of vector operations
  * -----------------------------------------------------------------
  */
 
@@ -4497,6 +4568,539 @@ static void *VScaleBy_PT(void *thread_data)
 }
 
 
+/*
+ * -----------------------------------------------------------------------------
+ * private functions for special cases of vector array operations
+ * -----------------------------------------------------------------------------
+ */
+
+static int VSumVectorArray_Pthreads(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z)
+{
+  sunindextype   N;
+  int            i, nthreads;
+  pthread_t      *threads;
+  Pthreads_Data  *thread_data;
+  pthread_attr_t attr;
+
+  /* allocate threads and thread data structs */
+  N           = NV_LENGTH_PT(X[0]);
+  nthreads    = NV_NUM_THREADS_PT(X[0]);
+  threads     = malloc(nthreads*sizeof(pthread_t));
+  thread_data = (Pthreads_Data *) malloc(nthreads*sizeof(struct _Pthreads_Data));
+
+  /* set thread attributes */
+  pthread_attr_init(&attr);
+  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
+  /* pack thread data, distribute loop indices, and create threads/call kernel */
+  for (i=0; i<nthreads; i++) {
+    N_VInitThreadData(&thread_data[i]);
+
+    thread_data[i].nvec = nvec;
+    thread_data[i].Y1   = X;
+    thread_data[i].Y2   = Y;
+    thread_data[i].Y3   = Z;
+
+    N_VSplitLoop(i, &nthreads, &N, &thread_data[i].start, &thread_data[i].end);
+
+    pthread_create(&threads[i], &attr, VSumVectorArray_PT, (void *) &thread_data[i]);
+  }
+
+  /* wait for all threads to finish */
+  for (i=0; i<nthreads; i++)
+    pthread_join(threads[i], NULL);
+
+  /* clean up and return */
+  pthread_attr_destroy(&attr);
+  free(threads);
+  free(thread_data);
+
+  return(0);
+}
+
+static void *VSumVectorArray_PT(void *thread_data)
+{
+  Pthreads_Data *my_data;
+  sunindextype  j, start, end;
+
+  int       i;
+  realtype* xd=NULL;
+  realtype* yd=NULL;
+  realtype* zd=NULL;
+
+  my_data = (Pthreads_Data *) thread_data;
+  start   = my_data->start;
+  end     = my_data->end;
+
+  for (i=0; i<my_data->nvec; i++) {
+    xd = NV_DATA_PT(my_data->Y1[i]);
+    yd = NV_DATA_PT(my_data->Y2[i]);
+    zd = NV_DATA_PT(my_data->Y3[i]);
+    for (j=start; j<end; j++)
+      zd[j] = xd[j] + yd[j];
+  }
+
+  pthread_exit(NULL);
+}
+
+
+static int VDiffVectorArray_Pthreads(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z)
+{
+  sunindextype   N;
+  int            i, nthreads;
+  pthread_t      *threads;
+  Pthreads_Data  *thread_data;
+  pthread_attr_t attr;
+
+  /* allocate threads and thread data structs */
+  N           = NV_LENGTH_PT(X[0]);
+  nthreads    = NV_NUM_THREADS_PT(X[0]);
+  threads     = malloc(nthreads*sizeof(pthread_t));
+  thread_data = (Pthreads_Data *) malloc(nthreads*sizeof(struct _Pthreads_Data));
+
+  /* set thread attributes */
+  pthread_attr_init(&attr);
+  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
+  /* pack thread data, distribute loop indices, and create threads/call kernel */
+  for (i=0; i<nthreads; i++) {
+    N_VInitThreadData(&thread_data[i]);
+
+    thread_data[i].nvec = nvec;
+    thread_data[i].Y1   = X;
+    thread_data[i].Y2   = Y;
+    thread_data[i].Y3   = Z;
+
+    N_VSplitLoop(i, &nthreads, &N, &thread_data[i].start, &thread_data[i].end);
+
+    pthread_create(&threads[i], &attr, VDiffVectorArray_PT, (void *) &thread_data[i]);
+  }
+
+  /* wait for all threads to finish */
+  for (i=0; i<nthreads; i++)
+    pthread_join(threads[i], NULL);
+
+  /* clean up and return */
+  pthread_attr_destroy(&attr);
+  free(threads);
+  free(thread_data);
+
+  return(0);
+}
+
+static void *VDiffVectorArray_PT(void *thread_data)
+{
+  Pthreads_Data *my_data;
+  sunindextype  j, start, end;
+
+  int       i;
+  realtype* xd=NULL;
+  realtype* yd=NULL;
+  realtype* zd=NULL;
+
+  my_data = (Pthreads_Data *) thread_data;
+  start   = my_data->start;
+  end     = my_data->end;
+
+  for (i=0; i<my_data->nvec; i++) {
+    xd = NV_DATA_PT(my_data->Y1[i]);
+    yd = NV_DATA_PT(my_data->Y2[i]);
+    zd = NV_DATA_PT(my_data->Y3[i]);
+    for (j=start; j<end; j++)
+      zd[j] = xd[j] - yd[j];
+  }
+
+  pthread_exit(NULL);
+}
+
+
+static int VScaleSumVectorArray_Pthreads(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z)
+{
+  sunindextype   N;
+  int            i, nthreads;
+  pthread_t      *threads;
+  Pthreads_Data  *thread_data;
+  pthread_attr_t attr;
+
+  /* allocate threads and thread data structs */
+  N            = NV_LENGTH_PT(X[0]);
+  nthreads     = NV_NUM_THREADS_PT(X[0]);
+  threads      = malloc(nthreads*sizeof(pthread_t));
+  thread_data  = (Pthreads_Data *) malloc(nthreads*sizeof(struct _Pthreads_Data));
+
+  /* set thread attributes */
+  pthread_attr_init(&attr);
+  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
+  /* pack thread data, distribute loop indices, and create threads/call kernel */
+  for (i=0; i<nthreads; i++) {
+    N_VInitThreadData(&thread_data[i]);
+
+    thread_data[i].nvec = nvec;
+    thread_data[i].c1   = c;
+    thread_data[i].Y1   = X;
+    thread_data[i].Y2   = Y;
+    thread_data[i].Y3   = Z;
+
+    N_VSplitLoop(i, &nthreads, &N, &thread_data[i].start, &thread_data[i].end);
+
+    pthread_create(&threads[i], &attr, VScaleSumVectorArray_PT, (void *) &thread_data[i]);
+  }
+
+  /* wait for all threads to finish */
+  for (i=0; i<nthreads; i++)
+    pthread_join(threads[i], NULL);
+
+  /* clean up and return */
+  pthread_attr_destroy(&attr);
+  free(threads);
+  free(thread_data);
+
+  return(0);
+}
+
+static void *VScaleSumVectorArray_PT(void *thread_data)
+{
+  Pthreads_Data *my_data;
+  sunindextype  j, start, end;
+
+  int       i;
+  realtype  c;
+  realtype* xd=NULL;
+  realtype* yd=NULL;
+  realtype* zd=NULL;
+
+  my_data = (Pthreads_Data *) thread_data;
+  start   = my_data->start;
+  end     = my_data->end;
+  c       = my_data->c1;
+
+  for (i=0; i<my_data->nvec; i++) {
+    xd = NV_DATA_PT(my_data->Y1[i]);
+    yd = NV_DATA_PT(my_data->Y2[i]);
+    zd = NV_DATA_PT(my_data->Y3[i]);
+    for (j=start; j<end; j++)
+      zd[j] = c * (xd[j] + yd[j]);
+  }
+
+  pthread_exit(NULL);
+}
+
+
+static int VScaleDiffVectorArray_Pthreads(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z)
+{
+  sunindextype   N;
+  int            i, nthreads;
+  pthread_t      *threads;
+  Pthreads_Data  *thread_data;
+  pthread_attr_t attr;
+
+  /* allocate threads and thread data structs */
+  N           = NV_LENGTH_PT(X[0]);
+  nthreads    = NV_NUM_THREADS_PT(X[0]);
+  threads     = malloc(nthreads*sizeof(pthread_t));
+  thread_data = (Pthreads_Data *) malloc(nthreads*sizeof(struct _Pthreads_Data));
+
+  /* set thread attributes */
+  pthread_attr_init(&attr);
+  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
+  /* pack thread data, distribute loop indices, and create threads/call kernel */
+  for (i=0; i<nthreads; i++) {
+    N_VInitThreadData(&thread_data[i]);
+
+    thread_data[i].nvec = nvec;
+    thread_data[i].c1   = c;
+    thread_data[i].Y1   = X;
+    thread_data[i].Y2   = Y;
+    thread_data[i].Y3   = Z;
+
+    N_VSplitLoop(i, &nthreads, &N, &thread_data[i].start, &thread_data[i].end);
+
+    pthread_create(&threads[i], &attr, VScaleDiffVectorArray_PT, (void *) &thread_data[i]);
+  }
+
+  /* wait for all threads to finish */
+  for (i=0; i<nthreads; i++)
+    pthread_join(threads[i], NULL);
+
+  /* clean up and return */
+  pthread_attr_destroy(&attr);
+  free(threads);
+  free(thread_data);
+
+  return(0);
+}
+
+static void *VScaleDiffVectorArray_PT(void *thread_data)
+{
+  Pthreads_Data *my_data;
+  sunindextype  j, start, end;
+
+  int       i;
+  realtype  c;
+  realtype* xd=NULL;
+  realtype* yd=NULL;
+  realtype* zd=NULL;
+
+  my_data = (Pthreads_Data *) thread_data;
+  start   = my_data->start;
+  end     = my_data->end;
+  c       = my_data->c1;
+
+  for (i=0; i<my_data->nvec; i++) {
+    xd = NV_DATA_PT(my_data->Y1[i]);
+    yd = NV_DATA_PT(my_data->Y2[i]);
+    zd = NV_DATA_PT(my_data->Y3[i]);
+    for (j=start; j<end; j++)
+      zd[j] = c * (xd[j] - yd[j]);
+  }
+
+  pthread_exit(NULL);
+}
+
+
+static int VLin1VectorArray_Pthreads(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z)
+{
+  sunindextype   N;
+  int            i, nthreads;
+  pthread_t      *threads;
+  Pthreads_Data  *thread_data;
+  pthread_attr_t attr;
+
+  /* allocate threads and thread data structs */
+  N           = NV_LENGTH_PT(X[0]);
+  nthreads    = NV_NUM_THREADS_PT(X[0]);
+  threads     = malloc(nthreads*sizeof(pthread_t));
+  thread_data = (Pthreads_Data *) malloc(nthreads*sizeof(struct _Pthreads_Data));
+
+  /* set thread attributes */
+  pthread_attr_init(&attr);
+  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
+  /* pack thread data, distribute loop indices, and create threads/call kernel */
+  for (i=0; i<nthreads; i++) {
+    N_VInitThreadData(&thread_data[i]);
+
+    thread_data[i].nvec = nvec;
+    thread_data[i].c1   = a;
+    thread_data[i].Y1   = X;
+    thread_data[i].Y2   = Y;
+    thread_data[i].Y3   = Z;
+
+    N_VSplitLoop(i, &nthreads, &N, &thread_data[i].start, &thread_data[i].end);
+
+    pthread_create(&threads[i], &attr, VLin1VectorArray_PT, (void *) &thread_data[i]);
+  }
+
+  /* wait for all threads to finish */
+  for (i=0; i<nthreads; i++)
+    pthread_join(threads[i], NULL);
+
+  /* clean up and return */
+  pthread_attr_destroy(&attr);
+  free(threads);
+  free(thread_data);
+
+  return(0);
+}
+
+static void *VLin1VectorArray_PT(void *thread_data)
+{
+  Pthreads_Data *my_data;
+  sunindextype  j, start, end;
+
+  int       i;
+  realtype  a;
+  realtype* xd=NULL;
+  realtype* yd=NULL;
+  realtype* zd=NULL;
+
+  my_data = (Pthreads_Data *) thread_data;
+  start   = my_data->start;
+  end     = my_data->end;
+  a       = my_data->c1;
+
+  for (i=0; i<my_data->nvec; i++) {
+    xd = NV_DATA_PT(my_data->Y1[i]);
+    yd = NV_DATA_PT(my_data->Y2[i]);
+    zd = NV_DATA_PT(my_data->Y3[i]);
+    for (j=start; j<end; j++)
+      zd[j] = (a * xd[j]) + yd[j];
+  }
+
+  pthread_exit(NULL);
+}
+
+
+static int VLin2VectorArray_Pthreads(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z)
+{
+  sunindextype   N;
+  int            i, nthreads;
+  pthread_t      *threads;
+  Pthreads_Data  *thread_data;
+  pthread_attr_t attr;
+
+  /* allocate threads and thread data structs */
+  N           = NV_LENGTH_PT(X[0]);
+  nthreads    = NV_NUM_THREADS_PT(X[0]);
+  threads     = malloc(nthreads*sizeof(pthread_t));
+  thread_data = (Pthreads_Data *) malloc(nthreads*sizeof(struct _Pthreads_Data));
+
+  /* set thread attributes */
+  pthread_attr_init(&attr);
+  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
+  /* pack thread data, distribute loop indices, and create threads/call kernel */
+  for (i=0; i<nthreads; i++) {
+    N_VInitThreadData(&thread_data[i]);
+
+    thread_data[i].nvec = nvec;
+    thread_data[i].c1   = a;
+    thread_data[i].Y1   = X;
+    thread_data[i].Y2   = Y;
+    thread_data[i].Y3   = Z;
+
+    N_VSplitLoop(i, &nthreads, &N, &thread_data[i].start, &thread_data[i].end);
+
+    pthread_create(&threads[i], &attr, VLin2VectorArray_PT, (void *) &thread_data[i]);
+  }
+
+  /* wait for all threads to finish */
+  for (i=0; i<nthreads; i++)
+    pthread_join(threads[i], NULL);
+
+  /* clean up and return */
+  pthread_attr_destroy(&attr);
+  free(threads);
+  free(thread_data);
+
+  return(0);
+}
+
+static void *VLin2VectorArray_PT(void *thread_data)
+{
+  Pthreads_Data *my_data;
+  sunindextype  j, start, end;
+
+  int       i;
+  realtype  a;
+  realtype* xd=NULL;
+  realtype* yd=NULL;
+  realtype* zd=NULL;
+
+  my_data = (Pthreads_Data *) thread_data;
+  start   = my_data->start;
+  end     = my_data->end;
+  a       = my_data->c1;
+
+  for (i=0; i<my_data->nvec; i++) {
+    xd = NV_DATA_PT(my_data->Y1[i]);
+    yd = NV_DATA_PT(my_data->Y2[i]);
+    zd = NV_DATA_PT(my_data->Y3[i]);
+    for (j=start; j<end; j++)
+      zd[j] = (a * xd[j]) - yd[j];
+  }
+
+  pthread_exit(NULL);
+}
+
+
+static int VaxpyVectorArray_Pthreads(int nvec, realtype a, N_Vector* X, N_Vector* Y)
+{
+  sunindextype   N;
+  int            i, nthreads;
+  pthread_t      *threads;
+  Pthreads_Data  *thread_data;
+  pthread_attr_t attr;
+
+  /* allocate threads and thread data structs */
+  N           = NV_LENGTH_PT(X[0]);
+  nthreads    = NV_NUM_THREADS_PT(X[0]);
+  threads     = malloc(nthreads*sizeof(pthread_t));
+  thread_data = (Pthreads_Data *) malloc(nthreads*sizeof(struct _Pthreads_Data));
+
+  /* set thread attributes */
+  pthread_attr_init(&attr);
+  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
+  /* pack thread data, distribute loop indices, and create threads/call kernel */
+  for (i=0; i<nthreads; i++) {
+    N_VInitThreadData(&thread_data[i]);
+
+    thread_data[i].nvec = nvec;
+    thread_data[i].c1   = a;
+    thread_data[i].Y1   = X;
+    thread_data[i].Y2   = Y;
+
+    N_VSplitLoop(i, &nthreads, &N, &thread_data[i].start, &thread_data[i].end);
+
+    pthread_create(&threads[i], &attr, VaxpyVectorArray_PT, (void *) &thread_data[i]);
+  }
+
+  /* wait for all threads to finish */
+  for (i=0; i<nthreads; i++)
+    pthread_join(threads[i], NULL);
+
+  /* clean up and return */
+  pthread_attr_destroy(&attr);
+  free(threads);
+  free(thread_data);
+
+  return(0);
+}
+
+static void *VaxpyVectorArray_PT(void *thread_data)
+{
+  Pthreads_Data *my_data;
+  sunindextype  j, start, end;
+
+  int       i;
+  realtype  a;
+  realtype* xd=NULL;
+  realtype* yd=NULL;
+
+  my_data = (Pthreads_Data *) thread_data;
+  start   = my_data->start;
+  end     = my_data->end;
+  a       = my_data->c1;
+
+  if (a == ONE) {
+    for (i=0; i<my_data->nvec; i++) {
+      xd = NV_DATA_PT(my_data->Y1[i]);
+      yd = NV_DATA_PT(my_data->Y2[i]);
+      for (j=start; j<end; j++)
+        yd[j] += xd[j];
+    }
+    pthread_exit(NULL);
+  }
+
+  if (a == -ONE) {
+    for (i=0; i<my_data->nvec; i++) {
+      xd = NV_DATA_PT(my_data->Y1[i]);
+      yd = NV_DATA_PT(my_data->Y2[i]);
+      for (j=start; j<end; j++)
+        yd[j] -= xd[j];
+    }
+    pthread_exit(NULL);
+  }
+
+  for (i=0; i<my_data->nvec; i++) {
+    xd = NV_DATA_PT(my_data->Y1[i]);
+    yd = NV_DATA_PT(my_data->Y2[i]);
+    for (j=start; j<end; j++)
+      yd[j] += a * xd[j];
+  }
+  pthread_exit(NULL);
+}
+
+
+/*
+ * -----------------------------------------------------------------
+ * private utility functions
+ * -----------------------------------------------------------------
+ */
+
 /* ----------------------------------------------------------------------------
  * Determine loop indices for a thread
  */
@@ -4550,4 +5154,232 @@ static void N_VInitThreadData(Pthreads_Data *thread_data)
   thread_data->Y1 = NULL;
   thread_data->Y2 = NULL;
   thread_data->Y3 = NULL;
+}
+
+
+/*
+ * -----------------------------------------------------------------
+ * Enable / Disable fused and vector array operations
+ * -----------------------------------------------------------------
+ */
+
+int N_VEnableFusedOps_Pthreads(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  if (tf) {
+    /* enable all fused vector operations */
+    v->ops->nvlinearcombination = N_VLinearCombination_Pthreads;
+    v->ops->nvscaleaddmulti     = N_VScaleAddMulti_Pthreads;
+    v->ops->nvdotprodmulti      = N_VDotProdMulti_Pthreads;
+    /* enable all vector array operations */
+    v->ops->nvlinearsumvectorarray         = N_VLinearSumVectorArray_Pthreads;
+    v->ops->nvscalevectorarray             = N_VScaleVectorArray_Pthreads;
+    v->ops->nvconstvectorarray             = N_VConstVectorArray_Pthreads;
+    v->ops->nvwrmsnormvectorarray          = N_VWrmsNormVectorArray_Pthreads;
+    v->ops->nvwrmsnormmaskvectorarray      = N_VWrmsNormMaskVectorArray_Pthreads;
+    v->ops->nvscaleaddmultivectorarray     = N_VScaleAddMultiVectorArray_Pthreads;
+    v->ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Pthreads;
+  } else {
+    /* disable all fused vector operations */
+    v->ops->nvlinearcombination = NULL;
+    v->ops->nvscaleaddmulti     = NULL;
+    v->ops->nvdotprodmulti      = NULL;
+    /* disable all vector array operations */
+    v->ops->nvlinearsumvectorarray         = NULL;
+    v->ops->nvscalevectorarray             = NULL;
+    v->ops->nvconstvectorarray             = NULL;
+    v->ops->nvwrmsnormvectorarray          = NULL;
+    v->ops->nvwrmsnormmaskvectorarray      = NULL;
+    v->ops->nvscaleaddmultivectorarray     = NULL;
+    v->ops->nvlinearcombinationvectorarray = NULL;
+  }
+
+  /* return success */
+  return(0);
+}
+
+
+int N_VEnableLinearCombination_Pthreads(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvlinearcombination = N_VLinearCombination_Pthreads;
+  else
+    v->ops->nvlinearcombination = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableScaleAddMulti_Pthreads(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvscaleaddmulti = N_VScaleAddMulti_Pthreads;
+  else
+    v->ops->nvscaleaddmulti = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableDotProdMulti_Pthreads(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvdotprodmulti = N_VDotProdMulti_Pthreads;
+  else
+    v->ops->nvdotprodmulti = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableLinearSumVectorArray_Pthreads(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvlinearsumvectorarray = N_VLinearSumVectorArray_Pthreads;
+  else
+    v->ops->nvlinearsumvectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableScaleVectorArray_Pthreads(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvscalevectorarray = N_VScaleVectorArray_Pthreads;
+  else
+    v->ops->nvscalevectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableConstVectorArray_Pthreads(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvconstvectorarray = N_VConstVectorArray_Pthreads;
+  else
+    v->ops->nvconstvectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableWrmsNormVectorArray_Pthreads(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvwrmsnormvectorarray = N_VWrmsNormVectorArray_Pthreads;
+  else
+    v->ops->nvwrmsnormvectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableWrmsNormMaskVectorArray_Pthreads(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvwrmsnormmaskvectorarray = N_VWrmsNormMaskVectorArray_Pthreads;
+  else
+    v->ops->nvwrmsnormmaskvectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableScaleAddMultiVectorArray_Pthreads(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvscaleaddmultivectorarray = N_VScaleAddMultiVectorArray_Pthreads;
+  else
+    v->ops->nvscaleaddmultivectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableLinearCombinationVectorArray_Pthreads(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Pthreads;
+  else
+    v->ops->nvlinearcombinationvectorarray = NULL;
+
+  /* return success */
+  return(0);
 }

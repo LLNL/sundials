@@ -128,6 +128,10 @@ has been added for storing Butcher tables. Functions for creating new Butcher
 tables and checking their analytic order are provided along with other utility
 routines. For more details see :ref:`ARKodeButcherTable`.
 
+ARKode's dense output infrastructure has been improved to support
+higher-degree Hermite polynomial interpolants (up to degree 5) over
+the last successful time step.
+
 ARKode's previous direct and iterative linear solver interfaces,
 ARKDLS and ARKSPILS, have been merged into a single unified linear solver
 interface, ARKLS, to support any valid SUNLINSOL module.  The user
@@ -148,23 +152,17 @@ to the new names, the previous routine names may still be used; these
 will be deprecated in future releases, so we recommend that users
 migrate to the new names soon.
 
-An API for encapsulating the nonlinear solvers used in SUNDIALS
-implicit integrators has been introduced. The goal of this API is to
-ease the introduction of new nonlinear solver options in SUNDIALS
-integrators and allow for external or user-supplied nonlinear
-solvers. The SUNNonlinSol API and provided SUNNonlinearSolver modules
-are described in Chapter :ref:`SUNNonlinSol` and follow the same
-object oriented design and implementation used by the NVector,
-SUNMatrix, and SUNLinSol modules.
-
-SUNNonlinSol modules are intended to solve nonlinear systems formulated as
-either a rootfinding problem :math:`F(y)=0` or a fixed-point problem
-:math:`G(y)=y`. Currently two SUNNonlinSol implementations are provided,
-SUNNonlinSol_Newton and SUNNonlinSol_FixedPoint. These replicate the
-previous integrator specific implementations of a Newton iteration and
-an accelerated fixed-point iteration, respectively.  Example programs
-using each of these nonlinear solver modules in a standalone manner
-have been added and all relevant ARKode example programs have been
+SUNDIALS integrators have been updated to utilize generic nonlinear solver
+modules defined through the SUNNONLINSOL API. This API will ease the addition of
+new nonlinear solver options and allow for external or user-supplied nonlinear
+solvers. The SUNNONLINSOL API and SUNDIALS provided modules are described in
+:ref:`SUNNonlinSol` and follow the same object oriented design and
+implementation used by the NVector, SUNMatrix, and SUNLinSol modules. Currently
+two SUNNONLINSOL implementations are provided, SUNNonlinSol_Newton and
+SUNNonlinSol_FixedPoint. These replicate the previous integrator specific
+implementations of a Newton iteration and an accelerated fixed-point iteration,
+respectively. Example programs using each of these nonlinear solver modules in a
+standalone manner have been added and all ARKode example programs have been
 updated to use generic SUNNonlinSol modules.
 
 As with previous versions, ARKode will use the Newton solver (now
@@ -177,30 +175,24 @@ are now required to create a SUNNonlinSol_FixedPoint object and attach
 that to ARKode, instead of calling the previous
 ``ARKodeSetFixedPoint`` routine.  See the documentation sections
 :ref:`ARKStep_CInterface.Skeleton`,
-:ref:`ARKStep_CInterface.NonlinearSolvers` and
+:ref:`ARKStep_CInterface.NonlinearSolvers`, and
 :ref:`SUNNonlinSol_FixedPoint` for further details, or the serial C
 example program ``ark_brusselator_fp.c`` for an example.
 
-ARKode's dense output infrastructure has been improved to support
-higher-degree Hermite polynomial interpolants (up to degree 5) over
-the last successful time step.
-
-Three fused vector operations and seven vector array operations have
-been added to the NVECTOR API. These *optional* operations
-are intended to increase data reuse in vector operations, reduce
-parallel communication on distributed memory systems, and lower the
-number of kernel launches on systems with accelerators. The new
-operations are ``N_VLinearCombination``, ``N_VScaleAddMulti``,
-``N_VDotProdMulti``, ``N_VLinearCombinationVectorArray``,
-``N_VScaleVectorArray``, ``N_VConstVectorArray``,
-``N_VWrmsNormVectorArray``, ``N_VWrmsNormMaskVectorArray``,
-``N_VScaleAddMultiVectorArray``, and
-``N_VLinearCombinationVectorArray``. If any of these operations are
-defined as ``NULL`` in an NVECTOR implementation the NVECTOR interface
-will automatically call standard NVECTOR operations as
-necessary. Details on the new operations can be found in Chapter
-:ref:`NVectors.Description`.
-
+Three fused vector operations and seven vector array operations have been added
+to the NVECTOR API. These *optional* operations are disabled by default and may
+be activated by calling vector specific routines after creating an NVector (see
+:ref:`NVectors.Description` for more details). The new operations are intended
+to increase data reuse in vector operations, reduce parallel communication on
+distributed memory systems, and lower the number of kernel launches on systems
+with accelerators. The fused operations are ``N_VLinearCombination``,
+``N_VScaleAddMulti``, and ``N_VDotProdMulti``, and the vector array operations
+are ``N_VLinearCombinationVectorArray``, ``N_VScaleVectorArray``,
+``N_VConstVectorArray``, ``N_VWrmsNormVectorArray``,
+``N_VWrmsNormMaskVectorArray``, ``N_VScaleAddMultiVectorArray``, and
+``N_VLinearCombinationVectorArray``. If an NVector implemenation defines any of
+these operations as ``NULL``, then standard NVector operations will
+automatically be called as necessary to complete the computation.
 
 Changes in v2.2.1
 ^^^^^^^^^^^^^^^^^^^^^^^

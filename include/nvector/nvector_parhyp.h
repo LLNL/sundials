@@ -97,6 +97,18 @@ typedef struct _N_VectorContent_ParHyp *N_VectorContent_ParHyp;
  * DESTRUCTORS:
  *    N_VDestroy_ParHyp
  *    N_VDestroyVectorArray_ParHyp
+ * ENABLE/DISABLE FUSED OPS:
+ *    N_VEnableFusedOps_ParHyp
+ *    N_VEnableLinearCombination_ParHyp
+ *    N_VEnableScaleAddMulti_ParHyp
+ *    N_VEnableDotProdMulti_ParHyp
+ *    N_VEnableLinearSumVectorArray_ParHyp
+ *    N_VEnableScaleVectorArray_ParHyp
+ *    N_VEnableConstVectorArray_ParHyp
+ *    N_VEnableWrmsNormVectorArray_ParHyp
+ *    N_VEnableWrmsNormMaskVectorArray_ParHyp
+ *    N_VEnableScaleAddMultiVectorArray_ParHyp
+ *    N_VEnableLinearCombinationVectorArray_ParHyp
  * ACCESSOR FUNCTIONS:
  *    N_VGetVector_ParHyp
  * OTHER:
@@ -261,6 +273,27 @@ SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
                                                            realtype* c,
                                                            N_Vector** X,
                                                            N_Vector* Z);
+
+
+/*
+ * -----------------------------------------------------------------
+ * Enable / disable fused vector operations
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int N_VEnableFusedOps_ParHyp(N_Vector v, booleantype tf);
+
+SUNDIALS_EXPORT int N_VEnableLinearCombination_ParHyp(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMulti_ParHyp(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableDotProdMulti_ParHyp(N_Vector v, booleantype tf);
+
+SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_ParHyp(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleVectorArray_ParHyp(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableConstVectorArray_ParHyp(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_ParHyp(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_ParHyp(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_ParHyp(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_ParHyp(N_Vector v, booleantype tf);
 
 #ifdef __cplusplus
 }

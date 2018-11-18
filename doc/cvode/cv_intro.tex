@@ -99,7 +99,7 @@ in extended {\F}.
 
 \section{Changes from previous versions}
 
-\subsection*{Changes in v4.0.0-dev.2}
+\subsection*{Changes in v4.0.0}
 
 {\cvode}'s previous direct and iterative linear solver interfaces,
 {\cvdls} and {\cvspils}, have been merged into a single unified linear
@@ -118,7 +118,7 @@ The names of all constructor routines for {\sundials}-provided
 \id{SUNLinSol\_Band},
 \id{SUNLinSol\_Dense},
 \id{SUNLinSol\_KLU},
-\id{SUNLinSol\_LapackBand},\\ \noindent
+\id{SUNLinSol\_LapackBand},\newline
 \id{SUNLinSol\_LapackDense},
 \id{SUNLinSol\_PCG},
 \id{SUNLinSol\_SPBCGS},
@@ -131,91 +131,56 @@ to the new names, the previous routine names may still be used; these
 will be deprecated in future releases, so we recommend that users
 migrate to the new names soon.
 
-\subsection*{Changes in v4.0.0-dev.1}
-
-An API for encapsulating the nonlinear solvers used in {\sundials} implicit
-integrators has been introduced. The goal of this API is to ease the
-introduction of new nonlinear solver options in {\sundials} integrators and
-allow for external or user-supplied nonlinear solvers. The {\sunnonlinsol} API
-and provided {\sunnonlinsol} modules are described in
-Chapter~\ref{c:sunnonlinsol} and follow the same object oriented design and
-implementation used by the {\nvector}, {\sunmatrix}, and {\sunlinsol} modules.
-
-{\sunnonlinsol} modules are intended to solve nonlinear systems formulated as
-either a rootfinding problem $F(y)=0$ or a fixed-point problem $G(y)=y$.
-Currently two {\sunnonlinsol} implementations are provided,
+{\sundials} integrators have been updated to utilize generic nonlinear solver
+modules defined through the {\sunnonlinsol} API. This API will ease the addition
+of new nonlinear solver options and allow for external or user-supplied
+nonlinear solvers. The {\sunnonlinsol} API and {\sundials} provided modules are
+described in Chapter~\ref{c:sunnonlinsol} and follow the same object oriented
+design and implementation used by the {\nvector}, {\sunmatrix}, and {\sunlinsol}
+modules. Currently two {\sunnonlinsol} implementations are provided,
 {\sunnonlinsolnewton} and {\sunnonlinsolfixedpoint}. These replicate the
 previous integrator specific implementations of a Newton iteration and a
 fixed-point iteration (previously referred to as a functional iteration),
-respectively. Additionally, the fixed-point iteration can use Anderson's method
-to accelerate convergence. Example programs using each of these nonlinear solver
-modules in a standalone manner have been added and all {\cvode} example programs
-have been updated to use generic {\sunnonlinsol} modules.
+respectively. Note the {\sunnonlinsolfixedpoint} module can optionally utilize
+Anderson's method to accelerate convergence. Example programs using each of
+these nonlinear solver modules in a standalone manner have been added and all
+{\cvode} example programs have been updated to use generic {\sunnonlinsol}
+modules.
 
 With the introduction of {\sunnonlinsol} modules, the input parameter \id{iter}
-to \id{CVodeCreate} has been removed as well as the constants \id{CV\_NEWTON}
-and \id{CV\_FUNCTIONAL}. Similarly, the \id{ITMETH} parameter has been removed
-from the Fortran interface function \id{FCVMALLOC}. Instead of specifying the
-nonlinear iteration type when creating the {\cvode} memory structure, {\cvode}
-uses the {\sunnonlinsolnewton} module implementation of a Newton iteration by
-default. To use the fixed-point nonlinear solver with {\cvode} a user must do
-the following:
-\begin{enumerate}
-\item include the header \id{sunnonlinsol/sunnonlinsol\_fixedpoint.h} to access
-  the\\
-  \noindent{\sunnonlinsolfixedpoint} module,
-\item create a nonlinear solver object by calling the fixed-point
-  constructor
-\vspace{-1ex}
-\begin{verbatim}  
-  NLS = SUNNonlinSol_FixedPoint(y, m);
-\end{verbatim}
-\vspace{-1ex}
-  where \id{NLS} is the nonlinear solver object of type \id{SUNNonlinearSolver},
-  \id{y} is an \id{NVector} the size of the ODE system, and \id{m} is the number
-  of acceleration vectors (see \S\ref{s:sunnonlinsol_fixedpoint} for more
-  detail), and 
-\item after initializing {\cvode} with \id{CVodeInit}, call
-\vspace{-1ex}
-\begin{verbatim}  
-  retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
-\end{verbatim}
-\vspace{-1ex}
-  to attach the nonlinear solver object to the {\cvode} memory structure.
-\end{enumerate}
-User-supplied nonlinear solver modules adhering to the {\sunnonlinsol} API for
-solving $F(y)=0$ or $G(y)=y$ can be used with {\cvode} by following the same
-include, create, and attach process just described for the
-{\sunnonlinsolfixedpoint} module.
+to \id{CVodeCreate} has been removed along with the function
+\id{CVodeSetIterType} and the constants \id{CV\_NEWTON} and \id{CV\_FUNCTIONAL}.
+Similarly, the \id{ITMETH} parameter has been removed from the Fortran interface
+function \id{FCVMALLOC}. Instead of specifying the nonlinear iteration type when
+creating the {\cvode} memory structure, {\cvode} uses the {\sunnonlinsolnewton}
+module implementation of a Newton iteration by default. For details on using a
+non-default or user-supplied nonlinear solver see Chapter~\ref{s:simulation}.
+{\cvode} functions for setting the nonlinear solver options (e.g.,
+\id{CVodeSetMaxNonlinIters}) or getting nonlinear solver statistics (e.g.,
+\id{CVodeGetNumNonlinSolvIters}) remain unchanged and internally call generic
+{\sunnonlinsol} functions as needed.
 
-As a result of this new nonlinear solver object creation and attachment approach,
-the function \id{CVodeSetIterType} has been removed. {\cvode} functions for
-setting the nonlinear solver options (e.g., \id{CVodeSetMaxNonlinIters}) or
-getting nonlinear solver statistics (e.g., \id{CVodeGetNumNonlinSolvIters})
-remain unchanged and internally call generic {\sunnonlinsol} functions.
-
-\subsection*{Changes in v4.0.0-dev}
-
-Three fused vector operations and seven vector array operations have
-been added to the {\nvector} API. These \textit{optional} operations
-are intended to increase data reuse in vector operations, reduce
-parallel communication on distributed memory systems, and lower the
-number of kernel launches on systems with accelerators. The new
-operations are
+Three fused vector operations and seven vector array operations have been added
+to the {\nvector} API. These \textit{optional} operations are disabled by
+default and may be activated by calling vector specific routines after creating
+an {\nvector} (see Chapter \ref{s:nvector} for more details). The new operations
+are intended to increase data reuse in vector operations, reduce parallel
+communication on distributed memory systems, and lower the number of kernel
+launches on systems with accelerators. The fused operations are
 \id{N\_VLinearCombination},
-\id{N\_VScaleAddMulti},
-\id{N\_VDotProdMulti},
+\id{N\_VScaleAddMulti}, and
+\id{N\_VDotProdMulti}
+and the vector array operations are
 \id{N\_VLinearCombinationVectorArray},
 \id{N\_VScaleVectorArray},
-\id{N\_VConstVectorArray},\\
+\id{N\_VConstVectorArray},
 \id{N\_VWrmsNormVectorArray},
 \id{N\_VWrmsNormMaskVectorArray},
 \id{N\_VScaleAddMultiVectorArray}, and\\
 \id{N\_VLinearCombinationVectorArray}.
-If any of these operations are defined as \id{NULL} in an {\nvector}
-implementation the {\nvector} interface will automatically call
-standard {\nvector} operations as necessary. Details on the new
-operations can be found in Chapter \ref{s:nvector}.
+If an {\nvector} implementation defines any of these operations as \id{NULL},
+then standard {\nvector} operations will automatically be called as necessary to
+complete the computation.
 
 \subsection*{Changes in v3.2.1}
 

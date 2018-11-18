@@ -147,6 +147,18 @@ typedef struct _N_VectorContent_Serial *N_VectorContent_Serial;
  * DESTRUCTORS:
  *    N_VDestroy_Serial
  *    N_VDestroyVectorArray_Serial
+ * ENABLE/DISABLE FUSED OPS:
+ *    N_VEnableFusedOps_Serial
+ *    N_VEnableLinearCombination_Serial
+ *    N_VEnableScaleAddMulti_Serial
+ *    N_VEnableDotProdMulti_Serial
+ *    N_VEnableLinearSumVectorArray_Serial
+ *    N_VEnableScaleVectorArray_Serial
+ *    N_VEnableConstVectorArray_Serial
+ *    N_VEnableWrmsNormVectorArray_Serial
+ *    N_VEnableWrmsNormMaskVectorArray_Serial
+ *    N_VEnableScaleAddMultiVectorArray_Serial
+ *    N_VEnableLinearCombinationVectorArray_Serial
  * OTHER:
  *    N_VGetLength_Serial
  *    N_VPrint_Serial
@@ -315,6 +327,26 @@ SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_Serial(int nvec, int nsum,
                                                            realtype* c,
                                                            N_Vector** X,
                                                            N_Vector* Z);
+
+/*
+ * -----------------------------------------------------------------
+ * Enable / disable fused vector operations
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int N_VEnableFusedOps_Serial(N_Vector v, booleantype tf);
+
+SUNDIALS_EXPORT int N_VEnableLinearCombination_Serial(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMulti_Serial(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableDotProdMulti_Serial(N_Vector v, booleantype tf);
+
+SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_Serial(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleVectorArray_Serial(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableConstVectorArray_Serial(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_Serial(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_Serial(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_Serial(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_Serial(N_Vector v, booleantype tf);
 
 #ifdef __cplusplus
 }

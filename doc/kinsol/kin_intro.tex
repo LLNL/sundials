@@ -109,7 +109,7 @@ interfacing the solver to applications written in {\F}.
 
 \section{Changes from previous versions}
 
-\subsection*{Changes in v4.0.0-dev.2}
+\subsection*{Changes in v4.0.0}
 
 {\kinsol}'s previous direct and iterative linear solver interfaces,
 {\kindls} and {\kinspils}, have been merged into a single unified linear
@@ -128,7 +128,7 @@ The names of all constructor routines for {\sundials}-provided
 \id{SUNLinSol\_Band},
 \id{SUNLinSol\_Dense},
 \id{SUNLinSol\_KLU},
-\id{SUNLinSol\_LapackBand}, \\ \noindent
+\id{SUNLinSol\_LapackBand}, \newline
 \id{SUNLinSol\_LapackDense},
 \id{SUNLinSol\_PCG},
 \id{SUNLinSol\_SPBCGS},
@@ -141,33 +141,27 @@ to the new names, the previous routine names may still be used; these
 will be deprecated in future releases, so we recommend that users
 migrate to the new names soon.
 
-
-\subsection*{Changes in v4.0.0-dev.1}
-
-No changes were made to {\kinsol} in this release.
-
-\subsection*{Changes in v4.0.0-dev}
-
-Three fused vector operations and seven vector array operations have
-been added to the {\nvector} API. These \textit{optional} operations
-are intended to increase data reuse in vector operations, reduce
-parallel communication on distributed memory systems, and lower the
-number of kernel launches on systems with accelerators. The new
-operations are 
+Three fused vector operations and seven vector array operations have been added
+to the {\nvector} API. These \textit{optional} operations are disabled by
+default and may be activated by calling vector specific routines after creating
+an {\nvector} (see Chapter \ref{s:nvector} for more details). The new operations
+are intended to increase data reuse in vector operations, reduce parallel
+communication on distributed memory systems, and lower the number of kernel
+launches on systems with accelerators. The fused operations are
 \id{N\_VLinearCombination},
-\id{N\_VScaleAddMulti},
-\id{N\_VDotProdMulti},
+\id{N\_VScaleAddMulti}, and
+\id{N\_VDotProdMulti}
+and the vector array operations are
 \id{N\_VLinearCombinationVectorArray},
 \id{N\_VScaleVectorArray},
-\id{N\_VConstVectorArray},\\
+\id{N\_VConstVectorArray},
 \id{N\_VWrmsNormVectorArray},
 \id{N\_VWrmsNormMaskVectorArray},
 \id{N\_VScaleAddMultiVectorArray}, and\\
 \id{N\_VLinearCombinationVectorArray}.
-If any of these operations are defined as \id{NULL} in an {\nvector}
-implementation the {\nvector} interface will automatically call
-standard {\nvector} operations as necessary. Details on the new
-operations can be found in Chapter \ref{s:nvector}.
+If an {\nvector} implementation defines any of these operations as \id{NULL},
+then standard {\nvector} operations will automatically be called as necessary to
+complete the computation.
 
 \subsection*{Changes in v3.2.1}
 

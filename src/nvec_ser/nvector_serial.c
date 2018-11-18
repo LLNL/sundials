@@ -27,27 +27,26 @@
 #define ONE    RCONST(1.0)
 #define ONEPT5 RCONST(1.5)
 
-/* Private function prototypes */
-/* z=x */
-static void VCopy_Serial(N_Vector x, N_Vector z);
-/* z=x+y */
-static void VSum_Serial(N_Vector x, N_Vector y, N_Vector z);
-/* z=x-y */
-static void VDiff_Serial(N_Vector x, N_Vector y, N_Vector z);
-/* z=-x */
-static void VNeg_Serial(N_Vector x, N_Vector z);
-/* z=c(x+y) */
-static void VScaleSum_Serial(realtype c, N_Vector x, N_Vector y, N_Vector z);
-/* z=c(x-y) */
-static void VScaleDiff_Serial(realtype c, N_Vector x, N_Vector y, N_Vector z);
-/* z=ax+y */
-static void VLin1_Serial(realtype a, N_Vector x, N_Vector y, N_Vector z);
-/* z=ax-y */
-static void VLin2_Serial(realtype a, N_Vector x, N_Vector y, N_Vector z);
-/* y <- ax+y */
-static void Vaxpy_Serial(realtype a, N_Vector x, N_Vector y);
-/* x <- ax */
-static void VScaleBy_Serial(realtype a, N_Vector x);
+/* Private functions for special cases of vector operations */
+static void VCopy_Serial(N_Vector x, N_Vector z);                              /* z=x       */
+static void VSum_Serial(N_Vector x, N_Vector y, N_Vector z);                   /* z=x+y     */
+static void VDiff_Serial(N_Vector x, N_Vector y, N_Vector z);                  /* z=x-y     */
+static void VNeg_Serial(N_Vector x, N_Vector z);                               /* z=-x      */
+static void VScaleSum_Serial(realtype c, N_Vector x, N_Vector y, N_Vector z);  /* z=c(x+y)  */
+static void VScaleDiff_Serial(realtype c, N_Vector x, N_Vector y, N_Vector z); /* z=c(x-y)  */
+static void VLin1_Serial(realtype a, N_Vector x, N_Vector y, N_Vector z);      /* z=ax+y    */
+static void VLin2_Serial(realtype a, N_Vector x, N_Vector y, N_Vector z);      /* z=ax-y    */
+static void Vaxpy_Serial(realtype a, N_Vector x, N_Vector y);                  /* y <- ax+y */
+static void VScaleBy_Serial(realtype a, N_Vector x);                           /* x <- ax   */
+
+/* Private functions for special cases of vector array operations */
+static int VSumVectorArray_Serial(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z);                   /* Z=X+Y     */
+static int VDiffVectorArray_Serial(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z);                  /* Z=X-Y     */
+static int VScaleSumVectorArray_Serial(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z);  /* Z=c(X+Y)  */
+static int VScaleDiffVectorArray_Serial(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z); /* Z=c(X-Y)  */
+static int VLin1VectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z);      /* Z=aX+Y    */
+static int VLin2VectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z);      /* Z=aX-Y    */
+static int VaxpyVectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y);                   /* Y <- aX+Y */
 
 /*
  * -----------------------------------------------------------------
@@ -113,19 +112,19 @@ N_Vector N_VNewEmpty_Serial(sunindextype length)
   ops->nvconstrmask   = N_VConstrMask_Serial;
   ops->nvminquotient  = N_VMinQuotient_Serial;
 
-  /* fused vector operations */
-  ops->nvlinearcombination = N_VLinearCombination_Serial;
-  ops->nvscaleaddmulti     = N_VScaleAddMulti_Serial;
-  ops->nvdotprodmulti      = N_VDotProdMulti_Serial;
+  /* fused vector operations (optional, NULL means disabled by default) */
+  ops->nvlinearcombination = NULL;
+  ops->nvscaleaddmulti     = NULL;
+  ops->nvdotprodmulti      = NULL;
 
-  /* vector array operations */
-  ops->nvlinearsumvectorarray         = N_VLinearSumVectorArray_Serial;
-  ops->nvscalevectorarray             = N_VScaleVectorArray_Serial;
-  ops->nvconstvectorarray             = N_VConstVectorArray_Serial;
-  ops->nvwrmsnormvectorarray          = N_VWrmsNormVectorArray_Serial;
-  ops->nvwrmsnormmaskvectorarray      = N_VWrmsNormMaskVectorArray_Serial;
-  ops->nvscaleaddmultivectorarray     = N_VScaleAddMultiVectorArray_Serial;
-  ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Serial;
+  /* vector array operations (optional, NULL means disabled by default) */
+  ops->nvlinearsumvectorarray         = NULL;
+  ops->nvscalevectorarray             = NULL;
+  ops->nvconstvectorarray             = NULL;
+  ops->nvwrmsnormvectorarray          = NULL;
+  ops->nvwrmsnormmaskvectorarray      = NULL;
+  ops->nvscaleaddmultivectorarray     = NULL;
+  ops->nvlinearcombinationvectorarray = NULL;
 
   /* Create content */
   content = NULL;
@@ -1085,6 +1084,10 @@ int N_VLinearSumVectorArray_Serial(int nvec,
   realtype*    xd=NULL;
   realtype*    yd=NULL;
   realtype*    zd=NULL;
+  realtype     c;
+  N_Vector*    V1;
+  N_Vector*    V2;
+  booleantype  test;
 
   /* invalid number of vectors */
   if (nvec < 1) return(-1);
@@ -1094,6 +1097,62 @@ int N_VLinearSumVectorArray_Serial(int nvec,
     N_VLinearSum_Serial(a, X[0], b, Y[0], Z[0]);
     return(0);
   }
+
+  /* BLAS usage: axpy y <- ax+y */
+  if ((b == ONE) && (Z == Y))
+    return(VaxpyVectorArray_Serial(nvec, a, X, Y));
+
+  /* BLAS usage: axpy x <- by+x */
+  if ((a == ONE) && (Z == X))
+    return(VaxpyVectorArray_Serial(nvec, b, Y, X));
+
+  /* Case: a == b == 1.0 */
+  if ((a == ONE) && (b == ONE))
+    return(VSumVectorArray_Serial(nvec, X, Y, Z));
+
+  /* Cases:                    */
+  /*   (1) a == 1.0, b = -1.0, */
+  /*   (2) a == -1.0, b == 1.0 */
+  if ((test = ((a == ONE) && (b == -ONE))) || ((a == -ONE) && (b == ONE))) {
+    V1 = test ? Y : X;
+    V2 = test ? X : Y;
+    return(VDiffVectorArray_Serial(nvec, V2, V1, Z));
+  }
+
+  /* Cases:                                                  */
+  /*   (1) a == 1.0, b == other or 0.0,                      */
+  /*   (2) a == other or 0.0, b == 1.0                       */
+  /* if a or b is 0.0, then user should have called N_VScale */
+  if ((test = (a == ONE)) || (b == ONE)) {
+    c  = test ? b : a;
+    V1 = test ? Y : X;
+    V2 = test ? X : Y;
+    return(VLin1VectorArray_Serial(nvec, c, V1, V2, Z));
+  }
+
+  /* Cases:                     */
+  /*   (1) a == -1.0, b != 1.0, */
+  /*   (2) a != 1.0, b == -1.0  */
+  if ((test = (a == -ONE)) || (b == -ONE)) {
+    c = test ? b : a;
+    V1 = test ? Y : X;
+    V2 = test ? X : Y;
+    return(VLin2VectorArray_Serial(nvec, c, V1, V2, Z));
+  }
+
+  /* Case: a == b                                                         */
+  /* catches case both a and b are 0.0 - user should have called N_VConst */
+  if (a == b)
+    return(VScaleSumVectorArray_Serial(nvec, a, X, Y, Z));
+
+  /* Case: a == -b */
+  if (a == -b)
+    return(VScaleDiffVectorArray_Serial(nvec, a, X, Y, Z));
+
+  /* Do all cases not handled above:                               */
+  /*   (1) a == other, b == 0.0 - user should have called N_VScale */
+  /*   (2) a == 0.0, b == other - user should have called N_VScale */
+  /*   (3) a,b == other, a !=b, a != -b                            */
 
   /* get vector length */
   N = NV_LENGTH_S(Z[0]);
@@ -1494,7 +1553,7 @@ int N_VLinearCombinationVectorArray_Serial(int nvec, int nsum, realtype* c,
 
 /*
  * -----------------------------------------------------------------
- * private functions
+ * private functions for special cases of vector operations
  * -----------------------------------------------------------------
  */
 
@@ -1683,4 +1742,406 @@ static void VScaleBy_Serial(realtype a, N_Vector x)
     xd[i] *= a;
 
   return;
+}
+
+
+/*
+ * -----------------------------------------------------------------
+ * private functions for special cases of vector array operations
+ * -----------------------------------------------------------------
+ */
+
+static int VSumVectorArray_Serial(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z)
+{
+  int          i;
+  sunindextype j, N;
+  realtype*    xd=NULL;
+  realtype*    yd=NULL;
+  realtype*    zd=NULL;
+
+  N = NV_LENGTH_S(X[0]);
+
+  for (i=0; i<nvec; i++) {
+    xd = NV_DATA_S(X[i]);
+    yd = NV_DATA_S(Y[i]);
+    zd = NV_DATA_S(Z[i]);
+    for (j=0; j<N; j++)
+      zd[j] = xd[j] + yd[j];
+  }
+
+  return(0);
+}
+
+static int VDiffVectorArray_Serial(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z)
+{
+  int          i;
+  sunindextype j, N;
+  realtype*    xd=NULL;
+  realtype*    yd=NULL;
+  realtype*    zd=NULL;
+
+  N = NV_LENGTH_S(X[0]);
+
+  for (i=0; i<nvec; i++) {
+    xd = NV_DATA_S(X[i]);
+    yd = NV_DATA_S(Y[i]);
+    zd = NV_DATA_S(Z[i]);
+    for (j=0; j<N; j++)
+      zd[j] = xd[j] - yd[j];
+  }
+
+  return(0);
+}
+
+static int VScaleSumVectorArray_Serial(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z)
+{
+  int          i;
+  sunindextype j, N;
+  realtype*    xd=NULL;
+  realtype*    yd=NULL;
+  realtype*    zd=NULL;
+
+  N = NV_LENGTH_S(X[0]);
+
+  for (i=0; i<nvec; i++) {
+    xd = NV_DATA_S(X[i]);
+    yd = NV_DATA_S(Y[i]);
+    zd = NV_DATA_S(Z[i]);
+    for (j=0; j<N; j++)
+      zd[j] = c * (xd[j] + yd[j]);
+  }
+
+  return(0);
+}
+
+static int VScaleDiffVectorArray_Serial(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z)
+{
+  int          i;
+  sunindextype j, N;
+  realtype*    xd=NULL;
+  realtype*    yd=NULL;
+  realtype*    zd=NULL;
+
+  N = NV_LENGTH_S(X[0]);
+
+  for (i=0; i<nvec; i++) {
+    xd = NV_DATA_S(X[i]);
+    yd = NV_DATA_S(Y[i]);
+    zd = NV_DATA_S(Z[i]);
+    for (j=0; j<N; j++)
+      zd[j] = c * (xd[j] - yd[j]);
+  }
+
+  return(0);
+}
+
+static int VLin1VectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z)
+{
+  int          i;
+  sunindextype j, N;
+  realtype*    xd=NULL;
+  realtype*    yd=NULL;
+  realtype*    zd=NULL;
+
+  N = NV_LENGTH_S(X[0]);
+
+  for (i=0; i<nvec; i++) {
+    xd = NV_DATA_S(X[i]);
+    yd = NV_DATA_S(Y[i]);
+    zd = NV_DATA_S(Z[i]);
+    for (j=0; j<N; j++)
+      zd[j] = (a * xd[j]) + yd[j];
+  }
+
+  return(0);
+}
+
+static int VLin2VectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z)
+{
+  int          i;
+  sunindextype j, N;
+  realtype*    xd=NULL;
+  realtype*    yd=NULL;
+  realtype*    zd=NULL;
+
+  N = NV_LENGTH_S(X[0]);
+
+  for (i=0; i<nvec; i++) {
+    xd = NV_DATA_S(X[i]);
+    yd = NV_DATA_S(Y[i]);
+    zd = NV_DATA_S(Z[i]);
+    for (j=0; j<N; j++)
+      zd[j] = (a * xd[j]) - yd[j];
+  }
+
+  return(0);
+}
+
+static int VaxpyVectorArray_Serial(int nvec, realtype a, N_Vector* X, N_Vector* Y)
+{
+  int          i;
+  sunindextype j, N;
+  realtype*    xd=NULL;
+  realtype*    yd=NULL;
+
+  N = NV_LENGTH_S(X[0]);
+
+  if (a == ONE) {
+    for (i=0; i<nvec; i++) {
+      xd = NV_DATA_S(X[i]);
+      yd = NV_DATA_S(Y[i]);
+      for (j=0; j<N; j++)
+        yd[j] += xd[j];
+    }
+
+    return(0);
+  }
+
+  if (a == -ONE) {
+    for (i=0; i<nvec; i++) {
+      xd = NV_DATA_S(X[i]);
+      yd = NV_DATA_S(Y[i]);
+      for (j=0; j<N; j++)
+        yd[j] -= xd[j];
+    }
+
+    return(0);
+  }    
+
+  for (i=0; i<nvec; i++) {
+    xd = NV_DATA_S(X[i]);
+    yd = NV_DATA_S(Y[i]);
+    for (j=0; j<N; j++)
+      yd[j] += a * xd[j];
+  }
+
+  return(0);
+}
+
+
+/*
+ * -----------------------------------------------------------------
+ * Enable / Disable fused and vector array operations
+ * -----------------------------------------------------------------
+ */
+
+int N_VEnableFusedOps_Serial(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  if (tf) {
+    /* enable all fused vector operations */
+    v->ops->nvlinearcombination = N_VLinearCombination_Serial;
+    v->ops->nvscaleaddmulti     = N_VScaleAddMulti_Serial;
+    v->ops->nvdotprodmulti      = N_VDotProdMulti_Serial;
+    /* enable all vector array operations */
+    v->ops->nvlinearsumvectorarray         = N_VLinearSumVectorArray_Serial;
+    v->ops->nvscalevectorarray             = N_VScaleVectorArray_Serial;
+    v->ops->nvconstvectorarray             = N_VConstVectorArray_Serial;
+    v->ops->nvwrmsnormvectorarray          = N_VWrmsNormVectorArray_Serial;
+    v->ops->nvwrmsnormmaskvectorarray      = N_VWrmsNormMaskVectorArray_Serial;
+    v->ops->nvscaleaddmultivectorarray     = N_VScaleAddMultiVectorArray_Serial;
+    v->ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Serial;
+  } else {
+    /* disable all fused vector operations */
+    v->ops->nvlinearcombination = NULL;
+    v->ops->nvscaleaddmulti     = NULL;
+    v->ops->nvdotprodmulti      = NULL;
+    /* disable all vector array operations */
+    v->ops->nvlinearsumvectorarray         = NULL;
+    v->ops->nvscalevectorarray             = NULL;
+    v->ops->nvconstvectorarray             = NULL;
+    v->ops->nvwrmsnormvectorarray          = NULL;
+    v->ops->nvwrmsnormmaskvectorarray      = NULL;
+    v->ops->nvscaleaddmultivectorarray     = NULL;
+    v->ops->nvlinearcombinationvectorarray = NULL;
+  }
+
+  /* return success */
+  return(0);
+}
+
+
+int N_VEnableLinearCombination_Serial(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvlinearcombination = N_VLinearCombination_Serial;
+  else
+    v->ops->nvlinearcombination = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableScaleAddMulti_Serial(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvscaleaddmulti = N_VScaleAddMulti_Serial;
+  else
+    v->ops->nvscaleaddmulti = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableDotProdMulti_Serial(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvdotprodmulti = N_VDotProdMulti_Serial;
+  else
+    v->ops->nvdotprodmulti = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableLinearSumVectorArray_Serial(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvlinearsumvectorarray = N_VLinearSumVectorArray_Serial;
+  else
+    v->ops->nvlinearsumvectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableScaleVectorArray_Serial(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvscalevectorarray = N_VScaleVectorArray_Serial;
+  else
+    v->ops->nvscalevectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableConstVectorArray_Serial(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvconstvectorarray = N_VConstVectorArray_Serial;
+  else
+    v->ops->nvconstvectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableWrmsNormVectorArray_Serial(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvwrmsnormvectorarray = N_VWrmsNormVectorArray_Serial;
+  else
+    v->ops->nvwrmsnormvectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableWrmsNormMaskVectorArray_Serial(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvwrmsnormmaskvectorarray = N_VWrmsNormMaskVectorArray_Serial;
+  else
+    v->ops->nvwrmsnormmaskvectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableScaleAddMultiVectorArray_Serial(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvscaleaddmultivectorarray = N_VScaleAddMultiVectorArray_Serial;
+  else
+    v->ops->nvscaleaddmultivectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableLinearCombinationVectorArray_Serial(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Serial;
+  else
+    v->ops->nvlinearcombinationvectorarray = NULL;
+
+  /* return success */
+  return(0);
 }

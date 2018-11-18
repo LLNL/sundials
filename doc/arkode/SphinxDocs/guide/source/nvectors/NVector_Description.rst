@@ -106,12 +106,18 @@ module, namely ``N_VScale``, which performs the scaling of a vector
 The subsection :ref:`NVectors.Ops` contains a complete list of all
 standard vector operations defined by the generic NVECTOR module.  The
 subsections :ref:`NVectors.FusedOps` and :ref:`NVectors.ArrayOps` list
-*optional* fused and vector array operations respectively. These
-operations are intended to increase data reuse, reduce parallel communication on
-distributed memory systems, and lower the number of kernel launches on systems with
-accelerators. If a particular NVECTOR implementation defines one of the fused or
-vector array operations as ``NULL``, the NVECTOR interface will call one of the
-standard vector operations as necessary.
+*optional* fused and vector array operations respectively.
+
+Fused and vector array operations are intended to increase data reuse, reduce
+parallel communication on distributed memory systems, and lower the number of
+kernel launches on systems with accelerators. If a particular NVECTOR
+implementation defines a fused or vector array operation as ``NULL``, the
+generic NVECTOR module will automatically call standard vector operations as
+necessary to complete the desired operation. Currently, all fused and vector
+array operations are disabled by default however, SUNDIALS provided NVECTOR
+implementations define additional user-callable functions to enable/disable
+any or all of the fused and vector array operations. See the following sections
+for the implementation specific functions to enable/disable operations.
 
 Finally, we note that the generic NVECTOR module defines the functions
 ``N_VCloneVectorArray`` and ``N_VCloneVectorArrayEmpty``. Both

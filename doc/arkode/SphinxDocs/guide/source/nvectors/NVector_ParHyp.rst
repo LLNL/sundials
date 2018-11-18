@@ -56,7 +56,7 @@ the ``cvAdvDiff_non_ph.c`` example programs for CVODE and the
 The names of parhyp methods are obtained from those in the sections
 :ref:`NVectors.Ops`, :ref:`NVectors.FusedOps` and
 :ref:`NVectors.ArrayOps` by appending the suffix ``_ParHyp`` 
-(e.g. ``N_VDestroy_ParHyp``).  The module {\nvecph} provides the
+(e.g. ``N_VDestroy_ParHyp``).  The module NVECTOR_PARHYP provides the
 following additional user-callable routines:
 
 
@@ -106,6 +106,88 @@ following additional user-callable routines:
 
    This function prints the local content of a parhyp vector to ``outfile``.
 
+
+By default all fused and vector array operations are disabled in the NVECTOR_PARHYP
+module. The following additional user-callable routines are provided to
+enable or disable fused and vector array operations for a specific vector. To
+ensure consistency across vectors it is recommended to first create a vector
+with :c:func:`N_VMake_ParHyp`, enable/disable the desired operations for that vector
+with the functions below, and create any additional vectors from that vector
+using :c:func:`N_VClone`. This guarantees the new vectors will have the same
+operations enabled/disabled as cloned vectors inherit the same enable/disable
+options as the vector they are cloned from while vectors created with
+:c:func:`N_VMake_ParHyp` will have the default settings for the NVECTOR_PARHYP module.
+
+.. c:function:: void N_VEnableFusedOps_ParHyp(N_Vector v, booleantype tf)
+
+   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) all fused and
+   vector array operations in the parhyp vector. The return value is ``0`` for
+   success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
+   
+.. c:function:: void N_VEnableLinearCombination_ParHyp(N_Vector v, booleantype tf)
+
+   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear
+   combination fused operation in the parhyp vector. The return value is ``0`` for
+   success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
+
+.. c:function:: void N_VEnableScaleAddMulti_ParHyp(N_Vector v, booleantype tf)
+
+   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale and
+   add a vector to multiple vectors fused operation in the parhyp vector. The
+   return value is ``0`` for success and ``-1`` if the input vector or its
+   ``ops`` structure are ``NULL``.
+
+.. c:function:: void N_VEnableDotProdMulti_ParHyp(N_Vector v, booleantype tf)
+
+   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the multiple
+   dot products fused operation in the parhyp vector. The return value is ``0``
+   for success and ``-1`` if the input vector or its ``ops`` structure are
+   ``NULL``.
+
+.. c:function:: void N_VEnableLinearSumVectorArray_ParHyp(N_Vector v, booleantype tf)
+
+   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear sum
+   operation for vector arrays in the parhyp vector. The return value is ``0`` for
+   success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
+
+.. c:function:: void N_VEnableScaleVectorArray_ParHyp(N_Vector v, booleantype tf)
+
+   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale
+   operation for vector arrays in the parhyp vector. The return value is ``0`` for
+   success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
+
+.. c:function:: void N_VEnableConstVectorArray_ParHyp(N_Vector v, booleantype tf)
+
+   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the const
+   operation for vector arrays in the parhyp vector. The return value is ``0`` for
+   success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
+
+.. c:function:: void N_VEnableWrmsNormVectorArray_ParHyp(N_Vector v, booleantype tf)
+
+   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the WRMS norm
+   operation for vector arrays in the parhyp vector. The return value is ``0`` for
+   success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
+
+.. c:function:: void N_VEnableWrmsNormMaskVectorArray_ParHyp(N_Vector v, booleantype tf)
+
+   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the masked WRMS
+   norm operation for vector arrays in the parhyp vector. The return value is
+   ``0`` for success and ``-1`` if the input vector or its ``ops`` structure are
+   ``NULL``.
+
+.. c:function:: void N_VEnableScaleAddMultiVectorArray_ParHyp(N_Vector v, booleantype tf)
+
+   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale and
+   add a vector array to multiple vector arrays operation in the parhyp vector. The
+   return value is ``0`` for success and ``-1`` if the input vector or its
+   ``ops`` structure are ``NULL``.
+
+.. c:function:: void N_VEnableLinearCombinationVectorArray_ParHyp(N_Vector v, booleantype tf)
+
+   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear
+   combination operation for vector arrays in the parhyp vector. The return value
+   is ``0`` for success and ``-1`` if the input vector or its ``ops`` structure
+   are ``NULL``. 
     
 
 **Notes**

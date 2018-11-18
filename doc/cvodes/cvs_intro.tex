@@ -117,19 +117,7 @@ writing in C|)}
 
 \section{Changes from previous versions}
 
-\subsection*{Changes in v4.0.0-dev.2}
-
-{\cvodes} has been updated to use the {\sunnonlinsol} API. By default {\cvodes}
-uses the {\sunnonlinsolnewton} module implementation of a Newton iteration. With
-the introduction of {\sunnonlinsol} modules, the input parameter \id{iter}
-to \id{CVodeCreate} has been removed as well as the constants \id{CV\_NEWTON}
-and \id{CV\_FUNCTIONAL}. User-supplied or non-default nonlinear solvers may be
-attached to {\cvodes} via the \id{CVodeSetNonlinearSolver} function. As a result
-of this new nonlinear solver object creation and attachment approach, the
-function \id{CVodeSetIterType} has been removed. {\cvodes} functions for
-setting the nonlinear solver options (e.g., \id{CVodeSetMaxNonlinIters}) or
-getting nonlinear solver statistics (e.g., \id{CVodeGetNumNonlinSolvIters})
-remain unchanged and internally call generic {\sunnonlinsol} functions.
+\subsection*{Changes in v4.0.0}
 
 The names of all constructor routines for {\sundials}-provided
 {\sunlinsol} implementations have been updated to
@@ -144,36 +132,60 @@ The names of all constructor routines for {\sundials}-provided
 \id{SUNLinSol\_SPGMR},
 \id{SUNLinSol\_SPTFQMR}, and
 \id{SUNLinSol\_SuperLUMT}.  Solver-specific ``set'' routine names have
-been similarly standardized.  While the previous routine names may
-still be used, these will be deprecated in future releases, so we
-recommend that users migrate to the new names soon.
+been similarly standardized.  To minimize challenges in user migration
+to the new names, the previous routine names may still be used; these
+will be deprecated in future releases, so we recommend that users
+migrate to the new names soon.
 
-\subsection*{Changes in v4.0.0-dev.1}
+{\sundials} integrators have been updated to utilize generic nonlinear solver
+modules defined through the {\sunnonlinsol} API. This API will ease the addition
+of new nonlinear solver options and allow for external or user-supplied
+nonlinear solvers. The {\sunnonlinsol} API and {\sundials} provided modules are
+described in Chapter~\ref{c:sunnonlinsol} and follow the same object oriented
+design and implementation used by the {\nvector}, {\sunmatrix}, and {\sunlinsol}
+modules. Currently two {\sunnonlinsol} implementations are provided,
+{\sunnonlinsolnewton} and {\sunnonlinsolfixedpoint}. These replicate the
+previous integrator specific implementations of a Newton iteration and a
+fixed-point iteration (previously referred to as a functional iteration),
+respectively. Note the {\sunnonlinsolfixedpoint} module can optionally utilize
+Anderson's method to accelerate convergence. Example programs using each of
+these nonlinear solver modules in a standalone manner have been added and all
+{\cvodes} example programs have been updated to use generic {\sunnonlinsol}
+modules.
 
-No changes were made to {\cvodes} in this release.
+With the introduction of {\sunnonlinsol} modules, the input parameter \id{iter}
+to \id{CVodeCreate} has been removed along with the function
+\id{CVodeSetIterType} and the constants \id{CV\_NEWTON} and \id{CV\_FUNCTIONAL}.
+Instead of specifying the nonlinear iteration type when creating the {\cvodes}
+memory structure, {\cvodes} uses the {\sunnonlinsolnewton} module implementation
+of a Newton iteration by default. For details on using a non-default or
+user-supplied nonlinear solver see Chapters~\ref{s:simulation}, \ref{s:forward},
+and \ref{s:adjoint}. {\cvodes} functions for setting the nonlinear solver
+options (e.g., \id{CVodeSetMaxNonlinIters}) or getting nonlinear solver
+statistics (e.g., \id{CVodeGetNumNonlinSolvIters}) remain unchanged and
+internally call generic {\sunnonlinsol} functions as needed.
 
-\subsection*{Changes in v4.0.0-dev}
-
-Three fused vector operations and seven vector array operations have
-been added to the {\nvector} API. These \textit{optional} operations
-are intended to increase data reuse in vector operations, reduce
-parallel communication on distributed memory systems, and lower the
-number of kernel launches on systems with accelerators. The new
-operations are
+Three fused vector operations and seven vector array operations have been added
+to the {\nvector} API. These \textit{optional} operations are disabled by
+default and may be activated by calling vector specific routines after creating
+an {\nvector} (see Chapter \ref{s:nvector} for more details). The new operations
+are intended to increase data reuse in vector operations, reduce parallel
+communication on distributed memory systems, and lower the number of kernel
+launches on systems with accelerators. The fused operations are
 \id{N\_VLinearCombination},
-\id{N\_VScaleAddMulti},
-\id{N\_VDotProdMulti},
+\id{N\_VScaleAddMulti}, and
+\id{N\_VDotProdMulti}
+and the vector array operations are
 \id{N\_VLinearCombinationVectorArray},
 \id{N\_VScaleVectorArray},
-\id{N\_VConstVectorArray},\\
+\id{N\_VConstVectorArray},
 \id{N\_VWrmsNormVectorArray},
 \id{N\_VWrmsNormMaskVectorArray},
 \id{N\_VScaleAddMultiVectorArray}, and\\
 \id{N\_VLinearCombinationVectorArray}.
-If any of these operations are defined as \id{NULL} in an {\nvector}
-implementation the {\nvector} interface will automatically call
-standard {\nvector} operations as necessary. Details on the new
-operations can be found in Chapter \ref{s:nvector}.
+If an {\nvector} implementation defines any of these operations as \id{NULL},
+then standard {\nvector} operations will automatically be called as necessary to
+complete the computation.
 
 \subsection*{Changes in v3.2.1}
 

@@ -171,6 +171,18 @@ typedef struct _N_VectorContent_Parallel *N_VectorContent_Parallel;
  * DESTRUCTORS:
  *    N_VDestroy_Parallel
  *    N_VDestroyVectorArray_Parallel
+ * ENABLE/DISABLE FUSED OPS:
+ *    N_VEnableFusedOps_Parallel
+ *    N_VEnableLinearCombination_Parallel
+ *    N_VEnableScaleAddMulti_Parallel
+ *    N_VEnableDotProdMulti_Parallel
+ *    N_VEnableLinearSumVectorArray_Parallel
+ *    N_VEnableScaleVectorArray_Parallel
+ *    N_VEnableConstVectorArray_Parallel
+ *    N_VEnableWrmsNormVectorArray_Parallel
+ *    N_VEnableWrmsNormMaskVectorArray_Parallel
+ *    N_VEnableScaleAddMultiVectorArray_Parallel
+ *    N_VEnableLinearCombinationVectorArray_Parallel
  * OTHER:
  *    N_VGetLength_Parallel
  *    N_VGetLocalLength_Parallel
@@ -361,6 +373,26 @@ SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_Parallel(int nvec, int nsum,
                                                              realtype* c,
                                                              N_Vector** X,
                                                              N_Vector* Z);
+
+/*
+ * -----------------------------------------------------------------
+ * Enable / disable fused vector operations
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int N_VEnableFusedOps_Parallel(N_Vector v, booleantype tf);
+
+SUNDIALS_EXPORT int N_VEnableLinearCombination_Parallel(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMulti_Parallel(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableDotProdMulti_Parallel(N_Vector v, booleantype tf);
+
+SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_Parallel(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleVectorArray_Parallel(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableConstVectorArray_Parallel(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_Parallel(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_Parallel(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_Parallel(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_Parallel(N_Vector v, booleantype tf);
 
 #ifdef __cplusplus
 }

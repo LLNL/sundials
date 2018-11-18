@@ -19,10 +19,8 @@
 
 # Examples using SUNDIALS parallel hypre nvector
 SET(nvector_parhyp_examples
-  "test_nvector_parhyp\;\;\;\;"          # run sequentially
-  "test_nvector_parhyp\;1000 0\;\;\;"    # run sequentially with arguments
-  "test_nvector_parhyp\;\;1\;4\;"        # run parallel on 4 procs
-  "test_nvector_parhyp\;10000 0\;1\;4\;" # run parallel on 4 procs with arguments
+  "test_nvector_parhyp\;1000 0\;\;\;"   # run sequentially
+  "test_nvector_parhyp\;1000 0\;1\;4\;" # run parallel on 4 procs
   )
 
 # Dependencies for nvector examples

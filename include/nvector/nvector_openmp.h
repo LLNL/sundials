@@ -154,6 +154,18 @@ typedef struct _N_VectorContent_OpenMP *N_VectorContent_OpenMP;
  * DESTRUCTORS:
  *    N_VDestroy_OpenMP
  *    N_VDestroyVectorArray_OpenMP
+ * ENABLE/DISABLE FUSED OPS:
+ *    N_VEnableFusedOps_OpenMP
+ *    N_VEnableLinearCombination_OpenMP
+ *    N_VEnableScaleAddMulti_OpenMP
+ *    N_VEnableDotProdMulti_OpenMP
+ *    N_VEnableLinearSumVectorArray_OpenMP
+ *    N_VEnableScaleVectorArray_OpenMP
+ *    N_VEnableConstVectorArray_OpenMP
+ *    N_VEnableWrmsNormVectorArray_OpenMP
+ *    N_VEnableWrmsNormMaskVectorArray_OpenMP
+ *    N_VEnableScaleAddMultiVectorArray_OpenMP
+ *    N_VEnableLinearCombinationVectorArray_OpenMP
  * OTHER:
  *    N_VGetLength_OpenMP
  *    N_VPrint_OpenMP
@@ -322,6 +334,27 @@ SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_OpenMP(int nvec, int nsum,
                                                            realtype* c,
                                                            N_Vector** X,
                                                            N_Vector* Z);
+
+
+/*
+ * -----------------------------------------------------------------
+ * Enable / disable fused vector operations
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int N_VEnableFusedOps_OpenMP(N_Vector v, booleantype tf);
+
+SUNDIALS_EXPORT int N_VEnableLinearCombination_OpenMP(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMulti_OpenMP(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableDotProdMulti_OpenMP(N_Vector v, booleantype tf);
+
+SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_OpenMP(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleVectorArray_OpenMP(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableConstVectorArray_OpenMP(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_OpenMP(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_OpenMP(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_OpenMP(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_OpenMP(N_Vector v, booleantype tf);
 
 #ifdef __cplusplus
 }

@@ -205,6 +205,135 @@ N_Vector N_VMake_Pthreads(sunindextype vec_length, realtype *v_data,
  \verb|void N_VPrintFile_Pthreads(N_Vector v, FILE *outfile);|
 
 \end{itemize}
+By default all fused and vector array operations are disabled in the {\nvecpthreads}
+module. The following additional user-callable routines are provided to
+enable or disable fused and vector array operations for a specific vector. To
+ensure consistency across vectors it is recommended to first create a vector
+with \id{N\_VNew\_Pthreads}, enable/disable the desired operations for that vector
+with the functions below, and create any additional vectors from that vector
+using \id{N\_VClone}. This guarantees the new vectors will have the same
+operations enabled/disabled as cloned vectors inherit the same enable/disable
+options as the vector they are cloned from while vectors created with
+\id{N\_VNew\_Pthreads} will have the default settings for the {\nvecpthreads} module.
+\begin{itemize}
+
+%%--------------------------------------
+
+\item \ID{N\_VEnableFusedOps\_Pthreads}
+
+This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) all fused and
+vector array operations in the Pthreads vector. The return value is \id{0} for
+success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+
+\verb|int N_VEnableFusedOps_Pthreads(N_Vector v, booleantype tf);|
+
+%%--------------------------------------
+
+\item \ID{N\_VEnableLinearCombination\_Pthreads}
+
+This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear
+combination fused operation in the Pthreads vector. The return value is \id{0} for
+success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+
+\verb|int N_VEnableLinearCombination_Pthreads(N_Vector v, booleantype tf);|
+
+%%--------------------------------------
+
+\item \ID{N\_VEnableScaleAddMulti\_Pthreads}
+
+This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale and
+add a vector to multiple vectors fused operation in the Pthreads vector. The
+return value is \id{0} for success and \id{-1} if the input vector or its
+\id{ops} structure are \id{NULL}.
+
+\verb|int N_VEnableScaleAddMulti_Pthreads(N_Vector v, booleantype tf);|
+
+%%--------------------------------------
+
+\item \ID{N\_VEnableDotProdMulti\_Pthreads}
+
+This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the multiple
+dot products fused operation in the Pthreads vector. The return value is \id{0}
+for success and \id{-1} if the input vector or its \id{ops} structure are
+\id{NULL}.
+
+\verb|int N_VEnableDotProdMulti_Pthreads(N_Vector v, booleantype tf);|
+
+%%--------------------------------------
+
+\item \ID{N\_VEnableLinearSumVectorArray\_Pthreads}
+
+This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear sum
+operation for vector arrays in the Pthreads vector. The return value is \id{0} for
+success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+
+\verb|int N_VEnableLinearSumVectorArray_Pthreads(N_Vector v, booleantype tf);|
+
+%%--------------------------------------
+
+\item \ID{N\_VEnableScaleVectorArray\_Pthreads}
+
+This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale
+operation for vector arrays in the Pthreads vector. The return value is \id{0} for
+success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+
+\verb|int N_VEnableScaleVectorArray_Pthreads(N_Vector v, booleantype tf);|
+
+%%--------------------------------------
+
+\item \ID{N\_VEnableConstVectorArray\_Pthreads}
+
+This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the const
+operation for vector arrays in the Pthreads vector. The return value is \id{0} for
+success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+
+\verb|int N_VEnableConstVectorArray_Pthreads(N_Vector v, booleantype tf);|
+
+%%--------------------------------------
+
+\item \ID{N\_VEnableWrmsNormVectorArray\_Pthreads}
+
+This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the WRMS norm
+operation for vector arrays in the Pthreads vector. The return value is \id{0} for
+success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+
+\verb|int N_VEnableWrmsNormVectorArray_Pthreads(N_Vector v, booleantype tf);|
+
+%%--------------------------------------
+
+\item \ID{N\_VEnableWrmsNormMaskVectorArray\_Pthreads}
+
+This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the masked WRMS
+norm operation for vector arrays in the Pthreads vector. The return value is
+\id{0} for success and \id{-1} if the input vector or its \id{ops} structure are
+\id{NULL}.
+
+\verb|int N_VEnableWrmsNormMaskVectorArray_Pthreads(N_Vector v, booleantype tf);|
+
+%%--------------------------------------
+
+\item \ID{N\_VEnableScaleAddMultiVectorArray\_Pthreads}
+
+This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale and
+add a vector array to multiple vector arrays operation in the Pthreads vector. The
+return value is \id{0} for success and \id{-1} if the input vector or its
+\id{ops} structure are \id{NULL}.
+
+\verb|int N_VEnableScaleAddMultiVectorArray_Pthreads(N_Vector v, booleantype tf);|
+
+%%--------------------------------------
+
+\item \ID{N\_VEnableLinearCombinationVectorArray\_Pthreads}
+
+This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear
+combination operation for vector arrays in the Pthreads vector. The return value
+is \id{0} for success and \id{-1} if the input vector or its \id{ops} structure
+are \id{NULL}.
+
+\verb|int N_VEnableLinearCombinationVectorArray_Pthreads(N_Vector v, booleantype tf);|
+
+%%--------------------------------------
+\end{itemize}
 %%
 %%------------------------------------
 %%

@@ -92,19 +92,19 @@ N_Vector N_VNewEmpty_Cuda(sunindextype length)
   ops->nvconstrmask   = N_VConstrMask_Cuda;
   ops->nvminquotient  = N_VMinQuotient_Cuda;
 
-  /* fused vector operations */
-  ops->nvlinearcombination = N_VLinearCombination_Cuda;
-  ops->nvscaleaddmulti     = N_VScaleAddMulti_Cuda;
-  ops->nvdotprodmulti      = NULL; // N_VDotProdMulti_Cuda;
+  /* fused vector operations (optional, NULL means disabled by default) */
+  ops->nvlinearcombination = NULL;
+  ops->nvscaleaddmulti     = NULL;
+  ops->nvdotprodmulti      = NULL;
 
-  /* vector array operations */
-  ops->nvlinearsumvectorarray         = N_VLinearSumVectorArray_Cuda;
-  ops->nvscalevectorarray             = N_VScaleVectorArray_Cuda;
-  ops->nvconstvectorarray             = N_VConstVectorArray_Cuda;
-  ops->nvwrmsnormvectorarray          = NULL; // N_VWrmsNormVectorArray_Cuda;
-  ops->nvwrmsnormmaskvectorarray      = NULL; // N_VWrmsNormMaskVectorArray_Cuda;
-  ops->nvscaleaddmultivectorarray     = N_VScaleAddMultiVectorArray_Cuda;
-  ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Cuda;
+  /* vector array operations (optional, NULL means disabled by default) */
+  ops->nvlinearsumvectorarray         = NULL;
+  ops->nvscalevectorarray             = NULL;
+  ops->nvconstvectorarray             = NULL;
+  ops->nvwrmsnormvectorarray          = NULL;
+  ops->nvwrmsnormmaskvectorarray      = NULL;
+  ops->nvscaleaddmultivectorarray     = NULL;
+  ops->nvlinearcombinationvectorarray = NULL;
 
   /* Attach ops and set content to NULL */
   v->content = NULL;
@@ -818,6 +818,234 @@ int N_VLinearCombinationVectorArray_Cuda(int nvec, int nsum, realtype* c,
   delete[] Zv;
 
   return err == cudaSuccess ? 0 : -1;
+}
+
+
+/*
+ * -----------------------------------------------------------------
+ * Enable / Disable fused and vector array operations
+ * -----------------------------------------------------------------
+ */
+
+int N_VEnableFusedOps_Cuda(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  if (tf) {
+    /* enable all fused vector operations */
+    v->ops->nvlinearcombination = N_VLinearCombination_Cuda;
+    v->ops->nvscaleaddmulti     = N_VScaleAddMulti_Cuda;
+    v->ops->nvdotprodmulti      = N_VDotProdMulti_Cuda;
+    /* enable all vector array operations */
+    v->ops->nvlinearsumvectorarray         = N_VLinearSumVectorArray_Cuda;
+    v->ops->nvscalevectorarray             = N_VScaleVectorArray_Cuda;
+    v->ops->nvconstvectorarray             = N_VConstVectorArray_Cuda;
+    v->ops->nvwrmsnormvectorarray          = N_VWrmsNormVectorArray_Cuda;
+    v->ops->nvwrmsnormmaskvectorarray      = N_VWrmsNormMaskVectorArray_Cuda;
+    v->ops->nvscaleaddmultivectorarray     = N_VScaleAddMultiVectorArray_Cuda;
+    v->ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Cuda;
+  } else {
+    /* disable all fused vector operations */
+    v->ops->nvlinearcombination = NULL;
+    v->ops->nvscaleaddmulti     = NULL;
+    v->ops->nvdotprodmulti      = NULL;
+    /* disable all vector array operations */
+    v->ops->nvlinearsumvectorarray         = NULL;
+    v->ops->nvscalevectorarray             = NULL;
+    v->ops->nvconstvectorarray             = NULL;
+    v->ops->nvwrmsnormvectorarray          = NULL;
+    v->ops->nvwrmsnormmaskvectorarray      = NULL;
+    v->ops->nvscaleaddmultivectorarray     = NULL;
+    v->ops->nvlinearcombinationvectorarray = NULL;
+  }
+
+  /* return success */
+  return(0);
+}
+
+
+int N_VEnableLinearCombination_Cuda(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvlinearcombination = N_VLinearCombination_Cuda;
+  else
+    v->ops->nvlinearcombination = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableScaleAddMulti_Cuda(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvscaleaddmulti = N_VScaleAddMulti_Cuda;
+  else
+    v->ops->nvscaleaddmulti = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableDotProdMulti_Cuda(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvdotprodmulti = N_VDotProdMulti_Cuda;
+  else
+    v->ops->nvdotprodmulti = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableLinearSumVectorArray_Cuda(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvlinearsumvectorarray = N_VLinearSumVectorArray_Cuda;
+  else
+    v->ops->nvlinearsumvectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableScaleVectorArray_Cuda(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvscalevectorarray = N_VScaleVectorArray_Cuda;
+  else
+    v->ops->nvscalevectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableConstVectorArray_Cuda(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvconstvectorarray = N_VConstVectorArray_Cuda;
+  else
+    v->ops->nvconstvectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableWrmsNormVectorArray_Cuda(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvwrmsnormvectorarray = N_VWrmsNormVectorArray_Cuda;
+  else
+    v->ops->nvwrmsnormvectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableWrmsNormMaskVectorArray_Cuda(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvwrmsnormmaskvectorarray = N_VWrmsNormMaskVectorArray_Cuda;
+  else
+    v->ops->nvwrmsnormmaskvectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableScaleAddMultiVectorArray_Cuda(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvscaleaddmultivectorarray = N_VScaleAddMultiVectorArray_Cuda;
+  else
+    v->ops->nvscaleaddmultivectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableLinearCombinationVectorArray_Cuda(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Cuda;
+  else
+    v->ops->nvlinearcombinationvectorarray = NULL;
+
+  /* return success */
+  return(0);
 }
 
 } // extern "C"

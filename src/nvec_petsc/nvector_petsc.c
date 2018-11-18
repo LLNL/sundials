@@ -30,11 +30,7 @@
 #define ONE    RCONST(1.0)
 #define ONEPT5 RCONST(1.5)
 
-
-
 /* Error Message */
-
-
 #define BAD_N1 "N_VNewEmpty_Petsc -- Sum of local vector lengths differs from "
 #define BAD_N2 "input global length. \n\n"
 #define BAD_N   BAD_N1 BAD_N2
@@ -176,19 +172,19 @@ N_Vector N_VNewEmpty_Petsc(MPI_Comm comm,
   ops->nvconstrmask   = N_VConstrMask_Petsc;
   ops->nvminquotient  = N_VMinQuotient_Petsc;
 
-  /* fused vector operations */
-  ops->nvlinearcombination = N_VLinearCombination_Petsc;
-  ops->nvscaleaddmulti     = N_VScaleAddMulti_Petsc;
-  ops->nvdotprodmulti      = N_VDotProdMulti_Petsc;
+  /* fused vector operations (optional, NULL means disabled by default) */
+  ops->nvlinearcombination = NULL;
+  ops->nvscaleaddmulti     = NULL;
+  ops->nvdotprodmulti      = NULL;
 
-  /* vector array operations */
-  ops->nvlinearsumvectorarray         = N_VLinearSumVectorArray_Petsc;
-  ops->nvscalevectorarray             = N_VScaleVectorArray_Petsc;
-  ops->nvconstvectorarray             = N_VConstVectorArray_Petsc;
-  ops->nvwrmsnormvectorarray          = N_VWrmsNormVectorArray_Petsc;
-  ops->nvwrmsnormmaskvectorarray      = N_VWrmsNormMaskVectorArray_Petsc;
-  ops->nvscaleaddmultivectorarray     = N_VScaleAddMultiVectorArray_Petsc;
-  ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Petsc;
+  /* vector array operations (optional, NULL means disabled by default) */
+  ops->nvlinearsumvectorarray         = NULL;
+  ops->nvscalevectorarray             = NULL;
+  ops->nvconstvectorarray             = NULL;
+  ops->nvwrmsnormvectorarray          = NULL;
+  ops->nvwrmsnormmaskvectorarray      = NULL;
+  ops->nvscaleaddmultivectorarray     = NULL;
+  ops->nvlinearcombinationvectorarray = NULL;
 
   /* Create content */
   content = NULL;
@@ -1171,7 +1167,7 @@ int N_VConstVectorArray_Petsc(int nvec, realtype c, N_Vector* Z)
 
 int N_VWrmsNormVectorArray_Petsc(int nvec, N_Vector* X, N_Vector* W, realtype* nrm)
 {
-  int          i, ier;
+  int          i;
   sunindextype j, Nl, Ng;
   realtype*    wd=NULL;
   realtype*    xd=NULL;
@@ -1214,7 +1210,7 @@ int N_VWrmsNormVectorArray_Petsc(int nvec, N_Vector* X, N_Vector* W, realtype* n
 int N_VWrmsNormMaskVectorArray_Petsc(int nvec, N_Vector* X, N_Vector* W,
                                         N_Vector id, realtype* nrm)
 {
-  int          i, ier;
+  int          i;
   sunindextype j, Nl, Ng;
   PetscScalar  *wd, *xd, *idd;
   MPI_Comm     comm;
@@ -1495,5 +1491,232 @@ int N_VLinearCombinationVectorArray_Petsc(int nvec, int nsum,
     }
     VecRestoreArray(NV_PVEC_PTC(Z[j]), &zd);
   }
+  return(0);
+}
+
+/*
+ * -----------------------------------------------------------------
+ * Enable / Disable fused and vector array operations
+ * -----------------------------------------------------------------
+ */
+
+int N_VEnableFusedOps_Petsc(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  if (tf) {
+    /* enable all fused vector operations */
+    v->ops->nvlinearcombination = N_VLinearCombination_Petsc;
+    v->ops->nvscaleaddmulti     = N_VScaleAddMulti_Petsc;
+    v->ops->nvdotprodmulti      = N_VDotProdMulti_Petsc;
+    /* enable all vector array operations */
+    v->ops->nvlinearsumvectorarray         = N_VLinearSumVectorArray_Petsc;
+    v->ops->nvscalevectorarray             = N_VScaleVectorArray_Petsc;
+    v->ops->nvconstvectorarray             = N_VConstVectorArray_Petsc;
+    v->ops->nvwrmsnormvectorarray          = N_VWrmsNormVectorArray_Petsc;
+    v->ops->nvwrmsnormmaskvectorarray      = N_VWrmsNormMaskVectorArray_Petsc;
+    v->ops->nvscaleaddmultivectorarray     = N_VScaleAddMultiVectorArray_Petsc;
+    v->ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Petsc;
+  } else {
+    /* disable all fused vector operations */
+    v->ops->nvlinearcombination = NULL;
+    v->ops->nvscaleaddmulti     = NULL;
+    v->ops->nvdotprodmulti      = NULL;
+    /* disable all vector array operations */
+    v->ops->nvlinearsumvectorarray         = NULL;
+    v->ops->nvscalevectorarray             = NULL;
+    v->ops->nvconstvectorarray             = NULL;
+    v->ops->nvwrmsnormvectorarray          = NULL;
+    v->ops->nvwrmsnormmaskvectorarray      = NULL;
+    v->ops->nvscaleaddmultivectorarray     = NULL;
+    v->ops->nvlinearcombinationvectorarray = NULL;
+  }
+
+  /* return success */
+  return(0);
+}
+
+
+int N_VEnableLinearCombination_Petsc(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvlinearcombination = N_VLinearCombination_Petsc;
+  else
+    v->ops->nvlinearcombination = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableScaleAddMulti_Petsc(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvscaleaddmulti = N_VScaleAddMulti_Petsc;
+  else
+    v->ops->nvscaleaddmulti = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableDotProdMulti_Petsc(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvdotprodmulti = N_VDotProdMulti_Petsc;
+  else
+    v->ops->nvdotprodmulti = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableLinearSumVectorArray_Petsc(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvlinearsumvectorarray = N_VLinearSumVectorArray_Petsc;
+  else
+    v->ops->nvlinearsumvectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableScaleVectorArray_Petsc(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvscalevectorarray = N_VScaleVectorArray_Petsc;
+  else
+    v->ops->nvscalevectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableConstVectorArray_Petsc(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvconstvectorarray = N_VConstVectorArray_Petsc;
+  else
+    v->ops->nvconstvectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableWrmsNormVectorArray_Petsc(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvwrmsnormvectorarray = N_VWrmsNormVectorArray_Petsc;
+  else
+    v->ops->nvwrmsnormvectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableWrmsNormMaskVectorArray_Petsc(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvwrmsnormmaskvectorarray = N_VWrmsNormMaskVectorArray_Petsc;
+  else
+    v->ops->nvwrmsnormmaskvectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableScaleAddMultiVectorArray_Petsc(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvscaleaddmultivectorarray = N_VScaleAddMultiVectorArray_Petsc;
+  else
+    v->ops->nvscaleaddmultivectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableLinearCombinationVectorArray_Petsc(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Petsc;
+  else
+    v->ops->nvlinearcombinationvectorarray = NULL;
+
+  /* return success */
   return(0);
 }

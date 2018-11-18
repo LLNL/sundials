@@ -81,6 +81,18 @@ typedef struct _N_VectorContent_Raja *N_VectorContent_Raja;
  *    N_VMake_Raja
  * DESTRUCTORS:
  *    N_VDestroy_Raja
+ * ENABLE/DISABLE FUSED OPS:
+ *    N_VEnableFusedOps_Raja
+ *    N_VEnableLinearCombination_Raja
+ *    N_VEnableScaleAddMulti_Raja
+ *    N_VEnableDotProdMulti_Raja
+ *    N_VEnableLinearSumVectorArray_Raja
+ *    N_VEnableScaleVectorArray_Raja
+ *    N_VEnableConstVectorArray_Raja
+ *    N_VEnableWrmsNormVectorArray_Raja
+ *    N_VEnableWrmsNormMaskVectorArray_Raja
+ *    N_VEnableScaleAddMultiVectorArray_Raja
+ *    N_VEnableLinearCombinationVectorArray_Raja
  * OTHER:
  *    N_VGetLength_Raja
  *    N_VGetHostArrayPointer_Raja
@@ -250,6 +262,25 @@ SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_Raja(int nvec, int nsum,
                                                          realtype* c,
                                                          N_Vector** X,
                                                          N_Vector* Z);
+
+
+/*
+ * -----------------------------------------------------------------
+ * Enable / disable fused vector operations
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int N_VEnableFusedOps_Raja(N_Vector v, booleantype tf);
+
+SUNDIALS_EXPORT int N_VEnableLinearCombination_Raja(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMulti_Raja(N_Vector v, booleantype tf);
+
+SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_Raja(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleVectorArray_Raja(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableConstVectorArray_Raja(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_Raja(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_Raja(N_Vector v, booleantype tf);
+
 #ifdef __cplusplus
 }
 #endif

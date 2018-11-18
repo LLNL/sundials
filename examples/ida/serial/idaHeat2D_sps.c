@@ -347,7 +347,6 @@ int jacHeat(realtype tt,  realtype cj,
             SUNMatrix JJ, void *user_data,
             N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
 {
-  realtype *yval;
   realtype dx =  ONE/(MGRID - ONE);
   realtype beta = RCONST(4.0)/(dx*dx) + cj;
   int i,j, repeat=0;
@@ -355,8 +354,6 @@ int jacHeat(realtype tt,  realtype cj,
   sunindextype *colptrs = SUNSparseMatrix_IndexPointers(JJ);
   sunindextype *rowvals = SUNSparseMatrix_IndexValues(JJ);
   realtype *data = SUNSparseMatrix_Data(JJ);
-
-  yval = N_VGetArrayPointer(yy);
 
   SUNMatZero(JJ);
 

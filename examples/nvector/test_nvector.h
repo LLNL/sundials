@@ -42,6 +42,14 @@ extern "C" {
   booleantype has_data(N_Vector X);
   void set_element(N_Vector X, sunindextype i, realtype val);
   realtype get_element(N_Vector X, sunindextype i);
+  double max_time(N_Vector X, double time);
+  void sync_device();
+
+  /* Vector ID test */
+  int Test_N_VGetVectorID(N_Vector X, N_Vector_ID ID, int myid);
+
+  /* Vector constructor tests */
+  int Test_N_VMake(N_Vector X, sunindextype local_length, int myid);
 
   /* Vector clone tests */
   int Test_N_VCloneVectorArray(int count, N_Vector W, sunindextype local_length, int myid);
@@ -95,7 +103,7 @@ extern "C" {
   int Test_N_VScaleAddMultiVectorArray(N_Vector X, sunindextype local_length, int myid);
   int Test_N_VLinearCombinationVectorArray(N_Vector X, sunindextype local_length, int myid);
 
-  void SetTiming(int onoff);
+  void SetTiming(int onoff, int myid);
   
 #ifdef __cplusplus
 }

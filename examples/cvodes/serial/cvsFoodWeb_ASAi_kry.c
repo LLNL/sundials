@@ -744,7 +744,7 @@ static int PrecondB(realtype t, N_Vector c,
    for (ig = 0; ig < ngrp; ig++) {
      denseAddIdentity(P[ig], mp);
      denseretval = denseGETRF(P[ig], mp, mp, pivot[ig]);
-     if (retval != 0) return(1);
+     if (denseretval != 0) return(1);
    }
 
   *jcurPtr = SUNTRUE;

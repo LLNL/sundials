@@ -141,7 +141,135 @@ N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count, N_Vector w);
   \verb|void N_VPrintFile_ParHyp(N_Vector v, FILE *outfile);|
 
 \end{itemize}
+By default all fused and vector array operations are disabled in the {\nvecph}
+module. The following additional user-callable routines are provided to
+enable or disable fused and vector array operations for a specific vector. To
+ensure consistency across vectors it is recommended to first create a vector
+with \id{N\_VMake\_ParHyp}, enable/disable the desired operations for that vector
+with the functions below, and create any additional vectors from that vector
+using \id{N\_VClone}. This guarantees the new vectors will have the same
+operations enabled/disabled as cloned vectors inherit the same enable/disable
+options as the vector they are cloned from while vectors created with
+\id{N\_VMake\_ParHyp} will have the default settings for the {\nvecph} module.
+\begin{itemize}
 
+%%--------------------------------------
+
+\item \ID{N\_VEnableFusedOps\_ParHyp}
+
+This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) all fused and
+vector array operations in the parhyp vector. The return value is \id{0} for
+success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+
+\verb|int N_VEnableFusedOps_ParHyp(N_Vector v, booleantype tf);|
+
+%%--------------------------------------
+
+\item \ID{N\_VEnableLinearCombination\_ParHyp}
+
+This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear
+combination fused operation in the parhyp vector. The return value is \id{0} for
+success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+
+\verb|int N_VEnableLinearCombination_ParHyp(N_Vector v, booleantype tf);|
+
+%%--------------------------------------
+
+\item \ID{N\_VEnableScaleAddMulti\_ParHyp}
+
+This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale and
+add a vector to multiple vectors fused operation in the parhyp vector. The
+return value is \id{0} for success and \id{-1} if the input vector or its
+\id{ops} structure are \id{NULL}.
+
+\verb|int N_VEnableScaleAddMulti_ParHyp(N_Vector v, booleantype tf);|
+
+%%--------------------------------------
+
+\item \ID{N\_VEnableDotProdMulti\_ParHyp}
+
+This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the multiple
+dot products fused operation in the parhyp vector. The return value is \id{0}
+for success and \id{-1} if the input vector or its \id{ops} structure are
+\id{NULL}.
+
+\verb|int N_VEnableDotProdMulti_ParHyp(N_Vector v, booleantype tf);|
+
+%%--------------------------------------
+
+\item \ID{N\_VEnableLinearSumVectorArray\_ParHyp}
+
+This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear sum
+operation for vector arrays in the parhyp vector. The return value is \id{0} for
+success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+
+\verb|int N_VEnableLinearSumVectorArray_ParHyp(N_Vector v, booleantype tf);|
+
+%%--------------------------------------
+
+\item \ID{N\_VEnableScaleVectorArray\_ParHyp}
+
+This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale
+operation for vector arrays in the parhyp vector. The return value is \id{0} for
+success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+
+\verb|int N_VEnableScaleVectorArray_ParHyp(N_Vector v, booleantype tf);|
+
+%%--------------------------------------
+
+\item \ID{N\_VEnableConstVectorArray\_ParHyp}
+
+This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the const
+operation for vector arrays in the parhyp vector. The return value is \id{0} for
+success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+
+\verb|int N_VEnableConstVectorArray_ParHyp(N_Vector v, booleantype tf);|
+
+%%--------------------------------------
+
+\item \ID{N\_VEnableWrmsNormVectorArray\_ParHyp}
+
+This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the WRMS norm
+operation for vector arrays in the parhyp vector. The return value is \id{0} for
+success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+
+\verb|int N_VEnableWrmsNormVectorArray_ParHyp(N_Vector v, booleantype tf);|
+
+%%--------------------------------------
+
+\item \ID{N\_VEnableWrmsNormMaskVectorArray\_ParHyp}
+
+This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the masked WRMS
+norm operation for vector arrays in the parhyp vector. The return value is
+\id{0} for success and \id{-1} if the input vector or its \id{ops} structure are
+\id{NULL}.
+
+\verb|int N_VEnableWrmsNormMaskVectorArray_ParHyp(N_Vector v, booleantype tf);|
+
+%%--------------------------------------
+
+\item \ID{N\_VEnableScaleAddMultiVectorArray\_ParHyp}
+
+This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale and
+add a vector array to multiple vector arrays operation in the parhyp vector. The
+return value is \id{0} for success and \id{-1} if the input vector or its
+\id{ops} structure are \id{NULL}.
+
+\verb|int N_VEnableScaleAddMultiVectorArray_ParHyp(N_Vector v, booleantype tf);|
+
+%%--------------------------------------
+
+\item \ID{N\_VEnableLinearCombinationVectorArray\_ParHyp}
+
+This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear
+combination operation for vector arrays in the parhyp vector. The return value
+is \id{0} for success and \id{-1} if the input vector or its \id{ops} structure
+are \id{NULL}.
+
+\verb|int N_VEnableLinearCombinationVectorArray_ParHyp(N_Vector v, booleantype tf);|
+
+%%--------------------------------------
+\end{itemize}
 %%
 %%------------------------------------
 %%

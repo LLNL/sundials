@@ -36,6 +36,7 @@ $tar $tarfile $distrobase/config/SundialsKLU.cmake
 $tar $tarfile $distrobase/config/SundialsLapack.cmake
 $tar $tarfile $distrobase/config/SundialsMPI.cmake
 $tar $tarfile $distrobase/config/SundialsPETSc.cmake
+$tar $tarfile $distrobase/config/SundialsPOSIXTimers.cmake
 $tar $tarfile $distrobase/config/SundialsSuperLUMT.cmake
 $tar $tarfile $distrobase/config/SundialsXSDK.cmake
 

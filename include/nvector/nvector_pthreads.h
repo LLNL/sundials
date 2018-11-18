@@ -196,6 +196,18 @@ typedef struct _Pthreads_Data Pthreads_Data;
  * DESTRUCTORS:
  *    N_VDestroy_Pthreads
  *    N_VDestroyVectorArray_Pthreads
+ * ENABLE/DISABLE FUSED OPS:
+ *    N_VEnableFusedOps_Pthreads
+ *    N_VEnableLinearCombination_Pthreads
+ *    N_VEnableScaleAddMulti_Pthreads
+ *    N_VEnableDotProdMulti_Pthreads
+ *    N_VEnableLinearSumVectorArray_Pthreads
+ *    N_VEnableScaleVectorArray_Pthreads
+ *    N_VEnableConstVectorArray_Pthreads
+ *    N_VEnableWrmsNormVectorArray_Pthreads
+ *    N_VEnableWrmsNormMaskVectorArray_Pthreads
+ *    N_VEnableScaleAddMultiVectorArray_Pthreads
+ *    N_VEnableLinearCombinationVectorArray_Pthreads
  * OTHER:
  *    N_VGetLength_Pthreads
  *    N_VPrint_Pthreads
@@ -364,6 +376,27 @@ SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_Pthreads(int nvec, int nsum,
                                                              realtype* c,
                                                              N_Vector** X,
                                                              N_Vector* Z);
+
+
+/*
+ * -----------------------------------------------------------------
+ * Enable / disable fused vector operations
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int N_VEnableFusedOps_Pthreads(N_Vector v, booleantype tf);
+
+SUNDIALS_EXPORT int N_VEnableLinearCombination_Pthreads(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMulti_Pthreads(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableDotProdMulti_Pthreads(N_Vector v, booleantype tf);
+
+SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_Pthreads(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleVectorArray_Pthreads(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableConstVectorArray_Pthreads(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_Pthreads(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_Pthreads(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_Pthreads(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_Pthreads(N_Vector v, booleantype tf);
 
 #ifdef __cplusplus
 }

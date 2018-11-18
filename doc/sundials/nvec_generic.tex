@@ -97,12 +97,18 @@ void N_VScale(realtype c, N_Vector x, N_Vector z)
 %%
 Table \ref{t:nvecops} contains a complete list of all standard vector operations defined
 by the generic {\nvector} module. Tables \ref{t:nvecfusedops} and \ref{t:nvecarrayops}
-list \textit{optional} fused and vector array operations respectively. These
-operations are intended to increase data reuse, reduce parallel communication on
-distributed memory systems, and lower the number of kernel launches on systems with
-accelerators. If a particular {\nvector} implementation defines one of the fused or
-vector array operations as \id{NULL}, the {\nvector} interface will call one of the
-standard vector operations as necessary.
+list \textit{optional} fused and vector array operations respectively.
+
+Fused and vector array operations are intended to increase data reuse, reduce
+parallel communication on distributed memory systems, and lower the number of
+kernel launches on systems with accelerators. If a particular {\nvector}
+implementation defines a fused or vector array operation as \id{NULL}, the
+generic {\nvector} module will automatically call standard vector operations as
+necessary to complete the desired operation. Currently, all fused and vector
+array operations are disabled by default however, {\sundials} provided {\nvector}
+implementations define additional user-callable functions to enable/disable
+any or all of the fused and vector array operations. See the following sections
+for the implementation specific functions to enable/disable operations.
 
 Finally, note that the generic {\nvector} module defines the functions
 \ID{N\_VCloneVectorArray} and \ID{N\_VCloneVectorArrayEmpty}.  Both functions
@@ -409,7 +415,7 @@ is returned.
 \tabletail{\hline \multicolumn{2}{|r|}{\small\slshape continued on next page} \\ \hline}
 \tablelasttail{\hline}
 \begin{xtabular}{|p{\coloneb}|p{\coltwob}|}
-
+%%
 \id{N\_VLinearCombination} & \id{ier = N\_VLinearCombination(nv, c, X, z);} \\ 
 & This routine computes the linear combination of $n_v$ vectors with $n$
 elements:
@@ -422,7 +428,7 @@ $n_v$ vectors (type \id{N\_Vector*}), and $z$ is the output vector (type
 \textit{must} be the first vector in the vector array. The operation returns
 \id{0} for success and a non-zero value otherwise.
 \\[2mm]
-
+%%
 \id{N\_VScaleAddMulti} & \id{ier = N\_VScaleAddMulti(nv, c, x, Y, Z);} \\ 
 & This routine scales and adds one vector to $n_v$ vectors with $n$ elements:
 \begin{equation*}
@@ -434,7 +440,7 @@ of $n_v$ vectors $Y$ (type \id{N\_Vector*}), and $Z$ (type \id{N\_Vector*}) is a
 vector array of $n_v$ output vectors. The operation returns \id{0} for success and a
 non-zero value otherwise.
 \\[2mm]
-
+%%
 \id{N\_VDotProdMulti} & \id{ier = N\_VDotProdMulti(nv, x, Y, d);} \\ 
 & This routine computes the dot product of a vector with $n_v$ other vectors:
 \begin{equation*}
@@ -468,7 +474,7 @@ vectors in the vector array $Y$ (type \id{N\_Vector*}). The operation returns
 \tabletail{\hline \multicolumn{2}{|r|}{\small\slshape continued on next page} \\ \hline}
 \tablelasttail{\hline}
 \begin{xtabular}{|p{\colonec}|p{\coltwoc}|}
-
+%%
 \id{N\_VLinearSumVectorArray} & \id{ier = N\_VLinearSumVectorArray(nv, a, X, b, Y, Z);} \\
 & This routine comuptes the linear sum of two vector arrays containing $n_v$
 vectors of $n$ elements:
@@ -479,7 +485,7 @@ where $a$ and $b$ are \id{realtype} scalars and $X$, $Y$, and $Z$ are arrays of
 $n_v$ vectors (type \id{N\_Vector*}). The operation returns \id{0} for success and
 a non-zero value otherwise.
 \\[2mm]
-
+%%
 \id{N\_VScaleVectorArray} & \id{ier = N\_VScaleVectorArray(nv, c, X, Z);} \\
 & This routine scales each vector of $n$ elements in a vector array of $n_v$
 vectors by a potentially different constant:
@@ -490,7 +496,7 @@ where $c$ is an array of $n_v$ scalars (type \id{realtype}*) and $X$ and $Z$ are
 arrays of $n_v$ vectors (type \id{N\_Vector*}). The operation returns \id{0} for
 success and a non-zero value otherwise.
 \\[2mm]
-
+%%
 \id{N\_VConstVectorArray} & \id{ier = N\_VConstVectorArray(nv, c, X);} \\
 & This routine sets each element in a vector of $n$ elements in a vector array of
 $n_v$ vectors to the same value:
@@ -501,7 +507,7 @@ where $c$ is a \id{realtype} scalar and $X$ is an array of $n_v$ vectors (type
 \id{N\_Vector*}). The operation returns \id{0} for success and a non-zero value
 otherwise.
 \\[2mm]
-
+%%
 \id{N\_VWrmsNormVectorArray} & \id{ier = N\_VWrmsNormVectorArray(nv, X, W, m);} \\
 & This routine computes the weighted root mean square norm of $n_v$ vectors with
 $n$ elements:
@@ -513,7 +519,7 @@ vector array $X$ (type \id{N\_Vector*}) with corresponding weight vectors $W$
 (type \id{N\_Vector*}). The operation returns \id{0} for success and a non-zero
 value otherwise.
 \\[2mm]
-
+%%
 \id{N\_VWrmsNormMaskVectorArray} & \id{ier = N\_VWrmsNormMaskVectorArray(nv, X, W, id, m);} \\
 & This routine computes the masked weighted root mean square norm of $n_v$
 vectors with $n$ elements:
@@ -527,7 +533,7 @@ corresponding weight vectors $W$ (type \id{N\_Vector*}) and mask vector $id$
 (type \id{N\_Vector}). The operation returns \id{0} for success and a non-zero
 value otherwise.
 \\[2mm]
-
+%%
 \id{N\_VScaleAddMultiVectorArray} & \id{ier = N\_VScaleAddMultiVectorArray(nv, ns, c, X, YY, ZZ);} \\ 
 & This routine scales and adds a vector in a vector array of $n_v$ vectors to
 the corresponding vector in $n_s$ vector arrays:
@@ -541,7 +547,7 @@ arrays $YY$ (type \id{N\_Vector**}) and stored in the output array of vector
 arrays $ZZ$ (type \id{N\_Vector**}). The operation returns \id{0} for success
 and a non-zero value otherwise.
 \\[2mm]
-
+%%
 \id{N\_VLinearCombinationVectorArray} & \id{ier = N\_VLinearCombinationVectorArray(nv, ns, c, XX, Z);} \\ 
 & This routine computes the linear combination of $n_s$ vector arrays containing
 $n_v$ vectors with $n$ elements:

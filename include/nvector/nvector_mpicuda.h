@@ -1,9 +1,5 @@
 /* -----------------------------------------------------------------
-<<<<<<< HEAD
  * Programmer(s): Cody Balos @ LLNL
-=======
- * Programmer(s): Slaven Peles @ LLNL
->>>>>>> Feature/GPU
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
@@ -89,6 +85,18 @@ typedef struct _N_VectorContent_Cuda *N_VectorContent_Cuda;
  *    N_VMake_Cuda
  * DESTRUCTORS:
  *    N_VDestroy_Cuda
+ * ENABLE/DISABLE FUSED OPS:
+ *    N_VEnableFusedOps_Cuda
+ *    N_VEnableLinearCombination_Cuda
+ *    N_VEnableScaleAddMulti_Cuda
+ *    N_VEnableDotProdMulti_Cuda
+ *    N_VEnableLinearSumVectorArray_Cuda
+ *    N_VEnableScaleVectorArray_Cuda
+ *    N_VEnableConstVectorArray_Cuda
+ *    N_VEnableWrmsNormVectorArray_Cuda
+ *    N_VEnableWrmsNormMaskVectorArray_Cuda
+ *    N_VEnableScaleAddMultiVectorArray_Cuda
+ *    N_VEnableLinearCombinationVectorArray_Cuda
  * OTHER:
  *    N_VGetHostArrayPointer_Cuda
  *    N_VGetDeviceArrayPointer_Cuda
@@ -262,6 +270,27 @@ SUNDIALS_EXPORT int N_VWrmsNormVectorArray_Cuda(int nvec, N_Vector* X,
 SUNDIALS_EXPORT int N_VWrmsNormMaskVectorArray_Cuda(int nvec, N_Vector* X,
                                                     N_Vector* W, N_Vector id,
                                                     realtype* nrm);
+
+
+/*
+ * -----------------------------------------------------------------
+ * Enable / disable fused vector operations
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int N_VEnableFusedOps_Cuda(N_Vector v, booleantype tf);
+
+SUNDIALS_EXPORT int N_VEnableLinearCombination_Cuda(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMulti_Cuda(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableDotProdMulti_Cuda(N_Vector v, booleantype tf);
+
+SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_Cuda(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleVectorArray_Cuda(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableConstVectorArray_Cuda(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_Cuda(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_Cuda(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_Cuda(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_Cuda(N_Vector v, booleantype tf);
 
 #ifdef __cplusplus
 }

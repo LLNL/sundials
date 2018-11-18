@@ -88,6 +88,10 @@ dotProdMultiKernel(int nv, T* xd, T** yd, T* out, I n)
   I tid = threadIdx.x;
   I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
 
+  // Initialize shared memory to zero
+  for (int k=0; k<nv; k++)
+    shmem[tid + k*blockDim.x] = 0.0;
+
   // First reduction step before storing data in shared memory.
   if (i < n)
     for (int k=0; k<nv; k++)
@@ -218,6 +222,10 @@ wL2NormSquareVectorArrayKernel(int nv, T** xd, T** wd, T* out, I n)
   I tid = threadIdx.x;
   I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
 
+  // Initialize shared memory to zero
+  for (int k=0; k<nv; k++)
+    shmem[tid + k*blockDim.x] = 0.0;
+
   // First reduction step before storing data in shared memory.
   if (i < n)
     for (int k=0; k<nv; k++)
@@ -257,6 +265,10 @@ wL2NormSquareMaskVectorArrayKernel(int nv, T** xd, T** wd, T* id, T* out, I n)
 
   I tid = threadIdx.x;
   I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
+
+  // Initialize shared memory to zero
+  for (int k=0; k<nv; k++)
+    shmem[tid + k*blockDim.x] = 0.0;
 
   // First reduction step before storing data in shared memory.
   if (i < n && id[i] > 0.0)
