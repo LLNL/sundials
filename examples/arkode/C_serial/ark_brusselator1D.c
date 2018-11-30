@@ -205,7 +205,7 @@ int main()
   if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
 
   /* Initialize band matrix data structure and solver -- A will be factored, so set smu to ml+mu */
-  A = SUNBandMatrix(NEQ, 4, 4, 8);
+  A = SUNBandMatrix(NEQ, 4, 4);
   if (check_flag((void *)A, "SUNBandMatrix", 0)) return 1;
   LS = SUNLinSol_Band(y, A);
   if (check_flag((void *)LS, "SUNLinSol_Band", 0)) return 1;

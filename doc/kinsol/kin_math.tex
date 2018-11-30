@@ -33,12 +33,12 @@ At the highest level, {\kinsol} implements the following iteration scheme:
 \begin{enumerate}
    \item Set $u_0 = $ an initial guess
    \item For $n = 0, 1, 2,...$ until convergence do:
-      \begin{itemize}
-          \item[(a)] Solve $J(u_n)\delta_n = -F(u_n)$ \label{e:Newton}
-          \item[(b)] Set $u_{n+1} = u_n + \lambda \delta_n$,
+      \begin{enumerate}
+          \item Solve $J(u_n)\delta_n = -F(u_n)$\label{e:Newton}
+          \item Set $u_{n+1} = u_n + \lambda \delta_n$,
           $0 < \lambda \leq 1$
-          \item[(c)] Test for convergence
-      \end{itemize}
+          \item Test for convergence
+      \end{enumerate}
 \end{enumerate}
 Here, $u_n$ is the $n$th iterate to $u$, and $J(u) = F'(u)$ is the system
 Jacobian. At each stage in the iteration process, a scalar multiple of the
@@ -50,7 +50,7 @@ A test for convergence is made before the iteration continues.
 
 \subsubsection*{Newton method variants}
 %%
-For solving the linear system given in step 2(a), {\kinsol} provides
+For solving the linear system given in step (\ref{e:Newton}), {\kinsol} provides
 several choices, including the option of a user-supplied
 linear solver module. The linear solver modules distributed with {\sundials}
 are organized in two families, a {\em direct} family comprising direct linear 
@@ -87,13 +87,12 @@ a Jacobian evaluation at each iteration thus allowing for an Exact Newton iterat
 Note that the dense, band, and sparse direct linear solvers can only
 be used with the serial and threaded vector representations.
 
-On the other hand, when using an iterative linear solver (GMRES,
-FGMRES, Bi-CGStab, TFQMR, CG), the linear system in 2(a) is solved
-only approximately, thus resulting in an Inexact Newton method.  Here
-right preconditioning is available by way of the preconditioning setup
-and solve routines supplied by the user, in which case the iterative
-method is applied to the linear systems $(JP^{-1})(P\delta) = -F$,
-where $P$ denotes the right preconditioning matrix.
+When using an iterative linear solver, the linear system in (\ref{e:Newton}) is
+solved only approximately, thus resulting in an Inexact Newton method. Here
+right preconditioning is available by way of the preconditioning setup and solve
+routines supplied by the user, in which case the iterative method is applied to
+the linear systems $(JP^{-1})(P\delta) = -F$, where $P$ denotes the right
+preconditioning matrix. 
 
 Additionally, it is possible for users to supply a matrix-based
 iterative linear solver to {\kinsol}, resulting in a Modified Inexact
@@ -104,6 +103,7 @@ the linear system is solved only approximately.
 %% JACOBIAN UPDATE STRATEGY
 
 \subsubsection*{Jacobian information update strategy}
+\label{ss:JacUpdate}
 %%
 In general, unless specified otherwise by the user, {\kinsol} strives to update
 Jacobian information (the actual system Jacobian $J$ in the case of matrix-based linear
@@ -127,6 +127,7 @@ Jacobian information update is enforced.
 %% SCALING
 
 \subsubsection*{Scaling}
+\label{ss:Scaling}
 %%
 To address the case of ill-conditioned nonlinear systems, {\kinsol} allows 
 prescribing scaling factors both for the solution vector and for the residual 
@@ -230,6 +231,7 @@ and $\delta_n$ in Step 2(b) is scaled to take a step of that length.
 %% RESIDUAL MONITORING FOR MATRIX-BASED JACOBIAN UPDATE
 
 \subsubsection*{Residual monitoring for Modified Newton method}
+\label{ss:ModifiedNewtonResidualMon}
 %%
 When using a matrix-based linear solver, in addition to the strategy
 described above for the update of the Jacobian matrix, {\kinsol} also
@@ -258,6 +260,7 @@ value $\omega_{const}$, and the threshold \id{mbsetsub}.
 %% INEXACT NEWTON SPECIFIC
 
 \subsubsection*{Stopping criteria for iterative linear solvers}
+\label{ss:InexactNewtonStopCrit}
 %%
 When using an Inexact Newton method (i.e. when an iterative linear solver is 
 used), the convergence of the overall nonlinear solver is intimately coupled

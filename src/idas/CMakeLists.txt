@@ -27,8 +27,7 @@ SET(idas_SOURCES
   idas_io.c
   idas_ic.c
   idaa_io.c
-  idas_direct.c
-  idas_spils.c
+  idas_ls.c
   idas_bbdpre.c
   idas_nls.c
   idas_nls_sim.c
@@ -83,6 +82,7 @@ SET(idas_HEADERS
   idas.h
   idas_bbdpre.h
   idas_direct.h
+  idas_ls.h
   idas_spils.h
   )
 

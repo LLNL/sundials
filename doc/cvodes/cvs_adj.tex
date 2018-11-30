@@ -75,13 +75,10 @@ Steps that are unchanged from the skeleton programs presented in
   \textcolor{gray}{\bf Create {\cvodes} object for the forward problem}
 
 \item
-  \textcolor{gray}{\bf Initial {\cvodes} for the forward problem}
+  \textcolor{gray}{\bf Initialize {\cvodes} for the forward problem}
 
 \item
   \textcolor{gray}{\bf Specify integration tolerances for forward problem}
-
-\item
-  \textcolor{gray}{\bf Set optional inputs for the forward problem}
 
 \item
   \textcolor{gray}{\bf Create matrix object for the forward problem}
@@ -96,7 +93,10 @@ Steps that are unchanged from the skeleton programs presented in
   \textcolor{gray}{\bf Attach linear solver module for the forward problem}
 
 \item
-  \textcolor{gray}{\bf Create nonlinear solver module for the forward problem}
+  \textcolor{gray}{\bf Set optional inputs for the forward problem}
+
+\item
+  \textcolor{gray}{\bf Create nonlinear solver object for the forward problem}
 
 \item
   \textcolor{gray}{\bf Attach nonlinear solver module for the forward problem}
@@ -178,16 +178,6 @@ Steps that are unchanged from the skeleton programs presented in
   See \S\ref{sss:cvtolerances_b} for more information.
 
 
-\item
-  {\bf Set optional inputs for the backward problem}
-
-  Call \id{CVodeSet*B} functions to change from their default values
-  any optional inputs that control the behavior of {\cvodes}. Unlike
-  their counterparts for the forward problem, these functions take an
-  extra argument \id{which}, the identifier of the backward problem returned 
-  by \id{CVodeCreateB} (see \S\ref{ss:optional_input_b}).
-
-
 \item \label{i:matrixB}
   {\bf Create matrix object for the backward problem}
 
@@ -196,6 +186,19 @@ Steps that are unchanged from the skeleton programs presented in
   solver, then a template Jacobian matrix must be created by calling the
   appropriate constructor function defined by the particular {\sunmatrix}
   implementation.
+
+  For the {\sundials}-supplied {\sunmatrix} implementations, the
+  matrix object may be created using a call of the form
+
+  \id{SUNMatrix J = }\Id{SUNBandMatrix}\id{(...);}
+
+   or
+
+  \id{SUNMatrix J = }\Id{SUNDenseMatrix}\id{(...);}
+
+   or
+
+  \id{SUNMatrix J = }\Id{SUNSparseMatrix}\id{(...);}
 
   NOTE: The dense, banded, and sparse matrix objects are usable only in a
   serial or threaded environment.
@@ -211,36 +214,52 @@ Steps that are unchanged from the skeleton programs presented in
   problem must be created by calling the appropriate constructor function
   defined by the particular {\sunlinsol} implementation.
   
+  For any of the {\sundials}-supplied {\sunlinsol} implementations,
+  the linear solver object may be created using a call of the form
+
+  \id{SUNLinearSolver LS = SUNLinSol\_*(...);}
+
+  where \id{*} can be replaced with ``Dense'', ``SPGMR'', or other
+  options, as discussed in \S\ref{sss:lin_solv_init} and Chapter {\ref{s:sunlinsol}}.
+
   Note that it is not required to use the same linear solver module for both the forward 
   and the backward problems; for example, the forward problem could be solved
-  with the {\cvdls} linear solver module and the backward problem with 
-  {\cvspils} linear solver module.
+  with the {\sunlinsoldense} linear solver module and the backward problem with 
+  {\sunlinsolspgmr} linear solver module.
 
 \item
   {\bf Set linear solver interface optional inputs for the backward problem}
 
-  Call \id{CVDlsSet*B} or \id{CVSpilsSet*B} functions to change optional
-  inputs specific to that linear solver interface. 
-  See \S\ref{ss:optional_input_b} for details.
+  Call \id{*Set*} functions from the selected linear solver module to
+  change optional inputs specific to that linear solver.
+  See the documentation for each {\sunlinsol} module in Chapter
+  {\ref{s:sunlinsol}} for details.
 
 \item\label{i:lin_solver_interfaceB}
   {\bf Attach linear solver module for the backward problem}
 
   If a nonlinear solver requiring a linear solver is chosen for the backward
-  problem (e.g., the default Newton iteration), then initialize the {\cvdls} or
-  {\cvspils} linear solver interface by attaching the linear solver object (and
-  matrix object, if applicable) with one of the following calls (for details see
+  problem (e.g., the default Newton iteration), then initialize the
+  {\cvls} linear solver interface by attaching the linear solver
+  object (and matrix object, if applicable) with the call (for details see
   \S\ref{sss:lin_solv_init}):
 
-  \id{ier = }\Id{CVDlsSetLinearSolverB}\id{(...);}
-
-  \id{ier = }\Id{CVSpilsSetLinearSolverB}\id{(...);}
+  \id{ier = }\Id{CVodeSetLinearSolverB}\id{(...);}
 
   Alternately, if the {\cvodes}-specific diagonal linear solver module,
   {\cvdiag}, is desired, initialize the linear solver module and
   attach it to {\cvodes} with the call
 
   \id{ier = }\Id{CVDiagB}\id{(...);}
+
+\item
+  {\bf Set optional inputs for the backward problem}
+
+  Call \id{CVodeSet*B} functions to change from their default values
+  any optional inputs that control the behavior of {\cvodes}. Unlike
+  their counterparts for the forward problem, these functions take an
+  extra argument \id{which}, the identifier of the backward problem returned 
+  by \id{CVodeCreateB} (see \S\ref{ss:optional_input_b}).
 
 \item
   {\bf Create nonlinear solver object for the backward problem} (\textit{optional})
@@ -881,22 +900,20 @@ call to \id{CVodeInitB} or \id{CVodeInitBS}.
 \index{CVODES@{\cvodes} linear solvers!usage with adjoint module|(} 
 All {\cvodes} linear solver modules available for forward problems
 are available for the backward problem.  They should be created as 
-for the forward problem then attached to the memory structure for the backward
-problem using one of the following functions.
+for the forward problem and then attached to the memory structure for the backward
+problem using the following function.
 
-\index{CVODES@{\cvodes} linear solver interfaces!CVDLS@{\cvdls}}
-\ucfunction{CVDlsSetLinearSolverB}
+\index{CVODES@{\cvodes} linear solver interface!CVLS@{\cvls}}
+\ucfunction{CVodeSetLinearSolverB}
 {
-  flag = CVDlsSetLinearSolverB(cvode\_mem, which, LS, A);
+  flag = CVodeSetLinearSolverB(cvode\_mem, which, LS, A);
 }
 {
-  The function \ID{CVDlsSetLinearSolverB} attaches a direct
+  The function \ID{CVodeSetLinearSolverB} attaches a generic
   {\sunlinsol} object \id{LS} and corresponding template
   Jacobian {\sunmatrix} object \id{A} to {\cvodes}, initializing the
-  {\cvdls} direct linear solver interface for solution of the backward 
+  {\cvls} linear solver interface for solution of the backward 
   problem.
-
-  The user's main program must include the \id{cvodes\_direct.h} header file.
 }
 {
   \begin{args}[cvode\_mem]
@@ -909,87 +926,42 @@ problem using one of the following functions.
     {\sunlinsol} object to use for solving linear systems for the backward problem. 
   \item[A] (\id{SUNMatrix})
     {\sunmatrix} object for used as a template for the Jacobian for the backward
-    problem (must have a type compatible with the linear solver object).
+    problem (or \id{NULL} if not applicable).
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}
-  \item[\Id{CVDLS\_SUCCESS}] 
-    The {\cvdls} initialization was successful.
-  \item[\Id{CVDLS\_MEM\_NULL}]
+  \item[\Id{CVLS\_SUCCESS}] 
+    The {\cvls} initialization was successful.
+  \item[\Id{CVLS\_MEM\_NULL}]
     The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVDLS\_ILL\_INPUT}]
-    The {\cvdls} solver is not compatible with the current {\nvector} module.
-  \item[\Id{CVDLS\_MEM\_FAIL}]
+  \item[\Id{CVLS\_ILL\_INPUT}]
+    The {\cvls} solver is not compatible with the current {\nvector} module.
+  \item[\Id{CVLS\_MEM\_FAIL}]
     A memory allocation request failed.
-  \item[\Id{CVDLS\_NO\_ADJ}]
+  \item[\Id{CVLS\_NO\_ADJ}]
     The function \id{CVAdjInit} has not been previously called.
-  \item[\Id{CVDLS\_ILL\_INPUT}]
+  \item[\Id{CVLS\_ILL\_INPUT}]
     The parameter \id{which} represented an invalid identifier.
   \end{args}
 }
 {
-  The {\cvdls} linear solver is not compatible with all
-  implementations of the {\sunlinsol} and {\nvector}
-  modules.  Specifically, {\cvdls} requires use of a \emph{direct}
-  {\sunlinsol} object and a serial or theaded {\nvector}
-  module. Additional compatibility limitations for each 
-  {\sunlinsol} object (i.e.~{\sunmatrix} and {\nvector} object
-  compatibility) are described in Chapter \ref{s:sunlinsol}.
+  If \id{LS} is a matrix-based linear solver, then the template
+  Jacobian matrix \id{J} will be used in the solve process, so if
+  additional storage is required within the {\sunmatrix} object
+  (e.g., for factorization of a banded matrix), ensure that the input
+  object is allocated with sufficient size (see the documentation of
+  the particular {\sunmatrix} type in Chapter \ref{s:sunmatrix} for
+  further information).
+
+  The previous routines \Id{CVDlsSetLinearSolverB} and
+  \Id{CVSpilsSetLinearSolverB} are now wrappers for this routine, and may
+  still be used for backward-compatibility.  However, these will be
+  deprecated in future releases, so we recommend that users transition
+  to the new routine name soon.
 }
 %%
-\index{CVODES@{\cvodes} linear solver interfaces!CVSpils{\cvspils}}
-\ucfunction{CVSpilsSetLinearSolverB}
-{
-  flag = CVSpilsSetLinearSolverB(ida\_mem, which, LS);
-}
-{
-  The function \ID{CVSpilsSetLinearSolver} attaches an iterative
-  {\sunlinsol} object \id{LS} to {\cvodes}, initializing the
-  {\cvspils} scaled, preconditioned, iterative linear solver
-  interface to use for the backward problem.
-
-  The user's main program must include the \id{cvs\_spils.h} header
-  file.
-}
-{
-  \begin{args}[cvode\_mem]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block.
-  \item[which] (\id{int})
-    represents the identifier of the backward problem returned by \\ \noindent
-    \id{CVodeCreateB}.
-  \item[LS] (\id{SUNLinearSolver})
-    {\sunlinsol} object to use for solving linear systems for the backward problem. 
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}
-  \item[\Id{CVSPILS\_SUCCESS}] 
-    The {\cvspils} initialization was successful.
-  \item[\Id{CVSPILS\_MEM\_NULL}]
-    The \id{cvode\_mem} pointer is \id{NULL}.
-  \item[\Id{CVSPILS\_ILL\_INPUT}]
-    The {\cvspils} solver is not compatible with the current {\nvector} module.
-  \item[\Id{CVSPILS\_MEM\_FAIL}]
-    A memory allocation request failed.
-  \item[\Id{CVSPILS\_NO\_ADJ}]
-    The function \id{CVAdjInit} has not been previously called.
-  \item[\Id{CVSPILS\_ILL\_INPUT}]
-    The parameter \id{which} represented an invalid identifier.
-  \end{args}
-}
-{
-  The {\cvspils} linear solver interface is not compatible with all
-  implementations of the {\sunlinsol} and {\nvector}
-  modules.  Specifically, {\cvspils} requires use of an
-  \emph{iterative} {\sunlinsol} object.  Additional compatibility
-  limitations for each {\sunlinsol} object (i.e.~required {\nvector}
-  routines) are described in Chapter \ref{s:sunlinsol}.
-}
-
 %%---------------------------------------------------------------------
 \subsection{Backward integration function}
 \label{sss:cvsolveb}
@@ -1204,27 +1176,27 @@ has not been called, or \Id{CV\_ILL\_INPUT} if \id{which} was an invalid identif
 
 \index{optional input!backward solver|)}
 
-\index{CVDENSE@{\cvdense} linear solver!optional input|(}
 %%
 %%
 %%==================================================================================
 %%
-\subsubsection{Direct linear solver interface optional input functions}
-\index{optional input!direct linear solver interface|(}
-\index{CVDLS@{\cvdls} linear solver interface!optional input|(}
-If using a direct linear solver interface for the Jacobian of the backward problem,
-the linear solver will need to be attached to the memory structure through
-a call to \id{CVDlsSetLinearSolverB}.  The Jacobian evaluation function can
-be attached through a call to either \id{CVDlsSetJacFnB} or \ida{CVDlsSetJacFnBS},
+\subsubsection{Linear solver interface optional input functions}
+\index{optional input!generic linear solver interface|(}
+\index{CVLS@{\cvls} linear solver interface!optional input|(}
+\index{optional input!matrix-based linear solver|(}
+When using matrix-based linear solver modules, the {\cvls} solver
+interface needs a function to compute an approximation to the Jacobian
+for the backward problem.  This Jacobian evaluation function can
+be attached through a call to either \id{CVodeSetJacFnB} or \ida{CVodeSetJacFnBS},
 with the second used when the backward problem depends on the forwrad sensitivities.
 %%
-\index{Jacobian approximation function!user-supplied}
-\ucfunction{CVDlsSetJacFnB}
+\index{Jacobian approximation function!user-supplied (backward)}
+\ucfunction{CVodeSetJacFnB}
 {
-  flag = CVDlsSetJacFnB(ida\_mem, which, jacB);
+  flag = CVodeSetJacFnB(ida\_mem, which, jacB);
 }
 {
-  The function \ID{CVDlsSetJacFnB} specifies the Jacobian
+  The function \ID{CVodeSetJacFnB} specifies the Jacobian
   approximation function to be used for the backward problem.
 }
 {
@@ -1233,37 +1205,42 @@ with the second used when the backward problem depends on the forwrad sensitivit
     pointer to the {\cvodes} memory returned by \id{CVodeCreate}.
   \item[which] (\id{int})
     represents the identifier of the backward problem.
-  \item[jacB] (\id{CVDlsJacFnB})
+  \item[jacB] (\id{CVLsJacFnB})
     user-defined Jacobian approximation function.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVDLS\_ILL\_INPUT]
-  \item[\Id{CVDLS\_SUCCESS}] 
-    \id{CVDlsSetJacFnB} succeeded.
-  \item[\Id{CVDLS\_MEM\_NULL}]
+  \begin{args}[CVLS\_ILL\_INPUT]
+  \item[\Id{CVLS\_SUCCESS}] 
+    \id{CVodeSetJacFnB} succeeded.
+  \item[\Id{CVLS\_MEM\_NULL}]
     \id{cvode\_mem} was \id{NULL}.
-  \item[\Id{CVDLS\_NO\_ADJ}]
+  \item[\Id{CVLS\_NO\_ADJ}]
     The function \id{CVodeAdjInit} has not been previously called.
-  \item[\Id{CVDLS\_LMEM\_NULL}]
+  \item[\Id{CVLS\_LMEM\_NULL}]
     The linear solver has not been initialized with a call to \\ \noindent
-    \id{CVDlsSetLinearSolverB}.
-  \item[\Id{CVDLS\_ILL\_INPUT}]
+    \id{CVodeSetLinearSolverB}.
+  \item[\Id{CVLS\_ILL\_INPUT}]
     The parameter \id{which} represented an invalid identifier.
   \end{args}
 }
 {
-  The function type \id{CVDlsJacFnB} is described in \S\ref{ss:djacFn_b}.
+  The function type \id{CVLsJacFnB} is described in \S\ref{ss:jacFn_b}.
+
+  The previous routine \Id{CVDlsSetJacFnB} is now a wrapper for this
+  routine, and may still be used for backward-compatibility.  However,
+  this will be deprecated in future releases, so we recommend that
+  users transition to the new routine name soon.
 }
 %%
-\index{Jacobian approximation function!direct!user-supplied (backward)}
-\ucfunction{CVDlsSetJacFnBS}
+\index{Jacobian approximation function!user-supplied (backward)}
+\ucfunction{CVodeSetJacFnBS}
 {
-  flag = CVDlsSetJacFnBS(cvode\_mem, which, jacBS);
+  flag = CVodeSetJacFnBS(cvode\_mem, which, jacBS);
 }
 {
-  The function \ID{CVDlsSetJacFnBS} specifies the Jacobian
+  The function \ID{CVodeSetJacFnBS} specifies the Jacobian
   approximation function to be used for the backward problem, in the
   case where the backward problem depends on the forward sensitivities.
 }
@@ -1273,135 +1250,48 @@ with the second used when the backward problem depends on the forwrad sensitivit
     pointer to the {\cvodes} memory returned by \id{CVodeCreate}.
   \item[which] (\id{int})
     represents the identifier of the backward problem.
-  \item[jacBS] (\id{CVDlsJacFnBS})
+  \item[jacBS] (\id{CVLsJacFnBS})
     user-defined Jacobian approximation function.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVDLS\_ILL\_INPUT]
-  \item[\Id{CVDLS\_SUCCESS}] 
-    \id{CVDlsSetJacFnBS} succeeded.
-  \item[\Id{CVDLS\_MEM\_NULL}]
+  \begin{args}[CVLS\_ILL\_INPUT]
+  \item[\Id{CVLS\_SUCCESS}] 
+    \id{CVodeSetJacFnBS} succeeded.
+  \item[\Id{CVLS\_MEM\_NULL}]
     \id{cvode\_mem} was \id{NULL}.
-  \item[\Id{CVDLS\_NO\_ADJ}]
+  \item[\Id{CVLS\_NO\_ADJ}]
     The function \id{CVodeAdjInit} has not been previously called.
-  \item[\Id{CVDLS\_LMEM\_NULL}]
+  \item[\Id{CVLS\_LMEM\_NULL}]
     The linear solver has not been initialized with a call to \\ \noindent
-    \id{CVDlsSetLinearSolverB}.
-  \item[\Id{CVDLS\_ILL\_INPUT}]
+    \id{CVodeSetLinearSolverB}.
+  \item[\Id{CVLS\_ILL\_INPUT}]
     The parameter \id{which} represented an invalid identifier.
   \end{args}
 }
 {
-  The function type \id{CVDlsJacFnBS} is described in \S\ref{ss:djacFn_b}.
-}
-\index{CVDLS@{\cvdls} linear solver interface!optional input|)}
-\index{optional input!direct linear solver interface|)}
+  The function type \id{CVLsJacFnBS} is described in \S\ref{ss:jacFn_b}.
 
-
-\subsubsection{SPILS linear solvers}
-\index{optional input!iterative linear solver|(}
-\index{CVSPILS@{\cvspils} linear solver interface!optional input|(}
-Optional inputs for the {\cvspils} linear solver module can be set for the backward
-problem through the following functions:
-%%
-\index{preconditioning!user-supplied|(}
-\ucfunction{CVSpilsSetPreconditionerB}
-{
-  flag = CVSpilsSetPreconditionerB(cvode\_mem, which, psetupB, psolveB);
-}
-{
-  The function \ID{CVSpilsSetPrecSolveFnB} specifies the preconditioner
-  setup and solve functions for the backward integration.
-}
-{
-  \begin{args}[psetupB]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block.
-  \item[which] (\id{int})
-    the identifier of the backward problem.
-  \item[psetupB] (\id{CVSpilsPrecSetupFnB})
-    user-defined preconditioner setup function.
-  \item[psolveB] (\id{CVSpilsPrecSolveFnB})
-    user-defined preconditioner solve function.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVSPILS\_ILL\_INPUT]
-  \item[\Id{CVSPILS\_SUCCESS}] 
-    The optional value has been successfully set.
-  \item[\Id{CVSPILS\_MEM\_NULL}]
-    \id{cvode\_mem} was \id{NULL}.
-  \item[\Id{CVSPILS\_LMEM\_NULL}]
-    The {\cvspils} linear solver has not been initialized.
-  \item[\Id{CVSPILS\_NO\_ADJ}]
-    The function \id{CVodeAdjInit} has not been previously called.
-  \item[\Id{CVSPILS\_ILL\_INPUT}]
-    The parameter \id{which} represented an invalid identifier.
-  \end{args}
-}
-{
-   The function types \id{CVSpilsPrecSolveFnB} and \id{CVSpilsPrecSetupFnB} are
-   described in \S\ref{ss:psolve_b} and \S\ref{ss:psetup_b}, resp.
-   The \id{psetupB} argument may be \id{NULL} if no setup operation is involved
-   in the preconditioner.
+  The previous routine \Id{CVDlsSetJacFnBS} is now a wrapper for this
+  routine, and may still be used for backward-compatibility.  However,
+  this will be deprecated in future releases, so we recommend that
+  users transition to the new routine name soon.
 }
 %%
-\ucfunction{CVSpilsSetPreconditionerBS}
-{
-  flag = CVSpilsSetPreconditionerBS(cvode\_mem, which, psetupBS, psolveBS);
-}
-{
-  The function \ID{CVSpilsSetPrecSolveFnBS} specifies the preconditioner
-  setup and solve functions for the backward integration, in the case
-  where the backward problem depends on the forward sensitivities.
-}
-{
-  \begin{args}[psetupBS]
-  \item[cvode\_mem] (\id{void *})
-    pointer to the {\cvodes} memory block.
-  \item[which] (\id{int})
-    the identifier of the backward problem.
-  \item[psetupBS] (\id{CVSpilsPrecSetupFnBS})
-    user-defined preconditioner setup function.
-  \item[psolveBS] (\id{CVSpilsPrecSolveFnBS})
-    user-defined preconditioner solve function.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVSPILS\_ILL\_INPUT]
-  \item[\Id{CVSPILS\_SUCCESS}] 
-    The optional value has been successfully set.
-  \item[\Id{CVSPILS\_MEM\_NULL}]
-    \id{cvode\_mem} was \id{NULL}.
-  \item[\Id{CVSPILS\_LMEM\_NULL}]
-    The {\cvspils} linear solver has not been initialized.
-  \item[\Id{CVSPILS\_NO\_ADJ}]
-    The function \id{CVodeAdjInit} has not been previously called.
-  \item[\Id{CVSPILS\_ILL\_INPUT}]
-    The parameter \id{which} represented an invalid identifier.
-  \end{args}
-}
-{
-   The function types \id{CVSpilsPrecSolveFnBS} and \id{CVSpilsPrecSetupFnBS} are
-   described in \S\ref{ss:psolve_b} and \S\ref{ss:psetup_b}, resp.
-   The \id{psetupBS} argument may be \id{NULL} if no setup operation is involved
-   in the preconditioner.
-}
+\index{optional input!matrix-based linear solver|)}
 %%
-\index{preconditioning!user-supplied|)}
 %%
-
+%%
+\index{optional input!matrix-free linear solver|(}
+%%
 \index{Jacobian approximation function!Jacobian-vector product!user-supplied (backward)}
-\ucfunction{CVSpilsSetJacTimesB}
+\ucfunction{CVodeSetJacTimesB}
 {
-  flag = CVSpilsSetJacTimesB(cvode\_mem, which, jsetupB, jtvB);
+  flag = CVodeSetJacTimesB(cvode\_mem, which, jsetupB, jtvB);
 }
 {
-  The function \ID{CVSpilsSetJacTimesB} specifies the Jacobian-vector 
+  The function \ID{CVodeSetJacTimesB} specifies the Jacobian-vector 
   setup and product functions to be used.
 }
 {
@@ -1410,39 +1300,44 @@ problem through the following functions:
     pointer to the {\cvodes} memory block.
   \item[which] (\id{int})
     the identifier of the backward problem.
-  \item[jtsetupB] (\id{CVSpilsJacTimesSetupFnB})
+  \item[jtsetupB] (\id{CVLsJacTimesSetupFnB})
     user-defined function to set up the Jacobian-vector product.
     Pass \id{NULL} if no setup is necessary.
-  \item[jtvB] (\id{CVSpilsJacTimesVecFnB})
+  \item[jtvB] (\id{CVLsJacTimesVecFnB})
     user-defined Jacobian-vector product function.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVSPILS\_ILL\_INPUT]
-  \item[\Id{CVSPILS\_SUCCESS}] 
+  \begin{args}[CVLS\_ILL\_INPUT]
+  \item[\Id{CVLS\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{CVSPILS\_MEM\_NULL}]
+  \item[\Id{CVLS\_MEM\_NULL}]
     \id{cvode\_mem} was \id{NULL}.
-  \item[\Id{CVSPILS\_LMEM\_NULL}]
-    The {\cvspils} linear solver has not been initialized.
-  \item[\Id{CVSPILS\_NO\_ADJ}]
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The {\cvls} linear solver has not been initialized.
+  \item[\Id{CVLS\_NO\_ADJ}]
     The function \id{CVodeAdjInit} has not been previously called.
-  \item[\Id{CVSPILS\_ILL\_INPUT}]
+  \item[\Id{CVLS\_ILL\_INPUT}]
     The parameter \id{which} represented an invalid identifier.
   \end{args}
 }
 {
-  The function types \id{CVSpilsJacTimesVecFnB} and 
-  \id{CVSpilsJacTimesSetupFnB} are described in \S\ref{ss:jtimesv_b}.
+  The function types \id{CVLsJacTimesVecFnB} and 
+  \id{CVLsJacTimesSetupFnB} are described in \S\ref{ss:jtimesv_b}.
+
+  The previous routine \Id{CVSpilsSetJacTimesB} is now a wrapper for this
+  routine, and may still be used for backward-compatibility.  However,
+  this will be deprecated in future releases, so we recommend that
+  users transition to the new routine name soon.
 }
 %%
-\ucfunction{CVSpilsSetJacTimesBS}
+\ucfunction{CVodeSetJacTimesBS}
 {
-  flag = CVSpilsSetJacTimesBS(cvode\_mem, which, jtvBS);
+  flag = CVodeSetJacTimesBS(cvode\_mem, which, jtvBS);
 }
 {
-  The function \ID{CVSpilsSetJacTimesBS} specifies the Jacobian-vector 
+  The function \ID{CVodeSetJacTimesBS} specifies the Jacobian-vector 
   setup and product functions to be used, in the case where the backward problem
   depends on the forward sensitivities.
 }
@@ -1452,39 +1347,149 @@ problem through the following functions:
     pointer to the {\cvodes} memory block.
   \item[which] (\id{int})
     the identifier of the backward problem.
-  \item[jtsetupBS] (\id{CVSpilsJacTimesSetupFnBS})
+  \item[jtsetupBS] (\id{CVLsJacTimesSetupFnBS})
     user-defined function to set up the Jacobian-vector product.
     Pass \id{NULL} if no setup is necessary.
-  \item[jtvBS] (\id{CVSpilsJacTimesVecFnBS})
+  \item[jtvBS] (\id{CVLsJacTimesVecFnBS})
     user-defined Jacobian-vector product function.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVSPILS\_ILL\_INPUT]
-  \item[\Id{CVSPILS\_SUCCESS}] 
+  \begin{args}[CVLS\_ILL\_INPUT]
+  \item[\Id{CVLS\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{CVSPILS\_MEM\_NULL}]
+  \item[\Id{CVLS\_MEM\_NULL}]
     \id{cvode\_mem} was \id{NULL}.
-  \item[\Id{CVSPILS\_LMEM\_NULL}]
-    The {\cvspils} linear solver has not been initialized.
-  \item[\Id{CVSPILS\_NO\_ADJ}]
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The {\cvls} linear solver has not been initialized.
+  \item[\Id{CVLS\_NO\_ADJ}]
     The function \id{CVodeAdjInit} has not been previously called.
-  \item[\Id{CVSPILS\_ILL\_INPUT}]
+  \item[\Id{CVLS\_ILL\_INPUT}]
     The parameter \id{which} represented an invalid identifier.
   \end{args}
 }
 {
-  The function types \id{CVSpilsJacTimesVecFnBS} and 
-  \id{CVSpilsJacTimesSetupFnBS} are described in \S\ref{ss:jtimesv_b}.
+  The function types \id{CVLsJacTimesVecFnBS} and 
+  \id{CVLsJacTimesSetupFnBS} are described in \S\ref{ss:jtimesv_b}.
+
+  The previous routine \Id{CVSpilsSetJacTimesBS} is now a wrapper for this
+  routine, and may still be used for backward-compatibility.  However,
+  this will be deprecated in future releases, so we recommend that
+  users transition to the new routine name soon.
 }
 %%
-\ucfunction{CVSpilsSetEpsLinB}
+\index{optional input!matrix-free linear solver|)}
+%%
+%%
+%%
+\index{optional input!iterative linear solver|(}
+%%
+%%
+\index{preconditioning!user-supplied|(}
+\ucfunction{CVodeSetPreconditionerB}
 {
-  flag = CVSpilsSetEpsLinB(cvode\_mem, which, eplifacB);
+  flag = CVodeSetPreconditionerB(cvode\_mem, which, psetupB, psolveB);
 }
 {
-  The function \ID{CVSpilsSetEpsLinB} specifies the factor by
+  The function \ID{CVodeSetPrecSolveFnB} specifies the preconditioner
+  setup and solve functions for the backward integration.
+}
+{
+  \begin{args}[psetupB]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvodes} memory block.
+  \item[which] (\id{int})
+    the identifier of the backward problem.
+  \item[psetupB] (\id{CVLPrecSetupFnB})
+    user-defined preconditioner setup function.
+  \item[psolveB] (\id{CVLsPrecSolveFnB})
+    user-defined preconditioner solve function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[CVLS\_ILL\_INPUT]
+  \item[\Id{CVLS\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{CVLS\_MEM\_NULL}]
+    \id{cvode\_mem} was \id{NULL}.
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The {\cvls} linear solver has not been initialized.
+  \item[\Id{CVLS\_NO\_ADJ}]
+    The function \id{CVodeAdjInit} has not been previously called.
+  \item[\Id{CVLS\_ILL\_INPUT}]
+    The parameter \id{which} represented an invalid identifier.
+  \end{args}
+}
+{
+  The function types \id{CVLsPrecSolveFnB} and \id{CVLsPrecSetupFnB} are
+  described in \S\ref{ss:psolve_b} and \S\ref{ss:psetup_b}, respectively.
+  The \id{psetupB} argument may be \id{NULL} if no setup operation is involved
+  in the preconditioner.
+
+  The previous routine \Id{CVSpilsSetPrecSolveFnB} is now a wrapper for this
+  routine, and may still be used for backward-compatibility.  However,
+  this will be deprecated in future releases, so we recommend that
+  users transition to the new routine name soon.
+}
+%%
+\ucfunction{CVodeSetPreconditionerBS}
+{
+  flag = CVodeSetPreconditionerBS(cvode\_mem, which, psetupBS, psolveBS);
+}
+{
+  The function \ID{CVodeSetPrecSolveFnBS} specifies the preconditioner
+  setup and solve functions for the backward integration, in the case
+  where the backward problem depends on the forward sensitivities.
+}
+{
+  \begin{args}[psetupBS]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvodes} memory block.
+  \item[which] (\id{int})
+    the identifier of the backward problem.
+  \item[psetupBS] (\id{CVLsPrecSetupFnBS})
+    user-defined preconditioner setup function.
+  \item[psolveBS] (\id{CVLsPrecSolveFnBS})
+    user-defined preconditioner solve function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[CVLS\_ILL\_INPUT]
+  \item[\Id{CVLS\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{CVLS\_MEM\_NULL}]
+    \id{cvode\_mem} was \id{NULL}.
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The {\cvls} linear solver has not been initialized.
+  \item[\Id{CVLS\_NO\_ADJ}]
+    The function \id{CVodeAdjInit} has not been previously called.
+  \item[\Id{CVLS\_ILL\_INPUT}]
+    The parameter \id{which} represented an invalid identifier.
+  \end{args}
+}
+{
+  The function types \id{CVodePrecSolveFnBS} and \id{CVodePrecSetupFnBS} are
+  described in \S\ref{ss:psolve_b} and \S\ref{ss:psetup_b}, respectively.
+  The \id{psetupBS} argument may be \id{NULL} if no setup operation is involved
+  in the preconditioner.
+
+  The previous routine \Id{CVSpilsSetPrecSolveFnBS} is now a wrapper for this
+  routine, and may still be used for backward-compatibility.  However,
+  this will be deprecated in future releases, so we recommend that
+  users transition to the new routine name soon.
+}
+%%
+\index{preconditioning!user-supplied|)}
+%%
+\ucfunction{CVodeSetEpsLinB}
+{
+  flag = CVodeSetEpsLinB(cvode\_mem, which, eplifacB);
+}
+{
+  The function \ID{CVodeSetEpsLinB} specifies the factor by
   which the Krylov linear solver's convergence test constant is reduced
   from the nonlinear iteration test constant.
   This routine can be used in both the cases wherethe backward problem
@@ -1502,16 +1507,16 @@ problem through the following functions:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVSPILS\_ILL\_INPUT]
-  \item[\Id{CVSPILS\_SUCCESS}] 
+  \begin{args}[CVLS\_ILL\_INPUT]
+  \item[\Id{CVLS\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{CVSPILS\_MEM\_NULL}]
+  \item[\Id{CVLS\_MEM\_NULL}]
     \id{cvode\_mem} was \id{NULL}.
-  \item[\Id{CVSPILS\_LMEM\_NULL}]
-    The {\cvspils} linear solver has not been initialized.
-  \item[\Id{CVSPILS\_NO\_ADJ}]
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The {\cvls} linear solver has not been initialized.
+  \item[\Id{CVLS\_NO\_ADJ}]
     The function \id{CVodeAdjInit} has not been previously called.
-  \item[\Id{CVSPILS\_ILL\_INPUT}]
+  \item[\Id{CVLS\_ILL\_INPUT}]
     The parameter \id{which} represented an invalid identifier, or
     \id{eplifacB} was negative.
   \end{args}
@@ -1519,53 +1524,20 @@ problem through the following functions:
 {
   The default value is $0.05$.
   Passing a value \id{eplifacB}$ = 0.0$ also indicates using the default value.
+
+
+  The previous routine \Id{CVSpilsSetEpsLinB} is now a wrapper for this
+  routine, and may still be used for backward-compatibility.  However,
+  this will be deprecated in future releases, so we recommend that
+  users transition to the new routine name soon.
 }
 %%
-%% \ucfunction{CVSpilsSetPrecTypeB}
-%% {
-%%   flag = CVSpilsSetPrecTypeB(cvode\_mem, which, pretypeB);
-%% }
-%% {
-%%   The function \ID{CVSpilsSetPrecTypeB} resets the type
-%%   of preconditioning to be used.
-%% }
-%% {
-%%   \begin{args}[cvode\_mem]
-%%   \item[cvode\_mem] (\id{void *})
-%%     pointer to the {\cvodes} memory block.
-%%   \item[which] (\id{int})
-%%     the identifier of the backward problem.
-%%   \item[pretypeB] (\id{int})
-%%     \index{pretypeB@\texttt{pretypeB}}
-%%     specifies the type of prconditioning and must be one of:
-%%     \Id{PREC\_NONE}, \Id{PREC\_LEFT}, \Id{PREC\_RIGHT}, or \Id{PREC\_BOTH}.
-%%   \end{args}
-%% }
-%% {
-%%   The return value \id{flag} (of type \id{int}) is one of:
-%%   \begin{args}[CVSPILS\_ILL\_INPUT]
-%%   \item[\Id{CVSPILS\_SUCCESS}] 
-%%     The optional value has been successfully set.
-%%   \item[\Id{CVSPILS\_MEM\_NULL}]
-%%     \id{cvode\_mem} was \id{NULL}.
-%%   \item[\Id{CVSPILS\_LMEM\_NULL}]
-%%     The {\cvspils} linear solver has not been initialized.
-%%   \item[\Id{CVSPILS\_NO\_ADJ}]
-%%     The function \id{CVodeAdjInit} has not been previously called.
-%%   \item[\Id{CVSPILS\_ILL\_INPUT}]
-%%     The parameter \id{which} represented an invalid identifier, or
-%%     the value of \id{pretypeB} was not valid.
-%%   \end{args}
-%% }
-%% {
-%%   The preconditioning type is initially specified in the call
-%%   to the linear solver specification function (see \S\ref{sss:lin_solv_b}). 
-%%   The call to \id{CVSpilsSetPrecTypeB} is needed only if \id{pretypeB} is being
-%%   changed from its previous value.
-%% }
-%%
-\index{CVSPILS@{\cvspils} linear solver interface!optional input|)}
 \index{optional input!iterative linear solver|)}
+%%
+\index{CVLS@{\cvls} linear solver interface!optional input|)}
+\index{optional input!generic linear solver interface|)}
+
+
 
 %---------------------------------------------------------------------------
 \subsection{Optional output functions for the backward problem}\label{ss:optional_output_b}
@@ -1667,14 +1639,15 @@ used by \id{CVodeB}.
    \id{CV\_NO\_ADJ} if ASA was not initialized.}
 {  The members of each record \id{ckpnt[i]} are:
 \begin{itemize}
- \item: \id{ckpnt[i].my\_addr} (\id{void *}) address of current checkpoint
-        in \id{cvode\_mem->cv\_adj\_mem}
- \item: \id{ckpnt[i].next\_addr} (\id{void *}) address of next checkpoint
- \item: \id{ckpnt[i].t0} (\id{realtype}) start of checkpoint interval
- \item: \id{ckpnt[i].t1} (\id{realtype}) end of checkpoint interval
- \item: \id{ckpnt[i].nstep} (\id{long int}) step counter at ckeckpoint \id{t0}
- \item: \id{ckpnt[i].order} (\id{int}) method order at checkpoint \id{t0}
- \item: \id{ckpnt[i].step} (\id{realtype}) step size at checkpoint \id{t0}
+ \item \id{ckpnt[i].my\_addr} (\id{void *}) address of current checkpoint
+   in \\
+   \id{cvode\_mem->cv\_adj\_mem}
+ \item \id{ckpnt[i].next\_addr} (\id{void *}) address of next checkpoint
+ \item \id{ckpnt[i].t0} (\id{realtype}) start of checkpoint interval
+ \item \id{ckpnt[i].t1} (\id{realtype}) end of checkpoint interval
+ \item \id{ckpnt[i].nstep} (\id{long int}) step counter at ckeckpoint \id{t0}
+ \item \id{ckpnt[i].order} (\id{int}) method order at checkpoint \id{t0}
+ \item \id{ckpnt[i].step} (\id{realtype}) step size at checkpoint \id{t0}
 \end{itemize}
 }
 
@@ -1918,8 +1891,8 @@ In addition to the required ODE right-hand side function and any optional functi
 for the forward problem, when using the adjoint sensitivity module in {\cvodes},
 the user must supply one function defining the backward problem ODE and, optionally,
 functions to supply Jacobian-related information and one or two functions 
-that define the preconditioner (if one of the {\cvspils} solvers is
-selected) for the backward problem.
+that define the preconditioner (if an iterative {\sunlinsol} module is
+selected) for the backward problem. 
 Type definitions for all these user-supplied functions are given below.
 
 \subsection{ODE right-hand side for the backward problem}\label{ss:ODErhs_b}
@@ -2162,23 +2135,22 @@ The user must provide an \id{fQBS} function of type \ID{CVQuadRhsFnBS} defined b
 
 
 %%-------------------------------------------------------------------------------------
-\subsection{Jacobian information for the backward problem 
-  (direct method Jacobian)}\label{ss:djacFn_b}
+\subsection{Jacobian construction for the backward problem (matrix-based linear solvers)}\label{ss:jacFn_b}
   
-If the direct linear solver interface  is used for the backward problem (i.e. 
-\Id{CVDlsSetLinearSolverB} is called in the step described in 
-\S\ref{ss:skeleton_adj}), the user may
-provide a function of type \ID{CVDlsJacFnB} or \ID{CVDlsJacFnBS} 
-(see \S\ref{ss:optional_input_b}), defined as follows:
+If a matrix-based linear solver module is used for the backward
+problem (i.e., a non-\id{NULL} {\sunmatrix} object was supplied to
+\Id{CVodeSetLinearSolverB}), the user may provide a function of type
+\ID{CVLsJacFnB} or \ID{CVLsJacFnBS} (see \S\ref{ss:optional_input_b}),
+defined as follows:
 %%
 \index{Jacobian approximation function!user-supplied (backward)}
-\usfunction{CVDlsJacFnB}
+\usfunction{CVLsJacFnB}
 {
-  typedef int (*CVDlsJacFnB)(&realtype t, N\_Vector y, \\
-                             &N\_Vector yB, N\_Vector fyB, \\
-                             &SUNMatrix JacB, void *user\_dataB, \\
-                             &N\_Vector tmp1B, N\_Vector tmp2B, \\
-                             &N\_Vector tmp3B);
+  typedef int (*CVLsJacFnB)(&realtype t, N\_Vector y, \\
+                            &N\_Vector yB, N\_Vector fyB, \\
+                            &SUNMatrix JacB, void *user\_dataB, \\
+                            &N\_Vector tmp1B, N\_Vector tmp2B, \\
+                            &N\_Vector tmp3B);
 }
 {
   This function computes the Jacobian of the backward problem (or an approximation
@@ -2202,16 +2174,16 @@ provide a function of type \ID{CVDlsJacFnB} or \ID{CVDlsJacFnBS}
   \item[tmp2B]
   \item[tmp3B]
     are pointers to memory allocated  for variables of type \id{N\_Vector} which 
-    can be used by the \id{CVDlsJacFnB} function as temporary storage or work space.    
+    can be used by the \id{CVLsJacFnB} function as temporary storage or work space.    
   \end{args}
 }
 {
-  A \id{CVDlsJacFnB} should return 0 if successful, a positive value if a recoverable
-  error occurred (in which case {\cvodes} will attempt to correct, while {\cvdls} sets
-  \id{last\_flag} to \Id{CVDLS\_JACFUNC\_RECVR}), or a negative 
+  A \id{CVLsJacFnB} should return 0 if successful, a positive value if a recoverable
+  error occurred (in which case {\cvodes} will attempt to correct, while {\cvls} sets
+  \id{last\_flag} to \Id{CVLS\_JACFUNC\_RECVR}), or a negative 
   value if it failed unrecoverably (in which case the integration is halted, \id{CVodeB}
-  returns \Id{CV\_LSETUP\_FAIL} and {\cvdls} sets \id{last\_flag} to 
-  \Id{CVDLS\_JACFUNC\_UNRECVR}).
+  returns \Id{CV\_LSETUP\_FAIL} and {\cvls} sets \id{last\_flag} to 
+  \Id{CVLS\_JACFUNC\_UNRECVR}).
 }
 {
   A user-supplied Jacobian function must load the 
@@ -2227,22 +2199,27 @@ provide a function of type \ID{CVDlsJacFnB} or \ID{CVDlsJacFnBS}
   Only nonzero elements need to be loaded into \id{JacB} as this matrix 
   is set to zero before the call to the Jacobian function. 
   
-  {\warn}Before calling the user's \id{CVDlsJacFnB}, {\cvodes} needs to evaluate
+  {\warn}Before calling the user's \id{CVLsJacFnB}, {\cvodes} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
   If an error occurs in the interpolation, {\cvodes} triggers an unrecoverable
   failure in the Jacobian function which will halt the integration
-  (\id{CVodeB} returns \id{CV\_LSETUP\_FAIL} and {\cvdls} sets \id{last\_flag} to 
-  \Id{CVDLS\_JACFUNC\_UNRECVR}).
+  (\id{CVodeB} returns \id{CV\_LSETUP\_FAIL} and {\cvls} sets \id{last\_flag} to 
+  \Id{CVLS\_JACFUNC\_UNRECVR}).
+
+  The previous function type \Id{CVDlsJacFnB} is identical to
+  \id{CVLsJacFnB}, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new function type name soon.
 }
 %%
 \index{Jacobian approximation function!user-supplied (backward)}
-\usfunction{CVDlsJacFnBS}
+\usfunction{CVLsJacFnBS}
 {
-  typedef int (*CVDlsJacFnBS)(&realtype t, N\_Vector y, \\
-                                 &N\_Vector *yS, N\_Vector yB, N\_Vector fyB, \\
-                                 &SUNMatrix JacB, void *user\_dataB, \\
-                                 &N\_Vector tmp1B, N\_Vector tmp2B, \\
-                                 &N\_Vector tmp3B);
+  typedef int (*CVLsJacFnBS)(&realtype t, N\_Vector y, \\
+                             &N\_Vector *yS, N\_Vector yB, N\_Vector fyB, \\
+                             &SUNMatrix JacB, void *user\_dataB, \\
+                             &N\_Vector tmp1B, N\_Vector tmp2B, \\
+                             &N\_Vector tmp3B);
 }
 {
   This function computes the Jacobian of the backward problem (or an
@@ -2270,16 +2247,16 @@ provide a function of type \ID{CVDlsJacFnB} or \ID{CVDlsJacFnBS}
   \item[tmp2B]
   \item[tmp3B]
     are pointers to memory allocated  for variables of type \id{N\_Vector} which 
-    can be used by \id{CVDlsJacFnBS} as temporary storage or work space.    
+    can be used by \id{CVLsJacFnBS} as temporary storage or work space.    
   \end{args}
 }
 {
-  A \id{CVDlsJacFnBS} should return 0 if successful, a positive value if a recoverable
-  error occurred (in which case {\cvodes} will attempt to correct, while {\cvdls} sets
-  \id{last\_flag} to \Id{CVDLS\_JACFUNC\_RECVR}), or a negative 
+  A \id{CVLsJacFnBS} should return 0 if successful, a positive value if a recoverable
+  error occurred (in which case {\cvodes} will attempt to correct, while {\cvls} sets
+  \id{last\_flag} to \Id{CVLS\_JACFUNC\_RECVR}), or a negative 
   value if it failed unrecoverably (in which case the integration is halted, \id{CVodeB}
-  returns \Id{CV\_LSETUP\_FAIL} and {\cvdls} sets \id{last\_flag} to 
-  \Id{CVDLS\_JACFUNC\_UNRECVR}).
+  returns \Id{CV\_LSETUP\_FAIL} and {\cvls} sets \id{last\_flag} to 
+  \Id{CVLS\_JACFUNC\_UNRECVR}).
 }
 {
   A user-supplied Jacobian function must load the 
@@ -2295,32 +2272,37 @@ provide a function of type \ID{CVDlsJacFnB} or \ID{CVDlsJacFnBS}
   Only nonzero elements need to be loaded into \id{JacB} as this matrix 
   is set to zero before the call to the Jacobian function. 
   
-  {\warn}Before calling the user's \id{CVDlsDenseJacFnBS}, {\cvodes} needs to evaluate
+  {\warn}Before calling the user's \id{CVLsJacFnBS}, {\cvodes} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
   If an error occurs in the interpolation, {\cvodes} triggers an unrecoverable
   failure in the Jacobian function which will halt the integration
-  (\id{CVodeB} returns \id{CV\_LSETUP\_FAIL} and {\cvdls} sets \id{last\_flag} to 
-  \Id{CVDLS\_JACFUNC\_UNRECVR}).
+  (\id{CVodeB} returns \id{CV\_LSETUP\_FAIL} and {\cvls} sets \id{last\_flag} to 
+  \Id{CVLS\_JACFUNC\_UNRECVR}).
+
+  The previous function type \Id{CVDlsJacFnBS} is identical to
+  \id{CVLsJacFnBS}, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new function type name soon.
 }
 
 %%-------------------------------------------------------------------------------------
-\subsection{Jacobian information for the backward problem
- (matrix-vector product)}\label{ss:jtimesv_b}
+\subsection{Jacobian-vector product for the backward problem (matrix-free linear solvers)}\label{ss:jtimesv_b}
 \index{Jacobian approximation function!Jacobian-vector product!user-supplied (backward)}
-If the {\cvspils} solver interface is selected for the backward problem
-(i.e., \id{CVSpilsSetLinearSolverB} is called in the steps described in
-\S\ref{ss:skeleton_adj}), the user may
-provide a function of type \Id{CVSpilsJacTimesVecFnB} or 
-\Id{CVSpilsJacTimesVecFnBS} in the following form,
+
+If a matrix-free linear solver is to be used for the backward problem
+(i.e., a \id{NULL}-valued {\sunmatrix} was supplied to
+\id{CVodeSetLinearSolverB} in the steps described in
+\S\ref{ss:skeleton_adj}), the user may provide a function of type
+\Id{CVLsJacTimesVecFnB} or \Id{CVLsJacTimesVecFnBS} in the following form,
 to compute matrix-vector products $Jv$. If such a function is not supplied,
 the default is a difference quotient approximation to these products.
 %%
-\usfunction{CVSpilsJacTimesVecFnB}
+\usfunction{CVLsJacTimesVecFnB}
 {
-  typedef int (*CVSpilsJacTimesVecFnB)(&N\_Vector vB, N\_Vector JvB, \\
-                                       &realtype t, N\_Vector y, N\_Vector yB,\\
-                                       &N\_Vector fyB, void *user\_dataB,\\
-                                       &N\_Vector tmpB);
+  typedef int (*CVLsJacTimesVecFnB)(&N\_Vector vB, N\_Vector JvB, \\
+                                    &realtype t, N\_Vector y, N\_Vector yB,\\
+                                    &N\_Vector fyB, void *user\_dataB,\\
+                                    &N\_Vector tmpB);
 }
 {
   This function computes the action of the Jacobian \id{JB} for
@@ -2344,31 +2326,37 @@ the default is a difference quotient approximation to these products.
     is a pointer to user data -- the same as passed to \id{CVodeSetUserDataB}.
   \item[tmpB]
     is a pointer to memory allocated for a variable of type \id{N\_Vector} which
-    can be used by \id{CVSpilsJacTimesVecFn} as temporary storage or work space.
+    can be used by \id{CVLsJacTimesVecFn} as temporary storage or work space.
   \end{args}
 }
 {  
-  The return value of a function of type \id{CVSpilsJtimesVecFnB} should be
+  The return value of a function of type \id{CVLsJacTimesVecFnB} should be
   $0$ if successful or nonzero if an error was encountered, in which case
   the integration is halted.
 }
 {
-  A user-supplied Jacobian-vector product function must load the vector \id{JvB}
-  with the product of the Jacobian of the backward problem 
-  at the point (\id{t},\id{y}, \id{yB}) and the vector \id{vB}. 
+  A user-supplied Jacobian-vector product function must load the
+  vector \id{JvB} with the product of the Jacobian of the backward
+  problem at the point (\id{t},\id{y}, \id{yB}) and the vector \id{vB}. 
   Here, \id{y} is the solution of the original IVP at time \id{t} and 
   \id{yB} is the solution of the backward problem at the same time.  
   The rest of the arguments are equivalent to those passed to a function of type
-  \id{CVSpilsJacTimesVecFn} (see \S\ref{ss:jtimesFn}).
+  \id{CVLsJacTimesVecFn} (see \S\ref{ss:jtimesFn}).
   If the backward problem is the adjoint of ${\dot y} = f(t, y)$, then this 
   function is to compute $-(\dfdyI)^T v_B$.
+
+  The previous function type \Id{CVSpilsJacTimesVecFnB} is identical
+  to \\ \noindent \id{CVLsJacTimesVecFnB}, and may still be used for
+  backward-compatibility.  However, this will be deprecated in future
+  releases, so we recommend that users transition to the new function
+  type name soon. 
 }
-\usfunction{CVSpilsJacTimesVecFnBS}
+\usfunction{CVLsJacTimesVecFnBS}
 {
-  typedef int (*CVSpilsJacTimesVecFn&BS)(N\_Vector vB, N\_Vector JvB, \\
-                                    &realtype t, N\_Vector y, N\_Vector *yS,\\
-                                    &N\_Vector yB, N\_Vector fyB,\\
-                                    &void *user\_dataB, N\_Vector tmpB);
+  typedef int (*CVLsJacTimesVecFnBS)(&N\_Vector vB, N\_Vector JvB, \\
+                                     &realtype t, N\_Vector y, N\_Vector *yS,\\
+                                     &N\_Vector yB, N\_Vector fyB,\\
+                                     &void *user\_dataB, N\_Vector tmpB);
 }
 {
   This function computes the action of the Jacobian \id{JB} for
@@ -2395,11 +2383,11 @@ the default is a difference quotient approximation to these products.
     is a pointer to user data -- the same as passed to \id{CVodeSetUserDataB}.
   \item[tmpB]
     is a pointer to memory allocated for a variable of type \id{N\_Vector} which
-    can be used by \id{CVSpilsJacTimesVecFn} as temporary storage or work space.
+    can be used by \id{CVLsJacTimesVecFn} as temporary storage or work space.
   \end{args}
 }
 {  
-  The return value of a function of type \id{CVSpilsJtimesVecFnBS} should be
+  The return value of a function of type \id{CVLsJacTimesVecFnBS} should be
   $0$ if successful or nonzero if an error was encountered, in which case
   the integration is halted.
 }
@@ -2410,22 +2398,29 @@ the default is a difference quotient approximation to these products.
   Here, \id{y} is the solution of the original IVP at time \id{t} and 
   \id{yB} is the solution of the backward problem at the same time.  
   The rest of the arguments are equivalent to those passed to a function of type
-  \id{CVSpilsJacTimesVecFn} (see \S\ref{ss:jtimesFn}).
- }
+  \id{CVLsJacTimesVecFn} (see \S\ref{ss:jtimesFn}).
+
+  The previous function type \Id{CVSpilsJacTimesVecFnBS} is identical
+  to \\ \noindent \id{CVLsJacTimesVecFnBS}, and may still be used for
+  backward-compatibility.  However, this will be deprecated in future
+  releases, so we recommend that users transition to the new function
+  type name soon. 
+}
 
 %%-------------------------------------------------------------------------------------
-\subsection{Jacobian information for the backward problem
-   (matrix-vector setup)}\label{ss:jactimesvecsetup_b}
+\subsection{Jacobian-vector product setup for the backward problem (matrix-free linear solvers)}\label{ss:jactimesvecsetup_b}
 \index{Jacobian approximation function!Jacobian-vector setup!user-supplied (backward)}
-If the user's Jacobian-times-vector requires that any Jacobian-related data
-be preprocessed or evaluated, then this needs to be done in a
-user-supplied function of type \Id{CVSpilsJacTimesSetupFnB}, defined as follows:
+
+If the user's Jacobian-times-vector routine requires that any
+Jacobian-related data be preprocessed or evaluated, then this needs to
+be done in a user-supplied function of type \Id{CVLsJacTimesSetupFnB}
+or \Id{CVLsJacTimesSetupFnBS}, defined as follows: 
 %%
-\usfunction{CVSpilsJacTimesSetupFnB}
+\usfunction{CVLsJacTimesSetupFnB}
 {
-  typedef int (*CVSpilsJacTimesSetupFnB)(&realtype t, \\
-                                        &N\_Vector y, N\_Vector yB, \\
-                                        &N\_Vector fyB, void *user\_dataB);
+  typedef int (*CVLsJacTimesSetupFnB)(&realtype t, \\
+                                      &N\_Vector y, N\_Vector yB, \\
+                                      &N\_Vector fyB, void *user\_dataB);
 }
 {
   This function preprocesses and/or evaluates Jacobian data needed
@@ -2459,22 +2454,27 @@ user-supplied function of type \Id{CVSpilsJacTimesSetupFnB}, defined as follows:
   Thus, the setup function can use any auxiliary data that is computed
   and saved during the evaluation of the right-hand-side function. 
   
-  If the user's \id{CVSpilsJacTimesVecFnB} function uses difference quotient
+  If the user's \id{CVLsJacTimesVecFnB} function uses difference quotient
   approximations, it may need to access quantities not in the call
   list. These include the current stepsize, the error weights, etc.
   To obtain these, the user will need to add a pointer to \id{cvode\_mem} 
   to \id{user\_dataB} and then use the \id{CVGet*} functions described in
   \S\ref{sss:optout_main}. The unit roundoff can be accessed as
   \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
+
+  The previous function type \Id{CVSpilsJacTimesSetupFnB} is identical
+  to \\ \noindent \id{CVLsJacTimesSetupFnB}, and may still be used for
+  backward-compatibility.  However, this will be deprecated in future 
+  releases, so we recommend that users transition to the new function
+  type name soon.  
 }
-{}
 %%
-\usfunction{CVSpilsJacTimesSetupFnBS}
+\usfunction{CVLsJacTimesSetupFnBS}
 {
-  typedef int (*CVSpilsJacTimesSetupFnBS)(&realtype t, \\
-                                        &N\_Vector y, N\_Vector *yS, \\
-                                        &N\_Vector yB, N\_Vector fyB, \\
-                                        &void *user\_dataB);
+  typedef int (*CVLsJacTimesSetupFnBS)(&realtype t, \\
+                                       &N\_Vector y, N\_Vector *yS, \\
+                                       &N\_Vector yB, N\_Vector fyB, \\
+                                       &void *user\_dataB);
 }
 {
   This function preprocesses and/or evaluates Jacobian data needed
@@ -2512,37 +2512,42 @@ user-supplied function of type \Id{CVSpilsJacTimesSetupFnB}, defined as follows:
   Thus, the setup function can use any auxiliary data that is computed
   and saved during the evaluation of the right-hand-side function.
   
-  If the user's \id{CVSpilsJacTimesVecFnB} function uses difference quotient
+  If the user's \id{CVLsJacTimesVecFnBS} function uses difference quotient
   approximations, it may need to access quantities not in the call
   list. These include the current stepsize, the error weights, etc.
   To obtain these, the user will need to add a pointer to \id{cvode\_mem} 
   to \id{user\_dataB} and then use the \id{CVGet*} functions described in
   \S\ref{sss:optout_main}. The unit roundoff can be accessed as
   \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
+
+  The previous function type \Id{CVSpilsJacTimesSetupFnBS} is identical
+  to \\ \noindent \id{CVLsJacTimesSetupFnBS}, and may still be used for
+  backward-compatibility.  However, this will be deprecated in future 
+  releases, so we recommend that users transition to the new function
+  type name soon.  
 }
-{}
 
 %%-------------------------------------------------------------------------------------
-\subsection{Preconditioning for the backward problem
- (linear system solution)}\label{ss:psolve_b}
+\subsection{Preconditioner solve for the backward problem (iterative linear solvers)}\label{ss:psolve_b}
 \index{preconditioning!user-supplied}
-\index{CVSPILS@{\cvspils} linear solver!preconditioner solve function}
-If preconditioning is used during integration of the backward problem, 
-then the user must provide a {\CC} function to solve the linear system 
-$Pz = r$, where $P$ may be either a left or a right preconditioner matrix.
-Here $P$ should approximate (at least crudely) the matrix 
-$M_B = I - \gamma_B J_B$, where $J_B = \partial f_B/ \partial y_B$.  If
+\index{CVLS@{\cvls} linear solver!preconditioner solve function}
+
+If a user-supplied preconditioner is to be used with a {\sunlinsol}
+solver module, then the user must provide a function to solve the
+linear system $Pz = r$, where $P$ may be either a left or a right
+preconditioner matrix.  Here $P$ should approximate (at least crudely)
+the matrix $M_B = I - \gamma_B J_B$, where $J_B = \partial f_B/ \partial y_B$.  If
 preconditioning is done on both sides, the product of the two
 preconditioner matrices should approximate $M_B$.
 This function must be of one of the following two types:
 %%
-\usfunction{CVSpilsPrecSolveFnB}
+\usfunction{CVLsPrecSolveFnB}
 {
-  typedef int (*CVSpilsPrecSolveFnB)(&realtype t, N\_Vector y, \\
-                                     &N\_Vector yB, N\_Vector fyB, \\
-                                     &N\_Vector rvecB, N\_Vector zvecB, \\
-                                     &realtype gammaB, realtype deltaB, \\
-                                     &void *user\_dataB);
+  typedef int (*CVLsPrecSolveFnB)(&realtype t, N\_Vector y, \\
+                                  &N\_Vector yB, N\_Vector fyB, \\
+                                  &N\_Vector rvecB, N\_Vector zvecB, \\
+                                  &realtype gammaB, realtype deltaB, \\
+                                  &void *user\_dataB);
 }
 {
   This function solves the preconditioning system $Pz = r$ for the backward problem.
@@ -2577,15 +2582,20 @@ This function must be of one of the following two types:
   positive for a recoverable error (in which case the step will be retried), or
   negative for an unrecoverable error (in which case the integration is halted).
 }
-{}
-%
-\usfunction{CVSpilsPrecSolveFnBS}
 {
-  typedef int (*CVSpilsPrecSolveFnBS)(&realtype t, N\_Vector y, N\_Vector *yS,\\
-                                      &N\_Vector yB, N\_Vector fyB, \\
-                                      &N\_Vector rvecB, N\_Vector zvecB, \\
-                                      &realtype gammaB, realtype deltaB, \\
-                                      &void *user\_dataB);
+  The previous function type \Id{CVSpilsPrecSolveFnB} is identical to
+  \id{CVLsPrecSolveFnB}, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new function type name soon.
+}
+%
+\usfunction{CVLsPrecSolveFnBS}
+{
+  typedef int (*CVLsPrecSolveFnBS)(&realtype t, N\_Vector y, N\_Vector *yS,\\
+                                   &N\_Vector yB, N\_Vector fyB, \\
+                                   &N\_Vector rvecB, N\_Vector zvecB, \\
+                                   &realtype gammaB, realtype deltaB, \\
+                                   &void *user\_dataB);
 }
 {
   This function solves the preconditioning system $Pz = r$ for the backward problem,
@@ -2623,30 +2633,35 @@ This function must be of one of the following two types:
   positive for a recoverable error (in which case the step will be retried), or
   negative for an unrecoverable error (in which case the integration is halted).
 }
-{}
+{
+  The previous function type \Id{CVSpilsPrecSolveFnBS} is identical to
+  \id{CVLsPrecSolveFnBS}, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new function type name soon.
+}
 
 %%-------------------------------------------------------------------------------------
-\subsection{Preconditioning for the backward problem
- (Jacobian data)}\label{ss:psetup_b}
+\subsection{Preconditioner setup for the backward problem (iterative linear solvers)}\label{ss:psetup_b}
 \index{preconditioning!user-supplied}
-\index{CVSPILS@{\cvspils} linear solver!preconditioner setup function}
+\index{CVLS@{\cvls} linear solver!preconditioner setup function}
+
 If the user's preconditioner requires that any Jacobian-related data
 be preprocessed or evaluated, then this needs to be done in a
-user-supplied {\CC} function of one of the following two types:
+user-supplied function of one of the following two types:
 %%
-\usfunction{CVSpilsPrecSetupFnB}
+\usfunction{CVLsPrecSetupFnB}
 {
-  typedef int (*CVSpilsPrecSetupFn&B)(realtype t, N\_Vector y, \\
-                                     &N\_Vector yB, N\_Vector fyB, \\ 
-                                     &booleantype jokB, booleantype *jcurPtrB,\\
-                                     &realtype gammaB, void *user\_dataB);
+  typedef int (*CVLsPrecSetupFnB)(&realtype t, N\_Vector y, \\
+                                  &N\_Vector yB, N\_Vector fyB, \\ 
+                                  &booleantype jokB, booleantype *jcurPtrB,\\
+                                  &realtype gammaB, void *user\_dataB);
 }
 {
   This function preprocesses and/or evaluates Jacobian-related data needed
   by the preconditioner for the backward problem.
 }
 {
-  The arguments of a \id{CVSpilsPrecSetupFnB} are as follows:
+  The arguments of a \id{CVLsPrecSetupFnB} are as follows:
   \begin{args}[user\_dataB]
   \item[t]
     is the current value of the independent variable.
@@ -2676,14 +2691,19 @@ user-supplied {\CC} function of one of the following two types:
   positive for a recoverable error (in which case the step will be retried),     
   or negative for an unrecoverable error (in which case the integration is halted).
 }
-{}
-
-\usfunction{CVSpilsPrecSetupFnBS}
 {
-  typedef int (*CVSpilsPrecSetupFn&BS)(realtype t, N\_Vector y, N\_Vector *yS,\\
-                                     &N\_Vector yB, N\_Vector fyB, \\ 
-                                     &booleantype jokB, booleantype *jcurPtrB,\\
-                                     &realtype gammaB, void *user\_dataB);
+  The previous function type \Id{CVSpilsPrecSetupFnB} is identical to
+  \id{CVLsPrecSetupFnB}, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new function type name soon.  
+}
+
+\usfunction{CVLsPrecSetupFnBS}
+{
+  typedef int (*CVLsPrecSetupFnBS)(&realtype t, N\_Vector y, N\_Vector *yS,\\
+                                   &N\_Vector yB, N\_Vector fyB, \\ 
+                                   &booleantype jokB, booleantype *jcurPtrB,\\
+                                   &realtype gammaB, void *user\_dataB);
 }
 {
   This function preprocesses and/or evaluates Jacobian-related data needed
@@ -2692,7 +2712,7 @@ user-supplied {\CC} function of one of the following two types:
 
 }
 {
-  The arguments of a \id{CVSpilsPrecSetupFnBS} are as follows:
+  The arguments of a \id{CVLsPrecSetupFnBS} are as follows:
   \begin{args}[user\_dataB]
   \item[t]
     is the current value of the independent variable.
@@ -2724,7 +2744,12 @@ user-supplied {\CC} function of one of the following two types:
   positive for a recoverable error (in which case the step will be retried),     
   or negative for an unrecoverable error (in which case the integration is halted).
 }
-{}
+{
+  The previous function type \Id{CVSpilsPrecSetupFnBS} is identical to
+  \id{CVLsPrecSetupFnBS}, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new function type name soon.  
+}
 %%
 %%-------------------------------------------------------------------
 %%-------------------------------------------------------------------
@@ -2756,9 +2781,9 @@ super-diagonals to be used with one of the Krylov linear solvers.
 
 In order to use the {\cvbandpre} module in the solution of the backward problem,
 the user need not define any additional functions. 
-Instead, {\em after} one of the {\cvspils} linear solvers has been specified,
-by calling the appropriate function (see \S\ref{sss:lin_solv_b}), the following call
-to the {\cvbandpre} module initialization function must be made.
+Instead, {\em after} an iterative {\sunlinsol} object has been
+attached to {\cvodes} via a call to \Id{CVodeSetLinearSolverB}, the
+following call to the {\cvbandpre} module initialization function must be made. 
 %%
 %%
 \index{CVBANDPRE@{\cvbandpre} preconditioner!user-callable functions|(}
@@ -2788,16 +2813,16 @@ to the {\cvbandpre} module initialization function must be made.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVSPILS\_ILL\_INPUT]
-  \item[\Id{CVSPILS\_SUCCESS}]
+  \begin{args}[CVLS\_ILL\_INPUT]
+  \item[\Id{CVLS\_SUCCESS}]
     The call to \id{CVodeBandPrecInitB} was successful.
-  \item[\Id{CVSPILS\_MEM\_FAIL}]
+  \item[\Id{CVLS\_MEM\_FAIL}]
     A memory allocation request has failed.
-  \item[\Id{CVSPILS\_MEM\_NULL}]
+  \item[\Id{CVLS\_MEM\_NULL}]
     The \id{cvode\_mem} argument was \id{NULL}.
-  \item[\Id{CVSPILS\_LMEM\_NULL}]
+  \item[\Id{CVLS\_LMEM\_NULL}]
     No linear solver has been attached.
-  \item[\Id{CVSPILS\_ILL\_INPUT}]
+  \item[\Id{CVLS\_ILL\_INPUT}]
     An invalid parameter has been passed.
   \end{args}
 }
@@ -2828,8 +2853,8 @@ end of this section.
 %%
 \index{CVBBDPRE@{\cvbbdpre} preconditioner!user-callable functions|(}
 The {\cvbbdpre} module is initialized by calling the following function,
-{\em after} one of the {\cvspils} linear solvers has been specified
-by calling the appropriate function (see \S\ref{sss:lin_solv_b}).
+{\em after} an iterative {\sunlinsol} object has been
+attached to {\cvodes} via a call to \Id{CVodeSetLinearSolverB}.
 %%
 %%
 \ucfunction{CVBBDPrecInitB}
@@ -2866,25 +2891,25 @@ by calling the appropriate function (see \S\ref{sss:lin_solv_b}).
     approximations.  The default is \id{dqrelyB}$ = \sqrt{\text{unit roundoff}}$, which
     can be specified by passing \id{dqrely}$ = 0.0$.
   \item[glocB] (\id{CVBBDLocalFnB})
-    the {\CC} function which computes the function $g_B(t,y,y_B)$ approximating
+    the function which computes the function $g_B(t,y,y_B)$ approximating
     the right-hand side of the backward problem. 
   \item[gcommB] (\id{CVBBDCommFnB})
-    the optional {\CC} function which performs all interprocess communication required for
+    the optional function which performs all interprocess communication required for
     the computation of $g_B$.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVSPILS\_ILL\_INPUT]
-  \item[\Id{CVSPILS\_SUCCESS}]
+  \begin{args}[CVLS\_ILL\_INPUT]
+  \item[\Id{CVLS\_SUCCESS}]
     The call to \id{CVodeBBDPrecInitB} was successful.
-  \item[\Id{CVSPILS\_MEM\_FAIL}]
+  \item[\Id{CVLS\_MEM\_FAIL}]
     A memory allocation request has failed.
-  \item[\Id{CVSPILS\_MEM\_NULL}]
+  \item[\Id{CVLS\_MEM\_NULL}]
     The \id{cvode\_mem} argument was \id{NULL}.
-  \item[\Id{CVSPILS\_LMEM\_NULL}]
+  \item[\Id{CVLS\_LMEM\_NULL}]
     No linear solver has been attached.
-  \item[\Id{CVSPILS\_ILL\_INPUT}]
+  \item[\Id{CVLS\_ILL\_INPUT}]
     An invalid parameter has been passed.
   \end{args}
 }
@@ -2920,18 +2945,18 @@ function:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[CVSPILS\_ILL\_INPUT]
-  \item[\Id{CVSPILS\_SUCCESS}]
+  \begin{args}[CVLS\_ILL\_INPUT]
+  \item[\Id{CVLS\_SUCCESS}]
     The call to \id{CVodeBBDPrecReInitB} was successful.
-  \item[\Id{CVSPILS\_MEM\_FAIL}]
+  \item[\Id{CVLS\_MEM\_FAIL}]
     A memory allocation request has failed.
-  \item[\Id{CVSPILS\_MEM\_NULL}]
+  \item[\Id{CVLS\_MEM\_NULL}]
     The \id{cvode\_mem} argument was \id{NULL}.
-  \item[\Id{CVSPILS\_PMEM\_NULL}]
+  \item[\Id{CVLS\_PMEM\_NULL}]
     The \id{CVodeBBDPrecInitB} has not been previously called.
-  \item[\Id{CVSPILS\_LMEM\_NULL}]
+  \item[\Id{CVLS\_LMEM\_NULL}]
     No linear solver has been attached.
-  \item[\Id{CVSPILS\_ILL\_INPUT}]
+  \item[\Id{CVLS\_ILL\_INPUT}]
     An invalid parameter has been passed.
   \end{args}
 }

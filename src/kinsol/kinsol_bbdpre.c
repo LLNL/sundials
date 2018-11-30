@@ -121,7 +121,7 @@ int KINBBDPrecInit(void *kinmem, sunindextype Nlocal,
 
   /* Allocate memory for preconditioner matrix */
   pdata->PP = NULL;
-  pdata->PP = SUNBandMatrix(Nlocal, muk, mlk, storage_mu);
+  pdata->PP = SUNBandMatrixStorage(Nlocal, muk, mlk, storage_mu);
   if (pdata->PP == NULL) {
     free(pdata); pdata = NULL;
     KINProcessError(kin_mem, KINLS_MEM_FAIL, "KINBBDPRE",

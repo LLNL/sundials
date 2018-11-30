@@ -47,11 +47,20 @@ static int SMScaleAddNew_Band(realtype c, SUNMatrix A, SUNMatrix B);
  */
 
 /* ----------------------------------------------------------------------------
- * Function to create a new band matrix
+ * Function to create a new band matrix with default storage upper bandwidth 
  */
 
-SUNMatrix SUNBandMatrix(sunindextype N, sunindextype mu,
-                        sunindextype ml, sunindextype smu)
+SUNMatrix SUNBandMatrix(sunindextype N, sunindextype mu, sunindextype ml)
+{
+  return (SUNBandMatrixStorage(N, mu, ml, mu+ml));
+}
+
+/* ----------------------------------------------------------------------------
+ * Function to create a new band matrix with specified storage upper bandwidth
+ */
+
+SUNMatrix SUNBandMatrixStorage(sunindextype N, sunindextype mu,
+                               sunindextype ml, sunindextype smu)
 {
   SUNMatrix A;
   SUNMatrix_Ops ops;
@@ -239,8 +248,8 @@ SUNMatrix_ID SUNMatGetID_Band(SUNMatrix A)
 
 SUNMatrix SUNMatClone_Band(SUNMatrix A)
 {
-  SUNMatrix B = SUNBandMatrix(SM_COLUMNS_B(A), SM_UBAND_B(A),
-                              SM_LBAND_B(A), SM_SUBAND_B(A));
+  SUNMatrix B = SUNBandMatrixStorage(SM_COLUMNS_B(A), SM_UBAND_B(A),
+                                     SM_LBAND_B(A), SM_SUBAND_B(A));
   return(B);
 }
 
@@ -452,7 +461,7 @@ int SMScaleAddNew_Band(realtype c, SUNMatrix A, SUNMatrix B)
   ml  = SUNMAX(SM_LBAND_B(A),SM_LBAND_B(B));
   mu  = SUNMAX(SM_UBAND_B(A),SM_UBAND_B(B));
   smu = SUNMIN(SM_COLUMNS_B(A)-1, mu + ml);
-  C = SUNBandMatrix(SM_COLUMNS_B(A), mu, ml, smu);
+  C = SUNBandMatrixStorage(SM_COLUMNS_B(A), mu, ml, smu);
 
   /* scale/add c*A into new matrix */
   for (j=0; j<SM_COLUMNS_B(A); j++) {

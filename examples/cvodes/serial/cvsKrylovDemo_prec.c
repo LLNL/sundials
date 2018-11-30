@@ -99,9 +99,8 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include <cvodes/cvodes.h>                /* main integrator header file                 */
+#include <cvodes/cvodes.h>              /* main integrator header file                 */
 #include <sunlinsol/sunlinsol_spgmr.h>  /* access to SPGMR SUNLinearSolver             */
-#include <cvodes/cvodes_spils.h>          /* access to CVSpils interface                 */
 #include <nvector/nvector_serial.h>     /* serial N_Vector types, fct. and macros      */
 #include <sundials/sundials_dense.h>    /* use generic DENSE solver in preconditioning */
 #include <sundials/sundials_types.h>    /* definition of realtype                      */
@@ -148,7 +147,7 @@
 #define RTOL RCONST(1.0e-5)
 #define ATOL RCONST(1.0e-5)
 
-/* Spgmr/SPILS Constants */
+/* Spgmr/CVLS Constants */
 
 #define MAXL 0     /* => use default = MIN(NEQ, 5)            */
 #define DELT ZERO  /* => use default = 0.05                   */
@@ -280,17 +279,17 @@ int main()
         LS = SUNLinSol_SPGMR(c, jpre, MAXL);
         if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
-        retval = CVSpilsSetLinearSolver(cvode_mem, LS);
-        if(check_retval(&retval, "CVSpilsSetLinearSolver", 1)) return 1;
+        retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
+        if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return 1;
 
         retval = SUNLinSol_SPGMRSetGSType(LS, gstype);
         if(check_retval(&retval, "SUNLinSol_SPGMRSetGSType", 1)) return(1);
 
-        retval = CVSpilsSetEpsLin(cvode_mem, DELT);
-        if(check_retval(&retval, "CVSpilsSetEpsLin", 1)) return(1);
+        retval = CVodeSetEpsLin(cvode_mem, DELT);
+        if(check_retval(&retval, "CVodeSetEpsLin", 1)) return(1);
 
-        retval = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve);
-        if(check_retval(&retval, "CVSpilsSetPreconditioner", 1)) return(1);
+        retval = CVodeSetPreconditioner(cvode_mem, Precond, PSolve);
+        if(check_retval(&retval, "CVodeSetPreconditioner", 1)) return(1);
 
       } else {
 
@@ -605,24 +604,24 @@ static void PrintFinalStats(void *cvode_mem)
   retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1);
 
-  retval = CVSpilsGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
-  check_retval(&retval, "CVSpilsGetWorkSpace", 1);
-  retval = CVSpilsGetNumLinIters(cvode_mem, &nli);
-  check_retval(&retval, "CVSpilsGetNumLinIters", 1);
-  retval = CVSpilsGetNumPrecEvals(cvode_mem, &npe);
-  check_retval(&retval, "CVSpilsGetNumPrecEvals", 1);
-  retval = CVSpilsGetNumPrecSolves(cvode_mem, &nps);
-  check_retval(&retval, "CVSpilsGetNumPrecSolves", 1);
-  retval = CVSpilsGetNumConvFails(cvode_mem, &ncfl);
-  check_retval(&retval, "CVSpilsGetNumConvFails", 1);
-  retval = CVSpilsGetNumRhsEvals(cvode_mem, &nfeLS);
-  check_retval(&retval, "CVSpilsGetNumRhsEvals", 1);
+  retval = CVodeGetLinWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
+  check_retval(&retval, "CVodeGetLinWorkSpace", 1);
+  retval = CVodeGetNumLinIters(cvode_mem, &nli);
+  check_retval(&retval, "CVodeGetNumLinIters", 1);
+  retval = CVodeGetNumPrecEvals(cvode_mem, &npe);
+  check_retval(&retval, "CVodeGetNumPrecEvals", 1);
+  retval = CVodeGetNumPrecSolves(cvode_mem, &nps);
+  check_retval(&retval, "CVodeGetNumPrecSolves", 1);
+  retval = CVodeGetNumLinConvFails(cvode_mem, &ncfl);
+  check_retval(&retval, "CVodeGetNumLinConvFails", 1);
+  retval = CVodeGetNumLinRhsEvals(cvode_mem, &nfeLS);
+  check_retval(&retval, "CVodeGetNumLinRhsEvals", 1);
 
   printf("\n\n Final statistics for this run:\n\n");
   printf(" CVode real workspace length           = %4ld \n", lenrw);
   printf(" CVode integer workspace length        = %4ld \n", leniw);
-  printf(" CVSPILS real workspace length         = %4ld \n", lenrwLS);
-  printf(" CVSPILS integer workspace length      = %4ld \n", leniwLS);
+  printf(" CVLS real workspace length            = %4ld \n", lenrwLS);
+  printf(" CVLS integer workspace length         = %4ld \n", leniwLS);
   printf(" Number of steps                       = %4ld \n", nst);
   printf(" Number of f-s                         = %4ld \n", nfe);
   printf(" Number of f-s (SPGMR)                 = %4ld \n", nfeLS);

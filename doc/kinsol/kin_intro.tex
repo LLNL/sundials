@@ -111,6 +111,16 @@ interfacing the solver to applications written in {\F}.
 
 \subsection*{Changes in v4.0.0}
 
+The {\kinls} linear solver interface has been finalized, and supports
+{\sunlinsol} implementations of ``DIRECT'', ``ITERATIVE'', and
+``MATRIX\_ITERATIVE'' types.  Details regarding how {\kinls} utilizes linear
+solvers of each type are included in \S\ref{s:sunlinsol}, as
+well as discussion regarding intended use cases for user-supplied
+{\sunlinsol} implementations.
+
+The \id{SUNBandMatrix} constructor has been simplified to remove the
+storage upper bandwidth argument.
+
 {\kinsol}'s previous direct and iterative linear solver interfaces,
 {\kindls} and {\kinspils}, have been merged into a single unified linear
 solver interface, {\kinls}, to support any valid {\sunlinsol} module.

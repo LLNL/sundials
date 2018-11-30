@@ -37,6 +37,7 @@ nvec_parhyp.tex \
 nvec_petsc.tex \
 nvec_cuda.tex \
 nvec_raja.tex \
+nvec_examples.tex \
 spils_constants.tex \
 sun_org.tex \
 sundials_version.tex \
@@ -44,6 +45,7 @@ sunmatrix_generic.tex \
 sunmatrix_band.tex \
 sunmatrix_dense.tex \
 sunmatrix_sparse.tex \
+sunmatrix_examples.tex \
 sunlinsol_generic.tex \
 sunlinsol_band.tex \
 sunlinsol_dense.tex \
@@ -56,6 +58,7 @@ sunlinsol_spfgmr.tex \
 sunlinsol_spgmr.tex \
 sunlinsol_sptfqmr.tex \
 sunlinsol_superlumt.tex \
+sunlinsol_examples.tex \
 sunnonlinsol_generic.tex \
 sunnonlinsol_newton.tex \
 sunnonlinsol_fixedpoint.tex \

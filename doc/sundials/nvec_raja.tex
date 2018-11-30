@@ -1,6 +1,8 @@
 % This is a shared SUNDIALS TEX file with description of
 % the CUDA nvector implementation
 %
+\section{The NVECTOR\_RAJA implementation}\label{ss:nvec_raja}
+
 The {\nvecraja} module is an experimental {\nvector} implementation using the
 \href{https://software.llnl.gov/RAJA/}{\raja} hardware abstraction layer.
 In this implementation, {\raja}
@@ -8,7 +10,7 @@ allows for {\sundials} vector kernels to run on GPU devices. The module is inten
 who are already familiar with {\raja} and GPU programming. Building this vector
 module requires a C++11 compliant compiler and a CUDA software development toolkit.
 Besides the {\cuda} backend, {\raja} has other backends such as serial, OpenMP,
-and OpenAC. These backends are not used in this {\sundials} release.
+and OpenACC. These backends are not used in this {\sundials} release.
 Class \id{Vector} in namespace \id{sunrajavec} manages the vector data layout:
 \begin{verbatim}
 template <class T, class I>

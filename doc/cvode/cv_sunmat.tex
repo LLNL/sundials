@@ -7,6 +7,8 @@
 
 %---------------------------------------------------------------------------
 \section{SUNMatrix functions used by CVODE}
+\label{s:sunmat_usage}
+%---------------------------------------------------------------------------
 
 In Table \ref{t:sunmatuse}, we list the matrix functions in the 
 {\sunmatrix} module used within the {\cvode} package.
@@ -57,3 +59,11 @@ We note that the {\cvbandpre} and {\cvbbdpre} preconditioner modules
 are hard-coded to use the {\sundials}-supplied band {\sunmatrix} type,
 so the most useful information above for user-supplied {\sunmatrix}
 implementations is the column relating the {\cvls} requirements.
+
+%---------------------------------------------------------------------------
+% sunmatrix module sections
+%---------------------------------------------------------------------------
+
+\input{sunmatrix_dense}
+\input{sunmatrix_band}
+\input{sunmatrix_sparse}

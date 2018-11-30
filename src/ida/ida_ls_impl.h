@@ -1,15 +1,15 @@
-/*----------------------------------------------------------------- 
+/*-----------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
  *                Alan C. Hindmarsh and Radu Serban @ LLNL
  *-----------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2018, Southern Methodist University and 
+ * Copyright (c) 2018, Southern Methodist University and
  * Lawrence Livermore National Security
  *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Southern Methodist University and Lawrence Livermore
  * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
+ * Produced at Southern Methodist University and the Lawrence
  * Livermore National Laboratory.
  *
  * All rights reserved.
@@ -30,10 +30,10 @@ extern "C" {
 #endif
 
 /*-----------------------------------------------------------------
-  Types : struct IDALsMemRec, struct *IDALsMem                             
+  Types : struct IDALsMemRec, struct *IDALsMem
 
-  The type IDALsMem is a pointer to a IDALsMemRec, which is a 
-  structure containing fields that must be accessible by LS module 
+  The type IDALsMem is a pointer to a IDALsMemRec, which is a
+  structure containing fields that must be accessible by LS module
   routines.
   -----------------------------------------------------------------*/
 typedef struct IDALsMemRec {
@@ -46,13 +46,13 @@ typedef struct IDALsMemRec {
   /* Linear solver, matrix and vector objects/pointers */
   SUNLinearSolver LS;   /* generic linear solver object                  */
   SUNMatrix J;          /* J = dF/dy + cj*dF/dy'                         */
-  N_Vector ytemp;       /* temp vector used by IDAAtimesDQ               */ 
-  N_Vector yptemp;      /* temp vector used by IDAAtimesDQ               */ 
+  N_Vector ytemp;       /* temp vector used by IDAAtimesDQ               */
+  N_Vector yptemp;      /* temp vector used by IDAAtimesDQ               */
   N_Vector x;           /* temp vector used by the solve function        */
   N_Vector ycur;        /* current y vector in Newton iteration          */
   N_Vector ypcur;       /* current yp vector in Newton iteration         */
   N_Vector rcur;        /* rcur = F(tn, ycur, ypcur)                     */
-  
+
   /* Iterative solver tolerance */
   realtype sqrtN;     /* sqrt(N)                                      */
   realtype eplifac;   /* eplifac = linear convergence factor          */
@@ -60,18 +60,18 @@ typedef struct IDALsMemRec {
   /* Statistics and associated parameters */
   realtype dqincfac;  /* dqincfac = optional increment factor in Jv   */
   long int nje;       /* nje = no. of calls to jac                    */
-  long int npe;       /* npe = total number of precond calls          */   
+  long int npe;       /* npe = total number of precond calls          */
   long int nli;       /* nli = total number of linear iterations      */
   long int nps;       /* nps = total number of psolve calls           */
   long int ncfl;      /* ncfl = total number of convergence failures  */
   long int nreDQ;     /* nreDQ = total number of calls to res         */
   long int njtsetup;  /* njtsetup = total number of calls to jtsetup  */
   long int njtimes;   /* njtimes = total number of calls to jtimes    */
-  long int nst0;      /* nst0 = saved nst (for performance monitor)   */   
-  long int nni0;      /* nni0 = saved nni (for performance monitor)   */   
-  long int ncfn0;     /* ncfn0 = saved ncfn (for performance monitor) */   
-  long int ncfl0;     /* ncfl0 = saved ncfl (for performance monitor) */   
-  long int nwarn;     /* nwarn = no. of warnings (for perf. monitor)  */   
+  long int nst0;      /* nst0 = saved nst (for performance monitor)   */
+  long int nni0;      /* nni0 = saved nni (for performance monitor)   */
+  long int ncfn0;     /* ncfn0 = saved ncfn (for performance monitor) */
+  long int ncfl0;     /* ncfl0 = saved ncfl (for performance monitor) */
+  long int nwarn;     /* nwarn = no. of warnings (for perf. monitor)  */
 
   long int last_flag; /* last error return flag                       */
 
@@ -86,7 +86,7 @@ typedef struct IDALsMemRec {
   IDALsPrecSolveFn psolve;
   int (*pfree)(IDAMem IDA_mem);
   void *pdata;
-  
+
   /* Jacobian times vector compuation
      (a) jtimes function provided by the user:
          - jt_data == user_data
@@ -114,12 +114,12 @@ int idaLsPSolve(void *ida_mem, N_Vector r, N_Vector z,
 
 /* Difference quotient approximation for Jac times vector */
 int idaLsDQJtimes(realtype tt, N_Vector yy, N_Vector yp,
-                  N_Vector rr, N_Vector v, N_Vector Jv, 
-                  realtype c_j, void *data, 
+                  N_Vector rr, N_Vector v, N_Vector Jv,
+                  realtype c_j, void *data,
                   N_Vector work1, N_Vector work2);
 
 /* Difference-quotient Jacobian approximation routines */
-int idaLsDQJac(realtype tt, realtype c_j, N_Vector yy, N_Vector yp, 
+int idaLsDQJac(realtype tt, realtype c_j, N_Vector yy, N_Vector yp,
                N_Vector rr, SUNMatrix Jac, void *data,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
 int idaLsDenseDQJac(realtype tt, realtype c_j, N_Vector yy,
@@ -132,20 +132,20 @@ int idaLsBandDQJac(realtype tt, realtype c_j,  N_Vector yy,
 
 /* Generic linit/lsetup/lsolve/lperf/lfree interface routines for IDA to call */
 int idaLsInitialize(IDAMem IDA_mem);
-int idaLsSetup(IDAMem IDA_mem, N_Vector y, N_Vector yp, N_Vector r, 
-               N_Vector vt1, N_Vector vt2, N_Vector vt3); 
+int idaLsSetup(IDAMem IDA_mem, N_Vector y, N_Vector yp, N_Vector r,
+               N_Vector vt1, N_Vector vt2, N_Vector vt3);
 int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
                N_Vector ycur, N_Vector ypcur, N_Vector rescur);
 int idaLsPerf(IDAMem IDA_mem, int perftask);
 int idaLsFree(IDAMem IDA_mem);
 
-  
+
 /* Auxilliary functions */
 int idaLsInitializeCounters(IDALsMem idals_mem);
 int idaLs_AccessLMem(void* ida_mem, const char* fname,
                      IDAMem* IDA_mem, IDALsMem* idals_mem);
 
-  
+
 /*---------------------------------------------------------------
   Error and Warning Messages
   ---------------------------------------------------------------*/

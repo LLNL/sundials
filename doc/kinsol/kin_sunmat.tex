@@ -7,6 +7,8 @@
 
 %---------------------------------------------------------------------------
 \section{SUNMatrix functions used by KINSOL}
+\label{s:sunmat_usage}
+%---------------------------------------------------------------------------
 
 In Table \ref{t:sunmatuse} below, we list the matrix functions in the 
 {\sunmatrix} module used within the {\kinsol} package.
@@ -53,3 +55,10 @@ use the {\sundials}-supplied band {\sunmatrix} type, so the most
 useful information above for user-supplied {\sunmatrix}
 implementations is the column relating the {\kinls} requirements. 
 
+%---------------------------------------------------------------------------
+% sunmatrix module sections
+%---------------------------------------------------------------------------
+
+\input{sunmatrix_dense}
+\input{sunmatrix_band}
+\input{sunmatrix_sparse}

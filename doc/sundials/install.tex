@@ -575,7 +575,7 @@ a typical configuration on a Linux system and are provided as illustration only.
 \item[\id{SUNDIALS\_INDEX\_TYPE}] - \textbf{advanced}
   \\
   Integer type used for {\sundials} indices. The size must match the size provided for
-  the \id{SUNDIALS\_INDEX\_SIZE} option.
+  the \\ \noindent \id{SUNDIALS\_INDEX\_SIZE} option.
   \\
   Default:
   \\
@@ -1061,6 +1061,7 @@ are to be used in building a preconditioner.
 
 %\caption{{\sundials} libraries and header files (cont.)}\label{t:sundials_files2}
 
+\clearpage
 \tablecaption{{\sundials} libraries and header files}\label{t:sundials_files}
 \tablefirsthead{\hline}
 \tablehead{\hline \multicolumn{4}{|l|}{\small\slshape continued from last page} \\
@@ -1270,8 +1271,9 @@ are to be used in building a preconditioner.
  & Libraries    & libsundials\_cvodes.{\em lib} & \\
 \cline{2-4}
  & Header files & cvodes/cvodes.h               & cvodes/cvodes\_impl.h   \\
- &              & cvodes/cvodes\_direct.h       & cvodes/cvodes\_spils.h  \\
- &              & cvodes/cvodes\_bandpre.h      & cvodes/cvodes\_bbdpre.h \\
+ &              & cvodes/cvodes\_direct.h       & cvodes/cvodes\_ls.h  \\
+ &              & cvodes/cvodes\_spils.h        & cvodes/cvodes\_bandpre.h  \\
+ &              & cvodes/cvodes\_bbdpre.h       &  \\
 \hline
 %% --------------------------------------------------
 {\arkode}
@@ -1286,16 +1288,16 @@ are to be used in building a preconditioner.
  & Libraries    & libsundials\_ida.{\em lib} & libsundials\_fida.a \\
 \cline{2-4}
  & Header files & ida/ida.h                  & ida/ida\_impl.h     \\
- &              & ida/ida\_direct.h          & ida/ida\_spils.h    \\
- &              & ida/ida\_bbdpre.h          & \\
+ &              & ida/ida\_direct.h          & ida/ida\_ls.h       \\
+ &              & ida/ida\_spils.h           & ida/ida\_bbdpre.h   \\
 \hline
 %% --------------------------------------------------
 {\idas}
  & Libraries    & libsundials\_idas.{\em lib} & \\
 \cline{2-4}
- & Header files & idas/idas.h                 & idas/idas\_impl.h     \\
- &              & idas/idas\_direct.h         & idas/idas\_spils.h    \\
- &              & idas/idas\_bbdpre.h         & \\
+ & Header files & idas/idas.h                 & idas/idas\_impl.h   \\
+ &              & idas/idas\_direct.h         & idas/idas\_ls.h     \\
+ &              & idas/idas\_spils.h          & idas/idas\_bbdpre.h \\
 \hline 
 %% --------------------------------------------------
 {\kinsol}

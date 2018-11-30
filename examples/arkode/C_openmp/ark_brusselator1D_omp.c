@@ -210,7 +210,7 @@ int main(int argc, char *argv[])
   for (i=0; i<N; i++)  data[IDX(i,2)] = RCONST(1.0);
 
   /* Initialize matrix and linear solver data structures */
-  A = SUNBandMatrix(NEQ, 4, 4, 8);
+  A = SUNBandMatrix(NEQ, 4, 4);
   if (check_flag((void *)A, "SUNBandMatrix", 0)) return 1;
   LS = SUNLinSol_Band(y, A);
   if (check_flag((void *)LS, "SUNLinSol_Band", 0)) return 1;

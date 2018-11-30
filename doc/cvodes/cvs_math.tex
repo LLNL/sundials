@@ -127,7 +127,7 @@ The methods offered through these modules are as follows:
   Residual method) solver, or
 \item {\pcg}, a scaled preconditioned CG (Conjugate Gradient method) solver.
 \end{itemize}
-For large stiff systems, where direct methods are not feasible, the
+For large stiff systems, where direct methods are often not feasible, the
 combination of a BDF integrator and a preconditioned Krylov
 method yields a powerful tool
 because it combines established methods for stiff integration,
@@ -162,16 +162,16 @@ usually drop the subscript WRMS on norms in what follows.
 % Newton iteration
 %-----------------
 \index{nonlinear system!Newton iteration|(}
-In the cases of a direct solver (dense, band, sparse, or diagonal), the
+In the cases of a matrix-based linear solver, the
 default Newton iteration is a Modified Newton iteration, in that the iteration matrix
-$M$ is fixed throughout the nonlinear iterations.  However, for any of
-the Krylov methods, it is an Inexact Newton iteration, in which $M$ is
+$M$ is fixed throughout the nonlinear iterations.  However, in the
+case that a matrix-free iterative linear solver is used, the default
+Newton iteration is an Inexact Newton iteration, in which $M$ is
 applied in a matrix-free manner, with matrix-vector products $Jv$
 obtained by either difference quotients or a user-supplied routine.
-With the default Newton iteration, the matrix $M$ (direct cases) or
-preconditioner matrix $P$ (Krylov 
-cases) is updated as infrequently as possible to balance the high costs
-of matrix operations against other costs.  Specifically, this matrix
+With the default Newton iteration, the matrix $M$ and preconditioner
+matrix $P$ are updated as infrequently as possible to balance the high
+costs of matrix operations against other costs.  Specifically, this matrix
 update occurs when:
 \begin{itemize}
 \item starting the problem,
@@ -233,21 +233,21 @@ of convergence failures; the default value of this limit is 10,
 but this can be changed by the user.
 \index{nonlinear system!Convergence test|)}
 
-When a Krylov method is used to solve the linear system, its errors must also be
-controlled, and this also involves the local error test constant.  The
-linear iteration error in the solution vector $\delta_m$ is
-approximated by the preconditioned residual vector.  Thus to ensure
-(or attempt to ensure) that the linear iteration errors do not
-interfere with the nonlinear error and local integration error
+When an iterative method is used to solve the linear system, its
+errors must also be controlled, and this also involves the local error
+test constant.  The linear iteration error in the solution vector
+$\delta_m$ is approximated by the preconditioned residual vector.
+Thus to ensure (or attempt to ensure) that the linear iteration errors
+do not interfere with the nonlinear error and local integration error
 controls, we require that the norm of the preconditioned residual
 be less than $0.05 \cdot (0.1 \epsilon)$.
 
 % Jacobian DQ approximations
 %---------------------------
-With the direct dense and band methods, the Jacobian may be supplied
-by a user routine, or approximated by difference quotients,
-at the user's option.  In the latter case, we use the usual
-approximation
+When the Jacobian is stored using either dense or band {\sunmatrix}
+objects, the Jacobian may be supplied by a user routine, or
+approximated by difference quotients, at the user's option.  In the
+latter case, we use the usual approximation
 \[ J_{ij} = [f_i(t,y+\sigma_j e_j) - f_i(t,y)]/\sigma_j \, . \]
 The increments $\sigma_j$ are given by
 \[ \sigma_j = \max\left\{\sqrt{U} \; |y_j| , \sigma_0 / W_j \right\} \, , \]
@@ -258,8 +258,8 @@ of $J$.  In the band case, the columns of $J$ are computed in groups,
 by the Curtis-Powell-Reid algorithm, with the number of $f$ evaluations
 equal to the bandwidth.
 
-We note that with the sparse direct solvers, the Jacobian {\em must}
-be supplied by a user routine.
+We note that with sparse and user-supplied {\sunmatrix} objects, the
+Jacobian {\em must} be supplied by a user routine.
 
 In the case of a Krylov method, preconditioning may be used on the left, on the
 right, or both, with user-supplied routines for the preconditioning
@@ -372,7 +372,7 @@ When using a nonlinear solver that requires the solution of the linear system
 {\cvodes} makes repeated use of a linear solver to solve linear systems of the form
 $M x = - r$, where $x$ is a correction vector and $r$ is a residual vector.
 If this linear system solve is done with one of the scaled preconditioned iterative
-linear solvers, these solvers are rarely successful if used without preconditioning;
+linear solvers supplied with {\sundials}, these solvers are rarely successful if used without preconditioning;
 it is generally necessary to precondition the system in order to obtain acceptable efficiency.
 A system $A x = b$ can be preconditioned on the left, as $(P^{-1}A) x = P^{-1} b$;
 on the right, as $(A P^{-1}) P x = b$; or on both sides, as
@@ -407,7 +407,7 @@ to the system Jacobian, $J = \partial f / \partial y$.  Since the
 matrix involved is $M = I - \gamma J$, any
 approximation $\bar{J}$ to $J$ yields a matrix that is of potential
 use as a preconditioner, namely $P = I - \gamma \bar{J}$.  Because the
-Krylov iteration occurs within a nonlinear solver iteration and further also
+linear solver iteration occurs within a nonlinear solver iteration and further also
 within a time integration, and since each of these iterations has its
 own test for convergence, the preconditioner may use a very crude
 approximation, as long as it captures the dominant numerical

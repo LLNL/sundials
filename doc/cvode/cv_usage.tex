@@ -111,8 +111,8 @@ If using a nonlinear solver that requires the solution of a linear
 system of the form (\ref{e:Newton}) (e.g., the default Newton iteration),
 then a linear solver module header file will be required.
 \index{CVODE@{\cvode} linear solvers!header files}
-The header files corresponding to the linear solver modules
-available for use with {\cvode} are:
+The header files corresponding to the {\sundials}-provided linear
+solver modules available for use with {\cvode} are:
 %%
 \begin{itemize}
 \item Direct linear solvers:
@@ -126,19 +126,19 @@ available for use with {\cvode} are:
     {\sunlinsolband};
 
   \item \Id{sunlinsol/sunlinsol\_lapackdense.h},
-    which is used with the LAPACK dense linear solver interface module,
+    which is used with the LAPACK dense linear solver module,
     {\sunlinsollapdense};
 
   \item \Id{sunlinsol/sunlinsol\_lapackband.h},
-    which is used with the LAPACK banded linear solver interface module,
+    which is used with the LAPACK banded linear solver module,
     {\sunlinsollapband};
 
   \item \Id{sunlinsol/sunlinsol\_klu.h},
-    which is used with the {\klu} sparse linear solver interface module,
+    which is used with the {\klu} sparse linear solver module,
     {\sunlinsolklu};
 
   \item \Id{sunlinsol/sunlinsol\_superlumt.h},
-    which is used with the {\superlumt} sparse linear solver interface
+    which is used with the {\superlumt} sparse linear solver
     module, {\sunlinsolslumt};
   \end{itemize}
 
@@ -165,7 +165,7 @@ available for use with {\cvode} are:
     solver module, {\sunlinsolpcg};
   \end{itemize}
 \item \Id{cvode/cvode\_diag.h},
-  which is used with the {\cvdiag} diagonal linear solver interface.
+  which is used with the {\cvdiag} diagonal linear solver module.
 \end{itemize}
 
 The header files for the {\sunlinsoldense} and {\sunlinsollapdense}
@@ -783,8 +783,8 @@ approximate Jacobian matrix $J = \partial{f}/\partial{y}$, the Newton
 matrix $M = I-\gamma J$, and factorizations used throughout the
 solution process.  Conversely, matrix-free {\sunlinsol} modules
 instead use iterative methods to solve the Newton systems of
-equations, and only require the \emph{action} of the Jacobian on a
-vector, $Jv$.  With most of these methods, preconditioning can be done
+equations, and only require the \emph{action} of the matrix on a
+vector, $Mv$.  With most of these methods, preconditioning can be done
 on the left only, the right only, on both the left and right, or not
 at all.  The exceptions to this rule are {\spfgmr} that supports right
 preconditioning only and {\pcg} that performs symmetric
@@ -1968,7 +1968,7 @@ The pointer \id{user\_data} may be specified through \id{CVodeSetUserData}.
 %%
 \index{optional input!matrix-free linear solver|(}
 \index{CVLS@{\cvls} linear solver interface!Jacobian-vector product approximation used by}
-When using matrix-free linear solver modules, The {\cvls} solver
+When using matrix-free linear solver modules, the {\cvls} solver
 interface requires a function to compute an approximation to the
 product between the Jacobian matrix $J(t,y)$ and a vector $v$. The
 user can supply a Jacobian-times-vector approximation function or use

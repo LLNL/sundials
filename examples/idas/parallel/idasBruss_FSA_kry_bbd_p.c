@@ -22,7 +22,7 @@
  * This example program for IDAS uses SUNLinSol_SPGMR as the linear solver.
  * It is written for a parallel computer system and uses the
  * IDABBDPRE band-block-diagonal preconditioner module for the
- * IDASPILS interface.
+ * IDALS interface.
  *
  * The mathematical problem solved in this example is a DAE system
  * that arises from a system of partial differential equations after
@@ -64,7 +64,6 @@
 #include <math.h>
 
 #include <idas/idas.h>
-#include <idas/idas_spils.h>
 #include <sunlinsol/sunlinsol_spgmr.h>
 #include <idas/idas_bbdpre.h>
 #include <nvector/nvector_parallel.h>
@@ -294,13 +293,13 @@ int main(int argc, char *argv[])
   retval = IDASetSensParams(ida_mem, data->eps, pbar, NULL);
   if (check_retval(&retval, "IDASetSensParams", 1, thispe)) MPI_Abort(comm, 1);
 
-  /* Call SUNLinSol_SPGMR and IDASpilsSetLinearSolver to specify the IDAS linear solver */
+  /* Call SUNLinSol_SPGMR and IDASetLinearSolver to specify the IDAS linear solver */
   maxl = 16;                                      /* max dimension of the Krylov subspace */
   LS = SUNLinSol_SPGMR(uv, PREC_LEFT, maxl);      /* IDA only allows left preconditioning */
   if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0, thispe)) MPI_Abort(comm, 1);
 
-  retval = IDASpilsSetLinearSolver(ida_mem, LS);
-  if(check_retval(&retval, "IDASpilsSetLinearSolver", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDASetLinearSolver(ida_mem, LS, NULL);
+  if(check_retval(&retval, "IDASetLinearSolver", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Call IDABBDPrecInit to initialize the band-block-diagonal preconditioner.
      The half-bandwidths for the difference quotient evaluation are exact
@@ -673,16 +672,16 @@ static void PrintFinalStats(void *ida_mem)
   retval = IDAGetNumNonlinSolvIters(ida_mem, &nni);
   check_retval(&retval, "IDAGetNumNonlinSolvIters", 1, 0);
 
-  retval = IDASpilsGetNumConvFails(ida_mem, &ncfl);
-  check_retval(&retval, "IDASpilsGetNumConvFails", 1, 0);
-  retval = IDASpilsGetNumLinIters(ida_mem, &nli);
-  check_retval(&retval, "IDASpilsGetNumLinIters", 1, 0);
-  retval = IDASpilsGetNumPrecEvals(ida_mem, &npe);
-  check_retval(&retval, "IDASpilsGetNumPrecEvals", 1, 0);
-  retval = IDASpilsGetNumPrecSolves(ida_mem, &nps);
-  check_retval(&retval, "IDASpilsGetNumPrecSolves", 1, 0);
-  retval = IDASpilsGetNumResEvals(ida_mem, &nreLS);
-  check_retval(&retval, "IDASpilsGetNumResEvals", 1, 0);
+  retval = IDAGetNumLinConvFails(ida_mem, &ncfl);
+  check_retval(&retval, "IDAGetNumLinConvFails", 1, 0);
+  retval = IDAGetNumLinIters(ida_mem, &nli);
+  check_retval(&retval, "IDAGetNumLinIters", 1, 0);
+  retval = IDAGetNumPrecEvals(ida_mem, &npe);
+  check_retval(&retval, "IDAGetNumPrecEvals", 1, 0);
+  retval = IDAGetNumPrecSolves(ida_mem, &nps);
+  check_retval(&retval, "IDAGetNumPrecSolves", 1, 0);
+  retval = IDAGetNumLinResEvals(ida_mem, &nreLS);
+  check_retval(&retval, "IDAGetNumLinResEvals", 1, 0);
 
   retval = IDABBDPrecGetNumGfnEvals(ida_mem, &nge);
   check_retval(&retval, "IDABBDPrecGetNumGfnEvals", 1, 0);

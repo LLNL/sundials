@@ -25,7 +25,7 @@
  * While integrating the system, we also use the rootfinding
  * feature to find the points at which y1 = 1e-4 or at which
  * y3 = 0.01. This program solves the problem with the BDF method,
- * Newton iteration with the LAPACK dense linear solver, and a
+ * Newton iteration with the LAPACKDENSE linear solver, and a
  * user-supplied Jacobian routine.
  * It uses a scalar relative tolerance and a vector absolute
  * tolerance. Output is printed in decades from t = .4 to t = 4.e10.
@@ -38,7 +38,6 @@
 #include <nvector/nvector_serial.h>          /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_dense.h>       /* access to dense SUNMatrix            */
 #include <sunlinsol/sunlinsol_lapackdense.h> /* access to dense SUNLinearSolver      */
-#include <cvodes/cvodes_direct.h>            /* access to CVDls interface            */
 #include <sundials/sundials_types.h>         /* defs. of realtype, sunindextype      */
 
 /* User-defined vector and matrix accessor macros: Ith, IJth */
@@ -53,7 +52,7 @@
 
    IJth(A,i,j) references the (i,j)th element of the dense matrix A, where
    i and j are in the range [1..NEQ]. The IJth macro is defined using the
-   SM_ELEMENT_D macro in dense.h. SM_ELEMENT_D numbers rows and columns of 
+   SM_ELEMENT_D macro. SM_ELEMENT_D numbers rows and columns of 
    a dense matrix starting from 0. */
 
 #define Ith(v,i)    NV_Ith_S(v,i-1)         /* Ith numbers components 1..NEQ */
@@ -167,13 +166,13 @@ int main()
   LS = SUNLinSol_LapackDense(y, A);
   if(check_retval((void *)LS, "SUNLinSol_LapackDense", 0)) return(1);
 
-  /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
-  retval = CVDlsSetLinearSolver(cvode_mem, LS, A);
-  if(check_retval(&retval, "CVDlsSetLinearSolver", 1)) return(1);
+  /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
+  retval = CVodeSetLinearSolver(cvode_mem, LS, A);
+  if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
 
   /* Set the user-supplied Jacobian routine Jac */
-  retval = CVDlsSetJacFn(cvode_mem, Jac);
-  if(check_retval(&retval, "CVDlsSetJacFn", 1)) return(1);
+  retval = CVodeSetJacFn(cvode_mem, Jac);
+  if(check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
 
   /* In loop, call CVode, print results, and test for error.
      Break out of loop when NOUT preset output times have been reached.  */
@@ -329,10 +328,10 @@ static void PrintFinalStats(void *cvode_mem)
   retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1);
 
-  retval = CVDlsGetNumJacEvals(cvode_mem, &nje);
-  check_retval(&retval, "CVDlsGetNumJacEvals", 1);
-  retval = CVDlsGetNumRhsEvals(cvode_mem, &nfeLS);
-  check_retval(&retval, "CVDlsGetNumRhsEvals", 1);
+  retval = CVodeGetNumJacEvals(cvode_mem, &nje);
+  check_retval(&retval, "CVodeGetNumJacEvals", 1);
+  retval = CVodeGetNumLinRhsEvals(cvode_mem, &nfeLS);
+  check_retval(&retval, "CVodeGetNumLinRhsEvals", 1);
 
   retval = CVodeGetNumGEvals(cvode_mem, &nge);
   check_retval(&retval, "CVodeGetNumGEvals", 1);

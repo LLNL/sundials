@@ -28,6 +28,8 @@ idas_fwd.tex \
 idas_adj.tex \
 idas_nvec.tex \
 idas_newlinsolv.tex \
+idas_sunlinsol.tex \
+idas_sunmat.tex \
 idas_sunnonlinsol.tex \
 idas_constants.tex
 

@@ -16,7 +16,7 @@ The SUNMATRIX_BAND Module
 
 The banded implementation of the ``SUNMatrix`` module provided with
 SUNDIALS, SUNMATRIX_BAND, defines the *content* field of
-``SUNMatrix`` to be the following structure: 
+``SUNMatrix`` to be the following structure:
 
 .. code-block:: c
 
@@ -59,10 +59,10 @@ complete description of the parts of this *content* field is given below:
   (i.e. columns are stored one on top of the other in memory). Only
   elements within the specified half-bandwidths are stored.  ``data``
   is a pointer to ``ldata`` contiguous locations which hold the
-  elements within the banded matrix. 
+  elements within the banded matrix.
 
-* ``ldata`` - length of the data array (:math:`= \text{ldim} \cdot N`) 
-    
+* ``ldata`` - length of the data array (:math:`= \text{ldim} \cdot N`)
+
 * ``cols`` - array of pointers. ``cols[j]`` is a pointer to the
   uppermost element within the band in the j-th column. This pointer
   may be treated as an array indexed from
@@ -86,9 +86,9 @@ complete description of the parts of this *content* field is given below:
    component storage are used by the associated SUNLINSOL_BAND or
    SUNLINSOL_LAPACKBAND linear solver.
 
-  
+
 The header file to be included when using this module is
-``sunmatrix/sunmatrix_band.h``. 
+``sunmatrix/sunmatrix_band.h``.
 
 The following macros are provided to access the
 content of a SUNMATRIX_BAND matrix. The prefix ``SM_`` in the names
@@ -99,14 +99,14 @@ the *banded* version.
 
 .. c:macro:: SM_CONTENT_B(A)
 
-   This macro gives access to the contents of the banded ``SUNMatrix`` *A*. 
+   This macro gives access to the contents of the banded ``SUNMatrix`` *A*.
 
    The assignment ``A_cont = SM_CONTENT_B(A)`` sets
-   ``A_cont`` to be a pointer to the banded ``SUNMatrix`` content  
+   ``A_cont`` to be a pointer to the banded ``SUNMatrix`` content
    structure.
 
    Implementation:
-  
+
    .. code-block:: c
 
       #define SM_CONTENT_B(A)   ( (SUNMatrixContent_Band)(A->content) )
@@ -125,7 +125,7 @@ the *banded* version.
    Implementation:
 
    .. code-block:: c
- 
+
       #define SM_ROWS_B(A)   ( SM_CONTENT_B(A)->M )
 
 
@@ -138,7 +138,7 @@ the *banded* version.
    Implementation:
 
    .. code-block:: c
- 
+
       #define SM_COLUMNS_B(A)   ( SM_CONTENT_B(A)->N )
 
 
@@ -151,7 +151,7 @@ the *banded* version.
    Implementation:
 
    .. code-block:: c
- 
+
       #define SM_UBAND_B(A)   ( SM_CONTENT_B(A)->mu )
 
 
@@ -164,7 +164,7 @@ the *banded* version.
    Implementation:
 
    .. code-block:: c
- 
+
       #define SM_LBAND_B(A)   ( SM_CONTENT_B(A)->ml )
 
 
@@ -177,7 +177,7 @@ the *banded* version.
    Implementation:
 
    .. code-block:: c
- 
+
       #define SM_SUBAND_B(A)   ( SM_CONTENT_B(A)->smu )
 
 
@@ -190,7 +190,7 @@ the *banded* version.
    Implementation:
 
    .. code-block:: c
- 
+
       #define SM_LDIM_B(A)   ( SM_CONTENT_B(A)->ldim )
 
 
@@ -203,7 +203,7 @@ the *banded* version.
    Implementation:
 
    .. code-block:: c
- 
+
       #define SM_LDATA_B(A)   ( SM_CONTENT_B(A)->ldata )
 
 
@@ -211,16 +211,16 @@ the *banded* version.
 
    This macro gives access to the ``data`` pointer for the matrix entries.
 
-   The assignment ``A_data = SM_DATA_B(A)`` sets ``A_data`` to be     
+   The assignment ``A_data = SM_DATA_B(A)`` sets ``A_data`` to be
    a pointer to the first component of the data array for the banded
    ``SUNMatrix A``.  The assignment ``SM_DATA_B(A) = A_data``
    sets the data array of ``A`` to be ``A_data`` by storing the
    pointer ``A_data``.
-  
+
    Implementation:
 
    .. code-block:: c
- 
+
       #define SM_DATA_B(A)   ( SM_CONTENT_B(A)->data )
 
 
@@ -228,8 +228,8 @@ the *banded* version.
 
    This macro gives access to the ``cols`` pointer for the matrix entries.
 
-   The assignment ``A_cols = SM_COLS_B(A)`` sets ``A_cols`` to be     
-   a pointer to the array of column pointers for the banded ``SUNMatrix A``. 
+   The assignment ``A_cols = SM_COLS_B(A)`` sets ``A_cols`` to be
+   a pointer to the array of column pointers for the banded ``SUNMatrix A``.
    The assignment ``SM_COLS_B(A) = A_cols`` sets the column pointer
    array of ``A`` to be ``A_cols`` by storing the pointer
    ``A_cols``.
@@ -237,7 +237,7 @@ the *banded* version.
    Implementation:
 
    .. code-block:: c
- 
+
       #define SM_COLS_B(A)   ( SM_CONTENT_B(A)->cols )
 
 
@@ -248,22 +248,22 @@ the *banded* version.
 
    The assignment ``col_j = SM_COLUMN_B(A,j)`` sets ``col_j`` to be
    a pointer to the diagonal element of the j-th column of the
-   :math:`N \times N` band matrix ``A``, :math:`0 \le j \le N-1`. 
-   The type of the expression ``SM_COLUMN_B(A,j)`` is ``realtype *``. 
-   The pointer returned by the call ``SM_COLUMN_B(A,j)`` can be treated as 
+   :math:`N \times N` band matrix ``A``, :math:`0 \le j \le N-1`.
+   The type of the expression ``SM_COLUMN_B(A,j)`` is ``realtype *``.
+   The pointer returned by the call ``SM_COLUMN_B(A,j)`` can be treated as
    an array which is indexed from ``-mu`` to ``ml``.
 
    Implementation:
 
    .. code-block:: c
- 
+
       #define SM_COLUMN_B(A,j)   ( ((SM_CONTENT_B(A)->cols)[j])+SM_SUBAND_B(A) )
 
 
 .. c:macro:: SM_ELEMENT_B(A)
 
    This macro gives access to the individual entries of the data array
-   of a banded ``SUNMatrix``. 
+   of a banded ``SUNMatrix``.
 
    The assignments ``SM_ELEMENT_B(A,i,j) = a_ij`` and ``a_ij =
    SM_ELEMENT_B(A,i,j)`` reference the (:math:`i,j`)-th element of the
@@ -274,26 +274,26 @@ the *banded* version.
    Implementation:
 
    .. code-block:: c
- 
+
       #define SM_ELEMENT_B(A,i,j)   ( (SM_CONTENT_B(A)->cols)[j][(i)-(j)+SM_SUBAND_B(A)] )
 
 
 .. c:macro:: SM_COLUMN_ELEMENT_B(A)
 
    This macro gives access to the individual entries of the data array
-   of a banded ``SUNMatrix``. 
+   of a banded ``SUNMatrix``.
 
    The assignments ``SM_COLUMN_ELEMENT_B(col_j,i,j) = a_ij`` and
    ``a_ij = SM_COLUMN_ELEMENT_B(col_j,i,j)`` reference the
    (:math:`i,j`)-th entry of the band matrix ``A`` when used in
    conjunction with ``SM_COLUMN_B`` to reference the j-th column
-   through ``col_j``. The index (:math:`i,j`) should satisfy 
+   through ``col_j``. The index (:math:`i,j`) should satisfy
    :math:`j-\text{mu} \le i \le j+\text{ml}`.
 
    Implementation:
 
    .. code-block:: c
- 
+
       #define SM_COLUMN_ELEMENT_B(col_j,i,j)   (col_j[(i)-(j)])
 
 
@@ -302,10 +302,19 @@ The SUNMATRIX_BAND module defines banded implementations of all matrix
 operations listed in the section :ref:`SUNMatrix.Ops`. Their names are
 obtained from those in that section by appending the suffix ``_Band``
 (e.g. ``SUNMatCopy_Band``).  The module SUNMATRIX_BAND provides the
-following additional user-callable routines: 
+following additional user-callable routines:
 
 
-.. c:function:: SUNMatrix SUNBandMatrix(sunindextype N, sunindextype mu, sunindextype ml, sunindextype smu)
+.. c:function:: SUNMatrix SUNBandMatrix(sunindextype N, sunindextype mu, sunindextype ml)
+
+   This constructor function creates and allocates memory for a banded ``SUNMatrix``.
+   Its arguments are the matrix size, ``N``, and the upper and lower
+   half-bandwidths of the matrix, ``mu`` and ``ml``.  The stored upper
+   bandwidth is set to ``mu+ml`` to accommodate subsequent
+   factorization in the SUNLINSOL_BAND and SUNLINSOL_LAPACKBAND
+   modules.
+
+.. c:function:: SUNMatrix SUNBandMatrixStorage(sunindextype N, sunindextype mu, sunindextype ml, sunindextype smu)
 
    This constructor function creates and allocates memory for a banded ``SUNMatrix``.
    Its arguments are the matrix size, ``N``, the upper and lower
@@ -313,11 +322,19 @@ following additional user-callable routines:
    upper bandwidth, ``smu``.  When creating a band ``SUNMatrix``,
    this value should be
 
-   * at least ``min(N-1,mu+ml)`` if the matrix will be used by
-     the SUNLINSOL_BAND module;
-   * exactly equal to ``mu+ml`` if the matrix will be used by the
-     SUNLINSOL_LAPACKBAND module;
+   * at least ``min(N-1,mu+ml)`` if the matrix will be
+     used by the SUNLinSol_Band module;
+
+   * exactly equal to ``mu+ml`` if the matrix will be used by
+     the SUNLinSol_LapackBand module;
+
    * at least ``mu`` if used in some other manner.
+
+   *Note: it is strongly recommended that users call the default
+   constructor, :c:func:`SUNBandMatrix()`, in all standard use cases.
+   This advanced constructor is used internally within SUNDIALS
+   solvers, and is provided to users who require banded matrices for
+   non-default purposes.*
 
 .. c:function:: void SUNBandMatrix_Print(SUNMatrix A, FILE* outfile)
 
@@ -329,7 +346,7 @@ following additional user-callable routines:
 
 .. c:function:: sunindextype SUNBandMatrix_Rows(SUNMatrix A)
 
-   This function returns the number of rows in the banded ``SUNMatrix``. 
+   This function returns the number of rows in the banded ``SUNMatrix``.
 
 
 .. c:function:: sunindextype SUNBandMatrix_Columns(SUNMatrix A)
@@ -358,7 +375,7 @@ following additional user-callable routines:
 
 
 .. c:function:: realtype* SUNBandMatrix_Data(SUNMatrix A)
-  
+
    This function returns a pointer to the data array for the banded ``SUNMatrix``.
 
 
@@ -373,7 +390,7 @@ following additional user-callable routines:
    column of the banded ``SUNMatrix``.  The resulting pointer should
    be indexed over the range ``-mu`` to ``ml``.
 
-    
+
 
 **Notes**
 
@@ -383,11 +400,11 @@ following additional user-callable routines:
   * First obtain the component array via ``A_data = SM_DATA_B(A)`` or
     ``A_data = SUNBandMatrix_Data(A)`` and then
     access ``A_data[i]`` within the loop.
-  
+
   * First obtain the array of column pointers via ``A_cols = SM_COLS_B(A)`` or
     ``A_cols = SUNBandMatrix_Cols(A)``, and then
-    access ``A_cols[j][i]`` within the loop. 
-  
+    access ``A_cols[j][i]`` within the loop.
+
   * Within a loop over the columns, access the column pointer via
     ``A_colj = SUNBandMatrix_Column(A,j)`` and then to access the
     entries within that column using ``SM_COLUMN_ELEMENT_B(A_colj,i,j)``.
@@ -406,34 +423,31 @@ following additional user-callable routines:
 For solvers that include a Fortran interface module, the SUNMATRIX_BAND
 module also includes the Fortran-callable function
 :f:func:`FSUNBandMatInit()` to initialize this SUNMATRIX_BAND module
-for a given SUNDIALS solver. 
+for a given SUNDIALS solver.
 
-.. f:subroutine:: FSUNBandMatInit(CODE, N, MU, ML, SMU, IER)
-   
+.. f:subroutine:: FSUNBandMatInit(CODE, N, MU, ML, IER)
+
    Initializes a band ``SUNMatrix`` structure for use in a SUNDIALS solver.
-      
+
    **Arguments:**
       * *CODE* (``int``, input) -- flag denoting the SUNDIALS solver
         this matrix will be used for: CVODE=1, IDA=2, KINSOL=3, ARKode=4.
       * *N* (``long int``, input) -- number of matrix rows (and columns).
       * *MU* (``long int``, input) -- upper half-bandwidth.
       * *ML* (``long int``, input) -- lower half-bandwidth.
-      * *SMU* (``long int``, input) -- storage upper half-bandwidth.
       * *IER* (``int``, output) -- return flag (0 success, -1 for failure).
 
 Additionally, when using ARKode with a non-identity mass matrix, the
 Fortran-callable function :f:func:`FSUNBandMassMatInit()` initializes
-this SUNMATRIX_BAND module for storing the mass matrix. 
+this SUNMATRIX_BAND module for storing the mass matrix.
 
-.. f:subroutine:: FSUNBandMassMatInit(N, MU, ML, SMU, IER)
-   
+.. f:subroutine:: FSUNBandMassMatInit(N, MU, ML, IER)
+
    Initializes a band ``SUNMatrix`` structure for use as a mass
    matrix in ARKode.
-      
+
    **Arguments:**
       * *N* (``long int``, input) -- number of matrix rows (and columns).
       * *MU* (``long int``, input) -- upper half-bandwidth.
       * *ML* (``long int``, input) -- lower half-bandwidth.
-      * *SMU* (``long int``, input) -- storage upper half-bandwidth.
       * *IER* (``int``, output) -- return flag (0 success, -1 for failure).
-

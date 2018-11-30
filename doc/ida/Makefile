@@ -28,6 +28,8 @@ ida_fcmix.tex \
 ida_nvec.tex \
 ida_org.tex \
 ida_newlinsolv.tex \
+ida_sunlinsol.tex \
+ida_sunmat.tex \
 ida_sunnonlinsol.tex \
 ida_constants.tex
 

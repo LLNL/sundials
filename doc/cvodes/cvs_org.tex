@@ -26,8 +26,8 @@ of nonlinear and linear systems that arise in the case of a stiff system.
 {\centerline{\includegraphics[width=\textwidth]{cvsorg}}}
 \caption [Overall structure diagram of the {\cvodes} package]
 {Overall structure diagram of the {\cvodes} package.
-  Modules specific to {\cvodes} begin with ``CV'' ({\cvdls}, {\cvdiag},
-  {\cvspils}, {\cvbbdpre}, {\cvbandpre}, and {\cvnls}), all other items correspond
+  Modules specific to {\cvodes} begin with ``CV'' ({\cvls}, {\cvdiag},
+  {\cvbbdpre}, {\cvbandpre}, and {\cvnls}), all other items correspond
   to generic solver and auxiliary modules. 
   Note also that the LAPACK, {\klu} and {\superlumt} support is
   through interfaces to external packages.  Users will need to
@@ -71,43 +71,34 @@ the backward integration, and the backward integration of the adjoint equations.
 
 \index{CVODES@{\cvodes} linear solver interfaces|(} 
 At present, the package includes two linear solver interfaces.  The
-{\em direct} linear solver interface, {\cvdls}, supports {\sunlinsol}
-implementations with type \id{SUNLINSOL\_DIRECT} (see Chapter
-\ref{s:sunlinsol}).  These linear solvers utilize direct methods for
-the solution of linear systems stored using one of the {\sundials} generic
-{\sunmatrix} implementations (dense, banded or sparse; see
-Chapter \ref{s:sunmatrix}).  It is assumed that the dominant cost for
-such solvers occurs in factorization of the linear system matrix $M$,
-so the {\sunnonlinsolnewton} module utilizes these solvers within a modified
-Newton nonlinear solve.
-The {\em spils} linear solver interface, {\cvspils}, supports
-{\sunlinsol} implementations with type \id{SUNLINSOL\_ITERATIVE}
-(see Chapter \ref{s:sunlinsol}).  These linear solvers utilize scaled
-preconditioned iterative methods.  It is assumed that these methods
-are implemented in a ``matrix-free'' manner, wherein only the action
-of the matrix-vector product $Mv$ is required.  Since {\cvode} can
-operate on any valid {\sunlinsol} implementation of
-\id{SUNLINSOL\_DIRECT} or \id{SUNLINSOL\_ITERATIVE} types, the set of
-linear solver modules available to {\cvodes} will expand as new
-{\sunlinsol} modules are developed.
+primary linear solver interface, {\cvls}, supports both direct and
+iterative linear solvers built using the generic {\sunlinsol} API (see
+Chapter \ref{s:sunlinsol}).  These solvers may utilize a {\sunmatrix}
+object (see Chapter \ref{s:sunmatrix}) for storing Jacobian
+information, or they may be matrix-free. Since {\cvodes} can operate on
+any valid {\sunlinsol} implementation, the set of linear solver
+modules available to {\cvodes} will expand as new {\sunlinsol} modules
+are developed.
 
 Additionally, {\cvodes} includes the {\em diagonal} linear solver
 interface, {\cvdiag}, that creates an internally generated diagonal
 approximation to the Jacobian.
 \index{CVODES@{\cvodes} linear solver interfaces|)} 
 
-Within the {\cvdls} interface, the package includes algorithms for the
-approximation of dense or banded Jacobians through difference 
-quotients, but the user also has the option of supplying the Jacobian
-(or an approximation to it) directly.  This user-supplied 
-routine is required when using sparse Jacobian matrices, since
-standard difference quotient approximations do not leverage the
-inherent sparsity of the problem.
+For users employing dense or banded Jacobian matrices, {\cvodes}
+includes algorithms for their approximation through difference 
+quotients, although the user also has the option of supplying a
+routine to compute the Jacobian (or an approximation to it) directly.
+This user-supplied routine is required when using sparse or
+user-supplied Jacobian matrices.
 
-Within the {\cvspils} interface, the package includes an algorithm for
-the approximation by difference quotients of the product $Mv$. Again,
-the user has the option of providing routines for this operation, in
-two phases: setup (preprocessing of Jacobian data) and multiplication.
+For users employing matrix-free iterative linear solvers,
+\index{Jacobian-vector product!setup and solve phases} {\cvodes}
+includes an algorithm for the approximation by difference quotients of
+the product $Mv$. Again, the user has the option of providing routines
+for this operation, in two phases: setup (preprocessing of Jacobian
+data) and multiplication. 
+
 For preconditioned iterative methods, \index{preconditioning!setup and solve phases} 
 the preconditioning must be supplied by the user, again in two phases: 
 setup and solve.  While\index{preconditioning!advice on} there is no
@@ -118,7 +109,7 @@ programs included with {\cvodes}, offer considerable assistance in
 building preconditioners. 
 
 \index{CVODES@{\cvodes} linear solvers!implementation details|(} 
-Each {\cvode} linear solver interface consists of four primary phases,
+{\cvodes}' linear solver interface consists of four primary phases,
 devoted to (1) memory allocation and initialization, (2) setup of the
 matrix data involved, (3) solution of the system, and (4) freeing of memory.  
 The setup and solution phases are separate because the evaluation of

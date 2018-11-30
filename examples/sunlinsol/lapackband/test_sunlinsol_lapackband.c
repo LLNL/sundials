@@ -77,8 +77,8 @@ int main(int argc, char *argv[])
          (long int) cols, (long int) uband, (long int) lband);
 
   /* Create matrices and vectors */
-  A = SUNBandMatrix(cols, uband, lband, lband+uband);
-  B = SUNBandMatrix(cols, uband, lband, lband+uband);
+  A = SUNBandMatrix(cols, uband, lband);
+  B = SUNBandMatrix(cols, uband, lband);
   x = N_VNew_Serial(cols);
   y = N_VNew_Serial(cols);
   b = N_VNew_Serial(cols);

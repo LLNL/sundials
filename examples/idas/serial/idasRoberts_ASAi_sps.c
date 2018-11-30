@@ -60,7 +60,6 @@
 #include <nvector/nvector_serial.h>        /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_sparse.h>    /* access to sparse SUNMatrix           */
 #include <sunlinsol/sunlinsol_superlumt.h> /* access to SuperLUMT linear solver    */
-#include <idas/idas_direct.h>              /* access to IDADls interface           */
 #include <sundials/sundials_types.h>       /* defs. of realtype, sunindextype      */
 #include <sundials/sundials_math.h>        /* defs. of SUNRabs, SUNRexp, etc.      */
 
@@ -241,12 +240,12 @@ int main(int argc, char *argv[])
   if(check_retval((void *)LS, "SUNLinSol_SuperLUMT", 0)) return(1);
 
   /* Attach the matrix and linear solver */
-  retval = IDADlsSetLinearSolver(ida_mem, LS, A);
-  if(check_retval(&retval, "IDADlsSetLinearSolver", 1)) return(1);
+  retval = IDASetLinearSolver(ida_mem, LS, A);
+  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
 
   /* Set the user-supplied Jacobian routine */
-  retval = IDADlsSetJacFn(ida_mem, Jac);
-  if(check_retval(&retval, "IDADlsSetJacFn", 1)) return(1);
+  retval = IDASetJacFn(ida_mem, Jac);
+  if(check_retval(&retval, "IDASetJacFn", 1)) return(1);
   
   retval = IDAQuadInit(ida_mem, rhsQ, q);
   if (check_retval(&retval, "IDAQuadInit", 1)) return(1);
@@ -380,12 +379,12 @@ int main(int argc, char *argv[])
   if(check_retval((void *)LSB, "SUNLinSol_SuperLUMT", 0)) return(1);
 
   /* Attach the matrix and linear solver */
-  retval = IDADlsSetLinearSolverB(ida_mem, indexB, LSB, AB);
-  if(check_retval(&retval, "IDADlsSetLinearSolverB", 1)) return(1);
+  retval = IDASetLinearSolverB(ida_mem, indexB, LSB, AB);
+  if(check_retval(&retval, "IDASetLinearSolverB", 1)) return(1);
 
   /* Set the user-supplied Jacobian routine */
-  retval = IDADlsSetJacFnB(ida_mem, indexB, JacB);
-  if(check_retval(&retval, "IDADlsSetJacFnB", 1)) return(1);
+  retval = IDASetJacFnB(ida_mem, indexB, JacB);
+  if(check_retval(&retval, "IDASetJacFnB", 1)) return(1);
 
   /* Quadrature for backward problem. */
  

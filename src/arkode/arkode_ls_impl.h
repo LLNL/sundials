@@ -2,13 +2,13 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2018, Southern Methodist University and 
+ * Copyright (c) 2018, Southern Methodist University and
  * Lawrence Livermore National Security
  *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Southern Methodist University and Lawrence Livermore
  * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
+ * Produced at Southern Methodist University and the Lawrence
  * Livermore National Laboratory.
  *
  * All rights reserved.
@@ -31,11 +31,11 @@ extern "C" {
 /*---------------------------------------------------------------
   ARKLS solver constants:
 
-  ARKLS_MSBJ   default maximum number of steps between Jacobian / 
+  ARKLS_MSBJ   default maximum number of steps between Jacobian /
                preconditioner evaluations
 
   ARKLS_EPLIN  default value for factor by which the tolerance
-               on the nonlinear iteration is multiplied to get 
+               on the nonlinear iteration is multiplied to get
                a tolerance on the linear iteration
   ---------------------------------------------------------------*/
 #define ARKLS_MSBJ   50
@@ -67,12 +67,12 @@ typedef struct ARKLsMemRec {
   N_Vector x;         /* solution vector used by SUNLinearSolver       */
   N_Vector ycur;      /* ptr to current y vector in ARKLs solve        */
   N_Vector fcur;      /* ptr to current fcur = fI(tcur, ycur)          */
-  
+
   /* Statistics and associated parameters */
   long int msbj;      /* max num steps between jac/pset calls         */
   realtype tcur;      /* 'time' for current ARKLs solve               */
   long int nje;       /* no. of calls to jac                          */
-  long int nfeDQ;     /* no. of calls to f due to DQ Jacobian or J*v 
+  long int nfeDQ;     /* no. of calls to f due to DQ Jacobian or J*v
                          approximations                               */
   long int nstlj;     /* value of nst at the last jac/pset call       */
   long int npe;       /* npe = total number of pset calls             */
@@ -122,7 +122,7 @@ typedef struct ARKLsMassMemRec {
   ARKLsMassFn mass;   /* user-provided mass matrix routine to call  */
   SUNMatrix M;        /* mass matrix structure                      */
   SUNMatrix M_lu;     /* mass matrix structure for LU decomposition */
-  
+
   /* Iterative solver tolerance */
   realtype sqrtN;     /* sqrt(N)                                    */
   realtype eplifac;   /* nonlinear -> linear tol scaling factor     */
@@ -159,7 +159,7 @@ typedef struct ARKLsMassMemRec {
   ARKLsMassTimesSetupFn mtsetup;
   ARKLsMassTimesVecFn mtimes;
   void *mt_data;
-  
+
   long int last_flag; /* last error flag returned by any function  */
 
 } *ARKLsMassMem;
@@ -187,13 +187,13 @@ int arkLsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
                   N_Vector work);
 
 /* Difference-quotient Jacobian approximation routines */
-int arkLsDQJac(realtype t, N_Vector y, N_Vector fy, 
-               SUNMatrix Jac, void* data, N_Vector tmp1, 
+int arkLsDQJac(realtype t, N_Vector y, N_Vector fy,
+               SUNMatrix Jac, void* data, N_Vector tmp1,
                N_Vector tmp2, N_Vector tmp3);
-int arkLsDenseDQJac(realtype t, N_Vector y, N_Vector fy, 
+int arkLsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
                     SUNMatrix Jac, ARKodeMem ark_mem,
                     ARKLsMem arkls_mem, ARKRhsFn fi, N_Vector tmp1);
-int arkLsBandDQJac(realtype t, N_Vector y, N_Vector fy, 
+int arkLsBandDQJac(realtype t, N_Vector y, N_Vector fy,
                    SUNMatrix Jac, ARKodeMem ark_mem,
                    ARKLsMem arkls_mem, ARKRhsFn fi,
                    N_Vector tmp1, N_Vector tmp2);
@@ -202,19 +202,19 @@ int arkLsBandDQJac(realtype t, N_Vector y, N_Vector fy,
 int arkLsInitialize(void* arkode_mem);
 
 int arkLsSetup(void* arkode_mem, int convfail, realtype tpred,
-               N_Vector ypred, N_Vector fpred, booleantype* jcurPtr, 
-               N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3); 
+               N_Vector ypred, N_Vector fpred, booleantype* jcurPtr,
+               N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 
 int arkLsSolve(void* arkode_mem, N_Vector b, realtype tcur,
                N_Vector ycur, N_Vector fcur, realtype eRnrm, int mnewt);
 
 int arkLsFree(void* arkode_mem);
 
-/* Generic minit/msetup/mmult/msolve/mfree routines for ARKode to call */  
+/* Generic minit/msetup/mmult/msolve/mfree routines for ARKode to call */
 int arkLsMassInitialize(void* arkode_mem);
-  
+
 int arkLsMassSetup(void* arkode_mem, N_Vector vtemp1,
-                   N_Vector vtemp2, N_Vector vtemp3); 
+                   N_Vector vtemp2, N_Vector vtemp3);
 
 int arkLsMassMult(void* arkode_mem, N_Vector v, N_Vector Mv);
 
@@ -261,10 +261,10 @@ int arkLSGetNumLinIters(void* arkode_mem, long int* nliters);
 int arkLSGetNumConvFails(void* arkode_mem, long int* nlcfails);
 int arkLSGetNumJTSetupEvals(void* arkode_mem, long int* njtsetups);
 int arkLSGetNumJtimesEvals(void* arkode_mem, long int* njvevals);
-int arkLSGetNumRhsEvals(void* arkode_mem, long int* nfevalsLS); 
+int arkLSGetNumRhsEvals(void* arkode_mem, long int* nfevalsLS);
 int arkLSGetLastFlag(void* arkode_mem, long int* flag);
 
-int arkLSGetMassWorkSpace(void* arkode_mem, long int* lenrwMLS, 
+int arkLSGetMassWorkSpace(void* arkode_mem, long int* lenrwMLS,
                           long int* leniwMLS);
 int arkLSGetNumMassSetups(void* arkode_mem, long int* nmsetups);
 int arkLSGetNumMassMult(void* arkode_mem, long int* nmvevals);
@@ -277,7 +277,7 @@ int arkLSGetNumMTSetups(void* arkode_mem, long int* nmtsetups);
 int arkLSGetLastMassFlag(void* arkode_mem, long int* flag);
 
 char* arkLSGetReturnFlagName(long int flag);
-  
+
 /*---------------------------------------------------------------
   Error Messages
   ---------------------------------------------------------------*/

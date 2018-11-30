@@ -47,7 +47,6 @@
 #include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
 #include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
-#include <idas/idas_direct.h>          /* access to IDADls interface           */
 #include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
 #include <sundials/sundials_math.h>    /* defs. of SUNRabs, SUNRexp, etc.      */
 
@@ -179,8 +178,8 @@ int main(int argc, char *argv[])
   if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
-  retval = IDADlsSetLinearSolver(ida_mem, LS, A);
-  if(check_retval(&retval, "IDADlsSetLinearSolver", 1)) return(1);
+  retval = IDASetLinearSolver(ida_mem, LS, A);
+  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
 
   retval = IDASetUserData(ida_mem, data);
   retval = IDASetMaxNumSteps(ida_mem, 1500);
@@ -265,8 +264,8 @@ int main(int argc, char *argv[])
   if(check_retval((void *)LSB1, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
-  retval = IDADlsSetLinearSolverB(ida_mem, indexB1, LSB1, AB1);
-  if(check_retval(&retval, "IDADlsSetLinearSolverB", 1)) return(1);
+  retval = IDASetLinearSolverB(ida_mem, indexB1, LSB1, AB1);
+  if(check_retval(&retval, "IDASetLinearSolverB", 1)) return(1);
 
   retval = IDAQuadInitBS(ida_mem, indexB1, rhsQBS1, qB1);
 
@@ -306,8 +305,8 @@ int main(int argc, char *argv[])
   if(check_retval((void *)LSB2, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
-  retval = IDADlsSetLinearSolverB(ida_mem, indexB2, LSB2, AB2);
-  if(check_retval(&retval, "IDADlsSetLinearSolverB", 1)) return(1);
+  retval = IDASetLinearSolverB(ida_mem, indexB2, LSB2, AB2);
+  if(check_retval(&retval, "IDASetLinearSolverB", 1)) return(1);
 
   retval = IDAQuadInitBS(ida_mem, indexB2, rhsQBS2, qB2);
 
@@ -402,8 +401,8 @@ int main(int argc, char *argv[])
   if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
-  retval = IDADlsSetLinearSolver(ida_mem, LS, A);
-  if(check_retval(&retval, "IDADlsSetLinearSolver", 1)) return(1);
+  retval = IDASetLinearSolver(ida_mem, LS, A);
+  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
 
   retval = IDASetUserData(ida_mem, data);
   retval = IDASetMaxNumSteps(ida_mem, 10000);

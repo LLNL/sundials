@@ -50,7 +50,6 @@
 #include <math.h>
 
 #include <idas/idas.h>
-#include <idas/idas_spils.h>
 #include <sunlinsol/sunlinsol_spgmr.h>
 #include <nvector/nvector_parallel.h>
 #include <sundials/sundials_types.h>
@@ -248,11 +247,11 @@ int main(int argc, char *argv[])
   LS = SUNLinSol_SPGMR(uu, PREC_LEFT, 0);  /* use default maxl */
   if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0, thispe)) MPI_Abort(comm, 1);
 
-  retval = IDASpilsSetLinearSolver(ida_mem, LS);
-  if(check_retval(&retval, "IDASpilsSetLinearSolver", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDASetLinearSolver(ida_mem, LS, NULL);
+  if(check_retval(&retval, "IDASetLinearSolver", 1, thispe)) MPI_Abort(comm, 1);
 
-  retval = IDASpilsSetPreconditioner(ida_mem, PsetupHeat, PsolveHeat);
-  if(check_retval(&retval, "IDASpilsSetPreconditioner", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDASetPreconditioner(ida_mem, PsetupHeat, PsolveHeat);
+  if(check_retval(&retval, "IDASetPreconditioner", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Print output heading (on processor 0 only) and intial solution  */
   
@@ -820,16 +819,16 @@ static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu)
     check_retval(&retval, "IDAGetNumResEvals", 1, id);
     retval = IDAGetLastStep(ida_mem, &hused);
     check_retval(&retval, "IDAGetLastStep", 1, id);
-    retval = IDASpilsGetNumJtimesEvals(ida_mem, &nje);
-    check_retval(&retval, "IDASpilsGetNumJtimesEvals", 1, id);
-    retval = IDASpilsGetNumLinIters(ida_mem, &nli);
-    check_retval(&retval, "IDASpilsGetNumLinIters", 1, id);
-    retval = IDASpilsGetNumResEvals(ida_mem, &nreLS);
-    check_retval(&retval, "IDASpilsGetNumResEvals", 1, id);
-    retval = IDASpilsGetNumPrecEvals(ida_mem, &npe);
-    check_retval(&retval, "IDASpilsGetPrecEvals", 1, id);
-    retval = IDASpilsGetNumPrecSolves(ida_mem, &nps);
-    check_retval(&retval, "IDASpilsGetNumPrecSolves", 1, id);
+    retval = IDAGetNumJtimesEvals(ida_mem, &nje);
+    check_retval(&retval, "IDAGetNumJtimesEvals", 1, id);
+    retval = IDAGetNumLinIters(ida_mem, &nli);
+    check_retval(&retval, "IDAGetNumLinIters", 1, id);
+    retval = IDAGetNumLinResEvals(ida_mem, &nreLS);
+    check_retval(&retval, "IDAGetNumLinResEvals", 1, id);
+    retval = IDAGetNumPrecEvals(ida_mem, &npe);
+    check_retval(&retval, "IDAGetPrecEvals", 1, id);
+    retval = IDAGetNumPrecSolves(ida_mem, &nps);
+    check_retval(&retval, "IDAGetNumPrecSolves", 1, id);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)  
     printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld  %4ld  %9.2Le  %3ld %3ld\n",
@@ -855,7 +854,7 @@ static void PrintFinalStats(void *ida_mem)
 
   IDAGetNumErrTestFails(ida_mem, &netf);
   IDAGetNumNonlinSolvConvFails(ida_mem, &ncfn);
-  IDASpilsGetNumConvFails(ida_mem, &ncfl);
+  IDAGetNumLinConvFails(ida_mem, &ncfl);
 
   printf("\nError test failures            = %ld\n", netf);
   printf("Nonlinear convergence failures = %ld\n", ncfn);

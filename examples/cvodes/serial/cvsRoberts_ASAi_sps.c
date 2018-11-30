@@ -27,7 +27,7 @@
  * conditions: y1 = 1.0, y2 = y3 = 0. The reaction rates are:
  * p1=0.04, p2=1e4, and p3=3e7. The problem is stiff.
  * This program solves the problem with the BDF method, Newton
- * iteration with the CVODE SuperLU_MT linear solver, and a user-supplied
+ * iteration with the SUPERLU_MT linear solver, and a user-supplied
  * Jacobian routine.
  * It uses a scalar relative tolerance and a vector absolute
  * tolerance.
@@ -64,7 +64,6 @@
 #include <nvector/nvector_serial.h>        /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_sparse.h>    /* access to sparse SUNMatrix           */
 #include <sunlinsol/sunlinsol_superlumt.h> /* access to SuperLUMT SUNLinearSolver  */
-#include <cvodes/cvodes_direct.h>          /* access to CVDls interface            */
 #include <sundials/sundials_types.h>       /* defs. of realtype, sunindextype      */
 #include <sundials/sundials_math.h>        /* defs. of SUNRabs, SUNRexp, etc.      */
 
@@ -235,12 +234,12 @@ int main(int argc, char *argv[])
   if (check_retval((void *)LS, "SUNLinSol_SuperLUMT", 0)) return(1);
 
   /* Attach the matrix and linear solver for the forward problem */
-  retval = CVDlsSetLinearSolver(cvode_mem, LS, A);
-  if (check_retval(&retval, "CVDlsSetLinearSolver", 1)) return(1);
+  retval = CVodeSetLinearSolver(cvode_mem, LS, A);
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
 
   /* Set the user-supplied Jacobian routine for the forward problem */
-  retval = CVDlsSetJacFn(cvode_mem, Jac);
-  if (check_retval(&retval, "CVDlsSetJacFn", 1)) return(1);
+  retval = CVodeSetJacFn(cvode_mem, Jac);
+  if (check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
 
   /* Call CVodeQuadInit to allocate initernal memory and initialize
      quadrature integration*/
@@ -372,12 +371,12 @@ int main(int argc, char *argv[])
   if (check_retval((void *)LSB, "SUNLinSol_SuperLUMT", 0)) return(1);
 
   /* Attach the matrix and linear solver for the backward problem */
-  retval = CVDlsSetLinearSolverB(cvode_mem, indexB, LSB, AB);
-  if (check_retval(&retval, "CVDlsSetLinearSolverB", 1)) return(1);
+  retval = CVodeSetLinearSolverB(cvode_mem, indexB, LSB, AB);
+  if (check_retval(&retval, "CVodeSetLinearSolverB", 1)) return(1);
 
   /* Set the user-supplied Jacobian routine for the backward problem */
-  retval = CVDlsSetJacFnB(cvode_mem, indexB, JacB);
-  if (check_retval(&retval, "CVDlsSetJacFnB", 1)) return(1);
+  retval = CVodeSetJacFnB(cvode_mem, indexB, JacB);
+  if (check_retval(&retval, "CVodeSetJacFnB", 1)) return(1);
 
   /* Call CVodeQuadInitB to allocate internal memory and initialize backward
      quadrature integration. */

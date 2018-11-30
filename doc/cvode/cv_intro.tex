@@ -101,6 +101,16 @@ in extended {\F}.
 
 \subsection*{Changes in v4.0.0}
 
+The {\cvls} linear solver interface has been finalized, and supports
+{\sunlinsol} implementations of ``DIRECT'', ``ITERATIVE'', and
+``MATRIX\_ITERATIVE'' types.  Details regarding how {\cvls} utilizes linear
+solvers of each type are included in \S\ref{s:sunlinsol}, as
+well as discussion regarding intended use cases for user-supplied
+{\sunlinsol} implementations.
+
+The \id{SUNBandMatrix} constructor has been simplified to remove the
+storage upper bandwidth argument.
+
 {\cvode}'s previous direct and iterative linear solver interfaces,
 {\cvdls} and {\cvspils}, have been merged into a single unified linear
 solver interface, {\cvls}, to support any valid {\sunlinsol} module.
@@ -293,7 +303,7 @@ The changes in this minor release include the following:
   solvers: if ``Initialize'' was called multiple times then the solver
   memory was reallocated (without being freed).
 
-\item Updated KLU SUNLINEARSOLVER module to use a \id{typedef} for the
+\item Updated KLU {\sunlinsol} module to use a \id{typedef} for the
   precision-specific solve function to be used (to avoid compiler
   warnings).
 

@@ -1322,7 +1322,7 @@ SUNLinearSolver HyprePcgPfmg(SUNMatrix A, int PCGmaxit, int PFMGmaxit,
 }
 
 SUNLinearSolver_Type HyprePcgPfmg_GetType(SUNLinearSolver S) {
-  return(SUNLINEARSOLVER_ITERATIVE);
+  return(SUNLINEARSOLVER_MATRIX_ITERATIVE);
 }
 
 int HyprePcgPfmg_Initialize(SUNLinearSolver S) {

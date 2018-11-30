@@ -155,7 +155,7 @@ int main(void)
 
   /* Create banded SUNMatrix for use in linear solves */
   mu = MGRID; ml = MGRID;
-  A = SUNBandMatrix(NEQ, mu, ml, mu+ml);
+  A = SUNBandMatrix(NEQ, mu, ml);
   if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
 
   /* Create banded SUNLinearSolver object */

@@ -119,6 +119,24 @@ writing in C|)}
 
 \subsection*{Changes in v4.0.0}
 
+{\cvodes}'s previous direct and iterative linear solver interfaces,
+{\cvdls} and {\cvspils}, have been merged into a single unified linear
+solver interface, {\cvls}, to support any valid {\sunlinsol} module
+of ``DIRECT'', ``ITERATIVE'' or ``MATRIX\_ITERATIVE'' type.
+The user interface for the new {\cvls} module is very similar to the
+previous {\cvdls} and {\cvspils} interfaces; however to minimize
+challenges in user migration to the new names, the previous {\CC}
+routine names may still be used; these will be deprecated in 
+future releases, so we recommend that users migrate to the new names
+soon.  Details regarding how {\idals} utilizes linear
+solvers of each type are included in \S\ref{s:sunlinsol}, as
+well as discussion regarding intended use cases for user-supplied
+{\sunlinsol} implementations.
+
+The \id{SUNBandMatrix} constructor has been simplified to remove the
+storage upper bandwidth argument.
+
+
 The names of all constructor routines for {\sundials}-provided
 {\sunlinsol} implementations have been updated to
 \id{SUNLinSol\_Band},
@@ -299,7 +317,7 @@ The changes in this minor release include the following:
   solvers: if ``Initialize'' was called multiple times then the solver
   memory was reallocated (without being freed).
 
-\item Updated KLU SUNLINEARSOLVER module to use a \id{typedef} for the
+\item Updated KLU {\sunlinsol} module to use a \id{typedef} for the
   precision-specific solve function to be used (to avoid compiler
   warnings).
 

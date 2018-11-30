@@ -96,6 +96,7 @@
 #include <stdio.h>
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_nonlinearsolver.h>
+#include <cvodes/cvodes_ls.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {

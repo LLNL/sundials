@@ -26,7 +26,7 @@
  * central differencing, and with boundary values eliminated,
  * leaving an ODE system of size NEQ = MX*MY.
  * This program solves the problem with the BDF method, Newton
- * iteration with the LAPACK band linear solver, and a user-supplied
+ * iteration with the LAPACKBAND linear solver, and a user-supplied
  * Jacobian routine.
  * It uses scalar relative and absolute tolerances.
  * Output is printed at t = .1, .2, ..., 1.
@@ -41,7 +41,6 @@
 #include <nvector/nvector_serial.h>          /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_band.h>        /* access to band SUNMatrix             */
 #include <sunlinsol/sunlinsol_lapackband.h>  /* access to band SUNLinearSolver       */
-#include <cvodes/cvodes_direct.h>            /* access to CVDls interface            */
 #include <sundials/sundials_types.h>         /* definition of type realtype          */
 #include <sundials/sundials_math.h>          /* definition of ABS and EXP            */
 
@@ -164,20 +163,20 @@ int main(void)
 
   /* Create banded SUNMatrix for use in linear solves -- since this will be factored, 
      set the storage bandwidth to be the sum of upper and lower bandwidths */
-  A = SUNBandMatrix(NEQ, MY, MY, 2*MY);
+  A = SUNBandMatrix(NEQ, MY, MY);
   if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
 
   /* Create SUNLinSol_LapackBand solver object for use by CVode */
   LS = SUNLinSol_LapackBand(u, A);
   if(check_retval((void *)LS, "SUNLinSol_LapackBand", 0)) return(1);
   
-  /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
-  retval = CVDlsSetLinearSolver(cvode_mem, LS, A);
-  if(check_retval(&retval, "CVDlsSetLinearSolver", 1)) return(1);
+  /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
+  retval = CVodeSetLinearSolver(cvode_mem, LS, A);
+  if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
 
   /* Set the user-supplied Jacobian routine Jac */
-  retval = CVDlsSetJacFn(cvode_mem, Jac);
-  if(check_retval(&retval, "CVDlsSetJacFn", 1)) return(1);
+  retval = CVodeSetJacFn(cvode_mem, Jac);
+  if(check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
 
   /* In loop over output points: call CVode, print results, test for errors */
 
@@ -381,10 +380,10 @@ static void PrintFinalStats(void *cvode_mem)
   retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1);
 
-  retval = CVDlsGetNumJacEvals(cvode_mem, &nje);
-  check_retval(&retval, "CVDlsGetNumJacEvals", 1);
-  retval = CVDlsGetNumRhsEvals(cvode_mem, &nfeLS);
-  check_retval(&retval, "CVDlsGetNumRhsEvals", 1);
+  retval = CVodeGetNumJacEvals(cvode_mem, &nje);
+  check_retval(&retval, "CVodeGetNumJacEvals", 1);
+  retval = CVodeGetNumLinRhsEvals(cvode_mem, &nfeLS);
+  check_retval(&retval, "CVodeGetNumLinRhsEvals", 1);
 
   printf("\nFinal Statistics:\n");
   printf("nst = %-6ld nfe  = %-6ld nsetups = %-6ld nfeLS = %-6ld nje = %ld\n",

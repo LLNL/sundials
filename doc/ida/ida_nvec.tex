@@ -66,21 +66,35 @@ interested reader.
 \end{table}
 
 Special cases (numbers match markings in table):
-\begin{itemize}
-\item[1.] These routines are only required if an internal
+\begin{enumerate}
+\item These routines are only required if an internal
   difference-quotient routine for constructing dense or band
   Jacobian matrices is used.
-\item[2.] This routine is optional, and is only used in estimating
+\item This routine is optional, and is only used in estimating
   space requirements for {\ida} modules for user feedback.
-\item[3.] The optional function \id{N\_VDotProdMulti} is only used
+\item The optional function \id{N\_VDotProdMulti} is only used
   when Classical Gram-Schmidt is enabled with {\spgmr} or
   {\spfgmr}. The remaining operations from Tables \ref{t:nvecfusedops}
   and \ref{t:nvecarrayops} not listed above are unused and a
   user-supplied {\nvector} module for {\ida} could omit these
   operations.
-\end{itemize}
+\end{enumerate}
 
 Of the functions listed in Table \ref{t:nvecops}, \id{N\_VWL2Norm}, 
 \id{N\_VL1Norm}, and \id{N\_VInvTest} 
 are {\em not} used by {\ida}. Therefore a user-supplied
-{\nvector} module for {\ida} could omit these three functions.
+{\nvector} module for {\ida} could omit these functions.
+
+%---------------------------------------------------------------------------
+% nvector module sections
+%---------------------------------------------------------------------------
+
+\input{nvec_serial}
+\input{nvec_parallel}
+\input{nvec_openmp}
+\input{nvec_pthreads}
+\input{nvec_parhyp}
+\input{nvec_petsc}
+\input{nvec_cuda}
+\input{nvec_raja}
+\input{nvec_examples}

@@ -82,7 +82,6 @@
 #include <string.h>
 
 #include <cvodes/cvodes.h>              /* main CVODES header file */
-#include <cvodes/cvodes_spils.h>        /* defs. for CVSPILS fcts. and constants */
 #include <sunlinsol/sunlinsol_spgmr.h>  /* defs. for SUNLinSol_SPGMR fcts. and constants */
 #include <nvector/nvector_parallel.h>   /* defs of par. NVECTOR fcts. and macros */
 #include <sundials/sundials_dense.h>    /* generic DENSE solver used in prec. */
@@ -295,12 +294,12 @@ int main(int argc, char *argv[])
   LS = SUNLinSol_SPGMR(u, PREC_LEFT, 0);
   if (check_retval((void *)LS, "SUNLinSol_SPGMR", 0, my_pe)) MPI_Abort(comm, 1);
   
-  /* Attach linear solver to CVSpils interface */
-  retval = CVSpilsSetLinearSolver(cvode_mem, LS);
-  if (check_retval(&retval, "CVSpilsSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
+  /* Attach linear solver */
+  retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
 
-  retval = CVSpilsSetPreconditioner(cvode_mem, Precond, PSolve);
-  if (check_retval(&retval, "CVSpilsSetPreconditioner", 1, my_pe)) MPI_Abort(comm, 1);
+  retval = CVodeSetPreconditioner(cvode_mem, Precond, PSolve);
+  if (check_retval(&retval, "CVodeSetPreconditioner", 1, my_pe)) MPI_Abort(comm, 1);
 
   if(my_pe == 0)
     printf("\n2-species diurnal advection-diffusion problem\n");

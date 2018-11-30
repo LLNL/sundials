@@ -102,7 +102,6 @@ Changes from previous versions
 --------------------------------
 
 
-
 Changes in v3.0.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -141,6 +140,12 @@ will need to enlarge their ``iout`` array of optional integer
 outputs, and update the indices that they query for certain
 linear-solver-related statistics.
 
+In addition to ``DIRECT`` and ``ITERATIVE`` SUNLinSol implementations the ARKLS
+linear solver interface supports the ``MATRIX_ITERATIVE`` linear solver type.
+Details regarding how ARKLS utilizes linear solvers of each type are included in
+the chapter :ref:`SUNLinSol`, as well as discussion regarding intended use cases
+for user-supplied SUNLinSol implementations.
+
 The names of all constructor routines for SUNDIALS-provided SUNLinSol
 implementations have been updated to ``SUNLinSol_Band``, ``SUNLinSol_Dense``,
 ``SUNLinSol_KLU``, ``SUNLinSol_LapackBand``, ``SUNLinSol_LapackDense``,
@@ -151,6 +156,9 @@ been similarly standardized.  To minimize challenges in user migration
 to the new names, the previous routine names may still be used; these
 will be deprecated in future releases, so we recommend that users
 migrate to the new names soon.
+
+The ``SUNBandMatrix`` constructor has been simplified to remove the
+storage upper bandwidth argument.
 
 SUNDIALS integrators have been updated to utilize generic nonlinear solver
 modules defined through the SUNNONLINSOL API. This API will ease the addition of

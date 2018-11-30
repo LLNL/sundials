@@ -1,6 +1,7 @@
 %% This is a shared SUNDIALS TEX file with a description of the
 %% spfgmr sunlinsol implementation
 %%
+\section{The SUNLinearSolver\_SPFGMR implementation}\label{ss:sunlinsol_spfgmr}
 
 The {\spfgmr} (Scaled, Preconditioned, Flexible, Generalized Minimum
 Residual \cite{Saa:93}) implementation of the {\sunlinsol} module
@@ -33,7 +34,7 @@ The module {\sunlinsolspfgmr} provides the following user-callable routines:
 }
 {
   The function \ID{SUNLinSol\_SPFGMR} creates and allocates memory for
-  a {\spfgmr} \id{SUNLinearSolver}.
+  a {\spfgmr} \\ \noindent \id{SUNLinearSolver}.
 }
 {
   \begin{args}[pretype]
@@ -118,7 +119,7 @@ The module {\sunlinsolspfgmr} provides the following user-callable routines:
     \item \id{CLASSICAL\_GS} (2)
     \end{itemize}
     Any other integer input will result in a
-    failure, returning error code \id{SUNLS\_ILL\_INPUT}.
+    failure, returning error code \\ \noindent \id{SUNLS\_ILL\_INPUT}.
   \end{args}
 }
 {
@@ -212,7 +213,7 @@ for creating a \id{SUNLinearSolver} object.
   been initialized.
 
   Allowable values for \id{pretype} and \id{maxl} are the same as for
-  the C function \ID{SUNLinSol\_SPFGMR}.
+  the {\CC} function \\ \noindent \ID{SUNLinSol\_SPFGMR}.
 }
 % --------------------------------------------------------------------
 Additionally, when using
@@ -246,11 +247,11 @@ includes a Fortran-callable function for creating a
   been initialized.
 
   Allowable values for \id{pretype} and \id{maxl} are the same as for
-  the C function \ID{SUNLinSol\_SPFGMR}.
+  the {\CC} function \\ \noindent \ID{SUNLinSol\_SPFGMR}.
 }
 % --------------------------------------------------------------------
 The \id{SUNLinSol\_SPFGMRSetPrecType}, \id{SUNLinSol\_SPFGMRSetGSType}
-and \id{SUNLinSol\_SPFGMRSetMaxRestarts} routines also support Fortran
+and \\ \noindent \id{SUNLinSol\_SPFGMRSetMaxRestarts} routines also support Fortran
 interfaces for the system and mass matrix solvers
 
 % --------------------------------------------------------------------

@@ -132,7 +132,7 @@ int main()
    * Create band SUNMatrix
    * ------------------------- */
 
-  J = SUNBandMatrix(NEQ, NX, NX, 2*NX);
+  J = SUNBandMatrix(NEQ, NX, NX);
   if(check_flag((void *)J, "SUNBandMatrix", 0)) return(1);
 
   /* ---------------------------

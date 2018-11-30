@@ -102,7 +102,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
 
   /* Allocate memory for saved banded Jacobian approximation. */
   pdata->savedJ = NULL;
-  pdata->savedJ = SUNBandMatrix(N, mup, mlp, mup);
+  pdata->savedJ = SUNBandMatrixStorage(N, mup, mlp, mup);
   if (pdata->savedJ == NULL) {
     free(pdata); pdata = NULL;
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBANDPRE", 
@@ -113,7 +113,7 @@ int ARKBandPrecInit(void *arkode_mem, sunindextype N,
   /* Allocate memory for banded preconditioner. */
   storagemu = SUNMIN(N-1, mup+mlp);
   pdata->savedP = NULL;
-  pdata->savedP = SUNBandMatrix(N, mup, mlp, storagemu);
+  pdata->savedP = SUNBandMatrixStorage(N, mup, mlp, storagemu);
   if (pdata->savedP == NULL) {
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;

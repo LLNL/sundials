@@ -197,7 +197,7 @@ int main(int argc, char *argv[])
 
   /* Create banded SUNMatrix for use in linear solves -- since this will be factored, 
      set the storage bandwidth to be the sum of upper and lower bandwidths */
-  A = SUNBandMatrix(NEQ, MY, MY, 2*MY);
+  A = SUNBandMatrix(NEQ, MY, MY);
   if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
 
   /* Create banded SUNLinearSolver object for use by CVode */

@@ -40,7 +40,6 @@
 #include <nvector/nvector_serial.h>     /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_dense.h>  /* access to band SUNMatrix             */
 #include <sunlinsol/sunlinsol_dense.h>  /* access to band SUNLinearSolver       */
-#include <cvodes/cvodes_direct.h>       /* access to CVDls interface            */
 #include <sundials/sundials_math.h>     /* definition of SUNRabs, SUNRexp, etc. */
 
 #define Ith(v,i)    NV_Ith_S(v,i-1)
@@ -195,8 +194,8 @@ int main(int argc, char *argv[])
   if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
-  retval = CVDlsSetLinearSolver(cvode_mem, LS, A);
-  if(check_retval(&retval, "CVDlsSetLinearSolver", 1)) return(1);
+  retval = CVodeSetLinearSolver(cvode_mem, LS, A);
+  if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
 
   retval = CVodeQuadInit(cvode_mem, fQ, yQ);
   if(check_retval(&retval, "CVodeQuadInit", 1)) return(1);
@@ -331,8 +330,8 @@ int main(int argc, char *argv[])
   if(check_retval((void *)LSB1, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
-  retval = CVDlsSetLinearSolverB(cvode_mem, indexB1, LSB1, AB1);
-  if(check_retval(&retval, "CVDlsSetLinearSolverB", 1)) return(1);
+  retval = CVodeSetLinearSolverB(cvode_mem, indexB1, LSB1, AB1);
+  if(check_retval(&retval, "CVodeSetLinearSolverB", 1)) return(1);
 
   /* -------------------------
      Second backward problem
@@ -368,8 +367,8 @@ int main(int argc, char *argv[])
   if(check_retval((void *)LSB2, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
-  retval = CVDlsSetLinearSolverB(cvode_mem, indexB2, LSB2, AB2);
-  if(check_retval(&retval, "CVDlsSetLinearSolverB", 1)) return(1);
+  retval = CVodeSetLinearSolverB(cvode_mem, indexB2, LSB2, AB2);
+  if(check_retval(&retval, "CVodeSetLinearSolverB", 1)) return(1);
 
   /* Backward integration */
 
@@ -468,8 +467,8 @@ int main(int argc, char *argv[])
   if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
-  retval = CVDlsSetLinearSolver(cvode_mem, LS, A);
-  if(check_retval(&retval, "CVDlsSetLinearSolver", 1)) return(1);
+  retval = CVodeSetLinearSolver(cvode_mem, LS, A);
+  if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
 
   retval = CVodeQuadInit(cvode_mem, fQ, yQ);
   if(check_retval(&retval, "CVodeQuadInit", 1)) return(1);

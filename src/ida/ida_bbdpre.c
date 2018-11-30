@@ -120,7 +120,7 @@ int IDABBDPrecInit(void *ida_mem, sunindextype Nlocal,
 
   /* Allocate memory for preconditioner matrix. */
   pdata->PP = NULL;
-  pdata->PP = SUNBandMatrix(Nlocal, muk, mlk, storage_mu);
+  pdata->PP = SUNBandMatrixStorage(Nlocal, muk, mlk, storage_mu);
   if (pdata->PP == NULL) { 
     free(pdata); pdata = NULL;
     IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDABBDPRE",

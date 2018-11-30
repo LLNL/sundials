@@ -69,19 +69,19 @@ interested reader.
 \end{table}
 
 Special cases (numbers match markings in table):
-\begin{itemize}
-\item[1.] These routines are only required if an internal
+\begin{enumerate}
+\item These routines are only required if an internal
   difference-quotient routine for constructing dense or band
   Jacobian matrices is used.
-\item[2.] This routine is optional, and is only used in estimating
+\item This routine is optional, and is only used in estimating
   space requirements for {\cvode} modules for user feedback.
-\item[3.] The optional function \id{N\_VDotProdMulti} is only used in the
+\item The optional function \id{N\_VDotProdMulti} is only used in the
   {\sunnonlinsolfixedpoint} module, or when Classical Gram-Schmidt is
   enabled with {\spgmr} or {\spfgmr}. The remaining operations from
   Tables \ref{t:nvecfusedops} and \ref{t:nvecarrayops} not listed above
   are unused and a user-supplied {\nvector} module for {\cvode} could
   omit these operations.
-\end{itemize}
+\end{enumerate}
 
 Each {\sunlinsol} object may require additional {\nvector} routines
 not listed in the table above.  Please see the the relevant
@@ -96,3 +96,17 @@ these functions.
 The functions \id{N\_MinQuotient}, \id{N\_VConstrMask}, and \id{N\_VCompare} are
 only used when constraint checking is enabled and may be omitted if this feature
 is not used.
+
+%---------------------------------------------------------------------------
+% nvector module sections
+%---------------------------------------------------------------------------
+
+\input{nvec_serial}
+\input{nvec_parallel}
+\input{nvec_openmp}
+\input{nvec_pthreads}
+\input{nvec_parhyp}
+\input{nvec_petsc}
+\input{nvec_cuda}
+\input{nvec_raja}
+\input{nvec_examples}

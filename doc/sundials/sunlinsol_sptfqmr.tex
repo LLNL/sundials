@@ -1,6 +1,7 @@
 %% This is a shared SUNDIALS TEX file with a description of the
 %% sptfqmr sunlinsol implementation
 %%
+\section{The SUNLinearSolver\_SPTFQMR implementation}\label{ss:sunlinsol_sptfqmr}
 
 The {\sptfqmr} (Scaled, Preconditioned, Transpose-Free Quasi-Minimum
 Residual \cite{Fre:93}) implementation of the {\sunlinsol} module
@@ -32,7 +33,7 @@ user-callable routines:
 }
 {
   The function \ID{SUNLinSol\_SPTFQMR} creates and allocates memory for
-  a {\sptfqmr} \id{SUNLinearSolver}.
+  a {\sptfqmr} \\ \noindent \id{SUNLinearSolver}.
 }
 {
   \begin{args}[pretype]
@@ -176,7 +177,7 @@ for creating a \id{SUNLinearSolver} object.
   been initialized.
 
   Allowable values for \id{pretype} and \id{maxl} are the same as for
-  the C function \ID{SUNLinSol\_SPTFQMR}.
+  the {\CC} function \\ \noindent \ID{SUNLinSol\_SPTFQMR}.
 }
 % --------------------------------------------------------------------
 Additionally, when using
@@ -210,7 +211,7 @@ includes a Fortran-callable function for creating a
   been initialized.
 
   Allowable values for \id{pretype} and \id{maxl} are the same as for
-  the C function \ID{SUNLinSol\_SPTFQMR}.
+  the {\CC} function \\ \noindent \ID{SUNLinSol\_SPTFQMR}.
 }
 % --------------------------------------------------------------------
 The \id{SUNLinSol\_SPTFQMRSetPrecType} and
@@ -389,7 +390,7 @@ This solver is constructed to perform the following operations:
 \item User-facing ``set'' routines may be called to modify default
   solver parameters.
 \item Additional ``set'' routines are called by the {\sundials} solver
-  that interfaces with {\sunlinsolsptfqmr} to supply the
+  that interfaces with \\ \noindent {\sunlinsolsptfqmr} to supply the
   \id{ATimes}, \id{PSetup}, and \id{Psolve} function pointers and
   \id{s1} and \id{s2} scaling vectors.
 \item In the ``initialize'' call, the solver parameters are checked

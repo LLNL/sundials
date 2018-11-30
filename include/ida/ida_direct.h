@@ -19,8 +19,7 @@
  * Header file for the deprecated direct linear solver interface in 
  * IDA; these routines now just wrap the updated IDA generic
  * linear solver interface in ida_ls.h.
- *-----------------------------------------------------------------
- */
+ *-----------------------------------------------------------------*/
 
 #ifndef _IDADLS_H
 #define _IDADLS_H

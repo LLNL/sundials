@@ -66,13 +66,10 @@ sensitivity analysis} \begin{Steps}
   \textcolor{gray}{\bf Create {\idas} object}
 
 \item
-  \textcolor{gray}{\bf Initialize {\idas}}
+  \textcolor{gray}{\bf Initialize {\idas} solver}
 
 \item
   \textcolor{gray}{\bf Specify integration tolerances}
-
-\item
-  \textcolor{gray}{\bf Set optional inputs}
 
 \item
   \textcolor{gray}{\bf Create matrix object}
@@ -81,10 +78,13 @@ sensitivity analysis} \begin{Steps}
   \textcolor{gray}{\bf Create linear solver object}
 
 \item
+  \textcolor{gray}{\bf Set linear solver optional inputs}
+
+\item
   \textcolor{gray}{\bf Attach linear solver module}
 
 \item
-  \textcolor{gray}{\bf Set linear solver optional inputs}
+  \textcolor{gray}{\bf Set optional inputs}
 
 \item
   \textcolor{gray}{\bf Create nonlinear solver object}
@@ -213,7 +213,7 @@ sensitivity analysis} \begin{Steps}
   where \id{***} is the name of the nonlinear solver and \id{...} are
   constructor specific arguments (see Chapter \ref{c:sunnonlinsol} for
   details).
-
+  
 \item
   {\bf Attach the sensitvity nonlinear solver module} (\textit{optional})
 
@@ -1646,9 +1646,6 @@ this situation. Steps that are unchanged from the skeleton program presented in
   \textcolor{gray}{\bf Specify integration tolerances}
 
 \item
-  \textcolor{gray}{\bf Set optional inputs}
-
-\item
   \textcolor{gray}{\bf Create matrix object}
 
 \item
@@ -1656,6 +1653,12 @@ this situation. Steps that are unchanged from the skeleton program presented in
 
 \item
   \textcolor{gray}{\bf Set linear solver optional inputs}
+
+\item
+  \textcolor{gray}{\bf Attach linear solver module}
+
+\item
+  \textcolor{gray}{\bf Set optional inputs}
 
 \item
   \textcolor{gray}{\bf Create nonlinear solver object}

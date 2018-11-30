@@ -70,7 +70,6 @@
 #include <sunlinsol/sunlinsol_dense.h>            /* access to dense SUNLinearSolver              */
 #include <sunmatrix/sunmatrix_band.h>             /* access to band SUNMatrix                     */
 #include <sunlinsol/sunlinsol_band.h>             /* access to band SUNLinearSolver               */
-#include <cvodes/cvodes_direct.h>                 /* access to CVDls interface                    */
 #include <cvodes/cvodes_diag.h>                   /* access to CVDIAG linear solver               */
 #include "sunnonlinsol/sunnonlinsol_newton.h"     /* access to the newton SUNNonlinearSolver      */
 #include "sunnonlinsol/sunnonlinsol_fixedpoint.h" /* access to the fixed point SUNNonlinearSolver */
@@ -724,13 +723,13 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter, N_Vector y,
       *LS = SUNLinSol_Dense(y, *A);
       if(check_retval((void *)*LS, "SUNLinSol_Dense", 0)) return(1);
 
-      /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
-      retval = CVDlsSetLinearSolver(cvode_mem, *LS, *A);
-      if(check_retval(&retval, "CVDlsSetLinearSolver", 1)) return(1);
+      /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
+      retval = CVodeSetLinearSolver(cvode_mem, *LS, *A);
+      if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
 
       /* Set the user-supplied Jacobian routine Jac */
-      retval = CVDlsSetJacFn(cvode_mem, Jac1);
-      if(check_retval(&retval, "CVDlsSetJacFn", 1)) return(1);
+      retval = CVodeSetJacFn(cvode_mem, Jac1);
+      if(check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
       break;
 
     case DENSE_DQ :
@@ -744,13 +743,13 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter, N_Vector y,
       *LS = SUNLinSol_Dense(y, *A);
       if(check_retval((void *)*LS, "SUNLinSol_Dense", 0)) return(1);
 
-      /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
-      retval = CVDlsSetLinearSolver(cvode_mem, *LS, *A);
-      if(check_retval(&retval, "CVDlsSetLinearSolver", 1)) return(1);
+      /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
+      retval = CVodeSetLinearSolver(cvode_mem, *LS, *A);
+      if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
 
       /* Use a difference quotient Jacobian */
-      retval = CVDlsSetJacFn(cvode_mem, NULL);
-      if(check_retval(&retval, "CVDlsSetJacFn", 1)) return(1);
+      retval = CVodeSetJacFn(cvode_mem, NULL);
+      if(check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
       break;
 
     case DIAG :
@@ -765,40 +764,40 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter, N_Vector y,
       printf("Band, User-Supplied Jacobian\n");
 
       /* Create band SUNMatrix for use in linear solves */
-      *A = SUNBandMatrix(P2_NEQ, mu, ml, mu+ml);
+      *A = SUNBandMatrix(P2_NEQ, mu, ml);
       if(check_retval((void *)*A, "SUNBandMatrix", 0)) return(1);
 
       /* Create banded SUNLinearSolver object for use by CVode */
       *LS = SUNLinSol_Band(y, *A);
       if(check_retval((void *)*LS, "SUNLinSol_Band", 0)) return(1);
 
-      /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
-      retval = CVDlsSetLinearSolver(cvode_mem, *LS, *A);
-      if(check_retval(&retval, "CVDlsSetLinearSolver", 1)) return(1);
+      /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
+      retval = CVodeSetLinearSolver(cvode_mem, *LS, *A);
+      if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
 
       /* Set the user-supplied Jacobian routine Jac */
-      retval = CVDlsSetJacFn(cvode_mem, Jac2);
-      if(check_retval(&retval, "CVDlsSetJacFn", 1)) return(1);
+      retval = CVodeSetJacFn(cvode_mem, Jac2);
+      if(check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
       break;
 
     case BAND_DQ  :
       printf("Band, Difference Quotient Jacobian\n");
 
       /* Create band SUNMatrix for use in linear solves */
-      *A = SUNBandMatrix(P2_NEQ, mu, ml, mu+ml);
+      *A = SUNBandMatrix(P2_NEQ, mu, ml);
       if(check_retval((void *)*A, "SUNBandMatrix", 0)) return(1);
 
       /* Create banded SUNLinearSolver object for use by CVode */
       *LS = SUNLinSol_Band(y, *A);
       if(check_retval((void *)*LS, "SUNLinSol_Band", 0)) return(1);
 
-      /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
-      retval = CVDlsSetLinearSolver(cvode_mem, *LS, *A);
-      if(check_retval(&retval, "CVDlsSetLinearSolver", 1)) return(1);
+      /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
+      retval = CVodeSetLinearSolver(cvode_mem, *LS, *A);
+      if(check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
 
       /* Use a difference quotient Jacobian */
-      retval = CVDlsSetJacFn(cvode_mem, NULL);
-      if(check_retval(&retval, "CVDlsSetJacFn", 1)) return(1);
+      retval = CVodeSetJacFn(cvode_mem, NULL);
+      if(check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
       break;
     }
   }
@@ -852,12 +851,12 @@ static void PrintFinalStats(void *cvode_mem, int miter, realtype ero)
 
   if (miter != FUNC) {
     if (miter != DIAG) {
-      retval = CVDlsGetNumJacEvals(cvode_mem, &nje);
-      check_retval(&retval, "CVDlsGetNumJacEvals", 1);
-      retval = CVDlsGetNumRhsEvals(cvode_mem, &nfeLS);
-      check_retval(&retval, "CVDlsGetNumRhsEvals", 1);
-      retval = CVDlsGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
-      check_retval(&retval, "CVDlsGetWorkSpace", 1);
+      retval = CVodeGetNumJacEvals(cvode_mem, &nje);
+      check_retval(&retval, "CVodeGetNumJacEvals", 1);
+      retval = CVodeGetNumLinRhsEvals(cvode_mem, &nfeLS);
+      check_retval(&retval, "CVodeGetNumLinRhsEvals", 1);
+      retval = CVodeGetLinWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
+      check_retval(&retval, "CVodeGetLinWorkSpace", 1);
     } else {
       nje = nsetups;
       retval = CVDiagGetNumRhsEvals(cvode_mem, &nfeLS);

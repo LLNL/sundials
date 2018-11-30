@@ -58,7 +58,6 @@
 #include <nvector/nvector_serial.h>        /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_sparse.h>    /* access to sparse SUNMatrix           */
 #include <sunlinsol/sunlinsol_klu.h>       /* access to KLU linear solver          */
-#include <idas/idas_direct.h>              /* access to IDADls interface           */
 #include <sundials/sundials_types.h>       /* defs. of realtype, sunindextype      */
 #include <sundials/sundials_math.h>        /* defs. of SUNRabs, SUNRexp, etc.      */
 
@@ -219,12 +218,12 @@ int main(int argc, char *argv[])
   if(check_retval((void *)LS, "SUNLinSol_KLU", 0)) return(1);
 
   /* Attach the matrix and linear solver */
-  retval = IDADlsSetLinearSolver(ida_mem, LS, A);
-  if(check_retval(&retval, "IDADlsSetLinearSolver", 1)) return(1);
+  retval = IDASetLinearSolver(ida_mem, LS, A);
+  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
 
   /* Set the user-supplied Jacobian routine */
-  retval = IDADlsSetJacFn(ida_mem, Jac);
-  if(check_retval(&retval, "IDADlsSetJacFn", 1)) return(1);
+  retval = IDASetJacFn(ida_mem, Jac);
+  if(check_retval(&retval, "IDASetJacFn", 1)) return(1);
 
   printf("\n3-species chemical kinetics problem\n");
 

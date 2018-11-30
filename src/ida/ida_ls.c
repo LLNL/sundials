@@ -1,15 +1,15 @@
-/*----------------------------------------------------------------- 
+/*-----------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
  *                Alan C. Hindmarsh and Radu Serban @ LLNL
  *-----------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2018, Southern Methodist University and 
+ * Copyright (c) 2018, Southern Methodist University and
  * Lawrence Livermore National Security
  *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Southern Methodist University and Lawrence Livermore
  * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
+ * Produced at Southern Methodist University and the Lawrence
  * Livermore National Laboratory.
  *
  * All rights reserved.
@@ -51,17 +51,17 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
 {
   IDAMem   IDA_mem;
   IDALsMem idals_mem;
-  int      retval;
+  int      retval, LSType;
 
   /* Return immediately if any input is NULL */
   if (ida_mem == NULL) {
-    IDAProcessError(NULL, IDALS_MEM_NULL, "IDALS", 
-		    "IDASetLinearSolver", MSG_LS_IDAMEM_NULL);
+    IDAProcessError(NULL, IDALS_MEM_NULL, "IDALS",
+                    "IDASetLinearSolver", MSG_LS_IDAMEM_NULL);
     return(IDALS_MEM_NULL);
   }
   if (LS == NULL) {
-    IDAProcessError(NULL, IDALS_ILL_INPUT, "IDALS", 
-		    "IDASetLinearSolver", 
+    IDAProcessError(NULL, IDALS_ILL_INPUT, "IDALS",
+                    "IDASetLinearSolver",
                     "LS must be non-NULL");
     return(IDALS_ILL_INPUT);
   }
@@ -77,32 +77,43 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
                    "LS object is missing a required operation");
     return(IDALS_ILL_INPUT);
   }
-  if ( (SUNLinSolGetType(LS) == SUNLINEARSOLVER_ITERATIVE) &&
-       ( (LS->ops->resid == NULL) || (LS->ops->numiters == NULL) ) ) {
-    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS",
-                   "IDASetLinearSolver",
-                   "Iterative LS object requires 'resid' and 'numiters' routines");
-    return(IDALS_ILL_INPUT);
-  }
 
-  
-  /* Test if vector is compatible with LS */
+  /* Test if vector is compatible with LS interface */
   if ( (IDA_mem->ida_tempv1->ops->nvdotprod == NULL) ||
        (IDA_mem->ida_tempv1->ops->nvconst == NULL) ) {
-    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS", 
+    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS",
                     "IDASetLinearSolver", MSG_LS_BAD_NVECTOR);
     return(IDALS_ILL_INPUT);
   }
 
-  /* If no matrix attached, test that LS supports ATimes routine */
-  if ((A == NULL) && (LS->ops->setatimes == NULL)) {
-    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS",
-                    "IDASetLinearSolver",
-                    "Incompatible inputs: A==NULL, but LS doesn't support matrix-free");
+  /* Retrieve the LS type */
+  LSType = SUNLinSolGetType(LS);
+
+  /* Check for compatible LS type, matrix and "atimes" support */
+  if ( ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
+         (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) &&
+       ( (LS->ops->resid == NULL) ||
+         (LS->ops->numiters == NULL) ) ) {
+    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS", "IDASetLinearSolver",
+                   "Iterative LS object requires 'resid' and 'numiters' routines");
     return(IDALS_ILL_INPUT);
   }
-  
-  
+  if ((LSType == SUNLINEARSOLVER_ITERATIVE) && (LS->ops->setatimes == NULL)) {
+    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS", "IDASetLinearSolver",
+                    "Incompatible inputs: iterative LS must support ATimes routine");
+    return(IDALS_ILL_INPUT);
+  }
+  if ((LSType == SUNLINEARSOLVER_DIRECT) && (A == NULL)) {
+    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS", "IDASetLinearSolver",
+                    "Incompatible inputs: direct LS requires non-NULL matrix");
+    return(IDALS_ILL_INPUT);
+  }
+  if ((LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) && (A == NULL)) {
+    IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS", "IDASetLinearSolver",
+                    "Incompatible inputs: matrix-iterative LS requires non-NULL matrix");
+    return(IDALS_ILL_INPUT);
+  }
+
   /* free any existing system solver attached to IDA */
   if (IDA_mem->ida_lfree)  IDA_mem->ida_lfree(IDA_mem);
 
@@ -113,14 +124,15 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
   IDA_mem->ida_lfree  = idaLsFree;
 
   /* Set ida_lperf if using an iterative SUNLinearSolver object */
-  IDA_mem->ida_lperf = (SUNLinSolGetType(LS) == SUNLINEARSOLVER_ITERATIVE) ?
+  IDA_mem->ida_lperf = ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
+                         (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) ?
     idaLsPerf : NULL;
 
   /* Allocate memory for IDALsMemRec */
   idals_mem = NULL;
   idals_mem = (IDALsMem) malloc(sizeof(struct IDALsMemRec));
   if (idals_mem == NULL) {
-    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDALS", 
+    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDALS",
                     "IDASetLinearSolver", MSG_LS_MEM_FAIL);
     return(IDALS_MEM_FAIL);
   }
@@ -128,7 +140,7 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
 
   /* set SUNLinearSolver pointer */
   idals_mem->LS = LS;
-  
+
   /* Set defaults for Jacobian-related fields */
   idals_mem->J = A;
   if (A != NULL) {
@@ -159,22 +171,24 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
   idals_mem->dqincfac  = ONE;
   idals_mem->last_flag = IDALS_SUCCESS;
 
-  /* Attach default IDALs interface routines to LS object */
+  /* If LS supports ATimes, attach IDALs routine */
   if (LS->ops->setatimes) {
     retval = SUNLinSolSetATimes(LS, IDA_mem, idaLsATimes);
     if (retval != SUNLS_SUCCESS) {
-      IDAProcessError(IDA_mem, IDALS_SUNLS_FAIL, "IDALS", 
-                      "IDASetLinearSolver", 
+      IDAProcessError(IDA_mem, IDALS_SUNLS_FAIL, "IDALS",
+                      "IDASetLinearSolver",
                       "Error in calling SUNLinSolSetATimes");
       free(idals_mem); idals_mem = NULL;
       return(IDALS_SUNLS_FAIL);
     }
   }
+
+  /* If LS supports preconditioning, initialize pset/psol to NULL */
   if (LS->ops->setpreconditioner) {
     retval = SUNLinSolSetPreconditioner(LS, IDA_mem, NULL, NULL);
     if (retval != SUNLS_SUCCESS) {
-      IDAProcessError(IDA_mem, IDALS_SUNLS_FAIL, "IDALS", 
-                      "IDASetLinearSolver", 
+      IDAProcessError(IDA_mem, IDALS_SUNLS_FAIL, "IDALS",
+                      "IDASetLinearSolver",
                       "Error in calling SUNLinSolSetPreconditioner");
       free(idals_mem); idals_mem = NULL;
       return(IDALS_SUNLS_FAIL);
@@ -184,7 +198,7 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
   /* Allocate memory for ytemp, yptemp and x */
   idals_mem->ytemp = N_VClone(IDA_mem->ida_tempv1);
   if (idals_mem->ytemp == NULL) {
-    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDALS", 
+    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDALS",
                     "IDASetLinearSolver", MSG_LS_MEM_FAIL);
     free(idals_mem); idals_mem = NULL;
     return(IDALS_MEM_FAIL);
@@ -192,7 +206,7 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
 
   idals_mem->yptemp = N_VClone(IDA_mem->ida_tempv1);
   if (idals_mem->yptemp == NULL) {
-    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDALS", 
+    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDALS",
                     "IDASetLinearSolver", MSG_LS_MEM_FAIL);
     N_VDestroy(idals_mem->ytemp);
     free(idals_mem); idals_mem = NULL;
@@ -201,7 +215,7 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
 
   idals_mem->x = N_VClone(IDA_mem->ida_tempv1);
   if (idals_mem->x == NULL) {
-    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDALS", 
+    IDAProcessError(IDA_mem, IDALS_MEM_FAIL, "IDALS",
                     "IDASetLinearSolver", MSG_LS_MEM_FAIL);
     N_VDestroy(idals_mem->ytemp);
     N_VDestroy(idals_mem->yptemp);
@@ -211,7 +225,7 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
 
   /* Compute sqrtN from a dot product */
   N_VConst(ONE, idals_mem->ytemp);
-  idals_mem->sqrtN = SUNRsqrt( N_VDotProd(idals_mem->ytemp, 
+  idals_mem->sqrtN = SUNRsqrt( N_VDotProd(idals_mem->ytemp,
                                           idals_mem->ytemp) );
 
   /* Attach linear solver memory to integrator memory */
@@ -232,7 +246,7 @@ int IDASetJacFn(void *ida_mem, IDALsJacFn jac)
   IDAMem   IDA_mem;
   IDALsMem idals_mem;
   int      retval;
-  
+
   /* access IDALsMem structure */
   retval = idaLs_AccessLMem(ida_mem, "IDALsSetJacFn",
                             &IDA_mem, &idals_mem);
@@ -244,7 +258,7 @@ int IDASetJacFn(void *ida_mem, IDALsJacFn jac)
                     "Jacobian routine cannot be supplied for NULL SUNMatrix");
     return(IDALS_ILL_INPUT);
   }
-  
+
   /* set Jacobian routine pointer, and update relevant flags */
   if (jac != NULL) {
     idals_mem->jacDQ  = SUNFALSE;
@@ -266,12 +280,12 @@ int IDASetEpsLin(void *ida_mem, realtype eplifac)
   IDAMem   IDA_mem;
   IDALsMem idals_mem;
   int      retval;
-  
+
   /* access IDALsMem structure */
   retval = idaLs_AccessLMem(ida_mem, "IDASetEpsLin",
                             &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS)  return(retval);
-  
+
   /* Check for legal eplifac */
   if (eplifac < ZERO) {
     IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS",
@@ -291,19 +305,19 @@ int IDASetIncrementFactor(void *ida_mem, realtype dqincfac)
   IDAMem   IDA_mem;
   IDALsMem idals_mem;
   int      retval;
-  
+
   /* access IDALsMem structure */
   retval = idaLs_AccessLMem(ida_mem, "IDASetIncrementFactor",
                             &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS)  return(retval);
-  
+
   /* Check for legal dqincfac */
   if (dqincfac <= ZERO) {
     IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS",
                     "IDASetIncrementFactor", MSG_LS_NEG_DQINCFAC);
     return(IDALS_ILL_INPUT);
   }
-  
+
   idals_mem->dqincfac = dqincfac;
 
   return(IDALS_SUCCESS);
@@ -320,13 +334,13 @@ int IDASetPreconditioner(void *ida_mem,
   PSetupFn idals_psetup;
   PSolveFn idals_psolve;
   int      retval;
-  
+
   /* access IDALsMem structure */
   retval = idaLs_AccessLMem(ida_mem, "IDASetPreconditioner",
                             &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS)  return(retval);
-  
-  /* store function pointers for user-supplied routines in CVLs interface */
+
+  /* store function pointers for user-supplied routines in IDALs interface */
   idals_mem->pset   = psetup;
   idals_mem->psolve = psolve;
 
@@ -337,11 +351,11 @@ int IDASetPreconditioner(void *ida_mem,
                    "SUNLinearSolver object does not support user-supplied preconditioning");
     return(IDALS_ILL_INPUT);
   }
-  
+
   /* notify iterative linear solver to call IDALs interface routines */
   idals_psetup = (psetup == NULL) ? NULL : idaLsPSetup;
   idals_psolve = (psolve == NULL) ? NULL : idaLsPSolve;
-  retval = SUNLinSolSetPreconditioner(idals_mem->LS, IDA_mem, 
+  retval = SUNLinSolSetPreconditioner(idals_mem->LS, IDA_mem,
                                       idals_psetup, idals_psolve);
   if (retval != SUNLS_SUCCESS) {
     IDAProcessError(IDA_mem, IDALS_SUNLS_FAIL, "IDALS",
@@ -354,7 +368,7 @@ int IDASetPreconditioner(void *ida_mem,
 }
 
 
-/* IDASetJacTimes specifies the user-supplied Jacobian-vector product 
+/* IDASetJacTimes specifies the user-supplied Jacobian-vector product
    setup and multiply routines */
 int IDASetJacTimes(void *ida_mem, IDALsJacTimesSetupFn jtsetup,
                    IDALsJacTimesVecFn jtimes)
@@ -367,7 +381,7 @@ int IDASetJacTimes(void *ida_mem, IDALsJacTimesSetupFn jtsetup,
   retval = idaLs_AccessLMem(ida_mem, "IDASetJacTimes",
                             &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS)  return(retval);
-  
+
   /* issue error if LS object does not allow user-supplied ATimes */
   if (idals_mem->LS->ops->setatimes == NULL) {
     IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS",
@@ -375,8 +389,8 @@ int IDASetJacTimes(void *ida_mem, IDALsJacTimesSetupFn jtsetup,
                     "SUNLinearSolver object does not support user-supplied ATimes routine");
     return(IDALS_ILL_INPUT);
   }
-  
-  /* store function pointers for user-supplied routines in IDALs 
+
+  /* store function pointers for user-supplied routines in IDALs
      interface (NULL jtimes implies use of DQ default) */
   if (jtimes != NULL) {
     idals_mem->jtimesDQ = SUNFALSE;
@@ -394,7 +408,7 @@ int IDASetJacTimes(void *ida_mem, IDALsJacTimesSetupFn jtsetup,
 }
 
 
-/* IDAGetLinWorkSpace returns the length of workspace allocated 
+/* IDAGetLinWorkSpace returns the length of workspace allocated
    for the IDALS linear solver interface */
 int IDAGetLinWorkSpace(void *ida_mem, long int *lenrwLS,
                        long int *leniwLS)
@@ -409,7 +423,7 @@ int IDAGetLinWorkSpace(void *ida_mem, long int *lenrwLS,
   retval = idaLs_AccessLMem(ida_mem, "IDAGetLinWorkSpace",
                             &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS)  return(retval);
-  
+
   /* start with fixed sizes plus vector/matrix pointers */
   *lenrwLS = 3;
   *leniwLS = 33;
@@ -514,7 +528,7 @@ int IDAGetNumLinConvFails(void *ida_mem, long int *nlcfails)
 }
 
 
-/* IDAGetNumJTSetupEvals returns the number of calls to the 
+/* IDAGetNumJTSetupEvals returns the number of calls to the
    user-supplied Jacobian-vector product setup routine */
 int IDAGetNumJTSetupEvals(void *ida_mem, long int *njtsetups)
 {
@@ -531,7 +545,7 @@ int IDAGetNumJTSetupEvals(void *ida_mem, long int *njtsetups)
 }
 
 
-/* IDAGetNumJtimesEvals returns the number of calls to the 
+/* IDAGetNumJtimesEvals returns the number of calls to the
    Jacobian-vector product multiply routine */
 int IDAGetNumJtimesEvals(void *ida_mem, long int *njvevals)
 {
@@ -548,8 +562,8 @@ int IDAGetNumJtimesEvals(void *ida_mem, long int *njvevals)
 }
 
 
-/* IDAGetNumLinResEvals returns the number of calls to the DAE 
-   residual needed for the DQ Jacobian approximation or J*v 
+/* IDAGetNumLinResEvals returns the number of calls to the DAE
+   residual needed for the DQ Jacobian approximation or J*v
    product approximation */
 int IDAGetNumLinResEvals(void *ida_mem, long int *nrevalsLS)
 {
@@ -582,8 +596,8 @@ int IDAGetLastLinFlag(void *ida_mem, long int *flag)
 }
 
 
-/* IDAGetLinReturnFlagName translates from the integer error code 
-   returned by an IDALs routine to the corresponding string 
+/* IDAGetLinReturnFlagName translates from the integer error code
+   returned by an IDALs routine to the corresponding string
    equivalent for that flag */
 char *IDAGetLinReturnFlagName(long int flag)
 {
@@ -592,7 +606,7 @@ char *IDAGetLinReturnFlagName(long int flag)
   switch(flag) {
   case IDALS_SUCCESS:
     sprintf(name,"IDALS_SUCCESS");
-    break; 
+    break;
   case IDALS_MEM_NULL:
     sprintf(name,"IDALS_MEM_NULL");
     break;
@@ -637,8 +651,8 @@ char *IDAGetLinReturnFlagName(long int flag)
 
   This routine generates the matrix-vector product z = Jv, where
   J is the system Jacobian, by calling either the user provided
-  routine or the internal DQ routine.  The return value is 
-  the same as the value returned by jtimes -- 
+  routine or the internal DQ routine.  The return value is
+  the same as the value returned by jtimes --
   0 if successful, nonzero otherwise.
   ---------------------------------------------------------------*/
 int idaLsATimes(void *ida_mem, N_Vector v, N_Vector z)
@@ -667,9 +681,9 @@ int idaLsATimes(void *ida_mem, N_Vector v, N_Vector z)
 /*---------------------------------------------------------------
   idaLsPSetup:
 
-  This routine interfaces between the generic iterative linear 
-  solvers and the user's psetup routine.  It passes to psetup all 
-  required state information from ida_mem.  Its return value 
+  This routine interfaces between the generic iterative linear
+  solvers and the user's psetup routine.  It passes to psetup all
+  required state information from ida_mem.  Its return value
   is the same as that returned by psetup. Note that the generic
   iterative linear solvers guarantee that idaLsPSetup will only
   be called in the case that the user's psetup routine is non-NULL.
@@ -685,10 +699,10 @@ int idaLsPSetup(void *ida_mem)
                             &IDA_mem, &idals_mem);
   if (retval != IDALS_SUCCESS)  return(retval);
 
-  /* Call user pset routine to update preconditioner and possibly 
+  /* Call user pset routine to update preconditioner and possibly
      reset jcur (pass !jbad as update suggestion) */
-  retval = idals_mem->pset(IDA_mem->ida_tn, idals_mem->ycur, 
-                           idals_mem->ypcur, idals_mem->rcur, 
+  retval = idals_mem->pset(IDA_mem->ida_tn, idals_mem->ycur,
+                           idals_mem->ypcur, idals_mem->rcur,
                            IDA_mem->ida_cj, idals_mem->pdata);
   idals_mem->npe++;
   return(retval);
@@ -698,13 +712,13 @@ int idaLsPSetup(void *ida_mem)
 /*---------------------------------------------------------------
   idaLsPSolve:
 
-  This routine interfaces between the generic SUNLinSolSolve 
-  routine and the user's psolve routine.  It passes to psolve all 
+  This routine interfaces between the generic SUNLinSolSolve
+  routine and the user's psolve routine.  It passes to psolve all
   required state information from ida_mem.  Its return value is
-  the same as that returned by psolve.  Note that the generic 
-  SUNLinSol solver guarantees that IDASilsPSolve will not be 
-  called in the case in which preconditioning is not done. This 
-  is the only case in which the user's psolve routine is allowed 
+  the same as that returned by psolve.  Note that the generic
+  SUNLinSol solver guarantees that IDASilsPSolve will not be
+  called in the case in which preconditioning is not done. This
+  is the only case in which the user's psolve routine is allowed
   to be NULL.
   ---------------------------------------------------------------*/
 int idaLsPSolve(void *ida_mem, N_Vector r, N_Vector z, realtype tol, int lr)
@@ -731,11 +745,11 @@ int idaLsPSolve(void *ida_mem, N_Vector r, N_Vector z, realtype tol, int lr)
 /*---------------------------------------------------------------
   idaLsDQJac:
 
-  This routine is a wrapper for the Dense and Band 
-  implementations of the difference quotient Jacobian 
+  This routine is a wrapper for the Dense and Band
+  implementations of the difference quotient Jacobian
   approximation routines.
 ---------------------------------------------------------------*/
-int idaLsDQJac(realtype t, realtype c_j, N_Vector y, N_Vector yp, 
+int idaLsDQJac(realtype t, realtype c_j, N_Vector y, N_Vector yp,
                N_Vector r, SUNMatrix Jac, void *ida_mem,
                N_Vector tmp1, N_Vector tmp2, N_Vector tmp3)
 {
@@ -746,14 +760,14 @@ int idaLsDQJac(realtype t, realtype c_j, N_Vector y, N_Vector yp,
   /* access IDAMem structure */
   if (ida_mem == NULL) {
     IDAProcessError(NULL, IDALS_MEM_NULL, "IDALS",
-		    "idaLsDQJac", MSG_LS_IDAMEM_NULL);
+                    "idaLsDQJac", MSG_LS_IDAMEM_NULL);
     return(IDALS_MEM_NULL);
   }
-  
+
   /* verify that Jac is non-NULL */
   if (Jac == NULL) {
-    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, "IDALS", 
-		    "idaLsDQJac", MSG_LS_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, "IDALS",
+                    "idaLsDQJac", MSG_LS_LMEM_NULL);
     return(IDALS_LMEM_NULL);
   }
 
@@ -769,15 +783,15 @@ int idaLsDQJac(realtype t, realtype c_j, N_Vector y, N_Vector yp,
                    "idaLsDQJac", MSG_LS_BAD_NVECTOR);
     return(IDALS_ILL_INPUT);
   }
-  
+
   /* Call the matrix-structure-specific DQ approximation routine */
   if (SUNMatGetID(Jac) == SUNMATRIX_DENSE) {
     retval = idaLsDenseDQJac(t, c_j, y, yp, r, Jac, IDA_mem, tmp1);
   } else if (SUNMatGetID(Jac) == SUNMATRIX_BAND) {
     retval = idaLsBandDQJac(t, c_j, y, yp, r, Jac, IDA_mem, tmp1, tmp2, tmp3);
   } else {
-    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDALS", 
-		    "idaLsDQJac", 
+    IDAProcessError(IDA_mem, IDA_ILL_INPUT, "IDALS",
+                    "idaLsDQJac",
                     "unrecognized matrix type for idaLsDQJac");
     retval = IDA_ILL_INPUT;
   }
@@ -786,19 +800,19 @@ int idaLsDQJac(realtype t, realtype c_j, N_Vector y, N_Vector yp,
 
 
 /*---------------------------------------------------------------
-  idaLsDenseDQJac 
+  idaLsDenseDQJac
 
   This routine generates a dense difference quotient approximation
-  to the Jacobian F_y + c_j*F_y'. It assumes a dense SUNmatrix 
+  to the Jacobian F_y + c_j*F_y'. It assumes a dense SUNmatrix
   input (stored column-wise, and that elements within each column
-  are contiguous). The address of the jth column of J is obtained 
-  via the function SUNDenseMatrix_Column() and this pointer is 
-  associated with an N_Vector using the 
-  N_VGetArrayPointer/N_VSetArrayPointer functions.  Finally, the 
-  actual computation of the jth column of the Jacobian is 
+  are contiguous). The address of the jth column of J is obtained
+  via the function SUNDenseMatrix_Column() and this pointer is
+  associated with an N_Vector using the
+  N_VGetArrayPointer/N_VSetArrayPointer functions.  Finally, the
+  actual computation of the jth column of the Jacobian is
   done with a call to N_VLinearSum.
 ---------------------------------------------------------------*/
-int idaLsDenseDQJac(realtype tt, realtype c_j, N_Vector yy, 
+int idaLsDenseDQJac(realtype tt, realtype c_j, N_Vector yy,
                     N_Vector yp, N_Vector rr, SUNMatrix Jac,
                     IDAMem IDA_mem, N_Vector tmp1)
 {
@@ -820,7 +834,7 @@ int idaLsDenseDQJac(realtype tt, realtype c_j, N_Vector yy,
 
   /* Create an empty vector for matrix column calculations */
   jthCol = N_VCloneEmpty(tmp1);
-  
+
   /* Obtain pointers to the data for ewt, yy, yp. */
   ewt_data = N_VGetArrayPointer(IDA_mem->ida_ewt);
   y_data   = N_VGetArrayPointer(yy);
@@ -868,7 +882,7 @@ int idaLsDenseDQJac(realtype tt, realtype c_j, N_Vector yy,
     inc_inv = ONE/inc;
     N_VLinearSum(inc_inv, rtemp, -inc_inv, rr, jthCol);
 
-    /*  reset y_j, yp_j */     
+    /*  reset y_j, yp_j */
     y_data[j] = yj;
     yp_data[j] = ypj;
   }
@@ -882,16 +896,16 @@ int idaLsDenseDQJac(realtype tt, realtype c_j, N_Vector yy,
 
 
 /*---------------------------------------------------------------
-  idaLsBandDQJac 
+  idaLsBandDQJac
 
-  This routine generates a banded difference quotient approximation 
-  JJ to the DAE system Jacobian J.  It assumes a band SUNMatrix 
+  This routine generates a banded difference quotient approximation
+  JJ to the DAE system Jacobian J.  It assumes a band SUNMatrix
   input (stored column-wise, and that elements within each column
-  are contiguous).  This makes it possible to get the address 
-  of a column of JJ via the function SUNBandMatrix_Column(). The 
-  columns of the Jacobian are constructed using mupper + mlower + 1 
+  are contiguous).  This makes it possible to get the address
+  of a column of JJ via the function SUNBandMatrix_Column(). The
+  columns of the Jacobian are constructed using mupper + mlower + 1
   calls to the res routine, and appropriate differencing.
-  The return value is either IDABAND_SUCCESS = 0, or the nonzero 
+  The return value is either IDABAND_SUCCESS = 0, or the nonzero
   value returned by the res routine, if any.
   ---------------------------------------------------------------*/
 int idaLsBandDQJac(realtype tt, realtype c_j, N_Vector yy,
@@ -983,7 +997,7 @@ int idaLsBandDQJac(realtype tt, realtype c_j, N_Vector yy,
       ypj = yptemp_data[j] = yp_data[j];
       col_j = SUNBandMatrix_Column(Jac, j);
       ewtj = ewt_data[j];
-      
+
       /* Set increment inc exactly as above. */
       inc = SUNMAX( srur * SUNMAX( SUNRabs(yj), SUNRabs(IDA_mem->ida_hh*ypj) ),
                     ONE/ewtj );
@@ -994,16 +1008,16 @@ int idaLsBandDQJac(realtype tt, realtype c_j, N_Vector yy,
         if (SUNRabs(conj) == ONE)      {if((yj+inc)*conj <  ZERO) inc = -inc;}
         else if (SUNRabs(conj) == TWO) {if((yj+inc)*conj <= ZERO) inc = -inc;}
       }
-      
+
       /* Load the difference quotient Jacobian elements for column j */
       inc_inv = ONE/inc;
       i1 = SUNMAX(0, j-mupper);
       i2 = SUNMIN(j+mlower,N-1);
-      for (i=i1; i<=i2; i++) 
+      for (i=i1; i<=i2; i++)
         SM_COLUMN_ELEMENT_B(col_j,i,j) = inc_inv * (rtemp_data[i]-r_data[i]);
     }
   }
-  
+
   return(retval);
 }
 
@@ -1011,17 +1025,17 @@ int idaLsBandDQJac(realtype tt, realtype c_j, N_Vector yy,
 /*---------------------------------------------------------------
   idaLsDQJtimes
 
-  This routine generates a difference quotient approximation to 
-  the matrix-vector product z = Jv, where J is the system 
-  Jacobian. The approximation is 
-       Jv = [F(t,y1,yp1) - F(t,y,yp)]/sigma,  
+  This routine generates a difference quotient approximation to
+  the matrix-vector product z = Jv, where J is the system
+  Jacobian. The approximation is
+       Jv = [F(t,y1,yp1) - F(t,y,yp)]/sigma,
   where
        y1 = y + sigma*v,  yp1 = yp + cj*sigma*v,
        sigma = sqrt(Neq)*dqincfac.
-  The return value from the call to res is saved in order to set 
+  The return value from the call to res is saved in order to set
   the return flag from idaLsSolve.
   ---------------------------------------------------------------*/
-int idaLsDQJtimes(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr, 
+int idaLsDQJtimes(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
                   N_Vector v, N_Vector Jv, realtype c_j,
                   void *ida_mem, N_Vector work1, N_Vector work2)
 {
@@ -1037,7 +1051,7 @@ int idaLsDQJtimes(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
   if (retval != IDALS_SUCCESS)  return(retval);
 
   sig = idals_mem->sqrtN * idals_mem->dqincfac;  /* GMRES */
-  /*sig = idals_mem->dqincfac / N_VWrmsNorm(v, IDA_mem->ida_ewt);*/  /* BiCGStab/TFQMR */ 
+  /*sig = idals_mem->dqincfac / N_VWrmsNorm(v, IDA_mem->ida_ewt);*/  /* BiCGStab/TFQMR */
 
   /* Rename work1 and work2 for readibility */
   y_tmp  = work1;
@@ -1048,9 +1062,9 @@ int idaLsDQJtimes(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
     /* Set y_tmp = yy + sig*v, yp_tmp = yp + cj*sig*v. */
     N_VLinearSum(sig, v, ONE, yy, y_tmp);
     N_VLinearSum(c_j*sig, v, ONE, yp, yp_tmp);
-    
+
     /* Call res for Jv = F(t, y_tmp, yp_tmp), and return if it failed. */
-    retval = IDA_mem->ida_res(tt, y_tmp, yp_tmp, Jv, IDA_mem->ida_user_data); 
+    retval = IDA_mem->ida_res(tt, y_tmp, yp_tmp, Jv, IDA_mem->ida_user_data);
     idals_mem->nreDQ++;
     if (retval == 0) break;
     if (retval < 0)  return(-1);
@@ -1069,7 +1083,7 @@ int idaLsDQJtimes(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
 
 
 /*---------------------------------------------------------------
- idaLsInitialize 
+ idaLsInitialize
 
  This routine performs remaining initializations specific
  to the iterative linear solver interface (and solver itself)
@@ -1081,8 +1095,8 @@ int idaLsInitialize(IDAMem IDA_mem)
 
   /* access IDALsMem structure */
   if (IDA_mem->ida_lmem == NULL) {
-    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, "IDALS", 
-		    "idaLsInitialize", MSG_LS_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, "IDALS",
+                    "idaLsInitialize", MSG_LS_LMEM_NULL);
     return(IDALS_LMEM_NULL);
   }
   idals_mem = (IDALsMem) IDA_mem->ida_lmem;
@@ -1103,7 +1117,7 @@ int idaLsInitialize(IDAMem IDA_mem)
        - otherwise => error */
     retval = 0;
     if (idals_mem->J->ops->getid) {
-      
+
       if ( (SUNMatGetID(idals_mem->J) == SUNMATRIX_DENSE) ||
            (SUNMatGetID(idals_mem->J) == SUNMATRIX_BAND) ) {
         idals_mem->jac    = idaLsDQJac;
@@ -1111,7 +1125,7 @@ int idaLsInitialize(IDAMem IDA_mem)
       } else {
         retval++;
       }
-      
+
     } else {
       retval++;
     }
@@ -1121,10 +1135,10 @@ int idaLsInitialize(IDAMem IDA_mem)
       idals_mem->last_flag = IDALS_ILL_INPUT;
       return(IDALS_ILL_INPUT);
     }
-    
+
   } else {
 
-    /* If J is non-NULL, and 'jac' is user-supplied, 
+    /* If J is non-NULL, and 'jac' is user-supplied,
        reset J_data pointer (just in case) */
     idals_mem->J_data = IDA_mem->ida_user_data;
   }
@@ -1141,7 +1155,7 @@ int idaLsInitialize(IDAMem IDA_mem)
     idals_mem->jt_data = IDA_mem->ida_user_data;
   }
 
-  /* if J is NULL and psetup is not present, then idaLsSetup does 
+  /* if J is NULL and psetup is not present, then idaLsSetup does
      not need to be called, so set the lsetup function to NULL */
   if ( (idals_mem->J == NULL) && (idals_mem->pset == NULL) )
     IDA_mem->ida_lsetup = NULL;
@@ -1153,13 +1167,13 @@ int idaLsInitialize(IDAMem IDA_mem)
 
 
 /*---------------------------------------------------------------
- idaLsSetup 
- 
+ idaLsSetup
+
  This calls the Jacobian evaluation routine (if using a SUNMatrix
- object), updates counters, and calls the LS 'setup' routine to 
+ object), updates counters, and calls the LS 'setup' routine to
  prepare for subsequent calls to the LS 'solve' routine.
 ---------------------------------------------------------------*/
-int idaLsSetup(IDAMem IDA_mem, N_Vector y, N_Vector yp, N_Vector r, 
+int idaLsSetup(IDAMem IDA_mem, N_Vector y, N_Vector yp, N_Vector r,
                N_Vector vt1, N_Vector vt2, N_Vector vt3)
 {
   IDALsMem idals_mem;
@@ -1167,8 +1181,8 @@ int idaLsSetup(IDAMem IDA_mem, N_Vector y, N_Vector yp, N_Vector r,
 
   /* access IDALsMem structure */
   if (IDA_mem->ida_lmem == NULL) {
-    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, "IDALS", 
-		    "idaLsSetup", MSG_LS_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, "IDALS",
+                    "idaLsSetup", MSG_LS_LMEM_NULL);
     return(IDALS_LMEM_NULL);
   }
   idals_mem = (IDALsMem) IDA_mem->ida_lmem;
@@ -1209,7 +1223,7 @@ int idaLsSetup(IDAMem IDA_mem, N_Vector y, N_Vector yp, N_Vector r,
     }
 
   }
-  
+
   /* Call LS setup routine -- the LS will call idaLsPSetup if applicable */
   idals_mem->last_flag = SUNLinSolSetup(idals_mem->LS, idals_mem->J);
   return(idals_mem->last_flag);
@@ -1219,11 +1233,11 @@ int idaLsSetup(IDAMem IDA_mem, N_Vector y, N_Vector yp, N_Vector r,
 /*---------------------------------------------------------------
  idaLsSolve
 
- This routine interfaces between IDA and the generic 
- SUNLinearSolver object LS, by setting the appropriate tolerance 
- and scaling vectors, calling the solver, accumulating 
- statistics from the solve for use/reporting by IDA, and scaling 
- the result if using a non-NULL SUNMatrix and cjratio does not 
+ This routine interfaces between IDA and the generic
+ SUNLinearSolver object LS, by setting the appropriate tolerance
+ and scaling vectors, calling the solver, accumulating
+ statistics from the solve for use/reporting by IDA, and scaling
+ the result if using a non-NULL SUNMatrix and cjratio does not
  equal one.
 ---------------------------------------------------------------*/
 int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
@@ -1231,46 +1245,55 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
 {
   IDALsMem idals_mem;
   int      nli_inc, retval;
-  realtype tol, w_mean;
-  
+  realtype tol, w_mean, LSType;
+
   /* access IDALsMem structure */
   if (IDA_mem->ida_lmem == NULL) {
-    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, "IDALS", 
-		    "idaLsSolve", MSG_LS_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, "IDALS",
+                    "idaLsSolve", MSG_LS_LMEM_NULL);
     return(IDALS_LMEM_NULL);
   }
   idals_mem = (IDALsMem) IDA_mem->ida_lmem;
 
-  /* Set convergence test constant tol, in terms of the
-     Newton convergence test constant epsNewt and safety factors. The factor
-     sqrt(Neq) assures that the convergence test is applied to the WRMS norm 
-     of the residual vector, rather than the weighted L2 norm. */
-  tol = idals_mem->sqrtN * idals_mem->eplifac * IDA_mem->ida_epsNewt;
+  /* Retrieve the LS type */
+  LSType = SUNLinSolGetType(idals_mem->LS);
 
-  /* Set vectors ycur, ypcur and rcur for use by the Atimes and 
+  /* If the linear solver is iterative: set convergence test constant tol,
+     in terms of the Newton convergence test constant epsNewt and safety
+     factors. The factor sqrt(Neq) assures that the convergence test is
+     applied to the WRMS norm of the residual vector, rather than the
+     weighted L2 norm. */
+  if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
+       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
+    tol = idals_mem->sqrtN * idals_mem->eplifac * IDA_mem->ida_epsNewt;
+  } else {
+    tol = ZERO;
+  }
+
+  /* Set vectors ycur, ypcur and rcur for use by the Atimes and
      Psolve interface routines */
   idals_mem->ycur  = ycur;
   idals_mem->ypcur = ypcur;
   idals_mem->rcur  = rescur;
 
-  /* Set initial guess x = 0 to LS */  
+  /* Set initial guess x = 0 to LS */
   N_VConst(ZERO, idals_mem->x);
 
   /* Set scaling vectors for LS to use (if applicable) */
   if (idals_mem->LS->ops->setscalingvectors) {
     retval = SUNLinSolSetScalingVectors(idals_mem->LS, weight, weight);
     if (retval != SUNLS_SUCCESS) {
-      IDAProcessError(IDA_mem, IDALS_SUNLS_FAIL, "IDALS", "idaLsSolve", 
+      IDAProcessError(IDA_mem, IDALS_SUNLS_FAIL, "IDALS", "idaLsSolve",
                       "Error in calling SUNLinSolSetScalingVectors");
       idals_mem->last_flag = IDALS_SUNLS_FAIL;
       return(idals_mem->last_flag);
     }
 
-  /* If solver does not support scaling vectors, update the tolerance
-     in an attempt to account for weight vector.  We make the 
+  /* If solver is iterative and does not support scaling vectors, update the
+     tolerance in an attempt to account for weight vector.  We make the
      following assumptions:
        1. w_i = w_mean, for i=0,...,n-1 (i.e. the weights are homogeneous)
-       3. the linear solver uses a basic 2-norm to measure convergence
+       2. the linear solver uses a basic 2-norm to measure convergence
      Hence (using the notation from sunlinsol_spgmr.h, with S = diag(w)),
            || bbar - Abar xbar ||_2 < tol
        <=> || S b - S A x ||_2 < tol
@@ -1279,37 +1302,39 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
        <=> w_mean^2 \sum_{i=0}^{n-1} (b - A x_i)^2 < tol^2
        <=> \sum_{i=0}^{n-1} (b - A x_i)^2 < tol^2 / w_mean^2
        <=> || b - A x ||_2 < tol / w_mean
-     So we compute w_mean = ||w||_RMS = ||w||_2 / sqrt(n), and scale 
+     So we compute w_mean = ||w||_RMS = ||w||_2 / sqrt(n), and scale
      the desired tolerance accordingly. */
-  } else {
+  } else if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
+              (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
 
     w_mean = SUNRsqrt( N_VDotProd(weight, weight) ) / idals_mem->sqrtN;
     tol /= w_mean;
-    
+
   }
-    
+
   /* If a user-provided jtsetup routine is supplied, call that here */
   if (idals_mem->jtsetup) {
     idals_mem->last_flag = idals_mem->jtsetup(IDA_mem->ida_tn, ycur, ypcur, rescur,
                                               IDA_mem->ida_cj, idals_mem->jt_data);
     idals_mem->njtsetup++;
     if (idals_mem->last_flag != 0) {
-      IDAProcessError(IDA_mem, retval, "IDALS", 
+      IDAProcessError(IDA_mem, retval, "IDALS",
                       "idaLsSolve", MSG_LS_JTSETUP_FAILED);
       return(idals_mem->last_flag);
     }
   }
-  
+
   /* Call solver */
   retval = SUNLinSolSolve(idals_mem->LS, idals_mem->J,
                           idals_mem->x, b, tol);
 
   /* Copy appropriate result to b (depending on solver type) */
-  if (SUNLinSolGetType(idals_mem->LS) == SUNLINEARSOLVER_ITERATIVE) {
+  if ( (LSType == SUNLINEARSOLVER_ITERATIVE) ||
+       (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE) ) {
 
     /* Retrieve solver statistics */
     nli_inc = SUNLinSolNumIters(idals_mem->LS);
-  
+
     /* Copy x (or preconditioned residual vector if no iterations required) to b */
     if (nli_inc == 0) N_VScale(ONE, SUNLinSolResid(idals_mem->LS), b);
     else N_VScale(ONE, idals_mem->x, b);
@@ -1321,14 +1346,16 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
 
     /* Copy x to b */
     N_VScale(ONE, idals_mem->x, b);
-    
+
   }
 
-  /* If using a non-NULL SUNMatrix object and cj has changed, scale the 
-     correction to account for change in cj */
-  if ( (idals_mem->J) && (IDA_mem->ida_cjratio != ONE) )
+  /* If using a direct or matrix-iterative solver, scale the correction to
+     account for change in cj */
+  if ( ((LSType == SUNLINEARSOLVER_DIRECT) ||
+        (LSType == SUNLINEARSOLVER_MATRIX_ITERATIVE)) &&
+       (IDA_mem->ida_cjratio != ONE) )
     N_VScale(TWO/(ONE + IDA_mem->ida_cjratio), b, b);
-  
+
   /* Increment ncfl counter */
   if (retval != SUNLS_SUCCESS) idals_mem->ncfl++;
 
@@ -1356,24 +1383,24 @@ int idaLsSolve(IDAMem IDA_mem, N_Vector b, N_Vector weight,
     return(-1);
     break;
   case SUNLS_PACKAGE_FAIL_UNREC:
-    IDAProcessError(IDA_mem, SUNLS_PACKAGE_FAIL_UNREC, "IDALS", 
+    IDAProcessError(IDA_mem, SUNLS_PACKAGE_FAIL_UNREC, "IDALS",
                     "idaLsSolve",
                     "Failure in SUNLinSol external package");
     return(-1);
     break;
   case SUNLS_PSOLVE_FAIL_UNREC:
-    IDAProcessError(IDA_mem, SUNLS_PSOLVE_FAIL_UNREC, "IDALS", 
+    IDAProcessError(IDA_mem, SUNLS_PSOLVE_FAIL_UNREC, "IDALS",
                     "idaLsSolve", MSG_LS_PSOLVE_FAILED);
     return(-1);
     break;
   }
-  
-  return(0); 
+
+  return(0);
 }
 
 
 /*---------------------------------------------------------------
- idaLsPerf: accumulates performance statistics information 
+ idaLsPerf: accumulates performance statistics information
  for IDA
 ---------------------------------------------------------------*/
 int idaLsPerf(IDAMem IDA_mem, int perftask)
@@ -1385,8 +1412,8 @@ int idaLsPerf(IDAMem IDA_mem, int perftask)
 
   /* access IDALsMem structure */
   if (IDA_mem->ida_lmem == NULL) {
-    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, "IDALS", 
-		    "idaLsPerf", MSG_LS_LMEM_NULL);
+    IDAProcessError(IDA_mem, IDALS_LMEM_NULL, "IDALS",
+                    "idaLsPerf", MSG_LS_LMEM_NULL);
     return(IDALS_LMEM_NULL);
   }
   idals_mem = (IDALsMem) IDA_mem->ida_lmem;
@@ -1396,22 +1423,22 @@ int idaLsPerf(IDAMem IDA_mem, int perftask)
     idals_mem->nst0  = IDA_mem->ida_nst;
     idals_mem->nni0  = IDA_mem->ida_nni;
     idals_mem->ncfn0 = IDA_mem->ida_ncfn;
-    idals_mem->ncfl0 = idals_mem->ncfl;  
+    idals_mem->ncfl0 = idals_mem->ncfl;
     idals_mem->nwarn = 0;
     return(0);
   }
 
   /* Compute statistics since last call
 
-     Note: the performance monitor that checked whether the average 
-       number of linear iterations was too close to maxl has been 
-       removed, since the 'maxl' value is no longer owned by the 
+     Note: the performance monitor that checked whether the average
+       number of linear iterations was too close to maxl has been
+       removed, since the 'maxl' value is no longer owned by the
        IDALs interface.
    */
   nstd = IDA_mem->ida_nst - idals_mem->nst0;
   nnid = IDA_mem->ida_nni - idals_mem->nni0;
   if (nstd == 0 || nnid == 0) return(0);
-  
+
   rcfn = (realtype) ( (IDA_mem->ida_ncfn - idals_mem->ncfn0) /
                       ((realtype) nstd) );
   rcfl = (realtype) ( (idals_mem->ncfl - idals_mem->ncfl0) /
@@ -1421,10 +1448,10 @@ int idaLsPerf(IDAMem IDA_mem, int perftask)
   if (!(lcfn || lcfl)) return(0);
   idals_mem->nwarn++;
   if (idals_mem->nwarn > 10) return(1);
-  if (lcfn) 
+  if (lcfn)
     IDAProcessError(IDA_mem, IDA_WARNING, "IDALS", "idaLsPerf",
                     MSG_LS_CFN_WARN, IDA_mem->ida_tn, rcfn);
-  if (lcfl) 
+  if (lcfl)
     IDAProcessError(IDA_mem, IDA_WARNING, "IDALS", "idaLsPerf",
                     MSG_LS_CFL_WARN, IDA_mem->ida_tn, rcfl);
   return(0);
@@ -1468,16 +1495,16 @@ int idaLsFree(IDAMem IDA_mem)
 
   /* Free preconditioner memory (if applicable) */
   if (idals_mem->pfree)  idals_mem->pfree(IDA_mem);
-  
+
   /* free IDALs interface structure */
   free(IDA_mem->ida_lmem);
-  
+
   return(IDALS_SUCCESS);
 }
 
 
 /*---------------------------------------------------------------
- idaLsInitializeCounters resets all counters from an 
+ idaLsInitializeCounters resets all counters from an
  IDALsMem structure.
 ---------------------------------------------------------------*/
 int idaLsInitializeCounters(IDALsMem idals_mem)
@@ -1497,8 +1524,8 @@ int idaLsInitializeCounters(IDALsMem idals_mem)
 /*---------------------------------------------------------------
   idaLs_AccessLMem
 
-  This routine unpacks the IDA_mem and idals_mem structures from 
-  the void* ida_mem pointer.  If either is missing it returns 
+  This routine unpacks the IDA_mem and idals_mem structures from
+  the void* ida_mem pointer.  If either is missing it returns
   IDALS_MEM_NULL or IDALS_LMEM_NULL.
   ---------------------------------------------------------------*/
 int idaLs_AccessLMem(void* ida_mem, const char* fname,

@@ -116,14 +116,13 @@ The methods offered through these modules are as follows:
 \item {\pcg}, a scaled preconditioned CG (Conjugate Gradient method) solver.
 \end{itemize}
 For large stiff systems, where direct methods are not feasible, the
-combination of a BDF integrator and any of the preconditioned Krylov
-methods ({\spgmr}, {\spbcg}, or {\sptfqmr}) yields a powerful tool
-because it combines established methods for stiff integration,
-nonlinear iteration, and Krylov (linear) iteration with a
-problem-specific treatment of the dominant source of stiffness, in the
-form of the user-supplied preconditioner matrix \cite{BrHi:89}. 
-For the {\em spils} linear solvers, preconditioning is allowed
-only on the left (see \S\ref{s:preconditioning}).
+combination of a BDF integrator and a preconditioned Krylov method
+yields a powerful tool because it combines established methods for
+stiff integration, nonlinear iteration, and Krylov (linear) iteration
+with a problem-specific treatment of the dominant source of stiffness,
+in the form of the user-supplied preconditioner matrix \cite{BrHi:89}. 
+For the {\em spils} linear solvers with {\ida}, preconditioning is
+allowed only on the left (see \S\ref{s:preconditioning}).
 %%
 Note that the dense, band, and sparse direct linear solvers can only be 
 used with serial and threaded vector representations.
@@ -238,7 +237,7 @@ supplied, such products are approximated by
 \begin{equation*}
 Jv = [F(t,y+\sigma v,\dot{y}+\alpha\sigma v) - F(t,y,\dot{y})]/\sigma \, ,
 \end{equation*}
-where the increment $\sigma$ is $1/\|v\|$.  As an option, the user can
+where the increment $\sigma = \sqrt{N}$.  As an option, the user can
 specify a constant factor that is inserted into this expression for $\sigma$.
 
 % Error control

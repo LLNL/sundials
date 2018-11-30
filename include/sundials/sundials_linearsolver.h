@@ -26,8 +26,10 @@
  *     acting on/by such solvers
  *
  * We consider both direct linear solvers and iterative linear solvers
- * as available implementations of this package; as a result some of 
- * the routines are applicable only to one type of linear solver (as 
+ * as available implementations of this package.  Furthermore, iterative 
+ * linear solvers can either use a matrix or be matrix-free.  As a 
+ * result of these different solver characteristics, some of the 
+ * routines are applicable only to some types of linear solver (as 
  * noted in the comments below).
  *
  * For most of the iterative linear solvers, instead of solving the 
@@ -109,17 +111,38 @@ extern "C" {
  * -----------------------------------------------------------------
  * I. Implemented SUNLinearSolver types: 
  *
- * These type names may be modified, but a at a minimum a client 
+ * These type names may be modified, but at a minimum a client
  * nonlinear solver and/or time integrator will want to know whether 
- * matrix/factorization information can be reused (hence the DIRECT 
- * and ITERATIVE types).
+ * matrix/factorization information can be reused, and whether to 
+ * set tolerances and test for convergence failures from the solver 
+ * object.  The following types correspond to their intended use 
+ * cases:
+ *
+ * DIRECT -- the solver requires a matrix, and computes an 
+ *           'exact' solution to the linear system defined 
+ *           by that matrix.
+ *
+ * ITERATIVE -- the solver performs an iterative algorithm in 
+ *           'matrix-free' mode, in that it solves the linear system
+ *           defined by the package-supplied "ATimes" routine, even
+ *           if that linear system differs from that encoded in a 
+ *           corresponding matrix object.  The solver computes the 
+ *           solution only inexactly (or may diverge), so a user 
+ *           should check for solution convergence/accuracy as 
+ *           appropriate.
+ *
+ * MATRIX_ITERATIVE -- the solver performs an iterative algorithm 
+ *           for the linear system defined by the existing matrix 
+ *           object.  The solver computes the solution only 
+ *           inexactly (or may diverge), so a user should check 
+ *           for solution convergence/accuracy as appropriate.
  * -----------------------------------------------------------------
  */
  
 typedef enum {
   SUNLINEARSOLVER_DIRECT,
   SUNLINEARSOLVER_ITERATIVE,
-  SUNLINEARSOLVER_CUSTOM
+  SUNLINEARSOLVER_MATRIX_ITERATIVE
 } SUNLinearSolver_Type;
 
   

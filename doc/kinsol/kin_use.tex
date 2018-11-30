@@ -97,8 +97,8 @@ If using a Newton or Picard nonlinear solver that requires the
 solution of a linear system, then a linear solver module header file
 will be required.
 \index{KINSOL@{\kinsol} linear solvers!header files}
-The header files corresponding to the various linear solver modules
-available for use with {\kinsol} are:
+The header files corresponding to the various {\sundials}-provided
+linear solver modules available for use with {\kinsol} are:
 %%
 \begin{itemize}
 \item Direct linear solvers:
@@ -112,19 +112,19 @@ available for use with {\kinsol} are:
     {\sunlinsolband};
 
   \item \Id{sunlinsol/sunlinsol\_lapackdense.h},
-    which is used with the LAPACK package dense linear solver interface module,
+    which is used with the LAPACK package dense linear solver module,
     {\sunlinsollapdense};
 
   \item \Id{sunlinsol/sunlinsol\_lapackband.h},
-    which is used with the LAPACK package banded linear solver interface module,
+    which is used with the LAPACK package banded linear solver module,
     {\sunlinsollapband};
 
   \item \Id{sunlinsol/sunlinsol\_klu.h},
-    which is used with the {\klu} sparse linear solver interface module,
+    which is used with the {\klu} sparse linear solver module,
     {\sunlinsolklu};
 
   \item \Id{sunlinsol/sunlinsol\_superlumt.h},
-    which is used with the {\superlumt} sparse linear solver interface
+    which is used with the {\superlumt} sparse linear solver
     module, {\sunlinsolslumt};
   \end{itemize}
 

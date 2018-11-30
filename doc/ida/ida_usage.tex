@@ -95,7 +95,7 @@ Note that \id{ida.h} includes \Id{sundials\_types.h},
 which defines the types \id{realtype}, \id{sunindextype}, and \id{booleantype}
 and the constants \id{SUNFALSE} and \id{SUNTRUE}.
 
-The calling program must also include a {\nvector} implementation header file,
+The calling program must also include an {\nvector} implementation header file,
 of the form \\ \noindent
 \id{nvector/nvector\_***.h}.  See Chapter \ref{s:nvector} for the appropriate
 name.  This file in turn includes the header file \Id{sundials\_nvector.h}
@@ -114,8 +114,8 @@ If using a nonlinear solver that requires the solution of a linear
 system of the form (\ref{e:DAE_Newtoncorr}) (e.g., the default Newton
 iteration), a linear solver module header file is also required.
 \index{IDA@{\ida} linear solvers!header files}
-The header files corresponding to the various linear solver modules
-available for use with {\ida} are:
+The header files corresponding to the various {\sundials}-provided
+linear solver modules available for use with {\ida} are:
 %%
 \begin{itemize}
 \item Direct linear solvers:
@@ -129,19 +129,19 @@ available for use with {\ida} are:
     {\sunlinsolband};
 
   \item \Id{sunlinsol/sunlinsol\_lapackdense.h},
-    which is used with the LAPACK dense linear solver interface module,
+    which is used with the LAPACK dense linear solver module,
     {\sunlinsollapdense};
 
   \item \Id{sunlinsol/sunlinsol\_lapackband.h},
-    which is used with the LAPACK banded linear solver interface module,
+    which is used with the LAPACK banded linear solver module,
     {\sunlinsollapband};
 
   \item \Id{sunlinsol/sunlinsol\_klu.h},
-    which is used with the {\klu} sparse linear solver interface module,
+    which is used with the {\klu} sparse linear solver module,
     {\sunlinsolklu};
 
   \item \Id{sunlinsol/sunlinsol\_superlumt.h},
-    which is used with the {\superlumt} sparse linear solver interface
+    which is used with the {\superlumt} sparse linear solver
     module, {\sunlinsolslumt};
   \end{itemize}
 
@@ -308,7 +308,7 @@ name of the function to be called or macro to be referenced.
   {\bf Create matrix object}
 
   If a nonlinear solver requiring a linear solver will be used (e.g., the
-  default Newton iteration) and the linear solver will be a direct linear
+  default Newton iteration) and the linear solver will be a matrix-based linear
   solver, then a template Jacobian matrix must be created by calling the
   appropriate constructor function defined by the particular {\sunmatrix}
   implementation.
@@ -369,7 +369,7 @@ name of the function to be called or macro to be referenced.
 
   Optionally, call \id{IDASet*} functions to change from their default values any
   optional inputs that control the behavior of {\ida}.
-  See \S\ref{sss:optin_main} for details.
+  See \S\ref{sss:optin_main} and \S\ref{ss:optional_input} for details.
 
 \item\label{i:nonlin_solver}
   {\bf Create nonlinear solver object} (\textit{optional})
@@ -784,7 +784,8 @@ With most iterative linear solvers, preconditioning can be done on the
 left only, on the right only, on both the left and the right, or not
 at all.  The exceptions to this rule are {\spfgmr} that supports right
 preconditioning only and {\pcg} that performs symmetric
-preconditioning.  For the specification of a preconditioner, see the
+preconditioning.  However, in {\ida} only left preconditioning is
+supported.  For the specification of a preconditioner, see the
 iterative linear solver sections in \S\ref{ss:optional_input} and
 \S\ref{ss:user_fct_sim}. A preconditioner matrix $P$ must approximate
 the Jacobian $J$, at least crudely.
@@ -1862,7 +1863,7 @@ case. \\
 
 
 \index{optional input!matrix-based linear solver|(}
-The \index{IDALS@{\idals} linear solver interface!Jacobian approximation used by}
+\index{IDALS@{\idals} linear solver interface!Jacobian approximation used by}
 When using matrix-based linear solver modules, the {\idals} solver
 interface needs a function to compute an approximation to the Jacobian
 matrix $J(t,y,\dot{y})$.  This function must be of type
@@ -1870,7 +1871,7 @@ matrix $J(t,y,\dot{y})$.  This function must be of type
 a dense or banded matrix $J$ can use the default internal difference
 quotient approximation
 \index{Jacobian approximation function!difference quotient}
-that comes with the {\idals} solver.
+that comes with the {\idals} interface.
 To specify a user-supplied Jacobian function \id{jac}, {\idals} provides
 the function \id{IDASetJacFn}.
 The {\idals} interface passes the pointer \id{user\_data}
@@ -2010,6 +2011,63 @@ without using global data in the program.
   However, this will be deprecated in future releases, so we recommend
   that users transition to the new routine name soon.
 }
+Alternately, when using the default difference-quotient approximation
+to the Jacobian-vector product, the user may specify the factor to
+use in setting increments for the finite-difference approximation, via
+a call to \Id{IDASetIncrementFactor}:
+
+\ucfunction{IDASetIncrementFactor}
+{
+  flag = IDASetIncrementFactor(ida\_mem, dqincfac);
+}
+{
+  The function \ID{IDASetIncrementFactor} specifies the increment
+  factor to be used in the difference-quotient approximation to the
+  product $Jv$.  Specifically, $Jv$ is approximated via the formula
+  \[
+    Jv = \frac{1}{\sigma}\left[F(t,\tilde{y},\tilde{y}') - F(t,y,y')\right],
+  \]
+  where $\tilde{y} = y + \sigma v$,  $\tilde{y}' = y' + c_j \sigma v$,
+  $c_j$ is a BDF parameter proportional to the step size, $\sigma
+  = \sqrt{N}$ \texttt{dqincfac}, and $N$ is the number of equations in
+  the DAE system.
+}
+{
+  \begin{args}[dqincfac]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\ida} memory block.
+  \item[dqincfac] (\id{realtype})
+    user-specified increment factor (positive).
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDALS\_LMEM\_NULL]
+  \item[\Id{IDALS\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{IDALS\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDALS\_LMEM\_NULL}]
+    The {\idals} linear solver has not been initialized.
+  \item[\Id{IDALS\_ILL\_INPUT}]
+    The specified value of \id{dqincfac} is $\le 0$.
+  \end{args}
+}
+{
+  The default value is 1.0.
+
+  This function must be called \emph{after} the {\idals} linear solver
+  interface has been initialized through a call to
+  \id{IDASetLinearSolver}.
+
+  The previous routine \Id{IDASpilsSetIncrementFactor} is now a wrapper for
+  this routine, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new routine name soon.
+}
+%%
+%%
+
 %%
 %%
 \index{optional input!matrix-free linear solver|)}
@@ -4429,7 +4487,6 @@ user-supplied function of type \Id{IDALsJacTimesSetupFn}, defined as follows:
   releases, so we recommend that users transition to the new function
   type name soon.
 }
-{}
 \index{Jacobian approximation function!Jacobian-vector setup!user-supplied|)}
 %%
 %%--------------

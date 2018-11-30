@@ -852,8 +852,8 @@ Specify explicit RK table number   :c:func:`ERKStepSetERKTableNum()`  internal
    functions for creating Butcher tables see :ref:`ARKodeButcherTable`.
 
    No error checking is performed to ensure that either the method order *p* or
-   the embedding order *q* correctly describe the coefficients in the Butcher
-   table. 
+   the embedding order *q* specified in the Butcher table structure correctly
+   describe the coefficients in the Butcher table. 
 
    Error checking is performed to ensure that the Butcher table is strictly
    lower-triangular (i.e. that it specifies an ERK method).

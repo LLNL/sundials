@@ -104,7 +104,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   pdata->mlkeep = mlk;
 
   /* Allocate memory for saved Jacobian */
-  pdata->savedJ = SUNBandMatrix(Nlocal, muk, mlk, muk);
+  pdata->savedJ = SUNBandMatrixStorage(Nlocal, muk, mlk, muk);
   if (pdata->savedJ == NULL) { 
     free(pdata); pdata = NULL; 
     arkProcessError(ark_mem, ARKLS_MEM_FAIL, "ARKBBDPRE", 
@@ -115,7 +115,7 @@ int ARKBBDPrecInit(void *arkode_mem, sunindextype Nlocal,
   /* Allocate memory for preconditioner matrix */
   storage_mu = SUNMIN(Nlocal-1, muk + mlk);
   pdata->savedP = NULL;
-  pdata->savedP = SUNBandMatrix(Nlocal, muk, mlk, storage_mu);
+  pdata->savedP = SUNBandMatrixStorage(Nlocal, muk, mlk, storage_mu);
   if (pdata->savedP == NULL) {
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;

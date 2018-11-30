@@ -113,7 +113,7 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
 
   /* Allocate memory for saved banded Jacobian approximation. */
   pdata->savedJ = NULL;
-  pdata->savedJ = SUNBandMatrix(N, mup, mlp, mup);
+  pdata->savedJ = SUNBandMatrixStorage(N, mup, mlp, mup);
   if (pdata->savedJ == NULL) {
     free(pdata); pdata = NULL;
     cvProcessError(cv_mem, CVLS_MEM_FAIL, "CVBANDPRE",
@@ -124,7 +124,7 @@ int CVBandPrecInit(void *cvode_mem, sunindextype N,
   /* Allocate memory for banded preconditioner. */
   storagemu = SUNMIN(N-1, mup+mlp);
   pdata->savedP = NULL;
-  pdata->savedP = SUNBandMatrix(N, mup, mlp, storagemu);
+  pdata->savedP = SUNBandMatrixStorage(N, mup, mlp, storagemu);
   if (pdata->savedP == NULL) {
     SUNMatDestroy(pdata->savedJ);
     free(pdata); pdata = NULL;

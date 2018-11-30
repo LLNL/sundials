@@ -18,7 +18,7 @@
  * conditions y1 = 1.0, y2 = y3 = 0. The reaction rates are: p1=0.04,
  * p2=1e4, and p3=3e7. The problem is stiff.
  * This program solves the problem with the BDF method, Newton
- * iteration with the CVODES dense linear solver, and a
+ * iteration with the DENSE linear solver, and a
  * user-supplied Jacobian routine.
  * It uses a scalar relative tolerance and a vector absolute
  * tolerance.
@@ -32,7 +32,6 @@
 #include <string.h>
 
 #include <cvodes/cvodes.h>             /* prototypes for CVODE functions and const */
-#include <cvodes/cvodes_direct.h>      /* access to CVDls interface                */
 #include <nvector/nvector_serial.h>    /* access to serial NVector                 */
 #include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix                */
 #include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver          */
@@ -158,13 +157,13 @@ int main(int argc, char *argv[])
   LS = SUNLinSol_Dense(y, A);
   if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
-  /* Call CVDlsSetLinearSolver to attach the matrix and linear solver to CVode */
-  retval = CVDlsSetLinearSolver(cvode_mem, LS, A);
-  if (check_retval(&retval, "CVdlSetLinearSolver", 1)) return(1);
+  /* Call CVodeSetLinearSolver to attach the matrix and linear solver to CVode */
+  retval = CVodeSetLinearSolver(cvode_mem, LS, A);
+  if (check_retval(&retval, "CVodeSetLinearSolver", 1)) return(1);
 
   /* Specifiy the Jacobian approximation routine to be used */
-  retval = CVDlsSetJacFn(cvode_mem, Jac);
-  if (check_retval(&retval, "CVDlsSetJacFn", 1)) return(1);
+  retval = CVodeSetJacFn(cvode_mem, Jac);
+  if (check_retval(&retval, "CVodeSetJacFn", 1)) return(1);
 
   /* Sensitivity-related settings */
   data->sensi   = SUNTRUE;          /* sensitivity ON                */
@@ -505,8 +504,8 @@ static int PrintFinalStats(void *cvode_mem, UserData data)
     }
   }
 
-  retval = CVDlsGetNumJacEvals(cvode_mem, &njeD);
-  retval = CVDlsGetNumRhsEvals(cvode_mem, &nfeD);
+  retval = CVodeGetNumJacEvals(cvode_mem, &njeD);
+  retval = CVodeGetNumLinRhsEvals(cvode_mem, &nfeD);
 
   printf("Run statistics:\n");
 

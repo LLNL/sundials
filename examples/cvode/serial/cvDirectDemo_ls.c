@@ -763,7 +763,7 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter, N_Vector y,
       printf("Band, User-Supplied Jacobian\n");
 
       /* Create band SUNMatrix for use in linear solves */
-      *A = SUNBandMatrix(P2_NEQ, mu, ml, mu+ml);
+      *A = SUNBandMatrix(P2_NEQ, mu, ml);
       if(check_retval((void *)*A, "SUNBandMatrix", 0)) return(1);
 
       /* Create banded SUNLinearSolver object for use by CVode */
@@ -783,7 +783,7 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter, N_Vector y,
       printf("Band, Difference Quotient Jacobian\n");
 
       /* Create band SUNMatrix for use in linear solves */
-      *A = SUNBandMatrix(P2_NEQ, mu, ml, mu+ml);
+      *A = SUNBandMatrix(P2_NEQ, mu, ml);
       if(check_retval((void *)*A, "SUNBandMatrix", 0)) return(1);
 
       /* Create banded SUNLinearSolver object for use by CVode */

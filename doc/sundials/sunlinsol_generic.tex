@@ -17,16 +17,16 @@ linear solver.  All of these functions are defined in the header file
 The implementations provided with {\sundials} work in coordination
 with the {\sundials} generic {\nvector} and {\sunmatrix} modules to
 provide a set of compatible data structures and solvers for the
-solution of linear systems using direct or matrix-free iterative
-methods. Moreover, advanced users can provide a customized
-\Id{SUNLineaerSolver} implementation to any {\sundials} package,
+solution of linear systems using direct or iterative (matrix-based or matrix-free)
+methods.  Moreover, advanced users can provide a customized
+\Id{SUNLinearSolver} implementation to any {\sundials} package,
 particularly in cases where they provide their own {\nvector} and/or
 {\sunmatrix} modules.
 
 Historically, the {\sundials} packages have been designed to specifically
 leverage the use of either \emph{direct linear solvers} or matrix-free,
 \emph{scaled, preconditioned, iterative linear solvers}.  However,
-matrix-based iterative linear solvers are supported.
+matrix-based iterative linear solvers are also supported.
 
 The iterative linear solvers packaged with {\sundials} leverage
 scaling and preconditioning, as applicable, to balance error between
@@ -63,7 +63,8 @@ prescribed tolerance
 
 When provided an iterative {\sunlinsol} implementation that does not
 support the scaling matrices $S_1$ and $S_2$, {\sundials}'
-packages will adjust the value of $\text{tol}$ accordingly.  In
+packages will adjust the value of $\text{tol}$ accordingly
+(see \S\ref{ss:sunlinsol_iterative_tolerance} for more details). In
 this case, they instead request that iterative linear solvers stop
 based on the criteria
 \[
@@ -80,6 +81,43 @@ separate left/right preconditioning), and that some of the {\sundials}
 packages only utilize a subset of these options.  Further details on
 these exceptions are described in the documentation for each
 {\sunlinsol} implementation, or for each {\sundials} package.
+
+For users interested in providing their own {\sunlinsol} module, the
+following section presents the {\sunlinsol} API and its implementation
+beginning with the definition of {\sunlinsol} functions in sections
+\ref{ss:sunlinsol_CoreFn} -- \ref{ss:sunlinsol_GetFn}. This is followed by
+the definition of functions supplied to a linear solver implementation in
+section \ref{ss:sunlinsol_SUNSuppliedFn}. A table of linear solver return
+codes is given in section \ref{ss:sunlinsol_ErrorCodes}. The
+\id{SUNLinearSolver} type and the generic {\sunlinsol} module are defined
+in section \ref{ss:sunlinsol_Generic}.  The section
+\ref{ss:sunlinsol_compatibility} discusses compatibility between the
+{\sundials}-provided {\sunlinsol} modules and {\sunmatrix} modules.
+Section \ref{ss:sunlinsol_custom} lists the requirements for supplying a custom
+{\sunlinsol} module and discusses some intended use cases. Users wishing to
+supply their own {\sunlinsol} module are encouraged to use the {\sunlinsol}
+implementations provided with {\sundials} as a template for supplying custom
+linear solver modules. The {\sunlinsol} functions required by this {\sundials}
+package as well as other package specific details are given in
+section \ref{s:sunlinsol_interface}. The remaining sections of this chapter
+present the {\sunlinsol} modules provided with {\sundials}.
+
+% ====================================================================
+\section{The SUNLinearSolver API}
+\label{s:sunlinsol_api}
+% ====================================================================
+
+The {\sunlinsol} API defines several linear solver operations that enable
+{\sundials} packages to utilize any {\sunlinsol} implementation that
+provides the required functions. These functions can be divided into three
+categories. The first are the core linear solver functions. The second group
+of functions consists of set routines to supply the linear solver with
+functions provided by the {\sundials} time integrators and to modify solver
+parameters. The final group consists of get routines for retrieving linear
+solver statistics. All of these functions are defined in the header file
+\id{sundials/sundials\_linearsolver.h}.
+
+
 
 %---------------------------------------------------------------------------
 \subsection{\id{SUNLinearSolver} core functions}\label{ss:sunlinsol_CoreFn}
@@ -101,9 +139,8 @@ The remaining routine for destruction of the linear solver object
 {
   The \textit{required} function \Id{SUNLinSolGetType} returns the
   type identifier for the linear solver \id{LS}. It is used to
-  determine the solver type (direct or iterative) from
-  the abstract \id{SUNLinearSolver} interface.  This is used to assess
-  compatibility with {\sundials}-provided linear solver interfaces.
+  determine the solver type (direct, iterative, or matrix-iterative) from
+  the abstract \id{SUNLinearSolver} interface.
 }
 {
   \begin{args}[LS]
@@ -114,17 +151,33 @@ The remaining routine for destruction of the linear solver object
 {
   The return value \id{type} (of type \id{int}) will be one of the
   following:
-  \begin{args}[SUNLINEARSOLVER\_ITERATIVE]
-  \item[\Id{SUNNONLINEARSOLVER\_DIRECT}]
-    \id{0}, the {\sunlinsol} module uses direct methods to solve the
-    linear system.
-  \item[\Id{SUNNONLINEARSOLVER\_ITERATIVE}]
-    \id{1}, the {\sunlinsol} module iteratively solves the linear
-    system, stopping when the linear residual is within a prescribed
-    tolerance.
+  \begin{args}[SUNLINEARSOLVER\_MATRIX\_ITERATIVE]
+  \item[\Id{SUNLINEARSOLVER\_DIRECT}]
+    \id{0}, the {\sunlinsol} module requires a matrix, and computes an
+    `exact' solution to the linear system defined by that matrix.
+  \item[\Id{SUNLINEARSOLVER\_ITERATIVE}]
+    \id{1}, the {\sunlinsol} module does not require a matrix (though one may be
+    provided), and computes an inexact solution to the linear system using a
+    matrix-free iterative algorithm. That is it solves the linear
+    system defined by the package-supplied \id{ATimes} routine
+    (see \newline
+    \Id{SUNLinSolSetATimes} below), even if that linear system differs from
+    the one encoded in the matrix object (if one is provided). As the solver
+    computes the solution only inexactly (or may diverge), the linear solver
+    should check for solution convergence/accuracy as appropriate.
+  \item[\Id{SUNLINEARSOLVER\_MATRIX\_ITERATIVE}]
+    \id{2}, the {\sunlinsol} module requires a matrix, and computes an inexact
+    solution to the linear system defined by that matrix using an iterative
+    algorithm. That is it solves the linear system defined by the matrix object
+    even if that linear system differs from that encoded by the package-supplied
+    \id{ATimes} routine. As the solver computes the solution only inexactly (or
+    may diverge), the linear solver should check for solution
+    convergence/accuracy as appropriate.
   \end{args}
 }
 {
+ See section \ref{ss:sunlinsol_intended} for more information on intended use
+ cases corresponding to the linear solver type.
 }
 % --------------------------------------------------------------------
 \ucfunction{SUNLinSolInitialize}
@@ -133,7 +186,7 @@ The remaining routine for destruction of the linear solver object
 }
 {
   The \textit{required} function \Id{SUNLinSolInitialize} performs
-  linear solver initialization (assumes that all solver-specific
+  linear solver initialization (assuming that all solver-specific
   options have been set).
 }
 {
@@ -148,8 +201,7 @@ The remaining routine for destruction of the linear solver object
   returning one of the generic error codes listed in Table
   \ref{t:sunlinsolerr}.
 }
-{
-}
+{}
 % --------------------------------------------------------------------
 \ucfunction{SUNLinSolSetup}
 {
@@ -158,7 +210,7 @@ The remaining routine for destruction of the linear solver object
 {
   The \textit{required} function \Id{SUNLinSolSetup} performs
   any linear solver setup needed, based on an updated system
-  {\sunmatrix} \id{A}.  This may be called frequently (e.g. with a full
+  {\sunmatrix} \id{A}.  This may be called frequently (e.g., with a full
   Newton method) or infrequently (for a modified Newton method), based
   on the type of integrator and/or nonlinear solver requesting the
   solves.
@@ -177,8 +229,7 @@ The remaining routine for destruction of the linear solver object
   unrecoverable failure, ideally returning one of the generic error
   codes listed in Table \ref{t:sunlinsolerr}.
 }
-{
-}
+{}
 % --------------------------------------------------------------------
 \ucfunction{SUNLinSolSolve}
 {
@@ -188,15 +239,16 @@ The remaining routine for destruction of the linear solver object
   The \textit{required} function \Id{SUNLinSolSolve} solves a linear system $Ax = b$.
 }
 {
-  \begin{args}[LS]
+  \begin{args}[tol]
   \item[LS] (\id{SUNLinearSolver})
     a {\sunlinsol} object.
   \item[A] (\id{SUNMatrix})
     a {\sunmatrix} object.
   \item[x] (\id{N\_Vector})
-    a {\nvector} object.
+    a {\nvector} object containing the initial guess for the solution of the
+    linear system, and the solution to the linear system upon return.
   \item[b] (\id{N\_Vector})
-    a {\nvector} object.
+    a {\nvector} object containing the linear system right-hand side.
   \item[tol] (\id{realtype})
     the desired linear solver tolerance.
   \end{args}
@@ -208,16 +260,19 @@ The remaining routine for destruction of the linear solver object
   of the generic error codes listed in Table \ref{t:sunlinsolerr}.
 }
 {
-  {\bf Direct solvers:} can ignore the  *tol* argument.
+  {\bf Direct solvers:} can ignore the \id{tol} argument.
 
-  {\bf Matrix-free solvers:} can ignore the {\sunmatrix} input \id{A}
-  since a \id{NULL} argument will be passed (these should instead rely
-  on the matrix-vector product function supplied through the routine
-  \id{SUNLinSolSetATimes}.
+  {\bf Matrix-free solvers:} (those that identify as
+  \id{SUNLINEARSOLVER\_ITERATIVE}) can ignore the {\sunmatrix} input
+  \id{A}, and should instead rely on the matrix-vector product
+  function supplied through the routine \Id{SUNLinSolSetATimes}.
 
-  {\bf Iterative solvers:} These should attempt to solve to the
-  specified tolerance \id{tol} in a weighted 2-norm.  If the solver
-  does not support scaling then it should just use a 2-norm.
+  {\bf Iterative solvers:} (those that identify as
+  \id{SUNLINEARSOLVER\_ITERATIVE} or \newline
+  \id{SUNLINEARSOLVER\_MATRIX\_ITERATIVE})
+  should attempt to solve to the specified tolerance \id{tol} in a weighted
+  2-norm. If the solver does not support scaling then it should just use a
+  2-norm.
 }
 % --------------------------------------------------------------------
 \ucfunction{SUNLinSolFree}
@@ -237,8 +292,7 @@ The remaining routine for destruction of the linear solver object
   This should return zero for a successful call and a negative value
   for a failure.
 }
-{
-}
+{}
 % --------------------------------------------------------------------
 
 
@@ -260,11 +314,11 @@ instead of supplying a dummy routine.
   retval = SUNLinSolSetATimes(LS, A\_data, ATimes);
 }
 {
-  The function \Id{SUNLinSolSetATimes} is required for matrix-free
-  linear solvers; otherwise it is optional.
+  The function \Id{SUNLinSolSetATimes} is \textit{required for matrix-free
+  linear solvers}; otherwise it is optional.
 
   This routine provides an \id{ATimesFn} function pointer, as well as
-  a \id{void *} pointer to a data structure used by this routine, to a
+  a \id{void*} pointer to a data structure used by this routine, to a
   linear solver object.  {\sundials} packages will call this function
   to set the matrix-vector product function to either a
   solver-provided difference-quotient via vector operations or a
@@ -286,8 +340,7 @@ instead of supplying a dummy routine.
   negative value for a failure, ideally returning one of the generic
   error codes listed in Table \ref{t:sunlinsolerr}.
 }
-{
-}
+{}
 % --------------------------------------------------------------------
 \ucfunction{SUNLinSolSetPreconditioner}
 {
@@ -320,8 +373,7 @@ instead of supplying a dummy routine.
   negative value for a failure, ideally returning one of the generic
   error codes listed in Table \ref{t:sunlinsolerr}.
 }
-{
-}
+{}
 % --------------------------------------------------------------------
 \ucfunction{SUNLinSolSetScalingVectors}
 {
@@ -354,16 +406,15 @@ instead of supplying a dummy routine.
   negative value for a failure, ideally returning one of the generic
   error codes listed in Table \ref{t:sunlinsolerr}.
 }
-{
-}
+{}
 % --------------------------------------------------------------------
 
 
 %---------------------------------------------------------------------------
 \subsection{\id{SUNLinearSolver} get functions}\label{ss:sunlinsol_GetFn}
 
-The following get functions allow SUNDIALS packages to retrieve
-results from the linear solve.  All routines are optional.
+The following get functions allow {\sundials} packages to retrieve
+results from a linear solve.  All routines are optional.
 
 % --------------------------------------------------------------------
 \ucfunction{SUNLinSolNumIters}
@@ -384,8 +435,7 @@ results from the linear solve.  All routines are optional.
 {
   \id{int} containing the number of iterations
 }
-{
-}
+{}
 % --------------------------------------------------------------------
 \ucfunction{SUNLinSolResNorm}
 {
@@ -405,8 +455,7 @@ results from the linear solve.  All routines are optional.
 {
   \id{realtype} containing the final residual norm
 }
-{
-}
+{}
 % --------------------------------------------------------------------
 \ucfunction{SUNLinSolResid}
 {
@@ -415,10 +464,10 @@ results from the linear solve.  All routines are optional.
 {
    If an iterative method computes the preconditioned initial residual
    and returns with a successful solve without performing any
-   iterations (i.e. either the initial guess or the preconditioner is
+   iterations (i.e., either the initial guess or the preconditioner is
    sufficiently accurate), then this \emph{optional} routine may be
-   called by the SUNDIALS package.  This routine should return the
-   {\nvector} containing the preconditioned initial residual vector
+   called by the {\sundials} package.  This routine should return the
+   {\nvector} containing the preconditioned initial residual vector.
 }
 {
   \begin{args}[LS]
@@ -433,7 +482,7 @@ results from the linear solve.  All routines are optional.
   Since \id{N\_Vector} is actually a pointer, and the results
   are not modified, this routine should \emph{not} require additional
   memory allocation.  If the {\sunlinsol} object does not retain a
-  vector for this purpose, then this function pointer should be left
+  vector for this purpose, then this function pointer should be set to
   \id{NULL} in the implementation.
 }
 % --------------------------------------------------------------------
@@ -457,8 +506,7 @@ results from the linear solve.  All routines are optional.
 {
   \id{long int} containing the most recent error flag
 }
-{
-}
+{}
 % --------------------------------------------------------------------
 \ucfunction{SUNLinSolSpace}
 {
@@ -498,7 +546,7 @@ results from the linear solve.  All routines are optional.
 To interface with the {\sunlinsol} modules, the {\sundials} packages
 supply a variety of routines for evaluating the matrix-vector product,
 and setting up and applying the preconditioner.  These
-package-provided routines translate between the user-supplied ODE, DAE
+package-provided routines translate between the user-supplied ODE, DAE,
 or nonlinear systems and the generic interfaces to the linear systems
 of equations that result in their solution.  The types for functions
 provided to a {\sunlinsol} module are defined in the header
@@ -518,7 +566,7 @@ file \id{sundials/sundials\_iterative.h}, and are described below.
   be left unchanged.
 }
 {
-  \begin{args}
+  \begin{args}[A\_data]
   \item[A\_data]
     is a pointer to client data, the same as that supplied to \id{SUNLinSolSetATimes}.
   \item[v]
@@ -531,8 +579,7 @@ file \id{sundials/sundials\_iterative.h}, and are described below.
   This routine should return 0 if successful and a
   non-zero value if unsuccessful.
 }
-{
-}
+{}
 % --------------------------------------------------------------------
 \usfunction{PSetupFn}
 {
@@ -543,7 +590,7 @@ file \id{sundials/sundials\_iterative.h}, and are described below.
   for calls to the corresponding \id{PSolveFn}.
 }
 {
-  \begin{args}
+  \begin{args}[P\_data]
   \item[P\_data]
     is a pointer to client data, the same pointer as that supplied to the routine
     \id{SUNLinSolSetPreconditioner}.
@@ -552,8 +599,7 @@ file \id{sundials/sundials\_iterative.h}, and are described below.
 {
   This routine should return 0 if successful and a non-zero value if unsuccessful.
 }
-{
-}
+{}
 % --------------------------------------------------------------------
 \usfunction{PSolveFn}
 {
@@ -566,7 +612,7 @@ file \id{sundials/sundials\_iterative.h}, and are described below.
   allocted prior to calling this function.  The
   parameter \id{P\_data} is a pointer to any information about $P$
   which the function needs in order to do its job (set up by the
-  corresponding \id{PSetupFn}. The parameter \id{lr} is input, and
+  corresponding \id{PSetupFn}). The parameter \id{lr} is input, and
   indicates whether $P$ is to be taken as the left preconditioner or
   the right preconditioner: \id{lr} = 1 for left and \id{lr} = 2 for
   right.  If preconditioning is on one side only, \id{lr} can be
@@ -580,15 +626,15 @@ file \id{sundials/sundials\_iterative.h}, and are described below.
   modified by the \id{PSolveFn}.
 }
 {
-  \begin{args}
+  \begin{args}[P\_data]
   \item[P\_data]
     is a pointer to client data, the same pointer as that supplied to the routine \id{SUNLinSolSetPreconditioner}.
   \item[r]
-    is the right-hand side vector for the preconditioner system
+    is the right-hand side vector for the preconditioner system.
   \item[z]
-    is the solution vector for the preconditioner system
+    is the solution vector for the preconditioner system.
   \item[tol]
-    is the desired tolerance for an iterative preconditioner
+    is the desired tolerance for an iterative preconditioner.
   \item[lr]
     is flag indicating whether the routine should perform left (1) or
     right (2) preconditioning.
@@ -601,8 +647,7 @@ file \id{sundials/sundials\_iterative.h}, and are described below.
   recoverable one, in which the calling routine may reattempt the
   solution after updating preconditioner data.
 }
-{
-}
+{}
 % --------------------------------------------------------------------
 
 
@@ -613,7 +658,7 @@ file \id{sundials/sundials\_iterative.h}, and are described below.
 
 The functions provided to {\sunlinsol} modules by each {\sundials}
 package, and functions within the {\sundials}-provided {\sunlinsol}
-implementations utilize a common set of return codes, shown in the
+implementations utilize a common set of return codes, shown in
 Table \ref{t:sunlinsolerr}.  These adhere to a
 common pattern: 0 indicates success, a postitive value corresponds to
 a recoverable failure, and a negative value indicates a
@@ -710,7 +755,7 @@ converge (and the residual was not reduced)
 %---------------------------------------------------------------------------
 \subsection{The generic \id{SUNLinearSolver} module}\label{ss:sunlinsol_Generic}
 
-SUNDIALS packages interact with specific {\sunlinsol} implementations
+{\sundials} packages interact with specific {\sunlinsol} implementations
 through the generic {\sunlinsol} module on which all other {\sunlinsol}
 iplementations are built.  The \id{SUNLinearSolver} type is a pointer
 to a structure containing an implementation-dependent \emph{content} field,
@@ -799,14 +844,13 @@ implementations.
 \begin{xtabular}{|l|c|c|c|c|}
 %   Linear Solver &  Dense   & Banded & Sparse & User     \\
 %   Interface     &          &        &        & Supplied \\
-    Dense         &  \cm     &        &        & \cm      \\
-    Band          &          & \cm    &        & \cm      \\
-    LapackDense   &  \cm     &        &        & \cm      \\
-    LapackBand    &          & \cm    &        & \cm      \\
-    \klu          &          &        &  \cm   & \cm      \\
-    \superlumt    &          &        &  \cm   & \cm      \\
-    User supplied &  \cm     & \cm    &  \cm   & \cm      \\
-    \hline
+    Dense         &  \cm     &        &        & \cm      \\ \hline
+    Band          &          & \cm    &        & \cm      \\ \hline
+    LapackDense   &  \cm     &        &        & \cm      \\ \hline
+    LapackBand    &          & \cm    &        & \cm      \\ \hline
+    \klu          &          &        &  \cm   & \cm      \\ \hline
+    \superlumt    &          &        &  \cm   & \cm      \\ \hline
+    User supplied &  \cm     & \cm    &  \cm   & \cm      \\ \hline
 \end{xtabular}
 \end{center}
 \bigskip
@@ -819,8 +863,8 @@ A particular implementation of the {\sunlinsol} module must:
 \begin{itemize}
 \item Specify the {\em content} field of the \id{SUNLinearSolver} object.
 \item Define and implement a minimal subset of the linear solver
-  operations. See the documentation for each {\sundials} linear solver
-  interface to determine which {\sunlinsol} operations they require.
+  operations. See the section \ref{s:sunlinsol_interface} to determine which
+  {\sunlinsol} operations are required for this {\sundials} package.
 
   Note that the names of these routines should be unique to that
   implementation in order to permit using more than one {\sunlinsol}
@@ -850,115 +894,102 @@ following:
 \end{itemize}
 
 
+\subsection{Intended use cases}\label{ss:sunlinsol_intended}
 
+The {\sunlinsol} (and {\sunmatrix}) APIs are designed to require a minimal set
+of routines to ease interfacing with custom or third-party linear solver
+libraries. External solvers provide similar routines with
+the necessary functionality and thus will require minimal effort to wrap within
+custom {\sunmatrix} and {\sunlinsol} implementations. Sections
+\ref{s:sunmat_usage} and \ref{s:sunlinsol_interface} include a list of the required set
+of routines that compatible {\sunmatrix} and {\sunlinsol} implementations must
+provide. As {\sundials} packages utilize generic {\sunlinsol} modules allowing
+for user-supplied \id{SUNLinearSolver} implementations, there exists a wide
+range of possible linear solver combinations. Some intended use cases for both
+the {\sundials}-provided and user-supplied {\sunlinsol} modules are discussd in
+the following sections.
 
+\subsubsection*{Direct linear solvers}
 
-%---------------------------------------------------------------------------
-\section{The SUNLinearSolver\_Dense implementation}\label{ss:sunlinsol_dense}
-\input{sunlinsol_dense}
+Direct linear solver modules require a matrix and compute an `exact' solution to
+the linear system \textit{defined by the matrix}. Multiple matrix formats and
+associated direct linear solvers are supplied with {\sundials} through different
+{\sunmatrix} and {\sunlinsol} implementations. {\sundials} packages strive to
+amortize the high cost of matrix construction by reusing matrix information for
+multiple nonlinear iterations. As a result, each package's linear solver
+interface recomputes Jacobian information as infrequently as possible.
 
-%---------------------------------------------------------------------------
-\section{The SUNLinearSolver\_Band implementation}\label{ss:sunlinsol_band}
-\input{sunlinsol_band}
+Alternative matrix storage formats and compatible linear solvers that are not
+currently provided by, or interfaced with, {\sundials} can leverage this
+infrastructure with minimal effort. To do so, a user must implement custom
+{\sunmatrix} and {\sunlinsol} wrappers for the desired matrix format
+and/or linear solver following the APIs described in Chapters
+\ref{s:sunmatrix} and \ref{s:sunlinsol}. \emph{This user-supplied
+{\sunlinsol} module must then self-identify as having
+\Id{SUNLINEARSOLVER\_DIRECT} type.}
 
-%---------------------------------------------------------------------------
-\section{The SUNLinearSolver\_LapackDense implementation}\label{ss:sunlinsol_lapdense}
-\input{sunlinsol_lapackdense}
+\subsubsection*{Matrix-free iterative linear solvers}
 
-%---------------------------------------------------------------------------
-\section{The SUNLinearSolver\_LapackBand implementation}\label{ss:sunlinsol_lapband}
-\input{sunlinsol_lapackband}
+Matrix-free iterative linear solver modules do not require a matrix and compute
+an inexact solution to the linear system \textit{defined by the package-supplied
+\id{ATimes} routine}. {\sundials} supplies multiple scaled, preconditioned
+iterative linear solver (spils) {\sunlinsol} modules that support scaling to
+allow users to handle non-dimensionalization (as best as possible) within each
+{\sundials} package and retain variables and define equations as desired in
+their applications. For linear solvers that do not support left/right scaling,
+the tolerance supplied to the linear solver is adjusted to compensate (see
+section \ref{ss:sunlinsol_iterative_tolerance} for more details); however, this
+use case may be non-optimal and cannot handle situations where the magnitudes of
+different solution components or equations vary dramatically within a single
+problem.
 
-%---------------------------------------------------------------------------
-\section{The SUNLinearSolver\_KLU implementation}\label{ss:sunlinsol_klu}
-\input{sunlinsol_klu}
+To utilize alternative linear solvers that are not currently provided by, or
+interfaced with, {\sundials} a user must implement a custom {\sunlinsol} wrapper
+for the linear solver following the API described in Chapter \ref{s:sunlinsol}.
+\emph{This user-supplied {\sunlinsol} module must then self-identify as having
+\Id{SUNLINEARSOLVER\_ITERATIVE} type.}
 
-%---------------------------------------------------------------------------
-\section{The SUNLinearSolver\_SuperLUMT implementation}\label{ss:sunlinsol_superlumt}
-\input{sunlinsol_superlumt}
+\subsubsection*{Matrix-based iterative linear solvers (reusing $A$)}
 
-%---------------------------------------------------------------------------
-\section{The SUNLinearSolver\_SPGMR implementation}\label{ss:sunlinsol_spgmr}
-\input{sunlinsol_spgmr}
+Matrix-based iterative linear solver modules require a matrix and compute an
+inexact solution to the linear system \textit{defined by the matrix}.
+This matrix will be updated infrequently and resued across multiple
+solves to amortize cost of matrix construction. As in the direct
+linear solver case, only wrappers for the matrix and linear solver in
+{\sunmatrix} and {\sunlinsol} implementations need to be created to
+utilize a new linear solver. \emph{This user-supplied {\sunlinsol}
+module must then self-identify as having
+\Id{SUNLINEARSOLVER\_MATRIX\_ITERATIVE} type.}
 
-%---------------------------------------------------------------------------
-\section{The SUNLinearSolver\_SPFGMR implementation}\label{ss:sunlinsol_spfgmr}
-\input{sunlinsol_spfgmr}
+At present, {\sundials} has one example problem that uses this approach for
+wrapping a structured-grid matrix, linear solver, and preconditioner from the
+{\hypre} library that may be used as a template for other customized
+implementations
+(see \texttt{examples/arkode/CXX\_parhyp/ark\_heat2D\_hypre.cpp}).
 
-%---------------------------------------------------------------------------
-\section{The SUNLinearSolver\_SPBCGS implementation}\label{ss:sunlinsol_spbcgs}
-\input{sunlinsol_spbcgs}
+\subsubsection*{Matrix-based iterative linear solvers (current $A$)}
 
-%---------------------------------------------------------------------------
-\section{The SUNLinearSolver\_SPTFQMR implementation}\label{ss:sunlinsol_sptfqmr}
-\input{sunlinsol_sptfqmr}
+For users who wish to utilize a matrix-based iterative linear solver module
+where the matrix is \textit{purely for preconditioning} and the linear system is
+\textit{defined by the package-supplied \id{ATimes} routine}, we envision two
+current possibilities.
 
-%---------------------------------------------------------------------------
-\section{The SUNLinearSolver\_PCG implementation}\label{ss:sunlinsol_pcg}
-\input{sunlinsol_pcg}
+The preferred approach is for users to employ one of the {\sundials}
+spils {\sunlinsol} implementations ({\sunlinsolspgmr}, {\sunlinsolspfgmr},
+{\sunlinsolspbcgs}, {\sunlinsolsptfqmr}, or {\sunlinsolpcg}) as the outer
+solver. The creation and storage of the preconditioner matrix, and interfacing
+with the corresponding linear solver, can be handled through a package's
+preconditioner `setup' and `solve' functionality (see \S\ref{sss:optin_ls})
+without creating {\sunmatrix} and {\sunlinsol} implementations. This usage mode
+is recommended primarily because the {\sundials}-provided spils modules support
+the scaling as described above.
 
-%---------------------------------------------------------------------------
-
-\section{SUNLinearSolver Examples}\label{ss:sunlinsol_examples}
-
-There are \id{SUNLinearSolver} examples that may be installed for each
-implementation; these make use of the functions in \id{test\_sunlinsol.c}.
-These example functions show simple usage of the \id{SUNLinearSolver} family
-of functions.  The inputs to the examples depend on the linear solver type,
-and are output to \texttt{stdout} if the example is run without the
-appropriate number of command-line arguments.
-
-\noindent The following is a list of the example functions in \id{test\_sunlinsol.c}:
-\begin{itemize}
-\item \id{Test\_SUNLinSolGetType}: Verifies the returned solver type against
-  the value that should be returned.
-\item \id{Test\_SUNLinSolInitialize}: Verifies that \id{SUNLinSolInitialize}
-  can be called and returns successfully.
-\item \id{Test\_SUNLinSolSetup}: Verifies that \id{SUNLinSolSetup} can
-  be called and returns successfully.
-\item \id{Test\_SUNLinSolSolve}: Given a {\sunmatrix} object $A$,
-  {\nvector} objects $x$ and $b$ (where $Ax=b$) and a desired solution
-  tolerance \texttt{tol}, this routine clones $x$ into a new vector $y$,
-  calls \\ \noindent
-  \id{SUNLinSolSolve} to fill $y$ as the solution to $Ay=b$ (to
-  the input tolerance), verifies that each entry in $x$ and $y$
-  match to within \texttt{10*tol}, and overwrites $x$ with $y$ prior
-  to returning (in case the calling routine would like to investigate
-  further).
-\item \id{Test\_SUNLinSolSetATimes} (iterative solvers only): Verifies that
-  \id{SUNLinSolSetATimes} can be called and returns successfully.
-\item \id{Test\_SUNLinSolSetPreconditioner} (iterative solvers only):
-  Verifies that \\ \noindent
-  \id{SUNLinSolSetPreconditioner} can be called and
-  returns successfully.
-\item \id{Test\_SUNLinSolSetScalingVectors} (iterative solvers only):
-  Verifies that \\ \noindent
-  \id{SUNLinSolSetScalingVectors} can be called and
-  returns successfully.
-\item \id{Test\_SUNLinSolLastFlag}: Verifies that \id{SUNLinSolLastFlag} can
-  be called, and outputs the result to \texttt{stdout}.
-\item \id{Test\_SUNLinSolNumIters} (iterative solvers only): Verifies that
-  \id{SUNLinSolNumIters} can be called, and outputs the result to
-  \texttt{stdout}.
-\item \id{Test\_SUNLinSolResNorm} (iterative solvers only): Verifies that
-  \id{SUNLinSolResNorm} can be called, and that the result is
-  non-negative.
-\item \id{Test\_SUNLinSolResid} (iterative solvers only): Verifies that
-  \id{SUNLinSolResid} can be called.
-\item \id{Test\_SUNLinSolSpace} verifies that \id{SUNLinSolSpace} can be
-  called, and outputs the results to \texttt{stdout}.
-\end{itemize}
-We'll note that these tests should be performed in a particular
-order.  For either direct or iterative linear
-solvers, \id{Test\_SUNLinSolInitialize} must be called
-before \id{Test\_SUNLinSolSetup}, which must be called
-before \id{Test\_SUNLinSolSolve}.  Additionally, for iterative linear
-solvers \\ \noindent
-\id{Test\_SUNLinSolSetATimes}, \id{Test\_SUNLinSolSetPreconditioner}
-and \\ \noindent
-\id{Test\_SUNLinSolSetScalingVectors} should be called
-before \id{Test\_SUNLinSolInitialize};
-similarly \id{Test\_SUNLinSolNumIters}, \id{Test\_SUNLinSolResNorm}
-and \id{Test\_SUNLinSolResid} should be called
-after \id{Test\_SUNLinSolSolve}.  These are called in the appropriate
-order in all of the example problems.
+A second approach supported by the linear solver APIs is as follows. If the
+{\sunlinsol} implementation is matrix-based, \textit{self-identifies
+as having \Id{SUNLINEARSOLVER\_ITERATIVE} type}, and \emph{also provides a
+non-\id{NULL} \Id{SUNLinSolSetATimes} routine}, then each {\sundials} package
+will call that routine to attach its package-specific matrix-vector product
+routine to the {\sunlinsol} object. The {\sundials} package will then call the
+{\sunlinsol}-provided \Id{SUNLinSolSetup} routine (infrequently) to update
+matrix information, but will provide current matrix-vector products to the
+{\sunlinsol} implementation through the package-supplied \id{ATimesFn} routine.

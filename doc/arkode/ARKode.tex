@@ -55,8 +55,8 @@ Approved for public release; further dissemination unlimited
 \clearpage
 }
 
-\title{User Documentation for ARKode v3.0.0-dev.2\\
-       (SUNDIALS v4.0.0-dev.2)}
+\title{User Documentation for ARKode v3.0.0\\
+       (SUNDIALS v4.0.0)}
 \author{
   Daniel R. Reynolds$^1$, David J. Gardner$^2$, \\
   Alan C. Hindmarsh$^2$, Carol S. Woodward$^2$ \\
@@ -337,6 +337,12 @@ will need to enlarge their \code{iout} array of optional integer
 outputs, and update the indices that they query for certain
 linear-solver-related statistics.
 
+In addition to \code{DIRECT} and \code{ITERATIVE} SUNLinSol implementations the ARKLS
+linear solver interface supports the \code{MATRIX\_ITERATIVE} linear solver type.
+Details regarding how ARKLS utilizes linear solvers of each type are included in
+the chapter {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Description of the SUNLinearSolver module}}}}, as well as discussion regarding intended use cases
+for user-supplied SUNLinSol implementations.
+
 The names of all constructor routines for SUNDIALS-provided SUNLinSol
 implementations have been updated to \code{SUNLinSol\_Band}, \code{SUNLinSol\_Dense},
 \code{SUNLinSol\_KLU}, \code{SUNLinSol\_LapackBand}, \code{SUNLinSol\_LapackDense},
@@ -347,6 +353,9 @@ been similarly standardized.  To minimize challenges in user migration
 to the new names, the previous routine names may still be used; these
 will be deprecated in future releases, so we recommend that users
 migrate to the new names soon.
+
+The \code{SUNBandMatrix} constructor has been simplified to remove the
+storage upper bandwidth argument.
 
 SUNDIALS integrators have been updated to utilize generic nonlinear solver
 modules defined through the SUNNONLINSOL API. This API will ease the addition of
@@ -2484,7 +2493,7 @@ Users will need to download and compile those packages independently.}\label{Org
 
 For solving these linear systems, ARKode's linear solver interface
 supports both direct and iterative linear solvers built using the
-generic SUNLINSOL API (see {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Linear Solver Data Structures}}}}).  These solvers may
+generic SUNLINSOL API (see {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Description of the SUNLinearSolver module}}}}).  These solvers may
 utilize a SUNMATRIX object for storing Jacobian information, or they
 may be matrix-free.  Since ARKode can operate on any valid SUNLINSOL
 implementation, the set of linear solver modules available to ARKode
@@ -2588,10 +2597,10 @@ The user should be aware that not all SUNLINSOL, SUNMATRIX, and
 preconditioning modules are compatible with all NVECTOR
 implementations.  Details on compatibility are given in the
 documentation for each SUNMATRIX (see {\hyperref[sunmatrix/index:sunmatrix]{\emph{\DUspan{}{Matrix Data Structures}}}}) and each
-SUNLINSOL module (see {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Linear Solver Data Structures}}}}). For example, NVECTOR\_PARALLEL
+SUNLINSOL module (see {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Description of the SUNLinearSolver module}}}}). For example, NVECTOR\_PARALLEL
 is not compatible with the dense, banded, or sparse SUNMATRIX types,
 or with the corresponding dense, banded, or sparse SUNLINSOL modules.
-Please check the sections {\hyperref[sunmatrix/index:sunmatrix]{\emph{\DUspan{}{Matrix Data Structures}}}} and {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Linear Solver Data Structures}}}} to
+Please check the sections {\hyperref[sunmatrix/index:sunmatrix]{\emph{\DUspan{}{Matrix Data Structures}}}} and {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Description of the SUNLinearSolver module}}}} to
 verify compatibility between these modules.  In addition to that
 documentation, we note that the ARKBANDPRE preconditioning module is
 only compatible with the NVECTOR\_SERIAL, NVECTOR\_OPENMP or
@@ -2783,9 +2792,8 @@ iteration), then a linear solver module header file will also
 be required.  Similarly, if the ODE system involves a non-identity
 mass matrix \(M \ne I\), then each time step will require a linear
 solver for systems of the form \(Mx=b\).  The header files
-corresponding to the linear
-solver modules available for use with ARKode for either the Newton
-solver or for mass-matrix solves, are:
+corresponding to the SUNDIALS-provided linear solver modules available
+for use with ARKode are:
 \begin{itemize}
 \item {} 
 Direct linear solvers:
@@ -2802,23 +2810,23 @@ SUNLINSOL\_BAND;
 
 \item {} 
 \code{sunlinsol/sunlinsol\_lapackdense.h},
-which is used with the LAPACK dense linear solver interface module,
+which is used with the LAPACK dense linear solver module,
 SUNLINSOL\_LAPACKDENSE;
 
 \item {} 
 \code{sunlinsol/sunlinsol\_lapackband.h},
-which is used with the LAPACK banded linear solver interface module,
+which is used with the LAPACK banded linear solver module,
 SUNLINSOL\_LAPACKBAND;
 
 \item {} 
 \code{sunlinsol/sunlinsol\_klu.h},
-which is used with the KLU sparse linear solver interface module,
+which is used with the KLU sparse linear solver module,
 SUNLINSOL\_KLU;
 
 \item {} 
 \code{sunlinsol/sunlinsol\_superlumt.h},
-which is used with the SuperLU\_MT sparse linear solver interface
-module, SUNLINSOL\_SUPERLUMT;
+which is used with the SuperLU\_MT sparse linear solver module,
+SUNLINSOL\_SUPERLUMT;
 
 \end{itemize}
 
@@ -2889,7 +2897,7 @@ program) for the integration of an ODE IVP using the ARKStep module.
 Most of the steps are independent of the NVECTOR, SUNMATRIX, SUNLINSOL
 and SUNNONLINSOL implementations used.  For the steps that are not,
 refer to the sections {\hyperref[nvectors/index:nvectors]{\emph{\DUspan{}{Vector Data Structures}}}}, {\hyperref[sunmatrix/index:sunmatrix]{\emph{\DUspan{}{Matrix Data Structures}}}},
-{\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Linear Solver Data Structures}}}}, and  {\hyperref[sunnonlinsol/index:sunnonlinsol]{\emph{\DUspan{}{Nonlinear Solver Data Structures}}}} for the specific name of
+{\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Description of the SUNLinearSolver module}}}}, and  {\hyperref[sunnonlinsol/index:sunnonlinsol]{\emph{\DUspan{}{Nonlinear Solver Data Structures}}}} for the specific name of
 the function to be called or macro to be referenced.
 
 \index{User main program}\begin{enumerate}
@@ -3062,7 +3070,7 @@ linear solver object may be created using a call of the form
 
 where \code{*} can be replaced with ``Dense'', ``SPGMR'', or other
 options, as discussed in the sections
-{\hyperref[ARKStep_c_interface/User_callable:arkstep-cinterface-linearsolvers]{\emph{\DUspan{}{Linear solver interface functions}}}} and {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Linear Solver Data Structures}}}}.
+{\hyperref[ARKStep_c_interface/User_callable:arkstep-cinterface-linearsolvers]{\emph{\DUspan{}{Linear solver interface functions}}}} and {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Description of the SUNLinearSolver module}}}}.
 
 \item {} 
 Set linear solver optional inputs
@@ -3070,7 +3078,7 @@ Set linear solver optional inputs
 Call \code{*Set*} functions from the selected linear solver module
 to change optional inputs specific to that linear solver.  See the
 documentation for each SUNLINSOL module in the section
-{\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Linear Solver Data Structures}}}} for details.
+{\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Description of the SUNLinearSolver module}}}} for details.
 
 \item {} 
 Attach linear solver module
@@ -3215,7 +3223,7 @@ linear solver interfaces available as \code{SUNLinearSolver} modules and
 the vector implementations required for use.  As an example, one
 cannot use the dense direct solver interfaces with the MPI-based
 vector implementation.  However, as discussed in section
-{\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Linear Solver Data Structures}}}} the SUNDIALS packages operate on generic
+{\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Description of the SUNLinearSolver module}}}} the SUNDIALS packages operate on generic
 \code{SUNLinearSolver} objects, allowing a user to develop their own
 solvers should they so desire.
 
@@ -3469,18 +3477,18 @@ provide her own error handler function (see the section
 \label{ARKStep_c_interface/User_callable:arkstep-cinterface-initialization}\label{ARKStep_c_interface/User_callable:arkstep-initialization-and-deallocation-functions}\index{ARKStepCreate (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepCreate}\pysiglinewithargsret{void* \bfcode{ARKStepCreate}}{ARKRhsFn\emph{ fe}, ARKRhsFn\emph{ fi}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepCreate}\pysiglinewithargsret{void* \bfcode{ARKStepCreate}}{{\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fe}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fi}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
 This function creates an internal memory block for a problem to be
 solved using the ARKStep time-stepping module in ARKode.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
-\emph{fe} -- the name of the C function (of type \code{ARKRhsFn()})
+\emph{fe} -- the name of the C function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the explicit portion of the right-hand side function in
 \(M\, \dot{y} = f_E(t,y) + f_I(t,y)\).
 
 \item {} 
-\emph{fi} -- the name of the C function (of type \code{ARKRhsFn()})
+\emph{fi} -- the name of the C function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the implicit portion of the right-hand side function in
 \(M\, \dot{y} = f_E(t,y) + f_I(t,y)\).
 
@@ -3634,7 +3642,7 @@ solution component.
 \index{ARKStepWFtolerances (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepWFtolerances}\pysiglinewithargsret{int \bfcode{ARKStepWFtolerances}}{void*\emph{ arkode\_mem}, ARKEwtFn\emph{ efun}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepWFtolerances}\pysiglinewithargsret{int \bfcode{ARKStepWFtolerances}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{ARKEwtFn}}}\emph{ efun}}{}
 This function specifies a user-supplied function \emph{efun} to compute
 the error weight vector \code{ewt}.
 \begin{description}
@@ -3643,7 +3651,7 @@ the error weight vector \code{ewt}.
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {} 
-\emph{efun} -- the name of the function (of type \code{ARKEwtFn()})
+\emph{efun} -- the name of the function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}})
 that implements the error weight vector computation.
 
 \end{itemize}
@@ -3936,13 +3944,13 @@ used throughout the solution process.
 
 Matrix-free \code{SUNLinearSolver} modules instead use iterative methods
 to solve the Newton systems of equations, and only require the
-\emph{action} of the Jacobian on a vector, \(Jv\).  With most of these
-methods, preconditioning can be done on the left only, on the right
-only, on both the left and the right, or not at all.  The exceptions
-to this rule are SPFGMR that supports right preconditioning only and
-PCG that performs symmetric preconditioning.  For the specification
-of a preconditioner, see the iterative linear solver portions of the
-sections {\hyperref[ARKStep_c_interface/User_callable:arkstep-cinterface-optionalinputs]{\emph{\DUspan{}{Optional input functions}}}} and
+\emph{action} of the matrix on a vector, \({\mathcal A}v\).  With most
+of these methods, preconditioning can be done on the left only, on the
+right only, on both the left and the right, or not at all.  The
+exceptions to this rule are SPFGMR that supports right preconditioning
+only and PCG that performs symmetric preconditioning.  For the
+specification of a preconditioner, see the iterative linear solver
+portions of the sections {\hyperref[ARKStep_c_interface/User_callable:arkstep-cinterface-optionalinputs]{\emph{\DUspan{}{Optional input functions}}}} and
 {\hyperref[ARKStep_c_interface/User_supplied:arkstep-cinterface-usersupplied]{\emph{\DUspan{}{User-supplied functions}}}}.
 
 If preconditioning is done, user-supplied functions should be used to
@@ -3984,7 +3992,7 @@ functions and possibly some macros, that are likely to be needed in
 the user code.  These are available in the corresponding header file
 associated with the specific \code{SUNMatrix} or \code{SUNLinearSolver}
 module in question, as described in the sections {\hyperref[sunmatrix/index:sunmatrix]{\emph{\DUspan{}{Matrix Data Structures}}}} and
-{\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Linear Solver Data Structures}}}}.
+{\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Description of the SUNLinearSolver module}}}}.
 
 Once this solver object has been constructed, the user should attach
 it to ARKStep via a call to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetLinearSolver]{\emph{\code{ARKStepSetLinearSolver()}}}}. The
@@ -4103,7 +4111,7 @@ constants and possibly some macros, that are likely to be needed in
 the user code.  These are available in the corresponding header file
 associated with the specific \code{SUNMatrix} or
 \code{SUNLinearSolver} module in question, as described in the
-sections {\hyperref[sunmatrix/index:sunmatrix]{\emph{\DUspan{}{Matrix Data Structures}}}} and {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Linear Solver Data Structures}}}}.
+sections {\hyperref[sunmatrix/index:sunmatrix]{\emph{\DUspan{}{Matrix Data Structures}}}} and {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Description of the SUNLinearSolver module}}}}.
 
 Note: if the user program includes linear solvers for \emph{both} the
 Newton and mass matrix systems, these must have the same type:
@@ -4278,7 +4286,7 @@ called prior to a continuation call to {\hyperref[ARKStep_c_interface/User_calla
 \index{ARKStepRootInit (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepRootInit}\pysiglinewithargsret{int \bfcode{ARKStepRootInit}}{void*\emph{ arkode\_mem}, int\emph{ nrtfn}, ARKRootFn\emph{ g}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepRootInit}\pysiglinewithargsret{int \bfcode{ARKStepRootInit}}{void*\emph{ arkode\_mem}, int\emph{ nrtfn}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{ARKRootFn}}}\emph{ g}}{}
 Initializes a rootfinding problem to be solved during the
 integration of the ODE system.  It must be called after
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepCreate]{\emph{\code{ARKStepCreate()}}}}, and before {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepEvolve]{\emph{\code{ARKStepEvolve()}}}}.
@@ -4291,7 +4299,7 @@ integration of the ODE system.  It must be called after
 \emph{nrtfn} -- number of functions \(g_i\), an integer \(\ge\) 0.
 
 \item {} 
-\emph{g} -- name of user-supplied function, of type \code{ARKRootFn()},
+\emph{g} -- name of user-supplied function, of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn()}}}},
 defining the functions \(g_i\) whose roots are sought.
 
 \end{itemize}
@@ -4811,7 +4819,7 @@ error messages.
 \index{ARKStepSetErrHandlerFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetErrHandlerFn}\pysiglinewithargsret{int \bfcode{ARKStepSetErrHandlerFn}}{void*\emph{ arkode\_mem}, ARKErrHandlerFn\emph{ ehfun}, void*\emph{ eh\_data}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetErrHandlerFn}\pysiglinewithargsret{int \bfcode{ARKStepSetErrHandlerFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{ARKErrHandlerFn}}}\emph{ ehfun}, void*\emph{ eh\_data}}{}
 Specifies the optional user-defined function to be used
 in handling error messages.
 \begin{description}
@@ -5502,8 +5510,10 @@ If both \emph{Bi} and \emph{Be} are provided, this routine automatically calls
 
 When only one table is provided (i.e., \emph{Bi} or \emph{Be} is \code{NULL}) then the
 input values of \emph{q} and \emph{p} are ignored and the global order of the method
-and embedding (if applicable) are obtained Butcher tables. If both \emph{Bi} and
-\emph{Be} are non-NULL then the input values of \emph{q} and \emph{p} are used. No error
+and embedding (if applicable) are obtained from the Butcher table
+structures. If both \emph{Bi} and \emph{Be} are non-NULL (e.g, an IMEX method is
+provided) then the input values of \emph{q} and \emph{p} are used as the order of the
+ARK method may be less than the orders of the individual tables. No error
 checking is performed to ensure that either \emph{p} or \emph{q} correctly describe the
 coefficients that were input.
 
@@ -5682,7 +5692,7 @@ none
 \index{ARKStepSetAdaptivityFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetAdaptivityFn}\pysiglinewithargsret{int \bfcode{ARKStepSetAdaptivityFn}}{void*\emph{ arkode\_mem}, ARKAdaptFn\emph{ hfun}, void*\emph{ h\_data}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetAdaptivityFn}\pysiglinewithargsret{int \bfcode{ARKStepSetAdaptivityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{ARKAdaptFn}}}\emph{ hfun}, void*\emph{ h\_data}}{}
 Sets a user-supplied time-step adaptivity function.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -6093,7 +6103,7 @@ before the \emph{etamxf} parameter from
 \index{ARKStepSetStabilityFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetStabilityFn}\pysiglinewithargsret{int \bfcode{ARKStepSetStabilityFn}}{void*\emph{ arkode\_mem}, ARKExpStabFn\emph{ EStab}, void*\emph{ estab\_data}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetStabilityFn}\pysiglinewithargsret{int \bfcode{ARKStepSetStabilityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{ARKExpStabFn}}}\emph{ EStab}, void*\emph{ estab\_data}}{}
 Sets the problem-dependent function to estimate a stable
 time step size for the explicit portion of the ODE system.
 \begin{description}
@@ -9690,7 +9700,7 @@ vector.
 \index{ARKStepReInit (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepReInit}\pysiglinewithargsret{int \bfcode{ARKStepReInit}}{void*\emph{ arkode\_mem}, ARKRhsFn\emph{ fe}, ARKRhsFn\emph{ fi}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepReInit}\pysiglinewithargsret{int \bfcode{ARKStepReInit}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fe}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fi}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
 Provides required problem specifications and re-initializes the
 ARKStep time-stepper module.
 \begin{description}
@@ -9699,12 +9709,12 @@ ARKStep time-stepper module.
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {} 
-\emph{fe} -- the name of the C function (of type \code{ARKRhsFn()})
+\emph{fe} -- the name of the C function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the explicit portion of the right-hand side function in
 \(M\, \dot{y} = f_E(t,y) + f_I(t,y)\).
 
 \item {} 
-\emph{fi} -- the name of the C function (of type \code{ARKRhsFn()})
+\emph{fi} -- the name of the C function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the implicit portion of the right-hand side function in
 \(M\, \dot{y} = f_E(t,y) + f_I(t,y)\).
 
@@ -9760,7 +9770,7 @@ memory structure should be deleted with a call to
 To aid in the vector resize operation, the user can supply a vector
 resize function that will take as input a vector with the previous
 size, and transform it in-place to return a corresponding vector of
-the new size.  If this function (of type \code{ARKVecResizeFn()})
+the new size.  If this function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}})
 is not supplied (i.e. is set to \code{NULL}), then all existing vectors
 internal to ARKStep will be destroyed and re-cloned from the new input
 vector.
@@ -9772,7 +9782,7 @@ rescale the upcoming time step by the specified factor.  If a value
 \index{ARKStepResize (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepResize}\pysiglinewithargsret{int \bfcode{ARKStepResize}}{void*\emph{ arkode\_mem}, N\_Vector\emph{ ynew}, realtype\emph{ hscale}, realtype\emph{ t0}, ARKVecResizeFn\emph{ resize}, void*\emph{ resize\_data}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepResize}\pysiglinewithargsret{int \bfcode{ARKStepResize}}{void*\emph{ arkode\_mem}, N\_Vector\emph{ ynew}, realtype\emph{ hscale}, realtype\emph{ t0}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{ARKVecResizeFn}}}\emph{ resize}, void*\emph{ resize\_data}}{}
 Re-initializes ARKStep with a different state vector but with
 comparable dynamical time scale.
 \begin{description}
@@ -9794,7 +9804,7 @@ scale (i.e. the next step will be of size \emph{h*hscale}).
 
 \item {} 
 \emph{resize} -- the user-supplied vector resize function (of type
-\code{ARKVecResizeFn()}.
+{\hyperref[ERKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}}.
 
 \item {} 
 \emph{resize\_data} -- the user-supplied data structure to be passed
@@ -9927,7 +9937,7 @@ deletion/recreation), and if the user plans to call
 
 \subsection{ODE right-hand side}
 \label{ARKStep_c_interface/User_supplied:ode-right-hand-side}\label{ARKStep_c_interface/User_supplied:arkstep-cinterface-oderhs}
-The user must supply at least one function of type \code{ARKRhsFn} to
+The user must supply at least one function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} to
 specify the explicit and/or implicit portions of the ODE system:
 \index{ARKRhsFn (C type)}
 
@@ -9984,7 +9994,7 @@ completes a successful stage, in which case ARKStep returns
 As an alternative to the default behavior of directing error and
 warning messages to the file pointed to by \emph{errfp} (see
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetErrFile]{\emph{\code{ARKStepSetErrFile()}}}}), the user may provide a function of type
-\code{ARKErrHandlerFn} to process any such messages.
+{\hyperref[ERKStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{\code{ARKErrHandlerFn}}}} to process any such messages.
 \index{ARKErrHandlerFn (C type)}
 
 \begin{fulllineitems}
@@ -10028,7 +10038,7 @@ pointer to memory encounters an error, it sets \emph{error\_code} to
 \subsection{Error weight function}
 \label{ARKStep_c_interface/User_supplied:arkstep-cinterface-errorweight}\label{ARKStep_c_interface/User_supplied:error-weight-function}
 As an alternative to providing the relative and absolute tolerances,
-the user may provide a function of type \code{ARKEwtFn} to compute a
+the user may provide a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn}}}} to compute a
 vector \emph{ewt} containing the weights in the WRMS norm
 \(\|v\|_{WRMS} = \left(\frac{1}{n} \sum_{i=1}^n \left(ewt_i\; v_i\right)^2
 \right)^{1/2}\).  These weights will be used in place of those defined
@@ -10120,7 +10130,7 @@ is not satisfied.
 \label{ARKStep_c_interface/User_supplied:arkstep-cinterface-adaptivityfn}\label{ARKStep_c_interface/User_supplied:time-step-adaptivity-function}
 As an alternative to using one of the built-in time step adaptivity
 methods for controlling solution error, the user may provide a
-function of type \code{ARKAdaptFn} to compute a target step size
+function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn}}}} to compute a target step size
 \(h\) for the next integration step.  These steps should be chosen
 as the maximum value such that the error estimates remain below 1.
 \index{ARKAdaptFn (C type)}
@@ -10187,7 +10197,7 @@ for the explicit portion of the ImEx system, \(f_E(t,y)\).  While
 the accuracy-based time step adaptivity algorithms may be sufficient
 for retaining a stable solution to the ODE system, these may be
 inefficient if \(f_E(t,y)\) contains moderately stiff terms.  In
-this scenario, a user may provide a function of type \code{ARKExpStabFn}
+this scenario, a user may provide a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn}}}}
 to provide this stability information to ARKStep.  This function
 must set the scalar step size satisfying the stability restriction for
 the upcoming time step.  This value will subsequently be bounded by
@@ -10235,7 +10245,7 @@ stability restriction on the time step size.
 \subsection{Rootfinding function}
 \label{ARKStep_c_interface/User_supplied:arkstep-cinterface-rootfindingfn}\label{ARKStep_c_interface/User_supplied:rootfinding-function}
 If a rootfinding problem is to be solved during the integration of the
-ODE system, the user must supply a function of type \code{ARKRootFn}.
+ODE system, the user must supply a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn}}}}.
 \index{ARKRootFn (C type)}
 
 \begin{fulllineitems}
@@ -10425,8 +10435,8 @@ further documented in the section {\hyperref[sunmatrix/SUNMatrix_Sparse:sunmatri
 
 \subsection{Jacobian-vector product (matrix-free linear solvers)}
 \label{ARKStep_c_interface/User_supplied:jacobian-vector-product-matrix-free-linear-solvers}\label{ARKStep_c_interface/User_supplied:arkstep-cinterface-jtimesfn}
-If a matrix-free linear solver is to be used for the implicit stage
-solves (i.e., a NULL-valued SUNMATRIX argument was supplied to
+Whn using matrix matrix-free linear solver modules for the implicit
+stage solves (i.e., a NULL-valued SUNMATRIX argument was supplied to
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetLinearSolver]{\emph{\code{ARKStepSetLinearSolver()}}}} in the section
 {\hyperref[ARKStep_c_interface/Skeleton:arkstep-cinterface-skeleton]{\emph{\DUspan{}{A skeleton of the user's main program}}}}), the user may provide a function
 of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKLsJacTimesVecFn]{\emph{\code{ARKLsJacTimesVecFn}}}} in the following form, to compute
@@ -10525,7 +10535,7 @@ error (in which case the step will be retried), or negative for an
 unrecoverable error (in which case the integration is halted).
 
 \textbf{Notes:}    Each call to the Jacobian-vector setup function is
-preceded by a call to the implicit \code{ARKRhsFn} user
+preceded by a call to the implicit {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} user
 function with the same \((t,y)\) arguments.  Thus, the setup
 function can use any auxiliary data that is computed and saved
 during the evaluation of the implicit ODE right-hand side.
@@ -10677,7 +10687,7 @@ factorization of the resulting approximation to \(A = M -
 \gamma J\).
 
 Each call to the preconditioner setup function is preceded by a
-call to the implicit \code{ARKRhsFn} user function with the
+call to the implicit {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} user function with the
 same \((t,y)\) arguments.  Thus, the preconditioner setup
 function can use any auxiliary data that is computed and saved
 during the evaluation of the ODE right-hand side.
@@ -10990,7 +11000,7 @@ adaptivity without repeated allocation/deallocation of memory.  In
 these scenarios, it is recommended that the user supply a customized
 vector kernel to interface between SUNDIALS and their problem-specific
 data structure.  If this vector kernel includes a function of type
-\code{ARKVecResizeFn} to resize a given vector implementation, then
+{\hyperref[ERKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn}}}} to resize a given vector implementation, then
 this function may be supplied to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepResize]{\emph{\code{ARKStepResize()}}}} so that all
 internal ARKStep vectors may be resized, instead of deleting and
 re-creating them at each call.  This resize function should have the
@@ -12251,12 +12261,12 @@ function type
 \hline
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKIFUN]{\emph{\code{FARKIFUN()}}}}
  & 
-\code{ARKRhsFn()}
+{\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}}
 \\
 \hline
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKEFUN]{\emph{\code{FARKEFUN()}}}}
  & 
-\code{ARKRhsFn()}
+{\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}}
 \\
 \hline\end{tabulary}
 
@@ -12379,21 +12389,21 @@ FARKODE ``activation'' routine
 \hline
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKEWT]{\emph{\code{FARKEWT()}}}}
  & 
-\code{ARKEwtFn()}
+{\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}}
  & 
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKEWTSET]{\emph{\code{FARKEWTSET()}}}}
 \\
 \hline
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKADAPT]{\emph{\code{FARKADAPT()}}}}
  & 
-\code{ARKAdaptFn()}
+{\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn()}}}}
  & 
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKADAPTSET]{\emph{\code{FARKADAPTSET()}}}}
 \\
 \hline
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKEXPSTAB]{\emph{\code{FARKEXPSTAB()}}}}
  & 
-\code{ARKExpStabFn()}
+{\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn()}}}}
  & 
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKEXPSTABSET]{\emph{\code{FARKEXPSTABSET()}}}}
 \\
@@ -12576,7 +12586,7 @@ of the form
 \end{Verbatim}
 
 in which the specific arguments are as described in the
-appropriate section of the Chapter {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Linear Solver Data Structures}}}}.  Note that the
+appropriate section of the Chapter {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Description of the SUNLinearSolver module}}}}.  Note that the
 dense, band and sparse solvers are usable only in a serial or
 multi-threaded environment.
 
@@ -12599,7 +12609,7 @@ modified using a call to the functions
 \end{Verbatim}
 
 where again the call sequences are described in the appropriate
-sections of the Chapter {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Linear Solver Data Structures}}}}.
+sections of the Chapter {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Description of the SUNLinearSolver module}}}}.
 
 Similarly, in the case of using one of the SUNLINSOL linear solver
 modules supplied with SUNDIALS to solve a problem with a non-identity
@@ -12620,7 +12630,7 @@ mass matrix, the user must make a call of the form
 \end{Verbatim}
 
 in which the specific arguments are as described in the
-appropriate section of the Chapter {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Linear Solver Data Structures}}}}.
+appropriate section of the Chapter {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Description of the SUNLinearSolver module}}}}.
 
 Once one of these has been initialized, its solver parameters may be
 modified using a call to the functions
@@ -12641,7 +12651,7 @@ modified using a call to the functions
 \end{Verbatim}
 
 where again the call sequences are described in the appropriate
-sections of the Chapter {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Linear Solver Data Structures}}}}.
+sections of the Chapter {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Description of the SUNLinearSolver module}}}}.
 
 
 \subsubsection{SUNNONLINSOL module initialization}
@@ -13289,7 +13299,7 @@ ARKStep for handling adaptive error control and explicit stability.
 The former of these is designed for advanced users who wish to
 investigate custom step adaptivity approaches as opposed to using any
 of those built-in to ARKStep.  In ARKStep's C/C++ interface, this would be
-provided by a function of type \code{ARKAdaptFn()}; in the Fortran
+provided by a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn()}}}}; in the Fortran
 interface this is provided through the user-supplied function:
 \index{FARKADAPT() (fortran subroutine)|textbf}
 
@@ -13382,7 +13392,7 @@ Similarly, if either an explicit or mixed implicit-explicit
 integration method is to be employed, the user may specify a function
 to provide the maximum explicitly-stable step for their problem.
 Again, in the C/C++ interface this would be a function of type
-\code{ARKExpStabFn()}, while in ARKStep's Fortran interface this
+{\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn()}}}}, while in ARKStep's Fortran interface this
 must be given through the user-supplied function:
 \index{FARKEXPSTAB() (fortran subroutine)|textbf}
 
@@ -16560,13 +16570,13 @@ provide her own error handler function (see the section
 \label{ERKStep_c_interface/User_callable:erkstep-cinterface-initialization}\label{ERKStep_c_interface/User_callable:erkstep-initialization-and-deallocation-functions}\index{ERKStepCreate (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepCreate}\pysiglinewithargsret{void* \bfcode{ERKStepCreate}}{ARKRhsFn\emph{ f}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepCreate}\pysiglinewithargsret{void* \bfcode{ERKStepCreate}}{{\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ f}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
 This function allocates and initializes memory for a problem to
 be solved using the ERKStep time-stepping module in ARKode.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
-\emph{f} -- the name of the C function (of type \code{ARKRhsFn()})
+\emph{f} -- the name of the C function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the right-hand side function in
 \(\dot{y} = f(t,y)\).
 
@@ -16720,7 +16730,7 @@ solution component.
 \index{ERKStepWFtolerances (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepWFtolerances}\pysiglinewithargsret{int \bfcode{ERKStepWFtolerances}}{void*\emph{ arkode\_mem}, ARKEwtFn\emph{ efun}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepWFtolerances}\pysiglinewithargsret{int \bfcode{ERKStepWFtolerances}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{ARKEwtFn}}}\emph{ efun}}{}
 This function specifies a user-supplied function \emph{efun} to compute
 the error weight vector \code{ewt}.
 \begin{description}
@@ -16729,7 +16739,7 @@ the error weight vector \code{ewt}.
 \emph{arkode\_mem} -- pointer to the ERKStep memory block.
 
 \item {} 
-\emph{efun} -- the name of the function (of type \code{ARKEwtFn()})
+\emph{efun} -- the name of the function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}})
 that implements the error weight vector computation.
 
 \end{itemize}
@@ -16865,7 +16875,7 @@ called prior to a continuation call to {\hyperref[ERKStep_c_interface/User_calla
 \index{ERKStepRootInit (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepRootInit}\pysiglinewithargsret{int \bfcode{ERKStepRootInit}}{void*\emph{ arkode\_mem}, int\emph{ nrtfn}, ARKRootFn\emph{ g}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepRootInit}\pysiglinewithargsret{int \bfcode{ERKStepRootInit}}{void*\emph{ arkode\_mem}, int\emph{ nrtfn}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{ARKRootFn}}}\emph{ g}}{}
 Initializes a rootfinding problem to be solved during the
 integration of the ODE system.  It must be called after
 {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepCreate]{\emph{\code{ERKStepCreate()}}}}, and before {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepEvolve]{\emph{\code{ERKStepEvolve()}}}}.
@@ -16878,7 +16888,7 @@ integration of the ODE system.  It must be called after
 \emph{nrtfn} -- number of functions \(g_i\), an integer \(\ge\) 0.
 
 \item {} 
-\emph{g} -- name of user-supplied function, of type \code{ARKRootFn()},
+\emph{g} -- name of user-supplied function, of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn()}}}},
 defining the functions \(g_i\) whose roots are sought.
 
 \end{itemize}
@@ -17349,7 +17359,7 @@ error messages.
 \index{ERKStepSetErrHandlerFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetErrHandlerFn}\pysiglinewithargsret{int \bfcode{ERKStepSetErrHandlerFn}}{void*\emph{ arkode\_mem}, ARKErrHandlerFn\emph{ ehfun}, void*\emph{ eh\_data}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetErrHandlerFn}\pysiglinewithargsret{int \bfcode{ERKStepSetErrHandlerFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{ARKErrHandlerFn}}}\emph{ ehfun}, void*\emph{ eh\_data}}{}
 Specifies the optional user-defined function to be used
 in handling error messages.
 \begin{description}
@@ -17849,8 +17859,8 @@ For a description of the {\hyperref[ARKodeButcherTable:c.ARKodeButcherTable]{\em
 functions for creating Butcher tables see {\hyperref[ARKodeButcherTable:arkodebutchertable]{\emph{\DUspan{}{Butcher Table Data Structure}}}}.
 
 No error checking is performed to ensure that either the method order \emph{p} or
-the embedding order \emph{q} correctly describe the coefficients in the Butcher
-table.
+the embedding order \emph{q} specified in the Butcher table structure correctly
+describe the coefficients in the Butcher table.
 
 Error checking is performed to ensure that the Butcher table is strictly
 lower-triangular (i.e. that it specifies an ERK method).
@@ -17996,7 +18006,7 @@ none
 \index{ERKStepSetAdaptivityFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetAdaptivityFn}\pysiglinewithargsret{int \bfcode{ERKStepSetAdaptivityFn}}{void*\emph{ arkode\_mem}, ARKAdaptFn\emph{ hfun}, void*\emph{ h\_data}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetAdaptivityFn}\pysiglinewithargsret{int \bfcode{ERKStepSetAdaptivityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{ARKAdaptFn}}}\emph{ hfun}, void*\emph{ h\_data}}{}
 Sets a user-supplied time-step adaptivity function.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -18372,7 +18382,7 @@ before the \emph{etamxf} parameter from
 \index{ERKStepSetStabilityFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetStabilityFn}\pysiglinewithargsret{int \bfcode{ERKStepSetStabilityFn}}{void*\emph{ arkode\_mem}, ARKExpStabFn\emph{ EStab}, void*\emph{ estab\_data}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetStabilityFn}\pysiglinewithargsret{int \bfcode{ERKStepSetStabilityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{ARKExpStabFn}}}\emph{ EStab}, void*\emph{ estab\_data}}{}
 Sets the problem-dependent function to estimate a stable
 time step size for the explicit portion of the ODE system.
 \begin{description}
@@ -19638,7 +19648,7 @@ vector.
 \index{ERKStepReInit (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepReInit}\pysiglinewithargsret{int \bfcode{ERKStepReInit}}{void*\emph{ arkode\_mem}, ARKRhsFn\emph{ f}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepReInit}\pysiglinewithargsret{int \bfcode{ERKStepReInit}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ f}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
 Provides required problem specifications and re-initializes the
 ERKStep time-stepper module.
 \begin{description}
@@ -19647,7 +19657,7 @@ ERKStep time-stepper module.
 \emph{arkode\_mem} -- pointer to the ERKStep memory block.
 
 \item {} 
-\emph{f} -- the name of the C function (of type \code{ARKRhsFn()})
+\emph{f} -- the name of the C function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the right-hand side function in \(\dot{y} = f(t,y)\).
 
 \item {} 
@@ -19702,7 +19712,7 @@ memory structure should be deleted with a call to
 To aid in the vector resize operation, the user can supply a vector
 resize function that will take as input a vector with the previous
 size, and transform it in-place to return a corresponding vector of
-the new size.  If this function (of type \code{ARKVecResizeFn()})
+the new size.  If this function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}})
 is not supplied (i.e. is set to \code{NULL}), then all existing vectors
 internal to ERKStep will be destroyed and re-cloned from the new input
 vector.
@@ -19714,7 +19724,7 @@ rescale the upcoming time step by the specified factor.  If a value
 \index{ERKStepResize (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepResize}\pysiglinewithargsret{int \bfcode{ERKStepResize}}{void*\emph{ arkode\_mem}, N\_Vector\emph{ ynew}, realtype\emph{ hscale}, realtype\emph{ t0}, ARKVecResizeFn\emph{ resize}, void*\emph{ resize\_data}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepResize}\pysiglinewithargsret{int \bfcode{ERKStepResize}}{void*\emph{ arkode\_mem}, N\_Vector\emph{ ynew}, realtype\emph{ hscale}, realtype\emph{ t0}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{ARKVecResizeFn}}}\emph{ resize}, void*\emph{ resize\_data}}{}
 Re-initializes ERKStep with a different state vector but with
 comparable dynamical time scale.
 \begin{description}
@@ -19736,7 +19746,7 @@ scale (i.e. the next step will be of size \emph{h*hscale}).
 
 \item {} 
 \emph{resize} -- the user-supplied vector resize function (of type
-\code{ARKVecResizeFn()}.
+{\hyperref[ERKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}}.
 
 \item {} 
 \emph{resize\_data} -- the user-supplied data structure to be passed
@@ -19822,7 +19832,7 @@ deletion/recreation), and if the user plans to call
 
 \subsection{ODE right-hand side}
 \label{ERKStep_c_interface/User_supplied:erkstep-cinterface-oderhs}\label{ERKStep_c_interface/User_supplied:ode-right-hand-side}
-The user must supply a function of type \code{ARKRhsFn} to
+The user must supply a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} to
 specify the right-hand side of the ODE system:
 \index{ARKRhsFn (C type)}
 
@@ -19875,7 +19885,7 @@ case ERKStep returns \emph{ARK\_FIRST\_RHSFUNC\_ERR}).
 As an alternative to the default behavior of directing error and
 warning messages to the file pointed to by \emph{errfp} (see
 {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetErrFile]{\emph{\code{ERKStepSetErrFile()}}}}), the user may provide a function of type
-\code{ARKErrHandlerFn} to process any such messages.
+{\hyperref[ERKStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{\code{ARKErrHandlerFn}}}} to process any such messages.
 \index{ARKErrHandlerFn (C type)}
 
 \begin{fulllineitems}
@@ -19919,7 +19929,7 @@ pointer to memory encounters an error, it sets \emph{error\_code} to
 \subsection{Error weight function}
 \label{ERKStep_c_interface/User_supplied:erkstep-cinterface-errorweight}\label{ERKStep_c_interface/User_supplied:error-weight-function}
 As an alternative to providing the relative and absolute tolerances,
-the user may provide a function of type \code{ARKEwtFn} to compute a
+the user may provide a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn}}}} to compute a
 vector \emph{ewt} containing the weights in the WRMS norm
 \(\|v\|_{WRMS} = \left(\frac{1}{n} \sum_{i=1}^n \left(ewt_i\; v_i\right)^2
 \right)^{1/2}\).  These weights will be used in place of those defined
@@ -19965,7 +19975,7 @@ is not satisfied.
 \label{ERKStep_c_interface/User_supplied:time-step-adaptivity-function}\label{ERKStep_c_interface/User_supplied:erkstep-cinterface-adaptivityfn}
 As an alternative to using one of the built-in time step adaptivity
 methods for controlling solution error, the user may provide a
-function of type \code{ARKAdaptFn} to compute a target step size
+function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn}}}} to compute a target step size
 \(h\) for the next integration step.  These steps should be chosen
 as the maximum value such that the error estimates remain below 1.
 \index{ARKAdaptFn (C type)}
@@ -20032,7 +20042,7 @@ for the explicit Runge Kutta method on this problem.  While the
 accuracy-based time step adaptivity algorithms may be sufficient
 for retaining a stable solution to the ODE system, these may be
 inefficient if \(f(t,y)\) contains moderately stiff terms.  In
-this scenario, a user may provide a function of type \code{ARKExpStabFn}
+this scenario, a user may provide a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn}}}}
 to provide this stability information to ERKStep.  This function
 must set the scalar step size satisfying the stability restriction for
 the upcoming time step.  This value will subsequently be bounded by
@@ -20079,7 +20089,7 @@ stability restriction on the time step size.
 \subsection{Rootfinding function}
 \label{ERKStep_c_interface/User_supplied:rootfinding-function}\label{ERKStep_c_interface/User_supplied:erkstep-cinterface-rootfindingfn}
 If a rootfinding problem is to be solved during the integration of the
-ODE system, the user must supply a function of type \code{ARKRootFn}.
+ODE system, the user must supply a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn}}}}.
 \index{ARKRootFn (C type)}
 
 \begin{fulllineitems}
@@ -20129,7 +20139,7 @@ adaptivity without repeated allocation/deallocation of memory.  In
 these scenarios, it is recommended that the user supply a customized
 vector kernel to interface between SUNDIALS and their problem-specific
 data structure.  If this vector kernel includes a function of type
-\code{ARKVecResizeFn} to resize a given vector implementation, then
+{\hyperref[ERKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn}}}} to resize a given vector implementation, then
 this function may be supplied to {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepResize]{\emph{\code{ERKStepResize()}}}} so that all
 internal ERKStep vectors may be resized, instead of deleting and
 re-creating them at each call.  This resize function should have the
@@ -24652,7 +24662,7 @@ requirements that are not listed here.  In addition, specific
 \code{SUNNonlinearSolver} modules attached to ARKode may have additional
 \code{N\_Vector} requirements.  For additional requirements by specific
 \code{SUNLinearSolver} and \code{SUNNonlinearSolver} modules, please see the
-accompanying sections {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Linear Solver Data Structures}}}} and {\hyperref[sunnonlinsol/index:sunnonlinsol]{\emph{\DUspan{}{Nonlinear Solver Data Structures}}}}.
+accompanying sections {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Description of the SUNLinearSolver module}}}} and {\hyperref[sunnonlinsol/index:sunnonlinsol]{\emph{\DUspan{}{Nonlinear Solver Data Structures}}}}.
 
 At this point, we should emphasize that the user does not need to know
 anything about ARKode's usage of vector functions in order to use
@@ -25195,7 +25205,7 @@ the need for compatibility within the \code{SUNMatMatvec} routine;
 however, compatibility between \code{SUNMatrix} and \code{N\_Vector}
 implementations is more crucial when considering their interaction
 within \code{SUNLinearSolver} objects, as will be described in more detail in
-section {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Linear Solver Data Structures}}}}.  More specifically, in the Table
+section {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Description of the SUNLinearSolver module}}}}.  More specifically, in the Table
 {\hyperref[sunmatrix/SUNMatrix_Compatibility:sunmatrix-matrix-vector]{\emph{\DUspan{}{SUNDIALS matrix interfaces and vector implementations that can be used for each}}}} we show the matrix interfaces available as
 \code{SUNMatrix} modules, and the compatible vector implementations.
 
@@ -26007,7 +26017,20 @@ following additional user-callable routines:
 \index{SUNBandMatrix (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{sunmatrix/SUNMatrix_Band:c.SUNBandMatrix}\pysiglinewithargsret{SUNMatrix \bfcode{SUNBandMatrix}}{sunindextype\emph{ N}, sunindextype\emph{ mu}, sunindextype\emph{ ml}, sunindextype\emph{ smu}}{}
+\phantomsection\label{sunmatrix/SUNMatrix_Band:c.SUNBandMatrix}\pysiglinewithargsret{SUNMatrix \bfcode{SUNBandMatrix}}{sunindextype\emph{ N}, sunindextype\emph{ mu}, sunindextype\emph{ ml}}{}
+This constructor function creates and allocates memory for a banded \code{SUNMatrix}.
+Its arguments are the matrix size, \code{N}, and the upper and lower
+half-bandwidths of the matrix, \code{mu} and \code{ml}.  The stored upper
+bandwidth is set to \code{mu+ml} to accommodate subsequent
+factorization in the SUNLINSOL\_BAND and SUNLINSOL\_LAPACKBAND
+modules.
+
+\end{fulllineitems}
+
+\index{SUNBandMatrixStorage (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunmatrix/SUNMatrix_Band:c.SUNBandMatrixStorage}\pysiglinewithargsret{SUNMatrix \bfcode{SUNBandMatrixStorage}}{sunindextype\emph{ N}, sunindextype\emph{ mu}, sunindextype\emph{ ml}, sunindextype\emph{ smu}}{}
 This constructor function creates and allocates memory for a banded \code{SUNMatrix}.
 Its arguments are the matrix size, \code{N}, the upper and lower
 half-bandwidths of the matrix, \code{mu} and \code{ml}, and the stored
@@ -26015,17 +26038,23 @@ upper bandwidth, \code{smu}.  When creating a band \code{SUNMatrix},
 this value should be
 \begin{itemize}
 \item {} 
-at least \code{min(N-1,mu+ml)} if the matrix will be used by
-the SUNLINSOL\_BAND module;
+at least \code{min(N-1,mu+ml)} if the matrix will be
+used by the SUNLinSol\_Band module;
 
 \item {} 
-exactly equal to \code{mu+ml} if the matrix will be used by the
-SUNLINSOL\_LAPACKBAND module;
+exactly equal to \code{mu+ml} if the matrix will be used by
+the SUNLinSol\_LapackBand module;
 
 \item {} 
 at least \code{mu} if used in some other manner.
 
 \end{itemize}
+
+\emph{Note: it is strongly recommended that users call the default
+constructor, :c:func:{}`SUNBandMatrix(){}`, in all standard use cases.
+This advanced constructor is used internally within SUNDIALS
+solvers, and is provided to users who require banded matrices for
+non-default purposes.}
 
 \end{fulllineitems}
 
@@ -26158,7 +26187,7 @@ for a given SUNDIALS solver.
 \index{FSUNBandMatInit() (fortran subroutine)|textbf}
 
 \begin{fulllineitems}
-\phantomsection\label{sunmatrix/SUNMatrix_Band:f/_/FSUNBandMatInit}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FSUNBandMatInit}}{\emph{CODE}, \emph{N}, \emph{MU}, \emph{ML}, \emph{SMU}, \emph{IER}}{}
+\phantomsection\label{sunmatrix/SUNMatrix_Band:f/_/FSUNBandMatInit}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FSUNBandMatInit}}{\emph{CODE}, \emph{N}, \emph{MU}, \emph{ML}, \emph{IER}}{}
 Initializes a band \code{SUNMatrix} structure for use in a SUNDIALS solver.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -26176,9 +26205,6 @@ this matrix will be used for: CVODE=1, IDA=2, KINSOL=3, ARKode=4.
 \emph{ML} (\code{long int}, input) -- lower half-bandwidth.
 
 \item {} 
-\emph{SMU} (\code{long int}, input) -- storage upper half-bandwidth.
-
-\item {} 
 \emph{IER} (\code{int}, output) -- return flag (0 success, -1 for failure).
 
 \end{itemize}
@@ -26194,7 +26220,7 @@ this SUNMATRIX\_BAND module for storing the mass matrix.
 \index{FSUNBandMassMatInit() (fortran subroutine)|textbf}
 
 \begin{fulllineitems}
-\phantomsection\label{sunmatrix/SUNMatrix_Band:f/_/FSUNBandMassMatInit}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FSUNBandMassMatInit}}{\emph{N}, \emph{MU}, \emph{ML}, \emph{SMU}, \emph{IER}}{}
+\phantomsection\label{sunmatrix/SUNMatrix_Band:f/_/FSUNBandMassMatInit}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FSUNBandMassMatInit}}{\emph{N}, \emph{MU}, \emph{ML}, \emph{IER}}{}
 Initializes a band \code{SUNMatrix} structure for use as a mass
 matrix in ARKode.
 \begin{description}
@@ -26207,9 +26233,6 @@ matrix in ARKode.
 
 \item {} 
 \emph{ML} (\code{long int}, input) -- lower half-bandwidth.
-
-\item {} 
-\emph{SMU} (\code{long int}, input) -- storage upper half-bandwidth.
 
 \item {} 
 \emph{IER} (\code{int}, output) -- return flag (0 success, -1 for failure).
@@ -27002,21 +27025,8 @@ so the most useful information above for user-supplied \code{SUNMatrix}
 implementations is the column relating to ARKLS requirements.
 
 
-\chapter{Linear Solver Data Structures}
-\label{sunlinsol/index:linear-solver-data-structures}\label{sunlinsol/index::doc}\label{sunlinsol/index:sunlinsol}
-The SUNDIALS library comes packaged with a variety of
-\code{SUNLinearSolver} implementations, designed for simulations
-requiring either direct or matrix-free iterative linear solvers for
-problems in serial or shared-memory parallel environments.  SUNDIALS
-additionally provides a simple interface for generic linear solvers
-(akin to a C++ \emph{abstract base class}).  All of the major SUNDIALS
-packages (CVODE(s), IDA(s), KINSOL, ARKODE), are constructed to only
-depend on these generic linear solver operations, making them
-immediately extensible to new user-defined linear solver objects.
-
-
-\section{The SUNLinearSolver API}
-\label{sunlinsol/SUNLinSol_API::doc}\label{sunlinsol/SUNLinSol_API:sunlinsol-api}\label{sunlinsol/SUNLinSol_API:the-sunlinearsolver-api}
+\chapter{Description of the SUNLinearSolver module}
+\label{sunlinsol/index::doc}\label{sunlinsol/index:sunlinsol}\label{sunlinsol/index:description-of-the-sunlinearsolver-module}
 For problems that require the solution of linear systems of equations,
 the SUNDIALS packages operate using generic linear solver modules
 defined through the SUNLinSol API.  This allows SUNDIALS
@@ -27033,7 +27043,7 @@ linear solver.  All of these functions are defined in the header file
 The implementations provided with SUNDIALS work in coordination
 with the SUNDIALS generic \code{N\_Vector} and \code{SUNMatrix} modules to
 provide a set of compatible data structures and solvers for the
-solution of linear systems using direct or matrix-free iterative
+solution of linear systems using direct or iterative (matrix-based or matrix-free)
 methods. Moreover, advanced users can provide a customized
 \code{SUNLinearSolver} implementation to any SUNDIALS package,
 particularly in cases where they provide their own \code{N\_Vector} and/or
@@ -27042,7 +27052,7 @@ particularly in cases where they provide their own \code{N\_Vector} and/or
 Historically, the SUNDIALS packages have been designed to specifically
 leverage the use of either \emph{direct linear solvers} or matrix-free,
 \emph{scaled, preconditioned, iterative linear solvers}.  However,
-matrix-based iterative linear solvers are supported.
+matrix-based iterative linear solvers are also supported.
 
 The iterative linear solvers packaged with SUNDIALS leverage scaling
 and preconditioning, as applicable, to balance error between solution
@@ -27050,14 +27060,14 @@ components and to accelerate convergence of the linear solver.  To
 this end, instead of solving the linear system \(Ax = b\)
 directly, these apply the underlying iterative algorithm to the
 transformed system
-\phantomsection\label{sunlinsol/SUNLinSol_API:equation-eq:transformed_linear_system}\begin{gather}
-\begin{split}\tilde{A} \tilde{x} = \tilde{b}\end{split}\label{sunlinsol/SUNLinSol_API-eq:transformed_linear_system}
+\phantomsection\label{sunlinsol/index:equation-eq:transformed_linear_system}\begin{gather}
+\begin{split}\tilde{A} \tilde{x} = \tilde{b}\end{split}\label{sunlinsol/index-eq:transformed_linear_system}
 \end{gather}
 where
-\phantomsection\label{sunlinsol/SUNLinSol_API:equation-eq:transformed_linear_system_components}\begin{gather}
+\phantomsection\label{sunlinsol/index:equation-eq:transformed_linear_system_components}\begin{gather}
 \begin{split}\tilde{A} &= S_1 P_1^{-1} A P_2^{-1} S_2^{-1},\\
 \tilde{b} &= S_1 P_1^{-1} b,\\
-\tilde{x} &= S_2 P_2 x,\end{split}\label{sunlinsol/SUNLinSol_API-eq:transformed_linear_system_components}
+\tilde{x} &= S_2 P_2 x,\end{split}\label{sunlinsol/index-eq:transformed_linear_system_components}
 \end{gather}
 and where
 \begin{itemize}
@@ -27084,7 +27094,8 @@ prescribed tolerance
 \end{gather}
 When provided an iterative SUNLinSol implementation that does not
 support the scaling matrices \(S_1\) and \(S_2\), SUNDIALS'
-packages will adjust the value of \(\text{tol}\) accordingly.  In
+packages will adjust the value of \(\text{tol}\) accordingly
+(see the section {\hyperref[sunlinsol/ARKode_requirements:sunlinsol-iterative-tolerance]{\emph{\DUspan{}{Iterative linear solver tolerance}}}} for more details).  In
 this case, they instead request that iterative linear solvers stop
 based on the criteria
 \begin{gather}
@@ -27102,6 +27113,40 @@ only utilize a subset of these options.  Further details on these
 exceptions are described in the documentation for each
 \code{SUNLinearSolver} implementation, or for each SUNDIALS package.
 
+For users interested in providing their own SUNLinSol module, the
+following section presents the SUNLinSol API and its implementation
+beginning with the definition of SUNLinSol functions in sections
+{\hyperref[sunlinsol/SUNLinSol_API:sunlinsol-corefn]{\emph{\DUspan{}{SUNLinearSolver core functions}}}} -- {\hyperref[sunlinsol/SUNLinSol_API:sunlinsol-getfn]{\emph{\DUspan{}{SUNLinearSolver get functions}}}}. This is followed by
+the definition of functions supplied to a linear solver implementation in
+section {\hyperref[sunlinsol/SUNLinSol_API:sunlinsol-sunsuppliedfn]{\emph{\DUspan{}{Functions provided by SUNDIALS packages}}}}. The linear solver return
+codes are described in section {\hyperref[sunlinsol/SUNLinSol_API:sunlinsol-errorcodes]{\emph{\DUspan{}{SUNLinearSolver return codes}}}}. The
+\code{SUNLinearSolver} type and the generic SUNLinSol module are defined
+in section {\hyperref[sunlinsol/SUNLinSol_API:sunlininsol-generic]{\emph{\DUspan{}{The generic SUNLinearSolver module}}}}.  The section
+{\hyperref[sunlinsol/SUNLinSol_API:sunlinsol-compatibility]{\emph{\DUspan{}{Compatibility of SUNLinearSolver modules}}}} discusses compatibility between the
+SUNDIALS-provided SUNLinSol modules and SUNMATRIX modules.  Section
+{\hyperref[sunlinsol/SUNLinSol_API:sunlinsol-custom]{\emph{\DUspan{}{Implementing a custom SUNLinearSolver module}}}} lists the requirements for supplying a
+custom SUNLinSol module and discusses some intended use cases. Users wishing to
+supply their own SUNLinSol module are encouraged to use the SUNLinSol
+implementations provided with SUNDIALS as a template for supplying custom
+linear solver modules. The SUNLinSol functions required by this SUNDIALS
+package as well as other package specific details are given in
+section {\hyperref[sunlinsol/ARKode_requirements:sunlinsol-arkode]{\emph{\DUspan{}{ARKode SUNLinearSolver interface}}}}. The remaining sections of this chapter
+present the SUNLinSol modules provided with SUNDIALS.
+
+
+\section{The SUNLinearSolver API}
+\label{sunlinsol/SUNLinSol_API::doc}\label{sunlinsol/SUNLinSol_API:sunlinsol-api}\label{sunlinsol/SUNLinSol_API:the-sunlinearsolver-api}
+The SUNLinSol API defines several linear solver operations that enable
+SUNDIALS packages to utilize any SUNLinSol implementation that
+provides the required functions. These functions can be divided into
+three categories. The first are the core linear solver functions. The
+second group of functions consists of set routines to supply the
+linear solver with functions provided by the SUNDIALS time integrators
+and to modify solver parameters. The final group consists of get
+routines for retrieving linear solver statistics. All of these
+functions are defined in the header file
+\code{sundials/sundials\_linearsolver.h}.
+
 
 \subsection{SUNLinearSolver core functions}
 \label{sunlinsol/SUNLinSol_API:sunlinsol-corefn}\label{sunlinsol/SUNLinSol_API:sunlinearsolver-core-functions}
@@ -27117,20 +27162,38 @@ The remaining routine for destruction of the linear solver object
 
 \begin{fulllineitems}
 \phantomsection\label{sunlinsol/SUNLinSol_API:c.SUNLinSolGetType}\pysiglinewithargsret{SUNLinearSolver\_Type \bfcode{SUNLinSolGetType}}{SUNLinearSolver\emph{ LS}}{}
-Returns the type identifier for the linear solver \emph{LS}. It is used
-to determine the solver type (direct or iterative) from
-the abstract \code{SUNLinearSolver} interface.  This is used to
-assess compatibility with SUNDIALS-provided linear solver
-interfaces.  Returned values are one of the following:
+Returns the type identifier for the linear solver \emph{LS}. It is used to
+determine the solver type (direct, iterative, or matrix-iterative) from
+the abstract \code{SUNLinearSolver} interface.  Returned values are
+one of the following:
 \begin{itemize}
 \item {} 
-\code{SUNLINEARSOLVER\_DIRECT} -- \code{0}, the SUNLinSol module uses
-direct methods to solve the linear system.
+\code{SUNLINEARSOLVER\_DIRECT} -- \code{0}, the SUNLinSol module
+requires a matrix, and computes an `exact' solution to the linear
+system defined by that matrix.
 
 \item {} 
-\code{SUNLINEARSOLVER\_ITERATIVE} -- \code{1}, the SUNLinSol module
-iteratively solves the linear system, stopping when the linear
-residual is within a prescribed tolerance.
+\code{SUNLINEARSOLVER\_ITERATIVE} -- \code{1}, the SUNLinSol module does
+not require a matrix (though one may be provided), and computes
+an inexact solution to the linear system using a matrix-free
+iterative algorithm. That is it solves the linear system defined
+by the package-supplied \code{ATimes} routine (see
+{\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolSetATimes]{\emph{\code{SUNLinSolSetATimes()}}}} below), even if that linear system
+differs from the one encoded in the matrix object (if one is
+provided). As the solver computes the solution only inexactly (or
+may diverge), the linear solver should check for solution
+convergence/accuracy as appropriate.
+
+\item {} 
+\code{SUNLINEARSOLVER\_MATRIX\_ITERATIVE} -- \code{2}, the SUNLinSol
+module requires a matrix, and computes an inexact solution to the
+linear system defined by that matrix using an iterative
+algorithm. That is it solves the linear system defined by the
+matrix object even if that linear system differs from that
+encoded by the package-supplied \code{ATimes} routine. As the solver
+computes the solution only inexactly (or may diverge), the linear
+solver should check for solution convergence/accuracy as
+appropriate.
 
 \end{itemize}
 
@@ -27140,13 +27203,16 @@ Usage:
 \PYG{n}{type} \PYG{o}{=} \PYG{n}{SUNLinSolGetType}\PYG{p}{(}\PYG{n}{LS}\PYG{p}{)}\PYG{p}{;}
 \end{Verbatim}
 
+Notes: See section {\hyperref[sunlinsol/SUNLinSol_API:sunlinsol-intended]{\emph{\DUspan{}{Intended use cases}}}} for more information
+on intended use cases corresponding to the linear solver type.
+
 \end{fulllineitems}
 
 \index{SUNLinSolInitialize (C function)}
 
 \begin{fulllineitems}
 \phantomsection\label{sunlinsol/SUNLinSol_API:c.SUNLinSolInitialize}\pysiglinewithargsret{int \bfcode{SUNLinSolInitialize}}{SUNLinearSolver\emph{ LS}}{}
-Performs linear solver initialization (assumes that all
+Performs linear solver initialization (assuming that all
 solver-specific options have been set).  This should return zero for a
 successful call, and a negative value for a failure, ideally
 returning one of the generic error codes listed in section
@@ -27155,7 +27221,7 @@ returning one of the generic error codes listed in section
 Usage:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{ier} \PYG{o}{=} \PYG{n}{SUNLinSolInitialize}\PYG{p}{(}\PYG{n}{LS}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{retval} \PYG{o}{=} \PYG{n}{SUNLinSolInitialize}\PYG{p}{(}\PYG{n}{LS}\PYG{p}{)}\PYG{p}{;}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -27165,7 +27231,7 @@ Usage:
 \begin{fulllineitems}
 \phantomsection\label{sunlinsol/SUNLinSol_API:c.SUNLinSolSetup}\pysiglinewithargsret{int \bfcode{SUNLinSolSetup}}{SUNLinearSolver\emph{ LS}, SUNMatrix\emph{ A}}{}
 Performs any linear solver setup needed, based on an updated system
-\code{SUNMatrix} \emph{A}.  This may be called frequently (e.g. with a full
+\code{SUNMatrix} \emph{A}.  This may be called frequently (e.g., with a full
 Newton method) or infrequently (for a modified Newton method), based
 on the type of integrator and/or nonlinear solver requesting the
 solves.  This should return zero for a successful call, a positive
@@ -27176,7 +27242,7 @@ codes listed in section {\hyperref[sunlinsol/SUNLinSol_API:sunlinsol-errorcodes]
 Usage:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{ier} \PYG{o}{=} \PYG{n}{SUNLinSolSetup}\PYG{p}{(}\PYG{n}{LS}\PYG{p}{,} \PYG{n}{A}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{retval} \PYG{o}{=} \PYG{n}{SUNLinSolSetup}\PYG{p}{(}\PYG{n}{LS}\PYG{p}{,} \PYG{n}{A}\PYG{p}{)}\PYG{p}{;}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -27185,27 +27251,53 @@ Usage:
 
 \begin{fulllineitems}
 \phantomsection\label{sunlinsol/SUNLinSol_API:c.SUNLinSolSolve}\pysiglinewithargsret{int \bfcode{SUNLinSolSolve}}{SUNLinearSolver\emph{ LS}, SUNMatrix\emph{ A}, N\_Vector\emph{ x}, N\_Vector\emph{ b}, realtype\emph{ tol}}{}
-Solves a linear system \(Ax = b\).  This should return zero for
-a successful call, a positive value for a recoverable failure and a
-negative value for an unrecoverable failure, ideally returning one
-of the generic error codes listed in section {\hyperref[sunlinsol/SUNLinSol_API:sunlinsol-errorcodes]{\emph{\DUspan{}{SUNLinearSolver return codes}}}}.
+This \emph{required} function Solves a linear system \(Ax = b\).
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{LS} -- a SUNLinSol object.
 
-\textbf{Direct solvers:} can ignore the  \emph{tol} argument.
+\item {} 
+\emph{A} -- a \code{SUNMatrix} object.
 
-\textbf{Matrix-free solvers:} can ignore the \code{SUNMatrix} input \emph{A}
-since a \code{NULL} argument will be passed (these should instead rely on
-the matrix-vector product function supplied through the routine
-{\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolSetATimes]{\emph{\code{SUNLinSolSetATimes()}}}}).
+\item {} 
+\emph{x} -- a \code{N\_Vector} object containing the initial guess for
+the solution of the linear system, and the solution to the
+linear system upon return.
 
-\textbf{Iterative solvers:} These should attempt to solve to
-the specified \code{realtype} tolerance \emph{tol} in a weighted 2-norm.
-If the solver does not support scaling then it should just use a
-2-norm.
+\item {} 
+\emph{b} -- a \code{N\_Vector} object containing the linear system
+right-hand side.
+
+\item {} 
+\emph{tol} -- the desired linear solver tolerance.
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Return value:}  This should return zero for a successful call, a
+positive value for a recoverable failure and a negative value for
+an unrecoverable failure, ideally returning one of the generic
+error codes listed in section {\hyperref[sunlinsol/SUNLinSol_API:sunlinsol-errorcodes]{\emph{\DUspan{}{SUNLinearSolver return codes}}}}.
+
+\textbf{Direct solvers:} can ignore the \emph{tol} argument.
+
+\textbf{Matrix-free solvers:} (those that identify as
+\code{SUNLINEARSOLVER\_ITERATIVE}) can ignore the \code{SUNMatrix} input
+\emph{A}, and should rely on the matrix-vector product function supplied
+through the routine {\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolSetATimes]{\emph{\code{SUNLinSolSetATimes()}}}}.
+
+\textbf{Iterative solvers:} (those that identify as
+\code{SUNLINEARSOLVER\_ITERATIVE} or
+\code{SUNLINEARSOLVER\_MATRIX\_ITERATIVE}) should attempt to solve to
+the specified tolerance \emph{tol} in a weighted 2-norm. If the solver
+does not support scaling then it should just use a 2-norm.
 
 Usage:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{ier} \PYG{o}{=} \PYG{n}{SUNLinSolSolve}\PYG{p}{(}\PYG{n}{LS}\PYG{p}{,} \PYG{n}{A}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{n}{b}\PYG{p}{,} \PYG{n}{tol}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{retval} \PYG{o}{=} \PYG{n}{SUNLinSolSolve}\PYG{p}{(}\PYG{n}{LS}\PYG{p}{,} \PYG{n}{A}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{n}{b}\PYG{p}{,} \PYG{n}{tol}\PYG{p}{)}\PYG{p}{;}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -27220,7 +27312,7 @@ zero for a successful call, and a negative value for a failure.
 Usage:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{ier} \PYG{o}{=} \PYG{n}{SUNLinSolFree}\PYG{p}{(}\PYG{n}{LS}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{retval} \PYG{o}{=} \PYG{n}{SUNLinSolFree}\PYG{p}{(}\PYG{n}{LS}\PYG{p}{)}\PYG{p}{;}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -27241,9 +27333,10 @@ instead of supplying a dummy routine.
 
 \begin{fulllineitems}
 \phantomsection\label{sunlinsol/SUNLinSol_API:c.SUNLinSolSetATimes}\pysiglinewithargsret{int \bfcode{SUNLinSolSetATimes}}{SUNLinearSolver\emph{ LS}, void*\emph{ A\_data}, {\hyperref[sunlinsol/SUNLinSol_API:c.ATimesFn]{\emph{ATimesFn}}}\emph{ ATimes}}{}
-(Required for matrix-free linear solvers; otherwise optional)
+This function is \emph{required for matrix-free linear solvers};
+otherwise it is optional.
 
-Provides a {\hyperref[sunlinsol/SUNLinSol_API:c.ATimesFn]{\emph{\code{ATimesFn}}}} function pointer, as well as a \code{void *}
+Provides a {\hyperref[sunlinsol/SUNLinSol_API:c.ATimesFn]{\emph{\code{ATimesFn}}}} function pointer, as well as a \code{void*}
 pointer to a data structure used by this routine, to a linear
 solver object.  SUNDIALS packages will call this function to set the
 matrix-vector product function to either a solver-provided
@@ -27256,7 +27349,7 @@ returning one of the generic error codes listed in section
 Usage:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{ier} \PYG{o}{=} \PYG{n}{SUNLinSolSetATimes}\PYG{p}{(}\PYG{n}{LS}\PYG{p}{,} \PYG{n}{A\PYGZus{}data}\PYG{p}{,} \PYG{n}{ATimes}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{retval} \PYG{o}{=} \PYG{n}{SUNLinSolSetATimes}\PYG{p}{(}\PYG{n}{LS}\PYG{p}{,} \PYG{n}{A\PYGZus{}data}\PYG{p}{,} \PYG{n}{ATimes}\PYG{p}{)}\PYG{p}{;}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -27278,7 +27371,7 @@ error codes listed in section {\hyperref[sunlinsol/SUNLinSol_API:sunlinsol-error
 Usage:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{ier} \PYG{o}{=} \PYG{n}{SUNLinSolSetPreconditioner}\PYG{p}{(}\PYG{n}{LS}\PYG{p}{,} \PYG{n}{Pdata}\PYG{p}{,} \PYG{n}{Pset}\PYG{p}{,} \PYG{n}{Psol}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{retval} \PYG{o}{=} \PYG{n}{SUNLinSolSetPreconditioner}\PYG{p}{(}\PYG{n}{LS}\PYG{p}{,} \PYG{n}{Pdata}\PYG{p}{,} \PYG{n}{Pset}\PYG{p}{,} \PYG{n}{Psol}\PYG{p}{)}\PYG{p}{;}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -27300,7 +27393,7 @@ generic error codes listed in section {\hyperref[sunlinsol/SUNLinSol_API:sunlins
 Usage:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{ier} \PYG{o}{=} \PYG{n}{SUNLinSolSetScalingVectors}\PYG{p}{(}\PYG{n}{LS}\PYG{p}{,} \PYG{n}{s1}\PYG{p}{,} \PYG{n}{s2}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{retval} \PYG{o}{=} \PYG{n}{SUNLinSolSetScalingVectors}\PYG{p}{(}\PYG{n}{LS}\PYG{p}{,} \PYG{n}{s1}\PYG{p}{,} \PYG{n}{s2}\PYG{p}{)}\PYG{p}{;}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -27310,7 +27403,7 @@ Usage:
 \subsection{SUNLinearSolver get functions}
 \label{sunlinsol/SUNLinSol_API:sunlinearsolver-get-functions}\label{sunlinsol/SUNLinSol_API:sunlinsol-getfn}
 The following get functions allow SUNDIALS packages to retrieve
-results from the linear solve.  All routines are optional.
+results from a linear solve.  All routines are optional.
 \index{SUNLinSolNumIters (C function)}
 
 \begin{fulllineitems}
@@ -27347,18 +27440,22 @@ Usage:
 \phantomsection\label{sunlinsol/SUNLinSol_API:c.SUNLinSolResid}\pysiglinewithargsret{N\_Vector \bfcode{SUNLinSolResid}}{SUNLinearSolver\emph{ LS}}{}
 If an iterative method computes the preconditioned initial residual
 and returns with a successful solve without performing any
-iterations (i.e. either the initial guess or the preconditioner is
+iterations (i.e., either the initial guess or the preconditioner is
 sufficiently accurate), then this \emph{optional} routine may be called
 by the SUNDIALS package.  This routine should return the \code{N\_Vector}
-containing the preconditioned initial residual vector (note: since
-\code{N\_Vector} is actually a pointer, and the results are not
-modified, this should \emph{not} require additional memory allocation).
+containing the preconditioned initial residual vector.
 
 Usage:
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{n}{rvec} \PYG{o}{=} \PYG{n}{SUNLinSolResid}\PYG{p}{(}\PYG{n}{LS}\PYG{p}{)}\PYG{p}{;}
 \end{Verbatim}
+
+Note: since \code{N\_Vector} is actually a pointer, and the results are
+not modified, this routine should \emph{not} require additional memory
+allocation.  If the SUNLinSol object does not retain a vector for
+this purpose, then this function pointer should be set to \code{NULL}
+in the implementation.
 
 \end{fulllineitems}
 
@@ -27395,7 +27492,7 @@ their total space requirements.
 Usage:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{ier} \PYG{o}{=} \PYG{n}{SUNLinSolSpace}\PYG{p}{(}\PYG{n}{LS}\PYG{p}{,} \PYG{o}{\PYGZam{}}\PYG{n}{lrw}\PYG{p}{,} \PYG{o}{\PYGZam{}}\PYG{n}{liw}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{retval} \PYG{o}{=} \PYG{n}{SUNLinSolSpace}\PYG{p}{(}\PYG{n}{LS}\PYG{p}{,} \PYG{o}{\PYGZam{}}\PYG{n}{lrw}\PYG{p}{,} \PYG{o}{\PYGZam{}}\PYG{n}{liw}\PYG{p}{)}\PYG{p}{;}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -27407,7 +27504,7 @@ Usage:
 To interface with SUNLinSol modules, the SUNDIALS packages supply a
 variety of routines for evaluating the matrix-vector product, and
 setting up and applying the preconditioniner.  These package-provided
-routines translate between the user-supplied ODE, DAE or nonlinear
+routines translate between the user-supplied ODE, DAE, or nonlinear
 systems and the generic interfaces to the linear systems of equations
 that result in their solution. The types for functions provided to a
 SUNLinSol module are defined in the header file
@@ -27690,22 +27787,27 @@ A particular implementation of the \code{SUNLinearSolver} module must:
 Specify the \emph{content} field of the SUNLinSol module.
 
 \item {} 
-Define and implement the required linear solver operations defined
-in Sections {\hyperref[sunlinsol/SUNLinSol_API:sunlinsol-corefn]{\emph{\DUspan{}{SUNLinearSolver core functions}}}} through {\hyperref[sunlinsol/SUNLinSol_API:sunlinsol-setfn]{\emph{\DUspan{}{SUNLinearSolver set functions}}}}.
+Define and implement the required linear solver operations.  See the
+section {\hyperref[sunlinsol/ARKode_requirements:sunlinsol-arkode]{\emph{\DUspan{}{ARKode SUNLinearSolver interface}}}} to determine which SUNLinSol
+operations are required for this SUNDIALS package.
+
 Note that the names of these routines should be unique to that
 implementation in order to permit using more than one
 SUNLinSol module (each with different \code{SUNLinearSolver}
 internal data representations) in the same code.
 
 \item {} 
-Define and implement a user-callable constructor to create the
-\code{SUNLinearSolver} object.
+Define and implement user-callable constructor and destructor
+routines to create and free a \code{SUNLinearSolver} with
+the new \emph{content} field and with \emph{ops} pointing to the
+new linear solver operations.
 
 \end{itemize}
 
 We note that the function pointers for all unsupported optional
-routines should be set to \code{NULL} in the \emph{ops} structure, to indicate
-to the SUNDIALS package that they are not provided.
+routines should be set to \code{NULL} in the \emph{ops} structure.  This
+allows the SUNDIALS package that is using the SUNLinSol object
+to know that the associated functionality is not supported.
 
 Additionally, a \code{SUNLinearSolver} implementation \emph{may} do the following:
 \begin{itemize}
@@ -27721,6 +27823,354 @@ Provide additional user-callable ``get'' routines acting on the
 statistics.
 
 \end{itemize}
+
+
+\subsubsection{Intended use cases}
+\label{sunlinsol/SUNLinSol_API:intended-use-cases}\label{sunlinsol/SUNLinSol_API:sunlinsol-intended}
+The SUNLinSol (and SUNMATRIX) APIs are designed to require a minimal set
+of routines to ease interfacing with custom or third-party linear solver
+libraries. External solvers provide similar routines with
+the necessary functionality and thus will require minimal effort to wrap within
+custom SUNMATRIX and SUNLinSol implementations. Sections
+{\hyperref[sunmatrix/ARKode_requirements:sunmatrix-arkode]{\emph{\DUspan{}{SUNMATRIX functions required by ARKode}}}} and {\hyperref[sunlinsol/ARKode_requirements:sunlinsol-arkode]{\emph{\DUspan{}{ARKode SUNLinearSolver interface}}}} include a list of
+the required set of routines that compatible SUNMATRIX and SUNLinSol
+implementations must provide. As SUNDIALS packages utilize generic
+SUNLinSol modules allowing for user-supplied \code{SUNLinearSolver}
+implementations, there exists a wide range of possible linear solver
+combinations. Some intended use cases for both the SUNDIALS-provided
+and user-supplied SUNLinSol modules are discussd in the following
+sections.
+
+
+\paragraph{Direct linear solvers}
+\label{sunlinsol/SUNLinSol_API:direct-linear-solvers}
+Direct linear solver modules require a matrix and compute an `exact' solution to
+the linear system \emph{defined by the matrix}. Multiple matrix formats and
+associated direct linear solvers are supplied with SUNDIALS through different
+SUNMATRIX and SUNLinSol implementations. SUNDIALS packages strive to
+amortize the high cost of matrix construction by reusing matrix information for
+multiple nonlinear iterations. As a result, each package's linear solver
+interface recomputes Jacobian information as infrequently as possible.
+
+Alternative matrix storage formats and compatible linear solvers that are not
+currently provided by or interfaced with SUNDIALS can leverage this
+infrastructure with minimal effort. To do so, a user must implement custom
+SUNMATRIX and SUNLinSol wrappers for the desired matrix format and/or linear
+solver following the APIs described in the sections {\hyperref[sunmatrix/index:sunmatrix]{\emph{\DUspan{}{Matrix Data Structures}}}}
+and {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Description of the SUNLinearSolver module}}}}.  \emph{This user-supplied SUNLinSol module must then
+self-identify as having} \code{SUNLINEARSOLVER\_DIRECT} \emph{type}.
+
+
+\paragraph{Matrix-free iterative linear solvers}
+\label{sunlinsol/SUNLinSol_API:matrix-free-iterative-linear-solvers}
+Matrix-free iterative linear solver modules do not require a matrix and compute
+an inexact solution to the linear system \emph{defined by the package-supplied}
+\code{ATimes} \emph{routine}. SUNDIALS supplies multiple scaled, preconditioned
+iterative linear solver (spils) SUNLinSol modules that support scaling to
+allow users to handle non-dimensionalization (as best as possible) within each
+SUNDIALS package and retain variables and define equations as desired in
+their applications. For linear solvers that do not support left/right scaling,
+the tolerance supplied to the linear solver is adjusted to compensate (see
+section {\hyperref[sunlinsol/ARKode_requirements:sunlinsol-iterative-tolerance]{\emph{\DUspan{}{Iterative linear solver tolerance}}}} for more details); however, this
+use case may be non-optimal and cannot handle situations where the magnitudes of
+different solution components or equations vary dramatically within a single
+problem.
+
+To utilize alternative linear solvers that are not currently provided by or
+interfaced with SUNDIALS a user must implement a custom SUNLinSol wrapper
+for the linear solver following the API described in the section
+{\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Description of the SUNLinearSolver module}}}}.  \emph{This user-supplied SUNLinSol module must then
+self-identify as having} \code{SUNLINEARSOLVER\_ITERATIVE} \emph{type}.
+
+
+\paragraph{Matrix-based iterative linear solvers (reusing \(A\))}
+\label{sunlinsol/SUNLinSol_API:matrix-based-iterative-linear-solvers-reusing}
+Matrix-based iterative linear solver modules require a matrix and compute an
+inexact solution to the linear system \emph{defined by the matrix}.  This
+matrix will be updated infrequently and resued across multiple solves
+to amortize cost of matrix construction. As in the direct linear
+solver case, only wrappers for the matrix and linear solver in
+SUNMATRIX and SUNLinSol implementations need to be created to utilize
+a new linear solver. \emph{This user-supplied SUNLinSol module must then
+self-identify as having} \code{SUNLINEARSOLVER\_MATRIX\_ITERATIVE} \emph{type}.
+
+At present, SUNDIALS has one example problem that uses this approach for
+wrapping a structured-grid matrix, linear solver, and preconditioner from the
+\emph{hypre} library that may be used as a template for other customized
+implementations
+(see \code{examples/arkode/CXX\_parhyp/ark\_heat2D\_hypre.cpp}).
+
+
+\paragraph{Matrix-based iterative linear solvers (current \(A\))}
+\label{sunlinsol/SUNLinSol_API:matrix-based-iterative-linear-solvers-current}
+For users who wish to utilize a matrix-based iterative linear solver module
+where the matrix is \emph{purely for preconditioning} and the linear system is
+\emph{defined by the package-supplied} \code{ATimes} \emph{routine}, we envision two
+current possibilities.
+
+The preferred approach is for users to employ one of the SUNDIALS
+scaled, preconditioned iterative linear solver (spils) implementations
+({\hyperref[sunlinsol/SUNLinSol_SPGMR:c.SUNLinSol_SPGMR]{\emph{\code{SUNLinSol\_SPGMR()}}}}, {\hyperref[sunlinsol/SUNLinSol_SPFGMR:c.SUNLinSol_SPFGMR]{\emph{\code{SUNLinSol\_SPFGMR()}}}},
+{\hyperref[sunlinsol/SUNLinSol_SPBCGS:c.SUNLinSol_SPBCGS]{\emph{\code{SUNLinSol\_SPBCGS()}}}}, {\hyperref[sunlinsol/SUNLinSol_SPTFQMR:c.SUNLinSol_SPTFQMR]{\emph{\code{SUNLinSol\_SPTFQMR()}}}}, or
+{\hyperref[sunlinsol/SUNLinSol_PCG:c.SUNLinSol_PCG]{\emph{\code{SUNLinSol\_PCG()}}}}) as the outer solver. The creation and storage of the
+preconditioner matrix, and interfacing with the corresponding linear solver, can
+be handled through a package's preconditioner `setup' and `solve' functionality
+(see the sections {\hyperref[ARKStep_c_interface/User_supplied:arkstep-cinterface-precsetupfn]{\emph{\DUspan{}{Preconditioner setup (iterative linear solvers)}}}} and
+{\hyperref[ARKStep_c_interface/User_supplied:arkstep-cinterface-precsolvefn]{\emph{\DUspan{}{Preconditioner solve (iterative linear solvers)}}}}, respectively) without creating
+SUNMATRIX and SUNLinSol implementations. This usage mode is
+recommended primarily because the SUNDIALS-provided spils modules
+support the scaling as described above.
+
+A second approach supported by the linear solver APIs is as follows. If the
+SUNLinSol implementation is matrix-based, \emph{self-identifies
+as having} \code{SUNLINEARSOLVER\_ITERATIVE} \emph{type}, and \emph{also provides a non-NULL
+:c:func:{}`SUNLinSolSetATimes(){}` routine}, then each SUNDIALS package
+will call that routine to attach its package-specific matrix-vector
+product routine to the SUNLinSol object. The SUNDIALS package will
+then call the SUNLinSol-provided {\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolSetup]{\emph{\code{SUNLinSolSetup()}}}} routine
+(infrequently) to update matrix information, but will provide current
+matrix-vector products to the SUNLinSol implementation through the
+package-supplied \code{ATimesFn} routine.
+
+
+\section{ARKode SUNLinearSolver interface}
+\label{sunlinsol/ARKode_requirements::doc}\label{sunlinsol/ARKode_requirements:sunlinsol-arkode}\label{sunlinsol/ARKode_requirements:arkode-sunlinearsolver-interface}
+In the table below, we list the SUNLinSol module linear solver
+functions used within the ARKLS interface.  As with the SUNMATRIX module, we
+emphasize that the ARKode user does not need to know detailed usage of linear
+solver functions by the ARKode code modules in order to use ARKode. The
+information is presented as an implementation detail for the interested reader.
+
+The linear solver functions listed below are marked with ``X'' to
+indicate that they are required, or with ``O'' to indicate that they are
+only called if they are non-\code{NULL} in the \code{SUNLinearSolver}
+implementation that is being used.  Note:
+\begin{enumerate}
+\item {} 
+{\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolNumIters]{\emph{\code{SUNLinSolNumIters()}}}} is only used to accumulate overall
+iterative linear solver statistics.  If it is not implemented by
+the \code{SUNLinearSolver} module, then ARKLS will consider all
+solves as requiring zero iterations.
+
+\item {} 
+Although {\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolResNorm]{\emph{\code{SUNLinSolResNorm()}}}} is optional, if it is not
+implemented by the \code{SUNLinearSolver} then ARKLS will consider all
+solves a being \emph{exact}.
+
+\item {} 
+Although ARKLS does not call {\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolLastFlag]{\emph{\code{SUNLinSolLastFlag()}}}}
+directly, this routine is available for users to query linear
+solver failure modes directly.
+
+\item {} 
+Although ARKLS does not call {\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolFree]{\emph{\code{SUNLinSolFree()}}}}
+directly, this routine should be available for users to call when
+cleaning up from a simulation.
+
+\end{enumerate}
+
+\begin{tabulary}{\linewidth}{|L|L|L|L|}
+\hline
+\textsf{\relax 
+Routine
+} & \textsf{\relax 
+DIRECT
+} & \textsf{\relax 
+ITERATIVE
+} & \textsf{\relax 
+MATRIX\_ITERATIVE
+}\\
+\hline
+SUNLinSolGetType
+ & 
+X
+ & 
+X
+ & 
+X
+\\
+\hline
+SUNLinSolSetATimes
+ & 
+O
+ & 
+X
+ & 
+O
+\\
+\hline
+SUNLinSolSetPreconditioner
+ & 
+O
+ & 
+O
+ & 
+O
+\\
+\hline
+SUNLinSolSetScalingVectors
+ & 
+O
+ & 
+O
+ & 
+O
+\\
+\hline
+SUNLinSolInitialize
+ & 
+X
+ & 
+X
+ & 
+X
+\\
+\hline
+SUNLinSolSetup
+ & 
+X
+ & 
+X
+ & 
+X
+\\
+\hline
+SUNLinSolSolve
+ & 
+X
+ & 
+X
+ & 
+X
+\\
+\hline
+SUNLinSolNumIters$^{\text{1}}$
+ &  & 
+O
+ & 
+O
+\\
+\hline
+SUNLinSolResNorm$^{\text{2}}$
+ &  & 
+O
+ & 
+O
+\\
+\hline
+SUNLinSolLastFlag$^{\text{3}}$
+ &  &  & \\
+\hline
+SUNLinSolFree$^{\text{4}}$
+ &  &  & \\
+\hline
+SUNLinSolSpace
+ & 
+O
+ & 
+O
+ & 
+O
+\\
+\hline\end{tabulary}
+
+
+Since there are a wide range of potential SUNLinSol use cases, the following
+subsections describe some details of the ARKLS interface, in the case that
+interested users wish to develop custom SUNLinSol modules.
+
+
+\subsection{Lagged matrix information}
+\label{sunlinsol/ARKode_requirements:lagged-matrix-information}\label{sunlinsol/ARKode_requirements:sunlinsol-lagged-matrix}
+If the SUNLinSol identifies as having type
+\code{SUNLINEARSOLVER\_DIRECT} or \code{SUNLINEARSOLVER\_MATRIX\_ITERATIVE},
+then the SUNLinSol object solves a
+linear system \emph{defined} by a SUNMATRIX object. ARKLS will update the
+matrix information infrequently according to the strategies outlined in
+the section {\hyperref[Mathematics:mathematics-linear-setup]{\emph{\DUspan{}{Updating the linear solver}}}}. When solving a linear
+system
+\begin{gather}
+\begin{split}\tilde{\mathcal A} \tilde{x} = b \quad\Leftrightarrow\quad (M-\tilde{\gamma} J)\tilde{x} = b\end{split}\notag
+\end{gather}
+it is likely that the value \(\tilde{\gamma}\) used to construct
+\(\tilde{\mathcal A}\) differs from the current value of
+\(\gamma\) in the RK method, since \(\tilde{\mathcal A}\) is
+updated infrequently.  Therefore, after calling the SUNLinSol-provided
+{\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolSolve]{\emph{\code{SUNLinSolSolve()}}}} routine, we test whether \(\gamma /
+\tilde{\gamma} \ne 1\), and if this is the case we scale the solution
+\(\tilde{x}\) to obtain the desired linear system solution
+\(x\) via
+\phantomsection\label{sunlinsol/ARKode_requirements:equation-eq:rescaling}\begin{gather}
+\begin{split}x = \frac{2}{1 + \gamma / \tilde{\gamma}} \tilde{x}.\end{split}\label{sunlinsol/ARKode_requirements-eq:rescaling}
+\end{gather}
+For values of \(\gamma/\tilde{\gamma}\) that are ``close'' to 1, this
+rescaling approximately solves the original linear system, as
+discussed below.  We first note that the equation \eqref{sunlinsol/ARKode_requirements-eq:rescaling}
+is equivalent to
+\begin{gather}
+\begin{split}\tilde{x} = \frac12 x + \frac{\gamma}{\tilde{\gamma}}x.\end{split}\notag
+\end{gather}
+Adding the two equations \((M-\gamma J)x=b\) and
+\((M-\tilde{\gamma}J)\tilde{x}=b\), and inserting the above
+relationship, we have
+\begin{gather}
+\begin{split}2b &= (M-\gamma J)x + (M-\tilde{\gamma}J) \\
+   &= Mx - \gamma Jx + M\tilde{x} - J\left(\tilde{\gamma}\tilde{x}\right)\\
+   &= \frac32\left(M - \gamma J\right)x + \frac12\left(\frac{\gamma}{\tilde{\gamma}}M - \tilde{\gamma} J\right)x\\
+   &= \frac32 b + \frac12\left(\frac{\gamma}{\tilde{\gamma}}M - \tilde{\gamma} J\right)x.\end{split}\notag
+\end{gather}
+When \(\gamma/\tilde{\gamma}\approx 1\), this latter term is
+approximately equal to \(\frac12 b\).
+
+
+\subsection{Iterative linear solver tolerance}
+\label{sunlinsol/ARKode_requirements:iterative-linear-solver-tolerance}\label{sunlinsol/ARKode_requirements:sunlinsol-iterative-tolerance}
+If the SUNLinSol object self-identifies as having type
+\code{SUNLINEARSOLVER\_ITERATIVE} or \code{SUNLINEARSOLVER\_MATRIX\_ITERATIVE},
+then ARKLS will set the input tolerance \code{delta} as described in
+{\hyperref[Mathematics:mathematics-error-linear]{\emph{\DUspan{}{Linear iteration error control}}}}.  However, if the iterative linear
+solver does not support scaling matrices (i.e., the
+{\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolSetScalingVectors]{\emph{\code{SUNLinSolSetScalingVectors()}}}} routine is \code{NULL}), then
+ARKLS will attempt to adjust the linear solver tolerance to account
+for this lack of functionality.  To this end, the following
+assumptions are made:
+\begin{itemize}
+\item {} 
+The units of the IVP solution and linear residual are the same
+(i.e., the error and residual weight vectors in section
+{\hyperref[Mathematics:mathematics-error-norm]{\emph{\DUspan{}{Error norms}}}} are the same); this is automatically
+satisfied with identity mass matrix, \(M=I\), or similar.
+
+\item {} 
+All solution components have similar magnitude; hence the error
+weight vector \(w\) used in the WRMS norm (see the section
+{\hyperref[Mathematics:mathematics-error-norm]{\emph{\DUspan{}{Error norms}}}}) should satisfy the assumption
+\begin{gather}
+\begin{split}w_i \approx w_{mean},\quad \text{for}\quad i=0,\ldots,n-1.\end{split}\notag
+\end{gather}
+\item {} 
+The SUNLinSol object uses a standard 2-norm to measure convergence.
+
+\end{itemize}
+
+Under these assumptions, ARKLS uses identical left and right scaling matrices,
+\(S_1 = S_2 = S = \operatorname{diag}(w)\), so the linear solver
+convergence requirement is converted as follows
+(using the notation from the beginning of this chapter):
+\begin{gather}
+\begin{split}&\left\| \tilde{b} - \tilde{A} \tilde{x} \right\|_2  <  \text{tol}\\
+\Leftrightarrow \quad & \left\| S P_1^{-1} b - S P_1^{-1} A x \right\|_2  <  \text{tol}\\
+\Leftrightarrow \quad & \sum_{i=0}^{n-1} \left[w_i \left(P_1^{-1} (b - A x)\right)_i\right]^2  <  \text{tol}^2\\
+\Leftrightarrow \quad & w_{mean}^2 \sum_{i=0}^{n-1} \left[\left(P_1^{-1} (b - A x)\right)_i\right]^2  <  \text{tol}^2\\
+\Leftrightarrow \quad & \sum_{i=0}^{n-1} \left[\left(P_1^{-1} (b - A x)\right)_i\right]^2  <  \left(\frac{\text{tol}}{w_{mean}}\right)^2\\
+\Leftrightarrow \quad & \left\| P_1^{-1} (b - A x)\right\|_2  <  \frac{\text{tol}}{w_{mean}}\end{split}\notag
+\end{gather}
+Therefore the tolerance scaling factor
+\begin{gather}
+\begin{split}w_{mean} = \|w\|_2 / \sqrt{n}\end{split}\notag
+\end{gather}
+is computed and the scaled tolerance \code{delta} \(= \text{tol} /
+w_{mean}\) is supplied to the SUNLinSol object.
 
 
 \section{The SUNLinSol\_Dense Module}
@@ -31625,139 +32075,6 @@ similarly \code{Test\_SUNLinSolNumIters}, \code{Test\_SUNLinSolResNorm}
 and \code{Test\_SUNLinSolResid} should be called
 after \code{Test\_SUNLinSolSolve}.  These are called in the appropriate
 order in all of the example problems.
-
-
-\section{SUNLinearSolver functions required by ARKode}
-\label{sunlinsol/ARKode_requirements:sunlinearsolver-functions-required-by-arkode}\label{sunlinsol/ARKode_requirements::doc}\label{sunlinsol/ARKode_requirements:sunlinsol-arkode}
-In the table below, we list the linear solver functions in the
-\code{SUNLinearSolver} module used within ARKode's ARKLS linear solver
-interface.  In general, ARKLS considers two non-overlapping categories
-of linear solvers: \emph{matrix-based} and \emph{matrix-free}, determined based
-on whether the \code{SUNMatrix} object (\emph{J} or \emph{M}) passed to
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetLinearSolver]{\emph{\code{ARKStepSetLinearSolver()}}}} or
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetMassLinearSolver]{\emph{\code{ARKStepSetMassLinearSolver()}}}} was not \code{NULL}.
-
-Additionally, ARKLS will consider a linear solver of either type as
-\emph{iterative} if it self-identifies as \code{SUNLINEARSOLVER\_ITERATIVE}
-(via the {\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolGetType]{\emph{\code{SUNLinSolGetType()}}}} routine).  Since both
-matrix-based and matrix-free linear solvers may be iterative, we only
-list \code{SUNLinearSolver} routines that are specifically called based
-on this type; these routines are \emph{in addition to} those listed for the
-other two categories.
-
-As with the \code{SUNMatrix} module, we emphasize that the ARKode user
-does not need to know detailed usage of linear solver functions by the
-ARKode code modules in order to use ARKode. The information is
-presented as an implementation detail for the interested reader.
-
-The linear solver functions listed below are marked with ``X'' to
-indicate that they are required, or with ``O'' to indicate that they are
-only called if they are non-\code{NULL} in the \code{SUNLinearSolver}
-implementation that is being used.
-
-\begin{tabulary}{\linewidth}{|L|L|L|L|}
-\hline
-\textsf{\relax 
-Routine
-} & \textsf{\relax 
-Matrix-Based
-} & \textsf{\relax 
-Matrix-Free
-} & \textsf{\relax 
-Iterative
-}\\
-\hline
-SUNLinSolGetType
- & 
-X
- & 
-X
- & \\
-\hline
-SUNLinSolSetATimes
- &  & 
-X
- & \\
-\hline
-SUNLinSolSetPreconditioner
- &  &  & 
-O
-\\
-\hline
-SUNLinSolSetScalingVectors
- & 
-O
- & 
-O
- & \\
-\hline
-SUNLinSolInitialize
- & 
-X
- & 
-X
- & \\
-\hline
-SUNLinSolSetup
- & 
-X
- & 
-X
- & \\
-\hline
-SUNLinSolSolve
- & 
-X
- & 
-X
- & \\
-\hline
-SUNLinSolNumIters$^{\text{1}}$
- &  &  & 
-O
-\\
-\hline
-SUNLinSolResNorm$^{\text{2}}$
- &  &  & 
-O
-\\
-\hline
-SUNLinSolLastFlag$^{\text{3}}$
- &  &  & \\
-\hline
-SUNLinSolFree
- & 
-X
- & 
-X
- & \\
-\hline
-SUNLinSolSpace
- & 
-O
- & 
-O
- & \\
-\hline\end{tabulary}
-
-\begin{enumerate}
-\item {} 
-{\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolNumIters]{\emph{\code{SUNLinSolNumIters()}}}} is only used to accumulate overall
-iterative linear solver statistics.  If it is not implemented by
-the \code{SUNLinearSolver} module, then ARKLS will consider all
-solves as requiring zero iterations.
-
-\item {} 
-Although {\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolResNorm]{\emph{\code{SUNLinSolResNorm()}}}} is optional, if it is not
-implemented by the \code{SUNLinearSolver} then ARKLS will consider all
-solves a being \emph{exact}.
-
-\item {} 
-Although ARKLS does not call {\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolLastFlag]{\emph{\code{SUNLinSolLastFlag()}}}}
-directly, this routine is available for users to query linear
-solver failure modes directly.
-
-\end{enumerate}
 
 
 \chapter{Nonlinear Solver Data Structures}

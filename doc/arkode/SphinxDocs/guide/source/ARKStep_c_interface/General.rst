@@ -174,9 +174,8 @@ iteration), then a linear solver module header file will also
 be required.  Similarly, if the ODE system involves a non-identity
 mass matrix :math:`M \ne I`, then each time step will require a linear
 solver for systems of the form :math:`Mx=b`.  The header files
-corresponding to the linear
-solver modules available for use with ARKode for either the Newton
-solver or for mass-matrix solves, are: 
+corresponding to the SUNDIALS-provided linear solver modules available
+for use with ARKode are:
 
 - Direct linear solvers:
 
@@ -189,20 +188,20 @@ solver or for mass-matrix solves, are:
     SUNLINSOL_BAND;
 
   - ``sunlinsol/sunlinsol_lapackdense.h``,
-    which is used with the LAPACK dense linear solver interface module,
+    which is used with the LAPACK dense linear solver module,
     SUNLINSOL_LAPACKDENSE;
 
   - ``sunlinsol/sunlinsol_lapackband.h``,
-    which is used with the LAPACK banded linear solver interface module,
+    which is used with the LAPACK banded linear solver module,
     SUNLINSOL_LAPACKBAND;
 
   - ``sunlinsol/sunlinsol_klu.h``,
-    which is used with the KLU sparse linear solver interface module,
+    which is used with the KLU sparse linear solver module,
     SUNLINSOL_KLU;
 
   - ``sunlinsol/sunlinsol_superlumt.h``,
-    which is used with the SuperLU_MT sparse linear solver interface
-    module, SUNLINSOL_SUPERLUMT;
+    which is used with the SuperLU_MT sparse linear solver module,
+    SUNLINSOL_SUPERLUMT; 
 
 - Iterative linear solvers:
 

@@ -51,7 +51,6 @@
 #include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
 #include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
-#include <idas/idas_direct.h>          /* access to IDADls interface           */
 #include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
 #include <sundials/sundials_math.h>    /* defs. of SUNRabs, SUNRexp, etc.      */
 
@@ -207,8 +206,8 @@ int main(int argc, char *argv[])
   if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
-  retval = IDADlsSetLinearSolver(ida_mem, LS, A);
-  if(check_retval(&retval, "IDADlsSetLinearSolver", 1)) return(1);
+  retval = IDASetLinearSolver(ida_mem, LS, A);
+  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
 
   printf("\n3-species chemical kinetics problem\n");
 
@@ -757,10 +756,10 @@ static void PrintFinalStats(void *ida_mem, booleantype sensi)
     check_retval(&retval, "IDAGetSensNumNonlinSolvConvFails", 1);
   }
 
-  retval = IDADlsGetNumJacEvals(ida_mem, &nje);
-  check_retval(&retval, "IDADlsGetNumJacEvals", 1);
-  retval = IDADlsGetNumResEvals(ida_mem, &nfeLS);
-  check_retval(&retval, "IDADlsGetNumResEvals", 1);
+  retval = IDAGetNumJacEvals(ida_mem, &nje);
+  check_retval(&retval, "IDAGetNumJacEvals", 1);
+  retval = IDAGetNumLinResEvals(ida_mem, &nfeLS);
+  check_retval(&retval, "IDAGetNumLinResEvals", 1);
 
   printf("\nFinal Statistics\n\n");
   printf("nst     = %5ld\n\n", nst);

@@ -1,15 +1,15 @@
-/*----------------------------------------------------------------- 
+/*-----------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
  *                Alan C. Hindmarsh and Radu Serban @ LLNL
  *-----------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2018, Southern Methodist University and 
+ * Copyright (c) 2018, Southern Methodist University and
  * Lawrence Livermore National Security
  *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Southern Methodist University and Lawrence Livermore
  * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
+ * Produced at Southern Methodist University and the Lawrence
  * Livermore National Laboratory.
  *
  * All rights reserved.
@@ -33,19 +33,19 @@ extern "C" {
 /*-----------------------------------------------------------------
   CVLS solver constants
 
-  CVLS_MSBJ   maximum number of steps between Jacobian and/or 
+  CVLS_MSBJ   maximum number of steps between Jacobian and/or
               preconditioner evaluations
-  CVLS_DGMAX  maximum change in gamma between Jacobian and/or 
+  CVLS_DGMAX  maximum change in gamma between Jacobian and/or
               preconditioner evaluations
   CVLS_EPLIN  default value for factor by which the tolerance on
-              the nonlinear iteration is multiplied to get a 
+              the nonlinear iteration is multiplied to get a
               tolerance on the linear iteration
   -----------------------------------------------------------------*/
 #define CVLS_MSBJ   50
 #define CVLS_DGMAX  RCONST(0.2)
 #define CVLS_EPLIN  RCONST(0.05)
 
-  
+
 /*-----------------------------------------------------------------
   Types : CVLsMemRec, CVLsMem
 
@@ -75,7 +75,7 @@ typedef struct CVLsMemRec {
   /* Statistics and associated parameters */
   long int msbj;      /* max num steps between jac/pset calls         */
   long int nje;       /* nje = no. of calls to jac                    */
-  long int nfeDQ;     /* no. of calls to f due to DQ Jacobian or J*v 
+  long int nfeDQ;     /* no. of calls to f due to DQ Jacobian or J*v
                          approximations                               */
   long int nstlj;     /* nstlj = nst at last jac/pset call            */
   long int npe;       /* npe = total number of pset calls             */
@@ -131,17 +131,17 @@ int cvLsDQJtimes(N_Vector v, N_Vector Jv, realtype t,
 /* Difference-quotient Jacobian approximation routines */
 int cvLsDQJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix Jac,
               void *data, N_Vector tmp1, N_Vector tmp2, N_Vector tmp3);
-int cvLsDenseDQJac(realtype t, N_Vector y, N_Vector fy, 
+int cvLsDenseDQJac(realtype t, N_Vector y, N_Vector fy,
                    SUNMatrix Jac, CVodeMem cv_mem, N_Vector tmp1);
-int cvLsBandDQJac(realtype t, N_Vector y, N_Vector fy, 
-                  SUNMatrix Jac, CVodeMem cv_mem, N_Vector tmp1, 
+int cvLsBandDQJac(realtype t, N_Vector y, N_Vector fy,
+                  SUNMatrix Jac, CVodeMem cv_mem, N_Vector tmp1,
                   N_Vector tmp2);
-  
+
 /* Generic linit/lsetup/lsolve/lfree interface routines for CVode to call */
 int cvLsInitialize(CVodeMem cv_mem);
 int cvLsSetup(CVodeMem cv_mem, int convfail, N_Vector ypred,
               N_Vector fpred, booleantype *jcurPtr,
-              N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3); 
+              N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3);
 int cvLsSolve(CVodeMem cv_mem, N_Vector b, N_Vector weight,
               N_Vector ycur, N_Vector fcur);
 int cvLsFree(CVodeMem cv_mem);

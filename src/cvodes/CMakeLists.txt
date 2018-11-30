@@ -29,8 +29,7 @@ SET(cvodes_SOURCES
   cvodes_bbdpre.c
   cvodes_io.c
   cvodes_diag.c
-  cvodes_direct.c
-  cvodes_spils.c
+  cvodes_ls.c
   cvodes_nls.c
   cvodes_nls_sim.c
   cvodes_nls_stg.c
@@ -88,6 +87,7 @@ SET(cvodes_HEADERS
   cvodes_bbdpre.h
   cvodes_diag.h
   cvodes_direct.h
+  cvodes_ls.h
   cvodes_spils.h
   )
 

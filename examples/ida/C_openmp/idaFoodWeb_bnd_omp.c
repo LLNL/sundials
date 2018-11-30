@@ -207,7 +207,7 @@ int main(int argc, char *argv[])
   UserData webdata;
   N_Vector cc, cp, id;
   int iout, retval;
-  sunindextype mu, ml, smu;
+  sunindextype mu, ml;
   realtype rtol, atol, t0, tout, tret;
   int num_threads;
 
@@ -273,8 +273,7 @@ int main(int argc, char *argv[])
   /* Setup band matrix and linear solver, and attach to IDA. */
 
   mu = ml = NSMX;
-  smu = mu+ml;
-  A = SUNBandMatrix(NEQ, mu, ml, smu);
+  A = SUNBandMatrix(NEQ, mu, ml);
   if(check_retval((void *)A, "SUNBandMatrix", 0)) return(1);
   LS = SUNLinSol_Band(cc, A);
   if(check_retval((void *)LS, "SUNLinSol_Band", 0)) return(1);

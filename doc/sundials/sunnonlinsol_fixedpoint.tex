@@ -235,10 +235,12 @@ allocated:
                       all solves.
   \item[m]          - number of acceleration vectors,
 \end{args}
-If Anderson acceleration is requested (i.e., $m>0$ in the call to
+\vspace{1em}
+
+\noindent If Anderson acceleration is requested (i.e., $m>0$ in the call to
 \ID{SUNNonlinSol\_FixedPoint}), then the following items are also
 allocated within the \emph{content} field:
-\begin{args}[Xvecs]
+\begin{args}[maxiters]
   \item[imap]  - index array used in acceleration algorithm (length \id{m})
   \item[R]     - small matrix used in acceleration algorithm (length \id{m*m})
   \item[gamma] - small vector used in acceleration algorithm (length \id{m})

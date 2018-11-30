@@ -381,13 +381,13 @@ used throughout the solution process.
 
 Matrix-free ``SUNLinearSolver`` modules instead use iterative methods
 to solve the Newton systems of equations, and only require the
-*action* of the Jacobian on a vector, :math:`Jv`.  With most of these
-methods, preconditioning can be done on the left only, on the right
-only, on both the left and the right, or not at all.  The exceptions
-to this rule are SPFGMR that supports right preconditioning only and
-PCG that performs symmetric preconditioning.  For the specification
-of a preconditioner, see the iterative linear solver portions of the
-sections :ref:`ARKStep_CInterface.OptionalInputs` and
+*action* of the matrix on a vector, :math:`{\mathcal A}v`.  With most
+of these methods, preconditioning can be done on the left only, on the
+right only, on both the left and the right, or not at all.  The
+exceptions to this rule are SPFGMR that supports right preconditioning
+only and PCG that performs symmetric preconditioning.  For the
+specification of a preconditioner, see the iterative linear solver
+portions of the sections :ref:`ARKStep_CInterface.OptionalInputs` and
 :ref:`ARKStep_CInterface.UserSupplied`.
 
 If preconditioning is done, user-supplied functions should be used to
@@ -1393,8 +1393,10 @@ Specify additive RK table numbers  :c:func:`ARKStepSetARKTableNum()`  internal
 
    When only one table is provided (i.e., *Bi* or *Be* is ``NULL``) then the
    input values of *q* and *p* are ignored and the global order of the method
-   and embedding (if applicable) are obtained Butcher tables. If both *Bi* and
-   *Be* are non-NULL then the input values of *q* and *p* are used. No error
+   and embedding (if applicable) are obtained from the Butcher table
+   structures. If both *Bi* and *Be* are non-NULL (e.g, an IMEX method is
+   provided) then the input values of *q* and *p* are used as the order of the
+   ARK method may be less than the orders of the individual tables. No error
    checking is performed to ensure that either *p* or *q* correctly describe the
    coefficients that were input.
 

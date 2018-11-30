@@ -210,27 +210,25 @@ Steps that are unchanged from the skeleton programs presented in
   
   Note that it is not required to use the same linear solver module for both the forward 
   and the backward problems; for example, the forward problem could be solved
-  with the {\idadls} linear solver module and the backward problem with {\idaspils} linear solver module.
+  with the {\sunlinsoldense} linear solver module and the backward
+  problem with {\sunlinsolspgmr} linear solver module. 
 
 \item
   {\bf Set linear solver interface optional inputs for the backward problem}
 
-  Call \id{IDADlsSet*B} or \id{IDASpilsSet*B} functions to change optional
-  inputs specific to that linear solver interface. 
-  See \S\ref{ss:optional_input_b} for details.
+  Call \id{IDASet*B} functions to change optional inputs specific to
+  the linear solver interface. See \S\ref{ss:optional_input_b} for details.
 
 \item\label{i:lin_solver_interfaceB}
   {\bf Attach linear solver module for the backward problem}
 
   If a nonlinear solver requiring a linear solver is chosen for the backward
-  problem (e.g., the default Newton iteration), then initialize the {\idadls} or
-  {\idaspils} linear solver interface by attaching the linear solver object (and
-  matrix object, if applicable) with one of the following calls (for details see
+  problem (e.g., the default Newton iteration), then initialize the
+  {\idals} linear solver interface by attaching the linear solver
+  object (and matrix object, if applicable) with the following call (for details see
   \S\ref{sss:lin_solv_init}):
 
-  \id{ier = }\Id{IDADlsSetLinearSolverB}\id{(...);}
-
-  \id{ier = }\Id{IDASpilsSetLinearSolverB}\id{(...);}
+  \id{ier = }\Id{IDASetLinearSolverB}\id{(...);}
 
 \item
   {\bf Create nonlinear solver object for the backward problem} (\textit{optional})
@@ -916,21 +914,19 @@ call to \id{IDAInitB} or \id{IDAInitBS}.
 All {\idas} linear solver modules available for forward problems
 are available for the backward problem.  They should be created as 
 for the forward problem then attached to the memory structure for the backward
-problem using one of the following functions.
+problem using the following function.
 
-\index{IDAS@{\idas} linear solver interfaces!IDADLS@{\idadls}}
-\ucfunction{IDADlsSetLinearSolverB}
+\index{IDAS@{\idas} linear solver interface!IDALS@{\idals}}
+\ucfunction{IDASetLinearSolverB}
 {
-  flag = IDADlsSetLinearSolverB(ida\_mem, which, LS, A);
+  flag = IDASetLinearSolverB(ida\_mem, which, LS, A);
 }
 {
-  The function \ID{IDADlsSetLinearSolverB} attaches a direct
+  The function \ID{IDASetLinearSolverB} attaches a generic
   {\sunlinsol} object \id{LS} and corresponding template
-  Jacobian {\sunmatrix} object \id{A} to {\idas}, initializing the
-  {\idadls} direct linear solver interface for solution of the backward 
-  problem.
-
-  The user's main program must include the \id{idas\_direct.h} header file.
+  Jacobian {\sunmatrix} object \id{A} (if applicable) to {\idas},
+  initializing the {\idals} linear solver interface for solution of
+  the backward problem.
 }
 {
   \begin{args}[ida\_mem]
@@ -942,88 +938,45 @@ problem using one of the following functions.
     {\sunlinsol} object to use for solving linear systems for the backward problem. 
   \item[A] (\id{SUNMatrix})
     {\sunmatrix} object for used as a template for the Jacobian for the backward
-    problem (must have a type compatible with the linear solver object).
+    problem (or \id{NULL} if not applicable).
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}
-  \item[\Id{IDADLS\_SUCCESS}] 
-    The {\idadls} initialization was successful.
-  \item[\Id{IDADLS\_MEM\_NULL}]
+  \item[\Id{IDALS\_SUCCESS}] 
+    The {\idals} initialization was successful.
+  \item[\Id{IDALS\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDADLS\_ILL\_INPUT}]
-    The {\idadls} solver is not compatible with the current {\nvector} module.
-  \item[\Id{IDADLS\_MEM\_FAIL}]
+  \item[\Id{IDALS\_ILL\_INPUT}]
+    The {\idals} interface is not compatible with the \id{LS} or
+    \id{A} input objects or is incompatible with the current
+    {\nvector} module.
+  \item[\Id{IDALS\_MEM\_FAIL}]
     A memory allocation request failed.
-  \item[\Id{IDADLS\_NO\_ADJ}]
+  \item[\Id{IDALS\_NO\_ADJ}]
     The function \id{IDAAdjInit} has not been previously called.
-  \item[\Id{IDADLS\_ILL\_INPUT}]
+  \item[\Id{IDALS\_ILL\_INPUT}]
     The parameter \id{which} represented an invalid identifier.
   \end{args}
 }
 {
-  The {\idadls} linear solver is not compatible with all
-  implementations of the {\sunlinsol} and {\nvector}
-  modules.  Specifically, {\idadls} requires use of a \emph{direct}
-  {\sunlinsol} object and a serial or theaded {\nvector}
-  module. Additional compatibility limitations for each 
-  {\sunlinsol} object (i.e.~{\sunmatrix} and {\nvector} object
-  compatibility) are described in Chapter \ref{s:sunlinsol}.
+  If \id{LS} is a matrix-based linear solver, then the template
+  Jacobian matrix \id{A} will be used in the solve process, so if
+  additional storage is required within the {\sunmatrix} object
+  (e.g. for factorization of a banded matrix), ensure that the input
+  object is allocated with sufficient size (see the documentation of
+  the particular {\sunmatrix} type in Chapter \ref{s:sunmatrix} for
+  further information).
+
+  The previous routines \Id{IDADlsSetLinearSolverB} and
+  \Id{IDASpilsSetLinearSolverB} are now wrappers for this routine, and may
+  still be used for backward-compatibility.  However, these will be
+  deprecated in future releases, so we recommend that users transition
+  to the new routine name soon.
 }
 %%
-
-\index{IDAS@{\idas} linear solver interfaces!IDASpils\idaspils}}
-\ucfunction{IDASpilsSetLinearSolverB}
-{
-  flag = IDASpilsSetLinearSolverB(ida\_mem, which, LS);
-}
-{
-  The function \ID{IDASpilsSetLinearSolver} attaches an iterative
-  {\sunlinsol} object \id{LS} to {\idas}, initializing the
-  {\idaspils} scaled, preconditioned, iterative linear solver
-  interface to use for the backward problem.
-
-  The user's main program must include the \id{idas\_spils.h} header
-  file.
-}
-{
-  \begin{args}[ida\_mem]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\idas} memory block.
-  \item[which] (\id{int})
-    represents the identifier of the backward problem returned by \id{IDACreateB}.
-  \item[LS] (\id{SUNLinearSolver})
-    {\sunlinsol} object to use for solving linear systems for the backward problem. 
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}
-  \item[\Id{IDASPILS\_SUCCESS}] 
-    The {\idaspils} initialization was successful.
-  \item[\Id{IDASPILS\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDASPILS\_ILL\_INPUT}]
-    The {\idaspils} solver is not compatible with the current {\nvector} module.
-  \item[\Id{IDASPILS\_MEM\_FAIL}]
-    A memory allocation request failed.
-  \item[\Id{IDASPILS\_NO\_ADJ}]
-    The function \id{IDAAdjInit} has not been previously called.
-  \item[\Id{IDASPILS\_ILL\_INPUT}]
-    The parameter \id{which} represented an invalid identifier.
-  \end{args}
-}
-{
-  The {\idaspils} linear solver interface is not compatible with all
-  implementations of the {\sunlinsol} and {\nvector}
-  modules.  Specifically, {\idaspils} requires use of an
-  \emph{iterative} {\sunlinsol} object.  Additional compatibility
-  limitations for each {\sunlinsol} object (i.e.~required {\nvector}
-  routines) are described in Chapter \ref{s:sunlinsol}.
-}
 %%
-
 
 %%---------------------------------------------------------------------
 \subsection{Initial condition calculation functions for backward problem}
@@ -1341,22 +1294,26 @@ has not been called, or \Id{IDA\_ILL\_INPUT} if \id{which} was an invalid identi
 %%
 %%==================================================================================
 %%
-\subsubsection{Direct linear solver interface optional input functions}
-\index{optional input!direct linear solver interface|(}
-\index{IDADLS@{\idadls} linear solver interface!optional input|(}
-If using a direct linear solver interface for the Jacobian of the backward problem,
-the linear solver will need to be attached to the memory structure through
-a call to \id{IDADlsSetLinearSolverB}.  The Jacobian evaluation function can
-be attached through a call to either \id{IDADlsSetJacFnB} or \ida{IDADlsSetJacFnBS},
-with the second used when the backward problem depends on the forwrad sensitivities.
+\subsubsection{Linear solver interface optional input functions}
+\index{optional input!generic linear solver interface|(}
+\index{IDALS@{\idals} linear solver interface!optional input|(}
+
+\index{optional input!matrix-based linear solver|(}
+When using matrix-based linear solver modules for the backward
+problem, i.e., a non-\id{NULL} {\sunmatrix} object \id{A} was passed
+to \id{IDASetLinearSolverB}, the {\idals} linear solver interface
+needs a function to compute an approximation to the Jacobian matrix.
+This can be attached through a call to either \id{IDASetJacFnB} or
+\ida{IDASetJacFnBS}, with the second used when the backward problem
+depends on the forward sensitivities. 
 %%
-\index{Jacobian approximation function!user-supplied}
-\ucfunction{IDADlsSetJacFnB}
+\index{Jacobian approximation function!user-supplied (backward)}
+\ucfunction{IDASetJacFnB}
 {
-  flag = IDADlsSetJacFnB(ida\_mem, which, jacB);
+  flag = IDASetJacFnB(ida\_mem, which, jacB);
 }
 {
-  The function \ID{IDADlsSetJacFnB} specifies the Jacobian
+  The function \ID{IDASetJacFnB} specifies the Jacobian
   approximation function to be used for the backward problem.
 }
 {
@@ -1365,37 +1322,41 @@ with the second used when the backward problem depends on the forwrad sensitivit
     pointer to the {\idas} memory block.
   \item[which] (\id{int})
     represents the identifier of the backward problem.
-  \item[jacB] (\id{IDADlsJacFnB})
+  \item[jacB] (\id{IDALsJacFnB})
     user-defined Jacobian approximation function.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}
-  \item[\Id{IDADLS\_SUCCESS}] 
-    \id{IDADlsSetDlsJacFnB} succeeded.
-  \item[\Id{IDADLS\_MEM\_NULL}]
+  \item[\Id{IDALS\_SUCCESS}] 
+    \id{IDASetJacFnB} succeeded.
+  \item[\Id{IDALS\_MEM\_NULL}]
     The \id{ida\_mem} was \id{NULL}.
-  \item[\Id{IDADLS\_NO\_ADJ}]
+  \item[\Id{IDALS\_NO\_ADJ}]
     The function \id{IDAAdjInit} has not been previously called.
-  \item[\Id{IDADLS\_LMEM\_NULL}]
+  \item[\Id{IDALS\_LMEM\_NULL}]
     The linear solver has not been initialized with a call to \\ \noindent
-    \id{IDADlsSetLinearSolverB}.
-  \item[\Id{IDADLS\_ILL\_INPUT}]
+    \id{IDASetLinearSolverB}.
+  \item[\Id{IDALS\_ILL\_INPUT}]
     The parameter \id{which} represented an invalid identifier.
   \end{args}
 }
 {
-  The function type \id{IDADlsJacFnB} is described in \S\ref{ss:djacFn_b}.
+  The function type \id{IDALsJacFnB} is described in \S\ref{ss:jacFn_b}.
+
+  The previous routine \Id{IDADlsSetJacFnB} is now a wrapper for this
+  routine, and may still be used for backward-compatibility.  However,
+  this will be deprecated in future releases, so we recommend that
+  users transition to the new routine name soon.
 }
 %%
-\index{Jacobian approximation function!direct!user-supplied (backward)}
-\ucfunction{IDADlsSetJacFnBS}
+\ucfunction{IDASetJacFnBS}
 {
-  flag = IDADlsSetJacFnBS(ida\_mem, which, jacBS);
+  flag = IDASetJacFnBS(ida\_mem, which, jacBS);
 }
 {
-  The function \ID{IDADlsSetJacFnB} specifies the Jacobian
+  The function \ID{IDASetJacFnBS} specifies the Jacobian
   approximation function to be used for the backward problem in the case
   where the backward problem depends on the forward sensitivities.
 }
@@ -1405,138 +1366,53 @@ with the second used when the backward problem depends on the forwrad sensitivit
     pointer to the {\idas} memory block.
   \item[which] (\id{int})
     represents the identifier of the backward problem.
-  \item[jacBS] (\id{IDADlsJacFnBS})
+  \item[jacBS] (\id{IDALJacFnBS})
     user-defined Jacobian approximation function.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}
-  \item[\Id{IDADLS\_SUCCESS}] 
-    \id{IDADlsSetDlsJacFnB} succeeded.
-  \item[\Id{IDADLS\_MEM\_NULL}]
+  \item[\Id{IDALS\_SUCCESS}] 
+    \id{IDASetJacFnBS} succeeded.
+  \item[\Id{IDALS\_MEM\_NULL}]
     The \id{ida\_mem} was \id{NULL}.
-  \item[\Id{IDADLS\_NO\_ADJ}]
+  \item[\Id{IDALS\_NO\_ADJ}]
     The function \id{IDAAdjInit} has not been previously called.
-  \item[\Id{IDADLS\_LMEM\_NULL}]
+  \item[\Id{IDALS\_LMEM\_NULL}]
     The linear solver has not been initialized with a call to \\ \noindent
-    \id{IDADlsSetLinearSolverB}.
-  \item[\Id{IDADLS\_ILL\_INPUT}]
+    \id{IDASetLinearSolverBS}.
+  \item[\Id{IDALS\_ILL\_INPUT}]
     The parameter \id{which} represented an invalid identifier.
   \end{args}
 }
 {
-  The function type \id{IDADlsJacFnBS} is described in \S\ref{ss:djacFn_b}.
-}
-%%
-\index{optional input!direct linear solver interface|)}
-\index{IDADLS@{\idadls} linear solver interface!optional input|)}
-%%
-%%
+  The function type \id{IDALsJacFnBS} is described in \S\ref{ss:jacFn_b}.
 
-
-\subsubsection{SPILS linear solvers}
-\index{optional input!iterative linear solver|(}
-\index{IDASPILS@{\idaspils} linear solver interface!optional input|(}
-Optional inputs for the {\idaspils} linear solver module can be set for the backward
-problem through the following functions:
-%%
-\index{preconditioning!user-supplied|(}
-\ucfunction{IDASpilsSetPreconditionerB}
-{
-  flag = IDASpilsSetPreconditionerB(ida\_mem, which, psetupB, psolveB);
+  The previous routine \Id{IDADlsSetJacFnBS} is now a wrapper for this
+  routine, and may still be used for backward-compatibility.  However,
+  this will be deprecated in future releases, so we recommend that
+  users transition to the new routine name soon.
 }
-{
-  The function \ID{IDASpilsSetPrecSolveFnB} specifies the preconditioner
-  setup and solve functions for the backward integration.
-}
-{
-  \begin{args}[psetupB]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\idas} memory block.
-  \item[which] (\id{int})
-    the identifier of the backward problem.
-  \item[psetupB] (\id{IDASpilsPrecSetupFnB})
-    user-defined preconditioner setup function.
-  \item[psolveB] (\id{IDASpilsPrecSolveFnB})
-    user-defined preconditioner solve function.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[IDASPILS\_ILL\_INPUT]
-  \item[\Id{IDASPILS\_SUCCESS}] 
-    The optional value has been successfully set.
-  \item[\Id{IDASPILS\_MEM\_NULL}]
-    The \id{ida\_mem} memory block pointer was \id{NULL}.
-  \item[\Id{IDASPILS\_LMEM\_NULL}]
-    The {\idaspils} linear solver has not been initialized.
-  \item[\Id{IDASPILS\_NO\_ADJ}]
-    The function \id{IDAAdjInit} has not been previously called.
-  \item[\Id{IDASPILS\_ILL\_INPUT}]
-    The parameter \id{which} represented an invalid identifier.
-  \end{args}
-}
-{
-   The function types \id{IDASpilsPrecSolveFnB} and \id{IDASpilsPrecSetupFnB} are
-   described in \S\ref{ss:psolve_b} and \S\ref{ss:psetup_b}, respectively.
-   The \id{psetupB} argument may be \id{NULL} if no setup operation is involved
-   in the preconditioner.
-}
-
-\ucfunction{IDASpilsSetPreconditionerBS}
-{
-  flag = IDASpilsSetPreconditionerBS(ida\_mem, which, psetupBS, psolveBS);
-}
-{
-  The function \ID{IDASpilsSetPrecSolveFnBS} specifies the preconditioner
-  setup and solve functions for the backward integration, in the case
-  where the backward problem depends on the forward sensitivities.
-}
-{
-  \begin{args}[psetupBS]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\idas} memory block.
-  \item[which] (\id{int})
-    the identifier of the backward problem.
-  \item[psetupBS] (\id{IDASpilsPrecSetupFnBS})
-    user-defined preconditioner setup function.
-  \item[psolveBS] (\id{IDASpilsPrecSolveFnBS})
-    user-defined preconditioner solve function.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[IDASPILS\_ILL\_INPUT]
-  \item[\Id{IDASPILS\_SUCCESS}] 
-    The optional value has been successfully set.
-  \item[\Id{IDASPILS\_MEM\_NULL}]
-    The \id{ida\_mem} memory block pointer was \id{NULL}.
-  \item[\Id{IDASPILS\_LMEM\_NULL}]
-    The {\idaspils} linear solver has not been initialized.
-  \item[\Id{IDASPILS\_NO\_ADJ}]
-    The function \id{IDAAdjInit} has not been previously called.
-  \item[\Id{IDASPILS\_ILL\_INPUT}]
-    The parameter \id{which} represented an invalid identifier.
-  \end{args}
-}
-{
-   The function types \id{IDASpilsPrecSolveFnBS} and \id{IDASpilsPrecSetupFnBS} are
-   described in \S\ref{ss:psolve_b} and \S\ref{ss:psetup_b}, respectively.
-   The \id{psetupBS} argument may be \id{NULL} if no setup operation is involved
-   in the preconditioner.
-}
-%%
-\index{preconditioning!user-supplied|)}
-%%
+%% 
+\index{optional input!matrix-based linear solver|)}
+%% 
+%% 
+\index{optional input!matrix-free linear solver|(}
+When using a matrix-free linear solver module for the backward
+problem, the {\idals} linear solver interface requires a function to
+compute an approximation to the product between the Jacobian matrix
+$J(t,y)$ and a vector $v$.  This may be performed internally using a
+difference-quotient approximation, or it may be supplied by the user
+by calling one of the following two functions:
 %%
 \index{Jacobian approximation function!Jacobian-vector product!user-supplied (backward)}
-\ucfunction{IDASpilsSetJacTimesB}
+\ucfunction{IDASetJacTimesB}
 {
-  flag = IDASpilsSetJacTimesB(ida\_mem, which, jsetupB, jtimesB);
+  flag = IDASetJacTimesB(ida\_mem, which, jsetupB, jtimesB);
 }
 {
-  The function \ID{IDASpilsSetJacTimesB} specifies the Jacobian-vector 
+  The function \ID{IDASetJacTimesB} specifies the Jacobian-vector 
   setup and product functions to be used.
 }
 {
@@ -1545,40 +1421,44 @@ problem through the following functions:
     pointer to the {\idas} memory block.
   \item[which] (\id{int})
     the identifier of the backward problem.
-  \item[jtsetupB] (\id{IDASpilsJacTimesSetupFnB})
+  \item[jtsetupB] (\id{IDALsJacTimesSetupFnB})
     user-defined function to set up the Jacobian-vector product.
     Pass \id{NULL} if no setup is necessary.
-  \item[jtimesB] (\id{IDASpilsJacTimesVecFnB})
+  \item[jtimesB] (\id{IDALsJacTimesVecFnB})
     user-defined Jacobian-vector product function.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[IDASPILS\_ILL\_INPUT]
-  \item[\Id{IDASPILS\_SUCCESS}] 
+  \begin{args}[IDALS\_ILL\_INPUT]
+  \item[\Id{IDALS\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{IDASPILS\_MEM\_NULL}]
+  \item[\Id{IDALS\_MEM\_NULL}]
     The \id{ida\_mem} memory block pointer was \id{NULL}.
-  \item[\Id{IDASPILS\_LMEM\_NULL}]
-    The {\idaspils} linear solver has not been initialized.
-  \item[\Id{IDASPILS\_NO\_ADJ}]
+  \item[\Id{IDALS\_LMEM\_NULL}]
+    The {\idals} linear solver has not been initialized.
+  \item[\Id{IDALS\_NO\_ADJ}]
     The function \id{IDAAdjInit} has not been previously called.
-  \item[\Id{IDASPILS\_ILL\_INPUT}]
+  \item[\Id{IDALS\_ILL\_INPUT}]
     The parameter \id{which} represented an invalid identifier.
   \end{args}
 }
 {
-  The function types \id{IDASpilsJacTimesVecFnB} and 
-  \id{IDASpilsJacTimesSetupFnB} are described in
-  \S\ref{ss:jactimesvec_b}.
+  The function types \id{IDALsJacTimesVecFnB} and
+  \id{IDALsJacTimesSetupFnB} are described in \S\ref{ss:jactimesvec_b}.
+
+  The previous routine \Id{IDASpilsSetJacTimesB} is now a wrapper for this
+  routine, and may still be used for backward-compatibility.  However,
+  this will be deprecated in future releases, so we recommend that
+  users transition to the new routine name soon.
 }
 %%
-\ucfunction{IDASpilsSetJacTimesBS}
+\ucfunction{IDASetJacTimesBS}
 {
-  flag = IDASpilsSetJacTimesBS(ida\_mem, which, jsetupBS, jtimesBS);
+  flag = IDASetJacTimesBS(ida\_mem, which, jsetupBS, jtimesBS);
 }
 {
-  The function \ID{IDASpilsSetJacTimesBS} specifies the Jacobian-vector 
+  The function \ID{IDASetJacTimesBS} specifies the Jacobian-vector 
   product setup and evaluation functions to be used, in the case where the 
   backward problem depends on the forward sensitivities.
 }
@@ -1588,86 +1468,51 @@ problem through the following functions:
     pointer to the {\idas} memory block.
   \item[which] (\id{int})
     the identifier of the backward problem.
-  \item[jtsetupBS] (\id{IDASpilsJacTimesSetupFnBS})
+  \item[jtsetupBS] (\id{IDALsJacTimesSetupFnBS})
     user-defined function to set up the Jacobian-vector product.
     Pass \id{NULL} if no setup is necessary.
-  \item[jtimesBS] (\id{IDASpilsJacTimesVecFnBS})
+  \item[jtimesBS] (\id{IDALsJacTimesVecFnBS})
     user-defined Jacobian-vector product function.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[IDASPILS\_ILL\_INPUT]
-  \item[\Id{IDASPILS\_SUCCESS}] 
+  \begin{args}[IDALS\_ILL\_INPUT]
+  \item[\Id{IDALS\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{IDASPILS\_MEM\_NULL}]
+  \item[\Id{IDALS\_MEM\_NULL}]
     The \id{ida\_mem} memory block pointer was \id{NULL}.
-  \item[\Id{IDASPILS\_LMEM\_NULL}]
-    The {\idaspils} linear solver has not been initialized.
-  \item[\Id{IDASPILS\_NO\_ADJ}]
+  \item[\Id{IDALS\_LMEM\_NULL}]
+    The {\idals} linear solver has not been initialized.
+  \item[\Id{IDALS\_NO\_ADJ}]
     The function \id{IDAAdjInit} has not been previously called.
-  \item[\Id{IDASPILS\_ILL\_INPUT}]
+  \item[\Id{IDALS\_ILL\_INPUT}]
     The parameter \id{which} represented an invalid identifier.
   \end{args}
 }
 {
-  The function types \id{IDASpilsJacTimesVecFnBS} and 
-  \id{IDASpilsJacTimesSetupFnBS} are described in
+  The function types \id{IDALsJacTimesVecFnBS} and 
+  \id{IDALsJacTimesSetupFnBS} are described in
   \S\ref{ss:jactimesvec_b}.
-}
-%%
-%%
-\ucfunction{IDASpilsSetEpsLinB}
-{
-  flag = IDASpilsSetEpsLinB(ida\_mem, which, eplifacB);
-}
-{
-  The function \ID{IDASpilsSetEpsLinB} specifies the factor by
-  which the Krylov linear solver's convergence test constant is reduced
-  from the nonlinear iteration test constant. (See \S\ref{ss:ivp_sol}).
-  This routine can be used in both the cases wherethe backward problem
-  does and does not depend on the forward sensitvities.
-}
-{
-  \begin{args}[ida\_mem]
-  \item[ida\_mem] (\id{void *})
-    pointer to the {\idas} memory block.
-  \item[which] (\id{int})
-    the identifier of the backward problem.
-  \item[eplifacB] (\id{realtype})
-    linear convergence safety factor ($>= 0.0$).
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDASPILS\_ILL\_INPUT]
-  \item[\Id{IDASPILS\_SUCCESS}] 
-    The optional value has been successfully set.
-  \item[\Id{IDASPILS\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDASPILS\_LMEM\_NULL}]
-    The {\idaspils} linear solver has not been initialized.
-  \item[\Id{IDASPILS\_NO\_ADJ}]
-    The function \id{IDAAdjInit} has not been previously called.
-  \item[\Id{IDASPILS\_ILL\_INPUT}]
-    The value of \id{eplifacB} is negative.
-  \item[\Id{IDASPILS\_ILL\_INPUT}]
-    The parameter \id{which} represented an invalid identifier.
-  \end{args}
-}
-{
-  The default value is $0.05$.
 
-  Passing a value \id{eplifacB}$ = 0.0$ also indicates using the default value.
+  The previous routine \Id{IDASpilsSetJacTimesBS} is now a wrapper for this
+  routine, and may still be used for backward-compatibility.  However,
+  this will be deprecated in future releases, so we recommend that
+  users transition to the new routine name soon.
 }
 %%
 %%
-\ucfunction{IDASpilsSetIncrementFactorB}
+Alternately, when using the default difference-quotient approximation
+to the Jacobian-vector product for the backward problem, the user may
+specify the factor to use in setting increments for the
+finite-difference approximation, via a call to \Id{IDASetIncrementFactorB}:
+%%
+\ucfunction{IDASetIncrementFactorB}
 {
-  flag = IDASpilsSetIncrementFactorB(ida\_mem, which, dqincfacB);
+  flag = IDASetIncrementFactorB(ida\_mem, which, dqincfacB);
 }
 {
-  The function \ID{IDASpilsSetIncrementFactorB} specifies the factor 
+  The function \ID{IDASetIncrementFactorB} specifies the factor 
   in the increments used in the difference quotient approximations to matrix-vector
   products for the backward problem. 
 
@@ -1686,30 +1531,201 @@ problem through the following functions:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[IDASPILS\_ILL\_INPUT]
-  \item[\Id{IDASPILS\_SUCCESS}] 
+  \begin{args}[IDALS\_ILL\_INPUT]
+  \item[\Id{IDALS\_SUCCESS}] 
     The optional value has been successfully set.
-  \item[\Id{IDASPILS\_MEM\_NULL}]
+  \item[\Id{IDALS\_MEM\_NULL}]
     The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{IDASPILS\_LMEM\_NULL}]
-    The {\idaspils} linear solver has not been initialized.
-  \item[\Id{IDASPILS\_NO\_ADJ}]
+  \item[\Id{IDALS\_LMEM\_NULL}]
+    The {\idals} linear solver has not been initialized.
+  \item[\Id{IDALS\_NO\_ADJ}]
     The function \id{IDAAdjInit} has not been previously called.
-  \item[\Id{IDASPILS\_ILL\_INPUT}]
+  \item[\Id{IDALS\_ILL\_INPUT}]
     The value of \id{eplifacB} is negative.
-  \item[\Id{IDASPILS\_ILL\_INPUT}]
+  \item[\Id{IDALS\_ILL\_INPUT}]
     The parameter \id{which} represented an invalid identifier.
   \end{args}
 }
 {
   The default value is $1.0$.
 
-  Passing a value \id{dqincfacB}$ = 0.0$ also indicates using the default value.
+  The previous routine \Id{IDASpilsSetIncrementFactorB} is now a
+  wrapper for this routine, and may still be used for
+  backward-compatibility.  However, this will be deprecated in future
+  releases, so we recommend that users transition to the new routine
+  name soon. 
 }
+%%
+\index{optional input!matrix-free linear solver|)}
+%% 
+%% 
+\index{optional input!iterative linear solver|(}
+%%
+When using an iterative linear solver for the backward problem, the
+user may supply a preconditioning operator to aid in solution of the
+system, or she/he may adjust the convergence tolerance factor for the
+iterative linear solver.  These may be accomplished through calling
+the following functions:
+%%
+\index{preconditioning!user-supplied|(}
+\ucfunction{IDASetPreconditionerB}
+{
+  flag = IDASetPreconditionerB(ida\_mem, which, psetupB, psolveB);
+}
+{
+  The function \ID{IDASetPrecSolveFnB} specifies the preconditioner
+  setup and solve functions for the backward integration.
+}
+{
+  \begin{args}[psetupB]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory block.
+  \item[which] (\id{int})
+    the identifier of the backward problem.
+  \item[psetupB] (\id{IDALsPrecSetupFnB})
+    user-defined preconditioner setup function.
+  \item[psolveB] (\id{IDALsPrecSolveFnB})
+    user-defined preconditioner solve function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[IDALS\_ILL\_INPUT]
+  \item[\Id{IDALS\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{IDALS\_MEM\_NULL}]
+    The \id{ida\_mem} memory block pointer was \id{NULL}.
+  \item[\Id{IDALS\_LMEM\_NULL}]
+    The {\idals} linear solver has not been initialized.
+  \item[\Id{IDALS\_NO\_ADJ}]
+    The function \id{IDAAdjInit} has not been previously called.
+  \item[\Id{IDALS\_ILL\_INPUT}]
+    The parameter \id{which} represented an invalid identifier.
+  \end{args}
+}
+{
+  The function types \id{IDALsPrecSolveFnB} and \id{IDALsPrecSetupFnB} are
+  described in \S\ref{ss:psolve_b} and \S\ref{ss:psetup_b}, respectively.
+  The \id{psetupB} argument may be \id{NULL} if no setup operation is involved
+  in the preconditioner.
+   
+  The previous routine \Id{IDASpilsSetPreconditionerB} is now a
+  wrapper for this routine, and may still be used for
+  backward-compatibility.  However, this will be deprecated in future
+  releases, so we recommend that users transition to the new routine
+  name soon. 
+}
+%%
+\ucfunction{IDASetPreconditionerBS}
+{
+  flag = IDASetPreconditionerBS(ida\_mem, which, psetupBS, psolveBS);
+}
+{
+  The function \ID{IDASetPrecSolveFnBS} specifies the preconditioner
+  setup and solve functions for the backward integration, in the case
+  where the backward problem depends on the forward sensitivities.
+}
+{
+  \begin{args}[psetupBS]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory block.
+  \item[which] (\id{int})
+    the identifier of the backward problem.
+  \item[psetupBS] (\id{IDALsPrecSetupFnBS})
+    user-defined preconditioner setup function.
+  \item[psolveBS] (\id{IDALsPrecSolveFnBS})
+    user-defined preconditioner solve function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[IDALS\_ILL\_INPUT]
+  \item[\Id{IDALS\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{IDALS\_MEM\_NULL}]
+    The \id{ida\_mem} memory block pointer was \id{NULL}.
+  \item[\Id{IDALS\_LMEM\_NULL}]
+    The {\idals} linear solver has not been initialized.
+  \item[\Id{IDALS\_NO\_ADJ}]
+    The function \id{IDAAdjInit} has not been previously called.
+  \item[\Id{IDALS\_ILL\_INPUT}]
+    The parameter \id{which} represented an invalid identifier.
+  \end{args}
+}
+{
+  The function types \id{IDALsPrecSolveFnBS} and \id{IDALsPrecSetupFnBS} are
+  described in \S\ref{ss:psolve_b} and \S\ref{ss:psetup_b}, respectively.
+  The \id{psetupBS} argument may be \id{NULL} if no setup operation is involved
+  in the preconditioner.
+  
+  The previous routine \Id{IDASpilsSetPreconditionerBS} is now a
+  wrapper for this routine, and may still be used for
+  backward-compatibility.  However, this will be deprecated in future
+  releases, so we recommend that users transition to the new routine
+  name soon. 
+}
+%%
+\index{preconditioning!user-supplied|)}
+%%
+%%
+\ucfunction{IDASetEpsLinB}
+{
+  flag = IDASetEpsLinB(ida\_mem, which, eplifacB);
+}
+{
+  The function \ID{IDASetEpsLinB} specifies the factor by
+  which the Krylov linear solver's convergence test constant is reduced
+  from the nonlinear iteration test constant. (See \S\ref{ss:ivp_sol}).
+  This routine can be used in both the cases wherethe backward problem
+  does and does not depend on the forward sensitvities.
+}
+{
+  \begin{args}[ida\_mem]
+  \item[ida\_mem] (\id{void *})
+    pointer to the {\idas} memory block.
+  \item[which] (\id{int})
+    the identifier of the backward problem.
+  \item[eplifacB] (\id{realtype})
+    linear convergence safety factor ($>= 0.0$).
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[IDALS\_ILL\_INPUT]
+  \item[\Id{IDALS\_SUCCESS}] 
+    The optional value has been successfully set.
+  \item[\Id{IDALS\_MEM\_NULL}]
+    The \id{ida\_mem} pointer is \id{NULL}.
+  \item[\Id{IDALS\_LMEM\_NULL}]
+    The {\idals} linear solver has not been initialized.
+  \item[\Id{IDALS\_NO\_ADJ}]
+    The function \id{IDAAdjInit} has not been previously called.
+  \item[\Id{IDALS\_ILL\_INPUT}]
+    The value of \id{eplifacB} is negative.
+  \item[\Id{IDALS\_ILL\_INPUT}]
+    The parameter \id{which} represented an invalid identifier.
+  \end{args}
+}
+{
+  The default value is $0.05$.
 
-\index{IDASPILS@{\idaspils} linear solver interface!optional input|)}
+  Passing a value \id{eplifacB}$ = 0.0$ also indicates using the default value.
+
+  The previous routine \Id{IDASpilsSetEpsLinB} is now a
+  wrapper for this routine, and may still be used for
+  backward-compatibility.  However, this will be deprecated in future
+  releases, so we recommend that users transition to the new routine
+  name soon. 
+}
+%%
 \index{optional input!iterative linear solver|)}
-
+%% 
+\index{optional input!generic linear solver interface|)}
+\index{IDALS@{\idals} linear solver interface!optional input|)}
+%%
+%%
+%%
+%%
 %---------------------------------------------------------------------------
 \subsection{Optional output functions for the backward problem}
 \label{ss:optional_output_b}
@@ -1817,14 +1833,14 @@ used by \id{IDASolveB}.
    \id{IDA\_NO\_ADJ} if ASA was not initialized.}
 {  The members of each record \id{ckpnt[i]} are:
 \begin{itemize}
- \item: \id{ckpnt[i].my\_addr} (\id{void *}) address of current checkpoint
+ \item \id{ckpnt[i].my\_addr} (\id{void *}) address of current checkpoint
         in \id{ida\_mem->ida\_adj\_mem}
- \item: \id{ckpnt[i].next\_addr} (\id{void *}) address of next checkpoint
- \item: \id{ckpnt[i].t0} (\id{realtype}) start of checkpoint interval
- \item: \id{ckpnt[i].t1} (\id{realtype}) end of checkpoint interval
- \item: \id{ckpnt[i].nstep} (\id{long int}) step counter at ckeckpoint \id{t0}
- \item: \id{ckpnt[i].order} (\id{int}) method order at checkpoint \id{t0}
- \item: \id{ckpnt[i].step} (\id{realtype}) step size at checkpoint \id{t0}
+ \item \id{ckpnt[i].next\_addr} (\id{void *}) address of next checkpoint
+ \item \id{ckpnt[i].t0} (\id{realtype}) start of checkpoint interval
+ \item \id{ckpnt[i].t1} (\id{realtype}) end of checkpoint interval
+ \item \id{ckpnt[i].nstep} (\id{long int}) step counter at ckeckpoint \id{t0}
+ \item \id{ckpnt[i].order} (\id{int}) method order at checkpoint \id{t0}
+ \item \id{ckpnt[i].step} (\id{realtype}) step size at checkpoint \id{t0}
 \end{itemize}
 }
 
@@ -2120,8 +2136,8 @@ In addition to the required DAE residual function and any optional functions
 for the forward problem, when using the adjoint sensitivity module in {\idas},
 the user must supply one function defining the backward problem DAE and, optionally,
 functions to supply Jacobian-related information and one or two functions 
-that define the preconditioner (if one of the {\idaspils} solvers is
-selected) for the backward problem.
+that define the preconditioner (if applicable for the choice of
+{\sunlinsol} object) for the backward problem.
 Type definitions for all these user-supplied functions are given below.
 
 \subsection{DAE residual for the backward problem}\label{ss:DAEres_b}
@@ -2392,25 +2408,25 @@ The user must provide an \id{fQBS} function of type \ID{IDAQuadRhsFnBS} defined 
 
 
 %%-------------------------------------------------------------------------------------
-\subsection{Jacobian information for the backward problem 
-  (direct method Jacobian)}\label{ss:djacFn_b}
+\subsection{Jacobian construction for the backward problem 
+  (matrix-based linear solvers)}\label{ss:jacFn_b}
 
-If the direct linear solver interface  is used for the backward problem (i.e. 
-\Id{IDADlsSetLinearSolverB} is called in the step described in 
-\S\ref{ss:skeleton_adj}), the user may
-provide a function of type \ID{IDADlsJacFnB} or \ID{IDADlsJacFnBS} 
+If a matrix-based linear solver module is is used for the backward problem (i.e., 
+\Id{IDASetLinearSolverB} is called with non-\id{NULL} {\sunmatrix}
+argument in the step described in \S\ref{ss:skeleton_adj}), the user may
+provide a function of type \ID{IDALsJacFnB} or \ID{IDALsJacFnBS} 
 (see \S\ref{ss:optional_input_b}), defined as follows:
 %%
 \index{Jacobian approximation function!user-supplied (backward)}
-\usfunction{IDADlsJacFnB}
+\usfunction{IDALsJacFnB}
 {
-  typedef int (*IDADlsJacFnB)(&realtype tt, realtype cjB, \\
-                              &N\_Vector yy, N\_Vector yp,\\
-                              &N\_Vector yB, N\_Vector ypB,\\
-                              &N\_Vector resvalB,\\
-                              &SUNMatrix JacB, void *user\_dataB,\\
-                              &N\_Vector tmp1B, N\_Vector tmp2B,\\
-                              &N\_Vector tmp3B);
+  typedef int (*IDALsJacFnB)(&realtype tt, realtype cjB, \\
+                             &N\_Vector yy, N\_Vector yp,\\
+                             &N\_Vector yB, N\_Vector ypB,\\
+                             &N\_Vector resvalB,\\
+                             &SUNMatrix JacB, void *user\_dataB,\\
+                             &N\_Vector tmp1B, N\_Vector tmp2B,\\
+                             &N\_Vector tmp3B);
 }
 {
   This function computes the Jacobian of the backward problem (or an approximation
@@ -2441,17 +2457,17 @@ provide a function of type \ID{IDADlsJacFnB} or \ID{IDADlsJacFnBS}
   \item[tmp2B]
   \item[tmp3B]
     are pointers to memory allocated for variables of type \id{N\_Vector} 
-    which can be used by the \id{IDADlsJacFnB} function 
+    which can be used by the \id{IDALsJacFnB} function 
     as temporary storage or work space.
   \end{args}
 }
 {
-  An \id{IDADlsJacFnB} should return 0 if successful, a positive value if a recoverable
-  error occurred (in which case {\idas} will attempt to correct, while {\idadls} sets
-  \id{last\_flag} to \Id{IDADLS\_JACFUNC\_RECVR}), or a negative 
+  An \id{IDALsJacFnB} should return 0 if successful, a positive value if a recoverable
+  error occurred (in which case {\idas} will attempt to correct, while {\idals} sets
+  \id{last\_flag} to \Id{IDALS\_JACFUNC\_RECVR}), or a negative 
   value if it failed unrecoverably (in which case the integration is halted, \id{IDASolveB}
-  returns \Id{IDA\_LSETUP\_FAIL} and {\idadls} sets \id{last\_flag} to 
-  \Id{IDADLS\_JACFUNC\_UNRECVR}).
+  returns \Id{IDA\_LSETUP\_FAIL} and {\idals} sets \id{last\_flag} to 
+  \Id{IDALS\_JACFUNC\_UNRECVR}).
 }
 {
   A user-supplied Jacobian function must load the 
@@ -2467,25 +2483,29 @@ provide a function of type \ID{IDADlsJacFnB} or \ID{IDADlsJacFnBS}
   Only nonzero elements need to be loaded into \id{JacB} as this matrix 
   is set to zero before the call to the Jacobian function. 
   
-  {\warn}Before calling the user's \id{IDADlsJacFnB}, {\idas} needs to evaluate
+  {\warn}Before calling the user's \id{IDALsJacFnB}, {\idas} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
   If an error occurs in the interpolation, {\idas} triggers an unrecoverable
   failure in the Jacobian function which will halt the integration
-  (\id{IDASolveB} returns \id{IDA\_LSETUP\_FAIL} and {\idadls} sets \id{last\_flag} to 
-  \Id{IDADLS\_JACFUNC\_UNRECVR}).
+  (\id{IDASolveB} returns \id{IDA\_LSETUP\_FAIL} and {\idals} sets \id{last\_flag} to 
+  \Id{IDALS\_JACFUNC\_UNRECVR}).
+
+  The previous function type \Id{IDADlsJacFnB} is identical to
+  \id{IDALsJacFnB}, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new function type name soon.
 }
 
-\index{Jacobian approximation function!user-supplied (backward)}
-\usfunction{IDADlsJacFnBS}
+\usfunction{IDALsJacFnBS}
 {
-  typedef int (*IDADlsDenseJacFnBS)(&realtype tt, realtype cjB, \\
-                               &N\_Vector yy, N\_Vector yp,\\
-                               &N\_Vector *yS, N\_Vector *ypS,\\
-                               &N\_Vector yB, N\_Vector ypB,\\
-                               &N\_Vector resvalB,\\
-                               &SUNMatrix JacB, void *user\_dataB,\\
-                               &N\_Vector tmp1B, N\_Vector tmp2B,\\
-                               &N\_Vector tmp3B);
+  typedef int (*IDALsJacFnBS)(&realtype tt, realtype cjB, \\
+                              &N\_Vector yy, N\_Vector yp,\\
+                              &N\_Vector *yS, N\_Vector *ypS,\\
+                              &N\_Vector yB, N\_Vector ypB,\\
+                              &N\_Vector resvalB,\\
+                              &SUNMatrix JacB, void *user\_dataB,\\
+                              &N\_Vector tmp1B, N\_Vector tmp2B,\\
+                              &N\_Vector tmp3B);
 }
 {
   This function computes the Jacobian of the backward problem (or an
@@ -2523,16 +2543,16 @@ provide a function of type \ID{IDADlsJacFnB} or \ID{IDADlsJacFnBS}
   \item[tmp2B]
   \item[tmp3B]
     are pointers to memory allocated  for variables of type \id{N\_Vector} which 
-    can be used by \id{IDADlsJacFnBS} as temporary storage or work space.    
+    can be used by \id{IDALsJacFnBS} as temporary storage or work space.    
   \end{args}
 }
 {
-  An \id{IDADlsJacFnBS} should return 0 if successful, a positive value if a recoverable
-  error occurred (in which case {\idas} will attempt to correct, while {\idadls} sets
-  \id{last\_flag} to \Id{IDADLS\_JACFUNC\_RECVR}), or a negative 
+  An \id{IDALsJacFnBS} should return 0 if successful, a positive value if a recoverable
+  error occurred (in which case {\idas} will attempt to correct, while {\idals} sets
+  \id{last\_flag} to \Id{IDALS\_JACFUNC\_RECVR}), or a negative 
   value if it failed unrecoverably (in which case the integration is halted, \id{IDASolveB}
-  returns \Id{IDA\_LSETUP\_FAIL} and {\idadls} sets \id{last\_flag} to 
-  \Id{IDADLS\_JACFUNC\_UNRECVR}).
+  returns \Id{IDA\_LSETUP\_FAIL} and {\idals} sets \id{last\_flag} to 
+  \Id{IDALS\_JACFUNC\_UNRECVR}).
 }
 {
   A user-supplied dense Jacobian function must load the
@@ -2548,36 +2568,42 @@ provide a function of type \ID{IDADlsJacFnB} or \ID{IDADlsJacFnBS}
   Only nonzero elements need to be loaded into \id{JacB} as this matrix 
   is set to zero before the call to the Jacobian function. 
 
-  {\warn}Before calling the user's \id{IDADlsJacFnBS}, {\idas} needs to evaluate
+  {\warn}Before calling the user's \id{IDALsJacFnBS}, {\idas} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
   If an error occurs in the interpolation, {\idas} triggers an unrecoverable
   failure in the Jacobian function which will halt the integration
-  (\id{IDASolveB} returns \id{IDA\_LSETUP\_FAIL} and {\idadense} sets \id{last\_flag} to 
-  \Id{IDADLS\_JACFUNC\_UNRECVR}).
+  (\id{IDASolveB} returns \id{IDA\_LSETUP\_FAIL} and {\idals} sets \id{last\_flag} to 
+  \Id{IDALS\_JACFUNC\_UNRECVR}).
+
+
+  The previous function type \Id{IDADlsJacFnBS} is identical to
+  \id{IDALsJacFnBS}, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new function type name soon.
 }
 
 %%-------------------------------------------------------------------------------------
-\subsection{Jacobian information for the backward problem
-   (matrix-vector product)}\label{ss:jactimesvec_b}
+\subsection{Jacobian-vector product for the backward problem
+   (matrix-free linear solvers)}\label{ss:jactimesvec_b}
 \index{Jacobian approximation function!Jacobian-vector product!user-supplied (backward)}
-If the {\idaspils} solver interface is selected for the backward problem
-(i.e., \id{IDASpilsSetLinearSolverB} is called in the steps described in
-\S\ref{ss:skeleton_adj}), the user may
+If a matrix-free linear solver is selected for the backward problem
+(i.e., \id{IDASetLinearSolverB} is called with \id{NULL}-valued
+{\sunmatrix} argument in the steps described in \S\ref{ss:skeleton_adj}), the user may
 provide a function of type \\ \noindent
- \Id{IDASpilsJacTimesVecFnB} or 
-\Id{IDASpilsJacTimesVecFnBS} in the following form,
+\Id{IDALsJacTimesVecFnB} or 
+\Id{IDALsJacTimesVecFnBS} in the following form,
 to compute matrix-vector products $Jv$. If such a function is not supplied,
 the default is a difference quotient approximation to these products.
 %%
-\usfunction{IDASpilsJacTimesVecFnB}
+\usfunction{IDALsJacTimesVecFnB}
 {
-  typedef int (*IDASpilsJacTimesVecFnB)(&realtype t, \\
-                                        &N\_Vector yy, N\_Vector yp, \\
-                                        &N\_Vector yB, N\_Vector ypB, \\
-                                        &N\_Vector resvalB, \\
-                                        &N\_Vector vB, N\_Vector JvB, \\
-                                        &realtype cjB, void *user\_dataB, \\
-                                        &N\_Vector tmp1B, N\_Vector tmp2B);
+  typedef int (*IDALsJacTimesVecFnB)(&realtype t, \\
+                                     &N\_Vector yy, N\_Vector yp, \\
+                                     &N\_Vector yB, N\_Vector ypB, \\
+                                     &N\_Vector resvalB, \\
+                                     &N\_Vector vB, N\_Vector JvB, \\
+                                     &realtype cjB, void *user\_dataB, \\
+                                     &N\_Vector tmp1B, N\_Vector tmp2B);
 }
 {
   This function computes the action of the backward problem Jacobian \id{JB}
@@ -2610,11 +2636,11 @@ the default is a difference quotient approximation to these products.
   \item[tmp1B]
   \item[tmp2B]
     are pointers to memory allocated for variables of type \id{N\_Vector} which
-    can be used by \id{IDASpilsJacTimesVecFnB} as temporary storage or work space.
+    can be used by \id{IDALsJacTimesVecFnB} as temporary storage or work space.
   \end{args}
 }
 {  
-  The return value of a function of type \id{IDASpilsJtimesVecFnB} should be
+  The return value of a function of type \id{IDALsJtimesVecFnB} should be
   $0$ if successful or nonzero if an error was encountered, in which case
   the integration is halted.
 }
@@ -2625,21 +2651,27 @@ the default is a difference quotient approximation to these products.
   Here, \id{y} is the solution of the original IVP at time \id{t} and 
   \id{yB} is the solution of the backward problem at the same time.  
   The rest of the arguments are equivalent to those passed to a function of type
-  \id{IDASpilsJacTimesVecFn} (see \S\ref{ss:jtimesFn}).
+  \id{IDALsJacTimesVecFn} (see \S\ref{ss:jtimesFn}).
   If the backward problem is the adjoint of ${\dot y} = f(t, y)$, then this 
   function is to compute $-(\dfdyI)^T v_B$.
-}
 
-\usfunction{IDASpilsJacTimesVecFnBS}
+  The previous function type \Id{IDASpilsJacTimesVecFnB} is identical to
+  \\ \noindent \id{IDALsJacTimesVecFnB}, and may still be used for
+  backward-compatibility.  However, this will be deprecated in future
+  releases, so we recommend that users transition to the new function
+  type name soon. 
+}
+%%
+\usfunction{IDALsJacTimesVecFnBS}
 {
-  typedef int (*IDASpilsJacTimesVecFnBS)(&realtype t, \\
-                                        &N\_Vector yy, N\_Vector yp, \\
-                                        &N\_Vector *yyS, N\_Vector *ypS, \\
-                                        &N\_Vector yB, N\_Vector ypB, \\
-                                        &N\_Vector resvalB, \\
-                                        &N\_Vector vB, N\_Vector JvB, \\
-                                        &realtype cjB, void *user\_dataB, \\
-                                        &N\_Vector tmp1B, N\_Vector tmp2B);
+  typedef int (*IDALsJacTimesVecFnBS)(&realtype t, \\
+                                      &N\_Vector yy, N\_Vector yp, \\
+                                      &N\_Vector *yyS, N\_Vector *ypS, \\
+                                      &N\_Vector yB, N\_Vector ypB, \\
+                                      &N\_Vector resvalB, \\
+                                      &N\_Vector vB, N\_Vector JvB, \\
+                                      &realtype cjB, void *user\_dataB, \\
+                                      &N\_Vector tmp1B, N\_Vector tmp2B);
 }
 {
   This function computes the action of the backward problem Jacobian \id{JB}
@@ -2679,11 +2711,11 @@ the default is a difference quotient approximation to these products.
   \item[tmp1B]
   \item[tmp2B]
     are pointers to memory allocated for variables of type \id{N\_Vector} which
-    can be used by \id{IDASpilsJacTimesVecFnBS} as temporary storage or work space.
+    can be used by \id{IDALsJacTimesVecFnBS} as temporary storage or work space.
   \end{args}
 }
 {  
-  The return value of a function of type \id{IDASpilsJtimesVecFnBS} should be
+  The return value of a function of type \id{IDALsJtimesVecFnBS} should be
   $0$ if successful or nonzero if an error was encountered, in which case
   the integration is halted.
 }
@@ -2694,25 +2726,32 @@ the default is a difference quotient approximation to these products.
   Here, \id{y} is the solution of the original IVP at time \id{t} and 
   \id{yB} is the solution of the backward problem at the same time.  
   The rest of the arguments are equivalent to those passed to a function of type
-  \id{IDASpilsJacTimesVecFn} (see \S\ref{ss:jtimesFn}).
+  \id{IDALsJacTimesVecFn} (see \S\ref{ss:jtimesFn}).
+
+  The previous function type \Id{IDASpilsJacTimesVecFnBS} is identical to
+  \\ \noindent \id{IDALsJacTimesVecFnBS}, and may still be used for
+  backward-compatibility.  However, this will be deprecated in future
+  releases, so we recommend that users transition to the new function
+  type name soon. 
 }
 
 
 %%-------------------------------------------------------------------------------------
-\subsection{Jacobian information for the backward problem
-   (matrix-vector setup)}\label{ss:jactimesvecsetup_b}
+\subsection{Jacobian-vector product setup for the backward problem
+   (matrix-free linear solvers)}\label{ss:jactimesvecsetup_b}
 \index{Jacobian approximation function!Jacobian-vector setup!user-supplied (backward)}
 If the user's Jacobian-times-vector requires that any Jacobian-related data
 be preprocessed or evaluated, then this needs to be done in a
-user-supplied function of type \Id{IDASpilsJacTimesSetupFnB}, defined as follows:
+user-supplied function of type \Id{IDALsJacTimesSetupFnB} or
+\Id{IDALsJacTimesSetupFnBS}, defined as follows: 
 %%
-\usfunction{IDASpilsJacTimesSetupFnB}
+\usfunction{IDALsJacTimesSetupFnB}
 {
-  typedef int (*IDASpilsJacTimesSetupFnB)(&realtype tt, \\
-                                        &N\_Vector yy, N\_Vector yp, \\
-                                        &N\_Vector yB, N\_Vector ypB, \\
-                                        &N\_Vector resvalB, \\
-                                        &realtype cjB, void *user\_dataB);
+  typedef int (*IDALsJacTimesSetupFnB)(&realtype tt, \\
+                                       &N\_Vector yy, N\_Vector yp, \\
+                                       &N\_Vector yB, N\_Vector ypB, \\
+                                       &N\_Vector resvalB, \\
+                                       &realtype cjB, void *user\_dataB);
 }
 {
   This function preprocesses and/or evaluates Jacobian data needed
@@ -2753,20 +2792,24 @@ user-supplied function of type \Id{IDASpilsJacTimesSetupFnB}, defined as follows
   Thus, the setup function can use any auxiliary data that is computed
   and saved during the evaluation of the DAE residual. 
   
-  If the user's \id{IDASpilsJacTimesVecFnB} function uses difference quotient
+  If the user's \id{IDALsJacTimesVecFnB} function uses difference quotient
   approximations, it may need to access quantities not in the call
   list. These include the current stepsize, the error weights, etc.
   To obtain these, the user will need to add a pointer to \id{ida\_mem} 
   to \id{user\_dataB} and then use the \id{IDAGet*} functions described in
   \S\ref{sss:optout_main}. The unit roundoff can be accessed as
   \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
-}
-{}
 
+  The previous function type \Id{IDASpilsJacTimesSetupFnB} is identical
+  to \\ \noindent \id{IDALsJacTimesSetupFnB}, and may still be used for
+  backward-compatibility.  However, this will be deprecated in future
+  releases, so we recommend that users transition to the new function
+  type name soon.
+}
 %%
-\usfunction{IDASpilsJacTimesSetupFnBS}
+\usfunction{IDALsJacTimesSetupFnBS}
 {
-  typedef int (*IDASpilsJacTimesSetupFnBS)(&realtype tt, \\
+  typedef int (*IDALsJacTimesSetupFnBS)(&realtype tt, \\
                                         &N\_Vector yy, N\_Vector yp, \\
                                         &N\_Vector *yyS, N\_Vector *ypS, \\
                                         &N\_Vector yB, N\_Vector ypB, \\
@@ -2819,36 +2862,41 @@ user-supplied function of type \Id{IDASpilsJacTimesSetupFnB}, defined as follows
   Thus, the setup function can use any auxiliary data that is computed
   and saved during the evaluation of the DAE residual. 
   
-  If the user's \id{IDASpilsJacTimesVecFnB} function uses difference quotient
+  If the user's \id{IDALsJacTimesVecFnB} function uses difference quotient
   approximations, it may need to access quantities not in the call
   list. These include the current stepsize, the error weights, etc.
   To obtain these, the user will need to add a pointer to \id{ida\_mem} 
   to \id{user\_dataB} and then use the \id{IDAGet*} functions described in
   \S\ref{sss:optout_main}. The unit roundoff can be accessed as
   \id{UNIT\_ROUNDOFF} defined in \id{sundials\_types.h}.
+
+  The previous function type \Id{IDASpilsJacTimesSetupFnBS} is identical
+  to \\ \noindent \id{IDALsJacTimesSetupFnBS}, and may still be used for
+  backward-compatibility.  However, this will be deprecated in future
+  releases, so we recommend that users transition to the new function
+  type name soon.
 }
-{}
-
-
+%%
+%%
 %%-------------------------------------------------------------------------------------
-\subsection{Preconditioning for the backward problem
-  (linear system solution)}\label{ss:psolve_b}
+\subsection{Preconditioner solve for the backward problem
+  (iterative linear solvers)}\label{ss:psolve_b}
 \index{preconditioning!user-supplied}
-\index{IDASPILS@{\idaspils} linear solver!preconditioner solve function}
+\index{IDALS@{\idals} linear solver interface!preconditioner solve function (backward)}
 If preconditioning is used during integration of the backward problem, 
-then the user must provide a {\CC} function to solve the linear system 
+then the user must provide a function to solve the linear system 
 $Pz = r$, where $P$ is a left preconditioner matrix.
 This function must have one of the following two forms:
 %%
-\usfunction{IDASpilsPrecSolveFnB}
+\usfunction{IDALsPrecSolveFnB}
 {
-  typedef int (*IDASpilsPrecSolveFnB)(&realtype t, \\
-                                     &N\_Vector yy, N\_Vector yp, \\
-                                     &N\_Vector yB, N\_Vector ypB, \\
-                                     &N\_Vector resvalB, \\
-                                     &N\_Vector rvecB, N\_Vector zvecB, \\
-                                     &realtype cjB, realtype deltaB, \\
-                                     &void *user\_dataB);
+  typedef int (*IDALsPrecSolveFnB)(&realtype t, \\
+                                   &N\_Vector yy, N\_Vector yp, \\
+                                   &N\_Vector yB, N\_Vector ypB, \\
+                                   &N\_Vector resvalB, \\
+                                   &N\_Vector rvecB, N\_Vector zvecB, \\
+                                   &realtype cjB, realtype deltaB, \\
+                                   &void *user\_dataB);
 }
 {
   This function solves the preconditioning system $Pz = r$ for the backward problem.
@@ -2888,18 +2936,23 @@ This function must have one of the following two forms:
   positive for a recoverable error (in which case the step will be retried), or
   negative for an unrecoverable error (in which case the integration is halted).
 }
-{}
-
-\usfunction{IDASpilsPrecSolveFnBS}
 {
-  typedef int (*IDASpilsPrecSolveFnBS)(&realtype t, \\
-                                     &N\_Vector yy, N\_Vector yp, \\
-                                     &N\_Vector *yyS, N\_Vector *ypS, \\
-                                     &N\_Vector yB, N\_Vector ypB, \\
-                                     &N\_Vector resvalB, \\
-                                     &N\_Vector rvecB, N\_Vector zvecB, \\
-                                     &realtype cjB, realtype deltaB, \\
-                                     &void *user\_dataB);
+  The previous function type \Id{IDASpilsPrecSolveFnB} is identical to
+  \id{IDALsPrecSolveFnB}, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new function type name soon.
+}
+%%
+\usfunction{IDALsPrecSolveFnBS}
+{
+  typedef int (*IDALsPrecSolveFnBS)(&realtype t, \\
+                                    &N\_Vector yy, N\_Vector yp, \\
+                                    &N\_Vector *yyS, N\_Vector *ypS, \\
+                                    &N\_Vector yB, N\_Vector ypB, \\
+                                    &N\_Vector resvalB, \\
+                                    &N\_Vector rvecB, N\_Vector zvecB, \\
+                                    &realtype cjB, realtype deltaB, \\
+                                    &void *user\_dataB);
 }
 {
   This function solves the preconditioning system $Pz = r$ for the backward problem,
@@ -2946,31 +2999,36 @@ This function must have one of the following two forms:
   positive for a recoverable error (in which case the step will be retried), or
   negative for an unrecoverable error (in which case the integration is halted).
 }
-{}
+{
+  The previous function type \Id{IDASpilsPrecSolveFnBS} is identical to
+  \id{IDALsPrecSolveFnBS}, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new function type name soon.
+}
 
 %%-------------------------------------------------------------------------------------
-\subsection{Preconditioning for the backward problem
-  (Jacobian data)}\label{ss:psetup_b}
+\subsection{Preconditioner setup for the backward problem
+  (iterative linear solvers)}\label{ss:psetup_b}
 \index{preconditioning!user-supplied}
-\index{IDASPILS@{\idaspils} linear solver!preconditioner setup function}
+\index{IDALS@{\idals} linear solver interface!preconditioner setup function (backward)}
 If the user's preconditioner requires that any Jacobian-related data
 be preprocessed or evaluated, then this needs to be done in a
-user-supplied {\CC} function of one of the following two types:
+user-supplied function of one of the following two types:
 %%
-\usfunction{IDASpilsPrecSetupFnB}
+\usfunction{IDALsPrecSetupFnB}
 {
-  typedef int (*IDASpilsPrecSetupFnB)(&realtype t, \\
-                                     &N\_Vector yy, N\_Vector yp,  \\
-                                     &N\_Vector yB, N\_Vector ypB, \\ 
-                                     &N\_Vector resvalB, \\
-                                     &realtype cjB, void *user\_dataB);
+  typedef int (*IDALsPrecSetupFnB)(&realtype t, \\
+                                   &N\_Vector yy, N\_Vector yp,  \\
+                                   &N\_Vector yB, N\_Vector ypB, \\ 
+                                   &N\_Vector resvalB, \\
+                                   &realtype cjB, void *user\_dataB);
 }
 {
   This function preprocesses and/or evaluates Jacobian-related data needed
   by the preconditioner for the backward problem.
 }
 {
-  The arguments of an \id{IDASpilsPrecSetupFnB} are as follows:
+  The arguments of an \id{IDALsPrecSetupFnB} are as follows:
   \begin{args}[user\_dataB]
   \item[t]
     is the current value of the independent variable.
@@ -2998,15 +3056,21 @@ user-supplied {\CC} function of one of the following two types:
   positive for a recoverable error (in which case the step will be retried),     
   or negative for an unrecoverable error (in which case the integration is halted).
 }
-{}
-\usfunction{IDASpilsPrecSetupFnBS}
 {
-  typedef int (*IDASpilsPrecSetupFnBS)(&realtype t, \\
-                                     &N\_Vector yy, N\_Vector yp,  \\
-                                     &N\_Vector *yyS, N\_Vector *ypS,  \\
-                                     &N\_Vector yB, N\_Vector ypB, \\ 
-                                     &N\_Vector resvalB, \\
-                                     &realtype cjB, void *user\_dataB);
+  The previous function type \Id{IDASpilsPrecSetupFnB} is identical to
+  \id{IDALsPrecSetupFnB}, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new function type name soon.
+}
+%%
+\usfunction{IDALsPrecSetupFnBS}
+{
+  typedef int (*IDALsPrecSetupFnBS)(&realtype t, \\
+                                    &N\_Vector yy, N\_Vector yp,  \\
+                                    &N\_Vector *yyS, N\_Vector *ypS,  \\
+                                    &N\_Vector yB, N\_Vector ypB, \\ 
+                                    &N\_Vector resvalB, \\
+                                    &realtype cjB, void *user\_dataB);
 }
 {
   This function preprocesses and/or evaluates Jacobian-related data needed
@@ -3014,7 +3078,7 @@ user-supplied {\CC} function of one of the following two types:
   backward problem depends on the forward sensitivities.
 }
 {
-  The arguments of an \id{IDASpilsPrecSetupFnBS} are as follows:
+  The arguments of an \id{IDALsPrecSetupFnBS} are as follows:
   \begin{args}[user\_dataB]
   \item[t]
     is the current value of the independent variable.
@@ -3048,7 +3112,12 @@ user-supplied {\CC} function of one of the following two types:
   positive for a recoverable error (in which case the step will be retried),     
   or negative for an unrecoverable error (in which case the integration is halted).
 }
-{}
+{
+  The previous function type \Id{IDASpilsPrecSetupFnBS} is identical to
+  \id{IDALsPrecSetupFnBS}, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new function type name soon.
+}
 
 %%
 %%-------------------------------------------------------------------
@@ -3077,8 +3146,9 @@ the user must define one or two additional functions, described at the end of th
 %%
 \index{IDABBDPRE@{\idabbdpre} preconditioner!user-callable functions|(}
 The {\idabbdpre} module is initialized by calling the following function,
-{\em after} one of the {\idaspils} linear solvers has been specified,
-by calling the appropriate function (see \S\ref{sss:lin_solv_b}).
+{\em after} an iterative linear solver for the backward problem has
+been attached to {\idas} by calling \Id{IDASetLinearSolverB} (see
+\S\ref{sss:lin_solv_b}).  
 %%
 %%
 \ucfunction{IDABBDPrecInitB}
@@ -3125,16 +3195,16 @@ by calling the appropriate function (see \S\ref{sss:lin_solv_b}).
   in the {\idas} solver block) a pointer to the newly created 
   {\idabbdpre} memory block.
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[IDASPILS\_ILL\_INPUT]
-  \item[\Id{IDASPILS\_SUCCESS}]
+  \begin{args}[IDALS\_ILL\_INPUT]
+  \item[\Id{IDALS\_SUCCESS}]
     The call to \id{IDABBDPrecInitB} was successful.
-  \item[\Id{IDASPILS\_MEM\_FAIL}]
+  \item[\Id{IDALS\_MEM\_FAIL}]
     A memory allocation request has failed.
-  \item[\Id{IDASPILS\_MEM\_NULL}]
+  \item[\Id{IDALS\_MEM\_NULL}]
     The \id{ida\_mem} argument was \id{NULL}.
-  \item[\Id{IDASPILS\_LMEM\_NULL}]
+  \item[\Id{IDALS\_LMEM\_NULL}]
     No linear solver has been attached.
-  \item[\Id{IDASPILS\_ILL\_INPUT}]
+  \item[\Id{IDALS\_ILL\_INPUT}]
     An invalid parameter has been passed.
   \end{args}
 }
@@ -3170,18 +3240,18 @@ following function:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[IDASPILS\_ILL\_INPUT]
-  \item[\Id{IDASPILS\_SUCCESS}]
+  \begin{args}[IDALS\_ILL\_INPUT]
+  \item[\Id{IDALS\_SUCCESS}]
     The call to \id{IDABBDPrecReInitB} was successful.
-  \item[\Id{IDASPILS\_MEM\_FAIL}]
+  \item[\Id{IDALS\_MEM\_FAIL}]
     A memory allocation request has failed.
-  \item[\Id{IDASPILS\_MEM\_NULL}]
+  \item[\Id{IDALS\_MEM\_NULL}]
     The \id{ida\_mem} argument was \id{NULL}.
-  \item[\Id{IDASPILS\_PMEM\_NULL}]
+  \item[\Id{IDALS\_PMEM\_NULL}]
     The \id{IDABBDPrecInitB} has not been previously called.
-  \item[\Id{IDASPILS\_LMEM\_NULL}]
+  \item[\Id{IDALS\_LMEM\_NULL}]
     No linear solver has been attached.
-  \item[\Id{IDASPILS\_ILL\_INPUT}]
+  \item[\Id{IDALS\_ILL\_INPUT}]
     An invalid parameter has been passed.
   \end{args}
 }
