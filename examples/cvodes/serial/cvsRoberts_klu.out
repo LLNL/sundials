@@ -19,6 +19,6 @@ At t = 4.0000e+09      y =  5.088381e-07    2.035353e-12    9.999995e-01
 At t = 4.0000e+10      y =  4.817747e-08    1.927099e-13    1.000000e+00
 
 Final Statistics:
-nst = 533    nfe  = 744    nsetups = 105    nje = 11
+nst = 533    nfe  = 743    nsetups = 105    nje = 11
 nni = 740    ncfn = 0      netf = 20        nge = 561
  

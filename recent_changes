@@ -1,3 +1,13 @@
+Changes to SUNDIALS in release 4.0.0
+
+Two changes were made in the CVODE/CVODES/ARKODE initial step size algorithm:
+
+  1. Fixed an efficiency bug where an extra call to the RHS function was made.
+  2. Changed the behavior of the algorithm if the max-iterations case is hit.
+     Before the algorithm would exit with the step size calculated on the 
+     penultimate iteration. Now it will exit with the step size calculated
+     on the final iteration.
+
 Changes to SUNDIALS in release 4.0.0-dev.2
 
 ARKode, CVODES, and IDAS have been updated to use the SUNNONLINSOL API.

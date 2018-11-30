@@ -1959,7 +1959,7 @@ int arkHin(ARKodeMem ark_mem, realtype tout)
   int retval, sign, count1, count2;
   realtype tdiff, tdist, tround, hlb, hub;
   realtype hg, hgs, hs, hnew, hrat, h0, yddnrm;
-  booleantype hgOK, hnewOK;
+  booleantype hgOK;
 
   /* If tout is too close to tn, give up */
   if ((tdiff = tout-ark_mem->tcur) == ZERO) return(ARK_TOO_CLOSE);
@@ -1985,7 +1985,6 @@ int arkHin(ARKodeMem ark_mem, realtype tout)
   }
 
   /* Outer loop */
-  hnewOK = SUNFALSE;
   hs = hg;     /* safeguard against 'uninitialized variable' warning */
   for(count1 = 1; count1 <= H0_ITERS; count1++) {
 
@@ -2016,20 +2015,21 @@ int arkHin(ARKodeMem ark_mem, realtype tout)
     /* The proposed step size is feasible. Save it. */
     hs = hg;
 
-    /* If stopping criteria was met, or if this is the last pass, stop */
-    if ( (hnewOK) || (count1 == H0_ITERS))  {hnew = hg; break;}
-
     /* Propose new step size */
     hnew = (yddnrm*hub*hub > TWO) ? SUNRsqrt(TWO/yddnrm) : SUNRsqrt(hg*hub);
+    
+    /* If last pass, stop now with hnew */
+    if (count1 == H0_ITERS) break;
+    
     hrat = hnew/hg;
 
     /* Accept hnew if it does not differ from hg by more than a factor of 2 */
-    if ((hrat > HALF) && (hrat < TWO))  hnewOK = SUNTRUE;
+    if ((hrat > HALF) && (hrat < TWO)) break;
 
     /* After one pass, if ydd seems to be bad, use fall-back value. */
     if ((count1 > 1) && (hrat > TWO)) {
       hnew = hg;
-      hnewOK = SUNTRUE;
+      break;
     }
 
     /* Send this value back through f() */
@@ -2115,6 +2115,9 @@ int arkYddNorm(ARKodeMem ark_mem, realtype hg, realtype *yddnrm)
   N_VLinearSum(ONE/hg, ark_mem->tempv1, -ONE/hg,
 	       ark_mem->interp->fnew, ark_mem->tempv1);
 
+  /* reset ycur to equal yn (unnecessary?) */
+  N_VScale(ONE, ark_mem->yn, ark_mem->ycur);
+  
   /* compute norm of y'' */
   *yddnrm = N_VWrmsNorm(ark_mem->tempv1, ark_mem->ewt);
 

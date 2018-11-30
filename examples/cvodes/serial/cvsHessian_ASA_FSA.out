@@ -16,10 +16,10 @@ Final Statistics for forward pb.
  Number steps:   143
 
  Function evaluations:
-  f:          167
-  fQ:         149
-  fS:         167
-  fQS:        149
+  f:          166
+  fQ:         148
+  fS:         166
+  fQS:        148
  Error test failures:
   netf:         1
   netfQ:        0
@@ -50,8 +50,8 @@ Final Statistics for backward pb. 1
  Number steps:   102
 
  Function evaluations:
-  f:          132
-  fQ:         112
+  f:          131
+  fQ:         111
  Error test failures:
   netf:         1
   netfQ:        6
@@ -67,8 +67,8 @@ Final Statistics for backward pb. 2
  Number steps:   115
 
  Function evaluations:
-  f:          154
-  fQ:         122
+  f:          153
+  fQ:         121
  Error test failures:
   netf:         3
   netfQ:        3

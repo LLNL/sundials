@@ -101,6 +101,15 @@ in extended {\F}.
 
 \subsection*{Changes in v4.0.0}
 
+Two changes were made in the CVODE/CVODES/ARKODE initial step size algorithm:
+
+\begin{enumerate}
+  \item Fixed an efficiency bug where an extra call to the RHS function was made.
+  \item Changed the behavior of the algorithm if the max-iterations case is hit.
+        Before the algorithm would exit with the step size calculated on the 
+        penultimate iteration. Now it will exit with the step size calculated
+        on the final iteration.
+\end{enumerate}
 The {\cvls} linear solver interface has been finalized, and supports
 {\sunlinsol} implementations of ``DIRECT'', ``ITERATIVE'', and
 ``MATRIX\_ITERATIVE'' types.  Details regarding how {\cvls} utilizes linear

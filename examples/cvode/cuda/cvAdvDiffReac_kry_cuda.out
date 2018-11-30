@@ -5,7 +5,7 @@ L2 norm =   6.586806e-01
 Final Statistics..
 
 nst     =    64
-nfe     =   121     nfeLS   =     0
+nfe     =   120     nfeLS   =     0
 nni     =   117     nli     =   295
 nsetups =     0     netf    =     0
 npe     =     0     nps     =     0

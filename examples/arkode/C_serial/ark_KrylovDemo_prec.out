@@ -78,11 +78,11 @@ Species 6
 10        11.0066   12.2649   12.2649   11.0066   10        
 10        10        10        10        10        10        
 
-t =   1.00e-08  nst = 5  nfe = 0  nfi = 76  nni = 47  hu =    9.89e-08
+t =   1.00e-08  nst = 5  nfe = 0  nfi = 75  nni = 47  hu =    9.89e-08
 
-t =   1.00e-07  nst = 5  nfe = 0  nfi = 76  nni = 47  hu =    9.89e-08
+t =   1.00e-07  nst = 5  nfe = 0  nfi = 75  nni = 47  hu =    9.89e-08
 
-t =   1.00e-06  nst = 8  nfe = 0  nfi = 121  nni = 77  hu =    4.79e-07
+t =   1.00e-06  nst = 8  nfe = 0  nfi = 120  nni = 77  hu =    4.79e-07
 
 c values at t = 1e-06:
 
@@ -134,11 +134,11 @@ Species 6
 13.4984   15.0075   16.9348   16.9348   15.0075   13.4984   
 13.4984   13.4984   13.4985   13.4985   13.4984   13.4984   
 
-t =   1.00e-05  nst = 27  nfe = 0  nfi = 408  nni = 269  hu =    4.79e-07
+t =   1.00e-05  nst = 27  nfe = 0  nfi = 407  nni = 269  hu =    4.79e-07
 
-t =   1.00e-04  nst = 106  nfe = 0  nfi = 1689  nni = 1155  hu =    1.70e-05
+t =   1.00e-04  nst = 106  nfe = 0  nfi = 1688  nni = 1155  hu =    1.70e-05
 
-t =   1.00e-03  nst = 110  nfe = 0  nfi = 1751  nni = 1197  hu =    1.51e-03
+t =   1.00e-03  nst = 110  nfe = 0  nfi = 1750  nni = 1197  hu =    1.51e-03
 
 c values at t = 0.001:
 
@@ -190,11 +190,11 @@ Species 6
 297691    307208    319252    319264    307245    297749    
 297229    297691    298276    298276    297692    297231    
 
-t =   1.00e-02  nst = 113  nfe = 0  nfi = 1798  nni = 1229  hu =    3.46e-03
+t =   1.00e-02  nst = 113  nfe = 0  nfi = 1797  nni = 1229  hu =    3.46e-03
 
-t =   1.00e-01  nst = 127  nfe = 0  nfi = 2025  nni = 1386  hu =    1.28e-02
+t =   1.00e-01  nst = 127  nfe = 0  nfi = 2024  nni = 1386  hu =    1.28e-02
 
-t =   1.00e+00  nst = 154  nfe = 0  nfi = 2490  nni = 1716  hu =    6.84e-02
+t =   1.00e+00  nst = 154  nfe = 0  nfi = 2489  nni = 1716  hu =    6.84e-02
 
 c values at t = 1:
 
@@ -246,11 +246,11 @@ Species 6
 46876.6   47001.2   47286     47627     47914     48040.3   
 46781.9   46876.6   47108.5   47389.7   47622.8   47718.3   
 
-t =   2.00e+00  nst = 165  nfe = 0  nfi = 2662  nni = 1833  hu =    4.14e-02
+t =   2.00e+00  nst = 165  nfe = 0  nfi = 2661  nni = 1833  hu =    4.14e-02
 
-t =   3.00e+00  nst = 177  nfe = 0  nfi = 2849  nni = 1960  hu =    1.08e-01
+t =   3.00e+00  nst = 177  nfe = 0  nfi = 2848  nni = 1960  hu =    1.08e-01
 
-t =   4.00e+00  nst = 187  nfe = 0  nfi = 3014  nni = 2073  hu =    1.23e-01
+t =   4.00e+00  nst = 187  nfe = 0  nfi = 3013  nni = 2073  hu =    1.23e-01
 
 c values at t = 4:
 
@@ -302,11 +302,11 @@ Species 6
 35185.4   35283.8   35510.4   35782     36010.4   36110.2   
 35109.7   35185.4   35371.4   35597.2   35784.2   35860.6   
 
-t =   5.00e+00  nst = 198  nfe = 0  nfi = 3180  nni = 2182  hu =    9.99e-02
+t =   5.00e+00  nst = 198  nfe = 0  nfi = 3179  nni = 2182  hu =    9.99e-02
 
-t =   6.00e+00  nst = 207  nfe = 0  nfi = 3337  nni = 2284  hu =    9.66e-02
+t =   6.00e+00  nst = 207  nfe = 0  nfi = 3336  nni = 2284  hu =    9.66e-02
 
-t =   7.00e+00  nst = 216  nfe = 0  nfi = 3478  nni = 2375  hu =    1.51e-01
+t =   7.00e+00  nst = 216  nfe = 0  nfi = 3477  nni = 2375  hu =    1.51e-01
 
 c values at t = 7:
 
@@ -358,11 +358,11 @@ Species 6
 34984.3   35080.2   35307.4   35575.9   35804.9   35903.1   
 34907.5   34984.3   35167.5   35393.9   35578.4   35656.3   
 
-t =   8.00e+00  nst = 232  nfe = 0  nfi = 3781  nni = 2567  hu =    1.06e-01
+t =   8.00e+00  nst = 232  nfe = 0  nfi = 3780  nni = 2567  hu =    1.06e-01
 
-t =   9.00e+00  nst = 242  nfe = 0  nfi = 3931  nni = 2652  hu =    8.10e-02
+t =   9.00e+00  nst = 242  nfe = 0  nfi = 3930  nni = 2652  hu =    8.10e-02
 
-t =   1.00e+01  nst = 258  nfe = 0  nfi = 4238  nni = 2839  hu =    1.04e-01
+t =   1.00e+01  nst = 258  nfe = 0  nfi = 4237  nni = 2839  hu =    1.04e-01
 
 c values at t = 10:
 
@@ -424,7 +424,7 @@ Species 6
  ARKLS integer workspace length        =   42 
  Number of steps                       =  258 
  Number of f-s (explicit)              =    0 
- Number of f-s (implicit)              = 4238 
+ Number of f-s (implicit)              = 4237 
  Number of f-s (SPGMR)                 = 8818 
  Number of f-s (TOTAL)                 = 8818 
  Number of setups                      =  109 
@@ -447,41 +447,41 @@ Preconditioner type is           jpre = PREC_LEFT
 Gram-Schmidt method type is    gstype = CLASSICAL_GS
 
 
-t =   1.00e-08  nst = 5  nfe = 0  nfi = 76  nni = 47  hu =    9.89e-08
+t =   1.00e-08  nst = 5  nfe = 0  nfi = 75  nni = 47  hu =    9.89e-08
 
-t =   1.00e-07  nst = 5  nfe = 0  nfi = 76  nni = 47  hu =    9.89e-08
+t =   1.00e-07  nst = 5  nfe = 0  nfi = 75  nni = 47  hu =    9.89e-08
 
-t =   1.00e-06  nst = 8  nfe = 0  nfi = 121  nni = 77  hu =    4.79e-07
+t =   1.00e-06  nst = 8  nfe = 0  nfi = 120  nni = 77  hu =    4.79e-07
 
-t =   1.00e-05  nst = 27  nfe = 0  nfi = 408  nni = 269  hu =    4.79e-07
+t =   1.00e-05  nst = 27  nfe = 0  nfi = 407  nni = 269  hu =    4.79e-07
 
-t =   1.00e-04  nst = 106  nfe = 0  nfi = 1689  nni = 1155  hu =    1.70e-05
+t =   1.00e-04  nst = 106  nfe = 0  nfi = 1688  nni = 1155  hu =    1.70e-05
 
-t =   1.00e-03  nst = 110  nfe = 0  nfi = 1751  nni = 1197  hu =    1.51e-03
+t =   1.00e-03  nst = 110  nfe = 0  nfi = 1750  nni = 1197  hu =    1.51e-03
 
-t =   1.00e-02  nst = 113  nfe = 0  nfi = 1798  nni = 1229  hu =    3.46e-03
+t =   1.00e-02  nst = 113  nfe = 0  nfi = 1797  nni = 1229  hu =    3.46e-03
 
-t =   1.00e-01  nst = 127  nfe = 0  nfi = 2025  nni = 1386  hu =    1.28e-02
+t =   1.00e-01  nst = 127  nfe = 0  nfi = 2024  nni = 1386  hu =    1.28e-02
 
-t =   1.00e+00  nst = 154  nfe = 0  nfi = 2492  nni = 1718  hu =    7.60e-02
+t =   1.00e+00  nst = 154  nfe = 0  nfi = 2491  nni = 1718  hu =    7.60e-02
 
-t =   2.00e+00  nst = 169  nfe = 0  nfi = 2747  nni = 1896  hu =    8.04e-02
+t =   2.00e+00  nst = 169  nfe = 0  nfi = 2746  nni = 1896  hu =    8.04e-02
 
-t =   3.00e+00  nst = 181  nfe = 0  nfi = 2951  nni = 2036  hu =    1.01e-01
+t =   3.00e+00  nst = 181  nfe = 0  nfi = 2950  nni = 2036  hu =    1.01e-01
 
-t =   4.00e+00  nst = 189  nfe = 0  nfi = 3074  nni = 2119  hu =    1.33e-01
+t =   4.00e+00  nst = 189  nfe = 0  nfi = 3073  nni = 2119  hu =    1.33e-01
 
-t =   5.00e+00  nst = 199  nfe = 0  nfi = 3243  nni = 2227  hu =    9.38e-02
+t =   5.00e+00  nst = 199  nfe = 0  nfi = 3242  nni = 2227  hu =    9.38e-02
 
-t =   6.00e+00  nst = 211  nfe = 0  nfi = 3443  nni = 2352  hu =    1.13e-01
+t =   6.00e+00  nst = 211  nfe = 0  nfi = 3442  nni = 2352  hu =    1.13e-01
 
-t =   7.00e+00  nst = 220  nfe = 0  nfi = 3613  nni = 2457  hu =    1.11e-01
+t =   7.00e+00  nst = 220  nfe = 0  nfi = 3612  nni = 2457  hu =    1.11e-01
 
-t =   8.00e+00  nst = 230  nfe = 0  nfi = 3752  nni = 2536  hu =    1.01e-01
+t =   8.00e+00  nst = 230  nfe = 0  nfi = 3751  nni = 2536  hu =    1.01e-01
 
-t =   9.00e+00  nst = 247  nfe = 0  nfi = 4060  nni = 2725  hu =    9.38e-02
+t =   9.00e+00  nst = 247  nfe = 0  nfi = 4059  nni = 2725  hu =    9.38e-02
 
-t =   1.00e+01  nst = 264  nfe = 0  nfi = 4356  nni = 2901  hu =    9.24e-02
+t =   1.00e+01  nst = 264  nfe = 0  nfi = 4355  nni = 2901  hu =    9.24e-02
 
 
 
@@ -493,7 +493,7 @@ t =   1.00e+01  nst = 264  nfe = 0  nfi = 4356  nni = 2901  hu =    9.24e-02
  ARKLS integer workspace length        =   42 
  Number of steps                       =  264 
  Number of f-s (explicit)              =    0 
- Number of f-s (implicit)              = 4356 
+ Number of f-s (implicit)              = 4355 
  Number of f-s (SPGMR)                 = 9113 
  Number of f-s (TOTAL)                 = 9113 
  Number of setups                      =  106 
@@ -516,41 +516,41 @@ Preconditioner type is           jpre = PREC_RIGHT
 Gram-Schmidt method type is    gstype = MODIFIED_GS
 
 
-t =   1.00e-08  nst = 5  nfe = 0  nfi = 76  nni = 47  hu =    9.89e-08
+t =   1.00e-08  nst = 5  nfe = 0  nfi = 75  nni = 47  hu =    9.89e-08
 
-t =   1.00e-07  nst = 5  nfe = 0  nfi = 76  nni = 47  hu =    9.89e-08
+t =   1.00e-07  nst = 5  nfe = 0  nfi = 75  nni = 47  hu =    9.89e-08
 
-t =   1.00e-06  nst = 8  nfe = 0  nfi = 121  nni = 77  hu =    4.79e-07
+t =   1.00e-06  nst = 8  nfe = 0  nfi = 120  nni = 77  hu =    4.79e-07
 
-t =   1.00e-05  nst = 27  nfe = 0  nfi = 408  nni = 269  hu =    4.79e-07
+t =   1.00e-05  nst = 27  nfe = 0  nfi = 407  nni = 269  hu =    4.79e-07
 
-t =   1.00e-04  nst = 106  nfe = 0  nfi = 1689  nni = 1155  hu =    1.70e-05
+t =   1.00e-04  nst = 106  nfe = 0  nfi = 1688  nni = 1155  hu =    1.70e-05
 
-t =   1.00e-03  nst = 110  nfe = 0  nfi = 1751  nni = 1197  hu =    1.50e-03
+t =   1.00e-03  nst = 110  nfe = 0  nfi = 1750  nni = 1197  hu =    1.50e-03
 
-t =   1.00e-02  nst = 113  nfe = 0  nfi = 1798  nni = 1229  hu =    3.42e-03
+t =   1.00e-02  nst = 113  nfe = 0  nfi = 1797  nni = 1229  hu =    3.42e-03
 
-t =   1.00e-01  nst = 127  nfe = 0  nfi = 2024  nni = 1385  hu =    1.23e-02
+t =   1.00e-01  nst = 127  nfe = 0  nfi = 2023  nni = 1385  hu =    1.23e-02
 
-t =   1.00e+00  nst = 166  nfe = 0  nfi = 2715  nni = 1875  hu =    2.40e-02
+t =   1.00e+00  nst = 166  nfe = 0  nfi = 2714  nni = 1875  hu =    2.40e-02
 
-t =   2.00e+00  nst = 214  nfe = 0  nfi = 3551  nni = 2460  hu =    2.34e-02
+t =   2.00e+00  nst = 214  nfe = 0  nfi = 3550  nni = 2460  hu =    2.34e-02
 
-t =   3.00e+00  nst = 249  nfe = 0  nfi = 4112  nni = 2846  hu =    3.57e-02
+t =   3.00e+00  nst = 249  nfe = 0  nfi = 4111  nni = 2846  hu =    3.57e-02
 
-t =   4.00e+00  nst = 272  nfe = 0  nfi = 4473  nni = 3092  hu =    5.08e-02
+t =   4.00e+00  nst = 272  nfe = 0  nfi = 4472  nni = 3092  hu =    5.08e-02
 
-t =   5.00e+00  nst = 297  nfe = 0  nfi = 4852  nni = 3346  hu =    5.14e-02
+t =   5.00e+00  nst = 297  nfe = 0  nfi = 4851  nni = 3346  hu =    5.14e-02
 
-t =   6.00e+00  nst = 315  nfe = 0  nfi = 5118  nni = 3522  hu =    6.88e-02
+t =   6.00e+00  nst = 315  nfe = 0  nfi = 5117  nni = 3522  hu =    6.88e-02
 
-t =   7.00e+00  nst = 328  nfe = 0  nfi = 5303  nni = 3642  hu =    8.22e-02
+t =   7.00e+00  nst = 328  nfe = 0  nfi = 5302  nni = 3642  hu =    8.22e-02
 
-t =   8.00e+00  nst = 338  nfe = 0  nfi = 5442  nni = 3731  hu =    8.52e-02
+t =   8.00e+00  nst = 338  nfe = 0  nfi = 5441  nni = 3731  hu =    8.52e-02
 
-t =   9.00e+00  nst = 349  nfe = 0  nfi = 5593  nni = 3827  hu =    1.11e-01
+t =   9.00e+00  nst = 349  nfe = 0  nfi = 5592  nni = 3827  hu =    1.11e-01
 
-t =   1.00e+01  nst = 359  nfe = 0  nfi = 5723  nni = 3907  hu =    1.35e-01
+t =   1.00e+01  nst = 359  nfe = 0  nfi = 5722  nni = 3907  hu =    1.35e-01
 
 
 
@@ -562,7 +562,7 @@ t =   1.00e+01  nst = 359  nfe = 0  nfi = 5723  nni = 3907  hu =    1.35e-01
  ARKLS integer workspace length        =   42 
  Number of steps                       =  359 
  Number of f-s (explicit)              =    0 
- Number of f-s (implicit)              = 5723 
+ Number of f-s (implicit)              = 5722 
  Number of f-s (SPGMR)                 = 12904 
  Number of f-s (TOTAL)                 = 12904 
  Number of setups                      =  253 
@@ -585,41 +585,41 @@ Preconditioner type is           jpre = PREC_RIGHT
 Gram-Schmidt method type is    gstype = CLASSICAL_GS
 
 
-t =   1.00e-08  nst = 5  nfe = 0  nfi = 76  nni = 47  hu =    9.89e-08
+t =   1.00e-08  nst = 5  nfe = 0  nfi = 75  nni = 47  hu =    9.89e-08
 
-t =   1.00e-07  nst = 5  nfe = 0  nfi = 76  nni = 47  hu =    9.89e-08
+t =   1.00e-07  nst = 5  nfe = 0  nfi = 75  nni = 47  hu =    9.89e-08
 
-t =   1.00e-06  nst = 8  nfe = 0  nfi = 121  nni = 77  hu =    4.79e-07
+t =   1.00e-06  nst = 8  nfe = 0  nfi = 120  nni = 77  hu =    4.79e-07
 
-t =   1.00e-05  nst = 27  nfe = 0  nfi = 408  nni = 269  hu =    4.79e-07
+t =   1.00e-05  nst = 27  nfe = 0  nfi = 407  nni = 269  hu =    4.79e-07
 
-t =   1.00e-04  nst = 106  nfe = 0  nfi = 1689  nni = 1155  hu =    1.70e-05
+t =   1.00e-04  nst = 106  nfe = 0  nfi = 1688  nni = 1155  hu =    1.70e-05
 
-t =   1.00e-03  nst = 110  nfe = 0  nfi = 1751  nni = 1197  hu =    1.50e-03
+t =   1.00e-03  nst = 110  nfe = 0  nfi = 1750  nni = 1197  hu =    1.50e-03
 
-t =   1.00e-02  nst = 113  nfe = 0  nfi = 1798  nni = 1229  hu =    3.42e-03
+t =   1.00e-02  nst = 113  nfe = 0  nfi = 1797  nni = 1229  hu =    3.42e-03
 
-t =   1.00e-01  nst = 127  nfe = 0  nfi = 2024  nni = 1385  hu =    1.23e-02
+t =   1.00e-01  nst = 127  nfe = 0  nfi = 2023  nni = 1385  hu =    1.23e-02
 
-t =   1.00e+00  nst = 166  nfe = 0  nfi = 2715  nni = 1875  hu =    2.40e-02
+t =   1.00e+00  nst = 166  nfe = 0  nfi = 2714  nni = 1875  hu =    2.40e-02
 
-t =   2.00e+00  nst = 214  nfe = 0  nfi = 3557  nni = 2465  hu =    2.34e-02
+t =   2.00e+00  nst = 214  nfe = 0  nfi = 3556  nni = 2465  hu =    2.34e-02
 
-t =   3.00e+00  nst = 249  nfe = 0  nfi = 4118  nni = 2851  hu =    3.57e-02
+t =   3.00e+00  nst = 249  nfe = 0  nfi = 4117  nni = 2851  hu =    3.57e-02
 
-t =   4.00e+00  nst = 272  nfe = 0  nfi = 4479  nni = 3097  hu =    5.08e-02
+t =   4.00e+00  nst = 272  nfe = 0  nfi = 4478  nni = 3097  hu =    5.08e-02
 
-t =   5.00e+00  nst = 297  nfe = 0  nfi = 4858  nni = 3351  hu =    5.14e-02
+t =   5.00e+00  nst = 297  nfe = 0  nfi = 4857  nni = 3351  hu =    5.14e-02
 
-t =   6.00e+00  nst = 315  nfe = 0  nfi = 5124  nni = 3527  hu =    6.89e-02
+t =   6.00e+00  nst = 315  nfe = 0  nfi = 5123  nni = 3527  hu =    6.89e-02
 
-t =   7.00e+00  nst = 328  nfe = 0  nfi = 5309  nni = 3647  hu =    9.31e-02
+t =   7.00e+00  nst = 328  nfe = 0  nfi = 5308  nni = 3647  hu =    9.31e-02
 
-t =   8.00e+00  nst = 339  nfe = 0  nfi = 5465  nni = 3748  hu =    9.70e-02
+t =   8.00e+00  nst = 339  nfe = 0  nfi = 5464  nni = 3748  hu =    9.70e-02
 
-t =   9.00e+00  nst = 349  nfe = 0  nfi = 5599  nni = 3832  hu =    1.12e-01
+t =   9.00e+00  nst = 349  nfe = 0  nfi = 5598  nni = 3832  hu =    1.12e-01
 
-t =   1.00e+01  nst = 359  nfe = 0  nfi = 5729  nni = 3912  hu =    1.31e-01
+t =   1.00e+01  nst = 359  nfe = 0  nfi = 5728  nni = 3912  hu =    1.31e-01
 
 
 
@@ -631,7 +631,7 @@ t =   1.00e+01  nst = 359  nfe = 0  nfi = 5729  nni = 3912  hu =    1.31e-01
  ARKLS integer workspace length        =   42 
  Number of steps                       =  359 
  Number of f-s (explicit)              =    0 
- Number of f-s (implicit)              = 5729 
+ Number of f-s (implicit)              = 5728 
  Number of f-s (SPGMR)                 = 12934 
  Number of f-s (TOTAL)                 = 12934 
  Number of setups                      =  254 

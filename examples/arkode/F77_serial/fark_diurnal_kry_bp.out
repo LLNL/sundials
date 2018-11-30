@@ -57,7 +57,7 @@ Final statistics:
  number of steps        =   7203
  number of step att.    =   7227
  number of fe evals.    =      0
- number of fi evals.    =  75508
+ number of fi evals.    =  75507
  number of prec. setups =    426
  number of prec. evals. =    120
  number of prec. solves = 109665

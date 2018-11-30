@@ -1206,9 +1206,10 @@ int arkStep_Init(void* arkode_mem, int init_type)
   support it, we may just copy vectors Fe[stages] and Fi[stages]
   to fill f instead of calling fe() and fi().
 
-  Mode 2 is only called for dense output in-between steps, so we
-  strive to store the intermediate parts so that they do not
-  interfere with the other two modes.
+  Mode 2 is only called for dense output in-between steps, or 
+  when estimating the initial time step size, so we strive to 
+  store the intermediate parts so that they do not interfere
+  with the other two modes.
   ---------------------------------------------------------------*/
 int arkStep_FullRHS(void* arkode_mem, realtype t,
                     N_Vector y, N_Vector f, int mode)
@@ -1330,9 +1331,9 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
 
     break;
 
-  /*  Mode 2: called for dense output in-between steps
-      store the intermediate calculations in such a way as to not
-      interfere with the other two modes */
+  /*  Mode 2: called for dense output in-between steps or for estimation
+      of the initial time step size, store the intermediate calculations 
+      in such a way as to not interfere with the other two modes */
   default:
 
     /* call fe if the problem has an explicit component (store in ark_tempv2) */
@@ -1370,15 +1371,9 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
   }
 
 
-  /* if M != I, then update f = M^{-1}*f
-     MAY WANT TO MOVE THIS TO BE CONDITIONALLY CALLED INSIDE THE PRECEDING CASE BLOCKS */
+  /* if M != I, then update f = M^{-1}*f */
   if (step_mem->mass_mem != NULL) {
-    /* scale RHS */
-    N_VScale(ark_mem->h, f, f);
-    /* update fnew = M^{-1}*fnew */
-    retval = step_mem->msolve((void *) ark_mem, f, step_mem->nlscoef);
-    /* scale result */
-    N_VScale(ONE/ark_mem->h, f, f);
+    retval = step_mem->msolve((void *) ark_mem, f, step_mem->nlscoef/ark_mem->h);
     if (retval != ARK_SUCCESS) {
       arkProcessError(ark_mem, ARK_MASSSOLVE_FAIL, "ARKode::ARKStep",
                       "arkStep_FullRHS", "Mass matrix solver failure");
@@ -2340,7 +2335,7 @@ int arkStep_ComputeSolutions(ARKodeMem ark_mem, realtype *dsm)
     /* compute yerr (if step adaptivity enabled) */
     if (!ark_mem->fixedstep) {
 
-      /* compute yerr RHS vector (store in yerr) */
+      /* compute yerr RHS vector */
       /*   set arrays for fused vector operation */
       nvec = 0;
       for (j=0; j<step_mem->stages; j++) {

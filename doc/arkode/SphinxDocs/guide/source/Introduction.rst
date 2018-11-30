@@ -127,6 +127,15 @@ has been added for storing Butcher tables. Functions for creating new Butcher
 tables and checking their analytic order are provided along with other utility
 routines. For more details see :ref:`ARKodeButcherTable`.
 
+Two changes were made in the initial step size algorithm:
+
+* Fixed an efficiency bug where an extra call to the RHS function was made.
+
+* Changed the behavior of the algorithm if the max-iterations case is hit.
+  Before the algorithm would exit with the step size calculated on the 
+  penultimate iteration. Now it will exit with the step size calculated
+  on the final iteration.
+
 ARKode's dense output infrastructure has been improved to support
 higher-degree Hermite polynomial interpolants (up to degree 5) over
 the last successful time step.
@@ -217,11 +226,11 @@ set, but is available as a CMAKE option that can modified.
 Changes in v2.2.0
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-Fixed a problem with setting ``sunindextype`` which would occur
-with some compilers (e.g. armclang) that did not define ``__STDC_VERSION__``.
+Fixed a problem with setting ``sunindextype`` which would occur with
+some compilers (e.g. armclang) that did not define ``__STDC_VERSION__``.
 
-Added hybrid MPI/CUDA and MPI/RAJA vectors to allow use of more
-than one MPI rank when using a GPU system.  The vectors assume one GPU
+Added hybrid MPI/CUDA and MPI/RAJA vectors to allow use of more than
+one MPI rank when using a GPU system.  The vectors assume one GPU
 device per MPI rank.
 
 Changed the name of the RAJA NVECTOR library to
@@ -229,14 +238,12 @@ Changed the name of the RAJA NVECTOR library to
 ``libsundials_nvecraja.lib`` to better reflect that we only support CUDA
 as a backend for RAJA currently.
 
-
 Several changes were made to the build system:
 
 * CMake 3.1.3 is now the minimum required CMake version.
 
 * Deprecate the behavior of the ``SUNDIALS_INDEX_TYPE`` CMake option and
-  added the
-  ``SUNDIALS_INDEX_SIZE`` CMake option to select the ``sunindextype``
+  added the ``SUNDIALS_INDEX_SIZE`` CMake option to select the ``sunindextype``
   integer size.
 
 * The native CMake FindMPI module is now used to locate an MPI

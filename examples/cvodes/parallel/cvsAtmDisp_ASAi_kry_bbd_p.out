@@ -15,7 +15,7 @@ Final Statistics..
 lenrw   =  85469     leniw =    420
 llrw    =  78788     lliw  =    202
 nst     =    174
-nfe     =    179     nfel  =    310
+nfe     =    178     nfel  =    310
 nni     =    175     nli   =    310
 nsetups =     18     netf  =      0
 npe     =      4     nps   =    482
@@ -28,7 +28,7 @@ Final Statistics..
 lenrw   = 150999     leniw =    420
 llrw    =  78788     lliw  =    202
 nst     =    118
-nfe     =    135     nfel  =    277
+nfe     =    134     nfel  =    277
 nni     =    131     nli   =    277
 nsetups =     16     netf  =      0
 npe     =      3     nps   =    399

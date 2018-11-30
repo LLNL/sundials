@@ -21,7 +21,7 @@ Iteration               : FIXEDPOINT
  CVode real workspace length              =  129 
  CVode integer workspace length           =   60 
  Number of steps                          =  196 
- Number of f-s                            =  391 
+ Number of f-s                            =  390 
  Number of setups                         =    0 
  Number of nonlinear iterations           =  387 
  Number of nonlinear convergence failures =    0 
@@ -47,7 +47,7 @@ Linear Solver           : Dense, User-Supplied Jacobian
  CVode real workspace length              =  129 
  CVode integer workspace length           =   60 
  Number of steps                          =  266 
- Number of f-s                            =  366 
+ Number of f-s                            =  365 
  Number of setups                         =   46 
  Number of nonlinear iterations           =  362 
  Number of nonlinear convergence failures =    0 
@@ -78,7 +78,7 @@ Linear Solver           : Dense, Difference Quotient Jacobian
  CVode real workspace length              =  129 
  CVode integer workspace length           =   60 
  Number of steps                          =  195 
- Number of f-s                            =  268 
+ Number of f-s                            =  267 
  Number of setups                         =   34 
  Number of nonlinear iterations           =  264 
  Number of nonlinear convergence failures =    0 
@@ -109,7 +109,7 @@ Linear Solver           : Diagonal Jacobian
  CVode real workspace length              =  129 
  CVode integer workspace length           =   60 
  Number of steps                          =  238 
- Number of f-s                            =  330 
+ Number of f-s                            =  329 
  Number of setups                         =   40 
  Number of nonlinear iterations           =  326 
  Number of nonlinear convergence failures =    0 
@@ -139,7 +139,7 @@ Iteration               : FIXEDPOINT
  CVode real workspace length              =  115 
  CVode integer workspace length           =   53 
  Number of steps                          =  262 
- Number of f-s                            =  498 
+ Number of f-s                            =  497 
  Number of setups                         =    0 
  Number of nonlinear iterations           =  494 
  Number of nonlinear convergence failures =    0 
@@ -165,7 +165,7 @@ Linear Solver           : Dense, User-Supplied Jacobian
  CVode real workspace length              =  115 
  CVode integer workspace length           =   53 
  Number of steps                          =  265 
- Number of f-s                            =  358 
+ Number of f-s                            =  357 
  Number of setups                         =   40 
  Number of nonlinear iterations           =  354 
  Number of nonlinear convergence failures =    0 
@@ -196,7 +196,7 @@ Linear Solver           : Dense, Difference Quotient Jacobian
  CVode real workspace length              =  115 
  CVode integer workspace length           =   53 
  Number of steps                          =  276 
- Number of f-s                            =  367 
+ Number of f-s                            =  366 
  Number of setups                         =   40 
  Number of nonlinear iterations           =  363 
  Number of nonlinear convergence failures =    0 
@@ -227,7 +227,7 @@ Linear Solver           : Diagonal Jacobian
  CVode real workspace length              =  115 
  CVode integer workspace length           =   53 
  Number of steps                          =  266 
- Number of f-s                            =  360 
+ Number of f-s                            =  359 
  Number of setups                         =   39 
  Number of nonlinear iterations           =  356 
  Number of nonlinear convergence failures =    0 
@@ -267,7 +267,7 @@ Iteration               : FIXEDPOINT
  CVode real workspace length              =  589 
  CVode integer workspace length           =   60 
  Number of steps                          =  341 
- Number of f-s                            =  602 
+ Number of f-s                            =  601 
  Number of setups                         =    0 
  Number of nonlinear iterations           =  598 
  Number of nonlinear convergence failures =   79 
@@ -294,7 +294,7 @@ Linear Solver           : Diagonal Jacobian
  CVode real workspace length              =  589 
  CVode integer workspace length           =   60 
  Number of steps                          =  154 
- Number of f-s                            =  219 
+ Number of f-s                            =  218 
  Number of setups                         =   33 
  Number of nonlinear iterations           =  215 
  Number of nonlinear convergence failures =    0 
@@ -326,7 +326,7 @@ Linear Solver           : Band, User-Supplied Jacobian
  CVode real workspace length              =  589 
  CVode integer workspace length           =   60 
  Number of steps                          =  149 
- Number of f-s                            =  184 
+ Number of f-s                            =  183 
  Number of setups                         =   32 
  Number of nonlinear iterations           =  180 
  Number of nonlinear convergence failures =    0 
@@ -358,7 +358,7 @@ Linear Solver           : Band, Difference Quotient Jacobian
  CVode real workspace length              =  589 
  CVode integer workspace length           =   60 
  Number of steps                          =  124 
- Number of f-s                            =  142 
+ Number of f-s                            =  141 
  Number of setups                         =   24 
  Number of nonlinear iterations           =  138 
  Number of nonlinear convergence failures =    0 
@@ -389,7 +389,7 @@ Iteration               : FIXEDPOINT
  CVode real workspace length              =  414 
  CVode integer workspace length           =   53 
  Number of steps                          =  372 
- Number of f-s                            =  693 
+ Number of f-s                            =  692 
  Number of setups                         =    0 
  Number of nonlinear iterations           =  689 
  Number of nonlinear convergence failures =   56 
@@ -416,7 +416,7 @@ Linear Solver           : Diagonal Jacobian
  CVode real workspace length              =  414 
  CVode integer workspace length           =   53 
  Number of steps                          =  180 
- Number of f-s                            =  271 
+ Number of f-s                            =  270 
  Number of setups                         =   47 
  Number of nonlinear iterations           =  267 
  Number of nonlinear convergence failures =    2 
@@ -448,7 +448,7 @@ Linear Solver           : Band, User-Supplied Jacobian
  CVode real workspace length              =  414 
  CVode integer workspace length           =   53 
  Number of steps                          =  119 
- Number of f-s                            =  144 
+ Number of f-s                            =  143 
  Number of setups                         =   25 
  Number of nonlinear iterations           =  140 
  Number of nonlinear convergence failures =    0 
@@ -480,7 +480,7 @@ Linear Solver           : Band, Difference Quotient Jacobian
  CVode real workspace length              =  414 
  CVode integer workspace length           =   53 
  Number of steps                          =  121 
- Number of f-s                            =  145 
+ Number of f-s                            =  144 
  Number of setups                         =   24 
  Number of nonlinear iterations           =  141 
  Number of nonlinear convergence failures =    0 

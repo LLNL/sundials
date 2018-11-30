@@ -20,7 +20,7 @@ Brusselator ODE test problem, fixed-point solver:
 
 Final Solver Statistics:
    Internal solver steps = 731 (attempted = 732)
-   Total RHS evals:  Fe = 4396,  Fi = 18846
+   Total RHS evals:  Fe = 4395,  Fi = 18845
    Total number of fixed-point iterations = 14450
    Total number of nonlinear solver convergence failures = 0
    Total number of error test failures = 1

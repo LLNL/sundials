@@ -12,16 +12,16 @@ Diagonal test problem:
 
 Preconditioning on left
 
- t =   0.10E+00     no. steps =   173   no. attempts =   173   no. fe-s =     0   no. fi-s =  1847
- t =   0.20E+00     no. steps =   221   no. attempts =   221   no. fe-s =     0   no. fi-s =  2363
- t =   0.30E+00     no. steps =   248   no. attempts =   248   no. fe-s =     0   no. fi-s =  2651
- t =   0.40E+00     no. steps =   266   no. attempts =   266   no. fe-s =     0   no. fi-s =  2849
- t =   0.50E+00     no. steps =   281   no. attempts =   281   no. fe-s =     0   no. fi-s =  3008
- t =   0.60E+00     no. steps =   291   no. attempts =   291   no. fe-s =     0   no. fi-s =  3117
- t =   0.70E+00     no. steps =   300   no. attempts =   300   no. fe-s =     0   no. fi-s =  3216
- t =   0.80E+00     no. steps =   306   no. attempts =   306   no. fe-s =     0   no. fi-s =  3276
- t =   0.90E+00     no. steps =   312   no. attempts =   312   no. fe-s =     0   no. fi-s =  3336
- t =   0.10E+01     no. steps =   319   no. attempts =   319   no. fe-s =     0   no. fi-s =  3411
+ t =   0.10E+00     no. steps =   173   no. attempts =   173   no. fe-s =     0   no. fi-s =  1846
+ t =   0.20E+00     no. steps =   221   no. attempts =   221   no. fe-s =     0   no. fi-s =  2362
+ t =   0.30E+00     no. steps =   248   no. attempts =   248   no. fe-s =     0   no. fi-s =  2650
+ t =   0.40E+00     no. steps =   266   no. attempts =   266   no. fe-s =     0   no. fi-s =  2848
+ t =   0.50E+00     no. steps =   281   no. attempts =   281   no. fe-s =     0   no. fi-s =  3007
+ t =   0.60E+00     no. steps =   291   no. attempts =   291   no. fe-s =     0   no. fi-s =  3116
+ t =   0.70E+00     no. steps =   300   no. attempts =   300   no. fe-s =     0   no. fi-s =  3215
+ t =   0.80E+00     no. steps =   306   no. attempts =   306   no. fe-s =     0   no. fi-s =  3275
+ t =   0.90E+00     no. steps =   312   no. attempts =   312   no. fe-s =     0   no. fi-s =  3335
+ t =   0.10E+01     no. steps =   319   no. attempts =   319   no. fe-s =     0   no. fi-s =  3410
 
 Max. absolute error is  0.76E-10
 
@@ -31,7 +31,7 @@ Final statistics:
  number of steps        =   319
  number of steps att.   =   319
  number of fe evals.    =     0
- number of fi evals.    =  3411
+ number of fi evals.    =  3410
  number of prec. setups =    25
  number of prec. evals. =     6
  number of prec. solves =  3380
@@ -52,16 +52,16 @@ In ARKBBDPRE:
 
 Preconditioning on right
 
- t =   0.10E+00     no. steps =   173   no. attempts =   173   no. fe-s =     0   no. fi-s =  1847
- t =   0.20E+00     no. steps =   221   no. attempts =   221   no. fe-s =     0   no. fi-s =  2363
- t =   0.30E+00     no. steps =   248   no. attempts =   248   no. fe-s =     0   no. fi-s =  2651
- t =   0.40E+00     no. steps =   266   no. attempts =   266   no. fe-s =     0   no. fi-s =  2849
- t =   0.50E+00     no. steps =   281   no. attempts =   281   no. fe-s =     0   no. fi-s =  3008
- t =   0.60E+00     no. steps =   291   no. attempts =   291   no. fe-s =     0   no. fi-s =  3117
- t =   0.70E+00     no. steps =   300   no. attempts =   300   no. fe-s =     0   no. fi-s =  3216
- t =   0.80E+00     no. steps =   306   no. attempts =   306   no. fe-s =     0   no. fi-s =  3276
- t =   0.90E+00     no. steps =   312   no. attempts =   312   no. fe-s =     0   no. fi-s =  3336
- t =   0.10E+01     no. steps =   319   no. attempts =   319   no. fe-s =     0   no. fi-s =  3411
+ t =   0.10E+00     no. steps =   173   no. attempts =   173   no. fe-s =     0   no. fi-s =  1846
+ t =   0.20E+00     no. steps =   221   no. attempts =   221   no. fe-s =     0   no. fi-s =  2362
+ t =   0.30E+00     no. steps =   248   no. attempts =   248   no. fe-s =     0   no. fi-s =  2650
+ t =   0.40E+00     no. steps =   266   no. attempts =   266   no. fe-s =     0   no. fi-s =  2848
+ t =   0.50E+00     no. steps =   281   no. attempts =   281   no. fe-s =     0   no. fi-s =  3007
+ t =   0.60E+00     no. steps =   291   no. attempts =   291   no. fe-s =     0   no. fi-s =  3116
+ t =   0.70E+00     no. steps =   300   no. attempts =   300   no. fe-s =     0   no. fi-s =  3215
+ t =   0.80E+00     no. steps =   306   no. attempts =   306   no. fe-s =     0   no. fi-s =  3275
+ t =   0.90E+00     no. steps =   312   no. attempts =   312   no. fe-s =     0   no. fi-s =  3335
+ t =   0.10E+01     no. steps =   319   no. attempts =   319   no. fe-s =     0   no. fi-s =  3410
 
 Max. absolute error is  0.76E-10
 
@@ -71,7 +71,7 @@ Final statistics:
  number of steps        =   319
  number of steps att.   =   319
  number of fe evals.    =     0
- number of fi evals.    =  3411
+ number of fi evals.    =  3410
  number of prec. setups =    25
  number of prec. evals. =     6
  number of prec. solves =  3380
