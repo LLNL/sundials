@@ -132,7 +132,8 @@ MACRO(SUNDIALS_ADD_TEST NAME EXECUTABLE)
 
   # create test case with the corresponding test runner command and arguments
   # all tests are added during development and only unlabeled tests when released
-  IF(${SUNDIALS_DEVTESTS} OR "${SUNDIALS_ADD_TEST_EXAMPLE_TYPE}" STREQUAL "")
+  IF((${SUNDIALS_DEVTESTS} OR "${SUNDIALS_ADD_TEST_EXAMPLE_TYPE}" STREQUAL "")
+      AND NOT "${SUNDIALS_ADD_TEST_EXAMPLE_TYPE}" STREQUAL "exclude")
     ADD_TEST(NAME ${NAME} COMMAND ${PYTHON_EXECUTABLE} ${TESTRUNNER} ${TEST_ARGS})
   ENDIF()
 

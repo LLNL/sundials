@@ -171,6 +171,18 @@
 .. [SA2002] A. Sayfy and A. Aburub. Embedded Additive Runge-Kutta
 	    Methods. *Intern. J. Computer Math.*, 79:945-953, 2002.
 
+.. [SKAW2009] M. Schlegel, O. Knoth, M. Arnold, and R. Wolke. Multirate
+              Runge--Kutta schemes for advection
+              equations. *J. Comput. Appl. Math.*, 226:345-357, 2009.
+
+.. [SKAW2012a] M. Schlegel, O. Knoth, M. Arnold, and R. Wolke. Implementation of
+               multirate time integration methods for air pollution modelling.
+               *GMD*, 5:1395-1405, 2012.
+
+.. [SKAW2012b] M. Schlegel, O. Knoth, M. Arnold, and R. Wolke. Numerical
+               solution of multiscale problems in atmospheric modeling.
+               *Appl. Numer. Math.*, 62:1531-1542, 2012.
+
 .. [S1998] G. Soderlind. The automatic control of numerical
 	   integration.  *CWI Quarterly*, 11:55-74, 1998. 
 
@@ -195,6 +207,10 @@
 .. [WN2011] H.F. Walker and P. Ni. Anderson acceleration for
             fixed-point iterations. *SIAM J. Numer. Anal.*,
             49:1715-1735, 2011.
+
+.. [KW1998] O. Knoth and R. Wolke. Implicit-explicit Runge-Kutta methods for
+            computing atmospheric reactive flows. *Appl. Numer. Math.*,
+            28(2):327-341, 1998.
 
 .. [Z1963] J.A. Zonneveld. Automatic integration of ordinary
 	   differential equations. *Report R743, Mathematisch Centrum*,

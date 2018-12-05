@@ -723,6 +723,11 @@ int erkStep_TakeStep(void* arkode_mem)
          ark_mem->nst, is, ark_mem->h, ark_mem->tcur);
 #endif
 
+      /* Solver diagnostics reporting */
+      if (ark_mem->report)
+        fprintf(ark_mem->diagfp, "ERKStep  step  %li  %"RSYM"  %i  %"RSYM"\n",
+                ark_mem->nst, ark_mem->h, is, ark_mem->tcur);
+
       /* Set ycur to current stage solution */
       nvec = 0;
       for (js=0; js<is; js++) {
@@ -737,14 +742,6 @@ int erkStep_TakeStep(void* arkode_mem)
       /*   call fused vector operation to do the work */
       retval = N_VLinearCombination(nvec, cvals, Xvecs, ark_mem->ycur);
       if (retval != 0) return(ARK_VECTOROP_ERR);
-
-      /* N_VScale(ONE, ark_mem->yn, ark_mem->ycur); */
-
-      /* /\* Iterate over each prior stage updating rhs *\/ */
-      /* for (js=0; js<is; js++) { */
-      /*   hA = ark_mem->h * step_mem->B->A[is][js]; */
-      /*   N_VLinearSum(hA, step_mem->F[js], ONE, ark_mem->ycur, ark_mem->ycur); */
-      /* } */
 
       /* compute updated RHS */
       retval = step_mem->f(ark_mem->tcur, ark_mem->ycur,
@@ -772,7 +769,7 @@ int erkStep_TakeStep(void* arkode_mem)
 
     /* Solver diagnostics reporting */
     if (ark_mem->report)
-      fprintf(ark_mem->diagfp, "  etest  %li  %"RSYM"  %"RSYM"\n",
+      fprintf(ark_mem->diagfp, "ERKStep  etest  %li  %"RSYM"  %"RSYM"\n",
               ark_mem->nst, ark_mem->h, dsm);
 
     /* Perform time accuracy error test (if failure, updates h for next try) */
@@ -972,6 +969,16 @@ int erkStep_CheckButcherTable(ARKodeMem ark_mem)
                     "erkStep_CheckButcherTable",
                     "embedding order < 1!");
     return(ARK_ILL_INPUT);
+  }
+
+  /* check that embedding exists */
+  if ((step_mem->p > 0) && (!ark_mem->fixedstep)) {
+    if (step_mem->B->d == NULL) {
+      arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ERKStep",
+                      "erkStep_CheckButcherTable",
+                      "no embedding!");
+      return(ARK_ILL_INPUT);
+    }
   }
 
   /* check that ERK table is strictly lower triangular */

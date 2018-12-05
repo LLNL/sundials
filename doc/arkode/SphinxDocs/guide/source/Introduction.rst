@@ -110,17 +110,24 @@ approach to one-step methods, which should allow rapid research and
 development of novel integration methods without affecting existing
 solver functionality.  To support this, the existing ARK-based methods
 have been encapsulated inside the new ``ARKStep`` time-stepping
-module; a new ``ERKStep`` time-stepping module provides an
-optimized implementation for explicit Runge-Kutta methods (reduced
-storage and number of calls to the ODE right-hand side function).
+module. Two new time-stepping modules have been added:
+
+* The ``ERKStep`` module provides an optimized implementation for explicit
+  Runge-Kutta methods with reduced storage and number of calls to the ODE
+  right-hand side function.
+
+* The ``MRIStep`` module implements two-rate explicit-explicit multirate
+  infinitesimal step methods utilizing different step sizes for slow
+  and fast processes in an additive splitting.
+
 This restructure has resulted in numerous small changes to the user
 interface, particularly the suite of "Set" routines for user-provided
 solver parameters and and "Get" routines to access solver statistics,
-that are now prefixed with ``ARKStep`` or ``ERKStep`` instead of
-``ARKode``.  Aside from affecting the names of these routines,
-user-level changes have been kept to a minimum.  However, we recommend
-that users consult both this documentation and the ARKode example
-programs for further details on the updated infrastructure.
+that are now prefixed with the name of time-stepping module (e.g., ``ARKStep``
+or ``ERKStep``) instead of ``ARKode``.  Aside from affecting the names of these
+routines, user-level changes have been kept to a minimum.  However, we recommend
+that users consult both this documentation and the ARKode example programs for
+further details on the updated infrastructure.
 
 As part of the ARKode restructuring an :c:type:`ARKodeButcherTable` structure
 has been added for storing Butcher tables. Functions for creating new Butcher

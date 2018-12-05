@@ -58,7 +58,7 @@ ARKStep initialization and deallocation functions
    returned, and an error message will be printed to ``stderr``.
 
 
-.. c:function:: void ARKStepFree(void* arkode_mem)
+.. c:function:: void ARKStepFree(void** arkode_mem)
 
    This function frees the problem memory *arkode_mem* created by
    :c:func:`ARKStepCreate()`.
@@ -659,7 +659,7 @@ attaches the nonlinear solver to the main ARKStep integrator.
    default; a call to this routine replaces that module with the
    supplied *NLS* object.
 
-   
+
 
 
 .. _ARKStep_CInterface.RootFinding:
@@ -739,7 +739,7 @@ has requested rootfinding.
         i.e. :math:`t_{n-1} <` *tout* :math:`\le t_{n}` for forward
         integration, or :math:`t_{n} \le` *tout* :math:`< t_{n-1}` for
         backward integration.  It will then compute an approximation
-        to the solution :math:`y`(*tout*) by interpolation (using one
+        to the solution :math:`y(tout)` by interpolation (using one
         of the dense output routines described in the section
         :ref:`Mathematics.Interpolation`).
 
@@ -800,6 +800,7 @@ has requested rootfinding.
 	failed.
       * *ARK_MASSSOLVE_FAIL* if the mass matrix solver's solve routine
 	failed.
+      * *ARK_VECTOROP_ERR* a vector operation error occured.
 
    **Notes:** The input vector *yout* can use the same memory as the
    vector *y0* of initial conditions that was passed to
@@ -1266,8 +1267,8 @@ Set integrator method order        :c:func:`ARKStepSetOrder()`        4
 Specify implicit/explicit problem  :c:func:`ARKStepSetImEx()`         ``SUNTRUE``
 Specify explicit problem           :c:func:`ARKStepSetExplicit()`     ``SUNFALSE``
 Specify implicit problem           :c:func:`ARKStepSetImplicit()`     ``SUNFALSE``
-Set additive RK tables             :c:func:`ARKStepSetARKTables()`    internal
-Specify additive RK table numbers  :c:func:`ARKStepSetARKTableNum()`  internal
+Set additive RK tables             :c:func:`ARKStepSetTables()`       internal
+Specify additive RK table numbers  :c:func:`ARKStepSetTableNum()`     internal
 =================================  =================================  ==============
 
 
@@ -1358,15 +1359,15 @@ Specify additive RK table numbers  :c:func:`ARKStepSetARKTableNum()`  internal
 
 
 
-.. c:function:: int ARKStepSetARKTables(void* arkode_mem, int q, int p, ARKodeButcherTable Bi, ARKodeButcherTable Be)
+.. c:function:: int ARKStepSetTables(void* arkode_mem, int q, int p, ARKodeButcherTable Bi, ARKodeButcherTable Be)
 
    Specifies a customized Butcher table (or pair) for the ERK, DIRK,
    or ARK method.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *q* -- global order of accuracy for the RK method.
-      * *p* -- global order of accuracy for the embedded RK method.
+      * *q* -- global order of accuracy for the ARK method.
+      * *p* -- global order of accuracy for the embedded ARK method.
       * *Bi* -- the Butcher table for the implicit RK method.
       * *Be* -- the Butcher table for the explicit RK method.
 
@@ -1404,16 +1405,14 @@ Specify additive RK table numbers  :c:func:`ARKStepSetARKTableNum()`  internal
    that they specify DIRK and ERK methods, respectively.
 
    If the inputs *Bi* or *Be* do not contain an embedding (when the
-   corresponding explicit or implicit table is non-NULL), ARKStep
-   will run in fixed-step mode (see :c:func:`ARKStepSetFixedStep()`);
-   if called in this manner the user *must* call either
-   :c:func:`ARKStepSetFixedStep()` or :c:func:`ARKStepSetInitStep()` to
-   set the desired time step size.
+   corresponding explicit or implicit table is non-NULL), the user *must* call 
+   :c:func:`ARKStepSetFixedStep()` to enable fixed-step mode and set the
+   desired time step size. 
 
 
 
 
-.. c:function:: int ARKStepSetARKTableNum(void* arkode_mem, int itable, int etable)
+.. c:function:: int ARKStepSetTableNum(void* arkode_mem, int itable, int etable)
 
    Indicates to use specific built-in Butcher tables for the ERK, DIRK
    or ARK method.
@@ -2571,7 +2570,7 @@ An optional function :c:func:`ARKStepGetDky()` is available to obtain
 additional values of solution-related quantities.  This function
 should only be called after a successful return from
 :c:func:`ARKStepEvolve()`, as it provides interpolated values either of
-:math:`y` or of its derivatives (up to the 3rd derivative)
+:math:`y` or of its derivatives (up to the 5th derivative)
 interpolated to any value of :math:`t` in the last internal step taken
 by :c:func:`ARKStepEvolve()`.  Internally, this *dense output* algorithm is
 identical to the algorithm used for the maximum order implicit
@@ -2588,10 +2587,11 @@ polynomial model may be evaluated upon request.
    i.e. :math:`\frac{d^{(k)}}{dt^{(k)}}y(t)`, for values of the
    independent variable satisfying :math:`t_n-h_n \le t \le t_n`, with
    :math:`t_n` as current internal time reached, and :math:`h_n` is
-   the last internal step size successfully used by the solver.  The
-   user may request *k* in the range {0,1,2,3}.  This routine uses an
-   interpolating polynomial of degree *max(dord, k)*, where *dord* is the
-   argument provided to :c:func:`ARKStepSetDenseOrder()`.
+   the last internal step size successfully used by the solver.  This
+   routine uses an interpolating polynomial of degree *max(dord, k)*,
+   where *dord* is the argument provided to
+   :c:func:`ARKStepSetDenseOrder()`.  The user may request *k* in the
+   range {0,...,*dord*}.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
@@ -2602,7 +2602,7 @@ polynomial model may be evaluated upon request.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARK_BAD_K* if *k* is not in the range {0,1,2,3}.
+      * *ARK_BAD_K* if *k* is not in the range {0,...,*dord*}.
       * *ARK_BAD_T* if *t* is not in the interval :math:`[t_n-h_n, t_n]`
       * *ARK_BAD_DKY* if the *dky* vector was ``NULL``
       * *ARK_MEM_NULL* if the ARKStep memory is ``NULL``
@@ -3807,18 +3807,18 @@ ARKLS interface routines, as described in the section
 previously remain in effect.
 
 One important use of the :c:func:`ARKStepReInit()` function is in the
-treating of jump discontinuities in the RHS function.  Except in cases
+treating of jump discontinuities in the RHS functions.  Except in cases
 of fairly small jumps, it is usually more efficient to stop at each
 point of discontinuity and restart the integrator with a readjusted
 ODE model, using a call to :c:func:`ARKStepReInit()`.  To stop when
 the location of the discontinuity is known, simply make that location
 a value of ``tout``.  To stop when the location of the discontinuity
 is determined by the solution, use the rootfinding feature.  In either
-case, it is critical that the RHS function *not* incorporate the
+case, it is critical that the RHS functions *not* incorporate the
 discontinuity, but rather have a smooth extension over the
 discontinuity, so that the step across it (and subsequent rootfinding,
 if used) can be done efficiently.  Then use a switch within the RHS
-function (communicated through ``user_data``) that can be flipped
+functions (communicated through ``user_data``) that can be flipped
 between the stopping of the integration and the restart, so that the
 restarted problem uses the new values (which have jumped).  Similar
 comments apply if there is to be a jump in the dependent variable
@@ -3897,15 +3897,15 @@ rescale the upcoming time step by the specified factor.  If a value
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
       * *ynew* -- the newly-sized solution vector, holding the current
-	dependent variable values :math:`y(t_0)`.
+        dependent variable values :math:`y(t_0)`.
       * *hscale* -- the desired scaling factor for the dynamical time
-	scale (i.e. the next step will be of size *h\*hscale*).
+        scale (i.e. the next step will be of size *h\*hscale*).
       * *t0* -- the current value of the independent variable
-	:math:`t_0` (this must be consistent with *ynew*).
+        :math:`t_0` (this must be consistent with *ynew*).
       * *resize* -- the user-supplied vector resize function (of type
-	:c:func:`ARKVecResizeFn()`.
+        :c:func:`ARKVecResizeFn()`.
       * *resize_data* -- the user-supplied data structure to be passed
-	to *resize* when modifying internal ARKStep vectors.
+        to *resize* when modifying internal ARKStep vectors.
 
    **Return value:**
       * *ARK_SUCCESS* if successful

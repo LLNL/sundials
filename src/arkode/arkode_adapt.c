@@ -208,7 +208,7 @@ int arkAdapt(void* arkode_mem, ARKodeHAdaptMem hadapt_mem,
 
   /* Solver diagnostics reporting */
   if (ark_mem->report)
-    fprintf(ark_mem->diagfp, "  adapt  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  ",
+    fprintf(ark_mem->diagfp, "ARKadapt  adapt  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  %"RSYM"  ",
             hadapt_mem->ehist[0], hadapt_mem->ehist[1],
             hadapt_mem->ehist[2], hadapt_mem->hhist[0],
             hadapt_mem->hhist[1], hadapt_mem->hhist[2], h_acc, h_cfl);

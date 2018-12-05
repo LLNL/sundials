@@ -197,14 +197,6 @@ SUNDIALS_EXPORT int ERKStepRootInit(void *arkode_mem, int nrtfn,
 
 
 /*---------------------------------------------------------------
-  ERKStepLoadButcherTable
-
-  Utility routine to fill a pre-defined Butcher table structure
-  ---------------------------------------------------------------*/
-SUNDIALS_EXPORT ARKodeButcherTable ERKStepLoadButcherTable(int imethod);
-
-
-/*---------------------------------------------------------------
   ERKStep optional input specification functions -- ALL of these
   must be called AFTER ERKStepCreate.
   -----------------------------------------------------------------
@@ -267,13 +259,13 @@ SUNDIALS_EXPORT ARKodeButcherTable ERKStepLoadButcherTable(int imethod);
                              | identical.
                              | [NULL]
                              |
-  ERKStepSetERKTable         | specifies to use a customized Butcher
+  ERKStepSetTable            | specifies to use a customized Butcher
                              | table for the explicit portion of the
                              | system.  This automatically calls
                              | ERKStepSetExplicit
                              | [determined by ARKode based on order]
                              |
-  ERKStepSetERKTableNum      | specifies to use a built-in Butcher
+  ERKStepSetTableNum         | specifies to use a built-in Butcher
                              | table for the explicit portion of the
                              | system.  The integer argument should
                              | match an existing method in
@@ -374,9 +366,9 @@ SUNDIALS_EXPORT ARKodeButcherTable ERKStepLoadButcherTable(int imethod);
 SUNDIALS_EXPORT int ERKStepSetDefaults(void* arkode_mem);
 SUNDIALS_EXPORT int ERKStepSetOrder(void *arkode_mem, int maxord);
 SUNDIALS_EXPORT int ERKStepSetDenseOrder(void *arkode_mem, int dord);
-SUNDIALS_EXPORT int ERKStepSetERKTable(void *arkode_mem,
-                                       ARKodeButcherTable B);
-SUNDIALS_EXPORT int ERKStepSetERKTableNum(void *arkode_mem, int itable);
+SUNDIALS_EXPORT int ERKStepSetTable(void *arkode_mem,
+                                    ARKodeButcherTable B);
+SUNDIALS_EXPORT int ERKStepSetTableNum(void *arkode_mem, int itable);
 SUNDIALS_EXPORT int ERKStepSetCFLFraction(void *arkode_mem,
                                           realtype cfl_frac);
 SUNDIALS_EXPORT int ERKStepSetSafetyFactor(void *arkode_mem,
@@ -720,7 +712,7 @@ SUNDIALS_EXPORT int ERKStepWriteParameters(void *arkode_mem, FILE *fp);
 /*---------------------------------------------------------------
   Function : ERKStepWriteButcher
   -----------------------------------------------------------------
-  ERKStepWriteButcher outputs the Butcher tables to the
+  ERKStepWriteButcher outputs the Butcher table to the
   provided file pointer.
   ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ERKStepWriteButcher(void *arkode_mem, FILE *fp);

@@ -343,11 +343,11 @@ void FARK_SETIIN(char key_name[], long int *ival, int *ier) {
   else if (!strncmp(key_name, "IMEX", 4))
     *ier = ARKStepSetImEx(ARK_arkodemem);
   else if (!strncmp(key_name, "IRK_TABLE_NUM", 13))
-    *ier = ARKStepSetARKTableNum(ARK_arkodemem, (int) *ival, -1);
+    *ier = ARKStepSetTableNum(ARK_arkodemem, (int) *ival, -1);
   else if (!strncmp(key_name, "ERK_TABLE_NUM", 13))
-    *ier = ARKStepSetARKTableNum(ARK_arkodemem, -1, (int) *ival);
+    *ier = ARKStepSetTableNum(ARK_arkodemem, -1, (int) *ival);
   else if (!strncmp(key_name, "ARK_TABLE_NUM", 13))
-    *ier = ARKStepSetARKTableNum(ARK_arkodemem, (int) ival[0], (int) ival[1]);
+    *ier = ARKStepSetTableNum(ARK_arkodemem, (int) ival[0], (int) ival[1]);
   else if (!strncmp(key_name, "MAX_NSTEPS", 10))
     *ier = ARKStepSetMaxNumSteps(ARK_arkodemem, (long int) *ival);
   else if (!strncmp(key_name, "HNIL_WARNS", 10))
@@ -431,33 +431,33 @@ void FARK_SETADAPTMETHOD(int *imethod, int *idefault, int *ipq,
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKStepSetARKTables; see
+/* Fortran interface to C routine ARKStepSetTables; see
    farkode.h for further details */
 void FARK_SETERKTABLE(int *s, int *q, int *p, realtype *c, realtype *A,
                       realtype *b, realtype *b2, int *ier) {
   ARKodeButcherTable Be;
   Be = ARKodeButcherTable_Create(*s, *q, *p, c, A, b, b2);
-  *ier = ARKStepSetARKTables(ARK_arkodemem, *q, *p, NULL, Be);
+  *ier = ARKStepSetTables(ARK_arkodemem, *q, *p, NULL, Be);
   ARKodeButcherTable_Free(Be);
   return;
 }
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKStepSetARKTables; see
+/* Fortran interface to C routine ARKStepSetTables; see
    farkode.h for further details */
 void FARK_SETIRKTABLE(int *s, int *q, int *p, realtype *c, realtype *A,
                       realtype *b, realtype *b2, int *ier) {
   ARKodeButcherTable Bi;
   Bi = ARKodeButcherTable_Create(*s, *q, *p, c, A, b, b2);
-  *ier = ARKStepSetARKTables(ARK_arkodemem, *q, *p, Bi, NULL);
+  *ier = ARKStepSetTables(ARK_arkodemem, *q, *p, Bi, NULL);
   ARKodeButcherTable_Free(Bi);
   return;
 }
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKStepSetARKTables; see
+/* Fortran interface to C routine ARKStepSetTables; see
    farkode.h for further details */
 void FARK_SETARKTABLES(int *s, int *q, int *p, realtype *ci,
                        realtype *ce, realtype *Ai, realtype *Ae,
@@ -466,7 +466,7 @@ void FARK_SETARKTABLES(int *s, int *q, int *p, realtype *ci,
   ARKodeButcherTable Bi, Be;
   Bi = ARKodeButcherTable_Create(*s, *q, *p, ci, Ai, bi, b2i);
   Be = ARKodeButcherTable_Create(*s, *q, *p, ce, Ae, be, b2e);
-  *ier = ARKStepSetARKTables(ARK_arkodemem, *q, *p, Bi, Be);
+  *ier = ARKStepSetTables(ARK_arkodemem, *q, *p, Bi, Be);
   ARKodeButcherTable_Free(Bi);
   ARKodeButcherTable_Free(Be);
   return;

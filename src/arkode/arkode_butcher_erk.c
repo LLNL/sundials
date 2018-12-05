@@ -38,11 +38,21 @@
 
   Input:  imeth -- integer key for the desired method (see below)
 
-  Allowed 'method' names and properties (those in an ARK pair are
-  marked with a *).  All method names are of the form
-  <name>_s_p_q.  The 'QP' column denotes whether the coefficients
-  of the method are known precisely enough for use in
-  'long double' (128-bit) calculations.
+  Allowed 'method' names and properties are listed in the table
+  below. Methods with an embedding have names are of the form
+  <name>_s_p_q where s is the number of stages, p us the embedding
+  order, and q is the method order. Similarly, fixed step methods
+  have names of the form <name>_s_q.
+
+  Methods in an ARK pair are marked with a *.
+
+  Methods that satisfy the additional third order multirate
+  infinitesimal step condition and are suppored by the MRIStep
+  module (c_i > c_{i-1} and c_s != 1) are marked with a ^.
+
+  The 'QP' column denotes whether the coefficients of the method
+  are known precisely enough for use in 'long double' (128-bit)
+  calculations.
 
      imeth                       QP
     --------------------------------
@@ -59,6 +69,8 @@
      VERNER_8_5_6                 Y
      FEHLBERG_13_7_8              Y
     --------------------------------
+     KNOTH_WOLKE_3_3^             Y
+    --------------------------------
 
   ---------------------------------------------------------------*/
 ARKodeButcherTable ARKodeButcherTable_LoadERK(int imethod)
@@ -69,6 +81,10 @@ ARKodeButcherTable ARKodeButcherTable_LoadERK(int imethod)
 
   /* fill in coefficients based on method name */
   switch(imethod) {
+
+  /* ==========================================================
+   * METHODS WITH EMBEDDINGS
+   * ========================================================*/
 
   case(HEUN_EULER_2_1_2):    /* Heun-Euler-ERK */
     B = ARKodeButcherTable_Alloc(2, SUNTRUE);
@@ -553,6 +569,28 @@ ARKodeButcherTable ARKodeButcherTable_LoadERK(int imethod)
     B->c[9]  = RCONST(1.0)/RCONST(3.0);
     B->c[10] = RCONST(1.0);
     B->c[12] = RCONST(1.0);
+    break;
+
+  /* ==========================================================
+   * FIXED STEP METHODS
+   * ========================================================*/
+
+  case(KNOTH_WOLKE_3_3):      /* Knoth-Wolke-ERK */
+    B = ARKodeButcherTable_Alloc(3, SUNFALSE);
+    B->q = 3;
+    B->p = 0;
+    B->A[1][0] = RCONST(1.0)/RCONST(3.0);
+    B->A[2][0] = RCONST(-3.0)/RCONST(16.0);
+    B->A[2][1] = RCONST(15.0)/RCONST(16.0);
+
+    B->b[0] = RCONST(1.0)/RCONST(6.0);
+    B->b[1] = RCONST(3.0)/RCONST(10.0);
+    B->b[2] = RCONST(8.0)/RCONST(15.0);
+
+    B->d = NULL;
+
+    B->c[1] = RCONST(1.0)/RCONST(3.0);
+    B->c[2] = RCONST(3.0)/RCONST(4.0);
     break;
 
   default:

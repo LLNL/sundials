@@ -231,12 +231,30 @@ int ERKStepSetStopTime(void *arkode_mem, realtype tstop)
 int ERKStepSetFixedStep(void *arkode_mem, realtype hfixed)
 {
   ARKodeMem ark_mem;
-  if (arkode_mem==NULL) {
-    arkProcessError(NULL, ARK_MEM_NULL, "ARKode::ERKStep",
-                    "ERKStepSetFixedStep", MSG_ARK_NO_MEM);
-    return(ARK_MEM_NULL);
+  ARKodeERKStepMem step_mem;
+  int retval;
+
+  /* access ARKodeERKStepMem structure */
+  retval = erkStep_AccessStepMem(arkode_mem, "ERKStepSetFixedStep",
+                                 &ark_mem, &step_mem);
+  if (retval != ARK_SUCCESS) return(retval);
+
+  /* allocate or free adaptivity memory as needed */
+  if (hfixed != ZERO) {
+    if (step_mem->hadapt_mem != NULL) {
+      free(step_mem->hadapt_mem);
+      step_mem->hadapt_mem = NULL;
+    }
+  } else if (step_mem->hadapt_mem == NULL) {
+    step_mem->hadapt_mem = arkAdaptInit();
+    if (step_mem->hadapt_mem == NULL) {
+      arkProcessError(ark_mem, ARK_MEM_FAIL, "ARKode::ERKStep",
+                      "ERKStepSetFixedStep",
+                      "Allocation of Step Adaptivity Structure Failed");
+      return(ARK_MEM_FAIL);
+    }
   }
-  ark_mem = (ARKodeMem) arkode_mem;
+
   return(arkSetFixedStep(ark_mem, hfixed));
 }
 
@@ -553,7 +571,7 @@ int ERKStepSetDefaults(void* arkode_mem)
   Specifies the method order
 
   ** Note in documentation that this should not be called along
-  with ERKStepSetERKTable or ERKStepSetERKTableNum.  This
+  with ERKStepSetTable or ERKStepSetTableNum.  This
   routine is used to specify a desired method order using
   default Butcher tables, whereas any user-supplied table will
   have their own order associated with them.
@@ -587,7 +605,7 @@ int ERKStepSetOrder(void *arkode_mem, int ord)
 
 
 /*---------------------------------------------------------------
-  ERKStepSetERKTable:
+  ERKStepSetTable:
 
   Specifies to use a customized Butcher table for the explicit
   portion of the system.
@@ -597,21 +615,21 @@ int ERKStepSetOrder(void *arkode_mem, int ord)
   ERKStepSetFixedStep or ERKStepSetInitStep to set the desired
   time step size.
   ---------------------------------------------------------------*/
-int ERKStepSetERKTable(void *arkode_mem, ARKodeButcherTable B)
+int ERKStepSetTable(void *arkode_mem, ARKodeButcherTable B)
 {
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
   int retval;
 
   /* access ARKodeARKStepMem structure */
-  retval = erkStep_AccessStepMem(arkode_mem, "ERKStepSetERKTable",
+  retval = erkStep_AccessStepMem(arkode_mem, "ERKStepSetTable",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
   /* check for legal inputs */
   if (B == NULL) {
     arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ERKStep",
-                    "ERKStepSetERKTable", MSG_ARK_NO_MEM);
+                    "ERKStepSetTable", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
 
@@ -626,20 +644,11 @@ int ERKStepSetERKTable(void *arkode_mem, ARKodeButcherTable B)
   step_mem->q = B->q;
   step_mem->p = B->p;
 
-  /* check for embedding and if applicable set as fixed-step method */
-  if (B->d == NULL) {
-    ark_mem->fixedstep = SUNTRUE;
-    if (step_mem->hadapt_mem != NULL) {
-      free(step_mem->hadapt_mem);
-      step_mem->hadapt_mem = NULL;
-    }
-  }
-
   /* copy the table into step memory */
   step_mem->B = ARKodeButcherTable_Copy(B);
   if (step_mem->B == NULL) {
     arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ERKStep",
-                    "ERKStepSetERKTable", MSG_ARK_NO_MEM);
+                    "ERKStepSetTable", MSG_ARK_NO_MEM);
     return(ARK_MEM_NULL);
   }
 
@@ -648,27 +657,27 @@ int ERKStepSetERKTable(void *arkode_mem, ARKodeButcherTable B)
 
 
 /*---------------------------------------------------------------
-  ERKStepSetERKTableNum:
+  ERKStepSetTableNum:
 
   Specifies to use a pre-existing Butcher table for the problem,
   based on the integer flag passed to ARKodeButcherTable_LoadERK()
   within the file arkode_butcher_erk.c.
   ---------------------------------------------------------------*/
-int ERKStepSetERKTableNum(void *arkode_mem, int itable)
+int ERKStepSetTableNum(void *arkode_mem, int itable)
 {
   ARKodeMem ark_mem;
   ARKodeERKStepMem step_mem;
   int retval;
 
   /* access ARKodeARKStepMem structure */
-  retval = erkStep_AccessStepMem(arkode_mem, "ERKStepSetERKTableNum",
+  retval = erkStep_AccessStepMem(arkode_mem, "ERKStepSetTableNum",
                                  &ark_mem, &step_mem);
   if (retval != ARK_SUCCESS) return(retval);
 
   /* check that argument specifies an explicit table */
   if (itable<MIN_ERK_NUM || itable>MAX_ERK_NUM) {
     arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ERKStep",
-                    "ERKStepSetERKTableNum",
+                    "ERKStepSetTableNum",
                     "Illegal ERK table number");
     return(ARK_ILL_INPUT);
   }
@@ -683,7 +692,7 @@ int ERKStepSetERKTableNum(void *arkode_mem, int itable)
   step_mem->B = ARKodeButcherTable_LoadERK(itable);
   if (step_mem->B == NULL) {
     arkProcessError(ark_mem, ARK_MEM_NULL, "ARKode::ERKStep",
-                    "ERKStepSetERKTableNum",
+                    "ERKStepSetTableNum",
                     "Error setting table with that index");
     return(ARK_ILL_INPUT);
   }

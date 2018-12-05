@@ -36,6 +36,8 @@ SET(arkode_SOURCES
   arkode_interp.c
   arkode_io.c
   arkode_ls.c
+  arkode_mristep.c
+  arkode_mristep_io.c
   arkode_root.c
   )
 
@@ -94,6 +96,7 @@ SET(arkode_HEADERS
   arkode_butcher_dirk.h
   arkode_erkstep.h
   arkode_ls.h
+  arkode_mristep.h
   )
 
 # Add prefix with complete path to the ARKODE header files

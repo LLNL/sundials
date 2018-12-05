@@ -769,7 +769,7 @@ typedef struct ARKodeMemRec {
   at the inputs (t,y), and store the result in the N_Vector f.
   Depending on the type of stepper, this may be just the single
   ODE RHS function supplied (e.g. ERK, DIRK, IRK), or it may be
-  the sum of many ODE RHS functions (e.g. ARK, RMIS).  The 'mode'
+  the sum of many ODE RHS functions (e.g. ARK, MRI).  The 'mode'
   flag indicates where this routine is called:
      0 -> called at the beginning of a simulation
      1 -> called at the end of a successful step
@@ -1079,6 +1079,8 @@ int arkPredict_Bootstrap(ARKodeMem ark_mem, realtype hj,
 #define MSG_ARK_MASSFREE_FAIL  "The mass matrixsolver's free routine failed."
 
 #define MSG_ARKADAPT_NO_MEM    "Adaptivity memory structure not allocated."
+#define MSG_ARK_VECTOROP_ERR      "At " MSG_TIME ", a vector operation failed."
+#define MSG_ARK_INNERSTEP_FAILED  "At " MSG_TIME ", the inner stepper failed in an unrecoverable manner."
 
 #ifdef __cplusplus
 }

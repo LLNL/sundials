@@ -472,7 +472,7 @@ function of type :c:type:`ARKLsJacFn` to provide the Jacobian approximation.
 Jacobian-vector product (matrix-free linear solvers)
 --------------------------------------------------------------
 
-Whn using matrix matrix-free linear solver modules for the implicit
+When using a matrix-free linear solver modules for the implicit
 stage solves (i.e., a NULL-valued SUNMATRIX argument was supplied to
 :c:func:`ARKStepSetLinearSolver()` in the section
 :ref:`ARKStep_CInterface.Skeleton`), the user may provide a function

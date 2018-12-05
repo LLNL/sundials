@@ -1269,7 +1269,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
       N_VLinearSum(ONE, step_mem->Fi[0], ONE, step_mem->Fe[0], f);
     } else if (step_mem->implicit) {                   /* implicit */
       N_VScale(ONE, step_mem->Fi[0], f);
-    } else {                                              /* explicit */
+    } else {                                           /* explicit */
       N_VScale(ONE, step_mem->Fe[0], f);
     }
 
@@ -1325,7 +1325,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
       N_VLinearSum(ONE, step_mem->Fi[0], ONE, step_mem->Fe[0], f);
     } else if (step_mem->implicit) {                   /* implicit */
       N_VScale(ONE, step_mem->Fi[0], f);
-    } else {                                              /* explicit */
+    } else {                                           /* explicit */
       N_VScale(ONE, step_mem->Fe[0], f);
     }
 
@@ -1478,7 +1478,7 @@ int arkStep_TakeStep(void* arkode_mem)
 
       /* Solver diagnostics reporting */
       if (ark_mem->report)
-        fprintf(ark_mem->diagfp, "step  %li  %"RSYM"  %i  %"RSYM"\n",
+        fprintf(ark_mem->diagfp, "ARKStep  step  %li  %"RSYM"  %i  %"RSYM"\n",
                 ark_mem->nst, ark_mem->h, is, ark_mem->tcur);
 
       /* perform implicit solve if required */
@@ -1580,7 +1580,7 @@ int arkStep_TakeStep(void* arkode_mem)
 
     /* Solver diagnostics reporting */
     if (ark_mem->report)
-      fprintf(ark_mem->diagfp, "  etest  %li  %"RSYM"  %"RSYM"\n",
+      fprintf(ark_mem->diagfp, "ARKStep  etest  %li  %"RSYM"  %"RSYM"\n",
               ark_mem->nst, ark_mem->h, dsm);
 
     /* Perform time accuracy error test (if failure, updates h for next try) */
@@ -1846,6 +1846,26 @@ int arkStep_CheckButcherTables(ARKodeMem ark_mem)
                     "arkStep_CheckButcherTables",
                     "embedding order < 1!");
     return(ARK_ILL_INPUT);
+  }
+
+  /* check that embedding exists */
+  if ((step_mem->p > 0) && (!ark_mem->fixedstep)) {
+    if (step_mem->implicit) {
+      if (step_mem->Bi->d == NULL) {
+        arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
+                        "arkStep_CheckButcherTables",
+                        "no implicit embedding!");
+        return(ARK_ILL_INPUT);
+      }
+    }
+    if (step_mem->explicit) {
+      if (step_mem->Be->d == NULL) {
+        arkProcessError(ark_mem, ARK_ILL_INPUT, "ARKode::ARKStep",
+                        "arkStep_CheckButcherTables",
+                        "no explicit embedding!");
+        return(ARK_ILL_INPUT);
+      }
+    }
   }
 
   /* check that ERK table is strictly lower triangular */

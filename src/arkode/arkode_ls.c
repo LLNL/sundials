@@ -2225,7 +2225,7 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
 
   /* Log solver statistics to diagnostics file (if requested) */
   if (ark_mem->report)
-    fprintf(ark_mem->diagfp, "      kry  %"RSYM"  %"RSYM"  %i  %i\n",
+    fprintf(ark_mem->diagfp, "ARKLS  kry  %"RSYM"  %"RSYM"  %i  %i\n",
             bnorm, resnorm, nli_inc, (int) arkls_mem->nps - nps_inc);
 
   /* Interpret solver return value  */
@@ -2581,7 +2581,7 @@ int arkLsMassSolve(void *arkode_mem, N_Vector b, realtype nlscoef)
 
   /* Log solver statistics to diagnostics file (if requested) */
   if (ark_mem->report)
-    fprintf(ark_mem->diagfp, "      mass  %"RSYM"  %i  %i\n",
+    fprintf(ark_mem->diagfp, "ARKLS  mass  %"RSYM"  %i  %i\n",
             resnorm, nli_inc, (int) arkls_mem->nps - nps_inc);
 
   /* Interpret solver return value  */

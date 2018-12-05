@@ -307,14 +307,6 @@ SUNDIALS_EXPORT int ARKStepRootInit(void *arkode_mem, int nrtfn,
 
 
 /*---------------------------------------------------------------
-  ARKStepLoadButcherTable
-
-  Utility routine to fill a pre-defined Butcher table structure
-  ---------------------------------------------------------------*/
-SUNDIALS_EXPORT ARKodeButcherTable ARKStepLoadButcherTable(int imethod);
-
-
-/*---------------------------------------------------------------
   ARKStep optional input specification functions -- ALL of these
   must be called AFTER ARKStepCreate.  They can be called to set 
   optional inputs to non-default values.
@@ -395,10 +387,10 @@ SUNDIALS_EXPORT ARKodeButcherTable ARKStepLoadButcherTable(int imethod);
     specifies that problem has both implicit and explicit parts,
     and to use an ARK method.
 
-  ARKStepSetARKTables  [determined by ARKode based on order]
+  ARKStepSetTables  [determined by ARKode based on order]
     specifies to use customized Butcher tables for the IMEX system.
 
-  ARKStepSetARKTableNum  [determined by ARKode based on order]
+  ARKStepSetTableNum  [determined by ARKode based on order]
     specifies to use a built-in Butcher tables for the ImEx system.
     The integer arguments should match existing methods in
     ARKodeButcherTable_LoadERK() and ARKodeButcherTable_LoadDIRK().
@@ -516,13 +508,11 @@ SUNDIALS_EXPORT int ARKStepSetNonlinear(void *arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetExplicit(void *arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetImplicit(void *arkode_mem);
 SUNDIALS_EXPORT int ARKStepSetImEx(void *arkode_mem);
-SUNDIALS_EXPORT int ARKStepSetARKTables(void *arkode_mem, int q, int p,
-                                        ARKodeButcherTable Bi,
-                                        ARKodeButcherTable Be);
-SUNDIALS_EXPORT int ARKStepSetERKTableNum(void *arkode_mem, int itable);
-SUNDIALS_EXPORT int ARKStepSetIRKTableNum(void *arkode_mem, int itable);
-SUNDIALS_EXPORT int ARKStepSetARKTableNum(void *arkode_mem,
-                                          int itable, int etable);
+SUNDIALS_EXPORT int ARKStepSetTables(void *arkode_mem, int q, int p,
+                                     ARKodeButcherTable Bi,
+                                     ARKodeButcherTable Be);
+SUNDIALS_EXPORT int ARKStepSetTableNum(void *arkode_mem,
+                                       int itable, int etable);
 SUNDIALS_EXPORT int ARKStepSetCFLFraction(void *arkode_mem,
                                           realtype cfl_frac);
 SUNDIALS_EXPORT int ARKStepSetSafetyFactor(void *arkode_mem,

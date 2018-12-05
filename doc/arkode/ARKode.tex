@@ -307,17 +307,28 @@ approach to one-step methods, which should allow rapid research and
 development of novel integration methods without affecting existing
 solver functionality.  To support this, the existing ARK-based methods
 have been encapsulated inside the new \code{ARKStep} time-stepping
-module; a new \code{ERKStep} time-stepping module provides an
-optimized implementation for explicit Runge-Kutta methods (reduced
-storage and number of calls to the ODE right-hand side function).
+module. Two new time-stepping modules have been added:
+\begin{itemize}
+\item {} 
+The \code{ERKStep} module provides an optimized implementation for explicit
+Runge-Kutta methods with reduced storage and number of calls to the ODE
+right-hand side function.
+
+\item {} 
+The \code{MRIStep} module implements two-rate explicit-explicit multirate
+infinitesimal step methods utilizing different step sizes for slow
+and fast processes in an additive splitting.
+
+\end{itemize}
+
 This restructure has resulted in numerous small changes to the user
 interface, particularly the suite of ``Set'' routines for user-provided
 solver parameters and and ``Get'' routines to access solver statistics,
-that are now prefixed with \code{ARKStep} or \code{ERKStep} instead of
-\code{ARKode}.  Aside from affecting the names of these routines,
-user-level changes have been kept to a minimum.  However, we recommend
-that users consult both this documentation and the ARKode example
-programs for further details on the updated infrastructure.
+that are now prefixed with the name of time-stepping module (e.g., \code{ARKStep}
+or \code{ERKStep}) instead of \code{ARKode}.  Aside from affecting the names of these
+routines, user-level changes have been kept to a minimum.  However, we recommend
+that users consult both this documentation and the ARKode example programs for
+further details on the updated infrastructure.
 
 As part of the ARKode restructuring an {\hyperref[ARKodeButcherTable:c.ARKodeButcherTable]{\emph{\code{ARKodeButcherTable}}}} structure
 has been added for storing Butcher tables. Functions for creating new Butcher
@@ -980,12 +991,13 @@ methods utilized in ARKode.  We first discuss the ``single-step'' nature
 of the ARKode infrastructure, including its usage modes and approaches
 for interpolated solution output.  We then discuss the current suite
 of time-stepping modules supplied with ARKode, including the ARKStep
-module for {\hyperref[Mathematics:mathematics-ark]{\emph{\DUspan{}{additive Runge-Kutta methods}}}} and
+module for {\hyperref[Mathematics:mathematics-ark]{\emph{\DUspan{}{additive Runge-Kutta methods}}}},
 the ERKStep module that is optimized for {\hyperref[Mathematics:mathematics-erk]{\emph{\DUspan{}{explicit Runge-Kutta
-methods}}}}. We then discuss the {\hyperref[Mathematics:mathematics-adaptivity]{\emph{\DUspan{}{adaptive
-temporal error controllers}}}} shared by the
-time-stepping modules, including discussion of our choice of norms for
-measuring errors within various components of the solver.
+methods}}}}, and the MRIStep module for {\hyperref[Mathematics:mathematics-mristep]{\emph{\DUspan{}{two-rate
+explicit-explicit multirate infinitesimal step methods}}}}.
+We then discuss the {\hyperref[Mathematics:mathematics-adaptivity]{\emph{\DUspan{}{adaptive temporal error controllers}}}} shared by the time-stepping modules, including
+discussion of our choice of norms for measuring errors within various components
+of the solver.
 
 We then discuss the nonlinear and linear solver strategies used by
 ARKode's time-stepping modules for solving implicit algebraic systems
@@ -1244,6 +1256,60 @@ simplified form admits a more efficient and memory-friendly solution
 process than when considering the more general form.
 
 
+\section{MRIStep -- Multirate infinitesimal step methods}
+\label{Mathematics:mathematics-mristep}\label{Mathematics:mristep-multirate-infinitesimal-step-methods}
+The MRIStep time-stepping module in ARKode is designed for IVP
+of the form
+\phantomsection\label{Mathematics:equation-IVP_two_rate}\begin{gather}
+\begin{split}\dot{y} = f_s(t,y) + f_f(t,y), \qquad y(t_0) = y_0.\end{split}\label{Mathematics-IVP_two_rate}
+\end{gather}
+i.e. the right-hand side function is additively split into two
+components:
+\begin{itemize}
+\item {} 
+\(f_s(t,y)\) contains the ``slow'' components of the
+system.  This will be integrated using a large time step \(h_s\).
+
+\item {} 
+\(f_f(t,y)\) contains the ``fast'' components of the
+system.  This will be integrated using a small time step \(h_f\).
+
+\end{itemize}
+
+For such problems, MRIStep provides fixed-step multirate infinitesimal step
+methods (see \phantomsection\label{Mathematics:id2}{\hyperref[References:skaw2009]{\emph{{[}SKAW2009{]}}}}, \phantomsection\label{Mathematics:id3}{\hyperref[References:skaw2012a]{\emph{{[}SKAW2012a{]}}}}, and \phantomsection\label{Mathematics:id4}{\hyperref[References:skaw2012b]{\emph{{[}SKAW2012b{]}}}}) that combine two
+Runge-Kutta methods. The slow (outer) method is an \(s\) stage explicit
+Runge-Kutta method where the stage values and the new solution are computed by
+solving an auxiliary ODE with a fast (inner) Runge-Kutta method. This
+corresponds to the algorithm
+\phantomsection\label{Mathematics:equation-MRIStep}\begin{gather}
+\begin{split}w_1 &= y_n, \\
+r_i &= \sum_{j=1}^{i-1} (A^s_{i,j} - A^s_{i-1,j}) f_s(w_j), \\
+v_i(\tau_{i-1}) &= w_{i-1}, \\
+\frac{dv_i}{d\tau} &= f_f(v_i) + \frac{1}{c^s_i - c^s_{i-1}} r_i, \quad \tau \in
+[\tau_{i-1},\tau_i], \quad i = 2,\ldots,s+1\\
+w_i &= v_i(\tau_i), \\
+y_{n+1} &= w_{s+1},\end{split}\label{Mathematics-MRIStep}
+\end{gather}
+where the slow stages \(w_i\) at times \(\tau_i = t_n + c^s_i h_s\) are
+computed by solving the \(v_i\) fast ODE on \([\tau_{i-1},\tau_i]\) with
+the initial condition \(w_{i-1}\), forcing term \(r_i\), and
+\(A^s_{s+1,j}=b^s_{j}\).
+
+The MRIStep module provides a thrid order explicit-explicit method using the
+{\hyperref[Butcher:butcher-knoth-wolke]{\emph{\DUspan{}{Knoth-Wolke-3-3}}}} ERK for the slow and fast method. User-defined
+tables are also supported. A user defined method will be first to thrid order
+accurate depending on the slow and fast tables provided. If both the slow and
+fast tables are second order, then the overall method will also be second
+order. If the slow and fast tables are both third order and the slow method
+satisfies an auxiliary condition (see \phantomsection\label{Mathematics:id5}{\hyperref[References:skaw2012a]{\emph{{[}SKAW2012a{]}}}}), then the overall method
+will also be thrid order.
+
+Note that at this time the MRIStep module only supports explicit fast and slow
+tables where the stage times of the slow table must be unique and orderd (i.e.,
+\(c^s_{i} > c^s_{i-1}\)) and the final stage time must be less than 1.
+
+
 \section{Error norms}
 \label{Mathematics:error-norms}\label{Mathematics:mathematics-error-norm}
 In the process of controlling errors at various levels (time
@@ -1300,7 +1366,7 @@ as \(q\) and for \(\tilde{y}_n\) as \(p\), most of these
 embedded methods satisfy \(p = q-1\).  These values of \(q\)
 and \(p\) correspond to the \emph{global} orders of accuracy for the
 method and embedding, hence each admit local truncation errors
-satisfying \phantomsection\label{Mathematics:id2}{\hyperref[References:hw1993]{\emph{{[}HW1993{]}}}}
+satisfying \phantomsection\label{Mathematics:id6}{\hyperref[References:hw1993]{\emph{{[}HW1993{]}}}}
 \phantomsection\label{Mathematics:equation-AsymptoticErrors}\begin{gather}
 \begin{split}\| y_n - y(t_n) \| = C h_n^{q+1} + \mathcal O(h_n^{q+2}), \\
 \| \tilde{y}_n - y(t_n) \| = D h_n^{p+1} + \mathcal O(h_n^{p+2}),\end{split}\label{Mathematics-AsymptoticErrors}
@@ -1408,8 +1474,8 @@ control algorithms, as specified in the subsections below.
 \subsubsection{PID controller}
 \label{Mathematics:mathematics-adaptivity-errorcontrol-pid}\label{Mathematics:pid-controller}
 This is the default time adaptivity controller used by the ARKStep and
-ERKStep modules.  It derives from those found in \phantomsection\label{Mathematics:id3}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}, \phantomsection\label{Mathematics:id4}{\hyperref[References:s1998]{\emph{{[}S1998{]}}}}, \phantomsection\label{Mathematics:id5}{\hyperref[References:s2003]{\emph{{[}S2003{]}}}} and
-\phantomsection\label{Mathematics:id6}{\hyperref[References:s2006]{\emph{{[}S2006{]}}}}, and uses all three of the local error estimates
+ERKStep modules.  It derives from those found in \phantomsection\label{Mathematics:id7}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}, \phantomsection\label{Mathematics:id8}{\hyperref[References:s1998]{\emph{{[}S1998{]}}}}, \phantomsection\label{Mathematics:id9}{\hyperref[References:s2003]{\emph{{[}S2003{]}}}} and
+\phantomsection\label{Mathematics:id10}{\hyperref[References:s2006]{\emph{{[}S2006{]}}}}, and uses all three of the local error estimates
 \(\varepsilon_n\), \(\varepsilon_{n-1}\) and
 \(\varepsilon_{n-2}\) in determination of a prospective step size,
 \begin{gather}
@@ -1425,7 +1491,7 @@ enforced to avoid division-by-zero errors.
 \subsubsection{PI controller}
 \label{Mathematics:pi-controller}\label{Mathematics:mathematics-adaptivity-errorcontrol-pi}
 Like with the previous method, the PI controller derives from those
-found in \phantomsection\label{Mathematics:id7}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}, \phantomsection\label{Mathematics:id8}{\hyperref[References:s1998]{\emph{{[}S1998{]}}}}, \phantomsection\label{Mathematics:id9}{\hyperref[References:s2003]{\emph{{[}S2003{]}}}} and \phantomsection\label{Mathematics:id10}{\hyperref[References:s2006]{\emph{{[}S2006{]}}}}, but it differs in
+found in \phantomsection\label{Mathematics:id11}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}, \phantomsection\label{Mathematics:id12}{\hyperref[References:s1998]{\emph{{[}S1998{]}}}}, \phantomsection\label{Mathematics:id13}{\hyperref[References:s2003]{\emph{{[}S2003{]}}}} and \phantomsection\label{Mathematics:id14}{\hyperref[References:s2006]{\emph{{[}S2006{]}}}}, but it differs in
 that it only uses the two most recent step sizes in its adaptivity
 algorithm,
 \begin{gather}
@@ -1448,7 +1514,7 @@ By default, \(k_1=1\), but that may be modified by the user.
 
 \subsubsection{Explicit Gustafsson controller}
 \label{Mathematics:explicit-gustafsson-controller}\label{Mathematics:mathematics-adaptivity-errorcontrol-egus}
-This step adaptivity algorithm was proposed in \phantomsection\label{Mathematics:id11}{\hyperref[References:g1991]{\emph{{[}G1991{]}}}}, and
+This step adaptivity algorithm was proposed in \phantomsection\label{Mathematics:id15}{\hyperref[References:g1991]{\emph{{[}G1991{]}}}}, and
 is primarily useful with explicit Runge-Kutta methods.
 In the notation of our earlier controllers, it has the form
 \phantomsection\label{Mathematics:equation-expGus}\begin{gather}
@@ -1466,7 +1532,7 @@ respectively, and may be modified by the user.
 \subsubsection{Implicit Gustafsson controller}
 \label{Mathematics:mathematics-adaptivity-errorcontrol-igus}\label{Mathematics:implicit-gustafsson-controller}
 A version of the above controller suitable for implicit Runge-Kutta
-methods was introduced in \phantomsection\label{Mathematics:id12}{\hyperref[References:g1994]{\emph{{[}G1994{]}}}}, and has the form
+methods was introduced in \phantomsection\label{Mathematics:id16}{\hyperref[References:g1994]{\emph{{[}G1994{]}}}}, and has the form
 \phantomsection\label{Mathematics:equation-impGus}\begin{gather}
 \begin{split}h' = \begin{cases}
    h_1 \varepsilon_1^{-1/p}, &\quad\text{on the first step}, \\
@@ -1653,7 +1719,7 @@ iteration for solving the stages \(z_i, i=1,\ldots,s\),
 G\left(z_i^{(m)}\right), \quad m=0,1,\ldots\end{split}\label{Mathematics-AAFP_iteration}
 \end{gather}
 This iteration may additionally be improved using a technique
-called ``Anderson acceleration''  \phantomsection\label{Mathematics:id13}{\hyperref[References:wn2011]{\emph{{[}WN2011{]}}}}.  Unlike with Newton's
+called ``Anderson acceleration''  \phantomsection\label{Mathematics:id17}{\hyperref[References:wn2011]{\emph{{[}WN2011{]}}}}.  Unlike with Newton's
 method, these methods \emph{do not} require the solution of a linear system
 at each iteration, instead opting for solution of a low-dimensional
 least-squares solution to construct the nonlinear update.
@@ -1720,8 +1786,8 @@ only),
 
 \item {} 
 sparse direct solvers, using either the KLU sparse matrix library
-\phantomsection\label{Mathematics:id14}{\hyperref[References:klu]{\emph{{[}KLU{]}}}}, or the OpenMP or PThreads-enabled SuperLU\_MT sparse matrix
-library \phantomsection\label{Mathematics:id15}{\hyperref[References:superlumt]{\emph{{[}SuperLUMT{]}}}} {[}Note that users will need to download and
+\phantomsection\label{Mathematics:id18}{\hyperref[References:klu]{\emph{{[}KLU{]}}}}, or the OpenMP or PThreads-enabled SuperLU\_MT sparse matrix
+library \phantomsection\label{Mathematics:id19}{\hyperref[References:superlumt]{\emph{{[}SuperLUMT{]}}}} {[}Note that users will need to download and
 install the KLU or SuperLU\_MT packages independent of ARKode{]},
 
 \item {} 
@@ -1752,7 +1818,7 @@ Krylov method can yield a powerful tool because it combines
 established methods for stiff integration, nonlinear solver iteration,
 and Krylov (linear) iteration with a problem-specific treatment of the
 dominant sources of stiffness, in the form of a user-supplied
-preconditioner matrix \phantomsection\label{Mathematics:id16}{\hyperref[References:bh1989]{\emph{{[}BH1989{]}}}}.  We note that the direct linear
+preconditioner matrix \phantomsection\label{Mathematics:id20}{\hyperref[References:bh1989]{\emph{{[}BH1989{]}}}}.  We note that the direct linear
 solver modules currently provided by SUNDIALS are only designed to be
 used with the serial and threaded vector representations.
 
@@ -2023,7 +2089,7 @@ cost-effective the matrix \(P\) (or matrices \(P_L\) and
 \(P_R\)) should be reasonably efficient to evaluate and solve.
 Finding an optimal point in this trade-off between rapid
 convergence and low cost can be quite challenging.  Good choices are
-often problem-dependent (for example, see \phantomsection\label{Mathematics:id17}{\hyperref[References:bh1989]{\emph{{[}BH1989{]}}}} for an
+often problem-dependent (for example, see \phantomsection\label{Mathematics:id21}{\hyperref[References:bh1989]{\emph{{[}BH1989{]}}}} for an
 extensive study of preconditioners for reaction-transport systems).
 
 Most of the iterative linear solvers supplied with SUNDIALS allow for
@@ -2330,7 +2396,7 @@ that it changes sign at the desired root.
 The basic scheme used is to check for sign changes of any
 \(g_i(t)\) over each time step taken, and then (when a sign change
 is found) to home in on the root (or roots) with a modified secant
-method \phantomsection\label{Mathematics:id18}{\hyperref[References:hs1980]{\emph{{[}HS1980{]}}}}.  In addition, each time \(g\) is
+method \phantomsection\label{Mathematics:id22}{\hyperref[References:hs1980]{\emph{{[}HS1980{]}}}}.  In addition, each time \(g\) is
 evaluated, ARKode checks to see if \(g_i(t) = 0\) exactly, and if
 so it reports this as a root.  However, if an exact zero of any
 \(g_i\) is found at a point \(t\), ARKode computes
@@ -3489,18 +3555,18 @@ provide her own error handler function (see the section
 \label{ARKStep_c_interface/User_callable:arkstep-cinterface-initialization}\label{ARKStep_c_interface/User_callable:arkstep-initialization-and-deallocation-functions}\index{ARKStepCreate (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepCreate}\pysiglinewithargsret{void* \bfcode{ARKStepCreate}}{{\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fe}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fi}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepCreate}\pysiglinewithargsret{void* \bfcode{ARKStepCreate}}{{\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fe}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fi}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
 This function creates an internal memory block for a problem to be
 solved using the ARKStep time-stepping module in ARKode.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
-\emph{fe} -- the name of the C function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{fe} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the explicit portion of the right-hand side function in
 \(M\, \dot{y} = f_E(t,y) + f_I(t,y)\).
 
 \item {} 
-\emph{fi} -- the name of the C function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{fi} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the implicit portion of the right-hand side function in
 \(M\, \dot{y} = f_E(t,y) + f_I(t,y)\).
 
@@ -3524,7 +3590,7 @@ returned, and an error message will be printed to \code{stderr}.
 \index{ARKStepFree (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepFree}\pysiglinewithargsret{void \bfcode{ARKStepFree}}{void*\emph{ arkode\_mem}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepFree}\pysiglinewithargsret{void \bfcode{ARKStepFree}}{void**\emph{ arkode\_mem}}{}
 This function frees the problem memory \emph{arkode\_mem} created by
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepCreate]{\emph{\code{ARKStepCreate()}}}}.
 \begin{description}
@@ -3654,7 +3720,7 @@ solution component.
 \index{ARKStepWFtolerances (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepWFtolerances}\pysiglinewithargsret{int \bfcode{ARKStepWFtolerances}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{ARKEwtFn}}}\emph{ efun}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepWFtolerances}\pysiglinewithargsret{int \bfcode{ARKStepWFtolerances}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{ARKEwtFn}}}\emph{ efun}}{}
 This function specifies a user-supplied function \emph{efun} to compute
 the error weight vector \code{ewt}.
 \begin{description}
@@ -3663,7 +3729,7 @@ the error weight vector \code{ewt}.
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {} 
-\emph{efun} -- the name of the function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}})
+\emph{efun} -- the name of the function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}})
 that implements the error weight vector computation.
 
 \end{itemize}
@@ -4298,7 +4364,7 @@ called prior to a continuation call to {\hyperref[ARKStep_c_interface/User_calla
 \index{ARKStepRootInit (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepRootInit}\pysiglinewithargsret{int \bfcode{ARKStepRootInit}}{void*\emph{ arkode\_mem}, int\emph{ nrtfn}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{ARKRootFn}}}\emph{ g}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepRootInit}\pysiglinewithargsret{int \bfcode{ARKStepRootInit}}{void*\emph{ arkode\_mem}, int\emph{ nrtfn}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{ARKRootFn}}}\emph{ g}}{}
 Initializes a rootfinding problem to be solved during the
 integration of the ODE system.  It must be called after
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepCreate]{\emph{\code{ARKStepCreate()}}}}, and before {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepEvolve]{\emph{\code{ARKStepEvolve()}}}}.
@@ -4311,7 +4377,7 @@ integration of the ODE system.  It must be called after
 \emph{nrtfn} -- number of functions \(g_i\), an integer \(\ge\) 0.
 
 \item {} 
-\emph{g} -- name of user-supplied function, of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn()}}}},
+\emph{g} -- name of user-supplied function, of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn()}}}},
 defining the functions \(g_i\) whose roots are sought.
 
 \end{itemize}
@@ -4383,9 +4449,9 @@ time, \emph{tout}, in the direction of integration,
 i.e. \(t_{n-1} <\) \emph{tout} \(\le t_{n}\) for forward
 integration, or \(t_{n} \le\) \emph{tout} \(< t_{n-1}\) for
 backward integration.  It will then compute an approximation
-to the solution \(y`(*tout*) by interpolation (using one
+to the solution \(y(tout)\) by interpolation (using one
 of the dense output routines described in the section
-:ref:`Mathematics.Interpolation\)).
+{\hyperref[Mathematics:mathematics-interpolation]{\emph{\DUspan{}{Interpolation}}}}).
 
 The \emph{ARK\_ONE\_STEP} option tells the solver to only take a
 single internal step \(y_{n-1} \to y_{n}\) and then return
@@ -4481,6 +4547,9 @@ failed.
 \item {} 
 \emph{ARK\_MASSSOLVE\_FAIL} if the mass matrix solver's solve routine
 failed.
+
+\item {} 
+\emph{ARK\_VECTOROP\_ERR} a vector operation error occured.
 
 \end{itemize}
 
@@ -4831,7 +4900,7 @@ error messages.
 \index{ARKStepSetErrHandlerFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetErrHandlerFn}\pysiglinewithargsret{int \bfcode{ARKStepSetErrHandlerFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{ARKErrHandlerFn}}}\emph{ ehfun}, void*\emph{ eh\_data}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetErrHandlerFn}\pysiglinewithargsret{int \bfcode{ARKStepSetErrHandlerFn}}{void*\emph{ arkode\_mem}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{ARKErrHandlerFn}}}\emph{ ehfun}, void*\emph{ eh\_data}}{}
 Specifies the optional user-defined function to be used
 in handling error messages.
 \begin{description}
@@ -5307,14 +5376,14 @@ Specify implicit problem
 \hline
 Set additive RK tables
  & 
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetARKTables]{\emph{\code{ARKStepSetARKTables()}}}}
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTables]{\emph{\code{ARKStepSetTables()}}}}
  & 
 internal
 \\
 \hline
 Specify additive RK table numbers
  & 
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetARKTableNum]{\emph{\code{ARKStepSetARKTableNum()}}}}
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}}
  & 
 internal
 \\
@@ -5465,10 +5534,10 @@ directly by the user if desired.
 
 \end{fulllineitems}
 
-\index{ARKStepSetARKTables (C function)}
+\index{ARKStepSetTables (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetARKTables}\pysiglinewithargsret{int \bfcode{ARKStepSetARKTables}}{void*\emph{ arkode\_mem}, int\emph{ q}, int\emph{ p}, {\hyperref[ARKodeButcherTable:c.ARKodeButcherTable]{\emph{ARKodeButcherTable}}}\emph{ Bi}, {\hyperref[ARKodeButcherTable:c.ARKodeButcherTable]{\emph{ARKodeButcherTable}}}\emph{ Be}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetTables}\pysiglinewithargsret{int \bfcode{ARKStepSetTables}}{void*\emph{ arkode\_mem}, int\emph{ q}, int\emph{ p}, {\hyperref[ARKodeButcherTable:c.ARKodeButcherTable]{\emph{ARKodeButcherTable}}}\emph{ Bi}, {\hyperref[ARKodeButcherTable:c.ARKodeButcherTable]{\emph{ARKodeButcherTable}}}\emph{ Be}}{}
 Specifies a customized Butcher table (or pair) for the ERK, DIRK,
 or ARK method.
 \begin{description}
@@ -5477,10 +5546,10 @@ or ARK method.
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {} 
-\emph{q} -- global order of accuracy for the RK method.
+\emph{q} -- global order of accuracy for the ARK method.
 
 \item {} 
-\emph{p} -- global order of accuracy for the embedded RK method.
+\emph{p} -- global order of accuracy for the embedded ARK method.
 
 \item {} 
 \emph{Bi} -- the Butcher table for the implicit RK method.
@@ -5533,18 +5602,16 @@ Error checking is performed on \emph{Bi} and \emph{Be} (if non-NULL) to ensure
 that they specify DIRK and ERK methods, respectively.
 
 If the inputs \emph{Bi} or \emph{Be} do not contain an embedding (when the
-corresponding explicit or implicit table is non-NULL), ARKStep
-will run in fixed-step mode (see {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetFixedStep]{\emph{\code{ARKStepSetFixedStep()}}}});
-if called in this manner the user \emph{must} call either
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetFixedStep]{\emph{\code{ARKStepSetFixedStep()}}}} or {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetInitStep]{\emph{\code{ARKStepSetInitStep()}}}} to
-set the desired time step size.
+corresponding explicit or implicit table is non-NULL), the user \emph{must} call
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetFixedStep]{\emph{\code{ARKStepSetFixedStep()}}}} to enable fixed-step mode and set the
+desired time step size.
 
 \end{fulllineitems}
 
-\index{ARKStepSetARKTableNum (C function)}
+\index{ARKStepSetTableNum (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetARKTableNum}\pysiglinewithargsret{int \bfcode{ARKStepSetARKTableNum}}{void*\emph{ arkode\_mem}, int\emph{ itable}, int\emph{ etable}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetTableNum}\pysiglinewithargsret{int \bfcode{ARKStepSetTableNum}}{void*\emph{ arkode\_mem}, int\emph{ itable}, int\emph{ etable}}{}
 Indicates to use specific built-in Butcher tables for the ERK, DIRK
 or ARK method.
 \begin{description}
@@ -5704,7 +5771,7 @@ none
 \index{ARKStepSetAdaptivityFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetAdaptivityFn}\pysiglinewithargsret{int \bfcode{ARKStepSetAdaptivityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{ARKAdaptFn}}}\emph{ hfun}, void*\emph{ h\_data}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetAdaptivityFn}\pysiglinewithargsret{int \bfcode{ARKStepSetAdaptivityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{ARKAdaptFn}}}\emph{ hfun}, void*\emph{ h\_data}}{}
 Sets a user-supplied time-step adaptivity function.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -6115,7 +6182,7 @@ before the \emph{etamxf} parameter from
 \index{ARKStepSetStabilityFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetStabilityFn}\pysiglinewithargsret{int \bfcode{ARKStepSetStabilityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{ARKExpStabFn}}}\emph{ EStab}, void*\emph{ estab\_data}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetStabilityFn}\pysiglinewithargsret{int \bfcode{ARKStepSetStabilityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{ARKExpStabFn}}}\emph{ EStab}, void*\emph{ estab\_data}}{}
 Sets the problem-dependent function to estimate a stable
 time step size for the explicit portion of the ODE system.
 \begin{description}
@@ -7469,7 +7536,7 @@ An optional function {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepGetDk
 additional values of solution-related quantities.  This function
 should only be called after a successful return from
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepEvolve]{\emph{\code{ARKStepEvolve()}}}}, as it provides interpolated values either of
-\(y\) or of its derivatives (up to the 3rd derivative)
+\(y\) or of its derivatives (up to the 5th derivative)
 interpolated to any value of \(t\) in the last internal step taken
 by {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepEvolve]{\emph{\code{ARKStepEvolve()}}}}.  Internally, this \emph{dense output} algorithm is
 identical to the algorithm used for the maximum order implicit
@@ -7485,10 +7552,11 @@ Computes the \emph{k}-th derivative of the function
 i.e. \(\frac{d^{(k)}}{dt^{(k)}}y(t)\), for values of the
 independent variable satisfying \(t_n-h_n \le t \le t_n\), with
 \(t_n\) as current internal time reached, and \(h_n\) is
-the last internal step size successfully used by the solver.  The
-user may request \emph{k} in the range \{0,1,2,3\}.  This routine uses an
-interpolating polynomial of degree \emph{max(dord, k)}, where \emph{dord} is the
-argument provided to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetDenseOrder]{\emph{\code{ARKStepSetDenseOrder()}}}}.
+the last internal step size successfully used by the solver.  This
+routine uses an interpolating polynomial of degree \emph{max(dord, k)},
+where \emph{dord} is the argument provided to
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetDenseOrder]{\emph{\code{ARKStepSetDenseOrder()}}}}.  The user may request \emph{k} in the
+range \{0,...,*dord*\}.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
@@ -7511,7 +7579,7 @@ derivative is to be evaluated.
 \emph{ARK\_SUCCESS} if successful
 
 \item {} 
-\emph{ARK\_BAD\_K} if \emph{k} is not in the range \{0,1,2,3\}.
+\emph{ARK\_BAD\_K} if \emph{k} is not in the range \{0,...,*dord*\}.
 
 \item {} 
 \emph{ARK\_BAD\_T} if \emph{t} is not in the interval \([t_n-h_n, t_n]\)
@@ -9693,18 +9761,18 @@ ARKLS interface routines, as described in the section
 previously remain in effect.
 
 One important use of the {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepReInit]{\emph{\code{ARKStepReInit()}}}} function is in the
-treating of jump discontinuities in the RHS function.  Except in cases
+treating of jump discontinuities in the RHS functions.  Except in cases
 of fairly small jumps, it is usually more efficient to stop at each
 point of discontinuity and restart the integrator with a readjusted
 ODE model, using a call to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepReInit]{\emph{\code{ARKStepReInit()}}}}.  To stop when
 the location of the discontinuity is known, simply make that location
 a value of \code{tout}.  To stop when the location of the discontinuity
 is determined by the solution, use the rootfinding feature.  In either
-case, it is critical that the RHS function \emph{not} incorporate the
+case, it is critical that the RHS functions \emph{not} incorporate the
 discontinuity, but rather have a smooth extension over the
 discontinuity, so that the step across it (and subsequent rootfinding,
 if used) can be done efficiently.  Then use a switch within the RHS
-function (communicated through \code{user\_data}) that can be flipped
+functions (communicated through \code{user\_data}) that can be flipped
 between the stopping of the integration and the restart, so that the
 restarted problem uses the new values (which have jumped).  Similar
 comments apply if there is to be a jump in the dependent variable
@@ -9712,7 +9780,7 @@ vector.
 \index{ARKStepReInit (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepReInit}\pysiglinewithargsret{int \bfcode{ARKStepReInit}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fe}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fi}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepReInit}\pysiglinewithargsret{int \bfcode{ARKStepReInit}}{void*\emph{ arkode\_mem}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fe}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fi}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
 Provides required problem specifications and re-initializes the
 ARKStep time-stepper module.
 \begin{description}
@@ -9721,12 +9789,12 @@ ARKStep time-stepper module.
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {} 
-\emph{fe} -- the name of the C function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{fe} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the explicit portion of the right-hand side function in
 \(M\, \dot{y} = f_E(t,y) + f_I(t,y)\).
 
 \item {} 
-\emph{fi} -- the name of the C function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{fi} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the implicit portion of the right-hand side function in
 \(M\, \dot{y} = f_E(t,y) + f_I(t,y)\).
 
@@ -9782,7 +9850,7 @@ memory structure should be deleted with a call to
 To aid in the vector resize operation, the user can supply a vector
 resize function that will take as input a vector with the previous
 size, and transform it in-place to return a corresponding vector of
-the new size.  If this function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}})
+the new size.  If this function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}})
 is not supplied (i.e. is set to \code{NULL}), then all existing vectors
 internal to ARKStep will be destroyed and re-cloned from the new input
 vector.
@@ -9794,7 +9862,7 @@ rescale the upcoming time step by the specified factor.  If a value
 \index{ARKStepResize (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepResize}\pysiglinewithargsret{int \bfcode{ARKStepResize}}{void*\emph{ arkode\_mem}, N\_Vector\emph{ ynew}, realtype\emph{ hscale}, realtype\emph{ t0}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{ARKVecResizeFn}}}\emph{ resize}, void*\emph{ resize\_data}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepResize}\pysiglinewithargsret{int \bfcode{ARKStepResize}}{void*\emph{ arkode\_mem}, N\_Vector\emph{ ynew}, realtype\emph{ hscale}, realtype\emph{ t0}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{ARKVecResizeFn}}}\emph{ resize}, void*\emph{ resize\_data}}{}
 Re-initializes ARKStep with a different state vector but with
 comparable dynamical time scale.
 \begin{description}
@@ -9816,7 +9884,7 @@ scale (i.e. the next step will be of size \emph{h*hscale}).
 
 \item {} 
 \emph{resize} -- the user-supplied vector resize function (of type
-{\hyperref[ERKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}}.
+{\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}}.
 
 \item {} 
 \emph{resize\_data} -- the user-supplied data structure to be passed
@@ -9949,7 +10017,7 @@ deletion/recreation), and if the user plans to call
 
 \subsection{ODE right-hand side}
 \label{ARKStep_c_interface/User_supplied:ode-right-hand-side}\label{ARKStep_c_interface/User_supplied:arkstep-cinterface-oderhs}
-The user must supply at least one function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} to
+The user must supply at least one function of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} to
 specify the explicit and/or implicit portions of the ODE system:
 \index{ARKRhsFn (C type)}
 
@@ -10006,7 +10074,7 @@ completes a successful stage, in which case ARKStep returns
 As an alternative to the default behavior of directing error and
 warning messages to the file pointed to by \emph{errfp} (see
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetErrFile]{\emph{\code{ARKStepSetErrFile()}}}}), the user may provide a function of type
-{\hyperref[ERKStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{\code{ARKErrHandlerFn}}}} to process any such messages.
+{\hyperref[MRIStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{\code{ARKErrHandlerFn}}}} to process any such messages.
 \index{ARKErrHandlerFn (C type)}
 
 \begin{fulllineitems}
@@ -10050,7 +10118,7 @@ pointer to memory encounters an error, it sets \emph{error\_code} to
 \subsection{Error weight function}
 \label{ARKStep_c_interface/User_supplied:arkstep-cinterface-errorweight}\label{ARKStep_c_interface/User_supplied:error-weight-function}
 As an alternative to providing the relative and absolute tolerances,
-the user may provide a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn}}}} to compute a
+the user may provide a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn}}}} to compute a
 vector \emph{ewt} containing the weights in the WRMS norm
 \(\|v\|_{WRMS} = \left(\frac{1}{n} \sum_{i=1}^n \left(ewt_i\; v_i\right)^2
 \right)^{1/2}\).  These weights will be used in place of those defined
@@ -10142,7 +10210,7 @@ is not satisfied.
 \label{ARKStep_c_interface/User_supplied:arkstep-cinterface-adaptivityfn}\label{ARKStep_c_interface/User_supplied:time-step-adaptivity-function}
 As an alternative to using one of the built-in time step adaptivity
 methods for controlling solution error, the user may provide a
-function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn}}}} to compute a target step size
+function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn}}}} to compute a target step size
 \(h\) for the next integration step.  These steps should be chosen
 as the maximum value such that the error estimates remain below 1.
 \index{ARKAdaptFn (C type)}
@@ -10209,7 +10277,7 @@ for the explicit portion of the ImEx system, \(f_E(t,y)\).  While
 the accuracy-based time step adaptivity algorithms may be sufficient
 for retaining a stable solution to the ODE system, these may be
 inefficient if \(f_E(t,y)\) contains moderately stiff terms.  In
-this scenario, a user may provide a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn}}}}
+this scenario, a user may provide a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn}}}}
 to provide this stability information to ARKStep.  This function
 must set the scalar step size satisfying the stability restriction for
 the upcoming time step.  This value will subsequently be bounded by
@@ -10257,7 +10325,7 @@ stability restriction on the time step size.
 \subsection{Rootfinding function}
 \label{ARKStep_c_interface/User_supplied:arkstep-cinterface-rootfindingfn}\label{ARKStep_c_interface/User_supplied:rootfinding-function}
 If a rootfinding problem is to be solved during the integration of the
-ODE system, the user must supply a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn}}}}.
+ODE system, the user must supply a function of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn}}}}.
 \index{ARKRootFn (C type)}
 
 \begin{fulllineitems}
@@ -10447,7 +10515,7 @@ further documented in the section {\hyperref[sunmatrix/SUNMatrix_Sparse:sunmatri
 
 \subsection{Jacobian-vector product (matrix-free linear solvers)}
 \label{ARKStep_c_interface/User_supplied:jacobian-vector-product-matrix-free-linear-solvers}\label{ARKStep_c_interface/User_supplied:arkstep-cinterface-jtimesfn}
-Whn using matrix matrix-free linear solver modules for the implicit
+When using a matrix-free linear solver modules for the implicit
 stage solves (i.e., a NULL-valued SUNMATRIX argument was supplied to
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetLinearSolver]{\emph{\code{ARKStepSetLinearSolver()}}}} in the section
 {\hyperref[ARKStep_c_interface/Skeleton:arkstep-cinterface-skeleton]{\emph{\DUspan{}{A skeleton of the user's main program}}}}), the user may provide a function
@@ -10547,7 +10615,7 @@ error (in which case the step will be retried), or negative for an
 unrecoverable error (in which case the integration is halted).
 
 \textbf{Notes:}    Each call to the Jacobian-vector setup function is
-preceded by a call to the implicit {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} user
+preceded by a call to the implicit {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} user
 function with the same \((t,y)\) arguments.  Thus, the setup
 function can use any auxiliary data that is computed and saved
 during the evaluation of the implicit ODE right-hand side.
@@ -10699,7 +10767,7 @@ factorization of the resulting approximation to \(A = M -
 \gamma J\).
 
 Each call to the preconditioner setup function is preceded by a
-call to the implicit {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} user function with the
+call to the implicit {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} user function with the
 same \((t,y)\) arguments.  Thus, the preconditioner setup
 function can use any auxiliary data that is computed and saved
 during the evaluation of the ODE right-hand side.
@@ -11012,7 +11080,7 @@ adaptivity without repeated allocation/deallocation of memory.  In
 these scenarios, it is recommended that the user supply a customized
 vector kernel to interface between SUNDIALS and their problem-specific
 data structure.  If this vector kernel includes a function of type
-{\hyperref[ERKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn}}}} to resize a given vector implementation, then
+{\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn}}}} to resize a given vector implementation, then
 this function may be supplied to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepResize]{\emph{\code{ARKStepResize()}}}} so that all
 internal ARKStep vectors may be resized, instead of deleting and
 re-creating them at each call.  This resize function should have the
@@ -12151,13 +12219,13 @@ ARKStepSet* and ARKStepSet* functions (see {\hyperref[ARKStep_c_interface/User_c
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKEXPSTABSET]{\emph{\code{FARKEXPSTABSET()}}}} interfaces to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetStabilityFn]{\emph{\code{ARKStepSetStabilityFn()}}}}.
 
 \item {} 
-{\hyperref[ARKStep_f_interface/Usage:f/_/FARKSETERKTABLE]{\emph{\code{FARKSETERKTABLE()}}}} interfaces to \code{ARKStepSetERKTable()}.
+{\hyperref[ARKStep_f_interface/Usage:f/_/FARKSETERKTABLE]{\emph{\code{FARKSETERKTABLE()}}}} interfaces to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTables]{\emph{\code{ARKStepSetTables()}}}}.
 
 \item {} 
-{\hyperref[ARKStep_f_interface/Usage:f/_/FARKSETIRKTABLE]{\emph{\code{FARKSETIRKTABLE()}}}} interfaces to \code{ARKStepSetIRKTable()}.
+{\hyperref[ARKStep_f_interface/Usage:f/_/FARKSETIRKTABLE]{\emph{\code{FARKSETIRKTABLE()}}}} interfaces to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTables]{\emph{\code{ARKStepSetTables()}}}}.
 
 \item {} 
-{\hyperref[ARKStep_f_interface/Usage:f/_/FARKSETARKTABLES]{\emph{\code{FARKSETARKTABLES()}}}} interfaces to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetARKTables]{\emph{\code{ARKStepSetARKTables()}}}}.
+{\hyperref[ARKStep_f_interface/Usage:f/_/FARKSETARKTABLES]{\emph{\code{FARKSETARKTABLES()}}}} interfaces to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTables]{\emph{\code{ARKStepSetTables()}}}}.
 
 \item {} 
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKSETRESTOLERANCE]{\emph{\code{FARKSETRESTOLERANCE()}}}} interfaces to either
@@ -12273,12 +12341,12 @@ function type
 \hline
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKIFUN]{\emph{\code{FARKIFUN()}}}}
  & 
-{\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}}
+{\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}}
 \\
 \hline
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKEFUN]{\emph{\code{FARKEFUN()}}}}
  & 
-{\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}}
+{\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}}
 \\
 \hline\end{tabulary}
 
@@ -12401,21 +12469,21 @@ FARKODE ``activation'' routine
 \hline
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKEWT]{\emph{\code{FARKEWT()}}}}
  & 
-{\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}}
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}}
  & 
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKEWTSET]{\emph{\code{FARKEWTSET()}}}}
 \\
 \hline
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKADAPT]{\emph{\code{FARKADAPT()}}}}
  & 
-{\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn()}}}}
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn()}}}}
  & 
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKADAPTSET]{\emph{\code{FARKADAPTSET()}}}}
 \\
 \hline
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKEXPSTAB]{\emph{\code{FARKEXPSTAB()}}}}
  & 
-{\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn()}}}}
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn()}}}}
  & 
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKEXPSTABSET]{\emph{\code{FARKEXPSTABSET()}}}}
 \\
@@ -12898,17 +12966,17 @@ ARKStep routine
 \hline
 \code{IRK\_TABLE\_NUM}
  & 
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetARKTableNum]{\emph{\code{ARKStepSetARKTableNum()}}}}
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}}
 \\
 \hline
 \code{ERK\_TABLE\_NUM}
  & 
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetARKTableNum]{\emph{\code{ARKStepSetARKTableNum()}}}}
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}}
 \\
 \hline
 \code{ARK\_TABLE\_NUM} \emph{(a)}
  & 
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetARKTableNum]{\emph{\code{ARKStepSetARKTableNum()}}}}
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}}
 \\
 \hline
 \code{MAX\_NSTEPS}
@@ -13112,7 +13180,7 @@ complete information.
 
 \begin{fulllineitems}
 \phantomsection\label{ARKStep_f_interface/Usage:f/_/FARKSETERKTABLE}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FARKSETERKTABLE}}{\emph{S}, \emph{Q}, \emph{P}, \emph{C}, \emph{A}, \emph{B}, \emph{BEMBED}, \emph{IER}}{}
-Interface to the routine {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetARKTables]{\emph{\code{ARKStepSetARKTables()}}}}.
+Interface to the routine {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTables]{\emph{\code{ARKStepSetTables()}}}}.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
@@ -13151,7 +13219,7 @@ coefficients.
 
 \begin{fulllineitems}
 \phantomsection\label{ARKStep_f_interface/Usage:f/_/FARKSETIRKTABLE}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FARKSETIRKTABLE}}{\emph{S}, \emph{Q}, \emph{P}, \emph{C}, \emph{A}, \emph{B}, \emph{BEMBED}, \emph{IER}}{}
-Interface to the routine {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetARKTables]{\emph{\code{ARKStepSetARKTables()}}}}.
+Interface to the routine {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTables]{\emph{\code{ARKStepSetTables()}}}}.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
@@ -13190,7 +13258,7 @@ coefficients.
 
 \begin{fulllineitems}
 \phantomsection\label{ARKStep_f_interface/Usage:f/_/FARKSETARKTABLES}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FARKSETARKTABLES}}{\emph{S}, \emph{Q}, \emph{P}, \emph{CI}, \emph{CE}, \emph{AI}, \emph{AE}, \emph{BI}, \emph{BE}, \emph{B2I}, \emph{B2E}, \emph{IER}}{}
-Interface to the routine {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetARKTables]{\emph{\code{ARKStepSetARKTables()}}}}.
+Interface to the routine {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTables]{\emph{\code{ARKStepSetTables()}}}}.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
@@ -13311,7 +13379,7 @@ ARKStep for handling adaptive error control and explicit stability.
 The former of these is designed for advanced users who wish to
 investigate custom step adaptivity approaches as opposed to using any
 of those built-in to ARKStep.  In ARKStep's C/C++ interface, this would be
-provided by a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn()}}}}; in the Fortran
+provided by a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn()}}}}; in the Fortran
 interface this is provided through the user-supplied function:
 \index{FARKADAPT() (fortran subroutine)|textbf}
 
@@ -13404,7 +13472,7 @@ Similarly, if either an explicit or mixed implicit-explicit
 integration method is to be employed, the user may specify a function
 to provide the maximum explicitly-stable step for their problem.
 Again, in the C/C++ interface this would be a function of type
-{\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn()}}}}, while in ARKStep's Fortran interface this
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn()}}}}, while in ARKStep's Fortran interface this
 must be given through the user-supplied function:
 \index{FARKEXPSTAB() (fortran subroutine)|textbf}
 
@@ -16582,13 +16650,13 @@ provide her own error handler function (see the section
 \label{ERKStep_c_interface/User_callable:erkstep-cinterface-initialization}\label{ERKStep_c_interface/User_callable:erkstep-initialization-and-deallocation-functions}\index{ERKStepCreate (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepCreate}\pysiglinewithargsret{void* \bfcode{ERKStepCreate}}{{\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ f}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepCreate}\pysiglinewithargsret{void* \bfcode{ERKStepCreate}}{{\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ f}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
 This function allocates and initializes memory for a problem to
 be solved using the ERKStep time-stepping module in ARKode.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
-\emph{f} -- the name of the C function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{f} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the right-hand side function in
 \(\dot{y} = f(t,y)\).
 
@@ -16612,7 +16680,7 @@ returned, and an error message will be printed to \code{stderr}.
 \index{ERKStepFree (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepFree}\pysiglinewithargsret{void \bfcode{ERKStepFree}}{void*\emph{ arkode\_mem}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepFree}\pysiglinewithargsret{void \bfcode{ERKStepFree}}{void**\emph{ arkode\_mem}}{}
 This function frees the problem memory \emph{arkode\_mem} created by
 {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepCreate]{\emph{\code{ERKStepCreate()}}}}.
 \begin{description}
@@ -16742,7 +16810,7 @@ solution component.
 \index{ERKStepWFtolerances (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepWFtolerances}\pysiglinewithargsret{int \bfcode{ERKStepWFtolerances}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{ARKEwtFn}}}\emph{ efun}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepWFtolerances}\pysiglinewithargsret{int \bfcode{ERKStepWFtolerances}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{ARKEwtFn}}}\emph{ efun}}{}
 This function specifies a user-supplied function \emph{efun} to compute
 the error weight vector \code{ewt}.
 \begin{description}
@@ -16751,7 +16819,7 @@ the error weight vector \code{ewt}.
 \emph{arkode\_mem} -- pointer to the ERKStep memory block.
 
 \item {} 
-\emph{efun} -- the name of the function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}})
+\emph{efun} -- the name of the function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}})
 that implements the error weight vector computation.
 
 \end{itemize}
@@ -16887,7 +16955,7 @@ called prior to a continuation call to {\hyperref[ERKStep_c_interface/User_calla
 \index{ERKStepRootInit (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepRootInit}\pysiglinewithargsret{int \bfcode{ERKStepRootInit}}{void*\emph{ arkode\_mem}, int\emph{ nrtfn}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{ARKRootFn}}}\emph{ g}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepRootInit}\pysiglinewithargsret{int \bfcode{ERKStepRootInit}}{void*\emph{ arkode\_mem}, int\emph{ nrtfn}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{ARKRootFn}}}\emph{ g}}{}
 Initializes a rootfinding problem to be solved during the
 integration of the ODE system.  It must be called after
 {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepCreate]{\emph{\code{ERKStepCreate()}}}}, and before {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepEvolve]{\emph{\code{ERKStepEvolve()}}}}.
@@ -16900,7 +16968,7 @@ integration of the ODE system.  It must be called after
 \emph{nrtfn} -- number of functions \(g_i\), an integer \(\ge\) 0.
 
 \item {} 
-\emph{g} -- name of user-supplied function, of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn()}}}},
+\emph{g} -- name of user-supplied function, of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn()}}}},
 defining the functions \(g_i\) whose roots are sought.
 
 \end{itemize}
@@ -16972,9 +17040,9 @@ time, \emph{tout}, in the direction of integration,
 i.e. \(t_{n-1} <\) \emph{tout} \(\le t_{n}\) for forward
 integration, or \(t_{n} \le\) \emph{tout} \(< t_{n-1}\) for
 backward integration.  It will then compute an approximation
-to the solution \(y`(*tout*) by interpolation (using one
+to the solution \(y(tout)\) by interpolation (using one
 of the dense output routines described in the section
-:ref:`Mathematics.Interpolation\)).
+{\hyperref[Mathematics:mathematics-interpolation]{\emph{\DUspan{}{Interpolation}}}}).
 
 The \emph{ARK\_ONE\_STEP} option tells the solver to only take a
 single internal step \(y_{n-1} \to y_{n}\) and then return
@@ -17035,6 +17103,9 @@ demanded by the user for some internal step.
 \emph{ARK\_ERR\_FAILURE} if error test failures occurred either too many
 times (\emph{ark\_maxnef}) during one internal time step or occurred
 with \(|h| = h_{min}\).
+
+\item {} 
+\emph{ARK\_VECTOROP\_ERR} a vector operation error occured.
 
 \end{itemize}
 
@@ -17371,7 +17442,7 @@ error messages.
 \index{ERKStepSetErrHandlerFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetErrHandlerFn}\pysiglinewithargsret{int \bfcode{ERKStepSetErrHandlerFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{ARKErrHandlerFn}}}\emph{ ehfun}, void*\emph{ eh\_data}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetErrHandlerFn}\pysiglinewithargsret{int \bfcode{ERKStepSetErrHandlerFn}}{void*\emph{ arkode\_mem}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{ARKErrHandlerFn}}}\emph{ ehfun}, void*\emph{ eh\_data}}{}
 Specifies the optional user-defined function to be used
 in handling error messages.
 \begin{description}
@@ -17785,14 +17856,14 @@ Set integrator method order
 \hline
 Set explicit RK table
  & 
-{\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetERKTable]{\emph{\code{ERKStepSetERKTable()}}}}
+{\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetTable]{\emph{\code{ERKStepSetTable()}}}}
  & 
 internal
 \\
 \hline
 Specify explicit RK table number
  & 
-{\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetERKTableNum]{\emph{\code{ERKStepSetERKTableNum()}}}}
+{\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetTableNum]{\emph{\code{ERKStepSetTableNum()}}}}
  & 
 internal
 \\
@@ -17836,10 +17907,10 @@ ERKStep memory block, it cannot be changed after the first call to
 
 \end{fulllineitems}
 
-\index{ERKStepSetERKTable (C function)}
+\index{ERKStepSetTable (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetERKTable}\pysiglinewithargsret{int \bfcode{ERKStepSetERKTable}}{void*\emph{ arkode\_mem}, {\hyperref[ARKodeButcherTable:c.ARKodeButcherTable]{\emph{ARKodeButcherTable}}}\emph{ B}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetTable}\pysiglinewithargsret{int \bfcode{ERKStepSetTable}}{void*\emph{ arkode\_mem}, {\hyperref[ARKodeButcherTable:c.ARKodeButcherTable]{\emph{ARKodeButcherTable}}}\emph{ B}}{}
 Specifies a customized Butcher table for the ERK method.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -17877,17 +17948,16 @@ describe the coefficients in the Butcher table.
 Error checking is performed to ensure that the Butcher table is strictly
 lower-triangular (i.e. that it specifies an ERK method).
 
-If the Butcher table does not contain an embedding, then ERKStep will run in
-fixed-step mode (see {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetFixedStep]{\emph{\code{ERKStepSetFixedStep()}}}}); if called in this
-manner the user \emph{must} call either {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetFixedStep]{\emph{\code{ERKStepSetFixedStep()}}}} or
-{\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetInitStep]{\emph{\code{ERKStepSetInitStep()}}}} to set the desired time step size.
+If the Butcher table does not contain an embedding, the user \emph{must} call
+{\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetFixedStep]{\emph{\code{ERKStepSetFixedStep()}}}} to enable fixed-step mode and set the desired
+time step size.
 
 \end{fulllineitems}
 
-\index{ERKStepSetERKTableNum (C function)}
+\index{ERKStepSetTableNum (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetERKTableNum}\pysiglinewithargsret{int \bfcode{ERKStepSetERKTableNum}}{void*\emph{ arkode\_mem}, int\emph{ etable}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetTableNum}\pysiglinewithargsret{int \bfcode{ERKStepSetTableNum}}{void*\emph{ arkode\_mem}, int\emph{ etable}}{}
 Indicates to use a specific built-in Butcher table for the ERK method.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -18018,7 +18088,7 @@ none
 \index{ERKStepSetAdaptivityFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetAdaptivityFn}\pysiglinewithargsret{int \bfcode{ERKStepSetAdaptivityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{ARKAdaptFn}}}\emph{ hfun}, void*\emph{ h\_data}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetAdaptivityFn}\pysiglinewithargsret{int \bfcode{ERKStepSetAdaptivityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{ARKAdaptFn}}}\emph{ hfun}, void*\emph{ h\_data}}{}
 Sets a user-supplied time-step adaptivity function.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -18394,7 +18464,7 @@ before the \emph{etamxf} parameter from
 \index{ERKStepSetStabilityFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetStabilityFn}\pysiglinewithargsret{int \bfcode{ERKStepSetStabilityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{ARKExpStabFn}}}\emph{ EStab}, void*\emph{ estab\_data}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetStabilityFn}\pysiglinewithargsret{int \bfcode{ERKStepSetStabilityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{ARKExpStabFn}}}\emph{ EStab}, void*\emph{ estab\_data}}{}
 Sets the problem-dependent function to estimate a stable
 time step size for the explicit portion of the ODE system.
 \begin{description}
@@ -18548,7 +18618,7 @@ An optional function {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepGetDk
 additional values of solution-related quantities.  This function
 should only be called after a successful return from
 {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepEvolve]{\emph{\code{ERKStepEvolve()}}}}, as it provides interpolated values either of
-\(y\) or of its derivatives (up to the 3rd derivative)
+\(y\) or of its derivatives (up to the 5th derivative)
 interpolated to any value of \(t\) in the last internal step taken
 by {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepEvolve]{\emph{\code{ERKStepEvolve()}}}}.  Internally, this \emph{dense output} algorithm is
 identical to the algorithm used for the maximum order implicit
@@ -18564,10 +18634,11 @@ Computes the \emph{k}-th derivative of the function
 i.e. \(\frac{d^{(k)}}{dt^{(k)}}y(t)\), for values of the
 independent variable satisfying \(t_n-h_n \le t \le t_n\), with
 \(t_n\) as current internal time reached, and \(h_n\) is
-the last internal step size successfully used by the solver.  The
-user may request \emph{k} in the range \{0,1,2,3\}.  This routine uses an
-interpolating polynomial of degree \emph{max(dord, k)}, where \emph{dord} is the
-argument provided to {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetDenseOrder]{\emph{\code{ERKStepSetDenseOrder()}}}}.
+the last internal step size successfully used by the solver.  This
+routine uses an interpolating polynomial of degree \emph{max(dord, k)},
+where \emph{dord} is the argument provided to
+{\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetDenseOrder]{\emph{\code{ERKStepSetDenseOrder()}}}}. The user may request \emph{k} in the
+range \{0,...,*dord*\}.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
@@ -18590,7 +18661,7 @@ derivative is to be evaluated.
 \emph{ARK\_SUCCESS} if successful
 
 \item {} 
-\emph{ARK\_BAD\_K} if \emph{k} is not in the range \{0,1,2,3\}.
+\emph{ARK\_BAD\_K} if \emph{k} is not in the range \{0,...,*dord*\}.
 
 \item {} 
 \emph{ARK\_BAD\_T} if \emph{t} is not in the interval \([t_n-h_n, t_n]\)
@@ -19660,7 +19731,7 @@ vector.
 \index{ERKStepReInit (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepReInit}\pysiglinewithargsret{int \bfcode{ERKStepReInit}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ f}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepReInit}\pysiglinewithargsret{int \bfcode{ERKStepReInit}}{void*\emph{ arkode\_mem}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ f}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
 Provides required problem specifications and re-initializes the
 ERKStep time-stepper module.
 \begin{description}
@@ -19669,7 +19740,7 @@ ERKStep time-stepper module.
 \emph{arkode\_mem} -- pointer to the ERKStep memory block.
 
 \item {} 
-\emph{f} -- the name of the C function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{f} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the right-hand side function in \(\dot{y} = f(t,y)\).
 
 \item {} 
@@ -19724,7 +19795,7 @@ memory structure should be deleted with a call to
 To aid in the vector resize operation, the user can supply a vector
 resize function that will take as input a vector with the previous
 size, and transform it in-place to return a corresponding vector of
-the new size.  If this function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}})
+the new size.  If this function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}})
 is not supplied (i.e. is set to \code{NULL}), then all existing vectors
 internal to ERKStep will be destroyed and re-cloned from the new input
 vector.
@@ -19736,7 +19807,7 @@ rescale the upcoming time step by the specified factor.  If a value
 \index{ERKStepResize (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepResize}\pysiglinewithargsret{int \bfcode{ERKStepResize}}{void*\emph{ arkode\_mem}, N\_Vector\emph{ ynew}, realtype\emph{ hscale}, realtype\emph{ t0}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{ARKVecResizeFn}}}\emph{ resize}, void*\emph{ resize\_data}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepResize}\pysiglinewithargsret{int \bfcode{ERKStepResize}}{void*\emph{ arkode\_mem}, N\_Vector\emph{ ynew}, realtype\emph{ hscale}, realtype\emph{ t0}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{ARKVecResizeFn}}}\emph{ resize}, void*\emph{ resize\_data}}{}
 Re-initializes ERKStep with a different state vector but with
 comparable dynamical time scale.
 \begin{description}
@@ -19758,7 +19829,7 @@ scale (i.e. the next step will be of size \emph{h*hscale}).
 
 \item {} 
 \emph{resize} -- the user-supplied vector resize function (of type
-{\hyperref[ERKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}}.
+{\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}}.
 
 \item {} 
 \emph{resize\_data} -- the user-supplied data structure to be passed
@@ -19844,7 +19915,7 @@ deletion/recreation), and if the user plans to call
 
 \subsection{ODE right-hand side}
 \label{ERKStep_c_interface/User_supplied:erkstep-cinterface-oderhs}\label{ERKStep_c_interface/User_supplied:ode-right-hand-side}
-The user must supply a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} to
+The user must supply a function of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} to
 specify the right-hand side of the ODE system:
 \index{ARKRhsFn (C type)}
 
@@ -19897,7 +19968,7 @@ case ERKStep returns \emph{ARK\_FIRST\_RHSFUNC\_ERR}).
 As an alternative to the default behavior of directing error and
 warning messages to the file pointed to by \emph{errfp} (see
 {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetErrFile]{\emph{\code{ERKStepSetErrFile()}}}}), the user may provide a function of type
-{\hyperref[ERKStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{\code{ARKErrHandlerFn}}}} to process any such messages.
+{\hyperref[MRIStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{\code{ARKErrHandlerFn}}}} to process any such messages.
 \index{ARKErrHandlerFn (C type)}
 
 \begin{fulllineitems}
@@ -19941,7 +20012,7 @@ pointer to memory encounters an error, it sets \emph{error\_code} to
 \subsection{Error weight function}
 \label{ERKStep_c_interface/User_supplied:erkstep-cinterface-errorweight}\label{ERKStep_c_interface/User_supplied:error-weight-function}
 As an alternative to providing the relative and absolute tolerances,
-the user may provide a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn}}}} to compute a
+the user may provide a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn}}}} to compute a
 vector \emph{ewt} containing the weights in the WRMS norm
 \(\|v\|_{WRMS} = \left(\frac{1}{n} \sum_{i=1}^n \left(ewt_i\; v_i\right)^2
 \right)^{1/2}\).  These weights will be used in place of those defined
@@ -19987,7 +20058,7 @@ is not satisfied.
 \label{ERKStep_c_interface/User_supplied:time-step-adaptivity-function}\label{ERKStep_c_interface/User_supplied:erkstep-cinterface-adaptivityfn}
 As an alternative to using one of the built-in time step adaptivity
 methods for controlling solution error, the user may provide a
-function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn}}}} to compute a target step size
+function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn}}}} to compute a target step size
 \(h\) for the next integration step.  These steps should be chosen
 as the maximum value such that the error estimates remain below 1.
 \index{ARKAdaptFn (C type)}
@@ -20054,7 +20125,7 @@ for the explicit Runge Kutta method on this problem.  While the
 accuracy-based time step adaptivity algorithms may be sufficient
 for retaining a stable solution to the ODE system, these may be
 inefficient if \(f(t,y)\) contains moderately stiff terms.  In
-this scenario, a user may provide a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn}}}}
+this scenario, a user may provide a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn}}}}
 to provide this stability information to ERKStep.  This function
 must set the scalar step size satisfying the stability restriction for
 the upcoming time step.  This value will subsequently be bounded by
@@ -20101,7 +20172,7 @@ stability restriction on the time step size.
 \subsection{Rootfinding function}
 \label{ERKStep_c_interface/User_supplied:rootfinding-function}\label{ERKStep_c_interface/User_supplied:erkstep-cinterface-rootfindingfn}
 If a rootfinding problem is to be solved during the integration of the
-ODE system, the user must supply a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn}}}}.
+ODE system, the user must supply a function of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn}}}}.
 \index{ARKRootFn (C type)}
 
 \begin{fulllineitems}
@@ -20151,7 +20222,7 @@ adaptivity without repeated allocation/deallocation of memory.  In
 these scenarios, it is recommended that the user supply a customized
 vector kernel to interface between SUNDIALS and their problem-specific
 data structure.  If this vector kernel includes a function of type
-{\hyperref[ERKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn}}}} to resize a given vector implementation, then
+{\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn}}}} to resize a given vector implementation, then
 this function may be supplied to {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepResize]{\emph{\code{ERKStepResize()}}}} so that all
 internal ERKStep vectors may be resized, instead of deleting and
 re-creating them at each call.  This resize function should have the
@@ -20183,6 +20254,2416 @@ An \emph{ARKVecResizeFn} function should return 0 if it successfully
 resizes the vector \emph{y}, and a non-zero value otherwise.
 
 \textbf{Notes:}  If this function is not supplied, then ERKStep will
+instead destroy the vector \emph{y} and clone a new vector \emph{y} off of
+\emph{ytemplate}.
+
+\end{fulllineitems}
+
+
+
+\chapter{Using MRIStep for C and C++ Applications}
+\label{MRIStep_c_interface/index::doc}\label{MRIStep_c_interface/index:using-mristep-for-c-and-c-applications}\label{MRIStep_c_interface/index:mristep-cinterface}
+This chapter is concerned with the use of the MRIStep time-stepping
+module for the solution of two-rate initial value problems (IVPs) in a
+C or C++ language setting. The following sections discuss the header
+files and the layout of the user's main program, and provide
+descriptions of the MRIStep user-callable functions and user-supplied
+functions.
+
+The example programs described in the companion document \phantomsection\label{MRIStep_c_interface/index:id1}{\hyperref[References:r2018]{\emph{{[}R2018{]}}}} may
+be helpful. Those codes may be used as templates for new codes and are
+included in the ARKode package \code{examples} subdirectory.
+
+MRIStep uses the input and output constants from the shared ARKode
+infrastructure. These are defined as needed in this chapter, but for
+convenience the full list is provided separately in the section
+{\hyperref[Constants:constants]{\emph{\DUspan{}{Appendix: ARKode Constants}}}}.
+
+The relevant information on using MRIStep's C and C++ interfaces is
+detailed in the following sub-sections.
+
+
+\section{Access to library and header files}
+\label{MRIStep_c_interface/General:access-to-library-and-header-files}\label{MRIStep_c_interface/General::doc}\label{MRIStep_c_interface/General:mristep-cinterface-headers}
+At this point, it is assumed that the installation of ARKode,
+following the procedure described in the section {\hyperref[Install:installation]{\emph{\DUspan{}{ARKode Installation Procedure}}}},
+has been completed successfully.
+
+Regardless of where the user's application program resides, its
+associated compilation and load commands must make reference to the
+appropriate locations for the library and header files required by
+ARKode. The relevant library files are
+\begin{itemize}
+\item {} 
+\code{libdir/libsundials\_arkode.lib},
+
+\item {} 
+\code{libdir/libsundials\_nvec*.lib},
+
+\end{itemize}
+
+where the file extension \code{.lib} is typically \code{.so} for shared
+libraries and \code{.a} for static libraries.  The relevant header files
+are located in the subdirectories
+\begin{itemize}
+\item {} 
+\code{incdir/include/arkode}
+
+\item {} 
+\code{incdir/include/sundials}
+
+\item {} 
+\code{incdir/include/nvector}
+
+\end{itemize}
+
+The directories \code{libdir} and \code{incdir} are the installation library
+and include directories, respectively.  For a default installation,
+these are \code{instdir/lib} and \code{instdir/include}, respectively, where
+\code{instdir} is the directory where SUNDIALS was installed (see the
+section {\hyperref[Install:installation]{\emph{\DUspan{}{ARKode Installation Procedure}}}} for further details).
+
+
+\section{Data Types}
+\label{MRIStep_c_interface/General:mristep-cinterface-datatypes}\label{MRIStep_c_interface/General:data-types}
+The \code{sundials\_types.h} file contains the definition of the variable
+type \code{realtype}, which is used by the SUNDIALS solvers for all
+floating-point data, the definition of the integer type
+\code{sunindextype}, which is used for vector and matrix indices, and
+\code{booleantype}, which is used for certain logic operations within
+SUNDIALS.
+
+
+\subsection{Floating point types}
+\label{MRIStep_c_interface/General:floating-point-types}
+The type ``\index{realtype}realtype'' can be set to
+\code{float}, \code{double}, or \code{long double}, depending on how SUNDIALS
+was installed (with the default being \code{double}). The user can change
+the precision of the SUNDIALS solvers' floating-point arithmetic at the
+configuration stage (see the section {\hyperref[Install:installation-cmake-options]{\emph{\DUspan{}{Configuration options (Unix/Linux)}}}}).
+
+Additionally, based on the current precision, \code{sundials\_types.h}
+defines the values \index{BIG\_REAL}BIG\_REAL to be the largest value
+representable as a \code{realtype}, \index{SMALL\_REAL}SMALL\_REAL to be the
+smallest positive value representable as a \code{realtype}, and
+\index{UNIT\_ROUNDOFF}UNIT\_ROUNDOFF to be the smallest realtype number,
+\(\varepsilon\), such that \(1.0 + \varepsilon \ne 1.0\).
+
+Within SUNDIALS, real constants may be set to have the appropriate
+precision by way of a macro called \index{RCONST}RCONST.  It is this macro
+that needs the ability to branch on the definition \code{realtype}.  In
+ANSI C, a floating-point constant with no suffix is stored as a
+\code{double}. Placing the suffix ``F'' at the end of a floating point
+constant makes it a \code{float}, whereas using the suffix ``L'' makes it a
+\code{long double}. For example,
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define A 1.0}
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define B 1.0F}
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define C 1.0L}
+\end{Verbatim}
+
+defines \code{A} to be a \code{double} constant equal to 1.0, \code{B} to be a
+\code{float} constant equal to 1.0, and \code{C} to be a \code{long double} constant
+equal to 1.0.  The macro call \code{RCONST(1.0)} automatically expands to
+1.0 if \code{realtype} is \code{double}, to \code{1.0F} if \code{realtype} is \code{float}, or
+to \code{1.0L} if \code{realtype} is \code{long double}. SUNDIALS uses the \code{RCONST}
+macro internally to declare all of its floating-point constants.
+
+A user program which uses the type \code{realtype} and the \code{RCONST} macro
+to handle floating-point constants is precision-independent, except for
+any calls to precision-specific standard math library functions.
+Users can, however, use the types \code{double}, \code{float}, or \code{long
+double} in their code (assuming that this usage is consistent with
+the size of \code{realtype} values that are passed to and from SUNDIALS).
+Thus, a previously existing piece of ANSI C code can use SUNDIALS
+without modifying the code to use \code{realtype}, so long as the
+SUNDIALS libraries have been compiled using the same precision (for
+details see the section {\hyperref[Install:installation]{\emph{\DUspan{}{ARKode Installation Procedure}}}}).
+
+
+\subsection{Integer types used for vector and matrix indices}
+\label{MRIStep_c_interface/General:integer-types-used-for-vector-and-matrix-indices}
+The type \code{sunindextype} can be either a 32- or 64-bit \emph{signed} integer.
+The default is the portable \code{int64\_t} type, and the user can change it
+to \code{int32\_t} at the configuration stage. The configuration system
+will detect if the compiler does not support portable types, and will
+replace \code{int32\_t} and \code{int64\_t} with \code{int} and \code{long int},
+respectively, to ensure use of the desired sizes on Linux, Mac OS X, and Windows
+platforms. SUNDIALS currently does not support \emph{unsigned} integer types
+for vector and matrix indices, although these could be added in the future if there
+is sufficient demand.
+
+A user program which uses \code{sunindextype} to handle vector and matrix indices
+will work with both index storage types except for any calls to index storage-specific
+external libraries. (Our \code{C} and \code{C++} example programs use \code{sunindextype}.)
+Users can, however, use any one of \code{int}, \code{long int}, \code{int32\_t}, \code{int64\_t} or
+\code{long long int} in their code, assuming that this usage is consistent with the typedef
+for \code{sunindextype} on their architecture. Thus, a previously existing piece of ANSI
+C code can use SUNDIALS without modifying the code to use \code{sunindextype},
+so long as the SUNDIALS libraries use the appropriate index storage type (for details
+see the section {\hyperref[Install:installation]{\emph{\DUspan{}{ARKode Installation Procedure}}}}).
+
+
+\section{Header Files}
+\label{MRIStep_c_interface/General:header-files}
+When using MRIStep, the calling program must include several header
+files so that various macros and data types can be used. The header
+file that is always required is:
+\begin{itemize}
+\item {} 
+\code{arkode/arkode\_mristep.h}, the main header file for the MRIStep
+time-stepping module, which defines the several types and various
+constants, includes function prototypes, and includes the shared
+\code{arkode/arkode.h} header file.
+
+\end{itemize}
+
+Note that \code{arkode.h} includes \code{sundials\_types.h} directly, which
+defines the types \code{realtype},  \code{sunindextype}, and \code{booleantype}
+and the constants \code{SUNFALSE} and \code{SUNTRUE}, so a user program does
+not need to include \code{sundials\_types.h} directly.
+
+Additionally, the calling program must also include an NVECTOR
+implementation header file, of the form \code{nvector/nvector\_***.h},
+corresponding to the user's preferred data layout and form of
+parallelism.  See the section {\hyperref[nvectors/index:nvectors]{\emph{\DUspan{}{Vector Data Structures}}}} for details for the
+appropriate name.  This file in turn includes the header file
+\code{sundials\_nvector.h} which defines the abstract \code{N\_Vector} data
+type.
+
+
+\section{A skeleton of the user's main program}
+\label{MRIStep_c_interface/Skeleton:mristep-cinterface-skeleton}\label{MRIStep_c_interface/Skeleton::doc}\label{MRIStep_c_interface/Skeleton:a-skeleton-of-the-user-s-main-program}
+The following is a skeleton of the user's main program (or calling
+program) for the integration of an ODE IVP using the MRIStep module.
+Most of the steps are independent of the NVECTOR implementation used.
+For the steps that are not, refer to the section {\hyperref[nvectors/index:nvectors]{\emph{\DUspan{}{Vector Data Structures}}}} for
+the specific name of the function to be called or macro to be
+referenced.
+
+\index{User main program}\begin{enumerate}
+\item {} 
+Initialize parallel or multi-threaded environment, if appropriate.
+
+For example, call \code{MPI\_Init} to initialize MPI if used, or set
+\code{num\_threads}, the number of threads to use within the threaded
+vector functions, if used.
+
+\item {} 
+Set problem dimensions, etc.
+
+This generally includes the problem size, \code{N}, and may include
+the local vector length \code{Nlocal}.
+
+\begin{notice}{note}{Note:}
+The variables \code{N} and \code{Nlocal} should be of type
+\code{sunindextype}.
+\end{notice}
+
+\item {} 
+Set vector of initial values
+
+To set the vector \code{y0} of initial values, use the appropriate
+functions defined by the particular NVECTOR implementation.
+
+For native SUNDIALS vector implementations (except the CUDA and
+RAJA based ones), use a call of the form
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{y0} \PYG{o}{=} \PYG{n}{N\PYGZus{}VMake\PYGZus{}}\PYG{o}{*}\PYG{o}{*}\PYG{o}{*}\PYG{p}{(}\PYG{p}{.}\PYG{p}{.}\PYG{p}{.}\PYG{p}{,} \PYG{n}{ydata}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+if the \code{realtype} array \code{ydata} containing the initial values of
+\(y\) already exists.  Otherwise, create a new vector by making
+a call of the form
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{y0} \PYG{o}{=} \PYG{n}{N\PYGZus{}VNew\PYGZus{}}\PYG{o}{*}\PYG{o}{*}\PYG{o}{*}\PYG{p}{(}\PYG{p}{.}\PYG{p}{.}\PYG{p}{.}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+and then set its elements by accessing the underlying data where it
+is located with a call of the form
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{ydata} \PYG{o}{=} \PYG{n}{N\PYGZus{}VGetArrayPointer\PYGZus{}}\PYG{o}{*}\PYG{o}{*}\PYG{o}{*}\PYG{p}{(}\PYG{n}{y0}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+See the sections {\hyperref[nvectors/NVector_Serial:nvectors-nvserial]{\emph{\DUspan{}{The NVECTOR\_SERIAL Module}}}} through
+{\hyperref[nvectors/NVector_Pthreads:nvectors-pthreads]{\emph{\DUspan{}{The NVECTOR\_PTHREADS Module}}}} for details.
+
+For the HYPRE and PETSc vector wrappers, first create and initialize
+the underlying vector, and then create the NVECTOR wrapper with a call
+of the form
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{y0} \PYG{o}{=} \PYG{n}{N\PYGZus{}VMake\PYGZus{}}\PYG{o}{*}\PYG{o}{*}\PYG{o}{*}\PYG{p}{(}\PYG{n}{yvec}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+where \code{yvec} is a HYPRE or PETSc vector.  Note that calls like
+\code{N\_VNew\_***(...)} and \code{N\_VGetArrayPointer\_***(...)} are not
+available for these vector wrappers.  See the sections
+{\hyperref[nvectors/NVector_ParHyp:nvectors-parhyp]{\emph{\DUspan{}{The NVECTOR\_PARHYP Module}}}} and {\hyperref[nvectors/NVector_PETSc:nvectors-nvpetsc]{\emph{\DUspan{}{The NVECTOR\_PETSC Module}}}} for details.
+
+If using either the CUDA- or RAJA-based vector implementations use
+a call of the form
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{y0} \PYG{o}{=} \PYG{n}{N\PYGZus{}VMake\PYGZus{}}\PYG{o}{*}\PYG{o}{*}\PYG{o}{*}\PYG{p}{(}\PYG{p}{.}\PYG{p}{.}\PYG{p}{.}\PYG{p}{,} \PYG{n}{c}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+where \code{c} is a pointer to a \code{suncudavec} or \code{sunrajavec}
+vector class if this class already exists.  Otherwise, create a new
+vector by making a call of the form
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{N\PYGZus{}VGetDeviceArrayPointer\PYGZus{}}\PYG{o}{*}\PYG{o}{*}\PYG{o}{*}
+\end{Verbatim}
+
+or
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{N\PYGZus{}VGetHostArrayPointer\PYGZus{}}\PYG{o}{*}\PYG{o}{*}\PYG{o}{*}
+\end{Verbatim}
+
+Note that the vector class will allocate memory on both the host
+and device when instantiated.  See the sections
+{\hyperref[nvectors/NVector_CUDA:nvectors-cuda]{\emph{\DUspan{}{The NVECTOR\_CUDA Module}}}} and {\hyperref[nvectors/NVector_RAJA:nvectors-raja]{\emph{\DUspan{}{The NVECTOR\_RAJA Module}}}} for details.
+
+\item {} 
+Create MRIStep object
+
+Call \code{arkode\_mem = MRIStepCreate(...)} to create the MRIStep memory
+block. {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepCreate]{\emph{\code{MRIStepCreate()}}}} returns a \code{void*} pointer to
+this memory structure. See the section
+{\hyperref[MRIStep_c_interface/User_callable:mristep-cinterface-initialization]{\emph{\DUspan{}{MRIStep initialization and deallocation functions}}}} for details.
+
+\item {} 
+Set the slow and fast step sizes
+
+Call {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetFixedStep]{\emph{\code{MRIStepSetFixedStep()}}}} to specify the slow and fast time step
+sizes.
+
+\item {} 
+Set optional inputs
+
+Call \code{MRIStepSet*} functions to change any optional inputs that
+control the behavior of MRIStep from their default values. See the
+section {\hyperref[MRIStep_c_interface/User_callable:mristep-cinterface-optionalinputs]{\emph{\DUspan{}{Optional input functions}}}} for details.
+
+\item {} 
+Specify rootfinding problem
+
+Optionally, call {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepRootInit]{\emph{\code{MRIStepRootInit()}}}} to initialize a rootfinding
+problem to be solved during the integration of the ODE system. See
+the section {\hyperref[MRIStep_c_interface/User_callable:mristep-cinterface-rootfinding]{\emph{\DUspan{}{Rootfinding initialization function}}}} for general details, and
+the section {\hyperref[MRIStep_c_interface/User_callable:mristep-cinterface-optionalinputs]{\emph{\DUspan{}{Optional input functions}}}} for relevant optional
+input calls.
+
+\item {} 
+Advance solution in time
+
+For each point at which output is desired, call
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{ier} \PYG{o}{=} \PYG{n}{MRIStepEvolve}\PYG{p}{(}\PYG{n}{arkode\PYGZus{}mem}\PYG{p}{,} \PYG{n}{tout}\PYG{p}{,} \PYG{n}{yout}\PYG{p}{,} \PYG{o}{\PYGZam{}}\PYG{n}{tret}\PYG{p}{,} \PYG{n}{itask}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+Here, \code{itask} specifies the return mode. The vector \code{yout}
+(which can be the same as the vector \code{y0} above) will contain
+\(y(t_\text{out})\). See the section
+{\hyperref[MRIStep_c_interface/User_callable:mristep-cinterface-integration]{\emph{\DUspan{}{MRIStep solver function}}}} for details.
+
+\item {} 
+Get optional outputs
+
+Call \code{MRIStepGet*} functions to obtain optional output. See
+the section {\hyperref[MRIStep_c_interface/User_callable:mristep-cinterface-optionaloutputs]{\emph{\DUspan{}{Optional output functions}}}} for details.
+
+\item {} 
+Deallocate memory for solution vector
+
+Upon completion of the integration, deallocate memory for the
+vector \code{y} (or \code{yout}) by calling the NVECTOR destructor
+function:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{N\PYGZus{}VDestroy}\PYG{p}{(}\PYG{n}{y}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\item {} 
+Free solver memory
+\begin{quote}
+
+Call \code{MRIStepFree(\&arkode\_mem)} to free the memory allocated for
+the MRIStep module.
+\end{quote}
+
+\item {} 
+Finalize MPI, if used
+\begin{quote}
+
+Call \code{MPI\_Finalize} to terminate MPI.
+\end{quote}
+
+\end{enumerate}
+
+
+\section{MRIStep User-callable functions}
+\label{MRIStep_c_interface/User_callable:mristep-cinterface-usercallable}\label{MRIStep_c_interface/User_callable::doc}\label{MRIStep_c_interface/User_callable:mristep-user-callable-functions}
+This section describes the functions that are called by the
+user to setup and then solve an IVP using the MRIStep time-stepping
+module. Some of these are required; however, starting with the section
+{\hyperref[MRIStep_c_interface/User_callable:mristep-cinterface-optionalinputs]{\emph{\DUspan{}{Optional input functions}}}}, the functions listed involve
+optional inputs/outputs or restarting, and those paragraphs may be
+skipped for a casual use of ARKode's MRIStep module. In any case,
+refer to the preceding section, {\hyperref[MRIStep_c_interface/Skeleton:mristep-cinterface-skeleton]{\emph{\DUspan{}{A skeleton of the user's main program}}}},
+for the correct order of these calls.
+
+On an error, each user-callable function returns a negative value  (or
+\code{NULL} if the function returns a pointer) and sends an error message
+to the error handler routine, which prints the message to \code{stderr}
+by default. However, the user can set a file as error output or can
+provide her own error handler function (see the section
+{\hyperref[MRIStep_c_interface/User_callable:mristep-cinterface-optionalinputs]{\emph{\DUspan{}{Optional input functions}}}} for details).
+
+
+\subsection{MRIStep initialization and deallocation functions}
+\label{MRIStep_c_interface/User_callable:mristep-initialization-and-deallocation-functions}\label{MRIStep_c_interface/User_callable:mristep-cinterface-initialization}\index{MRIStepCreate (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepCreate}\pysiglinewithargsret{void* \bfcode{MRIStepCreate}}{{\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fs}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ ff}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
+This function allocates and initializes memory for a problem to
+be solved using the MRIStep time-stepping module in ARKode.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{fs} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+defining the slow portion of the right-hand side function in
+\(\dot{y} = f_s(t,y) + f_f(t,y)\).
+
+\item {} 
+\emph{ff} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+defining the fast portion of the right-hand side function in
+\(\dot{y} = f_s(t,y) + f_f(t,y)\).
+
+\item {} 
+\emph{t0} -- the initial value of \(t\).
+
+\item {} 
+\emph{y0} -- the initial condition vector \(y(t_0)\).
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Return value:}  If successful, a pointer to initialized problem memory
+of type \code{void*}, to be passed to all user-facing MRIStep routines
+listed below.  If unsuccessful, a \code{NULL} pointer will be
+returned, and an error message will be printed to \code{stderr}.
+
+\end{fulllineitems}
+
+\index{MRIStepFree (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepFree}\pysiglinewithargsret{void \bfcode{MRIStepFree}}{void**\emph{ arkode\_mem}}{}
+This function frees the problem memory \emph{arkode\_mem} created by
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepCreate]{\emph{\code{MRIStepCreate()}}}}.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Return value:}  None
+
+\end{fulllineitems}
+
+
+
+\subsection{Rootfinding initialization function}
+\label{MRIStep_c_interface/User_callable:rootfinding-initialization-function}\label{MRIStep_c_interface/User_callable:mristep-cinterface-rootfinding}
+As described in the section {\hyperref[Mathematics:mathematics-rootfinding]{\emph{\DUspan{}{Rootfinding}}}}, while
+solving the IVP, ARKode's time-stepping modules have the capability to
+find the roots of a set of user-defined functions.  In the MRIStep module root
+finding is performed between slow solution time steps only (i.e., it is not
+performed within the sub-stepping a fast time scales).  To activate the
+root-finding algorithm, call the following function.  This is normally
+called only once, prior to the first call to
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepEvolve]{\emph{\code{MRIStepEvolve()}}}}, but if the rootfinding problem is to be
+changed during the solution, {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepRootInit]{\emph{\code{MRIStepRootInit()}}}} can also be
+called prior to a continuation call to {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepEvolve]{\emph{\code{MRIStepEvolve()}}}}.
+\index{MRIStepRootInit (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepRootInit}\pysiglinewithargsret{int \bfcode{MRIStepRootInit}}{void*\emph{ arkode\_mem}, int\emph{ nrtfn}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{ARKRootFn}}}\emph{ g}}{}
+Initializes a rootfinding problem to be solved during the
+integration of the ODE system.  It must be called after
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepCreate]{\emph{\code{MRIStepCreate()}}}}, and before {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepEvolve]{\emph{\code{MRIStepEvolve()}}}}.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\item {} 
+\emph{nrtfn} -- number of functions \(g_i\), an integer \(\ge\) 0.
+
+\item {} 
+\emph{g} -- name of user-supplied function, of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn()}}}},
+defining the functions \(g_i\) whose roots are sought.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL}  if the MRIStep memory was \code{NULL}
+
+\item {} 
+\emph{ARK\_MEM\_FAIL}  if there was a memory allocation failure
+
+\item {} 
+\emph{ARK\_ILL\_INPUT} if \emph{nrtfn} is greater than zero but \emph{g} = \code{NULL}.
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:} To disable the rootfinding feature after it has already
+been initialized, or to free memory associated with MRIStep's
+rootfinding module, call \emph{MRIStepRootInit} with \emph{nrtfn = 0}.
+
+Similarly, if a new IVP is to be solved with a call to
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepReInit]{\emph{\code{MRIStepReInit()}}}}, where the new IVP has no rootfinding
+problem but the prior one did, then call \emph{MRIStepRootInit} with
+\emph{nrtfn = 0}.
+
+\end{fulllineitems}
+
+
+
+\subsection{MRIStep solver function}
+\label{MRIStep_c_interface/User_callable:mristep-solver-function}\label{MRIStep_c_interface/User_callable:mristep-cinterface-integration}
+This is the central step in the solution process -- the call to perform
+the integration of the IVP.  The input argument \emph{itask} specifies one of two
+modes as to where MRIStep is to return a solution.  These modes are modified if
+the user has set a stop time (with a call to the optional input function
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetStopTime]{\emph{\code{MRIStepSetStopTime()}}}}) or has requested rootfinding.
+\index{MRIStepEvolve (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepEvolve}\pysiglinewithargsret{int \bfcode{MRIStepEvolve}}{void*\emph{ arkode\_mem}, realtype\emph{ tout}, N\_Vector\emph{ yout}, realtype\emph{ *tret}, int\emph{ itask}}{}
+Integrates the ODE over an interval in \(t\).
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\item {} 
+\emph{tout} -- the next time at which a computed solution is desired.
+
+\item {} 
+\emph{yout} -- the computed solution vector.
+
+\item {} 
+\emph{tret} -- the time corresponding to \emph{yout} (output).
+
+\item {} 
+\emph{itask} -- a flag indicating the job of the solver for the next
+user step.
+
+The \emph{ARK\_NORMAL} option causes the solver to take internal
+steps until it has just overtaken a user-specified output
+time, \emph{tout}, in the direction of integration,
+i.e. \(t_{n-1} <\) \emph{tout} \(\le t_{n}\) for forward
+integration, or \(t_{n} \le\) \emph{tout} \(< t_{n-1}\) for
+backward integration.  It will then compute an approximation
+to the solution \(y(tout)\) by interpolation (using one
+of the dense output routines described in the section
+{\hyperref[Mathematics:mathematics-interpolation]{\emph{\DUspan{}{Interpolation}}}}).
+
+The \emph{ARK\_ONE\_STEP} option tells the solver to only take a
+single internal step \(y_{n-1} \to y_{n}\) and then return
+control back to the calling program.  If this step will
+overtake \emph{tout} then the solver will again return an
+interpolated result; otherwise it will return a copy of the
+internal solution \(y_{n}\) in the vector \emph{yout}
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful.
+
+\item {} 
+\emph{ARK\_ROOT\_RETURN} if {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepEvolve]{\emph{\code{MRIStepEvolve()}}}} succeeded, and
+found one or more roots.  If the number of root functions,
+\emph{nrtfn}, is greater than 1, call
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepGetRootInfo]{\emph{\code{MRIStepGetRootInfo()}}}} to see which \(g_i\) were
+found to have a root at (\emph{*tret}).
+
+\item {} 
+\emph{ARK\_TSTOP\_RETURN} if {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepEvolve]{\emph{\code{MRIStepEvolve()}}}} succeeded and
+returned at \emph{tstop}.
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the \emph{arkode\_mem} argument was \code{NULL}.
+
+\item {} 
+\emph{ARK\_NO\_MALLOC} if \emph{arkode\_mem} was not allocated.
+
+\item {} 
+\emph{ARK\_ILL\_INPUT} if one of the inputs to
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepEvolve]{\emph{\code{MRIStepEvolve()}}}} is illegal, or some other input to
+the solver was either illegal or missing.  Details will be
+provided in the error message.  Typical causes of this failure:
+\begin{enumerate}
+\item {} 
+A component of the error weight vector became zero during
+internal time-stepping.
+
+\item {} 
+A root of one of the root functions was found both at a
+point \(t\) and also very near \(t\).
+
+\end{enumerate}
+
+\item {} 
+\emph{ARK\_TOO\_MUCH\_WORK} if the solver took \emph{mxstep} internal steps
+but could not reach \emph{tout}.  The default value for \emph{mxstep} is
+\emph{MXSTEP\_DEFAULT = 500}.
+
+\item {} 
+\emph{ARK\_VECTOROP\_ERR} a vector operation error occured.
+
+\item {} 
+\emph{ARK\_INNERSTEP\_FAILED} if the inner stepper returned with an
+unrecoverable error. The value returned from the inner stepper can be
+obtained with {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepGetLastInnerStepFlag]{\emph{\code{MRIStepGetLastInnerStepFlag()}}}}.
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:} The input vector \emph{yout} can use the same memory as the
+vector \emph{y0} of initial conditions that was passed to
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepCreate]{\emph{\code{MRIStepCreate()}}}}.
+
+In \emph{ARK\_ONE\_STEP} mode, \emph{tout} is used only on the first call, and
+only to get the direction and a rough scale of the independent
+variable.
+
+All failure return values are negative and so testing the return argument for
+negative values will trap all {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepEvolve]{\emph{\code{MRIStepEvolve()}}}} failures.
+
+Since interpolation may reduce the accuracy in the reported
+solution, if full method accuracy is desired the user should issue
+a call to {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetStopTime]{\emph{\code{MRIStepSetStopTime()}}}} before the call to
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepEvolve]{\emph{\code{MRIStepEvolve()}}}} to specify a fixed stop time to
+end the time step and return to the user.  Upon return from
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepEvolve]{\emph{\code{MRIStepEvolve()}}}}, a copy of the internal solution
+\(y_{n}\) will be returned in the vector \emph{yout}.  Once the
+integrator returns at a \emph{tstop} time, any future testing for
+\emph{tstop} is disabled (and can be re-enabled only though a new call
+to {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetStopTime]{\emph{\code{MRIStepSetStopTime()}}}}).
+
+On any error return in which one or more internal steps were taken
+by {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepEvolve]{\emph{\code{MRIStepEvolve()}}}}, the returned values of \emph{tret} and
+\emph{yout} correspond to the farthest point reached in the integration.
+On all other error returns, \emph{tret} and \emph{yout} are left unchanged
+from those provided to the routine.
+
+\end{fulllineitems}
+
+
+
+\subsection{Optional input functions}
+\label{MRIStep_c_interface/User_callable:mristep-cinterface-optionalinputs}\label{MRIStep_c_interface/User_callable:optional-input-functions}
+There are numerous optional input parameters that control the behavior
+of the MRIStep solver, each of which may be modified from its default
+value through calling an appropriate input function.  The following
+tables list all optional input functions, grouped by which aspect of
+MRIStep they control.  Detailed information on the calling syntax and
+arguments for each function are then provided following each table.
+
+The optional inputs are grouped into the following categories:
+\begin{itemize}
+\item {} 
+General MRIStep options ({\hyperref[MRIStep_c_interface/User_callable:mristep-cinterface-mristepinputtable]{\emph{\DUspan{}{Optional inputs for MRIStep}}}}),
+
+\item {} 
+IVP method solver options ({\hyperref[MRIStep_c_interface/User_callable:mristep-cinterface-mristepmethodinputtable]{\emph{\DUspan{}{Optional inputs for IVP method selection}}}}),
+
+\end{itemize}
+
+For the most casual use of MRIStep, relying on the default set of
+solver parameters, the reader can skip to the following section,
+{\hyperref[MRIStep_c_interface/User_supplied:mristep-cinterface-usersupplied]{\emph{\DUspan{}{User-supplied functions}}}}.
+
+We note that, on an error return, all of the optional input functions
+send an error message to the error handler function.  We also note
+that all error return values are negative, so a test on the return
+arguments for negative values will catch all errors.
+
+
+\subsubsection{Optional inputs for MRIStep}
+\label{MRIStep_c_interface/User_callable:optional-inputs-for-mristep}\label{MRIStep_c_interface/User_callable:mristep-cinterface-mristepinputtable}
+\begin{tabulary}{\linewidth}{|L|L|L|}
+\hline
+\textsf{\relax 
+Optional input
+} & \textsf{\relax 
+Function name
+} & \textsf{\relax 
+Default
+}\\
+\hline
+Return MRIStep solver parameters to their defaults
+ & 
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetDefaults]{\emph{\code{MRIStepSetDefaults()}}}}
+ & 
+internal
+\\
+\hline
+Set dense output order
+ & 
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetDenseOrder]{\emph{\code{MRIStepSetDenseOrder()}}}}
+ & 
+3
+\\
+\hline
+Supply a pointer to a diagnostics output file
+ & 
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetDiagnostics]{\emph{\code{MRIStepSetDiagnostics()}}}}
+ & 
+\code{NULL}
+\\
+\hline
+Supply a pointer to an error output file
+ & 
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetErrFile]{\emph{\code{MRIStepSetErrFile()}}}}
+ & 
+\code{stderr}
+\\
+\hline
+Supply a custom error handler function
+ & 
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetErrHandlerFn]{\emph{\code{MRIStepSetErrHandlerFn()}}}}
+ & 
+internal fn
+\\
+\hline
+Run with fixed-step sizes
+ & 
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetFixedStep]{\emph{\code{MRIStepSetFixedStep()}}}}
+ & 
+required
+\\
+\hline
+Maximum no. of warnings for \(t_n+h = t_n\)
+ & 
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetMaxHnilWarns]{\emph{\code{MRIStepSetMaxHnilWarns()}}}}
+ & 
+10
+\\
+\hline
+Maximum no. of internal steps before \emph{tout}
+ & 
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetMaxNumSteps]{\emph{\code{MRIStepSetMaxNumSteps()}}}}
+ & 
+500
+\\
+\hline
+Set a value for \(t_{stop}\)
+ & 
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetStopTime]{\emph{\code{MRIStepSetStopTime()}}}}
+ & 
+\(\infty\)
+\\
+\hline
+Supply a pointer for user data
+ & 
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetUserData]{\emph{\code{MRIStepSetUserData()}}}}
+ & 
+\code{NULL}
+\\
+\hline\end{tabulary}
+
+\index{MRIStepSetDefaults (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetDefaults}\pysiglinewithargsret{int \bfcode{MRIStepSetDefaults}}{void*\emph{ arkode\_mem}}{}~\begin{quote}
+
+Resets all optional input parameters to MRIStep's original
+default values.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the MRIStep memory is \code{NULL}
+
+\item {} 
+\emph{ARK\_ILL\_INPUT} if an argument has an illegal value
+
+\end{itemize}
+
+\end{description}
+\end{quote}
+
+\textbf{Notes:} This function does not change problem-defining function pointers
+\emph{fs} and \emph{ff} or the \emph{user\_data} pointer. It also does not affect any data
+structures or options related to root-finding (those can be reset using
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepRootInit]{\emph{\code{MRIStepRootInit()}}}}).
+
+\end{fulllineitems}
+
+\index{MRIStepSetDenseOrder (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetDenseOrder}\pysiglinewithargsret{int \bfcode{MRIStepSetDenseOrder}}{void*\emph{ arkode\_mem}, int\emph{ dord}}{}
+Specifies the degree of the polynomial interpolant
+used for dense output (i.e. interpolation of solution output values).
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\item {} 
+\emph{dord} -- requested polynomial order of accuracy.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the MRIStep memory is \code{NULL}
+
+\item {} 
+\emph{ARK\_ILL\_INPUT} if an argument has an illegal value
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:} Allowed values are between 0 and \code{min(q,5)}, where \code{q} is
+the order of the overall integration method.
+
+\end{fulllineitems}
+
+\index{MRIStepSetDiagnostics (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetDiagnostics}\pysiglinewithargsret{int \bfcode{MRIStepSetDiagnostics}}{void*\emph{ arkode\_mem}, FILE*\emph{ diagfp}}{}
+Specifies the file pointer for a diagnostics file where
+all MRIStep step adaptivity and solver information is written.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\item {} 
+\emph{diagfp} -- pointer to the diagnostics output file.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the MRIStep memory is \code{NULL}
+
+\item {} 
+\emph{ARK\_ILL\_INPUT} if an argument has an illegal value
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:} This parameter can be \code{stdout} or \code{stderr}, although the
+suggested approach is to specify a pointer to a unique file opened
+by the user and returned by \code{fopen}.  If not called, or if called
+with a \code{NULL} file pointer, all diagnostics output is disabled.
+
+When run in parallel, only one process should set a non-NULL value
+for this pointer, since statistics from all processes would be
+identical.
+
+\end{fulllineitems}
+
+\index{MRIStepSetErrFile (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetErrFile}\pysiglinewithargsret{int \bfcode{MRIStepSetErrFile}}{void*\emph{ arkode\_mem}, FILE*\emph{ errfp}}{}
+Specifies a pointer to the file where all MRIStep warning and error
+messages will be written if the default internal error handling
+function is used.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\item {} 
+\emph{errfp} -- pointer to the output file.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the MRIStep memory is \code{NULL}
+
+\item {} 
+\emph{ARK\_ILL\_INPUT} if an argument has an illegal value
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:} The default value for \emph{errfp} is \code{stderr}.
+
+Passing a \code{NULL} value disables all future error message output
+(except for the case wherein the MRIStep memory pointer is
+\code{NULL}).  This use of the function is strongly discouraged.
+
+If used, this routine should be called before any other
+optional input functions, in order to take effect for subsequent
+error messages.
+
+\end{fulllineitems}
+
+\index{MRIStepSetErrHandlerFn (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetErrHandlerFn}\pysiglinewithargsret{int \bfcode{MRIStepSetErrHandlerFn}}{void*\emph{ arkode\_mem}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{ARKErrHandlerFn}}}\emph{ ehfun}, void*\emph{ eh\_data}}{}
+Specifies the optional user-defined function to be used
+in handling error messages.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\item {} 
+\emph{ehfun} -- name of user-supplied error handler function.
+
+\item {} 
+\emph{eh\_data} -- pointer to user data passed to \emph{ehfun} every time
+it is called.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the MRIStep memory is \code{NULL}
+
+\item {} 
+\emph{ARK\_ILL\_INPUT} if an argument has an illegal value
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:} Error messages indicating that the MRIStep solver memory is
+\code{NULL} will always be directed to \code{stderr}.
+
+\end{fulllineitems}
+
+\index{MRIStepSetFixedStep (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetFixedStep}\pysiglinewithargsret{int \bfcode{MRIStepSetFixedStep}}{void*\emph{ arkode\_mem}, realtype\emph{ hs}, realtype\emph{ hf}}{}
+Set the slow and fast step size used within MRIStep.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\item {} 
+\emph{hs} -- value of the slow step size.
+
+\item {} 
+\emph{hf} -- value of the fast step size.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the MRIStep memory is \code{NULL}
+
+\item {} 
+\emph{ARK\_ILL\_INPUT} if an argument has an illegal value
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:}
+
+If \emph{hf} does not evenly divide the time interval between the stages of the
+slow method, then the actual value used for the fast steps will be slightly
+smaller than \emph{hf} to ensure \((c^s_{i} -  c^s_{i-1})h_s/h_f\) is an
+integer value. Specifically, the fast step for the \emph{i}-th slow stage will be
+\(h = \frac{(c^s_{i} - c^s_{i-1}) h_s}{\lceil (c^s_{i} -
+c^s_{i-1})h_s/h_f \rceil}\).
+
+If both {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetFixedStep]{\emph{\code{MRIStepSetFixedStep()}}}} and
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetStopTime]{\emph{\code{MRIStepSetStopTime()}}}} are used, then the fixed step size
+will be used for all steps until the final step preceding the
+provided stop time (which may be shorter).  To resume use of the
+previous fixed step size, another call to
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetFixedStep]{\emph{\code{MRIStepSetFixedStep()}}}} must be made prior to calling
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepEvolve]{\emph{\code{MRIStepEvolve()}}}} to resume integration.
+
+\end{fulllineitems}
+
+\index{MRIStepSetMaxHnilWarns (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetMaxHnilWarns}\pysiglinewithargsret{int \bfcode{MRIStepSetMaxHnilWarns}}{void*\emph{ arkode\_mem}, int\emph{ mxhnil}}{}
+Specifies the maximum number of messages issued by the
+solver to warn that \(t+h=t\) on the next internal step, before
+MRIStep will instead return with an error.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\item {} 
+\emph{mxhnil} -- maximum allowed number of warning messages \((>0)\).
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the MRIStep memory is \code{NULL}
+
+\item {} 
+\emph{ARK\_ILL\_INPUT} if an argument has an illegal value
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:} The default value is 10; set \emph{mxhnil} to zero to specify
+this default.
+
+A negative value indicates that no warning messages should be issued.
+
+\end{fulllineitems}
+
+\index{MRIStepSetMaxNumSteps (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetMaxNumSteps}\pysiglinewithargsret{int \bfcode{MRIStepSetMaxNumSteps}}{void*\emph{ arkode\_mem}, long int\emph{ mxsteps}}{}
+Specifies the maximum number of steps to be taken by the
+solver in its attempt to reach the next output time, before MRIStep
+will return with an error.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\item {} 
+\emph{mxsteps} -- maximum allowed number of internal steps.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the MRIStep memory is \code{NULL}
+
+\item {} 
+\emph{ARK\_ILL\_INPUT} if an argument has an illegal value
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:} Passing \emph{mxsteps} = 0 results in MRIStep using the
+default value (500).
+
+Passing \emph{mxsteps} \textless{} 0 disables the test (not recommended).
+
+\end{fulllineitems}
+
+\index{MRIStepSetStopTime (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetStopTime}\pysiglinewithargsret{int \bfcode{MRIStepSetStopTime}}{void*\emph{ arkode\_mem}, realtype\emph{ tstop}}{}
+Specifies the value of the independent variable
+\(t\) past which the solution is not to proceed.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\item {} 
+\emph{tstop} -- stopping time for the integrator.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the MRIStep memory is \code{NULL}
+
+\item {} 
+\emph{ARK\_ILL\_INPUT} if an argument has an illegal value
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:} The default is that no stop time is imposed.
+
+\end{fulllineitems}
+
+\index{MRIStepSetUserData (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetUserData}\pysiglinewithargsret{int \bfcode{MRIStepSetUserData}}{void*\emph{ arkode\_mem}, void*\emph{ user\_data}}{}
+Specifies the user data block \emph{user\_data} and
+attaches it to the main MRIStep memory block.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\item {} 
+\emph{user\_data} -- pointer to the user data.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the MRIStep memory is \code{NULL}
+
+\item {} 
+\emph{ARK\_ILL\_INPUT} if an argument has an illegal value
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:} If specified, the pointer to \emph{user\_data} is passed to all
+user-supplied functions for which it is an argument; otherwise
+\code{NULL} is passed.
+
+\end{fulllineitems}
+
+
+
+\subsubsection{Optional inputs for IVP method selection}
+\label{MRIStep_c_interface/User_callable:optional-inputs-for-ivp-method-selection}\label{MRIStep_c_interface/User_callable:mristep-cinterface-mristepmethodinputtable}
+\begin{tabulary}{\linewidth}{|L|L|L|}
+\hline
+\textsf{\relax 
+Optional input
+} & \textsf{\relax 
+Function name
+} & \textsf{\relax 
+Default
+}\\
+\hline
+Set MRI RK tables
+ & 
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetMRITables]{\emph{\code{MRIStepSetMRITables()}}}}
+ & 
+internal
+\\
+\hline
+Specify MRI RK table numbers
+ & 
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetMRITableNum]{\emph{\code{MRIStepSetMRITableNum()}}}}
+ & 
+internal
+\\
+\hline\end{tabulary}
+
+\index{MRIStepSetMRITables (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetMRITables}\pysiglinewithargsret{int \bfcode{MRIStepSetMRITables}}{void*\emph{ arkode\_mem}, int\emph{ q}, {\hyperref[ARKodeButcherTable:c.ARKodeButcherTable]{\emph{ARKodeButcherTable}}}\emph{ Bs}, {\hyperref[ARKodeButcherTable:c.ARKodeButcherTable]{\emph{ARKodeButcherTable}}}\emph{ Bf}}{}
+Specifies a customized Butcher table pair for the MRI method.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\item {} 
+\emph{q} -- global order of accuracy for the MRI method.
+
+\item {} 
+\emph{Bs} -- the Butcher table for the slow RK method.
+
+\item {} 
+\emph{Bf} -- the Butcher table for the fast RK method.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the MRIStep memory is \code{NULL}
+
+\item {} 
+\emph{ARK\_ILL\_INPUT} if an argument has an illegal value
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:}
+
+For a description of the {\hyperref[ARKodeButcherTable:c.ARKodeButcherTable]{\emph{\code{ARKodeButcherTable}}}} type and related
+functions for creating Butcher tables see {\hyperref[ARKodeButcherTable:arkodebutchertable]{\emph{\DUspan{}{Butcher Table Data Structure}}}}.
+
+At this time the slow and fast Butcher tables must define an explicit
+Runge-Kutta method. Additionally, the slow table must have stage times that
+are unique and ordered (i.e., \(c^s_{i} > c^s_{i-1}\)) and the final
+stage time must be less than 1. Error checking is performed to ensure that
+\emph{Bs} and \emph{Bf} define ERK methods (i.e., the \emph{A} component of \emph{Bs} and \emph{Bf}
+are strictly lower-triangular) and the stage times of \emph{Bs} satisfy the
+aforementioned restrictions.
+
+The input value of \emph{q} is used rather than the orders encoded in the
+individual tables as the overall order of the MRI method may differ from
+the orders of the individual tables. No error checking is performed to ensure
+that \emph{p} correctly describe the coefficients that were input.
+
+\end{fulllineitems}
+
+\index{MRIStepSetMRITableNum (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetMRITableNum}\pysiglinewithargsret{int \bfcode{MRIStepSetMRITableNum}}{void*\emph{ arkode\_mem}, int\emph{ istable}, int\emph{ iftable}}{}
+Indicates to use specific built-in Butcher tables for the MRI method.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\item {} 
+\emph{istable} -- index of the slow Butcher table.
+
+\item {} 
+\emph{iftable} -- index of the fast Butcher table.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the MRIStep memory is \code{NULL}
+
+\item {} 
+\emph{ARK\_ILL\_INPUT} if an argument has an illegal value
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:} \emph{istable} and \emph{iftable} should match existing explicit methods
+from the section {\hyperref[Butcher:butcher-explicit]{\emph{\DUspan{}{Explicit Butcher tables}}}}. Error-checking is performed
+to ensure that these tables exists, and are not implicit.
+
+\end{fulllineitems}
+
+
+
+\subsubsection{Rootfinding optional input functions}
+\label{MRIStep_c_interface/User_callable:rootfinding-optional-input-functions}
+The following functions can be called to set optional inputs to
+control the rootfinding algorithm, the mathematics of which are
+described in the section {\hyperref[Mathematics:mathematics-rootfinding]{\emph{\DUspan{}{Rootfinding}}}}.
+
+\begin{tabulary}{\linewidth}{|L|L|L|}
+\hline
+\textsf{\relax 
+Optional input
+} & \textsf{\relax 
+Function name
+} & \textsf{\relax 
+Default
+}\\
+\hline
+Direction of zero-crossings to monitor
+ & 
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetRootDirection]{\emph{\code{MRIStepSetRootDirection()}}}}
+ & 
+both
+\\
+\hline
+Disable inactive root warnings
+ & 
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetNoInactiveRootWarn]{\emph{\code{MRIStepSetNoInactiveRootWarn()}}}}
+ & 
+enabled
+\\
+\hline\end{tabulary}
+
+\index{MRIStepSetRootDirection (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetRootDirection}\pysiglinewithargsret{int \bfcode{MRIStepSetRootDirection}}{void*\emph{ arkode\_mem}, int*\emph{ rootdir}}{}
+Specifies the direction of zero-crossings to be located and returned.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\item {} 
+\emph{rootdir} -- state array of length \emph{nrtfn}, the number of root
+functions \(g_i\)  (the value of \emph{nrtfn} was supplied in
+the call to {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepRootInit]{\emph{\code{MRIStepRootInit()}}}}).  If \code{rootdir{[}i{]} ==
+0} then crossing in either direction for \(g_i\) should be
+reported.  A value of +1 or -1 indicates that the solver
+should report only zero-crossings where \(g_i\) is
+increasing or decreasing, respectively.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the MRIStep memory is \code{NULL}
+
+\item {} 
+\emph{ARK\_ILL\_INPUT} if an argument has an illegal value
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:}  The default behavior is to monitor for both zero-crossing directions.
+
+\end{fulllineitems}
+
+\index{MRIStepSetNoInactiveRootWarn (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetNoInactiveRootWarn}\pysiglinewithargsret{int \bfcode{MRIStepSetNoInactiveRootWarn}}{void*\emph{ arkode\_mem}}{}
+Disables issuing a warning if some root function appears
+to be identically zero at the beginning of the integration.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the MRIStep memory is \code{NULL}
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:} MRIStep will not report the initial conditions as a
+possible zero-crossing (assuming that one or more components
+\(g_i\) are zero at the initial time).  However, if it appears
+that some \(g_i\) is identically zero at the initial time
+(i.e., \(g_i\) is zero at the initial time \emph{and} after the
+first step), MRIStep will issue a warning which can be disabled with
+this optional input function.
+
+\end{fulllineitems}
+
+
+
+\subsection{Interpolated output function}
+\label{MRIStep_c_interface/User_callable:interpolated-output-function}\label{MRIStep_c_interface/User_callable:mristep-cinterface-interpolatedoutput}
+An optional function {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepGetDky]{\emph{\code{MRIStepGetDky()}}}} is available to obtain
+additional values of solution-related quantities.  This function
+should only be called after a successful return from
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepEvolve]{\emph{\code{MRIStepEvolve()}}}}, as it provides interpolated values either of
+\(y\) or of its derivatives (up to the 3rd derivative)
+interpolated to any value of \(t\) in the last internal step taken
+by {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepEvolve]{\emph{\code{MRIStepEvolve()}}}}.  Internally, this \emph{dense output} algorithm is
+identical to the algorithm used for the maximum order implicit
+predictors, described in the section
+{\hyperref[Mathematics:mathematics-predictors-max]{\emph{\DUspan{}{Maximum order predictor}}}}, except that derivatives of the
+polynomial model may be evaluated upon request.
+\index{MRIStepGetDky (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepGetDky}\pysiglinewithargsret{int \bfcode{MRIStepGetDky}}{void*\emph{ arkode\_mem}, realtype\emph{ t}, int\emph{ k}, N\_Vector\emph{ dky}}{}
+Computes the \emph{k}-th derivative of the function
+\(y\) at the time \emph{t},
+i.e. \(\frac{d^{(k)}}{dt^{(k)}}y(t)\), for values of the
+independent variable satisfying \(t_n-h_n \le t \le t_n\), with
+\(t_n\) as current internal time reached, and \(h_n\) is
+the last internal step size successfully used by the solver.  This
+routine uses an interpolating polynomial of degree \emph{max(dord, k)},
+where \emph{dord} is the argument provided to
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetDenseOrder]{\emph{\code{MRIStepSetDenseOrder()}}}}.  The user may request \emph{k} in the
+range \{0,...,*dord*\}.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\item {} 
+\emph{t} -- the value of the independent variable at which the
+derivative is to be evaluated.
+
+\item {} 
+\emph{k} -- the derivative order requested.
+
+\item {} 
+\emph{dky} -- output vector (must be allocated by the user).
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_BAD\_K} if \emph{k} is not in the range \{0,...,*dord*\}.
+
+\item {} 
+\emph{ARK\_BAD\_T} if \emph{t} is not in the interval \([t_n-h_n, t_n]\)
+
+\item {} 
+\emph{ARK\_BAD\_DKY} if the \emph{dky} vector was \code{NULL}
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the MRIStep memory is \code{NULL}
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:} It is only legal to call this function after a successful
+return from {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepEvolve]{\emph{\code{MRIStepEvolve()}}}}.
+
+A user may access the values \(t_n\) and \(h_n\) via the
+functions {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepGetCurrentTime]{\emph{\code{MRIStepGetCurrentTime()}}}} and
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepGetLastStep]{\emph{\code{MRIStepGetLastStep()}}}}, respectively.
+
+\end{fulllineitems}
+
+
+
+\subsection{Optional output functions}
+\label{MRIStep_c_interface/User_callable:mristep-cinterface-optionaloutputs}\label{MRIStep_c_interface/User_callable:optional-output-functions}
+MRIStep provides an extensive set of functions that can be used to
+obtain solver performance information.  We organize these into groups:
+\begin{enumerate}
+\item {} 
+SUNDIALS version information accessor routines are in the subsection
+{\hyperref[MRIStep_c_interface/User_callable:mristep-cinterface-sunversioninfo]{\emph{\DUspan{}{SUNDIALS version information}}}},
+
+\item {} 
+General MRIStep output routines are in the subsection
+{\hyperref[MRIStep_c_interface/User_callable:mristep-cinterface-mristepmainoutputs]{\emph{\DUspan{}{Main solver optional output functions}}}},
+
+\item {} 
+Output routines regarding root-finding results are in the subsection
+{\hyperref[MRIStep_c_interface/User_callable:mristep-cinterface-mristeprootoutputs]{\emph{\DUspan{}{Rootfinding optional output functions}}}},
+
+\item {} 
+General usability routines (e.g. to print the current MRIStep
+parameters, or output the current Butcher tables) are in the
+subsection {\hyperref[MRIStep_c_interface/User_callable:mristep-cinterface-mristepextraoutputs]{\emph{\DUspan{}{General usability functions}}}}.
+
+\end{enumerate}
+
+Following each table, we elaborate on each function.
+
+Some of the optional outputs, especially the various counters, can be
+very useful in determining the efficiency of various methods inside
+MRIStep.  For example:
+\begin{itemize}
+\item {} 
+The counters \emph{nssteps}, \emph{nfsteps}, \emph{nfs\_evals}, and \emph{nff\_evals} provide a
+rough measure of the overall cost of a given run, and can be compared between
+runs with different solver options to suggest which set of options is the most
+efficient.
+
+\end{itemize}
+
+It is therefore recommended that users retrieve and output these
+statistics following each run, and take some time to investigate
+alternate solver options that will be more optimal for their
+particular problem of interest.
+
+
+\subsubsection{SUNDIALS version information}
+\label{MRIStep_c_interface/User_callable:mristep-cinterface-sunversioninfo}\label{MRIStep_c_interface/User_callable:sundials-version-information}
+The following functions provide a way to get SUNDIALS version
+information at runtime.
+\index{SUNDIALSGetVersion (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.SUNDIALSGetVersion}\pysiglinewithargsret{int \bfcode{SUNDIALSGetVersion}}{char\emph{ *version}, int\emph{ len}}{}
+This routine fills a string with SUNDIALS version information.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{version} -- character array to hold the SUNDIALS version information.
+
+\item {} 
+\emph{len} -- allocated length of the \emph{version} character array.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+0 if successful
+
+\item {} 
+-1 if the input string is too short to store the SUNDIALS version
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:} An array of 25 characters should be sufficient to hold
+the version information.
+
+\end{fulllineitems}
+
+\index{SUNDIALSGetVersionNumber (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.SUNDIALSGetVersionNumber}\pysiglinewithargsret{int \bfcode{SUNDIALSGetVersionNumber}}{int\emph{ *major}, int\emph{ *minor}, int\emph{ *patch}, char\emph{ *label}, int\emph{ len}}{}
+This routine sets integers for the SUNDIALS major,
+minor, and patch release numbers and fills a string with the
+release label if applicable.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{major} -- SUNDIALS release major version number.
+
+\item {} 
+\emph{minor} -- SUNDIALS release minor version number.
+
+\item {} 
+\emph{patch} -- SUNDIALS release patch version number.
+
+\item {} 
+\emph{label} -- string to hold the SUNDIALS release label.
+
+\item {} 
+\emph{len} -- allocated length of the \emph{label} character array.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+0 if successful
+
+\item {} 
+-1 if the input string is too short to store the SUNDIALS label
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:} An array of 10 characters should be sufficient to hold
+the label information. If a label is not used in the release
+version, no information is copied to \emph{label}.
+
+\end{fulllineitems}
+
+
+
+\subsubsection{Main solver optional output functions}
+\label{MRIStep_c_interface/User_callable:mristep-cinterface-mristepmainoutputs}\label{MRIStep_c_interface/User_callable:main-solver-optional-output-functions}
+\begin{tabulary}{\linewidth}{|L|L|}
+\hline
+\textsf{\relax 
+Optional output
+} & \textsf{\relax 
+Function name
+}\\
+\hline
+Size of MRIStep real and integer workspaces
+ & 
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepGetWorkSpace]{\emph{\code{MRIStepGetWorkSpace()}}}}
+\\
+\hline
+Cumulative numbers of internal steps
+ & 
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepGetNumSteps]{\emph{\code{MRIStepGetNumSteps()}}}}
+\\
+\hline
+Step size used for the last successful step
+ & 
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepGetLastStep]{\emph{\code{MRIStepGetLastStep()}}}}
+\\
+\hline
+Name of constant associated with a return flag
+ & 
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepGetReturnFlagName]{\emph{\code{MRIStepGetReturnFlagName()}}}}
+\\
+\hline
+No. of calls to the \emph{fs} and \emph{ff} functions
+ & 
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepGetNumRhsEvals]{\emph{\code{MRIStepGetNumRhsEvals()}}}}
+\\
+\hline
+Current MRI Butcher tables
+ & 
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepGetCurrentButcherTables]{\emph{\code{MRIStepGetCurrentButcherTables()}}}}
+\\
+\hline
+Last inner stepper return value
+ & 
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepGetLastInnerStepFlag]{\emph{\code{MRIStepGetLastInnerStepFlag()}}}}
+\\
+\hline\end{tabulary}
+
+\index{MRIStepGetWorkSpace (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepGetWorkSpace}\pysiglinewithargsret{int \bfcode{MRIStepGetWorkSpace}}{void*\emph{ arkode\_mem}, long int*\emph{ lenrw}, long int*\emph{ leniw}}{}
+Returns the MRIStep real and integer workspace sizes.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\item {} 
+\emph{lenrw} -- the number of \code{realtype} values in the MRIStep workspace.
+
+\item {} 
+\emph{leniw} -- the number of integer values in the MRIStep workspace.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the MRIStep memory was \code{NULL}
+
+\end{itemize}
+
+\end{description}
+
+\end{fulllineitems}
+
+\index{MRIStepGetNumSteps (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepGetNumSteps}\pysiglinewithargsret{int \bfcode{MRIStepGetNumSteps}}{void*\emph{ arkode\_mem}, long int*\emph{ nssteps}, long int*\emph{ nfsteps}}{}
+Returns the cumulative number of slow and fast internal steps taken by
+the solver (so far).
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\item {} 
+\emph{nssteps} -- number of slow steps taken in the solver.
+
+\item {} 
+\emph{nfsteps} -- number of fast steps taken in the solver.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the MRIStep memory was \code{NULL}
+
+\end{itemize}
+
+\end{description}
+
+\end{fulllineitems}
+
+\index{MRIStepGetLastStep (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepGetLastStep}\pysiglinewithargsret{int \bfcode{MRIStepGetLastStep}}{void*\emph{ arkode\_mem}, realtype*\emph{ hlast}}{}
+Returns the integration step size taken on the last successful
+internal step.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\item {} 
+\emph{hlast} -- step size taken on the last internal step.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the MRIStep memory was \code{NULL}
+
+\end{itemize}
+
+\end{description}
+
+\end{fulllineitems}
+
+\index{MRIStepGetCurrentTime (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepGetCurrentTime}\pysiglinewithargsret{int \bfcode{MRIStepGetCurrentTime}}{void*\emph{ arkode\_mem}, realtype*\emph{ tcur}}{}
+Returns the current internal time reached by the solver.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\item {} 
+\emph{tcur} -- current internal time reached.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the MRIStep memory was \code{NULL}
+
+\end{itemize}
+
+\end{description}
+
+\end{fulllineitems}
+
+\index{MRIStepGetReturnFlagName (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepGetReturnFlagName}\pysiglinewithargsret{char *\bfcode{MRIStepGetReturnFlagName}}{long int\emph{ flag}}{}
+Returns the name of the MRIStep constant corresponding to \emph{flag}.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{flag} -- a return flag from an MRIStep function.
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Return value:}
+The return value is a string containing the name of
+the corresponding constant.
+
+\end{fulllineitems}
+
+\index{MRIStepGetNumRhsEvals (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepGetNumRhsEvals}\pysiglinewithargsret{int \bfcode{MRIStepGetNumRhsEvals}}{void*\emph{ arkode\_mem}, long int*\emph{ nfs\_evals}, long int*\emph{ nff\_evals}}{}
+Returns the number of calls to the user's slow and fast right-hand
+side functions, \(fs\) and \(ff\) (so far).
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\item {} 
+\emph{nfs\_evals} -- number of calls to the user's \(fs(t,y)\) function.
+
+\item {} 
+\emph{nff\_evals} -- number of calls to the user's \(ff(t,y)\) function.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the MRIStep memory was \code{NULL}
+
+\end{itemize}
+
+\end{description}
+
+\end{fulllineitems}
+
+\index{MRIStepGetCurrentButcherTables (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepGetCurrentButcherTables}\pysiglinewithargsret{int \bfcode{MRIStepGetCurrentButcherTables}}{void*\emph{ arkode\_mem}, {\hyperref[ARKodeButcherTable:c.ARKodeButcherTable]{\emph{ARKodeButcherTable}}}\emph{ *Bs}, {\hyperref[ARKodeButcherTable:c.ARKodeButcherTable]{\emph{ARKodeButcherTable}}}\emph{ *Bf}}{}
+Returns the slow and fast Butcher tables currently in use by the solver.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\item {} 
+\emph{Bs} -- pointer to slow Butcher table structure.
+
+\item {} 
+\emph{Bf} -- pointer to fast Butcher table structure.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the MRIStep memory was \code{NULL}
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:}  The \emph{ARKodeButcherTable} data structure is defined in
+the header file \code{arkode/arkode\_butcher.h}.  It is defined as a
+pointer to the following C structure:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{typedef} \PYG{k}{struct} \PYG{n}{ARKodeButcherTableMem} \PYG{p}{\PYGZob{}}
+
+  \PYG{k+kt}{int} \PYG{n}{q}\PYG{p}{;}           \PYG{c+cm}{/* method order of accuracy       */}
+  \PYG{k+kt}{int} \PYG{n}{p}\PYG{p}{;}           \PYG{c+cm}{/* embedding order of accuracy    */}
+  \PYG{k+kt}{int} \PYG{n}{stages}\PYG{p}{;}      \PYG{c+cm}{/* number of stages               */}
+  \PYG{n}{realtype} \PYG{o}{*}\PYG{o}{*}\PYG{n}{A}\PYG{p}{;}    \PYG{c+cm}{/* Butcher table coefficients     */}
+  \PYG{n}{realtype} \PYG{o}{*}\PYG{n}{c}\PYG{p}{;}     \PYG{c+cm}{/* canopy node coefficients       */}
+  \PYG{n}{realtype} \PYG{o}{*}\PYG{n}{b}\PYG{p}{;}     \PYG{c+cm}{/* root node coefficients         */}
+  \PYG{n}{realtype} \PYG{o}{*}\PYG{n}{d}\PYG{p}{;}     \PYG{c+cm}{/* embedding coefficients         */}
+
+\PYG{p}{\PYGZcb{}} \PYG{o}{*}\PYG{n}{ARKodeButcherTable}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{MRIStepGetLastInnerStepFlag (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepGetLastInnerStepFlag}\pysiglinewithargsret{int \bfcode{MRIStepGetLastInnerStepFlag}}{void*\emph{ arkode\_mem}, int*\emph{ flag}}{}
+Returns the last return value from the inner stepper.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\item {} 
+\emph{flag} -- inner stepper return value.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the MRIStep memory was \code{NULL}
+
+\end{itemize}
+
+\end{description}
+
+\end{fulllineitems}
+
+
+
+\subsubsection{General usability functions}
+\label{MRIStep_c_interface/User_callable:mristep-cinterface-mristepextraoutputs}\label{MRIStep_c_interface/User_callable:general-usability-functions}
+The following optional routines may be called by a user to inquire
+about existing solver parameters, to retrieve stored Butcher tables,
+write the current Butcher table, or even to test a provided Butcher
+table to determine its analytical order of accuracy.  While none of
+these would typically be called during the course of solving an
+initial value problem, these may be useful for users wishing to better
+understand MRIStep and/or specific Runge-Kutta methods.
+
+\begin{tabulary}{\linewidth}{|L|L|}
+\hline
+\textsf{\relax 
+Optional routine
+} & \textsf{\relax 
+Function name
+}\\
+\hline
+Output all MRIStep solver parameters
+ & 
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepWriteParameters]{\emph{\code{MRIStepWriteParameters()}}}}
+\\
+\hline
+Output the current Butcher tables
+ & 
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepWriteButcher]{\emph{\code{MRIStepWriteButcher()}}}}
+\\
+\hline\end{tabulary}
+
+\index{MRIStepWriteParameters (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepWriteParameters}\pysiglinewithargsret{int \bfcode{MRIStepWriteParameters}}{void*\emph{ arkode\_mem}, FILE\emph{ *fp}}{}
+Outputs all MRIStep solver parameters to the provided file pointer.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\item {} 
+\emph{fp} -- pointer to use for printing the solver parameters.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARKS\_SUCCESS} if successful
+
+\item {} 
+\emph{ARKS\_MEM\_NULL} if the MRIStep memory was \code{NULL}
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:} The \emph{fp} argument can be \code{stdout} or \code{stderr}, or it
+may point to a specific file created using \code{fopen}.
+
+When run in parallel, only one process should set a non-NULL value
+for this pointer, since parameters for all processes would be
+identical.
+
+\end{fulllineitems}
+
+\index{MRIStepWriteButcher (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepWriteButcher}\pysiglinewithargsret{int \bfcode{MRIStepWriteButcher}}{void*\emph{ arkode\_mem}, FILE\emph{ *fp}}{}
+Outputs the current Butcher tables to the provided file pointer.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\item {} 
+\emph{fp} -- pointer to use for printing the Butcher tables.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the MRIStep memory was \code{NULL}
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:} The \emph{fp} argument can be \code{stdout} or \code{stderr}, or it
+may point to a specific file created using \code{fopen}.
+
+When run in parallel, only one process should set a non-NULL value
+for this pointer, since tables for all processes would be
+identical.
+
+\end{fulllineitems}
+
+
+
+\subsubsection{Rootfinding optional output functions}
+\label{MRIStep_c_interface/User_callable:mristep-cinterface-mristeprootoutputs}\label{MRIStep_c_interface/User_callable:rootfinding-optional-output-functions}
+\begin{tabulary}{\linewidth}{|L|L|}
+\hline
+\textsf{\relax 
+Optional output
+} & \textsf{\relax 
+Function name
+}\\
+\hline
+Array showing roots found
+ & 
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepGetRootInfo]{\emph{\code{MRIStepGetRootInfo()}}}}
+\\
+\hline
+No. of calls to user root function
+ & 
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepGetNumGEvals]{\emph{\code{MRIStepGetNumGEvals()}}}}
+\\
+\hline\end{tabulary}
+
+\index{MRIStepGetRootInfo (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepGetRootInfo}\pysiglinewithargsret{int \bfcode{MRIStepGetRootInfo}}{void*\emph{ arkode\_mem}, int*\emph{ rootsfound}}{}
+Returns an array showing which functions were found to
+have a root.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\item {} 
+\emph{rootsfound} -- array of length \emph{nrtfn} with the indices of the
+user functions \(g_i\) found to have a root (the value of
+\emph{nrtfn} was supplied in the call to
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepRootInit]{\emph{\code{MRIStepRootInit()}}}}).  For \(i = 0 \ldots\)
+\emph{nrtfn}-1, \code{rootsfound{[}i{]}} is nonzero if \(g_i\) has a
+root, and 0 if not.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the MRIStep memory was \code{NULL}
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:} The user must allocate space for \emph{rootsfound} prior to
+calling this function.
+
+For the components of \(g_i\) for which a root was found, the
+sign of \code{rootsfound{[}i{]}} indicates the direction of
+zero-crossing.  A value of +1 indicates that \(g_i\) is
+increasing, while a value of -1 indicates a decreasing \(g_i\).
+
+\end{fulllineitems}
+
+\index{MRIStepGetNumGEvals (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepGetNumGEvals}\pysiglinewithargsret{int \bfcode{MRIStepGetNumGEvals}}{void*\emph{ arkode\_mem}, long int*\emph{ ngevals}}{}
+Returns the cumulative number of calls made to the
+user's root function \(g\).
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\item {} 
+\emph{ngevals} -- number of calls made to \(g\) so far.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL} if the MRIStep memory was \code{NULL}
+
+\end{itemize}
+
+\end{description}
+
+\end{fulllineitems}
+
+
+
+\subsection{MRIStep re-initialization functions}
+\label{MRIStep_c_interface/User_callable:mristep-re-initialization-functions}\label{MRIStep_c_interface/User_callable:mristep-cinterface-reinitialization}
+To reinitialize the MRIStep module for the solution of a new problem,
+where a prior call to {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepCreate]{\emph{\code{MRIStepCreate()}}}} has been made, the
+user must call the function {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepReInit]{\emph{\code{MRIStepReInit()}}}}.  The new
+problem must have the same size as the previous one.  This routine
+performs the same input checking and initializations that are done in
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepCreate]{\emph{\code{MRIStepCreate()}}}}, but it performs no memory allocation as is
+assumes that the existing internal memory is sufficient for the new
+problem.  A call to this re-initialization routine deletes the
+solution history that was stored internally during the previous
+integration.  Following a successful call to
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepReInit]{\emph{\code{MRIStepReInit()}}}}, call {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepEvolve]{\emph{\code{MRIStepEvolve()}}}} again for the
+solution of the new problem.
+
+The use of {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepReInit]{\emph{\code{MRIStepReInit()}}}} requires that the number of Runge Kutta
+stages for both the slow and fast methods be no larger for the new problem than
+for the previous problem.
+
+One important use of the {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepReInit]{\emph{\code{MRIStepReInit()}}}} function is in the
+treating of jump discontinuities in the RHS functions.  Except in cases
+of fairly small jumps, it is usually more efficient to stop at each
+point of discontinuity and restart the integrator with a readjusted
+ODE model, using a call to this routine.  To stop when the location
+of the discontinuity is known, simply make that location a value of
+\code{tout}.  To stop when the location of the discontinuity is
+determined by the solution, use the rootfinding feature.  In either
+case, it is critical that the RHS functions \emph{not} incorporate the
+discontinuity, but rather have a smooth extension over the
+discontinuity, so that the step across it (and subsequent rootfinding,
+if used) can be done efficiently.  Then use a switch within the RHS
+functions (communicated through \code{user\_data}) that can be flipped
+between the stopping of the integration and the restart, so that the
+restarted problem uses the new values (which have jumped).  Similar
+comments apply if there is to be a jump in the dependent variable
+vector.
+\index{MRIStepReInit (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepReInit}\pysiglinewithargsret{int \bfcode{MRIStepReInit}}{void*\emph{ arkode\_mem}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fs}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ ff}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
+Provides required problem specifications and re-initializes the
+MRIStep time-stepper module.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\item {} 
+\emph{fs} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+defining the slow right-hand side function in \(\dot{y} = f_s(t,y) +
+f_f(t,y)\).
+
+\item {} 
+\emph{ff} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+defining the fast right-hand side function in \(\dot{y} = f_s(t,y) +
+f_f(t,y)\).
+
+\item {} 
+\emph{t0} -- the initial value of \(t\).
+
+\item {} 
+\emph{y0} -- the initial condition vector \(y(t_0)\).
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL}  if the MRIStep memory was \code{NULL}
+
+\item {} 
+\emph{ARK\_MEM\_FAIL}  if a memory allocation failed
+
+\item {} 
+\emph{ARK\_ILL\_INPUT} if an argument has an illegal value.
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:} If an error occurred, {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepReInit]{\emph{\code{MRIStepReInit()}}}} also
+sends an error message to the error handler function.
+
+\end{fulllineitems}
+
+
+
+\subsection{MRIStep system resize function}
+\label{MRIStep_c_interface/User_callable:mristep-cinterface-resizing}\label{MRIStep_c_interface/User_callable:mristep-system-resize-function}
+For simulations involving changes to the number of equations and
+unknowns in the ODE system (e.g. when using spatially-adaptive
+PDE simulations under a method-of-lines approach), the MRIStep
+integrator may be ``resized'' between \emph{slow} integration steps, through calls
+to the {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepResize]{\emph{\code{MRIStepResize()}}}} function. This function modifies
+MRIStep's internal memory structures to use the new problem size.
+
+To aid in the vector resize operation, the user can supply a vector
+resize function that will take as input a vector with the previous
+size, and transform it in-place to return a corresponding vector of
+the new size.  If this function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}})
+is not supplied (i.e. is set to \code{NULL}), then all existing vectors
+internal to MRIStep will be destroyed and re-cloned from the new input
+vector.
+\index{MRIStepResize (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepResize}\pysiglinewithargsret{int \bfcode{MRIStepResize}}{void*\emph{ arkode\_mem}, N\_Vector\emph{ ynew}, realtype\emph{ t0}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{ARKVecResizeFn}}}\emph{ resize}, void*\emph{ resize\_data}}{}
+Re-initializes MRIStep with a different state vector.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the MRIStep memory block.
+
+\item {} 
+\emph{ynew} -- the newly-sized solution vector, holding the current
+dependent variable values \(y(t_0)\).
+
+\item {} 
+\emph{t0} -- the current value of the independent variable
+\(t_0\) (this must be consistent with \emph{ynew}).
+
+\item {} 
+\emph{resize} -- the user-supplied vector resize function (of type
+{\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}}.
+
+\item {} 
+\emph{resize\_data} -- the user-supplied data structure to be passed
+to \emph{resize} when modifying internal MRIStep vectors.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARK\_SUCCESS} if successful
+
+\item {} 
+\emph{ARK\_MEM\_NULL}  if the MRIStep memory was \code{NULL}
+
+\item {} 
+\emph{ARK\_NO\_MALLOC} if \emph{arkode\_mem} was not allocated.
+
+\item {} 
+\emph{ARK\_ILL\_INPUT} if an argument has an illegal value.
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:} If an error occurred, {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepResize]{\emph{\code{MRIStepResize()}}}} also sends an error
+message to the error handler function.
+
+\end{fulllineitems}
+
+
+
+\section{User-supplied functions}
+\label{MRIStep_c_interface/User_supplied:user-supplied-functions}\label{MRIStep_c_interface/User_supplied::doc}\label{MRIStep_c_interface/User_supplied:mristep-cinterface-usersupplied}
+The user-supplied functions for MRIStep consist of:
+\begin{itemize}
+\item {} 
+functions that defines the ODE (required),
+
+\item {} 
+a function that handles error and warning messages (optional),
+
+\end{itemize}
+\begin{itemize}
+\item {} 
+a function that defines the root-finding problem(s) to solve
+(optional),
+
+\item {} 
+a function that handles vector resizing operations, if the
+underlying vector structure supports resizing (as opposed to
+deletion/recreation), and if the user plans to call
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepResize]{\emph{\code{MRIStepResize()}}}} (optional).
+
+\end{itemize}
+
+
+\subsection{ODE right-hand side}
+\label{MRIStep_c_interface/User_supplied:mristep-cinterface-oderhs}\label{MRIStep_c_interface/User_supplied:ode-right-hand-side}
+The user must supply two functions of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} to
+specify the right-hand side of the ODE system:
+\index{ARKRhsFn (C type)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_supplied:c.ARKRhsFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKRhsFn)}}{realtype\emph{ t}, N\_Vector\emph{ y}, N\_Vector\emph{ ydot}, void*\emph{ user\_data}}{}
+This function computes a portion of the ODE right-hand side for a given
+value of the independent variable \(t\) and state vector \(y\).
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{t} -- the current value of the independent variable.
+
+\item {} 
+\emph{y} -- the current value of the dependent variable vector.
+
+\item {} 
+\emph{ydot} -- the output vector that forms a portion the ODE RHS \(f(t,y)\).
+
+\item {} 
+\emph{user\_data} -- the \emph{user\_data} pointer that was passed to {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetUserData]{\emph{\code{MRIStepSetUserData()}}}}.
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Return value:}
+An \emph{ARKRhsFn} should return 0 if successful, a positive value if a
+recoverable error occurred, or a negative value if it failed unrecoverably.
+As the MRIStep module only supports fixed step sizes at this time any
+non-zero return value will halt the integration.
+
+\textbf{Notes:} Allocation of memory for \emph{ydot} is handled within the
+MRIStep module.  A recoverable failure error return from the
+\emph{ARKRhsFn} is typically used to flag a value of the dependent
+variable \(y\) that is ``illegal'' in some way (e.g., negative
+where only a non-negative value is physically meaningful).
+
+\end{fulllineitems}
+
+
+
+\subsection{Error message handler function}
+\label{MRIStep_c_interface/User_supplied:error-message-handler-function}\label{MRIStep_c_interface/User_supplied:mristep-cinterface-errorhandler}
+As an alternative to the default behavior of directing error and
+warning messages to the file pointed to by \emph{errfp} (see
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetErrFile]{\emph{\code{MRIStepSetErrFile()}}}}), the user may provide a function of type
+{\hyperref[MRIStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{\code{ARKErrHandlerFn}}}} to process any such messages.
+\index{ARKErrHandlerFn (C type)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_supplied:c.ARKErrHandlerFn}\pysiglinewithargsret{typedef void \bfcode{(*ARKErrHandlerFn)}}{int\emph{ error\_code}, const char*\emph{ module}, const char*\emph{ function}, char*\emph{ msg}, void*\emph{ user\_data}}{}
+This function processes error and warning messages from
+MRIStep and its sub-modules.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{error\_code} -- the error code.
+
+\item {} 
+\emph{module} -- the name of the MRIStep module reporting the error.
+
+\item {} 
+\emph{function} -- the name of the function in which the error occurred.
+
+\item {} 
+\emph{msg} -- the error message.
+
+\item {} 
+\emph{user\_data} -- a pointer to user data, the same as the
+\emph{eh\_data} parameter that was passed to {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetErrHandlerFn]{\emph{\code{MRIStepSetErrHandlerFn()}}}}.
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Return value:}
+An \emph{ARKErrHandlerFn} function has no return value.
+
+\textbf{Notes:} \emph{error\_code} is negative for errors and positive
+(\emph{ARK\_WARNING}) for warnings.  If a function that returns a
+pointer to memory encounters an error, it sets \emph{error\_code} to
+0.
+
+\end{fulllineitems}
+
+
+
+\subsection{Rootfinding function}
+\label{MRIStep_c_interface/User_supplied:mristep-cinterface-rootfindingfn}\label{MRIStep_c_interface/User_supplied:rootfinding-function}
+If a rootfinding problem is to be solved during the integration of the
+ODE system, the user must supply a function of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn}}}}.
+\index{ARKRootFn (C type)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_supplied:c.ARKRootFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKRootFn)}}{realtype\emph{ t}, N\_Vector\emph{ y}, realtype*\emph{ gout}, void*\emph{ user\_data}}{}
+This function implements a vector-valued function
+\(g(t,y)\) such that the roots of the \emph{nrtfn} components
+\(g_i(t,y)\) are sought.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{t} -- the current value of the independent variable.
+
+\item {} 
+\emph{y} -- the current value of the dependent variable vector.
+
+\item {} 
+\emph{gout} -- the output array, of length \emph{nrtfn}, with components \(g_i(t,y)\).
+
+\item {} 
+\emph{user\_data} -- a pointer to user data, the same as the
+\emph{user\_data} parameter that was passed to {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetUserData]{\emph{\code{MRIStepSetUserData()}}}}.
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Return value:}
+An \emph{ARKRootFn} function should return 0 if successful
+or a non-zero value if an error occurred (in which case the
+integration is halted and MRIStep returns \emph{ARK\_RTFUNC\_FAIL}).
+
+\textbf{Notes:} Allocation of memory for \emph{gout} is handled within MRIStep.
+
+\end{fulllineitems}
+
+
+
+\subsection{Vector resize function}
+\label{MRIStep_c_interface/User_supplied:vector-resize-function}\label{MRIStep_c_interface/User_supplied:mristep-cinterface-vecresizefn}
+For simulations involving changes to the number of equations and
+unknowns in the ODE system (e.g. when using spatial adaptivity in a
+PDE simulation), the MRIStep integrator may be ``resized'' between
+integration steps, through calls to the {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepResize]{\emph{\code{MRIStepResize()}}}}
+function. Typically, when performing adaptive simulations the solution
+is stored in a customized user-supplied data structure, to enable
+adaptivity without repeated allocation/deallocation of memory.  In
+these scenarios, it is recommended that the user supply a customized
+vector kernel to interface between SUNDIALS and their problem-specific
+data structure.  If this vector kernel includes a function of type
+{\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn}}}} to resize a given vector implementation, then
+this function may be supplied to {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepResize]{\emph{\code{MRIStepResize()}}}} so that all
+internal MRIStep vectors may be resized, instead of deleting and
+re-creating them at each call.  This resize function should have the
+following form:
+\index{ARKVecResizeFn (C type)}
+
+\begin{fulllineitems}
+\phantomsection\label{MRIStep_c_interface/User_supplied:c.ARKVecResizeFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKVecResizeFn)}}{N\_Vector\emph{ y}, N\_Vector\emph{ ytemplate}, void*\emph{ user\_data}}{}
+This function resizes the vector \emph{y} to match the dimensions of the
+supplied vector, \emph{ytemplate}.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{y} -- the vector to resize.
+
+\item {} 
+\emph{ytemplate} -- a vector of the desired size.
+
+\item {} 
+\emph{user\_data} -- a pointer to user data, the same as the
+\emph{resize\_data} parameter that was passed to {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepResize]{\emph{\code{MRIStepResize()}}}}.
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Return value:}
+An \emph{ARKVecResizeFn} function should return 0 if it successfully
+resizes the vector \emph{y}, and a non-zero value otherwise.
+
+\textbf{Notes:}  If this function is not supplied, then MRIStep will
 instead destroy the vector \emph{y} and clone a new vector \emph{y} off of
 \emph{ytemplate}.
 
@@ -35313,6 +37794,9 @@ Use the Verner-8-5-6 ERK method
 \item[{\index{Fehlberg-13-7-8 ERK method}FEHLBERG\_13\_7\_8  (11):}] \leavevmode
 Use the Fehlberg-13-7-8 ERK method
 
+\item[{\index{Knoth-Wolke-3-3 ERK method}KNOTH\_WOLKE\_3\_3  (12):}] \leavevmode
+Use the Knoth-Wolke-3-3 ERK method
+
 \item[{\index{DEFAULT\_ERK\_2}DEFAULT\_ERK\_2  (HEUN\_EULER\_2\_1\_2):}] \leavevmode
 Use the default second-order ERK method
 
@@ -35539,7 +38023,14 @@ SUNNonlinearSolver module.
 A recoverable error occurred when setting up a SUNNonlinearSolver module.
 
 \item[{\index{ARK\_NLS\_OP\_ERR}ARK\_NLS\_OP\_ERR  (-33):}] \leavevmode
-An error occurred when calling a set/get routine in a SUNNonlinearSolver module.
+An error occurred when calling a set/get routine in a SUNNonlinearSolver
+module.
+
+\item[{\index{ARK\_INNERSTEP\_OP\_ERR}ARK\_INNERSTEP\_OP\_ERR  (-34):}] \leavevmode
+An error occurred when calling an internal stepper within an ARKode module.
+
+\item[{\index{ARK\_UNRECOGNIZED\_ERROR}ARK\_UNRECOGNIZED\_ERROR (-99):}] \leavevmode
+An unknown error was encountered.
 
 \end{description}
 
@@ -35617,8 +38108,8 @@ of orders \(q\) (the main method) and \(p\) (the embedding,
 typically \(q = p+1\), though sometimes this is reversed).
 
 Method authors often use different naming conventions to categorize
-their methods.  For each of the methods below, we follow a uniform
-naming convention:
+their methods.  For each of the methods below with an embedding, we follow the
+uniform naming convention:
 
 \begin{Verbatim}[commandchars=\\\{\}]
 NAME\PYGZhy{}S\PYGZhy{}P\PYGZhy{}Q
@@ -35639,6 +38130,9 @@ where here
 \code{Q} is the global order of accuracy for the method.
 
 \end{itemize}
+
+For methods without an embedding (e.g., fixed-step methods) \code{P} is omitted so
+that methods follow the naming convention \code{NAME-S-Q}.
 
 In the code, unique integer IDs are defined inside \code{arkode\_butcher\_erk.h} and
 \code{arkode\_butcher\_dirk.h} for each method, which may be used by calling routines
@@ -35717,11 +38211,12 @@ orders 1 through 5.
 \label{Butcher:butcher-heun-euler}\label{Butcher:heun-euler-2-1-2}
 \index{Heun-Euler-2-1-2 ERK method}
 Accessible via the constant \code{HEUN\_EULER\_2\_1\_2} to
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetARKTableNum]{\emph{\code{ARKStepSetARKTableNum()}}}}, {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetERKTableNum]{\emph{\code{ERKStepSetERKTableNum()}}}} or
+\code{ARKStepSetARKTableNum()}, \code{ERKStepSetERKTableNum()} or
 \code{ARKodeLoadButcherTable\_ERK()}.  This is the default 2nd order
 explicit method.
 \begin{gather}
-\begin{split}\begin{array}{r|cc}
+\begin{split}\renewcommand{\arraystretch}{1.5}
+\begin{array}{r|cc}
   0 & 0 & 0 \\
   1 & 1 & 0 \\
   \hline
@@ -35741,11 +38236,12 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:bogacki-shampine-4-2-3}\label{Butcher:butcher-bogacki-shampine}
 \index{Bogacki-Shampine-4-2-3 ERK method}
 Accessible via the constant \code{BOGACKI\_SHAMPINE\_4\_2\_3} to
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetARKTableNum]{\emph{\code{ARKStepSetARKTableNum()}}}}, {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetERKTableNum]{\emph{\code{ERKStepSetERKTableNum()}}}} or
+\code{ARKStepSetARKTableNum()}, \code{ERKStepSetERKTableNum()} or
 \code{ARKodeLoadButcherTable\_ERK()}.  This is the default 3rd order
 explicit method (from \phantomsection\label{Butcher:id1}{\hyperref[References:bs1989]{\emph{{[}BS1989{]}}}}).
 \begin{gather}
-\begin{split}\begin{array}{r|cccc}
+\begin{split}\renewcommand{\arraystretch}{1.5}
+\begin{array}{r|cccc}
   0 &   0 & 0 & 0 & 0 \\
   \frac{1}{2} & \frac{1}{2} & 0 & 0 & 0 \\
   \frac{3}{4} & 0 & \frac{3}{4} & 0 & 0 \\
@@ -35767,11 +38263,12 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:butcher-ark-4-2-3-e}\label{Butcher:ark-4-2-3-explicit}
 \index{ARK-4-2-3 ERK method}
 Accessible via the constant \code{ARK324L2SA\_ERK\_4\_2\_3} to
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetARKTableNum]{\emph{\code{ARKStepSetARKTableNum()}}}}, {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetERKTableNum]{\emph{\code{ERKStepSetERKTableNum()}}}} or
+\code{ARKStepSetARKTableNum()}, \code{ERKStepSetERKTableNum()} or
 \code{ARKodeLoadButcherTable\_ERK()}. This is the explicit portion of
 the default 3rd order additive method (from \phantomsection\label{Butcher:id2}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
 \begin{gather}
-\begin{split}\begin{array}{r|cccc}
+\begin{split}\renewcommand{\arraystretch}{1.5}
+\begin{array}{r|cccc}
   0 & 0 & 0 & 0 & 0 \\
   \frac{1767732205903}{2027836641118} & \frac{1767732205903}{2027836641118} & 0 & 0 & 0 \\
   \frac{3}{5} & \frac{5535828885825}{10492691773637} & \frac{788022342437}{10882634858940} & 0 & 0 \\
@@ -35789,15 +38286,40 @@ the default 3rd order additive method (from \phantomsection\label{Butcher:id2}{\
 region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 
+\subsection{Knoth-Wolke-3-3}
+\label{Butcher:knoth-wolke-3-3}\label{Butcher:butcher-knoth-wolke}
+\index{Knoth-Wolke-3-3 ERK method}
+Accessible via the constant \code{KNOTH\_WOLKE\_3\_3} to
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetMRITableNum]{\emph{\code{MRIStepSetMRITableNum()}}}} and \code{ARKodeLoadButcherTable\_ERK()}.
+This is the default 3th order slow and fast MRIStep method (from
+\phantomsection\label{Butcher:id3}{\hyperref[References:kw1998]{\emph{{[}KW1998{]}}}}).
+\begin{gather}
+\begin{split}\renewcommand{\arraystretch}{1.5}
+\begin{array}{r|ccc}
+            0 & 0             & 0             & 0 \\
+  \frac{1}{3} & \frac{1}{3}   & 0             & 0 \\
+  \frac{3}{4} & -\frac{3}{16} & \frac{15}{16} & 0 \\
+  \hline
+            3 & \frac{1}{6} & \frac{3}{10} & \frac{8}{15}
+\end{array}\end{split}\notag
+\end{gather}\begin{figure}[htbp]
+\centering
+\capstart
+
+\scalebox{0.500000}{\includegraphics{stab_region_24.png}}
+\caption{Linear stability region for the Knoth-Wolke method}\end{figure}
+
+
 \subsection{Zonneveld-5-3-4}
 \label{Butcher:butcher-zonneveld}\label{Butcher:zonneveld-5-3-4}
 \index{Zonneveld-5-3-4 ERK method}
 Accessible via the constant \code{ZONNEVELD\_5\_3\_4} to
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetARKTableNum]{\emph{\code{ARKStepSetARKTableNum()}}}}, {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetERKTableNum]{\emph{\code{ERKStepSetERKTableNum()}}}}
+\code{ARKStepSetARKTableNum()}, \code{ERKStepSetERKTableNum()}
 or \code{ARKodeLoadButcherTable\_ERK()}.  This is
-the default 4th order explicit method (from \phantomsection\label{Butcher:id3}{\hyperref[References:z1963]{\emph{{[}Z1963{]}}}}).
+the default 4th order explicit method (from \phantomsection\label{Butcher:id4}{\hyperref[References:z1963]{\emph{{[}Z1963{]}}}}).
 \begin{gather}
-\begin{split}\begin{array}{r|ccccc}
+\begin{split}\renewcommand{\arraystretch}{1.5}
+\begin{array}{r|ccccc}
     0 & 0 & 0 & 0 & 0 & 0 \\
   \frac{1}{2} & \frac{1}{2} & 0 & 0 & 0 & 0 \\
   \frac{1}{2} & 0 & \frac{1}{2} & 0 & 0 & 0 \\
@@ -35820,11 +38342,12 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:butcher-ark-6-3-4-e}\label{Butcher:ark-6-3-4-explicit}
 \index{ARK-6-3-4 ERK method}
 Accessible via the constant \code{ARK436L2SA\_ERK\_6\_3\_4} to
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetARKTableNum]{\emph{\code{ARKStepSetARKTableNum()}}}}, {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetERKTableNum]{\emph{\code{ERKStepSetERKTableNum()}}}}
+\code{ARKStepSetARKTableNum()}, \code{ERKStepSetERKTableNum()}
 or \code{ARKodeLoadButcherTable\_ERK()}.  This is the explicit portion
-of the default 4th order additive method (from \phantomsection\label{Butcher:id4}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
+of the default 4th order additive method (from \phantomsection\label{Butcher:id5}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
 \begin{gather}
-\begin{split}\begin{array}{r|cccccc}
+\begin{split}\renewcommand{\arraystretch}{1.5}
+\begin{array}{r|cccccc}
   0 & 0 & 0 & 0 & 0 & 0 & 0 \\
   \frac12 & \frac12 & 0 & 0 & 0 & 0 & 0 \\
   \frac{83}{250} & \frac{13861}{62500} & \frac{6889}{62500} & 0 & 0 & 0 & 0 \\
@@ -35848,10 +38371,11 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:butcher-sayfy-aburub}\label{Butcher:sayfy-aburub-6-3-4}
 \index{Sayfy-Aburub-6-3-4 ERK method}
 Accessible via the constant \code{SAYFY\_ABURUB\_6\_3\_4} to
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetARKTableNum]{\emph{\code{ARKStepSetARKTableNum()}}}}, {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetERKTableNum]{\emph{\code{ERKStepSetERKTableNum()}}}}
-or \code{ARKodeLoadButcherTable\_ERK()} (from \phantomsection\label{Butcher:id5}{\hyperref[References:sa2002]{\emph{{[}SA2002{]}}}}).
+\code{ARKStepSetARKTableNum()}, \code{ERKStepSetERKTableNum()}
+or \code{ARKodeLoadButcherTable\_ERK()} (from \phantomsection\label{Butcher:id6}{\hyperref[References:sa2002]{\emph{{[}SA2002{]}}}}).
 \begin{gather}
-\begin{split}\begin{array}{r|cccccc}
+\begin{split}\renewcommand{\arraystretch}{1.5}
+\begin{array}{r|cccccc}
   0 & 0 & 0 & 0 & 0 & 0 & 0 \\
   \frac{1}{2} & \frac{1}{2} & 0 & 0 & 0 & 0 & 0 \\
   1 & -1 & 2 & 0 & 0 & 0 & 0 \\
@@ -35875,11 +38399,12 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:cash-karp-6-4-5}\label{Butcher:butcher-cash-karp}
 \index{Cash-Karp-6-4-5 ERK method}
 Accessible via the constant \code{CASH\_KARP\_6\_4\_5} to
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetARKTableNum]{\emph{\code{ARKStepSetARKTableNum()}}}}, {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetERKTableNum]{\emph{\code{ERKStepSetERKTableNum()}}}}
+\code{ARKStepSetARKTableNum()}, \code{ERKStepSetERKTableNum()}
 or \code{ARKodeLoadButcherTable\_ERK()}.  This is the default 5th order
-explicit method (from \phantomsection\label{Butcher:id6}{\hyperref[References:ck1990]{\emph{{[}CK1990{]}}}}).
+explicit method (from \phantomsection\label{Butcher:id7}{\hyperref[References:ck1990]{\emph{{[}CK1990{]}}}}).
 \begin{gather}
-\begin{split}\begin{array}{r|cccccc}
+\begin{split}\renewcommand{\arraystretch}{1.5}
+\begin{array}{r|cccccc}
   0 & 0 & 0 & 0 & 0 & 0 & 0 \\
   \frac{1}{5} & \frac{1}{5} & 0 & 0 & 0 & 0 & 0 \\
   \frac{3}{10} & \frac{3}{40} & \frac{9}{40} & 0 & 0 & 0 & 0 \\
@@ -35903,10 +38428,11 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:butcher-fehlberg}\label{Butcher:fehlberg-6-4-5}
 \index{Fehlberg-6-4-5 ERK method}
 Accessible via the constant \code{FEHLBERG\_6\_4\_5} to
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetARKTableNum]{\emph{\code{ARKStepSetARKTableNum()}}}}, {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetERKTableNum]{\emph{\code{ERKStepSetERKTableNum()}}}}
-or \code{ARKodeLoadButcherTable\_ERK()} (from \phantomsection\label{Butcher:id7}{\hyperref[References:f1969]{\emph{{[}F1969{]}}}}).
+\code{ARKStepSetARKTableNum()}, \code{ERKStepSetERKTableNum()}
+or \code{ARKodeLoadButcherTable\_ERK()} (from \phantomsection\label{Butcher:id8}{\hyperref[References:f1969]{\emph{{[}F1969{]}}}}).
 \begin{gather}
-\begin{split}\begin{array}{r|cccccc}
+\begin{split}\renewcommand{\arraystretch}{1.5}
+\begin{array}{r|cccccc}
   0 & 0 & 0 & 0 & 0 & 0 & 0 \\
   \frac{1}{4} & \frac{1}{4} & 0 & 0 & 0 & 0 & 0 \\
   \frac{3}{8} & \frac{3}{32} & \frac{9}{32} & 0 & 0 & 0 & 0 \\
@@ -35930,10 +38456,11 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:dormand-prince-7-4-5}\label{Butcher:butcher-dormand-prince}
 \index{Dormand-Prince-7-4-5 ERK method}
 Accessible via the constant \code{DORMAND\_PRINCE\_7\_4\_5} to
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetARKTableNum]{\emph{\code{ARKStepSetARKTableNum()}}}}, {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetERKTableNum]{\emph{\code{ERKStepSetERKTableNum()}}}}
-or \code{ARKodeLoadButcherTable\_ERK()} (from \phantomsection\label{Butcher:id8}{\hyperref[References:dp1980]{\emph{{[}DP1980{]}}}}).
+\code{ARKStepSetARKTableNum()}, \code{ERKStepSetERKTableNum()}
+or \code{ARKodeLoadButcherTable\_ERK()} (from \phantomsection\label{Butcher:id9}{\hyperref[References:dp1980]{\emph{{[}DP1980{]}}}}).
 \begin{gather}
-\begin{split}\begin{array}{r|ccccccc}
+\begin{split}\renewcommand{\arraystretch}{1.5}
+\begin{array}{r|ccccccc}
   0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
   \frac{1}{5} & \frac{1}{5} & 0 & 0 & 0 & 0 & 0 & 0 \\
   \frac{3}{10} & \frac{3}{40} & \frac{9}{40} & 0 & 0 & 0 & 0 & 0 \\
@@ -35958,11 +38485,12 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:butcher-ark-8-4-5-e}\label{Butcher:ark-8-4-5-explicit}
 \index{ARK-8-4-5 ERK method}
 Accessible via the constant \code{ARK548L2SA\_ERK\_8\_4\_5} to
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetARKTableNum]{\emph{\code{ARKStepSetARKTableNum()}}}}, {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetERKTableNum]{\emph{\code{ERKStepSetERKTableNum()}}}}
+\code{ARKStepSetARKTableNum()}, \code{ERKStepSetERKTableNum()}
 or \code{ARKodeLoadButcherTable\_ERK()}.  This is the explicit portion
-of the default 5th order additive method (from \phantomsection\label{Butcher:id9}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
+of the default 5th order additive method (from \phantomsection\label{Butcher:id10}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
 \begin{gather}
-\begin{split}\begin{array}{r|cccccccc}
+\begin{split}\renewcommand{\arraystretch}{1.5}
+\begin{array}{r|cccccccc}
   0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
   \frac{41}{100} & \frac{41}{100} & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
   \frac{2935347310677}{11292855782101} & \frac{367902744464}{2072280473677} & \frac{677623207551}{8224143866563} & 0 & 0 & 0 & 0 & 0 & 0 \\
@@ -35988,11 +38516,12 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:butcher-verner-6-5}\label{Butcher:verner-8-5-6}
 \index{Verner-8-5-6 ERK method}
 Accessible via the constant \code{VERNER\_8\_5\_6} to
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetARKTableNum]{\emph{\code{ARKStepSetARKTableNum()}}}}, {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetERKTableNum]{\emph{\code{ERKStepSetERKTableNum()}}}}
+\code{ARKStepSetARKTableNum()}, \code{ERKStepSetERKTableNum()}
 or \code{ARKodeLoadButcherTable\_ERK()}.  This is the default 6th order
-explicit method (from \phantomsection\label{Butcher:id10}{\hyperref[References:v1978]{\emph{{[}V1978{]}}}}).
+explicit method (from \phantomsection\label{Butcher:id11}{\hyperref[References:v1978]{\emph{{[}V1978{]}}}}).
 \begin{gather}
-\begin{split}\begin{array}{r|cccccccc}
+\begin{split}\renewcommand{\arraystretch}{1.5}
+\begin{array}{r|cccccccc}
   0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
   \frac{1}{6} & \frac{1}{6} & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
   \frac{4}{15} & \frac{4}{75} & \frac{16}{75} & 0 & 0 & 0 & 0 & 0 & 0 \\
@@ -36018,11 +38547,12 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:butcher-fehlberg-8-7}\label{Butcher:fehlberg-13-7-8}
 \index{Fehlberg-13-7-8 ERK method}
 Accessible via the constant \code{FEHLBERG\_13\_7\_8} to
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetARKTableNum]{\emph{\code{ARKStepSetARKTableNum()}}}}, {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetERKTableNum]{\emph{\code{ERKStepSetERKTableNum()}}}}
+\code{ARKStepSetARKTableNum()}, \code{ERKStepSetERKTableNum()}
 or \code{ARKodeLoadButcherTable\_ERK()}.  This is the default 8th order
-explicit method (from \phantomsection\label{Butcher:id11}{\hyperref[References:b2008]{\emph{{[}B2008{]}}}}).
+explicit method (from \phantomsection\label{Butcher:id12}{\hyperref[References:b2008]{\emph{{[}B2008{]}}}}).
 \begin{gather}
-\begin{split}\begin{array}{r|ccccccccccccc}
+\begin{split}\renewcommand{\arraystretch}{1.5}
+\begin{array}{r|ccccccccccccc}
   0&   0& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0\\
   \frac{2}{27}&   \frac{2}{27}& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0\\
   \frac{1}{9}&   \frac{1}{36}& \frac{1}{12}& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0\\
@@ -36064,7 +38594,8 @@ Accessible via the constant \code{SDIRK\_2\_1\_2} to
 \code{ARKodeLoadButcherTable\_DIRK()}.  This is the default 2nd order
 implicit method.  Both the method and embedding are A- and B-stable.
 \begin{gather}
-\begin{split}\begin{array}{r|cc}
+\begin{split}\renewcommand{\arraystretch}{1.5}
+\begin{array}{r|cc}
   1 & 1 & 0 \\
   0 & -1 & 1 \\
   \hline
@@ -36086,9 +38617,10 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 Accessible via the constant \code{BILLINGTON\_3\_3\_2} to
 \code{ARKStepSetIRKTableNum()} or
 \code{ARKodeLoadButcherTable\_DIRK()}.  Here, the higher-order
-embedding is less stable than the lower-order method (from \phantomsection\label{Butcher:id12}{\hyperref[References:b1983]{\emph{{[}B1983{]}}}}).
+embedding is less stable than the lower-order method (from \phantomsection\label{Butcher:id13}{\hyperref[References:b1983]{\emph{{[}B1983{]}}}}).
 \begin{gather}
-\begin{split}\begin{array}{r|ccc}
+\begin{split}\renewcommand{\arraystretch}{1.5}
+\begin{array}{r|ccc}
   0.292893218813 & 0.292893218813 & 0 & 0 \\
   1.091883092037 & 0.798989873223 & 0.292893218813 & 0 \\
   1.292893218813 & 0.740789228841 & 0.259210771159 & 0.292893218813 \\
@@ -36112,9 +38644,10 @@ Accessible via the constant \code{TRBDF2\_3\_3\_2} to
 \code{ARKStepSetIRKTableNum()} or
 \code{ARKodeLoadButcherTable\_DIRK()}.  As with Billington, here the
 higher-order embedding is less stable than the lower-order method
-(from \phantomsection\label{Butcher:id13}{\hyperref[References:b1985]{\emph{{[}B1985{]}}}}).
+(from \phantomsection\label{Butcher:id14}{\hyperref[References:b1985]{\emph{{[}B1985{]}}}}).
 \begin{gather}
-\begin{split}\begin{array}{r|ccc}
+\begin{split}\renewcommand{\arraystretch}{1.5}
+\begin{array}{r|ccc}
   0 & 0 & 0 & 0 \\
   2-\sqrt{2} & \frac{2-\sqrt{2}}{2} & \frac{2-\sqrt{2}}{2} & 0 \\
   1 & \frac{\sqrt{2}}{4} & \frac{\sqrt{2}}{4} & \frac{2-\sqrt{2}}{2} \\
@@ -36137,9 +38670,10 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 Accessible via the constant \code{KVAERNO\_4\_2\_3} to
 \code{ARKStepSetIRKTableNum()} or
 \code{ARKodeLoadButcherTable\_DIRK()}.  Both the method and embedding are
-A-stable; additionally the method is L-stable (from \phantomsection\label{Butcher:id14}{\hyperref[References:k2004]{\emph{{[}K2004{]}}}}).
+A-stable; additionally the method is L-stable (from \phantomsection\label{Butcher:id15}{\hyperref[References:k2004]{\emph{{[}K2004{]}}}}).
 \begin{gather}
-\begin{split}\begin{array}{r|cccc}
+\begin{split}\renewcommand{\arraystretch}{1.5}
+\begin{array}{r|cccc}
   0 & 0 & 0 & 0 & 0 \\
   0.871733043 & 0.4358665215 & 0.4358665215 & 0 & 0 \\
   1 & 0.490563388419108 & 0.073570090080892 & 0.4358665215 & 0 \\
@@ -36165,9 +38699,10 @@ Accessible via the constant \code{ARK324L2SA\_DIRK\_4\_2\_3} to
 \code{ARKodeLoadButcherTable\_DIRK()}.  This is the default 3rd order
 implicit method, and the implicit portion of the default 3rd order
 additive method.  Both the method and embedding are A-stable;
-additionally the method is L-stable (from \phantomsection\label{Butcher:id15}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
+additionally the method is L-stable (from \phantomsection\label{Butcher:id16}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
 \begin{gather}
-\begin{split}\begin{array}{r|cccc}
+\begin{split}\renewcommand{\arraystretch}{1.5}
+\begin{array}{r|cccc}
   0 & 0 & 0 & 0 & 0 \\
   \frac{1767732205903}{2027836641118} & \frac{1767732205903}{4055673282236} & \frac{1767732205903}{4055673282236} & 0 & 0 \\
   \frac{3}{5} & \frac{2746238789719}{10658868560708} & -\frac{640167445237}{6845629431997} & \frac{1767732205903}{4055673282236} & 0 \\
@@ -36191,9 +38726,10 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 Accessible via the constant \code{CASH\_5\_2\_4} to
 \code{ARKStepSetIRKTableNum()} or
 \code{ARKodeLoadButcherTable\_DIRK()}.  Both the method and embedding are
-A-stable; additionally the method is L-stable (from \phantomsection\label{Butcher:id16}{\hyperref[References:c1979]{\emph{{[}C1979{]}}}}).
+A-stable; additionally the method is L-stable (from \phantomsection\label{Butcher:id17}{\hyperref[References:c1979]{\emph{{[}C1979{]}}}}).
 \begin{gather}
-\begin{split}\begin{array}{r|ccccc}
+\begin{split}\renewcommand{\arraystretch}{1.5}
+\begin{array}{r|ccccc}
   0.435866521508 & 0.435866521508 & 0 & 0 & 0 & 0 \\
   -0.7 & -1.13586652150 & 0.435866521508 & 0 & 0 & 0 \\
   0.8 & 1.08543330679 & -0.721299828287 & 0.435866521508 & 0 & 0 \\
@@ -36218,9 +38754,10 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 Accessible via the constant \code{CASH\_5\_3\_4} to
 \code{ARKStepSetIRKTableNum()} or
 \code{ARKodeLoadButcherTable\_DIRK()}.  Both the method and embedding are
-A-stable; additionally the method is L-stable (from \phantomsection\label{Butcher:id17}{\hyperref[References:c1979]{\emph{{[}C1979{]}}}}).
+A-stable; additionally the method is L-stable (from \phantomsection\label{Butcher:id18}{\hyperref[References:c1979]{\emph{{[}C1979{]}}}}).
 \begin{gather}
-\begin{split}\begin{array}{r|ccccc}
+\begin{split}\renewcommand{\arraystretch}{1.5}
+\begin{array}{r|ccccc}
   0.435866521508 & 0.435866521508 & 0 & 0 & 0 & 0 \\
   -0.7 & -1.13586652150 & 0.435866521508 & 0 & 0 & 0 \\
   0.8 & 1.08543330679 & -0.721299828287 & 0.435866521508 & 0 & 0 \\
@@ -36246,9 +38783,10 @@ Accessible via the constant \code{SDIRK\_5\_3\_4} to
 \code{ARKStepSetIRKTableNum()} or
 \code{ARKodeLoadButcherTable\_DIRK()}.  This is the default 4th order
 implicit method.  Here, the method is both A- and L-stable, although
-the embedding has reduced stability (from \phantomsection\label{Butcher:id18}{\hyperref[References:hw1996]{\emph{{[}HW1996{]}}}}).
+the embedding has reduced stability (from \phantomsection\label{Butcher:id19}{\hyperref[References:hw1996]{\emph{{[}HW1996{]}}}}).
 \begin{gather}
-\begin{split}\begin{array}{r|ccccc}
+\begin{split}\renewcommand{\arraystretch}{1.5}
+\begin{array}{r|ccccc}
   \frac{1}{4} & \frac{1}{4} & 0 & 0 & 0 & 0 \\
   \frac{3}{4} & \frac{1}{2} & \frac{1}{4} & 0 & 0 & 0 \\
   \frac{11}{20} & \frac{17}{50} & -\frac{1}{25} & \frac{1}{4} & 0 & 0 \\
@@ -36273,9 +38811,10 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 Accessible via the constant \code{KVAERNO\_5\_3\_4} to
 \code{ARKStepSetIRKTableNum()} or
 \code{ARKodeLoadButcherTable\_DIRK()}.  Both the method and embedding are
-A-stable (from \phantomsection\label{Butcher:id19}{\hyperref[References:k2004]{\emph{{[}K2004{]}}}}).
+A-stable (from \phantomsection\label{Butcher:id20}{\hyperref[References:k2004]{\emph{{[}K2004{]}}}}).
 \begin{gather}
-\begin{split}\begin{array}{r|ccccc}
+\begin{split}\renewcommand{\arraystretch}{1.5}
+\begin{array}{r|ccccc}
   0 & 0 & 0 & 0 & 0 & 0 \\
   0.871733043 & 0.4358665215  & 0.4358665215  & 0 & 0 & 0 \\
   0.468238744853136 & 0.140737774731968 & -0.108365551378832 & 0.4358665215 & 0 & 0 \\
@@ -36301,9 +38840,10 @@ Accessible via the constant \code{ARK436L2SA\_DIRK\_6\_3\_4} to
 \code{ARKStepSetIRKTableNum()} or
 \code{ARKodeLoadButcherTable\_DIRK()}.  This is the implicit portion
 of the default 4th order additive method. Both the method and
-embedding are A-stable; additionally the method is L-stable (from \phantomsection\label{Butcher:id20}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
+embedding are A-stable; additionally the method is L-stable (from \phantomsection\label{Butcher:id21}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
 \begin{gather}
-\begin{split}\begin{array}{r|cccccc}
+\begin{split}\renewcommand{\arraystretch}{1.5}
+\begin{array}{r|cccccc}
   0 & 0 & 0 & 0 & 0 & 0 & 0 \\
   \frac{1}{2} & \frac{1}{4} & \frac{1}{4} & 0 & 0 & 0 & 0 \\
   \frac{83}{250} & \frac{8611}{62500} & -\frac{1743}{31250} & \frac{1}{4} & 0 & 0 & 0 \\
@@ -36329,9 +38869,10 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 Accessible via the constant \code{KVAERNO\_7\_4\_5} to
 \code{ARKStepSetIRKTableNum()} or
 \code{ARKodeLoadButcherTable\_DIRK()}.  Both the method and embedding are
-A-stable; additionally the method is L-stable (from \phantomsection\label{Butcher:id21}{\hyperref[References:k2004]{\emph{{[}K2004{]}}}}).
+A-stable; additionally the method is L-stable (from \phantomsection\label{Butcher:id22}{\hyperref[References:k2004]{\emph{{[}K2004{]}}}}).
 \begin{gather}
-\begin{split}\begin{array}{r|ccccccc}
+\begin{split}\renewcommand{\arraystretch}{1.5}
+\begin{array}{r|ccccccc}
   0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
   0.52 & 0.26 & 0.26 & 0 & 0 & 0 & 0 & 0 \\
   1.230333209967908 & 0.13 & 0.84033320996790809 & 0.26 & 0 & 0 & 0 & 0 \\
@@ -36360,9 +38901,10 @@ Accessible via the constant \code{ARK548L2SA\_DIRK\_8\_4\_5} for
 \code{ARKodeLoadButcherTable\_DIRK()}.  This is the default 5th order
 implicit method, and the implicit portion of the default 5th order
 additive method.  Both the method and embedding are A-stable;
-additionally the method is L-stable (from \phantomsection\label{Butcher:id22}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
+additionally the method is L-stable (from \phantomsection\label{Butcher:id23}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
 \begin{gather}
-\begin{split}\begin{array}{r|cccccccc}
+\begin{split}\renewcommand{\arraystretch}{1.5}
+\begin{array}{r|cccccccc}
   0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
   \frac{41}{100} & \frac{41}{200} & \frac{41}{200} & 0 & 0 & 0 & 0 & 0 & 0 \\
   \frac{2935347310677}{11292855782101} & \frac{41}{400} & -\frac{567603406766}{11931857230679} & \frac{41}{200} & 0 & 0 & 0 & 0 & 0 \\
@@ -36395,23 +38937,23 @@ Butcher table pairs are as follows:
 \index{ARK-4-2-3 ARK method}3rd-order pair:
 {\hyperref[Butcher:butcher-ark-4-2-3-e]{\emph{\DUspan{}{ARK-4-2-3 (explicit)}}}} with {\hyperref[Butcher:butcher-ark-4-2-3-i]{\emph{\DUspan{}{ARK-4-2-3 (implicit)}}}},
 corresponding to Butcher tables \code{ARK324L2SA\_ERK\_4\_2\_3} and
-\code{ARK324L2SA\_DIRK\_4\_2\_3} for {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetARKTableNum]{\emph{\code{ARKStepSetARKTableNum()}}}}.
+\code{ARK324L2SA\_DIRK\_4\_2\_3} for \code{ARKStepSetARKTableNum()}.
 
 \item {} 
 \index{ARK-6-3-4 ARK method}4th-order pair:
 {\hyperref[Butcher:butcher-ark-6-3-4-e]{\emph{\DUspan{}{ARK-6-3-4 (explicit)}}}} with {\hyperref[Butcher:butcher-ark-6-3-4-i]{\emph{\DUspan{}{ARK-6-3-4 (implicit)}}}},
 corresponding to Butcher tables \code{ARK436L2SA\_ERK\_6\_3\_4} and
-\code{ARK436L2SA\_DIRK\_6\_3\_4} for {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetARKTableNum]{\emph{\code{ARKStepSetARKTableNum()}}}}.
+\code{ARK436L2SA\_DIRK\_6\_3\_4} for \code{ARKStepSetARKTableNum()}.
 
 \item {} 
 \index{ARK-8-4-5 ARK method}5th-order pair:
 {\hyperref[Butcher:butcher-ark-8-4-5-e]{\emph{\DUspan{}{ARK-8-4-5 (explicit)}}}} with {\hyperref[Butcher:butcher-ark-8-4-5-i]{\emph{\DUspan{}{ARK-8-4-5 (implicit)}}}},
 corresponding to Butcher tables \code{ARK548L2SA\_ERK\_8\_4\_5} and
-\code{ARK548L2SA\_ERK\_8\_4\_5} for {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetARKTableNum]{\emph{\code{ARKStepSetARKTableNum()}}}}.
+\code{ARK548L2SA\_ERK\_8\_4\_5} for \code{ARKStepSetARKTableNum()}.
 
 \end{itemize}
 \phantomsection\label{References:references}
-\begin{thebibliography}{SuperLUMT}
+\begin{thebibliography}{SKAW2012a}
 \bibitem[A1965]{A1965}{\phantomsection\label{References:a1965} 
 D.G. Anderson, Iterative Procedures for Nonlinear Integral
 Equations, \emph{J. Assoc. Comput. Machinery},
@@ -36607,6 +39149,21 @@ algorithm.  \emph{SIAM J. Sci. Comput.}, 14:461-469, 1993.
 A. Sayfy and A. Aburub. Embedded Additive Runge-Kutta
 Methods. \emph{Intern. J. Computer Math.}, 79:945-953, 2002.
 }
+\bibitem[SKAW2009]{SKAW2009}{\phantomsection\label{References:skaw2009} 
+M. Schlegel, O. Knoth, M. Arnold, and R. Wolke. Multirate
+Runge--Kutta schemes for advection
+equations. \emph{J. Comput. Appl. Math.}, 226:345-357, 2009.
+}
+\bibitem[SKAW2012a]{SKAW2012a}{\phantomsection\label{References:skaw2012a} 
+M. Schlegel, O. Knoth, M. Arnold, and R. Wolke. Implementation of
+multirate time integration methods for air pollution modelling.
+\emph{GMD}, 5:1395-1405, 2012.
+}
+\bibitem[SKAW2012b]{SKAW2012b}{\phantomsection\label{References:skaw2012b} 
+M. Schlegel, O. Knoth, M. Arnold, and R. Wolke. Numerical
+solution of multiscale problems in atmospheric modeling.
+\emph{Appl. Numer. Math.}, 62:1531-1542, 2012.
+}
 \bibitem[S1998]{S1998}{\phantomsection\label{References:s1998} 
 G. Soderlind. The automatic control of numerical
 integration.  \emph{CWI Quarterly}, 11:55-74, 1998.
@@ -36637,6 +39194,11 @@ the local truncation error. \emph{SIAM J. Numer. Anal.},
 H.F. Walker and P. Ni. Anderson acceleration for
 fixed-point iterations. \emph{SIAM J. Numer. Anal.},
 49:1715-1735, 2011.
+}
+\bibitem[KW1998]{KW1998}{\phantomsection\label{References:kw1998} 
+O. Knoth and R. Wolke. Implicit-explicit Runge-Kutta methods for
+computing atmospheric reactive flows. \emph{Appl. Numer. Math.},
+28(2):327-341, 1998.
 }
 \bibitem[Z1963]{Z1963}{\phantomsection\label{References:z1963} 
 J.A. Zonneveld. Automatic integration of ordinary

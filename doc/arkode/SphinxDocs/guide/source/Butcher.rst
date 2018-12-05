@@ -43,8 +43,8 @@ of orders :math:`q` (the main method) and :math:`p` (the embedding,
 typically :math:`q = p+1`, though sometimes this is reversed).
 
 Method authors often use different naming conventions to categorize
-their methods.  For each of the methods below, we follow a uniform
-naming convention:
+their methods.  For each of the methods below with an embedding, we follow the
+uniform naming convention:
 
 .. code-block:: text
 
@@ -56,6 +56,9 @@ where here
 * ``S`` is the number of stages in the method,
 * ``P`` is the global order of accuracy for the embedding,
 * ``Q`` is the global order of accuracy for the method.
+
+For methods without an embedding (e.g., fixed-step methods) ``P`` is omitted so
+that methods follow the naming convention ``NAME-S-Q``.
 
 In the code, unique integer IDs are defined inside ``arkode_butcher_erk.h`` and
 ``arkode_butcher_dirk.h`` for each method, which may be used by calling routines
@@ -149,6 +152,7 @@ explicit method.
 
 .. math::
 
+   \renewcommand{\arraystretch}{1.5}
    \begin{array}{r|cc}
      0 & 0 & 0 \\
      1 & 1 & 0 \\
@@ -180,6 +184,7 @@ explicit method (from [BS1989]_).
 
 .. math::
 
+   \renewcommand{\arraystretch}{1.5}
    \begin{array}{r|cccc}
      0 &   0 & 0 & 0 & 0 \\
      \frac{1}{2} & \frac{1}{2} & 0 & 0 & 0 \\
@@ -214,6 +219,7 @@ the default 3rd order additive method (from [KC2003]_).
 
 .. math::
 
+   \renewcommand{\arraystretch}{1.5}
    \begin{array}{r|cccc}
      0 & 0 & 0 & 0 & 0 \\
      \frac{1767732205903}{2027836641118} & \frac{1767732205903}{2027836641118} & 0 & 0 & 0 \\
@@ -233,6 +239,35 @@ the default 3rd order additive method (from [KC2003]_).
 
 
 
+.. _Butcher.Knoth_Wolke:
+
+Knoth-Wolke-3-3
+^^^^^^^^^^^^^^^^^^
+
+.. index:: Knoth-Wolke-3-3 ERK method
+
+Accessible via the constant ``KNOTH_WOLKE_3_3`` to
+:c:func:`MRIStepSetMRITableNum()` and :c:func:`ARKodeLoadButcherTable_ERK()`.
+This is the default 3th order slow and fast MRIStep method (from
+[KW1998]_).
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|ccc}
+               0 & 0             & 0             & 0 \\
+     \frac{1}{3} & \frac{1}{3}   & 0             & 0 \\
+     \frac{3}{4} & -\frac{3}{16} & \frac{15}{16} & 0 \\
+     \hline
+               3 & \frac{1}{6} & \frac{3}{10} & \frac{8}{15}
+   \end{array}
+
+.. figure:: figs/stab_region_24.png
+   :scale: 50 %
+   :align: center
+   
+   Linear stability region for the Knoth-Wolke method
+
 
 
 .. _Butcher.Zonneveld:
@@ -249,6 +284,7 @@ the default 4th order explicit method (from [Z1963]_).
 
 .. math::
 
+   \renewcommand{\arraystretch}{1.5}
    \begin{array}{r|ccccc}
        0 & 0 & 0 & 0 & 0 & 0 \\
      \frac{1}{2} & \frac{1}{2} & 0 & 0 & 0 & 0 \\
@@ -285,6 +321,7 @@ of the default 4th order additive method (from [KC2003]_).
 
 .. math::
 
+   \renewcommand{\arraystretch}{1.5}
    \begin{array}{r|cccccc}
      0 & 0 & 0 & 0 & 0 & 0 & 0 \\
      \frac12 & \frac12 & 0 & 0 & 0 & 0 & 0 \\
@@ -320,6 +357,7 @@ or :c:func:`ARKodeLoadButcherTable_ERK()` (from [SA2002]_).
 
 .. math::
 
+   \renewcommand{\arraystretch}{1.5}
    \begin{array}{r|cccccc}
      0 & 0 & 0 & 0 & 0 & 0 & 0 \\
      \frac{1}{2} & \frac{1}{2} & 0 & 0 & 0 & 0 & 0 \\
@@ -357,6 +395,7 @@ explicit method (from [CK1990]_).
 
 .. math::
 
+   \renewcommand{\arraystretch}{1.5}
    \begin{array}{r|cccccc}
      0 & 0 & 0 & 0 & 0 & 0 & 0 \\
      \frac{1}{5} & \frac{1}{5} & 0 & 0 & 0 & 0 & 0 \\
@@ -395,6 +434,7 @@ or :c:func:`ARKodeLoadButcherTable_ERK()` (from [F1969]_).
 
 .. math::
 
+   \renewcommand{\arraystretch}{1.5}
    \begin{array}{r|cccccc}
      0 & 0 & 0 & 0 & 0 & 0 & 0 \\
      \frac{1}{4} & \frac{1}{4} & 0 & 0 & 0 & 0 & 0 \\
@@ -431,6 +471,7 @@ or :c:func:`ARKodeLoadButcherTable_ERK()` (from [DP1980]_).
 
 .. math::
 
+   \renewcommand{\arraystretch}{1.5}
    \begin{array}{r|ccccccc}
      0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
      \frac{1}{5} & \frac{1}{5} & 0 & 0 & 0 & 0 & 0 & 0 \\
@@ -469,6 +510,7 @@ of the default 5th order additive method (from [KC2003]_).
 
 .. math::
 
+   \renewcommand{\arraystretch}{1.5}
    \begin{array}{r|cccccccc}
      0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
      \frac{41}{100} & \frac{41}{100} & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
@@ -509,6 +551,7 @@ explicit method (from [V1978]_).
 
 .. math::
 
+   \renewcommand{\arraystretch}{1.5}
    \begin{array}{r|cccccccc}
      0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
      \frac{1}{6} & \frac{1}{6} & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
@@ -546,6 +589,7 @@ explicit method (from [B2008]_).
 
 .. math::
 
+   \renewcommand{\arraystretch}{1.5}
    \begin{array}{r|ccccccccccccc}
      0&   0& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0\\
      \frac{2}{27}&   \frac{2}{27}& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0& 0\\
@@ -603,6 +647,7 @@ implicit method.  Both the method and embedding are A- and B-stable.
 
 .. math::
 
+   \renewcommand{\arraystretch}{1.5}
    \begin{array}{r|cc}
      1 & 1 & 0 \\
      0 & -1 & 1 \\
@@ -637,6 +682,7 @@ embedding is less stable than the lower-order method (from [B1983]_).
 
 .. math::
 
+   \renewcommand{\arraystretch}{1.5}
    \begin{array}{r|ccc}
      0.292893218813 & 0.292893218813 & 0 & 0 \\
      1.091883092037 & 0.798989873223 & 0.292893218813 & 0 \\
@@ -673,6 +719,7 @@ higher-order embedding is less stable than the lower-order method
 
 .. math::
 
+   \renewcommand{\arraystretch}{1.5}
    \begin{array}{r|ccc}
      0 & 0 & 0 & 0 \\
      2-\sqrt{2} & \frac{2-\sqrt{2}}{2} & \frac{2-\sqrt{2}}{2} & 0 \\
@@ -708,6 +755,7 @@ A-stable; additionally the method is L-stable (from [K2004]_).
 
 .. math::
 
+   \renewcommand{\arraystretch}{1.5}
    \begin{array}{r|cccc}
      0 & 0 & 0 & 0 & 0 \\
      0.871733043 & 0.4358665215 & 0.4358665215 & 0 & 0 \\
@@ -746,6 +794,7 @@ additionally the method is L-stable (from [KC2003]_).
 
 .. math::
 
+   \renewcommand{\arraystretch}{1.5}
    \begin{array}{r|cccc}
      0 & 0 & 0 & 0 & 0 \\
      \frac{1767732205903}{2027836641118} & \frac{1767732205903}{4055673282236} & \frac{1767732205903}{4055673282236} & 0 & 0 \\
@@ -783,6 +832,7 @@ A-stable; additionally the method is L-stable (from [C1979]_).
 
 .. math::
 
+   \renewcommand{\arraystretch}{1.5}
    \begin{array}{r|ccccc}
      0.435866521508 & 0.435866521508 & 0 & 0 & 0 & 0 \\
      -0.7 & -1.13586652150 & 0.435866521508 & 0 & 0 & 0 \\
@@ -820,6 +870,7 @@ A-stable; additionally the method is L-stable (from [C1979]_).
 
 .. math::
 
+   \renewcommand{\arraystretch}{1.5}
    \begin{array}{r|ccccc}
      0.435866521508 & 0.435866521508 & 0 & 0 & 0 & 0 \\
      -0.7 & -1.13586652150 & 0.435866521508 & 0 & 0 & 0 \\
@@ -857,6 +908,7 @@ the embedding has reduced stability (from [HW1996]_).
 
 .. math::
 
+   \renewcommand{\arraystretch}{1.5}
    \begin{array}{r|ccccc}
      \frac{1}{4} & \frac{1}{4} & 0 & 0 & 0 & 0 \\
      \frac{3}{4} & \frac{1}{2} & \frac{1}{4} & 0 & 0 & 0 \\
@@ -896,6 +948,7 @@ A-stable (from [K2004]_).
 
 .. math::
 
+   \renewcommand{\arraystretch}{1.5}
    \begin{array}{r|ccccc}
      0 & 0 & 0 & 0 & 0 & 0 \\
      0.871733043 & 0.4358665215  & 0.4358665215  & 0 & 0 & 0 \\
@@ -934,6 +987,7 @@ embedding are A-stable; additionally the method is L-stable (from [KC2003]_).
 
 .. math::
 
+   \renewcommand{\arraystretch}{1.5}
    \begin{array}{r|cccccc}
      0 & 0 & 0 & 0 & 0 & 0 & 0 \\
      \frac{1}{2} & \frac{1}{4} & \frac{1}{4} & 0 & 0 & 0 & 0 \\
@@ -972,6 +1026,7 @@ A-stable; additionally the method is L-stable (from [K2004]_).
 
 .. math::
 
+   \renewcommand{\arraystretch}{1.5}
    \begin{array}{r|ccccccc}
      0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
      0.52 & 0.26 & 0.26 & 0 & 0 & 0 & 0 & 0 \\
@@ -1014,6 +1069,7 @@ additionally the method is L-stable (from [KC2003]_).
 
 .. math::
 
+   \renewcommand{\arraystretch}{1.5}
    \begin{array}{r|cccccccc}
      0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
      \frac{41}{100} & \frac{41}{200} & \frac{41}{200} & 0 & 0 & 0 & 0 & 0 & 0 \\

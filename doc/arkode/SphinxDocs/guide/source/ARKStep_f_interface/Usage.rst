@@ -386,9 +386,9 @@ Key                      ARKStep routine
 ``EXPLICIT``             :c:func:`ARKStepSetExplicit()`
 ``IMPLICIT``             :c:func:`ARKStepSetImplicit()`
 ``IMEX``                 :c:func:`ARKStepSetImEx()`
-``IRK_TABLE_NUM``        :c:func:`ARKStepSetARKTableNum()`
-``ERK_TABLE_NUM``        :c:func:`ARKStepSetARKTableNum()`
-``ARK_TABLE_NUM`` *(a)*  :c:func:`ARKStepSetARKTableNum()`
+``IRK_TABLE_NUM``        :c:func:`ARKStepSetTableNum()`
+``ERK_TABLE_NUM``        :c:func:`ARKStepSetTableNum()`
+``ARK_TABLE_NUM`` *(a)*  :c:func:`ARKStepSetTableNum()`
 ``MAX_NSTEPS``           :c:func:`ARKStepSetMaxNumSteps()`
 ``HNIL_WARNS``           :c:func:`ARKStepSetMaxHnilWarns()`
 ``PREDICT_METHOD``       :c:func:`ARKStepSetPredictorMethod()`
@@ -477,7 +477,7 @@ complete information.
 
 .. f:subroutine:: FARKSETERKTABLE(S, Q, P, C, A, B, BEMBED, IER)
 
-   Interface to the routine :c:func:`ARKStepSetARKTables()`.
+   Interface to the routine :c:func:`ARKStepSetTables()`.
 
    **Arguments:**
       * *S* (``int``, input) -- number of stages in the table.
@@ -494,7 +494,7 @@ complete information.
 
 .. f:subroutine:: FARKSETIRKTABLE(S, Q, P, C, A, B, BEMBED, IER)
 
-   Interface to the routine :c:func:`ARKStepSetARKTables()`.
+   Interface to the routine :c:func:`ARKStepSetTables()`.
 
    **Arguments:**
       * *S* (``int``, input) -- number of stages in the table.
@@ -511,7 +511,7 @@ complete information.
 
 .. f:subroutine:: FARKSETARKTABLES(S, Q, P, CI, CE, AI, AE, BI, BE, B2I, B2E, IER)
 
-   Interface to the routine :c:func:`ARKStepSetARKTables()`.
+   Interface to the routine :c:func:`ARKStepSetTables()`.
 
    **Arguments:**
       * *S* (``int``, input) -- number of stages in the table.

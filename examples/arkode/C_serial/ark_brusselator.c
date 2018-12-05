@@ -189,6 +189,9 @@ int main()
   tout = T0+dTout;
   printf("        t           u           v           w\n");
   printf("   -------------------------------------------\n");
+  printf("  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"\n",
+         t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
+
   for (iout=0; iout<Nt; iout++) {
 
     flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);      /* call integrator */

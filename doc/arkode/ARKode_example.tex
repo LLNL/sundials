@@ -793,7 +793,7 @@ test 3.
 
 \section{ark\_brusselator\_fp}
 \label{c_serial:ark-brusselator-fp}\label{c_serial:id8}
-This test problem is a duplicate the \code{ark\_brusselator} problem
+This test problem is a duplicate of the \code{ark\_brusselator} problem
 above, but with a few key changes in the methods used for time
 integration and nonlinear solver.  As with the previous test, this
 problem has 3 dependent variables \(u\), \(v\) and \(w\),
@@ -845,8 +845,40 @@ subspace of dimension 3.
 are printed at the end.
 
 
+\section{ark\_brusselator\_mri}
+\label{c_serial:id10}\label{c_serial:ark-brusselator-mri}
+This test problem is a duplicate of the \code{ark\_brusselator} problem
+above, but using MRIStep with different parameters.  As with the
+previous test, this problem has 3 dependent variables \(u\), \(v\) and
+\(w\), that depend on the independent variable \(t\) via the IVP system
+\begin{gather}
+\begin{split}\frac{du}{dt} &= a - (w+1)u + v u^2, \\
+\frac{dv}{dt} &= w u - v u^2, \\
+\frac{dw}{dt} &= \frac{b-w}{\varepsilon} - w u.\end{split}\notag
+\end{gather}
+We integrate over the interval \(0 \le t \le 2\), with the
+initial conditions \(u(0) = u_0\), \(v(0) = v_0\), \(w(0)
+= w_0\).  The solution is output to the screen at equal intervals of 0.1 time
+units.
+
+The problem implements the following testing scenario: \(u_0=1.2\),
+\(v_0=3.1\),  \(w_0=3\), \(a=1\), \(b=3.5\), and
+\(\varepsilon=10^{-2}\)
+
+
+\subsection{Numerical method}
+\label{c_serial:id11}
+This program solves the problem with the default thrid order method.
+
+The problem is run using a fixed slow step size \(hs=0.025\) and fast step
+size \(0.001\).
+
+20 outputs are printed at equal intervals, and run statistics
+are printed at the end.
+
+
 \section{ark\_robertson}
-\label{c_serial:id10}\label{c_serial:ark-robertson}
+\label{c_serial:ark-robertson}\label{c_serial:id12}
 Our next two tests simulate the Robertson problem, corresponding to the
 kinetics of an autocatalytic reaction, corresponding to the CVODE
 example of the same name.  This is an ODE system with 3
@@ -861,7 +893,7 @@ conditions  \(Y(0) = [1,\, 0,\, 0]^T\).
 
 
 \subsection{Numerical method}
-\label{c_serial:id11}
+\label{c_serial:id13}
 This program is constructed to solve the problem with the DIRK solver.
 Implicit subsystems are solved using a Newton iteration with the
 SUNLINSOL\_DENSE dense linear solver module via the ARKDLS interface; a
@@ -875,7 +907,7 @@ printed at the end.
 
 
 \subsection{Solutions}
-\label{c_serial:id12}
+\label{c_serial:id14}
 Due to the linearly-spaced requested output times in this example, and
 since we plot in a log-log scale, by the first output at
 \(t=10^9\), the solutions have already undergone a sharp
@@ -899,7 +931,7 @@ tolerance for that variable.
 
 
 \section{ark\_robertson\_root}
-\label{c_serial:ark-robertson-root}\label{c_serial:id13}
+\label{c_serial:ark-robertson-root}\label{c_serial:id15}
 We again test the Robertson problem, but in this example we will
 utilize both a logarithmically-spaced set of output times (to properly
 show the solution behavior), as well as ARKode's root-finding
@@ -924,7 +956,7 @@ solutions attain desired target values.
 
 
 \subsection{Numerical method}
-\label{c_serial:id14}
+\label{c_serial:id16}
 This program solves the problem with the DIRK solver.  Implicit
 subsystems are solved using a Newton iteration with the
 SUNLINSOL\_DENSE linear solver module via the ARKDLS interface; a
@@ -944,7 +976,7 @@ either \(u=10^{-4}\) or \(w=10^{-2}\).
 
 
 \subsection{Solutions}
-\label{c_serial:id15}
+\label{c_serial:id17}
 In the solutions below, we now see the early-time evolution of the
 solution components for the Robertson ODE system.
 \begin{figure}[htbp]
@@ -963,7 +995,7 @@ function \code{g()}.
 
 
 \section{ark\_brusselator1D}
-\label{c_serial:ark-brusselator1d}\label{c_serial:id16}
+\label{c_serial:id18}\label{c_serial:ark-brusselator1d}
 We now investigate a time-dependent system of partial differential
 equations.  We adapt the previously-described brusselator test problem
 by adding diffusion into the chemical reaction network.  We again have
@@ -996,7 +1028,7 @@ conditions with values identical to the initial conditions.
 
 
 \subsection{Numerical method}
-\label{c_serial:id17}
+\label{c_serial:id19}
 We employ a \emph{method of lines} approach, wherein we first
 semi-discretize in space to convert the system of 3 PDEs into a larger
 system of ODEs.  To this end, the spatial derivatives are computed
@@ -1019,7 +1051,7 @@ are printed at the end.
 
 
 \subsection{Solutions}
-\label{c_serial:id18}
+\label{c_serial:id20}
 \includegraphics[width=0.300\linewidth]{plot-ark_brusselator1D_1.png}
 
 \includegraphics[width=0.300\linewidth]{plot-ark_brusselator1D_2.png}
@@ -1031,7 +1063,7 @@ center is at time \(t=2.9\), right is at time \(t=8.8\).
 
 
 \section{ark\_brusselator1D\_klu}
-\label{c_serial:ark-brusselator1d-klu}\label{c_serial:id19}
+\label{c_serial:ark-brusselator1d-klu}\label{c_serial:id21}
 This problem is mathematically identical to the preceding problem,
 {\hyperref[c_serial:ark-brusselator1d]{\emph{\DUspan{}{ark\_brusselator1D}}}}, but instead of using the SUNMATRIX\_BAND
 banded matrix module and SUNLINSOL\_BAND linear solver module, it uses
@@ -1043,14 +1075,14 @@ Additionally, the solution is only output 10 times instead of 100.
 
 
 \section{ark\_brusselator1D\_FEM\_slu}
-\label{c_serial:id20}\label{c_serial:ark-brusselator1d-fem-slu}
+\label{c_serial:ark-brusselator1d-fem-slu}\label{c_serial:id22}
 This problem is mathematically identical to the preceding problems,
 {\hyperref[c_serial:ark-brusselator1d]{\emph{\DUspan{}{ark\_brusselator1D}}}} and {\hyperref[c_serial:ark-brusselator1d-klu]{\emph{\DUspan{}{ark\_brusselator1D\_klu}}}}, but
 utilizes a different set of numerical methods.
 
 
 \subsection{Numerical method}
-\label{c_serial:id21}
+\label{c_serial:id23}
 As with the preceding problems, we employ a method of lines approach,
 wherein we first semi-discretize in space to convert the system of 3
 PDEs into a larger system of ODEs.  However, in this example we
@@ -1085,7 +1117,7 @@ are printed at the end.
 
 
 \subsection{Solutions}
-\label{c_serial:id22}
+\label{c_serial:id24}
 \includegraphics[width=0.300\linewidth]{plot-ark_brusselator1D_FEM_1.png}
 
 \includegraphics[width=0.300\linewidth]{plot-ark_brusselator1D_FEM_2.png}
@@ -1099,7 +1131,7 @@ supplied Python script, \code{plot\_brusselator1D\_FEM.py}): left is at time
 
 
 \section{ark\_heat1D}
-\label{c_serial:ark-heat1d}\label{c_serial:id23}
+\label{c_serial:ark-heat1d}\label{c_serial:id25}
 As with the previous brusselator problem, this example simulates a
 simple one-dimensional partial differential equation; in this case we
 consider the heat equation,
@@ -1118,7 +1150,7 @@ and a point-source heating term,
 \end{gather}
 
 \subsection{Numerical method}
-\label{c_serial:id24}
+\label{c_serial:id26}
 As with the {\hyperref[c_serial:ark-brusselator1d]{\emph{\DUspan{}{ark\_brusselator1D}}}} test problem, this test computes
 spatial derivatives using second-order centered differences, with the
 data distributed over \(N\) points on a uniform spatial grid.
@@ -1138,7 +1170,7 @@ product routine is supplied, in order to provide an example of its use.
 
 
 \subsection{Solutions}
-\label{c_serial:id25}
+\label{c_serial:id27}
 \includegraphics[width=0.300\linewidth]{plot-ark_heat1d_1.png}
 
 \includegraphics[width=0.300\linewidth]{plot-ark_heat1d_2.png}
@@ -1150,7 +1182,7 @@ center is at time \(t=0.13\), right is at time \(t=1.0\).
 
 
 \section{ark\_heat1D\_adapt}
-\label{c_serial:id26}\label{c_serial:ark-heat1d-adapt}
+\label{c_serial:id28}\label{c_serial:ark-heat1d-adapt}
 This problem is mathematically identical to the {\hyperref[c_serial:ark-heat1d]{\emph{\DUspan{}{ark\_heat1D}}}} test
 problem.  However, instead of using a uniform spatial grid, this test
 problem utilizes a dynamically-evolving spatial mesh.  The PDE under
@@ -1170,7 +1202,7 @@ and a point-source heating term,
 \end{gather}
 
 \subsection{Numerical method}
-\label{c_serial:id27}
+\label{c_serial:id29}
 We again employ a method-of-lines discretization approach.  The
 spatial derivatives are computed using a three-point centered stencil,
 that is accurate to \(O(\Delta x_i^2)\) if the neighboring points are
@@ -1194,11 +1226,11 @@ major ARKode data structures across vector length changes.
 
 
 \section{ark\_KrylovDemo\_prec}
-\label{c_serial:ark-krylovdemo-prec}\label{c_serial:id28}
+\label{c_serial:ark-krylovdemo-prec}\label{c_serial:id30}
 This problem is an ARKode clone of the CVODE problem,
 \code{cv\_KrylovDemo\_prec}.  This is a demonstration program using the
 SUNLINSOL\_SPGMR linear solver module.  As explained more thoroughly in
-\phantomsection\label{c_serial:id29}{\hyperref[References:hsr2017]{\emph{{[}HSR2017{]}}}}, the problem is a stiff ODE system that arises from a
+\phantomsection\label{c_serial:id31}{\hyperref[References:hsr2017]{\emph{{[}HSR2017{]}}}}, the problem is a stiff ODE system that arises from a
 system of PDEs modeling a six-species food web population model, with
 predator-prey interaction and diffusion on the unit square in two
 dimensions.  We have a system with 6 components, \(C = [c^1,\,
@@ -1239,7 +1271,7 @@ and with homogeneous Neumann boundary conditions,
 
 
 \subsection{Numerical method}
-\label{c_serial:id30}
+\label{c_serial:id32}
 We employ a method of lines approach, wherein we first semi-discretize
 in space to convert the system of 6 PDEs into a larger system of ODEs.
 To this end, the spatial derivatives are computed using second-order
@@ -1279,6 +1311,68 @@ times, and final statistics are written to standard output.  On the
 first run, solution values are also printed at output times.  Error
 and warning messages are written to standard error, but there should
 be no such messages.
+
+
+\section{ark\_onewaycouple\_mri}
+\label{c_serial:ark-onewaycouple-mri}\label{c_serial:id33}
+This example simulates a linear system of 3 dependent variables \(u\),
+\(v\) and \(w\), that depend on the independent variable \(t\) via
+the IVP system
+\begin{gather}
+\begin{split}\frac{du}{dt} &= -50 v, \\
+\frac{dv}{dt} &= 50 u, \\
+\frac{dw}{dt} &= -w + u + v.\end{split}\notag
+\end{gather}
+We integrate over the interval \(0 \le t \le 1\), with the initial
+conditions \(u(0) = 1\), \(v(0) = 0\), \(w(0)= 2\).  The
+solution is output to the screen at equal intervals of 0.1 time units.
+
+
+\subsection{Numerical method}
+\label{c_serial:id34}
+This program solves the problem with the default third order method.
+
+The problem is run using a fixed slow step size \(hs=0.001\) and fast step
+size \(0.0001\).
+
+10 outputs are printed at equal intervals, and run statistics
+are printed at the end.
+
+
+\subsection{Solutions}
+\label{c_serial:id35}
+This system has the analytic solution,
+\begin{gather}
+\begin{split}u(t) &= \cos(50t), \\
+v(t) &= \sin(50t), \\
+w(t) &= 5051/2501*\exp(-t) - 49/2501*\cos(50t) + 51/2501*\sin(50t).\end{split}\notag
+\end{gather}
+
+\section{ark\_twowaycouple\_mri}
+\label{c_serial:id36}\label{c_serial:ark-twowaycouple-mri}
+This example simulates a linear system of 3 dependent variables \(u\),
+\(v\) and \(w\), that depend on the independent variable \(t\) via
+the IVP system
+\begin{gather}
+\begin{split}\frac{du}{dt} &= 100 v + w, \\
+\frac{dv}{dt} &= -100 u, \\
+\frac{dw}{dt} &= -w + u.\end{split}\notag
+\end{gather}
+We integrate over the interval \(0 \le t \le 2\), with the initial
+conditions \(u(0) = 9001/10001\), \(v(0) = 10^{-5}/10001\),
+\(w(0)= 1000\).  The solution is output to the screen at equal intervals of
+0.1 time units.
+
+
+\subsection{Numerical method}
+\label{c_serial:id37}
+This program solves the problem with the default third order method.
+
+The problem is run using a fixed slow step size \(hs=0.001\) and fast step
+size \(0.00002\).
+
+20 outputs are printed at equal intervals, and run statistics
+are printed at the end.
 
 
 \chapter{OpenMP C example problems}

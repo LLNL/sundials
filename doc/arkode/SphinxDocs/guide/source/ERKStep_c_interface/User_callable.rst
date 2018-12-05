@@ -55,7 +55,7 @@ ERKStep initialization and deallocation functions
    returned, and an error message will be printed to ``stderr``.
 
 
-.. c:function:: void ERKStepFree(void* arkode_mem)
+.. c:function:: void ERKStepFree(void** arkode_mem)
 
    This function frees the problem memory *arkode_mem* created by
    :c:func:`ERKStepCreate()`.
@@ -331,9 +331,9 @@ has requested rootfinding.
         i.e. :math:`t_{n-1} <` *tout* :math:`\le t_{n}` for forward
         integration, or :math:`t_{n} \le` *tout* :math:`< t_{n-1}` for
         backward integration.  It will then compute an approximation
-        to the solution :math:`y`(*tout*) by interpolation (using one
+        to the solution :math:`y(tout)` by interpolation (using one
         of the dense output routines described in the section
-        :ref:`Mathematics.Interpolation`). 
+        :ref:`Mathematics.Interpolation`).
 
 	The *ARK_ONE_STEP* option tells the solver to only take a
         single internal step :math:`y_{n-1} \to y_{n}` and then return
@@ -348,7 +348,7 @@ has requested rootfinding.
         found one or more roots.  If the number of root functions,
         *nrtfn*, is greater than 1, call
         :c:func:`ERKStepGetRootInfo()` to see which :math:`g_i` were
-        found to have a root at (*\*tret*). 
+        found to have a root at (*\*tret*).
       * *ARK_TSTOP_RETURN* if :c:func:`ERKStepEvolve()` succeeded and
         returned at *tstop*.
       * *ARK_MEM_NULL* if the *arkode_mem* argument was ``NULL``.
@@ -372,6 +372,7 @@ has requested rootfinding.
       * *ARK_ERR_FAILURE* if error test failures occurred either too many
         times (*ark_maxnef*) during one internal time step or occurred
         with :math:`|h| = h_{min}`.
+      * *ARK_VECTOROP_ERR* a vector operation error occured.
 
    **Notes:** The input vector *yout* can use the same memory as the
    vector *y0* of initial conditions that was passed to
@@ -805,8 +806,8 @@ Optional inputs for IVP method selection
 Optional input                     Function name                      Default
 =================================  =================================  ==============
 Set integrator method order        :c:func:`ERKStepSetOrder()`        4
-Set explicit RK table              :c:func:`ERKStepSetERKTable()`     internal
-Specify explicit RK table number   :c:func:`ERKStepSetERKTableNum()`  internal
+Set explicit RK table              :c:func:`ERKStepSetTable()`        internal
+Specify explicit RK table number   :c:func:`ERKStepSetTableNum()`     internal
 =================================  =================================  ==============
 
 
@@ -833,7 +834,7 @@ Specify explicit RK table number   :c:func:`ERKStepSetERKTableNum()`  internal
 
 
 
-.. c:function:: int ERKStepSetERKTable(void* arkode_mem, ARKodeButcherTable B)
+.. c:function:: int ERKStepSetTable(void* arkode_mem, ARKodeButcherTable B)
 
    Specifies a customized Butcher table for the ERK method.
 
@@ -858,14 +859,13 @@ Specify explicit RK table number   :c:func:`ERKStepSetERKTableNum()`  internal
    Error checking is performed to ensure that the Butcher table is strictly
    lower-triangular (i.e. that it specifies an ERK method).
 
-   If the Butcher table does not contain an embedding, then ERKStep will run in
-   fixed-step mode (see :c:func:`ERKStepSetFixedStep()`); if called in this
-   manner the user *must* call either :c:func:`ERKStepSetFixedStep()` or
-   :c:func:`ERKStepSetInitStep()` to set the desired time step size.
+   If the Butcher table does not contain an embedding, the user *must* call
+   :c:func:`ERKStepSetFixedStep()` to enable fixed-step mode and set the desired
+   time step size.
 
 
 
-.. c:function:: int ERKStepSetERKTableNum(void* arkode_mem, int etable)
+.. c:function:: int ERKStepSetTableNum(void* arkode_mem, int etable)
 
    Indicates to use a specific built-in Butcher table for the ERK method.
 
@@ -1224,7 +1224,7 @@ An optional function :c:func:`ERKStepGetDky()` is available to obtain
 additional values of solution-related quantities.  This function
 should only be called after a successful return from
 :c:func:`ERKStepEvolve()`, as it provides interpolated values either of
-:math:`y` or of its derivatives (up to the 3rd derivative)
+:math:`y` or of its derivatives (up to the 5th derivative)
 interpolated to any value of :math:`t` in the last internal step taken
 by :c:func:`ERKStepEvolve()`.  Internally, this *dense output* algorithm is
 identical to the algorithm used for the maximum order implicit
@@ -1241,10 +1241,11 @@ polynomial model may be evaluated upon request.
    i.e. :math:`\frac{d^{(k)}}{dt^{(k)}}y(t)`, for values of the
    independent variable satisfying :math:`t_n-h_n \le t \le t_n`, with
    :math:`t_n` as current internal time reached, and :math:`h_n` is
-   the last internal step size successfully used by the solver.  The
-   user may request *k* in the range {0,1,2,3}.  This routine uses an
-   interpolating polynomial of degree *max(dord, k)*, where *dord* is the
-   argument provided to :c:func:`ERKStepSetDenseOrder()`.
+   the last internal step size successfully used by the solver.  This
+   routine uses an interpolating polynomial of degree *max(dord, k)*,
+   where *dord* is the argument provided to
+   :c:func:`ERKStepSetDenseOrder()`. The user may request *k* in the
+   range {0,...,*dord*}.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ERKStep memory block.
@@ -1255,7 +1256,7 @@ polynomial model may be evaluated upon request.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
-      * *ARK_BAD_K* if *k* is not in the range {0,1,2,3}.
+      * *ARK_BAD_K* if *k* is not in the range {0,...,*dord*}.
       * *ARK_BAD_T* if *t* is not in the interval :math:`[t_n-h_n, t_n]`
       * *ARK_BAD_DKY* if the *dky* vector was ``NULL``
       * *ARK_MEM_NULL* if the ERKStep memory is ``NULL``
@@ -1736,7 +1737,7 @@ No. of calls to user root function                   :c:func:`ERKStepGetNumGEval
         *nrtfn* was supplied in the call to
         :c:func:`ERKStepRootInit()`).  For :math:`i = 0 \ldots`
         *nrtfn*-1, ``rootsfound[i]`` is nonzero if :math:`g_i` has a
-        root, and 0 if not. 
+        root, and 0 if not.
 
    **Return value:**
       * *ARK_SUCCESS* if successful

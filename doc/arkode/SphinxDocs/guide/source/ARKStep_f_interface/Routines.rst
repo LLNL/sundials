@@ -139,11 +139,11 @@ Interface to the main ARKODE module
 
 * :f:func:`FARKEXPSTABSET()` interfaces to :c:func:`ARKStepSetStabilityFn()`.
 
-* :f:func:`FARKSETERKTABLE()` interfaces to :c:func:`ARKStepSetERKTable()`.
+* :f:func:`FARKSETERKTABLE()` interfaces to :c:func:`ARKStepSetTables()`.
 
-* :f:func:`FARKSETIRKTABLE()` interfaces to :c:func:`ARKStepSetIRKTable()`.
+* :f:func:`FARKSETIRKTABLE()` interfaces to :c:func:`ARKStepSetTables()`.
 
-* :f:func:`FARKSETARKTABLES()` interfaces to :c:func:`ARKStepSetARKTables()`.
+* :f:func:`FARKSETARKTABLES()` interfaces to :c:func:`ARKStepSetTables()`.
 
 * :f:func:`FARKSETRESTOLERANCE()` interfaces to either
   :c:func:`ARKStepResStolerance()` and :c:func:`ARKStepResVtolerance()`

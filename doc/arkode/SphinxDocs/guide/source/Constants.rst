@@ -71,6 +71,9 @@ Explicit Butcher table specification
 :index:`FEHLBERG_13_7_8 <Fehlberg-13-7-8 ERK method>`  (11):
    Use the Fehlberg-13-7-8 ERK method
 
+:index:`KNOTH_WOLKE_3_3 <Knoth-Wolke-3-3 ERK method>`  (12):
+   Use the Knoth-Wolke-3-3 ERK method
+
 
 :index:`DEFAULT_ERK_2`  (HEUN_EULER_2_1_2):
    Use the default second-order ERK method
@@ -304,7 +307,14 @@ Shared ARKode output constants
    A recoverable error occurred when setting up a SUNNonlinearSolver module.
    
 :index:`ARK_NLS_OP_ERR`  (-33):
-   An error occurred when calling a set/get routine in a SUNNonlinearSolver module.
+   An error occurred when calling a set/get routine in a SUNNonlinearSolver
+   module.
+
+:index:`ARK_INNERSTEP_OP_ERR`  (-34):
+   An error occurred when calling an internal stepper within an ARKode module.
+
+:index:`ARK_UNRECOGNIZED_ERROR` (-99):
+   An unknown error was encountered.
 
 
 

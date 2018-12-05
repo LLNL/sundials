@@ -2240,6 +2240,14 @@ int arkHandleFailure(ARKodeMem ark_mem, int flag)
                     "At t = %Lg the nonlinear solver setup failed unrecoverably",
                     (long double) ark_mem->tcur);
     break;
+  case ARK_VECTOROP_ERR:
+    arkProcessError(ark_mem, ARK_VECTOROP_ERR, "ARKode", "ARKode",
+                    MSG_ARK_VECTOROP_ERR, ark_mem->tcur);
+    break;
+  case ARK_INNERSTEP_FAIL:
+    arkProcessError(ark_mem, ARK_INNERSTEP_FAIL, "ARKode", "ARKode",
+                    MSG_ARK_INNERSTEP_FAILED, ark_mem->tcur);
+    break;
   default:
     /* This return should never happen */
     arkProcessError(ark_mem, ARK_UNRECOGNIZED_ERROR, "ARKode", "ARKode",

@@ -233,7 +233,7 @@ test 3.
 ark_brusselator_fp
 ===================================================
 
-This test problem is a duplicate the ``ark_brusselator`` problem
+This test problem is a duplicate of the ``ark_brusselator`` problem
 above, but with a few key changes in the methods used for time
 integration and nonlinear solver.  As with the previous test, this
 problem has 3 dependent variables :math:`u`, :math:`v` and :math:`w`,
@@ -291,6 +291,42 @@ subspace of dimension 3.
 are printed at the end.
 
 
+
+.. _ark_brusselator_mri:
+
+ark_brusselator_mri
+================================================
+
+This test problem is a duplicate of the ``ark_brusselator`` problem
+above, but using MRIStep with different parameters.  As with the
+previous test, this problem has 3 dependent variables :math:`u`, :math:`v` and
+:math:`w`, that depend on the independent variable :math:`t` via the IVP system
+
+.. math::
+
+   \frac{du}{dt} &= a - (w+1)u + v u^2, \\
+   \frac{dv}{dt} &= w u - v u^2, \\
+   \frac{dw}{dt} &= \frac{b-w}{\varepsilon} - w u.
+
+We integrate over the interval :math:`0 \le t \le 2`, with the
+initial conditions :math:`u(0) = u_0`, :math:`v(0) = v_0`, :math:`w(0)
+= w_0`.  The solution is output to the screen at equal intervals of 0.1 time
+units. 
+
+The problem implements the following testing scenario: :math:`u_0=1.2`,
+:math:`v_0=3.1`,  :math:`w_0=3`, :math:`a=1`, :math:`b=3.5`, and
+:math:`\varepsilon=10^{-2}`  
+
+Numerical method
+----------------
+
+This program solves the problem with the default thrid order method.
+
+The problem is run using a fixed slow step size :math:`hs=0.025` and fast step
+size :math:`0.001`.
+
+20 outputs are printed at equal intervals, and run statistics 
+are printed at the end.
 
 
 
@@ -829,3 +865,78 @@ and warning messages are written to standard error, but there should
 be no such messages. 
 
 
+
+.. _ark_onewaycouple_mri:
+
+ark_onewaycouple_mri
+================================================
+
+This example simulates a linear system of 3 dependent variables :math:`u`,
+:math:`v` and :math:`w`, that depend on the independent variable :math:`t` via
+the IVP system
+
+.. math::
+
+   \frac{du}{dt} &= -50 v, \\
+   \frac{dv}{dt} &= 50 u, \\
+   \frac{dw}{dt} &= -w + u + v.
+
+We integrate over the interval :math:`0 \le t \le 1`, with the initial
+conditions :math:`u(0) = 1`, :math:`v(0) = 0`, :math:`w(0)= 2`.  The
+solution is output to the screen at equal intervals of 0.1 time units. 
+
+Numerical method
+----------------
+
+This program solves the problem with the default third order method.
+
+The problem is run using a fixed slow step size :math:`hs=0.001` and fast step
+size :math:`0.0001`.
+
+10 outputs are printed at equal intervals, and run statistics 
+are printed at the end.
+   
+
+Solutions
+---------
+
+This system has the analytic solution,
+
+.. math::
+   
+   u(t) &= \cos(50t), \\
+   v(t) &= \sin(50t), \\
+   w(t) &= 5051/2501*\exp(-t) - 49/2501*\cos(50t) + 51/2501*\sin(50t).
+
+
+
+.. _ark_twowaycouple_mri:
+
+ark_twowaycouple_mri
+================================================
+
+This example simulates a linear system of 3 dependent variables :math:`u`,
+:math:`v` and :math:`w`, that depend on the independent variable :math:`t` via
+the IVP system 
+
+.. math::
+
+   \frac{du}{dt} &= 100 v + w, \\
+   \frac{dv}{dt} &= -100 u, \\
+   \frac{dw}{dt} &= -w + u.
+
+We integrate over the interval :math:`0 \le t \le 2`, with the initial
+conditions :math:`u(0) = 9001/10001`, :math:`v(0) = 10^{-5}/10001`,
+:math:`w(0)= 1000`.  The solution is output to the screen at equal intervals of
+0.1 time units.
+
+Numerical method
+----------------
+
+This program solves the problem with the default third order method.
+
+The problem is run using a fixed slow step size :math:`hs=0.001` and fast step
+size :math:`0.00002`.
+
+20 outputs are printed at equal intervals, and run statistics 
+are printed at the end.

@@ -113,6 +113,8 @@ extern "C" {
 #define ARK_NLS_SETUP_RECVR      -32
 #define ARK_NLS_OP_ERR           -33
 
+#define ARK_INNERSTEP_FAIL       -34
+
 #define ARK_UNRECOGNIZED_ERROR   -99
 
 

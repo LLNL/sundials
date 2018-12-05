@@ -54,12 +54,14 @@ methods utilized in ARKode.  We first discuss the "single-step" nature
 of the ARKode infrastructure, including its usage modes and approaches
 for interpolated solution output.  We then discuss the current suite
 of time-stepping modules supplied with ARKode, including the ARKStep
-module for :ref:`additive Runge-Kutta methods <Mathematics.ARK>` and
+module for :ref:`additive Runge-Kutta methods <Mathematics.ARK>`,
 the ERKStep module that is optimized for :ref:`explicit Runge-Kutta
-methods <Mathematics.ERK>`. We then discuss the :ref:`adaptive
-temporal error controllers <Mathematics.Adaptivity>` shared by the
-time-stepping modules, including discussion of our choice of norms for
-measuring errors within various components of the solver.
+methods <Mathematics.ERK>`, and the MRIStep module for :ref:`two-rate
+explicit-explicit multirate infinitesimal step methods <Mathematics.MRIStep>`.
+We then discuss the :ref:`adaptive temporal error controllers
+<Mathematics.Adaptivity>` shared by the time-stepping modules, including
+discussion of our choice of norms for measuring errors within various components
+of the solver.
 
 We then discuss the nonlinear and linear solver strategies used by
 ARKode's time-stepping modules for solving implicit algebraic systems
@@ -349,6 +351,61 @@ simplified form admits a more efficient and memory-friendly solution
 process than when considering the more general form.
 
 
+.. _Mathematics.MRIStep:
+
+MRIStep -- Multirate infinitesimal step methods
+================================================
+
+The MRIStep time-stepping module in ARKode is designed for IVP
+of the form
+
+.. math::
+   \dot{y} = f_s(t,y) + f_f(t,y), \qquad y(t_0) = y_0.
+   :label: IVP_two_rate
+
+i.e. the right-hand side function is additively split into two
+components:
+
+* :math:`f_s(t,y)` contains the "slow" components of the
+  system.  This will be integrated using a large time step :math:`h_s`.
+
+* :math:`f_f(t,y)` contains the "fast" components of the
+  system.  This will be integrated using a small time step :math:`h_f`.
+
+For such problems, MRIStep provides fixed-step multirate infinitesimal step
+methods (see [SKAW2009]_, [SKAW2012a]_, and [SKAW2012b]_) that combine two
+Runge-Kutta methods. The slow (outer) method is an :math:`s` stage explicit
+Runge-Kutta method where the stage values and the new solution are computed by
+solving an auxiliary ODE with a fast (inner) Runge-Kutta method. This
+corresponds to the algorithm
+
+.. math::
+   w_1 &= y_n, \\
+   r_i &= \sum_{j=1}^{i-1} (A^s_{i,j} - A^s_{i-1,j}) f_s(w_j), \\
+   v_i(\tau_{i-1}) &= w_{i-1}, \\
+   \frac{dv_i}{d\tau} &= f_f(v_i) + \frac{1}{c^s_i - c^s_{i-1}} r_i, \quad \tau \in
+   [\tau_{i-1},\tau_i], \quad i = 2,\ldots,s+1\\
+   w_i &= v_i(\tau_i), \\
+   y_{n+1} &= w_{s+1},
+   :label: MRIStep
+
+where the slow stages :math:`w_i` at times :math:`\tau_i = t_n + c^s_i h_s` are
+computed by solving the :math:`v_i` fast ODE on :math:`[\tau_{i-1},\tau_i]` with
+the initial condition :math:`w_{i-1}`, forcing term :math:`r_i`, and
+:math:`A^s_{s+1,j}=b^s_{j}`.
+
+The MRIStep module provides a thrid order explicit-explicit method using the
+:ref:`Butcher.Knoth_Wolke` ERK for the slow and fast method. User-defined
+tables are also supported. A user defined method will be first to thrid order
+accurate depending on the slow and fast tables provided. If both the slow and
+fast tables are second order, then the overall method will also be second
+order. If the slow and fast tables are both third order and the slow method
+satisfies an auxiliary condition (see [SKAW2012a]_), then the overall method
+will also be thrid order.
+
+Note that at this time the MRIStep module only supports explicit fast and slow
+tables where the stage times of the slow table must be unique and orderd (i.e.,
+:math:`c^s_{i} > c^s_{i-1}`) and the final stage time must be less than 1.
 
 
 .. _Mathematics.Error.Norm:
