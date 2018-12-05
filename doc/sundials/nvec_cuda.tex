@@ -7,174 +7,85 @@ The {\nveccuda} module is an experimental {\nvector} implementation in the {\cud
 The module allows for {\sundials} vector kernels to run on GPU devices. It is intended for users
 who are already familiar with {\cuda} and GPU programming. Building this vector
 module requires a CUDA compiler and, by extension, a C++ compiler. The class \id{Vector}
-in namespace \id{suncudavec} manages vector data layout:
+in the namespace \id{suncudavec} manages the vector data layout:
+
 \begin{verbatim}
 template <class T, class I>
 class Vector {
   I size_;
   I mem_size_;
+  I global_size_;
   T* h_vec_;
   T* d_vec_;
   ThreadPartitioning<T, I>* partStream_;
   ThreadPartitioning<T, I>* partReduce_;
   bool ownPartitioning_;
-
+  bool ownData_;
+  bool managed_mem_;
+  SUNMPI_Comm comm_;
   ...
 };
 \end{verbatim}
 
-The class members are vector size (length), size of the vector data memory block, pointers
-to vector data on the host and the device, pointers to \id{ThreadPartitioning}
-implementations that handle thread partitioning for streaming and
-reduction vector kernels, and a boolean flag that signals if the
-vector owns the thread partitioning. The class \id{Vector} inherits from the empty structure
+The class members are vector size (length), size of the vector data memory
+block, pointers to vector data on the host and the device, pointers
+to \id{ThreadPartitioning} implementations that handle thread partitioning for
+streaming and reduction vector kernels, a boolean flag that signals if the
+vector owns the thread partitioning, a boolean flag that signals if the vector
+owns the data, a boolean flag that signals if managed memory is used for the
+data arrays, and the MPI communicator. The class \id{Vector} inherits from the
+empty structure
 \begin{verbatim}
 struct _N_VectorContent_Cuda {
 };
 \end{verbatim}
-to interface the C++ class with the {\nvector} C code. When instantiated, the class
-\id{Vector} will allocate memory on both the host and the device. Due to the rapid
-progress of {\cuda} development, we expect that the \id{suncudavec::Vector}
-class will change frequently in future {\sundials} releases. The code is
-structured so that it can tolerate significant changes in the
-\id{suncudavec::Vector} class without requiring changes to the user API.
+to interface the C++ class with the {\nvector} C code. Due to the rapid progress
+of {\cuda} development, we expect that the \id{suncudavec::Vector} class will
+change frequently in future {\sundials} releases. The code is structured so that
+it can tolerate significant changes in the \id{suncudavec::Vector} class without
+requiring changes to the user API.
 
-%%
-%%--------------------------------------------
+When instantiated with \id{N\_VNew\_Cuda}, the class \id{Vector} will allocate
+memory on both the host and the device. Alternatively, a user can provide host
+and device data arrays by using the \id{N\_VMake\_Cuda} constructor. To use {\cuda}
+managed memory, the constructors \id{N\_VNewManaged\_Cuda} and \newline
+\id{N\_VMakeManaged\_Cuda} are provided. Details on each of these constructors
+are provided below.
 
-The {\nveccuda} module can be utilized for single-node parallelism or in a distributed context with MPI.
-The header file to include when using this module for single-node parallelism is \id{nvector\_cuda.h}.
-The header file to include when using this module in the distributed case is \id{nvector\_mpicuda.h}.
-Note that only the {\nveccuda} constructor signature differs between the two header files.
-The installed module libraries to link to are \id{libsundials\_nveccuda.\textit{lib}} in the single-node case,
-or \id{libsundials\_nvecmpicuda.\textit{lib}} in the distributed case. Only one one of these libraries may be linked to when creating an executable or library. {\sundials} must be built with MPI support if the distributed library is desired. The extension, \id{\em.lib}, is typically \id{.so} for shared libraries and \id{.a} for static libraries.
+The {\nveccuda} module can be utilized for single-node parallelism or in a
+distributed context with MPI. In the single-node case the header file to
+include \id{nvector\_cuda.h} and the library to link to is
+\id{libsundials\_nveccuda.\textit{lib}}. In the a distributed setting the header
+file to include is \id{nvector\_mpicuda.h} and the library to link to is
+\id{libsundials\_nvecmpicuda.\textit{lib}}. The extension, \id{\em.lib}, is
+typically \id{.so} for shared libraries and \id{.a} for static libraries.
+Only one of these libraries may be linked to when creating an executable
+or library. {\sundials} must be built with MPI support if the distributed
+library is desired. 
 
 Unlike other native {\sundials} vector types, {\nveccuda} does not provide macros
-to access its member variables. Instead, user should use the accessor functions in
-the namespace \id{suncudavec}.
+to access its member variables. Instead, user should use the accessor functions:
+
 \begin{itemize}
-
-\item
-  \ID{getDevData(N\_Vector v)}
-
-  This function takes an \id{N\_Vector} as an argument and returns a raw pointer to the vector
-  data on the device (GPU). It is the user's responsibility to ensure that the vector argument 
-  is of the correct \id{N\_Vector} type.
-
-\item
-  \ID{getHostData(N\_Vector v)}
-
-  This function takes a \id{N\_Vector} as an argument and returns a raw pointer to the vector
-  data on the host (CPU memory). It is the user's responsibility to ensure that the vector argument 
-  is of the correct \id{N\_Vector} type.
-
-\item \ID{getSize(N\_Vector v)}
-
-  Returns the vector's local length.
-
-\item \ID{getGlobalSize(N\_Vector v)}
-
-  Returns the vector's global length.
-
-\item \ID{getMPIComm(N\_Vector v)}
-
-  Takes a \id{N\_Vector} as an argument and returns a sundials communicator of type
-
-\end{itemize}
-
-%Note that {\nveccuda} requires {\sundials} to be built with {\mpi} support.
-
-%%
-%%--------------------------------------------
-%%
-The {\nveccuda} module defines implementations of all vector operations listed
-in Tables \ref{t:nvecops}, \ref{t:nvecfusedops}, and \ref{t:nvecarrayops}, except
-for \id{N\_VGetArrayPointer} and \id{N\_VSetArrayPointer}.
-As such, this vector cannot be used with the {\sundials} Fortran interfaces,
-nor with the {\sundials} direct solvers and preconditioners. Instead,
-the {\nveccuda} module provides separate functions to access data on the host
-and on the device. It also provides methods for copying from the host to
-the device and vice versa. Usage examples of {\nveccuda} are provided in
-some example programs for {\cvode} \cite{cvode_ex}.
-
-The names of vector operations are obtained from those in Tables \ref{t:nvecops},
-\ref{t:nvecfusedops}, and \ref{t:nvecarrayops} by appending the suffix \id{\_Cuda}
-(e.g. \id{N\_VDestroy\_Cuda}).
-The module {\nveccuda}  provides the following additional user-callable routines:
-%%
-%%
-\begin{itemize}
-
-
 %%--------------------------------------
-
-\item \ID{N\_VNew\_Cuda}
-
-  \textit{Note: this function signature is defined in the header \id{nvector\_mpicuda.h}
-    and should be used when using this module in a distributed context.}
-  This function creates and allocates memory for a {\cuda} \id{N\_Vector}.
-  The memory is allocated on both host and device. Its arguments are local
-  and global vector lengths, as well as the {\mpi} communicator. Use this 
-  constructor with the \id{libsundials\_nvecmpicuda}.\text{lib} library.
-
-\begin{verbatim}
-N_Vector N_VNew_Cuda(MPI_Comm comm,
-                     sunindextype local_length,
-                     sunindextype global_length);
-\end{verbatim}
-
-
-%%--------------------------------------
-
-\item \ID{N\_VNew\_Cuda}
-
-  \textit{Note: this function signature is defined in the header \id{nvector\_cuda.h}
-    and should be used when using this module for single-node parallelism.}
-  This function creates and allocates memory for a {\cuda} \id{N\_Vector}
-  on a single node. The memory is allocated on both host and device.
-  Its only argument is vector length. Use this constructor with the 
-  \id{libsundials\_nveccuda}.\text{lib} library.
-
-\begin{verbatim}
-N_Vector N_VNew_Cuda(sunindextype length);
-\end{verbatim}
-
-
-%%--------------------------------------
-
-\item \ID{N\_VNewEmpty\_Cuda}
-
-  This function creates a new {\nvector} wrapper with the pointer to
-  the wrapped {\cuda} vector set to (\id{NULL}). It is used by the
-  \id{N\_VNew\_Cuda}, \id{N\_VMake\_Cuda}, and \id{N\_VClone\_Cuda}
-  implementations.
-
-\begin{verbatim}
-N_Vector N_VNewEmpty_Cuda(sunindextype vec_length);
-\end{verbatim}
-
-
-%%--------------------------------------
-
-\item \ID{N\_VMake\_Cuda}
-
-  This function creates and allocates memory for an {\nveccuda}
-  wrapper around a user-provided \id{suncudavec::Vector} class.
-  Its only argument is of type \id{N\_VectorContent\_Cuda}, which
-  is the pointer to the class.
-
-\begin{verbatim}
-N_Vector N_VMake_Cuda(N_VectorContent_Cuda c);
-\end{verbatim}
-
-%%--------------------------------------
-
 
 \item \ID{N\_VGetLength\_Cuda}
 
- This function returns the length of the vector.
+ This function returns the global length of the vector.
 
  \verb|sunindextype N_VGetLength_Cuda(N_Vector v);|
+
+%%--------------------------------------
+
+\item \ID{N\_VGetLocalLength\_Cuda}
+
+ This function returns the local length of the vector.
+    
+ Note: This function is for use in a \textit{distributed} context and
+ is defined in the header \id{nvector\_mpicuda.h} and the library
+ to link to is \id{libsundials\_nvecmpicuda}.\text{lib}.
+
+ \verb|sunindextype N_VGetLocalLength_Cuda(N_Vector v);|
 
 %%--------------------------------------
 
@@ -193,6 +104,194 @@ N_Vector N_VMake_Cuda(N_VectorContent_Cuda c);
 
  \verb|realtype *N_VGetDeviceArrayPointer_Cuda(N_Vector v);|
 
+%%--------------------------------------
+
+\item \ID{N\_VGetMPIComm\_Cuda}
+
+ This function returns the {\mpi} communicator for the vector.
+ 
+    
+ Note: This function is for use in a \textit{distributed} context
+ and is defined in the header \id{nvector\_mpicuda.h} and the
+ library to link to is \id{libsundials\_nvecmpicuda}.\text{lib}.
+
+ \verb|MPI_Comm N_VGetMPIComm_Cuda(N_Vector v);|
+
+%%--------------------------------------
+
+\item \ID{N\_VIsManagedMemory\_Cuda}
+
+ This function returns a boolean flag indicating if the vector
+ data is allocated in managed memory or not.
+
+ \verb|booleantype *N_VIsManagedMemory_Cuda(N_Vector v);|
+\end{itemize}
+
+
+%%
+%%--------------------------------------------
+%%
+The {\nveccuda} module defines implementations of all vector operations listed
+in Tables \ref{t:nvecops}, \ref{t:nvecfusedops}, and \ref{t:nvecarrayops}, except
+for \id{N\_VGetArrayPointer} and \id{N\_VSetArrayPointer}.
+As such, this vector cannot be used with the {\sundials} Fortran interfaces,
+nor with the {\sundials} direct solvers and preconditioners. Instead,
+the {\nveccuda} module provides separate functions to access data on the host
+and on the device. It also provides methods for copying from the host to
+the device and vice versa. Usage examples of {\nveccuda} are provided in
+some example programs for {\cvode} \cite{cvode_ex}.
+
+The names of vector operations are obtained from those in Tables \ref{t:nvecops},
+\ref{t:nvecfusedops}, and \ref{t:nvecarrayops} by appending the suffix \id{\_Cuda}
+(e.g. \id{N\_VDestroy\_Cuda}). The module {\nveccuda} provides the following
+functions:
+%%
+%%
+\begin{itemize}
+
+%%--------------------------------------
+
+\item \ID{N\_VNew\_Cuda}
+
+  This function creates and allocates memory for a {\cuda} \id{N\_Vector}.
+  The vector data array is allocated on both the host and device.
+
+  In the \textit{single-node} setting, the only input is the vector length. This
+  constructor is defined in the header \id{nvector\_cuda.h} and the library to
+  link to is \id{libsundials\_nveccuda}.\text{lib}.
+
+\begin{verbatim}
+N_Vector N_VNew_Cuda(sunindextype length);
+\end{verbatim}
+
+  When used in a \textit{distributed} context with MPI, the arguments are the
+  {\mpi} communicator, the local vector length, and the global vector length.
+  This constructor is defined in the header \id{nvector\_mpicuda.h} and
+  the library to link to is \id{libsundials\_nvecmpicuda}.\text{lib}.
+
+\begin{verbatim}
+N_Vector N_VNew_Cuda(MPI_Comm comm,
+                     sunindextype local_length,
+                     sunindextype global_length);
+\end{verbatim}
+
+%%--------------------------------------
+
+\item \ID{N\_VNewManaged\_Cuda}
+
+  This function creates and allocates memory for a {\cuda} \id{N\_Vector}
+  on a single node. The vector data array is allocated in managed memory.
+
+  In the \textit{single-node} setting, the only input is the vector length. This
+  constructor is defined in the header \id{nvector\_cuda.h} and the library to
+  link to is \id{libsundials\_nveccuda}.\text{lib}.
+
+\begin{verbatim}
+N_Vector N_VNewManaged_Cuda(sunindextype length);
+\end{verbatim}
+
+  When used in a \textit{distributed} context with MPI, the arguments are the
+  {\mpi} communicator, the local vector lenght, and the global vector length.
+  This constructor is defined in the header \id{nvector\_mpicuda.h} and
+  the library to link to is \id{libsundials\_nvecmpicuda}.\text{lib}.
+
+\begin{verbatim}
+N_Vector N_VNewManaged_Cuda(MPI_Comm comm,
+                            sunindextype local_length,
+                            sunindextype global_length);
+\end{verbatim}
+
+%%--------------------------------------
+
+\item \ID{N\_VNewEmpty\_Cuda}
+
+  This function creates a new {\nvector} wrapper with the pointer to
+  the wrapped {\cuda} vector set to \id{NULL}. It is used by the
+  \id{N\_VNew\_Cuda}, \id{N\_VMake\_Cuda}, and \id{N\_VClone\_Cuda}
+  implementations.
+
+\begin{verbatim}
+N_Vector N_VNewEmpty_Cuda();
+\end{verbatim}
+
+%%--------------------------------------
+
+\item \ID{N\_VMake\_Cuda}
+
+  This function creates an {\nveccuda} with user-supplied vector data arrays
+  \id{h\_vdata} and \id{d\_vdata}. This function does not allocate memory for
+  data itself.
+  
+  In the \textit{single-node} setting, the inputs are the vector length, the
+  host data array, and the device data. This constructor is defined in the
+  header \id{nvector\_cuda.h} and the library to link to is
+  \id{libsundials\_nveccuda}.\text{lib}.
+
+\begin{verbatim}
+N_Vector N_VMake_Cuda(sunindextype length, realtype *h_vdata, realtype *d_vdata);
+\end{verbatim}
+
+  When used in a \textit{distributed} context with MPI, the arguments are the
+  {\mpi} communicator, the local vector lenght, the global vector length, the
+  host data array, and the device data array. This constructor is defined in the
+  header \id{nvector\_mpicuda.h} and the library to link to is
+  \id{libsundials\_nvecmpicuda}.\text{lib}.
+
+\begin{verbatim}
+N_Vector N_VMake_Cuda(MPI_Comm comm,
+                      sunindextype local_length,
+                      sunindextype global_length,
+                      realtype *h_vdata,
+                      realtype *d_vdata);
+\end{verbatim}
+
+%%--------------------------------------
+
+\item \ID{N\_VMakeManaged\_Cuda}
+
+  This function creates an {\nveccuda} with a user-supplied managed memory data
+  array. This function does not allocate memory for data itself.
+  
+  In the \textit{single-node} setting, the inputs are the vector length and the
+  managed data array. This constructor is defined in the header
+  \id{nvector\_cuda.h} and the library to link to is
+  \id{libsundials\_nveccuda}.\text{lib}.
+
+\begin{verbatim}
+N_Vector N_VMakeManaged_Cuda(sunindextype length, realtype *vdata);
+\end{verbatim}
+
+  When used in a \textit{distributed} context with MPI, the arguments are the
+  {\mpi} communicator, the local vector lenght, the global vector length, the
+  managed data array. This constructor is defined in the header
+  \id{nvector\_mpicuda.h} and the library to link to is 
+  \id{libsundials\_nvecmpicuda}.\text{lib}.
+
+\begin{verbatim}
+N_Vector N_VMakeManaged_Cuda(MPI_Comm comm,
+                             sunindextype local_length,
+                             sunindextype global_length,
+                             realtype *vdata)
+\end{verbatim}
+
+
+\end{itemize}
+The module {\nveccuda} also provides the following user-callable routines:
+\begin{itemize}
+%%--------------------------------------
+
+\item \ID{N\_VSetCudaStream\_Cuda}
+
+ This function sets the {\cuda} stream that all vector kernels will be launched on.
+ By default an {\nveccuda} uses the default {\cuda} stream.\\
+ 
+ \textit{Note: All vectors used in a single instance of a SUNDIALS solver must
+  use the same {\cuda} stream, and the {\cuda} stream must be set prior to
+  solver initialization. Additionally, if manually instantiating the stream and
+  reduce \id{ThreadPartitioning} of a \id{suncudavec::Vector}, ensure that they
+  use the same {\cuda} stream.}\\
+
+ \verb|void N_VSetCudaStream_Cuda(N_Vector v, cudaStream_t *stream);|
 
 %%--------------------------------------
 

@@ -257,7 +257,7 @@ double max_time(N_Vector X, double time)
   double maxt;
 
   /* get max time across all MPI ranks */
-  comm = getMPIComm<realtype, sunindextype>(X);
+  comm = N_VGetMPIComm_Raja(X);
   (void) MPI_Reduce(&time, &maxt, 1, MPI_DOUBLE, MPI_MAX, 0, comm);
   return(maxt);
 }

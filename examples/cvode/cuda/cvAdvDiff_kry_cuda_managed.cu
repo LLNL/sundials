@@ -1,6 +1,6 @@
 /*
  * -----------------------------------------------------------------
- * Programmer(s): Slaven Peles @ LLNL
+ * Programmer(s): Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * Acknowledgements: This example is based on cvAdvDiff_bnd
  *                   example by Scott D. Cohen, Alan C.
@@ -190,9 +190,10 @@ int main(int argc, char** argv)
   reltol = ZERO;  /* Set the tolerances */
   abstol = ATOL;
 
-  /* Create a CUDA vector with initial values */
-  u = N_VNew_Cuda(data->NEQ);  /* Allocate u vector */
-  if(check_retval((void*)u, "N_VNew_Cuda", 0)) return(1);
+  /* Create a CUDA nvector with initial values using managed
+     memory for the vector data */
+  u = N_VNewManaged_Cuda(data->NEQ);
+  if(check_retval((void*)u, "N_VNewManaged_Cuda", 0)) return(1);
 
   /* Use a non-default cuda stream for kernel execution */
   N_VSetCudaStream_Cuda(u, &stream);
@@ -321,7 +322,6 @@ static void SetIC(N_Vector u, UserData data)
 
     udata[tid] = x*(xmax - x)*y*(ymax - y)*SUNRexp(FIVE*x*y);
   }
-  N_VCopyToDevice_Cuda(u);
 }
 
 

@@ -15,17 +15,19 @@ Class \id{Vector} in namespace \id{sunrajavec} manages the vector data layout:
 \begin{verbatim}
 template <class T, class I>
 class Vector {
-  I size_;
-  I mem_size_;
-  T* h_vec_;
-  T* d_vec_;
-
+   I size_;
+   I mem_size_;
+   I global_size_;
+   T* h_vec_;
+   T* d_vec_;
+   SUNMPI_Comm comm_;
   ...
 };
 \end{verbatim}
-The class members are: vector size (length), size of the vector data memory block,
-and pointers to vector data on the host and on the device. The class \id{Vector}
-inherits from an empty structure
+The class members are: vector size (length), size of the vector data
+memory block, the global vector size (length), pointers to vector data
+on the host and on the device, and the MPI communicator. The class
+\id{Vector} inherits from an empty structure
 \begin{verbatim}
 struct _N_VectorContent_Raja {
 };
@@ -43,45 +45,62 @@ structured so that it can tolerate significant changes in the
 The {\nvecraja} module can be utilized for single-node parallelism or in a distributed context with MPI.
 The header file to include when using this module for single-node parallelism is \id{nvector\_raja.h}.
 The header file to include when using this module in the distributed case is \id{nvector\_mpiraja.h}.
-Note that only the {\nvecraja} constructor signature differs between the two header files.
-The installed module libraries to link to are \id{libsundials\_nvecraja.\textit{lib}} in the single-node case,
-or \id{libsundials\_nvecmpicudaraja.\textit{lib}} in the distributed case. Only one one of these libraries may be linked to when creating an executable or library. {\sundials} must be built with
-MPI support if the distributed library is desired. The extension, \id{\em.lib}, is typically \id{.so} for shared libraries and \id{.a} for static libraries.
+The installed module libraries to link to are \id{libsundials\_nvecraja.\textit{lib}} in the single-node case, or \id{libsundials\_nvecmpicudaraja.\textit{lib}} in the distributed case. Only one one of these libraries may be linked to when creating an executable or library. {\sundials} must be built with
+MPI support if the distributed library is desired.
 
 Unlike other native {\sundials} vector types, {\nvecraja} does not provide macros
-to access its member variables. Instead, user should use the accessor functions in
-the namespace \id{sunrajavec}.
+to access its member variables. Instead, user should use the accessor functions:
 \begin{itemize}
 
-\item
-  \ID{getDevData(N\_Vector v)}
+%%--------------------------------------
 
-  This function takes a \id{N\_Vector} as an argument and returns a raw pointer to the vector
-  data on the device (GPU). It is the user's responsibility to ensure that the vector argument 
-  is of the correct \id{N\_Vector} type.
+\item \ID{N\_VGetLength\_Raja}
 
-\item
-  \ID{getHostData(N\_Vector v)}
+ This function returns the global length of the vector.
 
-  This function takes a \id{N\_Vector} as an argument and returns a raw pointer to the vector
-  data on the host (CPU memory). It is the user's responsibility to ensure that the vector argument 
-  is of the correct \id{N\_Vector} type.
+ \verb|sunindextype N_VGetLength_Raja(N_Vector v);|
 
-\item \ID{getSize(N\_Vector v)}
+%%--------------------------------------
 
-  Returns the vector's local length.
+\item \ID{N\_VGetLocalLength\_Raja}
+
+ This function returns the local length of the vector.
+    
+ Note: This function is for use in a \textit{distributed context} and
+ is defined in the header \id{nvector\_mpiraja.h} and the library
+ to link to is \id{libsundials\_nvecmpicudaraja}.\text{lib}.
+
+ \verb|sunindextype N_VGetLocalLength_Raja(N_Vector v);|
+
+%%--------------------------------------
+
+\item \ID{N\_VGetHostArrayPointer\_Raja}
+
+ This function returns a pointer to the vector data on the host.
+
+ \verb|realtype *N_VGetHostArrayPointer_Raja(N_Vector v);|
 
 
-\item \ID{getGlobalSize(N\_Vector v)}
+%%--------------------------------------
 
-  Returns the vector's global length.
+\item \ID{N\_VGetDeviceArrayPointer\_Raja}
 
+ This function returns a pointer to the vector data on the device.
 
-\item \ID{getMPIComm(N\_Vector v)}
+ \verb|realtype *N_VGetDeviceArrayPointer_Raja(N_Vector v);|
 
-  Takes a \id{N\_Vector} as an argument and returns a sundials communicator of type
-  \id{SUNDIALS\_Comm}.
+%%--------------------------------------
 
+\item \ID{N\_VGetMPIComm\_Raja}
+
+ This function returns the MPI communicator for the vector.
+ 
+    
+ Note: This function is for use in a \textit{distributed context}
+ and is defined in the header \id{nvector\_mpiraja.h} and the
+ library to link to is \id{libsundials\_nvecmpicudaraja}.\text{lib}.
+
+ \verb|MPI_Comm N_VGetMPIComm_Raja(N_Vector v);|
 \end{itemize}
 
 %Note that {\nvecraja} requires {\sundials} to be built with {\mpi} support.
@@ -116,12 +135,21 @@ The module {\nvecraja}  provides the following additional user-callable routines
 
 \item \ID{N\_VNew\_Raja}
 
-  \textit{Note: this function signature is defined in the header \id{nvector\_mpiraja.h}
-    and should be used when using this module in a distributed context.}
-  This function creates and allocates memory for a {\raja} \id{N\_Vector}.
-  The memory is allocated on both host and device. Its arguments are local
-  and global vector lengths, as well as the {\mpi} communicator. Use this 
-  constructor with the \id{libsundials\_nvecmpicudaraja}.\text{lib} library.
+  This function creates and allocates memory for a {\cuda} \id{N\_Vector}.
+  The vector data array is allocated on both the host and device.
+
+  In the \textit{single-node} setting, the only input is the vector length. This
+  constructor is defined in the header \id{nvector\_raja.h} and the library to
+  link to is \id{libsundials\_nveccudaraja}.\text{lib}.
+
+\begin{verbatim}
+N_Vector N_VNew_Raja(sunindextype length);
+\end{verbatim}
+
+  When used in a \textit{distributed} context with MPI, the arguments are the
+  {\mpi} communicator, the local vector lenght, and the global vector length.
+  This constructor is defined in the header \id{nvector\_mpiraja.h} and
+  the library to link to is \id{libsundials\_nvecmpicudaraja}.\text{lib}.
 
 \begin{verbatim}
 N_Vector N_VNew_Raja(MPI_Comm comm,
@@ -129,34 +157,17 @@ N_Vector N_VNew_Raja(MPI_Comm comm,
                      sunindextype global_length);
 \end{verbatim}
 
-
-%%--------------------------------------
-
-\item \ID{N\_VNew\_Raja}
-
-  \textit{Note: this function signature is defined in the header \id{nvector\_raja.h}
-    and should be used when using this module for single-node parallelism.}
-  This function creates and allocates memory for a {\raja} \id{N\_Vector}
-  on a single node. The memory is allocated on both host and device.
-  Its only argument is vector length. Use this constructor with the 
-  \id{libsundials\_nveccudaraja}.\text{lib} library.
-
-\begin{verbatim}
-N_Vector N_VNew_Raja(sunindextype length);
-\end{verbatim}
-
-
 %%--------------------------------------
 
 \item \ID{N\_VNewEmpty\_Raja}
 
   This function creates a new {\nvector} wrapper with the pointer to
-  the wrapped {\raja} vector set to (\id{NULL}). It is used by the
+  the wrapped {\raja} vector set to \id{NULL}. It is used by the
   \id{N\_VNew\_Raja}, \id{N\_VMake\_Raja}, and \id{N\_VClone\_Raja}
   implementations.
 
 \begin{verbatim}
-N_Vector N_VNewEmpty_Raja(sunindextype vec_length);
+N_Vector N_VNewEmpty_Raja();
 \end{verbatim}
 
 
@@ -172,33 +183,6 @@ N_Vector N_VNewEmpty_Raja(sunindextype vec_length);
 \begin{verbatim}
 N_Vector N_VMake_Raja(N_VectorContent_Raja c);
 \end{verbatim}
-
-%%--------------------------------------
-
-
-\item \ID{N\_VGetLength\_Raja}
-
- This function returns the length of the vector.
-
- \verb|sunindextype N_VGetLength_Raja(N_Vector v);|
-
-%%--------------------------------------
-
-\item \ID{N\_VGetHostArrayPointer\_Raja}
-
- This function returns a pointer to the vector data on the host.
-
- \verb|realtype *N_VGetHostArrayPointer_Raja(N_Vector v);|
-
-
-%%--------------------------------------
-
-\item \ID{N\_VGetDeviceArrayPointer\_Raja}
-
- This function returns a pointer to the vector data on the device.
-
- \verb|realtype *N_VGetDeviceArrayPointer_Raja(N_Vector v);|
-
 
 %%--------------------------------------
 

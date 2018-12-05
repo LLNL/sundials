@@ -122,14 +122,14 @@ SUNDIALS_EXPORT N_Vector N_VNew_Raja(sunindextype length);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNewEmpty_Raja(sunindextype local_length);
+SUNDIALS_EXPORT N_Vector N_VNewEmpty_Raja();
 
 /*
  * -----------------------------------------------------------------
  * Function : N_VMake_Raja
  * -----------------------------------------------------------------
- * This function creates and allocates memory for a RAJA vector
- * with a user-supplied data array.
+ * This function creates and an NVECTOR wrapper around a
+ * user-supplied sunrajavec::Vector.
  * -----------------------------------------------------------------
  */
 

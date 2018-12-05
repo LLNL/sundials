@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------
- * Programmer(s): Slaven Peles @ LLNL
+ * Programmer(s): Slaven Peles, and Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
@@ -48,7 +48,7 @@ N_Vector_ID N_VGetVectorID_Cuda(N_Vector v)
   return SUNDIALS_NVEC_CUDA;
 }
 
-N_Vector N_VNewEmpty_Cuda(sunindextype length)
+N_Vector N_VNewEmpty_Cuda()
 {
   N_Vector v;
   N_Vector_Ops ops;
@@ -121,11 +121,62 @@ N_Vector N_VNew_Cuda(MPI_Comm comm,
   N_Vector v;
 
   v = NULL;
-  v = N_VNewEmpty_Cuda(local_length);
-  if (v == NULL)
-    return(NULL);
+  v = N_VNewEmpty_Cuda();
+  if (v == NULL) return(NULL);
 
   v->content = new vector_type(comm, local_length, global_length);
+
+  return(v);
+}
+
+N_Vector N_VNewManaged_Cuda(MPI_Comm comm,
+                            sunindextype local_length,
+                            sunindextype global_length)
+{
+  N_Vector v;
+
+  v = NULL;
+  v = N_VNewEmpty_Cuda();
+  if (v == NULL) return(NULL);
+
+  /* create suncudavec::Vector with managed memory */
+  v->content = new vector_type(comm, local_length, global_length, true);
+
+  return(v);
+}
+
+N_Vector N_VMake_Cuda(MPI_Comm comm,
+                      sunindextype local_length, sunindextype global_length,
+                      realtype *h_vdata, realtype *d_vdata)
+{
+  N_Vector v;
+
+  if (h_vdata == NULL || d_vdata == NULL) return(NULL);
+
+  v = NULL;
+  v = N_VNewEmpty_Cuda();
+  if (v == NULL) return(NULL);
+
+  /* create suncudavec::Vector using the user-provided data arrays */
+  v->content = new vector_type(comm, local_length, global_length, false, false, h_vdata, d_vdata);
+
+  return(v);
+}
+
+N_Vector N_VMakeManaged_Cuda(MPI_Comm comm,
+                             sunindextype local_length, sunindextype global_length,
+                             realtype *vdata)
+{
+  N_Vector v;
+
+  if (vdata == NULL) return(NULL);
+  
+  v = NULL;
+  v = N_VNewEmpty_Cuda();
+  if (v == NULL) return(NULL);
+
+  /* create suncudavec::Vector with managed memory using the user-provided data arrays */
+  v->content = new vector_type(comm, local_length, global_length, true, false, vdata, vdata);
 
   return(v);
 }
@@ -135,40 +186,90 @@ N_Vector N_VNew_Cuda(sunindextype length)
   N_Vector v;
 
   v = NULL;
-  v = N_VNewEmpty_Cuda(length);
-  if (v == NULL)
-    return(NULL);
+  v = N_VNewEmpty_Cuda();
+  if (v == NULL) return(NULL);
 
-  v->content = new vector_type(SUNMPI_COMM_WORLD, length, length);
+  v->content = new vector_type(length);
+
+  return(v);
+}
+
+N_Vector N_VNewManaged_Cuda(sunindextype length)
+{
+  N_Vector v;
+
+  v = NULL;
+  v = N_VNewEmpty_Cuda();
+  if (v == NULL) return(NULL);
+
+  /* create suncudavec::Vector with managed memory */
+  v->content = new vector_type(length, true);
+
+  return(v);
+}
+
+N_Vector N_VMake_Cuda(sunindextype length, realtype *h_vdata, realtype *d_vdata)
+{
+  N_Vector v;
+
+  if (h_vdata == NULL || d_vdata == NULL) return(NULL);
+
+  v = NULL;
+  v = N_VNewEmpty_Cuda();
+  if (v == NULL) return(NULL);
+
+  /* create suncudavec::Vector using the user-provided data arrays */
+  v->content = new vector_type(length, false, false, h_vdata, d_vdata);
+
+  return(v);
+}
+
+N_Vector N_VMakeManaged_Cuda(sunindextype length, realtype *vdata)
+{
+  N_Vector v;
+
+  if (vdata == NULL) return(NULL);
+
+  v = NULL;
+  v = N_VNewEmpty_Cuda();
+  if (v == NULL) return(NULL);
+
+  /* create suncudavec::Vector with managed memory using the user-provided data arrays */
+  v->content = new vector_type(length, true, false, vdata, vdata);
 
   return(v);
 }
 #endif
 
-
-N_Vector N_VMake_Cuda(N_VectorContent_Cuda c)
-{
-  N_Vector v;
-  vector_type* x = static_cast<vector_type*>(c);
-  sunindextype length = x->size();
-
-  v = NULL;
-  v = N_VNewEmpty_Cuda(length);
-  if (v == NULL) return(NULL);
-
-  v->content = c;
-
-  return(v);
-}
-
 /* -----------------------------------------------------------------
- * Function to return the length of the vector.
+ * Function to return the global length of the vector.
  */
 sunindextype N_VGetLength_Cuda(N_Vector v)
 {
   vector_type* xd = static_cast<vector_type*>(v->content);
-  return xd->size();
+  return (xd->sizeGlobal());
 }
+
+
+#if SUNDIALS_MPI_ENABLED
+/* -----------------------------------------------------------------
+ * Function to return the local length of the vector.
+ */
+sunindextype N_VGetLocalLength_Cuda(N_Vector v)
+{
+  vector_type* xd = static_cast<vector_type*>(v->content);
+  return (xd->size());
+}
+
+/* -----------------------------------------------------------------
+ * Function to return the MPI communicator for the vector.
+ */
+MPI_Comm N_VGetMPIComm_Cuda(N_Vector v)
+{
+  vector_type* xd = static_cast<vector_type*>(v->content);
+  return (xd->comm());
+}
+#endif
 
 /* ----------------------------------------------------------------------------
  * Return pointer to the raw host data
@@ -188,6 +289,26 @@ realtype *N_VGetDeviceArrayPointer_Cuda(N_Vector x)
 {
   vector_type* xv = static_cast<vector_type*>(x->content);
   return (xv->device());
+}
+
+/* ----------------------------------------------------------------------------
+ * Return a flag indicating if the memory for the vector data is managed
+ */
+booleantype N_VIsManagedMemory_Cuda(N_Vector x)
+{
+  vector_type* xv = static_cast<vector_type*>(x->content);
+  return (xv->isManaged());
+}
+
+/*
+ * ----------------------------------------------------------------------------
+ * Sets the cudaStream_t to use for execution of the CUDA kernels.
+ */
+void N_VSetCudaStream_Cuda(N_Vector x, cudaStream_t *stream)
+{
+  vector_type* xv = static_cast<vector_type*>(x->content);
+  xv->partStream().setStream(*stream);
+  xv->partReduce().setStream(*stream);
 }
 
 /* ----------------------------------------------------------------------------
@@ -347,78 +468,78 @@ void N_VDestroy_Cuda(N_Vector v)
 
 void N_VSpace_Cuda(N_Vector X, sunindextype *lrw, sunindextype *liw)
 {
-  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
   int npes;
+  vector_type* x = static_cast<vector_type*>(X->content);
 
-  SUNMPI_Comm_size(comm, &npes);
+  SUNMPI_Comm_size(x->comm(), &npes);
 
-  *lrw = getGlobalSize<realtype, sunindextype>(X);
+  *lrw = x->sizeGlobal();
   *liw = 2*npes;
 }
 
 void N_VConst_Cuda(realtype a, N_Vector X)
 {
-  vector_type *xvec = extract<realtype, sunindextype>(X);
+  vector_type *xvec = static_cast<vector_type*>(X->content);
   setConst(a, *xvec);
 }
 
 void N_VLinearSum_Cuda(realtype a, N_Vector X, realtype b, N_Vector Y, N_Vector Z)
 {
-  const vector_type *xvec = extract<realtype, sunindextype>(X);
-  const vector_type *yvec = extract<realtype, sunindextype>(Y);
-  vector_type *zvec = extract<realtype, sunindextype>(Z);
+  const vector_type *xvec = static_cast<vector_type*>(X->content);
+  const vector_type *yvec = static_cast<vector_type*>(Y->content);
+  vector_type *zvec = static_cast<vector_type*>(Z->content);
   linearSum(a, *xvec, b, *yvec, *zvec);
 }
 
 void N_VProd_Cuda(N_Vector X, N_Vector Y, N_Vector Z)
 {
-  const vector_type *xvec = extract<realtype, sunindextype>(X);
-  const vector_type *yvec = extract<realtype, sunindextype>(Y);
-  vector_type *zvec = extract<realtype, sunindextype>(Z);
+  const vector_type *xvec = static_cast<vector_type*>(X->content);
+  const vector_type *yvec = static_cast<vector_type*>(Y->content);
+  vector_type *zvec = static_cast<vector_type*>(Z->content);
   prod(*xvec, *yvec, *zvec);
 }
 
 void N_VDiv_Cuda(N_Vector X, N_Vector Y, N_Vector Z)
 {
-  const vector_type *xvec = extract<realtype, sunindextype>(X);
-  const vector_type *yvec = extract<realtype, sunindextype>(Y);
-  vector_type *zvec = extract<realtype, sunindextype>(Z);
+  const vector_type *xvec = static_cast<vector_type*>(X->content);
+  const vector_type *yvec = static_cast<vector_type*>(Y->content);
+  vector_type *zvec = static_cast<vector_type*>(Z->content);
   div(*xvec, *yvec, *zvec);
 }
 
 void N_VScale_Cuda(realtype a, N_Vector X, N_Vector Z)
 {
-  const vector_type *xvec = extract<realtype, sunindextype>(X);
-  vector_type *zvec = extract<realtype, sunindextype>(Z);
+  const vector_type *xvec = static_cast<vector_type*>(X->content);
+  vector_type *zvec = static_cast<vector_type*>(Z->content);
   scale(a, *xvec, *zvec);
 }
 
 void N_VAbs_Cuda(N_Vector X, N_Vector Z)
 {
-  const vector_type *xvec = extract<realtype, sunindextype>(X);
-  vector_type *zvec = extract<realtype, sunindextype>(Z);
+  const vector_type *xvec = static_cast<vector_type*>(X->content);
+  vector_type *zvec = static_cast<vector_type*>(Z->content);
   absVal(*xvec, *zvec);
 }
 
 void N_VInv_Cuda(N_Vector X, N_Vector Z)
 {
-  const vector_type *xvec = extract<realtype, sunindextype>(X);
-  vector_type *zvec = extract<realtype, sunindextype>(Z);
+  const vector_type *xvec = static_cast<vector_type*>(X->content);
+  vector_type *zvec = static_cast<vector_type*>(Z->content);
   inv(*xvec, *zvec);
 }
 
 void N_VAddConst_Cuda(N_Vector X, realtype b, N_Vector Z)
 {
-  const vector_type *xvec = extract<realtype, sunindextype>(X);
-  vector_type *zvec = extract<realtype, sunindextype>(Z);
+  const vector_type *xvec = static_cast<vector_type*>(X->content);
+  vector_type *zvec = static_cast<vector_type*>(Z->content);
   addConst(b, *xvec, *zvec);
 }
 
 realtype N_VDotProd_Cuda(N_Vector X, N_Vector Y)
 {
-  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
-  const vector_type *xvec = extract<realtype, sunindextype>(X);
-  const vector_type *yvec = extract<realtype, sunindextype>(Y);
+  const vector_type *xvec = static_cast<vector_type*>(X->content);
+  const vector_type *yvec = static_cast<vector_type*>(Y->content);
+  SUNMPI_Comm comm = xvec->comm();
 
   realtype sum = dotProd(*xvec, *yvec);
 
@@ -428,8 +549,8 @@ realtype N_VDotProd_Cuda(N_Vector X, N_Vector Y)
 
 realtype N_VMaxNorm_Cuda(N_Vector X)
 {
-  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
-  const vector_type *xvec = extract<realtype, sunindextype>(X);
+  const vector_type *xvec = static_cast<vector_type*>(X->content);
+  SUNMPI_Comm comm = xvec->comm();
 
   realtype locmax = maxNorm(*xvec);
 
@@ -439,10 +560,10 @@ realtype N_VMaxNorm_Cuda(N_Vector X)
 
 realtype N_VWrmsNorm_Cuda(N_Vector X, N_Vector W)
 {
-  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
-  const sunindextype Nglob = getGlobalSize<realtype,sunindextype>(X);
-  const vector_type *xvec = extract<realtype, sunindextype>(X);
-  const vector_type *wvec = extract<realtype, sunindextype>(W);
+  const vector_type *xvec = static_cast<vector_type*>(X->content);
+  const vector_type *wvec = static_cast<vector_type*>(W->content);
+  const sunindextype Nglob = xvec->sizeGlobal();
+  SUNMPI_Comm comm = xvec->comm();
 
   realtype sum = wL2NormSquare(*xvec, *wvec);
 
@@ -452,11 +573,11 @@ realtype N_VWrmsNorm_Cuda(N_Vector X, N_Vector W)
 
 realtype N_VWrmsNormMask_Cuda(N_Vector X, N_Vector W, N_Vector Id)
 {
-  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
-  const sunindextype Nglob = getGlobalSize<realtype,sunindextype>(X);
-  const vector_type *xvec = extract<realtype, sunindextype>(X);
-  const vector_type *wvec = extract<realtype, sunindextype>(W);
-  const vector_type *ivec = extract<realtype, sunindextype>(Id);
+  const vector_type *xvec = static_cast<vector_type*>(X->content);
+  const vector_type *wvec = static_cast<vector_type*>(W->content);
+  const vector_type *ivec = static_cast<vector_type*>(Id->content);
+  const sunindextype Nglob = xvec->sizeGlobal();
+  SUNMPI_Comm comm = xvec->comm();
 
   realtype sum = wL2NormSquareMask(*xvec, *wvec, *ivec);
 
@@ -466,8 +587,8 @@ realtype N_VWrmsNormMask_Cuda(N_Vector X, N_Vector W, N_Vector Id)
 
 realtype N_VMin_Cuda(N_Vector X)
 {
-  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
-  const vector_type *xvec = extract<realtype, sunindextype>(X);
+  const vector_type *xvec = static_cast<vector_type*>(X->content);
+  SUNMPI_Comm comm = xvec->comm();
 
   realtype locmin = findMin(*xvec);
 
@@ -477,9 +598,9 @@ realtype N_VMin_Cuda(N_Vector X)
 
 realtype N_VWL2Norm_Cuda(N_Vector X, N_Vector W)
 {
-  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
-  const vector_type *xvec = extract<realtype, sunindextype>(X);
-  const vector_type *wvec = extract<realtype, sunindextype>(W);
+  const vector_type *xvec = static_cast<vector_type*>(X->content);
+  const vector_type *wvec = static_cast<vector_type*>(W->content);
+  SUNMPI_Comm comm = xvec->comm();
 
   realtype sum = wL2NormSquare(*xvec, *wvec);
 
@@ -489,8 +610,8 @@ realtype N_VWL2Norm_Cuda(N_Vector X, N_Vector W)
 
 realtype N_VL1Norm_Cuda(N_Vector X)
 {
-  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
-  const vector_type *xvec = extract<realtype, sunindextype>(X);
+  const vector_type *xvec = static_cast<vector_type*>(X->content);
+  SUNMPI_Comm comm = xvec->comm();
 
   realtype sum = L1Norm(*xvec);
 
@@ -500,16 +621,17 @@ realtype N_VL1Norm_Cuda(N_Vector X)
 
 void N_VCompare_Cuda(realtype c, N_Vector X, N_Vector Z)
 {
-  const vector_type *xvec = extract<realtype, sunindextype>(X);
-  vector_type *zvec = extract<realtype, sunindextype>(Z);
+  const vector_type *xvec = static_cast<vector_type*>(X->content);
+  vector_type *zvec = static_cast<vector_type*>(Z->content);
   compare(c, *xvec, *zvec);
 }
 
 booleantype N_VInvTest_Cuda(N_Vector X, N_Vector Z)
 {
-  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
-  const vector_type *xvec = extract<realtype, sunindextype>(X);
-  vector_type *zvec = extract<realtype, sunindextype>(Z);
+  const vector_type *xvec = static_cast<vector_type*>(X->content);
+  vector_type *zvec = static_cast<vector_type*>(Z->content);
+  SUNMPI_Comm comm = xvec->comm();
+  
   realtype locmin = invTest(*xvec, *zvec);
 
   realtype globmin = SUNMPI_Allreduce_scalar(locmin, 3, comm);
@@ -521,10 +643,10 @@ booleantype N_VInvTest_Cuda(N_Vector X, N_Vector Z)
  */
 booleantype N_VConstrMask_Cuda(N_Vector C, N_Vector X, N_Vector M)
 {
-  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
-  const vector_type *cvec = extract<realtype, sunindextype>(C);
-  const vector_type *xvec = extract<realtype, sunindextype>(X);
-  vector_type *mvec = extract<realtype, sunindextype>(M);
+  const vector_type *cvec = static_cast<vector_type*>(C->content);
+  const vector_type *xvec = static_cast<vector_type*>(X->content);
+  vector_type *mvec = static_cast<vector_type*>(M->content);
+  SUNMPI_Comm comm = xvec->comm();
 
   realtype locsum = constrMask(*cvec, *xvec, *mvec);
 
@@ -534,9 +656,9 @@ booleantype N_VConstrMask_Cuda(N_Vector C, N_Vector X, N_Vector M)
 
 realtype N_VMinQuotient_Cuda(N_Vector num, N_Vector denom)
 {
-  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(num);
-  const vector_type *numvec = extract<realtype, sunindextype>(num);
-  const vector_type *denvec = extract<realtype, sunindextype>(denom);
+  const vector_type *numvec = static_cast<vector_type*>(num->content);
+  const vector_type *denvec = static_cast<vector_type*>(denom->content);
+  SUNMPI_Comm comm = numvec->comm();
 
   realtype locmin = minQuotient(*numvec, *denvec);
 
@@ -556,11 +678,11 @@ int N_VLinearCombination_Cuda(int nvec, realtype* c, N_Vector* X, N_Vector Z)
   vector_type** Xv;
   vector_type*  Zv;
 
-  Zv = extract<realtype, sunindextype>(Z);
+  Zv = static_cast<vector_type*>(Z->content);
 
   Xv = new vector_type*[nvec];
   for (int i=0; i<nvec; i++)
-    Xv[i] = extract<realtype, sunindextype>(X[i]);
+    Xv[i] = static_cast<vector_type*>(X[i]->content);
 
   err = linearCombination(nvec, c, Xv, Zv);
 
@@ -577,15 +699,15 @@ int N_VScaleAddMulti_Cuda(int nvec, realtype* c, N_Vector X, N_Vector* Y,
   vector_type** Yv;
   vector_type** Zv;
 
-  Xv = extract<realtype, sunindextype>(X);
+  Xv = static_cast<vector_type*>(X->content);
 
   Yv = new vector_type*[nvec];
   for (int i=0; i<nvec; i++)
-    Yv[i] = extract<realtype, sunindextype>(Y[i]);
+    Yv[i] = static_cast<vector_type*>(Y[i]->content);
 
   Zv = new vector_type*[nvec];
   for (int i=0; i<nvec; i++)
-    Zv[i] = extract<realtype, sunindextype>(Z[i]);
+    Zv[i] = static_cast<vector_type*>(Z[i]->content);
 
   err = scaleAddMulti(nvec, c, Xv, Yv, Zv);
 
@@ -599,16 +721,16 @@ int N_VScaleAddMulti_Cuda(int nvec, realtype* c, N_Vector X, N_Vector* Y,
 int N_VDotProdMulti_Cuda(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods)
 {
   cudaError_t err;
-  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(x);
-  sunindextype N = getGlobalSize<realtype, sunindextype>(x);
+  SUNMPI_Comm comm;
   vector_type*  Xv;
   vector_type** Yv;
 
-  Xv = extract<realtype, sunindextype>(x);
+  Xv = static_cast<vector_type*>(x->content);
+  comm = Xv->comm();
 
   Yv = new vector_type*[nvec];
   for (int i=0; i<nvec; i++)
-    Yv[i] = extract<realtype, sunindextype>(Y[i]);
+    Yv[i] = static_cast<vector_type*>(Y[i]->content);
 
   err = dotProdMulti(nvec, Xv, Yv, dotprods);
 
@@ -637,15 +759,15 @@ int N_VLinearSumVectorArray_Cuda(int nvec, realtype a, N_Vector* X, realtype b,
 
   Xv = new vector_type*[nvec];
   for (int i=0; i<nvec; i++)
-    Xv[i] = extract<realtype, sunindextype>(X[i]);
+    Xv[i] = static_cast<vector_type*>(X[i]->content);
 
   Yv = new vector_type*[nvec];
   for (int i=0; i<nvec; i++)
-    Yv[i] = extract<realtype, sunindextype>(Y[i]);
+    Yv[i] = static_cast<vector_type*>(Y[i]->content);
 
   Zv = new vector_type*[nvec];
   for (int i=0; i<nvec; i++)
-    Zv[i] = extract<realtype, sunindextype>(Z[i]);
+    Zv[i] = static_cast<vector_type*>(Z[i]->content);
 
   err = linearSumVectorArray(nvec, a, Xv, b, Yv, Zv);
 
@@ -665,11 +787,11 @@ int N_VScaleVectorArray_Cuda(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
 
   Xv = new vector_type*[nvec];
   for (int i=0; i<nvec; i++)
-    Xv[i] = extract<realtype, sunindextype>(X[i]);
+    Xv[i] = static_cast<vector_type*>(X[i]->content);
 
   Zv = new vector_type*[nvec];
   for (int i=0; i<nvec; i++)
-    Zv[i] = extract<realtype, sunindextype>(Z[i]);
+    Zv[i] = static_cast<vector_type*>(Z[i]->content);
 
   err = scaleVectorArray(nvec, c, Xv, Zv);
 
@@ -687,7 +809,7 @@ int N_VConstVectorArray_Cuda(int nvec, realtype c, N_Vector* Z)
 
   Zv = new vector_type*[nvec];
   for (int i=0; i<nvec; i++)
-    Zv[i] = extract<realtype, sunindextype>(Z[i]);
+    Zv[i] = static_cast<vector_type*>(Z[i]->content);
 
   err = constVectorArray(nvec, c, Zv);
 
@@ -701,18 +823,20 @@ int N_VWrmsNormVectorArray_Cuda(int nvec, N_Vector* X, N_Vector* W,
                                 realtype* norms)
 {
   cudaError_t err;
-  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X[0]);
-  sunindextype N = getGlobalSize<realtype, sunindextype>(X[0]);
+  const vector_type* xvec = static_cast<vector_type*>(X[0]->content);
   vector_type** Xv;
   vector_type** Wv;
+  
+  SUNMPI_Comm comm = xvec->comm();
+  sunindextype N = xvec->sizeGlobal();
 
   Xv = new vector_type*[nvec];
   for (int k=0; k<nvec; k++)
-    Xv[k] = extract<realtype, sunindextype>(X[k]);
+    Xv[k] = static_cast<vector_type*>(X[k]->content);
 
   Wv = new vector_type*[nvec];
   for (int k=0; k<nvec; k++)
-    Wv[k] = extract<realtype, sunindextype>(W[k]);
+    Wv[k] = static_cast<vector_type*>(W[k]->content);
 
   err = wL2NormSquareVectorArray(nvec, Xv, Wv, norms);
 
@@ -733,21 +857,23 @@ int N_VWrmsNormMaskVectorArray_Cuda(int nvec, N_Vector* X, N_Vector* W,
                                     N_Vector id, realtype* norms)
 {
   cudaError_t err;
-  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X[0]);
-  sunindextype N = getGlobalSize<realtype, sunindextype>(X[0]);
+  const vector_type* xvec = static_cast<vector_type*>(X[0]->content);
   vector_type** Xv;
   vector_type** Wv;
   vector_type*  IDv;
+  
+  SUNMPI_Comm comm = xvec->comm();
+  sunindextype N = xvec->sizeGlobal();
 
   Xv = new vector_type*[nvec];
   for (int k=0; k<nvec; k++)
-    Xv[k] = extract<realtype, sunindextype>(X[k]);
+    Xv[k] = static_cast<vector_type*>(X[k]->content);
 
   Wv = new vector_type*[nvec];
   for (int k=0; k<nvec; k++)
-    Wv[k] = extract<realtype, sunindextype>(W[k]);
+    Wv[k] = static_cast<vector_type*>(W[k]->content);
 
-  IDv = extract<realtype, sunindextype>(id);
+  IDv = static_cast<vector_type*>(id->content);
 
   err = wL2NormSquareMaskVectorArray(nvec, Xv, Wv, IDv, norms);
 
@@ -774,17 +900,17 @@ int N_VScaleAddMultiVectorArray_Cuda(int nvec, int nsum, realtype* c,
 
   Xv = new vector_type*[nvec];
   for (int k=0; k<nvec; k++)
-    Xv[k] = extract<realtype, sunindextype>(X[k]);
+    Xv[k] = static_cast<vector_type*>(X[k]->content);
 
   Yv = new vector_type*[nsum*nvec];
   for (int k=0; k<nvec; k++)
     for (int j=0; j<nsum; j++)
-      Yv[k*nsum+j] = extract<realtype, sunindextype>(Y[j][k]);
+      Yv[k*nsum+j] = static_cast<vector_type*>(Y[j][k]->content);
 
   Zv = new vector_type*[nsum*nvec];
   for (int k=0; k<nvec; k++)
     for (int j=0; j<nsum; j++)
-      Zv[k*nsum+j] = extract<realtype, sunindextype>(Z[j][k]);
+      Zv[k*nsum+j] = static_cast<vector_type*>(Z[j][k]->content);
 
   err = scaleAddMultiVectorArray(nvec, nsum, c, Xv, Yv, Zv);
 
@@ -806,11 +932,11 @@ int N_VLinearCombinationVectorArray_Cuda(int nvec, int nsum, realtype* c,
   Xv = new vector_type*[nsum*nvec];
   for (int k=0; k<nvec; k++)
     for (int j=0; j<nsum; j++)
-      Xv[k*nsum+j] = extract<realtype, sunindextype>(X[j][k]);
+      Xv[k*nsum+j] = static_cast<vector_type*>(X[j][k]->content);
 
   Zv = new vector_type*[nvec];
   for (int k=0; k<nvec; k++)
-    Zv[k] = extract<realtype, sunindextype>(Z[k]);
+    Zv[k] = static_cast<vector_type*>(Z[k]->content);
 
   err = linearCombinationVectorArray(nvec, nsum, c, Xv, Zv);
 

@@ -156,6 +156,37 @@ will need to enlarge their ``iout`` array of optional integer
 outputs, and update the indices that they query for certain
 linear-solver-related statistics.
 
+Multiple changes to the CUDA NVECTOR were made:
+
+  * Changed the ``N_VMake_Cuda`` function to take a host data pointer and a device
+    data pointer instead of an ``N_VectorContent_Cuda`` object.
+    
+  * Changed ``N_VGetLength_Cuda`` to return the global vector length instead of
+    the local vector length.
+
+  * Added ``N_VGetLocalLength_Cuda`` to return the local vector length.
+  
+  * Added ``N_VGetMPIComm_Cuda`` to return the MPI communicator used.
+
+  * Removed the accessor functions in the namespace ``suncudavec``.
+  
+  * Added the ability to set the ``cudaStream_t`` used for execution of the CUDA
+    NVECTOR kernels. See the function ``N_VSetCudaStreams_Cuda``.
+
+  * Added ``N_VNewManaged_Cuda``, ``N_VMakeManaged_Cuda``, and ``N_VIsManagedMemory_Cuda``
+    functions to accomodate using managed memory with the CUDA NVECTOR.
+
+Multiple changes to the RAJA NVECTOR were made:
+
+  * Changed ``N_VGetLength_Raja`` to return the global vector length instead of
+    the local vector length.
+
+  * Added ``N_VGetLocalLength_Raja`` to return the local vector length.
+
+  * Added ``N_VGetMPIComm_Raja`` to return the MPI communicator used.
+ 
+  * Removed the accessor functions in the namespace ``sunrajavec``.
+
 In addition to ``DIRECT`` and ``ITERATIVE`` SUNLinSol implementations the ARKLS
 linear solver interface supports the ``MATRIX_ITERATIVE`` linear solver type.
 Details regarding how ARKLS utilizes linear solvers of each type are included in
@@ -218,6 +249,7 @@ are ``N_VLinearCombinationVectorArray``, ``N_VScaleVectorArray``,
 these operations as ``NULL``, then standard NVector operations will
 automatically be called as necessary to complete the computation.
 
+    
 Changes in v2.2.1
 ^^^^^^^^^^^^^^^^^^^^^^^
 

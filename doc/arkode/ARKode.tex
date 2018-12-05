@@ -361,6 +361,52 @@ will need to enlarge their \code{iout} array of optional integer
 outputs, and update the indices that they query for certain
 linear-solver-related statistics.
 
+Multiple changes to the CUDA NVECTOR were made:
+\begin{itemize}
+\item {} 
+Changed the \code{N\_VMake\_Cuda} function to take a host data pointer and a device
+data pointer instead of an \code{N\_VectorContent\_Cuda} object.
+
+\item {} 
+Changed \code{N\_VGetLength\_Cuda} to return the global vector length instead of
+the local vector length.
+
+\item {} 
+Added \code{N\_VGetLocalLength\_Cuda} to return the local vector length.
+
+\item {} 
+Added \code{N\_VGetMPIComm\_Cuda} to return the MPI communicator used.
+
+\item {} 
+Removed the accessor functions in the namespace \code{suncudavec}.
+
+\item {} 
+Added the ability to set the \code{cudaStream\_t} used for execution of the CUDA
+NVECTOR kernels. See the function \code{N\_VSetCudaStreams\_Cuda}.
+
+\item {} 
+Added \code{N\_VNewManaged\_Cuda}, \code{N\_VMakeManaged\_Cuda}, and \code{N\_VIsManagedMemory\_Cuda}
+functions to accomodate using managed memory with the CUDA NVECTOR.
+
+\end{itemize}
+
+Multiple changes to the RAJA NVECTOR were made:
+\begin{itemize}
+\item {} 
+Changed \code{N\_VGetLength\_Raja} to return the global vector length instead of
+the local vector length.
+
+\item {} 
+Added \code{N\_VGetLocalLength\_Raja} to return the local vector length.
+
+\item {} 
+Added \code{N\_VGetMPIComm\_Raja} to return the MPI communicator used.
+
+\item {} 
+Removed the accessor functions in the namespace \code{sunrajavec}.
+
+\end{itemize}
+
 In addition to \code{DIRECT} and \code{ITERATIVE} SUNLinSol implementations the ARKLS
 linear solver interface supports the \code{MATRIX\_ITERATIVE} linear solver type.
 Details regarding how ARKLS utilizes linear solvers of each type are included in
@@ -26219,24 +26265,27 @@ internal representations.
 
 \section{The NVECTOR\_CUDA Module}
 \label{nvectors/NVector_CUDA:the-nvector-cuda-module}\label{nvectors/NVector_CUDA:nvectors-cuda}\label{nvectors/NVector_CUDA::doc}
-The NVECTOR\_CUDA module is an experimental implementation of
-\code{N\_Vector} in CUDA language.  It allows for SUNDIALS vector kernels
+The NVECTOR\_CUDA module is an experimental NVECTOR implementation
+in the CUDA language. This module allows for SUNDIALS vector kernels
 to run on GPU devices. It is intended for users who are already
 familiar with CUDA and GPU programming.  Building this vector
-module requires CUDA compiler and, by extension, C++ compiler. Class \code{Vector}
-in namespace \code{suncudavec} manages vector data layout.
+module requires a CUDA compiler and, by extension, C++ compiler.
+The class \code{Vector}  in the namespace \code{suncudavec} manages
+the vector data layout.
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{k}{template} \PYG{o}{\PYGZlt{}}\PYG{k}{class} \PYG{n+nc}{T}\PYG{p}{,} \PYG{k}{class} \PYG{n+nc}{I}\PYG{o}{\PYGZgt{}}
 \PYG{k}{class} \PYG{n+nc}{Vector} \PYG{p}{\PYGZob{}}
   \PYG{n}{I} \PYG{n}{size\PYGZus{}}\PYG{p}{;}
   \PYG{n}{I} \PYG{n}{mem\PYGZus{}size\PYGZus{}}\PYG{p}{;}
+  \PYG{n}{I} \PYG{n}{global\PYGZus{}size\PYGZus{}}\PYG{p}{;}
   \PYG{n}{T}\PYG{o}{*} \PYG{n}{h\PYGZus{}vec\PYGZus{}}\PYG{p}{;}
   \PYG{n}{T}\PYG{o}{*} \PYG{n}{d\PYGZus{}vec\PYGZus{}}\PYG{p}{;}
-  \PYG{n}{StreamPartitioning}\PYG{o}{\PYGZlt{}}\PYG{n}{T}\PYG{p}{,} \PYG{n}{I}\PYG{o}{\PYGZgt{}}\PYG{o}{*} \PYG{n}{partStream\PYGZus{}}\PYG{p}{;}
-  \PYG{n}{ReducePartitioning}\PYG{o}{\PYGZlt{}}\PYG{n}{T}\PYG{p}{,} \PYG{n}{I}\PYG{o}{\PYGZgt{}}\PYG{o}{*} \PYG{n}{partReduce\PYGZus{}}\PYG{p}{;}
+  \PYG{n}{ThreadPartitioning}\PYG{o}{\PYGZlt{}}\PYG{n}{T}\PYG{p}{,} \PYG{n}{I}\PYG{o}{\PYGZgt{}}\PYG{o}{*} \PYG{n}{partStream\PYGZus{}}\PYG{p}{;}
+  \PYG{n}{ThreadPartitioning}\PYG{o}{\PYGZlt{}}\PYG{n}{T}\PYG{p}{,} \PYG{n}{I}\PYG{o}{\PYGZgt{}}\PYG{o}{*} \PYG{n}{partReduce\PYGZus{}}\PYG{p}{;}
   \PYG{k+kt}{bool} \PYG{n}{ownPartitioning\PYGZus{}}\PYG{p}{;}
-
+  \PYG{k+kt}{bool} \PYG{n}{ownData\PYGZus{}}\PYG{p}{;}
+  \PYG{k+kt}{bool} \PYG{n}{managed\PYGZus{}mem\PYGZus{}}\PYG{p}{;}
   \PYG{p}{.}\PYG{p}{.}\PYG{p}{.}
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{Verbatim}
@@ -26244,27 +26293,98 @@ in namespace \code{suncudavec} manages vector data layout.
 The class members are vector size (length), size of the vector data memory block, pointers
 to vector data on the host and the device, pointers to classes \code{StreamPartitioning}
 and \code{ReducePartitioning}, which handle thread partitioning for streaming and
-reduction vector kernels, respectively, and the boolean flag that signals if the
-vector owns thread partitioning. The class \code{Vector} inherits from empty structure
+reduction vector kernels, respectively, a boolean flag that signals if the
+vector owns the thread partitioning, a boolean flag that signals if the vector
+owns the data, and a boolean flag that signals if managed memory is used for the data arrays.
+The class \code{Vector} inherits from empty structure
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{k}{struct} \PYG{n}{\PYGZus{}N\PYGZus{}VectorContent\PYGZus{}Cuda} \PYG{p}{\PYGZob{}}
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{Verbatim}
 
-to interface the C++ class with \code{N\_Vector} C code. When
-instantiated, the class \code{Vector} will allocate memory on both, host
-and device. Due to rapid progress in of CUDA development, we expect
+to interface the C++ class with \code{N\_Vector} C code.
+Due to rapid progress in of CUDA development, we expect
 that \code{suncudavec::Vector} class will change frequently in the future
 SUNDIALS releases. The code is structured so that it can tolerate
 significant changes in the \code{suncudavec::Vector} class without
 requiring changes to user API.
 
-The header file to be included when using this module is
-\code{nvector/nvector\_cuda.h}.  Unlike other native SUNDIALS vector
-types, NVECTOR\_CUDA does not provide macros to access its member
-variables. Note that NVECTOR\_CUDA requires SUNDIALS to be built with
-MPI support.
+When instantiated, the class \code{Vector} will allocate memory on both, host
+and device by default. Optionally, managed memory can be allocated instead
+(see \code{N\_VNewManaged\_Cuda}), or a user can provide data arrays
+(see \code{N\_VMake\_Cuda} and \code{N\_VMakeManaged\_Cuda}).
+
+The NVECTOR\_CUDA module can be utilized for single-node parallelism or in
+a distributed context with MPI. The header file to include when using this
+module for single-node parallelism is \code{nvector\_cuda.h}. The header file
+to include when using this module in the distributed case is
+\code{nvector\_mpicuda.h}. The installed module libraries to link to are
+\code{libsundials\_nveccuda.lib} in the single-node case, or
+\code{libsundials\_nvecmpicuda.lib} in the distributed case. Only one one of
+these libraries may be linked to when creating an executable or library.
+SUNDIALS must be built with MPI support if the distributed library is desired.
+
+Unlike other native SUNDIALS vector types, the NVECTOR\_CUDA module does not
+provide macros to access its member variables. Instead, user should use the
+accessor functions:
+\index{N\_VGetLength\_Cuda (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_CUDA:c.N_VGetLength_Cuda}\pysiglinewithargsret{sunindextype \bfcode{N\_VGetLength\_Cuda}}{N\_Vector\emph{ v}}{}
+This function returns the global length of the vector.
+
+\end{fulllineitems}
+
+\index{N\_VGetLocalLength\_Cuda (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_CUDA:c.N_VGetLocalLength_Cuda}\pysiglinewithargsret{sunindextype \bfcode{N\_VGetLocalLength\_Cuda}}{N\_Vector\emph{ v}}{}
+This function returns the local length of the vector.
+
+Note: This function is for use in a \emph{distributed} context
+and is defined in the header \code{nvector\_mpicuda.h} and the
+library to link to is \code{libsundials\_nvecmpicuda.lib}.
+
+\end{fulllineitems}
+
+\index{N\_VGetHostArrayPointer\_Cuda (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_CUDA:c.N_VGetHostArrayPointer_Cuda}\pysiglinewithargsret{realtype* \bfcode{N\_VGetHostArrayPointer\_Cuda}}{N\_Vector\emph{ v}}{}
+This function returns pointer to the vector data on the host.
+
+\end{fulllineitems}
+
+\index{N\_VGetDeviceArrayPointer\_Cuda (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_CUDA:c.N_VGetDeviceArrayPointer_Cuda}\pysiglinewithargsret{realtype* \bfcode{N\_VGetDeviceArrayPointer\_Cuda}}{N\_Vector\emph{ v}}{}
+This function returns pointer to the vector data on the device.
+
+\end{fulllineitems}
+
+\index{N\_VGetMPIComm\_Cuda (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_CUDA:c.N_VGetMPIComm_Cuda}\pysiglinewithargsret{MPI\_Comm \bfcode{N\_VGetMPIComm\_Cuda}}{N\_Vector\emph{ v}}{}
+This function returns the MPI communicator for the vector.
+
+Note: This function is for use in a \emph{distributed} context
+and is defined in the header \code{nvector\_mpicuda.h} and the
+library to link to is \code{libsundials\_nvecmpicuda.lib}.
+
+\end{fulllineitems}
+
+\index{N\_VIsManagedMemory\_Cuda (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_CUDA:c.N_VIsManagedMemory_Cuda}\pysiglinewithargsret{booleantype \bfcode{N\_VIsManagedMemory\_Cuda}}{N\_Vector\emph{ v}}{}
+This function returns a boolean flag indiciating if the vector
+data array is in managed memory or not.
+
+\end{fulllineitems}
+
 
 The NVECTOR\_CUDA module defines implementations of all standard vector
 operations defined in the sections {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}},
@@ -26286,10 +26406,36 @@ following additional user-callable routines:
 \index{N\_VNew\_Cuda (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_CUDA:c.N_VNew_Cuda}\pysiglinewithargsret{N\_Vector \bfcode{N\_VNew\_Cuda}}{sunindextype\emph{ vec\_length}}{}
+\phantomsection\label{nvectors/NVector_CUDA:c.N_VNew_Cuda}\pysiglinewithargsret{N\_Vector \bfcode{N\_VNew\_Cuda}}{sunindextype\emph{ length}}{}\pysiglinewithargsret{N\_Vector \bfcode{N\_VNew\_Cuda}}{MPI\_Comm\emph{ comm}, sunindextype\emph{ local\_length}, sunindextype\emph{ global\_length}}{}
+This function creates and allocates memory for a CUDA \code{N\_Vector}.
+The vector data array is allocated on both the host and device.
+
+In the \emph{single-node} setting, the only input is the vector length.
+This constructor is defined in the header \code{nvector\_cuda.h} and
+the library to link to is is \code{libsundials\_nveccuda.lib}.
+
+When used in a \emph{distributed} context with MPI, the arguments are the
+MPI communicator, the local vector length, and the global vector length.
+This constructor is defined in the header \code{nvector\_mpicuda.h} and
+the library to link to is \code{libsundials\_nvecmpicuda.lib}.
+
+\end{fulllineitems}
+
+\index{N\_VNewManaged\_Cuda (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_CUDA:c.N_VNewManaged_Cuda}\pysiglinewithargsret{N\_Vector \bfcode{N\_VNewManaged\_Cuda}}{sunindextype\emph{ vec\_length}}{}\pysiglinewithargsret{N\_Vector \bfcode{N\_VNewManaged\_Cuda}}{MPI\_Comm\emph{ comm}, sunindextype\emph{ local\_length}, sunindextype\emph{ global\_length}}{}
 This function creates and allocates memory for a CUDA
-\code{N\_Vector}. The memory is allocated on both, host and device. Its
-only argument is the vector length.
+\code{N\_Vector}. The vector data array is allocated in managed memory.
+
+When used in the \emph{single-node} setting, the only input is the vector length.
+this constructor is defined in the header \code{nvector\_cuda.h} and
+the library to link to is is \code{libsundials\_nveccuda.lib}.
+
+When used in a \emph{distributed} context with MPI, the arguments are the
+MPI communicator, the local vector length, and the global vector length.
+This constructor is defined in the header \code{nvector\_mpicuda.h} and
+the library to link to is \code{libsundials\_nvecmpicuda.lib}.
 
 \end{fulllineitems}
 
@@ -26307,11 +26453,40 @@ to the wrapped CUDA vector set to \code{NULL}.  It is used by
 \index{N\_VMake\_Cuda (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_CUDA:c.N_VMake_Cuda}\pysiglinewithargsret{N\_Vector \bfcode{N\_VMake\_Cuda}}{N\_VectorContent\_Cuda\emph{ c}}{}
-This function creates and allocates memory for an NVECTOR\_CUDA
-wrapper around a user-provided \code{suncudavec::Vector} class.
-Its only argument is of type \code{N\_VectorContent\_Cuda}, which
-is the pointer to the class.
+\phantomsection\label{nvectors/NVector_CUDA:c.N_VMake_Cuda}\pysiglinewithargsret{N\_Vector \bfcode{N\_VMake\_Cuda}}{sunindextype\emph{ vec\_length}, realtype\emph{ *h\_vdata}, realtype\emph{ *d\_vdata}}{}\pysiglinewithargsret{N\_Vector \bfcode{N\_VMake\_Cuda}}{MPI\_Comm\emph{ comm}, sunindextype\emph{ global\_length}, sunindextype\emph{ local\_length}, realtype\emph{ *h\_vdata}, realtype\emph{ *d\_vdata}}{}
+This function creates a CUDA \code{N\_Vector} with user-supplied vector data arrays
+for the host and the device.
+
+When used in the \emph{single-node} setting, the arguments are the
+the vector length, the host data array, and the device data array.
+This constructor is defined in the header \code{nvector\_cuda.h} and
+the library to link to is is \code{libsundials\_nveccuda.lib}.
+
+When used in a \emph{distributed} context with MPI, the arguments are the
+MPI communicator, the global vector length, the local vector length,
+the host data array, the device data array.
+This constructor is defined in the header \code{nvector\_mpicuda.h} and
+the library to link to is \code{libsundials\_nvecmpicuda.lib}.
+
+\end{fulllineitems}
+
+\index{N\_VMakeManaged\_Cuda (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_CUDA:c.N_VMakeManaged_Cuda}\pysiglinewithargsret{N\_Vector \bfcode{N\_VMakeManaged\_Cuda}}{sunindextype\emph{ vec\_length}, realtype\emph{ *vdata}}{}\pysiglinewithargsret{N\_Vector \bfcode{N\_VMakeManaged\_Cuda}}{MPI\_Comm\emph{ comm}, sunindextype\emph{ global\_length}, sunindextype\emph{ local\_length}, realtype\emph{ *vdata}}{}
+This function creates a CUDA \code{N\_Vector} with a user-supplied
+managed memory data array.
+
+When used in the \emph{single-node} setting, the arguments are the
+the vector length, and the managed data array. This constructor
+is defined in the header \code{nvector\_cuda.h} and
+the library to link to is is \code{libsundials\_nveccuda.lib}.
+
+When used in a \emph{distributed} context with MPI, the arguments are the
+MPI communicator, the global vector length, the local vector length,
+the managed data array. This constructor is defined in the header
+\code{nvector\_mpicuda.h} and the library to link to is
+\code{libsundials\_nvecmpicuda.lib}.
 
 \end{fulllineitems}
 
@@ -26341,30 +26516,6 @@ This function frees memory allocated for the array of \emph{count}
 variables of type \code{N\_Vector} created with
 {\hyperref[nvectors/NVector_CUDA:c.N_VCloneVectorArray_Cuda]{\emph{\code{N\_VCloneVectorArray\_Cuda()}}}} or with
 {\hyperref[nvectors/NVector_CUDA:c.N_VCloneVectorArrayEmpty_Cuda]{\emph{\code{N\_VCloneVectorArrayEmpty\_Cuda()}}}}.
-
-\end{fulllineitems}
-
-\index{N\_VGetLength\_Cuda (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_CUDA:c.N_VGetLength_Cuda}\pysiglinewithargsret{sunindextype \bfcode{N\_VGetLength\_Cuda}}{N\_Vector\emph{ v}}{}
-This function returns the length of the vector.
-
-\end{fulllineitems}
-
-\index{N\_VGetHostArrayPointer\_Cuda (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_CUDA:c.N_VGetHostArrayPointer_Cuda}\pysiglinewithargsret{realtype* \bfcode{N\_VGetHostArrayPointer\_Cuda}}{N\_Vector\emph{ v}}{}
-This function returns pointer to the vector data on the host.
-
-\end{fulllineitems}
-
-\index{N\_VGetDeviceArrayPointer\_Cuda (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_CUDA:c.N_VGetDeviceArrayPointer_Cuda}\pysiglinewithargsret{realtype* \bfcode{N\_VGetDeviceArrayPointer\_Cuda}}{N\_Vector\emph{ v}}{}
-This function returns pointer to the vector data on the device.
 
 \end{fulllineitems}
 
@@ -26562,16 +26713,18 @@ Class \code{Vector} in namespace \code{sunrajavec} manages the vector data layou
 \PYG{k}{class} \PYG{n+nc}{Vector} \PYG{p}{\PYGZob{}}
   \PYG{n}{I} \PYG{n}{size\PYGZus{}}\PYG{p}{;}
   \PYG{n}{I} \PYG{n}{mem\PYGZus{}size\PYGZus{}}\PYG{p}{;}
+  \PYG{n}{I} \PYG{n}{global\PYGZus{}size\PYGZus{}}\PYG{p}{;}
   \PYG{n}{T}\PYG{o}{*} \PYG{n}{h\PYGZus{}vec\PYGZus{}}\PYG{p}{;}
   \PYG{n}{T}\PYG{o}{*} \PYG{n}{d\PYGZus{}vec\PYGZus{}}\PYG{p}{;}
-
+  \PYG{n}{SUNMPI\PYGZus{}Comm} \PYG{n}{comm\PYGZus{}}\PYG{p}{;}
   \PYG{p}{.}\PYG{p}{.}\PYG{p}{.}
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{Verbatim}
 
 The class members are: vector size (length), size of the vector data
-memory block, and pointers to vector data on the host and on the
-device. The class \code{Vector} inherits from an empty structure
+memory block, the global vector size (length) pointers to vector data
+on the host and on the device, and the MPI communicator. The class
+\code{Vector} inherits from an empty structure
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{k}{struct} \PYG{n}{\PYGZus{}N\PYGZus{}VectorContent\PYGZus{}Raja} \PYG{p}{\PYGZob{}}
@@ -26580,17 +26733,83 @@ device. The class \code{Vector} inherits from an empty structure
 
 to interface the C++ class with the \code{N\_Vector} C code. When
 instantiated, the class \code{Vector} will allocate memory on both the host
-and the device. Due to the rapid progress of RAJA development, we expect
+and the device.
+Due to the rapid progress of RAJA development, we expect
 that the \code{sunrajavec::Vector} class will change frequently in the future
 SUNDIALS releases. The code is structured so that it can tolerate
 significant changes in the \code{sunrajavec::Vector} class without
 requiring changes to the user API.
 
-The header file to be included when using this module is
-\code{nvector/nvector\_raja.h}.  Unlike other native SUNDIALS vector
-types, NVECTOR\_RAJA does not provide macros to access its member
-variables. Note that NVECTOR\_RAJA requires SUNDIALS to be built with
-MPI support.
+The NVECTOR\_RAJA module can be utilized for single-node parallelism or in
+a distributed context with MPI. The header file to include when using this
+module for single-node parallelism is \code{nvector\_raja.h}. The header file
+to include when using this module in the distributed case is
+\code{nvector\_mpiraja.h}. The installed module libraries to link to are
+\code{libsundials\_nveccudaraja.lib} in the single-node case, or
+\code{libsundials\_nveccudampiraja.lib} in the distributed case. Only one one of
+these libraries may be linked to when creating an executable or library.
+SUNDIALS must be built with MPI support if the distributed library is desired.
+
+Unlike other native SUNDIALS vector types, the NVECTOR\_RAJA module does not
+provide macros to access its member variables. Instead, user should use the
+accessor functions:
+\index{N\_VGetLength\_Raja (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_RAJA:c.N_VGetLength_Raja}\pysiglinewithargsret{sunindextype \bfcode{N\_VGetLength\_Raja}}{N\_Vector\emph{ v}}{}
+This function returns the global length of the vector.
+
+\end{fulllineitems}
+
+\index{N\_VGetLocalLength\_Raja (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_RAJA:c.N_VGetLocalLength_Raja}\pysiglinewithargsret{sunindextype \bfcode{N\_VGetLocalLength\_Raja}}{N\_Vector\emph{ v}}{}
+This function returns the local length of the vector.
+
+Note: This function is for use in a \emph{distributed} context
+and is defined in the header \code{nvector\_mpicuda.h} and the
+library to link to is \code{libsundials\_nvecmpicuda.lib}.
+
+\end{fulllineitems}
+
+\index{N\_VGetHostArrayPointer\_Raja (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_RAJA:c.N_VGetHostArrayPointer_Raja}\pysiglinewithargsret{realtype* \bfcode{N\_VGetHostArrayPointer\_Raja}}{N\_Vector\emph{ v}}{}
+This function returns pointer to the vector data on the host.
+
+\end{fulllineitems}
+
+\index{N\_VGetDeviceArrayPointer\_Raja (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_RAJA:c.N_VGetDeviceArrayPointer_Raja}\pysiglinewithargsret{realtype* \bfcode{N\_VGetDeviceArrayPointer\_Raja}}{N\_Vector\emph{ v}}{}
+This function returns pointer to the vector data on the device.
+
+\end{fulllineitems}
+
+\index{N\_VGetMPIComm\_Raja (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_RAJA:c.N_VGetMPIComm_Raja}\pysiglinewithargsret{MPI\_Comm \bfcode{N\_VGetMPIComm\_Raja}}{N\_Vector\emph{ v}}{}
+This function returns the MPI communicator for the vector.
+
+Note: This function is for use in a \emph{distributed} context
+and is defined in the header \code{nvector\_mpicuda.h} and the
+library to link to is \code{libsundials\_nvecmpicuda.lib}.
+
+\end{fulllineitems}
+
+\index{N\_VIsManagedMemory\_Raja (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_RAJA:c.N_VIsManagedMemory_Raja}\pysiglinewithargsret{booleantype \bfcode{N\_VIsManagedMemory\_Raja}}{N\_Vector\emph{ v}}{}
+This function returns a boolean flag indiciating if the vector
+data array is in managed memory or not.
+
+\end{fulllineitems}
+
 
 The NVECTOR\_RAJA module defines the implementations of all vector
 operations listed in the sections {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}},
@@ -26671,30 +26890,6 @@ This function frees memory allocated for the array of \emph{count}
 variables of type \code{N\_Vector} created with
 {\hyperref[nvectors/NVector_RAJA:c.N_VCloneVectorArray_Raja]{\emph{\code{N\_VCloneVectorArray\_Raja()}}}} or with
 {\hyperref[nvectors/NVector_RAJA:c.N_VCloneVectorArrayEmpty_Raja]{\emph{\code{N\_VCloneVectorArrayEmpty\_Raja()}}}}.
-
-\end{fulllineitems}
-
-\index{N\_VGetLength\_Raja (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_RAJA:c.N_VGetLength_Raja}\pysiglinewithargsret{sunindextype \bfcode{N\_VGetLength\_Raja}}{N\_Vector\emph{ v}}{}
-This function returns the length of the vector.
-
-\end{fulllineitems}
-
-\index{N\_VGetHostArrayPointer\_Raja (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_RAJA:c.N_VGetHostArrayPointer_Raja}\pysiglinewithargsret{realtype* \bfcode{N\_VGetHostArrayPointer\_Raja}}{N\_Vector\emph{ v}}{}
-This function returns a pointer to the vector data on the host.
-
-\end{fulllineitems}
-
-\index{N\_VGetDeviceArrayPointer\_Raja (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_RAJA:c.N_VGetDeviceArrayPointer_Raja}\pysiglinewithargsret{realtype* \bfcode{N\_VGetDeviceArrayPointer\_Raja}}{N\_Vector\emph{ v}}{}
-This function returns a pointer to the vector data on the device.
 
 \end{fulllineitems}
 

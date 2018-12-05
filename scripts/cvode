@@ -151,6 +151,8 @@ $tar $tarfile $distrobase/examples/cvode/cuda/README
 $tar $tarfile $distrobase/examples/cvode/cuda/CMakeLists.txt
 $tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda.cu
 $tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda.out
+$tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda_managed.cu
+$tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda_managed.out
 
 $tar $tarfile $distrobase/examples/cvode/raja/README
 $tar $tarfile $distrobase/examples/cvode/raja/CMakeLists.txt

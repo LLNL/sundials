@@ -1,5 +1,5 @@
 /* -----------------------------------------------------------------
- * Programmer(s): Slaven Peles @ LLNL
+ * Programmer(s): Slaven Peles, and Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
@@ -79,8 +79,10 @@ typedef struct _N_VectorContent_Cuda *N_VectorContent_Cuda;
  *
  * CONSTRUCTORS:
  *    N_VNew_Cuda
+ *    N_VNewManaged_Cuda
  *    N_VNewEmpty_Cuda
  *    N_VMake_Cuda
+ *    N_VMakeManaged_Cuda
  * DESTRUCTORS:
  *    N_VDestroy_Cuda
  * ENABLE/DISABLE FUSED OPS:
@@ -96,8 +98,11 @@ typedef struct _N_VectorContent_Cuda *N_VectorContent_Cuda;
  *    N_VEnableScaleAddMultiVectorArray_Cuda
  *    N_VEnableLinearCombinationVectorArray_Cuda
  * OTHER:
+ *    N_VGetLength_Cuda
  *    N_VGetHostArrayPointer_Cuda
  *    N_VGetDeviceArrayPointer_Cuda
+ *    N_VIsManagedMemory_Cuda
+ *    N_VSetCudaStream_Cuda
  *    N_VPrint_Cuda
  *    N_VPrintFile_Cuda
  * -----------------------------------------------------------------
@@ -116,25 +121,50 @@ SUNDIALS_EXPORT N_Vector N_VNew_Cuda(sunindextype length);
 
 /*
  * -----------------------------------------------------------------
- * Function : N_VNewEmpty_Cuda
+ * Function : N_VMakeManaged_Cuda
  * -----------------------------------------------------------------
- * This function creates a new CUDA N_Vector with an empty (NULL)
- * data array.
+ * This function creates and allocates memory for a CUDA vector
+ * on a single node with managed memory vector data.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNewEmpty_Cuda(sunindextype vec_length);
+SUNDIALS_EXPORT N_Vector N_VNewManaged_Cuda(sunindextype length);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : N_VNewEmpty_Cuda
+ * -----------------------------------------------------------------
+ * This function creates a new CUDA N_Vector with an empty (NULL)
+ * content.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT N_Vector N_VNewEmpty_Cuda();
 
 /*
  * -----------------------------------------------------------------
  * Function : N_VMake_Cuda
  * -----------------------------------------------------------------
- * This function creates and allocates memory for a CUDA vector
- * with a user-supplied data array.
+ * This function creates a CUDA vector with user-supplied data 
+ * arrays. Both h_vdata and d_vdata must be non-NULL.
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VMake_Cuda(N_VectorContent_Cuda c);
+SUNDIALS_EXPORT N_Vector N_VMake_Cuda(sunindextype length,
+                                      realtype *h_vdata,
+                                      realtype *d_vdata);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : N_VMakeManaged_Cuda
+ * -----------------------------------------------------------------
+ * This function creates a CUDA vector with a user-supplied managed
+ * memory data array. vdata must be non-NULL.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT N_Vector N_VMakeManaged_Cuda(sunindextype length,
+                                             realtype *vdata);
 
 /*
  * -----------------------------------------------------------------
@@ -165,6 +195,26 @@ SUNDIALS_EXPORT realtype *N_VGetHostArrayPointer_Cuda(N_Vector v);
  */
 
 SUNDIALS_EXPORT realtype *N_VGetDeviceArrayPointer_Cuda(N_Vector v);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : N_VIsManagedMemory_Cuda
+ * -----------------------------------------------------------------
+ * This function returns a boolean flag indicating if the vector
+ * data is managed memory.
+ * -----------------------------------------------------------------
+ */
+SUNDIALS_EXPORT booleantype N_VIsManagedMemory_Cuda(N_Vector x);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : N_VSetCudaStream_Cuda
+ * -----------------------------------------------------------------
+ * This function sets the cudaStream_t to use for execution of 
+ * the CUDA kernels.
+ * -----------------------------------------------------------------
+ */
+SUNDIALS_EXPORT void N_VSetCudaStream_Cuda(N_Vector x, cudaStream_t *stream);
 
 /*
  * -----------------------------------------------------------------

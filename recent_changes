@@ -1,5 +1,36 @@
 Changes to SUNDIALS in release 4.0.0
 
+Multiple changes to the CUDA NVECTOR were made:
+
+  * Changed the N_VMake_Cuda function to take a host data pointer and a device
+    data pointer instead of an N_VectorContent_Cuda object.
+    
+  * Changed N_VGetLength_Cuda to return the global vector length instead of
+    the local vector length.
+
+  * Added N_VGetLocalLength_Cuda to return the local vector length.
+  
+  * Added N_VGetMPIComm_Cuda to return the MPI communicator used.
+
+  * Removed the accessor functions in the namespace suncudavec.
+  
+  * Added the ability to set the cudaStream_t used for execution of the CUDA
+    NVECTOR kernels. See the function N_VSetCudaStreams_Cuda.
+
+  * Added N_VNewManaged_Cuda, N_VMakeManaged_Cuda, and N_VIsManagedMemory_Cuda
+    functions to accomodate using managed memory with the CUDA NVECTOR.
+
+Multiple changes to the RAJA NVECTOR were made:
+
+  * Changed N_VGetLength_Raja to return the global vector length instead of
+    the local vector length.
+
+  * Added N_VGetLocalLength_Raja to return the local vector length.
+
+  * Added N_VGetMPIComm_Raja to return the MPI communicator used.
+ 
+  * Removed the accessor functions in the namespace sunrajavec.
+
 Two changes were made in the CVODE/CVODES/ARKODE initial step size algorithm:
 
   1. Fixed an efficiency bug where an extra call to the RHS function was made.

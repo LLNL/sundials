@@ -97,8 +97,10 @@ typedef struct _N_VectorContent_Raja *N_VectorContent_Raja;
  *    N_VEnableLinearCombinationVectorArray_Raja
  * OTHER:
  *    N_VGetLength_Raja
+ *    N_VGetLocalLength_Raja
  *    N_VGetHostArrayPointer_Raja
  *    N_VGetDeviceArrayPointer_Raja
+ *    N_VGetMPIComm_Raja
  *    N_VPrint_Raja
  *    N_VPrintFile_Raja
  * -----------------------------------------------------------------
@@ -126,14 +128,14 @@ SUNDIALS_EXPORT N_Vector N_VNew_Raja(MPI_Comm comm,
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNewEmpty_Raja(sunindextype local_length);
+SUNDIALS_EXPORT N_Vector N_VNewEmpty_Raja();
 
 /*
  * -----------------------------------------------------------------
  * Function : N_VMake_Raja
  * -----------------------------------------------------------------
- * This function creates and allocates memory for a RAJA vector
- * with a user-supplied data array.
+ * This function creates and an NVECTOR wrapper around a
+ * user-supplied sunrajavec::Vector.
  * -----------------------------------------------------------------
  */
 
@@ -143,11 +145,31 @@ SUNDIALS_EXPORT N_Vector N_VMake_Raja(N_VectorContent_Raja c);
  * -----------------------------------------------------------------
  * Function : N_VGetLength_Raja
  * -----------------------------------------------------------------
- * This function returns the length of the vector.
+ * This function returns the global length of the vector.
  * -----------------------------------------------------------------
  */
 
 SUNDIALS_EXPORT sunindextype N_VGetLength_Raja(N_Vector v);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : N_VGetLocalLength_Raja
+ * -----------------------------------------------------------------
+ * This function returns the local length of the vector.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT sunindextype N_VGetLocalLength_Raja(N_Vector v);
+
+/*
+ * -----------------------------------------------------------------
+ * Function : N_VGetMPIComm_Raja
+ * -----------------------------------------------------------------
+ * This function returns the MPI communicator for the vector.
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT MPI_Comm N_VGetMPIComm_Raja(N_Vector v);
 
 /*
  * -----------------------------------------------------------------
