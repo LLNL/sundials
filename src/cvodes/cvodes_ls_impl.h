@@ -195,59 +195,6 @@ int cvLs_AccessLMemBCur(void *cvode_mem, const char *fname,
                         CVodeBMem *cvB_mem, CVLsMemB *cvlsB_mem);
 
 
-/* cvLsJacBWrapper and cvLsJacBSWrapper have type CVLsJacFn, and
-   wrap around user-provided functions of type CVLsJacFnB and
-   CVLsJacFnBS, respectively */
-static int cvLsJacBWrapper(realtype t, N_Vector yB, N_Vector fyB,
-                           SUNMatrix JB, void *cvode_mem,
-                           N_Vector tmp1B, N_Vector tmp2B,
-                           N_Vector tmp3B);
-
-static int cvLsJacBSWrapper(realtype t, N_Vector yB, N_Vector fyB,
-                            SUNMatrix JB, void *cvode_mem,
-                            N_Vector tmp1B, N_Vector tmp2B,
-                            N_Vector tmp3B);
-
-/* cvLsPrecSetupBWrapper and cvLsPrecSetupBSWrapper have type
-   CVLsPrecSetupFn, and wrap around user-provided functions of
-   type CVLsPrecSetupFnB and CVLsPrecSetupFnBS, respectively */
-static int cvLsPrecSetupBWrapper(realtype t, N_Vector yB, N_Vector fyB,
-                                 booleantype jokB, booleantype *jcurPtrB,
-                                 realtype gammaB, void *cvode_mem);
-static int cvLsPrecSetupBSWrapper(realtype t, N_Vector yB, N_Vector fyB,
-                                  booleantype jokB, booleantype *jcurPtrB,
-                                  realtype gammaB, void *cvode_mem);
-
-/* cvLsPrecSolveBWrapper and cvLsPrecSolveBSWrapper have type
-   CVLsPrecSolveFn, and wrap around user-provided functions of
-   type CVLsPrecSolveFnB and CVLsPrecSolveFnBS, respectively */
-static int cvLsPrecSolveBWrapper(realtype t, N_Vector yB, N_Vector fyB,
-                                 N_Vector rB, N_Vector zB,
-                                 realtype gammaB, realtype deltaB,
-                                 int lrB, void *cvode_mem);
-static int cvLsPrecSolveBSWrapper(realtype t, N_Vector yB, N_Vector fyB,
-                                  N_Vector rB, N_Vector zB,
-                                  realtype gammaB, realtype deltaB,
-                                  int lrB, void *cvode_mem);
-
-/* cvLsJacTimesSetupBWrapper and cvLsJacTimesSetupBSWrapper have type
-   CVLsJacTimesSetupFn, and wrap around user-provided functions of
-   type CVLsJacTimesSetupFnB and CVLsJacTimesSetupFnBS, respectively */
-static int cvLsJacTimesSetupBWrapper(realtype t, N_Vector yB,
-                                     N_Vector fyB, void *cvode_mem);
-static int cvLsJacTimesSetupBSWrapper(realtype t, N_Vector yB,
-                                      N_Vector fyB, void *cvode_mem);
-
-/* cvLsJacTimesVecBWrapper and cvLsJacTimesVecBSWrapper have type
-   CVLsJacTimesVecFn, and wrap around user-provided functions of
-   type CVLsJacTimesVecFnB and CVLsJacTimesVecFnBS, respectively */
-static int cvLsJacTimesVecBWrapper(N_Vector vB, N_Vector JvB, realtype t,
-                                   N_Vector yB, N_Vector fyB,
-                                   void *cvode_mem, N_Vector tmpB);
-static int cvLsJacTimesVecBSWrapper(N_Vector vB, N_Vector JvB, realtype t,
-                                    N_Vector yB, N_Vector fyB,
-                                    void *cvode_mem, N_Vector tmpB);
-
 /*=================================================================
   Error Messages
   =================================================================*/

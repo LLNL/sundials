@@ -40,6 +40,56 @@
 #define TWO        RCONST(2.0)
 
 
+/*=================================================================
+  PRIVATE FUNCTION PROTOTYPES
+  =================================================================*/
+
+static int idaLsJacBWrapper(realtype tt, realtype c_jB, N_Vector yyB,
+                            N_Vector ypB, N_Vector rBr, SUNMatrix JacB,
+                            void *ida_mem, N_Vector tmp1B,
+                            N_Vector tmp2B, N_Vector tmp3B);
+static int idaLsJacBSWrapper(realtype tt, realtype c_jB, N_Vector yyB,
+                             N_Vector ypB, N_Vector rBr, SUNMatrix JacB,
+                             void *ida_mem, N_Vector tmp1B,
+                             N_Vector tmp2B, N_Vector tmp3B);
+
+static int idaLsPrecSetupB(realtype tt, N_Vector yyB,
+                           N_Vector ypB, N_Vector rrB,
+                           realtype c_jB, void *idaadj_mem);
+static int idaLsPrecSetupBS(realtype tt, N_Vector yyB,
+                            N_Vector ypB, N_Vector rrB,
+                            realtype c_jB, void *idaadj_mem);
+
+static int idaLsPrecSolveB(realtype tt, N_Vector yyB,
+                           N_Vector ypB, N_Vector rrB,
+                           N_Vector rvecB, N_Vector zvecB,
+                           realtype c_jB, realtype deltaB,
+                           void *idaadj_mem);
+static int idaLsPrecSolveBS(realtype tt, N_Vector yyB,
+                            N_Vector ypB, N_Vector rrB,
+                            N_Vector rvecB, N_Vector zvecB,
+                            realtype c_jB, realtype deltaB,
+                            void *idaadj_mem);
+
+static int idaLsJacTimesSetupB(realtype tt, N_Vector yyB,
+                               N_Vector ypB, N_Vector rrB,
+                               realtype c_jB, void *idaadj_mem);
+static int idaLsJacTimesSetupBS(realtype tt, N_Vector yyB,
+                                N_Vector ypB, N_Vector rrB,
+                                realtype c_jB, void *idaadj_mem);
+
+static int idaLsJacTimesVecB(realtype tt, N_Vector yyB,
+                             N_Vector ypB, N_Vector rrB,
+                             N_Vector vB, N_Vector JvB,
+                             realtype c_jB, void *idaadj_mem,
+                             N_Vector tmp1B, N_Vector tmp2B);
+static int idaLsJacTimesVecBS(realtype tt, N_Vector yyB,
+                              N_Vector ypB, N_Vector rrB,
+                              N_Vector vB, N_Vector JvB,
+                              realtype c_jB, void *idaadj_mem,
+                              N_Vector tmp1B, N_Vector tmp2B);
+
+
 /*================================================================
   PART I - forward problems
   ================================================================*/
