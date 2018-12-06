@@ -85,6 +85,7 @@ FOREACH(example_tuple ${FARKODE_examples})
   ADD_EXECUTABLE(${example} ${example}.f90)
 
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+  SET_TARGET_PROPERTIES(${example} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
   # add example to regression tests
   SUNDIALS_ADD_TEST(${example} ${example}
@@ -140,6 +141,7 @@ IF(LAPACK_FOUND)
     ADD_EXECUTABLE(${example} ${example}.f90)
 
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+    SET_TARGET_PROPERTIES(${example} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
     # add example to regression tests
     SUNDIALS_ADD_TEST(${example} ${example}
@@ -188,6 +190,7 @@ IF(KLU_FOUND)
     ADD_EXECUTABLE(${example} ${example}.f90)
 
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+    SET_TARGET_PROPERTIES(${example} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
     # add example to regression tests
     SUNDIALS_ADD_TEST(${example} ${example}
@@ -241,6 +244,7 @@ IF(SUPERLUMT_FOUND)
     ADD_EXECUTABLE(${example} ${example}.f90)
 
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+    SET_TARGET_PROPERTIES(${example} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
     # add example to regression tests
     SUNDIALS_ADD_TEST(${example} ${example}

@@ -70,7 +70,7 @@ ENDIF(BUILD_SHARED_LIBS)
 INSTALL(FILES ${nvecspcpar_HEADERS} DESTINATION include/nvector)
 
 # If FCMIX is enabled and MPI works, build and install the FNVECSPCPAR library
-IF(FCMIX_ENABLE AND MPI_Fortran_FOUND)
+IF(F77_INTERFACE_ENABLE AND MPI_Fortran_FOUND)
   SET(fnvecspcpar_SOURCES fnvector_spcparallel.c)
   IF(BUILD_STATIC_LIBS)
     ADD_LIBRARY(sundials_fnvecspcpar_static STATIC ${fnvecspcpar_SOURCES})

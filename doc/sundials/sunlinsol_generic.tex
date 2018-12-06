@@ -151,29 +151,27 @@ The remaining routine for destruction of the linear solver object
 {
   The return value \id{type} (of type \id{int}) will be one of the
   following:
-  \begin{args}[SUNLINEARSOLVER\_MATRIX\_ITERATIVE]
-  \item[\Id{SUNLINEARSOLVER\_DIRECT}]
-    \id{0}, the {\sunlinsol} module requires a matrix, and computes an
-    `exact' solution to the linear system defined by that matrix.
-  \item[\Id{SUNLINEARSOLVER\_ITERATIVE}]
-    \id{1}, the {\sunlinsol} module does not require a matrix (though one may be
-    provided), and computes an inexact solution to the linear system using a
-    matrix-free iterative algorithm. That is it solves the linear
-    system defined by the package-supplied \id{ATimes} routine
-    (see \newline
-    \Id{SUNLinSolSetATimes} below), even if that linear system differs from
-    the one encoded in the matrix object (if one is provided). As the solver
-    computes the solution only inexactly (or may diverge), the linear solver
-    should check for solution convergence/accuracy as appropriate.
-  \item[\Id{SUNLINEARSOLVER\_MATRIX\_ITERATIVE}]
-    \id{2}, the {\sunlinsol} module requires a matrix, and computes an inexact
-    solution to the linear system defined by that matrix using an iterative
-    algorithm. That is it solves the linear system defined by the matrix object
-    even if that linear system differs from that encoded by the package-supplied
-    \id{ATimes} routine. As the solver computes the solution only inexactly (or
-    may diverge), the linear solver should check for solution
-    convergence/accuracy as appropriate.
-  \end{args}
+  \begin{itemize}
+  \item \Id{SUNLINEARSOLVER\_DIRECT} -- \id{0}, the {\sunlinsol} module requires
+  a matrix, and computes an `exact' solution to the linear system defined by
+  that matrix.
+  \item \Id{SUNLINEARSOLVER\_ITERATIVE} -- \id{1}, the {\sunlinsol} module does
+  not require a matrix (though one may be provided), and computes an inexact
+  solution to the linear system using a matrix-free iterative algorithm. That is
+  it solves the linear system defined by the package-supplied \id{ATimes}
+  routine (see \Id{SUNLinSolSetATimes} below), even if that linear
+  system differs from the one encoded in the matrix object (if one is
+  provided). As the solver computes the solution only inexactly (or may
+  diverge), the linear solver should check for solution convergence/accuracy as
+  appropriate. 
+  \item \Id{SUNLINEARSOLVER\_MATRIX\_ITERATIVE} -- \id{2}, the {\sunlinsol}
+  module requires a matrix, and computes an inexact solution to the linear
+  system defined by that matrix using an iterative algorithm. That is it solves
+  the linear system defined by the matrix object even if that linear system
+  differs from that encoded by the package-supplied \id{ATimes} routine. As the
+  solver computes the solution only inexactly (or may diverge), the linear
+  solver should check for solution convergence/accuracy as appropriate.
+  \end{itemize}
 }
 {
  See section \ref{ss:sunlinsol_intended} for more information on intended use

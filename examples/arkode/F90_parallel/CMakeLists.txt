@@ -60,7 +60,6 @@ SET(FARKODE_LIB sundials_farkode_static)
 # Set-up linker flags and link libraries
 SET(SUNDIALS_LIBS ${FARKODE_LIB} ${ARKODE_LIB} ${FNVECP_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
 
-
 # Add the build and install targets for each ARKODE example
 FOREACH(example_tuple ${FARKODE_examples})
 
@@ -73,6 +72,7 @@ FOREACH(example_tuple ${FARKODE_examples})
   ADD_EXECUTABLE(${example} ${example}.f90)
 
   SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+  SET_TARGET_PROPERTIES(${example} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 
   # add example to regression tests
   SUNDIALS_ADD_TEST(${example} ${example}

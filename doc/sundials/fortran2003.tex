@@ -1,0 +1,68 @@
+\subsection{SUNDIALS FORTRAN 2003 Modules}
+
+Many {\sundials} modules provide {\F} 2003 interfaces as well. A module can be accessed
+with the \id{use} statement, e.g. \id{use fnvector\_openmp\_mod}, and linking to the
+{\F} 2003 library in addition to the {\CC} library, e.g.
+\id{libsundials\_fnvectoropenmp\_mod}.{\em lib} and \id{libsundials\_nvectoropenmp}.{\em lib}.
+A summary of shared {\sundials} modules with {\F} 2003 interfaces is given in 
+Table~\ref{t:f2003interface}. For more information on {\F} 2003 interface modules
+to {\nvector}, {\sunmatrix}, {\sunlinsol}, and {\sunnonlinsol} implementations see
+Chapters \ref{s:nvector}, \ref{s:sunmatrix}, \ref{s:sunlinsol}, and \ref{c:sunnonlinsol}
+respectively. For details on where the {\F} 2003 module (\id{.mod}) files and libraries
+are installed see Appendix \ref{c:install}.
+
+\begin{table}[!htb]
+\centering
+\caption{Summary of {\F} 2003 interfaces for shared {\sundials} modules.}
+\label{t:f2003interface}
+\medskip
+\begin{tabular}{|l|l|c|}
+\hline
+{\bf Module}                & {\bf {\F} 2003 Module Name}        \\
+\hline
+  {\nvecs}                  & \id{fnvector\_serial\_mod}          \\
+  {\nvecp}                  & Not interfaced                     \\
+  {\nvecopenmp}             & \id{fnvector\_openmp\_mod}          \\
+  {\nvecpthreads}           & \id{fnvector\_pthreads\_mod}        \\
+  {\nvecph}                 & Not interfaced                     \\
+  {\nvecpetsc}              & Not interfaced                     \\
+  {\nveccuda}               & Not interfaced                     \\
+  {\nvecraja}               & Not interfaced                     \\
+  {\sunmatband}             & \id{fsunmatrix\_band\_mod}          \\
+  {\sunmatdense}            & \id{fsunmatrix\_dense\_mod}         \\
+  {\sunmatsparse}           & \id{fsunmatrix\_sparse\_mod}        \\
+  {\sunlinsolband}          & \id{fsunlinsol\_band\_mod}          \\
+  {\sunlinsoldense}         & \id{fsunlinsol\_dense\_mod}         \\
+  {\sunlinsollapband}       & Not interfaced                     \\
+  {\sunlinsollapdense}      & Not interfaced                     \\
+  {\sunlinsolklu}           & \id{fsunlinsol\_klu\_mod}           \\
+  {\sunlinsolslumt}         & Not interfaced                     \\
+  {\sunlinsolspgmr}         & \id{fsunlinsol\_spgmr\_mod}         \\
+  {\sunlinsolspfgmr}        & \id{fsunlinsol\_spfgmr\_mod}        \\
+  {\sunlinsolspbcgs}        & \id{fsunlinsol\_spbcgs\_mod}        \\
+  {\sunlinsolsptfqmr}       & \id{fsunlinsol\_sptfqmr\_mod}       \\
+  {\sunlinsolpcg}           & \id{fsunlinsol\_pcg\_mod}           \\
+  {\sunnonlinsolnewton}     & \id{fsunnonlinsol\_newton\_mod}     \\
+  {\sunnonlinsolfixedpoint} & \id{fsunnonlinsol\_fixedpoint\_mod} \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Important note on portablitity}
+Upon compilation of {\sundials}, {\F} module (\id{.mod}) files are generated
+for each {\F} 2003 interface. These files are highly compiler specific, and
+thus it is almost always necessary to compile a consuming application with the
+same compiler used to generate the modules.
+
+\subsection{Data Types}
+Currently, the {\F} 2003 interfaces are only compatible with double precision
+and 64-bit indices. The interfaces use types from the \id{iso\_c\_binding} module
+that correspond to the {\CC} type. Specifically:
+
+\begin{itemize}
+  \item \id{double} is equivalent to \id{real(c\_double)}
+  \item \id{int32\_t} and \id{int} are equivalent to \id{integer(c\_int)}
+  \item \id{int64\_t} and \id{long} are equivalent to \id{integer(c\_long)}
+  \item {\sundials} types, e.g. \id{N\_Vector}, are equivalent to \id{type(c\_ptr)}
+\end{itemize}
+

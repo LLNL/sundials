@@ -20,6 +20,11 @@
 
 INSTALL(CODE "MESSAGE(\"\nInstall CVODE\n\")")
 
+# Add F90 module if F2003 interface is enabled
+IF(F90_FOUND AND F2003_INTERFACE_ENABLE)
+  ADD_SUBDIRECTORY(F90)
+ENDIF(F90_FOUND AND F2003_INTERFACE_ENABLE)
+
 # Add variable cvode_SOURCES with the sources for the CVODE library
 SET(cvode_SOURCES
   cvode.c
@@ -99,11 +104,10 @@ ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 
 # Build the static library
 IF(BUILD_STATIC_LIBS)
-
   # Add the build target for the static CVODE library
   ADD_LIBRARY(sundials_cvode_static STATIC
-    ${cvode_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES}
-    ${sunnonlinsol_SOURCES})
+    ${cvode_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES} ${sunnonlinsol_SOURCES}
+  )
 
   # Set the library name and make sure it is not deleted
   SET_TARGET_PROPERTIES(sundials_cvode_static
@@ -116,11 +120,10 @@ ENDIF(BUILD_STATIC_LIBS)
 
 # Build the shared library
 IF(BUILD_SHARED_LIBS)
-
-  # Add the build target for the CVODE library
+  # Add the build target for the shared CVODE library
   ADD_LIBRARY(sundials_cvode_shared SHARED
-    ${cvode_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES}
-    ${sunnonlinsol_SOURCES})
+    ${cvode_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES} ${sunnonlinsol_SOURCES}
+  )
 
   IF(UNIX)
     TARGET_LINK_LIBRARIES(sundials_cvode_shared m)

@@ -27,11 +27,11 @@ fi
 # set file permissions (rwxrwxr-x)
 umask 002
 
-# library types, real types, and index types to test
+# library types, real types, and index sizes to test
 # NOTE: may need to create answer files for different realtypes
 libtype=( "static" "shared" )
 realtype=( "double" )
-indextype=( "int32_t" "int64_t" )
+indexsize=( "32" "64" )
 
 # ------------------------------------------------------------------------------
 # Installed third party libraries
@@ -144,7 +144,7 @@ for tarball in *.tar.gz; do
     # loop over build options
     for lt in "${libtype[@]}"; do
         for rt in "${realtype[@]}"; do
-            for it in "${indextype[@]}"; do
+            for it in "${indexsize[@]}"; do
 
                 # remove old build and install directories
                 \rm -rf build_${rt}_${it}_${lt}
@@ -167,11 +167,11 @@ for tarball in *.tar.gz; do
                 fi
 
                 # -------------------------------------------------------------------
-                # Enable third party library settings based on precision and index type
+                # Enable third party library settings based on precision and index size
                 # -------------------------------------------------------------------
          
                 # LAPACK/BLAS does not support extended precision or 64-bit indices
-                if [ "$rt" == "extended" ] || [ "$it" == "int64_t" ]; then
+                if [ "$rt" == "extended" ] || [ "$it" == "64" ]; then
                     LAPACKSTATUS=OFF
                     BLASSTATUS=OFF
                 else
@@ -186,8 +186,8 @@ for tarball in *.tar.gz; do
                     KLUSTATUS=ON
                 fi
          
-                # SuperLU MT index type must be set a build time
-                if [ "$it" == "int32_t" ]; then
+                # SuperLU MT index size must be set a build time
+                if [ "$it" == "32" ]; then
                     SLUMTDIR=$SLUMTDIR_32
                 else
                     SLUMTDIR=$SLUMTDIR_64
@@ -200,8 +200,8 @@ for tarball in *.tar.gz; do
                     SLUMTSTATUS=ON
                 fi
          
-                # hypre index type must be set a build time
-                if [ "$it" == "int32_t" ]; then
+                # hypre index size must be set a build time
+                if [ "$it" == "32" ]; then
                     HYPREDIR=$HYPREDIR_32
                 else
                     HYPREDIR=$HYPREDIR_64
@@ -214,8 +214,8 @@ for tarball in *.tar.gz; do
                     HYPRESTATUS=ON
                 fi
          
-                # PETSc index type must be set a build time
-                if [ "$it" == "int32_t" ]; then
+                # PETSc index size must be set a build time
+                if [ "$it" == "32" ]; then
                     PETSCDIR=$PETSCDIR_32
                 else
                     PETSCDIR=$PETSCDIR_64
@@ -261,9 +261,10 @@ for tarball in *.tar.gz; do
                     -D BUILD_KINSOL=ON \
                     \
                     -D SUNDIALS_PRECISION=$rt \
-                    -D SUNDIALS_INDEX_TYPE=$it \
+                    -D SUNDIALS_INDEX_SIZE=$it \
                     \
-                    -D FCMIX_ENABLE=ON \
+                    -D F77_INTERFACE_ENABLE=ON \
+                    -D F2003_INTERFACE_ENABLE=ON \
                     \
                     -D EXAMPLES_ENABLE_C=ON \
                     -D EXAMPLES_ENABLE_CXX=ON \
@@ -284,11 +285,10 @@ for tarball in *.tar.gz; do
                     -D CMAKE_Fortran_FLAGS='-g' \
                     \
                     -D MPI_ENABLE=ON \
-                    -D MPI_MPICC="${MPIDIR}/mpicc" \
-                    -D MPI_MPICXX="${MPIDIR}/mpicxx" \
-                    -D MPI_MPIF77="${MPIDIR}/mpif77" \
-                    -D MPI_MPIF90="${MPIDIR}/mpif90" \
-                    -D MPI_RUN_COMMAND="${MPIDIR}/mpirun" \
+                    -D MPI_C_COMPILER="${MPIDIR}/mpicc" \
+                    -D MPI_CXX_COMPILER="${MPIDIR}/mpicxx" \
+                    -D MPI_Fortran_COMPILER="${MPIDIR}/mpif90" \
+                    -D MPIEXEC_EXECUTABLE="${MPIDIR}/mpirun" \
                     \
                     -D BLAS_ENABLE="${BLASSTATUS}" \
                     -D BLAS_LIBRARIES="${BLASDIR}/libblas.so" \

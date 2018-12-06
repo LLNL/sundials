@@ -24,6 +24,7 @@ TEX_COMPILER = pdflatex
 
 UG_SHARED_FILES = \
 fortran.tex \
+fortran2003.tex \
 install.tex \
 license_info.tex \
 linear-vector-table.tex \

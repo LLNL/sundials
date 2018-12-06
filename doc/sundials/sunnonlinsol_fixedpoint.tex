@@ -76,10 +76,10 @@ integrator.
 % ====================================================================
 
 The {\sunnonlinsolfixedpoint} module provides the following constructors
-for creating a\\ \noindent
+for creating a \newline
 \id{SUNNonlinearSolver} object.
 % --------------------------------------------------------------------
-\ucfunction{SUNNonlinSol\_FixedPoint}
+\ucfunctionf{SUNNonlinSol\_FixedPoint}
 {
   NLS = SUNNonlinSol\_FixedPoint(y, m);
 }
@@ -103,7 +103,7 @@ for creating a\\ \noindent
 }
 {}
 % --------------------------------------------------------------------
-\ucfunction{SUNNonlinSol\_FixedPointSens}
+\ucfunctionf{SUNNonlinSol\_FixedPointSens}
 {
   NLS = SUNNonlinSol\_FixedPointSens(count, y, m);
 }
@@ -153,7 +153,7 @@ generic functions defined in sections \ref{ss:sunnonlinsol_corefn} --
 The {\sunnonlinsolfixedpoint} module also defines the following additional
 user-callable function.
 % --------------------------------------------------------------------
-\ucfunction{SUNNonlinSolGetSysFn\_FixedPoint}
+\ucfunctionf{SUNNonlinSolGetSysFn\_FixedPoint}
 {
   retval = SUNNonlinSolGetSysFn\_FixedPoint(NLS, SysFn);
 }
@@ -182,12 +182,71 @@ user-callable function.
 
 
 % ====================================================================
+\subsection{SUNNonlinearSolver\_FixedPoint Fortran interfaces}
+\label{ss:sunnonlinsolfixedpoint_fortran}
+% ====================================================================
+
+The {\sunnonlinsolfixedpoint} module provides a {\F} 2003 module as well as
+{\F} 77 style interface functions for use from {\F} applications.
+
+\subsubsection*{FORTRAN 2003 interface module}
+The \ID{fsunnonlinsol\_fixedpoint\_mod} {\F} module defines interfaces to all
+{\sunnonlinsolfixedpoint} {\CC} functions using the intrinsic \id{iso\_c\_binding}
+module which provides a standardized mechanism for interoperating with {\CC}. As
+noted in the {\CC} function descriptions above, the interface functions are
+named after the corresponding {\CC} function, but with a leading `F'. For
+example, the function \id{SUNNonlinSol\_FixedPoint} is interfaced as
+\id{FSUNNonlinSol\_FixedPoint}.
+
+The {\F} 2003 {\sunnonlinsolfixedpoint} interface module can be accessed with the \id{use}
+statement, i.e. \id{use fsunnonlinsol\_fixedpoint\_mod}, and linking to the library
+\id{libsundials\_fsunnonlinsolfixedpoint\_mod}.{\em lib} in addition to the {\CC} library. For details on where the library and module file
+\id{fsunnonlinsol\_fixedpoint\_mod.mod} are installed see Appendix \ref{c:install}.
+We note that the module is accessible from the {\F} 2003 {\sundials} integrators
+\textit{without} separately linking to the
+\id{libsundials\_fsunnonlinsolfixedpoint\_mod} library.
+
+\subsubsection*{FORTRAN 77 interface functions}
+For {\sundials} integrators that include a {\F} 77 interface, the
+{\sunnonlinsolfixedpoint} module also includes a Fortran-callable
+function for creating a \id{SUNNonlinearSolver} object.
+%
+% --------------------------------------------------------------------
+%
+\ucfunction{FSUNFIXEDPOINTINIT}
+{
+  FSUNFIXEDPOINTINIT(code, m, ier);
+}
+{
+  The function \ID{FSUNFIXEDPOINTINIT} can be called for Fortran programs
+  to create a\\
+  \id{SUNNonlinearSolver} object for use with {\sundials}
+  integrators to solve nonlinear systems of the form $G(y) = y$.
+}
+{
+  \begin{args}[code]
+  \item[code] (\id{int*})
+    is an integer input specifying the solver id (1 for {\cvode}, 2
+    for {\ida}, and 4 for {\arkode}).
+  \item[m] (\id{int*})
+    is an integer input specifying the number of acceleration vectors.
+  \end{args}
+}
+{
+  \id{ier} is a return completion flag equal to \id{0} for a success
+  return and \id{-1} otherwise. See printed message for details in case
+  of failure.
+}
+{}
+
+
+% ====================================================================
 \subsection{SUNNonlinearSolver\_FixedPoint content}
 \label{ss:sunnonlinsolfixedpoint_content}
 % ====================================================================
 
-The \textit{content} field of the {\sunnonlinsolfixedpoint} module is the
-following structure.
+The {\sunnonlinsolfixedpoint} module defines the {\textit{content} field of a
+\id{SUNNonlinearSolver} as the following structure:
 %%
 %%
 \begin{verbatim}
@@ -252,38 +311,3 @@ allocated within the \emph{content} field:
   \item[fold]  - \id{N\_Vector} used in acceleration algorithm
   \item[gold]  - \id{N\_Vector} used in acceleration algorithm
 \end{args}
-
-
-% ====================================================================
-\subsection{SUNNonlinearSolver\_FixedPoint Fortran interface}
-\label{ss:sunnonlinsolfixedpoint_fortran}
-% ====================================================================
-
-For {\sundials} integrators that include a Fortran interface, the
-{\sunnonlinsolfixedpoint} module also includes a Fortran-callable
-function for creating a \id{SUNNonlinearSolver} object.
-\ucfunction{FSUNFIXEDPOINTINIT}
-{
-  FSUNFIXEDPOINTINIT(code, m, ier);
-}
-{
-  The function \ID{FSUNFIXEDPOINTINIT} can be called for Fortran programs
-  to create a\\
-  \id{SUNNonlinearSolver} object for use with {\sundials}
-  integrators to solve nonlinear systems of the form $G(y) = y$.
-}
-{
-  \begin{args}[code]
-  \item[code] (\id{int*})
-    is an integer input specifying the solver id (1 for {\cvode}, 2
-    for {\ida}, and 4 for {\arkode}).
-  \item[m] (\id{int*})
-    is an integer input specifying the number of acceleration vectors.
-  \end{args}
-}
-{
-  \id{ier} is a return completion flag equal to \id{0} for a success
-  return and \id{-1} otherwise. See printed message for details in case
-  of failure.
-}
-{}

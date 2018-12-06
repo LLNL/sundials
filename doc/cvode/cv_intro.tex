@@ -101,6 +101,16 @@ in extended {\F}.
 
 \subsection*{Changes in v4.0.0}
 
+Added {\F} 2003 interfaces to:
+\begin{itemize}
+  \item {\cvode}
+  \item {\sunnonlinsolfixedpoint} and {\sunnonlinsolnewton} nonlinear solver modules
+  \item {\sunlinsoldense}, {\sunlinsolband}, {\sunlinsolklu},
+    {\sunlinsolpcg}, {\sunlinsolspbcgs}, {\sunlinsolspfgmr},
+    {\sunlinsolspgmr}, and {\sunlinsolsptfqmr} linear solver modules
+  \item {\nvecs}, {\nvecpthreads}, and {\nvecopenmp} vector modules
+\end{itemize}
+
 Multiple changes to {\nveccuda} were made:
 \begin{itemize}
   \item Changed \id{N\_VGetLength\_Cuda} to return the global vector length instead of
@@ -733,8 +743,7 @@ The structure of this document is as follows:
   {\CC} applications.  It includes a complete description of the user interface
   for the integration of ODE initial value problems.
 \item
-  In Chapter \ref{s:fcmix}, we describe {\fcvode}, an interface module
-  for the use of {\cvode} with {\F} applications.
+  In Chapter \ref{s:cvfort}, we describe the use of {\cvode} with {\F} applications.
 \item
   Chapter \ref{s:nvector} gives a brief overview of the generic
   {\nvector} module shared among the various components of

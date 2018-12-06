@@ -20,6 +20,11 @@
 
 install(CODE "MESSAGE(\"\nInstall SUNNONLINSOL_FIXEDPOINT\n\")")
 
+# Add F90 module if F2003 interface is enabled
+if(F90_FOUND AND F2003_INTERFACE_ENABLE)
+  add_subdirectory(F90)
+endif(F90_FOUND AND F2003_INTERFACE_ENABLE)
+
 # Add variable with the sources for the library
 set(lib_SOURCES sunnonlinsol_fixedpoint.c)
 
@@ -76,7 +81,7 @@ endif()
 INSTALL(FILES ${lib_HEADERS} DESTINATION include/sunnonlinsol)
 
 # If FCMIX is enabled, build and install the F library
-if(FCMIX_ENABLE AND F77_FOUND)
+if(F77_INTERFACE_ENABLE AND F77_FOUND)
   set(flib_SOURCES fsunnonlinsol_fixedpoint.c)
 
   if(BUILD_STATIC_LIBS)

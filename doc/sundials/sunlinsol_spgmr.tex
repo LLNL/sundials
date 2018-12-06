@@ -1,38 +1,69 @@
-%% This is a shared SUNDIALS TEX file with a description of the
-%% spgmr sunlinsol implementation
-%%
-\section{The SUNLinearSolver\_SPGMR implementation}\label{ss:sunlinsol_spgmr}
+% ====================================================================
+\section{The SUNLinearSolver\_SPGMR implementation}
+\label{ss:sunlinsol_spgmr}
+% ====================================================================
 
-The {\spgmr} (Scaled, Preconditioned, Generalized Minimum
-Residual \cite{SaSc:86}) implementation of the {\sunlinsol} module
-provided with {\sundials}, {\sunlinsolspgmr}, is an iterative linear
-solver that is designed to be compatible with any {\nvector}
-implementation (serial, threaded, parallel, and user-supplied) that
-supports a minimal subset of operations (\id{N\_VClone}, 
-\id{N\_VDotProd}, \id{N\_VScale}, \\ \noindent \id{N\_VLinearSum}, \id{N\_VProd},
-\id{N\_VConst}, \id{N\_VDiv}, and \id{N\_VDestroy}).  When using
-Classical Gram-Schmidt, the optional function \id{N\_VDotProdMulti}
-may be supplied for increased efficiency.
+This section describes the {\sunlinsol} implementation of the {\spgmr}
+(Scaled, Preconditioned, Generalized Minimum Residual \cite{SaSc:86})
+iterative linear solver. The {\sunlinsolspgmr} module is designed to be
+compatible with any {\nvector} implementation that supports a minimal subset
+of operations (\id{N\_VClone}, \id{N\_VDotProd}, \id{N\_VScale},
+\id{N\_VLinearSum}, \id{N\_VProd}, \id{N\_VConst}, \id{N\_VDiv}, and
+\id{N\_VDestroy}). When using Classical Gram-Schmidt, the optional function
+\id{N\_VDotProdMulti} may be supplied for increased efficiency.
 
-%---------------------------------------------------------------------------
-\subsection{{\sunlinsolspgmr} usage}\label{ss:sunlinsol_spgmr_usage}
-
-The header file to include when using this module 
-is \id{sunlinsol/sunlinsol\_spgmr.h}. The {\sunlinsolspgmr} module
-is accessible from all {\sundials} solvers \textit{without}
-linking to the \\ \noindent
-\id{libsundials\_sunlinsolspgmr} module library.
+To access the {\sunlinsolspgmr} module, include the header file
+\id{sunlinsol/sunlinsol\_spgmr.h}. We note that the {\sunlinsolspgmr} module is
+accessible from {\sundials} packages \textit{without} separately linking to
+the \id{libsundials\_sunlinsolspgmr} module library.
 
 
-The module {\sunlinsolspgmr} provides the following user-callable routines: 
+% ====================================================================
+\subsection{SUNLinearSolver\_SPGMR description}
+\label{ss:sunlinsol_spgmr_description}
+% ====================================================================
+
+This solver is constructed to perform the following operations:
+\begin{itemize}
+\item During construction, the \id{xcor} and \id{vtemp} arrays are
+  cloned from a template {\nvector} that is input, and default solver
+  parameters are set.
+\item User-facing ``set'' routines may be called to modify default
+  solver parameters.
+\item Additional ``set'' routines are called by the {\sundials} solver
+  that interfaces with {\sunlinsolspgmr} to supply the
+  \id{ATimes}, \id{PSetup}, and \id{Psolve} function pointers and
+  \id{s1} and \id{s2} scaling vectors.
+\item In the ``initialize'' call, the remaining solver data is
+  allocated (\id{V}, \id{Hes}, \id{givens}, and \id{yg} )
+\item In the ``setup'' call, any non-\id{NULL}
+  \id{PSetup} function is called.  Typically, this is provided by
+  the {\sundials} solver itself, that translates between the
+  generic \id{PSetup} function and the
+  solver-specific routine (solver-supplied or user-supplied).
+\item In the ``solve'' call, the GMRES iteration is performed.  This
+  will include scaling, preconditioning, and restarts if those options
+  have been supplied.
+\end{itemize}
+
+
+% ====================================================================
+\subsection{SUNLinearSolver\_SPGMR functions}
+\label{ss:sunlinsol_spgmr_functions}
+% ====================================================================
+
+The {\sunlinsolspgmr} module provides the following user-callable constructor
+for creating a \newline \id{SUNLinearSolver} object.
+%
 % --------------------------------------------------------------------
-\ucfunction{SUNLinSol\_SPGMR}
+%
+\ucfunctiondf{SUNLinSol\_SPGMR}
 {
   LS = SUNLinSol\_SPGMR(y, pretype, maxl);
 }
 {
   The function \ID{SUNLinSol\_SPGMR} creates and allocates memory for
-  a {\spgmr} \\ \noindent \id{SUNLinearSolver}.
+  a {\spgmr} \newline \id{SUNLinearSolver} object.
 }
 {
   \begin{args}[pretype]
@@ -50,20 +81,20 @@ The module {\sunlinsolspgmr} provides the following user-callable routines:
     Any other integer input will result in the default (no
     preconditioning).
   \item[maxl] (\id{int})
-    the number of Krylov basis vectors to use.  values $\le0$ will
+    the number of Krylov basis vectors to use. Values $\le0$ will
     result in the default value (5).
   \end{args}
 }
 {
   This returns a \id{SUNLinearSolver} object.  If either \id{y} is
-  incompatible then this routine will return \id{NULL}. 
+  incompatible then this routine will return \id{NULL}.
 }
 {
   This routine will perform consistency checks to ensure that it is
   called with a consistent {\nvector} implementation (i.e.~that it
   supplies the requisite vector operations).  If \id{y} is
   incompatible, then this routine will return \id{NULL}.
-  
+
   We note that some {\sundials} solvers are designed to only work
   with left preconditioning ({\ida} and {\idas}) and others with only
   right preconditioning ({\kinsol}). While it is possible to configure
@@ -71,8 +102,37 @@ The module {\sunlinsolspgmr} provides the following user-callable routines:
   with these solvers, this use mode is not supported and may result in
   inferior performance.
 }
+{SUNSPGMR}
+%
 % --------------------------------------------------------------------
-\ucfunction{SUNLinSol\_SPGMRSetPrecType}
+%
+The {\sunlinsolspgmr} module defines implementations of all
+``iterative'' linear solver operations listed in Sections
+\ref{ss:sunlinsol_CoreFn} -- \ref{ss:sunlinsol_GetFn}:
+\begin{itemize}
+\item \id{SUNLinSolGetType\_SPGMR}
+\item \id{SUNLinSolInitialize\_SPGMR}
+\item \id{SUNLinSolSetATimes\_SPGMR}
+\item \id{SUNLinSolSetPreconditioner\_SPGMR}
+\item \id{SUNLinSolSetScalingVectors\_SPGMR}
+\item \id{SUNLinSolSetup\_SPGMR}
+\item \id{SUNLinSolSolve\_SPGMR}
+\item \id{SUNLinSolNumIters\_SPGMR}
+\item \id{SUNLinSolResNorm\_SPGMR}
+\item \id{SUNLinSolResid\_SPGMR}
+\item \id{SUNLinSolLastFlag\_SPGMR}
+\item \id{SUNLinSolSpace\_SPGMR}
+\item \id{SUNLinSolFree\_SPGMR}
+\end{itemize}
+All of the listed operations are callable via the {\F} 2003 interface module
+by prepending an `F' to the function name.
+
+The {\sunlinsolspgmr} module also defines the following additional
+user-callable functions.
+%
+% --------------------------------------------------------------------
+%
+\ucfunctiondf{SUNLinSol\_SPGMRSetPrecType}
 {
   retval = SUNLinSol\_SPGMRSetPrecType(LS, pretype);
 }
@@ -94,31 +154,33 @@ The module {\sunlinsolspgmr} provides the following user-callable routines:
   \id{SUNLS\_ILL\_INPUT} (illegal \id{pretype}), \id{SUNLS\_MEM\_NULL}
   (\id{S} is \id{NULL}) or \id{SUNLS\_SUCCESS}.
 }
-{
-}
+{}
+{SUNSPGMRSetPrecType}
+%
 % --------------------------------------------------------------------
-\ucfunction{SUNLinSol\_SPGMRSetGSType}
+%
+\ucfunctiondf{SUNLinSol\_SPGMRSetGSType}
 {
   retval = SUNLinSol\_SPGMRSetGSType(LS, gstype);
 }
 {
   The function \ID{SUNLinSol\_SPGMRSetPrecType} sets the type of
   Gram-Schmidt orthogonalization to use in the {\sunlinsolspgmr}
-  object. 
+  object.
 }
 {
   \begin{args}[gstype]
   \item[LS] (\id{SUNLinearSolver})
     the {\sunlinsolspgmr} object to update
   \item[gstype] (\id{int})
-    flag indicating the desired orthogonalization algorithm; allowed 
+    flag indicating the desired orthogonalization algorithm; allowed
     values are:
     \begin{itemize}
     \item \id{MODIFIED\_GS} (1)
     \item \id{CLASSICAL\_GS} (2)
     \end{itemize}
     Any other integer input will result in a
-    failure, returning error code \\ \noindent \id{SUNLS\_ILL\_INPUT}.
+    failure, returning error code \newline \id{SUNLS\_ILL\_INPUT}.
   \end{args}
 }
 {
@@ -126,16 +188,18 @@ The module {\sunlinsolspgmr} provides the following user-callable routines:
   \id{SUNLS\_ILL\_INPUT} (illegal \id{pretype}), \id{SUNLS\_MEM\_NULL}
   (\id{S} is \id{NULL}) or \id{SUNLS\_SUCCESS}.
 }
-{
-}
+{}
+{SUNSPGMRSetGSType}
+%
 % --------------------------------------------------------------------
-\ucfunction{SUNLinSol\_SPGMRSetMaxRestarts}
+%
+\ucfunctiondf{SUNLinSol\_SPGMRSetMaxRestarts}
 {
   retval = SUNLinSol\_SPGMRSetMaxRestarts(LS, maxrs);
 }
 {
   The function \ID{SUNLinSol\_SPGMRSetMaxRestarts} sets the number of
-  GMRES restarts to allow in the {\sunlinsolspgmr} object. 
+  GMRES restarts to allow in the {\sunlinsolspgmr} object.
 }
 {
   \begin{args}[maxrs]
@@ -143,46 +207,50 @@ The module {\sunlinsolspgmr} provides the following user-callable routines:
     the {\sunlinsolspgmr} object to update
   \item[maxrs] (\id{int})
     integer indicating number of restarts to allow.  A negative input
-    will result in the default of 0. 
+    will result in the default of 0.
   \end{args}
 }
 {
   This routine will return with one of the error codes
   \id{SUNLS\_MEM\_NULL} (\id{S} is \id{NULL}) or \id{SUNLS\_SUCCESS}.
 }
-{
-}
-% --------------------------------------------------------------------
-%%
-For backwards compatibility, we also provide the wrapper functions,
-each with identical input and output arguments to the routines that
-they wrap:
-\begin{itemize}
+{}
+{SUNSPGMRSetMaxRestarts}
 
-\item \ID{SUNSPGMR}
 
-  Wrapper function for \ID{SUNLinSol\_SPGMR}
+% ====================================================================
+\subsection{SUNLinearSolver\_SPGMR Fortran interfaces}
+\label{ss:sunlinsol_spgmr_fortran}
+% ====================================================================
 
-\item \ID{SUNSPGMRSetPrecType}
+The {\sunlinsolspgmr} module provides a {\F} 2003 module as well as {\F} 77
+style interface functions for use from {\F} applications.
 
-  Wrapper function for \ID{SUNLinSol\_SPGMRSetPrecType}
+\subsubsection*{FORTRAN 2003 interface module}
+The \ID{fsunlinsol\_spgmr\_mod} {\F} module defines interfaces to all
+{\sunlinsolspgmr} {\CC} functions using the intrinsic \id{iso\_c\_binding}
+module which provides a standardized mechanism for interoperating with {\CC}. As
+noted in the {\CC} function descriptions above, the interface functions are
+named after the corresponding {\CC} function, but with a leading `F'. For
+example, the function \id{SUNLinSol\_SPGMR} is interfaced as
+\id{FSUNLinSol\_SPGMR}.
 
-\item \ID{SUNSPGMRSetGSType}
+The {\F} 2003 {\sunlinsolspgmr} interface module can be accessed with the \id{use}
+statement, i.e. \id{use fsunlinsol\_spgmr\_mod}, and linking to the library
+\id{libsundials\_fsunlinsolspgmr\_mod}.{\em lib} in addition to the {\CC} library.
+For details on where the library and module file
+\id{fsunlinsol\_spgmr\_mod.mod} are installed see Appendix \ref{c:install}.
+We note that the module is accessible from the {\F} 2003 {\sundials} integrators
+\textit{without} separately linking to the
+\id{libsundials\_fsunlinsolspgmr\_mod} library.
 
-  Wrapper function for \ID{SUNLinSol\_SPGMRSetGSType}
-
-\item \ID{SUNSPGMRSetMaxRestarts}
-
-  Wrapper function for \ID{SUNLinSol\_SPGMRSetMaxRestarts}
-
-\end{itemize}
-%%
-%%------------------------------------
-%%
-For solvers that include a Fortran interface module, the
+\subsubsection*{FORTRAN 77 interface functions}
+For solvers that include a {\F} 77 interface module, the
 {\sunlinsolspgmr} module also includes a Fortran-callable function
 for creating a \id{SUNLinearSolver} object.
+%
 % --------------------------------------------------------------------
+%
 \ucfunction{FSUNSPGMRINIT}
 {
   FSUNSPGMRINIT(code, pretype, maxl, ier)
@@ -212,14 +280,15 @@ for creating a \id{SUNLinearSolver} object.
   been initialized.
 
   Allowable values for \id{pretype} and \id{maxl} are the same as for
-  the {\CC} function \\ \noindent \ID{SUNLinSol\_SPGMR}. 
+  the {\CC} function \newline \ID{SUNLinSol\_SPGMR}.
 }
+Additionally, when using {\arkode} with a non-identity
+mass matrix, the {\sunlinsolspgmr} module includes a Fortran-callable
+function for creating a \id{SUNLinearSolver} mass matrix solver
+object.
+%
 % --------------------------------------------------------------------
-Additionally, when using
-{\arkode} with a non-identity mass matrix, the {\sunlinsolspgmr} module
-includes a Fortran-callable function for creating a
-\id{SUNLinearSolver} mass matrix solver object.
-% --------------------------------------------------------------------
+%
 \ucfunction{FSUNMASSSPGMRINIT}
 {
   FSUNMASSSPGMRINIT(pretype, maxl, ier)
@@ -243,17 +312,20 @@ includes a Fortran-callable function for creating a
 }
 {
   This routine must be called \emph{after} the {\nvector} object has
-  been initialized. 
+  been initialized.
 
   Allowable values for \id{pretype} and \id{maxl} are the same as for
-  the {\CC} function \\ \noindent \ID{SUNLinSol\_SPGMR}. 
+  the {\CC} function \newline \ID{SUNLinSol\_SPGMR}.
 }
+%
 % --------------------------------------------------------------------
+%
 The \id{SUNLinSol\_SPGMRSetPrecType}, \id{SUNLinSol\_SPGMRSetGSType}
-and \\ \noindent \id{SUNLinSol\_SPGMRSetMaxRestarts} routines also
-support Fortran interfaces for the system and mass matrix solvers
-
+and \newline \id{SUNLinSol\_SPGMRSetMaxRestarts} routines also
+support Fortran interfaces for the system and mass matrix solvers.
+%
 % --------------------------------------------------------------------
+%
 \ucfunction{FSUNSPGMRSETGSTYPE}
 {
   FSUNSPGMRSETGSTYPE(code, gstype, ier)
@@ -280,7 +352,9 @@ support Fortran interfaces for the system and mass matrix solvers
   See \id{SUNLinSol\_SPGMRSetGSType} for complete further documentation of
   this routine. 
 }
+%
 % --------------------------------------------------------------------
+%
 \ucfunction{FSUNMASSSPGMRSETGSTYPE}
 {
   FSUNMASSSPGMRSETGSTYPE(gstype, ier)
@@ -302,9 +376,11 @@ support Fortran interfaces for the system and mass matrix solvers
 }
 {
   See \id{SUNLinSol\_SPGMRSetGSType} for complete further documentation of
-  this routine. 
+  this routine.
 }
+%
 % --------------------------------------------------------------------
+%
 \ucfunction{FSUNSPGMRSETPRECTYPE}
 {
   FSUNSPGMRSETPRECTYPE(code, pretype, ier)
@@ -329,9 +405,11 @@ support Fortran interfaces for the system and mass matrix solvers
 }
 {
   See \id{SUNLinSol\_SPGMRSetPrecType} for complete further documentation of
-  this routine. 
+  this routine.
 }
+%
 % --------------------------------------------------------------------
+%
 \ucfunction{FSUNMASSSPGMRSETPRECTYPE}
 {
   FSUNMASSSPGMRSETPRECTYPE(pretype, ier)
@@ -339,7 +417,7 @@ support Fortran interfaces for the system and mass matrix solvers
 {
   The function \ID{FSUNMASSSPGMRSETPRECTYPE} can be called for Fortran
   programs to change the type of preconditioning for mass matrix
-  linear systems. 
+  linear systems.
 }
 {
   The arguments are identical to \id{FSUNSPGMRSETPRECTYPE} above, except that
@@ -353,9 +431,11 @@ support Fortran interfaces for the system and mass matrix solvers
 }
 {
   See \id{SUNLinSol\_SPGMRSetPrecType} for complete further documentation of
-  this routine. 
+  this routine.
 }
+%
 % --------------------------------------------------------------------
+%
 \ucfunction{FSUNSPGMRSETMAXRS}
 {
   FSUNSPGMRSETMAXRS(code, maxrs, ier)
@@ -380,9 +460,11 @@ support Fortran interfaces for the system and mass matrix solvers
 }
 {
   See \id{SUNLinSol\_SPGMRSetMaxRestarts} for complete further
-  documentation of this routine. 
+  documentation of this routine.
 }
+%
 % --------------------------------------------------------------------
+%
 \ucfunction{FSUNMASSSPGMRSETMAXRS}
 {
   FSUNMASSSPGMRSETMAXRS(maxrs, ier)
@@ -390,7 +472,7 @@ support Fortran interfaces for the system and mass matrix solvers
 {
   The function \ID{FSUNMASSSPGMRSETMAXRS} can be called for Fortran
   programs to change the maximum number of restarts allowed for
-  {\spgmr} for mass matrix linear systems. 
+  {\spgmr} for mass matrix linear systems.
 }
 {
   The arguments are identical to \id{FSUNSPGMRSETMAXRS} above, except that
@@ -404,19 +486,21 @@ support Fortran interfaces for the system and mass matrix solvers
 }
 {
   See \id{SUNLinSol\_SPGMRSetMaxRestarts} for complete further
-  documentation of this routine. 
+  documentation of this routine.
 }
+%
 % --------------------------------------------------------------------
+%
 
+% ====================================================================
+\subsection{SUNLinearSolver\_SPGMR content}
+\label{ss:sunlinsol_spgmr_content}
+% ====================================================================
 
-%---------------------------------------------------------------------------
-\subsection{{\sunlinsolspgmr} description}\label{ss:sunlinsol_spgmr_description}
-
-
-The {\sunlinsolspgmr} module defines the {\em content} field of a
-\id{SUNLinearSolver} to be the following structure:
+The {\sunlinsolspgmr} module defines the \textit{content} field of a
+\id{SUNLinearSolver} as the following structure:
 %%
-\begin{verbatim} 
+\begin{verbatim}
 struct _SUNLinearSolverContent_SPGMR {
   int maxl;
   int pretype;
@@ -443,7 +527,7 @@ struct _SUNLinearSolverContent_SPGMR {
 %%
 These entries of the \emph{content} field contain the following
 information:
-\begin{description}
+\begin{args}[max\_restarts]
   \item[maxl] - number of GMRES basis vectors to use (default is 5),
   \item[pretype] - flag for type of preconditioning to employ
     (default is none),
@@ -470,7 +554,8 @@ information:
   \item[givens] - a length \id{2*maxl} array which represents the
     Givens rotation matrices that arise in the GMRES algorithm. These
     matrices are $F_0, F_1, \ldots, F_j$, where
-    $F_i = \begin{bmatrix}
+    \begin{equation*}
+    F_i = \begin{bmatrix}
       1 &        &   &     &      &   &        &   \\
         & \ddots &   &     &      &   &        &   \\
         &        & 1 &     &      &   &        &   \\
@@ -478,7 +563,8 @@ information:
         &        &   & s_i &  c_i &   &        &   \\
         &        &   &     &      & 1 &        &   \\
         &        &   &     &      &   & \ddots &   \\
-        &        &   &     &      &   &        & 1\end{bmatrix}$,
+        &        &   &     &      &   &        & 1\end{bmatrix},
+    \end{equation*}
     are represented in the \id{givens} vector as \id{givens[0] =}
     $c_0$, \id{givens[1] = } $s_0$, \id{givens[2] = } $c_1$,
     \id{givens[3] = } $s_1$, \ldots \id{givens[2j] = } $c_j$,
@@ -488,50 +574,5 @@ information:
   \item[yg] - a length \id{(maxl+1)} array of \id{realtype} values
     used to hold ``short'' vectors (e.g. $y$ and $g$),
   \item[vtemp] - temporary vector storage.
-\end{description}
+\end{args}
 
-This solver is constructed to perform the following operations:
-\begin{itemize}
-\item During construction, the \id{xcor} and \id{vtemp} arrays are
-  cloned from a template {\nvector} that is input, and default solver
-  parameters are set.
-\item User-facing ``set'' routines may be called to modify default
-  solver parameters.
-\item Additional ``set'' routines are called by the {\sundials} solver
-  that interfaces with {\sunlinsolspgmr} to supply the 
-  \id{ATimes}, \id{PSetup}, and \id{Psolve} function pointers and
-  \id{s1} and \id{s2} scaling vectors.
-\item In the ``initialize'' call, the remaining solver data is
-  allocated (\id{V}, \id{Hes}, \id{givens}, and \id{yg} )
-\item In the ``setup'' call, any non-\id{NULL} 
-  \id{PSetup} function is called.  Typically, this is provided by
-  the {\sundials} solver itself, that translates between the
-  generic \id{PSetup} function and the
-  solver-specific routine (solver-supplied or user-supplied).
-\item In the ``solve'' call, the GMRES iteration is performed.  This
-  will include scaling, preconditioning, and restarts if those options
-  have been supplied.
-\end{itemize}
-
-%%
-%%----------------------------------------------
-%%
-
-\noindent The {\sunlinsolspgmr} module defines implementations of all
-``iterative'' linear solver operations listed in Sections
-\ref{ss:sunlinsol_CoreFn}-\ref{ss:sunlinsol_GetFn}:
-\begin{itemize}
-\item \id{SUNLinSolGetType\_SPGMR}
-\item \id{SUNLinSolInitialize\_SPGMR}
-\item \id{SUNLinSolSetATimes\_SPGMR}
-\item \id{SUNLinSolSetPreconditioner\_SPGMR}
-\item \id{SUNLinSolSetScalingVectors\_SPGMR}
-\item \id{SUNLinSolSetup\_SPGMR}
-\item \id{SUNLinSolSolve\_SPGMR}
-\item \id{SUNLinSolNumIters\_SPGMR}
-\item \id{SUNLinSolResNorm\_SPGMR}
-\item \id{SUNLinSolResid\_SPGMR}
-\item \id{SUNLinSolLastFlag\_SPGMR}
-\item \id{SUNLinSolSpace\_SPGMR}
-\item \id{SUNLinSolFree\_SPGMR}
-\end{itemize}

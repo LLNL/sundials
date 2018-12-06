@@ -52,9 +52,9 @@ $tar $tarfile $distrobase/src/arkode/arkode_interp_impl.h
 $tar $tarfile $distrobase/src/arkode/arkode_io.c
 $tar $tarfile $distrobase/src/arkode/arkode_ls.c
 $tar $tarfile $distrobase/src/arkode/arkode_ls_impl.h
-$tar $tarfile $distrobase/src/arkode/arkode_mritstep.c
-$tar $tarfile $distrobase/src/arkode/arkode_mritstep_impl.h
-$tar $tarfile $distrobase/src/arkode/arkode_mritstep_io.c
+$tar $tarfile $distrobase/src/arkode/arkode_mristep.c
+$tar $tarfile $distrobase/src/arkode/arkode_mristep_impl.h
+$tar $tarfile $distrobase/src/arkode/arkode_mristep_io.c
 $tar $tarfile $distrobase/src/arkode/arkode_root.c
 $tar $tarfile $distrobase/src/arkode/arkode_root_impl.h
 

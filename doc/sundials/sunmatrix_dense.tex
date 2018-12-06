@@ -19,7 +19,7 @@ struct _SUNMatrixContent_Dense {
 %%
 These entries of the \emph{content} field contain the following
 information:
-\begin{description}
+\begin{args}[ldata]
   \item[M] - number of rows
   \item[N] - number of columns
   \item[data] - pointer to a contiguous block of \id{realtype} variables.
@@ -33,15 +33,21 @@ information:
     The (\id{i},\id{j})-th element of a dense {\sunmatrix} \id{A}
     (with $0 \le$ \id{i} $<$ \id{M} and $ 0 \le$ \id{j} $<$ \id{N}) 
     may be accessed via \id{cols[j][i]}.
-\end{description}
+\end{args}
 
 \noindent The header file to include when using this module 
 is \id{sunmatrix/sunmatrix\_dense.h}. The {\sunmatdense} module
 is accessible from all {\sundials} solvers \textit{without}
-linking to the \\
-\id{libsundials\_sunmatrixdense} module library. \\
+linking to the \newline
+\id{libsundials\_sunmatrixdense} module library.
 
-\noindent The following macros are provided to access the
+
+% ====================================================================
+\subsection{SUNMatrix\_Dense accessor macros}
+\label{ss:sunmat_dense_macros}
+% ====================================================================
+
+The following macros are provided to access the
 content of a {\sunmatdense} matrix. The prefix \id{SM\_} in the names
 denotes that these macros are for \emph{SUNMatrix} implementations,
 and the suffix \id{\_D} denotes that these are specific to
@@ -128,90 +134,94 @@ the \emph{dense} version.
   \verb|#define SM_ELEMENT_D(A,i,j) ( (SM_CONTENT_D(A)->cols)[j][i] )|
 
 \end{itemize}
-%%
-%%----------------------------------------------
-%%
+
+
+% ====================================================================
+\subsection{SUNMatrix\_Dense functions}
+\label{ss:sunmat_dense_functions}
+% ====================================================================
+
 The {\sunmatdense} module defines dense implementations of all matrix
 operations listed in Table \ref{t:sunmatops}. Their names are obtained
 from those in Table \ref{t:sunmatops} by appending the
 suffix \id{\_Dense} (e.g. \id{SUNMatCopy\_Dense}). 
+All the standard matrix operations listed in \ref{t:sunmatops} with the suffix
+\id{\_Dense} appended are callable via the {\F} 2003 interface by prepending an
+`F' (e.g. \id{FSUNMatCopy\_Dense}).
+
 The module {\sunmatdense} provides the following additional
 user-callable routines: 
-%%
-\begin{itemize}
-
 %%--------------------------------------
-
-\item \ID{SUNDenseMatrix}
-
+\sunmodfunf{SUNDenseMatrix}
+{
   This constructor function creates and allocates memory for a dense \id{SUNMatrix}.
   Its arguments are the number of rows, \id{M}, and columns, \id{N}, for
   the dense matrix.
-
-  \verb|SUNMatrix SUNDenseMatrix(sunindextype M, sunindextype N);|
-
+}
+{
+  SUNMatrix SUNDenseMatrix(sunindextype M, sunindextype N)
+}
 %%--------------------------------------
-
-\item \ID{SUNDenseMatrix\_Print}
-
+\sunmodfun{SUNDenseMatrix\_Print}
+{
   This function prints the content of a dense \id{SUNMatrix} to the
   output stream specified by \id{outfile}.  Note: \id{stdout}
   or \id{stderr} may be used as arguments for \id{outfile} to print
   directly to standard output or standard error, respectively.
- 
-  \verb|void SUNDenseMatrix_Print(SUNMatrix A, FILE* outfile);|
-
+}
+{
+  void SUNDenseMatrix\_Print(SUNMatrix A, FILE* outfile)
+}
 %%--------------------------------------
-
-\item \ID{SUNDenseMatrix\_Rows}
-
+\sunmodfunf{SUNDenseMatrix\_Rows}
+{
   This function returns the number of rows in the dense \id{SUNMatrix}.
- 
-  \verb|sunindextype SUNDenseMatrix_Rows(SUNMatrix A);|
-
+}
+{
+  sunindextype SUNDenseMatrix\_Rows(SUNMatrix A)
+}
 %%--------------------------------------
-
-\item \ID{SUNDenseMatrix\_Columns}
-
+\sunmodfunf{SUNDenseMatrix\_Columns}
+{
   This function returns the number of columns in the dense \id{SUNMatrix}.
- 
-  \verb|sunindextype SUNDenseMatrix_Columns(SUNMatrix A);|
-
+}
+{
+  sunindextype SUNDenseMatrix\_Columns(SUNMatrix A)
+}
 %%--------------------------------------
-
-\item \ID{SUNDenseMatrix\_LData}
-
+\sunmodfunf{SUNDenseMatrix\_LData}
+{
   This function returns the length of the data array for the dense \id{SUNMatrix}.
- 
-  \verb|sunindextype SUNDenseMatrix_LData(SUNMatrix A);|
-
+}
+{
+  sunindextype SUNDenseMatrix\_LData(SUNMatrix A)
+}
 %%--------------------------------------
-
-\item \ID{SUNDenseMatrix\_Data}
-
+\sunmodfunf{SUNDenseMatrix\_Data}
+{
   This function returns a pointer to the data array for the dense \id{SUNMatrix}.
- 
-  \verb|realtype* SUNDenseMatrix_Data(SUNMatrix A);|
-
+}
+{
+  realtype* SUNDenseMatrix\_Data(SUNMatrix A)
+}
 %%--------------------------------------
-
-\item \ID{SUNDenseMatrix\_Cols}
-
+\sunmodfun{SUNDenseMatrix\_Cols}
+{
   This function returns a pointer to the cols array for the dense \id{SUNMatrix}.
- 
-  \verb|realtype** SUNDenseMatrix_Cols(SUNMatrix A);|
-
+}
+{
+  realtype** SUNDenseMatrix\_Cols(SUNMatrix A)
+}
 %%--------------------------------------
-
-\item \ID{SUNDenseMatrix\_Column}
-
+\sunmodfunf{SUNDenseMatrix\_Column}
+{
   This function returns a pointer to the first entry of the jth
   column of the dense \id{SUNMatrix}.  The resulting pointer should
   be indexed over the range $0$ to $\id{M}-1$.
- 
-  \verb|realtype* SUNDenseMatrix_Column(SUNMatrix A, sunindextype j);|
-
-\end{itemize}
+}
+{
+  realtype* SUNDenseMatrix\_Column(SUNMatrix A, sunindextype j)
+}
 %%
 %%------------------------------------
 %%
@@ -248,8 +258,37 @@ user-callable routines:
 
 \end{itemize}
 
-For solvers that include a Fortran interface module, the {\sunmatdense}
-module also includes the Fortran-callable
+
+
+% ====================================================================
+\subsection{SUNMatrix\_Dense Fortran interfaces}
+\label{ss:sunmat_dense_fortran}
+% ====================================================================
+
+The {\sunmatdense} module provides a {\F} 2003 module as well as {\F} 77
+style interface functions for use from {\F} applications.
+
+\subsubsection*{FORTRAN 2003 interface module}
+The \ID{fsunmatrix\_dense\_mod} {\F} module defines interfaces to most
+{\sunmatdense} {\CC} functions using the intrinsic \id{iso\_c\_binding}
+module which provides a standardized mechanism for interoperating with {\CC}. As
+noted in the {\CC} function descriptions above, the interface functions are
+named after the corresponding {\CC} function, but with a leading `F'. For
+example, the function \id{SUNDenseMatrix} is interfaced as
+\id{FSUNDenseMatrix}.
+
+The {\F} 2003 {\sunmatdense} interface module can be accessed with the \id{use}
+statement, i.e. \id{use fsunmatrix\_dense\_mod}, and linking to the library
+\id{libsundials\_fsunmatrixdense\_mod}.{\em lib} in addition to the {\CC} library.
+For details on where the library and module file
+\id{fsunmatrix\_dense\_mod.mod} are installed see Appendix \ref{c:install}.
+We note that the module is accessible from the {\F} 2003 {\sundials} integrators
+\textit{without} separately linking to the
+\id{libsundials\_fsunmatrixdense\_mod} library.
+
+\subsubsection*{FORTRAN 77 interface functions}
+For solvers that include a {\F} interface module, the {\sunmatdense}
+module also includes the {\F}-callable
 function \id{FSUNDenseMatInit(code, M, N, ier)} to initialize
 this {\sunmatdense} module for a given {\sundials} solver.
 Here \id{code} is an integer input solver id (1 for {\cvode}, 2 for {\ida}, 3
@@ -258,6 +297,6 @@ corresponding dense matrix construction arguments (declared to
 match C type \id{long int}); and \id{ier} is an error return flag 
 equal to 0 for success and -1 for failure. Both \id{code} and \id{ier}
 are declared to match C type \id{int}. Additionally, when using
-{\arkode} with a non-identity mass matrix, the Fortran-callable
+{\arkode} with a non-identity mass matrix, the {\F}-callable
 function \id{FSUNDenseMassMatInit(M, N, ier)} initializes this
 {\sunmatdense} module for storing the mass matrix. 

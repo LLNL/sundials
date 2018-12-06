@@ -1,18 +1,48 @@
 %%==============================================================================
-\chapter{FCVODE, an Interface Module for FORTRAN Applications}\label{s:fcmix}
+\chapter{Using CVODE for FORTRAN Applications}\label{s:cvfort}
 %%==============================================================================
+
+A {\F} 2003 module (\id{fcvode\_mod}) as well as a {\F} 77 style interface
+(\fcvode) are provided to support the use of {\cvode}, for the solution of ODE
+systems $dy/dt = f(t,y)$, in a mixed {\F}/{\CC} setting. While {\cvode} is
+written in {\CC}, it is assumed here that the user's calling program and
+user-supplied problem-defining routines are written in {\F}. 
+
+%%==============================================================================
+% FORTRAN 2003 Interfaces.
+%%==============================================================================
+
+\let\sectiontype\subsection
+\section{CVODE FORTRAN 2003 Interface Module}\label{s:cvf2003}
+
+The \ID{fcvode\_mod} {\F} module defines interfaces to most {\cvode} {\CC}
+functions using the intrinsic \id{iso\_c\_binding} module which provides a
+standardized mechanism for interoperating with {\CC}. All interfaced functions
+are named after the corresponding {\CC} function, but with a leading `F'. For
+example, the {\cvode} function \id{CVodeCreate} is interfaced as
+\id{FCVodeCreate}. Thus, the steps to use {\cvode} and the function calls in
+{\F} 2003 are identical (ignoring language differences) to those in {\CC}. The
+{\CC} functions with {\F} 2003 interfaces indicate this in their description in
+Chapter \ref{s:simulation}.
+
+The {\F} 2003 {\cvode} interface module can be accessed by the \id{use}
+statement, i.e. \id{use fcvode\_mod}, and linking to the library
+\id{libsundials\_fcvode\_mod}.{\em lib} in addition to
+\id{libsundials\_cvode}.{\em lib}.
+
+% Pull in sections on portability and data types.
+\input{fortran2003}
+
+%%==============================================================================
+% FCVODE.
+%%==============================================================================
+\section{FCVODE, an Interface Module for FORTRAN Applications}\label{s:fcmix}
 
 The {\fcvode} interface module is a package of {\CC} functions which support
-the use of the {\cvode} solver, for the solution of ODE systems 
-$dy/dt = f(t,y)$, in a mixed {\F}/{\CC} setting.  While {\cvode} is written
-in {\CC}, it is assumed here that the user's calling program and
-user-supplied problem-defining routines are written in {\F}.
-This package provides the necessary interface to {\cvode} for all supplied 
-serial and parallel {\nvector} implementations.
+the use of the {\cvode}. This package provides the necessary interface to
+{\cvode} for all supplied serial and parallel {\nvector} implementations.
 
-%%==============================================================================
 % Pull in sections on portability and data types.
-%%==============================================================================
 \input{fortran}
 
 %% In this package, the names of the interface functions, and the names of
@@ -42,7 +72,7 @@ serial and parallel {\nvector} implementations.
 %% {\fcvode} package on 64-bit architectures.
 
 %%==============================================================================
-\section{FCVODE routines}\label{sss:fcvroutines}
+\subsection{FCVODE routines}\label{sss:fcvroutines}
 %%==============================================================================
 
 \index{FCVODE@{\fcvode} interface module!user-callable functions|(}
@@ -173,7 +203,7 @@ solvers, the names of all user-supplied routines here are fixed, in
 order to maximize portability for the resulting mixed-language program.
 
 %%==============================================================================
-\section{Usage of the FCVODE interface module}\label{ss:fcvode_usage}
+\subsection{Usage of the FCVODE interface module}\label{ss:fcvode_usage}
 %%==============================================================================
 \index{FCVODE@{\fcvode} interface module!usage|(}
 
@@ -290,7 +320,7 @@ sections of Chapter \ref{s:sunlinsol}.
   By default {\cvode} uses the {\sunnonlinsol} implementation of Newton's method
   defined by the {\sunnonlinsolnewton} module (see \S\ref{s:sunnonlinsol_newton}).
   To specify a non-default nonlinear solver in {\cvode}, the user's program must
-  create a {\sunnonlinsol} object by calling the appropriate Fortran interface
+  create a {\sunnonlinsol} object by calling the appropriate {\F} interface
   function to the constructor routine (see Chapter \ref{c:sunnonlinsol}). For
   example, to create the {\sunnonlinsolfixedpoint} solver call the function
 \begin{verbatim}
@@ -764,7 +794,7 @@ sections of Chapter \ref{s:sunlinsol}.
 
   Once attached, the user may specify non-default inputs for the
   {\sunnonlinsol} object (e.g.~the maximum number of nonlinear
-  iterations) by calling appropriate Fortran interface routines (see Chapter
+  iterations) by calling appropriate {\F} interface routines (see Chapter
   \ref{c:sunnonlinsol}). 
 
 %%====================
@@ -847,7 +877,7 @@ sections of Chapter \ref{s:sunlinsol}.
 
 
 %%==============================================================================
-\section{FCVODE optional input and output}\label{fcv_opt_inout}
+\subsection{FCVODE optional input and output}\label{fcv_opt_inout}
 %%==============================================================================
 \index{FCVODE@{\fcvode} interface module!optional input and output}
 
@@ -1019,7 +1049,7 @@ was a memory error.
 
 
 %%==============================================================================
-\section{Usage of the FCVROOT interface to rootfinding}
+\subsection{Usage of the FCVROOT interface to rootfinding}
 %%==============================================================================
 \index{FCVODE@{\fcvode} interface module!rootfinding|(}
 \index{Rootfinding}
@@ -1096,7 +1126,7 @@ the following call:
 
 
 %%==============================================================================
-\section{Usage of the FCVBP interface to CVBANDPRE}
+\subsection{Usage of the FCVBP interface to CVBANDPRE}
 %%==============================================================================
 \index{FCVODE@{\fcvode} interface module!interface to the {\cvbandpre} module|(}
 %%
@@ -1202,7 +1232,7 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 
 
 %%==============================================================================
-\section{Usage of the FCVBBD interface to CVBBDPRE}
+\subsection{Usage of the FCVBBD interface to CVBBDPRE}
 %%==============================================================================
 \index{FCVODE@{\fcvode} interface module!interface to the {\cvbbdpre} module|(}
 

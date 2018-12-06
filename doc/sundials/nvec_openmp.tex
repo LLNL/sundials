@@ -28,12 +28,21 @@ struct _N_VectorContent_OpenMP {
 \end{verbatim}
 %%
 %%--------------------------------------------
+%%
 
 The header file to include when using this module is \id{nvector\_openmp.h}.
 The installed module library to link to is
 \id{libsundials\_nvecopenmp.\textit{lib}}
 where \id{\em.lib} is typically \id{.so} for shared libraries and \id{.a}
 for static libraries.
+The {\F} module file to use when using the {\F} 2003 interface to
+this module is \id{fnvector\_openmp\_mod.mod}.
+
+
+% ====================================================================
+\subsection{NVECTOR\_OPENMP accessor macros}
+\label{ss:nvec_openmp_macros}
+% ====================================================================
 
 The following macros are provided to access the content of an {\nvecopenmp}
 vector. The suffix \id{\_OMP} in the names denotes the OpenMP version.
@@ -98,110 +107,105 @@ vector. The suffix \id{\_OMP} in the names denotes the OpenMP version.
   \verb|#define NV_Ith_OMP(v,i) ( NV_DATA_OMP(v)[i] )|
 
 \end{itemize}
-%%
-%%----------------------------------------------
-%%
+
+
+% ====================================================================
+\subsection{NVECTOR\_OPENMP functions}
+\label{ss:nvec_openmp_functions}
+% ====================================================================
+
 The {\nvecopenmp} module defines OpenMP implementations of all vector operations listed
 in Tables \ref{t:nvecops}, \ref{t:nvecfusedops}, and \ref{t:nvecarrayops}. Their names are
 obtained from those in Tables \ref{t:nvecops}, \ref{t:nvecfusedops}, and
 \ref{t:nvecarrayops} by appending the suffix \id{\_OpenMP} (e.g. \id{N\_VDestroy\_OpenMP}).
+All the standard vector operations listed in \ref{t:nvecops} with the suffix
+\id{\_OpenMP} appended are callable via the {\F} 2003 interface by prepending an
+`F' (e.g. \id{FN\_VDestroy\_OpenMP}).
+
 The module {\nvecopenmp} provides the following additional user-callable routines:
-%%
-\begin{itemize}
+%%--------------------------------------
+\sunmodfunf{N\_VNew\_OpenMP}
+{
+ This function creates and allocates memory for a OpenMP \id{N\_Vector}.
+ Arguments are the vector length and number of threads.
+}
+{
+ N\_Vector N\_VNew\_OpenMP(sunindextype vec\_length, int num\_threads)
+}
 
 %%--------------------------------------
 
-\item \ID{N\_VNew\_OpenMP}
-
-  This function creates and allocates memory for a OpenMP \id{N\_Vector}.
-  Arguments are the vector length and number of threads.
-
-  \verb|N_Vector N_VNew_OpenMP(sunindextype vec_length, int num_threads);|
-
-%%--------------------------------------
-
-\item \ID{N\_VNewEmpty\_OpenMP}
-
+\sunmodfunf{N\_VNewEmpty\_OpenMP}
+{
   This function creates a new OpenMP \id{N\_Vector} with an empty (\id{NULL}) data array.
-
-  
-
-  \verb|N_Vector N_VNewEmpty_OpenMP(sunindextype vec_length, int num_threads);|
-
+}
+{ 
+  N\_Vector N\_VNewEmpty\_OpenMP(sunindextype vec\_length, int num\_threads)
+}
 %%--------------------------------------
-
-\item \ID{N\_VMake\_OpenMP}
-
+\sunmodfunf{N\_VMake\_OpenMP}
+{
  This function creates and allocates memory for a OpenMP vector
- with user-provided data array.
-
- (This function does {\em not} allocate memory for \id{v\_data} itself.)
-
-\begin{verbatim}
-N_Vector N_VMake_OpenMP(sunindextype vec_length, realtype *v_data,
-                        int num_threads);
-\end{verbatim}
-
+ with user-provided data array. This function does {\em not} allocate memory for
+ \id{v\_data} itself.
+}
+{
+  N\_Vector N\_VMake\_OpenMP(sunindextype vec\_length, realtype *v\_data,
+  int num\_threads);
+}
+%%--------------------------------------
+\sunmodfun{N\_VCloneVectorArray\_OpenMP}
+{
+  This function creates (by cloning) an array of \id{count} OpenMP vectors.
+}
+{
+  N\_Vector *N\_VCloneVectorArray\_OpenMP(int count, N\_Vector w)
+}
+%%--------------------------------------
+\sunmodfun{N\_VCloneVectorArrayEmpty\_OpenMP}
+{
+  This function creates (by cloning) an array of \id{count} OpenMP vectors, each with an
+  empty (\id{NULL}) data array.
+}
+{
+  N\_Vector *N\_VCloneVectorArrayEmpty\_OpenMP(int count, N\_Vector w)
+}
+%%--------------------------------------
+\sunmodfun{N\_VDestroyVectorArray\_OpenMP}
+{
+  This function frees memory allocated for the array of \id{count} variables of type
+  \id{N\_Vector} created with \id{N\_VCloneVectorArray\_OpenMP} or with
+  \id{N\_VCloneVectorArrayEmpty\_OpenMP}.
+}
+{
+ void N\_VDestroyVectorArray\_OpenMP(N\_Vector *vs, int count)
+}
+%%--------------------------------------
+\sunmodfunf{N\_VGetLength\_OpenMP}
+{
+  This function returns number of vector elements.
+}
+{
+  sunindextype N\_VGetLength\_OpenMP(N\_Vector v)
+}
+%%--------------------------------------
+\sunmodfunf{N\_VPrint\_OpenMP}
+{
+  This function prints the content of an OpenMP vector to \id{stdout}.
+}
+{
+  void N\_VPrint\_OpenMP(N\_Vector v)
+}
+%%--------------------------------------
+\sunmodfun{N\_VPrintFile\_OpenMP}
+{
+  This function prints the content of an OpenMP vector to \id{outfile}.
+}
+{
+  void N\_VPrintFile\_OpenMP(N\_Vector v, FILE *outfile)
+}
 %%--------------------------------------
 
-\item \ID{N\_VCloneVectorArray\_OpenMP}
-
- This function creates (by cloning) an array of \id{count} OpenMP vectors.
-
- 
-
- \verb|N_Vector *N_VCloneVectorArray_OpenMP(int count, N_Vector w);|
-
-%%--------------------------------------
-
-\item \ID{N\_VCloneVectorArrayEmpty\_OpenMP}
-
- This function creates (by cloning) an array of \id{count} OpenMP vectors, each with an
- empty (\id{NULL}) data array.
-
- 
-
- \verb|N_Vector *N_VCloneVectorArrayEmpty_OpenMP(int count, N_Vector w);|
-
-%%--------------------------------------
-
-\item \ID{N\_VDestroyVectorArray\_OpenMP}
-
- This function frees memory allocated for the array of \id{count} variables of type
- \id{N\_Vector} created with \id{N\_VCloneVectorArray\_OpenMP} or with
- \id{N\_VCloneVectorArrayEmpty\_OpenMP}.
-
- 
-
- \verb|void N_VDestroyVectorArray_OpenMP(N_Vector *vs, int count);|
-
-%%--------------------------------------
-
-\item \ID{N\_VGetLength\_OpenMP}
-
- This function returns number of vector elements.
-
- 
- 
- \verb|sunindextype N_VGetLength_OpenMP(N_Vector v);|
-
-%%--------------------------------------
-
-\item \ID{N\_VPrint\_OpenMP}
-
- This function prints the content of an OpenMP vector to \id{stdout}.
- 
- \verb|void N_VPrint_OpenMP(N_Vector v);|
-
-%%--------------------------------------
-
-\item \ID{N\_VPrintFile\_OpenMP}
-
- This function prints the content of an OpenMP vector to \id{outfile}.
- 
- \verb|void N_VPrintFile_OpenMP(N_Vector v, FILE *outfile);|
-
-\end{itemize}
 By default all fused and vector array operations are disabled in the {\nvecopenmp}
 module. The following additional user-callable routines are provided to
 enable or disable fused and vector array operations for a specific vector. To
@@ -212,125 +216,121 @@ using \id{N\_VClone}. This guarantees the new vectors will have the same
 operations enabled/disabled as cloned vectors inherit the same enable/disable
 options as the vector they are cloned from while vectors created with
 \id{N\_VNew\_OpenMP} will have the default settings for the {\nvecopenmp} module.
-\begin{itemize}
-
 %%--------------------------------------
-
-\item \ID{N\_VEnableFusedOps\_OpenMP}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) all fused and
-vector array operations in the OpenMP vector. The return value is \id{0} for
-success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
-
-\verb|int N_VEnableFusedOps_OpenMP(N_Vector v, booleantype tf);|
-
+\sunmodfun{N\_VEnableFusedOps\_OpenMP}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) all fused and
+  vector array operations in the OpenMP vector. The return value is \id{0} for
+  success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableFusedOps\_OpenMP(N\_Vector v, booleantype tf)
+}
 %%--------------------------------------
-
-\item \ID{N\_VEnableLinearCombination\_OpenMP}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear
-combination fused operation in the OpenMP vector. The return value is \id{0} for
-success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
-
-\verb|int N_VEnableLinearCombination_OpenMP(N_Vector v, booleantype tf);|
-
+\sunmodfun{N\_VEnableLinearCombination\_OpenMP}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear
+  combination fused operation in the OpenMP vector. The return value is \id{0} for
+  success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableLinearCombination\_OpenMP(N\_Vector v, booleantype tf)
+}
 %%--------------------------------------
-
-\item \ID{N\_VEnableScaleAddMulti\_OpenMP}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale and
-add a vector to multiple vectors fused operation in the OpenMP vector. The
-return value is \id{0} for success and \id{-1} if the input vector or its
-\id{ops} structure are \id{NULL}.
-
-\verb|int N_VEnableScaleAddMulti_OpenMP(N_Vector v, booleantype tf);|
-
+\sunmodfun{N\_VEnableScaleAddMulti\_OpenMP}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale and
+  add a vector to multiple vectors fused operation in the OpenMP vector. The
+  return value is \id{0} for success and \id{-1} if the input vector or its
+  \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableScaleAddMulti\_OpenMP(N\_Vector v, booleantype tf)
+}
 %%--------------------------------------
-
-\item \ID{N\_VEnableDotProdMulti\_OpenMP}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the multiple
-dot products fused operation in the OpenMP vector. The return value is \id{0}
-for success and \id{-1} if the input vector or its \id{ops} structure are
-\id{NULL}.
-
-\verb|int N_VEnableDotProdMulti_OpenMP(N_Vector v, booleantype tf);|
-
+\sunmodfun{N\_VEnableDotProdMulti\_OpenMP}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the multiple
+  dot products fused operation in the OpenMP vector. The return value is \id{0}
+  for success and \id{-1} if the input vector or its \id{ops} structure are
+  \id{NULL}.
+}
+{
+  int N\_VEnableDotProdMulti\_OpenMP(N\_Vector v, booleantype tf)
+}
 %%--------------------------------------
-
-\item \ID{N\_VEnableLinearSumVectorArray\_OpenMP}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear sum
-operation for vector arrays in the OpenMP vector. The return value is \id{0} for
-success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
-
-\verb|int N_VEnableLinearSumVectorArray_OpenMP(N_Vector v, booleantype tf);|
-
+\sunmodfun{N\_VEnableLinearSumVectorArray\_OpenMP}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear sum
+  operation for vector arrays in the OpenMP vector. The return value is \id{0} for
+  success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableLinearSumVectorArray\_OpenMP(N\_Vector v, booleantype tf)
+}
 %%--------------------------------------
-
-\item \ID{N\_VEnableScaleVectorArray\_OpenMP}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale
-operation for vector arrays in the OpenMP vector. The return value is \id{0} for
-success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
-
-\verb|int N_VEnableScaleVectorArray_OpenMP(N_Vector v, booleantype tf);|
-
+\sunmodfun{N\_VEnableScaleVectorArray\_OpenMP}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale
+  operation for vector arrays in the OpenMP vector. The return value is \id{0} for
+  success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableScaleVectorArray\_OpenMP(N\_Vector v, booleantype tf)
+}
 %%--------------------------------------
-
-\item \ID{N\_VEnableConstVectorArray\_OpenMP}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the const
-operation for vector arrays in the OpenMP vector. The return value is \id{0} for
-success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
-
-\verb|int N_VEnableConstVectorArray_OpenMP(N_Vector v, booleantype tf);|
-
+\sunmodfun{N\_VEnableConstVectorArray\_OpenMP}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the const
+  operation for vector arrays in the OpenMP vector. The return value is \id{0} for
+  success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableConstVectorArray\_OpenMP(N\_Vector v, booleantype tf)
+}
 %%--------------------------------------
-
-\item \ID{N\_VEnableWrmsNormVectorArray\_OpenMP}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the WRMS norm
-operation for vector arrays in the OpenMP vector. The return value is \id{0} for
-success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
-
-\verb|int N_VEnableWrmsNormVectorArray_OpenMP(N_Vector v, booleantype tf);|
-
+\sunmodfun{N\_VEnableWrmsNormVectorArray\_OpenMP}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the WRMS norm
+  operation for vector arrays in the OpenMP vector. The return value is \id{0} for
+  success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableWrmsNormVectorArray\_OpenMP(N\_Vector v, booleantype tf)
+}
 %%--------------------------------------
-
-\item \ID{N\_VEnableWrmsNormMaskVectorArray\_OpenMP}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the masked WRMS
-norm operation for vector arrays in the OpenMP vector. The return value is
-\id{0} for success and \id{-1} if the input vector or its \id{ops} structure are
-\id{NULL}.
-
-\verb|int N_VEnableWrmsNormMaskVectorArray_OpenMP(N_Vector v, booleantype tf);|
-
+\sunmodfun{N\_VEnableWrmsNormMaskVectorArray\_OpenMP}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the masked WRMS
+  norm operation for vector arrays in the OpenMP vector. The return value is
+  \id{0} for success and \id{-1} if the input vector or its \id{ops} structure are
+  \id{NULL}.
+}
+{
+  int N\_VEnableWrmsNormMaskVectorArray\_OpenMP(N\_Vector v, booleantype tf)
+}
 %%--------------------------------------
-
-\item \ID{N\_VEnableScaleAddMultiVectorArray\_OpenMP}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale and
-add a vector array to multiple vector arrays operation in the OpenMP vector. The
-return value is \id{0} for success and \id{-1} if the input vector or its
-\id{ops} structure are \id{NULL}.
-
-\verb|int N_VEnableScaleAddMultiVectorArray_OpenMP(N_Vector v, booleantype tf);|
-
+\sunmodfun{N\_VEnableScaleAddMultiVectorArray\_OpenMP}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale and
+  add a vector array to multiple vector arrays operation in the OpenMP vector. The
+  return value is \id{0} for success and \id{-1} if the input vector or its
+  \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableScaleAddMultiVectorArray\_OpenMP(N\_Vector v, booleantype tf)
+}
 %%--------------------------------------
-
-\item \ID{N\_VEnableLinearCombinationVectorArray\_OpenMP}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear
-combination operation for vector arrays in the OpenMP vector. The return value
-is \id{0} for success and \id{-1} if the input vector or its \id{ops} structure
-are \id{NULL}.
-
-\verb|int N_VEnableLinearCombinationVectorArray_OpenMP(N_Vector v, booleantype tf);|
-
-%%--------------------------------------
-\end{itemize}
+\sunmodfun{N\_VEnableLinearCombinationVectorArray\_OpenMP}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear
+  combination operation for vector arrays in the OpenMP vector. The return value
+  is \id{0} for success and \id{-1} if the input vector or its \id{ops} structure
+  are \id{NULL}.
+}
+{
+  int N\_VEnableLinearCombinationVectorArray\_OpenMP(N\_Vector v, booleantype tf)
+}
 %%
 %%------------------------------------
 %%
@@ -362,8 +362,33 @@ are \id{NULL}.
 
 \end{itemize}
 
-For solvers that include a Fortran interface module, the {\nvecopenmp}
-module also includes a Fortran-callable function
+
+% ====================================================================
+\subsection{NVECTOR\_OPENMP Fortran interfaces}
+\label{ss:nvec_openmp_fortran}
+% ====================================================================
+
+The {\nvecopenmp} module provides a {\F} 2003 module as well as {\F} 77
+style interface functions for use from {\F} applications.
+
+\subsubsection*{FORTRAN 2003 interface module}
+The \ID{nvector\_openmp\_mod} {\F} module defines interfaces to most
+{\nvecopenmp} {\CC} functions using the intrinsic \id{iso\_c\_binding}
+module which provides a standardized mechanism for interoperating with {\CC}. As
+noted in the {\CC} function descriptions above, the interface functions are
+named after the corresponding {\CC} function, but with a leading `F'. For
+example, the function \id{N\_VNew\_OpenMP} is interfaced as
+\id{FN\_VNew\_OpenMP}.
+
+The {\F} 2003 {\nvecopenmp} interface module can be accessed with the \id{use}
+statement, i.e. \id{use fnvector\_openmp\_mod}, and linking to the library
+\id{libsundials\_fnvectoropenmp\_mod}.{\em lib} in addition to the {\CC} library.
+For details on where the library and module file
+\id{fnvector\_openmp\_mod.mod} are installed see Appendix \ref{c:install}.
+
+\subsubsection*{FORTRAN 77 interface functions}
+For solvers that include a {\F} 77 interface module, the {\nvecopenmp}
+module also includes a {\F}-callable function
 \id{FNVINITOMP(code, NEQ, NUMTHREADS, IER)}, to initialize this
 module.  Here \id{code} is an input solver id
 (1 for {\cvode}, 2 for {\ida}, 3 for {\kinsol}, 4 for {\arkode}); NEQ is

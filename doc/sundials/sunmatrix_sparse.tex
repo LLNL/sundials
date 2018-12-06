@@ -32,7 +32,7 @@ A diagram of the underlying data representation for a
 CSC matrix is shown in Figure \ref{f:sparsemat} (the CSR format is
 similar).  A more complete description of the parts of
 this \emph{content} field is given below: 
-\begin{description}
+\begin{args}[sparsetype]
   \item[M]  - number of rows
   \item[N]  - number of columns
   \item[NNZ]  - maximum number of nonzero entries in the matrix
@@ -59,13 +59,13 @@ this \emph{content} field is given below:
     \id{data} and \id{indexvals} arrays. For CSR matrices, each entry provides 
     the index of the first row entry into the \id{data} and \id{indexvals} 
     arrays.
-\end{description}
+\end{args}
 \noindent The following pointers are added to the \id{SlsMat} type for
   user convenience, to provide a more intuitive interface to the CSC
   and CSR sparse matrix data structures. They are set automatically
   when creating a sparse {\sunmatrix}, based on the sparse matrix storage
   type.  
-\begin{description}
+\begin{args}[colptrs]
   \item[rowvals] - pointer to \verb|indexvals| when \id{sparsetype} is \id{CSC\_MAT},
     otherwise set to \verb|NULL|.
   \item[colptrs] - pointer to \verb|indexptrs| when \id{sparsetype} is \id{CSC\_MAT},
@@ -74,7 +74,7 @@ this \emph{content} field is given below:
     otherwise set to \verb|NULL|.
   \item[rowptrs] - pointer to \verb|indexptrs| when \id{sparsetype} is \id{CSR\_MAT},
     otherwise set to \verb|NULL|.
-\end{description}
+\end{args}
 For example, the $5\times 4$ CSC matrix
 \[
   \left[\begin{array}{cccc} 
@@ -151,9 +151,15 @@ Similarly, in CSR format, the same matrix could be stored as
 is \id{sunmatrix/sunmatrix\_sparse.h}. The {\sunmatsparse} module
 is accessible from all {\sundials} solvers \textit{without}
 linking to the \\
-\id{libsundials\_sunmatrixsparse} module library. \\
+\id{libsundials\_sunmatrixsparse} module library.
 
-\noindent The following macros are provided to access the
+
+% ====================================================================
+\subsection{SUNMatrix\_Sparse accessor macros}
+\label{ss:sunmat_sparse_macros}
+% ====================================================================
+
+The following macros are provided to access the
 content of a {\sunmatsparse} matrix. The prefix \id{SM\_} in the names
 denotes that these macros are for \emph{SUNMatrix} implementations,
 and the suffix \id{\_S} denotes that these are specific to
@@ -227,38 +233,40 @@ the \emph{sparse} version.
   \verb|#define SM_INDEXPTRS_S(A)   ( SM_CONTENT_S(A)->indexptrs )|
 
 \end{itemize}
-%%
-%%----------------------------------------------
-%%
+
+
+% ====================================================================
+\subsection{SUNMatrix\_Sparse functions}
+\label{ss:sunmat_sparse_functions}
+% ====================================================================
+
 The {\sunmatsparse} module defines sparse implementations of all matrix
 operations listed in Table \ref{t:sunmatops}. Their names are obtained
 from those in Table \ref{t:sunmatops} by appending the
 suffix \id{\_Sparse} (e.g. \id{SUNMatCopy\_Sparse}). 
+All the standard matrix operations listed in \ref{t:sunmatops} with the suffix
+\id{\_Sparse} appended are callable via the {\F} 2003 interface by prepending an
+`F' (e.g. \id{FSUNMatCopy\_Sparse}).
+
 The module {\sunmatsparse} provides the following additional
 user-callable routines: 
-%%
-\begin{itemize}
-
 %%--------------------------------------
-
-\item \ID{SUNSparseMatrix}
-
+\sunmodfunf{SUNSparseMatrix}
+{
   This function creates and allocates memory for a sparse \id{SUNMatrix}.
   Its arguments are the number of rows and columns of the
   matrix, \id{M} and \id{N}, the maximum number of nonzeros to be
   stored in the matrix, \id{NNZ}, and a flag \id{sparsetype}
   indicating whether to use CSR or CSC format (valid arguments
   are \id{CSR\_MAT} or \id{CSC\_MAT}). 
-
-  \begin{verbatim}
-SUNMatrix SUNSparseMatrix(sunindextype M, sunindextype N,
-                          sunindextype NNZ, int sparsetype);
-  \end{verbatim}
-
+}
+{
+  SUNMatrix SUNSparseMatrix(sunindextype M, sunindextype N,
+  sunindextype NNZ, int sparsetype)
+}
 %%--------------------------------------
-
-\item \ID{SUNSparseFromDenseMatrix}
-
+\sunmodfunf{SUNSparseFromDenseMatrix}
+{
   This function creates a new sparse matrix from an existing dense
   matrix by copying all values with magnitude larger than \id{droptol}
   into the sparse matrix structure.
@@ -271,16 +279,14 @@ SUNMatrix SUNSparseMatrix(sunindextype M, sunindextype N,
   \end{itemize}
   The function returns NULL if any requirements are violated, or if
   the matrix storage request cannot be satisfied. 
-
-  \begin{verbatim}
-SUNMatrix SUNSparseFromDenseMatrix(SUNMatrix A, realtype droptol,
-                                   int sparsetype);
-  \end{verbatim}
-
+}
+{
+  SUNMatrix SUNSparseFromDenseMatrix(SUNMatrix A, realtype droptol,
+  int sparsetype);
+}
 %%--------------------------------------
-
-\item \ID{SUNSparseFromBandMatrix}
-
+\sunmodfunf{SUNSparseFromBandMatrix}
+{
   This function creates a new sparse matrix from an existing band
   matrix by copying all values with magnitude larger than \id{droptol}
   into the sparse matrix structure.
@@ -293,122 +299,120 @@ SUNMatrix SUNSparseFromDenseMatrix(SUNMatrix A, realtype droptol,
   \end{itemize}
   The function returns NULL if any requirements are violated, or if
   the matrix storage request cannot be satisfied. 
-
-  \begin{verbatim}
-SUNMatrix SUNSparseFromBandMatrix(SUNMatrix A, realtype droptol,
-                                  int sparsetype);
-  \end{verbatim}
-
+}
+{
+  SUNMatrix SUNSparseFromBandMatrix(SUNMatrix A, realtype droptol,
+  int sparsetype);
+}
 %%--------------------------------------
-
-\item \ID{SUNSparseMatrix\_Realloc}
-
+\sunmodfunf{SUNSparseMatrix\_Realloc}
+{
   This function reallocates internal storage arrays in a sparse matrix
   so that the resulting sparse matrix has no wasted space (i.e.~the
   space allocated for nonzero entries equals the actual number of
   nonzeros, \id{indexptrs[NP]}). Returns 0 on success and 
   1 on failure (e.g.~if the input matrix is not sparse).
-
-  \verb|int SUNSparseMatrix_Realloc(SUNMatrix A);|
-
+}
+{
+  int SUNSparseMatrix\_Realloc(SUNMatrix A)
+}
 %%--------------------------------------
-
-\item \ID{SUNSparseMatrix\_Reallocate}
-
+\sunmodfunf{SUNSparseMatrix\_Reallocate}
+{
   This function reallocates internal storage arrays in a sparse matrix
   so that the resulting sparse matrix has storage for a specified
   number of nonzeros. Returns 0 on success and 
   1 on failure (e.g.~if the input matrix is not sparse or if NNZ is
   negative). 
-
-  \verb|int SUNSparseMatrix_Reallocate(SUNMatrix A, sunindextype NNZ);|
-
+}
+{
+  int SUNSparseMatrix\_Reallocate(SUNMatrix A, sunindextype NNZ)
+}
 %%--------------------------------------
-
-\item \ID{SUNSparseMatrix\_Print}
-
+\sunmodfun{SUNSparseMatrix\_Print}
+{
   This function prints the content of a sparse \id{SUNMatrix} to the
   output stream specified by \id{outfile}.  Note: \id{stdout}
   or \id{stderr} may be used as arguments for \id{outfile} to print
   directly to standard output or standard error, respectively.
- 
-  \verb|void SUNSparseMatrix_Print(SUNMatrix A, FILE* outfile);|
-
+}
+{
+  void SUNSparseMatrix\_Print(SUNMatrix A, FILE* outfile)
+}
 %%--------------------------------------
-
-\item \ID{SUNSparseMatrix\_Rows}
-
+\sunmodfunf{SUNSparseMatrix\_Rows}
+{
   This function returns the number of rows in the sparse \id{SUNMatrix}.
- 
-  \verb|sunindextype SUNSparseMatrix_Rows(SUNMatrix A);|
-
+}
+{
+  sunindextype SUNSparseMatrix\_Rows(SUNMatrix A)
+}
 %%--------------------------------------
-
-\item \ID{SUNSparseMatrix\_Columns}
-
+\sunmodfunf{SUNSparseMatrix\_Columns}
+{
   This function returns the number of columns in the sparse \id{SUNMatrix}.
- 
-  \verb|sunindextype SUNSparseMatrix_Columns(SUNMatrix A);|
-
+}
+{
+  sunindextype SUNSparseMatrix\_Columns(SUNMatrix A)
+}
 %%--------------------------------------
-
-\item \ID{SUNSparseMatrix\_NNZ}
-
+\sunmodfunf{SUNSparseMatrix\_NNZ}
+{
   This function returns the number of entries allocated for nonzero
   storage for  the sparse matrix \id{SUNMatrix}.
- 
-  \verb|sunindextype SUNSparseMatrix_NNZ(SUNMatrix A);|
-
+}
+{
+  sunindextype SUNSparseMatrix\_NNZ(SUNMatrix A)
+}
 %%--------------------------------------
-
-\item \ID{SUNSparseMatrix\_NP}
-
+\sunmodfunf{SUNSparseMatrix\_NP}
+{
   This function returns the number of columns/rows for the
   sparse \id{SUNMatrix}, depending on whether the matrix uses CSC/CSR
   format, respectively.  The \id{indexptrs} array has \id{NP+1} entries.
- 
-  \verb|sunindextype SUNSparseMatrix_NP(SUNMatrix A);|
-
+}
+{
+  sunindextype SUNSparseMatrix\_NP(SUNMatrix A)
+}
 %%--------------------------------------
-
-\item \ID{SUNSparseMatrix\_SparseType}
-
+\sunmodfunf{SUNSparseMatrix\_SparseType}
+{
   This function returns the storage type (\id{CSR\_MAT}
   or \id{CSC\_MAT}) for the sparse \id{SUNMatrix}.
- 
-  \verb|int SUNSparseMatrix_SparseType(SUNMatrix A);|
-
+}
+{
+  int SUNSparseMatrix\_SparseType(SUNMatrix A)
+}
 %%--------------------------------------
-
-\item \ID{SUNSparseMatrix\_Data}
-
+\sunmodfunf{SUNSparseMatrix\_Data}
+{
   This function returns a pointer to the data array for the
   sparse \id{SUNMatrix}. 
- 
-  \verb|realtype* SUNSparseMatrix_Data(SUNMatrix A);|
-
+}
+{
+  realtype* SUNSparseMatrix\_Data(SUNMatrix A)
+}
 %%--------------------------------------
-
-\item \ID{SUNSparseMatrix\_IndexValues}
-
+\sunmodfunf{SUNSparseMatrix\_IndexValues}
+{
   This function returns a pointer to index value array for the sparse
   \id{SUNMatrix}: for CSR format this is the column index for each nonzero
   entry, for CSC format this is the row index for each nonzero entry.
- 
-  \verb|sunindextype* SUNSparseMatrix_IndexValues(SUNMatrix A);|
-
+}
+{
+  sunindextype* SUNSparseMatrix\_IndexValues(SUNMatrix A)
+}
 %%--------------------------------------
-
-\item \ID{SUNSparseMatrix\_IndexPointers}
-
+\sunmodfunf{SUNSparseMatrix\_IndexPointers}
+{
   This function returns a pointer to the index pointer array for the
   sparse \id{SUNMatrix}: for CSR format this is the location of the first
   entry of each row in the \id{data} and \id{indexvalues} arrays, for
   CSC format this is the location of the first entry of each column.
- 
-  \verb|sunindextype* SUNSparseMatrix_IndexPointers(SUNMatrix A);|
-
-\end{itemize}
+}
+{
+  sunindextype* SUNSparseMatrix\_IndexPointers(SUNMatrix A)
+}
 %%
 %%------------------------------------
 %%
@@ -420,6 +424,33 @@ additional compatible vector implementations are added to {\sundials},
 these will be included within this compatibility check. 
 
 
+% ====================================================================
+\subsection{SUNMatrix\_Sparse Fortran interfaces}
+\label{ss:sunmat_sparse_fortran}
+% ====================================================================
+
+The {\sunmatsparse} module provides a {\F} 2003 module as well as {\F} 77
+style interface functions for use from {\F} applications.
+
+\subsubsection*{FORTRAN 2003 interface module}
+The \ID{fsunmatrix\_sparse\_mod} {\F} module defines interfaces to most
+{\sunmatsparse} {\CC} functions using the intrinsic \id{iso\_c\_binding}
+module which provides a standardized mechanism for interoperating with {\CC}. As
+noted in the {\CC} function descriptions above, the interface functions are
+named after the corresponding {\CC} function, but with a leading `F'. For
+example, the function \id{SUNSparseMatrix} is interfaced as
+\id{FSUNSparseMatrix}.
+
+The {\F} 2003 {\sunmatsparse} interface module can be accessed with the \id{use}
+statement, i.e. \id{use fsunmatrix\_sparse\_mod}, and linking to the library
+\id{libsundials\_fsunmatrixsparse\_mod}.{\em lib} in addition to the {\CC} library.
+For details on where the library and module file
+\id{fsunmatrix\_sparse\_mod.mod} are installed see Appendix \ref{c:install}.
+We note that the module is accessible from the {\F} 2003 {\sundials} integrators
+\textit{without} separately linking to the
+\id{libsundials\_fsunmatrixsparse\_mod} library.
+
+\subsubsection*{FORTRAN 77 interface functions}
 For solvers that include a Fortran interface module, the {\sunmatsparse}
 module also includes the Fortran-callable
 function \id{FSUNSparseMatInit(code, M, N, NNZ, sparsetype, ier)} to

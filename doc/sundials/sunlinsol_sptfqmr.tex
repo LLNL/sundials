@@ -1,39 +1,70 @@
-%% This is a shared SUNDIALS TEX file with a description of the
-%% sptfqmr sunlinsol implementation
-%%
-\section{The SUNLinearSolver\_SPTFQMR implementation}\label{ss:sunlinsol_sptfqmr}
+% ====================================================================
+\section{The SUNLinearSolver\_SPTFQMR implementation}
+\label{ss:sunlinsol_sptfqmr}
+% ====================================================================
 
-The {\sptfqmr} (Scaled, Preconditioned, Transpose-Free Quasi-Minimum
-Residual \cite{Fre:93}) implementation of the {\sunlinsol} module
-provided with {\sundials}, {\sunlinsolsptfqmr}, is an iterative linear
-solver that is designed to be compatible with any {\nvector}
-implementation (serial, threaded, parallel, and user-supplied) that
-supports a minimal subset of operations (\id{N\_VClone},
-\id{N\_VDotProd}, \id{N\_VScale}, \id{N\_VLinearSum}, \id{N\_VProd},
-\id{N\_VConst}, \id{N\_VDiv}, and \id{N\_VDestroy}).  Unlike the
-{\spgmr} and {\spfgmr} algorithms, {\sptfqmr} requires a fixed amount of
-memory that does not increase with the number of allowed iterations.
+This section describes the {\sunlinsol} implementation of the {\sptfqmr}
+(Scaled, Preconditioned, \newline Transpose-Free Quasi-Minimum Residual \cite{Fre:93})
+iterative linear solver. The {\sunlinsolsptfqmr} module is designed to be
+compatible with any {\nvector} implementation that supports a minimal subset
+of operations (\id{N\_VClone}, \id{N\_VDotProd}, \id{N\_VScale},
+\id{N\_VLinearSum}, \id{N\_VProd}, \id{N\_VConst}, \id{N\_VDiv}, and
+\id{N\_VDestroy}). Unlike the {\spgmr} and {\spfgmr} algorithms, {\sptfqmr}
+requires a fixed amount of memory that does not increase with the number of
+allowed iterations.
 
-%---------------------------------------------------------------------------
-\subsection{{\sunlinsolsptfqmr} usage}\label{ss:sunlinsol_sptfqmr_usage}
-
-The header file to include when using this module
-is \id{sunlinsol/sunlinsol\_sptfqmr.h}. The {\sunlinsolsptfqmr} module
-is accessible from all {\sundials} solvers \textit{without}
-linking to the \\ \noindent
-\id{libsundials\_sunlinsolsptfqmr} module library.
+To access the {\sunlinsolsptfqmr} module, include the header file \newline
+\id{sunlinsol/sunlinsol\_sptfqmr.h}. We note that the {\sunlinsolsptfqmr} module is
+accessible from {\sundials} packages \textit{without} separately linking to
+the \id{libsundials\_sunlinsolsptfqmr} module library.
 
 
-The module {\sunlinsolsptfqmr} provides the following
-user-callable routines:
+% ====================================================================
+\subsection{SUNLinearSolver\_SPTFQMR description}
+\label{ss:sunlinsol_sptfqmr_description}
+% ====================================================================
+
+This solver is constructed to perform the following operations:
+\begin{itemize}
+\item During construction all {\nvector} solver data is allocated,
+  with vectors cloned from a template {\nvector} that is input, and
+  default solver parameters are set.
+\item User-facing ``set'' routines may be called to modify default
+  solver parameters.
+\item Additional ``set'' routines are called by the {\sundials} solver
+  that interfaces with \newline {\sunlinsolsptfqmr} to supply the
+  \id{ATimes}, \id{PSetup}, and \id{Psolve} function pointers and
+  \id{s1} and \id{s2} scaling vectors.
+\item In the ``initialize'' call, the solver parameters are checked
+  for validity.
+\item In the ``setup'' call, any non-\id{NULL}
+  \id{PSetup} function is called.  Typically, this is provided by
+  the {\sundials} solver itself, that translates between the
+  generic \id{PSetup} function and the
+  solver-specific routine (solver-supplied or user-supplied).
+\item In the ``solve'' call the TFQMR iteration is performed.  This
+  will include scaling and preconditioning if those options have been
+  supplied.
+\end{itemize}
+
+
+% ====================================================================
+\subsection{SUNLinearSolver\_SPTFQMR functions}
+\label{ss:sunlinsol_sptfqmr_functions}
+% ====================================================================
+
+The {\sunlinsolsptfqmr} module provides the following user-callable constructor
+for creating a \newline \id{SUNLinearSolver} object.
+%
 % --------------------------------------------------------------------
-\ucfunction{SUNLinSol\_SPTFQMR}
+%
+\ucfunctiondf{SUNLinSol\_SPTFQMR}
 {
   LS = SUNLinSol\_SPTFQMR(y, pretype, maxl);
 }
 {
   The function \ID{SUNLinSol\_SPTFQMR} creates and allocates memory for
-  a {\sptfqmr} \\ \noindent \id{SUNLinearSolver}.
+  a {\sptfqmr} \newline \id{SUNLinearSolver} object.
 }
 {
   \begin{args}[pretype]
@@ -51,7 +82,7 @@ user-callable routines:
     Any other integer input will result in the default (no
     preconditioning).
   \item[maxl] (\id{int})
-    the number of linear iterations to allow; values $\le0$ will
+    the number of linear iterations to allow. Values $\le0$ will
     result in the default value (5).
   \end{args}
 }
@@ -72,8 +103,37 @@ user-callable routines:
   with these solvers, this use mode is not supported and may result in
   inferior performance.
 }
+{SUNSPTFQMR}
+%
 % --------------------------------------------------------------------
-\ucfunction{SUNLinSol\_SPTFQMRSetPrecType}
+%
+The {\sunlinsolsptfqmr} module defines implementations of all
+``iterative'' linear solver operations listed in Sections
+\ref{ss:sunlinsol_CoreFn} -- \ref{ss:sunlinsol_GetFn}:
+\begin{itemize}
+\item \id{SUNLinSolGetType\_SPTFQMR}
+\item \id{SUNLinSolInitialize\_SPTFQMR}
+\item \id{SUNLinSolSetATimes\_SPTFQMR}
+\item \id{SUNLinSolSetPreconditioner\_SPTFQMR}
+\item \id{SUNLinSolSetScalingVectors\_SPTFQMR}
+\item \id{SUNLinSolSetup\_SPTFQMR}
+\item \id{SUNLinSolSolve\_SPTFQMR}
+\item \id{SUNLinSolNumIters\_SPTFQMR}
+\item \id{SUNLinSolResNorm\_SPTFQMR}
+\item \id{SUNLinSolResid\_SPTFQMR}
+\item \id{SUNLinSolLastFlag\_SPTFQMR}
+\item \id{SUNLinSolSpace\_SPTFQMR}
+\item \id{SUNLinSolFree\_SPTFQMR}
+\end{itemize}
+All of the listed operations are callable via the {\F} 2003 interface module
+by prepending an `F' to the function name.
+
+The {\sunlinsolsptfqmr} module also defines the following additional
+user-callable functions.
+%
+% --------------------------------------------------------------------
+%
+\ucfunctiondf{SUNLinSol\_SPTFQMRSetPrecType}
 {
   retval = SUNLinSol\_SPTFQMRSetPrecType(LS, pretype);
 }
@@ -95,10 +155,12 @@ user-callable routines:
   \id{SUNLS\_ILL\_INPUT} (illegal \id{pretype}), \id{SUNLS\_MEM\_NULL}
   (\id{S} is \id{NULL}) or \id{SUNLS\_SUCCESS}.
 }
-{
-}
+{}
+{SUNSPTFQMRSetPrecType}
+%
 % --------------------------------------------------------------------
-\ucfunction{SUNLinSol\_SPTFQMRSetMaxl}
+%
+\ucfunctionf{SUNLinSol\_SPTFQMRSetMaxl}
 {
   retval = SUNLinSol\_SPTFQMRSetMaxl(LS, maxl);
 }
@@ -119,35 +181,43 @@ user-callable routines:
   This routine will return with one of the error codes
   \id{SUNLS\_MEM\_NULL} (\id{S} is \id{NULL}) or \id{SUNLS\_SUCCESS}.
 }
-{
-}
-% --------------------------------------------------------------------
-%%
-For backwards compatibility, we also provide the wrapper functions,
-each with identical input and output arguments to the routines that
-they wrap:
-\begin{itemize}
+{}
+{SUNSPTFQMRSetMaxl}
 
-\item \ID{SUNSPTFQMR}
 
-  Wrapper function for \ID{SUNLinSol\_SPTFQMR}
+% ====================================================================
+\subsection{SUNLinearSolver\_SPTFQMR Fortran interfaces}
+\label{ss:sunlinsol_sptfqmr_fortran}
+% ====================================================================
 
-\item \ID{SUNSPTFQMRSetPrecType}
+The {\sunlinsolspfgmr} module provides a {\F} 2003 module as well as {\F} 77
+style interface functions for use from {\F} applications.
 
-  Wrapper function for \ID{SUNLinSol\_SPTFQMRSetPrecType}
+\subsubsection*{FORTRAN 2003 interface module}
+The \ID{fsunlinsol\_sptfqmr\_mod} {\F} module defines interfaces to all
+{\sunlinsolspfgmr} {\CC} functions using the intrinsic \id{iso\_c\_binding}
+module which provides a standardized mechanism for interoperating with {\CC}. As
+noted in the {\CC} function descriptions above, the interface functions are
+named after the corresponding {\CC} function, but with a leading `F'. For
+example, the function \id{SUNLinSol\_SPTFQMR} is interfaced as
+\id{FSUNLinSol\_SPTFQMR}.
 
-\item \ID{SUNSPTFQMRSetMaxl}
+The {\F} 2003 {\sunlinsolspfgmr} interface module can be accessed with the \id{use}
+statement, i.e. \id{use fsunlinsol\_sptfqmr\_mod}, and linking to the library
+\id{libsundials\_fsunlinsolsptfqmr\_mod}.{\em lib} in addition to the {\CC} library.
+For details on where the library and module file
+\id{fsunlinsol\_sptfqmr\_mod.mod} are installed see Appendix \ref{c:install}.
+We note that the module is accessible from the {\F} 2003 {\sundials} integrators
+\textit{without} separately linking to the
+\id{libsundials\_fsunlinsolsptfqmr\_mod} library.
 
-  Wrapper function for \ID{SUNLinSol\_SPTFQMRSetMaxl}
-
-\end{itemize}
-%%
-%%------------------------------------
-%%
-For solvers that include a Fortran interface module, the
+\subsubsection*{FORTRAN 77 interface functions}
+For solvers that include a {\F} 77 interface module, the
 {\sunlinsolsptfqmr} module also includes a Fortran-callable function
 for creating a \id{SUNLinearSolver} object.
+%
 % --------------------------------------------------------------------
+%
 \ucfunction{FSUNSPTFQMRINIT}
 {
   FSUNSPTFQMRINIT(code, pretype, maxl, ier)
@@ -177,14 +247,15 @@ for creating a \id{SUNLinearSolver} object.
   been initialized.
 
   Allowable values for \id{pretype} and \id{maxl} are the same as for
-  the {\CC} function \\ \noindent \ID{SUNLinSol\_SPTFQMR}.
+  the {\CC} function \newline \ID{SUNLinSol\_SPTFQMR}.
 }
+Additionally, when using {\arkode} with a non-identity
+mass matrix, the {\sunlinsolsptfqmr} module includes a Fortran-callable
+function for creating a \id{SUNLinearSolver} mass matrix solver
+object.
+%
 % --------------------------------------------------------------------
-Additionally, when using
-{\arkode} with a non-identity mass matrix, the {\sunlinsolsptfqmr} module
-includes a Fortran-callable function for creating a
-\id{SUNLinearSolver} mass matrix solver object.
-% --------------------------------------------------------------------
+%
 \ucfunction{FSUNMASSSPTFQMRINIT}
 {
   FSUNMASSSPTFQMRINIT(pretype, maxl, ier)
@@ -211,15 +282,17 @@ includes a Fortran-callable function for creating a
   been initialized.
 
   Allowable values for \id{pretype} and \id{maxl} are the same as for
-  the {\CC} function \\ \noindent \ID{SUNLinSol\_SPTFQMR}.
+  the {\CC} function \newline \ID{SUNLinSol\_SPTFQMR}.
 }
+%
 % --------------------------------------------------------------------
+%
 The \id{SUNLinSol\_SPTFQMRSetPrecType} and
 \id{SUNLinSol\_SPTFQMRSetMaxl} routines also support Fortran
 interfaces for the system and mass matrix solvers.
-
-
+%
 % --------------------------------------------------------------------
+%
 \ucfunction{FSUNSPTFQMRSETPRECTYPE}
 {
   FSUNSPTFQMRSETPRECTYPE(code, pretype, ier)
@@ -234,7 +307,7 @@ interfaces for the system and mass matrix solvers.
     is an integer input specifying the solver id (1 for {\cvode}, 2
     for {\ida}, 3 for {\kinsol}, and 4 for {\arkode}).
   \item[pretype] (\id{int*})
-    flag indication the type of preconditioning to use.
+    flag indicating the type of preconditioning to use.
   \end{args}
 }
 {
@@ -246,7 +319,9 @@ interfaces for the system and mass matrix solvers.
   See \id{SUNLinSol\_SPTFQMRSetPrecType} for complete further documentation of
   this routine.
 }
+%
 % --------------------------------------------------------------------
+%
 \ucfunction{FSUNMASSSPTFQMRSETPRECTYPE}
 {
   FSUNMASSSPTFQMRSETPRECTYPE(pretype, ier)
@@ -270,7 +345,9 @@ interfaces for the system and mass matrix solvers.
   See \id{SUNLinSol\_SPTFQMRSetPrecType} for complete further documentation of
   this routine.
 }
+%
 % --------------------------------------------------------------------
+%
 \ucfunction{FSUNSPTFQMRSETMAXL}
 {
   FSUNSPTFQMRSETMAXL(code, maxl, ier)
@@ -285,7 +362,7 @@ interfaces for the system and mass matrix solvers.
     is an integer input specifying the solver id (1 for {\cvode}, 2
     for {\ida}, 3 for {\kinsol}, and 4 for {\arkode}).
   \item[maxl] (\id{int*})
-    the number of iterations to allow
+    the number of iterations to allow.
   \end{args}
 }
 {
@@ -294,10 +371,12 @@ interfaces for the system and mass matrix solvers.
   of failure.
 }
 {
-  See \id{SUNLinSol\_SPTFQMRSetMaxl} for complete further documentation of
-  this routine.
+  See \id{SUNLinSol\_SPTFQMRSetMaxl} for complete further
+  documentation of this routine.
 }
+%
 % --------------------------------------------------------------------
+%
 \ucfunction{FSUNMASSSPTFQMRSETMAXL}
 {
   FSUNMASSSPTFQMRSETMAXL(maxl, ier)
@@ -318,17 +397,20 @@ interfaces for the system and mass matrix solvers.
   of failure.
 }
 {
-  See \id{SUNLinSol\_SPTFQMRSetMaxl} for complete further documentation of
-  this routine.
+  See \id{SUNLinSol\_SPTFQMRSetMaxl} for complete further
+  documentation of this routine.
 }
+%
 % --------------------------------------------------------------------
+%
 
-%---------------------------------------------------------------------------
-\subsection{{\sunlinsolsptfqmr} description}\label{ss:sunlinsol_sptfqmr_description}
+% ====================================================================
+\subsection{SUNLinearSolver\_SPTFQMR content}
+\label{ss:sunlinsol_sptfqmr_content}
+% ====================================================================
 
-
-The {\sunlinsolsptfqmr} module defines the {\em content} field of a
-\id{SUNLinearSolver} to be the following structure:
+The {\sunlinsolsptfqmr} module defines the \textit{content} field of a
+\id{SUNLinearSolver} as the following structure:
 %%
 \begin{verbatim}
 struct _SUNLinearSolverContent_SPTFQMR {
@@ -359,7 +441,7 @@ struct _SUNLinearSolverContent_SPTFQMR {
 %%
 These entries of the \emph{content} field contain the following
 information:
-\begin{description}
+\begin{args}[last\_flag]
   \item[maxl] - number of TFQMR iterations to allow (default is 5),
   \item[pretype] - flag for type of preconditioning to employ
     (default is none),
@@ -380,50 +462,5 @@ information:
   \item [r] - array of two {\nvector}s used for workspace within the
     SPTFQMR algorithm,
   \item[vtemp1, vtemp2, vtemp3] - temporary vector storage.
-\end{description}
+\end{args}
 
-This solver is constructed to perform the following operations:
-\begin{itemize}
-\item During construction all {\nvector} solver data is allocated,
-  with vectors cloned from a template {\nvector} that is input, and
-  default solver parameters are set.
-\item User-facing ``set'' routines may be called to modify default
-  solver parameters.
-\item Additional ``set'' routines are called by the {\sundials} solver
-  that interfaces with \\ \noindent {\sunlinsolsptfqmr} to supply the
-  \id{ATimes}, \id{PSetup}, and \id{Psolve} function pointers and
-  \id{s1} and \id{s2} scaling vectors.
-\item In the ``initialize'' call, the solver parameters are checked
-  for validity.
-\item In the ``setup'' call, any non-\id{NULL}
-  \id{PSetup} function is called.  Typically, this is provided by
-  the {\sundials} solver itself, that translates between the
-  generic \id{PSetup} function and the
-  solver-specific routine (solver-supplied or user-supplied).
-\item In the ``solve'' call the TFQMR iteration is performed.  This
-  will include scaling and preconditioning if those options have been
-  supplied.
-\end{itemize}
-
-%%
-%%----------------------------------------------
-%%
-
-\noindent The {\sunlinsolsptfqmr} module defines implementations of all
-``iterative'' linear solver operations listed in Sections
-\ref{ss:sunlinsol_CoreFn}-\ref{ss:sunlinsol_GetFn}:
-\begin{itemize}
-\item \id{SUNLinSolGetType\_SPTFQMR}
-\item \id{SUNLinSolInitialize\_SPTFQMR}
-\item \id{SUNLinSolSetATimes\_SPTFQMR}
-\item \id{SUNLinSolSetPreconditioner\_SPTFQMR}
-\item \id{SUNLinSolSetScalingVectors\_SPTFQMR}
-\item \id{SUNLinSolSetup\_SPTFQMR}
-\item \id{SUNLinSolSolve\_SPTFQMR}
-\item \id{SUNLinSolNumIters\_SPTFQMR}
-\item \id{SUNLinSolResNorm\_SPTFQMR}
-\item \id{SUNLinSolResid\_SPTFQMR}
-\item \id{SUNLinSolLastFlag\_SPTFQMR}
-\item \id{SUNLinSolSpace\_SPTFQMR}
-\item \id{SUNLinSolFree\_SPTFQMR}
-\end{itemize}

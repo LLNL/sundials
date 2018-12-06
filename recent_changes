@@ -1,5 +1,12 @@
 Changes to SUNDIALS in release 4.0.0
 
+Added Fortran 2003 interfaces to:
+
+  * CVODE
+  * Fixed-point and Newton nonlinear solvers
+  * Dense, band, KLU, PCG, SPBCGS, SPFGMR, SPGMR, and SPTFQMR linear solvers
+  * Serial, Pthreads, and OpenMP NVECTORs
+
 Multiple changes to the CUDA NVECTOR were made:
 
   * Changed the N_VMake_Cuda function to take a host data pointer and a device

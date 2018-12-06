@@ -1,33 +1,58 @@
-%% This is a shared SUNDIALS TEX file with a description of the
-%% dense sunlinsol implementation
-%%
-\section{The SUNLinearSolver\_Dense implementation}\label{ss:sunlinsol_dense}
+% ====================================================================
+\section{The SUNLinearSolver\_Dense implementation}
+\label{ss:sunlinsol_dense}
+% ====================================================================
 
-The dense implementation of the {\sunlinsol} module provided with
-{\sundials}, {\sunlinsoldense}, is designed to be used with the
+This section describes the {\sunlinsol} implementation for solving dense linear
+systems. The {\sunlinsoldense} module is designed to be used with the
 corresponding {\sunmatdense} matrix type, and one of the serial or
-shared-memory {\nvector} implementations ({\nvecs}, {\nvecopenmp} or
+shared-memory {\nvector} implementations ({\nvecs}, {\nvecopenmp}, or
 {\nvecpthreads}).
 
-%---------------------------------------------------------------------------
-\subsection{{\sunlinsoldense} usage}\label{ss:sunlinsol_dense_usage}
+To access the {\sunlinsoldense} module, include the header file
+\id{sunlinsol/sunlinsol\_dense.h}. We note that the {\sunlinsoldense} module is
+accessible from {\sundials} packages \textit{without} separately linking to
+the \id{libsundials\_sunlinsoldense} module library.
 
-The header file to include when using this module 
-is \id{sunlinsol/sunlinsol\_dense.h}. The {\sunlinsoldense} module
-is accessible from all {\sundials} solvers \textit{without}
-linking to the \\ \noindent
-\id{libsundials\_sunlinsoldense} module library.
 
-The module {\sunlinsoldense} provides the following user-callable constructor routine: 
-%%
+% ====================================================================
+\subsection{SUNLinearSolver\_Dense description}
+\label{ss:sunlinsol_dense_description}
+% ====================================================================
+
+This solver is constructed to perform the following operations:
+\begin{itemize}
+\item The ``setup'' call performs a $LU$ factorization with
+  partial (row) pivoting ($\mathcal O(N^3)$ cost), $PA=LU$, where $P$
+  is a permutation matrix, $L$ is a lower triangular matrix with 1's
+  on the diagonal, and $U$ is an upper triangular matrix.  This
+  factorization is stored in-place on the input {\sunmatdense} object
+  $A$, with pivoting information encoding $P$ stored in
+  the \id{pivots} array.
+\item The ``solve'' call performs pivoting and forward and
+  backward substitution using the stored \id{pivots} array and the
+  $LU$ factors held in the {\sunmatdense} object ($\mathcal O(N^2)$
+  cost).
+\end{itemize}
+
+
+% ====================================================================
+\subsection{SUNLinearSolver\_Dense functions}
+\label{ss:sunlinsol_dense_functions}
+% ====================================================================
+
+The {\sunlinsoldense} module provides the following user-callable constructor
+for creating a \newline \id{SUNLinearSolver} object.
+%
 % --------------------------------------------------------------------
-\ucfunction{SUNLinSol\_Dense}
+%
+\ucfunctiondf{SUNLinSol\_Dense}
 {
   LS = SUNLinSol\_Dense(y, A);
 }
 {
   The function \ID{SUNLinSol\_Dense} creates and allocates memory for
-  a dense \\ \noindent \id{SUNLinearSolver} object.
+  a dense \newline \id{SUNLinearSolver} object.
 }
 {
   \begin{args}[y]
@@ -50,23 +75,63 @@ The module {\sunlinsoldense} provides the following user-callable constructor ro
   additional compatible matrix and vector implementations are added to
   {\sundials}, these will be included within this compatibility check.
 }
+{SUNDenseLinearSolver}
+%
 % --------------------------------------------------------------------
-%%
-For backwards compatibility, we also provide the wrapper function,
+%
+The {\sunlinsoldense} module defines implementations of all
+``direct'' linear solver operations listed in Sections
+\ref{ss:sunlinsol_CoreFn} -- \ref{ss:sunlinsol_GetFn}:
 \begin{itemize}
-
-\item \ID{SUNDenseLinearSolver}
-
-  Wrapper function for \ID{SUNLinSol\_Dense}, with identical input and
-  output arguments.
-
+\item \id{SUNLinSolGetType\_Dense}
+\item \id{SUNLinSolInitialize\_Dense} -- this does nothing, since all
+  consistency checks are performed at solver creation.
+\item \id{SUNLinSolSetup\_Dense} -- this performs the $LU$ factorization.
+\item \id{SUNLinSolSolve\_Dense} -- this uses the $LU$ factors
+  and \id{pivots} array to perform the solve.
+\item \id{SUNLinSolLastFlag\_Dense}
+\item \id{SUNLinSolSpace\_Dense} -- this only returns information for
+  the storage \emph{within} the solver object, i.e.~storage
+  for \id{N}, \id{last\_flag}, and \id{pivots}.
+\item \id{SUNLinSolFree\_Dense}
 \end{itemize}
-%%
-%%------------------------------------
-%%
-For solvers that include a Fortran interface module, the {\sunlinsoldense}
+All of the listed operations are callable via the {\F} 2003 interface module
+by prepending an `F' to the function name.
+
+
+% ====================================================================
+\subsection{SUNLinearSolver\_Dense Fortran interfaces}
+\label{ss:sunlinsol_dense_fortran}
+% ====================================================================
+
+The {\sunlinsoldense} module provides a {\F} 2003 module as well as {\F} 77
+style interface functions for use from {\F} applications.
+
+\subsubsection*{FORTRAN 2003 interface module}
+The \ID{fsunlinsol\_dense\_mod} {\F} module defines interfaces to all
+{\sunlinsoldense} {\CC} functions using the intrinsic \id{iso\_c\_binding}
+module which provides a standardized mechanism for interoperating with {\CC}. As
+noted in the {\CC} function descriptions above, the interface functions are
+named after the corresponding {\CC} function, but with a leading `F'. For
+example, the function \id{SUNLinSol\_Dense} is interfaced as
+\id{FSUNLinSol\_Dense}.
+
+The {\F} 2003 {\sunlinsoldense} interface module can be accessed with the \id{use}
+statement, i.e. \id{use fsunlinsol\_dense\_mod}, and linking to the library
+\id{libsundials\_fsunlinsoldense\_mod}.{\em lib} in addition to the {\CC} library.
+For details on where the library and module file
+\id{fsunlinsol\_dense\_mod.mod} are installed see Appendix \ref{c:install}.
+We note that the module is accessible from the {\F} 2003 {\sundials} integrators
+\textit{without} separately linking to the
+\id{libsundials\_fsunlinsoldense\_mod} library.
+
+\subsubsection*{FORTRAN 77 interface functions}
+For solvers that include a {\F} 77 interface module, the {\sunlinsoldense}
 module also includes a Fortran-callable function for creating a
 \id{SUNLinearSolver} object.
+%
+% --------------------------------------------------------------------
+%
 \ucfunction{FSUNDENSELINSOLINIT}
 {
   FSUNDENSELINSOLINIT(code, ier)
@@ -96,6 +161,9 @@ Additionally, when using {\arkode} with a non-identity
 mass matrix, the {\sunlinsoldense} module includes a Fortran-callable
 function for creating a \id{SUNLinearSolver} mass matrix solver
 object.
+%
+% --------------------------------------------------------------------
+%
 \ucfunction{FSUNMASSDENSELINSOLINIT}
 {
   FSUNMASSDENSELINSOLINIT(ier)
@@ -105,8 +173,7 @@ object.
   to create a dense \id{SUNLinearSolver} object for mass matrix linear
   systems.
 }
-{
-}
+{}
 {
   \id{ier} is a \id{int} return completion flag equal to \id{0} for a success
   return and \id{-1} otherwise. See printed message for details in case
@@ -118,13 +185,14 @@ object.
   objects have been initialized.
 }
 
-%---------------------------------------------------------------------------
-\subsection{{\sunlinsoldense} description}\label{ss:sunlinsol_dense_description}
 
+% ====================================================================
+\subsection{SUNLinearSolver\_Dense content}
+\label{ss:sunlinsol_dense_content}
+% ====================================================================
 
-
-The {\sunlinsoldense} module defines the {\em
-content} field of a \id{SUNLinearSolver} to be the following structure:
+The {\sunlinsoldense} module defines the \textit{content} field of a
+\id{SUNLinearSolver} as the following structure:
 %%
 \begin{verbatim} 
 struct _SUNLinearSolverContent_Dense {
@@ -136,44 +204,9 @@ struct _SUNLinearSolverContent_Dense {
 %%
 These entries of the \emph{content} field contain the following
 information:
-\begin{description}
+\begin{args}[last\_flag]
   \item[N] - size of the linear system,
   \item[pivots] - index array for partial pivoting in LU factorization,
   \item[last\_flag] - last error return flag from internal function evaluations.
-\end{description}
+\end{args}
 
-This solver is constructed to perform the following operations:
-\begin{itemize}
-\item The ``setup'' call performs a $LU$ factorization with
-  partial (row) pivoting ($\mathcal O(N^3)$ cost), $PA=LU$, where $P$
-  is a permutation matrix, $L$ is a lower triangular matrix with 1's
-  on the diagonal, and $U$ is an upper triangular matrix.  This
-  factorization is stored in-place on the input {\sunmatdense} object
-  $A$, with pivoting information encoding $P$ stored in
-  the \id{pivots} array.
-\item The ``solve'' call performs pivoting and forward and
-  backward substitution using the stored \id{pivots} array and the
-  $LU$ factors held in the {\sunmatdense} object ($\mathcal O(N^2)$
-  cost).
-\end{itemize}
-
-%%
-%%----------------------------------------------
-%%
-
-\noindent The {\sunlinsoldense} module defines dense implementations of all
-``direct'' linear solver operations listed in Sections
-\ref{ss:sunlinsol_CoreFn}-\ref{ss:sunlinsol_GetFn}:
-\begin{itemize}
-\item \id{SUNLinSolGetType\_Dense}
-\item \id{SUNLinSolInitialize\_Dense} -- this does nothing, since all
-  consistency checks are performed at solver creation.
-\item \id{SUNLinSolSetup\_Dense} -- this performs the $LU$ factorization.
-\item \id{SUNLinSolSolve\_Dense} -- this uses the $LU$ factors
-  and \id{pivots} array to perform the solve.
-\item \id{SUNLinSolLastFlag\_Dense}
-\item \id{SUNLinSolSpace\_Dense} -- this only returns information for
-  the storage \emph{within} the solver object, i.e.~storage
-  for \id{N}, \id{last\_flag}, and \id{pivots}.
-\item \id{SUNLinSolFree\_Dense}
-\end{itemize}

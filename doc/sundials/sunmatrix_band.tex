@@ -24,7 +24,7 @@ struct _SUNMatrixContent_Band {
 A diagram of the underlying data representation in a banded matrix is
 shown in Figure \ref{f:sunbandmat}.  A more complete description of the
 parts of this \emph{content} field is given below:
-\begin{description}
+\begin{args}[ldata]
   \item[M] - number of rows
   \item[N] - number of columns (\id{N} = \id{M})
   \item[mu] - upper half-bandwidth, $0 \le$ \id{mu} $<$ \id{N}
@@ -55,7 +55,7 @@ parts of this \emph{content} field is given below:
     required by the LU decomposition function.
     Finally, \id{cols[j][i-j+s\_mu]} is the $(i,j)$-th element with
     $j-$\id{mu} $\le i \le j+$\id{ml}.
-\end{description}
+\end{args}
 %%
 %%--------------------------------------------
 %%
@@ -74,10 +74,16 @@ parts of this \emph{content} field is given below:
 \noindent The header file to include when using this module
 is \id{sunmatrix/sunmatrix\_band.h}. The {\sunmatband} module
 is accessible from all {\sundials} solvers \textit{without}
-linking to the \\
-\id{libsundials\_sunmatrixband} module library. \\
+linking to the \newline
+\id{libsundials\_sunmatrixband} module library.
 
-\noindent The following macros are provided to access the
+
+% ====================================================================
+\subsection{SUNMatrix\_Band accessor macros}
+\label{ss:sunmat_band_macros}
+% ====================================================================
+
+The following macros are provided to access the
 content of a {\sunmatband} matrix. The prefix \id{SM\_} in the names
 denotes that these macros are for \emph{SUNMatrix} implementations,
 and the suffix \id{\_B} denotes that these are specific to
@@ -184,36 +190,38 @@ the \emph{banded} version.
   \hspace{1in} \verb|( (SM_CONTENT_B(A)->cols)[j][(i)-(j)+SM_SUBAND_B(A)] )|
 
 \end{itemize}
-%%
-%%----------------------------------------------
-%%
+
+
+% ====================================================================
+\subsection{SUNMatrix\_Band functions}
+\label{ss:sunmat_band_functions}
+% ====================================================================
+
 The {\sunmatband} module defines banded implementations of all matrix
 operations listed in Table \ref{t:sunmatops}. Their names are obtained
 from those in Table \ref{t:sunmatops} by appending the
 suffix \id{\_Band} (e.g. \id{SUNMatCopy\_Band}).
+All the standard matrix operations listed in \ref{t:sunmatops} with the suffix
+\id{\_Band} appended are callable via the {\F} 2003 interface by prepending an
+`F' (e.g. \id{FSUNMatCopy\_Band}).
+
 The module {\sunmatband} provides the following additional user-callable routines:
-%%
-\begin{itemize}
-
 %%--------------------------------------
-
-\item \ID{SUNBandMatrix}
-
+\sunmodfunf{SUNBandMatrix}
+{
   This constructor function creates and allocates memory for a banded \id{SUNMatrix}.
   Its arguments are the matrix size, \id{N}, and the upper and lower
   half-bandwidths of the matrix, \id{mu} and \id{ml}.  The stored
   upper bandwidth is set to \id{mu+ml} to accommodate subsequent
   factorization in the {\sunlinsolband} and {\sunlinsollapband} modules.
-
-  \begin{verbatim}
-SUNMatrix SUNBandMatrix(sunindextype N, sunindextype mu,
-                        sunindextype ml);
-  \end{verbatim}
-
+}
+{
+  SUNMatrix SUNBandMatrix(sunindextype N, sunindextype mu,
+  sunindextype ml)
+}
 %%--------------------------------------
-
-\item \ID{SUNBandMatrixStorage}
-
+\sunmodfun{SUNBandMatrixStorage}
+{
   This constructor function creates and allocates memory for a banded \id{SUNMatrix}.
   Its arguments are the matrix size, \id{N}, the upper and lower
   half-bandwidths of the matrix, \id{mu} and \id{ml}, and the stored
@@ -231,98 +239,96 @@ SUNMatrix SUNBandMatrix(sunindextype N, sunindextype mu,
     advanced constructor is used internally within {\sundials}
     solvers, and is provided to users who require banded matrices for
     non-default purposes.}
-
-  \begin{verbatim}
-SUNMatrix SUNBandMatrixStorage(sunindextype N, sunindextype mu,
-                               sunindextype ml, sunindextype smu);
-  \end{verbatim}
-
+}
+{
+  SUNMatrix SUNBandMatrixStorage(sunindextype N, sunindextype mu,
+  sunindextype ml, sunindextype smu)
+}
 %%--------------------------------------
-
-\item \ID{SUNBandMatrix\_Print}
-
+\sunmodfun{SUNBandMatrix\_Print}
+{
   This function prints the content of a banded \id{SUNMatrix} to the
   output stream specified by \id{outfile}.  Note: \id{stdout}
   or \id{stderr} may be used as arguments for \id{outfile} to print
   directly to standard output or standard error, respectively.
-
-  \verb|void SUNBandMatrix_Print(SUNMatrix A, FILE* outfile);|
-
+}
+{
+  void SUNBandMatrix\_Print(SUNMatrix A, FILE* outfile)
+}
 %%--------------------------------------
-
-\item \ID{SUNBandMatrix\_Rows}
-
+\sunmodfunf{SUNBandMatrix\_Rows}
+{
   This function returns the number of rows in the banded \id{SUNMatrix}.
-
-  \verb|sunindextype SUNBandMatrix_Rows(SUNMatrix A);|
-
+}
+{
+  sunindextype SUNBandMatrix\_Rows(SUNMatrix A)
+}
 %%--------------------------------------
-
-\item \ID{SUNBandMatrix\_Columns}
-
+\sunmodfunf{SUNBandMatrix\_Columns}
+{
   This function returns the number of columns in the banded \id{SUNMatrix}.
-
-  \verb|sunindextype SUNBandMatrix_Columns(SUNMatrix A);|
-
+}
+{
+  sunindextype SUNBandMatrix\_Columns(SUNMatrix A)
+}
 %%--------------------------------------
-
-\item \ID{SUNBandMatrix\_LowerBandwidth}
-
+\sunmodfunf{SUNBandMatrix\_LowerBandwidth}
+{
   This function returns the lower half-bandwidth of the banded \id{SUNMatrix}.
-
-  \verb|sunindextype SUNBandMatrix_LowerBandwidth(SUNMatrix A);|
-
+}
+{
+  sunindextype SUNBandMatrix\_LowerBandwidth(SUNMatrix A)
+}
 %%--------------------------------------
-
-\item \ID{SUNBandMatrix\_UpperBandwidth}
-
+\sunmodfunf{SUNBandMatrix\_UpperBandwidth}
+{
   This function returns the upper half-bandwidth of the banded \id{SUNMatrix}.
-
-  \verb|sunindextype SUNBandMatrix_UpperBandwidth(SUNMatrix A);|
-
+}
+{
+  sunindextype SUNBandMatrix\_UpperBandwidth(SUNMatrix A)
+}
 %%--------------------------------------
-
-\item \ID{SUNBandMatrix\_StoredUpperBandwidth}
-
+\sunmodfunf{SUNBandMatrix\_StoredUpperBandwidth}
+{
   This function returns the stored upper half-bandwidth of the banded \id{SUNMatrix}.
-
-  \verb|sunindextype SUNBandMatrix_StoredUpperBandwidth(SUNMatrix A);|
-
+}
+{
+  sunindextype SUNBandMatrix\_StoredUpperBandwidth(SUNMatrix A)
+}
 %%--------------------------------------
-
-\item \ID{SUNBandMatrix\_LDim}
-
+\sunmodfunf{SUNBandMatrix\_LDim}
+{
   This function returns the length of the leading dimension of the banded \id{SUNMatrix}.
-
-  \verb|sunindextype SUNBandMatrix_LDim(SUNMatrix A);|
-
+}
+{
+  sunindextype SUNBandMatrix\_LDim(SUNMatrix A)
+}
 %%--------------------------------------
-
-\item \ID{SUNBandMatrix\_Data}
-
+\sunmodfunf{SUNBandMatrix\_Data}
+{
   This function returns a pointer to the data array for the banded \id{SUNMatrix}.
-
-  \verb|realtype* SUNBandMatrix_Data(SUNMatrix A);|
-
+}
+{
+  realtype* SUNBandMatrix\_Data(SUNMatrix A)
+}
 %%--------------------------------------
-
-\item \ID{SUNBandMatrix\_Cols}
-
+\sunmodfun{SUNBandMatrix\_Cols}
+{
   This function returns a pointer to the cols array for the banded \id{SUNMatrix}.
-
-  \verb|realtype** SUNBandMatrix_Cols(SUNMatrix A);|
-
+}
+{
+  realtype** SUNBandMatrix\_Cols(SUNMatrix A)
+}
 %%--------------------------------------
-
-\item \ID{SUNBandMatrix\_Column}
-
+\sunmodfunf{SUNBandMatrix\_Column}
+{
   This function returns a pointer to the diagonal entry of the j-th
   column of the banded \id{SUNMatrix}.  The resulting pointer should
   be indexed over the range $-$\id{mu} to \id{ml}.
-
-  \verb|realtype* SUNBandMatrix_Column(SUNMatrix A, sunindextype j);|
-
-\end{itemize}
+}
+{
+  realtype* SUNBandMatrix\_Column(SUNMatrix A, sunindextype j)
+}
 %%
 %%------------------------------------
 %%
@@ -359,8 +365,36 @@ SUNMatrix SUNBandMatrixStorage(sunindextype N, sunindextype mu,
 
 \end{itemize}
 
-For solvers that include a Fortran interface module, the {\sunmatband}
-module also includes the Fortran-callable
+
+% ====================================================================
+\subsection{SUNMatrix\_Band Fortran interfaces}
+\label{ss:sunmat_band_fortran}
+% ====================================================================
+
+The {\sunmatband} module provides a {\F} 2003 module as well as {\F} 77
+style interface functions for use from {\F} applications.
+
+\subsubsection*{FORTRAN 2003 interface module}
+The \ID{fsunmatrix\_band\_mod} {\F} module defines interfaces to most
+{\sunmatband} {\CC} functions using the intrinsic \id{iso\_c\_binding}
+module which provides a standardized mechanism for interoperating with {\CC}. As
+noted in the {\CC} function descriptions above, the interface functions are
+named after the corresponding {\CC} function, but with a leading `F'. For
+example, the function \id{SUNBandMatrix} is interfaced as
+\id{FSUNBandMatrix}.
+
+The {\F} 2003 {\sunmatband} interface module can be accessed with the \id{use}
+statement, i.e. \id{use fsunmatrix\_band\_mod}, and linking to the library
+\id{libsundials\_fsunmatrixband\_mod}.{\em lib} in addition to the {\CC} library.
+For details on where the library and module file
+\id{fsunmatrix\_band\_mod.mod} are installed see Appendix \ref{c:install}.
+We note that the module is accessible from the {\F} 2003 {\sundials} integrators
+\textit{without} separately linking to the
+\id{libsundials\_fsunmatrixband\_mod} library.
+
+\subsubsection*{FORTRAN 77 interface functions}
+For solvers that include a {\F} interface module, the {\sunmatband}
+module also includes the {\F}-callable
 function \id{FSUNBandMatInit(code, N, mu, ml, ier)} to initialize
 this {\sunmatband} module for a given {\sundials} solver.
 Here \id{code} is an integer input solver id (1 for {\cvode}, 2 for {\ida}, 3
@@ -369,6 +403,6 @@ are the corresponding band matrix construction arguments (declared
 to match C type \id{long int}); and \id{ier} is an error return flag
 equal to 0 for success and -1 for failure. Both \id{code} and \id{ier}
 are declared to match C type \id{int}. Additionally, when using
-{\arkode} with a non-identity mass matrix, the Fortran-callable
+{\arkode} with a non-identity mass matrix, the {\F}-callable
 function \id{FSUNBandMassMatInit(N, mu, ml, ier)} initializes
 this {\sunmatband} module for storing the mass matrix.

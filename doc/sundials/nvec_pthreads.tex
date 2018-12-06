@@ -29,12 +29,18 @@ struct _N_VectorContent_Pthreads {
 \end{verbatim}
 %%
 %%--------------------------------------------
+%%
 
 The header file to include when using this module is \id{nvector\_pthreads.h}.
 The installed module library to link to is
 \id{libsundials\_nvecpthreads.\textit{lib}}
 where \id{\em.lib} is typically \id{.so} for shared libraries and \id{.a}
 for static libraries.
+
+% ====================================================================
+\subsection{NVECTOR\_PTHREADS accessor macros}
+\label{ss:nvec_pthreads_macros}
+% ====================================================================
 
 The following macros are provided to access the content of an {\nvecpthreads}
 vector. The suffix \id{\_PT} in the names denotes the Pthreads version.
@@ -99,113 +105,101 @@ vector. The suffix \id{\_PT} in the names denotes the Pthreads version.
   \verb|#define NV_Ith_PT(v,i) ( NV_DATA_PT(v)[i] )|
 
 \end{itemize}
-%%
-%%----------------------------------------------
-%%
+
+% ====================================================================
+\subsection{NVECTOR\_PTHREADS functions}
+\label{ss:nvec_pthreads_functions}
+% ====================================================================
+
 The {\nvecpthreads} module defines Pthreads implementations of all vector operations listed 
 in Tables \ref{t:nvecops}, \ref{t:nvecfusedops}, and \ref{t:nvecarrayops}. Their names are
 obtained from those in Tables \ref{t:nvecops}, \ref{t:nvecfusedops}, and
 \ref{t:nvecarrayops} by appending the suffix \id{\_Pthreads}
 (e.g. \id{N\_VDestroy\_Pthreads}).
+All the standard vector operations listed in \ref{t:nvecops} are callable via
+the {\F} 2003 interface by prepending an `F' (e.g. \id{FN\_VDestroy\_Pthreads}).
 The module {\nvecpthreads} provides the following additional user-callable routines:
-%%
-\begin{itemize}
-
 %%--------------------------------------
-
-\item \ID{N\_VNew\_Pthreads}
-
+\sunmodfunf{N\_VNew\_Pthreads}
+{
   This function creates and allocates memory for a Pthreads \id{N\_Vector}.
   Arguments are the vector length and number of threads.
-
-  
-
-  \verb|N_Vector N_VNew_Pthreads(sunindextype vec_length, int num_threads);|
-
+}
+{
+  N\_Vector N\_VNew\_Pthreads(sunindextype vec\_length, int num\_threads)
+}
 %%--------------------------------------
-
-\item \ID{N\_VNewEmpty\_Pthreads}
-
+\sunmodfunf{N\_VNewEmpty\_Pthreads}
+{
   This function creates a new Pthreads \id{N\_Vector} with an empty (\id{NULL}) data array.
-
-  
-
-  \verb|N_Vector N_VNewEmpty_Pthreads(sunindextype vec_length, int num_threads);|
-
+}
+{
+  N\_Vector N\_VNewEmpty\_Pthreads(sunindextype vec\_length, int num\_threads)
+}
+%%--------------------------------------
+\sunmodfunf{N\_VMake\_Pthreads}
+{
+  This function creates and allocates memory for a Pthreads vector
+  with user-provided data array. This function does {\em not} allocate memory
+  for \id{v\_data} itself.
+}
+{
+  N\_Vector N\_VMake\_Pthreads(sunindextype vec\_length, realtype *v\_data,
+  int num\_threads);
+}
+%%--------------------------------------
+\sunmodfun{N\_VCloneVectorArray\_Pthreads}
+{
+  This function creates (by cloning) an array of \id{count} Pthreads vectors.
+}
+{
+  N\_Vector *N\_VCloneVectorArray\_Pthreads(int count, N\_Vector w)
+}
+%%--------------------------------------
+\sunmodfun{N\_VCloneVectorArrayEmpty\_Pthreads}
+{
+  This function creates (by cloning) an array of \id{count} Pthreads vectors, each with an
+  empty (\id{NULL}) data array.
+}
+{
+  N\_Vector *N\_VCloneVectorArrayEmpty\_Pthreads(int count, N\_Vector w)
+}
+%%--------------------------------------
+\sunmodfun{N\_VDestroyVectorArray\_Pthreads}
+{
+  This function frees memory allocated for the array of \id{count} variables of type
+  \id{N\_Vector} created with \id{N\_VCloneVectorArray\_Pthreads} or with
+  \id{N\_VCloneVectorArrayEmpty\_Pthreads}.
+}
+{
+  void N\_VDestroyVectorArray\_Pthreads(N\_Vector *vs, int count)
+}
+%%--------------------------------------
+\sunmodfunf{N\_VGetLength\_Pthreads}
+{
+  This function returns the number of vector elements.
+}
+{ 
+  sunindextype N\_VGetLength\_Pthreads(N\_Vector v)
+}
+%%--------------------------------------
+\sunmodfunf{N\_VPrint\_Pthreads}
+{
+  This function prints the content of a Pthreads vector to \id{stdout}.
+}
+{
+  void N\_VPrint\_Pthreads(N\_Vector v)
+}
+%%--------------------------------------
+\sunmodfun{N\_VPrintFile\_Pthreads}
+{
+  This function prints the content of a Pthreads vector to \id{outfile}.
+}
+{
+  void N\_VPrintFile\_Pthreads(N\_Vector v, FILE *outfile)
+}
 %%--------------------------------------
 
-\item \ID{N\_VMake\_Pthreads}
-
- This function creates and allocates memory for a Pthreads vector
- with user-provided data array.
-
- (This function does {\em not} allocate memory for \id{v\_data} itself.)
-
-\begin{verbatim}
-N_Vector N_VMake_Pthreads(sunindextype vec_length, realtype *v_data,
-                          int num_threads);
-\end{verbatim}
-
-%%--------------------------------------
-
-\item \ID{N\_VCloneVectorArray\_Pthreads}
-
- This function creates (by cloning) an array of \id{count} Pthreads vectors.
-
- 
-
- \verb|N_Vector *N_VCloneVectorArray_Pthreads(int count, N_Vector w);|
-
-%%--------------------------------------
-
-\item \ID{N\_VCloneVectorArrayEmpty\_Pthreads}
-
- This function creates (by cloning) an array of \id{count} Pthreads vectors, each with an
- empty (\id{NULL}) data array.
-
- 
-
- \verb|N_Vector *N_VCloneVectorArrayEmpty_Pthreads(int count, N_Vector w);|
-
-%%--------------------------------------
-
-\item \ID{N\_VDestroyVectorArray\_Pthreads}
-
- This function frees memory allocated for the array of \id{count} variables of type
- \id{N\_Vector} created with \id{N\_VCloneVectorArray\_Pthreads} or with
- \id{N\_VCloneVectorArrayEmpty\_Pthreads}.
-
- 
-
- \verb|void N_VDestroyVectorArray_Pthreads(N_Vector *vs, int count);|
-
-%%--------------------------------------
-
-\item \ID{N\_VGetLength\_Pthreads}
-
- This function returns the number of vector elements.
-
- 
- 
- \verb|sunindextype N_VGetLength_Pthreads(N_Vector v);|
-
-%%--------------------------------------
-
-\item \ID{N\_VPrint\_Pthreads}
-
- This function prints the content of a Pthreads vector to \id{stdout}.
- 
- \verb|void N_VPrint_Pthreads(N_Vector v);|
-
-%%--------------------------------------
-
-\item \ID{N\_VPrintFile\_Pthreads}
-
- This function prints the content of a Pthreads vector to \id{outfile}.
- 
- \verb|void N_VPrintFile_Pthreads(N_Vector v, FILE *outfile);|
-
-\end{itemize}
 By default all fused and vector array operations are disabled in the {\nvecpthreads}
 module. The following additional user-callable routines are provided to
 enable or disable fused and vector array operations for a specific vector. To
@@ -216,125 +210,121 @@ using \id{N\_VClone}. This guarantees the new vectors will have the same
 operations enabled/disabled as cloned vectors inherit the same enable/disable
 options as the vector they are cloned from while vectors created with
 \id{N\_VNew\_Pthreads} will have the default settings for the {\nvecpthreads} module.
-\begin{itemize}
-
 %%--------------------------------------
-
-\item \ID{N\_VEnableFusedOps\_Pthreads}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) all fused and
-vector array operations in the Pthreads vector. The return value is \id{0} for
-success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
-
-\verb|int N_VEnableFusedOps_Pthreads(N_Vector v, booleantype tf);|
-
+\sunmodfun{N\_VEnableFusedOps\_Pthreads}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) all fused and
+  vector array operations in the Pthreads vector. The return value is \id{0} for
+  success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableFusedOps\_Pthreads(N\_Vector v, booleantype tf)
+}
 %%--------------------------------------
-
-\item \ID{N\_VEnableLinearCombination\_Pthreads}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear
-combination fused operation in the Pthreads vector. The return value is \id{0} for
-success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
-
-\verb|int N_VEnableLinearCombination_Pthreads(N_Vector v, booleantype tf);|
-
+\sunmodfun{N\_VEnableLinearCombination\_Pthreads}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear
+  combination fused operation in the Pthreads vector. The return value is \id{0} for
+  success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableLinearCombination\_Pthreads(N\_Vector v, booleantype tf)
+}
 %%--------------------------------------
-
-\item \ID{N\_VEnableScaleAddMulti\_Pthreads}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale and
-add a vector to multiple vectors fused operation in the Pthreads vector. The
-return value is \id{0} for success and \id{-1} if the input vector or its
-\id{ops} structure are \id{NULL}.
-
-\verb|int N_VEnableScaleAddMulti_Pthreads(N_Vector v, booleantype tf);|
-
+\sunmodfun{N\_VEnableScaleAddMulti\_Pthreads}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale and
+  add a vector to multiple vectors fused operation in the Pthreads vector. The
+  return value is \id{0} for success and \id{-1} if the input vector or its
+  \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableScaleAddMulti\_Pthreads(N\_Vector v, booleantype tf)
+}
 %%--------------------------------------
-
-\item \ID{N\_VEnableDotProdMulti\_Pthreads}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the multiple
-dot products fused operation in the Pthreads vector. The return value is \id{0}
-for success and \id{-1} if the input vector or its \id{ops} structure are
-\id{NULL}.
-
-\verb|int N_VEnableDotProdMulti_Pthreads(N_Vector v, booleantype tf);|
-
+\sunmodfun{N\_VEnableDotProdMulti\_Pthreads}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the multiple
+  dot products fused operation in the Pthreads vector. The return value is \id{0}
+  for success and \id{-1} if the input vector or its \id{ops} structure are
+  \id{NULL}.
+}
+{
+  int N\_VEnableDotProdMulti\_Pthreads(N\_Vector v, booleantype tf)
+}
 %%--------------------------------------
-
-\item \ID{N\_VEnableLinearSumVectorArray\_Pthreads}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear sum
-operation for vector arrays in the Pthreads vector. The return value is \id{0} for
-success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
-
-\verb|int N_VEnableLinearSumVectorArray_Pthreads(N_Vector v, booleantype tf);|
-
+\sunmodfun{N\_VEnableLinearSumVectorArray\_Pthreads}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear sum
+  operation for vector arrays in the Pthreads vector. The return value is \id{0} for
+  success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableLinearSumVectorArray\_Pthreads(N\_Vector v, booleantype tf)
+}
 %%--------------------------------------
-
-\item \ID{N\_VEnableScaleVectorArray\_Pthreads}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale
-operation for vector arrays in the Pthreads vector. The return value is \id{0} for
-success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
-
-\verb|int N_VEnableScaleVectorArray_Pthreads(N_Vector v, booleantype tf);|
-
+\sunmodfun{N\_VEnableScaleVectorArray\_Pthreads}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale
+  operation for vector arrays in the Pthreads vector. The return value is \id{0} for
+  success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableScaleVectorArray\_Pthreads(N\_Vector v, booleantype tf)
+}
 %%--------------------------------------
-
-\item \ID{N\_VEnableConstVectorArray\_Pthreads}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the const
-operation for vector arrays in the Pthreads vector. The return value is \id{0} for
-success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
-
-\verb|int N_VEnableConstVectorArray_Pthreads(N_Vector v, booleantype tf);|
-
+\sunmodfun{N\_VEnableConstVectorArray\_Pthreads}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the const
+  operation for vector arrays in the Pthreads vector. The return value is \id{0} for
+  success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableConstVectorArray\_Pthreads(N\_Vector v, booleantype tf)
+}
 %%--------------------------------------
-
-\item \ID{N\_VEnableWrmsNormVectorArray\_Pthreads}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the WRMS norm
-operation for vector arrays in the Pthreads vector. The return value is \id{0} for
-success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
-
-\verb|int N_VEnableWrmsNormVectorArray_Pthreads(N_Vector v, booleantype tf);|
-
+\sunmodfun{N\_VEnableWrmsNormVectorArray\_Pthreads}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the WRMS norm
+  operation for vector arrays in the Pthreads vector. The return value is \id{0} for
+  success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableWrmsNormVectorArray\_Pthreads(N\_Vector v, booleantype tf)
+}
 %%--------------------------------------
-
-\item \ID{N\_VEnableWrmsNormMaskVectorArray\_Pthreads}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the masked WRMS
-norm operation for vector arrays in the Pthreads vector. The return value is
-\id{0} for success and \id{-1} if the input vector or its \id{ops} structure are
-\id{NULL}.
-
-\verb|int N_VEnableWrmsNormMaskVectorArray_Pthreads(N_Vector v, booleantype tf);|
-
+\sunmodfun{N\_VEnableWrmsNormMaskVectorArray\_Pthreads}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the masked WRMS
+  norm operation for vector arrays in the Pthreads vector. The return value is
+  \id{0} for success and \id{-1} if the input vector or its \id{ops} structure are
+  \id{NULL}.
+}
+{
+  int N\_VEnableWrmsNormMaskVectorArray\_Pthreads(N\_Vector v, booleantype tf)
+}
 %%--------------------------------------
-
-\item \ID{N\_VEnableScaleAddMultiVectorArray\_Pthreads}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale and
-add a vector array to multiple vector arrays operation in the Pthreads vector. The
-return value is \id{0} for success and \id{-1} if the input vector or its
-\id{ops} structure are \id{NULL}.
-
-\verb|int N_VEnableScaleAddMultiVectorArray_Pthreads(N_Vector v, booleantype tf);|
-
+\sunmodfun{N\_VEnableScaleAddMultiVectorArray\_Pthreads}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale and
+  add a vector array to multiple vector arrays operation in the Pthreads vector. The
+  return value is \id{0} for success and \id{-1} if the input vector or its
+  \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableScaleAddMultiVectorArray\_Pthreads(N\_Vector v, booleantype tf)
+}
 %%--------------------------------------
-
-\item \ID{N\_VEnableLinearCombinationVectorArray\_Pthreads}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear
-combination operation for vector arrays in the Pthreads vector. The return value
-is \id{0} for success and \id{-1} if the input vector or its \id{ops} structure
-are \id{NULL}.
-
-\verb|int N_VEnableLinearCombinationVectorArray_Pthreads(N_Vector v, booleantype tf);|
-
-%%--------------------------------------
-\end{itemize}
+\sunmodfun{N\_VEnableLinearCombinationVectorArray\_Pthreads}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear
+  combination operation for vector arrays in the Pthreads vector. The return value
+  is \id{0} for success and \id{-1} if the input vector or its \id{ops} structure
+  are \id{NULL}.
+}
+{
+  int N\_VEnableLinearCombinationVectorArray\_Pthreads(N\_Vector v, booleantype tf)
+}
 %%
 %%------------------------------------
 %%
@@ -366,8 +356,33 @@ are \id{NULL}.
 
 \end{itemize}
 
-For solvers that include a Fortran interface module, the {\nvecpthreads}
-module also includes a Fortran-callable function
+
+% ====================================================================
+\subsection{NVECTOR\_PTHREADS Fortran interfaces}
+\label{ss:nvec_pthreads_fortran}
+% ====================================================================
+
+The {\nvecpthreads} module provides a {\F} 2003 module as well as {\F} 77
+style interface functions for use from {\F} applications.
+
+\subsubsection*{FORTRAN 2003 interface module}
+The \ID{nvector\_pthreads\_mod} {\F} module defines interfaces to most
+{\nvecpthreads} {\CC} functions using the intrinsic \id{iso\_c\_binding}
+module which provides a standardized mechanism for interoperating with {\CC}. As
+noted in the {\CC} function descriptions above, the interface functions are
+named after the corresponding {\CC} function, but with a leading `F'. For
+example, the function \id{N\_VNew\_Pthreads} is interfaced as
+\id{FN\_VNew\_Pthreads}.
+
+The {\F} 2003 {\nvecpthreads} interface module can be accessed with the \id{use}
+statement, i.e. \id{use fnvector\_pthreads\_mod}, and linking to the library
+\id{libsundials\_fnvectorpthreads\_mod}.{\em lib} in addition to the {\CC} library.
+For details on where the library and module file
+\id{fnvector\_pthreads\_mod.mod} are installed see Appendix \ref{c:install}.
+
+\subsubsection*{FORTRAN 77 interface functions}
+For solvers that include a {\F} interface module, the {\nvecpthreads}
+module also includes a {\F}-callable function
 \id{FNVINITPTS(code, NEQ, NUMTHREADS, IER)}, to initialize this
 module.  Here \id{code} is an input solver id
 (1 for {\cvode}, 2 for {\ida}, 3 for {\kinsol}, 4 for {\arkode}); NEQ is

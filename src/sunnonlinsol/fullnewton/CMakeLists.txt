@@ -16,6 +16,11 @@
 
 install(CODE "MESSAGE(\"\nInstall SUNNONLINSOL_FULLNEWTON\n\")")
 
+# Add F90 module if F2003 interface is enabled
+if(F90_FOUND AND F2003_INTERFACE_ENABLE)
+  add_subdirectory(F90)
+endif(F90_FOUND AND F2003_INTERFACE_ENABLE)
+
 # Add variable with the sources for the library
 set(lib_SOURCES sunnonlinsol_fullnewton.c)
 
@@ -34,7 +39,7 @@ set(lib_HEADERS
 # Add source directory to include directories
 include_directories(.)
 
-# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY 
+# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
 add_definitions(-DBUILD_SUNDIALS_LIBRARY)
 
 # Rules for building and installing the static library:
@@ -71,7 +76,7 @@ endif()
 INSTALL(FILES ${lib_HEADERS} DESTINATION include/sunnonlinsol)
 
 # If FCMIX is enabled, build and install the F library
-if(FCMIX_ENABLE AND F77_FOUND)
+if(F77_INTERFACE_ENABLE AND F77_FOUND)
 
   set(flib_SOURCES fsunnonlinsol_fullnewton.c)
 

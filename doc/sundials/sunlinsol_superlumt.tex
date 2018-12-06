@@ -1,20 +1,16 @@
-%% This is a shared SUNDIALS TEX file with a description of the
-%% superlumt sunlinsol implementation
-%%
-\section{The SUNLinearSolver\_SuperLUMT implementation}\label{ss:sunlinsol_superlumt}
+% ====================================================================
+\section{The SUNLinearSolver\_SuperLUMT implementation}
+\label{ss:sunlinsol_superlumt}
+% ====================================================================
 
-The {\superlumt} implementation of the {\sunlinsol} module provided with
-{\sundials},\\
-\noindent{\sunlinsolslumt}, is designed to be used with the
+This section describes the {\sunlinsol} implementation for solving sparse linear
+systems with SuperLU\_MT. The {\superlumt} module is designed to be used with the
 corresponding {\sunmatsparse} matrix type, and one of the serial or
 shared-memory {\nvector} implementations ({\nvecs}, {\nvecopenmp}, or 
-{\nvecpthreads}).  While these are compatible, it is not recommended
+{\nvecpthreads}). While these are compatible, it is not recommended
 to use a threaded vector module with {\sunlinsolslumt} unless it is
 the {\nvecopenmp} module and the {\superlumt} library has also been
 compiled with OpenMP.
-
-%---------------------------------------------------------------------------
-\subsection{{\sunlinsolslumt} usage}\label{ss:sunlinsol_slumt_usage}
 
 The header file to include when using this module 
 is \id{sunlinsol/sunlinsol\_superlumt.h}. The installed module
@@ -23,17 +19,71 @@ library to link to is
 where \id{\em.lib} is typically \id{.so} for shared libraries and
 \id{.a} for static libraries.
 
+The {\sunlinsolslumt} module is a {\sunlinsol} wrapper for
+the {\superlumt} sparse matrix factorization and solver library
+written by X. Sherry Li \cite{SuperLUMT_site,Li:05,DGL:99}.  The
+package performs matrix factorization using threads to enhance
+efficiency in shared memory parallel environments.  It should be noted
+that threads are only used in the factorization step.  In
+order to use the {\sunlinsolslumt} interface to {\superlumt}, it is
+assumed that {\superlumt} has been installed on the system prior to
+installation of {\sundials}, and that {\sundials} has been configured
+appropriately to link with {\superlumt} (see Appendix \ref{c:install}
+for details).  Additionally, this wrapper only supports single- and
+double-precision calculations, and therefore cannot be compiled if
+{\sundials} is configured to have \id{realtype} set to \id{extended}
+(see Section \ref{s:types}).  Moreover, since the {\superlumt} library
+may be installed to support either 32-bit or 64-bit integers, it is
+assumed that the {\superlumt} library is installed using the same
+integer precision as the {\sundials} \id{sunindextype} option. {\warn}
 
-The module {\sunlinsolslumt} provides the following user-callable routines: 
-%%
+% ====================================================================
+\subsection{SUNLinearSolver\_SuperLUMT description}
+\label{ss:sunlinsol_slumt_usage}
+% ====================================================================
+
+The {\superlumt} library has a symbolic factorization routine that
+computes the permutation of the linear system matrix to reduce fill-in
+on subsequent $LU$ factorizations (using COLAMD, minimal degree
+ordering on $A^T*A$, minimal degree ordering on $A^T+A$, or natural
+ordering).  Of these ordering choices, the default value in the
+{\sunlinsolslumt} module is the COLAMD ordering. 
+
+Since the linear systems that arise within the context of {\sundials}
+calculations will typically have identical sparsity patterns, the
+{\sunlinsolslumt} module is constructed to perform the
+following operations:
+\begin{itemize}
+\item The first time that the ``setup'' routine is called, it
+  performs the symbolic factorization, followed by an initial
+  numerical factorization.  
+\item On subsequent calls to the ``setup'' routine, it skips the
+  symbolic factorization, and only refactors the input matrix.
+\item The ``solve'' call performs pivoting and forward and
+  backward substitution using the stored {\superlumt} data
+  structures.  We note that in this solve {\superlumt} operates on the
+  native data arrays for the right-hand side and solution vectors,
+  without requiring costly data copies.
+\end{itemize}
+
+
+% ====================================================================
+\subsection{SUNLinearSolver\_SuperLUMT functions}
+\label{ss:sunlinsol_slumt_functions}
+% ====================================================================
+
+The module {\sunlinsolslumt} provides the following user-callable constructor
+for creating a \newline \id{SUNLinearSolver} object.
+%
 % --------------------------------------------------------------------
-\ucfunction{SUNLinSol\_SuperLUMT}
+%
+\ucfunctiond{SUNLinSol\_SuperLUMT}
 {
   LS = SUNLinSol\_SuperLUMT(y, A, num\_threads);
 }
 {
-  The function \ID{SUNLinSol\_SuperLUMT} creates and allocates memory for a
-  \\ \noindent {\sunlinsolslumt} object.
+  The function \ID{SUNLinSol\_SuperLUMT} creates and allocates memory for
+  a SuperLU\_MT-based \id{SUNLinearSolver} object.
 }
 {
   \begin{args}[num\_threads]
@@ -66,23 +116,52 @@ The module {\sunlinsolslumt} provides the following user-callable routines:
   check.
 
   The \id{num\_threads} argument is not checked and is passed directly
-  to {\superlumt} routines. 
+  to {\superlumt} routines.
 }
+{SUNSuperLUMT}
+%
 % --------------------------------------------------------------------
-\ucfunction{SUNLinSol\_SuperLUMTSetOrdering}
+%
+\noindent The {\sunlinsolslumt} module defines implementations of all
+``direct'' linear solver operations listed in Sections
+\ref{ss:sunlinsol_CoreFn} -- \ref{ss:sunlinsol_GetFn}:
+\begin{itemize}
+\item \id{SUNLinSolGetType\_SuperLUMT}
+\item \id{SUNLinSolInitialize\_SuperLUMT} -- this sets the
+  \id{first\_factorize} flag to 1 and resets the internal {\superlumt}
+  statistics variables.
+\item \id{SUNLinSolSetup\_SuperLUMT} -- this performs either a $LU$
+  factorization or refactorization of the input matrix.
+\item \id{SUNLinSolSolve\_SuperLUMT} -- this calls the appropriate
+  {\superlumt} solve routine to utilize the $LU$ factors to solve the
+  linear system. 
+\item \id{SUNLinSolLastFlag\_SuperLUMT}
+\item \id{SUNLinSolSpace\_SuperLUMT} -- this only returns information for
+  the storage within the solver \emph{interface}, i.e.~storage for the
+  integers \id{last\_flag} and \id{first\_factorize}.  For additional
+  space requirements, see the {\superlumt} documentation.
+\item \id{SUNLinSolFree\_SuperLUMT}
+\end{itemize}
+
+The {\sunlinsolslumt} module also defines the following additional
+user-callable function.
+%
+% --------------------------------------------------------------------
+%
+\ucfunctiond{SUNLinSol\_SuperLUMTSetOrdering}
 {
   retval = SUNLinSol\_SuperLUMTSetOrdering(LS, ordering);
 }
 {
-  The function \ID{SUNLinSol\_SuperLUMTSetOrdering} sets the ordering
-  used by {\superlumt} for reducing fill in the linear solve.
+  This function sets the ordering used by {\superlumt} for reducing fill in
+  the linear solve.
 }
 {
   \begin{args}[ordering]
   \item[LS] (\id{SUNLinearSolver})
     the {\sunlinsolslumt} object
   \item[ordering] (\id{int})
-    a flag indicating the ordering algorithm, options are:
+    a flag indicating the ordering algorithm to use, the options are:
     \begin{itemize}
     \item[0] natural ordering
     \item[1] minimal degree ordering on $A^TA$
@@ -94,34 +173,23 @@ The module {\sunlinsolslumt} provides the following user-callable routines:
 }
 {
   The return values from this function are \id{SUNLS\_MEM\_NULL}
-  (\id{S} is \id{NULL}), \id{SUNLS\_ILL\_INPUT}
-  (invalid \id{ordering\_choice}), or \id{SUNLS\_SUCCESS}.
+  (\id{S} is \id{NULL}), \newline \id{SUNLS\_ILL\_INPUT}
+  (invalid ordering choice), or \id{SUNLS\_SUCCESS}.
 }
-{
-}
-% --------------------------------------------------------------------
-%%
-For backwards compatibility, we also provide the wrapper functions,
-each with identical input and output arguments to the routines that
-they wrap:
-\begin{itemize}
+{}
+{SUNSuperLUMTSetOrdering}
 
-\item \ID{SUNSuperLUMT}
+% ====================================================================
+\subsection{SUNLinearSolver\_SuperLUMT Fortran interfaces}
+\label{ss:sunlinsol_slumt_fortran}
+% ====================================================================
 
-  Wrapper function for \ID{SUNLinSol\_SuperLUMT}
-
-\item \ID{SUNSuperLUMTSetOrdering}
-
-  Wrapper function for \ID{SUNLinSol\_SuperLUMTSetOrdering}
-
-\end{itemize}
-%%
-%%------------------------------------
-%%
 For solvers that include a Fortran interface module, the
 {\sunlinsolslumt} module also includes a Fortran-callable function
 for creating a \id{SUNLinearSolver} object.
+%
 % --------------------------------------------------------------------
+%
 \ucfunction{FSUNSUPERLUMTINIT}
 {
   FSUNSUPERLUMTINIT(code, num\_threads, ier)
@@ -150,19 +218,21 @@ for creating a \id{SUNLinearSolver} object.
   called \emph{after} both the {\nvector} and {\sunmatrix} objects have
   been initialized.
 }
+Additionally, when using {\arkode} with a non-identity
+mass matrix, the {\sunlinsolslumt} module includes a Fortran-callable
+function for creating a \id{SUNLinearSolver} mass matrix solver
+object.
+%
 % --------------------------------------------------------------------
-Additionally, when using
-{\arkode} with a non-identity mass matrix, the {\sunlinsolslumt} module
-includes a Fortran-callable function for creating a
-\id{SUNLinearSolver} mass matrix solver object.
-% --------------------------------------------------------------------
+%
 \ucfunction{FSUNMASSSUPERLUMTINIT}
 {
   FSUNMASSSUPERLUMTINIT(num\_threads, ier)
 }
 {
   The function \ID{FSUNMASSSUPERLUMTINIT} can be called for Fortran programs
-  to create a {\sunlinsolslumt} object for mass matrix linear systems.
+  to create a SuperLU\_MT-based \id{SUNLinearSolver} object for mass matrix linear
+  systems.
 }
 {
   \begin{args}[num\_threads]
@@ -181,17 +251,18 @@ includes a Fortran-callable function for creating a
   called \emph{after} both the {\nvector} and {\sunmatrix} mass-matrix
   objects have been initialized.
 }
-% --------------------------------------------------------------------
 The \ID{SUNLinSol\_SuperLUMTSetOrdering} routine also supports Fortran
 interfaces for the system and mass matrix solvers:
+%
 % --------------------------------------------------------------------
+%
 \ucfunction{FSUNSUPERLUMTSETORDERING}
 {
   FSUNSUPERLUMTSETORDERING(code, ordering, ier)
 }
 {
-  The function \ID{FSUNSUPERLUMTSETORDERING} can be called for Fortran
-  programs to update the ordering algorithm in a {\sunlinsolslumt} object.
+  The function \ID{FSUNSUPERLUMTSETORDERING} can be called for Fortran programs
+  to update the ordering algorithm in a {\sunlinsolslumt} object.
 }
 {
   \begin{args}[ordering]
@@ -218,7 +289,9 @@ interfaces for the system and mass matrix solvers:
   See \id{SUNLinSol\_SuperLUMTSetOrdering} for complete further
   documentation of this routine. 
 }
+%
 % --------------------------------------------------------------------
+%
 \ucfunction{FSUNMASSUPERLUMTSETORDERING}
 {
   FSUNMASSUPERLUMTSETORDERING(ordering, ier)
@@ -250,16 +323,15 @@ interfaces for the system and mass matrix solvers:
   See \id{SUNLinSol\_SuperLUMTSetOrdering} for complete further
   documentation of this routine. 
 }
-% --------------------------------------------------------------------
 
 
+% ====================================================================
+\subsection{SUNLinearSolver\_SuperLUMT content}
+\label{ss:sunlinsol_slumt_content}
+% ====================================================================
 
-%---------------------------------------------------------------------------
-\subsection{{\sunlinsolslumt} description}\label{ss:sunlinsol_slumt_description}
-
-
-The {\sunlinsolslumt} module defines the {\em
-content} field of a \id{SUNLinearSolver} to be the following structure:
+The {\sunlinsolslumt} module defines the \textit{content} field of a
+\id{SUNLinearSolver} as the following structure:
 %%
 \begin{verbatim} 
 struct _SUNLinearSolverContent_SuperLUMT {
@@ -278,7 +350,7 @@ struct _SUNLinearSolverContent_SuperLUMT {
 %%
 These entries of the \emph{content} field contain the following
 information:
-\begin{description}
+\begin{args}[diag\_pivot\_thresh]
   \item[last\_flag] - last error return flag from internal function evaluations,
   \item[first\_factorize] - flag indicating whether the factorization
     has ever been performed, 
@@ -290,72 +362,5 @@ information:
   \item[diag\_pivot\_thresh] - threshold on diagonal pivoting,
   \item[ordering] - flag for which reordering algorithm to use,
   \item[options] - pointer to {\superlumt} options structure.
-\end{description}
+\end{args}
 
-{\warn} The {\sunlinsolslumt} module is a {\sunlinsol} wrapper for
-the {\superlumt} sparse matrix factorization and solver library
-written by X. Sherry Li \cite{SuperLUMT_site,Li:05,DGL:99}.  The
-package performs matrix factorization using threads to enhance
-efficiency in shared memory parallel environments.  It should be noted
-that threads are only used in the factorization step.  In
-order to use the {\sunlinsolslumt} interface to {\superlumt}, it is
-assumed that {\superlumt} has been installed on the system prior to
-installation of {\sundials}, and that {\sundials} has been configured
-appropriately to link with {\superlumt} (see Appendix \ref{c:install}
-for details).  Additionally, this wrapper only supports single- and
-double-precision calculations, and therefore cannot be compiled if
-{\sundials} is configured to have \id{realtype} set to \id{extended}
-(see Section \ref{s:types}).  Moreover, since the {\superlumt} library
-may be installed to support either 32-bit or 64-bit integers, it is
-assumed that the {\superlumt} library is installed using the same
-integer precision as the {\sundials} \id{sunindextype} option.
-
-The {\superlumt} library has a symbolic factorization routine that
-computes the permutation of the linear system matrix to reduce fill-in
-on subsequent $LU$ factorizations (using COLAMD, minimal degree
-ordering on $A^T*A$, minimal degree ordering on $A^T+A$, or natural
-ordering).  Of these ordering choices, the default value in the
-{\sunlinsolslumt} module is the COLAMD ordering. 
-
-Since the linear systems that arise within the context of {\sundials}
-calculations will typically have identical sparsity patterns, the
-{\sunlinsolslumt} module is constructed to perform the
-following operations:
-\begin{itemize}
-\item The first time that the ``setup'' routine is called, it
-  performs the symbolic factorization, followed by an initial
-  numerical factorization.  
-\item On subsequent calls to the ``setup'' routine, it skips the
-  symbolic factorization, and only refactors the input matrix.
-\item The ``solve'' call performs pivoting and forward and
-  backward substitution using the stored {\superlumt} data
-  structures.  We note that in this solve {\superlumt} operates on the
-  native data arrays for the right-hand side and solution vectors,
-  without requiring costly data copies.
-\end{itemize}
-
-
-%%
-%%----------------------------------------------
-%%
-
-\noindent The {\sunlinsolslumt} module defines implementations of all
-``direct'' linear solver operations listed in Sections
-\ref{ss:sunlinsol_CoreFn}-\ref{ss:sunlinsol_GetFn}:
-\begin{itemize}
-\item \id{SUNLinSolGetType\_SuperLUMT}
-\item \id{SUNLinSolInitialize\_SuperLUMT} -- this sets the
-  \id{first\_factorize} flag to 1 and resets the internal {\superlumt}
-  statistics variables.
-\item \id{SUNLinSolSetup\_SuperLUMT} -- this performs either a $LU$
-  factorization or refactorization of the input matrix.
-\item \id{SUNLinSolSolve\_SuperLUMT} -- this calls the appropriate
-  {\superlumt} solve routine to utilize the $LU$ factors to solve the
-  linear system. 
-\item \id{SUNLinSolLastFlag\_SuperLUMT}
-\item \id{SUNLinSolSpace\_SuperLUMT} -- this only returns information for
-  the storage within the solver \emph{interface}, i.e.~storage for the
-  integers \id{last\_flag} and \id{first\_factorize}.  For additional
-  space requirements, see the {\superlumt} documentation.
-\item \id{SUNLinSolFree\_SuperLUMT}
-\end{itemize}
