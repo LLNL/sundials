@@ -1,15 +1,51 @@
 Changes to SUNDIALS in release 4.0.0
 
+The direct and iterative linear solver interfaces in all SUNDIALS packages have
+been merged into a single unified linear solver interface to support any valid
+SUNLINSOL module. This includes the DIRECT and ITERATIVE types as well as the
+new MATRIX_ITERATIVE type. Details regarding how SUNDIALS packages utilize linear
+solvers of each type as well as discussion regarding intended use cases for
+user-supplied SUNLINSOL implementations are included in the SUNLINSOL chapter of
+the user guides. All example programs have been updated to use the new unified
+interfaces.
+
+The unified interface is very similar to the previous DLS and SPILS interfaces.
+To minimize challenges in user migration to the unified linear solver interface,
+the previous DLS and SPILS routines for all packages may still be used; these
+will be deprecated in future releases, so we recommend that users migrate to the
+new names soon. Additionally, we note that Fortran users will need to enlarge
+their iout array of optional integer outputs, and update the indices that they
+query for certain linear-solver-related statistics.
+
+The names of all constructor routines for SUNDIALS-provided SUNLinSol
+implementations have been updated to follow the naming convention SUNLinSol_*
+where * is the name of the linear solver e.g., Dense, KLU, SPGMR, PCG, etc.
+Solver-specific ``set'' routine names have been similarly standardized. To
+minimize challenges in user migration to the new names, the previous routine
+names may still be used; these will be deprecated in future releases, so we
+recommend that users migrate to the new names soon. All example programs have
+been updated to used the new naming convention.
+
+The SUNBandMatrix constructor has been simplified to remove the storage upper
+bandwidth argument.
+
+SUNDIALS integrators (ARKode, CVODE, CVODES, IDA, and IDAS) have been updated to
+utilize generic nonlinear solver modules through the SUNNONLINSOL API. This API
+will ease the addition of new nonlinear solver options and allow for external or
+user-supplied nonlinear solvers. The SUNNONLINSOL API and provided SUNNONLINSOL
+modules are described in a new user guide chapter and follow the same object
+oriented design and implementation used by the NVECTOR, SUNMATRIX, and
+SUNLINSOL modules. All integrator example programs have also been updated to
+used the new nonlinear solver API.
+
+Three fused vector operations and seven vector array operations have been added
+to the NVECTOR API. These optional operations are disabled by default and may be
+activated by calling vector specific routines after creating an NVECTOR. See the
+NVECTOR chapter in the user guides for more information on the new operations.
+
 Added a new NVECTOR (NVECTOR_OPENMPDEV) which leverages OpenMP 4.5+ device offloading.
 
-Added Fortran 2003 interfaces to:
-
-  * CVODE
-  * Fixed-point and Newton nonlinear solvers
-  * Dense, band, KLU, PCG, SPBCGS, SPFGMR, SPGMR, and SPTFQMR linear solvers
-  * Serial, Pthreads, and OpenMP NVECTORs
-
-Multiple changes to the CUDA NVECTOR were made:
+Multiple updates to the CUDA NVECTOR were made:
 
   * Changed the N_VMake_Cuda function to take a host data pointer and a device
     data pointer instead of an N_VectorContent_Cuda object.
@@ -27,9 +63,9 @@ Multiple changes to the CUDA NVECTOR were made:
     NVECTOR kernels. See the function N_VSetCudaStreams_Cuda.
 
   * Added N_VNewManaged_Cuda, N_VMakeManaged_Cuda, and N_VIsManagedMemory_Cuda
-    functions to accomodate using managed memory with the CUDA NVECTOR.
+    functions to accommodate using managed memory with the CUDA NVECTOR.
 
-Multiple changes to the RAJA NVECTOR were made:
+Multiple updates to the RAJA NVECTOR were made:
 
   * Changed N_VGetLength_Raja to return the global vector length instead of
     the local vector length.
@@ -48,140 +84,20 @@ Two changes were made in the CVODE/CVODES/ARKODE initial step size algorithm:
      penultimate iteration. Now it will exit with the step size calculated
      on the final iteration.
 
-Changes to SUNDIALS in release 4.0.0-dev.2
-
-ARKode, CVODES, and IDAS have been updated to use the SUNNONLINSOL API.
+Fortran 2003 interfaces to CVODE, the fixed-point and Newton nonlinear solvers,
+the dense, band, KLU, PCG, SPBCGS, SPFGMR, SPGMR, and SPTFQMR linear solvers,
+and the serial, PThreads, and OpenMP NVECTORs have been added.
 
 The ARKode library has been entirely rewritten to support a modular approach to
-one-step methods, which should allow rapid research and development of novel
+one-step methods, which should allow for rapid research and development of novel
 integration methods without affecting existing solver functionality.
 
-The direct and iterative linear solver interfaces in ARKode, CVODE, IDA, and
-KINSOL have been merged into a single unified linear solver interface to support
-any valid SUNLINSOL module. The unified interface is very similar to the previous
-DLS and SPILS interfaces. To minimize challenges in user migration to the unified
-linear solver interface, the previous DLS and SPILS routines for CVODE, IDA,
-and KINSOL may still be used; these will be deprecated in future releases, so we
-recommend that users migrate to the new names soon. Additionally, we note that
-Fortran  users will need to enlarge their iout array of optional integer outputs,
-and update the indices that they query for certain linear-solver-related statistics.
-
-The names of all constructor routines for SUNDIALS-provided SUNLinSol
-implementations have been updated to follow the naming convention SUNLinSol_*
-where * is the name of the linear solver e.g., Dense, KLU, SPGMR, PCG, etc.
-Solver-specific ``set'' routine names have been similarly standardized. To
-minimize challenges in user migration to the new names, the previous routine
-names may still be used; these will be deprecated in future releases, so we
-recommend that users migrate to the new names soon.
+A new ARKode stepper, MRIStep, has been added for two rate explicit-explicit
+multirate infinitesimal step methods.
 
 ARKode's dense output infrastructure has been improved to support higher-degree
 Hermite polynomial interpolants (up to degree 5) over the last successful time step.
 
-Changes to SUNDIALS in release 4.0.0-dev.1
-
-An API for encapsulating the nonlinear solvers used in SUNDIALS implicit
-integrators has been introduced and are utilized by the CVODE and IDA packages.
-The other SUNDIALS packages will be updated to use generic nonlinear solver in a
-later release. The goal of this API is to ease the introduction of new nonlinear
-solver options in SUNDIALS integrators and allow for external or user-supplied
-nonlinear solvers. The SUNNONLINSOL API and provided SUNNONLINSOL modules are
-described in a new user guide chapter and follow the same object oriented design
-and implementation used by the NVECTOR, SUNMATRIX, and SUNLINSOL modules.
-
-SUNNONLINSOL modules are intended to solve nonlinear systems formulated as
-either a rootfinding problem F(y)=0 or a fixed-point problem G(y)=y.
-Currently two SUNNONLINSOL implementations are provided,
-SUNNONLINSOL_NEWTON and SUNNONLINSOL_FIXEDPOINT. These replicate the
-previous integrator specific implementations of a Newton iteration and a
-fixed-point iteration (previously referred to as a functional iteration),
-respectively. Additionally, the fixed-point iteration can use Anderson's method
-to accelerate convergence. Example programs using each of these nonlinear solver
-modules in a standalone manner have been added and all CVODE AND IDA example programs
-have been updated to use generic SUNNONLINSOL modules.
-
-With the introduction of SUNNONLINSOL modules in CVODE, the input parameter ITER
-to CVodeCreate has been removed as well as the constants CV_NEWTON
-and CV_FUNCTIONAL. Similarly, the ITMETH parameter has been removed
-from the Fortran interface function FCVMALLOC. Instead of specifying the
-nonlinear iteration type when creating the CVODE memory structure, CVODE
-uses the SUNNONLINSOL_NEWTON module implementation of a Newton iteration by
-default. To use the fixed-point nonlinear solver with CVODE a user must do
-the following:
-1. include the header sunnonlinsol/sunnonlinsol_fixedpoint.h to access
-   the SUNNONLINSOL_FIXEDPOINT module,
-2. create a nonlinear solver object by calling the fixed-point
-   constructor
-
-   NLS = SUNNonlinSol_FixedPoint(y, m);
-
-   where NLS is the nonlinear solver object of type SUNNonlinearSolver,
-   y is an NVector the size of the ODE system, and m is the number
-   of acceleration vectors, and 
-3. after initializing CVODE with CVodeInit, call
-
-   retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
-
-   to attach the nonlinear solver object to the {\cvode} memory structure.
-
-User-supplied nonlinear solver modules adhering to the SUNNONLINSOL API for
-solving F(y)=0 or G(y)=y can be used with CVODE by following the same
-include, create, and attach process just described for the
-SUNNONLINSOL_FIXEDPOINT module.
-
-As a result of this new nonlinear solver object creation and attachment approach,
-the function CVodeSetIterType has been removed. CVODE functions for
-setting the nonlinear solver options (e.g., CVodeSetMaxNonlinIters) or
-getting nonlinear solver statistics (e.g., CVodeGetNumNonlinSolvIters)
-remain unchanged and internally call generic SUNNONLINSOL functions.
-
-In IDA the SUNNONLINSOL_NEWTON module is also the default nonlinear solver
-Since IDA previously only used an internal implementation
-of a Newton iteration for nonlinear solves, no changes are required to user
-programs and functions for setting the nonlinear solver options (e.g.,
-IDASetMaxNonlinIters) or getting nonlinear solver statistics (e.g.,
-IDAGetNumNonlinSolvIters) remain unchanged and internally call generic
-SUNNONLINSOL functions.
-
-While SUNDIALS includes a fixed-point nonlinear solver module, it is not
-currently supported in IDA. However, user-supplied nonlinear solver modules
-adhering to the SUNNONLINSOL API for solving $F(y)=0$ can be used with
-IDA. To use a non-default nonlinear solver with IDA a user must do the
-following:
-1. include the header of the desired nonlinear solver module,
-2. create a nonlinear solver object by calling the constructor defined by the
-   nonlinear solver module. For example, SUNDIALS provided nonlinear solver
-   modules define constructors of the from
-
-   NLS = SUNNonlinSol_***(...);
-
-   where NLS is the nonlinear solver object of type SUNNonlinearSolver,
-   *** is the name of the nonlinear solver, and the inputs ... are
-   nonlinear solver specific.
-3. after initializing IDA with IDAInit, call
-
-   retval = IDASetNonlinearSolver(ida_mem, NLS);
-
-   to attach the nonlinear solver object to the IDA memory structure.
-
-The example program idaRoberts_dns.c explicitly creates an attaches the
-SUNNONLINSOL_NEWTON module to demonstrate this process (this is not necessary
-in general as IDA uses the SUNNONLINSOL_NEWTON module by default).
-
-Changes to SUNDIALS in release 4.0.0-dev
-
-* Three fused vector operations and seven vector array operations have
-  been added to the NVECTOR API. These optional operations are intended
-  to increase data reuse in vector operations, reduce parallel
-  communication on distributed memory systems, and lower the number of
-  kernel launches on systems with accelerators. The new operations are 
-  N_VLinearCombination, N_VScaleAddMulti, N_VDotProdMulti, 
-  N_VLinearCombinationVectorArray, N_VScaleVectorArray, N_VConstVectorArray,
-  N_VWrmsNormVectorArray, N_VWrmsNormMaskVectorArray,
-  N_VScaleAddMultiVectorArray, and N_VLinearCombinationVectorArray. If any
-  of these operations are defined as NULL in an NVECTOR implementation the
-  NVECTOR interface will automatically call standard NVECTOR operations as
-  necessary. Details on the new operations can be found in the user guide
-  Chapter on the NVECTOR API.
 
 Changes to SUNDIALS in release 3.2.1
 

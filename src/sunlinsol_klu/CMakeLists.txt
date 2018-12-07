@@ -30,6 +30,7 @@ SET(sunlinsolklu_SOURCES sunlinsol_klu.c)
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the SUNLINSOLKLU library
 SET(shared_SOURCES
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_math.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_linearsolver.c
   )
 

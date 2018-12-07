@@ -1,5 +1,5 @@
                                IDA
-                 Release 4.0.0-dev.2, Sept 2018
+                     Release 4.0.0, Dec 2018
                 Alan C. Hindmarsh and Radu Serban 
            Center for Applied Scientific Computing, LLNL
 
@@ -84,9 +84,7 @@ C. References
 D. Releases
 -----------
 
-v. 4.0.0-dev.2 - Sep. 2018
-v. 4.0.0-dev.1 - Jul. 2018
-v. 4.0.0-dev   - May  2018
+v. 4.0.0       - Dec. 2018
 v. 3.2.1       - Oct. 2018
 v. 3.2.0       - Sep. 2018
 v. 3.1.2       - Jul. 2018

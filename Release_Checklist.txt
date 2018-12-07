@@ -21,7 +21,8 @@ web pages.
 7. Update the "Changes in ..." sections in all user guides.
 
 8. Update README file in src/<solver>, with version
-   number and release dates.
+   number and release dates at the top and bottom
+   of the file.
     src/arkode/README
     src/cvode/README
     src/cvodes/README
@@ -35,8 +36,9 @@ web pages.
 10. Update version numbers in source code, documentation, and tarscripts.
     doc/arkode/ARKode_example.tex
     doc/arkode/ARKode.tex
+    doc/arkode/SphinxDocs/examples/source/conf.py
     doc/sundials/ug.tex
-    doc/sundials/biblio.bib
+    doc/sundials/biblio.bib (and year if necessary)
     html/main.html (This is no longer maintained as of at least 2016)
     scripts/tarscript
     sundialsTB/install_STB.m (This is no longer maintained as of 2016)

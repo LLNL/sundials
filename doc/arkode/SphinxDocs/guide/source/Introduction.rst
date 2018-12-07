@@ -136,7 +136,7 @@ routines. For more details see :ref:`ARKodeButcherTable`.
 
 Two changes were made in the initial step size algorithm:
 
-* Fixed an efficiency bug where an extra call to the RHS function was made.
+* Fixed an efficiency bug where an extra call to the right hand side function was made.
 
 * Changed the behavior of the algorithm if the max-iterations case is hit.
   Before the algorithm would exit with the step size calculated on the 
@@ -147,62 +147,33 @@ ARKode's dense output infrastructure has been improved to support
 higher-degree Hermite polynomial interpolants (up to degree 5) over
 the last successful time step.
 
-ARKode's previous direct and iterative linear solver interfaces,
-ARKDLS and ARKSPILS, have been merged into a single unified linear solver
-interface, ARKLS, to support any valid SUNLINSOL module.  The user
-interface for the new ARKLS module is very similar to the previous
-ARKDLS and ARKSPILS interfaces.  Additionally, we note that Fortran users
-will need to enlarge their ``iout`` array of optional integer
-outputs, and update the indices that they query for certain
-linear-solver-related statistics.
+ARKode's previous direct and iterative linear solver interfaces, ARKDLS and
+ARKSPILS, have been merged into a single unified linear solver interface, ARKLS,
+to support any valid SUNLINSOL module. This includes ``DIRECT`` and
+``ITERATIVE`` types as well as the new ``MATRIX_ITERATIVE`` type. Details
+regarding how ARKLS utilizes linear solvers of each type as well as discussion 
+regarding intended use cases for user-supplied SUNLinSol implementations are
+included in the chapter :ref:`SUNLinSol`. All ARKode examples programs and the
+standalone linear solver examples have been updated to use the unified linear
+solver interface.
 
-Multiple changes to the CUDA NVECTOR were made:
-
-  * Changed the ``N_VMake_Cuda`` function to take a host data pointer and a device
-    data pointer instead of an ``N_VectorContent_Cuda`` object.
-    
-  * Changed ``N_VGetLength_Cuda`` to return the global vector length instead of
-    the local vector length.
-
-  * Added ``N_VGetLocalLength_Cuda`` to return the local vector length.
-  
-  * Added ``N_VGetMPIComm_Cuda`` to return the MPI communicator used.
-
-  * Removed the accessor functions in the namespace ``suncudavec``.
-  
-  * Added the ability to set the ``cudaStream_t`` used for execution of the CUDA
-    NVECTOR kernels. See the function ``N_VSetCudaStreams_Cuda``.
-
-  * Added ``N_VNewManaged_Cuda``, ``N_VMakeManaged_Cuda``, and ``N_VIsManagedMemory_Cuda``
-    functions to accomodate using managed memory with the CUDA NVECTOR.
-
-Multiple changes to the RAJA NVECTOR were made:
-
-  * Changed ``N_VGetLength_Raja`` to return the global vector length instead of
-    the local vector length.
-
-  * Added ``N_VGetLocalLength_Raja`` to return the local vector length.
-
-  * Added ``N_VGetMPIComm_Raja`` to return the MPI communicator used.
- 
-  * Removed the accessor functions in the namespace ``sunrajavec``.
-
-In addition to ``DIRECT`` and ``ITERATIVE`` SUNLinSol implementations the ARKLS
-linear solver interface supports the ``MATRIX_ITERATIVE`` linear solver type.
-Details regarding how ARKLS utilizes linear solvers of each type are included in
-the chapter :ref:`SUNLinSol`, as well as discussion regarding intended use cases
-for user-supplied SUNLinSol implementations.
+The user interface for the new ARKLS module is very similar to the previous
+ARKDLS and ARKSPILS interfaces. Additionally, we note that Fortran users will
+need to enlarge their ``iout`` array of optional integer outputs, and update the
+indices that they query for certain linear-solver-related statistics.
 
 The names of all constructor routines for SUNDIALS-provided SUNLinSol
-implementations have been updated to ``SUNLinSol_Band``, ``SUNLinSol_Dense``,
-``SUNLinSol_KLU``, ``SUNLinSol_LapackBand``, ``SUNLinSol_LapackDense``,
-``SUNLinSol_PCG``, ``SUNLinSol_SPBCGS``, ``SUNLinSol_SPFGMR``,
-``SUNLinSol_SPGMR``, ``SUNLinSol_SPTFQMR``, and
-``SUNLinSol_SuperLUMT``.  Solver-specific "set" routine names have
-been similarly standardized.  To minimize challenges in user migration
-to the new names, the previous routine names may still be used; these
-will be deprecated in future releases, so we recommend that users
-migrate to the new names soon.
+implementations have been updated to follow the naming convention
+``SUNLinSol_*`` where ``*`` is the name of the linear solver. The new names are
+``SUNLinSol_Band``, ``SUNLinSol_Dense``, ``SUNLinSol_KLU``,
+``SUNLinSol_LapackBand``, ``SUNLinSol_LapackDense``, ``SUNLinSol_PCG``,
+``SUNLinSol_SPBCGS``, ``SUNLinSol_SPFGMR``, ``SUNLinSol_SPGMR``,
+``SUNLinSol_SPTFQMR``, and ``SUNLinSol_SuperLUMT``.  Solver-specific "set"
+routine names have been similarly standardized.  To minimize challenges in user
+migration to the new names, the previous routine names may still be used; these
+will be deprecated in future releases, so we recommend that users migrate to the
+new names soon. All ARKode example programs and the standalone linear solver
+examples have been updated to use the new naming convention.
 
 The ``SUNBandMatrix`` constructor has been simplified to remove the
 storage upper bandwidth argument.
@@ -225,7 +196,7 @@ provided by SUNNonlinSol_Newton) by default.  Use of the
 :c:func:`ARKStepSetLinear()` routine (previously named
 ``ARKodeSetLinear``) will indicate that the problem is
 linearly-implicit, using only a single Newton iteration per implicit
-stage.  Users wishing to switch to the acclerated fixed-point solver
+stage.  Users wishing to switch to the accelerated fixed-point solver
 are now required to create a SUNNonlinSol_FixedPoint object and attach
 that to ARKode, instead of calling the previous
 ``ARKodeSetFixedPoint`` routine.  See the documentation sections
@@ -245,11 +216,43 @@ with accelerators. The fused operations are ``N_VLinearCombination``,
 are ``N_VLinearCombinationVectorArray``, ``N_VScaleVectorArray``,
 ``N_VConstVectorArray``, ``N_VWrmsNormVectorArray``,
 ``N_VWrmsNormMaskVectorArray``, ``N_VScaleAddMultiVectorArray``, and
-``N_VLinearCombinationVectorArray``. If an NVector implemenation defines any of
+``N_VLinearCombinationVectorArray``. If an NVector implementation defines any of
 these operations as ``NULL``, then standard NVector operations will
 automatically be called as necessary to complete the computation.
 
-Added OpenMPDEV NVECTOR which leverages OpenMP 4.5+ device offloading.
+Multiple changes to the CUDA NVECTOR were made:
+
+  * Changed the ``N_VMake_Cuda`` function to take a host data pointer and a device
+    data pointer instead of an ``N_VectorContent_Cuda`` object.
+    
+  * Changed ``N_VGetLength_Cuda`` to return the global vector length instead of
+    the local vector length.
+
+  * Added ``N_VGetLocalLength_Cuda`` to return the local vector length.
+  
+  * Added ``N_VGetMPIComm_Cuda`` to return the MPI communicator used.
+
+  * Removed the accessor functions in the namespace ``suncudavec``.
+  
+  * Added the ability to set the ``cudaStream_t`` used for execution of the CUDA
+    NVECTOR kernels. See the function ``N_VSetCudaStreams_Cuda``.
+
+  * Added ``N_VNewManaged_Cuda``, ``N_VMakeManaged_Cuda``, and ``N_VIsManagedMemory_Cuda``
+    functions to accommodate using managed memory with the CUDA NVECTOR.
+
+Multiple changes to the RAJA NVECTOR were made:
+
+  * Changed ``N_VGetLength_Raja`` to return the global vector length instead of
+    the local vector length.
+
+  * Added ``N_VGetLocalLength_Raja`` to return the local vector length.
+
+  * Added ``N_VGetMPIComm_Raja`` to return the MPI communicator used.
+ 
+  * Removed the accessor functions in the namespace ``sunrajavec``.
+
+A new NVECTOR implementation for leveraging OpenMP 4.5+ device offloading has
+been added, NVECTOR_OpenMPDEV. See :ref:`NVectors.OpenMPDEV` for more details.
 
      
 Changes in v2.2.1

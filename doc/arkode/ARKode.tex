@@ -338,7 +338,7 @@ routines. For more details see {\hyperref[ARKodeButcherTable:arkodebutchertable]
 Two changes were made in the initial step size algorithm:
 \begin{itemize}
 \item {} 
-Fixed an efficiency bug where an extra call to the RHS function was made.
+Fixed an efficiency bug where an extra call to the right hand side function was made.
 
 \item {} 
 Changed the behavior of the algorithm if the max-iterations case is hit.
@@ -352,14 +352,78 @@ ARKode's dense output infrastructure has been improved to support
 higher-degree Hermite polynomial interpolants (up to degree 5) over
 the last successful time step.
 
-ARKode's previous direct and iterative linear solver interfaces,
-ARKDLS and ARKSPILS, have been merged into a single unified linear solver
-interface, ARKLS, to support any valid SUNLINSOL module.  The user
-interface for the new ARKLS module is very similar to the previous
-ARKDLS and ARKSPILS interfaces.  Additionally, we note that Fortran users
-will need to enlarge their \code{iout} array of optional integer
-outputs, and update the indices that they query for certain
-linear-solver-related statistics.
+ARKode's previous direct and iterative linear solver interfaces, ARKDLS and
+ARKSPILS, have been merged into a single unified linear solver interface, ARKLS,
+to support any valid SUNLINSOL module. This includes \code{DIRECT} and
+\code{ITERATIVE} types as well as the new \code{MATRIX\_ITERATIVE} type. Details
+regarding how ARKLS utilizes linear solvers of each type as well as discussion
+regarding intended use cases for user-supplied SUNLinSol implementations are
+included in the chapter {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Description of the SUNLinearSolver module}}}}. All ARKode examples programs and the
+standalone linear solver examples have been updated to use the unified linear
+solver interface.
+
+The user interface for the new ARKLS module is very similar to the previous
+ARKDLS and ARKSPILS interfaces. Additionally, we note that Fortran users will
+need to enlarge their \code{iout} array of optional integer outputs, and update the
+indices that they query for certain linear-solver-related statistics.
+
+The names of all constructor routines for SUNDIALS-provided SUNLinSol
+implementations have been updated to follow the naming convention
+\code{SUNLinSol\_*} where \code{*} is the name of the linear solver. The new names are
+\code{SUNLinSol\_Band}, \code{SUNLinSol\_Dense}, \code{SUNLinSol\_KLU},
+\code{SUNLinSol\_LapackBand}, \code{SUNLinSol\_LapackDense}, \code{SUNLinSol\_PCG},
+\code{SUNLinSol\_SPBCGS}, \code{SUNLinSol\_SPFGMR}, \code{SUNLinSol\_SPGMR},
+\code{SUNLinSol\_SPTFQMR}, and \code{SUNLinSol\_SuperLUMT}.  Solver-specific ``set''
+routine names have been similarly standardized.  To minimize challenges in user
+migration to the new names, the previous routine names may still be used; these
+will be deprecated in future releases, so we recommend that users migrate to the
+new names soon. All ARKode example programs and the standalone linear solver
+examples have been updated to use the new naming convention.
+
+The \code{SUNBandMatrix} constructor has been simplified to remove the
+storage upper bandwidth argument.
+
+SUNDIALS integrators have been updated to utilize generic nonlinear solver
+modules defined through the SUNNONLINSOL API. This API will ease the addition of
+new nonlinear solver options and allow for external or user-supplied nonlinear
+solvers. The SUNNONLINSOL API and SUNDIALS provided modules are described in
+{\hyperref[sunnonlinsol/index:sunnonlinsol]{\emph{\DUspan{}{Nonlinear Solver Data Structures}}}} and follow the same object oriented design and
+implementation used by the NVector, SUNMatrix, and SUNLinSol modules. Currently
+two SUNNONLINSOL implementations are provided, SUNNonlinSol\_Newton and
+SUNNonlinSol\_FixedPoint. These replicate the previous integrator specific
+implementations of a Newton iteration and an accelerated fixed-point iteration,
+respectively. Example programs using each of these nonlinear solver modules in a
+standalone manner have been added and all ARKode example programs have been
+updated to use generic SUNNonlinSol modules.
+
+As with previous versions, ARKode will use the Newton solver (now
+provided by SUNNonlinSol\_Newton) by default.  Use of the
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetLinear]{\emph{\code{ARKStepSetLinear()}}}} routine (previously named
+\code{ARKodeSetLinear}) will indicate that the problem is
+linearly-implicit, using only a single Newton iteration per implicit
+stage.  Users wishing to switch to the accelerated fixed-point solver
+are now required to create a SUNNonlinSol\_FixedPoint object and attach
+that to ARKode, instead of calling the previous
+\code{ARKodeSetFixedPoint} routine.  See the documentation sections
+{\hyperref[ARKStep_c_interface/Skeleton:arkstep-cinterface-skeleton]{\emph{\DUspan{}{A skeleton of the user's main program}}}},
+{\hyperref[ARKStep_c_interface/User_callable:arkstep-cinterface-nonlinearsolvers]{\emph{\DUspan{}{Nonlinear solver interface functions}}}}, and
+{\hyperref[sunnonlinsol/SUNNonlinSol_FixedPoint:sunnonlinsol-fixedpoint]{\emph{\DUspan{}{The SUNNonlinearSolver\_FixedPoint implementation}}}} for further details, or the serial C
+example program \code{ark\_brusselator\_fp.c} for an example.
+
+Three fused vector operations and seven vector array operations have been added
+to the NVECTOR API. These \emph{optional} operations are disabled by default and may
+be activated by calling vector specific routines after creating an NVector (see
+{\hyperref[nvectors/NVector_Description:nvectors-description]{\emph{\DUspan{}{Description of the NVECTOR Modules}}}} for more details). The new operations are intended
+to increase data reuse in vector operations, reduce parallel communication on
+distributed memory systems, and lower the number of kernel launches on systems
+with accelerators. The fused operations are \code{N\_VLinearCombination},
+\code{N\_VScaleAddMulti}, and \code{N\_VDotProdMulti}, and the vector array operations
+are \code{N\_VLinearCombinationVectorArray}, \code{N\_VScaleVectorArray},
+\code{N\_VConstVectorArray}, \code{N\_VWrmsNormVectorArray},
+\code{N\_VWrmsNormMaskVectorArray}, \code{N\_VScaleAddMultiVectorArray}, and
+\code{N\_VLinearCombinationVectorArray}. If an NVector implementation defines any of
+these operations as \code{NULL}, then standard NVector operations will
+automatically be called as necessary to complete the computation.
 
 Multiple changes to the CUDA NVECTOR were made:
 \begin{itemize}
@@ -386,7 +450,7 @@ NVECTOR kernels. See the function \code{N\_VSetCudaStreams\_Cuda}.
 
 \item {} 
 Added \code{N\_VNewManaged\_Cuda}, \code{N\_VMakeManaged\_Cuda}, and \code{N\_VIsManagedMemory\_Cuda}
-functions to accomodate using managed memory with the CUDA NVECTOR.
+functions to accommodate using managed memory with the CUDA NVECTOR.
 
 \end{itemize}
 
@@ -407,69 +471,8 @@ Removed the accessor functions in the namespace \code{sunrajavec}.
 
 \end{itemize}
 
-In addition to \code{DIRECT} and \code{ITERATIVE} SUNLinSol implementations the ARKLS
-linear solver interface supports the \code{MATRIX\_ITERATIVE} linear solver type.
-Details regarding how ARKLS utilizes linear solvers of each type are included in
-the chapter {\hyperref[sunlinsol/index:sunlinsol]{\emph{\DUspan{}{Description of the SUNLinearSolver module}}}}, as well as discussion regarding intended use cases
-for user-supplied SUNLinSol implementations.
-
-The names of all constructor routines for SUNDIALS-provided SUNLinSol
-implementations have been updated to \code{SUNLinSol\_Band}, \code{SUNLinSol\_Dense},
-\code{SUNLinSol\_KLU}, \code{SUNLinSol\_LapackBand}, \code{SUNLinSol\_LapackDense},
-\code{SUNLinSol\_PCG}, \code{SUNLinSol\_SPBCGS}, \code{SUNLinSol\_SPFGMR},
-\code{SUNLinSol\_SPGMR}, \code{SUNLinSol\_SPTFQMR}, and
-\code{SUNLinSol\_SuperLUMT}.  Solver-specific ``set'' routine names have
-been similarly standardized.  To minimize challenges in user migration
-to the new names, the previous routine names may still be used; these
-will be deprecated in future releases, so we recommend that users
-migrate to the new names soon.
-
-The \code{SUNBandMatrix} constructor has been simplified to remove the
-storage upper bandwidth argument.
-
-SUNDIALS integrators have been updated to utilize generic nonlinear solver
-modules defined through the SUNNONLINSOL API. This API will ease the addition of
-new nonlinear solver options and allow for external or user-supplied nonlinear
-solvers. The SUNNONLINSOL API and SUNDIALS provided modules are described in
-{\hyperref[sunnonlinsol/index:sunnonlinsol]{\emph{\DUspan{}{Nonlinear Solver Data Structures}}}} and follow the same object oriented design and
-implementation used by the NVector, SUNMatrix, and SUNLinSol modules. Currently
-two SUNNONLINSOL implementations are provided, SUNNonlinSol\_Newton and
-SUNNonlinSol\_FixedPoint. These replicate the previous integrator specific
-implementations of a Newton iteration and an accelerated fixed-point iteration,
-respectively. Example programs using each of these nonlinear solver modules in a
-standalone manner have been added and all ARKode example programs have been
-updated to use generic SUNNonlinSol modules.
-
-As with previous versions, ARKode will use the Newton solver (now
-provided by SUNNonlinSol\_Newton) by default.  Use of the
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetLinear]{\emph{\code{ARKStepSetLinear()}}}} routine (previously named
-\code{ARKodeSetLinear}) will indicate that the problem is
-linearly-implicit, using only a single Newton iteration per implicit
-stage.  Users wishing to switch to the acclerated fixed-point solver
-are now required to create a SUNNonlinSol\_FixedPoint object and attach
-that to ARKode, instead of calling the previous
-\code{ARKodeSetFixedPoint} routine.  See the documentation sections
-{\hyperref[ARKStep_c_interface/Skeleton:arkstep-cinterface-skeleton]{\emph{\DUspan{}{A skeleton of the user's main program}}}},
-{\hyperref[ARKStep_c_interface/User_callable:arkstep-cinterface-nonlinearsolvers]{\emph{\DUspan{}{Nonlinear solver interface functions}}}}, and
-{\hyperref[sunnonlinsol/SUNNonlinSol_FixedPoint:sunnonlinsol-fixedpoint]{\emph{\DUspan{}{The SUNNonlinearSolver\_FixedPoint implementation}}}} for further details, or the serial C
-example program \code{ark\_brusselator\_fp.c} for an example.
-
-Three fused vector operations and seven vector array operations have been added
-to the NVECTOR API. These \emph{optional} operations are disabled by default and may
-be activated by calling vector specific routines after creating an NVector (see
-{\hyperref[nvectors/NVector_Description:nvectors-description]{\emph{\DUspan{}{Description of the NVECTOR Modules}}}} for more details). The new operations are intended
-to increase data reuse in vector operations, reduce parallel communication on
-distributed memory systems, and lower the number of kernel launches on systems
-with accelerators. The fused operations are \code{N\_VLinearCombination},
-\code{N\_VScaleAddMulti}, and \code{N\_VDotProdMulti}, and the vector array operations
-are \code{N\_VLinearCombinationVectorArray}, \code{N\_VScaleVectorArray},
-\code{N\_VConstVectorArray}, \code{N\_VWrmsNormVectorArray},
-\code{N\_VWrmsNormMaskVectorArray}, \code{N\_VScaleAddMultiVectorArray}, and
-\code{N\_VLinearCombinationVectorArray}. If an NVector implemenation defines any of
-these operations as \code{NULL}, then standard NVector operations will
-automatically be called as necessary to complete the computation.
-
-Added OpenMPDEV NVECTOR which leverages OpenMP 4.5+ device offloading.
+A new NVECTOR implementation for leveraging OpenMP 4.5+ device offloading has
+been added, NVECTOR\_OpenMPDEV. See {\hyperref[nvectors/NVector_OpenMPDEV:nvectors-openmpdev]{\emph{\DUspan{}{The NVECTOR\_OPENMPDEV Module}}}} for more details.
 
 
 \subsection{Changes in v2.2.1}

@@ -89,61 +89,27 @@ in extended {\F}.
 
 \subsection*{Changes in v3.0.0}
 
-Added a new {\nvector} which leverages OpenMP 4.5+ device offloading.
-See {\nvecopenmpdev} in Chapter~\ref{s:nvector}.
-
-Multiple changes to {\nveccuda} were made:
-\begin{itemize}
-  \item Changed \id{N\_VGetLength\_Cuda} to return the global vector length instead of
-    the local vector length.
-
-  \item Added \id{N\_VGetLocalLength\_Cuda} to return the local vector length.
-  
-  \item Added \id{N\_VGetMPIComm\_Cuda} to return the MPI communicator used.
-
-  \item Removed the accessor functions in the namespace suncudavec.
-
-  \item Changed the \id{N\_VMake\_Cuda} function to take a host data pointer and a device
-        data pointer instead of an \id{N\_VectorContent\_Cuda} object.
-
-  \item Added the ability to set the \id{cudaStream\_t} used for execution of the
-        {\nveccuda} kernels. See the function \id{N\_VSetCudaStreams\_Cuda}.
-  
-  \item Added \id{N\_VNewManaged\_Cuda}, \id{N\_VMakeManaged\_Cuda}, and \id{N\_VIsManagedMemory\_Cuda}
-        functions to accomodate using managed memory with the {\nveccuda}.
-\end{itemize}
-
-\noindent Multiple changes to {\nvecraja} were made:
-\begin{itemize}
-  \item Changed \id{N\_VGetLength\_Raja} to return the global vector length instead of
-    the local vector length.
-
-  \item Added \id{N\_VGetLocalLength\_Raja} to return the local vector length.
-  
-  \item Added \id{N\_VGetMPIComm\_Raja} to return the MPI communicator used.
-
-  \item Removed the accessor functions in the namespace suncudavec.
-\end{itemize}
-
-{\idas}'s previous direct and iterative linear solver interfaces,
+{\idas}' previous direct and iterative linear solver interfaces,
 {\idadls} and {\idaspils}, have been merged into a single unified linear
-solver interface, {\idals}, to support any valid {\sunlinsol} module
-of ``DIRECT'', ``ITERATIVE'', or ``MATRIX\_ITERATIVE'' type.
-The user interface for the new {\idals} module is very similar to the
-previous {\idadls} and {\idaspils} interfaces; however to minimize
-challenges in user migration to the new names, the previous {\CC}
-routine names may still be used; these will be deprecated in 
-future releases, so we recommend that users migrate to the new names
-soon.  Details regarding how {\idals} utilizes linear
-solvers of each type are included in \S\ref{s:sunlinsol}, as
-well as discussion regarding intended use cases for user-supplied
-{\sunlinsol} implementations.
+solver interface, {\idals}, to support any valid {\sunlinsol} module.
+This includes the ``DIRECT'' and ``ITERATIVE'' types as well as the new
+``MATRIX\_ITERATIVE'' type. Details regarding how {\idals} utilizes linear
+solvers of each type as well as discussion regarding intended use cases for
+user-supplied {\sunlinsol} implementations are included in
+Chapter~\ref{s:sunlinsol}. All {\idas} example programs and the standalone
+linear solver examples have been updated to use the unified linear solver
+interface.
 
-The \id{SUNBandMatrix} constructor has been simplified to remove the
-storage upper bandwidth argument.
+The unified interface for the new {\idals} module is very similar to the
+previous {\idadls} and {\idaspils} interfaces. To minimize challenges in user
+migration to the new names, the previous {\CC} routine names may still
+be used; these will be deprecated in future releases, so we recommend that users
+migrate to the new names soon.
 
 The names of all constructor routines for {\sundials}-provided
-{\sunlinsol} implementations have been updated to
+{\sunlinsol} implementations have been updated to follow the naming convention
+\id{SUNLinSol\_*} where \id{*} is the name of the linear solver. The new names
+are 
 \id{SUNLinSol\_Band},
 \id{SUNLinSol\_Dense},
 \id{SUNLinSol\_KLU},
@@ -155,9 +121,14 @@ The names of all constructor routines for {\sundials}-provided
 \id{SUNLinSol\_SPGMR},
 \id{SUNLinSol\_SPTFQMR}, and
 \id{SUNLinSol\_SuperLUMT}.  Solver-specific ``set'' routine names have
-been similarly standardized.  While the previous routine names may
-still be used, these will be deprecated in future releases, so we
-recommend that users migrate to the new names soon.
+been similarly standardized.  To minimize challenges in user migration
+to the new names, the previous routine names may still be used; these
+will be deprecated in future releases, so we recommend that users
+migrate to the new names soon. All {\idas} example programs and the standalone
+linear solver examples have been updated to use the new naming convention.
+
+The \id{SUNBandMatrix} constructor has been simplified to remove the
+storage upper bandwidth argument.
 
 {\sundials} integrators have been updated to utilize generic nonlinear solver
 modules defined through the {\sunnonlinsol} API. This API will ease the addition
@@ -175,6 +146,7 @@ these nonlinear solver modules in a standalone manner have been added and all
 {\idas} example programs have been updated to use generic {\sunnonlinsol}
 modules.
 
+% IDAS specific changes due to the NLS API
 By default {\idas} uses the {\sunnonlinsolnewton} module. Since {\idas} previously
 only used an internal implementation of a Newton iteration no changes are
 required to user programs and functions for setting the nonlinear solver options
@@ -206,6 +178,35 @@ and the vector array operations are
 If an {\nvector} implementation defines any of these operations as \id{NULL},
 then standard {\nvector} operations will automatically be called as necessary to
 complete the computation.
+\\
+\\
+\noindent Multiple updates to {\nveccuda} were made:
+\begin{itemize}
+  \item Changed \id{N\_VGetLength\_Cuda} to return the global vector length
+        instead of the local vector length.
+  \item Added \id{N\_VGetLocalLength\_Cuda} to return the local vector length.
+  \item Added \id{N\_VGetMPIComm\_Cuda} to return the MPI communicator used.
+  \item Removed the accessor functions in the namespace suncudavec.
+  \item Changed the \id{N\_VMake\_Cuda} function to take a host data pointer and a device
+        data pointer instead of an \id{N\_VectorContent\_Cuda} object.
+  \item Added the ability to set the \id{cudaStream\_t} used for execution of the
+        {\nveccuda} kernels. See the function \id{N\_VSetCudaStreams\_Cuda}.
+  \item Added \id{N\_VNewManaged\_Cuda}, \id{N\_VMakeManaged\_Cuda}, and
+        \id{N\_VIsManagedMemory\_Cuda} functions to accommodate using managed
+        memory with the {\nveccuda}.
+\end{itemize}
+%
+Multiple changes to {\nvecraja} were made:
+\begin{itemize}
+  \item Changed \id{N\_VGetLength\_Raja} to return the global vector length
+        instead of the local vector length.
+  \item Added \id{N\_VGetLocalLength\_Raja} to return the local vector length.
+  \item Added \id{N\_VGetMPIComm\_Raja} to return the MPI communicator used.
+  \item Removed the accessor functions in the namespace suncudavec.
+\end{itemize}
+A new {\nvector} implementation for leveraging OpenMP 4.5+ device offloading has
+been added, {\nvecopenmpdev}. See \S\ref{ss:nvec_openmpdev} for more details.
+
 
 \subsection*{Changes in v2.2.1}
 
