@@ -96,6 +96,17 @@ $tar $tarfile $distrobase/examples/arkode/C_openmp/README
 $tar $tarfile $distrobase/examples/arkode/C_openmp/ark_brusselator1D_omp.c
 $tar $tarfile $distrobase/examples/arkode/C_openmp/ark_brusselator1D_omp.out
 $tar $tarfile $distrobase/examples/arkode/C_openmp/plot_brusselator1D.py
+$tar $tarfile $distrobase/examples/arkode/C_openmp/ark_heat1D_omp.c
+$tar $tarfile $distrobase/examples/arkode/C_openmp/ark_heat1D_omp.out
+
+$tar $tarfile $distrobase/examples/arkode/C_openmpdev/CMakeLists.txt
+$tar $tarfile $distrobase/examples/arkode/C_openmpdev/README
+$tar $tarfile $distrobase/examples/arkode/C_openmpdev/ark_analytic_nonlin_ompdev.c
+$tar $tarfile $distrobase/examples/arkode/C_openmpdev/ark_analytic_nonlin_ompdev.out
+$tar $tarfile $distrobase/examples/arkode/C_openmpdev/ark_heat1D_adapt_ompdev.c
+$tar $tarfile $distrobase/examples/arkode/C_openmpdev/ark_heat1D_adapt_ompdev.out
+$tar $tarfile $distrobase/examples/arkode/C_openmpdev/ark_heat1D_ompdev.c
+$tar $tarfile $distrobase/examples/arkode/C_openmpdev/ark_heat1D_ompdev.out
 
 $tar $tarfile $distrobase/examples/arkode/C_parallel/CMakeLists.txt
 $tar $tarfile $distrobase/examples/arkode/C_parallel/README

@@ -1,5 +1,7 @@
 Changes to SUNDIALS in release 4.0.0
 
+Added a new NVECTOR (NVECTOR_OPENMPDEV) which leverages OpenMP 4.5+ device offloading.
+
 Added Fortran 2003 interfaces to:
 
   * CVODE

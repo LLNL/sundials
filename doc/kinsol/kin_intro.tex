@@ -111,6 +111,9 @@ interfacing the solver to applications written in {\F}.
 
 \subsection*{Changes in v4.0.0}
 
+Added a new {\nvector} which leverages OpenMP 4.5+ device offloading.
+See {\nvecopenmpdev} in Chapter~\ref{s:nvector}.
+
 Multiple changes to {\nveccuda} were made:
 \begin{itemize}
   \item Changed \id{N\_VGetLength\_Cuda} to return the global vector length instead of

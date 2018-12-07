@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -18,8 +14,7 @@
  * -----------------------------------------------------------------
  * This is the implementation file for a simple C-language math
  * library.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -54,46 +49,5 @@ realtype SUNRpowerR(realtype base, realtype exponent)
   return(powf(base, exponent));
 #elif defined(SUNDIALS_EXTENDED_PRECISION)
   return(powl(base, exponent));
-#endif
-}
-
-realtype SUNRsqrt(realtype x)
-{
-  if (x <= ZERO) return(ZERO);
-
-#if defined(SUNDIALS_USE_GENERIC_MATH)
-  return((realtype) sqrt((double) x));
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-  return(sqrt(x));
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-  return(sqrtf(x));
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-  return(sqrtl(x));
-#endif
-}
-
-realtype SUNRabs(realtype x)
-{
-#if defined(SUNDIALS_USE_GENERIC_MATH)
-  return((realtype) fabs((double) x));
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-  return(fabs(x));
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-  return(fabsf(x));
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-  return(fabsl(x));
-#endif
-}
-
-realtype SUNRexp(realtype x)
-{
-#if defined(SUNDIALS_USE_GENERIC_MATH)
-  return((realtype) exp((double) x));
-#elif defined(SUNDIALS_DOUBLE_PRECISION)
-  return(exp(x));
-#elif defined(SUNDIALS_SINGLE_PRECISION)
-  return(expf(x));
-#elif defined(SUNDIALS_EXTENDED_PRECISION)
-  return(expl(x));
 #endif
 }

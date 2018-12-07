@@ -140,6 +140,11 @@ $tar $tarfile $distrobase/examples/cvode/C_openmp/CMakeLists.txt
 $tar $tarfile $distrobase/examples/cvode/C_openmp/cvAdvDiff_bnd_omp.c
 $tar $tarfile $distrobase/examples/cvode/C_openmp/cvAdvDiff_bnd_omp.out
 
+$tar $tarfile $distrobase/examples/cvode/C_openmpdev/README
+$tar $tarfile $distrobase/examples/cvode/C_openmpdev/CMakeLists.txt
+$tar $tarfile $distrobase/examples/cvode/C_openmpdev/cvAdvDiff_kry_ompdev.c
+$tar $tarfile $distrobase/examples/cvode/C_openmpdev/cvAdvDiff_kry_ompdev.out
+
 $tar $tarfile $distrobase/examples/cvode/parallel/README
 $tar $tarfile $distrobase/examples/cvode/parallel/CMakeLists.txt
 $tar $tarfile $distrobase/examples/cvode/parallel/cvAdvDiff_non_p.c

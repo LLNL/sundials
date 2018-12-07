@@ -190,7 +190,7 @@ The {\sunnonlinsolfixedpoint} module provides a {\F} 2003 module as well as
 {\F} 77 style interface functions for use from {\F} applications.
 
 \subsubsection*{FORTRAN 2003 interface module}
-The \ID{fsunnonlinsol\_fixedpoint\_mod} {\F} module defines interfaces to all
+The \ID{fsunnonlinsol\_fixedpoint\_mod} {\F} module defines interfaces to all \newline
 {\sunnonlinsolfixedpoint} {\CC} functions using the intrinsic \id{iso\_c\_binding}
 module which provides a standardized mechanism for interoperating with {\CC}. As
 noted in the {\CC} function descriptions above, the interface functions are
@@ -199,8 +199,10 @@ example, the function \id{SUNNonlinSol\_FixedPoint} is interfaced as
 \id{FSUNNonlinSol\_FixedPoint}.
 
 The {\F} 2003 {\sunnonlinsolfixedpoint} interface module can be accessed with the \id{use}
-statement, i.e. \id{use fsunnonlinsol\_fixedpoint\_mod}, and linking to the library
-\id{libsundials\_fsunnonlinsolfixedpoint\_mod}.{\em lib} in addition to the {\CC} library. For details on where the library and module file
+statement, i.e. \id{use fsunnonlinsol\_fixedpoint\_mod}, and linking to the
+library \newline
+\id{libsundials\_fsunnonlinsolfixedpoint\_mod}.{\em lib} in addition to the
+{\CC} library. For details on where the library and module file
 \id{fsunnonlinsol\_fixedpoint\_mod.mod} are installed see Appendix \ref{c:install}.
 We note that the module is accessible from the {\F} 2003 {\sundials} integrators
 \textit{without} separately linking to the

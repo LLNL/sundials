@@ -61,7 +61,6 @@ ELSE()
   SET(PACKAGE_VERSION "${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}")
 ENDIF()
 
-#
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Prohibit in-source build
@@ -367,6 +366,15 @@ OPTION(MPI_ENABLE "Enable MPI support" OFF)
 # Enable OpenMP support?
 # ---------------------------------------------------------------
 OPTION(OPENMP_ENABLE "Enable OpenMP support" OFF)
+
+# provide OPENMP_DEVICE_ENABLE option
+OPTION(OPENMP_DEVICE_ENABLE "Enable OpenMP device offloading support" OFF)
+
+# Advanced option to skip OpenMP device offloading support check.
+# This is needed for a specific compiler that doesn't correctly
+# report its OpenMP spec date (with CMake >= 3.9).
+OPTION(SKIP_OPENMP_DEVICE_CHECK "Skip the OpenMP device offloading support check" OFF)
+MARK_AS_ADVANCED(FORCE SKIP_OPENMP_DEVICE_CHECK)
 
 # ---------------------------------------------------------------
 # Enable Pthread support?
@@ -766,7 +774,7 @@ if (F2003_INTERFACE_ENABLE AND (NOT F90_FOUND))
 endif()
 
 # F2003 interface requires ISO_C_BINDING
-IF(NOT Fortran_COMPILER_SUPPORTS_ISOCBINDING)
+IF(F2003_INTERFACE_ENABLE AND (NOT Fortran_COMPILER_SUPPORTS_ISOCBINDING))
   PRINT_WARNING("Fortran compiler does not provide ISO_C_BINDING support"
                 "Disabling F2003 interface")
   SET(DOCSTR "Enable Fortran 2003 interfaces")
@@ -842,12 +850,25 @@ endif()
 # Find OpenMP
 # -------------------------------------------------------------
 
-IF(OPENMP_ENABLE)
-  FIND_PACKAGE(OpenMP)
-  IF(NOT OPENMP_FOUND)
-    message(STATUS "Disabling OpenMP support, could not determine compiler flags")
-  ENDIF(NOT OPENMP_FOUND)
-ENDIF(OPENMP_ENABLE)
+if(OPENMP_ENABLE OR OPENMP_DEVICE_ENABLE)
+
+  include(SundialsOpenMP)
+
+  # turn off OPENMP_ENABLE and OPENMP_DEVICE_ENABLE if OpenMP is not found
+  if(NOT OPENMP_FOUND)
+    print_warning("Could not determine OpenMP compiler flags" "Disabling OpenMP support")
+    force_variable(OPENMP_ENABLE BOOL "Enable OpenMP support" OFF)
+    force_variable(OPENMP_DEVICE_ENABLE BOOL "Enable OpenMP device offloading support" OFF)
+  endif()
+
+  # turn off OPENMP_DEVICE_ENABLE if offloading is not supported
+  if(OPENMP_DEVICE_ENABLE AND (NOT OPENMP_SUPPORTS_DEVICE_OFFLOADING))
+    print_warning("OpenMP found does not support device offloading"
+                  "Disabling OpenMP device offloading support")
+    force_variable(OPENMP_DEVICE_ENABLE BOOL "Enable OpenMP device offloading support" OFF)
+  endif()
+
+endif()
 
 # -------------------------------------------------------------
 # Find PThreads
@@ -1184,4 +1205,6 @@ ENDIF()
 # install license file
 INSTALL(
   FILES ${PROJECT_SOURCE_DIR}/LICENSE
-  DESTINATION include/sundials)
+  DESTINATION include/sundials
+  )
+

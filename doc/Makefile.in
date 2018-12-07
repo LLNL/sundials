@@ -33,6 +33,7 @@ nvec_generic.tex \
 nvec_serial.tex \
 nvec_parallel.tex \
 nvec_openmp.tex \
+nvec_openmpdev.tex \
 nvec_pthreads.tex \
 nvec_parhyp.tex \
 nvec_petsc.tex \

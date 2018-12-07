@@ -62,8 +62,8 @@ The module {\nvecph} provides the following additional user-callable routines:
   vector set to \id{NULL}.
 }
 {
-  N\_Vector N\_VNewEmpty\_ParHyp(MPI\_Comm comm, 
-  sunindextype local\_length, 
+  N\_Vector N\_VNewEmpty\_ParHyp(MPI\_Comm comm, sunindextype local\_length,
+  \newlinefill{N\_Vector N\_VNewEmpty\_ParHyp}
   sunindextype global\_length)
 }
 %%--------------------------------------
@@ -240,7 +240,9 @@ options as the vector they are cloned from while vectors created with
   \id{ops} structure are \id{NULL}.
 }
 {
-  int N\_VEnableScaleAddMultiVectorArray\_ParHyp(N\_Vector v, booleantype tf)
+  int N\_VEnableScaleAddMultiVectorArray\_ParHyp(N\_Vector v,
+  \newlinefill{int N\_VEnableScaleAddMultiVectorArray\_ParHyp}
+  booleantype tf)
 }
 %%--------------------------------------
 \sunmodfun{N\_VEnableLinearCombinationVectorArray\_ParHyp}
@@ -251,7 +253,9 @@ options as the vector they are cloned from while vectors created with
   are \id{NULL}.
 }
 {
-  int N\_VEnableLinearCombinationVectorArray\_ParHyp(N\_Vector v, booleantype tf)
+  int N\_VEnableLinearCombinationVectorArray\_ParHyp(N\_Vector v,
+  \newlinefill{int N\_VEnableLinearCombinationVectorArray\_ParHyp}
+  booleantype tf)
 }
 %%
 %%------------------------------------

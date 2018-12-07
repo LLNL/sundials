@@ -1,5 +1,6 @@
 # ---------------------------------------------------------------
-# Programmer:  David Gardner and Slaven Peles @ LLNL
+# Programmer(s): David Gardner, Slaven Peles, and
+#                Shelby Lockhart @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
@@ -18,7 +19,12 @@
 if(EXAMPLES_ENABLE_C)
   add_subdirectory(serial)
   if(OPENMP_FOUND)
-    add_subdirectory(C_openmp)
+    if(OPENMP_ENABLE)
+      add_subdirectory(C_openmp)
+    endif()
+    if(OPENMP_DEVICE_ENABLE)
+      add_subdirectory(C_openmpdev)
+    endif()
   endif()
   if(MPI_C_FOUND)
     add_subdirectory(parallel)

@@ -111,6 +111,9 @@ Added {\F} 2003 interfaces to:
   \item {\nvecs}, {\nvecpthreads}, and {\nvecopenmp} vector modules
 \end{itemize}
 
+Added a new {\nvector} which leverages OpenMP 4.5+ device offloading.
+See {\nvecopenmpdev} in Chapter~\ref{s:nvector}.
+
 Multiple changes to {\nveccuda} were made:
 \begin{itemize}
   \item Changed \id{N\_VGetLength\_Cuda} to return the global vector length instead of

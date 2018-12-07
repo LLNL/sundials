@@ -89,8 +89,6 @@ if(FTEST_OK)
   set(Fortran_COMPILER_SUPPORTS_ISOCBINDING TRUE)
 else()
   set(Fortran_COMPILER_SUPPORTS_ISOCBINDING FALSE)
-  print_warning("Fortran compiler does not support iso_c_binding"
-                "F2003 support will not be provided")
 endif()
 
 # -----------------------------------------------------------------------------

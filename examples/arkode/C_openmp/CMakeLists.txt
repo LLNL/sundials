@@ -24,20 +24,16 @@
 # Example lists are tuples "name\;args\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
 
-# Only include tests if OpenMP is enabled
-IF(OPENMP_FOUND)
+# Examples using SUNDIALS linear solvers
+SET(ARKODE_examples
+  "ark_brusselator1D_omp\;4\;develop"
+  "ark_heat1D_omp\;4\;develop"
+  )
 
-  # Examples using SUNDIALS linear solvers
-  SET(ARKODE_examples
-    "ark_brusselator1D_omp\;4\;develop"
-    )
-
-  # Auxiliary files to install
-  SET(ARKODE_extras_OMP
-    plot_brusselator1D.py
-    )
-
-ENDIF(OPENMP_FOUND)
+# Auxiliary files to install
+SET(ARKODE_extras_OMP
+  plot_brusselator1D.py
+  )
 
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
@@ -55,7 +51,6 @@ SET(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECOMP_LIB} ${EXTRA_LINK_LIBS})
 # update the compilation flags to include OpenMP support
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
-
 
 # Add the build and install targets for each ARKODE example
 FOREACH(example_tuple ${ARKODE_examples})

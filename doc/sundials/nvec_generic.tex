@@ -161,28 +161,18 @@ It is recommended that a user-supplied {\nvector} implementation use the
 \hline
 {\bf Vector ID} & {\bf Vector type} & {\bf ID Value} \\
 \hline
-SUNDIALS\_NVEC\_SERIAL     & Serial                            & 0 \\ 
-SUNDIALS\_NVEC\_PARALLEL   & Distributed memory parallel (MPI) & 1 \\
-SUNDIALS\_NVEC\_OPENMP     & OpenMP shared memory parallel     & 2 \\
-SUNDIALS\_NVEC\_PTHREADS   & PThreads shared memory parallel   & 3 \\
-SUNDIALS\_NVEC\_PARHYP     & {\hypre} ParHyp parallel vector   & 4 \\ 
-SUNDIALS\_NVEC\_PETSC      & {\petsc} parallel vector          & 5 \\
-SUNDIALS\_NVEC\_CUSTOM     & User-provided custom vector       & 6 \\
+SUNDIALS\_NVEC\_SERIAL     & Serial                                                & 0 \\
+SUNDIALS\_NVEC\_PARALLEL   & Distributed memory parallel (MPI)                     & 1 \\
+SUNDIALS\_NVEC\_OPENMP     & OpenMP shared memory parallel                         & 2 \\
+SUNDIALS\_NVEC\_PTHREADS   & PThreads shared memory parallel                       & 3 \\
+SUNDIALS\_NVEC\_PARHYP     & {\hypre} ParHyp parallel vector                       & 4 \\
+SUNDIALS\_NVEC\_PETSC      & {\petsc} parallel vector                              & 5 \\
+SUNDIALS\_NVEC\_OPENMPDEV  & OpenMP shared memory parallel with device offloading  & 6 \\
+SUNDIALS\_NVEC\_CUSTOM     & User-provided custom vector                           & 7 \\
 \hline
 \end{tabular}
 \end{table}
 
-%% \begin{verbatim}
-%% typedef enum {
-%%   SUNDIALS_NVEC_SERIAL, 
-%%   SUNDIALS_NVEC_PARALLEL, 
-%%   SUNDIALS_NVEC_OPENMP, 
-%%   SUNDIALS_NVEC_PTHREADS, 
-%%   SUNDIALS_NVEC_PARHYP, 
-%%   SUNDIALS_NVEC_PETSC,
-%%   SUNDIALS_NVEC_CUSTOM
-%% } N_Vector_ID; 
-%% \end{verbatim}
 
 %---------------------------------------------------------------------------
 % Table of vector kernels

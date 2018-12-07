@@ -469,6 +469,8 @@ are \code{N\_VLinearCombinationVectorArray}, \code{N\_VScaleVectorArray},
 these operations as \code{NULL}, then standard NVector operations will
 automatically be called as necessary to complete the computation.
 
+Added OpenMPDEV NVECTOR which leverages OpenMP 4.5+ device offloading.
+
 
 \subsection{Changes in v2.2.1}
 \label{Introduction:changes-in-v2-2-1}
@@ -26286,6 +26288,7 @@ the vector data layout.
   \PYG{k+kt}{bool} \PYG{n}{ownPartitioning\PYGZus{}}\PYG{p}{;}
   \PYG{k+kt}{bool} \PYG{n}{ownData\PYGZus{}}\PYG{p}{;}
   \PYG{k+kt}{bool} \PYG{n}{managed\PYGZus{}mem\PYGZus{}}\PYG{p}{;}
+  \PYG{n}{SUNMPI\PYGZus{}Comm} \PYG{n}{comm\PYGZus{}}\PYG{p}{;}
   \PYG{p}{.}\PYG{p}{.}\PYG{p}{.}
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{Verbatim}
@@ -26295,8 +26298,9 @@ to vector data on the host and the device, pointers to classes \code{StreamParti
 and \code{ReducePartitioning}, which handle thread partitioning for streaming and
 reduction vector kernels, respectively, a boolean flag that signals if the
 vector owns the thread partitioning, a boolean flag that signals if the vector
-owns the data, and a boolean flag that signals if managed memory is used for the data arrays.
-The class \code{Vector} inherits from empty structure
+owns the data, a boolean flag that signals if managed memory is used for the
+data arrays, and the MPI communicator. he class \code{Vector} inherits from empty
+structure
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{k}{struct} \PYG{n}{\PYGZus{}N\PYGZus{}VectorContent\PYGZus{}Cuda} \PYG{p}{\PYGZob{}}
@@ -26722,7 +26726,7 @@ Class \code{Vector} in namespace \code{sunrajavec} manages the vector data layou
 \end{Verbatim}
 
 The class members are: vector size (length), size of the vector data
-memory block, the global vector size (length) pointers to vector data
+memory block, the global vector size (length), pointers to vector data
 on the host and on the device, and the MPI communicator. The class
 \code{Vector} inherits from an empty structure
 
@@ -27033,6 +27037,403 @@ that have more than one \code{N\_Vector} argument do not check for
 consistent internal representations of these vectors. It is the user's
 responsibility to ensure that such routines are called with \code{N\_Vector}
 arguments that were all created with the same internal representations.
+
+\end{itemize}
+
+
+\section{The NVECTOR\_OPENMPDEV Module}
+\label{nvectors/NVector_OpenMPDEV:the-nvector-openmpdev-module}\label{nvectors/NVector_OpenMPDEV::doc}\label{nvectors/NVector_OpenMPDEV:nvectors-openmpdev}
+In situations where a user has access to a device such as a GPU for
+offloading computation, SUNDIALS provides an NVECTOR implementation using
+OpenMP device offloading, called NVECTOR\_OPENMPDEV.
+
+The NVECTOR\_OPENMPDEV implementation defines the \emph{content} field
+of the \code{N\_Vector} to be a structure  containing the length of the vector, a pointer
+to the beginning of a contiguousdata array on the host, a pointer to the beginning of
+a contiguous data array on the device, and a boolean flag \code{own\_data} which specifies
+the ownership of host and device data arrays.
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{struct} \PYG{n}{\PYGZus{}N\PYGZus{}VectorContent\PYGZus{}OpenMPDEV} \PYG{p}{\PYGZob{}}
+  \PYG{n}{sunindextype} \PYG{n}{length}\PYG{p}{;}
+  \PYG{n}{booleantype} \PYG{n}{own\PYGZus{}data}\PYG{p}{;}
+  \PYG{n}{realtype} \PYG{o}{*}\PYG{n}{host\PYGZus{}data}\PYG{p}{;}
+  \PYG{n}{realtype} \PYG{o}{*}\PYG{n}{dev\PYGZus{}data}\PYG{p}{;}
+\PYG{p}{\PYGZcb{}}\PYG{p}{;}
+\end{Verbatim}
+
+The header file to include when using this module is \code{nvector\_openmpdev.h}.
+The installed module library to link to is \code{libsundials\_nvecopenmpdev.lib}
+where \code{.lib} is typically \code{.so} for shared libraries and \code{.a}
+for static libraries.
+
+The following macros are provided to access the content of an NVECTOR\_OPENMPDEV
+vector.
+\index{NV\_CONTENT\_OMPDEV (C macro)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_OpenMPDEV:c.NV_CONTENT_OMPDEV}\pysiglinewithargsret{\bfcode{NV\_CONTENT\_OMPDEV}}{v}{}
+This macro gives access to the contents of the NVECTOR\_OPENMPDEV
+vector \code{N\_Vector}.
+
+The assignment \code{v\_cont = NV\_CONTENT\_S(v)} sets \code{v\_cont} to be a
+pointer to the NVECTOR\_OPENMPDEV  content structure.
+
+Implementation:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}CONTENT\PYGZus{}OMPDEV(v) ( (N\PYGZus{}VectorContent\PYGZus{}OpenMPDEV)(v\PYGZhy{}\PYGZgt{}content) )}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{NV\_OWN\_DATA\_OMPDEV (C macro)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_OpenMPDEV:c.NV_OWN_DATA_OMPDEV}\pysiglinewithargsret{\bfcode{NV\_OWN\_DATA\_OMPDEV}}{v}{}
+Access the \emph{own\_data} component of the OpenMPDEV \code{N\_Vector} \emph{v}.
+
+The assignment \code{v\_data = NV\_DATA\_HOST\_OMPDEV(v)} sets \code{v\_data} to be
+a pointer to the first component of the data on the host for the \code{N\_Vector} \code{v}.
+
+Implementation:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}OWN\PYGZus{}DATA\PYGZus{}OMPDEV(v) ( NV\PYGZus{}CONTENT\PYGZus{}OMPDEV(v)\PYGZhy{}\PYGZgt{}own\PYGZus{}data )}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{NV\_DATA\_HOST\_OMPDEV (C macro)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_OpenMPDEV:c.NV_DATA_HOST_OMPDEV}\pysiglinewithargsret{\bfcode{NV\_DATA\_HOST\_OMPDEV}}{v}{}
+The assignment \code{NV\_DATA\_HOST\_OMPDEV(v) = v\_data} sets the host component array
+of \code{v} to  be \code{v\_data} by storing the pointer \code{v\_data}.
+
+Implementation:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}DATA\PYGZus{}HOST\PYGZus{}OMPDEV(v) ( NV\PYGZus{}CONTENT\PYGZus{}OMPDEV(v)\PYGZhy{}\PYGZgt{}host\PYGZus{}data )}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{NV\_DATA\_DEV\_OMPDEV (C macro)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_OpenMPDEV:c.NV_DATA_DEV_OMPDEV}\pysiglinewithargsret{\bfcode{NV\_DATA\_DEV\_OMPDEV}}{v}{}
+The assignment \code{v\_dev\_data = NV\_DATA\_DEV\_OMPDEV(v)} sets \code{v\_dev\_data} to be
+a pointer to the first component of the data on the device for the \code{N\_Vector} \code{v}.
+The assignment \code{NV\_DATA\_DEV\_OMPDEV(v) = v\_dev\_data} sets the device component
+array of \code{v} to be \code{v\_dev\_data} by storing the pointer \code{v\_dev\_data}.
+
+Implementation:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}DATA\PYGZus{}DEV\PYGZus{}OMPDEV(v) ( NV\PYGZus{}CONTENT\PYGZus{}OMPDEV(v)\PYGZhy{}\PYGZgt{}dev\PYGZus{}data )}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{NV\_LENGTH\_OMPDEV (C macro)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_OpenMPDEV:c.NV_LENGTH_OMPDEV}\pysigline{\bfcode{NV\_LENGTH\_OMPDEV}}
+Access the \emph{length} component of the OpenMPDEV \code{N\_Vector} \emph{v}.
+
+The assignment \code{v\_len = NV\_LENGTH\_OMPDEV(v)} sets \code{v\_len} to be
+the length of \code{v}. On the other hand, the call \code{NV\_LENGTH\_OMPDEV(v) = len\_v}
+sets the length of \code{v} to be \code{len\_v}.
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZsh{}}\PYG{c+cp}{define NV\PYGZus{}LENGTH\PYGZus{}OMPDEV(v) ( NV\PYGZus{}CONTENT\PYGZus{}OMPDEV(v)\PYGZhy{}\PYGZgt{}length )}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+
+The NVECTOR\_OPENMPDEV module defines OpenMP device offloading implementations of all vector
+operations listed in Tables {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}}, and
+{\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}, except for \code{N\_VGetArrayPointer} and \code{N\_VSetArrayPointer}.
+As such, this vector cannot be used with the SUNDIALS FORTRAN interfaces, nor with the
+SUNDIALS direct solvers and preconditioners. It also provides methods for copying from
+the host to the device and vice versa.
+
+The names of the vector operations are obtained from those in tables
+{\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}}, and {\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}
+by appending the suffix \code{\_OpenMPDEV} (e.g. \code{N\_VDestroy\_OpenMPDEV}).
+The module NVECTOR\_OPENMPDEV provides the following additional user-callable routines:
+
+
+\begin{fulllineitems}
+\pysigline{\bfcode{N\_Vector~N\_VNew\_OpenMPDEV(sunindextype~vec\_length);}}
+This function creates and allocates memory for an NVECTOR\_OPENMPDEV \code{N\_Vector}.
+
+\end{fulllineitems}
+
+
+
+\begin{fulllineitems}
+\pysigline{\bfcode{N\_Vector~N\_VNewEmpty\_OpenMPDEV(sunindextype~vec\_length);}}
+This function creates a new NVECTOR\_OPENMPDEV \code{N\_Vector} with an empty
+(\code{NULL}) data array.
+
+\end{fulllineitems}
+
+
+
+\begin{fulllineitems}
+\pysigline{\bfcode{N\_Vector~N\_VMake\_OpenMPDEV(sunindextype~vec\_length,~realtype~*h\_vdata,~realtype~*d\_vdata);}}
+This function creates an NVECTOR\_OPENMPDEV vector with user-supplied vector data
+arrays \code{h\_vdata\} and {}`{}`d\_vdata}. This function does not allocate memory for
+data itself.
+
+\end{fulllineitems}
+
+
+
+\begin{fulllineitems}
+\pysigline{\bfcode{N\_Vector~*N\_VCloneVectorArray\_OpenMPDEV(int~count,~N\_Vector~w);}}
+This function creates (by cloning) an array of \code{count} NVECTOR\_OPENMPDEV vectors.
+
+\end{fulllineitems}
+
+
+
+\begin{fulllineitems}
+\pysigline{\bfcode{N\_Vector~*N\_VCloneVectorArrayEmpty\_OpenMPDEV(int~count,~N\_Vector~w);}}
+This function creates (by cloning) an array of \code{count} NVECTOR\_OPENMPDEV vectors,
+each with an empty (\code{NULL}) data array.
+
+\end{fulllineitems}
+
+
+
+\begin{fulllineitems}
+\pysigline{\bfcode{void~N\_VDestroyVectorArray\_OpenMPDEV(N\_Vector~*vs,~int~count);}}
+This function frees memory allocated for the array of \code{count} variables of type
+\code{N\_Vector} created with \code{N\_VCloneVectorArray\_OpenMPDEV} or with
+\code{N\_VCloneVectorArrayEmpty\_OpenMPDEV}.
+
+\end{fulllineitems}
+
+
+
+\begin{fulllineitems}
+\pysigline{\bfcode{sunindextype~N\_VGetLength\_OpenMPDEV(N\_Vector~v);}}
+This function returns number of vector elements.
+
+\end{fulllineitems}
+
+
+
+\begin{fulllineitems}
+\pysigline{\bfcode{realtype~*N\_VGetHostArrayPointer\_OpenMPDEV(N\_Vector~v);}}
+This function returns a pointer to the host data array.
+
+\end{fulllineitems}
+
+
+
+\begin{fulllineitems}
+\pysigline{\bfcode{realtype~*N\_VGetDeviceArrayPointer\_OpenMPDEV(N\_Vector~v);}}
+This function returns a pointer to the device data array.
+
+\end{fulllineitems}
+
+
+
+\begin{fulllineitems}
+\pysigline{\bfcode{void~N\_VPrint\_OpenMPDEV(N\_Vector~v);}}
+This function prints the content of an NVECTOR\_OPENMPDEV vector to \code{stdout}.
+
+\end{fulllineitems}
+
+
+
+\begin{fulllineitems}
+\pysigline{\bfcode{void~N\_VPrintFile\_OpenMPDEV(N\_Vector~v,~FILE~*outfile);}}
+This function prints the content of an NVECTOR\_OPENMPDEV vector to \code{outfile}.
+
+\end{fulllineitems}
+
+
+
+\begin{fulllineitems}
+\pysigline{\bfcode{void~N\_VCopyToDevice\_OpenMPDEV(N\_Vector~v);}}
+This function copies the content of an NVECTOR\_OPENMPDEV vector's host data array
+to the device data array.
+
+\end{fulllineitems}
+
+
+
+\begin{fulllineitems}
+\pysigline{\bfcode{void~N\_VCopyFromDevice\_OpenMPDEV(N\_Vector~v);}}
+This function copies the content of an NVECTOR\_OPENMPDEV vector's device data array
+to the host data array.
+
+\end{fulllineitems}
+
+
+By default all fused and vector array operations are disabled in the NVECTOR\_OPENMPDEV
+module. The following additional user-callable routines are provided to
+enable or disable fused and vector array operations for a specific vector. To
+ensure consistency across vectors it is recommended to first create a vector
+with id\{N\_VNew\_OpenMPDEV\}, enable/disable the desired operations for that vector
+with the functions below, and create any additional vectors from that vector
+using id\{N\_VClone\}. This guarantees the new vectors will have the same
+operations enabled/disabled as cloned vectors inherit the same enable/disable
+options as the vector they are cloned from while vectors created with
+id\{N\_VNew\_OpenMPDEV\} will have the default settings for the NVECTOR\_OPENMPDEV module.
+\index{N\_VEnableFusedOps\_OpenMPDEV (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_OpenMPDEV:c.N_VEnableFusedOps_OpenMPDEV}\pysiglinewithargsret{int \bfcode{N\_VEnableFusedOps\_OpenMPDEV}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) all fused and
+vector array operations in the NVECTOR\_OPENMPDEV vector. The return value is id\{0\} for
+success and id\{-1\} if the input vector or its id\{ops\} structure are id\{NULL\}.
+
+\end{fulllineitems}
+
+\index{N\_VEnableLinearCombination\_OpenMPDEV (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_OpenMPDEV:c.N_VEnableLinearCombination_OpenMPDEV}\pysiglinewithargsret{int \bfcode{N\_VEnableLinearCombination\_OpenMPDEV}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear
+combination fused operation in the NVECTOR\_OPENMPDEV vector. The return value is id\{0\} for
+success and id\{-1\} if the input vector or its id\{ops\} structure are id\{NULL\}.
+
+\end{fulllineitems}
+
+\index{N\_VEnableScaleAddMulti\_OpenMPDEV (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_OpenMPDEV:c.N_VEnableScaleAddMulti_OpenMPDEV}\pysiglinewithargsret{int \bfcode{N\_VEnableScaleAddMulti\_OpenMPDEV}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale and
+add a vector to multiple vectors fused operation in the NVECTOR\_OPENMPDEV vector. The
+return value is id\{0\} for success and id\{-1\} if the input vector or its
+id\{ops\} structure are id\{NULL\}.
+
+\end{fulllineitems}
+
+\index{N\_VEnableDotProdMulti\_OpenMPDEV (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_OpenMPDEV:c.N_VEnableDotProdMulti_OpenMPDEV}\pysiglinewithargsret{int \bfcode{N\_VEnableDotProdMulti\_OpenMPDEV}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the multiple
+dot products fused operation in the NVECTOR\_OPENMPDEV vector. The return value is id\{0\}
+for success and id\{-1\} if the input vector or its id\{ops\} structure are
+id\{NULL\}.
+
+\end{fulllineitems}
+
+\index{N\_VEnableLinearSumVectorArray\_OpenMPDEV (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_OpenMPDEV:c.N_VEnableLinearSumVectorArray_OpenMPDEV}\pysiglinewithargsret{int \bfcode{N\_VEnableLinearSumVectorArray\_OpenMPDEV}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear sum
+operation for vector arrays in the NVECTOR\_OPENMPDEV vector. The return value is id\{0\} for
+success and id\{-1\} if the input vector or its id\{ops\} structure are id\{NULL\}.
+
+\end{fulllineitems}
+
+\index{N\_VEnableScaleVectorArray\_OpenMPDEV (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_OpenMPDEV:c.N_VEnableScaleVectorArray_OpenMPDEV}\pysiglinewithargsret{int \bfcode{N\_VEnableScaleVectorArray\_OpenMPDEV}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale
+operation for vector arrays in the NVECTOR\_OPENMPDEV vector. The return value is id\{0\} for
+success and id\{-1\} if the input vector or its id\{ops\} structure are id\{NULL\}.
+
+\end{fulllineitems}
+
+\index{N\_VEnableConstVectorArray\_OpenMPDEV (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_OpenMPDEV:c.N_VEnableConstVectorArray_OpenMPDEV}\pysiglinewithargsret{int \bfcode{N\_VEnableConstVectorArray\_OpenMPDEV}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the const
+operation for vector arrays in the NVECTOR\_OPENMPDEV vector. The return value is id\{0\} for
+success and id\{-1\} if the input vector or its id\{ops\} structure are id\{NULL\}.
+
+\end{fulllineitems}
+
+\index{N\_VEnableWrmsNormVectorArray\_OpenMPDEV (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_OpenMPDEV:c.N_VEnableWrmsNormVectorArray_OpenMPDEV}\pysiglinewithargsret{int \bfcode{N\_VEnableWrmsNormVectorArray\_OpenMPDEV}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the WRMS norm
+operation for vector arrays in the NVECTOR\_OPENMPDEV vector. The return value is id\{0\} for
+success and id\{-1\} if the input vector or its id\{ops\} structure are id\{NULL\}.
+
+\end{fulllineitems}
+
+\index{N\_VEnableWrmsNormMaskVectorArray\_OpenMPDEV (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_OpenMPDEV:c.N_VEnableWrmsNormMaskVectorArray_OpenMPDEV}\pysiglinewithargsret{int \bfcode{N\_VEnableWrmsNormMaskVectorArray\_OpenMPDEV}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the masked WRMS
+norm operation for vector arrays in the NVECTOR\_OPENMPDEV vector. The return value is
+id\{0\} for success and id\{-1\} if the input vector or its id\{ops\} structure are
+id\{NULL\}.
+
+\end{fulllineitems}
+
+\index{N\_VEnableScaleAddMultiVectorArray\_OpenMPDEV (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_OpenMPDEV:c.N_VEnableScaleAddMultiVectorArray_OpenMPDEV}\pysiglinewithargsret{\bfcode{N\_VEnableScaleAddMultiVectorArray\_OpenMPDEV}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale and
+add a vector array to multiple vector arrays operation in the NVECTOR\_OPENMPDEV vector. The
+return value is id\{0\} for success and id\{-1\} if the input vector or its
+id\{ops\} structure are id\{NULL\}.
+
+\end{fulllineitems}
+
+\index{N\_VEnableLinearCombinationVectorArray\_OpenMPDEV (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_OpenMPDEV:c.N_VEnableLinearCombinationVectorArray_OpenMPDEV}\pysiglinewithargsret{\bfcode{N\_VEnableLinearCombinationVectorArray\_OpenMPDEV}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear
+combination operation for vector arrays in the NVECTOR\_OPENMPDEV vector. The return value
+is id\{0\} for success and id\{-1\} if the input vector or its id\{ops\} structure
+are id\{NULL\}.
+
+\end{fulllineitems}
+
+
+\textbf{Notes}
+\begin{itemize}
+\item {} 
+When looping over the components of an \code{N\_Vector} \code{v}, it is
+most efficient to first obtain the component array via
+\code{h\_data = NV\_DATA\_HOST\_OMPDEV(v)} for the host arry or
+\code{v\_data = NV\_DATA\_DEV\_OMPDEV(v)} for the device array and then
+access \code{v\_data{[}i{]}} within the loop.
+
+\item {} 
+When accessing individual components of an \code{N\_Vector} \code{v} on
+the host remember to first copy the array
+back from the device with \code{N\_VCopyFromDevice\_OpenMPDEV(v)}
+to ensure the array is up to date.
+
+\item {} 
+\code{N\_VNewEmpty\_OpenMPDEV()}, \code{N\_VMake\_OpenMPDEV()}, and
+\code{N\_VCloneVectorArrayEmpty\_OpenMPDEV()} set the field \emph{own\_data}
+to \code{SUNFALSE}.  The functions \code{N\_VDestroy\_OpenMPDEV()} and
+\code{N\_VDestroyVectorArray\_OpenMPDEV()} will not attempt to free the
+pointer data for any \code{N\_Vector} with \emph{own\_data} set to \code{SUNFALSE}.
+In such a case, it is the user's responsibility to deallocate the
+data pointers.
+
+\item {} 
+To maximize efficiency, vector operations in the NVECTOR\_OPENMPDEV
+implementation that have more than one \code{N\_Vector} argument do not
+check for consistent internal representation of these vectors. It is
+the user's responsibility to ensure that such routines are called
+with \code{N\_Vector} arguments that were all created with the same
+length.
 
 \end{itemize}
 

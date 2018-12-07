@@ -249,7 +249,9 @@ are ``N_VLinearCombinationVectorArray``, ``N_VScaleVectorArray``,
 these operations as ``NULL``, then standard NVector operations will
 automatically be called as necessary to complete the computation.
 
-    
+Added OpenMPDEV NVECTOR which leverages OpenMP 4.5+ device offloading.
+
+     
 Changes in v2.2.1
 ^^^^^^^^^^^^^^^^^^^^^^^
 

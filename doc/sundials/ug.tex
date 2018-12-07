@@ -94,6 +94,7 @@
 \newcommand{\nvecs}{{\normalfont\scshape nvector\_serial}}
 \newcommand{\nvecp}{{\normalfont\scshape nvector\_parallel}}
 \newcommand{\nvecopenmp}{{\normalfont\scshape nvector\_openmp}}
+\newcommand{\nvecopenmpdev}{{\normalfont\scshape nvector\_openmpdev}}
 \newcommand{\nvecpthreads}{{\normalfont\scshape nvector\_pthreads}}
 \newcommand{\nvecph}{{\normalfont\scshape nvector\_parhyp}}
 \newcommand{\nvecpetsc}{{\normalfont\scshape nvector\_petsc}}
@@ -522,13 +523,6 @@ Approved for public release; further dissemination unlimited
   2003 interface module.}
   \end{Ventry}
 }
-%%
-%% OLD macro
-%%
-\newcommand{\sunmodulefunctionf}[1]{
-  \ID{#1}\\
-  Callable as \id{F#1} via the {\F} 2003 interface.
-}
 %%--------------------------------------------
 %% macro for generic SUNDIALS module functions
 %%--------------------------------------------
@@ -537,6 +531,20 @@ Approved for public release; further dissemination unlimited
   \begin{Ventry}[F2003 Name]
   \item[Prototype]{\id{#3}}
   \item[Description]{#2}
+  \end{Ventry}
+}
+%%-------------------------------------------------------
+%% macro for generic overloaded SUNDIALS module functions
+%%-------------------------------------------------------
+\newcommand{\sunmodfuns}[6]{
+  \noindent\paragraph{\fbox{\ID{#1}}}
+  \begin{Ventry}[F2003 Name]
+  \item[\textit{Single-node usage}]{}
+  \item[Prototype]{\id{#4}}
+  \item[Description]{#2#3}
+  \item[\textit{Distributed-memory parallel usage}]{}
+  \item[Prototype]{\id{#6}}
+  \item[Description]{#2#5}
   \end{Ventry}
 }
 %%--------------------------------------------------------------------------

@@ -145,6 +145,7 @@ The module {\nvecpthreads} provides the following additional user-callable routi
 }
 {
   N\_Vector N\_VMake\_Pthreads(sunindextype vec\_length, realtype *v\_data,
+  \newlinefill{N\_Vector N\_VMake\_Pthreads}
   int num\_threads);
 }
 %%--------------------------------------
@@ -168,7 +169,7 @@ The module {\nvecpthreads} provides the following additional user-callable routi
 \sunmodfun{N\_VDestroyVectorArray\_Pthreads}
 {
   This function frees memory allocated for the array of \id{count} variables of type
-  \id{N\_Vector} created with \id{N\_VCloneVectorArray\_Pthreads} or with
+  \id{N\_Vector} created with \id{N\_VCloneVectorArray\_Pthreads} or with \newline
   \id{N\_VCloneVectorArrayEmpty\_Pthreads}.
 }
 {
@@ -312,7 +313,9 @@ options as the vector they are cloned from while vectors created with
   \id{ops} structure are \id{NULL}.
 }
 {
-  int N\_VEnableScaleAddMultiVectorArray\_Pthreads(N\_Vector v, booleantype tf)
+  int N\_VEnableScaleAddMultiVectorArray\_Pthreads(N\_Vector v,
+  \newlinefill{int N\_VEnableScaleAddMultiVectorArray\_Pthreads}
+  booleantype tf)
 }
 %%--------------------------------------
 \sunmodfun{N\_VEnableLinearCombinationVectorArray\_Pthreads}
@@ -323,7 +326,9 @@ options as the vector they are cloned from while vectors created with
   are \id{NULL}.
 }
 {
-  int N\_VEnableLinearCombinationVectorArray\_Pthreads(N\_Vector v, booleantype tf)
+  int N\_VEnableLinearCombinationVectorArray\_Pthreads(N\_Vector v,
+  \newlinefill{int N\_VEnableLinearCombinationVectorArray\_Pthreads}
+  booleantype tf)
 }
 %%
 %%------------------------------------

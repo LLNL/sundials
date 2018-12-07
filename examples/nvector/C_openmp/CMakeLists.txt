@@ -59,12 +59,10 @@ ENDIF()
 # Set-up linker flags and link libraries
 SET(SUNDIALS_LIBS ${NVECS_LIB} ${EXTRA_LINK_LIBS})
 
-IF(OPENMP_FOUND)
-  SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-  # Use C flags for linker as well.
-  SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
-ENDIF(OPENMP_FOUND)
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+# Use C flags for linker as well.
+SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_C_FLAGS}")
 
 
 # Add the build and install targets for each example

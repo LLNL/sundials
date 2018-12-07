@@ -384,7 +384,7 @@ a typical configuration on a Linux system and are provided as illustration only.
   Note: This is the directory within \id{CMAKE\_INSTALL\_PREFIX} that the {\sundials}
   libraries will be installed under. The default is automatically set based on the
   operating system using the GNUInstallDirs CMake module.
-\item{\id{Fortran\_INSTALL\_MODDIR}} -
+\item[\id{Fortran\_INSTALL\_MODDIR}] -
   Fortran module installation directory
   \\
   Default: fortran
@@ -532,7 +532,17 @@ a typical configuration on a Linux system and are provided as illustration only.
 \item[\id{OPENMP\_ENABLE}] -
   Enable OpenMP support (build the OpenMP nvector).
   \\
-  Default: OFF 
+  Default: OFF
+\item[\id{OPENMP\_DEVICE\_ENABLE}] -
+  Enable OpenMP device offloading (build the OpenMPDEV nvector) if supported by
+  the provided compiler.
+  \\
+  Default: OFF
+\item[\id{SKIP\_OPENMP\_DEVICE\_CHECK}] - \textbf{advanced option} -
+  Skip the check done to see if the OpenMP provided by the compiler
+  supports OpenMP device offloading.
+  \\
+  Default: OFF
 \item[\id{PETSC\_ENABLE}] - 
   Enable PETSc support
   \\
@@ -577,8 +587,7 @@ a typical configuration on a Linux system and are provided as illustration only.
   only be used if a Fortran compiler is not available or to override
   the inferred or default (\id{one}) scheme if one can not be
   determined. If used, \id{SUNDIALS\_F77\_FUNC\_CASE} must also be set.
-\item[\id{SUNDIALS\_INDEX\_TYPE}] - \textbf{advanced}
-  \\
+\item[\id{SUNDIALS\_INDEX\_TYPE}] - \textbf{advanced option} -
   Integer type used for {\sundials} indices. The size must match the size provided for
   the \\ \noindent \id{SUNDIALS\_INDEX\_SIZE} option.
   \\
@@ -1098,7 +1107,7 @@ are to be used in building a preconditioner.
 {\nvecs}
  & Libraries    & libsundials\_nvecserial.{\em lib}       & \\
  &              & libsundials\_fnvecserial\_mod.{\em lib} & \\ 
- &              & libsundials\_fnvecserial.a \\           & \\ 
+ &              & libsundials\_fnvecserial.a              & \\ 
 \cline{2-4}
  & Header files & nvector/nvector\_serial.h               & \\ 
 \cline{2-4}
@@ -1119,6 +1128,12 @@ are to be used in building a preconditioner.
  & Header files & nvector/nvector\_openmp.h                & \\ 
 \cline{2-4}
  & Module files & fnvector\_openmp\_mod.mod                & \\
+\hline
+%% --------------------------------------------------
+{\nvecopenmpdev}
+  & Libraries    & libsundials\_nvecopenmpdev.{\em lib} & \\ 
+\cline{2-4}
+  & Header files & nvector/nvector\_openmpdev.h         & \\ 
 \hline
 %% --------------------------------------------------
 {\nvecpthreads}

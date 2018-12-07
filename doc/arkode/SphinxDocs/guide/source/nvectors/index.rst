@@ -47,5 +47,6 @@ patterns in the NVECTORS used.
    NVector_PETSc
    NVector_CUDA
    NVector_RAJA
+   NVector_OpenMPDEV
    NVector_Examples
    ARKode_requirements

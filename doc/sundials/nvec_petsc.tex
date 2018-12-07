@@ -57,8 +57,8 @@ The module {\nvecpetsc}  provides the following additional user-callable routine
   \id{N\_VMake\_Petsc} and \id{N\_VClone\_Petsc} implementations. 
 }
 {
-  N\_Vector N\_VNewEmpty\_Petsc(MPI\_Comm comm, 
-  sunindextype local\_length, 
+  N\_Vector N\_VNewEmpty\_Petsc(MPI\_Comm comm, sunindextype local\_length, 
+  \newlinefill{N\_Vector N\_VNewEmpty\_Petsc}
   sunindextype global\_length)
 }
 %%--------------------------------------
@@ -247,7 +247,9 @@ options as the vector they are cloned from while vectors created with
   are \id{NULL}.
 }
 {
-  int N\_VEnableLinearCombinationVectorArray\_Petsc(N\_Vector v, booleantype tf)
+  int N\_VEnableLinearCombinationVectorArray\_Petsc(N\_Vector v,
+  \newlinefill{int N\_VEnableLinearCombinationVectorArray\_Petsc}
+  booleantype tf)
 }
 %%
 %%------------------------------------

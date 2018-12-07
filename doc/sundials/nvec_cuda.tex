@@ -36,8 +36,7 @@ owns the data, a boolean flag that signals if managed memory is used for the
 data arrays, and the MPI communicator. The class \id{Vector} inherits from the
 empty structure
 \begin{verbatim}
-struct _N_VectorContent_Cuda {
-};
+struct _N_VectorContent_Cuda {};
 \end{verbatim}
 to interface the C++ class with the {\nvector} C code. Due to the rapid progress
 of {\cuda} development, we expect that the \id{suncudavec::Vector} class will
@@ -63,74 +62,73 @@ Only one of these libraries may be linked to when creating an executable
 or library. {\sundials} must be built with MPI support if the distributed
 library is desired. 
 
+
+% ====================================================================
+\subsection{NVECTOR\_CUDA functions}
+\label{ss:nvec_cuda_functions}
+% ====================================================================
+
 Unlike other native {\sundials} vector types, {\nveccuda} does not provide macros
 to access its member variables. Instead, user should use the accessor functions:
-
-\begin{itemize}
 %%--------------------------------------
-
-\item \ID{N\_VGetLength\_Cuda}
-
- This function returns the global length of the vector.
-
- \verb|sunindextype N_VGetLength_Cuda(N_Vector v);|
-
+\sunmodfun{N\_VGetLength\_Cuda}
+{
+  This function returns the global length of the vector.
+}
+{
+  sunindextype N\_VGetLength\_Cuda(N\_Vector v)
+}
 %%--------------------------------------
-
-\item \ID{N\_VGetLocalLength\_Cuda}
-
- This function returns the local length of the vector.
-    
- Note: This function is for use in a \textit{distributed} context and
- is defined in the header \id{nvector\_mpicuda.h} and the library
- to link to is \id{libsundials\_nvecmpicuda}.\text{lib}.
-
- \verb|sunindextype N_VGetLocalLength_Cuda(N_Vector v);|
-
+\sunmodfun{N\_VGetLocalLength\_Cuda}
+{
+  This function returns the local length of the vector.
+  
+  Note: This function is for use in a \textit{distributed} context and
+  is defined in the header \id{nvector\_mpicuda.h} and the library
+  to link to is \id{libsundials\_nvecmpicuda}.\text{lib}.
+}
+{
+  sunindextype N\_VGetLocalLength\_Cuda(N\_Vector v)
+}
 %%--------------------------------------
-
-\item \ID{N\_VGetHostArrayPointer\_Cuda}
-
- This function returns a pointer to the vector data on the host.
-
- \verb|realtype *N_VGetHostArrayPointer_Cuda(N_Vector v);|
-
-
+\sunmodfun{N\_VGetHostArrayPointer\_Cuda}
+{
+  This function returns a pointer to the vector data on the host.
+}
+{
+  realtype *N\_VGetHostArrayPointer\_Cuda(N\_Vector v)
+}
 %%--------------------------------------
-
-\item \ID{N\_VGetDeviceArrayPointer\_Cuda}
-
- This function returns a pointer to the vector data on the device.
-
- \verb|realtype *N_VGetDeviceArrayPointer_Cuda(N_Vector v);|
-
+\sunmodfun{N\_VGetDeviceArrayPointer\_Cuda}
+{
+  This function returns a pointer to the vector data on the device.
+}
+{
+  realtype *N\_VGetDeviceArrayPointer\_Cuda(N\_Vector v)
+}
 %%--------------------------------------
+\sunmodfun{N\_VGetMPIComm\_Cuda}
+{
+  This function returns the {\mpi} communicator for the vector.
 
-\item \ID{N\_VGetMPIComm\_Cuda}
-
- This function returns the {\mpi} communicator for the vector.
- 
-    
- Note: This function is for use in a \textit{distributed} context
- and is defined in the header \id{nvector\_mpicuda.h} and the
- library to link to is \id{libsundials\_nvecmpicuda}.\text{lib}.
-
- \verb|MPI_Comm N_VGetMPIComm_Cuda(N_Vector v);|
-
+  Note: This function is for use in a \textit{distributed} context
+  and is defined in the header \id{nvector\_mpicuda.h} and the
+  library to link to is \id{libsundials\_nvecmpicuda}.\text{lib}.
+}
+{
+  MPI\_Comm N\_VGetMPIComm\_Cuda(N\_Vector v)
+}
 %%--------------------------------------
-
-\item \ID{N\_VIsManagedMemory\_Cuda}
-
- This function returns a boolean flag indicating if the vector
- data is allocated in managed memory or not.
-
- \verb|booleantype *N_VIsManagedMemory_Cuda(N_Vector v);|
-\end{itemize}
-
-
-%%
+\sunmodfun{N\_VIsManagedMemory\_Cuda}
+{
+  This function returns a boolean flag indicating if the vector
+  data is allocated in managed memory or not.
+}
+{
+  booleantype *N\_VIsManagedMemory\_Cuda(N\_Vector v)
+}
 %%--------------------------------------------
-%%
+
 The {\nveccuda} module defines implementations of all vector operations listed
 in Tables \ref{t:nvecops}, \ref{t:nvecfusedops}, and \ref{t:nvecarrayops}, except
 for \id{N\_VGetArrayPointer} and \id{N\_VSetArrayPointer}.
@@ -145,190 +143,178 @@ The names of vector operations are obtained from those in Tables \ref{t:nvecops}
 \ref{t:nvecfusedops}, and \ref{t:nvecarrayops} by appending the suffix \id{\_Cuda}
 (e.g. \id{N\_VDestroy\_Cuda}). The module {\nveccuda} provides the following
 functions:
-%%
-%%
-\begin{itemize}
-
 %%--------------------------------------
-
-\item \ID{N\_VNew\_Cuda}
-
+\sunmodfuns{N\_VNew\_Cuda}
+{
   This function creates and allocates memory for a {\cuda} \id{N\_Vector}.
   The vector data array is allocated on both the host and device.
-
+}
+{
   In the \textit{single-node} setting, the only input is the vector length. This
   constructor is defined in the header \id{nvector\_cuda.h} and the library to
   link to is \id{libsundials\_nveccuda}.\text{lib}.
-
-\begin{verbatim}
-N_Vector N_VNew_Cuda(sunindextype length);
-\end{verbatim}
-
+}
+{
+  N\_Vector N\_VNew\_Cuda(sunindextype length)
+}
+{
   When used in a \textit{distributed} context with MPI, the arguments are the
   {\mpi} communicator, the local vector length, and the global vector length.
   This constructor is defined in the header \id{nvector\_mpicuda.h} and
   the library to link to is \id{libsundials\_nvecmpicuda}.\text{lib}.
-
-\begin{verbatim}
-N_Vector N_VNew_Cuda(MPI_Comm comm,
-                     sunindextype local_length,
-                     sunindextype global_length);
-\end{verbatim}
-
+}
+{
+  N\_Vector N\_VNew\_Cuda(MPI\_Comm comm, sunindextype local\_length,
+  \newlinefill{N\_Vector N\_VNew\_Cuda}
+  sunindextype global\_length)
+}
 %%--------------------------------------
-
-\item \ID{N\_VNewManaged\_Cuda}
-
+\sunmodfuns{N\_VNewManaged\_Cuda}
+{
   This function creates and allocates memory for a {\cuda} \id{N\_Vector}
   on a single node. The vector data array is allocated in managed memory.
-
+}
+{
   In the \textit{single-node} setting, the only input is the vector length. This
   constructor is defined in the header \id{nvector\_cuda.h} and the library to
   link to is \id{libsundials\_nveccuda}.\text{lib}.
-
-\begin{verbatim}
-N_Vector N_VNewManaged_Cuda(sunindextype length);
-\end{verbatim}
-
+}
+{
+  N\_Vector N\_VNewManaged\_Cuda(sunindextype length)
+}
+{
   When used in a \textit{distributed} context with MPI, the arguments are the
   {\mpi} communicator, the local vector lenght, and the global vector length.
   This constructor is defined in the header \id{nvector\_mpicuda.h} and
   the library to link to is \id{libsundials\_nvecmpicuda}.\text{lib}.
-
-\begin{verbatim}
-N_Vector N_VNewManaged_Cuda(MPI_Comm comm,
-                            sunindextype local_length,
-                            sunindextype global_length);
-\end{verbatim}
-
+}
+{
+  N\_Vector N\_VNewManaged\_Cuda(MPI\_Comm comm, sunindextype local\_length,
+  \newlinefill{N\_Vector N\_VNewManaged\_Cuda}
+  sunindextype global\_length)
+}
 %%--------------------------------------
-
-\item \ID{N\_VNewEmpty\_Cuda}
-
+\sunmodfun{N\_VNewEmpty\_Cuda}
+{
   This function creates a new {\nvector} wrapper with the pointer to
   the wrapped {\cuda} vector set to \id{NULL}. It is used by the
   \id{N\_VNew\_Cuda}, \id{N\_VMake\_Cuda}, and \id{N\_VClone\_Cuda}
   implementations.
-
-\begin{verbatim}
-N_Vector N_VNewEmpty_Cuda();
-\end{verbatim}
-
+}
+{
+  N\_Vector N\_VNewEmpty\_Cuda()
+}
 %%--------------------------------------
-
-\item \ID{N\_VMake\_Cuda}
-
+\sunmodfuns{N\_VMake\_Cuda}
+{
   This function creates an {\nveccuda} with user-supplied vector data arrays
   \id{h\_vdata} and \id{d\_vdata}. This function does not allocate memory for
   data itself.
-  
+}
+{
   In the \textit{single-node} setting, the inputs are the vector length, the
   host data array, and the device data. This constructor is defined in the
   header \id{nvector\_cuda.h} and the library to link to is
   \id{libsundials\_nveccuda}.\text{lib}.
-
-\begin{verbatim}
-N_Vector N_VMake_Cuda(sunindextype length, realtype *h_vdata, realtype *d_vdata);
-\end{verbatim}
-
+}
+{
+  N\_Vector N\_VMake\_Cuda(sunindextype length, realtype *h\_vdata,
+  \newlinefill{N\_Vector N\_VMake\_Cuda}
+  realtype *d\_vdata)
+}
+{
   When used in a \textit{distributed} context with MPI, the arguments are the
   {\mpi} communicator, the local vector lenght, the global vector length, the
   host data array, and the device data array. This constructor is defined in the
   header \id{nvector\_mpicuda.h} and the library to link to is
   \id{libsundials\_nvecmpicuda}.\text{lib}.
-
-\begin{verbatim}
-N_Vector N_VMake_Cuda(MPI_Comm comm,
-                      sunindextype local_length,
-                      sunindextype global_length,
-                      realtype *h_vdata,
-                      realtype *d_vdata);
-\end{verbatim}
-
+}
+{
+  N\_Vector N\_VMake\_Cuda(MPI\_Comm comm, sunindextype local\_length,
+  \newlinefill{N\_Vector N\_VMake\_Cuda}
+  sunindextype global\_length, realtype *h\_vdata,
+  \newlinefill{N\_Vector N\_VMake\_Cuda}
+  realtype *d\_vdata)
+}
 %%--------------------------------------
-
-\item \ID{N\_VMakeManaged\_Cuda}
-
+\sunmodfuns{N\_VMakeManaged\_Cuda}
+{
   This function creates an {\nveccuda} with a user-supplied managed memory data
   array. This function does not allocate memory for data itself.
-  
+}
+{
   In the \textit{single-node} setting, the inputs are the vector length and the
   managed data array. This constructor is defined in the header
   \id{nvector\_cuda.h} and the library to link to is
   \id{libsundials\_nveccuda}.\text{lib}.
-
-\begin{verbatim}
-N_Vector N_VMakeManaged_Cuda(sunindextype length, realtype *vdata);
-\end{verbatim}
-
+}
+{
+  N\_Vector N\_VMakeManaged\_Cuda(sunindextype length, realtype *vdata)
+}
+{
   When used in a \textit{distributed} context with MPI, the arguments are the
   {\mpi} communicator, the local vector lenght, the global vector length, the
   managed data array. This constructor is defined in the header
   \id{nvector\_mpicuda.h} and the library to link to is 
   \id{libsundials\_nvecmpicuda}.\text{lib}.
+}
+{
+  N\_Vector N\_VMakeManaged\_Cuda(MPI\_Comm comm, sunindextype local\_length,
+  \newlinefill{N\_Vector N\_VMakeManaged\_Cuda}
+  sunindextype global\_length, realtype *vdata)
+}
 
-\begin{verbatim}
-N_Vector N_VMakeManaged_Cuda(MPI_Comm comm,
-                             sunindextype local_length,
-                             sunindextype global_length,
-                             realtype *vdata)
-\end{verbatim}
 
-
-\end{itemize}
 The module {\nveccuda} also provides the following user-callable routines:
-\begin{itemize}
 %%--------------------------------------
+\sunmodfun{N\_VSetCudaStream\_Cuda}
+{
+  This function sets the {\cuda} stream that all vector kernels will be launched on.
+  By default an {\nveccuda} uses the default {\cuda} stream.\\
 
-\item \ID{N\_VSetCudaStream\_Cuda}
-
- This function sets the {\cuda} stream that all vector kernels will be launched on.
- By default an {\nveccuda} uses the default {\cuda} stream.\\
- 
- \textit{Note: All vectors used in a single instance of a SUNDIALS solver must
+  \textit{Note: All vectors used in a single instance of a SUNDIALS solver must
   use the same {\cuda} stream, and the {\cuda} stream must be set prior to
   solver initialization. Additionally, if manually instantiating the stream and
   reduce \id{ThreadPartitioning} of a \id{suncudavec::Vector}, ensure that they
-  use the same {\cuda} stream.}\\
-
- \verb|void N_VSetCudaStream_Cuda(N_Vector v, cudaStream_t *stream);|
-
+  use the same {\cuda} stream.}
+}
+{
+  void N\_VSetCudaStream\_Cuda(N\_Vector v, cudaStream\_t *stream)
+}
 %%--------------------------------------
-
-\item \ID{N\_VCopyToDevice\_Cuda}
-
+\sunmodfun{N\_VCopyToDevice\_Cuda}
+{
  This function copies host vector data to the device.
-
- \verb|realtype *N_VCopyToDevice_Cuda(N_Vector v);|
-
-
+}
+{
+ realtype *N\_VCopyToDevice\_Cuda(N\_Vector v)
+}
 %%--------------------------------------
-
-\item \ID{N\_VCopyFromDevice\_Cuda}
-
+\sunmodfun{N\_VCopyFromDevice\_Cuda}
+{
  This function copies vector data from the device to the host.
-
- \verb|realtype *N_VCopyFromDevice_Cuda(N_Vector v);|
-
-
+}
+{
+ realtype *N\_VCopyFromDevice\_Cuda(N\_Vector v)
+}
 %%--------------------------------------
-
-\item \ID{N\_VPrint\_Cuda}
-
+\sunmodfun{N\_VPrint\_Cuda}
+{
   This function prints the content of a {\cuda} vector to \id{stdout}.
-
-  \verb|void N_VPrint_Cuda(N_Vector v);|
-
+}
+{
+  void N\_VPrint\_Cuda(N\_Vector v)
+}
+%%--------------------------------------
+\sunmodfun{N\_VPrintFile\_Cuda}
+{
+  This function prints the content of a {\cuda} vector to \id{outfile}.
+}
+{
+  void N\_VPrintFile\_Cuda(N\_Vector v, FILE *outfile)
+}
 %%--------------------------------------
 
-\item \ID{N\_VPrintFile\_Cuda}
-
-  This function prints the content of a {\cuda} vector to \id{outfile}.
-
-  \verb|void N_VPrintFile_Cuda(N_Vector v, FILE *outfile);|
-
-
-\end{itemize}
 By default all fused and vector array operations are disabled in the {\nveccuda}
 module. The following additional user-callable routines are provided to
 enable or disable fused and vector array operations for a specific vector. To
@@ -339,125 +325,123 @@ using \id{N\_VClone}. This guarantees the new vectors will have the same
 operations enabled/disabled as cloned vectors inherit the same enable/disable
 options as the vector they are cloned from while vectors created with
 \id{N\_VNew\_Cuda} will have the default settings for the {\nveccuda} module.
-\begin{itemize}
-
 %%--------------------------------------
-
-\item \ID{N\_VEnableFusedOps\_Cuda}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) all fused and
-vector array operations in the {\cuda} vector. The return value is \id{0} for
-success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
-
-\verb|int N_VEnableFusedOps_Cuda(N_Vector v, booleantype tf);|
-
+\sunmodfun{N\_VEnableFusedOps\_Cuda}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) all fused and
+  vector array operations in the {\cuda} vector. The return value is \id{0} for
+  success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableFusedOps\_Cuda(N\_Vector v, booleantype tf)
+}
 %%--------------------------------------
-
-\item \ID{N\_VEnableLinearCombination\_Cuda}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear
-combination fused operation in the {\cuda} vector. The return value is \id{0} for
-success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
-
-\verb|int N_VEnableLinearCombination_Cuda(N_Vector v, booleantype tf);|
-
+\sunmodfun{N\_VEnableLinearCombination\_Cuda}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear
+  combination fused operation in the {\cuda} vector. The return value is \id{0} for
+  success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableLinearCombination\_Cuda(N\_Vector v, booleantype tf)
+}
 %%--------------------------------------
-
-\item \ID{N\_VEnableScaleAddMulti\_Cuda}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale and
-add a vector to multiple vectors fused operation in the {\cuda} vector. The
-return value is \id{0} for success and \id{-1} if the input vector or its
-\id{ops} structure are \id{NULL}.
-
-\verb|int N_VEnableScaleAddMulti_Cuda(N_Vector v, booleantype tf);|
-
+\sunmodfun{N\_VEnableScaleAddMulti\_Cuda}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale and
+  add a vector to multiple vectors fused operation in the {\cuda} vector. The
+  return value is \id{0} for success and \id{-1} if the input vector or its
+  \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableScaleAddMulti\_Cuda(N\_Vector v, booleantype tf)
+}
 %%--------------------------------------
-
-\item \ID{N\_VEnableDotProdMulti\_Cuda}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the multiple
-dot products fused operation in the {\cuda} vector. The return value is \id{0}
-for success and \id{-1} if the input vector or its \id{ops} structure are
-\id{NULL}.
-
-\verb|int N_VEnableDotProdMulti_Cuda(N_Vector v, booleantype tf);|
-
+\sunmodfun{N\_VEnableDotProdMulti\_Cuda}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the multiple
+  dot products fused operation in the {\cuda} vector. The return value is \id{0}
+  for success and \id{-1} if the input vector or its \id{ops} structure are
+  \id{NULL}.
+}
+{
+  int N\_VEnableDotProdMulti\_Cuda(N\_Vector v, booleantype tf)
+}
 %%--------------------------------------
-
-\item \ID{N\_VEnableLinearSumVectorArray\_Cuda}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear sum
-operation for vector arrays in the {\cuda} vector. The return value is \id{0} for
-success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
-
-\verb|int N_VEnableLinearSumVectorArray_Cuda(N_Vector v, booleantype tf);|
-
+\sunmodfun{N\_VEnableLinearSumVectorArray\_Cuda}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear sum
+  operation for vector arrays in the {\cuda} vector. The return value is \id{0} for
+  success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableLinearSumVectorArray\_Cuda(N\_Vector v, booleantype tf)
+}
 %%--------------------------------------
-
-\item \ID{N\_VEnableScaleVectorArray\_Cuda}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale
-operation for vector arrays in the {\cuda} vector. The return value is \id{0} for
-success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
-
-\verb|int N_VEnableScaleVectorArray_Cuda(N_Vector v, booleantype tf);|
-
+\sunmodfun{N\_VEnableScaleVectorArray\_Cuda}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale
+  operation for vector arrays in the {\cuda} vector. The return value is \id{0} for
+  success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableScaleVectorArray\_Cuda(N\_Vector v, booleantype tf)
+}
 %%--------------------------------------
-
-\item \ID{N\_VEnableConstVectorArray\_Cuda}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the const
-operation for vector arrays in the {\cuda} vector. The return value is \id{0} for
-success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
-
-\verb|int N_VEnableConstVectorArray_Cuda(N_Vector v, booleantype tf);|
-
+\sunmodfun{N\_VEnableConstVectorArray\_Cuda}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the const
+  operation for vector arrays in the {\cuda} vector. The return value is \id{0} for
+  success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableConstVectorArray\_Cuda(N\_Vector v, booleantype tf)
+}
 %%--------------------------------------
-
-\item \ID{N\_VEnableWrmsNormVectorArray\_Cuda}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the WRMS norm
-operation for vector arrays in the {\cuda} vector. The return value is \id{0} for
-success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
-
-\verb|int N_VEnableWrmsNormVectorArray_Cuda(N_Vector v, booleantype tf);|
-
+\sunmodfun{N\_VEnableWrmsNormVectorArray\_Cuda}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the WRMS norm
+  operation for vector arrays in the {\cuda} vector. The return value is \id{0} for
+  success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableWrmsNormVectorArray\_Cuda(N\_Vector v, booleantype tf)
+}
 %%--------------------------------------
-
-\item \ID{N\_VEnableWrmsNormMaskVectorArray\_Cuda}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the masked WRMS
-norm operation for vector arrays in the {\cuda} vector. The return value is
-\id{0} for success and \id{-1} if the input vector or its \id{ops} structure are
-\id{NULL}.
-
-\verb|int N_VEnableWrmsNormMaskVectorArray_Cuda(N_Vector v, booleantype tf);|
-
+\sunmodfun{N\_VEnableWrmsNormMaskVectorArray\_Cuda}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the masked WRMS
+  norm operation for vector arrays in the {\cuda} vector. The return value is
+  \id{0} for success and \id{-1} if the input vector or its \id{ops} structure are
+  \id{NULL}.
+}
+{
+  int N\_VEnableWrmsNormMaskVectorArray\_Cuda(N\_Vector v, booleantype tf)
+}
 %%--------------------------------------
-
-\item \ID{N\_VEnableScaleAddMultiVectorArray\_Cuda}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale and
-add a vector array to multiple vector arrays operation in the {\cuda} vector. The
-return value is \id{0} for success and \id{-1} if the input vector or its
-\id{ops} structure are \id{NULL}.
-
-\verb|int N_VEnableScaleAddMultiVectorArray_Cuda(N_Vector v, booleantype tf);|
-
+\sunmodfun{N\_VEnableScaleAddMultiVectorArray\_Cuda}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale and
+  add a vector array to multiple vector arrays operation in the {\cuda} vector. The
+  return value is \id{0} for success and \id{-1} if the input vector or its
+  \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableScaleAddMultiVectorArray\_Cuda(N\_Vector v, booleantype tf)
+}
 %%--------------------------------------
-
-\item \ID{N\_VEnableLinearCombinationVectorArray\_Cuda}
-
-This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear
-combination operation for vector arrays in the {\cuda} vector. The return value
-is \id{0} for success and \id{-1} if the input vector or its \id{ops} structure
-are \id{NULL}.
-
-\verb|int N_VEnableLinearCombinationVectorArray_Cuda(N_Vector v, booleantype tf);|
-
-%%--------------------------------------
-\end{itemize}
+\sunmodfun{N\_VEnableLinearCombinationVectorArray\_Cuda}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear
+  combination operation for vector arrays in the {\cuda} vector. The return value
+  is \id{0} for success and \id{-1} if the input vector or its \id{ops} structure
+  are \id{NULL}.
+}
+{
+  int N\_VEnableLinearCombinationVectorArray\_Cuda(N\_Vector v,
+  \newlinefill{int N\_VEnableLinearCombinationVectorArray\_Cuda}
+  booleantype tf)
+}
 %%
 %%------------------------------------
 %%
@@ -469,12 +453,6 @@ are \id{NULL}.
   When there is a need to access components of an \id{N\_Vector\_Cuda}, \id{v},
   it is recommeded to use functions \id{N\_VGetDeviceArrayPointer\_Cuda} or
   \id{N\_VGetHostArrayPointer\_Cuda}.
-
-% \item
-%   {\warn}Unlike in other {\nvector} implementations, vector data will always be
-%   deleted when invoking \id{N\_VDestroy\_Cuda} and \id{N\_VDestroyVectorArray\_Cuda},
-%   even when the vector is created using \id{N\_VMake\_Cuda}. It is user's responsibility
-%   to track memory allocations and deletions when using \id{N\_VMake\_Cuda}.
 
 \item
   {\warn}To maximize efficiency, vector operations in the {\nveccuda} implementation
