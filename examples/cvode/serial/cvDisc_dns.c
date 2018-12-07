@@ -20,7 +20,6 @@
 #include <stdio.h>
 
 #include <cvode/cvode.h>               /* prototypes for CVODE functions and const */
-#include <cvode/cvode_direct.h>        /* access to CVDls interface                */
 #include <nvector/nvector_serial.h>    /* access to serial NVector                 */
 #include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix                */
 #include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver          */
@@ -70,8 +69,8 @@ int main()
    */
 
   /* Call CVodeCreate to create CVODE memory block and specify the
-   * Backward Differentiaion Formula and the use of a Newton Iteration */
-  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
+   * Backward Differentiaion Formula */
+  cvode_mem = CVodeCreate(CV_BDF);
   if (check_flag((void *)cvode_mem, "CVodeCreate", 0)) return(1);
 
   /* Call CVodeInit to initialize integrator memory and specify the
@@ -94,12 +93,12 @@ int main()
   if (check_flag((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense linear solver for use by CVode */
-  LS = SUNDenseLinearSolver(y, A);
-  if (check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+  LS = SUNLinSol_Dense(y, A);
+  if (check_flag((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
-  /* Attach the linear solver and matrix to CVode by calling CVDlsSetLinearSolver */
-  ret = CVDlsSetLinearSolver(cvode_mem, LS, A);
-  if (check_flag((void *)&ret, "CVDlsSetLinearSolver", 1)) return(1);
+  /* Attach the linear solver and matrix to CVode by calling CVodeSetLinearSolver */
+  ret = CVodeSetLinearSolver(cvode_mem, LS, A);
+  if (check_flag((void *)&ret, "CVodeSetLinearSolver", 1)) return(1);
 
   /*
    * ---------------------------------------------------------------

@@ -33,7 +33,7 @@
 
 
 /* ----------------------------------------------------------------------
- * SUNSuperLUMT Linear Solver Testing Routine
+ * SUNLinSol_SuperLUMT Linear Solver Testing Routine
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[]) 
 {
@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
   }
   
   /* Create SuperLUMT linear solver */
-  LS = SUNSuperLUMT(x, A, num_threads);
+  LS = SUNLinSol_SuperLUMT(x, A, num_threads);
   
   /* Run Tests */
   fails += Test_SUNLinSolInitialize(LS, 0);

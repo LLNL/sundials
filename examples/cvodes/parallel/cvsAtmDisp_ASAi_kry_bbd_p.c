@@ -27,7 +27,6 @@
 #include <limits.h>
 
 #include <cvodes/cvodes.h>
-#include <cvodes/cvodes_spils.h> 
 #include <cvodes/cvodes_bbdpre.h>
 #include <sunlinsol/sunlinsol_spgmr.h> 
 #include <nvector/nvector_parallel.h>
@@ -207,8 +206,9 @@ static void SetSource(ProblemData d);
 static void f_comm(sunindextype Nlocal, realtype t, N_Vector y, void *user_data);
 static void Load_yext(realtype *src, ProblemData d);
 static void PrintHeader();
-static void PrintFinalStats(void *cvode_mem);
+static int PrintFinalStats(void *cvode_mem);
 static void OutputGradient(int myId, N_Vector qB, ProblemData d);
+static int check_retval(void *returnvalue, const char *funcname, int opt, int id);
 
 /*
  *------------------------------------------------------------------
@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
 
   realtype tret, *qdata, G;
 
-  int ncheckpnt, flag;
+  int ncheckpnt, retval;
 
   booleantype output;
 
@@ -277,48 +277,72 @@ int main(int argc, char *argv[])
 
   /* Allocate space for y and set it with the I.C. */
   y = N_VNew_Parallel(comm, l_neq, neq);
+  if(check_retval(y, "N_VNew_Parallel", 0, myId)) MPI_Abort(comm, 1);
   N_VConst(ZERO, y);
   
   /* Allocate and initialize qB (local contribution to cost) */
   q = N_VNew_Parallel(comm, 1, npes); 
+  if(check_retval(q, "N_VNew_Parallel", 0, myId)) MPI_Abort(comm, 1);
   N_VConst(ZERO, q);
 
   /* Create CVODES object, attach user data, and allocate space */
-  cvode_mem = CVodeCreate(CV_BDF, CV_NEWTON);
-  flag = CVodeSetUserData(cvode_mem, d);
-  flag = CVodeInit(cvode_mem, f, ti, y);
+  cvode_mem = CVodeCreate(CV_BDF);
+  if(check_retval(cvode_mem, "CVodeCreate", 0, myId)) MPI_Abort(comm, 1);
+
+  retval = CVodeSetUserData(cvode_mem, d);
+  if(check_retval(&retval, "CVodeSetUserData", 1, myId)) MPI_Abort(comm, 1);
+  
+  retval = CVodeInit(cvode_mem, f, ti, y);
+  if(check_retval(&retval, "CVodeInit", 1, myId)) MPI_Abort(comm, 1);
+  
   abstol = ATOL;  
   reltol = RTOL;   
-  flag = CVodeSStolerances(cvode_mem, reltol, abstol);
+  
+  retval = CVodeSStolerances(cvode_mem, reltol, abstol);
+  if(check_retval(&retval, "CVodeSStolerances", 1, myId)) MPI_Abort(comm, 1);
 
   /* create and attach linear solver */
-  LS = SUNSPGMR(y, PREC_LEFT, 0);
-  flag = CVSpilsSetLinearSolver(cvode_mem, LS);
+  LS = SUNLinSol_SPGMR(y, PREC_LEFT, 0);
+  if(check_retval(LS, "SUNLinSol_SPGMR", 0, myId)) MPI_Abort(comm, 1);
+
+  retval = CVodeSetLinearSolver(cvode_mem, LS, NULL);
+  if(check_retval(&retval, "CVodeSetLinearSolver", 1, myId)) MPI_Abort(comm, 1);
   
   /* Attach preconditioner and linear solver modules */
   mudq = mldq = d->l_m[0]+1;
   mukeep = mlkeep = 2;  
-  flag = CVBBDPrecInit(cvode_mem, l_neq, mudq, mldq, 
+  retval = CVBBDPrecInit(cvode_mem, l_neq, mudq, mldq, 
                        mukeep, mlkeep, ZERO,
                        f_local, NULL);
+  if(check_retval(&retval, "CVBBDPrecInit", 1, myId)) MPI_Abort(comm, 1);
   
   /* Initialize quadrature calculations */
   abstolQ = ATOL_Q;
   reltolQ = RTOL_Q;
-  flag = CVodeQuadInit(cvode_mem, fQ, q);
-  flag = CVodeQuadSStolerances(cvode_mem, reltolQ, abstolQ);
-  flag = CVodeSetQuadErrCon(cvode_mem, SUNTRUE);
+  
+  retval = CVodeQuadInit(cvode_mem, fQ, q);
+  if(check_retval(&retval, "CVodeQuadInit", 1, myId)) MPI_Abort(comm, 1);
+  
+  retval = CVodeQuadSStolerances(cvode_mem, reltolQ, abstolQ);
+  if(check_retval(&retval, "CVodeQuadSStolerances", 1, myId)) MPI_Abort(comm, 1);
+  
+  retval = CVodeSetQuadErrCon(cvode_mem, SUNTRUE);
+  if(check_retval(&retval, "CVodesSetQuadErrCon", 1, myId)) MPI_Abort(comm, 1);
 
   /* Allocate space for the adjoint calculation */
-  flag = CVodeAdjInit(cvode_mem, STEPS, CV_HERMITE);
+  retval = CVodeAdjInit(cvode_mem, STEPS, CV_HERMITE);
+  if(check_retval(&retval, "CVodeAdjInit", 1, myId)) MPI_Abort(comm, 1);
 
   /* Integrate forward in time while storing check points */
   if (myId == 0) printf("Begin forward integration... ");
-  flag = CVodeF(cvode_mem, tf, y, &tret, CV_NORMAL, &ncheckpnt);
+  retval = CVodeF(cvode_mem, tf, y, &tret, CV_NORMAL, &ncheckpnt);
+  if(check_retval(&retval, "CVodeF", 1, myId)) MPI_Abort(comm, 1);
   if (myId == 0) printf("done. ");
 
    /* Extract quadratures */
-  flag = CVodeGetQuad(cvode_mem, &tret, q);
+  retval = CVodeGetQuad(cvode_mem, &tret, q);
+  if(check_retval(&retval, "CVodeGetQuad", 1, myId)) MPI_Abort(comm, 1);
+  
   qdata = N_VGetArrayPointer_Parallel(q);
   MPI_Allreduce(&qdata[0], &G, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -328,7 +352,10 @@ int main(int argc, char *argv[])
 #endif
 
   /* Print statistics for forward run */
-  if (myId == 0) PrintFinalStats(cvode_mem);
+  if (myId == 0) {
+    retval = PrintFinalStats(cvode_mem);
+    if(check_retval(&retval, "PrintFinalStats", 1, myId)) MPI_Abort(comm, 1);
+  } 
 
   /*-------------------------- 
     Backward integration phase
@@ -336,48 +363,72 @@ int main(int argc, char *argv[])
  
   /* Allocate and initialize yB */
   yB = N_VNew_Parallel(comm, l_neq, neq); 
+  if(check_retval(yB, "N_VNew_Parallel", 0, myId)) MPI_Abort(comm, 1);
   N_VConst(ZERO, yB);
 
   /* Allocate and initialize qB (gradient) */
   qB = N_VNew_Parallel(comm, l_neq, neq); 
+  if(check_retval(qB, "N_VNew_Parallel", 0, myId)) MPI_Abort(comm, 1);
   N_VConst(ZERO, qB);
 
   /* Create and allocate backward CVODE memory */
-  flag = CVodeCreateB(cvode_mem, CV_BDF, CV_NEWTON, &indexB);
-  flag = CVodeSetUserDataB(cvode_mem, indexB, d);
-  flag = CVodeInitB(cvode_mem, indexB, fB, tf, yB);
+  retval = CVodeCreateB(cvode_mem, CV_BDF, &indexB);
+  if(check_retval(&retval, "CVodeCreateB", 1, myId)) MPI_Abort(comm, 1);
+  
+  retval = CVodeSetUserDataB(cvode_mem, indexB, d);
+  if(check_retval(&retval, "CVodeSetUserDataB", 1, myId)) MPI_Abort(comm, 1);
+  
+  retval = CVodeInitB(cvode_mem, indexB, fB, tf, yB);
+  if(check_retval(&retval, "CVodeInitB", 1, myId)) MPI_Abort(comm, 1);
+  
   abstolB = ATOL_B;  
-  reltolB = RTOL_B; 
-  flag = CVodeSStolerancesB(cvode_mem, indexB, reltolB, abstolB);
+  reltolB = RTOL_B;
+
+  retval = CVodeSStolerancesB(cvode_mem, indexB, reltolB, abstolB);
+  if(check_retval(&retval, "CVodeSStolerancesB", 1, myId)) MPI_Abort(comm, 1);
 
   /* Attach preconditioner and linear solver modules */
-  flag = CVSpilsSetLinearSolverB(cvode_mem, indexB, LS);
+  retval = CVodeSetLinearSolverB(cvode_mem, indexB, LS, NULL);
+  if(check_retval(&retval, "CVodeSetLinearSolverB", 1, myId)) MPI_Abort(comm, 1);
+  
   mudqB = mldqB = d->l_m[0]+1;
   mukeepB = mlkeepB = 2;  
-  flag = CVBBDPrecInitB(cvode_mem, indexB, l_neq, mudqB, mldqB, 
+  
+  retval = CVBBDPrecInitB(cvode_mem, indexB, l_neq, mudqB, mldqB, 
                         mukeepB, mlkeepB, ZERO, fB_local, NULL);
+  if(check_retval(&retval, "CVBBDPrecInitB", 1, myId)) MPI_Abort(comm, 1);
 
   /* Initialize quadrature calculations */
   abstolQB = ATOL_QB;
   reltolQB = RTOL_QB;
-  flag = CVodeQuadInitB(cvode_mem, indexB, fQB, qB);
-  flag = CVodeQuadSStolerancesB(cvode_mem, indexB, reltolQB, abstolQB);
-  flag = CVodeSetQuadErrConB(cvode_mem, indexB, SUNTRUE);
+  
+  retval = CVodeQuadInitB(cvode_mem, indexB, fQB, qB);
+  if(check_retval(&retval, "CVodeQuadInitB", 1, myId)) MPI_Abort(comm, 1);
+  
+  retval = CVodeQuadSStolerancesB(cvode_mem, indexB, reltolQB, abstolQB);
+  if(check_retval(&retval, "CVodeQuadSStolerancesB", 1, myId)) MPI_Abort(comm, 1);
+  
+  retval = CVodeSetQuadErrConB(cvode_mem, indexB, SUNTRUE);
+  if(check_retval(&retval, "CVodeSetQuadErrConB", 1, myId)) MPI_Abort(comm, 1);
 
   /* Integrate backwards */
   if (myId == 0) printf("Begin backward integration... ");
-  flag = CVodeB(cvode_mem, ti, CV_NORMAL);
+  retval = CVodeB(cvode_mem, ti, CV_NORMAL);
+  if(check_retval(&retval, "CVodeB", 1, myId)) MPI_Abort(comm, 1);
   if (myId == 0) printf("done.\n");
   
   /* Extract solution */
-  flag = CVodeGetB(cvode_mem, indexB, &tret, yB);
+  retval = CVodeGetB(cvode_mem, indexB, &tret, yB);
+  if(check_retval(&retval, "CVodeGetB", 1, myId)) MPI_Abort(comm, 1);
 
   /* Extract quadratures */
-  flag = CVodeGetQuadB(cvode_mem, indexB, &tret, qB);
+  retval = CVodeGetQuadB(cvode_mem, indexB, &tret, qB);
+  if(check_retval(&retval, "CVodeGetQuadB", 1, myId)) MPI_Abort(comm, 1);
 
   /* Print statistics for backward run */
   if (myId == 0) {
-    PrintFinalStats(CVodeGetAdjCVodeBmem(cvode_mem, indexB));
+    retval = PrintFinalStats(CVodeGetAdjCVodeBmem(cvode_mem, indexB));
+    if(check_retval(&retval, "PrintFinalStats", 1, myId)) MPI_Abort(comm, 1);
   }
 
   /* Process 0 collects the gradient components and prints them */
@@ -1024,28 +1075,52 @@ static void PrintHeader()
  *------------------------------------------------------------------
  */
 
-static void PrintFinalStats(void *cvode_mem)
+static int PrintFinalStats(void *cvode_mem)
 {
   long int lenrw, leniw;
   long int lenrwLS, leniwLS;
   long int nst, nfe, nsetups, nni, ncfn, netf;
   long int nli, npe, nps, ncfl, nfeLS;
-  int flag;
+  int retval;
 
-  flag = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);
-  flag = CVodeGetNumSteps(cvode_mem, &nst);
-  flag = CVodeGetNumRhsEvals(cvode_mem, &nfe);
-  flag = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
-  flag = CVodeGetNumErrTestFails(cvode_mem, &netf);
-  flag = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
-  flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  retval = CVodeGetWorkSpace(cvode_mem, &lenrw, &leniw);
+  if(check_retval(&retval, "CVodeGetWorkSpace", 1, 0)) return(-1);
+  
+  retval = CVodeGetNumSteps(cvode_mem, &nst);
+  if(check_retval(&retval, "CVodeGetNumSteps", 1, 0)) return(-1);
+  
+  retval = CVodeGetNumRhsEvals(cvode_mem, &nfe);
+  if(check_retval(&retval, "CVodeGetNumRhsEvals", 1, 0)) return(-1);
+  
+  retval = CVodeGetNumLinSolvSetups(cvode_mem, &nsetups);
+  if(check_retval(&retval, "CVodeGetNumLinSolvSetups", 1, 0)) return(-1);
+  
+  retval = CVodeGetNumErrTestFails(cvode_mem, &netf);
+  if(check_retval(&retval, "CVodeGetNumErrTestFails", 1, 0)) return(-1);
+  
+  retval = CVodeGetNumNonlinSolvIters(cvode_mem, &nni);
+  if(check_retval(&retval, "CVodeGetNumNonlinSolvIters", 1, 0)) return(-1);
+  
+  retval = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
+  if(check_retval(&retval, "CVodeGetNumNonlinSolvConvFails", 1, 0)) return(-1);
 
-  flag = CVSpilsGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
-  flag = CVSpilsGetNumLinIters(cvode_mem, &nli);
-  flag = CVSpilsGetNumPrecEvals(cvode_mem, &npe);
-  flag = CVSpilsGetNumPrecSolves(cvode_mem, &nps);
-  flag = CVSpilsGetNumConvFails(cvode_mem, &ncfl);
-  flag = CVSpilsGetNumRhsEvals(cvode_mem, &nfeLS);
+  retval = CVodeGetLinWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
+  if(check_retval(&retval, "CVodeGetLinWorkSpace", 1, 0)) return(-1);
+  
+  retval = CVodeGetNumLinIters(cvode_mem, &nli);
+  if(check_retval(&retval, "CVodeGetNumLinIters", 1, 0)) return(-1);
+  
+  retval = CVodeGetNumPrecEvals(cvode_mem, &npe);
+  if(check_retval(&retval, "CVodeGetNumPrecEvals", 1, 0)) return(-1);
+  
+  retval = CVodeGetNumPrecSolves(cvode_mem, &nps);
+  if(check_retval(&retval, "CVodeGetNumPrecSolves", 1, 0)) return(-1);
+  
+  retval = CVodeGetNumLinConvFails(cvode_mem, &ncfl);
+  if(check_retval(&retval, "CVodeGetNumLinConvFails", 1, 0)) return(-1);
+  
+  retval = CVodeGetNumLinRhsEvals(cvode_mem, &nfeLS);
+  if(check_retval(&retval, "CVodeGetNumLinRhsEvals", 1, 0)) return(-1);
 
   printf("\nFinal Statistics.. \n\n");
   printf("lenrw   = %6ld     leniw = %6ld\n", lenrw, leniw);
@@ -1056,6 +1131,8 @@ static void PrintFinalStats(void *cvode_mem)
   printf("nsetups = %6ld     netf  = %6ld\n"  , nsetups, netf);
   printf("npe     = %6ld     nps   = %6ld\n"  , npe, nps);
   printf("ncfn    = %6ld     ncfl  = %6ld\n\n", ncfn, ncfl); 
+
+  return(0);
 }
 
 /*
@@ -1286,4 +1363,41 @@ static void OutputGradient(int myId, N_Vector qB, ProblemData d)
 #endif
     fclose(fid);
   }
+}
+
+/* 
+ * Check function return value.
+ *    opt == 0 means SUNDIALS function allocates memory so check if
+ *             returned NULL pointer
+ *    opt == 1 means SUNDIALS function returns an integer value so check if
+ *             retval < 0
+ *    opt == 2 means function allocates memory so check if returned
+ *             NULL pointer 
+ */
+
+static int check_retval(void *returnvalue, const char *funcname, int opt, int id)
+{
+  int *retval;
+
+  /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
+  if (opt == 0 && returnvalue == NULL) {
+    fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n",
+	    id, funcname);
+    return(1); }
+
+  /* Check if retval < 0 */
+  else if (opt == 1) {
+    retval = (int *) returnvalue;
+    if (*retval < 0) {
+      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with retval = %d\n\n",
+	      id, funcname, *retval);
+      return(1); }}
+
+  /* Check if function returned NULL pointer - no memory allocated */
+  else if (opt == 2 && returnvalue == NULL) {
+    fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
+	    id, funcname);
+    return(1); }
+
+  return(0);
 }

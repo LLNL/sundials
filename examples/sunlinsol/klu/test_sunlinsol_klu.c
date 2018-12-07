@@ -33,7 +33,7 @@
 
 
 /* ----------------------------------------------------------------------
- * SUNKLU Linear Solver Testing Routine
+ * SUNLinSol_KLU Linear Solver Testing Routine
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[]) 
 {
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
   }
   
   /* Create KLU linear solver */
-  LS = SUNKLU(x, A);
+  LS = SUNLinSol_KLU(x, A);
   
   /* Run Tests */
   fails += Test_SUNLinSolInitialize(LS, 0);

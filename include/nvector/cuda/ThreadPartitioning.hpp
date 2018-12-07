@@ -33,19 +33,27 @@ public:
   : block_(1),
     grid_(1),
     shMemSize_(0),
+    stream_(0),
     bufferSize_(0),
     d_buffer_(nullptr),
     h_buffer_(nullptr)
   {}
 
   ThreadPartitioning(unsigned block)
-  : block_(block)
+  : block_(block),
+    grid_(1),
+    shMemSize_(0),
+    stream_(0),
+    bufferSize_(0),
+    d_buffer_(nullptr),
+    h_buffer_(nullptr)
   {}
 
   explicit ThreadPartitioning(ThreadPartitioning<T, I>& p)
   : block_(p.block_),
     grid_(p.grid_),
-    shMemSize_(p.shMemSize_)
+    shMemSize_(p.shMemSize_),
+    stream_(p.stream_)
   {}
 
   virtual ~ThreadPartitioning(){}
@@ -63,6 +71,11 @@ public:
   unsigned shmem() const
   {
     return shMemSize_;
+  }
+
+  cudaStream_t stream() const
+  {
+    return stream_;
   }
 
   unsigned int buffSize()
@@ -90,9 +103,26 @@ public:
     return h_buffer_;
   }
 
+  void setStream(const cudaStream_t& stream)
+  {
+    stream_ = stream;
+  }
+
   virtual void copyFromDevBuffer(unsigned int n) const
   {
     std::cerr << "Trying to copy buffer from base class!\n";
+  }
+
+  virtual int setPartitioning(I N, unsigned& grid, unsigned& block, unsigned& shMemSize,
+                              cudaStream_t& stream)
+  {
+    block = 1;
+    grid  = 1;
+    shMemSize = 0;
+    stream = 0;
+    std::cerr << "Trying to set partitioning from base class!\n";
+
+    return 0;
   }
 
   virtual int setPartitioning(I N, unsigned& grid, unsigned& block, unsigned& shMemSize)
@@ -104,7 +134,17 @@ public:
 
     return 0;
   }
+  
+  virtual int setPartitioning(I N, unsigned& grid, unsigned& block, cudaStream_t& stream)
+  {
+    block = 1;
+    grid  = 1;
+    stream = 0;
+    std::cerr << "Trying to set partitioning from base class!\n";
 
+    return 0;
+  }
+  
   virtual int setPartitioning(I N, unsigned& grid, unsigned& block)
   {
     block = 1;
@@ -120,6 +160,7 @@ protected:
   unsigned grid_;
   unsigned shMemSize_;
   unsigned bufferSize_;
+  cudaStream_t stream_;
   T* d_buffer_;
   T* h_buffer_;
 
@@ -132,12 +173,20 @@ class StreamPartitioning : public ThreadPartitioning<T, I>
 {
   using ThreadPartitioning<T, I>::block_;
   using ThreadPartitioning<T, I>::grid_;
+  using ThreadPartitioning<T, I>::stream_;
 
 public:
+  StreamPartitioning(I N, unsigned block, cudaStream_t stream)
+  : ThreadPartitioning<T, I>(block)
+  {
+    grid_ = (N + block_ - 1) / block_;
+    stream_ = stream;
+  }
+  
   StreamPartitioning(I N, unsigned block)
   : ThreadPartitioning<T, I>(block)
   {
-    grid_ = (N + block - 1) / block_;
+    grid_ = (N + block_ - 1) / block_;
   }
 
   explicit StreamPartitioning(StreamPartitioning<T, I>& p)
@@ -145,19 +194,39 @@ public:
   {
   }
 
+  virtual int setPartitioning(I N, unsigned& grid, unsigned& block, unsigned& shMemSize,
+                              cudaStream_t& stream)
+  {
+    block = block_;
+    grid  = (N + block_ - 1) / block_;
+    shMemSize = 0;
+    stream = stream_;
+
+    return 0;
+  }
+  
   virtual int setPartitioning(I N, unsigned& grid, unsigned& block, unsigned& shMemSize)
   {
     block = block_;
-    grid  = (N + block - 1) / block_;
+    grid  = (N + block_ - 1) / block_;
     shMemSize = 0;
 
     return 0;
   }
 
+  virtual int setPartitioning(I N, unsigned& grid, unsigned& block, cudaStream_t& stream)
+  {
+    block = block_;
+    grid  = (N + block_ - 1) / block_;
+    stream = stream_;
+
+    return 0;
+  }
+  
   virtual int setPartitioning(I N, unsigned& grid, unsigned& block)
   {
     block = block_;
-    grid  = (N + block - 1) / block_;
+    grid  = (N + block_ - 1) / block_;
 
     return 0;
   }
@@ -171,11 +240,21 @@ class ReducePartitioning : public ThreadPartitioning<T, I>
   using ThreadPartitioning<T, I>::block_;
   using ThreadPartitioning<T, I>::grid_;
   using ThreadPartitioning<T, I>::shMemSize_;
+  using ThreadPartitioning<T, I>::stream_;
   using ThreadPartitioning<T, I>::bufferSize_;
   using ThreadPartitioning<T, I>::d_buffer_;
   using ThreadPartitioning<T, I>::h_buffer_;
 
 public:
+  ReducePartitioning(I N, unsigned block, cudaStream_t stream)
+  : ThreadPartitioning<T, I>(block)
+  {
+    grid_ = (N + (block_ * 2 - 1)) / (block_ * 2);
+    shMemSize_ = block_*sizeof(T);
+    stream_ = stream;
+    allocateBuffer();
+  }
+  
   ReducePartitioning(I N, unsigned block)
   : ThreadPartitioning<T, I>(block)
   {
@@ -204,19 +283,39 @@ public:
     }
   }
 
+  virtual int setPartitioning(I N, unsigned& grid, unsigned& block, unsigned& shMemSize,
+                              cudaStream_t& stream)
+  {
+    block = block_;
+    grid  = (N + (block_ * 2 - 1)) / (block_ * 2);
+    shMemSize = block_ * sizeof(T);
+    stream = stream_;
+
+    return 0;
+  }
+  
   virtual int setPartitioning(I N, unsigned& grid, unsigned& block, unsigned& shMemSize)
   {
     block = block_;
-    grid  = (N + (block * 2 - 1)) / (block * 2);
-    shMemSize = block * sizeof(T);
+    grid  = (N + (block_ * 2 - 1)) / (block_ * 2);
+    shMemSize = block_ * sizeof(T);
 
     return 0;
   }
 
+  virtual int setPartitioning(I N, unsigned& grid, unsigned& block, cudaStream_t& stream)
+  {
+    block = block_;
+    grid  = (N + (block_ * 2 - 1)) / (block_ * 2);
+    stream = stream_;
+
+    return 0;
+  }
+  
   virtual int setPartitioning(I N, unsigned& grid, unsigned& block)
   {
     block = block_;
-    grid  = (N + (block * 2 - 1)) / (block * 2);
+    grid  = (N + (block_ * 2 - 1)) / (block_ * 2);
 
     return 0;
   }

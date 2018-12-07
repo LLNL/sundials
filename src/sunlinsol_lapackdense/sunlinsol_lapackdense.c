@@ -46,6 +46,15 @@ sunindextype GlobalVectorLength_LapDense(N_Vector y);
 
 /*
  * -----------------------------------------------------------------
+ * deprecated wrapper functions
+ * -----------------------------------------------------------------
+ */
+
+SUNLinearSolver SUNLapackDense(N_Vector y, SUNMatrix A)
+{ return(SUNLinSol_LapackDense(y, A)); }
+
+/*
+ * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------
  */
@@ -54,7 +63,7 @@ sunindextype GlobalVectorLength_LapDense(N_Vector y);
  * Function to create a new LAPACK dense linear solver
  */
 
-SUNLinearSolver SUNLapackDense(N_Vector y, SUNMatrix A)
+SUNLinearSolver SUNLinSol_LapackDense(N_Vector y, SUNMatrix A)
 {
   SUNLinearSolver S;
   SUNLinearSolver_Ops ops;

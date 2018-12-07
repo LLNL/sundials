@@ -219,6 +219,7 @@ typedef struct _SUNMatrixContent_Band *SUNMatrixContent_Band;
  * 
  * CONSTRUCTORS:
  *    SUNBandMatrix
+ *    SUNBandMatrixStorage
  * OTHER:
  *    SUNBandMatrix_Print
  *    SUNBandMatrix_Rows
@@ -240,8 +241,21 @@ typedef struct _SUNMatrixContent_Band *SUNMatrixContent_Band;
  * -----------------------------------------------------------------
  * SUNBandMatrix creates and allocates memory for an M-by-N 
  * band matrix with upper bandwidth mu, lower bandwidth ml, and 
- * storage upper bandwidth smu. Pass smu as follows depending on 
- * whether A will be LU factored:
+ * storage upper bandwidth smu=mu+ml. 
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT SUNMatrix SUNBandMatrix(sunindextype N, sunindextype mu,
+                                        sunindextype ml);
+
+/*
+ * -----------------------------------------------------------------
+ * Function: SUNBandMatrixStorage
+ * -----------------------------------------------------------------
+ * SUNBandMatrixStorage creates and allocates memory for an M-by-N 
+ * band matrix with upper bandwidth mu, lower bandwidth ml, and 
+ * user-specified storage upper bandwidth smu. This 'smu' value 
+ * should be supplied depending on whether A will be LU factored:
  *
  * (1) Pass smu = mu if A will not be factored.
  *
@@ -249,8 +263,10 @@ typedef struct _SUNMatrixContent_Band *SUNMatrixContent_Band;
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT SUNMatrix SUNBandMatrix(sunindextype N, sunindextype mu,
-                                        sunindextype ml, sunindextype smu);
+SUNDIALS_EXPORT SUNMatrix SUNBandMatrixStorage(sunindextype N,
+                                               sunindextype mu,
+                                               sunindextype ml,
+                                               sunindextype smu);
 
 /*
  * -----------------------------------------------------------------

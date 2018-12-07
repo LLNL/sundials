@@ -22,6 +22,8 @@
 # Examples using SUNDIALS linear solvers
 SET(CVODE_examples
   "cvAdvDiff_kry_cuda\;develop"
+  "cvAdvDiff_kry_cuda_managed\;develop"
+  #"cvAdvDiffReac_kry_cuda\;develop"
   )
 
 # Add source directory to include directories

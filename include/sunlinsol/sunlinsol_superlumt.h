@@ -123,27 +123,40 @@ typedef struct _SUNLinearSolverContent_SuperLUMT *SUNLinearSolverContent_SuperLU
  * PART II: functions exported by sunlinsol_slumt
  * 
  * CONSTRUCTOR:
- *    SUNSuperLUMT creates and allocates memory for a SuperLUMT sparse-direct 
- *      linear solver
+ *    SUNLinSol_SuperLUMT creates and allocates memory for a 
+ *      SuperLUMT sparse-direct linear solver
+ *
+ *    SUNSuperLUMT (deprecated) wrapper for SUNLinSol_SuperLUMT
  *
  * OTHER:
- *    SUNSuperLUMTSetOrdering sets the ordering used by SuperLUMT for reducing 
- *      fill in the linear solve.  Options for ordering_choice are: 
+ *    SUNLinSol_SuperLUMTSetOrdering sets the ordering used by 
+ *      SuperLUMT for reducing fill in the linear solve.  Options 
+ *      for ordering_choice are: 
  *         0 for natural ordering
  *         1 for minimal degree ordering on A'*A
  *         2 for minimal degree ordering on A'+A
  *         3 for AMD ordering for unsymmetric matrices
  *      The default used in SUNDIALS is 3 for COLAMD.
+ * 
+ *    SUNSuperLUMTSetOrdering (deprecated) wrapper for 
+ *      SUNLinSol_SuperLUMTSetOrdering
  *
  * -----------------------------------------------------------------
  */
 
+SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_SuperLUMT(N_Vector y,
+                                                    SUNMatrix A,
+                                                    int num_threads);
+SUNDIALS_EXPORT int SUNLinSol_SuperLUMTSetOrdering(SUNLinearSolver S,
+                                                   int ordering_choice);
+
+/* deprecated */
 SUNDIALS_EXPORT SUNLinearSolver SUNSuperLUMT(N_Vector y, SUNMatrix A,
                                              int num_threads);
-
+/* deprecated */
 SUNDIALS_EXPORT int SUNSuperLUMTSetOrdering(SUNLinearSolver S,
                                             int ordering_choice);
-
+  
 /*
  * -----------------------------------------------------------------
  * SuperLUMT implementations of various useful linear solver operations

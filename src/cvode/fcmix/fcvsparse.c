@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include "fcvode.h"
 #include "cvode_impl.h"
-#include <cvode/cvode_direct.h>
+#include <cvode/cvode_ls.h>
 #include <sunmatrix/sunmatrix_sparse.h>
 
 /* Prototype of the Fortran routine */
@@ -57,7 +57,7 @@ void FCV_SPARSESETJAC(int *ier)
                   "Sparse Fortran users must configure SUNDIALS with 64-bit integers.");
   *ier = 1;
 #else  
-  *ier = CVDlsSetJacFn(CV_cvodemem, FCVSparseJac);
+  *ier = CVodeSetJacFn(CV_cvodemem, FCVSparseJac);
 #endif
 }
 

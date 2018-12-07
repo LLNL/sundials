@@ -17,7 +17,7 @@
 # C examples
 IF(EXAMPLES_ENABLE_C)
   ADD_SUBDIRECTORY(serial)
-  IF(OPENMP_FOUND)
+  IF(OPENMP_ENABLE AND OPENMP_FOUND)
     # the only example here need special handling from testrunner (not yet implemented)
     ADD_SUBDIRECTORY(C_openmp)
   ENDIF()

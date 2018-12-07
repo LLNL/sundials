@@ -79,6 +79,7 @@ FOREACH(example_tuple ${nvector_raja_examples})
   ENDIF()
 
   # check if example args are provided and set the test name
+  # check if example args are provided and set the test name
   IF("${example_args}" STREQUAL "")
     IF("${number_of_tasks}" STREQUAL "")
       SET(test_name ${example})

@@ -21,7 +21,7 @@
  * IDABBDPRE.
  *
  * This example solves a discretized 2D heat equation problem.
- * This version uses the Krylov solver SUNSPGMR and BBD
+ * This version uses the Krylov solver SUNLinSol_SPGMR and BBD
  * preconditioning.
  *
  * The DAE system solved is a spatial discretization of the PDE
@@ -38,7 +38,7 @@
  * processors.
  *
  * The system is solved with IDA using the Krylov linear solver
- * SUNSPGMR in conjunction with the preconditioner module IDABBDPRE.
+ * SUNLinSol_SPGMR in conjunction with the preconditioner module IDABBDPRE.
  * The preconditioner uses a tridiagonal approximation
  * (half-bandwidths = 1). The constraints u >= 0 are posed for all
  * components. Local error testing on the boundary values is
@@ -51,7 +51,6 @@
 #include <math.h>
 
 #include <idas/idas.h>
-#include <idas/idas_spils.h>
 #include <idas/idas_bbdpre.h>
 #include <sunlinsol/sunlinsol_spgmr.h>
 #include <nvector/nvector_parallel.h>
@@ -123,7 +122,7 @@ static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu);
 
 static void PrintFinalStats(void *ida_mem);
 
-static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
+static int check_retval(void *returnvalue, const char *funcname, int opt, int id);
 
 /*
  *--------------------------------------------------------------------
@@ -137,7 +136,7 @@ int main(int argc, char *argv[])
   void *ida_mem;
   SUNLinearSolver LS;
   UserData data;
-  int thispe, iout, ier, npes;
+  int thispe, iout, retval, npes;
   sunindextype Neq, local_N, mudq, mldq, mukeep, mlkeep;
   realtype rtol, atol, t0, t1, tout, tret;
   N_Vector uu, up, constraints, id, res;
@@ -171,24 +170,24 @@ int main(int argc, char *argv[])
   /* Allocate N-vectors. */
 
   uu = N_VNew_Parallel(comm, local_N, Neq);
-  if(check_flag((void *)uu, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
+  if(check_retval((void *)uu, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
 
   up = N_VNew_Parallel(comm, local_N, Neq);
-  if(check_flag((void *)up, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
+  if(check_retval((void *)up, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
 
   res = N_VNew_Parallel(comm, local_N, Neq);
-  if(check_flag((void *)res, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
+  if(check_retval((void *)res, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
 
   constraints = N_VNew_Parallel(comm, local_N, Neq);
-  if(check_flag((void *)constraints, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
+  if(check_retval((void *)constraints, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
 
   id = N_VNew_Parallel(comm, local_N, Neq);
-  if(check_flag((void *)id, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
+  if(check_retval((void *)id, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
 
   /* Allocate and initialize the data structure. */
 
   data = (UserData) malloc(sizeof *data);
-  if(check_flag((void *)data, "malloc", 2, thispe)) MPI_Abort(comm, 1);
+  if(check_retval((void *)data, "malloc", 2, thispe)) MPI_Abort(comm, 1);
 
   InitUserData(thispe, comm, data);
 
@@ -207,26 +206,26 @@ int main(int argc, char *argv[])
   /* Call IDACreate and IDAMalloc to initialize solution */
 
   ida_mem = IDACreate();
-  if(check_flag((void *)ida_mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
+  if(check_retval((void *)ida_mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASetUserData(ida_mem, data);
-  if(check_flag(&ier, "IDASetUserData", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDASetUserData(ida_mem, data);
+  if(check_retval(&retval, "IDASetUserData", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASetSuppressAlg(ida_mem, SUNTRUE);
-  if(check_flag(&ier, "IDASetSuppressAlg", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDASetSuppressAlg(ida_mem, SUNTRUE);
+  if(check_retval(&retval, "IDASetSuppressAlg", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASetId(ida_mem, id);
-  if(check_flag(&ier, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDASetId(ida_mem, id);
+  if(check_retval(&retval, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASetConstraints(ida_mem, constraints);
-  if(check_flag(&ier, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDASetConstraints(ida_mem, constraints);
+  if(check_retval(&retval, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
   N_VDestroy_Parallel(constraints);
 
-  ier = IDAInit(ida_mem, heatres, t0, uu, up);
-  if(check_flag(&ier, "IDAInit", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDAInit(ida_mem, heatres, t0, uu, up);
+  if(check_retval(&retval, "IDAInit", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASStolerances(ida_mem, rtol, atol);
-  if(check_flag(&ier, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDASStolerances(ida_mem, rtol, atol);
+  if(check_retval(&retval, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
 
   mudq = MXSUB;
   mldq = MXSUB;
@@ -243,21 +242,21 @@ int main(int argc, char *argv[])
    * ----------------------------- 
    */
 
-  /* Call SUNSPGMR and IDASpilsSetLinearSolver to specify the linear solver. */
-  LS = SUNSPGMR(uu, PREC_LEFT, 0);  /* IDA recommends left-preconditioning only;
-                                       0 indicates to use default maxl value */
-  if(check_flag((void *)LS, "SUNSPGMR", 0, thispe)) MPI_Abort(comm, 1);
+  /* Call SUNLinSol_SPGMR and IDASetLinearSolver to specify the linear solver. */
+  LS = SUNLinSol_SPGMR(uu, PREC_LEFT, 0);  /* IDA recommends left-preconditioning only;
+                                              0 indicates to use default maxl value */
+  if(check_retval((void *)LS, "SUNLinSol_SPGMR", 0, thispe)) MPI_Abort(comm, 1);
 
-  ier = SUNSPGMRSetMaxRestarts(LS, 5);  /* IDA recommends allowing up to 5 restarts */
-  if(check_flag(&ier, "SUNSPGMRSetMaxRestarts", 1, thispe)) MPI_Abort(comm, 1);
+  retval = SUNLinSol_SPGMRSetMaxRestarts(LS, 5);  /* IDA recommends allowing up to 5 restarts */
+  if(check_retval(&retval, "SUNLinSol_SPGMRSetMaxRestarts", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASpilsSetLinearSolver(ida_mem, LS);
-  if(check_flag(&ier, "IDASpilsSetLinearSolver", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDASetLinearSolver(ida_mem, LS, NULL);
+  if(check_retval(&retval, "IDASetLinearSolver", 1, thispe)) MPI_Abort(comm, 1);
   
   /* Call IDABBDPrecInit to initialize BBD preconditioner. */
-  ier = IDABBDPrecInit(ida_mem, local_N, mudq, mldq, mukeep, mlkeep, 
+  retval = IDABBDPrecInit(ida_mem, local_N, mudq, mldq, mukeep, mlkeep, 
                        ZERO, reslocal, NULL);
-  if(check_flag(&ier, "IDABBDPrecAlloc", 1, thispe)) MPI_Abort(comm, 1);
+  if(check_retval(&retval, "IDABBDPrecAlloc", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Print output heading (on processor 0 only) and initial solution. */
   if (thispe == 0) PrintCase(1, mudq, mukeep);
@@ -265,8 +264,8 @@ int main(int argc, char *argv[])
   /* Loop over tout, call IDASolve, print output. */
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) { 
     
-    ier = IDASolve(ida_mem, tout, &tret, uu, up, IDA_NORMAL);
-    if(check_flag(&ier, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
+    retval = IDASolve(ida_mem, tout, &tret, uu, up, IDA_NORMAL);
+    if(check_retval(&retval, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
 
     PrintOutput(thispe, ida_mem, tret, uu);
     
@@ -288,12 +287,12 @@ int main(int argc, char *argv[])
   SetInitialProfile(uu, up, id, res, data);
 
   /* Call IDAReInit to re-initialize IDA. */
-  ier = IDAReInit(ida_mem, t0, uu, up);
-  if(check_flag(&ier, "IDAReInit", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDAReInit(ida_mem, t0, uu, up);
+  if(check_retval(&retval, "IDAReInit", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Call IDABBDPrecReInit to re-initialize BBD preconditioner. */
-  ier = IDABBDPrecReInit(ida_mem, mudq, mldq, ZERO);
-  if(check_flag(&ier, "IDABBDPrecReInit", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDABBDPrecReInit(ida_mem, mudq, mldq, ZERO);
+  if(check_retval(&retval, "IDABBDPrecReInit", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Print output heading (on processor 0 only). */
   if (thispe == 0) PrintCase(2, mudq, mukeep);
@@ -301,8 +300,8 @@ int main(int argc, char *argv[])
   /* Loop over tout, call IDASolve, print output. */
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) { 
     
-    ier = IDASolve(ida_mem, tout, &tret, uu, up, IDA_NORMAL);
-    if(check_flag(&ier, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
+    retval = IDASolve(ida_mem, tout, &tret, uu, up, IDA_NORMAL);
+    if(check_retval(&retval, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
 
     PrintOutput(thispe, ida_mem, tret, uu);
     
@@ -738,7 +737,7 @@ static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol)
     printf("Constraints set to force all solution components >= 0. \n");
     printf("SUPPRESSALG = SUNTRUE to suppress local error testing on");
     printf(" all boundary components. \n");
-    printf("Linear solver: SUNSPGMR.    ");
+    printf("Linear solver: SUNLinSol_SPGMR.    ");
     printf("Preconditioner: IDABBDPRE - Banded-block-diagonal.\n"); 
 
 }
@@ -766,33 +765,33 @@ static void PrintCase(int case_number, int mudq, int mukeep)
 static void PrintOutput(int id, void *ida_mem, realtype t, N_Vector uu)
 {
   realtype umax, hused;
-  int kused, ier;
+  int kused, retval;
   long int nst, nni, nre, nli, npe, nps, nreLS, nge;
 
   umax = N_VMaxNorm(uu);
   
   if (id == 0) {
 
-    ier = IDAGetLastOrder(ida_mem, &kused);
-    check_flag(&ier, "IDAGetLastOrder", 1, id);
-    ier = IDAGetNumSteps(ida_mem, &nst);
-    check_flag(&ier, "IDAGetNumSteps", 1, id);
-    ier = IDAGetNumNonlinSolvIters(ida_mem, &nni);
-    check_flag(&ier, "IDAGetNumNonlinSolvIters", 1, id);
-    ier = IDAGetNumResEvals(ida_mem, &nre);
-    check_flag(&ier, "IDAGetNumResEvals", 1, id);
-    ier = IDAGetLastStep(ida_mem, &hused);
-    check_flag(&ier, "IDAGetLastStep", 1, id);
-    ier = IDASpilsGetNumLinIters(ida_mem, &nli);
-    check_flag(&ier, "IDASpilsGetNumLinIters", 1, id);
-    ier = IDASpilsGetNumResEvals(ida_mem, &nreLS);
-    check_flag(&ier, "IDASpilsGetNumResEvals", 1, id);
-    ier = IDABBDPrecGetNumGfnEvals(ida_mem, &nge);
-    check_flag(&ier, "IDABBDPrecGetNumGfnEvals", 1, id);
-    ier = IDASpilsGetNumPrecEvals(ida_mem, &npe);
-    check_flag(&ier, "IDASpilsGetPrecEvals", 1, id);
-    ier = IDASpilsGetNumPrecSolves(ida_mem, &nps);
-    check_flag(&ier, "IDASpilsGetNumPrecSolves", 1, id);
+    retval = IDAGetLastOrder(ida_mem, &kused);
+    check_retval(&retval, "IDAGetLastOrder", 1, id);
+    retval = IDAGetNumSteps(ida_mem, &nst);
+    check_retval(&retval, "IDAGetNumSteps", 1, id);
+    retval = IDAGetNumNonlinSolvIters(ida_mem, &nni);
+    check_retval(&retval, "IDAGetNumNonlinSolvIters", 1, id);
+    retval = IDAGetNumResEvals(ida_mem, &nre);
+    check_retval(&retval, "IDAGetNumResEvals", 1, id);
+    retval = IDAGetLastStep(ida_mem, &hused);
+    check_retval(&retval, "IDAGetLastStep", 1, id);
+    retval = IDAGetNumLinIters(ida_mem, &nli);
+    check_retval(&retval, "IDAGetNumLinIters", 1, id);
+    retval = IDAGetNumLinResEvals(ida_mem, &nreLS);
+    check_retval(&retval, "IDAGetNumLinResEvals", 1, id);
+    retval = IDABBDPrecGetNumGfnEvals(ida_mem, &nge);
+    check_retval(&retval, "IDABBDPrecGetNumGfnEvals", 1, id);
+    retval = IDAGetNumPrecEvals(ida_mem, &npe);
+    check_retval(&retval, "IDAGetPrecEvals", 1, id);
+    retval = IDAGetNumPrecSolves(ida_mem, &nps);
+    check_retval(&retval, "IDAGetNumPrecSolves", 1, id);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
     printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld %4ld %4ld %9.2Le  %3ld %3ld\n",
@@ -818,7 +817,7 @@ static void PrintFinalStats(void *ida_mem)
 
   IDAGetNumErrTestFails(ida_mem, &netf);
   IDAGetNumNonlinSolvConvFails(ida_mem, &ncfn);
-  IDASpilsGetNumConvFails(ida_mem, &ncfl);
+  IDAGetNumLinConvFails(ida_mem, &ncfl);
 
   printf("\nError test failures            = %ld\n", netf);
   printf("Nonlinear convergence failures = %ld\n", ncfn);
@@ -829,30 +828,30 @@ static void PrintFinalStats(void *ida_mem)
  * Check function return value...
  *   opt == 0 means SUNDIALS function allocates memory so check if
  *            returned NULL pointer
- *   opt == 1 means SUNDIALS function returns a flag so check if
- *            flag >= 0
+ *   opt == 1 means SUNDIALS function returns an integer value so check if
+ *            retval < 0
  *   opt == 2 means function allocates memory so check if returned
  *            NULL pointer 
  */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt, int id)
+static int check_retval(void *returnvalue, const char *funcname, int opt, int id)
 {
-  int *errflag;
+  int *retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n", id, funcname);
     return(1); }
 
-  /* Check if flag < 0 */
+  /* Check if retval < 0 */
   else if (opt == 1) {
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n", id, funcname, *errflag);
+    retval = (int *) returnvalue;
+    if (*retval < 0) {
+      fprintf(stderr, "\nSUNDIALS_ERROR(%d): %s() failed with retval = %d\n\n", id, funcname, *retval);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n", id, funcname);
     return(1); }
 

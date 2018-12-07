@@ -2,13 +2,13 @@
 # Programmer:  Daniel R. Reynolds @ SMU
 # ---------------------------------------------------------------
 # LLNS/SMU Copyright Start
-# Copyright (c) 2017, Southern Methodist University and 
+# Copyright (c) 2017, Southern Methodist University and
 # Lawrence Livermore National Security
 #
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Southern Methodist University and Lawrence Livermore 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Southern Methodist University and Lawrence Livermore
 # National Laboratory under Contract DE-AC52-07NA27344.
-# Produced at Southern Methodist University and the Lawrence 
+# Produced at Southern Methodist University and the Lawrence
 # Livermore National Laboratory.
 #
 # All rights reserved.
@@ -18,6 +18,11 @@
 # CMakeLists.txt file for the band SUNLinearSolver library
 
 INSTALL(CODE "MESSAGE(\"\nInstall SUNLINSOL_BAND\n\")")
+
+# Add F90 module if F2003 interface is enabled
+IF(F90_FOUND AND F2003_INTERFACE_ENABLE)
+  ADD_SUBDIRECTORY(F90)
+ENDIF(F90_FOUND AND F2003_INTERFACE_ENABLE)
 
 # Add variable sunlinsolband_SOURCES with the sources for the SUNLINSOLBAND lib
 SET(sunlinsolband_SOURCES sunlinsol_band.c)
@@ -30,14 +35,14 @@ SET(shared_SOURCES
   )
 
 # Add variable sunlinsolband_HEADERS with the exported SUNLINSOLBAND header files
-SET(sunlinsolband_HEADERS 
+SET(sunlinsolband_HEADERS
   ${sundials_SOURCE_DIR}/include/sunlinsol/sunlinsol_band.h
   )
 
 # Add source directory to include directories
 INCLUDE_DIRECTORIES(.)
 
-# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY 
+# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
 ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 
 # Rules for building and installing the static library:
@@ -73,7 +78,7 @@ ENDIF(BUILD_SHARED_LIBS)
 INSTALL(FILES ${sunlinsolband_HEADERS} DESTINATION include/sunlinsol)
 
 # If FCMIX is enabled, build and install the FSUNLINSOLBAND library
-IF(FCMIX_ENABLE AND F77_FOUND)
+IF(F77_INTERFACE_ENABLE AND F77_FOUND)
   SET(fsunlinsolband_SOURCES fsunlinsol_band.c)
 
   IF(BUILD_STATIC_LIBS)
@@ -94,12 +99,12 @@ IF(FCMIX_ENABLE AND F77_FOUND)
 
     SET_TARGET_PROPERTIES(sundials_fsunlinsolband_shared
       PROPERTIES OUTPUT_NAME sundials_fsunlinsolband CLEAN_DIRECT_OUTPUT 1)
-    SET_TARGET_PROPERTIES(sundials_fsunlinsolband_shared 
+    SET_TARGET_PROPERTIES(sundials_fsunlinsolband_shared
       PROPERTIES VERSION ${sunlinsollib_VERSION} SOVERSION ${sunlinsollib_SOVERSION})
     INSTALL(TARGETS sundials_fsunlinsolband_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
   ENDIF(BUILD_SHARED_LIBS)
 
-ENDIF(FCMIX_ENABLE AND F77_FOUND)
+ENDIF(F77_INTERFACE_ENABLE AND F77_FOUND)
 
 #
 MESSAGE(STATUS "Added SUNLINSOL_BAND module")

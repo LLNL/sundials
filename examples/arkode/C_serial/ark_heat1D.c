@@ -2,13 +2,13 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2015, Southern Methodist University and
  * Lawrence Livermore National Security
  *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Southern Methodist University and Lawrence Livermore
  * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
+ * Produced at Southern Methodist University and the Lawrence
  * Livermore National Laboratory.
  *
  * All rights reserved.
@@ -16,26 +16,26 @@
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
  * Example problem:
- * 
+ *
  * The following test simulates a simple 1D heat equation,
  *    u_t = k*u_xx + f
  * for t in [0, 10], x in [0, 1], with initial conditions
  *    u(0,x) =  0
- * Dirichlet boundary conditions, i.e. 
+ * Dirichlet boundary conditions, i.e.
  *    u_t(t,0) = u_t(t,1) = 0,
  * and a point-source heating term,
  *    f = 1 for x=0.5.
- * 
- * The spatial derivatives are computed using second-order 
- * centered differences, with the data distributed over N points 
+ *
+ * The spatial derivatives are computed using second-order
+ * centered differences, with the data distributed over N points
  * on a uniform spatial grid.
  *
  * This program solves the problem with either an ERK or DIRK
- * method.  For the DIRK method, we use a Newton iteration with 
- * the SUNPCG linear solver, and a user-supplied Jacobian-vector 
+ * method.  For the DIRK method, we use a Newton iteration with
+ * the SUNLinSol_PCG linear solver, and a user-supplied Jacobian-vector
  * product routine.
  *
- * 100 outputs are printed at equal intervals, and run statistics 
+ * 100 outputs are printed at equal intervals, and run statistics
  * are printed at the end.
  *---------------------------------------------------------------*/
 
@@ -43,10 +43,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <arkode/arkode.h>            /* prototypes for ARKode fcts., consts. */
+#include <arkode/arkode_arkstep.h>    /* prototypes for ARKStep fcts., consts */
 #include <nvector/nvector_serial.h>   /* serial N_Vector types, fcts., macros */
 #include <sunlinsol/sunlinsol_pcg.h>  /* access to PCG SUNLinearSolver        */
-#include <arkode/arkode_spils.h>      /* access to ARKSpils interface         */
 #include <sundials/sundials_types.h>  /* defs. of realtype, sunindextype, etc */
 #include <sundials/sundials_math.h>   /* def. of SUNRsqrt, etc.               */
 
@@ -115,39 +114,37 @@ int main() {
   y = N_VNew_Serial(N);            /* Create serial vector for solution */
   if (check_flag((void *) y, "N_VNew_Serial", 0)) return 1;
   N_VConst(0.0, y);                /* Set initial conditions */
-  arkode_mem = ARKodeCreate();     /* Create the solver memory */
-  if (check_flag((void *) arkode_mem, "ARKodeCreate", 0)) return 1;
 
-  /* Call ARKodeInit to initialize the integrator memory and specify the
-     right-hand side function in y'=f(t,y), the inital time T0, and
-     the initial dependent variable vector y.  Note: since this
+  /* Call ARKStepCreate to initialize the ARK timestepper module and
+     specify the right-hand side function in y'=f(t,y), the inital time
+     T0, and the initial dependent variable vector y.  Note: since this
      problem is fully implicit, we set f_E to NULL and f_I to f. */
-  flag = ARKodeInit(arkode_mem, NULL, f, T0, y);
-  if (check_flag(&flag, "ARKodeInit", 1)) return 1;
+  arkode_mem = ARKStepCreate(NULL, f, T0, y);
+  if (check_flag((void *) arkode_mem, "ARKStepCreate", 0)) return 1;
 
   /* Set routines */
-  flag = ARKodeSetUserData(arkode_mem, (void *) udata);   /* Pass udata to user functions */
-  if (check_flag(&flag, "ARKodeSetUserData", 1)) return 1;
-  flag = ARKodeSetMaxNumSteps(arkode_mem, 10000);         /* Increase max num steps  */
-  if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) return 1;
-  flag = ARKodeSetPredictorMethod(arkode_mem, 1);         /* Specify maximum-order predictor */
-  if (check_flag(&flag, "ARKodeSetPredictorMethod", 1)) return 1;
-  flag = ARKodeSStolerances(arkode_mem, rtol, atol);      /* Specify tolerances */
-  if (check_flag(&flag, "ARKodeSStolerances", 1)) return 1;
+  flag = ARKStepSetUserData(arkode_mem, (void *) udata);   /* Pass udata to user functions */
+  if (check_flag(&flag, "ARKStepSetUserData", 1)) return 1;
+  flag = ARKStepSetMaxNumSteps(arkode_mem, 10000);         /* Increase max num steps  */
+  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) return 1;
+  flag = ARKStepSetPredictorMethod(arkode_mem, 1);         /* Specify maximum-order predictor */
+  if (check_flag(&flag, "ARKStepSetPredictorMethod", 1)) return 1;
+  flag = ARKStepSStolerances(arkode_mem, rtol, atol);      /* Specify tolerances */
+  if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
 
   /* Initialize PCG solver -- no preconditioning, with up to N iterations  */
-  LS = SUNPCG(y, 0, N);
-  if (check_flag((void *)LS, "SUNPCG", 0)) return 1;
-  
+  LS = SUNLinSol_PCG(y, 0, N);
+  if (check_flag((void *)LS, "SUNLinSol_PCG", 0)) return 1;
+
   /* Linear solver interface -- set user-supplied J*v routine (no 'jtsetup' required) */
-  flag = ARKSpilsSetLinearSolver(arkode_mem, LS);        /* Attach linear solver to ARKode */
-  if (check_flag(&flag, "ARKSpilsSetLinearSolver", 1)) return 1;
-  flag = ARKSpilsSetJacTimes(arkode_mem, NULL, Jac);     /* Set the Jacobian routine */
-  if (check_flag(&flag, "ARKSpilsSetJacTimes", 1)) return 1;
+  flag = ARKStepSetLinearSolver(arkode_mem, LS, NULL);       /* Attach linear solver to ARKStep */
+  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
+  flag = ARKStepSetJacTimes(arkode_mem, NULL, Jac);     /* Set the Jacobian routine */
+  if (check_flag(&flag, "ARKStepSetJacTimes", 1)) return 1;
 
   /* Specify linearly implicit RHS, with non-time-dependent Jacobian */
-  flag = ARKodeSetLinear(arkode_mem, 0);
-  if (check_flag(&flag, "ARKodeSetLinear", 1)) return 1;
+  flag = ARKStepSetLinear(arkode_mem, 0);
+  if (check_flag(&flag, "ARKStepSetLinear", 1)) return 1;
 
   /* output mesh to disk */
   FID=fopen("heat_mesh.txt","w");
@@ -162,7 +159,7 @@ int main() {
   for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM"", data[i]);
   fprintf(UFID,"\n");
 
-  /* Main time-stepping loop: calls ARKode to perform the integration, then
+  /* Main time-stepping loop: calls ARKStepEvolve to perform the integration, then
      prints results.  Stops when the final time has been reached */
   t = T0;
   dTout = (Tf-T0)/Nt;
@@ -172,8 +169,8 @@ int main() {
   printf("  %10.6"FSYM"  %10.6"FSYM"\n", t, SUNRsqrt(N_VDotProd(y,y)/N));
   for (iout=0; iout<Nt; iout++) {
 
-    flag = ARKode(arkode_mem, tout, y, &t, ARK_NORMAL);         /* call integrator */
-    if (check_flag(&flag, "ARKode", 1)) break;
+    flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);         /* call integrator */
+    if (check_flag(&flag, "ARKStepEvolve", 1)) break;
     printf("  %10.6"FSYM"  %10.6"FSYM"\n", t, SUNRsqrt(N_VDotProd(y,y)/N));   /* print solution stats */
     if (flag >= 0) {                                            /* successful solve: update output time */
       tout += dTout;
@@ -191,26 +188,26 @@ int main() {
   fclose(UFID);
 
   /* Print some final statistics */
-  flag = ARKodeGetNumSteps(arkode_mem, &nst);
-  check_flag(&flag, "ARKodeGetNumSteps", 1);
-  flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
-  check_flag(&flag, "ARKodeGetNumStepAttempts", 1);
-  flag = ARKodeGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(&flag, "ARKodeGetNumRhsEvals", 1);
-  flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
-  check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1);
-  flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
-  check_flag(&flag, "ARKodeGetNumErrTestFails", 1);
-  flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
-  check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1);
-  flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
-  check_flag(&flag, "ARKodeGetNumNonlinSolvConvFails", 1);
-  flag = ARKSpilsGetNumLinIters(arkode_mem, &nli);
-  check_flag(&flag, "ARKSpilsGetNumLinIters", 1);
-  flag = ARKSpilsGetNumJtimesEvals(arkode_mem, &nJv);
-  check_flag(&flag, "ARKSpilsGetNumJtimesEvals", 1);
-  flag = ARKSpilsGetNumConvFails(arkode_mem, &nlcf);
-  check_flag(&flag, "ARKSpilsGetNumConvFails", 1);
+  flag = ARKStepGetNumSteps(arkode_mem, &nst);
+  check_flag(&flag, "ARKStepGetNumSteps", 1);
+  flag = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
+  check_flag(&flag, "ARKStepGetNumStepAttempts", 1);
+  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
+  check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
+  flag = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
+  check_flag(&flag, "ARKStepGetNumLinSolvSetups", 1);
+  flag = ARKStepGetNumErrTestFails(arkode_mem, &netf);
+  check_flag(&flag, "ARKStepGetNumErrTestFails", 1);
+  flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
+  check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1);
+  flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
+  check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1);
+  flag = ARKStepGetNumLinIters(arkode_mem, &nli);
+  check_flag(&flag, "ARKStepGetNumLinIters", 1);
+  flag = ARKStepGetNumJtimesEvals(arkode_mem, &nJv);
+  check_flag(&flag, "ARKStepGetNumJtimesEvals", 1);
+  flag = ARKStepGetNumLinConvFails(arkode_mem, &nlcf);
+  check_flag(&flag, "ARKStepGetNumLinConvFails", 1);
 
   printf("\nFinal Solver Statistics:\n");
   printf("   Internal solver steps = %li (attempted = %li)\n", nst, nst_a);
@@ -226,7 +223,7 @@ int main() {
   /* Clean up and return with successful completion */
   N_VDestroy(y);               /* Free vectors */
   free(udata);                 /* Free user data */
-  ARKodeFree(&arkode_mem);     /* Free integrator memory */
+  ARKStepFree(&arkode_mem);    /* Free integrator memory */
   SUNLinSolFree(LS);           /* Free linear solver */
   return 0;
 }
@@ -266,8 +263,8 @@ static int f(realtype t, N_Vector y, N_Vector ydot, void *user_data)
 }
 
 /* Jacobian routine to compute J(t,y) = df/dy. */
-static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y, 
-	       N_Vector fy, void *user_data, N_Vector tmp)
+static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
+               N_Vector fy, void *user_data, N_Vector tmp)
 {
   UserData udata = (UserData) user_data;     /* variable shortcuts */
   sunindextype N = udata->N;
@@ -304,7 +301,7 @@ static int Jac(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
     opt == 1 means SUNDIALS function returns a flag so check if
              flag >= 0
     opt == 2 means function allocates memory so check if returned
-             NULL pointer  
+             NULL pointer
 */
 static int check_flag(void *flagvalue, const char *funcname, int opt)
 {
@@ -313,7 +310,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return 1; }
 
   /* Check if flag < 0 */
@@ -321,13 +318,13 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
     errflag = (int *) flagvalue;
     if (*errflag < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
-	      funcname, *errflag);
+              funcname, *errflag);
       return 1; }}
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && flagvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return 1; }
 
   return 0;

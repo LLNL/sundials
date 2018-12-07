@@ -81,6 +81,7 @@ int main(int argc, char *argv[])
   x = N_VNew_Serial(matcols);
   y = N_VNew_Serial(matrows);
   A = SUNDenseMatrix(matrows, matcols);
+  I = NULL;
   if (square)
     I = SUNDenseMatrix(matrows, matcols);
   
@@ -116,9 +117,10 @@ int main(int argc, char *argv[])
   fails += Test_SUNMatClone(A, 0);
   fails += Test_SUNMatCopy(A, 0);
   fails += Test_SUNMatZero(A, 0);
-  fails += Test_SUNMatScaleAdd(A, I, 0);
-  if (square) 
+  if (square) {
+    fails += Test_SUNMatScaleAdd(A, I, 0);
     fails += Test_SUNMatScaleAddI(A, I, 0);
+  }
   fails += Test_SUNMatMatvec(A, x, y, 0);
   fails += Test_SUNMatSpace(A, 0);
 

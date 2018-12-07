@@ -2,20 +2,20 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2015, Southern Methodist University and
  * Lawrence Livermore National Security
  *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Southern Methodist University and Lawrence Livermore
  * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
+ * Produced at Southern Methodist University and the Lawrence
  * Livermore National Laboratory.
  *
  * All rights reserved.
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * Fortran/C interface routines for ARKODE, for the case of a 
+ * Fortran/C interface routines for ARKODE, for the case of a
  * user-supplied error weight calculation routine.
  *--------------------------------------------------------------*/
 
@@ -32,9 +32,9 @@
 extern "C" {
 #endif
 
-  extern void FARK_EWT(realtype *Y, realtype *EWT, 
-		       long int *IPAR, realtype *RPAR, 
-		       int *IER);
+  extern void FARK_EWT(realtype *Y, realtype *EWT,
+                       long int *IPAR, realtype *RPAR,
+                       int *IER);
 
 #ifdef __cplusplus
 }
@@ -42,19 +42,19 @@ extern "C" {
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKodeWFtolerances; see 
+/* Fortran interface to C routine ARKStepWFtolerances; see
    farkode.h for further information */
 void FARK_EWTSET(int *flag, int *ier)
 {
   if (*flag != 0) {
-    *ier = ARKodeWFtolerances(ARK_arkodemem, FARKEwt);
+    *ier = ARKStepWFtolerances(ARK_arkodemem, FARKEwt);
   }
   return;
 }
 
 /*=============================================================*/
 
-/* C interface to user-supplied fortran routine FARKEWT; see 
+/* C interface to user-supplied fortran routine FARKEWT; see
    farkode.h for further information */
 int FARKEwt(N_Vector y, N_Vector ewt, void *user_data)
 {
@@ -66,8 +66,8 @@ int FARKEwt(N_Vector y, N_Vector ewt, void *user_data)
   ewtdata = N_VGetArrayPointer(ewt);
   ARK_userdata = (FARKUserData) user_data;
 
-  FARK_EWT(ydata, ewtdata, ARK_userdata->ipar, 
-	   ARK_userdata->rpar, &ier);
+  FARK_EWT(ydata, ewtdata, ARK_userdata->ipar,
+           ARK_userdata->rpar, &ier);
   return(ier);
 }
 

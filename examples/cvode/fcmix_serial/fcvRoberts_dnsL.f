@@ -42,7 +42,7 @@ C
       IMPLICIT NONE
 C
       INTEGER*4 IER, LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNJE, LNGE
-      INTEGER*4 METH, ITMETH, ITOL, ITASK, JOUT, NOUT, IERROOT
+      INTEGER*4 METH, ITOL, ITASK, JOUT, NOUT, IERROOT
       INTEGER*4 INFO(2)
       INTEGER*4 I, NEQ
 C The following declaration specification should match C type long int.
@@ -59,7 +59,6 @@ C
       Y(2) = 0.0D0
       Y(3) = 0.0D0
       METH = 2
-      ITMETH = 2
       ITOL = 2
       RTOL = 1.0D-4
       ATOL(1) = 1.0D-8
@@ -101,8 +100,8 @@ C     initialize LAPACK dense linear solver module
       ENDIF
 
 C     Call FCVMALLOC to create the solver memory and specify the 
-C     Backward Differentiation Formula and the use of a Newton iteration
-      CALL FCVMALLOC(T0, Y, METH, ITMETH, ITOL, RTOL, ATOL,
+C     Backward Differentiation Formula
+      CALL FCVMALLOC(T0, Y, METH, ITOL, RTOL, ATOL,
      1               IOUT, ROUT, IPAR, RPAR, IER)
       IF (IER .NE. 0) THEN
         WRITE(6,30) IER
@@ -119,11 +118,11 @@ C     Call FCVROOTINIT to specify the root function g with 2 components
         STOP
       ENDIF
 
-C     attach the matrix and linear solver modules to CVDls interface
-      CALL FCVDLSINIT(IER)
+C     attach the matrix and linear solver modules to CVLs interface
+      CALL FCVLSINIT(IER)
       IF (IER .NE. 0) THEN
         WRITE(6,40) IER
- 40     FORMAT(///' SUNDIALS_ERROR: FCVDLSINIT returned IER = ', I5)
+ 40     FORMAT(///' SUNDIALS_ERROR: FCVLSINIT returned IER = ', I5)
         CALL FCVFREE
         STOP
       ENDIF

@@ -15,7 +15,7 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * Fortran/C interface routines for ARKODE/ARKDLS, for the case
+ * Fortran/C interface routines for ARKODE/ARKLS, for the case
  * of a user-supplied mass-matrix approximation routine.
  *--------------------------------------------------------------*/
 
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include "farkode.h"
 #include "arkode_impl.h"
-#include <arkode/arkode_direct.h>
+#include <arkode/arkode_arkstep.h>
 #include <sunmatrix/sunmatrix_sparse.h>
 
 /*=============================================================*/
@@ -51,7 +51,7 @@ extern "C" {
    farkode.h for further information */
 void FARK_SPARSESETMASS(int *ier)
 {
-  *ier = ARKDlsSetMassFn(ARK_arkodemem, FARKSparseMass);
+  *ier = ARKStepSetMassFn(ARK_arkodemem, FARKSparseMass);
 }
 
 /*=============================================================*/
@@ -59,7 +59,7 @@ void FARK_SPARSESETMASS(int *ier)
 /* C interface to user-supplied Fortran routine FARKSPMASS; see 
    farkode.h for additional information  */
 int FARKSparseMass(realtype t, SUNMatrix MassMat, void *user_data, 
-		   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+                   N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   int ier;
   realtype *v1data, *v2data, *v3data, *Mdata;

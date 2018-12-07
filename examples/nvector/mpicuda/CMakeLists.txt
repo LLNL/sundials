@@ -17,12 +17,10 @@
 # Example lists are tuples "name\;args\;nodes\;tasks\;type" where the
 # type is develop for examples excluded from 'make test' in releases
 
-# Examples using SUNDIALS cuda nvector
+# Examples using SUNDIALS MPI+cuda nvector
 SET(nvector_cuda_examples
-  "test_nvector_mpicuda\;\;\;\;"          # run sequentially
-  "test_nvector_mpicuda\;1000 0\;\;\;"    # run sequentially with arguments
-  "test_nvector_mpicuda\;\;1\;4\;"        # run parallel on 4 procs
-  "test_nvector_mpicuda\;1000 0\;1\;4\;"  # run parallel on 4 procs with arguments
+  "test_nvector_mpicuda\;1000 0\;\;\;"    # run sequentially
+  "test_nvector_mpicuda\;1000 0\;1\;4\;"  # run parallel on 4
   )
 
 # Dependencies for nvector examples

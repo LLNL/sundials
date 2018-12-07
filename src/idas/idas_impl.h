@@ -46,6 +46,19 @@ extern "C" {
 #define MXORDP1          6           /* max. number of N_Vectors in phi */
 #define MXSTEP_DEFAULT   500         /* mxstep default value            */
 
+/* Return values for lower level routines used by IDASolve and functions
+   provided to the nonlinear solver */
+
+#define IDA_RES_RECVR       +1
+#define IDA_LSETUP_RECVR    +2
+#define IDA_LSOLVE_RECVR    +3
+#define IDA_CONSTR_RECVR    +5
+#define IDA_NLS_SETUP_RECVR +6
+
+#define IDA_QRHS_RECVR   +10
+#define IDA_SRES_RECVR   +11
+#define IDA_QSRHS_RECVR  +12
+
 /* itol */
 #define IDA_NN               0
 #define IDA_SS               1
@@ -158,16 +171,19 @@ typedef struct IDAMemRec {
   N_Vector ida_ewt;          /* error weight vector                           */
   N_Vector ida_yy;           /* work space for y vector (= user's yret)       */
   N_Vector ida_yp;           /* work space for y' vector (= user's ypret)     */
+  N_Vector ida_yypredict;    /* predicted y vector                            */
+  N_Vector ida_yppredict;    /* predicted y' vector                           */
   N_Vector ida_delta;        /* residual vector                               */
   N_Vector ida_id;           /* bit vector for diff./algebraic components     */
   N_Vector ida_constraints;  /* vector of inequality constraint options       */
-  N_Vector ida_savres;       /* saved residual vector (= tempv1)              */
+  N_Vector ida_savres;       /* saved residual vector                         */
   N_Vector ida_ee;           /* accumulated corrections to y vector, but
                                 set equal to estimated local errors upon
                                 successful return                             */
   N_Vector ida_mm;           /* mask vector in constraints tests (= tempv2)   */
   N_Vector ida_tempv1;       /* work space vector                             */
   N_Vector ida_tempv2;       /* work space vector                             */
+  N_Vector ida_tempv3;       /* work space vector                             */
   N_Vector ida_ynew;         /* work vector for y in IDACalcIC (= tempv2)     */
   N_Vector ida_ypnew;        /* work vector for yp in IDACalcIC (= ee)        */
   N_Vector ida_delnew;       /* work vector for delta in IDACalcIC (= phi[2]) */
@@ -195,7 +211,9 @@ typedef struct IDAMemRec {
 
   N_Vector *ida_yyS;         /* allocated and used for:                       */
   N_Vector *ida_ypS;         /*                 ism = SIMULTANEOUS            */
-  N_Vector *ida_deltaS;      /*                 ism = STAGGERED               */
+  N_Vector *ida_yySpredict;  /*                 ism = STAGGERED               */
+  N_Vector *ida_ypSpredict;
+  N_Vector *ida_deltaS;
 
   N_Vector ida_tmpS1;        /* work space vectors  | tmpS1 = tempv1          */
   N_Vector ida_tmpS2;        /* for resS            | tmpS2 = tempv2          */
@@ -265,6 +283,7 @@ typedef struct IDAMemRec {
   realtype ida_cjold;    /* cj value saved from last call to lsetup           */
   realtype ida_cjratio;  /* ratio of cj values: cj/cjold                      */
   realtype ida_ss;       /* scalar used in Newton iteration convergence test  */
+  realtype ida_oldnrm;   /* norm of previous nonlinear solver update          */
   realtype ida_epsNewt;  /* test constant in Newton convergence test          */
   realtype ida_epcon;    /* coeficient of the Newton covergence test          */
   realtype ida_toldel;   /* tolerance in direct test on Newton corrections    */
@@ -360,6 +379,40 @@ typedef struct IDAMemRec {
   booleantype ida_SatolQSMallocDone;
   booleantype ida_quadSensMallocDone;
 
+  /*---------------------
+    Nonlinear Solver Data
+    ---------------------*/
+
+  SUNNonlinearSolver NLS;    /* nonlinear solver object for DAE solves */
+  booleantype ownNLS;        /* flag indicating NLS ownership */
+
+  SUNNonlinearSolver NLSsim; /* nonlinear solver object for DAE+Sens solves
+                                with the simultaneous corrector option */
+  booleantype ownNLSsim;     /* flag indicating NLS ownership */
+
+  SUNNonlinearSolver NLSstg; /* nonlinear solver object for DAE+Sens solves
+                                with the staggered corrector option */
+  booleantype ownNLSstg;     /* flag indicating NLS ownership */
+
+  /* The following vectors are NVector wrappers for use with the simultaneous
+     and staggered corrector methods:
+
+       Simult:  ycor0Sim = [ida_delta, ida_deltaS]
+                ycorSim  = [ida_ee,    ida_eeS]
+                ewtSim   = [ida_ewt,   ida_ewtS]
+
+       Stagger: ycor0Stg = ida_deltaS
+                ycorStg  = ida_eeS
+                ewtStg   = ida_ewtS
+  */
+  N_Vector ycor0Sim, ycorSim, ewtSim;
+  N_Vector ycor0Stg, ycorStg, ewtStg;
+
+  /* flags indicating if vector wrappers for the simultaneous and staggered
+     correctors have been allocated */
+  booleantype simMallocDone;
+  booleantype stgMallocDone;
+
   /*------------------
     Linear Solver Data
     ------------------*/
@@ -424,6 +477,16 @@ typedef struct IDAMemRec {
   long int ida_nge;      /* counter for g evaluations                         */
   booleantype *ida_gactive; /* array with active/inactive event functions     */
   int ida_mxgnull;       /* number of warning messages about possible g==0    */
+
+  /* Arrays for Fused Vector Operations */
+
+  /* scalar arrays */
+  realtype* ida_cvals;
+  realtype  ida_dvals[MAXORD_DEFAULT];
+
+  /* vector  arrays */
+  N_Vector* ida_Xvecs;
+  N_Vector* ida_Zvecs;
 
   /*------------------------
     Adjoint sensitivity data
@@ -861,6 +924,23 @@ void IDAProcessError(IDAMem IDA_mem,
 void IDAErrHandler(int error_code, const char *module, const char *function, 
 		   char *msg, void *data);
 
+/* Norm functions. Also used for IC, so they are global.*/
+
+realtype IDAWrmsNorm(IDAMem IDA_mem, N_Vector x, N_Vector w,
+                     booleantype mask);
+
+realtype IDASensWrmsNorm(IDAMem IDA_mem, N_Vector *xS, N_Vector *wS,
+                         booleantype mask);
+
+realtype IDASensWrmsNormUpdate(IDAMem IDA_mem, realtype old_nrm,
+                                      N_Vector *xS, N_Vector *wS,
+                                      booleantype mask);
+
+/* Nonlinear solver functions */
+int idaNlsInit(IDAMem IDA_mem);
+int idaNlsInitSensSim(IDAMem IDA_mem);
+int idaNlsInitSensStg(IDAMem IDA_mem);
+
 /* Prototype for internal sensitivity residual DQ function */
 
 int IDASensResDQ(int Ns, realtype t, 
@@ -927,6 +1007,7 @@ int IDASensResDQ(int Ns, realtype t,
 #define MSG_BAD_ISM_CONSTR "Constraints can not be enforced while forward sensitivity is used with simultaneous method."
 #define MSG_LSOLVE_NULL    "The linear solver's solve routine is NULL."
 #define MSG_LINIT_FAIL     "The linear solver's init routine failed."
+#define MSG_NLS_INIT_FAIL  "The nonlinear solver's init routine failed."
 
 #define MSG_NO_QUAD        "Illegal attempt to call before calling IDAQuadInit."
 #define MSG_BAD_EWTQ       "Initial ewtQ has component(s) equal to zero (illegal)."
@@ -1009,6 +1090,8 @@ int IDASensResDQ(int Ns, realtype t,
 #define MSG_RTFUNC_FAILED  "At " MSG_TIME ", the rootfinding routine failed in an unrecoverable manner."
 #define MSG_NO_ROOT        "Rootfinding was not initialized."
 #define MSG_INACTIVE_ROOTS "At the end of the first step, there are still some root functions identically 0. This warning will not be issued again."
+#define MSG_NLS_INPUT_NULL "At " MSG_TIME "the nonlinear solver was passed a NULL input."
+#define MSG_NLS_SETUP_FAILED "At " MSG_TIME "the nonlinear solver setup failed unrecoverably."
 
 #define MSG_EWTQ_NOW_BAD "At " MSG_TIME ", a component of ewtQ has become <= 0."
 #define MSG_QRHSFUNC_FAILED "At " MSG_TIME ", the quadrature right-hand side routine failed in an unrecoverable manner."

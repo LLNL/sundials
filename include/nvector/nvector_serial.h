@@ -147,6 +147,18 @@ typedef struct _N_VectorContent_Serial *N_VectorContent_Serial;
  * DESTRUCTORS:
  *    N_VDestroy_Serial
  *    N_VDestroyVectorArray_Serial
+ * ENABLE/DISABLE FUSED OPS:
+ *    N_VEnableFusedOps_Serial
+ *    N_VEnableLinearCombination_Serial
+ *    N_VEnableScaleAddMulti_Serial
+ *    N_VEnableDotProdMulti_Serial
+ *    N_VEnableLinearSumVectorArray_Serial
+ *    N_VEnableScaleVectorArray_Serial
+ *    N_VEnableConstVectorArray_Serial
+ *    N_VEnableWrmsNormVectorArray_Serial
+ *    N_VEnableWrmsNormMaskVectorArray_Serial
+ *    N_VEnableScaleAddMultiVectorArray_Serial
+ *    N_VEnableLinearCombinationVectorArray_Serial
  * OTHER:
  *    N_VGetLength_Serial
  *    N_VPrint_Serial
@@ -262,6 +274,8 @@ SUNDIALS_EXPORT void N_VDestroy_Serial(N_Vector v);
 SUNDIALS_EXPORT void N_VSpace_Serial(N_Vector v, sunindextype *lrw, sunindextype *liw);
 SUNDIALS_EXPORT realtype *N_VGetArrayPointer_Serial(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer_Serial(realtype *v_data, N_Vector v);
+
+/* standard vector operations */
 SUNDIALS_EXPORT void N_VLinearSum_Serial(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);
 SUNDIALS_EXPORT void N_VConst_Serial(realtype c, N_Vector z);
 SUNDIALS_EXPORT void N_VProd_Serial(N_Vector x, N_Vector y, N_Vector z);
@@ -281,6 +295,58 @@ SUNDIALS_EXPORT void N_VCompare_Serial(realtype c, N_Vector x, N_Vector z);
 SUNDIALS_EXPORT booleantype N_VInvTest_Serial(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT booleantype N_VConstrMask_Serial(N_Vector c, N_Vector x, N_Vector m);
 SUNDIALS_EXPORT realtype N_VMinQuotient_Serial(N_Vector num, N_Vector denom);
+
+/* fused vector operations */
+SUNDIALS_EXPORT int N_VLinearCombination_Serial(int nvec, realtype* c, N_Vector* V,
+                                                N_Vector z);
+SUNDIALS_EXPORT int N_VScaleAddMulti_Serial(int nvec, realtype* a, N_Vector x,
+                                            N_Vector* Y, N_Vector* Z);
+SUNDIALS_EXPORT int N_VDotProdMulti_Serial(int nvec, N_Vector x,
+                                           N_Vector *Y, realtype* dotprods);
+
+/* vector array operations */
+SUNDIALS_EXPORT int N_VLinearSumVectorArray_Serial(int nvec, 
+                                                   realtype a, N_Vector* X,
+                                                   realtype b, N_Vector* Y,
+                                                   N_Vector* Z);
+SUNDIALS_EXPORT int N_VScaleVectorArray_Serial(int nvec, realtype* c,
+                                               N_Vector* X, N_Vector* Z);
+SUNDIALS_EXPORT int N_VConstVectorArray_Serial(int nvecs, realtype c,
+                                               N_Vector* Z);
+SUNDIALS_EXPORT int N_VWrmsNormVectorArray_Serial(int nvecs, N_Vector* X,
+                                                  N_Vector* W, realtype* nrm);
+SUNDIALS_EXPORT int N_VWrmsNormMaskVectorArray_Serial(int nvecs, N_Vector* X,
+                                                      N_Vector* W, N_Vector id,
+                                                      realtype* nrm);
+SUNDIALS_EXPORT int N_VScaleAddMultiVectorArray_Serial(int nvec, int nsum,
+                                                       realtype* a,
+                                                       N_Vector* X,
+                                                       N_Vector** Y,
+                                                       N_Vector** Z);
+SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_Serial(int nvec, int nsum,
+                                                           realtype* c,
+                                                           N_Vector** X,
+                                                           N_Vector* Z);
+
+/*
+ * -----------------------------------------------------------------
+ * Enable / disable fused vector operations
+ * -----------------------------------------------------------------
+ */
+
+SUNDIALS_EXPORT int N_VEnableFusedOps_Serial(N_Vector v, booleantype tf);
+
+SUNDIALS_EXPORT int N_VEnableLinearCombination_Serial(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMulti_Serial(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableDotProdMulti_Serial(N_Vector v, booleantype tf);
+
+SUNDIALS_EXPORT int N_VEnableLinearSumVectorArray_Serial(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleVectorArray_Serial(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableConstVectorArray_Serial(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormVectorArray_Serial(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableWrmsNormMaskVectorArray_Serial(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableScaleAddMultiVectorArray_Serial(N_Vector v, booleantype tf);
+SUNDIALS_EXPORT int N_VEnableLinearCombinationVectorArray_Serial(N_Vector v, booleantype tf);
 
 #ifdef __cplusplus
 }

@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
   realtype*    vecdata;                    /* pointers to vector data    */
   SUNMatrix    A, B, C, D, I;              /* test matrices              */
   realtype*    matdata;                    /* pointer to matrix data     */
-  sunindextype i, j, k, kstart, kend, N, uband, lband, suband;
+  sunindextype i, j, k, kstart, kend, N, uband, lband;
   sunindextype *colptrs, *rowindices;
   sunindextype *rowptrs, *colindices;
   int          print_timing, square;
@@ -189,8 +189,7 @@ int main(int argc, char *argv[])
   N = 7;
   uband = 1;
   lband = 2;                                   /* B(i,j) = j + (j-i) */
-  suband = 3;
-  B = SUNBandMatrix(N, uband, lband, suband);  /* B = [  0  2  0  0  0  0  0 ] */
+  B = SUNBandMatrix(N, uband, lband);          /* B = [  0  2  0  0  0  0  0 ] */
   for (j=0; j<N; j++) {                        /*     [ -1  1  3  0  0  0  0 ] */
     matdata = SUNBandMatrix_Column(B, j);      /*     [ -2  0  2  4  0  0  0 ] */
     kstart = (j<uband) ? -j : -uband;          /*     [  0 -1  1  3  5  0  0 ] */
@@ -300,6 +299,7 @@ int main(int argc, char *argv[])
 
 
   /* Create/fill I matrix */
+  I = NULL;
   if (square) {
     I = SUNSparseMatrix(matrows, matcols, matcols, mattype);
     matdata    = SUNSparseMatrix_Data(I);

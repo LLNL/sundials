@@ -25,6 +25,7 @@
 
 #include <stdio.h>
 #include <sundials/sundials_nvector.h>
+#include <kinsol/kinsol_ls.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
@@ -64,6 +65,8 @@ extern "C" {
 #define KIN_SYSFUNC_FAIL        -13
 #define KIN_FIRST_SYSFUNC_ERR   -14
 #define KIN_REPTD_SYSFUNC_ERR   -15
+
+#define KIN_VECTOROP_ERR        -16
 
 
 /*

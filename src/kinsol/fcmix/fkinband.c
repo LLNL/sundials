@@ -12,7 +12,7 @@
  * For details, see the LICENSE file.
  * LLNS Copyright End
  * -----------------------------------------------------------------
- * Fortran/C interface routines for KINSOL/KINBAND, for the case
+ * Fortran/C interface routines for KINSOL/KINLS, for the case
  * of a user-supplied Jacobian approximation routine.
  * -----------------------------------------------------------------*/
 
@@ -22,7 +22,7 @@
 #include "fkinsol.h"     /* standard interfaces and global vars.*/
 #include "kinsol_impl.h" /* definition of KINMem type           */
 
-#include <kinsol/kinsol_direct.h>
+#include <kinsol/kinsol_ls.h>
 #include <sunmatrix/sunmatrix_band.h>
 
 /*
@@ -54,10 +54,10 @@ extern void FK_BJAC(long int* N, long int* MU, long int* ML,
 void FKIN_BANDSETJAC(int *flag, int *ier)
 {
   if (*flag == 0) {
-    *ier = KINDlsSetJacFn(KIN_kinmem, NULL);
+    *ier = KINSetJacFn(KIN_kinmem, NULL);
   }
   else {
-    *ier = KINDlsSetJacFn(KIN_kinmem, FKINBandJac);
+    *ier = KINSetJacFn(KIN_kinmem, FKINBandJac);
   }
 
   return;

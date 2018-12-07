@@ -44,6 +44,24 @@ typedef sunrajavec::Vector<realtype, sunindextype> vector_type;
 // Static constants
 static constexpr sunindextype zeroIdx = 0;
 
+/*
+ * ----------------------------------------------------------------
+ * private accessor/helper functions
+ * ----------------------------------------------------------------
+ */
+
+static inline sunindextype getLocalLength(N_Vector v)
+{
+  vector_type* vp = static_cast<vector_type*>(v->content);
+  return vp->size();
+}
+
+static inline SUNMPI_Comm getMPIComm(N_Vector v)
+{
+  vector_type* vp = static_cast<vector_type*>(v->content);
+  return vp->comm();
+}
+
 /* ----------------------------------------------------------------
  * Returns vector type ID. Used to identify vector implementation
  * from abstract N_Vector interface.
@@ -53,7 +71,7 @@ N_Vector_ID N_VGetVectorID_Raja(N_Vector v)
   return SUNDIALS_NVEC_RAJA;
 }
 
-N_Vector N_VNewEmpty_Raja(sunindextype length)
+N_Vector N_VNewEmpty_Raja()
 {
   N_Vector v;
   N_Vector_Ops ops;
@@ -75,25 +93,41 @@ N_Vector N_VNewEmpty_Raja(sunindextype length)
   ops->nvspace           = N_VSpace_Raja;
   ops->nvgetarraypointer = NULL; //N_VGetArrayPointer_Raja;
   ops->nvsetarraypointer = NULL; //N_VSetArrayPointer_Raja;
-  ops->nvlinearsum       = N_VLinearSum_Raja;
-  ops->nvconst           = N_VConst_Raja;
-  ops->nvprod            = N_VProd_Raja;
-  ops->nvdiv             = N_VDiv_Raja;
-  ops->nvscale           = N_VScale_Raja;
-  ops->nvabs             = N_VAbs_Raja;
-  ops->nvinv             = N_VInv_Raja;
-  ops->nvaddconst        = N_VAddConst_Raja;
-  ops->nvdotprod         = N_VDotProd_Raja;
-  ops->nvmaxnorm         = N_VMaxNorm_Raja;
-  ops->nvwrmsnormmask    = N_VWrmsNormMask_Raja;
-  ops->nvwrmsnorm        = N_VWrmsNorm_Raja;
-  ops->nvmin             = N_VMin_Raja;
-  ops->nvwl2norm         = N_VWL2Norm_Raja;
-  ops->nvl1norm          = N_VL1Norm_Raja;
-  ops->nvcompare         = N_VCompare_Raja;
-  ops->nvinvtest         = N_VInvTest_Raja;
-  ops->nvconstrmask      = N_VConstrMask_Raja;
-  ops->nvminquotient     = N_VMinQuotient_Raja;
+
+  /* standard vector operations */
+  ops->nvlinearsum    = N_VLinearSum_Raja;
+  ops->nvconst        = N_VConst_Raja;
+  ops->nvprod         = N_VProd_Raja;
+  ops->nvdiv          = N_VDiv_Raja;
+  ops->nvscale        = N_VScale_Raja;
+  ops->nvabs          = N_VAbs_Raja;
+  ops->nvinv          = N_VInv_Raja;
+  ops->nvaddconst     = N_VAddConst_Raja;
+  ops->nvdotprod      = N_VDotProd_Raja;
+  ops->nvmaxnorm      = N_VMaxNorm_Raja;
+  ops->nvwrmsnormmask = N_VWrmsNormMask_Raja;
+  ops->nvwrmsnorm     = N_VWrmsNorm_Raja;
+  ops->nvmin          = N_VMin_Raja;
+  ops->nvwl2norm      = N_VWL2Norm_Raja;
+  ops->nvl1norm       = N_VL1Norm_Raja;
+  ops->nvcompare      = N_VCompare_Raja;
+  ops->nvinvtest      = N_VInvTest_Raja;
+  ops->nvconstrmask   = N_VConstrMask_Raja;
+  ops->nvminquotient  = N_VMinQuotient_Raja;
+
+  /* fused vector operations (optional, NULL means disabled by default) */
+  ops->nvlinearcombination = NULL;
+  ops->nvscaleaddmulti     = NULL;
+  ops->nvdotprodmulti      = NULL;
+
+  /* vector array operations (optional, NULL means disabled by default) */
+  ops->nvlinearsumvectorarray         = NULL;
+  ops->nvscalevectorarray             = NULL;
+  ops->nvconstvectorarray             = NULL;
+  ops->nvwrmsnormvectorarray          = NULL;
+  ops->nvwrmsnormmaskvectorarray      = NULL;
+  ops->nvscaleaddmultivectorarray     = NULL;
+  ops->nvlinearcombinationvectorarray = NULL;
 
   /* Attach ops and set content to NULL */
   v->content = NULL;
@@ -111,7 +145,7 @@ N_Vector N_VNew_Raja(MPI_Comm comm,
   N_Vector v;
 
   v = NULL;
-  v = N_VNewEmpty_Raja(local_length);
+  v = N_VNewEmpty_Raja();
   if (v == NULL) return(NULL);
 
   v->content = new vector_type(comm, local_length, global_length);
@@ -124,10 +158,10 @@ N_Vector N_VNew_Raja(sunindextype length)
   N_Vector v;
 
   v = NULL;
-  v = N_VNewEmpty_Raja(length);
+  v = N_VNewEmpty_Raja();
   if (v == NULL) return(NULL);
 
-  v->content = new vector_type(SUNMPI_COMM_WORLD, length, length);
+  v->content = new vector_type(length);
 
   return(v);
 }
@@ -141,7 +175,7 @@ N_Vector N_VMake_Raja(N_VectorContent_Raja c)
   sunindextype length = x->size();
 
   v = NULL;
-  v = N_VNewEmpty_Raja(length);
+  v = N_VNewEmpty_Raja();
   if (v == NULL) return(NULL);
 
   v->content = c;
@@ -151,13 +185,33 @@ N_Vector N_VMake_Raja(N_VectorContent_Raja c)
 
 
 /* -----------------------------------------------------------------
- * Function to return the length of the vector.
+ * Function to return the global length of the vector.
  */
 sunindextype N_VGetLength_Raja(N_Vector v)
 {
   vector_type* xd = static_cast<vector_type*>(v->content);
+  return xd->sizeGlobal();
+}
+
+#if SUNDIALS_MPI_ENABLED
+/* -----------------------------------------------------------------
+ * Function to return the local length of the vector.
+ */
+sunindextype N_VGetLocalLength_Raja(N_Vector v)
+{
+  vector_type* xd = static_cast<vector_type*>(v->content);
   return xd->size();
 }
+
+/* -----------------------------------------------------------------
+ * Function to return the MPI communicator for the vector.
+ */
+MPI_Comm N_VGetMPIComm_Raja(N_Vector v)
+{
+  vector_type* xd = static_cast<vector_type*>(v->content);
+  return (xd->comm());
+}
+#endif
 
 /* ----------------------------------------------------------------------------
  * Return pointer to the raw host data
@@ -214,8 +268,8 @@ void N_VPrint_Raja(N_Vector X)
 
 void N_VPrintFile_Raja(N_Vector X, FILE *outfile)
 {
-  const realtype *xd = getDevData<realtype, sunindextype>(X);
-  const sunindextype N = getSize<realtype, sunindextype>(X);
+  const realtype *xd = N_VGetDeviceArrayPointer_Raja(X);
+  const sunindextype N = getLocalLength(X);
   sunindextype i;
 
   for (i = 0; i < N; ++i) {
@@ -262,25 +316,41 @@ N_Vector N_VCloneEmpty_Raja(N_Vector w)
   ops->nvspace           = w->ops->nvspace;
   ops->nvgetarraypointer = w->ops->nvgetarraypointer;
   ops->nvsetarraypointer = w->ops->nvsetarraypointer;
-  ops->nvlinearsum       = w->ops->nvlinearsum;
-  ops->nvconst           = w->ops->nvconst;
-  ops->nvprod            = w->ops->nvprod;
-  ops->nvdiv             = w->ops->nvdiv;
-  ops->nvscale           = w->ops->nvscale;
-  ops->nvabs             = w->ops->nvabs;
-  ops->nvinv             = w->ops->nvinv;
-  ops->nvaddconst        = w->ops->nvaddconst;
-  ops->nvdotprod         = w->ops->nvdotprod;
-  ops->nvmaxnorm         = w->ops->nvmaxnorm;
-  ops->nvwrmsnormmask    = w->ops->nvwrmsnormmask;
-  ops->nvwrmsnorm        = w->ops->nvwrmsnorm;
-  ops->nvmin             = w->ops->nvmin;
-  ops->nvwl2norm         = w->ops->nvwl2norm;
-  ops->nvl1norm          = w->ops->nvl1norm;
-  ops->nvcompare         = w->ops->nvcompare;
-  ops->nvinvtest         = w->ops->nvinvtest;
-  ops->nvconstrmask      = w->ops->nvconstrmask;
-  ops->nvminquotient     = w->ops->nvminquotient;
+
+  /* standard vector operations */
+  ops->nvlinearsum    = w->ops->nvlinearsum;
+  ops->nvconst        = w->ops->nvconst;
+  ops->nvprod         = w->ops->nvprod;
+  ops->nvdiv          = w->ops->nvdiv;
+  ops->nvscale        = w->ops->nvscale;
+  ops->nvabs          = w->ops->nvabs;
+  ops->nvinv          = w->ops->nvinv;
+  ops->nvaddconst     = w->ops->nvaddconst;
+  ops->nvdotprod      = w->ops->nvdotprod;
+  ops->nvmaxnorm      = w->ops->nvmaxnorm;
+  ops->nvwrmsnormmask = w->ops->nvwrmsnormmask;
+  ops->nvwrmsnorm     = w->ops->nvwrmsnorm;
+  ops->nvmin          = w->ops->nvmin;
+  ops->nvwl2norm      = w->ops->nvwl2norm;
+  ops->nvl1norm       = w->ops->nvl1norm;
+  ops->nvcompare      = w->ops->nvcompare;
+  ops->nvinvtest      = w->ops->nvinvtest;
+  ops->nvconstrmask   = w->ops->nvconstrmask;
+  ops->nvminquotient  = w->ops->nvminquotient;
+
+  /* fused vector operations */
+  ops->nvlinearcombination = w->ops->nvlinearcombination;
+  ops->nvscaleaddmulti     = w->ops->nvscaleaddmulti;
+  ops->nvdotprodmulti      = w->ops->nvdotprodmulti;
+
+  /* vector array operations */
+  ops->nvlinearsumvectorarray         = w->ops->nvlinearsumvectorarray;
+  ops->nvscalevectorarray             = w->ops->nvscalevectorarray;
+  ops->nvconstvectorarray             = w->ops->nvconstvectorarray;
+  ops->nvwrmsnormvectorarray          = w->ops->nvwrmsnormvectorarray;
+  ops->nvwrmsnormmaskvectorarray      = w->ops->nvwrmsnormmaskvectorarray;
+  ops->nvscaleaddmultivectorarray     = w->ops->nvscaleaddmultivectorarray;
+  ops->nvlinearcombinationvectorarray = w->ops->nvlinearcombinationvectorarray;
 
   /* Create content */
   v->content = NULL;
@@ -320,19 +390,19 @@ void N_VDestroy_Raja(N_Vector v)
 
 void N_VSpace_Raja(N_Vector X, sunindextype *lrw, sunindextype *liw)
 {
-  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  SUNMPI_Comm comm = getMPIComm(X);
   int npes;
 
   SUNMPI_Comm_size(comm, &npes);
 
-  *lrw = getGlobalSize<realtype, sunindextype>(X);
+  *lrw = N_VGetLength_Raja(X);
   *liw = 2*npes;
 }
 
 void N_VConst_Raja(realtype c, N_Vector Z)
 {
-  const sunindextype N = getSize<realtype, sunindextype>(Z);
-  realtype *zdata = getDevData<realtype, sunindextype>(Z);
+  const sunindextype N = getLocalLength(Z);
+  realtype *zdata = N_VGetDeviceArrayPointer_Raja(Z);
 
   RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N), RAJA_LAMBDA(sunindextype i) {
      zdata[i] = c;
@@ -341,10 +411,10 @@ void N_VConst_Raja(realtype c, N_Vector Z)
 
 void N_VLinearSum_Raja(realtype a, N_Vector X, realtype b, N_Vector Y, N_Vector Z)
 {
-  const realtype *xdata = getDevData<realtype, sunindextype>(X);
-  const realtype *ydata = getDevData<realtype, sunindextype>(Y);
-  const sunindextype N = getSize<realtype, sunindextype>(X);
-  realtype *zdata = getDevData<realtype, sunindextype>(Z);
+  const realtype *xdata = N_VGetDeviceArrayPointer_Raja(X);
+  const realtype *ydata = N_VGetDeviceArrayPointer_Raja(Y);
+  const sunindextype N = getLocalLength(X);
+  realtype *zdata = N_VGetDeviceArrayPointer_Raja(Z);
 
   RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
@@ -355,10 +425,10 @@ void N_VLinearSum_Raja(realtype a, N_Vector X, realtype b, N_Vector Y, N_Vector 
 
 void N_VProd_Raja(N_Vector X, N_Vector Y, N_Vector Z)
 {
-  const realtype *xdata = getDevData<realtype, sunindextype>(X);
-  const realtype *ydata = getDevData<realtype, sunindextype>(Y);
-  const sunindextype N = getSize<realtype, sunindextype>(X);
-  realtype *zdata = getDevData<realtype, sunindextype>(Z);
+  const realtype *xdata = N_VGetDeviceArrayPointer_Raja(X);
+  const realtype *ydata = N_VGetDeviceArrayPointer_Raja(Y);
+  const sunindextype N = getLocalLength(X);
+  realtype *zdata = N_VGetDeviceArrayPointer_Raja(Z);
 
   RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
@@ -369,10 +439,10 @@ void N_VProd_Raja(N_Vector X, N_Vector Y, N_Vector Z)
 
 void N_VDiv_Raja(N_Vector X, N_Vector Y, N_Vector Z)
 {
-  const realtype *xdata = getDevData<realtype, sunindextype>(X);
-  const realtype *ydata = getDevData<realtype, sunindextype>(Y);
-  const sunindextype N = getSize<realtype, sunindextype>(X);
-  realtype *zdata = getDevData<realtype, sunindextype>(Z);
+  const realtype *xdata = N_VGetDeviceArrayPointer_Raja(X);
+  const realtype *ydata = N_VGetDeviceArrayPointer_Raja(Y);
+  const sunindextype N = getLocalLength(X);
+  realtype *zdata = N_VGetDeviceArrayPointer_Raja(Z);
 
   RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
@@ -383,9 +453,9 @@ void N_VDiv_Raja(N_Vector X, N_Vector Y, N_Vector Z)
 
 void N_VScale_Raja(realtype c, N_Vector X, N_Vector Z)
 {
-  const realtype *xdata = getDevData<realtype, sunindextype>(X);
-  const sunindextype N = getSize<realtype, sunindextype>(X);
-  realtype *zdata = getDevData<realtype, sunindextype>(Z);
+  const realtype *xdata = N_VGetDeviceArrayPointer_Raja(X);
+  const sunindextype N = getLocalLength(X);
+  realtype *zdata = N_VGetDeviceArrayPointer_Raja(Z);
 
   RAJA::forall<RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
@@ -396,9 +466,9 @@ void N_VScale_Raja(realtype c, N_Vector X, N_Vector Z)
 
 void N_VAbs_Raja(N_Vector X, N_Vector Z)
 {
-  const realtype *xdata = getDevData<realtype, sunindextype>(X);
-  const sunindextype N = getSize<realtype, sunindextype>(X);
-  realtype *zdata = getDevData<realtype, sunindextype>(Z);
+  const realtype *xdata = N_VGetDeviceArrayPointer_Raja(X);
+  const sunindextype N = getLocalLength(X);
+  realtype *zdata = N_VGetDeviceArrayPointer_Raja(Z);
 
   RAJA::forall<RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
@@ -409,9 +479,9 @@ void N_VAbs_Raja(N_Vector X, N_Vector Z)
 
 void N_VInv_Raja(N_Vector X, N_Vector Z)
 {
-  const realtype *xdata = getDevData<realtype, sunindextype>(X);
-  const sunindextype N = getSize<realtype, sunindextype>(X);
-  realtype *zdata = getDevData<realtype, sunindextype>(Z);
+  const realtype *xdata = N_VGetDeviceArrayPointer_Raja(X);
+  const sunindextype N = getLocalLength(X);
+  realtype *zdata = N_VGetDeviceArrayPointer_Raja(Z);
 
   RAJA::forall<RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
@@ -422,9 +492,9 @@ void N_VInv_Raja(N_Vector X, N_Vector Z)
 
 void N_VAddConst_Raja(N_Vector X, realtype b, N_Vector Z)
 {
-  const realtype *xdata = getDevData<realtype, sunindextype>(X);
-  const sunindextype N = getSize<realtype, sunindextype>(X);
-  realtype *zdata = getDevData<realtype, sunindextype>(Z);
+  const realtype *xdata = N_VGetDeviceArrayPointer_Raja(X);
+  const sunindextype N = getLocalLength(X);
+  realtype *zdata = N_VGetDeviceArrayPointer_Raja(Z);
 
   RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
@@ -435,9 +505,9 @@ void N_VAddConst_Raja(N_Vector X, realtype b, N_Vector Z)
 
 realtype N_VDotProd_Raja(N_Vector X, N_Vector Y)
 {
-  const realtype *xdata = getDevData<realtype, sunindextype>(X);
-  const realtype *ydata = getDevData<realtype, sunindextype>(Y);
-  const sunindextype N = getSize<realtype, sunindextype>(X);
+  const realtype *xdata = N_VGetDeviceArrayPointer_Raja(X);
+  const realtype *ydata = N_VGetDeviceArrayPointer_Raja(Y);
+  const sunindextype N = getLocalLength(X);
 
   RAJA::ReduceSum< RAJA_REDUCE_TYPE, realtype> gpu_result(0.0);
   RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
@@ -448,15 +518,15 @@ realtype N_VDotProd_Raja(N_Vector X, N_Vector Y)
 
   /* Reduce across MPI processes */
   realtype sum = static_cast<realtype>(gpu_result);
-  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  SUNMPI_Comm comm = getMPIComm(X);
   realtype gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
   return gsum;
 }
 
 realtype N_VMaxNorm_Raja(N_Vector X)
 {
-  const realtype *xdata = getDevData<realtype, sunindextype>(X);
-  const sunindextype N = getSize<realtype, sunindextype>(X);
+  const realtype *xdata = N_VGetDeviceArrayPointer_Raja(X);
+  const sunindextype N = getLocalLength(X);
 
   RAJA::ReduceMax< RAJA_REDUCE_TYPE, realtype> gpu_result(0.0);
   RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
@@ -467,16 +537,16 @@ realtype N_VMaxNorm_Raja(N_Vector X)
 
   /* Reduce across MPI processes */
   realtype maximum = static_cast<realtype>(gpu_result);
-  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  SUNMPI_Comm comm = getMPIComm(X);
   return SUNMPI_Allreduce_scalar(maximum, 2, comm);
 }
 
 realtype N_VWrmsNorm_Raja(N_Vector X, N_Vector W)
 {
-  const realtype *xdata = getDevData<realtype, sunindextype>(X);
-  const realtype *wdata = getDevData<realtype, sunindextype>(W);
-  const sunindextype N = getSize<realtype, sunindextype>(X);
-  const sunindextype Nglobal = getGlobalSize<realtype, sunindextype>(X);
+  const realtype *xdata = N_VGetDeviceArrayPointer_Raja(X);
+  const realtype *wdata = N_VGetDeviceArrayPointer_Raja(W);
+  const sunindextype N = getLocalLength(X);
+  const sunindextype Nglobal = N_VGetLength_Raja(X);
 
   RAJA::ReduceSum< RAJA_REDUCE_TYPE, realtype> gpu_result(0.0);
   RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
@@ -487,17 +557,17 @@ realtype N_VWrmsNorm_Raja(N_Vector X, N_Vector W)
 
   /* Reduce across MPI processes */
   realtype sum = static_cast<realtype>(gpu_result);
-  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  SUNMPI_Comm comm = getMPIComm(X);
   return std::sqrt(SUNMPI_Allreduce_scalar(sum, 1, comm)/Nglobal);
 }
 
 realtype N_VWrmsNormMask_Raja(N_Vector X, N_Vector W, N_Vector ID)
 {
-  const realtype *xdata = getDevData<realtype, sunindextype>(X);
-  const realtype *wdata = getDevData<realtype, sunindextype>(W);
-  const realtype *iddata = getDevData<realtype, sunindextype>(ID);
-  const sunindextype N = getSize<realtype, sunindextype>(X);
-  const sunindextype Nglobal = getGlobalSize<realtype, sunindextype>(X);
+  const realtype *xdata = N_VGetDeviceArrayPointer_Raja(X);
+  const realtype *wdata = N_VGetDeviceArrayPointer_Raja(W);
+  const realtype *iddata = N_VGetDeviceArrayPointer_Raja(ID);
+  const sunindextype N = getLocalLength(X);
+  const sunindextype Nglobal = N_VGetLength_Raja(X);
 
   RAJA::ReduceSum< RAJA_REDUCE_TYPE, realtype> gpu_result(0.0);
   RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
@@ -509,14 +579,14 @@ realtype N_VWrmsNormMask_Raja(N_Vector X, N_Vector W, N_Vector ID)
 
   /* Reduce across MPI processes */
   realtype sum = static_cast<realtype>(gpu_result);
-  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  SUNMPI_Comm comm = getMPIComm(X);
   return std::sqrt(SUNMPI_Allreduce_scalar(sum, 1, comm)/Nglobal);
 }
 
 realtype N_VMin_Raja(N_Vector X)
 {
-  const realtype *xdata = getDevData<realtype, sunindextype>(X);
-  const sunindextype N = getSize<realtype, sunindextype>(X);
+  const realtype *xdata = N_VGetDeviceArrayPointer_Raja(X);
+  const sunindextype N = getLocalLength(X);
 
   RAJA::ReduceMin< RAJA_REDUCE_TYPE, realtype> gpu_result(std::numeric_limits<realtype>::max());
   RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
@@ -527,15 +597,15 @@ realtype N_VMin_Raja(N_Vector X)
 
   /* Reduce across MPI processes */
   realtype minumum = static_cast<realtype>(gpu_result);
-  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  SUNMPI_Comm comm = getMPIComm(X);
   return SUNMPI_Allreduce_scalar(minumum, 3, comm);
 }
 
 realtype N_VWL2Norm_Raja(N_Vector X, N_Vector W)
 {
-  const realtype *xdata = getDevData<realtype, sunindextype>(X);
-  const realtype *wdata = getDevData<realtype, sunindextype>(W);
-  const sunindextype N = getSize<realtype, sunindextype>(X);
+  const realtype *xdata = N_VGetDeviceArrayPointer_Raja(X);
+  const realtype *wdata = N_VGetDeviceArrayPointer_Raja(W);
+  const sunindextype N = getLocalLength(X);
 
   RAJA::ReduceSum< RAJA_REDUCE_TYPE, realtype> gpu_result(0.0);
   RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
@@ -546,14 +616,14 @@ realtype N_VWL2Norm_Raja(N_Vector X, N_Vector W)
 
   /* Reduce across MPI processes */
   realtype sum = static_cast<realtype>(gpu_result);
-  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  SUNMPI_Comm comm = getMPIComm(X);
   return std::sqrt(SUNMPI_Allreduce_scalar(sum, 1, comm));
 }
 
 realtype N_VL1Norm_Raja(N_Vector X)
 {
-  const realtype *xdata = getDevData<realtype, sunindextype>(X);
-  const sunindextype N = getSize<realtype, sunindextype>(X);
+  const realtype *xdata = N_VGetDeviceArrayPointer_Raja(X);
+  const sunindextype N = getLocalLength(X);
 
   RAJA::ReduceSum< RAJA_REDUCE_TYPE, realtype> gpu_result(0.0);
   RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
@@ -564,15 +634,15 @@ realtype N_VL1Norm_Raja(N_Vector X)
 
   /* Reduce across MPI processes */
   realtype sum = static_cast<realtype>(gpu_result);
-  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(X);
+  SUNMPI_Comm comm = getMPIComm(X);
   return SUNMPI_Allreduce_scalar(sum, 1, comm);
 }
 
 void N_VCompare_Raja(realtype c, N_Vector X, N_Vector Z)
 {
-  const realtype *xdata = getDevData<realtype, sunindextype>(X);
-  const sunindextype N = getSize<realtype, sunindextype>(X);
-  realtype *zdata = getDevData<realtype, sunindextype>(Z);
+  const realtype *xdata = N_VGetDeviceArrayPointer_Raja(X);
+  const sunindextype N = getLocalLength(X);
+  realtype *zdata = N_VGetDeviceArrayPointer_Raja(Z);
 
   RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
     RAJA_LAMBDA(sunindextype i) {
@@ -583,9 +653,9 @@ void N_VCompare_Raja(realtype c, N_Vector X, N_Vector Z)
 
 booleantype N_VInvTest_Raja(N_Vector x, N_Vector z)
 {
-  const realtype *xdata = getDevData<realtype, sunindextype>(x);
-  const sunindextype N = getSize<realtype, sunindextype>(x);
-  realtype *zdata = getDevData<realtype, sunindextype>(z);
+  const realtype *xdata = N_VGetDeviceArrayPointer_Raja(x);
+  const sunindextype N = getLocalLength(x);
+  realtype *zdata = N_VGetDeviceArrayPointer_Raja(z);
 
   RAJA::ReduceSum< RAJA_REDUCE_TYPE, realtype> gpu_result(ZERO);
   RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
@@ -600,7 +670,7 @@ booleantype N_VInvTest_Raja(N_Vector x, N_Vector z)
 
   /* Reduce across MPI processes */
   realtype minimum = static_cast<realtype>(gpu_result);
-  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(x);
+  SUNMPI_Comm comm = getMPIComm(x);
   realtype global_minimum = SUNMPI_Allreduce_scalar(minimum, 3, comm);
 
   return (global_minimum < HALF);
@@ -608,10 +678,10 @@ booleantype N_VInvTest_Raja(N_Vector x, N_Vector z)
 
 booleantype N_VConstrMask_Raja(N_Vector c, N_Vector x, N_Vector m)
 {
-  const realtype *cdata = getDevData<realtype, sunindextype>(c);
-  const realtype *xdata = getDevData<realtype, sunindextype>(x);
-  const sunindextype N = getSize<realtype, sunindextype>(x);
-  realtype *mdata = getDevData<realtype, sunindextype>(m);
+  const realtype *cdata = N_VGetDeviceArrayPointer_Raja(c);
+  const realtype *xdata = N_VGetDeviceArrayPointer_Raja(x);
+  const sunindextype N = getLocalLength(x);
+  realtype *mdata = N_VGetDeviceArrayPointer_Raja(m);
 
   RAJA::ReduceSum< RAJA_REDUCE_TYPE, realtype> gpu_result(ZERO);
   RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
@@ -625,7 +695,7 @@ booleantype N_VConstrMask_Raja(N_Vector c, N_Vector x, N_Vector m)
 
   /* Reduce across MPI processes */
   realtype sum = static_cast<realtype>(gpu_result);
-  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(x);
+  SUNMPI_Comm comm = getMPIComm(x);
   realtype global_sum = SUNMPI_Allreduce_scalar(sum, 1, comm);
 
   return (global_sum < HALF);
@@ -633,9 +703,9 @@ booleantype N_VConstrMask_Raja(N_Vector c, N_Vector x, N_Vector m)
 
 realtype N_VMinQuotient_Raja(N_Vector num, N_Vector denom)
 {
-  const realtype *ndata = getDevData<realtype, sunindextype>(num);
-  const realtype *ddata = getDevData<realtype, sunindextype>(denom);
-  const sunindextype N = getSize<realtype, sunindextype>(num);
+  const realtype *ndata = N_VGetDeviceArrayPointer_Raja(num);
+  const realtype *ddata = N_VGetDeviceArrayPointer_Raja(denom);
+  const sunindextype N = getLocalLength(num);
 
   RAJA::ReduceMin< RAJA_REDUCE_TYPE, realtype> gpu_result(std::numeric_limits<realtype>::max());
   RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
@@ -647,9 +717,592 @@ realtype N_VMinQuotient_Raja(N_Vector num, N_Vector denom)
 
   /* Reduce across MPI processes */
   realtype minimum = static_cast<realtype>(gpu_result);
-  SUNMPI_Comm comm = getMPIComm<realtype, sunindextype>(num);
+  SUNMPI_Comm comm = getMPIComm(num);
   return SUNMPI_Allreduce_scalar(minimum, 3, comm);
 }
 
+
+/*
+ * -----------------------------------------------------------------------------
+ * fused vector operations
+ * -----------------------------------------------------------------------------
+ */
+
+int N_VLinearCombination_Raja(int nvec, realtype* c, N_Vector* X, N_Vector z)
+{
+  cudaError_t  err;
+
+  sunindextype N = getLocalLength(z);
+  realtype* d_zd = N_VGetDeviceArrayPointer_Raja(z);
+
+  // Copy c array to device
+  realtype* d_c;
+  err = cudaMalloc((void**) &d_c, nvec*sizeof(realtype));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_c, c, nvec*sizeof(realtype), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  // Create array of device pointers on host
+  realtype** h_Xd = new realtype*[nvec];
+  for (int j=0; j<nvec; j++)
+    h_Xd[j] = N_VGetDeviceArrayPointer_Raja(X[j]);
+
+  // Copy array of device pointers to device from host
+  realtype** d_Xd;
+  err = cudaMalloc((void**) &d_Xd, nvec*sizeof(realtype*));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_Xd, h_Xd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
+    RAJA_LAMBDA(sunindextype i) {
+      d_zd[i] = d_c[0] * d_Xd[0][i];
+      for (int j=1; j<nvec; j++)
+        d_zd[i] += d_c[j] * d_Xd[j][i];
+    }
+  );
+
+  // Free host array
+  delete[] h_Xd;
+
+  // Free device arrays
+  err = cudaFree(d_c);
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaFree(d_Xd);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  return(0);
+}
+
+
+int N_VScaleAddMulti_Raja(int nvec, realtype* c, N_Vector x, N_Vector* Y, N_Vector* Z)
+{
+  cudaError_t err;
+
+  sunindextype N = getLocalLength(x);
+  realtype* d_xd = N_VGetDeviceArrayPointer_Raja(x);
+
+  // Copy c array to device
+  realtype* d_c;
+  err = cudaMalloc((void**) &d_c, nvec*sizeof(realtype));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_c, c, nvec*sizeof(realtype), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  // Create array of device pointers on host
+  realtype** h_Yd = new realtype*[nvec];
+  for (int j=0; j<nvec; j++)
+    h_Yd[j] = N_VGetDeviceArrayPointer_Raja(Y[j]);
+
+  realtype** h_Zd = new realtype*[nvec];
+  for (int j=0; j<nvec; j++)
+    h_Zd[j] = N_VGetDeviceArrayPointer_Raja(Z[j]);
+
+  // Copy array of device pointers to device from host
+  realtype** d_Yd;
+  err = cudaMalloc((void**) &d_Yd, nvec*sizeof(realtype*));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_Yd, h_Yd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  realtype** d_Zd;
+  err = cudaMalloc((void**) &d_Zd, nvec*sizeof(realtype*));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
+    RAJA_LAMBDA(sunindextype i) {
+      for (int j=0; j<nvec; j++)
+        d_Zd[j][i] = d_c[j] * d_xd[i] + d_Yd[j][i];
+    }
+  );
+
+  // Free host array
+  delete[] h_Yd;
+  delete[] h_Zd;
+
+  // Free device arrays
+  err = cudaFree(d_c);
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaFree(d_Yd);
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaFree(d_Zd);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  return(0);
+}
+
+
+/*
+ * -----------------------------------------------------------------------------
+ * vector array operations
+ * -----------------------------------------------------------------------------
+ */
+
+int N_VLinearSumVectorArray_Raja(int nvec,
+                                 realtype a, N_Vector* X,
+                                 realtype b, N_Vector* Y,
+                                 N_Vector* Z)
+{
+  cudaError_t err;
+
+  sunindextype N = getLocalLength(Z[0]);
+
+  // Create array of device pointers on host
+  realtype** h_Xd = new realtype*[nvec];
+  for (int j=0; j<nvec; j++)
+    h_Xd[j] = N_VGetDeviceArrayPointer_Raja(X[j]);
+
+  realtype** h_Yd = new realtype*[nvec];
+  for (int j=0; j<nvec; j++)
+    h_Yd[j] = N_VGetDeviceArrayPointer_Raja(Y[j]);
+
+  realtype** h_Zd = new realtype*[nvec];
+  for (int j=0; j<nvec; j++)
+    h_Zd[j] = N_VGetDeviceArrayPointer_Raja(Z[j]);
+
+  // Copy array of device pointers to device from host
+  realtype** d_Xd;
+  err = cudaMalloc((void**) &d_Xd, nvec*sizeof(realtype*));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_Xd, h_Xd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  realtype** d_Yd;
+  err = cudaMalloc((void**) &d_Yd, nvec*sizeof(realtype*));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_Yd, h_Yd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  realtype** d_Zd;
+  err = cudaMalloc((void**) &d_Zd, nvec*sizeof(realtype*));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
+    RAJA_LAMBDA(sunindextype i) {
+      for (int j=0; j<nvec; j++)
+        d_Zd[j][i] = a * d_Xd[j][i] + b * d_Yd[j][i];
+    }
+  );
+
+  // Free host array
+  delete[] h_Xd;
+  delete[] h_Yd;
+  delete[] h_Zd;
+
+  // Free device arrays
+  err = cudaFree(d_Xd);
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaFree(d_Yd);
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaFree(d_Zd);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  return(0);
+}
+
+
+int N_VScaleVectorArray_Raja(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
+{
+  cudaError_t err;
+
+  sunindextype N = getLocalLength(Z[0]);
+
+  // Copy c array to device
+  realtype* d_c;
+  err = cudaMalloc((void**) &d_c, nvec*sizeof(realtype));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_c, c, nvec*sizeof(realtype), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  // Create array of device pointers on host
+  realtype** h_Xd = new realtype*[nvec];
+  for (int j=0; j<nvec; j++)
+    h_Xd[j] = N_VGetDeviceArrayPointer_Raja(X[j]);
+
+  realtype** h_Zd = new realtype*[nvec];
+  for (int j=0; j<nvec; j++)
+    h_Zd[j] = N_VGetDeviceArrayPointer_Raja(Z[j]);
+
+  // Copy array of device pointers to device from host
+  realtype** d_Xd;
+  err = cudaMalloc((void**) &d_Xd, nvec*sizeof(realtype*));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_Xd, h_Xd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  realtype** d_Zd;
+  err = cudaMalloc((void**) &d_Zd, nvec*sizeof(realtype*));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
+    RAJA_LAMBDA(sunindextype i) {
+      for (int j=0; j<nvec; j++)
+        d_Zd[j][i] = d_c[j] * d_Xd[j][i];
+    }
+  );
+
+  // Free host array
+  delete[] h_Xd;
+  delete[] h_Zd;
+
+  // Free device arrays
+  err = cudaFree(d_Xd);
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaFree(d_Zd);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  return(0);
+}
+
+
+int N_VConstVectorArray_Raja(int nvec, realtype c, N_Vector* Z)
+{
+  cudaError_t err;
+
+  sunindextype N = getLocalLength(Z[0]);
+
+  // Create array of device pointers on host
+  realtype** h_Zd = new realtype*[nvec];
+  for (int j=0; j<nvec; j++)
+    h_Zd[j] = N_VGetDeviceArrayPointer_Raja(Z[j]);
+
+  // Copy array of device pointers to device from host
+  realtype** d_Zd;
+  err = cudaMalloc((void**) &d_Zd, nvec*sizeof(realtype*));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
+    RAJA_LAMBDA(sunindextype i) {
+      for (int j=0; j<nvec; j++)
+        d_Zd[j][i] = c;
+    }
+  );
+
+  // Free host array
+  delete[] h_Zd;
+
+  // Free device arrays
+  err = cudaFree(d_Zd);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  return(0);
+}
+
+
+int N_VScaleAddMultiVectorArray_Raja(int nvec, int nsum, realtype* c,
+                                     N_Vector* X, N_Vector** Y, N_Vector** Z)
+{
+  cudaError_t err;
+
+  sunindextype N = getLocalLength(X[0]);
+
+  // Copy c array to device
+  realtype* d_c;
+  err = cudaMalloc((void**) &d_c, nsum*sizeof(realtype));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_c, c, nsum*sizeof(realtype), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  // Create array of device pointers on host
+  realtype** h_Xd = new realtype*[nvec];
+  for (int j=0; j<nvec; j++)
+    h_Xd[j] = N_VGetDeviceArrayPointer_Raja(X[j]);
+
+  realtype** h_Yd = new realtype*[nsum*nvec];
+  for (int j=0; j<nvec; j++)
+    for (int k=0; k<nsum; k++)
+      h_Yd[j*nsum+k] = N_VGetDeviceArrayPointer_Raja(Y[k][j]);
+
+  realtype** h_Zd = new realtype*[nsum*nvec];
+  for (int j=0; j<nvec; j++)
+    for (int k=0; k<nsum; k++)
+      h_Zd[j*nsum+k] = N_VGetDeviceArrayPointer_Raja(Z[k][j]);
+
+  // Copy array of device pointers to device from host
+  realtype** d_Xd;
+  err = cudaMalloc((void**) &d_Xd, nvec*sizeof(realtype*));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_Xd, h_Xd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  realtype** d_Yd;
+  err = cudaMalloc((void**) &d_Yd, nsum*nvec*sizeof(realtype*));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_Yd, h_Yd, nsum*nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  realtype** d_Zd;
+  err = cudaMalloc((void**) &d_Zd, nsum*nvec*sizeof(realtype*));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_Zd, h_Zd, nsum*nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
+    RAJA_LAMBDA(sunindextype i) {
+      for (int j=0; j<nvec; j++)
+        for (int k=0; k<nsum; k++)
+          d_Zd[j*nsum+k][i] = d_c[k] * d_Xd[j][i] + d_Yd[j*nsum+k][i];
+    }
+  );
+
+  // Free host array
+  delete[] h_Xd;
+  delete[] h_Yd;
+  delete[] h_Zd;
+
+  // Free device arrays
+  err = cudaFree(d_Xd);
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaFree(d_Yd);
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaFree(d_Zd);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  return(0);
+}
+
+
+int N_VLinearCombinationVectorArray_Raja(int nvec, int nsum, realtype* c,
+                                         N_Vector** X, N_Vector* Z)
+{
+  cudaError_t err;
+
+  sunindextype N = getLocalLength(Z[0]);
+
+  // Copy c array to device
+  realtype* d_c;
+  err = cudaMalloc((void**) &d_c, nsum*sizeof(realtype));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_c, c, nsum*sizeof(realtype), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  // Create array of device pointers on host
+  realtype** h_Xd = new realtype*[nsum*nvec];
+  for (int j=0; j<nvec; j++)
+    for (int k=0; k<nsum; k++)
+      h_Xd[j*nsum+k] = N_VGetDeviceArrayPointer_Raja(X[k][j]);
+
+  realtype** h_Zd = new realtype*[nvec];
+  for (int j=0; j<nvec; j++)
+    h_Zd[j] = N_VGetDeviceArrayPointer_Raja(Z[j]);
+
+  // Copy array of device pointers to device from host
+  realtype** d_Xd;
+  err = cudaMalloc((void**) &d_Xd, nsum*nvec*sizeof(realtype*));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_Xd, h_Xd, nsum*nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  realtype** d_Zd;
+  err = cudaMalloc((void**) &d_Zd, nvec*sizeof(realtype*));
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaMemcpy(d_Zd, h_Zd, nvec*sizeof(realtype*), cudaMemcpyHostToDevice);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
+    RAJA_LAMBDA(sunindextype i) {
+      for (int j=0; j<nvec; j++) {
+        d_Zd[j][i] = d_c[0] * d_Xd[j*nsum][i];
+        for (int k=1; k<nsum; k++) {
+          d_Zd[j][i] += d_c[k] * d_Xd[j*nsum+k][i];
+        }
+      }
+    }
+  );
+
+  // Free host array
+  delete[] h_Xd;
+  delete[] h_Zd;
+
+  // Free device arrays
+  err = cudaFree(d_Xd);
+  if (err != cudaSuccess) return cudaGetLastError();
+  err = cudaFree(d_Zd);
+  if (err != cudaSuccess) return cudaGetLastError();
+
+  return(0);
+}
+
+
+/*
+ * -----------------------------------------------------------------
+ * Enable / Disable fused and vector array operations
+ * -----------------------------------------------------------------
+ */
+
+int N_VEnableFusedOps_Raja(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  if (tf) {
+    /* enable all fused vector operations */
+    v->ops->nvlinearcombination = N_VLinearCombination_Raja;
+    v->ops->nvscaleaddmulti     = N_VScaleAddMulti_Raja;
+    v->ops->nvdotprodmulti      = NULL;
+    /* enable all vector array operations */
+    v->ops->nvlinearsumvectorarray         = N_VLinearSumVectorArray_Raja;
+    v->ops->nvscalevectorarray             = N_VScaleVectorArray_Raja;
+    v->ops->nvconstvectorarray             = N_VConstVectorArray_Raja;
+    v->ops->nvwrmsnormvectorarray          = NULL;
+    v->ops->nvwrmsnormmaskvectorarray      = NULL;
+    v->ops->nvscaleaddmultivectorarray     = N_VScaleAddMultiVectorArray_Raja;
+    v->ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Raja;
+  } else {
+    /* disable all fused vector operations */
+    v->ops->nvlinearcombination = NULL;
+    v->ops->nvscaleaddmulti     = NULL;
+    v->ops->nvdotprodmulti      = NULL;
+    /* disable all vector array operations */
+    v->ops->nvlinearsumvectorarray         = NULL;
+    v->ops->nvscalevectorarray             = NULL;
+    v->ops->nvconstvectorarray             = NULL;
+    v->ops->nvwrmsnormvectorarray          = NULL;
+    v->ops->nvwrmsnormmaskvectorarray      = NULL;
+    v->ops->nvscaleaddmultivectorarray     = NULL;
+    v->ops->nvlinearcombinationvectorarray = NULL;
+  }
+
+  /* return success */
+  return(0);
+}
+
+
+int N_VEnableLinearCombination_Raja(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvlinearcombination = N_VLinearCombination_Raja;
+  else
+    v->ops->nvlinearcombination = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableScaleAddMulti_Raja(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvscaleaddmulti = N_VScaleAddMulti_Raja;
+  else
+    v->ops->nvscaleaddmulti = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableLinearSumVectorArray_Raja(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvlinearsumvectorarray = N_VLinearSumVectorArray_Raja;
+  else
+    v->ops->nvlinearsumvectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableScaleVectorArray_Raja(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvscalevectorarray = N_VScaleVectorArray_Raja;
+  else
+    v->ops->nvscalevectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableConstVectorArray_Raja(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvconstvectorarray = N_VConstVectorArray_Raja;
+  else
+    v->ops->nvconstvectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableScaleAddMultiVectorArray_Raja(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvscaleaddmultivectorarray = N_VScaleAddMultiVectorArray_Raja;
+  else
+    v->ops->nvscaleaddmultivectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableLinearCombinationVectorArray_Raja(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Raja;
+  else
+    v->ops->nvlinearcombinationvectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
 
 } // extern "C"

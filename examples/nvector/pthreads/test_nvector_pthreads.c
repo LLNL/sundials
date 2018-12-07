@@ -1,19 +1,18 @@
-/* ----------------------------------------------------------------- 
+/* -----------------------------------------------------------------
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Lawrence Livermore National Laboratory in part under
  * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
  * For details, see the LICENSE file.
  * LLNS Copyright End
  * -----------------------------------------------------------------
- * This is the testing routine to check the POSIX Threads (Pthreads) 
- * NVECTOR module implementation which uses a LOCAL data struct to 
- * share data between threads. 
+ * This is the testing routine to check the POSIX Threads (Pthreads)
+ * NVECTOR module implementation.
  * -----------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -24,28 +23,28 @@
 #include <sundials/sundials_math.h>
 #include "test_nvector.h"
 
-
 /* ----------------------------------------------------------------------
  * Main NVector Testing Routine
  * --------------------------------------------------------------------*/
-int main(int argc, char *argv[]) 
+int main(int argc, char *argv[])
 {
-  int          fails = 0;    /* counter for test failures */
-  int          nthreads;     /* number of threads         */
-  sunindextype veclen;       /* vector length             */
-  N_Vector     W, X, Y, Z;   /* test vectors              */
-  int          print_timing;
+  int          fails = 0;         /* counter for test failures */
+  int          retval;            /* function return value     */
+  sunindextype length;            /* vector length             */
+  N_Vector     U, V, W, X, Y, Z;  /* test vectors              */
+  int          print_timing;      /* turn timing on/off        */
+  int          nthreads;          /* number of POSIX threads   */
 
-  /* check inputs, set vector length, and number of threads */
+  /* check input and set vector length */
   if (argc < 4){
     printf("ERROR: THREE (3) Inputs required: vector length, number of threads, print timing \n");
     return(-1);
   }
 
-  veclen = atol(argv[1]); 
-  if (veclen <= 0) {
+  length = atol(argv[1]);
+  if (length <= 0) {
     printf("ERROR: length of vector must be a positive integer \n");
-    return(-1); 
+    return(-1);
   }
 
   nthreads = atoi(argv[2]);
@@ -55,103 +54,202 @@ int main(int argc, char *argv[])
   }
 
   print_timing = atoi(argv[3]);
-  SetTiming(print_timing);
+  SetTiming(print_timing, 0);
 
+  printf("Testing the Pthreads N_Vector \n");
+  printf("Vector length %ld \n", (long int) length);
+  printf("Number of threads %d \n\n", nthreads);
 
-  printf("\nRunning with %d threads and vector length %ld \n \n",
-         nthreads, (long int) veclen);
-
-  /* Create vectors */
-  W = N_VNewEmpty_Pthreads(veclen, nthreads);
-  X = N_VNew_Pthreads(veclen, nthreads);
-  Y = N_VNew_Pthreads(veclen, nthreads);
-  Z = N_VNew_Pthreads(veclen, nthreads);
-
-  if(N_VGetVectorID(W) == SUNDIALS_NVEC_PTHREADS) {
-    /* printf("Testing Pthreads variant of N_Vector...\n"); */
+  /* Create new vectors */
+  W = N_VNewEmpty_Pthreads(length, nthreads);
+  if (W == NULL) {
+    printf("FAIL: Unable to create a new empty vector \n\n");
+    return(1);
   }
-  
-  /* NVector Tests */
-  fails += Test_N_VSetArrayPointer(W, veclen, 0);
-  fails += Test_N_VGetArrayPointer(X, veclen, 0);
-  fails += Test_N_VLinearSum(X, Y, Z, veclen, 0);
-  fails += Test_N_VConst(X, veclen, 0);
-  fails += Test_N_VProd(X, Y, Z, veclen, 0);
-  fails += Test_N_VDiv(X, Y, Z, veclen, 0);
-  fails += Test_N_VScale(X, Z, veclen, 0);
-  fails += Test_N_VAbs(X, Z, veclen, 0);
-  fails += Test_N_VInv(X, Z, veclen, 0);
-  fails += Test_N_VAddConst(X, Z, veclen, 0);
-  fails += Test_N_VDotProd(X, Y, veclen, veclen, 0);
-  fails += Test_N_VMaxNorm(X, veclen, 0);
-  fails += Test_N_VWrmsNorm(X, Y, veclen, 0);
-  fails += Test_N_VWrmsNormMask(X, Y, Z, veclen, veclen, 0);
-  fails += Test_N_VMin(X, veclen, 0);
-  fails += Test_N_VWL2Norm(X, Y, veclen, veclen, 0);
-  fails += Test_N_VL1Norm(X, veclen, veclen, 0);
-  fails += Test_N_VCompare(X, Z, veclen, 0);
-  fails += Test_N_VInvTest(X, Z, veclen, 0);
-  fails += Test_N_VConstrMask(X, Y, Z, veclen, 0);
-  fails += Test_N_VMinQuotient(X, Y, veclen, 0);
-  fails += Test_N_VCloneVectorArray(5, X, veclen, 0);
-  fails += Test_N_VCloneEmptyVectorArray(5, X, 0);
+
+  X = N_VNew_Pthreads(length, nthreads);
+  if (X == NULL) {
+    N_VDestroy(W);
+    printf("FAIL: Unable to create a new vector \n\n");
+    return(1);
+  }
+
+  /* Check vector ID */
+  fails += Test_N_VGetVectorID(X, SUNDIALS_NVEC_PTHREADS, 0);
+
+  /* Test clone functions */
   fails += Test_N_VCloneEmpty(X, 0);
-  fails += Test_N_VClone(X, veclen, 0);
+  fails += Test_N_VClone(X, length, 0);
+  fails += Test_N_VCloneEmptyVectorArray(5, X, 0);
+  fails += Test_N_VCloneVectorArray(5, X, length, 0);
+
+  /* Test setting/getting array data */
+  fails += Test_N_VSetArrayPointer(W, length, 0);
+  fails += Test_N_VGetArrayPointer(X, length, 0);
+
+  /* Clone additional vectors for testing */
+  Y = N_VClone(X);
+  if (Y == NULL) {
+    N_VDestroy(W);
+    N_VDestroy(X);
+    printf("FAIL: Unable to create a new vector \n\n");
+    return(1);
+  }
+
+  Z = N_VClone(X);
+  if (Z == NULL) {
+    N_VDestroy(W);
+    N_VDestroy(X);
+    N_VDestroy(Y);
+    printf("FAIL: Unable to create a new vector \n\n");
+    return(1);
+  }
+
+  /* Standard vector operation tests */
+  printf("\nTesting standard vector operations:\n\n");
+
+  fails += Test_N_VConst(X, length, 0);
+  fails += Test_N_VLinearSum(X, Y, Z, length, 0);
+  fails += Test_N_VProd(X, Y, Z, length, 0);
+  fails += Test_N_VDiv(X, Y, Z, length, 0);
+  fails += Test_N_VScale(X, Z, length, 0);
+  fails += Test_N_VAbs(X, Z, length, 0);
+  fails += Test_N_VInv(X, Z, length, 0);
+  fails += Test_N_VAddConst(X, Z, length, 0);
+  fails += Test_N_VDotProd(X, Y, length, length, 0);
+  fails += Test_N_VMaxNorm(X, length, 0);
+  fails += Test_N_VWrmsNorm(X, Y, length, 0);
+  fails += Test_N_VWrmsNormMask(X, Y, Z, length, length, 0);
+  fails += Test_N_VMin(X, length, 0);
+  fails += Test_N_VWL2Norm(X, Y, length, length, 0);
+  fails += Test_N_VL1Norm(X, length, length, 0);
+  fails += Test_N_VCompare(X, Z, length, 0);
+  fails += Test_N_VInvTest(X, Z, length, 0);
+  fails += Test_N_VConstrMask(X, Y, Z, length, 0);
+  fails += Test_N_VMinQuotient(X, Y, length, 0);
+
+  /* Fused and vector array operations tests (disabled) */
+  printf("\nTesting fused and vector array operations (disabled):\n\n");
+
+  /* create vector and disable all fused and vector array operations */
+  U = N_VNew_Pthreads(length, nthreads);
+  retval = N_VEnableFusedOps_Pthreads(U, SUNFALSE);
+  if (U == NULL || retval != 0) {
+    N_VDestroy(W);
+    N_VDestroy(X);
+    N_VDestroy(Y);
+    N_VDestroy(Z);
+    printf("FAIL: Unable to create a new vector \n\n");
+    return(1);
+  }
+
+  /* fused operations */
+  fails += Test_N_VLinearCombination(U, length, 0);
+  fails += Test_N_VScaleAddMulti(U, length, 0);
+  fails += Test_N_VDotProdMulti(U, length, length, 0);
+
+  /* vector array operations */
+  fails += Test_N_VLinearSumVectorArray(U, length, 0);
+  fails += Test_N_VScaleVectorArray(U, length, 0);
+  fails += Test_N_VConstVectorArray(U, length, 0);
+  fails += Test_N_VWrmsNormVectorArray(U, length, 0);
+  fails += Test_N_VWrmsNormMaskVectorArray(U, length, length, 0);
+  fails += Test_N_VScaleAddMultiVectorArray(U, length, 0);
+  fails += Test_N_VLinearCombinationVectorArray(U, length, 0);
+
+  /* Fused and vector array operations tests (enabled) */
+  printf("\nTesting fused and vector array operations (enabled):\n\n");
+
+  /* create vector and enable all fused and vector array operations */
+  V = N_VNew_Pthreads(length, nthreads);
+  retval = N_VEnableFusedOps_Pthreads(V, SUNTRUE);
+  if (V == NULL || retval != 0) {
+    N_VDestroy(W);
+    N_VDestroy(X);
+    N_VDestroy(Y);
+    N_VDestroy(Z);
+    N_VDestroy(U);
+    printf("FAIL: Unable to create a new vector \n\n");
+    return(1);
+  }
+
+  /* fused operations */
+  fails += Test_N_VLinearCombination(V, length, 0);
+  fails += Test_N_VScaleAddMulti(V, length, 0);
+  fails += Test_N_VDotProdMulti(V, length, length, 0);
+
+  /* vector array operations */
+  fails += Test_N_VLinearSumVectorArray(V, length, 0);
+  fails += Test_N_VScaleVectorArray(V, length, 0);
+  fails += Test_N_VConstVectorArray(V, length, 0);
+  fails += Test_N_VWrmsNormVectorArray(V, length, 0);
+  fails += Test_N_VWrmsNormMaskVectorArray(V, length, length, 0);
+  fails += Test_N_VScaleAddMultiVectorArray(V, length, 0);
+  fails += Test_N_VLinearCombinationVectorArray(V, length, 0);
 
   /* Free vectors */
-  N_VDestroy_Pthreads(W);
-  N_VDestroy_Pthreads(X);
-  N_VDestroy_Pthreads(Y);
-  N_VDestroy_Pthreads(Z);
+  N_VDestroy(W);
+  N_VDestroy(X);
+  N_VDestroy(Y);
+  N_VDestroy(Z);
+  N_VDestroy(U);
+  N_VDestroy(V);
 
   /* Print result */
   if (fails) {
-    printf("FAIL: NVector module failed %i tests \n \n", fails);
+    printf("FAIL: NVector module failed %i tests \n\n", fails);
   } else {
-    printf("SUCCESS: NVector module passed all tests \n \n");
+    printf("SUCCESS: NVector module passed all tests \n\n");
   }
 
   return(fails);
 }
 
 /* ----------------------------------------------------------------------
- * Check vector
+ * Implementation specific utility functions for vector tests
  * --------------------------------------------------------------------*/
 int check_ans(realtype ans, N_Vector X, sunindextype local_length)
 {
-  int      failure = 0;
+  int          failure = 0;
   sunindextype i;
-  realtype *Xdata;
-  
+  realtype     *Xdata;
+
   Xdata = N_VGetArrayPointer(X);
 
   /* check vector data */
-  for(i=0; i < local_length; i++){
+  for (i = 0; i < local_length; i++) {
     failure += FNEQ(Xdata[i], ans);
   }
 
-  if (failure > ZERO)
-    return(1);
-  else
-    return(0);
+  return (failure > ZERO) ? (1) : (0);
 }
 
 booleantype has_data(N_Vector X)
 {
-  realtype *Xdata = N_VGetArrayPointer(X);
-  if (Xdata == NULL)
-    return SUNFALSE;
-  else
-    return SUNTRUE;
+  /* check if data array is non-null */
+  return (N_VGetArrayPointer(X) == NULL) ? SUNFALSE : SUNTRUE;
 }
 
 void set_element(N_Vector X, sunindextype i, realtype val)
 {
+  /* set i-th element of data array */
   NV_Ith_PT(X,i) = val;
 }
- 
+
 realtype get_element(N_Vector X, sunindextype i)
 {
+  /* get i-th element of data array */
   return NV_Ith_PT(X,i);
 }
 
+double max_time(N_Vector X, double time)
+{
+  /* not running in parallel, just return input time */
+  return(time);
+}
+
+void sync_device()
+{
+  /* not running on GPU, just return */
+  return;
+}

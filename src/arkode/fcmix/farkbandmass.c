@@ -15,7 +15,7 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * Fortran/C interface routines for ARKODE/ARKDLS, for the case
+ * Fortran/C interface routines for ARKODE/ARKLS, for the case
  * of a user-supplied mass-matrix approximation routine.
  *--------------------------------------------------------------*/
 
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include "farkode.h"
 #include "arkode_impl.h"
-#include <arkode/arkode_direct.h>
+#include <arkode/arkode_arkstep.h>
 #include <sunmatrix/sunmatrix_band.h>
 
 
@@ -48,11 +48,11 @@ extern "C" {
 
 /*=============================================================*/
 
-/* Fortran interface routine to ARKDlsSetMassFn; see farkode.h
+/* Fortran interface routine to ARKStepSetMassFn; see farkode.h
    for further details */
 void FARK_BANDSETMASS(int *ier)
 {
-  *ier = ARKDlsSetMassFn(ARK_arkodemem, FARKBandMass);
+  *ier = ARKStepSetMassFn(ARK_arkodemem, FARKBandMass);
 }
 
 /*=============================================================*/
@@ -60,7 +60,7 @@ void FARK_BANDSETMASS(int *ier)
 /* C interface to user-supplied Fortran subroutine FARKBMASS; see
    farkode.h for further details */
 int FARKBandMass(realtype t, SUNMatrix M, void *user_data,
-		 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
+                 N_Vector vtemp1, N_Vector vtemp2, N_Vector vtemp3)
 {
   int ier;
   realtype *massdata, *v1data, *v2data, *v3data;
@@ -79,8 +79,8 @@ int FARKBandMass(realtype t, SUNMatrix M, void *user_data,
   ARK_userdata = (FARKUserData) user_data;
 
   FARK_BMASS(&N, &mupper, &mlower, &eband, &t, massdata,
-	     ARK_userdata->ipar, ARK_userdata->rpar, v1data,
-	     v2data, v3data, &ier);
+             ARK_userdata->ipar, ARK_userdata->rpar, v1data,
+             v2data, v3data, &ier);
   return(ier);
 }
 

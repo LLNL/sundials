@@ -21,7 +21,6 @@
 #include <kinsol/kinsol.h>             /* access to KINSOL func., consts. */
 #include <nvector/nvector_serial.h>    /* access to serial N_Vector       */
 #include <sunmatrix/sunmatrix_band.h>  /* access to band SUNMatrix        */
-#include <kinsol/kinsol_direct.h>      /* access to KINDls interface      */
 #include <sunlinsol/sunlinsol_band.h>  /* access to band SUNLinearSolver  */
 #include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype */
 #include <sundials/sundials_math.h>    /* access to SUNRexp               */
@@ -42,11 +41,11 @@
 
 /* IJth is defined in order to isolate the translation from the
    mathematical 2-dimensional structure of the dependent variable vector
-   to the underlying 1-dimensional storage. 
+   to the underlying 1-dimensional storage.
    IJth(vdata,i,j) references the element in the vdata array for
    u at mesh point (i,j), where 1 <= i <= NX, 1 <= j <= NY.
    The vdata array is obtained via the call vdata = N_VGetArrayPointer_Serial(v),
-   where v is an N_Vector. 
+   where v is an N_Vector.
    The variables are ordered by the y index j, then by the x index i. */
 
 #define IJth(vdata,i,j) (vdata[(j-1) + (i-1)*NY])
@@ -81,7 +80,7 @@ int main()
   /* -------------------------
    * Print problem description
    * ------------------------- */
-  
+
   printf("\n2D elliptic PDE on unit square\n");
   printf("   d^2 u / dx^2 + d^2 u / dy^2 = u^3 - u + 2.0\n");
   printf(" + homogeneous Dirichlet boundary conditions\n\n");
@@ -111,12 +110,12 @@ int main()
   if (check_flag(&flag, "KINInit", 1)) return(1);
 
   /* -------------------
-   * Set optional inputs 
+   * Set optional inputs
    * ------------------- */
 
   /* Specify stopping tolerance based on residual */
 
-  fnormtol  = FTOL; 
+  fnormtol  = FTOL;
   flag = KINSetFuncNormTol(kmem, fnormtol);
   if (check_flag(&flag, "KINSetFuncNormTol", 1)) return(1);
 
@@ -124,22 +123,22 @@ int main()
    * Create band SUNMatrix
    * ------------------------- */
 
-  J = SUNBandMatrix(NEQ, NX, NX, 2*NX);
+  J = SUNBandMatrix(NEQ, NX, NX);
   if(check_flag((void *)J, "SUNBandMatrix", 0)) return(1);
 
   /* ---------------------------
    * Create band SUNLinearSolver
    * --------------------------- */
 
-  LS = SUNBandLinearSolver(y, J);
-  if(check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+  LS = SUNLinSol_Band(y, J);
+  if(check_flag((void *)LS, "SUNLinSol_Band", 0)) return(1);
 
   /* -------------------------
-   * Attach band linear solver 
+   * Attach band linear solver
    * ------------------------- */
 
-  flag = KINDlsSetLinearSolver(kmem, LS, J);
-  if(check_flag(&flag, "KINDlsSetLinearSolver", 1)) return(1);
+  flag = KINSetLinearSolver(kmem, LS, J);
+  if(check_flag(&flag, "KINSetLinearSolver", 1)) return(1);
 
   /* ------------------------------
    * Parameters for Modified Newton
@@ -157,13 +156,13 @@ int main()
   if (check_flag(&flag, "KINSetMaxSubSetupCalls", 1)) return(1);
 
   /* -------------
-   * Initial guess 
+   * Initial guess
    * ------------- */
 
   N_VConst_Serial(ZERO, y);
 
   /* ----------------------------
-   * Call KINSol to solve problem 
+   * Call KINSol to solve problem
    * ---------------------------- */
 
   /* No scaling used */
@@ -179,7 +178,7 @@ int main()
 
 
   /* ------------------------------------
-   * Print solution and solver statistics 
+   * Print solution and solver statistics
    * ------------------------------------ */
 
   /* Get scaled norm of the system function */
@@ -191,15 +190,15 @@ int main()
   printf("\nComputed solution (||F|| = %Lg):\n\n",fnorm);
 #else
   printf("\nComputed solution (||F|| = %g):\n\n",fnorm);
-#endif  
+#endif
   PrintOutput(y);
 
   PrintFinalStats(kmem);
 
   /* -----------
-   * Free memory 
+   * Free memory
    * ----------- */
-  
+
   N_VDestroy_Serial(y);
   N_VDestroy_Serial(scale);
   KINFree(&kmem);
@@ -215,8 +214,8 @@ int main()
  *--------------------------------------------------------------------
  */
 
-/* 
- * System function 
+/*
+ * System function
  */
 
 static int func(N_Vector u, N_Vector f, void *user_data)
@@ -228,7 +227,7 @@ static int func(N_Vector u, N_Vector f, void *user_data)
 
   int i, j;
 
-  dx = ONE/(NX+1);  
+  dx = ONE/(NX+1);
   dy = ONE/(NY+1);
   hdc = ONE/(dx*dx);
   vdc = ONE/(dy*dy);
@@ -262,7 +261,7 @@ static int func(N_Vector u, N_Vector f, void *user_data)
   return(0);
 }
 
-/* 
+/*
  * Print solution at selected points
  */
 
@@ -312,7 +311,7 @@ static void PrintOutput(N_Vector u)
   }
 }
 
-/* 
+/*
  * Print final statistics
  */
 
@@ -322,7 +321,7 @@ static void PrintFinalStats(void *kmem)
   long int lenrw, leniw, lenrwB, leniwB;
   long int nbcfails, nbacktr;
   int flag;
-  
+
   /* Main solver statistics */
 
   flag = KINGetNumNonlinSolvIters(kmem, &nni);
@@ -344,15 +343,15 @@ static void PrintFinalStats(void *kmem)
 
   /* Band linear solver statistics */
 
-  flag = KINDlsGetNumJacEvals(kmem, &nje);
-  check_flag(&flag, "KINDlsGetNumJacEvals", 1);
-  flag = KINDlsGetNumFuncEvals(kmem, &nfeD);
-  check_flag(&flag, "KINDlsGetNumFuncEvals", 1);
+  flag = KINGetNumJacEvals(kmem, &nje);
+  check_flag(&flag, "KINGetNumJacEvals", 1);
+  flag = KINGetNumLinFuncEvals(kmem, &nfeD);
+  check_flag(&flag, "KINGetNumLinFuncEvals", 1);
 
   /* Band linear solver workspace size */
 
-  flag = KINDlsGetWorkSpace(kmem, &lenrwB, &leniwB);
-  check_flag(&flag, "KINDlsGetWorkSpace", 1);
+  flag = KINGetLinWorkSpace(kmem, &lenrwB, &leniwB);
+  check_flag(&flag, "KINGetLinWorkSpace", 1);
 
   printf("\nFinal Statistics.. \n\n");
   printf("nni      = %6ld    nfe     = %6ld \n", nni, nfe);
@@ -361,7 +360,7 @@ static void PrintFinalStats(void *kmem)
   printf("\n");
   printf("lenrw    = %6ld    leniw   = %6ld \n", lenrw, leniw);
   printf("lenrwB   = %6ld    leniwB  = %6ld \n", lenrwB, leniwB);
-  
+
 }
 
 /*
@@ -371,7 +370,7 @@ static void PrintFinalStats(void *kmem)
  *    opt == 1 means SUNDIALS function returns a flag so check if
  *             flag >= 0
  *    opt == 2 means function allocates memory so check if returned
- *             NULL pointer 
+ *             NULL pointer
  */
 
 static int check_flag(void *flagvalue, const char *funcname, int opt)
@@ -380,7 +379,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
-    fprintf(stderr, 
+    fprintf(stderr,
             "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
 	    funcname);
     return(1);
@@ -393,7 +392,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
       fprintf(stderr,
               "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
 	      funcname, *errflag);
-      return(1); 
+      return(1);
     }
   }
 

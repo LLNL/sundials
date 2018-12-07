@@ -5,7 +5,7 @@ Number of species ns: 2     Mesh dimensions: 82 x 82
 Total system size: 13448
 Subgrid dimensions: 41 x 41     Processor array: 2 x 2
 Tolerance parameters:  rtol = 1e-05   atol = 1e-05
-Linear solver: SUNSPGMR     Max. Krylov dimension maxl: 16
+Linear solver: SUNLinSol_SPGMR     Max. Krylov dimension maxl: 16
 Preconditioner: band-block-diagonal (IDABBDPRE), with parameters
      mudq = 82,  mldq = 82,  mukeep = 2,  mlkeep = 2
 CalcIC called to correct initial concentrations 
@@ -57,5 +57,5 @@ The average of u on the domain:
 g = 1.62453
 
 Sensitivities of g:
-w.r.t. eps0 =  16.1571399862
-w.r.t. eps1 =  -3.7188305042
+w.r.t. eps0 =  16.1571227152
+w.r.t. eps1 =  -3.7188364999

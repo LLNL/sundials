@@ -37,7 +37,7 @@ SET(CVODES_examples
   "cvsRoberts_ASAi_dns\;\;develop"
   "cvsRoberts_ASAi_dns_constraints\;\;develop"
   "cvsRoberts_dns\;\;"
-  "cvsRoberts_dns_constraints\;\;"
+  "cvsRoberts_dns_constraints\;\;develop"
   "cvsRoberts_dns_uw\;\;develop"
   "cvsRoberts_FSA_dns\;-sensi stg1 t\;develop"
   "cvsRoberts_FSA_dns_Switch\;\;develop"

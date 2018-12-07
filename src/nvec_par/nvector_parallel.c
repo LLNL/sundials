@@ -28,34 +28,31 @@
 #define ONE    RCONST(1.0)
 #define ONEPT5 RCONST(1.5)
 
-/* Error Message */
+/* Private functions for special cases of vector operations */
+static void VCopy_Parallel(N_Vector x, N_Vector z);                              /* z=x       */
+static void VSum_Parallel(N_Vector x, N_Vector y, N_Vector z);                   /* z=x+y     */
+static void VDiff_Parallel(N_Vector x, N_Vector y, N_Vector z);                  /* z=x-y     */
+static void VNeg_Parallel(N_Vector x, N_Vector z);                               /* z=-x      */
+static void VScaleSum_Parallel(realtype c, N_Vector x, N_Vector y, N_Vector z);  /* z=c(x+y)  */
+static void VScaleDiff_Parallel(realtype c, N_Vector x, N_Vector y, N_Vector z); /* z=c(x-y)  */
+static void VLin1_Parallel(realtype a, N_Vector x, N_Vector y, N_Vector z);      /* z=ax+y    */
+static void VLin2_Parallel(realtype a, N_Vector x, N_Vector y, N_Vector z);      /* z=ax-y    */
+static void Vaxpy_Parallel(realtype a, N_Vector x, N_Vector y);                  /* y <- ax+y */
+static void VScaleBy_Parallel(realtype a, N_Vector x);                           /* x <- ax   */
 
+/* Private functions for special cases of vector array operations */
+static int VSumVectorArray_Parallel(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z);                   /* Z=X+Y     */
+static int VDiffVectorArray_Parallel(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z);                  /* Z=X-Y     */
+static int VScaleSumVectorArray_Parallel(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z);  /* Z=c(X+Y)  */
+static int VScaleDiffVectorArray_Parallel(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z); /* Z=c(X-Y)  */
+static int VLin1VectorArray_Parallel(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z);      /* Z=aX+Y    */
+static int VLin2VectorArray_Parallel(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z);      /* Z=aX-Y    */
+static int VaxpyVectorArray_Parallel(int nvec, realtype a, N_Vector* X, N_Vector* Y);                   /* Y <- aX+Y */
+
+/* Error Message */
 #define BAD_N1 "N_VNew_Parallel -- Sum of local vector lengths differs from "
 #define BAD_N2 "input global length. \n\n"
 #define BAD_N   BAD_N1 BAD_N2
-
-/* Private function prototypes */
-
-/* z=x */
-static void VCopy_Parallel(N_Vector x, N_Vector z);
-/* z=x+y */
-static void VSum_Parallel(N_Vector x, N_Vector y, N_Vector z);
-/* z=x-y */
-static void VDiff_Parallel(N_Vector x, N_Vector y, N_Vector z);
-/* z=-x */
-static void VNeg_Parallel(N_Vector x, N_Vector z);
-/* z=c(x+y) */
-static void VScaleSum_Parallel(realtype c, N_Vector x, N_Vector y, N_Vector z);
-/* z=c(x-y) */
-static void VScaleDiff_Parallel(realtype c, N_Vector x, N_Vector y, N_Vector z);
-/* z=ax+y */
-static void VLin1_Parallel(realtype a, N_Vector x, N_Vector y, N_Vector z);
-/* z=ax-y */
-static void VLin2_Parallel(realtype a, N_Vector x, N_Vector y, N_Vector z);
-/* y <- ax+y */
-static void Vaxpy_Parallel(realtype a, N_Vector x, N_Vector y);
-/* x <- ax */
-static void VScaleBy_Parallel(realtype a, N_Vector x);
 
 /*
  * -----------------------------------------------------------------
@@ -111,25 +108,41 @@ N_Vector N_VNewEmpty_Parallel(MPI_Comm comm,
   ops->nvspace           = N_VSpace_Parallel;
   ops->nvgetarraypointer = N_VGetArrayPointer_Parallel;
   ops->nvsetarraypointer = N_VSetArrayPointer_Parallel;
-  ops->nvlinearsum       = N_VLinearSum_Parallel;
-  ops->nvconst           = N_VConst_Parallel;
-  ops->nvprod            = N_VProd_Parallel;
-  ops->nvdiv             = N_VDiv_Parallel;
-  ops->nvscale           = N_VScale_Parallel;
-  ops->nvabs             = N_VAbs_Parallel;
-  ops->nvinv             = N_VInv_Parallel;
-  ops->nvaddconst        = N_VAddConst_Parallel;
-  ops->nvdotprod         = N_VDotProd_Parallel;
-  ops->nvmaxnorm         = N_VMaxNorm_Parallel;
-  ops->nvwrmsnormmask    = N_VWrmsNormMask_Parallel;
-  ops->nvwrmsnorm        = N_VWrmsNorm_Parallel;
-  ops->nvmin             = N_VMin_Parallel;
-  ops->nvwl2norm         = N_VWL2Norm_Parallel;
-  ops->nvl1norm          = N_VL1Norm_Parallel;
-  ops->nvcompare         = N_VCompare_Parallel;
-  ops->nvinvtest         = N_VInvTest_Parallel;
-  ops->nvconstrmask      = N_VConstrMask_Parallel;
-  ops->nvminquotient     = N_VMinQuotient_Parallel;
+
+  /* standard vector operations */
+  ops->nvlinearsum    = N_VLinearSum_Parallel;
+  ops->nvconst        = N_VConst_Parallel;
+  ops->nvprod         = N_VProd_Parallel;
+  ops->nvdiv          = N_VDiv_Parallel;
+  ops->nvscale        = N_VScale_Parallel;
+  ops->nvabs          = N_VAbs_Parallel;
+  ops->nvinv          = N_VInv_Parallel;
+  ops->nvaddconst     = N_VAddConst_Parallel;
+  ops->nvdotprod      = N_VDotProd_Parallel;
+  ops->nvmaxnorm      = N_VMaxNorm_Parallel;
+  ops->nvwrmsnormmask = N_VWrmsNormMask_Parallel;
+  ops->nvwrmsnorm     = N_VWrmsNorm_Parallel;
+  ops->nvmin          = N_VMin_Parallel;
+  ops->nvwl2norm      = N_VWL2Norm_Parallel;
+  ops->nvl1norm       = N_VL1Norm_Parallel;
+  ops->nvcompare      = N_VCompare_Parallel;
+  ops->nvinvtest      = N_VInvTest_Parallel;
+  ops->nvconstrmask   = N_VConstrMask_Parallel;
+  ops->nvminquotient  = N_VMinQuotient_Parallel;
+
+  /* fused vector operations (optional, NULL means disabled by default) */
+  ops->nvlinearcombination = NULL;
+  ops->nvscaleaddmulti     = NULL;
+  ops->nvdotprodmulti      = NULL;
+
+  /* vector array operations (optional, NULL means disabled by default) */
+  ops->nvlinearsumvectorarray         = NULL;
+  ops->nvscalevectorarray             = NULL;
+  ops->nvconstvectorarray             = NULL;
+  ops->nvwrmsnormvectorarray          = NULL;
+  ops->nvwrmsnormmaskvectorarray      = NULL;
+  ops->nvscaleaddmultivectorarray     = NULL;
+  ops->nvlinearcombinationvectorarray = NULL;
 
   /* Create content */
   content = NULL;
@@ -362,25 +375,41 @@ N_Vector N_VCloneEmpty_Parallel(N_Vector w)
   ops->nvspace           = w->ops->nvspace;
   ops->nvgetarraypointer = w->ops->nvgetarraypointer;
   ops->nvsetarraypointer = w->ops->nvsetarraypointer;
-  ops->nvlinearsum       = w->ops->nvlinearsum;
-  ops->nvconst           = w->ops->nvconst;
-  ops->nvprod            = w->ops->nvprod;
-  ops->nvdiv             = w->ops->nvdiv;
-  ops->nvscale           = w->ops->nvscale;
-  ops->nvabs             = w->ops->nvabs;
-  ops->nvinv             = w->ops->nvinv;
-  ops->nvaddconst        = w->ops->nvaddconst;
-  ops->nvdotprod         = w->ops->nvdotprod;
-  ops->nvmaxnorm         = w->ops->nvmaxnorm;
-  ops->nvwrmsnormmask    = w->ops->nvwrmsnormmask;
-  ops->nvwrmsnorm        = w->ops->nvwrmsnorm;
-  ops->nvmin             = w->ops->nvmin;
-  ops->nvwl2norm         = w->ops->nvwl2norm;
-  ops->nvl1norm          = w->ops->nvl1norm;
-  ops->nvcompare         = w->ops->nvcompare;
-  ops->nvinvtest         = w->ops->nvinvtest;
-  ops->nvconstrmask      = w->ops->nvconstrmask;
-  ops->nvminquotient     = w->ops->nvminquotient;
+
+  /* standard vector operations */
+  ops->nvlinearsum    = w->ops->nvlinearsum;
+  ops->nvconst        = w->ops->nvconst;
+  ops->nvprod         = w->ops->nvprod;
+  ops->nvdiv          = w->ops->nvdiv;
+  ops->nvscale        = w->ops->nvscale;
+  ops->nvabs          = w->ops->nvabs;
+  ops->nvinv          = w->ops->nvinv;
+  ops->nvaddconst     = w->ops->nvaddconst;
+  ops->nvdotprod      = w->ops->nvdotprod;
+  ops->nvmaxnorm      = w->ops->nvmaxnorm;
+  ops->nvwrmsnormmask = w->ops->nvwrmsnormmask;
+  ops->nvwrmsnorm     = w->ops->nvwrmsnorm;
+  ops->nvmin          = w->ops->nvmin;
+  ops->nvwl2norm      = w->ops->nvwl2norm;
+  ops->nvl1norm       = w->ops->nvl1norm;
+  ops->nvcompare      = w->ops->nvcompare;
+  ops->nvinvtest      = w->ops->nvinvtest;
+  ops->nvconstrmask   = w->ops->nvconstrmask;
+  ops->nvminquotient  = w->ops->nvminquotient;
+
+  /* fused vector operations */
+  ops->nvlinearcombination = w->ops->nvlinearcombination;
+  ops->nvscaleaddmulti     = w->ops->nvscaleaddmulti;
+  ops->nvdotprodmulti      = w->ops->nvdotprodmulti;
+
+  /* vector array operations */
+  ops->nvlinearsumvectorarray         = w->ops->nvlinearsumvectorarray;
+  ops->nvscalevectorarray             = w->ops->nvscalevectorarray;
+  ops->nvconstvectorarray             = w->ops->nvconstvectorarray;
+  ops->nvwrmsnormvectorarray          = w->ops->nvwrmsnormvectorarray;
+  ops->nvwrmsnormmaskvectorarray      = w->ops->nvwrmsnormmaskvectorarray;
+  ops->nvscaleaddmultivectorarray     = w->ops->nvscaleaddmultivectorarray;
+  ops->nvlinearcombinationvectorarray = w->ops->nvlinearcombinationvectorarray;
 
   /* Create content */
   content = NULL;
@@ -973,6 +1002,664 @@ realtype N_VMinQuotient_Parallel(N_Vector num, N_Vector denom)
   return(SUNMPI_Allreduce_scalar(min, 3, comm));
 }
 
+
+/*
+ * -----------------------------------------------------------------
+ * fused vector operations
+ * -----------------------------------------------------------------
+ */
+
+int N_VLinearCombination_Parallel(int nvec, realtype* c, N_Vector* X, N_Vector z)
+{
+  int          i;
+  sunindextype j, N;
+  realtype*    zd=NULL;
+  realtype*    xd=NULL;
+
+  /* invalid number of vectors */
+  if (nvec < 1) return(-1);
+
+  /* should have called N_VScale */
+  if (nvec == 1) {
+    N_VScale_Parallel(c[0], X[0], z);
+    return(0);
+  }
+
+  /* should have called N_VLinearSum */
+  if (nvec == 2) {
+    N_VLinearSum_Parallel(c[0], X[0], c[1], X[1], z);
+    return(0);
+  }
+
+  /* get vector length and data array */
+  N  = NV_LOCLENGTH_P(z);
+  zd = NV_DATA_P(z);
+
+  /*
+   * X[0] += c[i]*X[i], i = 1,...,nvec-1
+   */
+  if ((X[0] == z) && (c[0] == ONE)) {
+    for (i=1; i<nvec; i++) {
+      xd = NV_DATA_P(X[i]);
+      for (j=0; j<N; j++) {
+        zd[j] += c[i] * xd[j];
+      }
+    }
+    return(0);
+  }
+
+  /*
+   * X[0] = c[0] * X[0] + sum{ c[i] * X[i] }, i = 1,...,nvec-1
+   */
+  if (X[0] == z) {
+    for (j=0; j<N; j++) {
+      zd[j] *= c[0];
+    }
+    for (i=1; i<nvec; i++) {
+      xd = NV_DATA_P(X[i]);
+      for (j=0; j<N; j++) {
+        zd[j] += c[i] * xd[j];
+      }
+    }
+    return(0);
+  }
+
+  /*
+   * z = sum{ c[i] * X[i] }, i = 0,...,nvec-1
+   */
+  xd = NV_DATA_P(X[0]);
+  for (j=0; j<N; j++) {
+    zd[j] = c[0] * xd[j];
+  }
+  for (i=1; i<nvec; i++) {
+    xd = NV_DATA_P(X[i]);
+    for (j=0; j<N; j++) {
+      zd[j] += c[i] * xd[j];
+    }
+  }
+  return(0);
+}
+
+
+int N_VScaleAddMulti_Parallel(int nvec, realtype* a, N_Vector x, N_Vector* Y, N_Vector* Z)
+{
+  int          i;
+  sunindextype j, N;
+  realtype*    xd=NULL;
+  realtype*    yd=NULL;
+  realtype*    zd=NULL;
+
+  /* invalid number of vectors */
+  if (nvec < 1) return(-1);
+
+  /* should have called N_VLinearSum */
+  if (nvec == 1) {
+    N_VLinearSum_Parallel(a[0], x, ONE, Y[0], Z[0]);
+    return(0);
+  }
+
+  /* get vector length and data array */
+  N  = NV_LOCLENGTH_P(x);
+  xd = NV_DATA_P(x);
+
+  /*
+   * Y[i][j] += a[i] * x[j]
+   */
+  if (Y == Z) {
+    for (i=0; i<nvec; i++) {
+      yd = NV_DATA_P(Y[i]);
+      for (j=0; j<N; j++) {
+        yd[j] += a[i] * xd[j];
+      }
+    }
+    return(0);
+  }
+
+  /*
+   * Z[i][j] = Y[i][j] + a[i] * x[j]
+   */
+  for (i=0; i<nvec; i++) {
+    yd = NV_DATA_P(Y[i]);
+    zd = NV_DATA_P(Z[i]);
+    for (j=0; j<N; j++) {
+      zd[j] = a[i] * xd[j] + yd[j];
+    }
+  }
+  return(0);
+}
+
+
+int N_VDotProdMulti_Parallel(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods)
+{
+  int          i;
+  sunindextype j, N;
+  realtype*    xd=NULL;
+  realtype*    yd=NULL;
+  MPI_Comm     comm;
+
+  /* invalid number of vectors */
+  if (nvec < 1) return(-1);
+
+  /* should have called N_VDotProd */
+  if (nvec == 1) {
+    dotprods[0] = N_VDotProd_Parallel(x, Y[0]);
+    return(0);
+  }
+
+  /* get vector length, data array, and communicator */
+  N    = NV_LOCLENGTH_P(x);
+  xd   = NV_DATA_P(x);
+  comm = NV_COMM_P(x);
+
+  /* compute multiple dot products */
+  for (i=0; i<nvec; i++) {
+    yd = NV_DATA_P(Y[i]);
+    dotprods[i] = ZERO;
+    for (j=0; j<N; j++) {
+      dotprods[i] += xd[j] * yd[j];
+    }
+  }
+  SUNMPI_Allreduce(dotprods, nvec, 1, comm);
+
+  return(0);
+}
+
+
+/*
+ * -----------------------------------------------------------------
+ * vector array operations
+ * -----------------------------------------------------------------
+ */
+
+int N_VLinearSumVectorArray_Parallel(int nvec,
+                                   realtype a, N_Vector* X,
+                                   realtype b, N_Vector* Y,
+                                   N_Vector* Z)
+{
+  int          i;
+  sunindextype j, N;
+  realtype*    xd=NULL;
+  realtype*    yd=NULL;
+  realtype*    zd=NULL;
+  realtype     c;
+  N_Vector*    V1;
+  N_Vector*    V2;
+  booleantype  test;
+
+  /* invalid number of vectors */
+  if (nvec < 1) return(-1);
+
+  /* should have called N_VLinearSum */
+  if (nvec == 1) {
+    N_VLinearSum_Parallel(a, X[0], b, Y[0], Z[0]);
+    return(0);
+  }
+
+  /* BLAS usage: axpy y <- ax+y */
+  if ((b == ONE) && (Z == Y))
+    return(VaxpyVectorArray_Parallel(nvec, a, X, Y));
+
+  /* BLAS usage: axpy x <- by+x */
+  if ((a == ONE) && (Z == X))
+    return(VaxpyVectorArray_Parallel(nvec, b, Y, X));
+
+  /* Case: a == b == 1.0 */
+  if ((a == ONE) && (b == ONE))
+    return(VSumVectorArray_Parallel(nvec, X, Y, Z));
+
+  /* Cases:                    */
+  /*   (1) a == 1.0, b = -1.0, */
+  /*   (2) a == -1.0, b == 1.0 */
+  if ((test = ((a == ONE) && (b == -ONE))) || ((a == -ONE) && (b == ONE))) {
+    V1 = test ? Y : X;
+    V2 = test ? X : Y;
+    return(VDiffVectorArray_Parallel(nvec, V2, V1, Z));
+  }
+
+  /* Cases:                                                  */
+  /*   (1) a == 1.0, b == other or 0.0,                      */
+  /*   (2) a == other or 0.0, b == 1.0                       */
+  /* if a or b is 0.0, then user should have called N_VScale */
+  if ((test = (a == ONE)) || (b == ONE)) {
+    c  = test ? b : a;
+    V1 = test ? Y : X;
+    V2 = test ? X : Y;
+    return(VLin1VectorArray_Parallel(nvec, c, V1, V2, Z));
+  }
+
+  /* Cases:                     */
+  /*   (1) a == -1.0, b != 1.0, */
+  /*   (2) a != 1.0, b == -1.0  */
+  if ((test = (a == -ONE)) || (b == -ONE)) {
+    c = test ? b : a;
+    V1 = test ? Y : X;
+    V2 = test ? X : Y;
+    return(VLin2VectorArray_Parallel(nvec, c, V1, V2, Z));
+  }
+
+  /* Case: a == b                                                         */
+  /* catches case both a and b are 0.0 - user should have called N_VConst */
+  if (a == b)
+    return(VScaleSumVectorArray_Parallel(nvec, a, X, Y, Z));
+
+  /* Case: a == -b */
+  if (a == -b)
+    return(VScaleDiffVectorArray_Parallel(nvec, a, X, Y, Z));
+
+  /* Do all cases not handled above:                               */
+  /*   (1) a == other, b == 0.0 - user should have called N_VScale */
+  /*   (2) a == 0.0, b == other - user should have called N_VScale */
+  /*   (3) a,b == other, a !=b, a != -b                            */
+  
+  /* get vector length */
+  N = NV_LOCLENGTH_P(Z[0]);
+
+  /* compute linear sum for each vector pair in vector arrays */
+  for (i=0; i<nvec; i++) {
+    xd = NV_DATA_P(X[i]);
+    yd = NV_DATA_P(Y[i]);
+    zd = NV_DATA_P(Z[i]);
+    for (j=0; j<N; j++) {
+      zd[j] = a * xd[j] + b * yd[j];
+    }
+  }
+
+  return(0);
+}
+
+
+int N_VScaleVectorArray_Parallel(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
+{
+  int          i;
+  sunindextype j, N;
+  realtype*    xd=NULL;
+  realtype*    zd=NULL;
+
+  /* invalid number of vectors */
+  if (nvec < 1) return(-1);
+
+  /* should have called N_VScale */
+  if (nvec == 1) {
+    N_VScale_Parallel(c[0], X[0], Z[0]);
+    return(0);
+  }
+
+  /* get vector length */
+  N = NV_LOCLENGTH_P(Z[0]);
+
+  /*
+   * X[i] *= c[i]
+   */
+  if (X == Z) {
+    for (i=0; i<nvec; i++) {
+      xd = NV_DATA_P(X[i]);
+      for (j=0; j<N; j++) {
+        xd[j] *= c[i];
+      }
+    }
+    return(0);
+  }
+
+  /*
+   * Z[i] = c[i] * X[i]
+   */
+  for (i=0; i<nvec; i++) {
+    xd = NV_DATA_P(X[i]);
+    zd = NV_DATA_P(Z[i]);
+    for (j=0; j<N; j++) {
+      zd[j] = c[i] * xd[j];
+    }
+  }
+  return(0);
+}
+
+
+int N_VConstVectorArray_Parallel(int nvec, realtype c, N_Vector* Z)
+{
+  int          i;
+  sunindextype j, N;
+  realtype*    zd=NULL;
+
+  /* invalid number of vectors */
+  if (nvec < 1) return(-1);
+
+  /* should have called N_VConst */
+  if (nvec == 1) {
+    N_VConst_Parallel(c, Z[0]);
+    return(0);
+  }
+
+  /* get vector length */
+  N = NV_LOCLENGTH_P(Z[0]);
+
+  /* set each vector in the vector array to a constant */
+  for (i=0; i<nvec; i++) {
+    zd = NV_DATA_P(Z[i]);
+    for (j=0; j<N; j++) {
+      zd[j] = c;
+    }
+  }
+
+  return(0);
+}
+
+
+int N_VWrmsNormVectorArray_Parallel(int nvec, N_Vector* X, N_Vector* W, realtype* nrm)
+{
+  int          i;
+  sunindextype j, Nl, Ng;
+  realtype*    wd=NULL;
+  realtype*    xd=NULL;
+  MPI_Comm     comm;
+
+  /* invalid number of vectors */
+  if (nvec < 1) return(-1);
+
+  /* should have called N_VWrmsNorm */
+  if (nvec == 1) {
+    nrm[0] = N_VWrmsNorm_Parallel(X[0], W[0]);
+    return(0);
+  }
+
+  /* get vector lengths and communicator */
+  Nl   = NV_LOCLENGTH_P(X[0]);
+  Ng   = NV_GLOBLENGTH_P(X[0]);
+  comm = NV_COMM_P(X[0]);
+
+  /* compute the WRMS norm for each vector in the vector array */
+  for (i=0; i<nvec; i++) {
+    xd = NV_DATA_P(X[i]);
+    wd = NV_DATA_P(W[i]);
+    nrm[i] = ZERO;
+    for (j=0; j<Nl; j++) {
+      nrm[i] += SUNSQR(xd[j] * wd[j]);
+    }
+  }
+  SUNMPI_Allreduce(nrm, nvec, 1, comm);
+
+  for (i=0; i<nvec; i++)
+    nrm[i] = SUNRsqrt(nrm[i]/Ng);
+
+  return(0);
+}
+
+
+int N_VWrmsNormMaskVectorArray_Parallel(int nvec, N_Vector* X, N_Vector* W,
+                                        N_Vector id, realtype* nrm)
+{
+  int          i;
+  sunindextype j, Nl, Ng;
+  realtype*    wd=NULL;
+  realtype*    xd=NULL;
+  realtype*    idd=NULL;
+  MPI_Comm     comm;
+
+  /* invalid number of vectors */
+  if (nvec < 1) return(-1);
+
+  /* should have called N_VWrmsNorm */
+  if (nvec == 1) {
+    nrm[0] = N_VWrmsNormMask_Parallel(X[0], W[0], id);
+    return(0);
+  }
+
+  /* get vector lengths, communicator, and mask data */
+  Nl   = NV_LOCLENGTH_P(X[0]);
+  Ng   = NV_GLOBLENGTH_P(X[0]);
+  comm = NV_COMM_P(X[0]);
+  idd  = NV_DATA_P(id);
+
+  /* compute the WRMS norm for each vector in the vector array */
+  for (i=0; i<nvec; i++) {
+    xd = NV_DATA_P(X[i]);
+    wd = NV_DATA_P(W[i]);
+    nrm[i] = ZERO;
+    for (j=0; j<Nl; j++) {
+      if (idd[j] > ZERO)
+        nrm[i] += SUNSQR(xd[j] * wd[j]);
+    }
+  }
+  SUNMPI_Allreduce(nrm, nvec, 1, comm);
+
+  for (i=0; i<nvec; i++)
+    nrm[i] = SUNRsqrt(nrm[i]/Ng);
+
+  return(0);
+}
+
+
+int N_VScaleAddMultiVectorArray_Parallel(int nvec, int nsum, realtype* a,
+                                          N_Vector* X, N_Vector** Y, N_Vector** Z)
+{
+  int          i, j;
+  sunindextype k, N;
+  realtype*    xd=NULL;
+  realtype*    yd=NULL;
+  realtype*    zd=NULL;
+
+  int          retval;
+  N_Vector*    YY;
+  N_Vector*    ZZ;
+
+  /* invalid number of vectors */
+  if (nvec < 1) return(-1);
+  if (nsum < 1) return(-1);
+
+  /* ---------------------------
+   * Special cases for nvec == 1
+   * --------------------------- */
+
+  if (nvec == 1) {
+
+    /* should have called N_VLinearSum */
+    if (nsum == 1) {
+      N_VLinearSum_Parallel(a[0], X[0], ONE, Y[0][0], Z[0][0]);
+      return(0);
+    }
+
+    /* should have called N_VScaleAddMulti */
+    YY = (N_Vector *) malloc(nsum * sizeof(N_Vector));
+    ZZ = (N_Vector *) malloc(nsum * sizeof(N_Vector));
+
+    for (j=0; j<nsum; j++) {
+      YY[j] = Y[j][0];
+      ZZ[j] = Z[j][0];
+    }
+
+    retval = N_VScaleAddMulti_Parallel(nsum, a, X[0], YY, ZZ);
+
+    free(YY);
+    free(ZZ);
+    return(retval);
+  }
+
+  /* --------------------------
+   * Special cases for nvec > 1
+   * -------------------------- */
+
+  /* should have called N_VLinearSumVectorArray */
+  if (nsum == 1) {
+    retval = N_VLinearSumVectorArray_Parallel(nvec, a[0], X, ONE, Y[0], Z[0]);
+    return(retval);
+  }
+
+  /* ----------------------------
+   * Compute multiple linear sums
+   * ---------------------------- */
+
+  /* get vector length */
+  N  = NV_LOCLENGTH_P(X[0]);
+
+  /*
+   * Y[i][j] += a[i] * x[j]
+   */
+  if (Y == Z) {
+    for (i=0; i<nvec; i++) {
+      xd = NV_DATA_P(X[i]);
+      for (j=0; j<nsum; j++){
+        yd = NV_DATA_P(Y[j][i]);
+        for (k=0; k<N; k++) {
+          yd[k] += a[j] * xd[k];
+        }
+      }
+    }
+    return(0);
+  }
+
+  /*
+   * Z[i][j] = Y[i][j] + a[i] * x[j]
+   */
+  for (i=0; i<nvec; i++) {
+    xd = NV_DATA_P(X[i]);
+    for (j=0; j<nsum; j++) {
+      yd = NV_DATA_P(Y[j][i]);
+      zd = NV_DATA_P(Z[j][i]);
+      for (k=0; k<N; k++) {
+        zd[k] = a[j] * xd[k] + yd[k];
+      }
+    }
+  }
+  return(0);
+}
+
+
+int N_VLinearCombinationVectorArray_Parallel(int nvec, int nsum,
+                                             realtype* c,
+                                             N_Vector** X,
+                                             N_Vector* Z)
+{
+  int          i; /* vector arrays index in summation [0,nsum) */
+  int          j; /* vector index in vector array     [0,nvec) */
+  sunindextype k; /* element index in vector          [0,N)    */
+  sunindextype N;
+  realtype*    zd=NULL;
+  realtype*    xd=NULL;
+
+  realtype*    ctmp;
+  N_Vector*    Y;
+
+  /* invalid number of vectors */
+  if (nvec < 1) return(-1);
+  if (nsum < 1) return(-1);
+
+  /* ---------------------------
+   * Special cases for nvec == 1
+   * --------------------------- */
+
+  if (nvec == 1) {
+
+    /* should have called N_VScale */
+    if (nsum == 1) {
+      N_VScale_Parallel(c[0], X[0][0], Z[0]);
+      return(0);
+    }
+
+    /* should have called N_VLinearSum */
+    if (nsum == 2) {
+      N_VLinearSum_Parallel(c[0], X[0][0], c[1], X[1][0], Z[0]);
+      return(0);
+    }
+
+    /* should have called N_VLinearCombination */
+    Y = (N_Vector *) malloc(nsum * sizeof(N_Vector));
+
+    for (i=0; i<nsum; i++) {
+      Y[i] = X[i][0];
+    }
+
+    N_VLinearCombination_Parallel(nsum, c, Y, Z[0]);
+
+    free(Y);
+    return(0);
+  }
+
+  /* --------------------------
+   * Special cases for nvec > 1
+   * -------------------------- */
+
+  /* should have called N_VScaleVectorArray */
+  if (nsum == 1) {
+
+    ctmp = (realtype*) malloc(nvec * sizeof(realtype));
+
+    for (j=0; j<nvec; j++) {
+      ctmp[j] = c[0];
+    }
+
+    N_VScaleVectorArray_Parallel(nvec, ctmp, X[0], Z);
+
+    free(ctmp);
+    return(0);
+  }
+
+  /* should have called N_VLinearSumVectorArray */
+  if (nsum == 2) {
+    N_VLinearSumVectorArray_Parallel(nvec, c[0], X[0], c[1], X[1], Z);
+    return(0);
+  }
+
+  /* --------------------------
+   * Compute linear combination
+   * -------------------------- */
+
+  /* get vector length */
+  N = NV_LOCLENGTH_P(Z[0]);
+
+  /*
+   * X[0][j] += c[i]*X[i][j], i = 1,...,nvec-1
+   */
+  if ((X[0] == Z) && (c[0] == ONE)) {
+    for (j=0; j<nvec; j++) {
+      zd = NV_DATA_P(Z[j]);
+      for (i=1; i<nsum; i++) {
+        xd = NV_DATA_P(X[i][j]);
+        for (k=0; k<N; k++) {
+          zd[k] += c[i] * xd[k];
+        }
+      }
+    }
+    return(0);
+  }
+
+  /*
+   * X[0][j] = c[0] * X[0][j] + sum{ c[i] * X[i][j] }, i = 1,...,nvec-1
+   */
+  if (X[0] == Z) {
+    for (j=0; j<nvec; j++) {
+      zd = NV_DATA_P(Z[j]);
+      for (k=0; k<N; k++) {
+        zd[k] *= c[0];
+      }
+      for (i=1; i<nsum; i++) {
+        xd = NV_DATA_P(X[i][j]);
+        for (k=0; k<N; k++) {
+          zd[k] += c[i] * xd[k];
+        }
+      }
+    }
+    return(0);
+  }
+
+  /*
+   * Z[j] = sum{ c[i] * X[i][j] }, i = 0,...,nvec-1
+   */
+  for (j=0; j<nvec; j++) {
+    xd = NV_DATA_P(X[0][j]);
+    zd = NV_DATA_P(Z[j]);
+    for (k=0; k<N; k++) {
+      zd[k] = c[0] * xd[k];
+    }
+    for (i=1; i<nsum; i++) {
+      xd = NV_DATA_P(X[i][j]);
+      for (k=0; k<N; k++) {
+        zd[k] += c[i] * xd[k];
+      }
+    }
+  }
+  return(0);
+}
+
+
 /*
  * -----------------------------------------------------------------
  * private functions
@@ -1164,4 +1851,406 @@ static void VScaleBy_Parallel(realtype a, N_Vector x)
     xd[i] *= a;
 
   return;
+}
+
+
+/*
+ * -----------------------------------------------------------------
+ * private functions for special cases of vector array operations
+ * -----------------------------------------------------------------
+ */
+
+static int VSumVectorArray_Parallel(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z)
+{
+  int          i;
+  sunindextype j, N;
+  realtype*    xd=NULL;
+  realtype*    yd=NULL;
+  realtype*    zd=NULL;
+
+  N = NV_LOCLENGTH_P(X[0]);
+
+  for (i=0; i<nvec; i++) {
+    xd = NV_DATA_P(X[i]);
+    yd = NV_DATA_P(Y[i]);
+    zd = NV_DATA_P(Z[i]);
+    for (j=0; j<N; j++)
+      zd[j] = xd[j] + yd[j];
+  }
+
+  return(0);
+}
+
+static int VDiffVectorArray_Parallel(int nvec, N_Vector* X, N_Vector* Y, N_Vector* Z)
+{
+  int          i;
+  sunindextype j, N;
+  realtype*    xd=NULL;
+  realtype*    yd=NULL;
+  realtype*    zd=NULL;
+
+  N = NV_LOCLENGTH_P(X[0]);
+
+  for (i=0; i<nvec; i++) {
+    xd = NV_DATA_P(X[i]);
+    yd = NV_DATA_P(Y[i]);
+    zd = NV_DATA_P(Z[i]);
+    for (j=0; j<N; j++)
+      zd[j] = xd[j] - yd[j];
+  }
+
+  return(0);
+}
+
+static int VScaleSumVectorArray_Parallel(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z)
+{
+  int          i;
+  sunindextype j, N;
+  realtype*    xd=NULL;
+  realtype*    yd=NULL;
+  realtype*    zd=NULL;
+
+  N = NV_LOCLENGTH_P(X[0]);
+
+  for (i=0; i<nvec; i++) {
+    xd = NV_DATA_P(X[i]);
+    yd = NV_DATA_P(Y[i]);
+    zd = NV_DATA_P(Z[i]);
+    for (j=0; j<N; j++)
+      zd[j] = c * (xd[j] + yd[j]);
+  }
+
+  return(0);
+}
+
+static int VScaleDiffVectorArray_Parallel(int nvec, realtype c, N_Vector* X, N_Vector* Y, N_Vector* Z)
+{
+  int          i;
+  sunindextype j, N;
+  realtype*    xd=NULL;
+  realtype*    yd=NULL;
+  realtype*    zd=NULL;
+
+  N = NV_LOCLENGTH_P(X[0]);
+
+  for (i=0; i<nvec; i++) {
+    xd = NV_DATA_P(X[i]);
+    yd = NV_DATA_P(Y[i]);
+    zd = NV_DATA_P(Z[i]);
+    for (j=0; j<N; j++)
+      zd[j] = c * (xd[j] - yd[j]);
+  }
+
+  return(0);
+}
+
+static int VLin1VectorArray_Parallel(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z)
+{
+  int          i;
+  sunindextype j, N;
+  realtype*    xd=NULL;
+  realtype*    yd=NULL;
+  realtype*    zd=NULL;
+
+  N = NV_LOCLENGTH_P(X[0]);
+
+  for (i=0; i<nvec; i++) {
+    xd = NV_DATA_P(X[i]);
+    yd = NV_DATA_P(Y[i]);
+    zd = NV_DATA_P(Z[i]);
+    for (j=0; j<N; j++)
+      zd[j] = (a * xd[j]) + yd[j];
+  }
+
+  return(0);
+}
+
+static int VLin2VectorArray_Parallel(int nvec, realtype a, N_Vector* X, N_Vector* Y, N_Vector* Z)
+{
+  int          i;
+  sunindextype j, N;
+  realtype*    xd=NULL;
+  realtype*    yd=NULL;
+  realtype*    zd=NULL;
+
+  N = NV_LOCLENGTH_P(X[0]);
+
+  for (i=0; i<nvec; i++) {
+    xd = NV_DATA_P(X[i]);
+    yd = NV_DATA_P(Y[i]);
+    zd = NV_DATA_P(Z[i]);
+    for (j=0; j<N; j++)
+      zd[j] = (a * xd[j]) - yd[j];
+  }
+
+  return(0);
+}
+
+static int VaxpyVectorArray_Parallel(int nvec, realtype a, N_Vector* X, N_Vector* Y)
+{
+  int          i;
+  sunindextype j, N;
+  realtype*    xd=NULL;
+  realtype*    yd=NULL;
+
+  N = NV_LOCLENGTH_P(X[0]);
+
+  if (a == ONE) {
+    for (i=0; i<nvec; i++) {
+      xd = NV_DATA_P(X[i]);
+      yd = NV_DATA_P(Y[i]);
+      for (j=0; j<N; j++)
+        yd[j] += xd[j];
+    }
+
+    return(0);
+  }
+
+  if (a == -ONE) {
+    for (i=0; i<nvec; i++) {
+      xd = NV_DATA_P(X[i]);
+      yd = NV_DATA_P(Y[i]);
+      for (j=0; j<N; j++)
+        yd[j] -= xd[j];
+    }
+
+    return(0);
+  }    
+
+  for (i=0; i<nvec; i++) {
+    xd = NV_DATA_P(X[i]);
+    yd = NV_DATA_P(Y[i]);
+    for (j=0; j<N; j++)
+      yd[j] += a * xd[j];
+  }
+
+  return(0);
+}
+
+
+/*
+ * -----------------------------------------------------------------
+ * Enable / Disable fused and vector array operations
+ * -----------------------------------------------------------------
+ */
+
+int N_VEnableFusedOps_Parallel(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  if (tf) {
+    /* enable all fused vector operations */
+    v->ops->nvlinearcombination = N_VLinearCombination_Parallel;
+    v->ops->nvscaleaddmulti     = N_VScaleAddMulti_Parallel;
+    v->ops->nvdotprodmulti      = N_VDotProdMulti_Parallel;
+    /* enable all vector array operations */
+    v->ops->nvlinearsumvectorarray         = N_VLinearSumVectorArray_Parallel;
+    v->ops->nvscalevectorarray             = N_VScaleVectorArray_Parallel;
+    v->ops->nvconstvectorarray             = N_VConstVectorArray_Parallel;
+    v->ops->nvwrmsnormvectorarray          = N_VWrmsNormVectorArray_Parallel;
+    v->ops->nvwrmsnormmaskvectorarray      = N_VWrmsNormMaskVectorArray_Parallel;
+    v->ops->nvscaleaddmultivectorarray     = N_VScaleAddMultiVectorArray_Parallel;
+    v->ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Parallel;
+  } else {
+    /* disable all fused vector operations */
+    v->ops->nvlinearcombination = NULL;
+    v->ops->nvscaleaddmulti     = NULL;
+    v->ops->nvdotprodmulti      = NULL;
+    /* disable all vector array operations */
+    v->ops->nvlinearsumvectorarray         = NULL;
+    v->ops->nvscalevectorarray             = NULL;
+    v->ops->nvconstvectorarray             = NULL;
+    v->ops->nvwrmsnormvectorarray          = NULL;
+    v->ops->nvwrmsnormmaskvectorarray      = NULL;
+    v->ops->nvscaleaddmultivectorarray     = NULL;
+    v->ops->nvlinearcombinationvectorarray = NULL;
+  }
+
+  /* return success */
+  return(0);
+}
+
+
+int N_VEnableLinearCombination_Parallel(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvlinearcombination = N_VLinearCombination_Parallel;
+  else
+    v->ops->nvlinearcombination = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableScaleAddMulti_Parallel(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvscaleaddmulti = N_VScaleAddMulti_Parallel;
+  else
+    v->ops->nvscaleaddmulti = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableDotProdMulti_Parallel(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvdotprodmulti = N_VDotProdMulti_Parallel;
+  else
+    v->ops->nvdotprodmulti = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableLinearSumVectorArray_Parallel(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvlinearsumvectorarray = N_VLinearSumVectorArray_Parallel;
+  else
+    v->ops->nvlinearsumvectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableScaleVectorArray_Parallel(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvscalevectorarray = N_VScaleVectorArray_Parallel;
+  else
+    v->ops->nvscalevectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableConstVectorArray_Parallel(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvconstvectorarray = N_VConstVectorArray_Parallel;
+  else
+    v->ops->nvconstvectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableWrmsNormVectorArray_Parallel(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvwrmsnormvectorarray = N_VWrmsNormVectorArray_Parallel;
+  else
+    v->ops->nvwrmsnormvectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableWrmsNormMaskVectorArray_Parallel(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvwrmsnormmaskvectorarray = N_VWrmsNormMaskVectorArray_Parallel;
+  else
+    v->ops->nvwrmsnormmaskvectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableScaleAddMultiVectorArray_Parallel(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvscaleaddmultivectorarray = N_VScaleAddMultiVectorArray_Parallel;
+  else
+    v->ops->nvscaleaddmultivectorarray = NULL;
+
+  /* return success */
+  return(0);
+}
+
+int N_VEnableLinearCombinationVectorArray_Parallel(N_Vector v, booleantype tf)
+{
+  /* check that vector is non-NULL */
+  if (v == NULL) return(-1);
+
+  /* check that ops structure is non-NULL */
+  if (v->ops == NULL) return(-1);
+
+  /* enable/disable operation */
+  if (tf)
+    v->ops->nvlinearcombinationvectorarray = N_VLinearCombinationVectorArray_Parallel;
+  else
+    v->ops->nvlinearcombinationvectorarray = NULL;
+
+  /* return success */
+  return(0);
 }

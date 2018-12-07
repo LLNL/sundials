@@ -30,6 +30,9 @@ SET(sundials_HEADERS
   sundials_matrix.h
   sundials_mpi.h
   sundials_mpi_types.h
+  sundials_nonlinearsolver.h
+  sundials_mpi.h
+  sundials_mpi_types.h
   sundials_nvector.h
   sundials_pcg.h
   sundials_sparse.h

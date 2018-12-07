@@ -82,8 +82,8 @@ int main(int argc, char *argv[])
   I = NULL;
   
   /* Create matrices and vectors */
-  A = SUNBandMatrix(cols, uband, lband, uband);
-  I = SUNBandMatrix(cols, 0, 0, 0);
+  A = SUNBandMatrix(cols, uband, lband);
+  I = SUNBandMatrix(cols, 0, 0);
   x = N_VNew_Serial(cols);
   y = N_VNew_Serial(cols);
 

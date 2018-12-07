@@ -16,7 +16,7 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *-----------------------------------------------------------------
- * Fortran/C interface routines for IDA/IDADLS, for the case of
+ * Fortran/C interface routines for IDA/IDALS, for the case of
  * a user-supplied Jacobian approximation routine.
  *-----------------------------------------------------------------*/
 
@@ -26,7 +26,7 @@
 #include "fida.h"     /* function names, prototypes, global vars.*/
 #include "ida_impl.h" /* definition of IDAMem type               */
 
-#include <ida/ida_direct.h>
+#include <ida/ida_ls.h>
 #include <sunmatrix/sunmatrix_band.h>
 
 /*************************************************/
@@ -50,7 +50,7 @@ extern "C" {
 void FIDA_BANDSETJAC(int *flag, int *ier)
 {
   if (*flag == 0) {
-    *ier = IDADlsSetJacFn(IDA_idamem, NULL);
+    *ier = IDASetJacFn(IDA_idamem, NULL);
   } else {
     if (F2C_IDA_ewtvec == NULL) {
       F2C_IDA_ewtvec = N_VClone(F2C_IDA_vec);
@@ -59,7 +59,7 @@ void FIDA_BANDSETJAC(int *flag, int *ier)
         return;
       }
     }
-    *ier = IDADlsSetJacFn(IDA_idamem, FIDABandJac);
+    *ier = IDASetJacFn(IDA_idamem, FIDABandJac);
   }
   return;
 }

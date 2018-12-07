@@ -18,7 +18,7 @@
  * LLNS/SMU Copyright End
  * -----------------------------------------------------------------
  * The C functions FCVJTSetup and FCVJtimes are to interface 
- * between the CVSPILS module and the user-supplied 
+ * between the CVLS module and the user-supplied 
  * Jacobian-vector product routines FCVJTSETUP and FCVJTIMES. 
  * Note the use of the generic names FCV_JTSETUP and FCV_JTIMES 
  * in the code below.
@@ -31,7 +31,7 @@
 #include "fcvode.h"     /* actual fn. names, prototypes and global vars.*/
 #include "cvode_impl.h" /* definition of CVodeMem type                  */
 
-#include <cvode/cvode_spils.h>
+#include <cvode/cvode_ls.h>
 
 /***************************************************************************/
 
@@ -56,12 +56,17 @@ extern "C" {
 
 /***************************************************************************/
 
-void FCV_SPILSSETJAC(int *flag, int *ier)
+/* ---DEPRECATED--- */
+void FCV_SPILLSSETJAC(int *flag, int *ier)
+{ FCV_LSSETJAC(flag, ier); }
+
+
+void FCV_LSSETJAC(int *flag, int *ier)
 {
   if (*flag == 0) {
-    *ier = CVSpilsSetJacTimes(CV_cvodemem, NULL, NULL);
+    *ier = CVodeSetJacTimes(CV_cvodemem, NULL, NULL);
   } else {
-    *ier = CVSpilsSetJacTimes(CV_cvodemem, FCVJTSetup, FCVJtimes);
+    *ier = CVodeSetJacTimes(CV_cvodemem, FCVJTSetup, FCVJtimes);
   }
 }
 

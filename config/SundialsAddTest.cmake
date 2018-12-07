@@ -117,20 +117,23 @@ MACRO(SUNDIALS_ADD_TEST NAME EXECUTABLE)
   ENDIF()
 
   # set the precision for floating point failure comparison (number of digits, default 4)
-  IF("${SUNDIALS_ADD_TEST_FLOAT_PRECISION}" STREQUAL "")
-  ELSE()
+  IF(SUNDIALS_DEVTESTS_FLOAT_PRECISION)
+    LIST(APPEND TEST_ARGS "--floatprecision=${SUNDIALS_DEVTESTS_FLOAT_PRECISION}")
+  ELSEIF(NOT ("${SUNDIALS_ADD_TEST_FLOAT_PRECISION}" STREQUAL ""))
     LIST(APPEND TEST_ARGS "--floatprecision=${SUNDIALS_ADD_TEST_FLOAT_PRECISION}")
   ENDIF()
 
   # set the integer percentage difference for failure comparison (default 10%)
-  IF("${SUNDIALS_ADD_TEST_INTEGER_PERCENTAGE}" STREQUAL "")
-  ELSE()
+  IF(SUNDIALS_DEVTESTS_INTEGER_PRECISION)
+    LIST(APPEND TEST_ARGS "--integerpercentage=${SUNDIALS_DEVTESTS_INTEGER_PRECISION}")
+  ELSEIF(NOT ("${SUNDIALS_ADD_TEST_INTEGER_PERCENTAGE}" STREQUAL ""))
     LIST(APPEND TEST_ARGS "--integerpercentage=${SUNDIALS_ADD_TEST_INTEGER_PERCENTAGE}")
   ENDIF()
 
   # create test case with the corresponding test runner command and arguments
   # all tests are added during development and only unlabeled tests when released
-  IF(${SUNDIALS_DEVTESTS} OR "${SUNDIALS_ADD_TEST_EXAMPLE_TYPE}" STREQUAL "")
+  IF((${SUNDIALS_DEVTESTS} OR "${SUNDIALS_ADD_TEST_EXAMPLE_TYPE}" STREQUAL "")
+      AND NOT "${SUNDIALS_ADD_TEST_EXAMPLE_TYPE}" STREQUAL "exclude")
     ADD_TEST(NAME ${NAME} COMMAND ${PYTHON_EXECUTABLE} ${TESTRUNNER} ${TEST_ARGS})
   ENDIF()
 

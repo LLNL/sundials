@@ -24,15 +24,11 @@
 # Example lists are tuples "name\;args\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
 
-# Only include tests if OpenMP is enabled
-IF(OPENMP_FOUND)
-
-  # Examples using SUNDIALS linear solvers
-  SET(CVODE_examples
-    "cvAdvDiff_bnd_omp\;4\;develop"
-    )
-
-ENDIF(OPENMP_FOUND)
+# Examples using SUNDIALS linear solvers
+SET(CVODE_examples
+  "cvAdvDiff_bnd_omp\;4\;develop"
+  #"cvAdvDiffReac_kry_omp\;4\;develop"
+  )
 
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE

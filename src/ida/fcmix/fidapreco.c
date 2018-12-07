@@ -11,8 +11,8 @@
  * For details, see the LICENSE file.
  * LLNS Copyright End
  * -----------------------------------------------------------------
- * The C function FIDAPSet is to interface between the IDASPILS
- * modules and the user-supplied preconditioner setup routine FIDAPSET.
+ * The C function FIDAPSet is to interface between the IDALS
+ * module and the user-supplied preconditioner setup routine FIDAPSET.
  * Note the use of the generic name FIDA_PSET below.
  * -----------------------------------------------------------------*/
 
@@ -22,7 +22,7 @@
 #include "fida.h"     /* actual fn. names, prototypes and global vars.*/
 #include "ida_impl.h" /* definition of IDAMem type                    */
 
-#include <ida/ida_spils.h>
+#include <ida/ida_ls.h>
 
 /*************************************************/
 
@@ -46,13 +46,17 @@ extern "C" {
 
 /*************************************************/
 
+/*** DEPRECATED ***/
 void FIDA_SPILSSETPREC(int *flag, int *ier)
+{ FIDA_LSSETPREC(flag, ier); }
+
+void FIDA_LSSETPREC(int *flag, int *ier)
 {
   *ier = 0;
 
   if (*flag == 0) {
 
-    *ier = IDASpilsSetPreconditioner(IDA_idamem, NULL, NULL);
+    *ier = IDASetPreconditioner(IDA_idamem, NULL, NULL);
 
   } else {
 
@@ -64,8 +68,7 @@ void FIDA_SPILSSETPREC(int *flag, int *ier)
       }
     }
 
-    *ier = IDASpilsSetPreconditioner(IDA_idamem, (IDASpilsPrecSetupFn) FIDAPSet,
-				     (IDASpilsPrecSolveFn) FIDAPSol);
+    *ier = IDASetPreconditioner(IDA_idamem, FIDAPSet, FIDAPSol);
   }
 
   return;

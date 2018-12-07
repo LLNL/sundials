@@ -58,7 +58,7 @@ program driver
   real(kind=REALTYPE), parameter :: T0=0.d0, Tf=10.d0
   real(kind=REALTYPE) :: dTout, Tout, Tcur, rtol, atol, rout(6)
   integer   :: it, Nt, ier
-  integer*8 :: iout(22)
+  integer*8 :: iout(35)
   real(kind=REALTYPE), dimension(NEQ) :: y
 
   ! real/integer parameters to pass through to supplied functions
@@ -76,7 +76,7 @@ program driver
 
   !-----------------------
   ! set some solver parameters
-  order = 3          ! 4th order method
+  order = 3          ! 3rd order method
   adapt_method = 0   ! PID-controller
   nlscoef = 1.d-2    ! Newton solver tolerance coefficient
 
@@ -133,14 +133,14 @@ program driver
      stop
   endif
 
-  ! attach matrix and linear solver modules to ARKDls interface
-  call FARKDlsInit(ier)
+  ! attach matrix and linear solver modules to ARKLs interface
+  call FARKLsInit(ier)
   if (ier < 0) then
-     write(0,*) 'Error in FARKDlsInit = ',ier
+     write(0,*) 'Error in FARKLsInit = ',ier
      stop
   endif
-
-  ! notify ARKDls module of user-supplied Jacobian construction routine
+  
+  ! notify ARKLs module of user-supplied Jacobian construction routine
   call FARKDenseSetJac(1, ier)
   if (ier < 0) then
      write(0,*) 'Error in FARKDenseSetJac = ',ier

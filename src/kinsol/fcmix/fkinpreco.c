@@ -30,7 +30,7 @@
 #include "fkinsol.h"
 #include "kinsol_impl.h"
 
-#include <kinsol/kinsol_spils.h>
+#include <kinsol/kinsol_ls.h>
 
 /*------------------------------------------------------------------
   prototype of the user-supplied fortran routine
@@ -53,18 +53,24 @@ extern void FK_PSOL(realtype* uudata,   realtype* uscaledata,
 #endif
 
 /*------------------------------------------------------------------
-  Function : FKIN_SPILSSETPREC
+  Function : FKIN_LSSETPREC
   ------------------------------------------------------------------*/
-void FKIN_SPILSSETPREC(int *flag, int *ier)
+void FKIN_LSSETPREC(int *flag, int *ier)
 {
   if ((*flag) == 0) {
-    *ier = KINSpilsSetPreconditioner(KIN_kinmem, NULL, NULL);
+    *ier = KINSetPreconditioner(KIN_kinmem, NULL, NULL);
   } else {
-    *ier = KINSpilsSetPreconditioner(KIN_kinmem, FKINPSet, FKINPSol);
+    *ier = KINSetPreconditioner(KIN_kinmem, FKINPSet, FKINPSol);
   }
 
   return;
 }
+
+/*------------------------------------------------------------------
+  Function : FKIN_SPILSSETPREC -- DEPRECATED
+  ------------------------------------------------------------------*/
+void FKIN_SPILSSETPREC(int *flag, int *ier)
+{ FKIN_LSSETPREC(flag,ier); }
 
 /*------------------------------------------------------------------
   Function : FKINPSet

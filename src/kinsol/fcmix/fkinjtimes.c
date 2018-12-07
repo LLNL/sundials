@@ -23,7 +23,7 @@
 #include "fkinsol.h"
 #include "kinsol_impl.h"
 
-#include <kinsol/kinsol_spils.h>
+#include <kinsol/kinsol_ls.h>
 
 /*------------------------------------------------------------------
   prototype of the user-supplied fortran routine
@@ -40,15 +40,21 @@ extern void FK_JTIMES(realtype* vdata, realtype* Jvdata, int* new_uu,
 #endif
 
 /*------------------------------------------------------------------
-  Function : FKIN_SPILSSETJAC
+  Function : FKIN_LSSETJAC
   ------------------------------------------------------------------*/
-void FKIN_SPILSSETJAC(int *flag, int *ier)
+void FKIN_LSSETJAC(int *flag, int *ier)
 {
-  if ((*flag) == 0) KINSpilsSetJacTimesVecFn(KIN_kinmem, NULL);
-  else              KINSpilsSetJacTimesVecFn(KIN_kinmem, FKINJtimes);
+  if ((*flag) == 0) KINSetJacTimesVecFn(KIN_kinmem, NULL);
+  else              KINSetJacTimesVecFn(KIN_kinmem, FKINJtimes);
 
   return;
 }
+
+/*------------------------------------------------------------------
+  Function : FKIN_SPILSSETJAC -- DEPRECATED
+  ------------------------------------------------------------------*/
+void FKIN_SPILSSETJAC(int *flag, int *ier)
+{ FKIN_LSSETJAC(flag, ier); }
 
 /*------------------------------------------------------------------
   Function : FKINJtimes

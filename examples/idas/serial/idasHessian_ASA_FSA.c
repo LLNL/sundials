@@ -47,7 +47,6 @@
 #include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
 #include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
-#include <idas/idas_direct.h>          /* access to IDADls interface           */
 #include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
 #include <sundials/sundials_math.h>    /* defs. of SUNRabs, SUNRexp, etc.      */
 
@@ -115,7 +114,7 @@ static int rhsQBS2(realtype tt, N_Vector yy, N_Vector yp,
                    N_Vector *yyS, N_Vector *ypS, N_Vector yyB, N_Vector ypB,
                    N_Vector rhsBQS, void *user_dataB);
 
-static int check_flag(void *flagvalue, const char *funcname, int opt);
+static int check_retval(void *returnvalue, const char *funcname, int opt);
 
 
 int main(int argc, char *argv[])
@@ -125,7 +124,7 @@ int main(int argc, char *argv[])
   void *ida_mem;
   UserData data;
   realtype time, ti, tf;
-  int flag, nckp, indexB1, indexB2;
+  int retval, nckp, indexB1, indexB2;
   realtype G, Gm, Gp, dp1, dp2, grdG_fwd[2], grdG_bck[2], grdG_cntr[2], H11, H22;
   realtype rtolFD, atolFD;
   SUNMatrix A, AB1, AB2;
@@ -165,50 +164,50 @@ int main(int argc, char *argv[])
   ida_mem = IDACreate();
 
   ti = T0;
-  flag = IDAInit(ida_mem, res, ti, yy, yp);
+  retval = IDAInit(ida_mem, res, ti, yy, yp);
 
   /* Forward problem's setup. */
-  flag = IDASStolerances(ida_mem, RTOL, ATOL);
+  retval = IDASStolerances(ida_mem, RTOL, ATOL);
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(NEQ, NEQ);
-  if(check_flag((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object */
-  LS = SUNDenseLinearSolver(yy, A);
-  if(check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+  LS = SUNLinSol_Dense(yy, A);
+  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
-  flag = IDADlsSetLinearSolver(ida_mem, LS, A);
-  if(check_flag(&flag, "IDADlsSetLinearSolver", 1)) return(1);
+  retval = IDASetLinearSolver(ida_mem, LS, A);
+  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
 
-  flag = IDASetUserData(ida_mem, data);
-  flag = IDASetMaxNumSteps(ida_mem, 1500);
+  retval = IDASetUserData(ida_mem, data);
+  retval = IDASetMaxNumSteps(ida_mem, 1500);
 
   /* Quadrature's setup. */
-  flag = IDAQuadInit(ida_mem, rhsQ, q);
-  flag = IDAQuadSStolerances(ida_mem, RTOL, ATOL);
-  flag = IDASetQuadErrCon(ida_mem, SUNTRUE);
+  retval = IDAQuadInit(ida_mem, rhsQ, q);
+  retval = IDAQuadSStolerances(ida_mem, RTOL, ATOL);
+  retval = IDASetQuadErrCon(ida_mem, SUNTRUE);
 
   /* Sensitivity's setup. */
-  flag = IDASensInit(ida_mem, NP, IDA_SIMULTANEOUS, resS, yyS, ypS);
-  flag = IDASensEEtolerances(ida_mem);
-  flag = IDASetSensErrCon(ida_mem, SUNTRUE);
+  retval = IDASensInit(ida_mem, NP, IDA_SIMULTANEOUS, resS, yyS, ypS);
+  retval = IDASensEEtolerances(ida_mem);
+  retval = IDASetSensErrCon(ida_mem, SUNTRUE);
 
   /* Setup of quadrature's sensitivities */
-  flag = IDAQuadSensInit(ida_mem, rhsQS, qS);
-  flag = IDAQuadSensEEtolerances(ida_mem);
-  flag = IDASetQuadSensErrCon(ida_mem, SUNTRUE); 
+  retval = IDAQuadSensInit(ida_mem, rhsQS, qS);
+  retval = IDAQuadSensEEtolerances(ida_mem);
+  retval = IDASetQuadSensErrCon(ida_mem, SUNTRUE); 
   
   /* Initialize ASA. */
-  flag = IDAAdjInit(ida_mem, 100, IDA_HERMITE);
+  retval = IDAAdjInit(ida_mem, 100, IDA_HERMITE);
 
   printf("---------------------------------------------------------\n");
   printf("Forward integration\n");
   printf("---------------------------------------------------------\n\n");
 
   tf = TF;
-  flag = IDASolveF(ida_mem, tf, &time, yy, yp, IDA_NORMAL, &nckp);
+  retval = IDASolveF(ida_mem, tf, &time, yy, yp, IDA_NORMAL, &nckp);
 
   IDAGetQuad(ida_mem, &time, q);
   G = Ith(q,1);
@@ -250,25 +249,25 @@ int main(int argc, char *argv[])
   qB1 = N_VNew_Serial(2*NP);
   N_VConst(ZERO, qB1);
 
-  flag = IDACreateB(ida_mem, &indexB1);
-  flag = IDAInitBS(ida_mem, indexB1, resBS1, tf, yyB1, ypB1);
-  flag = IDASStolerancesB(ida_mem, indexB1, RTOLA, ATOLA);   
-  flag = IDASetUserDataB(ida_mem, indexB1, data);
-  flag = IDASetMaxNumStepsB(ida_mem, indexB1, 5000);
+  retval = IDACreateB(ida_mem, &indexB1);
+  retval = IDAInitBS(ida_mem, indexB1, resBS1, tf, yyB1, ypB1);
+  retval = IDASStolerancesB(ida_mem, indexB1, RTOLA, ATOLA);   
+  retval = IDASetUserDataB(ida_mem, indexB1, data);
+  retval = IDASetMaxNumStepsB(ida_mem, indexB1, 5000);
 
   /* Create dense SUNMatrix for use in linear solves */
   AB1 = SUNDenseMatrix(2*NEQ, 2*NEQ);
-  if(check_flag((void *)AB1, "SUNDenseMatrix", 0)) return(1);
+  if(check_retval((void *)AB1, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object */
-  LSB1 = SUNDenseLinearSolver(yyB1, AB1);
-  if(check_flag((void *)LSB1, "SUNDenseLinearSolver", 0)) return(1);
+  LSB1 = SUNLinSol_Dense(yyB1, AB1);
+  if(check_retval((void *)LSB1, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
-  flag = IDADlsSetLinearSolverB(ida_mem, indexB1, LSB1, AB1);
-  if(check_flag(&flag, "IDADlsSetLinearSolverB", 1)) return(1);
+  retval = IDASetLinearSolverB(ida_mem, indexB1, LSB1, AB1);
+  if(check_retval(&retval, "IDASetLinearSolverB", 1)) return(1);
 
-  flag = IDAQuadInitBS(ida_mem, indexB1, rhsQBS1, qB1);
+  retval = IDAQuadInitBS(ida_mem, indexB1, rhsQBS1, qB1);
 
   /******************************
   * BACKWARD PROBLEM #2  
@@ -291,43 +290,43 @@ int main(int argc, char *argv[])
   qB2 = N_VNew_Serial(2*NP);
   N_VConst(ZERO, qB2);
 
-  flag = IDACreateB(ida_mem, &indexB2);
-  flag = IDAInitBS(ida_mem, indexB2, resBS2, tf, yyB2, ypB2);
-  flag = IDASStolerancesB(ida_mem, indexB2, RTOLA, ATOLA);   
-  flag = IDASetUserDataB(ida_mem, indexB2, data);
-  flag = IDASetMaxNumStepsB(ida_mem, indexB2, 2500);
+  retval = IDACreateB(ida_mem, &indexB2);
+  retval = IDAInitBS(ida_mem, indexB2, resBS2, tf, yyB2, ypB2);
+  retval = IDASStolerancesB(ida_mem, indexB2, RTOLA, ATOLA);   
+  retval = IDASetUserDataB(ida_mem, indexB2, data);
+  retval = IDASetMaxNumStepsB(ida_mem, indexB2, 2500);
 
   /* Create dense SUNMatrix for use in linear solves */
   AB2 = SUNDenseMatrix(2*NEQ, 2*NEQ);
-  if(check_flag((void *)AB2, "SUNDenseMatrix", 0)) return(1);
+  if(check_retval((void *)AB2, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object */
-  LSB2 = SUNDenseLinearSolver(yyB2, AB2);
-  if(check_flag((void *)LSB2, "SUNDenseLinearSolver", 0)) return(1);
+  LSB2 = SUNLinSol_Dense(yyB2, AB2);
+  if(check_retval((void *)LSB2, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
-  flag = IDADlsSetLinearSolverB(ida_mem, indexB2, LSB2, AB2);
-  if(check_flag(&flag, "IDADlsSetLinearSolverB", 1)) return(1);
+  retval = IDASetLinearSolverB(ida_mem, indexB2, LSB2, AB2);
+  if(check_retval(&retval, "IDASetLinearSolverB", 1)) return(1);
 
-  flag = IDAQuadInitBS(ida_mem, indexB2, rhsQBS2, qB2);
+  retval = IDAQuadInitBS(ida_mem, indexB2, rhsQBS2, qB2);
 
   /* Integrate backward problems. */
   printf("---------------------------------------------------------\n");
   printf("Backward integration \n");
   printf("---------------------------------------------------------\n\n"); 
 
-  flag = IDASolveB(ida_mem, ti, IDA_NORMAL);
+  retval = IDASolveB(ida_mem, ti, IDA_NORMAL);
 
-  flag = IDAGetB(ida_mem, indexB1, &time, yyB1, ypB1);
+  retval = IDAGetB(ida_mem, indexB1, &time, yyB1, ypB1);
   /* 
-     flag = IDAGetNumSteps(IDAGetAdjIDABmem(ida_mem, indexB1), &nst);
+     retval = IDAGetNumSteps(IDAGetAdjIDABmem(ida_mem, indexB1), &nst);
      printf("at time=%g \tpb 1 Num steps:%d\n", time, nst); 
-     flag = IDAGetNumSteps(IDAGetAdjIDABmem(ida_mem, indexB2), &nst);
+     retval = IDAGetNumSteps(IDAGetAdjIDABmem(ida_mem, indexB2), &nst);
      printf("at time=%g \tpb 2 Num steps:%d\n\n", time, nst); 
   */
 
-  flag = IDAGetQuadB(ida_mem, indexB1, &time, qB1);
-  flag = IDAGetQuadB(ida_mem, indexB2, &time, qB2);
+  retval = IDAGetQuadB(ida_mem, indexB1, &time, qB1);
+  retval = IDAGetQuadB(ida_mem, indexB2, &time, qB2);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("   dG/dp:  %12.4Le %12.4Le   (from backward pb. 1)\n", Ith(qB1,1), Ith(qB1,2));
   printf("   dG/dp:  %12.4Le %12.4Le   (from backward pb. 2)\n", Ith(qB2,1), Ith(qB2,2));
@@ -386,34 +385,34 @@ int main(int argc, char *argv[])
   ti = T0;
   tf = TF;
 
-  flag = IDAInit(ida_mem, res, ti, yy, yp);
+  retval = IDAInit(ida_mem, res, ti, yy, yp);
 
   rtolFD = RCONST(1.0e-12);
   atolFD = RCONST(1.0e-14);
 
-  flag = IDASStolerances(ida_mem, rtolFD, atolFD);
+  retval = IDASStolerances(ida_mem, rtolFD, atolFD);
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(NEQ, NEQ);
-  if(check_flag((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object */
-  LS = SUNDenseLinearSolver(yy, A);
-  if(check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+  LS = SUNLinSol_Dense(yy, A);
+  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
-  flag = IDADlsSetLinearSolver(ida_mem, LS, A);
-  if(check_flag(&flag, "IDADlsSetLinearSolver", 1)) return(1);
+  retval = IDASetLinearSolver(ida_mem, LS, A);
+  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
 
-  flag = IDASetUserData(ida_mem, data);
-  flag = IDASetMaxNumSteps(ida_mem, 10000);
+  retval = IDASetUserData(ida_mem, data);
+  retval = IDASetMaxNumSteps(ida_mem, 10000);
 
-  flag = IDAQuadInit(ida_mem, rhsQ, q);
-  flag = IDAQuadSStolerances(ida_mem, rtolFD, atolFD);
-  flag = IDASetQuadErrCon(ida_mem, SUNTRUE);
+  retval = IDAQuadInit(ida_mem, rhsQ, q);
+  retval = IDAQuadSStolerances(ida_mem, rtolFD, atolFD);
+  retval = IDASetQuadErrCon(ida_mem, SUNTRUE);
 
-  flag = IDASolve(ida_mem, tf, &time, yy, yp, IDA_NORMAL);
-  flag = IDAGetQuad(ida_mem, &time, q);
+  retval = IDASolve(ida_mem, tf, &time, yy, yp, IDA_NORMAL);
+  retval = IDAGetQuad(ida_mem, &time, q);
   Gp = Ith(q,1);
 
   /********************
@@ -425,11 +424,11 @@ int main(int argc, char *argv[])
   Ith(yp,1) = -data->p[0]; Ith(yp,2) = -Ith(yp,1); Ith(yp,3) = 0;
   N_VConst(ZERO, q);
   
-  flag = IDAReInit(ida_mem, ti, yy, yp);
-  flag = IDAQuadReInit(ida_mem, q);
+  retval = IDAReInit(ida_mem, ti, yy, yp);
+  retval = IDAQuadReInit(ida_mem, q);
 
-  flag = IDASolve(ida_mem, tf, &time, yy, yp, IDA_NORMAL);
-  flag = IDAGetQuad(ida_mem, &time, q);
+  retval = IDASolve(ida_mem, tf, &time, yy, yp, IDA_NORMAL);
+  retval = IDAGetQuad(ida_mem, &time, q);
   Gm = Ith(q,1);
 
   /* Compute FD for p1. */
@@ -449,11 +448,11 @@ int main(int argc, char *argv[])
   Ith(yp,1) = -data->p[0]; Ith(yp,2) = -Ith(yp,1); Ith(yp,3) = 0;
   N_VConst(ZERO, q);
 
-  flag = IDAReInit(ida_mem, ti, yy, yp);
-  flag = IDAQuadReInit(ida_mem, q);
+  retval = IDAReInit(ida_mem, ti, yy, yp);
+  retval = IDAQuadReInit(ida_mem, q);
 
-  flag = IDASolve(ida_mem, tf, &time, yy, yp, IDA_NORMAL);
-  flag = IDAGetQuad(ida_mem, &time, q);
+  retval = IDASolve(ida_mem, tf, &time, yy, yp, IDA_NORMAL);
+  retval = IDAGetQuad(ida_mem, &time, q);
   Gp = Ith(q,1);
 
   /********************
@@ -465,11 +464,11 @@ int main(int argc, char *argv[])
   Ith(yp,1) = -data->p[0]; Ith(yp,2) = -Ith(yp,1); Ith(yp,3) = 0;
   N_VConst(ZERO, q);
   
-  flag = IDAReInit(ida_mem, ti, yy, yp);
-  flag = IDAQuadReInit(ida_mem, q);
+  retval = IDAReInit(ida_mem, ti, yy, yp);
+  retval = IDAQuadReInit(ida_mem, q);
 
-  flag = IDASolve(ida_mem, tf, &time, yy, yp, IDA_NORMAL);
-  flag = IDAGetQuad(ida_mem, &time, q);
+  retval = IDASolve(ida_mem, tf, &time, yy, yp, IDA_NORMAL);
+  retval = IDAGetQuad(ida_mem, &time, q);
   Gm = Ith(q,1);
 
   /* Compute FD for p2. */
@@ -815,32 +814,32 @@ static int rhsQBS2(realtype tt,
  * Check function return value.
  *    opt == 0 means SUNDIALS function allocates memory so check if
  *             returned NULL pointer
- *    opt == 1 means SUNDIALS function returns a flag so check if
- *             flag >= 0
+ *    opt == 1 means SUNDIALS function returns an integer value so check if
+ *             retval < 0
  *    opt == 2 means function allocates memory so check if returned
  *             NULL pointer 
  */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt)
+static int check_retval(void *returnvalue, const char *funcname, int opt)
 {
-  int *errflag;
+  int *retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
 	    funcname);
     return(1); }
 
-  /* Check if flag < 0 */
+  /* Check if retval < 0 */
   else if (opt == 1) {
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
-      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
-	      funcname, *errflag);
+    retval = (int *) returnvalue;
+    if (*retval < 0) {
+      fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
+	      funcname, *retval);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
 	    funcname);
     return(1); }

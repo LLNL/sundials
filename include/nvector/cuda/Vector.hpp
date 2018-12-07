@@ -1,6 +1,6 @@
 /*
  * -----------------------------------------------------------------
- * Programmer(s): Slaven Peles @ LLNL
+ * Programmer(s): Slaven Peles, and Cody J. Balos @ LLNL
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
@@ -15,7 +15,7 @@
  */
 
 
-/**
+/*
  * Vector class
  *
  * Manages vector data layout for CUDA implementation of N_Vector.
@@ -47,32 +47,90 @@ template <typename T, typename I>
 class Vector : public _N_VectorContent_Cuda
 {
 public:
-  Vector(I N)
+  Vector(I N, bool use_managed_memory = false, bool allocate_data = true, T* const h_vec = nullptr, T* const d_vec = nullptr)
   : size_(N),
     mem_size_(N*sizeof(T)),
-    ownPartitioning_(true)
+    global_size_(N),
+    ownPartitioning_(true),
+    ownData_(allocate_data),
+    managed_mem_(use_managed_memory),
+    h_vec_(h_vec),
+    d_vec_(d_vec),
+    comm_(0)
   {
     // Set partitioning
     partStream_ = new StreamPartitioning<T, I>(N, 256);
     partReduce_ = new ReducePartitioning<T, I>(N, 256);
 
-    allocate();
+    // Allocate data arrays
+    if (allocate_data)
+      allocate();
   }
 
-  Vector(SUNMPI_Comm comm, I N, I Nglobal)
+  Vector(I N, cudaStream_t stream,
+         bool use_managed_memory = false, bool allocate_data = true, T* const h_vec = nullptr, T* const d_vec = nullptr)
+  : size_(N),
+    mem_size_(N*sizeof(T)),
+    global_size_(N),
+    ownPartitioning_(true),
+    ownData_(allocate_data),
+    managed_mem_(use_managed_memory),
+    h_vec_(h_vec),
+    d_vec_(d_vec),
+    comm_(0)
+  {
+    // Set partitioning
+    partStream_ = new StreamPartitioning<T, I>(N, 256, stream);
+    partReduce_ = new ReducePartitioning<T, I>(N, 256, stream);
+
+    // Allocate data arrays
+    if (allocate_data)
+      allocate();
+  }
+  
+  Vector(SUNMPI_Comm comm, I N, I Nglobal,
+         bool use_managed_memory = false, bool allocate_data = true, T* const h_vec = nullptr, T* const d_vec = nullptr)
   : size_(N),
     mem_size_(N*sizeof(T)),
     global_size_(Nglobal),
+    ownPartitioning_(true),
+    ownData_(allocate_data),
+    managed_mem_(use_managed_memory),
+    h_vec_(h_vec),
+    d_vec_(d_vec),
     comm_(comm)
   {
     // Set partitioning
     partStream_ = new StreamPartitioning<T, I>(N, 256);
     partReduce_ = new ReducePartitioning<T, I>(N, 256);
 
-    allocate();
+    // Allocate data arrays
+    if (allocate_data)
+      allocate();
   }
 
-  /// Copy constructor does not copy values
+  Vector(SUNMPI_Comm comm, I N, I Nglobal, cudaStream_t stream,
+         bool use_managed_memory = false, bool allocate_data = true, T* const h_vec = nullptr, T* const d_vec = nullptr) 
+  : size_(N),
+    mem_size_(N*sizeof(T)),
+    global_size_(Nglobal),
+    ownPartitioning_(true),
+    ownData_(allocate_data),
+    managed_mem_(use_managed_memory),
+    h_vec_(h_vec),
+    d_vec_(d_vec),
+    comm_(comm)
+  {
+    // Set partitioning
+    partStream_ = new StreamPartitioning<T, I>(N, 256, stream);
+    partReduce_ = new ReducePartitioning<T, I>(N, 256, stream);
+
+    // Allocate data arrays
+    if (allocate_data)
+      allocate();
+  }
+  
+  // Copy constructor does not copy data array values
   explicit Vector(const Vector& v)
   : size_(v.size()),
     mem_size_(size_*sizeof(T)),
@@ -80,6 +138,10 @@ public:
     partStream_(v.partStream_),
     partReduce_(v.partReduce_),
     ownPartitioning_(false),
+    ownData_(true),
+    managed_mem_(v.managed_mem_),
+    h_vec_(nullptr),
+    d_vec_(nullptr),
     comm_(v.comm_)
   {
     allocate();
@@ -87,34 +149,57 @@ public:
 
   ~Vector()
   {
-    if (ownPartitioning_)
-    {
+    cudaError_t err;
+    
+    if (ownPartitioning_) {
       delete partReduce_;
       delete partStream_;
     }
-    clear();
+    
+    if (ownData_) {
+      if (!managed_mem_)
+        free(h_vec_);
+      
+      err = cudaFree(d_vec_);
+      if(err != cudaSuccess)
+        std::cerr << "Failed to free device vector (error code " << err << ")!\n";
+    
+      d_vec_ = nullptr;
+      h_vec_ = nullptr;
+    }
   }
-
 
   void allocate()
   {
+    if (managed_mem_) {
+      allocateManaged();
+    } else {
+      allocateUnmanaged();
+    }
+  }
+
+  void allocateManaged()
+  {
     cudaError_t err;
+    err = cudaMallocManaged((void**) &d_vec_, mem_size_);
+    if (err != cudaSuccess)
+      std::cerr << "Failed to allocate managed vector (error code " << err << ")!\n";
+    h_vec_ = d_vec_;
+  }
+
+  void allocateUnmanaged()
+  {
+    cudaError_t err;
+    
     h_vec_ = static_cast<T*>(malloc(mem_size_));
-    if(h_vec_ == NULL)
+    if(h_vec_ == nullptr)
       std::cerr << "Failed to allocate host vector!\n";
+    
     err = cudaMalloc((void**) &d_vec_, mem_size_);
     if(err != cudaSuccess)
       std::cerr << "Failed to allocate device vector (error code " << err << ")!\n";
   }
-
-  void clear()
-  {
-    free(h_vec_);
-    cudaError_t err = cudaFree(d_vec_);
-    if(err != cudaSuccess)
-      std::cerr << "Failed to free device vector (error code " << err << ")!\n";
-  }
-
+  
   int size() const
   {
     return size_;
@@ -125,7 +210,7 @@ public:
     return global_size_;
   }
 
-  SUNMPI_Comm comm()
+  SUNMPI_Comm comm() const
   {
     return comm_;
   }
@@ -148,6 +233,11 @@ public:
   const T* device() const
   {
     return d_vec_;
+  }
+
+  bool isManaged() const
+  {
+    return managed_mem_;
   }
 
   void copyToDev()
@@ -174,6 +264,7 @@ public:
     return *partReduce_;
   }
 
+
 private:
   I size_;
   I mem_size_;
@@ -183,57 +274,11 @@ private:
   ThreadPartitioning<T, I>* partStream_;
   ThreadPartitioning<T, I>* partReduce_;
   bool ownPartitioning_;
+  bool ownData_;
+  bool managed_mem_;
   SUNMPI_Comm comm_;
+  
 };
-
-
-
-// Extract Vector from N_Vector
-template <typename T, typename I>
-inline Vector<T, I>* extract(N_Vector v)
-{
-  return static_cast<Vector<T, I>*>(v->content);
-}
-
-// Get Vector device data
-template <typename T, typename I>
-inline T* getDevData(N_Vector v)
-{
-  Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
-  return vp->device();
-}
-
-// Get Vector host data
-template <typename T, typename I>
-inline T* getHostData(N_Vector v)
-{
-  Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
-  return vp->host();
-}
-
-// Get Vector length
-template <typename T, typename I>
-inline I getSize(N_Vector v)
-{
-  Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
-  return vp->size();
-}
-
-// Get Vector length
-template <typename T, typename I>
-inline I getGlobalSize(N_Vector v)
-{
-  Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
-  return vp->sizeGlobal();
-}
-
-// Get MPI communicator
-template <typename T, typename I>
-inline SUNMPI_Comm getMPIComm(N_Vector v)
-{
-  Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
-  return vp->comm();
-}
 
 
 } // namespace suncudavec

@@ -73,14 +73,19 @@ typedef struct _SUNLinearSolverContent_Band *SUNLinearSolverContent_Band;
  * PART II: functions exported by sunlinsol_band
  * 
  * CONSTRUCTOR:
- *    SUNBandLinearSolver creates and allocates memory for a banded
- *    matrix solver
+ *    SUNLinSol_Band creates and allocates memory for a banded matrix 
+ *      solver
+ * 
+ *    SUNBandLinearSolver (deprecated) wrapper for SUNLinSol_Band
  * -----------------------------------------------------------------
  */
 
+SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_Band(N_Vector y, SUNMatrix A);
+
+/* deprecated */
 SUNDIALS_EXPORT SUNLinearSolver SUNBandLinearSolver(N_Vector y,
                                                     SUNMatrix A);
-
+  
 /*
  * -----------------------------------------------------------------
  * band implementations of various useful linear solver operations

@@ -51,7 +51,6 @@
 #include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
 #include <sunmatrix/sunmatrix_dense.h> /* access to dense SUNMatrix            */
 #include <sunlinsol/sunlinsol_dense.h> /* access to dense SUNLinearSolver      */
-#include <idas/idas_direct.h>          /* access to IDADls interface           */
 #include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
 #include <sundials/sundials_math.h>    /* defs. of SUNRabs, SUNRexp, etc.      */
 
@@ -108,7 +107,7 @@ static void PrintSensOutput(N_Vector *uS);
 
 static void PrintFinalStats(void *ida_mem, booleantype sensi);
 
-static int check_flag(void *flagvalue, const char *funcname, int opt);
+static int check_retval(void *returnvalue, const char *funcname, int opt);
 /*
  *--------------------------------------------------------------------
  * MAIN PROGRAM
@@ -123,7 +122,7 @@ int main(int argc, char *argv[])
   UserData data;
   realtype reltol, t, tout;
   N_Vector y, yp, abstol, id;
-  int iout, flag;
+  int iout, retval;
 
   realtype pbar[NS];
   int is; 
@@ -147,7 +146,7 @@ int main(int argc, char *argv[])
 
   /* User data structure */
   data = (UserData) malloc(sizeof *data);
-  if (check_flag((void *)data, "malloc", 2)) return(1);
+  if (check_retval((void *)data, "malloc", 2)) return(1);
   data->p[0] = RCONST(0.040);
   data->p[1] = RCONST(1.0e4);
   data->p[2] = RCONST(3.0e7);
@@ -155,14 +154,14 @@ int main(int argc, char *argv[])
 
   /* Initial conditions */
   y = N_VNew_Serial(NEQ);
-  if (check_flag((void *)y, "N_VNew_Serial", 0)) return(1);
+  if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
 
   Ith(y,1) = ONE;
   Ith(y,2) = ZERO;
   Ith(y,3) = ZERO;
 
   yp = N_VNew_Serial(NEQ);
-  if(check_flag((void *)yp, "N_VNew_Serial", 0)) return(1);
+  if(check_retval((void *)yp, "N_VNew_Serial", 0)) return(1);
 
   /* These initial conditions are NOT consistent. See IDACalcIC below. */
   Ith(yp,1) = RCONST(0.1);
@@ -171,11 +170,11 @@ int main(int argc, char *argv[])
 
   /* Create IDAS object */
   ida_mem = IDACreate();
-  if (check_flag((void *)ida_mem, "IDACreate", 0)) return(1);
+  if (check_retval((void *)ida_mem, "IDACreate", 0)) return(1);
 
   /* Allocate space for IDAS */
-  flag = IDAInit(ida_mem, res, T0, y, yp);
-  if (check_flag(&flag, "IDAInit", 1)) return(1);
+  retval = IDAInit(ida_mem, res, T0, y, yp);
+  if (check_retval(&retval, "IDAInit", 1)) return(1);
 
   /* Specify scalar relative tol. and vector absolute tol. */
   reltol = RCONST(1.0e-6);
@@ -183,32 +182,32 @@ int main(int argc, char *argv[])
   Ith(abstol,1) = RCONST(1.0e-8);
   Ith(abstol,2) = RCONST(1.0e-14);
   Ith(abstol,3) = RCONST(1.0e-6);
-  flag = IDASVtolerances(ida_mem, reltol, abstol);
-  if (check_flag(&flag, "IDASVtolerances", 1)) return(1);
+  retval = IDASVtolerances(ida_mem, reltol, abstol);
+  if (check_retval(&retval, "IDASVtolerances", 1)) return(1);
 
   /* Set ID vector */
   id = N_VNew_Serial(NEQ);
   Ith(id,1) = 1.0;
   Ith(id,2) = 1.0;
   Ith(id,3) = 0.0;
-  flag = IDASetId(ida_mem, id);
-  if (check_flag(&flag, "IDASetId", 1)) return(1);
+  retval = IDASetId(ida_mem, id);
+  if (check_retval(&retval, "IDASetId", 1)) return(1);
 
   /* Attach user data */
-  flag = IDASetUserData(ida_mem, data);
-  if (check_flag(&flag, "IDASetUserData", 1)) return(1);
+  retval = IDASetUserData(ida_mem, data);
+  if (check_retval(&retval, "IDASetUserData", 1)) return(1);
 
   /* Create dense SUNMatrix for use in linear solves */
   A = SUNDenseMatrix(NEQ, NEQ);
-  if(check_flag((void *)A, "SUNDenseMatrix", 0)) return(1);
+  if(check_retval((void *)A, "SUNDenseMatrix", 0)) return(1);
 
   /* Create dense SUNLinearSolver object */
-  LS = SUNDenseLinearSolver(y, A);
-  if(check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return(1);
+  LS = SUNLinSol_Dense(y, A);
+  if(check_retval((void *)LS, "SUNLinSol_Dense", 0)) return(1);
 
   /* Attach the matrix and linear solver */
-  flag = IDADlsSetLinearSolver(ida_mem, LS, A);
-  if(check_flag(&flag, "IDADlsSetLinearSolver", 1)) return(1);
+  retval = IDASetLinearSolver(ida_mem, LS, A);
+  if(check_retval(&retval, "IDASetLinearSolver", 1)) return(1);
 
   printf("\n3-species chemical kinetics problem\n");
 
@@ -220,11 +219,11 @@ int main(int argc, char *argv[])
     pbar[2] = data->p[2];
 
     yS = N_VCloneVectorArray(NS, y);
-    if (check_flag((void *)yS, "N_VCloneVectorArray", 0)) return(1);
+    if (check_retval((void *)yS, "N_VCloneVectorArray", 0)) return(1);
     for (is=0;is<NS;is++) N_VConst(ZERO, yS[is]);
     
     ypS = N_VCloneVectorArray(NS, y);
-    if (check_flag((void *)ypS, "N_VCloneVectorArray", 0)) return(1);
+    if (check_retval((void *)ypS, "N_VCloneVectorArray", 0)) return(1);
     for (is=0;is<NS;is++) N_VConst(ZERO, ypS[is]);
 
     /* 
@@ -235,17 +234,17 @@ int main(int argc, char *argv[])
     * They are not set. IDACalcIC also computes consistent IC for sensitivities.
     */
     
-    flag = IDASensInit(ida_mem, NS, sensi_meth, resS, yS, ypS);
-    if(check_flag(&flag, "IDASensInit", 1)) return(1);
+    retval = IDASensInit(ida_mem, NS, sensi_meth, resS, yS, ypS);
+    if(check_retval(&retval, "IDASensInit", 1)) return(1);
 
-    flag = IDASensEEtolerances(ida_mem);
-    if(check_flag(&flag, "IDASensEEtolerances", 1)) return(1);
+    retval = IDASensEEtolerances(ida_mem);
+    if(check_retval(&retval, "IDASensEEtolerances", 1)) return(1);
 
-    flag = IDASetSensErrCon(ida_mem, err_con);
-    if (check_flag(&flag, "IDASetSensErrCon", 1)) return(1);
+    retval = IDASetSensErrCon(ida_mem, err_con);
+    if (check_retval(&retval, "IDASetSensErrCon", 1)) return(1);
 
-    flag = IDASetSensParams(ida_mem, data->p, pbar, NULL);
-    if (check_flag(&flag, "IDASetSensParams", 1)) return(1);
+    retval = IDASetSensParams(ida_mem, data->p, pbar, NULL);
+    if (check_retval(&retval, "IDASetSensParams", 1)) return(1);
 
     printf("Sensitivity: YES ");
     if(sensi_meth == IDA_SIMULTANEOUS)   
@@ -281,11 +280,11 @@ int main(int argc, char *argv[])
   /* Call IDACalcIC to compute consistent initial conditions. If sensitivity is
      enabled, this function also try to find consistent IC for the sensitivities. */
 
-  flag = IDACalcIC(ida_mem, IDA_YA_YDP_INIT, T1);;
-  if (check_flag(&flag, "IDACalcIC", 1)) return(1);
+  retval = IDACalcIC(ida_mem, IDA_YA_YDP_INIT, T1);;
+  if (check_retval(&retval, "IDACalcIC", 1)) return(1);
 
-  flag = IDAGetConsistentIC(ida_mem, y, yp);
-  if (check_flag(&flag, "IDAGetConsistentIC", 1)) return(1);
+  retval = IDAGetConsistentIC(ida_mem, y, yp);
+  if (check_retval(&retval, "IDAGetConsistentIC", 1)) return(1);
 
   PrintIC(y, yp);
 
@@ -306,14 +305,14 @@ int main(int argc, char *argv[])
 
   for (iout=1, tout=T1; iout <= NOUT; iout++, tout *= TMULT) {
     
-    flag = IDASolve(ida_mem, tout, &t, y, yp, IDA_NORMAL);
-    if (check_flag(&flag, "IDASolve", 1)) break;
+    retval = IDASolve(ida_mem, tout, &t, y, yp, IDA_NORMAL);
+    if (check_retval(&retval, "IDASolve", 1)) break;
 
     PrintOutput(ida_mem, t, y);
     
     if (sensi) {
-      flag = IDAGetSens(ida_mem, &t, yS);
-      if (check_flag(&flag, "IDAGetSens", 1)) break;
+      retval = IDAGetSens(ida_mem, &t, yS);
+      if (check_retval(&retval, "IDAGetSens", 1)) break;
       PrintSensOutput(yS);
     } 
     printf("-----------------------------------------");
@@ -643,17 +642,17 @@ static void PrintSensIC(N_Vector y, N_Vector yp, N_Vector* yS, N_Vector* ypS)
 static void PrintOutput(void *ida_mem, realtype t, N_Vector u)
 {
   long int nst;
-  int qu, flag;
+  int qu, retval;
   realtype hu, *udata;
   
   udata = N_VGetArrayPointer(u);
 
-  flag = IDAGetNumSteps(ida_mem, &nst);
-  check_flag(&flag, "IDAGetNumSteps", 1);
-  flag = IDAGetLastOrder(ida_mem, &qu);
-  check_flag(&flag, "IDAGetLastOrder", 1);
-  flag = IDAGetLastStep(ida_mem, &hu);
-  check_flag(&flag, "IDAGetLastStep", 1);
+  retval = IDAGetNumSteps(ida_mem, &nst);
+  check_retval(&retval, "IDAGetNumSteps", 1);
+  retval = IDAGetLastOrder(ida_mem, &qu);
+  check_retval(&retval, "IDAGetLastOrder", 1);
+  retval = IDAGetLastStep(ida_mem, &hu);
+  check_retval(&retval, "IDAGetLastStep", 1);
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   printf("%8.3Le %2d  %8.3Le %5ld\n", t, qu, hu, nst);
@@ -727,40 +726,40 @@ static void PrintFinalStats(void *ida_mem, booleantype sensi)
   long int nfe, nsetups, nni, ncfn, netf;
   long int nfSe, nfeS, nsetupsS, nniS, ncfnS, netfS;
   long int nje, nfeLS;
-  int flag;
+  int retval;
 
-  flag = IDAGetNumSteps(ida_mem, &nst);
-  check_flag(&flag, "IDAGetNumSteps", 1);
-  flag = IDAGetNumResEvals(ida_mem, &nfe);
-  check_flag(&flag, "IDAGetNumRhsEvals", 1);
-  flag = IDAGetNumLinSolvSetups(ida_mem, &nsetups);
-  check_flag(&flag, "IDAGetNumLinSolvSetups", 1);
-  flag = IDAGetNumErrTestFails(ida_mem, &netf);
-  check_flag(&flag, "IDAGetNumErrTestFails", 1);
-  flag = IDAGetNumNonlinSolvIters(ida_mem, &nni);
-  check_flag(&flag, "IDAGetNumNonlinSolvIters", 1);
-  flag = IDAGetNumNonlinSolvConvFails(ida_mem, &ncfn);
-  check_flag(&flag, "IDAGetNumNonlinSolvConvFails", 1);
+  retval = IDAGetNumSteps(ida_mem, &nst);
+  check_retval(&retval, "IDAGetNumSteps", 1);
+  retval = IDAGetNumResEvals(ida_mem, &nfe);
+  check_retval(&retval, "IDAGetNumRhsEvals", 1);
+  retval = IDAGetNumLinSolvSetups(ida_mem, &nsetups);
+  check_retval(&retval, "IDAGetNumLinSolvSetups", 1);
+  retval = IDAGetNumErrTestFails(ida_mem, &netf);
+  check_retval(&retval, "IDAGetNumErrTestFails", 1);
+  retval = IDAGetNumNonlinSolvIters(ida_mem, &nni);
+  check_retval(&retval, "IDAGetNumNonlinSolvIters", 1);
+  retval = IDAGetNumNonlinSolvConvFails(ida_mem, &ncfn);
+  check_retval(&retval, "IDAGetNumNonlinSolvConvFails", 1);
 
   if (sensi) {
-    flag = IDAGetSensNumResEvals(ida_mem, &nfSe);
-    check_flag(&flag, "IDAGetSensNumRhsEvals", 1);
-    flag = IDAGetNumResEvalsSens(ida_mem, &nfeS);
-    check_flag(&flag, "IDAGetNumResEvalsSens", 1);
-    flag = IDAGetSensNumLinSolvSetups(ida_mem, &nsetupsS);
-    check_flag(&flag, "IDAGetSensNumLinSolvSetups", 1);
-    flag = IDAGetSensNumErrTestFails(ida_mem, &netfS);
-    check_flag(&flag, "IDAGetSensNumErrTestFails", 1);
-    flag = IDAGetSensNumNonlinSolvIters(ida_mem, &nniS);
-    check_flag(&flag, "IDAGetSensNumNonlinSolvIters", 1);
-    flag = IDAGetSensNumNonlinSolvConvFails(ida_mem, &ncfnS);
-    check_flag(&flag, "IDAGetSensNumNonlinSolvConvFails", 1);
+    retval = IDAGetSensNumResEvals(ida_mem, &nfSe);
+    check_retval(&retval, "IDAGetSensNumRhsEvals", 1);
+    retval = IDAGetNumResEvalsSens(ida_mem, &nfeS);
+    check_retval(&retval, "IDAGetNumResEvalsSens", 1);
+    retval = IDAGetSensNumLinSolvSetups(ida_mem, &nsetupsS);
+    check_retval(&retval, "IDAGetSensNumLinSolvSetups", 1);
+    retval = IDAGetSensNumErrTestFails(ida_mem, &netfS);
+    check_retval(&retval, "IDAGetSensNumErrTestFails", 1);
+    retval = IDAGetSensNumNonlinSolvIters(ida_mem, &nniS);
+    check_retval(&retval, "IDAGetSensNumNonlinSolvIters", 1);
+    retval = IDAGetSensNumNonlinSolvConvFails(ida_mem, &ncfnS);
+    check_retval(&retval, "IDAGetSensNumNonlinSolvConvFails", 1);
   }
 
-  flag = IDADlsGetNumJacEvals(ida_mem, &nje);
-  check_flag(&flag, "IDADlsGetNumJacEvals", 1);
-  flag = IDADlsGetNumResEvals(ida_mem, &nfeLS);
-  check_flag(&flag, "IDADlsGetNumResEvals", 1);
+  retval = IDAGetNumJacEvals(ida_mem, &nje);
+  check_retval(&retval, "IDAGetNumJacEvals", 1);
+  retval = IDAGetNumLinResEvals(ida_mem, &nfeLS);
+  check_retval(&retval, "IDAGetNumLinResEvals", 1);
 
   printf("\nFinal Statistics\n\n");
   printf("nst     = %5ld\n\n", nst);
@@ -784,34 +783,34 @@ static void PrintFinalStats(void *ida_mem, booleantype sensi)
  * Check function return value.
  *    opt == 0 means SUNDIALS function allocates memory so check if
  *             returned NULL pointer
- *    opt == 1 means SUNDIALS function returns a flag so check if
- *             flag >= 0
+ *    opt == 1 means SUNDIALS function returns an integer value so check if
+ *             retval < 0
  *    opt == 2 means function allocates memory so check if returned
  *             NULL pointer 
  */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt)
+static int check_retval(void *returnvalue, const char *funcname, int opt)
 {
-  int *errflag;
+  int *retval;
 
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL) {
     fprintf(stderr, 
             "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
 	    funcname);
     return(1); }
 
-  /* Check if flag < 0 */
+  /* Check if retval < 0 */
   else if (opt == 1) {
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
+    retval = (int *) returnvalue;
+    if (*retval < 0) {
       fprintf(stderr, 
-              "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
-	      funcname, *errflag);
+              "\nSUNDIALS_ERROR: %s() failed with retval = %d\n\n",
+	      funcname, *retval);
       return(1); }}
 
   /* Check if function returned NULL pointer - no memory allocated */
-  else if (opt == 2 && flagvalue == NULL) {
+  else if (opt == 2 && returnvalue == NULL) {
     fprintf(stderr, 
             "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
 	    funcname);

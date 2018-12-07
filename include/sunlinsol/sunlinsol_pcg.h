@@ -174,12 +174,38 @@ typedef struct _SUNLinearSolverContent_PCG *SUNLinearSolverContent_PCG;
  * PART III: functions exported by sunlinsol_pcg
  * 
  * CONSTRUCTOR:
- *    SUNPCG creates and allocates memory for a PCG solver
+ *    SUNLinSol_PCG creates and allocates memory for a PCG solver
+ *
+ *    SUNPCG (deprecated) wrapper for SUNLinSol_PCG
+ *
+ * OTHER:
+ *    SUNLinSol_PCGSetPrecType updates the type of preconditioning 
+ *       to use.  Supported values are PREC_NONE, PREC_LEFT, 
+ *       PREC_RIGHT and PREC_BOTH; however any value other than 
+ *       PREC_NONE indicates symmetric preconditioning.
+ *    SUNLinSol_PCGSetMaxl updates the maximum number of iterations
+ *       to allow in the solver.
+ *
+ *    SUNPCGSetPrecType (deprecated) wrapper for 
+ *       SUNLinSol_PCGSetPrecType
+ *    SUNPCGSetMaxl (deprecated) wrapper for SUNLinSol_PCGSetMaxl
+ *
  * -----------------------------------------------------------------
  */
 
+SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_PCG(N_Vector y,
+                                              int pretype,
+                                              int maxl);
+SUNDIALS_EXPORT int SUNLinSol_PCGSetPrecType(SUNLinearSolver S,
+                                             int pretype);
+SUNDIALS_EXPORT int SUNLinSol_PCGSetMaxl(SUNLinearSolver S,
+                                         int maxl);
+
+/* deprecated */
 SUNDIALS_EXPORT SUNLinearSolver SUNPCG(N_Vector y, int pretype, int maxl);
+/* deprecated */
 SUNDIALS_EXPORT int SUNPCGSetPrecType(SUNLinearSolver S, int pretype);
+/* deprecated */
 SUNDIALS_EXPORT int SUNPCGSetMaxl(SUNLinearSolver S, int maxl);
 
 /*

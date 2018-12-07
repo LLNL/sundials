@@ -17,7 +17,7 @@ At t = 0.90   max.norm(u) =  2.115983e-04   nst =  140
 At t = 1.00   max.norm(u) =  6.556853e-05   nst =  142
 
 Final Statistics:
-nst = 142    nfe  = 174    nsetups = 23     nfeLS = 0      nje = 3
+nst = 142    nfe  = 173    nsetups = 23     nfeLS = 0      nje = 3
 nni = 170    ncfn = 0      netf = 3
 num_threads = 4
 

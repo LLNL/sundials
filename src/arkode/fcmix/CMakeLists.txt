@@ -30,6 +30,7 @@ SET(farkode_SOURCES
   farkexpstab.c
   farkjtimes.c
   farkmtimes.c
+  farknullnonlinsol.c
   farknulllinsol.c
   farknullmatrix.c
   farkode.c
@@ -84,6 +85,13 @@ IF(LAPACK_FOUND)
     ${sundials_SOURCE_DIR}/src/sunlinsol_lapackdense/fsunlinsol_lapackdense.c
     )
 ENDIF()
+
+# Add variable sunnonlinsol_SOURCES with the common SUNNonlinearSolver sources 
+# which will also be included in the ARKODE library
+SET(sunnonlinsol_SOURCES
+  ${sundials_SOURCE_DIR}/src/sunnonlinsol_newton/fsunnonlinsol_newton.c
+  ${sundials_SOURCE_DIR}/src/sunnonlinsol_fixedpoint/fsunnonlinsol_fixedpoint.c
+  )
 
 
 # Add source directories to include directories for access to

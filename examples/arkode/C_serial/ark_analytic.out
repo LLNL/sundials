@@ -20,7 +20,7 @@ Analytical ODE test problem:
 
 Final Solver Statistics:
    Internal solver steps = 559 (attempted = 559)
-   Total RHS evals:  Fe = 0,  Fi = 5594
+   Total RHS evals:  Fe = 0,  Fi = 5593
    Total linear solver setups = 25
    Total RHS evals for setting up the linear system = 0
    Total number of Jacobian evaluations = 5

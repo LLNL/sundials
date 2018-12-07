@@ -4,7 +4,7 @@ idasBruss_kry_bbd_p: Brusselator DAE parallel example problem for IDAS
 Number of species ns: 2     Mesh dimensions: 42 x 42     Total system size: 3528
 Subgrid dimensions: 21 x 21     Processor array: 2 x 2
 Tolerance parameters:  rtol = 1e-05   atol = 1e-05
-Linear solver: SUNSPGMR     Max. Krylov dimension maxl: 16
+Linear solver: SUNLinSol_SPGMR     Max. Krylov dimension maxl: 16
 Preconditioner: band-block-diagonal (IDABBDPRE), with parameters
      mudq = 42,  mldq = 42,  mukeep = 2,  mlkeep = 2
 CalcIC called to correct initial guesses 
@@ -25,10 +25,10 @@ CalcIC called to correct initial guesses
 1.00e-01   4.2319e-01   3.0579e+00   |  29  4   1.1822e-02
            1.1480e+00   4.3135e+00   |
 
-4.00e-01   3.0714e-01   5.4048e+00   |  74  5   6.2824e-03
+4.00e-01   3.0714e-01   5.4048e+00   |  74  5   6.2825e-03
            1.4797e+00   6.1197e-01   |
 
-7.00e-01   2.7089e-01   4.1003e+00   | 122  5   6.2824e-03
+7.00e-01   2.7089e-01   4.1003e+00   | 122  5   6.2825e-03
            1.7503e+00   7.8994e-01   |
 
 1.00e+00   2.6132e-01   3.0981e+00   | 169  5   1.2565e-02

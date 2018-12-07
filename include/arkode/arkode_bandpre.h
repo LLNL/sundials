@@ -96,59 +96,59 @@ extern "C" {
 
 
 /*---------------------------------------------------------------
- ARKBandPrecInit:
+  ARKBandPrecInit:
 
- ARKBandPrecInit allocates and initializes the BANDPRE 
- preconditioner module. This function must be called AFTER the
- ARKSPILS linear solver interface has been created.
+  ARKBandPrecInit allocates and initializes the BANDPRE 
+  preconditioner module. This function must be called AFTER the
+  ARKSPILS linear solver interface has been created.
 
- The parameters of ARKBandPrecInit are as follows:
+  The parameters of ARKBandPrecInit are as follows:
 
- arkode_mem is the pointer to ARKODE memory returned by ARKodeCreate.
+  arkode_mem is the pointer to ARKode memory returned by ARKodeCreate.
 
- N is the problem size.
+  N is the problem size.
 
- mu is the upper half bandwidth.
+  mu is the upper half bandwidth.
 
- ml is the lower half bandwidth.
+  ml is the lower half bandwidth.
 
- The return value of ARKBandPrecInit is one of:
-   ARKSPILS_SUCCESS if no errors occurred
-   ARKSPILS_MEM_NULL if the integrator memory is NULL
-   ARKSPILS_LMEM_NULL if the linear solver memory is NULL
-   ARKSPILS_ILL_INPUT if an input has an illegal value
-   ARKSPILS_MEM_FAIL if a memory allocation request failed
+  The return value of ARKBandPrecInit is one of:
+    ARKSPILS_SUCCESS if no errors occurred
+    ARKSPILS_MEM_NULL if the integrator memory is NULL
+    ARKSPILS_LMEM_NULL if the linear solver memory is NULL
+    ARKSPILS_ILL_INPUT if an input has an illegal value
+    ARKSPILS_MEM_FAIL if a memory allocation request failed
 
- NOTE: The band preconditioner assumes a serial/OpenMP/Pthreads
-       implementation of the NVECTOR package. Therefore, 
-       ARKBandPrecInit will first test for a compatible N_Vector 
-       internal representation by checking for required functions.
----------------------------------------------------------------*/
+  NOTE: The band preconditioner assumes a serial/OpenMP/Pthreads
+        implementation of the NVECTOR package. Therefore, 
+        ARKBandPrecInit will first test for a compatible N_Vector 
+        internal representation by checking for required functions.
+  ---------------------------------------------------------------*/
 SUNDIALS_EXPORT int ARKBandPrecInit(void *arkode_mem, sunindextype N, 
-				    sunindextype mu, sunindextype ml);
+                                    sunindextype mu, sunindextype ml);
 
 /*---------------------------------------------------------------
- Optional output functions : ARKBandPrecGet*
+  Optional output functions : ARKBandPrecGet*
 
- ARKBandPrecGetWorkSpace returns the real and integer work space used
-                        by ARKBANDPRE.
+  ARKBandPrecGetWorkSpace returns the real and integer work space used
+                          by ARKBANDPRE.
 
- ARKBandPrecGetNumRhsEvals returns the number of calls made from
-                          ARKBANDPRE to the user's right-hand side
-                          routine fi.
+  ARKBandPrecGetNumRhsEvals returns the number of calls made from
+                            ARKBANDPRE to the user's right-hand side
+                            routine fi.
 
- The return value of ARKBandPrecGet* is one of:
-   ARKSPILS_SUCCESS if no errors occurred
-   ARKSPILS_MEM_NULL if the integrator memory is NULL
-   ARKSPILS_LMEM_NULL if the linear solver memory is NULL
-   ARKSPILS_PMEM_NULL if the preconditioner memory is NULL
----------------------------------------------------------------*/
+  The return value of ARKBandPrecGet* is one of:
+    ARKSPILS_SUCCESS if no errors occurred
+    ARKSPILS_MEM_NULL if the integrator memory is NULL
+    ARKSPILS_LMEM_NULL if the linear solver memory is NULL
+    ARKSPILS_PMEM_NULL if the preconditioner memory is NULL
+  ---------------------------------------------------------------*/
 
 SUNDIALS_EXPORT int ARKBandPrecGetWorkSpace(void *arkode_mem, 
-					    long int *lenrwLS, 
-					    long int *leniwLS);
+                                            long int *lenrwLS, 
+                                            long int *leniwLS);
 SUNDIALS_EXPORT int ARKBandPrecGetNumRhsEvals(void *arkode_mem, 
-					      long int *nfevalsBP);
+                                              long int *nfevalsBP);
 
 
 #ifdef __cplusplus

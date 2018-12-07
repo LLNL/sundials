@@ -18,7 +18,7 @@
  * LLNS/SMU Copyright End
  * -----------------------------------------------------------------
  * The C functions FCVPSet and FCVPSol are to interface between the 
- * CVSPILS module and the user-supplied preconditioner setup/solve
+ * CVLS module and the user-supplied preconditioner setup/solve
  * routines FCVPSET and FCVPSOL. Note the use of the generic names
  * FCV_PSET and FCV_PSOL below.
  * -----------------------------------------------------------------
@@ -30,7 +30,7 @@
 #include "fcvode.h"     /* actual fn. names, prototypes and global vars.*/
 #include "cvode_impl.h" /* definition of CVodeMem type                  */
 
-#include <cvode/cvode_spils.h>
+#include <cvode/cvode_ls.h>
 
 /*********************************************************************/
 
@@ -57,12 +57,16 @@ extern "C" {
 
 /***************************************************************************/
 
+/* ---DEPRECATED--- */
 void FCV_SPILSSETPREC(int *flag, int *ier)
+{ FCV_LSSETPREC(flag, ier); }
+
+void FCV_LSSETPREC(int *flag, int *ier)
 {
   if (*flag == 0) {
-    *ier = CVSpilsSetPreconditioner(CV_cvodemem, NULL, NULL);
+    *ier = CVodeSetPreconditioner(CV_cvodemem, NULL, NULL);
   } else {
-    *ier = CVSpilsSetPreconditioner(CV_cvodemem, FCVPSet, FCVPSol);
+    *ier = CVodeSetPreconditioner(CV_cvodemem, FCVPSet, FCVPSol);
   }
 }
 
