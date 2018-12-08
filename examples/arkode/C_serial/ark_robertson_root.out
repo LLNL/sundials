@@ -22,7 +22,7 @@ Robertson ODE test problem (with rootfinding):
 
 Final Solver Statistics:
    Internal solver steps = 955 (attempted = 1157)
-   Total RHS evals:  Fe = 0,  Fi = 32555
+   Total RHS evals:  Fe = 0,  Fi = 32554
    Total linear solver setups = 534
    Total RHS evals for setting up the linear system = 0
    Total number of Jacobian evaluations = 68

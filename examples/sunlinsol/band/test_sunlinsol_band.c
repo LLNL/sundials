@@ -33,7 +33,7 @@
 
 
 /* ----------------------------------------------------------------------
- * SUNBandLinearSolver Testing Routine
+ * SUNLinSol_Band Testing Routine
  * --------------------------------------------------------------------*/
 int main(int argc, char *argv[]) 
 {
@@ -77,8 +77,8 @@ int main(int argc, char *argv[])
          (long int) cols, (long int) uband, (long int) lband);
 
   /* Create matrices and vectors */
-  A = SUNBandMatrix(cols, uband, lband, lband+uband);
-  B = SUNBandMatrix(cols, uband, lband, lband+uband);
+  A = SUNBandMatrix(cols, uband, lband);
+  B = SUNBandMatrix(cols, uband, lband);
   x = N_VNew_Serial(cols);
   y = N_VNew_Serial(cols);
   b = N_VNew_Serial(cols);
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
   }
   
   /* Create banded linear solver */
-  LS = SUNBandLinearSolver(x, A);
+  LS = SUNLinSol_Band(x, A);
   
   /* Run Tests */
   fails += Test_SUNLinSolInitialize(LS, 0);

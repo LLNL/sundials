@@ -24,8 +24,7 @@ INSTALL(CODE "MESSAGE(\"\nInstall KINSOL\n\")")
 SET(kinsol_SOURCES
   kinsol.c
   kinsol_io.c
-  kinsol_direct.c
-  kinsol_spils.c
+  kinsol_ls.c
   kinsol_bbdpre.c
   )
 
@@ -66,9 +65,10 @@ SET(sunlinsol_SOURCES
 
 # Add variable kinsol_HEADERS with the exported KINSOL header files
 SET(kinsol_HEADERS
+  kinsol.h
   kinsol_bbdpre.h
   kinsol_direct.h
-  kinsol.h
+  kinsol_ls.h
   kinsol_spils.h
   )
 

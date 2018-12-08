@@ -105,7 +105,7 @@ compiler and linker.
 
 The default CMake configuration will build all included solvers and
 associated examples and will build static and shared libraries. The
-{\em installdir} defaults to \id{/usr/local} and can be changed by
+{\em instdir} defaults to \id{/usr/local} and can be changed by
 setting the \id{CMAKE\_INSTALL\_PREFIX} variable.  Support for FORTRAN
 and all other options are disabled.
 
@@ -384,6 +384,10 @@ a typical configuration on a Linux system and are provided as illustration only.
   Note: This is the directory within \id{CMAKE\_INSTALL\_PREFIX} that the {\sundials}
   libraries will be installed under. The default is automatically set based on the
   operating system using the GNUInstallDirs CMake module.
+\item[\id{Fortran\_INSTALL\_MODDIR}] -
+  Fortran module installation directory
+  \\
+  Default: fortran
 \item[\id{CUDA\_ENABLE}] -
   Build the {\sundials} {\cuda} vector module.
   \\
@@ -411,11 +415,11 @@ a typical configuration on a Linux system and are provided as illustration only.
 \item[\id{EXAMPLES\_ENABLE\_F77}] -
   Build the {\sundials} Fortran77 examples
   \\
-  Default: ON (if \id{FCMIX\_ENABLE} is ON)
+  Default: ON (if \id{F77\_INTERFACE\_ENABLE} is ON)
 \item[\id{EXAMPLES\_ENABLE\_F90}] -
-  Build the {\sundials} Fortran90 examples
+  Build the {\sundials} Fortran90/Fortran2003 examples
   \\
-  Default: OFF
+  Default: ON (if \id{F77\_INTERFACE\_ENABLE} or \id{F2003\_INTERFACE\_ENABLE} is ON)
 \item[\id{EXAMPLES\_INSTALL}] - 
   Install example files
   \\
@@ -439,8 +443,12 @@ a typical configuration on a Linux system and are provided as illustration only.
   \\
   Note: The actual default value for this option will be an \id{examples}
   subdirectory created under \id{CMAKE\_INSTALL\_PREFIX}.
-\item[\id{FCMIX\_ENABLE}] - 
-  Enable Fortran-C support   
+\item[\id{F77\_INTERFACE\_ENABLE}] - 
+  Enable Fortran-C support via the Fortran 77 interfaces    
+  \\
+  Default: OFF 
+\item[\id{F2003\_INTERFACE\_ENABLE}] - 
+  Enable Fortran-C support via the Fortran 2003 interfaces    
   \\
   Default: OFF 
 \item[\id{HYPRE\_ENABLE}] - 
@@ -508,10 +516,8 @@ a typical configuration on a Linux system and are provided as illustration only.
   Default: 
   \\
   Note: This option is triggered only if MPI is enabled
-  (\id{MPI\_ENABLE} is ON), Fortran-C support is enabled
-  (\id{FCMIX\_ENABLE} is ON), and Fortran77 or Fortran90
-  examples are enabled (\id{EXAMPLES\_ENABLE\_F77} or
-  \id{EXAMPLES\_ENABLE\_F90} are ON).
+  (\id{MPI\_ENABLE} is ON) and Fortran-C support is enabled
+  (\id{F77\_INTERFACE\_ENABLE} or \id{F2003\_INTERFACE\_ENABLE} is ON).
 \item[\id{MPIEXEC\_EXECUTABLE}] -
   Specify the executable for running MPI programs
   \\
@@ -526,7 +532,17 @@ a typical configuration on a Linux system and are provided as illustration only.
 \item[\id{OPENMP\_ENABLE}] -
   Enable OpenMP support (build the OpenMP nvector).
   \\
-  Default: OFF 
+  Default: OFF
+\item[\id{OPENMP\_DEVICE\_ENABLE}] -
+  Enable OpenMP device offloading (build the OpenMPDEV nvector) if supported by
+  the provided compiler.
+  \\
+  Default: OFF
+\item[\id{SKIP\_OPENMP\_DEVICE\_CHECK}] - \textbf{advanced option} -
+  Skip the check done to see if the OpenMP provided by the compiler
+  supports OpenMP device offloading.
+  \\
+  Default: OFF
 \item[\id{PETSC\_ENABLE}] - 
   Enable PETSc support
   \\
@@ -571,10 +587,9 @@ a typical configuration on a Linux system and are provided as illustration only.
   only be used if a Fortran compiler is not available or to override
   the inferred or default (\id{one}) scheme if one can not be
   determined. If used, \id{SUNDIALS\_F77\_FUNC\_CASE} must also be set.
-\item[\id{SUNDIALS\_INDEX\_TYPE}] - \textbf{advanced}
-  \\
+\item[\id{SUNDIALS\_INDEX\_TYPE}] - \textbf{advanced option} -
   Integer type used for {\sundials} indices. The size must match the size provided for
-  the \id{SUNDIALS\_INDEX\_SIZE} option.
+  the \\ \noindent \id{SUNDIALS\_INDEX\_SIZE} option.
   \\
   Default:
   \\
@@ -737,11 +752,11 @@ corresponding {\sundials} options if applicable.
   \\
   Note: Enabling xSDK defaults also sets \id{CMAKE\_BUILD\_TYPE} to \id{Debug}
 \item[\id{XSDK\_ENABLE\_FORTRAN}] -
-  Enable {\sundials} Fortran interface
+  Enable {\sundials} Fortran interfaces
   \\
   Default: OFF
   \\
-  {\sundials} equivalent: \id{FCMIX\_ENABLE}
+  {\sundials} equivalent: \id{F77\_INTERFACE\_ENABLE}/\id{F2003\_INTERFACE\_ENABLE}
 \item[\id{XSDK\_INDEX\_SIZE}] -
   Integer size (bits) used for indices in {\sundials}, options are: \id{32} or \id{64}
   \\
@@ -1047,7 +1062,7 @@ are to be used in building a preconditioner.
 %---------------------------------------------------------------------------
 
 \newlength{\colLenOne}
-\settowidth{\colLenOne}{{\sunlinsollapdense}}
+\settowidth{\colLenOne}{{\sunnonlinsolfixedpoint}}
 
 \newlength{\colLenTwo}
 \settowidth{\colLenTwo}{Header files}
@@ -1060,6 +1075,7 @@ are to be used in building a preconditioner.
 
 %\caption{{\sundials} libraries and header files (cont.)}\label{t:sundials_files2}
 
+\clearpage
 \tablecaption{{\sundials} libraries and header files}\label{t:sundials_files}
 \tablefirsthead{\hline}
 \tablehead{\hline \multicolumn{4}{|l|}{\small\slshape continued from last page} \\
@@ -1071,19 +1087,31 @@ are to be used in building a preconditioner.
 {\shared}
  & Libraries    & n/a  & \\
 \cline{2-4}
- & Header files & sundials/sundials\_config.h        & sundials/sundials\_fconfig.h    \\
- &              & sundials/sundials\_types.h         & sundials/sundials\_math.h       \\
- &              & sundials/sundials\_nvector.h       & sundials/sundials\_fnvector.h   \\
- &              & sundials/sundials\_iterative.h     & sundials/sundials\_direct.h     \\
- &              & sundials/sundials\_dense.h         & sundials/sundials\_band.h       \\
- &              & sundials/sundials\_matrix.h        & sundials/sundials\_version.h    \\
- &              & sundials/sundials\_linearsolver.h  & sundials/sundials\_mpi\_types.h \\
+& Header files & sundials/sundials\_config.h           & \\
+&              & sundials/sundials\_fconfig.h          & \\
+&              & sundials/sundials\_types.h            & \\
+&              & sundials/sundials\_math.h             & \\
+&              & sundials/sundials\_nvector.h          & \\
+&              & sundials/sundials\_fnvector.h         & \\
+&              & sundials/sundials\_matrix.h           & \\
+&              & sundials/sundials\_linearsolver.h     & \\
+&              & sundials/sundials\_iterative.h        & \\
+&              & sundials/sundials\_direct.h           & \\
+&              & sundials/sundials\_dense.h            & \\
+&              & sundials/sundials\_band.h             & \\
+&              & sundials/sundials\_nonlinearsolver.h  & \\
+&              & sundials/sundials\_version.h          & \\
+&              & sundials/sundials\_mpi\_types.h       & \\
 \hline
 %% --------------------------------------------------
 {\nvecs}
- & Libraries    & libsundials\_nvecserial.{\em lib} & libsundials\_fnvecserial.a \\ 
+ & Libraries    & libsundials\_nvecserial.{\em lib}       & \\
+ &              & libsundials\_fnvecserial\_mod.{\em lib} & \\ 
+ &              & libsundials\_fnvecserial.a              & \\ 
 \cline{2-4}
- & Header files & nvector/nvector\_serial.h         & \\ 
+ & Header files & nvector/nvector\_serial.h               & \\ 
+\cline{2-4}
+ & Module files & fnvector\_serial\_mod.mod               & \\
 \hline
 %% --------------------------------------------------
 {\nvecp}
@@ -1093,15 +1121,29 @@ are to be used in building a preconditioner.
 \hline
 %% --------------------------------------------------
 {\nvecopenmp}
- & Libraries    & libsundials\_nvecopenmp.{\em lib} & libsundials\_fnvecopenmp.a \\ 
+ & Libraries    & libsundials\_nvecopenmp.{\em lib}        & \\
+ &              & libsundials\_fnvecopenmp\_mod.{\em lib}  & \\ 
+ &              & libsundials\_fnvecopenmp.a               & \\ 
 \cline{2-4}
- & Header files & nvector/nvector\_openmp.h         & \\ 
+ & Header files & nvector/nvector\_openmp.h                & \\ 
+\cline{2-4}
+ & Module files & fnvector\_openmp\_mod.mod                & \\
+\hline
+%% --------------------------------------------------
+{\nvecopenmpdev}
+  & Libraries    & libsundials\_nvecopenmpdev.{\em lib} & \\ 
+\cline{2-4}
+  & Header files & nvector/nvector\_openmpdev.h         & \\ 
 \hline
 %% --------------------------------------------------
 {\nvecpthreads}
- & Libraries    & libsundials\_nvecpthreads.{\em lib} & libsundials\_fnvecpthreads.a \\ 
+ & Libraries    & libsundials\_nvecpthreads.{\em lib}       & \\
+ &              & libsundials\_fnvecpthreads\_mod.{\em lib} & \\ 
+ &              & libsundials\_fnvecpthreads.a              & \\ 
 \cline{2-4}
- & Header files & nvector/nvector\_pthreads.h         & \\ 
+ & Header files & nvector/nvector\_pthreads.h               & \\ 
+\cline{2-4}
+ & Module files & fnvector\_pthreads\_mod.mod               & \\
 \hline
 %% --------------------------------------------------
 {\nvecph}
@@ -1137,45 +1179,63 @@ are to be used in building a preconditioner.
 \hline
 %% --------------------------------------------------
 {\sunmatband}
- & Libraries    & libsundials\_sunmatrixband.{\em lib} & \\ 
- &              & libsundials\_fsunmatrixband.a        & \\ 
+ & Libraries    & libsundials\_sunmatrixband.{\em lib}       & \\ 
+ &              & libsundials\_fsunmatrixband\_mod.{\em lib} & \\ 
+ &              & libsundials\_fsunmatrixband.a              & \\ 
 \cline{2-4}
- & Header files & sunmatrix/sunmatrix\_band.h          & \\ 
+ & Header files & sunmatrix/sunmatrix\_band.h                & \\ 
+\cline{2-4}
+ & Module files & fsunmatrix\_band\_mod.mod                  & \\
 \hline
 %% --------------------------------------------------
 {\sunmatdense}
- & Libraries    & libsundials\_sunmatrixdense.{\em lib} & \\
- &              & libsundials\_fsunmatrixdense.a        & \\
+ & Libraries    & libsundials\_sunmatrixdense.{\em lib}       & \\
+ &              & libsundials\_fsunmatrixdense\_mod.{\em lib} & \\
+ &              & libsundials\_fsunmatrixdense.a              & \\
 \cline{2-4}
- & Header files & sunmatrix/sunmatrix\_dense.h          & \\
+ & Header files & sunmatrix/sunmatrix\_dense.h                & \\
+\cline{2-4}
+ & Module files & fsunmatrix\_dense\_mod.mod                  & \\
 \hline
 %% --------------------------------------------------
 {\sunmatsparse}
- & Libraries    & libsundials\_sunmatrixsparse.{\em lib} & \\ 
- &              & libsundials\_fsunmatrixsparse.a        & \\ 
+ & Libraries    & libsundials\_sunmatrixsparse.{\em lib}       & \\ 
+ &              & libsundials\_fsunmatrixsparse\_mod.{\em lib} & \\ 
+ &              & libsundials\_fsunmatrixsparse.a              & \\ 
 \cline{2-4}
- & Header files & sunmatrix/sunmatrix\_sparse.h          & \\ 
+ & Header files & sunmatrix/sunmatrix\_sparse.h                & \\ 
+\cline{2-4}
+ & Module files & fsunmatrix\_sparse\_mod.mod                  & \\
 \hline
 %% --------------------------------------------------
 {\sunlinsolband}
- & Libraries    & libsundials\_sunlinsolband.{\em lib} & \\ 
- &              & libsundials\_fsunlinsolband.a        & \\ 
+ & Libraries    & libsundials\_sunlinsolband.{\em lib}        & \\ 
+ &              & libsundials\_fsunlinsolband\_mod.{\em lib}  & \\ 
+ &              & libsundials\_fsunlinsolband.a               & \\ 
 \cline{2-4}
- & Header files & sunlinsol/sunlinsol\_band.h          & \\ 
+ & Header files & sunlinsol/sunlinsol\_band.h                 & \\ 
+\cline{2-4}
+ & Module files & fsunlinsol\_band\_mod.mod                   & \\
 \hline
 %% --------------------------------------------------
 {\sunlinsoldense}
- & Libraries    & libsundials\_sunlinsoldense.{\em lib} & \\ 
- &              & libsundials\_fsunlinsoldense.a        & \\ 
+ & Libraries    & libsundials\_sunlinsoldense.{\em lib}       & \\ 
+ &              & libsundials\_fsunlinsoldense\_mod.{\em lib} & \\ 
+ &              & libsundials\_fsunlinsoldense.a              & \\ 
 \cline{2-4}
- & Header files & sunlinsol/sunlinsol\_dense.h          & \\ 
+ & Header files & sunlinsol/sunlinsol\_dense.h                & \\ 
+\cline{2-4}
+ & Module files & fsunlinsol\_dense\_mod.mod                  & \\
 \hline
 %% --------------------------------------------------
 {\sunlinsolklu}
- & Libraries    & libsundials\_sunlinsolklu.{\em lib} & \\ 
- &              & libsundials\_fsunlinsolklu.a        & \\ 
+ & Libraries    & libsundials\_sunlinsolklu.{\em lib}        & \\ 
+ &              & libsundials\_fsunlinsolklu\_mod.{\em lib}  & \\ 
+ &              & libsundials\_fsunlinsolklu.a               & \\ 
 \cline{2-4}
- & Header files & sunlinsol/sunlinsol\_klu.h          & \\ 
+ & Header files & sunlinsol/sunlinsol\_klu.h                 & \\ 
+\cline{2-4}
+ & Module files & fsunlinsol\_klu\_mod.mod                   & \\
 \hline
 %% --------------------------------------------------
 {\sunlinsollapband}
@@ -1193,38 +1253,53 @@ are to be used in building a preconditioner.
 \hline
 %% --------------------------------------------------
 {\sunlinsolpcg}
- & Libraries    & libsundials\_sunlinsolpcg.{\em lib} & \\ 
- &              & libsundials\_fsunlinsolpcg.a        & \\ 
+ & Libraries    & libsundials\_sunlinsolpcg.{\em lib}        & \\ 
+ &              & libsundials\_fsunlinsolpcg\_mod.{\em lib}  & \\ 
+ &              & libsundials\_fsunlinsolpcg.a               & \\ 
 \cline{2-4}
- & Header files & sunlinsol/sunlinsol\_pcg.h          & \\ 
+ & Header files & sunlinsol/sunlinsol\_pcg.h                 & \\ 
+\cline{2-4}
+ & Module files & fsunlinsol\_pcg\_mod.mod                   & \\
 \hline
 %% --------------------------------------------------
 {\sunlinsolspbcgs}
- & Libraries    & libsundials\_sunlinsolspbcgs.{\em lib} & \\ 
- &              & libsundials\_fsunlinsolspbcgs.a        & \\ 
+ & Libraries    & libsundials\_sunlinsolspbcgs.{\em lib}       & \\ 
+ &              & libsundials\_fsunlinsolspbcgs\_mod.{\em lib} & \\ 
+ &              & libsundials\_fsunlinsolspbcgs.a              & \\ 
 \cline{2-4}
- & Header files & sunlinsol/sunlinsol\_spbcgs.h          & \\ 
+ & Header files & sunlinsol/sunlinsol\_spbcgs.h                & \\ 
+\cline{2-4}
+ & Module files & fsunlinsol\_spbcgs\_mod.mod                  & \\
 \hline
 %% --------------------------------------------------
 {\sunlinsolspfgmr}
- & Libraries    & libsundials\_sunlinsolspfgmr.{\em lib} & \\ 
- &              & libsundials\_fsunlinsolspfgmr.a        & \\ 
+ & Libraries    & libsundials\_sunlinsolspfgmr.{\em lib}        & \\ 
+ &              & libsundials\_fsunlinsolspfgmr\_mod.{\em lib}  & \\ 
+ &              & libsundials\_fsunlinsolspfgmr.a               & \\ 
 \cline{2-4}
- & Header files & sunlinsol/sunlinsol\_spfgmr.h          & \\ 
+ & Header files & sunlinsol/sunlinsol\_spfgmr.h                 & \\ 
+\cline{2-4}
+ & Module files & fsunlinsol\_spfgmr\_mod.mod                   & \\
 \hline
 %% --------------------------------------------------
 {\sunlinsolspgmr}
- & Libraries    & libsundials\_sunlinsolspgmr.{\em lib} & \\ 
- &              & libsundials\_fsunlinsolspgmr.a        & \\ 
+ & Libraries    & libsundials\_sunlinsolspgmr.{\em lib}        & \\ 
+ &              & libsundials\_fsunlinsolspgmr\_mod.{\em lib}  & \\ 
+ &              & libsundials\_fsunlinsolspgmr.a               & \\ 
 \cline{2-4}
- & Header files & sunlinsol/sunlinsol\_spgmr.h          & \\ 
+ & Header files & sunlinsol/sunlinsol\_spgmr.h                 & \\ 
+\cline{2-4}
+ & Module files & fsunlinsol\_spgmr\_mod.mod                   & \\
 \hline
 %% --------------------------------------------------
 {\sunlinsolsptfqmr}
- & Libraries    & libsundials\_sunlinsolsptfqmr.{\em lib} & \\ 
- &              & libsundials\_fsunlinsolsptfqmr.a        & \\ 
+ & Libraries    & libsundials\_sunlinsolsptfqmr.{\em lib}       & \\ 
+ &              & libsundials\_fsunlinsolsptfqmr\_mod.{\em lib} & \\ 
+ &              & libsundials\_fsunlinsolsptfqmr.a              & \\ 
 \cline{2-4}
- & Header files & sunlinsol/sunlinsol\_sptfqmr.h          & \\ 
+ & Header files & sunlinsol/sunlinsol\_sptfqmr.h                & \\ 
+\cline{2-4}
+ & Module files & fsunlinsol\_sptfqmr\_mod.mod                  & \\
 \hline
 %% --------------------------------------------------
 {\sunlinsolslumt}
@@ -1234,52 +1309,76 @@ are to be used in building a preconditioner.
  & Header files & sunlinsol/sunlinsol\_superlumt.h          & \\ 
 \hline
 %% --------------------------------------------------
+{\sunnonlinsolnewton}
+ & Libraries    & libsundials\_sunnonlinsolnewton.{\em lib}        & \\
+ &              & libsundials\_fsunnonlinsolnewton\_mod.{\em lib}  & \\
+ &              & libsundials\_fsunnonlinsolnewton.a               & \\
+\cline{2-4}
+ & Header files & sunnonlinsol/sunnonlinsol\_newton.h              & \\
+\cline{2-4}
+ & Module files & fsunnonlinsol\_newton\_mod.mod                   &  \\
+\hline
+%% --------------------------------------------------
+{\sunnonlinsolfixedpoint}
+ & Libraries    & libsundials\_sunnonlinsolfixedpoint.{\em lib}       & \\
+ &              & libsundials\_fsunnonlinsolfixedpoint.a              & \\
+ &              & libsundials\_fsunnonlinsolfixedpoint\_mod.{\em lib} & \\
+\cline{2-4}
+ & Header files & sunnonlinsol/sunnonlinsol\_fixedpoint.h             & \\
+\cline{2-4}
+ & Module files & fsunnonlinsol\_fixedpoint\_mod.mod                  & \\
+\hline
+%% --------------------------------------------------
 {\cvode}
  & Libraries    & libsundials\_cvode.{\em lib} & libsundials\_fcvode.a \\
 \cline{2-4}
  & Header files & cvode/cvode.h                & cvode/cvode\_impl.h   \\
- &              & cvode/cvode\_direct.h        & cvode/cvode\_spils.h  \\
- &              & cvode/cvode\_bandpre.h       & cvode/cvode\_bbdpre.h \\
+ &              & cvode/cvode\_direct.h        & cvode/cvode\_ls.h \\
+ &              & cvode/cvode\_spils.h         & cvode/cvode\_bandpre.h \\
+ &              & cvode/cvode\_bbdpre.h        &  \\
+\cline{2-4}
+ & Module files & fcvode\_mod.mod               &  \\
 \hline
 %% --------------------------------------------------
 {\cvodes}
  & Libraries    & libsundials\_cvodes.{\em lib} & \\
 \cline{2-4}
  & Header files & cvodes/cvodes.h               & cvodes/cvodes\_impl.h   \\
- &              & cvodes/cvodes\_direct.h       & cvodes/cvodes\_spils.h  \\
- &              & cvodes/cvodes\_bandpre.h      & cvodes/cvodes\_bbdpre.h \\
+ &              & cvodes/cvodes\_direct.h       & cvodes/cvodes\_ls.h  \\
+ &              & cvodes/cvodes\_spils.h        & cvodes/cvodes\_bandpre.h  \\
+ &              & cvodes/cvodes\_bbdpre.h       &  \\
 \hline
 %% --------------------------------------------------
 {\arkode}
  & Libraries    & libsundials\_arkode.{\em lib} & libsundials\_farkode.a \\
 \cline{2-4}
- & Header files & arkode/arkode.h               & arkode/arkode\_impl.h   \\
- &              & arkode/arkode\_direct.h       & arkode/arkode\_spils.h  \\
- &              & arkode/arkode\_bandpre.h      & arkode/arkode\_bbdpre.h \\
+ & Header files & arkode/arkode.h               & arkode/arkode\_impl.h    \\
+ &              & arkode/arkode\_ls.h           & arkode/arkode\_bandpre.h \\
+ &              & arkode/arkode\_bbdpre.h       &  \\
 \hline
 %% --------------------------------------------------
 {\ida}
  & Libraries    & libsundials\_ida.{\em lib} & libsundials\_fida.a \\
 \cline{2-4}
  & Header files & ida/ida.h                  & ida/ida\_impl.h     \\
- &              & ida/ida\_direct.h          & ida/ida\_spils.h    \\
- &              & ida/ida\_bbdpre.h          & \\
+ &              & ida/ida\_direct.h          & ida/ida\_ls.h       \\
+ &              & ida/ida\_spils.h           & ida/ida\_bbdpre.h   \\
 \hline
 %% --------------------------------------------------
 {\idas}
  & Libraries    & libsundials\_idas.{\em lib} & \\
 \cline{2-4}
- & Header files & idas/idas.h                 & idas/idas\_impl.h     \\
- &              & idas/idas\_direct.h         & idas/idas\_spils.h    \\
- &              & idas/idas\_bbdpre.h         & \\
+ & Header files & idas/idas.h                 & idas/idas\_impl.h   \\
+ &              & idas/idas\_direct.h         & idas/idas\_ls.h     \\
+ &              & idas/idas\_spils.h          & idas/idas\_bbdpre.h \\
 \hline 
 %% --------------------------------------------------
 {\kinsol}
  & Libraries    & libsundials\_kinsol.{\em lib} & libsundials\_fkinsol.a \\
 \cline{2-4}
- & Header files & kinsol/kinsol.h               & kinsol/kinsol\_impl.h     \\
- &              & kinsol/kinsol\_direct.h       & kinsol/kinsol\_spils.h    \\
- &              & kinsol/kinsol\_bbdpre.h       & \\
+ & Header files & kinsol/kinsol.h               & kinsol/kinsol\_impl.h   \\
+ &              & kinsol/kinsol\_direct.h       & kinsol/kinsol\_ls.h     \\
+ &              & kinsol/kinsol\_spils.h        & kinsol/kinsol\_bbdpre.h \\
 \hline
  %% --------------------------------------------------
 \end{xtabular}

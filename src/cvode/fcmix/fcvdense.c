@@ -17,7 +17,7 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  * -----------------------------------------------------------------
- * Fortran/C interface routines for CVODE/CVDLS, for the case
+ * Fortran/C interface routines for CVODE/CVLS, for the case
  * of a user-supplied Jacobian approximation routine.
  * -----------------------------------------------------------------
  */
@@ -28,7 +28,7 @@
 #include "fcvode.h"     /* actual fn. names, prototypes and global vars.*/
 #include "cvode_impl.h" /* definition of CVodeMem type                  */
 
-#include <cvode/cvode_direct.h>
+#include <cvode/cvode_ls.h>
 #include <sunmatrix/sunmatrix_dense.h>
 
 /***************************************************************************/
@@ -51,9 +51,9 @@ extern "C" {
 void FCV_DENSESETJAC(int *flag, int *ier)
 {
   if (*flag == 0) {
-    *ier = CVDlsSetJacFn(CV_cvodemem, NULL);
+    *ier = CVodeSetJacFn(CV_cvodemem, NULL);
   } else {
-    *ier = CVDlsSetJacFn(CV_cvodemem, FCVDenseJac);
+    *ier = CVodeSetJacFn(CV_cvodemem, FCVDenseJac);
   }
 }
 

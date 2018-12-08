@@ -1,18 +1,48 @@
 %%==============================================================================
-\chapter{FCVODE, an Interface Module for FORTRAN Applications}\label{s:fcmix}
+\chapter{Using CVODE for FORTRAN Applications}\label{s:cvfort}
 %%==============================================================================
+
+A {\F} 2003 module (\id{fcvode\_mod}) as well as a {\F} 77 style interface
+(\fcvode) are provided to support the use of {\cvode}, for the solution of ODE
+systems $dy/dt = f(t,y)$, in a mixed {\F}/{\CC} setting. While {\cvode} is
+written in {\CC}, it is assumed here that the user's calling program and
+user-supplied problem-defining routines are written in {\F}. 
+
+%%==============================================================================
+% FORTRAN 2003 Interfaces.
+%%==============================================================================
+
+\let\sectiontype\subsection
+\section{CVODE FORTRAN 2003 Interface Module}\label{s:cvf2003}
+
+The \ID{fcvode\_mod} {\F} module defines interfaces to most {\cvode} {\CC}
+functions using the intrinsic \id{iso\_c\_binding} module which provides a
+standardized mechanism for interoperating with {\CC}. All interfaced functions
+are named after the corresponding {\CC} function, but with a leading `F'. For
+example, the {\cvode} function \id{CVodeCreate} is interfaced as
+\id{FCVodeCreate}. Thus, the steps to use {\cvode} and the function calls in
+{\F} 2003 are identical (ignoring language differences) to those in {\CC}. The
+{\CC} functions with {\F} 2003 interfaces indicate this in their description in
+Chapter \ref{s:simulation}.
+
+The {\F} 2003 {\cvode} interface module can be accessed by the \id{use}
+statement, i.e. \id{use fcvode\_mod}, and linking to the library
+\id{libsundials\_fcvode\_mod}.{\em lib} in addition to
+\id{libsundials\_cvode}.{\em lib}.
+
+% Pull in sections on portability and data types.
+\input{fortran2003}
+
+%%==============================================================================
+% FCVODE.
+%%==============================================================================
+\section{FCVODE, an Interface Module for FORTRAN Applications}\label{s:fcmix}
 
 The {\fcvode} interface module is a package of {\CC} functions which support
-the use of the {\cvode} solver, for the solution of ODE systems 
-$dy/dt = f(t,y)$, in a mixed {\F}/{\CC} setting.  While {\cvode} is written
-in {\CC}, it is assumed here that the user's calling program and
-user-supplied problem-defining routines are written in {\F}.
-This package provides the necessary interface to {\cvode} for all supplied 
-serial and parallel {\nvector} implementations.
+the use of the {\cvode}. This package provides the necessary interface to
+{\cvode} for all supplied serial and parallel {\nvector} implementations.
 
-%%==============================================================================
 % Pull in sections on portability and data types.
-%%==============================================================================
 \input{fortran}
 
 %% In this package, the names of the interface functions, and the names of
@@ -35,14 +65,14 @@ serial and parallel {\nvector} implementations.
 %% (\id{NEQ}, \id{NLOCAL}, \id{NGLOBAL}, \id{ML}, \id{MU}, etc.),
 %% the array of integer optional outputs (\id{IOUT}),
 %% and the user array of integer data (\id{IPAR}).
-%% EXCEPTION: In the case that Lapack linear solvers are to be used, the
+%% EXCEPTION: In the case that LAPACK linear solvers are to be used, the
 %% input arguments to \id{FCVLAPACKDENSE} or \id{FCVLAPACKBAND} (\id{NEQ},
 %% \id{ML}, and \id{MU}) must be declared to be consistent with {\CC} type \id{int}.
 %% This type consistency is particularly important when using {\cvode} and the
 %% {\fcvode} package on 64-bit architectures.
 
 %%==============================================================================
-\section{FCVODE routines}\label{sss:fcvroutines}
+\subsection{FCVODE routines}\label{sss:fcvroutines}
 %%==============================================================================
 
 \index{FCVODE@{\fcvode} interface module!user-callable functions|(}
@@ -75,29 +105,29 @@ are as follows:
   Interface to the {\sunlinsol} modules
   \begin{itemize}
   \item \id{FSUNBANDLINSOLINIT} (defined by {\sunlinsolband}) 
-    interfaces to \id{SUNBandLinearSolver}.
+    interfaces to \id{SUNLinSol\_Band}.
   \item \id{FSUNDENSELINSOLINIT} (defined by {\sunlinsoldense}) 
-    interfaces to \id{SUNDenseLinearSolver}.
+    interfaces to \id{SUNLinSol\_Dense}.
   \item \id{FSUNKLUINIT} (defined by {\sunlinsolklu}) 
-    interfaces to \id{SUNKLU}.
+    interfaces to \id{SUNLinSol\_KLU}.
   \item \id{FSUNKLUREINIT} (defined by {\sunlinsolklu}) 
-    interfaces to \id{SUNKLUReinit}.
+    interfaces to \id{SUNLinSol\_KLUReinit}.
   \item \id{FSUNLAPACKBANDINIT} (defined by {\sunlinsollapband}) 
-    interfaces to \id{SUNLapackBand}.
+    interfaces to \id{SUNLinSol\_LapackBand}.
   \item \id{FSUNLAPACKDENSEINIT} (defined by {\sunlinsollapdense}) 
-    interfaces to \id{SUNLapackDense}.
+    interfaces to \id{SUNLinSol\_LapackDense}.
   \item \id{FSUNPCGINIT} (defined by {\sunlinsolpcg}) 
-    interfaces to \id{SUNPCG}.
+    interfaces to \id{SUNLinSol\_PCG}.
   \item \id{FSUNSPBCGSINIT} (defined by {\sunlinsolspbcgs}) 
-    interfaces to \id{SUNSPBCGS}.
+    interfaces to \id{SUNLinSol\_SPBCGS}.
   \item \id{FSUNSPFGMRINIT} (defined by {\sunlinsolspfgmr}) 
-    interfaces to \id{SUNSPFGMR}.
+    interfaces to \id{SUNLinSol\_SPFGMR}.
   \item \id{FSUNSPGMRINIT} (defined by {\sunlinsolspgmr}) 
-    interfaces to \id{SUNSPGMR}.
+    interfaces to \id{SUNLinSol\_SPGMR}.
   \item \id{FSUNSPTFQMRINIT} (defined by {\sunlinsolsptfqmr}) 
-    interfaces to \id{SUNSPTFQMR}.
+    interfaces to \id{SUNLinSol\_SPTFQMR}.
   \item \id{FSUNSUPERLUMTINIT} (defined by {\sunlinsolslumt}) 
-    interfaces to \id{SUNSuperLUMT}.
+    interfaces to \id{SUNLinSol\_SuperLUMT}.
   \end{itemize}
 \item Interface to the main {\cvode} module
   \begin{itemize}
@@ -124,24 +154,27 @@ are as follows:
   \end{itemize}  
 \item Interface to the linear solver interfaces
   \begin{itemize}
-  \item \id{FCVDLSINIT}    
-    interfaces to \id{CVDlsSetLinearSolver}.
+  \item \id{FCVLSINIT}    
+    interfaces to \id{CVodeSetLinearSolver}.
+  \item \id{FCVLSSETEPSLIN}
+    interfaces to \id{CVodeSetEpsLin}.
+  \item \id{FCVLSSETJAC}
+    interfaces to \id{CVodeSetJacTimes}.
+  \item \id{FCVLSSETPREC}
+    interfaces to \id{CVodeSetPreconditioner}.
   \item \id{FCVDENSESETJAC}
-    interfaces to \id{CVDlsSetJacFn}.
+    interfaces to \id{CVodeSetJacFn}.
   \item \id{FCVBANDSETJAC}
-    interfaces to \id{CVDlsSetJacFn}.
+    interfaces to \id{CVodeSetJacFn}.
   \item \id{FCVSPARSESETJAC}
-    interfaces to \id{CVDlsSetJacFn}.
-  \item \id{FCVSPILSINIT}
-    interfaces to \id{CVSpilsSetLinearSolver}.
-  \item \id{FCVSPILSSETEPSLIN}
-    interfaces to \id{CVSpilsSetEpsLin}.
-  \item \id{FCVSPILSSETJAC}
-    interfaces to \id{CVSpilsSetJacTimes}.
-  \item \id{FCVSPILSSETPREC}
-    interfaces to \id{CVSpilsSetPreconditioner}.
+    interfaces to \id{CVodeSetJacFn}.
   \item \id{FCVDIAG}    
     interfaces to \id{CVDiag}.
+ \end{itemize}
+\item Interface to the nonlinear solver interface
+  \begin{itemize}
+  \item \id{FCVNLSINIT}
+    interfaces to \id{CVSetNonlinearSolver}.
  \end{itemize}
 
 \end{itemize}
@@ -156,13 +189,13 @@ interface function which calls it (and its type within {\cvode}), are as follows
 ({\F}, user-supplied)  &  ({\CC}, interface) & interface function \\ \hline\hline
 \id{FCVFUN}     & \id{FCVf}              & \id{CVRhsFn} \\
 \id{FCVEWT}     & \id{FCVEwtSet}         & \id{CVEwtFn} \\
-\id{FCVDJAC}    & \id{FCVDenseJac}       & \id{CVDlsJacFn} \\
-\id{FCVBJAC}    & \id{FCVBandJac}        & \id{CVDlsJacFn} \\
-\id{FCVSPJAC}   & \id{FCVSparseJac}      & \id{CVDlsJacFn} \\
-\id{FCVPSOL}    & \id{FCVPSol}           & \id{CVSpilsPrecSolveFn} \\
-\id{FCVPSET}    & \id{FCVPSet}           & \id{CVSpilsPrecSetupFn} \\
-\id{FCVJTIMES}  & \id{FCVJtimes}         & \id{CVSpilsJacTimesVecFn} \\
-\id{FCVJTSETUP} & \id{FCVJTSetup}        & \id{CVSpilsJacTimesSetupFn} \\
+\id{FCVDJAC}    & \id{FCVDenseJac}       & \id{CVLsJacFn} \\
+\id{FCVBJAC}    & \id{FCVBandJac}        & \id{CVLsJacFn} \\
+\id{FCVSPJAC}   & \id{FCVSparseJac}      & \id{CVLsJacFn} \\
+\id{FCVPSOL}    & \id{FCVPSol}           & \id{CVLsPrecSolveFn} \\
+\id{FCVPSET}    & \id{FCVPSet}           & \id{CVLsPrecSetupFn} \\
+\id{FCVJTIMES}  & \id{FCVJtimes}         & \id{CVLsJacTimesVecFn} \\
+\id{FCVJTSETUP} & \id{FCVJTSetup}        & \id{CVLsJacTimesSetupFn} \\
 \end{tabular}
 \end{center}
 In contrast to the case of direct use of {\cvode}, and of most {\F} ODE
@@ -170,7 +203,7 @@ solvers, the names of all user-supplied routines here are fixed, in
 order to maximize portability for the resulting mixed-language program.
 
 %%==============================================================================
-\section{Usage of the FCVODE interface module}\label{ss:fcvode_usage}
+\subsection{Usage of the FCVODE interface module}\label{ss:fcvode_usage}
 %%==============================================================================
 \index{FCVODE@{\fcvode} interface module!usage|(}
 
@@ -223,16 +256,15 @@ section of Chapter \ref{s:nvector}.
 \item\label{i:fcv_matrix_init} {\bf {\sunmatrix} module initialization}
 %%====================
 
-  In the case of a stiff system, the implicit \id{BDF} method involves the solution
-  of linear systems related to the Jacobian $J = \partial f / \partial y$
-  of the ODE system.  If using a Newton iteration with direct {\sunlinsol} linear solver
-  module and one of the {\sunmatrix} modules supplied with {\sundials}, 
+  If using a nonlinear solver that requires a linear solver (e.g., the default
+  Newton iteration) and the linear solver is a direct linear solver, then
+  one of the {\sunmatrix} modules supplied with {\sundials}, 
   the user must make a call of the form
 \begin{verbatim}
       CALL FSUN***MATINIT(...)
 \end{verbatim}
 in which the name and call sequence are as described in the appropriate
-section of Chapter \ref{s:sunmatrix}.  Note that the dense, band or
+section of Chapter \ref{s:sunmatrix}.  Note that the dense, band, or
 sparse matrix options are usable only in a serial or multi-threaded
 environment. 
 
@@ -241,9 +273,9 @@ environment.
 \item\label{i:fcv_linsol_init} {\bf {\sunlinsol} module initialization}
 %%====================
 
-  If using a Newton iteration with one of the {\sunlinsol} linear
-  solver modules supplied with {\sundials}, the user must make a call
-  of the form 
+  If using a nonlinear solver that requires a linear solver (e.g., the default
+  Newton iteration) and one of the {\sunlinsol} linear solver modules supplied
+  with {\sundials}, the user must make a call of the form
 \begin{verbatim}
       CALL FSUNBANDLINSOLINIT(...)
       CALL FSUNDENSELINSOLINIT(...)
@@ -258,7 +290,7 @@ environment.
       CALL FSUNSUPERLUMTINIT(...)
 \end{verbatim}
 in which the call sequence is as described in the appropriate
-section of Chapter \ref{s:sunlinsol}.  Note that the dense, band or
+section of Chapter \ref{s:sunlinsol}.  Note that the dense, band, or
 sparse solvers are usable only in a serial or multi-threaded
 environment.
 
@@ -282,6 +314,21 @@ where again the call sequences are described in the appropriate
 sections of Chapter \ref{s:sunlinsol}.
 
 %%====================
+\item\label{i:fcv_nonlinsol_init} {\bf {\sunnonlinsol} module initialization}
+%%====================
+
+  By default {\cvode} uses the {\sunnonlinsol} implementation of Newton's method
+  defined by the {\sunnonlinsolnewton} module (see \S\ref{s:sunnonlinsol_newton}).
+  To specify a non-default nonlinear solver in {\cvode}, the user's program must
+  create a {\sunnonlinsol} object by calling the appropriate {\F} interface
+  function to the constructor routine (see Chapter \ref{c:sunnonlinsol}). For
+  example, to create the {\sunnonlinsolfixedpoint} solver call the function
+\begin{verbatim}
+      CALL FSUNFIXEDPOINTINIT(...)
+\end{verbatim}
+  in which the call sequence is described in \S\ref{s:sunnonlinsol_fixedpoint}.
+
+%%====================
 \item {\bf Problem specification}
 %%====================
 
@@ -291,7 +338,7 @@ sections of Chapter \ref{s:sunlinsol}.
   \ucfunction{FCVMALLOC}
   {
     \begin{tabular}[t]{@{}r@{}l@{}l}
-        &CALL FCVMALLOC(&T0, Y0, METH, ITMETH, IATOL, RTOL, ATOL, \\
+        &CALL FCVMALLOC(&T0, Y0, METH, IATOL, RTOL, ATOL, \\
     {\&}&               &IOUT, ROUT, IPAR, RPAR, IER)
     \end{tabular}
   }
@@ -301,13 +348,11 @@ sections of Chapter \ref{s:sunlinsol}.
     allocates internal memory, and initializes {\cvode}.
   }
   {
-    \begin{args}[ITMETH]
+    \begin{args}[IATOL]
     \item[T0] is the initial value of $t$.
     \item[Y0] is an array of initial conditions.
     \item[METH] specifies the  basic integration method: 
       $1$ for Adams (nonstiff) or $2$ for BDF (stiff).
-    \item[ITMETH] specifies the nonlinear iteration method: 
-      $1$ for functional iteration or $2$ for Newton iteration.
     \item[IATOL] specifies the type for absolute tolerance \id{ATOL}:
       $1$ for scalar or $2$ for array. If \id{IATOL}$=3$, the arguments
       \id{RTOL} and \id{ATOL} are ignored and the user is expected to
@@ -368,7 +413,7 @@ sections of Chapter \ref{s:sunlinsol}.
 
   Call \id{FCVINSETIIN} and/or \id{FCVINSETRIN} to set desired optional inputs,
   if any.  See \S\ref{fcv_opt_inout} for details.
-
+  
 %%====================
 \item\label{i:fcvode_lin_solv_spec} {\bf Linear solver interface specification} 
 %%====================
@@ -376,31 +421,30 @@ sections of Chapter \ref{s:sunlinsol}.
   To attach the linear solver (and optionally the matrix) objects
   initialized in steps \ref{i:fcv_matrix_init} and
   \ref{i:fcv_linsol_init} above, the user of {\fcvode} must initialize
-  the {\cvdls} or {\cvspils} linear solver interface.
-
-  %%-------------------------------------------------
-
-  {\bf {\cvdls} direct linear solver interface}
-  \index{CVDLS@{\cvdls} linear solver interface!use in {\fcvode}}
-  
-  To attach a direct {\sunlinsol} object and corresponding
-  {\sunmatrix} object to the {\cvdls} interface, then following calls
-  to initialize the {\sunlinsol} and {\sunmatrix} objects in steps
+  the {\cvls} linear solver interface.  To attach any {\sunlinsol}
+  object (and optional {\sunmatrix} object) to {\cvode}, then following calls
+  to initialize the {\sunlinsol} (and {\sunmatrix}) object(s) in steps
   \ref{i:fcv_matrix_init} and \ref{i:fcv_linsol_init} above, the user
   must make the call: 
-  \index{FCVDLSINIT@\texttt{FCVDLSINIT}}
+  \index{FCVLSINIT@\texttt{FCVLSINIT}}
 \begin{verbatim}
-      CALL FCVDLSINIT(IER)
+      CALL FCVLSINIT (IER)
 \end{verbatim}
-  \id{IER} is an error return flag set on $0$ on success or $-1$ if a memory 
-  failure occurred.
+  \id{IER} is an error return flag set on $0$ on success, $-1$ if a memory 
+  failure occurred, or $-2$ for an illegal input.
 
-  Optional outputs specific to the {\cvdls} case are listed in
-  Table~\ref{t:fcvode_out}.
+  The previous routines \Id{FCVDLSINIT} and \Id{FCVSPILSINIT} are now
+  wrappers for this routine, and may still be used for
+  backward-compatibility.  However, these will be deprecated in future
+  releases, so we recommend that users transition to the new routine
+  name soon.
+  
 
-  {\bf {\cvdls} with dense Jacobian matrix}
+
+  {\bf {\cvls} with dense Jacobian matrix}
+
   \index{Jacobian approximation function!dense!use in {\fcvode}}
-  As an option when using the {\cvdls} interface with
+  As an option when using the {\cvls} interface with the
   {\sunlinsoldense} or {\sunlinsollapdense} linear solvers, the user
   may supply a routine that computes a dense approximation of the
   system Jacobian  $J = \partial f / \partial y$. If supplied, it must
@@ -425,7 +469,7 @@ sections of Chapter \ref{s:sunlinsol}.
   attempt to correct), or a negative value if \id{FCVDJAC} failed unrecoverably 
   (in which case the integration is halted).
   NOTE: The argument \id{NEQ} has a type consistent with {\CC} type \id{long int}
-  even in the case when the Lapack dense solver is to be used.
+  even in the case when the LAPACK dense solver is to be used.
 
   If the user's \id{FCVDJAC} uses difference quotient approximations, it
   may need to use the error weight array \id{EWT} and current stepsize \id{H}
@@ -435,7 +479,7 @@ sections of Chapter \ref{s:sunlinsol}.
   which can be obtained as the optional output \id{ROUT(6)}, passed from
   the calling program to this routine using either \id{RPAR} or a common block.
 
-  If the \id{FCVDJAC} routine is provided, then, following the call to \id{FCVDLSINIT}, 
+  If the \id{FCVDJAC} routine is provided, then, following the call to \id{FCVLSINIT}, 
   the user must make the call:
   \index{FCVDENSESETJAC@\texttt{FCVDENSESETJAC}}
 \begin{verbatim}
@@ -445,9 +489,10 @@ sections of Chapter \ref{s:sunlinsol}.
   approximation.  The argument \id{IER} is an error return flag which is $0$ 
   for success or non-zero if an error occurred.
 
-  {\bf {\cvdls} with band Jacobian matrix}
+  {\bf {\cvls} with band Jacobian matrix}
   \index{Jacobian approximation function!band!use in {\fcvode}}
-  As an option when using the {\cvdls} interface with
+
+  As an option when using the {\cvls} interface with the
   {\sunlinsolband} or {\sunlinsollapband} linear solvers, the user may
   supply a routine that computes a band approximation of the system
   Jacobian  $J = \partial f / \partial y$. If supplied, it must have
@@ -477,7 +522,7 @@ sections of Chapter \ref{s:sunlinsol}.
   attempt to correct), or a negative value if \id{FCVBJAC} failed unrecoverably 
   (in which case the integration is halted).
   NOTE: The arguments \id{NEQ}, \id{MU}, \id{ML}, and \id{MDIM} have a type
-  consistent with {\CC} type \id{long int} even in the case when the Lapack band
+  consistent with {\CC} type \id{long int} even in the case when the LAPACK band
   solver is to be used.
 
   If the user's \id{FCVBJAC} uses difference quotient approximations, it
@@ -488,7 +533,7 @@ sections of Chapter \ref{s:sunlinsol}.
   which can be obtained as the optional output \id{ROUT(6)}, passed from
   the calling program to this routine using either \id{RPAR} or a common block.
 
-  If the \id{FCVBJAC} routine is provided, then, following the call to \id{FCVDLSINIT}, 
+  If the \id{FCVBJAC} routine is provided, then, following the call to \id{FCVLSINIT}, 
   the user must make the call:
   \index{FCVBANDSETJAC@\texttt{FCVBANDSETJAC}}
 \begin{verbatim}
@@ -496,14 +541,15 @@ sections of Chapter \ref{s:sunlinsol}.
 \end{verbatim}
   with \id{FLAG} $\neq 0$ to specify use of the user-supplied Jacobian approximation.
   The argument \id{IER} is an error return flag which is $0$ 
-  for success or non-zero if an error occurred.
+  for success or non-zero if an error occurred. \\
 
-  {\bf {\cvdls} with sparse Jacobian matrix}
+  \noindent {\bf {\cvls} with sparse Jacobian matrix}
   \index{Jacobian approximation function!sparse!use in {\fcvode}}
-  When using the {\cvdls} interface with {\sunlinsolklu} or
+  
+  When using the {\cvls} interface with the {\sunlinsolklu} or
   {\sunlinsolslumt} linear solvers, the user must 
   supply the \id{FCVSPJAC} routine that computes a
-  compressed-sparse-column or compressed-sparse-row if using KLU
+  compressed-sparse-column or compressed-sparse-row 
   approximation of the system Jacobian $J = \partial f / \partial y$.
   If supplied, it must have the following form:
   \index{FCVSPJAC@\texttt{FCVSPJAC}}
@@ -533,71 +579,19 @@ sections of Chapter \ref{s:sunlinsol}.
   error occurred.) 
 
   To indicate that the \id{FCVSPJAC} routine has been provided, then
-  following the call to \id{FCVDLSINIT}, the following call must be made    
+  following the call to \id{FCVLSINIT}, the following call must be made    
   \index{FCVSPARSESETJAC@\texttt{FCVSPARSESETJAC}}
 \begin{verbatim}
       CALL FCVSPARSESETJAC (IER)
 \end{verbatim}
   The int return flag \id{IER} is an error return flag which is $0$
-  for success or nonzero for an error.
+  for success or nonzero for an error.\\
 
  
-  %%-------------------------------------------------
-  
-  {\bf {\cvspils} iterative linear solver interface}
-  \index{CVSPILS@{\cvspils} linear solver interface!use in {\fcvode}}
-  
-  To attach an iterative {\sunlinsol} object to the {\cvspils}
-  interface, then following the call to initialize the {\sunlinsol}
-  object in step \ref{i:fcv_linsol_init} above, the user must make the
-  call:
-  \index{FCVSPILSINIT@\texttt{FCVSPILSINIT}}
-\begin{verbatim}
-      CALL FCVSPILSINIT(IER)
-\end{verbatim}
-  \id{IER} is an error return flag set on $0$ on success or $-1$ if a memory 
-  failure occurred.
-
-  Optional outputs specific to the {\cvspils} case are listed in
-  Table~\ref{t:fcvode_out}.
-
-
-  {\bf Functions used by {\cvspils}}
-
-  Optional user-supplied routines \id{FCVJTIMES} and \id{FCVJTSETUP}
-  (see below), can be provided for Jacobian-vector products.  If they
-  are, then, following the call to \id{FCVSPILSINIT}, the user must 
-  make the call:
-  \index{FCVSPILSSETJAC@\texttt{FCVSPILSSETJAC}}
-\begin{verbatim}
-      CALL FCVSPILSSETJAC(FLAG, IER)
-\end{verbatim}
-  with \id{FLAG} $\neq 0$ to specify use of the user-supplied
-  Jacobian-times-vector setup and product routines.
-  The argument \id{IER} is an error return flag which is $0$ 
-  for success or non-zero if an error occurred.
-  
-  If preconditioning is to be done, then the user must call
-  \index{FCVSPILSSETPREC@\texttt{FCVSPILSSETPREC}}
-\begin{verbatim}
-      CALL FCVSPILSSETPREC(FLAG, IER)
-\end{verbatim}
-  with \id{FLAG} $\neq 0$.  The return flag \id{IER} is 0 if
-  successful, or negative if a memory error occurred.
-  In addition, the user program must include
-  preconditioner routines \id{FCVPSOL} and \id{FCVPSET} (see below).
-
-  %%-------------------------------------------------
-
- {\bf User-supplied routines for {\cvspils}}
-
-  With treatment of the linear systems by any of the Krylov iterative
-  solvers, there are four optional user-supplied routines ---
-  \id{FCVJTIMES}, \id{FCVJTSETUP}, \id{FCVPSOL}, and \id{FCVPSET}.
-  The specifications for these routines are given below.
-
+  \noindent {\bf {\cvls} with Jacobian-vector product}
   \index{Jacobian approximation function!Jacobian times vector!use in {\fcvode}}
-  As an option when using the {\cvspils} linear solver interface, 
+
+  As an option when using the {\cvls} linear solver interface, 
   the user may supply a routine that computes the product of the system Jacobian 
   $J = \partial f / \partial y$ 
   and a given vector $v$.  If supplied, it must have the following form:
@@ -632,12 +626,52 @@ sections of Chapter \ref{s:sunlinsol}.
   The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
   and are the same as those passed to \id{FCVMALLOC}.
 
-  {\warn}If the user calls \id{FCVSPILSSETJAC}, the routine \id{FCVJTSETUP} must
-  be provided, even if it is not needed, and it must return \id{IER=0}.
+  To indicate that the \id{FCVJTIMES} and \id{FCVJTSETUP} routines
+  have been provided, then following the call to \id{FCVLSINIT}, the
+  following call must be made
+  \index{FCVLSSETJAC@\texttt{FCVLSSETJAC}}
+\begin{verbatim}
+      CALL FCVLSSETJAC (FLAG, IER)
+\end{verbatim}
+  with \id{FLAG} $\neq 0$ to specify use of the user-supplied
+  Jacobian-times-vector setup and product routines.
+  The argument \id{IER} is an error return flag which is $0$ 
+  for success or non-zero if an error occurred.\\
 
+  The previous routine \Id{FCVSPILSETJAC} is now a wrapper for this
+  routine, and may still be used for backward-compatibility.  However,
+  this will be deprecated in future releases, so we recommend that
+  users transition to the new routine name soon.
+  
+  {\warn}If the user calls \id{FCVLSSETJAC}, the routine
+  \id{FCVJTSETUP} must be provided, even if it is not needed, and it
+  must return \id{IER=0}.
 
-  If preconditioning is to be included, the following routine must be
-  supplied, for solution of the preconditioner linear system:
+  {\bf Notes} 
+  \begin{itemize}
+  \item[(a) ] If the user's \id{FCVJTIMES} routine uses difference
+    quotient approximations, it may need to use the error weight array \id{EWT},
+    the current stepsize \id{H}, and/or the unit roundoff, in the calculation of
+    suitable increments.  
+  \item[(b) ] If needed in \id{FCVJTIMES} or \id{FCVJTSETUP}, the
+    error weight array \id{EWT} can be obtained by calling
+    \id{FCVGETERRWEIGHTS} using a user-allocated array as temporary
+    storage for \id{EWT}.
+  \item[(c) ] If needed in \id{FCVJTIMES} or \id{FCVJTSETUP}, the unit
+    roundoff can be obtained as the optional output \id{ROUT(6)}
+    (available after the call to \id{FCVMALLOC}) and can be passed
+    using either the \id{RPAR} user data array, a common block or a
+    module.
+  \end{itemize}
+  
+ 
+
+  \noindent {\bf {\cvls} with preconditioning}
+  \index{Preconditioner setup routine!use in {\fcvode}}
+  \index{Preconditioner solve routine!use in {\fcvode}}
+
+  If user-supplied preconditioning is to be performed, the following
+  routine must be supplied for solution of the preconditioner linear system:
   \index{FCVPSOL@\texttt{FCVPSOL}}
 \begin{verbatim}
       SUBROUTINE FCVPSOL(T, Y, FY, R, Z, GAMMA, DELTA, LR, IPAR, RPAR, IER)
@@ -683,29 +717,47 @@ sections of Chapter \ref{s:sunlinsol}.
   The arrays \id{IPAR} (of integers) and \id{RPAR} (of reals) contain user data
   and are the same as those passed to \id{FCVMALLOC}.
 
-  {\warn}If the user calls \id{FCVSPILSSETPREC}, the routine \id{FCVPSET} must
+  To indicate that the \id{FCVPSET} and \id{FCVPSOL} routines are
+  supplied, then the user must call 
+  \index{FCVLSSETPREC@\texttt{FCVLSSETPREC}}
+\begin{verbatim}
+      CALL FCVLSSETPREC(FLAG, IER)
+\end{verbatim}
+  with \id{FLAG} $\neq 0$.  The return flag \id{IER} is 0 if
+  successful, or negative if a memory error occurred.
+  In addition, the user program must include
+  preconditioner routines \id{FCVPSOL} and \id{FCVPSET}.
+
+  The previous routine \Id{FCVSPILSETPREC} is now a wrapper for this
+  routine, and may still be used for backward-compatibility.  However,
+  this will be deprecated in future releases, so we recommend that
+  users transition to the new routine name soon.
+  
+  {\warn}If the user calls \id{FCVLSSETPREC}, the routine \id{FCVPSET} must
   be provided, even if it is not needed, and it must return \id{IER=0}.
 
   {\bf Notes} 
   \begin{itemize}
-  \item[(a) ] If the user's \id{FCVJTIMES} or \id{FCVPSET} routine uses difference
-    quotient approximations, it may need to use the error weight array \id{EWT},
-    the current stepsize \id{H}, and/or the unit roundoff, in the calculation of
-    suitable increments.  Also, If \id{FCVPSOL} uses an iterative method in its
-    solution, the residual vector $\rho = r - Pz$ of the system should be made
-    less than \id{DELTA} in weighted $\ell_2$ norm, i.e.
-    $\sqrt{\sum(\rho_i * \id{EWT}[i])^2} < $ \id{DELTA}.
-  \item[(b) ] If needed in \id{FCVJTIMES}, \id{FCVJTSETUP},
-    \id{FCVPSOL}, or \id{FCVPSET}, the error weight array \id{EWT} can
-    be obtained by calling \id{FCVGETERRWEIGHTS} using a
-    user-allocated array as temporary storage for \id{EWT}. 
-  \item[(c) ] If needed in \id{FCVJTIMES}, \id{FCVJTSETUP},
-    \id{FCVPSOL}, or \id{FCVPSET}, the unit roundoff can be obtained
-    as the optional output \id{ROUT(6)} (available after the call to
-    \id{FCVMALLOC}) and can be passed using either the \id{RPAR} user
-    data array, a common block or a module.
+  \item[(a) ] If the user's \id{FCVPSET} routine uses difference
+    quotient approximations, it may need to use the error weight array
+    \id{EWT}, the current stepsize \id{H}, and/or the unit roundoff,
+    in the calculation of suitable increments.  Also, If \id{FCVPSOL}
+    uses an iterative method in its solution, the residual vector
+    $\rho = r - Pz$ of the system should be made less than \id{DELTA}
+    in weighted $\ell_2$ norm, i.e. $\sqrt{\sum(\rho_i *
+      \id{EWT}[i])^2} < $ \id{DELTA}. 
+  \item[(b) ] If needed in \id{FCVPSOL} or \id{FCVPSET}, the error
+    weight array \id{EWT} can be obtained by calling
+    \id{FCVGETERRWEIGHTS} using a user-allocated array as temporary
+    storage for \id{EWT}.
+  \item[(c) ] If needed in \id{FCVPSOL} or \id{FCVPSET}, the unit
+    roundoff can be obtained as the optional output \id{ROUT(6)}
+    (available after the call to \id{FCVMALLOC}) and can be passed
+    using either the \id{RPAR} user data array, a common block or a
+    module.
   \end{itemize}
-
+  
+  
   %%-------------------------------------------------
 
   {\bf {\cvdiag} diagonal linear solver interface}
@@ -713,7 +765,7 @@ sections of Chapter \ref{s:sunlinsol}.
   
   {\cvode} is also packaged with a {\cvode}-specific diagonal
   approximate Jacobian and linear solver interface.  This choice is
-  appropriate when the Jacobian can be well approximated by a diagonal
+  appropriate when the Jacobian can be well-approximated by a diagonal
   matrix.  The user must make the call: 
   \index{FCVDIAG@\texttt{FCVDIAG}}
 \begin{verbatim}
@@ -727,6 +779,24 @@ sections of Chapter \ref{s:sunlinsol}.
   Optional outputs specific to the {\cvdiag} case are listed in
   Table~\ref{t:fcvode_out}.
   
+%%====================
+\item\label{i:fcvode_nonlin_solv_spec} {\bf Nonlinear solver interface specification} 
+%%====================
+ 
+  If a non-default {\sunnonlinsol} object was created in step
+  \ref{i:fcv_nonlinsol_init}, the user must attach it to {\cvode} with
+  the call:
+\begin{verbatim}
+      CALL FCVNLSINIT(IER)
+\end{verbatim}
+  \id{IER} is an error return flag set on $0$ on success or $-1$ if an
+  error occurred.
+
+  Once attached, the user may specify non-default inputs for the
+  {\sunnonlinsol} object (e.g.~the maximum number of nonlinear
+  iterations) by calling appropriate {\F} interface routines (see Chapter
+  \ref{c:sunnonlinsol}). 
+
 %%====================
 \item {\bf Problem solution}
 %%====================
@@ -786,10 +856,9 @@ sections of Chapter \ref{s:sunlinsol}.
 
   Following this call, if the choice of linear solver is being changed
   then a user must make a call to create the alternate {\sunlinsol}
-  module and then attach it to the {\cvdls} or {\cvspils} interface,
-  as shown above.  If only linear solver parameters are being modified,
-  then these calls may be made without re-attaching to the {\cvdls} or
-  {\cvspils} interface. 
+  module and then attach it to the {\cvls} interface, as shown above.
+  If only linear solver parameters are being modified, then these
+  calls may be made without re-attaching to the {\cvls} interface. 
 
 
 %%====================
@@ -797,8 +866,7 @@ sections of Chapter \ref{s:sunlinsol}.
 %%====================
 
   To free the internal memory created by the call to \id{FCVMALLOC},
-  \id{FCVDLSINIT}/\id{FCVSPILSINIT}, \id{FNVINIT*} and
-  \id{FSUN***MATINIT}, make the call
+  \id{FCVLSINIT}, \id{FNVINIT*} and \id{FSUN***MATINIT}, make the call
   \index{FCVFREE@\texttt{FCVFREE}}
 \begin{verbatim}
       CALL FCVFREE
@@ -809,7 +877,7 @@ sections of Chapter \ref{s:sunlinsol}.
 
 
 %%==============================================================================
-\section{FCVODE optional input and output}\label{fcv_opt_inout}
+\subsection{FCVODE optional input and output}\label{fcv_opt_inout}
 %%==============================================================================
 \index{FCVODE@{\fcvode} interface module!optional input and output}
 
@@ -915,25 +983,19 @@ and \S\ref{ss:optional_output}.
 11 &  \id{NOR}     & \id{CVodeGetNumStabLimOrderReds} \\ 
 12 &  \id{NGE}     & \id{CVodeGetNumGEvals} \\ 
 \hline
-\multicolumn{3}{|c|}{{\cvdls} linear solver interface}\\
+\multicolumn{3}{|c|}{{\cvls} linear solver interface}\\
 \hline
-13 & \id{LENRWLS}  & \id{CVDlsGetWorkSpace} \\ 
-14 & \id{LENIWLS}  & \id{CVDlsGetWorkSpace} \\ 
-15 & \id{LS\_FLAG} & \id{CVDlsGetLastFlag} \\ 
-16 & \id{NFELS}    & \id{CVDlsGetNumRhsEvals} \\ 
-17 & \id{NJE}      & \id{CVDlsGetNumJacEvals} \\ 
-\hline
-\multicolumn{3}{|c|}{{\cvspils} linear solver interface}\\
-\hline
-13 & \id{LENRWLS}  & \id{CVSpilsGetWorkSpace} \\ 
-14 & \id{LENIWLS}  & \id{CVSpilsGetWorkSpace} \\ 
-15 & \id{LS\_FLAG} & \id{CVSpilsGetLastFlag} \\ 
-16 & \id{NFELS}    & \id{CVSpilsGetNumRhsEvals} \\ 
-17 & \id{NJTV}     & \id{CVSpilsGetNumJacEvals} \\ 
-18 & \id{NPE}      & \id{CVSpilsGetNumPrecEvals} \\ 
-19 & \id{NPS}      & \id{CVSpilsGetNumPrecSolves} \\ 
-20 & \id{NLI}      & \id{CVSpilsGetNumLinIters} \\ 
-21 & \id{NCFL}     & \id{CVSpilsGetNumConvFails} \\
+13 & \id{LENRWLS}  & \id{CVodeGetLinWorkSpace} \\ 
+14 & \id{LENIWLS}  & \id{CVodeGetLinWorkSpace} \\ 
+15 & \id{LS\_FLAG} & \id{CVodeGetLastLinFlag} \\ 
+16 & \id{NFELS}    & \id{CVodeGetNumLinRhsEvals} \\ 
+17 & \id{NJE}      & \id{CVodeGetNumJacEvals} \\ 
+18 & \id{NJTS}     & \id{CVodeGetNumJTSetupEvals} \\ 
+19 & \id{NJTV}     & \id{CVodeGetNumJtimesEvals} \\ 
+20 & \id{NPE}      & \id{CVodeGetNumPrecEvals} \\ 
+21 & \id{NPS}      & \id{CVodeGetNumPrecSolves} \\ 
+22 & \id{NLI}      & \id{CVodeGetNumLinIters} \\ 
+23 & \id{NCFL}     & \id{CVodeGetNumLinConvFails} \\
 \hline
 \multicolumn{3}{|c|}{{\cvdiag} linear solver interface}\\
 \hline
@@ -987,7 +1049,7 @@ was a memory error.
 
 
 %%==============================================================================
-\section{Usage of the FCVROOT interface to rootfinding}
+\subsection{Usage of the FCVROOT interface to rootfinding}
 %%==============================================================================
 \index{FCVODE@{\fcvode} interface module!rootfinding|(}
 \index{Rootfinding}
@@ -1064,7 +1126,7 @@ the following call:
 
 
 %%==============================================================================
-\section{Usage of the FCVBP interface to CVBANDPRE}
+\subsection{Usage of the FCVBP interface to CVBANDPRE}
 %%==============================================================================
 \index{FCVODE@{\fcvode} interface module!interface to the {\cvbandpre} module|(}
 %%
@@ -1073,7 +1135,7 @@ as part of the {\fcvode} interface module, support the use of the
 {\cvode} solver with the serial {\nvecs} module or multi-threaded
 {\nvecopenmp} or {\nvecpthreads}, and the combination of
 the {\cvbandpre} preconditioner module (see \S\ref{sss:cvbandpre}) with
-the {\cvspils} interface and any of the Krylov iterative linear solvers.
+the {\cvls} interface and any of the Krylov iterative linear solvers.
 
 The two user-callable functions in this package, with the corresponding
 {\cvode} function around which they wrap, are:
@@ -1104,14 +1166,16 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   of \id{FSUNPCGINIT}, \id{FSUNSPBCGSINIT}, \id{FSUNSPFGMRINIT},
   \id{FSUNSPGMRINIT} or \id{FSUNSPTFQMRINIT}.
 
+\item \textcolor{gray}{\bf {\sunnonlinsol} module initialization}
+
 \item \textcolor{gray}{\bf Problem specification}
 
 \item \textcolor{gray}{\bf Set optional inputs}
 
 \item {\bf Linear solver interface specification}
 
-  First, initialize the {\cvspils} iterative linear solver interface
-  by calling \id{FCVSPILSINIT}.
+  First, initialize the {\cvls} linear solver interface
+  by calling \id{FCVLSINIT}.
 
   Then, to initialize the {\cvbandpre} preconditioner, make the following call:
   \index{FCVBPINIT@\texttt{FCVBPINIT}}
@@ -1125,14 +1189,16 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   \id{IER} is a return completion flag.  A value of $0$ indicates success, while 
   a value of $-1$ indicates that a memory failure occurred.
     
-  Optionally, to specify that {\cvspils} should use the supplied
+  Optionally, to specify that {\cvls} should use the supplied
   \id{FCVJTIMES} and \id{FCVJTSETUP}, make the call 
-  \index{FCVSPILSSETJAC@\texttt{FCVSPILSSETJAC}}
+  \index{FCVLSSETJAC@\texttt{FCVLSSETJAC}}
 \begin{verbatim}
-       CALL FCVSPILSSETJAC(FLAG, IER)
+       CALL FCVLSSETJAC(FLAG, IER)
 \end{verbatim}
   with \id{FLAG} $\neq 0$ 
   (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage} for details).
+  
+\item \textcolor{gray}{\bf Nonlinear solver interface specification}
   
 \item \textcolor{gray}{\bf Problem solution}
   
@@ -1140,7 +1206,7 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   
 \item {\bf {\cvbandpre} Optional outputs}
   
-  Optional outputs specific to the {\cvspils} solver interface are 
+  Optional outputs specific to the {\cvls} solver interface are 
   listed in Table \ref{t:fcvode_out}.
   To obtain the optional outputs associated with the {\cvbandpre} module, make
   the following call:
@@ -1166,7 +1232,7 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
 
 
 %%==============================================================================
-\section{Usage of the FCVBBD interface to CVBBDPRE}
+\subsection{Usage of the FCVBBD interface to CVBBDPRE}
 %%==============================================================================
 \index{FCVODE@{\fcvode} interface module!interface to the {\cvbbdpre} module|(}
 
@@ -1193,12 +1259,12 @@ each with the corresponding interface function which calls it (and its
 type within {\cvbbdpre} or {\cvode}):
 \begin{center}
 \begin{tabular}{l||l|l}
-{\fcvbbd} routine      &  {\cvode} function & {\cvode} type of \\
+{\fcvbbd} routine      &  {\cvode} function  & {\cvode} type of \\
 ({\F}, user-supplied)  &  ({\CC}, interface) & interface function \\ \hline\hline
-\id{FCVLOCFN}   & \id{FCVgloc}     & \id{CVLocalFn} \\
-\id{FCVCOMMF}   & \id{FCVcfn}      & \id{CVCommFn} \\
-\id{FCVJTIMES}  & \id{FCVJtimes}   & \id{CVSpilsJacTimesVecFn} \\
-\id{FCVJTSETUP} & \id{FCVJTSetup}  & \id{CVSpilsJacTimesSetupFn} \\
+\id{FCVLOCFN}          & \id{FCVgloc}        & \id{CVLocalFn} \\
+\id{FCVCOMMF}          & \id{FCVcfn}         & \id{CVCommFn} \\
+\id{FCVJTIMES}         & \id{FCVJtimes}      & \id{CVLsJacTimesVecFn} \\
+\id{FCVJTSETUP}        & \id{FCVJTSetup}     & \id{CVLsJacTimesSetupFn} \\
 \end{tabular}
 \end{center}
 As with the rest of the {\fcvode} routines, the names of all user-supplied routines 
@@ -1223,14 +1289,16 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   of \id{FSUNPCGINIT}, \id{FSUNSPBCGSINIT}, \id{FSUNSPFGMRINIT},
   \id{FSUNSPGMRINIT} or \id{FSUNSPTFQMRINIT}.
 
+\item \textcolor{gray}{\bf {\sunnonlinsol} module initialization}
+
 \item \textcolor{gray}{\bf Problem specification}
 
 \item \textcolor{gray}{\bf Set optional inputs}
 
 \item {\bf Linear solver interface specification}
 
-  First, initialize the {\cvspils} iterative linear solver interface
-  by calling \id{FCVSPILSINIT}.
+  First, initialize the {\cvls} iterative linear solver interface
+  by calling \id{FCVLSINIT}.
 
   Then, to initialize the {\cvbbdpre} preconditioner, make the following call:
   \index{FCVBBDINIT@\texttt{FCVBBDINIT}}
@@ -1255,21 +1323,23 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
     
   Optionally, to specify that {\spgmr}, {\spbcg}, or {\sptfqmr} should use 
   the supplied \id{FCVJTIMES}, make the call
-  \index{FCVSPILSSETJAC@\texttt{FCVSPILSSETJAC}}
+  \index{FCVLSSETJAC@\texttt{FCVLSSETJAC}}
 \begin{verbatim}
-       CALL FCVSPILSSETJAC(FLAG, IER)
+       CALL FCVLSSETJAC(FLAG, IER)
 \end{verbatim}
   with \id{FLAG} $\neq 0$ 
   (see step \ref{i:fcvode_lin_solv_spec} in \S\ref{ss:fcvode_usage} for details).
 
 
+\item \textcolor{gray}{\bf Nonlinear solver interface specification}
+  
 \item \textcolor{gray}{\bf Problem solution}
   
 \item \textcolor{gray}{\bf Additional solution output}
   
 \item {\bf {\cvbbdpre} Optional outputs}
   
-  Optional outputs specific to the {\cvspils} solver interface are 
+  Optional outputs specific to the {\cvls} solver interface are 
   listed in Table \ref{t:fcvode_out}.
   To obtain the optional outputs associated with the {\cvbbdpre} module, make
   the following call:
@@ -1305,7 +1375,7 @@ from the main program described in \S\ref{ss:fcvode_usage} are grayed-out.
   \id{FCVBBDINIT} must be made.  Finally, if there is a change in any of the
   linear solver inputs, then a call to one of \id{FSUNPCGINIT},
   \id{FSUNSPBCGSINIT}, \id{FSUNSPFGMRINIT}, \id{FSUNSPGMRINIT} or
-  \id{FSUNSPTFQMRINIT}, followed by a call to \id{FCVSPILSINIT} must
+  \id{FSUNSPTFQMRINIT}, followed by a call to \id{FCVLSINIT} must
   also be made; in this case the linear solver memory is reallocated.
   
 \item \textcolor{gray}{\bf Memory deallocation}

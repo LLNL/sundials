@@ -498,7 +498,7 @@ program driver
   ! solution vector and other local variables
   real(kind=REALTYPE), allocatable :: y(:,:)
   real(kind=REALTYPE) :: rout(6), rpar, t, dTout, tout, urms
-  integer*8 :: iout(22), ipar, N, Ntot, i, j
+  integer*8 :: iout(35), ipar, N, Ntot, i, j
   integer   :: flag, ioutput
   logical   :: outproc
   character*100 :: outname
@@ -593,15 +593,15 @@ program driver
   end if
 
 
-  ! attach linear solver module to ARKSpils interface
-  call FARKSpilsInit(flag)
+  ! attach linear solver module to ARKLs interface
+  call FARKLsInit(flag)
   if (flag < 0) then
-     write(0,*) "Error in FARKSpilsInit = ", flag
+     write(0,*) "Error in FARKLsInit = ", flag
      call MPI_Finalize(flag)
   end if
-  call FARKSpilsSetPrec(1, flag)     ! Signal user-supplied preconditioner
+  call FARKLsSetPrec(1, flag)     ! Signal user-supplied preconditioner
   if (flag < 0) then
-     write(0,*) "Error in FARKSpilsSetPrec = ", flag
+     write(0,*) "Error in FARKLsSetPrec = ", flag
      call MPI_Finalize(flag)
   end if
 
@@ -682,12 +682,12 @@ program driver
           " (attempted = ", iout(6), ")"
      write(6,'(A,i6,A,i6)') "   Total RHS evals:  Fe = ", iout(7), ",  Fi = ", iout(8)
      write(6,'(A,i6)') "   Total linear solver setups = ", iout(9)
-     write(6,'(A,i6)') "   Total linear iterations = ", iout(21)
-     write(6,'(A,i6)') "   Total number of Jacobian-vector products = ", iout(18)
-     write(6,'(A,i6)') "   Total number of Preconditioner setups = ", iout(19)
-     write(6,'(A,i6)') "   Total number of Preconditioner solves = ", iout(20)
+     write(6,'(A,i6)') "   Total linear iterations = ", iout(23)
+     write(6,'(A,i6)') "   Total number of Jacobian-vector products = ", iout(20)
+     write(6,'(A,i6)') "   Total number of Preconditioner setups = ", iout(21)
+     write(6,'(A,i6)') "   Total number of Preconditioner solves = ", iout(22)
      write(6,'(A,i6)') "   Total number of linear solver convergence failures = ", &
-          iout(22)
+          iout(24)
      write(6,'(A,i6)') "   Total number of Newton iterations = ", iout(11)
      write(6,'(A,i6)') "   Total number of nonlinear solver convergence failures = ", &
           iout(12)

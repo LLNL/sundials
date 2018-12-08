@@ -19,7 +19,7 @@
  * -----------------------------------------------------------------
  * This is the header file for the KINBBDPRE module, for a
  * band-block-diagonal preconditioner, i.e. a block-diagonal
- * matrix with banded blocks, for use with the KINSPILS interface,
+ * matrix with banded blocks, for use with the KINLS interface,
  * and the MPI-parallel implementaion of the NVECTOR module.
  *
  * Summary:
@@ -63,7 +63,7 @@
  *     -or-
  *   SUNLinearSolver LS = SUNPCG(tmpl, pretype, maxl);
  *   ...
- *   ier = KINSpilsSetLinearSolver(cvode_mem, LS);
+ *   ier = KINSetLinearSolver(cvode_mem, LS);
  *   ...
  *   flag = KINBBDPrecInit(kin_mem,...);
  *   ...
@@ -217,11 +217,11 @@ typedef int (*KINBBDLocalFn)(sunindextype Nlocal, N_Vector uu,
  *         execution of gloc.
  *
  * The return value of KINBBDPrecInit is one of:
- *   KINSPILS_SUCCESS if no errors occurred
- *   KINSPILS_MEM_NULL if the integrator memory is NULL
- *   KINSPILS_LMEM_NULL if the linear solver memory is NULL
- *   KINSPILS_ILL_INPUT if an input has an illegal value
- *   KINSPILS_MEM_FAIL if a memory allocation request failed
+ *   KINLS_SUCCESS if no errors occurred
+ *   KINLS_MEM_NULL if the integrator memory is NULL
+ *   KINLS_LMEM_NULL if the linear solver memory is NULL
+ *   KINLS_ILL_INPUT if an input has an illegal value
+ *   KINLS_MEM_FAIL if a memory allocation request failed
  * -----------------------------------------------------------------
  */
 

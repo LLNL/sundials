@@ -18,7 +18,7 @@ Band example problem:
 
 Final statistics:
 
- No. steps =  142  No. f-s =  174  No. J-s =    3   No. LU-s =   23
+ No. steps =  142  No. f-s =  173  No. J-s =    3   No. LU-s =   23
  No. nonlinear iterations =  170
  No. nonlinear convergence failures =    0
  No. error test failures =    3

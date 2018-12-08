@@ -185,10 +185,10 @@ c
          call mpi_abort(mpi_comm_world, 1, ier)
          stop
       endif
-      call fidaspilsinit(ier)
+      call fidalsinit(ier)
       if (ier .ne. 0) then
          write(*,10) ier
- 10       format(///' SUNDIALS_ERROR: FIDASPILSINIT IER = ', i5)
+ 10       format(///' SUNDIALS_ERROR: FIDALSINIT IER = ', i5)
          call mpi_abort(mpi_comm_world, 1, ier)
          stop
       endif
@@ -722,8 +722,8 @@ c
       if (thispe .eq. 0) then
          call fidabbdopt(lenrwbbd, leniwbbd, ngebbd)
          write(*,30) tret, umax, iout(9), iout(3), iout(7),
-     &               iout(20), iout(4), iout(16), ngebbd, rout(2),
-     &               iout(18), iout(19)
+     &               iout(22), iout(4), iout(16), ngebbd, rout(2),
+     &               iout(20), iout(21)
  30      format(' ', e10.4, ' ', e13.5, '  ', i1, '  ', i2,
      &          '  ', i3, '  ', i3, '  ', i2,'+',i2, '  ',
      &          i3, '  ', e9.2, '  ', i2, '  ', i3)
@@ -844,7 +844,7 @@ c
 c The following declaration specification should match C type long int.
       integer*8 iout(*)
 c
-      write(*,34) iout(5), iout(6), iout(21)
+      write(*,34) iout(5), iout(6), iout(23)
  34   format(/, 'Error test failures            =', i3, /,
      &     'Nonlinear convergence failures =', i3, /,
      &     'Linear convergence failures    =', i3)

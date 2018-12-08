@@ -2,21 +2,21 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2015, Southern Methodist University and
  * Lawrence Livermore National Security
  *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Southern Methodist University and Lawrence Livermore
  * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
+ * Produced at Southern Methodist University and the Lawrence
  * Livermore National Laboratory.
  *
  * All rights reserved.
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * This is the implementation file for the known Butcher tables 
- * for the ARKODE solver.
+ * This is the implementation file for Butcher table structure
+ * for the ARKode infrastructure.
  *--------------------------------------------------------------*/
 
 #include <stdio.h>
@@ -24,1022 +24,2107 @@
 
 #include "arkode_impl.h"
 #include <sundials/sundials_math.h>
-#include <sundials/sundials_types.h>
+
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define RSYM ".32Lg"
+#else
+#define RSYM ".16g"
+#endif
+
+/* tolerance for checking order conditions */
+#define TOL  (SUNRsqrt(UNIT_ROUNDOFF))
+
+/* Private utility functions for checking method order */
+static int __mv(realtype **A, realtype *x, int s, realtype *b);
+static int __vv(realtype *x, realtype *y, int s, realtype *z);
+static int __vp(realtype *x, int l, int s, realtype *z);
+static int __dot(realtype *x, realtype *y, int s, realtype *d);
+static booleantype __rowsum(realtype **A, realtype *c, int s);
+static booleantype __order1(realtype *b, int s);
+static booleantype __order2(realtype *b, realtype *c, int s);
+static booleantype __order3a(realtype *b, realtype *c1, realtype *c2, int s);
+static booleantype __order3b(realtype *b, realtype **A, realtype *c, int s);
+static booleantype __order4a(realtype *b, realtype *c1, realtype *c2, realtype *c3, int s);
+static booleantype __order4b(realtype *b, realtype *c1, realtype **A, realtype *c2, int s);
+static booleantype __order4c(realtype *b, realtype **A, realtype *c1, realtype *c2, int s);
+static booleantype __order4d(realtype *b, realtype **A1, realtype **A2, realtype *c, int s);
+static booleantype __order5a(realtype *b, realtype *c1, realtype *c2, realtype *c3, realtype *c4, int s);
+static booleantype __order5b(realtype *b, realtype *c1, realtype *c2, realtype **A, realtype *c3, int s);
+static booleantype __order5c(realtype *b, realtype **A1, realtype *c1, realtype **A2, realtype *c2, int s);
+static booleantype __order5d(realtype *b, realtype *c1, realtype **A, realtype *c2, realtype *c3, int s);
+static booleantype __order5e(realtype *b, realtype **A, realtype *c1, realtype *c2, realtype *c3, int s);
+static booleantype __order5f(realtype *b, realtype *c1, realtype **A1, realtype **A2, realtype *c2, int s);
+static booleantype __order5g(realtype *b, realtype **A1, realtype *c1, realtype **A2, realtype *c2, int s);
+static booleantype __order5h(realtype *b, realtype **A1, realtype **A2, realtype *c1, realtype *c2, int s);
+static booleantype __order5i(realtype *b, realtype **A1, realtype **A2, realtype **A3, realtype *c, int s);
+static booleantype __order6a(realtype *b, realtype *c1, realtype *c2, realtype *c3, realtype *c4, realtype *c5, int s);
+static booleantype __order6b(realtype *b, realtype *c1, realtype *c2, realtype *c3, realtype **A, realtype *c4, int s);
+static booleantype __order6c(realtype *b, realtype *c1, realtype **A1, realtype *c2, realtype **A2, realtype *c3, int s);
+static booleantype __order6d(realtype *b, realtype *c1, realtype *c2, realtype **A, realtype *c3, realtype *c4, int s);
+static booleantype __order6e(realtype *b, realtype *c1, realtype *c2, realtype **A1, realtype **A2, realtype *c3, int s);
+static booleantype __order6f(realtype *b, realtype **A1, realtype **A2, realtype *c1, realtype **A3, realtype *c2, int s);
+static booleantype __order6g(realtype *b, realtype *c1, realtype **A, realtype *c2, realtype *c3, realtype *c4, int s);
+static booleantype __order6h(realtype *b, realtype *c1, realtype **A1, realtype *c2, realtype **A2, realtype *c3, int s);
+static booleantype __order6i(realtype *b, realtype *c1, realtype **A1, realtype **A2, realtype *c2, realtype *c3, int s);
+static booleantype __order6j(realtype *b, realtype *c1, realtype **A1, realtype **A2, realtype **A3, realtype *c2, int s);
+static booleantype __order6k(realtype *b, realtype **A, realtype *c1, realtype *c2, realtype *c3, realtype *c4, int s);
+static booleantype __order6l(realtype *b, realtype **A1, realtype *c1, realtype *c2, realtype **A2, realtype *c3, int s);
+static booleantype __order6m(realtype *b, realtype **A1, realtype **A2, realtype *c1, realtype **A3, realtype *c2, int s);
+static booleantype __order6n(realtype *b, realtype **A1, realtype *c1, realtype **A2, realtype *c2, realtype *c3, int s);
+static booleantype __order6o(realtype *b, realtype **A1, realtype *c1, realtype **A2, realtype **A3, realtype *c2, int s);
+static booleantype __order6p(realtype *b, realtype **A1, realtype **A2, realtype *c1, realtype *c2, realtype *c3, int s);
+static booleantype __order6q(realtype *b, realtype **A1, realtype **A2, realtype *c1, realtype **A3, realtype *c2, int s);
+static booleantype __order6r(realtype *b, realtype **A1, realtype **A2, realtype **A3, realtype *c1, realtype *c2, int s);
+static booleantype __order6s(realtype *b, realtype **A1, realtype **A2, realtype **A3, realtype **A4, realtype *c, int s);
+static int __ButcherSimplifyingAssumptions(realtype **A, realtype *b, realtype *c, int s);
 
 
 /*---------------------------------------------------------------
- Returns butcher table for Runge Kutta methods.  
- Input:
-     imeth -- integer key for the desired method (see below)
- Outputs:
-     s -- int number of stages for the requested method [s <= ARK_S_MAX = 8]
-     q -- integer, theoretical order of accuracy for the method
-     p -- integer, theoretical order of accuracy for the embedding
-     A[s][s] -- realtype Butcher table coefficients
-     b[s] -- realtype root node coefficients
-     c[s] -- realtype canopy node coefficients
-     b2[s] -- realtype embedding coefficients
-
- Allowed 'method' names and properties (those in an ARK pair are marked 
- with a *).  All method names are of the form <name>_s_p_q.  The method 
- 'type' is one of 
-    ERK -- explicit Runge Kutta
-    SDIRK -- singly-diagonally implicit Runge Kutta
-    SDIRK -- explicit [1st stage] singly-diagonally implicit Runge Kutta
- The 'A-stable' and 'L-stable' columns are based on numerical estimates 
- of each property.  The 'QP' column denotes whether the coefficients 
- of the method are known precisely enough for use in 'long double' 
- (128-bit) calculations.
-
-   imeth                       type  A-stable  L-stable  QP 
-  ----------------------------------------------------------
-   HEUN_EULER_2_1_2             ERK     N         N       Y
-   BOGACKI_SHAMPINE_4_2_3       ERK     N         N       Y
-   ARK324L2SA_ERK_4_2_3*        ERK     N         N       N
-   ZONNEVELD_5_3_4              ERK     N         N       Y
-   ARK436L2SA_ERK_6_3_4*        ERK     N         N       N
-   SAYFY_ABURUB_6_3_4           ERK     N         N       N
-   CASH_KARP_6_4_5              ERK     N         N       Y
-   FEHLBERG_6_4_5               ERK     N         N       Y
-   DORMAND_PRINCE_7_4_5         ERK     N         N       Y
-   ARK548L2SA_ERK_8_4_5*        ERK     N         N       N
-   VERNER_8_5_6                 ERK     N         N       Y
-   FEHLBERG_13_7_8              ERK     N         N       Y
-   SDIRK_2_1_2                SDIRK     Y         N       Y
-   BILLINGTON_3_3_2           SDIRK     N         N       N
-   TRBDF2_3_3_2              ESDIRK     N         N       Y
-   KVAERNO_4_2_3             ESDIRK     Y         Y       N
-   ARK324L2SA_DIRK_4_2_3*    ESDIRK     Y         Y       N
-   CASH_5_2_4                 SDIRK     Y         Y       N
-   CASH_5_3_4                 SDIRK     Y         Y       N
-   SDIRK_5_3_4                SDIRK     Y         Y       Y
-   KVAERNO_5_3_4             ESDIRK     Y         N       N
-   ARK436L2SA_DIRK_6_3_4*    ESDIRK     Y         Y       N
-   KVAERNO_7_4_5             ESDIRK     Y         Y       N
-   ARK548L2SA_DIRK_8_4_5*    ESDIRK     Y         Y       N
-  ----------------------------------------------------------
-
----------------------------------------------------------------*/
-int ARKodeLoadButcherTable(int imethod, int *s, int *q, int *p, 
-			   realtype *A, realtype *b, 
-			   realtype *c, realtype *b2) 
+  Routine to allocate an empty Butcher table structure
+  ---------------------------------------------------------------*/
+ARKodeButcherTable ARKodeButcherTable_Alloc(int stages, booleantype embedded)
 {
+  int i;
+  ARKodeButcherTable B;
 
-  int i, j;
-  realtype one = RCONST(1.0);
-  realtype two = RCONST(2.0);
-  realtype three = RCONST(3.0);
-  realtype four = RCONST(4.0);
-  realtype six = RCONST(6.0);
-  realtype sqrt2 = SUNRsqrt(two);
+  /* Check for legal 'stages' value */
+  if (stages < 1) return(NULL);
 
-  /* initialize output tables to zero */
-  for (i=0; i<ARK_S_MAX; i++) {
-    b[i]  = ZERO;
-    c[i]  = ZERO;
-    b2[i] = ZERO;
-    for (j=0; j<ARK_S_MAX; j++)  ARK_A(A,i,j) = ZERO;
+  /* Allocate Butcher table structure */
+  B = NULL;
+  B = (ARKodeButcherTable) malloc(sizeof(struct ARKodeButcherTableMem));
+  if (B == NULL) return(NULL);
+
+  /* initialize pointers in B structure to NULL */
+  B->A = NULL;
+  B->b = NULL;
+  B->c = NULL;
+  B->d = NULL;
+
+  /* set stages into B structure */
+  B->stages = stages;
+
+  /*
+   * Allocate fields within Butcher table structure
+   */
+
+  /* allocate rows of A */
+  B->A = (realtype **) calloc( stages, sizeof(realtype*) );
+  if (B->A == NULL) { ARKodeButcherTable_Free(B); return(NULL); }
+
+  /* initialize each row of A to NULL */
+  for (i=0; i<stages; i++)
+    B->A[i] = NULL;
+
+  /* allocate columns of A */
+  for (i=0; i<stages; i++) {
+    B->A[i] = (realtype *) calloc( stages, sizeof(realtype) );
+    if (B->A[i] == NULL) { ARKodeButcherTable_Free(B); return(NULL); }
   }
 
-  /* fill in coefficients based on method name */
-  switch(imethod) {
-
-  case(HEUN_EULER_2_1_2):    /* Heun-Euler-ERK */
-    *s = 2;
-    *q = 2;
-    *p = 1;
-      
-    ARK_A(A,1,0) = RCONST(1.0);
-
-    b[0] = RCONST(0.5);
-    b[1] = RCONST(0.5);
-
-    b2[0] = RCONST(1.0);
-
-    c[1] = RCONST(1.0);
-    break;
-
-  case(BOGACKI_SHAMPINE_4_2_3):    /* Bogacki-Shampine-ERK */
-    *s = 4;
-    *q = 3;
-    *p = 2;
-    ARK_A(A,1,0) = RCONST(1.0)/RCONST(2.0);
-    ARK_A(A,2,1) = RCONST(3.0)/RCONST(4.0);
-    ARK_A(A,3,0) = RCONST(2.0)/RCONST(9.0);
-    ARK_A(A,3,1) = RCONST(1.0)/RCONST(3.0);
-    ARK_A(A,3,2) = RCONST(4.0)/RCONST(9.0);
-
-    b[0] = RCONST(2.0)/RCONST(9.0);
-    b[1] = RCONST(1.0)/RCONST(3.0);
-    b[2] = RCONST(4.0)/RCONST(9.0);
-
-    b2[0] = RCONST(7.0)/RCONST(24.0);
-    b2[1] = RCONST(1.0)/RCONST(4.0);
-    b2[2] = RCONST(1.0)/RCONST(3.0);
-    b2[3] = RCONST(1.0)/RCONST(8.0);
-
-    c[1] = RCONST(1.0)/RCONST(2.0);
-    c[2] = RCONST(3.0)/RCONST(4.0);
-    c[3] = RCONST(1.0);
-    break;
-
-  case(ARK324L2SA_ERK_4_2_3):    /* ARK3(2)4L[2]SA-ERK */
-    *s = 4;
-    *q = 3;
-    *p = 2;
-    ARK_A(A,1,0) = RCONST(1767732205903.0)/RCONST(2027836641118.0);
-    ARK_A(A,2,0) = RCONST(5535828885825.0)/RCONST(10492691773637.0);
-    ARK_A(A,2,1) = RCONST(788022342437.0)/RCONST(10882634858940.0);
-    ARK_A(A,3,0) = RCONST(6485989280629.0)/RCONST(16251701735622.0);
-    ARK_A(A,3,1) = RCONST(-4246266847089.0)/RCONST(9704473918619.0);
-    ARK_A(A,3,2) = RCONST(10755448449292.0)/RCONST(10357097424841.0);
-
-    b[0] = RCONST(1471266399579.0)/RCONST(7840856788654.0);
-    b[1] = RCONST(-4482444167858.0)/RCONST(7529755066697.0);
-    b[2] = RCONST(11266239266428.0)/RCONST(11593286722821.0);
-    b[3] = RCONST(1767732205903.0)/RCONST(4055673282236.0);
-
-    b2[0] = RCONST(2756255671327.0)/RCONST(12835298489170.0);
-    b2[1] = RCONST(-10771552573575.0)/RCONST(22201958757719.0);
-    b2[2] = RCONST(9247589265047.0)/RCONST(10645013368117.0);
-    b2[3] = RCONST(2193209047091.0)/RCONST(5459859503100.0);
-
-    c[1] = RCONST(1767732205903.0)/RCONST(2027836641118.0);
-    c[2] = RCONST(3.0)/RCONST(5.0);
-    c[3] = RCONST(1.0);
-    break;
-
-  case(ZONNEVELD_5_3_4):    /* Zonneveld */
-    *s = 5;
-    *q = 4;
-    *p = 3;
-    ARK_A(A,1,0) = RCONST(0.5);
-    ARK_A(A,2,1) = RCONST(0.5);
-    ARK_A(A,3,2) = RCONST(1.0);
-    ARK_A(A,4,0) = RCONST(5.0)/RCONST(32.0);
-    ARK_A(A,4,1) = RCONST(7.0)/RCONST(32.0);
-    ARK_A(A,4,2) = RCONST(13.0)/RCONST(32.0);
-    ARK_A(A,4,3) = RCONST(-1.0)/RCONST(32.0);
-
-    b[0] = RCONST(1.0)/RCONST(6.0);
-    b[1] = RCONST(1.0)/RCONST(3.0);
-    b[2] = RCONST(1.0)/RCONST(3.0);
-    b[3] = RCONST(1.0)/RCONST(6.0);
-
-    b2[0] = RCONST(-1.0)/RCONST(2.0);
-    b2[1] = RCONST(7.0)/RCONST(3.0);
-    b2[2] = RCONST(7.0)/RCONST(3.0);
-    b2[3] = RCONST(13.0)/RCONST(6.0);
-    b2[4] = RCONST(-16.0)/RCONST(3.0);
-
-    c[1] = RCONST(0.5);
-    c[2] = RCONST(0.5);
-    c[3] = RCONST(1.0);
-    c[4] = RCONST(0.75);
-    break;
-
-  case(ARK436L2SA_ERK_6_3_4):    /* ARK4(3)6L[2]SA-ERK */
-    *s = 6;
-    *q = 4;
-    *p = 3;
-    ARK_A(A,1,0) = RCONST(0.5);
-    ARK_A(A,2,0) = RCONST(13861.0)/RCONST(62500.0);
-    ARK_A(A,2,1) = RCONST(6889.0)/RCONST(62500.0);
-    ARK_A(A,3,0) = RCONST(-116923316275.0)/RCONST(2393684061468.0);
-    ARK_A(A,3,1) = RCONST(-2731218467317.0)/RCONST(15368042101831.0);
-    ARK_A(A,3,2) = RCONST(9408046702089.0)/RCONST(11113171139209.0);
-    ARK_A(A,4,0) = RCONST(-451086348788.0)/RCONST(2902428689909.0);
-    ARK_A(A,4,1) = RCONST(-2682348792572.0)/RCONST(7519795681897.0);
-    ARK_A(A,4,2) = RCONST(12662868775082.0)/RCONST(11960479115383.0);
-    ARK_A(A,4,3) = RCONST(3355817975965.0)/RCONST(11060851509271.0);
-    ARK_A(A,5,0) = RCONST(647845179188.0)/RCONST(3216320057751.0);
-    ARK_A(A,5,1) = RCONST(73281519250.0)/RCONST(8382639484533.0);
-    ARK_A(A,5,2) = RCONST(552539513391.0)/RCONST(3454668386233.0);
-    ARK_A(A,5,3) = RCONST(3354512671639.0)/RCONST(8306763924573.0);
-    ARK_A(A,5,4) = RCONST(4040.0)/RCONST(17871.0);
-
-    b[0] = RCONST(82889.0)/RCONST(524892.0);
-    b[2] = RCONST(15625.0)/RCONST(83664.0);
-    b[3] = RCONST(69875.0)/RCONST(102672.0);
-    b[4] = RCONST(-2260.0)/RCONST(8211.0);
-    b[5] = RCONST(1.0)/RCONST(4.0);
-
-    b2[0] = RCONST(4586570599.0)/RCONST(29645900160.0);
-    b2[2] = RCONST(178811875.0)/RCONST(945068544.0);
-    b2[3] = RCONST(814220225.0)/RCONST(1159782912.0);
-    b2[4] = RCONST(-3700637.0)/RCONST(11593932.0);
-    b2[5] = RCONST(61727.0)/RCONST(225920.0);
-
-    c[1] = RCONST(1.0)/RCONST(2.0);
-    c[2] = RCONST(83.0)/RCONST(250.0);
-    c[3] = RCONST(31.0)/RCONST(50.0);
-    c[4] = RCONST(17.0)/RCONST(20.0);
-    c[5] = RCONST(1.0);
-    break;
-
-  case(SAYFY_ABURUB_6_3_4):    /* Sayfy-Aburub-4-3-ERK */
-    *s = 6;
-    *q = 4;
-    *p = 3;
-    ARK_A(A,1,0) = RCONST(1.0)/RCONST(2.0); 
-    ARK_A(A,2,0) = RCONST(-1.0); 
-    ARK_A(A,2,1) = RCONST(2.0); 
-    ARK_A(A,3,0) = RCONST(1.0)/RCONST(6.0);
-    ARK_A(A,3,1) = RCONST(2.0)/RCONST(3.0);
-    ARK_A(A,3,2) = RCONST(1.0)/RCONST(6.0);
-    ARK_A(A,4,0) = RCONST(0.137);
-    ARK_A(A,4,1) = RCONST(0.226);
-    ARK_A(A,4,2) = RCONST(0.137);
-    ARK_A(A,5,0) = RCONST(0.452);
-    ARK_A(A,5,1) = RCONST(-0.904);
-    ARK_A(A,5,2) = RCONST(-0.548);
-    ARK_A(A,5,4) = RCONST(2.0);
-
-    b[0] = RCONST(1.0)/RCONST(6.0);
-    b[1] = RCONST(1.0)/RCONST(3.0);
-    b[2] = RCONST(1.0)/RCONST(12.0);
-    b[3] = RCONST(0.0);
-    b[4] = RCONST(1.0)/RCONST(3.0);
-    b[5] = RCONST(1.0)/RCONST(12.0);
-
-    b2[0] = RCONST(1.0)/RCONST(6.0);
-    b2[1] = RCONST(2.0)/RCONST(3.0);
-    b2[2] = RCONST(1.0)/RCONST(6.0);
-
-    c[1] = RCONST(1.0)/RCONST(2.0);
-    c[2] = RCONST(1.0);
-    c[3] = RCONST(1.0);
-    c[4] = RCONST(1.0)/RCONST(2.0);
-    c[5] = RCONST(1.0);
-    break;
-
-  case(CASH_KARP_6_4_5):    /* Cash-Karp-ERK */
-    *s = 6;
-    *q = 5;
-    *p = 4;
-    ARK_A(A,1,0) = RCONST(1.0)/RCONST(5.0);
-    ARK_A(A,2,0) = RCONST(3.0)/RCONST(40.0);
-    ARK_A(A,2,1) = RCONST(9.0)/RCONST(40.0);
-    ARK_A(A,3,0) = RCONST(3.0)/RCONST(10.0);
-    ARK_A(A,3,1) = RCONST(-9.0)/RCONST(10.0);
-    ARK_A(A,3,2) = RCONST(6.0)/RCONST(5.0);
-    ARK_A(A,4,0) = RCONST(-11.0)/RCONST(54.0);
-    ARK_A(A,4,1) = RCONST(5.0)/RCONST(2.0);
-    ARK_A(A,4,2) = RCONST(-70.0)/RCONST(27.0);
-    ARK_A(A,4,3) = RCONST(35.0)/RCONST(27.0);
-    ARK_A(A,5,0) = RCONST(1631.0)/RCONST(55296.0);
-    ARK_A(A,5,1) = RCONST(175.0)/RCONST(512.0);
-    ARK_A(A,5,2) = RCONST(575.0)/RCONST(13824.0);
-    ARK_A(A,5,3) = RCONST(44275.0)/RCONST(110592.0);
-    ARK_A(A,5,4) = RCONST(253.0)/RCONST(4096.0);
-
-    b[0] = RCONST(37.0)/RCONST(378.0);
-    b[2] = RCONST(250.0)/RCONST(621.0);
-    b[3] = RCONST(125.0)/RCONST(594.0);
-    b[5] = RCONST(512.0)/RCONST(1771.0);
-
-    b2[0] = RCONST(2825.0)/RCONST(27648.0);
-    b2[2] = RCONST(18575.0)/RCONST(48384.0);
-    b2[3] = RCONST(13525.0)/RCONST(55296.0);
-    b2[4] = RCONST(277.0)/RCONST(14336.0);
-    b2[5] = RCONST(1.0)/RCONST(4.0);
-
-    c[1] = RCONST(1.0)/RCONST(5.0);
-    c[2] = RCONST(3.0)/RCONST(10.0);
-    c[3] = RCONST(3.0)/RCONST(5.0);
-    c[4] = RCONST(1.0);
-    c[5] = RCONST(7.0)/RCONST(8.0);
-    break;
-
-  case(FEHLBERG_6_4_5):    /* Fehlberg-ERK */
-    *s = 6;
-    *q = 5;
-    *p = 4;
-    ARK_A(A,1,0) = RCONST(1.0)/RCONST(4.0);
-    ARK_A(A,2,0) = RCONST(3.0)/RCONST(32.0);
-    ARK_A(A,2,1) = RCONST(9.0)/RCONST(32.0);
-    ARK_A(A,3,0) = RCONST(1932.0)/RCONST(2197.0);
-    ARK_A(A,3,1) = RCONST(-7200.0)/RCONST(2197.0);
-    ARK_A(A,3,2) = RCONST(7296.0)/RCONST(2197.0);
-    ARK_A(A,4,0) = RCONST(439.0)/RCONST(216.0);
-    ARK_A(A,4,1) = RCONST(-8.0);
-    ARK_A(A,4,2) = RCONST(3680.0)/RCONST(513.0);
-    ARK_A(A,4,3) = RCONST(-845.0)/RCONST(4104.0);
-    ARK_A(A,5,0) = RCONST(-8.0)/RCONST(27.0);
-    ARK_A(A,5,1) = RCONST(2.0);
-    ARK_A(A,5,2) = RCONST(-3544.0)/RCONST(2565.0);
-    ARK_A(A,5,3) = RCONST(1859.0)/RCONST(4104.0);
-    ARK_A(A,5,4) = RCONST(-11.0)/RCONST(40.0);
-
-    b[0] = RCONST(16.0)/RCONST(135.0);
-    b[2] = RCONST(6656.0)/RCONST(12825.0);
-    b[3] = RCONST(28561.0)/RCONST(56430.0);
-    b[4] = RCONST(-9.0)/RCONST(50.0);
-    b[5] = RCONST(2.0)/RCONST(55.0);
-
-    b2[0] = RCONST(25.0)/RCONST(216.0);
-    b2[2] = RCONST(1408.0)/RCONST(2565.0);
-    b2[3] = RCONST(2197.0)/RCONST(4104.0);
-    b2[4] = RCONST(-1.0)/RCONST(5.0);
-      
-    c[1] = RCONST(1.0)/RCONST(4.0);
-    c[2] = RCONST(3.0)/RCONST(8.0);
-    c[3] = RCONST(12.0)/RCONST(13.0);
-    c[4] = RCONST(1.0);
-    c[5] = RCONST(1.0)/RCONST(2.0);
-    break;
-
-  case(DORMAND_PRINCE_7_4_5):    /* Dormand-Prince-ERK */
-    *s = 7;
-    *q = 5;
-    *p = 4;
-    ARK_A(A,1,0) = RCONST(1.0)/RCONST(5.0);
-    ARK_A(A,2,0) = RCONST(3.0)/RCONST(40.0);
-    ARK_A(A,2,1) = RCONST(9.0)/RCONST(40.0);
-    ARK_A(A,3,0) = RCONST(44.0)/RCONST(45.0);
-    ARK_A(A,3,1) = RCONST(-56.0)/RCONST(15.0);
-    ARK_A(A,3,2) = RCONST(32.0)/RCONST(9.0);
-    ARK_A(A,4,0) = RCONST(19372.0)/RCONST(6561.0);
-    ARK_A(A,4,1) = RCONST(-25360.0)/RCONST(2187.0);
-    ARK_A(A,4,2) = RCONST(64448.0)/RCONST(6561.0);
-    ARK_A(A,4,3) = RCONST(-212.0)/RCONST(729.0);
-    ARK_A(A,5,0) = RCONST(9017.0)/RCONST(3168.0);
-    ARK_A(A,5,1) = RCONST(-355.0)/RCONST(33.0);
-    ARK_A(A,5,2) = RCONST(46732.0)/RCONST(5247.0);
-    ARK_A(A,5,3) = RCONST(49.0)/RCONST(176.0);
-    ARK_A(A,5,4) = RCONST(-5103.0)/RCONST(18656.0);
-    ARK_A(A,6,0) = RCONST(35.0)/RCONST(384.0);
-    ARK_A(A,6,2) = RCONST(500.0)/RCONST(1113.0);
-    ARK_A(A,6,3) = RCONST(125.0)/RCONST(192.0);
-    ARK_A(A,6,4) = RCONST(-2187.0)/RCONST(6784.0);
-    ARK_A(A,6,5) = RCONST(11.0)/RCONST(84.0);
-
-    b[0] = RCONST(35.0)/RCONST(384.0);
-    b[2] = RCONST(500.0)/RCONST(1113.0);
-    b[3] = RCONST(125.0)/RCONST(192.0);
-    b[4] = RCONST(-2187.0)/RCONST(6784.0);
-    b[5] = RCONST(11.0)/RCONST(84.0);
-
-    b2[0] = RCONST(5179.0)/RCONST(57600.0);
-    b2[2] = RCONST(7571.0)/RCONST(16695.0);
-    b2[3] = RCONST(393.0)/RCONST(640.0);
-    b2[4] = RCONST(-92097.0)/RCONST(339200.0);
-    b2[5] = RCONST(187.0)/RCONST(2100.0);
-    b2[6] = RCONST(1.0)/RCONST(40.0);
-
-    c[1] = RCONST(1.0)/RCONST(5.0);
-    c[2] = RCONST(3.0)/RCONST(10.0);
-    c[3] = RCONST(4.0)/RCONST(5.0);
-    c[4] = RCONST(8.0)/RCONST(9.0);
-    c[5] = RCONST(1.0);
-    c[6] = RCONST(1.0);
-    break;
-
-  case(ARK548L2SA_ERK_8_4_5):    /* ARK5(4)8L[2]SA-ERK */
-    *s = 8;
-    *q = 5;
-    *p = 4;
-    ARK_A(A,1,0) = RCONST(41.0)/RCONST(100.0);
-    ARK_A(A,2,0) = RCONST(367902744464.0)/RCONST(2072280473677.0);
-    ARK_A(A,2,1) = RCONST(677623207551.0)/RCONST(8224143866563.0);
-    ARK_A(A,3,0) = RCONST(1268023523408.0)/RCONST(10340822734521.0);
-    ARK_A(A,3,2) = RCONST(1029933939417.0)/RCONST(13636558850479.0);
-    ARK_A(A,4,0) = RCONST(14463281900351.0)/RCONST(6315353703477.0);
-    ARK_A(A,4,2) = RCONST(66114435211212.0)/RCONST(5879490589093.0);
-    ARK_A(A,4,3) = RCONST(-54053170152839.0)/RCONST(4284798021562.0);
-    ARK_A(A,5,0) = RCONST(14090043504691.0)/RCONST(34967701212078.0);
-    ARK_A(A,5,2) = RCONST(15191511035443.0)/RCONST(11219624916014.0);
-    ARK_A(A,5,3) = RCONST(-18461159152457.0)/RCONST(12425892160975.0);
-    ARK_A(A,5,4) = RCONST(-281667163811.0)/RCONST(9011619295870.0);
-    ARK_A(A,6,0) = RCONST(19230459214898.0)/RCONST(13134317526959.0);
-    ARK_A(A,6,2) = RCONST(21275331358303.0)/RCONST(2942455364971.0);
-    ARK_A(A,6,3) = RCONST(-38145345988419.0)/RCONST(4862620318723.0);
-    ARK_A(A,6,4) = RCONST(-1.0)/RCONST(8.0);
-    ARK_A(A,6,5) = RCONST(-1.0)/RCONST(8.0);
-    ARK_A(A,7,0) = RCONST(-19977161125411.0)/RCONST(11928030595625.0);
-    ARK_A(A,7,2) = RCONST(-40795976796054.0)/RCONST(6384907823539.0);
-    ARK_A(A,7,3) = RCONST(177454434618887.0)/RCONST(12078138498510.0);
-    ARK_A(A,7,4) = RCONST(782672205425.0)/RCONST(8267701900261.0);
-    ARK_A(A,7,5) = RCONST(-69563011059811.0)/RCONST(9646580694205.0);
-    ARK_A(A,7,6) = RCONST(7356628210526.0)/RCONST(4942186776405.0);
-
-    b[0] = RCONST(-872700587467.0)/RCONST(9133579230613.0);
-    b[3] = RCONST(22348218063261.0)/RCONST(9555858737531.0);
-    b[4] = RCONST(-1143369518992.0)/RCONST(8141816002931.0);
-    b[5] = RCONST(-39379526789629.0)/RCONST(19018526304540.0);
-    b[6] = RCONST(32727382324388.0)/RCONST(42900044865799.0);
-    b[7] = RCONST(41.0)/RCONST(200.0);
-
-    b2[0] = RCONST(-975461918565.0)/RCONST(9796059967033.0);
-    b2[3] = RCONST(78070527104295.0)/RCONST(32432590147079.0);
-    b2[4] = RCONST(-548382580838.0)/RCONST(3424219808633.0);
-    b2[5] = RCONST(-33438840321285.0)/RCONST(15594753105479.0);
-    b2[6] = RCONST(3629800801594.0)/RCONST(4656183773603.0);
-    b2[7] = RCONST(4035322873751.0)/RCONST(18575991585200.0);
-
-    c[1] = RCONST(41.0)/RCONST(100.0);
-    c[2] = RCONST(2935347310677.0)/RCONST(11292855782101.0);
-    c[3] = RCONST(1426016391358.0)/RCONST(7196633302097.0);
-    c[4] = RCONST(92.0)/RCONST(100.0);
-    c[5] = RCONST(24.0)/RCONST(100.0);
-    c[6] = RCONST(3.0)/RCONST(5.0);
-    c[7] = RCONST(1.0);
-    break;
-
-  case(VERNER_8_5_6):    /* Verner-6-5 */
-    *s = 8;
-    *q = 6;
-    *p = 5;
-    ARK_A(A,1,0) = RCONST(1.0)/RCONST(6.0);
-    ARK_A(A,2,0) = RCONST(4.0)/RCONST(75.0);
-    ARK_A(A,2,1) = RCONST(16.0)/RCONST(75.0);
-    ARK_A(A,3,0) = RCONST(5.0)/RCONST(6.0);
-    ARK_A(A,3,1) = RCONST(-8.0)/RCONST(3.0);
-    ARK_A(A,3,2) = RCONST(5.0)/RCONST(2.0);
-    ARK_A(A,4,0) = RCONST(-165.0)/RCONST(64.0);
-    ARK_A(A,4,1) = RCONST(55.0)/RCONST(6.0);
-    ARK_A(A,4,2) = RCONST(-425.0)/RCONST(64.0);
-    ARK_A(A,4,3) = RCONST(85.0)/RCONST(96.0);
-    ARK_A(A,5,0) = RCONST(12.0)/RCONST(5.0);
-    ARK_A(A,5,1) = RCONST(-8.0);
-    ARK_A(A,5,2) = RCONST(4015.0)/RCONST(612.0);
-    ARK_A(A,5,3) = RCONST(-11.0)/RCONST(36.0);
-    ARK_A(A,5,4) = RCONST(88.0)/RCONST(255.0);
-    ARK_A(A,6,0) = RCONST(-8263.0)/RCONST(15000.0);
-    ARK_A(A,6,1) = RCONST(124.0)/RCONST(75.0);
-    ARK_A(A,6,2) = RCONST(-643.0)/RCONST(680.0);
-    ARK_A(A,6,3) = RCONST(-81.0)/RCONST(250.0);
-    ARK_A(A,6,4) = RCONST(2484.0)/RCONST(10625.0);
-    ARK_A(A,7,0) = RCONST(3501.0)/RCONST(1720.0);
-    ARK_A(A,7,1) = RCONST(-300.0)/RCONST(43.0);
-    ARK_A(A,7,2) = RCONST(297275.0)/RCONST(52632.0);
-    ARK_A(A,7,3) = RCONST(-319.0)/RCONST(2322.0);
-    ARK_A(A,7,4) = RCONST(24068.0)/RCONST(84065.0);
-    ARK_A(A,7,6) = RCONST(3850.0)/RCONST(26703.0);
-
-    b[0] = RCONST(3.0)/RCONST(40.0);
-    b[2] = RCONST(875.0)/RCONST(2244.0);
-    b[3] = RCONST(23.0)/RCONST(72.0);
-    b[4] = RCONST(264.0)/RCONST(1955.0);
-    b[6] = RCONST(125.0)/RCONST(11592.0);
-    b[7] = RCONST(43.0)/RCONST(616.0);
-
-    b2[0] = RCONST(13.0)/RCONST(160.0);
-    b2[2] = RCONST(2375.0)/RCONST(5984.0);
-    b2[3] = RCONST(5.0)/RCONST(16.0);
-    b2[4] = RCONST(12.0)/RCONST(85.0);
-    b2[5] = RCONST(3.0)/RCONST(44.0);
-
-    c[0] = RCONST(0.0);
-    c[1] = RCONST(1.0)/RCONST(6.0);
-    c[2] = RCONST(4.0)/RCONST(15.0);
-    c[3] = RCONST(2.0)/RCONST(3.0);
-    c[4] = RCONST(5.0)/RCONST(6.0);
-    c[5] = RCONST(1.0);
-    c[6] = RCONST(1.0)/RCONST(15.0);
-    c[7] = RCONST(1.0);
-    break;
-
-  case(FEHLBERG_13_7_8):    /* Fehlberg-8-7 */
-    *s = 13;
-    *q = 8;
-    *p = 7;
-    ARK_A(A,1,0) = RCONST(2.0)/RCONST(27.0);
-    ARK_A(A,2,0) = RCONST(1.0)/RCONST(36.0);
-    ARK_A(A,2,1) = RCONST(1.0)/RCONST(12.0);
-    ARK_A(A,3,0) = RCONST(1.0)/RCONST(24.0);
-    ARK_A(A,3,2) = RCONST(1.0)/RCONST(8.0);
-    ARK_A(A,4,0) = RCONST(5.0)/RCONST(12.0);
-    ARK_A(A,4,2) = RCONST(-25.0)/RCONST(16.0);
-    ARK_A(A,4,3) = RCONST(25.0)/RCONST(16.0);
-    ARK_A(A,5,0) = RCONST(1.0)/RCONST(20.0);
-    ARK_A(A,5,3) = RCONST(1.0)/RCONST(4.0);
-    ARK_A(A,5,4) = RCONST(1.0)/RCONST(5.0);
-    ARK_A(A,6,0) = RCONST(-25.0)/RCONST(108.0);
-    ARK_A(A,6,3) = RCONST(125.0)/RCONST(108.0);
-    ARK_A(A,6,4) = RCONST(-65.0)/RCONST(27.0);
-    ARK_A(A,6,5) = RCONST(125.0)/RCONST(54.0);
-    ARK_A(A,7,0) = RCONST(31.0)/RCONST(300.0);
-    ARK_A(A,7,4) = RCONST(61.0)/RCONST(225.0);
-    ARK_A(A,7,5) = RCONST(-2.0)/RCONST(9.0);
-    ARK_A(A,7,6) = RCONST(13.0)/RCONST(900.0);
-    ARK_A(A,8,0) = RCONST(2.0);
-    ARK_A(A,8,3) = RCONST(-53.0)/RCONST(6.0);
-    ARK_A(A,8,4) = RCONST(704.0)/RCONST(45.0);
-    ARK_A(A,8,5) = RCONST(-107.0)/RCONST(9.0);
-    ARK_A(A,8,6) = RCONST(67.0)/RCONST(90.0);
-    ARK_A(A,8,7) = RCONST(3.0);
-    ARK_A(A,9,0) = RCONST(-91.0)/RCONST(108.0);
-    ARK_A(A,9,3) = RCONST(23.0)/RCONST(108.0);
-    ARK_A(A,9,4) = RCONST(-976.0)/RCONST(135.0);
-    ARK_A(A,9,5) = RCONST(311.0)/RCONST(54.0);
-    ARK_A(A,9,6) = RCONST(-19.0)/RCONST(60.0);
-    ARK_A(A,9,7) = RCONST(17.0)/RCONST(6.0);
-    ARK_A(A,9,8) = RCONST(-1.0)/RCONST(12.0);
-    ARK_A(A,10,0) = RCONST(2383.0)/RCONST(4100.0);
-    ARK_A(A,10,3) = RCONST(-341.0)/RCONST(164.0);
-    ARK_A(A,10,4) = RCONST(4496.0)/RCONST(1025.0);
-    ARK_A(A,10,5) = RCONST(-301.0)/RCONST(82.0);
-    ARK_A(A,10,6) = RCONST(2133.0)/RCONST(4100.0);
-    ARK_A(A,10,7) = RCONST(45.0)/RCONST(82.0);
-    ARK_A(A,10,8) = RCONST(45.0)/RCONST(164.0);
-    ARK_A(A,10,9) = RCONST(18.0)/RCONST(41.0);
-    ARK_A(A,11,0) = RCONST(3.0)/RCONST(205.0);
-    ARK_A(A,11,5) = RCONST(-6.0)/RCONST(41.0);
-    ARK_A(A,11,6) = RCONST(-3.0)/RCONST(205.0);
-    ARK_A(A,11,7) = RCONST(-3.0)/RCONST(41.0);
-    ARK_A(A,11,8) = RCONST(3.0)/RCONST(41.0);
-    ARK_A(A,11,9) = RCONST(6.0)/RCONST(41.0);
-    ARK_A(A,12,0) = RCONST(-1777.0)/RCONST(4100.0);
-    ARK_A(A,12,3) = RCONST(-341.0)/RCONST(164.0);
-    ARK_A(A,12,4) = RCONST(4496.0)/RCONST(1025.0);
-    ARK_A(A,12,5) = RCONST(-289.0)/RCONST(82.0);
-    ARK_A(A,12,6) = RCONST(2193.0)/RCONST(4100.0);
-    ARK_A(A,12,7) = RCONST(51.0)/RCONST(82.0);
-    ARK_A(A,12,8) = RCONST(33.0)/RCONST(164.0);
-    ARK_A(A,12,9) = RCONST(12.0)/RCONST(41.0);
-    ARK_A(A,12,11) = RCONST(1.0);
-
-    b[5]  = RCONST(34.0)/RCONST(105.0);
-    b[6]  = RCONST(9.0)/RCONST(35.0);
-    b[7]  = RCONST(9.0)/RCONST(35.0);
-    b[8]  = RCONST(9.0)/RCONST(280.0);
-    b[9]  = RCONST(9.0)/RCONST(280.0);
-    b[11] = RCONST(41.0)/RCONST(840.0);
-    b[12] = RCONST(41.0)/RCONST(840.0);
-
-    b2[0]  = RCONST(41.0)/RCONST(840.0);
-    b2[5]  = RCONST(34.0)/RCONST(105.0);
-    b2[6]  = RCONST(9.0)/RCONST(35.0);
-    b2[7]  = RCONST(9.0)/RCONST(35.0);
-    b2[8]  = RCONST(9.0)/RCONST(280.0);
-    b2[9]  = RCONST(9.0)/RCONST(280.0);
-    b2[10] = RCONST(41.0)/RCONST(840.0);
-
-    c[1]  = RCONST(2.0)/RCONST(27.0);
-    c[2]  = RCONST(1.0)/RCONST(9.0);
-    c[3]  = RCONST(1.0)/RCONST(6.0);
-    c[4]  = RCONST(5.0)/RCONST(12.0);
-    c[5]  = RCONST(1.0)/RCONST(2.0);
-    c[6]  = RCONST(5.0)/RCONST(6.0);
-    c[7]  = RCONST(1.0)/RCONST(6.0);
-    c[8]  = RCONST(2.0)/RCONST(3.0);
-    c[9]  = RCONST(1.0)/RCONST(3.0);
-    c[10] = RCONST(1.0);
-    c[12] = RCONST(1.0);
-    break;
-
-  case(SDIRK_2_1_2):   /* SDIRK-2-1 (A,B stable) */
-    *s = 2;
-    *q = 2;
-    *p = 1;
-      
-    ARK_A(A,0,0) = RCONST(1.0);
-    ARK_A(A,1,0) = RCONST(-1.0);
-    ARK_A(A,1,1) = RCONST(1.0);
-
-    b[0] = RCONST(0.5);
-    b[1] = RCONST(0.5);
-
-    b2[0] = RCONST(1.0);
-
-    c[0] = RCONST(1.0);
-    c[1] = RCONST(0.0);
-    break;
-
-  case(BILLINGTON_3_3_2):    /* Billington-SDIRK */
-    *s = 3;
-    /* *q = 3; */
-    /* *p = 2; */
-    *q = 2;
-    *p = 3;
-
-    ARK_A(A,0,0) = RCONST(0.292893218813);
-    ARK_A(A,1,0) = RCONST(0.798989873223);
-    ARK_A(A,1,1) = RCONST(0.292893218813);
-    ARK_A(A,2,0) = RCONST(0.740789228841);
-    ARK_A(A,2,1) = RCONST(0.259210771159);
-    ARK_A(A,2,2) = RCONST(0.292893218813);
-
-    /* b[0] = RCONST(0.691665115992); */
-    /* b[1] = RCONST(0.503597029883); */
-    /* b[2] = RCONST(-0.195262145876); */
-
-    /* b2[0] = RCONST(0.740789228840); */
-    /* b2[1] = RCONST(0.259210771159); */
-
-    b2[0] = RCONST(0.691665115992);
-    b2[1] = RCONST(0.503597029883);
-    b2[2] = RCONST(-0.195262145876);
-
-    b[0] = RCONST(0.740789228840);
-    b[1] = RCONST(0.259210771159);
-
-    c[0] = RCONST(0.292893218813);
-    c[1] = RCONST(1.091883092037);
-    c[2] = RCONST(1.292893218813);
-    break;
-
-  case(TRBDF2_3_3_2):    /* TRBDF2-ESDIRK */
-    *s = 3;
-    /* *q = 3; */
-    /* *p = 2; */
-    *q = 2;
-    *p = 3;
-
-    ARK_A(A,1,0) = (two-sqrt2)/two;
-    ARK_A(A,1,1) = (two-sqrt2)/two;
-    ARK_A(A,2,0) = sqrt2/four;
-    ARK_A(A,2,1) = sqrt2/four;
-    ARK_A(A,2,2) = (two-sqrt2)/two;
-
-    /* b[0] = (one-sqrt2/four)/three; */
-    /* b[1] = (three*sqrt2/four+one)/three; */
-    /* b[2] = (two-sqrt2)/six; */
-
-    /* b2[0] = sqrt2/four; */
-    /* b2[1] = sqrt2/four; */
-    /* b2[2] = (two-sqrt2)/two; */
-
-    b2[0] = (one-sqrt2/four)/three;
-    b2[1] = (three*sqrt2/four+one)/three;
-    b2[2] = (two-sqrt2)/six;
-
-    b[0] = sqrt2/four;
-    b[1] = sqrt2/four;
-    b[2] = (two-sqrt2)/two;
-
-    c[1] = two-sqrt2;
-    c[2] = one;
-    break;
-
-  case(KVAERNO_4_2_3):    /* Kvaerno(4,2,3)-ESDIRK */
-    *s = 4;
-    *q = 3;
-    *p = 2;
-    ARK_A(A,1,0) = RCONST(0.4358665215);
-    ARK_A(A,1,1) = RCONST(0.4358665215);
-    ARK_A(A,2,0) = RCONST(0.490563388419108);
-    ARK_A(A,2,1) = RCONST(0.073570090080892);
-    ARK_A(A,2,2) = RCONST(0.4358665215);
-    ARK_A(A,3,0) = RCONST(0.308809969973036);
-    ARK_A(A,3,1) = RCONST(1.490563388254106);
-    ARK_A(A,3,2) = RCONST(-1.235239879727145);
-    ARK_A(A,3,3) = RCONST(0.4358665215);
-
-    b[0] = RCONST(0.308809969973036);
-    b[1] = RCONST(1.490563388254106);
-    b[2] = RCONST(-1.235239879727145);
-    b[3] = RCONST(0.4358665215);
-
-    b2[0] = RCONST(0.490563388419108);
-    b2[1] = RCONST(0.073570090080892);
-    b2[2] = RCONST(0.4358665215);
-
-    c[1] = RCONST(0.871733043);
-    c[2] = RCONST(1.0);
-    c[3] = RCONST(1.0);
-    break;
-
-  case(ARK324L2SA_DIRK_4_2_3):    /* ARK3(2)4L[2]SA-ESDIRK */
-    *s = 4;
-    *q = 3;
-    *p = 2;
-    ARK_A(A,1,0) = RCONST(1767732205903.0)/RCONST(4055673282236.0);
-    ARK_A(A,1,1) = RCONST(1767732205903.0)/RCONST(4055673282236.0);
-    ARK_A(A,2,0) = RCONST(2746238789719.0)/RCONST(10658868560708.0);
-    ARK_A(A,2,1) = RCONST(-640167445237.0)/RCONST(6845629431997.0);
-    ARK_A(A,2,2) = RCONST(1767732205903.0)/RCONST(4055673282236.0);
-    ARK_A(A,3,0) = RCONST(1471266399579.0)/RCONST(7840856788654.0);
-    ARK_A(A,3,1) = RCONST(-4482444167858.0)/RCONST(7529755066697.0);
-    ARK_A(A,3,2) = RCONST(11266239266428.0)/RCONST(11593286722821.0);
-    ARK_A(A,3,3) = RCONST(1767732205903.0)/RCONST(4055673282236.0);
-
-    b[0] = RCONST(1471266399579.0)/RCONST(7840856788654.0);
-    b[1] = RCONST(-4482444167858.0)/RCONST(7529755066697.0);
-    b[2] = RCONST(11266239266428.0)/RCONST(11593286722821.0);
-    b[3] = RCONST(1767732205903.0)/RCONST(4055673282236.0);
-
-    b2[0] = RCONST(2756255671327.0)/RCONST(12835298489170.0);
-    b2[1] = RCONST(-10771552573575.0)/RCONST(22201958757719.0);
-    b2[2] = RCONST(9247589265047.0)/RCONST(10645013368117.0);
-    b2[3] = RCONST(2193209047091.0)/RCONST(5459859503100.0);
-
-    c[1] = RCONST(1767732205903.0)/RCONST(2027836641118.0);
-    c[2] = RCONST(3.0)/RCONST(5.0);
-    c[3] = RCONST(1.0);
-    break;
-
-  case(CASH_5_2_4):    /* Cash(5,2,4)-SDIRK */
-    *s = 5;
-    *q = 4;
-    *p = 2;
-    ARK_A(A,0,0) = RCONST(0.435866521508);
-    ARK_A(A,1,0) = RCONST(-1.13586652150);
-    ARK_A(A,1,1) = RCONST(0.435866521508);
-    ARK_A(A,2,0) = RCONST(1.08543330679);
-    ARK_A(A,2,1) = RCONST(-0.721299828287);
-    ARK_A(A,2,2) = RCONST(0.435866521508);
-    ARK_A(A,3,0) = RCONST(0.416349501547);
-    ARK_A(A,3,1) = RCONST(0.190984004184);
-    ARK_A(A,3,2) = RCONST(-0.118643265417);
-    ARK_A(A,3,3) = RCONST(0.435866521508);
-    ARK_A(A,4,0) = RCONST(0.896869652944);
-    ARK_A(A,4,1) = RCONST(0.0182725272734);
-    ARK_A(A,4,2) = RCONST(-0.0845900310706);
-    ARK_A(A,4,3) = RCONST(-0.266418670647);
-    ARK_A(A,4,4) = RCONST(0.435866521508);
-
-    b[0] = RCONST(0.896869652944);
-    b[1] = RCONST(0.0182725272734);
-    b[2] = RCONST(-0.0845900310706);
-    b[3] = RCONST(-0.266418670647);
-    b[4] = RCONST(0.435866521508);
-
-    b2[0] = (RCONST(-0.7)-RCONST(0.5))/(RCONST(-0.7)-RCONST(0.435866521508));
-    b2[1] = (RCONST(0.5)-RCONST(0.435866521508))/(RCONST(-0.7)-RCONST(0.435866521508));
-
-    c[0] = RCONST(0.435866521508);
-    c[1] = RCONST(-0.7);
-    c[2] = RCONST(0.8);
-    c[3] = RCONST(0.924556761814);
-    c[4] = RCONST(1.0);
-    break;
-
-  case(CASH_5_3_4):    /* Cash(5,3,4)-SDIRK */
-    *s = 5;
-    *q = 4;
-    *p = 3;
-    ARK_A(A,0,0) = RCONST(0.435866521508);
-    ARK_A(A,1,0) = RCONST(-1.13586652150);
-    ARK_A(A,1,1) = RCONST(0.435866521508);
-    ARK_A(A,2,0) = RCONST(1.08543330679);
-    ARK_A(A,2,1) = RCONST(-0.721299828287);
-    ARK_A(A,2,2) = RCONST(0.435866521508);
-    ARK_A(A,3,0) = RCONST(0.416349501547);
-    ARK_A(A,3,1) = RCONST(0.190984004184);
-    ARK_A(A,3,2) = RCONST(-0.118643265417);
-    ARK_A(A,3,3) = RCONST(0.435866521508);
-    ARK_A(A,4,0) = RCONST(0.896869652944);
-    ARK_A(A,4,1) = RCONST(0.0182725272734);
-    ARK_A(A,4,2) = RCONST(-0.0845900310706);
-    ARK_A(A,4,3) = RCONST(-0.266418670647);
-    ARK_A(A,4,4) = RCONST(0.435866521508);
-
-    b[0] = RCONST(0.896869652944);
-    b[1] = RCONST(0.0182725272734);
-    b[2] = RCONST(-0.0845900310706);
-    b[3] = RCONST(-0.266418670647);
-    b[4] = RCONST(0.435866521508);
-
-    b2[0] = RCONST(0.776691932910);
-    b2[1] = RCONST(0.0297472791484);
-    b2[2] = RCONST(-0.0267440239074);
-    b2[3] = RCONST(0.220304811849);
-
-    c[0] = RCONST(0.435866521508);
-    c[1] = RCONST(-0.7);
-    c[2] = RCONST(0.8);
-    c[3] = RCONST(0.924556761814);
-    c[4] = RCONST(1.0);
-    break;
-
-  case(SDIRK_5_3_4):    /* SDIRK-5-4 */
-    *s = 5;
-    *q = 4;
-    *p = 3;
-    ARK_A(A,0,0) = RCONST(0.25);
-    ARK_A(A,1,0) = RCONST(0.5);
-    ARK_A(A,1,1) = RCONST(0.25);
-    ARK_A(A,2,0) = RCONST(17.0)/RCONST(50.0);
-    ARK_A(A,2,1) = RCONST(-1.0)/RCONST(25.0);
-    ARK_A(A,2,2) = RCONST(0.25);
-    ARK_A(A,3,0) = RCONST(371.0)/RCONST(1360.0);
-    ARK_A(A,3,1) = RCONST(-137.0)/RCONST(2720.0);
-    ARK_A(A,3,2) = RCONST(15.0)/RCONST(544.0);
-    ARK_A(A,3,3) = RCONST(0.25);
-    ARK_A(A,4,0) = RCONST(25.0)/RCONST(24.0);
-    ARK_A(A,4,1) = RCONST(-49.0)/RCONST(48.0);
-    ARK_A(A,4,2) = RCONST(125.0)/RCONST(16.0);
-    ARK_A(A,4,3) = RCONST(-85.0)/RCONST(12.0);
-    ARK_A(A,4,4) = RCONST(0.25);
-
-    b[0] = RCONST(25.0)/RCONST(24.0);
-    b[1] = RCONST(-49.0)/RCONST(48.0);
-    b[2] = RCONST(125.0)/RCONST(16.0);
-    b[3] = RCONST(-85.0)/RCONST(12.0);
-    b[4] = RCONST(0.25);
-
-    b2[0] = RCONST(59.0)/RCONST(48.0);
-    b2[1] = RCONST(-17.0)/RCONST(96.0);
-    b2[2] = RCONST(225.0)/RCONST(32.0);
-    b2[3] = RCONST(-85.0)/RCONST(12.0);
-
-    c[0] = RCONST(0.25);
-    c[1] = RCONST(0.75);
-    c[2] = RCONST(11.0)/RCONST(20.0);
-    c[3] = RCONST(0.5);
-    c[4] = RCONST(1.0);
-    break;
-
-  case(KVAERNO_5_3_4):    /* Kvaerno(5,3,4)-ESDIRK */
-    *s = 5;
-    *q = 4;
-    *p = 3;
-    ARK_A(A,1,0) = RCONST(0.4358665215); 
-    ARK_A(A,1,1) = RCONST(0.4358665215); 
-    ARK_A(A,2,0) = RCONST(0.140737774731968);
-    ARK_A(A,2,1) = RCONST(-0.108365551378832);
-    ARK_A(A,2,2) = RCONST(0.4358665215);
-    ARK_A(A,3,0) = RCONST(0.102399400616089);
-    ARK_A(A,3,1) = RCONST(-0.376878452267324);
-    ARK_A(A,3,2) = RCONST(0.838612530151233);
-    ARK_A(A,3,3) = RCONST(0.4358665215);
-    ARK_A(A,4,0) = RCONST(0.157024897860995);
-    ARK_A(A,4,1) = RCONST(0.117330441357768);
-    ARK_A(A,4,2) = RCONST(0.61667803039168);
-    ARK_A(A,4,3) = RCONST(-0.326899891110444);
-    ARK_A(A,4,4) = RCONST(0.4358665215);
-
-    b[0] = RCONST(0.157024897860995);
-    b[1] = RCONST(0.117330441357768);
-    b[2] = RCONST(0.61667803039168);
-    b[3] = RCONST(-0.326899891110444);
-    b[4] = RCONST(0.4358665215);
-
-    b2[0] = RCONST(0.102399400616089);
-    b2[1] = RCONST(-0.376878452267324);
-    b2[2] = RCONST(0.838612530151233);
-    b2[3] = RCONST(0.4358665215);
-
-    c[1] = RCONST(0.871733043);
-    c[2] = RCONST(0.468238744853136);
-    c[3] = RCONST(1.0);
-    c[4] = RCONST(1.0);
-    break;
-
-  case(ARK436L2SA_DIRK_6_3_4):    /* ARK4(3)6L[2]SA-ESDIRK */
-    *s = 6;
-    *q = 4;
-    *p = 3;
-    ARK_A(A,1,0) = RCONST(1.0)/RCONST(4.0);
-    ARK_A(A,1,1) = RCONST(1.0)/RCONST(4.0);
-    ARK_A(A,2,0) = RCONST(8611.0)/RCONST(62500.0);
-    ARK_A(A,2,1) = RCONST(-1743.0)/RCONST(31250.0);
-    ARK_A(A,2,2) = RCONST(1.0)/RCONST(4.0);
-    ARK_A(A,3,0) = RCONST(5012029.0)/RCONST(34652500.0);
-    ARK_A(A,3,1) = RCONST(-654441.0)/RCONST(2922500.0);
-    ARK_A(A,3,2) = RCONST(174375.0)/RCONST(388108.0);
-    ARK_A(A,3,3) = RCONST(1.0)/RCONST(4.0);
-    ARK_A(A,4,0) = RCONST(15267082809.0)/RCONST(155376265600.0);
-    ARK_A(A,4,1) = RCONST(-71443401.0)/RCONST(120774400.0);
-    ARK_A(A,4,2) = RCONST(730878875.0)/RCONST(902184768.0);
-    ARK_A(A,4,3) = RCONST(2285395.0)/RCONST(8070912.0);
-    ARK_A(A,4,4) = RCONST(1.0)/RCONST(4.0);
-    ARK_A(A,5,0) = RCONST(82889.0)/RCONST(524892.0);
-    ARK_A(A,5,2) = RCONST(15625.0)/RCONST(83664.0);
-    ARK_A(A,5,3) = RCONST(69875.0)/RCONST(102672.0);
-    ARK_A(A,5,4) = RCONST(-2260.0)/RCONST(8211.0);
-    ARK_A(A,5,5) = RCONST(1.0)/RCONST(4.0);
-
-    b[0] = RCONST(82889.0)/RCONST(524892.0);
-    b[2] = RCONST(15625.0)/RCONST(83664.0);
-    b[3] = RCONST(69875.0)/RCONST(102672.0);
-    b[4] = RCONST(-2260.0)/RCONST(8211.0);
-    b[5] = RCONST(1.0)/RCONST(4.0);
-
-    c[1] = RCONST(1.0)/RCONST(2.0);
-    c[2] = RCONST(83.0)/RCONST(250.0);
-    c[3] = RCONST(31.0)/RCONST(50.0);
-    c[4] = RCONST(17.0)/RCONST(20.0);
-    c[5] = RCONST(1.0);
-
-    b2[0] = RCONST(4586570599.0)/RCONST(29645900160.0);
-    b2[2] = RCONST(178811875.0)/RCONST(945068544.0);
-    b2[3] = RCONST(814220225.0)/RCONST(1159782912.0);
-    b2[4] = RCONST(-3700637.0)/RCONST(11593932.0);
-    b2[5] = RCONST(61727.0)/RCONST(225920.0);
-    break;
-
-  case(KVAERNO_7_4_5):    /* Kvaerno(7,4,5)-ESDIRK */
-    *s = 7;
-    *q = 5;
-    *p = 4;
-    ARK_A(A,1,0) = RCONST(0.26);
-    ARK_A(A,1,1) = RCONST(0.26);
-    ARK_A(A,2,0) = RCONST(0.13);
-    ARK_A(A,2,1) = RCONST(0.84033320996790809);
-    ARK_A(A,2,2) = RCONST(0.26);
-    ARK_A(A,3,0) = RCONST(0.22371961478320505);
-    ARK_A(A,3,1) = RCONST(0.47675532319799699);
-    ARK_A(A,3,2) = RCONST(-0.06470895363112615);
-    ARK_A(A,3,3) = RCONST(0.26);
-    ARK_A(A,4,0) = RCONST(0.16648564323248321);
-    ARK_A(A,4,1) = RCONST(0.10450018841591720);
-    ARK_A(A,4,2) = RCONST(0.03631482272098715);
-    ARK_A(A,4,3) = RCONST(-0.13090704451073998);
-    ARK_A(A,4,4) = RCONST(0.26);
-    ARK_A(A,5,0) = RCONST(0.13855640231268224);
-    ARK_A(A,5,2) = RCONST(-0.04245337201752043);
-    ARK_A(A,5,3) = RCONST(0.02446657898003141);
-    ARK_A(A,5,4) = RCONST(0.61943039072480676);
-    ARK_A(A,5,5) = RCONST(0.26);
-    ARK_A(A,6,0) = RCONST(0.13659751177640291);
-    ARK_A(A,6,2) = RCONST(-0.05496908796538376);
-    ARK_A(A,6,3) = RCONST(-0.04118626728321046);
-    ARK_A(A,6,4) = RCONST(0.62993304899016403);
-    ARK_A(A,6,5) = RCONST(0.06962479448202728);
-    ARK_A(A,6,6) = RCONST(0.26);
-
-    b[0] = RCONST(0.13659751177640291);
-    b[2] = RCONST(-0.05496908796538376);
-    b[3] = RCONST(-0.04118626728321046);
-    b[4] = RCONST(0.62993304899016403);
-    b[5] = RCONST(0.06962479448202728);
-    b[6] = RCONST(0.26);
-
-    b2[0] = RCONST(0.13855640231268224);
-    b2[2] = RCONST(-0.04245337201752043);
-    b2[3] = RCONST(0.02446657898003141);
-    b2[4] = RCONST(0.61943039072480676);
-    b2[5] = RCONST(0.26);
-
-    c[1] = RCONST(0.52);
-    c[2] = RCONST(1.230333209967908);
-    c[3] = RCONST(0.895765984350076);
-    c[4] = RCONST(0.436393609858648);
-    c[5] = RCONST(1.0);
-    c[6] = RCONST(1.0);
-    break;
-
-  case(ARK548L2SA_DIRK_8_4_5):    /* ARK5(4)8L[2]SA-ESDIRK */
-    *s = 8;
-    *q = 5;
-    *p = 4;
-    ARK_A(A,1,0) = RCONST(41.0)/RCONST(200.0);
-    ARK_A(A,1,1) = RCONST(41.0)/RCONST(200.0);
-    ARK_A(A,2,0) = RCONST(41.0)/RCONST(400.0);
-    ARK_A(A,2,1) = RCONST(-567603406766.0)/RCONST(11931857230679.0);
-    ARK_A(A,2,2) = RCONST(41.0)/RCONST(200.0);
-    ARK_A(A,3,0) = RCONST(683785636431.0)/RCONST(9252920307686.0);
-    ARK_A(A,3,2) = RCONST(-110385047103.0)/RCONST(1367015193373.0);
-    ARK_A(A,3,3) = RCONST(41.0)/RCONST(200.0);
-    ARK_A(A,4,0) = RCONST(3016520224154.0)/RCONST(10081342136671.0);
-    ARK_A(A,4,2) = RCONST(30586259806659.0)/RCONST(12414158314087.0);
-    ARK_A(A,4,3) = RCONST(-22760509404356.0)/RCONST(11113319521817.0);
-    ARK_A(A,4,4) = RCONST(41.0)/RCONST(200.0);
-    ARK_A(A,5,0) = RCONST(218866479029.0)/RCONST(1489978393911.0);
-    ARK_A(A,5,2) = RCONST(638256894668.0)/RCONST(5436446318841.0);
-    ARK_A(A,5,3) = RCONST(-1179710474555.0)/RCONST(5321154724896.0);
-    ARK_A(A,5,4) = RCONST(-60928119172.0)/RCONST(8023461067671.0);
-    ARK_A(A,5,5) = RCONST(41.0)/RCONST(200.0);
-    ARK_A(A,6,0) = RCONST(1020004230633.0)/RCONST(5715676835656.0);
-    ARK_A(A,6,2) = RCONST(25762820946817.0)/RCONST(25263940353407.0);
-    ARK_A(A,6,3) = RCONST(-2161375909145.0)/RCONST(9755907335909.0);
-    ARK_A(A,6,4) = RCONST(-211217309593.0)/RCONST(5846859502534.0);
-    ARK_A(A,6,5) = RCONST(-4269925059573.0)/RCONST(7827059040749.0);
-    ARK_A(A,6,6) = RCONST(41.0)/RCONST(200.0);
-    ARK_A(A,7,0) = RCONST(-872700587467.0)/RCONST(9133579230613.0);
-    ARK_A(A,7,3) = RCONST(22348218063261.0)/RCONST(9555858737531.0);
-    ARK_A(A,7,4) = RCONST(-1143369518992.0)/RCONST(8141816002931.0);
-    ARK_A(A,7,5) = RCONST(-39379526789629.0)/RCONST(19018526304540.0);
-    ARK_A(A,7,6) = RCONST(32727382324388.0)/RCONST(42900044865799.0);
-    ARK_A(A,7,7) = RCONST(41.0)/RCONST(200.0);
-
-    b[0] = RCONST(-872700587467.0)/RCONST(9133579230613.0);
-    b[3] = RCONST(22348218063261.0)/RCONST(9555858737531.0);
-    b[4] = RCONST(-1143369518992.0)/RCONST(8141816002931.0);
-    b[5] = RCONST(-39379526789629.0)/RCONST(19018526304540.0);
-    b[6] = RCONST(32727382324388.0)/RCONST(42900044865799.0);
-    b[7] = RCONST(41.0)/RCONST(200.0);
-
-    b2[0] = RCONST(-975461918565.0)/RCONST(9796059967033.0);
-    b2[3] = RCONST(78070527104295.0)/RCONST(32432590147079.0);
-    b2[4] = RCONST(-548382580838.0)/RCONST(3424219808633.0);
-    b2[5] = RCONST(-33438840321285.0)/RCONST(15594753105479.0);
-    b2[6] = RCONST(3629800801594.0)/RCONST(4656183773603.0);
-    b2[7] = RCONST(4035322873751.0)/RCONST(18575991585200.0);
-
-    c[1] = RCONST(41.0)/RCONST(100.0);
-    c[2] = RCONST(2935347310677.0)/RCONST(11292855782101.0);
-    c[3] = RCONST(1426016391358.0)/RCONST(7196633302097.0);
-    c[4] = RCONST(92.0)/RCONST(100.0);
-    c[5] = RCONST(24.0)/RCONST(100.0);
-    c[6] = RCONST(3.0)/RCONST(5.0);
-    c[7] = RCONST(1.0);
-    break;
-
-  default:
-
-    arkProcessError(NULL, ARK_ILL_INPUT, "ARKODE", 
-		    "ARKodeGetButcherTable", "Unknown Butcher table");
-    return(ARK_ILL_INPUT);
-
+  B->b = (realtype *) calloc( stages, sizeof(realtype) );
+  if (B->b == NULL) { ARKodeButcherTable_Free(B); return(NULL); }
+
+  B->c = (realtype *) calloc( stages, sizeof(realtype) );
+  if (B->c == NULL) { ARKodeButcherTable_Free(B); return(NULL); }
+
+  if (embedded) {
+    B->d = (realtype *) calloc( stages, sizeof(realtype) );
+    if (B->d == NULL) { ARKodeButcherTable_Free(B); return(NULL); }
   }
 
-  return(ARK_SUCCESS);
+  /* initialize order parameters */
+  B->q = 0;
+  B->p = 0;
+
+  return(B);
 }
 
+
+/*---------------------------------------------------------------
+  Routine to allocate and fill a Butcher table structure
+  ---------------------------------------------------------------*/
+ARKodeButcherTable ARKodeButcherTable_Create(int s, int q, int p, realtype *c,
+                                             realtype *A, realtype *b,
+                                             realtype *d)
+{
+  int i, j;
+  ARKodeButcherTable B;
+  booleantype embedded;
+
+  /* Check for legal number of stages */
+  if (s < 1) return(NULL);
+
+  /* Does the table have an embedding? */
+  embedded = (d != NULL) ? SUNTRUE : SUNFALSE;
+
+  /* Allocate Butcher table structure */
+  B = ARKodeButcherTable_Alloc(s, embedded);
+  if (B == NULL) return(NULL);
+
+  /* set the relevant parameters */
+  B->stages = s;
+  B->q = q;
+  B->p = p;
+
+  for (i=0; i<s; i++) {
+    B->c[i] = c[i];
+    B->b[i] = b[i];
+    for (j=0; j<s; j++) {
+      B->A[i][j] = A[i*s + j];
+    }
+  }
+
+  if (embedded)
+    for (i=0; i<s; i++)
+      B->d[i] = d[i];
+
+  return(B);
+}
+
+
+/*---------------------------------------------------------------
+  Routine to copy a Butcher table structure
+  ---------------------------------------------------------------*/
+ARKodeButcherTable ARKodeButcherTable_Copy(ARKodeButcherTable B)
+{
+  int i, j, s;
+  ARKodeButcherTable Bcopy;
+  booleantype embedded;
+
+  /* Check for legal input */
+  if (B == NULL) return(NULL);
+
+  /* Get the number of stages */
+  s = B->stages;
+
+  /* Does the table have an embedding? */
+  embedded = (B->d != NULL) ? SUNTRUE : SUNFALSE;
+
+  /* Allocate Butcher table structure */
+  Bcopy = ARKodeButcherTable_Alloc(s, embedded);
+  if (Bcopy == NULL) return(NULL);
+
+  /* set the relevant parameters */
+  Bcopy->stages = B->stages;
+  Bcopy->q = B->q;
+  Bcopy->p = B->p;
+
+  /* Copy Butcher table */
+  for (i=0; i<s; i++) {
+    Bcopy->c[i] = B->c[i];
+    Bcopy->b[i] = B->b[i];
+    for (j=0; j<s; j++) {
+      Bcopy->A[i][j] = B->A[i][j];
+    }
+  }
+
+  if (embedded)
+    for (i=0; i<s; i++)
+      Bcopy->d[i] = B->d[i];
+
+  return(Bcopy);
+}
+
+
+/*---------------------------------------------------------------
+  Routine to query the Butcher table structure workspace size
+  ---------------------------------------------------------------*/
+void ARKodeButcherTable_Space(ARKodeButcherTable B, sunindextype *liw,
+                              sunindextype *lrw)
+{
+  /* initialize outputs and return if B is not allocated */
+  *liw = 0;  *lrw = 0;
+  if (B == NULL)  return;
+
+  /* fill outputs based on B */
+  *liw = 3;
+  if (B->d != NULL) {
+    *lrw = B->stages * (B->stages + 3);
+  } else {
+    *lrw = B->stages * (B->stages + 2);
+  }
+}
+
+
+/*---------------------------------------------------------------
+  Routine to free a Butcher table structure
+  ---------------------------------------------------------------*/
+void ARKodeButcherTable_Free(ARKodeButcherTable B)
+{
+  int i;
+
+  /* Free each field within Butcher table structure, and then
+     free structure itself */
+  if (B != NULL) {
+    if (B->d != NULL)  free(B->d);
+    if (B->c != NULL)  free(B->c);
+    if (B->b != NULL)  free(B->b);
+    if (B->A != NULL) {
+      for (i=0; i<B->stages; i++)
+        if (B->A[i] != NULL)  free(B->A[i]);
+      free(B->A);
+    }
+
+    free(B);
+  }
+}
+
+
+/*---------------------------------------------------------------
+  Routine to print a Butcher table structure
+  ---------------------------------------------------------------*/
+void ARKodeButcherTable_Write(ARKodeButcherTable B, FILE *outfile)
+{
+  int i, j;
+  if (B == NULL) return;
+  fprintf(outfile, "  A = \n");
+  for (i=0; i<B->stages; i++) {
+    fprintf(outfile, "      ");
+    for (j=0; j<B->stages; j++)
+      fprintf(outfile, "%"RSYM"  ", B->A[i][j]);
+    fprintf(outfile, "\n");
+  }
+  fprintf(outfile, "  c = ");
+  for (i=0; i<B->stages; i++)
+    fprintf(outfile, "%"RSYM"  ", B->c[i]);
+  fprintf(outfile, "\n");
+  fprintf(outfile, "  b = ");
+  for (i=0; i<B->stages; i++)
+    fprintf(outfile, "%"RSYM"  ", B->b[i]);
+  fprintf(outfile, "\n");
+  fprintf(outfile, "  d = ");
+  for (i=0; i<B->stages; i++)
+    fprintf(outfile, "%"RSYM"  ", B->d[i]);
+  fprintf(outfile, "\n");
+}
+
+
+/*---------------------------------------------------------------
+  Routine to determine the analytical order of accuracy for a
+  specified Butcher table.  We check the analytical [necessary]
+  order conditions up through order 6.  After that, we revert to
+  the [sufficient] Butcher simplifying assumptions.
+
+  Inputs:
+     B: Butcher table to check
+     outfile: file pointer to print results; if NULL then no
+        outputs are printed
+
+  Outputs:
+     q: measured order of accuracy for method
+     p: measured order of accuracy for embedding [0 if not present]
+
+  Return values:
+     0 (success): internal {q,p} values match analytical order
+     1 (warning): internal {q,p} values are lower than analytical
+        order, or method achieves maximum order possible with this
+        routine and internal {q,p} are higher.
+    -1 (failure): internal p and q values are higher than analytical
+         order
+    -2 (failure): NULL-valued B (or critical contents)
+
+  Note: for embedded methods, if the return flags for p and q would
+  differ, failure takes precedence over warning, which takes
+  precedence over success.
+  ---------------------------------------------------------------*/
+int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int *q, int *p, FILE *outfile)
+{
+  /* local variables */
+  int q_SA, p_SA, i, s;
+  realtype **A, *b, *c, *d;
+  booleantype alltrue;
+  (*q) = (*p) = 0;
+
+  /* verify non-NULL Butcher table structure and contents */
+  if (B == NULL)  return(-2);
+  if (B->stages < 1)  return(-2);
+  if (B->A == NULL)  return(-2);
+  for (i=0; i<B->stages; i++)
+    if (B->A[i] == NULL)  return(-2);
+  if (B->c == NULL)  return(-2);
+  if (B->b == NULL)  return(-2);
+
+  /* set shortcuts for Butcher table components */
+  A = B->A;
+  b = B->b;
+  c = B->c;
+  d = B->d;
+  s = B->stages;
+
+  /* check method order */
+  if (outfile)  fprintf(outfile,"ARKodeButcherTable_CheckOrder:\n");
+
+  /*    row sum condition */
+  if (__rowsum(A, c, s)) {
+    (*q) = 0;
+  } else {
+    (*q) = -1;
+    if (outfile)  fprintf(outfile,"  method fails row sum condition\n");
+  }
+  /*    order 1 condition */
+  if ((*q) == 0) {
+    if (__order1(b, s)) {
+      (*q) = 1;
+    } else {
+      if (outfile)  fprintf(outfile,"  method fails order 1 condition\n");
+    }
+  }
+  /*    order 2 condition */
+  if ((*q) == 1) {
+    if (__order2(b, c, s)) {
+      (*q) = 2;
+    } else {
+      if (outfile)  fprintf(outfile,"  method fails order 2 condition\n");
+    }
+  }
+  /*    order 3 conditions */
+  if ((*q) == 2) {
+    alltrue = SUNTRUE;
+    if (!__order3a(b, c, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 3 condition A\n");
+    }
+    if (!__order3b(b, A, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 3 condition B\n");
+    }
+    if (alltrue)  (*q) = 3;
+  }
+  /*    order 4 conditions */
+  if ((*q) == 3) {
+    alltrue = SUNTRUE;
+    if (!__order4a(b, c, c, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 4 condition A\n");
+    }
+    if (!__order4b(b, c, A, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 4 condition B\n");
+    }
+    if (!__order4c(b, A, c, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 4 condition C\n");
+    }
+    if (!__order4d(b, A, A, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 4 condition D\n");
+    }
+    if (alltrue)  (*q) = 4;
+  }
+  /*    order 5 conditions */
+  if ((*q) == 4) {
+    alltrue = SUNTRUE;
+    if (!__order5a(b, c, c, c, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 5 condition A\n");
+    }
+    if (!__order5b(b, c, c, A, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 5 condition B\n");
+    }
+    if (!__order5c(b, A, c, A, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 5 condition C\n");
+    }
+    if (!__order5d(b, c, A, c, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 5 condition D\n");
+    }
+    if (!__order5e(b, A, c, c, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 5 condition E\n");
+    }
+    if (!__order5f(b, c, A, A, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 5 condition F\n");
+    }
+    if (!__order5g(b, A, c, A, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 5 condition G\n");
+    }
+    if (!__order5h(b, A, A, c, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 5 condition H\n");
+    }
+    if (!__order5i(b, A, A, A, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 5 condition I\n");
+    }
+    if (alltrue)  (*q) = 5;
+  }
+  /*    order 6 conditions */
+  if ((*q) == 5) {
+    alltrue = SUNTRUE;
+    if (!__order6a(b, c, c, c, c, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 6 condition A\n");
+    }
+    if (!__order6b(b, c, c, c, A, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 6 condition B\n");
+    }
+    if (!__order6c(b, c, A, c, A, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 6 condition C\n");
+    }
+    if (!__order6d(b, c, c, A, c, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 6 condition D\n");
+    }
+    if (!__order6e(b, c, c, A, A, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 6 condition E\n");
+    }
+    if (!__order6f(b, A, A, c, A, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 6 condition F\n");
+    }
+    if (!__order6g(b, c, A, c, c, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 6 condition G\n");
+    }
+    if (!__order6h(b, c, A, c, A, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 6 condition H\n");
+    }
+    if (!__order6i(b, c, A, A, c, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 6 condition I\n");
+    }
+    if (!__order6j(b, c, A, A, A, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 6 condition J\n");
+    }
+    if (!__order6k(b, A, c, c, c, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 6 condition K\n");
+    }
+    if (!__order6l(b, A, c, c, A, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 6 condition L\n");
+    }
+    if (!__order6m(b, A, A, c, A, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 6 condition M\n");
+    }
+    if (!__order6n(b, A, c, A, c, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 6 condition N\n");
+    }
+    if (!__order6o(b, A, c, A, A, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 6 condition O\n");
+    }
+    if (!__order6p(b, A, A, c, c, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 6 condition P\n");
+    }
+    if (!__order6q(b, A, A, c, A, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 6 condition Q\n");
+    }
+    if (!__order6r(b, A, A, A, c, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 6 condition R\n");
+    }
+    if (!__order6s(b, A, A, A, A, c, s)) {
+      alltrue = SUNFALSE;
+      if (outfile)  fprintf(outfile,"  method fails order 6 condition S\n");
+    }
+    if (alltrue)  (*q) = 6;
+  }
+  /*    higher order conditions (via simplifying assumptions) */
+  if ((*q) == 6) {
+    if (outfile)  fprintf(outfile,"  method order >= 6; reverting to simplifying assumptions\n");
+    q_SA = __ButcherSimplifyingAssumptions(A, b, c, s);
+    (*q) = SUNMAX((*q), q_SA);
+    if (outfile)  fprintf(outfile,"  method order = %i\n", (*q));
+  }
+
+  /* check embedding order */
+  if (d) {
+    if (outfile)  fprintf(outfile,"\n");
+    b = d;
+
+    /*    row sum condition */
+    if (__rowsum(A, c, s)) {
+      (*p) = 0;
+    } else {
+      (*p) = -1;
+      if (outfile)  fprintf(outfile,"  embedding fails row sum condition\n");
+    }
+    /*    order 1 condition */
+    if ((*p) == 0) {
+      if (__order1(b, s)) {
+        (*p) = 1;
+      } else {
+        if (outfile)  fprintf(outfile,"  embedding fails order 1 condition\n");
+      }
+    }
+    /*    order 2 condition */
+    if ((*p) == 1) {
+      if (__order2(b, c, s)) {
+        (*p) = 2;
+      } else {
+        if (outfile)  fprintf(outfile,"  embedding fails order 2 condition\n");
+      }
+    }
+    /*    order 3 conditions */
+    if ((*p) == 2) {
+      alltrue = SUNTRUE;
+      if (!__order3a(b, c, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 3 condition A\n");
+      }
+      if (!__order3b(b, A, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 3 condition B\n");
+      }
+      if (alltrue)  (*p) = 3;
+    }
+    /*    order 4 conditions */
+    if ((*p) == 3) {
+      alltrue = SUNTRUE;
+      if (!__order4a(b, c, c, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 4 condition A\n");
+      }
+      if (!__order4b(b, c, A, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 4 condition B\n");
+      }
+      if (!__order4c(b, A, c, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 4 condition C\n");
+      }
+      if (!__order4d(b, A, A, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 4 condition D\n");
+      }
+      if (alltrue)  (*p) = 4;
+    }
+    /*    order 5 conditions */
+    if ((*p) == 4) {
+      alltrue = SUNTRUE;
+      if (!__order5a(b, c, c, c, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 5 condition A\n");
+      }
+      if (!__order5b(b, c, c, A, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 5 condition B\n");
+      }
+      if (!__order5c(b, A, c, A, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 5 condition C\n");
+      }
+      if (!__order5d(b, c, A, c, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 5 condition D\n");
+      }
+      if (!__order5e(b, A, c, c, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 5 condition E\n");
+      }
+      if (!__order5f(b, c, A, A, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 5 condition F\n");
+      }
+      if (!__order5g(b, A, c, A, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 5 condition G\n");
+      }
+      if (!__order5h(b, A, A, c, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 5 condition H\n");
+      }
+      if (!__order5i(b, A, A, A, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 5 condition I\n");
+      }
+      if (alltrue)  (*p) = 5;
+    }
+    /*    order 6 conditions */
+    if ((*p) == 5) {
+      alltrue = SUNTRUE;
+      if (!__order6a(b, c, c, c, c, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 6 condition A\n");
+      }
+      if (!__order6b(b, c, c, c, A, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 6 condition B\n");
+      }
+      if (!__order6c(b, c, A, c, A, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 6 condition C\n");
+      }
+      if (!__order6d(b, c, c, A, c, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 6 condition D\n");
+      }
+      if (!__order6e(b, c, c, A, A, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 6 condition E\n");
+      }
+      if (!__order6f(b, A, A, c, A, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 6 condition F\n");
+      }
+      if (!__order6g(b, c, A, c, c, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 6 condition G\n");
+      }
+      if (!__order6h(b, c, A, c, A, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 6 condition H\n");
+      }
+      if (!__order6i(b, c, A, A, c, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 6 condition I\n");
+      }
+      if (!__order6j(b, c, A, A, A, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 6 condition J\n");
+      }
+      if (!__order6k(b, A, c, c, c, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 6 condition K\n");
+      }
+      if (!__order6l(b, A, c, c, A, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 6 condition L\n");
+      }
+      if (!__order6m(b, A, A, c, A, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 6 condition M\n");
+      }
+      if (!__order6n(b, A, c, A, c, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 6 condition N\n");
+      }
+      if (!__order6o(b, A, c, A, A, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 6 condition O\n");
+      }
+      if (!__order6p(b, A, A, c, c, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 6 condition P\n");
+      }
+      if (!__order6q(b, A, A, c, A, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 6 condition Q\n");
+      }
+      if (!__order6r(b, A, A, A, c, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 6 condition R\n");
+      }
+      if (!__order6s(b, A, A, A, A, c, s)) {
+        alltrue = SUNFALSE;
+        if (outfile)  fprintf(outfile,"  embedding fails order 6 condition S\n");
+      }
+      if (alltrue)  (*p) = 6;
+    }
+    /*    higher order conditions (via simplifying assumptions) */
+    if ((*p) == 6) {
+      if (outfile)  fprintf(outfile,"  embedding order >= 6; reverting to simplifying assumptions\n");
+      p_SA = __ButcherSimplifyingAssumptions(A, b, c, s);
+      (*p) = SUNMAX((*p), p_SA);
+      if (outfile)  fprintf(outfile,"  embedding order = %i\n", (*p));
+    }
+  }
+
+  /* compare results against stored values and return */
+
+  /*    check failure modes first */
+  if (((*q) < B->q) && ((*q) < 6))  return(-1);
+  if (d)
+    if (((*p) < B->p) && ((*p) < 6))  return(-1);
+
+  /*    check warning modes */
+  if ((*q) > B->q)  return(1);
+  if (d)
+    if ((*p) > B->p)  return(1);
+  if (((*q) < B->q) && ((*q) >= 6)) return(1);
+  if (d)
+    if (((*p) < B->p) && ((*p) >= 6)) return(1);
+
+  /*    return success */
+  return(0);
+}
+
+
+/*---------------------------------------------------------------
+  Routine to determine the analytical order of accuracy for a
+  specified pair of Butcher tables in an ARK pair.  We check the
+  analytical order conditions up through order 6.
+
+  Inputs:
+     B1, B2: Butcher tables to check
+     outfile: file pointer to print results; if NULL then no
+        outputs are printed
+
+  Outputs:
+     q: measured order of accuracy for method
+     p: measured order of accuracy for embedding [0 if not present]
+
+  Return values:
+     0 (success): completed checks
+     1 (warning): internal {q,p} values are lower than analytical
+        order, or method achieves maximum order possible with this
+        routine and internal {q,p} are higher.
+    -1 (failure): NULL-valued B1, B2 (or critical contents)
+
+  Note: for embedded methods, if the return flags for p and q would
+  differ, warning takes precedence over success.
+  ---------------------------------------------------------------*/
+int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1,
+                                     ARKodeButcherTable B2,
+                                     int *q, int *p, FILE *outfile)
+{
+  /* local variables */
+  int i, j, k, l, m, n, s;
+  booleantype alltrue;
+  realtype **A[2], *b[2], *c[2], *d[2];
+  (*q) = (*p) = 0;
+
+  /* verify non-NULL Butcher table structure and contents */
+  if (B1 == NULL)  return(-1);
+  if (B1->stages < 1)  return(-1);
+  if (B1->A == NULL)  return(-1);
+  for (i=0; i<B1->stages; i++)
+    if (B1->A[i] == NULL)  return(-1);
+  if (B1->c == NULL)  return(-1);
+  if (B1->b == NULL)  return(-1);
+  if (B2 == NULL)  return(-1);
+  if (B2->stages < 1)  return(-1);
+  if (B2->A == NULL)  return(-1);
+  for (i=0; i<B2->stages; i++)
+    if (B2->A[i] == NULL)  return(-1);
+  if (B2->c == NULL)  return(-1);
+  if (B2->b == NULL)  return(-1);
+  if (B1->stages != B2->stages)  return(-1);
+
+  /* set shortcuts for Butcher table components */
+  A[0] = B1->A;
+  b[0] = B1->b;
+  c[0] = B1->c;
+  d[0] = B1->d;
+  A[1] = B2->A;
+  b[1] = B2->b;
+  c[1] = B2->c;
+  d[1] = B1->d;
+  s = B1->stages;
+
+  /* check method order */
+  if (outfile)  fprintf(outfile,"ARKodeButcherTable_CheckARKOrder:\n");
+
+  /*    row sum conditions */
+  if (__rowsum(A[0], c[0], s) && __rowsum(A[1], c[1], s)) {
+    (*q) = 0;
+  } else {
+    (*q) = -1;
+    if (outfile)  fprintf(outfile,"  method fails row sum conditions\n");
+  }
+  /*    order 1 conditions */
+  if ((*q) == 0) {
+    if (__order1(b[0], s) && __order1(b[1], s)) {
+      (*q) = 1;
+    } else {
+      if (outfile)  fprintf(outfile,"  method fails order 1 conditions\n");
+    }
+  }
+  /*    order 2 conditions */
+  if ((*q) == 1) {
+    alltrue = SUNTRUE;
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        alltrue = (alltrue && __order2(b[i], c[j], s));
+    if (alltrue) {
+      (*q) = 2;
+    } else {
+      if (outfile)  fprintf(outfile,"  method fails order 2 conditions\n");
+    }
+  }
+  /*    order 3 conditions */
+  if ((*q) == 2) {
+    alltrue = SUNTRUE;
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          alltrue = (alltrue && __order3a(b[i], c[j], c[k], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 3 conditions A\n");
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          alltrue = (alltrue && __order3b(b[i], A[j], c[k], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 3 conditions B\n");
+    if (alltrue)  (*q) = 3;
+  }
+  /*    order 4 conditions */
+  if ((*q) == 3) {
+    alltrue = SUNTRUE;
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            alltrue = (alltrue && __order4a(b[i], c[j], c[k], c[l], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 4 conditions A\n");
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            alltrue = (alltrue && __order4b(b[i], c[j], A[k], c[l], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 4 conditions B\n");
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            alltrue = (alltrue && __order4c(b[i], A[j], c[k], c[l], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 4 conditions C\n");
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            alltrue = (alltrue && __order4d(b[i], A[j], A[k], c[l], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 4 conditions D\n");
+    if (alltrue)  (*q) = 4;
+  }
+  /*    order 5 conditions */
+  if ((*q) == 4) {
+    alltrue = SUNTRUE;
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            for (m=0; m<2; m++)
+              alltrue = (alltrue && __order5a(b[i], c[j], c[k], c[l], c[m], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 5 conditions A\n");
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            for (m=0; m<2; m++)
+              alltrue = (alltrue && __order5b(b[i], c[j], c[k], A[l], c[m], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 5 conditions B\n");
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            for (m=0; m<2; m++)
+              alltrue = (alltrue && __order5c(b[i], A[j], c[k], A[l], c[m], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 5 conditions C\n");
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            for (m=0; m<2; m++)
+              alltrue = (alltrue && __order5d(b[i], c[j], A[k], c[l], c[m], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 5 conditions D\n");
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            for (m=0; m<2; m++)
+              alltrue = (alltrue && __order5e(b[i], A[j], c[k], c[l], c[m], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 5 conditions E\n");
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            for (m=0; m<2; m++)
+              alltrue = (alltrue && __order5f(b[i], c[j], A[k], A[l], c[m], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 5 conditions F\n");
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            for (m=0; m<2; m++)
+              alltrue = (alltrue && __order5g(b[i], A[j], c[k], A[l], c[m], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 5 conditions G\n");
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            for (m=0; m<2; m++)
+              alltrue = (alltrue && __order5h(b[i], A[j], A[k], c[l], c[m], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 5 conditions H\n");
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            for (m=0; m<2; m++)
+              alltrue = (alltrue && __order5i(b[i], A[j], A[k], A[l], c[m], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 5 conditions I\n");
+    if (alltrue)  (*q) = 5;
+  }
+  /*    order 6 conditions */
+  if ((*q) == 5) {
+    alltrue = SUNTRUE;
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            for (m=0; m<2; m++)
+              for (n=0; n<2; n++)
+                alltrue = (alltrue && __order6a(b[i], c[j], c[k], c[l], c[m], c[n], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 6 conditions A\n");
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            for (m=0; m<2; m++)
+              for (n=0; n<2; n++)
+                alltrue = (alltrue && __order6b(b[i], c[j], c[k], c[l], A[m], c[n], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 6 conditions B\n");
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            for (m=0; m<2; m++)
+              for (n=0; n<2; n++)
+                alltrue = (alltrue && __order6c(b[i], c[j], A[k], c[l], A[m], c[n], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 6 conditions C\n");
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            for (m=0; m<2; m++)
+              for (n=0; n<2; n++)
+                alltrue = (alltrue && __order6d(b[i], c[j], c[k], A[l], c[m], c[n], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 6 conditions D\n");
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            for (m=0; m<2; m++)
+              for (n=0; n<2; n++)
+                alltrue = (alltrue && __order6e(b[i], c[j], c[k], A[l], A[m], c[n], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 6 conditions E\n");
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            for (m=0; m<2; m++)
+              for (n=0; n<2; n++)
+                alltrue = (alltrue && __order6f(b[i], A[j], A[k], c[l], A[m], c[n], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 6 conditions F\n");
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            for (m=0; m<2; m++)
+              for (n=0; n<2; n++)
+                alltrue = (alltrue && __order6g(b[i], c[j], A[k], c[l], c[m], c[n], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 6 conditions G\n");
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            for (m=0; m<2; m++)
+              for (n=0; n<2; n++)
+                alltrue = (alltrue && __order6h(b[i], c[j], A[k], c[l], A[m], c[n], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 6 conditions H\n");
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            for (m=0; m<2; m++)
+              for (n=0; n<2; n++)
+                alltrue = (alltrue && __order6i(b[i], c[j], A[k], A[l], c[m], c[n], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 6 conditions I\n");
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            for (m=0; m<2; m++)
+              for (n=0; n<2; n++)
+                alltrue = (alltrue && __order6j(b[i], c[j], A[k], A[l], A[m], c[n], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 6 conditions J\n");
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            for (m=0; m<2; m++)
+              for (n=0; n<2; n++)
+                alltrue = (alltrue && __order6k(b[i], A[j], c[k], c[l], c[m], c[n], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 6 conditions K\n");
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            for (m=0; m<2; m++)
+              for (n=0; n<2; n++)
+                alltrue = (alltrue && __order6l(b[i], A[j], c[k], c[l], A[m], c[n], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 6 conditions L\n");
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            for (m=0; m<2; m++)
+              for (n=0; n<2; n++)
+                alltrue = (alltrue && __order6m(b[i], A[j], A[k], c[l], A[m], c[n], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 6 conditions M\n");
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            for (m=0; m<2; m++)
+              for (n=0; n<2; n++)
+                alltrue = (alltrue && __order6n(b[i], A[j], c[k], A[l], c[m], c[n], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 6 conditions N\n");
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            for (m=0; m<2; m++)
+              for (n=0; n<2; n++)
+                alltrue = (alltrue && __order6o(b[i], A[j], c[k], A[l], A[m], c[n], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 6 conditions O\n");
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            for (m=0; m<2; m++)
+              for (n=0; n<2; n++)
+                alltrue = (alltrue && __order6p(b[i], A[j], A[k], c[l], c[m], c[n], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 6 conditions P\n");
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            for (m=0; m<2; m++)
+              for (n=0; n<2; n++)
+                alltrue = (alltrue && __order6q(b[i], A[j], A[k], c[l], A[m], c[n], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 6 conditions Q\n");
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            for (m=0; m<2; m++)
+              for (n=0; n<2; n++)
+                alltrue = (alltrue && __order6r(b[i], A[j], A[k], A[l], c[m], c[n], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 6 conditions R\n");
+    for (i=0; i<2; i++)
+      for (j=0; j<2; j++)
+        for (k=0; k<2; k++)
+          for (l=0; l<2; l++)
+            for (m=0; m<2; m++)
+              for (n=0; n<2; n++)
+                alltrue = (alltrue && __order6s(b[i], A[j], A[k], A[l], A[m], c[n], s));
+    if ( (!alltrue) && outfile)  fprintf(outfile,"  method fails order 6 conditions S\n");
+    if (alltrue)  (*q) = 6;
+  }
+
+  /* check embedding order */
+  if (d[0] && d[1]) {
+    if (outfile)  fprintf(outfile,"\n");
+
+    /*    row sum conditions */
+    if (__rowsum(A[0], c[0], s) && __rowsum(A[1], c[1], s)) {
+      (*p) = 0;
+    } else {
+      (*p) = -1;
+      if (outfile)  fprintf(outfile,"  embedding fails row sum conditions\n");
+    }
+    /*    order 1 conditions */
+    if ((*p) == 0) {
+      if (__order1(d[0], s) && __order1(d[1], s)) {
+        (*p) = 1;
+      } else {
+        if (outfile)  fprintf(outfile,"  embedding fails order 1 conditions\n");
+      }
+    }
+    /*    order 2 conditions */
+    if ((*p) == 1) {
+      alltrue = SUNTRUE;
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          alltrue = (alltrue && __order2(d[i], c[j], s));
+      if (alltrue) {
+        (*p) = 2;
+      } else {
+        if (outfile)  fprintf(outfile,"  embedding fails order 2 conditions\n");
+      }
+    }
+    /*    order 3 conditions */
+    if ((*p) == 2) {
+      alltrue = SUNTRUE;
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            alltrue = (alltrue && __order3a(d[i], c[j], c[k], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 3 conditions A\n");
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            alltrue = (alltrue && __order3b(d[i], A[j], c[k], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 3 conditions B\n");
+      if (alltrue)  (*p) = 3;
+    }
+    /*    order 4 conditions */
+    if ((*p) == 3) {
+      alltrue = SUNTRUE;
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              alltrue = (alltrue && __order4a(d[i], c[j], c[k], c[l], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 4 conditions A\n");
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              alltrue = (alltrue && __order4b(d[i], c[j], A[k], c[l], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 4 conditions B\n");
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              alltrue = (alltrue && __order4c(d[i], A[j], c[k], c[l], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 4 conditions C\n");
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              alltrue = (alltrue && __order4d(d[i], A[j], A[k], c[l], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 4 conditions D\n");
+      if (alltrue)  (*p) = 4;
+    }
+    /*    order 5 conditions */
+    if ((*p) == 4) {
+      alltrue = SUNTRUE;
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              for (m=0; m<2; m++)
+                alltrue = (alltrue && __order5a(d[i], c[j], c[k], c[l], c[m], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 5 conditions A\n");
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              for (m=0; m<2; m++)
+                alltrue = (alltrue && __order5b(d[i], c[j], c[k], A[l], c[m], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 5 conditions B\n");
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              for (m=0; m<2; m++)
+                alltrue = (alltrue && __order5c(d[i], A[j], c[k], A[l], c[m], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 5 conditions C\n");
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              for (m=0; m<2; m++)
+                alltrue = (alltrue && __order5d(d[i], c[j], A[k], c[l], c[m], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 5 conditions D\n");
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              for (m=0; m<2; m++)
+                alltrue = (alltrue && __order5e(d[i], A[j], c[k], c[l], c[m], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 5 conditions E\n");
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              for (m=0; m<2; m++)
+                alltrue = (alltrue && __order5f(d[i], c[j], A[k], A[l], c[m], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 5 conditions F\n");
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              for (m=0; m<2; m++)
+                alltrue = (alltrue && __order5g(d[i], A[j], c[k], A[l], c[m], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 5 conditions G\n");
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              for (m=0; m<2; m++)
+                alltrue = (alltrue && __order5h(d[i], A[j], A[k], c[l], c[m], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 5 conditions H\n");
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              for (m=0; m<2; m++)
+                alltrue = (alltrue && __order5i(d[i], A[j], A[k], A[l], c[m], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 5 conditions I\n");
+      if (alltrue)  (*p) = 5;
+    }
+    /*    order 6 conditions */
+    if ((*p) == 5) {
+      alltrue = SUNTRUE;
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              for (m=0; m<2; m++)
+                for (n=0; n<2; n++)
+                  alltrue = (alltrue && __order6a(d[i], c[j], c[k], c[l], c[m], c[n], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 6 conditions A\n");
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              for (m=0; m<2; m++)
+                for (n=0; n<2; n++)
+                  alltrue = (alltrue && __order6b(d[i], c[j], c[k], c[l], A[m], c[n], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 6 conditions B\n");
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              for (m=0; m<2; m++)
+                for (n=0; n<2; n++)
+                  alltrue = (alltrue && __order6c(d[i], c[j], A[k], c[l], A[m], c[n], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 6 conditions C\n");
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              for (m=0; m<2; m++)
+                for (n=0; n<2; n++)
+                  alltrue = (alltrue && __order6d(d[i], c[j], c[k], A[l], c[m], c[n], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 6 conditions D\n");
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              for (m=0; m<2; m++)
+                for (n=0; n<2; n++)
+                  alltrue = (alltrue && __order6e(d[i], c[j], c[k], A[l], A[m], c[n], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 6 conditions E\n");
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              for (m=0; m<2; m++)
+                for (n=0; n<2; n++)
+                  alltrue = (alltrue && __order6f(d[i], A[j], A[k], c[l], A[m], c[n], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 6 conditions F\n");
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              for (m=0; m<2; m++)
+                for (n=0; n<2; n++)
+                  alltrue = (alltrue && __order6g(d[i], c[j], A[k], c[l], c[m], c[n], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 6 conditions G\n");
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              for (m=0; m<2; m++)
+                for (n=0; n<2; n++)
+                  alltrue = (alltrue && __order6h(d[i], c[j], A[k], c[l], A[m], c[n], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 6 conditions H\n");
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              for (m=0; m<2; m++)
+                for (n=0; n<2; n++)
+                  alltrue = (alltrue && __order6i(d[i], c[j], A[k], A[l], c[m], c[n], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 6 conditions I\n");
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              for (m=0; m<2; m++)
+                for (n=0; n<2; n++)
+                  alltrue = (alltrue && __order6j(d[i], c[j], A[k], A[l], A[m], c[n], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 6 conditions J\n");
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              for (m=0; m<2; m++)
+                for (n=0; n<2; n++)
+                  alltrue = (alltrue && __order6k(d[i], A[j], c[k], c[l], c[m], c[n], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 6 conditions K\n");
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              for (m=0; m<2; m++)
+                for (n=0; n<2; n++)
+                  alltrue = (alltrue && __order6l(d[i], A[j], c[k], c[l], A[m], c[n], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 6 conditions L\n");
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              for (m=0; m<2; m++)
+                for (n=0; n<2; n++)
+                  alltrue = (alltrue && __order6m(d[i], A[j], A[k], c[l], A[m], c[n], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 6 conditions M\n");
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              for (m=0; m<2; m++)
+                for (n=0; n<2; n++)
+                  alltrue = (alltrue && __order6n(d[i], A[j], c[k], A[l], c[m], c[n], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 6 conditions N\n");
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              for (m=0; m<2; m++)
+                for (n=0; n<2; n++)
+                  alltrue = (alltrue && __order6o(d[i], A[j], c[k], A[l], A[m], c[n], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 6 conditions O\n");
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              for (m=0; m<2; m++)
+                for (n=0; n<2; n++)
+                  alltrue = (alltrue && __order6p(d[i], A[j], A[k], c[l], c[m], c[n], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 6 conditions P\n");
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              for (m=0; m<2; m++)
+                for (n=0; n<2; n++)
+                  alltrue = (alltrue && __order6q(d[i], A[j], A[k], c[l], A[m], c[n], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 6 conditions Q\n");
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              for (m=0; m<2; m++)
+                for (n=0; n<2; n++)
+                  alltrue = (alltrue && __order6r(d[i], A[j], A[k], A[l], c[m], c[n], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 6 conditions R\n");
+      for (i=0; i<2; i++)
+        for (j=0; j<2; j++)
+          for (k=0; k<2; k++)
+            for (l=0; l<2; l++)
+              for (m=0; m<2; m++)
+                for (n=0; n<2; n++)
+                  alltrue = (alltrue && __order6s(d[i], A[j], A[k], A[l], A[m], c[n], s));
+      if ( (!alltrue) && outfile)  fprintf(outfile,"  embedding fails order 6 conditions S\n");
+      if (alltrue)  (*p) = 6;
+    }
+  }
+
+  /* compare results against stored values and return */
+
+  /*    check warning modes */
+  if ((*q) > B1->q)  return(1);
+  if ((*q) > B2->q)  return(1);
+  if (d[0] && d[1]) {
+    if ((*p) > B1->p)  return(1);
+    if ((*p) > B2->p)  return(1);
+  }
+  if (((*q) < B1->q) && ((*q) == 6)) return(1);
+  if (((*q) < B2->q) && ((*q) == 6)) return(1);
+  if (d[0] && d[1]) {
+    if (((*p) < B1->p) && ((*p) == 6)) return(1);
+    if (((*p) < B2->p) && ((*p) == 6)) return(1);
+  }
+
+  /*    return success */
+  return(0);
+}
+
+
+/*---------------------------------------------------------------
+  Private utility routines for checking method order
+  ---------------------------------------------------------------*/
+
+/*---------------------------------------------------------------
+  Utility routine to compute small dense matrix-vector product
+       b = A*x
+  Here A is (s x s), x and b are (s x 1).  Returns 0 on success,
+  nonzero on failure.
+  ---------------------------------------------------------------*/
+static int __mv(realtype **A, realtype *x, int s, realtype *b)
+{
+  int i, j;
+  if ((A == NULL) || (x == NULL) || (b == NULL) || (s < 1))
+    return(1);
+  for (i=0; i<s; i++)  b[i] = RCONST(0.0);
+  for (i=0; i<s; i++)
+    for (j=0; j<s; j++)
+      b[i] += A[i][j]*x[j];
+  return(0);
+}
+
+
+/*---------------------------------------------------------------
+  Utility routine to compute small vector .* vector product
+       z = x.*y   [Matlab notation]
+  Here all vectors are (s x 1).   Returns 0 on success,
+  nonzero on failure.
+  ---------------------------------------------------------------*/
+static int __vv(realtype *x, realtype *y, int s, realtype *z)
+{
+  int i;
+  if ((x == NULL) || (y == NULL) || (z == NULL) || (s < 1))
+    return(1);
+  for (i=0; i<s; i++)
+    z[i] = x[i]*y[i];
+  return(0);
+}
+
+
+/*---------------------------------------------------------------
+  Utility routine to compute small vector .^ int
+       z = x.^l   [Matlab notation]
+  Here all vectors are (s x 1).   Returns 0 on success,
+  nonzero on failure.
+  ---------------------------------------------------------------*/
+static int __vp(realtype *x, int l, int s, realtype *z)
+{
+  int i;
+  if ((x == NULL) || (z == NULL) || (s < 1) || (s < 0))
+    return(1);
+  for (i=0; i<s; i++)
+    z[i] = SUNRpowerI(x[i],l);
+  return(0);
+}
+
+
+/*---------------------------------------------------------------
+  Utility routine to compute small vector dot product:
+       d = dot(x,y)
+  Here x and y are (s x 1), and d is scalar.   Returns 0 on success,
+  nonzero on failure.
+  ---------------------------------------------------------------*/
+static int __dot(realtype *x, realtype *y, int s, realtype *d)
+{
+  int i;
+  if ((x == NULL) || (y == NULL) || (d == NULL) || (s < 1))
+    return(1);
+  (*d) = RCONST(0.0);
+  for (i=0; i<s; i++)
+    (*d) += x[i]*y[i];
+  return(0);
+}
+
+
+/*---------------------------------------------------------------
+  Utility routines to check specific order conditions.  Each
+  returns SUNTRUE on success, SUNFALSE on failure.
+     Order 0:  __rowsum
+     Order 1:  __order1
+     Order 2:  __order2
+     Order 3:  __order3a and __order3b
+     Order 4:  __order4a through __order4d
+     Order 5:  __order5a through __order5i
+     Order 6:  __order6a through __order6s
+  ---------------------------------------------------------------*/
+
+/* c(i) = sum(A(i,:)) */
+static booleantype __rowsum(realtype **A, realtype *c, int s)
+{
+  int i, j;
+  realtype rsum;
+  for (i=0; i<s; i++) {
+    rsum = RCONST(0.0);
+    for (j=0; j<s; j++)
+      rsum += A[i][j];
+    if (SUNRabs(rsum - c[i]) > TOL)
+      return(SUNFALSE);
+  }
+  return(SUNTRUE);
+}
+
+/* b'*e = 1 */
+static booleantype __order1(realtype *b, int s)
+{
+  int i;
+  realtype err = RCONST(1.0);
+  for (i=0; i<s; i++)
+    err -= b[i];
+  return (SUNRabs(err) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* b'*c = 1/2 */
+static booleantype __order2(realtype *b, realtype *c, int s)
+{
+  realtype bc;
+  if (__dot(b,c,s,&bc))  return(SUNFALSE);
+  return (SUNRabs(bc - RCONST(0.5)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* b'*(c1.*c2) = 1/3 */
+static booleantype __order3a(realtype *b, realtype *c1, realtype *c2, int s)
+{
+  realtype bcc;
+  realtype *tmp = calloc( s, sizeof(realtype) );
+  if (__vv(c1,c2,s,tmp)) { free(tmp); return(SUNFALSE); }
+  if (__dot(b,tmp,s,&bcc))  return(SUNFALSE);
+  free(tmp);
+  return (SUNRabs(bcc - RCONST(1.0)/RCONST(3.0)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* b'*(A*c) = 1/6 */
+static booleantype __order3b(realtype *b, realtype **A, realtype *c, int s)
+{
+  realtype bAc;
+  realtype *tmp = calloc( s, sizeof(realtype) );
+  if (__mv(A,c,s,tmp)) { free(tmp); return(SUNFALSE); }
+  if (__dot(b,tmp,s,&bAc))  return(SUNFALSE);
+  free(tmp);
+  return (SUNRabs(bAc - RCONST(1.0)/RCONST(6.0)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* b'*(c1.*c2.*c3) = 1/4 */
+static booleantype __order4a(realtype *b, realtype *c1, realtype *c2, realtype *c3, int s)
+{
+  realtype bccc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  if (__vv(c1,c2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__vv(c3,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__dot(b,tmp2,s,&bccc))  return(SUNFALSE);
+  free(tmp1);  free(tmp2);
+  return (SUNRabs(bccc - RCONST(0.25)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* (b.*c1)'*(A*c2) = 1/8 */
+static booleantype __order4b(realtype *b, realtype *c1, realtype **A, realtype *c2, int s)
+{
+  realtype bcAc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  if (__vv(b,c1,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A,c2,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__dot(tmp1,tmp2,s,&bcAc))  return(SUNFALSE);
+  free(tmp1); free(tmp2);
+  return (SUNRabs(bcAc - RCONST(0.125)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* b'*A*(c1.*c2) = 1/12 */
+static booleantype __order4c(realtype *b, realtype **A, realtype *c1, realtype *c2, int s)
+{
+  realtype bAcc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  if (__vv(c1,c2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__dot(b,tmp2,s,&bAcc))  return(SUNFALSE);
+  free(tmp1); free(tmp2);
+  return (SUNRabs(bAcc - RCONST(1.0)/RCONST(12.0)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* b'*A1*A2*c = 1/24 */
+static booleantype __order4d(realtype *b, realtype **A1, realtype **A2, realtype *c, int s)
+{
+  realtype bAAc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  if (__mv(A2,c,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__dot(b,tmp2,s,&bAAc))  return(SUNFALSE);
+  free(tmp1); free(tmp2);
+  return (SUNRabs(bAAc - RCONST(1.0)/RCONST(24.0)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* b'*(c1.*c2.*c3.*c4) = 1/5 */
+static booleantype __order5a(realtype *b, realtype *c1, realtype *c2, realtype *c3, realtype *c4, int s)
+{
+  realtype bcccc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  if (__vv(c1,c2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__vv(c3,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__vv(c4,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__dot(b,tmp1,s,&bcccc))  return(SUNFALSE);
+  free(tmp1); free(tmp2);
+  return (SUNRabs(bcccc - RCONST(0.2)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* (b.*c1.*c2)'*(A*c3) = 1/10 */
+static booleantype __order5b(realtype *b, realtype *c1, realtype *c2, realtype **A, realtype *c3, int s)
+{
+  realtype bccAc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  if (__vv(c1,c2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__vv(b,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A,c3,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__dot(tmp1,tmp2,s,&bccAc))  return(SUNFALSE);
+  free(tmp1); free(tmp2);
+  return (SUNRabs(bccAc - RCONST(0.1)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* b'*((A1*c1).*(A2*c2)) = 1/20 */
+static booleantype __order5c(realtype *b, realtype **A1, realtype *c1, realtype **A2, realtype *c2, int s)
+{
+  realtype bAcAc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  realtype *tmp3 = calloc( s, sizeof(realtype) );
+  if (__mv(A1,c1,s,tmp1)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
+  if (__mv(A2,c2,s,tmp2)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
+  if (__vv(tmp1,tmp2,s,tmp3)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
+  if (__dot(b,tmp3,s,&bAcAc))  return(SUNFALSE);
+  free(tmp1); free(tmp2); free(tmp3);
+  return (SUNRabs(bAcAc - RCONST(0.05)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* (b.*c1)'*A*(c2.*c3) = 1/15 */
+static booleantype __order5d(realtype *b, realtype *c1, realtype **A, realtype *c2, realtype *c3, int s)
+{
+  realtype bcAcc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  if (__vv(c2,c3,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__vv(b,c1,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__dot(tmp1,tmp2,s,&bcAcc))  return(SUNFALSE);
+  free(tmp1); free(tmp2);
+  return (SUNRabs(bcAcc - RCONST(1.0)/RCONST(15.0)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* b'*A*(c1.*c2.*c3) = 1/20 */
+static booleantype __order5e(realtype *b, realtype **A, realtype *c1, realtype *c2, realtype *c3, int s)
+{
+  realtype bAccc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  if (__vv(c1,c2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__vv(c3,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__dot(b,tmp1,s,&bAccc))  return(SUNFALSE);
+  free(tmp1); free(tmp2);
+  return (SUNRabs(bAccc - RCONST(0.05)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* (b.*c1)'*A1*A2*c2 = 1/30 */
+static booleantype __order5f(realtype *b, realtype *c1, realtype **A1, realtype **A2, realtype *c2, int s)
+{
+  realtype bcAAc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  if (__mv(A2,c2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__vv(b,c1,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__dot(tmp1,tmp2,s,&bcAAc))  return(SUNFALSE);
+  free(tmp1); free(tmp2);
+  return (SUNRabs(bcAAc - RCONST(1.0)/RCONST(30.0)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* b'*A1*(c1.*(A2*c2)) = 1/40 */
+static booleantype __order5g(realtype *b, realtype **A1, realtype *c1, realtype **A2, realtype *c2, int s)
+{
+  realtype bAcAc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  if (__mv(A2,c2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__vv(c1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A1,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__dot(b,tmp1,s,&bAcAc))  return(SUNFALSE);
+  free(tmp1); free(tmp2);
+  return (SUNRabs(bAcAc - RCONST(1.0)/RCONST(40.0)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* b'*A1*A2*(c1.*c2) = 1/60 */
+static booleantype __order5h(realtype *b, realtype **A1, realtype **A2, realtype *c1, realtype *c2, int s)
+{
+  realtype bAAcc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  if (__vv(c1,c2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A2,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A1,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__dot(b,tmp1,s,&bAAcc))  return(SUNFALSE);
+  free(tmp1); free(tmp2);
+  return (SUNRabs(bAAcc - RCONST(1.0)/RCONST(60.0)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* b'*A1*A2*A3*c = 1/120 */
+static booleantype __order5i(realtype *b, realtype **A1, realtype **A2, realtype **A3, realtype *c, int s)
+{
+  realtype bAAAc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  if (__mv(A3,c,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A2,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A1,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__dot(b,tmp1,s,&bAAAc))  return(SUNFALSE);
+  free(tmp1); free(tmp2);
+  return (SUNRabs(bAAAc - RCONST(1.0)/RCONST(120.0)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* b'*(c1.*c2.*c3.*c4.*c5) = 1/6 */
+static booleantype __order6a(realtype *b, realtype *c1, realtype *c2, realtype *c3, realtype *c4, realtype *c5, int s)
+{
+  realtype bccccc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  if (__vv(c1,c2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__vv(c3,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__vv(c4,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__vv(c5,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__dot(b,tmp2,s,&bccccc))  return(SUNFALSE);
+  free(tmp1); free(tmp2);
+  return (SUNRabs(bccccc - RCONST(1.0)/RCONST(6.0)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* (b.*c1.*c2.*c3)'*(A*c4) = 1/12 */
+static booleantype __order6b(realtype *b, realtype *c1, realtype *c2, realtype *c3, realtype **A, realtype *c4, int s)
+{
+  realtype bcccAc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  if (__vv(b,c1,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__vv(c2,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__vv(c3,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A,c4,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__dot(tmp1,tmp2,s,&bcccAc))  return(SUNFALSE);
+  free(tmp1); free(tmp2);
+  return (SUNRabs(bcccAc - RCONST(1.0)/RCONST(12.0)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* b'*(c1.*(A1*c2).*(A2*c3)) = 1/24 */
+static booleantype __order6c(realtype *b, realtype *c1, realtype **A1, realtype *c2, realtype **A2, realtype *c3, int s)
+{
+  realtype bcAc2;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  realtype *tmp3 = calloc( s, sizeof(realtype) );
+  if (__mv(A2,c3,s,tmp1)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
+  if (__mv(A1,c2,s,tmp2)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
+  if (__vv(tmp1,tmp2,s,tmp3)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
+  if (__vv(c1,tmp3,s,tmp1)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
+  if (__dot(b,tmp1,s,&bcAc2))  return(SUNFALSE);
+  free(tmp1); free(tmp2); free(tmp3);
+  return (SUNRabs(bcAc2 - RCONST(1.0)/RCONST(24.0)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* (b.*c1.*c2)'*A*(c3.*c4) = 1/18 */
+static booleantype __order6d(realtype *b, realtype *c1, realtype *c2, realtype **A, realtype *c3, realtype *c4, int s)
+{
+  realtype bccAcc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  realtype *tmp3 = calloc( s, sizeof(realtype) );
+  if (__vv(c3,c4,s,tmp1)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
+  if (__mv(A,tmp1,s,tmp2)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
+  if (__vv(c1,c2,s,tmp1)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
+  if (__vv(b,tmp1,s,tmp3)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
+  if (__dot(tmp2,tmp3,s,&bccAcc))  return(SUNFALSE);
+  free(tmp1); free(tmp2);  free(tmp3);
+  return (SUNRabs(bccAcc - RCONST(1.0)/RCONST(18.0)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* (b.*(c1.*c2))'*A1*A2*c3 = 1/36 */
+static booleantype __order6e(realtype *b, realtype *c1, realtype *c2, realtype **A1, realtype **A2, realtype *c3, int s)
+{
+  realtype bccAAc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  realtype *tmp3 = calloc( s, sizeof(realtype) );
+  if (__vv(c1,c2,s,tmp1)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
+  if (__vv(b,tmp1,s,tmp2)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
+  if (__mv(A2,c3,s,tmp1)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
+  if (__mv(A1,tmp1,s,tmp3)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
+  if (__dot(tmp2,tmp3,s,&bccAAc))  return(SUNFALSE);
+  free(tmp1); free(tmp2);  free(tmp3);
+  return (SUNRabs(bccAAc - RCONST(1.0)/RCONST(36.0)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* b'*((A1*A2*c1).*(A3*c2)) = 1/72 */
+static booleantype __order6f(realtype *b, realtype **A1, realtype **A2, realtype *c1, realtype **A3, realtype *c2, int s)
+{
+  realtype bAAcAc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  realtype *tmp3 = calloc( s, sizeof(realtype) );
+  if (__mv(A2,c1,s,tmp1)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
+  if (__mv(A1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
+  if (__mv(A3,c2,s,tmp1)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
+  if (__vv(tmp1,tmp2,s,tmp3)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
+  if (__dot(b,tmp3,s,&bAAcAc))  return(SUNFALSE);
+  free(tmp1); free(tmp2);  free(tmp3);
+  return (SUNRabs(bAAcAc - RCONST(1.0)/RCONST(72.0)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* b'*(c1.*(A*(c2.*c3.*c4))) = 1/24 */
+static booleantype __order6g(realtype *b, realtype *c1, realtype **A, realtype *c2, realtype *c3, realtype *c4, int s)
+{
+  realtype bcAccc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  if (__vv(c2,c3,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__vv(c4,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__vv(c1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__dot(b,tmp2,s,&bcAccc))  return(SUNFALSE);
+  free(tmp1); free(tmp2);
+  return (SUNRabs(bcAccc - RCONST(1.0)/RCONST(24.0)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* b'*(c1.*(A1*(c2.*(A2*c3)))) = 1/48 */
+static booleantype __order6h(realtype *b, realtype *c1, realtype **A1, realtype *c2, realtype **A2, realtype *c3, int s)
+{
+  realtype bcAcAc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  if (__mv(A2,c3,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__vv(c2,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A1,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__vv(c1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__dot(b,tmp2,s,&bcAcAc))  return(SUNFALSE);
+  free(tmp1); free(tmp2);
+  return (SUNRabs(bcAcAc - RCONST(1.0)/RCONST(48.0)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* b'*(c1.*(A1*A2*(c2.*c3))) = 1/72 */
+static booleantype __order6i(realtype *b, realtype *c1, realtype **A1, realtype **A2, realtype *c2, realtype *c3, int s)
+{
+  realtype bcAAcc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  if (__vv(c2,c3,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A2,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A1,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__vv(c1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__dot(b,tmp2,s,&bcAAcc))  return(SUNFALSE);
+  free(tmp1); free(tmp2);
+  return (SUNRabs(bcAAcc - RCONST(1.0)/RCONST(72.0)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* b'*(c1.*(A1*A2*A3*c2)) = 1/144 */
+static booleantype __order6j(realtype *b, realtype *c1, realtype **A1, realtype **A2, realtype **A3, realtype *c2, int s)
+{
+  realtype bcAAAc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  if (__mv(A3,c2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A2,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A1,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__vv(c1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__dot(b,tmp2,s,&bcAAAc))  return(SUNFALSE);
+  free(tmp1); free(tmp2);
+  return (SUNRabs(bcAAAc - RCONST(1.0)/RCONST(144.0)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* b'*A*(c1.*c2.*c3.*c4) = 1/30 */
+static booleantype __order6k(realtype *b, realtype **A, realtype *c1, realtype *c2, realtype *c3, realtype *c4, int s)
+{
+  realtype bAcccc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  if (__vv(c1,c2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__vv(c3,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__vv(c4,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__dot(b,tmp2,s,&bAcccc))  return(SUNFALSE);
+  free(tmp1); free(tmp2);
+  return (SUNRabs(bAcccc - RCONST(1.0)/RCONST(30.0)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* b'*A1*(c1.*c2.*(A2*c3)) = 1/60 */
+static booleantype __order6l(realtype *b, realtype **A1, realtype *c1, realtype *c2, realtype **A2, realtype *c3, int s)
+{
+  realtype bAccAc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  if (__mv(A2,c3,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__vv(c2,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__vv(c1,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__dot(b,tmp2,s,&bAccAc))  return(SUNFALSE);
+  free(tmp1); free(tmp2);
+  return (SUNRabs(bAccAc - RCONST(1.0)/RCONST(60.0)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* b'*A1*((A2*c1).*(A3*c2)) = 1/120 */
+static booleantype __order6m(realtype *b, realtype **A1, realtype **A2, realtype *c1, realtype **A3, realtype *c2, int s)
+{
+  realtype bAAcAc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  realtype *tmp3 = calloc( s, sizeof(realtype) );
+  if (__mv(A3,c2,s,tmp1)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
+  if (__mv(A2,c1,s,tmp2)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
+  if (__vv(tmp1,tmp2,s,tmp3)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A1,tmp3,s,tmp1)) { free(tmp1); free(tmp2); free(tmp3); return(SUNFALSE); }
+  if (__dot(b,tmp1,s,&bAAcAc))  return(SUNFALSE);
+  free(tmp1); free(tmp2); free(tmp3);
+  return (SUNRabs(bAAcAc - RCONST(1.0)/RCONST(120.0)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* b'*A1*(c1.*(A2*(c2.*c3))) = 1/90 */
+static booleantype __order6n(realtype *b, realtype **A1, realtype *c1, realtype **A2, realtype *c2, realtype *c3, int s)
+{
+  realtype bAcAcc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  if (__vv(c2,c3,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A2,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__vv(c1,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__dot(b,tmp2,s,&bAcAcc))  return(SUNFALSE);
+  free(tmp1); free(tmp2);
+  return (SUNRabs(bAcAcc - RCONST(1.0)/RCONST(90.0)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* b'*A1*(c1.*(A2*A3*c2)) = 1/180 */
+static booleantype __order6o(realtype *b, realtype **A1, realtype *c1, realtype **A2, realtype **A3, realtype *c2, int s)
+{
+  realtype bAcAAc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  if (__mv(A3,c2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A2,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__vv(c1,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__dot(b,tmp2,s,&bAcAAc))  return(SUNFALSE);
+  free(tmp1); free(tmp2);
+  return (SUNRabs(bAcAAc - RCONST(1.0)/RCONST(180.0)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* b'*A1*A2*(c1.*c2.*c3) = 1/120 */
+static booleantype __order6p(realtype *b, realtype **A1, realtype **A2, realtype *c1, realtype *c2, realtype *c3, int s)
+{
+  realtype bAAccc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  if (__vv(c1,c2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__vv(c3,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A2,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__dot(b,tmp2,s,&bAAccc))  return(SUNFALSE);
+  free(tmp1); free(tmp2);
+  return (SUNRabs(bAAccc - RCONST(1.0)/RCONST(120.0)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* b'*A1*A2*(c1.*(A3*c2)) = 1/240 */
+static booleantype __order6q(realtype *b, realtype **A1, realtype **A2, realtype *c1, realtype **A3, realtype *c2, int s)
+{
+  realtype bAAcAc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  if (__mv(A3,c2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__vv(c1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A2,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__dot(b,tmp2,s,&bAAcAc))  return(SUNFALSE);
+  free(tmp1); free(tmp2);
+  return (SUNRabs(bAAcAc - RCONST(1.0)/RCONST(240.0)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* b'*A1*A2*A3*(c1.*c2) = 1/360 */
+static booleantype __order6r(realtype *b, realtype **A1, realtype **A2, realtype **A3, realtype *c1, realtype *c2, int s)
+{
+  realtype bAAAcc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  if (__vv(c1,c2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A3,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A2,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__dot(b,tmp2,s,&bAAAcc))  return(SUNFALSE);
+  free(tmp1); free(tmp2);
+  return (SUNRabs(bAAAcc - RCONST(1.0)/RCONST(360.0)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+/* b'*A1*A2*A3*A4*c = 1/720 */
+static booleantype __order6s(realtype *b, realtype **A1, realtype **A2, realtype **A3, realtype **A4, realtype *c, int s)
+{
+  realtype bAAAAc;
+  realtype *tmp1 = calloc( s, sizeof(realtype) );
+  realtype *tmp2 = calloc( s, sizeof(realtype) );
+  if (__mv(A4,c,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A2,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A2,tmp2,s,tmp1)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__mv(A1,tmp1,s,tmp2)) { free(tmp1); free(tmp2); return(SUNFALSE); }
+  if (__dot(b,tmp2,s,&bAAAAc))  return(SUNFALSE);
+  free(tmp1); free(tmp2);
+  return (SUNRabs(bAAAAc - RCONST(1.0)/RCONST(720.0)) > TOL) ? SUNFALSE : SUNTRUE;
+}
+
+
+/*---------------------------------------------------------------
+  Utility routine to check Butcher's simplifying assumptions.
+  Returns the maximum predicted order.
+  ---------------------------------------------------------------*/
+static int __ButcherSimplifyingAssumptions(realtype **A, realtype *b, realtype *c, int s)
+{
+  int P, Q, R, i, j, k, q;
+  realtype RHS, LHS;
+  booleantype alltrue;
+  realtype *tmp = calloc( s, sizeof(realtype) );
+
+  /* B(P) */
+  P = 0;
+  for (i=1; i<1000; i++) {
+    if (__vp(c,i-1,s,tmp)) { free(tmp); return(0); }
+    if (__dot(b,tmp,s,&LHS)) { free(tmp); return(0); }
+    RHS = RCONST(1)/i;
+    if (SUNRabs(RHS-LHS) > TOL)
+      break;
+    P++;
+  }
+
+  /* C(Q) */
+  Q = 0;
+  for (k=1; k<1000; k++) {
+    alltrue = SUNTRUE;
+    for (i=0; i<s; i++) {
+      if (__vp(c,k-1,s,tmp)) { free(tmp); return(0); }
+      if (__dot(A[i],tmp,s,&LHS)) { free(tmp); return(0); }
+      RHS = SUNRpowerI(c[i],k) / k;
+      if (SUNRabs(RHS-LHS) > TOL) {
+        alltrue = SUNFALSE;
+        break;
+      }
+    }
+    if (alltrue) {
+      Q++;
+    } else {
+      break;
+    }
+  }
+
+  /* D(R) */
+  R = 0;
+  for (k=1; k<1000; k++) {
+    alltrue = SUNTRUE;
+    for (j=0; j<s; j++) {
+      LHS = RCONST(0.0);
+      for (i=0; i<s; i++)
+        LHS += A[i][j]*b[i]*SUNRpowerI(c[i],k-1);
+      RHS = b[j]/k*(RCONST(1.0)-SUNRpowerI(c[j],k));
+      if (SUNRabs(RHS-LHS) > TOL) {
+        alltrue = SUNFALSE;
+        break;
+      }
+    }
+    if (alltrue) {
+      R++;
+    } else {
+      break;
+    }
+  }
+
+  /* determine q, clean up and return */
+  q = 0;
+  for (i=1; i<=P; i++) {
+    if ((q > Q+R+1) || (q > 2*Q+2))
+      break;
+    q++;
+  }
+  free(tmp);
+  return(q);
+}
 
 /*---------------------------------------------------------------
   EOF

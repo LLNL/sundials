@@ -2,13 +2,13 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *---------------------------------------------------------------
  * LLNS/SMU Copyright Start
- * Copyright (c) 2015, Southern Methodist University and 
+ * Copyright (c) 2015, Southern Methodist University and
  * Lawrence Livermore National Security
  *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Southern Methodist University and Lawrence Livermore
  * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
+ * Produced at Southern Methodist University and the Lawrence
  * Livermore National Laboratory.
  *
  * All rights reserved.
@@ -16,34 +16,33 @@
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
  * Example problem:
- * 
- * The following test simulates the Robertson problem, 
- * corresponding to the kinetics of an autocatalytic reaction.  
+ *
+ * The following test simulates the Robertson problem,
+ * corresponding to the kinetics of an autocatalytic reaction.
  * This is an ODE system with 3 components, Y = [u,v,w], satisfying
  * the equations,
  *    du/dt = -0.04*u + 1e4*v*w
  *    dv/dt = 0.04*u - 1e4*v*w - 3e7*v^2
  *    dw/dt = 3e7*v^2
- * for t in the interval [0.0, 1e11], with initial conditions 
- * Y0 = [1,0,0]. 
- * 
- * This program solves the problem with one of the solvers, ERK, 
- * DIRK or ARK.  For DIRK and ARK, implicit subsystems are solved 
+ * for t in the interval [0.0, 1e11], with initial conditions
+ * Y0 = [1,0,0].
+ *
+ * This program solves the problem with one of the solvers, ERK,
+ * DIRK or ARK.  For DIRK and ARK, implicit subsystems are solved
  * using a Newton iteration with the dense SUNLinearSolver, and a
  * user-supplied Jacobian routine.
  *
- * 100 outputs are printed at equal intervals, and run statistics 
+ * 100 outputs are printed at equal intervals, and run statistics
  * are printed at the end.
  *---------------------------------------------------------------*/
 
 /* Header files */
 #include <stdio.h>
 #include <math.h>
-#include <arkode/arkode.h>              /* prototypes for ARKode fcts., consts. */
+#include <arkode/arkode_arkstep.h>      /* prototypes for ARKStep fcts., consts */
 #include <nvector/nvector_serial.h>     /* serial N_Vector types, fcts., macros */
 #include <sunmatrix/sunmatrix_dense.h>  /* access to dense SUNMatrix            */
 #include <sunlinsol/sunlinsol_dense.h>  /* access to dense SUNLinearSolver      */
-#include <arkode/arkode_direct.h>       /* access to ARKDls interface           */
 #include <sundials/sundials_types.h>    /* defs. of 'realtype', 'sunindextype'  */
 
 #if defined(SUNDIALS_EXTENDED_PRECISION)
@@ -106,53 +105,51 @@ int main()
   NV_Ith_S(y,0) = u0;             /* Set initial conditions into y */
   NV_Ith_S(y,1) = v0;
   NV_Ith_S(y,2) = w0;
-  arkode_mem = ARKodeCreate();    /* Create the solver memory */
-  if (check_flag((void *)arkode_mem, "ARKodeCreate", 0)) return 1;
 
-  /* Call ARKodeInit to initialize the integrator memory and specify the
-     right-hand side function in y'=f(t,y), the inital time T0, and
-     the initial dependent variable vector y.  Note: since this
+  /* Call ARKStepCreate to initialize the ARK timestepper module and
+     specify the right-hand side function in y'=f(t,y), the inital time
+     T0, and the initial dependent variable vector y.  Note: since this
      problem is fully implicit, we set f_E to NULL and f_I to f. */
-  flag = ARKodeInit(arkode_mem, NULL, f, T0, y);
-  if (check_flag(&flag, "ARKodeInit", 1)) return 1;
+  arkode_mem = ARKStepCreate(NULL, f, T0, y);
+  if (check_flag((void *)arkode_mem, "ARKStepCreate", 0)) return 1;
 
   /* Set routines */
-  flag = ARKodeSetInitStep(arkode_mem, h0);                /* Set custom initial step */
-  if (check_flag(&flag, "ARKodeSetInitStep", 1)) return 1;
-  flag = ARKodeSetMaxErrTestFails(arkode_mem, 20);         /* Increase max error test fails */
-  if (check_flag(&flag, "ARKodeSetMaxErrTestFails", 1)) return 1;
-  flag = ARKodeSetMaxNonlinIters(arkode_mem, 8);           /* Increase max nonlin iters  */
-  if (check_flag(&flag, "ARKodeSetMaxNonlinIters", 1)) return 1;
-  flag = ARKodeSetNonlinConvCoef(arkode_mem, 1.e-7);       /* set nonlinear convergence coeff. */
-  if (check_flag(&flag, "ARKodeSetNonlinConvCoef", 1)) return 1;
-  flag = ARKodeSetMaxNumSteps(arkode_mem, 100000);         /* Increase max num steps */
-  if (check_flag(&flag, "ARKodeSetMaxNumSteps", 1)) return 1;
-  flag = ARKodeSetPredictorMethod(arkode_mem, 1);         /* Specify maximum-order predictor */
-  if (check_flag(&flag, "ARKodeSetPredictorMethod", 1)) return 1;
-  flag = ARKodeSStolerances(arkode_mem, reltol, abstol);   /* Specify tolerances */
-  if (check_flag(&flag, "ARKodeSStolerances", 1)) return 1;
+  flag = ARKStepSetInitStep(arkode_mem, h0);                /* Set custom initial step */
+  if (check_flag(&flag, "ARKStepSetInitStep", 1)) return 1;
+  flag = ARKStepSetMaxErrTestFails(arkode_mem, 20);         /* Increase max error test fails */
+  if (check_flag(&flag, "ARKStepSetMaxErrTestFails", 1)) return 1;
+  flag = ARKStepSetMaxNonlinIters(arkode_mem, 8);           /* Increase max nonlin iters  */
+  if (check_flag(&flag, "ARKStepSetMaxNonlinIters", 1)) return 1;
+  flag = ARKStepSetNonlinConvCoef(arkode_mem, 1.e-7);       /* set nonlinear convergence coeff. */
+  if (check_flag(&flag, "ARKStepSetNonlinConvCoef", 1)) return 1;
+  flag = ARKStepSetMaxNumSteps(arkode_mem, 100000);         /* Increase max num steps */
+  if (check_flag(&flag, "ARKStepSetMaxNumSteps", 1)) return 1;
+  flag = ARKStepSetPredictorMethod(arkode_mem, 1);         /* Specify maximum-order predictor */
+  if (check_flag(&flag, "ARKStepSetPredictorMethod", 1)) return 1;
+  flag = ARKStepSStolerances(arkode_mem, reltol, abstol);   /* Specify tolerances */
+  if (check_flag(&flag, "ARKStepSStolerances", 1)) return 1;
 
   /* Initialize dense matrix data structure and solver */
   A = SUNDenseMatrix(NEQ, NEQ);
   if (check_flag((void *)A, "SUNDenseMatrix", 0)) return 1;
-  LS = SUNDenseLinearSolver(y, A);
-  if (check_flag((void *)LS, "SUNDenseLinearSolver", 0)) return 1;
+  LS = SUNLinSol_Dense(y, A);
+  if (check_flag((void *)LS, "SUNLinSol_Dense", 0)) return 1;
 
   /* Linear solver interface */
-  flag = ARKDlsSetLinearSolver(arkode_mem, LS, A);        /* Attach matrix and linear solver */
-  if (check_flag(&flag, "ARKDlsSetLinearSolver", 1)) return 1;
-  flag = ARKDlsSetJacFn(arkode_mem, Jac);                 /* Set the Jacobian routine */
-  if (check_flag(&flag, "ARKDlsSetJacFn", 1)) return 1;
+  flag = ARKStepSetLinearSolver(arkode_mem, LS, A);        /* Attach matrix and linear solver */
+  if (check_flag(&flag, "ARKStepSetLinearSolver", 1)) return 1;
+  flag = ARKStepSetJacFn(arkode_mem, Jac);                 /* Set the Jacobian routine */
+  if (check_flag(&flag, "ARKStepSetJacFn", 1)) return 1;
 
   /* Open output stream for results, output comment line */
   UFID = fopen("solution.txt","w");
   fprintf(UFID,"# t u v w\n");
 
   /* output initial condition to disk */
-  fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n", 
-	  T0, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));  
+  fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n",
+          T0, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
 
-  /* Main time-stepping loop: calls ARKode to perform the integration, then
+  /* Main time-stepping loop: calls ARKStepEvolve to perform the integration, then
      prints results.  Stops when the final time has been reached */
   t = T0;
   tout = T0+dTout;
@@ -162,12 +159,12 @@ int main()
       t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
   for (iout=0; iout<Nt; iout++) {
 
-    flag = ARKode(arkode_mem, tout, y, &t, ARK_NORMAL);       /* call integrator */
-    if (check_flag(&flag, "ARKode", 1)) break;
+    flag = ARKStepEvolve(arkode_mem, tout, y, &t, ARK_NORMAL);       /* call integrator */
+    if (check_flag(&flag, "ARKStepEvolve", 1)) break;
     printf("  %10.3"ESYM"  %12.5"ESYM"  %12.5"ESYM"  %12.5"ESYM"\n",              /* access/print solution */
         t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
-    fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n", 
-	    t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));  
+    fprintf(UFID," %.16"ESYM" %.16"ESYM" %.16"ESYM" %.16"ESYM"\n",
+            t, NV_Ith_S(y,0), NV_Ith_S(y,1), NV_Ith_S(y,2));
     if (flag >= 0) {                                          /* successful solve: update time */
       tout += dTout;
       tout = (tout > Tf) ? Tf : tout;
@@ -180,28 +177,28 @@ int main()
   fclose(UFID);
 
   /* Print some final statistics */
-  flag = ARKodeGetNumSteps(arkode_mem, &nst);
-  check_flag(&flag, "ARKodeGetNumSteps", 1);
-  flag = ARKodeGetNumStepAttempts(arkode_mem, &nst_a);
-  check_flag(&flag, "ARKodeGetNumStepAttempts", 1);
-  flag = ARKodeGetNumRhsEvals(arkode_mem, &nfe, &nfi);
-  check_flag(&flag, "ARKodeGetNumRhsEvals", 1);
-  flag = ARKodeGetNumLinSolvSetups(arkode_mem, &nsetups);
-  check_flag(&flag, "ARKodeGetNumLinSolvSetups", 1);
-  flag = ARKodeGetNumErrTestFails(arkode_mem, &netf);
-  check_flag(&flag, "ARKodeGetNumErrTestFails", 1);
-  flag = ARKodeGetNumNonlinSolvIters(arkode_mem, &nni);
-  check_flag(&flag, "ARKodeGetNumNonlinSolvIters", 1);
-  flag = ARKodeGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
-  check_flag(&flag, "ARKodeGetNumNonlinSolvConvFails", 1);
-  flag = ARKDlsGetNumJacEvals(arkode_mem, &nje);
-  check_flag(&flag, "ARKDlsGetNumJacEvals", 1);
-  flag = ARKDlsGetNumRhsEvals(arkode_mem, &nfeLS);
-  check_flag(&flag, "ARKDlsGetNumRhsEvals", 1);
+  flag = ARKStepGetNumSteps(arkode_mem, &nst);
+  check_flag(&flag, "ARKStepGetNumSteps", 1);
+  flag = ARKStepGetNumStepAttempts(arkode_mem, &nst_a);
+  check_flag(&flag, "ARKStepGetNumStepAttempts", 1);
+  flag = ARKStepGetNumRhsEvals(arkode_mem, &nfe, &nfi);
+  check_flag(&flag, "ARKStepGetNumRhsEvals", 1);
+  flag = ARKStepGetNumLinSolvSetups(arkode_mem, &nsetups);
+  check_flag(&flag, "ARKStepGetNumLinSolvSetups", 1);
+  flag = ARKStepGetNumErrTestFails(arkode_mem, &netf);
+  check_flag(&flag, "ARKStepGetNumErrTestFails", 1);
+  flag = ARKStepGetNumNonlinSolvIters(arkode_mem, &nni);
+  check_flag(&flag, "ARKStepGetNumNonlinSolvIters", 1);
+  flag = ARKStepGetNumNonlinSolvConvFails(arkode_mem, &ncfn);
+  check_flag(&flag, "ARKStepGetNumNonlinSolvConvFails", 1);
+  flag = ARKStepGetNumJacEvals(arkode_mem, &nje);
+  check_flag(&flag, "ARKStepGetNumJacEvals", 1);
+  flag = ARKStepGetNumLinRhsEvals(arkode_mem, &nfeLS);
+  check_flag(&flag, "ARKStepGetNumLinRhsEvals", 1);
 
   printf("\nFinal Solver Statistics:\n");
-  printf("   Internal solver steps = %li (attempted = %li)\n", 
-	 nst, nst_a);
+  printf("   Internal solver steps = %li (attempted = %li)\n",
+         nst, nst_a);
   printf("   Total RHS evals:  Fe = %li,  Fi = %li\n", nfe, nfi);
   printf("   Total linear solver setups = %li\n", nsetups);
   printf("   Total RHS evals for setting up the linear system = %li\n", nfeLS);
@@ -215,7 +212,7 @@ int main()
 
   /* Clean up and return with successful completion */
   N_VDestroy(y);               /* Free y vector */
-  ARKodeFree(&arkode_mem);     /* Free integrator memory */
+  ARKStepFree(&arkode_mem);    /* Free integrator memory */
   SUNLinSolFree(LS);           /* Free linear solver */
   SUNMatDestroy(A);            /* Free A matrix */
 
@@ -273,7 +270,7 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
     opt == 1 means SUNDIALS function returns a flag so check if
              flag >= 0
     opt == 2 means function allocates memory so check if returned
-             NULL pointer  
+             NULL pointer
 */
 static int check_flag(void *flagvalue, const char *funcname, int opt)
 {
@@ -282,7 +279,7 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
   /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
   if (opt == 0 && flagvalue == NULL) {
     fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return 1; }
 
   /* Check if flag < 0 */
@@ -290,13 +287,13 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
     errflag = (int *) flagvalue;
     if (*errflag < 0) {
       fprintf(stderr, "\nSUNDIALS_ERROR: %s() failed with flag = %d\n\n",
-	      funcname, *errflag);
+              funcname, *errflag);
       return 1; }}
 
   /* Check if function returned NULL pointer - no memory allocated */
   else if (opt == 2 && flagvalue == NULL) {
     fprintf(stderr, "\nMEMORY_ERROR: %s() failed - returned NULL pointer\n\n",
-	    funcname);
+            funcname);
     return 1; }
 
   return 0;
@@ -306,12 +303,12 @@ static int check_flag(void *flagvalue, const char *funcname, int opt)
    using a relative tolerance of 1e-8 and absoltue tolerance of 1e-14 */
 static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol)
 {
-  int      passfail=0;        /* answer pass (0) or fail (1) flag */  
+  int      passfail=0;        /* answer pass (0) or fail (1) flag */
   N_Vector ref;               /* reference solution vector        */
   N_Vector ewt;               /* error weight vector              */
   realtype err;               /* wrms error                       */
-  realtype ZERO=RCONST(0.0);  
-  realtype ONE=RCONST(1.0);  
+  realtype ZERO=RCONST(0.0);
+  realtype ONE=RCONST(1.0);
 
   /* create reference solution and error weight vectors */
   ref = N_VClone(y);
@@ -330,14 +327,14 @@ static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol)
     fprintf(stderr, "\nSUNDIALS_ERROR: check_ans failed - ewt <= 0\n\n");
     return(-1);
   }
-  N_VInv(ewt, ewt);   
+  N_VInv(ewt, ewt);
 
   /* compute the solution error */
   N_VLinearSum(ONE, y, -ONE, ref, ref);
   err = N_VWrmsNorm(ref, ewt);
 
   /* is the solution within the tolerances? */
-  passfail = (err < ONE) ? 0 : 1; 
+  passfail = (err < ONE) ? 0 : 1;
 
   if (passfail) {
     fprintf(stdout, "\nSUNDIALS_WARNING: check_ans error=%g \n\n", err);

@@ -25,3 +25,10 @@
 
 ## OS X ##
 .DS_Store
+
+# Fortran mod files
+*.mod
+
+# directories created by ARKode's Sphinx documentation system
+/doc/arkode/SphinxDocs/guide/build
+/doc/arkode/SphinxDocs/examples/build

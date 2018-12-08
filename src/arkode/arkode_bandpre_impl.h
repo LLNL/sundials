@@ -59,14 +59,14 @@ typedef struct ARKBandPrecDataRec {
  ARKBANDPRE error messages
 ---------------------------------------------------------------*/
 
-#define MSGBP_MEM_NULL       "Integrator memory is NULL."
-#define MSGBP_LMEM_NULL      "Linear solver memory is NULL. The SPILS interface must be attached."
-#define MSGBP_MEM_FAIL       "A memory request failed."
-#define MSGBP_BAD_NVECTOR    "A required vector operation is not implemented."
-#define MSGBP_SUNMAT_FAIL    "An error arose from a SUNBandMatrix routine."
-#define MSGBP_SUNLS_FAIL     "An error arose from a SUNBandLinearSolver routine."
-#define MSGBP_PMEM_NULL      "Band preconditioner memory is NULL. ARKBandPrecInit must be called."
-#define MSGBP_RHSFUNC_FAILED "The right-hand side routine failed in an unrecoverable manner."
+#define MSG_BP_MEM_NULL       "Integrator memory is NULL."
+#define MSG_BP_LMEM_NULL      "Linear solver memory is NULL. The SPILS interface must be attached."
+#define MSG_BP_MEM_FAIL       "A memory request failed."
+#define MSG_BP_BAD_NVECTOR    "A required vector operation is not implemented."
+#define MSG_BP_SUNMAT_FAIL    "An error arose from a SUNBandMatrix routine."
+#define MSG_BP_SUNLS_FAIL     "An error arose from a SUNBandLinearSolver routine."
+#define MSG_BP_PMEM_NULL      "Band preconditioner memory is NULL. ARKBandPrecInit must be called."
+#define MSG_BP_RHSFUNC_FAILED "The right-hand side routine failed in an unrecoverable manner."
 
 
 #ifdef __cplusplus

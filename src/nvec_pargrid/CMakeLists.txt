@@ -43,7 +43,7 @@ IF(BUILD_STATIC_LIBS)
   ADD_LIBRARY(sundials_nvecparallelgrid_static STATIC ${nvecparallelgrid_SOURCES} ${shared_SOURCES})
   SET_TARGET_PROPERTIES(sundials_nvecparallelgrid_static
     PROPERTIES OUTPUT_NAME sundials_nvecparallelgrid CLEAN_DIRECT_OUTPUT 1)
-  INSTALL(TARGETS sundials_nvecparallelgrid_static DESTINATION lib)
+  INSTALL(TARGETS sundials_nvecparallelgrid_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
 ENDIF(BUILD_STATIC_LIBS)
 
 # Rules for building and installing the shared library:
@@ -57,20 +57,20 @@ IF(BUILD_SHARED_LIBS)
     PROPERTIES OUTPUT_NAME sundials_nvecparallelgrid CLEAN_DIRECT_OUTPUT 1)
   SET_TARGET_PROPERTIES(sundials_nvecparallelgrid_shared 
     PROPERTIES VERSION ${nveclib_VERSION} SOVERSION ${nveclib_SOVERSION})
-  INSTALL(TARGETS sundials_nvecparallelgrid_shared DESTINATION lib)
+  INSTALL(TARGETS sundials_nvecparallelgrid_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
 ENDIF(BUILD_SHARED_LIBS)
 
 # Install the NVECPARALLELGRID header files
 INSTALL(FILES ${nvecparallelgrid_HEADERS} DESTINATION include/nvector)
 
 # If FCMIX is enabled and MPI works, build and install the FNVECPARALLELGRID library
-IF(FCMIX_ENABLE AND MPI_Fortran_FOUND)
+IF(F77_INTERFACE_ENABLE AND MPI_Fortran_FOUND)
   SET(fnvecparallelgrid_SOURCES fnvector_parallel_grid.c)
   IF(BUILD_STATIC_LIBS)
     ADD_LIBRARY(sundials_fnvecparallelgrid_static STATIC ${fnvecparallelgrid_SOURCES})
     SET_TARGET_PROPERTIES(sundials_fnvecparallelgrid_static
       PROPERTIES OUTPUT_NAME sundials_fnvecparallelgrid CLEAN_DIRECT_OUTPUT 1)
-    INSTALL(TARGETS sundials_fnvecparallelgrid_static DESTINATION lib)
+    INSTALL(TARGETS sundials_fnvecparallelgrid_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
   ENDIF(BUILD_STATIC_LIBS)
   IF(BUILD_SHARED_LIBS)
     ADD_LIBRARY(sundials_fnvecparallelgrid_shared SHARED ${fnvecparallelgrid_SOURCES})
@@ -78,7 +78,7 @@ IF(FCMIX_ENABLE AND MPI_Fortran_FOUND)
       PROPERTIES OUTPUT_NAME sundials_fnvecparallelgrid CLEAN_DIRECT_OUTPUT 1)
     SET_TARGET_PROPERTIES(sundials_fnvecparallelgrid_shared
       PROPERTIES VERSION ${nveclib_VERSION} SOVERSION ${nveclib_SOVERSION})
-    INSTALL(TARGETS sundials_fnvecparallelgrid_shared DESTINATION lib)
+    INSTALL(TARGETS sundials_fnvecparallelgrid_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
   ENDIF(BUILD_SHARED_LIBS)
 ENDIF()
 #

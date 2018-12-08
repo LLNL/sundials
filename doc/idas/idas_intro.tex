@@ -13,13 +13,13 @@ stands for Implicit Differential-Algebraic solver with Sensitivity capabilities.
 {\idas} is an extension of the {\ida} solver within {\sundials}, itself 
 based on {\daspk}~\cite{BHP:94,BHP:98}; however, like all {\sundials} solvers,
 {\idas} is written in ANSI-standard C rather than {\F}77.  
-Its most notable features are that, 
-(1) in the solution of the underlying nonlinear system at each time step, it 
-offers a choice of Newton/direct methods and a choice of Inexact Newton/Krylov
-(iterative) methods;
+Its most notable features are that,
+(1) in the solution of the underlying nonlinear system at each time
+step, it offers a choice of Newton/direct methods and a choice of
+Inexact Newton/Krylov (iterative) methods;
 (2) it is written in a {\em data-independent} manner in that it acts
-on generic vectors without any assumptions on the underlying organization
-of the data; and
+on generic vectors and matrices without any assumptions on the
+underlying organization of the data; and
 (3) it provides a flexible, extensible framework for sensitivity analysis,
 using either {\em forward} or {\em adjoint} methods.
 Thus {\idas} shares significant modules previously written within CASC
@@ -86,6 +86,127 @@ in extended {\F}.
 
 
 \section{Changes from previous versions}
+
+\subsection*{Changes in v3.0.0}
+
+{\idas}' previous direct and iterative linear solver interfaces,
+{\idadls} and {\idaspils}, have been merged into a single unified linear
+solver interface, {\idals}, to support any valid {\sunlinsol} module.
+This includes the ``DIRECT'' and ``ITERATIVE'' types as well as the new
+``MATRIX\_ITERATIVE'' type. Details regarding how {\idals} utilizes linear
+solvers of each type as well as discussion regarding intended use cases for
+user-supplied {\sunlinsol} implementations are included in
+Chapter~\ref{s:sunlinsol}. All {\idas} example programs and the standalone
+linear solver examples have been updated to use the unified linear solver
+interface.
+
+The unified interface for the new {\idals} module is very similar to the
+previous {\idadls} and {\idaspils} interfaces. To minimize challenges in user
+migration to the new names, the previous {\CC} routine names may still
+be used; these will be deprecated in future releases, so we recommend that users
+migrate to the new names soon.
+
+The names of all constructor routines for {\sundials}-provided
+{\sunlinsol} implementations have been updated to follow the naming convention
+\id{SUNLinSol\_*} where \id{*} is the name of the linear solver. The new names
+are 
+\id{SUNLinSol\_Band},
+\id{SUNLinSol\_Dense},
+\id{SUNLinSol\_KLU},
+\id{SUNLinSol\_LapackBand},\newline
+\id{SUNLinSol\_LapackDense},
+\id{SUNLinSol\_PCG},
+\id{SUNLinSol\_SPBCGS},
+\id{SUNLinSol\_SPFGMR},
+\id{SUNLinSol\_SPGMR},
+\id{SUNLinSol\_SPTFQMR}, and
+\id{SUNLinSol\_SuperLUMT}.  Solver-specific ``set'' routine names have
+been similarly standardized.  To minimize challenges in user migration
+to the new names, the previous routine names may still be used; these
+will be deprecated in future releases, so we recommend that users
+migrate to the new names soon. All {\idas} example programs and the standalone
+linear solver examples have been updated to use the new naming convention.
+
+The \id{SUNBandMatrix} constructor has been simplified to remove the
+storage upper bandwidth argument.
+
+{\sundials} integrators have been updated to utilize generic nonlinear solver
+modules defined through the {\sunnonlinsol} API. This API will ease the addition
+of new nonlinear solver options and allow for external or user-supplied
+nonlinear solvers. The {\sunnonlinsol} API and {\sundials} provided modules are
+described in Chapter~\ref{c:sunnonlinsol} and follow the same object oriented
+design and implementation used by the {\nvector}, {\sunmatrix}, and {\sunlinsol}
+modules. Currently two {\sunnonlinsol} implementations are provided,
+{\sunnonlinsolnewton} and {\sunnonlinsolfixedpoint}. These replicate the
+previous integrator specific implementations of a Newton iteration and a
+fixed-point iteration (previously referred to as a functional iteration),
+respectively. Note the {\sunnonlinsolfixedpoint} module can optionally utilize
+Anderson's method to accelerate convergence. Example programs using each of
+these nonlinear solver modules in a standalone manner have been added and all
+{\idas} example programs have been updated to use generic {\sunnonlinsol}
+modules.
+
+% IDAS specific changes due to the NLS API
+By default {\idas} uses the {\sunnonlinsolnewton} module. Since {\idas} previously
+only used an internal implementation of a Newton iteration no changes are
+required to user programs and functions for setting the nonlinear solver options
+(e.g., \id{IDASetMaxNonlinIters}) or getting nonlinear solver statistics (e.g.,
+\id{IDAGetNumNonlinSolvIters}) remain unchanged and internally call generic
+{\sunnonlinsol} functions as needed. While {\sundials} includes a fixed-point
+nonlinear solver module, it is not currently supported in {\idas}. For details on
+attaching a user-supplied nonlinear solver to {\idas} see
+Chapter~\ref{s:simulation}, \ref{s:forward}, and \ref{s:adjoint}.  
+
+Three fused vector operations and seven vector array operations have been added
+to the {\nvector} API. These \textit{optional} operations are disabled by
+default and may be activated by calling vector specific routines after creating
+an {\nvector} (see Chapter \ref{s:nvector} for more details). The new operations
+are intended to increase data reuse in vector operations, reduce parallel
+communication on distributed memory systems, and lower the number of kernel
+launches on systems with accelerators. The fused operations are
+\id{N\_VLinearCombination},
+\id{N\_VScaleAddMulti}, and
+\id{N\_VDotProdMulti}
+and the vector array operations are
+\id{N\_VLinearCombinationVectorArray},
+\id{N\_VScaleVectorArray},
+\id{N\_VConstVectorArray},
+\id{N\_VWrmsNormVectorArray},
+\id{N\_VWrmsNormMaskVectorArray},
+\id{N\_VScaleAddMultiVectorArray}, and\\
+\id{N\_VLinearCombinationVectorArray}.
+If an {\nvector} implementation defines any of these operations as \id{NULL},
+then standard {\nvector} operations will automatically be called as necessary to
+complete the computation.
+\\
+\\
+\noindent Multiple updates to {\nveccuda} were made:
+\begin{itemize}
+  \item Changed \id{N\_VGetLength\_Cuda} to return the global vector length
+        instead of the local vector length.
+  \item Added \id{N\_VGetLocalLength\_Cuda} to return the local vector length.
+  \item Added \id{N\_VGetMPIComm\_Cuda} to return the MPI communicator used.
+  \item Removed the accessor functions in the namespace suncudavec.
+  \item Changed the \id{N\_VMake\_Cuda} function to take a host data pointer and a device
+        data pointer instead of an \id{N\_VectorContent\_Cuda} object.
+  \item Added the ability to set the \id{cudaStream\_t} used for execution of the
+        {\nveccuda} kernels. See the function \id{N\_VSetCudaStreams\_Cuda}.
+  \item Added \id{N\_VNewManaged\_Cuda}, \id{N\_VMakeManaged\_Cuda}, and
+        \id{N\_VIsManagedMemory\_Cuda} functions to accommodate using managed
+        memory with the {\nveccuda}.
+\end{itemize}
+%
+Multiple changes to {\nvecraja} were made:
+\begin{itemize}
+  \item Changed \id{N\_VGetLength\_Raja} to return the global vector length
+        instead of the local vector length.
+  \item Added \id{N\_VGetLocalLength\_Raja} to return the local vector length.
+  \item Added \id{N\_VGetMPIComm\_Raja} to return the MPI communicator used.
+  \item Removed the accessor functions in the namespace suncudavec.
+\end{itemize}
+A new {\nvector} implementation for leveraging OpenMP 4.5+ device offloading has
+been added, {\nvecopenmpdev}. See \S\ref{ss:nvec_openmpdev} for more details.
+
 
 \subsection*{Changes in v2.2.1}
 
@@ -164,7 +285,7 @@ The changes in this minor release include the following:
   \id{sunindextype} is now defined as the MSVC basic type \id{\_\_int64}.
 \item Added sparse SUNMatrix ``Reallocate'' routine to allow specification of
   the nonzero storage.
-\item Updated the KLU SUNLinearSolver module to set constants for the two
+\item Updated the KLU {\sunlinsol} module to set constants for the two
   reinitialization types, and fixed a bug in the full reinitialization
   approach where the sparse SUNMatrix pointer would go out of scope on
   some architectures.
@@ -318,10 +439,11 @@ Corrections and additions were made to the examples,
 to installation-related files,
 and to the user documentation.
 
+
 \subsection*{Changes in v1.3.0}
 
 Two additional {\nvector} implementations were added -- one for
-Hypre (parallel) ParVector vectors, and one for PetSC vectors.  These
+Hypre (parallel) ParVector vectors, and one for PETSc vectors.  These
 additions are accompanied by additions to various interface functions
 and to user documentation.
 
@@ -355,7 +477,7 @@ dot product.  Various additions and corrections were made to the
 interfaces to the sparse solvers KLU and SuperLU\_MT, including support
 for CSR format when using KLU.
 
-New examples were added for use of the openMP vector and for use of 
+New examples were added for use of the OpenMP vector and for use of 
 sparse direct solvers within sensitivity integrations.
 
 Minor corrections and additions were made to the {\idas} solver, to the
@@ -408,7 +530,7 @@ In the User Guide, a paragraph was added in Section 6.2.1 on
 \id{IDAGetAdjY}.
 
 Two new {\nvector} modules have been added for thread-parallel computing
-environments --- one for openMP, denoted \id{NVECTOR\_OPENMP},
+environments --- one for OpenMP, denoted \id{NVECTOR\_OPENMP},
 and one for Pthreads, denoted \id{NVECTOR\_PTHREADS}.
 
 With this version of {\sundials}, support and documentation of the
@@ -515,6 +637,9 @@ Chapter \ref{s:sunmatrix} gives a brief overview of the generic
 %%   Chapter \ref{s:gen_linsolv} describes in detail the generic linear
 %%   solvers shared by all {\sundials} solvers.
 \item
+  Chapter \ref{c:sunnonlinsol} describes the {\sunnonlinsol} API and nonlinear
+  solver implementations shared among the various components of {\sundials}.
+\item
   Finally, in the appendices, we provide detailed instructions for the installation
   of {\idas}, within the structure of {\sundials} (Appendix \ref{c:install}), as
   well as a list of all the constants used for input to and output from {\idas}
@@ -526,7 +651,7 @@ Finally, the reader should be aware of the following notational conventions
 in this user guide:  program listings and identifiers (such as \id{IDAInit}) 
 within textual explanations appear in typewriter type style; 
 fields in {\CC} structures (such as {\em content}) appear in italics;
-and packages or modules, such as {\idadls}, are written in all capitals. 
+and packages or modules, such as {\idals}, are written in all capitals. 
 Usage and installation instructions that constitute important warnings
 are marked with a triangular symbol {\warn} in the margin.
 

@@ -1,10 +1,10 @@
 # ---------------------------------------------------------------
-# Programmer:  Steve Smith @ LLNL
+# Programmer:  Steve Smith, and Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Lawrence Livermore National Laboratory in part under
 # Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
@@ -14,6 +14,11 @@
 # CMakeLists.txt file for the pthreads NVECTOR library
 
 INSTALL(CODE "MESSAGE(\"\nInstall NVECTOR_PTHREADS\n\")")
+
+# Add F90 module if F2003 interface is enabled
+IF(F90_FOUND AND F2003_INTERFACE_ENABLE)
+  ADD_SUBDIRECTORY(F90)
+ENDIF(F90_FOUND AND F2003_INTERFACE_ENABLE)
 
 # Add variable nvecpthreads_SOURCES with the sources for the NVECPTHREADS lib
 SET(nvecpthreads_SOURCES nvector_pthreads.c)
@@ -32,7 +37,7 @@ SET(nvecpthreads_HEADERS
 # Add source directory to include directories
 INCLUDE_DIRECTORIES(.)
 
-# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY 
+# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
 ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 
 # Rules for building and installing the static library:
@@ -71,7 +76,7 @@ ENDIF(BUILD_SHARED_LIBS)
 INSTALL(FILES ${nvecpthreads_HEADERS} DESTINATION include/nvector)
 
 # If FCMIX is enabled, build and install the FNVECPTHREADS library
-IF(FCMIX_ENABLE AND F77_FOUND)
+IF(F77_INTERFACE_ENABLE AND F77_FOUND)
   SET(fnvecpthreads_SOURCES fnvector_pthreads.c)
 
   IF(BUILD_STATIC_LIBS)
@@ -89,11 +94,11 @@ IF(FCMIX_ENABLE AND F77_FOUND)
 
     SET_TARGET_PROPERTIES(sundials_fnvecpthreads_shared
       PROPERTIES OUTPUT_NAME sundials_fnvecpthreads CLEAN_DIRECT_OUTPUT 1)
-    SET_TARGET_PROPERTIES(sundials_fnvecpthreads_shared 
+    SET_TARGET_PROPERTIES(sundials_fnvecpthreads_shared
       PROPERTIES VERSION ${nveclib_VERSION} SOVERSION ${nveclib_SOVERSION})
     INSTALL(TARGETS sundials_fnvecpthreads_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
   ENDIF(BUILD_SHARED_LIBS)
-ENDIF(FCMIX_ENABLE AND F77_FOUND)
+ENDIF(F77_INTERFACE_ENABLE AND F77_FOUND)
 
 #
 MESSAGE(STATUS "Added NVECTOR_PTHREADS module")

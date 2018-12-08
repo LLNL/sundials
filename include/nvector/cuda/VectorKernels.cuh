@@ -37,7 +37,7 @@ namespace math_kernels
 {
 
 
-/**
+/*
  * Sets all elements of the vector X to constant value a.
  *
  */
@@ -55,7 +55,7 @@ setConstKernel(T a, T *X, I n)
 }
 
 
-/**
+/*
  * Computes linear sum (combination) of two vectors.
  *
  */
@@ -73,7 +73,7 @@ linearSumKernel(T a, const T *X, T b, const T *Y, T *Z, I n)
 }
 
 
-/**
+/*
  * Elementwise product of two vectors.
  *
  */
@@ -91,7 +91,7 @@ prodKernel(const T *X, const T *Y, T *Z, I n)
 }
 
 
-/**
+/*
  * Elementwise division of two vectors.
  *
  */
@@ -109,7 +109,7 @@ divKernel(const T *X, const T *Y, T *Z, I n)
 }
 
 
-/**
+/*
  * Scale vector with scalar value 'a'.
  *
  */
@@ -127,7 +127,7 @@ scaleKernel(T a, const T *X, T *Z, I n)
 }
 
 
-/**
+/*
  * Stores absolute values of vector X elements into vector Z.
  *
  */
@@ -145,7 +145,7 @@ absKernel(const T *X, T *Z, I n)
 }
 
 
-/**
+/*
  * Elementwise inversion.
  *
  */
@@ -163,7 +163,7 @@ invKernel(const T *X, T *Z, I n)
 }
 
 
-/**
+/*
  * Add constant 'c' to each vector element.
  *
  */
@@ -181,7 +181,7 @@ addConstKernel(T a, const T *X, T *Z, I n)
 }
 
 
-/**
+/*
  * Compare absolute values of vector 'X' with constant 'c'.
  *
  */
@@ -235,7 +235,6 @@ sumReduceKernel(const T *x, T *out, I n)
   if (tid == 0)
     out[blockIdx.x] = sum;
 }
-
 
 
 /*
@@ -442,6 +441,7 @@ L1NormKernel(const T *x, T *out, I n)
   I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
 
   T sum = 0.0;
+
   // First reduction step before storing data in shared memory.
   if (i < n)
     sum = abs(x[i]);
@@ -478,7 +478,7 @@ invTestKernel(const T *x, T *z, T *out, I n)
   I tid = threadIdx.x;
   I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
 
-  T flag;
+  T flag = 0.0;
 
   // First reduction step before storing data in shared memory.
   if (i < n) {
@@ -531,10 +531,10 @@ constrMaskKernel(const T *c, const T *x, T *m, T *out, I n)
 
   I tid = threadIdx.x;
   I i = blockIdx.x*(blockDim.x*2) + threadIdx.x;
+
   T sum = 0.0;
 
   // First reduction step before storing data in shared memory.
-
   if (i < n){
     // test1 = true if constraints violated
     bool test1 = (std::abs(c[i]) > 1.5 && c[i]*x[i] <= 0.0) ||
@@ -567,8 +567,6 @@ constrMaskKernel(const T *c, const T *x, T *m, T *out, I n)
   if (tid == 0)
     out[blockIdx.x] = sum;
 }
-
-
 
 /*
  * Finds minimum component-wise quotient.
@@ -626,8 +624,9 @@ inline cudaError_t setConst(T a, Vector<T,I>& X)
   ThreadPartitioning<T, I>& p = X.partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
+  const cudaStream_t stream   = p.stream();
 
-  math_kernels::setConstKernel<<<grid, block>>>(a, X.device(), X.size());
+  math_kernels::setConstKernel<<<grid, block, 0, stream>>>(a, X.device(), X.size());
   return cudaGetLastError();
 }
 
@@ -638,8 +637,9 @@ inline cudaError_t linearSum(T a, const Vector<T,I>& X, T b, const Vector<T,I>& 
   ThreadPartitioning<T, I>& p = X.partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
+  const cudaStream_t stream   = p.stream();
 
-  math_kernels::linearSumKernel<<<grid, block>>>(a, X.device(), b, Y.device(), Z.device(), X.size());
+  math_kernels::linearSumKernel<<<grid, block, 0, stream>>>(a, X.device(), b, Y.device(), Z.device(), X.size());
   return cudaGetLastError();
 }
 
@@ -650,8 +650,9 @@ inline cudaError_t prod(const Vector<T,I>& X, const Vector<T,I>& Y, Vector<T,I>&
   ThreadPartitioning<T, I>& p = X.partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
+  const cudaStream_t stream   = p.stream();
 
-  math_kernels::prodKernel<<<grid, block>>>(X.device(), Y.device(), Z.device(), X.size());
+  math_kernels::prodKernel<<<grid, block, 0, stream>>>(X.device(), Y.device(), Z.device(), X.size());
   return cudaGetLastError();
 }
 
@@ -662,8 +663,9 @@ inline cudaError_t div(const Vector<T,I>& X, const Vector<T,I>& Y, Vector<T,I>& 
   ThreadPartitioning<T, I>& p = X.partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
+  const cudaStream_t stream   = p.stream();
 
-  math_kernels::divKernel<<<grid, block>>>(X.device(), Y.device(), Z.device(), X.size());
+  math_kernels::divKernel<<<grid, block, 0, stream>>>(X.device(), Y.device(), Z.device(), X.size());
   return cudaGetLastError();
 }
 
@@ -674,8 +676,9 @@ inline cudaError_t scale(T const a, const Vector<T,I>& X, Vector<T,I>& Z)
   ThreadPartitioning<T, I>& p = X.partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
+  const cudaStream_t stream   = p.stream();
 
-  math_kernels::scaleKernel<<<grid, block>>>(a, X.device(), Z.device(), X.size());
+  math_kernels::scaleKernel<<<grid, block, 0, stream>>>(a, X.device(), Z.device(), X.size());
   return cudaGetLastError();
 }
 
@@ -686,8 +689,9 @@ inline cudaError_t absVal(const Vector<T,I>& X, Vector<T,I>& Z)
   ThreadPartitioning<T, I>& p = X.partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
+  const cudaStream_t stream   = p.stream();
 
-  math_kernels::absKernel<<<grid, block>>>(X.device(), Z.device(), X.size());
+  math_kernels::absKernel<<<grid, block, 0, stream>>>(X.device(), Z.device(), X.size());
   return cudaGetLastError();
 }
 
@@ -698,8 +702,9 @@ inline cudaError_t inv(const Vector<T,I>& X, Vector<T,I>& Z)
   ThreadPartitioning<T, I>& p = X.partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
+  const cudaStream_t stream   = p.stream();
 
-  math_kernels::invKernel<<<grid, block>>>(X.device(), Z.device(), X.size());
+  math_kernels::invKernel<<<grid, block, 0, stream>>>(X.device(), Z.device(), X.size());
   return cudaGetLastError();
 }
 
@@ -710,8 +715,9 @@ inline cudaError_t addConst(T const a, const Vector<T,I>& X, Vector<T,I>& Z)
   ThreadPartitioning<T, I>& p = X.partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
+  const cudaStream_t stream   = p.stream();
 
-  math_kernels::addConstKernel<<<grid, block>>>(a, X.device(), Z.device(), X.size());
+  math_kernels::addConstKernel<<<grid, block, 0, stream>>>(a, X.device(), Z.device(), X.size());
   return cudaGetLastError();
 }
 
@@ -723,8 +729,9 @@ inline cudaError_t compare(T const c, const Vector<T,I>& X, Vector<T,I>& Z)
   ThreadPartitioning<T, I>& p = X.partStream();
   const I grid                = p.grid();
   const unsigned block        = p.block();
+  const cudaStream_t stream   = p.stream();
 
-  math_kernels::compareKernel<<<grid, block>>>(c, X.device(), Z.device(), X.size());
+  math_kernels::compareKernel<<<grid, block, 0, stream>>>(c, X.device(), Z.device(), X.size());
   return cudaGetLastError();
 }
 
@@ -737,8 +744,9 @@ inline T dotProd(const Vector<T,I>& x, const Vector<T,I>& y)
   unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
+  const cudaStream_t stream   = p.stream();
 
-  math_kernels::dotProdKernel<T,I><<< grid, block, shMemSize >>>(x.device(), y.device(), p.devBuffer(), x.size());
+  math_kernels::dotProdKernel<T,I><<<grid, block, shMemSize, stream>>>(x.device(), y.device(), p.devBuffer(), x.size());
 
   unsigned n = grid;
   unsigned nmax = 2*block;
@@ -748,7 +756,7 @@ inline T dotProd(const Vector<T,I>& x, const Vector<T,I>& y)
     p.setPartitioning(n, grid, block, shMemSize);
 
     // Rerun reduction kernel
-    math_kernels::sumReduceKernel<T,I><<< grid, block, shMemSize >>>(p.devBuffer(), p.devBuffer(), n);
+    math_kernels::sumReduceKernel<T,I><<<grid, block, shMemSize, stream>>>(p.devBuffer(), p.devBuffer(), n);
     n = grid;
   }
 
@@ -771,8 +779,9 @@ inline T maxNorm(const Vector<T,I>& x)
   unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
+  const cudaStream_t stream   = p.stream();
 
-  math_kernels::maxNormKernel<T,I><<< grid, block, shMemSize >>>(x.device(), p.devBuffer(), x.size());
+  math_kernels::maxNormKernel<T,I><<<grid, block, shMemSize, stream>>>(x.device(), p.devBuffer(), x.size());
 
   unsigned n = grid;
   unsigned nmax = 2*block;
@@ -782,7 +791,7 @@ inline T maxNorm(const Vector<T,I>& x)
     p.setPartitioning(n, grid, block, shMemSize);
 
     // (Re)run reduction kernel
-    math_kernels::maxNormKernel<T,I><<< grid, block, shMemSize >>>(p.devBuffer(), p.devBuffer(), n);
+    math_kernels::maxNormKernel<T,I><<<grid, block, shMemSize, stream>>>(p.devBuffer(), p.devBuffer(), n);
     n = grid;
   }
 
@@ -806,8 +815,9 @@ inline T wL2NormSquareMask(const Vector<T,I>& x, const Vector<T,I>& w, const Vec
   unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
+  const cudaStream_t stream   = p.stream();
 
-  math_kernels::wL2NormSquareMaskKernel<T,I><<< grid, block, shMemSize >>>(x.device(), w.device(), id.device(), p.devBuffer(), x.size());
+  math_kernels::wL2NormSquareMaskKernel<T,I><<<grid, block, shMemSize, stream>>>(x.device(), w.device(), id.device(), p.devBuffer(), x.size());
 
   unsigned n = grid;
   unsigned nmax = 2*block;
@@ -817,7 +827,7 @@ inline T wL2NormSquareMask(const Vector<T,I>& x, const Vector<T,I>& w, const Vec
     p.setPartitioning(n, grid, block, shMemSize);
 
     // (Re)run reduction kernel
-    math_kernels::sumReduceKernel<T,I><<< grid, block, shMemSize >>>(p.devBuffer(), p.devBuffer(), n);
+    math_kernels::sumReduceKernel<T,I><<<grid, block, shMemSize, stream>>>(p.devBuffer(), p.devBuffer(), n);
     n = grid;
   }
 
@@ -842,8 +852,9 @@ inline T findMin(const Vector<T,I>& x)
   unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
+  const cudaStream_t stream   = p.stream();
 
-  math_kernels::findMinKernel<T,I><<< grid, block, shMemSize >>>(maxVal, x.device(), p.devBuffer(), x.size());
+  math_kernels::findMinKernel<T,I><<<grid, block, shMemSize, stream>>>(maxVal, x.device(), p.devBuffer(), x.size());
 
   unsigned n = grid;
   unsigned nmax = 2*block;
@@ -853,7 +864,7 @@ inline T findMin(const Vector<T,I>& x)
     p.setPartitioning(n, grid, block, shMemSize);
 
     // Rerun reduction kernel
-    math_kernels::findMinKernel<T,I><<< grid, block, shMemSize >>>(maxVal, p.devBuffer(), p.devBuffer(), n);
+    math_kernels::findMinKernel<T,I><<<grid, block, shMemSize, stream>>>(maxVal, p.devBuffer(), p.devBuffer(), n);
     n = grid;
   }
 
@@ -878,8 +889,9 @@ inline T wL2NormSquare(const Vector<T,I>& x, const Vector<T,I>& y)
   unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
+  const cudaStream_t stream   = p.stream();
 
-  math_kernels::wL2NormSquareKernel<T,I><<< grid, block, shMemSize >>>(x.device(), y.device(), p.devBuffer(), x.size());
+  math_kernels::wL2NormSquareKernel<T,I><<<grid, block, shMemSize, stream>>>(x.device(), y.device(), p.devBuffer(), x.size());
 
   unsigned n = grid;
   unsigned nmax = 2*block;
@@ -889,7 +901,7 @@ inline T wL2NormSquare(const Vector<T,I>& x, const Vector<T,I>& y)
     p.setPartitioning(n, grid, block, shMemSize);
 
     // Rerun reduction kernel
-    math_kernels::sumReduceKernel<T,I><<< grid, block, shMemSize >>>(p.devBuffer(), p.devBuffer(), n);
+    math_kernels::sumReduceKernel<T,I><<<grid, block, shMemSize, stream>>>(p.devBuffer(), p.devBuffer(), n);
     n = grid;
   }
 
@@ -913,8 +925,9 @@ inline T L1Norm(const Vector<T,I>& x)
   unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
+  const cudaStream_t stream   = p.stream();
 
-  math_kernels::L1NormKernel<T,I><<< grid, block, shMemSize >>>(x.device(), p.devBuffer(), x.size());
+  math_kernels::L1NormKernel<T,I><<<grid, block, shMemSize, stream>>>(x.device(), p.devBuffer(), x.size());
 
   unsigned n = grid;
   unsigned nmax = 2*block;
@@ -924,7 +937,7 @@ inline T L1Norm(const Vector<T,I>& x)
     p.setPartitioning(n, grid, block, shMemSize);
 
     // Rerun reduction kernel
-    math_kernels::sumReduceKernel<T,I><<< grid, block, shMemSize >>>(p.devBuffer(), p.devBuffer(), n);
+    math_kernels::sumReduceKernel<T,I><<<grid, block, shMemSize, stream>>>(p.devBuffer(), p.devBuffer(), n);
     n = grid;
   }
 
@@ -948,8 +961,9 @@ inline T invTest(const Vector<T,I>& x, Vector<T,I>& z)
   unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
+  const cudaStream_t stream   = p.stream();
 
-  math_kernels::invTestKernel<T,I><<< grid, block, shMemSize >>>(x.device(), z.device(), p.devBuffer(), x.size());
+  math_kernels::invTestKernel<T,I><<<grid, block, shMemSize, stream>>>(x.device(), z.device(), p.devBuffer(), x.size());
 
   unsigned n = grid;
   unsigned nmax = 2*block;
@@ -959,7 +973,7 @@ inline T invTest(const Vector<T,I>& x, Vector<T,I>& z)
     p.setPartitioning(n, grid, block, shMemSize);
 
     // Rerun reduction kernel
-    math_kernels::sumReduceKernel<T,I><<< grid, block, shMemSize >>>(p.devBuffer(), p.devBuffer(), n);
+    math_kernels::sumReduceKernel<T,I><<<grid, block, shMemSize, stream>>>(p.devBuffer(), p.devBuffer(), n);
     n = grid;
   }
 
@@ -983,8 +997,9 @@ inline T constrMask(const Vector<T,I>& c, const Vector<T,I>& x, Vector<T,I>& m)
   unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
+  const cudaStream_t stream   = p.stream();
 
-  math_kernels::constrMaskKernel<T,I><<< grid, block, shMemSize >>>(c.device(), x.device(), m.device(), p.devBuffer(), x.size());
+  math_kernels::constrMaskKernel<T,I><<<grid, block, shMemSize, stream>>>(c.device(), x.device(), m.device(), p.devBuffer(), x.size());
 
   unsigned n = grid;
   unsigned nmax = 2*block;
@@ -994,7 +1009,7 @@ inline T constrMask(const Vector<T,I>& c, const Vector<T,I>& x, Vector<T,I>& m)
     p.setPartitioning(n, grid, block, shMemSize);
 
     // Rerun reduction kernel
-    math_kernels::sumReduceKernel<T,I><<< grid, block, shMemSize >>>(p.devBuffer(), p.devBuffer(), n);
+    math_kernels::sumReduceKernel<T,I><<<grid, block, shMemSize, stream>>>(p.devBuffer(), p.devBuffer(), n);
     n = grid;
   }
 
@@ -1021,8 +1036,9 @@ inline T minQuotient(const Vector<T,I>& num, const Vector<T,I>& den)
   unsigned grid               = p.grid();
   unsigned block              = p.block();
   unsigned shMemSize          = p.shmem();
+  const cudaStream_t stream   = p.stream();
 
-  math_kernels::minQuotientKernel<T,I><<< grid, block, shMemSize >>>(maxVal, num.device(), den.device(), p.devBuffer(), num.size());
+  math_kernels::minQuotientKernel<T,I><<<grid, block, shMemSize, stream>>>(maxVal, num.device(), den.device(), p.devBuffer(), num.size());
 
   // All quotients are computed by now. Find the minimum.
   unsigned n = grid;
@@ -1033,7 +1049,7 @@ inline T minQuotient(const Vector<T,I>& num, const Vector<T,I>& den)
     p.setPartitioning(n, grid, block, shMemSize);
 
     // Rerun reduction kernel
-    math_kernels::findMinKernel<T,I><<< grid, block, shMemSize >>>(maxVal, p.devBuffer(), p.devBuffer(), n);
+    math_kernels::findMinKernel<T,I><<<grid, block, shMemSize, stream>>>(maxVal, p.devBuffer(), p.devBuffer(), n);
     n = grid;
   }
 
@@ -1050,9 +1066,7 @@ inline T minQuotient(const Vector<T,I>& num, const Vector<T,I>& den)
 }
 
 
-
 } // namespace nvec
-
 
 
 #endif // _VECTOR_KERNELS_CUH_

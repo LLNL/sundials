@@ -177,19 +177,39 @@ typedef struct _SUNLinearSolverContent_SPTFQMR *SUNLinearSolverContent_SPTFQMR;
  * PART II: functions exported by sunlinsol_sptfqmr
  * 
  * CONSTRUCTOR:
- *    SUNSPTFQMR creates and allocates memory for a SPTFQMR solver
+ *    SUNLinSol_SPTFQMR creates and allocates memory for a SPTFQMR 
+ *       solver
+ *
+ *    SUNSPTFQMR (deprecated) wrapper for SUNLinSol_SPTFQMR
  *
  * "SET" ROUTINES:
- *    SUNSPTFQMRSSetPrecType updates the type of preconditioning to 
- *       use.  Supported values are PREC_NONE, PREC_LEFT, PREC_RIGHT 
- *       and PREC_BOTH.
- *    SUNSPTFQMRSetMaxl updates the maximum number of iterations to 
- *       allow in the solver.
+ *    SUNLinSol_SPTFQMRSSetPrecType updates the type of 
+ *       preconditioning to use.  Supported values are PREC_NONE, 
+ *       PREC_LEFT, PREC_RIGHT and PREC_BOTH.
+ *    SUNLinSol_SPTFQMRSetMaxl updates the maximum number of 
+ *       iterations to allow in the solver.
+ *
+ *    SUNSPTFQMRSSetPrecType (deprecated) wrapper for 
+ *       SUNLinSol_SPTFQMRSetPrecType
+ *    SUNSPTFQMRSetMaxl (deprecated) wrapper for 
+ *       SUNLinSol_SPTFQMRSetMaxl
+ *
  * -----------------------------------------------------------------
  */
 
+SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_SPTFQMR(N_Vector y,
+                                                  int pretype,
+                                                  int maxl);
+SUNDIALS_EXPORT int SUNLinSol_SPTFQMRSetPrecType(SUNLinearSolver S,
+                                                 int pretype);
+SUNDIALS_EXPORT int SUNLinSol_SPTFQMRSetMaxl(SUNLinearSolver S,
+                                             int maxl);
+
+/* deprecated */
 SUNDIALS_EXPORT SUNLinearSolver SUNSPTFQMR(N_Vector y, int pretype, int maxl);
+/* deprecated */
 SUNDIALS_EXPORT int SUNSPTFQMRSetPrecType(SUNLinearSolver S, int pretype);
+/* deprecated */
 SUNDIALS_EXPORT int SUNSPTFQMRSetMaxl(SUNLinearSolver S, int maxl);
 
 /*

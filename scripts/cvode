@@ -19,6 +19,7 @@ $tar $tarfile $distrobase/include/cvode/cvode_bandpre.h
 $tar $tarfile $distrobase/include/cvode/cvode_bbdpre.h
 $tar $tarfile $distrobase/include/cvode/cvode_diag.h
 $tar $tarfile $distrobase/include/cvode/cvode_direct.h
+$tar $tarfile $distrobase/include/cvode/cvode_ls.h
 $tar $tarfile $distrobase/include/cvode/cvode_spils.h
 
 $tar $tarfile $distrobase/src/cvode/LICENSE
@@ -32,12 +33,11 @@ $tar $tarfile $distrobase/src/cvode/cvode_bbdpre.c
 $tar $tarfile $distrobase/src/cvode/cvode_bbdpre_impl.h
 $tar $tarfile $distrobase/src/cvode/cvode_diag.c
 $tar $tarfile $distrobase/src/cvode/cvode_diag_impl.h
-$tar $tarfile $distrobase/src/cvode/cvode_direct.c
-$tar $tarfile $distrobase/src/cvode/cvode_direct_impl.h
 $tar $tarfile $distrobase/src/cvode/cvode_impl.h
 $tar $tarfile $distrobase/src/cvode/cvode_io.c
-$tar $tarfile $distrobase/src/cvode/cvode_spils.c
-$tar $tarfile $distrobase/src/cvode/cvode_spils_impl.h
+$tar $tarfile $distrobase/src/cvode/cvode_ls.c
+$tar $tarfile $distrobase/src/cvode/cvode_ls_impl.h
+$tar $tarfile $distrobase/src/cvode/cvode_nls.c
 
 echo "   --- Add fcvode module to $tarfile"
 
@@ -53,12 +53,18 @@ $tar $tarfile $distrobase/src/cvode/fcmix/fcvewt.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvjtimes.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvnulllinsol.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvnullmatrix.c
+$tar $tarfile $distrobase/src/cvode/fcmix/fcvnullnonlinsol.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvode.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvode.h
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvpreco.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvroot.c
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvroot.h
 $tar $tarfile $distrobase/src/cvode/fcmix/fcvsparse.c
+
+echo "   --- Add cvode F2003 interface to $tarfile"
+
+$tar $tarfile $distrobase/src/cvode/F90/CMakeLists.txt
+$tar $tarfile $distrobase/src/cvode/F90/fcvode.f90
 
 echo "   --- Add cvode examples to $tarfile"
 
@@ -116,10 +122,28 @@ $tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvRoberts_klu.out
 $tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvRoberts_sps.f
 $tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvRoberts_sps.out
 
+$tar $tarfile $distrobase/examples/cvode/F90_serial/README
+$tar $tarfile $distrobase/examples/cvode/F90_serial/CMakeLists.txt
+$tar $tarfile $distrobase/examples/cvode/F90_serial/cv_analytic_fp.f90
+$tar $tarfile $distrobase/examples/cvode/F90_serial/cv_analytic_fp.out
+$tar $tarfile $distrobase/examples/cvode/F90_serial/cv_analytic_sys_dns.f90
+$tar $tarfile $distrobase/examples/cvode/F90_serial/cv_analytic_sys_dns.out
+$tar $tarfile $distrobase/examples/cvode/F90_serial/cv_analytic_sys_dns_jac.f90
+$tar $tarfile $distrobase/examples/cvode/F90_serial/cv_analytic_sys_dns_jac.out
+$tar $tarfile $distrobase/examples/cvode/F90_serial/cv_analytic_sys_klu.f90
+$tar $tarfile $distrobase/examples/cvode/F90_serial/cv_analytic_sys_klu.out
+$tar $tarfile $distrobase/examples/cvode/F90_serial/cv_brusselator_dns.f90
+$tar $tarfile $distrobase/examples/cvode/F90_serial/cv_brusselator_dns.out
+
 $tar $tarfile $distrobase/examples/cvode/C_openmp/README
 $tar $tarfile $distrobase/examples/cvode/C_openmp/CMakeLists.txt
 $tar $tarfile $distrobase/examples/cvode/C_openmp/cvAdvDiff_bnd_omp.c
 $tar $tarfile $distrobase/examples/cvode/C_openmp/cvAdvDiff_bnd_omp.out
+
+$tar $tarfile $distrobase/examples/cvode/C_openmpdev/README
+$tar $tarfile $distrobase/examples/cvode/C_openmpdev/CMakeLists.txt
+$tar $tarfile $distrobase/examples/cvode/C_openmpdev/cvAdvDiff_kry_ompdev.c
+$tar $tarfile $distrobase/examples/cvode/C_openmpdev/cvAdvDiff_kry_ompdev.out
 
 $tar $tarfile $distrobase/examples/cvode/parallel/README
 $tar $tarfile $distrobase/examples/cvode/parallel/CMakeLists.txt
@@ -150,6 +174,8 @@ $tar $tarfile $distrobase/examples/cvode/cuda/README
 $tar $tarfile $distrobase/examples/cvode/cuda/CMakeLists.txt
 $tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda.cu
 $tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda.out
+$tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda_managed.cu
+$tar $tarfile $distrobase/examples/cvode/cuda/cvAdvDiff_kry_cuda_managed.out
 
 $tar $tarfile $distrobase/examples/cvode/raja/README
 $tar $tarfile $distrobase/examples/cvode/raja/CMakeLists.txt

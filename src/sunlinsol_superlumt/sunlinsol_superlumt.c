@@ -61,6 +61,19 @@ sunindextype GlobalVectorLength_SuperLUMT(N_Vector y);
 
 /*
  * -----------------------------------------------------------------
+ * deprecated wrapper functions
+ * -----------------------------------------------------------------
+ */
+
+SUNLinearSolver SUNSuperLUMT(N_Vector y, SUNMatrix A, int num_threads)
+{ return(SUNLinSol_SuperLUMT(y, A, num_threads)); }
+
+int SUNSuperLUMTSetOrdering(SUNLinearSolver S, int ordering_choice)
+{ return(SUNLinSol_SuperLUMTSetOrdering(S, ordering_choice)); }
+
+
+/*
+ * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------
  */
@@ -69,7 +82,7 @@ sunindextype GlobalVectorLength_SuperLUMT(N_Vector y);
  * Function to create a new SuperLUMT linear solver
  */
 
-SUNLinearSolver SUNSuperLUMT(N_Vector y, SUNMatrix A, int num_threads)
+SUNLinearSolver SUNLinSol_SuperLUMT(N_Vector y, SUNMatrix A, int num_threads)
 {
   SUNLinearSolver S;
   SUNLinearSolver_Ops ops;
@@ -197,7 +210,7 @@ SUNLinearSolver SUNSuperLUMT(N_Vector y, SUNMatrix A, int num_threads)
  * Function to set the ordering type for a SuperLUMT linear solver
  */
 
-int SUNSuperLUMTSetOrdering(SUNLinearSolver S, int ordering_choice)
+int SUNLinSol_SuperLUMTSetOrdering(SUNLinearSolver S, int ordering_choice)
 {
   /* Check for legal ordering_choice */ 
   if ((ordering_choice < 0) || (ordering_choice > 3))

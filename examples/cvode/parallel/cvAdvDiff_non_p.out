@@ -17,5 +17,5 @@ At t = 5.00  max.norm(u) =  3.990405e-05  nst = 785
 
 Final Statistics: 
 
-nst = 785     nfe  = 1442    nni = 1438    ncfn = 140     netf = 5
+nst = 785     nfe  = 1441    nni = 1438    ncfn = 140     netf = 5
  

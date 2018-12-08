@@ -10,7 +10,7 @@ description of their meaning.
 %% Supertabular setings
 
 \newlength{\tcolone}
-\settowidth{\tcolone}{\id{SPTFQMR\_PSOLVE\_FAIL\_UNREC}}
+\settowidth{\tcolone}{\id{CVDIAG\_RHSFUNC\_UNRECVF}}
 \newlength{\tcoltwo}
 \settowidth{\tcoltwo}{-109}
 \newlength{\tcolthree}
@@ -36,8 +36,6 @@ description of their meaning.
 %%
 \id{CV\_ADAMS}            & 1 & Adams-Moulton linear multistep method. \\
 \id{CV\_BDF}              & 2 & BDF linear multistep method. \\
-\id{CV\_FUNCTIONAL}       & 1 & Nonlinear system solution through functional iterations. \\
-\id{CV\_NEWTON}           & 2 & Nonlinear system solution through Newton iterations. \\
 \id{CV\_NORMAL}           & 1 & Solver returns at specified output time. \\
 \id{CV\_ONE\_STEP}        & 2 & Solver returns after each successful step. \\
 \id{CV\_SIMULTANEOUS}     & 1 & Simultaneous corrector forward sensitivity method. \\
@@ -54,7 +52,7 @@ description of their meaning.
 \id{CV\_POLYNOMIAL} & 2 & Use variable-degree polynomial interpolation. \\
 %%
 \\\hline
-\multicolumn{3}{c}{\bf Iterative linear solver module}\\
+\multicolumn{3}{c}{\bf Iterative linear solver modules}\\
 \hline\\
 %%
 \id{PREC\_NONE} & 0 & No preconditioning \\
@@ -93,7 +91,9 @@ description of their meaning.
 \id{CV\_REPTD\_RHSFUNC\_ERR} & -10 & The right-hand side function had repetead recoverable errors. \\
 \id{CV\_UNREC\_RHSFUNC\_ERR} & -11 & The right-hand side function had a recoverable error, but no recovery is possible. \\
 \id{CV\_RTFUNC\_FAIL}        & -12 & The rootfinding function failed in an unrecoverable manner. \\
-\id{CV\_CONSTR\_FAIL}        & -13 & The inequality constraints were violated and the solver was unable to recover. \\
+\id{CV\_NLS\_INIT\_FAIL}     & -13 & The nonlinear solver's init routine failed. \\
+\id{CV\_NLS\_SETUP\_FAIL}    & -14 & The nonlinear solver's setup routine failed. \\
+\id{CV\_CONSTR\_FAIL}        & -15 & The inequality constraints were violated and the solver was unable to recover. \\
 \id{CV\_MEM\_FAIL}           & -20 & A memory allocation failed. \\
 \id{CV\_MEM\_NULL}           & -21 & The \id{cvode\_mem} argument was \id{NULL}. \\
 \id{CV\_ILL\_INPUT}          & -22 & One of the function inputs is illegal. \\
@@ -132,20 +132,24 @@ description of their meaning.
 \id{CV\_GETY\_BADT}   & -107 & Wrong time in interpolation function. \\
 
 \\\hline
-\multicolumn{3}{c}{\bf {\cvdls} linear solver modules}\\
+\multicolumn{3}{c}{\bf {\cvls} linear solver interface}\\
 \hline\\
 
-\id{CVDLS\_SUCCESS}          &  0 & Successful function return. \\
-\id{CVDLS\_MEM\_NULL}        & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
-\id{CVDLS\_LMEM\_NULL}       & -2 & The {\cvdls} linear solver has not been initialized.\\
-\id{CVDLS\_ILL\_INPUT}       & -3 & The {\cvdls} solver is not compatible with the current {\nvector} module.\\
-\id{CVDLS\_MEM\_FAIL}        & -4 & A memory allocation request failed.\\
-\id{CVDLS\_JACFUNC\_UNRECVR} & -5 & The Jacobian function failed in an unrecoverable manner. \\
-\id{CVDLS\_JACFUNC\_RECVR}   & -6 & The Jacobian function had a recoverable error. \\
-\id{CVDLS\_SUNMAT\_FAIL}     & -7 & An error occurred with the current {\sunmatrix} module. \\
-%%
-\id{CVDLS\_NO\_ADJ}          & -101 & The combined forward-backward problem has not been initialized.\\
-\id{CVDLS\_LMEMB\_NULL}      & -102 & The linear solver was not initialized for the backward phase. \\
+\id{CVLS\_SUCCESS}          &  0 & Successful function return. \\
+\id{CVLS\_MEM\_NULL}        & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
+\id{CVLS\_LMEM\_NULL}       & -2 & The {\cvls} linear solver has not been initialized.\\
+\id{CVLS\_ILL\_INPUT}       & -3 & The {\cvls} solver is not compatible with the current {\nvector} module, or an input value was illegal.\\
+\id{CVLS\_MEM\_FAIL}        & -4 & A memory allocation request failed.\\
+\id{CVLS\_PMEM\_NULL}       & -5 & The preconditioner module has not been initialized. \\
+\id{CVLS\_JACFUNC\_UNRECVR} & -6 & The Jacobian function failed in an unrecoverable manner. \\
+\id{CVLS\_JACFUNC\_RECVR}   & -7 & The Jacobian function had a recoverable error. \\
+\id{CVLS\_SUNMAT\_FAIL}     & -8 & An error occurred with the current {\sunmatrix} module. \\
+\id{CVLS\_SUNLS\_FAIL}      & -9 & An error occurred with the current {\sunlinsol} module. \\
+%% 
+\id{CVLS\_NO\_ADJ}          & -101 & The combined forward-backward problem has not been initialized.\\
+\id{CVLS\_LMEMB\_NULL}      & -102 & The linear solver was not initialized for the backward phase. \\
+
+
 
 \\\hline
 \multicolumn{3}{c}{\bf {\cvdiag} linear solver module}\\
@@ -162,23 +166,6 @@ description of their meaning.
 %%
 \id{CVDIAG\_NO\_ADJ} & -101 & The combined forward-backward problem has not been initialized.\\
 
-
-\\\hline
-\multicolumn{3}{c}{\bf {\cvspils} linear solver modules}\\
-\hline\\
-
-\id{CVSPILS\_SUCCESS}      &  0 & Successful function return. \\
-\id{CVSPILS\_MEM\_NULL}    & -1 & The \id{cvode\_mem} argument was \id{NULL}.\\
-\id{CVSPILS\_LMEM\_NULL}   & -2 & The {\cvspils} linear solver has not been initialized.\\
-\id{CVSPILS\_ILL\_INPUT}   & -3 & The {\cvspils} solver is not compatible with the current {\nvector} module, or an input value was illegal.\\
-\id{CVSPILS\_MEM\_FAIL}    & -4 & A memory allocation request failed.\\
-\id{CVSPILS\_PMEM\_NULL}   & -5 & The preconditioner module has not been initialized. \\
-\id{CVSPILS\_SUNLS\_FAIL}  & -6 & An error occurred with the current {\sunlinsol} module. \\
-%%
-\id{CVSPILS\_NO\_ADJ}      & -101 & The combined forward-backward problem has not been initialized.\\
-\id{CVSPILS\_LMEMB\_NULL}  & -102 & The linear solver was not initialized for the backward phase. \\
-
-%\input{spils_constants}
 
 \end{xtabular*} 
 

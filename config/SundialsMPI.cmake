@@ -283,7 +283,7 @@ if(MPI_C_FOUND)
 
   # Create CMakeLists.txt file for "mpi2test" executable
   if(MPI_C_COMPILER)
-
+    
     file(WRITE ${MPITest_DIR}/CMakeLists.txt
       "CMAKE_MINIMUM_REQUIRED(VERSION 3.0.2)\n"
       "PROJECT(mpi2test C)\n"

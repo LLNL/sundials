@@ -17,23 +17,23 @@
 
 # check number of inputs
 if [ "$#" -lt 2 ]; then
-    echo "ERROR: Illegal number of parameters, real and index type required"
+    echo "ERROR: Illegal number of parameters, real and index size required"
     exit 1
 fi
 realtype=$1     # required, precision for realtypes
-indextype=$2    # required, integer type for indices
+indexsize=$2    # required, integer size for indices
 buildthreads=$3 # optional, number of build threads (if empty will use all threads)
 
 # remove old build and install directories
-\rm -rf build_noextlib_${realtype}_${indextype}
-\rm -rf install_noextlib_${realtype}_${indextype}
+\rm -rf build_noextlib_${realtype}_${indexsize}
+\rm -rf install_noextlib_${realtype}_${indexsize}
 
 # create new build and install directories
-mkdir build_noextlib_${realtype}_${indextype}
-mkdir install_noextlib_${realtype}_${indextype}
+mkdir build_noextlib_${realtype}_${indexsize}
+mkdir install_noextlib_${realtype}_${indexsize}
 
 # move to build directory
-cd build_noextlib_${realtype}_${indextype}
+cd build_noextlib_${realtype}_${indexsize}
 
 # number of threads in OpenMP examples
 export OMP_NUM_THREADS=4
@@ -62,16 +62,28 @@ MPIDIR=${APPDIR}/openmpi/1.8.8/bin
 #
 # The CMake option '-D CMAKE_VERBOSE_MAKEFILE=ON' enables additional output during
 # compile time which is useful for debugging build issues.
-# -------------------------------------------------------------------------------
+#
+# Setting the shared linker flags to
+# '-D CMAKE_SHARED_LINKER_FLAGS="-Wl,--no-undefined"'
+# is useful for finding undefined references when building shared libraries
+# ------------------------------------------------------------------------------
 
 echo "START CMAKE"
 cmake \
-    -D CMAKE_INSTALL_PREFIX="../install_noextlib_${realtype}_${indextype}" \
+    -D CMAKE_INSTALL_PREFIX="../install_noextlib_${realtype}_${indexsize}" \
+    \
+    -D BUILD_ARKODE=ON \
+    -D BUILD_CVODE=ON \
+    -D BUILD_CVODES=ON \
+    -D BUILD_IDA=ON \
+    -D BUILD_IDAS=ON \
+    -D BUILD_KINSOL=ON \
     \
     -D SUNDIALS_PRECISION=$realtype \
-    -D SUNDIALS_INDEX_TYPE=$indextype \
+    -D SUNDIALS_INDEX_SIZE=$indexsize \
     \
-    -D FCMIX_ENABLE=ON \
+    -D F77_INTERFACE_ENABLE=ON \
+    -D F2003_INTERFACE_ENABLE=ON \
     \
     -D EXAMPLES_ENABLE_C=ON \
     -D EXAMPLES_ENABLE_CXX=ON \
@@ -92,11 +104,10 @@ cmake \
     -D CMAKE_Fortran_FLAGS='-g' \
     \
     -D MPI_ENABLE=ON \
-    -D MPI_MPICC="${MPIDIR}/mpicc" \
-    -D MPI_MPICXX="${MPIDIR}/mpicxx" \
-    -D MPI_MPIF77="${MPIDIR}/mpif77" \
-    -D MPI_MPIF90="${MPIDIR}/mpif90" \
-    -D MPI_RUN_COMMAND="${MPIDIR}/mpirun" \
+    -D MPI_C_COMPILER="${MPIDIR}/mpicc" \
+    -D MPI_CXX_COMPILER="${MPIDIR}/mpicxx" \
+    -D MPI_Fortran_COMPILER="${MPIDIR}/mpif90" \
+    -D MPIEXEC_EXECUTABLE="${MPIDIR}/mpirun" \
     \
     -D BLAS_ENABLE=OFF \
     -D LAPACK_ENABLE=OFF \

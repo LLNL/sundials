@@ -186,6 +186,9 @@ struct _SUNLinearSolverContent_SPFGMR {
   N_Vector xcor;
   realtype *yg;
   N_Vector vtemp;
+
+  realtype *cv;
+  N_Vector *Xv;
 };
 
 typedef struct _SUNLinearSolverContent_SPFGMR *SUNLinearSolverContent_SPFGMR;
@@ -195,27 +198,53 @@ typedef struct _SUNLinearSolverContent_SPFGMR *SUNLinearSolverContent_SPFGMR;
  * PART II: functions exported by sunlinsol_spfgmr
  * 
  * CONSTRUCTOR:
- *    SUNSPFGMR creates and allocates memory for a SPFGMR solver
+ *    SUNLinSol_SPFGMR creates and allocates memory for a SPFGMR 
+ *       solver
+ *
+ *    SUNSPFGMR (deprecated) wrapper for SUNLinSol_SPFGMR
  *
  * "SET" ROUTINES:
- *    SUNSPFGMRSetPrecType updates whether to use preconditioning.  
- *       Since only right preconditioning is supported, the inputs 
- *       PREC_LEFT, PREC_RIGHT and PREC_BOTH all result in 
- *       PREC_RIGHT.  All other input values default to PREC_NONE.
- *    SUNSPFGMRSetGSType sets the type of Gram-Schmidt 
- *       orthogonalization to use.  Supported values are MODIFIED_GS 
- *       and CLASSICAL_GS.
- *    SUNSPFGMRSetMaxRestarts sets the number of FGMRES restarts to 
- *       allow.  A negative input will result in the default of 0.
+ *    SUNLinSol_SPFGMRSetPrecType updates whether to use 
+ *       preconditioning.  Since only right preconditioning is 
+ *       supported, the inputs PREC_LEFT, PREC_RIGHT and PREC_BOTH 
+ *       all result in PREC_RIGHT.  All other input values default 
+ *       to PREC_NONE.
+ *    SUNLinSol_SPFGMRSetGSType sets the type of Gram-Schmidt 
+ *       orthogonalization to use.  Supported values are 
+ *       MODIFIED_GS and CLASSICAL_GS.
+ *    SUNLinSol_SPFGMRSetMaxRestarts sets the number of FGMRES 
+ *       restarts to allow.  A negative input will result in the 
+ *       default of 0.
+ *
+ *    SUNSPFGMRSetPrecType (deprecated) wrapper for 
+ *       SUNLinSol_SPFGMRSetPrecType
+ *    SUNSPFGMRSetGSType (deprecated) wrapper for 
+ *       SUNLinSol_SPFGMRSetGSType
+ *    SUNSPFGMRSetMaxRestarts (deprecated) wrapper for 
+ *       SUNLinSol_SPFGMRSetMaxRestarts
  *
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT SUNLinearSolver SUNSPFGMR(N_Vector y, int pretype, int maxl);
-SUNDIALS_EXPORT int SUNSPFGMRSetPrecType(SUNLinearSolver S, int pretype);
-SUNDIALS_EXPORT int SUNSPFGMRSetGSType(SUNLinearSolver S, int gstype);
-SUNDIALS_EXPORT int SUNSPFGMRSetMaxRestarts(SUNLinearSolver S, int maxrs);
+SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_SPFGMR(N_Vector y,
+                                                 int pretype,
+                                                 int maxl);
+SUNDIALS_EXPORT int SUNLinSol_SPFGMRSetPrecType(SUNLinearSolver S,
+                                                int pretype);
+SUNDIALS_EXPORT int SUNLinSol_SPFGMRSetGSType(SUNLinearSolver S,
+                                              int gstype);
+SUNDIALS_EXPORT int SUNLinSol_SPFGMRSetMaxRestarts(SUNLinearSolver S,
+                                                   int maxrs);
 
+/* deprecated */
+SUNDIALS_EXPORT SUNLinearSolver SUNSPFGMR(N_Vector y, int pretype, int maxl);
+/* deprecated */
+SUNDIALS_EXPORT int SUNSPFGMRSetPrecType(SUNLinearSolver S, int pretype);
+/* deprecated */
+SUNDIALS_EXPORT int SUNSPFGMRSetGSType(SUNLinearSolver S, int gstype);
+/* deprecated */
+SUNDIALS_EXPORT int SUNSPFGMRSetMaxRestarts(SUNLinearSolver S, int maxrs);
+  
 /*
  * -----------------------------------------------------------------
  * SPFGMR implementations of various useful linear solver operations

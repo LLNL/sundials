@@ -28,6 +28,8 @@ cvs_fwd.tex \
 cvs_adj.tex \
 cvs_nvec.tex \
 cvs_newlinsolv.tex \
+cvs_sunlinsol.tex \
+cvs_sunnonlinsol.tex \
 cvs_constants.tex
 
 EX_FILES = \

@@ -94,7 +94,6 @@
 
 #include <kinsol/kinsol.h>             /* access to KINSOL func., consts.      */
 #include <nvector/nvector_parallel.h>  /* access to MPI parallel N_Vector      */
-#include <kinsol/kinsol_spils.h>       /* access to KINSpils interface         */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver      */
 #include <kinsol/kinsol_bbdpre.h>      /* access to BBD preconditioner         */
 #include <sundials/sundials_dense.h>   /* use generic dense solver in precond. */
@@ -284,20 +283,20 @@ int main(int argc, char *argv[])
      creates a private copy for KINSOL to use. */
   N_VDestroy_Parallel(constraints);
 
-  /* Create SUNSPGMR object with right preconditioning and the 
+  /* Create SUNLinSol_SPGMR object with right preconditioning and the 
      maximum Krylov dimension maxl */
   maxl = 20; 
-  LS = SUNSPGMR(cc, PREC_RIGHT, maxl);
-  if(check_flag((void *)LS, "SUNSPGMR", 0, my_pe)) MPI_Abort(comm, 1);
+  LS = SUNLinSol_SPGMR(cc, PREC_RIGHT, maxl);
+  if(check_flag((void *)LS, "SUNLinSol_SPGMR", 0, my_pe)) MPI_Abort(comm, 1);
 
   /* Attach the linear solver to KINSOL */
-  flag = KINSpilsSetLinearSolver(kmem, LS);
-  if (check_flag(&flag, "KINSpilsSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
+  flag = KINSetLinearSolver(kmem, LS, NULL);
+  if (check_flag(&flag, "KINSetLinearSolver", 1, my_pe)) MPI_Abort(comm, 1);
 
   /* Set the maximum number of restarts */
   maxlrst = 2;
-  flag = SUNSPGMRSetMaxRestarts(LS, maxlrst);
-  if (check_flag(&flag, "SUNSPGMRSpilsSetMaxRestarts", 1, my_pe)) MPI_Abort(comm, 1);
+  flag = SUNLinSol_SPGMRSetMaxRestarts(LS, maxlrst);
+  if (check_flag(&flag, "SUNLinSol_SPGMRSetMaxRestarts", 1, my_pe)) MPI_Abort(comm, 1);
   
   /* Call KINBBDPrecInit to initialize and allocate memory for the
      band-block-diagonal preconditioner, and specify the local and
@@ -810,16 +809,16 @@ static void PrintFinalStats(void *kmem)
   check_flag(&flag, "KINGetNumNonlinSolvIters", 1, 0);
   flag = KINGetNumFuncEvals(kmem, &nfe);
   check_flag(&flag, "KINGetNumFuncEvals", 1, 0);
-  flag = KINSpilsGetNumLinIters(kmem, &nli);
-  check_flag(&flag, "KINSpilsGetNumLinIters", 1, 0);
-  flag = KINSpilsGetNumPrecEvals(kmem, &npe);
-  check_flag(&flag, "KINSpilsGetNumPrecEvals", 1, 0);
-  flag = KINSpilsGetNumPrecSolves(kmem, &nps);
-  check_flag(&flag, "KINSpilsGetNumPrecSolves", 1, 0);
-  flag = KINSpilsGetNumConvFails(kmem, &ncfl);
-  check_flag(&flag, "KINSpilsGetNumConvFails", 1, 0);
-  flag = KINSpilsGetNumFuncEvals(kmem, &nfeSG);
-  check_flag(&flag, "KINSpilsGetNumFuncEvals", 1, 0);
+  flag = KINGetNumLinIters(kmem, &nli);
+  check_flag(&flag, "KINGetNumLinIters", 1, 0);
+  flag = KINGetNumPrecEvals(kmem, &npe);
+  check_flag(&flag, "KINGetNumPrecEvals", 1, 0);
+  flag = KINGetNumPrecSolves(kmem, &nps);
+  check_flag(&flag, "KINGetNumPrecSolves", 1, 0);
+  flag = KINGetNumLinConvFails(kmem, &ncfl);
+  check_flag(&flag, "KINGetNumLinConvFails", 1, 0);
+  flag = KINGetNumLinFuncEvals(kmem, &nfeSG);
+  check_flag(&flag, "KINGetNumLinFuncEvals", 1, 0);
 
   printf("Final Statistics.. \n");
   printf("nni    = %5ld    nli   = %5ld\n", nni, nli);

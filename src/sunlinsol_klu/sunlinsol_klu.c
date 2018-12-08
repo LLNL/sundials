@@ -64,6 +64,23 @@ sunindextype GlobalVectorLength_KLU(N_Vector y);
 
 /*
  * -----------------------------------------------------------------
+ * deprecated wrapper functions
+ * -----------------------------------------------------------------
+ */
+
+SUNLinearSolver SUNKLU(N_Vector y, SUNMatrix A)
+{ return(SUNLinSol_KLU(y, A)); }
+
+int SUNKLUReInit(SUNLinearSolver S, SUNMatrix A,
+                 sunindextype nnz, int reinit_type)
+{ return(SUNLinSol_KLUReInit(S, A, nnz, reinit_type)); }
+
+int SUNKLUSetOrdering(SUNLinearSolver S,
+                      int ordering_choice)
+{ return(SUNLinSol_KLUSetOrdering(S, ordering_choice)); }
+  
+/*
+ * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------
  */
@@ -72,7 +89,7 @@ sunindextype GlobalVectorLength_KLU(N_Vector y);
  * Function to create a new KLU linear solver
  */
 
-SUNLinearSolver SUNKLU(N_Vector y, SUNMatrix A)
+SUNLinearSolver SUNLinSol_KLU(N_Vector y, SUNMatrix A)
 {
   SUNLinearSolver S;
   SUNLinearSolver_Ops ops;
@@ -162,8 +179,8 @@ SUNLinearSolver SUNKLU(N_Vector y, SUNMatrix A)
  * Function to reinitialize a KLU linear solver
  */
 
-int SUNKLUReInit(SUNLinearSolver S, SUNMatrix A,
-                 sunindextype nnz, int reinit_type)
+int SUNLinSol_KLUReInit(SUNLinearSolver S, SUNMatrix A,
+                        sunindextype nnz, int reinit_type)
 {
   /* Check for non-NULL SUNLinearSolver */
   if ((S == NULL) || (A == NULL)) 
@@ -198,7 +215,7 @@ int SUNKLUReInit(SUNLinearSolver S, SUNMatrix A,
  * Function to set the ordering type for a KLU linear solver
  */
 
-int SUNKLUSetOrdering(SUNLinearSolver S, int ordering_choice)
+int SUNLinSol_KLUSetOrdering(SUNLinearSolver S, int ordering_choice)
 {
   /* Check for legal ordering_choice */ 
   if ((ordering_choice < 0) || (ordering_choice > 2))

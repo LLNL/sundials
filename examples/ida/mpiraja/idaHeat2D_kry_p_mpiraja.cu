@@ -67,7 +67,7 @@
 
 /* Global spatial mesh is MX x MY = (NPEX x MXSUB) x (NPEY x MYSUB) */
 
-typedef struct _UserData {
+typedef struct {
   int thispe, npex, npey, ixsub, jysub;
   sunindextype mx, my, mxsub, mysub;
   realtype     dx, dy, coeffx, coeffy, coeffxy;

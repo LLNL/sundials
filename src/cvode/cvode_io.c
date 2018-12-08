@@ -7,8 +7,8 @@
  * -----------------------------------------------------------------
  * LLNS Copyright Start
  * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Lawrence Livermore National Laboratory in part under 
+ * This work was performed under the auspices of the U.S. Department
+ * of Energy by Lawrence Livermore National Laboratory in part under
  * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
  * Produced at the Lawrence Livermore National Laboratory.
  * All rights reserved.
@@ -31,13 +31,13 @@
 #define ONE    RCONST(1.0)
 #define TWOPT5 RCONST(2.5)
 
-/* 
+/*
  * =================================================================
  * CVODE optional input functions
  * =================================================================
  */
 
-/* 
+/*
  * CVodeSetErrHandlerFn
  *
  * Specifies the error handler function
@@ -60,7 +60,7 @@ int CVodeSetErrHandlerFn(void *cvode_mem, CVErrHandlerFn ehfun, void *eh_data)
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * CVodeSetErrFile
  *
  * Specifies the FILE pointer for output (NULL means no messages)
@@ -82,34 +82,7 @@ int CVodeSetErrFile(void *cvode_mem, FILE *errfp)
   return(CV_SUCCESS);
 }
 
-/* 
- * CVodeSetIterType
- *
- * Specifies the iteration type (CV_FUNCTIONAL or CV_NEWTON)
- */
-
-int CVodeSetIterType(void *cvode_mem, int iter)
-{
-  CVodeMem cv_mem;
-
-  if (cvode_mem==NULL) {
-    cvProcessError(NULL, CV_MEM_NULL, "CVODE", "CVodeSetIterType", MSGCV_NO_MEM);
-    return(CV_MEM_NULL);
-  }
-
-  cv_mem = (CVodeMem) cvode_mem;
-
-  if ((iter != CV_FUNCTIONAL) && (iter != CV_NEWTON)) {
-    cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeSetIterType", MSGCV_BAD_ITER);
-    return (CV_ILL_INPUT);
-  }
-
-  cv_mem->cv_iter = iter;
-
-  return(CV_SUCCESS);
-}
-
-/* 
+/*
  * CVodeSetUserData
  *
  * Specifies the user data pointer for f
@@ -131,7 +104,7 @@ int CVodeSetUserData(void *cvode_mem, void *user_data)
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * CVodeSetMaxOrd
  *
  * Specifies the maximum method order
@@ -153,7 +126,7 @@ int CVodeSetMaxOrd(void *cvode_mem, int maxord)
     cvProcessError(cv_mem, CV_ILL_INPUT, "CVODE", "CVodeSetMaxOrd", MSGCV_NEG_MAXORD);
     return(CV_ILL_INPUT);
   }
-  
+
   /* Cannot increase maximum order beyond the value that
      was used when allocating memory */
   qmax_alloc = cv_mem->cv_qmax_alloc;
@@ -168,7 +141,7 @@ int CVodeSetMaxOrd(void *cvode_mem, int maxord)
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * CVodeSetMaxNumSteps
  *
  * Specifies the maximum number of integration steps
@@ -195,7 +168,7 @@ int CVodeSetMaxNumSteps(void *cvode_mem, long int mxsteps)
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * CVodeSetMaxHnilWarns
  *
  * Specifies the maximum number of warnings for small h
@@ -217,7 +190,7 @@ int CVodeSetMaxHnilWarns(void *cvode_mem, int mxhnil)
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  *CVodeSetStabLimDet
  *
  * Turns on/off the stability limit detection algorithm
@@ -244,7 +217,7 @@ int CVodeSetStabLimDet(void *cvode_mem, booleantype sldet)
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * CVodeSetInitStep
  *
  * Specifies the initial step size
@@ -266,7 +239,7 @@ int CVodeSetInitStep(void *cvode_mem, realtype hin)
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * CVodeSetMinStep
  *
  * Specifies the minimum step size
@@ -304,7 +277,7 @@ int CVodeSetMinStep(void *cvode_mem, realtype hmin)
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * CVodeSetMaxStep
  *
  * Specifies the maximum step size
@@ -344,7 +317,7 @@ int CVodeSetMaxStep(void *cvode_mem, realtype hmax)
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * CVodeSetStopTime
  *
  * Specifies the time beyond which the integration is not to proceed.
@@ -379,7 +352,7 @@ int CVodeSetStopTime(void *cvode_mem, realtype tstop)
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * CVodeSetMaxErrTestFails
  *
  * Specifies the maximum number of error test failures during one
@@ -402,10 +375,10 @@ int CVodeSetMaxErrTestFails(void *cvode_mem, int maxnef)
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * CVodeSetMaxConvFails
  *
- * Specifies the maximum number of nonlinear convergence failures 
+ * Specifies the maximum number of nonlinear convergence failures
  * during one step try.
  */
 
@@ -425,7 +398,7 @@ int CVodeSetMaxConvFails(void *cvode_mem, int maxncf)
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * CVodeSetMaxNonlinIters
  *
  * Specifies the maximum number of nonlinear iterations during
@@ -443,12 +416,15 @@ int CVodeSetMaxNonlinIters(void *cvode_mem, int maxcor)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  cv_mem->cv_maxcor = maxcor;
+  if (cv_mem->NLS == NULL) {
+    cvProcessError(NULL, CV_MEM_FAIL, "CVODE", "CVodeSetMaxNonlinIters", MSGCV_MEM_FAIL);
+    return (CV_MEM_FAIL);
+  }
 
-  return(CV_SUCCESS);
+  return(SUNNonlinSolSetMaxIters(cv_mem->NLS, maxcor));
 }
 
-/* 
+/*
  * CVodeSetNonlinConvCoef
  *
  * Specifies the coeficient in the nonlinear solver convergence
@@ -471,7 +447,7 @@ int CVodeSetNonlinConvCoef(void *cvode_mem, realtype nlscoef)
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * CVodeSetRootDirection
  *
  * Specifies the direction of zero-crossings to be monitored.
@@ -493,7 +469,7 @@ int CVodeSetRootDirection(void *cvode_mem, int *rootdir)
   nrt = cv_mem->cv_nrtfn;
   if (nrt==0) {
     cvProcessError(NULL, CV_ILL_INPUT, "CVODE", "CVodeSetRootDirection", MSGCV_NO_ROOT);
-    return(CV_ILL_INPUT);    
+    return(CV_ILL_INPUT);
   }
 
   for(i=0; i<nrt; i++) cv_mem->cv_rootdir[i] = rootdir[i];
@@ -520,7 +496,7 @@ int CVodeSetNoInactiveRootWarn(void *cvode_mem)
   cv_mem = (CVodeMem) cvode_mem;
 
   cv_mem->cv_mxgnull = 0;
-  
+
   return(CV_SUCCESS);
 }
 
@@ -587,7 +563,7 @@ int CVodeSetConstraints(void *cvode_mem, N_Vector constraints)
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * =================================================================
  * CVODE optional output functions
  * =================================================================
@@ -615,7 +591,7 @@ int CVodeGetNumSteps(void *cvode_mem, long int *nsteps)
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * CVodeGetNumRhsEvals
  *
  * Returns the current number of calls to f
@@ -637,7 +613,7 @@ int CVodeGetNumRhsEvals(void *cvode_mem, long int *nfevals)
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * CVodeGetNumLinSolvSetups
  *
  * Returns the current number of calls to the linear solver setup routine
@@ -681,7 +657,7 @@ int CVodeGetNumErrTestFails(void *cvode_mem, long int *netfails)
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * CVodeGetLastOrder
  *
  * Returns the order on the last succesful step
@@ -703,7 +679,7 @@ int CVodeGetLastOrder(void *cvode_mem, int *qlast)
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * CVodeGetCurrentOrder
  *
  * Returns the order to be attempted on the next step
@@ -725,7 +701,7 @@ int CVodeGetCurrentOrder(void *cvode_mem, int *qcur)
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * CVodeGetNumStabLimOrderReds
  *
  * Returns the number of order reductions triggered by the stability
@@ -751,7 +727,7 @@ int CVodeGetNumStabLimOrderReds(void *cvode_mem, long int *nslred)
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * CVodeGetActualInitStep
  *
  * Returns the step size used on the first step
@@ -795,7 +771,7 @@ int CVodeGetLastStep(void *cvode_mem, realtype *hlast)
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * CVodeGetCurrentStep
  *
  * Returns the step size to be attempted on the next step
@@ -811,13 +787,13 @@ int CVodeGetCurrentStep(void *cvode_mem, realtype *hcur)
   }
 
   cv_mem = (CVodeMem) cvode_mem;
-  
+
   *hcur = cv_mem->cv_next_h;
 
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * CVodeGetCurrentTime
  *
  * Returns the current value of the independent variable
@@ -839,7 +815,7 @@ int CVodeGetCurrentTime(void *cvode_mem, realtype *tcur)
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * CVodeGetTolScaleFactor
  *
  * Returns a suggested factor for scaling tolerances
@@ -861,7 +837,7 @@ int CVodeGetTolScaleFactor(void *cvode_mem, realtype *tolsfact)
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * CVodeGetErrWeights
  *
  * This routine returns the current weight vector.
@@ -905,7 +881,7 @@ int CVodeGetEstLocalErrors(void *cvode_mem, N_Vector ele)
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * CVodeGetWorkSpace
  *
  * Returns integrator work space requirements
@@ -928,15 +904,15 @@ int CVodeGetWorkSpace(void *cvode_mem, long int *lenrw, long int *leniw)
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * CVodeGetIntegratorStats
  *
  * Returns integrator statistics
  */
 
-int CVodeGetIntegratorStats(void *cvode_mem, long int *nsteps, long int *nfevals, 
-                            long int *nlinsetups, long int *netfails, int *qlast, 
-                            int *qcur, realtype *hinused, realtype *hlast, 
+int CVodeGetIntegratorStats(void *cvode_mem, long int *nsteps, long int *nfevals,
+                            long int *nlinsetups, long int *netfails, int *qlast,
+                            int *qcur, realtype *hinused, realtype *hlast,
                             realtype *hcur, realtype *tcur)
 {
   CVodeMem cv_mem;
@@ -962,7 +938,7 @@ int CVodeGetIntegratorStats(void *cvode_mem, long int *nsteps, long int *nfevals
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * CVodeGetNumGEvals
  *
  * Returns the current number of calls to g (for rootfinding)
@@ -984,7 +960,7 @@ int CVodeGetNumGEvals(void *cvode_mem, long int *ngevals)
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * CVodeGetRootInfo
  *
  * Returns pointer to array rootsfound showing roots found
@@ -1010,7 +986,7 @@ int CVodeGetRootInfo(void *cvode_mem, int *rootsfound)
 }
 
 
-/* 
+/*
  * CVodeGetNumNonlinSolvIters
  *
  * Returns the current number of iterations in the nonlinear solver
@@ -1027,12 +1003,15 @@ int CVodeGetNumNonlinSolvIters(void *cvode_mem, long int *nniters)
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nniters = cv_mem->cv_nni;
+  if (cv_mem->NLS == NULL) {
+    cvProcessError(NULL, CV_MEM_FAIL, "CVODE", "CVodeGetNumNonlinSolvIters", MSGCV_MEM_FAIL);
+    return (CV_MEM_FAIL);
+  }
 
-  return(CV_SUCCESS);
+  return(SUNNonlinSolGetNumIters(cv_mem->NLS, nniters));
 }
 
-/* 
+/*
  * CVodeGetNumNonlinSolvConvFails
  *
  * Returns the current number of convergence failures in the
@@ -1055,13 +1034,13 @@ int CVodeGetNumNonlinSolvConvFails(void *cvode_mem, long int *nncfails)
   return(CV_SUCCESS);
 }
 
-/* 
+/*
  * CVodeGetNonlinSolvStats
  *
  * Returns nonlinear solver statistics
  */
 
-int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters, 
+int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters,
                             long int *nncfails)
 {
   CVodeMem cv_mem;
@@ -1073,10 +1052,15 @@ int CVodeGetNonlinSolvStats(void *cvode_mem, long int *nniters,
 
   cv_mem = (CVodeMem) cvode_mem;
 
-  *nniters = cv_mem->cv_nni;
   *nncfails = cv_mem->cv_ncfn;
 
-  return(CV_SUCCESS);
+  if (cv_mem->NLS == NULL) {
+    cvProcessError(NULL, CV_MEM_FAIL, "CVODE", "CVodeGetNonlinSolvStats", MSGCV_MEM_FAIL);
+    return (CV_MEM_FAIL);
+  }
+
+  return(SUNNonlinSolGetNumIters(cv_mem->NLS, nniters));
+
 }
 
 /*-----------------------------------------------------------------*/
@@ -1156,11 +1140,16 @@ char *CVodeGetReturnFlagName(long int flag)
     break;
   case CV_TOO_CLOSE:
     sprintf(name,"CV_TOO_CLOSE");
-    break;    
+    break;
+  case CV_NLS_INIT_FAIL:
+    sprintf(name,"CV_NLS_INIT_FAIL");
+    break;
+  case CV_NLS_SETUP_FAIL:
+    sprintf(name,"CV_NLS_SETUPT_FAIL");
+    break;
   default:
     sprintf(name,"NONE");
   }
 
   return(name);
 }
-

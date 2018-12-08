@@ -20,7 +20,7 @@ The {\em dls} family contains the following two generic linear solvers:
 \item The {\band} package, a linear solver for banded matrices either specified 
   through a matrix type (defined below) or as simple arrays.
 \end{itemize}
-Note that this family also includes the Blas/Lapack linear solvers (dense and band) 
+Note that this family also includes the BLAS/LAPACK linear solvers (dense and band) 
 available to the {\sundials} solvers, but these are not discussed here.
 
 The {\em sls} family contains a sparse matrix package and interfaces between
@@ -273,7 +273,7 @@ in the {\dense} package.  For full details, see the header files
 \item \id{NewIndexArray}: allocation of an array of integers for use
   as pivots with \id{DenseGETRF} and \id{DenseGETRS};
 \item \id{NewIntArray}: allocation of an array of \id{int} integers for use
-  as pivots with the Lapack dense solvers;
+  as pivots with the LAPACK dense solvers;
 \item \id{NewRealArray}: allocation of an array of \id{realtype} for use
   as right-hand side with \id{DenseGETRS};
 \item \id{DestroyArray}: free memory for an array;
@@ -434,7 +434,7 @@ in the {\band} package.  For full details, see the header files
 \item \id{NewIndexArray}: allocation of an array of integers for use
   as pivots with \id{BandGBRF} and \id{BandGBRS};
 \item \id{NewIntArray}: allocation of an array of \id{int} integers for use
-  as pivots with the Lapack band solvers;
+  as pivots with the LAPACK band solvers;
 \item \id{NewRealArray}: allocation of an array of \id{realtype} for use
   as right-hand side with \id{BandGBRS};
 \item \id{DestroyArray}: free memory for an array;

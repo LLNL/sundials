@@ -1,4 +1,105 @@
-Changes to SUNDIALS since Release of Sep. 28 2018.
+Changes to SUNDIALS in release 4.0.0
+
+The direct and iterative linear solver interfaces in all SUNDIALS packages have
+been merged into a single unified linear solver interface to support any valid
+SUNLINSOL module. This includes the DIRECT and ITERATIVE types as well as the
+new MATRIX_ITERATIVE type. Details regarding how SUNDIALS packages utilize linear
+solvers of each type as well as discussion regarding intended use cases for
+user-supplied SUNLINSOL implementations are included in the SUNLINSOL chapter of
+the user guides. All example programs have been updated to use the new unified
+interfaces.
+
+The unified interface is very similar to the previous DLS and SPILS interfaces.
+To minimize challenges in user migration to the unified linear solver interface,
+the previous DLS and SPILS routines for all packages may still be used; these
+will be deprecated in future releases, so we recommend that users migrate to the
+new names soon. Additionally, we note that Fortran users will need to enlarge
+their iout array of optional integer outputs, and update the indices that they
+query for certain linear-solver-related statistics.
+
+The names of all constructor routines for SUNDIALS-provided SUNLinSol
+implementations have been updated to follow the naming convention SUNLinSol_*
+where * is the name of the linear solver e.g., Dense, KLU, SPGMR, PCG, etc.
+Solver-specific ``set'' routine names have been similarly standardized. To
+minimize challenges in user migration to the new names, the previous routine
+names may still be used; these will be deprecated in future releases, so we
+recommend that users migrate to the new names soon. All example programs have
+been updated to used the new naming convention.
+
+The SUNBandMatrix constructor has been simplified to remove the storage upper
+bandwidth argument.
+
+SUNDIALS integrators (ARKode, CVODE, CVODES, IDA, and IDAS) have been updated to
+utilize generic nonlinear solver modules through the SUNNONLINSOL API. This API
+will ease the addition of new nonlinear solver options and allow for external or
+user-supplied nonlinear solvers. The SUNNONLINSOL API and provided SUNNONLINSOL
+modules are described in a new user guide chapter and follow the same object
+oriented design and implementation used by the NVECTOR, SUNMATRIX, and
+SUNLINSOL modules. All integrator example programs have also been updated to
+used the new nonlinear solver API.
+
+Three fused vector operations and seven vector array operations have been added
+to the NVECTOR API. These optional operations are disabled by default and may be
+activated by calling vector specific routines after creating an NVECTOR. See the
+NVECTOR chapter in the user guides for more information on the new operations.
+
+Added a new NVECTOR (NVECTOR_OPENMPDEV) which leverages OpenMP 4.5+ device offloading.
+
+Multiple updates to the CUDA NVECTOR were made:
+
+  * Changed the N_VMake_Cuda function to take a host data pointer and a device
+    data pointer instead of an N_VectorContent_Cuda object.
+    
+  * Changed N_VGetLength_Cuda to return the global vector length instead of
+    the local vector length.
+
+  * Added N_VGetLocalLength_Cuda to return the local vector length.
+  
+  * Added N_VGetMPIComm_Cuda to return the MPI communicator used.
+
+  * Removed the accessor functions in the namespace suncudavec.
+  
+  * Added the ability to set the cudaStream_t used for execution of the CUDA
+    NVECTOR kernels. See the function N_VSetCudaStreams_Cuda.
+
+  * Added N_VNewManaged_Cuda, N_VMakeManaged_Cuda, and N_VIsManagedMemory_Cuda
+    functions to accommodate using managed memory with the CUDA NVECTOR.
+
+Multiple updates to the RAJA NVECTOR were made:
+
+  * Changed N_VGetLength_Raja to return the global vector length instead of
+    the local vector length.
+
+  * Added N_VGetLocalLength_Raja to return the local vector length.
+
+  * Added N_VGetMPIComm_Raja to return the MPI communicator used.
+ 
+  * Removed the accessor functions in the namespace sunrajavec.
+
+Two changes were made in the CVODE/CVODES/ARKODE initial step size algorithm:
+
+  1. Fixed an efficiency bug where an extra call to the RHS function was made.
+  2. Changed the behavior of the algorithm if the max-iterations case is hit.
+     Before the algorithm would exit with the step size calculated on the 
+     penultimate iteration. Now it will exit with the step size calculated
+     on the final iteration.
+
+Fortran 2003 interfaces to CVODE, the fixed-point and Newton nonlinear solvers,
+the dense, band, KLU, PCG, SPBCGS, SPFGMR, SPGMR, and SPTFQMR linear solvers,
+and the serial, PThreads, and OpenMP NVECTORs have been added.
+
+The ARKode library has been entirely rewritten to support a modular approach to
+one-step methods, which should allow for rapid research and development of novel
+integration methods without affecting existing solver functionality.
+
+A new ARKode stepper, MRIStep, has been added for two rate explicit-explicit
+multirate infinitesimal step methods.
+
+ARKode's dense output infrastructure has been improved to support higher-degree
+Hermite polynomial interpolants (up to degree 5) over the last successful time step.
+
+
+Changes to SUNDIALS in release 3.2.1
 
 * Fixed a bug in the CUDA NVECTOR where the N_VInvTest operation could write
   beyond the allocated vector data.
@@ -8,7 +109,7 @@ Changes to SUNDIALS since Release of Sep. 28 2018.
   from CMAKE_INSTALL_PREFIX/lib. CMAKE_INSTALL_LIBDIR is automatically set, but is
   available as a CMAKE option that can modified.
 
-Changes to SUNDIALS since Release of Jul. 31 2018.
+Changes to SUNDIALS in release 3.2.0
 
 * Fixed problem with index types which would occur with some compilers
   (e.g. armclang) that did not define __STDC_VERSION__. The fix includes
@@ -42,9 +143,9 @@ Changes to SUNDIALS since Release of Jul. 31 2018.
   executable for running MPI programs have been updated to align with those in
   native CMake FindMPI module. This included changing MPI_MPICC to MPI_C_COMPILER,
   MPI_MPICXX to MPI_CXX_COMPILER combining MPI_MPIF77 and MPI_MPIF90 to
-  MPI_Fortran_COMPILER, and changing MPI_RUN_COMMAND to MPIEXEC. When a Fortran
-  name-mangling scheme is needed (e.g., LAPACK_ENABLE is ON) the build system will
-  infer the scheme from the Fortran compiler. If a Fortran compiler is not
+  MPI_Fortran_COMPILER, and changing MPI_RUN_COMMAND to MPIEXEC_EXECUTABLE. When a
+  Fortran name-mangling scheme is needed (e.g., LAPACK_ENABLE is ON) the build system
+  will infer the scheme from the Fortran compiler. If a Fortran compiler is not
   available or the inferred or default scheme needs to be overridden, the advanced
   options SUNDIALS_F77_FUNC_CASE and SUNDIALS_F77_FUNC_UNDERSCORES can be used to
   manually set the name-mangling scheme and bypass trying to infer the scheme.
@@ -52,7 +153,7 @@ Changes to SUNDIALS since Release of Jul. 31 2018.
   the src and example directories to make the CMake configuration file structure
   more modular.
 
-Changes to SUNDIALS since Release of May. 7, 2018.
+Changes in SUNDIALS in release 3.1.2
 
 * Fixed Windows specific problem where sunindextype was not correctly 
   defined when using 64-bit integers for the sundials index type. On Windows
@@ -88,9 +189,7 @@ Changes to SUNDIALS since Release of May. 7, 2018.
   for the sum $I+\gamma J$ or $M+\gamma J$ manually (with zero entries
   if needed).
 
-
-
-Changes to SUNDIALS since Release of Nov. 7, 2017.
+Changes to SUNDIALS in release 3.1.1
 
 * Fixed a minor bug in the CVODE and CVODES cvSLdet routine, where a
   return was missing in the error check for three inconsistent roots.
@@ -137,10 +236,7 @@ Changes to SUNDIALS since Release of Nov. 7, 2017.
   in CVODE, etc.).
 
 
-
-
-
-Changes to SUNDIALS since Release of Oct. 26, 2017.
+Changes to SUNDIALS in release 3.1.0
 
 * Added NVECTOR print functions that write vector data to a specified
   file (e.g., N_VPrintFile_Serial).
@@ -153,7 +249,7 @@ Changes to SUNDIALS since Release of Oct. 26, 2017.
 
 
 
-Changes to SUNDIALS since Release of Sept. 30, 2016.
+Changes to SUNDIALS in release 3.0.0
 
 * New linear solver API and interfaces for all SUNDIALS packages and 
   linear solvers

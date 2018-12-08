@@ -42,7 +42,7 @@ The names of all the examples are given in the following table.
 \end{center}
 
 \vspace{0.2in}\noindent
-With the exception of ''demo''-type example files, the names of all the examples 
+With the exception of ``demo''-type example files, the names of all the examples 
 distributed with {\sundials} are of the form \verb![slv][PbName]_[SA]_[ls]_[prec]_[p]!, 
 where
 \begin{description}
@@ -82,7 +82,7 @@ following serial examples (using the {\nvecs} module):
   of two differential equations and one algebraic constraint.  It also uses
   the rootfinding feature of {\idas}.
 
-  The problem is solved with the {\idadense} linear solver using
+  The problem is solved with the {\sunlinsoldense} linear solver using
   a user-supplied Jacobian.
 
 \item \id{idasRoberts\_klu}
@@ -99,13 +99,13 @@ following serial examples (using the {\nvecs} module):
   The Netherlands, and describes a chemical process in which two
   species are mixed, while carbon dioxide is continuously added.
 
-  The problem is solved with the {\idadense} linear solver using the
+  The problem is solved with the {\sunlinsoldense} linear solver using the
   default difference quotient dense Jacobian approximation.
 
 \item \id{idasHeat2D\_bnd}
   solves a 2-D heat equation, semidiscretized to a DAE on the unit square.
 
-  This program solves the problem with the {\idaband} linear solver and
+  This program solves the problem with the {\sunlinsolband} linear solver and
   the default difference-quotient Jacobian approximation. For purposes of
   illustration, \id{IDACalcIC} is called to compute correct values at the
   boundary, given incorrect values as input initial guesses. The constraint
@@ -113,7 +113,7 @@ following serial examples (using the {\nvecs} module):
 
 \item \id{idasHeat2D\_kry}
   solves the same 2-D heat equation problem as \id{idasHeat2D\_bnd}, with the Krylov
-  linear solver {\idaspgmr}. The preconditioner uses only the diagonal elements
+  linear solver {\sunlinsolspgmr}. The preconditioner uses only the diagonal elements
   of the Jacobian.
 
 \item \id{idasFoodWeb\_bnd}
@@ -121,7 +121,7 @@ following serial examples (using the {\nvecs} module):
   interaction and diffusion, on the unit square in 2-D.
 
   The PDEs are discretized in space to a system of DAEs which are solved
-  using the {\idaband} linear solver with the default difference-quotient 
+  using the {\sunlinsolband} linear solver with the default difference-quotient 
   Jacobian approximation.
 
 \item \id{idasSlCrank\_dns}
@@ -134,7 +134,7 @@ following serial examples (using the {\nvecs} module):
 
 \item \id{idasKrylovDemo\_ls}
   solves the same problem as \id{idasHeat2D\_kry}, with three Krylov linear solvers
-  {\idaspgmr}, {\idaspbcg}, and {\idasptfqmr}.  The preconditioner uses only
+  {\sunlinsolspgmr}, {\sunlinsolspbcgs}, and {\sunlinsolsptfqmr}.  The preconditioner uses only
   the diagonal elements of the Jacobian.
 
 %% FSA examples
@@ -144,7 +144,7 @@ following serial examples (using the {\nvecs} module):
   \newline
   {\idas} also computes both its solution and solution sensitivities with respect
   to the three reaction rate constants appearing in the model. 
-  This program solves the problem with the {\idadense} linear solver, and a 
+  This program solves the problem with the {\sunlinsoldense} linear solver, and a 
   user-supplied Jacobian routine.
 
 \item \id{idasRoberts\_FSA\_klu}
@@ -172,7 +172,7 @@ following serial examples (using the {\nvecs} module):
   of a functional of the solution with respect to the three
   reaction rate constants appearing in the model.
   This program solves both the forward and backward problems with the 
-  {\idadense} linear solver, and user-supplied Jacobian routines.
+  {\sunlinsoldense} linear solver, and user-supplied Jacobian routines.
 
 \item \id{idasRoberts\_ASAi\_klu}
   solves the same problem as in \id{idasRoberts\_ASAi\_dns}, but
@@ -211,33 +211,33 @@ the following parallel examples (using the {\nvecp} module):
 %% IVP integration examples
 
 \item \id{idasHeat2D\_kry\_p}
-  solves the same 2-D heat equation problem as \id{idasHeat2D\_kry}, with {\idaspgmr}
+  solves the same 2-D heat equation problem as \id{idasHeat2D\_kry}, with {\sunlinsolspgmr}
   in parallel, and with a user-supplied diagonal preconditioner,
   
 \item \id{idasHeat2D\_kry\_bbd\_p}
   solves the same problem as \id{idasHeat2D\_kry\_p}.
 
-  This program uses the {\idaspgmr} linear solver in parallel,
+  This program uses the {\sunlinsolspgmr} linear solver in parallel,
   and the band-block-diagonal preconditioner {\idabbdpre} with half-bandwidths 
   equal to $1$.
 
 \item \id{idasFoodWeb\_kry\_p}
-  solves the same food web problem as \id{idasFoodWeb\_bnd}, but with {\idaspgmr}
+  solves the same food web problem as \id{idasFoodWeb\_bnd}, but with {\sunlinsolspgmr}
   and a user-supplied preconditioner.
   
-  The preconditioner supplied to {\idaspgmr} is the block-diagonal part of 
+  The preconditioner supplied to {\sunlinsolspgmr} is the block-diagonal part of 
   the Jacobian with $n_s \times n_s$ blocks arising from the reaction terms only
   ($n_s =$ number of species).
 
 \item \id{idasFoodWeb\_kry\_bbd\_p}
   solves the same food web problem as \id{idasFoodWeb\_kry\_p}.
 
-  This program solves the problem using {\idaspgmr} in parallel and the
+  This program solves the problem using {\sunlinsolspgmr} in parallel and the
   {\idabbdpre} preconditioner.
 
 \item \id{idasBruss\_kry\_bbd\_p}
   solves the two-species time-dependent PDE known as the Brusselator problem,
-  using the {\idaspgmr} linear solver and the {\idabbdpre} preconditioner.
+  using the {\sunlinsolspgmr} linear solver and the {\idabbdpre} preconditioner.
 
   The PDEs are discretized by central differencing on a 2D spatial mesh.
   The system is actually implemented on submeshes, processor by processor.

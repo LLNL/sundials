@@ -1,6 +1,6 @@
 /* -----------------------------------------------------------------
  * Programmer(s): Slaven Peles @ LLNL
- * (based on PETSc TS example 15 and a SUNDIALS example by 
+ * (based on PETSc TS example 15 and a SUNDIALS example by
  *  Allan Taylor, Alan Hindmarsh and Radu Serban)
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -17,7 +17,7 @@
  * solver and vector.
  *
  * This example solves a discretized 2D heat equation problem.
- * This version uses the Krylov solver IDASpgmr.
+ * This version uses the Krylov solver Spgmr.
  *
  * The DAE system solved is a spatial discretization of the PDE
  *          du/dt = d^2u/dx^2 + d^2u/dy^2
@@ -33,8 +33,8 @@
  * processors.
  *
  * The system is solved with IDA using default PETSc linear solver
- * The constraints u >= 0 are posed for all components. Local error 
- * testing on the boundary values is suppressed. Output is taken 
+ * The constraints u >= 0 are posed for all components. Local error
+ * testing on the boundary values is suppressed. Output is taken
  * at t = 0, .01, .02, .04, ..., 10.24.
  * -----------------------------------------------------------------
  */
@@ -69,7 +69,7 @@
 #define MY           (NPEY*MYSUB)   /* MY = number of y mesh points */
                                     /* Spatial mesh is MX by MY */
 
-typedef struct {  
+typedef struct {
   DM          da;    /* PETSc data management object */
 } *UserData;
 
@@ -77,7 +77,7 @@ typedef struct {
 
 int resHeat(realtype tt, N_Vector uu, N_Vector up, N_Vector rr, void *user_data);
 
-int jacHeat(realtype tt,  realtype c_j, 
+int jacHeat(realtype tt,  realtype c_j,
             N_Vector yy, N_Vector yp, N_Vector resvec,
             Mat Jpre, void *user_data,
             N_Vector tempv1, N_Vector tempv2, N_Vector tempv3);
@@ -93,7 +93,7 @@ static void PrintOutput(int id, void *mem, realtype t, N_Vector uu);
 
 static void PrintFinalStats(void *mem);
 
-static int check_flag(void *flagvalue, const char *funcname, int opt, int id);
+static int check_retval(void *returnvalue, const char *funcname, int opt, int id);
 
 /*
  *--------------------------------------------------------------------
@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
   MPI_Comm comm;
   void *mem;
   UserData data;
-  int iout, thispe, ier, npes;
+  int iout, thispe, retval, npes;
   sunindextype Neq, local_N;
   realtype rtol, atol, t0, t1, tout, tret;
   N_Vector uu, up, constraints, id, res;
@@ -124,33 +124,33 @@ int main(int argc, char *argv[])
   comm = MPI_COMM_WORLD;
   MPI_Comm_size(comm, &npes);
   MPI_Comm_rank(comm, &thispe);
-  
+
   /* Initialize PETSc */
   ierr = PetscInitializeNoArguments();
   CHKERRQ(ierr);
 
   if (npes != NPEX*NPEY) {
     if (thispe == 0)
-      fprintf(stderr, 
-              "\nMPI_ERROR(0): npes = %d is not equal to NPEX*NPEY = %d\n", 
+      fprintf(stderr,
+              "\nMPI_ERROR(0): npes = %d is not equal to NPEX*NPEY = %d\n",
               npes,NPEX*NPEY);
     MPI_Finalize();
     return(1);
   }
-  
+
   /* Set local length local_N and global length Neq. */
 
   local_N = MXSUB*MYSUB;
   Neq     = MX * MY;
-  
+
   /* Allocate and initialize the data structure and N-vectors. */
 
   data = (UserData) malloc(sizeof *data);
-  if(check_flag((void *)data, "malloc", 2, thispe)) 
+  if(check_retval((void *)data, "malloc", 2, thispe))
     MPI_Abort(comm, 1);
   data->da = NULL;
 
-  ierr = DMDACreate2d(comm, 
+  ierr = DMDACreate2d(comm,
                       DM_BOUNDARY_NONE,  /* NONE, PERIODIC, GHOSTED*/
                       DM_BOUNDARY_NONE,
                       DMDA_STENCIL_STAR, /* STAR, BOX */
@@ -175,36 +175,36 @@ int main(int argc, char *argv[])
   CHKERRQ(ierr);
 
   /* Make N_Vector wrapper for uvec */
-  uu = N_VMake_Petsc(&uvec);
-  if(check_flag((void *)uu, "N_VNew_Petsc", 0, thispe)) 
+  uu = N_VMake_Petsc(uvec);
+  if(check_retval((void *)uu, "N_VNew_Petsc", 0, thispe))
     MPI_Abort(comm, 1);
 
   up = N_VClone(uu);
-  if(check_flag((void *)up, "N_VNew_Petsc", 0, thispe)) 
+  if(check_retval((void *)up, "N_VNew_Petsc", 0, thispe))
     MPI_Abort(comm, 1);
 
   res = N_VClone(uu);
-  if(check_flag((void *)res, "N_VNew_Petsc", 0, thispe)) 
+  if(check_retval((void *)res, "N_VNew_Petsc", 0, thispe))
     MPI_Abort(comm, 1);
 
   constraints = N_VClone(uu);
-  if(check_flag((void *)constraints, "N_VNew_Petsc", 0, thispe)) 
+  if(check_retval((void *)constraints, "N_VNew_Petsc", 0, thispe))
     MPI_Abort(comm, 1);
 
   id = N_VClone(uu);
-  if(check_flag((void *)id, "N_VNew_Petsc", 0, thispe)) 
+  if(check_retval((void *)id, "N_VNew_Petsc", 0, thispe))
     MPI_Abort(comm, 1);
 
   /* Initialize the uu, up, id, and res profiles. */
 
   SetInitialProfile(uu, up, id, res, data);
-  
+
   /* Set constraints to all 1's for nonnegative solution values. */
 
   N_VConst(ONE, constraints);
-  
+
   t0 = ZERO; t1 = RCONST(0.01);
-  
+
   /* Scalar relative and absolute tolerance. */
 
   rtol = ZERO;
@@ -213,54 +213,54 @@ int main(int argc, char *argv[])
   /* Call IDACreate and IDAMalloc to initialize solution. */
 
   mem = IDACreate();
-  if(check_flag((void *)mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
+  if(check_retval((void *)mem, "IDACreate", 0, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASetUserData(mem, data);
-  if(check_flag(&ier, "IDASetUserData", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDASetUserData(mem, data);
+  if(check_retval(&retval, "IDASetUserData", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASetSuppressAlg(mem, SUNTRUE);
-  if(check_flag(&ier, "IDASetSuppressAlg", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDASetSuppressAlg(mem, SUNTRUE);
+  if(check_retval(&retval, "IDASetSuppressAlg", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASetId(mem, id);
-  if(check_flag(&ier, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDASetId(mem, id);
+  if(check_retval(&retval, "IDASetId", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDASetConstraints(mem, constraints);
-  if(check_flag(&ier, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
-  N_VDestroy_Petsc(constraints);  
+  retval = IDASetConstraints(mem, constraints);
+  if(check_retval(&retval, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
+  N_VDestroy_Petsc(constraints);
 
-  ier = IDAInit(mem, resHeat, t0, uu, up);
-  if(check_flag(&ier, "IDAInit", 1, thispe)) MPI_Abort(comm, 1);
-  
-  ier = IDASStolerances(mem, rtol, atol);
-  if(check_flag(&ier, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDAInit(mem, resHeat, t0, uu, up);
+  if(check_retval(&retval, "IDAInit", 1, thispe)) MPI_Abort(comm, 1);
 
-  /* Call IDASpgmr to specify the linear solver. */
+  retval = IDASStolerances(mem, rtol, atol);
+  if(check_retval(&retval, "IDASStolerances", 1, thispe)) MPI_Abort(comm, 1);
 
-  ier = IDAPETScKSP(mem, comm, &Jac);
-  if(check_flag(&ier, "IDAKSP", 1, thispe)) MPI_Abort(comm, 1);
+  /* Call Spgmr to specify the linear solver. */
 
-  ier = IDAPETScSetJacFn(mem, jacHeat);
-  if(check_flag(&ier, "IDAPETScSetJacFn", 1, thispe)) MPI_Abort(comm, 1);
+  retval = IDAPETScKSP(mem, comm, &Jac);
+  if(check_retval(&retval, "IDAKSP", 1, thispe)) MPI_Abort(comm, 1);
+
+  retval = IDAPETScSetJacFn(mem, jacHeat);
+  if(check_retval(&retval, "IDAPETScSetJacFn", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Print output heading (on processor 0 only) and intial solution  */
-  
+
   if (thispe == 0) PrintHeader(Neq, rtol, atol);
-  PrintOutput(thispe, mem, t0, uu); 
-  
+  PrintOutput(thispe, mem, t0, uu);
+
   /* Loop over tout, call IDASolve, print output. */
 
   for (tout = t1, iout = 1; iout <= NOUT; iout++, tout *= TWO) {
 
-    ier = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
-    if(check_flag(&ier, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
+    retval = IDASolve(mem, tout, &tret, uu, up, IDA_NORMAL);
+    if(check_retval(&retval, "IDASolve", 1, thispe)) MPI_Abort(comm, 1);
 
     PrintOutput(thispe, mem, tret, uu);
 
   }
-  
+
   /* Print remaining counters. */
 
-  if (thispe == 0) 
+  if (thispe == 0)
     PrintFinalStats(mem);
 
   /* Free memory */
@@ -280,7 +280,7 @@ int main(int argc, char *argv[])
   ierr = DMDestroy(&data->da);
   CHKERRQ(ierr);
   free(data);
-  
+
   ierr = PetscFinalize();
   CHKERRQ(ierr);
 
@@ -297,17 +297,17 @@ int main(int argc, char *argv[])
  */
 
 /*
- * resHeat: heat equation system residual function                       
- * This uses 5-point central differencing on the interior points, and    
- * includes algebraic equations for the boundary values.                 
- * So for each interior point, the residual component has the form       
- *    res_i = u'_i - (central difference)_i                              
- * while for each boundary point, it is res_i = u_i. 
- *                    
+ * resHeat: heat equation system residual function
+ * This uses 5-point central differencing on the interior points, and
+ * includes algebraic equations for the boundary values.
+ * So for each interior point, the residual component has the form
+ *    res_i = u'_i - (central difference)_i
+ * while for each boundary point, it is res_i = u_i.
+ *
  */
 
-int resHeat(realtype tt, 
-            N_Vector uu, N_Vector up, N_Vector rr, 
+int resHeat(realtype tt,
+            N_Vector uu, N_Vector up, N_Vector rr,
             void *user_data)
 {
   PetscErrorCode ierr;
@@ -317,12 +317,12 @@ int resHeat(realtype tt,
   PetscReal      hx,hy,sx,sy;
   PetscScalar    u,uxx,uyy,**uarray,**f,**udot;
   Vec localU;
-  Vec *U    = N_VGetVector_Petsc(uu);
-  Vec *Udot = N_VGetVector_Petsc(up);
-  Vec *F    = N_VGetVector_Petsc(rr);
+  Vec U    = N_VGetVector_Petsc(uu);
+  Vec Udot = N_VGetVector_Petsc(up);
+  Vec F    = N_VGetVector_Petsc(rr);
 
   PetscFunctionBeginUser;
-  ierr = DMGetLocalVector(da,&localU);CHKERRQ(ierr);
+  ierr = DMGetLocalVector(da, localU); CHKERRQ(ierr);
   ierr = DMDAGetInfo(da,PETSC_IGNORE,&Mx,&My,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,
                      PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE);
 
@@ -335,13 +335,13 @@ int resHeat(realtype tt,
      By placing code between these two statements, computations can be
      done while messages are in transition.
   */
-  ierr = DMGlobalToLocalBegin(da,*U,INSERT_VALUES,localU);CHKERRQ(ierr);
-  ierr = DMGlobalToLocalEnd(da,*U,INSERT_VALUES,localU);CHKERRQ(ierr);
+  ierr = DMGlobalToLocalBegin(da, U, INSERT_VALUES, localU); CHKERRQ(ierr);
+  ierr = DMGlobalToLocalEnd(da, U, INSERT_VALUES, localU);CHKERRQ(ierr);
 
   /* Get pointers to vector data */
   ierr = DMDAVecGetArrayRead(da,localU,&uarray);CHKERRQ(ierr);
-  ierr = DMDAVecGetArray(da,*F,&f);CHKERRQ(ierr);
-  ierr = DMDAVecGetArray(da,*Udot,&udot);CHKERRQ(ierr);
+  ierr = DMDAVecGetArray(da, F, &f); CHKERRQ(ierr);
+  ierr = DMDAVecGetArray(da, Udot, &udot); CHKERRQ(ierr);
 
   /* Get local grid boundaries */
   ierr = DMDAGetCorners(da,&xs,&ys,NULL,&xm,&ym,NULL);CHKERRQ(ierr);
@@ -364,25 +364,25 @@ int resHeat(realtype tt,
 
   /* Restore vectors */
   ierr = DMDAVecRestoreArrayRead(da,localU,&uarray);CHKERRQ(ierr);
-  ierr = DMDAVecRestoreArray(da,*F,&f);CHKERRQ(ierr);
-  ierr = DMDAVecRestoreArray(da,*Udot,&udot);CHKERRQ(ierr);
+  ierr = DMDAVecRestoreArray(da, F, &f); CHKERRQ(ierr);
+  ierr = DMDAVecRestoreArray(da, Udot, &udot); CHKERRQ(ierr);
   ierr = DMRestoreLocalVector(da,&localU);CHKERRQ(ierr);
   ierr = PetscLogFlops(11.0*ym*xm);CHKERRQ(ierr);
-  
+
   return (0);
 }
 
 
 /*
- * jacHeat: Heat equation system Jacobian matrix.    
- *                                                                 
- * The optional user-supplied functions jacHeat provides Jacobian 
- * matrix               
- *        J = dF/du + cj*dF/du'                         
- * where the DAE system is F(t,u,u') = 0.         
+ * jacHeat: Heat equation system Jacobian matrix.
+ *
+ * The optional user-supplied functions jacHeat provides Jacobian
+ * matrix
+ *        J = dF/du + cj*dF/du'
+ * where the DAE system is F(t,u,u') = 0.
  *
  */
-int jacHeat(realtype tt,  realtype a, 
+int jacHeat(realtype tt,  realtype a,
             N_Vector yy, N_Vector yp, N_Vector resvec,
             Mat Jpre, void *user_data,
             N_Vector tempv1, N_Vector tempv2, N_Vector tempv3)
@@ -406,7 +406,7 @@ int jacHeat(realtype tt,  realtype a,
       nc    = 0;
       row.j = j; row.i = i;
       if ((i == 0 || i == Mx-1 || j == 0 || j == My-1)) { /* Dirichlet BC */
-        col[nc].j = j; col[nc].i = i; vals[nc++] = 1.0; 
+        col[nc].j = j; col[nc].i = i; vals[nc++] = 1.0;
       } else {   /* Interior */
         col[nc].j = j-1; col[nc].i = i;   vals[nc++] = -sy;
         col[nc].j = j;   col[nc].i = i-1; vals[nc++] = -sx;
@@ -419,7 +419,7 @@ int jacHeat(realtype tt,  realtype a,
   }
   ierr = MatAssemblyBegin(Jpre,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
   ierr = MatAssemblyEnd(Jpre,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
-/*   
+/*
      if (J != Jpre) {
        ierr = MatAssemblyBegin(J,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
        ierr = MatAssemblyEnd(J,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
@@ -438,7 +438,7 @@ int jacHeat(realtype tt,  realtype a,
 
 
 /*
- * SetInitialProfile sets the initial values for the problem. 
+ * SetInitialProfile sets the initial values for the problem.
  */
 
 static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
@@ -451,8 +451,8 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
   PetscScalar    **u;
   PetscScalar    **iddat;
   PetscReal      hx,hy,x,y,r;
-  Vec *U     = N_VGetVector_Petsc(uu);
-  Vec *idvec = N_VGetVector_Petsc(id);
+  Vec U     = N_VGetVector_Petsc(uu);
+  Vec idvec = N_VGetVector_Petsc(id);
 
   PetscFunctionBeginUser;
   ierr = DMDAGetInfo(da,PETSC_IGNORE,&Mx,&My,PETSC_IGNORE,PETSC_IGNORE,PETSC_IGNORE,
@@ -462,11 +462,11 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
   hy = 1.0/(PetscReal)(My-1);
 
   /* Get pointers to vector data */
-  ierr = DMDAVecGetArray(da, *U, &u);
+  ierr = DMDAVecGetArray(da, U, &u);
   CHKERRQ(ierr);
 
   /* Get pointers to differentiable variable IDs */
-  ierr = DMDAVecGetArray(da, *idvec, &iddat);
+  ierr = DMDAVecGetArray(da, idvec, &iddat);
   CHKERRQ(ierr);
 
   /* Get local grid boundaries */
@@ -480,30 +480,30 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
       u[j][i] = 16.0 * x*(1.0 - x) * y*(1.0 - y);
       if (i == 0 || j == 0 || i == Mx-1 || j == My-1) {
         iddat[j][i] = 0.0; /* algebraic variables on the boundary */
-      } else { 
+      } else {
         iddat[j][i] = 1.0; /* differential variables in the interior */
       }
     }
   }
 
   /* Restore vectors */
-  ierr = DMDAVecRestoreArray(da, *U, &u);
+  ierr = DMDAVecRestoreArray(da, U, &u);
   CHKERRQ(ierr);
 
    /* Restore vectors */
-  ierr = DMDAVecRestoreArray(da, *idvec, &iddat);
+  ierr = DMDAVecRestoreArray(da, idvec, &iddat);
   CHKERRQ(ierr);
 
  /* Initialize up. */
-  
+
   N_VConst(ZERO, up);    /* Initially set up = 0. */
-  
+
   /* resHeat sets res to negative of ODE RHS values at interior points. */
   resHeat(ZERO, uu, up, res, data);
-  
+
   /* Copy -res into up to get correct initial up values. */
   N_VScale(-ONE, res, up);
-  
+
 
   PetscFunctionReturn(0);
 }
@@ -514,7 +514,7 @@ static int SetInitialProfile(N_Vector uu, N_Vector up, N_Vector id,
  */
 
 static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol)
-{ 
+{
   printf("\nidaHeat2D_kry_Petsc: Heat equation, parallel example problem for IDA\n");
   printf("            Discretized heat equation on 2D unit square.\n");
   printf("            Zero boundary conditions,");
@@ -533,10 +533,10 @@ static void PrintHeader(sunindextype Neq, realtype rtol, realtype atol)
   printf("Constraints set to force all solution components >= 0. \n");
   printf("SUPPRESSALG = SUNTRUE to suppress local error testing on ");
   printf("all boundary components. \n");
-  printf("Linear solver: IDASPGMR  ");
-  printf("Preconditioner: diagonal elements only.\n"); 
+  printf("Linear solver: SPGMR  ");
+  printf("Preconditioner: diagonal elements only.\n");
   printf("This example uses PETSc vector and linear solver.\n");
-  
+
   /* Print output table heading and initial line of table. */
   printf("\n   Output Summary (umax = max-norm of solution) \n\n");
   printf("  time     umax       k  nst  nni  nli   nre   nreLS    h      nje nps\n");
@@ -551,34 +551,35 @@ static void PrintOutput(int id, void *mem, realtype t, N_Vector uu)
 {
   realtype hused, umax;
   long int nst, nni, nje, nre, nreLS=0, nli, npe, nps=0;
-  int kused, ier;
+  int kused, retval;
 
   umax = N_VMaxNorm(uu);
 
   if (id == 0) {
 
-    ier = IDAGetLastOrder(mem, &kused);
-    check_flag(&ier, "IDAGetLastOrder", 1, id);
-    ier = IDAGetNumSteps(mem, &nst);
-    check_flag(&ier, "IDAGetNumSteps", 1, id);
-    ier = IDAGetNumNonlinSolvIters(mem, &nni);
-    check_flag(&ier, "IDAGetNumNonlinSolvIters", 1, id);
-    ier = IDAGetNumResEvals(mem, &nre);
-    check_flag(&ier, "IDAGetNumResEvals", 1, id);
-    ier = IDAGetLastStep(mem, &hused);
-    check_flag(&ier, "IDAGetLastStep", 1, id);
-    ier = IDAPETScGetNumJacEvals(mem, &nje);
-    check_flag(&ier, "IDAPETScGetNumJtimesEvals", 1, id);
-    ier = IDAPETScGetNumLinIters(mem, &nli);
-    check_flag(&ier, "IDAPETScGetNumLinIters", 1, id);
-//     ier = IDASpilsGetNumResEvals(mem, &nreLS);
-//     check_flag(&ier, "IDASpilsGetNumResEvals", 1, id);
-//     ier = IDASpilsGetNumPrecEvals(mem, &npe);
+    retval = IDAGetLastOrder(mem, &kused);
+    check_retval(&retval, "IDAGetLastOrder", 1, id);
+    retval = IDAGetNumSteps(mem, &nst);
+    check_retval(&retval, "IDAGetNumSteps", 1, id);
+    retval = IDAGetNumNonlinSolvIters(mem, &nni);
+    check_retval(&retval, "IDAGetNumNonlinSolvIters", 1, id);
+    retval = IDAGetNumResEvals(mem, &nre);
+    check_retval(&retval, "IDAGetNumResEvals", 1, id);
+    retval = IDAGetLastStep(mem, &hused);
+    check_retval(&retval, "IDAGetLastStep", 1, id);
+    retval = IDAPETScGetNumJacEvals(mem, &nje);
+    check_retval(&retval, "IDAPETScGetNumJtimesEvals", 1, id);
+    retval = IDAPETScGetNumLinIters(mem, &nli);
+    check_retval(&retval, "IDAPETScGetNumLinIters", 1, id);
+//     retval = IDAGetNumLinResEvals(mem, &nreLS);
+//     check_retval(&retval, "IDAGetNumLinResEvals", 1, id);
+//     retval = IDAGetNumPrecEvals(mem, &npe);
+//     check_retval(&retval, "IDAGetNumPrecEvals", 1, id);
 
-#if defined(SUNDIALS_EXTENDED_PRECISION)  
+#if defined(SUNDIALS_EXTENDED_PRECISION)
     printf(" %5.2Lf %13.5Le  %d  %3ld  %3ld  %3ld  %4ld        %9.2Le  %3ld    \n",
            t, umax, kused, nst, nni, nli, nre, hused, nje);
-#elif defined(SUNDIALS_DOUBLE_PRECISION)  
+#elif defined(SUNDIALS_DOUBLE_PRECISION)
     printf(" %5.2f %13.5e  %d  %3ld  %3ld  %3ld  %4ld        %9.2e  %3ld    \n",
            t, umax, kused, nst, nni, nli, nre, hused, nje);
 #else
@@ -610,37 +611,37 @@ static void PrintFinalStats(void *mem)
  * Check function return value...
  *   opt == 0 means SUNDIALS function allocates memory so check if
  *            returned NULL pointer
- *   opt == 1 means SUNDIALS function returns a flag so check if
- *            flag >= 0
+ *   opt == 1 means SUNDIALS function returns an integer value so check if
+ *            retval < 0
  *   opt == 2 means function allocates memory so check if returned
- *            NULL pointer 
+ *            NULL pointer
  */
 
-static int check_flag(void *flagvalue, const char *funcname, int opt, int id)
+static int check_retval(void *returnvalue, const char *funcname, int opt, int id)
 {
-  int *errflag;
+  int *retval;
 
-  if (opt == 0 && flagvalue == NULL) {
+  if (opt == 0 && returnvalue == NULL) {
     /* Check if SUNDIALS function returned NULL pointer - no memory allocated */
-    fprintf(stderr, 
-            "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n", 
+    fprintf(stderr,
+            "\nSUNDIALS_ERROR(%d): %s() failed - returned NULL pointer\n\n",
             id, funcname);
-    return(1); 
+    return(1);
   } else if (opt == 1) {
-    /* Check if flag < 0 */
-    errflag = (int *) flagvalue;
-    if (*errflag < 0) {
-      fprintf(stderr, 
-              "\nSUNDIALS_ERROR(%d): %s() failed with flag = %d\n\n", 
-              id, funcname, *errflag);
-      return(1); 
+    /* Check if retval < 0 */
+    retval = (int *) returnvalue;
+    if (*retval < 0) {
+      fprintf(stderr,
+              "\nSUNDIALS_ERROR(%d): %s() failed with retval = %d\n\n",
+              id, funcname, *retval);
+      return(1);
     }
-  } else if (opt == 2 && flagvalue == NULL) {
+  } else if (opt == 2 && returnvalue == NULL) {
     /* Check if function returned NULL pointer - no memory allocated */
-    fprintf(stderr, 
-            "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n", 
+    fprintf(stderr,
+            "\nMEMORY_ERROR(%d): %s() failed - returned NULL pointer\n\n",
             id, funcname);
-    return(1); 
+    return(1);
   }
 
   return(0);

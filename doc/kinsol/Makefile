@@ -27,6 +27,8 @@ kin_use.tex \
 kin_fcmix.tex \
 kin_nvec.tex \
 kin_newlinsolv.tex \
+kin_sunmat.tex \
+kin_sunlinsol.tex \
 kin_constants.tex
 
 EX_FILES = \

@@ -17,23 +17,23 @@
 
 # check number of inputs
 if [ "$#" -lt 2 ]; then
-    echo "ERROR: Illegal number of parameters, real and index type required"
+    echo "ERROR: Illegal number of parameters, real and index size required"
     exit 1
 fi
 realtype=$1     # required, precision for realtypes
-indextype=$2    # required, integer type for indices
+indexsize=$2    # required, integer size for indices
 buildthreads=$3 # optional, number of build threads (if empty will use all threads)
 
 # remove old build and install directories
-\rm -rf build_${realtype}_${indextype}
-\rm -rf install_${realtype}_${indextype}
+\rm -rf build_${realtype}_${indexsize}
+\rm -rf install_${realtype}_${indexsize}
 
 # create new build and install directories
-mkdir build_${realtype}_${indextype}
-mkdir install_${realtype}_${indextype}
+mkdir build_${realtype}_${indexsize}
+mkdir install_${realtype}_${indexsize}
 
 # move to build directory
-cd build_${realtype}_${indextype}
+cd build_${realtype}_${indexsize}
 
 # number of threads in OpenMP examples
 export OMP_NUM_THREADS=4
@@ -59,7 +59,7 @@ LAPACKSTATUS=ON
 LAPACKDIR=${APPDIR}/lapack/3.6.0/lib64
 
 # LAPACK/BLAS does not support extended precision or 64-bit indices
-if [ "$realtype" == "extended" ] || [ "$indextype" == "int64_t" ]; then
+if [ "$realtype" == "extended" ] || [ "$indexsize" == "64" ]; then
     LAPACKSTATUS=OFF
     BLASSTATUS=OFF
 fi
@@ -76,8 +76,8 @@ fi
 # SuperLU_MT
 SUPERLUMTSTATUS=ON
 
-# SuperLU MT index type must be set a build time
-if [ "$indextype" == "int32_t" ]; then
+# SuperLU MT index size must be set a build time
+if [ "$indexsize" == "32" ]; then
     SUPERLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1_fpic
 else
     SUPERLUMTDIR=${APPDIR}/superlu_mt/SuperLU_MT_3.1_long_int_fpic
@@ -91,8 +91,8 @@ fi
 # hypre
 HYPRESTATUS=ON
 
-# hypre index type must be set a build time
-if [ "$indextype" == "int32_t" ]; then
+# hypre index size must be set a build time
+if [ "$indexsize" == "32" ]; then
     HYPREDIR=${APPDIR}/hypre/2.11.1_fpic
 else
     HYPREDIR=${APPDIR}/hypre/2.11.1_long_int_fpic
@@ -106,8 +106,8 @@ fi
 # PETSc
 PETSCSTATUS=ON
 
-# PETSc index type must be set a build time
-if [ "$indextype" == "int32_t" ]; then
+# PETSc index size must be set a build time
+if [ "$indexsize" == "32" ]; then
     PETSCDIR=${APPDIR}/petsc/3.7.2
 else
     PETSCDIR=${APPDIR}/petsc/3.7.2_long_int
@@ -137,7 +137,7 @@ fi
 
 echo "START CMAKE"
 cmake \
-    -D CMAKE_INSTALL_PREFIX="../install_${realtype}_${indextype}" \
+    -D CMAKE_INSTALL_PREFIX="../install_${realtype}_${indexsize}" \
     \
     -D BUILD_ARKODE=ON \
     -D BUILD_CVODE=ON \
@@ -147,9 +147,10 @@ cmake \
     -D BUILD_KINSOL=ON \
     \
     -D SUNDIALS_PRECISION=$realtype \
-    -D SUNDIALS_INDEX_TYPE=$indextype \
+    -D SUNDIALS_INDEX_SIZE=$indexsize \
     \
-    -D FCMIX_ENABLE=ON \
+    -D F77_INTERFACE_ENABLE=ON \
+    -D F2003_INTERFACE_ENABLE=ON \
     \
     -D EXAMPLES_ENABLE_C=ON \
     -D EXAMPLES_ENABLE_CXX=ON \
@@ -170,11 +171,10 @@ cmake \
     -D CMAKE_Fortran_FLAGS='-g' \
     \
     -D MPI_ENABLE=ON \
-    -D MPI_MPICC="${MPIDIR}/mpicc" \
-    -D MPI_MPICXX="${MPIDIR}/mpicxx" \
-    -D MPI_MPIF77="${MPIDIR}/mpif77" \
-    -D MPI_MPIF90="${MPIDIR}/mpif90" \
-    -D MPI_RUN_COMMAND="${MPIDIR}/mpirun" \
+    -D MPI_C_COMPILER="${MPIDIR}/mpicc" \
+    -D MPI_CXX_COMPILER="${MPIDIR}/mpicxx" \
+    -D MPI_Fortran_COMPILER="${MPIDIR}/mpif90" \
+    -D MPIEXEC_EXECUTABLE="${MPIDIR}/mpirun" \
     \
     -D BLAS_ENABLE="${BLASSTATUS}" \
     -D BLAS_LIBRARIES="${BLASDIR}/libblas.so" \

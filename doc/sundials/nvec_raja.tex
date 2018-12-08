@@ -1,6 +1,8 @@
 % This is a shared SUNDIALS TEX file with description of
 % the CUDA nvector implementation
 %
+\section{The NVECTOR\_RAJA implementation}\label{ss:nvec_raja}
+
 The {\nvecraja} module is an experimental {\nvector} implementation using the
 \href{https://software.llnl.gov/RAJA/}{\raja} hardware abstraction layer.
 In this implementation, {\raja}
@@ -8,22 +10,24 @@ allows for {\sundials} vector kernels to run on GPU devices. The module is inten
 who are already familiar with {\raja} and GPU programming. Building this vector
 module requires a C++11 compliant compiler and a CUDA software development toolkit.
 Besides the {\cuda} backend, {\raja} has other backends such as serial, OpenMP,
-and OpenAC. These backends are not used in this {\sundials} release.
+and OpenACC. These backends are not used in this {\sundials} release.
 Class \id{Vector} in namespace \id{sunrajavec} manages the vector data layout:
 \begin{verbatim}
 template <class T, class I>
 class Vector {
-  I size_;
-  I mem_size_;
-  T* h_vec_;
-  T* d_vec_;
-
+   I size_;
+   I mem_size_;
+   I global_size_;
+   T* h_vec_;
+   T* d_vec_;
+   SUNMPI_Comm comm_;
   ...
 };
 \end{verbatim}
-The class members are: vector size (length), size of the vector data memory block,
-and pointers to vector data on the host and on the device. The class \id{Vector}
-inherits from an empty structure
+The class members are: vector size (length), size of the vector data
+memory block, the global vector size (length), pointers to vector data
+on the host and on the device, and the MPI communicator. The class
+\id{Vector} inherits from an empty structure
 \begin{verbatim}
 struct _N_VectorContent_Raja {
 };
@@ -41,55 +45,74 @@ structured so that it can tolerate significant changes in the
 The {\nvecraja} module can be utilized for single-node parallelism or in a distributed context with MPI.
 The header file to include when using this module for single-node parallelism is \id{nvector\_raja.h}.
 The header file to include when using this module in the distributed case is \id{nvector\_mpiraja.h}.
-Note that only the {\nvecraja} constructor signature differs between the two header files.
-The installed module libraries to link to are \id{libsundials\_nvecraja.\textit{lib}} in the single-node case,
-or \id{libsundials\_nvecmpicudaraja.\textit{lib}} in the distributed case. Only one one of these libraries may be linked to when creating an executable or library. {\sundials} must be built with
-MPI support if the distributed library is desired. The extension, \id{\em.lib}, is typically \id{.so} for shared libraries and \id{.a} for static libraries.
+The installed module libraries to link to are \id{libsundials\_nvecraja.\textit{lib}} in the single-node case, or \id{libsundials\_nvecmpicudaraja.\textit{lib}} in the distributed case. Only one one of these libraries may be linked to when creating an executable or library. {\sundials} must be built with
+MPI support if the distributed library is desired.
+
+
+% ====================================================================
+\subsection{NVECTOR\_RAJA functions}
+\label{ss:nvec_raja_functions}
+% ====================================================================
 
 Unlike other native {\sundials} vector types, {\nvecraja} does not provide macros
-to access its member variables. Instead, user should use the accessor functions in
-the namespace \id{sunrajavec}.
-\begin{itemize}
+to access its member variables. Instead, user should use the accessor functions:
+%%--------------------------------------
+\sunmodfun{N\_VGetLength\_Raja}
+{
+  This function returns the global length of the vector.
+}
+{
+  sunindextype N\_VGetLength\_Raja(N\_Vector v)
+}
+%%--------------------------------------
+\sunmodfun{N\_VGetLocalLength\_Raja}
+{
+  This function returns the local length of the vector.
+    
+  Note: This function is for use in a \textit{distributed context} and
+  is defined in the header \id{nvector\_mpiraja.h} and the library
+  to link to is \id{libsundials\_nvecmpicudaraja}.\text{lib}.
+}
+{
+  sunindextype N\_VGetLocalLength\_Raja(N\_Vector v)
+}
+%%--------------------------------------
+\sunmodfun{N\_VGetHostArrayPointer\_Raja}
+{
+  This function returns a pointer to the vector data on the host.
+}
+{
+  realtype *N\_VGetHostArrayPointer\_Raja(N\_Vector v)
+}
+%%--------------------------------------
+\sunmodfun{N\_VGetDeviceArrayPointer\_Raja}
+{
+  This function returns a pointer to the vector data on the device.
+}
+{
+  realtype *N\_VGetDeviceArrayPointer\_Raja(N\_Vector v)
+}
+%%--------------------------------------
+\sunmodfun{N\_VGetMPIComm\_Raja}
+{
+  This function returns the MPI communicator for the vector.
+    
+  Note: This function is for use in a \textit{distributed context}
+  and is defined in the header \id{nvector\_mpiraja.h} and the
+  library to link to is \id{libsundials\_nvecmpicudaraja}.\text{lib}.
+}
+{
+  MPI\_Comm N\_VGetMPIComm\_Raja(N\_Vector v)
+}
+%%--------------------------------------
 
-\item
-  \ID{getDevData(N\_Vector v)}
-
-  This function takes a \id{N\_Vector} as an argument and returns a raw pointer to the vector
-  data on the device (GPU). It is the user's responsibility to ensure that the vector argument 
-  is of the correct \id{N\_Vector} type.
-
-\item
-  \ID{getHostData(N\_Vector v)}
-
-  This function takes a \id{N\_Vector} as an argument and returns a raw pointer to the vector
-  data on the host (CPU memory). It is the user's responsibility to ensure that the vector argument 
-  is of the correct \id{N\_Vector} type.
-
-\item \ID{getSize(N\_Vector v)}
-
-  Returns the vector's local length.
-
-
-\item \ID{getGlobalSize(N\_Vector v)}
-
-  Returns the vector's global length.
-
-
-\item \ID{getMPIComm(N\_Vector v)}
-
-  Takes a \id{N\_Vector} as an argument and returns a sundials communicator of type
-  \id{SUNDIALS\_Comm}.
-
-\end{itemize}
-
-%Note that {\nvecraja} requires {\sundials} to be built with {\mpi} support.
-
-%%
-%%--------------------------------------------
-%%
 The {\nvecraja} module defines the implementations of all vector operations listed
-in Table \ref{t:nvecops}, except for \verb|N_VGetArrayPointer| and
-\verb|N_VSetArrayPointer|.
+in Tables \ref{t:nvecops}, \ref{t:nvecfusedops}, and \ref{t:nvecarrayops}, except
+for \id{N\_VDotProdMulti}, \id{N\_VWrmsNormVectorArray}, and \\ \noindent
+\id{N\_VWrmsNormMaskVectorArray} as support for arrays of reduction vectors is not
+yet supported in {\raja}. These function will be added to the {\nvecraja}
+implementation in the future. Additionally the vector operations \id{N\_VGetArrayPointer} and
+\id{N\_VSetArrayPointer} are not implemented by the {\raja} vector.
 As such, this vector cannot be used with the {\sundials} Fortran interfaces,
 nor with the {\sundials} direct solvers and preconditioners.
 The {\nvecraja} module provides separate functions to access data on the host
@@ -97,138 +120,186 @@ and on the device. It also provides methods for copying data from the host to
 the device and vice versa. Usage examples of {\nvecraja} are provided in
 some example programs for {\cvode} \cite{cvode_ex}.
 
-The names of vector operations are obtained from those in
-Table \ref{t:nvecops} by appending the suffix \id{\_Raja} (e.g. \id{N\_VDestroy\_Raja}).
+The names of vector operations are obtained from those in Tables \ref{t:nvecops},
+\ref{t:nvecfusedops}, and \ref{t:nvecarrayops}, by appending the suffix \id{\_Raja}
+(e.g. \id{N\_VDestroy\_Raja}).
 The module {\nvecraja}  provides the following additional user-callable routines:
-%%
-%%
-\begin{itemize}
-
-
 %%--------------------------------------
-
-\item \ID{N\_VNew\_Raja}
-
-  \textit{Note: this function signature is defined in the header \id{nvector\_mpiraja.h}
-    and should be used when using this module in a distributed context.}
-  This function creates and allocates memory for a {\raja} \id{N\_Vector}.
-  The memory is allocated on both host and device. Its arguments are local
-  and global vector lengths, as well as the {\mpi} communicator. Use this 
-  constructor with the \id{libsundials\_nvecmpicudaraja}.\text{lib} library.
-
-\begin{verbatim}
-N_Vector N_VNew_Raja(MPI_Comm comm,
-                     sunindextype local_length,
-                     sunindextype global_length);
-\end{verbatim}
-
-
+\sunmodfuns{N\_VNew\_Raja}
+{
+  This function creates and allocates memory for a {\cuda} \id{N\_Vector}.
+  The vector data array is allocated on both the host and device.
+}
+{
+  In the \textit{single-node} setting, the only input is the vector length. This
+  constructor is defined in the header \id{nvector\_raja.h} and the library to
+  link to is \id{libsundials\_nveccudaraja}.\text{lib}.
+}
+{
+  N\_Vector N\_VNew\_Raja(sunindextype length)
+}
+{
+  When used in a \textit{distributed} context with MPI, the arguments are the
+  {\mpi} communicator, the local vector lenght, and the global vector length.
+  This constructor is defined in the header \id{nvector\_mpiraja.h} and
+  the library to link to is \id{libsundials\_nvecmpicudaraja}.\text{lib}.
+}
+{
+  N\_Vector N\_VNew\_Raja(MPI\_Comm comm, sunindextype local\_length,
+  \newlinefill{N\_Vector N\_VNew\_Raja}
+  sunindextype global\_length)
+}
 %%--------------------------------------
-
-\item \ID{N\_VNew\_Raja}
-
-  \textit{Note: this function signature is defined in the header \id{nvector\_raja.h}
-    and should be used when using this module for single-node parallelism.}
-  This function creates and allocates memory for a {\raja} \id{N\_Vector}
-  on a single node. The memory is allocated on both host and device.
-  Its only argument is vector length. Use this constructor with the 
-  \id{libsundials\_nveccudaraja}.\text{lib} library.
-
-\begin{verbatim}
-N_Vector N_VNew_Raja(sunindextype length);
-\end{verbatim}
-
-
-%%--------------------------------------
-
-\item \ID{N\_VNewEmpty\_Raja}
-
+\sunmodfun{N\_VNewEmpty\_Raja}
+{
   This function creates a new {\nvector} wrapper with the pointer to
-  the wrapped {\raja} vector set to (\id{NULL}). It is used by the
+  the wrapped {\raja} vector set to \id{NULL}. It is used by the
   \id{N\_VNew\_Raja}, \id{N\_VMake\_Raja}, and \id{N\_VClone\_Raja}
   implementations.
-
-\begin{verbatim}
-N_Vector N_VNewEmpty_Raja(sunindextype vec_length);
-\end{verbatim}
-
-
+}
+{
+  N\_Vector N\_VNewEmpty\_Raja()
+}
 %%--------------------------------------
-
-\item \ID{N\_VMake\_Raja}
-
+\sunmodfun{N\_VMake\_Raja}
+{
   This function creates and allocates memory for an {\nvecraja}
   wrapper around a user-provided \id{sunrajavec::Vector} class.
-  Its only argument is of type \id{N\_VectorContent\_Raja}, which
-  is the pointer to the class.
-
-\begin{verbatim}
-N_Vector N_VMake_Raja(N_VectorContent_Raja c);
-\end{verbatim}
-
+  Its only argument is of type \newline
+  \id{N\_VectorContent\_Raja}, which is the pointer to the class.
+}
+{
+  N\_Vector N\_VMake\_Raja(N\_VectorContent\_Raja c)
+}
 %%--------------------------------------
-
-
-\item \ID{N\_VGetLength\_Raja}
-
- This function returns the length of the vector.
-
- \verb|sunindextype N_VGetLength_Raja(N_Vector v);|
-
-%%--------------------------------------
-
-\item \ID{N\_VGetHostArrayPointer\_Raja}
-
- This function returns a pointer to the vector data on the host.
-
- \verb|realtype *N_VGetHostArrayPointer_Raja(N_Vector v);|
-
-
-%%--------------------------------------
-
-\item \ID{N\_VGetDeviceArrayPointer\_Raja}
-
- This function returns a pointer to the vector data on the device.
-
- \verb|realtype *N_VGetDeviceArrayPointer_Raja(N_Vector v);|
-
-
-%%--------------------------------------
-
-\item \ID{N\_VCopyToDevice\_Raja}
-
+\sunmodfun{N\_VCopyToDevice\_Raja}
+{
  This function copies host vector data to the device.
-
- \verb|realtype *N_VCopyToDevice_Raja(N_Vector v);|
-
-
+}
+{
+ realtype *N\_VCopyToDevice\_Raja(N\_Vector v)
+}
 %%--------------------------------------
-
-\item \ID{N\_VCopyFromDevice\_Raja}
-
- This function copies vector data from the device to the host.
-
- \verb|realtype *N_VCopyFromDevice_Raja(N_Vector v);|
-
-
+\sunmodfun{N\_VCopyFromDevice\_Raja}
+{
+  This function copies vector data from the device to the host.
+}
+{
+  realtype *N\_VCopyFromDevice\_Raja(N\_Vector v)
+}
 %%--------------------------------------
-
-\item \ID{N\_VPrint\_Raja}
-
+\sunmodfun{N\_VPrint\_Raja}
+{
   This function prints the content of a {\raja} vector to \id{stdout}.
-
-  \verb|void N_VPrint_Raja(N_Vector v);|
-
+}
+{
+  void N\_VPrint\_Raja(N\_Vector v)
+}
+%%--------------------------------------
+\sunmodfun{N\_VPrintFile\_Raja}
+{
+  This function prints the content of a {\raja} vector to \id{outfile}.
+}
+{
+  void N\_VPrintFile\_Raja(N\_Vector v, FILE *outfile)
+}
 %%--------------------------------------
 
-\item \ID{N\_VPrintFile\_Raja}
-
-  This function prints the content of a {\raja} vector to \id{outfile}.
-
-  \verb|void N_VPrintFile_Raja(N_Vector v, FILE *outfile);|
-
-
-\end{itemize}
+By default all fused and vector array operations are disabled in the {\nvecraja}
+module. The following additional user-callable routines are provided to
+enable or disable fused and vector array operations for a specific vector. To
+ensure consistency across vectors it is recommended to first create a vector
+with \id{N\_VNew\_Raja}, enable/disable the desired operations for that vector
+with the functions below, and create any additional vectors from that vector
+using \id{N\_VClone}. This guarantees the new vectors will have the same
+operations enabled/disabled as cloned vectors inherit the same enable/disable
+options as the vector they are cloned from while vectors created with
+\id{N\_VNew\_Raja} will have the default settings for the {\nvecraja} module.
+%%--------------------------------------
+\sunmodfun{N\_VEnableFusedOps\_Raja}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) all fused and
+  vector array operations in the {\raja} vector. The return value is \id{0} for
+  success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableFusedOps\_Raja(N\_Vector v, booleantype tf)
+}
+%%--------------------------------------
+\sunmodfun{N\_VEnableLinearCombination\_Raja}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear
+  combination fused operation in the {\raja} vector. The return value is \id{0} for
+  success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableLinearCombination\_Raja(N\_Vector v, booleantype tf)
+}
+%%--------------------------------------
+\sunmodfun{N\_VEnableScaleAddMulti\_Raja}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale and
+  add a vector to multiple vectors fused operation in the {\raja} vector. The
+  return value is \id{0} for success and \id{-1} if the input vector or its
+  \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableScaleAddMulti\_Raja(N\_Vector v, booleantype tf)
+}
+%%--------------------------------------
+\sunmodfun{N\_VEnableLinearSumVectorArray\_Raja}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear sum
+  operation for vector arrays in the {\raja} vector. The return value is \id{0} for
+  success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableLinearSumVectorArray\_Raja(N\_Vector v, booleantype tf)
+}
+%%--------------------------------------
+\sunmodfun{N\_VEnableScaleVectorArray\_Raja}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale
+  operation for vector arrays in the {\raja} vector. The return value is \id{0} for
+  success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableScaleVectorArray\_Raja(N\_Vector v, booleantype tf)
+}
+%%--------------------------------------
+\sunmodfun{N\_VEnableConstVectorArray\_Raja}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the const
+  operation for vector arrays in the {\raja} vector. The return value is \id{0} for
+  success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableConstVectorArray\_Raja(N\_Vector v, booleantype tf)
+}
+%%--------------------------------------
+\sunmodfun{N\_VEnableScaleAddMultiVectorArray\_Raja}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale and
+  add a vector array to multiple vector arrays operation in the {\raja} vector. The
+  return value is \id{0} for success and \id{-1} if the input vector or its
+  \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableScaleAddMultiVectorArray\_Raja(N\_Vector v, booleantype tf)
+}
+%%--------------------------------------
+\sunmodfun{N\_VEnableLinearCombinationVectorArray\_Raja}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear
+  combination operation for vector arrays in the {\raja} vector. The return value
+  is \id{0} for success and \id{-1} if the input vector or its \id{ops} structure
+  are \id{NULL}.
+}
+{
+  int N\_VEnableLinearCombinationVectorArray\_Raja(N\_Vector v,
+  \newlinefill{int N\_VEnableLinearCombinationVectorArray\_Raja}
+  booleantype tf)
+}
 %%
 %%------------------------------------
 %%

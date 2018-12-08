@@ -176,6 +176,7 @@ RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)
 2.1.2     3.1.2               3:0:0           3.0.0
 2.2.0     3.2.0               3:0:0           3.0.0
 2.2.1     3.2.1               3:0:0           3.0.0
+3.0.0     4.0.0               4:0:0           4.0.0
 
 CVODE
 RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)  
@@ -188,6 +189,7 @@ RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)
 3.1.2     3.1.2               3:0:0           3.0.0
 3.2.0     3.2.0               3:0:0           3.0.0
 3.2.1     3.2.1               3:0:0           3.0.0
+4.0.0     4.0.0               4:0:0           4.0.0
 
 CVODES
 RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)  
@@ -200,6 +202,7 @@ RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)
 3.1.2     3.1.2               3:0:0           3.0.0
 3.2.0     3.2.0               3:0:0           3.0.0
 3.2.1     3.2.1               3:0:0           3.0.0
+4.0.0     4.0.0               4:0:0           4.0.0
 
 IDA
 RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)  
@@ -212,6 +215,7 @@ RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)
 3.1.2     3.1.2               3:0:0           3.0.0
 3.2.0     3.2.0               3:0:0           3.0.0
 3.2.1     3.2.1               3:0:0           3.0.0
+4.0.0     4.0.0               4:0:0           4.0.0
 
 IDAS
 RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)  
@@ -222,6 +226,7 @@ RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)
 2.1.2     3.1.2               3:0:0           3.0.0
 2.2.0     3.2.0               3:0:0           3.0.0
 2.2.1     3.2.1               3:0:0           3.0.0
+3.0.0     4.0.0               4:0:0           4.0.0
 
 KINSOL
 RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)  
@@ -234,6 +239,7 @@ RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)
 3.1.2     3.1.2               3:0:0           3.0.0
 3.2.0     3.2.0               3:0:0           3.0.0
 3.2.1     3.2.1               3:0:0           3.0.0
+4.0.0     4.0.0               4:0:0           4.0.0
 
 NVEC_SER
 RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)  
@@ -246,6 +252,7 @@ RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)
 3.1.2     3.1.2               3:0:0           3.0.0
 3.2.0     3.2.0               3:0:0           3.0.0
 3.2.1     3.2.1               3:0:0           3.0.0
+4.0.0     4.0.0               4:0:0           4.0.0
 
 NVEC_PAR
 RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)  
@@ -258,3 +265,4 @@ RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)
 3.1.2     3.1.2               3:0:0           3.0.0
 3.2.0     3.2.0               3:0:0           3.0.0
 3.2.1     3.2.1               3:0:0           3.0.0
+4.0.0     4.0.0               4:0:0           4.0.0

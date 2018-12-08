@@ -45,14 +45,14 @@ PROJECT(sundials C)
 # Set some variables with info on the SUNDIALS project
 SET(PACKAGE_BUGREPORT "woodward6@llnl.gov")
 SET(PACKAGE_NAME "SUNDIALS")
-SET(PACKAGE_STRING "SUNDIALS 3.2.1")
+SET(PACKAGE_STRING "SUNDIALS 4.0.0")
 SET(PACKAGE_TARNAME "sundials")
 
 # set SUNDIALS version numbers
 # (use "" for the version label if none is needed)
-SET(PACKAGE_VERSION_MAJOR "3")
-SET(PACKAGE_VERSION_MINOR "2")
-SET(PACKAGE_VERSION_PATCH "1")
+SET(PACKAGE_VERSION_MAJOR "4")
+SET(PACKAGE_VERSION_MINOR "0")
+SET(PACKAGE_VERSION_PATCH "0")
 SET(PACKAGE_VERSION_LABEL "")
 
 IF(PACKAGE_VERSION_LABEL)
@@ -61,7 +61,6 @@ ELSE()
   SET(PACKAGE_VERSION "${PACKAGE_VERSION_MAJOR}.${PACKAGE_VERSION_MINOR}.${PACKAGE_VERSION_PATCH}")
 ENDIF()
 
-#
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Prohibit in-source build
@@ -79,35 +78,38 @@ MARK_AS_ADVANCED(CLEAR
 
 # Specify the VERSION and SOVERSION for shared libraries
 
-SET(arkodelib_VERSION "2.2.1")
-SET(arkodelib_SOVERSION "2")
+SET(arkodelib_VERSION "3.0.0")
+SET(arkodelib_SOVERSION "3")
 
-SET(cvodelib_VERSION "3.2.1")
-SET(cvodelib_SOVERSION "3")
+SET(cvodelib_VERSION "4.0.0")
+SET(cvodelib_SOVERSION "4")
 
-SET(cvodeslib_VERSION "3.2.1")
-SET(cvodeslib_SOVERSION "3")
+SET(cvodeslib_VERSION "4.0.0")
+SET(cvodeslib_SOVERSION "4")
 
-SET(idalib_VERSION "3.2.1")
-SET(idalib_SOVERSION "3")
+SET(idalib_VERSION "4.0.0")
+SET(idalib_SOVERSION "4")
 
-SET(idaslib_VERSION "2.2.1")
-SET(idaslib_SOVERSION "2")
+SET(idaslib_VERSION "3.0.0")
+SET(idaslib_SOVERSION "3")
 
-SET(kinsollib_VERSION "3.2.1")
-SET(kinsollib_SOVERSION "3")
+SET(kinsollib_VERSION "4.0.0")
+SET(kinsollib_SOVERSION "4")
 
 SET(cpodeslib_VERSION "0.0.0")
 SET(cpodeslib_SOVERSION "0")
 
-SET(nveclib_VERSION "3.2.1")
-SET(nveclib_SOVERSION "3")
+SET(nveclib_VERSION "4.0.0")
+SET(nveclib_SOVERSION "4")
 
-SET(sunmatrixlib_VERSION "1.2.1")
-SET(sunmatrixlib_SOVERSION "1")
+SET(sunmatrixlib_VERSION "2.0.0")
+SET(sunmatrixlib_SOVERSION "2")
 
-SET(sunlinsollib_VERSION "1.2.1")
-SET(sunlinsollib_SOVERSION "1")
+SET(sunlinsollib_VERSION "2.0.0")
+SET(sunlinsollib_SOVERSION "2")
+
+SET(sunnonlinsollib_VERSION "1.0.0")
+SET(sunnonlinsollib_SOVERSION "1")
 
 # Specify the location of additional CMAKE modules
 SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/config)
@@ -122,6 +124,7 @@ MARK_AS_ADVANCED(CLEAR CMAKE_INSTALL_LIBDIR)
 # MACRO definitions
 # ---------------------------------------------------------------
 INCLUDE(SundialsCMakeMacros)
+INCLUDE(SundialsAddF2003InterfaceLibrary)
 
 # ---------------------------------------------------------------
 # Check for deprecated SUNDIALS CMake options/variables
@@ -250,16 +253,52 @@ include(SundialsIndexSize)
 # ---------------------------------------------------------------
 
 # Fortran interface is disabled by default
-SET(DOCSTR "Enable Fortran-C support")
-OPTION(FCMIX_ENABLE "${DOCSTR}" OFF)
+SET(DOCSTR "Enable Fortran 77 interfaces")
+OPTION(F77_INTERFACE_ENABLE "${DOCSTR}" OFF)
 
-# Check that at least one solver with a Fortran interface is built
+# Check that at least one solver with a Fortran 77 interface is built
 IF(NOT BUILD_ARKODE AND NOT BUILD_CVODE AND NOT BUILD_IDA AND NOT BUILD_KINSOL)
-  IF(FCMIX_ENABLE)
-    PRINT_WARNING("Enabled packages do not support Fortran" "Disabling FCMIX")
-    FORCE_VARIABLE(FCMIX_ENABLE BOOL "${DOCSTR}" OFF)
+  IF(F77_INTERFACE_ENABLE)
+    PRINT_WARNING("Enabled packages do not support Fortran 77 interface" "Disabling F77 interface")
+    FORCE_VARIABLE(F77_INTERFACE_ENABLE BOOL "${DOCSTR}" OFF)
   ENDIF()
-  HIDE_VARIABLE(FCMIX_ENABLE)
+  HIDE_VARIABLE(F77_INTERFACE_ENABLE)
+ENDIF()
+
+# Fortran 2003 interface is disabled by default
+SET(DOCSTR "Enable Fortran 2003 interfaces")
+OPTION(F2003_INTERFACE_ENABLE "${DOCSTR}" OFF)
+
+# Check that at least one solver with a Fortran 2003 interface is built
+IF(NOT BUILD_CVODE)
+  IF(F2003_INTERFACE_ENABLE)
+    PRINT_WARNING("Enabled packages do not support Fortran 2003 interface" "Disabling F2003 interface")
+    FORCE_VARIABLE(F2003_INTERFACE_ENABLE BOOL "${DOCSTR}" OFF)
+  ENDIF()
+  HIDE_VARIABLE(F2003_INTERFACE_ENABLE)
+ENDIF()
+
+IF(F2003_INTERFACE_ENABLE)
+  # F2003 interface only supports double precision
+  IF(NOT (SUNDIALS_PRECISION MATCHES "DOUBLE"))
+    PRINT_WARNING("F2003 interface is not compatible with ${SUNDIALS_PRECISION} precision"
+                  "Disabling F2003 interface")
+    FORCE_VARIABLE(F2003_INTERFACE_ENABLE BOOL "${DOCSTR}" OFF)
+  ENDIF()
+
+  # F2003 interface only supports 64-bit indices
+  IF(NOT (SUNDIALS_INDEX_SIZE MATCHES "64"))
+    PRINT_WARNING("F2003 interface is not compatible with ${SUNDIALS_INDEX_SIZE}-bit indicies"
+                  "Disabling F2003 interface")
+    FORCE_VARIABLE(F2003_INTERFACE_ENABLE BOOL "${DOCSTR}" OFF)
+  ENDIF()
+
+  # Put all F2003 modules into one build directory
+  SET(CMAKE_Fortran_MODULE_DIRECTORY "${CMAKE_BINARY_DIR}/fortran")
+
+  # Allow a user to set where the Fortran modules will be installed
+  SET(DOCSTR "Directory where Fortran module files are installed")
+  SHOW_VARIABLE(Fortran_INSTALL_MODDIR DIRECTORY "${DOCSTR}" "fortran")
 ENDIF()
 
 # ---------------------------------------------------------------
@@ -309,22 +348,10 @@ IF(UNIX)
   ENDIF(USE_GENERIC_MATH)
 ENDIF(UNIX)
 
-## clock-monotonic, see if we need to link with rt
-include(CheckSymbolExists)
-set(CMAKE_REQUIRED_LIBRARIES_SAVE ${CMAKE_REQUIRED_LIBRARIES})
-set(CMAKE_REQUIRED_LIBRARIES rt)
-CHECK_SYMBOL_EXISTS(_POSIX_TIMERS "unistd.h;time.h" SUNDIALS_POSIX_TIMERS)
-set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES_SAVE})
-if(SUNDIALS_POSIX_TIMERS)
-  find_library(SUNDIALS_RT_LIBRARY NAMES rt)
-  mark_as_advanced(SUNDIALS_RT_LIBRARY)
-  if(SUNDIALS_RT_LIBRARY)
-    # sundials_config.h symbol
-    SET(SUNDIALS_HAVE_POSIX_TIMERS TRUE)
-    set(EXTRA_LINK_LIBS ${EXTRA_LINK_LIBS} ${SUNDIALS_RT_LIBRARY})
-  endif()
-endif()
-
+# ---------------------------------------------------------------
+# Check for POSIX timers
+# ---------------------------------------------------------------
+INCLUDE(SundialsPOSIXTimers)
 
 # ===============================================================
 # Options for Parallelism
@@ -339,6 +366,15 @@ OPTION(MPI_ENABLE "Enable MPI support" OFF)
 # Enable OpenMP support?
 # ---------------------------------------------------------------
 OPTION(OPENMP_ENABLE "Enable OpenMP support" OFF)
+
+# provide OPENMP_DEVICE_ENABLE option
+OPTION(OPENMP_DEVICE_ENABLE "Enable OpenMP device offloading support" OFF)
+
+# Advanced option to skip OpenMP device offloading support check.
+# This is needed for a specific compiler that doesn't correctly
+# report its OpenMP spec date (with CMake >= 3.9).
+OPTION(SKIP_OPENMP_DEVICE_CHECK "Skip the OpenMP device offloading support check" OFF)
+MARK_AS_ADVANCED(FORCE SKIP_OPENMP_DEVICE_CHECK)
 
 # ---------------------------------------------------------------
 # Enable Pthread support?
@@ -445,27 +481,6 @@ ENDIF()
 # Enable C examples (on by default)
 OPTION(EXAMPLES_ENABLE_C "Build SUNDIALS C examples" ON)
 
-# F77 examples (on by default) are an option only if the Fortran
-# interface is enabled
-SET(DOCSTR "Build SUNDIALS Fortran examples")
-IF(FCMIX_ENABLE)
-  OPTION(EXAMPLES_ENABLE_F77 "${DOCSTR}" ON)
-  # Fortran examples do not support single or extended precision
-  IF(SUNDIALS_PRECISION MATCHES "EXTENDED" OR SUNDIALS_PRECISION MATCHES "SINGLE")
-    PRINT_WARNING("F77 examples are not compatible with ${SUNDIALS_PRECISION} precision"
-                  "EXAMPLES_ENABLE_F77")
-    FORCE_VARIABLE(EXAMPLES_ENABLE_F77 BOOL "Fortran examples are disabled" OFF)
-  ENDIF()
-ELSE()
-  # set back to OFF (in case was ON)
-  IF(EXAMPLES_ENABLE_F77)
-    PRINT_WARNING("EXAMPLES_ENABLE_F77 is ON but FCMIX is OFF"
-                  "Disabling EXAMPLES_ENABLE_F77")
-    FORCE_VARIABLE(EXAMPLES_ENABLE_F77 BOOL "${DOCSTR}" OFF)
-  ENDIF()
-  HIDE_VARIABLE(EXAMPLES_ENABLE_F77)
-ENDIF()
-
 # C++ examples (off by default) are an option only if ARKode is enabled
 SET(DOCSTR "Build ARKode C++ examples")
 IF(BUILD_ARKODE)
@@ -477,18 +492,38 @@ ELSE()
                   "Disabling EXAMPLES_ENABLE_CXX")
     FORCE_VARIABLE(EXAMPLES_ENABLE_CXX BOOL "${DOCSTR}" OFF)
   ENDIF()
-  HIDE_VARIABLE(EXAMPLES_ENABLE_CXX)
 ENDIF()
 
-# F90 examples (off by default) are an option only if ARKode is
-# built and the Fortran interface is enabled
-SET(DOCSTR "Build ARKode F90 examples")
-IF(FCMIX_ENABLE AND BUILD_ARKODE)
-  OPTION(EXAMPLES_ENABLE_F90 "${DOCSTR}" OFF)
+# F77 examples (on by default) are an option only if the Fortran
+# interface is enabled
+SET(DOCSTR "Build SUNDIALS Fortran examples")
+IF(F77_INTERFACE_ENABLE)
+  SHOW_VARIABLE(EXAMPLES_ENABLE_F77 BOOL "${DOCSTR}" ON)
+  # Fortran 77 examples do not support single or extended precision
+  IF(SUNDIALS_PRECISION MATCHES "EXTENDED" OR SUNDIALS_PRECISION MATCHES "SINGLE")
+    PRINT_WARNING("F77 examples are not compatible with ${SUNDIALS_PRECISION} precision"
+                  "EXAMPLES_ENABLE_F77")
+    FORCE_VARIABLE(EXAMPLES_ENABLE_F77 BOOL "${DOCSTR}" OFF)
+  ENDIF()
+ELSE()
+  # set back to OFF (in case was ON)
+  IF(EXAMPLES_ENABLE_F77)
+    PRINT_WARNING("EXAMPLES_ENABLE_F77 is ON but FCMIX is OFF"
+                  "Disabling EXAMPLES_ENABLE_F77")
+    FORCE_VARIABLE(EXAMPLES_ENABLE_F77 BOOL "${DOCSTR}" OFF)
+  ENDIF()
+  HIDE_VARIABLE(EXAMPLES_ENABLE_F77)
+ENDIF()
+
+# F90 examples (on by default) are an option only if ARKode or CVODE is
+# built and a Fortran interface is enabled.
+SET(DOCSTR "Build F90 examples")
+IF(F77_INTERFACE_ENABLE OR F2003_INTERFACE_ENABLE)
+  SHOW_VARIABLE(EXAMPLES_ENABLE_F90 BOOL "${DOCSTR}" ON)
 ELSE()
   # set back to OFF (in case was ON)
   IF(EXAMPLES_ENABLE_F90)
-    PRINT_WARNING("EXAMPLES_ENABLE_F90 is ON but FCMIX or BUILD_ARKODE is OFF"
+    PRINT_WARNING("EXAMPLES_ENABLE_F90 is ON but both F77 and F2003 interfaces are OFF"
                   "Disabling EXAMPLES_ENABLE_F90")
     FORCE_VARIABLE(EXAMPLES_ENABLE_F90 BOOL "${DOCSTR}" OFF)
   ENDIF()
@@ -669,7 +704,7 @@ ENDIF(APPLE)
 # ---------------------------------------------------------------
 
 # Do we need a Fortran name-mangling scheme?
-if(FCMIX_ENABLE OR BLAS_ENABLE OR LAPACK_ENABLE)
+if(F77_INTERFACE_ENABLE OR BLAS_ENABLE OR LAPACK_ENABLE)
   set(NEED_FORTRAN_NAME_MANGLING TRUE)
 endif()
 
@@ -719,11 +754,33 @@ if(SUNDIALS_F77_FUNC_CASE AND SUNDIALS_F77_FUNC_UNDERSCORES)
 
 endif()
 
-# Do we need a Fortran compiler to figure out the name-mangling scheme or
-# for building example programs?
-if(EXAMPLES_ENABLE_F77 OR EXAMPLES_ENABLE_F90 OR NEED_FORTRAN_NAME_MANGLING)
+# Do we need a Fortran compiler?
+if(F2003_INTERFACE_ENABLE OR EXAMPLES_ENABLE_F77 OR EXAMPLES_ENABLE_F90 OR NEED_FORTRAN_NAME_MANGLING)
   include(SundialsFortran)
 endif()
+
+# Ensure that F90 compiler is found if F90 examples are enabled
+if (EXAMPLES_ENABLE_F90 AND (NOT F90_FOUND))
+  PRINT_WARNING("Compiler with F90 support not found" "Disabling F90 Examples")
+  SET(DOCSTR "Build F90 examples")
+  FORCE_VARIABLE(EXAMPLES_ENABLE_F90 "${DOCSTR}" OFF)
+endif()
+
+# Ensure that F90 compiler found if F2003 interface is enabled
+if (F2003_INTERFACE_ENABLE AND (NOT F90_FOUND))
+  PRINT_WARNING("Compiler with F90 support not found" "Disabling F2003 Interface")
+  SET(DOCSTR "Enable Fortran 2003 interfaces")
+  FORCE_VARIABLE(F2003_INTERFACE_ENABLE BOOL "${DOCSTR}" OFF)
+endif()
+
+# F2003 interface requires ISO_C_BINDING
+IF(F2003_INTERFACE_ENABLE AND (NOT Fortran_COMPILER_SUPPORTS_ISOCBINDING))
+  PRINT_WARNING("Fortran compiler does not provide ISO_C_BINDING support"
+                "Disabling F2003 interface")
+  SET(DOCSTR "Enable Fortran 2003 interfaces")
+  FORCE_VARIABLE(F2003_INTERFACE_ENABLE BOOL "${DOCSTR}" OFF)
+ENDIF()
+
 
 # ---------------------------------------------------------------
 # A C++ compiler is needed if:
@@ -793,12 +850,25 @@ endif()
 # Find OpenMP
 # -------------------------------------------------------------
 
-IF(OPENMP_ENABLE)
-  FIND_PACKAGE(OpenMP)
-  IF(NOT OPENMP_FOUND)
-    message(STATUS "Disabling OpenMP support, could not determine compiler flags")
-  ENDIF(NOT OPENMP_FOUND)
-ENDIF(OPENMP_ENABLE)
+if(OPENMP_ENABLE OR OPENMP_DEVICE_ENABLE)
+
+  include(SundialsOpenMP)
+
+  # turn off OPENMP_ENABLE and OPENMP_DEVICE_ENABLE if OpenMP is not found
+  if(NOT OPENMP_FOUND)
+    print_warning("Could not determine OpenMP compiler flags" "Disabling OpenMP support")
+    force_variable(OPENMP_ENABLE BOOL "Enable OpenMP support" OFF)
+    force_variable(OPENMP_DEVICE_ENABLE BOOL "Enable OpenMP device offloading support" OFF)
+  endif()
+
+  # turn off OPENMP_DEVICE_ENABLE if offloading is not supported
+  if(OPENMP_DEVICE_ENABLE AND (NOT OPENMP_SUPPORTS_DEVICE_OFFLOADING))
+    print_warning("OpenMP found does not support device offloading"
+                  "Disabling OpenMP device offloading support")
+    force_variable(OPENMP_DEVICE_ENABLE BOOL "Enable OpenMP device offloading support" OFF)
+  endif()
+
+endif()
 
 # -------------------------------------------------------------
 # Find PThreads
@@ -1114,7 +1184,27 @@ INSTALL(
   DESTINATION include/sundials
   )
 
+# install shared Fortran 2003 modules
+IF(F2003_INTERFACE_ENABLE)
+  # While the .mod files get generated for static and shared
+  # libraries, they are identical. So only install one set
+  # of the .mod files.
+  IF(BUILD_STATIC_LIBS)
+    INSTALL(
+      DIRECTORY ${CMAKE_Fortran_MODULE_DIRECTORY}_STATIC/
+      DESTINATION ${Fortran_INSTALL_MODDIR}
+      )
+  ELSE()
+    INSTALL(
+      DIRECTORY ${CMAKE_Fortran_MODULE_DIRECTORY}_SHARED/
+      DESTINATION ${Fortran_INSTALL_MODDIR}
+      )
+  ENDIF()
+ENDIF()
+
 # install license file
 INSTALL(
   FILES ${PROJECT_SOURCE_DIR}/LICENSE
-  DESTINATION include/sundials)
+  DESTINATION include/sundials
+  )
+

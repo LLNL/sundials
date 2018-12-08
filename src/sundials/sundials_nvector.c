@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
+/* ----------------------------------------------------------------- 
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL                               
  * -----------------------------------------------------------------
  * LLNS Copyright Start
@@ -18,8 +14,7 @@
  * This is the implementation file for a generic NVECTOR package.
  * It contains the implementation of the N_Vector operations listed
  * in nvector.h.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 #include <stdlib.h>
 
@@ -75,6 +70,10 @@ void N_VSetArrayPointer(realtype *v_data, N_Vector v)
   v->ops->nvsetarraypointer(v_data, v);
   return;
 }
+
+/* -----------------------------------------------------------------
+ * standard vector operations
+ * ----------------------------------------------------------------- */
 
 void N_VLinearSum(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z)
 {
@@ -178,6 +177,257 @@ booleantype N_VConstrMask(N_Vector c, N_Vector x, N_Vector m)
 realtype N_VMinQuotient(N_Vector num, N_Vector denom)
 {
   return((realtype) num->ops->nvminquotient(num, denom));
+}
+
+/* -----------------------------------------------------------------
+ * fused vector operations
+ * ----------------------------------------------------------------- */
+
+int N_VLinearCombination(int nvec, realtype* c, N_Vector* X, N_Vector z)
+{
+  int i;
+  realtype ONE=RCONST(1.0);
+
+  if (z->ops->nvlinearcombination != NULL) {
+
+    return(z->ops->nvlinearcombination(nvec, c, X, z));
+
+  } else {
+
+    z->ops->nvscale(c[0], X[0], z);
+    for (i=1; i<nvec; i++) {
+      z->ops->nvlinearsum(c[i], X[i], ONE, z, z);
+    }
+    return(0);
+
+  }
+}
+
+int N_VScaleAddMulti(int nvec, realtype* a, N_Vector x, N_Vector* Y, N_Vector* Z)
+{
+  int i;
+  realtype ONE=RCONST(1.0);
+
+  if (x->ops->nvscaleaddmulti != NULL) {
+    
+    return(x->ops->nvscaleaddmulti(nvec, a, x, Y, Z));
+
+  } else {
+
+    for (i=0; i<nvec; i++) {
+      x->ops->nvlinearsum(a[i], x, ONE, Y[i], Z[i]);
+    }
+    return(0);
+
+  }
+}
+
+int N_VDotProdMulti(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods)
+{
+  int i;
+
+  if (x->ops->nvdotprodmulti != NULL) {
+    
+    return(x->ops->nvdotprodmulti(nvec, x, Y, dotprods));
+
+  } else {
+
+    for (i=0; i<nvec; i++) {
+      dotprods[i] = x->ops->nvdotprod(x, Y[i]);
+    }
+    return(0);
+
+  }
+}
+
+/* -----------------------------------------------------------------
+ * vector array operations
+ * ----------------------------------------------------------------- */
+
+int N_VLinearSumVectorArray(int nvec, realtype a, N_Vector* X,
+                            realtype b, N_Vector* Y, N_Vector* Z)
+{
+  int i;
+
+  if (Z[0]->ops->nvlinearsumvectorarray != NULL) {
+    
+    return(Z[0]->ops->nvlinearsumvectorarray(nvec, a, X, b, Y, Z));
+
+  } else {
+
+    for (i=0; i<nvec; i++) {
+      Z[0]->ops->nvlinearsum(a, X[i], b, Y[i], Z[i]);
+    }
+    return(0);
+
+  }
+}
+
+int N_VScaleVectorArray(int nvec, realtype* c, N_Vector* X, N_Vector* Z)
+{
+  int i;
+
+  if (Z[0]->ops->nvscalevectorarray != NULL) {
+    
+    return(Z[0]->ops->nvscalevectorarray(nvec, c, X, Z));
+
+  } else {
+
+    for (i=0; i<nvec; i++) {
+      Z[0]->ops->nvscale(c[i], X[i], Z[i]);
+    }
+    return(0);
+
+  }
+}
+
+int N_VConstVectorArray(int nvec, realtype c, N_Vector* Z)
+{
+  int i, ier;
+
+  if (Z[0]->ops->nvconstvectorarray != NULL) {
+    
+    ier = Z[0]->ops->nvconstvectorarray(nvec, c, Z);
+    return(ier);
+
+  } else {
+
+    for (i=0; i<nvec; i++) {
+      Z[0]->ops->nvconst(c, Z[i]);
+    }
+    return(0);
+
+  }
+}
+
+int N_VWrmsNormVectorArray(int nvec, N_Vector* X, N_Vector* W, realtype* nrm)
+{
+  int i, ier;
+
+  if (X[0]->ops->nvwrmsnormvectorarray != NULL) {
+    
+    ier = X[0]->ops->nvwrmsnormvectorarray(nvec, X, W, nrm);
+    return(ier);
+
+  } else {
+
+    for (i=0; i<nvec; i++) {
+      nrm[i] = X[0]->ops->nvwrmsnorm(X[i], W[i]);
+    }
+    return(0);
+
+  }
+}
+
+int N_VWrmsNormMaskVectorArray(int nvec, N_Vector* X, N_Vector* W, N_Vector id,
+                               realtype* nrm)
+{
+  int i, ier;
+
+  if (id->ops->nvwrmsnormmaskvectorarray != NULL) {
+
+    ier = id->ops->nvwrmsnormmaskvectorarray(nvec, X, W, id, nrm);
+    return(ier);
+
+  } else {
+
+    for (i=0; i<nvec; i++) {
+      nrm[i] = id->ops->nvwrmsnormmask(X[i], W[i], id);
+    }
+    return(0);
+
+  }
+}
+
+int N_VScaleAddMultiVectorArray(int nvec, int nsum, realtype* a, N_Vector* X,
+                                 N_Vector** Y, N_Vector** Z)
+{
+  int       i, j, ier;
+  realtype  ONE=RCONST(1.0);
+  N_Vector* YY=NULL;
+  N_Vector* ZZ=NULL;
+
+  if (X[0]->ops->nvscaleaddmultivectorarray != NULL) {
+
+    ier = X[0]->ops->nvscaleaddmultivectorarray(nvec, nsum, a, X, Y, Z);
+    return(ier);
+
+  } else if (X[0]->ops->nvscaleaddmulti != NULL ) {
+
+    /* allocate arrays of vectors */
+    YY = (N_Vector *) malloc(nsum * sizeof(N_Vector));
+    ZZ = (N_Vector *) malloc(nsum * sizeof(N_Vector));
+
+    for (i=0; i<nvec; i++) {
+
+      for (j=0; j<nsum; j++) {
+        YY[j] = Y[j][i];
+        ZZ[j] = Z[j][i];
+      }
+
+      ier = X[0]->ops->nvscaleaddmulti(nsum, a, X[i], YY, ZZ);
+      if (ier != 0) break;
+    }
+
+    /* free array of vectors */
+    free(YY);
+    free(ZZ);
+
+    return(ier);
+
+  } else {
+
+    for (i=0; i<nvec; i++) {
+      for (j=0; j<nsum; j++) {
+        X[0]->ops->nvlinearsum(a[j], X[i], ONE, Y[j][i], Z[j][i]);
+      }
+    }
+    return(0);
+  }
+}
+
+int N_VLinearCombinationVectorArray(int nvec, int nsum, realtype* c, N_Vector** X,
+                                    N_Vector* Z)
+{
+  int       i, j, ier;
+  realtype  ONE=RCONST(1.0);
+  N_Vector* Y=NULL;
+
+  if (Z[0]->ops->nvlinearcombinationvectorarray != NULL) {
+    
+    ier = Z[0]->ops->nvlinearcombinationvectorarray(nvec, nsum, c, X, Z);
+    return(ier);
+
+  } else if (Z[0]->ops->nvlinearcombination != NULL ) {
+    
+    /* allocate array of vectors */
+    Y = (N_Vector *) malloc(nsum * sizeof(N_Vector));
+
+    for (i=0; i<nvec; i++) {
+
+      for (j=0; j<nsum; j++) {
+        Y[j] = X[j][i];
+      }
+
+      ier = Z[0]->ops->nvlinearcombination(nsum, c, Y, Z[i]);
+      if (ier != 0) break;
+    }
+    
+    /* free array of vectors */
+    free(Y);
+
+    return(ier);
+
+  } else {
+
+    for (i=0; i<nvec; i++) {
+      Z[0]->ops->nvscale(c[0], X[0][i], Z[i]);
+      for (j=1; j<nsum; j++) {
+        Z[0]->ops->nvlinearsum(c[j], X[j][i], ONE, Z[i], Z[i]);
+      }
+    }
+    return(0);
+  }
 }
 
 /*

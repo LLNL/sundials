@@ -46,6 +46,15 @@ sunindextype GlobalVectorLength_LapBand(N_Vector y);
 
 /*
  * -----------------------------------------------------------------
+ * deprecated wrapper functions
+ * -----------------------------------------------------------------
+ */
+
+SUNLinearSolver SUNLapackBand(N_Vector y, SUNMatrix A)
+{ return(SUNLinSol_LapackBand(y, A)); }
+
+/*
+ * -----------------------------------------------------------------
  * exported functions
  * -----------------------------------------------------------------
  */
@@ -54,7 +63,7 @@ sunindextype GlobalVectorLength_LapBand(N_Vector y);
  * Function to create a new LAPACK band linear solver
  */
 
-SUNLinearSolver SUNLapackBand(N_Vector y, SUNMatrix A)
+SUNLinearSolver SUNLinSol_LapackBand(N_Vector y, SUNMatrix A)
 {
   SUNLinearSolver S;
   SUNLinearSolver_Ops ops;

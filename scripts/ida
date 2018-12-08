@@ -18,6 +18,7 @@ $tar $tarfile $distrobase/include/ida/ida_bbdpre.h
 $tar $tarfile $distrobase/include/ida/ida_direct.h
 $tar $tarfile $distrobase/include/ida/ida.h
 # $tar $tarfile $distrobase/include/ida/ida_petsc.h
+$tar $tarfile $distrobase/include/ida/ida_ls.h
 $tar $tarfile $distrobase/include/ida/ida_spils.h
 
 $tar $tarfile $distrobase/src/ida/LICENSE
@@ -27,15 +28,14 @@ $tar $tarfile $distrobase/src/ida/CMakeLists.txt
 $tar $tarfile $distrobase/src/ida/ida_bbdpre.c
 $tar $tarfile $distrobase/src/ida/ida_bbdpre_impl.h
 $tar $tarfile $distrobase/src/ida/ida.c
-$tar $tarfile $distrobase/src/ida/ida_direct.c
-$tar $tarfile $distrobase/src/ida/ida_direct_impl.h
 $tar $tarfile $distrobase/src/ida/ida_ic.c
 $tar $tarfile $distrobase/src/ida/ida_impl.h
 $tar $tarfile $distrobase/src/ida/ida_io.c
 # $tar $tarfile $distrobase/src/ida/ida_petsc.c
 # $tar $tarfile $distrobase/src/ida/ida_petsc_impl.h
-$tar $tarfile $distrobase/src/ida/ida_spils.c
-$tar $tarfile $distrobase/src/ida/ida_spils_impl.h
+$tar $tarfile $distrobase/src/ida/ida_ls.c
+$tar $tarfile $distrobase/src/ida/ida_ls_impl.h
+$tar $tarfile $distrobase/src/ida/ida_nls.c
 
 echo "   --- Add fida module to $tarfile"
 
@@ -50,6 +50,7 @@ $tar $tarfile $distrobase/src/ida/fcmix/fidadense.c
 $tar $tarfile $distrobase/src/ida/fcmix/fidaewt.c
 $tar $tarfile $distrobase/src/ida/fcmix/fidajtimes.c
 $tar $tarfile $distrobase/src/ida/fcmix/fidanullmatrix.c
+$tar $tarfile $distrobase/src/ida/fcmix/fidanullnonlinsol.c
 $tar $tarfile $distrobase/src/ida/fcmix/fidapreco.c
 $tar $tarfile $distrobase/src/ida/fcmix/fidaroot.c
 $tar $tarfile $distrobase/src/ida/fcmix/fidaroot.h

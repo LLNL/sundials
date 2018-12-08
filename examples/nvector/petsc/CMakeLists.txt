@@ -19,10 +19,8 @@
 
 # Examples using SUNDIALS PETSc nvector
 SET(nvector_petsc_examples
-  "test_nvector_petsc\;\;\;\;"          # run sequentially
-  "test_nvector_petsc\;1000 0\;\;\;"    # run sequentially with arguments
-  "test_nvector_petsc\;\;1\;4\;"        # run parallel on 4 procs
-  "test_nvector_petsc\;1000 0\;1\;4\;"  # run parallel on 4 procs with arguments
+  "test_nvector_petsc\;1000 0\;\;\;"    # run sequentially
+  "test_nvector_petsc\;1000 0\;1\;4\;"  # run 4 procs
   )
 
 # Dependencies for nvector examples

@@ -79,7 +79,6 @@
 
 #include <kinsol/kinsol.h>             /* access to KINSOL func., consts.      */
 #include <nvector/nvector_serial.h>    /* access to serial N_Vector            */
-#include <kinsol/kinsol_spils.h>       /* access to KINSpils interface         */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver      */
 #include <sundials/sundials_dense.h>   /* use generic dense solver in precond. */
 #include <sundials/sundials_types.h>   /* defs. of realtype, sunindextype      */
@@ -231,26 +230,24 @@ int main(void)
   N_VDestroy_Serial(constraints);
 
 
-  /* Create SUNSPGMR object with right preconditioning and the 
+  /* Create SUNLinSol_SPGMR object with right preconditioning and the 
      maximum Krylov dimension maxl */
   maxl = 15; 
-  LS = SUNSPGMR(cc, PREC_RIGHT, maxl);
-  if(check_flag((void *)LS, "SUNSPGMR", 0)) return(1);
+  LS = SUNLinSol_SPGMR(cc, PREC_RIGHT, maxl);
+  if(check_flag((void *)LS, "SUNLinSol_SPGMR", 0)) return(1);
 
   /* Attach the linear solver to KINSOL */
-  flag = KINSpilsSetLinearSolver(kmem, LS);
-  if (check_flag(&flag, "KINSpilsSetLinearSolver", 1)) return 1;
+  flag = KINSetLinearSolver(kmem, LS, NULL);
+  if (check_flag(&flag, "KINSetLinearSolver", 1)) return 1;
 
   /* Set the maximum number of restarts */
   maxlrst = 2;
-  flag = SUNSPGMRSetMaxRestarts(LS, maxlrst);
-  if (check_flag(&flag, "SUNSPGMRSpilsSetMaxRestarts", 1)) return(1);
+  flag = SUNLinSol_SPGMRSetMaxRestarts(LS, maxlrst);
+  if (check_flag(&flag, "SUNLinSol_SPGMRSetMaxRestarts", 1)) return(1);
 
   /* Specify the preconditioner setup and solve routines */
-  flag = KINSpilsSetPreconditioner(kmem,
-				   PrecSetupBD,
-				   PrecSolveBD);
-  if (check_flag(&flag, "KINSpilsSetPreconditioner", 1)) return(1);
+  flag = KINSetPreconditioner(kmem, PrecSetupBD, PrecSolveBD);
+  if (check_flag(&flag, "KINSetPreconditioner", 1)) return(1);
 
   /* Print out the problem size, solution parameters, initial guess. */
   PrintHeader(globalstrategy, maxl, maxlrst, fnormtol, scsteptol);
@@ -730,16 +727,16 @@ static void PrintFinalStats(void *kmem)
   check_flag(&flag, "KINGetNumNonlinSolvIters", 1);
   flag = KINGetNumFuncEvals(kmem, &nfe);
   check_flag(&flag, "KINGetNumFuncEvals", 1);
-  flag = KINSpilsGetNumLinIters(kmem, &nli);
-  check_flag(&flag, "KINSpilsGetNumLinIters", 1);
-  flag = KINSpilsGetNumPrecEvals(kmem, &npe);
-  check_flag(&flag, "KINSpilsGetNumPrecEvals", 1);
-  flag = KINSpilsGetNumPrecSolves(kmem, &nps);
-  check_flag(&flag, "KINSpilsGetNumPrecSolves", 1);
-  flag = KINSpilsGetNumConvFails(kmem, &ncfl);
-  check_flag(&flag, "KINSpilsGetNumConvFails", 1);
-  flag = KINSpilsGetNumFuncEvals(kmem, &nfeSG);
-  check_flag(&flag, "KINSpilsGetNumFuncEvals", 1);
+  flag = KINGetNumLinIters(kmem, &nli);
+  check_flag(&flag, "KINGetNumLinIters", 1);
+  flag = KINGetNumPrecEvals(kmem, &npe);
+  check_flag(&flag, "KINGetNumPrecEvals", 1);
+  flag = KINGetNumPrecSolves(kmem, &nps);
+  check_flag(&flag, "KINGetNumPrecSolves", 1);
+  flag = KINGetNumLinConvFails(kmem, &ncfl);
+  check_flag(&flag, "KINGetNumLinConvFails", 1);
+  flag = KINGetNumLinFuncEvals(kmem, &nfeSG);
+  check_flag(&flag, "KINGetNumLinFuncEvals", 1);
 
   printf("Final Statistics.. \n");
   printf("nni    = %5ld    nli   = %5ld\n", nni, nli);

@@ -56,10 +56,8 @@ extern SUNMatrix F2C_ARKODE_mass_matrix;
  * FSUNBANDMASSMAT_INIT - initializes band matrix operations for mass matrix solve
  */
 
-void FSUNBANDMAT_INIT(int *code, long int *N, long int *mu, long int *ml,
-                      long int *smu, int *ier);
-void FSUNBANDMASSMAT_INIT(long int *N, long int *mu, long int *ml,
-                          long int *smu, int *ier);
+void FSUNBANDMAT_INIT(int *code, long int *N, long int *mu, long int *ml, int *ier);
+void FSUNBANDMASSMAT_INIT(long int *N, long int *mu, long int *ml, int *ier);
 
 #ifdef __cplusplus
 }

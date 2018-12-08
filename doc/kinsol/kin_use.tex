@@ -14,8 +14,8 @@ are included in the {\kinsol} package.
 Users with applications written in {\F} should see Chapter \ref{s:fcmix},
 which describes the {\F}/{\CC} interface module.
 
-The user should be aware that not all {\sunlinsol} and {\sunmatrix} 
-modules are compatible with all {\nvector} implementations. 
+The user should be aware that not all {\sunlinsol} and {\sunmatrix}
+modules are compatible with all {\nvector} implementations.
 \index{KINSOL@{\kinsol} linear solvers!NVECTOR@{\nvector} compatibility}
 Details on compatability are given in the documentation for each
 {\sunmatrix} module (Chapter \ref{s:sunmatrix}) and each {\sunlinsol}
@@ -28,7 +28,7 @@ documentation, we note that the preconditioner module {\kinbbdpre}
 can only be used with {\nvecp}.
 It is not recommended to use a threaded vector module with SuperLU\_MT
 unless it is the {\nvecopenmp} module, and SuperLU\_MT is also compiled
-with openMP.
+with OpenMP.
 
 {\kinsol} uses various constants for both input and output. These are
 defined as needed in this chapter, but for convenience are also listed
@@ -56,6 +56,7 @@ the subdirectories
 \begin{itemize}
 \item {\em incdir}\id{/include/kinsol}
 \item {\em incdir}\id{/include/sundials}
+\item {\em incdir}\id{/include/nvector}
 \item {\em incdir}\id{/include/sunmatrix}
 \item {\em incdir}\id{/include/sunlinsol}
 \end{itemize}
@@ -77,12 +78,13 @@ The calling program must include several header files so that various macros
 and data types can be used. The header file that is always required is:
 %
 \begin{itemize}
-\item  \Id{kinsol/kinsol.h}, 
+\item  \Id{kinsol/kinsol.h},
   the header file for {\kinsol}, which defines several
-  types and various constants, and includes function prototypes.
+  types and various constants, and includes function prototypes.  This
+  includes the header file for {\kinls}, \Id{kinsol/kinsol\_ls.h}.
 \end{itemize}
 %
-\id{kinsol.h} also includes \Id{sundials\_types.h}, 
+\id{kinsol.h} also includes \Id{sundials\_types.h},
 which defines the types \id{realtype}, \id{sunindextype}, and \id{booleantype}
 and constants \id{SUNFALSE} and \id{SUNTRUE}.
 
@@ -91,61 +93,59 @@ of the form \id{nvector/nvector\_***.h}.  See Chapter \ref{s:nvector} for the ap
 name.  This file in turn includes the header file \Id{sundials\_nvector.h}
 which defines the abstract \Id{N\_Vector} data type.
 
-Finally, a linear solver module header file is required. 
+If using a Newton or Picard nonlinear solver that requires the
+solution of a linear system, then a linear solver module header file
+will be required.
 \index{KINSOL@{\kinsol} linear solvers!header files}
-The header files corresponding to the various linear solver interfaces and linear
-solver modules available for use with {\kinsol} are:
+The header files corresponding to the various {\sundials}-provided
+linear solver modules available for use with {\kinsol} are:
 %%
 \begin{itemize}
-\item \Id{kinsol/kinsol\_direct.h}, 
-  which is used with the {\kindls} direct linear solver interface to
-  access direct solvers with the following header files:
+\item Direct linear solvers:
   \begin{itemize}
   \item \Id{sunlinsol/sunlinsol\_dense.h},
     which is used with the dense linear solver module,
-    {\sunlinsoldense}; 
-    
+    {\sunlinsoldense};
+
   \item \Id{sunlinsol/sunlinsol\_band.h},
     which is used with the banded linear solver module,
-    {\sunlinsolband}; 
-    
+    {\sunlinsolband};
+
   \item \Id{sunlinsol/sunlinsol\_lapackdense.h},
-    which is used with the LAPACK package dense linear solver interface module,
-    {\sunlinsollapdense}; 
-    
+    which is used with the LAPACK package dense linear solver module,
+    {\sunlinsollapdense};
+
   \item \Id{sunlinsol/sunlinsol\_lapackband.h},
-    which is used with the LAPACK package banded linear solver interface module,
-    {\sunlinsollapband}; 
-    
+    which is used with the LAPACK package banded linear solver module,
+    {\sunlinsollapband};
+
   \item \Id{sunlinsol/sunlinsol\_klu.h},
-    which is used with the {\klu} sparse linear solver interface module,
-    {\sunlinsolklu}; 
-    
+    which is used with the {\klu} sparse linear solver module,
+    {\sunlinsolklu};
+
   \item \Id{sunlinsol/sunlinsol\_superlumt.h},
-    which is used with the {\superlumt} sparse linear solver interface
-    module, {\sunlinsolslumt}; 
+    which is used with the {\superlumt} sparse linear solver
+    module, {\sunlinsolslumt};
   \end{itemize}
 
-\item \Id{kinsol/kinsol\_spils.h}, 
-  which is used with the {\kinspils} iterative linear solver interface to
-  access iterative solvers with the following header files:
+\item Iterative linear solvers:
   \begin{itemize}
   \item \Id{sunlinsol/sunlinsol\_spgmr.h},
    which is used with the scaled, preconditioned GMRES Krylov linear
     solver module, {\sunlinsolspgmr};
-    
+
   \item \Id{sunlinsol/sunlinsol\_spfgmr.h},
     which is used with the scaled, preconditioned FGMRES Krylov linear
     solver module, {\sunlinsolspfgmr};
-    
+
   \item \Id{sunlinsol/sunlinsol\_spbcgs.h},
     which is used with the scaled, preconditioned Bi-CGStab Krylov
     linear solver module, {\sunlinsolspbcgs};
-    
+
   \item \Id{sunlinsol/sunlinsol\_sptfqmr.h},
     which is used with the scaled, preconditioned TFQMR Krylov linear
     solver module, {\sunlinsolsptfqmr};
-    
+
   \item \Id{sunlinsol/sunlinsol\_pcg.h},
     which is used with the scaled, preconditioned CG Krylov linear
     solver module, {\sunlinsolpcg};
@@ -156,13 +156,13 @@ The header files for the {\sunlinsoldense} and {\sunlinsollapdense}
 linear solver modules include the file
 \id{sunmatrix/sunmatrix\_dense.h}, which defines the {\sunmatdense}
 matrix module, as as well as various functions and macros acting on
-such matrices. 
+such matrices.
 
 The header files for the {\sunlinsolband} and {\sunlinsollapband}
 linear solver modules include the file
 \id{sunmatrix/sunmatrix\_band.h}, which defines the {\sunmatband}
 matrix module, as as well as various functions and macros acting on
-such matrices. 
+such matrices.
 
 The header files for the {\sunlinsolklu} and {\sunlinsolslumt}
 sparse linear solvers include the file
@@ -173,7 +173,7 @@ matrices.
 The header files for the Krylov iterative solvers include the file
 \id{sundials/sundials\_iterative.h}, which enumerates the kind of
 preconditioning, and (for the {\spgmr} and {\spfgmr} solvers) the
-choices for the Gram-Schmidt process. 
+choices for the Gram-Schmidt process.
 
 Other headers may be needed, according to the choice of
 preconditioner, etc.  For example, in the \id{kinFoodWeb\_kry\_p}
@@ -187,10 +187,10 @@ access to the underlying generic dense matrix arithmetic routines.
 %--------------------------------------------------------------------
 
 The following is a skeleton of the user's main program (or calling
-program) for the solution of a nonlinear system problem. 
-Most of the steps are independent of the {\nvector}, {\sunmatrix}, and {\sunlinsol} 
-implementations used. 
-For the steps that are not, refer to Chapter \ref{s:nvector}, 
+program) for the solution of a nonlinear system problem.
+Most of the steps are independent of the {\nvector}, {\sunmatrix}, and {\sunlinsol}
+implementations used.
+For the steps that are not, refer to Chapter \ref{s:nvector},
 \ref{s:sunmatrix}, and \ref{s:sunlinsol}  for the
 specific name of the function to be called or macro to be referenced.
 %%
@@ -203,7 +203,7 @@ specific name of the function to be called or macro to be referenced.
   For example, call \id{MPI\_Init} to initialize {\mpi} if used, or
   set \id{num\_threads}, the number of threads to use within the threaded
   vector functions, if used.
- 
+
 \item
   {\bf Set problem dimensions etc.}
 
@@ -219,29 +219,29 @@ specific name of the function to be called or macro to be referenced.
   functions defined by the particular {\nvector} implementation.
 
   For native {\sundials} vector implementations
-  (except the {\cuda} and {\raja}-based ones), use a call 
-  of the form \id{u = N\_VMake\_***(..., udata)} if the \id{realtype} array 
+  (except the {\cuda} and {\raja}-based ones), use a call
+  of the form \id{u = N\_VMake\_***(..., udata)} if the \id{realtype} array
   \id{udata} containing the initial values of $u$ already exists.
   Otherwise, create a new vector by making a call of the form
-  \id{u = N\_VNew\_***(...)}, and then set its elements by accessing 
-  the underlying data with a call of the form 
-  \id{ ydata = N\_VGetArrayPointer(u)}.  
+  \id{u = N\_VNew\_***(...)}, and then set its elements by accessing
+  the underlying data with a call of the form
+  \id{ ydata = N\_VGetArrayPointer(u)}.
   See \S\ref{ss:nvec_ser}-\ref{ss:nvec_pthreads} for details.
-  
-  For the {\hypre} and {\petsc} vector wrappers, first create and initialize 
-  the underlying vector and then create an {\nvector} wrapper with a call 
+
+  For the {\hypre} and {\petsc} vector wrappers, first create and initialize
+  the underlying vector and then create an {\nvector} wrapper with a call
   of the form \id{u = N\_VMake\_***(uvec)}, where \id{uvec} is a {\hypre}
-  or {\petsc} vector. Note that calls like \id{N\_VNew\_***(...)} and 
+  or {\petsc} vector. Note that calls like \id{N\_VNew\_***(...)} and
   \id{N\_VGetArrayPointer(...)} are not available for these vector wrappers.
   See \S\ref{ss:nvec_parhyp} and \S\ref{ss:nvec_petsc} for details.
 
-  If using either the {\cuda}- or {\raja}-based vector implementations 
+  If using either the {\cuda}- or {\raja}-based vector implementations
   use a call of the form
   \id{u = N\_VMake\_***(..., c)} where \id{c} is a pointer to a \id{suncudavec}
-  or \id{sunrajavec} vector class if this class already exists.  Otherwise, 
-  create a new vector 
-  by making a call of the form \id{u = N\_VNew\_***(...)}, and then set its 
-  elements by accessing the underlying data where it is located 
+  or \id{sunrajavec} vector class if this class already exists.  Otherwise,
+  create a new vector
+  by making a call of the form \id{u = N\_VNew\_***(...)}, and then set its
+  elements by accessing the underlying data where it is located
   with a call of the form
   \id{N\_VGetDeviceArrayPointer\_***} or \id{N\_VGetHostArrayPointer\_***}.
   Note that the vector class will allocate memory on both the host and device
@@ -255,47 +255,61 @@ specific name of the function to be called or macro to be referenced.
 %   and loading values into the structure defined by \id{NV\_DATA\_***(u)},
 %   provided these functions and macro exist for the {\nvector} module chosen.
 
-\item\label{i:kinsol_create} 
+\item\label{i:kinsol_create}
   {\bf Create {\kinsol} object}
 
   Call \id{kin\_mem = KINCreate()} to create the {\kinsol} memory block.
   \id{KINCreate} returns a pointer to the {\kinsol} memory structure.
   See \S\ref{sss:kinmalloc} for details.
 
-\item
-  {\bf Set optional inputs}
-
-  Call \id{KINSet*} routines to change from their default values any
-  optional inputs that control the behavior of {\kinsol}.
-  See \S\ref{ss:optional_input} for details.
-
-\item\label{i:kinsol_malloc} 
+\item\label{i:kinsol_malloc}
   {\bf Allocate internal memory}
 
-  Call \id{KINInit(...)} 
+  Call \id{KINInit(...)}
   to specify the problem defining function $F$,
-  allocate internal memory for {\kinsol}, 
+  allocate internal memory for {\kinsol},
   and initialize {\kinsol}.
   \id{KINInit} returns a flag to indicate success or an illegal argument value.
   See \S\ref{sss:kinmalloc} for details.
 
-\item\label{i:matrix} 
+\item\label{i:matrix}
   {\bf Create matrix object}
- 
-  If a direct linear solver is to be used within a Newton or Picard iteration,
+
+  If a matrix-based linear solver is to be used within a Newton or Picard iteration,
   then a template Jacobian matrix must be created by using the
   appropriate functions defined by the particular {\sunmatrix}
-  implementation. 
-  
+  implementation.
+
+  For the {\sundials}-supplied {\sunmatrix} implementations, the
+  matrix object may be created using a call of the form
+
+  \id{SUNMatrix J = }\Id{SUNBandMatrix}\id{(...);}
+
+   or
+
+  \id{SUNMatrix J = }\Id{SUNDenseMatrix}\id{(...);}
+
+   or
+
+  \id{SUNMatrix J = }\Id{SUNSparseMatrix}\id{(...);}
+
   NOTE: The dense, banded, and sparse matrix objects are usable only in a
   serial or threaded environment.
 
-\item\label{i:lin_solver} 
+\item\label{i:lin_solver}
   {\bf Create linear solver object}
- 
+
   If a Newton or Picard iteration is chosen, then the desired linear solver
   object must be created by using the appropriate functions defined by
   the particular {\sunlinsol} implementation.
+
+  For any of the {\sundials}-supplied {\sunlinsol} implementations,
+  the linear solver object may be created using a call of the form
+
+  \id{SUNLinearSolver LS = SUNLinSol\_*(...);}
+
+  where \id{*} can be replaced with ``Dense'', ``SPGMR'', or other
+  options, as discussed in \S\ref{sss:lin_solv_init} and Chapter {\ref{s:sunlinsol}}.
 
 \item
   {\bf Set linear solver optional inputs}
@@ -305,23 +319,21 @@ specific name of the function to be called or macro to be referenced.
   See the documentation for each {\sunlinsol} module in Chapter
   {\ref{s:sunlinsol}} for details.
 
-\item\label{i:lin_solver_interface} 
+\item\label{i:lin_solver_interface}
   {\bf Attach linear solver module}
 
-  If a Newton or Picard iteration is chosen, initialize the {\kindls} or
-  {\kinspils} linear solver interface by attaching the linear solver
-  object (and matrix object, if applicable)
-  with one of the following calls (for details see \S\ref{sss:lin_solv_init}):
+  If a Newton or Picard iteration is chosen, initialize the {\kinls}
+  linear solver interface by attaching the linear solver object (and
+  matrix object, if applicable) with one of the following calls (for
+  details see \S\ref{sss:lin_solv_init}):
 
-  \id{ier = }\Id{KINDlsSetLinearSolver}\id{(...);}
-
-  \id{ier = }\Id{KINSpilsSetLinearSolver}\id{(...);}
+  \id{ier = }\Id{KINSetLinearSolver}\id{(...);}
 
 \item
-  {\bf Set linear solver interface optional inputs}
+  {\bf Set optional inputs}
 
-  Call \id{KINDlsSet*} or \id{KINSpilsSet*} functions to change optional
-  inputs specific to that linear solver interface. 
+  Call \id{KINSet*} routines to change from their default values any
+  optional inputs that control the behavior of {\kinsol}.
   See \S\ref{ss:optional_input} for details.
 
 \item
@@ -333,7 +345,7 @@ specific name of the function to be called or macro to be referenced.
 \item
   {\bf Get optional outputs}
 
-  Call \id{KINGet*} and \id{KIN*Get*} functions to obtain optional output.
+  Call \id{KINGet*} functions to obtain optional output.
   See \S\ref{ss:optional_output} for details.
 
 \item
@@ -348,18 +360,18 @@ specific name of the function to be called or macro to be referenced.
   {\bf Free solver memory}
 
   Call \id{KINFree(\&kin\_mem)} to free the memory allocated for {\kinsol}.
-  
+
 \item
   {\bf Free linear solver and matrix memory}
 
   Call \Id{SUNLinSolFree} and \ID{SUNMatDestroy} to free any memory
   allocated for the linear solver and matrix objects created above.
 
-\item 
+\item
   {\bf Finalize MPI, if used}
 
   Call \id{MPI\_Finalize()} to terminate {\mpi}.
-  
+
 \end{Steps}
 
 \input{linear-vector-table}
@@ -369,7 +381,7 @@ specific name of the function to be called or macro to be referenced.
 \section{User-callable functions}\label{s:kinsol_fct_sol}
 
 This section describes the {\kinsol} functions that are called by the
-user to set up and solve a nonlinear problem. Some of these are required. 
+user to set up and solve a nonlinear problem. Some of these are required.
 However, starting with \S\ref{ss:optional_input}, the functions listed involve
 optional inputs/outputs or restarting, and those paragraphs can be
 skipped for a casual use of {\kinsol}. In any case, refer to
@@ -398,7 +410,7 @@ is to be called only after the problem solution is complete, as it frees the
   This function has no arguments.
 }
 {
-  If successful, \id{KINCreate} returns a pointer to the newly created 
+  If successful, \id{KINCreate} returns a pointer to the newly created
   {\kinsol} memory block (of type \id{void *}).
   If an error occurred, \id{KINCreate} prints an error message to \id{stderr}
   and returns \id{NULL}.
@@ -419,9 +431,9 @@ flag = KINInit(kin\_mem, func, tmpl);
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block returned by \id{KINCreate}.
   \item[func] (\Id{KINSysFn})
-    is the {\CC} function which computes the system function $F$ 
+    is the {\CC} function which computes the system function $F$
     (or $G(u)$ for fixed-point iteration) in the nonlinear
-    problem.  This function has the form \id{func(u, fval, user\_data)}. 
+    problem.  This function has the form \id{func(u, fval, user\_data)}.
     (For full details see \S\ref{ss:sysFn}.)
   \item[tmpl] (\id{N\_Vector})
     is any \id{N\_Vector} (e.g. the initial guess vector \id{u}) which is used
@@ -433,12 +445,12 @@ flag = KINInit(kin\_mem, func, tmpl);
   \begin{args}[KIN\_ILL\_INPUT]
   \item[\Id{KIN\_SUCCESS}]
     The call to \id{KINInit} was successful.
-  \item[\Id{KIN\_MEM\_NULL}] 
+  \item[\Id{KIN\_MEM\_NULL}]
     The {\kinsol} memory block was not initialized through a previous call
     to \id{KINCreate}.
-  \item[\Id{KIN\_MEM\_FAIL}] 
+  \item[\Id{KIN\_MEM\_FAIL}]
     A memory allocation request has failed.
-  \item[\Id{KIN\_ILL\_INPUT}] 
+  \item[\Id{KIN\_ILL\_INPUT}]
     An input argument to \id{KINInit} has an illegal value.
   \end{args}
 }
@@ -468,162 +480,136 @@ flag = KINInit(kin\_mem, func, tmpl);
 
 %%-------------------------------------------------------------------------------
 
-\subsection{Linear solver specification functions}\label{sss:lin_solv_init}
+\subsection{Linear solver specification function}\label{sss:lin_solv_init}
 
 As previously explained, Newton and Picard iterations require the solution of
-linear systems of the form $J\delta = -F$. There are two {\kinsol} linear
-solvers currently available for this task: {\kindls} and {\kinspils}.
+linear systems of the form $J\delta = -F$. Solution of these linear
+systems is handled using the {\kinls} linear solver interface.  This
+interface supports all valid {\sunlinsol} modules.  Here, matrix-based
+{\sunlinsol} modules utilize {\sunmatrix} objects to store the
+Jacobian matrix $J = \partial{F}/\partial{u}$ and factorizations used
+throughout the solution process.  Conversely, matrix-free {\sunlinsol}
+modules instead use iterative methods to solve the linear systems of
+equations, and only require the \emph{action} of the Jacobian on a
+vector, $Jv$.
 
-The first corresponds to the use of Direct Linear Solvers, and
-utilizes {\sunmatrix} objects to store the Jacobian
-$J = \partial{F}/\partial{u}$
-and factorizations used throughout the solution process.
-
-The second corresponds to the use of Scaled, Preconditioned, Iterative
-Linear Solvers, utilizing matrix-free Krylov methods to solve the
-linear systems of equations.  With most of these methods,
-preconditioning can be done on the left only, on the right only, on
-both the left and the right, or not at all.  The exceptions to this
-rule are {\spfgmr} that supports right preconditioning only and
-{\pcg} that performs symmetric preconditioning.  For the specification
-of a preconditioner, see the iterative linear solver sections 
-in \S\ref{ss:optional_input} and \S\ref{ss:user_fct_sol}.
-A preconditioner matrix $P$ must approximate the Jacobian $J$, at least
-crudely.  
-
-With any of the Krylov solvers, only right preconditioning is supported
-through the {\kinspils} interfaces.
-For specification of the preconditioner, see the Krylov solver sections
-within \S\ref{ss:optional_input} and \S\ref{ss:user_fct_sol}.
-If preconditioning is done, user-supplied functions define the right
+With most iterative linear solvers, preconditioning can be done on the
+left only, on the right only, on both the left and the right, or not
+at all.  However, only right preconditioning is supported within
+{\kinls}.  If preconditioning is done, user-supplied
+functions define the linear operator corresponding to a right
 preconditioner matrix $P$, which should approximate the system
-Jacobian matrix $J$.  For the specification
-of a preconditioner, see the iterative linear solver sections 
-in \S\ref{ss:optional_input} and \S\ref{ss:user_fct_sol}.
-A preconditioner matrix $P$ must approximate the Jacobian $J$, at least
-crudely.  
+Jacobian matrix $J$.  For the specification of a preconditioner, see
+the iterative linear solver sections in \S\ref{ss:optional_input} and
+\S\ref{ss:user_fct_sol}. A preconditioner matrix $P$ must approximate
+the Jacobian $J$, at least crudely.
 
 \index{KINSOL{\kinsol} linear solvers!selecting one|(}
 To specify a generic linear solver to {\kinsol}, after the call to
 \id{KINCreate} but before any calls to \id{KINSol}, the user's
 program must create the appropriate {\sunlinsol} object and call
-either of the functions \Id{KINDlsSetLinearSolver} or
-\Id{KINSpilsSetLinearSolver}, as documented below.  The first argument
-passed to these functions is the {\kinsol} memory pointer returned by
-\id{KINCreate}; the second argument passed to these functions is the
-desired {\sunlinsol} object to use for solving Newton or Picard systems.  A call
-to one of these functions initializes the appropriate {\kinsol} linear
-solver interface, linking this to the main {\kinsol} solver, and
-allows the user to specify parameters which are specific to a
-particular solver interface. 
-%%
-The use of each of the generic linear solvers involves certain
-constants and possibly some macros, that are likely to be needed in
+the function \Id{KINSetLinearSolver}, as documented below.
+To create the \id{SUNLinearSolver} object, the user may call one of
+the {\sundials}-packaged {\sunlinsol} module constructor routines via
+a call of the form
+
+\begin{verbatim}
+      SUNLinearSolver LS = SUNLinSol_*(...);
+\end{verbatim}
+
+The current list of such constructor routines includes
+\Id{SUNLinSol\_Dense},
+\Id{SUNLinSol\_Band},
+\Id{SUNLinSol\_LapackDense},
+\Id{SUNLinSol\_LapackBand},
+\Id{SUNLinSol\_KLU},
+\Id{SUNLinSol\_SuperLUMT},
+\Id{SUNLinSol\_SPGMR},
+\Id{SUNLinSol\_SPFGMR},
+\Id{SUNLinSol\_SPBCGS},
+\Id{SUNLinSol\_SPTFQMR}, and
+\Id{SUNLinSol\_PCG}.
+
+Alternately, a user-supplied
+\id{SUNLinearSolver} module may be created and used instead.  The use
+of each of the generic linear solvers involves certain constants,
+functions and possibly some macros, that are likely to be needed in
 the user code.  These are available in the corresponding header file
 associated with the specific {\sunmatrix} or {\sunlinsol} module in
 question, as described in Chapters \ref{s:sunmatrix} and
 \ref{s:sunlinsol}.
 
-\index{KINSOL@{\kinsol} linear solver interfaces!selecting one|)}
-
-\index{KINSOL@{\kinsol} linear solver interfaces!KINDLS@{\kindls}}
-\index{KINDLS@{\kindls} linear solver!SUNLINEARSOLVER@{\sunlinsol} compatibility}
-\ucfunction{KINDlsSetLinearSolver}
+Once this solver object has been constructed, the user should attach
+it to {\kinsol} via a call to \Id{KINSetLinearSolver}.  The first
+argument passed to this function is the {\kinsol} memory pointer
+returned by \id{KINCreate}; the second argument is the desired
+{\sunlinsol} object to use for solving Newton or Picard systems.  The
+third argument is an optional {\sunmatrix} object to accompany
+matrix-based {\sunlinsol} inputs (for matrix-free linear solvers, the
+third argument should be \id{NULL}).  A call to this function
+initializes the {\kinls} linear solver interface, linking it to the
+main {\kinsol} solver, and allows the user to specify additional
+parameters and routines pertinent to their choice of linear solver.
+%%
+\index{KINSOL@{\kinsol} linear solvers!selecting one|)}
+\index{KINSOL@{\kinsol} linear solver interface!KINLS@{\kinls}}
+\ucfunction{KINSetLinearSolver}
 {
-  flag = KINDlsSetLinearSolver(kin\_mem, LS, J);
+  flag = KINSetLinearSolver(kin\_mem, LS, J);
 }
 {
-  The function \ID{KINDlsSetLinearSolver} attaches a direct
-  {\sunlinsol} object \id{LS} and corresponding template
-  Jacobian {\sunmatrix} object \id{J} to {\kinsol}, initializing the
-  {\kindls} direct linear solver interface.
-
-  The user's main program must include the \id{kinsol\_direct.h} header file.
+  The function \ID{KINSetLinearSolver} attaches a generic {\sunlinsol}
+  object \id{LS} and corresponding template Jacobian {\sunmatrix}
+  object \id{J} (if applicable) to {\kinsol}, initializing the
+  {\kinls} linear solver interface.
 }
 {
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
   \item[LS] (\id{SUNLinearSolver})
-    {\sunlinsol} object to use for solving Newton linear systems. 
+    {\sunlinsol} object to use for solving Newton linear systems.
   \item[J] (\id{SUNMatrix})
-    {\sunmatrix} object for used as a template for the Jacobian (must
-    have a type compatible with the linear solver object).
+    {\sunmatrix} object for used as a template for the Jacobian (or
+    \id{NULL} if not applicable).
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}
-  [KINDLS\_ILL\_INPUT]
-  \item[\Id{KINDLS\_SUCCESS}] 
-    The {\kindls} initialization was successful.
-  \item[\Id{KINDLS\_MEM\_NULL}]
+  [KINLS\_ILL\_INPUT]
+  \item[\Id{KINLS\_SUCCESS}]
+    The {\kinls} initialization was successful.
+  \item[\Id{KINLS\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
-  \item[\Id{KINDLS\_ILL\_INPUT}]
-    The {\kindls} solver is not compatible with the current {\nvector} module.
-  \item[\Id{KINDLS\_MEM\_FAIL}]
-    A memory allocation request failed.
-  \end{args}
-}
-{
-  The {\kindls} linear solver is not compatible with all
-  implementations of the {\sunlinsol} and {\nvector}
-  modules.  Specifically, {\kindls} requires use of a \emph{direct}
-  {\sunlinsol} object and a serial or theaded {\nvector}
-  module. Additional compatibility limitations for each 
-  {\sunlinsol} object (i.e.~{\sunmatrix} and {\nvector} object
-  compatibility) are described in Chapter \ref{s:sunlinsol}.
-}
-%%
-%%
-%%
-\index{KIN@{\kinsol} linear solver interfaces!KINSPILS@{\kinspils}}
-\index{KINSPILS@{\kinspils} linear solver!SUNLINEARSOLVER@{\sunlinsol} compatibility}
-\ucfunction{KINSpilsSetLinearSolver}
-{
-  flag = KINSpilsSetLinearSolver(kin\_mem, LS);
-}
-{
-  The function \ID{KINSpilsSetLinearSolver} attaches an iterative
-  {\sunlinsol} object \id{LS} to {\kinsol}, initializing the
-  {\kinspils} scaled, preconditioned, iterative linear solver
-  interface.
-
-  The user's main program must include the \id{kin\_spils.h} header
-  file.
-}
-{
-  \begin{args}[kin\_mem]
-  \item[kin\_mem] (\id{void *})
-    pointer to the {\kinsol} memory block.
-  \item[LS] (\id{SUNLinearSolver})
-    {\sunlinsol} object to use for solving Newton linear systems. 
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}
-  \item[\Id{KINSPILS\_SUCCESS}] 
-    The {\kinspils} initialization was successful.
-  \item[\Id{KINSPILS\_MEM\_NULL}]
-    The \id{kin\_mem} pointer is \id{NULL}.
-  \item[\Id{KINSPILS\_ILL\_INPUT}]
-    The {\kinspils} solver is not compatible with the \id{LS} object
-    or is incompatible with the current {\nvector} module.
-  \item[\Id{KINSPILS\_MEM\_FAIL}]
-    A memory allocation request failed.
-  \item[\Id{KINSPILS\_SUNLS\_FAIL}]
+  \item[\Id{KINLS\_ILL\_INPUT}]
+    The {\kinls} interface is not compatible with the \id{LS} or
+    \id{J} input objects or is incompatible with the current
+    {\nvector} module.
+  \item[\Id{KINLS\_SUNLS\_FAIL}]
     A call to the \id{LS} object failed.
+  \item[\Id{KINLS\_MEM\_FAIL}]
+    A memory allocation request failed.
   \end{args}
 }
 {
-  The {\kinspils} linear solver interface is not compatible with all
-  implementations of the {\sunlinsol} and {\nvector}
-  modules.  Specifically, {\kinspils} requires use of an
-  \emph{iterative} {\sunlinsol} object.  Additional compatibility
-  limitations for each {\sunlinsol} object (i.e.~required {\nvector}
-  routines) are described in Chapter \ref{s:sunlinsol}.
+  If \id{LS} is a matrix-based linear solver, then the template
+  Jacobian matrix \id{J} will be used in the solve process, so if
+  additional storage is required within the {\sunmatrix} object
+  (e.g. for factorization of a banded matrix), ensure that the input
+  object is allocated with sufficient size (see the documentation of
+  the particular {\sunmatrix} type in Chapter \ref{s:sunmatrix} for
+  further information).
+
+  The previous routines \Id{KINDlsSetLinearSolver} and
+  \Id{KINSpilsSetLinearSolver} are now wrappers for this routine, and may
+  still be used for backward-compatibility.  However, these will be
+  deprecated in future releases, so we recommend that users transition
+  to the new routine name soon.
 }
+%%
+%%
+%%
 
 %--------------------------------------------------------------------
 \subsection{KINSOL solver function}\label{sss:kinsol}
@@ -652,19 +638,19 @@ the nonlinear algebraic system.
     strategy used to solve the nonlinear system. It must be of the following: \\
     \ID{KIN\_NONE}  basic Newton iteration \\
     \ID{KIN\_LINESEARCH} Newton with globalization \\
-    \ID{KIN\_FP} fixed-point iteration with Anderson Acceleration 
+    \ID{KIN\_FP} fixed-point iteration with Anderson Acceleration
                  (no linear solver needed)\\
-    \ID{KIN\_PICARD} Picard iteration with Anderson Acceleration 
+    \ID{KIN\_PICARD} Picard iteration with Anderson Acceleration
                      (uses a linear solver)\\
   \item[u\_scale] (\id{N\_Vector})
     vector containing diagonal elements of scaling matrix $D_u$ for vector \id{u}
     chosen so that the components of $D_u \cdot$\id{u}
-    (as a matrix multiplication) all have roughly the same magnitude when 
+    (as a matrix multiplication) all have roughly the same magnitude when
     \id{u} is close to a root of $F(u)$.
   \item[f\_scale] (\id{N\_Vector})
-    vector containing diagonal elements of scaling matrix $D_F$ for $F(u)$ chosen 
-    so that the components of $D_F \cdot F($\id{u}$)$ 
-    (as a matrix multiplication) all have roughly the same magnitude when 
+    vector containing diagonal elements of scaling matrix $D_F$ for $F(u)$ chosen
+    so that the components of $D_F \cdot F($\id{u}$)$
+    (as a matrix multiplication) all have roughly the same magnitude when
     \id{u} is not too near a root of $F(u)$. In the case of a fixed-point
     iteration, consider $F(u) = G(u) - u$.
   \end{args}
@@ -688,15 +674,15 @@ the nonlinear algebraic system.
 
     {\kinsol} stopped based on scaled step length.
     This means that the current iterate may be an approximate solution of the given
-    nonlinear system, but it is also quite possible that the algorithm is ``stalled" 
-    (making insufficient progress) near an invalid solution, or that the 
-    scalar \id{scsteptol} is too large (see \id{KINSetScaledStepTol} in 
+    nonlinear system, but it is also quite possible that the algorithm is ``stalled"
+    (making insufficient progress) near an invalid solution, or that the
+    scalar \id{scsteptol} is too large (see \id{KINSetScaledStepTol} in
     \S\ref{ss:optional_input} to change \id{scsteptol} from its default value).
 
   \item[\Id{KIN\_MEM\_NULL}]\rule{0pt}{0pt}
 
     The {\kinsol} memory block pointer was \id{NULL}.
- 
+
   \item[\Id{KIN\_ILL\_INPUT}]\rule{0pt}{0pt}
 
     An input parameter was invalid.
@@ -714,49 +700,50 @@ the nonlinear algebraic system.
     The line search algorithm was unable to find an iterate sufficiently distinct
     from the current iterate, or could not find an iterate satisfying
     the sufficient decrease condition.
-    
+
     Failure to satisfy the sufficient decrease condition could mean the current
     iterate is ``close" to an approximate solution of the given nonlinear system,
     the difference approximation of the matrix-vector product $J(u) v$ is inaccurate,
     or the real scalar \id{scsteptol} is too large.
- 
+
   \item[\Id{KIN\_MAXITER\_REACHED}] \rule{0pt}{0pt}
 
     The maximum number of nonlinear iterations has been reached.
- 
+
   \item[\Id{KIN\_MXNEWT\_5X\_EXCEEDED}]\rule{0pt}{0pt}
-    
+
     Five consecutive steps have been taken that satisfy the inequality
     $\|D_u p\|_{L2} > 0.99 \,$ \id{mxnewtstep}, where $p$ denotes the current step
     and \id{mxnewtstep} is a scalar upper bound on the scaled step length.
     Such a failure may mean that $\|D_F F(u)\|_{L2}$ asymptotes from above to a
     positive value, or the real scalar \id{mxnewtstep} is too small.
- 
+
   \item[\Id{KIN\_LINESEARCH\_BCFAIL}]\rule{0pt}{0pt}
 
     The line search algorithm was unable to satisfy the ``beta-condition'' for
     \id{MXNBCF} $+ 1$ nonlinear iterations (not necessarily consecutive),
     which may indicate the algorithm is making poor progress.
- 
+
   \item[\Id{KIN\_LINSOLV\_NO\_RECOVERY}]\rule{0pt}{0pt}
 
     The user-supplied routine \id{psolve} encountered a recoverable error, but
     the preconditioner is already current.
- 
+
   \item[\Id{KIN\_LINIT\_FAIL}]\rule{0pt}{0pt}
 
-    The linear solver initialization routine (\id{linit}) encountered an error.
- 
+    The {\kinls} initialization routine (\id{linit}) encountered an error.
+
   \item[\Id{KIN\_LSETUP\_FAIL}]\rule{0pt}{0pt}
 
-    The user-supplied routine \id{pset} (used to set up the preconditioner data)
-    encountered an unrecoverable error.
- 
+    The {\kinls} setup routine (\id{lsetup}) encountered an error;
+    e.g., the user-supplied routine \id{pset} (used to set up the
+    preconditioner data) encountered an unrecoverable error.
+
   \item[\Id{KIN\_LSOLVE\_FAIL}]\rule{0pt}{0pt}
 
-    Either the user-supplied routine \id{psolve} (used to to solve the preconditioned
-    linear system) encountered an unrecoverable error, or the linear solver routine
-    (\id{lsolve}) encountered an error condition.
+    The {\kinls} solve routine (\id{lsolve}) encountered an error;
+    e.g., the user-supplied routine \id{psolve} (used to to solve the preconditioned
+    linear system) encountered an unrecoverable error.
 
   \item[\Id{KIN\_SYSFUNC\_FAIL}]\rule{0pt}{0pt}
 
@@ -770,13 +757,13 @@ the nonlinear algebraic system.
 
     The system function had repeated recoverable errors. No recovery is possible.
 
- 
+
   \end{args}
 }
 {
   The components of vectors \id{u\_scale} and \id{f\_scale} should be strictly positive.
-  
-  \id{KIN\_SUCCESS} $=0$, \id{KIN\_INITIAL\_GUESS\_OK} $=1$, and 
+
+  \id{KIN\_SUCCESS} $=0$, \id{KIN\_INITIAL\_GUESS\_OK} $=1$, and
   \id{KIN\_STEP\_LT\_STPTOL} $=2$.
   %%
   All remaining return values are negative and therefore a test \id{flag} $< 0$
@@ -794,7 +781,7 @@ to change these from their default values.  Table \ref{t:optional_input}
 lists all optional input functions in {\kinsol} which are then
 described in detail in the remainder of this section, beginning with
 those for the main {\kinsol} solver and continuing with those for the
-linear solver modules. For the most casual use of {\kinsol}, the
+{\kinls} linear solver interface. For the most casual use of {\kinsol}, the
 reader can skip to \S\ref{ss:user_fct_sol}.
 
 We note that, on error return, all of these functions also send an error message
@@ -804,7 +791,7 @@ will catch any error.
 
 \begin{table}
 \centering
-\caption{Optional inputs for {\kinsol}, {\kindls}, and {\kinspils}}
+\caption{Optional inputs for {\kinsol} and {\kinls}}
 \label{t:optional_input}
 \medskip
 \begin{tabular}{|l|l|l|}\hline
@@ -838,14 +825,11 @@ Inequality constraints on solution & \id{KINSetConstraints} & \id{NULL} \\
 Nonlinear system function & \id{KINSetSysFunc} & none \\
 Anderson Acceleration subspace size & \id{KINSetMAA} & 0 \\
 \hline
-\multicolumn{3}{|c|}{\bf KINDLS linear solvers} \\
+\multicolumn{3}{|c|}{\bf KINLS linear solver interface} \\
 \hline
-Jacobian function & \id{KINDlsSetJacFn} &  DQ \\
-\hline
-\multicolumn{3}{|c|}{\bf KINSPILS linear solvers} \\
-\hline
-Preconditioner functions and data & \id{KINSpilsSetPreconditioner} & \id{NULL}, \id{NULL}, \id{NULL} \\
-Jacobian-times-vector function and data & \id{KINSpilsSetJacTimesVecFn} & internal DQ, \\
+Jacobian function & \id{KINSetJacFn} &  DQ \\
+Preconditioner functions and data & \id{KINSetPreconditioner} & \id{NULL}, \id{NULL}, \id{NULL} \\
+Jacobian-times-vector function and data & \id{KINSetJacTimesVecFn} & internal DQ, \\
 &&\id{NULL} \\
 \hline
 \end{tabular}
@@ -879,14 +863,14 @@ flag = KINSetErrFile(kin\_mem, errfp);
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}[KIN\_MEM\_NULL]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
   \end{args}
 }
 {
-  The default value for \id{errfp} is \id{stderr}. 
+  The default value for \id{errfp} is \id{stderr}.
 
   Passing a value of \id{NULL} disables all future error message output
   (except for the case in which the {\kinsol} memory pointer is \id{NULL}).
@@ -918,7 +902,7 @@ flag = KINSetErrHandlerFn(kin\_mem, ehfun, eh\_data);
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_MEM\_NULL]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The function \id{ehfun} and data pointer \id{eh\_data} have been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
@@ -952,7 +936,7 @@ flag = KINSetInfoFile(kin\_mem, infofp);
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_MEM\_NULL]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
@@ -985,7 +969,7 @@ flag = KINSetInfoHandlerFn(kin\_mem, ihfun, ih\_data);
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_MEM\_NULL]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The function \id{ihfun} and data pointer \id{ih\_data} have been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
@@ -1014,11 +998,11 @@ flag = KINSetPrintLevel(kin\_mem, printfl);
 
   \item[printfl] (\id{int})
     flag indicating the level of verbosity. Must be one of:
-    
+
     \begin{itemize}
     \item[0]
       no information displayed.
-      
+
     \item[1]
       for each nonlinear iteration display
       the following information: the scaled
@@ -1028,24 +1012,24 @@ flag = KINSetPrintLevel(kin\_mem, printfl);
       using \id{KIN\_NONE}), and the
       number of function evaluations performed
       so far.
-      
+
     \item[2]
       display level 1 output and the
       following values for each iteration:
-      
+
       $\|F(u)\|_{D_F}$
       (only for \id{KIN\_NONE}).
-      
+
       $\|F(u)\|_{D_F,\infty}$
       (for \id{KIN\_NONE} and
       \id{KIN\_LINESEARCH}).
-      
+
     \item[3]
       display level 2 output plus additional
       values used by the global strategy
       (only if using \id{KIN\_LINESEARCH}), and
-      statistical information for the linear
-      solver.
+      statistical information for iterative linear
+      solver modules.
     \end{itemize}
 
   \end{args}
@@ -1053,7 +1037,7 @@ flag = KINSetPrintLevel(kin\_mem, printfl);
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_ILL\_INPUT]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
@@ -1084,20 +1068,20 @@ flag = KINSetUserData(kin\_mem, user\_data);
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_MEM\_NULL]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
   \end{args}
 }
 {
-  If specified, the pointer to \id{user\_data} is passed to all user-supplied 
+  If specified, the pointer to \id{user\_data} is passed to all user-supplied
   functions that have it as an argument. Otherwise, a \id{NULL} pointer is passed.
 
-  {\warn}If \id{user\_data} is needed in user linear solver or 
+  {\warn}If \id{user\_data} is needed in user linear solver or
   preconditioner functions, the call to
   \id{KINSetUserData} must be made {\it before} the call to specify the
-  linear solver.
+  linear solver module.
 }
 %%
 %%
@@ -1106,7 +1090,7 @@ flag = KINSetUserData(kin\_mem, user\_data);
 flag = KINSetNumMaxIters(kin\_mem, mxiter);
 }
 {
-  The function \ID{KINSetNumMaxIters} specifies the maximum number of 
+  The function \ID{KINSetNumMaxIters} specifies the maximum number of
   nonlinear iterations allowed.
 }
 {
@@ -1120,7 +1104,7 @@ flag = KINSetNumMaxIters(kin\_mem, mxiter);
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_ILL\_INPUT]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
@@ -1153,7 +1137,7 @@ flag = KINSetNoInitSetup(kin\_mem, noInitSetup);
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_MEM\_NULL]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
@@ -1165,7 +1149,7 @@ flag = KINSetNoInitSetup(kin\_mem, noInitSetup);
 
   A call to this function is useful when solving a sequence of problems, in which
   the final preconditioner or Jacobian value from one problem is to be used initially
-  for the next problem. 
+  for the next problem.
 }
 %%
 %%
@@ -1190,7 +1174,7 @@ flag = KINSetNoResMon(kin\_mem, noNNIResMon);
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_MEM\_NULL]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
@@ -1200,8 +1184,8 @@ flag = KINSetNoResMon(kin\_mem, noNNIResMon);
   When using a direct solver, the default value for \id{noNNIResMon} is \id{SUNFALSE},
   meaning that the nonlinear residual will be monitored.
 
-  {\warn}Residual monitoring is only available for use with the direct linear solver
-  modules (meaning {\kindense}, {\kinband}, {\kinklu}, and {\kinsuperlumt}).
+  {\warn}Residual monitoring is only available for use with
+  matrix-based linear solver modules.
 }
 %%
 %%
@@ -1210,8 +1194,8 @@ flag = KINSetNoResMon(kin\_mem, noNNIResMon);
 flag = KINSetMaxSetupCalls(kin\_mem, msbset);
 }
 {
-  The function \ID{KINSetMaxSetupCalls} specifies the maximum number of 
-  nonlinear iterations that can be performed between calls to the 
+  The function \ID{KINSetMaxSetupCalls} specifies the maximum number of
+  nonlinear iterations that can be performed between calls to the
   preconditioner or Jacobian setup function.
 }
 {
@@ -1226,7 +1210,7 @@ flag = KINSetMaxSetupCalls(kin\_mem, msbset);
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_ILL\_INPUT]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
@@ -1244,7 +1228,7 @@ flag = KINSetMaxSetupCalls(kin\_mem, msbset);
 flag = KINSetMaxSubSetupCalls(kin\_mem, msbsetsub);
 }
 {
-  The function \ID{KINSetMaxSubSetupCalls} specifies the maximum number of 
+  The function \ID{KINSetMaxSubSetupCalls} specifies the maximum number of
   nonlinear iterations between checks by the residual monitoring algorithm.
 }
 {
@@ -1259,7 +1243,7 @@ flag = KINSetMaxSubSetupCalls(kin\_mem, msbsetsub);
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_ILL\_INPUT]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
@@ -1270,8 +1254,8 @@ flag = KINSetMaxSubSetupCalls(kin\_mem, msbsetsub);
 {
   The default value for \id{msbsetsub} is \id{MSBSET\_SUB\_DEFAULT} $=5$.
 
-  {\warn}Residual monitoring is only available for use with the direct linear solver
-  modules (meaning {\kindense}, {\kinband}, {\kinklu}, and {\kinsuperlumt}).
+  {\warn}Residual monitoring is only available for use with
+  matrix-based linear solver modules.
 }
 %%
 %%
@@ -1297,7 +1281,7 @@ flag = KINSetEtaForm(kin\_mem, etachoice);
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_ILL\_INPUT]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
@@ -1329,7 +1313,7 @@ flag = KINSetEtaConstValue(kin\_mem, eta);
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_ILL\_INPUT]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
@@ -1364,7 +1348,7 @@ flag = KINSetEtaParams(kin\_mem, egamma, ealpha);
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_ILL\_INPUT]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The optional values have been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
@@ -1376,7 +1360,7 @@ flag = KINSetEtaParams(kin\_mem, egamma, ealpha);
   The default values for \id{egamma} and \id{ealpha} are $0.9$ and $2.0$, respectively.
 
   The legal values are $0.0 <$ \id{egamma} $\le 1.0$ and
-  $1.0<$ \id{ealpha} $\le 2.0$. 
+  $1.0<$ \id{ealpha} $\le 2.0$.
 }
 %%
 %%
@@ -1400,7 +1384,7 @@ flag = KINSetResMonConstValue(kin\_mem, omegaconst);
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_ILL\_INPUT]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
@@ -1435,7 +1419,7 @@ flag = KINSetResMonParams(kin\_mem, omegamin, omegamax);
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_ILL\_INPUT]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The optional values have been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
@@ -1471,7 +1455,7 @@ flag = KINSetNoMinEps(kin\_mem, noMinEps);
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_MEM\_NULL]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
@@ -1503,7 +1487,7 @@ flag = KINSetMaxNewtonStep(kin\_mem, mxnewtstep);
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_ILL\_INPUT]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
@@ -1537,7 +1521,7 @@ flag = KINSetMaxBetaFails(kin\_mem, mxnbcf);
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_ILL\_INPUT]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
@@ -1555,7 +1539,7 @@ flag = KINSetMaxBetaFails(kin\_mem, mxnbcf);
 flag = KINSetRelErrFunc(kin\_mem, relfunc);
 }
 {
-  The function \ID{KINSetRelErrFunc} specifies the relative error in 
+  The function \ID{KINSetRelErrFunc} specifies the relative error in
   computing $F(u)$, which is used in the difference quotient approximation to
   the Jacobian matrix [see Eq.(\ref{e:sigmaDQ_direct})] or the Jacobian-vector
   product [see Eq.(\ref{e:sigmaDQ_iterative})].
@@ -1572,7 +1556,7 @@ flag = KINSetRelErrFunc(kin\_mem, relfunc);
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_ILL\_INPUT]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
@@ -1605,7 +1589,7 @@ flag = KINSetFuncNormTol(kin\_mem, fnormtol);
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_ILL\_INPUT]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
@@ -1632,13 +1616,13 @@ flag = KINSetScaledStepTol(kin\_mem, scsteptol);
     pointer to the {\kinsol} memory block.
   \item[scsteptol] (\id{realtype})
     tolerance for stopping based on scaled step length ($\geq 0.0$).
-    Pass $0.0$ to indicate the default. 
+    Pass $0.0$ to indicate the default.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_ILL\_INPUT]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
@@ -1665,8 +1649,8 @@ flag = KINSetConstraints(kin\_mem, constraints);
     pointer to the {\kinsol} memory block.
   \item[constraints] (\id{N\_Vector})
     vector of constraint flags. If \id{constraints[i]} is
-    \begin{itemize}    
-    \item[$0.0$] then no constraint is imposed on $u_i$. 
+    \begin{itemize}
+    \item[$0.0$] then no constraint is imposed on $u_i$.
     \item[$1.0$] then $u_i$ will be constrained to be $u_i \ge 0.0$.
     \item[$-1.0$] then $u_i$ will be constrained to be $u_i \le 0.0$.
     \item[$2.0$] then $u_i$ will be constrained to be $u_i > 0.0$.
@@ -1677,7 +1661,7 @@ flag = KINSetConstraints(kin\_mem, constraints);
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_ILL\_INPUT]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
@@ -1708,14 +1692,14 @@ flag = KINSetSysFunc(kin\_mem, func);
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
   \item[func] (\id{KINSysFn})
-    user-supplied function that evaluates $F(u)$ (or $G(u)$ for fixed-point 
+    user-supplied function that evaluates $F(u)$ (or $G(u)$ for fixed-point
     iteration).
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_ILL\_INPUT]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
@@ -1725,7 +1709,7 @@ flag = KINSetSysFunc(kin\_mem, func);
 }
 {
   The nonlinear system function is initially specified through \id{KINInit}.
-  The option of changing the system function is provided for a user who wishes 
+  The option of changing the system function is provided for a user who wishes
   to solve several problems of the same size but with different functions.
 }
 %%
@@ -1750,7 +1734,7 @@ flag = KINSetMAA(kin\_mem, maa);
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_ILL\_INPUT]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The optional value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
@@ -1760,7 +1744,7 @@ flag = KINSetMAA(kin\_mem, maa);
 }
 {
   This function sets the subspace size, which needs to be $> 0$ if Anderson
-  Acceleration is to be used.  
+  Acceleration is to be used.
   It also allocates additional memory necessary for Anderson Acceleration.
 
   The default value of \id{maa} is 0, indicating no acceleration.  The value of \id{maa}
@@ -1769,7 +1753,7 @@ flag = KINSetMAA(kin\_mem, maa);
   This function MUST be called before calling \ID{KINInit}.
 
   If the user calls the function KINSetNumMaxIters, that call should be made
-  before the call to KINSetMAA, as the latter uses the value of \id{mxiter}. 
+  before the call to KINSetMAA, as the latter uses the value of \id{mxiter}.
 }
 %%
 %%
@@ -1777,21 +1761,22 @@ flag = KINSetMAA(kin\_mem, maa);
 \index{optional input!solver|)}
 
 %%==============================================================================
-\subsubsection{Direct linear solver interface optional input functions}\label{sss:optin_dls}
+\subsubsection{Linear solver interface optional input functions}\label{sss:optin_ls}
 %%==============================================================================
-\index{optional input!direct linear solver interface|(}
-\index{KINDLS@{\kindls} linear solver interface!optional input|(}
-The \index{KINDLS@{\kindls} linear solver interface!Jacobian approximation used by}
-{\kindls} solver interface needs a function to compute an approximation to
-the Jacobian matrix $J(u)$.  This function must be of type \id{KINDlsJacFn}. 
-The user can supply a Jacobian function, or if using a
-dense or banded matrix $J$ can use the default internal difference
-quotient approximation 
+\index{optional input!generic linear solver interface|(}
+\index{KINLS@{\kinls} linear solver interface!optional input|(}
+
+For matrix-based linear solver modules, the
+\index{KINLS@{\kinls} linear solver interface!Jacobian approximation used by}
+{\kinls} solver interface needs a function to compute an approximation to
+the Jacobian matrix $J(u)$.  This function must be of type \id{KINLsJacFn}.
+The user can supply a Jacobian function, or if using a dense or banded
+matrix $J$ can use the default internal difference quotient approximation
 \index{Jacobian approximation function!difference quotient}
-that comes with the {\kindls} solver.
-To specify a user-supplied Jacobian function \id{jac}, {\kindls} provides 
-the function \id{KINDlsSetJacFn}.
-The {\kindls} interface passes the pointer \id{user\_data} 
+that comes with the {\kinls} solver.
+To specify a user-supplied Jacobian function \id{jac}, {\kinls} provides
+the function \id{KINSetJacFn}.
+The {\kinls} interface passes the pointer \id{user\_data}
 to the Jacobian function. This allows the user to
 create an arbitrary structure with relevant problem data and access it
 during the execution of the user-supplied Jacobian function, without
@@ -1799,173 +1784,197 @@ using global data in the program.  The pointer \id{user\_data} may be
 specified through \id{KINSetUserData}.
 %%
 \index{Jacobian approximation function!user-supplied}
-\ucfunction{KINDlsSetJacFn}
+\ucfunction{KINSetJacFn}
 {
-  flag = KINDlsSetJacFn(ida\_mem, jac);
+  flag = KINSetJacFn(ida\_mem, jac);
 }
 {
-  The function \ID{KINDlsSetJacFn} specifies the Jacobian
+  The function \ID{KINSetJacFn} specifies the Jacobian
   approximation function to be used.
 }
 {
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[jac] (\id{KINDlsJacFn})
+  \item[jac] (\id{KINLsJacFn})
     user-defined Jacobian approximation function.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
   \begin{args}
-  \item[\Id{KINDLS\_SUCCESS}] 
+  \item[\Id{KINLS\_SUCCESS}]
     The optional value has been successfully set.
-  \item[\Id{KINDLS\_MEM\_NULL}]
+  \item[\Id{KINLS\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
-  \item[\Id{KINDLS\_LMEM\_NULL}]
-    The {\kindls} linear solver interface has not been initialized.
+  \item[\Id{KINLS\_LMEM\_NULL}]
+    The {\kinls} linear solver interface has not been initialized.
   \end{args}
 }
 {
-  By default, {\kindls} uses an internal difference quotient function
+  By default, {\kinls} uses an internal difference quotient function
   for dense and band matrices.  If \id{NULL} is passed to \id{jac},
   this default function is used.  An error will occur if no \id{jac}
-  is supplied when using a sparse matrix.
+  is supplied when using a sparse or user-supplied matrix.
 
-  The function type \id{KINDlsJacFn} is described in \S\ref{ss:djacFn}.
+  This function must be called \emph{after} the {\kinls} linear solver
+  interface has been initialized through a call to
+  \id{KINSetLinearSolver}.
+
+  The function type \id{KINLsJacFn} is described in \S\ref{ss:jacFn}.
+
+  The previous routine \Id{KINDlsSetJacFn} is now a wrapper for this
+  routine, and may still be used for backward-compatibility.  However,
+  this will be deprecated in future releases, so we recommend that
+  users transition to the new routine name soon.
 }
 %%
-\index{optional input!direct linear solver interface|)}
-\index{KINDLS@{\kindls} linear solver interface!optional input|)}
 %%
-%%
-%%
-%%==============================================================================
-\subsubsection{Iterative linear solver interface optional input functions}\label{sss:optin_spils}
-%%==============================================================================
-\index{optional input!iterative linear solver|(}
-\index{KINSPILS@{\kinspils} linear solver!optional input|(}
-\index{preconditioning!user-supplied|(}
-If any preconditioning is to be done with one of the {\kinspils} linear
-solver interfaces, then the user must supply a preconditioner solve function, \id{psolve},
-and specify its name in a call to to the routine \id{KINSpilsSetPreconditioner}.
-\index{KINSPILS@{\kinspils} linear solver interface!preconditioner solve function}
-%%
-The evaluation and preprocessing of any Jacobian-related data needed
-by the user's preconditioner solve function is done in the optional
-user-supplied function \id{psetup}. Both of these functions are
-fully specified in \S\ref{ss:user_fct_sol}.
-If used, the \id{psetup} function should also be specified in the call to
-\id{KINSpilsSetPreconditioner}.
-\index{KINSPILS@{\kinspils} linear solver interface!preconditioner setup function}
-%%
-A {\kinspils} solver passes the pointer \id{user\_data}
-received through \id{KINSetUserData} to the preconditioner
-\id{psetup} and \id{psolve} functions.  This allows the user to create
-an arbitrary structure with relevant problem data and access it during
-the execution of the user-supplied preconditioner functions without using
-global data in the program.
-
-\index{KINSPILS@{\kinspils} linear solver!Jacobian approximation used by}
-Ther {\kinspils} solvers require a function to compute an approximation to the
-product between the Jacobian matrix $J(u)$ and a vector $v$.
-The user can supply his/her own Jacobian-times-vector approximation function, 
+\index{KINLS@{\kinls} linear solver!Jacobian-vector product approximation used by}
+When using matrix-free linear solver modules, the {\kinls} linear
+solver interface requires a function to compute an approximation to
+the product between the Jacobian matrix $J(u)$ and a vector $v$.
+The user can supply his/her own Jacobian-times-vector approximation function,
 or use the internal difference quotient approximation
 \index{Jacobian approximation function!Jacobian times vector!difference quotient}
-that comes with the {\kinspils} solver interface.  A user-defined Jacobian-vector
-function must be of type \id{KINSpilsJacTimesVecFn} and 
-can be specified through a call to \id{KINSpilsSetJacTimesVecFn}
+that comes with the {\kinls} solver interface.  A user-defined Jacobian-vector
+function must be of type \id{KINLsJacTimesVecFn} and
+can be specified through a call to \id{KINLsSetJacTimesVecFn}
 (see \S\ref{ss:jtimesFn} for specification details).
+
+The pointer \id{user\_data} received through \id{KINSetUserData} (or a
+pointer to \id{NULL} if \id{user\_data} was not specified) is passed
+to the Jacobian-times-vector function \id{jtimes} each time it is
+called.  This allows the user to create an arbitrary structure with
+relevant problem data and access it during the execution of the
+user-supplied functions without using global data in the program.
 %%
-A {\kinspils} solver passes the pointer \id{user\_data} received through 
-\id{KINSetUserData} to the Jacobian-times-vector function \id{jtimes}
-each time it is called.  
-%%
-%%
-\ucfunction{KINSpilsSetPreconditioner}
-{
-  flag = KINSpilsSetPreconditioner(kin\_mem, psetup, psolve);
-}
-{
-  The function \ID{KINSpilsSetPreconditioner} specifies the preconditioner
-  setup and solve functions.
-}
-{
-  \begin{args}[kin\_mem]
-  \item[kin\_mem] (\id{void *})
-    pointer to the {\kinsol} memory block.
-  \item[psetup] (\id{KINSpilsPrecSetupFn})
-    user-defined function to set up the preconditioner.  Pass \id{NULL} if no setup
-    operation is necessary.
-  \item[psolve] (\id{KINSpilsPrecSolveFn})
-    user-defined preconditioner solve function.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[KINSPILS\_LMEM\_NULL]
-  \item[\Id{KINSPILS\_SUCCESS}] 
-    The optional values have been successfully set.
-  \item[\Id{KINSPILS\_MEM\_NULL}]
-    The \id{kin\_mem} pointer is \id{NULL}.
-  \item[\Id{KINSPILS\_LMEM\_NULL}]
-    The {\kinspils} linear solver has not been initialized.
-  \item[\Id{KINSPILS\_SUNLS\_FAIL}]
-    An error occurred when setting up preconditioning in the
-    {\sunlinsol} object used by the {\kinspils} interface.
-  \end{args}
-}
-{
-   The function type \id{KINSpilsPrecSolveFn} is described in \S\ref{ss:psolveFn}.
-   The function type \id{KINSpilsPrecSetupFn} is described in \S\ref{ss:precondFn}.
-}
-%%
-%%
-\index{preconditioning!user-supplied|)}
 \index{Jacobian approximation function!Jacobian times vector!user-supplied}
-\ucfunction{KINSpilsSetJacTimesVecFn}
+\ucfunction{KINSetJacTimesVecFn}
 {
-  flag = KINSpilsSetJacTimesVecFn(kin\_mem, jtimes);
+  flag = KINSetJacTimesVecFn(kin\_mem, jtimes);
 }
 {
-  The function \ID{KINSpilsSetJacTimesVecFn} specifies the Jacobian-vector 
+  The function \ID{KINSetJacTimesVecFn} specifies the Jacobian-vector
   product function.
 }
 {
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
-  \item[jtimes] (\id{KINSpilsJacTimesVecFn})
+  \item[jtimes] (\id{KINLsJacTimesVecFn})
     user-defined Jacobian-vector product function.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[KINSPILS\_SUNLS\_FAIL]
-  \item[\Id{KINSPILS\_SUCCESS}] 
+  \begin{args}[KINLS\_SUNLS\_FAIL]
+  \item[\Id{KINLS\_SUCCESS}]
     The optional value has been successfully set.
-  \item[\Id{KINSPILS\_MEM\_NULL}]
+  \item[\Id{KINLS\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
-  \item[\Id{KINSPILS\_LMEM\_NULL}]
-    The {\kinspils} linear solver has not been initialized.
-  \item[\Id{KINSPILS\_SUNLS\_FAIL}]
+  \item[\Id{KINLS\_LMEM\_NULL}]
+    The {\kinls} linear solver has not been initialized.
+  \item[\Id{KINLS\_SUNLS\_FAIL}]
     An error occurred when setting up the system matrix-times-vector
-    routines in the {\sunlinsol} object used by the {\kinspils}
+    routines in the {\sunlinsol} object used by the {\kinls}
     interface.
   \end{args}
 }
 {
-  By default, the {\kinspils} linear solvers use an internal difference quotient 
-  function \id{KINSpilsDQJtimes}.
-  If \id{NULL} is passed as \id{jtimes}, this default function is used.
+  The default is to use an internal difference quotient for
+  \id{jtimes}.  If \id{NULL} is passed as \id{jtimes}, this default
+  is used.
 
-  The function type \id{KINSpilsJacTimesVecFn} is described in \S\ref{ss:jtimesFn}.
+  This function must be called \emph{after} the {\kinls} linear solver
+  interface has been initialized through a call to
+  \id{KINSetLinearSolver}.
+
+  The function type \id{KINLsJacTimesVecFn} is described in \S\ref{ss:jtimesFn}.
+
+  The previous routine \Id{KINSpilsSetJacTimesVecFn} is now a wrapper for
+  this routine, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new routine name soon.
+}
+
+
+\index{preconditioning!user-supplied|(}
+When using an iterative linear solver, the user may supply a
+preconditioning operator to aid in solution of the system.  This
+operator consists of two user-supplied functions, \id{psetup} and
+\id{psolve}, that are supplied to {\kinls} using the function
+\Id{KINSetPreconditioner}.  The \id{psetup} function supplied to
+this routine should handle evaluation and preprocessing of any
+Jacobian data needed by the user's preconditioner solve function,
+\id{psolve}.  Both of these functions are fully specified in
+\S\ref{ss:user_fct_sol}.  The user data pointer received through
+\id{KINSetUserData} (or a pointer to \id{NULL} if user data was not
+specified) is passed to the \id{psetup} and \id{psolve} functions.
+This allows the user to create an arbitrary structure with relevant
+problem data and access it during the execution of the user-supplied
+preconditioner functions without using global data in the program.
+
+
+\index{KINLS@{\kinls} linear solver interface!preconditioner solve function}
+\index{KINLS@{\kinls} linear solver interface!preconditioner setup function}
+\ucfunction{KINSetPreconditioner}
+{
+  flag = KINSetPreconditioner(kin\_mem, psetup, psolve);
+}
+{
+  The function \ID{KINSetPreconditioner} specifies the preconditioner
+  setup and solve functions.
+}
+{
+  \begin{args}[kin\_mem]
+  \item[kin\_mem] (\id{void *})
+    pointer to the {\kinsol} memory block.
+  \item[psetup] (\id{KINLsPrecSetupFn})
+    user-defined function to set up the preconditioner.  Pass \id{NULL} if no setup
+    operation is necessary.
+  \item[psolve] (\id{KINLsPrecSolveFn})
+    user-defined preconditioner solve function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KINLS\_LMEM\_NULL]
+  \item[\Id{KINLS\_SUCCESS}]
+    The optional values have been successfully set.
+  \item[\Id{KINLS\_MEM\_NULL}]
+    The \id{kin\_mem} pointer is \id{NULL}.
+  \item[\Id{KINLS\_LMEM\_NULL}]
+    The {\kinls} linear solver has not been initialized.
+  \item[\Id{KINLS\_SUNLS\_FAIL}]
+    An error occurred when setting up preconditioning in the
+    {\sunlinsol} object used by the {\kinls} interface.
+  \end{args}
+}
+{
+  The default is \id{NULL} for both arguments (i.e., no
+  preconditioning).
+
+  This function must be called \emph{after} the {\kinls} linear solver
+  interface has been initialized through a call to
+  \id{KINSetLinearSolver}.
+
+  The function type \id{KINLsPrecSolveFn} is described in \S\ref{ss:psolveFn}.
+
+  The function type \id{KINLsPrecSetupFn} is described in \S\ref{ss:precondFn}.
+
+  The previous routine \Id{KINSpilsSetPreconditioner} is now a wrapper
+  for this routine, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new routine name soon.
 }
 %%
 %%
+\index{preconditioning!user-supplied|)}
+\index{optional input!generic linear solver interface|)}
+\index{KINLS@{\kinls} linear solver interface!optional input|)}
 %%
-\index{KINSPILS@{\kinspils} linear solver interface!optional input|)}
-\index{optional input!iterative linear solver|)}
+%%
 
 %%==============================================================================
 \subsection{Optional output functions}\label{ss:optional_output}
@@ -1975,13 +1984,14 @@ each time it is called.
 solver performance information.
 Table \ref{t:optional_output} lists all optional output functions in {\kinsol},
 which are then described in detail in the remainder of this section, beginning with those
-for the main {\kinsol} solver and continuing with those for the linear solver
-modules. Where the name of an output from a linear solver module would otherwise conflict
-with the name of an optional output from the main solver, a suffix \id{LS} (for Linear Solver)
-has been added here ({\em e.g.}, \id{lenrwLS}).
+for the main {\kinsol} solver and continuing with those for the
+{\kinls} linear solver interface. Where the name of an output from a
+linear solver module would otherwise conflict with the name of an
+optional output from the main solver, a suffix \id{LS} (for Linear
+Solver) has been added here ({\em e.g.}, \id{lenrwLS}).
 
 \newlength{\colAA}
-\settowidth{\colAA}{No. of $F$ calls for D.Q. Jacobian-vector evals.}
+\settowidth{\colAA}{No. of $F$ calls for D.Q. Jacobian[-vector] evals.}
 \newlength{\colBB}
 \settowidth{\colBB}{\id{KINGetNumNonlinSolvConvFails}}
 
@@ -1989,12 +1999,12 @@ has been added here ({\em e.g.}, \id{lenrwLS}).
 
 \begin{table}
 \centering
-\caption{Optional outputs from {\kinsol}, {\kindls}, and {\kinspils}}
+\caption{Optional outputs from {\kinsol} and {\kinls}}
 \label{t:optional_output}
 \medskip
 \begin{tabular}{|p{\colAA}|p{\colBB}|}
 \hline
-{\bf Optional output} & {\bf Function name} \\ 
+{\bf Optional output} & {\bf Function name} \\
 \hline
 \multicolumn{2}{|c|}{\bf KINSOL main solver} \\
 \hline
@@ -2006,24 +2016,18 @@ Number of backtrack operations & \id{KINGetNumBacktrackOps} \\
 Scaled norm of $F$ & \id{KINGetFuncNorm} \\
 Scaled norm of the step & \id{KINGetStepLength} \\
 \hline
-\multicolumn{2}{|c|}{\bf KINDLS linear solver interface} \\
+\multicolumn{2}{|c|}{\bf KINLS linear solver interface} \\
 \hline
-Size of real and integer workspaces & \id{KINDlsGetWorkSpace} \\
-No. of Jacobian evaluations & \id{KINDlsGetNumJacEvals} \\
-No. of $F$ calls for D.Q. Jacobian evals. & \id{KINDlsGetNumFuncEvals} \\ 
-Last return from a {\kindls} function & \id{KINDlsGetLastFlag} \\ 
-\hline
-\multicolumn{2}{|c|}{\bf KINSPILS linear solver interface} \\
-\hline
-Size of real and integer workspaces & \id{KINSpilsGetWorkSpace} \\
-No. of linear iterations & \id{KINSpilsGetNumLinIters} \\
-No. of linear convergence failures & \id{KINSpilsGetNumConvFails} \\
-No. of preconditioner evaluations & \id{KINSpilsGetNumPrecEvals} \\
-No. of preconditioner solves & \id{KINSpilsGetNumPrecSolves} \\
-No. of Jacobian-vector setup evaluations & \id{IDASpilsGetNumJTSetupEvals} \\
-No. of Jacobian-vector product evaluations & \id{KINSpilsGetNumJtimesEvals} \\
-No. of $F$ calls for D.Q. Jacobian-vector evals. & \id{KINSpilsGetNumFuncEvals} \\ 
-Last return from a linear solver function & \id{KINSpilsGetLastFlag} \\ 
+Size of real and integer workspaces & \id{KINGetLinWorkSpace} \\
+No. of Jacobian evaluations & \id{KINGetNumJacEvals} \\
+No. of $F$ calls for D.Q. Jacobian[-vector] evals. & \id{KINGetNumLinFuncEvals} \\
+No. of linear iterations & \id{KINGetNumLinIters} \\
+No. of linear convergence failures & \id{KINGetNumLinConvFails} \\
+No. of preconditioner evaluations & \id{KINGetNumPrecEvals} \\
+No. of preconditioner solves & \id{KINGetNumPrecSolves} \\
+No. of Jacobian-vector product evaluations & \id{KINGetNumJtimesEvals} \\
+Last return from a {\kinls} function & \id{KINGetLastLinFlag} \\
+Name of constant associated with a return flag & \id{KINGetLinReturnFlagName} \\
 \hline
 \end{tabular}
 \end{table}
@@ -2066,7 +2070,7 @@ These optional output functions are described next.
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_MEM\_NULL]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The optional output values have been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
@@ -2074,11 +2078,11 @@ These optional output functions are described next.
 }
 {
   \index{memory requirements!KINSOL@{\kinsol} solver}
-  In terms of the problem size $N$, the actual size of the real workspace 
+  In terms of the problem size $N$, the actual size of the real workspace
   is $17 + 5 N$ \id{realtype} words. The real workspace is increased by
   an additional $N$ words if constraint checking is enabled (see \id{KINSetConstraints}).
 
-  The actual size of the integer workspace (without distinction between \id{int} 
+  The actual size of the integer workspace (without distinction between \id{int}
   and \id{long int}) is $22 + 5 N$ (increased by $N$ if constraint checking is enabled).
 }
 %%
@@ -2102,7 +2106,7 @@ These optional output functions are described next.
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_MEM\_NULL]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The optional output value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
@@ -2130,7 +2134,7 @@ These optional output functions are described next.
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_MEM\_NULL]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The optional output value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
@@ -2158,7 +2162,7 @@ These optional output functions are described next.
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_MEM\_NULL]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The optional output value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
@@ -2187,7 +2191,7 @@ These optional output functions are described next.
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_MEM\_NULL]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The optional output value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
@@ -2201,7 +2205,7 @@ These optional output functions are described next.
   flag = KINGetFuncNorm(kin\_mem, \&fnorm);
 }
 {
-  The function \ID{KINGetFuncNorm} returns the scaled Euclidean $\ell_2$ norm of the 
+  The function \ID{KINGetFuncNorm} returns the scaled Euclidean $\ell_2$ norm of the
   nonlinear system function $F(u)$ evaluated at the current iterate.
 }
 {
@@ -2215,7 +2219,7 @@ These optional output functions are described next.
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_MEM\_NULL]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The optional output value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
@@ -2243,7 +2247,7 @@ These optional output functions are described next.
 {
   The return value \id{flag} (of type \id{int}) is one of:
   \begin{args}[KIN\_MEM\_NULL]
-  \item[\Id{KIN\_SUCCESS}] 
+  \item[\Id{KIN\_SUCCESS}]
     The optional output value has been successfully set.
   \item[\Id{KIN\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
@@ -2254,74 +2258,79 @@ These optional output functions are described next.
 \index{optional output!solver|)}
 
 %%==============================================================================
-\subsubsection{Direct linear solver interface optional output functions}
-\label{sss:optout_dense}
+\subsubsection{{\kinls} linear solver interface optional output functions}
+\label{sss:optout_ls}
 %%==============================================================================
-\index{optional output!direct linear solver interface|(}
-\index{KINDLS@{\kindls} linear solver interface!optional output|(}
-The following optional outputs are available from the {\kindls} module:
-workspace requirements, number of calls to the Jacobian routine, number of 
-calls to the system function routine for difference quotient Jacobian approximation,
-and last return value from a {\kindls} function.
+\index{optional output!generic linear solver interface|(}
+\index{KINLS@{\kinls} linear solver interface!optional output|(}
+
+The following optional outputs are available from the {\kinls} module:
+workspace requirements,
+number of calls to the Jacobian routine,
+number of calls to the system function routine for difference quotient Jacobian or Jacobian-vector approximation,
+number of linear iterations,
+number of linear convergence failures,
+number of calls to the preconditioner setup and solve routines,
+number of calls to the Jacobian-vector product routine,
+and last return value from a {\kinls} function.
 %%
 %%
-\index{KINDLS@{\kindls} linear solver!memory requirements} 
-\index{memory requirements!KINDLS@{\kindls} linear solver}
-\ucfunction{KINDlsGetWorkSpace}
+\index{KINLS@{\kinls} linear solver!memory requirements}
+\index{memory requirements!KINLS@{\kinls} linear solver}
+\ucfunction{KINGetLinWorkSpace}
 {
-  flag = KINDlsGetWorkSpace(kin\_mem, \&lenrwLS, \&leniwLS);
+  flag = KINGetLinWorkSpace(kin\_mem, \&lenrwLS, \&leniwLS);
 }
 {
-  The function \ID{KINDlsGetWorkSpace} returns the
-  {\kindls} real and integer workspace sizes.
+  The function \ID{KINGetLinWorkSpace} returns the
+  {\kinls} real and integer workspace sizes.
 }
 {
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
   \item[lenrwLS] (\id{long int})
-    the number of \id{realtype} values in the {\kindls} workspace.
+    the number of \id{realtype} values in the {\kinls} workspace.
   \item[leniwLS] (\id{long int})
-    the number of integer values in the {\kindls} workspace.
+    the number of integer values in the {\kinls} workspace.
   \end{args}
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[KINDLS\_LMEM\_NULL]
-  \item[\Id{KINDLS\_SUCCESS}] 
+  \begin{args}[KINLS\_LMEM\_NULL]
+  \item[\Id{KINLS\_SUCCESS}]
     The optional output value has been successfully set.
-  \item[\Id{KINDLS\_MEM\_NULL}]
+  \item[\Id{KINLS\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
-  \item[\Id{KINDLS\_LMEM\_NULL}]
-    The {\kindense} linear solver has not been initialized.
+  \item[\Id{KINLS\_LMEM\_NULL}]
+    The {\kinls} linear solver interface has not been initialized.
   \end{args}
 }
 {
   The workspace requirements reported by this routine correspond only
   to memory allocated within this interface and to memory allocated by
   the {\sunlinsol} object attached to it.  The template Jacobian
-  matrix allocated by the user outside of {\kindls} is not included in
+  matrix allocated by the user outside of {\kinls} is not included in
   this report.
 
-  %% For the {\kindense} linear soler, in terms of the problem size $N$, 
-  %% the actual size of the real workspace is $N^2$ \id{realtype} words, 
-  %% and the actual size of the integer workspace is $N$ integer words.
+  In a parallel setting, the above values are global (i.e., summed over all
+  processors).
 
-  %% For the {\kinband} linear solver, in terms of the problem size $N$ 
-  %% and Jacobian half-bandwidths, the actual size of the real workspace, in
-  %% \id{realtype} words, is approximately
-  %% $(2$ \id{mupper}$+ 3$ \id{mlower} $+ 2)\, N$,
-  %% and the actual size of the integer workspace is $N$ integer words.
+  The previous routines \Id{KINDlsGetWorkspace} and
+  \Id{KINSpilsGetWorkspace} are now wrappers for this routine, and may
+  still be used for backward-compatibility.  However, these will be
+  deprecated in future releases, so we recommend that users transition
+  to the new routine name soon.
 }
 %%
 %%
-\ucfunction{KINDlsGetNumJacEvals}
+\ucfunction{KINGetNumJacEvals}
 {
-  flag = KINDlsGetNumJacEvals(kin\_mem, \&njevals);
+  flag = KINGetNumJacEvals(kin\_mem, \&njevals);
 }
 {
-  The function \ID{KINDlsGetNumJacEvals} returns the cummulative
-  number of calls to the Jacobian approximation function.
+  The function \ID{KINGetNumJacEvals} returns the cummulative
+  number of calls to the {\kinls} Jacobian approximation function.
 }
 {
   \begin{args}[kin\_mem]
@@ -2333,26 +2342,31 @@ and last return value from a {\kindls} function.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[KINDLS\_LMEM\_NULL]
-  \item[\Id{KINDLS\_SUCCESS}] 
+  \begin{args}[KINLS\_LMEM\_NULL]
+  \item[\Id{KINLS\_SUCCESS}]
     The optional output value has been successfully set.
-  \item[\Id{KINDLS\_MEM\_NULL}]
+  \item[\Id{KINLS\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
-  \item[\Id{KINDLS\_LMEM\_NULL}]
-    The {\kindense} linear solver has not been initialized.
+  \item[\Id{KINLS\_LMEM\_NULL}]
+    The {\kinls} linear solver interface has not been initialized.
   \end{args}
 }
-{}
-%%
-%%
-\ucfunction{KINDlsGetNumFuncEvals}
 {
-  flag = KINDlsGetNumFuncEvals(kin\_mem, \&nfevalsLS);
+  The previous routine \Id{KINDlsGetNumJacEvals} is now a wrapper for
+  this routine, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new routine name soon.
+}
+%%
+%%
+\ucfunction{KINGetNumLinFuncEvals}
+{
+  flag = KINGetNumLinFuncEvals(kin\_mem, \&nfevalsLS);
 }
 {
-  The function \ID{KINDlsGetNumFuncEvals} returns the number of calls
+  The function \ID{KINGetNumLinFuncEvals} returns the number of calls
   to the user system function used to compute the difference quotient
-  approximation to the Jacobian.
+  approximation to the Jacobian or to the Jacobian-vector product.
 }
 {
   \begin{args}[kin\_mem]
@@ -2364,128 +2378,33 @@ and last return value from a {\kindls} function.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[KINDLS\_LMEM\_NULL]
-  \item[\Id{KINDLS\_SUCCESS}] 
+  \begin{args}[KINLS\_LMEM\_NULL]
+  \item[\Id{KINLS\_SUCCESS}]
     The optional output value has been successfully set.
-  \item[\Id{KINDLS\_MEM\_NULL}]
+  \item[\Id{KINLS\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
-  \item[\Id{KINDLS\_LMEM\_NULL}]
-    The {\kindense} or {\kinband} linear solver has not been initialized.
+  \item[\Id{KINLS\_LMEM\_NULL}]
+    The {\kinls} linear solver interface has not been initialized.
   \end{args}
 }
 {
-  The value \id{nfevalsLS} is incremented only if one of the default 
-  internal difference quotient functions (dense or banded) is used.
-}
-%%
-%%
-\ucfunction{KINDlsGetLastFlag}
-{
-  flag = KINDlsGetLastFlag(kin\_mem, \&lsflag);
-}
-{
-  The function \ID{KINDlsGetLastFlag} returns the
-  last return value from a {\kindense} routine. 
-}
-{
-  \begin{args}[kin\_mem]
-  \item[kin\_mem] (\id{void *})
-    pointer to the {\kinsol} memory block.
-  \item[lsflag] (\id{long int})
-    the value of the last return flag from a {\kindense} function.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[KINDLS\_LMEM\_NULL]
-  \item[\Id{KINDLS\_SUCCESS}] 
-    The optional output value has been successfully set.
-  \item[\Id{KINDLS\_MEM\_NULL}]
-    The \id{kin\_mem} pointer is \id{NULL}.
-  \item[\Id{KINDLS\_LMEM\_NULL}]
-    The {\kindense} linear solver has not been initialized.
-  \end{args}
-}
-{
-  If the {\sunlinsoldense} or {\sunlinsolband} setup function failed
-  (\id{KINSolve} returned \id{KIN\_LSETUP\_FAIL}), then the value of
-  \id{lsflag} is equal to the column index (numbered from one) at
-  which a zero diagonal element was encountered during the LU
-  factorization of the (dense or banded) Jacobian matrix.
-}
-%%
-%%
-\index{KINDLS@{\kindls} linear solver interface!optional output|)}
-\index{optional output!direct linear solver interface|)}
+  The value \id{nfevalsLS} is incremented only if one of the default
+  internal difference quotient functions is used.
 
-%%==============================================================================
-\subsubsection{Iterative linear solver interface optional output functions}\label{sss:optout_spils}
-%%==============================================================================
-\index{optional output!iterative linear solver interface|(}
-\index{KINSPILS@{\kinspils} linear solver interface!optional output|(} 
-The following optional outputs are available from the {\kinspils}
-modules: workspace requirements, number of linear iterations, number of
-linear convergence failures, number of calls to the preconditioner
-setup and solve routines, number of calls to the Jacobian-vector
-setup and product routines, number of calls to the system function routine for
-difference quotient Jacobian-vector product approximation, and last
-return value from a linear solver function.
-%%
-%%
-\index{KINSPILS@{\kinspils} linear solver interface!memory requirements} 
-\index{memory requirements!KINSPILS@{\kinspils} linear solver interface}
-\ucfunction{KINSpilsGetWorkSpace}
-{
-  flag = KINSpilsGetWorkSpace(kin\_mem, \&lenrwLS, \&leniwLS);
-}
-{
-  The function \ID{KINSpilsGetWorkSpace} returns the global sizes of the
-  linear solver real and integer workspaces.
-}
-{
-  \begin{args}[kin\_mem]
-  \item[kin\_mem] (\id{void *})
-    pointer to the {\kinsol} memory block.
-  \item[lenrwLS] (\id{long int})
-    the number of \id{realtype} values in the linear solver workspace.
-  \item[leniwLS] (\id{long int})
-    the number of integer values in the linear solver workspace.
-  \end{args}
-}
-{
-  The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[KINSPILS\_LMEM\_NULL]
-  \item[\Id{KINSPILS\_SUCCESS}] 
-    The optional output values have been successfully set.
-  \item[\Id{KINSPILS\_MEM\_NULL}]
-    The \id{kin\_mem} pointer is \id{NULL}.
-  \item[\Id{KINSPILS\_LMEM\_NULL}]
-    The linear solver has not been initialized.
-  \end{args}
-}
-{
-  The workspace requirements reported by this routine correspond only
-  to memory allocated within this interface and to memory allocated by
-  the {\sunlinsol} object attached to it.
-
-  In a parallel setting, the above values are global (i.e., summed over all
-  processors).
-
-  %% In terms of the problem size $N$ and maximum subspace size \id{maxl}, 
-  %% the actual size of the real workspace, in \id{realtype} words, is roughly:\\
-  %% (\id{maxl}$+ 3)*N +$ \id{maxl} $*($ \id{maxl}$ + 4) + 1$ for {\kinspgmr},\\
-  %% (2\id{maxl}$+ 3)*N +$ \id{maxl} $*($ \id{maxl}$ + 4) + 1$ for {\kinspfgmr},\\
-  %% $7*N$  for {\kinspbcg}, and \\
-  %% $11*N$ for {\kinsptfqmr}.
+  The previous routines \Id{KINDlsGetNumFuncEvals} and
+  \Id{KINSpilsGetNumFuncEvals} are now wrappers for this routine, and may
+  still be used for backward-compatibility.  However, these will be
+  deprecated in future releases, so we recommend that users transition
+  to the new routine name soon.
 }
 %%
 %%
-\ucfunction{KINSpilsGetNumLinIters}
+\ucfunction{KINGetNumLinIters}
 {
-  flag = KINSpilsGetNumLinIters(kin\_mem, \&nliters);
+  flag = KINGetNumLinIters(kin\_mem, \&nliters);
 }
 {
-  The function \ID{KINSpilsGetNumLinIters} returns the
+  The function \ID{KINGetNumLinIters} returns the
   cumulative number of linear iterations.
 }
 {
@@ -2498,24 +2417,29 @@ return value from a linear solver function.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[KINSPILS\_LMEM\_NULL]
-  \item[\Id{KINSPILS\_SUCCESS}] 
+  \begin{args}[KINLS\_LMEM\_NULL]
+  \item[\Id{KINLS\_SUCCESS}]
     The optional output value has been successfully set.
-  \item[\Id{KINSPILS\_MEM\_NULL}]
+  \item[\Id{KINLS\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
-  \item[\Id{KINSPLIS\_LMEM\_NULL}]
-    The {\kinspils} linear solver has not been initialized.
+  \item[\Id{KINIS\_LMEM\_NULL}]
+    The {\kinls} linear solver interface has not been initialized.
   \end{args}
 }
-{}
-%%
-%%
-\ucfunction{KINSpilsGetNumConvFails}
 {
-  flag = KINSpilsGetNumConvFails(kin\_mem, \&nlcfails);
+  The previous routine \Id{KINSpilsGetNumLinIters} is now a wrapper for
+  this routine, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new routine name soon.
+}
+%%
+%%
+\ucfunction{KINGetNumLinConvFails}
+{
+  flag = KINGetNumLinConvFails(kin\_mem, \&nlcfails);
 }
 {
-  The function \ID{KINSpilsGetNumConvFails} returns the
+  The function \ID{KINGetNumLinConvFails} returns the
   cumulative number of linear convergence failures.
 }
 {
@@ -2528,26 +2452,31 @@ return value from a linear solver function.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[KINSPILS\_LMEM\_NULL]
-  \item[\Id{KINSPILS\_SUCCESS}] 
+  \begin{args}[KINLS\_LMEM\_NULL]
+  \item[\Id{KINLS\_SUCCESS}]
     The optional output value has been successfully set.
-  \item[\Id{KINSPILS\_MEM\_NULL}]
+  \item[\Id{KINLS\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
-  \item[\Id{KINSPILS\_LMEM\_NULL}]
-    The {\kinspils} linear solver has not been initialized.
+  \item[\Id{KINLS\_LMEM\_NULL}]
+    The {\kinls} linear solver interface has not been initialized.
   \end{args}
 }
-{}
-%%
-%%
-\ucfunction{KINSpilsGetNumPrecEvals}
 {
-  flag = KINSpilsGetNumPrecEvals(kin\_mem, \&npevals);
+  The previous routine \Id{KINSpilsGetNumConvFails} is now a wrapper for
+  this routine, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new routine name soon.
+}
+%%
+%%
+\ucfunction{KINGetNumPrecEvals}
+{
+  flag = KINGetNumPrecEvals(kin\_mem, \&npevals);
 }
 {
-  The function \ID{KINSpilsGetNumPrecEvals} returns the
-  cumulative number of preconditioner evaluations, i.e., the number of 
-  calls made to \id{psetup}.
+  The function \ID{KINGetNumPrecEvals} returns the cumulative number
+  of preconditioner evaluations, i.e., the number of calls made to
+  \id{psetup}.
 }
 {
   \begin{args}[kin\_mem]
@@ -2559,25 +2488,30 @@ return value from a linear solver function.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[KINSPILS\_LMEM\_NULL]
-  \item[\Id{KINSPILS\_SUCCESS}] 
+  \begin{args}[KINLS\_LMEM\_NULL]
+  \item[\Id{KINLS\_SUCCESS}]
     The optional output value has been successfully set.
-  \item[\Id{KINSPILS\_MEM\_NULL}]
+  \item[\Id{KINLS\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
-  \item[\Id{KINSPILS\_LMEM\_NULL}]
-    The {\kinspils} linear solver has not been initialized.
+  \item[\Id{KINLS\_LMEM\_NULL}]
+    The {\kinls} linear solver interface has not been initialized.
   \end{args}
 }
-{}
-%%
-%%
-\ucfunction{KINSpilsGetNumPrecSolves}
 {
-  flag = KINSpilsGetNumPrecSolves(kin\_mem, \&npsolves);
+  The previous routine \Id{KINSpilsGetNumPrecEvals} is now a wrapper for
+  this routine, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new routine name soon.
+}
+%%
+%%
+\ucfunction{KINGetNumPrecSolves}
+{
+  flag = KINGetNumPrecSolves(kin\_mem, \&npsolves);
 }
 {
-  The function \ID{KINSpilsGetNumPrecSolves} returns the
-  cumulative number of calls made to the preconditioner 
+  The function \ID{KINGetNumPrecSolves} returns the
+  cumulative number of calls made to the preconditioner
   solve function, \id{psolve}.
 }
 {
@@ -2590,55 +2524,29 @@ return value from a linear solver function.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[KINSPILS\_LMEM\_NULL]
-  \item[\Id{KINSPILS\_SUCCESS}] 
+  \begin{args}[KINLS\_LMEM\_NULL]
+  \item[\Id{KINLS\_SUCCESS}]
     The optional output value has been successfully set.
-  \item[\Id{KINSPILS\_MEM\_NULL}]
+  \item[\Id{KINLS\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
-  \item[\Id{KINSPILS\_LMEM\_NULL}]
-    The linear solver module has not been initialized.
-  \end{args}
-}
-{}
-%%
-%%
-\ucfunction{KINSpilsGetNumJTSetupEvals}
-{
-  flag = KINSpilsGetNumJTSetupEvals(kin\_mem, \&njtsetup);
-}
-{
-  The function \ID{KINSpilsGetNumJTSetupEvals} returns the
-  cumulative number of calls made to the Jacobian-vector setup
-  function \id{jtsetup}. 
-}
-{
-  \begin{args}
-  \item[kin\_mem] (\id{void *})
-    pointer to the {\kinsol} memory block.
-  \item[njtsetup] (\id{long int})
-    the current number of calls to \id{jtsetup}.
+  \item[\Id{KINLS\_LMEM\_NULL}]
+    The {\kinls} linear solver interface has not been initialized.
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}
-  \item[\Id{KINSPILS\_SUCCESS}] 
-    The optional output value has been successfully set.
-  \item[\Id{KINSPILS\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
-  \item[\Id{KINSPILS\_LMEM\_NULL}]
-    The {\kinspils} linear solver has not been initialized.
-  \end{args}
+  The previous routine \Id{KINSpilsGetNumPrecSolves} is now a wrapper for
+  this routine, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new routine name soon.
 }
-{}
 %%
 %%
-\ucfunction{KINSpilsGetNumJtimesEvals}
+\ucfunction{KINGetNumJtimesEvals}
 {
-  flag = KINSpilsGetNumJtimesEvals(kin\_mem, \&njvevals);
+  flag = KINGetNumJtimesEvals(kin\_mem, \&njvevals);
 }
 {
-  The function \ID{KINSpilsGetNumJtimesEvals} returns the
+  The function \ID{KINGetNumJtimesEvals} returns the
   cumulative number made to the Jacobian-vector product function,
   \id{jtimes}.
 }
@@ -2652,90 +2560,68 @@ return value from a linear solver function.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[KINSPILS\_LMEM\_NULL]
-  \item[\Id{KINSPILS\_SUCCESS}] 
+  \begin{args}[KINLS\_LMEM\_NULL]
+  \item[\Id{KINLS\_SUCCESS}]
     The optional output value has been successfully set.
-  \item[\Id{KINSPILS\_MEM\_NULL}]
+  \item[\Id{KINLS\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
-  \item[\Id{KINSPILS\_LMEM\_NULL}]
-    The {\kinspils} linear solver has not been initialized.
-  \end{args}
-}
-{}
-%%
-%%
-\ucfunction{KINSpilsGetNumFuncEvals}
-{
-  flag = KINSpilsGetNumFuncEvals(kin\_mem, \&nfevalsLS);
-}
-{
-  The function \ID{KINSpilsGetNumFuncEvals} returns the
-  number of calls to the user system function for
-  difference quotient Jacobian-vector product approximations.
-}
-{
-  \begin{args}[kin\_mem]
-  \item[kin\_mem] (\id{void *})
-    pointer to the {\kinsol} memory block.
-  \item[nfevalsLS] (\id{long int})
-    the number of calls to the user system function.
+  \item[\Id{KINLS\_LMEM\_NULL}]
+    The {\kinls} linear solver interface has not been initialized.
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[KINSPILS\_LMEM\_NULL]
-  \item[\Id{KINSPILS\_SUCCESS}] 
-    The optional output value has been successfully set.
-  \item[\Id{KINSPILS\_MEM\_NULL}]
-    The \id{kin\_mem} pointer is \id{NULL}.
-  \item[\Id{KINSPILS\_LMEM\_NULL}]
-    The {\kinspils} linear solver has not been initialized.
-  \end{args}
-}
-{
-  The value \id{nfevalsLS} is incremented only if the default 
-  \id{KINSpilsDQJtimes} difference quotient function is used.
+  The previous routine \Id{KINSpilsGetNumJtimesEvals} is now a wrapper for
+  this routine, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new routine name soon.
 }
 %%
 %%
-\ucfunction{KINSpilsGetLastFlag}
+\ucfunction{KINGetLastLinFlag}
 {
-  flag = KINSpilsGetLastFlag(kin\_mem, \&lsflag);
+  flag = KINGetLastLinFlag(kin\_mem, \&lsflag);
 }
 {
-  The function \ID{KINSpilsGetLastFlag} returns the
-  last return value from a {\kinspils} routine. 
+  The function \ID{KINGetLastLinFlag} returns the
+  last return value from a {\kinls} routine.
 }
 {
   \begin{args}[kin\_mem]
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
   \item[lsflag] (\id{long int})
-    the value of the last return flag from a {\kinspils} function.
+    the value of the last return flag from a {\kinls} function.
   \end{args}
 }
 {
-  The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[KINSPILS\_LMEM\_NULL]
-  \item[\Id{KINSPILS\_SUCCESS}] 
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}[KINLS\_LMEM\_NULL]
+  \item[\Id{KINLS\_SUCCESS}]
     The optional output value has been successfully set.
-  \item[\Id{KINSPILS\_MEM\_NULL}]
+  \item[\Id{KINLS\_MEM\_NULL}]
     The \id{kin\_mem} pointer is \id{NULL}.
-  \item[\Id{KINSPILS\_LMEM\_NULL}]
-    The {\kinspils} linear solver has not been initialized.
+  \item[\Id{KINLS\_LMEM\_NULL}]
+    The {\kinls} linear solver interface has not been initialized.
   \end{args}
 }
 {
-  If the {\kinspils} setup function failed (\id{KINSOL} returned
-  \id{KIN\_LSETUP\_FAIL}), \id{lsflag} will be set to
-  \id{SUNLS\_PSET\_FAIL\_UNREC}, \id{SUNLS\_ASET\_FAIL\_UNREC},   
-  \id{SUNLS\_PACKAGE\_FAIL\_UNREC}, 
+  If the {\kinls} setup function failed (i.e. \id{KINSolve} returned
+  \id{KIN\_LSETUP\_FAIL}) when using the {\sunlinsoldense} or
+  {\sunlinsolband} modules, then the value of \id{lsflag} is equal to
+  the column index (numbered from one) at which a zero diagonal
+  element was encountered during the LU factorization of the (dense or
+  banded) Jacobian matrix.
 
-  If the {\kinspils} solve function failed (\id{KINSol} returned
-  \id{KIN\_LSOLVE\_FAIL}), \id{lsflag} contains the error return flag from
-  the {\sunlinsol} object, which will be one of the following: \\
+  If the {\kinls} setup function failed when using another
+  {\sunlinsol} module, then \id{lsflag} will be
+  \id{SUNLS\_PSET\_FAIL\_UNREC}, \id{SUNLS\_ASET\_FAIL\_UNREC}, or
+  \id{SUNLS\_PACKAGE\_FAIL\_UNREC}.
+
+  If the {\kinls} solve function failed (i.e., \id{KINSol} returned
+  \id{KIN\_LSOLVE\_FAIL}), then \id{lsflag} contains the error return
+  flag from the {\sunlinsol} object, which will be one of the following: \\
   \id{SUNLS\_MEM\_NULL}, indicating that the {\sunlinsol} memory is \id{NULL}; \\
-  \id{SUNLS\_ATIMES\_FAIL\_UNREC}, indicating an unrecoverable failure in the 
+  \id{SUNLS\_ATIMES\_FAIL\_UNREC}, indicating an unrecoverable failure in the
   Jacobian-times-vector function; \\
   \id{SUNLS\_PSOLVE\_FAIL\_UNREC}, indicating that the preconditioner solve
   function, \id{psolve}, failed with an unrecoverable error; \\
@@ -2745,26 +2631,39 @@ return value from a linear solver function.
   singular during the QR solve phase ({\spgmr} and {\spfgmr} only); or  \\
   \id{SUNLS\_PACKAGE\_FAIL\_UNREC}, indicating an unrecoverable
   failure in an external iterative linear solver package.
+
+  The previous routines \Id{KINDlsGetLastFlag} and
+  \Id{KINSpilsGetLastFlag} are now wrappers for this routine, and may
+  still be used for backward-compatibility.  However, these will be
+  deprecated in future releases, so we recommend that users transition
+  to the new routine name soon.
 }
 %%
 %%
-\ucfunction{KINSpilsGetReturnFlagName}
+\ucfunction{KINGetLinReturnFlagName}
 {
-  name = KINSpilsGetReturnFlagName(lsflag);
+  name = KINGetLinReturnFlagName(lsflag);
 }
 {
-  The function \ID{KINSpilsGetReturnFlagName} returns the
-  name of the {\kinspils} constant corresponding to \id{lsflag}.
+  The function \ID{KINGetLinReturnFlagName} returns the
+  name of the {\kinls} constant corresponding to \id{lsflag}.
 }
 {
-  The only argument, of type \id{long int}, is a return flag from an {\kinspils} function.
+  The only argument, of type \id{long int}, is a return flag from an {\kinls} function.
 }
 {
   The return value is a string containing the name of the corresponding constant.
 }
-{}
-\index{KINSPILS@{\kinspils} linear solver interface!optional output|)} 
-\index{optional output!iterative linear solver interface|)}
+{
+  The previous routines \Id{KINDlsGetReturnFlagName} and
+  \Id{KINSpilsGetReturnFlagName} are now wrappers for this routine, and may
+  still be used for backward-compatibility.  However, these will be
+  deprecated in future releases, so we recommend that users transition
+  to the new routine name soon.
+}
+\index{optional output!generic linear solver interface|)}
+\index{KINLS@{\kinls} linear solver interface!optional output|)}
+
 
 %%==============================================================================
 \section{User-supplied functions}\label{ss:user_fct_sol}
@@ -2772,9 +2671,9 @@ return value from a linear solver function.
 
 The user-supplied functions consist of one function defining the nonlinear system,
 (optionally) a function that handles error and warning messages,
-(optionally) a function that handles informational messages, 
+(optionally) a function that handles informational messages,
 (optionally) one or two functions that provides Jacobian-related information for the linear
-solver, and (optionally) one or two functions that define the preconditioner for 
+solver, and (optionally) one or two functions that define the preconditioner for
 use in any of the Krylov iterative algorithms.
 
 %%==============================================================================
@@ -2788,7 +2687,7 @@ The user must provide a function of type \ID{KINSysFn} defined as follows:
   typedef int (*KINSysFn)(N\_Vector u, N\_Vector fval, void *user\_data);
 }
 {
-  This function computes $F(u)$ (or $G(u)$ for fixed-point iteration and Anderson 
+  This function computes $F(u)$ (or $G(u)$ for fixed-point iteration and Anderson
   acceleration) for a given value of the vector $u$.
 }
 {
@@ -2798,8 +2697,8 @@ The user must provide a function of type \ID{KINSysFn} defined as follows:
   \item[fval]
     is the output vector $F(u)$.
   \item[user\_data]
-    is a pointer to user data, the pointer \Id{user\_data}      
-    passed to \id{KINSetUserData}.   
+    is a pointer to user data, the pointer \Id{user\_data}
+    passed to \id{KINSetUserData}.
   \end{args}
 }
 {
@@ -2817,18 +2716,18 @@ The user must provide a function of type \ID{KINSysFn} defined as follows:
 \label{ss:ehFn}
 %%==============================================================================
 \index{error messages!user-defined handler}
-As an alternative to the default behavior of directing error and warning messages 
+As an alternative to the default behavior of directing error and warning messages
 to the file pointed to by \id{errfp} (see \id{KINSetErrFile}), the user may
 provide a function of type \ID{KINErrHandlerFn} to process any such messages.
 The function type \id{KINErrHandlerFn} is defined as follows:
 \usfunction{KINErrHandlerFn}
 {
   typedef void (*KINErrHandlerFn)(&int error\_code, const char *module, \\
-                                  &const char *function, char *msg, \\ 
-                                  &void *eh\_data); 
+                                  &const char *function, char *msg, \\
+                                  &void *eh\_data);
 }
 {
-  This function processes error and warning messages from {\kinsol} and 
+  This function processes error and warning messages from {\kinsol} and
   its sub-modules.
 }
 {
@@ -2843,7 +2742,7 @@ The function type \id{KINErrHandlerFn} is defined as follows:
     is the error message.
   \item[eh\_data]
     is a pointer to user data, the same as the \Id{eh\_data}
-    parameter passed to \id{KINSetErrHandlerFn}.   
+    parameter passed to \id{KINSetErrHandlerFn}.
   \end{args}
 }
 {
@@ -2860,7 +2759,7 @@ The function type \id{KINErrHandlerFn} is defined as follows:
 \label{ss:ihFn}
 %%==============================================================================
 \index{informational messages!user-defined handler}
-As an alternative to the default behavior of directing informational (meaning non-error) messages 
+As an alternative to the default behavior of directing informational (meaning non-error) messages
 to the file pointed to by \id{infofp} (see \id{KINSetInfoFile}), the user may
 provide a function of type \ID{KINInfoHandlerFn} to process any such messages.
 The function type \id{KINInfoHandlerFn} is defined as follows:
@@ -2868,10 +2767,10 @@ The function type \id{KINInfoHandlerFn} is defined as follows:
 {
   typedef void (*KINInfoHandlerFn)(&const char *module, \\
                                    &const char *function, char *msg, \\
-                                   &void *ih\_data); 
+                                   &void *ih\_data);
 }
 {
-  This function processes informational messages from {\kinsol} and 
+  This function processes informational messages from {\kinsol} and
   its sub-modules.
 }
 {
@@ -2884,7 +2783,7 @@ The function type \id{KINInfoHandlerFn} is defined as follows:
     is the message.
   \item[ih\_data]
     is a pointer to user data, the same as the \Id{ih\_data}
-    parameter passed to \id{KINSetInfoHandlerFn}.   
+    parameter passed to \id{KINSetInfoHandlerFn}.
   \end{args}
 }
 {
@@ -2893,25 +2792,25 @@ The function type \id{KINInfoHandlerFn} is defined as follows:
 {}
 
 %%==============================================================================
-\subsection{Jacobian information (direct method Jacobian)}
-\label{ss:djacFn}
+\subsection{Jacobian construction (matrix-based linear solvers)}
+\label{ss:jacFn}
 %%==============================================================================
-\index{Jacobian approximation function!dense!user-supplied|(}
+\index{Jacobian approximation function!user-supplied|(}
 
-If the direct linear solver interface is used (i.e. 
-(\Id{KINDlsSetLinearSolver} is called in teh step describd in 
-\S\ref{ss:skeleton_sol}), the user may provide a function of type 
-\ID{KINDlsJacFn} defined as follows
+If a matrix-based linear solver module is used (i.e., a non-\id{NULL}
+{\sunmatrix} object \id{J} was supplied to \Id{KINSetLinearSolver}),
+the user may provide a function of type \ID{KINLsJacFn} defined as
+follows
 %%
-\usfunction{KINDlsJacFn}
+\usfunction{KINLsJacFn}
 {
-  typedef int (*KINDlsJacFn)(&N\_Vector u, N\_Vector fu,\\
-                             &SUNMatrix J, void *user\_data,\\ 
-                             &N\_Vector tmp1, N\_Vector tmp2);
+  typedef int (*KINLsJacFn)(&N\_Vector u, N\_Vector fu,\\
+                            &SUNMatrix J, void *user\_data,\\
+                            &N\_Vector tmp1, N\_Vector tmp2);
 }
 {
-  This function computes the Jacobian matrix $J(u)$ 
-  or an approximation to it.
+  This function computes the Jacobian matrix $J(u)$
+  (or an approximation to it).
 }
 {
   \begin{args}[jac\_data]
@@ -2920,20 +2819,20 @@ If the direct linear solver interface is used (i.e.
   \item[fu]
     is the current value of the vector $F(u)$.
   \item[J]
-    is the output approximate Jacobian matrix, $J = \partial{F}/\partial{u}$, 
+    is the output approximate Jacobian matrix, $J = \partial{F}/\partial{u}$,
     of type \id{SUNMatrix}.
   \item[user\_data]
-    is a pointer to user data, the same as the \id{user\_data}      
-    parameter passed to \id{KINSetUserData}.   
+    is a pointer to user data, the same as the \id{user\_data}
+    parameter passed to \id{KINSetUserData}.
   \item[tmp1]
   \item[tmp2]
-    are pointers to memory allocated    
-    for variables of type \id{N\_Vector} which can be used by           
-    the \id{KINJacFn} function as temporary storage or work space.    
+    are pointers to memory allocated
+    for variables of type \id{N\_Vector} which can be used by
+    the \id{KINJacFn} function as temporary storage or work space.
   \end{args}
 }
 {
-  A function of type \id{KINDlsDenseJacFn} should return $0$ if successful
+  A function of type \id{KINLsJacFn} should return $0$ if successful
   or a non-zero value otherwise.
 }
 {
@@ -2944,10 +2843,10 @@ If the direct linear solver interface is used (i.e.
   details).
 
   Prior to calling the user-supplied Jacobian function, the Jacobian
-  matrix $J(t,y)$ is zeroed out, so only nonzero elements need to be
-  loaded into \id{Jac}.
+  matrix $J(u)$ is zeroed out, so only nonzero elements need to be
+  loaded into \id{J}.
 
-  If the user's \id{KINDlsJacFn} function uses difference quotient
+  If the user's \id{KINLsJacFn} function uses difference quotient
   approximations, it may need to access quantities not in the call list.
   These quantities may include the scale vectors and the unit roundoff.
   To obtain the scale vectors, the user will need to add to \id{user\_data}
@@ -2957,19 +2856,19 @@ If the direct linear solver interface is used (i.e.
 
   {\bf dense:}\\
   A user-supplied dense Jacobian function must load the \id{N} $\times$ \id{N}
-  dense matrix \id{Jac} with an approximation to the Jacobian matrix $J(u)$
+  dense matrix \id{J} with an approximation to the Jacobian matrix $J(u)$
   at the point (\id{u}).  The accessor macros \Id{SM\_ELEMENT\_D}
   and \Id{SM\_COLUMN\_D} allow the user to read and write dense matrix
   elements without making explicit references to the underlying
   representation of the {\sunmatdense} type.
   \id{SM\_ELEMENT\_D(J, i, j)} references the (\id{i}, \id{j})-th
-  element of the dense matrix \id{Jac} (with \id{i}, \id{j }$= 0\ldots
+  element of the dense matrix \id{J} (with \id{i}, \id{j }$= 0\ldots
   \id{N}-1$). This macro is meant for small problems for which efficiency
   of access is not a major concern.  Thus, in terms of the indices $m$
   and $n$ ranging from $1$ to $N$, the Jacobian element $J_{m,n}$ can
   be set using the statement \id{SM\_ELEMENT\_D(J, m-1, n-1) =}
   $J_{m,n}$.  Alternatively, \id{SM\_COLUMN\_D(J, j)} returns a
-  pointer to the first element of the \id{j}-th column of \id{Jac}
+  pointer to the first element of the \id{j}-th column of \id{J}
   (with \id{j }$= 0\ldots \id{N}-1$), and the elements of the \id{j}-th column
   can then be accessed using ordinary array indexing.  Consequently,
   $J_{m,n}$ can be loaded using the statements
@@ -2981,14 +2880,14 @@ If the direct linear solver interface is used (i.e.
 
  {\bf banded}:\\
   A user-supplied banded Jacobian function must load the \id{N} $\times$ \id{N}
-  banded matrix \id{Jac} with an approximation to the Jacobian matrix $J(u)$
+  banded matrix \id{J} with an approximation to the Jacobian matrix $J(u)$
   at the point (\id{u}).
   The accessor macros \Id{SM\_ELEMENT\_B},
   \Id{SM\_COLUMN\_B}, and \Id{SM\_COLUMN\_ELEMENT\_B} allow the user
   to read and write banded matrix elements without making specific
   references to the underlying representation of the {\sunmatband}
   type.  \id{SM\_ELEMENT\_B(J, i, j)} references the (\id{i},
-  \id{j})-th element of the banded matrix \id{Jac}, counting from $0$.
+  \id{j})-th element of the banded matrix \id{J}, counting from $0$.
   This macro is meant for use in small problems for which efficiency
   of access is not a major concern.  Thus, in terms of the indices $m$
   and $n$ ranging from $1$ to $\id{N}$ with $(m,n)$ within the band defined
@@ -2997,16 +2896,16 @@ If the direct linear solver interface is used (i.e.
   $J_{m,n}$. The elements within the band are those with \id{-mupper}
   $\le$ \id{m-n} $\le$ \id{mlower}. Alternatively,
   \id{SM\_COLUMN\_B(J, j)} returns a pointer to the diagonal element
-  of the \id{j}-th column of \id{Jac}, and if we assign this address
+  of the \id{j}-th column of \id{J}, and if we assign this address
   to \id{realtype *col\_j}, then the \id{i}-th element of the
   \id{j}-th column is given by
   \id{SM\_COLUMN\_ELEMENT\_B(col\_j, i, j)}, counting from $0$.  Thus,
   for $(m,n)$ within the band, $J_{m,n}$ can be loaded by setting
-  \id{col\_n = SM\_COLUMN\_B(J, n-1);} and 
+  \id{col\_n = SM\_COLUMN\_B(J, n-1);} and
   \id{SM\_COLUMN\_ELEMENT\_B(col\_n, m-1, n-1) =} $J_{m,n}$.  The
   elements of the \id{j}-th column can also be accessed via ordinary
   array indexing, but this approach requires knowledge of the
-  underlying storage for a band matrix of type {\sunmatband}.   
+  underlying storage for a band matrix of type {\sunmatband}.
   The array \id{col\_n} can be indexed from $-$\id{mupper} to
   \id{mlower}. For large problems, it is more efficient to use
   \id{SM\_COLUMN\_B} and \id{SM\_COLUMN\_ELEMENT\_B} than to use the
@@ -3016,42 +2915,48 @@ If the direct linear solver interface is used (i.e.
 
   {\bf sparse}:\\
   A user-supplied sparse Jacobian function must load the \id{N} $\times$ \id{N}
-  compressed-sparse-column or compressed-sparse-row matrix \id{Jac}
+  compressed-sparse-column or compressed-sparse-row matrix \id{J}
   with an approximation to the Jacobian matrix $J(u)$
   at the point (\id{u}).
-  Storage for \id{Jac} already exists on entry to
+  Storage for \id{J} already exists on entry to
   this function, although the user should ensure that sufficient space
-  is allocated in \id{Jac} to hold the nonzero values to be set; if
+  is allocated in \id{J} to hold the nonzero values to be set; if
   the existing space is insufficient the user may reallocate the data
   and index arrays as needed.  The amount of allocated space in a
   {\sunmatsparse} object may be accessed using the macro
   \Id{SM\_NNZ\_S} or the routine \Id{SUNSparseMatrix\_NNZ}.  The
-  {\sunmatsparse} type and accessor macros are documented in 
-  \S\ref{ss:sunmat_sparse}. 
+  {\sunmatsparse} type and accessor macros are documented in
+  \S\ref{ss:sunmat_sparse}.
+
+  The previous function type \Id{KINDlsJacFn} is identical to
+  \id{KINLsJacFn}, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new function type name soon.
 }
 \index{Jacobian approximation function!user-supplied|)}
 
 %%==============================================================================
-\subsection{Jacobian information (matrix-vector product)}
+\subsection{Jacobian-vector product (matrix-free linear solvers)}
 \label{ss:jtimesFn}
 %%==============================================================================
 \index{Jacobian approximation function!Jacobian times vector!user-supplied|(}
+
+If a matrix-free linear solver is to be used (i.e., a \id{NULL}-valued
+{\sunmatrix} was supplied to \\ \noindent
+\id{KINSetLinearSolver}), the user may
+provide a function of type \Id{KINLsJacTimesVecFn} in the following
+form, to compute products $J v$.  If such a function is not
+supplied, the default is a difference quotient approximation of these
+products.
 %%
-If the {\kinspils} solver interface is selected
-(i.e., \id{KINSpilsSetLinearSolver} is called in the steps described in
-\S\ref{ss:skeleton_sol}), the user may
-provide a function of type \Id{KINSpilsJacTimesVecFn} in the following form,
-to compute products $J v$.  If such a function is not
-supplied, the default is a difference quotient approximation of these products.
-%%
-\usfunction{KINSpilsJacTimesVecFn}
+\usfunction{KINLsJacTimesVecFn}
 {
-  typedef int (*KINSpilsJacTimesVecFn)(&N\_Vector v, N\_Vector Jv, \\
-                                       &N\_Vector u, booleantype new\_u, \\
-                                       &void *user\_data);
+  typedef int (*KINLsJacTimesVecFn)(&N\_Vector v, N\_Vector Jv, \\
+                                    &N\_Vector u, booleantype new\_u, \\
+                                    &void *user\_data);
 }
 {
-  This \id{jtimes} function computes the product $J v$ 
+  This \id{jtimes} function computes the product $J v$
   (or an approximation to it).
 }
 {
@@ -3073,11 +2978,11 @@ supplied, the default is a difference quotient approximation of these products.
     to \id{SUNFALSE}, so that on subsequent calls to \id{jtimes} with the same \id{u},
     the saved data can be reused.
   \item[user\_data]
-    is a pointer to user data, the same as the \id{user\_data}      
+    is a pointer to user data, the same as the \id{user\_data}
     parameter passed to \id{KINSetUserData}.
   \end{args}
 }
-{  
+{
   The value returned by the Jacobian-times-vector function should be
   $0$ if successful. If a recoverable failure occurred, the return
   value should be positive.  In this case, {\kinsol} will attempt to
@@ -3092,40 +2997,47 @@ supplied, the default is a difference quotient approximation of these products.
   This function must return a value of $J*v$ that uses the {\it current}
   value of $J$, i.e. as evaluated at the current $u$.
 
-  If the user's \id{KINSpilsJacTimesVecFn} function uses difference quotient
+  If the user's \id{KINLsJacTimesVecFn} function uses difference quotient
   approximations, it may need to access quantities not in the call list.
   These might include the scale vectors and the unit roundoff.
   To obtain the scale vectors, the user will need to add to \id{user\_data}
   pointers to \id{u\_scale} and/or \id{f\_scale} as needed.
   The unit roundoff can be accessed as \id{UNIT\_ROUNDOFF} defined in
   \id{sundials\_types.h}.
+
+  The previous function type \Id{KINSpilsJacTimesVecFn} is identical to
+  \id{KINLsJacTimesVecFn}, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new function type name soon.
 }
 \index{Jacobian approximation function!Jacobian times vector!user-supplied|)}
 %%
 %%==============================================================================
-\subsection{Preconditioning (linear system solution)} \label{ss:psolveFn}
+\subsection{Preconditioner solve (iterative linear solvers)} \label{ss:psolveFn}
 %%==============================================================================
 \index{preconditioning!user-supplied}
-\index{KINSPILS@{\kinspils} linear solver interface!preconditioner solve function}
+\index{KINLS@{\kinls} linear solver interface!preconditioner solve function}
 
-If preconditioning is used, then the user must provide a function to
-solve the linear system $Pz = r$ where $P$ is the preconditioner matrix,
-approximating (at least crudely) the system Jacobian $J = \partial{F}/\partial{u}$. 
-This function must be of type \ID{KINSpilsPrecSolveFn}, defined as follows:
+If a user-supplied preconditioner is to be used with a {\sunlinsol}
+solver module, then the user must provide a function to solve the
+linear system $Pz = r$ where $P$ is the preconditioner matrix,
+approximating (at least crudely) the system Jacobian $J =
+\partial{F}/\partial{u}$.  This function must be of type
+\ID{KINLsPrecSolveFn}, defined as follows:
 %%
 %%
-\usfunction{KINSpilsPrecSolveFn}
+\usfunction{KINLsPrecSolveFn}
 {
-  typedef int (*KINSpilsPrecSolveFn)(&N\_Vector u, N\_Vector uscale,  \\
-                                     &N\_Vector fval, N\_Vector fscale,  \\
-                                     &N\_Vector v, void *user\_data); 
+  typedef int (*KINLsPrecSolveFn)(&N\_Vector u, N\_Vector uscale,  \\
+                                  &N\_Vector fval, N\_Vector fscale,  \\
+                                  &N\_Vector v, void *user\_data);
 }
 {
   This function solves the preconditioning system $Pz = r$.
 }
-{  
+{
   \begin{args}[prec\_data]
-  \item[u] 
+  \item[u]
     is the current (unscaled) value of the iterate.
   \item[uscale]
     is a vector containing diagonal elements
@@ -3136,17 +3048,17 @@ This function must be of type \ID{KINSpilsPrecSolveFn}, defined as follows:
     is a vector containing diagonal elements
     of the scaling matrix for \id{fval}.
   \item[v]
-    on input, \id{v} is set to the right-hand side vector of the linear 
+    on input, \id{v} is set to the right-hand side vector of the linear
     system, \id{r}. On output, \id{v} must contain the solution \id{z} of
     the linear system $Pz=r$.
   \item[user\_data]
-    is a pointer to user data, the same as the \id{user\_data}      
+    is a pointer to user data, the same as the \id{user\_data}
     parameter passed to the function \id{KINSetUserData}.
   \end{args}
 }
 {
   The value to be returned by the preconditioner solve function is a flag
-  indicating whether it was successful.  This value should be $0$ if successful, 
+  indicating whether it was successful.  This value should be $0$ if successful,
   positive for a recoverable error, and negative for an unrecoverable error.
 }
 {
@@ -3154,22 +3066,27 @@ This function must be of type \ID{KINSpilsPrecSolveFn}, defined as follows:
   information (set by the preconditioner setup function) is out of date, {\kinsol}
   attempts to correct by calling the setup function. If the preconditioner data
   is current, {\kinsol} halts.
+
+  The previous function type \Id{KINSpilsPrecSolveFn} is identical to
+  \id{KINLsPrecSolveFn}, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new function type name soon.
 }
 
 %%==============================================================================
-\subsection{Preconditioning (Jacobian data)}\label{ss:precondFn}
+\subsection{Preconditioner setup (iterative linear solvers)}\label{ss:precondFn}
 %%==============================================================================
 \index{preconditioning!user-supplied}
-\index{KINSPILS@{\kinspils} linear solver interface!preconditioner setup function}
+\index{KINLS@{\kinls} linear solver interface!preconditioner setup function}
 
 If the user's preconditioner requires that any Jacobian-related data
 be evaluated or preprocessed, then this needs to be done in a
-user-supplied function of type \ID{KINSpilsPrecSetupFn}, defined as follows:
-\usfunction{KINSpilsPrecSetupFn}
+user-supplied function of type \ID{KINLsPrecSetupFn}, defined as follows:
+\usfunction{KINLsPrecSetupFn}
 {
-typedef int (*KINSpilsPrecSetupFn)(&N\_Vector u, N\_Vector uscale, \\
-                                   &N\_Vector fval, N\_Vector fscale,\\
-                                   &void *user\_data);
+typedef int (*KINLsPrecSetupFn)(&N\_Vector u, N\_Vector uscale, \\
+                                &N\_Vector fval, N\_Vector fscale,\\
+                                &void *user\_data);
 }
 {
   This function evaluates and/or preprocesses Jacobian-related data needed
@@ -3177,7 +3094,7 @@ typedef int (*KINSpilsPrecSetupFn)(&N\_Vector u, N\_Vector uscale, \\
 }
 {
   \begin{args}[prec\_data]
-  \item[u] 
+  \item[u]
     is the current (unscaled) value of the iterate.
   \item[uscale]
     is a vector containing diagonal elements
@@ -3188,13 +3105,13 @@ typedef int (*KINSpilsPrecSetupFn)(&N\_Vector u, N\_Vector uscale, \\
     is a vector containing diagonal elements
     of the scaling matrix for \id{fval}.
   \item[user\_data]
-    is a pointer to user data, the same as the \id{user\_data}      
+    is a pointer to user data, the same as the \id{user\_data}
     parameter passed to the function \id{KINSetUserData}.
   \end{args}
 }
 {
   The value to be returned by the preconditioner setup function is a flag
-  indicating whether it was successful.  This value should be $0$ if successful, 
+  indicating whether it was successful.  This value should be $0$ if successful,
   any other value resulting in halting the {\kinsol} solver.
 }
 {
@@ -3206,13 +3123,13 @@ typedef int (*KINSpilsPrecSetupFn)(&N\_Vector u, N\_Vector uscale, \\
    where $D_u$ and $D_F$ denote the diagonal scaling matrices whose
   diagonal elements are stored in the vectors \id{uscale} and
   \id{fscale}, respectively.
- 
+
   The preconditioner setup routine will not be called prior
   to every call made to the preconditioner solve function, but will instead be
   called only as often as necessary to achieve convergence of the
   Newton iteration.
- 
-  If the user's \id{KINSpilsPrecSetupFn} function uses difference quotient
+
+  If the user's \id{KINLsPrecSetupFn} function uses difference quotient
   approximations, it may need to access quantities not in the call list.
   These might include the scale vectors and the unit roundoff.
   To obtain the scale vectors, the user will need to add to \id{user\_data}
@@ -3222,16 +3139,21 @@ typedef int (*KINSpilsPrecSetupFn)(&N\_Vector u, N\_Vector uscale, \\
 
   If the preconditioner solve routine requires no preparation, then a
   preconditioner setup function need not be given.
+
+  The previous function type \Id{KINSpilsPrecSetupFn} is identical to
+  \id{KINLsPrecSetupFn}, and may still be used for backward-compatibility.
+  However, this will be deprecated in future releases, so we recommend
+  that users transition to the new function type name soon.
 }
 
 %%==============================================================================
 \section{A parallel band-block-diagonal preconditioner module}
 \label{sss:kinbbdpre}
 %%==============================================================================
-The efficiency of Krylov iterative methods for the solution of linear systems 
-can be greatly enhanced through preconditioning. For problems in which the 
+The efficiency of Krylov iterative methods for the solution of linear systems
+can be greatly enhanced through preconditioning. For problems in which the
 user cannot define a more effective, problem-specific preconditioner,
-{\kinsol} provides a band-block-diagonal preconditioner module {\kinbbdpre}, 
+{\kinsol} provides a band-block-diagonal preconditioner module {\kinbbdpre},
 to be used with the parallel \id{N\_Vector} module described in \S\ref{ss:nvec_par}.
 
 This module provides a preconditioner matrix for {\kinsol} that
@@ -3261,13 +3183,13 @@ whether the lower cost of narrower band matrices offsets the loss of
 accuracy in the blocks.
 
 \index{KINBBDPRE@{\kinbbdpre} preconditioner!user-supplied functions|(}
-The {\kinbbdpre} module calls two user-provided functions to construct $P$: 
+The {\kinbbdpre} module calls two user-provided functions to construct $P$:
 a required function \id{Gloc} (of type \id{KINBBDLocalFn}) which
-approximates the nonlinear system function function $G(u) \approx F(u)$ and which 
-is computed locally, and an optional function \id{Gcomm} (of type \id{KINBBDCommFn}) 
-which performs all interprocess communication necessary to evaluate 
-the approximate function $G$.  
-These are in addition to the user-supplied nonlinear system function that 
+approximates the nonlinear system function function $G(u) \approx F(u)$ and which
+is computed locally, and an optional function \id{Gcomm} (of type \id{KINBBDCommFn})
+which performs all interprocess communication necessary to evaluate
+the approximate function $G$.
+These are in addition to the user-supplied nonlinear system function that
 evaluates $F(u)$.
 Both functions take as input the same pointer \id{user\_data} as that passed
 by the user to \id{KINSetUserData} and passed to the user's function \id{func},
@@ -3288,22 +3210,22 @@ then used by \id{Gloc}, which should not do any communication.
 }
 {
   \begin{args}[Nlocal]
-  \item[Nlocal] 
+  \item[Nlocal]
     is the local vector length.
   \item[u]
     is the current value of the iterate.
   \item[gval]
     is the output vector.
   \item[user\_data]
-    is a pointer to user data, the same as the \Id{user\_data}      
-    parameter passed to \id{KINSetUserData}.  
+    is a pointer to user data, the same as the \Id{user\_data}
+    parameter passed to \id{KINSetUserData}.
   \end{args}
 }
 {
   A \id{KINBBDLocalFn} function type does not have a return value.
 }
 {
-  This function must assume that all interprocess communication of data needed to 
+  This function must assume that all interprocess communication of data needed to
   calculate \id{gval} has already been done, and this data is accessible within
   \id{user\_data}.
 
@@ -3318,18 +3240,18 @@ then used by \id{Gloc}, which should not do any communication.
   typedef void (*KINBBDCommFn)(sunindextype Nlocal, N\_Vector u, void *user\_data);
 }
 {
-  This \id{Gcomm} function performs all interprocess communications necessary 
+  This \id{Gcomm} function performs all interprocess communications necessary
   for the execution of the \id{Gloc} function above, using the input vector \id{u}.
 }
 {
   \begin{args}[Nlocal]
-  \item[Nlocal] 
+  \item[Nlocal]
     is the local vector length.
   \item[u]
     is the current value of the iterate.
   \item[user\_data]
-    is a pointer to user data, the same as the \Id{user\_data}      
-    parameter passed to \id{KINSetUserData}.  
+    is a pointer to user data, the same as the \Id{user\_data}
+    parameter passed to \id{KINSetUserData}.
   \end{args}
 }
 {
@@ -3337,10 +3259,10 @@ then used by \id{Gloc}, which should not do any communication.
 }
 {
   The \id{Gcomm} function is expected to save communicated data in space defined
-  within the structure \id{user\_data}. 
+  within the structure \id{user\_data}.
 
   Each call to the \id{Gcomm} function is preceded by a call to the system function
-  \id{func} with the same \id{u} argument.  Thus \id{Gcomm} can omit 
+  \id{func} with the same \id{u} argument.  Thus \id{Gcomm} can omit
   any communications done by \id{func} if relevant to the evaluation of \id{Gloc}.
   If all necessary communication was done in \id{func}, then \id{Gcomm = NULL}
   can be passed in the call to \id{KINBBDPrecInit} (see below).
@@ -3354,7 +3276,7 @@ then used by \id{Gloc}, which should not do any communication.
 \index{KINBBDPRE@{\kinbbdpre} preconditioner!usage|(}
 %%
 Besides the header files required for the solution of a nonlinear problem
-(see \S\ref{s:header_sol}),  to use the {\kinbbdpre} module, the main program 
+(see \S\ref{s:header_sol}),  to use the {\kinbbdpre} module, the main program
 must include the header file \id{kinbbdpre.h} which declares the needed
 function prototypes.\index{header files}
 
@@ -3365,7 +3287,7 @@ program presented in \S\ref{ss:skeleton_sol} are grayed out.
 %%
 \index{User main program!KINBBDPRE@{\kinbbdpre} usage}
 \begin{Steps}
-\item 
+\item
   \textcolor{gray}{\bf Initialize parallel or multi-threaded environment}
 
 \item
@@ -3373,24 +3295,21 @@ program presented in \S\ref{ss:skeleton_sol} are grayed out.
 
 \item
   \textcolor{gray}{\bf Set vector with initial guess}
- 
+
 \item
   \textcolor{gray}{\bf Create {\kinsol} object}
 
 \item
-  \textcolor{gray}{\bf Initialize {\kinsol} solver}
-
-\item
-  \textcolor{gray}{\bf Set optional inputs}
+  \textcolor{gray}{\bf Allocate internal memory}
 
 \item
   {\bf Create linear solver object}
 
-  When creating the iterative linear solver object, specify use of 
+  When creating the iterative linear solver object, specify use of
   right preconditioning (\id{PREC\_RIGHT}) as {\kinsol} only supports right preconditioning.
 
 \item \label{i:bbdpre_attach}
-  {\bf Attach iterative linear solver module}
+  {\bf Attach linear solver module}
 
 \item \label{i:bbdpre_init}
   {\bf Initialize the {\kinbbdpre} preconditioner module}
@@ -3406,14 +3325,14 @@ program presented in \S\ref{ss:skeleton_sol} are grayed out.
    }
 
   to allocate memory for and initialize the internal preconditoner data.
-  The last two arguments of \id{KINBBDPrecInit} are the two user-supplied 
+  The last two arguments of \id{KINBBDPrecInit} are the two user-supplied
   functions described above.
 
 \item
-  \textcolor{gray}{\bf Set linear solver interface optional inputs}
+  \textcolor{gray}{\bf Set optional inputs}
 
   Note that the user should not overwrite the preconditioner data, setup function,
-  or solve function through calls to \id{KINSpilsSetPreconditioner} 
+  or solve function through calls to \id{KINSetPreconditioner}
   optional input functions.
 
 \item
@@ -3422,7 +3341,7 @@ program presented in \S\ref{ss:skeleton_sol} are grayed out.
 \item
   {\bf Get optional output}
 
-  Additional optional outputs associated with {\kinbbdpre} are available by 
+  Additional optional outputs associated with {\kinbbdpre} are available by
   way of two routines described below,
   \id{KINBBDPrecGetWorkSpace} and \id{KINBBDPrecGetNumGfnEvals}.
 
@@ -3431,11 +3350,11 @@ program presented in \S\ref{ss:skeleton_sol} are grayed out.
 
 \item
   \textcolor{gray}{\bf Free solver memory}
-  
+
 \item
   \textcolor{gray}{\bf Free linear solver memory}
 
-\item 
+\item
   \textcolor{gray}{\bf Finalize MPI, if used}
 
 \end{Steps}
@@ -3481,7 +3400,7 @@ is described in more detail below.
     approximations.  The default is \id{dq\_rel\_u}$ = \sqrt{\text{unit roundoff}}$,
     which can be specified by passing \id{dq\_rel\_u}$ = 0.0$.
   \item[Gloc] (\id{KINBBDLocalFn})
-    the {\CC} function which computes the approximation $G(u) \approx F(u)$. 
+    the {\CC} function which computes the approximation $G(u) \approx F(u)$.
   \item[Gcomm] (\id{KINBBDCommFn})
     the optional {\CC} function which performs all interprocess communication required for
     the computation of $G(u)$.
@@ -3489,16 +3408,16 @@ is described in more detail below.
 }
 {
   The return value \id{flag} (of type \id{int}) is one of
-  \begin{args}[KINSPILS\_ILL\_INPUT]
-  \item[KINSPILS\_SUCCESS]
+  \begin{args}[KINLS\_ILL\_INPUT]
+  \item[\id{KINLS\_SUCCESS}]
     The call to \id{KINBBDPrecInit} was successful.
-  \item[\id{KINSPILS\_MEM\_NULL}] 
+  \item[\id{KINLS\_MEM\_NULL}]
     The \id{kin\_mem} pointer was \id{NULL}.
-  \item[\Id{KINSPILS\_MEM\_FAIL}]
+  \item[\Id{KINLS\_MEM\_FAIL}]
     A memory allocation request has failed.
-  \item[\Id{KINSPILS\_LMEM\_NULL}]
-    A {\kinspils} linear solver was not attached.
-  \item[\Id{KINSPILS\_ILL\_INPUT}]
+  \item[\Id{KINLS\_LMEM\_NULL}]
+    The {\kinls} linear solver interface has not been initialized.
+  \item[\Id{KINLS\_ILL\_INPUT}]
     The supplied vector implementation was not compatible with the block band preconditioner.
   \end{args}
 }
@@ -3509,7 +3428,7 @@ is described in more detail below.
   \id{Nlocal}$-1$ accordingly.
 
   The half-bandwidths \id{mudq} and \id{mldq} need
-  not be the true half-bandwidths of the Jacobian of the local block of $G$,    
+  not be the true half-bandwidths of the Jacobian of the local block of $G$,
   when smaller values may provide greater efficiency.
 
   Also, the half-bandwidths \id{mukeep} and \id{mlkeep} of the retained
@@ -3547,12 +3466,12 @@ the {\kinbbdpre} module:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[KINSPILS\_PMEM\_NULL]
-  \item[KINSPILS\_SUCCESS] 
+  \begin{args}[KINLS\_PMEM\_NULL]
+  \item[\id{KINLS\_SUCCESS}]
     The optional output value has been successfully set.
-  \item[\id{KINSPILS\_MEM\_NULL}] 
+  \item[\id{KINLS\_MEM\_NULL}]
     The \id{kin\_mem} pointer was \id{NULL}.
-  \item[\Id{KINSPILS\_PMEM\_NULL}]
+  \item[\Id{KINLS\_PMEM\_NULL}]
     The {\kinbbdpre} preconditioner has not been initialized.
   \end{args}
 }
@@ -3570,7 +3489,7 @@ the {\kinbbdpre} module:
   These values are local to each process.
 
   The workspaces referred to here exist in addition to those given by the
-  corresponding \id{KINSp*GetWorkSpace} function.
+  corresponding \id{KINGetLinWorkSpace} function.
 }
 %%
 %%
@@ -3580,7 +3499,7 @@ the {\kinbbdpre} module:
 }
 {
   The function \ID{KINBBDPrecGetNumGfnEvals} returns the
-  number of calls to the user \id{Gloc} function due to the 
+  number of calls to the user \id{Gloc} function due to the
   difference quotient approximation of the Jacobian blocks used within
   {\kinbbdpre}'s preconditioner setup function.
 }
@@ -3594,12 +3513,12 @@ the {\kinbbdpre} module:
 }
 {
   The return value \id{flag} (of type \id{int}) is one of:
-  \begin{args}[KINSPILS\_PMEM\_NULL]
-  \item[KINSPILS\_SUCCESS] 
+  \begin{args}[KINLS\_PMEM\_NULL]
+  \item[\id{KINLS\_SUCCESS}]
     The optional output value has been successfully set.
-  \item[\id{KINSPILS\_MEM\_NULL}] 
+  \item[\id{KINLS\_MEM\_NULL}]
     The \id{kin\_mem} pointer was \id{NULL}.
-  \item[\Id{KINSPILS\_PMEM\_NULL}]
+  \item[\Id{KINLS\_PMEM\_NULL}]
     The {\kinbbdpre} preconditioner has not been initialized.
   \end{args}
 }
@@ -3614,5 +3533,5 @@ In addition to the \id{ngevalsBBDP} \id{Gloc} evaluations,
 the costs associated with {\kinbbdpre} also include \id{nlinsetups} LU
 factorizations, \id{nlinsetups} calls to \id{Gcomm}, \id{npsolves} banded
 backsolve calls, and \id{nfevalsLS} right-hand side function evaluations,
-where \id{nlinsetups} is an optional {\kinsol} output and \id{npsolves} and 
+where \id{nlinsetups} is an optional {\kinsol} output and \id{npsolves} and
 \id{nfevalsLS} are linear solver optional outputs (see \S\ref{ss:optional_output}).

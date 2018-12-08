@@ -1,29 +1,12 @@
-1. Finish conversion of examples to new linear API:
-   - IDA serial
-   - IDAS serial
-   - CVODES serial
+1. Update ARKode's handling of time-dependent mass matrices -- the
+   documentation has been updated to reflect the correct approach, I
+   just need to implement this in code.
 
-2. Update documentation on Dls and Spils interfaces for all
-   integrators.  [CVODE is finished]
+2. Examine restructure where we solve for and store the scaled RHS
+   vectors instead of the stages themselves, as discussed in various
+   references as being generally preferred for very stiff problems.
 
-3. Revisit CVODE(S) 'diagonal' linear solver interface w.r.t. J and
-   gamma updates.  It currently supports lagging both for a
-   user-defined number of steps, but old interface always lagged J
-   but forced use of the current gamma (through unraveling M-inverse =
-   (I-gamma*J)-inverse back to -gamma*J, scaling by the gamma ratio,
-   and putting the updated M-inverse back together).  Carol wants that
-   functionality retained.
-
-   Possible approach: 'update' M at every step, but have a 'set'
-   routine that only applies to CVDLS when a diagonal matrix is used,
-   that allows lagging J for a specified number of steps.  This will
-   require the 'set' routine to be called after the Dls interface is
-   initialized, and the routine would have an internal check to ensure
-   that the 'savedJ' matrix is in fact a SUNMATRIX_DIAGONAL, before
-   setting the parameter.  The parameter would then be used inside the
-   diagonal DQ approximation routine.
-   
-4. Revisit scaling vectors with PCG (without preconditioning) -- this
+3. Revisit scaling vectors with PCG (without preconditioning) -- this
    seems to work improperly now.  Perhaps it is the testing code, or
    maybe the solver itself.
   
@@ -34,29 +17,11 @@
    added back in? 
   
 6. Revisit the question of the differencing parameter used in the
-   IDADls and IDASDls interfaces.  Previously we had different
+   IDALs and IDASLs interfaces.  Previously we had different
    increments for GMRES than for BiCGStab and TFQMR; currently these
    all use the GMRES value, but that value seems off in general (see
    Alan's email about why it works for GMRES).  Test what happens if
    we use the more 'standard' value.  We may need to add some kind of
    internal check to see if the LS object is actually a SUNSPGMR
    object (perhaps check if LS->ops->solve == SUNLinSolSolve_SPGMR ?)
-
-7. Test whether LAPACK can solve NxN problems where although N can be
-   stored as an int32_t, N^2 cannot.  Our old interface stored all
-   integers relating to dense/band matrices as 64-bit, but called
-   LAPACK with 32-bit 'N' values -- was this nonsense?  If LAPACK can
-   in fact have N as a valid int32_t, but N^2 is too large, then
-   perhaps we should convert the dense and band SUNMatrix objects to
-   use 64-bit integers for the actual 1D data array, to match our
-   previous support.
-
-8. Add <solver>Cls interfaces to all integrators for 'custom' linear
-   solvers.  These should:
-   - assume a SUNMatrix object is provided
-   - assume an iterative linear solve is performed
-   - thoroughly test if LS->ops->routine is non-NULL before actually
-     calling specific items.  Perhaps these interfaces should just
-     hold booleantype flags for supported routines (set at
-     initialization), and check these during use??
 

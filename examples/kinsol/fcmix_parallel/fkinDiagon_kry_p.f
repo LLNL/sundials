@@ -36,7 +36,7 @@ c
       integer baseadd, i, ii
       integer size, rank, mype, npes
 c The following declaration specification should match C type long int.
-      integer*8 neq, nlocal, iout(15), msbpre
+      integer*8 neq, nlocal, iout(16), msbpre
       integer ier, globalstrat, prectype, maxl, maxlrst
       double precision pp, fnormtol, scsteptol
       double precision rout(2), uu(localsize), scale(localsize)
@@ -179,10 +179,10 @@ c
 c
 c Attach SPGMR linear solver module to KINSOL
 c
-      call fkinspilsinit(ier)
+      call fkinlsinit(ier)
       if (ier .ne. 0) then
          write(6,1236) ier
- 1236    format('SUNDIALS_ERROR: FKINSPILSINIT returned IER = ', i4)
+ 1236    format('SUNDIALS_ERROR: FKINLSINIT returned IER = ', i4)
          call fkinfree
          call mpi_abort(mpi_comm_world, 1, ier)
          stop
@@ -202,10 +202,10 @@ c
 c
 c Set preconditioner routines
 c
-      call fkinspilssetprec(1, ier)
+      call fkinlssetprec(1, ier)
       if (ier .ne. 0) then
          write(6,1238) ier
- 1238    format('SUNDIALS_ERROR: FKINSPILSSETPREC returned IER = ',
+ 1238    format('SUNDIALS_ERROR: FKINLSSETPREC returned IER = ',
      1          i4)
          call fkinfree
          call mpi_abort(mpi_comm_world, 1, ier)
@@ -241,8 +241,8 @@ c
  1256    format(i4, 4(1x, f10.6))
  30   continue
 
-      if (mype .eq. 0) write(6,1267) iout(3), iout(14), iout(4),
-     1                               iout(12), iout(13), iout(15)
+      if (mype .eq. 0) write(6,1267) iout(3), iout(15), iout(4),
+     1                               iout(13), iout(14), iout(16)
  1267 format(/'Final statistics:'//
      1     '  nni = ', i3, ',  nli  = ', i3, /,
      2     '  nfe = ', i3, ',  npe  = ', i3, /,

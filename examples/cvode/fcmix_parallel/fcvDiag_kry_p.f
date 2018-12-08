@@ -25,7 +25,7 @@ C The following declaration specification should match C type long int.
       PARAMETER (NLOCAL=10)
 C
       INTEGER*4 LNST, LNFE, LNSETUP, LNNI, LNCF, LNETF, LNPE, LNLI, LNPS
-      INTEGER*4 LNCFL, NOUT, MYPE, NPES, IER, METH, ITMETH, IATOL
+      INTEGER*4 LNCFL, NOUT, MYPE, NPES, IER, METH, IATOL
       INTEGER*4 ITASK, IPRE, IGS, JOUT
       INTEGER*8 NST, NFE, NPSET, NPE, NPS, NNI, NLI
       INTEGER*8 NCFL, NETF, NCFN
@@ -35,7 +35,7 @@ C
 C
       DATA ATOL/1.0D-10/, RTOL/1.0D-5/, DTOUT/0.1D0/, NOUT/10/
       DATA LNST/3/, LNFE/4/, LNETF/5/,  LNCF/6/, LNNI/7/, LNSETUP/8/, 
-     1     LNPE/18/, LNLI/20/, LNPS/19/, LNCFL/21/
+     1     LNPE/20/, LNLI/22/, LNPS/21/, LNCFL/23/
 C
 C     Get NPES and MYPE.  Requires initialization of MPI.
       CALL MPI_INIT(IER)
@@ -63,7 +63,6 @@ C     Set input arguments.
       NEQ = NPES * NLOCAL
       T = 0.0D0
       METH = 2
-      ITMETH = 2
       IATOL = 1
       ITASK = 1
       IPRE = 1
@@ -124,7 +123,7 @@ C
          STOP
       ENDIF
 C
-      CALL FCVMALLOC(T, Y, METH, ITMETH, IATOL, RTOL, ATOL,
+      CALL FCVMALLOC(T, Y, METH, IATOL, RTOL, ATOL,
      1               IOUT, ROUT, IPAR, RPAR, IER)
 C
       IF (IER .NE. 0) THEN
@@ -134,17 +133,17 @@ C
          STOP
       ENDIF
 C
-C     attach linear solver module to CVSpils interface
-      CALL FCVSPILSINIT(IER)
+C     attach linear solver module to CVLs interface
+      CALL FCVLSINIT(IER)
       IF (IER .NE. 0) THEN
          WRITE(6,32) IER
- 32      FORMAT(///' SUNDIALS_ERROR: FCVSPILSINIT returned IER = ', I5)
+ 32      FORMAT(///' SUNDIALS_ERROR: FCVLSINIT returned IER = ', I5)
          CALL MPI_ABORT(MPI_COMM_WORLD, 1, IER)
          STOP
       ENDIF
 C     
-C     attach preconditioner to CVSpils interface
-      CALL FCVSPILSSETPREC(1, IER)
+C     attach preconditioner to CVLs interface
+      CALL FCVLSSETPREC(1, IER)
 C
 C     Loop through tout values, call solver, print output, test for failure.
       TOUT = DTOUT

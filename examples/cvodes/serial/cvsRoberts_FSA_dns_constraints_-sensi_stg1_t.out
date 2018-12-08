@@ -82,11 +82,11 @@ Final Statistics
 
 nst     =   785
 
-nfe     =  1824
+nfe     =  1823
 netf    =     0    nsetups  =   181
 nni     =   964    ncfn     =     4
 
-nfSe    =  3156    nfeS     =     0
+nfSe    =  3153    nfeS     =     0
 netfs   =    71    nsetupsS =     0
 nniS    =  3144    ncfnS    =     0
 

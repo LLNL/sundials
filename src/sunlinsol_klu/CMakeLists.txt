@@ -2,13 +2,13 @@
 # Programmer:  Daniel R. Reynolds @ SMU
 # ---------------------------------------------------------------
 # LLNS/SMU Copyright Start
-# Copyright (c) 2017, Southern Methodist University and 
+# Copyright (c) 2017, Southern Methodist University and
 # Lawrence Livermore National Security
 #
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Southern Methodist University and Lawrence Livermore 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Southern Methodist University and Lawrence Livermore
 # National Laboratory under Contract DE-AC52-07NA27344.
-# Produced at Southern Methodist University and the Lawrence 
+# Produced at Southern Methodist University and the Lawrence
 # Livermore National Laboratory.
 #
 # All rights reserved.
@@ -19,12 +19,18 @@
 
 INSTALL(CODE "MESSAGE(\"\nInstall SUNLINSOL_KLU\n\")")
 
+# Add F90 module if F2003 interface is enabled
+IF(F90_FOUND AND F2003_INTERFACE_ENABLE)
+  ADD_SUBDIRECTORY(F90)
+ENDIF(F90_FOUND AND F2003_INTERFACE_ENABLE)
+
 # Add variable sunlinsolklu_SOURCES with the sources for the SUNLINSOLKLU lib
 SET(sunlinsolklu_SOURCES sunlinsol_klu.c)
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the SUNLINSOLKLU library
 SET(shared_SOURCES
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_math.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_linearsolver.c
   )
 
@@ -36,7 +42,7 @@ SET(sunlinsolklu_HEADERS
 # Add source directory to include directories
 INCLUDE_DIRECTORIES(.)
 
-# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY 
+# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
 ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 
 # Rules for building and installing the static library:
@@ -73,7 +79,7 @@ ENDIF(BUILD_SHARED_LIBS)
 # Install the SUNLINSOLKLU header files
 INSTALL(FILES ${sunlinsolklu_HEADERS} DESTINATION include/sunlinsol)
 
-IF(FCMIX_ENABLE AND F77_FOUND)
+IF(F77_INTERFACE_ENABLE AND F77_FOUND)
   SET(fsunlinsolklu_SOURCES fsunlinsol_klu.c)
 
   IF(BUILD_STATIC_LIBS)
@@ -94,12 +100,12 @@ IF(FCMIX_ENABLE AND F77_FOUND)
 
     SET_TARGET_PROPERTIES(sundials_fsunlinsolklu_shared
       PROPERTIES OUTPUT_NAME sundials_fsunlinsolklu CLEAN_DIRECT_OUTPUT 1)
-    SET_TARGET_PROPERTIES(sundials_fsunlinsolklu_shared 
+    SET_TARGET_PROPERTIES(sundials_fsunlinsolklu_shared
       PROPERTIES VERSION ${sunlinsollib_VERSION} SOVERSION ${sunlinsollib_SOVERSION})
     INSTALL(TARGETS sundials_fsunlinsolklu_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
   ENDIF(BUILD_SHARED_LIBS)
 
-ENDIF(FCMIX_ENABLE AND F77_FOUND)
+ENDIF(F77_INTERFACE_ENABLE AND F77_FOUND)
 
 #
 MESSAGE(STATUS "Added SUNLINSOL_KLU module")

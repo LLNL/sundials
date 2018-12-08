@@ -5,7 +5,7 @@
 \subsection{A user preconditioner example: idaHeat2D\_kry\_p}\label{ss:idaHeat2D_p}
 
 As an example of using {\ida} with the parallel MPI {\nvecp} module and the Krylov 
-linear solver {\idaspgmr} with user-defined preconditioner, we provide the example
+linear solver {\sunlinsolspgmr} with user-defined preconditioner, we provide the example
 \id{idaHeat2D\_kry\_p} which solves the same 2-D heat PDE problem as \id{idaHeat2D\_kry}. 
 
 In the parallel setting, we can think of the processors as being laid out
@@ -61,7 +61,7 @@ Sample output from \id{idaHeat2D\_kry\_p} follows.
 \subsection{An IDABBDPRE preconditioner example: idaFoodWeb\_kry\_bbd\_p}\label{ss:idaFoodWeb_bbd_p}
 
 In this example, we solve the same food web problem as with
-\id{idaFoodWeb\_bnd}, but in parallel and with the {\idaspgmr} linear solver and
+\id{idaFoodWeb\_bnd}, but in parallel and with the {\sunlinsolspgmr} linear solver and
 using the {\idabbdpre} module, which generates and uses a band-block-diagonal 
 preconditioner.
 
@@ -92,9 +92,9 @@ already done for \id{resweb}).
 
 In the \id{idaFoodWeb\_kry\_bbd\_p} main program, following MPI initializations and
 creation of user data block \id{webdata} and \id{N\_Vector} variables,
-the initial profiles are set, the {\ida} memory block is created and
-allocated, the {\idabbdpre} preconditioner is initialized, and the
-{\idaspgmr} linear solver is attached to the {\ida} solver.
+the initial profiles are set, the {\ida} memory block is created, the
+{\sunlinsolspgmr} linear solver is created and attached to the {\ida}
+solver, and the {\idabbdpre} preconditioner is initialized.
 The call to \id{IDACalcIC} corrects the initial values so that they are
 consistent with the DAE algebraic constraints.  
 

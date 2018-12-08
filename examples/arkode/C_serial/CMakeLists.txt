@@ -37,6 +37,10 @@ SET(ARKODE_examples
   "ark_KrylovDemo_prec\;develop"
   "ark_robertson\;"
   "ark_robertson_root\;develop"
+  "ark_brusselator_mri\;develop"
+  "ark_onewaycouple_mri\;develop"
+  "ark_twowaycouple_mri\;develop"
+  "ark_reaction_diffusion_mri\;develop"
   )
 
 # Examples using LAPACK linear solvers

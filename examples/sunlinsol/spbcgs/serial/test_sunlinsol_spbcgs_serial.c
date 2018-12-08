@@ -69,7 +69,7 @@ static realtype urand();
 sunindextype problem_size;
 
 /* ----------------------------------------------------------------------
- * SUNSPBCGS Linear Solver Testing Routine
+ * SUNLinSol_SPBCGS Linear Solver Testing Routine
  *
  * We run multiple tests to exercise this solver:
  * 1. simple tridiagonal system (no preconditioning)
@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
   N_VConst(FIVE, ProbData.d);
   
   /* Create SPBCGS linear solver */
-  LS = SUNSPBCGS(x, pretype, maxl);
+  LS = SUNLinSol_SPBCGS(x, pretype, maxl);
   fails += Test_SUNLinSolGetType(LS, SUNLINEARSOLVER_ITERATIVE, 0);
   fails += Test_SUNLinSolSetATimes(LS, &ProbData, ATimes, 0);
   fails += Test_SUNLinSolSetPreconditioner(LS, &ProbData, PSetup, PSolve, 0);
@@ -177,10 +177,10 @@ int main(int argc, char *argv[])
   fails += Test_SUNLinSolInitialize(LS, 0);
   fails += Test_SUNLinSolSpace(LS, 0);
   if (fails) {
-    printf("FAIL: SUNSPBCGS module failed %i initialization tests\n\n", fails);
+    printf("FAIL: SUNLinSol_SPBCGS module failed %i initialization tests\n\n", fails);
     return 1;
   } else {
-    printf("SUCCESS: SUNSPBCGS module passed all initialization tests\n\n");
+    printf("SUCCESS: SUNLinSol_SPBCGS module passed all initialization tests\n\n");
   }
 
   
@@ -198,7 +198,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNSPBCGSSetPrecType(LS, PREC_NONE);  
+  fails += SUNLinSol_SPBCGSSetPrecType(LS, PREC_NONE);  
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
@@ -208,10 +208,10 @@ int main(int argc, char *argv[])
   
   /* Print result */
   if (fails) {
-    printf("FAIL: SUNSPBCGS module, problem 1, failed %i tests\n\n", fails);
+    printf("FAIL: SUNLinSol_SPBCGS module, problem 1, failed %i tests\n\n", fails);
     passfail += 1;
   } else {
-    printf("SUCCESS: SUNSPBCGS module, problem 1, passed all tests\n\n");
+    printf("SUCCESS: SUNLinSol_SPBCGS module, problem 1, passed all tests\n\n");
   }
 
   
@@ -229,7 +229,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNSPBCGSSetPrecType(LS, pretype);  
+  fails += SUNLinSol_SPBCGSSetPrecType(LS, pretype);  
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
@@ -239,10 +239,10 @@ int main(int argc, char *argv[])
 
   /* Print result */
   if (fails) {
-    printf("FAIL: SUNSPBCGS module, problem 2, failed %i tests\n\n", fails);
+    printf("FAIL: SUNLinSol_SPBCGS module, problem 2, failed %i tests\n\n", fails);
     passfail += 1;
   } else {
-    printf("SUCCESS: SUNSPBCGS module, problem 2, passed all tests\n\n");
+    printf("SUCCESS: SUNLinSol_SPBCGS module, problem 2, passed all tests\n\n");
   }
 
   
@@ -262,7 +262,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNSPBCGSSetPrecType(LS, PREC_NONE);  
+  fails += SUNLinSol_SPBCGSSetPrecType(LS, PREC_NONE);  
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
@@ -272,10 +272,10 @@ int main(int argc, char *argv[])
 
   /* Print result */
   if (fails) {
-    printf("FAIL: SUNSPBCGS module, problem 3, failed %i tests\n\n", fails);
+    printf("FAIL: SUNLinSol_SPBCGS module, problem 3, failed %i tests\n\n", fails);
     passfail += 1;
   } else {
-    printf("SUCCESS: SUNSPBCGS module, problem 3, passed all tests\n\n");
+    printf("SUCCESS: SUNLinSol_SPBCGS module, problem 3, passed all tests\n\n");
   }
 
   
@@ -295,7 +295,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNSPBCGSSetPrecType(LS, pretype);  
+  fails += SUNLinSol_SPBCGSSetPrecType(LS, pretype);  
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
@@ -305,10 +305,10 @@ int main(int argc, char *argv[])
 
   /* Print result */
   if (fails) {
-    printf("FAIL: SUNSPBCGS module, problem 4, failed %i tests\n\n", fails);
+    printf("FAIL: SUNLinSol_SPBCGS module, problem 4, failed %i tests\n\n", fails);
     passfail += 1;
   } else {
-    printf("SUCCESS: SUNSPBCGS module, problem 4, passed all tests\n\n");
+    printf("SUCCESS: SUNLinSol_SPBCGS module, problem 4, passed all tests\n\n");
   }
 
   
@@ -328,7 +328,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNSPBCGSSetPrecType(LS, PREC_NONE);
+  fails += SUNLinSol_SPBCGSSetPrecType(LS, PREC_NONE);
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
@@ -338,10 +338,10 @@ int main(int argc, char *argv[])
 
   /* Print result */
   if (fails) { 
-    printf("FAIL: SUNSPBCGS module, problem 5, failed %i tests\n\n", fails);
+    printf("FAIL: SUNLinSol_SPBCGS module, problem 5, failed %i tests\n\n", fails);
     passfail += 1;
   } else {
-    printf("SUCCESS: SUNSPBCGS module, problem 5, passed all tests\n\n");
+    printf("SUCCESS: SUNLinSol_SPBCGS module, problem 5, passed all tests\n\n");
   }
 
 
@@ -361,7 +361,7 @@ int main(int argc, char *argv[])
   if (check_flag(&fails, "ATimes", 1)) return 1;
 
   /* Run tests with this setup */
-  fails += SUNSPBCGSSetPrecType(LS, pretype);  
+  fails += SUNLinSol_SPBCGSSetPrecType(LS, pretype);  
   fails += Test_SUNLinSolSetup(LS, NULL, 0);
   fails += Test_SUNLinSolSolve(LS, NULL, x, b, tol, 0);
   fails += Test_SUNLinSolLastFlag(LS, 0);
@@ -371,10 +371,10 @@ int main(int argc, char *argv[])
 
   /* Print result */
   if (fails) {
-    printf("FAIL: SUNSPBCGS module, problem 6, failed %i tests\n\n", fails);
+    printf("FAIL: SUNLinSol_SPBCGS module, problem 6, failed %i tests\n\n", fails);
     passfail += 1;
   } else {
-    printf("SUCCESS: SUNSPBCGS module, problem 6, passed all tests\n\n");
+    printf("SUCCESS: SUNLinSol_SPBCGS module, problem 6, passed all tests\n\n");
   }
 
 

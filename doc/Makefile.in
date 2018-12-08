@@ -3,8 +3,8 @@
 # -----------------------------------------------------------------
 # LLNS Copyright Start
 # Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Lawrence Livermore National Laboratory in part under
 # Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
 # Produced at the Lawrence Livermore National Laboratory.
 # All rights reserved.
@@ -24,6 +24,7 @@ TEX_COMPILER = pdflatex
 
 UG_SHARED_FILES = \
 fortran.tex \
+fortran2003.tex \
 install.tex \
 license_info.tex \
 linear-vector-table.tex \
@@ -32,11 +33,13 @@ nvec_generic.tex \
 nvec_serial.tex \
 nvec_parallel.tex \
 nvec_openmp.tex \
+nvec_openmpdev.tex \
 nvec_pthreads.tex \
 nvec_parhyp.tex \
 nvec_petsc.tex \
 nvec_cuda.tex \
 nvec_raja.tex \
+nvec_examples.tex \
 spils_constants.tex \
 sun_org.tex \
 sundials_version.tex \
@@ -44,6 +47,7 @@ sunmatrix_generic.tex \
 sunmatrix_band.tex \
 sunmatrix_dense.tex \
 sunmatrix_sparse.tex \
+sunmatrix_examples.tex \
 sunlinsol_generic.tex \
 sunlinsol_band.tex \
 sunlinsol_dense.tex \
@@ -56,10 +60,14 @@ sunlinsol_spfgmr.tex \
 sunlinsol_spgmr.tex \
 sunlinsol_sptfqmr.tex \
 sunlinsol_superlumt.tex \
+sunlinsol_examples.tex \
+sunnonlinsol_generic.tex \
+sunnonlinsol_newton.tex \
+sunnonlinsol_fixedpoint.tex \
 types.tex \
 ug.tex \
 biblio.bib
-#texi2dvi 
+#texi2dvi
 #ug_html.tex \
 #processHTML
 
@@ -196,4 +204,3 @@ clean:
 purge:  clean
 	rm -f ${USER_GUIDE}.pdf
 	rm -f ${EXAMPLES}.pdf
-

@@ -15,7 +15,7 @@
  */
 
 
-/**
+/*
  * Vector class
  *
  * Manages vector data layout for RAJA implementation of N_Vector.
@@ -47,6 +47,7 @@ public:
   Vector(I N)
   : size_(N),
     mem_size_(N*sizeof(T)),
+    global_size_(N),
     comm_(0)
   {
     allocate();
@@ -61,7 +62,7 @@ public:
     allocate();
   }
 
-  /// Copy constructor does not copy values
+  // Copy constructor does not copy values
   explicit Vector(const Vector& v)
   : size_(v.size()),
     mem_size_(size_*sizeof(T)),
@@ -73,7 +74,11 @@ public:
 
   ~Vector()
   {
-    clear();
+    cudaError_t err;
+    free(h_vec_);
+    err = cudaFree(d_vec_);
+    if(err != cudaSuccess)
+      std::cout << "Failed to free device vector (error code " << err << ")!\n";
   }
 
 
@@ -86,15 +91,6 @@ public:
     err = cudaMalloc((void**) &d_vec_, mem_size_);
     if(err != cudaSuccess)
       std::cout << "Failed to allocate device vector (error code " << err << ")!\n";
-  }
-
-  void clear()
-  {
-    cudaError_t err;
-    free(h_vec_);
-    err = cudaFree(d_vec_);
-    if(err != cudaSuccess)
-      std::cout << "Failed to free device vector (error code " << err << ")!\n";
   }
 
   int size() const
@@ -154,49 +150,6 @@ private:
   T* d_vec_;
   SUNMPI_Comm comm_;
 };
-
-
-
-
-
-// Extract Vector from N_Vector
-template <typename T, typename I>
-inline Vector<T, I>* extract(N_Vector v)
-{
-  return static_cast<Vector<T, I>*>(v->content);
-}
-
-// Get Vector device data
-template <typename T, typename I>
-inline T* getDevData(N_Vector v)
-{
-  Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
-  return vp->device();
-}
-
-// Get Vector length
-template <typename T, typename I>
-inline I getSize(N_Vector v)
-{
-  Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
-  return vp->size();
-}
-
-// Get Vector length
-template <typename T, typename I>
-inline I getGlobalSize(N_Vector v)
-{
-  Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
-  return vp->sizeGlobal();
-}
-
-// Get MPI communicator
-template <typename T, typename I>
-inline SUNMPI_Comm getMPIComm(N_Vector v)
-{
-  Vector<T,I>* vp = static_cast<Vector<T, I>*>(v->content);
-  return vp->comm();
-}
 
 
 } // namespace sunrajavec

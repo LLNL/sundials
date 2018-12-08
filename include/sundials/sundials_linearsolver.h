@@ -26,8 +26,10 @@
  *     acting on/by such solvers
  *
  * We consider both direct linear solvers and iterative linear solvers
- * as available implementations of this package; as a result some of 
- * the routines are applicable only to one type of linear solver (as 
+ * as available implementations of this package.  Furthermore, iterative 
+ * linear solvers can either use a matrix or be matrix-free.  As a 
+ * result of these different solver characteristics, some of the 
+ * routines are applicable only to some types of linear solver (as 
  * noted in the comments below).
  *
  * For most of the iterative linear solvers, instead of solving the 
@@ -109,17 +111,38 @@ extern "C" {
  * -----------------------------------------------------------------
  * I. Implemented SUNLinearSolver types: 
  *
- * These type names may be modified, but a at a minimum a client 
+ * These type names may be modified, but at a minimum a client
  * nonlinear solver and/or time integrator will want to know whether 
- * matrix/factorization information can be reused (hence the DIRECT 
- * and ITERATIVE types).
+ * matrix/factorization information can be reused, and whether to 
+ * set tolerances and test for convergence failures from the solver 
+ * object.  The following types correspond to their intended use 
+ * cases:
+ *
+ * DIRECT -- the solver requires a matrix, and computes an 
+ *           'exact' solution to the linear system defined 
+ *           by that matrix.
+ *
+ * ITERATIVE -- the solver performs an iterative algorithm in 
+ *           'matrix-free' mode, in that it solves the linear system
+ *           defined by the package-supplied "ATimes" routine, even
+ *           if that linear system differs from that encoded in a 
+ *           corresponding matrix object.  The solver computes the 
+ *           solution only inexactly (or may diverge), so a user 
+ *           should check for solution convergence/accuracy as 
+ *           appropriate.
+ *
+ * MATRIX_ITERATIVE -- the solver performs an iterative algorithm 
+ *           for the linear system defined by the existing matrix 
+ *           object.  The solver computes the solution only 
+ *           inexactly (or may diverge), so a user should check 
+ *           for solution convergence/accuracy as appropriate.
  * -----------------------------------------------------------------
  */
  
 typedef enum {
   SUNLINEARSOLVER_DIRECT,
   SUNLINEARSOLVER_ITERATIVE,
-  SUNLINEARSOLVER_CUSTOM
+  SUNLINEARSOLVER_MATRIX_ITERATIVE
 } SUNLinearSolver_Type;
 
   
@@ -337,26 +360,27 @@ SUNDIALS_EXPORT int SUNLinSolFree(SUNLinearSolver S);
  * ---------------------------------------------------------------
  */
 
-#define SUNLS_SUCCESS             0  /* successful/converged          */
+#define SUNLS_SUCCESS             0   /* successful/converged          */
+                                      
+#define SUNLS_MEM_NULL           -1   /* mem argument is NULL          */
+#define SUNLS_ILL_INPUT          -2   /* illegal function input        */
+#define SUNLS_MEM_FAIL           -3   /* failed memory access          */
+#define SUNLS_ATIMES_FAIL_UNREC  -4   /* atimes unrecoverable failure  */
+#define SUNLS_PSET_FAIL_UNREC    -5   /* pset unrecoverable failure    */
+#define SUNLS_PSOLVE_FAIL_UNREC  -6   /* psolve unrecoverable failure  */
+#define SUNLS_PACKAGE_FAIL_UNREC -7   /* external package unrec. fail  */
+#define SUNLS_GS_FAIL            -8   /* Gram-Schmidt failure          */        
+#define SUNLS_QRSOL_FAIL         -9   /* QRsol found singular R        */
+#define SUNLS_VECTOROP_ERR       -10  /* vector operation error        */
 
-#define SUNLS_MEM_NULL           -1  /* mem argument is NULL          */
-#define SUNLS_ILL_INPUT          -2  /* illegal function input        */
-#define SUNLS_MEM_FAIL           -3  /* failed memory access          */
-#define SUNLS_ATIMES_FAIL_UNREC  -4  /* atimes unrecoverable failure  */
-#define SUNLS_PSET_FAIL_UNREC    -5  /* pset unrecoverable failure    */
-#define SUNLS_PSOLVE_FAIL_UNREC  -6  /* psolve unrecoverable failure  */
-#define SUNLS_PACKAGE_FAIL_UNREC -7  /* external package unrec. fail  */
-#define SUNLS_GS_FAIL            -8  /* Gram-Schmidt failure          */        
-#define SUNLS_QRSOL_FAIL         -9  /* QRsol found singular R        */
-
-#define SUNLS_RES_REDUCED         1  /* nonconv. solve, resid reduced */
-#define SUNLS_CONV_FAIL           2  /* nonconvergent solve           */
-#define SUNLS_ATIMES_FAIL_REC     3  /* atimes failed recoverably     */
-#define SUNLS_PSET_FAIL_REC       4  /* pset failed recoverably       */
-#define SUNLS_PSOLVE_FAIL_REC     5  /* psolve failed recoverably     */
-#define SUNLS_PACKAGE_FAIL_REC    6  /* external package recov. fail  */
-#define SUNLS_QRFACT_FAIL         7  /* QRfact found singular matrix  */
-#define SUNLS_LUFACT_FAIL         8  /* LUfact found singular matrix  */
+#define SUNLS_RES_REDUCED         1   /* nonconv. solve, resid reduced */
+#define SUNLS_CONV_FAIL           2   /* nonconvergent solve           */
+#define SUNLS_ATIMES_FAIL_REC     3   /* atimes failed recoverably     */
+#define SUNLS_PSET_FAIL_REC       4   /* pset failed recoverably       */
+#define SUNLS_PSOLVE_FAIL_REC     5   /* psolve failed recoverably     */
+#define SUNLS_PACKAGE_FAIL_REC    6   /* external package recov. fail  */
+#define SUNLS_QRFACT_FAIL         7   /* QRfact found singular matrix  */
+#define SUNLS_LUFACT_FAIL         8   /* LUfact found singular matrix  */
 
 #ifdef __cplusplus
 }

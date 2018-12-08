@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include "fida.h"
 #include "ida_impl.h"
-#include <ida/ida_direct.h>
+#include <ida/ida_ls.h>
 #include <sunmatrix/sunmatrix_sparse.h>
 
 /*=============================================================*/
@@ -56,7 +56,7 @@ void FIDA_SPARSESETJAC(int *ier)
                   "Sparse Fortran users must configure SUNDIALS with 64-bit integers.");
   *ier = 1;
 #else  
-  *ier = IDADlsSetJacFn(IDA_idamem, FIDASparseJac);
+  *ier = IDASetJacFn(IDA_idamem, FIDASparseJac);
 #endif
 }
 

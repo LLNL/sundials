@@ -15,7 +15,7 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *---------------------------------------------------------------
- * Fortran/C interface routines for ARKODE/ARKDLS, for the case
+ * Fortran/C interface routines for ARKODE/ARKLS, for the case
  * of a user-supplied Jacobian approximation routine.
  *--------------------------------------------------------------*/
 
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include "farkode.h"
 #include "arkode_impl.h"
-#include <arkode/arkode_direct.h>
+#include <arkode/arkode_arkstep.h>
 #include <sunmatrix/sunmatrix_dense.h>
 
 /*=============================================================*/
@@ -35,10 +35,10 @@ extern "C" {
 #endif
 
   extern void FARK_DJAC(long int *N, realtype *T, realtype *Y, 
-			realtype *FY, realtype *DJAC,
-			realtype *H, long int *IPAR,
-			realtype *RPAR, realtype *V1,
-			realtype *V2, realtype *V3, int *ier);
+                        realtype *FY, realtype *DJAC,
+                        realtype *H, long int *IPAR,
+                        realtype *RPAR, realtype *V1,
+                        realtype *V2, realtype *V3, int *ier);
 
 #ifdef __cplusplus
 }
@@ -46,14 +46,14 @@ extern "C" {
 
 /*=============================================================*/
 
-/* Fortran interface to C routine ARKDlsSetJacFn; see
+/* Fortran interface to C routine ARKStepSetJacFn; see
    farkode.h for additional information */
 void FARK_DENSESETJAC(int *flag, int *ier)
 {
   if (*flag == 0) {
-    *ier = ARKDlsSetJacFn(ARK_arkodemem, NULL);
+    *ier = ARKStepSetJacFn(ARK_arkodemem, NULL);
   } else {
-    *ier = ARKDlsSetJacFn(ARK_arkodemem, FARKDenseJac);
+    *ier = ARKStepSetJacFn(ARK_arkodemem, FARKDenseJac);
   }
   return;
 }
@@ -75,7 +75,7 @@ int FARKDenseJac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   /* Initialize all pointers to NULL */
   ydata = fydata = jacdata = v1data = v2data = v3data = NULL;
 
-  ARKodeGetLastStep(ARK_arkodemem, &h);
+  ARKStepGetLastStep(ARK_arkodemem, &h);
   ydata   = N_VGetArrayPointer(y);
   fydata  = N_VGetArrayPointer(fy);
   v1data  = N_VGetArrayPointer(vtemp1);

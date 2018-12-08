@@ -71,7 +71,6 @@
 #include <math.h>
 
 #include "kinsol_impl.h"
-#include "kinsol_spils_impl.h"
 #include <sundials/sundials_math.h>
 
 /* 
@@ -240,6 +239,8 @@ void *KINCreate(void)
   kin_mem->kin_q_aa             = NULL;
   kin_mem->kin_gamma_aa         = NULL;
   kin_mem->kin_R_aa             = NULL;
+  kin_mem->kin_cv               = NULL;
+  kin_mem->kin_Xv               = NULL;
   kin_mem->kin_m_aa             = ZERO;
   kin_mem->kin_aamem_aa         = 0;
   kin_mem->kin_setstop_aa       = 0;
@@ -784,7 +785,34 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
       free(kin_mem->kin_gamma_aa);
       return(KIN_MEM_FAIL);
     }
-  } 
+    kin_mem->kin_cv = (realtype *)malloc((kin_mem->kin_m_aa+1) * sizeof(realtype));
+    if (kin_mem->kin_cv == NULL) {
+      KINProcessError(kin_mem, 0, "KINSOL", "KINAllocVectors", MSG_MEM_FAIL);
+      N_VDestroy(kin_mem->kin_unew);
+      N_VDestroy(kin_mem->kin_fval);
+      N_VDestroy(kin_mem->kin_pp);
+      N_VDestroy(kin_mem->kin_vtemp1);
+      N_VDestroy(kin_mem->kin_vtemp2);
+      free(kin_mem->kin_R_aa);
+      free(kin_mem->kin_gamma_aa);
+      free(kin_mem->kin_ipt_map);
+      return(KIN_MEM_FAIL);
+    }
+    kin_mem->kin_Xv = (N_Vector *)malloc((kin_mem->kin_m_aa+1) * sizeof(N_Vector));
+    if (kin_mem->kin_Xv == NULL) {
+      KINProcessError(kin_mem, 0, "KINSOL", "KINAllocVectors", MSG_MEM_FAIL);
+      N_VDestroy(kin_mem->kin_unew);
+      N_VDestroy(kin_mem->kin_fval);
+      N_VDestroy(kin_mem->kin_pp);
+      N_VDestroy(kin_mem->kin_vtemp1);
+      N_VDestroy(kin_mem->kin_vtemp2);
+      free(kin_mem->kin_R_aa);
+      free(kin_mem->kin_gamma_aa);
+      free(kin_mem->kin_ipt_map);
+      free(kin_mem->kin_cv);
+      return(KIN_MEM_FAIL);
+    }
+  }
 
   if (kin_mem->kin_m_aa) {
     kin_mem->kin_fold_aa = N_VClone(tmpl);
@@ -797,6 +825,8 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
       free(kin_mem->kin_R_aa);
       free(kin_mem->kin_gamma_aa);
       free(kin_mem->kin_ipt_map);
+      free(kin_mem->kin_cv);
+      free(kin_mem->kin_Xv);
       return(SUNFALSE);
     }
     kin_mem->kin_gold_aa = N_VClone(tmpl);
@@ -806,6 +836,11 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
       N_VDestroy(kin_mem->kin_pp);
       N_VDestroy(kin_mem->kin_vtemp1);
       N_VDestroy(kin_mem->kin_vtemp2);
+      free(kin_mem->kin_R_aa);
+      free(kin_mem->kin_gamma_aa);
+      free(kin_mem->kin_ipt_map);
+      free(kin_mem->kin_cv);
+      free(kin_mem->kin_Xv);
       N_VDestroy(kin_mem->kin_fold_aa);
       return(SUNFALSE);
     }
@@ -819,6 +854,8 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
       free(kin_mem->kin_R_aa);
       free(kin_mem->kin_gamma_aa);
       free(kin_mem->kin_ipt_map);
+      free(kin_mem->kin_cv);
+      free(kin_mem->kin_Xv);
       N_VDestroy(kin_mem->kin_fold_aa);
       N_VDestroy(kin_mem->kin_gold_aa);
       return(SUNFALSE);
@@ -833,6 +870,8 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
       free(kin_mem->kin_R_aa);
       free(kin_mem->kin_gamma_aa);
       free(kin_mem->kin_ipt_map);
+      free(kin_mem->kin_cv);
+      free(kin_mem->kin_Xv);
       N_VDestroy(kin_mem->kin_fold_aa);
       N_VDestroy(kin_mem->kin_gold_aa);
       N_VDestroyVectorArray(kin_mem->kin_df_aa, kin_mem->kin_m_aa);
@@ -855,6 +894,8 @@ static booleantype KINAllocVectors(KINMem kin_mem, N_Vector tmpl)
 	free(kin_mem->kin_R_aa);
 	free(kin_mem->kin_gamma_aa);
 	free(kin_mem->kin_ipt_map);
+        free(kin_mem->kin_cv);
+        free(kin_mem->kin_Xv);
 	N_VDestroy(kin_mem->kin_fold_aa);
 	N_VDestroy(kin_mem->kin_gold_aa);
 	N_VDestroyVectorArray(kin_mem->kin_df_aa, kin_mem->kin_m_aa);
@@ -898,6 +939,8 @@ static void KINFreeVectors(KINMem kin_mem)
      if (kin_mem->kin_gold_aa != NULL) N_VDestroy(kin_mem->kin_gold_aa);
      N_VDestroyVectorArray(kin_mem->kin_df_aa,kin_mem->kin_m_aa);
      N_VDestroyVectorArray(kin_mem->kin_dg_aa,kin_mem->kin_m_aa);
+     free(kin_mem->kin_cv);
+     free(kin_mem->kin_Xv);
      kin_mem->kin_lrw -= (2*kin_mem->kin_m_aa*kin_mem->kin_lrw1+2);
      kin_mem->kin_liw -= (2*kin_mem->kin_m_aa*kin_mem->kin_liw1+2);
      if (kin_mem->kin_aamem_aa)
@@ -2338,10 +2381,15 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
 		       N_Vector x, N_Vector xold, 
 		       int iter, realtype *R, realtype *gamma)
 {
-  int i_pt, i, j, lAA;
+  int i_pt, i, j, lAA, retval;
   int *ipt_map;
   realtype alfa;
   realtype a, b, temp, c, s;
+
+  /* local shortcuts for fused vector operation */
+  int       nvec=0;
+  realtype* cv=kin_mem->kin_cv;
+  N_Vector* Xv=kin_mem->kin_Xv;
 
   ipt_map = kin_mem->kin_ipt_map;
   i_pt = iter-1 - ((iter-1)/kin_mem->kin_m_aa)*kin_mem->kin_m_aa;
@@ -2429,16 +2477,30 @@ static int AndersonAcc(KINMem kin_mem, N_Vector gval, N_Vector fv,
     /* Solve least squares problem and update solution */
     lAA = iter;
     if (kin_mem->kin_m_aa < iter) lAA = kin_mem->kin_m_aa;
-    N_VScale(ONE, gval, x);
-    for (i=0; i < lAA; i++)
-      gamma[i] = N_VDotProd(fv, kin_mem->kin_q_aa[i]);
+
+    retval = N_VDotProdMulti(lAA, fv, kin_mem->kin_q_aa, gamma);
+    if (retval != KIN_SUCCESS) return(KIN_VECTOROP_ERR);
+
+    /* set arrays for fused vector operation */
+    cv[0] = ONE;
+    Xv[0] = gval;
+    nvec = 1;
+
     for (i=lAA-1; i > -1; i--) {
       for (j=i+1; j < lAA; j++) {
         gamma[i] = gamma[i]-R[j*kin_mem->kin_m_aa+i]*gamma[j]; 
       }
       gamma[i] = gamma[i]/R[i*kin_mem->kin_m_aa+i];
-      N_VLinearSum(ONE, x, -gamma[i], kin_mem->kin_dg_aa[ipt_map[i]], x);
+
+      cv[nvec] = -gamma[i];
+      Xv[nvec] = kin_mem->kin_dg_aa[ipt_map[i]];
+      nvec += 1;
     }
+
+    /* update solution */
+    retval = N_VLinearCombination(nvec, cv, Xv, x);
+    if (retval != KIN_SUCCESS) return(KIN_VECTOROP_ERR);
+
   }
 
   return 0;

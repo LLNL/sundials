@@ -90,13 +90,18 @@ typedef struct _SUNLinearSolverContent_LapackDense *SUNLinearSolverContent_Lapac
  * PART II: functions exported by sunlinsol_lapackdense
  * 
  * CONSTRUCTOR:
- *    SUNLapackDense creates and allocates memory for a LAPACK dense
- *      matrix solver
+ *    SUNLinSol_LapackDense creates and allocates memory for a 
+ *      LAPACK densematrix solver
  *
- * OTHER:
+ *    SUNLapackDense (deprecated) wrapper for SUNLinSol_LapackDense
+ *
  * -----------------------------------------------------------------
  */
 
+SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_LapackDense(N_Vector y,
+                                                      SUNMatrix A);
+  
+/* deprecated */
 SUNDIALS_EXPORT SUNLinearSolver SUNLapackDense(N_Vector y, SUNMatrix A);
 
 /*

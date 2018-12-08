@@ -1,12 +1,14 @@
 % This is a shared SUNDIALS TEX file with description of
 % the MPI parallel ParHyp hypre nvector implementation
 %
+\section{The NVECTOR\_PARHYP implementation}\label{ss:nvec_parhyp}
+
 The {\nvecph} implementation of the {\nvector} module provided with
 {\sundials} is a wrapper around {\hypre}'s ParVector class. 
 Most of the vector kernels simply call {\hypre} vector operations. 
 The implementation defines the {\em content} field of \id{N\_Vector} to 
 be a structure containing the global and local lengths of the vector, a 
-pointer to an object of type \id{hypre\_ParVector}, an {\mpi} communicator, 
+pointer to an object of type \id{HYPRE\_ParVector}, an {\mpi} communicator, 
 and a boolean flag {\em own\_parvector} indicating ownership of the
 {\hypre} parallel vector object {\em x}.
 %%
@@ -17,7 +19,7 @@ struct _N_VectorContent_ParHyp {
   sunindextype global_length;
   booleantype own_parvector;
   MPI_Comm comm;
-  hypre_ParVector *x;
+  HYPRE_ParVector x;
 };
 \end{verbatim}
 %%
@@ -32,115 +34,229 @@ Unlike native {\sundials} vector types, {\nvecph} does not provide macros
 to access its member variables.
 Note that {\nvecph} requires {\sundials} to be built with {\mpi} support.
 
-%%
-%%--------------------------------------------
-%%
+
+% ====================================================================
+\subsection{NVECTOR\_PARHYP functions}
+\label{ss:nvec_parhyp_functions}
+% ====================================================================
+
 The {\nvecph} module defines implementations of all vector operations 
-listed in Table \ref{t:nvecops}, except for \id{N\_VSetArrayPointer} and 
-\id{N\_VGetArrayPointer}, because accessing raw vector data is handled by 
-low-level {\hypre} functions. 
+listed in Tables \ref{t:nvecops}, \ref{t:nvecfusedops}, and \ref{t:nvecarrayops}, except
+for \id{N\_VSetArrayPointer} and \id{N\_VGetArrayPointer}, because accessing raw vector
+data is handled by low-level {\hypre} functions.
 As such, this vector is not available for use with {\sundials} Fortran interfaces.
-When access to raw vector data is needed, one 
-should extract the {\hypre} vector first, and then use {\hypre} 
-methods to access the data. Usage examples of {\nvecph} are provided in 
-the \id{cvAdvDiff\_non\_ph.c} example program for {\cvode} \cite{cvode_ex} 
+When access to raw vector data is needed, one
+should extract the {\hypre} vector first, and then use {\hypre}
+methods to access the data. Usage examples of {\nvecph} are provided in
+the \id{cvAdvDiff\_non\_ph.c} example program for {\cvode} \cite{cvode_ex}
 and the \id{ark\_diurnal\_kry\_ph.c} example program for {\arkode} \cite{arkode_ex}.
 
-The names of parhyp methods are obtained from those in Table \ref{t:nvecops}
+The names of parhyp methods are obtained from those in Tables \ref{t:nvecops},
+\ref{t:nvecfusedops}, and \ref{t:nvecarrayops}
 by appending the suffix \id{\_ParHyp} (e.g. \id{N\_VDestroy\_ParHyp}).
 The module {\nvecph} provides the following additional user-callable routines:
-%%
-%%
-\begin{itemize}
-
 %%--------------------------------------
-
-\item \ID{N\_VNewEmpty\_ParHyp}
- 
+\sunmodfun{N\_VNewEmpty\_ParHyp}
+{
   This function creates a new parhyp \id{N\_Vector} with the pointer to the {\hypre} 
   vector set to \id{NULL}.
-
-
-\begin{verbatim}
-N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm, 
-                            sunindextype local_length, 
-                            sunindextype global_length);
-\end{verbatim}
-
-  
+}
+{
+  N\_Vector N\_VNewEmpty\_ParHyp(MPI\_Comm comm, sunindextype local\_length,
+  \newlinefill{N\_Vector N\_VNewEmpty\_ParHyp}
+  sunindextype global\_length)
+}
 %%--------------------------------------
-
-\item \ID{N\_VMake\_ParHyp}
-  
-  This function creates an \verb|N_Vector| wrapper around an existing
+\sunmodfun{N\_VMake\_ParHyp}
+{  
+  This function creates an \id{N\_Vector} wrapper around an existing
   {\hypre} parallel vector. It does {\em not} allocate memory for \id{x} 
   itself.  
-
-\begin{verbatim}
-N_Vector N_VMake_ParHyp(hypre_ParVector *x);
-\end{verbatim}
-
+}
+{
+  N\_Vector N\_VMake\_ParHyp(HYPRE\_ParVector x)
+}
 %%--------------------------------------
-
-\item \ID{N\_VGetVector\_ParHyp}
-  
-  This function returns a pointer to the underlying {\hypre} vector.
- 
-    
-  \verb|hypre_ParVector *N_VGetVector_ParHyp(N_Vector v);|
-
-
+\sunmodfun{N\_VGetVector\_ParHyp}
+{  
+  This function returns the underlying {\hypre} vector.
+}
+{
+  HYPRE\_ParVector N\_VGetVector\_ParHyp(N\_Vector v)
+}
 %%--------------------------------------
-
-\item \ID{N\_VCloneVectorArray\_ParHyp}
- 
+\sunmodfun{N\_VCloneVectorArray\_ParHyp}
+{ 
   This function creates (by cloning) an array of \id{count} parallel vectors.
- 
-\begin{verbatim}
-N_Vector *N_VCloneVectorArray_ParHyp(int count, N_Vector w);
-\end{verbatim}
-
+}
+{
+  N\_Vector *N\_VCloneVectorArray\_ParHyp(int count, N\_Vector w)
+}
 %%--------------------------------------
-
-\item \ID{N\_VCloneVectorArrayEmpty\_ParHyp}
- 
+\sunmodfun{N\_VCloneVectorArrayEmpty\_ParHyp}
+{
   This function creates (by cloning) an array of \id{count} parallel vectors,
   each with an empty (\id{NULL}) data array.
- 
-\begin{verbatim}
-N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count, N_Vector w);
-\end{verbatim}
-
+}
+{
+  N\_Vector *N\_VCloneVectorArrayEmpty\_ParHyp(int count, N\_Vector w)
+}
 %%--------------------------------------
-
-\item \ID{N\_VDestroyVectorArray\_ParHyp}
- 
- This function frees memory allocated for the array of \id{count}  variables of
- type \id{N\_Vector} created with \id{N\_VCloneVectorArray\_ParHyp} or with
- \id{N\_VCloneVectorArrayEmpty\_ParHyp}.
- 
-
- \verb|void N_VDestroyVectorArray_ParHyp(N_Vector *vs, int count);|
-
-
+\sunmodfun{N\_VDestroyVectorArray\_ParHyp}
+{ 
+  This function frees memory allocated for the array of \id{count}  variables of
+  type \id{N\_Vector} created with \id{N\_VCloneVectorArray\_ParHyp} or with
+  \id{N\_VCloneVectorArrayEmpty\_ParHyp}.
+}
+{
+  void N\_VDestroyVectorArray\_ParHyp(N\_Vector *vs, int count)
+}
 %%--------------------------------------
-
-\item \ID{N\_VPrint\_ParHyp}
-  
+\sunmodfun{N\_VPrint\_ParHyp}
+{  
   This function prints the local content of a parhyp vector to \id{stdout}.
-    
-  \verb|void N_VPrint_ParHyp(N_Vector v);|
-
+}
+{   
+  void N\_VPrint\_ParHyp(N\_Vector v)
+}
 %%--------------------------------------
-
-\item \ID{N\_VPrintFile\_ParHyp}
-  
+\sunmodfun{N\_VPrintFile\_ParHyp}
+{  
   This function prints the local content of a parhyp vector to \id{outfile}.
-    
-  \verb|void N_VPrintFile_ParHyp(N_Vector v, FILE *outfile);|
+}
+{   
+  void N\_VPrintFile\_ParHyp(N\_Vector v, FILE *outfile)
+}
 
-\end{itemize}
-
+By default all fused and vector array operations are disabled in the {\nvecph}
+module. The following additional user-callable routines are provided to
+enable or disable fused and vector array operations for a specific vector. To
+ensure consistency across vectors it is recommended to first create a vector
+with \id{N\_VMake\_ParHyp}, enable/disable the desired operations for that vector
+with the functions below, and create any additional vectors from that vector
+using \id{N\_VClone}. This guarantees the new vectors will have the same
+operations enabled/disabled as cloned vectors inherit the same enable/disable
+options as the vector they are cloned from while vectors created with
+\id{N\_VMake\_ParHyp} will have the default settings for the {\nvecph} module.
+%%--------------------------------------
+\sunmodfun{N\_VEnableFusedOps\_ParHyp}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) all fused and
+  vector array operations in the parhyp vector. The return value is \id{0} for
+  success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableFusedOps\_ParHyp(N\_Vector v, booleantype tf)
+}
+%%--------------------------------------
+\sunmodfun{N\_VEnableLinearCombination\_ParHyp}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear
+  combination fused operation in the parhyp vector. The return value is \id{0} for
+  success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableLinearCombination\_ParHyp(N\_Vector v, booleantype tf)
+}
+%%--------------------------------------
+\sunmodfun{N\_VEnableScaleAddMulti\_ParHyp}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale and
+  add a vector to multiple vectors fused operation in the parhyp vector. The
+  return value is \id{0} for success and \id{-1} if the input vector or its
+  \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableScaleAddMulti\_ParHyp(N\_Vector v, booleantype tf)
+}
+%%--------------------------------------
+\sunmodfun{N\_VEnableDotProdMulti\_ParHyp}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the multiple
+  dot products fused operation in the parhyp vector. The return value is \id{0}
+  for success and \id{-1} if the input vector or its \id{ops} structure are
+  \id{NULL}.
+}
+{
+  int N\_VEnableDotProdMulti\_ParHyp(N\_Vector v, booleantype tf)
+}
+%%--------------------------------------
+\sunmodfun{N\_VEnableLinearSumVectorArray\_ParHyp}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear sum
+  operation for vector arrays in the parhyp vector. The return value is \id{0} for
+  success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableLinearSumVectorArray\_ParHyp(N\_Vector v, booleantype tf)
+}
+%%--------------------------------------
+\sunmodfun{N\_VEnableScaleVectorArray\_ParHyp}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale
+  operation for vector arrays in the parhyp vector. The return value is \id{0} for
+  success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableScaleVectorArray\_ParHyp(N\_Vector v, booleantype tf)
+}
+%%--------------------------------------
+\sunmodfun{N\_VEnableConstVectorArray\_ParHyp}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the const
+  operation for vector arrays in the parhyp vector. The return value is \id{0} for
+  success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableConstVectorArray\_ParHyp(N\_Vector v, booleantype tf)
+}
+%%--------------------------------------
+\sunmodfun{N\_VEnableWrmsNormVectorArray\_ParHyp}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the WRMS norm
+  operation for vector arrays in the parhyp vector. The return value is \id{0} for
+  success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableWrmsNormVectorArray\_ParHyp(N\_Vector v, booleantype tf)
+}
+%%--------------------------------------
+\sunmodfun{N\_VEnableWrmsNormMaskVectorArray\_ParHyp}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the masked WRMS
+  norm operation for vector arrays in the parhyp vector. The return value is
+  \id{0} for success and \id{-1} if the input vector or its \id{ops} structure are
+  \id{NULL}.
+}
+{
+  int N\_VEnableWrmsNormMaskVectorArray\_ParHyp(N\_Vector v, booleantype tf)
+}
+%%--------------------------------------
+\sunmodfun{N\_VEnableScaleAddMultiVectorArray\_ParHyp}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the scale and
+  add a vector array to multiple vector arrays operation in the parhyp vector. The
+  return value is \id{0} for success and \id{-1} if the input vector or its
+  \id{ops} structure are \id{NULL}.
+}
+{
+  int N\_VEnableScaleAddMultiVectorArray\_ParHyp(N\_Vector v,
+  \newlinefill{int N\_VEnableScaleAddMultiVectorArray\_ParHyp}
+  booleantype tf)
+}
+%%--------------------------------------
+\sunmodfun{N\_VEnableLinearCombinationVectorArray\_ParHyp}
+{
+  This function enables (\id{SUNTRUE}) or disables (\id{SUNFALSE}) the linear
+  combination operation for vector arrays in the parhyp vector. The return value
+  is \id{0} for success and \id{-1} if the input vector or its \id{ops} structure
+  are \id{NULL}.
+}
+{
+  int N\_VEnableLinearCombinationVectorArray\_ParHyp(N\_Vector v,
+  \newlinefill{int N\_VEnableLinearCombinationVectorArray\_ParHyp}
+  booleantype tf)
+}
 %%
 %%------------------------------------
 %%
@@ -171,19 +287,3 @@ N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count, N_Vector w);
   arguments that were all created with the same internal representations.
 
 \end{itemize}
-
-% For solvers that include a Fortran interface module, the {\nvecph} module
-% also includes a Fortran-callable function
-% \id{FNVINITPH(COMM, code, NLOCAL, NGLOBAL, IER)},
-% to initialize this {\nvecph} module.  Here \id{COMM} is the MPI communicator,
-% \id{code} is an input solver id (1 for {\cvode}, 2 for {\ida}, 3 for {\kinsol},
-% 4 for {\arkode}); \id{NLOCAL} and \id{NGLOBAL} are the local and global
-% vector sizes, respectively (declared so as to match C type \id{long int});
-% and IER is an error return flag equal 0 for success and -1 for failure.
-% 
-% {\warn}Note: If the header file \id{sundials\_config.h} defines
-% \id{SUNDIALS\_MPI\_COMM\_F2C} to be $1$ (meaning the {\mpi}
-% implementation used to build {\sundials} includes the
-% \id{MPI\_Comm\_f2c} function), then \id{COMM} can be any valid
-% {\mpi} communicator. Otherwise, \id{MPI\_COMM\_WORLD} will be used, so
-% just pass an integer value as a placeholder.
