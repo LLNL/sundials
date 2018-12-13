@@ -30,7 +30,7 @@ umask 002
 # library types, real types, and index sizes to test
 # NOTE: may need to create answer files for different realtypes
 libtype=( "static" "shared" )
-realtype=( "double" )
+realtype=( "single" "double" "extended" )
 indexsize=( "32" "64" )
 
 # ------------------------------------------------------------------------------
@@ -246,7 +246,14 @@ for tarball in *.tar.gz; do
                 # is useful for finding undefined references when building shared
                 # libraries
                 # -------------------------------------------------------------------
-         
+
+                # only run development tests with double precision
+                if [ "$rt" != "double" ]; then
+                    DEVTESTS=OFF
+                else
+                    DEVTESTS=ON
+                fi
+
                 echo "START CMAKE"
                 cmake \
                     -D CMAKE_INSTALL_PREFIX="../install_${rt}_${it}_${lt}" \
@@ -313,7 +320,7 @@ for tarball in *.tar.gz; do
                     -D SUPERLUMT_LIBRARY_DIR="${SLUMTDIR}/lib" \
                     -D SUPERLUMT_THREAD_TYPE=Pthread \
                     \
-                    -D SUNDIALS_DEVTESTS=ON \
+                    -D SUNDIALS_DEVTESTS="${DEVTESTS}" \
                     ../. 2>&1 | tee configure.log
 
                 # check cmake return code

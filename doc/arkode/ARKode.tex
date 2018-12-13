@@ -300,6 +300,11 @@ preconditioner routines.
 \section{Changes from previous versions}
 \label{Introduction:changes-from-previous-versions}
 
+\subsection{Changes in v3.0.1}
+\label{Introduction:changes-in-v3-0-1}
+A bug in ARKode where single precision builds would fail to compile has been fixed.
+
+
 \subsection{Changes in v3.0.0}
 \label{Introduction:changes-in-v3-0-0}
 The ARKode library has been entirely rewritten to support a modular
@@ -3771,7 +3776,7 @@ solution component.
 \index{ARKStepWFtolerances (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepWFtolerances}\pysiglinewithargsret{int \bfcode{ARKStepWFtolerances}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{ARKEwtFn}}}\emph{ efun}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepWFtolerances}\pysiglinewithargsret{int \bfcode{ARKStepWFtolerances}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{ARKEwtFn}}}\emph{ efun}}{}
 This function specifies a user-supplied function \emph{efun} to compute
 the error weight vector \code{ewt}.
 \begin{description}
@@ -3780,7 +3785,7 @@ the error weight vector \code{ewt}.
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {} 
-\emph{efun} -- the name of the function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}})
+\emph{efun} -- the name of the function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}})
 that implements the error weight vector computation.
 
 \end{itemize}
@@ -5822,7 +5827,7 @@ none
 \index{ARKStepSetAdaptivityFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetAdaptivityFn}\pysiglinewithargsret{int \bfcode{ARKStepSetAdaptivityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{ARKAdaptFn}}}\emph{ hfun}, void*\emph{ h\_data}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetAdaptivityFn}\pysiglinewithargsret{int \bfcode{ARKStepSetAdaptivityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{ARKAdaptFn}}}\emph{ hfun}, void*\emph{ h\_data}}{}
 Sets a user-supplied time-step adaptivity function.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -6233,7 +6238,7 @@ before the \emph{etamxf} parameter from
 \index{ARKStepSetStabilityFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetStabilityFn}\pysiglinewithargsret{int \bfcode{ARKStepSetStabilityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{ARKExpStabFn}}}\emph{ EStab}, void*\emph{ estab\_data}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetStabilityFn}\pysiglinewithargsret{int \bfcode{ARKStepSetStabilityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{ARKExpStabFn}}}\emph{ EStab}, void*\emph{ estab\_data}}{}
 Sets the problem-dependent function to estimate a stable
 time step size for the explicit portion of the ODE system.
 \begin{description}
@@ -10169,7 +10174,7 @@ pointer to memory encounters an error, it sets \emph{error\_code} to
 \subsection{Error weight function}
 \label{ARKStep_c_interface/User_supplied:arkstep-cinterface-errorweight}\label{ARKStep_c_interface/User_supplied:error-weight-function}
 As an alternative to providing the relative and absolute tolerances,
-the user may provide a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn}}}} to compute a
+the user may provide a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn}}}} to compute a
 vector \emph{ewt} containing the weights in the WRMS norm
 \(\|v\|_{WRMS} = \left(\frac{1}{n} \sum_{i=1}^n \left(ewt_i\; v_i\right)^2
 \right)^{1/2}\).  These weights will be used in place of those defined
@@ -10261,7 +10266,7 @@ is not satisfied.
 \label{ARKStep_c_interface/User_supplied:arkstep-cinterface-adaptivityfn}\label{ARKStep_c_interface/User_supplied:time-step-adaptivity-function}
 As an alternative to using one of the built-in time step adaptivity
 methods for controlling solution error, the user may provide a
-function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn}}}} to compute a target step size
+function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn}}}} to compute a target step size
 \(h\) for the next integration step.  These steps should be chosen
 as the maximum value such that the error estimates remain below 1.
 \index{ARKAdaptFn (C type)}
@@ -10328,7 +10333,7 @@ for the explicit portion of the ImEx system, \(f_E(t,y)\).  While
 the accuracy-based time step adaptivity algorithms may be sufficient
 for retaining a stable solution to the ODE system, these may be
 inefficient if \(f_E(t,y)\) contains moderately stiff terms.  In
-this scenario, a user may provide a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn}}}}
+this scenario, a user may provide a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn}}}}
 to provide this stability information to ARKStep.  This function
 must set the scalar step size satisfying the stability restriction for
 the upcoming time step.  This value will subsequently be bounded by
@@ -12520,21 +12525,21 @@ FARKODE ``activation'' routine
 \hline
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKEWT]{\emph{\code{FARKEWT()}}}}
  & 
-{\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}}
+{\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}}
  & 
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKEWTSET]{\emph{\code{FARKEWTSET()}}}}
 \\
 \hline
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKADAPT]{\emph{\code{FARKADAPT()}}}}
  & 
-{\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn()}}}}
+{\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn()}}}}
  & 
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKADAPTSET]{\emph{\code{FARKADAPTSET()}}}}
 \\
 \hline
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKEXPSTAB]{\emph{\code{FARKEXPSTAB()}}}}
  & 
-{\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn()}}}}
+{\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn()}}}}
  & 
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKEXPSTABSET]{\emph{\code{FARKEXPSTABSET()}}}}
 \\
@@ -13430,7 +13435,7 @@ ARKStep for handling adaptive error control and explicit stability.
 The former of these is designed for advanced users who wish to
 investigate custom step adaptivity approaches as opposed to using any
 of those built-in to ARKStep.  In ARKStep's C/C++ interface, this would be
-provided by a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn()}}}}; in the Fortran
+provided by a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn()}}}}; in the Fortran
 interface this is provided through the user-supplied function:
 \index{FARKADAPT() (fortran subroutine)|textbf}
 
@@ -13523,7 +13528,7 @@ Similarly, if either an explicit or mixed implicit-explicit
 integration method is to be employed, the user may specify a function
 to provide the maximum explicitly-stable step for their problem.
 Again, in the C/C++ interface this would be a function of type
-{\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn()}}}}, while in ARKStep's Fortran interface this
+{\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn()}}}}, while in ARKStep's Fortran interface this
 must be given through the user-supplied function:
 \index{FARKEXPSTAB() (fortran subroutine)|textbf}
 
@@ -16861,7 +16866,7 @@ solution component.
 \index{ERKStepWFtolerances (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepWFtolerances}\pysiglinewithargsret{int \bfcode{ERKStepWFtolerances}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{ARKEwtFn}}}\emph{ efun}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepWFtolerances}\pysiglinewithargsret{int \bfcode{ERKStepWFtolerances}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{ARKEwtFn}}}\emph{ efun}}{}
 This function specifies a user-supplied function \emph{efun} to compute
 the error weight vector \code{ewt}.
 \begin{description}
@@ -16870,7 +16875,7 @@ the error weight vector \code{ewt}.
 \emph{arkode\_mem} -- pointer to the ERKStep memory block.
 
 \item {} 
-\emph{efun} -- the name of the function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}})
+\emph{efun} -- the name of the function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}})
 that implements the error weight vector computation.
 
 \end{itemize}
@@ -18139,7 +18144,7 @@ none
 \index{ERKStepSetAdaptivityFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetAdaptivityFn}\pysiglinewithargsret{int \bfcode{ERKStepSetAdaptivityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{ARKAdaptFn}}}\emph{ hfun}, void*\emph{ h\_data}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetAdaptivityFn}\pysiglinewithargsret{int \bfcode{ERKStepSetAdaptivityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{ARKAdaptFn}}}\emph{ hfun}, void*\emph{ h\_data}}{}
 Sets a user-supplied time-step adaptivity function.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -18515,7 +18520,7 @@ before the \emph{etamxf} parameter from
 \index{ERKStepSetStabilityFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetStabilityFn}\pysiglinewithargsret{int \bfcode{ERKStepSetStabilityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{ARKExpStabFn}}}\emph{ EStab}, void*\emph{ estab\_data}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetStabilityFn}\pysiglinewithargsret{int \bfcode{ERKStepSetStabilityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{ARKExpStabFn}}}\emph{ EStab}, void*\emph{ estab\_data}}{}
 Sets the problem-dependent function to estimate a stable
 time step size for the explicit portion of the ODE system.
 \begin{description}
@@ -20063,7 +20068,7 @@ pointer to memory encounters an error, it sets \emph{error\_code} to
 \subsection{Error weight function}
 \label{ERKStep_c_interface/User_supplied:erkstep-cinterface-errorweight}\label{ERKStep_c_interface/User_supplied:error-weight-function}
 As an alternative to providing the relative and absolute tolerances,
-the user may provide a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn}}}} to compute a
+the user may provide a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn}}}} to compute a
 vector \emph{ewt} containing the weights in the WRMS norm
 \(\|v\|_{WRMS} = \left(\frac{1}{n} \sum_{i=1}^n \left(ewt_i\; v_i\right)^2
 \right)^{1/2}\).  These weights will be used in place of those defined
@@ -20109,7 +20114,7 @@ is not satisfied.
 \label{ERKStep_c_interface/User_supplied:time-step-adaptivity-function}\label{ERKStep_c_interface/User_supplied:erkstep-cinterface-adaptivityfn}
 As an alternative to using one of the built-in time step adaptivity
 methods for controlling solution error, the user may provide a
-function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn}}}} to compute a target step size
+function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn}}}} to compute a target step size
 \(h\) for the next integration step.  These steps should be chosen
 as the maximum value such that the error estimates remain below 1.
 \index{ARKAdaptFn (C type)}
@@ -20176,7 +20181,7 @@ for the explicit Runge Kutta method on this problem.  While the
 accuracy-based time step adaptivity algorithms may be sufficient
 for retaining a stable solution to the ODE system, these may be
 inefficient if \(f(t,y)\) contains moderately stiff terms.  In
-this scenario, a user may provide a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn}}}}
+this scenario, a user may provide a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn}}}}
 to provide this stability information to ERKStep.  This function
 must set the scalar step size satisfying the stability restriction for
 the upcoming time step.  This value will subsequently be bounded by

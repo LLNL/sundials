@@ -18,7 +18,7 @@
 
 # check number of inputs
 if [ "$#" -lt 2 ]; then
-    echo "ERROR: Illegal number of parameters, real and index size required"
+    echo "ERROR: Illegal number of parameters, real type and index size required"
     exit 1
 fi
 realtype=$1     # required, precision for realtypes
@@ -143,6 +143,13 @@ else
     xsdk_realtype=$realtype
 fi
 
+# only run development tests with double precision
+if [ "$realtype" != "double" ]; then
+    DEVTESTS=OFF
+else
+    DEVTESTS=ON
+fi
+
 echo "START CMAKE"
 cmake \
     -D CMAKE_INSTALL_PREFIX="../install_xSDK_${realtype}_${indexsize}" \
@@ -206,7 +213,7 @@ cmake \
     -D TPL_SUPERLUMT_LIBRARIES="${SUPERLUMTDIR}/lib/libsuperlu_mt_PTHREAD.a" \
     -D TPL_SUPERLUMT_THREAD_TYPE=Pthread \
     \
-    -D SUNDIALS_DEVTESTS=ON \
+    -D SUNDIALS_DEVTESTS="${DEVTESTS}" \
     ../../. 2>&1 | tee configure.log
 
 # check cmake return code

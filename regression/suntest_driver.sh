@@ -31,9 +31,8 @@ fi
 nfail=0
 
 # real type and index size to test
-# NOTE: may need to create answer files for different realtypes
-# NOTE: master branch will ignore indexsize
-realtype=('double')
+# NOTE: need to create new answer files for different realtypes
+realtype=('single' 'double' 'extended')
 indexsize=('32' '64')
 
 # remove old test directories and logs

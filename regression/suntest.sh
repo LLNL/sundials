@@ -17,7 +17,7 @@
 
 # check number of inputs
 if [ "$#" -lt 2 ]; then
-    echo "ERROR: Illegal number of parameters, real and index size required"
+    echo "ERROR: Illegal number of parameters, real type and index size required"
     exit 1
 fi
 realtype=$1     # required, precision for realtypes
@@ -135,6 +135,13 @@ fi
 # is useful for finding undefined references when building shared libraries
 # ------------------------------------------------------------------------------
 
+# only run development tests with double precision
+if [ "$realtype" != "double" ]; then
+    DEVTESTS=OFF
+else
+    DEVTESTS=ON
+fi
+
 echo "START CMAKE"
 cmake \
     -D CMAKE_INSTALL_PREFIX="../install_${realtype}_${indexsize}" \
@@ -199,7 +206,7 @@ cmake \
     -D SUPERLUMT_LIBRARY_DIR="${SUPERLUMTDIR}/lib" \
     -D SUPERLUMT_THREAD_TYPE=Pthread \
     \
-    -D SUNDIALS_DEVTESTS=ON \
+    -D SUNDIALS_DEVTESTS="${DEVTESTS}" \
     ../../. 2>&1 | tee configure.log
 
 # check cmake return code

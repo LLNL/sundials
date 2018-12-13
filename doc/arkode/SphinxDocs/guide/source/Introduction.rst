@@ -101,6 +101,11 @@ preconditioner routines.
 Changes from previous versions
 --------------------------------
 
+Changes in v3.0.1
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A bug in ARKode where single precision builds would fail to compile has been fixed.
+
 
 Changes in v3.0.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
