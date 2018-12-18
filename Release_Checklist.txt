@@ -4,23 +4,11 @@ This is a list of tasks that need to be done before a SUNDIALS release.
 The order is bottom-up-- starting with solver source files, and ending with
 web pages.
 
-0. Create release branch from trunk in the Subversion repository
+0. Create release branch from trunk in the Git repository
 
-1. Bug fixes - C solvers
+1. Update the "Changes in ..." sections in all user guides.
 
-2. Bug fixes - Matlab (This is no longer maintained as of 2016)
-
-3. Bug fixes - installation
-
-4. Documentation fixes
-
-5. Bug fixes - examples
-
-6. Misc. source file fixes
-
-7. Update the "Changes in ..." sections in all user guides.
-
-8. Update README file in src/<solver>, with version
+2. Update README file in src/<solver>, with version
    number and release dates at the top and bottom
    of the file.
     src/arkode/README
@@ -30,10 +18,10 @@ web pages.
     src/idas/README
     src/kinsol/README
 
-9. Update version numbers of third party libraries in Install Guide
+3. Update version numbers of third party libraries in Install Guide
    in doc directory.
 
-10. Update version numbers in source code, documentation, and tarscripts.
+4. Update version numbers in source code, documentation, and tarscripts.
     doc/arkode/ARKode_example.tex
     doc/arkode/ARKode.tex
     doc/arkode/SphinxDocs/examples/source/conf.py
@@ -46,13 +34,13 @@ web pages.
     README.md
     README_DEV
 
-11. Create the tarballs
+5. Create the tarballs
    Create the new distribution tarballs using the "tarscript" shell script
    under scripts/.  This also compiles the documents (user guides and example
    docs) and creates all tarballs in their final form, appropriate for
    uploading to the website.
 
-12. Update Internal Drupal Web pages for SUNDIALS:
+6. Update Internal Drupal Web pages for SUNDIALS:
      https://computation-external.llnl.gov/user
 
   a) Modify content (save edits on each page as you go)
@@ -87,10 +75,10 @@ web pages.
       required review then Save.  This must be done for each page and is the
       final action before pages are uploaded for external release.
 
-13. After final push, ensure web content and behavior is as expected:
+7. After final push, ensure web content and behavior is as expected:
        + Main Page: http://computation.llnl.gov/projects/sundials
 
-14. Tag the release in the release branch in the Subversion repository
+8. Tag the release in the release branch in the Subversion repository
 
 
 

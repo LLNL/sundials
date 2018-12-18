@@ -56,6 +56,10 @@ ENDIF()
 IF(EXAMPLES_ENABLE_F90 AND F90_FOUND)
   ADD_SUBDIRECTORY(F90_serial)
   IF(MPI_Fortran_FOUND)
-    ADD_SUBDIRECTORY(F90_parallel)
+    # currently the only F90_parallel example
+    # does not support anything but double precision
+    IF(SUNDIALS_PRECISION MATCHES "double")
+      ADD_SUBDIRECTORY(F90_parallel)
+    ENDIF()
   ENDIF()
 ENDIF()

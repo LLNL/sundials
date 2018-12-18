@@ -45,14 +45,14 @@ PROJECT(sundials C)
 # Set some variables with info on the SUNDIALS project
 SET(PACKAGE_BUGREPORT "woodward6@llnl.gov")
 SET(PACKAGE_NAME "SUNDIALS")
-SET(PACKAGE_STRING "SUNDIALS 4.0.0")
+SET(PACKAGE_STRING "SUNDIALS 4.0.1")
 SET(PACKAGE_TARNAME "sundials")
 
 # set SUNDIALS version numbers
 # (use "" for the version label if none is needed)
 SET(PACKAGE_VERSION_MAJOR "4")
 SET(PACKAGE_VERSION_MINOR "0")
-SET(PACKAGE_VERSION_PATCH "0")
+SET(PACKAGE_VERSION_PATCH "1")
 SET(PACKAGE_VERSION_LABEL "")
 
 IF(PACKAGE_VERSION_LABEL)
@@ -515,8 +515,7 @@ ELSE()
   HIDE_VARIABLE(EXAMPLES_ENABLE_F77)
 ENDIF()
 
-# F90 examples (on by default) are an option only if ARKode or CVODE is
-# built and a Fortran interface is enabled.
+# F90 examples (on by default) are an option only if a Fortran interface is enabled.
 SET(DOCSTR "Build SUNDIALS F90 examples")
 IF(F77_INTERFACE_ENABLE OR F2003_INTERFACE_ENABLE)
   SHOW_VARIABLE(EXAMPLES_ENABLE_F90 BOOL "${DOCSTR}" ON)
