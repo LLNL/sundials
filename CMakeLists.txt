@@ -515,8 +515,7 @@ ELSE()
   HIDE_VARIABLE(EXAMPLES_ENABLE_F77)
 ENDIF()
 
-# F90 examples (on by default) are an option only if ARKode or CVODE is
-# built and a Fortran interface is enabled.
+# F90 examples (on by default) are an option only if a Fortran interface is enabled.
 SET(DOCSTR "Build SUNDIALS F90 examples")
 IF(F77_INTERFACE_ENABLE OR F2003_INTERFACE_ENABLE)
   SHOW_VARIABLE(EXAMPLES_ENABLE_F90 BOOL "${DOCSTR}" ON)

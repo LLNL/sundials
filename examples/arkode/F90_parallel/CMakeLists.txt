@@ -25,14 +25,16 @@
 # type is develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-SET(FARKODE_examples
-  "fark_heat2D\;1\;2\;develop"
-  )
-
-# Auxiliary files to install
-SET(FARKODE_extras
-  plot_heat2D.py
-  )
+IF(SUNDIALS_PRECISION MATCHES "double")
+  # The fark_heat2D only supports double precision
+  SET(FARKODE_examples
+    "fark_heat2D\;1\;2\;develop"
+    )
+  # Auxiliary files to install
+  SET(FARKODE_extras
+    plot_heat2D.py
+    )
+ENDIF()
 
 IF(MPI_Fortran_COMPILER)
   # use MPI wrapper as the compiler
