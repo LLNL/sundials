@@ -76,7 +76,7 @@ int Test_SUNMatClone(SUNMatrix A, int myid)
 {
   int       failure;
   double    start_time, stop_time;
-  realtype  tol=1e-15;
+  realtype  tol=10*UNIT_ROUNDOFF;
   SUNMatrix B;
 
   /* clone vector */
@@ -132,7 +132,7 @@ int Test_SUNMatZero(SUNMatrix A, int myid)
 {
   int       failure;
   double    start_time, stop_time;
-  realtype  tol=1e-15;
+  realtype  tol=10*UNIT_ROUNDOFF;
   SUNMatrix B;
 
   /* protect A */
@@ -177,7 +177,7 @@ int Test_SUNMatCopy(SUNMatrix A, int myid)
   int       failure;
   double    start_time, stop_time;
   SUNMatrix B;
-  realtype  tol=1e-15;
+  realtype  tol=10*UNIT_ROUNDOFF;
 
   B = SUNMatClone(A);
 
@@ -224,7 +224,7 @@ int Test_SUNMatScaleAdd(SUNMatrix A, SUNMatrix I, int myid)
   int       failure;
   double    start_time, stop_time;
   SUNMatrix B, C, D;
-  realtype  tol=1e-15;
+  realtype  tol=10*UNIT_ROUNDOFF;
 
   /*
    * Case 1: same sparsity/bandwith pattern
@@ -352,7 +352,7 @@ int Test_SUNMatScaleAddI(SUNMatrix A, SUNMatrix I, int myid)
   int       failure;
   double    start_time, stop_time;
   SUNMatrix B;
-  realtype  tol=1e-15;
+  realtype  tol=10*UNIT_ROUNDOFF;
 
   /* protect A */
   B = SUNMatClone(A);
@@ -406,7 +406,7 @@ int Test_SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y, int myid)
   double   start_time, stop_time;
   SUNMatrix B;
   N_Vector  z, w;
-  realtype  tol=1e-14;
+  realtype  tol=100*UNIT_ROUNDOFF;
 
   /* harder tests for square matrices */
   if (is_square(A)) {

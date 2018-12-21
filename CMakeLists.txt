@@ -45,14 +45,14 @@ PROJECT(sundials C)
 # Set some variables with info on the SUNDIALS project
 SET(PACKAGE_BUGREPORT "woodward6@llnl.gov")
 SET(PACKAGE_NAME "SUNDIALS")
-SET(PACKAGE_STRING "SUNDIALS 4.0.0")
+SET(PACKAGE_STRING "SUNDIALS 4.0.1")
 SET(PACKAGE_TARNAME "sundials")
 
 # set SUNDIALS version numbers
 # (use "" for the version label if none is needed)
 SET(PACKAGE_VERSION_MAJOR "4")
 SET(PACKAGE_VERSION_MINOR "0")
-SET(PACKAGE_VERSION_PATCH "0")
+SET(PACKAGE_VERSION_PATCH "1")
 SET(PACKAGE_VERSION_LABEL "")
 
 IF(PACKAGE_VERSION_LABEL)
@@ -500,7 +500,7 @@ SET(DOCSTR "Build SUNDIALS Fortran examples")
 IF(F77_INTERFACE_ENABLE)
   SHOW_VARIABLE(EXAMPLES_ENABLE_F77 BOOL "${DOCSTR}" ON)
   # Fortran 77 examples do not support single or extended precision
-  IF(SUNDIALS_PRECISION MATCHES "EXTENDED" OR SUNDIALS_PRECISION MATCHES "SINGLE")
+  IF(EXAMPLES_ENABLE_F77 AND (SUNDIALS_PRECISION MATCHES "EXTENDED" OR SUNDIALS_PRECISION MATCHES "SINGLE"))
     PRINT_WARNING("F77 examples are not compatible with ${SUNDIALS_PRECISION} precision"
                   "EXAMPLES_ENABLE_F77")
     FORCE_VARIABLE(EXAMPLES_ENABLE_F77 BOOL "${DOCSTR}" OFF)
@@ -508,18 +508,23 @@ IF(F77_INTERFACE_ENABLE)
 ELSE()
   # set back to OFF (in case was ON)
   IF(EXAMPLES_ENABLE_F77)
-    PRINT_WARNING("EXAMPLES_ENABLE_F77 is ON but FCMIX is OFF"
+    PRINT_WARNING("EXAMPLES_ENABLE_F77 is ON but F77_INTERFACE_ENABLE is OFF"
                   "Disabling EXAMPLES_ENABLE_F77")
     FORCE_VARIABLE(EXAMPLES_ENABLE_F77 BOOL "${DOCSTR}" OFF)
   ENDIF()
   HIDE_VARIABLE(EXAMPLES_ENABLE_F77)
 ENDIF()
 
-# F90 examples (on by default) are an option only if ARKode or CVODE is
-# built and a Fortran interface is enabled.
-SET(DOCSTR "Build F90 examples")
+# F90 examples (on by default) are an option only if a Fortran interface is enabled.
+SET(DOCSTR "Build SUNDIALS F90 examples")
 IF(F77_INTERFACE_ENABLE OR F2003_INTERFACE_ENABLE)
   SHOW_VARIABLE(EXAMPLES_ENABLE_F90 BOOL "${DOCSTR}" ON)
+  # Fortran 90 examples do not support extended precision
+  IF(EXAMPLES_ENABLE_F90 AND (SUNDIALS_PRECISION MATCHES "EXTENDED"))
+    PRINT_WARNING("F90 examples are not compatible with ${SUNDIALS_PRECISION} precision"
+                  "Disabling EXAMPLES_ENABLE_F90")
+    FORCE_VARIABLE(EXAMPLES_ENABLE_F90 BOOL "${DOCSTR}" OFF)
+  ENDIF()
 ELSE()
   # set back to OFF (in case was ON)
   IF(EXAMPLES_ENABLE_F90)

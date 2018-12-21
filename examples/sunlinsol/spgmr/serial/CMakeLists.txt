@@ -18,15 +18,24 @@
 # CMakeLists.txt file for sunlinsol SPGMR examples
 # ---------------------------------------------------------------
 
+# Set tolerance for linear solver test based on Sundials precision
+if(SUNDIALS_PRECISION MATCHES "SINGLE")
+  set(TOL "1e-5")
+elseif(SUNDIALS_PRECISION MATCHES "DOUBLE")
+  set(TOL "1e-13")
+else()
+  set(TOL "1e-16")
+endif()
+
 # Example lists are tuples "name\;args\;type" where the type is
 # 'develop' for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS SPGMR linear solver
 SET(sunlinsol_spgmr_examples
-  "test_sunlinsol_spgmr_serial\;100 1 1 100 1e-13 0\;"
-  "test_sunlinsol_spgmr_serial\;100 2 1 100 1e-13 0\;"
-  "test_sunlinsol_spgmr_serial\;100 1 2 100 1e-13 0\;"
-  "test_sunlinsol_spgmr_serial\;100 2 2 100 1e-13 0\;"
+  "test_sunlinsol_spgmr_serial\;100 1 1 100 ${TOL} 0\;"
+  "test_sunlinsol_spgmr_serial\;100 2 1 100 ${TOL} 0\;"
+  "test_sunlinsol_spgmr_serial\;100 1 2 100 ${TOL} 0\;"
+  "test_sunlinsol_spgmr_serial\;100 2 2 100 ${TOL} 0\;"
   )
 
 # Dependencies for nvector examples

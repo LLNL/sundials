@@ -52,43 +52,45 @@ endif()
 # -----------------------------------------------------------------------------
 # Check if ISO_C_BINDING is supported
 # -----------------------------------------------------------------------------
-message(STATUS "Checking whether ${CMAKE_Fortran_COMPILER} supports ISO_C_BINDING")
+if(F2003_INTERFACE_ENABLE)
+  message(STATUS "Checking whether ${CMAKE_Fortran_COMPILER} supports ISO_C_BINDING")
 
-set(F2003Test_DIR ${PROJECT_BINARY_DIR}/F2003Test_DIR)
-file(MAKE_DIRECTORY ${F2003Test_DIR})
+  set(F2003Test_DIR ${PROJECT_BINARY_DIR}/F2003Test_DIR)
+  file(MAKE_DIRECTORY ${F2003Test_DIR})
 
-# Create a CMakeLists.txt file
-file(WRITE ${F2003Test_DIR}/CMakeLists.txt
-  "CMAKE_MINIMUM_REQUIRED(VERSION 3.1.3)\n"
-  "PROJECT(ftest Fortran)\n"
-  "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
-  "SET(CMAKE_BUILD_TYPE \"${CMAKE_BUILD_TYPE}\")\n"
-  "SET(CMAKE_Fortran_FLAGS \"${CMAKE_Fortran_FLAGS}\")\n"
-  "SET(CMAKE_Fortran_FLAGS_RELEASE \"${CMAKE_Fortran_FLAGS_RELEASE}\")\n"
-  "SET(CMAKE_Fortran_FLAGS_DEBUG \"${CMAKE_Fortran_FLAGS_DEBUG}\")\n"
-  "SET(CMAKE_Fortran_FLAGS_RELWITHDEBUGINFO \"${CMAKE_Fortran_FLAGS_RELWITHDEBUGINFO}\")\n"
-  "SET(CMAKE_Fortran_FLAGS_MINSIZE \"${CMAKE_Fortran_FLAGS_MINSIZE}\")\n"
-  "ADD_EXECUTABLE(ftest ftest.f90)\n")
+  # Create a CMakeLists.txt file
+  file(WRITE ${F2003Test_DIR}/CMakeLists.txt
+    "CMAKE_MINIMUM_REQUIRED(VERSION 3.1.3)\n"
+    "PROJECT(ftest Fortran)\n"
+    "SET(CMAKE_VERBOSE_MAKEFILE ON)\n"
+    "SET(CMAKE_BUILD_TYPE \"${CMAKE_BUILD_TYPE}\")\n"
+    "SET(CMAKE_Fortran_FLAGS \"${CMAKE_Fortran_FLAGS}\")\n"
+    "SET(CMAKE_Fortran_FLAGS_RELEASE \"${CMAKE_Fortran_FLAGS_RELEASE}\")\n"
+    "SET(CMAKE_Fortran_FLAGS_DEBUG \"${CMAKE_Fortran_FLAGS_DEBUG}\")\n"
+    "SET(CMAKE_Fortran_FLAGS_RELWITHDEBUGINFO \"${CMAKE_Fortran_FLAGS_RELWITHDEBUGINFO}\")\n"
+    "SET(CMAKE_Fortran_FLAGS_MINSIZE \"${CMAKE_Fortran_FLAGS_MINSIZE}\")\n"
+    "ADD_EXECUTABLE(ftest ftest.f90)\n")
 
-# Create a Fortran source file which tries to use iso_c_binding
-file(WRITE ${F2003Test_DIR}/ftest.f90
-  "program main\n"
-  "use, intrinsic :: iso_c_binding\n"
-  "end program main\n")
+  # Create a Fortran source file which tries to use iso_c_binding
+  file(WRITE ${F2003Test_DIR}/ftest.f90
+    "program main\n"
+    "use, intrinsic :: iso_c_binding\n"
+    "end program main\n")
 
-# Attempt compile the executable
-try_compile(FTEST_OK ${F2003Test_DIR} ${F2003Test_DIR}
-  ftest OUTPUT_VARIABLE MY_OUTPUT)
+  # Attempt compile the executable
+  try_compile(FTEST_OK ${F2003Test_DIR} ${F2003Test_DIR}
+    ftest OUTPUT_VARIABLE MY_OUTPUT)
 
-# To ensure we do not use stuff from the previous attempts, 
-# we must remove the CMakeFiles directory.
-file(REMOVE_RECURSE ${F2003Test_DIR}/CMakeFiles)
+  # To ensure we do not use stuff from the previous attempts, 
+  # we must remove the CMakeFiles directory.
+  file(REMOVE_RECURSE ${F2003Test_DIR}/CMakeFiles)
 
-if(FTEST_OK)
-  message(STATUS "Checking whether ${CMAKE_Fortran_COMPILER} supports ISO_C_BINDING -- yes")
-  set(Fortran_COMPILER_SUPPORTS_ISOCBINDING TRUE)
-else()
-  set(Fortran_COMPILER_SUPPORTS_ISOCBINDING FALSE)
+  if(FTEST_OK)
+    message(STATUS "Checking whether ${CMAKE_Fortran_COMPILER} supports ISO_C_BINDING -- yes")
+    set(Fortran_COMPILER_SUPPORTS_ISOCBINDING TRUE)
+  else()
+    set(Fortran_COMPILER_SUPPORTS_ISOCBINDING FALSE)
+  endif()
 endif()
 
 # -----------------------------------------------------------------------------
