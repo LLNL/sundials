@@ -51,78 +51,54 @@ typedef CVLsJacTimesVecFnBS CVSpilsJacTimesVecFnBS;
   cvodes_ls.h)
   =================================================================*/
 
-int CVSpilsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS)
-{ return(CVodeSetLinearSolver(cvode_mem, LS, NULL)); }
-
-int CVSpilsSetEpsLin(void *cvode_mem, realtype eplifac)
-{ return(CVodeSetEpsLin(cvode_mem, eplifac)); }
-
+int CVSpilsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS);
+int CVSpilsSetEpsLin(void *cvode_mem, realtype eplifac);
 int CVSpilsSetPreconditioner(void *cvode_mem, CVSpilsPrecSetupFn pset, 
-                             CVSpilsPrecSolveFn psolve)
-{ return(CVodeSetPreconditioner(cvode_mem, pset, psolve)); }
-
+                             CVSpilsPrecSolveFn psolve);
 int CVSpilsSetJacTimes(void *cvode_mem, CVSpilsJacTimesSetupFn jtsetup,
-                       CVSpilsJacTimesVecFn jtimes)
-{ return(CVodeSetJacTimes(cvode_mem, jtsetup, jtimes)); }
-
+                       CVSpilsJacTimesVecFn jtimes);
 int CVSpilsGetWorkSpace(void *cvode_mem, long int *lenrwLS,
-                        long int *leniwLS)
-{ return(CVodeGetLinWorkSpace(cvode_mem, lenrwLS, leniwLS)); }
-  
-int CVSpilsGetNumPrecEvals(void *cvode_mem, long int *npevals)
-{ return(CVodeGetNumPrecEvals(cvode_mem, npevals)); }
-  
-int CVSpilsGetNumPrecSolves(void *cvode_mem, long int *npsolves)
-{ return(CVodeGetNumPrecSolves(cvode_mem, npsolves)); }
-  
-int CVSpilsGetNumLinIters(void *cvode_mem, long int *nliters)
-{ return(CVodeGetNumLinIters(cvode_mem, nliters)); }
-  
-int CVSpilsGetNumConvFails(void *cvode_mem, long int *nlcfails)
-{ return(CVodeGetNumLinConvFails(cvode_mem, nlcfails)); }
-  
-int CVSpilsGetNumJTSetupEvals(void *cvode_mem, long int *njtsetups)
-{ return(CVodeGetNumJTSetupEvals(cvode_mem, njtsetups)); }
-  
-int CVSpilsGetNumJtimesEvals(void *cvode_mem, long int *njvevals)
-{ return(CVodeGetNumJtimesEvals(cvode_mem, njvevals)); }
-  
-int CVSpilsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS)
-{ return(CVodeGetNumLinRhsEvals(cvode_mem, nfevalsLS)); }
-  
-int CVSpilsGetLastFlag(void *cvode_mem, long int *flag)
-{ return(CVodeGetLastLinFlag(cvode_mem, flag)); }
-  
-char *CVSpilsGetReturnFlagName(long int flag)
-{ return(CVodeGetLinReturnFlagName(flag)); }
-  
+                        long int *leniwLS);
+ 
+int CVSpilsGetNumPrecEvals(void *cvode_mem, long int *npevals);
+ 
+int CVSpilsGetNumPrecSolves(void *cvode_mem, long int *npsolves);
+ 
+int CVSpilsGetNumLinIters(void *cvode_mem, long int *nliters);
+ 
+int CVSpilsGetNumConvFails(void *cvode_mem, long int *nlcfails);
+ 
+int CVSpilsGetNumJTSetupEvals(void *cvode_mem, long int *njtsetups);
+ 
+int CVSpilsGetNumJtimesEvals(void *cvode_mem, long int *njvevals);
+ 
+int CVSpilsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS);
+ 
+int CVSpilsGetLastFlag(void *cvode_mem, long int *flag);
+ 
+char *CVSpilsGetReturnFlagName(long int flag);
+ 
 int CVSpilsSetLinearSolverB(void *cvode_mem, int which,
-                            SUNLinearSolver LS)
-{ return(CVodeSetLinearSolverB(cvode_mem, which, LS, NULL)); }
-  
-int CVSpilsSetEpsLinB(void *cvode_mem, int which, realtype eplifacB)
-{ return(CVodeSetEpsLinB(cvode_mem, which, eplifacB)); }
-  
+                            SUNLinearSolver LS);
+ 
+int CVSpilsSetEpsLinB(void *cvode_mem, int which, realtype eplifacB);
+ 
 int CVSpilsSetPreconditionerB(void *cvode_mem, int which, 
                               CVSpilsPrecSetupFnB psetB,
-                              CVSpilsPrecSolveFnB psolveB)
-{ return(CVodeSetPreconditionerB(cvode_mem, which, psetB, psolveB)); }
-  
+                              CVSpilsPrecSolveFnB psolveB);
+ 
 int CVSpilsSetPreconditionerBS(void *cvode_mem, int which, 
                                CVSpilsPrecSetupFnBS psetBS,
-                               CVSpilsPrecSolveFnBS psolveBS)
-{ return(CVodeSetPreconditionerBS(cvode_mem, which, psetBS, psolveBS)); }
-  
+                               CVSpilsPrecSolveFnBS psolveBS);
+ 
 int CVSpilsSetJacTimesB(void *cvode_mem, int which, 
                         CVSpilsJacTimesSetupFnB jtsetupB,
-                        CVSpilsJacTimesVecFnB jtimesB)
-{ return(CVodeSetJacTimesB(cvode_mem, which, jtsetupB, jtimesB)); }
-  
+                        CVSpilsJacTimesVecFnB jtimesB);
+ 
 int CVSpilsSetJacTimesBS(void *cvode_mem, int which, 
                          CVSpilsJacTimesSetupFnBS jtsetupBS,
-                         CVSpilsJacTimesVecFnBS jtimesBS)
-{ return(CVodeSetJacTimesBS(cvode_mem, which, jtsetupBS, jtimesBS)); }
-  
+                         CVSpilsJacTimesVecFnBS jtimesBS);
+ 
 
 #ifdef __cplusplus
 }

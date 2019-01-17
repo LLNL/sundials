@@ -28,6 +28,7 @@ $tar $tarfile $distrobase/src/ida/CMakeLists.txt
 $tar $tarfile $distrobase/src/ida/ida_bbdpre.c
 $tar $tarfile $distrobase/src/ida/ida_bbdpre_impl.h
 $tar $tarfile $distrobase/src/ida/ida.c
+$tar $tarfile $distrobase/src/ida/ida_direct.c
 $tar $tarfile $distrobase/src/ida/ida_ic.c
 $tar $tarfile $distrobase/src/ida/ida_impl.h
 $tar $tarfile $distrobase/src/ida/ida_io.c
@@ -36,6 +37,7 @@ $tar $tarfile $distrobase/src/ida/ida_io.c
 $tar $tarfile $distrobase/src/ida/ida_ls.c
 $tar $tarfile $distrobase/src/ida/ida_ls_impl.h
 $tar $tarfile $distrobase/src/ida/ida_nls.c
+$tar $tarfile $distrobase/src/ida/ida_spils.c
 
 echo "   --- Add fida module to $tarfile"
 

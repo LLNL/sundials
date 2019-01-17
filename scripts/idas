@@ -29,6 +29,7 @@ $tar $tarfile $distrobase/src/idas/idaa_io.c
 $tar $tarfile $distrobase/src/idas/idas.c
 $tar $tarfile $distrobase/src/idas/idas_bbdpre.c
 $tar $tarfile $distrobase/src/idas/idas_bbdpre_impl.h
+$tar $tarfile $distrobase/src/idas/idas_direct.c
 $tar $tarfile $distrobase/src/idas/idas_ic.c
 $tar $tarfile $distrobase/src/idas/idas_impl.h
 $tar $tarfile $distrobase/src/idas/idas_io.c
@@ -37,6 +38,7 @@ $tar $tarfile $distrobase/src/idas/idas_ls_impl.h
 $tar $tarfile $distrobase/src/idas/idas_nls.c
 $tar $tarfile $distrobase/src/idas/idas_nls_sim.c
 $tar $tarfile $distrobase/src/idas/idas_nls_stg.c
+$tar $tarfile $distrobase/src/idas/idas_spils.c
 
 echo "   --- Add idas examples to $tarfile"
 

@@ -35,6 +35,7 @@ $tar $tarfile $distrobase/src/cvodes/cvodes_bbdpre_impl.h
 $tar $tarfile $distrobase/src/cvodes/cvodes.c
 $tar $tarfile $distrobase/src/cvodes/cvodes_diag.c
 $tar $tarfile $distrobase/src/cvodes/cvodes_diag_impl.h
+$tar $tarfile $distrobase/src/cvodes/cvodes_direct.c
 $tar $tarfile $distrobase/src/cvodes/cvodes_impl.h
 $tar $tarfile $distrobase/src/cvodes/cvodes_io.c
 $tar $tarfile $distrobase/src/cvodes/cvodes_ls.c
@@ -43,6 +44,7 @@ $tar $tarfile $distrobase/src/cvodes/cvodes_nls.c
 $tar $tarfile $distrobase/src/cvodes/cvodes_nls_sim.c
 $tar $tarfile $distrobase/src/cvodes/cvodes_nls_stg.c
 $tar $tarfile $distrobase/src/cvodes/cvodes_nls_stg1.c
+$tar $tarfile $distrobase/src/cvodes/cvodes_spils.c
 
 echo "   --- Add cvodes examples to $tarfile"
 

@@ -16,47 +16,45 @@
  * For details, see the LICENSE file.
  * LLNS/SMU Copyright End
  *-----------------------------------------------------------------
- * Header file for the deprecated direct linear solver interface in 
+ * Implementation file for the deprecated direct linear solver interface in 
  * IDA; these routines now just wrap the updated IDA generic
  * linear solver interface in ida_ls.h.
  *-----------------------------------------------------------------*/
 
-#ifndef _IDADLS_H
-#define _IDADLS_H
-
 #include <ida/ida_ls.h>
+#include <ida/ida_direct.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
 
 /*=================================================================
-  Function Types (typedefs for equivalent types in ida_ls.h)
-  =================================================================*/
-
-typedef IDALsJacFn IDADlsJacFn;
-
-/*=================================================================
   Exported Functions (wrappers for equivalent routines in ida_ls.h)
   =================================================================*/
 
-int IDADlsSetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A);
+int IDADlsSetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
+{ return(IDASetLinearSolver(ida_mem, LS, A)); }
 
-int IDADlsSetJacFn(void *ida_mem, IDADlsJacFn jac);
+int IDADlsSetJacFn(void *ida_mem, IDADlsJacFn jac)
+{ return(IDASetJacFn(ida_mem, jac)); }
 
-int IDADlsGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS);
+int IDADlsGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS)
+{ return(IDAGetLinWorkSpace(ida_mem, lenrwLS, leniwLS)); }
   
-int IDADlsGetNumJacEvals(void *ida_mem, long int *njevals);
+int IDADlsGetNumJacEvals(void *ida_mem, long int *njevals)
+{ return(IDAGetNumJacEvals(ida_mem, njevals)); }
   
-int IDADlsGetNumResEvals(void *ida_mem, long int *nfevalsLS);
+int IDADlsGetNumResEvals(void *ida_mem, long int *nfevalsLS)
+{ return(IDAGetNumLinResEvals(ida_mem, nfevalsLS)); }
   
-int IDADlsGetLastFlag(void *ida_mem, long int *flag);
+int IDADlsGetLastFlag(void *ida_mem, long int *flag)
+{ return(IDAGetLastLinFlag(ida_mem, flag)); }
 
-char *IDADlsGetReturnFlagName(long int flag);
+char *IDADlsGetReturnFlagName(long int flag)
+{ return(IDAGetLinReturnFlagName(flag)); }
 
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif

@@ -3,13 +3,13 @@
 #              Radu Serban @ LLNL
 # ---------------------------------------------------------------
 # LLNS/SMU Copyright Start
-# Copyright (c) 2017, Southern Methodist University and 
+# Copyright (c) 2017, Southern Methodist University and
 # Lawrence Livermore National Security
 #
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Southern Methodist University and Lawrence Livermore 
+# This work was performed under the auspices of the U.S. Department
+# of Energy by Southern Methodist University and Lawrence Livermore
 # National Laboratory under Contract DE-AC52-07NA27344.
-# Produced at Southern Methodist University and the Lawrence 
+# Produced at Southern Methodist University and the Lawrence
 # Livermore National Laboratory.
 #
 # All rights reserved.
@@ -24,6 +24,7 @@ INSTALL(CODE "MESSAGE(\"\nInstall IDAS\n\")")
 SET(idas_SOURCES
   idas.c
   idaa.c
+  idas_direct.c
   idas_io.c
   idas_ic.c
   idaa_io.c
@@ -32,6 +33,7 @@ SET(idas_SOURCES
   idas_nls.c
   idas_nls_sim.c
   idas_nls_stg.c
+  idas_spils.c
   )
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
@@ -93,14 +95,14 @@ ADD_PREFIX(${sundials_SOURCE_DIR}/include/idas/ idas_HEADERS)
 # implementation only header files.
 INCLUDE_DIRECTORIES(.)
 
-# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY 
+# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
 ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 
 # Build the static library
 IF(BUILD_STATIC_LIBS)
 
   # Add the build target for the static IDAS library
-  ADD_LIBRARY(sundials_idas_static STATIC 
+  ADD_LIBRARY(sundials_idas_static STATIC
     ${idas_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES}
     ${sunnonlinsol_SOURCES})
 
@@ -117,7 +119,7 @@ ENDIF(BUILD_STATIC_LIBS)
 IF(BUILD_SHARED_LIBS)
 
   # Add the build target for the IDAS library
-  ADD_LIBRARY(sundials_idas_shared SHARED 
+  ADD_LIBRARY(sundials_idas_shared SHARED
     ${idas_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES}
     ${sunnonlinsol_SOURCES})
 

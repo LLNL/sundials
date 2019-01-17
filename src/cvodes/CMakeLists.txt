@@ -27,13 +27,15 @@ SET(cvodes_SOURCES
   cvodes.c
   cvodes_bandpre.c
   cvodes_bbdpre.c
-  cvodes_io.c
   cvodes_diag.c
+  cvodes_direct.c
+  cvodes_io.c
   cvodes_ls.c
   cvodes_nls.c
   cvodes_nls_sim.c
   cvodes_nls_stg.c
   cvodes_nls_stg1.c
+  cvodes_spils.c
   )
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
