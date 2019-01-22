@@ -64,6 +64,11 @@ SUNDIALS [usage notes](https://computation.llnl.gov/projects/sundials/usage-note
 If you have a question not covered in the FAQ or usage notes, please submit
 your question to the SUNDIALS [mailing list](https://computation.llnl.gov/projects/sundials/mailing-list).
 
+## Contributing ##
+Bug fixes or minor changes are preferred via a pull request to the
+[SUNDIALS GitHub repository](https://github.com/LLNL/sundials). For more
+information on contributing see the [CONTRIBUTING](./CONTRIBUTING.md) file.
+
 ## Release History ##
 Date     | SUNDIALS    | ARKODE      | CVODE       | CVODES      | IDA         | IDAS        | KINSOL
 ---------|-------------|-------------|-------------|-------------|-------------|-------------|-------------
@@ -113,6 +118,8 @@ nonlinear and differential/algebraic equation solvers. ACM Trans. Math. Softw.
 ## License ##
 SUNDIALS is released under the BSD 3-clause license. See the [LICENSE](./LICENSE)
 and [NOTICE](./NOTICE) files for details.
+
+All new contributions must be made under the BSD 3-clause license.
 
 **Please Note** If you are using SUNDIALS with any third party libraries linked
 in (e.g., LAPACK, KLU, SuperLU_MT, PETSc, or *hypre*), be sure to review the
