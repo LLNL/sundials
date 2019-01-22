@@ -21,6 +21,7 @@ $tar $tarfile $distrobase/include/kinsol/kinsol_ls.h
 $tar $tarfile $distrobase/include/kinsol/kinsol_spils.h
 
 $tar $tarfile $distrobase/src/kinsol/LICENSE
+$tar $tarfile $distrobase/src/kinsol/NOTICE
 $tar $tarfile $distrobase/src/kinsol/README
 $tar $tarfile $distrobase/src/kinsol/CMakeLists.txt
 

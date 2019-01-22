@@ -21,6 +21,7 @@ $tar $tarfile $distrobase/include/idas/idas_ls.h
 $tar $tarfile $distrobase/include/idas/idas_spils.h
 
 $tar $tarfile $distrobase/src/idas/LICENSE
+$tar $tarfile $distrobase/src/idas/NOTICE
 $tar $tarfile $distrobase/src/idas/README
 $tar $tarfile $distrobase/src/idas/CMakeLists.txt
 

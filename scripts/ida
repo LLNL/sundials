@@ -22,6 +22,7 @@ $tar $tarfile $distrobase/include/ida/ida_ls.h
 $tar $tarfile $distrobase/include/ida/ida_spils.h
 
 $tar $tarfile $distrobase/src/ida/LICENSE
+$tar $tarfile $distrobase/src/ida/NOTICE
 $tar $tarfile $distrobase/src/ida/README
 $tar $tarfile $distrobase/src/ida/CMakeLists.txt
 

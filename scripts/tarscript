@@ -154,9 +154,9 @@ fi
 # tar command
 #------------
 if [ "$quiet" = "T" ]; then
-    tar="tar -uf"
+    tar="tar -uhf"
 else
-    tar="tar -uvf"
+    tar="tar -uvhf"
 fi
 
 #------------------
@@ -192,6 +192,7 @@ mkdir $tmpdir/examples
 #----------------------------------
 
 cp $sundialsdir/LICENSE $tmpdir/
+cp $sundialsdir/NOTICE $tmpdir/
 cp $sundialsdir/README.md $tmpdir/
 #cp $sundialsdir/INSTALL_NOTES $tmpdir/
 #cp $sundialsdir/config.hin $tmpdir/

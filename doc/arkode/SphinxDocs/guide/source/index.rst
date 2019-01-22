@@ -1,9 +1,15 @@
 ..
    Programmer(s): Daniel R. Reynolds @ SMU
    ----------------------------------------------------------------
-   Copyright (c) 2013, Southern Methodist University.
+   SUNDIALS Copyright Start
+   Copyright (c) 2002-2019, Lawrence Livermore National Security
+   and Southern Methodist University.
    All rights reserved.
-   For details, see the LICENSE file.
+
+   See the top-level LICENSE and NOTICE files for details.
+
+   SPDX-License-Identifier: BSD-3-Clause
+   SUNDIALS Copyright End
    ----------------------------------------------------------------
    ARKode documentation master file, created by
    sphinx-quickstart on Sat Dec 22 20:38:03 2012.

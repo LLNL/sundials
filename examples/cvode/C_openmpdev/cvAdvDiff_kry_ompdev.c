@@ -6,6 +6,16 @@
  *                   example by Scott D. Cohen, Alan C.
  *                   Hindmarsh and Radu Serban @ LLNL
  * -------------------------------------------------------------------
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ * -------------------------------------------------------------------
  * Example problem:
  *
  * The following is a simple example problem with a banded Jacobian,

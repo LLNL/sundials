@@ -23,6 +23,7 @@ $tar $tarfile $distrobase/include/cvodes/cvodes_ls.h
 $tar $tarfile $distrobase/include/cvodes/cvodes_spils.h
 
 $tar $tarfile $distrobase/src/cvodes/LICENSE
+$tar $tarfile $distrobase/src/cvodes/NOTICE
 $tar $tarfile $distrobase/src/cvodes/README
 $tar $tarfile $distrobase/src/cvodes/CMakeLists.txt
 
