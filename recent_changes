@@ -1,5 +1,7 @@
 Changes to SUNDIALS in release 4.0.2
 
+Added information on how to contribute to SUNDIALS and a contributing agreement.
+
 Moved definitions of DLS and SPILS backwards compatibility functions to a source file.
 The symbols are now included in the appropriate package library, e.g. libsundials_cvode.lib.
 

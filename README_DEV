@@ -178,6 +178,7 @@ RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)
 2.2.1     3.2.1               3:0:0           3.0.0
 3.0.0     4.0.0               4:0:0           4.0.0
 3.0.1     4.0.1               4:0:1           4.0.1
+3.0.2     3.0.2               3:0:2           3.0.2
 
 CVODE
 RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)  
@@ -192,6 +193,7 @@ RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)
 3.2.1     3.2.1               3:0:0           3.0.0
 4.0.0     4.0.0               4:0:0           4.0.0
 4.0.1     4.0.1               4:0:1           4.0.1
+4.0.2     4.0.2               4:0:2           4.0.2
 
 CVODES
 RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)  
@@ -206,6 +208,7 @@ RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)
 3.2.1     3.2.1               3:0:0           3.0.0
 4.0.0     4.0.0               4:0:0           4.0.0
 4.0.1     4.0.1               4:0:1           4.0.1
+4.0.2     4.0.2               4:0:2           4.0.2
 
 IDA
 RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)  
@@ -220,6 +223,7 @@ RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)
 3.2.1     3.2.1               3:0:0           3.0.0
 4.0.0     4.0.0               4:0:0           4.0.0
 4.0.1     4.0.1               4:0:1           4.0.1
+4.0.2     4.0.2               4:0:2           4.0.2
 
 IDAS
 RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)  
@@ -232,6 +236,7 @@ RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)
 2.2.1     3.2.1               3:0:0           3.0.0
 3.0.0     4.0.0               4:0:0           4.0.0
 3.0.1     4.0.1               4:0:1           4.0.1
+3.0.2     4.0.2               4:0:2           4.0.2
 
 KINSOL
 RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)  
@@ -246,3 +251,4 @@ RELEASE   SUNDIALS RELEASE    LIBTOOL VER.    LIB FILE (Linux)
 3.2.1     3.2.1               3:0:0           3.0.0
 4.0.0     4.0.0               4:0:0           4.0.0
 4.0.1     4.0.1               4:0:1           4.0.1
+4.0.2     4.0.2               4:0:2           4.0.2

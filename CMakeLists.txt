@@ -45,14 +45,14 @@ PROJECT(sundials C)
 # Set some variables with info on the SUNDIALS project
 SET(PACKAGE_BUGREPORT "woodward6@llnl.gov")
 SET(PACKAGE_NAME "SUNDIALS")
-SET(PACKAGE_STRING "SUNDIALS 4.0.1")
+SET(PACKAGE_STRING "SUNDIALS 4.0.2")
 SET(PACKAGE_TARNAME "sundials")
 
 # set SUNDIALS version numbers
 # (use "" for the version label if none is needed)
 SET(PACKAGE_VERSION_MAJOR "4")
 SET(PACKAGE_VERSION_MINOR "0")
-SET(PACKAGE_VERSION_PATCH "1")
+SET(PACKAGE_VERSION_PATCH "2")
 SET(PACKAGE_VERSION_LABEL "")
 
 IF(PACKAGE_VERSION_LABEL)
@@ -78,37 +78,37 @@ MARK_AS_ADVANCED(CLEAR
 
 # Specify the VERSION and SOVERSION for shared libraries
 
-SET(arkodelib_VERSION "3.0.0")
+SET(arkodelib_VERSION "3.0.2")
 SET(arkodelib_SOVERSION "3")
 
-SET(cvodelib_VERSION "4.0.0")
+SET(cvodelib_VERSION "4.0.2")
 SET(cvodelib_SOVERSION "4")
 
-SET(cvodeslib_VERSION "4.0.0")
+SET(cvodeslib_VERSION "4.0.2")
 SET(cvodeslib_SOVERSION "4")
 
-SET(idalib_VERSION "4.0.0")
+SET(idalib_VERSION "4.0.2")
 SET(idalib_SOVERSION "4")
 
-SET(idaslib_VERSION "3.0.0")
+SET(idaslib_VERSION "3.0.2")
 SET(idaslib_SOVERSION "3")
 
-SET(kinsollib_VERSION "4.0.0")
+SET(kinsollib_VERSION "4.0.2")
 SET(kinsollib_SOVERSION "4")
 
 SET(cpodeslib_VERSION "0.0.0")
 SET(cpodeslib_SOVERSION "0")
 
-SET(nveclib_VERSION "4.0.0")
+SET(nveclib_VERSION "4.0.2")
 SET(nveclib_SOVERSION "4")
 
-SET(sunmatrixlib_VERSION "2.0.0")
+SET(sunmatrixlib_VERSION "2.0.2")
 SET(sunmatrixlib_SOVERSION "2")
 
-SET(sunlinsollib_VERSION "2.0.0")
+SET(sunlinsollib_VERSION "2.0.2")
 SET(sunlinsollib_SOVERSION "2")
 
-SET(sunnonlinsollib_VERSION "1.0.0")
+SET(sunnonlinsollib_VERSION "1.0.2")
 SET(sunnonlinsollib_SOVERSION "1")
 
 # Specify the location of additional CMAKE modules
