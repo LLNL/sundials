@@ -6,6 +6,16 @@
  *                   example by Scott D. Cohen, Alan C.
  *                   Hindmarsh and Radu Serban @ LLNL
  * -------------------------------------------------------------------
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
+ * All rights reserved.
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
+ * -------------------------------------------------------------------
  * Example problem:
  *
  * The following is a simple example problem with a banded Jacobian,
@@ -34,10 +44,9 @@
 
 #include <cvode/cvode.h>               /* prototypes for CVODE fcts., consts. */
 #include <sunlinsol/sunlinsol_spgmr.h> /* access to SPGMR SUNLinearSolver     */
-#include <cvode/cvode_spils.h>         /* access to CVSpils interface */
 #include <sundials/sundials_types.h>   /* definition of type realtype */
 #include <sundials/sundials_math.h>    /* definition of ABS and EXP   */
-#include <nvector/nvector_openmpdev.h>  /* OpenMPDEV N_Vector types, fcts., macros */
+#include <nvector/nvector_openmpdev.h> /* OpenMPDEV N_Vector types, fcts., macros */
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -139,18 +148,18 @@ int main(int argc, char** argv)
   flag = CVodeSetUserData(cvode_mem, data);
   if(check_flag(&flag, "CVodeSetUserData", 1)) return(1);
 
-  /* Create SPGMR solver structure without preconditioning
+  /* Create SPGMR solver without preconditioning
    * and the maximum Krylov dimension maxl */
-  LS = SUNSPGMR(u, PREC_NONE, 0);
-  if(check_flag(&flag, "SUNSPGMR", 1)) return(1);
+  LS = SUNLinSol_SPGMR(u, PREC_NONE, 0);
+  if(check_flag(&flag, "SUNLinSol_SPGMR", 1)) return(1);
 
-  /* Set CVSpils linear solver to LS */
-  flag = CVSpilsSetLinearSolver(cvode_mem, LS);
-  if(check_flag(&flag, "CVSpilsSetLinearSolver", 1)) return(1);
+  /* Attach the linear solver */
+  flag = CVodeSetLinearSolver(cvode_mem, LS, NULL);
+  if(check_flag(&flag, "CVodeSetLinearSolver", 1)) return(1);
 
   /* Set the JAcobian-times-vector function */
-  flag = CVSpilsSetJacTimes(cvode_mem, NULL, jtv);
-  if(check_flag(&flag, "CVSpilsSetJacTimesVecFn", 1)) return(1);
+  flag = CVodeSetJacTimes(cvode_mem, NULL, jtv);
+  if(check_flag(&flag, "CVodeSetJacTimesVecFn", 1)) return(1);
 
   /* In loop over output points: call CVode, print results, test for errors */
 
@@ -410,18 +419,18 @@ static void PrintFinalStats(void *cvode_mem)
   flag = CVodeGetNumNonlinSolvConvFails(cvode_mem, &ncfn);
   check_flag(&flag, "CVodeGetNumNonlinSolvConvFails", 1);
 
-  flag = CVSpilsGetWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
-  check_flag(&flag, "CVSpilsGetWorkSpace", 1);
-  flag = CVSpilsGetNumLinIters(cvode_mem, &nli);
-  check_flag(&flag, "CVSpilsGetNumLinIters", 1);
-  flag = CVSpilsGetNumPrecEvals(cvode_mem, &npe);
-  check_flag(&flag, "CVSpilsGetNumPrecEvals", 1);
-  flag = CVSpilsGetNumPrecSolves(cvode_mem, &nps);
-  check_flag(&flag, "CVSpilsGetNumPrecSolves", 1);
-  flag = CVSpilsGetNumConvFails(cvode_mem, &ncfl);
-  check_flag(&flag, "CVSpilsGetNumConvFails", 1);
-  flag = CVSpilsGetNumRhsEvals(cvode_mem, &nfeLS);
-  check_flag(&flag, "CVSpilsGetNumRhsEvals", 1);
+  flag = CVodeGetLinWorkSpace(cvode_mem, &lenrwLS, &leniwLS);
+  check_flag(&flag, "CVodeGetLinWorkSpace", 1);
+  flag = CVodeGetNumLinIters(cvode_mem, &nli);
+  check_flag(&flag, "CVodeGetNumLinIters", 1);
+  flag = CVodeGetNumPrecEvals(cvode_mem, &npe);
+  check_flag(&flag, "CVodeGetNumPrecEvals", 1);
+  flag = CVodeGetNumPrecSolves(cvode_mem, &nps);
+  check_flag(&flag, "CVodeGetNumPrecSolves", 1);
+  flag = CVodeGetNumLinConvFails(cvode_mem, &ncfl);
+  check_flag(&flag, "CVodeGetNumLinConvFails", 1);
+  flag = CVodeGetNumLinRhsEvals(cvode_mem, &nfeLS);
+  check_flag(&flag, "CVodeGetNumLinRhsEvals", 1);
 
   printf("\nFinal Statistics.. \n\n");
   printf("lenrw   = %5ld     leniw   = %5ld\n", lenrw, leniw);

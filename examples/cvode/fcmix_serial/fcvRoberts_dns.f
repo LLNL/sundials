@@ -1,13 +1,13 @@
 C     --------------------------------------------------------------------
-C     LLNS Copyright Start
-C     Copyright (c) 2017, Lawrence Livermore National Security
-C     This work was performed under the auspices of the U.S. Department 
-C     of Energy by Lawrence Livermore National Laboratory in part under 
-C     Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
-C     Produced at the Lawrence Livermore National Laboratory.
+C     SUNDIALS Copyright Start
+C     Copyright (c) 2002-2019, Lawrence Livermore National Security
+C     and Southern Methodist University.
 C     All rights reserved.
-C     For details, see the LICENSE file.
-C     LLNS Copyright End
+C
+C     See the top-level LICENSE and NOTICE files for details.
+C
+C     SPDX-License-Identifier: BSD-3-Clause
+C     SUNDIALS Copyright End
 C     --------------------------------------------------------------------
 C     FCVODE Example Problem: Robertson kinetics, direct linear solver
 C                             with dense user Jacobian.

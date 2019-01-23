@@ -3,15 +3,19 @@ c     --------------------------------------------------------------------
 c     Programmer(s): Allan G. Taylor, Alan C. Hindmarsh and
 c                    Radu Serban @ LLNL
 c     --------------------------------------------------------------------
-c     LLNS Copyright Start
-c     Copyright (c) 2017, Lawrence Livermore National Security
-c     This work was performed under the auspices of the U.S. Department 
-c     of Energy by Lawrence Livermore National Laboratory in part under 
-c     Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
-c     Produced at the Lawrence Livermore National Laboratory.
+c     LLNS/SMU Copyright Start
+c     Copyright (c) 2002-2018, Southern Methodist University and
+c     Lawrence Livermore National Security
+c
+c     This work was performed under the auspices of the U.S. Department
+c     of Energy by Southern Methodist University and Lawrence Livermore
+c     National Laboratory under Contract DE-AC52-07NA27344.
+c     Produced at Southern Methodist University and the Lawrence
+c     Livermore National Laboratory.
+c
 c     All rights reserved.
 c     For details, see the LICENSE file.
-c     LLNS Copyright End
+c     LLNS/SMU Copyright End
 c     --------------------------------------------------------------------
 c     Simple diagonal test with Fortran interface, using user-supplied
 c     preconditioner setup and solve routines (supplied in Fortran).

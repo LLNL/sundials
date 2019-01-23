@@ -2,19 +2,15 @@
 # Programmer:  Daniel R. Reynolds @ SMU
 #              Radu Serban @ LLNL
 # ---------------------------------------------------------------
-# LLNS/SMU Copyright Start
-# Copyright (c) 2017, Southern Methodist University and 
-# Lawrence Livermore National Security
-#
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Southern Methodist University and Lawrence Livermore 
-# National Laboratory under Contract DE-AC52-07NA27344.
-# Produced at Southern Methodist University and the Lawrence 
-# Livermore National Laboratory.
-#
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# and Southern Methodist University.
 # All rights reserved.
-# For details, see the LICENSE file.
-# LLNS/SMU Copyright End
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the IDA library
 
@@ -24,10 +20,12 @@ INSTALL(CODE "MESSAGE(\"\nInstall IDA\n\")")
 SET(ida_SOURCES
   ida.c
   ida_bbdpre.c
+  ida_direct.c
   ida_ic.c
   ida_io.c
   ida_ls.c
   ida_nls.c
+  ida_spils.c
   )
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
@@ -89,14 +87,14 @@ ADD_PREFIX(${sundials_SOURCE_DIR}/include/ida/ ida_HEADERS)
 # implementation only header files.
 INCLUDE_DIRECTORIES(.)
 
-# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY 
+# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
 ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 
 # Build the static library
 IF(BUILD_STATIC_LIBS)
 
   # Add the build target for the static IDA library
-  ADD_LIBRARY(sundials_ida_static STATIC 
+  ADD_LIBRARY(sundials_ida_static STATIC
     ${ida_SOURCES} ${shared_SOURCES} ${sunmatrix_SOURCES} ${sunlinsol_SOURCES}
     ${sunnonlinsol_SOURCES})
 

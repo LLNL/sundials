@@ -2,19 +2,15 @@
 # Programmer(s):  Daniel R. Reynolds @ SMU
 #                 Radu Serban @ LLNL
 # ---------------------------------------------------------------
-# LLNS/SMU Copyright Start
-# Copyright (c) 2017, Southern Methodist University and 
-# Lawrence Livermore National Security
-#
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Southern Methodist University and Lawrence Livermore 
-# National Laboratory under Contract DE-AC52-07NA27344.
-# Produced at Southern Methodist University and the Lawrence 
-# Livermore National Laboratory.
-#
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# and Southern Methodist University.
 # All rights reserved.
-# For details, see the LICENSE file.
-# LLNS/SMU Copyright End
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the KINSOL library
 
@@ -23,9 +19,11 @@ INSTALL(CODE "MESSAGE(\"\nInstall KINSOL\n\")")
 # Add variable kinsol_SOURCES with the sources for the KINSOL library
 SET(kinsol_SOURCES
   kinsol.c
+  kinsol_bbdpre.c
+  kinsol_direct.c
   kinsol_io.c
   kinsol_ls.c
-  kinsol_bbdpre.c
+  kinsol_spils.c
   )
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
@@ -80,7 +78,7 @@ ADD_PREFIX(${sundials_SOURCE_DIR}/include/kinsol/ kinsol_HEADERS)
 INCLUDE_DIRECTORIES(.)
 INCLUDE_DIRECTORIES(../sundials)
 
-# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY 
+# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
 ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 
 # Build the static library

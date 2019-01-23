@@ -1,5 +1,5 @@
                                  KINSOL
-                         Release 4.0.1, Dec 2018
+                         Release 4.0.2, Dec 2019
   Aaron Collier, Alan C. Hindmarsh, Radu Serban, and Carol S. Woodward
              Center for Applied Scientific Computing, LLNL
 
@@ -85,6 +85,7 @@ C. References
 D. Releases
 -----------
 
+v. 4.0.2       - Jan. 2019
 v. 4.0.1       - Dec. 2018
 v. 4.0.0       - Dec. 2018
 v. 3.2.1       - Oct. 2018
