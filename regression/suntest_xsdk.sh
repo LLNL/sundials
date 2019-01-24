@@ -2,15 +2,15 @@
 # -------------------------------------------------------------------------------
 # Programmer(s): David J. Gardner @ LLNL 
 # -------------------------------------------------------------------------------
-# LLNS Copyright Start
-# Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department 
-# of Energy by Lawrence Livermore National Laboratory in part under 
-# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
-# Produced at the Lawrence Livermore National Laboratory.
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# and Southern Methodist University.
 # All rights reserved.
-# For details, see the LICENSE file.
-# LLNS Copyright End
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
 # -------------------------------------------------------------------------------
 # xsdk variant of the SUNDIALS regression testing script with all external 
 # libraries enabled
@@ -18,7 +18,7 @@
 
 # check number of inputs
 if [ "$#" -lt 2 ]; then
-    echo "ERROR: Illegal number of parameters, real and index size required"
+    echo "ERROR: Illegal number of parameters, real type and index size required"
     exit 1
 fi
 realtype=$1     # required, precision for realtypes
@@ -143,6 +143,13 @@ else
     xsdk_realtype=$realtype
 fi
 
+# only run development tests with double precision
+if [ "$realtype" != "double" ]; then
+    DEVTESTS=OFF
+else
+    DEVTESTS=ON
+fi
+
 echo "START CMAKE"
 cmake \
     -D CMAKE_INSTALL_PREFIX="../install_xSDK_${realtype}_${indexsize}" \
@@ -206,7 +213,7 @@ cmake \
     -D TPL_SUPERLUMT_LIBRARIES="${SUPERLUMTDIR}/lib/libsuperlu_mt_PTHREAD.a" \
     -D TPL_SUPERLUMT_THREAD_TYPE=Pthread \
     \
-    -D SUNDIALS_DEVTESTS=ON \
+    -D SUNDIALS_DEVTESTS="${DEVTESTS}" \
     ../../. 2>&1 | tee configure.log
 
 # check cmake return code

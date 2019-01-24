@@ -26,6 +26,7 @@ $tar $tarfile $distrobase/include/arkode/arkode_ls.h
 $tar $tarfile $distrobase/include/arkode/arkode_mristep.h
 
 $tar $tarfile $distrobase/src/arkode/LICENSE
+$tar $tarfile $distrobase/src/arkode/NOTICE
 $tar $tarfile $distrobase/src/arkode/README
 $tar $tarfile $distrobase/src/arkode/CMakeLists.txt
 

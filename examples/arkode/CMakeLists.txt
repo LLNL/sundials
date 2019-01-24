@@ -1,15 +1,15 @@
 # ---------------------------------------------------------------
 # Programmer:  David Gardner and Slaven Peles @ LLNL
 # ---------------------------------------------------------------
-# LLNS Copyright Start
-# Copyright (c) 2014, Lawrence Livermore National Security
-# This work was performed under the auspices of the U.S. Department
-# of Energy by Lawrence Livermore National Laboratory in part under
-# Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
-# Produced at the Lawrence Livermore National Laboratory.
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# and Southern Methodist University.
 # All rights reserved.
-# For details, see the LICENSE file.
-# LLNS Copyright End
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # examples/arkode level CMakeLists.txt for SUNDIALS (for CMake)
 # ---------------------------------------------------------------
@@ -56,6 +56,10 @@ ENDIF()
 IF(EXAMPLES_ENABLE_F90 AND F90_FOUND)
   ADD_SUBDIRECTORY(F90_serial)
   IF(MPI_Fortran_FOUND)
-    ADD_SUBDIRECTORY(F90_parallel)
+    # currently the only F90_parallel example
+    # does not support anything but double precision
+    IF(SUNDIALS_PRECISION MATCHES "double")
+      ADD_SUBDIRECTORY(F90_parallel)
+    ENDIF()
   ENDIF()
 ENDIF()

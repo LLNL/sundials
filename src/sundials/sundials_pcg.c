@@ -1,9 +1,19 @@
 /*---------------------------------------------------------------
  Programmer(s): Daniel R. Reynolds @ SMU
  ----------------------------------------------------------------
- Copyright (c) 2013, Southern Methodist University.
+ LLNS/SMU Copyright Start
+ Copyright (c) 2002-2018, Southern Methodist University and
+ Lawrence Livermore National Security
+ 
+ This work was performed under the auspices of the U.S. Department
+ of Energy by Southern Methodist University and Lawrence Livermore
+ National Laboratory under Contract DE-AC52-07NA27344.
+ Produced at Southern Methodist University and the Lawrence
+ Livermore National Laboratory.
+ 
  All rights reserved.
  For details, see the LICENSE file.
+ LLNS/SMU Copyright End
  ----------------------------------------------------------------
  This is the implementation file for the preconditioned conjugate 
  gradient solver in SUNDIALS.

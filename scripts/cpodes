@@ -29,6 +29,7 @@ $tar $tarfile $distrobase/include/cpodes/cpodes_bandpre.h
 $tar $tarfile $distrobase/include/cpodes/cpodes_bbdpre.h
 
 $tar $tarfile $distrobase/src/cpodes/LICENSE
+$tar $tarfile $distrobase/src/cpodes/NOTICE
 $tar $tarfile $distrobase/src/cpodes/README
 $tar $tarfile $distrobase/src/cpodes/CMakeLists.txt
 

@@ -287,7 +287,7 @@ The module {\nveccuda} also provides the following user-callable routines:
  This function copies host vector data to the device.
 }
 {
- realtype *N\_VCopyToDevice\_Cuda(N\_Vector v)
+ void N\_VCopyToDevice\_Cuda(N\_Vector v)
 }
 %%--------------------------------------
 \sunmodfun{N\_VCopyFromDevice\_Cuda}
@@ -295,7 +295,7 @@ The module {\nveccuda} also provides the following user-callable routines:
  This function copies vector data from the device to the host.
 }
 {
- realtype *N\_VCopyFromDevice\_Cuda(N\_Vector v)
+ void N\_VCopyFromDevice\_Cuda(N\_Vector v)
 }
 %%--------------------------------------
 \sunmodfun{N\_VPrint\_Cuda}

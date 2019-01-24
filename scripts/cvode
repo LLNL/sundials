@@ -23,6 +23,7 @@ $tar $tarfile $distrobase/include/cvode/cvode_ls.h
 $tar $tarfile $distrobase/include/cvode/cvode_spils.h
 
 $tar $tarfile $distrobase/src/cvode/LICENSE
+$tar $tarfile $distrobase/src/cvode/NOTICE
 $tar $tarfile $distrobase/src/cvode/README
 $tar $tarfile $distrobase/src/cvode/CMakeLists.txt
 
@@ -33,11 +34,13 @@ $tar $tarfile $distrobase/src/cvode/cvode_bbdpre.c
 $tar $tarfile $distrobase/src/cvode/cvode_bbdpre_impl.h
 $tar $tarfile $distrobase/src/cvode/cvode_diag.c
 $tar $tarfile $distrobase/src/cvode/cvode_diag_impl.h
+$tar $tarfile $distrobase/src/cvode/cvode_direct.c
 $tar $tarfile $distrobase/src/cvode/cvode_impl.h
 $tar $tarfile $distrobase/src/cvode/cvode_io.c
 $tar $tarfile $distrobase/src/cvode/cvode_ls.c
 $tar $tarfile $distrobase/src/cvode/cvode_ls_impl.h
 $tar $tarfile $distrobase/src/cvode/cvode_nls.c
+$tar $tarfile $distrobase/src/cvode/cvode_spils.c
 
 echo "   --- Add fcvode module to $tarfile"
 

@@ -3,15 +3,15 @@
  * Programmer(s): David J. Gardner @ LLNL
  *                Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
- * LLNS Copyright Start
- * Copyright (c) 2014, Lawrence Livermore National Security
- * This work was performed under the auspices of the U.S. Department
- * of Energy by Lawrence Livermore National Laboratory in part under
- * Contract W-7405-Eng-48 and in part under Contract DE-AC52-07NA27344.
- * Produced at the Lawrence Livermore National Laboratory.
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * These test functions are designed to check a SUNMatrix module
  * implementation.
@@ -76,7 +76,7 @@ int Test_SUNMatClone(SUNMatrix A, int myid)
 {
   int       failure;
   double    start_time, stop_time;
-  realtype  tol=1e-15;
+  realtype  tol=10*UNIT_ROUNDOFF;
   SUNMatrix B;
 
   /* clone vector */
@@ -132,7 +132,7 @@ int Test_SUNMatZero(SUNMatrix A, int myid)
 {
   int       failure;
   double    start_time, stop_time;
-  realtype  tol=1e-15;
+  realtype  tol=10*UNIT_ROUNDOFF;
   SUNMatrix B;
 
   /* protect A */
@@ -177,7 +177,7 @@ int Test_SUNMatCopy(SUNMatrix A, int myid)
   int       failure;
   double    start_time, stop_time;
   SUNMatrix B;
-  realtype  tol=1e-15;
+  realtype  tol=10*UNIT_ROUNDOFF;
 
   B = SUNMatClone(A);
 
@@ -224,7 +224,7 @@ int Test_SUNMatScaleAdd(SUNMatrix A, SUNMatrix I, int myid)
   int       failure;
   double    start_time, stop_time;
   SUNMatrix B, C, D;
-  realtype  tol=1e-15;
+  realtype  tol=10*UNIT_ROUNDOFF;
 
   /*
    * Case 1: same sparsity/bandwith pattern
@@ -352,7 +352,7 @@ int Test_SUNMatScaleAddI(SUNMatrix A, SUNMatrix I, int myid)
   int       failure;
   double    start_time, stop_time;
   SUNMatrix B;
-  realtype  tol=1e-15;
+  realtype  tol=10*UNIT_ROUNDOFF;
 
   /* protect A */
   B = SUNMatClone(A);
@@ -406,7 +406,7 @@ int Test_SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y, int myid)
   double   start_time, stop_time;
   SUNMatrix B;
   N_Vector  z, w;
-  realtype  tol=1e-14;
+  realtype  tol=100*UNIT_ROUNDOFF;
 
   /* harder tests for square matrices */
   if (is_square(A)) {

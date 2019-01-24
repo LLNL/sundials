@@ -2,19 +2,15 @@
 # Programmer(s):  Daniel R. Reynolds @ SMU
 #                 Radu Serban @ LLNL
 # ---------------------------------------------------------------
-# LLNS/SMU Copyright Start
-# Copyright (c) 2017, Southern Methodist University and
-# Lawrence Livermore National Security
-#
-# This work was performed under the auspices of the U.S. Department
-# of Energy by Southern Methodist University and Lawrence Livermore
-# National Laboratory under Contract DE-AC52-07NA27344.
-# Produced at Southern Methodist University and the Lawrence
-# Livermore National Laboratory.
-#
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# and Southern Methodist University.
 # All rights reserved.
-# For details, see the LICENSE file.
-# LLNS/SMU Copyright End
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the CVODES library
 
@@ -27,13 +23,15 @@ SET(cvodes_SOURCES
   cvodes.c
   cvodes_bandpre.c
   cvodes_bbdpre.c
-  cvodes_io.c
   cvodes_diag.c
+  cvodes_direct.c
+  cvodes_io.c
   cvodes_ls.c
   cvodes_nls.c
   cvodes_nls_sim.c
   cvodes_nls_stg.c
   cvodes_nls_stg1.c
+  cvodes_spils.c
   )
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will

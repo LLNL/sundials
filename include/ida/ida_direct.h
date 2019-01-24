@@ -2,19 +2,15 @@
  * Programmer(s): Daniel R. Reynolds @ SMU
  *                Radu Serban @ LLNL
  *-----------------------------------------------------------------
- * LLNS/SMU Copyright Start
- * Copyright (c) 2018, Southern Methodist University and 
- * Lawrence Livermore National Security
- *
- * This work was performed under the auspices of the U.S. Department 
- * of Energy by Southern Methodist University and Lawrence Livermore 
- * National Laboratory under Contract DE-AC52-07NA27344.
- * Produced at Southern Methodist University and the Lawrence 
- * Livermore National Laboratory.
- *
+ * SUNDIALS Copyright Start
+ * Copyright (c) 2002-2019, Lawrence Livermore National Security
+ * and Southern Methodist University.
  * All rights reserved.
- * For details, see the LICENSE file.
- * LLNS/SMU Copyright End
+ *
+ * See the top-level LICENSE and NOTICE files for details.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ * SUNDIALS Copyright End
  *-----------------------------------------------------------------
  * Header file for the deprecated direct linear solver interface in 
  * IDA; these routines now just wrap the updated IDA generic
@@ -40,26 +36,19 @@ typedef IDALsJacFn IDADlsJacFn;
   Exported Functions (wrappers for equivalent routines in ida_ls.h)
   =================================================================*/
 
-int IDADlsSetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
-{ return(IDASetLinearSolver(ida_mem, LS, A)); }
+int IDADlsSetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A);
 
-int IDADlsSetJacFn(void *ida_mem, IDADlsJacFn jac)
-{ return(IDASetJacFn(ida_mem, jac)); }
+int IDADlsSetJacFn(void *ida_mem, IDADlsJacFn jac);
 
-int IDADlsGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS)
-{ return(IDAGetLinWorkSpace(ida_mem, lenrwLS, leniwLS)); }
+int IDADlsGetWorkSpace(void *ida_mem, long int *lenrwLS, long int *leniwLS);
   
-int IDADlsGetNumJacEvals(void *ida_mem, long int *njevals)
-{ return(IDAGetNumJacEvals(ida_mem, njevals)); }
+int IDADlsGetNumJacEvals(void *ida_mem, long int *njevals);
   
-int IDADlsGetNumResEvals(void *ida_mem, long int *nfevalsLS)
-{ return(IDAGetNumLinResEvals(ida_mem, nfevalsLS)); }
+int IDADlsGetNumResEvals(void *ida_mem, long int *nfevalsLS);
   
-int IDADlsGetLastFlag(void *ida_mem, long int *flag)
-{ return(IDAGetLastLinFlag(ida_mem, flag)); }
+int IDADlsGetLastFlag(void *ida_mem, long int *flag);
 
-char *IDADlsGetReturnFlagName(long int flag)
-{ return(IDAGetLinReturnFlagName(flag)); }
+char *IDADlsGetReturnFlagName(long int flag);
 
 
 #ifdef __cplusplus
