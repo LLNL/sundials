@@ -14,8 +14,9 @@
 # src level CMakeLists.txt for SUNDIALS (for cmake build system)
 # ---------------------------------------------------------------
 
-# Always add SUNDIALS provided serial modules
 ADD_SUBDIRECTORY(sundials)
+
+# Always add SUNDIALS provided serial modules
 ADD_SUBDIRECTORY(nvec_ser)
 ADD_SUBDIRECTORY(sunmat_dense)
 ADD_SUBDIRECTORY(sunmat_band)
@@ -46,7 +47,7 @@ ADD_SUBDIRECTORY(sunlinsol_pcg)
 # Add nonlinerar solver modules
 ADD_SUBDIRECTORY(sunnonlinsol)
 
-IF(MPI_C_FOUND)
+IF(MPI_ENABLE AND MPI_C_FOUND)
   ADD_SUBDIRECTORY(nvec_par)
 ENDIF()
 
@@ -78,6 +79,10 @@ ENDIF(CUDA_FOUND)
 IF(RAJA_FOUND)
   ADD_SUBDIRECTORY(nvec_raja)
 ENDIF(RAJA_FOUND)
+
+IF(Trilinos_FUNCTIONAL)
+  ADD_SUBDIRECTORY(nvec_trilinos)
+ENDIF(Trilinos_FUNCTIONAL)
 
 # ARKODE library
 

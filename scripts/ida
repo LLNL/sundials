@@ -136,6 +136,13 @@ $tar $tarfile $distrobase/examples/ida/mpiraja/CMakeLists.txt
 $tar $tarfile $distrobase/examples/ida/mpiraja/idaHeat2D_kry_p_mpiraja.cu
 $tar $tarfile $distrobase/examples/ida/mpiraja/idaHeat2D_kry_p_mpiraja.out
 
+$tar $tarfile $distrobase/examples/ida/trilinos/README
+$tar $tarfile $distrobase/examples/ida/trilinos/CMakeLists.txt
+$tar $tarfile $distrobase/examples/ida/trilinos/idaHeat2D_kry_p_tpetra.cpp
+$tar $tarfile $distrobase/examples/ida/trilinos/idaHeat2D_kry_p_tpetra.out
+$tar $tarfile $distrobase/examples/ida/trilinos/idaHeat2D_kry_tpetra.cpp
+$tar $tarfile $distrobase/examples/ida/trilinos/idaHeat2D_kry_tpetra.out
+
 $tar $tarfile $distrobase/examples/ida/fcmix_parallel/README
 $tar $tarfile $distrobase/examples/ida/fcmix_parallel/CMakeLists.txt
 $tar $tarfile $distrobase/examples/ida/fcmix_parallel/fidaHeat2D_kry_bbd_p.f

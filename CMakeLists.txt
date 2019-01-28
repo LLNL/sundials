@@ -469,6 +469,11 @@ IF(PETSC_ENABLE AND NOT MPI_ENABLE)
   FORCE_VARIABLE(PETSC_ENABLE BOOL "Enable PETSc support" OFF)
 ENDIF()
 
+# ---------------------------------------------------------------
+# Enable Trilinos support?
+# ---------------------------------------------------------------
+OPTION(Trilinos_ENABLE "Enable Trilinos support" OFF)
+
 
 # ===============================================================
 # Options for examples
@@ -481,18 +486,9 @@ ENDIF()
 # Enable C examples (on by default)
 OPTION(EXAMPLES_ENABLE_C "Build SUNDIALS C examples" ON)
 
-# C++ examples (off by default) are an option only if ARKode is enabled
-SET(DOCSTR "Build ARKode C++ examples")
-IF(BUILD_ARKODE)
-  OPTION(EXAMPLES_ENABLE_CXX "${DOCSTR}" OFF)
-ELSE()
-  # set back to OFF (in case was ON)
-  IF(EXAMPLES_ENABLE_CXX)
-    PRINT_WARNING("EXAMPLES_ENABLE_CXX is ON but BUILD_ARKODE is OFF"
-                  "Disabling EXAMPLES_ENABLE_CXX")
-    FORCE_VARIABLE(EXAMPLES_ENABLE_CXX BOOL "${DOCSTR}" OFF)
-  ENDIF()
-ENDIF()
+# C++ examples (off by default, unless Trilinos is enabled)
+SET(DOCSTR "Build C++ examples")
+OPTION(EXAMPLES_ENABLE_CXX "${DOCSTR}" ${Trilinos_ENABLE})
 
 # F77 examples (on by default) are an option only if the Fortran
 # interface is enabled
@@ -547,25 +543,12 @@ ELSE()
   ENDIF()
 ENDIF()
 
-# RAJA examples (off by default)
-SET(DOCSTR "Build SUNDIALS RAJA examples")
-IF(RAJA_ENABLE)
-  OPTION(EXAMPLES_ENABLE_RAJA "${DOCSTR}" OFF)
-ELSE()
-  IF(EXAMPLES_ENABLE_RAJA)
-    PRINT_WARNING("EXAMPLES_ENABLE_RAJA is ON but RAJA_ENABLE is OFF"
-                  "Disabling EXAMPLES_ENABLE_RAJA")
-    FORCE_VARIABLE(EXAMPLES_ENABLE_RAJA BOOL "${DOCSTR}" OFF)
-  ENDIF()
-ENDIF()
-
 # If any of the above examples are enabled set EXAMPLES_ENABLED to TRUE
 IF(EXAMPLES_ENABLE_C OR
     EXAMPLES_ENABLE_F77 OR
     EXAMPLES_ENABLE_CXX OR
     EXAMPLES_ENABLE_F90 OR
-    EXAMPLES_ENABLE_CUDA OR
-    EXAMPLES_ENABLE_RAJA)
+    EXAMPLES_ENABLE_CUDA)
   SET(EXAMPLES_ENABLED TRUE)
 ELSE()
   SET(EXAMPLES_ENABLED FALSE)
@@ -792,9 +775,10 @@ ENDIF()
 # (a) C++ examples are enabled
 # (b) CUDA is enabled
 # (c) RAJA is enabled
+# (d) Trilinos is enabled
 # ---------------------------------------------------------------
 
-if(EXAMPLES_ENABLE_CXX OR CUDA_ENABLE OR RAJA_ENABLE)
+if(EXAMPLES_ENABLE_CXX OR CUDA_ENABLE OR RAJA_ENABLE OR Trilinos_ENABLE)
   include(SundialsCXX)
 endif()
 
@@ -826,20 +810,22 @@ if (CXX_FOUND AND CUDA_ENABLE AND CUDA_FOUND AND (NOT RAJA_ENABLE))
 endif()
 
 # ---------------------------------------------------------------
-# Decide how to compile MPI codes.
+# Decide how to compile MPI codes. We must check for MPI if
+# MPI is enabled or if Trilinos is enabled because the Trilinos
+# examples may need MPI without us turning on the MPI SUNDIALS
+# components.
 # ---------------------------------------------------------------
 
-if(MPI_ENABLE)
-
+if(MPI_ENABLE OR Trilinos_ENABLE)
   include(SundialsMPI)
+endif()
 
+if(MPI_ENABLE)
   if(NOT MPI_C_FOUND)
-    print_warning("MPI not functional"
-      "Parallel support will not be provided")
+    print_warning("MPI not functional" "Parallel support will not be provided")
   else()
     set(IS_MPI_ENABLED "#ifndef SUNDIALS_MPI_ENABLED\n#define SUNDIALS_MPI_ENABLED 1\n#endif")
   endif()
-
 endif()
 
 # always define FMPI_COMM_F2C in sundials_fconfig.h file
@@ -1113,6 +1099,18 @@ ELSE()
   SET (PETSC_DISABLED TRUE CACHE INTERNAL "GUI - return when first set")
 
 ENDIF()
+
+# -------------------------------------------------------------
+# Find Trilinos
+# -------------------------------------------------------------
+
+if(Trilinos_ENABLE)
+  include(SundialsTrilinos)
+  if(NOT Trilinos_FUNCTIONAL)
+    PRINT_WARNING("Trilinos not functional" "Verify the path to Trilinos and check the Trilinos installation")
+  endif()
+endif(Trilinos_ENABLE)
+
 
 # ===============================================================
 # Add source and configuration files

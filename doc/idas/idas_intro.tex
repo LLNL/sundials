@@ -2,17 +2,17 @@
 \chapter{Introduction}\label{s:intro}
 %===================================================================================
 
-{\idas} is part of a software family called {\sundials}: 
-SUite of Nonlinear and DIfferential/ALgebraic equation Solvers~\cite{HBGLSSW:05}. 
+{\idas} is part of a software family called {\sundials}:
+SUite of Nonlinear and DIfferential/ALgebraic equation Solvers~\cite{HBGLSSW:05}.
 This suite consists of {\cvode}, {\arkode}, {\kinsol}, and {\ida}, and variants
 of these with sensitivity analysis capabilities, {\cvodes} and {\idas}.
 
 {\idas} is a general purpose solver for the initial value problem (IVP) for
 systems of differential-algebraic equations (DAEs).  The name IDAS
 stands for Implicit Differential-Algebraic solver with Sensitivity capabilities.
-{\idas} is an extension of the {\ida} solver within {\sundials}, itself 
+{\idas} is an extension of the {\ida} solver within {\sundials}, itself
 based on {\daspk}~\cite{BHP:94,BHP:98}; however, like all {\sundials} solvers,
-{\idas} is written in ANSI-standard C rather than {\F}77.  
+{\idas} is written in ANSI-standard C rather than {\F}77.
 Its most notable features are that,
 (1) in the solution of the underlying nonlinear system at each time
 step, it offers a choice of Newton/direct methods and a choice of
@@ -36,8 +36,8 @@ FGMRES (Flexible Generalized Minimum RESidual)~\cite{Saa:93},
 Bi-CGStab (Bi-Conjugate Gradient Stabilized)~\cite{Van:92}, TFQMR
 (Transpose-Free Quasi-Minimal Residual)~\cite{Fre:93}, and PCG
 (Preconditioned Conjugate Gradient)~\cite{HeSt:52} linear iterative
-methods.  As Krylov methods, these require little  
-matrix storage for solving the Newton equations as compared to direct 
+methods.  As Krylov methods, these require little
+matrix storage for solving the Newton equations as compared to direct
 methods. However, the algorithms allow for a user-supplied preconditioner
 matrix, and, for most problems, preconditioning is essential for an
 efficient solution.
@@ -86,6 +86,17 @@ in extended {\F}.
 
 
 \section{Changes from previous versions}
+
+\subsection*{Changes in v3.1.0}
+
+An additional {\nvector} implementation was added for the
+{\tpetra} vector from the {\trilinos} library to facilitate interoperability
+between {\sundials} and {\trilinos}. This implementation is accompanied by
+additions to user documentation and {\sundials} examples.
+
+The \id{EXAMPLES\_ENABLE\_RAJA} CMake option has been removed. The option \id{EXAMPLES\_ENABLE\_CUDA}
+enables all examples that use CUDA including the RAJA examples with a CUDA back end (if the RAJA
+{\nvector} is enabled).
 
 \subsection*{Changes in v3.0.2}
 
@@ -166,7 +177,7 @@ required to user programs and functions for setting the nonlinear solver options
 {\sunnonlinsol} functions as needed. While {\sundials} includes a fixed-point
 nonlinear solver module, it is not currently supported in {\idas}. For details on
 attaching a user-supplied nonlinear solver to {\idas} see
-Chapter~\ref{s:simulation}, \ref{s:forward}, and \ref{s:adjoint}.  
+Chapter~\ref{s:simulation}, \ref{s:forward}, and \ref{s:adjoint}.
 
 Three fused vector operations and seven vector array operations have been added
 to the {\nvector} API. These \textit{optional} operations are disabled by
@@ -246,8 +257,8 @@ could be overwritten.
 with some compilers (e.g. armclang) that did not define \id{\_\_STDC\_VERSION\_\_}.
 \\
 \\
-\noindent Added hybrid MPI/CUDA and MPI/RAJA vectors to allow use of more 
-than one MPI rank when using a GPU system.  The vectors assume one GPU 
+\noindent Added hybrid MPI/CUDA and MPI/RAJA vectors to allow use of more
+than one MPI rank when using a GPU system.  The vectors assume one GPU
 device per MPI rank.
 \\
 \\
@@ -261,11 +272,11 @@ as a backend for {\raja} currently.
 \begin{itemize}
 \item CMake 3.1.3 is now the minimum required CMake version.
 \item Deprecate the behavior of the \id{SUNDIALS\_INDEX\_TYPE} CMake option and
-  added the \newline 
+  added the \newline
   \id{SUNDIALS\_INDEX\_SIZE} CMake option to select the \id{sunindextype}
   integer size.
 \item The native CMake FindMPI module is now used to locate an MPI installation.
-\item If MPI is enabled and MPI compiler wrappers are not set, the build system 
+\item If MPI is enabled and MPI compiler wrappers are not set, the build system
   will check if \id{CMAKE\_<language>\_COMPILER} can compile MPI programs before
   trying to locate and use an MPI installation.
 \item The previous options for setting MPI compiler wrappers and the executable
@@ -279,7 +290,7 @@ as a backend for {\raja} currently.
   scheme needs to be overridden, the advanced options
   \id{SUNDIALS\_F77\_FUNC\_CASE} and \id{SUNDIALS\_F77\_FUNC\_UNDERSCORES} can
   be used to manually set the name-mangling scheme and bypass trying to infer
-  the scheme. 
+  the scheme.
 \item Parts of the main CMakeLists.txt file were moved to new files in the
   \id{src} and \id{example} directories to make the CMake configuration file
   structure more modular.
@@ -291,7 +302,7 @@ The changes in this minor release include the following:
 \begin{itemize}
 \item Updated the minimum required version of CMake to 2.8.12 and enabled
   using rpath by default to locate shared libraries on OSX.
-\item Fixed Windows specific problem where \id{sunindextype} was not correctly 
+\item Fixed Windows specific problem where \id{sunindextype} was not correctly
   defined when using 64-bit integers for the {\sundials} index type. On Windows
   \id{sunindextype} is now defined as the MSVC basic type \id{\_\_int64}.
 \item Added sparse SUNMatrix ``Reallocate'' routine to allow specification of
@@ -317,13 +328,13 @@ The changes in this minor release include the following:
 \item Fixed a potential memory leak in the {\spgmr} and {\spfgmr} linear
   solvers: if ``Initialize'' was called multiple times then the solver
   memory was reallocated (without being freed).
-  
+
 \item Updated KLU SUNLinearSolver module to use a \id{typedef} for the
-  precision-specific solve function to be used (to avoid compiler 
-  warnings).  
+  precision-specific solve function to be used (to avoid compiler
+  warnings).
 
 \item Added missing typecasts for some \id{(void*)} pointers (again, to
-  avoid compiler warnings). 
+  avoid compiler warnings).
 
 \item Bugfix in \id{sunmatrix\_sparse.c} where we had used \id{int}
   instead of \id{sunindextype} in one location.
@@ -352,10 +363,10 @@ installing with \id{make install} respectively.
 
 \subsection*{Changes in v2.0.0}
 
-All interfaces to matrix structures and linear solvers 
-have been reworked, and all example programs have been updated. 
+All interfaces to matrix structures and linear solvers
+have been reworked, and all example programs have been updated.
 The goal of the redesign of these interfaces was to provide more encapsulation
-and to ease interfacing of custom linear solvers and interoperability 
+and to ease interfacing of custom linear solvers and interoperability
 with linear solver libraries.
 Specific changes include:
 \begin{itemize}
@@ -364,7 +375,7 @@ Specific changes include:
         Sls matrix structures in a single object-oriented API.
 \item Added example problems demonstrating use of generic {\sunmatrix} modules.
 \item Added generic \id{SUNLinearSolver} module with eleven provided
-        implementations: {\sundials} native dense, {\sundials} native banded, 
+        implementations: {\sundials} native dense, {\sundials} native banded,
         LAPACK dense, LAPACK band, KLU,
         SuperLU\_MT, SPGMR, SPBCGS, SPTFQMR, SPFGMR, and PCG.  These replicate
         previous SUNDIALS generic linear solvers in a single object-oriented
@@ -391,26 +402,26 @@ Specific changes include:
 \end{itemize}
 
 Two additional {\nvector} implementations were added -- one for
-{\cuda} and one for {\raja} vectors.  
+{\cuda} and one for {\raja} vectors.
 These vectors are supplied to provide very basic support for running
 on GPU architectures.  Users are advised that these vectors both move all data
 to the GPU device upon construction, and speedup will only be realized if the
 user also conducts the right-hand-side function evaluation on the device.
 In addition, these vectors assume the problem fits on one GPU.
-Further information about {\raja}, users are referred to the web site, 
+Further information about {\raja}, users are referred to the web site,
 https://software.llnl.gov/RAJA/.
 These additions are accompanied by additions to various interface functions
 and to user documentation.
 
 All indices for data structures were updated to a new \id{sunindextype} that
-can be configured to be a 32- or 64-bit integer data index type. 
+can be configured to be a 32- or 64-bit integer data index type.
 \id{sunindextype} is defined to be \id{int32\_t} or \id{int64\_t} when portable types are
 supported, otherwise it is defined as \id{int} or \id{long int}.
-The Fortran interfaces continue to use \id{long int} for indices, except for 
+The Fortran interfaces continue to use \id{long int} for indices, except for
 their sparse matrix interface that now uses the new \id{sunindextype}.
-This new flexible capability for index types includes interfaces to 
-PETSc, hypre, SuperLU\_MT, and KLU with 
-either 32-bit or 64-bit capabilities depending how the user configures 
+This new flexible capability for index types includes interfaces to
+PETSc, hypre, SuperLU\_MT, and KLU with
+either 32-bit or 64-bit capabilities depending how the user configures
 {\sundials}.
 
 To avoid potential namespace conflicts, the macros defining \id{booleantype}
@@ -422,12 +433,12 @@ routines for all packages.  It is assumed that all necessary data
 for user-provided preconditioner operations will be allocated and
 stored in user-provided data structures.
 
-The file \id{include/sundials\_fconfig.h} was added.  This file contains 
+The file \id{include/sundials\_fconfig.h} was added.  This file contains
 {\sundials} type information for use in Fortran programs.
 
-The build system was expanded to support many of the xSDK-compliant keys. 
+The build system was expanded to support many of the xSDK-compliant keys.
 The xSDK is a movement in scientific software to provide a foundation for the
-rapid and efficient production of high-quality, 
+rapid and efficient production of high-quality,
 sustainable extreme-scale scientific applications.  More information can
 be found at, https://xsdk.info.
 
@@ -435,18 +446,18 @@ Added functions \id{SUNDIALSGetVersion} and \id{SUNDIALSGetVersionNumber} to
 get {\sundials} release version information at runtime.
 
 In addition, numerous changes were made to the build system.
-These include the addition of separate \id{BLAS\_ENABLE} and \id{BLAS\_LIBRARIES} 
+These include the addition of separate \id{BLAS\_ENABLE} and \id{BLAS\_LIBRARIES}
 CMake variables, additional error checking during CMake configuration,
-minor bug fixes, and renaming CMake options to enable/disable examples 
+minor bug fixes, and renaming CMake options to enable/disable examples
 for greater clarity and an added option to enable/disable Fortran 77 examples.
-These changes included changing \id{EXAMPLES\_ENABLE} to \id{EXAMPLES\_ENABLE\_C}, 
-changing \id{CXX\_ENABLE} to \id{EXAMPLES\_ENABLE\_CXX}, changing \id{F90\_ENABLE} to 
+These changes included changing \id{EXAMPLES\_ENABLE} to \id{EXAMPLES\_ENABLE\_C},
+changing \id{CXX\_ENABLE} to \id{EXAMPLES\_ENABLE\_CXX}, changing \id{F90\_ENABLE} to
 \id{EXAMPLES\_ENABLE\_F90}, and adding an \id{EXAMPLES\_ENABLE\_F77} option.
 
-A bug fix was done to add a missing prototype for \id{IDASetMaxBacksIC} 
+A bug fix was done to add a missing prototype for \id{IDASetMaxBacksIC}
 in \id{ida.h}.
- 
-Corrections and additions were made to the examples, 
+
+Corrections and additions were made to the examples,
 to installation-related files,
 and to the user documentation.
 
@@ -477,10 +488,10 @@ A bug in for-loop indices was fixed in \id{IDAAckpntAllocVectors}. A bug was
 fixed in the interpolation functions used in solving backward problems.
 
 A memory leak was fixed in the banded preconditioner interface.
-In addition, updates were done to return integers from linear solver 
+In addition, updates were done to return integers from linear solver
 and preconditioner 'free' functions.
 
-In interpolation routines for backward problems, added logic to bypass 
+In interpolation routines for backward problems, added logic to bypass
 sensitivity interpolation if input sensitivity argument is NULL.
 
 The Krylov linear solver Bi-CGstab was enhanced by removing a redundant
@@ -488,7 +499,7 @@ dot product.  Various additions and corrections were made to the
 interfaces to the sparse solvers KLU and SuperLU\_MT, including support
 for CSR format when using KLU.
 
-New examples were added for use of the OpenMP vector and for use of 
+New examples were added for use of the OpenMP vector and for use of
 sparse direct solvers within sensitivity integrations.
 
 Minor corrections and additions were made to the {\idas} solver, to the
@@ -503,7 +514,7 @@ an interface to the sparse direct solver KLU was added.
 Second, an interface to SuperLU\_MT, the multi-threaded version of
 SuperLU, was added as a thread-parallel sparse direct solver option,
 to be used with the serial version of the NVECTOR module.
-As part of these additions, a sparse matrix (CSC format) structure 
+As part of these additions, a sparse matrix (CSC format) structure
 was added to {\idas}.
 
 Otherwise, only relatively minor modifications were made to {\idas}:
@@ -586,7 +597,7 @@ either defined (with no value) or not defined.
 The structure of this document is as follows:
 \begin{itemize}
 \item
-  In Chapter \ref{s:math}, we give short descriptions of the numerical 
+  In Chapter \ref{s:math}, we give short descriptions of the numerical
   methods implemented by {\idas} for the solution of initial value problems
   for systems of DAEs, continue with short descriptions of preconditioning
   (\S\ref{s:preconditioning}) and rootfinding (\S\ref{s:rootfinding}), and
@@ -595,7 +606,7 @@ The structure of this document is as follows:
 \item
   The following chapter describes the structure of the {\sundials} suite
   of solvers (\S\ref{ss:sun_org}) and the software organization of the {\idas}
-  solver (\S\ref{ss:idas_org}). 
+  solver (\S\ref{ss:idas_org}).
 \item
   Chapter \ref{s:simulation} is the main usage document for {\idas}
   for simulation applications.  It includes a complete description of
@@ -613,9 +624,9 @@ The structure of this document is as follows:
   additonal optional user-defined routines.
 \item
   Chapter \ref{s:adjoint} describes the usage of {\idas} for adjoint
-  sensitivity analysis. We begin by describing the {\idas} checkpointing 
+  sensitivity analysis. We begin by describing the {\idas} checkpointing
   implementation for interpolation of the original IVP solution during
-  integration of the adjoint system backward in time, and with 
+  integration of the adjoint system backward in time, and with
   an overview of a user's main program. Following that we provide complete
   descriptions of the user-callable interface routines for adjoint sensitivity
   analysis as well as descriptions of the required additional user-defined routines.
@@ -623,12 +634,12 @@ The structure of this document is as follows:
   Chapter \ref{s:nvector} gives a brief overview of the generic
   {\nvector} module shared amongst the various components of
   {\sundials}, as well as details on the {\nvector}
-  implementations provided with {\sundials}. 
+  implementations provided with {\sundials}.
 \item
 Chapter \ref{s:sunmatrix} gives a brief overview of the generic
   {\sunmatrix} module shared among the various components of
   {\sundials}, and details on the {\sunmatrix} implementations
-  provided with {\sundials}: 
+  provided with {\sundials}:
   a dense implementation (\S\ref{ss:sunmat_dense}),
   a banded implementation (\S\ref{ss:sunmat_band}) and
   a sparse implementation (\S\ref{ss:sunmat_sparse}).
@@ -659,10 +670,10 @@ Chapter \ref{s:sunmatrix} gives a brief overview of the generic
 \end{itemize}
 
 Finally, the reader should be aware of the following notational conventions
-in this user guide:  program listings and identifiers (such as \id{IDAInit}) 
-within textual explanations appear in typewriter type style; 
+in this user guide:  program listings and identifiers (such as \id{IDAInit})
+within textual explanations appear in typewriter type style;
 fields in {\CC} structures (such as {\em content}) appear in italics;
-and packages or modules, such as {\idals}, are written in all capitals. 
+and packages or modules, such as {\idals}, are written in all capitals.
 Usage and installation instructions that constitute important warnings
 are marked with a triangular symbol {\warn} in the margin.
 

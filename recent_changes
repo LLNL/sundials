@@ -87,6 +87,11 @@ Multiple updates to the RAJA NVECTOR were made:
  
   * Removed the accessor functions in the namespace sunrajavec.
 
+An additional N_Vector implementation was added for Tpetra vector from
+Trilinos library to facilitate interoperability between SUNDIALS and Trilinos.
+This implementation is accompanied by additions to user documentation and
+SUNDIALS examples.
+
 Two changes were made in the CVODE/CVODES/ARKODE initial step size algorithm:
 
   1. Fixed an efficiency bug where an extra call to the RHS function was made.

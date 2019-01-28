@@ -26,6 +26,7 @@ $tar $tarfile $distrobase/config/FindHypre.cmake
 $tar $tarfile $distrobase/config/FindKLU.cmake
 $tar $tarfile $distrobase/config/FindPETSc.cmake
 $tar $tarfile $distrobase/config/FindSUPERLUMT.cmake
+$tar $tarfile $distrobase/config/FindTrilinos.cmake
 $tar $tarfile $distrobase/config/SundialsAddTest.cmake
 $tar $tarfile $distrobase/config/SundialsAddF2003InterfaceLibrary.cmake
 $tar $tarfile $distrobase/config/SundialsBlas.cmake
@@ -42,6 +43,7 @@ $tar $tarfile $distrobase/config/SundialsOpenMP.cmake
 $tar $tarfile $distrobase/config/SundialsPETSc.cmake
 $tar $tarfile $distrobase/config/SundialsPOSIXTimers.cmake
 $tar $tarfile $distrobase/config/SundialsSuperLUMT.cmake
+$tar $tarfile $distrobase/config/SundialsTrilinos.cmake
 $tar $tarfile $distrobase/config/SundialsXSDK.cmake
 
 
@@ -95,6 +97,9 @@ $tar $tarfile $distrobase/include/nvector/cuda/Vector.hpp
 $tar $tarfile $distrobase/include/nvector/cuda/VectorKernels.cuh
 $tar $tarfile $distrobase/include/nvector/cuda/VectorArrayKernels.cuh
 $tar $tarfile $distrobase/include/nvector/raja/Vector.hpp
+$tar $tarfile $distrobase/include/nvector/nvector_trilinos.h
+$tar $tarfile $distrobase/include/nvector/trilinos/SundialsTpetraVectorInterface.hpp
+$tar $tarfile $distrobase/include/nvector/trilinos/SundialsTpetraVectorKernels.hpp
 
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_band.h
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_dense.h
@@ -197,6 +202,11 @@ echo "   --- Add nvecraja module to $tarfile"
 
 $tar $tarfile $distrobase/src/nvec_raja/CMakeLists.txt
 $tar $tarfile $distrobase/src/nvec_raja/nvector_raja.cu
+
+echo "   --- Add nvectrilinos module to $tarfile"
+
+$tar $tarfile $distrobase/src/nvec_trilinos/CMakeLists.txt
+$tar $tarfile $distrobase/src/nvec_trilinos/nvector_trilinos.cpp
 
 echo "   --- Add sunmatband module to $tarfile"
 
@@ -382,6 +392,8 @@ $tar $tarfile $distrobase/examples/nvector/raja/test_nvector_raja.cu
 $tar $tarfile $distrobase/examples/nvector/raja/CMakeLists.txt
 $tar $tarfile $distrobase/examples/nvector/mpiraja/test_nvector_mpiraja.cu
 $tar $tarfile $distrobase/examples/nvector/mpiraja/CMakeLists.txt
+$tar $tarfile $distrobase/examples/nvector/trilinos/test_nvector_trilinos.cpp
+$tar $tarfile $distrobase/examples/nvector/trilinos/CMakeLists.txt
 $tar $tarfile $distrobase/examples/nvector/test_nvector.c
 $tar $tarfile $distrobase/examples/nvector/test_nvector.h
 
@@ -481,6 +493,7 @@ $tar $tarfile $distrobase/examples/templates/cmakelists_serial_F90_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_parallel_F90_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_cuda_CUDA_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_raja_CUDA_ex.in
+$tar $tarfile $distrobase/examples/templates/cmakelists_trilinos_CXX_ex.in
 
 $tar $tarfile $distrobase/examples/templates/makefile_parallel_C_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_parallel_F77_ex.in
@@ -501,6 +514,7 @@ $tar $tarfile $distrobase/examples/templates/makefile_serial_F90_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_parallel_F90_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_cuda_CUDA_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_raja_CUDA_ex.in
+$tar $tarfile $distrobase/examples/templates/makefile_trilinos_CXX_ex.in
 
 echo "   --- Add testing files to $tarfile"
 

@@ -18,15 +18,13 @@
 # C examples
 if(EXAMPLES_ENABLE_C)
   add_subdirectory(serial)
-  if(OPENMP_FOUND)
-    if(OPENMP_ENABLE)
-      add_subdirectory(C_openmp)
-    endif()
-    if(OPENMP_DEVICE_ENABLE)
-      add_subdirectory(C_openmpdev)
-    endif()
+  if(OPENMP_ENABLE AND OPENMP_FOUND)
+    add_subdirectory(C_openmp)
   endif()
-  if(MPI_C_FOUND)
+  if(OPENMP_DEVICE_ENABLE AND OPENMP_FOUND AND OPENMP_SUPPORTS_DEVICE_OFFLOADING)
+    add_subdirectory(C_openmpdev)
+  endif()
+  if(MPI_ENABLE AND MPI_C_FOUND)
     add_subdirectory(parallel)
   endif()
   if(HYPRE_ENABLE AND HYPRE_FOUND)
@@ -37,7 +35,7 @@ endif()
 # Fortran examples
 if(F77_INTERFACE_ENABLE AND EXAMPLES_ENABLE_F77 AND F77_FOUND)
   add_subdirectory(fcmix_serial)
-  if(MPI_Fortran_FOUND)
+  if(MPI_ENABLE AND MPI_Fortran_FOUND)
     add_subdirectory(fcmix_parallel)
   endif()
 endif()
@@ -48,14 +46,14 @@ endif()
 
 # cuda examples
 if(EXAMPLES_ENABLE_CUDA)
+
   if(CUDA_ENABLE AND CUDA_FOUND)
     add_subdirectory(cuda)
   endif()
-endif()
 
-# raja examples
-if(EXAMPLES_ENABLE_RAJA)
   if(RAJA_ENABLE AND RAJA_FOUND)
     add_subdirectory(raja)
   endif()
-endif()
+
+endif(EXAMPLES_ENABLE_CUDA)
+

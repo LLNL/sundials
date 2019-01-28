@@ -1,5 +1,5 @@
 /*
- * ----------------------------------------------------------------- 
+ * -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
  *                David Gardner, Carol Woodward, Slaven Peles @ LLNL
  * -----------------------------------------------------------------
@@ -21,8 +21,8 @@
  *   - an 'ops' filed which contains a structure listing operations
  *     acting on such matrices
  *
- * Part I of this file contains enumeration constants for all 
- * SUNDIALS-defined matrix types, as well as a generic type for 
+ * Part I of this file contains enumeration constants for all
+ * SUNDIALS-defined matrix types, as well as a generic type for
  * user-supplied matrix types.
  *
  * Part II of this file contains type declarations for the
@@ -46,42 +46,42 @@
 
 #ifndef _SUNMATRIX_H
 #define _SUNMATRIX_H
- 
+
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_nvector.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
- 
-  
+
+
 /*
  * -----------------------------------------------------------------
  * I. Implemented SUNMatrix types
  * -----------------------------------------------------------------
  */
- 
+
 typedef enum {
-  SUNMATRIX_DENSE, 
-  SUNMATRIX_BAND, 
-  SUNMATRIX_SPARSE, 
+  SUNMATRIX_DENSE,
+  SUNMATRIX_BAND,
+  SUNMATRIX_SPARSE,
   SUNMATRIX_CUSTOM
 } SUNMatrix_ID;
 
-  
+
 /*
  * -----------------------------------------------------------------
- * II. Generic definition of SUNMatrix 
+ * II. Generic definition of SUNMatrix
  * -----------------------------------------------------------------
  */
- 
+
 /* Forward reference for pointer to SUNMatrix_Ops object */
 typedef struct _generic_SUNMatrix_Ops *SUNMatrix_Ops;
- 
+
 /* Forward reference for pointer to SUNMatrix object */
 typedef struct _generic_SUNMatrix *SUNMatrix;
- 
-/* Structure containing function pointers to matrix operations  */  
+
+/* Structure containing function pointers to matrix operations  */
 struct _generic_SUNMatrix_Ops {
   SUNMatrix_ID (*getid)(SUNMatrix);
   SUNMatrix    (*clone)(SUNMatrix);
@@ -93,7 +93,7 @@ struct _generic_SUNMatrix_Ops {
   int          (*matvec)(SUNMatrix, N_Vector, N_Vector);
   int          (*space)(SUNMatrix, long int*, long int*);
 };
- 
+
 /* A matrix is a structure with an implementation-dependent
    'content' field, and a pointer to a structure of matrix
    operations corresponding to that implementation.  */
@@ -102,14 +102,14 @@ struct _generic_SUNMatrix {
   struct _generic_SUNMatrix_Ops *ops;
 };
 
-  
+
 /*
  * -----------------------------------------------------------------
  * III. Functions exported by SUNMatrix module
  *
  * SUNMatGetID
- *   Returns an identifier for the matrix type from the enumeration 
- *   SUNMatrix_ID.  This will be queried by a given linear solver to 
+ *   Returns an identifier for the matrix type from the enumeration
+ *   SUNMatrix_ID.  This will be queried by a given linear solver to
  *   assess compatibility.
  *
  * SUNMatClone
@@ -124,24 +124,24 @@ struct _generic_SUNMatrix {
  *   Sets all matrix entries to zero
  *
  * SUNMatScaleAdd
- *   Performs the operation A = c*A + B.  Returns an error if A 
+ *   Performs the operation A = c*A + B.  Returns an error if A
  *   and B have different types and/or dimensions.
  *
  * SUNMatCopy
- *   Performs the operation B = A.  Should return an error if A and 
+ *   Performs the operation B = A.  Should return an error if A and
  *   B have different types and/or dimensions.
  *
  * SUNMatScaleAddI
- *   Performs the operation A = c*A + I.  Returns an error if A is 
+ *   Performs the operation A = c*A + I.  Returns an error if A is
  *   not a square matrix.
  *
  * SUNMatMatvec
- *   Performs the matrix-vector product y = A*x.  Returns an error if 
- *   A, x and/or y have incompatible types and/or dimensions, or if 
+ *   Performs the matrix-vector product y = A*x.  Returns an error if
+ *   A, x and/or y have incompatible types and/or dimensions, or if
  *   x and y are the same vector.
  *
  * SUNMatSpace
- *   Returns the real and integer workspace requirement for the 
+ *   Returns the real and integer workspace requirement for the
  *   SUNMatrix object.
  *
  * -----------------------------------------------------------------
@@ -156,9 +156,9 @@ struct _generic_SUNMatrix {
  *   BP -  called by band preconditioner module
  *   DP -  called by band-block diagonal preconditioner module
  *
- *                                MODULES                  
+ *                                MODULES
  * MATRIX        -----------------------------------------------
- * FUNCTIONS     CVODE(S)      ARKode      IDA(S)       KINSOL    
+ * FUNCTIONS     CVODE(S)      ARKode      IDA(S)       KINSOL
  * ----------------------------------------------------------------
  *  GetID        D B S BP DP  D B S BP DP  D B S BP DP  D B S BP DP
  *  Clone        D B S BP DP  D B S BP DP  BP DP
@@ -170,11 +170,11 @@ struct _generic_SUNMatrix {
  *  Matvec*                   D B S
  *  Space        D B S BP DP  D B S BP DP  D B S BP DP  D B S BP DP
  * -----------------------------------------------------------------
- *  Note: MatrixMatvec is only called by ARKode when solving 
+ *  Note: MatrixMatvec is only called by ARKode when solving
  *        problems having non-identity mass matrix
  * -----------------------------------------------------------------
  */
-  
+
 SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID(SUNMatrix A);
 SUNDIALS_EXPORT SUNMatrix SUNMatClone(SUNMatrix A);
 SUNDIALS_EXPORT void SUNMatDestroy(SUNMatrix A);
@@ -185,7 +185,7 @@ SUNDIALS_EXPORT int SUNMatScaleAddI(realtype c, SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y);
 SUNDIALS_EXPORT int SUNMatSpace(SUNMatrix A, long int *lenrw,
                                 long int *leniw);
- 
+
 #ifdef __cplusplus
 }
 #endif

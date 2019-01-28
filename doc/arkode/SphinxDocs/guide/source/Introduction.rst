@@ -107,6 +107,19 @@ preconditioner routines.
 Changes from previous versions
 --------------------------------
 
+Changes in v3.1.0
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+An additional NVECTOR implementation was added for the
+Tpetra vector from the Trilinos library to facilitate interoperability
+between SUNDIALS and Trilinos. This implementation is accompanied by
+additions to user documentation and SUNDIALS examples.
+
+The `EXAMPLES_ENABLE_RAJA` CMake option has been removed. The option `EXAMPLES_ENABLE_CUDA`
+enables all examples that use CUDA including the RAJA examples with a CUDA back end
+(if the RAJA NVECTOR is enabled).
+
+
 Changes in v3.0.2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

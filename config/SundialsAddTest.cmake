@@ -13,7 +13,7 @@
 # ---------------------------------------------------------------
 #
 # SUNDIALS_ADD_TEST(<test name> <executable>)
-# 
+#
 # CMake macro to add a Sundials regression test. Keyword input
 # arguments can be added after <executable> to set regression
 # test options (see oneValueArgs and multiValueArgs below).
@@ -70,7 +70,7 @@ MACRO(SUNDIALS_ADD_TEST NAME EXECUTABLE)
   # command line arguments for the test runner script
   SET(TEST_ARGS
     "--verbose"
-    "--testname=${NAME}" 
+    "--testname=${NAME}"
     "--executablename=$<TARGET_FILE:${EXECUTABLE}>"
     "--outputdir=${CMAKE_BINARY_DIR}/Testing/output"
     )
@@ -84,19 +84,19 @@ MACRO(SUNDIALS_ADD_TEST NAME EXECUTABLE)
   IF("${SUNDIALS_ADD_TEST_MPI_NPROCS}" STREQUAL "")
   ELSE()
 
-    IF(MPI_ENABLE)
+    IF(NOT ("${MPIEXEC_EXECUTABLE}" STREQUAL ""))
       IF(MPIEXEC_EXECUTABLE MATCHES "srun")
-	SET(RUN_COMMAND "srun -N1 -n${SUNDIALS_ADD_TEST_MPI_NPROCS} -ppdebug")
+        SET(RUN_COMMAND "srun -N1 -n${SUNDIALS_ADD_TEST_MPI_NPROCS} -ppdebug")
       ELSE()
-	SET(RUN_COMMAND "${MPIEXEC_EXECUTABLE} -n ${SUNDIALS_ADD_TEST_MPI_NPROCS}")
+        SET(RUN_COMMAND "${MPIEXEC_EXECUTABLE} -n ${SUNDIALS_ADD_TEST_MPI_NPROCS}")
       ENDIF()
-      
+
       LIST(APPEND TEST_ARGS "--runcommand=\"${RUN_COMMAND}\"")
 
-    ENDIF(MPI_ENABLE)
+    ENDIF(NOT ("${MPIEXEC_EXECUTABLE}" STREQUAL ""))
 
   ENDIF()
-  
+
   # set the test input args
   IF("${SUNDIALS_ADD_TEST_TEST_ARGS}" STREQUAL "")
   ELSE()
@@ -161,14 +161,14 @@ MACRO(SUNDIALS_ADD_TEST_INSTALL SOLVER EXECUTABLE)
 
   # command line arguments for the test runner script
   set(TEST_ARGS
-    "--testname=${EXECUTABLE}" 
+    "--testname=${EXECUTABLE}"
     "--executablename=./${EXECUTABLE}"
     "--outputdir=${TEST_INSTALL_DIR}/${SOLVER}"
     "--builddir=${SUNDIALS_ADD_TEST_INSTALL_EXAMPLE_DIR}"
     "--buildcmd=${CMAKE_COMMAND}"
     "--nodiff"
     )
-  
+
   # add test_install target for this solver
   ADD_CUSTOM_TARGET(${SOLVER}_test_install
     COMMAND ${PYTHON_EXECUTABLE} ${TESTRUNNER} ${TEST_ARGS}

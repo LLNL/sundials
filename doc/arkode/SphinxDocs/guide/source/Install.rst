@@ -526,14 +526,6 @@ illustration only.
 
    Default: ``OFF``
 
-:index:`EXAMPLES_ENABLE_RAJA <EXAMPLES_ENABLE_RAJA (CMake option)>`
-   Build the SUNDIALS RAJA examples
-
-   Default: ``OFF``
-
-   .. note:: You need to enable CUDA and RAJA support to build these
-             examples.
-
 :index:`EXAMPLES_ENABLE_F77 <EXAMPLES_ENABLE_F77 (CMake option)>`
    Build the SUNDIALS Fortran77 examples
 
@@ -1209,7 +1201,7 @@ RAJA installation. To enable RAJA, set ``CUDA_ENABLE`` and
 ``RAJA_ENABLE`` to ``ON``. If RAJA is installed in a nonstandard
 location you will be prompted to set the variable ``RAJA_DIR`` with
 the path to the RAJA CMake configuration file. To enable building the
-RAJA examples set ``EXAMPLES_ENABLE_RAJA`` to ``ON``.
+RAJA examples set ``EXAMPLES_ENABLE_CUDA`` to ``ON``.
 
 
 
