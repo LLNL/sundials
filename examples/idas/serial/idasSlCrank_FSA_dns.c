@@ -354,6 +354,10 @@ int main(void)
   N_VDestroy(yy);
   N_VDestroy(yp);
   N_VDestroy(q);
+
+  N_VDestroyVectorArray(yyS, NP);
+  N_VDestroyVectorArray(ypS, NP);
+  N_VDestroyVectorArray(qS,  NP);
   return(0);
   
 }

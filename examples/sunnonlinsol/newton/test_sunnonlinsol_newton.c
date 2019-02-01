@@ -91,13 +91,13 @@ int main(int argc, char *argv[])
   x  = N_VNew_Serial(NEQ);
   if (check_retval((void *)x, "N_VNew_Serial", 0)) return(1);
 
-  y0 = N_VNew_Serial(NEQ);
+  y0 = N_VClone(x);
   if (check_retval((void *)y0, "N_VNew_Serial", 0)) return(1);
 
-  y  = N_VNew_Serial(NEQ);
+  y  = N_VClone(x);
   if (check_retval((void *)y, "N_VNew_Serial", 0)) return(1);
 
-  w  = N_VNew_Serial(NEQ);
+  w  = N_VClone(x);
   if (check_retval((void *)w, "N_VNew_Serial", 0)) return(1);
 
   /* set initial guess */
@@ -173,7 +173,9 @@ int main(int argc, char *argv[])
 
   /* Free vector, matrix, linear solver, and nonlinear solver */
   N_VDestroy(x);
+  N_VDestroy(y0);
   N_VDestroy(y);
+  N_VDestroy(w);
   SUNMatDestroy(A);
   SUNLinSolFree(LS);
   SUNNonlinSolFree(NLS);
