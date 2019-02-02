@@ -18,27 +18,27 @@ set(cvode_SOURCES fcvode.f90)
 # Add variable nvec_SOURCES with the common NVECTOR sources which will
 # also be included in the CVODE library
 set(nvec_SOURCES
-  ${sundials_SOURCE_DIR}/src/nvec_ser/F90/fnvector_serial.f90
+  ${sundials_SOURCE_DIR}/src/nvector/serial/F90/fnvector_serial.f90
 )
 
 # Add variable sunmatrix_SOURCES with the common SUNMatrix sources which will
 # also be included in the CVODE library
 set(sunmatrix_SOURCES
-  ${sundials_SOURCE_DIR}/src/sunmat_band/F90/fsunmatrix_band.f90
-  ${sundials_SOURCE_DIR}/src/sunmat_dense/F90/fsunmatrix_dense.f90
-  ${sundials_SOURCE_DIR}/src/sunmat_sparse/F90/fsunmatrix_sparse.f90
+  ${sundials_SOURCE_DIR}/src/sunmatrix/band/F90/fsunmatrix_band.f90
+  ${sundials_SOURCE_DIR}/src/sunmatrix/dense/F90/fsunmatrix_dense.f90
+  ${sundials_SOURCE_DIR}/src/sunmatrix/sparse/F90/fsunmatrix_sparse.f90
 )
 
 # Add variable sunlinsol_SOURCES with the common SUNLinearSolver sources which will
 # also be included in the CVODE library
 set(sunlinsol_SOURCES
-  ${sundials_SOURCE_DIR}/src/sunlinsol_band/F90/fsunlinsol_band.f90
-  ${sundials_SOURCE_DIR}/src/sunlinsol_dense/F90/fsunlinsol_dense.f90
-  ${sundials_SOURCE_DIR}/src/sunlinsol_spbcgs/F90/fsunlinsol_spbcgs.f90
-  ${sundials_SOURCE_DIR}/src/sunlinsol_spfgmr/F90/fsunlinsol_spfgmr.f90
-  ${sundials_SOURCE_DIR}/src/sunlinsol_spgmr/F90/fsunlinsol_spgmr.f90
-  ${sundials_SOURCE_DIR}/src/sunlinsol_sptfqmr/F90/fsunlinsol_sptfqmr.f90
-  ${sundials_SOURCE_DIR}/src/sunlinsol_pcg/F90/fsunlinsol_pcg.f90
+  ${sundials_SOURCE_DIR}/src/sunlinsol/band/F90/fsunlinsol_band.f90
+  ${sundials_SOURCE_DIR}/src/sunlinsol/dense/F90/fsunlinsol_dense.f90
+  ${sundials_SOURCE_DIR}/src/sunlinsol/spbcgs/F90/fsunlinsol_spbcgs.f90
+  ${sundials_SOURCE_DIR}/src/sunlinsol/spfgmr/F90/fsunlinsol_spfgmr.f90
+  ${sundials_SOURCE_DIR}/src/sunlinsol/spgmr/F90/fsunlinsol_spgmr.f90
+  ${sundials_SOURCE_DIR}/src/sunlinsol/sptfqmr/F90/fsunlinsol_sptfqmr.f90
+  ${sundials_SOURCE_DIR}/src/sunlinsol/pcg/F90/fsunlinsol_pcg.f90
 )
 
 # Add variable sunnonlinsol_SOURCES with the common SUNNonlinearSolver sources

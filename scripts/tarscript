@@ -224,30 +224,9 @@ cp -r $sundialsdir/include/sunnonlinsol $tmpdir/include/
 
 cp    $sundialsdir/src/CMakeLists.txt $tmpdir/src/
 cp -r $sundialsdir/src/sundials $tmpdir/src/
-cp -r $sundialsdir/src/nvec_ser $tmpdir/src/
-cp -r $sundialsdir/src/nvec_par $tmpdir/src/
-cp -r $sundialsdir/src/nvec_parhyp $tmpdir/src/
-cp -r $sundialsdir/src/nvec_petsc $tmpdir/src/
-cp -r $sundialsdir/src/nvec_openmp $tmpdir/src/
-cp -r $sundialsdir/src/nvec_openmpdev $tmpdir/src/
-cp -r $sundialsdir/src/nvec_pthreads $tmpdir/src/
-cp -r $sundialsdir/src/nvec_cuda $tmpdir/src/
-cp -r $sundialsdir/src/nvec_raja $tmpdir/src/
-cp -r $sundialsdir/src/nvec_trilinos $tmpdir/src/
-cp -r $sundialsdir/src/sunmat_band $tmpdir/src/
-cp -r $sundialsdir/src/sunmat_dense $tmpdir/src/
-cp -r $sundialsdir/src/sunmat_sparse $tmpdir/src/
-cp -r $sundialsdir/src/sunlinsol_band $tmpdir/src/
-cp -r $sundialsdir/src/sunlinsol_dense $tmpdir/src/
-cp -r $sundialsdir/src/sunlinsol_klu $tmpdir/src/
-cp -r $sundialsdir/src/sunlinsol_lapackband $tmpdir/src/
-cp -r $sundialsdir/src/sunlinsol_lapackdense $tmpdir/src/
-cp -r $sundialsdir/src/sunlinsol_pcg $tmpdir/src/
-cp -r $sundialsdir/src/sunlinsol_spbcgs $tmpdir/src/
-cp -r $sundialsdir/src/sunlinsol_spfgmr $tmpdir/src/
-cp -r $sundialsdir/src/sunlinsol_spgmr $tmpdir/src/
-cp -r $sundialsdir/src/sunlinsol_sptfqmr $tmpdir/src/
-cp -r $sundialsdir/src/sunlinsol_superlumt $tmpdir/src/
+cp -r $sundialsdir/src/nvector $tmpdir/src/
+cp -r $sundialsdir/src/sunmatrix $tmpdir/src/
+cp -r $sundialsdir/src/sunlinsol $tmpdir/src/
 cp -r $sundialsdir/src/sunnonlinsol $tmpdir/src/
 
 cp -r $sundialsdir/doc/sundials $tmpdir/doc/
