@@ -20,12 +20,12 @@
 
 # Examples using SUNDIALS linear solvers
 SET(KINSOL_examples
+  "kinRoberts_fp\;"
   "kinFerTron_dns\;develop"
   "kinFoodWeb_kry\;develop"
   "kinKrylovDemo_ls\;develop"
   "kinLaplace_bnd\;develop"
   "kinLaplace_picard_bnd\;develop"
-  "kinRoberts_fp\;"
   "kinRoboKin_dns\;develop"
   )
 

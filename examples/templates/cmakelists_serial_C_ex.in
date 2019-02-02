@@ -86,6 +86,8 @@ SET(KLU_LIBRARIES @KLU_LIBRARIES@ CACHE STRING "KLU libraries")
 # List of Sundials libraries shared across all examples
 SET(SUNDIALS_LIBS ${SUNDIALS_SOLVER_LIB} ${SUNDIALS_NVEC_LIB} ${SUNDIALS_EXTRA_LIB})
 
+# Enable testing
+INCLUDE(CTest)
 
 # Build examples with SUNDIALS linear solvers one by one
 FOREACH(example ${examples})
@@ -98,6 +100,9 @@ FOREACH(example ${examples})
 
 ENDFOREACH(example ${examples})
 
+# add the first example to ctest
+LIST(GET examples 0 TEST)
+ADD_TEST(NAME ${TEST} COMMAND ${TEST})
 
 # Build each example with LAPACK linear solvers one by one
 IF(LAPACK_LIBRARIES)

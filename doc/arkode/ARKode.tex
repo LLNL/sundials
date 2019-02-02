@@ -318,6 +318,8 @@ The implementation header file \emph{arkode\_impl.h} is no longer installed. Thi
 who are directly manipulating the \code{ARKodeMem} structure will need to update their code
 to use ARKode's public API.
 
+Python is no longer required to run \code{make test} and \code{make test\_install}.
+
 Fixed a bug in \code{ARKodeButcherTable\_Write} when printing a Butcher table
 without an embedding.
 

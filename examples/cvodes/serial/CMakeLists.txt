@@ -20,6 +20,12 @@
 
 # Examples using SUNDIALS linear solvers
 SET(CVODES_examples
+  "cvsRoberts_dns\;\;"
+  "cvsRoberts_dns_constraints\;\;develop"
+  "cvsRoberts_dns_uw\;\;develop"
+  "cvsRoberts_FSA_dns\;-sensi stg1 t\;develop"
+  "cvsRoberts_FSA_dns_Switch\;\;develop"
+  "cvsRoberts_FSA_dns_constraints\;-sensi stg1 t\;develop"
   "cvsAdvDiff_ASAi_bnd\;\;develop"
   "cvsAdvDiff_bnd\;\;develop"
   "cvsAdvDiff_FSA_non\;-sensi stg t\;develop"
@@ -36,12 +42,6 @@ SET(CVODES_examples
   "cvsKrylovDemo_prec\;\;develop"
   "cvsRoberts_ASAi_dns\;\;develop"
   "cvsRoberts_ASAi_dns_constraints\;\;develop"
-  "cvsRoberts_dns\;\;"
-  "cvsRoberts_dns_constraints\;\;develop"
-  "cvsRoberts_dns_uw\;\;develop"
-  "cvsRoberts_FSA_dns\;-sensi stg1 t\;develop"
-  "cvsRoberts_FSA_dns_Switch\;\;develop"
-  "cvsRoberts_FSA_dns_constraints\;-sensi stg1 t\;develop"
   )
 
 # Examples using LAPACK linear solvers

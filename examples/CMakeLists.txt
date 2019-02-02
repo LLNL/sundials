@@ -14,6 +14,14 @@
 # examples level CMakeLists.txt for SUNDIALS (for cmake build system)
 # ---------------------------------------------------------------
 
+# The examples will be linked with the library corresponding to the build type.
+# Whenever building shared libraries, use them to link the examples.
+IF(BUILD_SHARED_LIBS)
+  SET(LINK_LIBRARY_TYPE "shared")
+ELSE()
+  SET(LINK_LIBRARY_TYPE "static")
+ENDIF()
+
 # Set variables used in generating CMake and Makefiles for examples
 IF(EXAMPLES_INSTALL)
 

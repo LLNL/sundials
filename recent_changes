@@ -16,6 +16,8 @@ The implementation header files (e.g. arkode_impl.h) are no longer installed. Th
 who are directly manipulating package memory structures will need to update their code
 to use the package's public API.
 
+Python is no longer required to run make test and make test_install.
+
 Fixed a bug in ARKodeButcherTable_Write when printing a Butcher table
 without an embedding.
 

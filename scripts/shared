@@ -28,6 +28,7 @@ $tar $tarfile $distrobase/config/FindPETSc.cmake
 $tar $tarfile $distrobase/config/FindSUPERLUMT.cmake
 $tar $tarfile $distrobase/config/FindTrilinos.cmake
 $tar $tarfile $distrobase/config/SundialsAddTest.cmake
+$tar $tarfile $distrobase/config/SundialsAddTestInstall.cmake
 $tar $tarfile $distrobase/config/SundialsAddF2003InterfaceLibrary.cmake
 $tar $tarfile $distrobase/config/SundialsBlas.cmake
 $tar $tarfile $distrobase/config/SundialsCMakeMacros.cmake
@@ -43,6 +44,7 @@ $tar $tarfile $distrobase/config/SundialsOpenMP.cmake
 $tar $tarfile $distrobase/config/SundialsPETSc.cmake
 $tar $tarfile $distrobase/config/SundialsPOSIXTimers.cmake
 $tar $tarfile $distrobase/config/SundialsSuperLUMT.cmake
+$tar $tarfile $distrobase/config/SundialsTesting.cmake
 $tar $tarfile $distrobase/config/SundialsTrilinos.cmake
 $tar $tarfile $distrobase/config/SundialsXSDK.cmake
 

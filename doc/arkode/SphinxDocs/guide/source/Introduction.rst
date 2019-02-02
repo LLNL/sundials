@@ -126,6 +126,8 @@ The implementation header file `arkode_impl.h` is no longer installed. This mean
 who are direclty manipulating the ``ARKodeMem`` structure will need to update their code
 to use ARKode's public API.
 
+Python is no longer required to run ``make test`` and ``make test_install``.
+
 Fixed a bug in ``ARKodeButcherTable_Write`` when printing a Butcher table
 without an embedding.
 
