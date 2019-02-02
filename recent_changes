@@ -12,6 +12,10 @@ The EXAMPLES_ENABLE_RAJA CMake option has been removed. The option EXAMPLES_ENAB
 enables all examples that use CUDA including the RAJA examples with a CUDA back end (if the RAJA
 NVECTOR is enabled).
 
+The implementation header files (e.g. arkode_impl.h) are no longer installed. This means users
+who are directly manipulating package memory structures will need to update their code
+to use the package's public API.
+
 Changes to SUNDIALS in release 4.0.2
 
 Added information on how to contribute to SUNDIALS and a contributing agreement.

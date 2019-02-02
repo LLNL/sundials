@@ -143,8 +143,5 @@ ENDIF(BUILD_SHARED_LIBS)
 # Install the CVODE header files
 INSTALL(FILES ${cvode_HEADERS} DESTINATION include/cvode)
 
-# Install the CVODE implementation header file
-INSTALL(FILES cvode_impl.h DESTINATION include/cvode)
-
 #
 MESSAGE(STATUS "Added CVODE module")

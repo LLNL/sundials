@@ -149,8 +149,5 @@ ENDIF(BUILD_SHARED_LIBS)
 # Install the ARKODE header files
 INSTALL(FILES ${arkode_HEADERS} DESTINATION include/arkode)
 
-# Install the ARKODE implementation header file
-INSTALL(FILES arkode_impl.h DESTINATION include/arkode)
-
 #
 MESSAGE(STATUS "Added ARKODE module")

@@ -131,6 +131,10 @@ The \id{EXAMPLES\_ENABLE\_RAJA} CMake option has been removed. The option \id{EX
 enables all examples that use CUDA including the RAJA examples with a CUDA back end (if the RAJA
 {\nvector} is enabled).
 
+The implementation header file \id{cvodes\_impl.h} is no longer installed. This means users
+who are directly manipulating the \id{CVodeMem} structure will need to update their code
+to use {\cvodes}'s public API.
+
 \subsection*{Changes in v4.0.2}
 
 Added information on how to contribute to {\sundials} and a contributing agreement.

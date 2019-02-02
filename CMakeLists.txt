@@ -121,17 +121,6 @@ INCLUDE(GNUInstallDirs)
 MARK_AS_ADVANCED(CLEAR CMAKE_INSTALL_LIBDIR)
 
 # ---------------------------------------------------------------
-# MACRO definitions
-# ---------------------------------------------------------------
-INCLUDE(SundialsCMakeMacros)
-INCLUDE(SundialsAddF2003InterfaceLibrary)
-
-# ---------------------------------------------------------------
-# Check for deprecated SUNDIALS CMake options/variables
-# ---------------------------------------------------------------
-INCLUDE(SundialsDeprecated)
-
-# ---------------------------------------------------------------
 # Which modules to build?
 # ---------------------------------------------------------------
 
@@ -180,6 +169,17 @@ ENDIF()
 #ELSE()
 #  SET(BUILD_CPODES OFF)
 #ENDIF()
+
+# ---------------------------------------------------------------
+# MACRO definitions
+# ---------------------------------------------------------------
+INCLUDE(SundialsCMakeMacros)
+INCLUDE(SundialsAddF2003InterfaceLibrary)
+
+# ---------------------------------------------------------------
+# Check for deprecated SUNDIALS CMake options/variables
+# ---------------------------------------------------------------
+INCLUDE(SundialsDeprecated)
 
 # ---------------------------------------------------------------
 # xSDK specific options

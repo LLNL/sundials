@@ -93,3 +93,29 @@ if(DEFINED MPI_RUN_COMMAND)
   force_variable(MPIEXEC_EXECUTABLE FILEPATH "MPI run command" ${MPI_RUN_COMMAND})
   unset(MPI_RUN_COMMAND CACHE)
 endif()
+
+
+###############################################################################
+# Secret option to install impl header files.                                 #
+# TODO: remove after Sept. 2019                                               #
+###############################################################################
+if(DEFINED _INSTALL_IMPL_FILES)
+  if(BUILD_ARKODE)
+    install(FILES ${PROJECT_SOURCE_DIR}/src/arkode/arkode_impl.h DESTINATION include/arkode)
+  endif()
+  if(BUILD_CVODE)
+    install(FILES ${PROJECT_SOURCE_DIR}/src/cvode/cvode_impl.h   DESTINATION include/cvode)
+  endif()
+  if(BUILD_CVODES)
+    install(FILES ${PROJECT_SOURCE_DIR}/src/cvodes/cvodes_impl.h DESTINATION include/cvodes)
+  endif()
+  if(BUILD_IDA)
+    install(FILES ${PROJECT_SOURCE_DIR}/src/ida/ida_impl.h       DESTINATION include/ida)
+  endif()
+  if(BUILD_IDAS)
+    install(FILES ${PROJECT_SOURCE_DIR}/src/idas/idas_impl.h     DESTINATION include/idas)
+  endif()
+  if(BUILD_KINSOL)
+    install(FILES ${PROJECT_SOURCE_DIR}/src/kinsol/kinsol_impl.h DESTINATION include/kinsol)
+  endif()
+endif()

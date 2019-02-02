@@ -122,6 +122,10 @@ The ``EXAMPLES_ENABLE_RAJA`` CMake option has been removed. The option ``EXAMPLE
 enables all examples that use CUDA including the RAJA examples with a CUDA back end
 (if the RAJA NVECTOR is enabled).
 
+The implementation header file `arkode_impl.h` is no longer installed. This means users
+who are direclty manipulating the ``ARKodeMem`` structure will need to update their code
+to use ARKode's public API.
+
 
 Changes in v3.0.2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

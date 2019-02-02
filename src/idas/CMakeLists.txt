@@ -139,8 +139,5 @@ ENDIF(BUILD_SHARED_LIBS)
 # Install the IDAS header files
 INSTALL(FILES ${idas_HEADERS} DESTINATION include/idas)
 
-# Install the IDAS implementation header file
-INSTALL(FILES idas_impl.h DESTINATION include/idas)
-
 #
 MESSAGE(STATUS "Added IDAS module")
