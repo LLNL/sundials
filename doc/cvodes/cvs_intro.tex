@@ -124,6 +124,9 @@ An additional {\nvector} implementation was added for the
 between {\sundials} and {\trilinos}. This implementation is accompanied by
 additions to user documentation and {\sundials} examples.
 
+A bug was fixed where a nonlinear solver object could be freed twice in some use
+cases.
+
 The \id{EXAMPLES\_ENABLE\_RAJA} CMake option has been removed. The option \id{EXAMPLES\_ENABLE\_CUDA}
 enables all examples that use CUDA including the RAJA examples with a CUDA back end (if the RAJA
 {\nvector} is enabled).

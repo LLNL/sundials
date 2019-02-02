@@ -99,7 +99,8 @@ int CVodeSetNonlinearSolverSensSim(void *cvode_mem, SUNNonlinearSolver NLS)
   }
 
   /* free any existing nonlinear solver */
-  if (cv_mem->NLSsim) retval = SUNNonlinSolFree(cv_mem->NLSsim);
+  if ((cv_mem->NLSsim != NULL) && (cv_mem->ownNLSsim))
+    retval = SUNNonlinSolFree(cv_mem->NLSsim);
 
   /* set SUNNonlinearSolver pointer */
   cv_mem->NLSsim = NLS;
