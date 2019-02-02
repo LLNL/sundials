@@ -16,6 +16,9 @@ The implementation header files (e.g. arkode_impl.h) are no longer installed. Th
 who are directly manipulating package memory structures will need to update their code
 to use the package's public API.
 
+Fixed a bug in ARKodeButcherTable_Write when printing a Butcher table
+without an embedding.
+
 Changes to SUNDIALS in release 4.0.2
 
 Added information on how to contribute to SUNDIALS and a contributing agreement.

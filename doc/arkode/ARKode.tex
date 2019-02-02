@@ -318,6 +318,8 @@ The implementation header file \emph{arkode\_impl.h} is no longer installed. Thi
 who are directly manipulating the \code{ARKodeMem} structure will need to update their code
 to use ARKode's public API.
 
+Fixed a bug in \code{ARKodeButcherTable\_Write} when printing a Butcher table
+without an embedding.
 
 \subsection{Changes in v3.0.2}
 \label{Introduction:changes-in-v3-0-2}
