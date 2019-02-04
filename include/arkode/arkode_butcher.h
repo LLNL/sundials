@@ -1,6 +1,6 @@
-/*---------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
- *---------------------------------------------------------------
+ * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2019, Lawrence Livermore National Security
  * and Southern Methodist University.
@@ -10,9 +10,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
- *---------------------------------------------------------------
- * Header file for Butcher table structures in ARKode.
- *--------------------------------------------------------------*/
+ * -----------------------------------------------------------------
+ * This is the header file for ARKode Butcher table structures.
+ * -----------------------------------------------------------------*/
 
 #ifndef _ARKODE_BUTCHER_H
 #define _ARKODE_BUTCHER_H
@@ -23,9 +23,10 @@
 extern "C" {
 #endif
 
+
 /*---------------------------------------------------------------
- Types : struct ARKodeButcherTableMem, ARKodeButcherTable
----------------------------------------------------------------*/
+  Types : struct ARKodeButcherTableMem, ARKodeButcherTable
+  ---------------------------------------------------------------*/
 typedef struct ARKodeButcherTableMem {
 
   int q;           /* method order of accuracy       */
@@ -53,13 +54,16 @@ SUNDIALS_EXPORT void ARKodeButcherTable_Space(ARKodeButcherTable B,
                                               sunindextype *liw,
                                               sunindextype *lrw);
 SUNDIALS_EXPORT void ARKodeButcherTable_Free(ARKodeButcherTable B);
-SUNDIALS_EXPORT void ARKodeButcherTable_Write(ARKodeButcherTable B, FILE *outfile);
+SUNDIALS_EXPORT void ARKodeButcherTable_Write(ARKodeButcherTable B,
+                                              FILE *outfile);
 
 SUNDIALS_EXPORT int ARKodeButcherTable_CheckOrder(ARKodeButcherTable B, int *q,
                                                   int *p, FILE *outfile);
 SUNDIALS_EXPORT int ARKodeButcherTable_CheckARKOrder(ARKodeButcherTable B1,
                                                      ARKodeButcherTable B2,
-                                                     int *q, int *p, FILE *outfile);
+                                                     int *q, int *p,
+                                                     FILE *outfile);
+
 
 #ifdef __cplusplus
 }

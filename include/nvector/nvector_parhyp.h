@@ -15,15 +15,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the main header file for the MPI-enabled implementation
+ * This is the main header file for the ParHyp implementation
  * of the NVECTOR module.
- *
- * Part I contains declarations specific to the implementation of
- * the supplied NVECTOR module.
- *
- * Part II contains the prototype for the constructor
- * N_VNew_ParHyp as well as implementation-specific prototypes
- * for various useful vector operations.
  *
  * Notes:
  *
@@ -60,19 +53,12 @@
 extern "C" {
 #endif
 
-
 /*
  * -----------------------------------------------------------------
- * PART I: Implementation of N_Vector wrapper for a HYPRE_ParVector
+ * ParHyp implementation of N_Vector               
  * -----------------------------------------------------------------
  */
 
-/* 
- * Implementation of the N_Vector 'content' structure contains the
- * global and local lengths of the vector, the underlying HYPRE
- * vector object, the MPI communicator, and a flag indicating
- * ownership of the HYPRE vector. 
- */
 struct _N_VectorContent_ParHyp {
   sunindextype local_length;  /* local vector length         */
   sunindextype global_length; /* global vector length        */
@@ -87,42 +73,7 @@ typedef struct _N_VectorContent_ParHyp *N_VectorContent_ParHyp;
 
 /*
  * -----------------------------------------------------------------
- * PART II: functions exported by nvector_ParHyp
- * 
- * CONSTRUCTORS:
- *    N_VNewEmpty_ParHyp
- *    N_VMake_ParHyp
- *    N_VCloneVectorArray_ParHyp
- *    N_VCloneVectorArrayEmpty_ParHyp
- * DESTRUCTORS:
- *    N_VDestroy_ParHyp
- *    N_VDestroyVectorArray_ParHyp
- * ENABLE/DISABLE FUSED OPS:
- *    N_VEnableFusedOps_ParHyp
- *    N_VEnableLinearCombination_ParHyp
- *    N_VEnableScaleAddMulti_ParHyp
- *    N_VEnableDotProdMulti_ParHyp
- *    N_VEnableLinearSumVectorArray_ParHyp
- *    N_VEnableScaleVectorArray_ParHyp
- *    N_VEnableConstVectorArray_ParHyp
- *    N_VEnableWrmsNormVectorArray_ParHyp
- *    N_VEnableWrmsNormMaskVectorArray_ParHyp
- *    N_VEnableScaleAddMultiVectorArray_ParHyp
- *    N_VEnableLinearCombinationVectorArray_ParHyp
- * ACCESSOR FUNCTIONS:
- *    N_VGetVector_ParHyp
- * OTHER:
- *    N_VPrint_ParHyp
- *    N_VPrintFile_ParHyp
- * -----------------------------------------------------------------
- */
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VNewEmpty_ParHyp
- * -----------------------------------------------------------------
- * This function creates a new hypre vector wrapper without the 
- * hypre vector itself.
+ * Functions exported by nvector_parhyp
  * -----------------------------------------------------------------
  */
 
@@ -130,88 +81,19 @@ SUNDIALS_EXPORT N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
                                             sunindextype local_length,
                                             sunindextype global_length);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VMake_ParHyp
- * -----------------------------------------------------------------
- * This function creates a hypre vector wrapper around user-supplied 
- * hypre vector.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT N_Vector N_VMake_ParHyp(HYPRE_ParVector x);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VCloneVectorArray_ParHyp
- * -----------------------------------------------------------------
- * This function creates an array of 'count' N_Vectors by cloning a 
- * given vector w. Both, the wrapper and the underlying hypre vector
- * are cloned.
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT N_Vector *N_VCloneVectorArray_ParHyp(int count, N_Vector w);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VCloneVectorArrayEmpty_ParHyp
- * -----------------------------------------------------------------
- * This function creates an array of 'count' empty hypre vector
- * wrappers by cloning w.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT N_Vector *N_VCloneVectorArrayEmpty_ParHyp(int count, N_Vector w);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VDestroyVectorArray_ParHyp
- * -----------------------------------------------------------------
- * This function frees an array of N_Vector created with 
- * N_VCloneVectorArray_ParHyp or N_VCloneVectorArrayEmpty_ParHyp.
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT void N_VDestroyVectorArray_ParHyp(N_Vector *vs, int count);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VGetVector_ParHyp
- * -----------------------------------------------------------------
- * Extracts underlying HYPRE vector.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT HYPRE_ParVector N_VGetVector_ParHyp(N_Vector v);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VPrint_ParHyp
- * -----------------------------------------------------------------
- * This function prints the local content of a HYPRE_ParVector to
- * stdout.
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT void N_VPrint_ParHyp(N_Vector v);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VPrintFile_ParHyp
- * -----------------------------------------------------------------
- * This function prints the local content of a HYPRE_ParVector to
- * outfile.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT void N_VPrintFile_ParHyp(N_Vector v, FILE *outfile);
-
-/*
- * -----------------------------------------------------------------
- * Implementations of the vector operations
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_ParHyp(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_ParHyp(N_Vector w);
@@ -273,7 +155,6 @@ SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
                                                            realtype* c,
                                                            N_Vector** X,
                                                            N_Vector* Z);
-
 
 /*
  * -----------------------------------------------------------------

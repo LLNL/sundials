@@ -15,17 +15,6 @@
  * This is the header file for the serial implementation of the
  * NVECTOR module.
  *
- * Part I contains declarations specific to the serial
- * implementation of the supplied NVECTOR module.
- *
- * Part II defines accessor macros that allow the user to
- * efficiently use the type N_Vector without making explicit
- * references to the underlying data structure.
- *
- * Part III contains the prototype for the constructor N_VNew_Serial
- * as well as implementation-specific prototypes for various useful
- * vector operations.
- *
  * Notes:
  *
  *   - The definition of the generic N_Vector structure can be found
@@ -58,69 +47,22 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
- * PART I: SERIAL implementation of N_Vector
+ * SERIAL implementation of N_Vector
  * -----------------------------------------------------------------
  */
 
-/* serial implementation of the N_Vector 'content' structure
-   contains the length of the vector, a pointer to an array
-   of 'realtype' components, and a flag indicating ownership of
-   the data */
-
 struct _N_VectorContent_Serial {
-  sunindextype length;
-  booleantype own_data;
-  realtype *data;
+  sunindextype length;   /* vector length       */
+  booleantype own_data;  /* data ownership flag */
+  realtype *data;        /* data array          */
 };
 
 typedef struct _N_VectorContent_Serial *N_VectorContent_Serial;
 
 /*
  * -----------------------------------------------------------------
- * PART II: macros NV_CONTENT_S, NV_DATA_S, NV_OWN_DATA_S,
- *          NV_LENGTH_S, and NV_Ith_S
- * -----------------------------------------------------------------
- * In the descriptions below, the following user declarations
- * are assumed:
- *
- * N_Vector v;
- * sunindextype i;
- *
- * (1) NV_CONTENT_S
- *
- *     This routines gives access to the contents of the serial
- *     vector N_Vector.
- *
- *     The assignment v_cont = NV_CONTENT_S(v) sets v_cont to be
- *     a pointer to the serial N_Vector content structure.
- *
- * (2) NV_DATA_S NV_OWN_DATA_S and NV_LENGTH_S
- *
- *     These routines give access to the individual parts of
- *     the content structure of a serial N_Vector.
- *
- *     The assignment v_data = NV_DATA_S(v) sets v_data to be
- *     a pointer to the first component of v. The assignment
- *     NV_DATA_S(v) = data_V sets the component array of v to
- *     be data_v by storing the pointer data_v.
- *
- *     The assignment v_len = NV_LENGTH_S(v) sets v_len to be
- *     the length of v. The call NV_LENGTH_S(v) = len_v sets
- *     the length of v to be len_v.
- *
- * (3) NV_Ith_S
- *
- *     In the following description, the components of an
- *     N_Vector are numbered 0..n-1, where n is the length of v.
- *
- *     The assignment r = NV_Ith_S(v,i) sets r to be the value of
- *     the ith component of v. The assignment NV_Ith_S(v,i) = r
- *     sets the value of the ith component of v to be r.
- *
- * Note: When looping over the components of an N_Vector v, it is
- * more efficient to first obtain the component array via
- * v_data = NV_DATA_S(v) and then access v_data[i] within the
- * loop than it is to use NV_Ith_S(v,i) within the loop.
+ * Macros NV_CONTENT_S, NV_DATA_S, NV_OWN_DATA_S,
+ *        NV_LENGTH_S, and NV_Ith_S
  * -----------------------------------------------------------------
  */
 
@@ -136,136 +78,27 @@ typedef struct _N_VectorContent_Serial *N_VectorContent_Serial;
 
 /*
  * -----------------------------------------------------------------
- * PART III: functions exported by nvector_serial
- * 
- * CONSTRUCTORS:
- *    N_VNew_Serial
- *    N_VNewEmpty_Serial
- *    N_VMake_Serial
- *    N_VCloneVectorArray_Serial
- *    N_VCloneVectorArrayEmpty_Serial
- * DESTRUCTORS:
- *    N_VDestroy_Serial
- *    N_VDestroyVectorArray_Serial
- * ENABLE/DISABLE FUSED OPS:
- *    N_VEnableFusedOps_Serial
- *    N_VEnableLinearCombination_Serial
- *    N_VEnableScaleAddMulti_Serial
- *    N_VEnableDotProdMulti_Serial
- *    N_VEnableLinearSumVectorArray_Serial
- *    N_VEnableScaleVectorArray_Serial
- *    N_VEnableConstVectorArray_Serial
- *    N_VEnableWrmsNormVectorArray_Serial
- *    N_VEnableWrmsNormMaskVectorArray_Serial
- *    N_VEnableScaleAddMultiVectorArray_Serial
- *    N_VEnableLinearCombinationVectorArray_Serial
- * OTHER:
- *    N_VGetLength_Serial
- *    N_VPrint_Serial
- *    N_VPrintFile_Serial
- * -----------------------------------------------------------------
- */
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VNew_Serial
- * -----------------------------------------------------------------
- * This function creates and allocates memory for a serial vector.
+ * Functions exported by nvector_serial
  * -----------------------------------------------------------------
  */
 
 SUNDIALS_EXPORT N_Vector N_VNew_Serial(sunindextype vec_length);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VNewEmpty_Serial
- * -----------------------------------------------------------------
- * This function creates a new serial N_Vector with an empty (NULL)
- * data array.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT N_Vector N_VNewEmpty_Serial(sunindextype vec_length);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VMake_Serial
- * -----------------------------------------------------------------
- * This function creates and allocates memory for a serial vector
- * with a user-supplied data array.
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT N_Vector N_VMake_Serial(sunindextype vec_length, realtype *v_data);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VCloneVectorArray_Serial
- * -----------------------------------------------------------------
- * This function creates an array of 'count' SERIAL vectors by
- * cloning a given vector w.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT N_Vector *N_VCloneVectorArray_Serial(int count, N_Vector w);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VCloneVectorArrayEmpty_Serial
- * -----------------------------------------------------------------
- * This function creates an array of 'count' SERIAL vectors each
- * with an empty (NULL) data array by cloning w.
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT N_Vector *N_VCloneVectorArrayEmpty_Serial(int count, N_Vector w);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VDestroyVectorArray_Serial
- * -----------------------------------------------------------------
- * This function frees an array of SERIAL vectors created with 
- * N_VCloneVectorArray_Serial or N_VCloneVectorArrayEmpty_Serial.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT void N_VDestroyVectorArray_Serial(N_Vector *vs, int count);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VGetLength_Serial
- * -----------------------------------------------------------------
- * This function returns number of vector elements.
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT sunindextype N_VGetLength_Serial(N_Vector v);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VPrint_Serial
- * -----------------------------------------------------------------
- * This function prints the content of a serial vector to stdout.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT void N_VPrint_Serial(N_Vector v);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VPrintFile_Serial
- * -----------------------------------------------------------------
- * This function prints the content of a serial vector to outfile.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT void N_VPrintFile_Serial(N_Vector v, FILE *outfile);
-
-/*
- * -----------------------------------------------------------------
- * serial implementations of various useful vector operations
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_Serial(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_Serial(N_Vector w);

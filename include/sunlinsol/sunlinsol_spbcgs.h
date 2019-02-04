@@ -15,90 +15,12 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * This is the header file for the SPBCGS implementation of the 
- * SUNLINSOL module.  The SPBCGS algorithm is based on the
- * Scaled Preconditioned Bi-CG-Stabilized method.
+ * SUNLINSOL module, SUNLINSOL_SPBCGS.  The SPBCGS algorithm is based
+ * on the Scaled Preconditioned Bi-CG-Stabilized method.
  *
- * The SPBCGS algorithm solves a linear system A x = b.
- * Preconditioning is allowed on the left, right, or both.
- * Scaling is allowed on both sides.  We denote the preconditioner 
- * and scaling matrices as follows:
- *   P1 = left preconditioner
- *   P2 = right preconditioner
- *   S1 = diagonal matrix of scale factors for P1-inverse b
- *   S2 = diagonal matrix of scale factors for P2 x
- * The matrices A, P1, and P2 are not required explicitly; only
- * routines that provide A, P1-inverse, and P2-inverse as
- * operators are required.
- *
- * In this notation, SPBCGS applies the underlying GMRES method to
- * the equivalent transformed system
- *   Abar xbar = bbar , where
- *   Abar = S1 (P1-inverse) A (P2-inverse) (S2-inverse) ,
- *   bbar = S1 (P1-inverse) b , and   xbar = S2 P2 x .
- *
- * The scaling matrices must be chosen so that vectors S1
- * P1-inverse b and S2 P2 x have dimensionless components.
- * If preconditioning is done on the left only (P2 = I), by a
- * matrix P, then S2 must be a scaling for x, while S1 is a
- * scaling for P-inverse b, and so may also be taken as a scaling
- * for x.  Similarly, if preconditioning is done on the right only
- * (P1 = I, P2 = P), then S1 must be a scaling for b, while S2 is
- * a scaling for P x, and may also be taken as a scaling for b.
- *
- * The stopping test for the SPBCGS iterations is on the L2 norm of
- * the scaled preconditioned residual:
- *      || bbar - Abar xbar ||_2  <  delta
- * with an input test constant delta.
- *
- * The usage of this SPBCGS solver involves supplying up to three
- * routines and making a variety of calls.  The user-supplied 
- * routines are
- *    atimes (A_data, x, y) to compute y = A x, given x,
- *    psolve (P_data, y, x, lr) to solve P1 x = y or P2 x = y for 
- *           x, given y,
- *    psetup (P_data) to perform any 'setup' operations in 
- *           preparation for calling psolve.
- * The user calls are:
- *    SUNLinearSolver LS = SUNSPBCGS(y, pretype, maxl);
- *           to create the linear solver structure,
- *    flag = SUNLinSolSetATimes(LS, A_data, atimes);
- *           to set the matrix-vector product setup/apply routines,
- *    flag = SUNLinSolSetPreconditioner(LS, P_data, psetup, psolve);
- *           to *optionally* set the preconditioner setup/apply routines,
- *    flag = SUNLinSolSetScalingVectors(LS, s1, s2);
- *           to *optionally* set the diagonals of the scaling matrices.
- *    flag = SUNLinSolInitialize(LS);
- *           to perform internal solver memory allocations,
- *    flag = SUNLinSolSetup(LS, NULL);
- *           to call the psetup routine (if non-NULL);
- *    flag = SUNLinSolSolve(LS, NULL, x, b, w, tol);
- *           to solve the linear system to the tolerance 'tol'
- *    long int nli = SUNLinSolNumIters(LS);
- *           to *optionally* retrieve the number of linear iterations 
- *           performed by the solver,
- *    long int lastflag = SUNLinSolLastFlag(LS);
- *           to *optionally* retrieve the last internal solver error flag,
- *    realtype resnorm = SUNLinSolResNorm(LS);
- *           to *optionally* retrieve the final linear residual norm,
- *    flag = SUNLinSolFree(LS);
- *           to free the solver memory.
- * Complete details for specifying atimes, psetup and psolve 
- * and for the usage calls are given below.
- *
- * -----------------------------------------------------------------
- * 
- * Part I contains declarations specific to the SPBCGS implementation
- * of the supplied SUNLINSOL module.
- * 
- * Part II contains the prototype for the constructor 
- * SUNSPBCGS as well as implementation-specific prototypes 
- * for various useful solver operations.
- *
- * Notes:
- *
+ * Note:
  *   - The definition of the generic SUNLinearSolver structure can 
  *     be found in the header file sundials_linearsolver.h.
- *
  * -----------------------------------------------------------------
  */
 
@@ -117,34 +39,9 @@ extern "C" {
 /* Default SPBCGS solver parameters */
 #define SUNSPBCGS_MAXL_DEFAULT 5
 
-/*
- * -----------------------------------------------------------------
- * PART I: SPBCGS implementation of SUNLinearSolver
- *
- * The SPBCGS implementation of the SUNLinearSolver 'content' 
- * structure contains:
- *     maxl -- number of BiCGStab iterations to allow
- *     pretype -- flag for type of preconditioning to employ
- *     numiters -- number of iterations from most-recent solve
- *     resnorm -- final linear residual norm from most-recent solve
- *     last_flag -- last error return flag from internal setup/solve
- *     ATimes -- function pointer to ATimes routine
- *     ATData -- pointer to structure for ATimes
- *     Psetup -- function pointer to preconditioner setup routine
- *     Psolve -- function pointer to preconditioner solve routine
- *     PData -- pointer to structure for Psetup/Psolve
- *     s1,s2 -- vectors (type N_Vector) which holds the diagonals
- *         of the scaling matrices S1 and S2, respectively
- *     r -- a vector (type N_Vector) which holds the scaled,
- *         preconditioned linear system residual
- *     r_star -- a vector (type N_Vector) which holds the initial 
- *         scaled, preconditioned linear system residual
- *     p, q, u and Ap -- vectors (type N_Vector) used for workspace
- *         by the SPBCG algorithm.
- *     vtemp -- a vector (type N_Vector) used as temporary vector
- *         storage during calculations.
- * -----------------------------------------------------------------
- */
+/* -----------------------------------------
+ * SPBCGS Implementation of SUNLinearSolver
+ * ---------------------------------------- */
   
 struct _SUNLinearSolverContent_SPBCGS {
   int maxl;
@@ -173,29 +70,9 @@ struct _SUNLinearSolverContent_SPBCGS {
 typedef struct _SUNLinearSolverContent_SPBCGS *SUNLinearSolverContent_SPBCGS;
 
   
-/*
- * -----------------------------------------------------------------
- * PART II: functions exported by sunlinsol_spbcgs
- * 
- * CONSTRUCTOR:
- *    SUNLinSol_SPBCGS creates and allocates memory for a SPBCGS solver
- *
- *    SUNSPBCGS (deprecated) wrapper for SUNLinSol_SPBCGS
- *
- * "SET" ROUTINES:
- *    SUNLinSol_SPBCGSSetPrecType updates the type of preconditioning 
- *       to use.  Supported values are PREC_NONE, PREC_LEFT, PREC_RIGHT 
- *       and PREC_BOTH.
- *    SUNLinSol_SPBCGSSetMaxl updates the maximum number of iterations
- *       to allow in the solver.
- *
- *    SUNSPBCGSSetPrecType (deprecated) wrapper for 
- *       SUNLinSol_SPBCGSSetPrecType
- *    SUNSPBCGSSetMaxl (deprecated) wrapper for 
- *       SUNLinSol_SPBCGSSetMaxl
- *
- * -----------------------------------------------------------------
- */
+/* ---------------------------------------
+ *Exported Functions for SUNLINSOL_SPBCGS
+ * --------------------------------------- */
 
 SUNDIALS_EXPORT SUNLinearSolver SUNLinSol_SPBCGS(N_Vector y,
                                                  int pretype,
@@ -211,12 +88,6 @@ SUNDIALS_EXPORT SUNLinearSolver SUNSPBCGS(N_Vector y, int pretype, int maxl);
 SUNDIALS_EXPORT int SUNSPBCGSSetPrecType(SUNLinearSolver S, int pretype);
 /* deprecated */
 SUNDIALS_EXPORT int SUNSPBCGSSetMaxl(SUNLinearSolver S, int maxl);
-
-/*
- * -----------------------------------------------------------------
- * SPBCGS implementations of various useful linear solver operations
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType_SPBCGS(SUNLinearSolver S);
 SUNDIALS_EXPORT int SUNLinSolInitialize_SPBCGS(SUNLinearSolver S);

@@ -12,7 +12,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This header file contains definitions of MPI data types, which 
+ * This header file contains definitions of MPI data types, which
  * are used by MPI parallel vector implementations.
  * -----------------------------------------------------------------*/
 
@@ -33,4 +33,3 @@
 #elif defined(SUNDIALS_INT32_T)
   #define PVEC_INTEGER_MPI_TYPE MPI_INT32_T
 #endif
-

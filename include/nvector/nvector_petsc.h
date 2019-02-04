@@ -14,13 +14,6 @@
  * This is the main header file for the PETSc vector wrapper 
  * for NVECTOR module.
  *
- * Part I contains declarations specific to the PETSc vector wrapper
- * implementation.
- *
- * Part II contains the prototype for the constructor
- * N_VMake_Petsc as well as PETSc-specific prototypes
- * for various useful vector operations.
- *
  * Notes:
  *
  *   - The definition of the generic N_Vector structure can be
@@ -53,17 +46,11 @@
 extern "C" {
 #endif
 
-
 /*
  * -----------------------------------------------------------------
- * PART I: Implementation of N_Vector wrapper for a PETSc vector
+ * PETSc implementation of N_Vector               
  * -----------------------------------------------------------------
  */
-
-/* Implementation of the N_Vector 'content' structure contains the
-   global and local lengths of the vector, the underlying PETSc
-   vector object, the MPI communicator, and a flag indicating
-   ownership of the PETSc vector. */
 
 struct _N_VectorContent_Petsc {
   sunindextype local_length;   /* copy of local vector length  */
@@ -77,41 +64,7 @@ typedef struct _N_VectorContent_Petsc *N_VectorContent_Petsc;
 
 /*
  * -----------------------------------------------------------------
- * PART II: functions exported by nvector_Petsc
- * 
- * CONSTRUCTORS:
- *    N_VNewEmpty_Petsc
- *    N_VMake_Petsc
- *    N_VCloneVectorArray_Petsc
- *    N_VCloneVectorArrayEmpty_Petsc
- * DESTRUCTORS:
- *    N_VDestroyVectorArray_Petsc
- * ENABLE/DISABLE FUSED OPS:
- *    N_VEnableFusedOps_Petsc
- *    N_VEnableLinearCombination_Petsc
- *    N_VEnableScaleAddMulti_Petsc
- *    N_VEnableDotProdMulti_Petsc
- *    N_VEnableLinearSumVectorArray_Petsc
- *    N_VEnableScaleVectorArray_Petsc
- *    N_VEnableConstVectorArray_Petsc
- *    N_VEnableWrmsNormVectorArray_Petsc
- *    N_VEnableWrmsNormMaskVectorArray_Petsc
- *    N_VEnableScaleAddMultiVectorArray_Petsc
- *    N_VEnableLinearCombinationVectorArray_Petsc
- * OTHER:
- *    N_VGetVector_Petsc
- *    N_VPrint_Petsc
- *    N_VPrintFile_Petsc
- * -----------------------------------------------------------------
- */
-
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VNewEmpty_Petsc
- * -----------------------------------------------------------------
- * This function creates a new N_Vector wrapper around an empty
- * (NULL) PETSc vector.
+ * Functions exported by nvector_petsc
  * -----------------------------------------------------------------
  */
 
@@ -119,95 +72,21 @@ SUNDIALS_EXPORT N_Vector N_VNewEmpty_Petsc(MPI_Comm comm,
                                            sunindextype local_length,
                                            sunindextype global_length);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VMake_Petsc
- * -----------------------------------------------------------------
- * This function creates an N_Vector wrapper for a PETSc vector.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT N_Vector N_VMake_Petsc(Vec v);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VGetArrayPointer_Petsc
- * -----------------------------------------------------------------
- * This function is not supported for PETSc vector wrapper.
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT realtype *N_VGetArrayPointer_Petsc(N_Vector v);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VCloneVectorArray_Petsc
- * -----------------------------------------------------------------
- * This function creates an array of 'count' PETSc vectors by
- * cloning a given vector w.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT N_Vector *N_VCloneVectorArray_Petsc(int count, N_Vector w);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VCloneVectorArrayEmpty_Petsc
- * -----------------------------------------------------------------
- * This function creates an array of 'count' PETSc vectors each 
- * with an empty (NULL) data array by cloning w.
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT N_Vector *N_VCloneVectorArrayEmpty_Petsc(int count, N_Vector w);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VDestroyVectorArray_Petsc
- * -----------------------------------------------------------------
- * This function frees an array of N_Vector created with 
- * N_VCloneVectorArray_Petsc or N_VCloneVectorArrayEmpty_Petsc.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT void N_VDestroyVectorArray_Petsc(N_Vector *vs, int count);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VGetVector_Petsc
- * -----------------------------------------------------------------
- * Extracts PETSc vector from N_Vector wrapper.
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT Vec N_VGetVector_Petsc(N_Vector v);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VPrint_Petsc
- * -----------------------------------------------------------------
- * This function prints the content of a PETSc vector to stdout.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT void N_VPrint_Petsc(N_Vector v);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VPrintFile_Petsc
- * -----------------------------------------------------------------
- * This function prints the local content of a PETSc vector to
- * outfile.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT void N_VPrintFile_Petsc(N_Vector v, const char fname[]);
-
-/*
- * -----------------------------------------------------------------
- * PETSc implementations of the vector operations
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_Petsc(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_Petsc(N_Vector w);
@@ -268,7 +147,6 @@ SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_Petsc(int nvec, int nsum,
                                                           realtype* c,
                                                           N_Vector** X,
                                                           N_Vector* Z);
-
 
 /*
  * -----------------------------------------------------------------
