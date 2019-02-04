@@ -444,6 +444,9 @@ The call to the \id{IDASensReInit} function has the form:
 
   If an error occurred, \id{IDASensReInit} also prints an error message to the
   file specified by the optional input \id{errfp}.
+
+  \id{IDASensReInit} potentially does some minimal memory allocation (for the
+  sensitivity absolute tolerance).
 }
 %%
 %%
@@ -833,7 +836,8 @@ directly by the user.
     specifies the time at which sensitivity information is 
     requested. The time \id{t} must fall within the interval defined by the last 
     successful step taken by {\idas}.
-  \item[k] (\id{int}) order of derivatives.
+  \item[k] (\id{int}) order of derivatives. \id{k} must be in the range $0, 1,
+    ..., klast$ where $klast$ is the method order of the last successful step.
   \item[dkyS] (\id{N\_Vector *})
     array of \id{Ns} vectors containing the derivatives on output. The space for
     \id{dkyS} must be allocated by the user. 
@@ -921,7 +925,8 @@ each parameter in turn through the functions \id{IDAGetSens1} and
     specifies the time at which sensitivity information is 
     requested. The time \id{t} must fall within the interval defined by the last 
     successful step taken by {\idas}.
-  \item[k] (\id{int}) order of derivative.
+  \item[k] (\id{int}) order of derivative. \id{k} must be in the range $0, 1,
+    ..., klast$ where $klast$ is the method order of the last successful step.
   \item[is] (\id{int}) specifies the sensitivity derivative vector to be returned
     ($0\le$\id{is}$< N_s$).
   \item[dkyS] (\id{N\_Vector})
@@ -974,7 +979,7 @@ remainder of this section.
 Sensitivity scaling factors & \id{IDASetSensParams} & \id{NULL} \\
 DQ approximation method & \id{IDASetSensDQMethod} & centered,0.0 \\
 Error control strategy & \id{IDASetSensErrCon} & \id{SUNFALSE} \\
-Maximum no. of nonlinear iterations & \id{IDASetSensMaxNonlinIters} & 3 \\
+Maximum no. of nonlinear iterations & \id{IDASetSensMaxNonlinIters} & 4 \\
 \hline
 \end{tabular}
 \end{table}
@@ -1135,7 +1140,7 @@ Maximum no. of nonlinear iterations & \id{IDASetSensMaxNonlinIters} & 3 \\
   \end{args}
 }
 {
-  The default value is $3$.
+  The default value is $4$.
 }
 \index{optional input!forward sensitivity|)}
 %%
@@ -1588,7 +1593,8 @@ of type \ID{IDASensResFn} defined by:
   \item[ypS]
     contains the current values of the sensitivity derivatives $\dot{s}_i$.
   \item[resvalS]
-    contains the output sensitivity residual vectors.
+    contains the output sensitivity residual vectors. Memory allocation for
+    \id{resvalS} is handled within {\idas}.
   \item[user\_data]
     is a pointer to user data.
   \item[tmp1]
@@ -1953,7 +1959,8 @@ quadratures can be obtained using one of the following functions:
   \item[tret] (\id{realtype})
     the time reached by the solver (output).
   \item[yQS] (\id{N\_Vector *})
-    array of \id{Ns} computed sensitivity-dependent quadrature vectors.
+    array of \id{Ns} computed sensitivity-dependent quadrature vectors. This
+    array of vectors must be allocated by the user.
   \end{args}
 }
 {
@@ -1995,7 +2002,9 @@ directly by the user.
   \item[\id{t}] (\id{realtype})
     the time at which information is requested. The time \id{t} must fall within the 
     interval defined by the last successful step taken by {\idas}.
-  \item[\id{k}] (\id{int}) order of the requested derivative.
+  \item[\id{k}] (\id{int}) order of the requested derivative. \id{k} must be in
+    the range $0, 1, ..., klast$ where $klast$ is the method order of the last
+    successful step.
   \item[\id{dkyQS}] (\id{N\_Vector *})
     array of \id{Ns} vectors containing the derivatives. This vector
     array must be allocated by the user. 
@@ -2043,7 +2052,8 @@ each parameter in turn through the functions \id{IDAGetQuadSens1} and
   \item[is] (\id{int}) specifies which sensitivity vector is to be returned
     ($0\le$\id{is}$< N_s$).
   \item[yQS] (\id{N\_Vector})
-    the computed sensitivity-dependent quadrature vector.
+    the computed sensitivity-dependent quadrature vector. This
+    vector must be allocated by the user.
   \end{args}
 }
 {
@@ -2083,7 +2093,9 @@ each parameter in turn through the functions \id{IDAGetQuadSens1} and
     specifies the time at which sensitivity information is 
     requested. The time \id{t} must fall within the interval defined by the last 
     successful step taken by {\idas}.
-  \item[k] (\id{int}) order of derivative.
+  \item[k] (\id{int}) order of derivative. \id{k} must be in
+    the range $0, 1, ..., klast$ where $klast$ is the method order of the last
+    successful step.
   \item[is] (\id{int}) specifies the sensitivity derivative vector to be returned
     ($0\le$\id{is}$< N_s$).
   \item[dkyQS] (\id{N\_Vector})

@@ -16,19 +16,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the header file for the OpenMP 4.5 implementation of the
+ * This is the header file for the OpenMP 4.5+ implementation of the
  * NVECTOR module.
- *
- * Part I contains declarations specific to the OpenMP 4.5
- * implementation of the supplied NVECTOR module.
- *
- * Part II defines accessor macros that allow the user to
- * efficiently use the type N_Vector without making explicit
- * references to the underlying data structure.
- *
- * Part III contains the prototype for the constructor N_VNew_OpenMPDEV
- * as well as implementation-specific prototypes for various useful
- * vector operations.
  *
  * Notes:
  *
@@ -62,57 +51,23 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
- * PART I: OPENMP implementation of N_Vector
+ * OpenMPDEV implementation of N_Vector
  * -----------------------------------------------------------------
  */
 
-/* OpenMP 4.5 implementation of the N_Vector 'content' structure
-   contains the length of the vector, a pointer to an array
-   of 'realtype' components, and a flag indicating ownership of
-   the data */
-
 struct _N_VectorContent_OpenMPDEV {
-  sunindextype length;
-  booleantype own_data;
-  realtype *host_data;
-  realtype *dev_data;
+  sunindextype length;   /* vector length       */
+  booleantype own_data;  /* data ownership flag */
+  realtype *host_data;   /* host data array     */
+  realtype *dev_data;    /* device data array   */
 };
 
 typedef struct _N_VectorContent_OpenMPDEV *N_VectorContent_OpenMPDEV;
 
 /*
  * -----------------------------------------------------------------
- * PART II: macros NV_CONTENT_OMPDEV, NV_DATA_HOST_OMPDEV, NV_OWN_DATA_OMPDEV,
- *          NV_LENGTH_OMPDEV, and NV_Ith_OMPDEV
- * -----------------------------------------------------------------
- * In the descriptions below, the following user declarations
- * are assumed:
- *
- * N_Vector v;
- * sunindextype i;
- *
- * (1) NV_CONTENT_OMPDEV
- *
- *     This routines gives access to the contents of the OpenMPDEV
- *     vector N_Vector.
- *
- *     The assignment v_cont = NV_CONTENT_OMPDEV(v) sets v_cont to be
- *     a pointer to the OpenMPDEV N_Vector content structure.
- *
- * (2) NV_DATA_HOST_OMPDEV NV_OWN_DATA_OMPDEV and NV_LENGTH_OMPDEV
- *
- *     These routines give access to the individual parts of
- *     the content structure of a OpenMPDEV N_Vector.
- *
- *     The assignment v_data = NV_DATA_HOST_OMPDEV(v) sets v_data to be
- *     a pointer to the first component of v. The assignment
- *     NV_DATA_HOST_OMPDEV(v) = data_V sets the component array of v to
- *     be data_v by storing the pointer data_v.
- *
- *     The assignment v_len = NV_LENGTH_OMPDEV(v) sets v_len to be
- *     the length of v. The call NV_LENGTH_OMPDEV(v) = len_v sets
- *     the length of v to be len_v.
- *
+ * Macros NV_CONTENT_OMPDEV, NV_DATA_HOST_OMPDEV, NV_OWN_DATA_OMPDEV,
+ *        NV_LENGTH_OMPDEV, and NV_Ith_OMPDEV
  * -----------------------------------------------------------------
  */
 
@@ -128,182 +83,37 @@ typedef struct _N_VectorContent_OpenMPDEV *N_VectorContent_OpenMPDEV;
 
 /*
  * -----------------------------------------------------------------
- * PART III: functions exported by nvector_OpenMPDEV
- *
- * CONSTRUCTORS:
- *    N_VNew_OpenMPDEV
- *    N_VNewEmpty_OpenMPDEV
- *    N_VMake_OpenMPDEV
- *    N_VCloneVectorArray_OpenMPDEV
- *    N_VCloneVectorArrayEmpty_OpenMPDEV
- * DESTRUCTORS:
- *    N_VDestroy_OpenMPDEV
- *    N_VDestroyVectorArray_OpenMPDEV
- * ENABLE/DISABLE FUSED OPS:
- *    N_VEnableFusedOps_OpenMPDEV
- *    N_VEnableLinearCombination_OpenMPDEV
- *    N_VEnableScaleAddMulti_OpenMPDEV
- *    N_VEnableDotProdMulti_OpenMPDEV
- *    N_VEnableLinearSumVectorArray_OpenMPDEV
- *    N_VEnableScaleVectorArray_OpenMPDEV
- *    N_VEnableConstVectorArray_OpenMPDEV
- *    N_VEnableWrmsNormVectorArray_OpenMPDEV
- *    N_VEnableWrmsNormMaskVectorArray_OpenMPDEV
- *    N_VEnableScaleAddMultiVectorArray_OpenMPDEV
- *    N_VEnableLinearCombinationVectorArray_OpenMPDEV
- * OTHER:
- *    N_VGetLength_OpenMPDEV
- *    N_VGetHostArrayPointer_OpenMPDEV
- *    N_VGetDeviceArrayPointer_OpenMPDEV
- *    N_VSetHostArrayPointer_OpenMPDEV
- *    N_VPrint_OpenMPDEV
- * -----------------------------------------------------------------
- */
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VNew_OpenMPDEV
- * -----------------------------------------------------------------
- * This function creates and allocates memory for a OpenMPDEV vector.
+ * Functions exported by nvector_openmpdev
  * -----------------------------------------------------------------
  */
 
 SUNDIALS_EXPORT N_Vector N_VNew_OpenMPDEV(sunindextype vec_length);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VNewEmpty_OpenMPDEV
- * -----------------------------------------------------------------
- * This function creates a new OpenMPDEV N_Vector with an empty (NULL)
- * data array.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT N_Vector N_VNewEmpty_OpenMPDEV(sunindextype vec_length);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VMake_OpenMPDEV
- * -----------------------------------------------------------------
- * This function creates an OpenMPDEV vector with user-supplied data 
- * arrays. Both h_vdata and d_vdata must be non-NULL.
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT N_Vector N_VMake_OpenMPDEV(sunindextype vec_length,
                                            realtype *h_data,
                                            realtype *v_data);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VCloneVectorArray_OpenMPDEV
- * -----------------------------------------------------------------
- * This function creates an array of 'count' OpenMPDEV vectors by
- * cloning a given vector w.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT N_Vector *N_VCloneVectorArray_OpenMPDEV(int count, N_Vector w);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VCloneVectorArrayEmpty_OpenMPDEV
- * -----------------------------------------------------------------
- * This function creates an array of 'count' OpenMPDEV vectors each
- * with an empty (NULL) data array by cloning w.
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT N_Vector *N_VCloneVectorArrayEmpty_OpenMPDEV(int count, N_Vector w);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VDestroyVectorArray_OpenMPDEV
- * -----------------------------------------------------------------
- * This function frees an array of OpenMPDEV vectors created with
- * N_VCloneVectorArray_OpenMPDEV or N_VCloneVectorArrayEmpty_OpenMPDEV.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT void N_VDestroyVectorArray_OpenMPDEV(N_Vector *vs, int count);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VGetLength_OpenMPDEV
- * -----------------------------------------------------------------
- * This function returns number of vector elements.
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT sunindextype N_VGetLength_OpenMPDEV(N_Vector v);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VGetHostArrayPointer_OpenMPDEV
- * -----------------------------------------------------------------
- * This function returns a pointer to the data array on the host.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT realtype *N_VGetHostArrayPointer_OpenMPDEV(N_Vector v);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VGetDeviceArrayPointer_OpenMPDEV
- * -----------------------------------------------------------------
- * This function returns a pointer to the data array on the device.
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT realtype *N_VGetDeviceArrayPointer_OpenMPDEV(N_Vector v);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VPrint_OpenMPDEV
- * -----------------------------------------------------------------
- * This function prints the content of a OpenMPDEV vector to stdout.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT void N_VPrint_OpenMPDEV(N_Vector v);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VPrintFile_OpenMPDEV
- * -----------------------------------------------------------------
- * This function prints the content of a OpenMP vector to outfile.
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT void N_VPrintFile_OpenMPDEV(N_Vector v, FILE *outfile);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VCopyToDevice_OpenMPDEV
- * -----------------------------------------------------------------
- * This function copies the content of an OpenMPDEV vector from the
- * host array to the device array
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT void N_VCopyToDevice_OpenMPDEV(N_Vector v);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VCopyFromDevice_OpenMPDEV
- * -----------------------------------------------------------------
- * This function copies the content of an OpenMPDEV vector from the
- * device array to the host array
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT void N_VCopyFromDevice_OpenMPDEV(N_Vector v);
-
-/*
- * -----------------------------------------------------------------
- * OpenMPDEV implementations of various useful vector operations
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_OpenMPDEV(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_OpenMPDEV(N_Vector w);

@@ -222,15 +222,15 @@ forward sensitivity analysis beyond those for IVP solution
   If using a non-default nonlinear solver, then initialize the nonlinear solver
   interface by attaching the nonlinear solver object by calling
 \begin{verbatim}
-    ier = CVodeSetNonlinearSolverSensSim(ida_mem, NLSSens);
+    ier = CVodeSetNonlinearSolverSensSim(cvode_mem, NLSSens);
 \end{verbatim}
   when using the \id{CV\_SIMULTANEOUS} corrector method,
 \begin{verbatim}
-    ier = CVodeSetNonlinearSolverSensStg(ida_mem, NLSSens);
+    ier = CVodeSetNonlinearSolverSensStg(cvode_mem, NLSSens);
 \end{verbatim}
   when using the \id{CV\_STAGGERED} corrector method, or
 \begin{verbatim}
-    ier = CVodeSetNonlinearSolverSensStg1(ida_mem, NLSSens);
+    ier = CVodeSetNonlinearSolverSensStg1(cvode_mem, NLSSens);
 \end{verbatim}
   when using the \id{CV\_STAGGERED1} corrector method
   (see \S\ref{sss:cvfwd_nonlin_solv_init} for details).
@@ -522,6 +522,10 @@ The call to the \id{CVodeSensReInit} function has the form:
   If an error occurred, \id{CVodeSensReInit} also sends a message to the
   error handler function.
 
+  \id{CVodeSensReInit} potentially does some minimal memory allocation (for the
+  sensitivity absolute tolerance) and for arrays of counters used by the
+  \id{CV\_STAGGERED1} method. 
+
   {\warn}The value of the input argument \id{ism} must be compatible with
   the type of the sensitivity ODE right-hand side function.  Thus
   if the sensitivity module was initialized using \id{CVodeSensInit}, then
@@ -743,7 +747,7 @@ the nonlinear solver to the main {\cvodes} integrator.
 
 \ucfunction{CVodeSetNonlinearSolverSensSim}
 {
-  flag = CVodeSetNonlinearSolverSensSim(ida\_mem, NLS);
+  flag = CVodeSetNonlinearSolverSensSim(cvode\_mem, NLS);
 }
 {
   The function \ID{CVodeSetNonLinearSolverSensSim} attaches a {\sunnonlinsol}
@@ -751,8 +755,8 @@ the nonlinear solver to the main {\cvodes} integrator.
   correct the state and sensitivity variables at the same time.
 }
 {
-  \begin{args}[ida\_mem]
-  \item[ida\_mem] (\id{void *})
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[NLS] (\id{SUNNonlinearSolver})
     {\sunnonlinsol} object to use for solving nonlinear systems
@@ -765,7 +769,7 @@ the nonlinear solver to the main {\cvodes} integrator.
   \item[\Id{CV\_SUCCESS}]
     The nonlinear solver was successfully attached.
   \item[\Id{CV\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
+    The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{CV\_ILL\_INPUT}]
     The {\sunnonlinsol} object is \id{NULL}, does not implement the required
     nonlinear solver operations, is not of the correct type, or the residual
@@ -778,7 +782,7 @@ the nonlinear solver to the main {\cvodes} integrator.
 
 \ucfunction{CVodeSetNonlinearSolverSensStg}
 {
-  flag = CVodeSetNonlinearSolverSensStg(ida\_mem, NLS);
+  flag = CVodeSetNonlinearSolverSensStg(cvode\_mem, NLS);
 }
 {
   The function \ID{CVodeSetNonLinearSolverSensStg} attaches a {\sunnonlinsol}
@@ -787,8 +791,8 @@ the nonlinear solver to the main {\cvodes} integrator.
   variables.
 }
 {
-  \begin{args}[ida\_mem]
-  \item[ida\_mem] (\id{void *})
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[NLS] (\id{SUNNonlinearSolver})
     {\sunnonlinsol} object to use for solving nonlinear systems.
@@ -800,7 +804,7 @@ the nonlinear solver to the main {\cvodes} integrator.
   \item[\Id{CV\_SUCCESS}]
     The nonlinear solver was successfully attached.
   \item[\Id{CV\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
+    The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{CV\_ILL\_INPUT}]
     The {\sunnonlinsol} object is \id{NULL}, does not implement the required
     nonlinear solver operations, is not of the correct type, or the residual
@@ -818,7 +822,7 @@ the nonlinear solver to the main {\cvodes} integrator.
 
 \ucfunction{CVodeSetNonlinearSolverSensStg1}
 {
-  flag = CVodeSetNonlinearSolverSensStg1(ida\_mem, NLS);
+  flag = CVodeSetNonlinearSolverSensStg1(cvode\_mem, NLS);
 }
 {
   The function \ID{CVodeSetNonLinearSolverSensStg1} attaches a {\sunnonlinsol}
@@ -827,8 +831,8 @@ the nonlinear solver to the main {\cvodes} integrator.
   state variables.
 }
 {
-  \begin{args}[ida\_mem]
-  \item[ida\_mem] (\id{void *})
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
     pointer to the {\cvodes} memory block.
   \item[NLS] (\id{SUNNonlinearSolver})
     {\sunnonlinsol} object to use for solving nonlinear systems.
@@ -840,7 +844,7 @@ the nonlinear solver to the main {\cvodes} integrator.
   \item[\Id{CV\_SUCCESS}]
     The nonlinear solver was successfully attached.
   \item[\Id{CV\_MEM\_NULL}]
-    The \id{ida\_mem} pointer is \id{NULL}.
+    The \id{cvode\_mem} pointer is \id{NULL}.
   \item[\Id{CV\_ILL\_INPUT}]
     The {\sunnonlinsol} object is \id{NULL}, does not implement the required
     nonlinear solver operations, is not of the correct type, or the residual
@@ -910,7 +914,8 @@ following functions:
   \item[tret] (\id{realtype *})
     the time reached by the solver (output).
   \item[yS] (\id{N\_Vector *})
-    array of computed forward sensitivity vectors.
+    array of computed forward sensitivity vectors. This vector array must be
+    allocated by the user.
   \end{args}
 }
 {
@@ -999,7 +1004,8 @@ each parameter in turn through the functions \id{CVodeGetSens1} and
   \item[is] (\id{int}) specifies which sensitivity vector is to be returned
     ($0\le$\id{is}$< N_s$).
   \item[yS] (\id{N\_Vector})
-    the computed forward sensitivity vector.
+    the computed forward sensitivity vector. This vector array must be allocated
+    by the user.
   \end{args}
 }
 {
@@ -1731,6 +1737,8 @@ through a function of type \ID{CVSensRhsFn} defined by:
 }
 {
   \begin{args}[fS\_data]
+  \item[Ns]
+    is the number of sensitivities.
   \item[t]
     is the current value of the independent variable.
   \item[y]
@@ -1795,6 +1803,8 @@ The type \id{CVSensRhs1Fn} is defined by
 }
 {
   \begin{args}[fS\_data]
+  \item[Ns]
+    is the number of sensitivities.
   \item[t]
     is the current value of the independent variable.
   \item[y]
@@ -2183,7 +2193,8 @@ one of the following functions:
   \item[tret] (\id{realtype})
     the time reached by the solver (output).
   \item[yQS] (\id{N\_Vector *})
-    array of \id{Ns} computed sensitivity-dependent quadrature vectors.
+    array of \id{Ns} computed sensitivity-dependent quadrature vectors. This
+    vector array must be allocated by the user.
   \end{args}
 }
 {
@@ -2273,7 +2284,8 @@ each parameter in turn through the functions \id{CVodeGetQuadSens1} and
   \item[is] (\id{int}) specifies which sensitivity vector is to be returned
     ($0 \le $ \id{is} $< N_s$).
   \item[yQS] (\id{N\_Vector})
-    the computed sensitivity-dependent quadrature vector.
+    the computed sensitivity-dependent quadrature vector. This vector array must
+    be allocated by the user.
   \end{args}
 }
 {

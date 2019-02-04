@@ -1255,7 +1255,12 @@ To obtain the solution \id{yB} to the backward problem, call the function
   \end{args} 
 }
 {
-  {\warn} The user must allocate space for \id{yB} and \id{ypB}.
+  {\warn}The user must allocate space for \id{yB} and \id{ypB}.
+
+  To obtain the solution associated with a given backward problem at some
+  other time within the last integration step, first obtain a pointer to the
+  proper {\idas} memory structure by calling \id{IDAGetAdjIDABmem}
+  and then use it to call \id{IDAGetDky}.
 }
 
 
@@ -1304,7 +1309,7 @@ problem, i.e., a non-\id{NULL} {\sunmatrix} object \id{A} was passed
 to \id{IDASetLinearSolverB}, the {\idals} linear solver interface
 needs a function to compute an approximation to the Jacobian matrix.
 This can be attached through a call to either \id{IDASetJacFnB} or
-\ida{IDASetJacFnBS}, with the second used when the backward problem
+\id{IDASetJacFnBS}, with the second used when the backward problem
 depends on the forward sensitivities. 
 %%
 \index{Jacobian approximation function!user-supplied (backward)}
@@ -2073,7 +2078,6 @@ of \id{IDASolveB}, {\idas} provides a wrapper for the function \ID{IDAGetQuad}
     the computed quadrature vector.
   \end{args}
 }
-  {\warn} The user must allocate space for \id{yQB}.
 {
   The return value \id{flag} of \id{IDAGetQuadB} is one of:
   \begin{args}[IDA\_ILL\_INPUT]
@@ -2091,7 +2095,14 @@ of \id{IDASolveB}, {\idas} provides a wrapper for the function \ID{IDAGetQuad}
     The parameter \id{which} is an invalid identifier.
   \end{args}
 }
-{}
+{
+  {\warn}The user must allocate space for \id{yQB}.
+
+  To obtain the quadratures associated with a given backward problem at some
+  other time within the last integration step, first obtain a pointer to the
+  proper {\idas} memory structure by calling \id{IDAGetAdjIDABmem}
+  and then use it to call \id{IDAGetQuadDky}.
+}
 %%\subsubsection{Tolerance specification functions for backward quadrature integration}
 
 \subsubsection{Optional input/output functions for backward quadrature integration}

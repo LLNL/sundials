@@ -12,8 +12,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the common header file for the Scaled and Preconditioned
- * Iterative Linear Solvers in IDA.
+ * This is the header file for the PETSc Scaled and Preconditioned
+ * Iterative Linear Solvers for use with IDA.
  * -----------------------------------------------------------------
  */
 

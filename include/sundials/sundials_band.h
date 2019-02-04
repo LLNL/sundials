@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Alan C. Hindmarsh and Radu Serban @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -22,9 +18,8 @@
  * this file: one set uses type DlsMat defined below and the
  * other set uses the type realtype ** for band matrix arguments.
  * Routines that work with the type DlsMat begin with "Band".
- * Routines that work with realtype ** begin with "band"
- * -----------------------------------------------------------------
- */
+ * Routines that work with realtype ** begin with "band".
+ * -----------------------------------------------------------------*/
 
 #ifndef _SUNDIALS_BAND_H
 #define _SUNDIALS_BAND_H
@@ -82,8 +77,9 @@ extern "C" {
  */
 
 SUNDIALS_EXPORT sunindextype BandGBTRF(DlsMat A, sunindextype *p);
-SUNDIALS_EXPORT sunindextype bandGBTRF(realtype **a, sunindextype n, sunindextype mu, sunindextype ml,
-                                   sunindextype smu, sunindextype *p);
+SUNDIALS_EXPORT sunindextype bandGBTRF(realtype **a, sunindextype n,
+                                       sunindextype mu, sunindextype ml,
+                                       sunindextype smu, sunindextype *p);
 
 /*
  * -----------------------------------------------------------------
@@ -115,16 +111,17 @@ SUNDIALS_EXPORT void bandGBTRS(realtype **a, sunindextype n, sunindextype smu,
  * BandCopy copies the submatrix with upper and lower bandwidths
  * copymu, copyml of the N by N band matrix A into the N by N
  * band matrix B.
- * 
+ *
  * BandCopy is a wrapper around bandCopy which accesses the data
- * in the DlsMat A and DlsMat B (i.e. the fields cols)
+ * in the DlsMat A and DlsMat B (i.e. the fields cols).
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void BandCopy(DlsMat A, DlsMat B, sunindextype copymu, sunindextype copyml);
+SUNDIALS_EXPORT void BandCopy(DlsMat A, DlsMat B, sunindextype copymu,
+                              sunindextype copyml);
 SUNDIALS_EXPORT void bandCopy(realtype **a, realtype **b, sunindextype n,
                               sunindextype a_smu, sunindextype b_smu,
-			      sunindextype copymu, sunindextype copyml);
+                              sunindextype copymu, sunindextype copyml);
 
 /*
  * -----------------------------------------------------------------
@@ -141,7 +138,9 @@ SUNDIALS_EXPORT void bandCopy(realtype **a, realtype **b, sunindextype n,
  */
 
 SUNDIALS_EXPORT void BandScale(realtype c, DlsMat A);
-SUNDIALS_EXPORT void bandScale(realtype c, realtype **a, sunindextype n, sunindextype mu, sunindextype ml, sunindextype smu);
+SUNDIALS_EXPORT void bandScale(realtype c, realtype **a, sunindextype n,
+                               sunindextype mu, sunindextype ml,
+                               sunindextype smu);
 
 /*
  * -----------------------------------------------------------------
@@ -152,26 +151,28 @@ SUNDIALS_EXPORT void bandScale(realtype c, realtype **a, sunindextype n, suninde
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT void bandAddIdentity(realtype **a, sunindextype n, sunindextype smu);
+SUNDIALS_EXPORT void bandAddIdentity(realtype **a, sunindextype n,
+                                     sunindextype smu);
 
 
 /*
  * -----------------------------------------------------------------
  * Function: BandMatvec
  * -----------------------------------------------------------------
- * BandMatvec computes the matrix-vector product y = A*x, where A 
- * is an M-by-N band matrix, x is a vector of length N, and y is a 
- * vector of length M.  No error checking is performed on the length 
+ * BandMatvec computes the matrix-vector product y = A*x, where A
+ * is an M-by-N band matrix, x is a vector of length N, and y is a
+ * vector of length M.  No error checking is performed on the length
  * of the arrays x and y.  Only y is modified in this routine.
  *
- * BandMatvec is a wrapper around bandMatvec which performs the 
+ * BandMatvec is a wrapper around bandMatvec which performs the
  * actual product by accessing the data in the DlsMat A.
  * -----------------------------------------------------------------
  */
 
 SUNDIALS_EXPORT void BandMatvec(DlsMat A, realtype *x, realtype *y);
-SUNDIALS_EXPORT void bandMatvec(realtype **a, realtype *x, realtype *y, sunindextype n, 
-		sunindextype mu, sunindextype ml, sunindextype smu);
+SUNDIALS_EXPORT void bandMatvec(realtype **a, realtype *x, realtype *y,
+                                sunindextype n, sunindextype mu,
+                                sunindextype ml, sunindextype smu);
 
 #ifdef __cplusplus
 }

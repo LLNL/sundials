@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the header file for the RAJA implementation of the
+ * This is the header file for the MPI+RAJA implementation of the
  * NVECTOR module.
  *
  * Part I contains declarations specific to the RAJA
@@ -54,11 +54,9 @@
 extern "C" {
 #endif
 
-
-
 /*
  * -----------------------------------------------------------------
- * PART I: RAJA implementation of N_Vector
+ * MPI+RAJA implementation of N_Vector
  * -----------------------------------------------------------------
  */
 
@@ -71,47 +69,9 @@ struct _N_VectorContent_Raja {};
 
 typedef struct _N_VectorContent_Raja *N_VectorContent_Raja;
 
-
-
 /*
  * -----------------------------------------------------------------
- * PART II: functions exported by nvector_raja
- *
- * CONSTRUCTORS:
- *    N_VNew_Raja
- *    N_VNewEmpty_Raja
- *    N_VMake_Raja
- * DESTRUCTORS:
- *    N_VDestroy_Raja
- * ENABLE/DISABLE FUSED OPS:
- *    N_VEnableFusedOps_Raja
- *    N_VEnableLinearCombination_Raja
- *    N_VEnableScaleAddMulti_Raja
- *    N_VEnableDotProdMulti_Raja
- *    N_VEnableLinearSumVectorArray_Raja
- *    N_VEnableScaleVectorArray_Raja
- *    N_VEnableConstVectorArray_Raja
- *    N_VEnableWrmsNormVectorArray_Raja
- *    N_VEnableWrmsNormMaskVectorArray_Raja
- *    N_VEnableScaleAddMultiVectorArray_Raja
- *    N_VEnableLinearCombinationVectorArray_Raja
- * OTHER:
- *    N_VGetLength_Raja
- *    N_VGetLocalLength_Raja
- *    N_VGetHostArrayPointer_Raja
- *    N_VGetDeviceArrayPointer_Raja
- *    N_VGetMPIComm_Raja
- *    N_VPrint_Raja
- *    N_VPrintFile_Raja
- * -----------------------------------------------------------------
- */
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VNew_Raja
- * -----------------------------------------------------------------
- * This function creates and allocates memory for a distributed
- * memory RAJA vector.
+ * Functions exported by nvector_mpiraja
  * -----------------------------------------------------------------
  */
 
@@ -119,123 +79,27 @@ SUNDIALS_EXPORT N_Vector N_VNew_Raja(MPI_Comm comm,
                                      sunindextype local_length,
                                      sunindextype global_length);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VNewEmpty_Raja
- * -----------------------------------------------------------------
- * This function creates a new RAJA N_Vector with an empty (NULL)
- * data array.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT N_Vector N_VNewEmpty_Raja();
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VMake_Raja
- * -----------------------------------------------------------------
- * This function creates and an NVECTOR wrapper around a
- * user-supplied sunrajavec::Vector.
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT N_Vector N_VMake_Raja(N_VectorContent_Raja c);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VGetLength_Raja
- * -----------------------------------------------------------------
- * This function returns the global length of the vector.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT sunindextype N_VGetLength_Raja(N_Vector v);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VGetLocalLength_Raja
- * -----------------------------------------------------------------
- * This function returns the local length of the vector.
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT sunindextype N_VGetLocalLength_Raja(N_Vector v);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VGetMPIComm_Raja
- * -----------------------------------------------------------------
- * This function returns the MPI communicator for the vector.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT MPI_Comm N_VGetMPIComm_Raja(N_Vector v);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VGetHostArrayPointer_Raja
- * -----------------------------------------------------------------
- * This function returns pointer to the host raw data.
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT realtype *N_VGetHostArrayPointer_Raja(N_Vector v);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VGetDeviceArrayPointer_Raja
- * -----------------------------------------------------------------
- * This function returns pointer to the device raw data.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT realtype *N_VGetDeviceArrayPointer_Raja(N_Vector v);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VCopyTotDevice_Raja
- * -----------------------------------------------------------------
- * This function copies host data to the device.
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT void N_VCopyToDevice_Raja(N_Vector v);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VCopyTotDevice_Raja
- * -----------------------------------------------------------------
- * This function copies vector data from the device to the host.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT void N_VCopyFromDevice_Raja(N_Vector v);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VPrint_Raja
- * -----------------------------------------------------------------
- * This function prints the content of a RAJA vector to stdout.
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT void N_VPrint_Raja(N_Vector v);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VPrintFile_Raja
- * -----------------------------------------------------------------
- * This function prints the content of a RAJA vector to outfile.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT void N_VPrintFile_Raja(N_Vector v, FILE *outfile);
-
-/*
- * -----------------------------------------------------------------
- * RAJA implementations of various useful vector operations
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_Raja(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_Raja(N_Vector w);
@@ -288,7 +152,6 @@ SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_Raja(int nvec, int nsum,
                                                          realtype* c,
                                                          N_Vector** X,
                                                          N_Vector* Z);
-
 
 /*
  * -----------------------------------------------------------------

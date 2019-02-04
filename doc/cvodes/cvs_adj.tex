@@ -901,7 +901,7 @@ call to \id{CVodeInitB} or \id{CVodeInitBS}.
 All {\cvodes} linear solver modules available for forward problems
 are available for the backward problem.  They should be created as 
 for the forward problem and then attached to the memory structure for the backward
-problem using the following function.
+problem using the following functions.
 
 \index{CVODES@{\cvodes} linear solver interface!CVLS@{\cvls}}
 \ucfunction{CVodeSetLinearSolverB}
@@ -918,7 +918,7 @@ problem using the following function.
 {
   \begin{args}[cvode\_mem]
   \item[cvode\_mem] (\id{void *})
-    pointer to the {\idas} memory block.
+    pointer to the {\cvodes} memory block.
   \item[which] (\id{int})
     represents the identifier of the backward problem returned by \\ \noindent
     \id{CVodeCreateB}.
@@ -960,6 +960,48 @@ problem using the following function.
   still be used for backward-compatibility.  However, these will be
   deprecated in future releases, so we recommend that users transition
   to the new routine name soon.
+}
+%%
+%%
+%%
+\ucfunction{CVDiagB}
+{
+  flag = CVDiagB(cvode\_mem, which);
+}
+{
+  The function \ID{CVDiagB} selects the {\cvdiag} linear solver for the solution
+  of the backward problem.
+
+  The user's main program must include the \id{cvodes\_diag.h} header file.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvodes} memory block.
+  \item[which] (\id{int})
+    represents the identifier of the backward problem returned by \\ \noindent
+    \id{CVodeCreateB}.   
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[CVDIAG\_ILL\_INPUT]
+  \item[\Id{CVDIAG\_SUCCESS}]
+    The {\cvdiag} initialization was successful.
+  \item[\Id{CVDIAG\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVDIAG\_ILL\_INPUT}]
+    The {\cvdiag} solver is not compatible with the current {\nvector} module.
+  \item[\Id{CVDIAG\_MEM\_FAIL}]
+    A memory allocation request failed.
+  \end{args}
+}
+{
+  The {\cvdiag} solver is the simplest of all of the available {\cvodes}
+  linear solver interfaces.  The {\cvdiag} solver uses an approximate
+  diagonal Jacobian formed by way of a difference quotient. The user
+  does {\em not} have the option of supplying a function to compute an
+  approximate diagonal Jacobian.
 }
 %%
 %%---------------------------------------------------------------------
@@ -1106,7 +1148,12 @@ To obtain the solution \id{yB} to the backward problem, call the function
   \end{args} 
 }
 {
-  {\warn} The user must allocate space for \id{yB}.
+  {\warn}The user must allocate space for \id{yB}.
+
+  To obtain the solution associated with a given backward problem at some
+  other time within the last integration step, first obtain a pointer to the
+  proper {\cvodes} memory structure by calling \id{CVodeGetAdjCVodeBmem}
+  and then use it to call \id{CVodeGetDky}.
 }
 
 
@@ -1187,13 +1234,13 @@ has not been called, or \Id{CV\_ILL\_INPUT} if \id{which} was an invalid identif
 When using matrix-based linear solver modules, the {\cvls} solver
 interface needs a function to compute an approximation to the Jacobian
 for the backward problem.  This Jacobian evaluation function can
-be attached through a call to either \id{CVodeSetJacFnB} or \ida{CVodeSetJacFnBS},
+be attached through a call to either \id{CVodeSetJacFnB} or \id{CVodeSetJacFnBS},
 with the second used when the backward problem depends on the forwrad sensitivities.
 %%
 \index{Jacobian approximation function!user-supplied (backward)}
 \ucfunction{CVodeSetJacFnB}
 {
-  flag = CVodeSetJacFnB(ida\_mem, which, jacB);
+  flag = CVodeSetJacFnB(cvode\_mem, which, jacB);
 }
 {
   The function \ID{CVodeSetJacFnB} specifies the Jacobian
@@ -1848,7 +1895,14 @@ of \id{CVodeB}, {\cvodes} provides a wrapper for the function \ID{CVodeGetQuad}
     The parameter \id{which} is an invalid identifier.
   \end{args}
 }
-{}
+{
+  {\warn}The user must allocate space for \id{yQB}.
+
+  To obtain the quadratures associated with a given backward problem at some
+  other time within the last integration step, first obtain a pointer to the
+  proper {\cvodes} memory structure by calling \id{CVodeGetAdjCVodeBmem}
+  and then use it to call \id{CVodeGetQuadDky}.
+}
 %%\subsubsection{Tolerance specification functions for backward quadrature integration}
 
 \subsubsection{Optional input/output functions for backward quadrature integration}
