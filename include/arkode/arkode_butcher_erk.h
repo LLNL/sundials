@@ -1,6 +1,6 @@
-/*---------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
- *---------------------------------------------------------------
+ * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2019, Lawrence Livermore National Security
  * and Southern Methodist University.
@@ -10,9 +10,9 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
- *---------------------------------------------------------------
- * Header file with Butcher table IDs for built-in ERK methods.
- *--------------------------------------------------------------*/
+ * -----------------------------------------------------------------
+ * This is the header file for ARKode's built-in ERK Butcher tables.
+ * -----------------------------------------------------------------*/
 
 #ifndef _ARKODE_ERK_TABLES_H
 #define _ARKODE_ERK_TABLES_H
@@ -22,6 +22,7 @@
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
+
 
 /* Butcher table accessor IDs
      ERK:    0 -  99
@@ -44,10 +45,10 @@ extern "C" {
 #define MIN_ERK_NUM              0
 #define MAX_ERK_NUM             12
 
-/* Accessor routine to load built-in ERK table */  
+/* Accessor routine to load built-in ERK table */
 SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_LoadERK(int imethod);
 
-  
+
 #ifdef __cplusplus
 }
 #endif

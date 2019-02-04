@@ -668,7 +668,8 @@ the nonlinear algebraic system.
   \item[\Id{KIN\_INITIAL\_GUESS\_OK}]\rule{0pt}{0pt}
 
     The guess \id{u} $=u_0$ satisfied the system $F(u)=0$
-    within the tolerances specified.
+    within the tolerances specified (the scaled norm of $F(u_0)$ is less than
+    0.01*\id{fnormtol}).
 
   \item[\Id{KIN\_STEP\_LT\_STPTOL}]\rule{0pt}{0pt}
 
@@ -1220,6 +1221,9 @@ flag = KINSetMaxSetupCalls(kin\_mem, msbset);
 }
 {
   The default value for \id{msbset} is \id{MSBSET\_DEFAULT} $=10$.
+
+  The value of \id{msbset} should be a multiple of \id{msbsetsub} (see
+  \id{KINSetMaxSubSetupCalls}).
 }
 %%
 %%
@@ -1237,7 +1241,7 @@ flag = KINSetMaxSubSetupCalls(kin\_mem, msbsetsub);
     pointer to the {\kinsol} memory block.
   \item[msbsetsub] (\id{long int})
     maximum number of nonlinear iterations without checking the
-    nonlinear residual.  Pass 0 to indicate the default.
+    nonlinear residual. Pass 0 to indicate the default.
   \end{args}
 }
 {
@@ -1251,8 +1255,11 @@ flag = KINSetMaxSubSetupCalls(kin\_mem, msbsetsub);
     The argument \id{msbsetsub} was negative.
   \end{args}
 }
-{
+{  
   The default value for \id{msbsetsub} is \id{MSBSET\_SUB\_DEFAULT} $=5$.
+
+  The value of \id{msbset} (see \id{KINSetMaxSetupCalls}) should be a multiple
+  of \id{msbsetsub}.
 
   {\warn}Residual monitoring is only available for use with
   matrix-based linear solver modules.
@@ -1291,6 +1298,29 @@ flag = KINSetEtaForm(kin\_mem, etachoice);
 }
 {
   The default value for \id{etachoice} is \id{KIN\_ETACHOICE1}.
+
+  When using either \id{KIN\_ETACHOICE1} or \id{KIN\_ETACHOICE2} the safeguard
+  \begin{equation*}
+    \eta_n = \max(\eta_n, \eta_{\text{safe}})
+  \end{equation*}
+  is applied when $\eta_{\text{safe}} > 0.1$. For \id{KIN\_ETACHOICE1}
+  \begin{equation*}
+    \eta_{\text{safe}} = \eta_{n-1}^{\frac{1+\sqrt{5}}{2}}
+  \end{equation*}
+  and for \id{KIN\_ETACHOICE2}
+  \begin{equation*}
+    \eta_{\text{safe}} = \gamma \eta_{n-1}^{\alpha}
+  \end{equation*}
+  where $\gamma$ and $\alpha$ can be set with \id{KINSetEtaParams}.
+
+  The following safeguards are always applied when using either
+  \id{KIN\_ETACHOICE1} or \id{KIN\_ETACHOICE2} so that
+  $\eta_{\text{min}} \leq \eta_n \leq \eta_{\text{max}}$: 
+  \begin{align*}
+    \eta_n &= \max(\eta_n, \eta_{\text{min}}) \\
+    \eta_n &= \min(\eta_n, \eta_{\text{max}})
+  \end{align*}
+  where $\eta_{\text{min}} = 10^{-4}$ and $\eta_{\text{max}} = 0.9$.
 }
 %%
 %%
@@ -1449,7 +1479,9 @@ flag = KINSetNoMinEps(kin\_mem, noMinEps);
   \item[kin\_mem] (\id{void *})
     pointer to the {\kinsol} memory block.
   \item[noMinEps] (\id{booleantype})
-    flag controlling the bound on $\epsilon$.
+    flag controlling the bound on $\epsilon$. If \id{SUNFALSE} is passed the
+    value of $\epsilon$ is constrained and if \id{SUNTRUE} is passed then
+    $\epsilon$ is not constrained.
   \end{args}
 }
 {
@@ -1464,7 +1496,7 @@ flag = KINSetNoMinEps(kin\_mem, noMinEps);
 {
   The default value for \id{noMinEps} is \id{SUNFALSE}, meaning that a
   positive minimum value, equal to $0.01$*\id{fnormtol}, is applied to
-  $\epsilon$.  (See \id{KINSetFuncNormTol} below.)
+  $\epsilon$ (see \id{KINSetFuncNormTol} below).
 }
 %%
 %%
@@ -1542,7 +1574,8 @@ flag = KINSetRelErrFunc(kin\_mem, relfunc);
   The function \ID{KINSetRelErrFunc} specifies the relative error in
   computing $F(u)$, which is used in the difference quotient approximation to
   the Jacobian matrix [see Eq.(\ref{e:sigmaDQ_direct})] or the Jacobian-vector
-  product [see Eq.(\ref{e:sigmaDQ_iterative})].
+  product [see Eq.(\ref{e:sigmaDQ_iterative})]. The value stored is
+  $\sqrt{\id{relfunc}}$.
 }
 {
   \begin{args}[relfunc]
@@ -1671,7 +1704,8 @@ flag = KINSetConstraints(kin\_mem, constraints);
 }
 {
   The presence of a non-\id{NULL} constraints vector that is not $0.0$ in
-  all components will cause constraint checking to be performed.
+  all components will cause constraint checking to be performed. If a \id{NULL}
+  vector is supplied, constraint checking will be disabled.
 
   The function creates a private copy of the constraints vector. Consequently,
   the user-supplied vector can be freed after the function call, and
@@ -1786,7 +1820,7 @@ specified through \id{KINSetUserData}.
 \index{Jacobian approximation function!user-supplied}
 \ucfunction{KINSetJacFn}
 {
-  flag = KINSetJacFn(ida\_mem, jac);
+  flag = KINSetJacFn(kin\_mem, jac);
 }
 {
   The function \ID{KINSetJacFn} specifies the Jacobian
@@ -3185,7 +3219,7 @@ accuracy in the blocks.
 \index{KINBBDPRE@{\kinbbdpre} preconditioner!user-supplied functions|(}
 The {\kinbbdpre} module calls two user-provided functions to construct $P$:
 a required function \id{Gloc} (of type \id{KINBBDLocalFn}) which
-approximates the nonlinear system function function $G(u) \approx F(u)$ and which
+approximates the nonlinear system function $G(u) \approx F(u)$ and which
 is computed locally, and an optional function \id{Gcomm} (of type \id{KINBBDCommFn})
 which performs all interprocess communication necessary to evaluate
 the approximate function $G$.
@@ -3201,15 +3235,15 @@ then used by \id{Gloc}, which should not do any communication.
 %%
 \usfunction{KINBBDLocalFn}
 {
-  typedef void (*KINBBDLocalFn)(&sunindextype Nlocal, N\_Vector u, \\
-                             &N\_Vector gval, void *user\_data);
+  typedef int (*KINBBDLocalFn)(&sunindextype Nlocal, N\_Vector u, \\
+                               &N\_Vector gval, void *user\_data);
 }
 {
   This \id{Gloc} function computes $G($\id{u}$)$, and outputs the resulting
   vector as \id{gval}.
 }
 {
-  \begin{args}[Nlocal]
+  \begin{args}[user\_data]
   \item[Nlocal]
     is the local vector length.
   \item[u]
@@ -3222,14 +3256,15 @@ then used by \id{Gloc}, which should not do any communication.
   \end{args}
 }
 {
-  A \id{KINBBDLocalFn} function type does not have a return value.
+  A \id{KINBBDLocalFn} function should return 0 if successful or a non-zero
+  value if an error occured.
 }
 {
   This function must assume that all interprocess communication of data needed to
   calculate \id{gval} has already been done, and this data is accessible within
   \id{user\_data}.
 
-   Memory for \id{u} and \id{gval} is handled within the preconditioner module.
+  Memory for \id{u} and \id{gval} is handled within the preconditioner module.
 
   The case where $G$ is mathematically identical to $F$ is allowed.
 }
@@ -3237,14 +3272,15 @@ then used by \id{Gloc}, which should not do any communication.
 %%
 \usfunction{KINBBDCommFn}
 {
-  typedef void (*KINBBDCommFn)(sunindextype Nlocal, N\_Vector u, void *user\_data);
+  typedef int (*KINBBDCommFn)(&sunindextype Nlocal, N\_Vector u, \\
+                              &void *user\_data);
 }
 {
   This \id{Gcomm} function performs all interprocess communications necessary
   for the execution of the \id{Gloc} function above, using the input vector \id{u}.
 }
 {
-  \begin{args}[Nlocal]
+  \begin{args}[user\_data]
   \item[Nlocal]
     is the local vector length.
   \item[u]
@@ -3255,7 +3291,8 @@ then used by \id{Gloc}, which should not do any communication.
   \end{args}
 }
 {
-  A \id{KINBBDCommFn} function type does not have a return value.
+  A \id{KINBBDCommFn} function should return 0 if successful or a non-zero
+  value if an error occured.
 }
 {
   The \id{Gcomm} function is expected to save communicated data in space defined

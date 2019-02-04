@@ -1129,7 +1129,7 @@ But these modes are modified if the user has set a stop time (with
   and \id{yout} = $y($\id{tout}$)$.
 
   The return value \id{flag} (of type \id{int}) will be one of the following:
-  \begin{args}[CV\_TOO\_MUCH\_WORK]
+  \begin{args}[CV\_FIRST\_RHSFUNC\_FAIL]
   \item[\Id{CV\_SUCCESS}]
     \id{CVode} succeeded and no roots were found.
   \item[\Id{CV\_TSTOP\_RETURN}]
@@ -1157,7 +1157,7 @@ But these modes are modified if the user has set a stop time (with
     very near $t$.
     In any case, the user should see the error message for details.
   \item[\Id{CV\_TOO\_CLOSE}]
-    The initial time $t_0$ and the final time $t_{out}$ are too close to each
+    The initial time $t_0$ and the output time $t_{out}$ are too close to each 
     other and the user did not specify an initial step size.
   \item[\Id{CV\_TOO\_MUCH\_WORK}]
     The solver took \id{mxstep} internal steps but still could not reach \id{tout}.
@@ -1204,6 +1204,11 @@ But these modes are modified if the user has set a stop time (with
   In the \id{CV\_ONE\_STEP} mode, \id{tout} is used only on the first call,
   and only to get the direction and a rough scale of the independent variable.
 
+  If a stop time is enabled (through a call to \id{CVodeSetStopTime}), then
+  \id{CVode} returns the solution at \id{tstop}. Once the integrator returns
+  at a stop time, any future testing for \id{tstop} is disabled (and can be
+  reenabled only though a new call to \id{CVodeSetStopTime}).
+  
   All failure return values are negative and so the test \id{flag < 0}
   will trap all \id{CVode} failures.
 
@@ -1662,6 +1667,9 @@ flag = CVodeSetStopTime(cvode\_mem, tstop);
 }
 {
   The default, if this routine is not called, is that no stop time is imposed.
+
+  Once the integrator returns at a stop time, any future testing for \id{tstop}
+  is disabled (and can be reenabled only though a new call to \id{CVodeSetStopTime}).
 }
 %%
 %%
@@ -4666,7 +4674,7 @@ flag = CVodeQuadInit(cvode\_mem, fQ, yQ0);
     equations. This function has the form
     \id{fQ(t, y, yQdot, fQ\_data)} (for full details see \S\ref{ss:user_fct_quad}).
   \item[yQ0] (\id{N\_Vector})
-    is the initial value of \id{yQ}.
+    is the initial value of \id{yQ} (typically \id{yQ0} has all zero components).
   \end{args}
 }
 {
@@ -4807,7 +4815,7 @@ $y$ in \id{yout}. Solution quadratures can be obtained using the following funct
   \item[tret] (\id{realtype})
     the time reached by the solver (output).
   \item[yQ] (\id{N\_Vector})
-    the computed quadrature vector.
+    the computed quadrature vector. This vector must be allocated by the user.
   \end{args}
 }
 {

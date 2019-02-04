@@ -54,6 +54,14 @@ and where
 \item $S_1$ is a diagonal matrix of scale factors for $P_1^{-1} b$,
 \item $S_2$ is a diagonal matrix of scale factors for $P_2 x$.
 \end{itemize}
+The scaling matrices are chosen so that $S_1 P_1^{-1} b$ and $S_2 P_2 x$
+have dimensionless components. If preconditioning is done on the left only
+($P_2 = I$), by a  matrix $P$, then $S_2$ must be a scaling for $x$, while $S_1$
+is a scaling for $P^{-1} b$, and so may also be taken as a scaling for $x$.
+Similarly, if preconditioning is done on the right only ($P_1 = I$ and
+$P_2 = P$), then $S_1$ must be a scaling for $b$, while $S_2$ is a scaling for
+$P x$, and may also be taken as a scaling for $b$. 
+
 {\sundials} packages request that iterative linear solvers stop
 based on the 2-norm of the scaled preconditioned residual meeting a
 prescribed tolerance

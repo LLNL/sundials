@@ -1178,7 +1178,8 @@ But these modes are modified if the user has set a stop time (with
     \id{IDASolve} succeeded.
   \item[\Id{IDA\_TSTOP\_RETURN}]
     \id{IDASolve} succeeded by reaching the stop point specified through
-    the optional input function \id{IDASetStopTime}.
+    the optional input function \id{IDASetStopTime}. See \S\ref{sss:optin_main}
+    for more information.
   \item[\Id{IDA\_ROOT\_RETURN}]
     \id{IDASolve} succeeded and found one or more roots.  In this case,
     \id{tret} is the location of the root.  If \id{nrtfn} $>1$,
@@ -1237,6 +1238,11 @@ But these modes are modified if the user has set a stop time (with
   In the \id{IDA\_ONE\_STEP} mode, \id{tout} is used on the first call only,
   and only to get the direction and rough scale of the independent variable.
 
+  If a stop time is enabled (through a call to \id{IDASetStopTime}), then
+  \id{IDASolve} returns the solution at \id{tstop}. Once the integrator returns
+  at a stop time, any future testing for \id{tstop} is disabled (and can be
+  reenabled only though a new call to \id{IDASetStopTime}).
+  
   All failure return values are negative and therefore a test \id{flag} $< 0$
   will trap all \id{IDASolve} failures.
 
@@ -1285,7 +1291,6 @@ Value of $t_{stop}$ & \id{IDASetStopTime} & $\infty$ \\
 Maximum no. of error test failures & \id{IDASetMaxErrTestFails} & 10 \\
 Maximum no. of nonlinear iterations & \id{IDASetMaxNonlinIters} & 4 \\
 Maximum no. of convergence failures & \id{IDASetMaxConvFails} & 10 \\
-Maximum no. of error test failures & \id{IDASetMaxErrTestFails} & 7 \\
 Coeff. in the nonlinear convergence test & \id{IDASetNonlinConvCoef} & 0.33 \\
 Suppress alg. vars. from error test & \id{IDASetSuppressAlg} & \id{SUNFALSE} \\
 Variable types (differential/algebraic) & \id{IDASetId} & \id{NULL} \\
@@ -1598,6 +1603,9 @@ flag = IDASetStopTime(ida\_mem, tstop);
 }
 {
   The default, if this routine is not called, is that no stop time is imposed.
+
+  Once the integrator returns at a stop time, any future testing for \id{tstop}
+  is disabled (and can be reenabled only though a new call to \id{IDASetStopTime}).
 }
 %%
 %%
@@ -1627,7 +1635,7 @@ flag = IDASetMaxErrTestFails(ida\_mem, maxnef);
   \end{args}
 }
 {
-  The default value is $7$.
+  The default value is $10$.
 }
 %%
 %%
@@ -1659,7 +1667,7 @@ flag = IDASetMaxNonlinIters(ida\_mem, maxcor);
   \end{args}
 }
 {
-  The default value is $3$.
+  The default value is $4$.
 }
 %%
 %%
@@ -2944,7 +2952,8 @@ These optional output functions are described next.
 }
 {
   The function \ID{IDAGetLastStep} returns the
-  integration step size taken on the last internal step.
+  integration step size taken on the last internal step (if from \id{IDASolve}),
+  or the last value of the artificial step size $h$ (if from \id{IDACalcIC}).
 }
 {
   \begin{args}[ida\_mem]

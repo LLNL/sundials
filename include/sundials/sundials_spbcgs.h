@@ -41,11 +41,11 @@ extern "C" {
  *  l_max  maximum Krylov subspace dimension that SpbcgSolve will
  *         be permitted to use
  *
- *  r  vector (type N_Vector) which holds the scaled, preconditioned
- *     linear system residual
- *
  *  r_star  vector (type N_Vector) which holds the initial scaled,
  *          preconditioned linear system residual
+ *
+ *  r  vector (type N_Vector) which holds the scaled, preconditioned
+ *     linear system residual
  *
  *  p, q, u and Ap  vectors (type N_Vector) used for workspace by
  *                  the SPBCG algorithm
@@ -152,19 +152,19 @@ SUNDIALS_EXPORT SpbcgMem SpbcgMalloc(int l_max, N_Vector vec_tmpl);
  */
 
 SUNDIALS_EXPORT int SpbcgSolve(SpbcgMem mem, void *A_data, N_Vector x, N_Vector b,
-			       int pretype, realtype delta, void *P_data, N_Vector sx,
-			       N_Vector sb, ATimesFn atimes, PSolveFn psolve,
-			       realtype *res_norm, int *nli, int *nps);
+                               int pretype, realtype delta, void *P_data, N_Vector sx,
+                               N_Vector sb, ATimesFn atimes, PSolveFn psolve,
+                               realtype *res_norm, int *nli, int *nps);
 
 /* Return values for SpbcgSolve */
 
 #define SPBCG_SUCCESS            0  /* SPBCG algorithm converged          */
 #define SPBCG_RES_REDUCED        1  /* SPBCG did NOT converge, but the
-				       residual was reduced               */
+                                       residual was reduced               */
 #define SPBCG_CONV_FAIL          2  /* SPBCG algorithm failed to converge */
 #define SPBCG_PSOLVE_FAIL_REC    3  /* psolve failed recoverably          */
 #define SPBCG_ATIMES_FAIL_REC    4  /* atimes failed recoverably          */
-#define SPBCG_PSET_FAIL_REC      5  /* pset faild recoverably             */
+#define SPBCG_PSET_FAIL_REC      5  /* pset failed recoverably            */
 
 #define SPBCG_MEM_NULL          -1  /* mem argument is NULL               */
 #define SPBCG_ATIMES_FAIL_UNREC -2  /* atimes returned failure flag       */

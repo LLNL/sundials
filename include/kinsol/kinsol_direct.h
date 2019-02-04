@@ -1,7 +1,7 @@
-/*----------------------------------------------------------------- 
+/* -----------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
  *                Radu Serban @ LLNL
- *-----------------------------------------------------------------
+ * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2019, Lawrence Livermore National Security
  * and Southern Methodist University.
@@ -11,11 +11,11 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
- *-----------------------------------------------------------------
- * Header file for the deprecated direct linear solver interface in 
+ * -----------------------------------------------------------------
+ * Header file for the deprecated direct linear solver interface in
  * KINSOL; these routines now just wrap the updated KINSOL generic
  * linear solver interface in kinsol_ls.h.
- *-----------------------------------------------------------------*/
+ * -----------------------------------------------------------------*/
 
 #ifndef _KINDLS_H
 #define _KINDLS_H
@@ -26,16 +26,17 @@
 extern "C" {
 #endif
 
+
 /*=================================================================
   Function Types (typedefs for equivalent types in kinsol_ls.h)
   =================================================================*/
 
 typedef KINLsJacFn KINDlsJacFn;
-  
-/*=================================================================
+
+/*===================================================================
   Exported Functions (wrappers for equivalent routines in kinsol_ls.h)
-  =================================================================*/
-  
+  ===================================================================*/
+
 int KINDlsSetLinearSolver(void *kinmem, SUNLinearSolver LS, SUNMatrix A);
 
 int KINDlsSetJacFn(void *kinmem, KINDlsJacFn jac);
@@ -49,6 +50,7 @@ int KINDlsGetNumFuncEvals(void *kinmem, long int *nfevals);
 int KINDlsGetLastFlag(void *kinmem, long int *flag);
 
 char *KINDlsGetReturnFlagName(long int flag);
+
 
 #ifdef __cplusplus
 }

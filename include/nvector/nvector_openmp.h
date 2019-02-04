@@ -19,17 +19,6 @@
  * This is the header file for the OpenMP implementation of the
  * NVECTOR module.
  *
- * Part I contains declarations specific to the OpenMP
- * implementation of the supplied NVECTOR module.
- *
- * Part II defines accessor macros that allow the user to
- * efficiently use the type N_Vector without making explicit
- * references to the underlying data structure.
- *
- * Part III contains the prototype for the constructor N_VNew_OpenMP
- * as well as implementation-specific prototypes for various useful
- * vector operations.
- *
  * Notes:
  *
  *   - The definition of the generic N_Vector structure can be found
@@ -62,70 +51,23 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
- * PART I: OPENMP implementation of N_Vector
+ * OpenMP implementation of N_Vector
  * -----------------------------------------------------------------
  */
 
-/* OpenMP implementation of the N_Vector 'content' structure
-   contains the length of the vector, a pointer to an array
-   of 'realtype' components, and a flag indicating ownership of
-   the data */
-
 struct _N_VectorContent_OpenMP {
-  sunindextype length;
-  booleantype own_data;
-  realtype *data;
-  int num_threads;
+  sunindextype length;   /* vector length            */
+  booleantype own_data;  /* data ownership flag      */
+  realtype *data;        /* data array               */
+  int num_threads;       /* number of OpenMP threads */
 };
 
 typedef struct _N_VectorContent_OpenMP *N_VectorContent_OpenMP;
 
 /*
  * -----------------------------------------------------------------
- * PART II: macros NV_CONTENT_OMP, NV_DATA_OMP, NV_OWN_DATA_OMP,
- *          NV_LENGTH_OMP, and NV_Ith_OMP
- * -----------------------------------------------------------------
- * In the descriptions below, the following user declarations
- * are assumed:
- *
- * N_Vector v;
- * sunindextype i;
- *
- * (1) NV_CONTENT_OMP
- *
- *     This routines gives access to the contents of the OpenMP
- *     vector N_Vector.
- *
- *     The assignment v_cont = NV_CONTENT_OMP(v) sets v_cont to be
- *     a pointer to the OpenMP N_Vector content structure.
- *
- * (2) NV_DATA_OMP NV_OWN_DATA_OMP and NV_LENGTH_OMP
- *
- *     These routines give access to the individual parts of
- *     the content structure of a OpenMP N_Vector.
- *
- *     The assignment v_data = NV_DATA_OMP(v) sets v_data to be
- *     a pointer to the first component of v. The assignment
- *     NV_DATA_OMP(v) = data_V sets the component array of v to
- *     be data_v by storing the pointer data_v.
- *
- *     The assignment v_len = NV_LENGTH_OMP(v) sets v_len to be
- *     the length of v. The call NV_LENGTH_OMP(v) = len_v sets
- *     the length of v to be len_v.
- *
- * (3) NV_Ith_OMP
- *
- *     In the following description, the components of an
- *     N_Vector are numbered 0..n-1, where n is the length of v.
- *
- *     The assignment r = NV_Ith_OMP(v,i) sets r to be the value of
- *     the ith component of v. The assignment NV_Ith_OMP(v,i) = r
- *     sets the value of the ith component of v to be r.
- *
- * Note: When looping over the components of an N_Vector v, it is
- * more efficient to first obtain the component array via
- * v_data = NV_DATA_OMP(v) and then access v_data[i] within the
- * loop than it is to use NV_Ith_OMP(v,i) within the loop.
+ * Macros NV_CONTENT_OMP, NV_DATA_OMP, NV_OWN_DATA_OMP,
+ *        NV_LENGTH_OMP, and NV_Ith_OMP
  * -----------------------------------------------------------------
  */
 
@@ -143,136 +85,29 @@ typedef struct _N_VectorContent_OpenMP *N_VectorContent_OpenMP;
 
 /*
  * -----------------------------------------------------------------
- * PART III: functions exported by nvector_OpenMP
- * 
- * CONSTRUCTORS:
- *    N_VNew_OpenMP
- *    N_VNewEmpty_OpenMP
- *    N_VMake_OpenMP
- *    N_VCloneVectorArray_OpenMP
- *    N_VCloneVectorArrayEmpty_OpenMP
- * DESTRUCTORS:
- *    N_VDestroy_OpenMP
- *    N_VDestroyVectorArray_OpenMP
- * ENABLE/DISABLE FUSED OPS:
- *    N_VEnableFusedOps_OpenMP
- *    N_VEnableLinearCombination_OpenMP
- *    N_VEnableScaleAddMulti_OpenMP
- *    N_VEnableDotProdMulti_OpenMP
- *    N_VEnableLinearSumVectorArray_OpenMP
- *    N_VEnableScaleVectorArray_OpenMP
- *    N_VEnableConstVectorArray_OpenMP
- *    N_VEnableWrmsNormVectorArray_OpenMP
- *    N_VEnableWrmsNormMaskVectorArray_OpenMP
- *    N_VEnableScaleAddMultiVectorArray_OpenMP
- *    N_VEnableLinearCombinationVectorArray_OpenMP
- * OTHER:
- *    N_VGetLength_OpenMP
- *    N_VPrint_OpenMP
- *    N_VPrintFile_OpenMP
- * -----------------------------------------------------------------
- */
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VNew_OpenMP
- * -----------------------------------------------------------------
- * This function creates and allocates memory for a OpenMP vector.
+ * Functions exported by nvector_openmp
  * -----------------------------------------------------------------
  */
 
 SUNDIALS_EXPORT N_Vector N_VNew_OpenMP(sunindextype vec_length, int num_threads);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VNewEmpty_OpenMP
- * -----------------------------------------------------------------
- * This function creates a new OpenMP N_Vector with an empty (NULL)
- * data array.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT N_Vector N_VNewEmpty_OpenMP(sunindextype vec_length, int num_threads);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VMake_OpenMP
- * -----------------------------------------------------------------
- * This function creates and allocates memory for a OpenMP vector
- * with a user-supplied data array.
- * -----------------------------------------------------------------
- */
-
-SUNDIALS_EXPORT N_Vector N_VMake_OpenMP(sunindextype vec_length, realtype *v_data, int num_threads);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VCloneVectorArray_OpenMP
- * -----------------------------------------------------------------
- * This function creates an array of 'count' OPENMP vectors by
- * cloning a given vector w.
- * -----------------------------------------------------------------
- */
+SUNDIALS_EXPORT N_Vector N_VMake_OpenMP(sunindextype vec_length, realtype *v_data,
+                                        int num_threads);
 
 SUNDIALS_EXPORT N_Vector *N_VCloneVectorArray_OpenMP(int count, N_Vector w);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VCloneVectorArrayEmpty_OpenMP
- * -----------------------------------------------------------------
- * This function creates an array of 'count' OPENMP vectors each
- * with an empty (NULL) data array by cloning w.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT N_Vector *N_VCloneVectorArrayEmpty_OpenMP(int count, N_Vector w);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VDestroyVectorArray_OpenMP
- * -----------------------------------------------------------------
- * This function frees an array of OPENMP vectors created with 
- * N_VCloneVectorArray_OpenMP or N_VCloneVectorArrayEmpty_OpenMP.
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT void N_VDestroyVectorArray_OpenMP(N_Vector *vs, int count);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VGetLength_OpenMP
- * -----------------------------------------------------------------
- * This function returns number of vector elements.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT sunindextype N_VGetLength_OpenMP(N_Vector v);
-
-/*
- * -----------------------------------------------------------------
- * Function : N_VPrint_OpenMP
- * -----------------------------------------------------------------
- * This function prints the content of a OpenMP vector to stdout.
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT void N_VPrint_OpenMP(N_Vector v);
 
-/*
- * -----------------------------------------------------------------
- * Function : N_VPrintFile_OpenMP
- * -----------------------------------------------------------------
- * This function prints the content of a OpenMP vector to outfile.
- * -----------------------------------------------------------------
- */
-
 SUNDIALS_EXPORT void N_VPrintFile_OpenMP(N_Vector v, FILE *outfile);
 
-/*
- * -----------------------------------------------------------------
- * OpenMP implementations of various useful vector operations
- * -----------------------------------------------------------------
- */
 
 SUNDIALS_EXPORT N_Vector_ID N_VGetVectorID_OpenMP(N_Vector v);
 SUNDIALS_EXPORT N_Vector N_VCloneEmpty_OpenMP(N_Vector w);
@@ -334,7 +169,6 @@ SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_OpenMP(int nvec, int nsum,
                                                            realtype* c,
                                                            N_Vector** X,
                                                            N_Vector* Z);
-
 
 /*
  * -----------------------------------------------------------------
