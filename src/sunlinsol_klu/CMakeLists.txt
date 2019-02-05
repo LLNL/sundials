@@ -33,6 +33,7 @@ SET(shared_SOURCES
 # Add variable sunlinsolklu_HEADERS with the exported SUNLINSOLKLU header files
 SET(sunlinsolklu_HEADERS
   ${sundials_SOURCE_DIR}/include/sunlinsol/sunlinsol_klu.h
+  ${sundials_SOURCE_DIR}/include/sunlinsol/sunlinsol_klu_internal.h
   )
 
 # Add source directory to include directories

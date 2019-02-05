@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <sunlinsol/sunlinsol_klu.h>
+#include <sunlinsol/sunlinsol_klu_internal.h>
 #include <sundials/sundials_math.h>
 
 #define ZERO      RCONST(0.0)
