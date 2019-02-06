@@ -39,7 +39,9 @@
 #include <sundials/sundials_matrix.h>
 #include <sundials/sundials_nvector.h>
 #include <sunmatrix/sunmatrix_sparse.h>
-#include "klu.h"
+#ifndef _KLU_H
+#include <klu.h>
+#endif
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
