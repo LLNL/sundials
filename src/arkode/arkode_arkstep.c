@@ -1257,7 +1257,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
       step_mem->nfi++;
       if (retval != 0) {
         arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKode::ARKStep",
-                        "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, y);
+                        "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
         return(ARK_RHSFUNC_FAIL);
       }
     }
@@ -1307,7 +1307,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
         step_mem->nfi++;
         if (retval != 0) {
           arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKode::ARKStep",
-                          "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, y);
+                          "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
           return(ARK_RHSFUNC_FAIL);
         }
       }
@@ -1351,7 +1351,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
       step_mem->nfi++;
       if (retval != 0) {
         arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKode::ARKStep",
-                        "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, y);
+                        "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
         return(ARK_RHSFUNC_FAIL);
       }
     }
