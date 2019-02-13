@@ -289,7 +289,7 @@ int ARKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
 
   /* If a NLS object was previously used, destroy and recreate default Newton
      NLS object (can be replaced by user-defined object if desired) */
-  if (step_mem->NLS)  {
+  if ((step_mem->NLS != NULL) && (step_mem->ownNLS)) {
 
     /* destroy existing NLS object */
     retval = SUNNonlinSolFree(step_mem->NLS);
@@ -315,10 +315,12 @@ int ARKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
     }
     step_mem->ownNLS = SUNTRUE;
 
-    /* reset nonlinear solver counters */
+  }
+
+  /* reset nonlinear solver counters */
+  if (step_mem->NLS != NULL) {
     step_mem->ncfn    = 0;
     step_mem->nsetups = 0;
-
   }
 
   return(ARK_SUCCESS);
@@ -1255,7 +1257,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
       step_mem->nfi++;
       if (retval != 0) {
         arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKode::ARKStep",
-                        "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, y);
+                        "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
         return(ARK_RHSFUNC_FAIL);
       }
     }
@@ -1305,7 +1307,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
         step_mem->nfi++;
         if (retval != 0) {
           arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKode::ARKStep",
-                          "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, y);
+                          "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
           return(ARK_RHSFUNC_FAIL);
         }
       }
@@ -1349,7 +1351,7 @@ int arkStep_FullRHS(void* arkode_mem, realtype t,
       step_mem->nfi++;
       if (retval != 0) {
         arkProcessError(ark_mem, ARK_RHSFUNC_FAIL, "ARKode::ARKStep",
-                        "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, y);
+                        "arkStep_FullRHS", MSG_ARK_RHSFUNC_FAILED, t);
         return(ARK_RHSFUNC_FAIL);
       }
     }

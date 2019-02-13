@@ -26,7 +26,9 @@ $tar $tarfile $distrobase/config/FindHypre.cmake
 $tar $tarfile $distrobase/config/FindKLU.cmake
 $tar $tarfile $distrobase/config/FindPETSc.cmake
 $tar $tarfile $distrobase/config/FindSUPERLUMT.cmake
+$tar $tarfile $distrobase/config/FindTrilinos.cmake
 $tar $tarfile $distrobase/config/SundialsAddTest.cmake
+$tar $tarfile $distrobase/config/SundialsAddTestInstall.cmake
 $tar $tarfile $distrobase/config/SundialsAddF2003InterfaceLibrary.cmake
 $tar $tarfile $distrobase/config/SundialsBlas.cmake
 $tar $tarfile $distrobase/config/SundialsCMakeMacros.cmake
@@ -42,6 +44,8 @@ $tar $tarfile $distrobase/config/SundialsOpenMP.cmake
 $tar $tarfile $distrobase/config/SundialsPETSc.cmake
 $tar $tarfile $distrobase/config/SundialsPOSIXTimers.cmake
 $tar $tarfile $distrobase/config/SundialsSuperLUMT.cmake
+$tar $tarfile $distrobase/config/SundialsTesting.cmake
+$tar $tarfile $distrobase/config/SundialsTrilinos.cmake
 $tar $tarfile $distrobase/config/SundialsXSDK.cmake
 
 
@@ -95,6 +99,9 @@ $tar $tarfile $distrobase/include/nvector/cuda/Vector.hpp
 $tar $tarfile $distrobase/include/nvector/cuda/VectorKernels.cuh
 $tar $tarfile $distrobase/include/nvector/cuda/VectorArrayKernels.cuh
 $tar $tarfile $distrobase/include/nvector/raja/Vector.hpp
+$tar $tarfile $distrobase/include/nvector/nvector_trilinos.h
+$tar $tarfile $distrobase/include/nvector/trilinos/SundialsTpetraVectorInterface.hpp
+$tar $tarfile $distrobase/include/nvector/trilinos/SundialsTpetraVectorKernels.hpp
 
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_band.h
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_dense.h
@@ -139,190 +146,206 @@ $tar $tarfile $distrobase/src/sundials/sundials_version.c
 $tar $tarfile $distrobase/src/sundials/sundials_nonlinearsolver.c
 $tar $tarfile $distrobase/src/sundials/sundials_nvector_senswrapper.c
 
-echo "   --- Add nvecser module to $tarfile"
+echo "   --- Add nvector modules to $tarfile"
 
-$tar $tarfile $distrobase/src/nvec_ser/CMakeLists.txt
-$tar $tarfile $distrobase/src/nvec_ser/fnvector_serial.h
-$tar $tarfile $distrobase/src/nvec_ser/nvector_serial.c
-$tar $tarfile $distrobase/src/nvec_ser/fnvector_serial.c
-$tar $tarfile $distrobase/src/nvec_ser/F90/CMakeLists.txt
-$tar $tarfile $distrobase/src/nvec_ser/F90/fnvector_serial.f90
+$tar $tarfile $distrobase/src/nvector/CMakeLists.txt
 
-echo "   --- Add nvecpar module to $tarfile"
+echo "   --- Add nvector/serial module to $tarfile"
 
-$tar $tarfile $distrobase/src/nvec_par/CMakeLists.txt
-$tar $tarfile $distrobase/src/nvec_par/fnvector_parallel.h
-$tar $tarfile $distrobase/src/nvec_par/nvector_parallel.c
-$tar $tarfile $distrobase/src/nvec_par/fnvector_parallel.c
+$tar $tarfile $distrobase/src/nvector/serial/CMakeLists.txt
+$tar $tarfile $distrobase/src/nvector/serial/nvector_serial.c
+$tar $tarfile $distrobase/src/nvector/serial/fnvector_serial.h
+$tar $tarfile $distrobase/src/nvector/serial/fnvector_serial.c
+$tar $tarfile $distrobase/src/nvector/serial/F90/CMakeLists.txt
+$tar $tarfile $distrobase/src/nvector/serial/F90/fnvector_serial.f90
 
-echo "   --- Add nvecparhyp module to $tarfile"
+echo "   --- Add nvector/parallel module to $tarfile"
 
-$tar $tarfile $distrobase/src/nvec_parhyp/CMakeLists.txt
-$tar $tarfile $distrobase/src/nvec_parhyp/nvector_parhyp.c
+$tar $tarfile $distrobase/src/nvector/parallel/CMakeLists.txt
+$tar $tarfile $distrobase/src/nvector/parallel/nvector_parallel.c
+$tar $tarfile $distrobase/src/nvector/parallel/fnvector_parallel.h
+$tar $tarfile $distrobase/src/nvector/parallel/fnvector_parallel.c
 
-echo "   --- Add nvecpetsc module to $tarfile"
+echo "   --- Add nvector/parhyp module to $tarfile"
 
-$tar $tarfile $distrobase/src/nvec_petsc/CMakeLists.txt
-$tar $tarfile $distrobase/src/nvec_petsc/nvector_petsc.c
+$tar $tarfile $distrobase/src/nvector/parhyp/CMakeLists.txt
+$tar $tarfile $distrobase/src/nvector/parhyp/nvector_parhyp.c
 
-echo "   --- Add nvecopenmp module to $tarfile"
+echo "   --- Add nvector/petsc module to $tarfile"
 
-$tar $tarfile $distrobase/src/nvec_openmp/CMakeLists.txt
-$tar $tarfile $distrobase/src/nvec_openmp/nvector_openmp.c
-$tar $tarfile $distrobase/src/nvec_openmp/fnvector_openmp.c
-$tar $tarfile $distrobase/src/nvec_openmp/fnvector_openmp.h
-$tar $tarfile $distrobase/src/nvec_openmp/F90/CMakeLists.txt
-$tar $tarfile $distrobase/src/nvec_openmp/F90/fnvector_openmp.f90
+$tar $tarfile $distrobase/src/nvector/petsc/CMakeLists.txt
+$tar $tarfile $distrobase/src/nvector/petsc/nvector_petsc.c
 
 echo "   --- Add nvecopenmpdev module to $tarfile"
 
-$tar $tarfile $distrobase/src/nvec_openmpdev/CMakeLists.txt
-$tar $tarfile $distrobase/src/nvec_openmpdev/nvector_openmpdev.c
+$tar $tarfile $distrobase/src/nvector/openmpdev/CMakeLists.txt
+$tar $tarfile $distrobase/src/nvector/openmpdev/nvector_openmpdev.c
 
-echo "   --- Add nvecpthreads module to $tarfile"
+echo "   --- Add nvector/openmp module to $tarfile"
 
-$tar $tarfile $distrobase/src/nvec_pthreads/CMakeLists.txt
-$tar $tarfile $distrobase/src/nvec_pthreads/nvector_pthreads.c
-$tar $tarfile $distrobase/src/nvec_pthreads/fnvector_pthreads.c
-$tar $tarfile $distrobase/src/nvec_pthreads/fnvector_pthreads.h
-$tar $tarfile $distrobase/src/nvec_pthreads/F90/CMakeLists.txt
-$tar $tarfile $distrobase/src/nvec_pthreads/F90/fnvector_pthreads.f90
+$tar $tarfile $distrobase/src/nvector/openmp/CMakeLists.txt
+$tar $tarfile $distrobase/src/nvector/openmp/nvector_openmp.c
+$tar $tarfile $distrobase/src/nvector/openmp/fnvector_openmp.c
+$tar $tarfile $distrobase/src/nvector/openmp/fnvector_openmp.h
+$tar $tarfile $distrobase/src/nvector/openmp/F90/CMakeLists.txt
+$tar $tarfile $distrobase/src/nvector/openmp/F90/fnvector_openmp.f90
 
-echo "   --- Add nveccuda module to $tarfile"
+echo "   --- Add nvector/pthreads module to $tarfile"
 
-$tar $tarfile $distrobase/src/nvec_cuda/CMakeLists.txt
-$tar $tarfile $distrobase/src/nvec_cuda/nvector_cuda.cu
+$tar $tarfile $distrobase/src/nvector/pthreads/CMakeLists.txt
+$tar $tarfile $distrobase/src/nvector/pthreads/nvector_pthreads.c
+$tar $tarfile $distrobase/src/nvector/pthreads/fnvector_pthreads.c
+$tar $tarfile $distrobase/src/nvector/pthreads/fnvector_pthreads.h
+$tar $tarfile $distrobase/src/nvector/pthreads/F90/CMakeLists.txt
+$tar $tarfile $distrobase/src/nvector/pthreads/F90/fnvector_pthreads.f90
 
-echo "   --- Add nvecraja module to $tarfile"
+echo "   --- Add nvector/cuda module to $tarfile"
 
-$tar $tarfile $distrobase/src/nvec_raja/CMakeLists.txt
-$tar $tarfile $distrobase/src/nvec_raja/nvector_raja.cu
+$tar $tarfile $distrobase/src/nvector/cuda/CMakeLists.txt
+$tar $tarfile $distrobase/src/nvector/cuda/nvector_cuda.cu
 
-echo "   --- Add sunmatband module to $tarfile"
+echo "   --- Add nvector/raja module to $tarfile"
+$tar $tarfile $distrobase/src/nvector/raja/CMakeLists.txt
+$tar $tarfile $distrobase/src/nvector/raja/nvector_raja.cu
 
-$tar $tarfile $distrobase/src/sunmat_band/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunmat_band/sunmatrix_band.c
-$tar $tarfile $distrobase/src/sunmat_band/fsunmatrix_band.h
-$tar $tarfile $distrobase/src/sunmat_band/fsunmatrix_band.c
-$tar $tarfile $distrobase/src/sunmat_band/F90/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunmat_band/F90/fsunmatrix_band.f90
+echo "   --- Add nvector/trilinos module to $tarfile"
 
-echo "   --- Add sunmatdense module to $tarfile"
+$tar $tarfile $distrobase/src/nvector/trilinos/CMakeLists.txt
+$tar $tarfile $distrobase/src/nvector/trilinos/nvector_trilinos.cpp
 
-$tar $tarfile $distrobase/src/sunmat_dense/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunmat_dense/sunmatrix_dense.c
-$tar $tarfile $distrobase/src/sunmat_dense/fsunmatrix_dense.h
-$tar $tarfile $distrobase/src/sunmat_dense/fsunmatrix_dense.c
-$tar $tarfile $distrobase/src/sunmat_dense/F90/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunmat_dense/F90/fsunmatrix_dense.f90
+echo "   --- Add sunmatrix modules to $tarfile"
 
-echo "   --- Add sunmatsparse module to $tarfile"
+$tar $tarfile $distrobase/src/sunmatrix/CMakeLists.txt
 
-$tar $tarfile $distrobase/src/sunmat_sparse/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunmat_sparse/sunmatrix_sparse.c
-$tar $tarfile $distrobase/src/sunmat_sparse/fsunmatrix_sparse.h
-$tar $tarfile $distrobase/src/sunmat_sparse/fsunmatrix_sparse.c
-$tar $tarfile $distrobase/src/sunmat_sparse/F90/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunmat_sparse/F90/fsunmatrix_sparse.f90
+echo "   --- Add sunmatrix/band module to $tarfile"
 
-echo "   --- Add sunlinsolband module to $tarfile"
+$tar $tarfile $distrobase/src/sunmatrix/band/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunmatrix/band/sunmatrix_band.c
+$tar $tarfile $distrobase/src/sunmatrix/band/fsunmatrix_band.h
+$tar $tarfile $distrobase/src/sunmatrix/band/fsunmatrix_band.c
+$tar $tarfile $distrobase/src/sunmatrix/band/F90/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunmatrix/band/F90/fsunmatrix_band.f90
 
-$tar $tarfile $distrobase/src/sunlinsol_band/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunlinsol_band/sunlinsol_band.c
-$tar $tarfile $distrobase/src/sunlinsol_band/fsunlinsol_band.h
-$tar $tarfile $distrobase/src/sunlinsol_band/fsunlinsol_band.c
-$tar $tarfile $distrobase/src/sunlinsol_band/F90/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunlinsol_band/F90/fsunlinsol_band.f90
+echo "   --- Add sunmatrix/dense module to $tarfile"
 
-echo "   --- Add sunlinsoldense module to $tarfile"
+$tar $tarfile $distrobase/src/sunmatrix/dense/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunmatrix/dense/sunmatrix_dense.c
+$tar $tarfile $distrobase/src/sunmatrix/dense/fsunmatrix_dense.h
+$tar $tarfile $distrobase/src/sunmatrix/dense/fsunmatrix_dense.c
+$tar $tarfile $distrobase/src/sunmatrix/dense/F90/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunmatrix/dense/F90/fsunmatrix_dense.f90
 
-$tar $tarfile $distrobase/src/sunlinsol_dense/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunlinsol_dense/sunlinsol_dense.c
-$tar $tarfile $distrobase/src/sunlinsol_dense/fsunlinsol_dense.h
-$tar $tarfile $distrobase/src/sunlinsol_dense/fsunlinsol_dense.c
-$tar $tarfile $distrobase/src/sunlinsol_dense/F90/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunlinsol_dense/F90/fsunlinsol_dense.f90
+echo "   --- Add sunmatrix/sparse module to $tarfile"
 
-echo "   --- Add sunlinsolklu module to $tarfile"
+$tar $tarfile $distrobase/src/sunmatrix/sparse/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunmatrix/sparse/sunmatrix_sparse.c
+$tar $tarfile $distrobase/src/sunmatrix/sparse/fsunmatrix_sparse.h
+$tar $tarfile $distrobase/src/sunmatrix/sparse/fsunmatrix_sparse.c
+$tar $tarfile $distrobase/src/sunmatrix/sparse/F90/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunmatrix/sparse/F90/fsunmatrix_sparse.f90
 
-$tar $tarfile $distrobase/src/sunlinsol_klu/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunlinsol_klu/sunlinsol_klu.c
-$tar $tarfile $distrobase/src/sunlinsol_klu/fsunlinsol_klu.h
-$tar $tarfile $distrobase/src/sunlinsol_klu/fsunlinsol_klu.c
-$tar $tarfile $distrobase/src/sunlinsol_klu/F90/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunlinsol_klu/F90/fsunlinsol_klu.f90
+echo "   --- Add sunlinsol modules to $tarfile"
 
-echo "   --- Add sunlinsollapackband module to $tarfile"
+$tar $tarfile $distrobase/src/sunlinsol/CMakeLists.txt
 
-$tar $tarfile $distrobase/src/sunlinsol_lapackband/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunlinsol_lapackband/sunlinsol_lapackband.c
-$tar $tarfile $distrobase/src/sunlinsol_lapackband/fsunlinsol_lapackband.h
-$tar $tarfile $distrobase/src/sunlinsol_lapackband/fsunlinsol_lapackband.c
+echo "   --- Add sunlinsol/band module to $tarfile"
 
-echo "   --- Add sunlinsollapackdense module to $tarfile"
+$tar $tarfile $distrobase/src/sunlinsol/band/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol/band/sunlinsol_band.c
+$tar $tarfile $distrobase/src/sunlinsol/band/fsunlinsol_band.h
+$tar $tarfile $distrobase/src/sunlinsol/band/fsunlinsol_band.c
+$tar $tarfile $distrobase/src/sunlinsol/band/F90/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol/band/F90/fsunlinsol_band.f90
 
-$tar $tarfile $distrobase/src/sunlinsol_lapackdense/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunlinsol_lapackdense/sunlinsol_lapackdense.c
-$tar $tarfile $distrobase/src/sunlinsol_lapackdense/fsunlinsol_lapackdense.h
-$tar $tarfile $distrobase/src/sunlinsol_lapackdense/fsunlinsol_lapackdense.c
+echo "   --- Add sunlinsol/dense module to $tarfile"
 
-echo "   --- Add sunlinsolpcg module to $tarfile"
+$tar $tarfile $distrobase/src/sunlinsol/dense/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol/dense/sunlinsol_dense.c
+$tar $tarfile $distrobase/src/sunlinsol/dense/fsunlinsol_dense.h
+$tar $tarfile $distrobase/src/sunlinsol/dense/fsunlinsol_dense.c
+$tar $tarfile $distrobase/src/sunlinsol/dense/F90/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol/dense/F90/fsunlinsol_dense.f90
 
-$tar $tarfile $distrobase/src/sunlinsol_pcg/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunlinsol_pcg/sunlinsol_pcg.c
-$tar $tarfile $distrobase/src/sunlinsol_pcg/fsunlinsol_pcg.h
-$tar $tarfile $distrobase/src/sunlinsol_pcg/fsunlinsol_pcg.c
-$tar $tarfile $distrobase/src/sunlinsol_pcg/F90/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunlinsol_pcg/F90/fsunlinsol_pcg.f90
+echo "   --- Add sunlinsol/klu module to $tarfile"
 
-echo "   --- Add sunlinsolspbcgs module to $tarfile"
+$tar $tarfile $distrobase/src/sunlinsol/klu/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol/klu/sunlinsol_klu.c
+$tar $tarfile $distrobase/src/sunlinsol/klu/fsunlinsol_klu.h
+$tar $tarfile $distrobase/src/sunlinsol/klu/fsunlinsol_klu.c
+$tar $tarfile $distrobase/src/sunlinsol/klu/F90/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol/klu/F90/fsunlinsol_klu.f90
 
-$tar $tarfile $distrobase/src/sunlinsol_spbcgs/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunlinsol_spbcgs/sunlinsol_spbcgs.c
-$tar $tarfile $distrobase/src/sunlinsol_spbcgs/fsunlinsol_spbcgs.h
-$tar $tarfile $distrobase/src/sunlinsol_spbcgs/fsunlinsol_spbcgs.c
-$tar $tarfile $distrobase/src/sunlinsol_spbcgs/F90/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunlinsol_spbcgs/F90/fsunlinsol_spbcgs.f90
+echo "   --- Add sunlinsol/lapackband module to $tarfile"
 
-echo "   --- Add sunlinsolspfgmr module to $tarfile"
+$tar $tarfile $distrobase/src/sunlinsol/lapackband/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol/lapackband/sunlinsol_lapackband.c
+$tar $tarfile $distrobase/src/sunlinsol/lapackband/fsunlinsol_lapackband.h
+$tar $tarfile $distrobase/src/sunlinsol/lapackband/fsunlinsol_lapackband.c
 
-$tar $tarfile $distrobase/src/sunlinsol_spfgmr/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunlinsol_spfgmr/sunlinsol_spfgmr.c
-$tar $tarfile $distrobase/src/sunlinsol_spfgmr/fsunlinsol_spfgmr.h
-$tar $tarfile $distrobase/src/sunlinsol_spfgmr/fsunlinsol_spfgmr.c
-$tar $tarfile $distrobase/src/sunlinsol_spfgmr/F90/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunlinsol_spfgmr/F90/fsunlinsol_spfgmr.f90
+echo "   --- Add sunlinsol/lapackdense module to $tarfile"
 
-echo "   --- Add sunlinsolspgmr module to $tarfile"
+$tar $tarfile $distrobase/src/sunlinsol/lapackdense/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol/lapackdense/sunlinsol_lapackdense.c
+$tar $tarfile $distrobase/src/sunlinsol/lapackdense/fsunlinsol_lapackdense.h
+$tar $tarfile $distrobase/src/sunlinsol/lapackdense/fsunlinsol_lapackdense.c
 
-$tar $tarfile $distrobase/src/sunlinsol_spgmr/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunlinsol_spgmr/sunlinsol_spgmr.c
-$tar $tarfile $distrobase/src/sunlinsol_spgmr/fsunlinsol_spgmr.h
-$tar $tarfile $distrobase/src/sunlinsol_spgmr/fsunlinsol_spgmr.c
-$tar $tarfile $distrobase/src/sunlinsol_spgmr/F90/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunlinsol_spgmr/F90/fsunlinsol_spgmr.f90
+echo "   --- Add sunlinsol/pcg module to $tarfile"
 
-echo "   --- Add sunlinsolsptfqmr module to $tarfile"
+$tar $tarfile $distrobase/src/sunlinsol/pcg/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol/pcg/sunlinsol_pcg.c
+$tar $tarfile $distrobase/src/sunlinsol/pcg/fsunlinsol_pcg.h
+$tar $tarfile $distrobase/src/sunlinsol/pcg/fsunlinsol_pcg.c
+$tar $tarfile $distrobase/src/sunlinsol/pcg/F90/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol/pcg/F90/fsunlinsol_pcg.f90
 
-$tar $tarfile $distrobase/src/sunlinsol_sptfqmr/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunlinsol_sptfqmr/sunlinsol_sptfqmr.c
-$tar $tarfile $distrobase/src/sunlinsol_sptfqmr/fsunlinsol_sptfqmr.h
-$tar $tarfile $distrobase/src/sunlinsol_sptfqmr/fsunlinsol_sptfqmr.c
-$tar $tarfile $distrobase/src/sunlinsol_sptfqmr/F90/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunlinsol_sptfqmr/F90/fsunlinsol_sptfqmr.f90
+echo "   --- Add sunlinsol/spbcgs module to $tarfile"
 
-echo "   --- Add sunlinsolsuperlumt module to $tarfile"
+$tar $tarfile $distrobase/src/sunlinsol/spbcgs/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol/spbcgs/sunlinsol_spbcgs.c
+$tar $tarfile $distrobase/src/sunlinsol/spbcgs/fsunlinsol_spbcgs.h
+$tar $tarfile $distrobase/src/sunlinsol/spbcgs/fsunlinsol_spbcgs.c
+$tar $tarfile $distrobase/src/sunlinsol/spbcgs/F90/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol/spbcgs/F90/fsunlinsol_spbcgs.f90
 
-$tar $tarfile $distrobase/src/sunlinsol_superlumt/CMakeLists.txt
-$tar $tarfile $distrobase/src/sunlinsol_superlumt/sunlinsol_superlumt.c
-$tar $tarfile $distrobase/src/sunlinsol_superlumt/fsunlinsol_superlumt.h
-$tar $tarfile $distrobase/src/sunlinsol_superlumt/fsunlinsol_superlumt.c
+echo "   --- Add sunlinsol/spfgmr module to $tarfile"
+
+$tar $tarfile $distrobase/src/sunlinsol/spfgmr/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol/spfgmr/sunlinsol_spfgmr.c
+$tar $tarfile $distrobase/src/sunlinsol/spfgmr/fsunlinsol_spfgmr.h
+$tar $tarfile $distrobase/src/sunlinsol/spfgmr/fsunlinsol_spfgmr.c
+$tar $tarfile $distrobase/src/sunlinsol/spfgmr/F90/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol/spfgmr/F90/fsunlinsol_spfgmr.f90
+
+echo "   --- Add sunlinsol/spgmr module to $tarfile"
+
+$tar $tarfile $distrobase/src/sunlinsol/spgmr/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol/spgmr/sunlinsol_spgmr.c
+$tar $tarfile $distrobase/src/sunlinsol/spgmr/fsunlinsol_spgmr.h
+$tar $tarfile $distrobase/src/sunlinsol/spgmr/fsunlinsol_spgmr.c
+$tar $tarfile $distrobase/src/sunlinsol/spgmr/F90/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol/spgmr/F90/fsunlinsol_spgmr.f90
+
+echo "   --- Add sunlinsol/sptfqmr module to $tarfile"
+
+$tar $tarfile $distrobase/src/sunlinsol/sptfqmr/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol/sptfqmr/sunlinsol_sptfqmr.c
+$tar $tarfile $distrobase/src/sunlinsol/sptfqmr/fsunlinsol_sptfqmr.h
+$tar $tarfile $distrobase/src/sunlinsol/sptfqmr/fsunlinsol_sptfqmr.c
+$tar $tarfile $distrobase/src/sunlinsol/sptfqmr/F90/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol/sptfqmr/F90/fsunlinsol_sptfqmr.f90
+
+echo "   --- Add sunlinsol/superlumt module to $tarfile"
+
+$tar $tarfile $distrobase/src/sunlinsol/superlumt/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol/superlumt/sunlinsol_superlumt.c
+$tar $tarfile $distrobase/src/sunlinsol/superlumt/fsunlinsol_superlumt.h
+$tar $tarfile $distrobase/src/sunlinsol/superlumt/fsunlinsol_superlumt.c
 
 echo "   --- Add sunnonlinsol modules to $tarfile"
 
 $tar $tarfile $distrobase/src/sunnonlinsol/CMakeLists.txt
 
-echo "   --- Add sunnonlinsolnewton modules to $tarfile"
+echo "   --- Add sunnonlinsol/newton modules to $tarfile"
 
 $tar $tarfile $distrobase/src/sunnonlinsol/newton/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunnonlinsol/newton/sunnonlinsol_newton.c
@@ -331,7 +354,7 @@ $tar $tarfile $distrobase/src/sunnonlinsol/newton/fsunnonlinsol_newton.c
 $tar $tarfile $distrobase/src/sunnonlinsol/newton/F90/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunnonlinsol/newton/F90/fsunnonlinsol_newton.f90
 
-echo "   --- Add sunnonlinsolfixedpoint modules to $tarfile"
+echo "   --- Add sunnonlinsol/fixedpoint modules to $tarfile"
 
 $tar $tarfile $distrobase/src/sunnonlinsol/fixedpoint/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunnonlinsol/fixedpoint/sunnonlinsol_fixedpoint.c
@@ -382,6 +405,8 @@ $tar $tarfile $distrobase/examples/nvector/raja/test_nvector_raja.cu
 $tar $tarfile $distrobase/examples/nvector/raja/CMakeLists.txt
 $tar $tarfile $distrobase/examples/nvector/mpiraja/test_nvector_mpiraja.cu
 $tar $tarfile $distrobase/examples/nvector/mpiraja/CMakeLists.txt
+$tar $tarfile $distrobase/examples/nvector/trilinos/test_nvector_trilinos.cpp
+$tar $tarfile $distrobase/examples/nvector/trilinos/CMakeLists.txt
 $tar $tarfile $distrobase/examples/nvector/test_nvector.c
 $tar $tarfile $distrobase/examples/nvector/test_nvector.h
 
@@ -481,6 +506,7 @@ $tar $tarfile $distrobase/examples/templates/cmakelists_serial_F90_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_parallel_F90_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_cuda_CUDA_ex.in
 $tar $tarfile $distrobase/examples/templates/cmakelists_raja_CUDA_ex.in
+$tar $tarfile $distrobase/examples/templates/cmakelists_trilinos_CXX_ex.in
 
 $tar $tarfile $distrobase/examples/templates/makefile_parallel_C_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_parallel_F77_ex.in
@@ -501,6 +527,7 @@ $tar $tarfile $distrobase/examples/templates/makefile_serial_F90_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_parallel_F90_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_cuda_CUDA_ex.in
 $tar $tarfile $distrobase/examples/templates/makefile_raja_CUDA_ex.in
+$tar $tarfile $distrobase/examples/templates/makefile_trilinos_CXX_ex.in
 
 echo "   --- Add testing files to $tarfile"
 

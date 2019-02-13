@@ -39,6 +39,7 @@ ida_ex_intro.tex    \
 ida_ex_serial.tex   \
 ida_ex_parallel.tex \
 ida_ex_petsc.tex    \
+ida_ex_trilinos.tex    \
 ida_ex_fortran.tex  \
 ida_ex_codes.tex
 

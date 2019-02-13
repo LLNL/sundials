@@ -24,7 +24,7 @@ ENDIF()
 
 # Macros to hide/show cached variables.
 # These two macros can be used to "hide" or "show" in the
-# list of cached variables various variables and/or options 
+# list of cached variables various variables and/or options
 # that depend on other options.
 # Note that once a variable is modified, it will preserve its
 # value (hidding it merely makes it internal)

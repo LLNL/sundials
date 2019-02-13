@@ -20,6 +20,10 @@
 
 # Examples using SUNDIALS linear solvers
 SET(CVODE_examples
+  "cvRoberts_dns\;"
+  "cvRoberts_dns_uw\;develop"
+  "cvRoberts_dns_negsol\;develop"
+  "cvRoberts_dns_constraints\;develop"
   "cvAdvDiff_bnd\;develop"
   "cvDirectDemo_ls\;develop"
   "cvDiurnal_kry_bp\;develop"
@@ -27,10 +31,6 @@ SET(CVODE_examples
   "cvDisc_dns\;develop"
   "cvKrylovDemo_ls\;develop"
   "cvKrylovDemo_prec\;develop"
-  "cvRoberts_dns\;"
-  "cvRoberts_dns_uw\;develop"
-  "cvRoberts_dns_negsol\;develop"
-  "cvRoberts_dns_constraints\;develop"
   #cvAdvDiffReac_kry\;develop" # not released
   )
 

@@ -45,14 +45,14 @@ PROJECT(sundials C)
 # Set some variables with info on the SUNDIALS project
 SET(PACKAGE_BUGREPORT "woodward6@llnl.gov")
 SET(PACKAGE_NAME "SUNDIALS")
-SET(PACKAGE_STRING "SUNDIALS 4.0.2")
+SET(PACKAGE_STRING "SUNDIALS 4.1.0")
 SET(PACKAGE_TARNAME "sundials")
 
 # set SUNDIALS version numbers
 # (use "" for the version label if none is needed)
 SET(PACKAGE_VERSION_MAJOR "4")
-SET(PACKAGE_VERSION_MINOR "0")
-SET(PACKAGE_VERSION_PATCH "2")
+SET(PACKAGE_VERSION_MINOR "1")
+SET(PACKAGE_VERSION_PATCH "0")
 SET(PACKAGE_VERSION_LABEL "")
 
 IF(PACKAGE_VERSION_LABEL)
@@ -78,37 +78,37 @@ MARK_AS_ADVANCED(CLEAR
 
 # Specify the VERSION and SOVERSION for shared libraries
 
-SET(arkodelib_VERSION "3.0.2")
+SET(arkodelib_VERSION "3.1.0")
 SET(arkodelib_SOVERSION "3")
 
-SET(cvodelib_VERSION "4.0.2")
+SET(cvodelib_VERSION "4.1.0")
 SET(cvodelib_SOVERSION "4")
 
-SET(cvodeslib_VERSION "4.0.2")
+SET(cvodeslib_VERSION "4.1.0")
 SET(cvodeslib_SOVERSION "4")
 
-SET(idalib_VERSION "4.0.2")
+SET(idalib_VERSION "4.1.0")
 SET(idalib_SOVERSION "4")
 
-SET(idaslib_VERSION "3.0.2")
+SET(idaslib_VERSION "3.1.0")
 SET(idaslib_SOVERSION "3")
 
-SET(kinsollib_VERSION "4.0.2")
+SET(kinsollib_VERSION "4.1.0")
 SET(kinsollib_SOVERSION "4")
 
 SET(cpodeslib_VERSION "0.0.0")
 SET(cpodeslib_SOVERSION "0")
 
-SET(nveclib_VERSION "4.0.2")
+SET(nveclib_VERSION "4.1.0")
 SET(nveclib_SOVERSION "4")
 
-SET(sunmatrixlib_VERSION "2.0.2")
+SET(sunmatrixlib_VERSION "2.1.0")
 SET(sunmatrixlib_SOVERSION "2")
 
-SET(sunlinsollib_VERSION "2.0.2")
+SET(sunlinsollib_VERSION "2.1.0")
 SET(sunlinsollib_SOVERSION "2")
 
-SET(sunnonlinsollib_VERSION "1.0.2")
+SET(sunnonlinsollib_VERSION "1.1.0")
 SET(sunnonlinsollib_SOVERSION "1")
 
 # Specify the location of additional CMAKE modules
@@ -119,17 +119,6 @@ SET(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/config)
 # the library dir was set to be by GNUInstallDirs.
 INCLUDE(GNUInstallDirs)
 MARK_AS_ADVANCED(CLEAR CMAKE_INSTALL_LIBDIR)
-
-# ---------------------------------------------------------------
-# MACRO definitions
-# ---------------------------------------------------------------
-INCLUDE(SundialsCMakeMacros)
-INCLUDE(SundialsAddF2003InterfaceLibrary)
-
-# ---------------------------------------------------------------
-# Check for deprecated SUNDIALS CMake options/variables
-# ---------------------------------------------------------------
-INCLUDE(SundialsDeprecated)
 
 # ---------------------------------------------------------------
 # Which modules to build?
@@ -180,6 +169,20 @@ ENDIF()
 #ELSE()
 #  SET(BUILD_CPODES OFF)
 #ENDIF()
+
+# ---------------------------------------------------------------
+# MACRO definitions
+# ---------------------------------------------------------------
+INCLUDE(CMakeParseArguments) # can be removed when CMake 3.5+ is required
+INCLUDE(SundialsCMakeMacros)
+INCLUDE(SundialsAddF2003InterfaceLibrary)
+INCLUDE(SundialsAddTest)
+INCLUDE(SundialsAddTestInstall)
+
+# ---------------------------------------------------------------
+# Check for deprecated SUNDIALS CMake options/variables
+# ---------------------------------------------------------------
+INCLUDE(SundialsDeprecated)
 
 # ---------------------------------------------------------------
 # xSDK specific options
@@ -469,6 +472,11 @@ IF(PETSC_ENABLE AND NOT MPI_ENABLE)
   FORCE_VARIABLE(PETSC_ENABLE BOOL "Enable PETSc support" OFF)
 ENDIF()
 
+# ---------------------------------------------------------------
+# Enable Trilinos support?
+# ---------------------------------------------------------------
+OPTION(Trilinos_ENABLE "Enable Trilinos support" OFF)
+
 
 # ===============================================================
 # Options for examples
@@ -481,18 +489,9 @@ ENDIF()
 # Enable C examples (on by default)
 OPTION(EXAMPLES_ENABLE_C "Build SUNDIALS C examples" ON)
 
-# C++ examples (off by default) are an option only if ARKode is enabled
-SET(DOCSTR "Build ARKode C++ examples")
-IF(BUILD_ARKODE)
-  OPTION(EXAMPLES_ENABLE_CXX "${DOCSTR}" OFF)
-ELSE()
-  # set back to OFF (in case was ON)
-  IF(EXAMPLES_ENABLE_CXX)
-    PRINT_WARNING("EXAMPLES_ENABLE_CXX is ON but BUILD_ARKODE is OFF"
-                  "Disabling EXAMPLES_ENABLE_CXX")
-    FORCE_VARIABLE(EXAMPLES_ENABLE_CXX BOOL "${DOCSTR}" OFF)
-  ENDIF()
-ENDIF()
+# C++ examples (off by default, unless Trilinos is enabled)
+SET(DOCSTR "Build C++ examples")
+OPTION(EXAMPLES_ENABLE_CXX "${DOCSTR}" ${Trilinos_ENABLE})
 
 # F77 examples (on by default) are an option only if the Fortran
 # interface is enabled
@@ -547,25 +546,12 @@ ELSE()
   ENDIF()
 ENDIF()
 
-# RAJA examples (off by default)
-SET(DOCSTR "Build SUNDIALS RAJA examples")
-IF(RAJA_ENABLE)
-  OPTION(EXAMPLES_ENABLE_RAJA "${DOCSTR}" OFF)
-ELSE()
-  IF(EXAMPLES_ENABLE_RAJA)
-    PRINT_WARNING("EXAMPLES_ENABLE_RAJA is ON but RAJA_ENABLE is OFF"
-                  "Disabling EXAMPLES_ENABLE_RAJA")
-    FORCE_VARIABLE(EXAMPLES_ENABLE_RAJA BOOL "${DOCSTR}" OFF)
-  ENDIF()
-ENDIF()
-
 # If any of the above examples are enabled set EXAMPLES_ENABLED to TRUE
 IF(EXAMPLES_ENABLE_C OR
     EXAMPLES_ENABLE_F77 OR
     EXAMPLES_ENABLE_CXX OR
     EXAMPLES_ENABLE_F90 OR
-    EXAMPLES_ENABLE_CUDA OR
-    EXAMPLES_ENABLE_RAJA)
+    EXAMPLES_ENABLE_CUDA)
   SET(EXAMPLES_ENABLED TRUE)
 ELSE()
   SET(EXAMPLES_ENABLED FALSE)
@@ -575,59 +561,35 @@ ENDIF()
 # Install examples?
 # ---------------------------------------------------------------
 
+# Enable installing examples by default
+SET(DOCSTR "Install SUNDIALS examples")
 IF(EXAMPLES_ENABLED)
-
-  # If examples are enabled, set different options
-
-  # The examples will be linked with the library corresponding to the build type.
-  # Whenever building shared libraries, use them to link the examples.
-  IF(BUILD_SHARED_LIBS)
-    SET(LINK_LIBRARY_TYPE "shared")
-  ELSE(BUILD_SHARED_LIBS)
-    SET(LINK_LIBRARY_TYPE "static")
-  ENDIF(BUILD_SHARED_LIBS)
-
-  # Enable installing examples by default
-  OPTION(EXAMPLES_INSTALL "Install example files" ON)
-
-  # If examples are to be exported, check where we should install them.
-  IF(EXAMPLES_INSTALL)
-
-    SHOW_VARIABLE(EXAMPLES_INSTALL_PATH PATH
-      "Output directory for installing example files" "${CMAKE_INSTALL_PREFIX}/examples")
-
-    IF(NOT EXAMPLES_INSTALL_PATH)
-      PRINT_WARNING("The example installation path is empty"
-                    "Example installation path was reset to its default value")
-      SET(EXAMPLES_INSTALL_PATH "${CMAKE_INSTALL_PREFIX}/examples" CACHE STRING
-        "Output directory for installing example files" FORCE)
-    ENDIF(NOT EXAMPLES_INSTALL_PATH)
-
-    # create test_install target and directory for running smoke tests after
-    # installation
-    ADD_CUSTOM_TARGET(test_install)
-
-    SET(TEST_INSTALL_DIR ${PROJECT_BINARY_DIR}/Testing_Install)
-
-    IF(NOT EXISTS ${TEST_INSTALL_DIR})
-      FILE(MAKE_DIRECTORY ${TEST_INSTALL_DIR})
-    ENDIF()
-
-  ELSE(EXAMPLES_INSTALL)
-
-    HIDE_VARIABLE(EXAMPLES_INSTALL_PATH)
-
-  ENDIF(EXAMPLES_INSTALL)
-
-ELSE(EXAMPLES_ENABLED)
-
-  # If examples are disabled, hide all options related to
-  # building and installing the SUNDIALS examples
-
+  OPTION(EXAMPLES_INSTALL "${DOCSTR}" ON)
+ELSE()
+  FORCE_VARIABLE(EXAMPLES_INSTALL BOOL "${DOCSTR}" OFF)
   HIDE_VARIABLE(EXAMPLES_INSTALL)
+ENDIF()
+
+# If examples are to be exported, check where we should install them.
+IF(EXAMPLES_INSTALL)
+
+  SHOW_VARIABLE(EXAMPLES_INSTALL_PATH PATH
+    "Output directory for installing example files"
+    "${CMAKE_INSTALL_PREFIX}/examples")
+
+  IF(NOT EXAMPLES_INSTALL_PATH)
+    PRINT_WARNING("The example installation path is empty"
+      "Example installation path was reset to its default value")
+    SET(EXAMPLES_INSTALL_PATH "${CMAKE_INSTALL_PREFIX}/examples" CACHE STRING
+      "Output directory for installing example files" FORCE)
+  ENDIF()
+
+ELSE()
+
   HIDE_VARIABLE(EXAMPLES_INSTALL_PATH)
 
-ENDIF(EXAMPLES_ENABLED)
+ENDIF()
+
 
 # ==============================================================================
 # Advanced (hidden) options
@@ -792,9 +754,10 @@ ENDIF()
 # (a) C++ examples are enabled
 # (b) CUDA is enabled
 # (c) RAJA is enabled
+# (d) Trilinos is enabled
 # ---------------------------------------------------------------
 
-if(EXAMPLES_ENABLE_CXX OR CUDA_ENABLE OR RAJA_ENABLE)
+if(EXAMPLES_ENABLE_CXX OR CUDA_ENABLE OR RAJA_ENABLE OR Trilinos_ENABLE)
   include(SundialsCXX)
 endif()
 
@@ -826,20 +789,22 @@ if (CXX_FOUND AND CUDA_ENABLE AND CUDA_FOUND AND (NOT RAJA_ENABLE))
 endif()
 
 # ---------------------------------------------------------------
-# Decide how to compile MPI codes.
+# Decide how to compile MPI codes. We must check for MPI if
+# MPI is enabled or if Trilinos is enabled because the Trilinos
+# examples may need MPI without us turning on the MPI SUNDIALS
+# components.
 # ---------------------------------------------------------------
 
-if(MPI_ENABLE)
-
+if(MPI_ENABLE OR Trilinos_ENABLE)
   include(SundialsMPI)
+endif()
 
+if(MPI_ENABLE)
   if(NOT MPI_C_FOUND)
-    print_warning("MPI not functional"
-      "Parallel support will not be provided")
+    print_warning("MPI not functional" "Parallel support will not be provided")
   else()
     set(IS_MPI_ENABLED "#ifndef SUNDIALS_MPI_ENABLED\n#define SUNDIALS_MPI_ENABLED 1\n#endif")
   endif()
-
 endif()
 
 # always define FMPI_COMM_F2C in sundials_fconfig.h file
@@ -1114,8 +1079,20 @@ ELSE()
 
 ENDIF()
 
+# -------------------------------------------------------------
+# Find Trilinos
+# -------------------------------------------------------------
+
+if(Trilinos_ENABLE)
+  include(SundialsTrilinos)
+  if(NOT Trilinos_FUNCTIONAL)
+    PRINT_WARNING("Trilinos not functional" "Verify the path to Trilinos and check the Trilinos installation")
+  endif()
+endif(Trilinos_ENABLE)
+
+
 # ===============================================================
-# Add source and configuration files
+# At this point all the configuration options are set.
 # ===============================================================
 
 # ---------------------------------------------------------------
@@ -1138,40 +1115,21 @@ CONFIGURE_FILE(
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/include ${PROJECT_BINARY_DIR}/include)
 
 # ---------------------------------------------------------------
-# Add selected modules to the build system
+# Enable testing and add source and example files to the build.
 # ---------------------------------------------------------------
 
+# Enable testing
+IF(EXAMPLES_ENABLED)
+  INCLUDE(SundialsTesting)
+ENDIF()
+
+# Add selected packages and modules to the build
 ADD_SUBDIRECTORY(src)
 
-# ---------------------------------------------------------------
-# Include the subdirectories corresponding to various examples
-# ---------------------------------------------------------------
-
-# If building and installing the examples is enabled, include
-# the subdirectories for those examples that will be built.
-# Also, if we will generate exported example Makefiles, set
-# variables needed in generating them from templates.
-
-# For now, TestRunner is not being distributed.
-# So:
-#  - Don't show TESTRUNNER variable
-#  - Don't enable testing if TestRunner if not found.
-#  - There will be no 'make test' target
-
-INCLUDE(SundialsAddTest)
-HIDE_VARIABLE(TESTRUNNER)
-
+# Add selected examples to the build
 IF(EXAMPLES_ENABLED)
-
-  # enable regression testing with 'make test'
-  IF(TESTRUNNER)
-    INCLUDE(CTest)
-  ENDIF()
-
-  # Add SUNDIALS examples
   ADD_SUBDIRECTORY(examples)
-
-ENDIF(EXAMPLES_ENABLED)
+ENDIF()
 
 # ---------------------------------------------------------------
 # Install configuration header files and license file

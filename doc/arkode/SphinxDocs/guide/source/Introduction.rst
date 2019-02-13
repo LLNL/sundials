@@ -107,6 +107,30 @@ preconditioner routines.
 Changes from previous versions
 --------------------------------
 
+Changes in v3.1.0
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+An additional NVECTOR implementation was added for the
+Tpetra vector from the Trilinos library to facilitate interoperability
+between SUNDIALS and Trilinos. This implementation is accompanied by
+additions to user documentation and SUNDIALS examples.
+
+A bug was fixed where a nonlinear solver object could be freed twice in some use
+cases.
+
+The ``EXAMPLES_ENABLE_RAJA`` CMake option has been removed. The option ``EXAMPLES_ENABLE_CUDA``
+enables all examples that use CUDA including the RAJA examples with a CUDA back end
+(if the RAJA NVECTOR is enabled).
+
+The implementation header file `arkode_impl.h` is no longer installed. This means users
+who are direclty manipulating the ``ARKodeMem`` structure will need to update their code
+to use ARKode's public API.
+
+Python is no longer required to run ``make test`` and ``make test_install``.
+
+Fixed a bug in ``ARKodeButcherTable_Write`` when printing a Butcher table
+without an embedding.
+
 Changes in v3.0.2
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

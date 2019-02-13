@@ -99,6 +99,26 @@ in extended {\F}.
 
 \section{Changes from previous versions}
 
+\subsection*{Changes in 4.1.0}
+
+An additional {\nvector} implementation was added for the
+{\tpetra} vector from the {\trilinos} library to facilitate interoperability
+between {\sundials} and {\trilinos}. This implementation is accompanied by
+additions to user documentation and {\sundials} examples.
+
+A bug was fixed where a nonlinear solver object could be freed twice in some use
+cases.
+
+The \id{EXAMPLES\_ENABLE\_RAJA} CMake option has been removed. The option \id{EXAMPLES\_ENABLE\_CUDA}
+enables all examples that use CUDA including the RAJA examples with a CUDA back end (if the RAJA
+{\nvector} is enabled).
+
+The implementation header file \id{cvode\_impl.h} is no longer installed. This means users
+who are directly manipulating the \id{CVodeMem} structure will need to update their code
+to use {\cvode}'s public API.
+
+Python is no longer required to run \id{make test} and \id{make test\_install}.
+
 \subsection*{Changes in v4.0.2}
 
 Added information on how to contribute to {\sundials} and a contributing agreement.
@@ -286,8 +306,8 @@ requires the {\nvector} operations \id{N\_MinQuotient}, \id{N\_VConstrMask}, and
 with some compilers (e.g. armclang) that did not define \id{\_\_STDC\_VERSION\_\_}.
 \\
 \\
-\noindent Added hybrid MPI/CUDA and MPI/RAJA vectors to allow use of more 
-than one MPI rank when using a GPU system.  The vectors assume one GPU 
+\noindent Added hybrid MPI/CUDA and MPI/RAJA vectors to allow use of more
+than one MPI rank when using a GPU system.  The vectors assume one GPU
 device per MPI rank.
 \\
 \\
@@ -301,11 +321,11 @@ as a backend for {\raja} currently.
 \begin{itemize}
 \item CMake 3.1.3 is now the minimum required CMake version.
 \item Deprecate the behavior of the \id{SUNDIALS\_INDEX\_TYPE} CMake option and
-  added the \newline 
+  added the \newline
   \id{SUNDIALS\_INDEX\_SIZE} CMake option to select the \id{sunindextype}
   integer size.
 \item The native CMake FindMPI module is now used to locate an MPI installation.
-\item If MPI is enabled and MPI compiler wrappers are not set, the build system 
+\item If MPI is enabled and MPI compiler wrappers are not set, the build system
   will check if \id{CMAKE\_<language>\_COMPILER} can compile MPI programs before
   trying to locate and use an MPI installation.
 \item The previous options for setting MPI compiler wrappers and the executable
@@ -319,7 +339,7 @@ as a backend for {\raja} currently.
   scheme needs to be overridden, the advanced options
   \id{SUNDIALS\_F77\_FUNC\_CASE} and \id{SUNDIALS\_F77\_FUNC\_UNDERSCORES} can
   be used to manually set the name-mangling scheme and bypass trying to infer
-  the scheme. 
+  the scheme.
 \item Parts of the main CMakeLists.txt file were moved to new files in the
   \id{src} and \id{example} directories to make the CMake configuration file
   structure more modular.
@@ -331,7 +351,7 @@ The changes in this minor release include the following:
 \begin{itemize}
 \item Updated the minimum required version of CMake to 2.8.12 and enabled
   using rpath by default to locate shared libraries on OSX.
-\item Fixed Windows specific problem where \id{sunindextype} was not correctly 
+\item Fixed Windows specific problem where \id{sunindextype} was not correctly
   defined when using 64-bit integers for the {\sundials} index type. On Windows
   \id{sunindextype} is now defined as the MSVC basic type \id{\_\_int64}.
 \item Added sparse SUNMatrix ``Reallocate'' routine to allow specification of
@@ -350,9 +370,9 @@ The changes in this minor release include the following:
 \item Added the following examples from the usage notes page of the SUNDIALS website,
   and updated them to work with SUNDIALS 3.x:
   \begin{itemize}
-  \item \id{cvDisc\_dns.c}, which demonstrates using CVODE with 
+  \item \id{cvDisc\_dns.c}, which demonstrates using CVODE with
     discontinuous solutions or RHS.
-  \item \id{cvRoberts\_dns\_negsol.c}, which illustrates the 
+  \item \id{cvRoberts\_dns\_negsol.c}, which illustrates the
     use of the RHS function return value to control unphysical negative
     concentrations.
   \end{itemize}
@@ -444,13 +464,13 @@ Specific changes include:
 \end{itemize}
 
 Two additional {\nvector} implementations were added -- one for
-{\cuda} and one for {\raja} vectors.  
+{\cuda} and one for {\raja} vectors.
 These vectors are supplied to provide very basic support for running
 on GPU architectures.  Users are advised that these vectors both move all data
 to the GPU device upon construction, and speedup will only be realized if the
 user also conducts the right-hand-side function evaluation on the device.
 In addition, these vectors assume the problem fits on one GPU.
-Further information about {\raja}, users are referred to th web site, 
+Further information about {\raja}, users are referred to th web site,
 https://software.llnl.gov/RAJA/.
 These additions are accompanied by additions to various interface functions
 and to user documentation.

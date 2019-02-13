@@ -55,8 +55,8 @@ Approved for public release; further dissemination unlimited
 \clearpage
 }
 
-\title{User Documentation for ARKode v3.0.2\\
-       (SUNDIALS v4.0.2)}
+\title{User Documentation for ARKode v3.1.0\\
+       (SUNDIALS v4.1.0)}
 \author{
   Daniel R. Reynolds$^1$, David J. Gardner$^2$, \\
   Alan C. Hindmarsh$^2$, Carol S. Woodward$^2$ \\
@@ -299,6 +299,29 @@ preconditioner routines.
 
 \section{Changes from previous versions}
 \label{Introduction:changes-from-previous-versions}
+
+\subsection{Changes in v3.1.0}
+\label{Introduction:changes-in-v3-1-0}
+An additional NVECTOR implementation was added for the
+Tpetra vector from the Trilinos library to facilitate interoperability
+between SUNDIALS and Trilinos. This implementation is accompanied by
+additions to user documentation and SUNDIALS examples.
+
+A bug was fixed where a nonlinear solver object could be freed twice in some use
+cases.
+
+The \code{EXAMPLES\_ENABLE\_RAJA} CMake option has been removed. The option \code{EXAMPLES\_ENABLE\_CUDA}
+enables all examples that use CUDA including the RAJA examples with a CUDA back end
+(if the RAJA NVECTOR is enabled).
+
+The implementation header file \emph{arkode\_impl.h} is no longer installed. This means users
+who are directly manipulating the \code{ARKodeMem} structure will need to update their code
+to use ARKode's public API.
+
+Python is no longer required to run \code{make test} and \code{make test\_install}.
+
+Fixed a bug in \code{ARKodeButcherTable\_Write} when printing a Butcher table
+without an embedding.
 
 \subsection{Changes in v3.0.2}
 \label{Introduction:changes-in-v3-0-2}
@@ -37024,16 +37047,6 @@ Build the SUNDIALS C++ examples
 
 Default: \code{OFF}
 
-\item[{\index{EXAMPLES\_ENABLE\_RAJA (CMake option)}EXAMPLES\_ENABLE\_RAJA}] \leavevmode
-Build the SUNDIALS RAJA examples
-
-Default: \code{OFF}
-
-\begin{notice}{note}{Note:}
-You need to enable CUDA and RAJA support to build these
-examples.
-\end{notice}
-
 \item[{\index{EXAMPLES\_ENABLE\_F77 (CMake option)}EXAMPLES\_ENABLE\_F77}] \leavevmode
 Build the SUNDIALS Fortran77 examples
 
@@ -37715,7 +37728,7 @@ RAJA installation. To enable RAJA, set \code{CUDA\_ENABLE} and
 \code{RAJA\_ENABLE} to \code{ON}. If RAJA is installed in a nonstandard
 location you will be prompted to set the variable \code{RAJA\_DIR} with
 the path to the RAJA CMake configuration file. To enable building the
-RAJA examples set \code{EXAMPLES\_ENABLE\_RAJA} to \code{ON}.
+RAJA examples set \code{EXAMPLES\_ENABLE\_CUDA} to \code{ON}.
 
 
 \subsection{Testing the build and installation}

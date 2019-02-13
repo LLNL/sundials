@@ -80,7 +80,8 @@ int IDASetNonlinearSolver(void *ida_mem, SUNNonlinearSolver NLS)
   }
 
   /* free any existing nonlinear solver */
-  if (IDA_mem->NLS) retval = SUNNonlinSolFree(IDA_mem->NLS);
+  if ((IDA_mem->NLS != NULL) && (IDA_mem->ownNLS))
+    retval = SUNNonlinSolFree(IDA_mem->NLS);
 
   /* set SUNNonlinearSolver pointer */
   IDA_mem->NLS = NLS;

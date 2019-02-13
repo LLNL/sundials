@@ -206,6 +206,7 @@ int main() {
   /* Clean up and return */
   N_VDestroy(y);            /* Free y vector */
   MRIStepFree(&arkode_mem); /* Free integrator memory */
+  free(udata);              /* Free user data */
 
   return 0;
 }

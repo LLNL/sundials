@@ -342,7 +342,8 @@ int N_VWrmsNormMaskVectorArray(int nvec, N_Vector* X, N_Vector* W, N_Vector id,
 int N_VScaleAddMultiVectorArray(int nvec, int nsum, realtype* a, N_Vector* X,
                                  N_Vector** Y, N_Vector** Z)
 {
-  int       i, j, ier;
+  int       i, j;
+  int       ier=0;
   realtype  ONE=RCONST(1.0);
   N_Vector* YY=NULL;
   N_Vector* ZZ=NULL;
@@ -389,7 +390,8 @@ int N_VScaleAddMultiVectorArray(int nvec, int nsum, realtype* a, N_Vector* X,
 int N_VLinearCombinationVectorArray(int nvec, int nsum, realtype* c, N_Vector** X,
                                     N_Vector* Z)
 {
-  int       i, j, ier;
+  int       i, j;
+  int       ier=0;
   realtype  ONE=RCONST(1.0);
   N_Vector* Y=NULL;
 

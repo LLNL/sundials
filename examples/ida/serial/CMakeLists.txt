@@ -20,12 +20,12 @@
 
 # Examples using SUNDIALS linear solvers
 SET(IDA_examples
+  "idaRoberts_dns\;"
   "idaFoodWeb_bnd\;develop"
+  "idaFoodWeb_kry\;develop"
   "idaHeat2D_bnd\;develop"
   "idaHeat2D_kry\;develop"
-  "idaFoodWeb_kry\;develop"
   "idaKrylovDemo_ls\;develop"
-  "idaRoberts_dns\;"
   "idaSlCrank_dns\;develop"
   )
 

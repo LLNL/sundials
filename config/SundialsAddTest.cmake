@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Author:  Steven Smith @ LLNL
+# Author: Steven Smith and David J. Gardner @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -13,32 +13,24 @@
 # ---------------------------------------------------------------
 #
 # SUNDIALS_ADD_TEST(<test name> <executable>)
-# 
+#
 # CMake macro to add a Sundials regression test. Keyword input
 # arguments can be added after <executable> to set regression
 # test options (see oneValueArgs and multiValueArgs below).
 #
-# The executable is run and its output compared with the output in the
-# test/answers directory. If the output differs significantly then the
-# test fails. The default signicance is 4 decimal points for floating
-# values and 10% for integer values.
+# When SUNDIALS_DEVTEST is OFF (default) the executable is run
+# and pass/fail is determined by the executable return value.
+#
+# When SUNDIALS_DEVTESTS is ON the executable is run and its
+# output compared with the corresponding .out file. If the output
+# differs significantly then the test fails. The default level of
+# signicance is 4 decimal points for floating values and 10% for
+# integer values.
+#
+# The level of precision can be adjusted for all tests using:
+#  -D SUNDIALS_DEVTESTS_FLOAT_PRECISION=<number of digits>
+#  -D SUNDIALS_DEVTESTS_INTEGER_PRECISION=<% difference>
 # ---------------------------------------------------------------
-
-IF(EXAMPLES_ENABLED)
-
-  find_package(PythonInterp)
-  IF(${PYTHON_VERSION_MAJOR} LESS 3)
-    IF(${PYTHON_VERSION_MINOR} LESS 7)
-      PRINT_WARNING("Python version must be 2.7.x or greater to run regression tests"
-                    "Examples will build but 'make test' will fail.")
-    ENDIF()
-  ENDIF()
-
-  # look for the testRunner script in the test directory
-  FIND_PROGRAM(TESTRUNNER testRunner PATHS test)
-
-ENDIF(EXAMPLES_ENABLED)
-
 
 MACRO(SUNDIALS_ADD_TEST NAME EXECUTABLE)
 
@@ -67,115 +59,90 @@ MACRO(SUNDIALS_ADD_TEST NAME EXECUTABLE)
   # SGS add check to make sure parallel is integer
   # SGS add check for float and integer precision
 
-  # command line arguments for the test runner script
-  SET(TEST_ARGS
-    "--verbose"
-    "--testname=${NAME}" 
-    "--executablename=$<TARGET_FILE:${EXECUTABLE}>"
-    "--outputdir=${CMAKE_BINARY_DIR}/Testing/output"
-    )
+  # check that the test is not excluded
+  if(NOT ("${SUNDIALS_ADD_TEST_EXAMPLE_TYPE}" STREQUAL "exclude"))
 
-  # only check the return value, do not diff the output and answer files
-  IF(NOT ${SUNDIALS_DEVTESTS} OR ${SUNDIALS_ADD_TEST_NODIFF})
-    LIST(APPEND TEST_ARGS "--nodiff")
-  ENDIF()
+    # add test using the dev test runner
+    IF(SUNDIALS_DEVTESTS)
 
-  # set the number of mpi tasks to use in parallel tests
-  IF("${SUNDIALS_ADD_TEST_MPI_NPROCS}" STREQUAL "")
-  ELSE()
+      # command line arguments for the test runner script
+      SET(TEST_ARGS
+        "--verbose"
+        "--testname=${NAME}"
+        "--executablename=$<TARGET_FILE:${EXECUTABLE}>"
+        "--outputdir=${CMAKE_BINARY_DIR}/Testing/output"
+        )
 
-    IF(MPI_ENABLE)
-      IF(MPIEXEC_EXECUTABLE MATCHES "srun")
-	SET(RUN_COMMAND "srun -N1 -n${SUNDIALS_ADD_TEST_MPI_NPROCS} -ppdebug")
-      ELSE()
-	SET(RUN_COMMAND "${MPIEXEC_EXECUTABLE} -n ${SUNDIALS_ADD_TEST_MPI_NPROCS}")
+      # do not diff the output and answer files
+      IF(SUNDIALS_ADD_TEST_NODIFF)
+        LIST(APPEND TEST_ARGS "--nodiff")
       ENDIF()
-      
-      LIST(APPEND TEST_ARGS "--runcommand=\"${RUN_COMMAND}\"")
 
-    ENDIF(MPI_ENABLE)
+      # check if this test is run with MPI and set the MPI run command
+      IF(NOT ("${SUNDIALS_ADD_TEST_MPI_NPROCS}" STREQUAL "") AND
+          NOT ("${MPIEXEC_EXECUTABLE}" STREQUAL ""))
 
-  ENDIF()
-  
-  # set the test input args
-  IF("${SUNDIALS_ADD_TEST_TEST_ARGS}" STREQUAL "")
-  ELSE()
-    STRING (REPLACE ";" " " USER_ARGS "${SUNDIALS_ADD_TEST_TEST_ARGS}")
-    LIST(APPEND TEST_ARGS "--runargs=\"${USER_ARGS}\"")
-  ENDIF()
+        IF(MPIEXEC_EXECUTABLE MATCHES "srun")
+          SET(RUN_COMMAND "srun -N1 -n${SUNDIALS_ADD_TEST_MPI_NPROCS} -ppdebug")
+        ELSE()
+          SET(RUN_COMMAND "${MPIEXEC_EXECUTABLE} -n ${SUNDIALS_ADD_TEST_MPI_NPROCS}")
+        ENDIF()
 
-  # set the test answer directory name (default is test/answers)
-  IF("${SUNDIALS_ADD_TEST_ANSWER_DIR}" STREQUAL "")
-  ELSE()
-    LIST(APPEND TEST_ARGS "--answerdir=${SUNDIALS_ADD_TEST_ANSWER_DIR}")
-  ENDIF()
+        LIST(APPEND TEST_ARGS "--runcommand=\"${RUN_COMMAND}\"")
 
-  # set the test answer file name (default is test_name_test_agrs)
-  IF("${SUNDIALS_ADD_TEST_ANSWER_FILE}" STREQUAL "")
-  ELSE()
-    LIST(APPEND TEST_ARGS "--answerfile=${SUNDIALS_ADD_TEST_ANSWER_FILE}")
-  ENDIF()
+      ENDIF()
 
-  # set the precision for floating point failure comparison (number of digits, default 4)
-  IF(SUNDIALS_DEVTESTS_FLOAT_PRECISION)
-    LIST(APPEND TEST_ARGS "--floatprecision=${SUNDIALS_DEVTESTS_FLOAT_PRECISION}")
-  ELSEIF(NOT ("${SUNDIALS_ADD_TEST_FLOAT_PRECISION}" STREQUAL ""))
-    LIST(APPEND TEST_ARGS "--floatprecision=${SUNDIALS_ADD_TEST_FLOAT_PRECISION}")
-  ENDIF()
+      # set the test input args
+      IF(NOT ("${SUNDIALS_ADD_TEST_TEST_ARGS}" STREQUAL ""))
+        STRING (REPLACE ";" " " USER_ARGS "${SUNDIALS_ADD_TEST_TEST_ARGS}")
+        LIST(APPEND TEST_ARGS "--runargs=\"${USER_ARGS}\"")
+      ENDIF()
 
-  # set the integer percentage difference for failure comparison (default 10%)
-  IF(SUNDIALS_DEVTESTS_INTEGER_PRECISION)
-    LIST(APPEND TEST_ARGS "--integerpercentage=${SUNDIALS_DEVTESTS_INTEGER_PRECISION}")
-  ELSEIF(NOT ("${SUNDIALS_ADD_TEST_INTEGER_PERCENTAGE}" STREQUAL ""))
-    LIST(APPEND TEST_ARGS "--integerpercentage=${SUNDIALS_ADD_TEST_INTEGER_PERCENTAGE}")
-  ENDIF()
+      # set the test answer directory name (default is test/answers)
+      IF(NOT ("${SUNDIALS_ADD_TEST_ANSWER_DIR}" STREQUAL ""))
+        LIST(APPEND TEST_ARGS "--answerdir=${SUNDIALS_ADD_TEST_ANSWER_DIR}")
+      ENDIF()
 
-  # create test case with the corresponding test runner command and arguments
-  # all tests are added during development and only unlabeled tests when released
-  IF((${SUNDIALS_DEVTESTS} OR "${SUNDIALS_ADD_TEST_EXAMPLE_TYPE}" STREQUAL "")
-      AND NOT "${SUNDIALS_ADD_TEST_EXAMPLE_TYPE}" STREQUAL "exclude")
-    ADD_TEST(NAME ${NAME} COMMAND ${PYTHON_EXECUTABLE} ${TESTRUNNER} ${TEST_ARGS})
-  ENDIF()
+      # set the test answer file name (default is test_name_test_agrs)
+      IF(NOT ("${SUNDIALS_ADD_TEST_ANSWER_FILE}" STREQUAL ""))
+        LIST(APPEND TEST_ARGS "--answerfile=${SUNDIALS_ADD_TEST_ANSWER_FILE}")
+      ENDIF()
 
-ENDMACRO()
+      # set the precision for floating point failure comparison (number of digits, default 4)
+      IF(SUNDIALS_DEVTESTS_FLOAT_PRECISION)
+        LIST(APPEND TEST_ARGS "--floatprecision=${SUNDIALS_DEVTESTS_FLOAT_PRECISION}")
+      ELSEIF(NOT ("${SUNDIALS_ADD_TEST_FLOAT_PRECISION}" STREQUAL ""))
+        LIST(APPEND TEST_ARGS "--floatprecision=${SUNDIALS_ADD_TEST_FLOAT_PRECISION}")
+      ENDIF()
 
+      # set the integer percentage difference for failure comparison (default 10%)
+      IF(SUNDIALS_DEVTESTS_INTEGER_PRECISION)
+        LIST(APPEND TEST_ARGS "--integerpercentage=${SUNDIALS_DEVTESTS_INTEGER_PRECISION}")
+      ELSEIF(NOT ("${SUNDIALS_ADD_TEST_INTEGER_PERCENTAGE}" STREQUAL ""))
+        LIST(APPEND TEST_ARGS "--integerpercentage=${SUNDIALS_ADD_TEST_INTEGER_PERCENTAGE}")
+      ENDIF()
 
-MACRO(SUNDIALS_ADD_TEST_INSTALL SOLVER EXECUTABLE)
+      # create test case with the corresponding test runner command and arguments
+      # all tests are added during development and only unlabeled tests when released
+      ADD_TEST(NAME ${NAME} COMMAND ${PYTHON_EXECUTABLE} ${TESTRUNNER} ${TEST_ARGS})
 
-  # macro options
-  SET(options )
+    elseif("${SUNDIALS_ADD_TEST_EXAMPLE_TYPE}" STREQUAL "")
 
-  # macro keyword inputs followed by a single value
-  # EXAMPLE_DIR = path to the directory containing the installed example
-  SET(oneValueArgs "EXAMPLE_DIR")
+      # convert string to list
+      IF(NOT ("${SUNDIALS_ADD_TEST_TEST_ARGS}" STREQUAL ""))
+        STRING(REPLACE " " ";" TEST_ARGS "${SUNDIALS_ADD_TEST_TEST_ARGS}")
+      ENDIF()
 
-  # macro keyword inputs followed by multiple values
-  SET(multiValueArgs )
+      # check if this test is run with MPI and add the test run command
+      if(NOT ("${SUNDIALS_ADD_TEST_MPI_NPROCS}" STREQUAL "") AND
+          NOT ("${MPIEXEC_EXECUTABLE}" STREQUAL ""))
+        ADD_TEST(NAME ${NAME} COMMAND ${MPIEXEC_EXECUTABLE} -n ${SUNDIALS_ADD_TEST_MPI_NPROCS} $<TARGET_FILE:${EXECUTABLE}> ${TEST_ARGS})
+      else()
+        ADD_TEST(NAME ${NAME} COMMAND $<TARGET_FILE:${EXECUTABLE}> ${TEST_ARGS})
+      endif()
 
-  # parse inputs and create variables SUNDIALS_ADD_TEST_<keyword>
-  CMAKE_PARSE_ARGUMENTS(SUNDIALS_ADD_TEST_INSTALL
-    "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+    endif()
 
-  # create testing directory for this solver
-  FILE(MAKE_DIRECTORY ${TEST_INSTALL_DIR}/${SOLVER})
-
-  # command line arguments for the test runner script
-  set(TEST_ARGS
-    "--testname=${EXECUTABLE}" 
-    "--executablename=./${EXECUTABLE}"
-    "--outputdir=${TEST_INSTALL_DIR}/${SOLVER}"
-    "--builddir=${SUNDIALS_ADD_TEST_INSTALL_EXAMPLE_DIR}"
-    "--buildcmd=${CMAKE_COMMAND}"
-    "--nodiff"
-    )
-  
-  # add test_install target for this solver
-  ADD_CUSTOM_TARGET(${SOLVER}_test_install
-    COMMAND ${PYTHON_EXECUTABLE} ${TESTRUNNER} ${TEST_ARGS}
-    COMMENT "Running ${SOLVER} installation tests"
-    WORKING_DIRECTORY ${TEST_INSTALL_DIR}/${SOLVER})
-
-  # make test_install depend on solver_test_install
-  ADD_DEPENDENCIES(test_install ${SOLVER}_test_install)
+  endif()
 
 ENDMACRO()

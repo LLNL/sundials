@@ -30,5 +30,6 @@
 *.mod
 
 # directories created by ARKode's Sphinx documentation system
+/doc/arkode/SphinxDocs/extra_packages/sphinx-bootstrap-theme
 /doc/arkode/SphinxDocs/guide/build
 /doc/arkode/SphinxDocs/examples/build

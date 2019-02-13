@@ -4049,9 +4049,9 @@ provide a function of type \Id{CVLsJacFn} defined as follows:
 %%
 \usfunction{CVLsJacFn}
 {
-  typedef (*CVLsJacFn)(&realtype t, N\_Vector y, N\_Vector fy, \\
-                       &SUNMatrix Jac, void *user\_data,\\
-                       &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
+  typedef int (*CVLsJacFn)(&realtype t, N\_Vector y, N\_Vector fy, \\
+                           &SUNMatrix Jac, void *user\_data,\\
+                           &N\_Vector tmp1, N\_Vector tmp2, N\_Vector tmp3);
 }
 {
   This function computes the Jacobian matrix $J = \partial f / \partial y$
