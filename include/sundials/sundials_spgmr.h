@@ -2,7 +2,7 @@
  * -----------------------------------------------------------------
  * $Revision$
  * $Date$
- * ----------------------------------------------------------------- 
+ * -----------------------------------------------------------------
  * Programmer(s): Scott D. Cohen, Alan C. Hindmarsh and
  *                Radu Serban @ LLNL
  * -----------------------------------------------------------------
@@ -127,7 +127,7 @@ extern "C" {
  * storage during calculations.
  * -----------------------------------------------------------------
  */
-  
+
 typedef struct _SpgmrMemRec {
 
   int l_max;
@@ -240,13 +240,13 @@ SUNDIALS_EXPORT SpgmrMem SpgmrMalloc(int l_max, N_Vector vec_tmpl);
  * SpgmrMalloc must be made to obtain new memory for SpgmrSolve
  * to use.
  * -----------------------------------------------------------------
- */                                                                
-     
+ */
+
 SUNDIALS_EXPORT int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector b,
-			       int pretype, int gstype, realtype delta, 
-			       int max_restarts, void *P_data, N_Vector s1, 
-			       N_Vector s2, ATimesFn atimes, PSolveFn psolve, 
-			       realtype *res_norm, int *nli, int *nps);
+                               int pretype, int gstype, realtype delta,
+                               int max_restarts, void *P_data, N_Vector s1,
+                               N_Vector s2, ATimesFn atimes, PSolveFn psolve,
+                               realtype *res_norm, int *nli, int *nps);
 
 
 /* Return values for SpgmrSolve */
@@ -258,12 +258,12 @@ SUNDIALS_EXPORT int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector 
 #define SPGMR_QRFACT_FAIL        3  /* QRfact found singular matrix  */
 #define SPGMR_PSOLVE_FAIL_REC    4  /* psolve failed recoverably     */
 #define SPGMR_ATIMES_FAIL_REC    5  /* atimes failed recoverably     */
-#define SPGMR_PSET_FAIL_REC      6  /* pset faild recoverably        */
+#define SPGMR_PSET_FAIL_REC      6  /* pset failed recoverably       */
 
 #define SPGMR_MEM_NULL          -1  /* mem argument is NULL          */
 #define SPGMR_ATIMES_FAIL_UNREC -2  /* atimes returned failure flag  */
 #define SPGMR_PSOLVE_FAIL_UNREC -3  /* psolve failed unrecoverably   */
-#define SPGMR_GS_FAIL           -4  /* Gram-Schmidt routine faiuled  */        
+#define SPGMR_GS_FAIL           -4  /* Gram-Schmidt routine faiuled  */
 #define SPGMR_QRSOL_FAIL        -5  /* QRsol found singular R        */
 #define SPGMR_PSET_FAIL_UNREC   -6  /* pset failed unrecoverably     */
 
@@ -274,7 +274,7 @@ SUNDIALS_EXPORT int SpgmrSolve(SpgmrMem mem, void *A_data, N_Vector x, N_Vector 
  * SpgmrMalloc frees the memory allocated by SpgmrMalloc. It is
  * illegal to use the pointer mem after a call to SpgmrFree.
  * -----------------------------------------------------------------
- */                                                                
+ */
 
 SUNDIALS_EXPORT void SpgmrFree(SpgmrMem mem);
 

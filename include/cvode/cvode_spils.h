@@ -1,4 +1,4 @@
-/*-----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Daniel R. Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -12,7 +12,7 @@
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
  * Header file for the deprecated Scaled, Preconditioned Iterative
- * Linear Solver interface in CVODE; these routines now just wrap 
+ * Linear Solver interface in CVODE; these routines now just wrap
  * the updated CVODE generic linear solver interface in cvode_ls.h.
  * -----------------------------------------------------------------*/
 
@@ -27,8 +27,7 @@ extern "C" {
 
 
 /*===============================================================
-  CVSPILS user-supplied function prototypes (typedefs for 
-  equivalent types in cvode_ls.h)
+  Function Types (typedefs for equivalent types in cvode_ls.h)
   ===============================================================*/
 
 typedef CVLsPrecSetupFn CVSpilsPrecSetupFn;
@@ -36,39 +35,41 @@ typedef CVLsPrecSolveFn CVSpilsPrecSolveFn;
 typedef CVLsJacTimesSetupFn CVSpilsJacTimesSetupFn;
 typedef CVLsJacTimesVecFn CVSpilsJacTimesVecFn;
 
-/*=================================================================
-  CVSPILS Exported functions (wrappers for equivalent routines in 
-  cvode_ls.h)
-  =================================================================*/
+/*====================================================================
+  Exported Functions (wrappers for equivalent routines in cvode_ls.h)
+  ====================================================================*/
 
 int CVSpilsSetLinearSolver(void *cvode_mem, SUNLinearSolver LS);
 
 int CVSpilsSetEpsLin(void *cvode_mem, realtype eplifac);
-  
-int CVSpilsSetPreconditioner(void *cvode_mem, CVSpilsPrecSetupFn pset, CVSpilsPrecSolveFn psolve);
 
-int CVSpilsSetJacTimes(void *cvode_mem, CVSpilsJacTimesSetupFn jtsetup, CVSpilsJacTimesVecFn jtimes);
-  
-int CVSpilsGetWorkSpace(void *cvode_mem, long int *lenrwLS, long int *leniwLS);
-  
+int CVSpilsSetPreconditioner(void *cvode_mem, CVSpilsPrecSetupFn pset,
+                             CVSpilsPrecSolveFn psolve);
+
+int CVSpilsSetJacTimes(void *cvode_mem, CVSpilsJacTimesSetupFn jtsetup,
+                       CVSpilsJacTimesVecFn jtimes);
+
+int CVSpilsGetWorkSpace(void *cvode_mem, long int *lenrwLS,
+                        long int *leniwLS);
+
 int CVSpilsGetNumPrecEvals(void *cvode_mem, long int *npevals);
- 
+
 int CVSpilsGetNumPrecSolves(void *cvode_mem, long int *npsolves);
-  
+
 int CVSpilsGetNumLinIters(void *cvode_mem, long int *nliters);
-  
+
 int CVSpilsGetNumConvFails(void *cvode_mem, long int *nlcfails);
-  
+
 int CVSpilsGetNumJTSetupEvals(void *cvode_mem, long int *njtsetups);
-  
+
 int CVSpilsGetNumJtimesEvals(void *cvode_mem, long int *njvevals);
-  
+
 int CVSpilsGetNumRhsEvals(void *cvode_mem, long int *nfevalsLS);
-  
+
 int CVSpilsGetLastFlag(void *cvode_mem, long int *flag);
-  
+
 char *CVSpilsGetReturnFlagName(long int flag);
-  
+
 
 #ifdef __cplusplus
 }

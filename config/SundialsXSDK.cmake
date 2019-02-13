@@ -71,8 +71,12 @@ IF(USE_XSDK_DEFAULTS)
   # disable hypre by default
   SHOW_VARIABLE(TPL_ENABLE_HYPRE BOOL "Enable hypre support" OFF)
 
+  # disable Trilinos by default
+  SHOW_VARIABLE(TPL_ENABLE_TRILINOS BOOL "Enable Trilinos support" OFF)
+
   # disable RAJA by default
   # SHOW_VARIABLE(TPL_ENABLE_RAJA BOOL "Enable RAJA support" OFF)
+
 ENDIF()
 
 # ---------------------------------------------------------------
@@ -325,6 +329,18 @@ IF(TPL_ENABLE_PETSC)
 ENDIF()
 
 # ---------------------------------------------------------------
+# Trilinos
+# ---------------------------------------------------------------
+
+# TPL_ENABLE_TRILINOS => Trilinos_ENABLE
+IF(DEFINED TPL_ENABLE_TRILINOS)
+  MESSAGE("Replacing Trilinos_ENABLE with TPL_ENABLE_TRILINOS")
+  SET(DOCSTR "Enable Trilinos support")
+
+  FORCE_VARIABLE(Trilinos_ENABLE BOOL "${DOCSTR}" "${TPL_ENABLE_TRILINOS}")
+  MARK_AS_ADVANCED(FORCE Trilinos_ENABLE)
+ENDIF()
+
 # RAJA
 # ---------------------------------------------------------------
 

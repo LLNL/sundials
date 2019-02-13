@@ -18,11 +18,9 @@
 # 'develop' for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-IF(MPI_C_FOUND)
-  SET(IDA_examples
-      "idaHeat2D_kry_p_mpiraja\;1\;4\;develop"
-     )
-ENDIF()
+SET(IDA_examples
+  "idaHeat2D_kry_p_mpiraja\;1\;4\;develop"
+  )
 
 IF(MPI_C_COMPILER)
   # use MPI wrapper as the compiler

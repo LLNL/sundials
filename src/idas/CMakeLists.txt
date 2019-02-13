@@ -46,27 +46,27 @@ SET(shared_SOURCES
   ${sundials_SOURCE_DIR}/src/sundials/sundials_iterative.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_version.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector_senswrapper.c
-  ${sundials_SOURCE_DIR}/src/nvec_ser/nvector_serial.c
+  ${sundials_SOURCE_DIR}/src/nvector/serial/nvector_serial.c
   )
 
 # Add variable sunmatrix_SOURCES with the common SUNMatrix sources which will
 # also be included in the IDAS library
 SET(sunmatrix_SOURCES
-  ${sundials_SOURCE_DIR}/src/sunmat_band/sunmatrix_band.c
-  ${sundials_SOURCE_DIR}/src/sunmat_dense/sunmatrix_dense.c
-  ${sundials_SOURCE_DIR}/src/sunmat_sparse/sunmatrix_sparse.c
+  ${sundials_SOURCE_DIR}/src/sunmatrix/band/sunmatrix_band.c
+  ${sundials_SOURCE_DIR}/src/sunmatrix/dense/sunmatrix_dense.c
+  ${sundials_SOURCE_DIR}/src/sunmatrix/sparse/sunmatrix_sparse.c
   )
 
 # Add variable sunlinsol_SOURCES with the common SUNLinearSolver sources which will
 # also be included in the IDAS library
 SET(sunlinsol_SOURCES
-  ${sundials_SOURCE_DIR}/src/sunlinsol_band/sunlinsol_band.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol_dense/sunlinsol_dense.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol_spbcgs/sunlinsol_spbcgs.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol_spfgmr/sunlinsol_spfgmr.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol_spgmr/sunlinsol_spgmr.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol_sptfqmr/sunlinsol_sptfqmr.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol_pcg/sunlinsol_pcg.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol/band/sunlinsol_band.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol/dense/sunlinsol_dense.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol/spbcgs/sunlinsol_spbcgs.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol/spfgmr/sunlinsol_spfgmr.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol/spgmr/sunlinsol_spgmr.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol/sptfqmr/sunlinsol_sptfqmr.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol/pcg/sunlinsol_pcg.c
   )
 
 # Add variable sunnonlinsol_SOURCES with the common SUNNonlinearSolver sources
@@ -138,9 +138,6 @@ ENDIF(BUILD_SHARED_LIBS)
 
 # Install the IDAS header files
 INSTALL(FILES ${idas_HEADERS} DESTINATION include/idas)
-
-# Install the IDAS implementation header file
-INSTALL(FILES idas_impl.h DESTINATION include/idas)
 
 #
 MESSAGE(STATUS "Added IDAS module")

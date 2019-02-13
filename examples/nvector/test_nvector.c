@@ -59,13 +59,9 @@ static time_t base_time_tv_sec = 0; /* Base time; makes time values returned
 
 /* ----------------------------------------------------------------------
  * N_VMake Test
- *
- * NOTE: This routine depends on N_VConst to check vector data.
  * --------------------------------------------------------------------*/
 int Test_N_VMake(N_Vector X, sunindextype local_length, int myid)
 {
-  int failure;
-
   /* check if vector is NULL */
   if (X == NULL) {
     printf(">>> FAILED test -- N_VMake, Proc %d \n", myid);
@@ -77,17 +73,6 @@ int Test_N_VMake(N_Vector X, sunindextype local_length, int myid)
   if (!has_data(X)) {
     printf(">>> FAILED test -- N_VMake, Proc %d \n", myid);
     printf("    Vector data == NULL \n \n");
-    N_VDestroy(X);
-    return(1);
-  }
-
-  /* test operation on vector data */
-  N_VConst(ONE,X);
-  failure = check_ans(ONE, X, local_length);
-  if (failure) {
-    printf(">>> FAILED test -- N_VMake, Proc %d \n", myid);
-    printf("    Failed N_VConst check \n \n");
-    N_VDestroy(X);
     return(1);
   }
 

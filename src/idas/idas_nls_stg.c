@@ -97,7 +97,8 @@ int IDASetNonlinearSolverSensStg(void *ida_mem, SUNNonlinearSolver NLS)
   }
 
   /* free any existing nonlinear solver */
-  if (IDA_mem->NLSstg) retval = SUNNonlinSolFree(IDA_mem->NLSstg);
+  if ((IDA_mem->NLSstg != NULL) && (IDA_mem->ownNLSstg))
+    retval = SUNNonlinSolFree(IDA_mem->NLSstg);
 
   /* set SUNNonlinearSolver pointer */
   IDA_mem->NLSstg = NLS;

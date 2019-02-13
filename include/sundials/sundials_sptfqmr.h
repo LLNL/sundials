@@ -206,19 +206,19 @@ SUNDIALS_EXPORT SptfqmrMem SptfqmrMalloc(int l_max, N_Vector vec_tmpl);
  */
 
 SUNDIALS_EXPORT int SptfqmrSolve(SptfqmrMem mem, void *A_data, N_Vector x, N_Vector b,
-				 int pretype, realtype delta, void *P_data, N_Vector sx,
-				 N_Vector sb, ATimesFn atimes, PSolveFn psolve,
-				 realtype *res_norm, int *nli, int *nps);
+                                 int pretype, realtype delta, void *P_data, N_Vector sx,
+                                 N_Vector sb, ATimesFn atimes, PSolveFn psolve,
+                                 realtype *res_norm, int *nli, int *nps);
 
 /* Return values for SptfqmrSolve */
 
 #define SPTFQMR_SUCCESS            0  /* SPTFQMR algorithm converged          */
 #define SPTFQMR_RES_REDUCED        1  /* SPTFQMR did NOT converge, but the
-				         residual was reduced                 */
+                                         residual was reduced                 */
 #define SPTFQMR_CONV_FAIL          2  /* SPTFQMR algorithm failed to converge */
 #define SPTFQMR_PSOLVE_FAIL_REC    3  /* psolve failed recoverably            */
 #define SPTFQMR_ATIMES_FAIL_REC    4  /* atimes failed recoverably            */
-#define SPTFQMR_PSET_FAIL_REC      5  /* pset faild recoverably               */
+#define SPTFQMR_PSET_FAIL_REC      5  /* pset failed recoverably              */
 
 #define SPTFQMR_MEM_NULL          -1  /* mem argument is NULL                 */
 #define SPTFQMR_ATIMES_FAIL_UNREC -2  /* atimes returned failure flag         */

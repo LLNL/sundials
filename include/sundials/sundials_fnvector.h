@@ -1,8 +1,4 @@
-/*
- * -----------------------------------------------------------------
- * $Revision$
- * $Date$
- * ----------------------------------------------------------------- 
+/* -----------------------------------------------------------------
  * Programmer(s): Radu Serban and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -15,10 +11,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This file (companion of nvector.h) contains definitions 
+ * This file (companion of nvector.h) contains definitions
  * needed for the initialization of vector operations in Fortran.
- * -----------------------------------------------------------------
- */
+ * -----------------------------------------------------------------*/
 
 
 #ifndef _FNVECTOR_H

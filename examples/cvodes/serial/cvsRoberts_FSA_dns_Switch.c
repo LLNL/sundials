@@ -303,6 +303,7 @@ int main(int argc, char *argv[])
   N_VDestroyVectorArray(yS0, Ns); /* Free yS0 vector        */
   N_VDestroyVectorArray(yS, Ns);  /* Free yS vector         */
   free(plist);                    /* Free plist             */
+  free(pbar);                     /* Free pbar              */
   free(data);                     /* Free user data         */
   CVodeFree(&cvode_mem);          /* Free integrator memory */
   SUNLinSolFree(LS);              /* Free solver memory     */

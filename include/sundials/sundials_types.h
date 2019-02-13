@@ -12,7 +12,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This header file exports three types: realtype, sunindextype and 
+ * This header file exports three types: realtype, sunindextype and
  * booleantype, as well as the constants SUNTRUE and SUNFALSE.
  *
  * Users should include the header file sundials_types.h in every
@@ -21,14 +21,14 @@
  *
  * The constants SUNDIALS_SINGLE_PRECISION, SUNDIALS_DOUBLE_PRECISION
  * and SUNDIALS_LONG_DOUBLE_PRECISION indicate the underlying data
- * type of realtype. 
- * 
+ * type of realtype.
+ *
  * The legal types for realtype are float, double and long double.
  *
- * The constants SUNDIALS_INT64_T and SUNDIALS_INT32_T indicate 
+ * The constants SUNDIALS_INT64_T and SUNDIALS_INT32_T indicate
  * the underlying data type of sunindextype -- the integer data type
- * used for vector and matrix indices. 
- * 
+ * used for vector and matrix indices.
+ *
  * Data types are set at the configuration stage.
  *
  * The macro RCONST gives the user a convenient way to define
@@ -41,10 +41,10 @@
  * to 1.0. If realtype is defined as a float, then RCONST(1.0)
  * expands to 1.0F. If realtype is defined as a long double,
  * then RCONST(1.0) expands to 1.0L. There is never a need to
- * explicitly cast 1.0 to (realtype). The macro can be used for 
- * literal constants only. It cannot be used for expressions. 
+ * explicitly cast 1.0 to (realtype). The macro can be used for
+ * literal constants only. It cannot be used for expressions.
  * -----------------------------------------------------------------*/
-  
+
 #ifndef _SUNDIALSTYPES_H
 #define _SUNDIALSTYPES_H
 
@@ -102,7 +102,7 @@ typedef long double realtype;
  * Defines integer type to be used for vector and matrix indices.
  * User can build sundials to use 32- or 64-bit signed integers.
  * If compiler does not support portable data types, the SUNDIALS
- * CMake build system tries to find a type of the desired size. 
+ * CMake build system tries to find a type of the desired size.
  *------------------------------------------------------------------
  */
 
@@ -143,5 +143,3 @@ typedef SUNDIALS_INDEX_TYPE sunindextype;
 #endif
 
 #endif  /* _SUNDIALSTYPES_H */
-
-

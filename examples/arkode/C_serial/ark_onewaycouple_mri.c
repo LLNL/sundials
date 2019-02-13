@@ -116,7 +116,7 @@ int main()
   NV_Ith_S(y,2) = w0;
 
   /* Create serial vector for the analytic solution */
-  ytrue = N_VNew_Serial(NEQ);
+  ytrue = N_VClone(y);
 
   /* Call MRIStepCreate to initialize the MRI timestepper module and
      specify the right-hand side functions in y'=fs(t,y)+ff(t,y),
@@ -197,6 +197,7 @@ int main()
 
   /* Clean up and return */
   N_VDestroy(y);            /* Free y vector */
+  N_VDestroy(ytrue);        /* Free ytrue vector */
   MRIStepFree(&arkode_mem); /* Free integrator memory */
 
   return 0;

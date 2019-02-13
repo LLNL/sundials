@@ -33,56 +33,56 @@ SET(farkode_SOURCES
   farkpreco.c
   farkmasspreco.c
   farkroot.c
-  farksparse.c 
+  farksparse.c
   farksparsemass.c
   )
 
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the ARKODE library
 SET(shared_SOURCES
-  ${sundials_SOURCE_DIR}/src/nvec_ser/fnvector_serial.c
+  ${sundials_SOURCE_DIR}/src/nvector/serial/fnvector_serial.c
   )
 
 # Add variable sunmatrix_SOURCES with the common SUNMatrix sources which will
 # also be included in the ARKODE library
 SET(sunmatrix_SOURCES
-  ${sundials_SOURCE_DIR}/src/sunmat_band/fsunmatrix_band.c
-  ${sundials_SOURCE_DIR}/src/sunmat_dense/fsunmatrix_dense.c
-  ${sundials_SOURCE_DIR}/src/sunmat_sparse/fsunmatrix_sparse.c
+  ${sundials_SOURCE_DIR}/src/sunmatrix/band/fsunmatrix_band.c
+  ${sundials_SOURCE_DIR}/src/sunmatrix/dense/fsunmatrix_dense.c
+  ${sundials_SOURCE_DIR}/src/sunmatrix/sparse/fsunmatrix_sparse.c
   )
 
 # Add variable sunlinsol_SOURCES with the common SUNLinearSolver sources which will
 # also be included in the ARKODE library
 SET(sunlinsol_SOURCES
-  ${sundials_SOURCE_DIR}/src/sunlinsol_band/fsunlinsol_band.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol_dense/fsunlinsol_dense.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol_spbcgs/fsunlinsol_spbcgs.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol_spfgmr/fsunlinsol_spfgmr.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol_spgmr/fsunlinsol_spgmr.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol_sptfqmr/fsunlinsol_sptfqmr.c
-  ${sundials_SOURCE_DIR}/src/sunlinsol_pcg/fsunlinsol_pcg.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol/band/fsunlinsol_band.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol/dense/fsunlinsol_dense.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol/spbcgs/fsunlinsol_spbcgs.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol/spfgmr/fsunlinsol_spfgmr.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol/spgmr/fsunlinsol_spgmr.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol/sptfqmr/fsunlinsol_sptfqmr.c
+  ${sundials_SOURCE_DIR}/src/sunlinsol/pcg/fsunlinsol_pcg.c
   )
 
 IF(KLU_FOUND)
   LIST(APPEND sunlinsol_SOURCES
-    ${sundials_SOURCE_DIR}/src/sunlinsol_klu/fsunlinsol_klu.c
+    ${sundials_SOURCE_DIR}/src/sunlinsol/klu/fsunlinsol_klu.c
     )
 ENDIF()
 
 IF(SUPERLUMT_FOUND)
   LIST(APPEND sunlinsol_SOURCES
-    ${sundials_SOURCE_DIR}/src/sunlinsol_superlumt/fsunlinsol_superlumt.c
+    ${sundials_SOURCE_DIR}/src/sunlinsol/superlumt/fsunlinsol_superlumt.c
     )
 ENDIF()
 
 IF(LAPACK_FOUND)
   LIST(APPEND sunlinsol_SOURCES
-    ${sundials_SOURCE_DIR}/src/sunlinsol_lapackband/fsunlinsol_lapackband.c
-    ${sundials_SOURCE_DIR}/src/sunlinsol_lapackdense/fsunlinsol_lapackdense.c
+    ${sundials_SOURCE_DIR}/src/sunlinsol/lapackband/fsunlinsol_lapackband.c
+    ${sundials_SOURCE_DIR}/src/sunlinsol/lapackdense/fsunlinsol_lapackdense.c
     )
 ENDIF()
 
-# Add variable sunnonlinsol_SOURCES with the common SUNNonlinearSolver sources 
+# Add variable sunnonlinsol_SOURCES with the common SUNNonlinearSolver sources
 # which will also be included in the ARKODE library
 SET(sunnonlinsol_SOURCES
   ${sundials_SOURCE_DIR}/src/sunnonlinsol_newton/fsunnonlinsol_newton.c
@@ -95,11 +95,11 @@ SET(sunnonlinsol_SOURCES
 INCLUDE_DIRECTORIES(.)
 INCLUDE_DIRECTORIES(..)
 
-# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY 
+# Define C preprocessor flag -DBUILD_SUNDIALS_LIBRARY
 ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 
-# Only build STATIC libraries (we cannot build shared libraries 
-# for the FCMIX interfaces due to unresolved symbol errors 
+# Only build STATIC libraries (we cannot build shared libraries
+# for the FCMIX interfaces due to unresolved symbol errors
 # coming from inexistent user-provided functions)
 
 # Add the build target for the FARKODE library

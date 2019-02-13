@@ -273,7 +273,15 @@ void ARKodeButcherTable_Free(ARKodeButcherTable B)
 void ARKodeButcherTable_Write(ARKodeButcherTable B, FILE *outfile)
 {
   int i, j;
+
+  /* check for vaild table */
   if (B == NULL) return;
+  if (B->A == NULL) return;
+  for (i=0; i<B->stages; i++)
+    if (B->A[i] == NULL) return;
+  if (B->c == NULL) return;
+  if (B->b == NULL) return;
+
   fprintf(outfile, "  A = \n");
   for (i=0; i<B->stages; i++) {
     fprintf(outfile, "      ");
@@ -281,18 +289,23 @@ void ARKodeButcherTable_Write(ARKodeButcherTable B, FILE *outfile)
       fprintf(outfile, "%"RSYM"  ", B->A[i][j]);
     fprintf(outfile, "\n");
   }
+
   fprintf(outfile, "  c = ");
   for (i=0; i<B->stages; i++)
     fprintf(outfile, "%"RSYM"  ", B->c[i]);
   fprintf(outfile, "\n");
+
   fprintf(outfile, "  b = ");
   for (i=0; i<B->stages; i++)
     fprintf(outfile, "%"RSYM"  ", B->b[i]);
   fprintf(outfile, "\n");
-  fprintf(outfile, "  d = ");
-  for (i=0; i<B->stages; i++)
-    fprintf(outfile, "%"RSYM"  ", B->d[i]);
-  fprintf(outfile, "\n");
+
+  if (B->d != NULL) {
+    fprintf(outfile, "  d = ");
+    for (i=0; i<B->stages; i++)
+      fprintf(outfile, "%"RSYM"  ", B->d[i]);
+    fprintf(outfile, "\n");
+  }
 }
 
 
