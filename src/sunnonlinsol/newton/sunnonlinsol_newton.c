@@ -200,6 +200,14 @@ int SUNNonlinSolSolve_Newton(SUNNonlinearSolver NLS,
        (mem == NULL) )
     return(SUN_NLS_MEM_NULL);
 
+  /* check that all required function pointers have been set */
+  if ( (NEWTON_CONTENT(NLS)->Sys    == NULL) ||
+       (NEWTON_CONTENT(NLS)->LSolve == NULL) ||
+       (callLSetup && (NEWTON_CONTENT(NLS)->LSetup == NULL)) ||
+       (NEWTON_CONTENT(NLS)->CTest  == NULL) ) {
+    return(SUN_NLS_MEM_NULL);
+  }
+
   /* set local shortcut variables */
   delta = NEWTON_CONTENT(NLS)->delta;
 
