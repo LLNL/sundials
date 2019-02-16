@@ -113,6 +113,7 @@ program main
 
   integer :: outstep           ! output loop counter
 
+  type(c_ptr) :: cptr          ! c_ptr type variable for moving data
   type(c_ptr) :: sunvec_y      ! sundials vector
   type(c_ptr) :: sunnls        ! sundials fixed-point nonlinear solver
   type(c_ptr) :: cvode_mem     ! CVODE memory
@@ -134,7 +135,7 @@ program main
   yvec(1) = 0.0d0
 
   ! create SUNDIALS N_Vector
-  sunvec_y = FN_VMake_Serial(neq, yvec)
+  sunvec_y = FN_VMake_Serial(neq, transfer(yvec, cptr))
   if (.not. c_associated(sunvec_y)) print *,'ERROR: sunvec = NULL'
 
   ! create CVode memory

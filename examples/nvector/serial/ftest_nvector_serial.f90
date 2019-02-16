@@ -24,26 +24,25 @@ program main
 
   !======== Declarations ========
   implicit none
+  
+  integer(c_long), parameter :: N = 100 ! vector length
 
   ! constants
   real(c_double) :: ONE = 1.d0
-  real(c_double), dimension(100) :: ONES
 
   ! local variables
   integer(c_int)  :: fails = 0     ! number of test fails
-  integer(c_long) :: N = 100       ! vector length
-  type(c_ptr)     :: x, y, z       ! NVectors
   integer(c_long) :: lenrw, leniw  ! real and int work space size
-  type(c_ptr)     :: cptr          ! a c pointer
   integer(c_long) :: ival          ! integer value
-  real(c_double)  :: rval          ! real value
- 
-  real(c_double), dimension(:), pointer :: rdata  ! fortran real data pointers
-
-  ONES = ONE
+  real(c_double)  :: rval          ! real value 
+  type(c_ptr)     :: cptr
+  type(c_ptr)     :: x, y, z       ! NVectors
+  real(c_double), dimension(N) :: xdata
 
   !======= Introduction =========
   print *,'Serial N_Vector Fortran 2003 interface test'
+  
+  xdata = ONE
 
   !===== Calls to interface =====
   
@@ -55,7 +54,7 @@ program main
   end if
   call FN_VDestroy_Serial(x)
   
-  x = FN_VMake_Serial(N, rdata)
+  x = FN_VMake_Serial(N, transfer(xdata, cptr))
   if (.not. c_associated(x)) then
     print *,'>>> FAILED - ERROR in FN_VMake_Serial; halting'
     stop 1
@@ -120,7 +119,6 @@ program main
   rval = FN_VMinQuotient_Serial(x, y)
 
   !======= Cleanup ===========
-  call FN_VDestroy_Serial(x)
   call FN_VDestroy_Serial(y)
   call FN_VDestroy_Serial(z)
 

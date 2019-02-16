@@ -13,7 +13,7 @@
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the F2003 serial NVECTOR object library
 
-set(nvecserial_SOURCES fnvector_serial.f90)
+set(nvecserial_SOURCES fnvector_serial_mod.f90)
 
 if(BUILD_STATIC_LIBS)
   sundials_add_f2003_interface_library(sundials_fnvecserial_mod_static STATIC

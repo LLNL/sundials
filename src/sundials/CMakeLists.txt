@@ -18,6 +18,11 @@
 
 INSTALL(CODE "MESSAGE(\"\nInstall shared components\n\")")
 
+# Add F90 module if F2003 interface is enabled
+IF(F90_FOUND AND F2003_INTERFACE_ENABLE)
+  ADD_SUBDIRECTORY(F90)
+ENDIF(F90_FOUND AND F2003_INTERFACE_ENABLE)
+
 # Add variable sundials_HEADERS with the exported SUNDIALS header files
 SET(sundials_HEADERS
   sundials_band.h

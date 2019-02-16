@@ -1,0 +1,33 @@
+# ---------------------------------------------------------------
+# Programmer:  Cody J. Balos @ LLNL
+# ---------------------------------------------------------------
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# and Southern Methodist University.
+# All rights reserved.
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
+# ---------------------------------------------------------------
+# CMakeLists.txt file for the F2003 SUNDIALS object library
+# ---------------------------------------------------------------
+
+set(sundials_SOURCES
+  fnvector.f90
+  fsundials_types.f90
+  fsunmatrix.f90
+  fsunlinsol.f90
+  fsunnonlinsol.f90)
+
+if(BUILD_STATIC_LIBS)
+  set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_Fortran_MODULE_DIRECTORY}_STATIC)
+  add_library(sundials_generic_f2003_static OBJECT ${sundials_SOURCES})
+endif()
+
+if(BUILD_SHARED_LIBS)
+  set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_Fortran_MODULE_DIRECTORY}_SHARED)
+  add_library(sundials_generic_f2003_shared OBJECT ${sundials_SOURCES})
+endif()
+

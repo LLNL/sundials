@@ -193,6 +193,7 @@ program main
 
   integer :: outstep           ! output loop counter
 
+  type(c_ptr) :: cptr          ! c_ptr type variable for moving data
   type(c_ptr) :: sunvec_y      ! sundials vector
   type(c_ptr) :: sunmat_A      ! sundials matrix
   type(c_ptr) :: sunlinsol_LS  ! sundials linear solver
@@ -217,7 +218,7 @@ program main
   yvec(3) = 1.0d0
 
   ! create a serial vector
-  sunvec_y = FN_VMake_Serial(neq, yvec)
+  sunvec_y = FN_VMake_Serial(neq, transfer(yvec, cptr))
   if (.not. c_associated(sunvec_y)) print *,'ERROR: sunvec = NULL'
 
   ! create a dense matrix

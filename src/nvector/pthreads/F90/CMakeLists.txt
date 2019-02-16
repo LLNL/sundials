@@ -13,7 +13,7 @@
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the F2003 Pthreads NVECTOR object library
 
-set(nvecpthreads_SOURCES fnvector_pthreads.f90)
+set(nvecpthreads_SOURCES fnvector_pthreads_mod.f90)
 
 if(BUILD_STATIC_LIBS)
   sundials_add_f2003_interface_library(sundials_fnvecpthreads_mod_static STATIC

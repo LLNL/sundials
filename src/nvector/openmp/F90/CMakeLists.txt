@@ -13,7 +13,7 @@
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the F2003 openmp NVECTOR object library
 
-set(nvecopenmp_SOURCES fnvector_openmp.f90)
+set(nvecopenmp_SOURCES fnvector_openmp_mod.f90)
 
 if(BUILD_STATIC_LIBS)
   sundials_add_f2003_interface_library(sundials_fnvecopenmp_mod_static STATIC
