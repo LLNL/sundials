@@ -10,7 +10,7 @@ SUNMATRIX=fsunmatrix_band_mod.i fsunmatrix_dense_mod.i fsunmatrix_sparse_mod.i
 SUNLINSOL=fsunlinsol_band_mod.i fsunlinsol_dense_mod.i fsunlinsol_spbcgs_mod.i fsunlinsol_spfgmr_mod.i \
 					fsunlinsol_spgmr_mod.i fsunlinsol_sptfqmr_mod.i fsunlinsol_pcg_mod.i
 
-SUNNONLINSOL=
+SUNNONLINSOL=fsunnonlinsol_newton_mod.i fsunnonlinsol_fixedpoint_mod.i
 
 all: generic cvode nvector sunmatrix sunlinsol sunnonlinsol
 

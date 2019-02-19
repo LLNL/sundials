@@ -15,7 +15,7 @@
 # object library
 # ---------------------------------------------------------------
 
-set(sunnonlinsolfixedpoint_SOURCES fsunnonlinsol_fixedpoint.f90)
+set(sunnonlinsolfixedpoint_SOURCES fsunnonlinsol_fixedpoint_mod.f90)
 
 if(BUILD_STATIC_LIBS)
   sundials_add_f2003_interface_library(sundials_fsunnonlinsolfixedpoint_mod_static STATIC

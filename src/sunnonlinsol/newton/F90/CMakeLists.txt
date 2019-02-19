@@ -15,7 +15,7 @@
 # object library
 # ---------------------------------------------------------------
 
-set(sunnonlinsolnewton_SOURCES fsunnonlinsol_newton.f90)
+set(sunnonlinsolnewton_SOURCES fsunnonlinsol_newton_mod.f90)
 
 if(BUILD_STATIC_LIBS)
   sundials_add_f2003_interface_library(sundials_fsunnonlinsolnewton_mod_static STATIC

@@ -44,8 +44,8 @@ set(sunlinsol_SOURCES
 # Add variable sunnonlinsol_SOURCES with the common SUNNonlinearSolver sources
 # which will also be included in the CVODE library
 set(sunnonlinsol_SOURCES
-  ${sundials_SOURCE_DIR}/src/sunnonlinsol/newton/F90/fsunnonlinsol_newton.f90
-  ${sundials_SOURCE_DIR}/src/sunnonlinsol/fixedpoint/F90/fsunnonlinsol_fixedpoint.f90
+  ${sundials_SOURCE_DIR}/src/sunnonlinsol/newton/F90/fsunnonlinsol_newton_mod.f90
+  ${sundials_SOURCE_DIR}/src/sunnonlinsol/fixedpoint/F90/fsunnonlinsol_fixedpoint_mod.f90
 )
 
 # Set the Fortran module directory to a temporary location.
