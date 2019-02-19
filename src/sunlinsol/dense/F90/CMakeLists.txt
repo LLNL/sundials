@@ -13,7 +13,7 @@
 # ----------------------------------------------------------------------
 # CMakeLists.txt file for the F2003 dense SUNLinearSolver object library
 
-set(sunlinsoldense_SOURCES fsunlinsol_dense.f90)
+set(sunlinsoldense_SOURCES fsunlinsol_dense_mod.f90)
 
 if(BUILD_STATIC_LIBS)
   sundials_add_f2003_interface_library(sundials_fsunlinsoldense_mod_static STATIC

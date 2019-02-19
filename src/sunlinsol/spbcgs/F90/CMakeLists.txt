@@ -13,7 +13,7 @@
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the F2003 SPBCGS SUNLinearSolver object library
 
-set(sunlinsolspbcgs_SOURCES fsunlinsol_spbcgs.f90)
+set(sunlinsolspbcgs_SOURCES fsunlinsol_spbcgs_mod.f90)
 
 if(BUILD_STATIC_LIBS)
   sundials_add_f2003_interface_library(sundials_fsunlinsolspbcgs_mod_static STATIC

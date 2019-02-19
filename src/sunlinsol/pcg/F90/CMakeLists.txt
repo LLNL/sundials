@@ -13,7 +13,7 @@
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the F2003 PCG SUNLinearSolver object library
 
-set(sunlinsolpcg_SOURCES fsunlinsol_pcg.f90)
+set(sunlinsolpcg_SOURCES fsunlinsol_pcg_mod.f90)
 
 if(BUILD_STATIC_LIBS)
   sundials_add_f2003_interface_library(sundials_fsunlinsolpcg_mod_static STATIC

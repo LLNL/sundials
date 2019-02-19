@@ -32,13 +32,13 @@ set(sunmatrix_SOURCES
 # Add variable sunlinsol_SOURCES with the common SUNLinearSolver sources which will
 # also be included in the CVODE library
 set(sunlinsol_SOURCES
-  ${sundials_SOURCE_DIR}/src/sunlinsol/band/F90/fsunlinsol_band.f90
-  ${sundials_SOURCE_DIR}/src/sunlinsol/dense/F90/fsunlinsol_dense.f90
-  ${sundials_SOURCE_DIR}/src/sunlinsol/spbcgs/F90/fsunlinsol_spbcgs.f90
-  ${sundials_SOURCE_DIR}/src/sunlinsol/spfgmr/F90/fsunlinsol_spfgmr.f90
-  ${sundials_SOURCE_DIR}/src/sunlinsol/spgmr/F90/fsunlinsol_spgmr.f90
-  ${sundials_SOURCE_DIR}/src/sunlinsol/sptfqmr/F90/fsunlinsol_sptfqmr.f90
-  ${sundials_SOURCE_DIR}/src/sunlinsol/pcg/F90/fsunlinsol_pcg.f90
+  ${sundials_SOURCE_DIR}/src/sunlinsol/band/F90/fsunlinsol_band_mod.f90
+  ${sundials_SOURCE_DIR}/src/sunlinsol/dense/F90/fsunlinsol_dense_mod.f90
+  ${sundials_SOURCE_DIR}/src/sunlinsol/spbcgs/F90/fsunlinsol_spbcgs_mod.f90
+  ${sundials_SOURCE_DIR}/src/sunlinsol/spfgmr/F90/fsunlinsol_spfgmr_mod.f90
+  ${sundials_SOURCE_DIR}/src/sunlinsol/spgmr/F90/fsunlinsol_spgmr_mod.f90
+  ${sundials_SOURCE_DIR}/src/sunlinsol/sptfqmr/F90/fsunlinsol_sptfqmr_mod.f90
+  ${sundials_SOURCE_DIR}/src/sunlinsol/pcg/F90/fsunlinsol_pcg_mod.f90
 )
 
 # Add variable sunnonlinsol_SOURCES with the common SUNNonlinearSolver sources

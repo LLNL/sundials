@@ -13,7 +13,7 @@
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the F2003 KLU SUNLinearSolver object library
 
-set(sunlinsolklu_SOURCES fsunlinsol_klu.f90)
+set(sunlinsolklu_SOURCES fsunlinsol_klu_mod.f90)
 
 if(BUILD_STATIC_LIBS)
   sundials_add_f2003_interface_library(sundials_fsunlinsolklu_mod_static STATIC

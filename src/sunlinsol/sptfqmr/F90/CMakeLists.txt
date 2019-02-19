@@ -13,7 +13,7 @@
 # ------------------------------------------------------------------------
 # CMakeLists.txt file for the F2003 SPTFQMR SUNLinearSolver object library
 
-set(sunlinsolsptfqmr_SOURCES fsunlinsol_sptfqmr.f90)
+set(sunlinsolsptfqmr_SOURCES fsunlinsol_sptfqmr_mod.f90)
 
 if(BUILD_STATIC_LIBS)
   sundials_add_f2003_interface_library(sundials_fsunlinsolsptfqmr_mod_static STATIC

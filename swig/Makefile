@@ -1,9 +1,15 @@
 
 CVODE=fcvode_mod.i
+
 GENERIC=fsundials_types.i fnvector_mod.i fsunmatrix_mod.i fsunlinsol_mod.i fsunnonlinsol_mod.i
+
 NVECTOR=fnvector_openmp_mod.i fnvector_pthreads_mod.i fnvector_serial_mod.i
+
 SUNMATRIX=fsunmatrix_band_mod.i fsunmatrix_dense_mod.i fsunmatrix_sparse_mod.i
-SUNLINSOL=
+
+SUNLINSOL=fsunlinsol_band_mod.i fsunlinsol_dense_mod.i fsunlinsol_spbcgs_mod.i fsunlinsol_spfgmr_mod.i \
+					fsunlinsol_spgmr_mod.i fsunlinsol_sptfqmr_mod.i fsunlinsol_pcg_mod.i
+
 SUNNONLINSOL=
 
 all: generic cvode nvector sunmatrix sunlinsol sunnonlinsol
