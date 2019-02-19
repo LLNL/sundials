@@ -3,7 +3,7 @@
 !
 ! Do not make changes to this file unless you know what you are doing--modify
 ! the SWIG interface file instead.
-module fsunnonlinsol
+module fsunnonlinsol_mod
  use, intrinsic :: ISO_C_BINDING
  use fsundials_types
  implicit none
@@ -11,19 +11,19 @@ module fsunnonlinsol
 
  ! PUBLIC METHODS AND TYPES
  public :: SUNNonlinearSolver_Type, SUNNONLINEARSOLVER_ROOTFIND, SUNNONLINEARSOLVER_FIXEDPOINT
- public :: SUNNonlinSolGetType
- public :: SUNNonlinSolInitialize
- public :: SUNNonlinSolSetup
- public :: SUNNonlinSolSolve
- public :: SUNNonlinSolFree
- public :: SUNNonlinSolSetSysFn
- public :: SUNNonlinSolSetLSetupFn
- public :: SUNNonlinSolSetLSolveFn
- public :: SUNNonlinSolSetConvTestFn
- public :: SUNNonlinSolSetMaxIters
- public :: SUNNonlinSolGetNumIters
- public :: SUNNonlinSolGetCurIter
- public :: SUNNonlinSolGetNumConvFails
+ public :: FSUNNonlinSolGetType
+ public :: FSUNNonlinSolInitialize
+ public :: FSUNNonlinSolSetup
+ public :: FSUNNonlinSolSolve
+ public :: FSUNNonlinSolFree
+ public :: FSUNNonlinSolSetSysFn
+ public :: FSUNNonlinSolSetLSetupFn
+ public :: FSUNNonlinSolSetLSolveFn
+ public :: FSUNNonlinSolSetConvTestFn
+ public :: FSUNNonlinSolSetMaxIters
+ public :: FSUNNonlinSolGetNumIters
+ public :: FSUNNonlinSolGetCurIter
+ public :: FSUNNonlinSolGetNumConvFails
 
  ! PARAMETERS
  enum, bind(c)
@@ -41,7 +41,7 @@ module fsunnonlinsol
 
  ! WRAPPER DECLARATIONS
  interface
-function SUNNonlinSolGetType(nls) &
+function FSUNNonlinSolGetType(nls) &
 bind(C, name="SUNNonlinSolGetType") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -49,7 +49,7 @@ type(C_PTR), value :: nls
 integer(C_INT) :: fresult
 end function
 
-function SUNNonlinSolInitialize(nls) &
+function FSUNNonlinSolInitialize(nls) &
 bind(C, name="SUNNonlinSolInitialize") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -57,7 +57,7 @@ type(C_PTR), value :: nls
 integer(C_INT) :: fresult
 end function
 
-function SUNNonlinSolSetup(nls, y, mem) &
+function FSUNNonlinSolSetup(nls, y, mem) &
 bind(C, name="SUNNonlinSolSetup") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -67,7 +67,7 @@ type(C_PTR), value :: mem
 integer(C_INT) :: fresult
 end function
 
-function SUNNonlinSolSolve(nls, y0, y, w, tol, calllsetup, mem) &
+function FSUNNonlinSolSolve(nls, y0, y, w, tol, calllsetup, mem) &
 bind(C, name="SUNNonlinSolSolve") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -81,7 +81,7 @@ type(C_PTR), value :: mem
 integer(C_INT) :: fresult
 end function
 
-function SUNNonlinSolFree(nls) &
+function FSUNNonlinSolFree(nls) &
 bind(C, name="SUNNonlinSolFree") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -89,7 +89,7 @@ type(C_PTR), value :: nls
 integer(C_INT) :: fresult
 end function
 
-function SUNNonlinSolSetSysFn(nls, sysfn) &
+function FSUNNonlinSolSetSysFn(nls, sysfn) &
 bind(C, name="SUNNonlinSolSetSysFn") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -98,7 +98,7 @@ type(C_FUNPTR), value :: sysfn
 integer(C_INT) :: fresult
 end function
 
-function SUNNonlinSolSetLSetupFn(nls, setupfn) &
+function FSUNNonlinSolSetLSetupFn(nls, setupfn) &
 bind(C, name="SUNNonlinSolSetLSetupFn") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -107,7 +107,7 @@ type(C_FUNPTR), value :: setupfn
 integer(C_INT) :: fresult
 end function
 
-function SUNNonlinSolSetLSolveFn(nls, solvefn) &
+function FSUNNonlinSolSetLSolveFn(nls, solvefn) &
 bind(C, name="SUNNonlinSolSetLSolveFn") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -116,7 +116,7 @@ type(C_FUNPTR), value :: solvefn
 integer(C_INT) :: fresult
 end function
 
-function SUNNonlinSolSetConvTestFn(nls, ctestfn) &
+function FSUNNonlinSolSetConvTestFn(nls, ctestfn) &
 bind(C, name="SUNNonlinSolSetConvTestFn") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -125,7 +125,7 @@ type(C_FUNPTR), value :: ctestfn
 integer(C_INT) :: fresult
 end function
 
-function SUNNonlinSolSetMaxIters(nls, maxiters) &
+function FSUNNonlinSolSetMaxIters(nls, maxiters) &
 bind(C, name="SUNNonlinSolSetMaxIters") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -134,7 +134,7 @@ integer(C_INT), value :: maxiters
 integer(C_INT) :: fresult
 end function
 
-function SUNNonlinSolGetNumIters(nls, niters) &
+function FSUNNonlinSolGetNumIters(nls, niters) &
 bind(C, name="SUNNonlinSolGetNumIters") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -143,7 +143,7 @@ integer(C_LONG) :: niters
 integer(C_INT) :: fresult
 end function
 
-function SUNNonlinSolGetCurIter(nls, iter) &
+function FSUNNonlinSolGetCurIter(nls, iter) &
 bind(C, name="SUNNonlinSolGetCurIter") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -152,7 +152,7 @@ integer(C_INT) :: iter
 integer(C_INT) :: fresult
 end function
 
-function SUNNonlinSolGetNumConvFails(nls, nconvfails) &
+function FSUNNonlinSolGetNumConvFails(nls, nconvfails) &
 bind(C, name="SUNNonlinSolGetNumConvFails") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING

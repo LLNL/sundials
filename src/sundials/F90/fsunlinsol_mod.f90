@@ -3,35 +3,35 @@
 !
 ! Do not make changes to this file unless you know what you are doing--modify
 ! the SWIG interface file instead.
-module fsunlinsol
+module fsunlinsol_mod
  use, intrinsic :: ISO_C_BINDING
  use fsundials_types
- use fsunmatrix
- use fnvector
+ use fsunmatrix_mod
+ use fnvector_mod
  implicit none
  private
 
  ! PUBLIC METHODS AND TYPES
  public :: PREC_NONE, PREC_LEFT, PREC_RIGHT, PREC_BOTH
  public :: MODIFIED_GS, CLASSICAL_GS
- public :: ModifiedGS
- public :: ClassicalGS
- public :: QRfact
- public :: QRsol
+ public :: FModifiedGS
+ public :: FClassicalGS
+ public :: FQRfact
+ public :: FQRsol
  public :: SUNLinearSolver_Type, SUNLINEARSOLVER_DIRECT, SUNLINEARSOLVER_ITERATIVE, SUNLINEARSOLVER_MATRIX_ITERATIVE
- public :: SUNLinSolGetType
- public :: SUNLinSolSetATimes
- public :: SUNLinSolSetPreconditioner
- public :: SUNLinSolSetScalingVectors
- public :: SUNLinSolInitialize
- public :: SUNLinSolSetup
- public :: SUNLinSolSolve
- public :: SUNLinSolNumIters
- public :: SUNLinSolResNorm
- public :: SUNLinSolResid
- public :: SUNLinSolLastFlag
- public :: SUNLinSolSpace
- public :: SUNLinSolFree
+ public :: FSUNLinSolGetType
+ public :: FSUNLinSolSetATimes
+ public :: FSUNLinSolSetPreconditioner
+ public :: FSUNLinSolSetScalingVectors
+ public :: FSUNLinSolInitialize
+ public :: FSUNLinSolSetup
+ public :: FSUNLinSolSolve
+ public :: FSUNLinSolNumIters
+ public :: FSUNLinSolResNorm
+ public :: FSUNLinSolResid
+ public :: FSUNLinSolLastFlag
+ public :: FSUNLinSolSpace
+ public :: FSUNLinSolFree
 
  ! PARAMETERS
  enum, bind(c)
@@ -72,7 +72,7 @@ module fsunlinsol
 
  ! WRAPPER DECLARATIONS
  interface
-function ModifiedGS(v, h, k, p, new_vk_norm) &
+function FModifiedGS(v, h, k, p, new_vk_norm) &
 bind(C, name="ModifiedGS") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -84,7 +84,7 @@ real(C_DOUBLE) :: new_vk_norm
 integer(C_INT) :: fresult
 end function
 
-function ClassicalGS(v, h, k, p, new_vk_norm, stemp, vtemp) &
+function FClassicalGS(v, h, k, p, new_vk_norm, stemp, vtemp) &
 bind(C, name="ClassicalGS") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -98,7 +98,7 @@ type(C_PTR), value :: vtemp
 integer(C_INT) :: fresult
 end function
 
-function QRfact(n, h, q, job) &
+function FQRfact(n, h, q, job) &
 bind(C, name="QRfact") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -109,7 +109,7 @@ integer(C_INT), value :: job
 integer(C_INT) :: fresult
 end function
 
-function QRsol(n, h, q, b) &
+function FQRsol(n, h, q, b) &
 bind(C, name="QRsol") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -120,7 +120,7 @@ real(C_DOUBLE) :: b
 integer(C_INT) :: fresult
 end function
 
-function SUNLinSolGetType(s) &
+function FSUNLinSolGetType(s) &
 bind(C, name="SUNLinSolGetType") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -128,7 +128,7 @@ type(C_PTR), value :: s
 integer(C_INT) :: fresult
 end function
 
-function SUNLinSolSetATimes(s, a_data, atimes) &
+function FSUNLinSolSetATimes(s, a_data, atimes) &
 bind(C, name="SUNLinSolSetATimes") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -138,7 +138,7 @@ type(C_FUNPTR), value :: atimes
 integer(C_INT) :: fresult
 end function
 
-function SUNLinSolSetPreconditioner(s, p_data, pset, psol) &
+function FSUNLinSolSetPreconditioner(s, p_data, pset, psol) &
 bind(C, name="SUNLinSolSetPreconditioner") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -149,7 +149,7 @@ type(C_FUNPTR), value :: psol
 integer(C_INT) :: fresult
 end function
 
-function SUNLinSolSetScalingVectors(s, s1, s2) &
+function FSUNLinSolSetScalingVectors(s, s1, s2) &
 bind(C, name="SUNLinSolSetScalingVectors") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -159,7 +159,7 @@ type(C_PTR), value :: s2
 integer(C_INT) :: fresult
 end function
 
-function SUNLinSolInitialize(s) &
+function FSUNLinSolInitialize(s) &
 bind(C, name="SUNLinSolInitialize") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -167,7 +167,7 @@ type(C_PTR), value :: s
 integer(C_INT) :: fresult
 end function
 
-function SUNLinSolSetup(s, a) &
+function FSUNLinSolSetup(s, a) &
 bind(C, name="SUNLinSolSetup") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -176,7 +176,7 @@ type(C_PTR), value :: a
 integer(C_INT) :: fresult
 end function
 
-function SUNLinSolSolve(s, a, x, b, tol) &
+function FSUNLinSolSolve(s, a, x, b, tol) &
 bind(C, name="SUNLinSolSolve") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -188,7 +188,7 @@ real(C_DOUBLE), value :: tol
 integer(C_INT) :: fresult
 end function
 
-function SUNLinSolNumIters(s) &
+function FSUNLinSolNumIters(s) &
 bind(C, name="SUNLinSolNumIters") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -196,7 +196,7 @@ type(C_PTR), value :: s
 integer(C_INT) :: fresult
 end function
 
-function SUNLinSolResNorm(s) &
+function FSUNLinSolResNorm(s) &
 bind(C, name="SUNLinSolResNorm") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -204,7 +204,7 @@ type(C_PTR), value :: s
 real(C_DOUBLE) :: fresult
 end function
 
-function SUNLinSolResid(s) &
+function FSUNLinSolResid(s) &
 bind(C, name="SUNLinSolResid") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -212,7 +212,7 @@ type(C_PTR), value :: s
 type(C_PTR) :: fresult
 end function
 
-function SUNLinSolLastFlag(s) &
+function FSUNLinSolLastFlag(s) &
 bind(C, name="SUNLinSolLastFlag") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -220,7 +220,7 @@ type(C_PTR), value :: s
 integer(C_LONG) :: fresult
 end function
 
-function SUNLinSolSpace(s, lenrwls, leniwls) &
+function FSUNLinSolSpace(s, lenrwls, leniwls) &
 bind(C, name="SUNLinSolSpace") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -230,7 +230,7 @@ integer(C_LONG) :: leniwls
 integer(C_INT) :: fresult
 end function
 
-function SUNLinSolFree(s) &
+function FSUNLinSolFree(s) &
 bind(C, name="SUNLinSolFree") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING

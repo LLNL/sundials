@@ -135,7 +135,7 @@ program main
   yvec(1) = 0.0d0
 
   ! create SUNDIALS N_Vector
-  sunvec_y = FN_VMake_Serial(neq, transfer(yvec, cptr))
+  sunvec_y = FN_VMake_Serial(neq, yvec)
   if (.not. c_associated(sunvec_y)) print *,'ERROR: sunvec = NULL'
 
   ! create CVode memory

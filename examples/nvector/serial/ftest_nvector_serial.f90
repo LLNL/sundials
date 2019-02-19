@@ -33,8 +33,9 @@ program main
   ! local variables
   integer(c_int)  :: fails = 0     ! number of test fails
   integer(c_long) :: lenrw, leniw  ! real and int work space size
-  integer(c_long) :: ival          ! integer value
-  real(c_double)  :: rval          ! real value 
+  integer(c_long) :: ival          ! integer work value
+  real(c_double)  :: rval          ! real work value 
+  logical(c_bool) :: bool          ! boolean work value
   type(c_ptr)     :: cptr
   type(c_ptr)     :: x, y, z       ! NVectors
   real(c_double), dimension(N) :: xdata
@@ -54,7 +55,7 @@ program main
   end if
   call FN_VDestroy_Serial(x)
   
-  x = FN_VMake_Serial(N, transfer(xdata, cptr))
+  x = FN_VMake_Serial(N, xdata)
   if (.not. c_associated(x)) then
     print *,'>>> FAILED - ERROR in FN_VMake_Serial; halting'
     stop 1
@@ -97,7 +98,7 @@ program main
 
   call FN_VSpace_Serial(x, lenrw, leniw)
   cptr = FN_VGetArrayPointer_Serial(x)
-  call FN_VSetArrayPointer_Serial(cptr, x)
+  call FN_VSetArrayPointer_Serial(xdata, x)
   call FN_VLinearSum_Serial(ONE, x, ONE, y, z)
   call FN_VConst_Serial(ONE, z)
   call FN_VProd_Serial(x, y, z)
@@ -114,8 +115,8 @@ program main
   rval = FN_VWL2Norm_Serial(x, y)
   rval = FN_VL1Norm_Serial(x)
   call FN_VCompare_Serial(ONE, x, y)
-  ival = FN_VInvTest_Serial(x, y)
-  ival = FN_VConstrMask_Serial(z, x, y)
+  bool = FN_VInvTest_Serial(x, y)
+  bool = FN_VConstrMask_Serial(z, x, y)
   rval = FN_VMinQuotient_Serial(x, y)
 
   !======= Cleanup ===========

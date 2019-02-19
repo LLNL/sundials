@@ -24,22 +24,25 @@ program main
 
   !======== Declarations ========
   implicit none
+  
+  ! parameters
+  integer(c_long), parameter :: N = 100  ! vector length
 
   ! constants
   real(c_double) :: ONE = 1.d0
-  real(c_double), dimension(100) :: ONES
+  real(c_double), dimension(N) :: ONES
 
   ! local variables
   integer(c_int)  :: fails = 0     ! number of test fails
-  integer(c_long) :: N = 100       ! vector length
   integer(c_int)  :: nthreads = 1  ! number of threads
   type(c_ptr)     :: x, y, z       ! NVectors
   integer(c_long) :: lenrw, leniw  ! real and int work space size
   type(c_ptr)     :: cptr          ! a c pointer
-  integer(c_long) :: ival          ! integer value
-  real(c_double)  :: rval          ! real value
+  integer(c_long) :: ival          ! integer work value
+  real(c_double)  :: rval          ! real work value
+  logical(c_bool) :: bool          ! logical work value
  
-  real(c_double), dimension(:), pointer :: rdata  ! fortran real data pointers
+  real(c_double), dimension(N) :: xdata
 
   ONES = ONE
 
@@ -56,7 +59,7 @@ program main
   end if
   call FN_VDestroy_Pthreads(x)
   
-  x = FN_VMake_Pthreads(N, rdata, nthreads)
+  x = FN_VMake_Pthreads(N, xdata, nthreads)
   if (.not. c_associated(x)) then
     print *,'>>> FAILED - ERROR in FN_VMake_Pthreads; halting'
     stop 1
@@ -99,7 +102,7 @@ program main
 
   call FN_VSpace_Pthreads(x, lenrw, leniw)
   cptr = FN_VGetArrayPointer_Pthreads(x)
-  call FN_VSetArrayPointer_Pthreads(cptr, x)
+  call FN_VSetArrayPointer_Pthreads(xdata, x)
   call FN_VLinearSum_Pthreads(ONE, x, ONE, y, z)
   call FN_VConst_Pthreads(ONE, z)
   call FN_VProd_Pthreads(x, y, z)
@@ -116,8 +119,8 @@ program main
   rval = FN_VWL2Norm_Pthreads(x, y)
   rval = FN_VL1Norm_Pthreads(x)
   call FN_VCompare_Pthreads(ONE, x, y)
-  ival = FN_VInvTest_Pthreads(x, y)
-  ival = FN_VConstrMask_Pthreads(z, x, y)
+  bool = FN_VInvTest_Pthreads(x, y)
+  bool = FN_VConstrMask_Pthreads(z, x, y)
   rval = FN_VMinQuotient_Pthreads(x, y)
 
   !======= Cleanup ===========

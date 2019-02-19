@@ -3,7 +3,7 @@
 !
 ! Do not make changes to this file unless you know what you are doing--modify
 ! the SWIG interface file instead.
-module fsunmatrix
+module fsunmatrix_mod
  use, intrinsic :: ISO_C_BINDING
  use fsundials_types
  implicit none
@@ -11,15 +11,15 @@ module fsunmatrix
 
  ! PUBLIC METHODS AND TYPES
  public :: SUNMatrix_ID, SUNMATRIX_DENSE, SUNMATRIX_BAND, SUNMATRIX_SPARSE, SUNMATRIX_CUSTOM
- public :: SUNMatGetID
- public :: SUNMatClone
- public :: SUNMatDestroy
- public :: SUNMatZero
- public :: SUNMatCopy
- public :: SUNMatScaleAdd
- public :: SUNMatScaleAddI
- public :: SUNMatMatvec
- public :: SUNMatSpace
+ public :: FSUNMatGetID
+ public :: FSUNMatClone
+ public :: FSUNMatDestroy
+ public :: FSUNMatZero
+ public :: FSUNMatCopy
+ public :: FSUNMatScaleAdd
+ public :: FSUNMatScaleAddI
+ public :: FSUNMatMatvec
+ public :: FSUNMatSpace
 
  ! PARAMETERS
  enum, bind(c)
@@ -32,7 +32,7 @@ module fsunmatrix
 
  ! WRAPPER DECLARATIONS
  interface
-function SUNMatGetID(a) &
+function FSUNMatGetID(a) &
 bind(C, name="SUNMatGetID") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -40,7 +40,7 @@ type(C_PTR), value :: a
 integer(C_INT) :: fresult
 end function
 
-function SUNMatClone(a) &
+function FSUNMatClone(a) &
 bind(C, name="SUNMatClone") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -48,13 +48,13 @@ type(C_PTR), value :: a
 type(C_PTR) :: fresult
 end function
 
-subroutine SUNMatDestroy(a) &
+subroutine FSUNMatDestroy(a) &
 bind(C, name="SUNMatDestroy")
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: a
 end subroutine
 
-function SUNMatZero(a) &
+function FSUNMatZero(a) &
 bind(C, name="SUNMatZero") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -62,7 +62,7 @@ type(C_PTR), value :: a
 integer(C_INT) :: fresult
 end function
 
-function SUNMatCopy(a, b) &
+function FSUNMatCopy(a, b) &
 bind(C, name="SUNMatCopy") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -71,7 +71,7 @@ type(C_PTR), value :: b
 integer(C_INT) :: fresult
 end function
 
-function SUNMatScaleAdd(c, a, b) &
+function FSUNMatScaleAdd(c, a, b) &
 bind(C, name="SUNMatScaleAdd") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -81,7 +81,7 @@ type(C_PTR), value :: b
 integer(C_INT) :: fresult
 end function
 
-function SUNMatScaleAddI(c, a) &
+function FSUNMatScaleAddI(c, a) &
 bind(C, name="SUNMatScaleAddI") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -90,7 +90,7 @@ type(C_PTR), value :: a
 integer(C_INT) :: fresult
 end function
 
-function SUNMatMatvec(a, x, y) &
+function FSUNMatMatvec(a, x, y) &
 bind(C, name="SUNMatMatvec") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -100,7 +100,7 @@ type(C_PTR), value :: y
 integer(C_INT) :: fresult
 end function
 
-function SUNMatSpace(a, lenrw, leniw) &
+function FSUNMatSpace(a, lenrw, leniw) &
 bind(C, name="SUNMatSpace") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING

@@ -6,11 +6,14 @@
 module fnvector_pthreads_mod
  use, intrinsic :: ISO_C_BINDING
  use fsundials_types
- use fnvector
+ use fnvector_mod
  implicit none
  private
 
  ! PUBLIC METHODS AND TYPES
+
+  public :: FN_VGetData_Pthreads
+  
  public :: FN_VNew_Pthreads
  public :: FN_VNewEmpty_Pthreads
  public :: FN_VMake_Pthreads
@@ -187,7 +190,7 @@ bind(C, name="N_VGetArrayPointer_Pthreads") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: v
-real(C_DOUBLE) :: fresult
+type(C_PTR) :: fresult
 end function
 
 subroutine FN_VSetArrayPointer_Pthreads(v_data, v) &
@@ -362,7 +365,7 @@ bind(C, name="N_VLinearCombination_Pthreads") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT), value :: nvec
-real(C_DOUBLE), dimension(*) :: c
+real(C_DOUBLE) :: c
 type(C_PTR), value :: x
 type(C_PTR), value :: z
 integer(C_INT) :: fresult
@@ -373,7 +376,7 @@ bind(C, name="N_VScaleAddMulti_Pthreads") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT), value :: nvec
-real(C_DOUBLE), dimension(*) :: a
+real(C_DOUBLE) :: a
 type(C_PTR), value :: x
 type(C_PTR), value :: y
 type(C_PTR), value :: z
@@ -387,7 +390,7 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT), value :: nvec
 type(C_PTR), value :: x
 type(C_PTR), value :: y
-real(C_DOUBLE), dimension(*) :: dotprods
+real(C_DOUBLE) :: dotprods
 integer(C_INT) :: fresult
 end function
 
@@ -409,7 +412,7 @@ bind(C, name="N_VScaleVectorArray_Pthreads") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT), value :: nvec
-real(C_DOUBLE), dimension(*) :: c
+real(C_DOUBLE) :: c
 type(C_PTR), value :: x
 type(C_PTR), value :: z
 integer(C_INT) :: fresult
@@ -432,7 +435,7 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT), value :: nvec
 type(C_PTR), value :: x
 type(C_PTR), value :: w
-real(C_DOUBLE), dimension(*) :: nrm
+real(C_DOUBLE) :: nrm
 integer(C_INT) :: fresult
 end function
 
@@ -444,7 +447,7 @@ integer(C_INT), value :: nvec
 type(C_PTR), value :: x
 type(C_PTR), value :: w
 type(C_PTR), value :: id
-real(C_DOUBLE), dimension(*) :: nrm
+real(C_DOUBLE) :: nrm
 integer(C_INT) :: fresult
 end function
 
@@ -454,7 +457,7 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT), value :: nvec
 integer(C_INT), value :: nsum
-real(C_DOUBLE), dimension(*) :: a
+real(C_DOUBLE) :: a
 type(C_PTR), value :: x
 type(C_PTR), value :: y
 type(C_PTR), value :: z
@@ -467,7 +470,7 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT), value :: nvec
 integer(C_INT), value :: nsum
-real(C_DOUBLE), dimension(*) :: c
+real(C_DOUBLE) :: c
 type(C_PTR), value :: x
 type(C_PTR), value :: z
 integer(C_INT) :: fresult
@@ -578,19 +581,22 @@ end function
 contains
  ! FORTRAN PROXY CODE
 
-subroutine FN_VGetData_Pthreads(vec, varray)
+  subroutine FN_VGetData_Pthreads(vec, vdata)
 
-    use, intrinsic :: iso_c_binding
-    implicit none
+      use, intrinsic :: iso_c_binding
+      implicit none
 
-    type(c_ptr)     :: vec
-    integer(c_long) :: length
-    real(c_double)  :: vptr
-    real(c_double), dimension(:) :: varray
+      type(C_PTR)        :: vec
+      integer(C_INT64_T) :: len
+      type(C_PTR)        :: cptr
+      real(C_DOUBLE), dimension(:), pointer :: vdata
 
-    varray = FN_VGetArrayPointer_Pthreads(vec)
+      len = FN_VGetLength_Pthreads(vec)
+      cptr = FN_VGetArrayPointer_Pthreads(vec)
 
-end subroutine FN_VGetData_Pthreads
+      call c_f_pointer(cptr, vdata, (/len/))
 
+  end subroutine FN_VGetData_Pthreads
+  
 
 end module

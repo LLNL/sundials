@@ -15,11 +15,11 @@
 # ---------------------------------------------------------------
 
 set(sundials_SOURCES
-  fnvector.f90
+  fnvector_mod.f90
   fsundials_types.f90
-  fsunmatrix.f90
-  fsunlinsol.f90
-  fsunnonlinsol.f90)
+  fsunmatrix_mod.f90
+  fsunlinsol_mod.f90
+  fsunnonlinsol_mod.f90)
 
 if(BUILD_STATIC_LIBS)
   set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_Fortran_MODULE_DIRECTORY}_STATIC)

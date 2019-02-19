@@ -6,14 +6,14 @@
 module fnvector_serial_mod
  use, intrinsic :: ISO_C_BINDING
  use fsundials_types
- use fnvector
+ use fnvector_mod
  implicit none
  private
 
  ! PUBLIC METHODS AND TYPES
 
-public :: FN_VGetData_Serial
-
+  public :: FN_VGetData_Serial
+  
  public :: FN_VNew_Serial
  public :: FN_VNewEmpty_Serial
  public :: FN_VMake_Serial
@@ -94,7 +94,7 @@ bind(C, name="N_VMake_Serial") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT64_T), value :: vec_length
-type(C_PTR) :: v_data
+real(C_DOUBLE), dimension(*) :: v_data
 type(C_PTR) :: fresult
 end function
 
@@ -193,7 +193,7 @@ end function
 subroutine FN_VSetArrayPointer_Serial(v_data, v) &
 bind(C, name="N_VSetArrayPointer_Serial")
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR) :: v_data
+real(C_DOUBLE), dimension(*) :: v_data
 type(C_PTR), value :: v
 end subroutine
 
@@ -362,7 +362,7 @@ bind(C, name="N_VLinearCombination_Serial") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT), value :: nvec
-type(C_PTR) :: c
+real(C_DOUBLE) :: c
 type(C_PTR), value :: v
 type(C_PTR), value :: z
 integer(C_INT) :: fresult
@@ -373,7 +373,7 @@ bind(C, name="N_VScaleAddMulti_Serial") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT), value :: nvec
-type(C_PTR) :: a
+real(C_DOUBLE) :: a
 type(C_PTR), value :: x
 type(C_PTR), value :: y
 type(C_PTR), value :: z
@@ -387,7 +387,7 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT), value :: nvec
 type(C_PTR), value :: x
 type(C_PTR), value :: y
-type(C_PTR) :: dotprods
+real(C_DOUBLE) :: dotprods
 integer(C_INT) :: fresult
 end function
 
@@ -409,7 +409,7 @@ bind(C, name="N_VScaleVectorArray_Serial") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT), value :: nvec
-type(C_PTR) :: c
+real(C_DOUBLE) :: c
 type(C_PTR), value :: x
 type(C_PTR), value :: z
 integer(C_INT) :: fresult
@@ -432,7 +432,7 @@ use, intrinsic :: ISO_C_BINDING
 integer(C_INT), value :: nvecs
 type(C_PTR), value :: x
 type(C_PTR), value :: w
-type(C_PTR) :: nrm
+real(C_DOUBLE) :: nrm
 integer(C_INT) :: fresult
 end function
 
@@ -444,7 +444,7 @@ integer(C_INT), value :: nvecs
 type(C_PTR), value :: x
 type(C_PTR), value :: w
 type(C_PTR), value :: id
-type(C_PTR) :: nrm
+real(C_DOUBLE) :: nrm
 integer(C_INT) :: fresult
 end function
 
@@ -454,7 +454,7 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT), value :: nvec
 integer(C_INT), value :: nsum
-type(C_PTR) :: a
+real(C_DOUBLE) :: a
 type(C_PTR), value :: x
 type(C_PTR), value :: y
 type(C_PTR), value :: z
@@ -467,7 +467,7 @@ result(fresult)
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT), value :: nvec
 integer(C_INT), value :: nsum
-type(C_PTR) :: c
+real(C_DOUBLE) :: c
 type(C_PTR), value :: x
 type(C_PTR), value :: z
 integer(C_INT) :: fresult
@@ -578,22 +578,22 @@ end function
 contains
  ! FORTRAN PROXY CODE
 
-subroutine FN_VGetData_Serial(vec, vdata)
+  subroutine FN_VGetData_Serial(vec, vdata)
 
-    use, intrinsic :: iso_c_binding
-    implicit none
+      use, intrinsic :: iso_c_binding
+      implicit none
 
-    type(C_PTR)        :: vec
-    integer(C_INT64_T) :: len
-    type(C_PTR)        :: cptr
-    real(C_DOUBLE), dimension(:), pointer :: vdata
+      type(C_PTR)        :: vec
+      integer(C_INT64_T) :: len
+      type(C_PTR)        :: cptr
+      real(C_DOUBLE), dimension(:), pointer :: vdata
 
-    len = FN_VGetLength_Serial(vec)
-    cptr = FN_VGetArrayPointer_Serial(vec)
+      len = FN_VGetLength_Serial(vec)
+      cptr = FN_VGetArrayPointer_Serial(vec)
 
-    call c_f_pointer(cptr, vdata, (/len/)) 
+      call c_f_pointer(cptr, vdata, (/len/))
 
-end subroutine FN_VGetData_Serial
-
+  end subroutine FN_VGetData_Serial
+  
 
 end module

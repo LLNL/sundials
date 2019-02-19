@@ -3,7 +3,7 @@
 !
 ! Do not make changes to this file unless you know what you are doing--modify
 ! the SWIG interface file instead.
-module fnvector
+module fnvector_mod
  use, intrinsic :: ISO_C_BINDING
  use fsundials_types
  implicit none
@@ -13,45 +13,45 @@ module fnvector
  public :: N_Vector_ID, SUNDIALS_NVEC_SERIAL, SUNDIALS_NVEC_PARALLEL, SUNDIALS_NVEC_OPENMP, SUNDIALS_NVEC_PTHREADS, &
     SUNDIALS_NVEC_PARHYP, SUNDIALS_NVEC_PETSC, SUNDIALS_NVEC_CUDA, SUNDIALS_NVEC_RAJA, SUNDIALS_NVEC_OPENMPDEV, &
     SUNDIALS_NVEC_TRILINOS, SUNDIALS_NVEC_CUSTOM
- public :: N_VGetVectorID
- public :: N_VClone
- public :: N_VCloneEmpty
- public :: N_VDestroy
- public :: N_VSpace
- public :: N_VGetArrayPointer
- public :: N_VSetArrayPointer
- public :: N_VLinearSum
- public :: N_VConst
- public :: N_VProd
- public :: N_VDiv
- public :: N_VScale
- public :: N_VAbs
- public :: N_VInv
- public :: N_VAddConst
- public :: N_VDotProd
- public :: N_VMaxNorm
- public :: N_VWrmsNorm
- public :: N_VWrmsNormMask
- public :: N_VMin
- public :: N_VWL2Norm
- public :: N_VL1Norm
- public :: N_VCompare
- public :: N_VInvTest
- public :: N_VConstrMask
- public :: N_VMinQuotient
- public :: N_VLinearCombination
- public :: N_VScaleAddMulti
- public :: N_VDotProdMulti
- public :: N_VLinearSumVectorArray
- public :: N_VScaleVectorArray
- public :: N_VConstVectorArray
- public :: N_VWrmsNormVectorArray
- public :: N_VWrmsNormMaskVectorArray
- public :: N_VScaleAddMultiVectorArray
- public :: N_VLinearCombinationVectorArray
- public :: N_VCloneEmptyVectorArray
- public :: N_VCloneVectorArray
- public :: N_VDestroyVectorArray
+ public :: FN_VGetVectorID
+ public :: FN_VClone
+ public :: FN_VCloneEmpty
+ public :: FN_VDestroy
+ public :: FN_VSpace
+ public :: FN_VGetArrayPointer
+ public :: FN_VSetArrayPointer
+ public :: FN_VLinearSum
+ public :: FN_VConst
+ public :: FN_VProd
+ public :: FN_VDiv
+ public :: FN_VScale
+ public :: FN_VAbs
+ public :: FN_VInv
+ public :: FN_VAddConst
+ public :: FN_VDotProd
+ public :: FN_VMaxNorm
+ public :: FN_VWrmsNorm
+ public :: FN_VWrmsNormMask
+ public :: FN_VMin
+ public :: FN_VWL2Norm
+ public :: FN_VL1Norm
+ public :: FN_VCompare
+ public :: FN_VInvTest
+ public :: FN_VConstrMask
+ public :: FN_VMinQuotient
+ public :: FN_VLinearCombination
+ public :: FN_VScaleAddMulti
+ public :: FN_VDotProdMulti
+ public :: FN_VLinearSumVectorArray
+ public :: FN_VScaleVectorArray
+ public :: FN_VConstVectorArray
+ public :: FN_VWrmsNormVectorArray
+ public :: FN_VWrmsNormMaskVectorArray
+ public :: FN_VScaleAddMultiVectorArray
+ public :: FN_VLinearCombinationVectorArray
+ public :: FN_VCloneEmptyVectorArray
+ public :: FN_VCloneVectorArray
+ public :: FN_VDestroyVectorArray
 
  ! PARAMETERS
  enum, bind(c)
@@ -71,7 +71,7 @@ module fnvector
 
  ! WRAPPER DECLARATIONS
  interface
-function N_VGetVectorID(w) &
+function FN_VGetVectorID(w) &
 bind(C, name="N_VGetVectorID") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -79,7 +79,7 @@ type(C_PTR), value :: w
 integer(C_INT) :: fresult
 end function
 
-function N_VClone(w) &
+function FN_VClone(w) &
 bind(C, name="N_VClone") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -87,7 +87,7 @@ type(C_PTR), value :: w
 type(C_PTR) :: fresult
 end function
 
-function N_VCloneEmpty(w) &
+function FN_VCloneEmpty(w) &
 bind(C, name="N_VCloneEmpty") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -95,13 +95,13 @@ type(C_PTR), value :: w
 type(C_PTR) :: fresult
 end function
 
-subroutine N_VDestroy(v) &
+subroutine FN_VDestroy(v) &
 bind(C, name="N_VDestroy")
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: v
 end subroutine
 
-subroutine N_VSpace(v, lrw, liw) &
+subroutine FN_VSpace(v, lrw, liw) &
 bind(C, name="N_VSpace")
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: v
@@ -109,7 +109,7 @@ integer(C_INT64_T) :: lrw
 integer(C_INT64_T) :: liw
 end subroutine
 
-function N_VGetArrayPointer(v) &
+function FN_VGetArrayPointer(v) &
 bind(C, name="N_VGetArrayPointer") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -117,14 +117,14 @@ type(C_PTR), value :: v
 type(C_PTR) :: fresult
 end function
 
-subroutine N_VSetArrayPointer(v_data, v) &
+subroutine FN_VSetArrayPointer(v_data, v) &
 bind(C, name="N_VSetArrayPointer")
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE) :: v_data
 type(C_PTR), value :: v
 end subroutine
 
-subroutine N_VLinearSum(a, x, b, y, z) &
+subroutine FN_VLinearSum(a, x, b, y, z) &
 bind(C, name="N_VLinearSum")
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), value :: a
@@ -134,14 +134,14 @@ type(C_PTR), value :: y
 type(C_PTR), value :: z
 end subroutine
 
-subroutine N_VConst(c, z) &
+subroutine FN_VConst(c, z) &
 bind(C, name="N_VConst")
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), value :: c
 type(C_PTR), value :: z
 end subroutine
 
-subroutine N_VProd(x, y, z) &
+subroutine FN_VProd(x, y, z) &
 bind(C, name="N_VProd")
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: x
@@ -149,7 +149,7 @@ type(C_PTR), value :: y
 type(C_PTR), value :: z
 end subroutine
 
-subroutine N_VDiv(x, y, z) &
+subroutine FN_VDiv(x, y, z) &
 bind(C, name="N_VDiv")
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: x
@@ -157,7 +157,7 @@ type(C_PTR), value :: y
 type(C_PTR), value :: z
 end subroutine
 
-subroutine N_VScale(c, x, z) &
+subroutine FN_VScale(c, x, z) &
 bind(C, name="N_VScale")
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), value :: c
@@ -165,21 +165,21 @@ type(C_PTR), value :: x
 type(C_PTR), value :: z
 end subroutine
 
-subroutine N_VAbs(x, z) &
+subroutine FN_VAbs(x, z) &
 bind(C, name="N_VAbs")
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: x
 type(C_PTR), value :: z
 end subroutine
 
-subroutine N_VInv(x, z) &
+subroutine FN_VInv(x, z) &
 bind(C, name="N_VInv")
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: x
 type(C_PTR), value :: z
 end subroutine
 
-subroutine N_VAddConst(x, b, z) &
+subroutine FN_VAddConst(x, b, z) &
 bind(C, name="N_VAddConst")
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: x
@@ -187,7 +187,7 @@ real(C_DOUBLE), value :: b
 type(C_PTR), value :: z
 end subroutine
 
-function N_VDotProd(x, y) &
+function FN_VDotProd(x, y) &
 bind(C, name="N_VDotProd") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -196,7 +196,7 @@ type(C_PTR), value :: y
 real(C_DOUBLE) :: fresult
 end function
 
-function N_VMaxNorm(x) &
+function FN_VMaxNorm(x) &
 bind(C, name="N_VMaxNorm") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -204,7 +204,7 @@ type(C_PTR), value :: x
 real(C_DOUBLE) :: fresult
 end function
 
-function N_VWrmsNorm(x, w) &
+function FN_VWrmsNorm(x, w) &
 bind(C, name="N_VWrmsNorm") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -213,7 +213,7 @@ type(C_PTR), value :: w
 real(C_DOUBLE) :: fresult
 end function
 
-function N_VWrmsNormMask(x, w, id) &
+function FN_VWrmsNormMask(x, w, id) &
 bind(C, name="N_VWrmsNormMask") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -223,7 +223,7 @@ type(C_PTR), value :: id
 real(C_DOUBLE) :: fresult
 end function
 
-function N_VMin(x) &
+function FN_VMin(x) &
 bind(C, name="N_VMin") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -231,7 +231,7 @@ type(C_PTR), value :: x
 real(C_DOUBLE) :: fresult
 end function
 
-function N_VWL2Norm(x, w) &
+function FN_VWL2Norm(x, w) &
 bind(C, name="N_VWL2Norm") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -240,7 +240,7 @@ type(C_PTR), value :: w
 real(C_DOUBLE) :: fresult
 end function
 
-function N_VL1Norm(x) &
+function FN_VL1Norm(x) &
 bind(C, name="N_VL1Norm") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -248,7 +248,7 @@ type(C_PTR), value :: x
 real(C_DOUBLE) :: fresult
 end function
 
-subroutine N_VCompare(c, x, z) &
+subroutine FN_VCompare(c, x, z) &
 bind(C, name="N_VCompare")
 use, intrinsic :: ISO_C_BINDING
 real(C_DOUBLE), value :: c
@@ -256,7 +256,7 @@ type(C_PTR), value :: x
 type(C_PTR), value :: z
 end subroutine
 
-function N_VInvTest(x, z) &
+function FN_VInvTest(x, z) &
 bind(C, name="N_VInvTest") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -265,7 +265,7 @@ type(C_PTR), value :: z
 logical(C_BOOL) :: fresult
 end function
 
-function N_VConstrMask(c, x, m) &
+function FN_VConstrMask(c, x, m) &
 bind(C, name="N_VConstrMask") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -275,7 +275,7 @@ type(C_PTR), value :: m
 logical(C_BOOL) :: fresult
 end function
 
-function N_VMinQuotient(num, denom) &
+function FN_VMinQuotient(num, denom) &
 bind(C, name="N_VMinQuotient") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -284,7 +284,7 @@ type(C_PTR), value :: denom
 real(C_DOUBLE) :: fresult
 end function
 
-function N_VLinearCombination(nvec, c, x, z) &
+function FN_VLinearCombination(nvec, c, x, z) &
 bind(C, name="N_VLinearCombination") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -295,7 +295,7 @@ type(C_PTR), value :: z
 integer(C_INT) :: fresult
 end function
 
-function N_VScaleAddMulti(nvec, a, x, y, z) &
+function FN_VScaleAddMulti(nvec, a, x, y, z) &
 bind(C, name="N_VScaleAddMulti") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -307,7 +307,7 @@ type(C_PTR), value :: z
 integer(C_INT) :: fresult
 end function
 
-function N_VDotProdMulti(nvec, x, y, dotprods) &
+function FN_VDotProdMulti(nvec, x, y, dotprods) &
 bind(C, name="N_VDotProdMulti") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -318,7 +318,7 @@ real(C_DOUBLE) :: dotprods
 integer(C_INT) :: fresult
 end function
 
-function N_VLinearSumVectorArray(nvec, a, x, b, y, z) &
+function FN_VLinearSumVectorArray(nvec, a, x, b, y, z) &
 bind(C, name="N_VLinearSumVectorArray") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -331,7 +331,7 @@ type(C_PTR), value :: z
 integer(C_INT) :: fresult
 end function
 
-function N_VScaleVectorArray(nvec, c, x, z) &
+function FN_VScaleVectorArray(nvec, c, x, z) &
 bind(C, name="N_VScaleVectorArray") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -342,7 +342,7 @@ type(C_PTR), value :: z
 integer(C_INT) :: fresult
 end function
 
-function N_VConstVectorArray(nvec, c, z) &
+function FN_VConstVectorArray(nvec, c, z) &
 bind(C, name="N_VConstVectorArray") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -352,7 +352,7 @@ type(C_PTR), value :: z
 integer(C_INT) :: fresult
 end function
 
-function N_VWrmsNormVectorArray(nvec, x, w, nrm) &
+function FN_VWrmsNormVectorArray(nvec, x, w, nrm) &
 bind(C, name="N_VWrmsNormVectorArray") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -363,7 +363,7 @@ real(C_DOUBLE) :: nrm
 integer(C_INT) :: fresult
 end function
 
-function N_VWrmsNormMaskVectorArray(nvec, x, w, id, nrm) &
+function FN_VWrmsNormMaskVectorArray(nvec, x, w, id, nrm) &
 bind(C, name="N_VWrmsNormMaskVectorArray") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -375,7 +375,7 @@ real(C_DOUBLE) :: nrm
 integer(C_INT) :: fresult
 end function
 
-function N_VScaleAddMultiVectorArray(nvec, nsum, a, x, y, z) &
+function FN_VScaleAddMultiVectorArray(nvec, nsum, a, x, y, z) &
 bind(C, name="N_VScaleAddMultiVectorArray") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -388,7 +388,7 @@ type(C_PTR), value :: z
 integer(C_INT) :: fresult
 end function
 
-function N_VLinearCombinationVectorArray(nvec, nsum, c, x, z) &
+function FN_VLinearCombinationVectorArray(nvec, nsum, c, x, z) &
 bind(C, name="N_VLinearCombinationVectorArray") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -400,7 +400,7 @@ type(C_PTR), value :: z
 integer(C_INT) :: fresult
 end function
 
-function N_VCloneEmptyVectorArray(count, w) &
+function FN_VCloneEmptyVectorArray(count, w) &
 bind(C, name="N_VCloneEmptyVectorArray") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -409,7 +409,7 @@ type(C_PTR), value :: w
 type(C_PTR) :: fresult
 end function
 
-function N_VCloneVectorArray(count, w) &
+function FN_VCloneVectorArray(count, w) &
 bind(C, name="N_VCloneVectorArray") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -418,7 +418,7 @@ type(C_PTR), value :: w
 type(C_PTR) :: fresult
 end function
 
-subroutine N_VDestroyVectorArray(vs, count) &
+subroutine FN_VDestroyVectorArray(vs, count) &
 bind(C, name="N_VDestroyVectorArray")
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: vs

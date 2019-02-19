@@ -5,11 +5,11 @@
 ! the SWIG interface file instead.
 module fcvode_mod
  use, intrinsic :: ISO_C_BINDING
- use fnvector
+ use fnvector_mod
  use fsundials_types
- use fsunlinsol
- use fsunmatrix
- use fsunnonlinsol
+ use fsunlinsol_mod
+ use fsunmatrix_mod
+ use fsunnonlinsol_mod
  implicit none
  private
 
@@ -602,7 +602,7 @@ end function
 subroutine FCVodeFree(cvode_mem) &
 bind(C, name="CVodeFree")
 use, intrinsic :: ISO_C_BINDING
-type(C_PTR), value :: cvode_mem
+type(C_PTR) :: cvode_mem
 end subroutine
 
 function FCVodeSetLinearSolver(cvode_mem, ls, a) &
