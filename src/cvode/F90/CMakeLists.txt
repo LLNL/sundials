@@ -24,9 +24,9 @@ set(nvec_SOURCES
 # Add variable sunmatrix_SOURCES with the common SUNMatrix sources which will
 # also be included in the CVODE library
 set(sunmatrix_SOURCES
-  ${sundials_SOURCE_DIR}/src/sunmatrix/band/F90/fsunmatrix_band.f90
-  ${sundials_SOURCE_DIR}/src/sunmatrix/dense/F90/fsunmatrix_dense.f90
-  ${sundials_SOURCE_DIR}/src/sunmatrix/sparse/F90/fsunmatrix_sparse.f90
+  ${sundials_SOURCE_DIR}/src/sunmatrix/band/F90/fsunmatrix_band_mod.f90
+  ${sundials_SOURCE_DIR}/src/sunmatrix/dense/F90/fsunmatrix_dense_mod.f90
+  ${sundials_SOURCE_DIR}/src/sunmatrix/sparse/F90/fsunmatrix_sparse_mod.f90
 )
 
 # Add variable sunlinsol_SOURCES with the common SUNLinearSolver sources which will

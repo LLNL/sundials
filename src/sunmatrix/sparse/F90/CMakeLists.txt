@@ -13,7 +13,7 @@
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the F2003 sparse SUNMatrix object library
 
-set(sunmatrixsparse_SOURCES fsunmatrix_sparse.f90)
+set(sunmatrixsparse_SOURCES fsunmatrix_sparse_mod.f90)
 
 if(BUILD_STATIC_LIBS)
   sundials_add_f2003_interface_library(sundials_fsunmatrixsparse_mod_static STATIC

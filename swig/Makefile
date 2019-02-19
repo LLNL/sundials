@@ -1,8 +1,8 @@
 
 CVODE=fcvode_mod.i
 GENERIC=fsundials_types.i fnvector_mod.i fsunmatrix_mod.i fsunlinsol_mod.i fsunnonlinsol_mod.i
-NVECTOR=fnvector_serial_mod.i fnvector_openmp_mod.i fnvector_pthreads_mod.i
-SUNMATRIX=
+NVECTOR=fnvector_openmp_mod.i fnvector_pthreads_mod.i fnvector_serial_mod.i
+SUNMATRIX=fsunmatrix_band_mod.i fsunmatrix_dense_mod.i fsunmatrix_sparse_mod.i
 SUNLINSOL=
 SUNNONLINSOL=
 
@@ -45,4 +45,4 @@ sunnonlinsol: ${SUNNONLINSOL}
 	done
 
 clean:
-	rm *.c
+	rm *.c out/*.f90

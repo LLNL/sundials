@@ -13,7 +13,7 @@
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the F2003 dense SUNMatrix object library
 
-set(sunmatrixdense_SOURCES fsunmatrix_dense.f90)
+set(sunmatrixdense_SOURCES fsunmatrix_dense_mod.f90)
 
 if(BUILD_STATIC_LIBS)
   sundials_add_f2003_interface_library(sundials_fsunmatrixdense_mod_static STATIC

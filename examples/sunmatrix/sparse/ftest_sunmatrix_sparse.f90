@@ -52,7 +52,7 @@ program main
   y = FN_VNew_Serial(N)
   
   D = FSUNDenseMatrix(N, N)
-  E = FSUNBandMatrix(N, uband, lband, uband)
+  E = FSUNBandMatrix(N, uband, lband)
 
   !======= Introduction =========
   print *,'Sparse matrix Fortran 2003 interface test'

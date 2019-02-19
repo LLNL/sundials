@@ -52,7 +52,14 @@ program main
   !===== Calls to interface =====
   
   ! constructors
-  A = FSUNBandMatrix(N, uband, lband, uband)
+  A = FSUNBandMatrix(N, uband, lband)
+  if (.not. c_associated(A)) then
+    print *,'>>> FAILED - ERROR in FSUNBandMatrix; halting'
+    stop 1
+  end if
+  call FSUNMatDestroy_Band(A)
+  
+  A = FSUNBandMatrixStorage(N, uband, lband, uband)
   if (.not. c_associated(A)) then
     print *,'>>> FAILED - ERROR in FSUNBandMatrix; halting'
     stop 1
