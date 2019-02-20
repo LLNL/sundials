@@ -10,4 +10,8 @@
 
 // Process definitions from these files
 %include "cvode/cvode.h"
+%include "cvode/cvode_bandpre.h"
+%include "cvode/cvode_bbdpre.h"
+%include "cvode/cvode_diag.h"
 %include "cvode/cvode_ls.h"
+

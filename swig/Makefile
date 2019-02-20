@@ -1,4 +1,6 @@
 
+ARKODE=farkode_mod.i farkode_arkstep_mod.i farkode_erkstep_mod.i farkode_mristep_mod.i
+
 CVODE=fcvode_mod.i
 
 GENERIC=fsundials_types.i fnvector_mod.i fsunmatrix_mod.i fsunlinsol_mod.i fsunnonlinsol_mod.i
@@ -12,7 +14,13 @@ SUNLINSOL=fsunlinsol_band_mod.i fsunlinsol_dense_mod.i fsunlinsol_spbcgs_mod.i f
 
 SUNNONLINSOL=fsunnonlinsol_newton_mod.i fsunnonlinsol_fixedpoint_mod.i
 
-all: generic cvode nvector sunmatrix sunlinsol sunnonlinsol
+all: generic arkode cvode nvector sunmatrix sunlinsol sunnonlinsol
+
+arkode: ${ARKODE}
+	@for i in ${ARKODE} ; do \
+		echo "swig -fortran -outdir ../src/akrode/F90 -I../include $${i}" ; \
+		swig -fortran -outdir ../src/arkode/F90 -I../include $${i} ; \
+	done
 
 cvode: ${CVODE}
 	@for i in ${CVODE} ; do \

@@ -65,6 +65,18 @@ module fcvode_mod
  public :: FCVodeGetNonlinSolvStats
  public :: FCVodeGetReturnFlagName
  public :: FCVodeFree
+ public :: FCVBandPrecInit
+ public :: FCVBandPrecGetWorkSpace
+ public :: FCVBandPrecGetNumRhsEvals
+ public :: FCVBBDPrecInit
+ public :: FCVBBDPrecReInit
+ public :: FCVBBDPrecGetWorkSpace
+ public :: FCVBBDPrecGetNumGfnEvals
+ public :: FCVDiag
+ public :: FCVDiagGetWorkSpace
+ public :: FCVDiagGetNumRhsEvals
+ public :: FCVDiagGetLastFlag
+ public :: FCVDiagGetReturnFlagName
  public :: FCVodeSetLinearSolver
  public :: FCVodeSetJacFn
  public :: FCVodeSetMaxStepsBetweenJac
@@ -116,6 +128,14 @@ module fcvode_mod
  integer(C_INT), parameter, public :: CV_BAD_DKY = -26_C_INT
  integer(C_INT), parameter, public :: CV_TOO_CLOSE = -27_C_INT
  integer(C_INT), parameter, public :: CV_VECTOROP_ERR = -28_C_INT
+ integer(C_INT), parameter, public :: CVDIAG_SUCCESS = 0_C_INT
+ integer(C_INT), parameter, public :: CVDIAG_MEM_NULL = -1_C_INT
+ integer(C_INT), parameter, public :: CVDIAG_LMEM_NULL = -2_C_INT
+ integer(C_INT), parameter, public :: CVDIAG_ILL_INPUT = -3_C_INT
+ integer(C_INT), parameter, public :: CVDIAG_MEM_FAIL = -4_C_INT
+ integer(C_INT), parameter, public :: CVDIAG_INV_FAIL = -5_C_INT
+ integer(C_INT), parameter, public :: CVDIAG_RHSFUNC_UNRECVR = -6_C_INT
+ integer(C_INT), parameter, public :: CVDIAG_RHSFUNC_RECVR = -7_C_INT
  integer(C_INT), parameter, public :: CVLS_SUCCESS = 0_C_INT
  integer(C_INT), parameter, public :: CVLS_MEM_NULL = -1_C_INT
  integer(C_INT), parameter, public :: CVLS_LMEM_NULL = -2_C_INT
@@ -604,6 +624,126 @@ bind(C, name="CVodeFree")
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR) :: cvode_mem
 end subroutine
+
+function FCVBandPrecInit(cvode_mem, n, mu, ml) &
+bind(C, name="CVBandPrecInit") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: cvode_mem
+integer(C_INT64_T), value :: n
+integer(C_INT64_T), value :: mu
+integer(C_INT64_T), value :: ml
+integer(C_INT) :: fresult
+end function
+
+function FCVBandPrecGetWorkSpace(cvode_mem, lenrwls, leniwls) &
+bind(C, name="CVBandPrecGetWorkSpace") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: cvode_mem
+integer(C_LONG) :: lenrwls
+integer(C_LONG) :: leniwls
+integer(C_INT) :: fresult
+end function
+
+function FCVBandPrecGetNumRhsEvals(cvode_mem, nfevalsbp) &
+bind(C, name="CVBandPrecGetNumRhsEvals") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: cvode_mem
+integer(C_LONG) :: nfevalsbp
+integer(C_INT) :: fresult
+end function
+
+function FCVBBDPrecInit(cvode_mem, nlocal, mudq, mldq, mukeep, mlkeep, dqrely, gloc, cfn) &
+bind(C, name="CVBBDPrecInit") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: cvode_mem
+integer(C_INT64_T), value :: nlocal
+integer(C_INT64_T), value :: mudq
+integer(C_INT64_T), value :: mldq
+integer(C_INT64_T), value :: mukeep
+integer(C_INT64_T), value :: mlkeep
+real(C_DOUBLE), value :: dqrely
+type(C_FUNPTR), value :: gloc
+type(C_FUNPTR), value :: cfn
+integer(C_INT) :: fresult
+end function
+
+function FCVBBDPrecReInit(cvode_mem, mudq, mldq, dqrely) &
+bind(C, name="CVBBDPrecReInit") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: cvode_mem
+integer(C_INT64_T), value :: mudq
+integer(C_INT64_T), value :: mldq
+real(C_DOUBLE), value :: dqrely
+integer(C_INT) :: fresult
+end function
+
+function FCVBBDPrecGetWorkSpace(cvode_mem, lenrwbbdp, leniwbbdp) &
+bind(C, name="CVBBDPrecGetWorkSpace") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: cvode_mem
+integer(C_LONG) :: lenrwbbdp
+integer(C_LONG) :: leniwbbdp
+integer(C_INT) :: fresult
+end function
+
+function FCVBBDPrecGetNumGfnEvals(cvode_mem, ngevalsbbdp) &
+bind(C, name="CVBBDPrecGetNumGfnEvals") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: cvode_mem
+integer(C_LONG) :: ngevalsbbdp
+integer(C_INT) :: fresult
+end function
+
+function FCVDiag(cvode_mem) &
+bind(C, name="CVDiag") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: cvode_mem
+integer(C_INT) :: fresult
+end function
+
+function FCVDiagGetWorkSpace(cvode_mem, lenrwls, leniwls) &
+bind(C, name="CVDiagGetWorkSpace") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: cvode_mem
+integer(C_LONG) :: lenrwls
+integer(C_LONG) :: leniwls
+integer(C_INT) :: fresult
+end function
+
+function FCVDiagGetNumRhsEvals(cvode_mem, nfevalsls) &
+bind(C, name="CVDiagGetNumRhsEvals") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: cvode_mem
+integer(C_LONG) :: nfevalsls
+integer(C_INT) :: fresult
+end function
+
+function FCVDiagGetLastFlag(cvode_mem, flag) &
+bind(C, name="CVDiagGetLastFlag") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+type(C_PTR), value :: cvode_mem
+integer(C_LONG) :: flag
+integer(C_INT) :: fresult
+end function
+
+function FCVDiagGetReturnFlagName(flag) &
+bind(C, name="CVDiagGetReturnFlagName") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+integer(C_LONG), value :: flag
+type(C_PTR) :: fresult
+end function
 
 function FCVodeSetLinearSolver(cvode_mem, ls, a) &
 bind(C, name="CVodeSetLinearSolver") &
