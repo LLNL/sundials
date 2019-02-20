@@ -1,15 +1,11 @@
 %module farkode_mod
 
-%include "fsundials.i"
-
-%apply void * { ARKodeButcherTable };
+%include "../sundials/fsundials.i"
 
 // Load the typedefs and generate a "use" statements in the module
-%import "fsundials_types.i"
-%import "fnvector_mod.i"
-%import "fsunlinsol_mod.i"
-%import "fsunnonlinsol_mod.i"
-%import "fsunmatrix_mod.i"
+%import "../sundials/fsundials_types.i"
+
+%apply void * { ARKodeButcherTable };
 
 // Process definitions from these files
 %include "arkode/arkode.h"

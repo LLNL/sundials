@@ -1,28 +1,22 @@
 
-ARKODE=farkode_mod.i farkode_arkstep_mod.i farkode_erkstep_mod.i farkode_mristep_mod.i
+ARKODE=arkode/farkode_mod.i arkode/farkode_arkstep_mod.i arkode/farkode_erkstep_mod.i arkode/farkode_mristep_mod.i
+CVODE=cvode/fcvode_mod.i
+IDA=ida/fida_mod.i
+KINSOL=kinsol/fkinsol_mod.i
+GENERIC=sundials/fsundials_types.i sundials/fnvector_mod.i sundials/fsunmatrix_mod.i sundials/fsunlinsol_mod.i \
+				sundials/fsunnonlinsol_mod.i
+NVECTOR=openmp pthreads serial
+SUNMATRIX=band dense sparse
+SUNLINSOL=band dense spbcgs spfgmr spgmr sptfqmr pcg
+SUNNONLINSOL=newton fixedpoint
 
-CVODE=fcvode_mod.i
-
-IDA=fida_mod.i
-
-KINSOL=fkinsol_mod.i
-
-GENERIC=fsundials_types.i fnvector_mod.i fsunmatrix_mod.i fsunlinsol_mod.i fsunnonlinsol_mod.i
-
-NVECTOR=fnvector_openmp_mod.i fnvector_pthreads_mod.i fnvector_serial_mod.i
-
-SUNMATRIX=fsunmatrix_band_mod.i fsunmatrix_dense_mod.i fsunmatrix_sparse_mod.i
-
-SUNLINSOL=fsunlinsol_band_mod.i fsunlinsol_dense_mod.i fsunlinsol_spbcgs_mod.i fsunlinsol_spfgmr_mod.i \
-					fsunlinsol_spgmr_mod.i fsunlinsol_sptfqmr_mod.i fsunlinsol_pcg_mod.i
-
-SUNNONLINSOL=fsunnonlinsol_newton_mod.i fsunnonlinsol_fixedpoint_mod.i
+.PHONY: generic arkode cvode ida kinsol nvector sunmatrix sunlinsol sunnonlinsol
 
 all: generic arkode cvode ida kinsol nvector sunmatrix sunlinsol sunnonlinsol
 
 arkode: ${ARKODE}
 	@for i in ${ARKODE} ; do \
-		echo "swig -fortran -outdir ../src/akrode/F90 -I../include $${i}" ; \
+		echo "swig -fortran -outdir ../src/arkode/F90 -I../include $${i}" ; \
 		swig -fortran -outdir ../src/arkode/F90 -I../include $${i} ; \
 	done
 
@@ -50,28 +44,28 @@ generic: ${GENERIC}
 		swig -fortran -outdir ../src/sundials/F90 -I../include $${i} ; \
 	done
 
-nvector: ${NVECTOR}
+nvector: $(NVECTOR:%:nvector/fnvector_%_mod.i)
 	@for i in ${NVECTOR} ; do \
-		echo "swig -fortran -outdir out -I../include $${i}" ; \
-		swig -fortran -outdir out -I../include $${i} ; \
+		echo "swig -fortran -outdir ../src/nvector/$${i}/F90 -I../include nvector/fnvector_$${i}_mod.i" ; \
+		swig -fortran -outdir ../src/nvector/$${i}/F90 -I../include nvector/fnvector_$${i}_mod.i ; \
 	done
 
-sunmatrix: ${SUNMATRIX}
+sunmatrix: $(SUNMATRIX:%:sunmatrix/fsunmatrix_%_mod.i)
 	@for i in ${SUNMATRIX} ; do \
-		echo "swig -fortran -outdir out -I../include $${i}" ;\
-		swig -fortran -outdir out -I../include $${i} ; \
+		echo "swig -fortran -outdir ../src/sunmatrix/$${i}/F90 -I../include sunmatrix/fsunmatrix_$${i}_mod.i" ; \
+		swig -fortran -outdir ../src/sunmatrix/$${i}/F90 -I../include sunmatrix/fsunmatrix_$${i}_mod.i ; \
 	done
 
-sunlinsol: ${SUNLINSOL}
+sunlinsol: $(SUNLINSOL:%:sunlinsol/fsunlinsol_%_mod.i)
 	@for i in ${SUNLINSOL} ; do \
-		echo "swig -fortran -outdir out -I../include $${i}" ; \
-		swig -fortran -outdir out -I../include $${i} ; \
+		echo "swig -fortran -outdir ../src/sunlinsol/$${i}/F90 -I../include sunlinsol/fsunlinsol_$${i}_mod.i" ; \
+		swig -fortran -outdir ../src/sunlinsol/$${i}/F90 -I../include sunlinsol/fsunlinsol_$${i}_mod.i ; \
 	done
 
-sunnonlinsol: ${SUNNONLINSOL}
+sunnonlinsol: $(SUNNONLINSOL:%:sunnonlinsol/fsunnonlinsol_%_mod.i)
 	@for i in ${SUNNONLINSOL} ; do \
-		echo "swig -fortran -outdir out -I../include $${i}" ; \
-		swig -fortran -outdir out -I../include $${i} ; \
+		echo "swig -fortran -outdir ../src/sunnonlinsol/$${i}/F90 -I../include sunnonlinsol/fsunnonlinsol_$${i}_mod.i" ; \
+		swig -fortran -outdir ../src/sunnonlinsol/$${i}/F90 -I../include sunnonlinsol/fsunnonlinsol_$${i}_mod.i ; \
 	done
 
 clean:

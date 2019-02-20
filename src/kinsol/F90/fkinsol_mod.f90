@@ -5,10 +5,7 @@
 ! the SWIG interface file instead.
 module fkinsol_mod
  use, intrinsic :: ISO_C_BINDING
- use fnvector_mod
  use fsundials_types
- use fsunlinsol_mod
- use fsunmatrix_mod
  implicit none
  private
 

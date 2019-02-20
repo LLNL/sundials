@@ -5,9 +5,8 @@
 ! the SWIG interface file instead.
 module fsunnonlinsol_newton_mod
  use, intrinsic :: ISO_C_BINDING
- use fsundials_types
  use fsunnonlinsol_mod
- use fnvector_mod
+ use fsundials_types
  implicit none
  private
 

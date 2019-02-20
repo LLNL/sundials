@@ -1,10 +1,8 @@
 // Include shared configuration
-%include "fsundials.i"
+%include "../sundials/fsundials.i"
 
 // Load the typedefs and generate "use" statements
-%import "fsundials_types.i"
-%import "fsunnonlinsol_mod.i"
-%import "fnvector_mod.i"
+%import "../sundials/fsunnonlinsol_mod.i"
 
 // Macro for creating an interface to an N_Vector
 %define %sunnonlinsol_impl(TYPE)

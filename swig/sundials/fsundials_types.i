@@ -1,6 +1,6 @@
 %module fsundials_types
 
-%include "fsundials.i"
+%include "../sundials/fsundials.i"
 %include <stdint.i>
 
 // Inform SWIG of the configure-provided types

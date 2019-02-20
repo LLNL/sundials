@@ -5,12 +5,8 @@
 ! the SWIG interface file instead.
 module farkode_mristep_mod
  use, intrinsic :: ISO_C_BINDING
- use fsundials_types
  use farkode_mod
- use fnvector_mod
- use fsunlinsol_mod
- use fsunmatrix_mod
- use fsunnonlinsol_mod
+ use fsundials_types
  implicit none
  private
 

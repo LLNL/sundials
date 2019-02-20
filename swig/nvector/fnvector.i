@@ -1,9 +1,8 @@
 // Include shared configuration
-%include "fsundials.i"
+%include "../sundials/fsundials.i"
 
 // Load the typedefs and generate "use" statements
-%import "fsundials_types.i"
-%import "fnvector_mod.i"
+%import "../sundials/fnvector_mod.i"
 
 // Assume double* is an array of doubles
 // NOTE: F2003 does not allow assumed-shape, but does allow assumed-size

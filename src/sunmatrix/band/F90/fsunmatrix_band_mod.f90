@@ -5,8 +5,8 @@
 ! the SWIG interface file instead.
 module fsunmatrix_band_mod
  use, intrinsic :: ISO_C_BINDING
- use fsundials_types
  use fsunmatrix_mod
+ use fsundials_types
  implicit none
  private
 
