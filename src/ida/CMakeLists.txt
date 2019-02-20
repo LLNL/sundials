@@ -16,6 +16,11 @@
 
 INSTALL(CODE "MESSAGE(\"\nInstall IDA\n\")")
 
+# Add F90 module if F2003 interface is enabled
+IF(F90_FOUND AND F2003_INTERFACE_ENABLE)
+  ADD_SUBDIRECTORY(F90)
+ENDIF(F90_FOUND AND F2003_INTERFACE_ENABLE)
+
 # Add variable ida_SOURCES with the sources for the IDA library
 SET(ida_SOURCES
   ida.c
