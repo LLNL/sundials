@@ -22,12 +22,14 @@ set(sundials_SOURCES
   fsunnonlinsol_mod.f90)
 
 if(BUILD_STATIC_LIBS)
-  set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_Fortran_MODULE_DIRECTORY}_STATIC)
   add_library(sundials_generic_f2003_static OBJECT ${sundials_SOURCES})
+  set_target_properties(sundials_generic_f2003_static PROPERTIES
+    Fortran_MODULE_DIRECTORY ${CMAKE_Fortran_MODULE_DIRECTORY}_STATIC)
 endif()
 
 if(BUILD_SHARED_LIBS)
-  set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_Fortran_MODULE_DIRECTORY}_SHARED)
   add_library(sundials_generic_f2003_shared OBJECT ${sundials_SOURCES})
+  set_target_properties(sundials_generic_f2003_shared PROPERTIES
+    Fortran_MODULE_DIRECTORY ${CMAKE_Fortran_MODULE_DIRECTORY}_SHARED)
 endif()
 
