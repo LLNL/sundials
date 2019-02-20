@@ -5,6 +5,8 @@ CVODE=fcvode_mod.i
 
 IDA=fida_mod.i
 
+KINSOL=fkinsol_mod.i
+
 GENERIC=fsundials_types.i fnvector_mod.i fsunmatrix_mod.i fsunlinsol_mod.i fsunnonlinsol_mod.i
 
 NVECTOR=fnvector_openmp_mod.i fnvector_pthreads_mod.i fnvector_serial_mod.i
@@ -16,7 +18,7 @@ SUNLINSOL=fsunlinsol_band_mod.i fsunlinsol_dense_mod.i fsunlinsol_spbcgs_mod.i f
 
 SUNNONLINSOL=fsunnonlinsol_newton_mod.i fsunnonlinsol_fixedpoint_mod.i
 
-all: generic arkode cvode ida nvector sunmatrix sunlinsol sunnonlinsol
+all: generic arkode cvode ida kinsol nvector sunmatrix sunlinsol sunnonlinsol
 
 arkode: ${ARKODE}
 	@for i in ${ARKODE} ; do \
@@ -34,6 +36,12 @@ ida: ${IDA}
 	@for i in ${IDA} ; do \
 		echo "swig -fortran -outdir ../src/ida/F90 -I../include $${i}" ; \
 		swig -fortran -outdir ../src/ida/F90 -I../include $${i} ; \
+	done
+
+kinsol: ${KINSOL}
+	@for i in ${KINSOL} ; do \
+		echo "swig -fortran -outdir ../src/kinsol/F90 -I../include $${i}" ; \
+		swig -fortran -outdir ../src/kinsol/F90 -I../include $${i} ; \
 	done
 
 generic: ${GENERIC}
