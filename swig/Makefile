@@ -1,3 +1,18 @@
+# ---------------------------------------------------------------
+# Programmer: Cody J. Balos @ LLNL
+# ---------------------------------------------------------------
+# SUNDIALS Copyright Start
+# Copyright (c) 2002-2019, Lawrence Livermore National Security
+# and Southern Methodist University.
+# All rights reserved.
+#
+# See the top-level LICENSE and NOTICE files for details.
+#
+# SPDX-License-Identifier: BSD-3-Clause
+# SUNDIALS Copyright End
+# ---------------------------------------------------------------
+# Makefile to generate SUNDIALS fortran interfaces with swig
+# ---------------------------------------------------------------
 
 ARKODE=arkode/farkode_mod.i arkode/farkode_arkstep_mod.i arkode/farkode_erkstep_mod.i arkode/farkode_mristep_mod.i
 CVODE=cvode/fcvode_mod.i
@@ -69,4 +84,4 @@ sunnonlinsol: $(SUNNONLINSOL:%:sunnonlinsol/fsunnonlinsol_%_mod.i)
 	done
 
 clean:
-	rm *.c out/*.f90
+	rm ./**/*.c
