@@ -30,7 +30,7 @@ if(BUILD_STATIC_LIBS)
     $<TARGET_OBJECTS:sundials_fsunlinsolpcg_mod_static_obj>
     $<TARGET_OBJECTS:sundials_fsunnonlinsolnewton_mod_static_obj>
     $<TARGET_OBJECTS:sundials_fsunnonlinsolfixedpoint_mod_static_obj>
-    $<TARGET_OBJECTS:sundials_generic_f2003_static>
+    $<TARGET_OBJECTS:sundials_fgeneric_static_obj>
   )
 
   # include the directoy where the .mod files reside
@@ -68,7 +68,7 @@ if(BUILD_SHARED_LIBS)
     $<TARGET_OBJECTS:sundials_fsunlinsolpcg_mod_shared_obj>
     $<TARGET_OBJECTS:sundials_fsunnonlinsolnewton_mod_shared_obj>
     $<TARGET_OBJECTS:sundials_fsunnonlinsolfixedpoint_mod_shared_obj>
-    $<TARGET_OBJECTS:sundials_generic_f2003_shared>
+    $<TARGET_OBJECTS:sundials_fgeneric_shared_obj>
   )
 
   # include the directoy where the .mod files reside
