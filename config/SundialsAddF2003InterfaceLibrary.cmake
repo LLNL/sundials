@@ -12,8 +12,6 @@
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
 # CMake macro for adding F2003 interface libraries.
-# ---------------------------------------------------------------
-
 # Wraps the add_library command for adding Fortran 2003 interfaces.
 #
 # It appends the library type to the Fortran_MODULE_DIRECTORY so
@@ -25,29 +23,54 @@
 # REQUIRES following the F2003 interface library naming convention.
 # I.e. if the C library/target is sundials_cvode_static then the
 # F2003 target must be sundials_fcvode_mod_static.
+# ---------------------------------------------------------------
+
 MACRO(sundials_add_f2003_interface_library target libtype)
-  # extract the variable number of source arguments
-  set(sources ${ARGN})
-  
-  # create the target
-  add_library(${target} ${libtype} ${sources})
-  
+
+  set(options NO_OBJECT_LIBRARY)
+  set(oneValueArgs )
+  set(multiValueArgs )
+
+  # parse keyword arguments/options
+  cmake_parse_arguments(sundials_add_f2003_interface_library
+    "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+  # source files are unparsed additional arguments
+  set(sources ${sundials_add_f2003_interface_library_UNPARSED_ARGUMENTS})
+
+  if(NOT ${sundials_add_f2003_interface_library_NO_OBJECT_LIBRARY})
+    # give the object library its own target name
+    set(obj_target ${target}_obj)
+    # create the target for the object library
+    add_library(${obj_target} OBJECT ${sources})
+    # now create the real library
+    add_library(${target} ${libtype} $<TARGET_OBJECTS:${obj_target}>)
+    # for shared libs, the objects must be PIC
+    if("${libtype}" MATCHES "SHARED")
+      set_target_properties(${obj_target} PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+    endif()
+  else()
+    # alias obj_target variable to target since there is no obj_target
+    set(obj_target ${target})
+    add_library(${target} ${libtype} ${sources})
+  endif()
+
   # set target properties and target dependencies so that includes
   # and links get passed on when this target is used
-  if (CMAKE_Fortran_MODULE_DIRECTORY)
+  if(CMAKE_Fortran_MODULE_DIRECTORY)
     target_include_directories(${target}
       PUBLIC
         $<BUILD_INTERFACE:${CMAKE_Fortran_MODULE_DIRECTORY}_${libtype}>
         $<INSTALL_INTERFACE:${Fortran_INSTALL_MODDIR}>
       )
-    set_target_properties(${target} PROPERTIES Fortran_MODULE_DIRECTORY "${CMAKE_Fortran_MODULE_DIRECTORY}_${libtype}")
+    set_target_properties(${obj_target} PROPERTIES Fortran_MODULE_DIRECTORY "${CMAKE_Fortran_MODULE_DIRECTORY}_${libtype}")
   else()
     target_include_directories(${target}
       PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${target}.dir>
         $<INSTALL_INTERFACE:${Fortran_INSTALL_MODDIR}>
       )
-    set_target_properties(${target} PROPERTIES Fortran_MODULE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${target}.dir")
+    set_target_properties(${obj_target} PROPERTIES Fortran_MODULE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${target}.dir")
   endif()
 
   # get the name of the C library which the fortran library interfaces too
@@ -56,5 +79,6 @@ MACRO(sundials_add_f2003_interface_library target libtype)
 
   # depend on the C library
   target_link_libraries(${target} PUBLIC ${c_lib_name})
+
 ENDMACRO(sundials_add_f2003_interface_library)
 
