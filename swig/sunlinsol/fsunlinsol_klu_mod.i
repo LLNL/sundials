@@ -14,27 +14,14 @@
 // Swig interface file
 // ---------------------------------------------------------------
 
-%module fsundials_types
+%module fsunlinsol_klu_mod
 
-%include "../sundials/fsundials.i"
-%include <stdint.i>
+// include code common to all nvector implementations
+%include "fsunlinsol.i"
 
-// Inform SWIG of the configure-provided types
-#define SUNDIALS_INT64_T
-#define SUNDIALS_INDEX_TYPE int64_t
-#define SUNDIALS_DOUBLE_PRECISION
-#define booleantype bool
-
-// Insert code into the C wrapper to check that the sizes match
-%{
-#include "sundials/sundials.h"
-
-#ifndef SUNDIALS_DOUBLE_PRECISION
-#error "The Fortran bindings are only targeted at double-precision"
-#endif
-const char _your_int_size_is_wrong = ""[sizeof(SUNDIALS_INDEX_TYPE) != 8 ? -1 : 0];
-%}
+// sunlinsol_impl macro defines some ignore and inserts with the linear solver name appended
+%sunlinsol_impl(KLU)
 
 // Process and wrap functions in the following files
-%include "sundials/sundials_types.h"
+%include "sunlinsol/sunlinsol_klu.h"
 

@@ -22,7 +22,7 @@ GENERIC=sundials/fsundials_types.i sundials/fnvector_mod.i sundials/fsunmatrix_m
 				sundials/fsunnonlinsol_mod.i
 NVECTOR=openmp pthreads serial
 SUNMATRIX=band dense sparse
-SUNLINSOL=band dense spbcgs spfgmr spgmr sptfqmr pcg
+SUNLINSOL=band dense klu spbcgs spfgmr spgmr sptfqmr pcg
 SUNNONLINSOL=newton fixedpoint
 
 .PHONY: generic arkode cvode ida kinsol nvector sunmatrix sunlinsol sunnonlinsol

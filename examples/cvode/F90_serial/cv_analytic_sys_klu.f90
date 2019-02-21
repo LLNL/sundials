@@ -142,25 +142,31 @@ contains
     type(c_ptr), value    :: tmp1, tmp2, tmp3 ! workspace N_Vectors
 
     ! pointer to data in SUNDAILS matrix
-    real(c_double),  pointer :: Jmat(:)
+    type(c_ptr)              :: cptr
     integer(c_long), pointer :: Jidxptr(:)
     integer(c_long), pointer :: Jidxval(:)
+    real(c_double),  pointer :: Jmat(:,:)
 
     !======= Internals ============
 
+    cptr = FSUNSparseMatrix_IndexPointers(sunmat_J)
+    call c_f_pointer(cptr, Jidxptr, (/neq/))
+    cptr = FSUNSparseMatrix_IndexValues(sunmat_J)
+    call c_f_pointer(cptr, Jidxval, (/neq/))
+
     ! get data arrays from SUNDIALS vectors
-    call FSUNMatGetData_Sparse(sunmat_J, Jmat, Jidxval, Jidxptr)
+    call FSUNMatGetData_Sparse(sunmat_J, Jmat)
 
     ! fill J matrix (column major ordering)
-    Jmat(1) = lamda/4.d0 - 23.d0/40.d0
-    Jmat(2) = lamda/4.d0 + 21.d0/40.d0
-    Jmat(3) = lamda/2.d0 + 1.d0/20.d0
-    Jmat(4) = lamda/4.d0 - 3.d0/40.d0
-    Jmat(5) = lamda/4.d0 + 1.d0/40.d0
-    Jmat(6) = lamda/2.d0 + 1.d0/20.d0
-    Jmat(7) = lamda/4.d0 + 13.d0/40.d0
-    Jmat(8) = lamda/4.d0 - 11.d0/40.d0
-    Jmat(9) = lamda/2.d0 - 1.d0/20.d0
+    Jmat(1,1) = lamda/4.d0 - 23.d0/40.d0
+    Jmat(2,1) = lamda/4.d0 + 21.d0/40.d0
+    Jmat(3,1) = lamda/2.d0 + 1.d0/20.d0
+    Jmat(1,2) = lamda/4.d0 - 3.d0/40.d0
+    Jmat(2,2) = lamda/4.d0 + 1.d0/40.d0
+    Jmat(3,2) = lamda/2.d0 + 1.d0/20.d0
+    Jmat(1,3) = lamda/4.d0 + 13.d0/40.d0
+    Jmat(2,3) = lamda/4.d0 - 11.d0/40.d0
+    Jmat(3,3) = lamda/2.d0 - 1.d0/20.d0
 
     Jidxptr(1) = 0
     Jidxptr(2) = 3
@@ -311,7 +317,6 @@ program main
 
   ! clean up
   call FCVodeFree(cvode_mem)
-  ierr = FSUNLinSolFree_Dense(sunlinsol_LS)
   call FSUNMatDestroy_Sparse(sunmat_A)
   call FN_VDestroy_Serial(sunvec_y)
 

@@ -42,6 +42,9 @@
 // Don't use value attribute on void**
 %typemap(bindc,in="type(C_PTR)") void** "type(C_PTR)"
 
+// Inform SWIG of the SUNDIALS_EXPORT macro
+#define SUNDIALS_EXPORT
+
 %insert(fbegin)
 %{
 ! ---------------------------------------------------------------
