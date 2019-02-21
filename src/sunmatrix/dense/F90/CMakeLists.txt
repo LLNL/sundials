@@ -16,18 +16,20 @@
 set(sunmatrixdense_SOURCES fsunmatrix_dense_mod.f90)
 
 if(BUILD_STATIC_LIBS)
-  sundials_add_f2003_interface_library(sundials_fsunmatrixdense_mod_static STATIC
+  sundials_add_f2003_interface_library(sundials_fsunmatrixdense_mod_static STATIC_OBJECT
     ${sunmatrixdense_SOURCES}
   )
+  add_dependencies(sundials_fsunmatrixdense_mod_static_obj sundials_fgeneric_static_obj)
   set_target_properties(sundials_fsunmatrixdense_mod_static
     PROPERTIES OUTPUT_NAME sundials_fsunmatrixdense_mod CLEAN_DIRECT_OUTPUT 1)
   install(TARGETS sundials_fsunmatrixdense_mod_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif(BUILD_STATIC_LIBS)
 
 if(BUILD_SHARED_LIBS)
-  sundials_add_f2003_interface_library(sundials_fsunmatrixdense_mod_shared SHARED
+  sundials_add_f2003_interface_library(sundials_fsunmatrixdense_mod_shared SHARED_OBJECT
     ${sunmatrixdense_SOURCES}
   )
+  add_dependencies(sundials_fsunmatrixdense_mod_shared_obj sundials_fgeneric_shared_obj)
   set_target_properties(sundials_fsunmatrixdense_mod_shared
     PROPERTIES OUTPUT_NAME sundials_fsunmatrixdense_mod CLEAN_DIRECT_OUTPUT 1)
   set_target_properties(sundials_fsunmatrixdense_mod_shared

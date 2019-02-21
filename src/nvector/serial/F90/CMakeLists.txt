@@ -16,22 +16,24 @@
 set(nvecserial_SOURCES fnvector_serial_mod.f90)
 
 if(BUILD_STATIC_LIBS)
-  sundials_add_f2003_interface_library(sundials_fnvecserial_mod_static STATIC
-    ${nvecserial_SOURCES}
-  )
-  set_target_properties(sundials_fnvecserial_mod_static
-    PROPERTIES OUTPUT_NAME sundials_fnvecserial_mod CLEAN_DIRECT_OUTPUT 1)
+  sundials_add_f2003_interface_library(sundials_fnvecserial_mod_static STATIC_OBJECT
+                                       ${nvecserial_SOURCES})
+  add_dependencies(sundials_fnvecserial_mod_static_obj sundials_fgeneric_static_obj)
+  set_target_properties(sundials_fnvecserial_mod_static PROPERTIES
+                        OUTPUT_NAME sundials_fnvecserial_mod
+                        CLEAN_DIRECT_OUTPUT 1)
   install(TARGETS sundials_fnvecserial_mod_static DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif(BUILD_STATIC_LIBS)
 
 if(BUILD_SHARED_LIBS)
-  sundials_add_f2003_interface_library(sundials_fnvecserial_mod_shared SHARED
-    ${nvecserial_SOURCES}
-  )
-  set_target_properties(sundials_fnvecserial_mod_shared
-    PROPERTIES OUTPUT_NAME sundials_fnvecserial_mod CLEAN_DIRECT_OUTPUT 1)
-  set_target_properties(sundials_fnvecserial_mod_shared
-    PROPERTIES VERSION ${nveclib_VERSION} SOVERSION ${nveclib_SOVERSION})
+  sundials_add_f2003_interface_library(sundials_fnvecserial_mod_shared SHARED_OBJECT
+                                       ${nvecserial_SOURCES})
+  add_dependencies(sundials_fnvecserial_mod_shared_obj sundials_fgeneric_shared_obj)
+  set_target_properties(sundials_fnvecserial_mod_shared PROPERTIES
+                        OUTPUT_NAME sundials_fnvecserial_mod
+                        CLEAN_DIRECT_OUTPUT 1
+                        VERSION ${nveclib_VERSION}
+                        SOVERSION ${nveclib_SOVERSION})
   install(TARGETS sundials_fnvecserial_mod_shared DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif(BUILD_SHARED_LIBS)
 

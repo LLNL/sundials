@@ -369,8 +369,6 @@ $tar $tarfile $distrobase/src/sunnonlinsol/fixedpoint/F90/fsunnonlinsol_fixedpoi
 # $tar $tarfile $distrobase/src/sunnonlinsol/fullnewton/sunnonlinsol_fullnewton.c
 # $tar $tarfile $distrobase/src/sunnonlinsol/fullnewton/fsunnonlinsol_fullnewton.h
 # $tar $tarfile $distrobase/src/sunnonlinsol/fullnewton/fsunnonlinsol_fullnewton.c
-# $tar $tarfile $distrobase/src/sunnonlinsol/fullnewton/F90/CMakeLists.txt
-# $tar $tarfile $distrobase/src/sunnonlinsol/fullnewton/F90/fsunnonlinsol_fullnewton.f90
 
 echo "   --- Add examples to $tarfile"
 

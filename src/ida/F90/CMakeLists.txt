@@ -16,7 +16,7 @@
 set(ida_SOURCES fida_mod.f90)
 
 if(BUILD_STATIC_LIBS)
-  sundials_add_f2003_interface_library(sundials_fida_mod_static STATIC NO_OBJECT_LIBRARY
+  sundials_add_f2003_interface_library(sundials_fida_mod_static STATIC 
     ${ida_SOURCES}
     $<TARGET_OBJECTS:sundials_fnvecserial_mod_static_obj>
     $<TARGET_OBJECTS:sundials_fsunmatrixband_mod_static_obj>
@@ -54,7 +54,7 @@ if(BUILD_STATIC_LIBS)
 endif()
 
 if(BUILD_SHARED_LIBS)
-  sundials_add_f2003_interface_library(sundials_fida_mod_shared SHARED NO_OBJECT_LIBRARY
+  sundials_add_f2003_interface_library(sundials_fida_mod_shared SHARED 
     ${ida_SOURCES}
     $<TARGET_OBJECTS:sundials_fnvecserial_mod_shared_obj>
     $<TARGET_OBJECTS:sundials_fsunmatrixband_mod_shared_obj>
