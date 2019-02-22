@@ -51,6 +51,11 @@ $tar $tarfile $distrobase/src/kinsol/fcmix/fkinsol.c
 $tar $tarfile $distrobase/src/kinsol/fcmix/fkinsol.h
 $tar $tarfile $distrobase/src/kinsol/fcmix/fkinsparse.c
 
+echo "   --- Add kinsol F2003 interface to $tarfile"
+
+$tar $tarfile $distrobase/src/kinsol/F90/CMakeLists.txt
+$tar $tarfile $distrobase/src/kinsol/F90/fkinsol_mod.f90
+
 echo "   --- Add kinsol examples to $tarfile"
 
 $tar $tarfile $distrobase/examples/kinsol/CMakeLists.txt
