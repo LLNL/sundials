@@ -28,7 +28,6 @@
 #include <sundials/sundials_linearsolver.h>
 #include <sundials/sundials_matrix.h>
 #include <sundials/sundials_nvector.h>
-#include <sundials/sundials_pcg.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
