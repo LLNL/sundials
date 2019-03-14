@@ -17,7 +17,7 @@ INSTALL(CODE "MESSAGE(\"\nInstall NVECTOR_OPENMP\n\")")
 
 # Add F90 module if F2003 interface is enabled
 IF(F90_FOUND AND F2003_INTERFACE_ENABLE)
-  ADD_SUBDIRECTORY(F90)
+  ADD_SUBDIRECTORY(fmod)
 ENDIF(F90_FOUND AND F2003_INTERFACE_ENABLE)
 
 # Add variable nvecopenmp_SOURCES with the sources for the NVECOPENMP lib

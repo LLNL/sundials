@@ -66,8 +66,8 @@ $tar $tarfile $distrobase/src/cvode/fcmix/fcvsparse.c
 
 echo "   --- Add cvode F2003 interface to $tarfile"
 
-$tar $tarfile $distrobase/src/cvode/F90/CMakeLists.txt
-$tar $tarfile $distrobase/src/cvode/F90/fcvode_mod.f90
+$tar $tarfile $distrobase/src/cvode/fmod/CMakeLists.txt
+$tar $tarfile $distrobase/src/cvode/fmod/fcvode_mod.f90
 
 echo "   --- Add cvode examples to $tarfile"
 

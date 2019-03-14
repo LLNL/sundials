@@ -61,8 +61,8 @@ $tar $tarfile $distrobase/src/ida/fcmix/fidasparse.c
 
 echo "   --- Add ida F2003 interface to $tarfile"
 
-$tar $tarfile $distrobase/src/ida/F90/CMakeLists.txt
-$tar $tarfile $distrobase/src/ida/F90/fida_mod.f90
+$tar $tarfile $distrobase/src/ida/fmod/CMakeLists.txt
+$tar $tarfile $distrobase/src/ida/fmod/fida_mod.f90
 
 echo "   --- Add ida examples to $tarfile"
 

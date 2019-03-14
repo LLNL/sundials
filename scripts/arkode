@@ -90,11 +90,11 @@ $tar $tarfile $distrobase/src/arkode/fcmix/farksparsemass.c
 
 echo "   --- Add arkode F2003 interface to $tarfile"
 
-$tar $tarfile $distrobase/src/arkode/F90/CMakeLists.txt
-$tar $tarfile $distrobase/src/arkode/F90/farkode_mod.f90
-$tar $tarfile $distrobase/src/arkode/F90/farkode_arkstep_mod.f90
-$tar $tarfile $distrobase/src/arkode/F90/farkode_erkstep_mod.f90
-$tar $tarfile $distrobase/src/arkode/F90/farkode_mristep_mod.f90
+$tar $tarfile $distrobase/src/arkode/fmod/CMakeLists.txt
+$tar $tarfile $distrobase/src/arkode/fmod/farkode_mod.f90
+$tar $tarfile $distrobase/src/arkode/fmod/farkode_arkstep_mod.f90
+$tar $tarfile $distrobase/src/arkode/fmod/farkode_erkstep_mod.f90
+$tar $tarfile $distrobase/src/arkode/fmod/farkode_mristep_mod.f90
 
 echo "   --- Add arkode examples to $tarfile"
 

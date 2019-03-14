@@ -18,7 +18,7 @@ install(CODE "MESSAGE(\"\nInstall SUNNONLINSOL_FIXEDPOINT\n\")")
 
 # Add F90 module if F2003 interface is enabled
 if(F90_FOUND AND F2003_INTERFACE_ENABLE)
-  add_subdirectory(F90)
+  add_subdirectory(fmod)
 endif(F90_FOUND AND F2003_INTERFACE_ENABLE)
 
 # Add variable with the sources for the library

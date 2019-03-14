@@ -17,7 +17,7 @@ INSTALL(CODE "MESSAGE(\"\nInstall SUNLINSOL_DENSE\n\")")
 
 # Add F90 module if F2003 interface is enabled
 IF(F90_FOUND AND F2003_INTERFACE_ENABLE)
-  ADD_SUBDIRECTORY(F90)
+  ADD_SUBDIRECTORY(fmod)
 ENDIF(F90_FOUND AND F2003_INTERFACE_ENABLE)
 
 # Add variable sunlinsoldense_SOURCES with the sources for the SUNLINSOLDENSE lib
