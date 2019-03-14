@@ -13,10 +13,15 @@
 # ---------------------------------------------------------------
 # CMakeLists.txt file for the F2003 ARKODE object library
 
-set(arkode_SOURCES farkode_mod.f90)
+set(arkode_SOURCES
+    farkode_mod.f90
+    farkode_butcher_mod.f90
+    farkode_arkstep_mod.f90
+    farkode_erkstep_mod.f90
+    farkode_mristep_mod.f90)
 
 if(BUILD_STATIC_LIBS)
-  sundials_add_f2003_interface_library(sundials_farkode_mod_static STATIC 
+  sundials_add_f2003_interface_library(sundials_farkode_mod_static STATIC
     ${arkode_SOURCES}
     $<TARGET_OBJECTS:sundials_fnvecserial_mod_static_obj>
     $<TARGET_OBJECTS:sundials_fsunmatrixband_mod_static_obj>
@@ -54,7 +59,7 @@ if(BUILD_STATIC_LIBS)
 endif()
 
 if(BUILD_SHARED_LIBS)
-  sundials_add_f2003_interface_library(sundials_farkode_mod_shared SHARED 
+  sundials_add_f2003_interface_library(sundials_farkode_mod_shared SHARED
     ${arkode_SOURCES}
     $<TARGET_OBJECTS:sundials_fnvecserial_mod_shared_obj>
     $<TARGET_OBJECTS:sundials_fsunmatrixband_mod_shared_obj>

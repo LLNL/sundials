@@ -450,7 +450,7 @@ type(C_PTR), value :: arkode_mem
 integer(C_INT), value :: imethod
 integer(C_INT), value :: idefault
 integer(C_INT), value :: pq
-real(C_DOUBLE) :: adapt_params
+type(C_PTR) :: adapt_params
 integer(C_INT) :: fresult
 end function
 

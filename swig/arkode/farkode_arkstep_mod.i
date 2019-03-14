@@ -21,6 +21,9 @@
 // Load the typedefs and generate a "use" statements in the module
 %import "farkode_mod.i"
 
+// adapt_params is a nullable array
+%typemap(bindc, in="type(C_PTR)") realtype* adapt_params "type(C_PTR)"
+
 // Process definitions from these files
 %include "arkode/arkode_arkstep.h"
 
