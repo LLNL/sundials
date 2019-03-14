@@ -41,7 +41,7 @@ if(F77_INTERFACE_ENABLE AND EXAMPLES_ENABLE_F77 AND F77_FOUND)
 endif()
 
 if(F2003_INTERFACE_ENABLE AND EXAMPLES_ENABLE_F90 AND F90_FOUND)
-  add_subdirectory(F90_serial)
+  add_subdirectory(fmod_serial)
 endif()
 
 # cuda examples

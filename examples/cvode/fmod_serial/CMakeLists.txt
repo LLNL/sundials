@@ -19,10 +19,10 @@
 
 # Examples using SUNDIALS linear solvers
 set(FCVODE_examples
-  "cv_analytic_fp\;develop"
-  "cv_analytic_sys_dns\;develop"
-  "cv_analytic_sys_dns_jac\;develop"
-  "cv_brusselator_dns\;develop"
+  "fmod_cv_analytic_fp\;develop"
+  "fmod_cv_analytic_sys_dns\;develop"
+  "fmod_cv_analytic_sys_dns_jac\;develop"
+  "fmod_cv_brusselator_dns\;develop"
   )
 
 # Examples using LAPACK linear solvers
@@ -34,7 +34,7 @@ set(FCVODE_examples_BL
 if(SUNDIALS_INDEX_SIZE MATCHES "64")
   # Examples using KLU linear solver
   set(FCVODE_examples_KLU
-    "cv_analytic_sys_klu\;develop"
+    "fmod_cv_analytic_sys_klu\;develop"
     )
 endif()
 

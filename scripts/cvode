@@ -125,18 +125,18 @@ $tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvRoberts_klu.out
 $tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvRoberts_sps.f
 $tar $tarfile $distrobase/examples/cvode/fcmix_serial/fcvRoberts_sps.out
 
-$tar $tarfile $distrobase/examples/cvode/F90_serial/README
-$tar $tarfile $distrobase/examples/cvode/F90_serial/CMakeLists.txt
-$tar $tarfile $distrobase/examples/cvode/F90_serial/cv_analytic_fp.f90
-$tar $tarfile $distrobase/examples/cvode/F90_serial/cv_analytic_fp.out
-$tar $tarfile $distrobase/examples/cvode/F90_serial/cv_analytic_sys_dns.f90
-$tar $tarfile $distrobase/examples/cvode/F90_serial/cv_analytic_sys_dns.out
-$tar $tarfile $distrobase/examples/cvode/F90_serial/cv_analytic_sys_dns_jac.f90
-$tar $tarfile $distrobase/examples/cvode/F90_serial/cv_analytic_sys_dns_jac.out
-$tar $tarfile $distrobase/examples/cvode/F90_serial/cv_analytic_sys_klu.f90
-$tar $tarfile $distrobase/examples/cvode/F90_serial/cv_analytic_sys_klu.out
-$tar $tarfile $distrobase/examples/cvode/F90_serial/cv_brusselator_dns.f90
-$tar $tarfile $distrobase/examples/cvode/F90_serial/cv_brusselator_dns.out
+$tar $tarfile $distrobase/examples/cvode/fmod_serial/README
+$tar $tarfile $distrobase/examples/cvode/fmod_serial/CMakeLists.txt
+$tar $tarfile $distrobase/examples/cvode/fmod_serial/fmod_cv_analytic_fp.f90
+$tar $tarfile $distrobase/examples/cvode/fmod_serial/fmod_cv_analytic_fp.out
+$tar $tarfile $distrobase/examples/cvode/fmod_serial/fmod_cv_analytic_sys_dns.f90
+$tar $tarfile $distrobase/examples/cvode/fmod_serial/fmod_cv_analytic_sys_dns.out
+$tar $tarfile $distrobase/examples/cvode/fmod_serial/fmod_cv_analytic_sys_dns_jac.f90
+$tar $tarfile $distrobase/examples/cvode/fmod_serial/fmod_cv_analytic_sys_dns_jac.out
+$tar $tarfile $distrobase/examples/cvode/fmod_serial/fmod_cv_analytic_sys_klu.f90
+$tar $tarfile $distrobase/examples/cvode/fmod_serial/fmod_cv_analytic_sys_klu.out
+$tar $tarfile $distrobase/examples/cvode/fmod_serial/fmod_cv_brusselator_dns.f90
+$tar $tarfile $distrobase/examples/cvode/fmod_serial/fmod_cv_brusselator_dns.out
 
 $tar $tarfile $distrobase/examples/cvode/C_openmp/README
 $tar $tarfile $distrobase/examples/cvode/C_openmp/CMakeLists.txt
