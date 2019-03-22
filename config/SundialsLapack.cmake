@@ -19,16 +19,8 @@ SET(LAPACK_FOUND FALSE)
 # a working Fortran compiler) or look for them in the most
 # obvious place...
 if(NOT LAPACK_LIBRARIES)
-  if(F77_FOUND)
-    include(FindLAPACK)
-  else(F77_FOUND)
-    find_library(LAPACK_LIBRARIES
-      NAMES lapack
-      PATHS /usr/lib /usr/local/lib
-      "$ENV{ProgramFiles}/LAPACK/Lib"
-      )
-  endif(F77_FOUND)
-
+  find_package (LAPACK)
+ 
   # If the xSDK flag is used, set it to what was found
   if(LAPACK_LIBRARIES AND TPL_ENABLE_LAPACK)
     SET(DOCSTR "Lapack library")
