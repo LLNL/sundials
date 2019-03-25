@@ -24,20 +24,20 @@
  *       realtype array.
  * -----------------------------------------------------------------*/
 
-#include <sundials/sundials_nvector.h>
-#include <sundials/sundials_types.h>
-#include <sundials/sundials_math.h>
-
 #include <stdio.h>
 #include <stdlib.h>
-
-#include "test_nvector.h"
 
 /* POSIX timers */
 #if defined(SUNDIALS_HAVE_POSIX_TIMERS)
 #include <time.h>
 #include <unistd.h>
 #endif
+
+#include <sundials/sundials_nvector.h>
+#include <sundials/sundials_types.h>
+#include <sundials/sundials_math.h>
+
+#include "test_nvector.h"
 
 /* private functions */
 static double get_time();
@@ -235,7 +235,7 @@ int Test_N_VCloneEmpty(N_Vector W, int myid)
 
   if (myid == 0)
     printf("PASSED test -- N_VCloneEmpty \n");
-  
+
   /* find max time across all processes */
   maxt = max_time(W, stop_time - start_time);
   PRINT_TIME("N_VCloneEmpty", maxt);
@@ -390,6 +390,85 @@ int Test_N_VSetArrayPointer(N_Vector W, sunindextype local_length, int myid)
   maxt = max_time(W, stop_time - start_time);
   PRINT_TIME("N_VSetArrayPointer", maxt);
 
+  return(0);
+}
+
+
+/* ----------------------------------------------------------------------
+ * Test_N_VGetLength Test
+ *
+ * NOTE: This routine depends on N_VConst and N_VDotProd.  It also
+ * modifies the values inside the input vector W.
+ * --------------------------------------------------------------------*/
+int Test_N_VGetLength(N_Vector W, int myid)
+{
+  sunindextype Wlength, Wlength2;
+
+  /* ask W for it's overall length */
+  Wlength = N_VGetLength(W);
+
+  /* use N_VConst and N_VDotProd to compute length */
+  N_VConst(RCONST(1.0), W);
+  Wlength2 = (sunindextype) N_VDotProd(W, W);
+  sync_device();
+
+  /* return error if lengths disagree */
+  if (Wlength != Wlength2) {
+    printf(">>> FAILED test -- N_VGetLength, Proc %d (%li != %li)\n", myid,
+           (long int) Wlength, (long int) Wlength2);
+    return(1);
+  }
+  if (myid == 0)
+    printf("PASSED test -- N_VGetLength\n");
+  return(0);
+}
+
+
+/* ----------------------------------------------------------------------
+ * Test_N_VGetCommunicator Test
+ *
+ * NOTE: This routine depends on SUNMPI_Comm_compare.  The input "comm"
+ * should be a memory reference to the MPI communicator used to
+ * construct W (or NULL if W is MPI-unaware).
+ * --------------------------------------------------------------------*/
+int Test_N_VGetCommunicator(N_Vector W, SUNMPI_Comm *comm, int myid)
+{
+  void* vcomm;
+  SUNMPI_Comm* Wcomm;
+  int same;
+
+  /* ask W for its communicator */
+  vcomm = NULL;
+  vcomm = N_VGetCommunicator(W);
+
+  /* return with success if both are NULL */
+  if ((vcomm == NULL) && (comm == NULL))  {
+    printf("PASSED test -- N_VGetCommunicator\n");
+    return(0);
+  }
+
+  /* return with failure if either is NULL */
+  if (vcomm == NULL) {
+    printf(">>> FAILED test -- N_VGetCommunicator, Proc %d (incorrectly reports NULL comm)\n", myid);
+    return(1);
+  }
+  if (comm == NULL) {
+    printf(">>> FAILED test -- N_VGetCommunicator, Proc %d (incorrectly reports non-NULL comm)\n", myid);
+    return(1);
+  }
+
+  /* call SUNMPI_Comm_compare to check that communicators match or are congruent */
+  Wcomm = (SUNMPI_Comm *) vcomm;
+  if (SUNMPI_Comm_compare(*comm, *Wcomm, &same) != SUNMPI_SUCCESS) {
+    printf(">>> FAILED test -- N_VGetCommunicator, Proc %d (error in SUNMPI_Comm_compare)\n", myid);
+    return(1);
+  }
+  if ((same != SUNMPI_IDENT) && (same != SUNMPI_CONGRUENT)) {
+    printf(">>> FAILED test -- N_VGetCommunicator, Proc %d (mismatched comms)\n", myid);
+    return(1);
+  }
+  if (myid == 0)
+    printf("PASSED test -- N_VGetCommunicator\n");
   return(0);
 }
 
@@ -1602,7 +1681,7 @@ int Test_N_VInvTest(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
   booleantype  test;
 
   if (local_length < 2) {
-    printf("Error Test_N_VCompare: Local vector length is %ld, length must be >= 2\n",
+    printf("Error Test_N_VInvTest: Local vector length is %ld, length must be >= 2\n",
            (long int) local_length);
     return(1);
   }
@@ -1696,7 +1775,7 @@ int Test_N_VConstrMask(N_Vector C, N_Vector X, N_Vector M,
   booleantype  test;
 
   if (local_length < 7) {
-    printf("Error Test_N_VCompare: Local vector length is %ld, length must be >= 7\n",
+    printf("Error Test_N_VConstrMask: Local vector length is %ld, length must be >= 7\n",
            (long int) local_length);
     return(1);
   }
@@ -2208,7 +2287,7 @@ int Test_N_VLinearCombination(N_Vector X, sunindextype local_length, int myid)
 
 
 /* ----------------------------------------------------------------------
- * N_VScaleaddmulti Test
+ * N_VScaleAddMulti Test
  * --------------------------------------------------------------------*/
 int Test_N_VScaleAddMulti(N_Vector X, sunindextype local_length, int myid)
 {
@@ -4594,6 +4673,564 @@ int Test_N_VLinearCombinationVectorArray(N_Vector V, sunindextype local_length, 
   N_VDestroyVectorArray(X[0], 3);
   N_VDestroyVectorArray(X[1], 3);
   N_VDestroyVectorArray(X[2], 3);
+
+  return(fails);
+}
+
+
+/* ----------------------------------------------------------------------
+ * N_VDotProdLocal test
+ * --------------------------------------------------------------------*/
+int Test_N_VDotProdLocal(N_Vector X, N_Vector Y, sunindextype local_length, int myid)
+{
+  int      fails = 0, failure = 0;
+  double   start_time, stop_time, maxt;
+  realtype ans, rmyid, locleninv;
+
+  /* fill vector data */
+  rmyid = (realtype) myid;
+  locleninv = ONE/local_length;
+  set_element_range(X, 0, local_length-1, rmyid);
+  set_element_range(Y, 0, local_length-1, locleninv);
+
+  start_time = get_time();
+  ans = N_VDotProdLocal(X,Y);
+  sync_device();
+  stop_time = get_time();
+
+  /* ans should equal rmyid */
+  failure = FNEQTOL(ans, rmyid, SUNRsqrt(UNIT_ROUNDOFF));
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VDotProdLocal, Proc %d\n", myid);
+    fails++;
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VDotProdLocal\n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(X, stop_time - start_time);
+  PRINT_TIME("N_VDotProdLocal", maxt);
+
+  return(fails);
+}
+
+
+/* ----------------------------------------------------------------------
+ * N_VMaxNormLocal test
+ * --------------------------------------------------------------------*/
+int Test_N_VMaxNormLocal(N_Vector X, sunindextype local_length, int myid)
+{
+  int      fails = 0, failure = 0;
+  double   start_time, stop_time, maxt;
+  realtype ans, myidp1;
+
+  /* fill vector data */
+  myidp1 = (realtype) (myid+1);
+  N_VConst(NEG_HALF, X);
+  set_element(X, local_length-1, -myidp1);
+
+  start_time = get_time();
+  ans = N_VMaxNormLocal(X);
+  sync_device();
+  stop_time = get_time();
+
+  /* ans should equal myidp1 */
+  failure = (ans < ZERO) ? 1 : FNEQTOL(ans, myidp1, SUNRsqrt(UNIT_ROUNDOFF));
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VMaxNormLocal, Proc %d\n", myid);
+    fails++;
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VMaxNormLocal\n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(X, stop_time - start_time);
+  PRINT_TIME("N_VMaxNormLocal", maxt);
+
+  return(fails);
+}
+
+
+/* ----------------------------------------------------------------------
+ * N_VMinLocal test
+ * --------------------------------------------------------------------*/
+int Test_N_VMinLocal(N_Vector X, sunindextype local_length, int myid)
+{
+  int      fails = 0, failure = 0;
+  double   start_time, stop_time, maxt;
+  realtype ans, negmyid;
+
+  /* fill vector data */
+  negmyid = (realtype) -myid;
+  N_VConst(TWO, X);
+  set_element(X, local_length-1, negmyid);
+
+  start_time = get_time();
+  ans = N_VMinLocal(X);
+  sync_device();
+  stop_time = get_time();
+
+  /* ans should equal negmyid */
+  failure = FNEQTOL(ans, negmyid, SUNRsqrt(UNIT_ROUNDOFF));
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VMinLocal, Proc %d\n", myid);
+    fails++;
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VMinLocal\n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(X, stop_time - start_time);
+  PRINT_TIME("N_VMinLocal", maxt);
+
+  return(fails);
+}
+
+
+/* ----------------------------------------------------------------------
+ * N_VL1NormLocal test
+ * --------------------------------------------------------------------*/
+int Test_N_VL1NormLocal(N_Vector X, sunindextype local_length, int myid)
+{
+  int      fails = 0, failure = 0;
+  double   start_time, stop_time, maxt;
+  realtype ans, val;
+
+  /* fill vector data */
+  val = -(ONE*myid)/local_length;
+  set_element_range(X, 0, local_length-1, val);
+
+  start_time = get_time();
+  ans = N_VL1NormLocal(X);
+  sync_device();
+  stop_time = get_time();
+
+  /* ans should equal myid */
+  failure = (ans < ZERO) ? 1 : FNEQTOL(ans, myid, SUNRsqrt(UNIT_ROUNDOFF));
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VL1NormLocal, Proc %d\n", myid);
+    fails++;
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VL1NormLocal\n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(X, stop_time - start_time);
+  PRINT_TIME("N_VL1NormLocal", maxt);
+
+  return(fails);
+}
+
+
+/* ----------------------------------------------------------------------
+ * N_VWSqrSumLocal test
+ * --------------------------------------------------------------------*/
+int Test_N_VWSqrSumLocal(N_Vector X, N_Vector W, sunindextype local_length, int myid)
+{
+  int      fails = 0, failure = 0;
+  double   start_time, stop_time, maxt;
+  realtype ans, xval, wval;
+
+  /* fill vector data */
+  xval = SUNRsqrt(myid);
+  wval = ONE/SUNRsqrt(local_length);
+  set_element_range(X, 0, local_length-1, xval);
+  set_element_range(W, 0, local_length-1, wval);
+
+  start_time = get_time();
+  ans = N_VWSqrSumLocal(X, W);
+  sync_device();
+  stop_time = get_time();
+
+  /* ans should equal myid */
+  failure = (ans < ZERO) ? 1 : FNEQTOL(ans, myid, SUNRsqrt(UNIT_ROUNDOFF));
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VWSqrSumLocal, Proc %d\n", myid);
+    fails++;
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VWSqrSumLocal\n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(X, stop_time - start_time);
+  PRINT_TIME("N_VWL2NormLocal", maxt);
+
+  return(fails);
+}
+
+
+/* ----------------------------------------------------------------------
+ * N_VWSqrSumMaskLocal test
+ * --------------------------------------------------------------------*/
+int Test_N_VWSqrSumMaskLocal(N_Vector X, N_Vector W, N_Vector ID,
+                             sunindextype local_length, int myid)
+{
+  int      fails = 0, failure = 0;
+  double   start_time, stop_time, maxt;
+  realtype ans, xval, wval;
+
+  /* fill vector data */
+  xval = SUNRsqrt(myid);
+  wval = ONE/SUNRsqrt(local_length-1);
+  set_element_range(X, 0, local_length-1, xval);
+  set_element_range(W, 0, local_length-1, wval);
+
+  /* use all elements except one */
+  N_VConst(ONE, ID);
+  set_element(ID, local_length-1, ZERO);
+
+  start_time = get_time();
+  ans = N_VWSqrSumMaskLocal(X, W, ID);
+  sync_device();
+  stop_time = get_time();
+
+  /* ans should equal myid */
+  failure = (ans < ZERO) ? 1 : FNEQTOL(ans, myid, SUNRsqrt(UNIT_ROUNDOFF));
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VWSqrSumMaskLocal, Proc %d\n", myid);
+    fails++;
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VWSqrSumMaskLocal\n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(X, stop_time - start_time);
+  PRINT_TIME("N_VWSqrSumMaskLocal", maxt);
+
+  return(fails);
+}
+
+
+/* ----------------------------------------------------------------------
+ * N_VInvTestLocal test
+ * --------------------------------------------------------------------*/
+int Test_N_VInvTestLocal(N_Vector X, N_Vector Z, sunindextype local_length, int myid)
+{
+  int          fails = 0, failure = 0;
+  double       start_time, stop_time, maxt;
+  realtype     xval;
+  sunindextype i;
+  booleantype  test;
+
+  if (local_length < 2) {
+    printf("Error Test_N_VInvTestLocal: Local vector length is %ld, length must be >= 2\n",
+           (long int) local_length);
+    return(1);
+  }
+
+  /*
+   * Case 1: All elements Nonzero, z[i] = 1/x[i], return True
+   */
+
+  /* fill vector data */
+  xval = ONE/(myid+2);
+  set_element_range(X, 0, local_length-1, xval);
+  N_VConst(ZERO, Z);
+
+  start_time = get_time();
+  test = N_VInvTestLocal(X, Z);
+  sync_device();
+  stop_time = get_time();
+
+  /* Z should be vector of myid+2 */
+  failure = check_ans(myid+2, Z, local_length);
+
+  if (failure || !test) {
+    printf(">>> FAILED test -- N_VInvTestLocal Case 1, Proc %d\n", myid);
+    fails++;
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VInvTestLocal Case 1\n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(X, stop_time - start_time);
+  PRINT_TIME("N_VInvTestLocal", maxt);
+
+  /*
+   * Case 2: Some elements Zero, z[i] = 1/x[i] for x[i] != 0, return False
+   */
+
+  /* reset failure */
+  failure = 0;
+
+  /* fill vector data */
+  N_VConst(ZERO, Z);
+  for (i=0; i < local_length; i++) {
+    if (i % 2)
+      set_element(X, i, HALF);
+    else
+      set_element(X, i, ZERO);
+  }
+
+  start_time = get_time();
+  test = N_VInvTestLocal(X, Z);
+  sync_device();
+  stop_time = get_time();
+
+  /* check return vector */
+  for (i=0; i < local_length; i++) {
+    if (i % 2) {
+      if (get_element(Z, i) != TWO)
+        failure = 1;
+    } else {
+      if (get_element(Z, i) != ZERO)
+        failure = 1;
+    }
+  }
+
+  if (failure || test) {
+    printf(">>> FAILED test -- N_VInvTestLocal Case 2, Proc %d\n", myid);
+    fails++;
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VInvTestLocal Case 2\n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(X, stop_time - start_time);
+  PRINT_TIME("N_VInvTestLocal", maxt);
+
+  return(fails);
+}
+
+
+/* ----------------------------------------------------------------------
+ * N_VConstrMaskLocal test
+ * --------------------------------------------------------------------*/
+int Test_N_VConstrMaskLocal(N_Vector C, N_Vector X, N_Vector M,
+                            sunindextype local_length, int myid)
+{
+  int          fails = 0, failure = 0;
+  double       start_time, stop_time, maxt;
+  sunindextype i;
+  booleantype  test;
+
+  if (local_length < 7) {
+    printf("Error Test_N_VConstrMaskLocal: Local vector length is %ld, length must be >= 7\n",
+           (long int) local_length);
+    return(1);
+  }
+
+  /*
+   * Case 1: Return True
+   */
+
+  /* fill vector data */
+  for (i=0; i < local_length; i++) {
+    set_element(M, i, NEG_ONE);
+
+    switch(i % 7) {
+    case 0 :
+      /* c = -2, test for < 0*/
+      set_element(C, i, NEG_TWO);
+      set_element(X, i, NEG_TWO);
+      break;
+
+    case 1 :
+      /* c = -1, test for <= 0 */
+      set_element(C, i, NEG_ONE);
+      set_element(X, i, NEG_ONE);
+      break;
+
+    case 2 :
+      /* c = -1, test for == 0 */
+      set_element(C, i, NEG_ONE);
+      set_element(X, i, ZERO);
+      break;
+
+    case 3 :
+      /* c = 0, no test */
+      set_element(C, i, ZERO);
+      set_element(X, i, HALF);
+      break;
+
+    case 4 :
+      /* c = 1, test for == 0*/
+      set_element(C, i, ONE);
+      set_element(X, i, ZERO);
+      break;
+
+    case 5 :
+      /* c = 1, test for >= 0*/
+      set_element(C, i, ONE);
+      set_element(X, i, ONE);
+      break;
+
+    case 6:
+      /* c = 2, test for > 0 */
+      set_element(C, i, TWO);
+      set_element(X, i, TWO);
+      break;
+    }
+  }
+
+  start_time = get_time();
+  test = N_VConstrMaskLocal(C, X, M);
+  sync_device();
+  stop_time = get_time();
+
+  /* M should be vector of 0 */
+  failure = check_ans(ZERO, M, local_length);
+
+  if (failure || !test) {
+    printf(">>> FAILED test -- N_VConstrMaskLocal Case 1, Proc %d \n", myid);
+    fails++;
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VConstrMaskLocal Case 1 \n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(X, stop_time - start_time);
+  PRINT_TIME("N_VConstrMaskLocal", maxt);
+
+  /*
+   * Case 2: Return False
+   */
+
+  /* reset failure */
+  failure = 0;
+
+  /* fill vector data */
+  for (i=0; i < local_length; i++) {
+    set_element(M, i, NEG_ONE);
+
+    switch(i % 5) {
+    case 0 :
+      /* c = -2, test for < 0*/
+      set_element(C, i, NEG_TWO);
+      set_element(X, i, TWO);
+      break;
+
+    case 1 :
+      /* c = -1, test for <= 0 */
+      set_element(C, i, NEG_ONE);
+      set_element(X, i, ONE);
+      break;
+
+    case 2 :
+      /* c = 0, no test */
+      set_element(C, i, ZERO);
+      set_element(X, i, HALF);
+      break;
+
+    case 3 :
+      /* c = 1, test for >= 0*/
+      set_element(C, i, ONE);
+      set_element(X, i, NEG_ONE);
+      break;
+
+    case 4 :
+      /* c = 2, test for > 0 */
+      set_element(C, i, TWO);
+      set_element(X, i, NEG_TWO);
+      break;
+    }
+  }
+
+  start_time = get_time();
+  test = N_VConstrMaskLocal(C, X, M);
+  sync_device();
+  stop_time = get_time();
+
+  /* check mask vector */
+  for (i=0; i < local_length; i++) {
+
+    if (i%5 == 2){
+      if (get_element(M, i) != ZERO)
+        failure = 1;
+    } else {
+      if (get_element(M, i) != ONE)
+        failure = 1;
+    }
+  }
+
+  if (failure || test) {
+    printf(">>> FAILED test -- N_VConstrMaskLocal Case 2, Proc %d \n", myid);
+    fails++;
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VConstrMaskLocal Case 2 \n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(X, stop_time - start_time);
+  PRINT_TIME("N_VConstrMaskLocal", maxt);
+
+  return(fails);
+}
+
+
+/* ----------------------------------------------------------------------
+ * N_VMinQuotientLocal test
+ * --------------------------------------------------------------------*/
+int Test_N_VMinQuotientLocal(N_Vector NUM, N_Vector DENOM,
+                             sunindextype local_length, int myid)
+{
+  int      fails = 0, failure = 0;
+  double   start_time, stop_time, maxt;
+  realtype ans;
+
+  /*
+   * Case 1: Pass
+   */
+
+  /* fill vector data */
+  set_element_range(NUM, 0, local_length-1, TWO*(myid+2));
+  N_VConst(TWO, DENOM);
+  set_element(NUM, local_length-1, TWO*myid);
+
+  start_time = get_time();
+  ans = N_VMinQuotientLocal(NUM, DENOM);
+  sync_device();
+  stop_time = get_time();
+
+  /* ans should equal myid */
+  failure = FNEQTOL(ans, myid, SUNRsqrt(UNIT_ROUNDOFF));
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VMinQuotientLocal Case 1, Proc %d \n", myid);
+    fails++;
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VMinQuotientLocal Case 1 \n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(NUM, stop_time - start_time);
+  PRINT_TIME("N_VMinQuotientLocal", maxt);
+
+  /*
+   * Case 2: Fail
+   */
+
+  /* reset failure */
+  failure = 0;
+
+  /* fill vector data */
+  N_VConst(TWO, NUM);
+  N_VConst(ZERO, DENOM);
+
+  start_time = get_time();
+  ans = N_VMinQuotientLocal(NUM, DENOM);
+  sync_device();
+  stop_time = get_time();
+
+  /* ans should equal BIG_REAL */
+  failure = FNEQTOL(ans, BIG_REAL, SUNRsqrt(UNIT_ROUNDOFF));
+
+  if (failure) {
+    printf(">>> FAILED test -- N_VMinQuotientLocal Case 2, Proc %d \n", myid);
+    fails++;
+  } else if (myid == 0) {
+    printf("PASSED test -- N_VMinQuotientLocal Case 2 \n");
+  }
+
+  /* find max time across all processes */
+  maxt = max_time(NUM, stop_time - start_time);
+  PRINT_TIME("N_VMinQuotientLocal", maxt);
 
   return(fails);
 }

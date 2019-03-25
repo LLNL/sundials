@@ -53,6 +53,11 @@ IF(BUILD_STATIC_LIBS)
   TARGET_LINK_LIBRARIES(sundials_nvectrilinos_static
     PUBLIC Trilinos::Trilinos)
 
+  # if Trilinos was not built for MPI, use the non-MPI version of the SUNMPI API
+  IF(NOT Trilinos_INTERFACE_MPI_CXX_FOUND)
+    TARGET_COMPILE_DEFINITIONS(sundials_nvectrilinos_static PRIVATE -DSUNDIALS_MPI_ENABLED=0)
+  ENDIF()
+
   SET_TARGET_PROPERTIES(sundials_nvectrilinos_static
     PROPERTIES OUTPUT_NAME sundials_nvectrilinos CLEAN_DIRECT_OUTPUT 1)
 
@@ -74,6 +79,11 @@ IF(BUILD_SHARED_LIBS)
 
   TARGET_LINK_LIBRARIES(sundials_nvectrilinos_shared
     PUBLIC Trilinos::Trilinos)
+
+  # if Trilinos was not built for MPI, use the non-MPI version of the SUNMPI API
+  IF(NOT Trilinos_INTERFACE_MPI_CXX_FOUND)
+    TARGET_COMPILE_DEFINITIONS(sundials_nvectrilinos_shared PRIVATE -DSUNDIALS_MPI_ENABLED=0)
+  ENDIF()
 
   SET_TARGET_PROPERTIES(sundials_nvectrilinos_shared
     PROPERTIES OUTPUT_NAME sundials_nvectrilinos CLEAN_DIRECT_OUTPUT 1)

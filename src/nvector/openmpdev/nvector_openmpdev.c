@@ -96,6 +96,8 @@ N_Vector N_VNewEmpty_OpenMPDEV(sunindextype length)
   ops->nvspace           = N_VSpace_OpenMPDEV;
   ops->nvgetarraypointer = NULL;
   ops->nvsetarraypointer = NULL;
+  ops->nvgetcommunicator = NULL;
+  ops->nvgetlength       = N_VGetLength_OpenMPDEV;
 
   /* standard vector operations */
   ops->nvlinearsum    = N_VLinearSum_OpenMPDEV;
@@ -132,6 +134,17 @@ N_Vector N_VNewEmpty_OpenMPDEV(sunindextype length)
   ops->nvscaleaddmultivectorarray     = NULL;
   ops->nvlinearcombinationvectorarray = NULL;
 
+  /* local reduction kernels */
+  ops->nvdotprodlocal     = N_VDotProd_OpenMPDEV;
+  ops->nvmaxnormlocal     = N_VMaxNorm_OpenMPDEV;
+  ops->nvminlocal         = N_VMin_OpenMPDEV;
+  ops->nvl1normlocal      = N_VL1Norm_OpenMPDEV;
+  ops->nvinvtestlocal     = N_VInvTest_OpenMPDEV;
+  ops->nvconstrmasklocal  = N_VConstrMask_OpenMPDEV;
+  ops->nvminquotientlocal = N_VMinQuotient_OpenMPDEV;
+  ops->nvwsqrsumlocal     = N_VWSqrSumLocal_OpenMPDEV;
+  ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_OpenMPDEV;
+  
   /* Create content */
   content = NULL;
   content = (N_VectorContent_OpenMPDEV) malloc(sizeof(struct _N_VectorContent_OpenMPDEV));
@@ -433,6 +446,8 @@ N_Vector N_VCloneEmpty_OpenMPDEV(N_Vector w)
   ops->nvspace           = w->ops->nvspace;
   ops->nvgetarraypointer = w->ops->nvgetarraypointer;
   ops->nvsetarraypointer = w->ops->nvsetarraypointer;
+  ops->nvgetcommunicator = w->ops->nvgetcommunicator;
+  ops->nvgetlength       = w->ops->nvgetlength;
 
   /* standard vector operations */
   ops->nvlinearsum    = w->ops->nvlinearsum;
@@ -469,6 +484,17 @@ N_Vector N_VCloneEmpty_OpenMPDEV(N_Vector w)
   ops->nvscaleaddmultivectorarray     = w->ops->nvscaleaddmultivectorarray;
   ops->nvlinearcombinationvectorarray = w->ops->nvlinearcombinationvectorarray;
 
+  /* local reduction kernels */
+  ops->nvdotprodlocal     = w->ops->nvdotprodlocal;
+  ops->nvmaxnormlocal     = w->ops->nvmaxnormlocal;
+  ops->nvminlocal         = w->ops->nvminlocal;
+  ops->nvl1normlocal      = w->ops->nvl1normlocal;
+  ops->nvinvtestlocal     = w->ops->nvinvtestlocal;
+  ops->nvconstrmasklocal  = w->ops->nvconstrmasklocal;
+  ops->nvminquotientlocal = w->ops->nvminquotientlocal;
+  ops->nvwsqrsumlocal     = w->ops->nvwsqrsumlocal;
+  ops->nvwsqrsummasklocal = w->ops->nvwsqrsummasklocal;
+  
   /* Create content */
   content = NULL;
   content = (N_VectorContent_OpenMPDEV) malloc(sizeof(struct _N_VectorContent_OpenMPDEV));
@@ -938,6 +964,26 @@ realtype N_VMaxNorm_OpenMPDEV(N_Vector x)
 
 realtype N_VWrmsNorm_OpenMPDEV(N_Vector x, N_Vector w)
 {
+  return(SUNRsqrt(N_VWSqrSumLocal_OpenMPDEV(x, w)/(NV_LENGTH_OMPDEV(x))));
+}
+
+
+/* ----------------------------------------------------------------------------
+ * Computes weighted root mean square norm of a masked vector
+ */
+
+realtype N_VWrmsNormMask_OpenMPDEV(N_Vector x, N_Vector w, N_Vector id)
+{
+  return(SUNRsqrt(N_VWSqrSumMaskLocal_OpenMPDEV(x, w, id) / (NV_LENGTH_OMPDEV(x))));
+}
+
+
+/* ----------------------------------------------------------------------------
+ * Computes weighted square sum of a vector
+ */
+
+realtype N_VWSqrSumLocal_OpenMPDEV(N_Vector x, N_Vector w)
+{
   sunindextype i, N;
   realtype sum, *xd_dev, *wd_dev;
   int dev;
@@ -958,15 +1004,15 @@ realtype N_VWrmsNorm_OpenMPDEV(N_Vector x, N_Vector w)
     sum += SUNSQR(xd_dev[i]*wd_dev[i]);
   }
 
-  return(SUNRsqrt(sum/N));
+  return(sum);
 }
 
 
 /* ----------------------------------------------------------------------------
- * Computes weighted root mean square norm of a masked vector
+ * Computes weighted square sum of a masked vector
  */
 
-realtype N_VWrmsNormMask_OpenMPDEV(N_Vector x, N_Vector w, N_Vector id)
+realtype N_VWSqrSumMaskLocal_OpenMPDEV(N_Vector x, N_Vector w, N_Vector id)
 {
   sunindextype i, N;
   realtype sum, *xd_dev, *wd_dev, *idd_dev;
@@ -991,7 +1037,7 @@ realtype N_VWrmsNormMask_OpenMPDEV(N_Vector x, N_Vector w, N_Vector id)
     }
   }
 
-  return(SUNRsqrt(sum / N));
+  return(sum);
 }
 
 

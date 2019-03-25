@@ -15,7 +15,7 @@
 
 INSTALL(CODE "MESSAGE(\"\nInstall NVECTOR_CUDA\n\")")
 
-# Add variable nveccuda_SOURCES with the sources for the NVECSERIAL lib
+# Add variable nveccuda_SOURCES with the sources for the NVECUDA lib
 SET(nveccuda_SOURCES nvector_cuda.cu)
 
 # Tell compiler it is a CUDA source
@@ -29,7 +29,7 @@ SET(shared_SOURCES
 )
 ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
 
-# Add variable nveccuda_HEADERS with the exported NVECSERIAL header files
+# Add variable nveccuda_HEADERS with the exported NVECUDA header files
 SET(nveccuda_HEADERS nvector_cuda.h)
 IF (MPI_ENABLE)
   LIST(APPEND nveccuda_HEADERS nvector_mpicuda.h)
@@ -45,7 +45,7 @@ ADD_DEFINITIONS(-DBUILD_SUNDIALS_LIBRARY)
 # Rules for building and installing the static library:
 #  - Add the build target for the NVECCUDA library
 #  - Set the library name and make sure it is not deleted
-#  - Install the NVECSERIAL library
+#  - Install the NVECUDA library
 IF(BUILD_STATIC_LIBS)
   # ----------------------- CUDA only
   # The FindCUDA module does not properly forward compile options using target_* commands.
@@ -69,10 +69,10 @@ IF(BUILD_STATIC_LIBS)
 ENDIF(BUILD_STATIC_LIBS)
 
 # Rules for building and installing the shared library:
-#  - Add the build target for the NVECSERIAL library
+#  - Add the build target for the NVECUDA library
 #  - Set the library name and make sure it is not deleted
 #  - Set VERSION and SOVERSION for shared libraries
-#  - Install the NVECSERIAL library
+#  - Install the NVECUDA library
 IF(BUILD_SHARED_LIBS)
   # ----------------------- CUDA only
   CUDA_ADD_LIBRARY(sundials_nveccuda_shared SHARED ${nveccuda_SOURCES} ${shared_SOURCES}

@@ -29,8 +29,8 @@ the overhead associated with creating and using the threads is made up
 by the parallelism in the vector calculations.
 
 The OpenMP NVECTOR implementation provided with SUNDIALS,
-NVECTOR_OPENMP, defines the *content* field of ``N_Vector`` to be a structure 
-containing the length of the vector, a pointer to the beginning of a contiguous 
+NVECTOR_OPENMP, defines the *content* field of ``N_Vector`` to be a structure
+containing the length of the vector, a pointer to the beginning of a contiguous
 data array, a boolean flag *own_data* which specifies the ownership of
 *data*, and the number of threads.  Operations on the vector are
 threaded using OpenMP, the number of threads used is based on the
@@ -46,6 +46,15 @@ supplied argument in the vector constructor.
    };
 
 The header file to be included when using this module is ``nvector_openmp.h``.
+The installed module library to link to is
+``libsundials_nvecopenmp.lib`` where ``.lib`` is typically ``.so`` for shared libraries and ``.a``
+for static libraries.
+The Fortran module file to use when using the Fortran 2003 interface to
+this module is ``fnvector_openmp_mod.mod``.
+
+
+NVECTOR_OPENMP accessor macros
+-----------------------------------
 
 The following six macros are provided to access the content of an NVECTOR_OPENMP
 vector. The suffix ``_OMP`` in the names denotes the OpenMP version.
@@ -55,15 +64,15 @@ vector. The suffix ``_OMP`` in the names denotes the OpenMP version.
 
    This macro gives access to the contents of the OpenMP vector
    ``N_Vector`` *v*.
-  
+
    The assignment ``v_cont = NV_CONTENT_OMP(v)`` sets ``v_cont`` to be
    a pointer to the OpenMP ``N_Vector`` content structure.
-  
+
    Implementation:
-  
+
    .. code-block:: c
 
-      #define NV_CONTENT_OMP(v) ( (N_VectorContent_OpenMP)(v->content) ) 
+      #define NV_CONTENT_OMP(v) ( (N_VectorContent_OpenMP)(v->content) )
 
 
 .. c:macro:: NV_OWN_DATA_OMP(v)
@@ -73,15 +82,15 @@ vector. The suffix ``_OMP`` in the names denotes the OpenMP version.
    Implementation:
 
    .. code-block:: c
- 
-      #define NV_OWN_DATA_OMP(v) ( NV_CONTENT_OMP(v)->own_data ) 
+
+      #define NV_OWN_DATA_OMP(v) ( NV_CONTENT_OMP(v)->own_data )
 
 
 .. c:macro:: NV_DATA_OMP(v)
 
    The assignment ``v_data = NV_DATA_OMP(v)`` sets ``v_data`` to be a
    pointer to the first component of the *data* for the ``N_Vector``
-   ``v``. 
+   ``v``.
 
    Similarly, the assignment ``NV_DATA_OMP(v) = v_data`` sets the component
    array of ``v`` to be ``v_data`` by storing the pointer ``v_data``.
@@ -89,8 +98,8 @@ vector. The suffix ``_OMP`` in the names denotes the OpenMP version.
    Implementation:
 
    .. code-block:: c
- 
-      #define NV_DATA_OMP(v) ( NV_CONTENT_OMP(v)->data ) 
+
+      #define NV_DATA_OMP(v) ( NV_CONTENT_OMP(v)->data )
 
 
 .. c:macro:: NV_LENGTH_OMP(v)
@@ -99,12 +108,12 @@ vector. The suffix ``_OMP`` in the names denotes the OpenMP version.
 
    The assignment ``v_len = NV_LENGTH_OMP(v)`` sets ``v_len`` to be the
    *length* of ``v``. On the other hand, the call ``NV_LENGTH_OMP(v) =
-   len_v`` sets the *length* of ``v`` to be ``len_v``. 
+   len_v`` sets the *length* of ``v`` to be ``len_v``.
 
    Implementation:
 
    .. code-block:: c
- 
+
       #define NV_LENGTH_OMP(v) ( NV_CONTENT_OMP(v)->length )
 
 
@@ -120,25 +129,25 @@ vector. The suffix ``_OMP`` in the names denotes the OpenMP version.
    Implementation:
 
    .. code-block:: c
- 
+
       #define NV_NUM_THREADS_OMP(v) ( NV_CONTENT_OMP(v)->num_threads )
 
 
 .. c:macro:: NV_Ith_OMP(v,i)
 
    This macro gives access to the individual components of the *data*
-   array of an ``N_Vector``, using standard 0-based C indexing. 
+   array of an ``N_Vector``, using standard 0-based C indexing.
 
    The assignment ``r = NV_Ith_OMP(v,i)`` sets ``r`` to be the value of
-   the ``i``-th component of ``v``. 
+   the ``i``-th component of ``v``.
 
    The assignment ``NV_Ith_OMP(v,i) = r`` sets the value of the ``i``-th
-   component of ``v`` to be ``r``. 
+   component of ``v`` to be ``r``.
 
    Here ``i`` ranges from 0 to :math:`n-1` for a vector of length
-   :math:`n`. 
+   :math:`n`.
 
-   Implementation: 
+   Implementation:
 
    .. code-block:: c
 
@@ -146,13 +155,20 @@ vector. The suffix ``_OMP`` in the names denotes the OpenMP version.
 
 
 
+NVECTOR_OPENMP functions
+-----------------------------------
 
 The NVECTOR_OPENMP module defines OpenMP implementations of all vector
 operations listed in the sections :ref:`NVectors.Ops`,
-:ref:`NVectors.FusedOps` and :ref:`NVectors.ArrayOps`.  Their names
-are obtained from those in those sections by appending the suffix
-``_OpenMP`` (e.g. ``N_VDestroy_OpenMP``).  The module NVECTOR_OPENMP
-provides the following additional user-callable routines:
+:ref:`NVectors.FusedOps`, :ref:`NVectors.ArrayOps`, and
+:ref:`NVectors.LocalOps`.  Their names are obtained from those in
+those sections by appending the suffix ``_OpenMP``
+(e.g. ``N_VDestroy_OpenMP``).  All the standard vector operations
+listed in the section :ref:`NVectors.Ops` with the suffix ``_OpenMP``
+appended are callable via the Fortran 2003 interface by prepending an
+`F' (e.g. ``FN_VDestroy_OpenMP``).
+
+The module NVECTOR_OPENMP provides the following additional user-callable routines:
 
 
 .. c:function:: N_Vector N_VNew_OpenMP(sunindextype vec_length, int num_threads)
@@ -164,13 +180,13 @@ provides the following additional user-callable routines:
 .. c:function:: N_Vector N_VNewEmpty_OpenMP(sunindextype vec_length, int num_threads)
 
    This function creates a new OpenMP ``N_Vector`` with an empty
-   (``NULL``) data array. 
+   (``NULL``) data array.
 
 
 .. c:function:: N_Vector N_VMake_OpenMP(sunindextype vec_length, realtype* v_data, int num_threads)
 
    This function creates and allocates memory for a OpenMP vector with
-   user-provided data array, *v_data*. 
+   user-provided data array, *v_data*.
 
    (This function does *not* allocate memory for ``v_data`` itself.)
 
@@ -178,7 +194,7 @@ provides the following additional user-callable routines:
 .. c:function:: N_Vector* N_VCloneVectorArray_OpenMP(int count, N_Vector w)
 
    This function creates (by cloning) an array of *count* OpenMP
-   vectors. 
+   vectors.
 
 
 .. c:function:: N_Vector* N_VCloneVectorArrayEmpty_OpenMP(int count, N_Vector w)
@@ -188,16 +204,11 @@ provides the following additional user-callable routines:
 
 
 .. c:function:: void N_VDestroyVectorArray_OpenMP(N_Vector* vs, int count)
-  
+
    This function frees memory allocated for the array of *count*
    variables of type ``N_Vector`` created with
    :c:func:`N_VCloneVectorArray_OpenMP()` or with
-   :c:func:`N_VCloneVectorArrayEmpty_OpenMP()`. 
-
-
-.. c:function:: sunindextype N_VGetLength_OpenMP(N_Vector v)
-
-   This function returns the number of vector elements.
+   :c:func:`N_VCloneVectorArrayEmpty_OpenMP()`.
 
 
 .. c:function:: void N_VPrint_OpenMP(N_Vector v)
@@ -221,71 +232,71 @@ operations enabled/disabled as cloned vectors inherit the same enable/disable
 options as the vector they are cloned from while vectors created with
 :c:func:`N_VNew_OpenMP` will have the default settings for the NVECTOR_OPENMP module.
 
-.. c:function:: void N_VEnableFusedOps_OpenMP(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableFusedOps_OpenMP(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) all fused and
    vector array operations in the OpenMP vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
-   
-.. c:function:: void N_VEnableLinearCombination_OpenMP(N_Vector v, booleantype tf)
+
+.. c:function:: int N_VEnableLinearCombination_OpenMP(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear
    combination fused operation in the OpenMP vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: void N_VEnableScaleAddMulti_OpenMP(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableScaleAddMulti_OpenMP(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale and
    add a vector to multiple vectors fused operation in the OpenMP vector. The
    return value is ``0`` for success and ``-1`` if the input vector or its
    ``ops`` structure are ``NULL``.
 
-.. c:function:: void N_VEnableDotProdMulti_OpenMP(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableDotProdMulti_OpenMP(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the multiple
    dot products fused operation in the OpenMP vector. The return value is ``0``
    for success and ``-1`` if the input vector or its ``ops`` structure are
    ``NULL``.
 
-.. c:function:: void N_VEnableLinearSumVectorArray_OpenMP(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableLinearSumVectorArray_OpenMP(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear sum
    operation for vector arrays in the OpenMP vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: void N_VEnableScaleVectorArray_OpenMP(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableScaleVectorArray_OpenMP(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale
    operation for vector arrays in the OpenMP vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: void N_VEnableConstVectorArray_OpenMP(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableConstVectorArray_OpenMP(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the const
    operation for vector arrays in the OpenMP vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: void N_VEnableWrmsNormVectorArray_OpenMP(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableWrmsNormVectorArray_OpenMP(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the WRMS norm
    operation for vector arrays in the OpenMP vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: void N_VEnableWrmsNormMaskVectorArray_OpenMP(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableWrmsNormMaskVectorArray_OpenMP(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the masked WRMS
    norm operation for vector arrays in the OpenMP vector. The return value is
    ``0`` for success and ``-1`` if the input vector or its ``ops`` structure are
    ``NULL``.
 
-.. c:function:: void N_VEnableScaleAddMultiVectorArray_OpenMP(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableScaleAddMultiVectorArray_OpenMP(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale and
    add a vector array to multiple vector arrays operation in the OpenMP vector. The
    return value is ``0`` for success and ``-1`` if the input vector or its
    ``ops`` structure are ``NULL``.
 
-.. c:function:: void N_VEnableLinearCombinationVectorArray_OpenMP(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableLinearCombinationVectorArray_OpenMP(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear
    combination operation for vector arrays in the OpenMP vector. The return value
@@ -297,8 +308,8 @@ options as the vector they are cloned from while vectors created with
 
 * When looping over the components of an ``N_Vector v``, it is more
   efficient to first obtain the component array via ``v_data =
-  NV_DATA_OMP(v)`` and then access ``v_data[i]`` within the loop than it 
-  is to use ``NV_Ith_OMP(v,i)`` within the loop. 
+  NV_DATA_OMP(v)`` and then access ``v_data[i]`` within the loop than it
+  is to use ``NV_Ith_OMP(v,i)`` within the loop.
 
 * :c:func:`N_VNewEmpty_OpenMP()`, :c:func:`N_VMake_OpenMP()`, and
   :c:func:`N_VCloneVectorArrayEmpty_OpenMP()` set the field *own_data*
@@ -306,7 +317,7 @@ options as the vector they are cloned from while vectors created with
   :c:func:`N_VDestroyVectorArray_OpenMP()` will not attempt to free the
   pointer data for any ``N_Vector`` with *own_data* set to ``SUNFALSE``.
   In such a case, it is the user's responsibility to deallocate the
-  data pointer. 
+  data pointer.
 
 * To maximize efficiency, vector operations in the NVECTOR_OPENMP
   implementation that have more than one ``N_Vector`` argument do not
@@ -316,11 +327,38 @@ options as the vector they are cloned from while vectors created with
   internal representations.
 
 
-For solvers that include a Fortran interface module, the
+NVECTOR_OPENMP Fortran Interfaces
+------------------------------------
+
+The NVECTOR_OPENMP module provides a Fortran 2003 module as well as
+Fortran 77 style interface functions for use from Fortran applications.
+
+FORTRAN 2003 interface module
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``fnvector_openmp_mod`` Fortran module defines interfaces to all
+NVECTOR_OPENMP C functions using the intrinsic ``iso_c_binding``
+module which provides a standardized mechanism for interoperating with C. As
+noted in the C function descriptions above, the interface functions are
+named after the corresponding C function, but with a leading ``F``. For
+example, the function ``N_VNew_OpenMP`` is interfaced as
+``FN_VNew_OpenMP``.
+
+The Fortran 2003 NVECTOR_OPENMP interface module can be accessed with the ``use``
+statement, i.e. ``use fnvector_openmp_mod``, and linking to the library
+``libsundials_fnvectoropenmp_mod.lib`` in addition to the C library.
+For details on where the library and module file
+``fnvector_openmp_mod.mod`` are installed see the section :ref:`Installation`.
+
+
+FORTRAN 77 interface functions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For solvers that include a Fortran 77 interface module, the
 NVECTOR_OPENMP module also includes a Fortran-callable function
 ``FNVINITOMP(code, NEQ, NUMTHREADS, IER)``, to initialize this
-NVECTOR_OPENMP module.  Here ``code`` is an input solver id (1 for
-CVODE, 2 for IDA, 3 for KINSOL, 4 for ARKode); ``NEQ`` is the problem
-size (declared so as to match C type ``long int``); ``NUMTHREADS`` is
-the number of threads; and ``IER`` is an error return flag equal 0 for
-success and -1 for failure.
+module.  Here ``code`` is an input solver id (1 for CVODE, 2 for IDA,
+3 for KINSOL, 4 for ARKode); ``NEQ`` is the problem size (declared so
+as to match C type ``long int``); ``NUMTHREADS`` is the number of
+threads; and ``IER`` is an error return flag equal 0 for success
+and -1 for failure.

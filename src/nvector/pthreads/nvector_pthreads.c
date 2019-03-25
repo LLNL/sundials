@@ -66,12 +66,12 @@ static void *N_VAddConst_PT(void *thread_data);
 static void *N_VCompare_PT(void *thread_data);
 static void *N_VDotProd_PT(void *thread_data);
 static void *N_VMaxNorm_PT(void *thread_data);
-static void *N_VWrmsNorm_PT(void *thread_data);
+static void *N_VWSqrSum_PT(void *thread_data);
 static void *N_VMin_PT(void *thread_data);
 static void *N_VWL2Norm_PT(void *thread_data);
 static void *N_VL1Norm_PT(void *thread_data);
 static void *N_VInvTest_PT(void *thread_data);
-static void *N_VWrmsNormMask_PT(void *thread_data);
+static void *N_VWSqrSumMask_PT(void *thread_data);
 static void *N_VConstrMask_PT(void *thread_data);
 static void *N_VMinQuotient_PT(void *thread_data);
 
@@ -159,6 +159,8 @@ N_Vector N_VNewEmpty_Pthreads(sunindextype length, int num_threads)
   ops->nvspace           = N_VSpace_Pthreads;
   ops->nvgetarraypointer = N_VGetArrayPointer_Pthreads;
   ops->nvsetarraypointer = N_VSetArrayPointer_Pthreads;
+  ops->nvgetcommunicator = NULL;
+  ops->nvgetlength       = N_VGetLength_Pthreads;
 
   /* standard vector operations */
   ops->nvlinearsum    = N_VLinearSum_Pthreads;
@@ -195,6 +197,17 @@ N_Vector N_VNewEmpty_Pthreads(sunindextype length, int num_threads)
   ops->nvscaleaddmultivectorarray     = NULL;
   ops->nvlinearcombinationvectorarray = NULL;
 
+  /* local reduction kernels */
+  ops->nvdotprodlocal     = N_VDotProd_Pthreads;
+  ops->nvmaxnormlocal     = N_VMaxNorm_Pthreads;
+  ops->nvminlocal         = N_VMin_Pthreads;
+  ops->nvl1normlocal      = N_VL1Norm_Pthreads;
+  ops->nvinvtestlocal     = N_VInvTest_Pthreads;
+  ops->nvconstrmasklocal  = N_VConstrMask_Pthreads;
+  ops->nvminquotientlocal = N_VMinQuotient_Pthreads;
+  ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Pthreads;
+  ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Pthreads;
+  
   /* Create content */
   content = NULL;
   content = (N_VectorContent_Pthreads) malloc(sizeof(struct _N_VectorContent_Pthreads));
@@ -412,6 +425,8 @@ N_Vector N_VCloneEmpty_Pthreads(N_Vector w)
   ops->nvspace           = w->ops->nvspace;
   ops->nvgetarraypointer = w->ops->nvgetarraypointer;
   ops->nvsetarraypointer = w->ops->nvsetarraypointer;
+  ops->nvgetcommunicator = w->ops->nvgetcommunicator;
+  ops->nvgetlength       = w->ops->nvgetlength;
 
   /* standard vector operations */
   ops->nvlinearsum    = w->ops->nvlinearsum;
@@ -448,6 +463,17 @@ N_Vector N_VCloneEmpty_Pthreads(N_Vector w)
   ops->nvscaleaddmultivectorarray     = w->ops->nvscaleaddmultivectorarray;
   ops->nvlinearcombinationvectorarray = w->ops->nvlinearcombinationvectorarray;
 
+  /* local reduction kernels */
+  ops->nvdotprodlocal     = w->ops->nvdotprodlocal;
+  ops->nvmaxnormlocal     = w->ops->nvmaxnormlocal;
+  ops->nvminlocal         = w->ops->nvminlocal;
+  ops->nvl1normlocal      = w->ops->nvl1normlocal;
+  ops->nvinvtestlocal     = w->ops->nvinvtestlocal;
+  ops->nvconstrmasklocal  = w->ops->nvconstrmasklocal;
+  ops->nvminquotientlocal = w->ops->nvminquotientlocal;
+  ops->nvwsqrsumlocal     = w->ops->nvwsqrsumlocal;
+  ops->nvwsqrsummasklocal = w->ops->nvwsqrsummasklocal;
+  
   /* Create content */
   content = NULL;
   content = (N_VectorContent_Pthreads) malloc(sizeof(struct _N_VectorContent_Pthreads));
@@ -1484,6 +1510,16 @@ static void *N_VMaxNorm_PT(void *thread_data)
 
 realtype N_VWrmsNorm_Pthreads(N_Vector x, N_Vector w)
 {
+  return(SUNRsqrt(N_VWSqrSumLocal_Pthreads(x, w)/(NV_LENGTH_PT(x))));
+}
+
+
+/* ----------------------------------------------------------------------------
+ * Computes weighted square sum of a vector
+ */
+
+realtype N_VWSqrSumLocal_Pthreads(N_Vector x, N_Vector w)
+{
   sunindextype    N;
   int             i, nthreads;
   pthread_t       *threads;
@@ -1519,7 +1555,7 @@ realtype N_VWrmsNorm_Pthreads(N_Vector x, N_Vector w)
     thread_data[i].global_mutex = &global_mutex;
 
     /* create threads and call pthread companion function */
-    pthread_create(&threads[i], &attr, N_VWrmsNorm_PT, (void *) &thread_data[i]);
+    pthread_create(&threads[i], &attr, N_VWSqrSum_PT, (void *) &thread_data[i]);
   }
 
   /* wait for all threads to finish */
@@ -1533,7 +1569,7 @@ realtype N_VWrmsNorm_Pthreads(N_Vector x, N_Vector w)
   free(threads);
   free(thread_data);
 
-  return(SUNRsqrt(sum/N));
+  return(sum);
 }
 
 
@@ -1541,7 +1577,7 @@ realtype N_VWrmsNorm_Pthreads(N_Vector x, N_Vector w)
  * Pthread companion function to N_VWrmsNorm
  */
 
-static void *N_VWrmsNorm_PT(void *thread_data)
+static void *N_VWSqrSum_PT(void *thread_data)
 {
   sunindextype i, start, end;
   realtype *xd, *wd;
@@ -1582,6 +1618,16 @@ static void *N_VWrmsNorm_PT(void *thread_data)
 
 realtype N_VWrmsNormMask_Pthreads(N_Vector x, N_Vector w, N_Vector id)
 {
+  return(SUNRsqrt(N_VWSqrSumMaskLocal_Pthreads(x, w, id)/(NV_LENGTH_PT(x))));
+}
+
+
+/* ----------------------------------------------------------------------------
+ * Computes weighted square sum of a masked vector
+ */
+
+realtype N_VWSqrSumMaskLocal_Pthreads(N_Vector x, N_Vector w, N_Vector id)
+{
   sunindextype    N;
   int             i, nthreads;
   pthread_t       *threads;
@@ -1618,7 +1664,7 @@ realtype N_VWrmsNormMask_Pthreads(N_Vector x, N_Vector w, N_Vector id)
     thread_data[i].global_mutex = &global_mutex;
 
     /* create threads and call pthread companion function */
-    pthread_create(&threads[i], &attr, N_VWrmsNormMask_PT, (void *) &thread_data[i]);
+    pthread_create(&threads[i], &attr, N_VWSqrSumMask_PT, (void *) &thread_data[i]);
   }
 
   /* wait for all threads to finish */
@@ -1632,15 +1678,15 @@ realtype N_VWrmsNormMask_Pthreads(N_Vector x, N_Vector w, N_Vector id)
   free(threads);
   free(thread_data);
 
-  return(SUNRsqrt(sum/N));
+  return(sum);
 }
 
 
 /* ----------------------------------------------------------------------------
- * Pthread companion function to N_VWrmsNormMask
+ * Pthread companion function to N_VWSqrSumMask
  */
 
-static void *N_VWrmsNormMask_PT(void *thread_data)
+static void *N_VWSqrSumMask_PT(void *thread_data)
 {
   sunindextype i, start, end;
   realtype *xd, *wd, *idd;

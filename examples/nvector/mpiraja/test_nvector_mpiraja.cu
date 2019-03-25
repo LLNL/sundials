@@ -85,6 +85,12 @@ int main(int argc, char *argv[])
   /* Check vector ID */
   fails += Test_N_VGetVectorID(X, SUNDIALS_NVEC_RAJA, myid);
 
+  /* Check vector length */
+  fails += Test_N_VGetLength(X, myid);
+
+  /* Check vector communicator */
+  fails += Test_N_VGetCommunicator(X, &comm, myid);
+
   /* Test clone functions */
   fails += Test_N_VCloneEmpty(X, myid);
   fails += Test_N_VClone(X, local_length, myid);
@@ -187,6 +193,19 @@ int main(int argc, char *argv[])
   fails += Test_N_VScaleAddMultiVectorArray(V, local_length, myid);
   fails += Test_N_VLinearCombinationVectorArray(V, local_length, myid);
 
+  /* local reduction operations */
+  printf("\nTesting local reduction operations:\n\n");
+
+  fails += Test_N_VDotProdLocal(X, Y, local_length, myid);
+  fails += Test_N_VMaxNormLocal(X, local_length, myid);
+  fails += Test_N_VMinLocal(X, local_length, myid);
+  fails += Test_N_VL1NormLocal(X, local_length, myid);
+  fails += Test_N_VWSqrSumLocal(X, Y, local_length, myid);
+  fails += Test_N_VWSqrSumMaskLocal(X, Y, Z, local_length, myid);
+  fails += Test_N_VInvTestLocal(X, Z, local_length, myid);
+  fails += Test_N_VConstrMaskLocal(X, Y, Z, local_length, myid);
+  fails += Test_N_VMinQuotientLocal(X, Y, local_length, myid);
+
   /* Free vectors */
   N_VDestroy(X);
   N_VDestroy(Y);
@@ -204,7 +223,7 @@ int main(int argc, char *argv[])
 
   /* check if any other process failed */
   (void) MPI_Allreduce(&fails, &globfails, 1, MPI_INT, MPI_MAX, comm);
-  
+
   MPI_Finalize();
 
   return(globfails);
@@ -239,8 +258,19 @@ booleantype has_data(N_Vector X)
 void set_element(N_Vector X, sunindextype i, realtype val)
 {
   /* set i-th element of data array */
+  set_element_range(X, i, i, val)
+}
+
+void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
+                       realtype val)
+{
+  sunindextype i;
+  realtype*    xd;
+
+  /* set elements [is,ie] of the data array */
   N_VCopyFromDevice_Raja(X);
-  (N_VGetHostArrayPointer_Raja(X))[i] = val;
+  xd = N_VGetHostArrayPointer_Raja(X);
+  for(i = is; i <= ie; i++) xd[i] = val;
   N_VCopyToDevice_Raja(X);
 }
 

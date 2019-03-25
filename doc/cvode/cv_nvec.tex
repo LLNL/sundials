@@ -90,9 +90,10 @@ descriptions of these modules in Sections
 on their {\nvector} requirements.
 
 The vector functions listed in Table \ref{t:nvecops} that are {\em not} used by
-{\cvode} are: \id{N\_VWL2Norm}, \id{N\_VL1Norm}, and \id{N\_VWrmsNormMask}.
-Therefore, a user-supplied {\nvector} module for {\cvode} could omit
-these functions.
+{\cvode} are: \id{N\_VWL2Norm}, \id{N\_VL1Norm},
+\id{N\_VWrmsNormMask}, \id{N\_VGetCommunicator}, and
+\id{N\_VGetLength}. Therefore, a user-supplied {\nvector} module for
+{\cvode} could omit these functions.
 The functions \id{N\_MinQuotient}, \id{N\_VConstrMask}, and \id{N\_VCompare} are
 only used when constraint checking is enabled and may be omitted if this feature
 is not used.
@@ -111,4 +112,5 @@ is not used.
 \input{nvec_raja}
 \input{nvec_openmpdev}
 \input{nvec_trilinos}
+\input{nvec_manyvector}
 \input{nvec_examples}

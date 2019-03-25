@@ -260,31 +260,44 @@ SUNDIALS_EXPORT void N_VPrintFile_SpcParallel(N_Vector v, FILE *outfile);
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector    N_VCloneEmpty_SpcParallel(N_Vector);
-SUNDIALS_EXPORT N_Vector    N_VClone_SpcParallel(N_Vector);
-SUNDIALS_EXPORT void        N_VDestroy_SpcParallel(N_Vector);
-SUNDIALS_EXPORT void        N_VSpace_SpcParallel(N_Vector, sunindextype *, sunindextype *);
-SUNDIALS_EXPORT realtype   *N_VGetArrayPointer_SpcParallel(N_Vector);
-SUNDIALS_EXPORT void        N_VSetArrayPointer_SpcParallel(realtype *, N_Vector);
-SUNDIALS_EXPORT void        N_VLinearSum_SpcParallel(realtype, N_Vector, realtype, N_Vector, N_Vector);
-SUNDIALS_EXPORT void        N_VConst_SpcParallel(realtype, N_Vector);
-SUNDIALS_EXPORT void        N_VProd_SpcParallel(N_Vector, N_Vector, N_Vector);
-SUNDIALS_EXPORT void        N_VDiv_SpcParallel(N_Vector, N_Vector, N_Vector);
-SUNDIALS_EXPORT void        N_VScale_SpcParallel(realtype, N_Vector, N_Vector);
-SUNDIALS_EXPORT void        N_VAbs_SpcParallel(N_Vector, N_Vector);
-SUNDIALS_EXPORT void        N_VInv_SpcParallel(N_Vector, N_Vector);
-SUNDIALS_EXPORT void        N_VAddConst_SpcParallel(N_Vector, realtype, N_Vector);
-SUNDIALS_EXPORT realtype    N_VDotProd_SpcParallel(N_Vector, N_Vector);
-SUNDIALS_EXPORT realtype    N_VMaxNorm_SpcParallel(N_Vector);
-SUNDIALS_EXPORT realtype    N_VWrmsNorm_SpcParallel(N_Vector, N_Vector);
-SUNDIALS_EXPORT realtype    N_VWrmsNormMask_SpcParallel(N_Vector, N_Vector, N_Vector);
-SUNDIALS_EXPORT realtype    N_VMin_SpcParallel(N_Vector);
-SUNDIALS_EXPORT realtype    N_VWL2Norm_SpcParallel(N_Vector, N_Vector);
-SUNDIALS_EXPORT realtype    N_VL1Norm_SpcParallel(N_Vector);
-SUNDIALS_EXPORT void        N_VCompare_SpcParallel(realtype, N_Vector, N_Vector);
-SUNDIALS_EXPORT booleantype N_VInvTest_SpcParallel(N_Vector, N_Vector);
-SUNDIALS_EXPORT booleantype N_VConstrMask_SpcParallel(N_Vector, N_Vector, N_Vector);   
-SUNDIALS_EXPORT realtype    N_VMinQuotient_SpcParallel(N_Vector, N_Vector);
+SUNDIALS_EXPORT N_Vector     N_VCloneEmpty_SpcParallel(N_Vector);
+SUNDIALS_EXPORT N_Vector     N_VClone_SpcParallel(N_Vector);
+SUNDIALS_EXPORT void         N_VDestroy_SpcParallel(N_Vector);
+SUNDIALS_EXPORT void         N_VSpace_SpcParallel(N_Vector, sunindextype *, sunindextype *);
+SUNDIALS_EXPORT realtype    *N_VGetArrayPointer_SpcParallel(N_Vector);
+SUNDIALS_EXPORT void         N_VSetArrayPointer_SpcParallel(realtype *, N_Vector);
+SUNDIALS_EXPORT void        *N_VGetCommunicator_SpcParallel(N_Vector);
+SUNDIALS_EXPORT sunindextype N_VGetLength_SpcParallel(N_Vector);
+SUNDIALS_EXPORT void         N_VLinearSum_SpcParallel(realtype, N_Vector, realtype, N_Vector, N_Vector);
+SUNDIALS_EXPORT void         N_VConst_SpcParallel(realtype, N_Vector);
+SUNDIALS_EXPORT void         N_VProd_SpcParallel(N_Vector, N_Vector, N_Vector);
+SUNDIALS_EXPORT void         N_VDiv_SpcParallel(N_Vector, N_Vector, N_Vector);
+SUNDIALS_EXPORT void         N_VScale_SpcParallel(realtype, N_Vector, N_Vector);
+SUNDIALS_EXPORT void         N_VAbs_SpcParallel(N_Vector, N_Vector);
+SUNDIALS_EXPORT void         N_VInv_SpcParallel(N_Vector, N_Vector);
+SUNDIALS_EXPORT void         N_VAddConst_SpcParallel(N_Vector, realtype, N_Vector);
+SUNDIALS_EXPORT realtype     N_VDotProd_SpcParallel(N_Vector, N_Vector);
+SUNDIALS_EXPORT realtype     N_VMaxNorm_SpcParallel(N_Vector);
+SUNDIALS_EXPORT realtype     N_VWrmsNorm_SpcParallel(N_Vector, N_Vector);
+SUNDIALS_EXPORT realtype     N_VWrmsNormMask_SpcParallel(N_Vector, N_Vector, N_Vector);
+SUNDIALS_EXPORT realtype     N_VMin_SpcParallel(N_Vector);
+SUNDIALS_EXPORT realtype     N_VWL2Norm_SpcParallel(N_Vector, N_Vector);
+SUNDIALS_EXPORT realtype     N_VL1Norm_SpcParallel(N_Vector);
+SUNDIALS_EXPORT void         N_VCompare_SpcParallel(realtype, N_Vector, N_Vector);
+SUNDIALS_EXPORT booleantype  N_VInvTest_SpcParallel(N_Vector, N_Vector);
+SUNDIALS_EXPORT booleantype  N_VConstrMask_SpcParallel(N_Vector, N_Vector, N_Vector);   
+SUNDIALS_EXPORT realtype     N_VMinQuotient_SpcParallel(N_Vector, N_Vector);
+
+/* OPTIONAL local reduction kernels (no parallel communication) */
+SUNDIALS_EXPORT realtype     N_VDotProdLocal_SpcParallel(N_Vector, N_Vector);
+SUNDIALS_EXPORT realtype     N_VMaxNormLocal_SpcParallel(N_Vector);
+SUNDIALS_EXPORT realtype     N_VMinLocal_SpcParallel(N_Vector);
+SUNDIALS_EXPORT realtype     N_VL1NormLocal_SpcParallel(N_Vector);
+SUNDIALS_EXPORT realtype     N_VWSqrSumLocal_SpcParallel(N_Vector, N_Vector);
+SUNDIALS_EXPORT realtype     N_VWSqrSumMaskLocal_SpcParallel(N_Vector, N_Vector, N_Vector);
+SUNDIALS_EXPORT booleantype  N_VInvTestLocal_SpcParallel(N_Vector, N_Vector);
+SUNDIALS_EXPORT booleantype  N_VConstrMaskLocal_SpcParallel(N_Vector, N_Vector, N_Vector);
+SUNDIALS_EXPORT realtype     N_VMinQuotientLocal_SpcParallel(N_Vector, N_Vector);
 
 
 

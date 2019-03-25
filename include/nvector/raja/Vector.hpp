@@ -103,9 +103,14 @@ public:
     return global_size_;
   }
 
-  SUNMPI_Comm comm()
+  SUNMPI_Comm comm() const
   {
     return comm_;
+  }
+
+  SUNMPI_Comm* comm_ptr()
+  {
+    return &comm_;
   }
 
   T* host()

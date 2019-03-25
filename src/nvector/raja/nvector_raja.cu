@@ -93,6 +93,12 @@ N_Vector N_VNewEmpty_Raja()
   ops->nvspace           = N_VSpace_Raja;
   ops->nvgetarraypointer = NULL; //N_VGetArrayPointer_Raja;
   ops->nvsetarraypointer = NULL; //N_VSetArrayPointer_Raja;
+#if SUNDIALS_MPI_ENABLED
+  ops->nvgetcommunicator = N_VGetCommunicator_Raja;
+#else
+  ops->nvgetcommunicator = NULL;
+#endif
+  ops->nvgetlength       = N_VGetLength_Raja;
 
   /* standard vector operations */
   ops->nvlinearsum    = N_VLinearSum_Raja;
@@ -103,17 +109,27 @@ N_Vector N_VNewEmpty_Raja()
   ops->nvabs          = N_VAbs_Raja;
   ops->nvinv          = N_VInv_Raja;
   ops->nvaddconst     = N_VAddConst_Raja;
+#if SUNDIALS_MPI_ENABLED
   ops->nvdotprod      = N_VDotProd_Raja;
   ops->nvmaxnorm      = N_VMaxNorm_Raja;
-  ops->nvwrmsnormmask = N_VWrmsNormMask_Raja;
-  ops->nvwrmsnorm     = N_VWrmsNorm_Raja;
   ops->nvmin          = N_VMin_Raja;
-  ops->nvwl2norm      = N_VWL2Norm_Raja;
   ops->nvl1norm       = N_VL1Norm_Raja;
-  ops->nvcompare      = N_VCompare_Raja;
   ops->nvinvtest      = N_VInvTest_Raja;
   ops->nvconstrmask   = N_VConstrMask_Raja;
   ops->nvminquotient  = N_VMinQuotient_Raja;
+#else
+  ops->nvdotprod      = N_VDotProdLocal_Raja;
+  ops->nvmaxnorm      = N_VMaxNormLocal_Raja;
+  ops->nvmin          = N_VMinLocal_Raja;
+  ops->nvl1norm       = N_VL1NormLocal_Raja;
+  ops->nvinvtest      = N_VInvTestLocal_Raja;
+  ops->nvconstrmask   = N_VConstrMaskLocal_Raja;
+  ops->nvminquotient  = N_VMinQuotientLocal_Raja;
+#endif
+  ops->nvwrmsnormmask = N_VWrmsNormMask_Raja;
+  ops->nvwrmsnorm     = N_VWrmsNorm_Raja;
+  ops->nvwl2norm      = N_VWL2Norm_Raja;
+  ops->nvcompare      = N_VCompare_Raja;
 
   /* fused vector operations (optional, NULL means disabled by default) */
   ops->nvlinearcombination = NULL;
@@ -128,6 +144,17 @@ N_Vector N_VNewEmpty_Raja()
   ops->nvwrmsnormmaskvectorarray      = NULL;
   ops->nvscaleaddmultivectorarray     = NULL;
   ops->nvlinearcombinationvectorarray = NULL;
+
+  /* local reduction kernels */
+  ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Raja;
+  ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Raja;
+  ops->nvdotprodlocal     = N_VDotProdLocal_Raja;
+  ops->nvmaxnormlocal     = N_VMaxNormLocal_Raja;
+  ops->nvminlocal         = N_VMinLocal_Raja;
+  ops->nvl1normlocal      = N_VL1NormLocal_Raja;
+  ops->nvinvtestlocal     = N_VInvTestLocal_Raja;
+  ops->nvconstrmasklocal  = N_VConstrMaskLocal_Raja;
+  ops->nvminquotientlocal = N_VMinQuotientLocal_Raja;
 
   /* Attach ops and set content to NULL */
   v->content = NULL;
@@ -316,6 +343,8 @@ N_Vector N_VCloneEmpty_Raja(N_Vector w)
   ops->nvspace           = w->ops->nvspace;
   ops->nvgetarraypointer = w->ops->nvgetarraypointer;
   ops->nvsetarraypointer = w->ops->nvsetarraypointer;
+  ops->nvgetcommunicator = w->ops->nvgetcommunicator;
+  ops->nvgetlength       = w->ops->nvgetlength;
 
   /* standard vector operations */
   ops->nvlinearsum    = w->ops->nvlinearsum;
@@ -351,6 +380,17 @@ N_Vector N_VCloneEmpty_Raja(N_Vector w)
   ops->nvwrmsnormmaskvectorarray      = w->ops->nvwrmsnormmaskvectorarray;
   ops->nvscaleaddmultivectorarray     = w->ops->nvscaleaddmultivectorarray;
   ops->nvlinearcombinationvectorarray = w->ops->nvlinearcombinationvectorarray;
+
+  /* local reduction kernels */
+  ops->nvwsqrsumlocal     = w->ops->nvwsqrsumlocal;
+  ops->nvwsqrsummasklocal = w->ops->nvwsqrsummasklocal;
+  ops->nvdotprodlocal     = w->ops->nvdotprodlocal;
+  ops->nvmaxnormlocal     = w->ops->nvmaxnormlocal;
+  ops->nvminlocal         = w->ops->nvminlocal;
+  ops->nvl1normlocal      = w->ops->nvl1normlocal;
+  ops->nvinvtestlocal     = w->ops->nvinvtestlocal;
+  ops->nvconstrmasklocal  = w->ops->nvconstrmasklocal;
+  ops->nvminquotientlocal = w->ops->nvminquotientlocal;
 
   /* Create content */
   v->content = NULL;
@@ -398,6 +438,14 @@ void N_VSpace_Raja(N_Vector X, sunindextype *lrw, sunindextype *liw)
   *lrw = N_VGetLength_Raja(X);
   *liw = 2*npes;
 }
+
+#if SUNDIALS_MPI_ENABLED
+void *N_VGetCommunicator_Raja(N_Vector v)
+{
+  vector_type* xd = static_cast<vector_type*>(v->content);
+  return((void *) xd->comm_ptr());
+}
+#endif
 
 void N_VConst_Raja(realtype c, N_Vector Z)
 {
@@ -503,7 +551,7 @@ void N_VAddConst_Raja(N_Vector X, realtype b, N_Vector Z)
   );
 }
 
-realtype N_VDotProd_Raja(N_Vector X, N_Vector Y)
+realtype N_VDotProdLocal_Raja(N_Vector X, N_Vector Y)
 {
   const realtype *xdata = N_VGetDeviceArrayPointer_Raja(X);
   const realtype *ydata = N_VGetDeviceArrayPointer_Raja(Y);
@@ -516,14 +564,20 @@ realtype N_VDotProd_Raja(N_Vector X, N_Vector Y)
     }
   );
 
-  /* Reduce across MPI processes */
-  realtype sum = static_cast<realtype>(gpu_result);
+  return(static_cast<realtype>(gpu_result));
+}
+
+realtype N_VDotProd_Raja(N_Vector X, N_Vector Y)
+{
+  /* compute local version, and then reduce across MPI processes */
+  const realtype sum = N_VDotProdLocal_Raja(X, Y);
   SUNMPI_Comm comm = getMPIComm(X);
-  realtype gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
+  realtype gsum;
+  SUNMPI_Allreduce_scalar(sum, &gsum, SUNMPI_SUM, comm);
   return gsum;
 }
 
-realtype N_VMaxNorm_Raja(N_Vector X)
+realtype N_VMaxNormLocal_Raja(N_Vector X)
 {
   const realtype *xdata = N_VGetDeviceArrayPointer_Raja(X);
   const sunindextype N = getLocalLength(X);
@@ -536,17 +590,24 @@ realtype N_VMaxNorm_Raja(N_Vector X)
   );
 
   /* Reduce across MPI processes */
-  realtype maximum = static_cast<realtype>(gpu_result);
-  SUNMPI_Comm comm = getMPIComm(X);
-  return SUNMPI_Allreduce_scalar(maximum, 2, comm);
+  return(static_cast<realtype>(gpu_result));
 }
 
-realtype N_VWrmsNorm_Raja(N_Vector X, N_Vector W)
+realtype N_VMaxNorm_Raja(N_Vector X)
+{
+  /* compute local version, and then reduce across MPI processes */
+  const realtype maximum = N_VMaxNormLocal_Raja(X);
+  SUNMPI_Comm comm = getMPIComm(X);
+  realtype gmax;
+  SUNMPI_Allreduce_scalar(maximum, &gmax, SUNMPI_MAX, comm);  
+  return gmax;
+}
+
+realtype N_VWSqrSumLocal_Raja(N_Vector X, N_Vector W)
 {
   const realtype *xdata = N_VGetDeviceArrayPointer_Raja(X);
   const realtype *wdata = N_VGetDeviceArrayPointer_Raja(W);
   const sunindextype N = getLocalLength(X);
-  const sunindextype Nglobal = N_VGetLength_Raja(X);
 
   RAJA::ReduceSum< RAJA_REDUCE_TYPE, realtype> gpu_result(0.0);
   RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
@@ -556,18 +617,26 @@ realtype N_VWrmsNorm_Raja(N_Vector X, N_Vector W)
   );
 
   /* Reduce across MPI processes */
-  realtype sum = static_cast<realtype>(gpu_result);
-  SUNMPI_Comm comm = getMPIComm(X);
-  return std::sqrt(SUNMPI_Allreduce_scalar(sum, 1, comm)/Nglobal);
+  return(static_cast<realtype>(gpu_result));
 }
 
-realtype N_VWrmsNormMask_Raja(N_Vector X, N_Vector W, N_Vector ID)
+realtype N_VWrmsNorm_Raja(N_Vector X, N_Vector W)
+{
+  /* compute local version, and then reduce across MPI processes */
+  const realtype sum = N_VWSqrSumLocal_Raja(X, W);
+  const sunindextype Nglobal = N_VGetLength_Raja(X);
+  SUNMPI_Comm comm = getMPIComm(X);
+  realtype gsum;
+  SUNMPI_Allreduce_scalar(sum, &gsum, SUNMPI_SUM, comm);
+  return std::sqrt(gsum/Nglobal);
+}
+
+realtype N_VWSqrSumMaskLocal_Raja(N_Vector X, N_Vector W, N_Vector ID)
 {
   const realtype *xdata = N_VGetDeviceArrayPointer_Raja(X);
   const realtype *wdata = N_VGetDeviceArrayPointer_Raja(W);
   const realtype *iddata = N_VGetDeviceArrayPointer_Raja(ID);
   const sunindextype N = getLocalLength(X);
-  const sunindextype Nglobal = N_VGetLength_Raja(X);
 
   RAJA::ReduceSum< RAJA_REDUCE_TYPE, realtype> gpu_result(0.0);
   RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
@@ -578,12 +647,21 @@ realtype N_VWrmsNormMask_Raja(N_Vector X, N_Vector W, N_Vector ID)
   );
 
   /* Reduce across MPI processes */
-  realtype sum = static_cast<realtype>(gpu_result);
-  SUNMPI_Comm comm = getMPIComm(X);
-  return std::sqrt(SUNMPI_Allreduce_scalar(sum, 1, comm)/Nglobal);
+  return(static_cast<realtype>(gpu_result));
 }
 
-realtype N_VMin_Raja(N_Vector X)
+realtype N_VWrmsNormMask_Raja(N_Vector X, N_Vector W, N_Vector ID)
+{
+  /* compute local version, and then reduce across MPI processes */
+  const realtype sum = N_VWSqrSumMaskLocal_Raja(X, W, ID);
+  const sunindextype Nglobal = N_VGetLength_Raja(X);
+  SUNMPI_Comm comm = getMPIComm(X);
+  realtype gsum;
+  SUNMPI_Allreduce_scalar(sum, &gsum, SUNMPI_SUM, comm);
+  return std::sqrt(gsum/Nglobal);
+}
+
+realtype N_VMinLocal_Raja(N_Vector X)
 {
   const realtype *xdata = N_VGetDeviceArrayPointer_Raja(X);
   const sunindextype N = getLocalLength(X);
@@ -594,33 +672,30 @@ realtype N_VMin_Raja(N_Vector X)
       gpu_result.min(xdata[i]);
     }
   );
+  return(static_cast<realtype>(gpu_result));
+}
 
-  /* Reduce across MPI processes */
-  realtype minumum = static_cast<realtype>(gpu_result);
+realtype N_VMin_Raja(N_Vector X)
+{
+  /* compute local version, and then reduce across MPI processes */
+  const realtype minimum = N_VMinLocal_Raja(X);
   SUNMPI_Comm comm = getMPIComm(X);
-  return SUNMPI_Allreduce_scalar(minumum, 3, comm);
+  realtype gmin;
+  SUNMPI_Allreduce_scalar(minimum, &gmin, SUNMPI_MIN, comm);
+  return gmin;
 }
 
 realtype N_VWL2Norm_Raja(N_Vector X, N_Vector W)
 {
-  const realtype *xdata = N_VGetDeviceArrayPointer_Raja(X);
-  const realtype *wdata = N_VGetDeviceArrayPointer_Raja(W);
-  const sunindextype N = getLocalLength(X);
-
-  RAJA::ReduceSum< RAJA_REDUCE_TYPE, realtype> gpu_result(0.0);
-  RAJA::forall< RAJA_NODE_TYPE >(RAJA::RangeSegment(zeroIdx, N),
-    RAJA_LAMBDA(sunindextype i) {
-      gpu_result += (xdata[i] * wdata[i] * xdata[i] * wdata[i]);
-    }
-  );
-
-  /* Reduce across MPI processes */
-  realtype sum = static_cast<realtype>(gpu_result);
+  /* compute local version, and then reduce across MPI processes */
+  const realtype sum = N_VWSqrSumLocal_Raja(X, W);
   SUNMPI_Comm comm = getMPIComm(X);
-  return std::sqrt(SUNMPI_Allreduce_scalar(sum, 1, comm));
+  realtype gsum;
+  SUNMPI_Allreduce_scalar(sum, &gsum, SUNMPI_SUM, comm);
+  return std::sqrt(gsum);
 }
 
-realtype N_VL1Norm_Raja(N_Vector X)
+realtype N_VL1NormLocal_Raja(N_Vector X)
 {
   const realtype *xdata = N_VGetDeviceArrayPointer_Raja(X);
   const sunindextype N = getLocalLength(X);
@@ -631,11 +706,17 @@ realtype N_VL1Norm_Raja(N_Vector X)
       gpu_result += (abs(xdata[i]));
     }
   );
+  return(static_cast<realtype>(gpu_result));
+}
 
-  /* Reduce across MPI processes */
-  realtype sum = static_cast<realtype>(gpu_result);
+realtype N_VL1Norm_Raja(N_Vector X)
+{
+  /* compute local version, and then reduce across MPI processes */
+  const realtype sum = N_VL1NormLocal_Raja(X);
   SUNMPI_Comm comm = getMPIComm(X);
-  return SUNMPI_Allreduce_scalar(sum, 1, comm);
+  realtype gsum;
+  SUNMPI_Allreduce_scalar(sum, &gsum, SUNMPI_SUM, comm);
+  return gsum;
 }
 
 void N_VCompare_Raja(realtype c, N_Vector X, N_Vector Z)
@@ -651,7 +732,7 @@ void N_VCompare_Raja(realtype c, N_Vector X, N_Vector Z)
   );
 }
 
-booleantype N_VInvTest_Raja(N_Vector x, N_Vector z)
+booleantype N_VInvTestLocal_Raja(N_Vector x, N_Vector z)
 {
   const realtype *xdata = N_VGetDeviceArrayPointer_Raja(x);
   const sunindextype N = getLocalLength(x);
@@ -667,16 +748,21 @@ booleantype N_VInvTest_Raja(N_Vector x, N_Vector z)
       }
     }
   );
-
-  /* Reduce across MPI processes */
   realtype minimum = static_cast<realtype>(gpu_result);
-  SUNMPI_Comm comm = getMPIComm(x);
-  realtype global_minimum = SUNMPI_Allreduce_scalar(minimum, 3, comm);
+  return (minimum < HALF);
+}
 
+booleantype N_VInvTest_Raja(N_Vector x, N_Vector z)
+{
+  /* compute local version, and then reduce across MPI processes */
+  realtype minimum = (N_VInvTestLocal_Raja(x, z)) ? ZERO : ONE;
+  SUNMPI_Comm comm = getMPIComm(x);
+  realtype global_minimum;
+  SUNMPI_Allreduce_scalar(minimum, &global_minimum, SUNMPI_MIN, comm);
   return (global_minimum < HALF);
 }
 
-booleantype N_VConstrMask_Raja(N_Vector c, N_Vector x, N_Vector m)
+booleantype N_VConstrMaskLocal_Raja(N_Vector c, N_Vector x, N_Vector m)
 {
   const realtype *cdata = N_VGetDeviceArrayPointer_Raja(c);
   const realtype *xdata = N_VGetDeviceArrayPointer_Raja(x);
@@ -695,13 +781,20 @@ booleantype N_VConstrMask_Raja(N_Vector c, N_Vector x, N_Vector m)
 
   /* Reduce across MPI processes */
   realtype sum = static_cast<realtype>(gpu_result);
-  SUNMPI_Comm comm = getMPIComm(x);
-  realtype global_sum = SUNMPI_Allreduce_scalar(sum, 1, comm);
+  return(sum < HALF);
+}
 
+booleantype N_VConstrMask_Raja(N_Vector c, N_Vector x, N_Vector m)
+{
+  /* compute local version, and then reduce across MPI processes */
+  realtype sum = (N_VConstrMaskLocal_Raja(c,x,m)) ? ZERO : ONE;
+  SUNMPI_Comm comm = getMPIComm(x);
+  realtype global_sum;
+  SUNMPI_Allreduce_scalar(sum, &global_sum, SUNMPI_SUM, comm);
   return (global_sum < HALF);
 }
 
-realtype N_VMinQuotient_Raja(N_Vector num, N_Vector denom)
+realtype N_VMinQuotientLocal_Raja(N_Vector num, N_Vector denom)
 {
   const realtype *ndata = N_VGetDeviceArrayPointer_Raja(num);
   const realtype *ddata = N_VGetDeviceArrayPointer_Raja(denom);
@@ -714,11 +807,17 @@ realtype N_VMinQuotient_Raja(N_Vector num, N_Vector denom)
         gpu_result.min(ndata[i]/ddata[i]);
     }
   );
+  return(static_cast<realtype>(gpu_result));
+}
 
-  /* Reduce across MPI processes */
-  realtype minimum = static_cast<realtype>(gpu_result);
+realtype N_VMinQuotient_Raja(N_Vector num, N_Vector denom)
+{
+  /* compute local version, and then reduce across MPI processes */
+  realtype minimum = N_VMinQuotientLocal_Raja(num, denom);
   SUNMPI_Comm comm = getMPIComm(num);
-  return SUNMPI_Allreduce_scalar(minimum, 3, comm);
+  realtype gmin;
+  SUNMPI_Allreduce_scalar(minimum, &gmin, SUNMPI_MIN, comm);
+  return gmin;
 }
 
 

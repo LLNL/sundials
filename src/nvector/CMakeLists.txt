@@ -17,6 +17,9 @@
 # Always add SUNDIALS serial vector
 add_subdirectory(serial)
 
+# Always add SUNDIALS ManyVector
+add_subdirectory(manyvector)
+
 # Add NVECTOR modules with depedencies
 if(MPI_ENABLE AND MPI_C_FOUND)
   add_subdirectory(parallel)

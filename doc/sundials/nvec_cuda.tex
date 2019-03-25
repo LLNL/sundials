@@ -60,7 +60,7 @@ file to include is \id{nvector\_mpicuda.h} and the library to link to is
 typically \id{.so} for shared libraries and \id{.a} for static libraries.
 Only one of these libraries may be linked to when creating an executable
 or library. {\sundials} must be built with MPI support if the distributed
-library is desired. 
+library is desired.
 
 
 % ====================================================================
@@ -71,18 +71,10 @@ library is desired.
 Unlike other native {\sundials} vector types, {\nveccuda} does not provide macros
 to access its member variables. Instead, user should use the accessor functions:
 %%--------------------------------------
-\sunmodfun{N\_VGetLength\_Cuda}
-{
-  This function returns the global length of the vector.
-}
-{
-  sunindextype N\_VGetLength\_Cuda(N\_Vector v)
-}
-%%--------------------------------------
 \sunmodfun{N\_VGetLocalLength\_Cuda}
 {
   This function returns the local length of the vector.
-  
+
   Note: This function is for use in a \textit{distributed} context and
   is defined in the header \id{nvector\_mpicuda.h} and the library
   to link to is \id{libsundials\_nvecmpicuda}.\text{lib}.
@@ -130,7 +122,8 @@ to access its member variables. Instead, user should use the accessor functions:
 %%--------------------------------------------
 
 The {\nveccuda} module defines implementations of all vector operations listed
-in Tables \ref{t:nvecops}, \ref{t:nvecfusedops}, and \ref{t:nvecarrayops}, except
+in Tables \ref{t:nvecops}, \ref{t:nvecfusedops}, \ref{t:nvecarrayops}
+and \ref{t:nveclocalops}, except
 for \id{N\_VGetArrayPointer} and \id{N\_VSetArrayPointer}.
 As such, this vector cannot be used with the {\sundials} Fortran interfaces,
 nor with the {\sundials} direct solvers and preconditioners. Instead,
@@ -140,7 +133,8 @@ the device and vice versa. Usage examples of {\nveccuda} are provided in
 some example programs for {\cvode} \cite{cvode_ex}.
 
 The names of vector operations are obtained from those in Tables \ref{t:nvecops},
-\ref{t:nvecfusedops}, and \ref{t:nvecarrayops} by appending the suffix \id{\_Cuda}
+\ref{t:nvecfusedops}, \ref{t:nvecarrayops}, and \ref{t:nveclocalops}
+by appending the suffix \id{\_Cuda}
 (e.g. \id{N\_VDestroy\_Cuda}). The module {\nveccuda} provides the following
 functions:
 %%--------------------------------------
@@ -255,7 +249,7 @@ functions:
   When used in a \textit{distributed} context with MPI, the arguments are the
   {\mpi} communicator, the local vector lenght, the global vector length, the
   managed data array. This constructor is defined in the header
-  \id{nvector\_mpicuda.h} and the library to link to is 
+  \id{nvector\_mpicuda.h} and the library to link to is
   \id{libsundials\_nvecmpicuda}.\text{lib}.
 }
 {
@@ -462,4 +456,3 @@ options as the vector they are cloned from while vectors created with
   arguments that were all created with the same internal representations.
 
 \end{itemize}
-

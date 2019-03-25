@@ -12,6 +12,7 @@
 # directories created by regression test scripts
 /regression/build_*/
 /regression/install_*/
+/regression/suntest.log
 
 # /test/
 /test/output

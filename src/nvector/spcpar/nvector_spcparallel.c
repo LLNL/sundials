@@ -91,6 +91,8 @@ N_Vector N_VNewEmpty_SpcParallel(MPI_Comm comm, int Ngrp, int *Nspc,
   ops->nvspace           = N_VSpace_SpcParallel;
   ops->nvgetarraypointer = N_VGetArrayPointer_SpcParallel;
   ops->nvsetarraypointer = N_VSetArrayPointer_SpcParallel;
+  ops->nvgetcommunicator = N_VGetCommunicator_SpcParallel;
+  ops->nvgetlength       = N_VGetLength_SpcParallel;
 
   /* standard vector operations */
   ops->nvlinearsum    = N_VLinearSum_SpcParallel;
@@ -127,6 +129,17 @@ N_Vector N_VNewEmpty_SpcParallel(MPI_Comm comm, int Ngrp, int *Nspc,
   ops->nvscaleaddmultivectorarray     = NULL;
   ops->nvlinearcombinationvectorarray = NULL;
 
+  /* local reduction kernels */
+  ops->nvdotprodlocal     = N_VDotProdLocal_SpcParallel;
+  ops->nvmaxnormlocal     = N_VMaxNormLocal_SpcParallel;
+  ops->nvminlocal         = N_VMinLocal_SpcParallel;
+  ops->nvl1normlocal      = N_VL1NormLocal_SpcParallel;
+  ops->nvinvtestlocal     = N_VInvTestLocal_SpcParallel;
+  ops->nvconstrmasklocal  = N_VConstrMaskLocal_SpcParallel;
+  ops->nvminquotientlocal = N_VMinQuotientLocal_SpcParallel;
+  ops->nvwsqrsumlocal     = N_VWSqrSumLocal_SpcParallel;
+  ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_SpcParallel;
+  
   /* Create content */
   content = NULL;
   content = (N_VectorContent_SpcParallel) malloc(sizeof(struct _N_VectorContent_SpcParallel));
@@ -434,6 +447,8 @@ N_Vector N_VCloneEmpty_SpcParallel(N_Vector w)
   ops->nvspace           = w->ops->nvspace;
   ops->nvgetarraypointer = w->ops->nvgetarraypointer;
   ops->nvsetarraypointer = w->ops->nvsetarraypointer;
+  ops->nvgetcommunicator = w->ops->nvgetcommunicator;
+  ops->nvgetlength       = w->ops->nvgetlength;
 
   /* standard vector operations */
   ops->nvlinearsum    = w->ops->nvlinearsum;
@@ -470,6 +485,17 @@ N_Vector N_VCloneEmpty_SpcParallel(N_Vector w)
   ops->nvscaleaddmultivectorarray     = w->ops->nvscaleaddmultivectorarray;
   ops->nvlinearcombinationvectorarray = w->ops->nvlinearcombinationvectorarray;
 
+  /* local reduction kernels */
+  ops->nvdotprodlocal     = w->ops->nvdotprodlocal;
+  ops->nvmaxnormlocal     = w->ops->nvmaxnormlocal;
+  ops->nvminlocal         = w->ops->nvminlocal;
+  ops->nvl1normlocal      = w->ops->nvl1normlocal;
+  ops->nvinvtestlocal     = w->ops->nvinvtestlocal;
+  ops->nvconstrmasklocal  = w->ops->nvconstrmasklocal;
+  ops->nvminquotientlocal = w->ops->nvminquotientlocal;
+  ops->nvwsqrsumlocal     = w->ops->nvwsqrsumlocal;
+  ops->nvwsqrsummasklocal = w->ops->nvwsqrsummasklocal;
+  
   /* Create content */
   content = NULL;
   content = (N_VectorContent_SpcParallel) malloc(sizeof(struct _N_VectorContent_SpcParallel));
@@ -601,6 +627,26 @@ realtype *N_VGetArrayPointer_SpcParallel(N_Vector v)
 void N_VSetArrayPointer_SpcParallel(realtype *v_data, N_Vector v)
 {
   SPV_DATA(v) = v_data;
+}
+
+
+/* 
+ * N_VGetCommunicator_SpcParallel extracts the NPI communicator
+ * from the N_Vector v
+ */
+
+void *N_VGetCommunicator_SpcParallel(N_Vector v)
+{
+  return(&SPV_COMM(v));
+}
+
+/* 
+ * N_VGetLength_SpcParallel returns the global length of the N_Vector v
+ */
+
+sunindextype N_VGetLength_SpcParallel(N_Vector v)
+{
+  return(SPV_GLOBLENGTH(v));
 }
 
 /* 
@@ -1039,17 +1085,16 @@ void N_VAddConst_SpcParallel(N_Vector x, realtype b, N_Vector z)
 }
 
 /* 
- * N_VDotProd_SpcParallel returns the value of the ordinary dot product 
- *  of x and y, i.e. sum (i=0 to N-1) {x[i] * y[i]} 
+ * N_VDotProdLocal_SpcParallel returns the MPI task-local value of the ordinary 
+ *  dot product of x and y, i.e. sum (i=0 to Nlocal-1) {x[i] * y[i]} 
  */
 
-realtype N_VDotProd_SpcParallel(N_Vector x, N_Vector y)
+realtype N_VDotProdLocal_SpcParallel(N_Vector x, N_Vector y)
 {
   int ig, Ngrp, is, Ns;
   sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
   sunindextype Yblock, Zblock, Xblock, loc;
-  realtype sum, gsum, *xd, *yd;
-  MPI_Comm comm;
+  realtype sum, *xd, *yd;
 
   xd = yd = NULL;
 
@@ -1061,7 +1106,6 @@ realtype N_VDotProd_SpcParallel(N_Vector x, N_Vector y)
   NGx  = SPV_XGHOST(x);
   NGy  = SPV_YGHOST(x);
   NGz  = SPV_ZGHOST(x);
-  comm = SPV_COMM(x);
 
   sum = ZERO;
   for(ig=0; ig<Ngrp; ig++) {
@@ -1082,26 +1126,33 @@ realtype N_VDotProd_SpcParallel(N_Vector x, N_Vector y)
       }
     }
   }
+  return(sum);
+}
 
-  /* obtain global sum from local sums */
-  gsum = ZERO;
-  MPI_Allreduce(&sum, &gsum, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
+/* 
+ * N_VDotProd_SpcParallel returns the value of the ordinary dot product 
+ *  of x and y, i.e. sum (i=0 to N-1) {x[i] * y[i]} 
+ */
 
+realtype N_VDotProd_SpcParallel(N_Vector x, N_Vector y)
+{
+  realtype gsum;
+  SUNMPI_Allreduce_scalar(N_VDotProdLocal_SpcParallel(x, y),
+                          &gsum, SUNMPI_SUM, SPV_COMM(x));
   return(gsum);
 }
 
 /* 
- * N_VMaxNorm_SpcParallel returns the maximum norm of x, 
- *  i.e. max(i=1 to N-1) |x[i]|  
+ * N_VMaxNormLocal_SpcParallel returns the MPI task-local maximum norm of x, 
+ *  i.e. max(i=1 to Nlocal-1) |x[i]|  
  */
 
-realtype N_VMaxNorm_SpcParallel(N_Vector x)
+realtype N_VMaxNormLocal_SpcParallel(N_Vector x)
 {
   int ig, Ngrp, is, Ns;
   sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
   sunindextype Yblock, Zblock, Xblock, loc;
-  realtype max, *xd, gmax;
-  MPI_Comm comm;
+  realtype max, *xd;
 
   xd = NULL;
 
@@ -1113,7 +1164,6 @@ realtype N_VMaxNorm_SpcParallel(N_Vector x)
   NGx  = SPV_XGHOST(x);
   NGy  = SPV_YGHOST(x);
   NGz  = SPV_ZGHOST(x);
-  comm = SPV_COMM(x);
 
   max = ZERO;
   for(ig=0; ig<Ngrp; ig++) {
@@ -1133,27 +1183,34 @@ realtype N_VMaxNorm_SpcParallel(N_Vector x)
       }
     }
   }
+  return(max);
+}
 
-  /* Obtain global max from local maxima */
-  gmax = ZERO;  
-  MPI_Allreduce(&max, &gmax, 1, PVEC_REAL_MPI_TYPE, MPI_MAX, comm);
+/* 
+ * N_VMaxNorm_SpcParallel returns the maximum norm of x, 
+ *  i.e. max(i=1 to N-1) |x[i]|  
+ */
 
+realtype N_VMaxNorm_SpcParallel(N_Vector x)
+{
+  realtype gmax;
+  SUNMPI_Allreduce_scalar(N_VMaxNormLocal_SpcParallel(x),
+                          &gmax, SUNMPI_MAX, SPV_COMM(x));
   return(gmax);
 }
 
 /*
- * N_VWrmsNorm_SpcParallel returns the weighted root mean square norm 
- * of x with weight factor w, i.e. 
- * sqrt [(sum (i=0 to N-1) {(x[i] * w[i])^2}) / N] 
+ * N_VWSqrSumLocal_SpcParallel returns the MPI task-local weighted 
+ * square sum of x with weight factor w, i.e. 
+ *     sum (i=0 to Nlocal-1) {(x[i] * w[i])^2}
  */
 
-realtype N_VWrmsNorm_SpcParallel(N_Vector x, N_Vector w)
+realtype N_VWSqrSumLocal_SpcParallel(N_Vector x, N_Vector w)
 {
   int ig, Ngrp, is, Ns;
   sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz, Nglobal;
   sunindextype Yblock, Zblock, Xblock, loc;
-  realtype sum, gsum, prodi, *xd, *wd;
-  MPI_Comm comm;
+  realtype sum, prodi, *xd, *wd;
 
   xd = wd = NULL;
 
@@ -1166,7 +1223,6 @@ realtype N_VWrmsNorm_SpcParallel(N_Vector x, N_Vector w)
   NGy  = SPV_YGHOST(x);
   NGz  = SPV_ZGHOST(x);
   Nglobal = SPV_GLOBLENGTH(x);
-  comm = SPV_COMM(x);
 
   sum = ZERO;
   for(ig=0; ig<Ngrp; ig++) {
@@ -1188,26 +1244,34 @@ realtype N_VWrmsNorm_SpcParallel(N_Vector x, N_Vector w)
       }
     }
   }
+  return(sum);
+}
 
-  /* Obtain global sum from local sums */
-  gsum = ZERO;
-  MPI_Allreduce(&sum, &gsum, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
+/*
+ * N_VWrmsNorm_SpcParallel returns the weighted root mean square norm 
+ * of x with weight factor w, i.e. 
+ * sqrt [(sum (i=0 to N-1) {(x[i] * w[i])^2}) / N] 
+ */
 
-  /* scale correctly and return */
-  return(SUNRsqrt(gsum / Nglobal));
+realtype N_VWrmsNorm_SpcParallel(N_Vector x, N_Vector w)
+{
+  realtype gsum;
+  SUNMPI_Allreduce_scalar(N_VWSqrSumLocal_SpcParallel(x, w),
+                          &gsum, SUNMPI_SUM, SPV_COMM(x));
+  return(SUNRsqrt(gsum / (SPV_GLOBLENGTH(x))));
 }
 
 /* 
- * N_VWrmsNormMask_SpcParallel or (nvwrmsnormmask) returns ??? 
-*/
+ * N_VWSqrSumMaskLocal_SpcParallel returns the MPI task-local weighted 
+ * square sum of a masked array x.
+ */
 
-realtype N_VWrmsNormMask_SpcParallel(N_Vector x, N_Vector w, N_Vector id)
+realtype N_VWSqrSumMaskLocal_SpcParallel(N_Vector x, N_Vector w, N_Vector id)
 {
   int ig, Ngrp, is, Ns;
   sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz, Nglobal;
   sunindextype Yblock, Zblock, Xblock, loc;
-  realtype sum, gsum, prodi, *xd, *wd, *idd;
-  MPI_Comm comm;
+  realtype sum, prodi, *xd, *wd, *idd;
 
   xd = wd = idd = NULL;
 
@@ -1220,7 +1284,6 @@ realtype N_VWrmsNormMask_SpcParallel(N_Vector x, N_Vector w, N_Vector id)
   NGy  = SPV_YGHOST(x);
   NGz  = SPV_ZGHOST(x); 
   Nglobal = SPV_GLOBLENGTH(x);
-  comm = SPV_COMM(x);
 
   sum = ZERO;
   for(ig=0; ig<Ngrp; ig++) {
@@ -1245,26 +1308,32 @@ realtype N_VWrmsNormMask_SpcParallel(N_Vector x, N_Vector w, N_Vector id)
       }
     }
   }
-
-  /* Obtain global sum from local sums */
-  gsum = ZERO;
-  MPI_Allreduce(&sum, &gsum, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
-
-  /* scale result and return */
-  return(SUNRsqrt(gsum / Nglobal));
+  return(sum);
 }
 
 /* 
- * N_VMin_SpcParallel returns the smallest element of x 
+ * N_VWrmsNormMask_SpcParallel or (nvwrmsnormmask) returns the weighted 
+ * square sum of a masked array x.
  */
 
-realtype N_VMin_SpcParallel(N_Vector x)
+realtype N_VWrmsNormMask_SpcParallel(N_Vector x, N_Vector w, N_Vector id)
+{
+  realtype gsum;
+  SUNMPI_Allreduce_scalar(N_VWSqrSumMaskLocal_SpcParallel(x, w, id),
+                          &gsum, SUNMPI_SUM, SPV_COMM(x));
+  return(SUNRsqrt(gsum / (SPV_GLOBLENGTH(x))));
+}
+
+/* 
+ * N_VMinLocal_SpcParallel returns the MPI task-local smallest element of x 
+ */
+
+realtype N_VMinLocal_SpcParallel(N_Vector x)
 {
   int ig, Ngrp, is, Ns;
   sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
   sunindextype Yblock, Zblock, Xblock, loc;
-  realtype min, gmin, *xd; 
-  MPI_Comm comm;
+  realtype min, *xd; 
 
   xd = NULL;
 
@@ -1276,7 +1345,6 @@ realtype N_VMin_SpcParallel(N_Vector x)
   NGx  = SPV_XGHOST(x);
   NGy  = SPV_YGHOST(x);  
   NGz  = SPV_ZGHOST(x);
-  comm = SPV_COMM(x);
 
   min = BIG_REAL;
   for(ig=0; ig<Ngrp; ig++) {
@@ -1296,11 +1364,18 @@ realtype N_VMin_SpcParallel(N_Vector x)
       }
     }
   }
+  return(min);
+}
 
-  /* Obtain global min from local mins */
-  gmin = BIG_REAL;
-  MPI_Allreduce(&min, &gmin, 1, PVEC_REAL_MPI_TYPE, MPI_MIN, comm);
+/* 
+ * N_VMin_SpcParallel returns the smallest element of x 
+ */
 
+realtype N_VMin_SpcParallel(N_Vector x)
+{
+  realtype gmin;
+  SUNMPI_Allreduce_scalar(N_VMinLocal_SpcParallel(x),
+                          &gmin, SUNMPI_MIN, SPV_COMM(x));
   return(gmin);
 }
 
@@ -1312,64 +1387,23 @@ realtype N_VMin_SpcParallel(N_Vector x)
 
 realtype N_VWL2Norm_SpcParallel(N_Vector x, N_Vector w)
 {
-  int ig, Ngrp, is, Ns;
-  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  sunindextype Yblock, Zblock, Xblock, loc;
-  realtype sum, prodi, *xd, *wd, gsum;
-  MPI_Comm comm;
-
-  xd = wd = NULL;
-
-  /* Get mesh info & data from vector */
-  Ngrp = SPV_NGROUPS(x);
-  Nx   = SPV_XLENGTH(x);
-  Ny   = SPV_YLENGTH(x);
-  Nz   = SPV_ZLENGTH(x);
-  NGx  = SPV_XGHOST(x);
-  NGy  = SPV_YGHOST(x);
-  NGz  = SPV_ZGHOST(x);  
-  comm = SPV_COMM(x);
-
-  sum = ZERO;
-  for(ig=0; ig<Ngrp; ig++) {
-    xd = SPV_GDATA(x,ig);
-    wd = SPV_GDATA(w,ig);
-    Ns  = SPV_NSPECIES(x,ig);   
-    for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
-      for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx) * Ns;
-	for (i=NGx; i<Nx+NGx; i++) {
-          Xblock = i * Ns;
-          for (is=0; is<Ns; is++) {
-            loc = Zblock + Yblock + Xblock + is;
-            prodi = xd[loc] * wd[loc];
-            sum += prodi * prodi;
-          }
-        }
-      }
-    }
-  }
-
-  /* Obtain global sum from local sums */
-  gsum = ZERO;
-  MPI_Allreduce(&sum, &gsum, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
-
+  realtype gsum;
+  SUNMPI_Allreduce_scalar(N_VWSqrSumLocal_SpcParallel(x, w),
+                          &gsum, SUNMPI_SUM, SPV_COMM(x));
   return(SUNRsqrt(gsum));
 }
 
 /* 
- * N_VL1Norm_SpcParallel returns the L1 norm of x, 
- * i.e. sum (i=0 to N-1) {|x[i]|} 
+ * N_VL1NormLocal_SpcParallel returns the MPI task-local L1 norm of x, 
+ * i.e. sum (i=0 to Nlocal-1) {|x[i]|} 
  */
 
-realtype N_VL1Norm_SpcParallel(N_Vector x)
+realtype N_VL1NormLocal_SpcParallel(N_Vector x)
 {
   int ig, Ngrp, is, Ns;
   sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
   sunindextype Yblock, Zblock, Xblock, loc;
-  realtype sum, gsum, *xd;
-  MPI_Comm comm;
+  realtype sum, *xd;
 
   xd = NULL;
 
@@ -1381,7 +1415,6 @@ realtype N_VL1Norm_SpcParallel(N_Vector x)
   NGx  = SPV_XGHOST(x);
   NGy  = SPV_YGHOST(x);
   NGz  = SPV_ZGHOST(x);
-  comm = SPV_COMM(x);
 
   sum = ZERO;
   for(ig=0; ig<Ngrp; ig++) {
@@ -1401,11 +1434,19 @@ realtype N_VL1Norm_SpcParallel(N_Vector x)
       }
     }
   }
+  return(sum);
+}
 
-  /* Obtain global sum from local sums */
-  gsum = ZERO;
-  MPI_Allreduce(&sum, &gsum, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
+/* 
+ * N_VL1Norm_SpcParallel returns the L1 norm of x, 
+ * i.e. sum (i=0 to N-1) {|x[i]|} 
+ */
 
+realtype N_VL1Norm_SpcParallel(N_Vector x)
+{
+  realtype gsum;
+  SUNMPI_Allreduce_scalar(N_VL1NormLocal_SpcParallel(x),
+                          &gsum, SUNMPI_SUM, SPV_COMM(x));
   return(gsum);
 }
 
@@ -1453,18 +1494,18 @@ void N_VCompare_SpcParallel(realtype c, N_Vector x, N_Vector z)
 }
 
 /*
- * N_VInvTest_SpcParallel computes z[i] = 1/x[i] with a test for x[i] == 0 
- * before inverting x[i].  This routine returns SUNTRUE if all components 
- * of x are nonzero (successful inversion) and returns SUNFALSE otherwise. 
+ * N_VInvTestLocal_SpcParallel computes z[i] = 1/x[i] with a test for x[i] == 0 
+ * before inverting x[i], for all MPI task-local entries of the vector x.  This 
+ * routine returns SUNTRUE if all components of x are nonzero (successful 
+ * inversion) and returns SUNFALSE otherwise. 
  */
 
-booleantype N_VInvTest_SpcParallel(N_Vector x, N_Vector z)
+booleantype N_VInvTestLocal_SpcParallel(N_Vector x, N_Vector z)
 {
   int ig, Ngrp, is, Ns;
   sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
   sunindextype Yblock, Zblock, Xblock, loc;
-  realtype *xd, *zd, val, gval;
-  MPI_Comm comm;
+  realtype *xd, *zd, val;
 
   xd = zd = NULL;
 
@@ -1476,7 +1517,6 @@ booleantype N_VInvTest_SpcParallel(N_Vector x, N_Vector z)
   NGx  = SPV_XGHOST(x);
   NGy  = SPV_YGHOST(x);
   NGz  = SPV_ZGHOST(x);
-  comm = SPV_COMM(x);
 
   /* Initialize return value */
   val = ONE;
@@ -1499,12 +1539,97 @@ booleantype N_VInvTest_SpcParallel(N_Vector x, N_Vector z)
       }
     }
   }
+  if (val == ZERO)  return(SUNFALSE);
+  else              return(SUNTRUE);
+}
 
-  /* Obtain global return value from local values */
-  MPI_Allreduce(&val, &gval, 1, PVEC_REAL_MPI_TYPE, MPI_MIN, comm);
+/*
+ * N_VInvTest_SpcParallel computes z[i] = 1/x[i] with a test for x[i] == 0 
+ * before inverting x[i].  This routine returns SUNTRUE if all components 
+ * of x are nonzero (successful inversion) and returns SUNFALSE otherwise. 
+ */
 
-  if (gval == ZERO)  return(SUNFALSE);
-  else               return(SUNTRUE);
+booleantype N_VInvTest_SpcParallel(N_Vector x, N_Vector z)
+{
+  realtype val, gval;
+  val = (N_VInvTestLocal_SpcParallel(x, z)) ? ONE : ZERO;
+  SUNMPI_Allreduce_scalar(val, &gval, SUNMPI_MIN, SPV_COMM(x));
+  if (gval == ZERO)
+    return(SUNFALSE);
+  else
+    return(SUNTRUE);
+}
+
+/* 
+ * N_VConstrMaskLocal_SpcParallel returns a boolean SUNFALSE if any element 
+ * of the MPI task-local portion of the vector x fails the constraint test, 
+ * and SUNTRUE if all passed.  The constraint test is as follows: 
+ *       if c[i] =  2.0, then x[i] must be >  0.0
+ *       if c[i] =  1.0, then x[i] must be >= 0.0
+ *       if c[i] = -1.0, then x[i] must be <= 0.0
+ *       if c[i] = -2.0, then x[i] must be <  0.0
+ * It also sets a mask vector m, with elements equal to 1.0 where the 
+ * corresponding constraint test failed, and equal to 0.0 where the 
+ * constraint test passed.  This routine is specialized in that it is 
+ * used only for constraint checking. 
+ */
+
+booleantype N_VConstrMaskLocal_SpcParallel(N_Vector c, N_Vector x, N_Vector m)
+{
+  int ig, Ngrp, is, Ns;
+  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
+  sunindextype Yblock, Zblock, Xblock, loc;
+  booleantype test;
+  realtype temp;
+  realtype *cd, *xd, *md;
+ 
+  cd = xd = md = NULL;
+
+  /* Get mesh info & data from vector */
+  Ngrp = SPV_NGROUPS(x);
+  Nx   = SPV_XLENGTH(x);
+  Ny   = SPV_YLENGTH(x);
+  Nz   = SPV_ZLENGTH(x);
+  NGx  = SPV_XGHOST(x);
+  NGy  = SPV_YGHOST(x);
+  NGz  = SPV_ZGHOST(x);
+
+  /* Initialize output variable */
+  temp = ZERO;
+
+  /* Perform computations */
+  for(ig=0; ig<Ngrp; ig++) {
+    xd = SPV_GDATA(x,ig);
+    cd = SPV_GDATA(c,ig);
+    md = SPV_GDATA(m,ig);
+    Ns  = SPV_NSPECIES(x,ig);   
+    for (k=NGz; k<Nz+NGz; k++) {
+      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
+      for (j=NGy; j<Ny+NGy; j++) { 
+	Yblock = j * (Nx + 2*NGx) * Ns;
+	for (i=NGx; i<Nx+NGx; i++) {
+          Xblock = i * Ns;
+          for (is=0; is<Ns; is++) {
+            loc = Zblock + Yblock + Xblock + is;
+            md[loc] = ZERO;
+
+            /* Continue if no constraints were set for the variable */
+            if (cd[i] == ZERO)
+              continue;
+            
+            /* Check if a set constraint has been violated */
+            test = (SUNRabs(cd[i]) > ONEPT5 && xd[i]*cd[i] <= ZERO) ||
+              (SUNRabs(cd[i]) > HALF   && xd[i]*cd[i] <  ZERO);
+            if (test) {
+              temp = md[i] = ONE;
+            }
+          }
+        }
+      }
+    }
+  }
+  /* Return false if any constraint was violated */
+  return (temp == ONE) ? SUNFALSE : SUNTRUE;
 }
 
 /* 
@@ -1523,80 +1648,24 @@ booleantype N_VInvTest_SpcParallel(N_Vector x, N_Vector z)
 
 booleantype N_VConstrMask_SpcParallel(N_Vector c, N_Vector x, N_Vector m)
 {
-  int ig, Ngrp, is, Ns;
-  sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
-  sunindextype Yblock, Zblock, Xblock, loc;
-  booleantype test, alltest;
-  realtype *cd, *xd, *md;
-  MPI_Comm comm;
- 
-  cd = xd = md = NULL;
-
-  /* Get mesh info & data from vector */
-  Ngrp = SPV_NGROUPS(x);
-  Nx   = SPV_XLENGTH(x);
-  Ny   = SPV_YLENGTH(x);
-  Nz   = SPV_ZLENGTH(x);
-  NGx  = SPV_XGHOST(x);
-  NGy  = SPV_YGHOST(x);
-  NGz  = SPV_ZGHOST(x);
-  comm = SPV_COMM(x);
-
-  /* Initialize output variable */
-  test = SUNTRUE;
-  for(ig=0; ig<Ngrp; ig++) {
-    xd = SPV_GDATA(x,ig);
-    cd = SPV_GDATA(c,ig);
-    md = SPV_GDATA(m,ig);
-    Ns  = SPV_NSPECIES(x,ig);   
-    for (k=NGz; k<Nz+NGz; k++) {
-      Zblock = k * (Nx + 2*NGx) * (Ny + 2*NGy) * Ns;
-      for (j=NGy; j<Ny+NGy; j++) { 
-	Yblock = j * (Nx + 2*NGx) * Ns;
-	for (i=NGx; i<Nx+NGx; i++) {
-          Xblock = i * Ns;
-          for (is=0; is<Ns; is++) {
-            loc = Zblock + Yblock + Xblock + is;
-            md[loc] = ZERO;
-            if (cd[loc] == ZERO) continue;
-            if (cd[loc] > ONEPT5 || cd[loc] < -ONEPT5) {
-              if (xd[loc]*cd[loc] <= ZERO) {
-                test = SUNFALSE; 
-                md[loc] = ONE; 
-              }
-              continue;
-            }
-            if (cd[loc] > HALF || cd[loc] < -HALF) {
-              if (xd[loc]*cd[loc] < ZERO) {
-                test = SUNFALSE;
-                md[loc] = ONE;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  /* Obtain global return value from local return values */
-  MPI_Allreduce(&test, &alltest, 1, MPI_INT, MPI_MIN, comm);
-
-  return(alltest);
+  realtype temp, temp2;
+  temp = (N_VConstrMaskLocal_SpcParallel(c, x, m)) ? ZERO : ONE;
+  SUNMPI_Allreduce_scalar(temp, &temp2, SUNMPI_MAX, SPV_COMM(x));
+  return (temp2 == ONE) ? SUNFALSE : SUNTRUE;
 }
 
 /* 
- * N_VMinQuotient_SpcParallel returns min(x[i]/y[i]) over all i 
- * such that denom[i] != 0. 
+ * N_VMinQuotientLocal_SpcParallel returns min(x[i]/y[i]) over all i in the 
+ * MPI task-local portion of the vectors x and y, such that denom[i] != 0. 
  */
 
-realtype N_VMinQuotient_SpcParallel(N_Vector x, N_Vector y)
+realtype N_VMinQuotientLocal_SpcParallel(N_Vector x, N_Vector y)
 {
   int ig, Ngrp, is, Ns;
   sunindextype i, j, k, Nx, Ny, Nz, NGx, NGy, NGz;
   sunindextype Yblock, Zblock, Xblock, loc;
   booleantype notEvenOnce;
-  realtype *xd, *yd, min, gmin;
-  MPI_Comm comm;
+  realtype *xd, *yd, min;
 
   xd = yd = NULL;
 
@@ -1608,7 +1677,6 @@ realtype N_VMinQuotient_SpcParallel(N_Vector x, N_Vector y)
   NGx  = SPV_XGHOST(x);
   NGy  = SPV_YGHOST(x);
   NGz  = SPV_ZGHOST(x);
-  comm = SPV_COMM(x);
 
   /* Initialize output value, minimum */
   notEvenOnce = SUNTRUE;
@@ -1638,11 +1706,19 @@ realtype N_VMinQuotient_SpcParallel(N_Vector x, N_Vector y)
       }
     }
   }
+  return(min);
+}
+ 
+/* 
+ * N_VMinQuotient_SpcParallel returns min(x[i]/y[i]) over all i 
+ * such that y[i] != 0. 
+ */
 
-  /* Obtain global min from local minima */
-  gmin = BIG_REAL;
-  MPI_Allreduce(&min, &gmin, 1, PVEC_REAL_MPI_TYPE, MPI_MIN, comm);
-
+realtype N_VMinQuotient_SpcParallel(N_Vector x, N_Vector y)
+{
+  realtype gmin;
+  SUNMPI_Allreduce_scalar(N_VMinQuotientLocal_SpcParallel(x, y),
+                          &gmin, SUNMPI_MIN, SPV_COMM(x));
   return(gmin);
 }
  

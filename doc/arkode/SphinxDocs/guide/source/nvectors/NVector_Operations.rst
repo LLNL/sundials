@@ -32,7 +32,7 @@ operations below.
    used to determine the vector implementation type (e.g. serial,
    parallel, ...) from the abstract ``N_Vector`` interface.  Returned
    values are given in the table, :ref:`NVector.vectorIDs`
-   
+
    Usage:
 
    .. code-block:: c
@@ -45,7 +45,7 @@ operations below.
    Creates a new ``N_Vector`` of the same type as an existing vector
    *w* and sets the *ops* field.  It does not copy the vector, but
    rather allocates storage for the new vector.
-   
+
    Usage:
 
    .. code-block:: c
@@ -57,7 +57,7 @@ operations below.
 
    Creates a new ``N_Vector`` of the same type as an existing vector
    *w* and sets the *ops* field.  It does not allocate storage for the
-   new vector's data. 
+   new vector's data.
 
    Usage:
 
@@ -67,9 +67,9 @@ operations below.
 
 
 .. c:function:: void N_VDestroy(N_Vector v)
- 
+
    Destroys the ``N_Vector`` *v* and frees memory allocated for its
-   internal data.  
+   internal data.
 
    Usage:
 
@@ -85,12 +85,12 @@ operations below.
    integer words.  This function is advisory only, for use in
    determining a user's total space requirements; it could be a dummy
    function in a user-supplied NVECTOR module if that information is
-   not of interest.  
- 
+   not of interest.
+
    Usage:
 
    .. code-block:: c
- 
+
       N_VSpace(nvSpec, &lrw, &liw);
 
 
@@ -102,13 +102,13 @@ operations below.
    only used in the solver-specific interfaces to the dense and banded
    (serial) linear solvers, and in the interfaces to the banded
    (serial) and band-block-diagonal (parallel) preconditioner modules
-   provided with SUNDIALS.  
+   provided with SUNDIALS.
 
    Usage:
 
    .. code-block:: c
 
-      vdata = NVGetArrayPointer(v);
+      vdata = N_VGetArrayPointer(v);
 
 
 .. c:function:: void N_VSetArrayPointer(realtype* vdata, N_Vector v)
@@ -118,22 +118,50 @@ operations below.
    data in the ``N_Vector`` is a contiguous array of
    ``realtype``. This routine is only used in the interfaces to the
    dense (serial) linear solver, hence need not exist in a
-   user-supplied NVECTOR module. 
+   user-supplied NVECTOR module.
 
    Usage:
 
    .. code-block:: c
 
-      NVSetArrayPointer(vdata,v);
+      N_VSetArrayPointer(vdata,v);
+
+
+.. c:function:: void* N_VGetCommunicator(N_Vector v)
+
+   Returns a pointer to the ``MPI_Comm`` object associated with the
+   vector (if applicable).  For MPI-unaware vector implementations, this
+   should return ``NULL``.
+
+   Usage:
+
+   .. code-block:: c
+
+      commptr = N_VGetCommunicator(v);
+
+
+.. c:function:: sunindextype N_VGetLength(N_Vector v)
+
+   Returns the global length (number of 'active' entries) in the
+   NVECTOR *v*.  This value should be cumulative across all processes
+   if the vector is used in a parallel environment.  If *v*
+   contains additional storage, e.g., for parallel communication, those
+   entries should not be included.
+
+   Usage:
+
+   .. code-block:: c
+
+      global_length = N_VGetLength(v);
 
 
 .. c:function:: void N_VLinearSum(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z)
 
-   Performs the operation *z = ax + by*, where *a* and *b* are 
+   Performs the operation *z = ax + by*, where *a* and *b* are
    ``realtype`` scalars and *x* and *y* are of type ``N_Vector``:
 
    .. math::
-      z_i = a x_i + b y_i, \quad i=0,\ldots,n-1. 
+      z_i = a x_i + b y_i, \quad i=0,\ldots,n-1.
 
    Usage:
 
@@ -147,7 +175,7 @@ operations below.
    Sets all components of the ``N_Vector`` *z* to ``realtype`` *c*:
 
    .. math::
-      z_i = c, \quad i=0,\ldots,n-1. 
+      z_i = c, \quad i=0,\ldots,n-1.
 
    Usage:
 
@@ -158,14 +186,14 @@ operations below.
 
 .. c:function:: void N_VProd(N_Vector x, N_Vector y, N_Vector z)
 
-   Sets the ``N_Vector`` *z* to be the component-wise product of the 
+   Sets the ``N_Vector`` *z* to be the component-wise product of the
    ``N_Vector`` inputs *x* and *y*:
 
    .. math::
       z_i = x_i y_i, \quad i=0,\ldots,n-1.
- 
+
    Usage:
- 
+
    .. code-block:: c
 
       N_VProd(x, y, z);
@@ -174,15 +202,15 @@ operations below.
 .. c:function:: void N_VDiv(N_Vector x, N_Vector y, N_Vector z)
 
    Sets the ``N_Vector`` *z* to be the component-wise ratio of the
-   ``N_Vector`` inputs *x* and *y*: 
+   ``N_Vector`` inputs *x* and *y*:
 
    .. math::
       z_i = \frac{x_i}{y_i}, \quad i=0,\ldots,n-1.
 
    The :math:`y_i` may not be tested for 0 values. It should only be
-   called with a *y* that is guaranteed to have all nonzero components.  
+   called with a *y* that is guaranteed to have all nonzero components.
 
-   Usage: 
+   Usage:
 
    .. code-block:: c
 
@@ -205,9 +233,9 @@ operations below.
 
 
 .. c:function:: void N_VAbs(N_Vector x, N_Vector z)
- 
+
    Sets the components of the ``N_Vector`` *z* to be the absolute
-   values of the components of the ``N_Vector`` *x*: 
+   values of the components of the ``N_Vector`` *x*:
 
    .. math::
       y_i = |x_i|, \quad i=0,\ldots,n-1.
@@ -222,7 +250,7 @@ operations below.
 .. c:function:: void N_VInv(N_Vector x, N_Vector z)
 
    Sets the components of the ``N_Vector`` *z* to be the inverses of
-   the components of the ``N_Vector`` *x*: 
+   the components of the ``N_Vector`` *x*:
 
    .. math::
       z_i = 1.0/x_i, \quad i=0,\ldots,n-1.
@@ -267,15 +295,15 @@ operations below.
 
 
 .. c:function:: realtype N_VMaxNorm(N_Vector x)
- 
+
    Returns the value of the :math:`l_{\infty}` norm of the
    ``N_Vector`` *x*:
 
    .. math::
       m = \max_{0\le i\le n-1} |x_i|.
 
-   Usage: 
- 
+   Usage:
+
    .. code-block:: c
 
       m = N_VMaxNorm(x);
@@ -284,8 +312,8 @@ operations below.
 .. c:function:: realtype N_VWrmsNorm(N_Vector x, N_Vector w)
 
    Returns the weighted root-mean-square norm of the ``N_Vector`` *x*
-   with (positive) ``realtype`` weight vector *w*: 
- 
+   with (positive) ``realtype`` weight vector *w*:
+
    .. math::
       m = \sqrt{\left( \sum_{i=0}^{n-1} (x_i w_i)^2 \right) / n}
 
@@ -302,19 +330,19 @@ operations below.
    with ``realtype`` weight vector *w* built using only the
    elements of *x* corresponding to positive elements of the
    ``N_Vector`` *id*:
-  
+
    .. math::
-      m = \sqrt{\left( \sum_{i=0}^{n-1} (x_i w_i H(id_i))^2 \right) / n}, 
+      m = \sqrt{\left( \sum_{i=0}^{n-1} (x_i w_i H(id_i))^2 \right) / n},
 
    where :math:`H(\alpha)=\begin{cases} 1 & \alpha>0\\ 0 & \alpha \leq 0\end{cases}`.
-      
+
    .. code-block:: c
 
       m = N_VWrmsNormMask(x, w, id);
 
 .. c:function:: realtype N_VMin(N_Vector x)
- 
-   Returns the smallest element of the ``N_Vector`` *x*: 
+
+   Returns the smallest element of the ``N_Vector`` *x*:
 
    .. math::
       m = \min_{0\le i\le n-1} x_i.
@@ -328,10 +356,10 @@ operations below.
 .. c:function:: realtype N_VWl2Norm(N_Vector x, N_Vector w)
 
    Returns the weighted Euclidean :math:`l_2` norm of the ``N_Vector``
-   *x* with ``realtype`` weight vector *w*: 
+   *x* with ``realtype`` weight vector *w*:
 
    .. math::
-      m = \sqrt{\sum_{i=0}^{n-1}\left(x_i w_i\right)^2}.  
+      m = \sqrt{\sum_{i=0}^{n-1}\left(x_i w_i\right)^2}.
 
    Usage:
 
@@ -341,10 +369,10 @@ operations below.
 
 .. c:function:: realtype N_VL1Norm(N_Vector x)
 
-   Returns the :math:`l_1` norm of the ``N_Vector`` *x*: 
+   Returns the :math:`l_1` norm of the ``N_Vector`` *x*:
 
    .. math::
-      m = \sum_{i=0}^{n-1} |x_i|. 
+      m = \sum_{i=0}^{n-1} |x_i|.
 
    Usage:
 
@@ -370,13 +398,13 @@ operations below.
       N_VCompare(c, x, z);
 
 .. c:function:: booleantype N_VInvTest(N_Vector x, N_Vector z)
- 
+
    Sets the components of the ``N_Vector`` *z* to be the inverses of
    the components of the ``N_Vector`` *x*, with prior testing for
-   zero values: 
+   zero values:
 
    .. math::
-      z_i = 1.0/x_i, \quad i=0,\ldots,n-1.  
+      z_i = 1.0/x_i, \quad i=0,\ldots,n-1.
 
    This routine returns a boolean assigned to ``SUNTRUE`` if all
    components of *x* are nonzero (successful inversion) and returns
@@ -389,9 +417,9 @@ operations below.
       t = N_VInvTest(x, z);
 
 .. c:function:: booleantype N_VConstrMask(N_Vector c, N_Vector x, N_Vector m)
- 
+
    Performs the following constraint tests based on the values in
-   :math:`c_i`: 
+   :math:`c_i`:
 
    .. math::
       x_i > 0 \;\text{if}\; c_i = 2, \\
@@ -418,11 +446,11 @@ operations below.
    termwise dividing the elements of *n* by the elements in *d*:
 
    .. math::
-      \min_{i=0,\ldots,n-1} \frac{\text{num}_i}{\text{denom}_i}. 
+      \min_{i=0,\ldots,n-1} \frac{\text{num}_i}{\text{denom}_i}.
 
    A zero element in *denom* will be skipped.  If no such quotients
    are found, then the large value ``BIG_REAL`` (defined in the header
-   file ``sundials_types.h``) is returned. 
+   file ``sundials_types.h``) is returned.
 
    Usage:
 
@@ -431,7 +459,7 @@ operations below.
       minq = N_VMinQuotient(num, denom);
 
 
-      
+
 .. _NVectors.FusedOps:
 
 Description of the NVECTOR fused operations
@@ -440,7 +468,7 @@ Description of the NVECTOR fused operations
 The following fused vector operations are *optional*. These
 operations are intended to increase data reuse, reduce parallel
 communication on distributed memory systems, and lower the number of
-kernel launches on systems with accelerators. If a particular NVECTOR 
+kernel launches on systems with accelerators. If a particular NVECTOR
 implementation defines one of the fused vector operations as
 ``NULL``, the NVECTOR interface will call one of the above standard
 vector operations as necessary.  As above, for each operation, we give
@@ -459,7 +487,7 @@ operations below.
    vector in the vector array *X*, and *z* is the output
    vector. If the output vector *z* is one of the vectors in *X*, then
    it *must* be the first vector in the vector array. The operation
-   returns 0 for success and a non-zero value otherwise. 
+   returns 0 for success and a non-zero value otherwise.
 
    Usage:
 
@@ -478,12 +506,12 @@ operations below.
    where *c* is an array of scalars, *x* is a vector, :math:`y_j` is a
    vector in the vector array *Y*, and :math:`z_j` is an output vector
    in the vector array *Z*. The operation returns 0 for success and a
-   non-zero value otherwise. 
+   non-zero value otherwise.
 
    Usage:
 
    .. code-block:: c
-                   
+
       ier = N_VScaleAddMulti(nv, c, x, Y, Z);
 
 
@@ -498,12 +526,12 @@ operations below.
    where *d* is an array of scalars containing the computed dot
    products, *x* is a vector, and :math:`y_j` is a vector the vector
    array *Y*. The operation returns 0 for success and a non-zero value
-   otherwise. 
+   otherwise.
 
    Usage:
 
    .. code-block:: c
-                   
+
       ier = N_VDotProdMulti(nv, x, Y, d);
 
 
@@ -522,7 +550,7 @@ the above standard vector operations as necessary.  As above, for each
 operation, we give the name, usage of the function, and a description
 of its mathematical operations below.
 
-      
+
 .. c:function:: int N_VLinearSumVectorArray(int nv, realtype a, N_Vector X, realtype b, N_Vector* Y, N_Vector* Z)
 
    This routine computes the linear sum of two vector arrays of *nv* vectors with :math:`n` elements:
@@ -538,14 +566,14 @@ of its mathematical operations below.
    Usage:
 
    .. code-block:: c
-                   
+
       ier = N_VLinearSumVectorArray(nv, a, X, b, Y, Z);
 
-      
+
 .. c:function:: int N_VScaleVectorArray(int nv, realtype* c, N_Vector* X, N_Vector* Z)
 
    This routine scales each element in a vector of :math:`n` elements
-   in a vector array of *nv* vectors by a potentially different constant: 
+   in a vector array of *nv* vectors by a potentially different constant:
 
    .. math::
       z_{j,i} = c_j x_{j,i}, \quad i=0,\ldots,n-1 \quad j=0,\ldots,nv-1,
@@ -557,14 +585,14 @@ of its mathematical operations below.
    Usage:
 
    .. code-block:: c
-                   
+
       ier = N_VScaleVectorArray(nv, c, X, Z);
 
 
 .. c:function:: int N_VConstVectorArray(int nv, realtype c, N_Vector* Z)
 
    This routine sets each element in a vector of :math:`n` elements in
-   a vector array of *nv* vectors to the same value: 
+   a vector array of *nv* vectors to the same value:
 
    .. math::
       z_{j,i} = c, \quad i=0,\ldots,n-1 \quad j=0,\ldots,nv-1,
@@ -575,14 +603,14 @@ of its mathematical operations below.
    Usage:
 
    .. code-block:: c
-                   
+
       ier = N_VConstVectorArray(nv, c, Z);
 
 
 .. c:function:: int N_VWrmsNormVectorArray(int nv, N_Vector* X, N_Vector* W, realtype* m)
 
    This routine computes the weighted root mean square norm of each
-   vector in a vector array: 
+   vector in a vector array:
 
    .. math::
       m_j = \left( \frac1n \sum_{i=0}^{n-1} \left(x_{j,i} w_{j,i}\right)^2\right)^{1/2}, \quad j=0,\ldots,nv-1,
@@ -595,7 +623,7 @@ of its mathematical operations below.
    Usage:
 
    .. code-block:: c
-                   
+
       ier = N_VWrmsNormVectorArray(nv, X, W, m);
 
 
@@ -612,19 +640,19 @@ of its mathematical operations below.
    weight vector in the vector array *W*, *id* is the mask vector, and
    *m* is the output array of scalars containing the computed
    norms. The operation returns 0 for success and a non-zero value
-   otherwise. 
+   otherwise.
 
    Usage:
 
    .. code-block:: c
-                   
+
       ier = N_VWrmsNormMaskVectorArray(nv, X, W, id, m);
 
 
 .. c:function:: int N_VScaleAddMultiVectorArray(int nv, int nsum, realtype* c, N_Vector* X, N_Vector** YY, N_Vector** ZZ)
 
    This routine scales and adds a vector array of *nv* vectors to
-   *nsum* other vector arrays: 
+   *nsum* other vector arrays:
 
    .. math::
       z_{k,j,i} = c_k x_{j,i} + y_{k,j,i}, \quad i=0,\ldots,n-1 \quad j=0,\ldots,nv-1, \quad k=0,\ldots,nsum-1
@@ -633,19 +661,19 @@ of its mathematical operations below.
    vector array *X*, :math:`y_{k,j}` is a vector in the array of
    vector arrays *YY*, and :math:`z_{k,j}` is an output vector in the
    array of vector arrays *ZZ*. The operation returns 0 for success
-   and a non-zero value otherwise. 
+   and a non-zero value otherwise.
 
    Usage:
 
    .. code-block:: c
-                   
+
       ier = N_VScaleAddMultiVectorArray(nv, nsum, c, x, YY, ZZ);
 
 
 .. c:function:: int N_VLinearCombinationVectorArray(int nv, int nsum, realtype* c, N_Vector** XX, N_Vector* Z)
 
    This routine computes the linear combination of *nsum* vector
-   arrays containing *nv* vectors: 
+   arrays containing *nv* vectors:
 
    .. math::
       z_{j,i} = \sum_{k=0}^{nsum-1} c_k x_{k,j,i}, \quad i=0,\ldots,n-1 \quad j=0,\ldots,nv-1,
@@ -655,11 +683,208 @@ of its mathematical operations below.
    vector in the vector array *Z*. If the output vector array is one
    of the vector arrays in *XX*, it *must* be the first vector array
    in *XX*. The operation returns 0 for success and a non-zero value
-   otherwise. 
+   otherwise.
 
    Usage:
 
    .. code-block:: c
-                   
+
       ier = N_VLinearCombinationVectorArray(nv, nsum, c, XX, Z);
 
+
+
+
+.. _NVectors.LocalOps:
+
+Description of the NVECTOR local reduction operations
+--------------------------------------------------------
+
+The following local reduction operations are also *optional*. As with
+the fused and vector array operations, these are intended to reduce
+parallel communication on distributed memory systems. If a particular
+NVECTOR implementation defines one of the local reduction operations
+as ``NULL``, the NVECTOR interface will call one of the above standard
+vector operations as necessary.  As above, for each operation, we give
+the name, usage of the function, and a description of its mathematical
+operations below.
+
+
+.. c:function:: realtype N_VDotProdLocal(N_Vector x, N_Vector y)
+
+   This routine computes the MPI task-local portion of the ordinary
+   dot product of *x* and *y*:
+
+   .. math::
+      d=\sum_{i=0}^{n_{local}-1} x_i y_i,
+
+   where :math:`n_{local}` corresponds to the number of components in
+   the vector on this MPI task (or :math:`n_{local}=n` for MPI-unaware
+   applications).
+
+   Usage:
+
+   .. code-block:: c
+
+      d = N_VDotProdLocal(x, y);
+
+
+.. c:function:: realtype N_VMaxNormLocal(N_Vector x)
+
+   This routine computes the MPI task-local portion of the maximum
+   norm of the NVECTOR *x*:
+
+   .. math::
+      m = \max_{0\le i< n_{local}} | x_i |,
+
+   where :math:`n_{local}` corresponds to the number of components in
+   the vector on this MPI task (or :math:`n_{local}=n` for MPI-unaware
+   applications).
+
+   Usage:
+
+   .. code-block:: c
+
+      m = N_VMaxNormLocal(x);
+
+
+.. c:function:: realtype N_VMinLocal(N_Vector x)
+
+   This routine computes the smallest element of the MPI task-local
+   portion of the NVECTOR *x*:
+
+   .. math::
+      m = \min_{0\le i< n_{local}} x_i,
+
+   where :math:`n_{local}` corresponds to the number of components in
+   the vector on this MPI task (or :math:`n_{local}=n` for MPI-unaware
+   applications).
+
+   Usage:
+
+   .. code-block:: c
+
+      m = N_VMinLocal(x);
+
+
+.. c:function:: realtype N_VL1NormLocal(N_Vector x)
+
+   This routine computes the MPI task-local portion of the :math:`l_1`
+   norm of the ``N_Vector`` *x*:
+
+   .. math::
+      n = \sum_{i=0}^{n_{local}-1} | x_i |,
+
+   where :math:`n_{local}` corresponds to the number of components in
+   the vector on this MPI task (or :math:`n_{local}=n` for MPI-unaware
+   applications).
+
+   Usage:
+
+   .. code-block:: c
+
+      n = N_VL1NormLocal(x);
+
+
+.. c:function:: realtype N_VWSqrSumLocal(N_Vector x, N_Vector w)
+
+   This routine computes the MPI task-local portion of the weighted
+   squared sum of the NVECTOR *x* with weight vector *w*:
+
+   .. math::
+      s = \sum_{i=0}^{n_{local}-1} (x_i w_i)^2,
+
+   where :math:`n_{local}` corresponds to the number of components in
+   the vector on this MPI task (or :math:`n_{local}=n` for MPI-unaware
+   applications).
+
+   Usage:
+
+   .. code-block:: c
+
+      s = N_VWSqrSumLocal(x, w);
+
+
+.. c:function:: realtype N_VWSqrSumMaskLocal(N_Vector x, N_Vector w, N_Vector id)
+
+   This routine computes the MPI task-local portion of the weighted
+   squared sum of the NVECTOR *x* with weight vector *w* built using
+   only the elements of *x* corresponding to positive elements of the NVECTOR *id*:
+
+   .. math::
+      m = \sum_{i=0}^{n_{local}-1} (x_i w_i H(id_i))^2,
+
+   where
+
+   .. math::
+      H(\alpha) = \begin{cases} 1 & \alpha > 0 \\ 0 & \alpha \leq 0 \end{cases}
+
+   and :math:`n_{local}` corresponds to the number of components in
+   the vector on this MPI task (or :math:`n_{local}=n` for MPI-unaware
+   applications).
+
+   Usage:
+
+   .. code-block:: c
+
+      s = N_VWSqrSumMaskLocal(x, w, id);
+
+
+.. c:function:: booleantype N_VInvTestLocal(N_Vector x)
+
+   This routine sets the MPI task-local components of the
+   NVECTOR *z* to be the inverses of the components of the NVECTOR
+   *x*, with prior testing for zero values:
+
+   .. math::
+      z_i = 1.0 /  x_i  , \: i=0,\ldots,n_{local}-1
+
+   where :math:`n_{local}` corresponds to the number of components in
+   the vector on this MPI task (or :math:`n_{local}=n` for MPI-unaware
+   applications).  This routine returns a boolean assigned to
+   ``SUNTRUE`` if all task-local components of *x* are nonzero
+   (successful inversion) and returns ``SUNFALSE`` otherwise.
+
+   Usage:
+
+   .. code-block:: c
+
+      t = N_VInvTestLocal(x);
+
+
+.. c:function:: booleantype N_VConstrMaskLocal(N_Vector c, N_Vector x, N_Vector m)
+
+   This routine performs the following constraint tests:
+   :math:`x_i > 0` if :math:`c_i=2`,
+   :math:`x_i \ge 0` if :math:`c_i=1`,
+   :math:`x_i \le 0` if :math:`c_i=-1`,
+   :math:`x_i < 0` if :math:`c_i=-2`, and
+   :math:`x_i =` anything if :math:`c_i=0`,
+   for all MPI task-local components of the vectors.
+   This routine returns a boolean assigned to ``SUNFALSE`` if any
+   task-local element failed the constraint test and assigned to
+   ``SUNTRUE`` if all passed.  It also sets a mask vector *m*, with
+   elements equal to 1.0 where the constraint test failed, and 0.0
+   where the test passed.  This routine is used only for constraint
+   checking.
+
+   Usage:
+
+   .. code-block:: c
+
+      t = N_VConstrMaskLocal(c, x, m);
+
+
+.. c:function:: realtype N_VMinQuotientLocal(N_Vector num, N_Vector denom)
+
+   This routine returns the minimum of the quotients obtained by
+   term-wise dividing :math:`num_i` by :math:`denom_i`, for all MPI
+   task-local components of the vectors.  A zero element in *denom*
+   will be skipped. If no such quotients are found, then the large value
+   ``BIG_REAL`` (defined in the header file ``sundials_types.h``)
+   is returned.
+
+   Usage:
+
+   .. code-block:: c
+
+      minq = N_VMinQuotientLocal(num, denom);

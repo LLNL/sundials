@@ -44,9 +44,12 @@ The installed module library to link to is ``libsundials_nvecopenmpdev.lib``
 where ``.lib`` is typically ``.so`` for shared libraries and ``.a``
 for static libraries.
 
+
+NVECTOR_OPENMPDEV accessor macros
+-----------------------------------
+
 The following macros are provided to access the content of an NVECTOR_OPENMPDEV
 vector.
-
 
 .. c:macro:: NV_CONTENT_OMPDEV(v)
 
@@ -116,16 +119,19 @@ vector.
       #define NV_LENGTH_OMPDEV(v) ( NV_CONTENT_OMPDEV(v)->length )
 
 
+NVECTOR_OPENMPDEV functions
+-----------------------------------
+
 The NVECTOR_OPENMPDEV module defines OpenMP device offloading implementations of all vector
-operations listed in Tables :ref:`NVectors.Ops`, :ref:`NVectors.FusedOps`, and
-:ref:`NVectors.ArrayOps`, except for ``N_VGetArrayPointer`` and ``N_VSetArrayPointer``.
+operations listed in Tables :ref:`NVectors.Ops`, :ref:`NVectors.FusedOps`, :ref:`NVectors.ArrayOps`, and
+:ref:`NVectors.LocalOps`, except for ``N_VGetArrayPointer`` and ``N_VSetArrayPointer``.
 As such, this vector cannot be used with the SUNDIALS FORTRAN interfaces, nor with the
 SUNDIALS direct solvers and preconditioners. It also provides methods for copying from
 the host to the device and vice versa.
 
 The names of the vector operations are obtained from those in tables
-:ref:`NVectors.Ops`, :ref:`NVectors.FusedOps`, and :ref:`NVectors.ArrayOps`
-by appending the suffix ``_OpenMPDEV`` (e.g. ``N_VDestroy_OpenMPDEV``).
+:ref:`NVectors.Ops`, :ref:`NVectors.FusedOps`, :ref:`NVectors.ArrayOps`, and
+:ref:`NVectors.LocalOps` by appending the suffix ``_OpenMPDEV`` (e.g. ``N_VDestroy_OpenMPDEV``).
 The module NVECTOR_OPENMPDEV provides the following additional user-callable routines:
 
 .. c:function:: N_Vector N_VNew_OpenMPDEV(sunindextype vec_length);
@@ -162,11 +168,6 @@ The module NVECTOR_OPENMPDEV provides the following additional user-callable rou
    This function frees memory allocated for the array of ``count`` variables of type
    ``N_Vector`` created with ``N_VCloneVectorArray_OpenMPDEV`` or with
    ``N_VCloneVectorArrayEmpty_OpenMPDEV``.
-
-
-.. c:function:: sunindextype N_VGetLength_OpenMPDEV(N_Vector v);
-
-   This function returns number of vector elements.
 
 
 .. c:function:: realtype *N_VGetHostArrayPointer_OpenMPDEV(N_Vector v);
@@ -254,7 +255,7 @@ options as the vector they are cloned from while vectors created with
   operation for vector arrays in the NVECTOR_OPENMPDEV vector. The return value is \id{0} for
   success and \id{-1} if the input vector or its \id{ops} structure are \id{NULL}.
 
-  
+
 .. c:function:: int N_VEnableConstVectorArray_OpenMPDEV(N_Vector v, booleantype tf)
 
   This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the const
@@ -292,7 +293,7 @@ options as the vector they are cloned from while vectors created with
   is \id{0} for success and \id{-1} if the input vector or its \id{ops} structure
   are \id{NULL}.
 
-   
+
 **Notes**
 
 * When looping over the components of an ``N_Vector`` ``v``, it is
@@ -320,4 +321,3 @@ options as the vector they are cloned from while vectors created with
   the user's responsibility to ensure that such routines are called
   with ``N_Vector`` arguments that were all created with the same
   length.
-

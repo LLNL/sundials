@@ -63,6 +63,12 @@ int main(int argc, char *argv[])
   /* Check vector ID */
   fails += Test_N_VGetVectorID(X, SUNDIALS_NVEC_RAJA, 0);
 
+  /* Check vector length */
+  fails += Test_N_VGetLength(X, 0);
+
+  /* Check vector communicator */
+  fails += Test_N_VGetCommunicator(X, NULL, 0);
+
   /* Test clone functions */
   fails += Test_N_VCloneEmpty(X, 0);
   fails += Test_N_VClone(X, length, 0);
@@ -165,6 +171,19 @@ int main(int argc, char *argv[])
   fails += Test_N_VScaleAddMultiVectorArray(V, length, 0);
   fails += Test_N_VLinearCombinationVectorArray(V, length, 0);
 
+  /* local reduction operations */
+  printf("\nTesting local reduction operations:\n\n");
+
+  fails += Test_N_VDotProdLocal(X, Y, length, 0);
+  fails += Test_N_VMaxNormLocal(X, length, 0);
+  fails += Test_N_VMinLocal(X, length, 0);
+  fails += Test_N_VL1NormLocal(X, length, 0);
+  fails += Test_N_VWSqrSumLocal(X, Y, length, 0);
+  fails += Test_N_VWSqrSumMaskLocal(X, Y, Z, length, 0);
+  fails += Test_N_VInvTestLocal(X, Z, length, 0);
+  fails += Test_N_VConstrMaskLocal(X, Y, Z, length, 0);
+  fails += Test_N_VMinQuotientLocal(X, Y, length, 0);
+
   /* Free vectors */
   N_VDestroy(X);
   N_VDestroy(Y);
@@ -211,8 +230,19 @@ booleantype has_data(N_Vector X)
 void set_element(N_Vector X, sunindextype i, realtype val)
 {
   /* set i-th element of data array */
+  set_element_range(X, i, i, val)
+}
+
+void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
+                       realtype val)
+{
+  sunindextype i;
+  realtype*    xd;
+
+  /* set elements [is,ie] of the data array */
   N_VCopyFromDevice_Raja(X);
-  (N_VGetHostArrayPointer_Raja(X))[i] = val;
+  xd = N_VGetHostArrayPointer_Raja(X);
+  for(i = is; i <= ie; i++) xd[i] = val;
   N_VCopyToDevice_Raja(X);
 }
 

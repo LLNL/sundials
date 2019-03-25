@@ -1,7 +1,7 @@
 /* -----------------------------------------------------------------
  * Programmer(s): Jean M. Sexton @ SMU
  *                Slaven Peles @ LLNL
- * ----------------------------------------------------------------- 
+ * -----------------------------------------------------------------
  * Based on work by: Scott D. Cohen, Alan C. Hindmarsh, Radu Serban,
  *                   and Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -24,8 +24,8 @@
  *     found in the header file sundials_nvector.h.
  *
  *   - The definition of the type realtype can be found in the
- *     header file sundials_types.h, and it may be changed (at the 
- *     configuration stage) according to the user's needs. 
+ *     header file sundials_types.h, and it may be changed (at the
+ *     configuration stage) according to the user's needs.
  *     The sundials_types.h file also contains the definition
  *     for the type booleantype.
  *
@@ -55,7 +55,7 @@ extern "C" {
 
 /*
  * -----------------------------------------------------------------
- * ParHyp implementation of N_Vector               
+ * ParHyp implementation of N_Vector
  * -----------------------------------------------------------------
  */
 
@@ -77,7 +77,7 @@ typedef struct _N_VectorContent_ParHyp *N_VectorContent_ParHyp;
  * -----------------------------------------------------------------
  */
 
-SUNDIALS_EXPORT N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm, 
+SUNDIALS_EXPORT N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
                                             sunindextype local_length,
                                             sunindextype global_length);
 
@@ -102,6 +102,8 @@ SUNDIALS_EXPORT void N_VDestroy_ParHyp(N_Vector v);
 SUNDIALS_EXPORT void N_VSpace_ParHyp(N_Vector v, sunindextype *lrw, sunindextype *liw);
 SUNDIALS_EXPORT realtype *N_VGetArrayPointer_ParHyp(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer_ParHyp(realtype *v_data, N_Vector v);
+SUNDIALS_EXPORT void *N_VGetCommunicator_ParHyp(N_Vector v);
+SUNDIALS_EXPORT sunindextype N_VGetLength_ParHyp(N_Vector v);
 
 /* standard vector operations */
 SUNDIALS_EXPORT void N_VLinearSum_ParHyp(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);
@@ -133,7 +135,7 @@ SUNDIALS_EXPORT int N_VDotProdMulti_ParHyp(int nvec, N_Vector x, N_Vector* Y,
                                            realtype* dotprods);
 
 /* vector array operations */
-SUNDIALS_EXPORT int N_VLinearSumVectorArray_ParHyp(int nvec, 
+SUNDIALS_EXPORT int N_VLinearSumVectorArray_ParHyp(int nvec,
                                                    realtype a, N_Vector* X,
                                                    realtype b, N_Vector* Y,
                                                    N_Vector* Z);
@@ -155,6 +157,21 @@ SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_ParHyp(int nvec, int nsum,
                                                            realtype* c,
                                                            N_Vector** X,
                                                            N_Vector* Z);
+
+/* OPTIONAL local reduction kernels (no parallel communication) */
+SUNDIALS_EXPORT realtype N_VDotProdLocal_ParHyp(N_Vector x, N_Vector y);
+SUNDIALS_EXPORT realtype N_VMaxNormLocal_ParHyp(N_Vector x);
+SUNDIALS_EXPORT realtype N_VMinLocal_ParHyp(N_Vector x);
+SUNDIALS_EXPORT realtype N_VL1NormLocal_ParHyp(N_Vector x);
+SUNDIALS_EXPORT realtype N_VWSqrSumLocal_ParHyp(N_Vector x, N_Vector w);
+SUNDIALS_EXPORT realtype N_VWSqrSumMaskLocal_ParHyp(N_Vector x, N_Vector w,
+                                                    N_Vector id);
+SUNDIALS_EXPORT booleantype N_VInvTestLocal_ParHyp(N_Vector x, N_Vector z);
+SUNDIALS_EXPORT booleantype N_VConstrMaskLocal_ParHyp(N_Vector c, N_Vector x,
+                                                      N_Vector m);
+SUNDIALS_EXPORT realtype N_VMinQuotientLocal_ParHyp(N_Vector num,
+                                                    N_Vector denom);
+
 
 /*
  * -----------------------------------------------------------------

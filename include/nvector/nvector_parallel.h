@@ -125,6 +125,7 @@ SUNDIALS_EXPORT void N_VSpace_Parallel(N_Vector v, sunindextype *lrw,
                                        sunindextype *liw);
 SUNDIALS_EXPORT realtype *N_VGetArrayPointer_Parallel(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer_Parallel(realtype *v_data, N_Vector v);
+SUNDIALS_EXPORT void *N_VGetCommunicator_Parallel(N_Vector v);
 
 /* standard vector operations */
 SUNDIALS_EXPORT void N_VLinearSum_Parallel(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);
@@ -178,6 +179,21 @@ SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_Parallel(int nvec, int nsum,
                                                              realtype* c,
                                                              N_Vector** X,
                                                              N_Vector* Z);
+
+/* OPTIONAL local reduction kernels (no parallel communication) */
+SUNDIALS_EXPORT realtype N_VDotProdLocal_Parallel(N_Vector x, N_Vector y);
+SUNDIALS_EXPORT realtype N_VMaxNormLocal_Parallel(N_Vector x);
+SUNDIALS_EXPORT realtype N_VMinLocal_Parallel(N_Vector x);
+SUNDIALS_EXPORT realtype N_VL1NormLocal_Parallel(N_Vector x);
+SUNDIALS_EXPORT realtype N_VWSqrSumLocal_Parallel(N_Vector x, N_Vector w);
+SUNDIALS_EXPORT realtype N_VWSqrSumMaskLocal_Parallel(N_Vector x, N_Vector w,
+                                                      N_Vector id);
+SUNDIALS_EXPORT booleantype N_VInvTestLocal_Parallel(N_Vector x, N_Vector z);
+SUNDIALS_EXPORT booleantype N_VConstrMaskLocal_Parallel(N_Vector c, N_Vector x,
+                                                        N_Vector m);
+SUNDIALS_EXPORT realtype N_VMinQuotientLocal_Parallel(N_Vector num,
+                                                      N_Vector denom);
+
 
 /*
  * -----------------------------------------------------------------

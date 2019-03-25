@@ -373,6 +373,8 @@ SUNDIALS_EXPORT void N_VDestroy_Parallel_Grid(N_Vector v);
 SUNDIALS_EXPORT void N_VSpace_Parallel_Grid(N_Vector v, sunindextype *lrw, sunindextype *liw);
 SUNDIALS_EXPORT realtype *N_VGetArrayPointer_Parallel_Grid(N_Vector v);
 SUNDIALS_EXPORT void N_VSetArrayPointer_Parallel_Grid(realtype *v_data, N_Vector v);
+SUNDIALS_EXPORT void *N_VGetCommunicator_Parallel_Grid(N_Vector v);
+SUNDIALS_EXPORT sunindextype N_VGetLength_Parallel_Grid(N_Vector v);
 SUNDIALS_EXPORT void N_VLinearSum_Parallel_Grid(realtype a, N_Vector x, realtype b, N_Vector y, N_Vector z);
 SUNDIALS_EXPORT void N_VConst_Parallel_Grid(realtype c, N_Vector z);
 SUNDIALS_EXPORT void N_VProd_Parallel_Grid(N_Vector x, N_Vector y, N_Vector z);
@@ -392,6 +394,17 @@ SUNDIALS_EXPORT void N_VCompare_Parallel_Grid(realtype c, N_Vector x, N_Vector z
 SUNDIALS_EXPORT booleantype N_VInvTest_Parallel_Grid(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT booleantype N_VConstrMask_Parallel_Grid(N_Vector c, N_Vector x, N_Vector m);
 SUNDIALS_EXPORT realtype N_VMinQuotient_Parallel_Grid(N_Vector num, N_Vector denom);
+
+/* OPTIONAL local reduction kernels (no parallel communication) */
+SUNDIALS_EXPORT realtype N_VDotProdLocal_Parallel_Grid(N_Vector x, N_Vector y);
+SUNDIALS_EXPORT realtype N_VMaxNormLocal_Parallel_Grid(N_Vector x);
+SUNDIALS_EXPORT realtype N_VMinLocal_Parallel_Grid(N_Vector x);
+SUNDIALS_EXPORT realtype N_VL1NormLocal_Parallel_Grid(N_Vector x);
+SUNDIALS_EXPORT realtype N_VWSqrSumLocal_Parallel_Grid(N_Vector x, N_Vector w);
+SUNDIALS_EXPORT realtype N_VWSqrSumMaskLocal_Parallel_Grid(N_Vector x, N_Vector w, N_Vector id);
+SUNDIALS_EXPORT booleantype N_VInvTestLocal_Parallel_Grid(N_Vector x, N_Vector z);
+SUNDIALS_EXPORT booleantype N_VConstrMaskLocal_Parallel_Grid(N_Vector c, N_Vector x, N_Vector m);
+SUNDIALS_EXPORT realtype N_VMinQuotientLocal_Parallel_Grid(N_Vector num, N_Vector denom);
 
 #ifdef __cplusplus
 }

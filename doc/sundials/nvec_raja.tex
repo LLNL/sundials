@@ -29,8 +29,7 @@ memory block, the global vector size (length), pointers to vector data
 on the host and on the device, and the MPI communicator. The class
 \id{Vector} inherits from an empty structure
 \begin{verbatim}
-struct _N_VectorContent_Raja {
-};
+struct _N_VectorContent_Raja { };
 \end{verbatim}
 to interface the C++ class with the {\nvector} C code. When instantiated, the class
 \id{Vector} will allocate memory on both the host and the device. Due to the rapid
@@ -57,18 +56,10 @@ MPI support if the distributed library is desired.
 Unlike other native {\sundials} vector types, {\nvecraja} does not provide macros
 to access its member variables. Instead, user should use the accessor functions:
 %%--------------------------------------
-\sunmodfun{N\_VGetLength\_Raja}
-{
-  This function returns the global length of the vector.
-}
-{
-  sunindextype N\_VGetLength\_Raja(N\_Vector v)
-}
-%%--------------------------------------
 \sunmodfun{N\_VGetLocalLength\_Raja}
 {
   This function returns the local length of the vector.
-    
+
   Note: This function is for use in a \textit{distributed context} and
   is defined in the header \id{nvector\_mpiraja.h} and the library
   to link to is \id{libsundials\_nvecmpicudaraja}.\text{lib}.
@@ -96,7 +87,7 @@ to access its member variables. Instead, user should use the accessor functions:
 \sunmodfun{N\_VGetMPIComm\_Raja}
 {
   This function returns the MPI communicator for the vector.
-    
+
   Note: This function is for use in a \textit{distributed context}
   and is defined in the header \id{nvector\_mpiraja.h} and the
   library to link to is \id{libsundials\_nvecmpicudaraja}.\text{lib}.
@@ -107,7 +98,8 @@ to access its member variables. Instead, user should use the accessor functions:
 %%--------------------------------------
 
 The {\nvecraja} module defines the implementations of all vector operations listed
-in Tables \ref{t:nvecops}, \ref{t:nvecfusedops}, and \ref{t:nvecarrayops}, except
+in Tables \ref{t:nvecops}, \ref{t:nvecfusedops}, \ref{t:nvecarrayops},
+and \ref{t:nveclocalops}, except
 for \id{N\_VDotProdMulti}, \id{N\_VWrmsNormVectorArray}, and \\ \noindent
 \id{N\_VWrmsNormMaskVectorArray} as support for arrays of reduction vectors is not
 yet supported in {\raja}. These function will be added to the {\nvecraja}
@@ -121,8 +113,8 @@ the device and vice versa. Usage examples of {\nvecraja} are provided in
 some example programs for {\cvode} \cite{cvode_ex}.
 
 The names of vector operations are obtained from those in Tables \ref{t:nvecops},
-\ref{t:nvecfusedops}, and \ref{t:nvecarrayops}, by appending the suffix \id{\_Raja}
-(e.g. \id{N\_VDestroy\_Raja}).
+\ref{t:nvecfusedops}, \ref{t:nvecarrayops}, and \ref{t:nveclocalops}
+by appending the suffix \id{\_Raja} (e.g. \id{N\_VDestroy\_Raja}).
 The module {\nvecraja}  provides the following additional user-callable routines:
 %%--------------------------------------
 \sunmodfuns{N\_VNew\_Raja}
@@ -326,4 +318,3 @@ options as the vector they are cloned from while vectors created with
   arguments that were all created with the same internal representations.
 
 \end{itemize}
-

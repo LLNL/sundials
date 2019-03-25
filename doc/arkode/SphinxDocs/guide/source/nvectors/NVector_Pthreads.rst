@@ -29,12 +29,11 @@ at least :math:`100,000` before the overhead associated with creating
 and using the threads is made up by the parallelism in the vector calculations.
 
 The Pthreads NVECTOR implementation provided with SUNDIALS, denoted
-NVECTOR_PTHREADS, defines the *content* field of ``N_Vector`` to be a structure 
-containing the length of the vector, a pointer to the beginning of a contiguous 
-data array, a boolean flag *own_data* which specifies the ownership 
+NVECTOR_PTHREADS, defines the *content* field of ``N_Vector`` to be a structure
+containing the length of the vector, a pointer to the beginning of a contiguous
+data array, a boolean flag *own_data* which specifies the ownership
 of *data*, and the number of threads.  Operations on the vector are
-threaded using POSIX threads (Pthreads), the number of threads used is
-based on the supplied argument in the vector constructor.
+threaded using POSIX threads (Pthreads).
 
 .. code-block:: c
 
@@ -46,6 +45,13 @@ based on the supplied argument in the vector constructor.
    };
 
 The header file to be included when using this module is ``nvector_pthreads.h``.
+The installed module library to link to is
+``libsundials_nvecpthreads.lib`` where ``.lib`` is typically ``.so``
+for shared libraries and ``.a`` for static libraries.
+
+
+NVECTOR_PTHREADS accessor macros
+-----------------------------------
 
 The following six macros are provided to access the content of an NVECTOR_PTHREADS
 vector. The suffix ``_PT`` in the names denotes the Pthreads version.
@@ -55,15 +61,15 @@ vector. The suffix ``_PT`` in the names denotes the Pthreads version.
 
    This macro gives access to the contents of the Pthreads vector
    ``N_Vector`` *v*.
-  
+
    The assignment ``v_cont = NV_CONTENT_PT(v)`` sets ``v_cont`` to be
    a pointer to the Pthreads ``N_Vector`` content structure.
-  
+
    Implementation:
-  
+
    .. code-block:: c
 
-      #define NV_CONTENT_PT(v) ( (N_VectorContent_Pthreads)(v->content) ) 
+      #define NV_CONTENT_PT(v) ( (N_VectorContent_Pthreads)(v->content) )
 
 
 .. c:macro:: NV_OWN_DATA_PT(v)
@@ -73,15 +79,15 @@ vector. The suffix ``_PT`` in the names denotes the Pthreads version.
    Implementation:
 
    .. code-block:: c
- 
-      #define NV_OWN_DATA_PT(v) ( NV_CONTENT_PT(v)->own_data ) 
+
+      #define NV_OWN_DATA_PT(v) ( NV_CONTENT_PT(v)->own_data )
 
 
 .. c:macro:: NV_DATA_PT(v)
 
    The assignment ``v_data = NV_DATA_PT(v)`` sets ``v_data`` to be a
    pointer to the first component of the *data* for the ``N_Vector``
-   ``v``. 
+   ``v``.
 
    Similarly, the assignment ``NV_DATA_PT(v) = v_data`` sets the component
    array of ``v`` to be ``v_data`` by storing the pointer ``v_data``.
@@ -89,8 +95,8 @@ vector. The suffix ``_PT`` in the names denotes the Pthreads version.
    Implementation:
 
    .. code-block:: c
- 
-      #define NV_DATA_PT(v) ( NV_CONTENT_PT(v)->data ) 
+
+      #define NV_DATA_PT(v) ( NV_CONTENT_PT(v)->data )
 
 
 .. c:macro:: NV_LENGTH_PT(v)
@@ -99,12 +105,12 @@ vector. The suffix ``_PT`` in the names denotes the Pthreads version.
 
    The assignment ``v_len = NV_LENGTH_PT(v)`` sets ``v_len`` to be the
    *length* of ``v``. On the other hand, the call ``NV_LENGTH_PT(v) =
-   len_v`` sets the *length* of ``v`` to be ``len_v``. 
+   len_v`` sets the *length* of ``v`` to be ``len_v``.
 
    Implementation:
 
    .. code-block:: c
- 
+
       #define NV_LENGTH_PT(v) ( NV_CONTENT_PT(v)->length )
 
 
@@ -120,25 +126,25 @@ vector. The suffix ``_PT`` in the names denotes the Pthreads version.
    Implementation:
 
    .. code-block:: c
- 
+
       #define NV_NUM_THREADS_PT(v) ( NV_CONTENT_PT(v)->num_threads )
 
 
 .. c:macro:: NV_Ith_PT(v,i)
 
    This macro gives access to the individual components of the *data*
-   array of an ``N_Vector``, using standard 0-based C indexing. 
+   array of an ``N_Vector``, using standard 0-based C indexing.
 
    The assignment ``r = NV_Ith_PT(v,i)`` sets ``r`` to be the value of
-   the ``i``-th component of ``v``. 
+   the ``i``-th component of ``v``.
 
    The assignment ``NV_Ith_PT(v,i) = r`` sets the value of the ``i``-th
-   component of ``v`` to be ``r``. 
+   component of ``v`` to be ``r``.
 
    Here ``i`` ranges from 0 to :math:`n-1` for a vector of length
-   :math:`n`. 
+   :math:`n`.
 
-   Implementation: 
+   Implementation:
 
    .. code-block:: c
 
@@ -146,13 +152,19 @@ vector. The suffix ``_PT`` in the names denotes the Pthreads version.
 
 
 
+NVECTOR_PTHREADS functions
+-----------------------------------
 
 The NVECTOR_PTHREADS module defines Pthreads implementations of all vector
 operations listed in the sections :ref:`NVectors.Ops`,
-:ref:`NVectors.FusedOps` and :ref:`NVectors.ArrayOps`.  Their names
+:ref:`NVectors.FusedOps`, :ref:`NVectors.ArrayOps`, and
+:ref:`NVectors.LocalOps`.  Their names
 are obtained from those in those sections by appending the suffix
-``_Pthreads`` (e.g. N_VDestroy_Pthreads).  The module NVECTOR_PTHREADS
-provides the following additional user-callable routines:
+``_Pthreads`` (e.g. N_VDestroy_Pthreads).  All the standard vector
+operations listed in the section :ref:`NVectors.Ops` are callable via
+the Fortran 2003 interface by prepending an `F' (e.g. ``FN_VDestroy_Pthreads``).
+The module NVECTOR_PTHREADS provides the following additional
+user-callable routines:
 
 
 .. c:function:: N_Vector N_VNew_Pthreads(sunindextype vec_length, int num_threads)
@@ -164,13 +176,13 @@ provides the following additional user-callable routines:
 .. c:function:: N_Vector N_VNewEmpty_Pthreads(sunindextype vec_length, int num_threads)
 
    This function creates a new Pthreads ``N_Vector`` with an empty
-   (``NULL``) data array. 
+   (``NULL``) data array.
 
 
 .. c:function:: N_Vector N_VMake_Pthreads(sunindextype vec_length, realtype* v_data, int num_threads)
 
    This function creates and allocates memory for a Pthreads vector with
-   user-provided data array, *v_data*. 
+   user-provided data array, *v_data*.
 
    (This function does *not* allocate memory for ``v_data`` itself.)
 
@@ -178,7 +190,7 @@ provides the following additional user-callable routines:
 .. c:function:: N_Vector* N_VCloneVectorArray_Pthreads(int count, N_Vector w)
 
    This function creates (by cloning) an array of *count* Pthreads
-   vectors. 
+   vectors.
 
 
 .. c:function:: N_Vector* N_VCloneVectorArrayEmpty_Pthreads(int count, N_Vector w)
@@ -188,16 +200,11 @@ provides the following additional user-callable routines:
 
 
 .. c:function:: void N_VDestroyVectorArray_Pthreads(N_Vector* vs, int count)
-  
+
    This function frees memory allocated for the array of *count*
    variables of type ``N_Vector`` created with
    :c:func:`N_VCloneVectorArray_Pthreads()` or with
-   :c:func:`N_VCloneVectorArrayEmpty_Pthreads()`. 
-
-
-.. c:function:: sunindextype N_VGetLength_Pthreads(N_Vector v)
-
-   This function returns the number of vector elements.
+   :c:func:`N_VCloneVectorArrayEmpty_Pthreads()`.
 
 
 .. c:function:: void N_VPrint_Pthreads(N_Vector v)
@@ -221,71 +228,71 @@ operations enabled/disabled as cloned vectors inherit the same enable/disable
 options as the vector they are cloned from while vectors created with
 :c:func:`N_VNew_Pthreads` will have the default settings for the NVECTOR_PTHREADS module.
 
-.. c:function:: void N_VEnableFusedOps_Pthreads(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableFusedOps_Pthreads(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) all fused and
    vector array operations in the Pthreads vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
-   
-.. c:function:: void N_VEnableLinearCombination_Pthreads(N_Vector v, booleantype tf)
+
+.. c:function:: int N_VEnableLinearCombination_Pthreads(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear
    combination fused operation in the Pthreads vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: void N_VEnableScaleAddMulti_Pthreads(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableScaleAddMulti_Pthreads(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale and
    add a vector to multiple vectors fused operation in the Pthreads vector. The
    return value is ``0`` for success and ``-1`` if the input vector or its
    ``ops`` structure are ``NULL``.
 
-.. c:function:: void N_VEnableDotProdMulti_Pthreads(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableDotProdMulti_Pthreads(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the multiple
    dot products fused operation in the Pthreads vector. The return value is ``0``
    for success and ``-1`` if the input vector or its ``ops`` structure are
    ``NULL``.
 
-.. c:function:: void N_VEnableLinearSumVectorArray_Pthreads(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableLinearSumVectorArray_Pthreads(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear sum
    operation for vector arrays in the Pthreads vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: void N_VEnableScaleVectorArray_Pthreads(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableScaleVectorArray_Pthreads(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale
    operation for vector arrays in the Pthreads vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: void N_VEnableConstVectorArray_Pthreads(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableConstVectorArray_Pthreads(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the const
    operation for vector arrays in the Pthreads vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: void N_VEnableWrmsNormVectorArray_Pthreads(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableWrmsNormVectorArray_Pthreads(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the WRMS norm
    operation for vector arrays in the Pthreads vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: void N_VEnableWrmsNormMaskVectorArray_Pthreads(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableWrmsNormMaskVectorArray_Pthreads(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the masked WRMS
    norm operation for vector arrays in the Pthreads vector. The return value is
    ``0`` for success and ``-1`` if the input vector or its ``ops`` structure are
    ``NULL``.
 
-.. c:function:: void N_VEnableScaleAddMultiVectorArray_Pthreads(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableScaleAddMultiVectorArray_Pthreads(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale and
    add a vector array to multiple vector arrays operation in the Pthreads vector. The
    return value is ``0`` for success and ``-1`` if the input vector or its
    ``ops`` structure are ``NULL``.
 
-.. c:function:: void N_VEnableLinearCombinationVectorArray_Pthreads(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableLinearCombinationVectorArray_Pthreads(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear
    combination operation for vector arrays in the Pthreads vector. The return value
@@ -297,8 +304,8 @@ options as the vector they are cloned from while vectors created with
 
 * When looping over the components of an ``N_Vector v``, it is more
   efficient to first obtain the component array via ``v_data =
-  NV_DATA_PT(v)`` and then access ``v_data[i]`` within the loop than it 
-  is to use ``NV_Ith_S(v,i)`` within the loop. 
+  NV_DATA_PT(v)`` and then access ``v_data[i]`` within the loop than it
+  is to use ``NV_Ith_S(v,i)`` within the loop.
 
 * :c:func:`N_VNewEmpty_Pthreads()`, :c:func:`N_VMake_Pthreads()`, and
   :c:func:`N_VCloneVectorArrayEmpty_Pthreads()` set the field *own_data*
@@ -306,7 +313,7 @@ options as the vector they are cloned from while vectors created with
   :c:func:`N_VDestroyVectorArray_Pthreads()` will not attempt to free the
   pointer data for any ``N_Vector`` with *own_data* set to ``SUNFALSE``.
   In such a case, it is the user's responsibility to deallocate the
-  data pointer. 
+  data pointer.
 
 * To maximize efficiency, vector operations in the NVECTOR_PTHREADS
   implementation that have more than one ``N_Vector`` argument do not
@@ -316,13 +323,38 @@ options as the vector they are cloned from while vectors created with
   internal representations.
 
 
+NVECTOR_PTHREADS Fortran Interfaces
+------------------------------------
+
+The NVECTOR_PTHREADS module provides a Fortran 2003 module as well as
+Fortran 77 style interface functions for use from Fortran applications.
+
+FORTRAN 2003 interface module
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The ``fnvector_pthreads_mod`` Fortran module defines interfaces to all
+NVECTOR_PTHREADS C functions using the intrinsic ``iso_c_binding``
+module which provides a standardized mechanism for interoperating with C. As
+noted in the C function descriptions above, the interface functions are
+named after the corresponding C function, but with a leading ``F``. For
+example, the function ``N_VNew_Pthreads`` is interfaced as
+``FN_VNew_Pthreads``.
+
+The Fortran 2003 NVECTOR_PTHREADS interface module can be accessed with the ``use``
+statement, i.e. ``use fnvector_pthreads_mod``, and linking to the library
+``libsundials_fnvectorpthreads_mod.lib`` in addition to the C library.
+For details on where the library and module file
+``fnvector_pthreads_mod.mod`` are installed see the section :ref:`Installation`.
+
+
+FORTRAN 77 interface functions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 For solvers that include a Fortran interface module, the
 NVECTOR_PTHREADS module slso includes a Fortran-callable function
 ``FNVINITPTS(code, NEQ, NUMTHREADS, IER)``, to initialize this
-NVECTOR_PTHREADS module.  Here ``code`` is an input solver id
+module.  Here ``code`` is an input solver id
 (1 for CVODE, 2 for IDA, 3 for KINSOL, 4 for ARKode); ``NEQ`` is
 the problem size (declared so as to match C type ``long int``);
 ``NUMTHREADS`` is the number of threads; and ``IER`` is an error
 return flag equal 0 for success and -1 for failure.
-

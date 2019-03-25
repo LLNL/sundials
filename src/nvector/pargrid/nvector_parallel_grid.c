@@ -24,6 +24,7 @@
 
 #include <nvector/nvector_parallel_grid.h>
 #include <sundials/sundials_math.h>
+#include <sundials/sundials_mpi.h>
 
 #define ZERO   RCONST(0.0)
 #define HALF   RCONST(0.5)
@@ -70,8 +71,6 @@ for (i0=NV_OFFSET_PG(x,0); i0<NV_OFFSET_PG(x,0)+NV_ACTIVELEN_PG(x,0); i0++) { \
 static booleantype VCheck_Compatible(N_Vector x, N_Vector z);
 /* vector data length */
 static sunindextype NV_DATALEN_PG(N_Vector x);
-/* Reduction operations add/max/min over the processor group */
-static realtype VAllReduce_Parallel_Grid(realtype d, int op, MPI_Comm comm);
 /* z=x */
 static void VCopy_Parallel_Grid(N_Vector x, N_Vector z);
 /* z=x+y */
@@ -155,6 +154,8 @@ N_Vector N_VNewEmpty_Parallel_Grid(MPI_Comm comm,
   ops->nvspace           = N_VSpace_Parallel_Grid;
   ops->nvgetarraypointer = N_VGetArrayPointer_Parallel_Grid;
   ops->nvsetarraypointer = N_VSetArrayPointer_Parallel_Grid;
+  ops->nvgetcommunicator = N_VGetCommunicator_Parallel_Grid;
+  ops->nvgetlength       = N_VGetLength_Parallel_Grid;
 
   /* standard vector operations */
   ops->nvlinearsum    = N_VLinearSum_Parallel_Grid;
@@ -191,6 +192,17 @@ N_Vector N_VNewEmpty_Parallel_Grid(MPI_Comm comm,
   ops->nvscaleaddmultivectorarray     = NULL;
   ops->nvlinearcombinationvectorarray = NULL;
 
+  /* local reduction kernels */
+  ops->nvdotprodlocal     = N_VDotProdLocal_Parallel_Grid;
+  ops->nvmaxnormlocal     = N_VMaxNormLocal_Parallel_Grid;
+  ops->nvminlocal         = N_VMinLocal_Parallel_Grid;
+  ops->nvl1normlocal      = N_VL1NormLocal_Parallel_Grid;
+  ops->nvinvtestlocal     = N_VInvTestLocal_Parallel_Grid;
+  ops->nvconstrmasklocal  = N_VConstrMaskLocal_Parallel_Grid;
+  ops->nvminquotientlocal = N_VMinQuotientLocal_Parallel_Grid;
+  ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Parallel_Grid;
+  ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Parallel_Grid;
+  
   /* Create content */
   content = NULL;
   content = (N_VectorContent_Parallel_Grid) 
@@ -683,6 +695,8 @@ N_Vector N_VCloneEmpty_Parallel_Grid(N_Vector w)
   ops->nvspace           = w->ops->nvspace;
   ops->nvgetarraypointer = w->ops->nvgetarraypointer;
   ops->nvsetarraypointer = w->ops->nvsetarraypointer;
+  ops->nvgetcommunicator = w->ops->nvgetcommunicator;
+  ops->nvgetlength       = w->ops->nvgetlength;
 
   /* standard vector operations */
   ops->nvlinearsum    = w->ops->nvlinearsum;
@@ -719,6 +733,17 @@ N_Vector N_VCloneEmpty_Parallel_Grid(N_Vector w)
   ops->nvscaleaddmultivectorarray     = w->ops->nvscaleaddmultivectorarray;
   ops->nvlinearcombinationvectorarray = w->ops->nvlinearcombinationvectorarray;
 
+  /* local reduction kernels */
+  ops->nvdotprodlocal     = w->ops->nvdotprodlocal;
+  ops->nvmaxnormlocal     = w->ops->nvmaxnormlocal;
+  ops->nvminlocal         = w->ops->nvminlocal;
+  ops->nvl1normlocal      = w->ops->nvl1normlocal;
+  ops->nvinvtestlocal     = w->ops->nvinvtestlocal;
+  ops->nvconstrmasklocal  = w->ops->nvconstrmasklocal;
+  ops->nvminquotientlocal = w->ops->nvminquotientlocal;
+  ops->nvwsqrsumlocal     = w->ops->nvwsqrsumlocal;
+  ops->nvwsqrsummasklocal = w->ops->nvwsqrsummasklocal;
+  
   /* Create content */  
   content = NULL;
   content = (N_VectorContent_Parallel_Grid) 
@@ -809,6 +834,16 @@ void N_VSetArrayPointer_Parallel_Grid(realtype *v_data, N_Vector v)
   if (NV_DATALEN_PG(v) > 0) NV_DATA_PG(v) = v_data;
 
   return;
+}
+
+void *N_VGetCommunicator(N_Vector v)
+{
+  return((void *) &NV_COMM_PG(v));
+}
+
+sunindextype N_VGetLength(N_Vector v)
+{
+  return(NV_GLOBLENGTH_PG(v));
 }
 
 void N_VLinearSum_Parallel_Grid(realtype a, N_Vector x, realtype b, 
@@ -1096,10 +1131,9 @@ void N_VAddConst_Parallel_Grid(N_Vector x, realtype b, N_Vector z)
   return;
 }
 
-realtype N_VDotProd_Parallel_Grid(N_Vector x, N_Vector y)
+realtype N_VDotProdLocal_Parallel_Grid(N_Vector x, N_Vector y)
 {
-  realtype sum, *xd, *yd, gsum;
-  MPI_Comm comm;
+  realtype sum, *xd, *yd;
   sunindextype i0, i1, i2, i3, i4, i5, i;
   xd = yd = NULL;
 
@@ -1126,19 +1160,21 @@ realtype N_VDotProd_Parallel_Grid(N_Vector x, N_Vector y)
     }
     NV_LOOPEND_PG();
   }
+  return(sum);
+}
 
-  /* communicate to obtain global sum */
-  comm = NV_COMM_PG(x);
-  gsum = VAllReduce_Parallel_Grid(sum, 1, comm);
-
+realtype N_VDotProd_Parallel_Grid(N_Vector x, N_Vector y)
+{
+  realtype gsum;
+  SUNMPI_Allreduce_scalar(N_VDotProdLocal_Parallel_Grid(x,y),
+                          &gsum, SUNMPI_SUM, NV_COMM_PG(x));
   return(gsum);
 }
 
-realtype N_VMaxNorm_Parallel_Grid(N_Vector x)
+realtype N_VMaxNormLocal_Parallel_Grid(N_Vector x)
 {
   sunindextype i0, i1, i2, i3, i4, i5, i;
-  realtype max, *xd, gmax;
-  MPI_Comm comm;
+  realtype max, *xd;
   xd = NULL;
 
   /* access data array */
@@ -1158,18 +1194,21 @@ realtype N_VMaxNorm_Parallel_Grid(N_Vector x)
     NV_LOOPEND_PG();
   }
 
-  /* communicate to obtain global max */
-  comm = NV_COMM_PG(x);
-  gmax = VAllReduce_Parallel_Grid(max, 2, comm);
+  return(max);
+}
 
+realtype N_VMaxNorm_Parallel_Grid(N_Vector x)
+{
+  realtype gmax;
+  SUNMPI_Allreduce_scalar(N_VMaxNormLocal_Parallel_Grid(x),
+                          &gmax, SUNMPI_MAX, NV_COMM_PG(x));
   return(gmax);
 }
 
-realtype N_VWrmsNorm_Parallel_Grid(N_Vector x, N_Vector w)
+realtype N_VWSqrSumLocal_Parallel_Grid(N_Vector x, N_Vector w)
 {
   sunindextype i0, i1, i2, i3, i4, i5, i;
-  realtype sum, *xd, *wd, gsum, prodi;
-  MPI_Comm comm;
+  realtype sum, *xd, *wd, prodi;
   xd = wd = NULL;
 
   /* check for compatibility */
@@ -1198,18 +1237,21 @@ realtype N_VWrmsNorm_Parallel_Grid(N_Vector x, N_Vector w)
     NV_LOOPEND_PG();
   }
 
-  /* communicate to obtain global sum */
-  comm = NV_COMM_PG(x);
-  gsum = VAllReduce_Parallel_Grid(sum, 1, comm);
-
-  return(SUNRsqrt(gsum/NV_GLOBLENGTH_PG(x)));
+  return(sum);
 }
 
-realtype N_VWrmsNormMask_Parallel_Grid(N_Vector x, N_Vector w, N_Vector id)
+realtype N_VWrmsNorm_Parallel_Grid(N_Vector x, N_Vector w)
+{
+  realtype gsum;
+  SUNMPI_Allreduce_scalar(N_VWSqrSumLocal_Parallel_Grid(x, w),
+                          &gsum, SUNMPI_SUM, NV_COMM_PG(x));
+  return(SUNRsqrt(gsum/(NV_GLOBLENGTH_PG(x))));
+}
+
+realtype N_VWSqrSumMaskLocal_Parallel_Grid(N_Vector x, N_Vector w, N_Vector id)
 {
   sunindextype i0, i1, i2, i3, i4, i5, i;
-  realtype sum, prodi, *xd, *wd, *idd, gsum;
-  MPI_Comm comm;
+  realtype sum, prodi, *xd, *wd, *idd;
   xd = wd = idd = NULL;
 
   /* check for compatibility */
@@ -1247,18 +1289,20 @@ realtype N_VWrmsNormMask_Parallel_Grid(N_Vector x, N_Vector w, N_Vector id)
     NV_LOOPEND_PG();
   }
 
-  /* communicate to obtain global sum */
-  comm = NV_COMM_PG(x);
-  gsum = VAllReduce_Parallel_Grid(sum, 1, comm);
-
-  return(SUNRsqrt(gsum/NV_GLOBLENGTH_PG(x)));
+  return(sum);
 }
 
-realtype N_VMin_Parallel_Grid(N_Vector x)
+realtype N_VWrmsNormMask_Parallel_Grid(N_Vector x, N_Vector w, N_Vector id)
+{
+  realtype gsum;
+  SUNMPI_Allreduce_scalar(N_VWSqrSumMaskLocal_Parallel_Grid(x, w, id),
+                          &gsum, SUNMPI_SUM, NV_COMM_PG(x));
+  return(SUNRsqrt(gsum/(NV_GLOBLENGTH_PG(x))));
+}
+
+realtype N_VMinLocal_Parallel_Grid(N_Vector x)
 {
   sunindextype i0, i1, i2, i3, i4, i5, i;
-  realtype gmin;
-  MPI_Comm comm;
   realtype *xd = NULL;
   realtype min = BIG_REAL;
 
@@ -1285,58 +1329,28 @@ realtype N_VMin_Parallel_Grid(N_Vector x)
 
   }
 
-  /* communicate to obtain global min */
-  comm = NV_COMM_PG(x);
-  gmin = VAllReduce_Parallel_Grid(min, 3, comm);
+  return(min);
+}
 
+realtype N_VMin_Parallel_Grid(N_Vector x)
+{
+  realtype gmin;
+  SUNMPI_Allreduce_scalar(N_VMinLocal_Parallel_Grid(x),
+                          &gmin, SUNMPI_MIN, NV_COMM_PG(x));
   return(gmin);
 }
 
 realtype N_VWL2Norm_Parallel_Grid(N_Vector x, N_Vector w)
 {
-  sunindextype i0, i1, i2, i3, i4, i5, i;
-  realtype prodi, *xd, *wd, gsum;
-  MPI_Comm comm;
-  realtype sum = ZERO;
-  xd = wd = NULL;
-
-  /* check for compatibility */
-  if (!VCheck_Compatible(x,w)) {
-    fprintf(stderr,"N_VWl2Norm_Parallel_Grid error: x,w incompatible\n");
-    return(-1.0);
-  }
-
-  /* access data arrays */
-  xd = NV_DATA_PG(x);
-  wd = NV_DATA_PG(w);
-  
-  /* iterate over active values to compute norm */
-  if (NV_FORDER_PG(x)) {
-    NV_FLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
-      prodi = xd[i]*wd[i];
-      sum += SUNSQR(prodi);
-    }
-    NV_LOOPEND_PG();
-  } else {
-    NV_CLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
-      prodi = xd[i]*wd[i];
-      sum += SUNSQR(prodi);
-    }
-    NV_LOOPEND_PG();
-  }
-
-  /* communicate to obtain global sum */
-  comm = NV_COMM_PG(x);
-  gsum = VAllReduce_Parallel_Grid(sum, 1, comm);
-
+  realtype gsum;
+  SUNMPI_Allreduce_scalar(N_VWSqrSumLocal_Parallel_Grid(x, w),
+                          &gsum, SUNMPI_SUM, NV_COMM_PG(x));
   return(SUNRsqrt(gsum));
 }
 
-realtype N_VL1Norm_Parallel_Grid(N_Vector x)
+realtype N_VL1NormLocal_Parallel_Grid(N_Vector x)
 {
   sunindextype i0, i1, i2, i3, i4, i5, i;
-  realtype gsum;
-  MPI_Comm comm;
   realtype sum = ZERO;
   realtype *xd = NULL;
 
@@ -1356,10 +1370,14 @@ realtype N_VL1Norm_Parallel_Grid(N_Vector x)
     NV_LOOPEND_PG();
   }
 
-  /* communicate to obtain global sum */
-  comm = NV_COMM_PG(x);
-  gsum = VAllReduce_Parallel_Grid(sum, 1, comm);
+  return(sum);
+}
 
+realtype N_VL1Norm_Parallel_Grid(N_Vector x)
+{
+  realtype gsum;
+  SUNMPI_Allreduce_scalar(N_VL1NormLocal_Parallel_Grid(x),
+                          &gsum, SUNMPI_SUM, NV_COMM_PG(x));
   return(gsum);
 }
 
@@ -1387,11 +1405,10 @@ void N_VCompare_Parallel_Grid(realtype c, N_Vector x, N_Vector z)
   return;
 }
 
-booleantype N_VInvTest_Parallel_Grid(N_Vector x, N_Vector z)
+booleantype N_VInvTestLocal_Parallel_Grid(N_Vector x, N_Vector z)
 {
   sunindextype i0, i1, i2, i3, i4, i5, i;
-  realtype *xd, *zd, val, gval;
-  MPI_Comm comm;
+  realtype *xd, *zd, val;
   xd = zd = NULL;
 
   /* check for compatibility */
@@ -1424,22 +1441,29 @@ booleantype N_VInvTest_Parallel_Grid(N_Vector x, N_Vector z)
     NV_LOOPEND_PG();
   }
 
-  /* communicate to obtain global min */
-  comm = NV_COMM_PG(x);
-  gval = VAllReduce_Parallel_Grid(val, 3, comm);
+  if (val == ZERO)
+    return(SUNFALSE);
+  else
+    return(SUNTRUE);
+}
 
+booleantype N_VInvTest_Parallel_Grid(N_Vector x, N_Vector z)
+{
+  realtype val, gval;
+  val = (N_VInvTestLocal_Parallel_Grid(x, z)) ? ONE : ZERO;
+  SUNMPI_Allreduce_scalar(val, &gval, SUNMPI_MIN, NV_COMM_PG(x));
   if (gval == ZERO)
     return(SUNFALSE);
   else
     return(SUNTRUE);
 }
 
-booleantype N_VConstrMask_Parallel_Grid(N_Vector c, N_Vector x, N_Vector m)
+booleantype N_VConstrMaskLocal_Parallel_Grid(N_Vector c, N_Vector x, N_Vector m)
 {
   sunindextype i0, i1, i2, i3, i4, i5, i;
   realtype temp;
   realtype *cd, *xd, *md;
-  MPI_Comm comm;
+  booleantype test;
   cd = xd = md = NULL;
 
   /* check for compatibility */
@@ -1457,51 +1481,57 @@ booleantype N_VConstrMask_Parallel_Grid(N_Vector c, N_Vector x, N_Vector m)
   cd = NV_DATA_PG(c);
   md = NV_DATA_PG(m);
 
-
   /* perform operation on domain interior */
   temp = ONE;
   if (NV_FORDER_PG(x)) {
     NV_FLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
       md[i] = ZERO;
+
+      /* Continue if no constraints were set for the variable */
       if (cd[i] == ZERO) continue;
-      if (cd[i] > ONEPT5 || cd[i] < -ONEPT5) {
-	if (xd[i]*cd[i] <= ZERO) { temp = ZERO; md[i] = ONE; }
-	continue;
-      }
-      if (cd[i] > HALF || cd[i] < -HALF) {
-	if (xd[i]*cd[i] < ZERO ) { temp = ZERO; md[i] = ONE; }
+
+      /* Check if a set constraint has been violated */
+      test = (SUNRabs(cd[i]) > ONEPT5 && xd[i]*cd[i] <= ZERO) ||
+             (SUNRabs(cd[i]) > HALF   && xd[i]*cd[i] <  ZERO);
+      if (test) {
+        temp = md[i] = ONE;
       }
     }
     NV_LOOPEND_PG();
   } else {
     NV_CLOOP_PG(i0, i1, i2, i3, i4, i5, i, x) {
       md[i] = ZERO;
+
+      /* Continue if no constraints were set for the variable */
       if (cd[i] == ZERO) continue;
-      if (cd[i] > ONEPT5 || cd[i] < -ONEPT5) {
-	if (xd[i]*cd[i] <= ZERO) { temp = ZERO; md[i] = ONE; }
-	continue;
-      }
-      if (cd[i] > HALF || cd[i] < -HALF) {
-	if (xd[i]*cd[i] < ZERO ) { temp = ZERO; md[i] = ONE; }
+
+      /* Check if a set constraint has been violated */
+      test = (SUNRabs(cd[i]) > ONEPT5 && xd[i]*cd[i] <= ZERO) ||
+             (SUNRabs(cd[i]) > HALF   && xd[i]*cd[i] <  ZERO);
+      if (test) {
+        temp = md[i] = ONE;
       }
     }
     NV_LOOPEND_PG();
   }
 
-  /* communicate to obtain global min */
-  comm = NV_COMM_PG(x);
-  temp = VAllReduce_Parallel_Grid(temp, 3, comm);
-
-  if (temp == ONE) return(SUNTRUE);
-  else return(SUNFALSE);
+  /* Return false if any constraint was violated */
+  return (temp == ONE) ? SUNFALSE : SUNTRUE;
 }
 
-realtype N_VMinQuotient_Parallel_Grid(N_Vector num, N_Vector denom)
+booleantype N_VConstrMask_Parallel_Grid(N_Vector c, N_Vector x, N_Vector m)
+{
+  realtype temp, temp2;
+  temp = (N_VConstrMaskLocal_Parallel_Grid(c, x, m)) ? ZERO : ONE;
+  SUNMPI_Allreduce_scalar(temp, &temp2, SUNMPI_MAX, NV_COMM_PG(x));
+  return (temp2 == ONE) ? SUNFALSE : SUNTRUE;
+}
+
+realtype N_VMinQuotientLocal_Parallel_Grid(N_Vector num, N_Vector denom)
 {
   sunindextype i0, i1, i2, i3, i4, i5, i;
   booleantype notEvenOnce;
   realtype *nd, *dd, min;
-  MPI_Comm comm;
   nd = dd = NULL;
 
   /* check for compatibility */
@@ -1542,10 +1572,15 @@ realtype N_VMinQuotient_Parallel_Grid(N_Vector num, N_Vector denom)
     }
     NV_LOOPEND_PG();
   }
+  return(min);
+}
 
-  /* communicate to obtain global min */
-  comm = NV_COMM_PG(num);
-  return(VAllReduce_Parallel_Grid(min, 3, comm));
+realtype N_VMinQuotient_Parallel_Grid(N_Vector num, N_Vector denom)
+{
+  realtype gmin;
+  SUNMPI_Allreduce_scalar(N_VMinQuotientLocal_Parallel_Grid(num, denom),
+                          &gmin, SUNMPI_MIN, NV_COMM_PG(num));
+  return(gmin);
 }
 
 /*
@@ -1618,34 +1653,6 @@ static sunindextype NV_DATALEN_PG(N_Vector x) {
   for (i=0; i<MAX_DIMS; i++)  N *= NV_ARRAYLEN_PG(x,i);
 
   return N;
-}
-
-static realtype VAllReduce_Parallel_Grid(realtype d, int op, MPI_Comm comm)
-{
-  /* 
-   * This function does a global reduction.  The operation is
-   *   sum if op = 1,
-   *   max if op = 2,
-   *   min if op = 3.
-   * The operation is over all processors in the communicator 
-   */
-
-  realtype out;
-
-  switch (op) {
-   case 1: MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
-           break;
-
-   case 2: MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_MAX, comm);
-           break;
-
-   case 3: MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_MIN, comm);
-           break;
-
-   default: break;
-  }
-
-  return(out);
 }
 
 static void VCopy_Parallel_Grid(N_Vector x, N_Vector z)

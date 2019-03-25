@@ -71,6 +71,19 @@ void N_VSetArrayPointer(realtype *v_data, N_Vector v)
   return;
 }
 
+void *N_VGetCommunicator(N_Vector v)
+{
+  if (v->ops->nvgetcommunicator)
+    return(v->ops->nvgetcommunicator(v));
+  else
+    return(NULL);
+}
+
+sunindextype N_VGetLength(N_Vector v)
+{
+  return((sunindextype) v->ops->nvgetlength(v));
+}
+
 /* -----------------------------------------------------------------
  * standard vector operations
  * ----------------------------------------------------------------- */
@@ -494,4 +507,54 @@ void N_VDestroyVectorArray(N_Vector *vs, int count)
   free(vs); vs = NULL;
 
   return;
+}
+
+
+/* -----------------------------------------------------------------
+ * OPTIONAL local reduction kernels (no parallel communication)
+ * ----------------------------------------------------------------- */
+
+realtype N_VDotProdLocal(N_Vector x, N_Vector y)
+{
+  return((realtype) y->ops->nvdotprodlocal(x, y));
+}
+
+realtype N_VMaxNormLocal(N_Vector x)
+{
+  return((realtype) x->ops->nvmaxnormlocal(x));
+}
+
+realtype N_VMinLocal(N_Vector x)
+{
+  return((realtype) x->ops->nvminlocal(x));
+}
+
+realtype N_VL1NormLocal(N_Vector x)
+{
+  return((realtype) x->ops->nvl1normlocal(x));
+}
+
+realtype N_VWSqrSumLocal(N_Vector x, N_Vector w)
+{
+  return((realtype) x->ops->nvwsqrsumlocal(x,w));
+}
+
+realtype N_VWSqrSumMaskLocal(N_Vector x, N_Vector w, N_Vector id)
+{
+  return((realtype) x->ops->nvwsqrsummasklocal(x,w,id));
+}
+
+booleantype N_VInvTestLocal(N_Vector x, N_Vector z)
+{
+  return((booleantype) z->ops->nvinvtestlocal(x,z));
+}
+
+booleantype N_VConstrMaskLocal(N_Vector c, N_Vector x, N_Vector m)
+{
+  return((booleantype) x->ops->nvconstrmasklocal(c,x,m));
+}
+
+realtype N_VMinQuotientLocal(N_Vector num, N_Vector denom)
+{
+  return((realtype) num->ops->nvminquotientlocal(num,denom));
 }

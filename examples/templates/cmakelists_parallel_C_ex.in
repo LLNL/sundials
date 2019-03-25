@@ -54,15 +54,23 @@ FIND_LIBRARY(SUNDIALS_SOLVER_LIB
   DOC "@SOLVER@ library")
 
 # Find the NVECTOR library
-FIND_LIBRARY(SUNDIALS_NVEC_LIB
+FIND_LIBRARY(SUNDIALS_NVECPAR_LIB
   sundials_nvecparallel ${SUNDIALS_LIB_DIR}
-  DOC "NVECTOR library")
+  DOC "NVECTOR parallel library")
+
+FIND_LIBRARY(SUNDIALS_NVECSER_LIB
+  sundials_nvecserial ${SUNDIALS_LIB_DIR}
+  DOC "NVECTOR serial library")
+
+FIND_LIBRARY(SUNDIALS_MANYVEC_LIB
+  sundials_nvecmanyvector ${SUNDIALS_LIB_DIR}
+  DOC "NVECTOR manyvector library")
 
 # Set additional libraries
 SET(SUNDIALS_EXTRA_LIB @LIBS@ CACHE STRING "Additional libraries")
 
 # List of all libraries
-SET(SUNDIALS_LIBS ${SUNDIALS_SOLVER_LIB} ${SUNDIALS_NVEC_LIB} ${SUNDIALS_EXTRA_LIB})
+SET(SUNDIALS_LIBS ${SUNDIALS_SOLVER_LIB} ${SUNDIALS_NVECPAR_LIB} ${SUNDIALS_NVECSER_LIB} ${SUNDIALS_MANYVEC_LIB} ${SUNDIALS_EXTRA_LIB})
 
 # Build each example one by one
 FOREACH(example ${examples})

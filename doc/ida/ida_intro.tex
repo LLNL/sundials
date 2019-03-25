@@ -66,6 +66,39 @@ in extended {\F}.
 
 \section{Changes from previous versions}
 
+\subsection*{Changes in v5.0.0}
+
+An additional {\nvector} implementation, {\nvecmanyvector}, was
+created to support flexible partitioning of solution data among
+different processing elements (e.g., CPU + GPU) or for multi-physics
+problems that couple distinct MPI-based simulations together (see
+Section \ref{ss:nvec_manyvector} for more details).  This
+implementation is accompanied by additions to user documentation and
+{\sundials} examples.
+
+Eleven new optional vector operations have been added to the {\nvector} API to
+support the new {\nvecmanyvector} implementation (see Chapter \ref{s:nvector}
+for more details). Two of the operations, \id{N\_VGetCommunicator} and
+\id{N\_VGetLength}, must be implemented by subvectors that are combined to
+create an {\nvecmanyvector}, but are not used outside of this context. The
+remaining nine operations are optional local reduction operations intended to
+eliminate unnecessary latency when performing vector reduction operations
+(norms, etc.) on distributed memory systems. The optional local reduction vector
+operations are
+\id{N\_VDotProdLocal},
+\id{N\_VMaxNormLocal},
+\id{N\_VMinLocal},
+\id{N\_VL1NormLocal},
+\id{N\_VWSqrSumLocal},
+\id{N\_VWSqrSumMaskLocal},
+\id{N\_VInvTestLocal},
+\id{N\_VConstrMaskLocal}, and\\
+\id{N\_VMinQuotientLocal}.
+If an {\nvector} implementation defines any of the local operations as
+\id{NULL}, then the {\nvecmanyvector} will call standard {\nvector} operations
+to complete the computation.
+
+
 \subsection*{Changes in v4.1.0}
 
 An additional {\nvector} implementation was added for the
@@ -122,7 +155,7 @@ statistics.
 The names of all constructor routines for {\sundials}-provided
 {\sunlinsol} implementations have been updated to follow the naming convention
 \id{SUNLinSol\_*} where \id{*} is the name of the linear solver. The new names
-are 
+are
 \id{SUNLinSol\_Band},
 \id{SUNLinSol\_Dense},
 \id{SUNLinSol\_KLU},

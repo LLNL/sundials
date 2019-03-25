@@ -161,6 +161,10 @@ SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_Serial(int nvec, int nsum,
                                                            N_Vector** X,
                                                            N_Vector* Z);
 
+/* OPTIONAL local reduction kernels (no parallel communication) */
+SUNDIALS_EXPORT realtype N_VWSqrSumLocal_Serial(N_Vector x, N_Vector w);
+SUNDIALS_EXPORT realtype N_VWSqrSumMaskLocal_Serial(N_Vector x, N_Vector w, N_Vector id);
+  
 /*
  * -----------------------------------------------------------------
  * Enable / disable fused vector operations

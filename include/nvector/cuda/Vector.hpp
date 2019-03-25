@@ -214,6 +214,11 @@ public:
   {
     return comm_;
   }
+  
+  SUNMPI_Comm* comm_ptr()
+  {
+    return &comm_;
+  }
 
   T* host()
   {

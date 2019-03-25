@@ -21,11 +21,11 @@ The NVECTOR_PARHYP Module
 ======================================
 
 The NVECTOR_PARHYP implementation of the NVECTOR  module provided with
-SUNDIALS is a wrapper around HYPRE's ParVector class. 
-Most of the vector kernels simply call HYPRE vector operations. 
-The implementation defines the *content* field of ``N_Vector`` to 
-be a structure containing the global and local lengths of the vector, a 
-pointer to an object of type ``hypre_ParVector``, an MPI communicator, 
+SUNDIALS is a wrapper around HYPRE's ParVector class.
+Most of the vector kernels simply call HYPRE vector operations.
+The implementation defines the *content* field of ``N_Vector`` to
+be a structure containing the global and local lengths of the vector, a
+pointer to an object of type ``hypre_ParVector``, an MPI communicator,
 and a boolean flag *own_parvector* indicating ownership of the
 HYPRE parallel vector object *x*.
 
@@ -43,25 +43,35 @@ HYPRE parallel vector object *x*.
    };
 
 The header file to be included when using this module is ``nvector_parhyp.h``.
-Unlike native SUNDIALS vector types, NVECTOR_PARHYP does not provide macros 
-to access its member variables.
+The installed module library to link to is
+``libsundials_nvecparhyp.lib`` where ``.lib`` is typically ``.so`` for
+shared libraries and ``.a`` for static libraries.
 
+Unlike native SUNDIALS vector types, NVECTOR_PARHYP does not provide macros
+to access its member variables.
+Note that NVECTOR_PARHYP requires SUNDIALS to be built with MPI support.
+
+
+
+NVECTOR_PARHYP functions
+-----------------------------------
 
 The NVECTOR_PARHYP module defines implementations of all vector
 operations listed in the sections :ref:`NVectors.Ops`,
-:ref:`NVectors.FusedOps` and :ref:`NVectors.ArrayOps`, except for 
-``N_VSetArrayPointer`` and ``N_VGetArrayPointer``, because accessing
-raw vector data is handled by low-level HYPRE functions.  As such,
-this vector is not available for use with SUNDIALS Fortran
-interfaces.  When access to raw vector data is needed, one should
-extract the HYPRE HYPRE vector first, and then use HYPRE methods to
-access the data.  Usage examples of NVECTOR_PARHYP are provided in
-the ``cvAdvDiff_non_ph.c`` example programs for CVODE and the
-``ark_diurnal_kry_ph.c`` example program for ARKode.
+:ref:`NVectors.FusedOps`, :ref:`NVectors.ArrayOps`, and
+:ref:`NVectors.LocalOps`, except for ``N_VSetArrayPointer`` and
+``N_VGetArrayPointer``, because accessing raw vector data is handled
+by low-level HYPRE functions.  As such, this vector is not available
+for use with SUNDIALS Fortran interfaces.  When access to raw vector
+data is needed, one should extract the HYPRE vector first, and
+then use HYPRE methods to access the data.  Usage examples of
+NVECTOR_PARHYP are provided in the ``cvAdvDiff_non_ph.c`` example
+programs for CVODE and the ``ark_diurnal_kry_ph.c`` example program
+for ARKode.
 
 The names of parhyp methods are obtained from those in the sections
-:ref:`NVectors.Ops`, :ref:`NVectors.FusedOps` and
-:ref:`NVectors.ArrayOps` by appending the suffix ``_ParHyp`` 
+:ref:`NVectors.Ops`, :ref:`NVectors.FusedOps`, :ref:`NVectors.ArrayOps`, and
+:ref:`NVectors.LocalOps` by appending the suffix ``_ParHyp``
 (e.g. ``N_VDestroy_ParHyp``).  The module NVECTOR_PARHYP provides the
 following additional user-callable routines:
 
@@ -69,7 +79,7 @@ following additional user-callable routines:
 .. c:function:: N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm, sunindextype local_length, sunindextype global_length)
 
    This function creates a new parhyp ``N_Vector`` with the pointer to the
-   HYPRE vector set to ``NULL``. 
+   HYPRE vector set to ``NULL``.
 
 
 .. c:function:: N_Vector N_VMake_ParHyp(hypre_ParVector *x)
@@ -79,14 +89,14 @@ following additional user-callable routines:
 
 
 .. c:function:: hypre_ParVector *N_VGetVector_ParHyp(N_Vector v)
-  
+
    This function returns a pointer to the underlying HYPRE vector.
 
 
 .. c:function:: N_Vector* N_VCloneVectorArray_ParHyp(int count, N_Vector w)
 
    This function creates (by cloning) an array of *count* parhyp
-   vectors. 
+   vectors.
 
 
 .. c:function:: N_Vector* N_VCloneVectorArrayEmpty_ParHyp(int count, N_Vector w)
@@ -96,11 +106,11 @@ following additional user-callable routines:
 
 
 .. c:function:: void N_VDestroyVectorArray_ParHyp(N_Vector* vs, int count)
-  
+
    This function frees memory allocated for the array of *count*
    variables of type ``N_Vector`` created with
    :c:func:`N_VCloneVectorArray_ParHyp()` or with
-   :c:func:`N_VCloneVectorArrayEmpty_ParHyp()`. 
+   :c:func:`N_VCloneVectorArrayEmpty_ParHyp()`.
 
 
 .. c:function:: void N_VPrint_ParHyp(N_Vector v)
@@ -124,83 +134,83 @@ operations enabled/disabled as cloned vectors inherit the same enable/disable
 options as the vector they are cloned from while vectors created with
 :c:func:`N_VMake_ParHyp` will have the default settings for the NVECTOR_PARHYP module.
 
-.. c:function:: void N_VEnableFusedOps_ParHyp(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableFusedOps_ParHyp(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) all fused and
    vector array operations in the parhyp vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
-   
-.. c:function:: void N_VEnableLinearCombination_ParHyp(N_Vector v, booleantype tf)
+
+.. c:function:: int N_VEnableLinearCombination_ParHyp(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear
    combination fused operation in the parhyp vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: void N_VEnableScaleAddMulti_ParHyp(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableScaleAddMulti_ParHyp(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale and
    add a vector to multiple vectors fused operation in the parhyp vector. The
    return value is ``0`` for success and ``-1`` if the input vector or its
    ``ops`` structure are ``NULL``.
 
-.. c:function:: void N_VEnableDotProdMulti_ParHyp(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableDotProdMulti_ParHyp(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the multiple
    dot products fused operation in the parhyp vector. The return value is ``0``
    for success and ``-1`` if the input vector or its ``ops`` structure are
    ``NULL``.
 
-.. c:function:: void N_VEnableLinearSumVectorArray_ParHyp(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableLinearSumVectorArray_ParHyp(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear sum
    operation for vector arrays in the parhyp vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: void N_VEnableScaleVectorArray_ParHyp(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableScaleVectorArray_ParHyp(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale
    operation for vector arrays in the parhyp vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: void N_VEnableConstVectorArray_ParHyp(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableConstVectorArray_ParHyp(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the const
    operation for vector arrays in the parhyp vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: void N_VEnableWrmsNormVectorArray_ParHyp(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableWrmsNormVectorArray_ParHyp(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the WRMS norm
    operation for vector arrays in the parhyp vector. The return value is ``0`` for
    success and ``-1`` if the input vector or its ``ops`` structure are ``NULL``.
 
-.. c:function:: void N_VEnableWrmsNormMaskVectorArray_ParHyp(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableWrmsNormMaskVectorArray_ParHyp(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the masked WRMS
    norm operation for vector arrays in the parhyp vector. The return value is
    ``0`` for success and ``-1`` if the input vector or its ``ops`` structure are
    ``NULL``.
 
-.. c:function:: void N_VEnableScaleAddMultiVectorArray_ParHyp(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableScaleAddMultiVectorArray_ParHyp(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the scale and
    add a vector array to multiple vector arrays operation in the parhyp vector. The
    return value is ``0`` for success and ``-1`` if the input vector or its
    ``ops`` structure are ``NULL``.
 
-.. c:function:: void N_VEnableLinearCombinationVectorArray_ParHyp(N_Vector v, booleantype tf)
+.. c:function:: int N_VEnableLinearCombinationVectorArray_ParHyp(N_Vector v, booleantype tf)
 
    This function enables (``SUNTRUE``) or disables (``SUNFALSE``) the linear
    combination operation for vector arrays in the parhyp vector. The return value
    is ``0`` for success and ``-1`` if the input vector or its ``ops`` structure
-   are ``NULL``. 
-    
+   are ``NULL``.
+
 
 **Notes**
 
-* When there is a need to access components of an ``N_Vector_ParHyp v``, 
-  it is recommended to extract the HYPRE vector via 
-  ``x_vec = N_VGetVector_ParHyp(v)`` and then access components using 
+* When there is a need to access components of an ``N_Vector_ParHyp v``,
+  it is recommended to extract the HYPRE vector via
+  ``x_vec = N_VGetVector_ParHyp(v)`` and then access components using
   appropriate HYPRE functions.
 
 * :c:func:`N_VNewEmpty_ParHyp()`, :c:func:`N_VMake_ParHyp()`, and
@@ -217,5 +227,3 @@ options as the vector they are cloned from while vectors created with
   the user's responsibility to ensure that such routines are called
   with ``N_Vector`` arguments that were all created with the same
   internal representations.
-
-

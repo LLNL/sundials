@@ -1,9 +1,9 @@
-/* ----------------------------------------------------------------- 
+/* -----------------------------------------------------------------
  * Programmer(s): David J. Gardner @ LLNL
  * -----------------------------------------------------------------
- * Acknowledgements: This NVECTOR module is based on the NVECTOR 
- *                   Serial module by Scott D. Cohen, Alan C. 
- *                   Hindmarsh, Radu Serban, and Aaron Collier 
+ * Acknowledgements: This NVECTOR module is based on the NVECTOR
+ *                   Serial module by Scott D. Cohen, Alan C.
+ *                   Hindmarsh, Radu Serban, and Aaron Collier
  *                   @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -16,7 +16,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the header file for the POSIX Threads (Pthreads) 
+ * This is the header file for the POSIX Threads (Pthreads)
  * implementation of the NVECTOR module using LOCAL data structs
  * to share data between threads.
  *
@@ -26,8 +26,8 @@
  *     in the header file sundials_nvector.h.
  *
  *   - The definition of the type 'realtype' can be found in the
- *     header file sundials_types.h, and it may be changed (at the 
- *     configuration stage) according to the user's needs. 
+ *     header file sundials_types.h, and it may be changed (at the
+ *     configuration stage) according to the user's needs.
  *     The sundials_types.h file also contains the definition
  *     for the type 'booleantype'.
  *
@@ -203,6 +203,11 @@ SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_Pthreads(int nvec, int nsum,
                                                              realtype* c,
                                                              N_Vector** X,
                                                              N_Vector* Z);
+
+/* OPTIONAL local reduction kernels (no parallel communication) */
+SUNDIALS_EXPORT realtype N_VWSqrSumLocal_Pthreads(N_Vector x, N_Vector w);
+SUNDIALS_EXPORT realtype N_VWSqrSumMaskLocal_Pthreads(N_Vector x, N_Vector w, N_Vector id);
+
 
 /*
  * -----------------------------------------------------------------

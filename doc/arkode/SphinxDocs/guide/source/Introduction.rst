@@ -107,6 +107,40 @@ preconditioner routines.
 Changes from previous versions
 --------------------------------
 
+Changes in v4.0.0
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+An additional NVECTOR implementation, NVECTOR_MANYVECTOR, was
+created to support flexible partitioning of solution data among
+different processing elements (e.g., CPU + GPU) or for multi-physics
+problems that couple distinct MPI-based simulations together (see the
+Section :ref:`NVectors.ManyVector` for more details).  This
+implementation is accompanied by additions to user documentation and
+SUNDIALS examples.
+
+Eleven new optional vector operations have been added to the NVECTOR API to
+support the new NVECTOR_MANYVECTOR implementation (see the Chapter :ref:`NVectors`
+for more details). Two of the operations, :c:func:`N_VGetCommunicator()` and
+:c:func:`N_VGetLength()`, must be implemented by subvectors that are combined to
+create an NVECTOR_MANYVECTOR, but are not used outside of this context. The
+remaining nine operations are optional local reduction operations intended to
+eliminate unnecessary latency when performing vector reduction operations
+(norms, etc.) on distributed memory systems. The optional local reduction vector
+operations are
+:c:func:`N_VDotProdLocal()`,
+:c:func:`N_VMaxNormLocal()`,
+:c:func:`N_VMinLocal()`,
+:c:func:`N_VL1NormLocal()`,
+:c:func:`N_VWSqrSumLocal()`,
+:c:func:`N_VWSqrSumMaskLocal()`,
+:c:func:`N_VInvTestLocal()`,
+:c:func:`N_VConstrMaskLocal()`, and
+:c:func:`N_VMinQuotientLocal()`.
+If an NVECTOR implementation defines any of the local operations as ``NULL``,
+then the NVECTOR_MANYVECTOR will call standard NVECTOR operations to complete
+the computation.
+
+
 Changes in v3.1.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -179,7 +213,7 @@ Two changes were made in the initial step size algorithm:
 * Fixed an efficiency bug where an extra call to the right hand side function was made.
 
 * Changed the behavior of the algorithm if the max-iterations case is hit.
-  Before the algorithm would exit with the step size calculated on the 
+  Before the algorithm would exit with the step size calculated on the
   penultimate iteration. Now it will exit with the step size calculated
   on the final iteration.
 
@@ -191,7 +225,7 @@ ARKode's previous direct and iterative linear solver interfaces, ARKDLS and
 ARKSPILS, have been merged into a single unified linear solver interface, ARKLS,
 to support any valid SUNLINSOL module. This includes ``DIRECT`` and
 ``ITERATIVE`` types as well as the new ``MATRIX_ITERATIVE`` type. Details
-regarding how ARKLS utilizes linear solvers of each type as well as discussion 
+regarding how ARKLS utilizes linear solvers of each type as well as discussion
 regarding intended use cases for user-supplied SUNLinSol implementations are
 included in the chapter :ref:`SUNLinSol`. All ARKode examples programs and the
 standalone linear solver examples have been updated to use the unified linear
@@ -264,16 +298,16 @@ Multiple changes to the CUDA NVECTOR were made:
 
   * Changed the ``N_VMake_Cuda`` function to take a host data pointer and a device
     data pointer instead of an ``N_VectorContent_Cuda`` object.
-    
+
   * Changed ``N_VGetLength_Cuda`` to return the global vector length instead of
     the local vector length.
 
   * Added ``N_VGetLocalLength_Cuda`` to return the local vector length.
-  
+
   * Added ``N_VGetMPIComm_Cuda`` to return the MPI communicator used.
 
   * Removed the accessor functions in the namespace ``suncudavec``.
-  
+
   * Added the ability to set the ``cudaStream_t`` used for execution of the CUDA
     NVECTOR kernels. See the function ``N_VSetCudaStreams_Cuda``.
 
@@ -288,13 +322,13 @@ Multiple changes to the RAJA NVECTOR were made:
   * Added ``N_VGetLocalLength_Raja`` to return the local vector length.
 
   * Added ``N_VGetMPIComm_Raja`` to return the MPI communicator used.
- 
+
   * Removed the accessor functions in the namespace ``sunrajavec``.
 
 A new NVECTOR implementation for leveraging OpenMP 4.5+ device offloading has
 been added, NVECTOR_OpenMPDEV. See :ref:`NVectors.OpenMPDEV` for more details.
 
-     
+
 Changes in v2.2.1
 ^^^^^^^^^^^^^^^^^^^^^^^
 

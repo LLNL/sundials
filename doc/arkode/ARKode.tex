@@ -300,6 +300,39 @@ preconditioner routines.
 \section{Changes from previous versions}
 \label{Introduction:changes-from-previous-versions}
 
+\subsection{Changes in v4.0.0}
+\label{Introduction:changes-in-v4-0-0}
+An additional NVECTOR implementation, NVECTOR\_MANYVECTOR, was
+created to support flexible partitioning of solution data among
+different processing elements (e.g., CPU + GPU) or for multi-physics
+problems that couple distinct MPI-based simulations together (see the
+Section {\hyperref[nvectors/NVector_ManyVector:nvectors-manyvector]{\emph{\DUspan{}{The NVECTOR\_MANYVECTOR Module}}}} for more details).  This
+implementation is accompanied by additions to user documentation and
+SUNDIALS examples.
+
+Eleven new optional vector operations have been added to the NVECTOR API to
+support the new NVECTOR\_MANYVECTOR implementation (see the Chapter {\hyperref[nvectors/index:nvectors]{\emph{\DUspan{}{Vector Data Structures}}}}
+for more details). Two of the operations, {\hyperref[nvectors/NVector_Operations:c.N_VGetCommunicator]{\emph{\code{N\_VGetCommunicator()}}}} and
+{\hyperref[nvectors/NVector_Operations:c.N_VGetLength]{\emph{\code{N\_VGetLength()}}}}, must be implemented by subvectors that are combined to
+create an NVECTOR\_MANYVECTOR, but are not used outside of this context. The
+remaining nine operations are optional local reduction operations intended to
+eliminate unnecessary latency when performing vector reduction operations
+(norms, etc.) on distributed memory systems. The optional local reduction vector
+operations are
+{\hyperref[nvectors/NVector_Operations:c.N_VDotProdLocal]{\emph{\code{N\_VDotProdLocal()}}}},
+{\hyperref[nvectors/NVector_Operations:c.N_VMaxNormLocal]{\emph{\code{N\_VMaxNormLocal()}}}},
+{\hyperref[nvectors/NVector_Operations:c.N_VMinLocal]{\emph{\code{N\_VMinLocal()}}}},
+{\hyperref[nvectors/NVector_Operations:c.N_VL1NormLocal]{\emph{\code{N\_VL1NormLocal()}}}},
+{\hyperref[nvectors/NVector_Operations:c.N_VWSqrSumLocal]{\emph{\code{N\_VWSqrSumLocal()}}}},
+{\hyperref[nvectors/NVector_Operations:c.N_VWSqrSumMaskLocal]{\emph{\code{N\_VWSqrSumMaskLocal()}}}},
+{\hyperref[nvectors/NVector_Operations:c.N_VInvTestLocal]{\emph{\code{N\_VInvTestLocal()}}}},
+{\hyperref[nvectors/NVector_Operations:c.N_VConstrMaskLocal]{\emph{\code{N\_VConstrMaskLocal()}}}}, and
+{\hyperref[nvectors/NVector_Operations:c.N_VMinQuotientLocal]{\emph{\code{N\_VMinQuotientLocal()}}}}.
+If an NVECTOR implementation defines any of the local operations as \code{NULL},
+then the NVECTOR\_MANYVECTOR will call standard NVECTOR operations to complete
+the computation.
+
+
 \subsection{Changes in v3.1.0}
 \label{Introduction:changes-in-v3-1-0}
 An additional NVECTOR implementation was added for the
@@ -315,13 +348,14 @@ enables all examples that use CUDA including the RAJA examples with a CUDA back 
 (if the RAJA NVECTOR is enabled).
 
 The implementation header file \emph{arkode\_impl.h} is no longer installed. This means users
-who are directly manipulating the \code{ARKodeMem} structure will need to update their code
+who are direclty manipulating the \code{ARKodeMem} structure will need to update their code
 to use ARKode's public API.
 
 Python is no longer required to run \code{make test} and \code{make test\_install}.
 
 Fixed a bug in \code{ARKodeButcherTable\_Write} when printing a Butcher table
 without an embedding.
+
 
 \subsection{Changes in v3.0.2}
 \label{Introduction:changes-in-v3-0-2}
@@ -23234,46 +23268,57 @@ defined as
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{k}{struct} \PYG{n}{\PYGZus{}generic\PYGZus{}N\PYGZus{}Vector\PYGZus{}Ops} \PYG{p}{\PYGZob{}}
-   \PYG{n}{N\PYGZus{}Vector\PYGZus{}ID} \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvgetvectorid}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{n}{N\PYGZus{}Vector}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvclone}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{n}{N\PYGZus{}Vector}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvcloneempty}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvdestroy}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvspace}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{sunindextype} \PYG{o}{*}\PYG{p}{,} \PYG{n}{sunindextype} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
-   \PYG{n}{realtype}\PYG{o}{*}   \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvgetarraypointer}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvsetarraypointer}\PYG{p}{)}\PYG{p}{(}\PYG{n}{realtype} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvlinearsum}\PYG{p}{)}\PYG{p}{(}\PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvconst}\PYG{p}{)}\PYG{p}{(}\PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvprod}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvdiv}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvscale}\PYG{p}{)}\PYG{p}{(}\PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvabs}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvinv}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvaddconst}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{n}{realtype}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvdotprod}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{n}{realtype}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvmaxnorm}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{n}{realtype}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvwrmsnorm}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{n}{realtype}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvwrmsnormmask}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{n}{realtype}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvmin}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{n}{realtype}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvwl2norm}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{n}{realtype}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvl1norm}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{void}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvcompare}\PYG{p}{)}\PYG{p}{(}\PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{n}{booleantype} \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvinvtest}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{n}{booleantype} \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvconstrmask}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{n}{realtype}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvminquotient}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{int}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvlinearcombination}\PYG{p}{)}\PYG{p}{(}\PYG{k+kt}{int}\PYG{p}{,} \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{int}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvscaleaddmulti}\PYG{p}{)}\PYG{p}{(}\PYG{k+kt}{int}\PYG{p}{,} \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{int}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvdotprodmulti}\PYG{p}{)}\PYG{p}{(}\PYG{k+kt}{int}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,}  \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{int}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvlinearsumvectorarray}\PYG{p}{)}\PYG{p}{(}\PYG{k+kt}{int}\PYG{p}{,} \PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{realtype}\PYG{p}{,}
-                                         \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{int}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvscalevectorarray}\PYG{p}{)}\PYG{p}{(}\PYG{k+kt}{int}\PYG{p}{,} \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{,}  \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{int}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvconstvectorarray}\PYG{p}{)}\PYG{p}{(}\PYG{k+kt}{int}\PYG{p}{,} \PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{int}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvwrmsnomrvectorarray}\PYG{p}{)}\PYG{p}{(}\PYG{k+kt}{int}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{int}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvwrmsnomrmaskvectorarray}\PYG{p}{)}\PYG{p}{(}\PYG{k+kt}{int}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,}
-                                            \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{int}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvscaleaddmultivectorarray}\PYG{p}{)}\PYG{p}{(}\PYG{k+kt}{int}\PYG{p}{,} \PYG{k+kt}{int}\PYG{p}{,} \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,}
-                                             \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
-   \PYG{k+kt}{int}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvlinearcombinationvectorarray}\PYG{p}{)}\PYG{p}{(}\PYG{k+kt}{int}\PYG{p}{,} \PYG{k+kt}{int}\PYG{p}{,} \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{o}{*}\PYG{p}{,}
-                                                 \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{N\PYGZus{}Vector\PYGZus{}ID}  \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvgetvectorid}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{N\PYGZus{}Vector}     \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvclone}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{N\PYGZus{}Vector}     \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvcloneempty}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{void}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvdestroy}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{void}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvspace}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{sunindextype} \PYG{o}{*}\PYG{p}{,} \PYG{n}{sunindextype} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{realtype}\PYG{o}{*}    \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvgetarraypointer}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{void}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvsetarraypointer}\PYG{p}{)}\PYG{p}{(}\PYG{n}{realtype} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{void}\PYG{o}{*}        \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvgetcommunicator}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{sunindextype} \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvgetlength}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{void}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvlinearsum}\PYG{p}{)}\PYG{p}{(}\PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{void}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvconst}\PYG{p}{)}\PYG{p}{(}\PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{void}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvprod}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{void}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvdiv}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{void}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvscale}\PYG{p}{)}\PYG{p}{(}\PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{void}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvabs}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{void}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvinv}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{void}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvaddconst}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{realtype}     \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvdotprod}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{realtype}     \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvmaxnorm}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{realtype}     \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvwrmsnorm}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{realtype}     \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvwrmsnormmask}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{realtype}     \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvmin}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{realtype}     \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvwl2norm}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{realtype}     \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvl1norm}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{void}         \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvcompare}\PYG{p}{)}\PYG{p}{(}\PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{booleantype}  \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvinvtest}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{booleantype}  \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvconstrmask}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{realtype}     \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvminquotient}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{int}          \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvlinearcombination}\PYG{p}{)}\PYG{p}{(}\PYG{k+kt}{int}\PYG{p}{,} \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{int}          \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvscaleaddmulti}\PYG{p}{)}\PYG{p}{(}\PYG{k+kt}{int}\PYG{p}{,} \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{int}          \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvdotprodmulti}\PYG{p}{)}\PYG{p}{(}\PYG{k+kt}{int}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,}  \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{int}          \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvlinearsumvectorarray}\PYG{p}{)}\PYG{p}{(}\PYG{k+kt}{int}\PYG{p}{,} \PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{realtype}\PYG{p}{,}
+                                          \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{int}          \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvscalevectorarray}\PYG{p}{)}\PYG{p}{(}\PYG{k+kt}{int}\PYG{p}{,} \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{,}  \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{int}          \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvconstvectorarray}\PYG{p}{)}\PYG{p}{(}\PYG{k+kt}{int}\PYG{p}{,} \PYG{n}{realtype}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{int}          \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvwrmsnomrvectorarray}\PYG{p}{)}\PYG{p}{(}\PYG{k+kt}{int}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{int}          \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvwrmsnomrmaskvectorarray}\PYG{p}{)}\PYG{p}{(}\PYG{k+kt}{int}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,}
+                                             \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{int}          \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvscaleaddmultivectorarray}\PYG{p}{)}\PYG{p}{(}\PYG{k+kt}{int}\PYG{p}{,} \PYG{k+kt}{int}\PYG{p}{,} \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{,}
+                                              \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
+   \PYG{k+kt}{int}          \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvlinearcombinationvectorarray}\PYG{p}{)}\PYG{p}{(}\PYG{k+kt}{int}\PYG{p}{,} \PYG{k+kt}{int}\PYG{p}{,} \PYG{n}{realtype} \PYG{o}{*}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{o}{*}\PYG{p}{,}
+                                                  \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{realtype}     \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvdotprodlocal}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{realtype}     \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvmaxnormlocal}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{realtype}     \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvminlocal}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{realtype}     \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvl1normlocal}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{booleantype}  \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvinvtestlocal}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{booleantype}  \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvconstrmasklocal}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{realtype}     \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvminquotientlocal}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{realtype}     \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvwsqrsumlocal}\PYG{p}{)}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
+   \PYG{n}{realtype}     \PYG{p}{(}\PYG{o}{*}\PYG{n}{nvwsqrsummasklocal}\PYG{p}{(}\PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{Verbatim}
 
@@ -23294,19 +23339,32 @@ module, namely \code{N\_VScale}, which performs the scaling of a vector
 
 The subsection {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}} contains a complete list of all
 standard vector operations defined by the generic NVECTOR module.  The
-subsections {\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}} and {\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}} list
-\emph{optional} fused and vector array operations respectively.
+subsections {\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}} and
+{\hyperref[nvectors/NVector_Operations:nvectors-localops]{\emph{\DUspan{}{Description of the NVECTOR local reduction operations}}}} list \emph{optional} fused, vector array and local
+reduction operations respectively.
 
 Fused and vector array operations are intended to increase data reuse, reduce
 parallel communication on distributed memory systems, and lower the number of
 kernel launches on systems with accelerators. If a particular NVECTOR
 implementation defines a fused or vector array operation as \code{NULL}, the
 generic NVECTOR module will automatically call standard vector operations as
-necessary to complete the desired operation. Currently, all fused and vector
-array operations are disabled by default however, SUNDIALS provided NVECTOR
-implementations define additional user-callable functions to enable/disable
-any or all of the fused and vector array operations. See the following sections
+necessary to complete the desired operation. In all SUNDIALS-provided
+NVECTOR implementations, all fused and vector array operations are
+disabled by default.  However, these implementations provide
+additional user-callable functions to enable/disable any or all of the
+fused and vector array operations. See the following sections
 for the implementation specific functions to enable/disable operations.
+
+Local reduction operations are similarly intended to reduce parallel
+communication on distributed memory systems, particularly when
+NVECTOR objects are combined together within a NVECTOR\_MANYVECTOR
+object (see the section {\hyperref[nvectors/NVector_ManyVector:nvectors-manyvector]{\emph{\DUspan{}{The NVECTOR\_MANYVECTOR Module}}}}).  If a
+particular NVECTOR implementation defines a local reduction
+operation as \code{NULL}, the NVECTOR\_MANYVECTOR module will
+automatically call standard vector reduction operations as necessary
+to complete the desired operation. All SUNDIALS-provided NVECTOR
+implementations include these local reduction operations, which may be
+used as templates for user-defined NVECTOR implementations.
 
 Finally, we note that the generic NVECTOR module defines the functions
 \code{N\_VCloneVectorArray} and \code{N\_VCloneVectorArrayEmpty}. Both
@@ -23421,11 +23479,46 @@ PETSc parallel vector
 5
 \\
 \hline
+SUNDIALS\_NVEC\_CUDA
+ & 
+CUDA parallel vector
+ & 
+6
+\\
+\hline
+SUNDIALS\_NVEC\_RAJA
+ & 
+RAJA parallel vector
+ & 
+7
+\\
+\hline
+SUNDIALS\_NVEC\_OPENMPDEV
+ & 
+OpenMP shared memory parallel with device offloading
+ & 
+8
+\\
+\hline
+SUNDIALS\_NVEC\_TRILINOS
+ & 
+Trilinos Tpetra vector
+ & 
+9
+\\
+\hline
+SUNDIALS\_NVEC\_MANYVECTOR
+ & 
+``ManyVector'' parallel vector
+ & 
+10
+\\
+\hline
 SUNDIALS\_NVEC\_CUSTOM
  & 
 User-provided custom vector
  & 
-6
+11
 \\
 \hline\end{tabulary}
 
@@ -23535,7 +23628,7 @@ provided with SUNDIALS.
 Usage:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{vdata} \PYG{o}{=} \PYG{n}{NVGetArrayPointer}\PYG{p}{(}\PYG{n}{v}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{vdata} \PYG{o}{=} \PYG{n}{N\PYGZus{}VGetArrayPointer}\PYG{p}{(}\PYG{n}{v}\PYG{p}{)}\PYG{p}{;}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -23554,7 +23647,41 @@ user-supplied NVECTOR module.
 Usage:
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{NVSetArrayPointer}\PYG{p}{(}\PYG{n}{vdata}\PYG{p}{,}\PYG{n}{v}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{N\PYGZus{}VSetArrayPointer}\PYG{p}{(}\PYG{n}{vdata}\PYG{p}{,}\PYG{n}{v}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VGetCommunicator (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VGetCommunicator}\pysiglinewithargsret{void* \bfcode{N\_VGetCommunicator}}{N\_Vector\emph{ v}}{}
+Returns a pointer to the \code{MPI\_Comm} object associated with the
+vector (if applicable).  For MPI-unaware vector implementations, this
+should return \code{NULL}.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{commptr} \PYG{o}{=} \PYG{n}{N\PYGZus{}VGetCommunicator}\PYG{p}{(}\PYG{n}{v}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VGetLength (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VGetLength}\pysiglinewithargsret{sunindextype \bfcode{N\_VGetLength}}{N\_Vector\emph{ v}}{}
+Returns the global length (number of `active' entries) in the
+NVECTOR \emph{v}.  This value should be cumulative across all processes
+if the vector is used in a parallel environment.  If \emph{v}
+contains additional storage, e.g., for parallel communication, those
+entries should not be included.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{global\PYGZus{}length} \PYG{o}{=} \PYG{n}{N\PYGZus{}VGetLength}\PYG{p}{(}\PYG{n}{v}\PYG{p}{)}\PYG{p}{;}
 \end{Verbatim}
 
 \end{fulllineitems}
@@ -24155,6 +24282,218 @@ Usage:
 
 
 
+\subsection{Description of the NVECTOR local reduction operations}
+\label{nvectors/NVector_Operations:nvectors-localops}\label{nvectors/NVector_Operations:description-of-the-nvector-local-reduction-operations}
+The following local reduction operations are also \emph{optional}. As with
+the fused and vector array operations, these are intended to reduce
+parallel communication on distributed memory systems. If a particular
+NVECTOR implementation defines one of the local reduction operations
+as \code{NULL}, the NVECTOR interface will call one of the above standard
+vector operations as necessary.  As above, for each operation, we give
+the name, usage of the function, and a description of its mathematical
+operations below.
+\index{N\_VDotProdLocal (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VDotProdLocal}\pysiglinewithargsret{realtype \bfcode{N\_VDotProdLocal}}{N\_Vector\emph{ x}, N\_Vector\emph{ y}}{}
+This routine computes the MPI task-local portion of the ordinary
+dot product of \emph{x} and \emph{y}:
+\begin{gather}
+\begin{split}d=\sum_{i=0}^{n_{local}-1} x_i y_i,\end{split}\notag
+\end{gather}
+where \(n_{local}\) corresponds to the number of components in
+the vector on this MPI task (or \(n_{local}=n\) for MPI-unaware
+applications).
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{d} \PYG{o}{=} \PYG{n}{N\PYGZus{}VDotProdLocal}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{y}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VMaxNormLocal (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VMaxNormLocal}\pysiglinewithargsret{realtype \bfcode{N\_VMaxNormLocal}}{N\_Vector\emph{ x}}{}
+This routine computes the MPI task-local portion of the maximum
+norm of the NVECTOR \emph{x}:
+\begin{gather}
+\begin{split}m = \max_{0\le i< n_{local}} | x_i |,\end{split}\notag
+\end{gather}
+where \(n_{local}\) corresponds to the number of components in
+the vector on this MPI task (or \(n_{local}=n\) for MPI-unaware
+applications).
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{m} \PYG{o}{=} \PYG{n}{N\PYGZus{}VMaxNormLocal}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VMinLocal (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VMinLocal}\pysiglinewithargsret{realtype \bfcode{N\_VMinLocal}}{N\_Vector\emph{ x}}{}
+This routine computes the smallest element of the MPI task-local
+portion of the NVECTOR \emph{x}:
+\begin{gather}
+\begin{split}m = \min_{0\le i< n_{local}} x_i,\end{split}\notag
+\end{gather}
+where \(n_{local}\) corresponds to the number of components in
+the vector on this MPI task (or \(n_{local}=n\) for MPI-unaware
+applications).
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{m} \PYG{o}{=} \PYG{n}{N\PYGZus{}VMinLocal}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VL1NormLocal (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VL1NormLocal}\pysiglinewithargsret{realtype \bfcode{N\_VL1NormLocal}}{N\_Vector\emph{ x}}{}
+This routine computes the MPI task-local portion of the \(l_1\)
+norm of the \code{N\_Vector} \emph{x}:
+\begin{gather}
+\begin{split}n = \sum_{i=0}^{n_{local}-1} | x_i |,\end{split}\notag
+\end{gather}
+where \(n_{local}\) corresponds to the number of components in
+the vector on this MPI task (or \(n_{local}=n\) for MPI-unaware
+applications).
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{n} \PYG{o}{=} \PYG{n}{N\PYGZus{}VL1NormLocal}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VWSqrSumLocal (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VWSqrSumLocal}\pysiglinewithargsret{realtype \bfcode{N\_VWSqrSumLocal}}{N\_Vector\emph{ x}, N\_Vector\emph{ w}}{}
+This routine computes the MPI task-local portion of the weighted
+squared sum of the NVECTOR \emph{x} with weight vector \emph{w}:
+\begin{gather}
+\begin{split}s = \sum_{i=0}^{n_{local}-1} (x_i w_i)^2,\end{split}\notag
+\end{gather}
+where \(n_{local}\) corresponds to the number of components in
+the vector on this MPI task (or \(n_{local}=n\) for MPI-unaware
+applications).
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{s} \PYG{o}{=} \PYG{n}{N\PYGZus{}VWSqrSumLocal}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{w}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VWSqrSumMaskLocal (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VWSqrSumMaskLocal}\pysiglinewithargsret{realtype \bfcode{N\_VWSqrSumMaskLocal}}{N\_Vector\emph{ x}, N\_Vector\emph{ w}, N\_Vector\emph{ id}}{}
+This routine computes the MPI task-local portion of the weighted
+squared sum of the NVECTOR \emph{x} with weight vector \emph{w} built using
+only the elements of \emph{x} corresponding to positive elements of the NVECTOR \emph{id}:
+\begin{gather}
+\begin{split}m = \sum_{i=0}^{n_{local}-1} (x_i w_i H(id_i))^2,\end{split}\notag
+\end{gather}
+where
+\begin{gather}
+\begin{split}H(\alpha) = \begin{cases} 1 & \alpha > 0 \\ 0 & \alpha \leq 0 \end{cases}\end{split}\notag
+\end{gather}
+and \(n_{local}\) corresponds to the number of components in
+the vector on this MPI task (or \(n_{local}=n\) for MPI-unaware
+applications).
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{s} \PYG{o}{=} \PYG{n}{N\PYGZus{}VWSqrSumMaskLocal}\PYG{p}{(}\PYG{n}{x}\PYG{p}{,} \PYG{n}{w}\PYG{p}{,} \PYG{n}{id}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VInvTestLocal (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VInvTestLocal}\pysiglinewithargsret{booleantype \bfcode{N\_VInvTestLocal}}{N\_Vector\emph{ x}}{}
+This routine sets the MPI task-local components of the
+NVECTOR \emph{z} to be the inverses of the components of the NVECTOR
+\emph{x}, with prior testing for zero values:
+\begin{gather}
+\begin{split}z_i = 1.0 /  x_i  , \: i=0,\ldots,n_{local}-1\end{split}\notag
+\end{gather}
+where \(n_{local}\) corresponds to the number of components in
+the vector on this MPI task (or \(n_{local}=n\) for MPI-unaware
+applications).  This routine returns a boolean assigned to
+\code{SUNTRUE} if all task-local components of \emph{x} are nonzero
+(successful inversion) and returns \code{SUNFALSE} otherwise.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{t} \PYG{o}{=} \PYG{n}{N\PYGZus{}VInvTestLocal}\PYG{p}{(}\PYG{n}{x}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VConstrMaskLocal (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VConstrMaskLocal}\pysiglinewithargsret{booleantype \bfcode{N\_VConstrMaskLocal}}{N\_Vector\emph{ c}, N\_Vector\emph{ x}, N\_Vector\emph{ m}}{}
+This routine performs the following constraint tests:
+\(x_i > 0\) if \(c_i=2\),
+\(x_i \ge 0\) if \(c_i=1\),
+\(x_i \le 0\) if \(c_i=-1\),
+\(x_i < 0\) if \(c_i=-2\), and
+\(x_i =\) anything if \(c_i=0\),
+for all MPI task-local components of the vectors.
+This routine returns a boolean assigned to \code{SUNFALSE} if any
+task-local element failed the constraint test and assigned to
+\code{SUNTRUE} if all passed.  It also sets a mask vector \emph{m}, with
+elements equal to 1.0 where the constraint test failed, and 0.0
+where the test passed.  This routine is used only for constraint
+checking.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{t} \PYG{o}{=} \PYG{n}{N\PYGZus{}VConstrMaskLocal}\PYG{p}{(}\PYG{n}{c}\PYG{p}{,} \PYG{n}{x}\PYG{p}{,} \PYG{n}{m}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+\index{N\_VMinQuotientLocal (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Operations:c.N_VMinQuotientLocal}\pysiglinewithargsret{realtype \bfcode{N\_VMinQuotientLocal}}{N\_Vector\emph{ num}, N\_Vector\emph{ denom}}{}
+This routine returns the minimum of the quotients obtained by
+term-wise dividing \(num_i\) by \(denom_i\), for all MPI
+task-local components of the vectors.  A zero element in \emph{denom}
+will be skipped. If no such quotients are found, then the large value
+\code{BIG\_REAL} (defined in the header file \code{sundials\_types.h})
+is returned.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{minq} \PYG{o}{=} \PYG{n}{N\PYGZus{}VMinQuotientLocal}\PYG{p}{(}\PYG{n}{num}\PYG{p}{,} \PYG{n}{denom}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
+
+
 \section{The NVECTOR\_SERIAL Module}
 \label{nvectors/NVector_Serial:the-nvector-serial-module}\label{nvectors/NVector_Serial::doc}\label{nvectors/NVector_Serial:nvectors-nvserial}
 The serial implementation of the NVECTOR module provided with
@@ -24172,7 +24511,13 @@ flag \emph{own\_data} which specifies the ownership of data.
 \end{Verbatim}
 
 The header file to be included when using this module is \code{nvector\_serial.h}.
+The installed module library to link to is
+\code{libsundials\_nvecserial.lib} where \code{.lib} is typically \code{.so} for
+shared libraries and \code{.a} for static libraries.
 
+
+\subsection{NVECTOR\_SERIAL accessor macros}
+\label{nvectors/NVector_Serial:nvector-serial-accessor-macros}
 The following five macros are provided to access the content of an
 NVECTOR\_SERIAL vector. The suffix \code{\_S} in the names denotes the serial
 version.
@@ -24270,12 +24615,21 @@ Implementation:
 \end{fulllineitems}
 
 
+
+\subsection{NVECTOR\_SERIAL functions}
+\label{nvectors/NVector_Serial:nvector-serial-functions}
 The NVECTOR\_SERIAL module defines serial implementations of all vector
 operations listed in the sections {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}},
-{\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}} and {\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}.  Their names
-are obtained from those in those sections by appending the suffix
-\code{\_Serial} (e.g. \code{N\_VDestroy\_Serial}).  The module NVECTOR\_SERIAL
-provides the following additional user-callable routines:
+{\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}, and
+{\hyperref[nvectors/NVector_Operations:nvectors-localops]{\emph{\DUspan{}{Description of the NVECTOR local reduction operations}}}}.  Their names are obtained from those in
+those sections by appending the suffix \code{\_Serial}
+(e.g. \code{N\_VDestroy\_Serial}).  All the standard vector operations
+listed in the section {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}} with the suffix \code{\_Serial}
+appended are callable via the Fortran 2003 interface by prepending an
+\code{F} (e.g. \code{FN\_VDestroy\_Serial}).
+
+The module NVECTOR\_SERIAL provides the following additional
+user-callable routines:
 \index{N\_VNew\_Serial (C function)}
 
 \begin{fulllineitems}
@@ -24334,14 +24688,6 @@ variables of type \code{N\_Vector} created with
 
 \end{fulllineitems}
 
-\index{N\_VGetLength\_Serial (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Serial:c.N_VGetLength_Serial}\pysiglinewithargsret{sunindextype \bfcode{N\_VGetLength\_Serial}}{N\_Vector\emph{ v}}{}
-This function returns the number of vector elements.
-
-\end{fulllineitems}
-
 \index{N\_VPrint\_Serial (C function)}
 
 \begin{fulllineitems}
@@ -24372,7 +24718,7 @@ options as the vector they are cloned from while vectors created with
 \index{N\_VEnableFusedOps\_Serial (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Serial:c.N_VEnableFusedOps_Serial}\pysiglinewithargsret{void \bfcode{N\_VEnableFusedOps\_Serial}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Serial:c.N_VEnableFusedOps_Serial}\pysiglinewithargsret{int \bfcode{N\_VEnableFusedOps\_Serial}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) all fused and
 vector array operations in the serial vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -24382,7 +24728,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableLinearCombination\_Serial (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Serial:c.N_VEnableLinearCombination_Serial}\pysiglinewithargsret{void \bfcode{N\_VEnableLinearCombination\_Serial}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Serial:c.N_VEnableLinearCombination_Serial}\pysiglinewithargsret{int \bfcode{N\_VEnableLinearCombination\_Serial}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear
 combination fused operation in the serial vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -24392,7 +24738,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableScaleAddMulti\_Serial (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Serial:c.N_VEnableScaleAddMulti_Serial}\pysiglinewithargsret{void \bfcode{N\_VEnableScaleAddMulti\_Serial}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Serial:c.N_VEnableScaleAddMulti_Serial}\pysiglinewithargsret{int \bfcode{N\_VEnableScaleAddMulti\_Serial}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale and
 add a vector to multiple vectors fused operation in the serial vector. The
 return value is \code{0} for success and \code{-1} if the input vector or its
@@ -24403,7 +24749,7 @@ return value is \code{0} for success and \code{-1} if the input vector or its
 \index{N\_VEnableDotProdMulti\_Serial (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Serial:c.N_VEnableDotProdMulti_Serial}\pysiglinewithargsret{void \bfcode{N\_VEnableDotProdMulti\_Serial}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Serial:c.N_VEnableDotProdMulti_Serial}\pysiglinewithargsret{int \bfcode{N\_VEnableDotProdMulti\_Serial}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the multiple
 dot products fused operation in the serial vector. The return value is \code{0}
 for success and \code{-1} if the input vector or its \code{ops} structure are
@@ -24414,7 +24760,7 @@ for success and \code{-1} if the input vector or its \code{ops} structure are
 \index{N\_VEnableLinearSumVectorArray\_Serial (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Serial:c.N_VEnableLinearSumVectorArray_Serial}\pysiglinewithargsret{void \bfcode{N\_VEnableLinearSumVectorArray\_Serial}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Serial:c.N_VEnableLinearSumVectorArray_Serial}\pysiglinewithargsret{int \bfcode{N\_VEnableLinearSumVectorArray\_Serial}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear sum
 operation for vector arrays in the serial vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -24424,7 +24770,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableScaleVectorArray\_Serial (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Serial:c.N_VEnableScaleVectorArray_Serial}\pysiglinewithargsret{void \bfcode{N\_VEnableScaleVectorArray\_Serial}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Serial:c.N_VEnableScaleVectorArray_Serial}\pysiglinewithargsret{int \bfcode{N\_VEnableScaleVectorArray\_Serial}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale
 operation for vector arrays in the serial vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -24434,7 +24780,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableConstVectorArray\_Serial (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Serial:c.N_VEnableConstVectorArray_Serial}\pysiglinewithargsret{void \bfcode{N\_VEnableConstVectorArray\_Serial}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Serial:c.N_VEnableConstVectorArray_Serial}\pysiglinewithargsret{int \bfcode{N\_VEnableConstVectorArray\_Serial}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the const
 operation for vector arrays in the serial vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -24444,7 +24790,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableWrmsNormVectorArray\_Serial (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Serial:c.N_VEnableWrmsNormVectorArray_Serial}\pysiglinewithargsret{void \bfcode{N\_VEnableWrmsNormVectorArray\_Serial}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Serial:c.N_VEnableWrmsNormVectorArray_Serial}\pysiglinewithargsret{int \bfcode{N\_VEnableWrmsNormVectorArray\_Serial}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the WRMS norm
 operation for vector arrays in the serial vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -24454,7 +24800,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableWrmsNormMaskVectorArray\_Serial (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Serial:c.N_VEnableWrmsNormMaskVectorArray_Serial}\pysiglinewithargsret{void \bfcode{N\_VEnableWrmsNormMaskVectorArray\_Serial}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Serial:c.N_VEnableWrmsNormMaskVectorArray_Serial}\pysiglinewithargsret{int \bfcode{N\_VEnableWrmsNormMaskVectorArray\_Serial}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the masked WRMS
 norm operation for vector arrays in the serial vector. The return value is
 \code{0} for success and \code{-1} if the input vector or its \code{ops} structure are
@@ -24465,7 +24811,7 @@ norm operation for vector arrays in the serial vector. The return value is
 \index{N\_VEnableScaleAddMultiVectorArray\_Serial (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Serial:c.N_VEnableScaleAddMultiVectorArray_Serial}\pysiglinewithargsret{void \bfcode{N\_VEnableScaleAddMultiVectorArray\_Serial}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Serial:c.N_VEnableScaleAddMultiVectorArray_Serial}\pysiglinewithargsret{int \bfcode{N\_VEnableScaleAddMultiVectorArray\_Serial}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale and
 add a vector array to multiple vector arrays operation in the serial vector. The
 return value is \code{0} for success and \code{-1} if the input vector or its
@@ -24476,7 +24822,7 @@ return value is \code{0} for success and \code{-1} if the input vector or its
 \index{N\_VEnableLinearCombinationVectorArray\_Serial (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Serial:c.N_VEnableLinearCombinationVectorArray_Serial}\pysiglinewithargsret{void \bfcode{N\_VEnableLinearCombinationVectorArray\_Serial}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Serial:c.N_VEnableLinearCombinationVectorArray_Serial}\pysiglinewithargsret{int \bfcode{N\_VEnableLinearCombinationVectorArray\_Serial}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear
 combination operation for vector arrays in the serial vector. The return value
 is \code{0} for success and \code{-1} if the input vector or its \code{ops} structure
@@ -24512,13 +24858,40 @@ length.
 
 \end{itemize}
 
-For solvers that include a Fortran interface module, the
-NVECTOR\_SERIAL module also includes a Fortran-callable function
-\code{FNVINITS(code, NEQ, IER)}, to initialize this NVECTOR\_SERIAL
-module.  Here \code{code} is an input solver id (1 for CVODE, 2 for IDA,
-3 for KINSOL, 4 for ARKode); \code{NEQ} is the problem size (declared so
-as to match C type \code{long int}); and \code{IER} is an error return flag
-equal 0 for success and -1 for failure.
+
+\subsection{NVECTOR\_SERIAL Fortran Interfaces}
+\label{nvectors/NVector_Serial:nvector-serial-fortran-interfaces}
+The NVECTOR\_SERIAL module provides a Fortran 2003 module as well as
+Fortran 77 style interface functions for use from Fortran applications.
+
+
+\subsubsection{FORTRAN 2003 interface module}
+\label{nvectors/NVector_Serial:fortran-2003-interface-module}
+The \code{fnvector\_serial\_mod} Fortran module defines interfaces to all
+NVECTOR\_SERIAL C functions using the intrinsic \code{iso\_c\_binding}
+module which provides a standardized mechanism for interoperating with C. As
+noted in the C function descriptions above, the interface functions are
+named after the corresponding C function, but with a leading \code{F}. For
+example, the function \code{N\_VNew\_Serial} is interfaced as
+\code{FN\_VNew\_Serial}.
+
+The Fortran 2003 NVECTOR\_SERIAL interface module can be accessed with the \code{use}
+statement, i.e. \code{use fnvector\_serial\_mod}, and linking to the library
+\code{libsundials\_fnvectorserial\_mod.lib} in addition to the C library.
+For details on where the library and module file
+\code{fnvector\_serial\_mod.mod} are installed see the section {\hyperref[Install:installation]{\emph{\DUspan{}{ARKode Installation Procedure}}}}.
+We note that the module is accessible from the Fortran 2003 SUNDIALS integrators
+\emph{without} separately linking to the \code{libsundials\_fnvectorserial\_mod} library.
+
+
+\subsubsection{FORTRAN 77 interface functions}
+\label{nvectors/NVector_Serial:fortran-77-interface-functions}
+For solvers that include a Fortran 77 interface module, the NVECTOR\_SERIAL module
+also includes a Fortran-callable function \code{FNVINITS(code, NEQ, IER)},
+to initialize this module.  Here \code{code} is an input solver id
+(1 for CVODE, 2 for IDA, 3 for KINSOL, 4 for ARKode); \code{NEQ} is
+the problem size (declared so as to match C type \code{long int}); and
+\code{IER} is an error return flag equal 0 for success and -1 for failure.
 
 
 \section{The NVECTOR\_PARALLEL Module}
@@ -24541,8 +24914,13 @@ ownership of the data array \emph{data}.
 \end{Verbatim}
 
 The header file to be included when using this module is
-\code{nvector\_parallel.h}.
+\code{nvector\_parallel.h}. The installed module library to link to is
+\code{libsundials\_nvecparallel.lib} where \code{.lib} is typically \code{.so}
+for shared libraries and \code{.a} for static libraries.
 
+
+\subsection{NVECTOR\_PARALLEL accessor macros}
+\label{nvectors/NVector_Parallel:nvector-parallel-accessor-macros}
 The following seven macros are provided to access the content of a
 NVECTOR\_PARALLEL vector. The suffix \code{\_P} in the names denotes the
 distributed memory parallel version.
@@ -24675,13 +25053,16 @@ Implementation:
 \end{fulllineitems}
 
 
+
+\subsection{NVECTOR\_PARALLEL functions}
+\label{nvectors/NVector_Parallel:nvector-parallel-functions}
 The NVECTOR\_PARALLEL module defines parallel implementations of all
 vector operations listed in the sections {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}},
-{\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}} and {\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}.  Their
-names are obtained from those in those sections by appending the
-suffix \code{\_Parallel} (e.g. \code{N\_VDestroy\_Parallel}).   The module
-NVECTOR\_PARALLEL provides the following additional user-callable
-routines:
+{\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}, and
+{\hyperref[nvectors/NVector_Operations:nvectors-localops]{\emph{\DUspan{}{Description of the NVECTOR local reduction operations}}}}.  Their names are obtained from those in
+those sections by appending the suffix \code{\_Parallel}
+(e.g. \code{N\_VDestroy\_Parallel}).   The module NVECTOR\_PARALLEL provides
+the following additional user-callable routines:
 \index{N\_VNew\_Parallel (C function)}
 
 \begin{fulllineitems}
@@ -24740,14 +25121,6 @@ variables of type \code{N\_Vector} created with
 
 \end{fulllineitems}
 
-\index{N\_VGetLength\_Parallel (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Parallel:c.N_VGetLength_Parallel}\pysiglinewithargsret{sunindextype \bfcode{N\_VGetLength\_Parallel}}{N\_Vector\emph{ v}}{}
-This function returns the number of vector elements (global vector length).
-
-\end{fulllineitems}
-
 \index{N\_VGetLocalLength\_Parallel (C function)}
 
 \begin{fulllineitems}
@@ -24786,7 +25159,7 @@ options as the vector they are cloned from while vectors created with
 \index{N\_VEnableFusedOps\_Parallel (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Parallel:c.N_VEnableFusedOps_Parallel}\pysiglinewithargsret{void \bfcode{N\_VEnableFusedOps\_Parallel}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Parallel:c.N_VEnableFusedOps_Parallel}\pysiglinewithargsret{int \bfcode{N\_VEnableFusedOps\_Parallel}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) all fused and
 vector array operations in the parallel vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -24796,7 +25169,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableLinearCombination\_Parallel (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Parallel:c.N_VEnableLinearCombination_Parallel}\pysiglinewithargsret{void \bfcode{N\_VEnableLinearCombination\_Parallel}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Parallel:c.N_VEnableLinearCombination_Parallel}\pysiglinewithargsret{int \bfcode{N\_VEnableLinearCombination\_Parallel}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear
 combination fused operation in the parallel vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -24806,7 +25179,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableScaleAddMulti\_Parallel (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Parallel:c.N_VEnableScaleAddMulti_Parallel}\pysiglinewithargsret{void \bfcode{N\_VEnableScaleAddMulti\_Parallel}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Parallel:c.N_VEnableScaleAddMulti_Parallel}\pysiglinewithargsret{int \bfcode{N\_VEnableScaleAddMulti\_Parallel}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale and
 add a vector to multiple vectors fused operation in the parallel vector. The
 return value is \code{0} for success and \code{-1} if the input vector or its
@@ -24817,7 +25190,7 @@ return value is \code{0} for success and \code{-1} if the input vector or its
 \index{N\_VEnableDotProdMulti\_Parallel (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Parallel:c.N_VEnableDotProdMulti_Parallel}\pysiglinewithargsret{void \bfcode{N\_VEnableDotProdMulti\_Parallel}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Parallel:c.N_VEnableDotProdMulti_Parallel}\pysiglinewithargsret{int \bfcode{N\_VEnableDotProdMulti\_Parallel}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the multiple
 dot products fused operation in the parallel vector. The return value is \code{0}
 for success and \code{-1} if the input vector or its \code{ops} structure are
@@ -24828,7 +25201,7 @@ for success and \code{-1} if the input vector or its \code{ops} structure are
 \index{N\_VEnableLinearSumVectorArray\_Parallel (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Parallel:c.N_VEnableLinearSumVectorArray_Parallel}\pysiglinewithargsret{void \bfcode{N\_VEnableLinearSumVectorArray\_Parallel}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Parallel:c.N_VEnableLinearSumVectorArray_Parallel}\pysiglinewithargsret{int \bfcode{N\_VEnableLinearSumVectorArray\_Parallel}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear sum
 operation for vector arrays in the parallel vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -24838,7 +25211,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableScaleVectorArray\_Parallel (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Parallel:c.N_VEnableScaleVectorArray_Parallel}\pysiglinewithargsret{void \bfcode{N\_VEnableScaleVectorArray\_Parallel}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Parallel:c.N_VEnableScaleVectorArray_Parallel}\pysiglinewithargsret{int \bfcode{N\_VEnableScaleVectorArray\_Parallel}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale
 operation for vector arrays in the parallel vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -24848,7 +25221,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableConstVectorArray\_Parallel (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Parallel:c.N_VEnableConstVectorArray_Parallel}\pysiglinewithargsret{void \bfcode{N\_VEnableConstVectorArray\_Parallel}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Parallel:c.N_VEnableConstVectorArray_Parallel}\pysiglinewithargsret{int \bfcode{N\_VEnableConstVectorArray\_Parallel}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the const
 operation for vector arrays in the parallel vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -24858,7 +25231,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableWrmsNormVectorArray\_Parallel (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Parallel:c.N_VEnableWrmsNormVectorArray_Parallel}\pysiglinewithargsret{void \bfcode{N\_VEnableWrmsNormVectorArray\_Parallel}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Parallel:c.N_VEnableWrmsNormVectorArray_Parallel}\pysiglinewithargsret{int \bfcode{N\_VEnableWrmsNormVectorArray\_Parallel}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the WRMS norm
 operation for vector arrays in the parallel vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -24868,7 +25241,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableWrmsNormMaskVectorArray\_Parallel (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Parallel:c.N_VEnableWrmsNormMaskVectorArray_Parallel}\pysiglinewithargsret{void \bfcode{N\_VEnableWrmsNormMaskVectorArray\_Parallel}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Parallel:c.N_VEnableWrmsNormMaskVectorArray_Parallel}\pysiglinewithargsret{int \bfcode{N\_VEnableWrmsNormMaskVectorArray\_Parallel}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the masked WRMS
 norm operation for vector arrays in the parallel vector. The return value is
 \code{0} for success and \code{-1} if the input vector or its \code{ops} structure are
@@ -24879,7 +25252,7 @@ norm operation for vector arrays in the parallel vector. The return value is
 \index{N\_VEnableScaleAddMultiVectorArray\_Parallel (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Parallel:c.N_VEnableScaleAddMultiVectorArray_Parallel}\pysiglinewithargsret{void \bfcode{N\_VEnableScaleAddMultiVectorArray\_Parallel}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Parallel:c.N_VEnableScaleAddMultiVectorArray_Parallel}\pysiglinewithargsret{int \bfcode{N\_VEnableScaleAddMultiVectorArray\_Parallel}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale and
 add a vector array to multiple vector arrays operation in the parallel vector. The
 return value is \code{0} for success and \code{-1} if the input vector or its
@@ -24890,7 +25263,7 @@ return value is \code{0} for success and \code{-1} if the input vector or its
 \index{N\_VEnableLinearCombinationVectorArray\_Parallel (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Parallel:c.N_VEnableLinearCombinationVectorArray_Parallel}\pysiglinewithargsret{void \bfcode{N\_VEnableLinearCombinationVectorArray\_Parallel}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Parallel:c.N_VEnableLinearCombinationVectorArray_Parallel}\pysiglinewithargsret{int \bfcode{N\_VEnableLinearCombinationVectorArray\_Parallel}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear
 combination operation for vector arrays in the parallel vector. The return value
 is \code{0} for success and \code{-1} if the input vector or its \code{ops} structure
@@ -24926,6 +25299,9 @@ internal representations.
 
 \end{itemize}
 
+
+\subsection{NVECTOR\_PARALLEL Fortran Interfaces}
+\label{nvectors/NVector_Parallel:nvector-parallel-fortran-interfaces}
 For solvers that include a Fortran interface module, the
 NVECTOR\_PARALLEL module also includes a Fortran-callable function
 \code{FNVINITP(COMM, code, NLOCAL, NGLOBAL, IER)}, to initialize this
@@ -24974,7 +25350,15 @@ supplied argument in the vector constructor.
 \end{Verbatim}
 
 The header file to be included when using this module is \code{nvector\_openmp.h}.
+The installed module library to link to is
+\code{libsundials\_nvecopenmp.lib} where \code{.lib} is typically \code{.so} for shared libraries and \code{.a}
+for static libraries.
+The Fortran module file to use when using the Fortran 2003 interface to
+this module is \code{fnvector\_openmp\_mod.mod}.
 
+
+\subsection{NVECTOR\_OPENMP accessor macros}
+\label{nvectors/NVector_OpenMP:nvector-openmp-accessor-macros}
 The following six macros are provided to access the content of an NVECTOR\_OPENMP
 vector. The suffix \code{\_OMP} in the names denotes the OpenMP version.
 \index{NV\_CONTENT\_OMP (C macro)}
@@ -25090,12 +25474,20 @@ Implementation:
 \end{fulllineitems}
 
 
+
+\subsection{NVECTOR\_OPENMP functions}
+\label{nvectors/NVector_OpenMP:nvector-openmp-functions}
 The NVECTOR\_OPENMP module defines OpenMP implementations of all vector
 operations listed in the sections {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}},
-{\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}} and {\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}.  Their names
-are obtained from those in those sections by appending the suffix
-\code{\_OpenMP} (e.g. \code{N\_VDestroy\_OpenMP}).  The module NVECTOR\_OPENMP
-provides the following additional user-callable routines:
+{\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}, and
+{\hyperref[nvectors/NVector_Operations:nvectors-localops]{\emph{\DUspan{}{Description of the NVECTOR local reduction operations}}}}.  Their names are obtained from those in
+those sections by appending the suffix \code{\_OpenMP}
+(e.g. \code{N\_VDestroy\_OpenMP}).  All the standard vector operations
+listed in the section {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}} with the suffix \code{\_OpenMP}
+appended are callable via the Fortran 2003 interface by prepending an
+\emph{F' (e.g. {}`{}`FN\_VDestroy\_OpenMP{}`}).
+
+The module NVECTOR\_OPENMP provides the following additional user-callable routines:
 \index{N\_VNew\_OpenMP (C function)}
 
 \begin{fulllineitems}
@@ -25154,14 +25546,6 @@ variables of type \code{N\_Vector} created with
 
 \end{fulllineitems}
 
-\index{N\_VGetLength\_OpenMP (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_OpenMP:c.N_VGetLength_OpenMP}\pysiglinewithargsret{sunindextype \bfcode{N\_VGetLength\_OpenMP}}{N\_Vector\emph{ v}}{}
-This function returns the number of vector elements.
-
-\end{fulllineitems}
-
 \index{N\_VPrint\_OpenMP (C function)}
 
 \begin{fulllineitems}
@@ -25192,7 +25576,7 @@ options as the vector they are cloned from while vectors created with
 \index{N\_VEnableFusedOps\_OpenMP (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_OpenMP:c.N_VEnableFusedOps_OpenMP}\pysiglinewithargsret{void \bfcode{N\_VEnableFusedOps\_OpenMP}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_OpenMP:c.N_VEnableFusedOps_OpenMP}\pysiglinewithargsret{int \bfcode{N\_VEnableFusedOps\_OpenMP}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) all fused and
 vector array operations in the OpenMP vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -25202,7 +25586,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableLinearCombination\_OpenMP (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_OpenMP:c.N_VEnableLinearCombination_OpenMP}\pysiglinewithargsret{void \bfcode{N\_VEnableLinearCombination\_OpenMP}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_OpenMP:c.N_VEnableLinearCombination_OpenMP}\pysiglinewithargsret{int \bfcode{N\_VEnableLinearCombination\_OpenMP}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear
 combination fused operation in the OpenMP vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -25212,7 +25596,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableScaleAddMulti\_OpenMP (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_OpenMP:c.N_VEnableScaleAddMulti_OpenMP}\pysiglinewithargsret{void \bfcode{N\_VEnableScaleAddMulti\_OpenMP}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_OpenMP:c.N_VEnableScaleAddMulti_OpenMP}\pysiglinewithargsret{int \bfcode{N\_VEnableScaleAddMulti\_OpenMP}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale and
 add a vector to multiple vectors fused operation in the OpenMP vector. The
 return value is \code{0} for success and \code{-1} if the input vector or its
@@ -25223,7 +25607,7 @@ return value is \code{0} for success and \code{-1} if the input vector or its
 \index{N\_VEnableDotProdMulti\_OpenMP (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_OpenMP:c.N_VEnableDotProdMulti_OpenMP}\pysiglinewithargsret{void \bfcode{N\_VEnableDotProdMulti\_OpenMP}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_OpenMP:c.N_VEnableDotProdMulti_OpenMP}\pysiglinewithargsret{int \bfcode{N\_VEnableDotProdMulti\_OpenMP}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the multiple
 dot products fused operation in the OpenMP vector. The return value is \code{0}
 for success and \code{-1} if the input vector or its \code{ops} structure are
@@ -25234,7 +25618,7 @@ for success and \code{-1} if the input vector or its \code{ops} structure are
 \index{N\_VEnableLinearSumVectorArray\_OpenMP (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_OpenMP:c.N_VEnableLinearSumVectorArray_OpenMP}\pysiglinewithargsret{void \bfcode{N\_VEnableLinearSumVectorArray\_OpenMP}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_OpenMP:c.N_VEnableLinearSumVectorArray_OpenMP}\pysiglinewithargsret{int \bfcode{N\_VEnableLinearSumVectorArray\_OpenMP}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear sum
 operation for vector arrays in the OpenMP vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -25244,7 +25628,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableScaleVectorArray\_OpenMP (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_OpenMP:c.N_VEnableScaleVectorArray_OpenMP}\pysiglinewithargsret{void \bfcode{N\_VEnableScaleVectorArray\_OpenMP}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_OpenMP:c.N_VEnableScaleVectorArray_OpenMP}\pysiglinewithargsret{int \bfcode{N\_VEnableScaleVectorArray\_OpenMP}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale
 operation for vector arrays in the OpenMP vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -25254,7 +25638,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableConstVectorArray\_OpenMP (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_OpenMP:c.N_VEnableConstVectorArray_OpenMP}\pysiglinewithargsret{void \bfcode{N\_VEnableConstVectorArray\_OpenMP}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_OpenMP:c.N_VEnableConstVectorArray_OpenMP}\pysiglinewithargsret{int \bfcode{N\_VEnableConstVectorArray\_OpenMP}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the const
 operation for vector arrays in the OpenMP vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -25264,7 +25648,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableWrmsNormVectorArray\_OpenMP (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_OpenMP:c.N_VEnableWrmsNormVectorArray_OpenMP}\pysiglinewithargsret{void \bfcode{N\_VEnableWrmsNormVectorArray\_OpenMP}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_OpenMP:c.N_VEnableWrmsNormVectorArray_OpenMP}\pysiglinewithargsret{int \bfcode{N\_VEnableWrmsNormVectorArray\_OpenMP}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the WRMS norm
 operation for vector arrays in the OpenMP vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -25274,7 +25658,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableWrmsNormMaskVectorArray\_OpenMP (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_OpenMP:c.N_VEnableWrmsNormMaskVectorArray_OpenMP}\pysiglinewithargsret{void \bfcode{N\_VEnableWrmsNormMaskVectorArray\_OpenMP}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_OpenMP:c.N_VEnableWrmsNormMaskVectorArray_OpenMP}\pysiglinewithargsret{int \bfcode{N\_VEnableWrmsNormMaskVectorArray\_OpenMP}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the masked WRMS
 norm operation for vector arrays in the OpenMP vector. The return value is
 \code{0} for success and \code{-1} if the input vector or its \code{ops} structure are
@@ -25285,7 +25669,7 @@ norm operation for vector arrays in the OpenMP vector. The return value is
 \index{N\_VEnableScaleAddMultiVectorArray\_OpenMP (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_OpenMP:c.N_VEnableScaleAddMultiVectorArray_OpenMP}\pysiglinewithargsret{void \bfcode{N\_VEnableScaleAddMultiVectorArray\_OpenMP}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_OpenMP:c.N_VEnableScaleAddMultiVectorArray_OpenMP}\pysiglinewithargsret{int \bfcode{N\_VEnableScaleAddMultiVectorArray\_OpenMP}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale and
 add a vector array to multiple vector arrays operation in the OpenMP vector. The
 return value is \code{0} for success and \code{-1} if the input vector or its
@@ -25296,7 +25680,7 @@ return value is \code{0} for success and \code{-1} if the input vector or its
 \index{N\_VEnableLinearCombinationVectorArray\_OpenMP (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_OpenMP:c.N_VEnableLinearCombinationVectorArray_OpenMP}\pysiglinewithargsret{void \bfcode{N\_VEnableLinearCombinationVectorArray\_OpenMP}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_OpenMP:c.N_VEnableLinearCombinationVectorArray_OpenMP}\pysiglinewithargsret{int \bfcode{N\_VEnableLinearCombinationVectorArray\_OpenMP}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear
 combination operation for vector arrays in the OpenMP vector. The return value
 is \code{0} for success and \code{-1} if the input vector or its \code{ops} structure
@@ -25332,14 +25716,40 @@ internal representations.
 
 \end{itemize}
 
-For solvers that include a Fortran interface module, the
+
+\subsection{NVECTOR\_OPENMP Fortran Interfaces}
+\label{nvectors/NVector_OpenMP:nvector-openmp-fortran-interfaces}
+The NVECTOR\_OPENMP module provides a Fortran 2003 module as well as
+Fortran 77 style interface functions for use from Fortran applications.
+
+
+\subsubsection{FORTRAN 2003 interface module}
+\label{nvectors/NVector_OpenMP:fortran-2003-interface-module}
+The \code{fnvector\_openmp\_mod} Fortran module defines interfaces to all
+NVECTOR\_OPENMP C functions using the intrinsic \code{iso\_c\_binding}
+module which provides a standardized mechanism for interoperating with C. As
+noted in the C function descriptions above, the interface functions are
+named after the corresponding C function, but with a leading \code{F}. For
+example, the function \code{N\_VNew\_OpenMP} is interfaced as
+\code{FN\_VNew\_OpenMP}.
+
+The Fortran 2003 NVECTOR\_OPENMP interface module can be accessed with the \code{use}
+statement, i.e. \code{use fnvector\_openmp\_mod}, and linking to the library
+\code{libsundials\_fnvectoropenmp\_mod.lib} in addition to the C library.
+For details on where the library and module file
+\code{fnvector\_openmp\_mod.mod} are installed see the section {\hyperref[Install:installation]{\emph{\DUspan{}{ARKode Installation Procedure}}}}.
+
+
+\subsubsection{FORTRAN 77 interface functions}
+\label{nvectors/NVector_OpenMP:fortran-77-interface-functions}
+For solvers that include a Fortran 77 interface module, the
 NVECTOR\_OPENMP module also includes a Fortran-callable function
 \code{FNVINITOMP(code, NEQ, NUMTHREADS, IER)}, to initialize this
-NVECTOR\_OPENMP module.  Here \code{code} is an input solver id (1 for
-CVODE, 2 for IDA, 3 for KINSOL, 4 for ARKode); \code{NEQ} is the problem
-size (declared so as to match C type \code{long int}); \code{NUMTHREADS} is
-the number of threads; and \code{IER} is an error return flag equal 0 for
-success and -1 for failure.
+module.  Here \code{code} is an input solver id (1 for CVODE, 2 for IDA,
+3 for KINSOL, 4 for ARKode); \code{NEQ} is the problem size (declared so
+as to match C type \code{long int}); \code{NUMTHREADS} is the number of
+threads; and \code{IER} is an error return flag equal 0 for success
+and -1 for failure.
 
 
 \section{The NVECTOR\_PTHREADS Module}
@@ -25357,8 +25767,7 @@ NVECTOR\_PTHREADS, defines the \emph{content} field of \code{N\_Vector} to be a 
 containing the length of the vector, a pointer to the beginning of a contiguous
 data array, a boolean flag \emph{own\_data} which specifies the ownership
 of \emph{data}, and the number of threads.  Operations on the vector are
-threaded using POSIX threads (Pthreads), the number of threads used is
-based on the supplied argument in the vector constructor.
+threaded using POSIX threads (Pthreads).
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{k}{struct} \PYG{n}{\PYGZus{}N\PYGZus{}VectorContent\PYGZus{}Pthreads} \PYG{p}{\PYGZob{}}
@@ -25370,7 +25779,13 @@ based on the supplied argument in the vector constructor.
 \end{Verbatim}
 
 The header file to be included when using this module is \code{nvector\_pthreads.h}.
+The installed module library to link to is
+\code{libsundials\_nvecpthreads.lib} where \code{.lib} is typically \code{.so}
+for shared libraries and \code{.a} for static libraries.
 
+
+\subsection{NVECTOR\_PTHREADS accessor macros}
+\label{nvectors/NVector_Pthreads:nvector-pthreads-accessor-macros}
 The following six macros are provided to access the content of an NVECTOR\_PTHREADS
 vector. The suffix \code{\_PT} in the names denotes the Pthreads version.
 \index{NV\_CONTENT\_PT (C macro)}
@@ -25486,12 +25901,19 @@ Implementation:
 \end{fulllineitems}
 
 
+
+\subsection{NVECTOR\_PTHREADS functions}
+\label{nvectors/NVector_Pthreads:nvector-pthreads-functions}
 The NVECTOR\_PTHREADS module defines Pthreads implementations of all vector
 operations listed in the sections {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}},
-{\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}} and {\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}.  Their names
+{\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}, and
+{\hyperref[nvectors/NVector_Operations:nvectors-localops]{\emph{\DUspan{}{Description of the NVECTOR local reduction operations}}}}.  Their names
 are obtained from those in those sections by appending the suffix
-\code{\_Pthreads} (e.g. N\_VDestroy\_Pthreads).  The module NVECTOR\_PTHREADS
-provides the following additional user-callable routines:
+\code{\_Pthreads} (e.g. N\_VDestroy\_Pthreads).  All the standard vector
+operations listed in the section {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}} are callable via
+the Fortran 2003 interface by prepending an \emph{F' (e.g. {}`{}`FN\_VDestroy\_Pthreads{}`}).
+The module NVECTOR\_PTHREADS provides the following additional
+user-callable routines:
 \index{N\_VNew\_Pthreads (C function)}
 
 \begin{fulllineitems}
@@ -25550,14 +25972,6 @@ variables of type \code{N\_Vector} created with
 
 \end{fulllineitems}
 
-\index{N\_VGetLength\_Pthreads (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Pthreads:c.N_VGetLength_Pthreads}\pysiglinewithargsret{sunindextype \bfcode{N\_VGetLength\_Pthreads}}{N\_Vector\emph{ v}}{}
-This function returns the number of vector elements.
-
-\end{fulllineitems}
-
 \index{N\_VPrint\_Pthreads (C function)}
 
 \begin{fulllineitems}
@@ -25588,7 +26002,7 @@ options as the vector they are cloned from while vectors created with
 \index{N\_VEnableFusedOps\_Pthreads (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Pthreads:c.N_VEnableFusedOps_Pthreads}\pysiglinewithargsret{void \bfcode{N\_VEnableFusedOps\_Pthreads}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Pthreads:c.N_VEnableFusedOps_Pthreads}\pysiglinewithargsret{int \bfcode{N\_VEnableFusedOps\_Pthreads}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) all fused and
 vector array operations in the Pthreads vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -25598,7 +26012,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableLinearCombination\_Pthreads (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Pthreads:c.N_VEnableLinearCombination_Pthreads}\pysiglinewithargsret{void \bfcode{N\_VEnableLinearCombination\_Pthreads}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Pthreads:c.N_VEnableLinearCombination_Pthreads}\pysiglinewithargsret{int \bfcode{N\_VEnableLinearCombination\_Pthreads}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear
 combination fused operation in the Pthreads vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -25608,7 +26022,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableScaleAddMulti\_Pthreads (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Pthreads:c.N_VEnableScaleAddMulti_Pthreads}\pysiglinewithargsret{void \bfcode{N\_VEnableScaleAddMulti\_Pthreads}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Pthreads:c.N_VEnableScaleAddMulti_Pthreads}\pysiglinewithargsret{int \bfcode{N\_VEnableScaleAddMulti\_Pthreads}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale and
 add a vector to multiple vectors fused operation in the Pthreads vector. The
 return value is \code{0} for success and \code{-1} if the input vector or its
@@ -25619,7 +26033,7 @@ return value is \code{0} for success and \code{-1} if the input vector or its
 \index{N\_VEnableDotProdMulti\_Pthreads (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Pthreads:c.N_VEnableDotProdMulti_Pthreads}\pysiglinewithargsret{void \bfcode{N\_VEnableDotProdMulti\_Pthreads}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Pthreads:c.N_VEnableDotProdMulti_Pthreads}\pysiglinewithargsret{int \bfcode{N\_VEnableDotProdMulti\_Pthreads}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the multiple
 dot products fused operation in the Pthreads vector. The return value is \code{0}
 for success and \code{-1} if the input vector or its \code{ops} structure are
@@ -25630,7 +26044,7 @@ for success and \code{-1} if the input vector or its \code{ops} structure are
 \index{N\_VEnableLinearSumVectorArray\_Pthreads (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Pthreads:c.N_VEnableLinearSumVectorArray_Pthreads}\pysiglinewithargsret{void \bfcode{N\_VEnableLinearSumVectorArray\_Pthreads}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Pthreads:c.N_VEnableLinearSumVectorArray_Pthreads}\pysiglinewithargsret{int \bfcode{N\_VEnableLinearSumVectorArray\_Pthreads}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear sum
 operation for vector arrays in the Pthreads vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -25640,7 +26054,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableScaleVectorArray\_Pthreads (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Pthreads:c.N_VEnableScaleVectorArray_Pthreads}\pysiglinewithargsret{void \bfcode{N\_VEnableScaleVectorArray\_Pthreads}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Pthreads:c.N_VEnableScaleVectorArray_Pthreads}\pysiglinewithargsret{int \bfcode{N\_VEnableScaleVectorArray\_Pthreads}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale
 operation for vector arrays in the Pthreads vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -25650,7 +26064,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableConstVectorArray\_Pthreads (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Pthreads:c.N_VEnableConstVectorArray_Pthreads}\pysiglinewithargsret{void \bfcode{N\_VEnableConstVectorArray\_Pthreads}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Pthreads:c.N_VEnableConstVectorArray_Pthreads}\pysiglinewithargsret{int \bfcode{N\_VEnableConstVectorArray\_Pthreads}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the const
 operation for vector arrays in the Pthreads vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -25660,7 +26074,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableWrmsNormVectorArray\_Pthreads (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Pthreads:c.N_VEnableWrmsNormVectorArray_Pthreads}\pysiglinewithargsret{void \bfcode{N\_VEnableWrmsNormVectorArray\_Pthreads}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Pthreads:c.N_VEnableWrmsNormVectorArray_Pthreads}\pysiglinewithargsret{int \bfcode{N\_VEnableWrmsNormVectorArray\_Pthreads}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the WRMS norm
 operation for vector arrays in the Pthreads vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -25670,7 +26084,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableWrmsNormMaskVectorArray\_Pthreads (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Pthreads:c.N_VEnableWrmsNormMaskVectorArray_Pthreads}\pysiglinewithargsret{void \bfcode{N\_VEnableWrmsNormMaskVectorArray\_Pthreads}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Pthreads:c.N_VEnableWrmsNormMaskVectorArray_Pthreads}\pysiglinewithargsret{int \bfcode{N\_VEnableWrmsNormMaskVectorArray\_Pthreads}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the masked WRMS
 norm operation for vector arrays in the Pthreads vector. The return value is
 \code{0} for success and \code{-1} if the input vector or its \code{ops} structure are
@@ -25681,7 +26095,7 @@ norm operation for vector arrays in the Pthreads vector. The return value is
 \index{N\_VEnableScaleAddMultiVectorArray\_Pthreads (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Pthreads:c.N_VEnableScaleAddMultiVectorArray_Pthreads}\pysiglinewithargsret{void \bfcode{N\_VEnableScaleAddMultiVectorArray\_Pthreads}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Pthreads:c.N_VEnableScaleAddMultiVectorArray_Pthreads}\pysiglinewithargsret{int \bfcode{N\_VEnableScaleAddMultiVectorArray\_Pthreads}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale and
 add a vector array to multiple vector arrays operation in the Pthreads vector. The
 return value is \code{0} for success and \code{-1} if the input vector or its
@@ -25692,7 +26106,7 @@ return value is \code{0} for success and \code{-1} if the input vector or its
 \index{N\_VEnableLinearCombinationVectorArray\_Pthreads (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_Pthreads:c.N_VEnableLinearCombinationVectorArray_Pthreads}\pysiglinewithargsret{void \bfcode{N\_VEnableLinearCombinationVectorArray\_Pthreads}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_Pthreads:c.N_VEnableLinearCombinationVectorArray_Pthreads}\pysiglinewithargsret{int \bfcode{N\_VEnableLinearCombinationVectorArray\_Pthreads}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear
 combination operation for vector arrays in the Pthreads vector. The return value
 is \code{0} for success and \code{-1} if the input vector or its \code{ops} structure
@@ -25728,10 +26142,36 @@ internal representations.
 
 \end{itemize}
 
+
+\subsection{NVECTOR\_PTHREADS Fortran Interfaces}
+\label{nvectors/NVector_Pthreads:nvector-pthreads-fortran-interfaces}
+The NVECTOR\_PTHREADS module provides a Fortran 2003 module as well as
+Fortran 77 style interface functions for use from Fortran applications.
+
+
+\subsubsection{FORTRAN 2003 interface module}
+\label{nvectors/NVector_Pthreads:fortran-2003-interface-module}
+The \code{fnvector\_pthreads\_mod} Fortran module defines interfaces to all
+NVECTOR\_PTHREADS C functions using the intrinsic \code{iso\_c\_binding}
+module which provides a standardized mechanism for interoperating with C. As
+noted in the C function descriptions above, the interface functions are
+named after the corresponding C function, but with a leading \code{F}. For
+example, the function \code{N\_VNew\_Pthreads} is interfaced as
+\code{FN\_VNew\_Pthreads}.
+
+The Fortran 2003 NVECTOR\_PTHREADS interface module can be accessed with the \code{use}
+statement, i.e. \code{use fnvector\_pthreads\_mod}, and linking to the library
+\code{libsundials\_fnvectorpthreads\_mod.lib} in addition to the C library.
+For details on where the library and module file
+\code{fnvector\_pthreads\_mod.mod} are installed see the section {\hyperref[Install:installation]{\emph{\DUspan{}{ARKode Installation Procedure}}}}.
+
+
+\subsubsection{FORTRAN 77 interface functions}
+\label{nvectors/NVector_Pthreads:fortran-77-interface-functions}
 For solvers that include a Fortran interface module, the
 NVECTOR\_PTHREADS module slso includes a Fortran-callable function
 \code{FNVINITPTS(code, NEQ, NUMTHREADS, IER)}, to initialize this
-NVECTOR\_PTHREADS module.  Here \code{code} is an input solver id
+module.  Here \code{code} is an input solver id
 (1 for CVODE, 2 for IDA, 3 for KINSOL, 4 for ARKode); \code{NEQ} is
 the problem size (declared so as to match C type \code{long int});
 \code{NUMTHREADS} is the number of threads; and \code{IER} is an error
@@ -25762,24 +26202,33 @@ HYPRE parallel vector object \emph{x}.
 \end{Verbatim}
 
 The header file to be included when using this module is \code{nvector\_parhyp.h}.
+The installed module library to link to is
+\code{libsundials\_nvecparhyp.lib} where \code{.lib} is typically \code{.so} for
+shared libraries and \code{.a} for static libraries.
+
 Unlike native SUNDIALS vector types, NVECTOR\_PARHYP does not provide macros
 to access its member variables.
+Note that NVECTOR\_PARHYP requires SUNDIALS to be built with MPI support.
 
+
+\subsection{NVECTOR\_PARHYP functions}
+\label{nvectors/NVector_ParHyp:nvector-parhyp-functions}
 The NVECTOR\_PARHYP module defines implementations of all vector
 operations listed in the sections {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}},
-{\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}} and {\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}, except for
-\code{N\_VSetArrayPointer} and \code{N\_VGetArrayPointer}, because accessing
-raw vector data is handled by low-level HYPRE functions.  As such,
-this vector is not available for use with SUNDIALS Fortran
-interfaces.  When access to raw vector data is needed, one should
-extract the HYPRE HYPRE vector first, and then use HYPRE methods to
-access the data.  Usage examples of NVECTOR\_PARHYP are provided in
-the \code{cvAdvDiff\_non\_ph.c} example programs for CVODE and the
-\code{ark\_diurnal\_kry\_ph.c} example program for ARKode.
+{\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}, and
+{\hyperref[nvectors/NVector_Operations:nvectors-localops]{\emph{\DUspan{}{Description of the NVECTOR local reduction operations}}}}, except for \code{N\_VSetArrayPointer} and
+\code{N\_VGetArrayPointer}, because accessing raw vector data is handled
+by low-level HYPRE functions.  As such, this vector is not available
+for use with SUNDIALS Fortran interfaces.  When access to raw vector
+data is needed, one should extract the HYPRE vector first, and
+then use HYPRE methods to access the data.  Usage examples of
+NVECTOR\_PARHYP are provided in the \code{cvAdvDiff\_non\_ph.c} example
+programs for CVODE and the \code{ark\_diurnal\_kry\_ph.c} example program
+for ARKode.
 
 The names of parhyp methods are obtained from those in the sections
-{\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}} and
-{\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}} by appending the suffix \code{\_ParHyp}
+{\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}, and
+{\hyperref[nvectors/NVector_Operations:nvectors-localops]{\emph{\DUspan{}{Description of the NVECTOR local reduction operations}}}} by appending the suffix \code{\_ParHyp}
 (e.g. \code{N\_VDestroy\_ParHyp}).  The module NVECTOR\_PARHYP provides the
 following additional user-callable routines:
 \index{N\_VNewEmpty\_ParHyp (C function)}
@@ -25867,7 +26316,7 @@ options as the vector they are cloned from while vectors created with
 \index{N\_VEnableFusedOps\_ParHyp (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_ParHyp:c.N_VEnableFusedOps_ParHyp}\pysiglinewithargsret{void \bfcode{N\_VEnableFusedOps\_ParHyp}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_ParHyp:c.N_VEnableFusedOps_ParHyp}\pysiglinewithargsret{int \bfcode{N\_VEnableFusedOps\_ParHyp}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) all fused and
 vector array operations in the parhyp vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -25877,7 +26326,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableLinearCombination\_ParHyp (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_ParHyp:c.N_VEnableLinearCombination_ParHyp}\pysiglinewithargsret{void \bfcode{N\_VEnableLinearCombination\_ParHyp}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_ParHyp:c.N_VEnableLinearCombination_ParHyp}\pysiglinewithargsret{int \bfcode{N\_VEnableLinearCombination\_ParHyp}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear
 combination fused operation in the parhyp vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -25887,7 +26336,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableScaleAddMulti\_ParHyp (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_ParHyp:c.N_VEnableScaleAddMulti_ParHyp}\pysiglinewithargsret{void \bfcode{N\_VEnableScaleAddMulti\_ParHyp}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_ParHyp:c.N_VEnableScaleAddMulti_ParHyp}\pysiglinewithargsret{int \bfcode{N\_VEnableScaleAddMulti\_ParHyp}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale and
 add a vector to multiple vectors fused operation in the parhyp vector. The
 return value is \code{0} for success and \code{-1} if the input vector or its
@@ -25898,7 +26347,7 @@ return value is \code{0} for success and \code{-1} if the input vector or its
 \index{N\_VEnableDotProdMulti\_ParHyp (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_ParHyp:c.N_VEnableDotProdMulti_ParHyp}\pysiglinewithargsret{void \bfcode{N\_VEnableDotProdMulti\_ParHyp}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_ParHyp:c.N_VEnableDotProdMulti_ParHyp}\pysiglinewithargsret{int \bfcode{N\_VEnableDotProdMulti\_ParHyp}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the multiple
 dot products fused operation in the parhyp vector. The return value is \code{0}
 for success and \code{-1} if the input vector or its \code{ops} structure are
@@ -25909,7 +26358,7 @@ for success and \code{-1} if the input vector or its \code{ops} structure are
 \index{N\_VEnableLinearSumVectorArray\_ParHyp (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_ParHyp:c.N_VEnableLinearSumVectorArray_ParHyp}\pysiglinewithargsret{void \bfcode{N\_VEnableLinearSumVectorArray\_ParHyp}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_ParHyp:c.N_VEnableLinearSumVectorArray_ParHyp}\pysiglinewithargsret{int \bfcode{N\_VEnableLinearSumVectorArray\_ParHyp}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear sum
 operation for vector arrays in the parhyp vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -25919,7 +26368,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableScaleVectorArray\_ParHyp (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_ParHyp:c.N_VEnableScaleVectorArray_ParHyp}\pysiglinewithargsret{void \bfcode{N\_VEnableScaleVectorArray\_ParHyp}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_ParHyp:c.N_VEnableScaleVectorArray_ParHyp}\pysiglinewithargsret{int \bfcode{N\_VEnableScaleVectorArray\_ParHyp}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale
 operation for vector arrays in the parhyp vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -25929,7 +26378,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableConstVectorArray\_ParHyp (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_ParHyp:c.N_VEnableConstVectorArray_ParHyp}\pysiglinewithargsret{void \bfcode{N\_VEnableConstVectorArray\_ParHyp}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_ParHyp:c.N_VEnableConstVectorArray_ParHyp}\pysiglinewithargsret{int \bfcode{N\_VEnableConstVectorArray\_ParHyp}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the const
 operation for vector arrays in the parhyp vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -25939,7 +26388,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableWrmsNormVectorArray\_ParHyp (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_ParHyp:c.N_VEnableWrmsNormVectorArray_ParHyp}\pysiglinewithargsret{void \bfcode{N\_VEnableWrmsNormVectorArray\_ParHyp}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_ParHyp:c.N_VEnableWrmsNormVectorArray_ParHyp}\pysiglinewithargsret{int \bfcode{N\_VEnableWrmsNormVectorArray\_ParHyp}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the WRMS norm
 operation for vector arrays in the parhyp vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -25949,7 +26398,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableWrmsNormMaskVectorArray\_ParHyp (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_ParHyp:c.N_VEnableWrmsNormMaskVectorArray_ParHyp}\pysiglinewithargsret{void \bfcode{N\_VEnableWrmsNormMaskVectorArray\_ParHyp}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_ParHyp:c.N_VEnableWrmsNormMaskVectorArray_ParHyp}\pysiglinewithargsret{int \bfcode{N\_VEnableWrmsNormMaskVectorArray\_ParHyp}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the masked WRMS
 norm operation for vector arrays in the parhyp vector. The return value is
 \code{0} for success and \code{-1} if the input vector or its \code{ops} structure are
@@ -25960,7 +26409,7 @@ norm operation for vector arrays in the parhyp vector. The return value is
 \index{N\_VEnableScaleAddMultiVectorArray\_ParHyp (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_ParHyp:c.N_VEnableScaleAddMultiVectorArray_ParHyp}\pysiglinewithargsret{void \bfcode{N\_VEnableScaleAddMultiVectorArray\_ParHyp}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_ParHyp:c.N_VEnableScaleAddMultiVectorArray_ParHyp}\pysiglinewithargsret{int \bfcode{N\_VEnableScaleAddMultiVectorArray\_ParHyp}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale and
 add a vector array to multiple vector arrays operation in the parhyp vector. The
 return value is \code{0} for success and \code{-1} if the input vector or its
@@ -25971,7 +26420,7 @@ return value is \code{0} for success and \code{-1} if the input vector or its
 \index{N\_VEnableLinearCombinationVectorArray\_ParHyp (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_ParHyp:c.N_VEnableLinearCombinationVectorArray_ParHyp}\pysiglinewithargsret{void \bfcode{N\_VEnableLinearCombinationVectorArray\_ParHyp}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_ParHyp:c.N_VEnableLinearCombinationVectorArray_ParHyp}\pysiglinewithargsret{int \bfcode{N\_VEnableLinearCombinationVectorArray\_ParHyp}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear
 combination operation for vector arrays in the parhyp vector. The return value
 is \code{0} for success and \code{-1} if the input vector or its \code{ops} structure
@@ -26027,13 +26476,21 @@ indicating ownership of the wrapped PETSc vector.
 \end{Verbatim}
 
 The header file to be included when using this module is
-\code{nvector\_petsc.h}.  Unlike native SUNDIALS vector types,
-NVECTOR\_PETSC does not provide macros to access its member variables.
-Note that NVECTOR\_PETSC requires SUNDIALS to be built with MPI support.
+\code{nvector\_petsc.h}.  The installed module library to link to is
+\code{libsundials\_nvecpetsc.lib} where \code{.lib} is typically \code{.so} for
+shared libraries and \code{.a} for static libraries.
 
+Unlike native SUNDIALS vector types, NVECTOR\_PETSC does not provide
+macros to access its member variables.  Note that NVECTOR\_PETSC
+requires SUNDIALS to be built with MPI support.
+
+
+\subsection{NVECTOR\_PETSC functions}
+\label{nvectors/NVector_PETSc:nvector-petsc-functions}
 The NVECTOR\_PETSC module defines implementations of all vector
 operations listed in the sections {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}},
-{\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}} and {\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}, except for
+{\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}, and
+{\hyperref[nvectors/NVector_Operations:nvectors-localops]{\emph{\DUspan{}{Description of the NVECTOR local reduction operations}}}}, except for
 \code{N\_VGetArrayPointer} and \code{N\_VSetArrayPointer}.  As such, this
 vector cannot be used with SUNDIALS Fortran interfaces.  When access
 to raw vector data is needed, it is recommended to extract the PETSc
@@ -26041,8 +26498,8 @@ vector first, and then use PETSc methods to access the data.  Usage
 examples of NVECTOR\_PETSC is provided in example programs for IDA.
 
 The names of vector operations are obtained from those in the sections
-{\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}} and
-{\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}} by appending the suffice \code{\_Petsc}
+{\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}, and
+{\hyperref[nvectors/NVector_Operations:nvectors-localops]{\emph{\DUspan{}{Description of the NVECTOR local reduction operations}}}} by appending the suffice \code{\_Petsc}
 (e.g. \code{N\_VDestroy\_Petsc}).  The module NVECTOR\_PETSC provides the
 following additional user-callable routines:
 \index{N\_VNewEmpty\_Petsc (C function)}
@@ -26133,7 +26590,7 @@ options as the vector they are cloned from while vectors created with
 \index{N\_VEnableFusedOps\_Petsc (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.N_VEnableFusedOps_Petsc}\pysiglinewithargsret{void \bfcode{N\_VEnableFusedOps\_Petsc}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VEnableFusedOps_Petsc}\pysiglinewithargsret{int \bfcode{N\_VEnableFusedOps\_Petsc}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) all fused and
 vector array operations in the PETSc vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -26143,7 +26600,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableLinearCombination\_Petsc (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.N_VEnableLinearCombination_Petsc}\pysiglinewithargsret{void \bfcode{N\_VEnableLinearCombination\_Petsc}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VEnableLinearCombination_Petsc}\pysiglinewithargsret{int \bfcode{N\_VEnableLinearCombination\_Petsc}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear
 combination fused operation in the PETSc vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -26153,7 +26610,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableScaleAddMulti\_Petsc (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.N_VEnableScaleAddMulti_Petsc}\pysiglinewithargsret{void \bfcode{N\_VEnableScaleAddMulti\_Petsc}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VEnableScaleAddMulti_Petsc}\pysiglinewithargsret{int \bfcode{N\_VEnableScaleAddMulti\_Petsc}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale and
 add a vector to multiple vectors fused operation in the PETSc vector. The
 return value is \code{0} for success and \code{-1} if the input vector or its
@@ -26164,7 +26621,7 @@ return value is \code{0} for success and \code{-1} if the input vector or its
 \index{N\_VEnableDotProdMulti\_Petsc (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.N_VEnableDotProdMulti_Petsc}\pysiglinewithargsret{void \bfcode{N\_VEnableDotProdMulti\_Petsc}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VEnableDotProdMulti_Petsc}\pysiglinewithargsret{int \bfcode{N\_VEnableDotProdMulti\_Petsc}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the multiple
 dot products fused operation in the PETSc vector. The return value is \code{0}
 for success and \code{-1} if the input vector or its \code{ops} structure are
@@ -26175,7 +26632,7 @@ for success and \code{-1} if the input vector or its \code{ops} structure are
 \index{N\_VEnableLinearSumVectorArray\_Petsc (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.N_VEnableLinearSumVectorArray_Petsc}\pysiglinewithargsret{void \bfcode{N\_VEnableLinearSumVectorArray\_Petsc}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VEnableLinearSumVectorArray_Petsc}\pysiglinewithargsret{int \bfcode{N\_VEnableLinearSumVectorArray\_Petsc}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear sum
 operation for vector arrays in the PETSc vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -26185,7 +26642,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableScaleVectorArray\_Petsc (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.N_VEnableScaleVectorArray_Petsc}\pysiglinewithargsret{void \bfcode{N\_VEnableScaleVectorArray\_Petsc}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VEnableScaleVectorArray_Petsc}\pysiglinewithargsret{int \bfcode{N\_VEnableScaleVectorArray\_Petsc}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale
 operation for vector arrays in the PETSc vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -26195,7 +26652,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableConstVectorArray\_Petsc (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.N_VEnableConstVectorArray_Petsc}\pysiglinewithargsret{void \bfcode{N\_VEnableConstVectorArray\_Petsc}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VEnableConstVectorArray_Petsc}\pysiglinewithargsret{int \bfcode{N\_VEnableConstVectorArray\_Petsc}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the const
 operation for vector arrays in the PETSc vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -26205,7 +26662,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableWrmsNormVectorArray\_Petsc (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.N_VEnableWrmsNormVectorArray_Petsc}\pysiglinewithargsret{void \bfcode{N\_VEnableWrmsNormVectorArray\_Petsc}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VEnableWrmsNormVectorArray_Petsc}\pysiglinewithargsret{int \bfcode{N\_VEnableWrmsNormVectorArray\_Petsc}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the WRMS norm
 operation for vector arrays in the PETSc vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -26215,7 +26672,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableWrmsNormMaskVectorArray\_Petsc (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.N_VEnableWrmsNormMaskVectorArray_Petsc}\pysiglinewithargsret{void \bfcode{N\_VEnableWrmsNormMaskVectorArray\_Petsc}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VEnableWrmsNormMaskVectorArray_Petsc}\pysiglinewithargsret{int \bfcode{N\_VEnableWrmsNormMaskVectorArray\_Petsc}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the masked WRMS
 norm operation for vector arrays in the PETSc vector. The return value is
 \code{0} for success and \code{-1} if the input vector or its \code{ops} structure are
@@ -26226,7 +26683,7 @@ norm operation for vector arrays in the PETSc vector. The return value is
 \index{N\_VEnableScaleAddMultiVectorArray\_Petsc (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.N_VEnableScaleAddMultiVectorArray_Petsc}\pysiglinewithargsret{void \bfcode{N\_VEnableScaleAddMultiVectorArray\_Petsc}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VEnableScaleAddMultiVectorArray_Petsc}\pysiglinewithargsret{int \bfcode{N\_VEnableScaleAddMultiVectorArray\_Petsc}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale and
 add a vector array to multiple vector arrays operation in the PETSc vector. The
 return value is \code{0} for success and \code{-1} if the input vector or its
@@ -26237,7 +26694,7 @@ return value is \code{0} for success and \code{-1} if the input vector or its
 \index{N\_VEnableLinearCombinationVectorArray\_Petsc (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_PETSc:c.N_VEnableLinearCombinationVectorArray_Petsc}\pysiglinewithargsret{void \bfcode{N\_VEnableLinearCombinationVectorArray\_Petsc}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_PETSc:c.N_VEnableLinearCombinationVectorArray_Petsc}\pysiglinewithargsret{int \bfcode{N\_VEnableLinearCombinationVectorArray\_Petsc}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear
 combination operation for vector arrays in the PETSc vector. The return value
 is \code{0} for success and \code{-1} if the input vector or its \code{ops} structure
@@ -26278,13 +26735,11 @@ internal representations.
 
 \section{The NVECTOR\_CUDA Module}
 \label{nvectors/NVector_CUDA:the-nvector-cuda-module}\label{nvectors/NVector_CUDA:nvectors-cuda}\label{nvectors/NVector_CUDA::doc}
-The NVECTOR\_CUDA module is an experimental NVECTOR implementation
-in the CUDA language. This module allows for SUNDIALS vector kernels
-to run on GPU devices. It is intended for users who are already
-familiar with CUDA and GPU programming.  Building this vector
-module requires a CUDA compiler and, by extension, C++ compiler.
-The class \code{Vector}  in the namespace \code{suncudavec} manages
-the vector data layout.
+The NVECTOR\_CUDA module is an experimental NVECTOR implementation in the CUDA language.
+The module allows for SUNDIALS vector kernels to run on GPU devices. It is intended for users
+who are already familiar with CUDA and GPU programming. Building this vector
+module requires a CUDA compiler and, by extension, a C++ compiler. The class \code{Vector}
+in the namespace \code{suncudavec} manages the vector data layout:
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{k}{template} \PYG{o}{\PYGZlt{}}\PYG{k}{class} \PYG{n+nc}{T}\PYG{p}{,} \PYG{k}{class} \PYG{n+nc}{I}\PYG{o}{\PYGZgt{}}
@@ -26304,53 +26759,49 @@ the vector data layout.
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{Verbatim}
 
-The class members are vector size (length), size of the vector data memory block, pointers
-to vector data on the host and the device, pointers to classes \code{StreamPartitioning}
-and \code{ReducePartitioning}, which handle thread partitioning for streaming and
-reduction vector kernels, respectively, a boolean flag that signals if the
+The class members are vector size (length), size of the vector data memory
+block, pointers to vector data on the host and the device, pointers
+to \code{ThreadPartitioning} implementations that handle thread partitioning for
+streaming and reduction vector kernels, a boolean flag that signals if the
 vector owns the thread partitioning, a boolean flag that signals if the vector
 owns the data, a boolean flag that signals if managed memory is used for the
-data arrays, and the MPI communicator. he class \code{Vector} inherits from empty
-structure
+data arrays, and the MPI communicator. The class \code{Vector} inherits from the
+empty structure
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{k}{struct} \PYG{n}{\PYGZus{}N\PYGZus{}VectorContent\PYGZus{}Cuda} \PYG{p}{\PYGZob{}}
-\PYG{p}{\PYGZcb{}}\PYG{p}{;}
+\PYG{k}{struct} \PYG{n}{\PYGZus{}N\PYGZus{}VectorContent\PYGZus{}Cuda} \PYG{p}{\PYGZob{}}\PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{Verbatim}
 
-to interface the C++ class with \code{N\_Vector} C code.
-Due to rapid progress in of CUDA development, we expect
-that \code{suncudavec::Vector} class will change frequently in the future
-SUNDIALS releases. The code is structured so that it can tolerate
-significant changes in the \code{suncudavec::Vector} class without
-requiring changes to user API.
+to interface the C++ class with the NVECTOR C code. Due to the rapid progress
+of CUDA development, we expect that the \code{suncudavec::Vector} class will
+change frequently in future SUNDIALS releases. The code is structured so that
+it can tolerate significant changes in the \code{suncudavec::Vector} class without
+requiring changes to the user API.
 
-When instantiated, the class \code{Vector} will allocate memory on both, host
-and device by default. Optionally, managed memory can be allocated instead
-(see \code{N\_VNewManaged\_Cuda}), or a user can provide data arrays
-(see \code{N\_VMake\_Cuda} and \code{N\_VMakeManaged\_Cuda}).
+When instantiated with \code{N\_VNew\_Cuda}, the class \code{Vector} will allocate
+memory on both the host and the device. Alternatively, a user can provide host
+and device data arrays by using the \code{N\_VMake\_Cuda} constructor. To use CUDA
+managed memory, the constructors \code{N\_VNewManaged\_Cuda} and
+\code{N\_VMakeManaged\_Cuda} are provided. Details on each of these constructors
+are provided below.
 
-The NVECTOR\_CUDA module can be utilized for single-node parallelism or in
-a distributed context with MPI. The header file to include when using this
-module for single-node parallelism is \code{nvector\_cuda.h}. The header file
-to include when using this module in the distributed case is
-\code{nvector\_mpicuda.h}. The installed module libraries to link to are
-\code{libsundials\_nveccuda.lib} in the single-node case, or
-\code{libsundials\_nvecmpicuda.lib} in the distributed case. Only one one of
-these libraries may be linked to when creating an executable or library.
-SUNDIALS must be built with MPI support if the distributed library is desired.
+The NVECTOR\_CUDA module can be utilized for single-node parallelism or in a
+distributed context with MPI. In the single-node case the header file to
+include \code{nvector\_cuda.h} and the library to link to is
+\code{libsundials\_nveccuda.lib}. In the a distributed setting the header
+file to include is \code{nvector\_mpicuda.h} and the library to link to is
+\code{libsundials\_nvecmpicuda.lib}. The extension, \code{.lib}, is
+typically \code{.so} for shared libraries and \code{.a} for static libraries.
+Only one of these libraries may be linked to when creating an executable
+or library. SUNDIALS must be built with MPI support if the distributed
+library is desired.
 
+
+\subsection{NVECTOR\_CUDA functions}
+\label{nvectors/NVector_CUDA:nvector-cuda-functions}
 Unlike other native SUNDIALS vector types, the NVECTOR\_CUDA module does not
 provide macros to access its member variables. Instead, user should use the
 accessor functions:
-\index{N\_VGetLength\_Cuda (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_CUDA:c.N_VGetLength_Cuda}\pysiglinewithargsret{sunindextype \bfcode{N\_VGetLength\_Cuda}}{N\_Vector\emph{ v}}{}
-This function returns the global length of the vector.
-
-\end{fulllineitems}
-
 \index{N\_VGetLocalLength\_Cuda (C function)}
 
 \begin{fulllineitems}
@@ -26403,7 +26854,8 @@ data array is in managed memory or not.
 
 The NVECTOR\_CUDA module defines implementations of all standard vector
 operations defined in the sections {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}},
-{\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}}, and  {\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}, except for
+{\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}, and
+{\hyperref[nvectors/NVector_Operations:nvectors-localops]{\emph{\DUspan{}{Description of the NVECTOR local reduction operations}}}}, except for
 \code{N\_VGetArrayPointer} and \code{N\_VSetArrayPointer}.  As such, this
 vector cannot be used with SUNDIALS Fortran interfaces, nor with
 SUNDIALS direct solvers and preconditioners. This support will be
@@ -26414,8 +26866,8 @@ device and vice versa. Usage examples of NVECTOR\_CUDA are provided in
 example programs for CVODE \phantomsection\label{nvectors/NVector_CUDA:id1}{\hyperref[References:hsr2017]{\emph{{[}HSR2017{]}}}}.
 
 The names of vector operations are obtained from those in the sections
-{\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}} and
-{\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}} by appending the suffix \code{\_Cuda}
+{\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}, and
+{\hyperref[nvectors/NVector_Operations:nvectors-localops]{\emph{\DUspan{}{Description of the NVECTOR local reduction operations}}}} by appending the suffix \code{\_Cuda}
 (e.g. \code{N\_VDestroy\_Cuda}).  The module NVECTOR\_CUDA provides the
 following additional user-callable routines:
 \index{N\_VNew\_Cuda (C function)}
@@ -26505,32 +26957,20 @@ the managed data array. This constructor is defined in the header
 
 \end{fulllineitems}
 
-\index{N\_VCloneVectorArray\_Cuda (C function)}
+
+The module NVECTOR\_CUDA also provides the following user-callable routines:
+\index{N\_VSetCudaStream\_Cuda (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_CUDA:c.N_VCloneVectorArray_Cuda}\pysiglinewithargsret{N\_Vector* \bfcode{N\_VCloneVectorArray\_Cuda}}{int\emph{ count}, N\_Vector\emph{ w}}{}
-This function creates (by cloning) an array of \emph{count} NVECTOR\_CUDA
-vectors.
+\phantomsection\label{nvectors/NVector_CUDA:c.N_VSetCudaStream_Cuda}\pysiglinewithargsret{void \bfcode{N\_VSetCudaStream\_Cuda}}{N\_Vector\emph{ v}, cudaStream\_t\emph{ *stream}}{}
+This function sets the CUDA stream that all vector kernels will be launched on.
+By default an NVECTOR\_CUDA uses the default CUDA stream.
 
-\end{fulllineitems}
-
-\index{N\_VCloneVectorArrayEmpty\_Cuda (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_CUDA:c.N_VCloneVectorArrayEmpty_Cuda}\pysiglinewithargsret{N\_Vector* \bfcode{N\_VCloneVectorArrayEmpty\_Cuda}}{int\emph{ count}, N\_Vector\emph{ w}}{}
-This function creates (by cloning) an array of \emph{count} NVECTOR\_CUDA
-vectors, each with pointers to CUDA vectors set to \code{NULL}.
-
-\end{fulllineitems}
-
-\index{N\_VDestroyVectorArray\_Cuda (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_CUDA:c.N_VDestroyVectorArray_Cuda}\pysiglinewithargsret{void \bfcode{N\_VDestroyVectorArray\_Cuda}}{N\_Vector*\emph{ vs}, int\emph{ count}}{}
-This function frees memory allocated for the array of \emph{count}
-variables of type \code{N\_Vector} created with
-{\hyperref[nvectors/NVector_CUDA:c.N_VCloneVectorArray_Cuda]{\emph{\code{N\_VCloneVectorArray\_Cuda()}}}} or with
-{\hyperref[nvectors/NVector_CUDA:c.N_VCloneVectorArrayEmpty_Cuda]{\emph{\code{N\_VCloneVectorArrayEmpty\_Cuda()}}}}.
+\emph{Note: All vectors used in a single instance of a SUNDIALS solver must
+use the same CUDA stream, and the CUDA stream must be set prior to
+solver initialization. Additionally, if manually instantiating the stream and
+reduce {}`{}`ThreadPartitioning{}`{}` of a {}`{}`suncudavec::Vector{}`{}`, ensure that they
+use the same CUDA stream.}
 
 \end{fulllineitems}
 
@@ -26580,7 +27020,7 @@ options as the vector they are cloned from while vectors created with
 \index{N\_VEnableFusedOps\_Cuda (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_CUDA:c.N_VEnableFusedOps_Cuda}\pysiglinewithargsret{void \bfcode{N\_VEnableFusedOps\_Cuda}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_CUDA:c.N_VEnableFusedOps_Cuda}\pysiglinewithargsret{int \bfcode{N\_VEnableFusedOps\_Cuda}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) all fused and
 vector array operations in the CUDA vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -26590,7 +27030,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableLinearCombination\_Cuda (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_CUDA:c.N_VEnableLinearCombination_Cuda}\pysiglinewithargsret{void \bfcode{N\_VEnableLinearCombination\_Cuda}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_CUDA:c.N_VEnableLinearCombination_Cuda}\pysiglinewithargsret{int \bfcode{N\_VEnableLinearCombination\_Cuda}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear
 combination fused operation in the CUDA vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -26600,7 +27040,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableScaleAddMulti\_Cuda (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_CUDA:c.N_VEnableScaleAddMulti_Cuda}\pysiglinewithargsret{void \bfcode{N\_VEnableScaleAddMulti\_Cuda}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_CUDA:c.N_VEnableScaleAddMulti_Cuda}\pysiglinewithargsret{int \bfcode{N\_VEnableScaleAddMulti\_Cuda}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale and
 add a vector to multiple vectors fused operation in the CUDA vector. The
 return value is \code{0} for success and \code{-1} if the input vector or its
@@ -26611,7 +27051,7 @@ return value is \code{0} for success and \code{-1} if the input vector or its
 \index{N\_VEnableDotProdMulti\_Cuda (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_CUDA:c.N_VEnableDotProdMulti_Cuda}\pysiglinewithargsret{void \bfcode{N\_VEnableDotProdMulti\_Cuda}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_CUDA:c.N_VEnableDotProdMulti_Cuda}\pysiglinewithargsret{int \bfcode{N\_VEnableDotProdMulti\_Cuda}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the multiple
 dot products fused operation in the CUDA vector. The return value is \code{0}
 for success and \code{-1} if the input vector or its \code{ops} structure are
@@ -26622,7 +27062,7 @@ for success and \code{-1} if the input vector or its \code{ops} structure are
 \index{N\_VEnableLinearSumVectorArray\_Cuda (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_CUDA:c.N_VEnableLinearSumVectorArray_Cuda}\pysiglinewithargsret{void \bfcode{N\_VEnableLinearSumVectorArray\_Cuda}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_CUDA:c.N_VEnableLinearSumVectorArray_Cuda}\pysiglinewithargsret{int \bfcode{N\_VEnableLinearSumVectorArray\_Cuda}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear sum
 operation for vector arrays in the CUDA vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -26632,7 +27072,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableScaleVectorArray\_Cuda (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_CUDA:c.N_VEnableScaleVectorArray_Cuda}\pysiglinewithargsret{void \bfcode{N\_VEnableScaleVectorArray\_Cuda}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_CUDA:c.N_VEnableScaleVectorArray_Cuda}\pysiglinewithargsret{int \bfcode{N\_VEnableScaleVectorArray\_Cuda}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale
 operation for vector arrays in the CUDA vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -26642,7 +27082,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableConstVectorArray\_Cuda (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_CUDA:c.N_VEnableConstVectorArray_Cuda}\pysiglinewithargsret{void \bfcode{N\_VEnableConstVectorArray\_Cuda}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_CUDA:c.N_VEnableConstVectorArray_Cuda}\pysiglinewithargsret{int \bfcode{N\_VEnableConstVectorArray\_Cuda}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the const
 operation for vector arrays in the CUDA vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -26652,7 +27092,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableWrmsNormVectorArray\_Cuda (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_CUDA:c.N_VEnableWrmsNormVectorArray_Cuda}\pysiglinewithargsret{void \bfcode{N\_VEnableWrmsNormVectorArray\_Cuda}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_CUDA:c.N_VEnableWrmsNormVectorArray_Cuda}\pysiglinewithargsret{int \bfcode{N\_VEnableWrmsNormVectorArray\_Cuda}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the WRMS norm
 operation for vector arrays in the CUDA vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -26662,7 +27102,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableWrmsNormMaskVectorArray\_Cuda (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_CUDA:c.N_VEnableWrmsNormMaskVectorArray_Cuda}\pysiglinewithargsret{void \bfcode{N\_VEnableWrmsNormMaskVectorArray\_Cuda}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_CUDA:c.N_VEnableWrmsNormMaskVectorArray_Cuda}\pysiglinewithargsret{int \bfcode{N\_VEnableWrmsNormMaskVectorArray\_Cuda}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the masked WRMS
 norm operation for vector arrays in the CUDA vector. The return value is
 \code{0} for success and \code{-1} if the input vector or its \code{ops} structure are
@@ -26673,7 +27113,7 @@ norm operation for vector arrays in the CUDA vector. The return value is
 \index{N\_VEnableScaleAddMultiVectorArray\_Cuda (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_CUDA:c.N_VEnableScaleAddMultiVectorArray_Cuda}\pysiglinewithargsret{void \bfcode{N\_VEnableScaleAddMultiVectorArray\_Cuda}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_CUDA:c.N_VEnableScaleAddMultiVectorArray_Cuda}\pysiglinewithargsret{int \bfcode{N\_VEnableScaleAddMultiVectorArray\_Cuda}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale and
 add a vector array to multiple vector arrays operation in the CUDA vector. The
 return value is \code{0} for success and \code{-1} if the input vector or its
@@ -26684,7 +27124,7 @@ return value is \code{0} for success and \code{-1} if the input vector or its
 \index{N\_VEnableLinearCombinationVectorArray\_Cuda (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_CUDA:c.N_VEnableLinearCombinationVectorArray_Cuda}\pysiglinewithargsret{void \bfcode{N\_VEnableLinearCombinationVectorArray\_Cuda}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_CUDA:c.N_VEnableLinearCombinationVectorArray_Cuda}\pysiglinewithargsret{int \bfcode{N\_VEnableLinearCombinationVectorArray\_Cuda}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear
 combination operation for vector arrays in the CUDA vector. The return value
 is \code{0} for success and \code{-1} if the input vector or its \code{ops} structure
@@ -26712,16 +27152,16 @@ arguments that were all created with the same internal representations.
 
 \section{The NVECTOR\_RAJA Module}
 \label{nvectors/NVector_RAJA:the-nvector-raja-module}\label{nvectors/NVector_RAJA:nvectors-raja}\label{nvectors/NVector_RAJA::doc}
-The NVECTOR\_RAJA module is an experimental implementation of
-\code{N\_Vector} using the RAJA hardware abstraction layer
-\href{https://software.llnl.gov/RAJA/}{https://software.llnl.gov/RAJA/}.
-In this implementation, RAJA allows for SUNDIALS vector kernels to run
-on GPU devices. The module is intended for users who are already
-familiar with RAJA and GPU programming. Building this vector module
-requires a C++11 compliant compiler and a CUDA software development
-toolkit.  Besides the CUDA backend, RAJA has other backends such as
-serial, OpenMP and OpenAC. These backends are not used in this SUNDIALS release.
-Class \code{Vector} in namespace \code{sunrajavec} manages the vector data layout:
+The NVECTOR\_RAJA module is an experimental \{nvector\} implementation using the
+\href{https://software.llnl.gov/RAJA/}{RAJA} hardware abstraction
+layer. In this implementation, RAJA
+allows for SUNDIALS vector kernels to run on GPU devices. The module is intended for users
+who are already familiar with RAJA and GPU programming. Building this vector
+module requires a C++11 compliant compiler and a CUDA software development toolkit.
+Besides the CUDA backend, RAJA has other backends such as serial, OpenMP,
+and OpenACC. These backends are not used in this SUNDIALS release.
+Class \code{Vector} in namespace \code{sunrajavec} manages the vector data
+layout:
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{k}{template} \PYG{o}{\PYGZlt{}}\PYG{k}{class} \PYG{n+nc}{T}\PYG{p}{,} \PYG{k}{class} \PYG{n+nc}{I}\PYG{o}{\PYGZgt{}}
@@ -26742,15 +27182,14 @@ on the host and on the device, and the MPI communicator. The class
 \code{Vector} inherits from an empty structure
 
 \begin{Verbatim}[commandchars=\\\{\}]
-\PYG{k}{struct} \PYG{n}{\PYGZus{}N\PYGZus{}VectorContent\PYGZus{}Raja} \PYG{p}{\PYGZob{}}
-\PYG{p}{\PYGZcb{}}\PYG{p}{;}
+\PYG{k}{struct} \PYG{n}{\PYGZus{}N\PYGZus{}VectorContent\PYGZus{}Raja} \PYG{p}{\PYGZob{}} \PYG{p}{\PYGZcb{}}\PYG{p}{;}
 \end{Verbatim}
 
 to interface the C++ class with the \code{N\_Vector} C code. When
 instantiated, the class \code{Vector} will allocate memory on both the host
 and the device.
 Due to the rapid progress of RAJA development, we expect
-that the \code{sunrajavec::Vector} class will change frequently in the future
+that the \code{sunrajavec::Vector} class will change frequently in future
 SUNDIALS releases. The code is structured so that it can tolerate
 significant changes in the \code{sunrajavec::Vector} class without
 requiring changes to the user API.
@@ -26765,17 +27204,12 @@ to include when using this module in the distributed case is
 these libraries may be linked to when creating an executable or library.
 SUNDIALS must be built with MPI support if the distributed library is desired.
 
+
+\subsection{NVECTOR\_RAJA functions}
+\label{nvectors/NVector_RAJA:nvector-raja-functions}
 Unlike other native SUNDIALS vector types, the NVECTOR\_RAJA module does not
 provide macros to access its member variables. Instead, user should use the
 accessor functions:
-\index{N\_VGetLength\_Raja (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_RAJA:c.N_VGetLength_Raja}\pysiglinewithargsret{sunindextype \bfcode{N\_VGetLength\_Raja}}{N\_Vector\emph{ v}}{}
-This function returns the global length of the vector.
-
-\end{fulllineitems}
-
 \index{N\_VGetLocalLength\_Raja (C function)}
 
 \begin{fulllineitems}
@@ -26816,19 +27250,11 @@ library to link to is \code{libsundials\_nvecmpicuda.lib}.
 
 \end{fulllineitems}
 
-\index{N\_VIsManagedMemory\_Raja (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_RAJA:c.N_VIsManagedMemory_Raja}\pysiglinewithargsret{booleantype \bfcode{N\_VIsManagedMemory\_Raja}}{N\_Vector\emph{ v}}{}
-This function returns a boolean flag indiciating if the vector
-data array is in managed memory or not.
-
-\end{fulllineitems}
-
 
 The NVECTOR\_RAJA module defines the implementations of all vector
 operations listed in the sections {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}},
-{\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}} and {\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}, except for
+{\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}, and
+{\hyperref[nvectors/NVector_Operations:nvectors-localops]{\emph{\DUspan{}{Description of the NVECTOR local reduction operations}}}}, except for
 \code{N\_VDotProdMulti}, \code{N\_VWrmsNormVectorArray},
 \code{N\_VWrmsNormMaskVectorArray} as support for arrays of reduction
 vectors is not yet supported in RAJA.  These functions will be added
@@ -26843,8 +27269,8 @@ device and vice versa. Usage examples of NVECTOR\_RAJA are provided in
 some example programs for CVODE \phantomsection\label{nvectors/NVector_RAJA:id1}{\hyperref[References:hsr2017]{\emph{{[}HSR2017{]}}}}.
 
 The names of vector operations are obtained from those in the sections
-{\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}} and
-{\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}} by appending the suffix \code{\_Raja}
+{\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}, and
+{\hyperref[nvectors/NVector_Operations:nvectors-localops]{\emph{\DUspan{}{Description of the NVECTOR local reduction operations}}}} by appending the suffix \code{\_Raja}
 (e.g. \code{N\_VDestroy\_Raja}).  The module NVECTOR\_RAJA
 provides the following additional user-callable routines:
 \index{N\_VNew\_Raja (C function)}
@@ -26876,35 +27302,6 @@ This function creates and allocates memory for an NVECTOR\_RAJA
 wrapper around a user-provided \code{sunrajavec::Vector} class.
 Its only argument is of type \code{N\_VectorContent\_Raja}, which
 is the pointer to the class.
-
-\end{fulllineitems}
-
-\index{N\_VCloneVectorArray\_Raja (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_RAJA:c.N_VCloneVectorArray_Raja}\pysiglinewithargsret{N\_Vector* \bfcode{N\_VCloneVectorArray\_Raja}}{int\emph{ count}, N\_Vector\emph{ w}}{}
-This function creates (by cloning) an array of \emph{count} NVECTOR\_RAJA
-vectors.
-
-\end{fulllineitems}
-
-\index{N\_VCloneVectorArrayEmpty\_Raja (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_RAJA:c.N_VCloneVectorArrayEmpty_Raja}\pysiglinewithargsret{N\_Vector* \bfcode{N\_VCloneVectorArrayEmpty\_Raja}}{int\emph{ count}, N\_Vector\emph{ w}}{}
-This function creates (by cloning) an array of \emph{count} NVECTOR\_RAJA
-vectors, each with pointers to RAJA vectors set to \code{NULL}.
-
-\end{fulllineitems}
-
-\index{N\_VDestroyVectorArray\_Raja (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_RAJA:c.N_VDestroyVectorArray_Raja}\pysiglinewithargsret{void \bfcode{N\_VDestroyVectorArray\_Raja}}{N\_Vector*\emph{ vs}, int\emph{ count}}{}
-This function frees memory allocated for the array of \emph{count}
-variables of type \code{N\_Vector} created with
-{\hyperref[nvectors/NVector_RAJA:c.N_VCloneVectorArray_Raja]{\emph{\code{N\_VCloneVectorArray\_Raja()}}}} or with
-{\hyperref[nvectors/NVector_RAJA:c.N_VCloneVectorArrayEmpty_Raja]{\emph{\code{N\_VCloneVectorArrayEmpty\_Raja()}}}}.
 
 \end{fulllineitems}
 
@@ -26954,7 +27351,7 @@ options as the vector they are cloned from while vectors created with
 \index{N\_VEnableFusedOps\_Raja (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_RAJA:c.N_VEnableFusedOps_Raja}\pysiglinewithargsret{void \bfcode{N\_VEnableFusedOps\_Raja}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_RAJA:c.N_VEnableFusedOps_Raja}\pysiglinewithargsret{int \bfcode{N\_VEnableFusedOps\_Raja}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) all fused and
 vector array operations in the RAJA vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -26964,7 +27361,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableLinearCombination\_Raja (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_RAJA:c.N_VEnableLinearCombination_Raja}\pysiglinewithargsret{void \bfcode{N\_VEnableLinearCombination\_Raja}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_RAJA:c.N_VEnableLinearCombination_Raja}\pysiglinewithargsret{int \bfcode{N\_VEnableLinearCombination\_Raja}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear
 combination fused operation in the RAJA vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -26974,7 +27371,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableScaleAddMulti\_Raja (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_RAJA:c.N_VEnableScaleAddMulti_Raja}\pysiglinewithargsret{void \bfcode{N\_VEnableScaleAddMulti\_Raja}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_RAJA:c.N_VEnableScaleAddMulti_Raja}\pysiglinewithargsret{int \bfcode{N\_VEnableScaleAddMulti\_Raja}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale and
 add a vector to multiple vectors fused operation in the RAJA vector. The
 return value is \code{0} for success and \code{-1} if the input vector or its
@@ -26985,7 +27382,7 @@ return value is \code{0} for success and \code{-1} if the input vector or its
 \index{N\_VEnableLinearSumVectorArray\_Raja (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_RAJA:c.N_VEnableLinearSumVectorArray_Raja}\pysiglinewithargsret{void \bfcode{N\_VEnableLinearSumVectorArray\_Raja}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_RAJA:c.N_VEnableLinearSumVectorArray_Raja}\pysiglinewithargsret{int \bfcode{N\_VEnableLinearSumVectorArray\_Raja}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear sum
 operation for vector arrays in the RAJA vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -26995,7 +27392,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableScaleVectorArray\_Raja (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_RAJA:c.N_VEnableScaleVectorArray_Raja}\pysiglinewithargsret{void \bfcode{N\_VEnableScaleVectorArray\_Raja}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_RAJA:c.N_VEnableScaleVectorArray_Raja}\pysiglinewithargsret{int \bfcode{N\_VEnableScaleVectorArray\_Raja}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale
 operation for vector arrays in the RAJA vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -27005,7 +27402,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableConstVectorArray\_Raja (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_RAJA:c.N_VEnableConstVectorArray_Raja}\pysiglinewithargsret{void \bfcode{N\_VEnableConstVectorArray\_Raja}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_RAJA:c.N_VEnableConstVectorArray_Raja}\pysiglinewithargsret{int \bfcode{N\_VEnableConstVectorArray\_Raja}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the const
 operation for vector arrays in the RAJA vector. The return value is \code{0} for
 success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
@@ -27015,7 +27412,7 @@ success and \code{-1} if the input vector or its \code{ops} structure are \code{
 \index{N\_VEnableScaleAddMultiVectorArray\_Raja (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_RAJA:c.N_VEnableScaleAddMultiVectorArray_Raja}\pysiglinewithargsret{void \bfcode{N\_VEnableScaleAddMultiVectorArray\_Raja}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_RAJA:c.N_VEnableScaleAddMultiVectorArray_Raja}\pysiglinewithargsret{int \bfcode{N\_VEnableScaleAddMultiVectorArray\_Raja}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale and
 add a vector array to multiple vector arrays operation in the RAJA vector. The
 return value is \code{0} for success and \code{-1} if the input vector or its
@@ -27026,7 +27423,7 @@ return value is \code{0} for success and \code{-1} if the input vector or its
 \index{N\_VEnableLinearCombinationVectorArray\_Raja (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_RAJA:c.N_VEnableLinearCombinationVectorArray_Raja}\pysiglinewithargsret{void \bfcode{N\_VEnableLinearCombinationVectorArray\_Raja}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+\phantomsection\label{nvectors/NVector_RAJA:c.N_VEnableLinearCombinationVectorArray_Raja}\pysiglinewithargsret{int \bfcode{N\_VEnableLinearCombinationVectorArray\_Raja}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
 This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear
 combination operation for vector arrays in the RAJA vector. The return value
 is \code{0} for success and \code{-1} if the input vector or its \code{ops} structure
@@ -27078,6 +27475,9 @@ The installed module library to link to is \code{libsundials\_nvecopenmpdev.lib}
 where \code{.lib} is typically \code{.so} for shared libraries and \code{.a}
 for static libraries.
 
+
+\subsection{NVECTOR\_OPENMPDEV accessor macros}
+\label{nvectors/NVector_OpenMPDEV:nvector-openmpdev-accessor-macros}
 The following macros are provided to access the content of an NVECTOR\_OPENMPDEV
 vector.
 \index{NV\_CONTENT\_OMPDEV (C macro)}
@@ -27164,16 +27564,19 @@ sets the length of \code{v} to be \code{len\_v}.
 \end{fulllineitems}
 
 
+
+\subsection{NVECTOR\_OPENMPDEV functions}
+\label{nvectors/NVector_OpenMPDEV:nvector-openmpdev-functions}
 The NVECTOR\_OPENMPDEV module defines OpenMP device offloading implementations of all vector
-operations listed in Tables {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}}, and
-{\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}, except for \code{N\_VGetArrayPointer} and \code{N\_VSetArrayPointer}.
+operations listed in Tables {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}, and
+{\hyperref[nvectors/NVector_Operations:nvectors-localops]{\emph{\DUspan{}{Description of the NVECTOR local reduction operations}}}}, except for \code{N\_VGetArrayPointer} and \code{N\_VSetArrayPointer}.
 As such, this vector cannot be used with the SUNDIALS FORTRAN interfaces, nor with the
 SUNDIALS direct solvers and preconditioners. It also provides methods for copying from
 the host to the device and vice versa.
 
 The names of the vector operations are obtained from those in tables
-{\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}}, and {\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}
-by appending the suffix \code{\_OpenMPDEV} (e.g. \code{N\_VDestroy\_OpenMPDEV}).
+{\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}, and
+{\hyperref[nvectors/NVector_Operations:nvectors-localops]{\emph{\DUspan{}{Description of the NVECTOR local reduction operations}}}} by appending the suffix \code{\_OpenMPDEV} (e.g. \code{N\_VDestroy\_OpenMPDEV}).
 The module NVECTOR\_OPENMPDEV provides the following additional user-callable routines:
 
 
@@ -27226,14 +27629,6 @@ each with an empty (\code{NULL}) data array.
 This function frees memory allocated for the array of \code{count} variables of type
 \code{N\_Vector} created with \code{N\_VCloneVectorArray\_OpenMPDEV} or with
 \code{N\_VCloneVectorArrayEmpty\_OpenMPDEV}.
-
-\end{fulllineitems}
-
-
-
-\begin{fulllineitems}
-\pysigline{\bfcode{sunindextype~N\_VGetLength\_OpenMPDEV(N\_Vector~v);}}
-This function returns number of vector elements.
 
 \end{fulllineitems}
 
@@ -27449,6 +27844,462 @@ length.
 \end{itemize}
 
 
+\section{The NVECTOR\_TRILINOS Module}
+\label{nvectors/NVector_Trilinos:the-nvector-trilinos-module}\label{nvectors/NVector_Trilinos::doc}\label{nvectors/NVector_Trilinos:nvectors-nvtrilinos}
+The NVECTOR\_TRILINOS module is an NVECTOR wrapper around the Trilinos
+\href{https://github.com/trilinos/Trilinos}{Tpetra} vector. The interface
+to Tpetra is implemented in the \code{Sundials::TpetraVectorInterface}
+class. This class simply stores a reference counting pointer to a
+Tpetra vector and inherits from an empty structure
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{struct} \PYG{n}{\PYGZus{}N\PYGZus{}VectorContent\PYGZus{}Trilinos} \PYG{p}{\PYGZob{}}\PYG{p}{\PYGZcb{}}\PYG{p}{;}
+\end{Verbatim}
+
+to interface the C++ class with the NVECTOR C code.
+A pointer to an instance of this class is kept in the \emph{content} field
+of the \code{N\_Vector} object, to ensure that the Tpetra vector
+is not deleted for as long as the \code{N\_Vector} object exists.
+
+The Tpetra vector type in the \code{Sundials::TpetraVectorInterface}
+class is defined as:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{typedef} \PYG{n}{Tpetra}\PYG{o}{:}\PYG{o}{:}\PYG{n}{Vector}\PYG{o}{\PYGZlt{}}\PYG{n}{realtype}\PYG{p}{,} \PYG{n}{sunindextype}\PYG{p}{,} \PYG{n}{sunindextype}\PYG{o}{\PYGZgt{}} \PYG{n}{vector\PYGZus{}type}\PYG{p}{;}
+\end{Verbatim}
+
+The Tpetra vector will use the SUNDIALS-specified \code{realtype} as its scalar
+type, and it will use \code{sunindextype} as the global and the local ordinal types.
+This type definition will use Tpetra's default node type. Available Kokkos node
+types in Trilinos 12.14 release are serial (single thread), OpenMP, Pthread,
+and CUDA. The default node type is selected when building the Kokkos package.
+For example, the Tpetra vector will use a CUDA node if Tpetra was built with
+CUDA support and the CUDA node was selected as the default when Tpetra was
+built.
+
+The header file to include when using this module is \code{nvector\_trilinos.h}.
+The installed module library to link to is \code{libsundials\_nvectrilinos.lib}
+where \code{.lib} is typically \code{.so} for shared libraries and \code{.a}
+for static libraries.
+
+
+\subsection{NVECTOR\_TRILINOS functions}
+\label{nvectors/NVector_Trilinos:nvector-trilinos-functions}
+The NVECTOR\_TRILINOS module defines implementations of all vector
+operations listed in the sections {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}},
+{\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}, and
+{\hyperref[nvectors/NVector_Operations:nvectors-localops]{\emph{\DUspan{}{Description of the NVECTOR local reduction operations}}}}, except for
+\code{N\_VGetArrayPointer} and \code{N\_VSetArrayPointer}.  As such, this
+vector cannot be used with SUNDIALS Fortran interfaces, nor with the
+SUNDIALS direct solvers and preconditioners.  When access to raw
+vector data is needed, it is recommended to extract the Trilinos
+Tpetra vector first, and then use Tpetra vector methods to access the
+data.  Usage examples of NVECTOR\_TRILINOS are provided in example
+programs for IDA.
+
+The names of vector operations are obtained from those in the sections
+{\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}, and
+{\hyperref[nvectors/NVector_Operations:nvectors-localops]{\emph{\DUspan{}{Description of the NVECTOR local reduction operations}}}} by appending the suffice \code{\_Trilinos}
+(e.g. \code{N\_VDestroy\_Trilinos}).  Vector operations call existing
+\code{Tpetra::Vector} methods when available. Vector operations specific
+to SUNDIALS are implemented as standalone functions in the namespace
+\code{Sundials::TpetraVector}, located in the file \code{SundialsTpetraVectorKernels.hpp}.
+The module NVECTOR\_TRILINOS provides the following additional user-callable routines:
+\index{N\_VGetVector\_Trilinos (C++ function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Trilinos:_CPPv221N_VGetVector_Trilinos8N_Vector}\pysiglinewithargsret{Teuchos::RCP\textless{}vector\_type\textgreater{} \code{}\bfcode{N\_VGetVector\_Trilinos}}{N\_Vector \emph{v}}{}
+This C++ function takes an \code{N\_Vector} as the argument and returns
+a reference counting pointer to the underlying Tpetra vector. This
+is a standalone function defined in the global namespace.
+
+\end{fulllineitems}
+
+\index{N\_VMake\_Trilinos (C++ function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Trilinos:_CPPv216N_VMake_TrilinosN7Teuchos3RCPI11vector_typeEE}\pysiglinewithargsret{N\_Vector \code{}\bfcode{N\_VMake\_Trilinos}}{Teuchos::RCP\textless{}vector\_type\textgreater{} \emph{v}}{}
+This C++ function creates and allocates memory for an
+NVECTOR\_TRILINOS wrapper around a user-provided Tpetra vector. This
+is a standalone function defined in the global namespace.
+
+\end{fulllineitems}
+
+
+\textbf{Notes}
+\begin{itemize}
+\item {} 
+The template parameter \code{vector\_type} should be set as:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{typedef} \PYG{n}{Sundials}\PYG{o}{:}\PYG{o}{:}\PYG{n}{TpetraVectorInterface}\PYG{o}{:}\PYG{o}{:}\PYG{n}{vector\PYGZus{}type} \PYG{n}{vector\PYGZus{}type}
+\end{Verbatim}
+
+This will ensure that data types used in Tpetra vector match those
+in SUNDIALS.
+
+\item {} 
+When there is a need to access components of an \code{N\_Vector\_Trilinos}, \code{v},
+it is recommeded to extract the Trilinos vector object via \code{x\_vec =
+N\_VGetVector\_Trilinos(v)} and then access components using the
+appropriate Trilinos functions.
+
+\item {} 
+The functions \code{N\_VDestroy\_Trilinos} and
+\code{N\_VDestroyVectorArray\_Trilinos} only delete the \code{N\_Vector}
+wrapper. The underlying Tpetra vector object will exist for as long
+as there is at least one reference to it.
+
+\end{itemize}
+
+
+\section{The NVECTOR\_MANYVECTOR Module}
+\label{nvectors/NVector_ManyVector:nvectors-manyvector}\label{nvectors/NVector_ManyVector:the-nvector-manyvector-module}\label{nvectors/NVector_ManyVector::doc}
+The NVECTOR\_MANYVECTOR implementation of the NVECTOR module provided with
+SUNDIALS is designed to facilitate problems with an inherent
+data partitioning for the solution vector.  These data partitions are
+entirely user-defined, through construction of distinct NVECTOR
+modules for each component, that are then combined together to form
+the NVECTOR\_MANYVECTOR.  We envision three generic use cases for this
+implementation:
+\begin{enumerate}
+\item {} 
+\emph{Heterogenous computational architectures (serial or parallel)}:
+for users who wish to partition data on a node between different
+computing resources, they may create architecture-specific
+subvectors for each partition.  For example, a user could create
+one MPI-parallel component based on NVECTOR\_PARALLEL, another
+single-node component for GPU accelerators based on NVECTOR\_CUDA,
+and another threaded single-node component based on
+NVECTOR\_OPENMP.
+
+\item {} 
+\emph{Process-based multiphysics decompositions (parallel)}: for users
+who wish to combine separate simulations together, e.g., where
+one subvector resides on one subset of MPI processes, while
+another subvector resides on a different subset of MPI processes,
+and where the user has created a MPI \emph{intercommunicator} to
+connect these distinct process sets together.
+
+\item {} 
+\emph{Structure of arrays (SOA) data layouts (serial or parallel)}:
+for users who wish to create separate subvectors for each
+solution component, e.g., in a Navier-Stokes simulation they
+could have separate subvectors for density, velocities and
+pressure, which are combined together into a single
+NVECTOR\_MANYVECTOR for the overall ``solution''.
+
+\end{enumerate}
+
+We note that the above use cases are not mutually exclusive, and the
+NVECTOR\_MANYVECTOR implementation should support arbitrary combinations
+of these cases.
+
+The NVECTOR\_MANYVECTOR implementation is designed to work with any
+NVECTOR subvectors that implement the minimum \emph{required} set
+of operations, however significant performance benefits may be
+obtained when subvectors additionally implement the optional local
+reduction operations listed in the section {\hyperref[nvectors/NVector_Operations:nvectors-localops]{\emph{\DUspan{}{Description of the NVECTOR local reduction operations}}}}.
+
+Additionally, NVECTOR\_MANYVECTOR sets no limit on the number of
+subvectors that may be attached (aside from the limitations of using
+\code{sunindextype} for indexing, and standard per-node memory
+limitations).  However, while this ostensibly supports subvectors
+with one entry each (i.e., one subvector for each solution entry), we
+anticipate that this extreme situation will hinder performance due to
+non-stride-one memory accesses and increased function call overhead.
+We therefore recommend a relatively coarse partitioning of the
+problem, although actual performance will likely be
+problem-dependent.
+
+As a final note, in the coming years we plan to introduce additional
+algebraic solvers and time integration modules that will leverage the
+problem partitioning enabled by NVECTOR\_MANYVECTOR.  However, even at
+present we anticipate that users will be able to leverage such data
+partitioning in their problem-defining ODE right-hand side, DAE
+residual, or nonlinear solver residual functions.
+
+
+\subsection{NVECTOR\_MANYVECTOR structure}
+\label{nvectors/NVector_ManyVector:nvector-manyvector-structure}
+The NVECTOR\_MANYVECTOR implementation defines the \emph{content} field
+of \code{N\_Vector} to be a structure containing the MPI communicator
+(or \code{SUNMPI\_COMM\_NULL} if running in serial), the number of
+subvectors comprising the ManyVector, the global length of the
+ManyVector (including all subvectors on all MPI tasks), a pointer to
+the beginning of the array of subvectors, and a boolean flag
+\code{own\_data} indicating ownership of the subvectors that populate
+\code{subvec\_array}.
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{struct} \PYG{n}{\PYGZus{}N\PYGZus{}VectorContent\PYGZus{}ManyVector} \PYG{p}{\PYGZob{}}
+  \PYG{n}{SUNMPI\PYGZus{}Comm}   \PYG{n}{comm}\PYG{p}{;}            \PYG{c+cm}{/* overall MPI communicator        */}
+  \PYG{n}{sunindextype}  \PYG{n}{num\PYGZus{}subvectors}\PYG{p}{;}  \PYG{c+cm}{/* number of vectors attached      */}
+  \PYG{n}{sunindextype}  \PYG{n}{global\PYGZus{}length}\PYG{p}{;}   \PYG{c+cm}{/* overall manyvector length       */}
+  \PYG{n}{N\PYGZus{}Vector}\PYG{o}{*}     \PYG{n}{subvec\PYGZus{}array}\PYG{p}{;}    \PYG{c+cm}{/* pointer to N\PYGZus{}Vector array       */}
+  \PYG{n}{booleantype}   \PYG{n}{own\PYGZus{}data}\PYG{p}{;}        \PYG{c+cm}{/* flag indicating data ownership  */}
+\PYG{p}{\PYGZcb{}}\PYG{p}{;}
+\end{Verbatim}
+
+The header file to include when using this module is
+\code{nvector\_manyvector.h}.  We note that although a MPI communicator
+is included in this \emph{content} structure, serial users need not
+include \code{mpi.h}, nor must they build their executables with an
+MPI-aware compiler (since \code{SUNMPI\_Comm} is set to \code{int} in
+MPI-unaware builds).  The installed module library to link against is
+\code{libsundials\_nvecmanyvector.lib} where \code{.lib} is
+typically \code{.so} for shared libraries and \code{.a} for static
+libraries. \emph{Note:} If SUNDIALS is built with MPI enabled, then the
+ManyVector library will be built for the parallel use case and
+an MPI-aware compiler will become necessary. Serial users
+should build SUNDIALS with MPI disabled. See the \DUspan{xref,std,std-ref}{\_Installation}
+section for details.
+
+
+\subsection{NVECTOR\_MANYVECTOR functions}
+\label{nvectors/NVector_ManyVector:nvector-manyvector-functions}
+The NVECTOR\_MANYVECTOR module implements all vector operations listed
+in the sections {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}},
+{\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}, and {\hyperref[nvectors/NVector_Operations:nvectors-localops]{\emph{\DUspan{}{Description of the NVECTOR local reduction operations}}}}, except for
+{\hyperref[nvectors/NVector_Operations:c.N_VGetArrayPointer]{\emph{\code{N\_VGetArrayPointer()}}}}, {\hyperref[nvectors/NVector_Operations:c.N_VSetArrayPointer]{\emph{\code{N\_VSetArrayPointer()}}}},
+{\hyperref[nvectors/NVector_Operations:c.N_VScaleAddMultiVectorArray]{\emph{\code{N\_VScaleAddMultiVectorArray()}}}}, and
+{\hyperref[nvectors/NVector_Operations:c.N_VLinearCombinationVectorArray]{\emph{\code{N\_VLinearCombinationVectorArray()}}}}.  As such, this vector
+cannot be used with the SUNDIALS Fortran interfaces, nor with the
+SUNDIALS direct solvers and preconditioners. Instead, the
+NVECTOR\_MANYVECTOR module provides functions to access subvectors,
+whose data may in turn be accessed according to their NVECTOR
+implementations.
+
+The names of vector operations are obtained from those in the sections
+{\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}},
+{\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}, and {\hyperref[nvectors/NVector_Operations:nvectors-localops]{\emph{\DUspan{}{Description of the NVECTOR local reduction operations}}}} by
+appending the suffix \code{\_ManyVector} (e.g. \code{N\_VDestroy\_ManyVector}).
+The module NVECTOR\_MANYVECTOR provides the following additional
+user-callable routines:
+\index{N\_VNew\_ManyVector (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ManyVector:c.N_VNew_ManyVector}\pysiglinewithargsret{N\_Vector \bfcode{N\_VNew\_ManyVector}}{sunindextype\emph{ num\_subvectors}, N\_Vector\emph{ *vec\_array}}{}
+This function creates a ManyVector from a set of existing
+NVECTOR objects, under the requirement that all MPI-aware
+subvectors use the same MPI communicator (this is checked
+internally).  If none of the subvectors are MPI-aware, then this
+may equivalently be used to describe data partitioning within a
+single node.  We note that this routine is designed to support use
+cases A and C above.
+
+This routine will copy all \code{N\_Vector} pointers from the input
+\code{vec\_array}, so the user may modify/free that pointer array
+after calling this function.  However, this routine does \emph{not}
+allocate any new subvectors, so the underlying NVECTOR objects
+themselves should not be destroyed before the ManyVector that
+contains them.
+
+Upon successful completion, the new ManyVector is returned;
+otherwise this routine returns \code{NULL} (e.g., if two MPI-aware
+subvectors use different MPI communicators).
+
+\end{fulllineitems}
+
+\index{N\_VMake\_ManyVector (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ManyVector:c.N_VMake_ManyVector}\pysiglinewithargsret{N\_Vector \bfcode{N\_VMake\_ManyVector}}{void\emph{ *comm}, sunindextype\emph{ num\_subvectors}, N\_Vector\emph{ *vec\_array}}{}
+This function creates a ManyVector from a set of existing NVECTOR
+objects, and a user-created MPI communicator that ``connects'' these
+subvectors.  Any MPI-aware subvectors may use different MPI
+communicators than the input \emph{comm}.  We note that this routine
+is designed to support any combination of the use cases above.
+
+The input \emph{comm} should be the memory reference to this
+user-created MPI communicator.  We note that since many MPI
+implementations \code{\#define}  \code{MPI\_COMM\_WORLD} to be a specific
+integer \emph{value} (that has no memory reference), users who wish
+to supply \code{MPI\_COMM\_WORLD} to this routine should first
+duplicate this to a specific \code{MPI\_Comm} variable before passing
+in the reference, e.g.
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{MPI\PYGZus{}Comm} \PYG{n}{comm}\PYG{p}{;}
+\PYG{n}{N\PYGZus{}Vector} \PYG{n}{x}\PYG{p}{;}
+\PYG{n}{MPI\PYGZus{}Comm\PYGZus{}dup}\PYG{p}{(}\PYG{n}{MPI\PYGZus{}COMM\PYGZus{}WORLD}\PYG{p}{,} \PYG{o}{\PYGZam{}}\PYG{n}{comm}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{x} \PYG{o}{=} \PYG{n}{N\PYGZus{}VMake\PYGZus{}ManyVector}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{comm}\PYG{p}{,} \PYG{p}{.}\PYG{p}{.}\PYG{p}{.}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+This routine will internally call \code{MPI\_Comm\_dup} to create a
+copy of the input \code{comm}, so the user-supplied \code{comm} argument
+need not be retained after the call to
+{\hyperref[nvectors/NVector_ManyVector:c.N_VMake_ManyVector]{\emph{\code{N\_VMake\_ManyVector()}}}}.
+
+If all subvectors are MPI-unaware, then the input \emph{comm} argument
+should be \code{NULL}, although in this case, it would be simpler to
+call {\hyperref[nvectors/NVector_ManyVector:c.N_VNew_ManyVector]{\emph{\code{N\_VNew\_ManyVector()}}}} instead.
+
+This routine will copy all \code{N\_Vector} pointers from the input
+\emph{vec\_array}, so the user may modify/free that pointer array
+after calling this function.  However, this routine does \emph{not}
+allocate any new subvectors, so the underlying NVECTOR objects
+themselves should not be destroyed before the ManyVector that
+contains them.
+
+Upon successful completion, the new ManyVector is returned;
+otherwise this routine returns \code{NULL} (e.g., if the input
+\emph{vec\_array} is \code{NULL}).
+
+\end{fulllineitems}
+
+\index{N\_VGetSubvector\_ManyVector (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ManyVector:c.N_VGetSubvector_ManyVector}\pysiglinewithargsret{N\_Vector \bfcode{N\_VGetSubvector\_ManyVector}}{N\_Vector\emph{ v}, sunindextype\emph{ vec\_num}}{}
+This function returns the \emph{vec\_num} subvector from the NVECTOR array.
+
+\end{fulllineitems}
+
+\index{N\_VGetNumSubvectors\_ManyVector (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ManyVector:c.N_VGetNumSubvectors_ManyVector}\pysiglinewithargsret{sunindextype \bfcode{N\_VGetNumSubvectors\_ManyVector}}{N\_Vector\emph{ v}}{}
+This function returns the overall number of subvectors in the ManyVector object.
+
+\end{fulllineitems}
+
+
+By default all fused and vector array operations are disabled in the NVECTOR\_MANYVECTOR
+module, except for {\hyperref[nvectors/NVector_Operations:c.N_VWrmsNormVectorArray]{\emph{\code{N\_VWrmsNormVectorArray()}}}} and
+{\hyperref[nvectors/NVector_Operations:c.N_VWrmsNormMaskVectorArray]{\emph{\code{N\_VWrmsNormMaskVectorArray()}}}}, that are enabled by default. The
+following additional user-callable routines are provided to enable or
+disable fused and vector array operations for a specific vector. To
+ensure consistency across vectors it is recommended to first create a
+vector with {\hyperref[nvectors/NVector_ManyVector:c.N_VNew_ManyVector]{\emph{\code{N\_VNew\_ManyVector()}}}} or
+{\hyperref[nvectors/NVector_ManyVector:c.N_VMake_ManyVector]{\emph{\code{N\_VMake\_ManyVector()}}}}, enable/disable the desired operations
+for that vector with the functions below, and create any additional
+vectors from that vector using {\hyperref[nvectors/NVector_Operations:c.N_VClone]{\emph{\code{N\_VClone()}}}}. This guarantees
+that the new vectors will have the same operations enabled/disabled,
+since cloned vectors inherit those configuration options from the
+vector they are cloned from, while vectors created with
+{\hyperref[nvectors/NVector_ManyVector:c.N_VNew_ManyVector]{\emph{\code{N\_VNew\_ManyVector()}}}} and {\hyperref[nvectors/NVector_ManyVector:c.N_VMake_ManyVector]{\emph{\code{N\_VMake\_ManyVector()}}}} will
+have the default settings for the NVECTOR\_MANYVECTOR module.  We note
+that these routines \emph{do not} call the corresponding routines on
+subvectors, so those should be set up as desired \emph{before} attaching
+them to the ManyVector in {\hyperref[nvectors/NVector_ManyVector:c.N_VNew_ManyVector]{\emph{\code{N\_VNew\_ManyVector()}}}} or
+{\hyperref[nvectors/NVector_ManyVector:c.N_VMake_ManyVector]{\emph{\code{N\_VMake\_ManyVector()}}}}.
+\index{N\_VEnableFusedOps\_ManyVector (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ManyVector:c.N_VEnableFusedOps_ManyVector}\pysiglinewithargsret{int \bfcode{N\_VEnableFusedOps\_ManyVector}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) all fused and
+vector array operations in the manyvector vector. The return value is \code{0} for
+success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
+
+\end{fulllineitems}
+
+\index{N\_VEnableLinearCombination\_ManyVector (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ManyVector:c.N_VEnableLinearCombination_ManyVector}\pysiglinewithargsret{int \bfcode{N\_VEnableLinearCombination\_ManyVector}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear
+combination fused operation in the manyvector vector. The return value is \code{0} for
+success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
+
+\end{fulllineitems}
+
+\index{N\_VEnableScaleAddMulti\_ManyVector (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ManyVector:c.N_VEnableScaleAddMulti_ManyVector}\pysiglinewithargsret{int \bfcode{N\_VEnableScaleAddMulti\_ManyVector}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale and
+add a vector to multiple vectors fused operation in the manyvector vector. The
+return value is \code{0} for success and \code{-1} if the input vector or its
+\code{ops} structure are \code{NULL}.
+
+\end{fulllineitems}
+
+\index{N\_VEnableDotProdMulti\_ManyVector (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ManyVector:c.N_VEnableDotProdMulti_ManyVector}\pysiglinewithargsret{int \bfcode{N\_VEnableDotProdMulti\_ManyVector}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the multiple
+dot products fused operation in the manyvector vector. The return value is \code{0}
+for success and \code{-1} if the input vector or its \code{ops} structure are
+\code{NULL}.
+
+\end{fulllineitems}
+
+\index{N\_VEnableLinearSumVectorArray\_ManyVector (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ManyVector:c.N_VEnableLinearSumVectorArray_ManyVector}\pysiglinewithargsret{int \bfcode{N\_VEnableLinearSumVectorArray\_ManyVector}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear sum
+operation for vector arrays in the manyvector vector. The return value is \code{0} for
+success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
+
+\end{fulllineitems}
+
+\index{N\_VEnableScaleVectorArray\_ManyVector (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ManyVector:c.N_VEnableScaleVectorArray_ManyVector}\pysiglinewithargsret{int \bfcode{N\_VEnableScaleVectorArray\_ManyVector}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale
+operation for vector arrays in the manyvector vector. The return value is \code{0} for
+success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
+
+\end{fulllineitems}
+
+\index{N\_VEnableConstVectorArray\_ManyVector (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ManyVector:c.N_VEnableConstVectorArray_ManyVector}\pysiglinewithargsret{int \bfcode{N\_VEnableConstVectorArray\_ManyVector}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the const
+operation for vector arrays in the manyvector vector. The return value is \code{0} for
+success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
+
+\end{fulllineitems}
+
+\index{N\_VEnableWrmsNormVectorArray\_ManyVector (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ManyVector:c.N_VEnableWrmsNormVectorArray_ManyVector}\pysiglinewithargsret{int \bfcode{N\_VEnableWrmsNormVectorArray\_ManyVector}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the WRMS norm
+operation for vector arrays in the manyvector vector. The return value is \code{0} for
+success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
+
+\end{fulllineitems}
+
+\index{N\_VEnableWrmsNormMaskVectorArray\_ManyVector (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ManyVector:c.N_VEnableWrmsNormMaskVectorArray_ManyVector}\pysiglinewithargsret{int \bfcode{N\_VEnableWrmsNormMaskVectorArray\_ManyVector}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the masked WRMS
+norm operation for vector arrays in the manyvector vector. The return value is
+\code{0} for success and \code{-1} if the input vector or its \code{ops} structure are
+\code{NULL}.
+
+\end{fulllineitems}
+
+
+\textbf{Notes}
+\begin{itemize}
+\item {} 
+{\hyperref[nvectors/NVector_ManyVector:c.N_VNew_ManyVector]{\emph{\code{N\_VNew\_ManyVector()}}}} and {\hyperref[nvectors/NVector_ManyVector:c.N_VMake_ManyVector]{\emph{\code{N\_VMake\_ManyVector()}}}} set
+the field \code{own\_data = SUNFALSE}.
+\code{N\_VDestroy\_ManyVector()} will not attempt to call
+{\hyperref[nvectors/NVector_Operations:c.N_VDestroy]{\emph{\code{N\_VDestroy()}}}} on any subvectors contained in the
+subvector array for any \code{N\_Vector} with \code{own\_data} set to
+\code{SUNFALSE}. In such a case, it is the user's responsibility to
+deallocate the subvectors.
+
+\item {} 
+To maximize efficiency, arithmetic vector operations in the
+NVECTOR\_MANYVECTOR implementation that have more than one
+\code{N\_Vector} argument do not check for consistent internal
+representation of these vectors. It is the user's responsibility to
+ensure that such routines are called with \code{N\_Vector} arguments
+that were all created with the same subvector representations.
+
+\end{itemize}
+
+
 \section{NVECTOR Examples}
 \label{nvectors/NVector_Examples:nvector-examples}\label{nvectors/NVector_Examples::doc}\label{nvectors/NVector_Examples:nvectors-examples}
 There are NVECTOR examples that may be installed for each
@@ -27477,6 +28328,12 @@ The following is a list of the example functions in \code{test\_nvector.c}:
 
 \item {} 
 \code{Test\_N\_VSetArrayPointer}: Allocate new vector, set pointer to new vector array, and check values.
+
+\item {} 
+\code{Test\_N\_VGetLength}: Compares self-reported length to calculated length.
+
+\item {} 
+\code{Test\_N\_VGetCommunicator}: Compares self-reported communicator to the one used in constructor; or for MPI-unaware vectors it ensures that NULL is reported.
 
 \item {} 
 \code{Test\_N\_VLinearSum} Case 1a: Test y =  x + y
@@ -27656,24 +28513,16 @@ The following is a list of the example functions in \code{test\_nvector.c}:
 \code{Test\_N\_VScaleVectorArray}: Case 1b: Z{[}i{]} = c
 
 \item {} 
-\code{Test\_N\_VWrmsNormVectorArray}: Case 1a: Create a vector of know
-values, find and validate the weighted root mean square norm.
+\code{Test\_N\_VWrmsNormVectorArray}: Case 1a: Create a vector of know values, find and validate the weighted root mean square norm.
 
 \item {} 
-\code{Test\_N\_VWrmsNormVectorArray}: Case 1b: Create a vector array of
-three vectors of know values, find and validate the weighted root
-mean square norm of each.
+\code{Test\_N\_VWrmsNormVectorArray}: Case 1b: Create a vector array of three vectors of know values, find and validate the weighted root mean square norm of each.
 
 \item {} 
-\code{Test\_N\_VWrmsNormMaskVectorArray}: Case 1a: Create a vector of
-know values, find and validate the weighted root mean square norm
-using all elements except one.
+\code{Test\_N\_VWrmsNormMaskVectorArray}: Case 1a: Create a vector of know values, find and validate the weighted root mean square norm using all elements except one.
 
 \item {} 
-\code{Test\_N\_VWrmsNormMaskVectorArray}: Case 1b: Create a vector
-array of three vectors of know values, find and validate the
-weighted root mean square norm of each using all elements except
-one.
+\code{Test\_N\_VWrmsNormMaskVectorArray}: Case 1b: Create a vector array of three vectors of know values, find and validate the weighted root mean square norm of each using all elements except one.
 
 \item {} 
 \code{Test\_N\_VScaleAddMultiVectorArray}: Case 1a: y = a x + y
@@ -27737,6 +28586,33 @@ one.
 
 \item {} 
 \code{Test\_N\_VLinearCombinationVectorArray}: Case 6c: Z{[}i{]} = c{[}0{]} X{[}0{]}{[}i{]} + c{[}1{]} X{[}1{]}{[}i{]} + c{[}2{]} X{[}2{]}{[}i{]}
+
+\item {} 
+\code{Test\_N\_VDotProdLocal}: Calculate MPI task-local portion of the dot product of two vectors.
+
+\item {} 
+\code{Test\_N\_VMaxNormLocal}: Create vector with known values, find and validate the MPI task-local portion of the max norm.
+
+\item {} 
+\code{Test\_N\_VMinLocal}: Create vector, find and validate the MPI task-local min.
+
+\item {} 
+\code{Test\_N\_VL1NormLocal}: Create vector, find and validate the MPI task-local portion of the L1 norm.
+
+\item {} 
+\code{Test\_N\_VWSqrSumLocal}: Create vector of known values, find and validate the MPI task-local portion of the weighted squared sum of two vectors.
+
+\item {} 
+\code{Test\_N\_VWSqrSumMaskLocal}: Create vector of known values, find and validate the MPI task-local portion of the weighted squared sum of two vectors, using all elements except one.
+
+\item {} 
+\code{Test\_N\_VInvTestLocal}: Test the MPI task-local portion of z{[}i{]} = 1 / x{[}i{]}
+
+\item {} 
+\code{Test\_N\_VConstrMaskLocal}: Test the MPI task-local portion of the mask of vector x with vector c.
+
+\item {} 
+\code{Test\_N\_VMinQuotientLocal}: Fill two vectors with known values. Calculate and validate the MPI task-local minimum quotient.
 
 \end{itemize}
 
@@ -37163,7 +38039,8 @@ paths.
 \end{notice}
 
 \item[{\index{MPI\_ENABLE (CMake option)}MPI\_ENABLE}] \leavevmode
-Enable MPI support (build the parallel nvector).
+Enable MPI support. This will build the parallel nvector
+and the MPI-aware version of the ManyVector library.
 
 Default: \code{OFF}
 

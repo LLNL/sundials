@@ -90,7 +90,9 @@ N_Vector N_VNewEmpty_Serial(sunindextype length)
   ops->nvspace           = N_VSpace_Serial;
   ops->nvgetarraypointer = N_VGetArrayPointer_Serial;
   ops->nvsetarraypointer = N_VSetArrayPointer_Serial;
-
+  ops->nvgetcommunicator = NULL;
+  ops->nvgetlength       = N_VGetLength_Serial;
+  
   /* standard vector operations */
   ops->nvlinearsum    = N_VLinearSum_Serial;
   ops->nvconst        = N_VConst_Serial;
@@ -126,6 +128,17 @@ N_Vector N_VNewEmpty_Serial(sunindextype length)
   ops->nvscaleaddmultivectorarray     = NULL;
   ops->nvlinearcombinationvectorarray = NULL;
 
+  /* local reduction kernels */
+  ops->nvdotprodlocal     = N_VDotProd_Serial;
+  ops->nvmaxnormlocal     = N_VMaxNorm_Serial;
+  ops->nvminlocal         = N_VMin_Serial;
+  ops->nvl1normlocal      = N_VL1Norm_Serial;
+  ops->nvinvtestlocal     = N_VInvTest_Serial;
+  ops->nvconstrmasklocal  = N_VConstrMask_Serial;
+  ops->nvminquotientlocal = N_VMinQuotient_Serial;
+  ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Serial;
+  ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Serial;
+  
   /* Create content */
   content = NULL;
   content = (N_VectorContent_Serial) malloc(sizeof(struct _N_VectorContent_Serial));
@@ -338,6 +351,8 @@ N_Vector N_VCloneEmpty_Serial(N_Vector w)
   ops->nvspace           = w->ops->nvspace;
   ops->nvgetarraypointer = w->ops->nvgetarraypointer;
   ops->nvsetarraypointer = w->ops->nvsetarraypointer;
+  ops->nvgetcommunicator = w->ops->nvgetcommunicator;
+  ops->nvgetlength       = w->ops->nvgetlength;
 
   /* standard vector operations */
   ops->nvlinearsum    = w->ops->nvlinearsum;
@@ -374,6 +389,17 @@ N_Vector N_VCloneEmpty_Serial(N_Vector w)
   ops->nvscaleaddmultivectorarray     = w->ops->nvscaleaddmultivectorarray;
   ops->nvlinearcombinationvectorarray = w->ops->nvlinearcombinationvectorarray;
 
+  /* local reduction kernels */
+  ops->nvdotprodlocal     = w->ops->nvdotprodlocal;
+  ops->nvmaxnormlocal     = w->ops->nvmaxnormlocal;
+  ops->nvminlocal         = w->ops->nvminlocal;
+  ops->nvl1normlocal      = w->ops->nvl1normlocal;
+  ops->nvinvtestlocal     = w->ops->nvinvtestlocal;
+  ops->nvconstrmasklocal  = w->ops->nvconstrmasklocal;
+  ops->nvminquotientlocal = w->ops->nvminquotientlocal;
+  ops->nvwsqrsumlocal     = w->ops->nvwsqrsumlocal;
+  ops->nvwsqrsummasklocal = w->ops->nvwsqrsummasklocal;
+  
   /* Create content */
   content = NULL;
   content = (N_VectorContent_Serial) malloc(sizeof(struct _N_VectorContent_Serial));
@@ -706,6 +732,11 @@ realtype N_VMaxNorm_Serial(N_Vector x)
 
 realtype N_VWrmsNorm_Serial(N_Vector x, N_Vector w)
 {
+  return(SUNRsqrt(N_VWSqrSumLocal_Serial(x, w)/(NV_LENGTH_S(x))));
+}
+
+realtype N_VWSqrSumLocal_Serial(N_Vector x, N_Vector w)
+{
   sunindextype i, N;
   realtype sum, prodi, *xd, *wd;
 
@@ -721,10 +752,15 @@ realtype N_VWrmsNorm_Serial(N_Vector x, N_Vector w)
     sum += SUNSQR(prodi);
   }
 
-  return(SUNRsqrt(sum/N));
+  return(sum);
 }
 
 realtype N_VWrmsNormMask_Serial(N_Vector x, N_Vector w, N_Vector id)
+{
+  return(SUNRsqrt(N_VWSqrSumMaskLocal_Serial(x, w, id) / (NV_LENGTH_S(x))));
+}
+
+realtype N_VWSqrSumMaskLocal_Serial(N_Vector x, N_Vector w, N_Vector id)
 {
   sunindextype i, N;
   realtype sum, prodi, *xd, *wd, *idd;
@@ -744,7 +780,7 @@ realtype N_VWrmsNormMask_Serial(N_Vector x, N_Vector w, N_Vector id)
     }
   }
 
-  return(SUNRsqrt(sum / N));
+  return(sum);
 }
 
 realtype N_VMin_Serial(N_Vector x)

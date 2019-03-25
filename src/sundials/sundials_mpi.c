@@ -19,81 +19,83 @@
 int SUNMPI_Comm_size(SUNMPI_Comm comm, int *size)
 {
 #if SUNDIALS_MPI_ENABLED
-  return MPI_Comm_size(comm, size);
+  if (comm != SUNMPI_COMM_NULL) {
+    return(MPI_Comm_size(comm, size));
+  } else {
+    *size = 1;
+    return(SUNMPI_SUCCESS);
+  }
 #else
   *size = 1;
-  return 0;
+  return(SUNMPI_SUCCESS);
 #endif
 }
 
-realtype SUNMPI_Allreduce_scalar(realtype d, int op, SUNMPI_Comm comm)
+int SUNMPI_Allreduce_scalar(realtype d, realtype *result, SUNMPI_Op op, SUNMPI_Comm comm)
 {
-  /*
-   * This function does a global reduction.  The operation is
-   *   sum if op = 1,
-   *   max if op = 2,
-   *   min if op = 3.
-   * The operation is over all processors in the communicator
-   */
-
 #if SUNDIALS_MPI_ENABLED
-
-  realtype out;
-
-  switch (op) {
-   case 1: MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
-           break;
-
-   case 2: MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_MAX, comm);
-           break;
-
-   case 3: MPI_Allreduce(&d, &out, 1, PVEC_REAL_MPI_TYPE, MPI_MIN, comm);
-           break;
-
-   default: break;
+  if (comm != SUNMPI_COMM_NULL) {
+    return(MPI_Allreduce(&d, result, 1, PVEC_REAL_MPI_TYPE, op, comm));
+  } else {
+    *result = d;
+    return(SUNMPI_SUCCESS);
   }
-
-  return(out);
-
 #else
-
-  /* If MPI is not enabled don't do reduction */
-  return d;
-
+  /* If MPI is not enabled, just copy input into output */
+  *result = d;
+  return(SUNMPI_SUCCESS);
 #endif /* ifdef SUNDIALS_MPI_ENABLED */
 }
 
 
-void SUNMPI_Allreduce(realtype *d, int nvec, int op, SUNMPI_Comm comm)
+int SUNMPI_Allreduce(realtype *d, int nvec, SUNMPI_Op op, SUNMPI_Comm comm)
 {
-  /*
-   * This function does a global reduction.  The operation is
-   *   sum if op = 1,
-   *   max if op = 2,
-   *   min if op = 3.
-   * The operation is over all processors in the communicator
-   */
-
 #if SUNDIALS_MPI_ENABLED
-
-  switch (op) {
-   case 1: MPI_Allreduce(MPI_IN_PLACE, d, nvec, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
-           break;
-
-   case 2: MPI_Allreduce(MPI_IN_PLACE, d, nvec, PVEC_REAL_MPI_TYPE, MPI_MAX, comm);
-           break;
-
-   case 3: MPI_Allreduce(MPI_IN_PLACE, d, nvec, PVEC_REAL_MPI_TYPE, MPI_MIN, comm);
-           break;
-
-   default: break;
+  if (comm != SUNMPI_COMM_NULL) {
+    return(MPI_Allreduce(MPI_IN_PLACE, d, nvec, PVEC_REAL_MPI_TYPE, op, comm));
+  } else {
+    return(SUNMPI_SUCCESS);
   }
-
 #else
-
   /* If MPI is not enabled don't do reduction */
-
+  return(SUNMPI_SUCCESS);
 #endif /* ifdef SUNDIALS_MPI_ENABLED */
 }
 
 
+int SUNMPI_Comm_dup(SUNMPI_Comm comm, SUNMPI_Comm *newcomm)
+{
+#if SUNDIALS_MPI_ENABLED
+  return(MPI_Comm_dup(comm, newcomm));
+#else
+  *newcomm = comm;
+  return(SUNMPI_SUCCESS);
+#endif
+}
+
+
+int SUNMPI_Comm_compare(SUNMPI_Comm comm1, SUNMPI_Comm comm2, int *result)
+{
+#if SUNDIALS_MPI_ENABLED
+  return(MPI_Comm_compare(comm1, comm2, result));
+#else
+  *result = SUNMPI_IDENT;
+  return(SUNMPI_SUCCESS);
+#endif
+}
+
+
+int SUNMPI_Comm_rank(SUNMPI_Comm comm, int *rank)
+{
+#if SUNDIALS_MPI_ENABLED
+  if (comm != SUNMPI_COMM_NULL) {
+    return(MPI_Comm_rank(comm, rank));
+  } else {
+    *rank = 0;
+    return(SUNMPI_SUCCESS);
+  }
+#else
+  *rank = 0;
+  return(SUNMPI_SUCCESS);
+#endif
+}

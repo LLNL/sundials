@@ -31,46 +31,58 @@ the various actual vector operations, and is defined as
 %%
 \begin{verbatim}
 struct _generic_N_Vector_Ops {
-  N_Vector_ID (*nvgetvectorid)(N_Vector);
-  N_Vector    (*nvclone)(N_Vector);
-  N_Vector    (*nvcloneempty)(N_Vector);
-  void        (*nvdestroy)(N_Vector);
-  void        (*nvspace)(N_Vector, sunindextype *, sunindextype *);
-  realtype*   (*nvgetarraypointer)(N_Vector);
-  void        (*nvsetarraypointer)(realtype *, N_Vector);
-  void        (*nvlinearsum)(realtype, N_Vector, realtype, N_Vector, N_Vector);
-  void        (*nvconst)(realtype, N_Vector);
-  void        (*nvprod)(N_Vector, N_Vector, N_Vector);
-  void        (*nvdiv)(N_Vector, N_Vector, N_Vector);
-  void        (*nvscale)(realtype, N_Vector, N_Vector);
-  void        (*nvabs)(N_Vector, N_Vector);
-  void        (*nvinv)(N_Vector, N_Vector);
-  void        (*nvaddconst)(N_Vector, realtype, N_Vector);
-  realtype    (*nvdotprod)(N_Vector, N_Vector);
-  realtype    (*nvmaxnorm)(N_Vector);
-  realtype    (*nvwrmsnorm)(N_Vector, N_Vector);
-  realtype    (*nvwrmsnormmask)(N_Vector, N_Vector, N_Vector);
-  realtype    (*nvmin)(N_Vector);
-  realtype    (*nvwl2norm)(N_Vector, N_Vector);
-  realtype    (*nvl1norm)(N_Vector);
-  void        (*nvcompare)(realtype, N_Vector, N_Vector);
-  booleantype (*nvinvtest)(N_Vector, N_Vector);
-  booleantype (*nvconstrmask)(N_Vector, N_Vector, N_Vector);
-  realtype    (*nvminquotient)(N_Vector, N_Vector);
-  int         (*nvlinearcombination)(int, realtype*, N_Vector*, N_Vector);
-  int         (*nvscaleaddmulti)(int, realtype*, N_Vector, N_Vector*, N_Vector*);
-  int         (*nvdotprodmulti)(int, N_Vector, N_Vector*, realtype*);
-  int         (*nvlinearsumvectorarray)(int, realtype, N_Vector*, realtype,
-                                        N_Vector*, N_Vector*);
-  int         (*nvscalevectorarray)(int, realtype*, N_Vector*, N_Vector*);
-  int         (*nvconstvectorarray)(int, realtype, N_Vector*);
-  int         (*nvwrmsnomrvectorarray)(int, N_Vector*, N_Vector*, realtype*);
-  int         (*nvwrmsnomrmaskvectorarray)(int, N_Vector*, N_Vector*, N_Vector,
-                                           realtype*);
-  int         (*nvscaleaddmultivectorarray)(int, int, realtype*, N_Vector*,
-                                            N_Vector**, N_Vector**);
-  int         (*nvlinearcombinationvectorarray)(int, int, realtype*, N_Vector**,
-                                                N_Vector*);
+  N_Vector_ID  (*nvgetvectorid)(N_Vector);
+  N_Vector     (*nvclone)(N_Vector);
+  N_Vector     (*nvcloneempty)(N_Vector);
+  void         (*nvdestroy)(N_Vector);
+  void         (*nvspace)(N_Vector, sunindextype *, sunindextype *);
+  realtype*    (*nvgetarraypointer)(N_Vector);
+  void         (*nvsetarraypointer)(realtype *, N_Vector);
+  void*        (*nvgetcommunicator)(N_Vector);
+  sunindextype (*nvgetlength)(N_Vector);
+  void         (*nvlinearsum)(realtype, N_Vector, realtype, N_Vector, N_Vector);
+  void         (*nvconst)(realtype, N_Vector);
+  void         (*nvprod)(N_Vector, N_Vector, N_Vector);
+  void         (*nvdiv)(N_Vector, N_Vector, N_Vector);
+  void         (*nvscale)(realtype, N_Vector, N_Vector);
+  void         (*nvabs)(N_Vector, N_Vector);
+  void         (*nvinv)(N_Vector, N_Vector);
+  void         (*nvaddconst)(N_Vector, realtype, N_Vector);
+  realtype     (*nvdotprod)(N_Vector, N_Vector);
+  realtype     (*nvmaxnorm)(N_Vector);
+  realtype     (*nvwrmsnorm)(N_Vector, N_Vector);
+  realtype     (*nvwrmsnormmask)(N_Vector, N_Vector, N_Vector);
+  realtype     (*nvmin)(N_Vector);
+  realtype     (*nvwl2norm)(N_Vector, N_Vector);
+  realtype     (*nvl1norm)(N_Vector);
+  void         (*nvcompare)(realtype, N_Vector, N_Vector);
+  booleantype  (*nvinvtest)(N_Vector, N_Vector);
+  booleantype  (*nvconstrmask)(N_Vector, N_Vector, N_Vector);
+  realtype     (*nvminquotient)(N_Vector, N_Vector);
+  int          (*nvlinearcombination)(int, realtype*, N_Vector*, N_Vector);
+  int          (*nvscaleaddmulti)(int, realtype*, N_Vector, N_Vector*, N_Vector*);
+  int          (*nvdotprodmulti)(int, N_Vector, N_Vector*, realtype*);
+  int          (*nvlinearsumvectorarray)(int, realtype, N_Vector*, realtype,
+                                         N_Vector*, N_Vector*);
+  int          (*nvscalevectorarray)(int, realtype*, N_Vector*, N_Vector*);
+  int          (*nvconstvectorarray)(int, realtype, N_Vector*);
+  int          (*nvwrmsnomrvectorarray)(int, N_Vector*, N_Vector*, realtype*);
+  int          (*nvwrmsnomrmaskvectorarray)(int, N_Vector*, N_Vector*, N_Vector,
+                                            realtype*);
+  int          (*nvscaleaddmultivectorarray)(int, int, realtype*, N_Vector*,
+                                             N_Vector**, N_Vector**);
+  int          (*nvlinearcombinationvectorarray)(int, int, realtype*, N_Vector**,
+                                                 N_Vector*);
+  realtype     (*nvdotprodlocal)(N_Vector, N_Vector);
+  realtype     (*nvmaxnormlocal)(N_Vector);
+  realtype     (*nvminlocal)(N_Vector);
+  realtype     (*nvl1normlocal)(N_Vector);
+  booleantype  (*nvinvtestlocal)(N_Vector, N_Vector);
+  booleantype  (*nvconstrmasklocal)(N_Vector, N_Vector, N_Vector);
+  realtype     (*nvminquotientlocal)(N_Vector, N_Vector);
+  realtype     (*nvwsqrsumlocal)(N_Vector, N_Vector);
+  realtype     (*nvwsqrsummasklocal(N_Vector, N_Vector, N_Vector);
+
 };
 \end{verbatim}
 
@@ -95,20 +107,34 @@ void N_VScale(realtype c, N_Vector x, N_Vector z)
 \end{verbatim}
 %%
 %%
-Table \ref{t:nvecops} contains a complete list of all standard vector operations defined
-by the generic {\nvector} module. Tables \ref{t:nvecfusedops} and \ref{t:nvecarrayops}
-list \textit{optional} fused and vector array operations respectively.
+Table \ref{t:nvecops} contains a complete list of all standard vector
+operations defined by the generic {\nvector} module. Tables
+\ref{t:nvecfusedops}, \ref{t:nvecarrayops} and \ref{t:nveclocalops}
+list \textit{optional} fused, vector array and local reduction
+operations, respectively.
 
 Fused and vector array operations are intended to increase data reuse, reduce
 parallel communication on distributed memory systems, and lower the number of
 kernel launches on systems with accelerators. If a particular {\nvector}
 implementation defines a fused or vector array operation as \id{NULL}, the
 generic {\nvector} module will automatically call standard vector operations as
-necessary to complete the desired operation. Currently, all fused and vector
-array operations are disabled by default however, {\sundials} provided {\nvector}
-implementations define additional user-callable functions to enable/disable
+necessary to complete the desired operation.  In all
+{\sundials}-provided {\nvector} implementations, all fused and vector
+array operations are disabled by default.  However, these
+implementations provide additional user-callable functions to enable/disable
 any or all of the fused and vector array operations. See the following sections
 for the implementation specific functions to enable/disable operations.
+
+Local reduction operations are similarly intended to reduce parallel
+communication on distributed memory systems, particularly when
+{\nvector} objects are combined together within a \\
+{\nvecmanyvector} object (see Section \ref{ss:nvec_manyvector}).  If a
+particular {\nvector} implementation defines a local reduction
+operation as \id{NULL}, the {\nvecmanyvector} module will
+automatically call standard vector reduction operations as necessary
+to complete the desired operation. All {\sundials}-provided {\nvector}
+implementations include these local reduction operations, which may be
+used as templates for user-defined {\nvector} implementations.
 
 Finally, note that the generic {\nvector} module defines the functions
 \ID{N\_VCloneVectorArray} and \ID{N\_VCloneVectorArrayEmpty}.  Both functions
@@ -161,15 +187,18 @@ It is recommended that a user-supplied {\nvector} implementation use the
 \hline
 {\bf Vector ID} & {\bf Vector type} & {\bf ID Value} \\
 \hline
-SUNDIALS\_NVEC\_SERIAL     & Serial                                                & 0 \\
-SUNDIALS\_NVEC\_PARALLEL   & Distributed memory parallel (MPI)                     & 1 \\
-SUNDIALS\_NVEC\_OPENMP     & OpenMP shared memory parallel                         & 2 \\
-SUNDIALS\_NVEC\_PTHREADS   & PThreads shared memory parallel                       & 3 \\
-SUNDIALS\_NVEC\_PARHYP     & {\hypre} ParHyp parallel vector                       & 4 \\
-SUNDIALS\_NVEC\_PETSC      & {\petsc} parallel vector                              & 5 \\
-SUNDIALS\_NVEC\_OPENMPDEV  & OpenMP shared memory parallel with device offloading  & 6 \\
-SUNDIALS\_NVEC\_TRILINOS   & {\trilinos} Tpetra vector                             & 7 \\
-SUNDIALS\_NVEC\_CUSTOM     & User-provided custom vector                           & 8 \\
+SUNDIALS\_NVEC\_SERIAL     & Serial                                        & 0 \\
+SUNDIALS\_NVEC\_PARALLEL   & Distributed memory parallel (MPI)             & 1 \\
+SUNDIALS\_NVEC\_OPENMP     & OpenMP shared memory parallel                 & 2 \\
+SUNDIALS\_NVEC\_PTHREADS   & PThreads shared memory parallel               & 3 \\
+SUNDIALS\_NVEC\_PARHYP     & {\hypre} ParHyp parallel vector               & 4 \\
+SUNDIALS\_NVEC\_PETSC      & {\petsc} parallel vector                      & 5 \\
+SUNDIALS\_NVEC\_CUDA       & {\cuda} parallel vector                       & 6 \\
+SUNDIALS\_NVEC\_RAJA       & {\raja} parallel vector                       & 7 \\
+SUNDIALS\_NVEC\_OPENMPDEV  & OpenMP parallel vector with device offloading & 8 \\
+SUNDIALS\_NVEC\_TRILINOS   & {\trilinos} Tpetra vector                     & 9 \\
+SUNDIALS\_NVEC\_MANYVECTOR & ``ManyVector'' vector                         & 10 \\
+SUNDIALS\_NVEC\_CUSTOM     & User-provided custom vector                   & 11 \\
 \hline
 \end{tabular}
 \end{table}
@@ -244,6 +273,20 @@ a contiguous array of \id{realtype}.
 This routine is only used in the interfaces to the dense (serial) linear
 solver, hence need not exist in a user-supplied {\nvector} module for a
 parallel environment.
+\\[2mm]
+%%
+\id{N\_VGetCommunicator} & \id{N\_VGetCommunicator(v);} \\
+& Returns a pointer to the \id{MPI\_Comm} object associated with the
+vector (if applicable).  For MPI-unaware vector implementations, this
+should return \id{NULL}.
+\\[2mm]
+%%
+\id{N\_VGetLength} & \id{N\_VGetLength(v);} \\
+& Returns the global length (number of `active' entries) in the
+{\nvector} \id{v}.  This value should be cumulative across all
+processes if the vector is used in a parallel environment.  If \id{v}
+contains additional storage, e.g., for parallel communication, those
+entries should not be included.
 \\[2mm]
 %%
 \id{N\_VLinearSum} & \id{N\_VLinearSum(a, x, b, y, z);} \\
@@ -407,7 +450,7 @@ is returned.
 \tablelasttail{\hline}
 \begin{xtabular}{|p{\coloneb}|p{\coltwob}|}
 %%
-\id{N\_VLinearCombination} & \id{ier = N\_VLinearCombination(nv, c, X, z);} \\ 
+\id{N\_VLinearCombination} & \id{ier = N\_VLinearCombination(nv, c, X, z);} \\
 & This routine computes the linear combination of $n_v$ vectors with $n$
 elements:
 \begin{equation*}
@@ -420,7 +463,7 @@ $n_v$ vectors (type \id{N\_Vector*}), and $z$ is the output vector (type
 \id{0} for success and a non-zero value otherwise.
 \\[2mm]
 %%
-\id{N\_VScaleAddMulti} & \id{ier = N\_VScaleAddMulti(nv, c, x, Y, Z);} \\ 
+\id{N\_VScaleAddMulti} & \id{ier = N\_VScaleAddMulti(nv, c, x, Y, Z);} \\
 & This routine scales and adds one vector to $n_v$ vectors with $n$ elements:
 \begin{equation*}
 z_{j,i} = c_j x_i + y_{j,i}, \quad j=0,\ldots,n_v-1 \quad i=0,\ldots,n-1,
@@ -432,7 +475,7 @@ vector array of $n_v$ output vectors. The operation returns \id{0} for success a
 non-zero value otherwise.
 \\[2mm]
 %%
-\id{N\_VDotProdMulti} & \id{ier = N\_VDotProdMulti(nv, x, Y, d);} \\ 
+\id{N\_VDotProdMulti} & \id{ier = N\_VDotProdMulti(nv, x, Y, d);} \\
 & This routine computes the dot product of a vector with $n_v$ other vectors:
 \begin{equation*}
 d_j = \sum_{i=0}^{n-1} x_i y_{j,i}, \quad j=0,\ldots,n_v-1,
@@ -467,7 +510,7 @@ vectors in the vector array $Y$ (type \id{N\_Vector*}). The operation returns
 \begin{xtabular}{|p{\colonec}|p{\coltwoc}|}
 %%
 \id{N\_VLinearSumVectorArray} & \id{ier = N\_VLinearSumVectorArray(nv, a, X, b, Y, Z);} \\
-& This routine comuptes the linear sum of two vector arrays containing $n_v$
+& This routine computes the linear sum of two vector arrays containing $n_v$
 vectors of $n$ elements:
 \begin{equation*}
 z_{j,i} = a x_{j,i} + b y_{j,i}, \quad i=0,\ldots,n-1 \quad j=0,\ldots,n_v-1,
@@ -525,7 +568,7 @@ corresponding weight vectors $W$ (type \id{N\_Vector*}) and mask vector $id$
 value otherwise.
 \\[2mm]
 %%
-\id{N\_VScaleAddMultiVectorArray} & \id{ier = N\_VScaleAddMultiVectorArray(nv, ns, c, X, YY, ZZ);} \\ 
+\id{N\_VScaleAddMultiVectorArray} & \id{ier = N\_VScaleAddMultiVectorArray(nv, ns, c, X, YY, ZZ);} \\
 & This routine scales and adds a vector in a vector array of $n_v$ vectors to
 the corresponding vector in $n_s$ vector arrays:
 \begin{equation*}
@@ -539,7 +582,7 @@ arrays $ZZ$ (type \id{N\_Vector**}). The operation returns \id{0} for success
 and a non-zero value otherwise.
 \\[2mm]
 %%
-\id{N\_VLinearCombinationVectorArray} & \id{ier = N\_VLinearCombinationVectorArray(nv, ns, c, XX, Z);} \\ 
+\id{N\_VLinearCombinationVectorArray} & \id{ier = N\_VLinearCombinationVectorArray(nv, ns, c, XX, Z);} \\
 & This routine computes the linear combination of $n_s$ vector arrays containing
 $n_v$ vectors with $n$ elements:
 \begin{equation*}
@@ -551,6 +594,137 @@ vectors to be summed into the output vector array of $n_v$ vectors $Z$ (type
 \id{N\_Vector*}). If the output vector array $Z$ is one of the vector arrays in
 $XX$, then it \textit{must} be the first vector array in $XX$. The operation
 returns \id{0} for success and a non-zero value otherwise.
+\\
+%%
+\end{xtabular}
+\bigskip
+
+%---------------------------------------------------------------------------
+% Table of local reduction operations
+%---------------------------------------------------------------------------
+%\newpage
+
+\newlength{\coloned}
+\settowidth{\coloned}{\id{N\_VMinQuotientLocal}}
+\newlength{\coltwod}
+\setlength{\coltwod}{\textwidth}
+\addtolength{\coltwod}{-0.4in}
+\addtolength{\coltwod}{-\coloned}
+
+\tablecaption{Description of the NVECTOR local reduction operations}\label{t:nveclocalops}
+\tablefirsthead{\hline {\rule{0mm}{5mm}}{\bf Name} & {\bf Usage and Description} \\[3mm] \hline\hline}
+\tablehead{\hline \multicolumn{2}{|l|}{\small\slshape continued from last page} \\
+           \hline {\rule{0mm}{5mm}}{\bf Name} & {\bf Usage and  Description} \\[3mm] \hline\hline}
+\tabletail{\hline \multicolumn{2}{|r|}{\small\slshape continued on next page} \\ \hline}
+\tablelasttail{\hline}
+\begin{xtabular}{|p{\coloned}|p{\coltwod}|}
+%%
+\id{N\_VDotProdLocal} & \id{d = N\_VDotProdLocal(x, y);} \\
+& This routine computes the MPI task-local portion of the ordinary dot product of \id{x} and \id{y}:
+\begin{equation*}
+d=\sum_{i=0}^{n_{local}-1} x_i y_i,
+\end{equation*}
+where $n_{local}$ corresponds
+to the number of components in the vector on this MPI task (or
+$n_{local}=n$ for MPI-unaware applications).
+\\[2mm]
+%%
+\id{N\_VMaxNormLocal} & \id{m = N\_VMaxNormLocal(x);} \\
+& This routine computes the MPI task-local portion of the maximum norm of the \id{N\_Vector} \id{x}:
+\begin{equation*}
+m = \max_{0\le i< n_{local}} | x_i |,
+\end{equation*}
+where $n_{local}$ corresponds
+to the number of components in the vector on this MPI task (or
+$n_{local}=n$ for MPI-unaware applications).
+\\[2mm]
+%%
+\id{N\_VMinLocal} & \id{m = N\_VMinLocal(x);} \\
+& This routine computes the smallest element of the MPI task-local portion of
+the \id{N\_Vector} \id{x}:
+\begin{equation*}
+m = \min_{0\le i< n_{local}} x_i,
+\end{equation*}
+where $n_{local}$ corresponds
+to the number of components in the vector on this MPI task (or
+$n_{local}=n$ for MPI-unaware applications).
+\\[2mm]
+%%
+\id{N\_VL1NormLocal} & \id{n = N\_VL1NormLocal(x);} \\
+& This routine computes the MPI task-local portion of the $\ell_1$ norm of the \id{N\_Vector} \id{x}:
+\begin{equation*}
+n = \sum_{i=0}^{n_{local}-1} | x_i |,
+\end{equation*}
+where $n_{local}$ corresponds
+to the number of components in the vector on this MPI task (or
+$n_{local}=n$ for MPI-unaware applications).
+\\[2mm]
+%%
+\id{N\_VWSqrSumLocal} & \id{s = N\_VWSqrSumLocal(x,w);} \\
+& This routine computes the MPI task-local portion of the weighted
+squared sum of the \id{N\_Vector} \id{x} with weight vector \id{w}:
+\begin{equation*}
+s = \sum_{i=0}^{n_{local}-1} (x_i w_i)^2,
+\end{equation*}
+where $n_{local}$ corresponds
+to the number of components in the vector on this MPI task (or
+$n_{local}=n$ for MPI-unaware applications).
+\\[2mm]
+%%
+\id{N\_VWSqrSumMaskLocal} & \id{s = N\_VWSqrSumMaskLocal(x,w,id);} \\
+& This routine computes the MPI task-local portion of the weighted
+squared sum of the \id{N\_Vector} \id{x} with weight
+vector \id{w} built using only the elements of \id{x} corresponding to
+positive elements of the \id{N\_Vector} \id{id}:
+\begin{equation*}
+m = \sum_{i=0}^{n_{local}-1} (x_i w_i H(id_i))^2, \quad \text{where} \quad H(\alpha)
+= \begin{cases} 1 & \alpha > 0 \\ 0 & \alpha \leq 0 \end{cases}
+\end{equation*}
+and
+$n_{local}$ corresponds to the number of components in the vector on
+this MPI task (or $n_{local}=n$ for MPI-unaware applications).
+\\[2mm]
+%%
+\id{N\_VInvTestLocal} & \id{t = N\_VInvTestLocal(x);} \\
+& Sets the MPI task-local components of the \id{N\_Vector} \id{z} to
+be the inverses of the components of the \id{N\_Vector} \id{x}, with
+prior testing for zero values:
+\begin{equation*}
+z_i = 1.0 /  x_i  , \: i=0,\ldots,n_{local}-1,
+\end{equation*}
+where $n_{local}$
+corresponds to the number of components in the vector on this MPI task
+(or $n_{local}=n$ for MPI-unaware applications).  This routine returns
+a boolean assigned to \id{SUNTRUE} if all task-local components of
+\id{x} are nonzero (successful inversion) and returns \id{SUNFALSE}
+otherwise.
+\\[2mm]
+%%
+\id{N\_VConstrMaskLocal} & \id{t = N\_VConstrMaskLocal(c,x,m);} \\
+& Performs the following constraint tests:
+{\begin{align*}
+x_i > 0        & \quad \text{if} \quad c_i=2, \\
+x_i \ge 0      & \quad \text{if} \quad c_i=1, \\
+x_i \le 0      & \quad \text{if} \quad c_i=-1, \\
+x_i < 0        & \quad \text{if} \quad c_i=-2, \text{and} \\
+\text{no test} & \quad \text{if} \quad c_i=0,
+\end{align*}}%
+for all MPI task-local components of the vectors.
+This routine returns a boolean assigned to \id{SUNFALSE} if any
+task-local element failed the constraint test and assigned to
+\id{SUNTRUE} if all passed.  It also sets a mask vector \id{m}, with
+elements equal to $1.0$ where the constraint test failed, and $0.0$
+where the test passed.  This routine is used only for constraint
+checking.
+\\[2mm]
+%%
+\id{N\_VMinQuotientLocal} & \id{minq = N\_VMinQuotientLocal(num,denom);} \\
+& This routine returns the minimum of the quotients obtained
+by term-wise dividing \id{num}$_i$ by \id{denom}$_i$, for all MPI
+task-local components of the vectors.  A zero element in \id{denom}
+will be skipped. If no such quotients are found, then the large value
+\Id{BIG\_REAL} (defined in the header file \id{sundials\_types.h})
+is returned.
 \\
 %%
 \end{xtabular}

@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
   sunindextype global_length;     /* global vector length      */
   N_Vector     U, V, X, Y, Z;     /* test vectors              */
   int          print_timing;      /* turn timing on/off        */
-  MPI_Comm     comm;              /* MPI Communicator          */
+  MPI_Comm     comm, comm2;       /* MPI Communicator          */
   int          nprocs, myid;      /* Number of procs, proc id  */
 
   Vec            xvec;            /* PETSc vector              */
@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
   /* Create PETSc vector */
   VecCreate(comm, &xvec);
   VecSetSizes(xvec, local_length, global_length);
-  VecSetFromOptions(xvec);    
+  VecSetFromOptions(xvec);
 
   /* Create PETSc N_Vector wrapper and test */
   X = N_VMake_Petsc(xvec);
@@ -97,6 +97,15 @@ int main(int argc, char *argv[])
 
   /* Check vector ID */
   fails += Test_N_VGetVectorID(X, SUNDIALS_NVEC_PETSC, myid);
+
+  /* Check vector length */
+  fails += Test_N_VGetLength(X, myid);
+
+  /* Check vector communicator -- note that the actual communicator used by the
+     PETSc vector is not necessarily identical to the one supplied to VecCreate,
+     so we compare against the one that is actually *used* in the PETSc vector. */
+  PetscObjectGetComm((PetscObject) xvec, &comm2);
+  fails += Test_N_VGetCommunicator(X, &comm2, myid);
 
   /* Test clone functions */
   fails += Test_N_VCloneEmpty(X, myid);
@@ -204,6 +213,19 @@ int main(int argc, char *argv[])
   fails += Test_N_VScaleAddMultiVectorArray(V, local_length, myid);
   fails += Test_N_VLinearCombinationVectorArray(V, local_length, myid);
 
+  /* local reduction operations */
+  if (myid == 0) printf("\nTesting local reduction operations:\n\n");
+
+  fails += Test_N_VDotProdLocal(X, Y, local_length, myid);
+  fails += Test_N_VMaxNormLocal(X, local_length, myid);
+  fails += Test_N_VMinLocal(X, local_length, myid);
+  fails += Test_N_VL1NormLocal(X, local_length, myid);
+  fails += Test_N_VWSqrSumLocal(X, Y, local_length, myid);
+  fails += Test_N_VWSqrSumMaskLocal(X, Y, Z, local_length, myid);
+  fails += Test_N_VInvTestLocal(X, Z, local_length, myid);
+  fails += Test_N_VConstrMaskLocal(X, Y, Z, local_length, myid);
+  fails += Test_N_VMinQuotientLocal(X, Y, local_length, myid);
+
   /* Free vectors */
   N_VDestroy(X);
   N_VDestroy(Y);
@@ -216,7 +238,7 @@ int main(int argc, char *argv[])
   if (fails) {
     printf("FAIL: NVector module failed %i tests, Proc %d \n\n", fails, myid);
   } else {
-    if (myid == 0) 
+    if (myid == 0)
       printf("SUCCESS: NVector module passed all tests, Proc %d \n\n",myid);
   }
 
@@ -263,15 +285,22 @@ booleantype has_data(N_Vector X)
 
 void set_element(N_Vector X, sunindextype i, realtype val)
 {
-  Vec         xv;
-  PetscScalar *a;
+  set_element_range(X, i, i, val);
+}
+
+void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
+                       realtype val)
+{
+  Vec           xv;
+  PetscScalar  *a;
+  sunindextype  i;
 
   /* extract the PETSc vector from the N_Vector wrapper */
   xv = N_VGetVector_Petsc(X);
 
-  /* set i-th element of data array */
+  /* set elements [is,ie] of the data array */
   VecGetArray(xv, &a);
-  a[i] = val;
+  for(i = is; i <= ie; i++) a[i] = val;
   VecRestoreArray(xv, &a);
 }
 

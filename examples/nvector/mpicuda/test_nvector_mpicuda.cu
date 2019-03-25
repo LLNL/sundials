@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
     }
 
     /* Create new vectors */
-    X = (i==UNMANAGED) ? N_VNew_Cuda(comm, local_length, global_length) : 
+    X = (i==UNMANAGED) ? N_VNew_Cuda(comm, local_length, global_length) :
                          N_VNewManaged_Cuda(comm, local_length, global_length);
     if (X == NULL) {
       if (myid == 0) printf("FAIL: Unable to create a new vector \n\n");
@@ -96,6 +96,12 @@ int main(int argc, char *argv[])
 
     /* Check vector ID */
     fails += Test_N_VGetVectorID(X, SUNDIALS_NVEC_CUDA, myid);
+
+    /* Check vector length */
+    fails += Test_N_VGetLength(X, myid);
+
+    /* Check vector communicator */
+    fails += Test_N_VGetCommunicator(X, &comm, myid);
 
     /* Test clone functions */
     fails += Test_N_VCloneEmpty(X, myid);
@@ -146,7 +152,7 @@ int main(int argc, char *argv[])
     if (myid == 0) printf("\nTesting fused and vector array operations (disabled):\n\n");
 
     /* create vector and disable all fused and vector array operations */
-    U = (i==UNMANAGED) ? N_VNew_Cuda(comm, local_length, global_length) : 
+    U = (i==UNMANAGED) ? N_VNew_Cuda(comm, local_length, global_length) :
                          N_VNewManaged_Cuda(comm, local_length, global_length);
     retval = N_VEnableFusedOps_Cuda(U, SUNFALSE);
     if (U == NULL || retval != 0) {
@@ -175,7 +181,7 @@ int main(int argc, char *argv[])
     if (myid == 0) printf("\nTesting fused and vector array operations (enabled):\n\n");
 
     /* create vector and enable all fused and vector array operations */
-    V = (i==UNMANAGED) ? N_VNew_Cuda(comm, local_length, global_length) : 
+    V = (i==UNMANAGED) ? N_VNew_Cuda(comm, local_length, global_length) :
                          N_VNewManaged_Cuda(comm, local_length, global_length);
     retval = N_VEnableFusedOps_Cuda(V, SUNTRUE);
     if (V == NULL || retval != 0) {
@@ -201,6 +207,19 @@ int main(int argc, char *argv[])
     fails += Test_N_VScaleAddMultiVectorArray(V, local_length, myid);
     fails += Test_N_VLinearCombinationVectorArray(V, local_length, myid);
 
+    /* local reduction operations */
+    printf("\nTesting local reduction operations:\n\n");
+
+    fails += Test_N_VDotProdLocal(X, Y, local_length, myid);
+    fails += Test_N_VMaxNormLocal(X, local_length, myid);
+    fails += Test_N_VMinLocal(X, local_length, myid);
+    fails += Test_N_VL1NormLocal(X, local_length, myid);
+    fails += Test_N_VWSqrSumLocal(X, Y, local_length, myid);
+    fails += Test_N_VWSqrSumMaskLocal(X, Y, Z, local_length, myid);
+    fails += Test_N_VInvTestLocal(X, Z, local_length, myid);
+    fails += Test_N_VConstrMaskLocal(X, Y, Z, local_length, myid);
+    fails += Test_N_VMinQuotientLocal(X, Y, local_length, myid);
+
     /* CUDA specific tests */
     if (i==UNMANAGED) {
       fails += Test_N_VMake_Cuda(X, local_length, global_length, comm, myid);
@@ -220,13 +239,13 @@ int main(int argc, char *argv[])
   if (fails) {
     printf("FAIL: NVector module failed %i tests, Proc %d \n\n", fails, myid);
   } else {
-    if (myid == 0) 
+    if (myid == 0)
       printf("SUCCESS: NVector module passed all tests \n\n");
   }
 
   /* check if any other process failed */
   (void) MPI_Allreduce(&fails, &globfails, 1, MPI_INT, MPI_MAX, comm);
-  
+
   MPI_Finalize();
 
   return(globfails);
@@ -267,23 +286,23 @@ int Test_N_VMake_Cuda(N_Vector X, sunindextype local_length, sunindextype global
     N_VDestroy(Y);
     return(1);
   }
-  
+
   if (N_VGetDeviceArrayPointer_Cuda(Y) == NULL) {
     printf(">>> FAILED test -- N_VMake_Cuda, Proc %d \n", myid);
     printf("    Vector device data -= NULL \n \n");
     N_VDestroy(Y);
     return(1);
   }
-  
+
   failure += check_ans(NEG_HALF, Y, local_length);
- 
+
   if (failure) {
     printf(">>> FAILED test -- N_VMake_Cuda Case 1, Proc %d \n", myid);
     printf("    Failed N_VConst check \n \n");
     N_VDestroy(Y);
     return(1);
   }
-  
+
   if (myid == 0) {
     printf("PASSED test -- N_VMake_Cuda Case 1 \n");
   }
@@ -301,7 +320,7 @@ int Test_N_VMake_Cuda(N_Vector X, sunindextype local_length, sunindextype global
   if (myid == 0) {
     printf("PASSED test -- N_VMake_Cuda Case 2 \n");
   }
-  
+
   N_VDestroy(Y);
 
   return(failure);
@@ -325,7 +344,7 @@ int Test_N_VMakeManaged_Cuda(N_Vector X, sunindextype local_length, sunindextype
   N_VConst(NEG_HALF, X);
 
   vdata = N_VGetHostArrayPointer_Cuda(X);
-  
+
   /* Case 1: data is not null */
   Y = N_VMakeManaged_Cuda(comm, local_length, global_length, vdata);
   if (Y == NULL) {
@@ -335,7 +354,7 @@ int Test_N_VMakeManaged_Cuda(N_Vector X, sunindextype local_length, sunindextype
   }
 
   failure += check_ans(NEG_HALF, Y, local_length);
- 
+
   /* Case 2: data is null */
   Y = N_VMakeManaged_Cuda(comm, local_length, global_length, NULL);
   if (Y != NULL) {
@@ -347,9 +366,9 @@ int Test_N_VMakeManaged_Cuda(N_Vector X, sunindextype local_length, sunindextype
   if (myid == 0) {
     printf("PASSED test -- N_VMakeManaged_Cuda Case 2 \n");
   }
-  
+
   N_VDestroy(Y);
- 
+
   return(failure);
 }
 
@@ -383,8 +402,19 @@ booleantype has_data(N_Vector X)
 void set_element(N_Vector X, sunindextype i, realtype val)
 {
   /* set i-th element of data array */
+  set_element_range(X, i, i, val);
+}
+
+void set_element_range(N_Vector X, sunindextype is, sunindextype ie,
+                       realtype val)
+{
+  sunindextype i;
+  realtype*    xd;
+
+  /* set elements [is,ie] of the data array */
   N_VCopyFromDevice_Cuda(X);
-  (N_VGetHostArrayPointer_Cuda(X))[i] = val;
+  xd = N_VGetHostArrayPointer_Cuda(X);
+  for(i = is; i <= ie; i++) xd[i] = val;
   N_VCopyToDevice_Cuda(X);
 }
 
@@ -399,9 +429,9 @@ double max_time(N_Vector X, double time)
 {
   MPI_Comm comm;
   double maxt;
- 
+
   comm = N_VGetMPIComm_Cuda(X);
-  
+
   /* get max time across all MPI ranks */
   (void) MPI_Reduce(&time, &maxt, 1, MPI_DOUBLE, MPI_MAX, 0, comm);
   return(maxt);

@@ -43,7 +43,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'ARKode'
-copyright = u'2012-2018, Daniel R. Reynolds, David J. Gardner, Alan C. Hindmarsh, Carol S. Woodward and Jean M. Sexton, release number LLNL-SM-668082'
+copyright = u'2012-2019, Daniel R. Reynolds, David J. Gardner, Carol S. Woodward, Cody J. Balos, Alan C. Hindmarsh, and Jean M. Sexton, release number LLNL-SM-668082'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

@@ -89,6 +89,12 @@ N_Vector N_VNewEmpty_Trilinos()
   ops->nvspace           = N_VSpace_Trilinos;
   ops->nvgetarraypointer = NULL;
   ops->nvsetarraypointer = NULL;
+#if SUNDIALS_MPI_ENABLED
+  ops->nvgetcommunicator = N_VGetCommunicator_Trilinos;
+#else
+  ops->nvgetcommunicator = NULL;
+#endif
+  ops->nvgetlength       = N_VGetLength_Trilinos;
   ops->nvlinearsum       = N_VLinearSum_Trilinos;
   ops->nvconst           = N_VConst_Trilinos;
   ops->nvprod            = N_VProd_Trilinos;
@@ -123,6 +129,17 @@ N_Vector N_VNewEmpty_Trilinos()
   ops->nvscaleaddmultivectorarray     = NULL;
   ops->nvlinearcombinationvectorarray = NULL;
 
+  /* local reduction kernels */
+  ops->nvdotprodlocal     = N_VDotProdLocal_Trilinos;
+  ops->nvmaxnormlocal     = N_VMaxNormLocal_Trilinos;
+  ops->nvminlocal         = N_VMinLocal_Trilinos;
+  ops->nvl1normlocal      = N_VL1NormLocal_Trilinos;
+  ops->nvinvtestlocal     = N_VInvTestLocal_Trilinos;
+  ops->nvconstrmasklocal  = N_VConstrMaskLocal_Trilinos;
+  ops->nvminquotientlocal = N_VMinQuotientLocal_Trilinos;
+  ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Trilinos;
+  ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Trilinos;
+  
   /* Attach ops and set content to NULL */
   v->content = NULL;
   v->ops     = ops;
@@ -192,6 +209,8 @@ N_Vector N_VCloneEmpty_Trilinos(N_Vector w)
   ops->nvspace           = w->ops->nvspace;
   ops->nvgetarraypointer = w->ops->nvgetarraypointer;
   ops->nvsetarraypointer = w->ops->nvsetarraypointer;
+  ops->nvgetcommunicator = w->ops->nvgetcommunicator;
+  ops->nvgetlength       = w->ops->nvgetlength;
   ops->nvlinearsum       = w->ops->nvlinearsum;
   ops->nvconst           = w->ops->nvconst;
   ops->nvprod            = w->ops->nvprod;
@@ -226,6 +245,17 @@ N_Vector N_VCloneEmpty_Trilinos(N_Vector w)
   ops->nvscaleaddmultivectorarray     = w->ops->nvscaleaddmultivectorarray;
   ops->nvlinearcombinationvectorarray = w->ops->nvlinearcombinationvectorarray;
 
+  /* local reduction kernels */
+  ops->nvdotprodlocal     = w->ops->nvdotprodlocal;
+  ops->nvmaxnormlocal     = w->ops->nvmaxnormlocal;
+  ops->nvminlocal         = w->ops->nvminlocal;
+  ops->nvl1normlocal      = w->ops->nvl1normlocal;
+  ops->nvinvtestlocal     = w->ops->nvinvtestlocal;
+  ops->nvconstrmasklocal  = w->ops->nvconstrmasklocal;
+  ops->nvminquotientlocal = w->ops->nvminquotientlocal;
+  ops->nvwsqrsumlocal     = w->ops->nvwsqrsumlocal;
+  ops->nvwsqrsummasklocal = w->ops->nvwsqrsummasklocal;
+  
   /* Attach ops and set content to NULL */
   v->content = NULL;
   v->ops     = ops;
@@ -285,6 +315,34 @@ void N_VSpace_Trilinos(N_Vector x, sunindextype *lrw, sunindextype *liw)
 
   *lrw = xv->getGlobalLength();
   *liw = 2*npes;
+}
+
+#if SUNDIALS_MPI_ENABLED
+/*
+ * MPI communicator accessor
+ */
+void *N_VGetCommunicator_Trilinos(N_Vector x)
+{
+  using namespace Sundials;
+
+  Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
+  /* Access Teuchos::Comm* (which is actually a Teuchos::MpiComm*) */
+  auto comm = Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>(xv->getMap()->getComm());
+
+  return((void*) comm->getRawMpiComm().get());   /* extract raw pointer to MPI_Comm */
+}
+#endif
+
+/*
+ * Global vector length accessor
+ */
+sunindextype N_VGetLength_Trilinos(N_Vector x)
+{
+  using namespace Sundials;
+
+  Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
+
+  return ((sunindextype) xv->getGlobalLength());
 }
 
 /*
@@ -517,7 +575,7 @@ booleantype N_VInvTest_Trilinos(N_Vector x, N_Vector z)
 
 /*
  * Checks constraint violations for vector x. Constraints are defined in
- * vector c, and constrain violation flags are stored in vector m.
+ * vector c, and constraint violation flags are stored in vector m.
  */
 booleantype N_VConstrMask_Trilinos(N_Vector c, N_Vector x, N_Vector m)
 {
@@ -542,3 +600,121 @@ realtype N_VMinQuotient_Trilinos(N_Vector num, N_Vector denom)
 
   return TpetraVector::minQuotient(*numv, *denv);
 }
+
+/*
+ * MPI task-local dot product
+ */
+realtype N_VDotProdLocal_Trilinos(N_Vector x, N_Vector y)
+{
+  using namespace Sundials;
+
+  Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
+  Teuchos::RCP<const vector_type> yv = N_VGetVector_Trilinos(y);
+
+  return TpetraVector::dotProdLocal(*xv, *yv);
+}
+
+/*
+ * MPI task-local maximum norm
+ */
+realtype N_VMaxNormLocal_Trilinos(N_Vector x)
+{
+  using namespace Sundials;
+
+  Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
+
+  return TpetraVector::maxNormLocal(*xv);
+}
+
+/*
+ * MPI task-local minimum element
+ */
+realtype N_VMinLocal_Trilinos(N_Vector x)
+{
+  using namespace Sundials;
+
+  Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
+
+  return TpetraVector::minLocal(*xv);
+}
+
+/*
+ * MPI task-local L1 norm
+ */
+realtype N_VL1NormLocal_Trilinos(N_Vector x)
+{
+  using namespace Sundials;
+
+  Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
+
+  return TpetraVector::L1NormLocal(*xv);
+}
+
+/*
+ * MPI task-local weighted squared sum
+ */
+realtype N_VWSqrSumLocal_Trilinos(N_Vector x, N_Vector w)
+{
+  using namespace Sundials;
+
+  Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
+  Teuchos::RCP<const vector_type> wv = N_VGetVector_Trilinos(w);
+
+  return TpetraVector::WSqrSumLocal(*xv, *wv);
+}
+
+/*
+ * MPI task-local weighted masked squared sum
+ */
+realtype N_VWSqrSumMaskLocal_Trilinos(N_Vector x, N_Vector w, N_Vector id)
+{
+  using namespace Sundials;
+
+  Teuchos::RCP<const vector_type> xv  = N_VGetVector_Trilinos(x);
+  Teuchos::RCP<const vector_type> wv  = N_VGetVector_Trilinos(w);
+  Teuchos::RCP<const vector_type> idv = N_VGetVector_Trilinos(id);
+
+  return TpetraVector::WSqrSumMaskLocal(*xv, *wv, *idv);
+}
+
+/*
+ * MPI task-local elementwise inverse with zero checking: z[i] = 1/x[i], x[i] != 0
+ */
+booleantype N_VInvTestLocal_Trilinos(N_Vector x, N_Vector z)
+{
+  using namespace Sundials;
+
+  Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
+  Teuchos::RCP<vector_type> zv = N_VGetVector_Trilinos(z);
+
+  return TpetraVector::invTestLocal(*xv, *zv) ? SUNTRUE : SUNFALSE;
+}
+
+/*
+ * MPI task-local constraint checking for vector x. Constraints are defined in
+ * vector c, and constraint violation flags are stored in vector m.
+ */
+booleantype N_VConstrMaskLocal_Trilinos(N_Vector c, N_Vector x, N_Vector m)
+{
+  using namespace Sundials;
+
+  Teuchos::RCP<const vector_type> cv = N_VGetVector_Trilinos(c);
+  Teuchos::RCP<const vector_type> xv = N_VGetVector_Trilinos(x);
+  Teuchos::RCP<vector_type> mv       = N_VGetVector_Trilinos(m);
+
+  return TpetraVector::constraintMaskLocal(*cv, *xv, *mv) ? SUNTRUE : SUNFALSE;
+}
+
+/*
+ * MPI task-local minimum quotient: minq  = min ( num[i]/denom[i]), denom[i] != 0.
+ */
+realtype N_VMinQuotientLocal_Trilinos(N_Vector num, N_Vector denom)
+{
+  using namespace Sundials;
+
+  Teuchos::RCP<const vector_type> numv = N_VGetVector_Trilinos(num);
+  Teuchos::RCP<const vector_type> denv = N_VGetVector_Trilinos(denom);
+
+  return TpetraVector::minQuotientLocal(*numv, *denv);
+}
+

@@ -27,7 +27,7 @@ interfaces to vector data structures used within external linear
 solver libraries.  All native implementations assume that the
 process-local data is stored contiguously, and they in turn provide a
 variety of standard vector algebra operations that may be performed on
-the data. 
+the data.
 
 In addition, SUNDIALS provides a simple interface for generic vectors
 (akin to a C++ *abstract base class*).  All of the major SUNDIALS
@@ -54,5 +54,7 @@ patterns in the NVECTORS used.
    NVector_CUDA
    NVector_RAJA
    NVector_OpenMPDEV
+   NVector_Trilinos
+   NVector_ManyVector
    NVector_Examples
    ARKode_requirements

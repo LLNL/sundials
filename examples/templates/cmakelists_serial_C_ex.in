@@ -65,6 +65,11 @@ FIND_LIBRARY(SUNDIALS_NVEC_LIB
   sundials_nvecserial ${SUNDIALS_LIB_DIR}
   DOC "NVECTOR library")
 
+# Find the NVECTOR ManyVector library
+FIND_LIBRARY(SUNDIALS_MANYVEC_LIB
+  sundials_nvecmanyvector ${SUNDIALS_LIB_DIR}
+  DOC "NVECTOR manyvector library")
+
 # Set an extra link directory if necessary (false if empty)
 IF(EXISTS @EXTRA_LIBS_DIR@)
   LINK_DIRECTORIES(@EXTRA_LIBS_DIR@)
@@ -84,7 +89,7 @@ INCLUDE_DIRECTORIES(@KLU_INCLUDE_DIR@)
 SET(KLU_LIBRARIES @KLU_LIBRARIES@ CACHE STRING "KLU libraries")
 
 # List of Sundials libraries shared across all examples
-SET(SUNDIALS_LIBS ${SUNDIALS_SOLVER_LIB} ${SUNDIALS_NVEC_LIB} ${SUNDIALS_EXTRA_LIB})
+SET(SUNDIALS_LIBS ${SUNDIALS_SOLVER_LIB} ${SUNDIALS_NVEC_LIB} ${SUNDIALS_MANYVEC_LIB} ${SUNDIALS_EXTRA_LIB})
 
 # Enable testing
 INCLUDE(CTest)

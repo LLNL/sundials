@@ -5,12 +5,12 @@
 
 The {\nvecp} implementation of the {\nvector} module provided with
 {\sundials} is based on {\mpi}.  It defines the {\em content}
-field of \id{N\_Vector} to be a structure containing the global and local lengths 
+field of \id{N\_Vector} to be a structure containing the global and local lengths
 of the vector, a pointer to the beginning of a contiguous local data array,
-an {\mpi} communicator, and a boolean flag {\em own\_data} indicating ownership of 
+an {\mpi} communicator, and a boolean flag {\em own\_data} indicating ownership of
 the data array {\em data}.
 %%
-\begin{verbatim} 
+\begin{verbatim}
 struct _N_VectorContent_Parallel {
   sunindextype local_length;
   sunindextype global_length;
@@ -39,44 +39,44 @@ vector. The suffix \id{\_P} in the names denotes the distributed memory
 parallel version.
 \begin{itemize}
 
-\item 
+\item
   \ID{NV\_CONTENT\_P}
 
   This macro gives access to the contents of the parallel
   vector \id{N\_Vector}.
-  
-  The assignment \id{v\_cont = NV\_CONTENT\_P(v)} sets       
-  \id{v\_cont} to be a pointer to the \id{N\_Vector} content    
+
+  The assignment \id{v\_cont = NV\_CONTENT\_P(v)} sets
+  \id{v\_cont} to be a pointer to the \id{N\_Vector} content
   structure of type \id{struct \_N\_VectorContent\_Parallel}.
-  
+
   Implementation:
-  
+
   \verb|#define NV_CONTENT_P(v) ( (N_VectorContent_Parallel)(v->content) )|
-  
-\item 
-  \ID{NV\_OWN\_DATA\_P}, \ID{NV\_DATA\_P}, 
+
+\item
+  \ID{NV\_OWN\_DATA\_P}, \ID{NV\_DATA\_P},
   \ID{NV\_LOCLENGTH\_P}, \ID{NV\_GLOBLENGTH\_P}
-  
-  These macros give individual access to the parts of    
-  the content of a parallel \id{N\_Vector}.                        
-  
-  The assignment \id{v\_data = NV\_DATA\_P(v)} sets \id{v\_data} to be     
-  a pointer to the first component of the local data for the \id{N\_Vector} \id{v}. 
-  The assignment \id{NV\_DATA\_P(v) = v\_data} sets the component array of 
-  \id{v} to be \id{v\_data} by storing the pointer \id{v\_data}.                   
-  
-  The assignment \id{v\_llen = NV\_LOCLENGTH\_P(v)} sets \id{v\_llen} to be     
-  the length of the local part of \id{v}. 
-  The call \id{NV\_LENGTH\_P(v) = llen\_v} sets      
+
+  These macros give individual access to the parts of
+  the content of a parallel \id{N\_Vector}.
+
+  The assignment \id{v\_data = NV\_DATA\_P(v)} sets \id{v\_data} to be
+  a pointer to the first component of the local data for the \id{N\_Vector} \id{v}.
+  The assignment \id{NV\_DATA\_P(v) = v\_data} sets the component array of
+  \id{v} to be \id{v\_data} by storing the pointer \id{v\_data}.
+
+  The assignment \id{v\_llen = NV\_LOCLENGTH\_P(v)} sets \id{v\_llen} to be
+  the length of the local part of \id{v}.
+  The call \id{NV\_LENGTH\_P(v) = llen\_v} sets
   the local length of \id{v} to be \id{llen\_v}.
-  
-  The assignment \id{v\_glen = NV\_GLOBLENGTH\_P(v)} sets \id{v\_glen} to  
-  be the global length of the vector \id{v}.                    
-  The call \id{NV\_GLOBLENGTH\_P(v) = glen\_v} sets the global       
+
+  The assignment \id{v\_glen = NV\_GLOBLENGTH\_P(v)} sets \id{v\_glen} to
+  be the global length of the vector \id{v}.
+  The call \id{NV\_GLOBLENGTH\_P(v) = glen\_v} sets the global
   length of \id{v} to be \id{glen\_v}.
-  
+
   Implementation:
-  
+
   \verb|#define NV_OWN_DATA_P(v)   ( NV_CONTENT_P(v)->own_data )|
 
   \verb|#define NV_DATA_P(v)       ( NV_CONTENT_P(v)->data )|
@@ -84,7 +84,7 @@ parallel version.
   \verb|#define NV_LOCLENGTH_P(v)  ( NV_CONTENT_P(v)->local_length )|
 
   \verb|#define NV_GLOBLENGTH_P(v) ( NV_CONTENT_P(v)->global_length )|
-  
+
 \item \ID{NV\_COMM\_P}
 
   This macro provides access to the {\mpi} communicator used by the {\nvecp}
@@ -99,14 +99,14 @@ parallel version.
   This macro gives access to the individual components of the local data
   array of an \id{N\_Vector}.
 
-  The assignment \id{r = NV\_Ith\_P(v,i)} sets \id{r} to be the value of 
-  the \id{i}-th component of the local part of \id{v}. 
-  The assignment \id{NV\_Ith\_P(v,i) = r}   
-  sets the value of the \id{i}-th component of the local part of \id{v} 
-  to be \id{r}.        
-  
+  The assignment \id{r = NV\_Ith\_P(v,i)} sets \id{r} to be the value of
+  the \id{i}-th component of the local part of \id{v}.
+  The assignment \id{NV\_Ith\_P(v,i) = r}
+  sets the value of the \id{i}-th component of the local part of \id{v}
+  to be \id{r}.
+
   Here $i$ ranges from $0$ to $n-1$, where $n$ is the local length.
-      
+
   Implementation:
 
   \verb|#define NV_Ith_P(v,i) ( NV_DATA_P(v)[i] )|
@@ -119,10 +119,10 @@ parallel version.
 \label{ss:nvec_par_functions}
 % ====================================================================
 
-The {\nvecp} module defines parallel implementations of all vector operations listed 
-in Tables \ref{t:nvecops}, \ref{t:nvecfusedops}, and \ref{t:nvecarrayops}. Their names
-are obtained from those in Tables \ref{t:nvecops}, \ref{t:nvecfusedops}, and
-\ref{t:nvecarrayops} by appending the suffix \id{\_Parallel}
+The {\nvecp} module defines parallel implementations of all vector operations listed
+in Tables \ref{t:nvecops}, \ref{t:nvecfusedops}, \ref{t:nvecarrayops},
+and \ref{t:nveclocalops}. Their names
+are obtained from those in these tables by appending the suffix \id{\_Parallel}
 (e.g. \id{N\_VDestroy\_Parallel}).
 The module {\nvecp} provides the following additional
 user-callable routines:
@@ -157,7 +157,7 @@ user-callable routines:
   for \id{v\_data} itself.
 }
 {
-  N\_Vector N\_VMake\_Parallel(MPI\_Comm comm, 
+  N\_Vector N\_VMake\_Parallel(MPI\_Comm comm,
   sunindextype local\_length,
   \newlinefill{N\_Vector N\_VMake\_Parallel}
   sunindextype global\_length,
@@ -189,14 +189,6 @@ user-callable routines:
 }
 {
   void N\_VDestroyVectorArray\_Parallel(N\_Vector *vs, int count);
-}
-%%--------------------------------------
-\sunmodfun{N\_VGetLength\_Parallel}
-{
-  This function returns the number of vector elements (global vector length).
-}
-{
-  sunindextype N\_VGetLength\_Parallel(N\_Vector v);
 }
 %%--------------------------------------
 \sunmodfun{N\_VGetLocalLength\_Parallel}
@@ -355,20 +347,20 @@ enable/disable options as the vector they are cloned from while vectors created 
 %%
 %%------------------------------------
 %%
-\paragraph{\bf Notes} 
-           
+\paragraph{\bf Notes}
+
 \begin{itemize}
-                                        
+
 \item
-  When looping over the components of an \id{N\_Vector} \id{v}, it is     
-  more efficient to first obtain the local component array via       
-  \id{v\_data = NV\_DATA\_P(v)} and then access \id{v\_data[i]} within the     
-  loop than it is to use \id{NV\_Ith\_P(v,i)} within the loop.        
-                                                               
+  When looping over the components of an \id{N\_Vector} \id{v}, it is
+  more efficient to first obtain the local component array via
+  \id{v\_data = NV\_DATA\_P(v)} and then access \id{v\_data[i]} within the
+  loop than it is to use \id{NV\_Ith\_P(v,i)} within the loop.
+
 \item
-  {\warn}\id{N\_VNewEmpty\_Parallel}, \id{N\_VMake\_Parallel}, 
-  and \id{N\_VCloneVectorArrayEmpty\_Parallel} set the field 
-  {\em own\_data} $=$ \id{SUNFALSE}. 
+  {\warn}\id{N\_VNewEmpty\_Parallel}, \id{N\_VMake\_Parallel},
+  and \id{N\_VCloneVectorArrayEmpty\_Parallel} set the field
+  {\em own\_data} $=$ \id{SUNFALSE}.
   \id{N\_VDestroy\_Parallel} and \id{N\_VDestroyVectorArray\_Parallel}
   will not attempt to free the pointer {\em data} for any \id{N\_Vector} with
   {\em own\_data} set to \id{SUNFALSE}. In such a case, it is the user's responsibility to
@@ -377,7 +369,7 @@ enable/disable options as the vector they are cloned from while vectors created 
 \item
   {\warn}To maximize efficiency, vector operations in the {\nvecp} implementation
   that have more than one \id{N\_Vector} argument do not check for
-  consistent internal representation of these vectors. It is the user's 
+  consistent internal representation of these vectors. It is the user's
   responsibility to ensure that such routines are called with \id{N\_Vector}
   arguments that were all created with the same internal representations.
 

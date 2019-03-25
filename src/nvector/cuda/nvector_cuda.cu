@@ -70,6 +70,12 @@ N_Vector N_VNewEmpty_Cuda()
   ops->nvspace           = N_VSpace_Cuda;
   ops->nvgetarraypointer = NULL;
   ops->nvsetarraypointer = NULL;
+#if SUNDIALS_MPI_ENABLED
+  ops->nvgetcommunicator = N_VGetCommunicator_Cuda;
+#else
+  ops->nvgetcommunicator = NULL;
+#endif
+  ops->nvgetlength       = N_VGetLength_Cuda;
 
   /* standard vector operations */
   ops->nvlinearsum    = N_VLinearSum_Cuda;
@@ -80,17 +86,27 @@ N_Vector N_VNewEmpty_Cuda()
   ops->nvabs          = N_VAbs_Cuda;
   ops->nvinv          = N_VInv_Cuda;
   ops->nvaddconst     = N_VAddConst_Cuda;
+#if SUNDIALS_MPI_ENABLED
   ops->nvdotprod      = N_VDotProd_Cuda;
   ops->nvmaxnorm      = N_VMaxNorm_Cuda;
-  ops->nvwrmsnormmask = N_VWrmsNormMask_Cuda;
-  ops->nvwrmsnorm     = N_VWrmsNorm_Cuda;
   ops->nvmin          = N_VMin_Cuda;
-  ops->nvwl2norm      = N_VWL2Norm_Cuda;
   ops->nvl1norm       = N_VL1Norm_Cuda;
-  ops->nvcompare      = N_VCompare_Cuda;
   ops->nvinvtest      = N_VInvTest_Cuda;
   ops->nvconstrmask   = N_VConstrMask_Cuda;
   ops->nvminquotient  = N_VMinQuotient_Cuda;
+#else
+  ops->nvdotprod      = N_VDotProdLocal_Cuda;
+  ops->nvmaxnorm      = N_VMaxNormLocal_Cuda;
+  ops->nvmin          = N_VMinLocal_Cuda;
+  ops->nvl1norm       = N_VL1NormLocal_Cuda;
+  ops->nvinvtest      = N_VInvTestLocal_Cuda;
+  ops->nvconstrmask   = N_VConstrMaskLocal_Cuda;
+  ops->nvminquotient  = N_VMinQuotientLocal_Cuda;
+#endif
+  ops->nvwrmsnormmask = N_VWrmsNormMask_Cuda;
+  ops->nvwrmsnorm     = N_VWrmsNorm_Cuda;
+  ops->nvwl2norm      = N_VWL2Norm_Cuda;
+  ops->nvcompare      = N_VCompare_Cuda;
 
   /* fused vector operations (optional, NULL means disabled by default) */
   ops->nvlinearcombination = NULL;
@@ -105,6 +121,17 @@ N_Vector N_VNewEmpty_Cuda()
   ops->nvwrmsnormmaskvectorarray      = NULL;
   ops->nvscaleaddmultivectorarray     = NULL;
   ops->nvlinearcombinationvectorarray = NULL;
+
+  /* local reduction kernels */
+  ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Cuda;
+  ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Cuda;
+  ops->nvdotprodlocal     = N_VDotProdLocal_Cuda;
+  ops->nvmaxnormlocal     = N_VMaxNormLocal_Cuda;
+  ops->nvminlocal         = N_VMinLocal_Cuda;
+  ops->nvl1normlocal      = N_VL1NormLocal_Cuda;
+  ops->nvinvtestlocal     = N_VInvTestLocal_Cuda;
+  ops->nvconstrmasklocal  = N_VConstrMaskLocal_Cuda;
+  ops->nvminquotientlocal = N_VMinQuotientLocal_Cuda;
 
   /* Attach ops and set content to NULL */
   v->content = NULL;
@@ -394,6 +421,8 @@ N_Vector N_VCloneEmpty_Cuda(N_Vector w)
   ops->nvspace           = w->ops->nvspace;
   ops->nvgetarraypointer = w->ops->nvgetarraypointer;
   ops->nvsetarraypointer = w->ops->nvsetarraypointer;
+  ops->nvgetcommunicator = w->ops->nvgetcommunicator;
+  ops->nvgetlength       = w->ops->nvgetlength;
 
   /* standard vector operations */
   ops->nvlinearsum    = w->ops->nvlinearsum;
@@ -429,6 +458,17 @@ N_Vector N_VCloneEmpty_Cuda(N_Vector w)
   ops->nvwrmsnormmaskvectorarray      = w->ops->nvwrmsnormmaskvectorarray;
   ops->nvscaleaddmultivectorarray     = w->ops->nvscaleaddmultivectorarray;
   ops->nvlinearcombinationvectorarray = w->ops->nvlinearcombinationvectorarray;
+
+  /* local reduction kernels */
+  ops->nvwsqrsumlocal     = w->ops->nvwsqrsumlocal;
+  ops->nvwsqrsummasklocal = w->ops->nvwsqrsummasklocal;
+  ops->nvdotprodlocal     = w->ops->nvdotprodlocal;
+  ops->nvmaxnormlocal     = w->ops->nvmaxnormlocal;
+  ops->nvminlocal         = w->ops->nvminlocal;
+  ops->nvl1normlocal      = w->ops->nvl1normlocal;
+  ops->nvinvtestlocal     = w->ops->nvinvtestlocal;
+  ops->nvconstrmasklocal  = w->ops->nvconstrmasklocal;
+  ops->nvminquotientlocal = w->ops->nvminquotientlocal;
 
   /* Create content */
   v->content = NULL;
@@ -483,6 +523,14 @@ void N_VConst_Cuda(realtype a, N_Vector X)
   setConst(a, *xvec);
 }
 
+#if SUNDIALS_MPI_ENABLED
+void *N_VGetCommunicator_Cuda(N_Vector v)
+{
+  vector_type* xd = static_cast<vector_type*>(v->content);
+  return((void *) xd->comm_ptr());
+}
+#endif
+
 void N_VLinearSum_Cuda(realtype a, N_Vector X, realtype b, N_Vector Y, N_Vector Z)
 {
   const vector_type *xvec = static_cast<vector_type*>(X->content);
@@ -535,87 +583,124 @@ void N_VAddConst_Cuda(N_Vector X, realtype b, N_Vector Z)
   addConst(b, *xvec, *zvec);
 }
 
-realtype N_VDotProd_Cuda(N_Vector X, N_Vector Y)
+realtype N_VDotProdLocal_Cuda(N_Vector X, N_Vector Y)
 {
   const vector_type *xvec = static_cast<vector_type*>(X->content);
   const vector_type *yvec = static_cast<vector_type*>(Y->content);
+  return(dotProd(*xvec, *yvec));
+}
+
+realtype N_VDotProd_Cuda(N_Vector X, N_Vector Y)
+{
+  /* compute local version, and then reduce across MPI processes */
+  const realtype sum = N_VDotProdLocal_Cuda(X, Y);
+  const vector_type *xvec = static_cast<vector_type*>(X->content);
   SUNMPI_Comm comm = xvec->comm();
-
-  realtype sum = dotProd(*xvec, *yvec);
-
-  realtype gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
+  realtype gsum;
+  SUNMPI_Allreduce_scalar(sum, &gsum, SUNMPI_SUM, comm);
   return gsum;
+}
+
+realtype N_VMaxNormLocal_Cuda(N_Vector X)
+{
+  const vector_type *xvec = static_cast<vector_type*>(X->content);
+  SUNMPI_Comm comm = xvec->comm();
+  return(maxNorm(*xvec));
 }
 
 realtype N_VMaxNorm_Cuda(N_Vector X)
 {
+  /* compute local version, and then reduce across MPI processes */
+  const realtype locmax = N_VMaxNormLocal_Cuda(X);
   const vector_type *xvec = static_cast<vector_type*>(X->content);
   SUNMPI_Comm comm = xvec->comm();
-
-  realtype locmax = maxNorm(*xvec);
-
-  realtype globmax = SUNMPI_Allreduce_scalar(locmax, 2, comm);
+  realtype globmax;
+  SUNMPI_Allreduce_scalar(locmax, &globmax, SUNMPI_MAX, comm);
   return globmax;
+}
+
+realtype N_VWSqrSumLocal_Cuda(N_Vector X, N_Vector W)
+{
+  const vector_type *xvec = static_cast<vector_type*>(X->content);
+  const vector_type *wvec = static_cast<vector_type*>(W->content);
+  return(wL2NormSquare(*xvec, *wvec));
 }
 
 realtype N_VWrmsNorm_Cuda(N_Vector X, N_Vector W)
 {
+  /* compute local version, and then reduce across MPI processes */
+  const realtype sum = N_VWSqrSumLocal_Cuda(X, W);
   const vector_type *xvec = static_cast<vector_type*>(X->content);
-  const vector_type *wvec = static_cast<vector_type*>(W->content);
   const sunindextype Nglob = xvec->sizeGlobal();
   SUNMPI_Comm comm = xvec->comm();
-
-  realtype sum = wL2NormSquare(*xvec, *wvec);
-
-  realtype gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
+  realtype gsum;
+  SUNMPI_Allreduce_scalar(sum, &gsum, SUNMPI_SUM, comm);
   return std::sqrt(gsum/Nglob);
 }
 
-realtype N_VWrmsNormMask_Cuda(N_Vector X, N_Vector W, N_Vector Id)
+realtype N_VWSqrSumMaskLocal_Cuda(N_Vector X, N_Vector W, N_Vector Id)
 {
   const vector_type *xvec = static_cast<vector_type*>(X->content);
   const vector_type *wvec = static_cast<vector_type*>(W->content);
   const vector_type *ivec = static_cast<vector_type*>(Id->content);
   const sunindextype Nglob = xvec->sizeGlobal();
+  return(wL2NormSquareMask(*xvec, *wvec, *ivec));
+}
+
+realtype N_VWrmsNormMask_Cuda(N_Vector X, N_Vector W, N_Vector Id)
+{
+  /* compute local version, and then reduce across MPI processes */
+  const realtype sum = N_VWSqrSumMaskLocal_Cuda(X, W, Id);
+  const vector_type *xvec = static_cast<vector_type*>(X->content);
+  const sunindextype Nglob = xvec->sizeGlobal();
   SUNMPI_Comm comm = xvec->comm();
-
-  realtype sum = wL2NormSquareMask(*xvec, *wvec, *ivec);
-
-  realtype gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
+  realtype gsum;
+  SUNMPI_Allreduce_scalar(sum, &gsum, SUNMPI_SUM, comm);
   return std::sqrt(gsum/Nglob);
+}
+
+realtype N_VMinLocal_Cuda(N_Vector X)
+{
+  const vector_type *xvec = static_cast<vector_type*>(X->content);
+  return(findMin(*xvec));
 }
 
 realtype N_VMin_Cuda(N_Vector X)
 {
   const vector_type *xvec = static_cast<vector_type*>(X->content);
   SUNMPI_Comm comm = xvec->comm();
-
-  realtype locmin = findMin(*xvec);
-
-  realtype globmin = SUNMPI_Allreduce_scalar(locmin, 3, comm);
+  const realtype locmin = N_VMinLocal_Cuda(X);
+  realtype globmin;
+  SUNMPI_Allreduce_scalar(locmin, &globmin, SUNMPI_MIN, comm);
   return globmin;
 }
 
 realtype N_VWL2Norm_Cuda(N_Vector X, N_Vector W)
 {
+  /* compute local version, and then reduce across MPI processes */
+  const realtype sum = N_VWSqrSumLocal_Cuda(X, W);
   const vector_type *xvec = static_cast<vector_type*>(X->content);
-  const vector_type *wvec = static_cast<vector_type*>(W->content);
   SUNMPI_Comm comm = xvec->comm();
-
-  realtype sum = wL2NormSquare(*xvec, *wvec);
-
-  realtype gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
+  realtype gsum;
+  SUNMPI_Allreduce_scalar(sum, &gsum, SUNMPI_SUM, comm);
   return std::sqrt(gsum);
+}
+
+realtype N_VL1NormLocal_Cuda(N_Vector X)
+{
+  const vector_type *xvec = static_cast<vector_type*>(X->content);
+  SUNMPI_Comm comm = xvec->comm();
+  return(L1Norm(*xvec));
 }
 
 realtype N_VL1Norm_Cuda(N_Vector X)
 {
+  /* compute local version, and then reduce across MPI processes */
+  const realtype sum = N_VL1NormLocal_Cuda(X);
   const vector_type *xvec = static_cast<vector_type*>(X->content);
   SUNMPI_Comm comm = xvec->comm();
-
-  realtype sum = L1Norm(*xvec);
-
-  realtype gsum = SUNMPI_Allreduce_scalar(sum, 1, comm);
+  realtype gsum;
+  SUNMPI_Allreduce_scalar(sum, &gsum, SUNMPI_SUM, comm);
   return gsum;
 }
 
@@ -626,43 +711,66 @@ void N_VCompare_Cuda(realtype c, N_Vector X, N_Vector Z)
   compare(c, *xvec, *zvec);
 }
 
-booleantype N_VInvTest_Cuda(N_Vector X, N_Vector Z)
+booleantype N_VInvTestLocal_Cuda(N_Vector X, N_Vector Z)
 {
   const vector_type *xvec = static_cast<vector_type*>(X->content);
   vector_type *zvec = static_cast<vector_type*>(Z->content);
   SUNMPI_Comm comm = xvec->comm();
-  
-  realtype locmin = invTest(*xvec, *zvec);
+  const realtype locmin = invTest(*xvec, *zvec);
+  return (locmin < HALF);
+}
 
-  realtype globmin = SUNMPI_Allreduce_scalar(locmin, 3, comm);
+booleantype N_VInvTest_Cuda(N_Vector X, N_Vector Z)
+{
+  /* compute local version, and then reduce across MPI processes */
+  const realtype locmin = (N_VInvTestLocal_Cuda(X, Z)) ? ZERO : ONE;
+  const vector_type *xvec = static_cast<vector_type*>(X->content);
+  SUNMPI_Comm comm = xvec->comm();
+  realtype globmin;
+  SUNMPI_Allreduce_scalar(locmin, &globmin, SUNMPI_MIN, comm);
   return (globmin < HALF);
 }
 
 /*
  * Creates mask for variables violating constraints
  */
-booleantype N_VConstrMask_Cuda(N_Vector C, N_Vector X, N_Vector M)
+booleantype N_VConstrMaskLocal_Cuda(N_Vector C, N_Vector X, N_Vector M)
 {
   const vector_type *cvec = static_cast<vector_type*>(C->content);
   const vector_type *xvec = static_cast<vector_type*>(X->content);
   vector_type *mvec = static_cast<vector_type*>(M->content);
   SUNMPI_Comm comm = xvec->comm();
+  const realtype locsum = constrMask(*cvec, *xvec, *mvec);
+  return (locsum < HALF);
+}
 
-  realtype locsum = constrMask(*cvec, *xvec, *mvec);
-
-  realtype globsum = SUNMPI_Allreduce_scalar(locsum, 1, comm);
+booleantype N_VConstrMask_Cuda(N_Vector C, N_Vector X, N_Vector M)
+{
+  /* compute local version, and then reduce across MPI processes */
+  const realtype locsum = (N_VConstrMaskLocal_Cuda(C, X, M)) ? ZERO : ONE;
+  const vector_type *xvec = static_cast<vector_type*>(X->content);
+  SUNMPI_Comm comm = xvec->comm();
+  realtype globsum;
+  SUNMPI_Allreduce_scalar(locsum, &globsum, SUNMPI_SUM, comm);
   return (globsum < HALF);
 }
 
-realtype N_VMinQuotient_Cuda(N_Vector num, N_Vector denom)
+realtype N_VMinQuotientLocal_Cuda(N_Vector num, N_Vector denom)
 {
   const vector_type *numvec = static_cast<vector_type*>(num->content);
   const vector_type *denvec = static_cast<vector_type*>(denom->content);
   SUNMPI_Comm comm = numvec->comm();
+  return(minQuotient(*numvec, *denvec));
+}
 
-  realtype locmin = minQuotient(*numvec, *denvec);
-
-  realtype globmin = SUNMPI_Allreduce_scalar(locmin, 3, comm);
+realtype N_VMinQuotient_Cuda(N_Vector num, N_Vector denom)
+{
+  /* compute local version, and then reduce across MPI processes */
+  const realtype locmin = N_VMinQuotientLocal_Cuda(num, denom);
+  const vector_type *numvec = static_cast<vector_type*>(num->content);
+  SUNMPI_Comm comm = numvec->comm();
+  realtype globmin;
+  SUNMPI_Allreduce_scalar(locmin, &globmin, SUNMPI_MIN, comm);
   return globmin;
 }
 
@@ -724,6 +832,7 @@ int N_VDotProdMulti_Cuda(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods)
   SUNMPI_Comm comm;
   vector_type*  Xv;
   vector_type** Yv;
+  int retval;
 
   Xv = static_cast<vector_type*>(x->content);
   comm = Xv->comm();
@@ -736,9 +845,11 @@ int N_VDotProdMulti_Cuda(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods)
 
   delete[] Yv;
 
-  SUNMPI_Allreduce(dotprods, nvec, 1, comm);
-
-  return err == cudaSuccess ? 0 : -1;
+  if (err != cudaSuccess) return(-1);
+  
+  retval = SUNMPI_Allreduce(dotprods, nvec, SUNMPI_SUM, comm);
+  
+  return retval == SUNMPI_SUCCESS ? 0 : -1;
 }
 
 
@@ -826,6 +937,7 @@ int N_VWrmsNormVectorArray_Cuda(int nvec, N_Vector* X, N_Vector* W,
   const vector_type* xvec = static_cast<vector_type*>(X[0]->content);
   vector_type** Xv;
   vector_type** Wv;
+  int retval;
   
   SUNMPI_Comm comm = xvec->comm();
   sunindextype N = xvec->sizeGlobal();
@@ -843,13 +955,15 @@ int N_VWrmsNormVectorArray_Cuda(int nvec, N_Vector* X, N_Vector* W,
   delete[] Xv;
   delete[] Wv;
 
-  SUNMPI_Allreduce(norms, nvec, 1, comm);
+  if (err != cudaSuccess)  return(-1);
+
+  retval = SUNMPI_Allreduce(norms, nvec, SUNMPI_SUM, comm);
 
   for (int k=0; k<nvec; ++k) {
     norms[k] = std::sqrt(norms[k]/N);
   }
 
-  return err == cudaSuccess ? 0 : -1;
+  return retval == SUNMPI_SUCCESS ? 0 : -1;
 }
 
 
@@ -861,6 +975,7 @@ int N_VWrmsNormMaskVectorArray_Cuda(int nvec, N_Vector* X, N_Vector* W,
   vector_type** Xv;
   vector_type** Wv;
   vector_type*  IDv;
+  int retval;
   
   SUNMPI_Comm comm = xvec->comm();
   sunindextype N = xvec->sizeGlobal();
@@ -880,18 +995,20 @@ int N_VWrmsNormMaskVectorArray_Cuda(int nvec, N_Vector* X, N_Vector* W,
   delete[] Xv;
   delete[] Wv;
 
-  SUNMPI_Allreduce(norms, nvec, 1, comm);
+  if (err != cudaSuccess)  return(-1);
+
+  retval = SUNMPI_Allreduce(norms, nvec, SUNMPI_SUM, comm);
 
   for (int k=0; k<nvec; ++k) {
     norms[k] = std::sqrt(norms[k]/N);
   }
 
-  return err == cudaSuccess ? 0 : -1;
+  return retval == SUNMPI_SUCCESS ? 0 : -1;
 }
 
 
 int N_VScaleAddMultiVectorArray_Cuda(int nvec, int nsum, realtype* c,
-                                      N_Vector* X, N_Vector** Y, N_Vector** Z)
+                                     N_Vector* X, N_Vector** Y, N_Vector** Z)
 {
   cudaError_t err;
   vector_type** Xv;

@@ -94,6 +94,7 @@ $tar $tarfile $distrobase/include/nvector/raja/Vector.hpp
 $tar $tarfile $distrobase/include/nvector/nvector_trilinos.h
 $tar $tarfile $distrobase/include/nvector/trilinos/SundialsTpetraVectorInterface.hpp
 $tar $tarfile $distrobase/include/nvector/trilinos/SundialsTpetraVectorKernels.hpp
+$tar $tarfile $distrobase/include/nvector/nvector_manyvector.h
 
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_band.h
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_dense.h
@@ -198,6 +199,11 @@ echo "   --- Add nvector/trilinos module to $tarfile"
 
 $tar $tarfile $distrobase/src/nvector/trilinos/CMakeLists.txt
 $tar $tarfile $distrobase/src/nvector/trilinos/nvector_trilinos.cpp
+
+echo "   --- Add nvector/manyvector module to $tarfile"
+
+$tar $tarfile $distrobase/src/nvector/manyvector/CMakeLists.txt
+$tar $tarfile $distrobase/src/nvector/manyvector/nvector_manyvector.c
 
 echo "   --- Add sunmatrix modules to $tarfile"
 
@@ -393,6 +399,11 @@ $tar $tarfile $distrobase/examples/nvector/mpiraja/test_nvector_mpiraja.cu
 $tar $tarfile $distrobase/examples/nvector/mpiraja/CMakeLists.txt
 $tar $tarfile $distrobase/examples/nvector/trilinos/test_nvector_trilinos.cpp
 $tar $tarfile $distrobase/examples/nvector/trilinos/CMakeLists.txt
+$tar $tarfile $distrobase/examples/nvector/manyvector_serial/test_nvector_manyvector_serial.c
+$tar $tarfile $distrobase/examples/nvector/manyvector_serial/CMakeLists.txt
+$tar $tarfile $distrobase/examples/nvector/manyvector_parallel/test_nvector_manyvector_parallel1.c
+$tar $tarfile $distrobase/examples/nvector/manyvector_parallel/test_nvector_manyvector_parallel2.c
+$tar $tarfile $distrobase/examples/nvector/manyvector_parallel/CMakeLists.txt
 $tar $tarfile $distrobase/examples/nvector/test_nvector.c
 $tar $tarfile $distrobase/examples/nvector/test_nvector.h
 

@@ -4,12 +4,12 @@
 \section{The NVECTOR\_SERIAL implementation}\label{ss:nvec_ser}
 
 The serial implementation of the {\nvector} module provided with {\sundials},
-{\nvecs}, defines the {\em content} field of \id{N\_Vector} to be a structure 
-containing the length of the vector, a pointer to the beginning of a contiguous 
-data array, and a boolean flag {\em own\_data} which specifies the ownership 
+{\nvecs}, defines the {\em content} field of \id{N\_Vector} to be a structure
+containing the length of the vector, a pointer to the beginning of a contiguous
+data array, and a boolean flag {\em own\_data} which specifies the ownership
 of {\em data}.
 %%
-\begin{verbatim} 
+\begin{verbatim}
 struct _N_VectorContent_Serial {
   sunindextype length;
   booleantype own_data;
@@ -37,51 +37,51 @@ vector. The suffix \id{\_S} in the names denotes the serial version.
 %%
 \begin{itemize}
 
-\item \ID{NV\_CONTENT\_S}                             
-    
+\item \ID{NV\_CONTENT\_S}
+
   This routine gives access to the contents of the serial
   vector \id{N\_Vector}.
-  
-  The assignment \id{v\_cont} $=$ \id{NV\_CONTENT\_S(v)} sets           
-  \id{v\_cont} to be a pointer to the serial \id{N\_Vector} content  
-  structure.                                             
-                                                            
-  Implementation: 
-  
+
+  The assignment \id{v\_cont} $=$ \id{NV\_CONTENT\_S(v)} sets
+  \id{v\_cont} to be a pointer to the serial \id{N\_Vector} content
+  structure.
+
+  Implementation:
+
   \verb|#define NV_CONTENT_S(v) ( (N_VectorContent_Serial)(v->content) )|
-  
+
 \item \ID{NV\_OWN\_DATA\_S}, \ID{NV\_DATA\_S}, \ID{NV\_LENGTH\_S}
 
 
-  These macros give individual access to the parts of    
-  the content of a serial \id{N\_Vector}.                        
-                                                               
-  The assignment \id{v\_data = NV\_DATA\_S(v)} sets \id{v\_data} to be     
-  a pointer to the first component of the data for the \id{N\_Vector} \id{v}. 
-  The assignment \id{NV\_DATA\_S(v) = v\_data} sets the component array of \id{v} to     
-  be \id{v\_data} by storing the pointer \id{v\_data}.                   
-  
-  The assignment \id{v\_len = NV\_LENGTH\_S(v)} sets \id{v\_len} to be     
-  the length of \id{v}. On the other hand, the call \id{NV\_LENGTH\_S(v) = len\_v} 
+  These macros give individual access to the parts of
+  the content of a serial \id{N\_Vector}.
+
+  The assignment \id{v\_data = NV\_DATA\_S(v)} sets \id{v\_data} to be
+  a pointer to the first component of the data for the \id{N\_Vector} \id{v}.
+  The assignment \id{NV\_DATA\_S(v) = v\_data} sets the component array of \id{v} to
+  be \id{v\_data} by storing the pointer \id{v\_data}.
+
+  The assignment \id{v\_len = NV\_LENGTH\_S(v)} sets \id{v\_len} to be
+  the length of \id{v}. On the other hand, the call \id{NV\_LENGTH\_S(v) = len\_v}
   sets the length of \id{v} to be \id{len\_v}.
-                                                            
-  Implementation: 
-  
+
+  Implementation:
+
   \verb|#define NV_OWN_DATA_S(v) ( NV_CONTENT_S(v)->own_data )|
 
   \verb|#define NV_DATA_S(v) ( NV_CONTENT_S(v)->data )|
-  
+
   \verb|#define NV_LENGTH_S(v) ( NV_CONTENT_S(v)->length )|
 
-\item \ID{NV\_Ith\_S}                                               
-                                                            
+\item \ID{NV\_Ith\_S}
+
   This macro gives access to the individual components of the data
   array of an \id{N\_Vector}.
 
-  The assignment \id{r = NV\_Ith\_S(v,i)} sets \id{r} to be the value of 
-  the \id{i}-th component of \id{v}. The assignment \id{NV\_Ith\_S(v,i) = r}   
-  sets the value of the \id{i}-th component of \id{v} to be \id{r}.        
-  
+  The assignment \id{r = NV\_Ith\_S(v,i)} sets \id{r} to be the value of
+  the \id{i}-th component of \id{v}. The assignment \id{NV\_Ith\_S(v,i) = r}
+  sets the value of the \id{i}-th component of \id{v} to be \id{r}.
+
   Here $i$ ranges from $0$ to $n-1$ for a vector of length $n$.
 
   Implementation:
@@ -96,10 +96,10 @@ vector. The suffix \id{\_S} in the names denotes the serial version.
 \label{ss:nvec_ser_functions}
 % ====================================================================
 
-The {\nvecs} module defines serial implementations of all vector operations listed 
-in Tables \ref{t:nvecops}, \ref{t:nvecfusedops}, and \ref{t:nvecarrayops}. Their
-names are obtained from those in Tables \ref{t:nvecops}, \ref{t:nvecfusedops},
-and \ref{t:nvecarrayops} by appending the suffix \id{\_Serial}
+The {\nvecs} module defines serial implementations of all vector operations listed
+in Tables \ref{t:nvecops}, \ref{t:nvecfusedops}, \ref{t:nvecarrayops}
+and \ref{t:nveclocalops}. Their
+names are obtained from those in these tables by appending the suffix \id{\_Serial}
 (e.g. \id{N\_VDestroy\_Serial}).
 All the standard vector operations listed in \ref{t:nvecops} with the suffix
 \id{\_Serial} appended are callable via the {\F} 2003 interface by prepending an
@@ -161,14 +161,6 @@ The module {\nvecs} provides the following additional user-callable routines:
 }
 {
   void N\_VDestroyVectorArray\_Serial(N\_Vector *vs, int count);
-}
-%%--------------------------------------
-\sunmodfunf{N\_VGetLength\_Serial}
-{
-  This function returns the number of vector elements.
-}
-{
-  sunindextype N\_VGetLength\_Serial(N\_Vector v);
 }
 %%--------------------------------------
 \sunmodfunf{N\_VPrint\_Serial}
@@ -320,29 +312,29 @@ options as the vector they are cloned from while vectors created with
 %%
 %%------------------------------------
 %%
-\paragraph{\bf Notes}                                                      
-           
+\paragraph{\bf Notes}
+
 \begin{itemize}
-                                        
-\item
-  When looping over the components of an \id{N\_Vector} \id{v}, it is     
-  more efficient to first obtain the component array via       
-  \id{v\_data = NV\_DATA\_S(v)} and then access \id{v\_data[i]} within the     
-  loop than it is to use \id{NV\_Ith\_S(v,i)} within the loop.        
 
 \item
-  {\warn}\id{N\_VNewEmpty\_Serial}, \id{N\_VMake\_Serial}, 
-  and \id{N\_VCloneVectorArrayEmpty\_Serial} set the field 
-  {\em own\_data} $=$ \id{SUNFALSE}. 
+  When looping over the components of an \id{N\_Vector} \id{v}, it is
+  more efficient to first obtain the component array via
+  \id{v\_data = NV\_DATA\_S(v)} and then access \id{v\_data[i]} within the
+  loop than it is to use \id{NV\_Ith\_S(v,i)} within the loop.
+
+\item
+  {\warn}\id{N\_VNewEmpty\_Serial}, \id{N\_VMake\_Serial},
+  and \id{N\_VCloneVectorArrayEmpty\_Serial} set the field
+  {\em own\_data} $=$ \id{SUNFALSE}.
   \id{N\_VDestroy\_Serial} and \id{N\_VDestroyVectorArray\_Serial}
   will not attempt to free the pointer {\em data} for any \id{N\_Vector} with
   {\em own\_data} set to \id{SUNFALSE}. In such a case, it is the user's responsibility to
   deallocate the {\em data} pointer.
-                                     
+
 \item
   {\warn}To maximize efficiency, vector operations in the {\nvecs} implementation
   that have more than one \id{N\_Vector} argument do not check for
-  consistent internal representation of these vectors. It is the user's 
+  consistent internal representation of these vectors. It is the user's
   responsibility to ensure that such routines are called with \id{N\_Vector}
   arguments that were all created with the same internal representations.
 

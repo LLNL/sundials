@@ -96,6 +96,8 @@ N_Vector N_VNewEmpty_OpenMP(sunindextype length, int num_threads)
   ops->nvspace           = N_VSpace_OpenMP;
   ops->nvgetarraypointer = N_VGetArrayPointer_OpenMP;
   ops->nvsetarraypointer = N_VSetArrayPointer_OpenMP;
+  ops->nvgetcommunicator = NULL;
+  ops->nvgetlength       = N_VGetLength_OpenMP;
 
   /* standard vector operations */
   ops->nvlinearsum    = N_VLinearSum_OpenMP;
@@ -132,6 +134,17 @@ N_Vector N_VNewEmpty_OpenMP(sunindextype length, int num_threads)
   ops->nvscaleaddmultivectorarray     = NULL;
   ops->nvlinearcombinationvectorarray = NULL;
 
+  /* local reduction kernels */
+  ops->nvdotprodlocal     = N_VDotProd_OpenMP;
+  ops->nvmaxnormlocal     = N_VMaxNorm_OpenMP;
+  ops->nvminlocal         = N_VMin_OpenMP;
+  ops->nvl1normlocal      = N_VL1Norm_OpenMP;
+  ops->nvinvtestlocal     = N_VInvTest_OpenMP;
+  ops->nvconstrmasklocal  = N_VConstrMask_OpenMP;
+  ops->nvminquotientlocal = N_VMinQuotient_OpenMP;
+  ops->nvwsqrsumlocal     = N_VWSqrSumLocal_OpenMP;
+  ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_OpenMP;
+  
   /* Create content */
   content = NULL;
   content = (N_VectorContent_OpenMP) malloc(sizeof(struct _N_VectorContent_OpenMP));
@@ -349,6 +362,8 @@ N_Vector N_VCloneEmpty_OpenMP(N_Vector w)
   ops->nvspace           = w->ops->nvspace;
   ops->nvgetarraypointer = w->ops->nvgetarraypointer;
   ops->nvsetarraypointer = w->ops->nvsetarraypointer;
+  ops->nvgetcommunicator = w->ops->nvgetcommunicator;
+  ops->nvgetlength       = w->ops->nvgetlength;
 
   /* standard vector operations */
   ops->nvlinearsum    = w->ops->nvlinearsum;
@@ -385,6 +400,17 @@ N_Vector N_VCloneEmpty_OpenMP(N_Vector w)
   ops->nvscaleaddmultivectorarray     = w->ops->nvscaleaddmultivectorarray;
   ops->nvlinearcombinationvectorarray = w->ops->nvlinearcombinationvectorarray;
 
+  /* local reduction kernels */
+  ops->nvdotprodlocal     = w->ops->nvdotprodlocal;
+  ops->nvmaxnormlocal     = w->ops->nvmaxnormlocal;
+  ops->nvminlocal         = w->ops->nvminlocal;
+  ops->nvl1normlocal      = w->ops->nvl1normlocal;
+  ops->nvinvtestlocal     = w->ops->nvinvtestlocal;
+  ops->nvconstrmasklocal  = w->ops->nvconstrmasklocal;
+  ops->nvminquotientlocal = w->ops->nvminquotientlocal;
+  ops->nvwsqrsumlocal     = w->ops->nvwsqrsumlocal;
+  ops->nvwsqrsummasklocal = w->ops->nvwsqrsummasklocal;
+  
   /* Create content */
   content = NULL;
   content = (N_VectorContent_OpenMP) malloc(sizeof(struct _N_VectorContent_OpenMP));
@@ -827,23 +853,7 @@ realtype N_VMaxNorm_OpenMP(N_Vector x)
 
 realtype N_VWrmsNorm_OpenMP(N_Vector x, N_Vector w)
 {
-  sunindextype i, N;
-  realtype sum, *xd, *wd;
-
-  sum = ZERO;
-  xd = wd = NULL;
-
-  N  = NV_LENGTH_OMP(x);
-  xd = NV_DATA_OMP(x);
-  wd = NV_DATA_OMP(w);
-
-#pragma omp parallel for default(none) private(i) shared(N,xd,wd) \
-  reduction(+:sum) schedule(static) num_threads(NV_NUM_THREADS_OMP(x))
-  for (i = 0; i < N; i++) {
-    sum += SUNSQR(xd[i]*wd[i]);
-  }
-
-  return(SUNRsqrt(sum/N));
+  return(SUNRsqrt(N_VWSqrSumLocal_OpenMP(x, w)/(NV_LENGTH_OMP(x))));
 }
 
 
@@ -853,26 +863,7 @@ realtype N_VWrmsNorm_OpenMP(N_Vector x, N_Vector w)
 
 realtype N_VWrmsNormMask_OpenMP(N_Vector x, N_Vector w, N_Vector id)
 {
-  sunindextype i, N;
-  realtype sum, *xd, *wd, *idd;
-
-  sum = ZERO;
-  xd = wd = idd = NULL;
-
-  N  = NV_LENGTH_OMP(x);
-  xd  = NV_DATA_OMP(x);
-  wd  = NV_DATA_OMP(w);
-  idd = NV_DATA_OMP(id);
-
-#pragma omp parallel for default(none) private(i) shared(N,xd,wd,idd) \
-  reduction(+:sum) schedule(static) num_threads(NV_NUM_THREADS_OMP(x))
-  for (i = 0; i < N; i++) {
-    if (idd[i] > ZERO) {
-      sum += SUNSQR(xd[i]*wd[i]);
-    }
-  }
-
-  return(SUNRsqrt(sum / N));
+  return(SUNRsqrt(N_VWSqrSumMaskLocal_OpenMP(x, w, id)/(NV_LENGTH_OMP(x))));
 }
 
 
@@ -1099,6 +1090,61 @@ realtype N_VMinQuotient_OpenMP(N_Vector num, N_Vector denom)
   }
 
   return(min);
+}
+
+
+/* ----------------------------------------------------------------------------
+ * Computes weighted square sum of a vector
+ */
+
+realtype N_VWSqrSumLocal_OpenMP(N_Vector x, N_Vector w)
+{
+  sunindextype i, N;
+  realtype sum, *xd, *wd;
+
+  sum = ZERO;
+  xd = wd = NULL;
+
+  N  = NV_LENGTH_OMP(x);
+  xd = NV_DATA_OMP(x);
+  wd = NV_DATA_OMP(w);
+
+#pragma omp parallel for default(none) private(i) shared(N,xd,wd) \
+  reduction(+:sum) schedule(static) num_threads(NV_NUM_THREADS_OMP(x))
+  for (i = 0; i < N; i++) {
+    sum += SUNSQR(xd[i]*wd[i]);
+  }
+
+  return(sum);
+}
+
+
+/* ----------------------------------------------------------------------------
+ * Computes weighted square sum of a masked vector
+ */
+
+realtype N_VWSqrSumMaskLocal_OpenMP(N_Vector x, N_Vector w, N_Vector id)
+{
+  sunindextype i, N;
+  realtype sum, *xd, *wd, *idd;
+
+  sum = ZERO;
+  xd = wd = idd = NULL;
+
+  N   = NV_LENGTH_OMP(x);
+  xd  = NV_DATA_OMP(x);
+  wd  = NV_DATA_OMP(w);
+  idd = NV_DATA_OMP(id);
+
+#pragma omp parallel for default(none) private(i) shared(N,xd,wd,idd) \
+  reduction(+:sum) schedule(static) num_threads(NV_NUM_THREADS_OMP(x))
+  for (i = 0; i < N; i++) {
+    if (idd[i] > ZERO) {
+      sum += SUNSQR(xd[i]*wd[i]);
+    }
+  }
+
+  return(sum);
 }
 
 

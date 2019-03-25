@@ -95,9 +95,9 @@ descriptions of these modules in Sections
 \ref{ss:sunlinsol_dense}-\ref{ss:sunlinsol_pcg} for additional detail
 on their {\nvector} requirements.
 
-The remaining operations from
-Tables \ref{t:nvecfusedops} and \ref{t:nvecarrayops} not listed above
-are unused and a user-supplied {\nvector} module for {\cvode} could
+The remaining operations from Tables \ref{t:nvecops}, \ref{t:nvecfusedops}, and
+\ref{t:nvecarrayops} not listed above
+are unused and a user-supplied {\nvector} module for {\cvodes} could
 omit these operations.  The functions \id{N\_MinQuotient},
 \id{N\_VConstrMask}, and \id{N\_VCompare} are only used when
 constraint checking is enabled and may be omitted if this feature is
@@ -117,4 +117,5 @@ not used.
 \input{nvec_raja}
 \input{nvec_openmpdev}
 \input{nvec_trilinos}
+\input{nvec_manyvector}
 \input{nvec_examples}

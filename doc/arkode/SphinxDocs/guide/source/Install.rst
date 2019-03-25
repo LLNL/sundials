@@ -630,7 +630,8 @@ illustration only.
       paths.
 
 :index:`MPI_ENABLE <MPI_ENABLE (CMake option)>`
-   Enable MPI support (build the parallel nvector).
+   Enable MPI support. This will build the parallel nvector
+   and the MPI-aware version of the ManyVector library.
 
    Default: ``OFF``
 

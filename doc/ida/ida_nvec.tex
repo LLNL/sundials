@@ -81,8 +81,8 @@ Special cases (numbers match markings in table):
 \end{enumerate}
 
 Of the functions listed in Table \ref{t:nvecops}, \id{N\_VWL2Norm}, 
-\id{N\_VL1Norm}, and \id{N\_VInvTest} 
-are {\em not} used by {\ida}. Therefore a user-supplied
+\id{N\_VL1Norm}, \id{N\_VInvTest}, \id{N\_VGetCommunicator}, and
+\id{N\_VGetLength} are {\em not} used by {\ida}. Therefore a user-supplied
 {\nvector} module for {\ida} could omit these functions.
 
 %---------------------------------------------------------------------------
@@ -99,4 +99,5 @@ are {\em not} used by {\ida}. Therefore a user-supplied
 \input{nvec_raja}
 \input{nvec_openmpdev}
 \input{nvec_trilinos}
+\input{nvec_manyvector}
 \input{nvec_examples}
