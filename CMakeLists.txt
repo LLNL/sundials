@@ -896,7 +896,7 @@ endif()
 
 if(RAJA_ENABLE)
   # Look for CMake configuration file in RAJA installation
-  find_package(RAJA)
+  find_package(RAJA CONFIG PATHS ${RAJA_DIR} ${RAJA_DIR}/share/raja/cmake)
   if (RAJA_FOUND)
     include_directories(${RAJA_INCLUDE_DIR})
     set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} ${RAJA_NVCC_FLAGS})
