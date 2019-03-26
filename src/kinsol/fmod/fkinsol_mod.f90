@@ -24,7 +24,34 @@ module fkinsol_mod
  implicit none
  private
 
- ! PUBLIC METHODS AND TYPES
+ ! DECLARATION CONSTRUCTS
+ integer(C_INT), parameter, public :: KIN_SUCCESS = 0_C_INT
+ integer(C_INT), parameter, public :: KIN_INITIAL_GUESS_OK = 1_C_INT
+ integer(C_INT), parameter, public :: KIN_STEP_LT_STPTOL = 2_C_INT
+ integer(C_INT), parameter, public :: KIN_WARNING = 99_C_INT
+ integer(C_INT), parameter, public :: KIN_MEM_NULL = -1_C_INT
+ integer(C_INT), parameter, public :: KIN_ILL_INPUT = -2_C_INT
+ integer(C_INT), parameter, public :: KIN_NO_MALLOC = -3_C_INT
+ integer(C_INT), parameter, public :: KIN_MEM_FAIL = -4_C_INT
+ integer(C_INT), parameter, public :: KIN_LINESEARCH_NONCONV = -5_C_INT
+ integer(C_INT), parameter, public :: KIN_MAXITER_REACHED = -6_C_INT
+ integer(C_INT), parameter, public :: KIN_MXNEWT_5X_EXCEEDED = -7_C_INT
+ integer(C_INT), parameter, public :: KIN_LINESEARCH_BCFAIL = -8_C_INT
+ integer(C_INT), parameter, public :: KIN_LINSOLV_NO_RECOVERY = -9_C_INT
+ integer(C_INT), parameter, public :: KIN_LINIT_FAIL = -10_C_INT
+ integer(C_INT), parameter, public :: KIN_LSETUP_FAIL = -11_C_INT
+ integer(C_INT), parameter, public :: KIN_LSOLVE_FAIL = -12_C_INT
+ integer(C_INT), parameter, public :: KIN_SYSFUNC_FAIL = -13_C_INT
+ integer(C_INT), parameter, public :: KIN_FIRST_SYSFUNC_ERR = -14_C_INT
+ integer(C_INT), parameter, public :: KIN_REPTD_SYSFUNC_ERR = -15_C_INT
+ integer(C_INT), parameter, public :: KIN_VECTOROP_ERR = -16_C_INT
+ integer(C_INT), parameter, public :: KIN_ETACHOICE1 = 1_C_INT
+ integer(C_INT), parameter, public :: KIN_ETACHOICE2 = 2_C_INT
+ integer(C_INT), parameter, public :: KIN_ETACONSTANT = 3_C_INT
+ integer(C_INT), parameter, public :: KIN_NONE = 0_C_INT
+ integer(C_INT), parameter, public :: KIN_LINESEARCH = 1_C_INT
+ integer(C_INT), parameter, public :: KIN_PICARD = 2_C_INT
+ integer(C_INT), parameter, public :: KIN_FP = 3_C_INT
  public :: FKINCreate
  public :: FKINInit
  public :: FKINSol
@@ -62,9 +89,21 @@ module fkinsol_mod
  public :: FKINGetStepLength
  public :: FKINGetReturnFlagName
  public :: FKINFree
+ integer(C_INT), parameter, public :: KINBBDPRE_SUCCESS = 0_C_INT
+ integer(C_INT), parameter, public :: KINBBDPRE_PDATA_NULL = -11_C_INT
+ integer(C_INT), parameter, public :: KINBBDPRE_FUNC_UNRECVR = -12_C_INT
  public :: FKINBBDPrecInit
  public :: FKINBBDPrecGetWorkSpace
  public :: FKINBBDPrecGetNumGfnEvals
+ integer(C_INT), parameter, public :: KINLS_SUCCESS = 0_C_INT
+ integer(C_INT), parameter, public :: KINLS_MEM_NULL = -1_C_INT
+ integer(C_INT), parameter, public :: KINLS_LMEM_NULL = -2_C_INT
+ integer(C_INT), parameter, public :: KINLS_ILL_INPUT = -3_C_INT
+ integer(C_INT), parameter, public :: KINLS_MEM_FAIL = -4_C_INT
+ integer(C_INT), parameter, public :: KINLS_PMEM_NULL = -5_C_INT
+ integer(C_INT), parameter, public :: KINLS_JACFUNC_ERR = -6_C_INT
+ integer(C_INT), parameter, public :: KINLS_SUNMAT_FAIL = -7_C_INT
+ integer(C_INT), parameter, public :: KINLS_SUNLS_FAIL = -8_C_INT
  public :: FKINSetLinearSolver
  public :: FKINSetJacFn
  public :: FKINSetPreconditioner
@@ -80,49 +119,8 @@ module fkinsol_mod
  public :: FKINGetLastLinFlag
  public :: FKINGetLinReturnFlagName
 
- ! PARAMETERS
- integer(C_INT), parameter, public :: KIN_SUCCESS = 0_C_INT
- integer(C_INT), parameter, public :: KIN_INITIAL_GUESS_OK = 1_C_INT
- integer(C_INT), parameter, public :: KIN_STEP_LT_STPTOL = 2_C_INT
- integer(C_INT), parameter, public :: KIN_WARNING = 99_C_INT
- integer(C_INT), parameter, public :: KIN_MEM_NULL = -1_C_INT
- integer(C_INT), parameter, public :: KIN_ILL_INPUT = -2_C_INT
- integer(C_INT), parameter, public :: KIN_NO_MALLOC = -3_C_INT
- integer(C_INT), parameter, public :: KIN_MEM_FAIL = -4_C_INT
- integer(C_INT), parameter, public :: KIN_LINESEARCH_NONCONV = -5_C_INT
- integer(C_INT), parameter, public :: KIN_MAXITER_REACHED = -6_C_INT
- integer(C_INT), parameter, public :: KIN_MXNEWT_5X_EXCEEDED = -7_C_INT
- integer(C_INT), parameter, public :: KIN_LINESEARCH_BCFAIL = -8_C_INT
- integer(C_INT), parameter, public :: KIN_LINSOLV_NO_RECOVERY = -9_C_INT
- integer(C_INT), parameter, public :: KIN_LINIT_FAIL = -10_C_INT
- integer(C_INT), parameter, public :: KIN_LSETUP_FAIL = -11_C_INT
- integer(C_INT), parameter, public :: KIN_LSOLVE_FAIL = -12_C_INT
- integer(C_INT), parameter, public :: KIN_SYSFUNC_FAIL = -13_C_INT
- integer(C_INT), parameter, public :: KIN_FIRST_SYSFUNC_ERR = -14_C_INT
- integer(C_INT), parameter, public :: KIN_REPTD_SYSFUNC_ERR = -15_C_INT
- integer(C_INT), parameter, public :: KIN_VECTOROP_ERR = -16_C_INT
- integer(C_INT), parameter, public :: KIN_ETACHOICE1 = 1_C_INT
- integer(C_INT), parameter, public :: KIN_ETACHOICE2 = 2_C_INT
- integer(C_INT), parameter, public :: KIN_ETACONSTANT = 3_C_INT
- integer(C_INT), parameter, public :: KIN_NONE = 0_C_INT
- integer(C_INT), parameter, public :: KIN_LINESEARCH = 1_C_INT
- integer(C_INT), parameter, public :: KIN_PICARD = 2_C_INT
- integer(C_INT), parameter, public :: KIN_FP = 3_C_INT
- integer(C_INT), parameter, public :: KINBBDPRE_SUCCESS = 0_C_INT
- integer(C_INT), parameter, public :: KINBBDPRE_PDATA_NULL = -11_C_INT
- integer(C_INT), parameter, public :: KINBBDPRE_FUNC_UNRECVR = -12_C_INT
- integer(C_INT), parameter, public :: KINLS_SUCCESS = 0_C_INT
- integer(C_INT), parameter, public :: KINLS_MEM_NULL = -1_C_INT
- integer(C_INT), parameter, public :: KINLS_LMEM_NULL = -2_C_INT
- integer(C_INT), parameter, public :: KINLS_ILL_INPUT = -3_C_INT
- integer(C_INT), parameter, public :: KINLS_MEM_FAIL = -4_C_INT
- integer(C_INT), parameter, public :: KINLS_PMEM_NULL = -5_C_INT
- integer(C_INT), parameter, public :: KINLS_JACFUNC_ERR = -6_C_INT
- integer(C_INT), parameter, public :: KINLS_SUNMAT_FAIL = -7_C_INT
- integer(C_INT), parameter, public :: KINLS_SUNLS_FAIL = -8_C_INT
-
- ! WRAPPER DECLARATIONS
- interface
+! WRAPPER DECLARATIONS
+interface
 function FKINCreate() &
 bind(C, name="KINCreate") &
 result(fresult)
@@ -622,7 +620,7 @@ integer(C_LONG), value :: flag
 type(C_PTR) :: fresult
 end function
 
- end interface
+end interface
 
 
 end module

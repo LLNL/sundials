@@ -23,7 +23,7 @@ module fsundials_types
  implicit none
  private
 
- ! PARAMETERS
+ ! DECLARATION CONSTRUCTS
  integer(C_INT), parameter, public :: SUNFALSE = 0_C_INT
  integer(C_INT), parameter, public :: SUNTRUE = 1_C_INT
 

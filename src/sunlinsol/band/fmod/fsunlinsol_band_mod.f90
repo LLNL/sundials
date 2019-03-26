@@ -27,7 +27,7 @@ module fsunlinsol_band_mod
  implicit none
  private
 
- ! PUBLIC METHODS AND TYPES
+ ! DECLARATION CONSTRUCTS
  public :: FSUNLinSol_Band
  public :: FSUNBandLinearSolver
  public :: FSUNLinSolGetType_Band
@@ -38,8 +38,8 @@ module fsunlinsol_band_mod
  public :: FSUNLinSolSpace_Band
  public :: FSUNLinSolFree_Band
 
- ! WRAPPER DECLARATIONS
- interface
+! WRAPPER DECLARATIONS
+interface
 function FSUNLinSol_Band(y, a) &
 bind(C, name="SUNLinSol_Band") &
 result(fresult)
@@ -121,7 +121,7 @@ type(C_PTR), value :: s
 integer(C_INT) :: fresult
 end function
 
- end interface
+end interface
 
 
 end module

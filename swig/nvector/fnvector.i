@@ -28,11 +28,11 @@
 %define %nvector_impl(TYPE)
   %ignore _N_VectorContent_## TYPE ##;
 
-  %insert(fpublic) %{
+  %insert(fdecl) %{
   public :: FN_VGetData_## TYPE ##
   %}
 
-  %insert(fwrapper) %{
+  %insert(fsubprograms) %{
   subroutine FN_VGetData_## TYPE ##(vec, vdata)
 
       use, intrinsic :: iso_c_binding

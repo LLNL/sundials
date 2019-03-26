@@ -27,7 +27,8 @@ module fsunlinsol_sptfqmr_mod
  implicit none
  private
 
- ! PUBLIC METHODS AND TYPES
+ ! DECLARATION CONSTRUCTS
+ integer(C_INT), parameter, public :: SUNSPTFQMR_MAXL_DEFAULT = 5_C_INT
  public :: FSUNLinSol_SPTFQMR
  public :: FSUNLinSol_SPTFQMRSetPrecType
  public :: FSUNLinSol_SPTFQMRSetMaxl
@@ -48,11 +49,8 @@ module fsunlinsol_sptfqmr_mod
  public :: FSUNLinSolSpace_SPTFQMR
  public :: FSUNLinSolFree_SPTFQMR
 
- ! PARAMETERS
- integer(C_INT), parameter, public :: SUNSPTFQMR_MAXL_DEFAULT = 5_C_INT
-
- ! WRAPPER DECLARATIONS
- interface
+! WRAPPER DECLARATIONS
+interface
 function FSUNLinSol_SPTFQMR(y, pretype, maxl) &
 bind(C, name="SUNLinSol_SPTFQMR") &
 result(fresult)
@@ -227,7 +225,7 @@ type(C_PTR), value :: s
 integer(C_INT) :: fresult
 end function
 
- end interface
+end interface
 
 
 end module

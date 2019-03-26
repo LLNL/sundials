@@ -24,27 +24,7 @@ module farkode_mod
  implicit none
  private
 
- ! PUBLIC METHODS AND TYPES
- public :: FARKBandPrecInit
- public :: FARKBandPrecGetWorkSpace
- public :: FARKBandPrecGetNumRhsEvals
- public :: FARKBBDPrecInit
- public :: FARKBBDPrecReInit
- public :: FARKBBDPrecGetWorkSpace
- public :: FARKBBDPrecGetNumGfnEvals
- public :: ARKodeButcherTableMem
- public :: FARKodeButcherTable_Alloc
- public :: FARKodeButcherTable_Create
- public :: FARKodeButcherTable_Copy
- public :: FARKodeButcherTable_Space
- public :: FARKodeButcherTable_Free
- public :: FARKodeButcherTable_Write
- public :: FARKodeButcherTable_CheckOrder
- public :: FARKodeButcherTable_CheckARKOrder
- public :: FARKodeButcherTable_LoadDIRK
- public :: FARKodeButcherTable_LoadERK
-
- ! PARAMETERS
+ ! DECLARATION CONSTRUCTS
  integer(C_INT), parameter, public :: ARK_NORMAL = 1_C_INT
  integer(C_INT), parameter, public :: ARK_ONE_STEP = 2_C_INT
  integer(C_INT), parameter, public :: ARK_SUCCESS = 0_C_INT
@@ -85,6 +65,31 @@ module farkode_mod
  integer(C_INT), parameter, public :: ARK_NLS_OP_ERR = -33_C_INT
  integer(C_INT), parameter, public :: ARK_INNERSTEP_FAIL = -34_C_INT
  integer(C_INT), parameter, public :: ARK_UNRECOGNIZED_ERROR = -99_C_INT
+ public :: FARKBandPrecInit
+ public :: FARKBandPrecGetWorkSpace
+ public :: FARKBandPrecGetNumRhsEvals
+ public :: FARKBBDPrecInit
+ public :: FARKBBDPrecReInit
+ public :: FARKBBDPrecGetWorkSpace
+ public :: FARKBBDPrecGetNumGfnEvals
+ ! struct struct ARKodeButcherTableMem
+ type, bind(C), public :: ARKodeButcherTableMem
+  integer(C_INT), public :: q
+  integer(C_INT), public :: p
+  integer(C_INT), public :: stages
+  type(C_PTR), public :: A
+  type(C_PTR), public :: c
+  type(C_PTR), public :: b
+  type(C_PTR), public :: d
+ end type ARKodeButcherTableMem
+ public :: FARKodeButcherTable_Alloc
+ public :: FARKodeButcherTable_Create
+ public :: FARKodeButcherTable_Copy
+ public :: FARKodeButcherTable_Space
+ public :: FARKodeButcherTable_Free
+ public :: FARKodeButcherTable_Write
+ public :: FARKodeButcherTable_CheckOrder
+ public :: FARKodeButcherTable_CheckARKOrder
  integer(C_INT), parameter, public :: SDIRK_2_1_2 = 100_C_INT
  integer(C_INT), parameter, public :: BILLINGTON_3_3_2 = 101_C_INT
  integer(C_INT), parameter, public :: TRBDF2_3_3_2 = 102_C_INT
@@ -99,6 +104,7 @@ module farkode_mod
  integer(C_INT), parameter, public :: ARK548L2SA_DIRK_8_4_5 = 111_C_INT
  integer(C_INT), parameter, public :: MIN_DIRK_NUM = 100_C_INT
  integer(C_INT), parameter, public :: MAX_DIRK_NUM = 111_C_INT
+ public :: FARKodeButcherTable_LoadDIRK
  integer(C_INT), parameter, public :: HEUN_EULER_2_1_2 = 0_C_INT
  integer(C_INT), parameter, public :: BOGACKI_SHAMPINE_4_2_3 = 1_C_INT
  integer(C_INT), parameter, public :: ARK324L2SA_ERK_4_2_3 = 2_C_INT
@@ -114,6 +120,7 @@ module farkode_mod
  integer(C_INT), parameter, public :: KNOTH_WOLKE_3_3 = 12_C_INT
  integer(C_INT), parameter, public :: MIN_ERK_NUM = 0_C_INT
  integer(C_INT), parameter, public :: MAX_ERK_NUM = 12_C_INT
+ public :: FARKodeButcherTable_LoadERK
  integer(C_INT), parameter, public :: ARKLS_SUCCESS = 0_C_INT
  integer(C_INT), parameter, public :: ARKLS_MEM_NULL = -1_C_INT
  integer(C_INT), parameter, public :: ARKLS_LMEM_NULL = -2_C_INT
@@ -128,20 +135,8 @@ module farkode_mod
  integer(C_INT), parameter, public :: ARKLS_SUNMAT_FAIL = -11_C_INT
  integer(C_INT), parameter, public :: ARKLS_SUNLS_FAIL = -12_C_INT
 
- ! TYPES
- type, bind(C) :: ARKodeButcherTableMem
-  integer(C_INT), public :: q
-  integer(C_INT), public :: p
-  integer(C_INT), public :: stages
-  type(C_PTR), public :: A
-  type(C_PTR), public :: c
-  type(C_PTR), public :: b
-  type(C_PTR), public :: d
- end type ARKodeButcherTableMem
-
-
- ! WRAPPER DECLARATIONS
- interface
+! WRAPPER DECLARATIONS
+interface
 function FARKBandPrecInit(arkode_mem, n, mu, ml) &
 bind(C, name="ARKBandPrecInit") &
 result(fresult)
@@ -309,7 +304,7 @@ integer(C_INT), value :: imethod
 type(C_PTR) :: fresult
 end function
 
- end interface
+end interface
 
 
 end module

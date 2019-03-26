@@ -11,14 +11,31 @@ module fsunlinsol_mod
  implicit none
  private
 
- ! PUBLIC METHODS AND TYPES
+ ! DECLARATION CONSTRUCTS
+ enum, bind(c)
+  enumerator :: PREC_NONE
+  enumerator :: PREC_LEFT
+  enumerator :: PREC_RIGHT
+  enumerator :: PREC_BOTH
+ end enum
  public :: PREC_NONE, PREC_LEFT, PREC_RIGHT, PREC_BOTH
+ enum, bind(c)
+  enumerator :: MODIFIED_GS = 1
+  enumerator :: CLASSICAL_GS = 2
+ end enum
  public :: MODIFIED_GS, CLASSICAL_GS
  public :: FModifiedGS
  public :: FClassicalGS
  public :: FQRfact
  public :: FQRsol
- public :: SUNLinearSolver_Type, SUNLINEARSOLVER_DIRECT, SUNLINEARSOLVER_ITERATIVE, SUNLINEARSOLVER_MATRIX_ITERATIVE
+ ! typedef enum SUNLinearSolver_Type
+ enum, bind(c)
+  enumerator :: SUNLINEARSOLVER_DIRECT
+  enumerator :: SUNLINEARSOLVER_ITERATIVE
+  enumerator :: SUNLINEARSOLVER_MATRIX_ITERATIVE
+ end enum
+ integer, parameter, public :: SUNLinearSolver_Type = kind(SUNLINEARSOLVER_DIRECT)
+ public :: SUNLINEARSOLVER_DIRECT, SUNLINEARSOLVER_ITERATIVE, SUNLINEARSOLVER_MATRIX_ITERATIVE
  public :: FSUNLinSolGetType
  public :: FSUNLinSolSetATimes
  public :: FSUNLinSolSetPreconditioner
@@ -32,24 +49,6 @@ module fsunlinsol_mod
  public :: FSUNLinSolLastFlag
  public :: FSUNLinSolSpace
  public :: FSUNLinSolFree
-
- ! PARAMETERS
- enum, bind(c)
-  enumerator :: PREC_NONE = 0
-  enumerator :: PREC_LEFT = PREC_NONE + 1
-  enumerator :: PREC_RIGHT = PREC_LEFT + 1
-  enumerator :: PREC_BOTH = PREC_RIGHT + 1
- end enum
- enum, bind(c)
-  enumerator :: MODIFIED_GS = 1
-  enumerator :: CLASSICAL_GS = 2
- end enum
- enum, bind(c)
-  enumerator :: SUNLinearSolver_Type = -1
-  enumerator :: SUNLINEARSOLVER_DIRECT = 0
-  enumerator :: SUNLINEARSOLVER_ITERATIVE = SUNLINEARSOLVER_DIRECT + 1
-  enumerator :: SUNLINEARSOLVER_MATRIX_ITERATIVE = SUNLINEARSOLVER_ITERATIVE + 1
- end enum
  integer(C_INT), parameter, public :: SUNLS_SUCCESS = 0_C_INT
  integer(C_INT), parameter, public :: SUNLS_MEM_NULL = -1_C_INT
  integer(C_INT), parameter, public :: SUNLS_ILL_INPUT = -2_C_INT
@@ -70,8 +69,8 @@ module fsunlinsol_mod
  integer(C_INT), parameter, public :: SUNLS_QRFACT_FAIL = 7_C_INT
  integer(C_INT), parameter, public :: SUNLS_LUFACT_FAIL = 8_C_INT
 
- ! WRAPPER DECLARATIONS
- interface
+! WRAPPER DECLARATIONS
+interface
 function FModifiedGS(v, h, k, p, new_vk_norm) &
 bind(C, name="ModifiedGS") &
 result(fresult)
@@ -238,7 +237,7 @@ type(C_PTR), value :: s
 integer(C_INT) :: fresult
 end function
 
- end interface
+end interface
 
 
 end module

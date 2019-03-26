@@ -25,7 +25,39 @@ module fcvode_mod
  implicit none
  private
 
- ! PUBLIC METHODS AND TYPES
+ ! DECLARATION CONSTRUCTS
+ integer(C_INT), parameter, public :: CV_ADAMS = 1_C_INT
+ integer(C_INT), parameter, public :: CV_BDF = 2_C_INT
+ integer(C_INT), parameter, public :: CV_NORMAL = 1_C_INT
+ integer(C_INT), parameter, public :: CV_ONE_STEP = 2_C_INT
+ integer(C_INT), parameter, public :: CV_SUCCESS = 0_C_INT
+ integer(C_INT), parameter, public :: CV_TSTOP_RETURN = 1_C_INT
+ integer(C_INT), parameter, public :: CV_ROOT_RETURN = 2_C_INT
+ integer(C_INT), parameter, public :: CV_WARNING = 99_C_INT
+ integer(C_INT), parameter, public :: CV_TOO_MUCH_WORK = -1_C_INT
+ integer(C_INT), parameter, public :: CV_TOO_MUCH_ACC = -2_C_INT
+ integer(C_INT), parameter, public :: CV_ERR_FAILURE = -3_C_INT
+ integer(C_INT), parameter, public :: CV_CONV_FAILURE = -4_C_INT
+ integer(C_INT), parameter, public :: CV_LINIT_FAIL = -5_C_INT
+ integer(C_INT), parameter, public :: CV_LSETUP_FAIL = -6_C_INT
+ integer(C_INT), parameter, public :: CV_LSOLVE_FAIL = -7_C_INT
+ integer(C_INT), parameter, public :: CV_RHSFUNC_FAIL = -8_C_INT
+ integer(C_INT), parameter, public :: CV_FIRST_RHSFUNC_ERR = -9_C_INT
+ integer(C_INT), parameter, public :: CV_REPTD_RHSFUNC_ERR = -10_C_INT
+ integer(C_INT), parameter, public :: CV_UNREC_RHSFUNC_ERR = -11_C_INT
+ integer(C_INT), parameter, public :: CV_RTFUNC_FAIL = -12_C_INT
+ integer(C_INT), parameter, public :: CV_NLS_INIT_FAIL = -13_C_INT
+ integer(C_INT), parameter, public :: CV_NLS_SETUP_FAIL = -14_C_INT
+ integer(C_INT), parameter, public :: CV_CONSTR_FAIL = -15_C_INT
+ integer(C_INT), parameter, public :: CV_MEM_FAIL = -20_C_INT
+ integer(C_INT), parameter, public :: CV_MEM_NULL = -21_C_INT
+ integer(C_INT), parameter, public :: CV_ILL_INPUT = -22_C_INT
+ integer(C_INT), parameter, public :: CV_NO_MALLOC = -23_C_INT
+ integer(C_INT), parameter, public :: CV_BAD_K = -24_C_INT
+ integer(C_INT), parameter, public :: CV_BAD_T = -25_C_INT
+ integer(C_INT), parameter, public :: CV_BAD_DKY = -26_C_INT
+ integer(C_INT), parameter, public :: CV_TOO_CLOSE = -27_C_INT
+ integer(C_INT), parameter, public :: CV_VECTOROP_ERR = -28_C_INT
  public :: FCVodeCreate
  public :: FCVodeInit
  public :: FCVodeReInit
@@ -84,11 +116,29 @@ module fcvode_mod
  public :: FCVBBDPrecReInit
  public :: FCVBBDPrecGetWorkSpace
  public :: FCVBBDPrecGetNumGfnEvals
+ integer(C_INT), parameter, public :: CVDIAG_SUCCESS = 0_C_INT
+ integer(C_INT), parameter, public :: CVDIAG_MEM_NULL = -1_C_INT
+ integer(C_INT), parameter, public :: CVDIAG_LMEM_NULL = -2_C_INT
+ integer(C_INT), parameter, public :: CVDIAG_ILL_INPUT = -3_C_INT
+ integer(C_INT), parameter, public :: CVDIAG_MEM_FAIL = -4_C_INT
+ integer(C_INT), parameter, public :: CVDIAG_INV_FAIL = -5_C_INT
+ integer(C_INT), parameter, public :: CVDIAG_RHSFUNC_UNRECVR = -6_C_INT
+ integer(C_INT), parameter, public :: CVDIAG_RHSFUNC_RECVR = -7_C_INT
  public :: FCVDiag
  public :: FCVDiagGetWorkSpace
  public :: FCVDiagGetNumRhsEvals
  public :: FCVDiagGetLastFlag
  public :: FCVDiagGetReturnFlagName
+ integer(C_INT), parameter, public :: CVLS_SUCCESS = 0_C_INT
+ integer(C_INT), parameter, public :: CVLS_MEM_NULL = -1_C_INT
+ integer(C_INT), parameter, public :: CVLS_LMEM_NULL = -2_C_INT
+ integer(C_INT), parameter, public :: CVLS_ILL_INPUT = -3_C_INT
+ integer(C_INT), parameter, public :: CVLS_MEM_FAIL = -4_C_INT
+ integer(C_INT), parameter, public :: CVLS_PMEM_NULL = -5_C_INT
+ integer(C_INT), parameter, public :: CVLS_JACFUNC_UNRECVR = -6_C_INT
+ integer(C_INT), parameter, public :: CVLS_JACFUNC_RECVR = -7_C_INT
+ integer(C_INT), parameter, public :: CVLS_SUNMAT_FAIL = -8_C_INT
+ integer(C_INT), parameter, public :: CVLS_SUNLS_FAIL = -9_C_INT
  public :: FCVodeSetLinearSolver
  public :: FCVodeSetJacFn
  public :: FCVodeSetMaxStepsBetweenJac
@@ -107,60 +157,8 @@ module fcvode_mod
  public :: FCVodeGetLastLinFlag
  public :: FCVodeGetLinReturnFlagName
 
- ! PARAMETERS
- integer(C_INT), parameter, public :: CV_ADAMS = 1_C_INT
- integer(C_INT), parameter, public :: CV_BDF = 2_C_INT
- integer(C_INT), parameter, public :: CV_NORMAL = 1_C_INT
- integer(C_INT), parameter, public :: CV_ONE_STEP = 2_C_INT
- integer(C_INT), parameter, public :: CV_SUCCESS = 0_C_INT
- integer(C_INT), parameter, public :: CV_TSTOP_RETURN = 1_C_INT
- integer(C_INT), parameter, public :: CV_ROOT_RETURN = 2_C_INT
- integer(C_INT), parameter, public :: CV_WARNING = 99_C_INT
- integer(C_INT), parameter, public :: CV_TOO_MUCH_WORK = -1_C_INT
- integer(C_INT), parameter, public :: CV_TOO_MUCH_ACC = -2_C_INT
- integer(C_INT), parameter, public :: CV_ERR_FAILURE = -3_C_INT
- integer(C_INT), parameter, public :: CV_CONV_FAILURE = -4_C_INT
- integer(C_INT), parameter, public :: CV_LINIT_FAIL = -5_C_INT
- integer(C_INT), parameter, public :: CV_LSETUP_FAIL = -6_C_INT
- integer(C_INT), parameter, public :: CV_LSOLVE_FAIL = -7_C_INT
- integer(C_INT), parameter, public :: CV_RHSFUNC_FAIL = -8_C_INT
- integer(C_INT), parameter, public :: CV_FIRST_RHSFUNC_ERR = -9_C_INT
- integer(C_INT), parameter, public :: CV_REPTD_RHSFUNC_ERR = -10_C_INT
- integer(C_INT), parameter, public :: CV_UNREC_RHSFUNC_ERR = -11_C_INT
- integer(C_INT), parameter, public :: CV_RTFUNC_FAIL = -12_C_INT
- integer(C_INT), parameter, public :: CV_NLS_INIT_FAIL = -13_C_INT
- integer(C_INT), parameter, public :: CV_NLS_SETUP_FAIL = -14_C_INT
- integer(C_INT), parameter, public :: CV_CONSTR_FAIL = -15_C_INT
- integer(C_INT), parameter, public :: CV_MEM_FAIL = -20_C_INT
- integer(C_INT), parameter, public :: CV_MEM_NULL = -21_C_INT
- integer(C_INT), parameter, public :: CV_ILL_INPUT = -22_C_INT
- integer(C_INT), parameter, public :: CV_NO_MALLOC = -23_C_INT
- integer(C_INT), parameter, public :: CV_BAD_K = -24_C_INT
- integer(C_INT), parameter, public :: CV_BAD_T = -25_C_INT
- integer(C_INT), parameter, public :: CV_BAD_DKY = -26_C_INT
- integer(C_INT), parameter, public :: CV_TOO_CLOSE = -27_C_INT
- integer(C_INT), parameter, public :: CV_VECTOROP_ERR = -28_C_INT
- integer(C_INT), parameter, public :: CVDIAG_SUCCESS = 0_C_INT
- integer(C_INT), parameter, public :: CVDIAG_MEM_NULL = -1_C_INT
- integer(C_INT), parameter, public :: CVDIAG_LMEM_NULL = -2_C_INT
- integer(C_INT), parameter, public :: CVDIAG_ILL_INPUT = -3_C_INT
- integer(C_INT), parameter, public :: CVDIAG_MEM_FAIL = -4_C_INT
- integer(C_INT), parameter, public :: CVDIAG_INV_FAIL = -5_C_INT
- integer(C_INT), parameter, public :: CVDIAG_RHSFUNC_UNRECVR = -6_C_INT
- integer(C_INT), parameter, public :: CVDIAG_RHSFUNC_RECVR = -7_C_INT
- integer(C_INT), parameter, public :: CVLS_SUCCESS = 0_C_INT
- integer(C_INT), parameter, public :: CVLS_MEM_NULL = -1_C_INT
- integer(C_INT), parameter, public :: CVLS_LMEM_NULL = -2_C_INT
- integer(C_INT), parameter, public :: CVLS_ILL_INPUT = -3_C_INT
- integer(C_INT), parameter, public :: CVLS_MEM_FAIL = -4_C_INT
- integer(C_INT), parameter, public :: CVLS_PMEM_NULL = -5_C_INT
- integer(C_INT), parameter, public :: CVLS_JACFUNC_UNRECVR = -6_C_INT
- integer(C_INT), parameter, public :: CVLS_JACFUNC_RECVR = -7_C_INT
- integer(C_INT), parameter, public :: CVLS_SUNMAT_FAIL = -8_C_INT
- integer(C_INT), parameter, public :: CVLS_SUNLS_FAIL = -9_C_INT
-
- ! WRAPPER DECLARATIONS
- interface
+! WRAPPER DECLARATIONS
+interface
 function FCVodeCreate(lmm) &
 bind(C, name="CVodeCreate") &
 result(fresult)
@@ -913,7 +911,7 @@ integer(C_LONG), value :: flag
 type(C_PTR) :: fresult
 end function
 
- end interface
+end interface
 
 
 end module

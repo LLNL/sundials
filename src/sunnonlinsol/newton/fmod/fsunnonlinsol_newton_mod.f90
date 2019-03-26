@@ -25,7 +25,7 @@ module fsunnonlinsol_newton_mod
  implicit none
  private
 
- ! PUBLIC METHODS AND TYPES
+ ! DECLARATION CONSTRUCTS
  public :: FSUNNonlinSol_Newton
  public :: FSUNNonlinSol_NewtonSens
  public :: FSUNNonlinSolGetType_Newton
@@ -42,8 +42,8 @@ module fsunnonlinsol_newton_mod
  public :: FSUNNonlinSolGetNumConvFails_Newton
  public :: FSUNNonlinSolGetSysFn_Newton
 
- ! WRAPPER DECLARATIONS
- interface
+! WRAPPER DECLARATIONS
+interface
 function FSUNNonlinSol_Newton(y) &
 bind(C, name="SUNNonlinSol_Newton") &
 result(fresult)
@@ -180,7 +180,7 @@ type(C_PTR), value :: sysfn
 integer(C_INT) :: fresult
 end function
 
- end interface
+end interface
 
 
 end module

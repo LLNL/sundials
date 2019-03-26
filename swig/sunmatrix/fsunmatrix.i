@@ -24,11 +24,11 @@
 %define %sunmatrix_impl(TYPE)
   %ignore _SUNMatrixContent_## TYPE ##;
 
-  %insert(fpublic) %{
+  %insert(fdecl) %{
   public :: FSUNMatGetData_## TYPE ##
   %}
 
-  %insert(fwrapper) %{
+  %insert(fsubprograms) %{
   subroutine FSUNMatGetData_## TYPE ##(mat, mdata)
 
       use, intrinsic :: iso_c_binding

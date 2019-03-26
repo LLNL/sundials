@@ -27,7 +27,7 @@ module fsunlinsol_dense_mod
  implicit none
  private
 
- ! PUBLIC METHODS AND TYPES
+ ! DECLARATION CONSTRUCTS
  public :: FSUNLinSol_Dense
  public :: FSUNDenseLinearSolver
  public :: FSUNLinSolGetType_Dense
@@ -38,8 +38,8 @@ module fsunlinsol_dense_mod
  public :: FSUNLinSolSpace_Dense
  public :: FSUNLinSolFree_Dense
 
- ! WRAPPER DECLARATIONS
- interface
+! WRAPPER DECLARATIONS
+interface
 function FSUNLinSol_Dense(y, a) &
 bind(C, name="SUNLinSol_Dense") &
 result(fresult)
@@ -121,7 +121,7 @@ type(C_PTR), value :: s
 integer(C_INT) :: fresult
 end function
 
- end interface
+end interface
 
 
 end module

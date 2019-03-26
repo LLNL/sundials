@@ -25,10 +25,12 @@ module fsunmatrix_sparse_mod
  implicit none
  private
 
- ! PUBLIC METHODS AND TYPES
+ ! DECLARATION CONSTRUCTS
 
   public :: FSUNMatGetData_Sparse
   
+ integer(C_INT), parameter, public :: CSC_MAT = 0_C_INT
+ integer(C_INT), parameter, public :: CSR_MAT = 1_C_INT
  public :: FSUNSparseMatrix
  public :: FSUNSparseFromDenseMatrix
  public :: FSUNSparseFromBandMatrix
@@ -53,12 +55,8 @@ module fsunmatrix_sparse_mod
  public :: FSUNMatMatvec_Sparse
  public :: FSUNMatSpace_Sparse
 
- ! PARAMETERS
- integer(C_INT), parameter, public :: CSC_MAT = 0_C_INT
- integer(C_INT), parameter, public :: CSR_MAT = 1_C_INT
-
- ! WRAPPER DECLARATIONS
- interface
+! WRAPPER DECLARATIONS
+interface
 function FSUNSparseMatrix(m, n, nnz, sparsetype) &
 bind(C, name="SUNSparseMatrix") &
 result(fresult)
@@ -256,11 +254,11 @@ integer(C_LONG) :: leniw
 integer(C_INT) :: fresult
 end function
 
- end interface
+end interface
 
 
 contains
- ! FORTRAN PROXY CODE
+ ! MODULE SUBPROGRAMS
 
   subroutine FSUNMatGetData_Sparse(mat, mdata)
 

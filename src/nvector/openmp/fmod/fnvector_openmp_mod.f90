@@ -25,7 +25,7 @@ module fnvector_openmp_mod
  implicit none
  private
 
- ! PUBLIC METHODS AND TYPES
+ ! DECLARATION CONSTRUCTS
 
   public :: FN_VGetData_OpenMP
   
@@ -86,8 +86,8 @@ module fnvector_openmp_mod
  public :: FN_VEnableScaleAddMultiVectorArray_OpenMP
  public :: FN_VEnableLinearCombinationVectorArray_OpenMP
 
- ! WRAPPER DECLARATIONS
- interface
+! WRAPPER DECLARATIONS
+interface
 function FN_VNew_OpenMP(vec_length, num_threads) &
 bind(C, name="N_VNew_OpenMP") &
 result(fresult)
@@ -590,11 +590,11 @@ logical(C_BOOL), value :: tf
 integer(C_INT) :: fresult
 end function
 
- end interface
+end interface
 
 
 contains
- ! FORTRAN PROXY CODE
+ ! MODULE SUBPROGRAMS
 
   subroutine FN_VGetData_OpenMP(vec, vdata)
 

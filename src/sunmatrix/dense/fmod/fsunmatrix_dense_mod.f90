@@ -25,7 +25,7 @@ module fsunmatrix_dense_mod
  implicit none
  private
 
- ! PUBLIC METHODS AND TYPES
+ ! DECLARATION CONSTRUCTS
 
   public :: FSUNMatGetData_Dense
   
@@ -47,8 +47,8 @@ module fsunmatrix_dense_mod
  public :: FSUNMatMatvec_Dense
  public :: FSUNMatSpace_Dense
 
- ! WRAPPER DECLARATIONS
- interface
+! WRAPPER DECLARATIONS
+interface
 function FSUNDenseMatrix(m, n) &
 bind(C, name="SUNDenseMatrix") &
 result(fresult)
@@ -192,11 +192,11 @@ integer(C_LONG) :: leniw
 integer(C_INT) :: fresult
 end function
 
- end interface
+end interface
 
 
 contains
- ! FORTRAN PROXY CODE
+ ! MODULE SUBPROGRAMS
 
   subroutine FSUNMatGetData_Dense(mat, mdata)
 

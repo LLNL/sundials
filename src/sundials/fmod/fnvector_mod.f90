@@ -9,10 +9,25 @@ module fnvector_mod
  implicit none
  private
 
- ! PUBLIC METHODS AND TYPES
- public :: N_Vector_ID, SUNDIALS_NVEC_SERIAL, SUNDIALS_NVEC_PARALLEL, SUNDIALS_NVEC_OPENMP, SUNDIALS_NVEC_PTHREADS, &
-    SUNDIALS_NVEC_PARHYP, SUNDIALS_NVEC_PETSC, SUNDIALS_NVEC_CUDA, SUNDIALS_NVEC_RAJA, SUNDIALS_NVEC_OPENMPDEV, &
-    SUNDIALS_NVEC_TRILINOS, SUNDIALS_NVEC_CUSTOM
+ ! DECLARATION CONSTRUCTS
+ ! typedef enum N_Vector_ID
+ enum, bind(c)
+  enumerator :: SUNDIALS_NVEC_SERIAL
+  enumerator :: SUNDIALS_NVEC_PARALLEL
+  enumerator :: SUNDIALS_NVEC_OPENMP
+  enumerator :: SUNDIALS_NVEC_PTHREADS
+  enumerator :: SUNDIALS_NVEC_PARHYP
+  enumerator :: SUNDIALS_NVEC_PETSC
+  enumerator :: SUNDIALS_NVEC_CUDA
+  enumerator :: SUNDIALS_NVEC_RAJA
+  enumerator :: SUNDIALS_NVEC_OPENMPDEV
+  enumerator :: SUNDIALS_NVEC_TRILINOS
+  enumerator :: SUNDIALS_NVEC_CUSTOM
+ end enum
+ integer, parameter, public :: N_Vector_ID = kind(SUNDIALS_NVEC_SERIAL)
+ public :: SUNDIALS_NVEC_SERIAL, SUNDIALS_NVEC_PARALLEL, SUNDIALS_NVEC_OPENMP, SUNDIALS_NVEC_PTHREADS, SUNDIALS_NVEC_PARHYP, &
+    SUNDIALS_NVEC_PETSC, SUNDIALS_NVEC_CUDA, SUNDIALS_NVEC_RAJA, SUNDIALS_NVEC_OPENMPDEV, SUNDIALS_NVEC_TRILINOS, &
+    SUNDIALS_NVEC_CUSTOM
  public :: FN_VGetVectorID
  public :: FN_VClone
  public :: FN_VCloneEmpty
@@ -53,24 +68,8 @@ module fnvector_mod
  public :: FN_VCloneVectorArray
  public :: FN_VDestroyVectorArray
 
- ! PARAMETERS
- enum, bind(c)
-  enumerator :: N_Vector_ID = -1
-  enumerator :: SUNDIALS_NVEC_SERIAL = 0
-  enumerator :: SUNDIALS_NVEC_PARALLEL = SUNDIALS_NVEC_SERIAL + 1
-  enumerator :: SUNDIALS_NVEC_OPENMP = SUNDIALS_NVEC_PARALLEL + 1
-  enumerator :: SUNDIALS_NVEC_PTHREADS = SUNDIALS_NVEC_OPENMP + 1
-  enumerator :: SUNDIALS_NVEC_PARHYP = SUNDIALS_NVEC_PTHREADS + 1
-  enumerator :: SUNDIALS_NVEC_PETSC = SUNDIALS_NVEC_PARHYP + 1
-  enumerator :: SUNDIALS_NVEC_CUDA = SUNDIALS_NVEC_PETSC + 1
-  enumerator :: SUNDIALS_NVEC_RAJA = SUNDIALS_NVEC_CUDA + 1
-  enumerator :: SUNDIALS_NVEC_OPENMPDEV = SUNDIALS_NVEC_RAJA + 1
-  enumerator :: SUNDIALS_NVEC_TRILINOS = SUNDIALS_NVEC_OPENMPDEV + 1
-  enumerator :: SUNDIALS_NVEC_CUSTOM = SUNDIALS_NVEC_TRILINOS + 1
- end enum
-
- ! WRAPPER DECLARATIONS
- interface
+! WRAPPER DECLARATIONS
+interface
 function FN_VGetVectorID(w) &
 bind(C, name="N_VGetVectorID") &
 result(fresult)
@@ -425,7 +424,7 @@ type(C_PTR), value :: vs
 integer(C_INT), value :: count
 end subroutine
 
- end interface
+end interface
 
 
 end module

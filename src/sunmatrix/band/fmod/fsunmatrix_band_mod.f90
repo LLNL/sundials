@@ -25,7 +25,7 @@ module fsunmatrix_band_mod
  implicit none
  private
 
- ! PUBLIC METHODS AND TYPES
+ ! DECLARATION CONSTRUCTS
 
   public :: FSUNMatGetData_Band
   
@@ -51,8 +51,8 @@ module fsunmatrix_band_mod
  public :: FSUNMatMatvec_Band
  public :: FSUNMatSpace_Band
 
- ! WRAPPER DECLARATIONS
- interface
+! WRAPPER DECLARATIONS
+interface
 function FSUNBandMatrix(n, mu, ml) &
 bind(C, name="SUNBandMatrix") &
 result(fresult)
@@ -232,11 +232,11 @@ integer(C_LONG) :: leniw
 integer(C_INT) :: fresult
 end function
 
- end interface
+end interface
 
 
 contains
- ! FORTRAN PROXY CODE
+ ! MODULE SUBPROGRAMS
 
   subroutine FSUNMatGetData_Band(mat, mdata)
 

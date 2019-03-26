@@ -27,7 +27,10 @@ module fsunlinsol_klu_mod
  implicit none
  private
 
- ! PUBLIC METHODS AND TYPES
+ ! DECLARATION CONSTRUCTS
+ integer(C_INT), parameter, public :: SUNKLU_ORDERING_DEFAULT = 1_C_INT
+ integer(C_INT), parameter, public :: SUNKLU_REINIT_FULL = 1_C_INT
+ integer(C_INT), parameter, public :: SUNKLU_REINIT_PARTIAL = 2_C_INT
  public :: FSUNLinSol_KLU
  public :: FSUNLinSol_KLUReInit
  public :: FSUNLinSol_KLUSetOrdering
@@ -42,13 +45,8 @@ module fsunlinsol_klu_mod
  public :: FSUNLinSolSpace_KLU
  public :: FSUNLinSolFree_KLU
 
- ! PARAMETERS
- integer(C_INT), parameter, public :: SUNKLU_ORDERING_DEFAULT = 1_C_INT
- integer(C_INT), parameter, public :: SUNKLU_REINIT_FULL = 1_C_INT
- integer(C_INT), parameter, public :: SUNKLU_REINIT_PARTIAL = 2_C_INT
-
- ! WRAPPER DECLARATIONS
- interface
+! WRAPPER DECLARATIONS
+interface
 function FSUNLinSol_KLU(y, a) &
 bind(C, name="SUNLinSol_KLU") &
 result(fresult)
@@ -170,7 +168,7 @@ type(C_PTR), value :: s
 integer(C_INT) :: fresult
 end function
 
- end interface
+end interface
 
 
 end module

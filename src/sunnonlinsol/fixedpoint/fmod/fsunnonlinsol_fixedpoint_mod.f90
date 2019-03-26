@@ -25,7 +25,7 @@ module fsunnonlinsol_fixedpoint_mod
  implicit none
  private
 
- ! PUBLIC METHODS AND TYPES
+ ! DECLARATION CONSTRUCTS
  public :: FSUNNonlinSol_FixedPoint
  public :: FSUNNonlinSol_FixedPointSens
  public :: FSUNNonlinSolGetType_FixedPoint
@@ -40,8 +40,8 @@ module fsunnonlinsol_fixedpoint_mod
  public :: FSUNNonlinSolGetNumConvFails_FixedPoint
  public :: FSUNNonlinSolGetSysFn_FixedPoint
 
- ! WRAPPER DECLARATIONS
- interface
+! WRAPPER DECLARATIONS
+interface
 function FSUNNonlinSol_FixedPoint(y, m) &
 bind(C, name="SUNNonlinSol_FixedPoint") &
 result(fresult)
@@ -162,7 +162,7 @@ type(C_PTR), value :: sysfn
 integer(C_INT) :: fresult
 end function
 
- end interface
+end interface
 
 
 end module

@@ -27,7 +27,9 @@ module fsunlinsol_spfgmr_mod
  implicit none
  private
 
- ! PUBLIC METHODS AND TYPES
+ ! DECLARATION CONSTRUCTS
+ integer(C_INT), parameter, public :: SUNSPFGMR_MAXL_DEFAULT = 5_C_INT
+ integer(C_INT), parameter, public :: SUNSPFGMR_MAXRS_DEFAULT = 0_C_INT
  public :: FSUNLinSol_SPFGMR
  public :: FSUNLinSol_SPFGMRSetPrecType
  public :: FSUNLinSol_SPFGMRSetGSType
@@ -50,12 +52,8 @@ module fsunlinsol_spfgmr_mod
  public :: FSUNLinSolSpace_SPFGMR
  public :: FSUNLinSolFree_SPFGMR
 
- ! PARAMETERS
- integer(C_INT), parameter, public :: SUNSPFGMR_MAXL_DEFAULT = 5_C_INT
- integer(C_INT), parameter, public :: SUNSPFGMR_MAXRS_DEFAULT = 0_C_INT
-
- ! WRAPPER DECLARATIONS
- interface
+! WRAPPER DECLARATIONS
+interface
 function FSUNLinSol_SPFGMR(y, pretype, maxl) &
 bind(C, name="SUNLinSol_SPFGMR") &
 result(fresult)
@@ -248,7 +246,7 @@ type(C_PTR), value :: s
 integer(C_INT) :: fresult
 end function
 
- end interface
+end interface
 
 
 end module

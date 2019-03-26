@@ -25,7 +25,9 @@ module farkode_mristep_mod
  implicit none
  private
 
- ! PUBLIC METHODS AND TYPES
+ ! DECLARATION CONSTRUCTS
+ integer(C_INT), parameter, public :: DEFAULT_MRI_STABLE_3 = 12_C_INT
+ integer(C_INT), parameter, public :: DEFAULT_MRI_FTABLE_3 = 12_C_INT
  public :: FMRIStepCreate
  public :: FMRIStepResize
  public :: FMRIStepReInit
@@ -62,12 +64,8 @@ module farkode_mristep_mod
  public :: FMRIStepFree
  public :: FMRIStepPrintMem
 
- ! PARAMETERS
- integer(C_INT), parameter, public :: DEFAULT_MRI_STABLE_3 = 12_C_INT
- integer(C_INT), parameter, public :: DEFAULT_MRI_FTABLE_3 = 12_C_INT
-
- ! WRAPPER DECLARATIONS
- interface
+! WRAPPER DECLARATIONS
+interface
 function FMRIStepCreate(fs, ff, t0, y0) &
 bind(C, name="MRIStepCreate") &
 result(fresult)
@@ -398,7 +396,7 @@ type(C_PTR), value :: arkode_mem
 type(C_PTR), value :: outfile
 end subroutine
 
- end interface
+end interface
 
 
 end module

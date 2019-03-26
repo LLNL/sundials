@@ -27,7 +27,8 @@ module fsunlinsol_spbcgs_mod
  implicit none
  private
 
- ! PUBLIC METHODS AND TYPES
+ ! DECLARATION CONSTRUCTS
+ integer(C_INT), parameter, public :: SUNSPBCGS_MAXL_DEFAULT = 5_C_INT
  public :: FSUNLinSol_SPBCGS
  public :: FSUNLinSol_SPBCGSSetPrecType
  public :: FSUNLinSol_SPBCGSSetMaxl
@@ -48,11 +49,8 @@ module fsunlinsol_spbcgs_mod
  public :: FSUNLinSolSpace_SPBCGS
  public :: FSUNLinSolFree_SPBCGS
 
- ! PARAMETERS
- integer(C_INT), parameter, public :: SUNSPBCGS_MAXL_DEFAULT = 5_C_INT
-
- ! WRAPPER DECLARATIONS
- interface
+! WRAPPER DECLARATIONS
+interface
 function FSUNLinSol_SPBCGS(y, pretype, maxl) &
 bind(C, name="SUNLinSol_SPBCGS") &
 result(fresult)
@@ -227,7 +225,7 @@ type(C_PTR), value :: s
 integer(C_INT) :: fresult
 end function
 
- end interface
+end interface
 
 
 end module

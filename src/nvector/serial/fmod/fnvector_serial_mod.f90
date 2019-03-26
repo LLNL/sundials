@@ -25,7 +25,7 @@ module fnvector_serial_mod
  implicit none
  private
 
- ! PUBLIC METHODS AND TYPES
+ ! DECLARATION CONSTRUCTS
 
   public :: FN_VGetData_Serial
   
@@ -86,8 +86,8 @@ module fnvector_serial_mod
  public :: FN_VEnableScaleAddMultiVectorArray_Serial
  public :: FN_VEnableLinearCombinationVectorArray_Serial
 
- ! WRAPPER DECLARATIONS
- interface
+! WRAPPER DECLARATIONS
+interface
 function FN_VNew_Serial(vec_length) &
 bind(C, name="N_VNew_Serial") &
 result(fresult)
@@ -587,11 +587,11 @@ logical(C_BOOL), value :: tf
 integer(C_INT) :: fresult
 end function
 
- end interface
+end interface
 
 
 contains
- ! FORTRAN PROXY CODE
+ ! MODULE SUBPROGRAMS
 
   subroutine FN_VGetData_Serial(vec, vdata)
 

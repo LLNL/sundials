@@ -24,7 +24,41 @@ module fida_mod
  implicit none
  private
 
- ! PUBLIC METHODS AND TYPES
+ ! DECLARATION CONSTRUCTS
+ integer(C_INT), parameter, public :: IDA_NORMAL = 1_C_INT
+ integer(C_INT), parameter, public :: IDA_ONE_STEP = 2_C_INT
+ integer(C_INT), parameter, public :: IDA_YA_YDP_INIT = 1_C_INT
+ integer(C_INT), parameter, public :: IDA_Y_INIT = 2_C_INT
+ integer(C_INT), parameter, public :: IDA_SUCCESS = 0_C_INT
+ integer(C_INT), parameter, public :: IDA_TSTOP_RETURN = 1_C_INT
+ integer(C_INT), parameter, public :: IDA_ROOT_RETURN = 2_C_INT
+ integer(C_INT), parameter, public :: IDA_WARNING = 99_C_INT
+ integer(C_INT), parameter, public :: IDA_TOO_MUCH_WORK = -1_C_INT
+ integer(C_INT), parameter, public :: IDA_TOO_MUCH_ACC = -2_C_INT
+ integer(C_INT), parameter, public :: IDA_ERR_FAIL = -3_C_INT
+ integer(C_INT), parameter, public :: IDA_CONV_FAIL = -4_C_INT
+ integer(C_INT), parameter, public :: IDA_LINIT_FAIL = -5_C_INT
+ integer(C_INT), parameter, public :: IDA_LSETUP_FAIL = -6_C_INT
+ integer(C_INT), parameter, public :: IDA_LSOLVE_FAIL = -7_C_INT
+ integer(C_INT), parameter, public :: IDA_RES_FAIL = -8_C_INT
+ integer(C_INT), parameter, public :: IDA_REP_RES_ERR = -9_C_INT
+ integer(C_INT), parameter, public :: IDA_RTFUNC_FAIL = -10_C_INT
+ integer(C_INT), parameter, public :: IDA_CONSTR_FAIL = -11_C_INT
+ integer(C_INT), parameter, public :: IDA_FIRST_RES_FAIL = -12_C_INT
+ integer(C_INT), parameter, public :: IDA_LINESEARCH_FAIL = -13_C_INT
+ integer(C_INT), parameter, public :: IDA_NO_RECOVERY = -14_C_INT
+ integer(C_INT), parameter, public :: IDA_NLS_INIT_FAIL = -15_C_INT
+ integer(C_INT), parameter, public :: IDA_NLS_SETUP_FAIL = -16_C_INT
+ integer(C_INT), parameter, public :: IDA_MEM_NULL = -20_C_INT
+ integer(C_INT), parameter, public :: IDA_MEM_FAIL = -21_C_INT
+ integer(C_INT), parameter, public :: IDA_ILL_INPUT = -22_C_INT
+ integer(C_INT), parameter, public :: IDA_NO_MALLOC = -23_C_INT
+ integer(C_INT), parameter, public :: IDA_BAD_EWT = -24_C_INT
+ integer(C_INT), parameter, public :: IDA_BAD_K = -25_C_INT
+ integer(C_INT), parameter, public :: IDA_BAD_T = -26_C_INT
+ integer(C_INT), parameter, public :: IDA_BAD_DKY = -27_C_INT
+ integer(C_INT), parameter, public :: IDA_VECTOROP_ERR = -28_C_INT
+ integer(C_INT), parameter, public :: IDA_UNRECOGNIZED_ERROR = -99_C_INT
  public :: FIDACreate
  public :: FIDAInit
  public :: FIDAReInit
@@ -88,6 +122,16 @@ module fida_mod
  public :: FIDABBDPrecReInit
  public :: FIDABBDPrecGetWorkSpace
  public :: FIDABBDPrecGetNumGfnEvals
+ integer(C_INT), parameter, public :: IDALS_SUCCESS = 0_C_INT
+ integer(C_INT), parameter, public :: IDALS_MEM_NULL = -1_C_INT
+ integer(C_INT), parameter, public :: IDALS_LMEM_NULL = -2_C_INT
+ integer(C_INT), parameter, public :: IDALS_ILL_INPUT = -3_C_INT
+ integer(C_INT), parameter, public :: IDALS_MEM_FAIL = -4_C_INT
+ integer(C_INT), parameter, public :: IDALS_PMEM_NULL = -5_C_INT
+ integer(C_INT), parameter, public :: IDALS_JACFUNC_UNRECVR = -6_C_INT
+ integer(C_INT), parameter, public :: IDALS_JACFUNC_RECVR = -7_C_INT
+ integer(C_INT), parameter, public :: IDALS_SUNMAT_FAIL = -8_C_INT
+ integer(C_INT), parameter, public :: IDALS_SUNLS_FAIL = -9_C_INT
  public :: FIDASetLinearSolver
  public :: FIDASetJacFn
  public :: FIDASetPreconditioner
@@ -106,54 +150,8 @@ module fida_mod
  public :: FIDAGetLastLinFlag
  public :: FIDAGetLinReturnFlagName
 
- ! PARAMETERS
- integer(C_INT), parameter, public :: IDA_NORMAL = 1_C_INT
- integer(C_INT), parameter, public :: IDA_ONE_STEP = 2_C_INT
- integer(C_INT), parameter, public :: IDA_YA_YDP_INIT = 1_C_INT
- integer(C_INT), parameter, public :: IDA_Y_INIT = 2_C_INT
- integer(C_INT), parameter, public :: IDA_SUCCESS = 0_C_INT
- integer(C_INT), parameter, public :: IDA_TSTOP_RETURN = 1_C_INT
- integer(C_INT), parameter, public :: IDA_ROOT_RETURN = 2_C_INT
- integer(C_INT), parameter, public :: IDA_WARNING = 99_C_INT
- integer(C_INT), parameter, public :: IDA_TOO_MUCH_WORK = -1_C_INT
- integer(C_INT), parameter, public :: IDA_TOO_MUCH_ACC = -2_C_INT
- integer(C_INT), parameter, public :: IDA_ERR_FAIL = -3_C_INT
- integer(C_INT), parameter, public :: IDA_CONV_FAIL = -4_C_INT
- integer(C_INT), parameter, public :: IDA_LINIT_FAIL = -5_C_INT
- integer(C_INT), parameter, public :: IDA_LSETUP_FAIL = -6_C_INT
- integer(C_INT), parameter, public :: IDA_LSOLVE_FAIL = -7_C_INT
- integer(C_INT), parameter, public :: IDA_RES_FAIL = -8_C_INT
- integer(C_INT), parameter, public :: IDA_REP_RES_ERR = -9_C_INT
- integer(C_INT), parameter, public :: IDA_RTFUNC_FAIL = -10_C_INT
- integer(C_INT), parameter, public :: IDA_CONSTR_FAIL = -11_C_INT
- integer(C_INT), parameter, public :: IDA_FIRST_RES_FAIL = -12_C_INT
- integer(C_INT), parameter, public :: IDA_LINESEARCH_FAIL = -13_C_INT
- integer(C_INT), parameter, public :: IDA_NO_RECOVERY = -14_C_INT
- integer(C_INT), parameter, public :: IDA_NLS_INIT_FAIL = -15_C_INT
- integer(C_INT), parameter, public :: IDA_NLS_SETUP_FAIL = -16_C_INT
- integer(C_INT), parameter, public :: IDA_MEM_NULL = -20_C_INT
- integer(C_INT), parameter, public :: IDA_MEM_FAIL = -21_C_INT
- integer(C_INT), parameter, public :: IDA_ILL_INPUT = -22_C_INT
- integer(C_INT), parameter, public :: IDA_NO_MALLOC = -23_C_INT
- integer(C_INT), parameter, public :: IDA_BAD_EWT = -24_C_INT
- integer(C_INT), parameter, public :: IDA_BAD_K = -25_C_INT
- integer(C_INT), parameter, public :: IDA_BAD_T = -26_C_INT
- integer(C_INT), parameter, public :: IDA_BAD_DKY = -27_C_INT
- integer(C_INT), parameter, public :: IDA_VECTOROP_ERR = -28_C_INT
- integer(C_INT), parameter, public :: IDA_UNRECOGNIZED_ERROR = -99_C_INT
- integer(C_INT), parameter, public :: IDALS_SUCCESS = 0_C_INT
- integer(C_INT), parameter, public :: IDALS_MEM_NULL = -1_C_INT
- integer(C_INT), parameter, public :: IDALS_LMEM_NULL = -2_C_INT
- integer(C_INT), parameter, public :: IDALS_ILL_INPUT = -3_C_INT
- integer(C_INT), parameter, public :: IDALS_MEM_FAIL = -4_C_INT
- integer(C_INT), parameter, public :: IDALS_PMEM_NULL = -5_C_INT
- integer(C_INT), parameter, public :: IDALS_JACFUNC_UNRECVR = -6_C_INT
- integer(C_INT), parameter, public :: IDALS_JACFUNC_RECVR = -7_C_INT
- integer(C_INT), parameter, public :: IDALS_SUNMAT_FAIL = -8_C_INT
- integer(C_INT), parameter, public :: IDALS_SUNLS_FAIL = -9_C_INT
-
- ! WRAPPER DECLARATIONS
- interface
+! WRAPPER DECLARATIONS
+interface
 function FIDACreate() &
 bind(C, name="IDACreate") &
 result(fresult)
@@ -908,7 +906,7 @@ integer(C_LONG), value :: flag
 type(C_PTR) :: fresult
 end function
 
- end interface
+end interface
 
 
 end module

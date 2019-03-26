@@ -25,7 +25,13 @@ module farkode_erkstep_mod
  implicit none
  private
 
- ! PUBLIC METHODS AND TYPES
+ ! DECLARATION CONSTRUCTS
+ integer(C_INT), parameter, public :: DEFAULT_ERK_2 = 0_C_INT
+ integer(C_INT), parameter, public :: DEFAULT_ERK_3 = 1_C_INT
+ integer(C_INT), parameter, public :: DEFAULT_ERK_4 = 3_C_INT
+ integer(C_INT), parameter, public :: DEFAULT_ERK_5 = 6_C_INT
+ integer(C_INT), parameter, public :: DEFAULT_ERK_6 = 10_C_INT
+ integer(C_INT), parameter, public :: DEFAULT_ERK_8 = 11_C_INT
  public :: FERKStepCreate
  public :: FERKStepResize
  public :: FERKStepReInit
@@ -91,16 +97,8 @@ module farkode_erkstep_mod
  public :: FERKStepFree
  public :: FERKStepPrintMem
 
- ! PARAMETERS
- integer(C_INT), parameter, public :: DEFAULT_ERK_2 = 0_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ERK_3 = 1_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ERK_4 = 3_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ERK_5 = 6_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ERK_6 = 10_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ERK_8 = 11_C_INT
-
- ! WRAPPER DECLARATIONS
- interface
+! WRAPPER DECLARATIONS
+interface
 function FERKStepCreate(f, t0, y0) &
 bind(C, name="ERKStepCreate") &
 result(fresult)
@@ -700,7 +698,7 @@ type(C_PTR), value :: arkode_mem
 type(C_PTR), value :: outfile
 end subroutine
 
- end interface
+end interface
 
 
 end module

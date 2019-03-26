@@ -25,7 +25,7 @@ module fnvector_pthreads_mod
  implicit none
  private
 
- ! PUBLIC METHODS AND TYPES
+ ! DECLARATION CONSTRUCTS
 
   public :: FN_VGetData_Pthreads
   
@@ -86,8 +86,8 @@ module fnvector_pthreads_mod
  public :: FN_VEnableScaleAddMultiVectorArray_Pthreads
  public :: FN_VEnableLinearCombinationVectorArray_Pthreads
 
- ! WRAPPER DECLARATIONS
- interface
+! WRAPPER DECLARATIONS
+interface
 function FN_VNew_Pthreads(vec_length, n_threads) &
 bind(C, name="N_VNew_Pthreads") &
 result(fresult)
@@ -590,11 +590,11 @@ logical(C_BOOL), value :: tf
 integer(C_INT) :: fresult
 end function
 
- end interface
+end interface
 
 
 contains
- ! FORTRAN PROXY CODE
+ ! MODULE SUBPROGRAMS
 
   subroutine FN_VGetData_Pthreads(vec, vdata)
 

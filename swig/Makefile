@@ -31,56 +31,56 @@ all: generic arkode cvode ida kinsol nvector sunmatrix sunlinsol sunnonlinsol
 
 arkode: ${ARKODE}
 	@for i in ${ARKODE} ; do \
-		echo "swig -fortran -outdir ../src/arkode/F90 -I../include $${i}" ; \
-		swig -fortran -outdir ../src/arkode/F90 -I../include $${i} ; \
+		echo "swig -fortran -outdir ../src/arkode/fmod -I../include $${i}" ; \
+		swig -fortran -outdir ../src/arkode/fmod -I../include $${i} ; \
 	done
 
 cvode: ${CVODE}
 	@for i in ${CVODE} ; do \
-		echo "swig -fortran -outdir ../src/cvode/F90 -I../include $${i}" ; \
-		swig -fortran -outdir ../src/cvode/F90 -I../include $${i} ; \
+		echo "swig -fortran -outdir ../src/cvode/fmod -I../include $${i}" ; \
+		swig -fortran -outdir ../src/cvode/fmod -I../include $${i} ; \
 	done
 
 ida: ${IDA}
 	@for i in ${IDA} ; do \
-		echo "swig -fortran -outdir ../src/ida/F90 -I../include $${i}" ; \
-		swig -fortran -outdir ../src/ida/F90 -I../include $${i} ; \
+		echo "swig -fortran -outdir ../src/ida/fmod -I../include $${i}" ; \
+		swig -fortran -outdir ../src/ida/fmod -I../include $${i} ; \
 	done
 
 kinsol: ${KINSOL}
 	@for i in ${KINSOL} ; do \
-		echo "swig -fortran -outdir ../src/kinsol/F90 -I../include $${i}" ; \
-		swig -fortran -outdir ../src/kinsol/F90 -I../include $${i} ; \
+		echo "swig -fortran -outdir ../src/kinsol/fmod -I../include $${i}" ; \
+		swig -fortran -outdir ../src/kinsol/fmod -I../include $${i} ; \
 	done
 
 generic: ${GENERIC}
 	@for i in ${GENERIC} ; do \
-		echo "swig -fortran -outdir ../src/sundials/F90 -I../include $${i}" ; \
-		swig -fortran -outdir ../src/sundials/F90 -I../include $${i} ; \
+		echo "swig -fortran -outdir ../src/sundials/fmod -I../include $${i}" ; \
+		swig -fortran -outdir ../src/sundials/fmod -I../include $${i} ; \
 	done
 
 nvector: $(NVECTOR:%:nvector/fnvector_%_mod.i)
 	@for i in ${NVECTOR} ; do \
-		echo "swig -fortran -outdir ../src/nvector/$${i}/F90 -I../include nvector/fnvector_$${i}_mod.i" ; \
-		swig -fortran -outdir ../src/nvector/$${i}/F90 -I../include nvector/fnvector_$${i}_mod.i ; \
+		echo "swig -fortran -outdir ../src/nvector/$${i}/fmod -I../include nvector/fnvector_$${i}_mod.i" ; \
+		swig -fortran -outdir ../src/nvector/$${i}/fmod -I../include nvector/fnvector_$${i}_mod.i ; \
 	done
 
 sunmatrix: $(SUNMATRIX:%:sunmatrix/fsunmatrix_%_mod.i)
 	@for i in ${SUNMATRIX} ; do \
-		echo "swig -fortran -outdir ../src/sunmatrix/$${i}/F90 -I../include sunmatrix/fsunmatrix_$${i}_mod.i" ; \
-		swig -fortran -outdir ../src/sunmatrix/$${i}/F90 -I../include sunmatrix/fsunmatrix_$${i}_mod.i ; \
+		echo "swig -fortran -outdir ../src/sunmatrix/$${i}/fmod -I../include sunmatrix/fsunmatrix_$${i}_mod.i" ; \
+		swig -fortran -outdir ../src/sunmatrix/$${i}/fmod -I../include sunmatrix/fsunmatrix_$${i}_mod.i ; \
 	done
 
 sunlinsol: $(SUNLINSOL:%:sunlinsol/fsunlinsol_%_mod.i)
 	@for i in ${SUNLINSOL} ; do \
-		echo "swig -fortran -outdir ../src/sunlinsol/$${i}/F90 -I../include sunlinsol/fsunlinsol_$${i}_mod.i" ; \
-		swig -fortran -outdir ../src/sunlinsol/$${i}/F90 -I../include sunlinsol/fsunlinsol_$${i}_mod.i ; \
+		echo "swig -fortran -outdir ../src/sunlinsol/$${i}/fmod -I../include sunlinsol/fsunlinsol_$${i}_mod.i" ; \
+		swig -fortran -outdir ../src/sunlinsol/$${i}/fmod -I../include sunlinsol/fsunlinsol_$${i}_mod.i ; \
 	done
 
 sunnonlinsol: $(SUNNONLINSOL:%:sunnonlinsol/fsunnonlinsol_%_mod.i)
 	@for i in ${SUNNONLINSOL} ; do \
-		echo "swig -fortran -outdir ../src/sunnonlinsol/$${i}/F90 -I../include sunnonlinsol/fsunnonlinsol_$${i}_mod.i" ; \
-		swig -fortran -outdir ../src/sunnonlinsol/$${i}/F90 -I../include sunnonlinsol/fsunnonlinsol_$${i}_mod.i ; \
+		echo "swig -fortran -outdir ../src/sunnonlinsol/$${i}/fmod -I../include sunnonlinsol/fsunnonlinsol_$${i}_mod.i" ; \
+		swig -fortran -outdir ../src/sunnonlinsol/$${i}/fmod -I../include sunnonlinsol/fsunnonlinsol_$${i}_mod.i ; \
 	done
 
 clean:

@@ -9,8 +9,14 @@ module fsunnonlinsol_mod
  implicit none
  private
 
- ! PUBLIC METHODS AND TYPES
- public :: SUNNonlinearSolver_Type, SUNNONLINEARSOLVER_ROOTFIND, SUNNONLINEARSOLVER_FIXEDPOINT
+ ! DECLARATION CONSTRUCTS
+ ! typedef enum SUNNonlinearSolver_Type
+ enum, bind(c)
+  enumerator :: SUNNONLINEARSOLVER_ROOTFIND
+  enumerator :: SUNNONLINEARSOLVER_FIXEDPOINT
+ end enum
+ integer, parameter, public :: SUNNonlinearSolver_Type = kind(SUNNONLINEARSOLVER_ROOTFIND)
+ public :: SUNNONLINEARSOLVER_ROOTFIND, SUNNONLINEARSOLVER_FIXEDPOINT
  public :: FSUNNonlinSolGetType
  public :: FSUNNonlinSolInitialize
  public :: FSUNNonlinSolSetup
@@ -24,13 +30,6 @@ module fsunnonlinsol_mod
  public :: FSUNNonlinSolGetNumIters
  public :: FSUNNonlinSolGetCurIter
  public :: FSUNNonlinSolGetNumConvFails
-
- ! PARAMETERS
- enum, bind(c)
-  enumerator :: SUNNonlinearSolver_Type = -1
-  enumerator :: SUNNONLINEARSOLVER_ROOTFIND = 0
-  enumerator :: SUNNONLINEARSOLVER_FIXEDPOINT = SUNNONLINEARSOLVER_ROOTFIND + 1
- end enum
  integer(C_INT), parameter, public :: SUN_NLS_SUCCESS = 0_C_INT
  integer(C_INT), parameter, public :: SUN_NLS_CONTINUE = +1_C_INT
  integer(C_INT), parameter, public :: SUN_NLS_CONV_RECVR = +2_C_INT
@@ -39,8 +38,8 @@ module fsunnonlinsol_mod
  integer(C_INT), parameter, public :: SUN_NLS_ILL_INPUT = -3_C_INT
  integer(C_INT), parameter, public :: SUN_NLS_VECTOROP_ERR = -4_C_INT
 
- ! WRAPPER DECLARATIONS
- interface
+! WRAPPER DECLARATIONS
+interface
 function FSUNNonlinSolGetType(nls) &
 bind(C, name="SUNNonlinSolGetType") &
 result(fresult)
@@ -161,7 +160,7 @@ integer(C_LONG) :: nconvfails
 integer(C_INT) :: fresult
 end function
 
- end interface
+end interface
 
 
 end module

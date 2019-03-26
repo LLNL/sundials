@@ -9,8 +9,16 @@ module fsunmatrix_mod
  implicit none
  private
 
- ! PUBLIC METHODS AND TYPES
- public :: SUNMatrix_ID, SUNMATRIX_DENSE, SUNMATRIX_BAND, SUNMATRIX_SPARSE, SUNMATRIX_CUSTOM
+ ! DECLARATION CONSTRUCTS
+ ! typedef enum SUNMatrix_ID
+ enum, bind(c)
+  enumerator :: SUNMATRIX_DENSE
+  enumerator :: SUNMATRIX_BAND
+  enumerator :: SUNMATRIX_SPARSE
+  enumerator :: SUNMATRIX_CUSTOM
+ end enum
+ integer, parameter, public :: SUNMatrix_ID = kind(SUNMATRIX_DENSE)
+ public :: SUNMATRIX_DENSE, SUNMATRIX_BAND, SUNMATRIX_SPARSE, SUNMATRIX_CUSTOM
  public :: FSUNMatGetID
  public :: FSUNMatClone
  public :: FSUNMatDestroy
@@ -21,17 +29,8 @@ module fsunmatrix_mod
  public :: FSUNMatMatvec
  public :: FSUNMatSpace
 
- ! PARAMETERS
- enum, bind(c)
-  enumerator :: SUNMatrix_ID = -1
-  enumerator :: SUNMATRIX_DENSE = 0
-  enumerator :: SUNMATRIX_BAND = SUNMATRIX_DENSE + 1
-  enumerator :: SUNMATRIX_SPARSE = SUNMATRIX_BAND + 1
-  enumerator :: SUNMATRIX_CUSTOM = SUNMATRIX_SPARSE + 1
- end enum
-
- ! WRAPPER DECLARATIONS
- interface
+! WRAPPER DECLARATIONS
+interface
 function FSUNMatGetID(a) &
 bind(C, name="SUNMatGetID") &
 result(fresult)
@@ -110,7 +109,7 @@ integer(C_LONG) :: leniw
 integer(C_INT) :: fresult
 end function
 
- end interface
+end interface
 
 
 end module

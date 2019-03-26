@@ -25,7 +25,23 @@ module farkode_arkstep_mod
  implicit none
  private
 
- ! PUBLIC METHODS AND TYPES
+ ! DECLARATION CONSTRUCTS
+ integer(C_INT), parameter, public :: DEFAULT_ERK_2 = 0_C_INT
+ integer(C_INT), parameter, public :: DEFAULT_ERK_3 = 1_C_INT
+ integer(C_INT), parameter, public :: DEFAULT_ERK_4 = 3_C_INT
+ integer(C_INT), parameter, public :: DEFAULT_ERK_5 = 6_C_INT
+ integer(C_INT), parameter, public :: DEFAULT_ERK_6 = 10_C_INT
+ integer(C_INT), parameter, public :: DEFAULT_ERK_8 = 11_C_INT
+ integer(C_INT), parameter, public :: DEFAULT_DIRK_2 = 100_C_INT
+ integer(C_INT), parameter, public :: DEFAULT_DIRK_3 = 104_C_INT
+ integer(C_INT), parameter, public :: DEFAULT_DIRK_4 = 107_C_INT
+ integer(C_INT), parameter, public :: DEFAULT_DIRK_5 = 111_C_INT
+ integer(C_INT), parameter, public :: DEFAULT_ARK_ETABLE_3 = 2_C_INT
+ integer(C_INT), parameter, public :: DEFAULT_ARK_ETABLE_4 = 4_C_INT
+ integer(C_INT), parameter, public :: DEFAULT_ARK_ETABLE_5 = 9_C_INT
+ integer(C_INT), parameter, public :: DEFAULT_ARK_ITABLE_3 = 104_C_INT
+ integer(C_INT), parameter, public :: DEFAULT_ARK_ITABLE_4 = 109_C_INT
+ integer(C_INT), parameter, public :: DEFAULT_ARK_ITABLE_5 = 111_C_INT
  public :: FARKStepCreate
  public :: FARKStepResize
  public :: FARKStepReInit
@@ -147,26 +163,8 @@ module farkode_arkstep_mod
  public :: FARKStepFree
  public :: FARKStepPrintMem
 
- ! PARAMETERS
- integer(C_INT), parameter, public :: DEFAULT_ERK_2 = 0_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ERK_3 = 1_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ERK_4 = 3_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ERK_5 = 6_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ERK_6 = 10_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ERK_8 = 11_C_INT
- integer(C_INT), parameter, public :: DEFAULT_DIRK_2 = 100_C_INT
- integer(C_INT), parameter, public :: DEFAULT_DIRK_3 = 104_C_INT
- integer(C_INT), parameter, public :: DEFAULT_DIRK_4 = 107_C_INT
- integer(C_INT), parameter, public :: DEFAULT_DIRK_5 = 111_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ARK_ETABLE_3 = 2_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ARK_ETABLE_4 = 4_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ARK_ETABLE_5 = 9_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ARK_ITABLE_3 = 104_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ARK_ITABLE_4 = 109_C_INT
- integer(C_INT), parameter, public :: DEFAULT_ARK_ITABLE_5 = 111_C_INT
-
- ! WRAPPER DECLARATIONS
- interface
+! WRAPPER DECLARATIONS
+interface
 function FARKStepCreate(fe, fi, t0, y0) &
 bind(C, name="ARKStepCreate") &
 result(fresult)
@@ -1286,7 +1284,7 @@ type(C_PTR), value :: arkode_mem
 type(C_PTR), value :: outfile
 end subroutine
 
- end interface
+end interface
 
 
 end module
