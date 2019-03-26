@@ -145,6 +145,8 @@ $tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator_fp.c
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator_fp.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator_mri.c
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator_mri.out
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator_1D_mri.c
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator_1D_mri.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D.c
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D.out
 $tar $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D_adapt.c

@@ -41,7 +41,7 @@ The user must in all cases supply the following Fortran routines:
 
 .. f:subroutine:: FARKIFUN(T, Y, YDOT, IPAR, RPAR, IER)
 
-   Sets the *YDOT* array to :math:`f_I(t,y)`, the implicit portion of
+   Sets the *YDOT* array to :math:`f^I(t,y)`, the implicit portion of
    the right-hand side of the ODE system, as function of the
    independent variable *T* :math:`=t` and the array of dependent state
    variables *Y* :math:`=y`.
@@ -60,7 +60,7 @@ The user must in all cases supply the following Fortran routines:
 
 .. f:subroutine:: FARKEFUN(T, Y, YDOT, IPAR, RPAR, IER)
 
-   Sets the *YDOT* array to :math:`f_E(t,y)`, the explicit portion of
+   Sets the *YDOT* array to :math:`f^E(t,y)`, the explicit portion of
    the right-hand side of the ODE system, as function of the
    independent variable *T* :math:`=t` and the array of dependent state
    variables *Y* :math:`=y`.
@@ -112,7 +112,7 @@ SUNMATRIX module initialization
 
 In the case of using either an implicit or ImEx method, the solution
 of each Runge-Kutta stage may involve the solution of linear systems
-related to the Jacobian :math:`J = \frac{\partial f_I}{\partial y}` of
+related to the Jacobian :math:`J = \frac{\partial f^I}{\partial y}` of
 the implicit portion of the ODE system.  If using a Newton iteration
 with direct SUNLINSOL linear solver module and one of the SUNMATRIX
 modules supplied with SUNDIALS, the user must make a call of the form
@@ -724,7 +724,7 @@ Matrix-based linear solvers
 As an option when using ARKSTEP with either the SUNLINSOL_DENSE or
 SUNLINSOL_LAPACKDENSE linear solver modules, the user may supply a
 routine that computes a dense approximation of the system Jacobian
-:math:`J = \frac{\partial f_I}{\partial y}`.  If supplied, it must
+:math:`J = \frac{\partial f^I}{\partial y}`.  If supplied, it must
 have the following form:
 
 .. f:subroutine:: FARKDJAC(NEQ, T, Y, FY, DJAC, H, IPAR, RPAR, WK1, WK2, WK3, IER)
@@ -782,7 +782,7 @@ call to :f:func:`FARKLSINIT()`, the user must call the routine
 As an option when using ARKStep with either the SUNLINSOL_BAND or
 SUNLINSOL_LAPACKBAND linear solver modules, the user may supply a
 routine that computes a banded approximation of the linear system
-Jacobian :math:`J = \frac{\partial f_I}{\partial y}`. If supplied, it
+Jacobian :math:`J = \frac{\partial f^I}{\partial y}`. If supplied, it
 must have the following form:
 
 .. f:subroutine:: FARKBJAC(NEQ, MU, ML, MDIM, T, Y, FY, BJAC, H, IPAR, RPAR, WK1, WK2, WK3, IER)
@@ -849,7 +849,7 @@ call to :f:func:`FARKLSINIT()`, the user must call the routine
 When using ARKStep with either the SUNLINSOL_KLU or
 SUNLINSOL_SUPERLUMT sparse direct linear solver modules, the user must 
 supply a routine that computes a sparse approximation of the system
-Jacobian :math:`J = \frac{\partial f_I}{\partial y}`.  Both the KLU
+Jacobian :math:`J = \frac{\partial f^I}{\partial y}`.  Both the KLU
 and SuperLU_MT solvers allow specification of :math:`J` in either
 compressed-sparse-column (CSC) format or compressed-sparse-row (CSR)
 format.  The sparse Jacobian approximation function must have the
@@ -945,7 +945,7 @@ the function :f:func:`FARKLSSETEPSLIN()`:
 
 Optional user-supplied routines :f:func:`FARKJTSETUP()` and
 :f:func:`FARKJTIMES()` may be provided to compute the product
-of the system Jacobian :math:`J = \frac{\partial f_I}{\partial y}` and
+of the system Jacobian :math:`J = \frac{\partial f^I}{\partial y}` and
 a given vector :math:`v`.  If these are supplied, then following the
 call to :f:func:`FARKLSINIT()`, the user must call the
 :f:func:`FARKLSSETJAC()` routine with *FLAG* :math:`\ne 0`:
@@ -1002,7 +1002,7 @@ given below.
 
 As an option when using iterative linear solvers, the user
 may supply a routine that computes the product of the system Jacobian
-:math:`J = \frac{\partial f_I}{\partial y}` and a given vector
+:math:`J = \frac{\partial f^I}{\partial y}` and a given vector
 :math:`v`.  If supplied, it must have the following form:
 
 
@@ -1098,7 +1098,7 @@ supplied, for solution of the preconditioner linear system:
    right preconditioners if both are nontrivial) should be an
    approximation to the matrix  :math:`M - \gamma J`, where
    :math:`M` is the system mass matrix, :math:`\gamma` is the input
-   GAMMA, and :math:`J = \frac{\partial f_I}{\partial y}`.
+   GAMMA, and :math:`J = \frac{\partial f^I}{\partial y}`.
 
 
 If the user's preconditioner requires that any Jacobian related data be evaluated
@@ -1133,7 +1133,7 @@ preprocessing of the preconditioner:
    the product of the left and right preconditioners if using both)
    should be an approximation to the matrix  :math:`M - \gamma J`,
    where :math:`M` is the system mass matrix, :math:`\gamma` is the
-   input *GAMMA*, and :math:`J = \frac{\partial f_I}{\partial y}`.
+   input *GAMMA*, and :math:`J = \frac{\partial f^I}{\partial y}`.
 
 
 Notes:

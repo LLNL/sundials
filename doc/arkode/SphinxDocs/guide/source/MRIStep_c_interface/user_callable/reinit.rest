@@ -39,10 +39,10 @@ comments apply if there is to be a jump in the dependent variable
 vector.
 
 
-.. c:function:: int MRIStepReInit(void* arkode_mem, ARKRhsFn fs, ARKRhsFn ff, realtype t0, N_Vector y0)
+.. c:function:: int MRIStepReInit(void* arkode_mem, ARKRhsFn fs, realtype t0, N_Vector y0)
 
    Provides required problem specifications and re-initializes the
-   MRIStep time-stepper module.
+   MRIStep outer (slow) stepper.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the MRIStep memory block.
@@ -61,5 +61,9 @@ vector.
       * *ARK_MEM_FAIL*  if a memory allocation failed
       * *ARK_ILL_INPUT* if an argument has an illegal value.
 
-   **Notes:** If an error occurred, :c:func:`MRIStepReInit()` also
+   **Notes:** If the inner (fast) stepper also needs to be reinitialized, its
+   reinitialization function should be called before calling
+   :c:func:`MRIStepReInit()` to reinitialize the outer stepper.
+
+   If an error occurred, :c:func:`MRIStepReInit()` also
    sends an error message to the error handler function.

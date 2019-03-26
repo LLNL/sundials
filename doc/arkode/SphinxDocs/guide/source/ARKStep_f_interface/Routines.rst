@@ -232,8 +232,8 @@ contrast to the case of direct use of ARKStep, and of most Fortran ODE
 solvers, the names of all user-supplied routines here are fixed, in
 order to maximize portability for the resulting mixed-language program.
 As a result, whether using a purely implicit, purely explicit, or
-mixed implicit-explicit solver, routines for both :math:`f_E(t,y)` and
-:math:`f_I(t,y)` must be provided by the user (though either of which
+mixed implicit-explicit solver, routines for both :math:`f^E(t,y)` and
+:math:`f^I(t,y)` must be provided by the user (though either of which
 may do nothing):
 
 .. cssclass:: table-bordered

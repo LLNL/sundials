@@ -8,8 +8,8 @@ Optional inputs for IVP method selection
 =================================  =================================  ==============
 Optional input                     Function name                      Default
 =================================  =================================  ==============
-Set MRI RK tables                  :c:func:`MRIStepSetMRITables()`    internal
-Specify MRI RK table numbers       :c:func:`MRIStepSetMRITableNum()`  internal
+Set MRI outer RK table             :c:func:`MRIStepSetTable()`        internal
+Specify MRI outer RK table number  :c:func:`MRIStepSetTableNum()`     internal
 =================================  =================================  ==============
 
 .. Set integrator method order        :c:func:`MRIStepSetOrder()`        3
@@ -38,15 +38,14 @@ Specify MRI RK table numbers       :c:func:`MRIStepSetMRITableNum()`  internal
 
 
 
-.. c:function:: int MRIStepSetMRITables(void* arkode_mem, int q, ARKodeButcherTable Bs, ARKodeButcherTable Bf)
+.. c:function:: int MRIStepSetTable(void* arkode_mem, int q, ARKodeButcherTable B)
 
-   Specifies a customized Butcher table pair for the MRI method.
+   Specifies a customized Butcher table for the MRI outer (slow) method.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the MRIStep memory block.
       * *q* -- global order of accuracy for the MRI method.
-      * *Bs* -- the Butcher table for the slow RK method.
-      * *Bf* -- the Butcher table for the fast RK method.
+      * *B* -- the Butcher table for the outer (slow) RK method.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -58,35 +57,34 @@ Specify MRI RK table numbers       :c:func:`MRIStepSetMRITableNum()`  internal
    For a description of the :c:type:`ARKodeButcherTable` type and related
    functions for creating Butcher tables see :ref:`ARKodeButcherTable`.
 
-   At this time the slow and fast Butcher tables must define an explicit
-   Runge-Kutta method. Additionally, the slow table must have stage times that
-   are unique and ordered (i.e., :math:`c^s_{i} > c^s_{i-1}`) and the final
-   stage time must be less than 1. Error checking is performed to ensure that
-   *Bs* and *Bf* define ERK methods (i.e., the *A* component of *Bs* and *Bf*
-   are strictly lower-triangular) and the stage times of *Bs* satisfy the
-   aforementioned restrictions.
+   At this time the outer (slow) Butcher table must define an explicit Runge-Kutta
+   method. Additionally, the outer table must have stage times that are unique
+   and ordered (i.e., :math:`c^s_{i} > c^s_{i-1}`) and the final stage time must
+   be less than 1. Error checking is performed to ensure that *B* defines an ERK
+   method (i.e., the *A* component of *B* is strictly lower-triangular) and the
+   stage times of *B* satisfy the aforementioned restrictions.
 
-   The input value of *q* is used rather than the orders encoded in the
-   individual tables as the overall order of the MRI method may differ from
-   the orders of the individual tables. No error checking is performed to ensure
-   that *p* correctly describe the coefficients that were input.
-
+   The input value of *q* is used rather than the order encoded in the
+   Butcher table as the overall order of the MRI method may differ from
+   the order of the outer table. No error checking is performed to ensure
+   that *p* correctly describes the coefficients that were input.
 
 
-.. c:function:: int MRIStepSetMRITableNum(void* arkode_mem, int istable, int iftable)
 
-   Indicates to use specific built-in Butcher tables for the MRI method.
+.. c:function:: int MRIStepSetMRITableNum(void* arkode_mem, int itable)
+
+   Indicates to use specific built-in Butcher table for the MRI outer (slow) method.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *istable* -- index of the slow Butcher table.
-      * *iftable* -- index of the fast Butcher table.
+      * *itable* -- index of the outer (slow) Butcher table.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the MRIStep memory is ``NULL``
       * *ARK_ILL_INPUT* if an argument has an illegal value
 
-   **Notes:** *istable* and *iftable* should match existing explicit methods
+   **Notes:** *itable* should match existing explicit methods
    from the section :ref:`Butcher.explicit`. Error-checking is performed
-   to ensure that these tables exists, and are not implicit.
+   to ensure that this tables exists, is not implicit, and satisfies the
+   restrictions listed above for :c:func:`MRIStepSetTable()`.

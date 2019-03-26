@@ -69,8 +69,8 @@ Table: Optional FARKODE integer outputs
 4               NST_STB          :c:func:`ARKStepGetNumExpSteps()`
 5               NST_ACC          :c:func:`ARKStepGetNumAccSteps()`
 6               NST_ATT          :c:func:`ARKStepGetNumStepAttempts()`
-7               NFE              :c:func:`ARKStepGetNumRhsEvals()` (num :math:`f_E` calls)
-8               NFI              :c:func:`ARKStepGetNumRhsEvals()` (num :math:`f_I` calls)
+7               NFE              :c:func:`ARKStepGetNumRhsEvals()` (num :math:`f^E` calls)
+8               NFI              :c:func:`ARKStepGetNumRhsEvals()` (num :math:`f^I` calls)
 9               NSETUPS          :c:func:`ARKStepGetNumLinSolvSetups()`
 10              NETF             :c:func:`ARKStepGetNumErrTestFails()`
 11              NNI              :c:func:`ARKStepGetNumNonlinSolvIters()`

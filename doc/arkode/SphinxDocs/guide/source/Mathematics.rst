@@ -101,7 +101,7 @@ integration methods, i.e.
    y_{n} = \varphi(y_{n-1}, h_n)
 
 where :math:`y_{n-1}` is an approximation to the solution :math:`y(t_{n-1})`,
-:math:`y_{n}` is an approximation to the solution :math:`y(t_n)`, 
+:math:`y_{n}` is an approximation to the solution :math:`y(t_n)`,
 :math:`t_n = t_{n-1} + h_n`, and the approximation method is
 represented by the function :math:`\varphi`.
 
@@ -213,20 +213,20 @@ and storage costs.  However, these may be added in future releases.
 ARKStep -- Additive Runge-Kutta methods
 =========================================
 
-The ARKStep time-stepping module in ARKode is designed for IVP of the
+The ARKStep time-stepping module in ARKode is designed for IVPs of the
 form
 
 .. math::
-   M \dot{y} = f_E(t,y) + f_I(t,y), \qquad y(t_0) = y_0,
+   M \dot{y} = f^E(t,y) + f^I(t,y), \qquad y(t_0) = y_0,
    :label: IMEX_IVP
 
 i.e. the right-hand side function is additively split into two
 components:
 
-* :math:`f_E(t,y)` contains the "nonstiff" components of the
+* :math:`f^E(t,y)` contains the "nonstiff" components of the
   system.  This will be integrated using an explicit method.
 
-* :math:`f_I(t,y)` contains the "stiff" components of the
+* :math:`f^I(t,y)` contains the "stiff" components of the
   system.  This will be integrated using an implicit method.
 
 In solving the IVP :eq:`IMEX_IVP`, ARKStep utilizes variable-step,
@@ -234,14 +234,14 @@ embedded, :index:`additive Runge-Kutta methods` (ARK), corresponding
 to algorithms of the form
 
 .. math::
-   M z_i &= M y_{n-1} + h_n \sum_{j=1}^{i-1} A^E_{i,j} f_E(t^E_{n,j}, z_j)
-                 + h_n \sum_{j=1}^{i} A^I_{i,j} f_I(t^I_{n,j}, z_j),
+   M z_i &= M y_{n-1} + h_n \sum_{j=1}^{i-1} A^E_{i,j} f^E(t^E_{n,j}, z_j)
+                 + h_n \sum_{j=1}^{i} A^I_{i,j} f^I(t^I_{n,j}, z_j),
    \quad i=1,\ldots,s, \\
-   M y_n &= M y_{n-1} + h_n \sum_{i=1}^{s} \left(b^E_i f_E(t^E_{n,i}, z_i)
-                 + b^I_i f_I(t^I_{n,i}, z_i)\right), \\
+   M y_n &= M y_{n-1} + h_n \sum_{i=1}^{s} \left(b^E_i f^E(t^E_{n,i}, z_i)
+                 + b^I_i f^I(t^I_{n,i}, z_i)\right), \\
    M \tilde{y}_n &= M y_{n-1} + h_n \sum_{i=1}^{s} \left(
-                  \tilde{b}^E_i f_E(t^E_{n,i}, z_i) +
-		  \tilde{b}^I_i f_I(t^I_{n,i}, z_i)\right).
+                  \tilde{b}^E_i f^E(t^E_{n,i}, z_i) +
+		  \tilde{b}^I_i f^I(t^I_{n,i}, z_i)\right).
    :label: ARK
 
 Here :math:`\tilde{y}_n` are embedded solutions that approximate
@@ -271,18 +271,18 @@ ARKode's available Butcher tables encoding the coefficients
 described in the :ref:`Butcher`.
 
 For mixed stiff/nonstiff problems, a user should provide both of the
-functions :math:`f_E` and :math:`f_I` that define the IVP system.  For
+functions :math:`f^E` and :math:`f^I` that define the IVP system.  For
 such problems, ARKStep currently implements the ARK methods proposed in
 [KC2003]_, allowing for methods having order of accuracy :math:`q =
 \{3,4,5\}`; the tables for these methods are given in the section
 :ref:`Butcher.additive`.  Additionally, user-defined ARK tables are
 supported.
 
-For nonstiff problems, a user may specify that :math:`f_I = 0`,
+For nonstiff problems, a user may specify that :math:`f^I = 0`,
 i.e. the equation :eq:`IMEX_IVP` reduces to the non-split IVP
 
 .. math::
-   M\, \dot{y} = f_E(t,y), \qquad y(t_0) = y_0.
+   M\, \dot{y} = f^E(t,y), \qquad y(t_0) = y_0.
    :label: IVP_explicit
 
 In this scenario, the coefficients :math:`A^I=0`, :math:`c^I=0`,
@@ -297,16 +297,16 @@ of orders :math:`p = \{1,2,3,4,5,7\}`.  These default to the
 :ref:`Butcher.Fehlberg-8-7` methods, respectively.  As with ARK
 methods, user-defined ERK tables are supported.
 
-Finally, for stiff problems the user may specify that :math:`f_E = 0`,
+Finally, for stiff problems the user may specify that :math:`f^E = 0`,
 so the equation :eq:`IMEX_IVP` reduces to the non-split IVP
 
 ..
    .. math::
-      M(t)\, \dot{y} = f_I(t,y), \qquad y(t_0) = y_0.
+      M(t)\, \dot{y} = f^I(t,y), \qquad y(t_0) = y_0.
       :label: IVP_implicit
 
 .. math::
-   M\, \dot{y} = f_I(t,y), \qquad y(t_0) = y_0.
+   M\, \dot{y} = f^I(t,y), \qquad y(t_0) = y_0.
    :label: IVP_implicit
 
 Similarly to ERK methods, in this scenario the coefficients
@@ -362,56 +362,62 @@ process than when considering the more general form.
 MRIStep -- Multirate infinitesimal step methods
 ================================================
 
-The MRIStep time-stepping module in ARKode is designed for IVP
+The MRIStep time-stepping module in ARKode is designed for IVPs
 of the form
 
 .. math::
-   \dot{y} = f_s(t,y) + f_f(t,y), \qquad y(t_0) = y_0.
+   \dot{y} = f^S(t,y) + f^F(t,y), \qquad y(t_0) = y_0.
    :label: IVP_two_rate
 
 i.e. the right-hand side function is additively split into two
 components:
 
-* :math:`f_s(t,y)` contains the "slow" components of the
-  system.  This will be integrated using a large time step :math:`h_s`.
+* :math:`f^S(t,y)` contains the "slow" components of the
+  system.  This will be integrated using a large time step :math:`h^S`.
 
-* :math:`f_f(t,y)` contains the "fast" components of the
-  system.  This will be integrated using a small time step :math:`h_f`.
+* :math:`f^F(t,y)` contains the "fast" components of the
+  system.  This will be integrated using a small time step :math:`h^F`.
 
-For such problems, MRIStep provides fixed-step multirate infinitesimal step
-methods (see [SKAW2009]_, [SKAW2012a]_, and [SKAW2012b]_) that combine two
-Runge-Kutta methods. The slow (outer) method is an :math:`s` stage explicit
+For such problems, MRIStep provides fixed-step slow step multirate infinitesimal
+step methods (see [SKAW2009]_, [SKAW2012a]_, and [SKAW2012b]_) that combine two
+Runge-Kutta methods. The outer (slow) method is an :math:`s` stage explicit
 Runge-Kutta method where the stage values and the new solution are computed by
-solving an auxiliary ODE with a fast (inner) Runge-Kutta method. This
-corresponds to the algorithm
+solving an auxiliary ODE with an inner (fast) Runge-Kutta method. This
+corresponds to the following algorithm for a single step:
 
-.. math::
-   w_1 &= y_n, \\
-   r_i &= \sum_{j=1}^{i-1} (A^s_{i,j} - A^s_{i-1,j}) f_s(w_j), \\
-   v_i(\tau_{i-1}) &= w_{i-1}, \\
-   \frac{dv_i}{d\tau} &= f_f(v_i) + \frac{1}{c^s_i - c^s_{i-1}} r_i, \quad \tau \in
-   [\tau_{i-1},\tau_i], \quad i = 2,\ldots,s+1\\
-   w_i &= v_i(\tau_i), \\
-   y_{n+1} &= w_{s+1},
-   :label: MRIStep
+#. Set :math:`z_1 = y_{n-1}`
+#. For :math:`i = 2,\ldots,s+1`
 
-where the slow stages :math:`w_i` at times :math:`\tau_i = t_n + c^s_i h_s` are
-computed by solving the :math:`v_i` fast ODE on :math:`[\tau_{i-1},\tau_i]` with
-the initial condition :math:`w_{i-1}`, forcing term :math:`r_i`, and
-:math:`A^s_{s+1,j}=b^s_{j}`.
+   #. Let :math:`v(t^S_{n,i-1}) = z_{i-1}` 
 
-The MRIStep module provides a thrid order explicit-explicit method using the
-:ref:`Butcher.Knoth_Wolke` ERK for the slow and fast method. User-defined
-tables are also supported. A user defined method will be first to thrid order
-accurate depending on the slow and fast tables provided. If both the slow and
-fast tables are second order, then the overall method will also be second
-order. If the slow and fast tables are both third order and the slow method
-satisfies an auxiliary condition (see [SKAW2012a]_), then the overall method
-will also be thrid order.
+   #. Compute :math:`r = \frac{1}{c^S_i - c^S_{i-1}} \sum_{j=1}^{i-1}
+      (A^S_{i,j} - A^S_{i-1,j}) f^S(t^S_{n,j}, z_j)`
 
-Note that at this time the MRIStep module only supports explicit fast and slow
-tables where the stage times of the slow table must be unique and orderd (i.e.,
-:math:`c^s_{i} > c^s_{i-1}`) and the final stage time must be less than 1.
+   #. For :math:`\tau \in [t^S_{n,i-1}, t^S_{n,i}]`, solve :math:`\dot{v}(\tau)
+      = f^F(\tau, v) + r`
+
+   #. Set :math:`z_i = v(t^S_{n,i})`,
+
+#. Set :math:`y_{n} = z_{s+1}`,
+
+where :math:`t^S_{n,j} = t_{n-1} + c^S_{j} h^S` and
+:math:`A^S_{s+1,j}=b^S_{j}`.
+
+The MRIStep module provides a third order explicit outer method
+(:ref:`Butcher.Knoth_Wolke`). The inner ODE is solved using the ARKStep
+module. As such can the inner methods can be an explicit, implicit, or IMEX
+method.
+
+User-defined outer and inner methods are also supported. A user defined method
+will be first to third order accurate depending on the slow and fast tables
+provided. If both the slow and fast tables are second order, then the overall
+method will also be second order. If the slow and fast tables are both third
+order and the slow method satisfies an auxiliary condition (see [SKAW2012a]_),
+then the overall method will also be third order.
+
+Note that at this time the MRIStep module only supports explicit outer tables
+where the stage times are unique and ordered (i.e., :math:`c^S_{i} > c^S_{i-1}`)
+and the final stage time is less than 1.
 
 
 .. _Mathematics.Error.Norm:
@@ -507,8 +513,8 @@ We therefore use the norm of the difference between :math:`y_n` and
 .. math::
    M T_n = \beta \left(y_n - \tilde{y}_n\right) =
    \beta h_n \sum_{i=1}^{s} \left[
-   \left(b^E_i - \tilde{b}^E_i\right) f_E(t^E_{n,i}, z_i) +
-   \left(b^I_i - \tilde{b}^I_i\right) f_I(t^I_{n,i}, z_i) \right]
+   \left(b^E_i - \tilde{b}^E_i\right) f^E(t^E_{n,i}, z_i) +
+   \left(b^I_i - \tilde{b}^I_i\right) f^I(t^I_{n,i}, z_i) \right]
    :label: LTE
 
 for ARK methods, and similarly for ERK methods.  Here, :math:`\beta>0`
@@ -536,7 +542,7 @@ and a completed step :math:`h` as :math:`\eta`, i.e. :math:`\eta = h'
 / h`.  This value is subsequently bounded from above by
 :math:`\eta_\text{max}` to ensure that step size adjustments are not
 overly aggressive.  This upper bound changes according to the step
-and history, 
+and history,
 
 .. math::
    \eta_\text{max} = \begin{cases}
@@ -750,14 +756,14 @@ Explicit stability
 ======================
 
 For problems that involve a nonzero explicit component,
-i.e. :math:`f_E(t,y) \ne 0` in ARKStep or for any problem in
+i.e. :math:`f^E(t,y) \ne 0` in ARKStep or for any problem in
 ERKStep, explicit and ImEx Runge-Kutta methods may benefit from
 additional user-supplied information regarding the explicit stability
 region.  All ARKode adaptivity methods utilize estimates of the local
 error, and it is often the case that such local error control will be
 sufficient for method stability, since unstable steps will typically
 exceed the error control tolerances.  However, for problems in which
-:math:`f_E(t,y)` includes even moderately stiff components, and
+:math:`f^E(t,y)` includes even moderately stiff components, and
 especially for higher-order integration methods, it may occur that
 a significant number of attempted steps will exceed the error
 tolerances.  While these steps will automatically be recomputed, such
@@ -768,13 +774,13 @@ stability-based time step controller may also be useful.
 Since the maximum stable explicit step for any method depends on the
 problem under consideration, in that the value :math:`(h_n\lambda)` must
 reside within a bounded stability region, where :math:`\lambda` are
-the eigenvalues of the linearized operator :math:`\partial f_E /
+the eigenvalues of the linearized operator :math:`\partial f^E /
 \partial y`, information on the maximum stable step size is not
 readily available to ARKode's time-stepping modules.  However, for
 many problems such information may be easily obtained through analysis
 of the problem itself, e.g. in an advection-diffusion calculation
-:math:`f_I` may contain the stiff diffusive components and
-:math:`f_E` may contain the comparably nonstiff advection terms.  In
+:math:`f^I` may contain the stiff diffusive components and
+:math:`f^E` may contain the comparably nonstiff advection terms.  In
 this scenario, an explicitly stable step :math:`h_\text{exp}` would be
 predicted as one satisfying the Courant-Friedrichs-Lewy (CFL)
 stability condition for the advective portion of the problem,
@@ -836,7 +842,7 @@ Algebraic solvers
 ===============================
 
 When solving a problem involving either a nonzero implicit component,
-:math:`f_I(t,y) \ne 0`, or a non-identity mass matrix,
+:math:`f^I(t,y) \ne 0`, or a non-identity mass matrix,
 :math:`M \ne I`, systems of linear or nonlinear algebraic equations
 must be solved at each stage and/or step of the method.  This section
 therefore focuses on the variety of mathematical methods provided in
@@ -862,7 +868,7 @@ For both the DIRK and ARK methods corresponding to :eq:`IMEX_IVP` and
 :eq:`IVP_implicit`, an implicit system
 
 .. math::
-   G(z_i) \equiv M z_i - h_n A^I_{i,i} f_I(t^I_{n,i}, z_i) - a_i = 0
+   G(z_i) \equiv M z_i - h_n A^I_{i,i} f^I(t^I_{n,i}, z_i) - a_i = 0
    :label: Residual
 
 must be solved for each stage :math:`z_i, i=1,\ldots,s`, where we have
@@ -870,18 +876,18 @@ the data
 
 .. math::
    a_i \equiv \left( y_{n-1} + h_n \sum_{j=1}^{i-1} \left[
-   A^E_{i,j} f_E(t^E_{n,j}, z_j) +
-   A^I_{i,j} f_I(t^I_{n,j}, z_j) \right] \right)
+   A^E_{i,j} f^E(t^E_{n,j}, z_j) +
+   A^I_{i,j} f^I(t^I_{n,j}, z_j) \right] \right)
 
 for the ARK methods, or
 
 .. math::
    a_i \equiv \left( y_{n-1} + h_n \sum_{j=1}^{i-1}
-   A^I_{i,j} f_I(t^I_{n,j}, z_j) \right)
+   A^I_{i,j} f^I(t^I_{n,j}, z_j) \right)
 
-for the DIRK methods.  Here, if :math:`f_I(t,y)` depends nonlinearly
+for the DIRK methods.  Here, if :math:`f^I(t,y)` depends nonlinearly
 on :math:`y` then :eq:`Residual` corresponds to a nonlinear system of
-equations; if :math:`f_I(t,y)` depends linearly on :math:`y` then this
+equations; if :math:`f^I(t,y)` depends linearly on :math:`y` then this
 is a linear system of equations.
 
 For systems of either type, ARKode provides a choice of solution
@@ -905,7 +911,7 @@ in which
 
 .. math::
    {\mathcal A}(t,z) \approx M - \gamma J(t,z), \quad
-   J(t,z) = \frac{\partial f_I(t,z)}{\partial z}, \quad\text{and}\quad
+   J(t,z) = \frac{\partial f^I(t,z)}{\partial z}, \quad\text{and}\quad
    \gamma = h_n A^I_{i,i}.
    :label: NewtonMatrix
 
@@ -924,12 +930,12 @@ method, these methods *do not* require the solution of a linear system
 at each iteration, instead opting for solution of a low-dimensional
 least-squares solution to construct the nonlinear update.
 
-Finally, if the user specifies that :math:`f_I(t,y)` depends linearly
+Finally, if the user specifies that :math:`f^I(t,y)` depends linearly
 on :math:`y`, and if the Newton-based nonlinear solver is chosen, then
 the problem :eq:`Residual` will be solved using only a single Newton
 iteration. In this case, an additional user-supplied argument
 indicates whether this Jacobian is time-dependent or not, signaling
-whether the Jacobian or preconditioner needs to be recomputed 
+whether the Jacobian or preconditioner needs to be recomputed
 at each stage or time step, or if it can be reused throughout the full
 simulation.
 
@@ -1060,9 +1066,9 @@ where :math:`e_j` is the :math:`j`-th unit vector, and the increments
 Here :math:`U` is the unit roundoff, :math:`\sigma_0` is a small
 dimensionless value, and :math:`w_j` is the error weight defined in
 :eq:`EWT`.  In the dense case, this approach requires :math:`N`
-evaluations of :math:`f_I`, one for each column of :math:`J`.  In the
+evaluations of :math:`f^I`, one for each column of :math:`J`.  In the
 band case, the columns of :math:`J` are computed in groups, using the
-Curtis-Powell-Reid algorithm, with the number of :math:`f_I`
+Curtis-Powell-Reid algorithm, with the number of :math:`f^I`
 evaluations equal to the matrix bandwidth.
 
 We note that with sparse and user-supplied SUNMatrix objects, the
@@ -1084,7 +1090,7 @@ algorithms only require the product of this matrix with a given
 vector.  Additionally, each Newton system :eq:`Newton_system` is not
 solved completely, since these linear solvers are iterative (hence the
 "inexact" in the name). As a result. for these linear solvers
-:math:`{\mathcal A}` is applied in a matrix-free manner, 
+:math:`{\mathcal A}` is applied in a matrix-free manner,
 
 .. math::
    {\mathcal A}(t,z)\, v = Mv - \gamma\, J(t,z)\, v.
@@ -1096,7 +1102,7 @@ through a finite difference approximation to the directional
 derivative:
 
 .. math::
-   J(t,z)\,v \approx \frac{f_I(t,z+\sigma v) - f_I(t,z)}{\sigma},
+   J(t,z)\,v \approx \frac{f^I(t,z+\sigma v) - f^I(t,z)}{\sigma},
 
 where the increment :math:`\sigma = 1/\|v\|` to ensure that
 :math:`\|\sigma v\| = 1`.
@@ -1321,7 +1327,7 @@ algorithm in fact applies the single preconditioner matrix :math:`P`
 in both left/right fashion as :math:`P^{-1/2} {\mathcal A} P^{-1/2}`.
 
 Typical preconditioners are based on approximations
-to the system Jacobian, :math:`J = \partial f_I / \partial y`.  Since
+to the system Jacobian, :math:`J = \partial f^I / \partial y`.  Since
 the Newton iteration matrix involved is :math:`{\mathcal A} = M -
 \gamma J`, any approximation :math:`\bar{J}` to :math:`J` yields a
 matrix that is of potential use as a preconditioner, namely :math:`P =
@@ -1344,7 +1350,7 @@ the Newton-Krylov method with no preconditioning.
 Implicit predictors
 ------------------------------------
 
-For problems with implicit components, a prediction algorithm is 
+For problems with implicit components, a prediction algorithm is
 employed for constructing the initial guesses for each implicit
 Runge-Kutta stage, :math:`z_i^{(0)}`.  As is well-known with nonlinear
 solvers, the selection of a good initial guess can have dramatic
@@ -1473,7 +1479,7 @@ side from a previously computed stage solution in the same step,
 :math:`f(t_{n-1}+c^I_j h,z_j)` to construct a quadratic Hermite
 interpolant for the prediction.  If we define the constants
 :math:`\tilde{h} = c^I_j h` and :math:`\tau = c^I_i h`, the predictor
-is given by 
+is given by
 
 .. math::
 
@@ -1515,16 +1521,16 @@ Specifically, as discussed in equations :eq:`ARK` and :eq:`Residual`,
 each stage solves a nonlinear equation
 
 .. math::
-   z_i &= y_{n-1} + h_n \sum_{j=1}^{i-1} A^E_{i,j} f_E(t^E_{n,j}, z_j)
-   + h_n \sum_{j=1}^{i}   A^I_{i,j} f_I(t^I_{n,j}, z_j), \\
+   z_i &= y_{n-1} + h_n \sum_{j=1}^{i-1} A^E_{i,j} f^E(t^E_{n,j}, z_j)
+   + h_n \sum_{j=1}^{i}   A^I_{i,j} f^I(t^I_{n,j}, z_j), \\
    \Leftrightarrow \qquad \qquad & \\
-   G(z_i) &\equiv z_i - h_n A^I_{i,i} f_I(t^I_{n,i}, z_i) - a_i = 0.
+   G(z_i) &\equiv z_i - h_n A^I_{i,i} f^I(t^I_{n,i}, z_i) - a_i = 0.
 
 This prediction method merely computes the predictor :math:`z_i` as
 
 .. math::
-   z_i &= y_{n-1} + h_n \sum_{j=1}^{i-1} A^E_{i,j} f_E(t^E_{n,j}, z_j)
-                 + h_n \sum_{j=1}^{i-1}  A^I_{i,j} f_I(t^I_{n,j}, z_j), \\
+   z_i &= y_{n-1} + h_n \sum_{j=1}^{i-1} A^E_{i,j} f^E(t^E_{n,j}, z_j)
+                 + h_n \sum_{j=1}^{i-1}  A^I_{i,j} f^I(t^I_{n,j}, z_j), \\
    \Leftrightarrow \quad \qquad & \\
    z_i &= a_i.
 
@@ -1559,10 +1565,10 @@ are required.
 
 Of course, for problems in which :math:`M=I` both of these operators
 are trivial.  However for problems with non-identity :math:`M`,
-these linear solves :eq:`mass_solve` may be handled using 
+these linear solves :eq:`mass_solve` may be handled using
 any valid linear solver module, in the same manner as described in the
 section :ref:`Mathematics.Linear` for solving the linear Newton
-systems. 
+systems.
 
 At present, for DIRK and ARK problems using a matrix-based solver for
 the Newton nonlinear iterations, the type of matrix (dense, band,
@@ -1603,14 +1609,14 @@ time-evolved solution :math:`y_n` from equation :eq:`ARK` we must
 solve
 
 .. math::
-   &M y_n \ = \ M y_{n-1} + h_n \sum_{i=1}^{s} \left( b^E_i f_E(t^E_{n,i}, z_i)
-                 + b^I_i f_I(t^I_{n,i}, z_i)\right), \\
+   &M y_n \ = \ M y_{n-1} + h_n \sum_{i=1}^{s} \left( b^E_i f^E(t^E_{n,i}, z_i)
+                 + b^I_i f^I(t^I_{n,i}, z_i)\right), \\
    \Leftrightarrow \qquad & \\
-   &M (y_n -y_{n-1}) \ = \ h_n \sum_{i=1}^{s} \left(b^E_i f_E(t^E_{n,i}, z_i)
-                 + b^I_i f_I(t^I_{n,i}, z_i)\right), \\
+   &M (y_n -y_{n-1}) \ = \ h_n \sum_{i=1}^{s} \left(b^E_i f^E(t^E_{n,i}, z_i)
+                 + b^I_i f^I(t^I_{n,i}, z_i)\right), \\
    \Leftrightarrow \qquad & \\
-   &M \nu \ = \ h_n \sum_{i=1}^{s} \left(b^E_i f_E(t^E_{n,i}, z_i)
-                 + b^I_i f_I(t^I_{n,i}, z_i)\right),
+   &M \nu \ = \ h_n \sum_{i=1}^{s} \left(b^E_i f^E(t^E_{n,i}, z_i)
+                 + b^I_i f^I(t^I_{n,i}, z_i)\right),
 
 for the update :math:`\nu = y_n - y_{n-1}`.  For construction of the
 stages :math:`z_i` this requires no mass matrix solves (as these are
@@ -1620,8 +1626,8 @@ we must solve systems of the form
 
 .. math::
    M\, T_n = h \sum_{i=1}^{s} \left[
-   \left(b^E_i - \tilde{b}^E_i\right) f_E(t^E_{n,i}, z_i) +
-   \left(b^I_i - \tilde{b}^I_i\right) f_I(t^I_{n,i}, z_i) \right].
+   \left(b^E_i - \tilde{b}^E_i\right) f^E(t^E_{n,i}, z_i) +
+   \left(b^I_i - \tilde{b}^I_i\right) f^I(t^I_{n,i}, z_i) \right].
    :label: mass_solve_LTE
 
 Lastly, in constructing dense output and implicit predictors of order
@@ -1629,7 +1635,7 @@ Lastly, in constructing dense output and implicit predictors of order
 we must compute the derivative information :math:`f_k` from the equation
 
 .. math::
-   M f_k = f_E(t_k, y_k) + f_I(t_k, y_k).
+   M f_k = f^E(t_k, y_k) + f^I(t_k, y_k).
 
 In total, these require only two mass-matrix linear solves
 :eq:`mass_solve` per attempted time step, with one more upon

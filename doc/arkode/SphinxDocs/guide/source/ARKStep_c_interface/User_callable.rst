@@ -51,10 +51,10 @@ ARKStep initialization and deallocation functions
    **Arguments:**
       * *fe* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
         defining the explicit portion of the right-hand side function in
-        :math:`M\, \dot{y} = f_E(t,y) + f_I(t,y)`.
+        :math:`M\, \dot{y} = f^E(t,y) + f^I(t,y)`.
       * *fi* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
         defining the implicit portion of the right-hand side function in
-        :math:`M\, \dot{y} = f_E(t,y) + f_I(t,y)`.
+        :math:`M\, \dot{y} = f^E(t,y) + f^I(t,y)`.
       * *t0* -- the initial value of :math:`t`.
       * *y0* -- the initial condition vector :math:`y(t_0)`.
 
@@ -338,20 +338,20 @@ these scenarios the following pieces of advice are relevant.
     magnitude comparable to ``abstol`` or less, is equivalent to zero
     as far as the computation is concerned.
 
-(3) The user's right-hand side routines :math:`f_E` and :math:`f_I`
+(3) The user's right-hand side routines :math:`f^E` and :math:`f^I`
     should never change a negative value in the solution vector :math:`y`
     to a non-negative value in attempt to "fix" this problem,
-    since this can lead to numerical instability.  If the :math:`f_E`
-    or :math:`f_I` routines cannot tolerate a zero or negative value
+    since this can lead to numerical instability.  If the :math:`f^E`
+    or :math:`f^I` routines cannot tolerate a zero or negative value
     (e.g. because there is a square root or log), then the offending
     value should be changed to zero or a tiny positive number in a
     temporary variable (not in the input :math:`y` vector) for the
-    purposes of computing :math:`f_E(t, y)` or :math:`f_I(t, y)`.
+    purposes of computing :math:`f^E(t, y)` or :math:`f^I(t, y)`.
 
 (4) Positivity and non-negativity constraints on components can be
     enforced by use of the recoverable error return feature in the
-    user-supplied right-hand side functions, :math:`f_E` and
-    :math:`f_I`. When a recoverable error is encountered, ARKStep will
+    user-supplied right-hand side functions, :math:`f^E` and
+    :math:`f^I`. When a recoverable error is encountered, ARKStep will
     retry the step with a smaller step size, which typically
     alleviates the problem.  However, because this option involves
     some additional overhead cost, it should only be exercised if the
@@ -375,7 +375,7 @@ systems of the form
 where
 
 .. math::
-   {\mathcal A} \approx M - \gamma J, \qquad J = \frac{\partial f_I}{\partial y}.
+   {\mathcal A} \approx M - \gamma J, \qquad J = \frac{\partial f^I}{\partial y}.
 
 ARKode's ARKLs linear solver interface supports all valid
 ``SUNLinearSolver`` modules for this task.
@@ -1732,7 +1732,7 @@ Explicit stability function                     :c:func:`ARKStepSetStabilityFn()
    the ODE system.  It is not required, since accuracy-based
    adaptivity may be sufficient for retaining stability, but this can
    be quite useful for problems where the explicit right-hand side
-   function :math:`f_E(t,y)` may contain stiff terms.
+   function :math:`f^E(t,y)` may contain stiff terms.
 
 
 
@@ -1756,8 +1756,8 @@ the code, is provided in the section :ref:`Mathematics.Nonlinear`.
 =============================================  =========================================  ============
 Optional input                                 Function name                              Default
 =============================================  =========================================  ============
-Specify linearly implicit :math:`f_I`          :c:func:`ARKStepSetLinear()`               ``SUNFALSE``
-Specify nonlinearly implicit :math:`f_I`       :c:func:`ARKStepSetNonlinear()`            ``SUNTRUE``
+Specify linearly implicit :math:`f^I`          :c:func:`ARKStepSetLinear()`               ``SUNFALSE``
+Specify nonlinearly implicit :math:`f^I`       :c:func:`ARKStepSetNonlinear()`            ``SUNTRUE``
 Implicit predictor method                      :c:func:`ARKStepSetPredictorMethod()`      0
 Maximum number of nonlinear iterations         :c:func:`ARKStepSetMaxNonlinIters()`       3
 Coefficient in the nonlinear convergence test  :c:func:`ARKStepSetNonlinConvCoef()`       0.1
@@ -1776,7 +1776,7 @@ Maximum number of convergence failures         :c:func:`ARKStepSetMaxConvFails()
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
       * *timedepend* -- flag denoting whether the Jacobian of
-	:math:`f_I(t,y)` is time-dependent (1) or not (0).
+	:math:`f^I(t,y)` is time-dependent (1) or not (0).
 	Alternately, when using an iterative linear solver this flag
 	denotes time dependence of the preconditioner.
 
@@ -1988,7 +1988,7 @@ routines to modify this behavior.  To this end, we recall that the
 Newton system matrices that arise within an implicit stage solve are
 :math:`{\mathcal A}(t,z) \approx M - \gamma J(t,z)`, where the
 implicit right-hand side function has Jacobian matrix
-:math:`J(t,z) = \frac{\partial f_I(t,z)}{\partial z}`.
+:math:`J(t,z) = \frac{\partial f^I(t,z)}{\partial z}`.
 
 The matrix or preconditioner for :math:`{\mathcal A}` can only be
 updated within a call to the linear solver 'setup' routine.  In
@@ -2022,7 +2022,7 @@ whether to recommend a preconditioner update (i.e., whether to set
 
 For matrix-based linear solvers: at each call to the linear solver
 setup routine, *msbj* is used to determine whether the matrix
-:math:`J(t,y) = \frac{\partial f_I(t,y)}{\partial y}` should be
+:math:`J(t,y) = \frac{\partial f^I(t,y)}{\partial y}` should be
 updated; if not then the previous value is reused and the system
 matrix :math:`{\mathcal A}(t,y) \approx M - \gamma J(t,y)` is
 recomputed using the current :math:`\gamma` value.
@@ -3003,19 +3003,19 @@ Single accessor to many statistics at once           :c:func:`ARKStepGetTimestep
 .. c:function:: int ARKStepGetNumRhsEvals(void* arkode_mem, long int* nfe_evals, long int* nfi_evals)
 
    Returns the number of calls to the user's right-hand
-   side functions, :math:`f_E` and :math:`f_I` (so far).
+   side functions, :math:`f^E` and :math:`f^I` (so far).
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *nfe_evals* -- number of calls to the user's :math:`f_E(t,y)` function.
-      * *nfi_evals* -- number of calls to the user's :math:`f_I(t,y)` function.
+      * *nfe_evals* -- number of calls to the user's :math:`f^E(t,y)` function.
+      * *nfi_evals* -- number of calls to the user's :math:`f^I(t,y)` function.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
       * *ARK_MEM_NULL* if the ARKStep memory was ``NULL``
 
    **Notes:** The *nfi_evals* value does not account for calls made to
-   :math:`f_I` by a linear solver or preconditioner module.
+   :math:`f^I` by a linear solver or preconditioner module.
 
 
 
@@ -3107,8 +3107,8 @@ Single accessor to many statistics at once           :c:func:`ARKStepGetTimestep
       * *expsteps* -- number of stability-limited steps taken in the solver.
       * *accsteps* -- number of accuracy-limited steps taken in the solver.
       * *step_attempts* -- number of steps attempted by the solver.
-      * *nfe_evals* -- number of calls to the user's :math:`f_E(t,y)` function.
-      * *nfi_evals* -- number of calls to the user's :math:`f_I(t,y)` function.
+      * *nfe_evals* -- number of calls to the user's :math:`f^E(t,y)` function.
+      * *nfi_evals* -- number of calls to the user's :math:`f^I(t,y)` function.
       * *nlinsetups* -- number of linear solver setup calls made.
       * *netfails* -- number of error test failures.
 
@@ -3467,7 +3467,7 @@ Last return from a mass matrix solver function                     :c:func:`ARKS
 .. c:function:: int ARKStepGetNumLinRhsEvals(void* arkode_mem, long int* nfevalsLS)
 
    Returns the number of calls to the user-supplied implicit
-   right-hand side function :math:`f_I` for finite difference
+   right-hand side function :math:`f^I` for finite difference
    Jacobian or Jacobian-vector product approximation.
 
    **Arguments:**
@@ -3854,10 +3854,10 @@ vector.
       * *arkode_mem* -- pointer to the ARKStep memory block.
       * *fe* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
         defining the explicit portion of the right-hand side function in
-        :math:`M\, \dot{y} = f_E(t,y) + f_I(t,y)`.
+        :math:`M\, \dot{y} = f^E(t,y) + f^I(t,y)`.
       * *fi* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
         defining the implicit portion of the right-hand side function in
-        :math:`M\, \dot{y} = f_E(t,y) + f_I(t,y)`.
+        :math:`M\, \dot{y} = f^E(t,y) + f^I(t,y)`.
       * *t0* -- the initial value of :math:`t`.
       * *y0* -- the initial condition vector :math:`y(t_0)`.
 

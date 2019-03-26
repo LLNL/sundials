@@ -34,6 +34,7 @@ SET(ARKODE_examples
   "ark_onewaycouple_mri\;develop"
   "ark_twowaycouple_mri\;develop"
   "ark_reaction_diffusion_mri\;develop"
+  "ark_brusselator_1D_mri\;develop"
   )
 
 # Examples using LAPACK linear solvers

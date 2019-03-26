@@ -31,7 +31,7 @@ packaged with two time-stepping modules, *ARKStep* and *ERKStep*.
 *ARKStep* supports ODE systems posed in split, linearly-implicit form,
 
 .. math::
-   M \dot{y} = f_E(t,y) + f_I(t,y),  \qquad y(t_0) = y_0,
+   M \dot{y} = f^E(t,y) + f^I(t,y),  \qquad y(t_0) = y_0,
    :label: ODE_split_linearly_implicit
 
 where :math:`t` is the independent variable, :math:`y` is the set of
@@ -40,9 +40,9 @@ user-specified, nonsingular operator from :math:`\mathbb{R}^N` to
 :math:`\mathbb{R}^N`, and the right-hand side function is partitioned
 into up to two components:
 
-- :math:`f_E(t,y)` contains the "nonstiff" time scale components to be
+- :math:`f^E(t,y)` contains the "nonstiff" time scale components to be
   integrated explicitly, and
-- :math:`f_I(t,y)`  contains the "stiff" time scale components to be
+- :math:`f^I(t,y)`  contains the "stiff" time scale components to be
   integrated implicitly.
 
 Either of these operators may be disabled, allowing for fully
@@ -58,7 +58,7 @@ ODE right-hand side into explicit and implicit components
 enable accurate and efficient time integration of stiff, nonstiff, and
 mixed stiff/nonstiff systems of ordinary differential equations.  A
 key feature allowing for high efficiency of these methods is that only
-the components in :math:`f_I(t,y)` must be solved implicitly, allowing
+the components in :math:`f^I(t,y)` must be solved implicitly, allowing
 for splittings tuned for use with optimal implicit solver algorithms.
 
 This framework allows for significant freedom over the constitutive
@@ -80,7 +80,7 @@ Runge Kutta methods.   As with ARKStep, the ERKStep module is packaged
 with adaptive explicit methods of orders 2-8.
 
 
-For problems that include nonzero implicit term :math:`f_I(t,y)`, the
+For problems that include nonzero implicit term :math:`f^I(t,y)`, the
 resulting implicit system (assumed nonlinear, unless specified
 otherwise) is solved approximately at each integration step, using a
 modified Newton method, inexact Newton method, or an
@@ -150,6 +150,11 @@ their code to set the corresponding ops structure member, ``matvecsetup``, to ``
 The generic SUNMatrix API now defines error codes to be returned by SUNMatrix operations.
 Operations which return an integer flag indiciating success/failure may return different
 values than previously.
+
+The MRIStep module has been updated to support explicit, implicit, or IMEX
+methods as the fast integrator using the ARKStep module. As a result some
+function signatures have been changed including :c:func:`MRIStepCreate` which
+now takes an ARKStep memory structure for the fast integration as an input.
 
 Changes in v3.1.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

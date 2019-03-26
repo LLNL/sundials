@@ -264,7 +264,7 @@ The type definition of :c:func:`lsetup()` is
       * *ypred* -- is the predicted :math:`y` vector for the current
 	ARKode internal step.
       * *fpred* -- is the value of the implicit right-hand side at
-	*ypred*, :math:`f_I(t_n,ypred)`.
+	*ypred*, :math:`f^I(t_n,ypred)`.
       * *jcurPtr* -- is a pointer to a boolean to be filled in by
 	:c:func:`lsetup()`. The function should set ``*jcurPtr = SUNTRUE``
         if its Jacobian data is current after the call, and should set
@@ -331,7 +331,7 @@ The type definition of :c:func:`lsolve()` is
    :math:`{\mathcal A}` arises  in the Newton iteration (see the
    section :ref:`Mathematics.Linear`) and gives some approximation to
    the Newton matrix :math:`M - \gamma J`, :math:`J =
-   \frac{\partial}{\partial y} f_I(t_n, ycur)`. Note, the right-hand
+   \frac{\partial}{\partial y} f^I(t_n, ycur)`. Note, the right-hand
    side vector  :math:`b` is input, and :math:`\gamma` is available as
    ``ark_mem->ark_gamma``.
 
@@ -355,7 +355,7 @@ The type definition of :c:func:`lsolve()` is
       * *ycur* -- is a vector that contains the solver's current
 	approximation to :math:`y(t_n)`.
       * *fcur* -- is a vector that contains the current right-hand
-         side, :math:`f_I(t_n, ycur)`.
+         side, :math:`f^I(t_n, ycur)`.
 
    **Return value:**  Should return 0 if successful, a positive value
    for a recoverable error, and a negative value for an unrecoverable

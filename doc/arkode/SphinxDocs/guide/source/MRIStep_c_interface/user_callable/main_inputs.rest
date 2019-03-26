@@ -171,14 +171,13 @@ Supply a pointer for user data                      :c:func:`MRIStepSetUserData(
 
 
 
-.. c:function:: int MRIStepSetFixedStep(void* arkode_mem, realtype hs, realtype hf)
+.. c:function:: int MRIStepSetFixedStep(void* arkode_mem, realtype hs)
 
    Set the slow and fast step size used within MRIStep.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the MRIStep memory block.
-      * *hs* -- value of the slow step size.
-      * *hf* -- value of the fast step size.
+      * *hs* -- value of the outer (slow) step size.
 
    **Return value:**
       * *ARK_SUCCESS* if successful
@@ -187,12 +186,13 @@ Supply a pointer for user data                      :c:func:`MRIStepSetUserData(
 
    **Notes:**
 
-   If *hf* does not evenly divide the time interval between the stages of the
-   slow method, then the actual value used for the fast steps will be slightly
-   smaller than *hf* to ensure :math:`(c^s_{i} -  c^s_{i-1})h_s/h_f` is an
-   integer value. Specifically, the fast step for the *i*-th slow stage will be
-   :math:`h = \frac{(c^s_{i} - c^s_{i-1}) h_s}{\lceil (c^s_{i} -
-   c^s_{i-1})h_s/h_f \rceil}`.
+   If the inner (fast) stepper is using fixed step size *hf* that does not evenly divide
+   the time interval between the stages of the outer (slow) method, then the actual
+   value used for the inner steps will be adjusted to a lightly smaller value
+   to ensure :math:`(c^s_{i} -  c^s_{i-1})h_s/h_f` is an integer
+   value. Specifically, the fast step for the *i*-th outer stage will be :math:`h
+   = \frac{(c^s_{i} - c^s_{i-1}) h_s}{\lceil (c^s_{i} - c^s_{i-1})h_s/h_f
+   \rceil}`. 
 
    If both :c:func:`MRIStepSetFixedStep()` and
    :c:func:`MRIStepSetStopTime()` are used, then the fixed step size
@@ -346,6 +346,11 @@ Supply a pointer for user data                      :c:func:`MRIStepSetUserData(
    **Notes:** If specified, the pointer to *user_data* is passed to all
    user-supplied functions for which it is an argument; otherwise
    ``NULL`` is passed.
+
+   The *user_data* pointer should only be attached to the slow (outer)
+   integrator.
+
+   
 
 
 

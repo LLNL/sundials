@@ -126,10 +126,10 @@ The SUNMATRIX_SLUNRLOC module also defines implementations of all generic
 
 * ``SUNMatCopy_SLUNRloc``
 
-* ``SUNMatScaleAdd_SLUNRloc`` -- performs :math:`A = cA + B`, but :math:`A` and :math:`B`
+* ``SUNMatScaleAdd_SLUNRloc`` -- performs :math:`A = cA + B`, where :math:`A` and :math:`B`
     must have the same sparsity pattern
 
-* ``SUNMatScaleAddI_SLUNRloc`` -- performs :math:`A = cA + I`, but the diagonal of :math:`A`
+* ``SUNMatScaleAddI_SLUNRloc`` -- performs :math:`A = cA + I`, where the diagonal of :math:`A`
   must be present
 
 * ``SUNMatMatvecSetup_SLUNRloc`` -- initializes the SuperLU_DIST parallel communication

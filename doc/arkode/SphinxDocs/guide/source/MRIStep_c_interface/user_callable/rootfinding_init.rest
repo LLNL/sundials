@@ -41,3 +41,6 @@ called prior to a continuation call to :c:func:`MRIStepEvolve()`.
    :c:func:`MRIStepReInit()`, where the new IVP has no rootfinding
    problem but the prior one did, then call *MRIStepRootInit* with
    *nrtfn = 0*.
+
+   Rootfinding is only supported for the slow (outer) integrator and should not
+   be actived for the fast (inner) integrator.

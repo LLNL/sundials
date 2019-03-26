@@ -226,7 +226,7 @@ packaged with two time-stepping modules, \emph{ARKStep} and \emph{ERKStep}.
 
 \emph{ARKStep} supports ODE systems posed in split, linearly-implicit form,
 \phantomsection\label{Introduction:equation-ODE_split_linearly_implicit}\begin{gather}
-\begin{split}M \dot{y} = f_E(t,y) + f_I(t,y),  \qquad y(t_0) = y_0,\end{split}\label{Introduction-ODE_split_linearly_implicit}
+\begin{split}M \dot{y} = f^E(t,y) + f^I(t,y),  \qquad y(t_0) = y_0,\end{split}\label{Introduction-ODE_split_linearly_implicit}
 \end{gather}
 where \(t\) is the independent variable, \(y\) is the set of
 dependent variables (in \(\mathbb{R}^N\)), \(M\) is a
@@ -235,11 +235,11 @@ user-specified, nonsingular operator from \(\mathbb{R}^N\) to
 into up to two components:
 \begin{itemize}
 \item {} 
-\(f_E(t,y)\) contains the ``nonstiff'' time scale components to be
+\(f^E(t,y)\) contains the ``nonstiff'' time scale components to be
 integrated explicitly, and
 
 \item {} 
-\(f_I(t,y)\)  contains the ``stiff'' time scale components to be
+\(f^I(t,y)\)  contains the ``stiff'' time scale components to be
 integrated implicitly.
 
 \end{itemize}
@@ -257,7 +257,7 @@ ODE right-hand side into explicit and implicit components
 enable accurate and efficient time integration of stiff, nonstiff, and
 mixed stiff/nonstiff systems of ordinary differential equations.  A
 key feature allowing for high efficiency of these methods is that only
-the components in \(f_I(t,y)\) must be solved implicitly, allowing
+the components in \(f^I(t,y)\) must be solved implicitly, allowing
 for splittings tuned for use with optimal implicit solver algorithms.
 
 This framework allows for significant freedom over the constitutive
@@ -275,7 +275,7 @@ The algorithms used in ERKStep are adaptive- and fixed-step explicit
 Runge Kutta methods.   As with ARKStep, the ERKStep module is packaged
 with adaptive explicit methods of orders 2-8.
 
-For problems that include nonzero implicit term \(f_I(t,y)\), the
+For problems that include nonzero implicit term \(f^I(t,y)\), the
 resulting implicit system (assumed nonlinear, unless specified
 otherwise) is solved approximately at each integration step, using a
 modified Newton method, inexact Newton method, or an
@@ -342,6 +342,11 @@ their code to set the corresponding ops structure member, \code{matvecsetup}, to
 The generic SUNMatrix API now defines error codes to be returned by SUNMatrix operations.
 Operations which return an integer flag indiciating success/failure may return different
 values than previously.
+
+The MRIStep module has been updated to support explicit, implicit, or IMEX
+methods as the fast integrator using the ARKStep module. As a result some
+function signatures have been changed including {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepCreate]{\emph{\code{MRIStepCreate()}}}} which
+now takes an ARKStep memory structure for the fast integration as an input.
 
 
 \subsection{Changes in v3.1.0}
@@ -1234,20 +1239,20 @@ and storage costs.  However, these may be added in future releases.
 
 \section{ARKStep -- Additive Runge-Kutta methods}
 \label{Mathematics:arkstep-additive-runge-kutta-methods}\label{Mathematics:mathematics-ark}
-The ARKStep time-stepping module in ARKode is designed for IVP of the
+The ARKStep time-stepping module in ARKode is designed for IVPs of the
 form
 \phantomsection\label{Mathematics:equation-IMEX_IVP}\begin{gather}
-\begin{split}M \dot{y} = f_E(t,y) + f_I(t,y), \qquad y(t_0) = y_0,\end{split}\label{Mathematics-IMEX_IVP}
+\begin{split}M \dot{y} = f^E(t,y) + f^I(t,y), \qquad y(t_0) = y_0,\end{split}\label{Mathematics-IMEX_IVP}
 \end{gather}
 i.e. the right-hand side function is additively split into two
 components:
 \begin{itemize}
 \item {} 
-\(f_E(t,y)\) contains the ``nonstiff'' components of the
+\(f^E(t,y)\) contains the ``nonstiff'' components of the
 system.  This will be integrated using an explicit method.
 
 \item {} 
-\(f_I(t,y)\) contains the ``stiff'' components of the
+\(f^I(t,y)\) contains the ``stiff'' components of the
 system.  This will be integrated using an implicit method.
 
 \end{itemize}
@@ -1256,14 +1261,14 @@ In solving the IVP \eqref{Mathematics-IMEX_IVP}, ARKStep utilizes variable-step,
 embedded, \index{additive Runge-Kutta methods}additive Runge-Kutta methods (ARK), corresponding
 to algorithms of the form
 \phantomsection\label{Mathematics:equation-ARK}\begin{gather}
-\begin{split}M z_i &= M y_{n-1} + h_n \sum_{j=1}^{i-1} A^E_{i,j} f_E(t^E_{n,j}, z_j)
-              + h_n \sum_{j=1}^{i} A^I_{i,j} f_I(t^I_{n,j}, z_j),
+\begin{split}M z_i &= M y_{n-1} + h_n \sum_{j=1}^{i-1} A^E_{i,j} f^E(t^E_{n,j}, z_j)
+              + h_n \sum_{j=1}^{i} A^I_{i,j} f^I(t^I_{n,j}, z_j),
 \quad i=1,\ldots,s, \\
-M y_n &= M y_{n-1} + h_n \sum_{i=1}^{s} \left(b^E_i f_E(t^E_{n,i}, z_i)
-              + b^I_i f_I(t^I_{n,i}, z_i)\right), \\
+M y_n &= M y_{n-1} + h_n \sum_{i=1}^{s} \left(b^E_i f^E(t^E_{n,i}, z_i)
+              + b^I_i f^I(t^I_{n,i}, z_i)\right), \\
 M \tilde{y}_n &= M y_{n-1} + h_n \sum_{i=1}^{s} \left(
-               \tilde{b}^E_i f_E(t^E_{n,i}, z_i) +
-               \tilde{b}^I_i f_I(t^I_{n,i}, z_i)\right).\end{split}\label{Mathematics-ARK}
+               \tilde{b}^E_i f^E(t^E_{n,i}, z_i) +
+               \tilde{b}^I_i f^I(t^I_{n,i}, z_i)\right).\end{split}\label{Mathematics-ARK}
 \end{gather}
 Here \(\tilde{y}_n\) are embedded solutions that approximate
 \(y(t_n)\) that are used for error estimation; these typically
@@ -1292,17 +1297,17 @@ ARKode's available Butcher tables encoding the coefficients
 described in the {\hyperref[Butcher:butcher]{\emph{\DUspan{}{Appendix: Butcher tables}}}}.
 
 For mixed stiff/nonstiff problems, a user should provide both of the
-functions \(f_E\) and \(f_I\) that define the IVP system.  For
+functions \(f^E\) and \(f^I\) that define the IVP system.  For
 such problems, ARKStep currently implements the ARK methods proposed in
 \phantomsection\label{Mathematics:id1}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}, allowing for methods having order of accuracy \(q =
 \{3,4,5\}\); the tables for these methods are given in the section
 {\hyperref[Butcher:butcher-additive]{\emph{\DUspan{}{Additive Butcher tables}}}}.  Additionally, user-defined ARK tables are
 supported.
 
-For nonstiff problems, a user may specify that \(f_I = 0\),
+For nonstiff problems, a user may specify that \(f^I = 0\),
 i.e. the equation \eqref{Mathematics-IMEX_IVP} reduces to the non-split IVP
 \phantomsection\label{Mathematics:equation-IVP_explicit}\begin{gather}
-\begin{split}M\, \dot{y} = f_E(t,y), \qquad y(t_0) = y_0.\end{split}\label{Mathematics-IVP_explicit}
+\begin{split}M\, \dot{y} = f^E(t,y), \qquad y(t_0) = y_0.\end{split}\label{Mathematics-IVP_explicit}
 \end{gather}
 In this scenario, the coefficients \(A^I=0\), \(c^I=0\),
 \(b^I=0\) and \(\tilde{b}^I=0\) in \eqref{Mathematics-ARK}, and the ARK
@@ -1316,10 +1321,10 @@ of orders \(p = \{1,2,3,4,5,7\}\).  These default to the
 {\hyperref[Butcher:butcher-fehlberg-8-7]{\emph{\DUspan{}{Fehlberg-13-7-8}}}} methods, respectively.  As with ARK
 methods, user-defined ERK tables are supported.
 
-Finally, for stiff problems the user may specify that \(f_E = 0\),
+Finally, for stiff problems the user may specify that \(f^E = 0\),
 so the equation \eqref{Mathematics-IMEX_IVP} reduces to the non-split IVP
 \phantomsection\label{Mathematics:equation-IVP_implicit}\begin{gather}
-\begin{split}M\, \dot{y} = f_I(t,y), \qquad y(t_0) = y_0.\end{split}\label{Mathematics-IVP_implicit}
+\begin{split}M\, \dot{y} = f^I(t,y), \qquad y(t_0) = y_0.\end{split}\label{Mathematics-IVP_implicit}
 \end{gather}
 Similarly to ERK methods, in this scenario the coefficients
 \(A^E=0\), \(c^E=0\), \(b^E=0\) and \(\tilde{b}^E=0\)
@@ -1362,56 +1367,76 @@ process than when considering the more general form.
 
 \section{MRIStep -- Multirate infinitesimal step methods}
 \label{Mathematics:mathematics-mristep}\label{Mathematics:mristep-multirate-infinitesimal-step-methods}
-The MRIStep time-stepping module in ARKode is designed for IVP
+The MRIStep time-stepping module in ARKode is designed for IVPs
 of the form
 \phantomsection\label{Mathematics:equation-IVP_two_rate}\begin{gather}
-\begin{split}\dot{y} = f_s(t,y) + f_f(t,y), \qquad y(t_0) = y_0.\end{split}\label{Mathematics-IVP_two_rate}
+\begin{split}\dot{y} = f^S(t,y) + f^F(t,y), \qquad y(t_0) = y_0.\end{split}\label{Mathematics-IVP_two_rate}
 \end{gather}
 i.e. the right-hand side function is additively split into two
 components:
 \begin{itemize}
 \item {} 
-\(f_s(t,y)\) contains the ``slow'' components of the
-system.  This will be integrated using a large time step \(h_s\).
+\(f^S(t,y)\) contains the ``slow'' components of the
+system.  This will be integrated using a large time step \(h^S\).
 
 \item {} 
-\(f_f(t,y)\) contains the ``fast'' components of the
-system.  This will be integrated using a small time step \(h_f\).
+\(f^F(t,y)\) contains the ``fast'' components of the
+system.  This will be integrated using a small time step \(h^F\).
 
 \end{itemize}
 
-For such problems, MRIStep provides fixed-step multirate infinitesimal step
-methods (see \phantomsection\label{Mathematics:id2}{\hyperref[References:skaw2009]{\emph{{[}SKAW2009{]}}}}, \phantomsection\label{Mathematics:id3}{\hyperref[References:skaw2012a]{\emph{{[}SKAW2012a{]}}}}, and \phantomsection\label{Mathematics:id4}{\hyperref[References:skaw2012b]{\emph{{[}SKAW2012b{]}}}}) that combine two
-Runge-Kutta methods. The slow (outer) method is an \(s\) stage explicit
+For such problems, MRIStep provides fixed-step slow step multirate infinitesimal
+step methods (see \phantomsection\label{Mathematics:id2}{\hyperref[References:skaw2009]{\emph{{[}SKAW2009{]}}}}, \phantomsection\label{Mathematics:id3}{\hyperref[References:skaw2012a]{\emph{{[}SKAW2012a{]}}}}, and \phantomsection\label{Mathematics:id4}{\hyperref[References:skaw2012b]{\emph{{[}SKAW2012b{]}}}}) that combine two
+Runge-Kutta methods. The outer (slow) method is an \(s\) stage explicit
 Runge-Kutta method where the stage values and the new solution are computed by
-solving an auxiliary ODE with a fast (inner) Runge-Kutta method. This
-corresponds to the algorithm
-\phantomsection\label{Mathematics:equation-MRIStep}\begin{gather}
-\begin{split}w_1 &= y_n, \\
-r_i &= \sum_{j=1}^{i-1} (A^s_{i,j} - A^s_{i-1,j}) f_s(w_j), \\
-v_i(\tau_{i-1}) &= w_{i-1}, \\
-\frac{dv_i}{d\tau} &= f_f(v_i) + \frac{1}{c^s_i - c^s_{i-1}} r_i, \quad \tau \in
-[\tau_{i-1},\tau_i], \quad i = 2,\ldots,s+1\\
-w_i &= v_i(\tau_i), \\
-y_{n+1} &= w_{s+1},\end{split}\label{Mathematics-MRIStep}
-\end{gather}
-where the slow stages \(w_i\) at times \(\tau_i = t_n + c^s_i h_s\) are
-computed by solving the \(v_i\) fast ODE on \([\tau_{i-1},\tau_i]\) with
-the initial condition \(w_{i-1}\), forcing term \(r_i\), and
-\(A^s_{s+1,j}=b^s_{j}\).
+solving an auxiliary ODE with an inner (fast) Runge-Kutta method. This
+corresponds to the following algorithm for a single step:
+\begin{enumerate}
+\item {} 
+Set \(z_1 = y_{n-1}\)
 
-The MRIStep module provides a thrid order explicit-explicit method using the
-{\hyperref[Butcher:butcher-knoth-wolke]{\emph{\DUspan{}{Knoth-Wolke-3-3}}}} ERK for the slow and fast method. User-defined
-tables are also supported. A user defined method will be first to thrid order
-accurate depending on the slow and fast tables provided. If both the slow and
-fast tables are second order, then the overall method will also be second
-order. If the slow and fast tables are both third order and the slow method
-satisfies an auxiliary condition (see \phantomsection\label{Mathematics:id5}{\hyperref[References:skaw2012a]{\emph{{[}SKAW2012a{]}}}}), then the overall method
-will also be thrid order.
+\item {} 
+For \(i = 2,\ldots,s+1\)
+\begin{enumerate}
+\item {} 
+Let \(v(t^S_{n,i-1}) = z_{i-1}\)
 
-Note that at this time the MRIStep module only supports explicit fast and slow
-tables where the stage times of the slow table must be unique and orderd (i.e.,
-\(c^s_{i} > c^s_{i-1}\)) and the final stage time must be less than 1.
+\item {} 
+Compute \(r = \frac{1}{c^S_i - c^S_{i-1}} \sum_{j=1}^{i-1}
+(A^S_{i,j} - A^S_{i-1,j}) f^S(t^S_{n,j}, z_j)\)
+
+\item {} 
+For \(\tau \in [t^S_{n,i-1}, t^S_{n,i}]\), solve \(\dot{v}(\tau)
+= f^F(\tau, v) + r\)
+
+\item {} 
+Set \(z_i = v(t^S_{n,i})\),
+
+\end{enumerate}
+
+\item {} 
+Set \(y_{n} = z_{s+1}\),
+
+\end{enumerate}
+
+where \(t^S_{n,j} = t_{n-1} + c^S_{j} h^S\) and
+\(A^S_{s+1,j}=b^S_{j}\).
+
+The MRIStep module provides a third order explicit outer method
+({\hyperref[Butcher:butcher-knoth-wolke]{\emph{\DUspan{}{Knoth-Wolke-3-3}}}}). The inner ODE is solved using the ARKStep
+module. As such can the inner methods can be an explicit, implicit, or IMEX
+method.
+
+User-defined outer and inner methods are also supported. A user defined method
+will be first to third order accurate depending on the slow and fast tables
+provided. If both the slow and fast tables are second order, then the overall
+method will also be second order. If the slow and fast tables are both third
+order and the slow method satisfies an auxiliary condition (see \phantomsection\label{Mathematics:id5}{\hyperref[References:skaw2012a]{\emph{{[}SKAW2012a{]}}}}),
+then the overall method will also be third order.
+
+Note that at this time the MRIStep module only supports explicit outer tables
+where the stage times are unique and ordered (i.e., \(c^S_{i} > c^S_{i-1}\))
+and the final stage time is less than 1.
 
 
 \section{Error norms}
@@ -1489,8 +1514,8 @@ We therefore use the norm of the difference between \(y_n\) and
 \phantomsection\label{Mathematics:equation-LTE}\begin{gather}
 \begin{split}M T_n = \beta \left(y_n - \tilde{y}_n\right) =
 \beta h_n \sum_{i=1}^{s} \left[
-\left(b^E_i - \tilde{b}^E_i\right) f_E(t^E_{n,i}, z_i) +
-\left(b^I_i - \tilde{b}^I_i\right) f_I(t^I_{n,i}, z_i) \right]\end{split}\label{Mathematics-LTE}
+\left(b^E_i - \tilde{b}^E_i\right) f^E(t^E_{n,i}, z_i) +
+\left(b^I_i - \tilde{b}^I_i\right) f^I(t^I_{n,i}, z_i) \right]\end{split}\label{Mathematics-LTE}
 \end{gather}
 for ARK methods, and similarly for ERK methods.  Here, \(\beta>0\)
 is an error \emph{bias} to help account for the error constant \(D\);
@@ -1678,14 +1703,14 @@ experimentation with temporal error controllers.
 \section{Explicit stability}
 \label{Mathematics:mathematics-stability}\label{Mathematics:explicit-stability}
 For problems that involve a nonzero explicit component,
-i.e. \(f_E(t,y) \ne 0\) in ARKStep or for any problem in
+i.e. \(f^E(t,y) \ne 0\) in ARKStep or for any problem in
 ERKStep, explicit and ImEx Runge-Kutta methods may benefit from
 additional user-supplied information regarding the explicit stability
 region.  All ARKode adaptivity methods utilize estimates of the local
 error, and it is often the case that such local error control will be
 sufficient for method stability, since unstable steps will typically
 exceed the error control tolerances.  However, for problems in which
-\(f_E(t,y)\) includes even moderately stiff components, and
+\(f^E(t,y)\) includes even moderately stiff components, and
 especially for higher-order integration methods, it may occur that
 a significant number of attempted steps will exceed the error
 tolerances.  While these steps will automatically be recomputed, such
@@ -1696,13 +1721,13 @@ stability-based time step controller may also be useful.
 Since the maximum stable explicit step for any method depends on the
 problem under consideration, in that the value \((h_n\lambda)\) must
 reside within a bounded stability region, where \(\lambda\) are
-the eigenvalues of the linearized operator \(\partial f_E /
+the eigenvalues of the linearized operator \(\partial f^E /
 \partial y\), information on the maximum stable step size is not
 readily available to ARKode's time-stepping modules.  However, for
 many problems such information may be easily obtained through analysis
 of the problem itself, e.g. in an advection-diffusion calculation
-\(f_I\) may contain the stiff diffusive components and
-\(f_E\) may contain the comparably nonstiff advection terms.  In
+\(f^I\) may contain the stiff diffusive components and
+\(f^E\) may contain the comparably nonstiff advection terms.  In
 this scenario, an explicitly stable step \(h_\text{exp}\) would be
 predicted as one satisfying the Courant-Friedrichs-Lewy (CFL)
 stability condition for the advective portion of the problem,
@@ -1755,7 +1780,7 @@ Additional information on this mode is provided in the sections
 \section{Algebraic solvers}
 \label{Mathematics:algebraic-solvers}\label{Mathematics:mathematics-algebraicsolvers}
 When solving a problem involving either a nonzero implicit component,
-\(f_I(t,y) \ne 0\), or a non-identity mass matrix,
+\(f^I(t,y) \ne 0\), or a non-identity mass matrix,
 \(M \ne I\), systems of linear or nonlinear algebraic equations
 must be solved at each stage and/or step of the method.  This section
 therefore focuses on the variety of mathematical methods provided in
@@ -1774,23 +1799,23 @@ used for simplifying the above solves when using non-time-dependent
 For both the DIRK and ARK methods corresponding to \eqref{Mathematics-IMEX_IVP} and
 \eqref{Mathematics-IVP_implicit}, an implicit system
 \phantomsection\label{Mathematics:equation-Residual}\begin{gather}
-\begin{split}G(z_i) \equiv M z_i - h_n A^I_{i,i} f_I(t^I_{n,i}, z_i) - a_i = 0\end{split}\label{Mathematics-Residual}
+\begin{split}G(z_i) \equiv M z_i - h_n A^I_{i,i} f^I(t^I_{n,i}, z_i) - a_i = 0\end{split}\label{Mathematics-Residual}
 \end{gather}
 must be solved for each stage \(z_i, i=1,\ldots,s\), where we have
 the data
 \begin{gather}
 \begin{split}a_i \equiv \left( y_{n-1} + h_n \sum_{j=1}^{i-1} \left[
-A^E_{i,j} f_E(t^E_{n,j}, z_j) +
-A^I_{i,j} f_I(t^I_{n,j}, z_j) \right] \right)\end{split}\notag
+A^E_{i,j} f^E(t^E_{n,j}, z_j) +
+A^I_{i,j} f^I(t^I_{n,j}, z_j) \right] \right)\end{split}\notag
 \end{gather}
 for the ARK methods, or
 \begin{gather}
 \begin{split}a_i \equiv \left( y_{n-1} + h_n \sum_{j=1}^{i-1}
-A^I_{i,j} f_I(t^I_{n,j}, z_j) \right)\end{split}\notag
+A^I_{i,j} f^I(t^I_{n,j}, z_j) \right)\end{split}\notag
 \end{gather}
-for the DIRK methods.  Here, if \(f_I(t,y)\) depends nonlinearly
+for the DIRK methods.  Here, if \(f^I(t,y)\) depends nonlinearly
 on \(y\) then \eqref{Mathematics-Residual} corresponds to a nonlinear system of
-equations; if \(f_I(t,y)\) depends linearly on \(y\) then this
+equations; if \(f^I(t,y)\) depends linearly on \(y\) then this
 is a linear system of equations.
 
 For systems of either type, ARKode provides a choice of solution
@@ -1811,7 +1836,7 @@ update \(\delta^{(m+1)}\) in turn requires the solution of the
 in which
 \phantomsection\label{Mathematics:equation-NewtonMatrix}\begin{gather}
 \begin{split}{\mathcal A}(t,z) \approx M - \gamma J(t,z), \quad
-J(t,z) = \frac{\partial f_I(t,z)}{\partial z}, \quad\text{and}\quad
+J(t,z) = \frac{\partial f^I(t,z)}{\partial z}, \quad\text{and}\quad
 \gamma = h_n A^I_{i,i}.\end{split}\label{Mathematics-NewtonMatrix}
 \end{gather}
 When the problem involves an identity mass matrix, then as an
@@ -1828,7 +1853,7 @@ method, these methods \emph{do not} require the solution of a linear system
 at each iteration, instead opting for solution of a low-dimensional
 least-squares solution to construct the nonlinear update.
 
-Finally, if the user specifies that \(f_I(t,y)\) depends linearly
+Finally, if the user specifies that \(f^I(t,y)\) depends linearly
 on \(y\), and if the Newton-based nonlinear solver is chosen, then
 the problem \eqref{Mathematics-Residual} will be solved using only a single Newton
 iteration. In this case, an additional user-supplied argument
@@ -1967,9 +1992,9 @@ where \(e_j\) is the \(j\)-th unit vector, and the increments
 Here \(U\) is the unit roundoff, \(\sigma_0\) is a small
 dimensionless value, and \(w_j\) is the error weight defined in
 \eqref{Mathematics-EWT}.  In the dense case, this approach requires \(N\)
-evaluations of \(f_I\), one for each column of \(J\).  In the
+evaluations of \(f^I\), one for each column of \(J\).  In the
 band case, the columns of \(J\) are computed in groups, using the
-Curtis-Powell-Reid algorithm, with the number of \(f_I\)
+Curtis-Powell-Reid algorithm, with the number of \(f^I\)
 evaluations equal to the matrix bandwidth.
 
 We note that with sparse and user-supplied SUNMatrix objects, the
@@ -1996,7 +2021,7 @@ obtained by either calling an optional user-supplied routine, or
 through a finite difference approximation to the directional
 derivative:
 \begin{gather}
-\begin{split}J(t,z)\,v \approx \frac{f_I(t,z+\sigma v) - f_I(t,z)}{\sigma},\end{split}\notag
+\begin{split}J(t,z)\,v \approx \frac{f^I(t,z+\sigma v) - f^I(t,z)}{\sigma},\end{split}\notag
 \end{gather}
 where the increment \(\sigma = 1/\|v\|\) to ensure that
 \(\|\sigma v\| = 1\).
@@ -2215,7 +2240,7 @@ algorithm in fact applies the single preconditioner matrix \(P\)
 in both left/right fashion as \(P^{-1/2} {\mathcal A} P^{-1/2}\).
 
 Typical preconditioners are based on approximations
-to the system Jacobian, \(J = \partial f_I / \partial y\).  Since
+to the system Jacobian, \(J = \partial f^I / \partial y\).  Since
 the Newton iteration matrix involved is \({\mathcal A} = M -
 \gamma J\), any approximation \(\bar{J}\) to \(J\) yields a
 matrix that is of potential use as a preconditioner, namely \(P =
@@ -2372,15 +2397,15 @@ create a predictor containing all but the current stage solution.
 Specifically, as discussed in equations \eqref{Mathematics-ARK} and \eqref{Mathematics-Residual},
 each stage solves a nonlinear equation
 \begin{gather}
-\begin{split}z_i &= y_{n-1} + h_n \sum_{j=1}^{i-1} A^E_{i,j} f_E(t^E_{n,j}, z_j)
-+ h_n \sum_{j=1}^{i}   A^I_{i,j} f_I(t^I_{n,j}, z_j), \\
+\begin{split}z_i &= y_{n-1} + h_n \sum_{j=1}^{i-1} A^E_{i,j} f^E(t^E_{n,j}, z_j)
++ h_n \sum_{j=1}^{i}   A^I_{i,j} f^I(t^I_{n,j}, z_j), \\
 \Leftrightarrow \qquad \qquad & \\
-G(z_i) &\equiv z_i - h_n A^I_{i,i} f_I(t^I_{n,i}, z_i) - a_i = 0.\end{split}\notag
+G(z_i) &\equiv z_i - h_n A^I_{i,i} f^I(t^I_{n,i}, z_i) - a_i = 0.\end{split}\notag
 \end{gather}
 This prediction method merely computes the predictor \(z_i\) as
 \begin{gather}
-\begin{split}z_i &= y_{n-1} + h_n \sum_{j=1}^{i-1} A^E_{i,j} f_E(t^E_{n,j}, z_j)
-              + h_n \sum_{j=1}^{i-1}  A^I_{i,j} f_I(t^I_{n,j}, z_j), \\
+\begin{split}z_i &= y_{n-1} + h_n \sum_{j=1}^{i-1} A^E_{i,j} f^E(t^E_{n,j}, z_j)
+              + h_n \sum_{j=1}^{i-1}  A^I_{i,j} f^I(t^I_{n,j}, z_j), \\
 \Leftrightarrow \quad \qquad & \\
 z_i &= a_i.\end{split}\notag
 \end{gather}
@@ -2445,14 +2470,14 @@ predictors for the implicit solver iteration (see section
 time-evolved solution \(y_n\) from equation \eqref{Mathematics-ARK} we must
 solve
 \begin{gather}
-\begin{split}&M y_n \ = \ M y_{n-1} + h_n \sum_{i=1}^{s} \left( b^E_i f_E(t^E_{n,i}, z_i)
-              + b^I_i f_I(t^I_{n,i}, z_i)\right), \\
+\begin{split}&M y_n \ = \ M y_{n-1} + h_n \sum_{i=1}^{s} \left( b^E_i f^E(t^E_{n,i}, z_i)
+              + b^I_i f^I(t^I_{n,i}, z_i)\right), \\
 \Leftrightarrow \qquad & \\
-&M (y_n -y_{n-1}) \ = \ h_n \sum_{i=1}^{s} \left(b^E_i f_E(t^E_{n,i}, z_i)
-              + b^I_i f_I(t^I_{n,i}, z_i)\right), \\
+&M (y_n -y_{n-1}) \ = \ h_n \sum_{i=1}^{s} \left(b^E_i f^E(t^E_{n,i}, z_i)
+              + b^I_i f^I(t^I_{n,i}, z_i)\right), \\
 \Leftrightarrow \qquad & \\
-&M \nu \ = \ h_n \sum_{i=1}^{s} \left(b^E_i f_E(t^E_{n,i}, z_i)
-              + b^I_i f_I(t^I_{n,i}, z_i)\right),\end{split}\notag
+&M \nu \ = \ h_n \sum_{i=1}^{s} \left(b^E_i f^E(t^E_{n,i}, z_i)
+              + b^I_i f^I(t^I_{n,i}, z_i)\right),\end{split}\notag
 \end{gather}
 for the update \(\nu = y_n - y_{n-1}\).  For construction of the
 stages \(z_i\) this requires no mass matrix solves (as these are
@@ -2461,14 +2486,14 @@ the local temporal error estimate \(T_n\) from equation \eqref{Mathematics-LTE}
 we must solve systems of the form
 \phantomsection\label{Mathematics:equation-mass_solve_LTE}\begin{gather}
 \begin{split}M\, T_n = h \sum_{i=1}^{s} \left[
-\left(b^E_i - \tilde{b}^E_i\right) f_E(t^E_{n,i}, z_i) +
-\left(b^I_i - \tilde{b}^I_i\right) f_I(t^I_{n,i}, z_i) \right].\end{split}\label{Mathematics-mass_solve_LTE}
+\left(b^E_i - \tilde{b}^E_i\right) f^E(t^E_{n,i}, z_i) +
+\left(b^I_i - \tilde{b}^I_i\right) f^I(t^I_{n,i}, z_i) \right].\end{split}\label{Mathematics-mass_solve_LTE}
 \end{gather}
 Lastly, in constructing dense output and implicit predictors of order
 2 or higher (as in the section {\hyperref[Mathematics:mathematics-predictors-max]{\emph{\DUspan{}{Maximum order predictor}}}} above),
 we must compute the derivative information \(f_k\) from the equation
 \begin{gather}
-\begin{split}M f_k = f_E(t_k, y_k) + f_I(t_k, y_k).\end{split}\notag
+\begin{split}M f_k = f^E(t_k, y_k) + f^I(t_k, y_k).\end{split}\notag
 \end{gather}
 In total, these require only two mass-matrix linear solves
 \eqref{Mathematics-mass_solve} per attempted time step, with one more upon
@@ -3676,20 +3701,20 @@ provide her own error handler function (see the section
 \label{ARKStep_c_interface/User_callable:arkstep-cinterface-initialization}\label{ARKStep_c_interface/User_callable:arkstep-initialization-and-deallocation-functions}\index{ARKStepCreate (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepCreate}\pysiglinewithargsret{void* \bfcode{ARKStepCreate}}{{\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fe}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fi}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepCreate}\pysiglinewithargsret{void* \bfcode{ARKStepCreate}}{{\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fe}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fi}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
 This function creates an internal memory block for a problem to be
 solved using the ARKStep time-stepping module in ARKode.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
-\emph{fe} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{fe} -- the name of the C function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the explicit portion of the right-hand side function in
-\(M\, \dot{y} = f_E(t,y) + f_I(t,y)\).
+\(M\, \dot{y} = f^E(t,y) + f^I(t,y)\).
 
 \item {} 
-\emph{fi} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{fi} -- the name of the C function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the implicit portion of the right-hand side function in
-\(M\, \dot{y} = f_E(t,y) + f_I(t,y)\).
+\(M\, \dot{y} = f^E(t,y) + f^I(t,y)\).
 
 \item {} 
 \emph{t0} -- the initial value of \(t\).
@@ -3841,7 +3866,7 @@ solution component.
 \index{ARKStepWFtolerances (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepWFtolerances}\pysiglinewithargsret{int \bfcode{ARKStepWFtolerances}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{ARKEwtFn}}}\emph{ efun}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepWFtolerances}\pysiglinewithargsret{int \bfcode{ARKStepWFtolerances}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{ARKEwtFn}}}\emph{ efun}}{}
 This function specifies a user-supplied function \emph{efun} to compute
 the error weight vector \code{ewt}.
 \begin{description}
@@ -3850,7 +3875,7 @@ the error weight vector \code{ewt}.
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {} 
-\emph{efun} -- the name of the function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}})
+\emph{efun} -- the name of the function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}})
 that implements the error weight vector computation.
 
 \end{itemize}
@@ -4097,21 +4122,21 @@ magnitude comparable to \code{abstol} or less, is equivalent to zero
 as far as the computation is concerned.
 
 \item {} 
-The user's right-hand side routines \(f_E\) and \(f_I\)
+The user's right-hand side routines \(f^E\) and \(f^I\)
 should never change a negative value in the solution vector \(y\)
 to a non-negative value in attempt to ``fix'' this problem,
-since this can lead to numerical instability.  If the \(f_E\)
-or \(f_I\) routines cannot tolerate a zero or negative value
+since this can lead to numerical instability.  If the \(f^E\)
+or \(f^I\) routines cannot tolerate a zero or negative value
 (e.g. because there is a square root or log), then the offending
 value should be changed to zero or a tiny positive number in a
 temporary variable (not in the input \(y\) vector) for the
-purposes of computing \(f_E(t, y)\) or \(f_I(t, y)\).
+purposes of computing \(f^E(t, y)\) or \(f^I(t, y)\).
 
 \item {} 
 Positivity and non-negativity constraints on components can be
 enforced by use of the recoverable error return feature in the
-user-supplied right-hand side functions, \(f_E\) and
-\(f_I\). When a recoverable error is encountered, ARKStep will
+user-supplied right-hand side functions, \(f^E\) and
+\(f^I\). When a recoverable error is encountered, ARKStep will
 retry the step with a smaller step size, which typically
 alleviates the problem.  However, because this option involves
 some additional overhead cost, it should only be exercised if the
@@ -4131,7 +4156,7 @@ systems of the form
 \end{gather}
 where
 \begin{gather}
-\begin{split}{\mathcal A} \approx M - \gamma J, \qquad J = \frac{\partial f_I}{\partial y}.\end{split}\notag
+\begin{split}{\mathcal A} \approx M - \gamma J, \qquad J = \frac{\partial f^I}{\partial y}.\end{split}\notag
 \end{gather}
 ARKode's ARKLs linear solver interface supports all valid
 \code{SUNLinearSolver} modules for this task.
@@ -4485,7 +4510,7 @@ called prior to a continuation call to {\hyperref[ARKStep_c_interface/User_calla
 \index{ARKStepRootInit (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepRootInit}\pysiglinewithargsret{int \bfcode{ARKStepRootInit}}{void*\emph{ arkode\_mem}, int\emph{ nrtfn}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{ARKRootFn}}}\emph{ g}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepRootInit}\pysiglinewithargsret{int \bfcode{ARKStepRootInit}}{void*\emph{ arkode\_mem}, int\emph{ nrtfn}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{ARKRootFn}}}\emph{ g}}{}
 Initializes a rootfinding problem to be solved during the
 integration of the ODE system.  It must be called after
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepCreate]{\emph{\code{ARKStepCreate()}}}}, and before {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepEvolve]{\emph{\code{ARKStepEvolve()}}}}.
@@ -4498,7 +4523,7 @@ integration of the ODE system.  It must be called after
 \emph{nrtfn} -- number of functions \(g_i\), an integer \(\ge\) 0.
 
 \item {} 
-\emph{g} -- name of user-supplied function, of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn()}}}},
+\emph{g} -- name of user-supplied function, of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn()}}}},
 defining the functions \(g_i\) whose roots are sought.
 
 \end{itemize}
@@ -5021,7 +5046,7 @@ error messages.
 \index{ARKStepSetErrHandlerFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetErrHandlerFn}\pysiglinewithargsret{int \bfcode{ARKStepSetErrHandlerFn}}{void*\emph{ arkode\_mem}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{ARKErrHandlerFn}}}\emph{ ehfun}, void*\emph{ eh\_data}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetErrHandlerFn}\pysiglinewithargsret{int \bfcode{ARKStepSetErrHandlerFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{ARKErrHandlerFn}}}\emph{ ehfun}, void*\emph{ eh\_data}}{}
 Specifies the optional user-defined function to be used
 in handling error messages.
 \begin{description}
@@ -5892,7 +5917,7 @@ none
 \index{ARKStepSetAdaptivityFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetAdaptivityFn}\pysiglinewithargsret{int \bfcode{ARKStepSetAdaptivityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{ARKAdaptFn}}}\emph{ hfun}, void*\emph{ h\_data}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetAdaptivityFn}\pysiglinewithargsret{int \bfcode{ARKStepSetAdaptivityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{ARKAdaptFn}}}\emph{ hfun}, void*\emph{ h\_data}}{}
 Sets a user-supplied time-step adaptivity function.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -6303,7 +6328,7 @@ before the \emph{etamxf} parameter from
 \index{ARKStepSetStabilityFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetStabilityFn}\pysiglinewithargsret{int \bfcode{ARKStepSetStabilityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{ARKExpStabFn}}}\emph{ EStab}, void*\emph{ estab\_data}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetStabilityFn}\pysiglinewithargsret{int \bfcode{ARKStepSetStabilityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{ARKExpStabFn}}}\emph{ EStab}, void*\emph{ estab\_data}}{}
 Sets the problem-dependent function to estimate a stable
 time step size for the explicit portion of the ODE system.
 \begin{description}
@@ -6339,7 +6364,7 @@ value of the maximum stable time step for the explicit portion of
 the ODE system.  It is not required, since accuracy-based
 adaptivity may be sufficient for retaining stability, but this can
 be quite useful for problems where the explicit right-hand side
-function \(f_E(t,y)\) may contain stiff terms.
+function \(f^E(t,y)\) may contain stiff terms.
 
 \end{fulllineitems}
 
@@ -6361,14 +6386,14 @@ Function name
 Default
 }\\
 \hline
-Specify linearly implicit \(f_I\)
+Specify linearly implicit \(f^I\)
  & 
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetLinear]{\emph{\code{ARKStepSetLinear()}}}}
  & 
 \code{SUNFALSE}
 \\
 \hline
-Specify nonlinearly implicit \(f_I\)
+Specify nonlinearly implicit \(f^I\)
  & 
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetNonlinear]{\emph{\code{ARKStepSetNonlinear()}}}}
  & 
@@ -6430,7 +6455,7 @@ Specifies that the implicit portion of the problem is linear.
 
 \item {} 
 \emph{timedepend} -- flag denoting whether the Jacobian of
-\(f_I(t,y)\) is time-dependent (1) or not (0).
+\(f^I(t,y)\) is time-dependent (1) or not (0).
 Alternately, when using an iterative linear solver this flag
 denotes time dependence of the preconditioner.
 
@@ -6765,7 +6790,7 @@ routines to modify this behavior.  To this end, we recall that the
 Newton system matrices that arise within an implicit stage solve are
 \({\mathcal A}(t,z) \approx M - \gamma J(t,z)\), where the
 implicit right-hand side function has Jacobian matrix
-\(J(t,z) = \frac{\partial f_I(t,z)}{\partial z}\).
+\(J(t,z) = \frac{\partial f^I(t,z)}{\partial z}\).
 
 The matrix or preconditioner for \({\mathcal A}\) can only be
 updated within a call to the linear solver `setup' routine.  In
@@ -6799,7 +6824,7 @@ whether to recommend a preconditioner update (i.e., whether to set
 
 For matrix-based linear solvers: at each call to the linear solver
 setup routine, \emph{msbj} is used to determine whether the matrix
-\(J(t,y) = \frac{\partial f_I(t,y)}{\partial y}\) should be
+\(J(t,y) = \frac{\partial f^I(t,y)}{\partial y}\) should be
 updated; if not then the previous value is reused and the system
 matrix \({\mathcal A}(t,y) \approx M - \gamma J(t,y)\) is
 recomputed using the current \(\gamma\) value.
@@ -8423,17 +8448,17 @@ Returns the cumulative number of steps attempted by the solver (so far).
 \begin{fulllineitems}
 \phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepGetNumRhsEvals}\pysiglinewithargsret{int \bfcode{ARKStepGetNumRhsEvals}}{void*\emph{ arkode\_mem}, long int*\emph{ nfe\_evals}, long int*\emph{ nfi\_evals}}{}
 Returns the number of calls to the user's right-hand
-side functions, \(f_E\) and \(f_I\) (so far).
+side functions, \(f^E\) and \(f^I\) (so far).
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {} 
-\emph{nfe\_evals} -- number of calls to the user's \(f_E(t,y)\) function.
+\emph{nfe\_evals} -- number of calls to the user's \(f^E(t,y)\) function.
 
 \item {} 
-\emph{nfi\_evals} -- number of calls to the user's \(f_I(t,y)\) function.
+\emph{nfi\_evals} -- number of calls to the user's \(f^I(t,y)\) function.
 
 \end{itemize}
 
@@ -8449,7 +8474,7 @@ side functions, \(f_E\) and \(f_I\) (so far).
 \end{description}
 
 \textbf{Notes:} The \emph{nfi\_evals} value does not account for calls made to
-\(f_I\) by a linear solver or preconditioner module.
+\(f^I\) by a linear solver or preconditioner module.
 
 \end{fulllineitems}
 
@@ -8597,10 +8622,10 @@ Returns many of the most useful time-stepper statistics in a single call.
 \emph{step\_attempts} -- number of steps attempted by the solver.
 
 \item {} 
-\emph{nfe\_evals} -- number of calls to the user's \(f_E(t,y)\) function.
+\emph{nfe\_evals} -- number of calls to the user's \(f^E(t,y)\) function.
 
 \item {} 
-\emph{nfi\_evals} -- number of calls to the user's \(f_I(t,y)\) function.
+\emph{nfi\_evals} -- number of calls to the user's \(f^I(t,y)\) function.
 
 \item {} 
 \emph{nlinsetups} -- number of linear solver setup calls made.
@@ -9303,7 +9328,7 @@ Jacobian-vector product function, \emph{jtimes}.
 \begin{fulllineitems}
 \phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepGetNumLinRhsEvals}\pysiglinewithargsret{int \bfcode{ARKStepGetNumLinRhsEvals}}{void*\emph{ arkode\_mem}, long int*\emph{ nfevalsLS}}{}
 Returns the number of calls to the user-supplied implicit
-right-hand side function \(f_I\) for finite difference
+right-hand side function \(f^I\) for finite difference
 Jacobian or Jacobian-vector product approximation.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -9938,7 +9963,7 @@ vector.
 \index{ARKStepReInit (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepReInit}\pysiglinewithargsret{int \bfcode{ARKStepReInit}}{void*\emph{ arkode\_mem}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fe}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fi}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepReInit}\pysiglinewithargsret{int \bfcode{ARKStepReInit}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fe}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fi}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
 Provides required problem specifications and re-initializes the
 ARKStep time-stepper module.
 \begin{description}
@@ -9947,14 +9972,14 @@ ARKStep time-stepper module.
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {} 
-\emph{fe} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{fe} -- the name of the C function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the explicit portion of the right-hand side function in
-\(M\, \dot{y} = f_E(t,y) + f_I(t,y)\).
+\(M\, \dot{y} = f^E(t,y) + f^I(t,y)\).
 
 \item {} 
-\emph{fi} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{fi} -- the name of the C function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the implicit portion of the right-hand side function in
-\(M\, \dot{y} = f_E(t,y) + f_I(t,y)\).
+\(M\, \dot{y} = f^E(t,y) + f^I(t,y)\).
 
 \item {} 
 \emph{t0} -- the initial value of \(t\).
@@ -10008,7 +10033,7 @@ memory structure should be deleted with a call to
 To aid in the vector resize operation, the user can supply a vector
 resize function that will take as input a vector with the previous
 size, and transform it in-place to return a corresponding vector of
-the new size.  If this function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}})
+the new size.  If this function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}})
 is not supplied (i.e. is set to \code{NULL}), then all existing vectors
 internal to ARKStep will be destroyed and re-cloned from the new input
 vector.
@@ -10020,7 +10045,7 @@ rescale the upcoming time step by the specified factor.  If a value
 \index{ARKStepResize (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepResize}\pysiglinewithargsret{int \bfcode{ARKStepResize}}{void*\emph{ arkode\_mem}, N\_Vector\emph{ ynew}, realtype\emph{ hscale}, realtype\emph{ t0}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{ARKVecResizeFn}}}\emph{ resize}, void*\emph{ resize\_data}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepResize}\pysiglinewithargsret{int \bfcode{ARKStepResize}}{void*\emph{ arkode\_mem}, N\_Vector\emph{ ynew}, realtype\emph{ hscale}, realtype\emph{ t0}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{ARKVecResizeFn}}}\emph{ resize}, void*\emph{ resize\_data}}{}
 Re-initializes ARKStep with a different state vector but with
 comparable dynamical time scale.
 \begin{description}
@@ -10042,7 +10067,7 @@ scale (i.e. the next step will be of size \emph{h*hscale}).
 
 \item {} 
 \emph{resize} -- the user-supplied vector resize function (of type
-{\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}}.
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}}.
 
 \item {} 
 \emph{resize\_data} -- the user-supplied data structure to be passed
@@ -10175,7 +10200,7 @@ deletion/recreation), and if the user plans to call
 
 \subsection{ODE right-hand side}
 \label{ARKStep_c_interface/User_supplied:ode-right-hand-side}\label{ARKStep_c_interface/User_supplied:arkstep-cinterface-oderhs}
-The user must supply at least one function of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} to
+The user must supply at least one function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} to
 specify the explicit and/or implicit portions of the ODE system:
 \index{ARKRhsFn (C type)}
 
@@ -10192,7 +10217,7 @@ value of the independent variable \(t\) and state vector \(y\).
 \emph{y} -- the current value of the dependent variable vector.
 
 \item {} 
-\emph{ydot} -- the output vector that forms a portion of the ODE RHS \(f_E(t,y) + f_I(t,y)\).
+\emph{ydot} -- the output vector that forms a portion of the ODE RHS \(f^E(t,y) + f^I(t,y)\).
 
 \item {} 
 \emph{user\_data} -- the \emph{user\_data} pointer that was passed to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetUserData]{\emph{\code{ARKStepSetUserData()}}}}.
@@ -10232,7 +10257,7 @@ completes a successful stage, in which case ARKStep returns
 As an alternative to the default behavior of directing error and
 warning messages to the file pointed to by \emph{errfp} (see
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetErrFile]{\emph{\code{ARKStepSetErrFile()}}}}), the user may provide a function of type
-{\hyperref[MRIStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{\code{ARKErrHandlerFn}}}} to process any such messages.
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{\code{ARKErrHandlerFn}}}} to process any such messages.
 \index{ARKErrHandlerFn (C type)}
 
 \begin{fulllineitems}
@@ -10276,7 +10301,7 @@ pointer to memory encounters an error, it sets \emph{error\_code} to
 \subsection{Error weight function}
 \label{ARKStep_c_interface/User_supplied:arkstep-cinterface-errorweight}\label{ARKStep_c_interface/User_supplied:error-weight-function}
 As an alternative to providing the relative and absolute tolerances,
-the user may provide a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn}}}} to compute a
+the user may provide a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn}}}} to compute a
 vector \emph{ewt} containing the weights in the WRMS norm
 \(\|v\|_{WRMS} = \left(\frac{1}{n} \sum_{i=1}^n \left(ewt_i\; v_i\right)^2
 \right)^{1/2}\).  These weights will be used in place of those defined
@@ -10368,7 +10393,7 @@ is not satisfied.
 \label{ARKStep_c_interface/User_supplied:arkstep-cinterface-adaptivityfn}\label{ARKStep_c_interface/User_supplied:time-step-adaptivity-function}
 As an alternative to using one of the built-in time step adaptivity
 methods for controlling solution error, the user may provide a
-function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn}}}} to compute a target step size
+function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn}}}} to compute a target step size
 \(h\) for the next integration step.  These steps should be chosen
 as the maximum value such that the error estimates remain below 1.
 \index{ARKAdaptFn (C type)}
@@ -10431,11 +10456,11 @@ successfully set the next step size, and a non-zero value otherwise.
 \subsection{Explicit stability function}
 \label{ARKStep_c_interface/User_supplied:explicit-stability-function}\label{ARKStep_c_interface/User_supplied:arkstep-cinterface-stabilityfn}
 A user may supply a function to predict the maximum stable step size
-for the explicit portion of the ImEx system, \(f_E(t,y)\).  While
+for the explicit portion of the ImEx system, \(f^E(t,y)\).  While
 the accuracy-based time step adaptivity algorithms may be sufficient
 for retaining a stable solution to the ODE system, these may be
-inefficient if \(f_E(t,y)\) contains moderately stiff terms.  In
-this scenario, a user may provide a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn}}}}
+inefficient if \(f^E(t,y)\) contains moderately stiff terms.  In
+this scenario, a user may provide a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn}}}}
 to provide this stability information to ARKStep.  This function
 must set the scalar step size satisfying the stability restriction for
 the upcoming time step.  This value will subsequently be bounded by
@@ -10483,7 +10508,7 @@ stability restriction on the time step size.
 \subsection{Rootfinding function}
 \label{ARKStep_c_interface/User_supplied:arkstep-cinterface-rootfindingfn}\label{ARKStep_c_interface/User_supplied:rootfinding-function}
 If a rootfinding problem is to be solved during the integration of the
-ODE system, the user must supply a function of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn}}}}.
+ODE system, the user must supply a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn}}}}.
 \index{ARKRootFn (C type)}
 
 \begin{fulllineitems}
@@ -10533,7 +10558,7 @@ function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKLsJacFn]{\emp
 \begin{fulllineitems}
 \phantomsection\label{ARKStep_c_interface/User_supplied:c.ARKLsJacFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKLsJacFn)}}{realtype\emph{ t}, N\_Vector\emph{ y}, N\_Vector\emph{ fy}, SUNMatrix\emph{ Jac}, void*\emph{ user\_data}, N\_Vector\emph{ tmp1}, N\_Vector\emph{ tmp2}, N\_Vector\emph{ tmp3}}{}
 This function computes the Jacobian matrix \(J =
-\frac{\partial f_I}{\partial y}\) (or an approximation to it).
+\frac{\partial f^I}{\partial y}\) (or an approximation to it).
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
@@ -10544,7 +10569,7 @@ This function computes the Jacobian matrix \(J =
 the predicted value of \(y(t)\).
 
 \item {} 
-\emph{fy} -- the current value of the vector \(f_I(t,y)\).
+\emph{fy} -- the current value of the vector \(f^I(t,y)\).
 
 \item {} 
 \emph{Jac} -- the output Jacobian matrix.
@@ -10685,7 +10710,7 @@ the default is a difference quotient approximation to these products.
 \begin{fulllineitems}
 \phantomsection\label{ARKStep_c_interface/User_supplied:c.ARKLsJacTimesVecFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKLsJacTimesVecFn)}}{N\_Vector\emph{ v}, N\_Vector\emph{ Jv}, realtype\emph{ t}, N\_Vector\emph{ y}, N\_Vector\emph{ fy}, void*\emph{ user\_data}, N\_Vector\emph{ tmp}}{}
 This function computes the product \(Jv =
-\left(\frac{\partial f_I}{\partial y}\right)v\) (or an approximation to it).
+\left(\frac{\partial f^I}{\partial y}\right)v\) (or an approximation to it).
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
@@ -10701,7 +10726,7 @@ This function computes the product \(Jv =
 \emph{y} -- the current value of the dependent variable vector.
 
 \item {} 
-\emph{fy} -- the current value of the vector \(f_I(t,y)\).
+\emph{fy} -- the current value of the vector \(f^I(t,y)\).
 
 \item {} 
 \emph{user\_data} -- a pointer to user data, the same as the
@@ -10756,7 +10781,7 @@ data needed by the Jacobian-times-vector routine.
 \emph{y} -- the current value of the dependent variable vector.
 
 \item {} 
-\emph{fy} -- the current value of the vector \(f_I(t,y)\).
+\emph{fy} -- the current value of the vector \(f^I(t,y)\).
 
 \item {} 
 \emph{user\_data} -- a pointer to user data, the same as the
@@ -10773,7 +10798,7 @@ error (in which case the step will be retried), or negative for an
 unrecoverable error (in which case the integration is halted).
 
 \textbf{Notes:}    Each call to the Jacobian-vector setup function is
-preceded by a call to the implicit {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} user
+preceded by a call to the implicit {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} user
 function with the same \((t,y)\) arguments.  Thus, the setup
 function can use any auxiliary data that is computed and saved
 during the evaluation of the implicit ODE right-hand side.
@@ -10801,7 +10826,7 @@ where \(P\) corresponds to either a left or right
 preconditioning matrix.  Here \(P\) should approximate (at least
 crudely) the Newton matrix \(A=M-\gamma J\), where \(M\) is
 the mass matrix (typically \(M=I\) unless working in a
-finite-element setting) and \(J = \frac{\partial f_I}{\partial
+finite-element setting) and \(J = \frac{\partial f^I}{\partial
 y}\)  If preconditioning is done on both sides, the product of the two
 preconditioner matrices should approximate \(A\).
 \index{ARKLsPrecSolveFn (C type)}
@@ -10818,7 +10843,7 @@ This function solves the preconditioner system \(Pz=r\).
 \emph{y} -- the current value of the dependent variable vector.
 
 \item {} 
-\emph{fy} -- the current value of the vector \(f_I(t,y)\).
+\emph{fy} -- the current value of the vector \(f^I(t,y)\).
 
 \item {} 
 \emph{r} -- the right-hand side vector of the linear system.
@@ -10883,7 +10908,7 @@ data needed by the preconditioner.
 \emph{y} -- the current value of the dependent variable vector.
 
 \item {} 
-\emph{fy} -- the current value of the vector \(f_I(t,y)\).
+\emph{fy} -- the current value of the vector \(f^I(t,y)\).
 
 \item {} 
 \emph{jok} -- is an input flag indicating whether the Jacobian-related
@@ -10925,7 +10950,7 @@ factorization of the resulting approximation to \(A = M -
 \gamma J\).
 
 Each call to the preconditioner setup function is preceded by a
-call to the implicit {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} user function with the
+call to the implicit {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} user function with the
 same \((t,y)\) arguments.  Thus, the preconditioner setup
 function can use any auxiliary data that is computed and saved
 during the evaluation of the ODE right-hand side.
@@ -11238,7 +11263,7 @@ adaptivity without repeated allocation/deallocation of memory.  In
 these scenarios, it is recommended that the user supply a customized
 vector kernel to interface between SUNDIALS and their problem-specific
 data structure.  If this vector kernel includes a function of type
-{\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn}}}} to resize a given vector implementation, then
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn}}}} to resize a given vector implementation, then
 this function may be supplied to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepResize]{\emph{\code{ARKStepResize()}}}} so that all
 internal ARKStep vectors may be resized, instead of deleting and
 re-creating them at each call.  This resize function should have the
@@ -11299,13 +11324,13 @@ access patterns.  It also currently requires that the problem involve
 an identity mass matrix, i.e. \(M = I\).
 
 This module uses difference quotients of the ODE right-hand
-side function \(f_I\) to generate a band matrix of bandwidth
+side function \(f^I\) to generate a band matrix of bandwidth
 \code{ml + mu + 1}, where the number of super-diagonals (\code{mu}, the
 upper half-bandwidth) and sub-diagonals (\code{ml}, the lower
 half-bandwidth) are specified by the user.  This band matrix is used
 to to form a preconditioner the Krylov linear solver.  Although this
 matrix is intended to approximate the Jacobian
-\(J = \frac{\partial f_I}{\partial y}\), it may be a very crude
+\(J = \frac{\partial f^I}{\partial y}\), it may be a very crude
 approximation, since the true Jacobian may not be banded, or its true
 bandwidth may be larger than \code{ml + mu + 1}.  However, as long as the
 banded approximation generated for the preconditioner is sufficiently
@@ -11512,7 +11537,7 @@ the corresponding function \code{ARKStepGetLSWorkspace()}.
 \begin{fulllineitems}
 \phantomsection\label{ARKStep_c_interface/Preconditioners:c.ARKBandPrecGetNumRhsEvals}\pysiglinewithargsret{int \bfcode{ARKBandPrecGetNumRhsEvals}}{void*\emph{ arkode\_mem}, long int*\emph{ nfevalsBP}}{}
 Returns the number of calls made to the user-supplied
-right-hand side function \(f_I\) for constructing the
+right-hand side function \(f^I\) for constructing the
 finite-difference banded Jacobian approximation used within the
 preconditioner setup function.
 \begin{description}
@@ -11521,7 +11546,7 @@ preconditioner setup function.
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {} 
-\emph{nfevalsBP} -- number of calls to \(f_I\).
+\emph{nfevalsBP} -- number of calls to \(f^I\).
 
 \end{itemize}
 
@@ -11547,7 +11572,7 @@ preconditioner setup function.
 \code{ARKStepGetNumLSRhsEvals()} and also from \emph{nfi\_evals} returned by
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepGetNumRhsEvals]{\emph{\code{ARKStepGetNumRhsEvals()}}}}.  The total number of right-hand
 side function evaluations is the sum of all three of these
-counters, plus the \emph{nfe\_evals} counter for \(f_E\) calls
+counters, plus the \emph{nfe\_evals} counter for \(f^E\) calls
 returned by {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepGetNumRhsEvals]{\emph{\code{ARKStepGetNumRhsEvals()}}}}.
 
 \end{fulllineitems}
@@ -11589,15 +11614,15 @@ is to isolate the preconditioning so that it is local to each process,
 and also to use a (possibly cheaper) approximate right-hand side
 function for construction of this preconditioning matrix.  This
 requires the definition of a new function \(g(t,y) \approx
-f_I(t,y)\) that will be used to construct the BBD preconditioner
+f^I(t,y)\) that will be used to construct the BBD preconditioner
 matrix.  At present, we assume that the ODE be written in explicit
 form as
 \begin{gather}
-\begin{split}\dot{y} = f_E(t,y) + f_I(t,y),\end{split}\notag
+\begin{split}\dot{y} = f^E(t,y) + f^I(t,y),\end{split}\notag
 \end{gather}
-where \(f_I\) corresponds to the ODE components to be treated
+where \(f^I\) corresponds to the ODE components to be treated
 implicitly, i.e. this preconditioning module does not support problems
-with non-identity mass matrices.  The user may set \(g = f_I\), if
+with non-identity mass matrices.  The user may set \(g = f^I\), if
 no less expensive approximation is desired.
 
 Corresponding to the domain decomposition, there is a decomposition of
@@ -11653,14 +11678,14 @@ instead of banded LU factorization.
 The ARKBBDPRE module calls two user-provided functions to construct
 \(P\): a required function \emph{gloc} (of type {\hyperref[ARKStep_c_interface/Preconditioners:c.ARKLocalFn]{\emph{\code{ARKLocalFn()}}}})
 which approximates the right-hand side function \(g(t,y) \approx
-f_I(t,y)\) and which is computed locally, and an optional function
+f^I(t,y)\) and which is computed locally, and an optional function
 \emph{cfn} (of type {\hyperref[ARKStep_c_interface/Preconditioners:c.ARKCommFn]{\emph{\code{ARKCommFn()}}}}) which performs all inter-process
 communication necessary to evaluate the approximate right-hand side
 \(g\). These are in addition to the user-supplied right-hand side
-function \(f_I\). Both functions take as input the same pointer
+function \(f^I\). Both functions take as input the same pointer
 \emph{user\_data} that is passed by the user to
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetUserData]{\emph{\code{ARKStepSetUserData()}}}} and that was passed to the user's
-function \(f_I\). The user is responsible for providing space
+function \(f^I\). The user is responsible for providing space
 (presumably within \emph{user\_data}) for components of \(y\) that are
 communicated between processes by \emph{cfn}, and that are then used by
 \emph{gloc}, which should not do any communication.
@@ -11703,7 +11728,7 @@ case the integration is halted and {\hyperref[ARKStep_c_interface/User_callable:
 communication of data needed to calculate \emph{glocal} has already been
 done, and that this data is accessible within user data.
 
-The case where \(g\) is mathematically identical to \(f_I\)
+The case where \(g\) is mathematically identical to \(f^I\)
 is allowed.
 
 \end{fulllineitems}
@@ -11745,10 +11770,10 @@ case the integration is halted and {\hyperref[ARKStep_c_interface/User_callable:
 space defined within the data structure \emph{user\_data}.
 
 Each call to the \emph{cfn} function is preceded by a call to the
-right-hand side function \(f_I\) with the same \((t,y)\)
+right-hand side function \(f^I\) with the same \((t,y)\)
 arguments. Thus, \emph{cfn} can omit any communication done by
-\(f_I\) if relevant to the evaluation of \emph{glocal}. If all
-necessary communication was done in \(f_I\), then \emph{cfn} =
+\(f^I\) if relevant to the evaluation of \emph{glocal}. If all
+necessary communication was done in \(f^I\), then \emph{cfn} =
 \code{NULL} can be passed in the call to {\hyperref[ARKStep_c_interface/Preconditioners:c.ARKBBDPrecInit]{\emph{\code{ARKBBDPrecInit()}}}}
 (see below).
 
@@ -11895,7 +11920,7 @@ passing \emph{dqrely} = 0.0.
 
 \item {} 
 \emph{gloc} -- the name of the C function (of type {\hyperref[ARKStep_c_interface/Preconditioners:c.ARKLocalFn]{\emph{\code{ARKLocalFn()}}}})
-which computes the approximation \(g(t,y) \approx f_I(t,y)\).
+which computes the approximation \(g(t,y) \approx f^I(t,y)\).
 
 \item {} 
 \emph{cfn} -- the name of the C function (of type {\hyperref[ARKStep_c_interface/Preconditioners:c.ARKCommFn]{\emph{\code{ARKCommFn()}}}}) which
@@ -12110,7 +12135,7 @@ The FARKODE interface module is a package of C functions which
 support the use of the ARKStep time-stepping module for the solution
 of ODE systems
 \begin{gather}
-\begin{split}M\, \dot{y} = f_E(t,y) + f_I(t,y),\end{split}\notag
+\begin{split}M\, \dot{y} = f^E(t,y) + f^I(t,y),\end{split}\notag
 \end{gather}
 in a mixed Fortran/C setting.  While ARKode is written in C, it is
 assumed here that the user's calling program and user-supplied
@@ -12483,8 +12508,8 @@ contrast to the case of direct use of ARKStep, and of most Fortran ODE
 solvers, the names of all user-supplied routines here are fixed, in
 order to maximize portability for the resulting mixed-language program.
 As a result, whether using a purely implicit, purely explicit, or
-mixed implicit-explicit solver, routines for both \(f_E(t,y)\) and
-\(f_I(t,y)\) must be provided by the user (though either of which
+mixed implicit-explicit solver, routines for both \(f^E(t,y)\) and
+\(f^I(t,y)\) must be provided by the user (though either of which
 may do nothing):
 
 \begin{tabulary}{\linewidth}{|L|L|}
@@ -12499,12 +12524,12 @@ function type
 \hline
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKIFUN]{\emph{\code{FARKIFUN()}}}}
  & 
-{\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}}
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}}
 \\
 \hline
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKEFUN]{\emph{\code{FARKEFUN()}}}}
  & 
-{\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}}
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}}
 \\
 \hline\end{tabulary}
 
@@ -12627,21 +12652,21 @@ FARKODE ``activation'' routine
 \hline
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKEWT]{\emph{\code{FARKEWT()}}}}
  & 
-{\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}}
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}}
  & 
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKEWTSET]{\emph{\code{FARKEWTSET()}}}}
 \\
 \hline
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKADAPT]{\emph{\code{FARKADAPT()}}}}
  & 
-{\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn()}}}}
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn()}}}}
  & 
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKADAPTSET]{\emph{\code{FARKADAPTSET()}}}}
 \\
 \hline
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKEXPSTAB]{\emph{\code{FARKEXPSTAB()}}}}
  & 
-{\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn()}}}}
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn()}}}}
  & 
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKEXPSTABSET]{\emph{\code{FARKEXPSTABSET()}}}}
 \\
@@ -12670,7 +12695,7 @@ The user must in all cases supply the following Fortran routines:
 
 \begin{fulllineitems}
 \phantomsection\label{ARKStep_f_interface/Usage:f/_/FARKIFUN}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FARKIFUN}}{\emph{T}, \emph{Y}, \emph{YDOT}, \emph{IPAR}, \emph{RPAR}, \emph{IER}}{}
-Sets the \emph{YDOT} array to \(f_I(t,y)\), the implicit portion of
+Sets the \emph{YDOT} array to \(f^I(t,y)\), the implicit portion of
 the right-hand side of the ODE system, as function of the
 independent variable \emph{T} \(=t\) and the array of dependent state
 variables \emph{Y} \(=y\).
@@ -12707,7 +12732,7 @@ recoverable error, \textless{}0 unrecoverable error).
 
 \begin{fulllineitems}
 \phantomsection\label{ARKStep_f_interface/Usage:f/_/FARKEFUN}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FARKEFUN}}{\emph{T}, \emph{Y}, \emph{YDOT}, \emph{IPAR}, \emph{RPAR}, \emph{IER}}{}
-Sets the \emph{YDOT} array to \(f_E(t,y)\), the explicit portion of
+Sets the \emph{YDOT} array to \(f^E(t,y)\), the explicit portion of
 the right-hand side of the ODE system, as function of the
 independent variable \emph{T} \(=t\) and the array of dependent state
 variables \emph{Y} \(=y\).
@@ -12769,7 +12794,7 @@ appropriate section of the Chapter {\hyperref[nvectors/index:nvectors]{\emph{\DU
 \label{ARKStep_f_interface/Usage:sunmatrix-module-initialization}\label{ARKStep_f_interface/Usage:finterface-sunmatrix}
 In the case of using either an implicit or ImEx method, the solution
 of each Runge-Kutta stage may involve the solution of linear systems
-related to the Jacobian \(J = \frac{\partial f_I}{\partial y}\) of
+related to the Jacobian \(J = \frac{\partial f^I}{\partial y}\) of
 the implicit portion of the ODE system.  If using a Newton iteration
 with direct SUNLINSOL linear solver module and one of the SUNMATRIX
 modules supplied with SUNDIALS, the user must make a call of the form
@@ -13537,7 +13562,7 @@ ARKStep for handling adaptive error control and explicit stability.
 The former of these is designed for advanced users who wish to
 investigate custom step adaptivity approaches as opposed to using any
 of those built-in to ARKStep.  In ARKStep's C/C++ interface, this would be
-provided by a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn()}}}}; in the Fortran
+provided by a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn()}}}}; in the Fortran
 interface this is provided through the user-supplied function:
 \index{FARKADAPT() (fortran subroutine)|textbf}
 
@@ -13630,7 +13655,7 @@ Similarly, if either an explicit or mixed implicit-explicit
 integration method is to be employed, the user may specify a function
 to provide the maximum explicitly-stable step for their problem.
 Again, in the C/C++ interface this would be a function of type
-{\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn()}}}}, while in ARKStep's Fortran interface this
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn()}}}}, while in ARKStep's Fortran interface this
 must be given through the user-supplied function:
 \index{FARKEXPSTAB() (fortran subroutine)|textbf}
 
@@ -13756,7 +13781,7 @@ error occurred, -2 for an illegal input).
 As an option when using ARKSTEP with either the SUNLINSOL\_DENSE or
 SUNLINSOL\_LAPACKDENSE linear solver modules, the user may supply a
 routine that computes a dense approximation of the system Jacobian
-\(J = \frac{\partial f_I}{\partial y}\).  If supplied, it must
+\(J = \frac{\partial f^I}{\partial y}\).  If supplied, it must
 have the following form:
 \index{FARKDJAC() (fortran subroutine)|textbf}
 
@@ -13849,7 +13874,7 @@ Jacobian approximation.
 As an option when using ARKStep with either the SUNLINSOL\_BAND or
 SUNLINSOL\_LAPACKBAND linear solver modules, the user may supply a
 routine that computes a banded approximation of the linear system
-Jacobian \(J = \frac{\partial f_I}{\partial y}\). If supplied, it
+Jacobian \(J = \frac{\partial f^I}{\partial y}\). If supplied, it
 must have the following form:
 \index{FARKBJAC() (fortran subroutine)|textbf}
 
@@ -13957,7 +13982,7 @@ Jacobian approximation.
 When using ARKStep with either the SUNLINSOL\_KLU or
 SUNLINSOL\_SUPERLUMT sparse direct linear solver modules, the user must
 supply a routine that computes a sparse approximation of the system
-Jacobian \(J = \frac{\partial f_I}{\partial y}\).  Both the KLU
+Jacobian \(J = \frac{\partial f^I}{\partial y}\).  Both the KLU
 and SuperLU\_MT solvers allow specification of \(J\) in either
 compressed-sparse-column (CSC) format or compressed-sparse-row (CSR)
 format.  The sparse Jacobian approximation function must have the
@@ -14099,7 +14124,7 @@ default value (0.05).
 
 Optional user-supplied routines {\hyperref[ARKStep_f_interface/Usage:f/_/FARKJTSETUP]{\emph{\code{FARKJTSETUP()}}}} and
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKJTIMES]{\emph{\code{FARKJTIMES()}}}} may be provided to compute the product
-of the system Jacobian \(J = \frac{\partial f_I}{\partial y}\) and
+of the system Jacobian \(J = \frac{\partial f^I}{\partial y}\) and
 a given vector \(v\).  If these are supplied, then following the
 call to {\hyperref[ARKStep_f_interface/Usage:f/_/FARKLSINIT]{\emph{\code{FARKLSINIT()}}}}, the user must call the
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKLSSETJAC]{\emph{\code{FARKLSSETJAC()}}}} routine with \emph{FLAG} \(\ne 0\):
@@ -14175,7 +14200,7 @@ given below.
 
 As an option when using iterative linear solvers, the user
 may supply a routine that computes the product of the system Jacobian
-\(J = \frac{\partial f_I}{\partial y}\) and a given vector
+\(J = \frac{\partial f^I}{\partial y}\) and a given vector
 \(v\).  If supplied, it must have the following form:
 \index{FARKJTIMES() (fortran subroutine)|textbf}
 
@@ -14338,7 +14363,7 @@ Typically this routine will use only \emph{T}, \emph{Y}, \emph{GAMMA}, \emph{R},
 right preconditioners if both are nontrivial) should be an
 approximation to the matrix  \(M - \gamma J\), where
 \(M\) is the system mass matrix, \(\gamma\) is the input
-GAMMA, and \(J = \frac{\partial f_I}{\partial y}\).
+GAMMA, and \(J = \frac{\partial f^I}{\partial y}\).
 
 \end{fulllineitems}
 
@@ -14399,7 +14424,7 @@ the subsequent call to {\hyperref[ARKStep_f_interface/Usage:f/_/FARKPSOL]{\emph{
 the product of the left and right preconditioners if using both)
 should be an approximation to the matrix  \(M - \gamma J\),
 where \(M\) is the system mass matrix, \(\gamma\) is the
-input \emph{GAMMA}, and \(J = \frac{\partial f_I}{\partial y}\).
+input \emph{GAMMA}, and \(J = \frac{\partial f^I}{\partial y}\).
 
 \end{fulllineitems}
 
@@ -15377,14 +15402,14 @@ NST\_ATT
  & 
 NFE
  & 
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepGetNumRhsEvals]{\emph{\code{ARKStepGetNumRhsEvals()}}}} (num \(f_E\) calls)
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepGetNumRhsEvals]{\emph{\code{ARKStepGetNumRhsEvals()}}}} (num \(f^E\) calls)
 \\
 \hline
 8
  & 
 NFI
  & 
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepGetNumRhsEvals]{\emph{\code{ARKStepGetNumRhsEvals()}}}} (num \(f_I\) calls)
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepGetNumRhsEvals]{\emph{\code{ARKStepGetNumRhsEvals()}}}} (num \(f^I\) calls)
 \\
 \hline
 9
@@ -16021,7 +16046,7 @@ preconditioner work space, in integer words (from
 
 \item {} 
 \emph{NFEBP} (\code{long int}, output) -- number of
-\(f_I(t,y)\) evaluations (from
+\(f^I(t,y)\) evaluations (from
 {\hyperref[ARKStep_c_interface/Preconditioners:c.ARKBandPrecGetNumRhsEvals]{\emph{\code{ARKBandPrecGetNumRhsEvals()}}}})
 
 \end{itemize}
@@ -16348,7 +16373,7 @@ ARKBBDPRE module:
 \phantomsection\label{ARKStep_f_interface/Preconditioning:f/_/FARKGLOCFN}\pysiglinewithargsret{\strong{subroutine  }\bfcode{FARKGLOCFN}}{\emph{NLOC}, \emph{T}, \emph{YLOC}, \emph{GLOC}, \emph{IPAR}, \emph{RPAR}, \emph{IER}}{}
 User-supplied routine (of type {\hyperref[ARKStep_c_interface/Preconditioners:c.ARKLocalFn]{\emph{\code{ARKLocalFn()}}}}) that
 computes a processor-local approximation \(g(t,y)\) to
-the right-hand side function \(f_I(t,y)\).
+the right-hand side function \(f^I(t,y)\).
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
@@ -16808,13 +16833,13 @@ provide her own error handler function (see the section
 \label{ERKStep_c_interface/User_callable:erkstep-cinterface-initialization}\label{ERKStep_c_interface/User_callable:erkstep-initialization-and-deallocation-functions}\index{ERKStepCreate (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepCreate}\pysiglinewithargsret{void* \bfcode{ERKStepCreate}}{{\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ f}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepCreate}\pysiglinewithargsret{void* \bfcode{ERKStepCreate}}{{\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ f}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
 This function allocates and initializes memory for a problem to
 be solved using the ERKStep time-stepping module in ARKode.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
-\emph{f} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{f} -- the name of the C function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the right-hand side function in
 \(\dot{y} = f(t,y)\).
 
@@ -16968,7 +16993,7 @@ solution component.
 \index{ERKStepWFtolerances (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepWFtolerances}\pysiglinewithargsret{int \bfcode{ERKStepWFtolerances}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{ARKEwtFn}}}\emph{ efun}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepWFtolerances}\pysiglinewithargsret{int \bfcode{ERKStepWFtolerances}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{ARKEwtFn}}}\emph{ efun}}{}
 This function specifies a user-supplied function \emph{efun} to compute
 the error weight vector \code{ewt}.
 \begin{description}
@@ -16977,7 +17002,7 @@ the error weight vector \code{ewt}.
 \emph{arkode\_mem} -- pointer to the ERKStep memory block.
 
 \item {} 
-\emph{efun} -- the name of the function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}})
+\emph{efun} -- the name of the function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}})
 that implements the error weight vector computation.
 
 \end{itemize}
@@ -17113,7 +17138,7 @@ called prior to a continuation call to {\hyperref[ERKStep_c_interface/User_calla
 \index{ERKStepRootInit (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepRootInit}\pysiglinewithargsret{int \bfcode{ERKStepRootInit}}{void*\emph{ arkode\_mem}, int\emph{ nrtfn}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{ARKRootFn}}}\emph{ g}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepRootInit}\pysiglinewithargsret{int \bfcode{ERKStepRootInit}}{void*\emph{ arkode\_mem}, int\emph{ nrtfn}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{ARKRootFn}}}\emph{ g}}{}
 Initializes a rootfinding problem to be solved during the
 integration of the ODE system.  It must be called after
 {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepCreate]{\emph{\code{ERKStepCreate()}}}}, and before {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepEvolve]{\emph{\code{ERKStepEvolve()}}}}.
@@ -17126,7 +17151,7 @@ integration of the ODE system.  It must be called after
 \emph{nrtfn} -- number of functions \(g_i\), an integer \(\ge\) 0.
 
 \item {} 
-\emph{g} -- name of user-supplied function, of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn()}}}},
+\emph{g} -- name of user-supplied function, of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn()}}}},
 defining the functions \(g_i\) whose roots are sought.
 
 \end{itemize}
@@ -17600,7 +17625,7 @@ error messages.
 \index{ERKStepSetErrHandlerFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetErrHandlerFn}\pysiglinewithargsret{int \bfcode{ERKStepSetErrHandlerFn}}{void*\emph{ arkode\_mem}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{ARKErrHandlerFn}}}\emph{ ehfun}, void*\emph{ eh\_data}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetErrHandlerFn}\pysiglinewithargsret{int \bfcode{ERKStepSetErrHandlerFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{ARKErrHandlerFn}}}\emph{ ehfun}, void*\emph{ eh\_data}}{}
 Specifies the optional user-defined function to be used
 in handling error messages.
 \begin{description}
@@ -18246,7 +18271,7 @@ none
 \index{ERKStepSetAdaptivityFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetAdaptivityFn}\pysiglinewithargsret{int \bfcode{ERKStepSetAdaptivityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{ARKAdaptFn}}}\emph{ hfun}, void*\emph{ h\_data}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetAdaptivityFn}\pysiglinewithargsret{int \bfcode{ERKStepSetAdaptivityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{ARKAdaptFn}}}\emph{ hfun}, void*\emph{ h\_data}}{}
 Sets a user-supplied time-step adaptivity function.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -18622,7 +18647,7 @@ before the \emph{etamxf} parameter from
 \index{ERKStepSetStabilityFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetStabilityFn}\pysiglinewithargsret{int \bfcode{ERKStepSetStabilityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{ARKExpStabFn}}}\emph{ EStab}, void*\emph{ estab\_data}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetStabilityFn}\pysiglinewithargsret{int \bfcode{ERKStepSetStabilityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{ARKExpStabFn}}}\emph{ EStab}, void*\emph{ estab\_data}}{}
 Sets the problem-dependent function to estimate a stable
 time step size for the explicit portion of the ODE system.
 \begin{description}
@@ -19889,7 +19914,7 @@ vector.
 \index{ERKStepReInit (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepReInit}\pysiglinewithargsret{int \bfcode{ERKStepReInit}}{void*\emph{ arkode\_mem}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ f}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepReInit}\pysiglinewithargsret{int \bfcode{ERKStepReInit}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ f}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
 Provides required problem specifications and re-initializes the
 ERKStep time-stepper module.
 \begin{description}
@@ -19898,7 +19923,7 @@ ERKStep time-stepper module.
 \emph{arkode\_mem} -- pointer to the ERKStep memory block.
 
 \item {} 
-\emph{f} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{f} -- the name of the C function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the right-hand side function in \(\dot{y} = f(t,y)\).
 
 \item {} 
@@ -19953,7 +19978,7 @@ memory structure should be deleted with a call to
 To aid in the vector resize operation, the user can supply a vector
 resize function that will take as input a vector with the previous
 size, and transform it in-place to return a corresponding vector of
-the new size.  If this function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}})
+the new size.  If this function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}})
 is not supplied (i.e. is set to \code{NULL}), then all existing vectors
 internal to ERKStep will be destroyed and re-cloned from the new input
 vector.
@@ -19965,7 +19990,7 @@ rescale the upcoming time step by the specified factor.  If a value
 \index{ERKStepResize (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepResize}\pysiglinewithargsret{int \bfcode{ERKStepResize}}{void*\emph{ arkode\_mem}, N\_Vector\emph{ ynew}, realtype\emph{ hscale}, realtype\emph{ t0}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{ARKVecResizeFn}}}\emph{ resize}, void*\emph{ resize\_data}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepResize}\pysiglinewithargsret{int \bfcode{ERKStepResize}}{void*\emph{ arkode\_mem}, N\_Vector\emph{ ynew}, realtype\emph{ hscale}, realtype\emph{ t0}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{ARKVecResizeFn}}}\emph{ resize}, void*\emph{ resize\_data}}{}
 Re-initializes ERKStep with a different state vector but with
 comparable dynamical time scale.
 \begin{description}
@@ -19987,7 +20012,7 @@ scale (i.e. the next step will be of size \emph{h*hscale}).
 
 \item {} 
 \emph{resize} -- the user-supplied vector resize function (of type
-{\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}}.
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}}.
 
 \item {} 
 \emph{resize\_data} -- the user-supplied data structure to be passed
@@ -20073,7 +20098,7 @@ deletion/recreation), and if the user plans to call
 
 \subsection{ODE right-hand side}
 \label{ERKStep_c_interface/User_supplied:erkstep-cinterface-oderhs}\label{ERKStep_c_interface/User_supplied:ode-right-hand-side}
-The user must supply a function of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} to
+The user must supply a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} to
 specify the right-hand side of the ODE system:
 \index{ARKRhsFn (C type)}
 
@@ -20126,7 +20151,7 @@ case ERKStep returns \emph{ARK\_FIRST\_RHSFUNC\_ERR}).
 As an alternative to the default behavior of directing error and
 warning messages to the file pointed to by \emph{errfp} (see
 {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetErrFile]{\emph{\code{ERKStepSetErrFile()}}}}), the user may provide a function of type
-{\hyperref[MRIStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{\code{ARKErrHandlerFn}}}} to process any such messages.
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{\code{ARKErrHandlerFn}}}} to process any such messages.
 \index{ARKErrHandlerFn (C type)}
 
 \begin{fulllineitems}
@@ -20170,7 +20195,7 @@ pointer to memory encounters an error, it sets \emph{error\_code} to
 \subsection{Error weight function}
 \label{ERKStep_c_interface/User_supplied:erkstep-cinterface-errorweight}\label{ERKStep_c_interface/User_supplied:error-weight-function}
 As an alternative to providing the relative and absolute tolerances,
-the user may provide a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn}}}} to compute a
+the user may provide a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn}}}} to compute a
 vector \emph{ewt} containing the weights in the WRMS norm
 \(\|v\|_{WRMS} = \left(\frac{1}{n} \sum_{i=1}^n \left(ewt_i\; v_i\right)^2
 \right)^{1/2}\).  These weights will be used in place of those defined
@@ -20216,7 +20241,7 @@ is not satisfied.
 \label{ERKStep_c_interface/User_supplied:time-step-adaptivity-function}\label{ERKStep_c_interface/User_supplied:erkstep-cinterface-adaptivityfn}
 As an alternative to using one of the built-in time step adaptivity
 methods for controlling solution error, the user may provide a
-function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn}}}} to compute a target step size
+function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn}}}} to compute a target step size
 \(h\) for the next integration step.  These steps should be chosen
 as the maximum value such that the error estimates remain below 1.
 \index{ARKAdaptFn (C type)}
@@ -20283,7 +20308,7 @@ for the explicit Runge Kutta method on this problem.  While the
 accuracy-based time step adaptivity algorithms may be sufficient
 for retaining a stable solution to the ODE system, these may be
 inefficient if \(f(t,y)\) contains moderately stiff terms.  In
-this scenario, a user may provide a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn}}}}
+this scenario, a user may provide a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn}}}}
 to provide this stability information to ERKStep.  This function
 must set the scalar step size satisfying the stability restriction for
 the upcoming time step.  This value will subsequently be bounded by
@@ -20330,7 +20355,7 @@ stability restriction on the time step size.
 \subsection{Rootfinding function}
 \label{ERKStep_c_interface/User_supplied:rootfinding-function}\label{ERKStep_c_interface/User_supplied:erkstep-cinterface-rootfindingfn}
 If a rootfinding problem is to be solved during the integration of the
-ODE system, the user must supply a function of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn}}}}.
+ODE system, the user must supply a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn}}}}.
 \index{ARKRootFn (C type)}
 
 \begin{fulllineitems}
@@ -20380,7 +20405,7 @@ adaptivity without repeated allocation/deallocation of memory.  In
 these scenarios, it is recommended that the user supply a customized
 vector kernel to interface between SUNDIALS and their problem-specific
 data structure.  If this vector kernel includes a function of type
-{\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn}}}} to resize a given vector implementation, then
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn}}}} to resize a given vector implementation, then
 this function may be supplied to {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepResize]{\emph{\code{ERKStepResize()}}}} so that all
 internal ERKStep vectors may be resized, instead of deleting and
 re-creating them at each call.  This resize function should have the
@@ -20689,7 +20714,49 @@ and device when instantiated.  See the sections
 {\hyperref[nvectors/NVector_CUDA:nvectors-cuda]{\emph{\DUspan{}{The NVECTOR\_CUDA Module}}}} and {\hyperref[nvectors/NVector_RAJA:nvectors-raja]{\emph{\DUspan{}{The NVECTOR\_RAJA Module}}}} for details.
 
 \item {} 
-Create MRIStep object
+Create an ARKStep object for the fast (inner) integration
+
+Call \code{inner\_arkode\_mem = ARKStepCreate(...)} to create the ARKStep memory
+block. {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepCreate]{\emph{\code{ARKStepCreate()}}}} returns a \code{void*} pointer to
+this memory structure. See the section
+{\hyperref[ARKStep_c_interface/User_callable:arkstep-cinterface-initialization]{\emph{\DUspan{}{ARKStep initialization and deallocation functions}}}} for details.
+
+\item {} 
+Configure the fast integrator
+
+Specify tolerances, create and attach matrix and/or solver objects,
+or call \code{ARKStepSet*} functions to configure the fast integrator
+as desired. See sections {\hyperref[ARKStep_c_interface/Skeleton:arkstep-cinterface-skeleton]{\emph{\DUspan{}{A skeleton of the user's main program}}}} and
+{\hyperref[ARKStep_c_interface/User_callable:arkstep-cinterface-optionalinputs]{\emph{\DUspan{}{Optional input functions}}}} for details on configuring
+ARKStep.
+
+\emph{Notes on using ARKStep as a fast integrator:}
+
+If the inner method is not explicitly specified then the default method in
+the \code{ARKStep} module will be used. If a particular fast method is desired
+it should be set in this step. The slow method can be set when configuring
+the slow integrator in the following steps.
+
+By default the fast integrator will use adaptive step sizes. To use a fixed
+fast step a call to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetFixedStep]{\emph{\code{ARKStepSetFixedStep()}}}} should be made in this
+step otherwise fast integration tolerances should be set in this step as
+described in {\hyperref[ARKStep_c_interface/Skeleton:arkstep-cinterface-skeleton]{\emph{\DUspan{}{A skeleton of the user's main program}}}}.
+
+If attaching a \emph{user\_data} pointer, it should be attached to the slow
+integrator in the following steps with {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetUserData]{\emph{\code{MRIStepSetUserData()}}}}. This
+pointer will subsequently be passed to user-provided functions during the
+fast integration.
+
+Specifying a rootfinding problem for the fast integration is not
+supported. Rootfinding problems should be created and initialized with
+the slow integrator. See the steps below and {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepRootInit]{\emph{\code{MRIStepRootInit()}}}}
+for more details.
+
+The \code{ARKStep} module used for the fast time scale must be configured
+with an identity mass matrix.
+
+\item {} 
+Create an MRIStep object for the slow (outer) integration
 
 Call \code{arkode\_mem = MRIStepCreate(...)} to create the MRIStep memory
 block. {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepCreate]{\emph{\code{MRIStepCreate()}}}} returns a \code{void*} pointer to
@@ -20697,10 +20764,10 @@ this memory structure. See the section
 {\hyperref[MRIStep_c_interface/User_callable:mristep-cinterface-initialization]{\emph{\DUspan{}{MRIStep initialization and deallocation functions}}}} for details.
 
 \item {} 
-Set the slow and fast step sizes
+Set the slow step size
 
-Call {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetFixedStep]{\emph{\code{MRIStepSetFixedStep()}}}} to specify the slow and fast time step
-sizes.
+Call {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetFixedStep]{\emph{\code{MRIStepSetFixedStep()}}}} to specify the slow time step
+size.
 
 \item {} 
 Set optional inputs
@@ -20735,8 +20802,10 @@ Here, \code{itask} specifies the return mode. The vector \code{yout}
 \item {} 
 Get optional outputs
 
-Call \code{MRIStepGet*} functions to obtain optional output. See
-the section {\hyperref[MRIStep_c_interface/User_callable:mristep-cinterface-optionaloutputs]{\emph{\DUspan{}{Optional output functions}}}} for details.
+Call \code{MRIStepGet*} and/or \code{ARKStepGet*} functions to obtain optional
+output from the slow or fast integrators respectively. See
+the section {\hyperref[MRIStep_c_interface/User_callable:mristep-cinterface-optionaloutputs]{\emph{\DUspan{}{Optional output functions}}}} and
+{\hyperref[ARKStep_c_interface/User_callable:arkstep-cinterface-optionaloutputs]{\emph{\DUspan{}{Optional output functions}}}} for details.
 
 \item {} 
 Deallocate memory for solution vector
@@ -20753,8 +20822,17 @@ function:
 Free solver memory
 \begin{quote}
 
-Call \code{MRIStepFree(\&arkode\_mem)} to free the memory allocated for
-the MRIStep module.
+Call \code{ARKStepFree(\&inner\_arkode\_mem)} and \code{MRIStepFree(\&arkode\_mem)} to
+free the memory allocated for fast and slow integration modules respectively.
+\end{quote}
+
+\item {} 
+Free linear solver and matrix memory
+\begin{quote}
+
+Call {\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolFree]{\emph{\code{SUNLinSolFree()}}}} and (possibly)
+{\hyperref[sunmatrix/SUNMatrix_Operations:c.SUNMatDestroy]{\emph{\code{SUNMatDestroy()}}}} to free any memory allocated for any
+linear solver and/or matrix objects created above for the fast integrator.
 \end{quote}
 
 \item {} 
@@ -20790,19 +20868,14 @@ provide her own error handler function (see the section
 \label{MRIStep_c_interface/User_callable:mristep-initialization-and-deallocation-functions}\label{MRIStep_c_interface/User_callable:mristep-cinterface-initialization}\index{MRIStepCreate (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepCreate}\pysiglinewithargsret{void* \bfcode{MRIStepCreate}}{{\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fs}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ ff}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepCreate}\pysiglinewithargsret{void* \bfcode{MRIStepCreate}}{{\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fs}, realtype\emph{ t0}, N\_Vector\emph{ y0}, MRISTEP\_ID\emph{ inner\_step\_id}, void*\emph{ inner\_step\_mem}}{}
 This function allocates and initializes memory for a problem to
 be solved using the MRIStep time-stepping module in ARKode.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
-\emph{fs} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{fs} -- the name of the C function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the slow portion of the right-hand side function in
-\(\dot{y} = f_s(t,y) + f_f(t,y)\).
-
-\item {} 
-\emph{ff} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
-defining the fast portion of the right-hand side function in
 \(\dot{y} = f_s(t,y) + f_f(t,y)\).
 
 \item {} 
@@ -20810,6 +20883,14 @@ defining the fast portion of the right-hand side function in
 
 \item {} 
 \emph{y0} -- the initial condition vector \(y(t_0)\).
+
+\item {} 
+\emph{inner\_step\_id} -- the identifier for the inner stepper. Currently
+\code{MRISTEP\_ARKSTEP} is the only supported option.
+
+\item {} 
+\emph{inner\_step\_mem} -- a \code{void*} pointer to the ARKStep memory block for
+integrating the fast time scale.
 
 \end{itemize}
 
@@ -20858,7 +20939,7 @@ called prior to a continuation call to {\hyperref[MRIStep_c_interface/User_calla
 \index{MRIStepRootInit (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepRootInit}\pysiglinewithargsret{int \bfcode{MRIStepRootInit}}{void*\emph{ arkode\_mem}, int\emph{ nrtfn}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{ARKRootFn}}}\emph{ g}}{}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepRootInit}\pysiglinewithargsret{int \bfcode{MRIStepRootInit}}{void*\emph{ arkode\_mem}, int\emph{ nrtfn}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{ARKRootFn}}}\emph{ g}}{}
 Initializes a rootfinding problem to be solved during the
 integration of the ODE system.  It must be called after
 {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepCreate]{\emph{\code{MRIStepCreate()}}}}, and before {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepEvolve]{\emph{\code{MRIStepEvolve()}}}}.
@@ -20871,7 +20952,7 @@ integration of the ODE system.  It must be called after
 \emph{nrtfn} -- number of functions \(g_i\), an integer \(\ge\) 0.
 
 \item {} 
-\emph{g} -- name of user-supplied function, of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn()}}}},
+\emph{g} -- name of user-supplied function, of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn()}}}},
 defining the functions \(g_i\) whose roots are sought.
 
 \end{itemize}
@@ -20901,6 +20982,9 @@ Similarly, if a new IVP is to be solved with a call to
 {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepReInit]{\emph{\code{MRIStepReInit()}}}}, where the new IVP has no rootfinding
 problem but the prior one did, then call \emph{MRIStepRootInit} with
 \emph{nrtfn = 0}.
+
+Rootfinding is only supported for the slow (outer) integrator and should not
+be actived for the fast (inner) integrator.
 
 \end{fulllineitems}
 
@@ -21311,7 +21395,7 @@ error messages.
 \index{MRIStepSetErrHandlerFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetErrHandlerFn}\pysiglinewithargsret{int \bfcode{MRIStepSetErrHandlerFn}}{void*\emph{ arkode\_mem}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{ARKErrHandlerFn}}}\emph{ ehfun}, void*\emph{ eh\_data}}{}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetErrHandlerFn}\pysiglinewithargsret{int \bfcode{MRIStepSetErrHandlerFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{ARKErrHandlerFn}}}\emph{ ehfun}, void*\emph{ eh\_data}}{}
 Specifies the optional user-defined function to be used
 in handling error messages.
 \begin{description}
@@ -21350,7 +21434,7 @@ it is called.
 \index{MRIStepSetFixedStep (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetFixedStep}\pysiglinewithargsret{int \bfcode{MRIStepSetFixedStep}}{void*\emph{ arkode\_mem}, realtype\emph{ hs}, realtype\emph{ hf}}{}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetFixedStep}\pysiglinewithargsret{int \bfcode{MRIStepSetFixedStep}}{void*\emph{ arkode\_mem}, realtype\emph{ hs}}{}
 Set the slow and fast step size used within MRIStep.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -21358,10 +21442,7 @@ Set the slow and fast step size used within MRIStep.
 \emph{arkode\_mem} -- pointer to the MRIStep memory block.
 
 \item {} 
-\emph{hs} -- value of the slow step size.
-
-\item {} 
-\emph{hf} -- value of the fast step size.
+\emph{hs} -- value of the outer (slow) step size.
 
 \end{itemize}
 
@@ -21381,12 +21462,13 @@ Set the slow and fast step size used within MRIStep.
 
 \textbf{Notes:}
 
-If \emph{hf} does not evenly divide the time interval between the stages of the
-slow method, then the actual value used for the fast steps will be slightly
-smaller than \emph{hf} to ensure \((c^s_{i} -  c^s_{i-1})h_s/h_f\) is an
-integer value. Specifically, the fast step for the \emph{i}-th slow stage will be
-\(h = \frac{(c^s_{i} - c^s_{i-1}) h_s}{\lceil (c^s_{i} -
-c^s_{i-1})h_s/h_f \rceil}\).
+If the inner (fast) stepper is using fixed step size \emph{hf} that does not evenly divide
+the time interval between the stages of the outer (slow) method, then the actual
+value used for the inner steps will be adjusted to a lightly smaller value
+to ensure \((c^s_{i} -  c^s_{i-1})h_s/h_f\) is an integer
+value. Specifically, the fast step for the \emph{i}-th outer stage will be \(h
+= \frac{(c^s_{i} - c^s_{i-1}) h_s}{\lceil (c^s_{i} - c^s_{i-1})h_s/h_f
+\rceil}\).
 
 If both {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetFixedStep]{\emph{\code{MRIStepSetFixedStep()}}}} and
 {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetStopTime]{\emph{\code{MRIStepSetStopTime()}}}} are used, then the fixed step size
@@ -21542,6 +21624,9 @@ attaches it to the main MRIStep memory block.
 user-supplied functions for which it is an argument; otherwise
 \code{NULL} is passed.
 
+The \emph{user\_data} pointer should only be attached to the slow (outer)
+integrator.
+
 \end{fulllineitems}
 
 
@@ -21558,26 +21643,26 @@ Function name
 Default
 }\\
 \hline
-Set MRI RK tables
+Set MRI outer RK table
  & 
-{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetMRITables]{\emph{\code{MRIStepSetMRITables()}}}}
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetTable]{\emph{\code{MRIStepSetTable()}}}}
  & 
 internal
 \\
 \hline
-Specify MRI RK table numbers
+Specify MRI outer RK table number
  & 
-{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetMRITableNum]{\emph{\code{MRIStepSetMRITableNum()}}}}
+\code{MRIStepSetTableNum()}
  & 
 internal
 \\
 \hline\end{tabulary}
 
-\index{MRIStepSetMRITables (C function)}
+\index{MRIStepSetTable (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetMRITables}\pysiglinewithargsret{int \bfcode{MRIStepSetMRITables}}{void*\emph{ arkode\_mem}, int\emph{ q}, {\hyperref[ARKodeButcherTable:c.ARKodeButcherTable]{\emph{ARKodeButcherTable}}}\emph{ Bs}, {\hyperref[ARKodeButcherTable:c.ARKodeButcherTable]{\emph{ARKodeButcherTable}}}\emph{ Bf}}{}
-Specifies a customized Butcher table pair for the MRI method.
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetTable}\pysiglinewithargsret{int \bfcode{MRIStepSetTable}}{void*\emph{ arkode\_mem}, int\emph{ q}, {\hyperref[ARKodeButcherTable:c.ARKodeButcherTable]{\emph{ARKodeButcherTable}}}\emph{ B}}{}
+Specifies a customized Butcher table for the MRI outer (slow) method.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
@@ -21587,10 +21672,7 @@ Specifies a customized Butcher table pair for the MRI method.
 \emph{q} -- global order of accuracy for the MRI method.
 
 \item {} 
-\emph{Bs} -- the Butcher table for the slow RK method.
-
-\item {} 
-\emph{Bf} -- the Butcher table for the fast RK method.
+\emph{B} -- the Butcher table for the outer (slow) RK method.
 
 \end{itemize}
 
@@ -21613,36 +21695,32 @@ Specifies a customized Butcher table pair for the MRI method.
 For a description of the {\hyperref[ARKodeButcherTable:c.ARKodeButcherTable]{\emph{\code{ARKodeButcherTable}}}} type and related
 functions for creating Butcher tables see {\hyperref[ARKodeButcherTable:arkodebutchertable]{\emph{\DUspan{}{Butcher Table Data Structure}}}}.
 
-At this time the slow and fast Butcher tables must define an explicit
-Runge-Kutta method. Additionally, the slow table must have stage times that
-are unique and ordered (i.e., \(c^s_{i} > c^s_{i-1}\)) and the final
-stage time must be less than 1. Error checking is performed to ensure that
-\emph{Bs} and \emph{Bf} define ERK methods (i.e., the \emph{A} component of \emph{Bs} and \emph{Bf}
-are strictly lower-triangular) and the stage times of \emph{Bs} satisfy the
-aforementioned restrictions.
+At this time the outer (slow) Butcher table must define an explicit Runge-Kutta
+method. Additionally, the outer table must have stage times that are unique
+and ordered (i.e., \(c^s_{i} > c^s_{i-1}\)) and the final stage time must
+be less than 1. Error checking is performed to ensure that \emph{B} defines an ERK
+method (i.e., the \emph{A} component of \emph{B} is strictly lower-triangular) and the
+stage times of \emph{B} satisfy the aforementioned restrictions.
 
-The input value of \emph{q} is used rather than the orders encoded in the
-individual tables as the overall order of the MRI method may differ from
-the orders of the individual tables. No error checking is performed to ensure
-that \emph{p} correctly describe the coefficients that were input.
+The input value of \emph{q} is used rather than the order encoded in the
+Butcher table as the overall order of the MRI method may differ from
+the order of the outer table. No error checking is performed to ensure
+that \emph{p} correctly describes the coefficients that were input.
 
 \end{fulllineitems}
 
 \index{MRIStepSetMRITableNum (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetMRITableNum}\pysiglinewithargsret{int \bfcode{MRIStepSetMRITableNum}}{void*\emph{ arkode\_mem}, int\emph{ istable}, int\emph{ iftable}}{}
-Indicates to use specific built-in Butcher tables for the MRI method.
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetMRITableNum}\pysiglinewithargsret{int \bfcode{MRIStepSetMRITableNum}}{void*\emph{ arkode\_mem}, int\emph{ itable}}{}
+Indicates to use specific built-in Butcher table for the MRI outer (slow) method.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
 \emph{arkode\_mem} -- pointer to the MRIStep memory block.
 
 \item {} 
-\emph{istable} -- index of the slow Butcher table.
-
-\item {} 
-\emph{iftable} -- index of the fast Butcher table.
+\emph{itable} -- index of the outer (slow) Butcher table.
 
 \end{itemize}
 
@@ -21660,9 +21738,10 @@ Indicates to use specific built-in Butcher tables for the MRI method.
 
 \end{description}
 
-\textbf{Notes:} \emph{istable} and \emph{iftable} should match existing explicit methods
+\textbf{Notes:} \emph{itable} should match existing explicit methods
 from the section {\hyperref[Butcher:butcher-explicit]{\emph{\DUspan{}{Explicit Butcher tables}}}}. Error-checking is performed
-to ensure that these tables exists, and are not implicit.
+to ensure that this tables exists, is not implicit, and satisfies the
+restrictions listed above for {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetTable]{\emph{\code{MRIStepSetTable()}}}}.
 
 \end{fulllineitems}
 
@@ -22162,9 +22241,9 @@ the corresponding constant.
 \index{MRIStepGetNumRhsEvals (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepGetNumRhsEvals}\pysiglinewithargsret{int \bfcode{MRIStepGetNumRhsEvals}}{void*\emph{ arkode\_mem}, long int*\emph{ nfs\_evals}, long int*\emph{ nff\_evals}}{}
-Returns the number of calls to the user's slow and fast right-hand
-side functions, \(fs\) and \(ff\) (so far).
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepGetNumRhsEvals}\pysiglinewithargsret{int \bfcode{MRIStepGetNumRhsEvals}}{void*\emph{ arkode\_mem}, long int*\emph{ nfs\_evals}}{}
+Returns the number of calls to the user's outer (slow) right-hand side function,
+\(fs\) (so far).
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
@@ -22172,9 +22251,6 @@ side functions, \(fs\) and \(ff\) (so far).
 
 \item {} 
 \emph{nfs\_evals} -- number of calls to the user's \(fs(t,y)\) function.
-
-\item {} 
-\emph{nff\_evals} -- number of calls to the user's \(ff(t,y)\) function.
 
 \end{itemize}
 
@@ -22504,21 +22580,21 @@ vector.
 \index{MRIStepReInit (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepReInit}\pysiglinewithargsret{int \bfcode{MRIStepReInit}}{void*\emph{ arkode\_mem}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fs}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ ff}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepReInit}\pysiglinewithargsret{int \bfcode{MRIStepReInit}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fs}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
 Provides required problem specifications and re-initializes the
-MRIStep time-stepper module.
+MRIStep outer (slow) stepper.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
 \emph{arkode\_mem} -- pointer to the MRIStep memory block.
 
 \item {} 
-\emph{fs} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{fs} -- the name of the C function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the slow right-hand side function in \(\dot{y} = f_s(t,y) +
 f_f(t,y)\).
 
 \item {} 
-\emph{ff} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{ff} -- the name of the C function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the fast right-hand side function in \(\dot{y} = f_s(t,y) +
 f_f(t,y)\).
 
@@ -22547,7 +22623,11 @@ f_f(t,y)\).
 
 \end{description}
 
-\textbf{Notes:} If an error occurred, {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepReInit]{\emph{\code{MRIStepReInit()}}}} also
+\textbf{Notes:} If the inner (fast) stepper also needs to be reinitialized, its
+reinitialization function should be called before calling
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepReInit]{\emph{\code{MRIStepReInit()}}}} to reinitialize the outer stepper.
+
+If an error occurred, {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepReInit]{\emph{\code{MRIStepReInit()}}}} also
 sends an error message to the error handler function.
 
 \end{fulllineitems}
@@ -22566,14 +22646,14 @@ MRIStep's internal memory structures to use the new problem size.
 To aid in the vector resize operation, the user can supply a vector
 resize function that will take as input a vector with the previous
 size, and transform it in-place to return a corresponding vector of
-the new size.  If this function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}})
+the new size.  If this function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}})
 is not supplied (i.e. is set to \code{NULL}), then all existing vectors
 internal to MRIStep will be destroyed and re-cloned from the new input
 vector.
 \index{MRIStepResize (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepResize}\pysiglinewithargsret{int \bfcode{MRIStepResize}}{void*\emph{ arkode\_mem}, N\_Vector\emph{ ynew}, realtype\emph{ t0}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{ARKVecResizeFn}}}\emph{ resize}, void*\emph{ resize\_data}}{}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepResize}\pysiglinewithargsret{int \bfcode{MRIStepResize}}{void*\emph{ arkode\_mem}, N\_Vector\emph{ ynew}, realtype\emph{ t0}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{ARKVecResizeFn}}}\emph{ resize}, void*\emph{ resize\_data}}{}
 Re-initializes MRIStep with a different state vector.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -22590,7 +22670,7 @@ dependent variable values \(y(t_0)\).
 
 \item {} 
 \emph{resize} -- the user-supplied vector resize function (of type
-{\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}}.
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}}.
 
 \item {} 
 \emph{resize\_data} -- the user-supplied data structure to be passed
@@ -22649,7 +22729,7 @@ deletion/recreation), and if the user plans to call
 
 \subsection{ODE right-hand side}
 \label{MRIStep_c_interface/User_supplied:mristep-cinterface-oderhs}\label{MRIStep_c_interface/User_supplied:ode-right-hand-side}
-The user must supply two functions of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} to
+The user must supply two functions of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} to
 specify the right-hand side of the ODE system:
 \index{ARKRhsFn (C type)}
 
@@ -22696,7 +22776,7 @@ where only a non-negative value is physically meaningful).
 As an alternative to the default behavior of directing error and
 warning messages to the file pointed to by \emph{errfp} (see
 {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetErrFile]{\emph{\code{MRIStepSetErrFile()}}}}), the user may provide a function of type
-{\hyperref[MRIStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{\code{ARKErrHandlerFn}}}} to process any such messages.
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{\code{ARKErrHandlerFn}}}} to process any such messages.
 \index{ARKErrHandlerFn (C type)}
 
 \begin{fulllineitems}
@@ -22740,7 +22820,7 @@ pointer to memory encounters an error, it sets \emph{error\_code} to
 \subsection{Rootfinding function}
 \label{MRIStep_c_interface/User_supplied:mristep-cinterface-rootfindingfn}\label{MRIStep_c_interface/User_supplied:rootfinding-function}
 If a rootfinding problem is to be solved during the integration of the
-ODE system, the user must supply a function of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn}}}}.
+ODE system, the user must supply a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn}}}}.
 \index{ARKRootFn (C type)}
 
 \begin{fulllineitems}
@@ -22790,7 +22870,7 @@ adaptivity without repeated allocation/deallocation of memory.  In
 these scenarios, it is recommended that the user supply a customized
 vector kernel to interface between SUNDIALS and their problem-specific
 data structure.  If this vector kernel includes a function of type
-{\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn}}}} to resize a given vector implementation, then
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn}}}} to resize a given vector implementation, then
 this function may be supplied to {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepResize]{\emph{\code{MRIStepResize()}}}} so that all
 internal MRIStep vectors may be resized, instead of deleting and
 re-creating them at each call.  This resize function should have the
@@ -28107,18 +28187,18 @@ the beginning of the array of subvectors, and a boolean flag
 \end{Verbatim}
 
 The header file to include when using this module is
-\code{nvector\_manyvector.h}.  We note that although a MPI communicator
-is included in this \emph{content} structure, serial users need not
-include \code{mpi.h}, nor must they build their executables with an
-MPI-aware compiler (since \code{SUNMPI\_Comm} is set to \code{int} in
-MPI-unaware builds).  The installed module library to link against is
-\code{libsundials\_nvecmanyvector.lib} where \code{.lib} is
-typically \code{.so} for shared libraries and \code{.a} for static
-libraries. \emph{Note:} If SUNDIALS is built with MPI enabled, then the
-ManyVector library will be built for the parallel use case and
-an MPI-aware compiler will become necessary. Serial users
-should build SUNDIALS with MPI disabled. See the \DUspan{xref,std,std-ref}{\_Installation}
-section for details.
+\code{nvector\_manyvector.h}. The installed module library to link against is
+\code{libsundials\_nvecmanyvector.lib} where \code{.lib} is typically \code{.so} for
+shared libraries and \code{.a} for static libraries.
+
+\emph{Note:} If SUNDIALS is configured with MPI enabled, then the
+ManyVector library will be built for the parallel use case and \code{SUNMPI\_Comm}
+is set to \code{MPI\_Comm}. As such an MPI-aware compiler will become necessary
+even in single node uses of the ManyVector library. If SUNDIALS is configured
+with MPI disabled, then the ManyVector library is built for the single-node
+(serial) use case and \code{SUNMPI\_Comm} is set to \code{int}. As such, users need
+not include \code{mpi.h}, nor must executables be built with an MPI-aware
+compiler. See the \DUspan{xref,std,std-ref}{\_Installation} section for details.
 
 
 \subsection{NVECTOR\_MANYVECTOR functions}
@@ -31083,11 +31163,15 @@ the matrix interface, i.e. storage for \code{row\_to\_proc}
 \item {} 
 \code{SUNMatCopy\_SLUNRloc}
 
-\item {} 
-\code{SUNMatScaleAdd\_SLUNRloc}
+\item {} \begin{description}
+\item[{\code{SUNMatScaleAdd\_SLUNRloc} -- performs \(A = cA + B\), where \(A\) and \(B\)}] \leavevmode
+must have the same sparsity pattern
+
+\end{description}
 
 \item {} 
-\code{SUNMatScaleAddI\_SLUNRloc}
+\code{SUNMatScaleAddI\_SLUNRloc} -- performs \(A = cA + I\), where the diagonal of \(A\)
+must be present
 
 \item {} 
 \code{SUNMatMatvecSetup\_SLUNRloc} -- initializes the SuperLU\_DIST parallel communication

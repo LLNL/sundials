@@ -305,15 +305,14 @@ Last inner stepper return value                      :c:func:`MRIStepGetLastInne
          * *ARK_MEM_NULL* if the MRIStep memory was ``NULL``
 
 
-.. c:function:: int MRIStepGetNumRhsEvals(void* arkode_mem, long int* nfs_evals, long int* nff_evals)
+.. c:function:: int MRIStepGetNumRhsEvals(void* arkode_mem, long int* nfs_evals)
 
-   Returns the number of calls to the user's slow and fast right-hand
-   side functions, :math:`fs` and :math:`ff` (so far).
+   Returns the number of calls to the user's outer (slow) right-hand side function,
+   :math:`fs` (so far). 
 
    **Arguments:**
       * *arkode_mem* -- pointer to the MRIStep memory block.
       * *nfs_evals* -- number of calls to the user's :math:`fs(t,y)` function.
-      * *nff_evals* -- number of calls to the user's :math:`ff(t,y)` function.
 
    **Return value:**
       * *ARK_SUCCESS* if successful

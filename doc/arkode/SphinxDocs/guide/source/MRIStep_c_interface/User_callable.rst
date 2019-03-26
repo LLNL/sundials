@@ -45,7 +45,7 @@ MRIStep initialization and deallocation functions
 ------------------------------------------------------
 
 
-.. c:function:: void* MRIStepCreate(ARKRhsFn fs, ARKRhsFn ff, realtype t0, N_Vector y0)
+.. c:function:: void* MRIStepCreate(ARKRhsFn fs, realtype t0, N_Vector y0, MRISTEP_ID inner_step_id, void* inner_step_mem)
 
    This function allocates and initializes memory for a problem to
    be solved using the MRIStep time-stepping module in ARKode.
@@ -54,11 +54,12 @@ MRIStep initialization and deallocation functions
       * *fs* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
         defining the slow portion of the right-hand side function in
         :math:`\dot{y} = f_s(t,y) + f_f(t,y)`.
-      * *ff* -- the name of the C function (of type :c:func:`ARKRhsFn()`)
-        defining the fast portion of the right-hand side function in
-        :math:`\dot{y} = f_s(t,y) + f_f(t,y)`.
       * *t0* -- the initial value of :math:`t`.
       * *y0* -- the initial condition vector :math:`y(t_0)`.
+      * *inner_step_id* -- the identifier for the inner stepper. Currently
+        ``MRISTEP_ARKSTEP`` is the only supported option.
+      * *inner_step_mem* -- a ``void*`` pointer to the ARKStep memory block for
+        integrating the fast time scale.
 
    **Return value:**  If successful, a pointer to initialized problem memory
    of type ``void*``, to be passed to all user-facing MRIStep routines

@@ -115,18 +115,58 @@ referenced.
    and device when instantiated.  See the sections
    :ref:`NVectors.CUDA` and :ref:`NVectors.RAJA` for details.
 
-#. Create MRIStep object
+#. Create an ARKStep object for the fast (inner) integration
+
+   Call ``inner_arkode_mem = ARKStepCreate(...)`` to create the ARKStep memory
+   block. :c:func:`ARKStepCreate()` returns a ``void*`` pointer to
+   this memory structure. See the section
+   :ref:`ARKStep_CInterface.Initialization` for details.
+
+#. Configure the fast integrator
+
+   Specify tolerances, create and attach matrix and/or solver objects,
+   or call ``ARKStepSet*`` functions to configure the fast integrator
+   as desired. See sections :ref:`ARKStep_CInterface.Skeleton` and
+   :ref:`ARKStep_CInterface.OptionalInputs` for details on configuring
+   ARKStep.
+
+   *Notes on using ARKStep as a fast integrator:*
+
+   If the inner method is not explicitly specified then the default method in
+   the ``ARKStep`` module will be used. If a particular fast method is desired
+   it should be set in this step. The slow method can be set when configuring
+   the slow integrator in the following steps.
+
+   By default the fast integrator will use adaptive step sizes. To use a fixed
+   fast step a call to :c:func:`ARKStepSetFixedStep()` should be made in this
+   step otherwise fast integration tolerances should be set in this step as
+   described in :ref:`ARKStep_CInterface.Skeleton`.
+   
+   If attaching a *user_data* pointer, it should be attached to the slow
+   integrator in the following steps with :c:func:`MRIStepSetUserData()`. This
+   pointer will subsequently be passed to user-provided functions during the
+   fast integration.
+
+   Specifying a rootfinding problem for the fast integration is not
+   supported. Rootfinding problems should be created and initialized with
+   the slow integrator. See the steps below and :c:func:`MRIStepRootInit()`
+   for more details.
+
+   The ``ARKStep`` module used for the fast time scale must be configured
+   with an identity mass matrix.
+
+#. Create an MRIStep object for the slow (outer) integration
 
    Call ``arkode_mem = MRIStepCreate(...)`` to create the MRIStep memory
    block. :c:func:`MRIStepCreate()` returns a ``void*`` pointer to
    this memory structure. See the section
    :ref:`MRIStep_CInterface.Initialization` for details.
 
-#. Set the slow and fast step sizes
+#. Set the slow step size
 
-   Call :c:func:`MRIStepSetFixedStep()` to specify the slow and fast time step
-   sizes. 
-           
+   Call :c:func:`MRIStepSetFixedStep()` to specify the slow time step
+   size.
+
 #. Set optional inputs
 
    Call ``MRIStepSet*`` functions to change any optional inputs that
@@ -156,8 +196,10 @@ referenced.
 
 #. Get optional outputs
 
-   Call ``MRIStepGet*`` functions to obtain optional output. See
-   the section :ref:`MRIStep_CInterface.OptionalOutputs` for details.
+   Call ``MRIStepGet*`` and/or ``ARKStepGet*`` functions to obtain optional
+   output from the slow or fast integrators respectively. See
+   the section :ref:`MRIStep_CInterface.OptionalOutputs` and
+   :ref:`ARKStep_CInterface.OptionalOutputs` for details.
 
 #. Deallocate memory for solution vector
 
@@ -171,8 +213,14 @@ referenced.
 
 #. Free solver memory
 
-    Call ``MRIStepFree(&arkode_mem)`` to free the memory allocated for
-    the MRIStep module.
+    Call ``ARKStepFree(&inner_arkode_mem)`` and ``MRIStepFree(&arkode_mem)`` to
+    free the memory allocated for fast and slow integration modules respectively.
+
+#. Free linear solver and matrix memory
+
+    Call :c:func:`SUNLinSolFree()` and (possibly)
+    :c:func:`SUNMatDestroy()` to free any memory allocated for any
+    linear solver and/or matrix objects created above for the fast integrator.
 
 #. Finalize MPI, if used
 

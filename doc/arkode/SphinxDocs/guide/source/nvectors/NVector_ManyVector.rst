@@ -103,18 +103,18 @@ the beginning of the array of subvectors, and a boolean flag
    };
 
 The header file to include when using this module is
-``nvector_manyvector.h``.  We note that although a MPI communicator
-is included in this *content* structure, serial users need not
-include ``mpi.h``, nor must they build their executables with an
-MPI-aware compiler (since ``SUNMPI_Comm`` is set to ``int`` in
-MPI-unaware builds).  The installed module library to link against is
-``libsundials_nvecmanyvector.lib`` where ``.lib`` is
-typically ``.so`` for shared libraries and ``.a`` for static
-libraries. *Note:* If SUNDIALS is built with MPI enabled, then the
-ManyVector library will be built for the parallel use case and
-an MPI-aware compiler will become necessary. Serial users
-should build SUNDIALS with MPI disabled. See the :ref:`_Installation`
-section for details.
+``nvector_manyvector.h``. The installed module library to link against is 
+``libsundials_nvecmanyvector.lib`` where ``.lib`` is typically ``.so`` for
+shared libraries and ``.a`` for static libraries.
+
+*Note:* If SUNDIALS is configured with MPI enabled, then the
+ManyVector library will be built for the parallel use case and ``SUNMPI_Comm``
+is set to ``MPI_Comm``. As such an MPI-aware compiler will become necessary
+even in single node uses of the ManyVector library. If SUNDIALS is configured
+with MPI disabled, then the ManyVector library is built for the single-node
+(serial) use case and ``SUNMPI_Comm`` is set to ``int``. As such, users need
+not include ``mpi.h``, nor must executables be built with an MPI-aware
+compiler. See the :ref:`_Installation` section for details.
 
 
 NVECTOR_MANYVECTOR functions

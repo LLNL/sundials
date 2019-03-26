@@ -25,7 +25,7 @@ support the use of the ARKStep time-stepping module for the solution
 of ODE systems
 
 .. math::
-   M\, \dot{y} = f_E(t,y) + f_I(t,y),
+   M\, \dot{y} = f^E(t,y) + f^I(t,y),
 
 in a mixed Fortran/C setting.  While ARKode is written in C, it is
 assumed here that the user's calling program and user-supplied

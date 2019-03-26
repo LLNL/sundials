@@ -33,6 +33,11 @@ The generic SUNMatrix API now defines error codes to be returned by SUNMatrix op
 Operations which return an integer flag indiciating success/failure may return different
 values than previously.
 
+The MRIStep module has been updated to support explicit, implicit, or IMEX
+methods as the fast integrator using the ARKStep module. As a result some
+function signatures have been changed including MRIStepCreate which now
+takes an ARKStep memory structure for the fast integration as an input.
+
 
 Changes to SUNDIALS in release 4.1.0
 

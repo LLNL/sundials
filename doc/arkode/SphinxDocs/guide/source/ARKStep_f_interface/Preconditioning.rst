@@ -125,7 +125,7 @@ are unchanged from the main program described in the section
 	   preconditioner work space, in integer words (from
 	   :c:func:`ARKBandPrecGetWorkSpace()`).
          * *NFEBP* (``long int``, output) -- number of
-	   :math:`f_I(t,y)` evaluations (from
+	   :math:`f^I(t,y)` evaluations (from
 	   :c:func:`ARKBandPrecGetNumRhsEvals()`)
 
 9. *Additional solution output*
@@ -367,7 +367,7 @@ unchanged from the main program described in the section
 
        User-supplied routine (of type :c:func:`ARKLocalFn()`) that
        computes a processor-local approximation :math:`g(t,y)` to
-       the right-hand side function :math:`f_I(t,y)`.
+       the right-hand side function :math:`f^I(t,y)`.
 
        **Arguments:**
           * *NLOC* (``long int``, input) -- local problem size.

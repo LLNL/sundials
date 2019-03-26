@@ -43,13 +43,13 @@ access patterns.  It also currently requires that the problem involve
 an identity mass matrix, i.e. :math:`M = I`.
 
 This module uses difference quotients of the ODE right-hand
-side function :math:`f_I` to generate a band matrix of bandwidth
+side function :math:`f^I` to generate a band matrix of bandwidth
 ``ml + mu + 1``, where the number of super-diagonals (``mu``, the
 upper half-bandwidth) and sub-diagonals (``ml``, the lower
 half-bandwidth) are specified by the user.  This band matrix is used
 to to form a preconditioner the Krylov linear solver.  Although this
 matrix is intended to approximate the Jacobian
-:math:`J = \frac{\partial f_I}{\partial y}`, it may be a very crude
+:math:`J = \frac{\partial f^I}{\partial y}`, it may be a very crude
 approximation, since the true Jacobian may not be banded, or its true
 bandwidth may be larger than ``ml + mu + 1``.  However, as long as the
 banded approximation generated for the preconditioner is sufficiently
@@ -198,13 +198,13 @@ the ARKBANDPRE module:
 .. c:function:: int ARKBandPrecGetNumRhsEvals(void* arkode_mem, long int* nfevalsBP)
 
    Returns the number of calls made to the user-supplied
-   right-hand side function :math:`f_I` for constructing the
+   right-hand side function :math:`f^I` for constructing the
    finite-difference banded Jacobian approximation used within the
    preconditioner setup function.
 
    **Arguments:**
       * *arkode_mem* -- pointer to the ARKStep memory block.
-      * *nfevalsBP* -- number of calls to :math:`f_I`.
+      * *nfevalsBP* -- number of calls to :math:`f^I`.
 
    **Return value:**
       * *ARKLS_SUCCESS* if no errors occurred
@@ -217,7 +217,7 @@ the ARKBANDPRE module:
    :c:func:`ARKStepGetNumLSRhsEvals()` and also from *nfi_evals* returned by
    :c:func:`ARKStepGetNumRhsEvals()`.  The total number of right-hand
    side function evaluations is the sum of all three of these
-   counters, plus the *nfe_evals* counter for :math:`f_E` calls
+   counters, plus the *nfe_evals* counter for :math:`f^E` calls
    returned by :c:func:`ARKStepGetNumRhsEvals()`.
 
 
@@ -262,16 +262,16 @@ is to isolate the preconditioning so that it is local to each process,
 and also to use a (possibly cheaper) approximate right-hand side
 function for construction of this preconditioning matrix.  This
 requires the definition of a new function :math:`g(t,y) \approx
-f_I(t,y)` that will be used to construct the BBD preconditioner
+f^I(t,y)` that will be used to construct the BBD preconditioner
 matrix.  At present, we assume that the ODE be written in explicit
 form as
 
 .. math::
-   \dot{y} = f_E(t,y) + f_I(t,y),
+   \dot{y} = f^E(t,y) + f^I(t,y),
 
-where :math:`f_I` corresponds to the ODE components to be treated
+where :math:`f^I` corresponds to the ODE components to be treated
 implicitly, i.e. this preconditioning module does not support problems
-with non-identity mass matrices.  The user may set :math:`g = f_I`, if
+with non-identity mass matrices.  The user may set :math:`g = f^I`, if
 no less expensive approximation is desired.
 
 Corresponding to the domain decomposition, there is a decomposition of
@@ -334,14 +334,14 @@ ARKBBDPRE user-supplied functions
 The ARKBBDPRE module calls two user-provided functions to construct
 :math:`P`: a required function *gloc* (of type :c:func:`ARKLocalFn()`)
 which approximates the right-hand side function :math:`g(t,y) \approx
-f_I(t,y)` and which is computed locally, and an optional function
+f^I(t,y)` and which is computed locally, and an optional function
 *cfn* (of type :c:func:`ARKCommFn()`) which performs all inter-process
 communication necessary to evaluate the approximate right-hand side
 :math:`g`. These are in addition to the user-supplied right-hand side
-function :math:`f_I`. Both functions take as input the same pointer
+function :math:`f^I`. Both functions take as input the same pointer
 *user_data* that is passed by the user to
 :c:func:`ARKStepSetUserData()` and that was passed to the user's
-function :math:`f_I`. The user is responsible for providing space
+function :math:`f^I`. The user is responsible for providing space
 (presumably within *user_data*) for components of :math:`y` that are
 communicated between processes by *cfn*, and that are then used by
 *gloc*, which should not do any communication.
@@ -372,7 +372,7 @@ communicated between processes by *cfn*, and that are then used by
    communication of data needed to calculate *glocal* has already been
    done, and that this data is accessible within user data.
 
-   The case where :math:`g` is mathematically identical to :math:`f_I`
+   The case where :math:`g` is mathematically identical to :math:`f^I`
    is allowed.
 
 
@@ -401,10 +401,10 @@ communicated between processes by *cfn*, and that are then used by
    space defined within the data structure *user_data*.
 
    Each call to the *cfn* function is preceded by a call to the
-   right-hand side function :math:`f_I` with the same :math:`(t,y)`
+   right-hand side function :math:`f^I` with the same :math:`(t,y)`
    arguments. Thus, *cfn* can omit any communication done by
-   :math:`f_I` if relevant to the evaluation of *glocal*. If all
-   necessary communication was done in :math:`f_I`, then *cfn* =
+   :math:`f^I` if relevant to the evaluation of *glocal*. If all
+   necessary communication was done in :math:`f^I`, then *cfn* =
    ``NULL`` can be passed in the call to :c:func:`ARKBBDPrecInit()`
    (see below).
 
@@ -517,7 +517,7 @@ and attached to the integrator by calling the following functions:
         = :math:`\sqrt{\text{unit roundoff}}`, which can be specified by
         passing *dqrely* = 0.0.
       * *gloc* -- the name of the C function (of type :c:func:`ARKLocalFn()`)
-        which computes the approximation :math:`g(t,y) \approx f_I(t,y)`.
+        which computes the approximation :math:`g(t,y) \approx f^I(t,y)`.
       * *cfn* -- the name of the C function (of type :c:func:`ARKCommFn()`) which
         performs all inter-process communication required for the
         computation of :math:`g(t,y)`.
