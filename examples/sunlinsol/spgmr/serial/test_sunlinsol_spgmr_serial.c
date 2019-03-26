@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
   printf("  Gram-Schmidt orthogonalization type = %i\n", gstype);
   printf("  Preconditioning type = %i\n", pretype);
   printf("  Maximum Krylov subspace dimension = %i\n", maxl);
-  printf("  Solver Tolerance = %"GSYM"\n", tol);
+  printf("  Solver Tolerance = %g\n", tol);
   printf("  timing output flag = %i\n\n", print_timing);
   
   /* Create vectors */
@@ -514,7 +514,7 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
     maxerr = ZERO;
     for(i=0; i < problem_size; i++)
       maxerr = SUNMAX(SUNRabs(Xdata[i]-Ydata[i])/SUNRabs(Xdata[i]), maxerr);
-    printf("check err failure: maxerr = %g (tol = %g)\n",
+    printf("check err failure: maxerr = %"GSYM" (tol = %"GSYM")\n",
 	   maxerr, FIVE*tol);
     return(1);
   }

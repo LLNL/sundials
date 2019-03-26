@@ -88,6 +88,12 @@
 #cmakedefine SUNDIALS_SUPERLUMT
 #cmakedefine SUNDIALS_SUPERLUMT_THREAD_TYPE "@SUPERLUMT_THREAD_TYPE@"
 
+/* SUPERLUDIST available
+ * If working libraries for SUPERLUDIST support were found, then
+ *    #define SUNDIALS_SUPERLUDIST
+ */
+#cmakedefine SUNDIALS_SUPERLUDIST
+
 /* KLU available
  * If working libraries for KLU support were found, then
  *     #define SUNDIALS_KLU 

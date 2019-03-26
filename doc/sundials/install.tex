@@ -525,17 +525,17 @@ a typical configuration on a Linux system and are provided as illustration only.
   %% managed by \id{SLURM} - Simple Linux Utility for Resource Management as exists on
   %% LLNL's high performance computing clusters.
 \item[\id{OPENMP\_ENABLE}] -
-  Enable OpenMP support (build the OpenMP {\nvector}).
+  Enable {\openmp} support (build the {\openmp} {\nvector}).
   \\
   Default: OFF
 \item[\id{OPENMP\_DEVICE\_ENABLE}] -
-  Enable OpenMP device offloading (build the OpenMPDEV nvector) if supported by
+  Enable {\openmp} device offloading (build the OpenMPDEV nvector) if supported by
   the provided compiler.
   \\
   Default: OFF
 \item[\id{SKIP\_OPENMP\_DEVICE\_CHECK}] - \textbf{advanced option} -
-  Skip the check done to see if the OpenMP provided by the compiler
-  supports OpenMP device offloading.
+  Skip the check done to see if the {\openmp} provided by the compiler
+  supports {\openmp} device offloading.
   \\
   Default: OFF
 \item[\id{PETSC\_ENABLE}] -
@@ -607,19 +607,40 @@ a typical configuration on a Linux system and are provided as illustration only.
   Precision used in {\sundials}, options are: \id{double}, \id{single}, or \id{extended}
   \\
   Default: \id{double}
-\item[\id{SUPERLUMT\_ENABLE}] -
-  Enable SuperLU\_MT support
+\item[\id{SUPERLUDIST\_ENABLE}] -
+  Enable {\superludist} support
   \\
   Default: OFF
   \\
-  Note: See additional information on building with SuperLU\_MT enabled
+  Note: See additional information on building with {\superludist} enabled
+  in \ref{ss:externallibs}.
+\item[\id{SUPERLUDIST\_INCLUDE\_DIR}] -
+  Path to {\superludist} header files (typically SRC directory)
+\item[\id{SUPERLUDIST\_LIBRARY\_DIR}] -
+  Path to {\superludist} installed library files
+\item[\id{SUPERLUDIST\_LIBRARIES}] -
+  Semi-colon separated list of libraries needed for {\superludist}
+\item[\id{SUPERLUDIST\_OpenMP}] -
+  Enable {\sundials} support for {\superludist} built with {\openmp}
+  \\
+  Default: OFF
+  \\
+  Note: {\superludist} must be built with {\openmp} support for this option to function
+  properly. Additionally the environment variable \id{OMP\_NUM\_THREADS} must be set to
+  the desired number of threads.
+\item[\id{SUPERLUMT\_ENABLE}] -
+  Enable {\superlumt} support
+  \\
+  Default: OFF
+  \\
+  Note: See additional information on building with {\superlumt} enabled
   in \ref{ss:externallibs}.
 \item[\id{SUPERLUMT\_INCLUDE\_DIR}] -
   Path to SuperLU\_MT header files (typically SRC directory)
 \item[\id{SUPERLUMT\_LIBRARY\_DIR}] -
   Path to SuperLU\_MT installed library files
 \item[\id{SUPERLUMT\_THREAD\_TYPE}] -
-  Must be set to Pthread or OpenMP
+  Must be set to Pthread or {\openmp}
   \\
   Default: Pthread
 \item[\id{Trilinos\_ENABLE}] -
@@ -730,6 +751,12 @@ corresponding {\sundials} options if applicable.
   Default: OFF
   \\
   {\sundials} equivalent: \id{LAPACK\_ENABLE}
+\item[\id{TPL\_ENABLE\_SUPERLUDIST}] -
+  Enable {\superludist} support
+  \\
+  Default: OFF
+  \\
+  {\sundials} equivalent: \id{SUPERLUDIST\_ENABLE}
 \item[\id{TPL\_ENABLE\_SUPERLUMT}] -
   Enable SuperLU\_MT support
   \\
@@ -769,10 +796,19 @@ corresponding {\sundials} options if applicable.
   {\petsc} library
   \\
   {\sundials} equivalent: N/A
-\item[\id{TPL\_SUPERLUMT\_INCLUDE\_DIRS}] -
-  Path to SuperLU\_MT header files
+\item[\id{TPL\_SUPERLUDIST\_INCLUDE\_DIRS}] -
+  Path to {\superludist} header files
   \\
-  {\sundials} equivalent: \id{SUPERLUMT\_INCLUDE\_DIR}
+  {\sundials} equivalent: \id{SUPERLUDIST\_INCLUDE\_DIR}
+\item[\id{TPL\_SUPERLUDIST\_LIBRARIES}] -
+  Semi-colon separated list of libraries needed for {\superludist}
+  including the {\superludist} library itself
+  \\
+  {\sundials} equivalent: \id{SUPERLUDIST\_LIBRARIES}
+\item[\id{TPL\_SUPERLUDIST\_OPENMP}] -
+  Enable {\sundials} support for {\superludist} built with {\openmp}
+  \\
+  {\sundials} equivalent: \id{SUPERLUDIST\_OPENMP}
 \item[\id{TPL\_SUPERLUMT\_LIBRARIES}] -
   SuperLU\_MT library
   \\
@@ -946,11 +982,28 @@ To enable SuperLU\_MT, set  \id{SUPERLUMT\_ENABLE} to \id{ON}, set \id{SUPERLUMT
 to the \id{SRC} path of the SuperLU\_MT installation, and set the variable
 \newline\id{SUPERLUMT\_LIBRARY\_DIR} to the \id{lib} path of the SuperLU\_MT installation.
 At the same time, the variable
-\id{SUPERLUMT\_THREAD\_TYPE} must be set to either \id{Pthread} or \id{OpenMP}.
+\id{SUPERLUMT\_THREAD\_TYPE} must be set to either \id{Pthread} or \id{{\openmp}}.
 
 \noindent Do not mix thread types when building {\sundials} solvers.
 If threading is enabled for {\sundials} by having either \id{OPENMP\_ENABLE} or \id{PTHREAD\_ENABLE} set to \id{ON}
 then SuperLU\_MT should be set to use the same threading type.{\warn}
+
+\subsubsection*{Building with {\superludist}}
+The {\superludist} libraries are available for download from the Lawrence Berkeley National Laboratory website:
+{\tt http://crd-legacy.lbl.gov/$\sim$xiaoye/SuperLU/\#superlu\_dist}.
+{\sundials} has been tested with {\superludist} greater than 6.1.
+To enable {\superludist}, set \id{SUPERLUDIST\_ENABLE} to \id{ON}, set \id{SUPERLUDIST\_INCLUDE\_DIR}
+to the include directory of the {\superludist} installation (typically \id{SRC}), and set the variable
+\newline\id{SUPERLUDIST\_LIBRARY\_DIR} to the path to library directory of the {\superludist} installation (typically \id{lib}). At the same time, the variable
+\id{SUPERLUDIST\_LIBRARIES} must be set to a semi-colon separated list of
+other libraries {\superludist} depends on. For example, if {\superludist} was
+built with LAPACK, then include the LAPACK library in this list.
+If {\superludist} was built with {\openmp} support, then you may set \id{SUPERLUDIST\_OPENMP}
+to \id{ON} to utilize the {\openmp} functionality of {\superludist}.
+
+\noindent Do not mix thread types when building {\sundials} solvers.
+If threading is enabled for {\sundials} by having \id{PTHREAD\_ENABLE} set to \id{ON}
+then {\superludist} should not be set to use {\openmp}.{\warn}
 
 \subsubsection*{Building with PETSc}
 The {\petsc} libraries are available for download from the Argonne National Laboratory website:

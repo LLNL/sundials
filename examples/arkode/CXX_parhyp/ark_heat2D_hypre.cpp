@@ -283,11 +283,6 @@ int main(int argc, char* argv[]) {
     cout << "   nyl (proc 0) = " << udata->nyl << "\n\n";
   }
 
-  // open solver diagnostics output file for writing
-  FILE *DFID;
-  if (outproc)
-    DFID=fopen("diags_ark_heat2D_hypre.txt","w");
-
   // Initialize data structures
   N = (udata->nxl)*(udata->nyl);
   Ntot = nx*ny;
@@ -972,6 +967,7 @@ static int AnalyticalSolution(N_Vector ytrue, realtype t, UserData *udata)
       y[IDX(i,j,udata->nxl)] = at * sin(PI*(udata->is+i)*udata->dx)
                                   * sin(TWO*PI*(udata->js+j)*udata->dy);
 
+  return 0;
 }
 
 
@@ -1120,7 +1116,7 @@ int Hypre5ptMatrix_Zero(SUNMatrix A) {
 }
 
 int Hypre5ptMatrix_Copy(SUNMatrix A, SUNMatrix B) {
-  int ierr, i;
+  int ierr;
   HYPRE_Int entries[5] = {0,1,2,3,4};
 
   // copy values from A into work array
@@ -1357,7 +1353,7 @@ int HyprePcgPfmg_Setup(SUNLinearSolver S, SUNMatrix A) {
 int HyprePcgPfmg_Solve(SUNLinearSolver S, SUNMatrix A,
                        N_Vector x, N_Vector b, realtype tol) {
   HYPRE_Real finalresid;
-  HYPRE_Int PCGits, PFMGits, converged;
+  HYPRE_Int PCGits, PFMGits;
   int ierr;
 
   // supply the desired [absolute] linear solve tolerance to HYPRE

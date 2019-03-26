@@ -33,14 +33,12 @@
 #include <unistd.h>
 #endif
 
-
 /* private functions */
 static double get_time();
 
 int print_time = 0;
 
 #define PRINT_TIME(format, time) if(print_time) printf(format, time)
-
 
 /* ----------------------------------------------------------------------
  * SUNLinSolGetType Test

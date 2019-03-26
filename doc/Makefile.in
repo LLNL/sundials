@@ -49,6 +49,7 @@ sunmatrix_generic.tex \
 sunmatrix_band.tex \
 sunmatrix_dense.tex \
 sunmatrix_sparse.tex \
+sunmatrix_slunrloc.tex \
 sunmatrix_examples.tex \
 sunlinsol_generic.tex \
 sunlinsol_band.tex \
@@ -61,6 +62,7 @@ sunlinsol_spbcgs.tex \
 sunlinsol_spfgmr.tex \
 sunlinsol_spgmr.tex \
 sunlinsol_sptfqmr.tex \
+sunlinsol_superludist.tex \
 sunlinsol_superlumt.tex \
 sunlinsol_examples.tex \
 sunnonlinsol_generic.tex \

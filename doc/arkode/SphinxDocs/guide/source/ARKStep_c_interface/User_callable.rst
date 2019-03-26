@@ -3321,6 +3321,7 @@ Last return from a linear solver function                          :c:func:`ARKS
 Name of constant associated with a return flag                     :c:func:`ARKStepGetLinReturnFlagName()`
 Size of real and integer mass matrix solver workspaces             :c:func:`ARKStepGetMassWorkSpace()`
 No. of mass matrix solver setups (incl. :math:`M` evals.)          :c:func:`ARKStepGetNumMassSetups()`
+No. of mass matrix multiply setups                                 :c:func:`ARKStepGetNumMassMultSetups()`
 No. of mass matrix multiplies                                      :c:func:`ARKStepGetNumMassMult()`
 No. of mass matrix solves                                          :c:func:`ARKStepGetNumMassSolves()`
 No. of mass matrix preconditioner evaluations                      :c:func:`ARKStepGetNumMassPrecEvals()`
@@ -3581,6 +3582,19 @@ Last return from a mass matrix solver function                     :c:func:`ARKS
       * *ARKLS_MEM_NULL* if the ARKStep memory was ``NULL``
       * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
 
+.. c:function:: int ARKStepGetNumMassMultSetups(void* arkode_mem, long int* nmvsetups)
+
+   Returns the number of calls made to the ARKLS mass matrix 'matvec setup'
+   (matrix-based solvers) routine.
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *nmvsetups* -- number of calls to the mass matrix matrix-times-vector setup routine.
+
+   **Return value:**
+      * *ARKLS_SUCCESS* if successful
+      * *ARKLS_MEM_NULL* if the ARKStep memory was ``NULL``
+      * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
 
 .. c:function:: int ARKStepGetNumMassMult(void* arkode_mem, long int* nmmults)
 

@@ -31,7 +31,6 @@ OPTION(USE_XSDK_DEFAULTS "Enable default xSDK settings" OFF)
 # ---------------------------------------------------------------
 
 IF(USE_XSDK_DEFAULTS)
-
   MESSAGE("Enabeling xSDK defaults")
   
   # set the CMake build type, SUNDIALS does not set a build type by default
@@ -228,7 +227,6 @@ IF(TPL_ENABLE_SUPERLUMT)
   FORCE_VARIABLE(SUPERLUMT_THREAD_TYPE STRING "${DOCSTR}" "${TPL_SUPERLUMT_THREAD_TYPE}")
   MARK_AS_ADVANCED(FORCE SUPERLUMT_THREAD_TYPE)
 ENDIF()
-
 
 # ---------------------------------------------------------------
 # KLU

@@ -57,6 +57,7 @@ SUNMatCopy          X       X           X
 SUNMatScaleAddI     X       X           X
 SUNMatScaleAdd      1
 SUNMatMatvec        1
+SUNMatMatvecSetup   1,2
 SUNMatSpace         2       2           2
 ==================  ======  ==========  =========
 

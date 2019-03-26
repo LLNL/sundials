@@ -30,7 +30,6 @@
 #define FNEQ(a,b,tol) (( SUNRabs((a)-(b)) > tol ))
 #endif
 
-
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif

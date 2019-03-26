@@ -121,6 +121,11 @@ INCLUDE(GNUInstallDirs)
 MARK_AS_ADVANCED(CLEAR CMAKE_INSTALL_LIBDIR)
 
 # ---------------------------------------------------------------
+# Check for deprecated SUNDIALS CMake options/variables
+# ---------------------------------------------------------------
+INCLUDE(SundialsDeprecated)
+
+# ---------------------------------------------------------------
 # Which modules to build?
 # ---------------------------------------------------------------
 
@@ -178,6 +183,7 @@ INCLUDE(SundialsCMakeMacros)
 INCLUDE(SundialsAddF2003InterfaceLibrary)
 INCLUDE(SundialsAddTest)
 INCLUDE(SundialsAddTestInstall)
+INCLUDE(SundialsOption)
 
 # ---------------------------------------------------------------
 # Check for deprecated SUNDIALS CMake options/variables
@@ -422,6 +428,28 @@ IF(LAPACK_ENABLE AND SUNDIALS_INDEX_SIZE MATCHES "64")
                 "Disabling LAPACK")
   SET(LAPACK_ENABLE OFF CACHE BOOL "LAPACK is disabled" FORCE)
 ENDIF()
+
+# ---------------------------------------------------------------
+# Enable SuperLU_DIST support?
+# ---------------------------------------------------------------
+sundials_option(SUPERLUDIST_ENABLE BOOL "Enable SuperLUDIST support" OFF
+                XSDK_NAME TPL_ENABLE_SUPERLUDIST)
+
+sundials_option(SUPERLUDIST_INCLUDE_DIR PATH "SuperLUDIST include directory" "${SUPERLUDIST_INCLUDE_DIR}"
+                DEPENDS_ON SUPERLUDIST_ENABLE
+                XSDK_NAME TPL_SUPERLUDIST_INCLUDE_DIRS)
+
+sundials_option(SUPERLUDIST_LIBRARY_DIR PATH "SuperLUDIST library directory" "${SUPERLUDIST_LIBRARY_DIR}"
+                DEPENDS_ON SUPERLUDIST_ENABLE
+                XSDK_HIDE)
+
+sundials_option(SUPERLUDIST_LIBRARIES STRING "Semi-colon separated list of additional libraries needed for SuperLU_DIST." "${SUPERLUDIST_LIBRARIES}"
+                DEPENDS_ON SUPERLUDIST_ENABLE
+                XSDK_NAME TPL_SUPERLUDIST_LIBRARIES)
+
+sundials_option(SUPERLUDIST_OpenMP BOOL "Enable SUNDIALS support for SuperLUDIST OpenMP on-node parallelism" OFF
+                DEPENDS_ON SUPERLUDIST_ENABLE
+                XSDK_NAME TPL_SUPERLUDIST_OpenMP)
 
 # ---------------------------------------------------------------
 # Enable SuperLU_MT support?
@@ -755,9 +783,10 @@ ENDIF()
 # (b) CUDA is enabled
 # (c) RAJA is enabled
 # (d) Trilinos is enabled
+# (e) SuperLU_DIST is enabled
 # ---------------------------------------------------------------
 
-if(EXAMPLES_ENABLE_CXX OR CUDA_ENABLE OR RAJA_ENABLE OR Trilinos_ENABLE)
+if(EXAMPLES_ENABLE_CXX OR CUDA_ENABLE OR RAJA_ENABLE OR Trilinos_ENABLE OR SUPERLUDIST_ENABLE)
   include(SundialsCXX)
 endif()
 
@@ -820,7 +849,7 @@ endif()
 # Find OpenMP
 # -------------------------------------------------------------
 
-if(OPENMP_ENABLE OR OPENMP_DEVICE_ENABLE)
+if(OPENMP_ENABLE OR OPENMP_DEVICE_ENABLE OR SUPERLUDIST_OpenMP)
 
   include(SundialsOpenMP)
 
@@ -938,6 +967,16 @@ ELSE()
   HIDE_VARIABLE(LAPACK_LIBRARIES)
 
 ENDIF()
+
+# ---------------------------------------------------------------
+# Find (and test) the SuperLUDIST libraries
+# ---------------------------------------------------------------
+
+if(SUPERLUDIST_ENABLE)
+  include(SundialsSuperLUDIST)
+else()
+  set(SUPERLUDIST_DISABLED TRUE CACHE INTERNAL "GUI - return when first set")
+endif()
 
 # ---------------------------------------------------------------
 # Find (and test) the SUPERLUMT libraries

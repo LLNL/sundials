@@ -334,6 +334,8 @@ SUNDIALS_EXPORT int ARKStepGetMassWorkSpace(void *arkode_mem,
                                             long int *leniwMLS);
 SUNDIALS_EXPORT int ARKStepGetNumMassSetups(void *arkode_mem,
                                             long int *nmsetups);
+SUNDIALS_EXPORT int ARKStepGetNumMassMultSetups(void *arkode_mem,
+                                                long int *nmvsetups);
 SUNDIALS_EXPORT int ARKStepGetNumMassMult(void *arkode_mem,
                                           long int *nmvevals);
 SUNDIALS_EXPORT int ARKStepGetNumMassSolves(void *arkode_mem,

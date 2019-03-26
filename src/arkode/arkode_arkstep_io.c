@@ -577,6 +577,8 @@ int ARKStepGetMassWorkSpace(void *arkode_mem, long int *lenrwMLS, long int *leni
   return(arkLSGetMassWorkSpace(arkode_mem, lenrwMLS, leniwMLS)); }
 int ARKStepGetNumMassSetups(void *arkode_mem, long int *nmsetups) {
   return(arkLSGetNumMassSetups(arkode_mem, nmsetups)); }
+int ARKStepGetNumMassMultSetups(void *arkode_mem, long int *nmvsetups) {
+  return(arkLSGetNumMassMatvecSetups(arkode_mem, nmvsetups)); }
 int ARKStepGetNumMassMult(void *arkode_mem, long int *nmvevals) {
   return(arkLSGetNumMassMult(arkode_mem, nmvevals)); }
 int ARKStepGetNumMassSolves(void *arkode_mem, long int *nmsolves) {

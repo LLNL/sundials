@@ -27,6 +27,15 @@
 #include <sundials/sundials_math.h>
 #include "test_sunmatrix.h"
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
 
 /* ----------------------------------------------------------------------
  * Main SUNMatrix Testing Routine
@@ -217,7 +226,7 @@ int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
     for (i=istart; i<=iend; i++) {
       if (FNEQ(Acolj[i], val, tol)) {
         failure++;
-        printf("j = %li, Acolj[%li] = %g, val = %g\n",
+        printf("j = %li, Acolj[%li] = %"GSYM", val = %"GSYM"\n",
                (long int) j, (long int) i, Acolj[i], val);
       }
     }

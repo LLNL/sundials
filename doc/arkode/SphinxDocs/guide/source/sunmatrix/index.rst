@@ -43,5 +43,6 @@ matrix objects and use them in the solution of linear systems.
    SUNMatrix_Dense
    SUNMatrix_Band
    SUNMatrix_Sparse
+   SUNMatrix_SLUNRloc
    SUNMatrix_Examples
    ARKode_requirements

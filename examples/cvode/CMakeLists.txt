@@ -32,6 +32,13 @@ if(EXAMPLES_ENABLE_C)
   endif()
 endif()
 
+# CXX examples
+if(EXAMPLES_ENABLE_CXX)
+  if(SUPERLUDIST_ENABLE AND SUPERLUDIST_FOUND)
+    add_subdirectory(superludist)
+  endif()
+endif()
+
 # Fortran examples
 if(F77_INTERFACE_ENABLE AND EXAMPLES_ENABLE_F77 AND F77_FOUND)
   add_subdirectory(fcmix_serial)
@@ -44,7 +51,7 @@ if(F2003_INTERFACE_ENABLE AND EXAMPLES_ENABLE_F90 AND F90_FOUND)
   add_subdirectory(F90_serial)
 endif()
 
-# cuda examples
+# CUDA examples
 if(EXAMPLES_ENABLE_CUDA)
 
   if(CUDA_ENABLE AND CUDA_FOUND)

@@ -1,5 +1,6 @@
 /*---------------------------------------------------------------
- * Programmer(s): Daniel R. Reynolds @ SMU
+ * Programmer(s): Daniel R. Reynolds @ SMU and
+ *                Cody J. Balos @ LLNL
  *---------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -275,11 +276,11 @@ int main(int argc, char *argv[]) {
 
   /* Initialize sparse matrix data structure and SuperLU_MT solvers (system and mass) */
   NNZ = 15*NEQ;
-  A = SUNSparseMatrix(NEQ, NEQ, NNZ, CSC_MAT);
+  A = SUNSparseMatrix(NEQ, NEQ, NNZ, CSR_MAT);
   if (check_flag((void *)A, "SUNSparseMatrix", 0)) return 1;
   LS = SUNLinSol_SuperLUMT(y, A, num_threads);
   if (check_flag((void *)LS, "SUNLinSol_SuperLUMT", 0)) return 1;
-  M = SUNSparseMatrix(NEQ, NEQ, NNZ, CSC_MAT);
+  M = SUNSparseMatrix(NEQ, NEQ, NNZ, CSR_MAT);
   if (check_flag((void *)M, "SUNSparseMatrix", 0)) return 1;
   MLS = SUNLinSol_SuperLUMT(y, M, num_threads);
   if (check_flag((void *)MLS, "SUNLinSol_SuperLUMT", 0)) return 1;
@@ -692,7 +693,7 @@ static int Jac(realtype t, N_Vector y, N_Vector fy, SUNMatrix J,
   if (udata->R == NULL) {
     udata->R = SUNSparseMatrix(SUNSparseMatrix_Rows(J),
                                SUNSparseMatrix_Columns(J),
-                               SUNSparseMatrix_NNZ(J), CSC_MAT);
+                               SUNSparseMatrix_NNZ(J), CSR_MAT);
     if (udata->R == NULL) {
       printf("Jac: error in allocating R matrix!\n");
       return 1;
@@ -726,159 +727,121 @@ static int MassMatrix(realtype t, SUNMatrix M, void *user_data,
   UserData udata = (UserData) user_data;
 
   /* set shortcuts */
-  sunindextype N = udata->N;
-  sunindextype i, nz=0;
-  sunindextype *colptrs = SUNSparseMatrix_IndexPointers(M);
-  sunindextype *rowvals = SUNSparseMatrix_IndexValues(M);
-  realtype *data = SUNSparseMatrix_Data(M);
+  sunindextype N = udata->N, NEQ = 3*N;
+  sunindextype *rowptrs = SUNSparseMatrix_IndexPointers(M);
+  sunindextype *colinds = SUNSparseMatrix_IndexValues(M);
+  realtype *Mdata = SUNSparseMatrix_Data(M);
+  realtype *Xdata = udata->x;
 
   /* local data */
-  realtype xl, xr, f1, f2, f3, dtmp;
+  sunindextype i, nz=0;
+  realtype xl, xc, xr, Ml, Mc, Mr, ChiL1, ChiL2, ChiL3, ChiR1, ChiR2, ChiR3;
+  booleantype left, right;
+
+  /* check that vector/matrix dimensions match up */
+  if ((SUNSparseMatrix_Rows(M) != NEQ) || (SUNSparseMatrix_Columns(M) != NEQ) ||
+        (SUNSparseMatrix_NNZ(M) != 15*NEQ)) {
+    printf("MassMatrix calculation error: matrix is wrong size!\n");
+    return 1;
+  }
 
   /* clear out mass matrix */
   SUNMatZero(M);
 
-  /* iterate over columns, filling in matrix entries */
+  /* iterate through nodes, filling in matrix by rows */
   for (i=0; i<N; i++) {
 
-    /* dependence on u at this node */
-    colptrs[IDX(i,0)] = nz;
+    /* set booleans to determine whether intervals exist on the left/right */
+    left  = (i==0)     ? SUNFALSE : SUNTRUE;
+    right = (i==(N-1)) ? SUNFALSE : SUNTRUE;
 
-    /*    left u trial function */
-    if (i>0) {
-      xl = udata->x[i-1];
-      xr = udata->x[i];
-      f1 = ChiL(xl,xr,X1(xl,xr)) * ChiR(xl,xr,X1(xl,xr));
-      f2 = ChiL(xl,xr,X2(xl,xr)) * ChiR(xl,xr,X2(xl,xr));
-      f3 = ChiL(xl,xr,X3(xl,xr)) * ChiR(xl,xr,X3(xl,xr));
-      data[nz] = Quad(f1,f2,f3,xl,xr);
-      rowvals[nz++] = IDX(i-1,0);
-    }
-    /*    this u trial function */
-    dtmp = ZERO;
-    if (i<N-1) {
-      xl = udata->x[i];
-      xr = udata->x[i+1];
-      f1 = ChiL(xl,xr,X1(xl,xr)) * ChiL(xl,xr,X1(xl,xr));
-      f2 = ChiL(xl,xr,X2(xl,xr)) * ChiL(xl,xr,X2(xl,xr));
-      f3 = ChiL(xl,xr,X3(xl,xr)) * ChiL(xl,xr,X3(xl,xr));
-      dtmp += Quad(f1,f2,f3,xl,xr);
-    }
-    if (i>0) {
-      xl = udata->x[i-1];
-      xr = udata->x[i];
-      f1 = ChiR(xl,xr,X1(xl,xr)) * ChiR(xl,xr,X1(xl,xr));
-      f2 = ChiR(xl,xr,X2(xl,xr)) * ChiR(xl,xr,X2(xl,xr));
-      f3 = ChiR(xl,xr,X3(xl,xr)) * ChiR(xl,xr,X3(xl,xr));
-      dtmp += Quad(f1,f2,f3,xl,xr);
-    }
-    data[nz] = dtmp;
-    rowvals[nz++] = IDX(i,0);
-    /*    right u trial function */
-    if (i<N-1) {
-      xl = udata->x[i];
-      xr = udata->x[i+1];
-      f1 = ChiL(xl,xr,X1(xl,xr)) * ChiR(xl,xr,X1(xl,xr));
-      f2 = ChiL(xl,xr,X2(xl,xr)) * ChiR(xl,xr,X2(xl,xr));
-      f3 = ChiL(xl,xr,X3(xl,xr)) * ChiR(xl,xr,X3(xl,xr));
-      data[nz] = Quad(f1,f2,f3,xl,xr);
-      rowvals[nz++] = IDX(i+1,0);
+    /* set nodal value shortcuts (interval index aligns with left node) */
+    if (left) xl = Xdata[i-1];
+    xc = Xdata[i];
+    if (right) xr = Xdata[i+1];
+
+    /* compute entries of all mass matrix rows at node ix */
+    Ml = ZERO;
+    Mc = ZERO;
+    Mr = ZERO;
+
+    /* first compute dependence on values to left and center */
+    if (left) {
+      ChiL1 = ChiL(xl, xc, X1(xl,xc));
+      ChiL2 = ChiL(xl, xc, X2(xl,xc));
+      ChiL3 = ChiL(xl, xc, X3(xl,xc));
+      ChiR1 = ChiR(xl, xc, X1(xl,xc));
+      ChiR2 = ChiR(xl, xc, X2(xl,xc));
+      ChiR3 = ChiR(xl, xc, X3(xl,xc));
+      Ml = Ml + Quad(ChiL1*ChiR1, ChiL2*ChiR2, ChiL3*ChiR3, xl, xc);
+      Mc = Mc + Quad(ChiR1*ChiR1, ChiR2*ChiR2, ChiR3*ChiR3, xl, xc);
     }
 
-
-    /* dependence on v at this node */
-    colptrs[IDX(i,1)] = nz;
-
-    /*    left v trial function */
-    if (i>0) {
-      xl = udata->x[i-1];
-      xr = udata->x[i];
-      f1 = ChiL(xl,xr,X1(xl,xr)) * ChiR(xl,xr,X1(xl,xr));
-      f2 = ChiL(xl,xr,X2(xl,xr)) * ChiR(xl,xr,X2(xl,xr));
-      f3 = ChiL(xl,xr,X3(xl,xr)) * ChiR(xl,xr,X3(xl,xr));
-      data[nz] = Quad(f1,f2,f3,xl,xr);
-      rowvals[nz++] = IDX(i-1,1);
-    }
-    /*    this v trial function */
-    dtmp = ZERO;
-    if (i<N-1) {
-      xl = udata->x[i];
-      xr = udata->x[i+1];
-      f1 = ChiL(xl,xr,X1(xl,xr)) * ChiL(xl,xr,X1(xl,xr));
-      f2 = ChiL(xl,xr,X2(xl,xr)) * ChiL(xl,xr,X2(xl,xr));
-      f3 = ChiL(xl,xr,X3(xl,xr)) * ChiL(xl,xr,X3(xl,xr));
-      dtmp += Quad(f1,f2,f3,xl,xr);
-    }
-    if (i>0) {
-      xl = udata->x[i-1];
-      xr = udata->x[i];
-      f1 = ChiR(xl,xr,X1(xl,xr)) * ChiR(xl,xr,X1(xl,xr));
-      f2 = ChiR(xl,xr,X2(xl,xr)) * ChiR(xl,xr,X2(xl,xr));
-      f3 = ChiR(xl,xr,X3(xl,xr)) * ChiR(xl,xr,X3(xl,xr));
-      dtmp += Quad(f1,f2,f3,xl,xr);
-    }
-    data[nz] = dtmp;
-    rowvals[nz++] = IDX(i,1);
-    /*    right v trial function */
-    if (i<N-1) {
-      xl = udata->x[i];
-      xr = udata->x[i+1];
-      f1 = ChiL(xl,xr,X1(xl,xr)) * ChiR(xl,xr,X1(xl,xr));
-      f2 = ChiL(xl,xr,X2(xl,xr)) * ChiR(xl,xr,X2(xl,xr));
-      f3 = ChiL(xl,xr,X3(xl,xr)) * ChiR(xl,xr,X3(xl,xr));
-      data[nz] = Quad(f1,f2,f3,xl,xr);
-      rowvals[nz++] = IDX(i+1,1);
+    /* second compute dependence on values to center and right */
+    if (right) {
+      ChiL1 = ChiL(xc, xr, X1(xc,xr));
+      ChiL2 = ChiL(xc, xr, X2(xc,xr));
+      ChiL3 = ChiL(xc, xr, X3(xc,xr));
+      ChiR1 = ChiR(xc, xr, X1(xc,xr));
+      ChiR2 = ChiR(xc, xr, X2(xc,xr));
+      ChiR3 = ChiR(xc, xr, X3(xc,xr));
+      Mc = Mc + Quad(ChiL1*ChiL1, ChiL2*ChiL2, ChiL3*ChiL3, xc, xr);
+      Mr = Mr + Quad(ChiL1*ChiR1, ChiL2*ChiR2, ChiL3*ChiR3, xc, xr);
     }
 
+    /* insert mass matrix entires into CSR matrix structure */
 
-    /* dependence on w at this node */
-    colptrs[IDX(i,2)] = nz;
-
-    /*    left w trial function */
-    if (i>0) {
-      xl = udata->x[i-1];
-      xr = udata->x[i];
-      f1 = ChiL(xl,xr,X1(xl,xr)) * ChiR(xl,xr,X1(xl,xr));
-      f2 = ChiL(xl,xr,X2(xl,xr)) * ChiR(xl,xr,X2(xl,xr));
-      f3 = ChiL(xl,xr,X3(xl,xr)) * ChiR(xl,xr,X3(xl,xr));
-      data[nz] = Quad(f1,f2,f3,xl,xr);
-      rowvals[nz++] = IDX(i-1,2);
+    /* u row */
+    rowptrs[IDX(i,0)] = nz;
+    if (left) {
+      Mdata[nz] = Ml;
+      colinds[nz] = IDX(i-1,0);
+      nz++;
     }
-    /*    this w trial function */
-    dtmp = ZERO;
-    if (i<N-1) {
-      xl = udata->x[i];
-      xr = udata->x[i+1];
-      f1 = ChiL(xl,xr,X1(xl,xr)) * ChiL(xl,xr,X1(xl,xr));
-      f2 = ChiL(xl,xr,X2(xl,xr)) * ChiL(xl,xr,X2(xl,xr));
-      f3 = ChiL(xl,xr,X3(xl,xr)) * ChiL(xl,xr,X3(xl,xr));
-      dtmp += Quad(f1,f2,f3,xl,xr);
-    }
-    if (i>0) {
-      xl = udata->x[i-1];
-      xr = udata->x[i];
-      f1 = ChiR(xl,xr,X1(xl,xr)) * ChiR(xl,xr,X1(xl,xr));
-      f2 = ChiR(xl,xr,X2(xl,xr)) * ChiR(xl,xr,X2(xl,xr));
-      f3 = ChiR(xl,xr,X3(xl,xr)) * ChiR(xl,xr,X3(xl,xr));
-      dtmp += Quad(f1,f2,f3,xl,xr);
-    }
-    data[nz] = dtmp;
-    rowvals[nz++] = IDX(i,2);
-    /*    right w trial function */
-    if (i<N-1) {
-      xl = udata->x[i];
-      xr = udata->x[i+1];
-      f1 = ChiL(xl,xr,X1(xl,xr)) * ChiR(xl,xr,X1(xl,xr));
-      f2 = ChiL(xl,xr,X2(xl,xr)) * ChiR(xl,xr,X2(xl,xr));
-      f3 = ChiL(xl,xr,X3(xl,xr)) * ChiR(xl,xr,X3(xl,xr));
-      data[nz] = Quad(f1,f2,f3,xl,xr);
-      rowvals[nz++] = IDX(i+1,2);
+    Mdata[nz] = Mc;
+    colinds[nz] = IDX(i,0);
+    nz++;
+    if (right) {
+      Mdata[nz] = Mr;
+      colinds[nz] = IDX(i+1,0);
+      nz++;
     }
 
+    /* v row */
+    rowptrs[IDX(i,1)] = nz;
+    if (left) {
+      Mdata[nz] = Ml;
+      colinds[nz] = IDX(i-1,1);
+      nz++;
+    }
+    Mdata[nz] = Mc;
+    colinds[nz] = IDX(i,1);
+    nz++;
+    if (right) {
+      Mdata[nz] = Mr;
+      colinds[nz] = IDX(i+1,1);
+      nz++;
+    }
+
+    /* w row */
+    rowptrs[IDX(i,2)] = nz;
+    if (left) {
+      Mdata[nz] = Ml;
+      colinds[nz] = IDX(i-1,2);
+      nz++;
+    }
+    Mdata[nz] = Mc;
+    colinds[nz] = IDX(i,2);
+    nz++;
+    if (right) {
+      Mdata[nz] = Mr;
+      colinds[nz] = IDX(i+1,2);
+      nz++;
+    }
   }
 
   /* signal end of data */
-  colptrs[IDX(N-1,2)+1] = nz;
+  rowptrs[IDX(N-1,2)+1] = nz;
 
   return 0;
 }
@@ -896,103 +859,186 @@ static int MassMatrix(realtype t, SUNMatrix M, void *user_data,
 /* Routine to compute the Laplace matrix */
 static int LaplaceMatrix(SUNMatrix L, UserData udata)
 {
-
-  /* set shortcuts, local variables */
+  /* set shortcuts */
   sunindextype N = udata->N;
-  realtype du = udata->du;
-  realtype dv = udata->dv;
-  realtype dw = udata->dw;
-  sunindextype i, nz=0;
-  realtype xl, xr;
-  sunindextype *colptrs = SUNSparseMatrix_IndexPointers(L);
-  sunindextype *rowvals = SUNSparseMatrix_IndexValues(L);
-  realtype *data = SUNSparseMatrix_Data(L);
+  sunindextype *rowptrs = SUNSparseMatrix_IndexPointers(L);
+  sunindextype *colinds = SUNSparseMatrix_IndexValues(L);
+  realtype *Ldata = SUNSparseMatrix_Data(L);
+  realtype *Xdata = udata->x;
+  realtype du = udata->du, dv = udata->dv, dw = udata->dw;
+
+  /* set local variables */
+  sunindextype i, j, nz=0;
+  realtype xl, xc, xr;
+  realtype Lu[9], Lv[9], Lw[9];
+
+  /* initialize all local variables to zero (to avoid uninitialized variable warnings) */
+  xl = xc = xr = 0.0;
 
   /* clear out matrix */
   SUNMatZero(L);
 
-  /* iterate over columns, filling in Laplace matrix entries */
-  for (i=0; i<N; i++) {
+  /* Dirichlet boundary at left */
+  rowptrs[IDX(0,0)] = nz;
+  rowptrs[IDX(0,1)] = nz;
+  rowptrs[IDX(0,2)] = nz;
 
-    /* dependence on u at this node */
-    colptrs[IDX(i,0)] = nz;
+  /* iterate over columns, filling in Laplace matrix */
+  for (i=1; i<(N-1); i++) {
 
-    if (i>1) {
-      xl = udata->x[i-1];
-      xr = udata->x[i];
-      data[nz] = (-du) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiR_x(xl,xr);
-      rowvals[nz++] = IDX(i-1,0);
-    }
-    if (i<N-1 && i>0) {
-      xl = udata->x[i-1];
-      xr = udata->x[i];
-      data[nz] = (-du) * Quad(ONE,ONE,ONE,xl,xr) * ChiR_x(xl,xr) * ChiR_x(xl,xr);
-      xl = udata->x[i];
-      xr = udata->x[i+1];
-      data[nz] += (-du) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiL_x(xl,xr);
-      rowvals[nz++] = IDX(i,0);
-    }
-    if (i<N-2) {
-      xl = udata->x[i];
-      xr = udata->x[i+1];
-      data[nz] = (-du) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiR_x(xl,xr);
-      rowvals[nz++] = IDX(i+1,0);
+    /* set nodal value shortcuts (interval index aligns with left node) */
+    xl = Xdata[i-1];
+    xc = Xdata[i];
+    xr = Xdata[i+1];
+
+    /* compute entries of all Jacobian rows at node i */
+    for(j=0; j<9; j++) {
+      Lu[j] = ZERO;
+      Lv[j] = ZERO;
+      Lw[j] = ZERO;
     }
 
-    /* dependence on v at this node */
-    colptrs[IDX(i,1)] = nz;
+    /* first compute dependence on values to left and center */
 
-    if (i>1) {
-      xl = udata->x[i-1];
-      xr = udata->x[i];
-      data[nz] = (-dv) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiR_x(xl,xr);
-      rowvals[nz++] = IDX(i-1,1);
-    }
-    if (i>0 && i<N-1) {
-      xl = udata->x[i];
-      xr = udata->x[i+1];
-      data[nz] = (-dv) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiL_x(xl,xr);
-      xl = udata->x[i-1];
-      xr = udata->x[i];
-      data[nz] += (-dv) * Quad(ONE,ONE,ONE,xl,xr) * ChiR_x(xl,xr) * ChiR_x(xl,xr);
-      rowvals[nz++] = IDX(i,1);
-    }
-    if (i<N-2) {
-      xl = udata->x[i];
-      xr = udata->x[i+1];
-      data[nz] = (-dv) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiR_x(xl,xr);
-      rowvals[nz++] = IDX(i+1,1);
-    }
+    /* compute diffusion Jacobian components */
 
-    /* dependence on w at this node */
-    colptrs[IDX(i,2)] = nz;
+    /* L_u = -du * u_x * ChiR_x */
+    /*   dL_u/dul   */
+    Lu[IDX(0,0)] = (-du) * Quad(ONE,ONE,ONE,xl,xc) * ChiL_x(xl,xc) * ChiR_x(xl,xc);
+    /*   dL_u/duc   */
+    Lu[IDX(0,1)] = (-du) * Quad(ONE,ONE,ONE,xl,xc) * ChiR_x(xl,xc) * ChiR_x(xl,xc);
 
-    if (i>1) {
-      xl = udata->x[i-1];
-      xr = udata->x[i];
-      data[nz] = (-dw) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiR_x(xl,xr);
-      rowvals[nz++] = IDX(i-1,2);
-    }
-    if (i>0 && i<N-1) {
-      xl = udata->x[i];
-      xr = udata->x[i+1];
-      data[nz] = (-dw) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiL_x(xl,xr);
-      xl = udata->x[i-1];
-      xr = udata->x[i];
-      data[nz] += (-dw) * Quad(ONE,ONE,ONE,xl,xr) * ChiR_x(xl,xr) * ChiR_x(xl,xr);
-      rowvals[nz++] = IDX(i,2);
-    }
-    if (i<N-2) {
-      xl = udata->x[i];
-      xr = udata->x[i+1];
-      data[nz] = (-dw) * Quad(ONE,ONE,ONE,xl,xr) * ChiL_x(xl,xr) * ChiR_x(xl,xr);
-      rowvals[nz++] = IDX(i+1,2);
-    }
+    /* L_v = -dv * v_x * ChiR_x */
+    /*   dL_v/dvl   */
+    Lv[IDX(1,0)] = (-dv) * Quad(ONE,ONE,ONE,xl,xc) * ChiL_x(xl,xc) * ChiR_x(xl,xc);
+    /*   dL_v/dvc   */
+    Lv[IDX(1,1)] = (-dv) * Quad(ONE,ONE,ONE,xl,xc) * ChiR_x(xl,xc) * ChiR_x(xl,xc);
+
+    /* L_w =  -dw * w_x * ChiR_x */
+    /*   dL_w/dwl   */
+    Lw[IDX(2,0)] = (-dw) * Quad(ONE,ONE,ONE,xl,xc) * ChiL_x(xl,xc) * ChiR_x(xl,xc);
+    /*   dL_w/dwc   */
+    Lw[IDX(2,1)] = (-dw) * Quad(ONE,ONE,ONE,xl,xc) * ChiR_x(xl,xc) * ChiR_x(xl,xc);
+
+
+    /* second compute dependence on values to center and right */
+
+    /* compute diffusion Jacobian components */
+
+    /* L_u = -du * u_x * ChiL_x */
+    /*    dL_u/duc    */
+    Lu[IDX(0,1)] = Lu[IDX(0,1)] + (-du) * Quad(ONE,ONE,ONE,xc,xr) * ChiL_x(xc,xr) * ChiL_x(xc,xr);
+
+    /*    dL_u/dur    */
+    Lu[IDX(0,2)] = Lu[IDX(0,2)] + (-du) * Quad(ONE,ONE,ONE,xc,xr) * ChiL_x(xc,xr) * ChiR_x(xc,xr);
+
+    /* L_v = -dv * v_x * ChiL_x */
+    /*    dL_v/dvc    */
+    Lv[IDX(1,1)] = Lv[IDX(1,1)] + (-dv) * Quad(ONE,ONE,ONE,xc,xr) * ChiL_x(xc,xr) * ChiL_x(xc,xr);
+
+    /*    dL_v/dvr    */
+    Lv[IDX(1,2)] = Lv[IDX(1,2)] + (-dv) * Quad(ONE,ONE,ONE,xc,xr) * ChiL_x(xc,xr) * ChiR_x(xc,xr);
+
+    /* L_w =  -dw * w_x * ChiL_x */
+    /*    dL_w/dwc    */
+    Lw[IDX(2,1)] = Lw[IDX(2,1)] + (-dw) * Quad(ONE,ONE,ONE,xc,xr) * ChiL_x(xc,xr) * ChiL_x(xc,xr);
+
+    /*    dL_w/dwr    */
+    Lw[IDX(2,2)] = Lw[IDX(2,2)] + (-dw) * Quad(ONE,ONE,ONE,xc,xr) * ChiL_x(xc,xr) * ChiR_x(xc,xr);
+
+
+    /* insert Jacobian entries into CSR matrix structure */
+
+    /* Lu row */
+    rowptrs[IDX(i,0)] = nz;
+
+    Ldata[nz] = Lu[IDX(0,0)];
+    Ldata[nz+1] = Lu[IDX(1,0)];
+    Ldata[nz+2] = Lu[IDX(2,0)];
+    colinds[nz] = IDX(i-1,0);
+    colinds[nz+1] = IDX(i-1,1);
+    colinds[nz+2] = IDX(i-1,2);
+    nz += 3;
+
+    Ldata[nz] = Lu[IDX(0,1)];
+    Ldata[nz+1] = Lu[IDX(1,1)];
+    Ldata[nz+2] = Lu[IDX(2,1)];
+    colinds[nz] = IDX(i,0);
+    colinds[nz+1] = IDX(i,1);
+    colinds[nz+2] = IDX(i,2);
+    nz += 3;
+
+    Ldata[nz] = Lu[IDX(0,2)];
+    Ldata[nz+1] = Lu[IDX(1,2)];
+    Ldata[nz+2] = Lu[IDX(2,2)];
+    colinds[nz] = IDX(i+1,0);
+    colinds[nz+1] = IDX(i+1,1);
+    colinds[nz+2] = IDX(i+1,2);
+    nz += 3;
+
+    /* Lv row */
+    rowptrs[IDX(i,1)] = nz;
+
+    Ldata[nz] = Lv[IDX(0,0)];
+    Ldata[nz+1] = Lv[IDX(1,0)];
+    Ldata[nz+2] = Lv[IDX(2,0)];
+    colinds[nz] = IDX(i-1,0);
+    colinds[nz+1] = IDX(i-1,1);
+    colinds[nz+2] = IDX(i-1,2);
+    nz += 3;
+
+    Ldata[nz] = Lv[IDX(0,1)];
+    Ldata[nz+1] = Lv[IDX(1,1)];
+    Ldata[nz+2] = Lv[IDX(2,1)];
+    colinds[nz] = IDX(i,0);
+    colinds[nz+1] = IDX(i,1);
+    colinds[nz+2] = IDX(i,2);
+    nz += 3;
+
+    Ldata[nz] = Lv[IDX(0,2)];
+    Ldata[nz+1] = Lv[IDX(1,2)];
+    Ldata[nz+2] = Lv[IDX(2,2)];
+    colinds[nz] = IDX(i+1,0);
+    colinds[nz+1] = IDX(i+1,1);
+    colinds[nz+2] = IDX(i+1,2);
+    nz += 3;
+
+    /* Lw row */
+    rowptrs[IDX(i,2)] = nz;
+
+    Ldata[nz] = Lw[IDX(0,0)];
+    Ldata[nz+1] = Lw[IDX(1,0)];
+    Ldata[nz+2] = Lw[IDX(2,0)];
+    colinds[nz] = IDX(i-1,0);
+    colinds[nz+1] = IDX(i-1,1);
+    colinds[nz+2] = IDX(i-1,2);
+    nz += 3;
+
+    Ldata[nz] = Lw[IDX(0,1)];
+    Ldata[nz+1] = Lw[IDX(1,1)];
+    Ldata[nz+2] = Lw[IDX(2,1)];
+    colinds[nz] = IDX(i,0);
+    colinds[nz+1] = IDX(i,1);
+    colinds[nz+2] = IDX(i,2);
+    nz += 3;
+
+    Ldata[nz] = Lw[IDX(0,2)];
+    Ldata[nz+1] = Lw[IDX(1,2)];
+    Ldata[nz+2] = Lw[IDX(2,2)];
+    colinds[nz] = IDX(i+1,0);
+    colinds[nz+1] = IDX(i+1,1);
+    colinds[nz+2] = IDX(i+1,2);
+    nz += 3;
 
   }
 
+  /* Dirichlet boundary at right */
+  rowptrs[IDX(N-1,0)] = nz;
+  rowptrs[IDX(N-1,1)] = nz;
+  rowptrs[IDX(N-1,2)] = nz;
+
   /* signal end of data */
-  colptrs[IDX(N-1,2)+1] = nz;
+  rowptrs[IDX(N-1,2)+1] = nz;
 
   return 0;
 }
@@ -1002,345 +1048,410 @@ static int LaplaceMatrix(SUNMatrix L, UserData udata)
 /* Routine to compute the Jacobian matrix from R(y) */
 static int ReactionJac(N_Vector y, SUNMatrix Jac, UserData udata)
 {
-  /* set shortcuts, local variables */
+  /* set shortcuts */
   sunindextype N = udata->N;
-  sunindextype i, nz=0;
-  sunindextype *colptrs = SUNSparseMatrix_IndexPointers(Jac);
-  sunindextype *rowvals = SUNSparseMatrix_IndexValues(Jac);
-  realtype *data = SUNSparseMatrix_Data(Jac);
+  sunindextype *rowptrs = SUNSparseMatrix_IndexPointers(Jac);
+  sunindextype *colinds = SUNSparseMatrix_IndexValues(Jac);
+  realtype *Jdata = SUNSparseMatrix_Data(Jac);
+  realtype *Xdata = udata->x;
+
+  /* set local variables */
+  sunindextype i, j, nz=0;
   realtype ep = udata->ep;
-  realtype ul, uc, ur, vl, vc, vr, wl, wc, wr;
-  realtype u1l, u2l, u3l, v1l, v2l, v3l, w1l, w2l, w3l;
-  realtype u1r, u2r, u3r, v1r, v2r, v3r, w1r, w2r, w3r;
-  realtype xl, xc, xr, df1, df2, df3;
-  realtype dQdf1l, dQdf2l, dQdf3l, ChiL1l, ChiL2l, ChiL3l, ChiR1l, ChiR2l, ChiR3l;
-  realtype dQdf1r, dQdf2r, dQdf3r, ChiL1r, ChiL2r, ChiL3r, ChiR1r, ChiR2r, ChiR3r;
+  realtype ul, uc, ur, vl, vc, vr, wl, wc, wr, xl, xc, xr;
+  realtype u1, u2, u3, v1, v2, v3, w1, w2, w3;
+  realtype df1, df2, df3, dQdf1, dQdf2, dQdf3;
+  realtype ChiL1, ChiL2, ChiL3, ChiR1, ChiR2, ChiR3;
+  realtype Ju[9], Jv[9], Jw[9];
 
   /* access data arrays */
   realtype *Ydata = N_VGetArrayPointer(y);
-  if (check_flag((void *) Ydata, "N_VGetArrayPointer", 0)) return 1;
+  if (check_flag((void *) Ydata, "N_VGetArrayPointer", 0)) return(1);
 
   /* initialize all local variables to zero (to avoid uninitialized variable warnings) */
-  ul = uc = ur = vl = vc = vr = wl = wc = wr = 0.0;
-  u1l = u2l = u3l = v1l = v2l = v3l = w1l = w2l = w3l = 0.0;
-  u1r = u2r = u3r = v1r = v2r = v3r = w1r = w2r = w3r = 0.0;
-  xl = xc = xr = df1 = df2 = df3 = 0.0;
-  dQdf1l = dQdf2l = dQdf3l = ChiL1l = ChiL2l = ChiL3l = ChiR1l = ChiR2l = ChiR3l = 0.0;
-  dQdf1r = dQdf2r = dQdf3r = ChiL1r = ChiL2r = ChiL3r = ChiR1r = ChiR2r = ChiR3r = 0.0;
+  ul = uc = ur = vl = vc = vr = wl = wc = wr = xl = xc = xr = 0.0;
+  u1 = u2 = u3 = v1 = v2 = v3 = w1 = w2 = w3 = 0.0;
+  df1 = df2 = df3 = dQdf1 = dQdf2 = dQdf3 = 0.0;
+  ChiL1 = ChiL2 = ChiL3 = ChiR1 = ChiR2 = ChiR3 = 0.0;
 
   /* clear out matrix */
   SUNMatZero(Jac);
 
+  /* Dirichlet boundary at left */
+  rowptrs[IDX(0,0)] = nz;
+  rowptrs[IDX(0,1)] = nz;
+  rowptrs[IDX(0,2)] = nz;
+
   /* iterate over columns, filling in reaction Jacobian */
-  for (i=0; i<N; i++) {
+  for (i=1; i <= N-2; i++) {
 
-    /* set mesh shortcuts */
-    if (i>0)
-      xl = udata->x[i-1];
-    xc = udata->x[i];
-    if (i<N-1)
-      xr = udata->x[i+1];
-
-    /* set nodal value shortcuts */
-    if (i>0) {
-      ul = Ydata[IDX(i-1,0)];
-      vl = Ydata[IDX(i-1,1)];
-      wl = Ydata[IDX(i-1,2)];
-    }
+    /* set nodal value shortcuts (interval index aligns with left node) */
+    xl = Xdata[i-1];
+    ul = Ydata[IDX(i-1,0)];
+    vl = Ydata[IDX(i-1,1)];
+    wl = Ydata[IDX(i-1,2)];
+    xc = Xdata[i];
     uc = Ydata[IDX(i,0)];
     vc = Ydata[IDX(i,1)];
     wc = Ydata[IDX(i,2)];
-    if (i<N-1) {
-      ur = Ydata[IDX(i+1,0)];
-      vr = Ydata[IDX(i+1,1)];
-      wr = Ydata[IDX(i+1,2)];
-    }
-    if (i>0) {
-      u1l = Eval(ul,uc,xl,xc,X1(xl,xc));
-      v1l = Eval(vl,vc,xl,xc,X1(xl,xc));
-      w1l = Eval(wl,wc,xl,xc,X1(xl,xc));
-      u2l = Eval(ul,uc,xl,xc,X2(xl,xc));
-      v2l = Eval(vl,vc,xl,xc,X2(xl,xc));
-      w2l = Eval(wl,wc,xl,xc,X2(xl,xc));
-      u3l = Eval(ul,uc,xl,xc,X3(xl,xc));
-      v3l = Eval(vl,vc,xl,xc,X3(xl,xc));
-      w3l = Eval(wl,wc,xl,xc,X3(xl,xc));
-    }
-    if (i<N-1) {
-      u1r = Eval(uc,ur,xc,xr,X1(xc,xr));
-      v1r = Eval(vc,vr,xc,xr,X1(xc,xr));
-      w1r = Eval(wc,wr,xc,xr,X1(xc,xr));
-      u2r = Eval(uc,ur,xc,xr,X2(xc,xr));
-      v2r = Eval(vc,vr,xc,xr,X2(xc,xr));
-      w2r = Eval(wc,wr,xc,xr,X2(xc,xr));
-      u3r = Eval(uc,ur,xc,xr,X3(xc,xr));
-      v3r = Eval(vc,vr,xc,xr,X3(xc,xr));
-      w3r = Eval(wc,wr,xc,xr,X3(xc,xr));
+    xr = Xdata[i+1];
+    ur = Ydata[IDX(i+1,0)];
+    vr = Ydata[IDX(i+1,1)];
+    wr = Ydata[IDX(i+1,2)];
+
+    /* compute entries of all Jacobian rows at node i */
+    for(j=0; j<9; j++) {
+      Ju[j] = ZERO;
+      Jv[j] = ZERO;
+      Jw[j] = ZERO;
     }
 
-    /* set partial derivative shortcuts */
-    if (i>0) {
-      dQdf1l = Quad(ONE, ZERO, ZERO, xl, xc);
-      dQdf2l = Quad(ZERO, ONE, ZERO, xl, xc);
-      dQdf3l = Quad(ZERO, ZERO, ONE, xl, xc);
-      ChiL1l = ChiL(xl,xc,X1(xl,xc));
-      ChiL2l = ChiL(xl,xc,X2(xl,xc));
-      ChiL3l = ChiL(xl,xc,X3(xl,xc));
-      ChiR1l = ChiR(xl,xc,X1(xl,xc));
-      ChiR2l = ChiR(xl,xc,X2(xl,xc));
-      ChiR3l = ChiR(xl,xc,X3(xl,xc));
-    }
-    if (i<N-1) {
-      dQdf1r = Quad(ONE, ZERO, ZERO, xc, xr);
-      dQdf2r = Quad(ZERO, ONE, ZERO, xc, xr);
-      dQdf3r = Quad(ZERO, ZERO, ONE, xc, xr);
-      ChiL1r = ChiL(xc,xr,X1(xc,xr));
-      ChiL2r = ChiL(xc,xr,X2(xc,xr));
-      ChiL3r = ChiL(xc,xr,X3(xc,xr));
-      ChiR1r = ChiR(xc,xr,X1(xc,xr));
-      ChiR2r = ChiR(xc,xr,X2(xc,xr));
-      ChiR3r = ChiR(xc,xr,X3(xc,xr));
-    }
+    /* first compute dependence on values to left and center */
+
+    /* evaluate relevant variables in left subinterval */
+    u1 = Eval(ul, uc, xl, xc, X1(xl,xc));
+    v1 = Eval(vl, vc, xl, xc, X1(xl,xc));
+    w1 = Eval(wl, wc, xl, xc, X1(xl,xc));
+    u2 = Eval(ul, uc, xl, xc, X2(xl,xc));
+    v2 = Eval(vl, vc, xl, xc, X2(xl,xc));
+    w2 = Eval(wl, wc, xl, xc, X2(xl,xc));
+    u3 = Eval(ul, uc, xl, xc, X3(xl,xc));
+    v3 = Eval(vl, vc, xl, xc, X3(xl,xc));
+    w3 = Eval(wl, wc, xl, xc, X3(xl,xc));
+
+    dQdf1 = Quad(ONE, ZERO, ZERO, xl, xc);
+    dQdf2 = Quad(ZERO, ONE, ZERO, xl, xc);
+    dQdf3 = Quad(ZERO, ZERO, ONE, xl, xc);
+
+    ChiL1 = ChiL(xl, xc, X1(xl,xc));
+    ChiL2 = ChiL(xl, xc, X2(xl,xc));
+    ChiL3 = ChiL(xl, xc, X3(xl,xc));
+    ChiR1 = ChiR(xl, xc, X1(xl,xc));
+    ChiR2 = ChiR(xl, xc, X2(xl,xc));
+    ChiR3 = ChiR(xl, xc, X3(xl,xc));
+
+    /* compute reaction Jacobian components */
+
+    /* R_u = (a - (w+ONE)*u + v*u*u) */
+    /*   dR_u/dul   */
+    df1 = (-(w1+ONE) + TWO*v1*u1) * ChiL1 * ChiR1;
+    df2 = (-(w2+ONE) + TWO*v2*u2) * ChiL2 * ChiR2;
+    df3 = (-(w3+ONE) + TWO*v3*u3) * ChiL3 * ChiR3;
+    Ju[IDX(0,0)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
+
+    /*   dR_u/duc   */
+    df1 = (-(w1+ONE) + TWO*v1*u1) * ChiR1 * ChiR1;
+    df2 = (-(w2+ONE) + TWO*v2*u2) * ChiR2 * ChiR2;
+    df3 = (-(w3+ONE) + TWO*v3*u3) * ChiR3 * ChiR3;
+    Ju[IDX(0,1)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
+
+    /*   dR_u/dvl   */
+    df1 = (u1*u1) * ChiL1 * ChiR1;
+    df2 = (u2*u2) * ChiL2 * ChiR2;
+    df3 = (u3*u3) * ChiL3 * ChiR3;
+    Ju[IDX(1,0)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
+
+    /*   dR_u/dvc   */
+    df1 = (u1*u1) * ChiR1 * ChiR1;
+    df2 = (u2*u2) * ChiR2 * ChiR2;
+    df3 = (u3*u3) * ChiR3 * ChiR3;
+    Ju[IDX(1,1)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
+
+    /*   dR_u/dwl   */
+    df1 = (-u1) * ChiL1 * ChiR1;
+    df2 = (-u2) * ChiL2 * ChiR2;
+    df3 = (-u3) * ChiL3 * ChiR3;
+    Ju[IDX(2,0)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
+
+    /*   dR_u/dwc   */
+    df1 = (-u1) * ChiR1 * ChiR1;
+    df2 = (-u2) * ChiR2 * ChiR2;
+    df3 = (-u3) * ChiR3 * ChiR3;
+    Ju[IDX(2,1)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
 
 
-    /*** evaluate dR/dy at this node ***/
+    /* R_v = (w*u - v*u*u) */
+    /*   dR_v/dul   */
+    df1 = (w1 - TWO*v1*u1) * ChiL1 * ChiR1;
+    df2 = (w2 - TWO*v2*u2) * ChiL2 * ChiR2;
+    df3 = (w3 - TWO*v3*u3) * ChiL3 * ChiR3;
+    Jv[IDX(0,0)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
+
+    /*   dR_v/duc   */
+    df1 = (w1 - TWO*v1*u1) * ChiR1 * ChiR1;
+    df2 = (w2 - TWO*v2*u2) * ChiR2 * ChiR2;
+    df3 = (w3 - TWO*v3*u3) * ChiR3 * ChiR3;
+    Jv[IDX(0,1)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
+
+    /*   dR_v/dvl   */
+    df1 = (-u1*u1) * ChiL1 * ChiR1;
+    df2 = (-u2*u2) * ChiL2 * ChiR2;
+    df3 = (-u3*u3) * ChiL3 * ChiR3;
+    Jv[IDX(1,0)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
+
+    /*   dR_v/dvc   */
+    df1 = (-u1*u1) * ChiR1 * ChiR1;
+    df2 = (-u2*u2) * ChiR2 * ChiR2;
+    df3 = (-u3*u3) * ChiR3 * ChiR3;
+    Jv[IDX(1,1)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
+
+    /*   dR_v/dwl   */
+    df1 = (u1) * ChiL1 * ChiR1;
+    df2 = (u2) * ChiL2 * ChiR2;
+    df3 = (u3) * ChiL3 * ChiR3;
+    Jv[IDX(2,0)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
+
+    /*   dR_v/dwc   */
+    df1 = (u1) * ChiR1 * ChiR1;
+    df2 = (u2) * ChiR2 * ChiR2;
+    df3 = (u3) * ChiR3 * ChiR3;
+    Jv[IDX(2,1)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
 
 
-    /* dependence on u at this node */
-    colptrs[IDX(i,0)] = nz;
+    /* R_w = ((b-w)/ep - w*u) */
+    /*   dR_w/dul   */
+    df1 = (-w1) * ChiL1 * ChiR1;
+    df2 = (-w2) * ChiL2 * ChiR2;
+    df3 = (-w3) * ChiL3 * ChiR3;
+    Jw[IDX(0,0)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
 
-    if (i>1) {
-      /*  dR_ul/duc */
-      df1 = (-(w1l+ONE) + TWO*v1l*u1l) * ChiL1l * ChiR1l;
-      df2 = (-(w2l+ONE) + TWO*v2l*u2l) * ChiL2l * ChiR2l;
-      df3 = (-(w3l+ONE) + TWO*v3l*u3l) * ChiL3l * ChiR3l;
-      data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
-      rowvals[nz++] = IDX(i-1,0);
+    /*   dR_w/duc   */
+    df1 = (-w1) * ChiR1 * ChiR1;
+    df2 = (-w2) * ChiR2 * ChiR2;
+    df3 = (-w3) * ChiR3 * ChiR3;
+    Jw[IDX(0,1)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
 
-      /*  dR_vl/duc */
-      df1 = (w1l - TWO*v1l*u1l) * ChiL1l * ChiR1l;
-      df2 = (w2l - TWO*v2l*u2l) * ChiL2l * ChiR2l;
-      df3 = (w3l - TWO*v3l*u3l) * ChiL3l * ChiR3l;
-      data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
-      rowvals[nz++] = IDX(i-1,1);
+    /*   dR_w/dwl   */
+    df1 = (-ONE/ep - u1) * ChiL1 * ChiR1;
+    df2 = (-ONE/ep - u2) * ChiL2 * ChiR2;
+    df3 = (-ONE/ep - u3) * ChiL3 * ChiR3;
+    Jw[IDX(2,0)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
 
-      /*  dR_wl/duc */
-      df1 = (-w1l) * ChiL1l * ChiR1l;
-      df2 = (-w2l) * ChiL2l * ChiR2l;
-      df3 = (-w3l) * ChiL3l * ChiR3l;
-      data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
-      rowvals[nz++] = IDX(i-1,2);
-    }
-    if (i>0 && i<N-1) {
-      /*  dR_uc/duc */
-      df1 = (-(w1r+ONE) + TWO*v1r*u1r) * ChiL1r * ChiL1r;
-      df2 = (-(w2r+ONE) + TWO*v2r*u2r) * ChiL2r * ChiL2r;
-      df3 = (-(w3r+ONE) + TWO*v3r*u3r) * ChiL3r * ChiL3r;
-      data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
+    /*   dR_w/dwc   */
+    df1 = (-ONE/ep - u1) * ChiR1 * ChiR1;
+    df2 = (-ONE/ep - u2) * ChiR2 * ChiR2;
+    df3 = (-ONE/ep - u3) * ChiR3 * ChiR3;
+    Jw[IDX(2,1)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
 
-      df1 = (-(w1l+ONE) + TWO*v1l*u1l) * ChiR1l * ChiR1l;
-      df2 = (-(w2l+ONE) + TWO*v2l*u2l) * ChiR2l * ChiR2l;
-      df3 = (-(w3l+ONE) + TWO*v3l*u3l) * ChiR3l * ChiR3l;
-      data[nz] += dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
-      rowvals[nz++] = IDX(i,0);
+    /* second compute dependence on values to center and right */
 
-      /*  dR_vc/duc */
-      df1 = (w1l - TWO*v1l*u1l) * ChiR1l * ChiR1l;
-      df2 = (w2l - TWO*v2l*u2l) * ChiR2l * ChiR2l;
-      df3 = (w3l - TWO*v3l*u3l) * ChiR3l * ChiR3l;
-      data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
+    /* evaluate relevant variables in right subinterval */
+    u1 = Eval(uc, ur, xc, xr, X1(xc,xr));
+    v1 = Eval(vc, vr, xc, xr, X1(xc,xr));
+    w1 = Eval(wc, wr, xc, xr, X1(xc,xr));
+    u2 = Eval(uc, ur, xc, xr, X2(xc,xr));
+    v2 = Eval(vc, vr, xc, xr, X2(xc,xr));
+    w2 = Eval(wc, wr, xc, xr, X2(xc,xr));
+    u3 = Eval(uc, ur, xc, xr, X3(xc,xr));
+    v3 = Eval(vc, vr, xc, xr, X3(xc,xr));
+    w3 = Eval(wc, wr, xc, xr, X3(xc,xr));
 
-      df1 = (w1r - TWO*v1r*u1r) * ChiL1r * ChiL1r;
-      df2 = (w2r - TWO*v2r*u2r) * ChiL2r * ChiL2r;
-      df3 = (w3r - TWO*v3r*u3r) * ChiL3r * ChiL3r;
-      data[nz] += dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
-      rowvals[nz++] = IDX(i,1);
+    dQdf1 = Quad(ONE, ZERO, ZERO, xc, xr);
+    dQdf2 = Quad(ZERO, ONE, ZERO, xc, xr);
+    dQdf3 = Quad(ZERO, ZERO, ONE, xc, xr);
 
-      /*  dR_wc/duc */
-      df1 = (-w1r) * ChiL1r * ChiL1r;
-      df2 = (-w2r) * ChiL2r * ChiL2r;
-      df3 = (-w3r) * ChiL3r * ChiL3r;
-      data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
+    ChiL1 = ChiL(xc, xr, X1(xc,xr));
+    ChiL2 = ChiL(xc, xr, X2(xc,xr));
+    ChiL3 = ChiL(xc, xr, X3(xc,xr));
+    ChiR1 = ChiR(xc, xr, X1(xc,xr));
+    ChiR2 = ChiR(xc, xr, X2(xc,xr));
+    ChiR3 = ChiR(xc, xr, X3(xc,xr));
 
-      df1 = (-w1l) * ChiR1l * ChiR1l;
-      df2 = (-w2l) * ChiR2l * ChiR2l;
-      df3 = (-w3l) * ChiR3l * ChiR3l;
-      data[nz] += dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
-      rowvals[nz++] = IDX(i,2);
-    }
-    if (i<N-2) {
-      /*  dR_ur/duc */
-      df1 = (-(w1r+ONE) + TWO*v1r*u1r) * ChiL1r * ChiR1r;
-      df2 = (-(w2r+ONE) + TWO*v2r*u2r) * ChiL2r * ChiR2r;
-      df3 = (-(w3r+ONE) + TWO*v3r*u3r) * ChiL3r * ChiR3r;
-      data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
-      rowvals[nz++] = IDX(i+1,0);
+    /* compute reaction Jacobian components */
 
-      /*  dR_vr/duc */
-      df1 = (w1r - TWO*v1r*u1r) * ChiL1r * ChiR1r;
-      df2 = (w2r - TWO*v2r*u2r) * ChiL2r * ChiR2r;
-      df3 = (w3r - TWO*v3r*u3r) * ChiL3r * ChiR3r;
-      data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
-      rowvals[nz++] = IDX(i+1,1);
+    /* R_u = (a - (w+ONE)*u + v*u*u) */
+    /*    dR_u/duc    */
+    df1 = (-(w1+ONE) + TWO*v1*u1) * ChiL1 * ChiL1;
+    df2 = (-(w2+ONE) + TWO*v2*u2) * ChiL2 * ChiL2;
+    df3 = (-(w3+ONE) + TWO*v3*u3) * ChiL3 * ChiL3;
+    Ju[IDX(0,0)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
 
-      /*  dR_wr/duc */
-      df1 = (-w1r) * ChiL1r * ChiR1r;
-      df2 = (-w2r) * ChiL2r * ChiR2r;
-      df3 = (-w3r) * ChiL3r * ChiR3r;
-      data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
-      rowvals[nz++] = IDX(i+1,2);
-    }
+    /*    dR_u/dur    */
+    df1 = (-(w1+ONE) + TWO*v1*u1) * ChiL1 * ChiR1;
+    df2 = (-(w2+ONE) + TWO*v2*u2) * ChiL2 * ChiR2;
+    df3 = (-(w3+ONE) + TWO*v3*u3) * ChiL3 * ChiR3;
+    Ju[IDX(0,1)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
 
+    /*    dR_u/dvc    */
+    df1 = (u1*u1) * ChiL1 * ChiL1;
+    df2 = (u2*u2) * ChiL2 * ChiL2;
+    df3 = (u3*u3) * ChiL3 * ChiL3;
+    Ju[IDX(1,1)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
 
-    /* dependence on v at this node */
-    colptrs[IDX(i,1)] = nz;
+    /*    dR_u/dvr    */
+    df1 = (u1*u1) * ChiL1 * ChiR1;
+    df2 = (u2*u2) * ChiL2 * ChiR2;
+    df3 = (u3*u3) * ChiL3 * ChiR3;
+    Ju[IDX(1,2)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
 
-    if (i>1) {
-      /*  dR_ul/dvc */
-      df1 = (u1l*u1l) * ChiL1l * ChiR1l;
-      df2 = (u2l*u2l) * ChiL2l * ChiR2l;
-      df3 = (u3l*u3l) * ChiL3l * ChiR3l;
-      data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
-      rowvals[nz++] = IDX(i-1,0);
+    /*    dR_u/dwc   */
+    df1 = (-u1) * ChiL1 * ChiL1;
+    df2 = (-u2) * ChiL2 * ChiL2;
+    df3 = (-u3) * ChiL3 * ChiL3;
+    Ju[IDX(2,1)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
 
-      /*  dR_vl/dvc */
-      df1 = (-u1l*u1l) * ChiL1l * ChiR1l;
-      df2 = (-u2l*u2l) * ChiL2l * ChiR2l;
-      df3 = (-u3l*u3l) * ChiL3l * ChiR3l;
-      data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
-      rowvals[nz++] = IDX(i-1,1);
-    }
-    if (i>0 && i<N-1) {
-      /*  dR_uc/dvc */
-      df1 = (u1l*u1l) * ChiR1l * ChiR1l;
-      df2 = (u2l*u2l) * ChiR2l * ChiR2l;
-      df3 = (u3l*u3l) * ChiR3l * ChiR3l;
-      data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
-
-      df1 = (u1r*u1r) * ChiL1r * ChiL1r;
-      df2 = (u2r*u2r) * ChiL2r * ChiL2r;
-      df3 = (u3r*u3r) * ChiL3r * ChiL3r;
-      data[nz] += dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
-      rowvals[nz++] = IDX(i,0);
-
-      /*  dR_vc/dvc */
-      df1 = (-u1l*u1l) * ChiR1l * ChiR1l;
-      df2 = (-u2l*u2l) * ChiR2l * ChiR2l;
-      df3 = (-u3l*u3l) * ChiR3l * ChiR3l;
-      data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
-
-      df1 = (-u1r*u1r) * ChiL1r * ChiL1r;
-      df2 = (-u2r*u2r) * ChiL2r * ChiL2r;
-      df3 = (-u3r*u3r) * ChiL3r * ChiL3r;
-      data[nz] += dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
-      rowvals[nz++] = IDX(i,1);
-    }
-    if (i<N-2) {
-      /*  dR_ur/dvc */
-      df1 = (u1r*u1r) * ChiL1r * ChiR1r;
-      df2 = (u2r*u2r) * ChiL2r * ChiR2r;
-      df3 = (u3r*u3r) * ChiL3r * ChiR3r;
-      data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
-      rowvals[nz++] = IDX(i+1,0);
-
-      /*  dR_vr/dvc */
-      df1 = (-u1r*u1r) * ChiL1r * ChiR1r;
-      df2 = (-u2r*u2r) * ChiL2r * ChiR2r;
-      df3 = (-u3r*u3r) * ChiL3r * ChiR3r;
-      data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
-      rowvals[nz++] = IDX(i+1,1);
-    }
+    /*    dR_u/dwr   */
+    df1 = (-u1) * ChiL1 * ChiR1;
+    df2 = (-u2) * ChiL2 * ChiR2;
+    df3 = (-u3) * ChiL3 * ChiR3;
+    Ju[IDX(2,2)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
 
 
-    /* dependence on w at this node */
-    colptrs[IDX(i,2)] = nz;
+    /* R_v = (w*u - v*u*u) */
+    /*    dR_v/duc     */
+    df1 = (w1 - TWO*v1*u1) * ChiL1 * ChiL1;
+    df2 = (w2 - TWO*v2*u2) * ChiL2 * ChiL2;
+    df3 = (w3 - TWO*v3*u3) * ChiL3 * ChiL3;
+    Jv[IDX(0,1)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
 
-    if (i>1) {
-      /*  dR_ul/dwc */
-      df1 = (-u1l) * ChiL1l * ChiR1l;
-      df2 = (-u2l) * ChiL2l * ChiR2l;
-      df3 = (-u3l) * ChiL3l * ChiR3l;
-      data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
-      rowvals[nz++] = IDX(i-1,0);
+    /*    dR_v/dur     */
+    df1 = (w1 - TWO*v1*u1) * ChiL1 * ChiR1;
+    df2 = (w2 - TWO*v2*u2) * ChiL2 * ChiR2;
+    df3 = (w3 - TWO*v3*u3) * ChiL3 * ChiR3;
+    Jv[IDX(0,2)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
 
-      /*  dR_vl/dwc */
-      df1 = (u1l) * ChiL1l * ChiR1l;
-      df2 = (u2l) * ChiL2l * ChiR2l;
-      df3 = (u3l) * ChiL3l * ChiR3l;
-      data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
-      rowvals[nz++] = IDX(i-1,1);
+    /*    dR_v/dvc     */
+    df1 = (-u1*u1) * ChiL1 * ChiL1;
+    df2 = (-u2*u2) * ChiL2 * ChiL2;
+    df3 = (-u3*u3) * ChiL3 * ChiL3;
+    Jv[IDX(1,1)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
 
-      /*  dR_wl/dwc */
-      df1 = (-ONE/ep - u1l) * ChiL1l * ChiR1l;
-      df2 = (-ONE/ep - u2l) * ChiL2l * ChiR2l;
-      df3 = (-ONE/ep - u3l) * ChiL3l * ChiR3l;
-      data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
-      rowvals[nz++] = IDX(i-1,2);
-    }
-    if (i>0 && i<N-1) {
-      /*  dR_uc/dwc */
-      df1 = (-u1l) * ChiR1l * ChiR1l;
-      df2 = (-u2l) * ChiR2l * ChiR2l;
-      df3 = (-u3l) * ChiR3l * ChiR3l;
-      data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
+    /*    dR_v/dvr    */
+    df1 = (-u1*u1) * ChiL1 * ChiR1;
+    df2 = (-u2*u2) * ChiL2 * ChiR2;
+    df3 = (-u3*u3) * ChiL3 * ChiR3;
+    Jv[IDX(1,2)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
 
-      df1 = (-u1r) * ChiL1r * ChiL1r;
-      df2 = (-u2r) * ChiL2r * ChiL2r;
-      df3 = (-u3r) * ChiL3r * ChiL3r;
-      data[nz] += dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
-      rowvals[nz++] = IDX(i,0);
+    /*    dR_v/dwc    */
+    df1 = (u1) * ChiL1 * ChiL1;
+    df2 = (u2) * ChiL2 * ChiL2;
+    df3 = (u3) * ChiL3 * ChiL3;
+    Jv[IDX(2,1)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
 
-      /*  dR_vc/dwc */
-      df1 = (u1l) * ChiR1l * ChiR1l;
-      df2 = (u2l) * ChiR2l * ChiR2l;
-      df3 = (u3l) * ChiR3l * ChiR3l;
-      data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
+    /*    dR_v/dwr    */
+    df1 = (u1) * ChiL1 * ChiR1;
+    df2 = (u2) * ChiL2 * ChiR2;
+    df3 = (u3) * ChiL3 * ChiR3;
+    Jv[IDX(2,2)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
 
-      df1 = (u1r) * ChiL1r * ChiL1r;
-      df2 = (u2r) * ChiL2r * ChiL2r;
-      df3 = (u3r) * ChiL3r * ChiL3r;
-      data[nz] += dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
-      rowvals[nz++] = IDX(i,1);
 
-      /*  dR_wc/dwc */
-      df1 = (-ONE/ep - u1l) * ChiR1l * ChiR1l;
-      df2 = (-ONE/ep - u2l) * ChiR2l * ChiR2l;
-      df3 = (-ONE/ep - u3l) * ChiR3l * ChiR3l;
-      data[nz] = dQdf1l*df1 + dQdf2l*df2 + dQdf3l*df3;
+    /* R_w = ((b-w)/ep - w*u) */
+    /*    dR_w/duc    */
+    df1 = (-w1) * ChiL1 * ChiL1;
+    df2 = (-w2) * ChiL2 * ChiL2;
+    df3 = (-w3) * ChiL3 * ChiL3;
+    Jw[IDX(0,1)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
 
-      df1 = (-ONE/ep - u1r) * ChiL1r * ChiL1r;
-      df2 = (-ONE/ep - u2r) * ChiL2r * ChiL2r;
-      df3 = (-ONE/ep - u3r) * ChiL3r * ChiL3r;
-      data[nz] += dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
-      rowvals[nz++] = IDX(i,2);
-    }
-    if (i<N-2) {
-      /*  dR_ur/dwc */
-      df1 = (-u1r) * ChiL1r * ChiR1r;
-      df2 = (-u2r) * ChiL2r * ChiR2r;
-      df3 = (-u3r) * ChiL3r * ChiR3r;
-      data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
-      rowvals[nz++] = IDX(i+1,0);
+    /*    dR_w/dur    */
+    df1 = (-w1) * ChiL1 * ChiR1;
+    df2 = (-w2) * ChiL2 * ChiR2;
+    df3 = (-w3) * ChiL3 * ChiR3;
+    Jw[IDX(0,2)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
 
-      /*  dR_vr/dwc */
-      df1 = (u1r) * ChiL1r * ChiR1r;
-      df2 = (u2r) * ChiL2r * ChiR2r;
-      df3 = (u3r) * ChiL3r * ChiR3r;
-      data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
-      rowvals[nz++] = IDX(i+1,1);
+    /*    dR_w/dwc    */
+    df1 = (-ONE/ep - u1) * ChiL1 * ChiL1;
+    df2 = (-ONE/ep - u2) * ChiL2 * ChiL2;
+    df3 = (-ONE/ep - u3) * ChiL3 * ChiL3;
+    Jw[IDX(2,1)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
 
-      /*  dR_wr/dwc */
-      df1 = (-ONE/ep - u1r) * ChiL1r * ChiR1r;
-      df2 = (-ONE/ep - u2r) * ChiL2r * ChiR2r;
-      df3 = (-ONE/ep - u3r) * ChiL3r * ChiR3r;
-      data[nz] = dQdf1r*df1 + dQdf2r*df2 + dQdf3r*df3;
-      rowvals[nz++] = IDX(i+1,2);
-    }
+    /*    dR_w/dwr    */
+    df1 = (-ONE/ep - u1) * ChiL1 * ChiR1;
+    df2 = (-ONE/ep - u2) * ChiL2 * ChiR2;
+    df3 = (-ONE/ep - u3) * ChiL3 * ChiR3;
+    Jw[IDX(2,2)] += dQdf1*df1 + dQdf2*df2 + dQdf3*df3;
+
+    /* insert Jacobian entries into CSR matrix structure */
+
+    /* Ju row */
+    rowptrs[IDX(i,0)] = nz;
+
+    Jdata[nz] = Ju[IDX(0,0)];
+    Jdata[nz+1] = Ju[IDX(1,0)];
+    Jdata[nz+2] = Ju[IDX(2,0)];
+    colinds[nz] = IDX(i-1,0);
+    colinds[nz+1] = IDX(i-1,1);
+    colinds[nz+2] = IDX(i-1,2);
+    nz += 3;
+
+    Jdata[nz] = Ju[IDX(0,1)];
+    Jdata[nz+1] = Ju[IDX(1,1)];
+    Jdata[nz+2] = Ju[IDX(2,1)];
+    colinds[nz] = IDX(i,0);
+    colinds[nz+1] = IDX(i,1);
+    colinds[nz+2] = IDX(i,2);
+    nz += 3;
+
+    Jdata[nz] = Ju[IDX(0,2)];
+    Jdata[nz+1] = Ju[IDX(1,2)];
+    Jdata[nz+2] = Ju[IDX(2,2)];
+    colinds[nz] = IDX(i+1,0);
+    colinds[nz+1] = IDX(i+1,1);
+    colinds[nz+2] = IDX(i+1,2);
+    nz += 3;
+
+    /* Jv row */
+    rowptrs[IDX(i,1)] = nz;
+
+    Jdata[nz] = Jv[IDX(0,0)];
+    Jdata[nz+1] = Jv[IDX(1,0)];
+    Jdata[nz+2] = Jv[IDX(2,0)];
+    colinds[nz] = IDX(i-1,0);
+    colinds[nz+1] = IDX(i-1,1);
+    colinds[nz+2] = IDX(i-1,2);
+    nz += 3;
+
+    Jdata[nz] = Jv[IDX(0,1)];
+    Jdata[nz+1] = Jv[IDX(1,1)];
+    Jdata[nz+2] = Jv[IDX(2,1)];
+    colinds[nz] = IDX(i,0);
+    colinds[nz+1] = IDX(i,1);
+    colinds[nz+2] = IDX(i,2);
+    nz += 3;
+
+    Jdata[nz] = Jv[IDX(0,2)];
+    Jdata[nz+1] = Jv[IDX(1,2)];
+    Jdata[nz+2] = Jv[IDX(2,2)];
+    colinds[nz] = IDX(i+1,0);
+    colinds[nz+1] = IDX(i+1,1);
+    colinds[nz+2] = IDX(i+1,2);
+    nz += 3;
+
+    /* Jw row */
+    rowptrs[IDX(i,2)] = nz;
+
+    Jdata[nz] = Jw[IDX(0,0)];
+    Jdata[nz+1] = Jw[IDX(1,0)];
+    Jdata[nz+2] = Jw[IDX(2,0)];
+    colinds[nz] = IDX(i-1,0);
+    colinds[nz+1] = IDX(i-1,1);
+    colinds[nz+2] = IDX(i-1,2);
+    nz += 3;
+
+    Jdata[nz] = Jw[IDX(0,1)];
+    Jdata[nz+1] = Jw[IDX(1,1)];
+    Jdata[nz+2] = Jw[IDX(2,1)];
+    colinds[nz] = IDX(i,0);
+    colinds[nz+1] = IDX(i,1);
+    colinds[nz+2] = IDX(i,2);
+    nz += 3;
+
+    Jdata[nz] = Jw[IDX(0,2)];
+    Jdata[nz+1] = Jw[IDX(1,2)];
+    Jdata[nz+2] = Jw[IDX(2,2)];
+    colinds[nz] = IDX(i+1,0);
+    colinds[nz+1] = IDX(i+1,1);
+    colinds[nz+2] = IDX(i+1,2);
+    nz += 3;
 
   }
 
+  /* Dirichlet boundary at right */
+  rowptrs[IDX(N-1,0)] = nz;
+  rowptrs[IDX(N-1,1)] = nz;
+  rowptrs[IDX(N-1,2)] = nz;
+
   /* signal end of data */
-  colptrs[IDX(N-1,2)+1] = nz;
+  rowptrs[IDX(N-1,2)+1] = nz;
 
   return 0;
 }

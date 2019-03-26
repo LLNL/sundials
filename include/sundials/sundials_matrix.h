@@ -1,6 +1,7 @@
 /* -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
- *                David Gardner, Carol Woodward, Slaven Peles @ LLNL
+ *                David Gardner, Carol Woodward, Slaven Peles,
+ *                Cody Balos @ LLNL
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -56,9 +57,10 @@ extern "C" {
  * ----------------------------------------------------------------- */
 
 typedef enum {
-  SUNMATRIX_DENSE,
-  SUNMATRIX_BAND,
+  SUNMATRIX_DENSE, 
+  SUNMATRIX_BAND, 
   SUNMATRIX_SPARSE,
+  SUNMATRIX_SLUNRLOC,
   SUNMATRIX_CUSTOM
 } SUNMatrix_ID;
 
@@ -82,6 +84,7 @@ struct _generic_SUNMatrix_Ops {
   int          (*copy)(SUNMatrix, SUNMatrix);
   int          (*scaleadd)(realtype, SUNMatrix, SUNMatrix);
   int          (*scaleaddi)(realtype, SUNMatrix);
+  int          (*matvecsetup)(SUNMatrix);
   int          (*matvec)(SUNMatrix, N_Vector, N_Vector);
   int          (*space)(SUNMatrix, long int*, long int*);
 };
@@ -106,9 +109,21 @@ SUNDIALS_EXPORT int SUNMatZero(SUNMatrix A);
 SUNDIALS_EXPORT int SUNMatCopy(SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAdd(realtype c, SUNMatrix A, SUNMatrix B);
 SUNDIALS_EXPORT int SUNMatScaleAddI(realtype c, SUNMatrix A);
+SUNDIALS_EXPORT int SUNMatMatvecSetup(SUNMatrix A); 
 SUNDIALS_EXPORT int SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y);
-SUNDIALS_EXPORT int SUNMatSpace(SUNMatrix A, long int *lenrw,
-                                long int *leniw);
+SUNDIALS_EXPORT int SUNMatSpace(SUNMatrix A, long int *lenrw, long int *leniw);
+
+/*
+ * -----------------------------------------------------------------
+ * IV. SUNMatrix error codes
+ * ---------------------------------------------------------------
+ */
+
+#define SUNMAT_SUCCESS                    0  /* function successfull          */
+#define SUNMAT_ILL_INPUT                 -1  /* illegal function input        */
+#define SUNMAT_MEM_FAIL                  -2  /* failed memory access/alloc    */
+#define SUNMAT_OPERATION_FAIL            -3  /* a SUNMatrix operation returned nonzero */
+#define SUNMAT_MATVEC_SETUP_REQUIRED     -4  /* the SUNMatMatvecSetup routine needs to be called */
 
 #ifdef __cplusplus
 }

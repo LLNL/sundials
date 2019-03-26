@@ -26,6 +26,7 @@ $tar $tarfile $distrobase/config/FindHypre.cmake
 $tar $tarfile $distrobase/config/FindKLU.cmake
 $tar $tarfile $distrobase/config/FindPETSc.cmake
 $tar $tarfile $distrobase/config/FindSUPERLUMT.cmake
+$tar $tarfile $distrobase/config/FindSUPERLUDIST.cmake
 $tar $tarfile $distrobase/config/FindTrilinos.cmake
 $tar $tarfile $distrobase/config/SundialsAddTest.cmake
 $tar $tarfile $distrobase/config/SundialsAddTestInstall.cmake
@@ -41,11 +42,14 @@ $tar $tarfile $distrobase/config/SundialsKLU.cmake
 $tar $tarfile $distrobase/config/SundialsLapack.cmake
 $tar $tarfile $distrobase/config/SundialsMPI.cmake
 $tar $tarfile $distrobase/config/SundialsOpenMP.cmake
+$tar $tarfile $distrobase/config/SundialsOption.cmake
 $tar $tarfile $distrobase/config/SundialsPETSc.cmake
 $tar $tarfile $distrobase/config/SundialsPOSIXTimers.cmake
 $tar $tarfile $distrobase/config/SundialsSuperLUMT.cmake
+$tar $tarfile $distrobase/config/SundialsSuperLUDIST.cmake
 $tar $tarfile $distrobase/config/SundialsTesting.cmake
 $tar $tarfile $distrobase/config/SundialsTrilinos.cmake
+$tar $tarfile $distrobase/config/SundialsTryCompileExecute.cmake
 $tar $tarfile $distrobase/config/SundialsXSDK.cmake
 
 
@@ -100,6 +104,7 @@ $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_band.h
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_dense.h
 #$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_diagonal.h
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_sparse.h
+$tar $tarfile $distrobase/include/sunmatrix/sunmatrix_slunrloc.h
 
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_band.h
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_dense.h
@@ -113,6 +118,7 @@ $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_spfgmr.h
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_spgmr.h
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_sptfqmr.h
 $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_superlumt.h
+$tar $tarfile $distrobase/include/sunlinsol/sunlinsol_superludist.h
 
 $tar $tarfile $distrobase/include/sunnonlinsol/sunnonlinsol_newton.h
 $tar $tarfile $distrobase/include/sunnonlinsol/sunnonlinsol_fixedpoint.h
@@ -236,6 +242,11 @@ $tar $tarfile $distrobase/src/sunmatrix/sparse/fsunmatrix_sparse.c
 $tar $tarfile $distrobase/src/sunmatrix/sparse/F90/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunmatrix/sparse/F90/fsunmatrix_sparse.f90
 
+echo "   --- Add sunmatrix/slunrloc module to $tarfile"
+
+$tar $tarfile $distrobase/src/sunmatrix/slunrloc/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunmatrix/slunrloc/sunmatrix_slunrloc.c
+
 echo "   --- Add sunlinsol modules to $tarfile"
 
 $tar $tarfile $distrobase/src/sunlinsol/CMakeLists.txt
@@ -325,6 +336,11 @@ $tar $tarfile $distrobase/src/sunlinsol/sptfqmr/fsunlinsol_sptfqmr.h
 $tar $tarfile $distrobase/src/sunlinsol/sptfqmr/fsunlinsol_sptfqmr.c
 $tar $tarfile $distrobase/src/sunlinsol/sptfqmr/F90/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunlinsol/sptfqmr/F90/fsunlinsol_sptfqmr.f90
+
+echo "   --- Add sunlinsol/superludist module to $tarfile"
+
+$tar $tarfile $distrobase/src/sunlinsol/superludist/CMakeLists.txt
+$tar $tarfile $distrobase/src/sunlinsol/superludist/sunlinsol_superludist.c
 
 echo "   --- Add sunlinsol/superlumt module to $tarfile"
 
@@ -420,6 +436,8 @@ $tar $tarfile $distrobase/examples/sunmatrix/dense/CMakeLists.txt
 $tar $tarfile $distrobase/examples/sunmatrix/sparse/test_sunmatrix_sparse.c
 $tar $tarfile $distrobase/examples/sunmatrix/sparse/ftest_sunmatrix_sparse.f90
 $tar $tarfile $distrobase/examples/sunmatrix/sparse/CMakeLists.txt
+$tar $tarfile $distrobase/examples/sunmatrix/slunrloc/test_sunmatrix_slunrloc.cpp
+$tar $tarfile $distrobase/examples/sunmatrix/slunrloc/CMakeLists.txt
 $tar $tarfile $distrobase/examples/sunmatrix/test_sunmatrix.c
 $tar $tarfile $distrobase/examples/sunmatrix/test_sunmatrix.h
 
@@ -464,6 +482,8 @@ $tar $tarfile $distrobase/examples/sunlinsol/sptfqmr/parallel/test_sunlinsol_spt
 $tar $tarfile $distrobase/examples/sunlinsol/sptfqmr/parallel/CMakeLists.txt
 $tar $tarfile $distrobase/examples/sunlinsol/sptfqmr/serial/test_sunlinsol_sptfqmr_serial.c
 $tar $tarfile $distrobase/examples/sunlinsol/sptfqmr/serial/CMakeLists.txt
+$tar $tarfile $distrobase/examples/sunlinsol/superludist/test_sunlinsol_superludist.cpp
+$tar $tarfile $distrobase/examples/sunlinsol/superludist/CMakeLists.txt
 $tar $tarfile $distrobase/examples/sunlinsol/superlumt/test_sunlinsol_superlumt.c
 $tar $tarfile $distrobase/examples/sunlinsol/superlumt/CMakeLists.txt
 $tar $tarfile $distrobase/examples/sunlinsol/test_sunlinsol.c

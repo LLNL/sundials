@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
            (long int) (ProbData.nprocs * ProbData.Nloc));
     printf("  Preconditioning type = %i\n", pretype);
     printf("  Maximum Krylov subspace dimension = %i\n", maxl);
-    printf("  Solver Tolerance = %"GSYM"\n", tol);
+    printf("  Solver Tolerance = %g\n", tol);
     printf("  timing output flag = %i\n\n", print_timing);
   }
   
@@ -576,7 +576,7 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
     maxerr = ZERO;
     for(i=0; i < local_problem_size; i++)
       maxerr = SUNMAX(SUNRabs(Xdata[i]-Ydata[i])/SUNRabs(Xdata[i]), maxerr);
-    printf("check err failure: maxerr = %g (tol = %g)\n",
+    printf("check err failure: maxerr = %"GSYM" (tol = %"GSYM")\n",
 	   maxerr, FIVE*tol);
     return(1);
   }

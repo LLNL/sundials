@@ -119,6 +119,17 @@ If an {\nvector} implementation defines any of the local operations as
 \id{NULL}, then the {\nvecmanyvector} will call standard {\nvector} operations
 to complete the computation.
 
+A new {\sunmatrix} and {\sunlinsol} implementation was added to facilitate 
+the use of the {\superludist} library with SUNDIALS.
+
+A new operation, \id{SUNMatMatvecSetup}, was added to the {\sunmatrix} API. Users
+who have implemented custom {\sunmatrix} modules will need to at least update
+their code to set the corresponding ops structure member, \id{matvecsetup}, to \id{NULL}.
+
+The generic {\sunmatrix} API now defines error codes to be returned by {\sunmatrix} operations.
+Operations which return an integer flag indiciating success/failure may return different
+values than previously.
+
 
 \subsection*{Changes in v3.1.0}
 

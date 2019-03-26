@@ -1,6 +1,6 @@
 #!/bin/bash
 # -------------------------------------------------------------------------------
-# Programmer(s): David J. Gardner @ LLNL 
+# Programmer(s): David J. Gardner @ LLNL
 # -------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -12,7 +12,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # -------------------------------------------------------------------------------
-# xsdk variant of the SUNDIALS regression testing script with all external 
+# xsdk variant of the SUNDIALS regression testing script with all external
 # libraries enabled
 # -------------------------------------------------------------------------------
 
@@ -36,28 +36,45 @@ mkdir install_xSDK_${realtype}_${indexsize}
 # move to build directory
 cd build_xSDK_${realtype}_${indexsize}
 
-# number of threads in OpenMP examples
-export OMP_NUM_THREADS=4
-
 # set file permissions (rwxrwxr-x)
 umask 002
+
+# set compiler spec for spack
+# COMPILER_SPEC is an environment variable - we use it if it is not empty
+if [[ ! -z $COMPILER_SPEC ]]; then
+  compiler="${COMPILER_SPEC}"
+else
+  compiler="gcc@4.9.4"
+fi
+
 
 # -------------------------------------------------------------------------------
 # Installed Third Party Libraries
 # -------------------------------------------------------------------------------
 
-# path to installed libraries
+# Directory where TPLs not provided by Spack reside
 APPDIR=/usr/casc/sundials/apps/rh6
 
 # MPI
-MPIDIR=${APPDIR}/openmpi/1.8.8/bin
+# MPIDIR is an environment variable - we use it if it is not empty
+if [[ ! -z $MPIEXEC ]]; then
+  MPIDIR="${MPIDIR}"
+else
+  MPIDIR="$(spack location -i openmpi@3.1.2 % "$compiler")"
+fi
+# MPIEXEC is an environment variable - we use it if it is not empty
+if [[ ! -z $MPIEXEC ]]; then
+  MPIEXEC="${MPIEXEC}"
+else
+  MPIEXEC="${MPIDIR}/bin/mpirun"
+fi
 
 # LAPACK / BLAS
 BLASSTATUS=ON
-BLASDIR=${APPDIR}/lapack/3.6.0/lib64
-
 LAPACKSTATUS=ON
-LAPACKDIR=${APPDIR}/lapack/3.6.0/lib64
+BLASDIR="$(spack location -i openblas@0.3.5~ilp64 % "$compiler")"
+BLAS_LIBRARIES=${BLASDIR}/lib/libopenblas.so
+LAPACK_LIBRARIES=${BLAS_LIBRARIES}
 
 # LAPACK/BLAS does not support extended precision or 64-bit indices
 if [ "$realtype" == "extended" ] || [ "$indexsize" == "64" ]; then
@@ -67,7 +84,7 @@ fi
 
 # KLU
 KLUSTATUS=ON
-KLUDIR=${APPDIR}/suitesparse/4.5.3
+KLUDIR="$(spack location -i suite-sparse@5.3.0 % "$compiler")"
 
 # KLU does not support single or extended precision
 if [ "$realtype" == "single" ] || [ "$realtype" == "extended" ]; then
@@ -89,14 +106,35 @@ if [ "$realtype" == "extended" ]; then
     SUPERLUMTSTATUS=OFF
 fi
 
+# SuperLU_DIST
+SUPERLUDISTSTATUS=ON
+
+# SuperLU DIST index size must be set a build time
+if [ "$indexsize" == "32" ]; then
+  SUPERLUDISTDIR="$(spack location -i superlu-dist@develop~int64+openmp % "$compiler")"
+  PARMETISDIR="$(spack location -i parmetis ^metis~int64~real64 % "$compiler")"
+  METISDIR="$(spack location -i metis~int64~real64 % "$compiler")"
+  SUPERLUDIST_DEP_LIBRARIES="${BLAS_LIBRARIES};${PARMETISDIR}/lib/libparmetis.so;${METISDIR}/lib/libmetis.so"
+else
+  SUPERLUDISTDIR="$(spack location -i superlu-dist@develop+int64+openmp % "$compiler")"
+  PARMETISDIR="$(spack location -i parmetis ^metis+int64~real64 % "$compiler")"
+  METISDIR="$(spack location -i metis+int64~real64 % "$compiler")"
+  SUPERLUDIST_DEP_LIBRARIES="${BLAS_LIBRARIES};${PARMETISDIR}/lib/libparmetis.so;${METISDIR}/lib/libmetis.so"
+fi
+
+# SuperLU DIST only supports double precision
+if [ "$realtype" != "double" ]; then
+    SUPERLUDISTSTATUS=OFF
+fi
+
 # hypre
 HYPRESTATUS=ON
 
 # hypre index size must be set a build time
 if [ "$indexsize" == "32" ]; then
-    HYPREDIR=${APPDIR}/hypre/2.11.1_fpic
+  HYPREDIR="$(spack location -i hypre@2.14.0~int64 % "$compiler")"
 else
-    HYPREDIR=${APPDIR}/hypre/2.11.1_long_int_fpic
+  HYPREDIR="$(spack location -i hypre@2.14.0+int64 % "$compiler")"
 fi
 
 # only testing hypre with double precision at this time
@@ -109,15 +147,16 @@ PETSCSTATUS=ON
 
 # PETSc index size must be set a build time
 if [ "$indexsize" == "32" ]; then
-    PETSCDIR=${APPDIR}/petsc/3.7.2
+  PETSCDIR="$(spack location -i petsc@3.10.3~int64 % $compiler)"
 else
-    PETSCDIR=${APPDIR}/petsc/3.7.2_long_int
+  PETSCDIR="$(spack location -i petsc@3.10.3+int64 % $compiler)"
 fi
 
 # only testing PETSc with double precision at this time
 if [ "$realtype" != "double" ]; then
     PETSCSTATUS=OFF
 fi
+
 
 # -------------------------------------------------------------------------------
 # Configure SUNDIALS with CMake
@@ -152,6 +191,8 @@ fi
 
 echo "START CMAKE"
 cmake \
+    -D USE_XSDK_DEFAULTS=ON \
+    \
     -D CMAKE_INSTALL_PREFIX="../install_xSDK_${realtype}_${indexsize}" \
     \
     -D BUILD_ARKODE=ON \
@@ -176,33 +217,33 @@ cmake \
     -D CUDA_ENABLE=OFF \
     -D RAJA_ENABLE=OFF \
     \
-    -D CMAKE_C_COMPILER="/usr/bin/cc" \
-    -D CMAKE_CXX_COMPILER="/usr/bin/c++" \
-    -D CMAKE_Fortran_COMPILER="/usr/bin/gfortran" \
+    -D CMAKE_C_COMPILER=$CC \
+    -D CMAKE_CXX_COMPILER=$CXX \
+    -D CMAKE_Fortran_COMPILER=$FC \
     \
-    -D CMAKE_C_FLAGS='-g -Wall -std=c99 -pedantic' \
-    -D CMAKE_CXX_FLAGS='-g' \
-    -D CMAKE_Fortran_FLAGS='-g' \
+    -D CMAKE_C_FLAGS="-g -Wall -std=c99 -pedantic" \
+    -D CMAKE_CXX_FLAGS="-g -Wall" \
+    -D CMAKE_Fortran_FLAGS="-g -ffpe-summary=none" \
     \
     -D MPI_ENABLE=ON \
-    -D MPI_C_COMPILER="${MPIDIR}/mpicc" \
-    -D MPI_CXX_COMPILER="${MPIDIR}/mpicxx" \
-    -D MPI_Fortran_COMPILER="${MPIDIR}/mpif90" \
-    -D MPIEXEC_EXECUTABLE="${MPIDIR}/mpirun" \
+    -D MPI_C_COMPILER="${MPIDIR}/bin/mpicc" \
+    -D MPI_CXX_COMPILER="${MPIDIR}/bin/mpicxx" \
+    -D MPI_Fortran_COMPILER="${MPIDIR}/bin/mpif90" \
+    -D MPIEXEC_EXECUTABLE="${MPIEXEC}" \
     \
     -D TPL_ENABLE_BLAS="${BLASSTATUS}" \
-    -D TPL_BLAS_LIBRARIES="${BLASDIR}/libblas.so" \
+    -D TPL_BLAS_LIBRARIES="${BLAS_LIBRARIES}" \
     \
     -D TPL_ENABLE_LAPACK="${LAPACKSTATUS}" \
-    -D TPL_LAPACK_LIBRARIES="${LAPACKDIR}/liblapack.so" \
+    -D TPL_LAPACK_LIBRARIES="${LAPACK_LIBRARIES}" \
     \
     -D TPL_ENABLE_KLU="${KLUSTATUS}" \
     -D TPL_KLU_INCLUDE_DIRS="${KLUDIR}/include" \
-    -D TPL_KLU_LIBRARIES="${KLUDIR}/lib/libklu.a" \
+    -D TPL_KLU_LIBRARIES="${KLUDIR}/lib/libklu.so" \
     \
     -D TPL_ENABLE_HYPRE="${HYPRESTATUS}" \
     -D TPL_HYPRE_INCLUDE_DIRS="${HYPREDIR}/include" \
-    -D TPL_HYPRE_LIBRARIES="${HYPREDIR}/lib/libHYPRE.a" \
+    -D TPL_HYPRE_LIBRARIES="${HYPREDIR}/lib/libHYPRE.so" \
     \
     -D TPL_ENABLE_PETSC="${PETSCSTATUS}" \
     -D TPL_PETSC_INCLUDE_DIRS="${PETSCDIR}/include" \
@@ -212,6 +253,13 @@ cmake \
     -D TPL_SUPERLUMT_INCLUDE_DIRS="${SUPERLUMTDIR}/SRC" \
     -D TPL_SUPERLUMT_LIBRARIES="${SUPERLUMTDIR}/lib/libsuperlu_mt_PTHREAD.a" \
     -D TPL_SUPERLUMT_THREAD_TYPE=Pthread \
+    \
+    \
+    -D TPL_ENABLE_SUPERLUDIST="${SUPERLUDISTSTATUS}" \
+    -D TPL_SUPERLUDIST_INCLUDE_DIRS="${SUPERLUDISTDIR}/include" \
+    -D TPL_SUPERLUDIST_LIBRARIES="${SUPERLUDIST_DEP_LIBRARIES};${SUPERLUDISTDIR}/lib/libsuperlu_dist.a" \
+    -D TPL_SUPERLUDIST_OpenMP=ON \
+    -D SKIP_OPENMP_DEVICE_CHECK=ON \
     \
     -D SUNDIALS_DEVTESTS="${DEVTESTS}" \
     ../../. 2>&1 | tee configure.log
@@ -275,6 +323,5 @@ if [ $rc -ne 0 ]; then exit 1; fi
 # -------------------------------------------------------------------------------
 # Return
 # -------------------------------------------------------------------------------
-
 # if we make it here all tests have passed
 exit 0

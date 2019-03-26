@@ -281,7 +281,7 @@ static int check_ans(N_Vector y, realtype t, realtype rtol, realtype atol)
   passfail = (err < ONE) ? 0 : 1;
 
   if (passfail) {
-    fprintf(stdout, "\nSUNDIALS_WARNING: check_ans error=%g \n\n", err);
+    fprintf(stdout, "\nSUNDIALS_WARNING: check_ans error=%"GSYM"\n\n", err);
   }
 
   return(passfail);

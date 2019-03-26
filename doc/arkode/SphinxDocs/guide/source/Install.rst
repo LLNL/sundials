@@ -763,6 +763,39 @@ illustration only.
 
    Default: ``double``
 
+:index:`SUPERLUDIST_ENABLE <SUPERLUDIST_ENABLE (CMake option)>`
+   Enable SuperLU_DIST support
+
+   Default: ``OFF``
+
+   .. note:: See additional information on building wtih
+             SuperLU_DIST enabled in :ref:`Installation.CMake.ExternalLibraries`.
+
+:index:`SUPERLUDIST_INCLUDE_DIR <SUPERLUDIST_INCLUDE_DIR (CMake option)>`
+   Path to SuperLU_DIST header files (under a typical SuperLU_DIST
+   install, this is typically the SuperLU_DIST ``SRC`` directory)
+
+   Default: none
+
+:index:`SUPERLUDIST_LIBRARY_DIR <SUPERLUDIST_LIBRARY_DIR (CMake option)>`
+   Path to SuperLU_DIST installed library files
+
+   Default: none
+
+:index:`SUPERLUDIST_LIBRARIES <SUPERLUDIST_LIBRARIES (CMake option)>`
+   Semi-colon separated list of libraries needed for SuperLU_DIST
+
+   Default: none
+
+:index:`SUPERLUDIST_OpenMP <SUPERLUDIST_OpenMP (CMake option)>`
+   Enable SUNDIALS support for SuperLU_DIST built with OpenMP
+
+   Default: none
+
+   Note: SuperLU_DIST must be built with OpenMP support for this option to function.
+   Additionally the environment variable ``OMP_NUM_THREADS`` must be set to the desired
+   number of threads.
+
 :index:`SUPERLUMT_ENABLE <SUPERLUMT_ENABLE (CMake option)>`
    Enable SuperLU_MT support
 
@@ -865,6 +898,13 @@ activated by setting ``USE_XSDK_DEFAULTS`` to ``ON``.
 
    SUNDIALS equivalent: ``LAPACK_ENABLE``
 
+:index:`TPL_ENABLE_SUPERLUDIST <TPL_ENABLE_SUPERLUDIST (xSDK CMake option)>`
+   Enable SuperLU_DIST support
+
+   Default: ``OFF``
+
+   SUNDIALS equivalent: ``SUPERLUDIST_ENABLE``
+
 :index:`TPL_ENABLE_SUPERLUMT <TPL_ENABLE_SUPERLUMT (xSDK CMake option)>`
    Enable SuperLU_MT support
 
@@ -911,6 +951,22 @@ activated by setting ``USE_XSDK_DEFAULTS`` to ``ON``.
    PETSc library
 
    SUNDIALS equivalent: N/A
+
+:index:`TPL_SUPERLUDIST_INCLUDE_DIRS <TPL_SUPERLUDIST_INCLUDE_DIRS (xSDK CMake option)>`
+   Path to SuperLU_DIST header files
+
+   SUNDIALS equivalent: ``SUPERLUDIST_INCLUDE_DIR``
+
+:index:`TPL_SUPERLUDIST_LIBRARIES <TPL_SUPERLUDIST_LIBRARIES (xSDK CMake option)>`
+   Semi-colon separated list of libraries needed for SuperLU_DIST including
+   the SuperLU_DIST library itself
+
+   SUNDIALS equivalent: ``SUPERLUDIST_LIBRARIES``
+
+:index:`TPL_SUPERLUDIST_OpenMP <TPL_SUPERLUDIST_OpenMP (xSDK CMake option)>`
+   Enable SUNDIALS support for SuperLU_DIST built with OpenMP
+
+   SUNDIALS equivalent: ``SUPERLUDIST_OpenMP``
 
 :index:`TPL_SUPERLUMT_INCLUDE_DIRS <TPL_SUPERLUMT_INCLUDE_DIRS (xSDK CMake option)>`
    Path to SuperLU_MT header files
@@ -1121,6 +1177,26 @@ result in populating the following variables: ``AMD_LIBRARY``,
 
 
 .. _Installation.CMake.ExternalLibraries.SuperLU_MT:
+
+Building with SuperLU_DIST
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The SuperLU_DIST libraries are available for download from the Lawrence
+Berkeley National Laboratory website:
+http://crd-legacy.lbl.gov/$\sim$xiaoye/SuperLU/\#superlu\_dist.
+
+SUNDIALS has been tested with SuperLU_DIST greater than 6.1. To enable
+SuperLU_DIST, set  ``SUPERLUDIST_ENABLE`` to ``ON``, set
+``SUPERLUDIST_INCLUDE_DIR`` to the ``SRC`` path of the SuperLU_DIST
+installation, and set the variable ``SUPERLUMT_LIBRARY_DIR`` to the
+``lib`` path of the SuperLU_DIST installation.  At the same time, the
+variable ``SUPERLUDIST_LIBRARIES`` must be set to a semi-colon separated list
+of other libraries SuperLU_DIST depends on. For example, if SuperLU_DIST
+was built with LAPACK, then include the LAPACK library in this list.
+If SuperLU_DIST was built with OpenMP support, then you may set
+``SUPERLUDIST_OpenMP`` to ``ON`` utilize the OpenMP functionality of
+SuperLU_DIST.
+
 
 Building with SuperLU_MT
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

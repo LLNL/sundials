@@ -143,6 +143,7 @@ present the SUNLinSol modules provided with SUNDIALS.
    SUNLinSol_LapackDense
    SUNLinSol_LapackBand
    SUNLinSol_KLU
+   SUNLinSol_SuperLUDIST
    SUNLinSol_SuperLUMT
    SUNLinSol_SPGMR
    SUNLinSol_SPFGMR

@@ -23,6 +23,16 @@
 #include "sunlinsol/sunlinsol_dense.h"
 #include "sunnonlinsol/sunnonlinsol_newton.h"
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
+
 #define NEQ   3                /* number of equations        */
 #define TOL   RCONST(1.0e-2)   /* nonlinear solver tolerance */
 #define MAXIT 10               /* max nonlinear iterations   */
@@ -155,15 +165,15 @@ int main(int argc, char *argv[])
 
   /* print the solution */
   printf("Solution:\n");
-  printf("y1 = %g\n",NV_Ith_S(y,0));
-  printf("y2 = %g\n",NV_Ith_S(y,1));
-  printf("y3 = %g\n",NV_Ith_S(y,2));
+  printf("y1 = %"GSYM"\n",NV_Ith_S(y,0));
+  printf("y2 = %"GSYM"\n",NV_Ith_S(y,1));
+  printf("y3 = %"GSYM"\n",NV_Ith_S(y,2));
 
   /* print the solution error */
   printf("Solution Error:\n");
-  printf("e1 = %g\n",NV_Ith_S(y,0) - Y1);
-  printf("e2 = %g\n",NV_Ith_S(y,1) - Y2);
-  printf("e3 = %g\n",NV_Ith_S(y,2) - Y3);
+  printf("e1 = %"GSYM"\n",NV_Ith_S(y,0) - Y1);
+  printf("e2 = %"GSYM"\n",NV_Ith_S(y,1) - Y2);
+  printf("e3 = %"GSYM"\n",NV_Ith_S(y,2) - Y3);
 
   /* get the number of linear iterations */
   retval = SUNNonlinSolGetNumIters(NLS, &niters);

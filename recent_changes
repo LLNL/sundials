@@ -22,6 +22,17 @@ N_VMinQuotientLocal. If an N_Vector implementation defines any of the local
 operations as NULL, then the NVECTOR_MANYVECTOR will call standard N_Vector
 operations to complete the computation.
 
+A new SUNMatrix and SUNLinearSolver implementation was added to facilitate 
+the use of the SuperLU_DIST library with SUNDIALS.
+
+A new operation, SUNMatMatvecSetup, was added to the SUNMatrix API. Users
+who have implemented custom SUNMatrix modules will need to at least update
+their code to set the corresponding ops structure member, matvecsetup, to NULL.
+
+The generic SUNMatrix API now defines error codes to be returned by SUNMatrix operations.
+Operations which return an integer flag indiciating success/failure may return different
+values than previously.
+
 
 Changes to SUNDIALS in release 4.1.0
 
@@ -46,6 +57,8 @@ Python is no longer required to run make test and make test_install.
 Fixed a bug in ARKodeButcherTable_Write when printing a Butcher table
 without an embedding.
 
+
+
 Changes to SUNDIALS in release 4.0.2
 
 Added information on how to contribute to SUNDIALS and a contributing agreement.
@@ -56,6 +69,8 @@ The symbols are now included in the appropriate package library, e.g. libsundial
 Changes to SUNDIALS in release 4.0.1
 
 A bug in ARKODE where single precision builds would fail to compile has been fixed.
+
+
 
 Changes to SUNDIALS in release 4.0.0
 
@@ -158,6 +173,7 @@ ARKode's dense output infrastructure has been improved to support higher-degree
 Hermite polynomial interpolants (up to degree 5) over the last successful time step.
 
 
+
 Changes to SUNDIALS in release 3.2.1
 
 * Fixed a bug in the CUDA NVECTOR where the N_VInvTest operation could write
@@ -167,6 +183,8 @@ Changes to SUNDIALS in release 3.2.1
   library installation path to CMAKE_INSTALL_PREFIX/CMAKE_INSTALL_LIBDIR
   from CMAKE_INSTALL_PREFIX/lib. CMAKE_INSTALL_LIBDIR is automatically set, but is
   available as a CMAKE option that can modified.
+
+
 
 Changes to SUNDIALS in release 3.2.0
 
@@ -212,6 +230,8 @@ Changes to SUNDIALS in release 3.2.0
   the src and example directories to make the CMake configuration file structure
   more modular.
 
+
+
 Changes in SUNDIALS in release 3.1.2
 
 * Fixed Windows specific problem where sunindextype was not correctly
@@ -247,6 +267,8 @@ Changes in SUNDIALS in release 3.1.2
   efficient if the user-supplied Jacobian routine allocates storage
   for the sum $I+\gamma J$ or $M+\gamma J$ manually (with zero entries
   if needed).
+
+
 
 Changes to SUNDIALS in release 3.1.1
 
@@ -293,6 +315,7 @@ Changes to SUNDIALS in release 3.1.1
   not require a SUNMatrix or SUNLinearSolver module (e.g. iterative
   linear solvers, explicit methods in ARKode, functional iteration
   in CVODE, etc.).
+
 
 
 Changes to SUNDIALS in release 3.1.0

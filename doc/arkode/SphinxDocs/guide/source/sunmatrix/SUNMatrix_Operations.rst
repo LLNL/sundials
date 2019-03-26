@@ -143,6 +143,20 @@ below.
 
       ier = SUNMatScaleAddI(c, A);
 
+      
+.. c:function:: SUNMatMatvecSetup(SUNMatrix A)
+
+   Performs any setup necessary to perform a matrix-vector product.
+   The return value is an integer flag denoting success/failure of the 
+   operation. It is useful for SUNMatrix implementations which need to
+   prepare the matrix itself, or communication structures before performing
+   the matrix-vector product.
+
+   Usage:
+
+   .. code-block:: c
+   
+      ier = SUNMatMatvecSetup(A);
 
 .. c:function:: SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y)
 
@@ -160,4 +174,24 @@ below.
 
       ier = SUNMatMatvec(A, x, y);
 
+
+.. _SUNMatrix.Ops.errorCodes:
+
+SUNMatrix return codes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The functions provided to SUNMatrix modules within the SUNDIALS-provided SUNMatrix implementations utilize a common set of return codes, listed below. These adhere to a
+common pattern: 0 indicates success, a negative value indicates a failure. Aside
+from this pattern, the actual values of each error code are primarily to provide additional information to the user in case of a SUNMatrix failure.
+
+* ``SUNMAT_SUCCESS`` (0) -- successful call
+
+* ``SUNMAT_ILL_INPUT`` (-1) -- an illegal input has been provided to the function
+
+* ``SUNMAT_MEM_FAIL`` (-2) -- failed memory access or allocation
+
+* ``SUNMAT_OPERATION_FAIL`` (-3) -- a SUNMatrix operation returned nonzero
+
+* ``SUNMAT_MATVEC_SETUP_REQUIRED`` (-4) -- the ``SUNMatMatvecSetup`` routine needs to be
+  called prior to calling ``SUNMatMatvec``
 

@@ -53,7 +53,7 @@
 #define YMIN RCONST(0.0)
 #define YMAX RCONST(20.0)
 #define MY   80    /* no. of divisions in y dir. */
-#define NPY  4     /* no. of procs. in y dir.    */
+#define NPY  2     /* no. of procs. in y dir.    */
 
 #ifdef USE3D
 #define ZMIN RCONST(0.0)

@@ -51,7 +51,6 @@ ENDIF()
 # Set-up linker flags and link libraries
 SET(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
 
-
 # Add the build and install targets for each example
 FOREACH(example_tuple ${ARKODE_examples})
 

@@ -27,6 +27,15 @@
 #include <sundials/sundials_math.h>
 #include "test_sunlinsol.h"
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
 
 /* ----------------------------------------------------------------------
  * SUNLinSol_Band Testing Routine
@@ -188,7 +197,7 @@ int check_vector(N_Vector X, N_Vector Y, realtype tol)
     maxerr = ZERO;
     for(i=0; i < local_length; i++)
       maxerr = SUNMAX(SUNRabs(Xdata[i]-Ydata[i]), maxerr);
-    printf("check err failure: maxerr = %g (tol = %g)\n",
+    printf("check err failure: maxerr = %"GSYM" (tol = %"GSYM")\n",
 	   maxerr, tol);
     return(1);
   }

@@ -301,12 +301,18 @@ IF(SUPERLUMT_FOUND)
       STRING(REGEX REPLACE " " "_" test_name ${example}_${example_args})
     ENDIF()
 
-    # add example to regression tests
-    SUNDIALS_ADD_TEST(${test_name} ${example}
-      TEST_ARGS ${example_args}
-      ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
-      ANSWER_FILE ${test_name}.out
-      EXAMPLE_TYPE ${example_type})
+    # Do not include SuperLUMT examples in testing when the indextype is int32_t.
+    # Answer files were generated with int64_t and minor differences in output
+    # occur causing a false positive when testing. These tests can be re-enabled
+    # when type specific answer files are added.
+    IF(SUNDIALS_INDEX_SIZE MATCHES "64")
+      # add example to regression tests
+      SUNDIALS_ADD_TEST(${test_name} ${example}
+        TEST_ARGS ${example_args}
+        ANSWER_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+        ANSWER_FILE ${test_name}.out
+        EXAMPLE_TYPE ${example_type})
+    ENDIF()
 
     # find all .out files for this example
     FILE(GLOB example_out ${example}.out*)

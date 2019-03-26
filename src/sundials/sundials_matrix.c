@@ -70,6 +70,11 @@ int SUNMatScaleAddI(realtype c, SUNMatrix A)
   return((int) A->ops->scaleaddi(c, A));
 }
 
+int SUNMatMatvecSetup(SUNMatrix A)
+{
+  return((int) A->ops->matvecsetup(A));
+}
+
 int SUNMatMatvec(SUNMatrix A, N_Vector x, N_Vector y)
 {
   return((int) A->ops->matvec(A, x, y));

@@ -107,7 +107,11 @@
 
 .. [G1994] K. Gustafsson.  Control-theoretic techniques for stepsize
 	   selection in implicit Runge-Kutta methods. *ACM
-	   Trans. Math. Soft.* 20:496-512, 1994. 
+	   Trans. Math. Soft.* 20:496-512, 1994.
+
+.. [GDL2007] L. Grigori, J.W. Demmel, and X.S. Li. Parallel Symbolic
+            Factorization for Sparse LU with Static Pivoting. *SIAM J.
+            Scientific Comptuing*, 29:1289-1314, 2007.
 
 .. [HW1993] E. Hairer, S. Norsett and G. Wanner.  Solving Ordinary
 	    Differential Equations I. *Springer Series in
@@ -159,6 +163,10 @@
 	   Implementation, and User Interface. *ACM
 	   Trans. Math. Soft.*, 31:302-325, 2005.
 
+.. [LD2003] X.S. Li. and J.W. Demmel. A Scalable Distributed-Memory Sparse
+            Direct Solver for Unsymmetric Linear Systems. *ACM
+	   Trans. Math. Soft.*, 29:110-140, 2003.
+
 .. [LWWY2012] P.A. Lott, H.F. Walker, C.S. Woodward and U.M. Yang. An
               Accelerated Picard Method for Nonlinear Systems Related to
               Variably Saturated Flow, *Adv. Wat. Resour.*, 38:92-101, 2012.
@@ -197,7 +205,13 @@
 
 .. [S2006] G. Soderlind. Time-step selection algorithms: Adaptivity,
 	   control and signal processing. *Appl. Numer. Math.*,
-	   56:488-502, 2006.  
+	   56:488-502, 2006. 
+
+.. [SLUUG1999] X.S. Li, J.W. Demmel, J.R. Gilbert, L. Grigori,  M. Shao and
+          I. Yamazaki. SuperLU Users' Guide. 1999.
+
+.. [SuperLUDIST] `SuperLU_DIST Parallel Sparse Matrix Factorization Library
+               <http://crd-legacy.lbl.gov/~xiaoye/SuperLU/>`_. 
 
 .. [SuperLUMT] `SuperLU_MT Threaded Sparse Matrix Factorization Library
                <http://crd-legacy.lbl.gov/~xiaoye/SuperLU/>`_. 

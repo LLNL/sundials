@@ -1,6 +1,6 @@
 #!/bin/bash
 # -------------------------------------------------------------------------------
-# Programmer(s): David J. Gardner @ LLNL 
+# Programmer(s): David J. Gardner @ LLNL
 # -------------------------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -47,6 +47,9 @@ echo "--------------------------------------------------" | tee -a suntest.log
 git log -1 | tee -a suntest.log
 echo "--------------------------------------------------" | tee -a suntest.log
 
+# common environment setup
+source env.sh
+
 # loop over build options
 for ((i=0; i<${#realtype[@]}; i++)); do
     for ((j=0; j<${#indexsize[@]}; j++)); do
@@ -54,7 +57,7 @@ for ((i=0; i<${#realtype[@]}; i++)); do
         # ======================================================================
         # print test label for Jenkins section collapsing
         echo -e "TEST: ./suntest_noextlibs.sh ${realtype[i]} ${indexsize[j]} $buildthreads \n"
-      
+
         # run tests
         ./suntest_noextlibs.sh ${realtype[i]} ${indexsize[j]} $buildthreads
 
@@ -97,7 +100,7 @@ for ((i=0; i<${#realtype[@]}; i++)); do
             break
         else
             echo "PASSED: xSDK ${realtype[i]} ${indexsize[j]}" | tee -a suntest.log
-        fi               
+        fi
 
     done
 

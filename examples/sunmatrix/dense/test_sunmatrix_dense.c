@@ -27,6 +27,15 @@
 #include <sundials/sundials_math.h>
 #include "test_sunmatrix.h"
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
 
 /* ----------------------------------------------------------------------
  * Main SUNMatrix Testing Routine
@@ -201,7 +210,7 @@ int check_matrix_entry(SUNMatrix A, realtype val, realtype tol)
     printf("Check_matrix_entry failures:\n");
     for(i=0; i < Aldata; i++)
       if (FNEQ(Adata[i], val, tol) != 0)
-        printf("  Adata[%ld] = %g != %g (err = %g)\n", (long int) i,
+        printf("  Adata[%ld] = %"GSYM" != %"GSYM" (err = %"GSYM")\n", (long int) i,
                Adata[i], val, SUNRabs(Adata[i]-val));
   }
   
@@ -239,7 +248,7 @@ int check_vector(N_Vector x, N_Vector y, realtype tol)
     printf("Check_vector failures:\n");
     for(i=0; i < xldata; i++)
       if (FNEQ(xdata[i], ydata[i], tol) != 0)
-        printf("  xdata[%ld] = %g != %g (err = %g)\n", (long int) i,
+        printf("  xdata[%ld] = %"GSYM" != %"GSYM" (err = %"GSYM")\n", (long int) i,
                xdata[i], ydata[i], SUNRabs(xdata[i]-ydata[i]));
   }
   

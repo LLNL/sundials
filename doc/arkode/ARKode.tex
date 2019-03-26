@@ -332,6 +332,17 @@ If an NVECTOR implementation defines any of the local operations as \code{NULL},
 then the NVECTOR\_MANYVECTOR will call standard NVECTOR operations to complete
 the computation.
 
+A new SUNMatrix and SUNLinearSolver implementation was added to facilitate
+the use of the SuperLU\_DIST library with SUNDIALS.
+
+A new operation, \code{SUNMatMatvecSetup}, was added to the SUNMatrix API. Users
+who have implemented custom \code{SUNMatrix} modules will need to at least update
+their code to set the corresponding ops structure member, \code{matvecsetup}, to \code{NULL}.
+
+The generic SUNMatrix API now defines error codes to be returned by SUNMatrix operations.
+Operations which return an integer flag indiciating success/failure may return different
+values than previously.
+
 
 \subsection{Changes in v3.1.0}
 \label{Introduction:changes-in-v3-1-0}
@@ -348,7 +359,7 @@ enables all examples that use CUDA including the RAJA examples with a CUDA back 
 (if the RAJA NVECTOR is enabled).
 
 The implementation header file \emph{arkode\_impl.h} is no longer installed. This means users
-who are direclty manipulating the \code{ARKodeMem} structure will need to update their code
+who are directly manipulating the \code{ARKodeMem} structure will need to update their code
 to use ARKode's public API.
 
 Python is no longer required to run \code{make test} and \code{make test\_install}.
@@ -3482,6 +3493,23 @@ X
  & 
 X
  &  &  &  &  & 
+X
+\\
+\hline
+SuperLU\_DIST
+ & 
+X
+ & 
+X
+ & 
+X
+ & 
+X
+ & 
+X
+ & 
+X
+ &  &  & 
 X
 \\
 \hline
@@ -8956,6 +8984,11 @@ No. of mass matrix solver setups (incl. \(M\) evals.)
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepGetNumMassSetups]{\emph{\code{ARKStepGetNumMassSetups()}}}}
 \\
 \hline
+No. of mass matrix multiply setups
+ & 
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepGetNumMassMultSetups]{\emph{\code{ARKStepGetNumMassMultSetups()}}}}
+\\
+\hline
 No. of mass matrix multiplies
  & 
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepGetNumMassMult]{\emph{\code{ARKStepGetNumMassMult()}}}}
@@ -9441,6 +9474,38 @@ mass-matrix constructor function.
 
 \item {} 
 \emph{nmsetups} -- number of calls to the mass matrix solver setup routine.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARKLS\_SUCCESS} if successful
+
+\item {} 
+\emph{ARKLS\_MEM\_NULL} if the ARKStep memory was \code{NULL}
+
+\item {} 
+\emph{ARKLS\_LMEM\_NULL} if the linear solver memory was \code{NULL}
+
+\end{itemize}
+
+\end{description}
+
+\end{fulllineitems}
+
+\index{ARKStepGetNumMassMultSetups (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepGetNumMassMultSetups}\pysiglinewithargsret{int \bfcode{ARKStepGetNumMassMultSetups}}{void*\emph{ arkode\_mem}, long int*\emph{ nmvsetups}}{}
+Returns the number of calls made to the ARKLS mass matrix `matvec setup'
+(matrix-based solvers) routine.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the ARKStep memory block.
+
+\item {} 
+\emph{nmvsetups} -- number of calls to the mass matrix matrix-times-vector setup routine.
 
 \end{itemize}
 
@@ -23495,7 +23560,7 @@ RAJA parallel vector
 \hline
 SUNDIALS\_NVEC\_OPENMPDEV
  & 
-OpenMP shared memory parallel with device offloading
+OpenMP parallel vector with device offloading
  & 
 8
 \\
@@ -23509,7 +23574,7 @@ Trilinos Tpetra vector
 \hline
 SUNDIALS\_NVEC\_MANYVECTOR
  & 
-``ManyVector'' parallel vector
+``ManyVector'' vector
  & 
 10
 \\
@@ -28901,6 +28966,7 @@ defined as
   \PYG{k+kt}{int}          \PYG{p}{(}\PYG{o}{*}\PYG{n}{copy}\PYG{p}{)}\PYG{p}{(}\PYG{n}{SUNMatrix}\PYG{p}{,} \PYG{n}{SUNMatrix}\PYG{p}{)}\PYG{p}{;}
   \PYG{k+kt}{int}          \PYG{p}{(}\PYG{o}{*}\PYG{n}{scaleadd}\PYG{p}{)}\PYG{p}{(}\PYG{n}{realtype}\PYG{p}{,} \PYG{n}{SUNMatrix}\PYG{p}{,} \PYG{n}{SUNMatrix}\PYG{p}{)}\PYG{p}{;}
   \PYG{k+kt}{int}          \PYG{p}{(}\PYG{o}{*}\PYG{n}{scaleaddi}\PYG{p}{)}\PYG{p}{(}\PYG{n}{realtype}\PYG{p}{,} \PYG{n}{SUNMatrix}\PYG{p}{)}\PYG{p}{;}
+  \PYG{k+kt}{int}          \PYG{p}{(}\PYG{o}{*}\PYG{n}{matvecsetup}\PYG{p}{)}\PYG{p}{(}\PYG{n}{SUNMatrix}\PYG{p}{)}\PYG{p}{;}
   \PYG{k+kt}{int}          \PYG{p}{(}\PYG{o}{*}\PYG{n}{matvec}\PYG{p}{)}\PYG{p}{(}\PYG{n}{SUNMatrix}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector}\PYG{p}{)}\PYG{p}{;}
   \PYG{k+kt}{int}          \PYG{p}{(}\PYG{o}{*}\PYG{n}{space}\PYG{p}{)}\PYG{p}{(}\PYG{n}{SUNMatrix}\PYG{p}{,} \PYG{k+kt}{long} \PYG{k+kt}{int}\PYG{o}{*}\PYG{p}{,} \PYG{k+kt}{long} \PYG{k+kt}{int}\PYG{o}{*}\PYG{p}{)}\PYG{p}{;}
 \PYG{p}{\PYGZcb{}}\PYG{p}{;}
@@ -28998,11 +29064,18 @@ Sparse (CSR or CSC) \(M\times N\) matrix
 2
 \\
 \hline
+SUNMATRIX\_SLUNRLOC
+ & 
+SUNMatrix wrapper for SuperLU\_DIST SuperMatrix
+ & 
+3
+\\
+\hline
 SUNMATRIX\_CUSTOM
  & 
 User-provided custom matrix
  & 
-3
+4
 \\
 \hline\end{tabulary}
 
@@ -29152,6 +29225,24 @@ Usage:
 
 \end{fulllineitems}
 
+\index{SUNMatMatvecSetup (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunmatrix/SUNMatrix_Operations:c.SUNMatMatvecSetup}\pysiglinewithargsret{\bfcode{SUNMatMatvecSetup}}{SUNMatrix\emph{ A}}{}
+Performs any setup necessary to perform a matrix-vector product.
+The return value is an integer flag denoting success/failure of the
+operation. It is useful for SUNMatrix implementations which need to
+prepare the matrix itself, or communication structures before performing
+the matrix-vector product.
+
+Usage:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{ier} \PYG{o}{=} \PYG{n}{SUNMatMatvecSetup}\PYG{p}{(}\PYG{n}{A}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+\end{fulllineitems}
+
 \index{SUNMatMatvec (C function)}
 
 \begin{fulllineitems}
@@ -29171,6 +29262,31 @@ Usage:
 
 \end{fulllineitems}
 
+
+
+\subsection{SUNMatrix return codes}
+\label{sunmatrix/SUNMatrix_Operations:sunmatrix-ops-errorcodes}\label{sunmatrix/SUNMatrix_Operations:sunmatrix-return-codes}
+The functions provided to SUNMatrix modules within the SUNDIALS-provided SUNMatrix implementations utilize a common set of return codes, listed below. These adhere to a
+common pattern: 0 indicates success, a negative value indicates a failure. Aside
+from this pattern, the actual values of each error code are primarily to provide additional information to the user in case of a SUNMatrix failure.
+\begin{itemize}
+\item {} 
+\code{SUNMAT\_SUCCESS} (0) -- successful call
+
+\item {} 
+\code{SUNMAT\_ILL\_INPUT} (-1) -- an illegal input has been provided to the function
+
+\item {} 
+\code{SUNMAT\_MEM\_FAIL} (-2) -- failed memory access or allocation
+
+\item {} 
+\code{SUNMAT\_OPERATION\_FAIL} (-3) -- a SUNMatrix operation returned nonzero
+
+\item {} 
+\code{SUNMAT\_MATVEC\_SETUP\_REQUIRED} (-4) -- the \code{SUNMatMatvecSetup} routine needs to be
+called prior to calling \code{SUNMatMatvec}
+
+\end{itemize}
 
 
 \section{Compatibility of SUNMATRIX types}
@@ -29242,6 +29358,23 @@ X
  & 
 X
  &  &  &  &  & 
+X
+\\
+\hline
+SLUNRloc
+ & 
+X
+ & 
+X
+ & 
+X
+ & 
+X
+ & 
+X
+ & 
+X
+ &  &  & 
 X
 \\
 \hline
@@ -30816,6 +30949,157 @@ matrix in ARKode.
 
 
 
+\section{The SUNMATRIX\_SLUNRLOC Module}
+\label{sunmatrix/SUNMatrix_SLUNRloc:sunmatrix-slunrloc}\label{sunmatrix/SUNMatrix_SLUNRloc:the-sunmatrix-slunrloc-module}\label{sunmatrix/SUNMatrix_SLUNRloc::doc}
+The SUNMATRIX\_SLUNRLOC implementation of the SUNMatrix module provided
+with SUNDIALS is an adapter for the \code{SuperMatrix} structure provided by
+the SuperLU\_DIST sparse matrix factorization and solver library written
+by X. Sherry Li (\phantomsection\label{sunmatrix/SUNMatrix_SLUNRloc:id1}{\hyperref[References:superludist]{\emph{{[}SuperLUDIST{]}}}}, \phantomsection\label{sunmatrix/SUNMatrix_SLUNRloc:id2}{\hyperref[References:gdl2007]{\emph{{[}GDL2007{]}}}}, \phantomsection\label{sunmatrix/SUNMatrix_SLUNRloc:id3}{\hyperref[References:ld2003]{\emph{{[}LD2003{]}}}}, \phantomsection\label{sunmatrix/SUNMatrix_SLUNRloc:id4}{\hyperref[References:sluug1999]{\emph{{[}SLUUG1999{]}}}}).
+It is designed to be used with the SuperLU\_DIST \code{SUNLinearSolver}
+discussed in Section {\hyperref[sunlinsol/SUNLinSol_SuperLUDIST:sunlinsol-superludist]{\emph{\DUspan{}{The SUNLinSol\_SuperLUDIST Module}}}}. To this end, it defines
+the \code{content} field of \code{SUNMatrix} to be the following structure:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{struct} \PYG{n}{\PYGZus{}SUNMatrixContent\PYGZus{}SLUNRloc} \PYG{p}{\PYGZob{}}
+  \PYG{n}{booleantype}   \PYG{n}{own\PYGZus{}data}\PYG{p}{;}
+  \PYG{n}{gridinfo\PYGZus{}t}    \PYG{o}{*}\PYG{n}{grid}\PYG{p}{;}
+  \PYG{n}{sunindextype}  \PYG{o}{*}\PYG{n}{row\PYGZus{}to\PYGZus{}proc}\PYG{p}{;}
+  \PYG{n}{pdgsmv\PYGZus{}comm\PYGZus{}t} \PYG{o}{*}\PYG{n}{gsmv\PYGZus{}comm}\PYG{p}{;}
+  \PYG{n}{SuperMatrix}   \PYG{o}{*}\PYG{n}{A\PYGZus{}super}\PYG{p}{;}
+  \PYG{n}{SuperMatrix}   \PYG{o}{*}\PYG{n}{ACS\PYGZus{}super}\PYG{p}{;}
+\PYG{p}{\PYGZcb{}}\PYG{p}{;}
+\end{Verbatim}
+
+A more complete description of the this \code{content} field is given below:
+\begin{itemize}
+\item {} 
+\code{own\_data} -- a flag which indicates if the SUNMatrix is responsible for freeing
+\code{A\_super}
+
+\item {} 
+\code{grid} -- pointer to the SuperLU\_DIST structure that stores the 2D process grid
+
+\item {} 
+\code{row\_to\_proc} -- a mapping between the rows in the matrix and the process it
+resides on; will be \code{NULL} until the \code{SUNMatMatvecSetup} routine is called
+
+\item {} 
+\code{gsmv\_comm} -- pointer to the SuperLU\_DIST structure that stores the
+communication information needed for matrix-vector multiplication; will be
+\code{NULL} until the \code{SUNMatMatvecSetup} routine is called
+
+\item {} \begin{description}
+\item[{\code{A\_super} -- pointer to the underlying SuperLU\_DIST \code{SuperMatrix} with}] \leavevmode
+\code{Stype = SLU\_NR\_loc, Dtype = SLU\_D, Mtype = SLU\_GE}; must have the
+full diagonal present to be used with \code{SUNMatScaleAddI} routine
+
+\end{description}
+
+\item {} 
+\code{ACS\_super} -- a column-sorted version of the matrix needed to perform matrix-vector
+multiplication; will be \code{NULL} until the routine \code{SUNMatMatvecSetup}
+routine is called
+
+\end{itemize}
+
+The header file to include when using this module is \code{sunmatrix/sunmatrix\_slunrloc.h}.
+The installed module library to link to is \code{libsundials\_sunmatrixslunrloc} \emph{.lib}
+where \emph{.lib} is typically \code{.so} for shared libraries and \code{.a} for static libraries.
+
+
+\subsection{SUNMATRIX\_SLUNRLOC Functions}
+\label{sunmatrix/SUNMatrix_SLUNRloc:sunmatrix-slunrloc-functions}\label{sunmatrix/SUNMatrix_SLUNRloc:id5}
+The SUNMATRIX\_SLUNRLOC module provides the following user-callable routines:
+\index{SUNMatrix\_SLUNRloc (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunmatrix/SUNMatrix_SLUNRloc:c.SUNMatrix_SLUNRloc}\pysiglinewithargsret{SUNMatrix \bfcode{SUNMatrix\_SLUNRloc}}{SuperMatrix\emph{ *Asuper}, gridinfo\_t\emph{ *grid}}{}
+This constructor function creates and allocates memory for a SUNMatrix\_SLUNRloc
+object. Its arguments are a fully-allocated SuperLU\_DIST \code{SuperMatrix} with
+\code{Stype = SLU\_NR\_loc, Dtype = SLU\_D, Mtype = SLU\_GE} and an initialized SuperLU\_DIST
+2D process grid structure. It returns a SUNMatrix object if \code{Asuper} is compatible
+else it returns \code{NULL}.
+
+\end{fulllineitems}
+
+\index{SUNMatrix\_SLUNRloc\_Print (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunmatrix/SUNMatrix_SLUNRloc:c.SUNMatrix_SLUNRloc_Print}\pysiglinewithargsret{void \bfcode{SUNMatrix\_SLUNRloc\_Print}}{SUNMatrix\emph{ A}, FILE\emph{ *fp}}{}
+This function prints the underlying \code{SuperMatrix} content. It is useful for
+debugging. Its arguments are the \code{SUNMatrix} object and a \code{FILE} pointer
+to print to. It returns void.
+
+\end{fulllineitems}
+
+\index{SUNMatrix\_SLUNRloc\_SuperMatrix (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunmatrix/SUNMatrix_SLUNRloc:c.SUNMatrix_SLUNRloc_SuperMatrix}\pysiglinewithargsret{SuperMatrix* \bfcode{SUNMatrix\_SLUNRloc\_SuperMatrix}}{SUNMatrix\emph{ A}}{}
+This function returns the underlying \code{SuperMatrix} of \code{A}. Its
+only argument is the \code{SUNMatrix} object to access.
+
+\end{fulllineitems}
+
+\index{SUNMatrix\_SLUNRloc\_ProcessGrid (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunmatrix/SUNMatrix_SLUNRloc:c.SUNMatrix_SLUNRloc_ProcessGrid}\pysiglinewithargsret{gridinfo\_t* \bfcode{SUNMatrix\_SLUNRloc\_ProcessGrid}}{SUNMatrix\emph{ A}}{}
+This function returns the SuperLU\_DIST 2D process grid associated with
+\code{A}. Its only argument is the \code{SUNMatrix} object to access.
+
+\end{fulllineitems}
+
+\index{SUNMatrix\_SLUNRloc\_OwnData (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunmatrix/SUNMatrix_SLUNRloc:c.SUNMatrix_SLUNRloc_OwnData}\pysiglinewithargsret{booleantype \bfcode{SUNMatrix\_SLUNRloc\_OwnData}}{SUNMatrix\emph{ A}}{}
+This function returns true if the \code{SUNMatrix} object is responsible
+for freeing the underlying \code{SuperMatrix}, otherwise it returns false.
+Its only argument is the \code{SUNMatrix} object to access.
+
+\end{fulllineitems}
+
+
+The SUNMATRIX\_SLUNRLOC module also defines implementations of all generic
+\code{SUNMatrix} operations listed in Table {\hyperref[sunmatrix/SUNMatrix_Operations:sunmatrix-ops]{\emph{\DUspan{}{Description of the SUNMATRIX operations}}}}:
+\begin{itemize}
+\item {} 
+\code{SUNMatGetID\_SLUNRloc} -- returns \code{SUNMATRIX\_SLUNRLOC}
+
+\item {} 
+\code{SUNMatClone\_SLUNRloc}
+
+\item {} 
+\code{SUNMatDestroy\_SLUNRloc}
+
+\item {} 
+\code{SUNMatSpace\_SLUNRloc} -- this only returns information for the storage within
+the matrix interface, i.e. storage for \code{row\_to\_proc}
+
+\item {} 
+\code{SUNMatZero\_SLUNRloc}
+
+\item {} 
+\code{SUNMatCopy\_SLUNRloc}
+
+\item {} 
+\code{SUNMatScaleAdd\_SLUNRloc}
+
+\item {} 
+\code{SUNMatScaleAddI\_SLUNRloc}
+
+\item {} 
+\code{SUNMatMatvecSetup\_SLUNRloc} -- initializes the SuperLU\_DIST parallel communication
+structures needed to perform a matrix-vector product; only needs to be called before
+the first call to \code{SUNMatMatvec} or if the matrix changed since the last setup
+
+\item {} 
+\code{SUNMatMatvec\_SLUNRloc}
+
+\end{itemize}
+
+
 \section{SUNMATRIX Examples}
 \label{sunmatrix/SUNMatrix_Examples::doc}\label{sunmatrix/SUNMatrix_Examples:sunmatrix-examples}\label{sunmatrix/SUNMatrix_Examples:id1}
 There are \code{SUNMatrix} examples that may be installed for each
@@ -30969,6 +31253,11 @@ SUNMatScaleAdd
 SUNMatMatvec
  & 
 1
+ &  & \\
+\hline
+SUNMatMatvecSetup
+ & 
+1,2
  &  & \\
 \hline
 SUNMatSpace
@@ -33355,6 +33644,276 @@ space requirements, see the KLU documentation.
 
 \item {} 
 \code{SUNLinSolFree\_KLU}
+
+\end{itemize}
+
+
+\section{The SUNLinSol\_SuperLUDIST Module}
+\label{sunlinsol/SUNLinSol_SuperLUDIST:the-sunlinsol-superludist-module}\label{sunlinsol/SUNLinSol_SuperLUDIST::doc}\label{sunlinsol/SUNLinSol_SuperLUDIST:sunlinsol-superludist}
+The SuperLU\_DIST implementation of the SUNLinearSolver module provided with SUNDIALS,
+SUNLinsol\_SuperLUDIST, is designed to be used with the SUNMatrix\_SLUNRloc SUNMatrix,
+and one of the serial, threaded or parallel N\_Vector implementations (NVECTOR\_SERIAL,
+NVECTOR\_OPENMP, NVECTOR\_PTHREADS, NVECTOR\_PARALLEL, NVECTOR\_PARHYP).
+
+
+\subsection{SUNLinSol\_SuperLUDIST Usage}
+\label{sunlinsol/SUNLinSol_SuperLUDIST:sunlinsol-superludist-usage}\label{sunlinsol/SUNLinSol_SuperLUDIST:id1}
+The header file to be included when using this module
+is \code{sunlinsol/sunlinsol\_superludist.h}.  The installed module
+library to link to is \code{libsundials\_sunlinsolsuperludist} \emph{.lib}
+where \emph{.lib} is typically \code{.so} for shared libraries and
+\code{.a} for static libraries.
+
+The module SUNLinSol\_SuperLUDIST provides the following user-callable routines:
+\index{SUNLinSol\_SuperLUDIST (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunlinsol/SUNLinSol_SuperLUDIST:c.SUNLinSol_SuperLUDIST}\pysiglinewithargsret{SUNLinearSolver \bfcode{SUNLinSol\_SuperLUDIST}}{N\_Vector\emph{ y}, SuperMatrix\emph{ *A}, gridinfo\_t\emph{ *grid}, LUstruct\_t\emph{ *lu}, ScalePermstruct\_t\emph{ *scaleperm}, SOLVEstruct\_t\emph{ *solve}, SuperLUStat\_t\emph{ *stat}, superlu\_dist\_options\_t\emph{ *options}}{}
+This constructor function creates and allocates memory for a SUNLinSol\_SuperLUDIST
+object. Its arguments are an \code{N\_Vector}, a \code{SUNMatrix}, and SuperLU\_DIST
+\code{gridinfo\_t*}, \code{LUstuct\_t*}, \code{ScalePermstruct\_t*}, \code{SOLVEstruct\_t*},
+\code{SuperLUStat\_t*}, and \code{superlu\_dist\_options\_t*} pointers. This routine
+analyzes the input matrix and vector to determine the linear system size and
+to assess the compatibility with the SuperLU\_DIST library.
+
+This routine will perform consistency checks to ensure that it is called with
+consistent N\_Vector and SUNMatrix implementations. These are currently limited
+to the SUNMatrix\_SLUNRloc matrix type and the NVECTOR\_SERIAL, NVECTOR\_OPENMP,
+NVECTOR\_PTHREADS, NVECTOR\_PARALLEL, and NVECTOR\_PARHYP vector types. As
+additional compatible matrix and vector implementations are added to SUNDIALS,
+these will be included within this compatibility check.
+
+The \code{grid}, \code{lu}, \code{scaleperm}, \code{solve}, and \code{options} arguments are
+not checked and are passed directly to SuperLU\_DIST routines.
+
+Some struct members of the \code{options} argument are modified internally by
+the SUNLinSol\_SuperLUDIST solver. Specifically, the member \code{Fact}
+is modified in the setup and solve routines.
+
+\end{fulllineitems}
+
+\index{SUNLinSol\_SuperLUDIST\_GetBerr (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunlinsol/SUNLinSol_SuperLUDIST:c.SUNLinSol_SuperLUDIST_GetBerr}\pysiglinewithargsret{realtype \bfcode{SUNLinSol\_SuperLUDIST\_GetBerr}}{SUNLinearSolver\emph{ LS}}{}
+This function returns the componentwise relative backward error of the
+computed solution. It takes one argument, the \code{SUNLinearSolver} object.
+The return type is \code{realtype}.
+
+\end{fulllineitems}
+
+\index{SUNLinSol\_SuperLUDIST\_GetGridinfo (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunlinsol/SUNLinSol_SuperLUDIST:c.SUNLinSol_SuperLUDIST_GetGridinfo}\pysiglinewithargsret{gridinfo\_t* \bfcode{SUNLinSol\_SuperLUDIST\_GetGridinfo}}{SUNLinearSolver\emph{ LS}}{}
+This function returns a pointer to the SuperLU\_DIST structure that
+contains the 2D process grid. It takes one argument, the \code{SUNLinearSolver}
+object.
+
+\end{fulllineitems}
+
+\index{SUNLinSol\_SuperLUDIST\_GetLUstruct (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunlinsol/SUNLinSol_SuperLUDIST:c.SUNLinSol_SuperLUDIST_GetLUstruct}\pysiglinewithargsret{LUstruct\_t* \bfcode{SUNLinSol\_SuperLUDIST\_GetLUstruct}}{SUNLinearSolver\emph{ LS}}{}
+This function returns a pointer to the SuperLU\_DIST structure that contains
+the distributed \code{L} and \code{U} structures. It takes one argument, the
+\code{SUNLinearSolver} object.
+
+\end{fulllineitems}
+
+\index{SUNLinSol\_SuperLUDIST\_GetSuperLUOptions (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunlinsol/SUNLinSol_SuperLUDIST:c.SUNLinSol_SuperLUDIST_GetSuperLUOptions}\pysiglinewithargsret{superlu\_dist\_options\_t* \bfcode{SUNLinSol\_SuperLUDIST\_GetSuperLUOptions}}{SUNLinearSolver\emph{ LS}}{}
+This function returns a pointer to the SuperLU\_DIST structure that contains the
+options which control how the linear system is factorized and solved. It takes
+one argument, the \code{SUNLinearSolver} object.
+
+\end{fulllineitems}
+
+\index{SUNLinSol\_SuperLUDIST\_GetScalePermstruct (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunlinsol/SUNLinSol_SuperLUDIST:c.SUNLinSol_SuperLUDIST_GetScalePermstruct}\pysiglinewithargsret{ScalePermstruct\_t* \bfcode{SUNLinSol\_SuperLUDIST\_GetScalePermstruct}}{SUNLinearSolver\emph{ LS}}{}
+This function returns a pointer to the SuperLU\_DIST structure that contains
+the vectors that describe the transformations done to the matrix \code{A}. It
+takes one argument, the \code{SUNLinearSolver} object.
+
+\end{fulllineitems}
+
+\index{SUNLinSol\_SuperLUDIST\_GetSOLVEstruct (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunlinsol/SUNLinSol_SuperLUDIST:c.SUNLinSol_SuperLUDIST_GetSOLVEstruct}\pysiglinewithargsret{SOLVEstruct\_t* \bfcode{SUNLinSol\_SuperLUDIST\_GetSOLVEstruct}}{SUNLinearSolver\emph{ LS}}{}
+This function returns a pointer to the SuperLU\_DIST structure that contains
+information for communication during the solution phase. It takes one argument
+the \code{SUNLinearSolver} object.
+
+\end{fulllineitems}
+
+\index{SUNLinSol\_SuperLUDIST\_GetSuperLUStat (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunlinsol/SUNLinSol_SuperLUDIST:c.SUNLinSol_SuperLUDIST_GetSuperLUStat}\pysiglinewithargsret{SuperLUStat\_t* \bfcode{SUNLinSol\_SuperLUDIST\_GetSuperLUStat}}{SUNLinearSolver\emph{ LS}}{}
+This function returns a pointer to the SuperLU\_DIST structure that stores
+information about runtime and flop count. It takes one argument, the
+\code{SUNLinearSolver} object.
+
+\end{fulllineitems}
+
+
+
+\subsection{SUNLinSol\_SuperLUDIST Description}
+\label{sunlinsol/SUNLinSol_SuperLUDIST:sunlinsol-superludist-description}\label{sunlinsol/SUNLinSol_SuperLUDIST:id2}
+The SUNLinSol\_SuperLUDIST module defines the \emph{content} field of a
+\code{SUNLinearSolver} to be the following structure:
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{struct} \PYG{n}{\PYGZus{}SUNLinearSolverContent\PYGZus{}SuperLUDIST} \PYG{p}{\PYGZob{}}
+  \PYG{n}{booleantype}             \PYG{n}{first\PYGZus{}factorize}\PYG{p}{;}
+  \PYG{k+kt}{long} \PYG{k+kt}{int}                \PYG{n}{last\PYGZus{}flag}\PYG{p}{;}
+  \PYG{n}{realtype}                \PYG{n}{berr}\PYG{p}{;}
+  \PYG{n}{gridinfo\PYGZus{}t}              \PYG{o}{*}\PYG{n}{grid}\PYG{p}{;}
+  \PYG{n}{LUstruct\PYGZus{}t}              \PYG{o}{*}\PYG{n}{lu}\PYG{p}{;}
+  \PYG{n}{superlu\PYGZus{}dist\PYGZus{}options\PYGZus{}t}  \PYG{o}{*}\PYG{n}{options}\PYG{p}{;}
+  \PYG{n}{ScalePermstruct\PYGZus{}t}       \PYG{o}{*}\PYG{n}{scaleperm}\PYG{p}{;}
+  \PYG{n}{SOLVEstruct\PYGZus{}t}           \PYG{o}{*}\PYG{n}{solve}\PYG{p}{;}
+  \PYG{n}{SuperLUStat\PYGZus{}t}           \PYG{o}{*}\PYG{n}{stat}\PYG{p}{;}
+  \PYG{n}{sunindextype}            \PYG{n}{N}\PYG{p}{;}
+\PYG{p}{\PYGZcb{}}\PYG{p}{;}
+\end{Verbatim}
+
+These entries of the \emph{content} field contain the following
+information:
+\begin{itemize}
+\item {} 
+\code{first\_factorize} -- flag indicating whether the factorization
+has ever been performed,
+
+\item {} 
+\code{last\_flag} -- last error return flag from internal function
+evaluations,
+
+\item {} 
+\code{berr} -- the componentwise relative backward error of the computed solution,
+
+\item {} 
+\code{grid} -- pointer to the SuperLU\_DIST structure that strores the 2D process grid
+
+\item {} 
+\code{lu} -- pointer to the SuperLU\_DIST structure that stores the distributed \code{L}
+and \code{U} factors,
+
+\item {} 
+\code{scaleperm} -- pointer to the SuperLU\_DIST structure that stores vectors describing
+the transformations done to the matrix \code{A},
+
+\item {} 
+\code{options} -- pointer to the SuperLU\_DIST stucture which contains options that control
+how the linear system is factorized and solved,
+
+\item {} 
+\code{solve} -- pointer to the SuperLU\_DIST solve structure,
+
+\item {} 
+\code{stat} -- pointer to the SuperLU\_DIST structure that stores information about runtime
+and flop count,
+
+\item {} 
+\code{N} -- the number of equations in the system.
+
+\end{itemize}
+
+The SUNLinSol\_SuperLUDIST module is a SUNLinearSolver adapter for the
+SuperLU\_DIST sparse matrix factorization and solver library written by
+X. Sherry Li (\phantomsection\label{sunlinsol/SUNLinSol_SuperLUDIST:id3}{\hyperref[References:superludist]{\emph{{[}SuperLUDIST{]}}}}, \phantomsection\label{sunlinsol/SUNLinSol_SuperLUDIST:id4}{\hyperref[References:gdl2007]{\emph{{[}GDL2007{]}}}}, \phantomsection\label{sunlinsol/SUNLinSol_SuperLUDIST:id5}{\hyperref[References:ld2003]{\emph{{[}LD2003{]}}}}, \phantomsection\label{sunlinsol/SUNLinSol_SuperLUDIST:id6}{\hyperref[References:sluug1999]{\emph{{[}SLUUG1999{]}}}}).
+The package uses a SPMD parallel programming model and multithreading
+to enhance efficiency in distributed-memory parallel environments with
+multicore nodes and possibly GPU accelerators. It uses MPI for communication,
+OpenMP for threading, and CUDA for GPU support. In order to use the
+SUNLinSol\_SuperLUDIST interface to SuperLU\_DIST, it is assumed that SuperLU\_DIST
+has been installed on the system prior to installation of SUNDIALS, and
+that SUNDIALS has been configured appropriately to link with SuperLU\_DIST
+(see Appendix {\hyperref[Install:installation-cmake-externallibraries]{\emph{\DUspan{}{Working with external Libraries}}}} for details).
+Additionally, the wrapper only
+supports double-precision calculations, and therefore cannot be compiled if SUNDIALS
+is configured to use single or extended precision. Moreover, since the SuperLU\_DIST
+library may be installed to support either 32-bit or 64-bit integers,
+it is assumed that the SuperLU\_DIST library is installed using the same
+integer size as SUNDIALS.
+
+The SuperLU\_DIST library provides many options to control how a linear
+system will be factorized and solved. These options may be set by a user
+on an instance of the \code{superlu\_dist\_options\_t} struct, and then it may be provided
+as an argument to the SUNLinSol\_SuperLUDIST constructor. The SUNLinSol\_SuperLUDIST
+module will respect all options set except for \code{Fact} -- this option is
+necessarily modified by the SUNLinSol\_SuperLUDIST module in the setup and solve routines.
+
+Since the linear systems that arise within the context of SUNDIALS calculations will
+typically have identical sparsity patterns, the SUNLinSol\_SuperLUDIST module is
+constructed to perform the following operations:
+\begin{itemize}
+\item {} 
+The first time that the ``setup'' routine is called, it
+sets the SuperLU\_DIST option \code{Fact} to \code{DOFACT} so that a subsequent
+call to the ``solve'' routine will perform a symbolic factorization,
+followed by an initial numerical factorization before continuing
+to solve the system.
+
+\item {} 
+On subsequent calls to the ``setup'' routine, it sets the
+SuperLU\_DIST option \code{Fact} to \code{SamePattern} so that
+a subsequent call to ``solve'' will perform factorization assuming
+the same sparsity pattern as prior, i.e. it will reuse the column
+permutation vector.
+
+\item {} 
+If ``setup'' is called prior to the ``solve'' routine, then the ``solve'' routine
+will perform a symbolic factorization, followed by an initial
+numerical factorization before continuing to the sparse triangular
+solves, and, potentially, iterative refinement. If ``setup'' is not
+called prior, ``solve'' will skip to the triangular solve step. We
+note that in this solve SuperLU\_DIST operates on the native data arrays
+for the right-hand side and solution vectors, without requiring costly data copies.
+
+\end{itemize}
+
+The SUNLinSol\_SuperLUDIST module defines implementations of all
+``direct'' linear solver operations listed in the section
+{\hyperref[sunlinsol/SUNLinSol_API:sunlinsol-api]{\emph{\DUspan{}{The SUNLinearSolver API}}}}:
+\begin{itemize}
+\item {} 
+\code{SUNLinSolGetType\_SuperLUDIST}
+
+\item {} 
+\code{SUNLinSolInitialize\_SuperLUDIST} -- this sets the
+\code{first\_factorize} flag to 1 and resets the internal SuperLU\_DIST
+statistics variables.
+
+\item {} 
+\code{SUNLinSolSetup\_SuperLUDIST} -- this sets the appropriate
+SuperLU\_DIST options so that a subsequent solve will perform a
+symbolic and numerical factorization before proceeding with the
+triangular solves
+
+\item {} 
+\code{SUNLinSolSolve\_SuperLUDIST} -- this calls the SuperLU\_DIST
+solve routine to perform factorization (if the setup routine
+was called prior) and then use the \$LU\$ factors to solve the
+linear system.
+
+\item {} 
+\code{SUNLinSolLastFlag\_SuperLUDIST}
+
+\item {} 
+\code{SUNLinSolSpace\_SuperLUDIST} -- this only returns information for
+the storage within the solver \emph{interface}, i.e. storage for the
+integers \code{last\_flag} and \code{first\_factorize}.  For additional
+space requirements, see the SuperLU\_DIST documentation.
+
+\item {} 
+\code{SUNLinSolFree\_SuperLUDIST}
 
 \end{itemize}
 
@@ -38189,6 +38748,41 @@ Precision used in SUNDIALS, options are: \code{double}, \code{single} or
 
 Default: \code{double}
 
+\item[{\index{SUPERLUDIST\_ENABLE (CMake option)}SUPERLUDIST\_ENABLE}] \leavevmode
+Enable SuperLU\_DIST support
+
+Default: \code{OFF}
+
+\begin{notice}{note}{Note:}
+See additional information on building wtih
+SuperLU\_DIST enabled in {\hyperref[Install:installation-cmake-externallibraries]{\emph{\DUspan{}{Working with external Libraries}}}}.
+\end{notice}
+
+\item[{\index{SUPERLUDIST\_INCLUDE\_DIR (CMake option)}SUPERLUDIST\_INCLUDE\_DIR}] \leavevmode
+Path to SuperLU\_DIST header files (under a typical SuperLU\_DIST
+install, this is typically the SuperLU\_DIST \code{SRC} directory)
+
+Default: none
+
+\item[{\index{SUPERLUDIST\_LIBRARY\_DIR (CMake option)}SUPERLUDIST\_LIBRARY\_DIR}] \leavevmode
+Path to SuperLU\_DIST installed library files
+
+Default: none
+
+\item[{\index{SUPERLUDIST\_LIBRARIES (CMake option)}SUPERLUDIST\_LIBRARIES}] \leavevmode
+Semi-colon separated list of libraries needed for SuperLU\_DIST
+
+Default: none
+
+\item[{\index{SUPERLUDIST\_OpenMP (CMake option)}SUPERLUDIST\_OpenMP}] \leavevmode
+Enable SUNDIALS support for SuperLU\_DIST built with OpenMP
+
+Default: none
+
+Note: SuperLU\_DIST must be built with OpenMP support for this option to function.
+Additionally the environment variable \code{OMP\_NUM\_THREADS} must be set to the desired
+number of threads.
+
 \item[{\index{SUPERLUMT\_ENABLE (CMake option)}SUPERLUMT\_ENABLE}] \leavevmode
 Enable SuperLU\_MT support
 
@@ -38294,6 +38888,13 @@ Default: \code{OFF}
 
 SUNDIALS equivalent: \code{LAPACK\_ENABLE}
 
+\item[{\index{TPL\_ENABLE\_SUPERLUDIST (xSDK CMake option)}TPL\_ENABLE\_SUPERLUDIST}] \leavevmode
+Enable SuperLU\_DIST support
+
+Default: \code{OFF}
+
+SUNDIALS equivalent: \code{SUPERLUDIST\_ENABLE}
+
 \item[{\index{TPL\_ENABLE\_SUPERLUMT (xSDK CMake option)}TPL\_ENABLE\_SUPERLUMT}] \leavevmode
 Enable SuperLU\_MT support
 
@@ -38342,6 +38943,22 @@ SUNDIALS equivalent: \code{PETSC\_INCLUDE\_DIR}
 PETSc library
 
 SUNDIALS equivalent: N/A
+
+\item[{\index{TPL\_SUPERLUDIST\_INCLUDE\_DIRS (xSDK CMake option)}TPL\_SUPERLUDIST\_INCLUDE\_DIRS}] \leavevmode
+Path to SuperLU\_DIST header files
+
+SUNDIALS equivalent: \code{SUPERLUDIST\_INCLUDE\_DIR}
+
+\item[{\index{TPL\_SUPERLUDIST\_LIBRARIES (xSDK CMake option)}TPL\_SUPERLUDIST\_LIBRARIES}] \leavevmode
+Semi-colon separated list of libraries needed for SuperLU\_DIST including
+the SuperLU\_DIST library itself
+
+SUNDIALS equivalent: \code{SUPERLUDIST\_LIBRARIES}
+
+\item[{\index{TPL\_SUPERLUDIST\_OpenMP (xSDK CMake option)}TPL\_SUPERLUDIST\_OpenMP}] \leavevmode
+Enable SUNDIALS support for SuperLU\_DIST built with OpenMP
+
+SUNDIALS equivalent: \code{SUPERLUDIST\_OpenMP}
 
 \item[{\index{TPL\_SUPERLUMT\_INCLUDE\_DIRS (xSDK CMake option)}TPL\_SUPERLUMT\_INCLUDE\_DIRS}] \leavevmode
 Path to SuperLU\_MT header files
@@ -38539,8 +39156,27 @@ result in populating the following variables: \code{AMD\_LIBRARY},
 \code{COLAMD\_LIBRARY}, \code{COLAMD\_LIBRARY\_DIR}, and \code{KLU\_LIBRARY}.
 
 
+\subsubsection{Building with SuperLU\_DIST}
+\label{Install:building-with-superlu-dist}\label{Install:installation-cmake-externallibraries-superlu-mt}
+The SuperLU\_DIST libraries are available for download from the Lawrence
+Berkeley National Laboratory website:
+\href{http://crd-legacy.lbl.gov/\$sim\$xiaoye/SuperLU/}{http://crd-legacy.lbl.gov/\$sim\$xiaoye/SuperLU/}\#superlu\_dist.
+
+SUNDIALS has been tested with SuperLU\_DIST greater than 6.1. To enable
+SuperLU\_DIST, set  \code{SUPERLUDIST\_ENABLE} to \code{ON}, set
+\code{SUPERLUDIST\_INCLUDE\_DIR} to the \code{SRC} path of the SuperLU\_DIST
+installation, and set the variable \code{SUPERLUMT\_LIBRARY\_DIR} to the
+\code{lib} path of the SuperLU\_DIST installation.  At the same time, the
+variable \code{SUPERLUDIST\_LIBRARIES} must be set to a semi-colon separated list
+of other libraries SuperLU\_DIST depends on. For example, if SuperLU\_DIST
+was built with LAPACK, then include the LAPACK library in this list.
+If SuperLU\_DIST was built with OpenMP support, then you may set
+\code{SUPERLUDIST\_OpenMP} to \code{ON} utilize the OpenMP functionality of
+SuperLU\_DIST.
+
+
 \subsubsection{Building with SuperLU\_MT}
-\label{Install:building-with-superlu-mt}\label{Install:installation-cmake-externallibraries-superlu-mt}
+\label{Install:building-with-superlu-mt}
 The SuperLU\_MT libraries are available for download from the Lawrence
 Berkeley National Laboratory website:
 \href{http://crd-legacy.lbl.gov/\$sim\$xiaoye/SuperLU/}{http://crd-legacy.lbl.gov/\$sim\$xiaoye/SuperLU/}\#superlu\_mt .
@@ -40427,7 +41063,7 @@ corresponding to Butcher tables \code{ARK548L2SA\_ERK\_8\_4\_5} and
 
 \end{itemize}
 \phantomsection\label{References:references}
-\begin{thebibliography}{SKAW2012a}
+\begin{thebibliography}{SuperLUDIST}
 \bibitem[A1965]{A1965}{\phantomsection\label{References:a1965} 
 D.G. Anderson, Iterative Procedures for Nonlinear Integral
 Equations, \emph{J. Assoc. Comput. Machinery},
@@ -40538,6 +41174,11 @@ K. Gustafsson.  Control-theoretic techniques for stepsize
 selection in implicit Runge-Kutta methods. \emph{ACM
 Trans. Math. Soft.} 20:496-512, 1994.
 }
+\bibitem[GDL2007]{GDL2007}{\phantomsection\label{References:gdl2007} 
+L. Grigori, J.W. Demmel, and X.S. Li. Parallel Symbolic
+Factorization for Sparse LU with Static Pivoting. \emph{SIAM J.
+Scientific Comptuing}, 29:1289-1314, 2007.
+}
 \bibitem[HW1993]{HW1993}{\phantomsection\label{References:hw1993} 
 E. Hairer, S. Norsett and G. Wanner.  Solving Ordinary
 Differential Equations I. \emph{Springer Series in
@@ -40600,6 +41241,14 @@ X.S. Li. An Overview of SuperLU: Algorithms,
 Implementation, and User Interface. \emph{ACM
 Trans. Math. Soft.}, 31:302-325, 2005.
 }
+\bibitem[LD2003]{LD2003}{\phantomsection\label{References:ld2003} \begin{description}
+\item[{X.S. Li. and J.W. Demmel. A Scalable Distributed-Memory Sparse}] \leavevmode
+Direct Solver for Unsymmetric Linear Systems. {\color{red}\bfseries{}*}ACM
+
+\end{description}
+
+Trans. Math. Soft.*, 29:110-140, 2003.
+}
 \bibitem[LWWY2012]{LWWY2012}{\phantomsection\label{References:lwwy2012} 
 P.A. Lott, H.F. Walker, C.S. Woodward and U.M. Yang. An
 Accelerated Picard Method for Nonlinear Systems Related to
@@ -40650,6 +41299,13 @@ G. Soderlind. Digital filters in adaptive time-stepping.
 G. Soderlind. Time-step selection algorithms: Adaptivity,
 control and signal processing. \emph{Appl. Numer. Math.},
 56:488-502, 2006.
+}
+\bibitem[SLUUG1999]{SLUUG1999}{\phantomsection\label{References:sluug1999} 
+X.S. Li, J.W. Demmel, J.R. Gilbert, L. Grigori,  M. Shao and
+I. Yamazaki. SuperLU Users' Guide. 1999.
+}
+\bibitem[SuperLUDIST]{SuperLUDIST}{\phantomsection\label{References:superludist} 
+\href{http://crd-legacy.lbl.gov/~xiaoye/SuperLU/}{SuperLU\_DIST Parallel Sparse Matrix Factorization Library}.
 }
 \bibitem[SuperLUMT]{SuperLUMT}{\phantomsection\label{References:superlumt} 
 \href{http://crd-legacy.lbl.gov/~xiaoye/SuperLU/}{SuperLU\_MT Threaded Sparse Matrix Factorization Library}.

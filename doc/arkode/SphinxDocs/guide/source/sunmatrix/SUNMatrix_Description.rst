@@ -63,6 +63,7 @@ defined as
      int          (*copy)(SUNMatrix, SUNMatrix);
      int          (*scaleadd)(realtype, SUNMatrix, SUNMatrix);
      int          (*scaleaddi)(realtype, SUNMatrix);
+     int          (*matvecsetup)(SUNMatrix);
      int          (*matvec)(SUNMatrix, N_Vector, N_Vector);
      int          (*space)(SUNMatrix, long int*, long int*);
    };
@@ -121,7 +122,6 @@ It is recommended that a user-supplied SUNMATRIX implementation use
 the ``SUNMATRIX_CUSTOM`` identifier.
 
 
-
 .. _SUNMatrix.matrixIDs:
 
 Identifiers associated with matrix kernels supplied with SUNDIALS
@@ -129,11 +129,13 @@ Identifiers associated with matrix kernels supplied with SUNDIALS
 
 .. cssclass:: table-bordered
 
-======================  ============================================  ==============
-Matrix ID               Matrix type                                   ID Value
-======================  ============================================  ==============
-SUNMATRIX_DENSE         Dense :math:`M\times N` matrix                0
-SUNMATRIX_BAND          Band :math:`M\times M` matrix                 1
-SUNMATRIX_SPARSE        Sparse (CSR or CSC) :math:`M\times N` matrix  2
-SUNMATRIX_CUSTOM        User-provided custom matrix                   3
-======================  ============================================  ==============
+======================  ==============================================  ==============
+Matrix ID               Matrix type                                     ID Value
+======================  ==============================================  ==============
+SUNMATRIX_DENSE         Dense :math:`M\times N` matrix                  0
+SUNMATRIX_BAND          Band :math:`M\times M` matrix                   1
+SUNMATRIX_SPARSE        Sparse (CSR or CSC) :math:`M\times N` matrix    2
+SUNMATRIX_SLUNRLOC      SUNMatrix wrapper for SuperLU_DIST SuperMatrix  3
+SUNMATRIX_CUSTOM        User-provided custom matrix                     4
+======================  ==============================================  ==============
+

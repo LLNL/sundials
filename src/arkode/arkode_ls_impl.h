@@ -115,29 +115,30 @@ typedef struct ARKLsMemRec {
 typedef struct ARKLsMassMemRec {
 
   /* Mass matrix construction & storage */
-  ARKLsMassFn mass;   /* user-provided mass matrix routine to call  */
-  SUNMatrix M;        /* mass matrix structure                      */
-  SUNMatrix M_lu;     /* mass matrix structure for LU decomposition */
+  ARKLsMassFn mass;   /* user-provided mass matrix routine to call   */
+  SUNMatrix M;        /* mass matrix structure                       */
+  SUNMatrix M_lu;     /* mass matrix structure for LU decomposition  */
 
   /* Iterative solver tolerance */
-  realtype sqrtN;     /* sqrt(N)                                    */
-  realtype eplifac;   /* nonlinear -> linear tol scaling factor     */
+  realtype sqrtN;     /* sqrt(N)                                     */
+  realtype eplifac;   /* nonlinear -> linear tol scaling factor      */
 
   /* Statistics and associated parameters */
-  booleantype time_dependent;  /* flag whether M depends on t       */
-  long int nmsetups;  /* total number of mass matrix-solver setups  */
-  long int nmsolves;  /* total number of mass matrix-solver solves  */
-  long int nmtsetup;  /* total number of calls to mtsetup           */
-  long int nmtimes;   /* total number of calls to mtimes            */
-  long int npe;       /* total number of pset calls                 */
-  long int nli;       /* total number of linear iterations          */
-  long int nps;       /* total number of psolve calls               */
-  long int ncfl;      /* total number of convergence failures       */
+  booleantype time_dependent;  /* flag whether M depends on t        */
+  long int nmsetups;  /* total number of mass matrix-solver setups   */
+  long int nmsolves;  /* total number of mass matrix-solver solves   */
+  long int nmtsetup;  /* total number of calls to mtsetup            */
+  long int nmtimes;   /* total number of calls to mtimes             */
+  long int nmvsetup;  /* total number of calls to SUNMatMatvec setup */
+  long int npe;       /* total number of pset calls                  */
+  long int nli;       /* total number of linear iterations           */
+  long int nps;       /* total number of psolve calls                */
+  long int ncfl;      /* total number of convergence failures        */
 
   /* Linear solver, matrix and vector objects/pointers */
-  SUNLinearSolver LS; /* generic linear solver object               */
-  N_Vector x;         /* solution vector used by SUNLinearSolver    */
-  N_Vector ycur;      /* ptr to ARKode current y vector             */
+  SUNLinearSolver LS; /* generic linear solver object                */
+  N_Vector x;         /* solution vector used by SUNLinearSolver     */
+  N_Vector ycur;      /* ptr to ARKode current y vector              */
 
   /* Preconditioner computation
     (a) user-provided:
@@ -145,7 +146,7 @@ typedef struct ARKLsMassMemRec {
         - pfree == NULL (the user dealocates memory for user_data)
     (b) internal preconditioner module
         - P_data == arkode_mem
-        - pfree == set by the prec. module and called in ARKodeFree */
+        - pfree == set by the prec. module and called in ARKodeFree  */
   ARKLsMassPrecSetupFn pset;
   ARKLsMassPrecSolveFn psolve;
   int (*pfree)(ARKodeMem ark_mem);
@@ -156,7 +157,7 @@ typedef struct ARKLsMassMemRec {
   ARKLsMassTimesVecFn mtimes;
   void *mt_data;
 
-  long int last_flag; /* last error flag returned by any function  */
+  long int last_flag; /* last error flag returned by any function    */
 
 } *ARKLsMassMem;
 
@@ -264,6 +265,7 @@ int arkLSGetMassWorkSpace(void* arkode_mem, long int* lenrwMLS,
                           long int* leniwMLS);
 int arkLSGetNumMassSetups(void* arkode_mem, long int* nmsetups);
 int arkLSGetNumMassMult(void* arkode_mem, long int* nmvevals);
+int arkLSGetNumMassMatvecSetups(void *arkode_mem, long int *nmvsetups);
 int arkLSGetNumMassSolves(void* arkode_mem, long int* nmsolves);
 int arkLSGetNumMassPrecEvals(void* arkode_mem, long int* nmpevals);
 int arkLSGetNumMassPrecSolves(void* arkode_mem, long int* nmpsolves);

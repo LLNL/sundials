@@ -44,5 +44,6 @@ Linear Solver    Serial Parallel (MPI) OpenMP pThreads *hypre* Vec. PETSc Vec. C
 Dense            X                     X      X                                          X
 Band             X                     X      X                                          X
 Sparse           X                     X      X                                          X
+SLUNRloc         X      X              X      X        X            X                    X
 User supplied    X      X              X      X        X            X          X    X    X 
 ================ ====== ============== ====== ======== ============ ========== ==== ==== ===========

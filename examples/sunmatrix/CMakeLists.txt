@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  David Gardner and Slaven Peles @ LLNL
+# Programmer:  David Gardner, Slaven Peles, and Cody Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -19,3 +19,6 @@ ADD_SUBDIRECTORY(dense)
 ADD_SUBDIRECTORY(band)
 ADD_SUBDIRECTORY(sparse)
 
+IF(SUPERLUDIST_ENABLE AND SUPERLUDIST_FOUND)
+  ADD_SUBDIRECTORY(slunrloc)
+ENDIF()

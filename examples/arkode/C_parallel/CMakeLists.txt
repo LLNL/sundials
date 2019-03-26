@@ -29,10 +29,8 @@ SET(ARKODE_extras
   )
 
 IF(MPI_C_COMPILER)
-  # use MPI wrapper as the compiler
   SET(CMAKE_C_COMPILER ${MPI_C_COMPILER})
 ELSE()
-  # add MPI_INCLUDE_PATH to include directories
   INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
 ENDIF()
 
@@ -48,7 +46,6 @@ ENDIF()
 
 # Set-up linker flags and link libraries
 SET(SUNDIALS_LIBS ${ARKODE_LIB} ${NVECP_LIB} ${EXTRA_LINK_LIBS})
-
 
 # Add the build and install targets for each ARKODE example
 FOREACH(example_tuple ${ARKODE_examples})

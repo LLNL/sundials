@@ -75,6 +75,7 @@ SUNMatrix SUNDenseMatrix(sunindextype M, sunindextype N)
   ops->scaleaddi   = SUNMatScaleAddI_Dense;
   ops->matvec      = SUNMatMatvec_Dense;
   ops->space       = SUNMatSpace_Dense;
+  ops->matvecsetup = NULL;
 
   /* Create content */
   content = NULL;
@@ -146,7 +147,7 @@ sunindextype SUNDenseMatrix_Rows(SUNMatrix A)
   if (SUNMatGetID(A) == SUNMATRIX_DENSE)
     return SM_ROWS_D(A);
   else
-    return -1;
+    return SUNMAT_ILL_INPUT;
 }
 
 sunindextype SUNDenseMatrix_Columns(SUNMatrix A)
@@ -154,7 +155,7 @@ sunindextype SUNDenseMatrix_Columns(SUNMatrix A)
   if (SUNMatGetID(A) == SUNMATRIX_DENSE)
     return SM_COLUMNS_D(A);
   else
-    return -1;
+    return SUNMAT_ILL_INPUT;
 }
 
 sunindextype SUNDenseMatrix_LData(SUNMatrix A)
@@ -162,7 +163,7 @@ sunindextype SUNDenseMatrix_LData(SUNMatrix A)
   if (SUNMatGetID(A) == SUNMATRIX_DENSE)
     return SM_LDATA_D(A);
   else
-    return -1;
+    return SUNMAT_ILL_INPUT;
 }
 
 realtype* SUNDenseMatrix_Data(SUNMatrix A)
@@ -227,7 +228,7 @@ int SUNMatZero_Dense(SUNMatrix A)
   Adata = SM_DATA_D(A);
   for (i=0; i<SM_LDATA_D(A); i++)
     Adata[i] = ZERO;
-  return 0;
+  return SUNMAT_SUCCESS;
 }
 
 int SUNMatCopy_Dense(SUNMatrix A, SUNMatrix B)
@@ -236,13 +237,13 @@ int SUNMatCopy_Dense(SUNMatrix A, SUNMatrix B)
 
   /* Verify that A and B are compatible */
   if (!SMCompatible_Dense(A, B))
-    return 1;
+    return SUNMAT_ILL_INPUT;
 
   /* Perform operation */
   for (j=0; j<SM_COLUMNS_D(A); j++)
     for (i=0; i<SM_ROWS_D(A); i++)
       SM_ELEMENT_D(B,i,j) = SM_ELEMENT_D(A,i,j);
-  return 0;
+  return SUNMAT_SUCCESS;
 }
 
 int SUNMatScaleAddI_Dense(realtype c, SUNMatrix A)
@@ -256,7 +257,7 @@ int SUNMatScaleAddI_Dense(realtype c, SUNMatrix A)
       if (i == j) 
         SM_ELEMENT_D(A,i,j) += ONE;
     }
-  return 0;
+  return SUNMAT_SUCCESS;
 }
 
 int SUNMatScaleAdd_Dense(realtype c, SUNMatrix A, SUNMatrix B)
@@ -265,13 +266,13 @@ int SUNMatScaleAdd_Dense(realtype c, SUNMatrix A, SUNMatrix B)
 
   /* Verify that A and B are compatible */
   if (!SMCompatible_Dense(A, B))
-    return 1;
+    return SUNMAT_ILL_INPUT;
 
   /* Perform operation */
   for (j=0; j<SM_COLUMNS_D(A); j++)
     for (i=0; i<SM_ROWS_D(A); i++)
       SM_ELEMENT_D(A,i,j) = c*SM_ELEMENT_D(A,i,j) + SM_ELEMENT_D(B,i,j);
-  return 0;
+  return SUNMAT_SUCCESS;
 }
 
 int SUNMatMatvec_Dense(SUNMatrix A, N_Vector x, N_Vector y)
@@ -281,13 +282,13 @@ int SUNMatMatvec_Dense(SUNMatrix A, N_Vector x, N_Vector y)
   
   /* Verify that A, x and y are compatible */
   if (!SMCompatible2_Dense(A, x, y))
-    return 1;
+    return SUNMAT_ILL_INPUT;
 
   /* access vector data (return if failure) */
   xd = N_VGetArrayPointer(x);
   yd = N_VGetArrayPointer(y);
   if ((xd == NULL) || (yd == NULL) || (xd == yd))
-    return 1;
+    return SUNMAT_MEM_FAIL;
 
   /* Perform operation */
   for (i=0; i<SM_ROWS_D(A); i++)
@@ -297,14 +298,14 @@ int SUNMatMatvec_Dense(SUNMatrix A, N_Vector x, N_Vector y)
     for (i=0; i<SM_ROWS_D(A); i++)
       yd[i] += col_j[i]*xd[j];
   }
-  return 0;
+  return SUNMAT_SUCCESS;
 }
 
 int SUNMatSpace_Dense(SUNMatrix A, long int *lenrw, long int *leniw)
 {
   *lenrw = SM_LDATA_D(A);
   *leniw = 3 + SM_COLUMNS_D(A);
-  return 0;
+  return SUNMAT_SUCCESS;
 }
 
 

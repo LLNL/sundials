@@ -12,15 +12,15 @@
 ! SUNDIALS Copyright End
 !-----------------------------------------------------------------
 ! Example problem:
-! 
-! The following test simulates a brusselator problem from chemical 
-! kinetics.  This is a PDE system with 3 components, Y = [u,v,w], 
+!
+! The following test simulates a brusselator problem from chemical
+! kinetics.  This is a PDE system with 3 components, Y = [u,v,w],
 ! satisfying the equations,
 !    du/dt = du*u_xx + a - (w+1)*u + v*u^2
 !    dv/dt = dv*v_xx + w*u - v*u^2
 !    dw/dt = dw*w_xx + (b-w)/ep - w*u
-! for t in the interval [0, 10], x in [0, 10], with initial 
-! conditions 
+! for t in the interval [0, 10], x in [0, 10], with initial
+! conditions
 !    u(0,x) =  a  + 0.1*sin(pi*x),
 !    v(0,x) = b/a + 0.1*sin(pi*x),
 !    w(0,x) =  b  + 0.1*sin(pi*x),
@@ -29,32 +29,32 @@
 !    v_t(t,0) = v_t(t,1) = 0,
 !    w_t(t,0) = w_t(t,1) = 0.
 !
-! Here, we use a piecewise linear Galerkin finite element 
-! discretization in space, where all element-wise integrals are 
-! computed using 3-node Gaussian quadrature (since we will have 
-! quartic polynomials in the reaction terms for the u_t and v_t 
-! equations (including the test function)).  The time derivative 
-! terms in this system will include a mass matrix, giving rise to 
+! Here, we use a piecewise linear Galerkin finite element
+! discretization in space, where all element-wise integrals are
+! computed using 3-node Gaussian quadrature (since we will have
+! quartic polynomials in the reaction terms for the u_t and v_t
+! equations (including the test function)).  The time derivative
+! terms in this system will include a mass matrix, giving rise to
 ! an ODE system of the form
 !      M y_t = L y + R(y),
-! where M is the 3x3 block mass matrix for each component, L is 
-! the 3x3 block Laplace operator for each component, and R(y) is 
-! comprised of the nonlinear reaction terms for each component.  
+! where M is the 3x3 block mass matrix for each component, L is
+! the 3x3 block Laplace operator for each component, and R(y) is
+! comprised of the nonlinear reaction terms for each component.
 ! Since it it highly inefficient to rewrite this system as
 !      y_t = M^{-1}(L y + R(y)),
 ! we solve this system using FARKODE, with a user-supplied mass
-! matrix.  We therefore provide functions to evaluate the ODE RHS 
+! matrix.  We therefore provide functions to evaluate the ODE RHS
 !    f(t,y) = L y + R(y),
 ! its Jacobian
 !    J(t,y) = L + dR/dy,
 ! and the mass matrix, M.
 !
-! We use N=201 spatial nodes, with parameters 
+! We use N=201 spatial nodes, with parameters
 !    a=0.6,  b=2.0,  du=0.025,  dv=0.025,  dw=0.025,  ep=1.d-5
 !
-! This program solves the problem with the DIRK method, using a 
-! Newton iteration with the SUNKLU sparse linear solvers for both 
-! the system and mass matrices.  These matrices are stored in 
+! This program solves the problem with the DIRK method, using a
+! Newton iteration with the SUNKLU sparse linear solvers for both
+! the system and mass matrices.  These matrices are stored in
 ! compressed-sparse-row format.
 !
 ! Output is printed 10 times throughout the defined time interval.
@@ -67,7 +67,7 @@ module UserData
   implicit none
   include "sundials/sundials_fconfig.h"
   save
-  
+
   integer*8 :: N                   ! number of intervals
   real*8, allocatable :: x(:)      ! mesh node locations
   real*8 :: a                      ! constant forcing on u
@@ -91,9 +91,9 @@ end module UserData
 
 ! finite element basis functions
 module FEM
-  
+
 contains
-  
+
   ! left/right basis functions
   double precision function ChiL(xl,xr,x)
     double precision :: xl, xr, x
@@ -132,7 +132,7 @@ end module FEM
 
 ! quadrature data
 module Quadrature
-  
+
 contains
 
   ! nodes
@@ -151,7 +151,7 @@ contains
     X3 = 0.5d0*(xl+xr) + 0.5d0*(xr-xl)*0.774596669241483377035853079956d0
   end function X3
 
-  ! quadrature 
+  ! quadrature
   double precision function Quad(f1,f2,f3,xl,xr)
     real*8 :: f1, f2, f3, xl, xr
     real*8, parameter :: wt1=0.55555555555555555555555555555556d0
@@ -204,7 +204,7 @@ program driver
   NEQ = 3*N
   allocate(y(3,N), umask(3,N), vmask(3,N), wmask(3,N))
 
-  ! allocate and set up spatial mesh; this [arbitrarily] clusters 
+  ! allocate and set up spatial mesh; this [arbitrarily] clusters
   ! more intervals near the end points of the interval
   allocate(x(N))          ! mesh node locations
   pi = 4.d0*atan(1.d0)
@@ -245,12 +245,12 @@ program driver
   ! set tolerances according to problem specifications
   atol = 1.d-11
   rtol = 1.d-6
-  
+
   ! initialize vector module
   call FNVInitS(4, NEQ, ier)
 
   ! initialize system and mass matrix modules
-  nnz = 15*NEQ     ! integer number of nonzeros           
+  nnz = 15*NEQ     ! integer number of nonzeros
   ordering = 0     ! AMD
   sparsetype = 1   ! CSR
   call FSunSparseMatInit(4, NEQ, NEQ, nnz, sparsetype, ier)
@@ -259,7 +259,7 @@ program driver
   ! initialize KLU system and mass solvers
   call FSunKLUInit(4, ier)
   call FSunMassKLUInit(ier)
-  
+
   ! initialize ARKode solver
   ipar = 0
   rpar = 0.0
@@ -291,7 +291,7 @@ program driver
   write(501,*) ( y(1,i), i=1,N )
   write(502,*) ( y(2,i), i=1,N )
   write(503,*) ( y(3,i), i=1,N )
- 
+
   ! output solver parameters to screen
   call FARKWriteParameters(ier)
 
@@ -325,7 +325,7 @@ program driver
      write(501,*) ( y(1,i), i=1,N )
      write(502,*) ( y(2,i), i=1,N )
      write(503,*) ( y(3,i), i=1,N )
- 
+
   end do
   print *, '  ----------------------------------------------------'
 
@@ -446,11 +446,11 @@ subroutine FARKIFun(t, y, ydot, ipar, rpar, ier)
         w = Eval(wl, wr, xl, xr, X3(xl,xr))
         f3 = (w*u - v*u*u) * ChiL(xl,xr,X3(xl,xr))
         ydot(2,ix) = ydot(2,ix) + Quad(f1,f2,f3,xl,xr)
-      
+
         ! v -- diffusion
         f1 = -dv * Eval_x(vl,vr,xl,xr) * ChiL_x(xl,xr)
         ydot(2,ix) = ydot(2,ix) + Quad(f1,f1,f1,xl,xr)
-      
+
         ! w -- reaction
         u = Eval(ul, ur, xl, xr, X1(xl,xr))
         v = Eval(vl, vr, xl, xr, X1(xl,xr))
@@ -472,7 +472,7 @@ subroutine FARKIFun(t, y, ydot, ipar, rpar, ier)
 
      end if
 
-     !    right test function 
+     !    right test function
      if (right) then
 
         ! u -- reaction
@@ -563,7 +563,7 @@ subroutine farkefun(t, y, ydot, ipar, rpar, ier)
   ! return with success (since fully implicit)
   ydot = 0.d0
   ier = 0
-  
+
 end subroutine farkefun
 !-----------------------------------------------------------------
 
@@ -606,7 +606,7 @@ subroutine farkspjac(t, y, fy, neq, nnz, Jdata, Jcolvals, &
 
   ! set integer*4 version of N for call to idx()
   Nint = N
-  
+
   ! clear out Jacobian matrix data
   Jdata = 0.d0
   nz = 0
@@ -615,7 +615,7 @@ subroutine farkspjac(t, y, fy, neq, nnz, Jdata, Jcolvals, &
   Jrowptrs(idx(1,1)+1) = nz
   Jrowptrs(idx(1,2)+1) = nz
   Jrowptrs(idx(1,3)+1) = nz
- 
+
   ! iterate through nodes, filling in matrix by rows
   do ix=2,N-1
 
@@ -639,7 +639,7 @@ subroutine farkspjac(t, y, fy, neq, nnz, Jdata, Jcolvals, &
      Jw = 0.d0
 
      ! first compute dependence on values to left and center
-     
+
      !    evaluate relevant variables in left subinterval
      u1 = Eval(ul, uc, xl, xc, X1(xl,xc))
      v1 = Eval(vl, vc, xl, xc, X1(xl,xc))
@@ -686,8 +686,8 @@ subroutine farkspjac(t, y, fy, neq, nnz, Jdata, Jcolvals, &
 
      !    compute reaction Jacobian components
 
-     !    R_u = (a - (w+1.d0)*u + v*u*u) 
-     !     dR_u/dul 
+     !    R_u = (a - (w+1.d0)*u + v*u*u)
+     !     dR_u/dul
      df1 = (-(w1+1.d0) + 2.d0*v1*u1) * ChiL1 * ChiR1
      df2 = (-(w2+1.d0) + 2.d0*v2*u2) * ChiL2 * ChiR2
      df3 = (-(w3+1.d0) + 2.d0*v3*u3) * ChiL3 * ChiR3
@@ -699,7 +699,7 @@ subroutine farkspjac(t, y, fy, neq, nnz, Jdata, Jcolvals, &
      df3 = (-(w3+1.d0) + 2.d0*v3*u3) * ChiR3 * ChiR3
      Ju(1,0) = Ju(1,0)+ dQdf1*df1 + dQdf2*df2 + dQdf3*df3
 
-     !     dR_u/dvl 
+     !     dR_u/dvl
      df1 = (u1*u1) * ChiL1 * ChiR1
      df2 = (u2*u2) * ChiL2 * ChiR2
      df3 = (u3*u3) * ChiL3 * ChiR3
@@ -711,7 +711,7 @@ subroutine farkspjac(t, y, fy, neq, nnz, Jdata, Jcolvals, &
      df3 = (u3*u3) * ChiR3 * ChiR3
      Ju(2,0) = Ju(2,0) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
 
-     !     dR_u/dwl 
+     !     dR_u/dwl
      df1 = (-u1) * ChiL1 * ChiR1
      df2 = (-u2) * ChiL2 * ChiR2
      df3 = (-u3) * ChiL3 * ChiR3
@@ -724,8 +724,8 @@ subroutine farkspjac(t, y, fy, neq, nnz, Jdata, Jcolvals, &
      Ju(3,0) = Ju(3,0) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
 
 
-     !    R_v = (w*u - v*u*u) 
-     !     dR_v/dul 
+     !    R_v = (w*u - v*u*u)
+     !     dR_v/dul
      df1 = (w1 - 2.d0*v1*u1) * ChiL1 * ChiR1
      df2 = (w2 - 2.d0*v2*u2) * ChiL2 * ChiR2
      df3 = (w3 - 2.d0*v3*u3) * ChiL3 * ChiR3
@@ -737,7 +737,7 @@ subroutine farkspjac(t, y, fy, neq, nnz, Jdata, Jcolvals, &
      df3 = (w3 - 2.d0*v3*u3) * ChiR3 * ChiR3
      Jv(1,0) = Jv(1,0) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
 
-     !     dR_v/dvl 
+     !     dR_v/dvl
      df1 = (-u1*u1) * ChiL1 * ChiR1
      df2 = (-u2*u2) * ChiL2 * ChiR2
      df3 = (-u3*u3) * ChiL3 * ChiR3
@@ -749,21 +749,21 @@ subroutine farkspjac(t, y, fy, neq, nnz, Jdata, Jcolvals, &
      df3 = (-u3*u3) * ChiR3 * ChiR3
      Jv(2,0) = Jv(2,0) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
 
-     !     dR_v/dwl 
+     !     dR_v/dwl
      df1 = (u1) * ChiL1 * ChiR1
      df2 = (u2) * ChiL2 * ChiR2
      df3 = (u3) * ChiL3 * ChiR3
      Jv(3,-1) = Jv(3,-1) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
 
-     !     dR_v/dwc 
+     !     dR_v/dwc
      df1 = (u1) * ChiR1 * ChiR1
      df2 = (u2) * ChiR2 * ChiR2
      df3 = (u3) * ChiR3 * ChiR3
      Jv(3,0) = Jv(3,0) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
 
 
-     !    R_w = ((b-w)/ep - w*u) 
-     !     dR_w/dul 
+     !    R_w = ((b-w)/ep - w*u)
+     !     dR_w/dul
      df1 = (-w1) * ChiL1 * ChiR1
      df2 = (-w2) * ChiL2 * ChiR2
      df3 = (-w3) * ChiL3 * ChiR3
@@ -775,7 +775,7 @@ subroutine farkspjac(t, y, fy, neq, nnz, Jdata, Jcolvals, &
      df3 = (-w3) * ChiR3 * ChiR3
      Jw(1,0) = Jw(1,0) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
 
-     !     dR_w/dwl 
+     !     dR_w/dwl
      df1 = (-1.d0/ep - u1) * ChiL1 * ChiR1
      df2 = (-1.d0/ep - u2) * ChiL2 * ChiR2
      df3 = (-1.d0/ep - u3) * ChiL3 * ChiR3
@@ -839,14 +839,14 @@ subroutine farkspjac(t, y, fy, neq, nnz, Jdata, Jcolvals, &
 
      !    compute reaction Jacobian components
 
-     !    R_u = (a - (w+1.d0)*u + v*u*u) 
+     !    R_u = (a - (w+1.d0)*u + v*u*u)
      !     dR_u/duc
      df1 = (-(w1+1.d0) + 2.d0*v1*u1) * ChiL1 * ChiL1
      df2 = (-(w2+1.d0) + 2.d0*v2*u2) * ChiL2 * ChiL2
      df3 = (-(w3+1.d0) + 2.d0*v3*u3) * ChiL3 * ChiL3
      Ju(1,0) = Ju(1,0) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
 
-     !     dR_u/dur 
+     !     dR_u/dur
      df1 = (-(w1+1.d0) + 2.d0*v1*u1) * ChiL1 * ChiR1
      df2 = (-(w2+1.d0) + 2.d0*v2*u2) * ChiL2 * ChiR2
      df3 = (-(w3+1.d0) + 2.d0*v3*u3) * ChiL3 * ChiR3
@@ -858,7 +858,7 @@ subroutine farkspjac(t, y, fy, neq, nnz, Jdata, Jcolvals, &
      df3 = (u3*u3) * ChiL3 * ChiL3
      Ju(2,0) = Ju(2,0) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
 
-     !     dR_u/dvr 
+     !     dR_u/dvr
      df1 = (u1*u1) * ChiL1 * ChiR1
      df2 = (u2*u2) * ChiL2 * ChiR2
      df3 = (u3*u3) * ChiL3 * ChiR3
@@ -870,21 +870,21 @@ subroutine farkspjac(t, y, fy, neq, nnz, Jdata, Jcolvals, &
      df3 = (-u3) * ChiL3 * ChiL3
      Ju(3,0) = Ju(3,0) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
 
-     !     dR_u/dwr 
+     !     dR_u/dwr
      df1 = (-u1) * ChiL1 * ChiR1
      df2 = (-u2) * ChiL2 * ChiR2
      df3 = (-u3) * ChiL3 * ChiR3
      Ju(3,1) = Ju(3,1) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
 
 
-     !    R_v = (w*u - v*u*u) 
+     !    R_v = (w*u - v*u*u)
      !     dR_v/duc
      df1 = (w1 - 2.d0*v1*u1) * ChiL1 * ChiL1
      df2 = (w2 - 2.d0*v2*u2) * ChiL2 * ChiL2
      df3 = (w3 - 2.d0*v3*u3) * ChiL3 * ChiL3
      Jv(1,0) = Jv(1,0) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
 
-     !     dR_v/dur 
+     !     dR_v/dur
      df1 = (w1 - 2.d0*v1*u1) * ChiL1 * ChiR1
      df2 = (w2 - 2.d0*v2*u2) * ChiL2 * ChiR2
      df3 = (w3 - 2.d0*v3*u3) * ChiL3 * ChiR3
@@ -896,7 +896,7 @@ subroutine farkspjac(t, y, fy, neq, nnz, Jdata, Jcolvals, &
      df3 = (-u3*u3) * ChiL3 * ChiL3
      Jv(2,0) = Jv(2,0) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
 
-     !     dR_v/dvr 
+     !     dR_v/dvr
      df1 = (-u1*u1) * ChiL1 * ChiR1
      df2 = (-u2*u2) * ChiL2 * ChiR2
      df3 = (-u3*u3) * ChiL3 * ChiR3
@@ -908,21 +908,21 @@ subroutine farkspjac(t, y, fy, neq, nnz, Jdata, Jcolvals, &
      df3 = (u3) * ChiL3 * ChiL3
      Jv(3,0) = Jv(3,0) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
 
-     !     dR_v/dwr 
+     !     dR_v/dwr
      df1 = (u1) * ChiL1 * ChiR1
      df2 = (u2) * ChiL2 * ChiR2
      df3 = (u3) * ChiL3 * ChiR3
      Jv(3,1) = Jv(3,1) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
 
 
-     !    R_w = ((b-w)/ep - w*u) 
+     !    R_w = ((b-w)/ep - w*u)
      !     dR_w/duc
      df1 = (-w1) * ChiL1 * ChiL1
      df2 = (-w2) * ChiL2 * ChiL2
      df3 = (-w3) * ChiL3 * ChiL3
      Jw(1,0) = Jw(1,0) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
 
-     !     dR_w/dur 
+     !     dR_w/dur
      df1 = (-w1) * ChiL1 * ChiR1
      df2 = (-w2) * ChiL2 * ChiR2
      df3 = (-w3) * ChiL3 * ChiR3
@@ -934,7 +934,7 @@ subroutine farkspjac(t, y, fy, neq, nnz, Jdata, Jcolvals, &
      df3 = (-1.d0/ep - u3) * ChiL3 * ChiL3
      Jw(3,0) = Jw(3,0) + dQdf1*df1 + dQdf2*df2 + dQdf3*df3
 
-     !     dR_w/dwr 
+     !     dR_w/dwr
      df1 = (-1.d0/ep - u1) * ChiL1 * ChiR1
      df2 = (-1.d0/ep - u2) * ChiL2 * ChiR2
      df3 = (-1.d0/ep - u3) * ChiL3 * ChiR3
@@ -988,14 +988,13 @@ subroutine farkspjac(t, y, fy, neq, nnz, Jdata, Jcolvals, &
      Jcolvals(nz+1:nz+3) = (/ idx(ix+1,1), idx(ix+1,2), idx(ix+1,3) /)
      nz = nz+3
 
-
   enddo
 
   ! Dirichlet boundary at right
   Jrowptrs(idx(Nint,1)+1) = nz
   Jrowptrs(idx(Nint,2)+1) = nz
   Jrowptrs(idx(Nint,3)+1) = nz
- 
+
   ! signal end of data in CSR matrix
   Jrowptrs(idx(Nint,3)+2) = nz
 
@@ -1041,7 +1040,7 @@ subroutine farkspmass(t, neq, nnz, Mdata, Mcolvals, Mrowptrs, &
 
   ! set integer*4 version of N for call to idx()
   Nint = N
-  
+
   ! clear out Jacobian matrix data
   Mdata = 0.d0
   nz = 0

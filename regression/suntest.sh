@@ -35,28 +35,44 @@ mkdir install_${realtype}_${indexsize}
 # move to build directory
 cd build_${realtype}_${indexsize}
 
-# number of threads in OpenMP examples
-export OMP_NUM_THREADS=4
-
 # set file permissions (rwxrwxr-x)
 umask 002
+
+# set compiler spec for spack
+# COMPILER_SPEC is an environment variable - we use it if it is not empty
+if [[ ! -z $COMPILER_SPEC ]]; then
+  compiler="${COMPILER_SPEC}"
+else
+  compiler="gcc@4.9.4"
+fi
 
 # -------------------------------------------------------------------------------
 # Installed Third Party Libraries
 # -------------------------------------------------------------------------------
 
-# path to installed libraries
+# Directory where TPLs not provided by Spack reside
 APPDIR=/usr/casc/sundials/apps/rh6
 
 # MPI
-MPIDIR=${APPDIR}/openmpi/1.8.8/bin
+# MPIDIR is an environment variable - we use it if it is not empty
+if [[ ! -z $MPIEXEC ]]; then
+  MPIDIR="${MPIDIR}"
+else
+  MPIDIR="$(spack location -i openmpi@3.1.2 % "$compiler")"
+fi
+# MPIEXEC is an environment variable - we use it if it is not empty
+if [[ ! -z $MPIEXEC ]]; then
+  MPIEXEC="${MPIEXEC}"
+else
+  MPIEXEC="${MPIDIR}/bin/mpirun"
+fi
 
 # LAPACK / BLAS
 BLASSTATUS=ON
-BLASDIR=${APPDIR}/lapack/3.6.0/lib64
-
 LAPACKSTATUS=ON
-LAPACKDIR=${APPDIR}/lapack/3.6.0/lib64
+BLASDIR="$(spack location -i openblas@0.3.5~ilp64 % "$compiler")"
+BLAS_LIBRARIES=${BLASDIR}/lib/libopenblas.so
+LAPACK_LIBRARIES=${BLAS_LIBRARIES}
 
 # LAPACK/BLAS does not support extended precision or 64-bit indices
 if [ "$realtype" == "extended" ] || [ "$indexsize" == "64" ]; then
@@ -66,7 +82,7 @@ fi
 
 # KLU
 KLUSTATUS=ON
-KLUDIR=${APPDIR}/suitesparse/4.5.3
+KLUDIR="$(spack location -i suite-sparse@5.3.0 % "$compiler")"
 
 # KLU does not support single or extended precision
 if [ "$realtype" == "single" ] || [ "$realtype" == "extended" ]; then
@@ -88,14 +104,29 @@ if [ "$realtype" == "extended" ]; then
     SUPERLUMTSTATUS=OFF
 fi
 
+# SuperLU_DIST
+SUPERLUDISTSTATUS=ON
+
+# SuperLU DIST index size must be set a build time
+if [ "$indexsize" == "32" ]; then
+  SUPERLUDISTDIR="$(spack location -i superlu-dist@develop~int64+openmp % "$compiler")"
+else
+  SUPERLUDISTDIR="$(spack location -i superlu-dist@develop+int64+openmp % "$compiler")"
+fi
+
+# SuperLU DIST only supports double precision
+if [ "$realtype" != "double" ]; then
+    SUPERLUDISTSTATUS=OFF
+fi
+
 # hypre
 HYPRESTATUS=ON
 
 # hypre index size must be set a build time
 if [ "$indexsize" == "32" ]; then
-    HYPREDIR=${APPDIR}/hypre/2.11.1_fpic
+  HYPREDIR="$(spack location -i hypre@2.14.0~int64 % "$compiler")"
 else
-    HYPREDIR=${APPDIR}/hypre/2.11.1_long_int_fpic
+  HYPREDIR="$(spack location -i hypre@2.14.0+int64 % "$compiler")"
 fi
 
 # only testing hypre with double precision at this time
@@ -108,9 +139,9 @@ PETSCSTATUS=ON
 
 # PETSc index size must be set a build time
 if [ "$indexsize" == "32" ]; then
-    PETSCDIR=${APPDIR}/petsc/3.7.2
+  PETSCDIR="$(spack location -i petsc@3.10.3~int64 % $compiler)"
 else
-    PETSCDIR=${APPDIR}/petsc/3.7.2_long_int
+  PETSCDIR="$(spack location -i petsc@3.10.3+int64 % $compiler)"
 fi
 
 # only testing PETSc with double precision at this time
@@ -169,25 +200,25 @@ cmake \
     -D CUDA_ENABLE=OFF \
     -D RAJA_ENABLE=OFF \
     \
-    -D CMAKE_C_COMPILER="/usr/bin/cc" \
-    -D CMAKE_CXX_COMPILER="/usr/bin/c++" \
-    -D CMAKE_Fortran_COMPILER="/usr/bin/gfortran" \
+    -D CMAKE_C_COMPILER=$CC \
+    -D CMAKE_CXX_COMPILER=$CXX \
+    -D CMAKE_Fortran_COMPILER=$FC \
     \
-    -D CMAKE_C_FLAGS='-g -Wall -std=c99 -pedantic' \
-    -D CMAKE_CXX_FLAGS='-g' \
-    -D CMAKE_Fortran_FLAGS='-g' \
+    -D CMAKE_C_FLAGS="-g -Wall -std=c99 -pedantic" \
+    -D CMAKE_CXX_FLAGS="-g -Wall" \
+    -D CMAKE_Fortran_FLAGS="-g -ffpe-summary=none" \
     \
     -D MPI_ENABLE=ON \
-    -D MPI_C_COMPILER="${MPIDIR}/mpicc" \
-    -D MPI_CXX_COMPILER="${MPIDIR}/mpicxx" \
-    -D MPI_Fortran_COMPILER="${MPIDIR}/mpif90" \
-    -D MPIEXEC_EXECUTABLE="${MPIDIR}/mpirun" \
+    -D MPI_C_COMPILER="${MPIDIR}/bin/mpicc" \
+    -D MPI_CXX_COMPILER="${MPIDIR}/bin/mpicxx" \
+    -D MPI_Fortran_COMPILER="${MPIDIR}/bin/mpif90" \
+    -D MPIEXEC_EXECUTABLE="${MPIEXEC}" \
     \
     -D BLAS_ENABLE="${BLASSTATUS}" \
-    -D BLAS_LIBRARIES="${BLASDIR}/libblas.so" \
+    -D BLAS_LIBRARIES="${BLAS_LIBRARIES}" \
     \
     -D LAPACK_ENABLE="${LAPACKSTATUS}" \
-    -D LAPACK_LIBRARIES="${LAPACKDIR}/liblapack.so" \
+    -D LAPACK_LIBRARIES="${LAPACK_LIBRARIES}" \
     \
     -D KLU_ENABLE="${KLUSTATUS}" \
     -D KLU_INCLUDE_DIR="${KLUDIR}/include" \
@@ -205,6 +236,13 @@ cmake \
     -D SUPERLUMT_INCLUDE_DIR="${SUPERLUMTDIR}/SRC" \
     -D SUPERLUMT_LIBRARY_DIR="${SUPERLUMTDIR}/lib" \
     -D SUPERLUMT_THREAD_TYPE=Pthread \
+    \
+    -D SUPERLUDIST_ENABLE="${SUPERLUDISTSTATUS}" \
+    -D SUPERLUDIST_INCLUDE_DIR="${SUPERLUDISTDIR}/include" \
+    -D SUPERLUDIST_LIBRARY_DIR="${SUPERLUDISTDIR}/lib" \
+    -D SUPERLUDIST_LIBRARIES="${BLAS_LIBRARIES}" \
+    -D SUPERLUDIST_OpenMP=ON \
+    -D SKIP_OPENMP_DEVICE_CHECK=ON \
     \
     -D SUNDIALS_DEVTESTS="${DEVTESTS}" \
     ../../. 2>&1 | tee configure.log

@@ -26,6 +26,16 @@
 #include <nvector/nvector_serial.h>  /* access to serial N_Vector       */
 #include <sundials/sundials_types.h> /* defs. of realtype, sunindextype */
 
+#if defined(SUNDIALS_EXTENDED_PRECISION)
+#define GSYM "Lg"
+#define ESYM "Le"
+#define FSYM "Lf"
+#else
+#define GSYM "g"
+#define ESYM "e"
+#define FSYM "f"
+#endif
+
 /* Problem Constants */
 
 #define NEQ   3              /* number of equations  */
@@ -335,7 +345,7 @@ static int check_ans(N_Vector u, realtype rtol, realtype atol)
   passfail = (err < ONE) ? 0 : 1; 
 
   if (passfail) {
-    fprintf(stdout, "\nSUNDIALS_WARNING: check_ans error=%g \n\n", err);
+    fprintf(stdout, "\nSUNDIALS_WARNING: check_ans error=%"GSYM"\n\n", err);
   }
 
   /* Free vectors */

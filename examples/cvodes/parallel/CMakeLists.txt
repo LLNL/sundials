@@ -23,7 +23,7 @@ SET(CVODES_examples
   "cvsAdvDiff_FSA_non_p\;-sensi stg t\;2\;2\;develop"
   "cvsAdvDiff_FSA_non_p\;-sensi sim t\;2\;2\;develop"
   "cvsAdvDiff_non_p\;\;2\;2\;develop"
-  "cvsAtmDisp_ASAi_kry_bbd_p\;\;2\;8\;develop"
+  "cvsAtmDisp_ASAi_kry_bbd_p\;\;2\;4\;develop"
   "cvsDiurnal_FSA_kry_p\;-sensi stg t\;2\;4\;develop"
   "cvsDiurnal_FSA_kry_p\;-sensi sim t\;2\;4\;develop"
   "cvsDiurnal_kry_bbd_p\;\;2\;4\;develop"

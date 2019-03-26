@@ -426,8 +426,6 @@ static int JacVI(N_Vector v, N_Vector Jv, realtype t, N_Vector y,
 {
   UserData userdata = (UserData) user_data;      /* access problem data */
   sunindextype N = userdata->N;                  /* set variable shortcuts */
-  realtype a  = userdata->a;
-  realtype b  = userdata->b;
   realtype ep = userdata->ep;
   realtype *y_u=NULL, *y_v=NULL, *y_w=NULL;
   realtype *v_u=NULL, *v_v=NULL, *v_w=NULL;

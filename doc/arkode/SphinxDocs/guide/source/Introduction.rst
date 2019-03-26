@@ -140,6 +140,16 @@ If an NVECTOR implementation defines any of the local operations as ``NULL``,
 then the NVECTOR_MANYVECTOR will call standard NVECTOR operations to complete
 the computation.
 
+A new SUNMatrix and SUNLinearSolver implementation was added to facilitate 
+the use of the SuperLU_DIST library with SUNDIALS.
+
+A new operation, ``SUNMatMatvecSetup``, was added to the SUNMatrix API. Users
+who have implemented custom ``SUNMatrix`` modules will need to at least update
+their code to set the corresponding ops structure member, ``matvecsetup``, to ``NULL``.
+
+The generic SUNMatrix API now defines error codes to be returned by SUNMatrix operations.
+Operations which return an integer flag indiciating success/failure may return different
+values than previously.
 
 Changes in v3.1.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -157,7 +167,7 @@ enables all examples that use CUDA including the RAJA examples with a CUDA back 
 (if the RAJA NVECTOR is enabled).
 
 The implementation header file `arkode_impl.h` is no longer installed. This means users
-who are direclty manipulating the ``ARKodeMem`` structure will need to update their code
+who are directly manipulating the ``ARKodeMem`` structure will need to update their code
 to use ARKode's public API.
 
 Python is no longer required to run ``make test`` and ``make test_install``.

@@ -17,7 +17,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include "arkode_impl.h"
 #include "arkode_ls_impl.h"
 #include <sundials/sundials_math.h>
@@ -831,6 +830,24 @@ int arkLSGetNumJtimesEvals(void *arkode_mem, long int *njvevals)
   return(ARKLS_SUCCESS);
 }
 
+/*---------------------------------------------------------------
+  arkLSGetNumMassMatvecSetups returns the number of calls to the
+  mass matrix-vector setup routine.
+  ---------------------------------------------------------------*/
+int arkLSGetNumMassMatvecSetups(void *arkode_mem, long int *nmvsetups)
+{
+  ARKodeMem    ark_mem;
+  ARKLsMassMem arkls_mem;
+  int          retval;
+
+  /* access ARKMassMem structure; set output value and return */
+  retval = arkLs_AccessMassMem(arkode_mem, "arkLSGetNumMassMatvecSetups",
+                               &ark_mem, &arkls_mem);
+  if (retval != ARK_SUCCESS)  return(retval);
+  *nmvsetups = arkls_mem->nmvsetup;
+  return(ARKLS_SUCCESS);
+}
+
 
 /*---------------------------------------------------------------
   arkLSGetLastFlag returns the last flag set in a ARKLS
@@ -1431,9 +1448,9 @@ int arkLsMTimes(void *arkode_mem, N_Vector v, N_Vector z)
 
   } else if (arkls_mem->M) {
 
-    if (arkls_mem->M->ops->matvec)
+    if (arkls_mem->M->ops->matvec) 
       retval = SUNMatMatvec(arkls_mem->M, v, z);
-
+  
   }
 
   if (retval == 0) {
@@ -1948,7 +1965,7 @@ int arkLsSetup(void* arkode_mem, int convfail, realtype tpred,
   retval = arkLs_AccessLMem(arkode_mem, "arkLsInitialize",
                             &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS)  return(retval);
-
+  
   /* Set ARKLs time and N_Vector pointers to current time,
      solution and rhs */
   arkls_mem->tcur = tpred;
@@ -1979,7 +1996,7 @@ int arkLsSetup(void* arkode_mem, int convfail, realtype tpred,
     *jcurPtr = arkls_mem->jbad;
 
   } else {
-
+  
     /* If jbad = SUNFALSE, use saved copy of J */
     if (!arkls_mem->jbad) {
 
@@ -1994,11 +2011,12 @@ int arkLsSetup(void* arkode_mem, int convfail, realtype tpred,
 
     /* If jbad = SUNTRUE, clear out J and call jac routine for new value */
     } else {
-
+      
       arkls_mem->nje++;
       arkls_mem->nstlj = ark_mem->nst;
       *jcurPtr = SUNTRUE;
       retval = SUNMatZero(arkls_mem->A);
+      
       if (retval) {
         arkProcessError(ark_mem, ARKLS_SUNMAT_FAIL, "ARKLS",
                         "arkLsSetup",  MSG_LS_SUNMAT_FAILED);
@@ -2029,6 +2047,7 @@ int arkLsSetup(void* arkode_mem, int convfail, realtype tpred,
 
     }
 
+
     /* Scale and add mass matrix to get A = M-gamma*J*/
     ark_step_massmem = NULL;
     if (ark_mem->step_getmassmem)
@@ -2044,7 +2063,7 @@ int arkLsSetup(void* arkode_mem, int convfail, realtype tpred,
                         "Error setting up mass-matrix linear solver");
         return(arkls_mem->last_flag);
       }
-
+      
       /* Perform linear combination A = M-gamma*A */
       retval = SUNMatScaleAdd(-gamma, arkls_mem->A, arkls_massmem->M);
 
@@ -2060,7 +2079,7 @@ int arkLsSetup(void* arkode_mem, int convfail, realtype tpred,
     }
 
   }
-
+  
   /* Call LS setup routine -- the LS may call arkLsPSetup, who will
      pass the heuristic suggestions above to the user code(s) */
   arkls_mem->last_flag = SUNLinSolSetup(arkls_mem->LS, arkls_mem->A);
@@ -2077,7 +2096,7 @@ int arkLsSetup(void* arkode_mem, int convfail, realtype tpred,
     /* Update jcurPtr flag if we suggested an update */
     if (arkls_mem->jbad) *jcurPtr = SUNTRUE;
   }
-
+  
   return(arkls_mem->last_flag);
 }
 
@@ -2104,7 +2123,7 @@ int arkLsSolve(void* arkode_mem, N_Vector b, realtype tnow,
   retval = arkLs_AccessLMem(arkode_mem, "arkLsSolve",
                             &ark_mem, &arkls_mem);
   if (retval != ARK_SUCCESS)  return(retval);
-
+  
   /* Set scalar tcur and vectors ycur and fcur for use by the
      Atimes and Psolve interface routines */
   arkls_mem->tcur = tnow;
@@ -2393,7 +2412,7 @@ int arkLsMassSetup(void *arkode_mem, N_Vector vtemp1,
 {
   ARKodeMem    ark_mem;
   ARKLsMassMem arkls_mem;
-  booleantype  call_mtsetup, call_lssetup;
+  booleantype  call_mtsetup, call_mvsetup, call_lssetup;
   int          retval;
 
   /* access ARKLsMassMem structure */
@@ -2418,13 +2437,14 @@ int arkLsMassSetup(void *arkode_mem, N_Vector vtemp1,
       return(arkls_mem->last_flag);
     }
   }
-
-
+  
   /* Perform user-facing setup based on whether this is matrix-free */
   if (arkls_mem->M == NULL) {
 
     /*** matrix-free -- only call LS setup if preconditioner setup exists ***/
     call_lssetup = (arkls_mem->pset != NULL);
+    /*** matrix-free -- dont call matvec setup ***/
+    call_mvsetup = SUNFALSE;
 
   } else {
 
@@ -2468,10 +2488,29 @@ int arkLsMassSetup(void *arkode_mem, N_Vector vtemp1,
       arkls_mem->last_flag = ARKLS_SUNMAT_FAIL;
       return(arkls_mem->last_flag);
     }
-
+  
+    /* signal call to matvec setup routine only if the user didn't provide
+     * mtimes and the SUNMatrix implements the matvecsetup routine */
+    if ((!arkls_mem->mtimes) && (arkls_mem->M->ops->matvecsetup))
+      call_mvsetup = SUNTRUE;
+    else
+      call_mvsetup = SUNFALSE;
+   
     /* signal call to LS setup routine */
     call_lssetup = SUNTRUE;
 
+  }
+
+  /* Call matvec setup routine if applicable */
+  if (call_mvsetup) {
+    retval = SUNMatMatvecSetup(arkls_mem->M);
+    arkls_mem->nmvsetup++;
+    if (retval) {
+      arkProcessError(ark_mem, ARKLS_SUNMAT_FAIL, "ARKLS",
+                      "arkLsMassSetup",  MSG_LS_SUNMAT_FAILED);
+      arkls_mem->last_flag = ARKLS_SUNMAT_FAIL;
+      return(arkls_mem->last_flag);
+    }
   }
 
   /* Call LS setup routine if applicable, and return */
@@ -2480,6 +2519,7 @@ int arkLsMassSetup(void *arkode_mem, N_Vector vtemp1,
                                           arkls_mem->M_lu);
     arkls_mem->nmsetups++;
   }
+  
   return(arkls_mem->last_flag);
 }
 
@@ -2705,6 +2745,7 @@ int arkLsInitializeMassCounters(ARKLsMassMem arkls_mem)
   arkls_mem->nmsolves = 0;
   arkls_mem->nmtsetup = 0;
   arkls_mem->nmtimes  = 0;
+  arkls_mem->nmvsetup = 0;
   arkls_mem->npe      = 0;
   arkls_mem->nli      = 0;
   arkls_mem->nps      = 0;

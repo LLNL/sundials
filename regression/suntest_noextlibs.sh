@@ -35,21 +35,38 @@ mkdir install_noextlib_${realtype}_${indexsize}
 # move to build directory
 cd build_noextlib_${realtype}_${indexsize}
 
-# number of threads in OpenMP examples
-export OMP_NUM_THREADS=4
-
 # set file permissions (rwxrwxr-x)
 umask 002
+
+# set compiler spec for spack
+# COMPILER_SPEC is an environment variable - we use it if it is not empty
+if [[ ! -z $COMPILER_SPEC ]]; then
+  compiler="${COMPILER_SPEC}"
+else
+  compiler="gcc@4.9.4"
+fi
+
 
 # -------------------------------------------------------------------------------
 # Installed Third Party Libraries
 # -------------------------------------------------------------------------------
 
-# path to installed libraries
+# Directory where TPLs not provided by Spack reside
 APPDIR=/usr/casc/sundials/apps/rh6
 
 # MPI
-MPIDIR=${APPDIR}/openmpi/1.8.8/bin
+# MPIDIR is an environment variable - we use it if it is not empty
+if [[ ! -z $MPIEXEC ]]; then
+  MPIDIR="${MPIDIR}"
+else
+  MPIDIR="$(spack location -i openmpi@3.1.2 % "$compiler")"
+fi
+# MPIEXEC is an environment variable - we use it if it is not empty
+if [[ ! -z $MPIEXEC ]]; then
+  MPIEXEC="${MPIEXEC}"
+else
+  MPIEXEC="${MPIDIR}/bin/mpirun"
+fi
 
 # -------------------------------------------------------------------------------
 # Configure SUNDIALS with CMake
@@ -102,19 +119,19 @@ cmake \
     -D CUDA_ENABLE=OFF \
     -D RAJA_ENABLE=OFF \
     \
-    -D CMAKE_C_COMPILER="/usr/bin/cc" \
-    -D CMAKE_CXX_COMPILER="/usr/bin/c++" \
-    -D CMAKE_Fortran_COMPILER="/usr/bin/gfortran" \
+    -D CMAKE_C_COMPILER=$CC \
+    -D CMAKE_CXX_COMPILER=$CXX \
+    -D CMAKE_Fortran_COMPILER=$FC \
     \
-    -D CMAKE_C_FLAGS='-g -Wall -ansi -pedantic' \
-    -D CMAKE_CXX_FLAGS='-g' \
-    -D CMAKE_Fortran_FLAGS='-g' \
+    -D CMAKE_C_FLAGS="-g -Wall -ansi -pedantic" \
+    -D CMAKE_CXX_FLAGS="-g -Wall" \
+    -D CMAKE_Fortran_FLAGS="-g -ffpe-summary=none" \
     \
     -D MPI_ENABLE=ON \
-    -D MPI_C_COMPILER="${MPIDIR}/mpicc" \
-    -D MPI_CXX_COMPILER="${MPIDIR}/mpicxx" \
-    -D MPI_Fortran_COMPILER="${MPIDIR}/mpif90" \
-    -D MPIEXEC_EXECUTABLE="${MPIDIR}/mpirun" \
+    -D MPI_C_COMPILER="${MPIDIR}/bin/mpicc" \
+    -D MPI_CXX_COMPILER="${MPIDIR}/bin/mpicxx" \
+    -D MPI_Fortran_COMPILER="${MPIDIR}/bin/mpif90" \
+    -D MPIEXEC_EXECUTABLE="${MPIEXEC}" \
     \
     -D BLAS_ENABLE=OFF \
     -D LAPACK_ENABLE=OFF \

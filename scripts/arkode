@@ -186,6 +186,11 @@ $tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_analytic_sys.cpp
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_analytic_sys.out
 $tar $tarfile $distrobase/examples/arkode/CXX_serial/plot_sol.py
 
+$tar $tarfile $distrobase/examples/arkode/CXX_superludist/CMakeLists.txt
+$tar $tarfile $distrobase/examples/arkode/CXX_superludist/README
+$tar $tarfile $distrobase/examples/arkode/CXX_superludist/ark_brusselator1D_FEM_sludist.cpp
+$tar $tarfile $distrobase/examples/arkode/CXX_superludist/ark_brusselator1D_FEM_sludist.out
+
 $tar $tarfile $distrobase/examples/arkode/F77_parallel/CMakeLists.txt
 $tar $tarfile $distrobase/examples/arkode/F77_parallel/README
 $tar $tarfile $distrobase/examples/arkode/F77_parallel/fark_diag_kry_bbd_p.f

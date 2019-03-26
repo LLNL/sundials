@@ -844,19 +844,21 @@ implementations.
                   \multicolumn{1}{p{1.3cm}|}{{Dense Matrix}} &
                   \multicolumn{1}{p{1.3cm}|}{{Banded Matrix}} &
                   \multicolumn{1}{p{1.4cm}|}{{Sparse Matrix}} &
+                  \multicolumn{1}{p{1.4cm}|}{{SLUNRloc Matrix}} &
                   \multicolumn{1}{p{1.4cm}|}{{User Supplied}} \\ \hline}
-\tabletail{\hline \multicolumn{5}{|r|}{\small\slshape continued on next page} \\ \hline}
+\tabletail{\hline \multicolumn{6}{|r|}{\small\slshape continued on next page} \\ \hline}
 \begin{center}
-\begin{xtabular}{|l|c|c|c|c|}
-%   Linear Solver &  Dense   & Banded & Sparse & User     \\
-%   Interface     &          &        &        & Supplied \\
-    Dense         &  \cm     &        &        & \cm      \\ \hline
-    Band          &          & \cm    &        & \cm      \\ \hline
-    LapackDense   &  \cm     &        &        & \cm      \\ \hline
-    LapackBand    &          & \cm    &        & \cm      \\ \hline
-    \klu          &          &        &  \cm   & \cm      \\ \hline
-    \superlumt    &          &        &  \cm   & \cm      \\ \hline
-    User supplied &  \cm     & \cm    &  \cm   & \cm      \\ \hline
+\begin{xtabular}{|l|c|c|c|c|c|}
+  %   Linear Solver &  Dense   & Banded & Sparse & SLUNRloc & User     \\
+  %   Interface     &          &        &        &          & Supplied \\
+      Dense         &  \cm     &        &        &          & \cm      \\ \hline
+      Band          &          & \cm    &        &          & \cm      \\ \hline
+      LapackDense   &  \cm     &        &        &          & \cm      \\ \hline
+      LapackBand    &          & \cm    &        &          & \cm      \\ \hline
+      \klu          &          &        &  \cm   &          & \cm      \\ \hline
+      \superludist  &          &        &        & \cm      & \cm      \\ \hline
+      \superlumt    &          &        &  \cm   &          & \cm      \\ \hline
+      User supplied &  \cm     & \cm    &  \cm   & \cm      & \cm      \\ \hline
 \end{xtabular}
 \end{center}
 \bigskip
@@ -898,7 +900,6 @@ following:
   \id{SUNLinearSolver} object, e.g., for returning various solve
   statistics.
 \end{itemize}
-
 
 \subsection{Intended use cases}\label{ss:sunlinsol_intended}
 
