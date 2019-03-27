@@ -21,9 +21,9 @@
 module fsunlinsol_band_mod
  use, intrinsic :: ISO_C_BINDING
  use fsunlinsol_mod
- use fsundials_types
+ use fsundials_types_mod
  use fnvector_mod
- use fsundials_types
+ use fsundials_types_mod
  implicit none
  private
 

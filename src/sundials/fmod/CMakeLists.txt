@@ -16,7 +16,7 @@
 
 set(sundials_SOURCES
   fnvector_mod.f90
-  fsundials_types.f90
+  fsundials_types_mod.f90
   fsunmatrix_mod.f90
   fsunlinsol_mod.f90
   fsunnonlinsol_mod.f90)

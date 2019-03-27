@@ -21,7 +21,7 @@
 module fnvector_pthreads_mod
  use, intrinsic :: ISO_C_BINDING
  use fnvector_mod
- use fsundials_types
+ use fsundials_types_mod
  implicit none
  private
 

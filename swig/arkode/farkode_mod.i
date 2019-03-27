@@ -19,7 +19,7 @@
 %include "../sundials/fsundials.i"
 
 // Load the typedefs and generate a "use" statements in the module
-%import "../sundials/fsundials_types.i"
+%import "../sundials/fsundials_types_mod.i"
 
 %apply void * { ARKodeButcherTable };
 

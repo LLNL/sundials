@@ -5,9 +5,9 @@
 ! the SWIG interface file instead.
 module fsunlinsol_mod
  use, intrinsic :: ISO_C_BINDING
- use fsundials_types
+ use fsundials_types_mod
  use fnvector_mod
- use fsundials_types
+ use fsundials_types_mod
  implicit none
  private
 

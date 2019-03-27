@@ -15,7 +15,6 @@
 
 set(arkode_SOURCES
     farkode_mod.f90
-    farkode_butcher_mod.f90
     farkode_arkstep_mod.f90
     farkode_erkstep_mod.f90
     farkode_mristep_mod.f90)

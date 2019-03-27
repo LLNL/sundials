@@ -21,7 +21,7 @@
 module fsunnonlinsol_newton_mod
  use, intrinsic :: ISO_C_BINDING
  use fsunnonlinsol_mod
- use fsundials_types
+ use fsundials_types_mod
  implicit none
  private
 

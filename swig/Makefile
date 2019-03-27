@@ -18,7 +18,7 @@ ARKODE=arkode/farkode_mod.i arkode/farkode_arkstep_mod.i arkode/farkode_erkstep_
 CVODE=cvode/fcvode_mod.i
 IDA=ida/fida_mod.i
 KINSOL=kinsol/fkinsol_mod.i
-GENERIC=sundials/fsundials_types.i sundials/fnvector_mod.i sundials/fsunmatrix_mod.i sundials/fsunlinsol_mod.i \
+GENERIC=sundials/fsundials_types_mod.i sundials/fnvector_mod.i sundials/fsunmatrix_mod.i sundials/fsunlinsol_mod.i \
 				sundials/fsunnonlinsol_mod.i
 NVECTOR=openmp pthreads serial
 SUNMATRIX=band dense sparse

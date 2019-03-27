@@ -18,7 +18,7 @@
 ! SUNDIALS Copyright End
 ! ---------------------------------------------------------------
 
-module fsundials_types
+module fsundials_types_mod
  use, intrinsic :: ISO_C_BINDING
  implicit none
  private

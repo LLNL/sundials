@@ -17,7 +17,7 @@
 %module fsunlinsol_mod
 
 // Load the typedefs and generate a "use" statement in the module
-%import "../sundials/fsundials_types.i"
+%import "../sundials/fsundials_types_mod.i"
 %import "../sundials/fnvector_mod.i"
 
 // Process and wrap functions in the following files

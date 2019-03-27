@@ -21,7 +21,7 @@
 module fsunmatrix_band_mod
  use, intrinsic :: ISO_C_BINDING
  use fsunmatrix_mod
- use fsundials_types
+ use fsundials_types_mod
  implicit none
  private
 

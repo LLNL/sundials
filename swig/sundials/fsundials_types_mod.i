@@ -15,7 +15,7 @@
 // Swig interface file
 // ---------------------------------------------------------------
 
-%module fsundials_types
+%module fsundials_types_mod
 
 %include "../sundials/fsundials.i"
 %include <stdint.i>
