@@ -72,6 +72,7 @@ information on contributing see the [CONTRIBUTING](./CONTRIBUTING.md) file.
 ## Release History ##
 Date     | SUNDIALS    | ARKODE      | CVODE       | CVODES      | IDA         | IDAS        | KINSOL
 ---------|-------------|-------------|-------------|-------------|-------------|-------------|-------------
+Mar 2019 | 5.0.0-dev.0 | 4.0.0-dev.0 | 5.0.0-dev.0 | 5.0.0-dev.0 | 5.0.0-dev.0 | 4.0.0-dev.0 | 5.0.0-dev.0
 Feb 2019 | 4.1.0       | 3.1.0       | 4.1.0       | 4.1.0       | 4.1.0       | 3.1.0       | 4.1.0
 Jan 2019 | 4.0.2       | 3.0.2       | 4.0.2       | 4.0.2       | 4.0.2       | 3.0.2       | 4.0.2
 Dec 2018 | 4.0.1       | 3.0.1       | 4.0.1       | 4.0.1       | 4.0.1       | 3.0.1       | 4.0.1

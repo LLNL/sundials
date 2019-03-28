@@ -1,4 +1,4 @@
-Changes to SUNDIALS in release 5.0.0
+Changes to SUNDIALS in release 5.0.0-dev.0
 
 An additional N_Vector implementation, NVECTOR_MANYVECTOR, was
 created to support flexible partitioning of solution data among

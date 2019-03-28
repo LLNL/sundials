@@ -966,7 +966,7 @@ scheme. The defaults for these options in earlier versions of
 \subsubsection*{Building with KLU}
 The KLU libraries are part of SuiteSparse, a suite of sparse matrix software,
 available from the Texas A\&M University website: {\tt http://faculty.cse.tamu.edu/davis/suitesparse.html}.
-{\sundials} has been tested with SuiteSparse version 4.5.3.
+{\sundials} has been tested with SuiteSparse version 5.3.0.
 To enable KLU, set \id{KLU\_ENABLE} to \id{ON}, set \id{KLU\_INCLUDE\_DIR} to the \id{include}
 path of the KLU installation and set \id{KLU\_LIBRARY\_DIR} to the \id{lib} path of the KLU installation.
 The CMake configure will result in populating the following variables: \id{AMD\_LIBRARY},
@@ -1008,7 +1008,7 @@ then {\superludist} should not be set to use {\openmp}.{\warn}
 \subsubsection*{Building with PETSc}
 The {\petsc} libraries are available for download from the Argonne National Laboratory website:
 {\tt http://www.mcs.anl.gov/petsc}.
-{\sundials} has been tested with {\petsc} version 3.7.2.
+{\sundials} has been tested with {\petsc} version 3.10.3.
 To enable {\petsc}, set  \id{PETSC\_ENABLE} to \id{ON}, set \id{PETSC\_INCLUDE\_DIR}
 to the \id{include} path of the {\petsc} installation, and set the variable
 \id{PETSC\_LIBRARY\_DIR} to the \id{lib} path of the {\petsc} installation.
@@ -1018,13 +1018,13 @@ to the \id{include} path of the {\petsc} installation, and set the variable
 The {\hypre} libraries are available for download from the Lawrence Livermore
 National Laboratory website: {\tt http://computation.llnl.gov/projects/hypre}.
 %{\tt http://computation.llnl.gov/projects/hypre-scalable-linear-solvers-multigrid-methods}.
-{\sundials} has been tested with {\hypre} version 2.11.1.
+{\sundials} has been tested with {\hypre} version 2.14.0.
 To enable {\hypre}, set  \id{HYPRE\_ENABLE} to \id{ON}, set \id{HYPRE\_INCLUDE\_DIR}
 to the \id{include} path of the {\hypre} installation, and set the variable
 \id{HYPRE\_LIBRARY\_DIR} to the \id{lib} path of the {\hypre} installation.
 
 \subsubsection*{Building with CUDA}
-{\sundials} {\cuda} modules and examples have been tested with version 8.0 of the
+{\sundials} {\cuda} modules and examples have been tested with version 9.0 of the
 {\cuda} toolkit. To build them, you need to install the Toolkit and compatible
 NVIDIA drivers. Both are available for download from the NVIDIA website:
 {\tt https://developer.nvidia.com/cuda-downloads}. To enable {\cuda},
@@ -1037,7 +1037,7 @@ path. To enable {\cuda} examples, set \id{EXAMPLES\_ENABLE\_CUDA} to \id{ON}.
 {\raja} is a performance portability layer developed by Lawrence
 Livermore National Laboratory and can be obtained from {\tt https://github.com/LLNL/RAJA}.
 {\sundials} {\raja} modules and examples have been tested with {\raja}
-version 0.3. Building {\sundials} {\raja} modules requires a
+version 0.6. Building {\sundials} {\raja} modules requires a
 {\cuda}-enabled {\raja} installation. To enable {\raja}, set
 \id{CUDA\_ENABLE} and \id{RAJA\_ENABLE} to \id{ON}. If {\raja} is
 installed in a nonstandard location you will be prompted to set the

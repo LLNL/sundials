@@ -107,7 +107,7 @@ preconditioner routines.
 Changes from previous versions
 --------------------------------
 
-Changes in v4.0.0
+Changes in v4.0.0-dev.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 An additional NVECTOR implementation, NVECTOR_MANYVECTOR, was

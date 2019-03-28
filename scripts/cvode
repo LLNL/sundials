@@ -161,7 +161,8 @@ $tar $tarfile $distrobase/examples/cvode/parallel/cvDiurnal_kry_p.out
 
 $tar $tarfile $distrobase/examples/cvode/superludist/README
 $tar $tarfile $distrobase/examples/cvode/superludist/CMakeLists.txt
-$tar $tarfile $distrobase/examples/cvode/superludist/cvAdvDiff_sludist_32.cpp
+$tar $tarfile $distrobase/examples/cvode/superludist/cvAdvDiff_sludist.cpp
+$tar $tarfile $distrobase/examples/cvode/superludist/cvAdvDiff_sludist_32.out
 $tar $tarfile $distrobase/examples/cvode/superludist/cvAdvDiff_sludist_64.out
 
 $tar $tarfile $distrobase/examples/cvode/parhyp/README
