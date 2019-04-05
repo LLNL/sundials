@@ -123,7 +123,7 @@ enables all examples that use CUDA including the RAJA examples with a CUDA back 
 (if the RAJA NVECTOR is enabled).
 
 The implementation header file `arkode_impl.h` is no longer installed. This means users
-who are direclty manipulating the ``ARKodeMem`` structure will need to update their code
+who are directly manipulating the ``ARKodeMem`` structure will need to update their code
 to use ARKode's public API.
 
 Python is no longer required to run ``make test`` and ``make test_install``.
