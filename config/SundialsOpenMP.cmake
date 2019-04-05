@@ -18,10 +18,18 @@
 #   OPENMP_SUPPORTS_DEVICE_OFFLOADING - is device offloading supported
 # ---------------------------------------------------------------------------
 
-find_package(OpenMP)
-  
-set(OPENMP_SUPPORTS_DEVICE_OFFLOADING FALSE)
 set(OPENMP45_FOUND FALSE)
+set(OPENMP_SUPPORTS_DEVICE_OFFLOADING FALSE)
+
+find_package(OpenMP)
+
+# Work around a bug in setting OpenMP version variables in CMake >= 3.9. The
+# OpenMP version information is not stored in cache variables and is not set
+# on repeated calls to find OpenMP (i.e., when using ccmake). To ensure these
+# variables exist store copies of the values.
+set(OpenMP_C_VERSION "${OpenMP_C_VERSION}" CACHE INTERNAL "" FORCE)
+set(OpenMP_CXX_VERSION "${OpenMP_CXX_VERSION}" CACHE INTERNAL "" FORCE)
+set(OpenMP_Fortran_VERSION "${OpenMP_Fortran_VERSION}" CACHE INTERNAL "" FORCE)
 
 # Check for OpenMP offloading support
 if(OPENMP_FOUND AND (OPENMP_DEVICE_ENABLE OR SUPERLUDIST_OpenMP))
@@ -37,9 +45,8 @@ if(OPENMP_FOUND AND (OPENMP_DEVICE_ENABLE OR SUPERLUDIST_OpenMP))
 
     # If CMake version is 3.9 or newer, the FindOpenMP module checks the OpenMP version.
     if((CMAKE_VERSION VERSION_EQUAL 3.9) OR (CMAKE_VERSION VERSION_GREATER 3.9))
-    
-      message(STATUS "Checking whether OpenMP supports device offloading")
 
+      message(STATUS "Checking whether OpenMP supports device offloading")
       if((OpenMP_C_VERSION VERSION_EQUAL 4.5) OR (OpenMP_C_VERSION VERSION_GREATER 4.5))
         message(STATUS "Checking whether OpenMP supports device offloading -- yes")
         set(OPENMP45_FOUND TRUE)
@@ -49,17 +56,16 @@ if(OPENMP_FOUND AND (OPENMP_DEVICE_ENABLE OR SUPERLUDIST_OpenMP))
         set(OPENMP45_FOUND FALSE)
         set(OPENMP_SUPPORTS_DEVICE_OFFLOADING FALSE)
       endif()
-    
+
     else()
-    
+
       # CMake OpenMP version check not available. Assume 4.5+ and that offloading is supported.
       set(OPENMP45_FOUND TRUE)
       set(OPENMP_SUPPORTS_DEVICE_OFFLOADING TRUE)
       print_warning("Unable to determine OpenMP offloading support." "SUNDIALS OpenMP functionality dependent on OpenMP 4.5+ is not guaranteed.")
-    
+
     endif()
 
   endif()
 
 endif()
-
