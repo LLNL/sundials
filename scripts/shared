@@ -122,7 +122,6 @@ $tar $tarfile $distrobase/include/sunlinsol/sunlinsol_superludist.h
 
 $tar $tarfile $distrobase/include/sunnonlinsol/sunnonlinsol_newton.h
 $tar $tarfile $distrobase/include/sunnonlinsol/sunnonlinsol_fixedpoint.h
-# $tar $tarfile $distrobase/include/sunnonlinsol/sunnonlinsol_fullnewton.h
 
 $tar $tarfile $distrobase/src/CMakeLists.txt
 $tar $tarfile $distrobase/src/sundials/CMakeLists.txt
@@ -371,15 +370,6 @@ $tar $tarfile $distrobase/src/sunnonlinsol/fixedpoint/fsunnonlinsol_fixedpoint.c
 $tar $tarfile $distrobase/src/sunnonlinsol/fixedpoint/F90/CMakeLists.txt
 $tar $tarfile $distrobase/src/sunnonlinsol/fixedpoint/F90/fsunnonlinsol_fixedpoint.f90
 
-# echo "   --- Add sunnonlinsolfullnewton modules to $tarfile"
-
-# $tar $tarfile $distrobase/src/sunnonlinsol/fullnewton/CMakeLists.txt
-# $tar $tarfile $distrobase/src/sunnonlinsol/fullnewton/sunnonlinsol_fullnewton.c
-# $tar $tarfile $distrobase/src/sunnonlinsol/fullnewton/fsunnonlinsol_fullnewton.h
-# $tar $tarfile $distrobase/src/sunnonlinsol/fullnewton/fsunnonlinsol_fullnewton.c
-# $tar $tarfile $distrobase/src/sunnonlinsol/fullnewton/F90/CMakeLists.txt
-# $tar $tarfile $distrobase/src/sunnonlinsol/fullnewton/F90/fsunnonlinsol_fullnewton.f90
-
 echo "   --- Add examples to $tarfile"
 
 $tar $tarfile $distrobase/examples/CMakeLists.txt
@@ -498,9 +488,6 @@ $tar $tarfile $distrobase/examples/sunnonlinsol/newton/test_sunnonlinsol_newton.
 
 $tar $tarfile $distrobase/examples/sunnonlinsol/fixedpoint/CMakeLists.txt
 $tar $tarfile $distrobase/examples/sunnonlinsol/fixedpoint/test_sunnonlinsol_fixedpoint.c
-
-# $tar $tarfile $distrobase/examples/sunnonlinsol/fullnewton/CMakeLists.txt
-# $tar $tarfile $distrobase/examples/sunnonlinsol/fullnewton/test_sunnonlinsol_fullnewton.c
 
 echo "   --- Add directory with example Makefile templates to $tarfile"
 
