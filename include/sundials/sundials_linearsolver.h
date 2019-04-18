@@ -116,6 +116,8 @@ struct _generic_SUNLinearSolver {
  * Functions exported by SUNLinearSolver module
  * ----------------------------------------------------------------- */
 
+SUNDIALS_EXPORT SUNLinearSolver SUNLinSolNewEmpty();
+
 SUNDIALS_EXPORT SUNLinearSolver_Type SUNLinSolGetType(SUNLinearSolver S);
 
 SUNDIALS_EXPORT int SUNLinSolSetATimes(SUNLinearSolver S, void* A_data,

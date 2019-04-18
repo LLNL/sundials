@@ -1,5 +1,4 @@
-/*
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
  * Based on sundials_sptfqmr.c code, written by Aaron Collier @ LLNL
  * -----------------------------------------------------------------
@@ -13,10 +12,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the implementation file for the SPTFQMR implementation of 
+ * This is the implementation file for the SPTFQMR implementation of
  * the SUNLINSOL package.
- * -----------------------------------------------------------------
- */ 
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,14 +27,12 @@
 
 /*
  * -----------------------------------------------------------------
- * SPTFQMR solver structure accessibility macros: 
+ * SPTFQMR solver structure accessibility macros:
  * -----------------------------------------------------------------
  */
 
-  
 #define SPTFQMR_CONTENT(S)  ( (SUNLinearSolverContent_SPTFQMR)(S->content) )
 #define LASTFLAG(S)         ( SPTFQMR_CONTENT(S)->last_flag )
-
 
 /*
  * -----------------------------------------------------------------
@@ -66,9 +62,8 @@ int SUNSPTFQMRSetMaxl(SUNLinearSolver S, int maxl)
 SUNLinearSolver SUNLinSol_SPTFQMR(N_Vector y, int pretype, int maxl)
 {
   SUNLinearSolver S;
-  SUNLinearSolver_Ops ops;
   SUNLinearSolverContent_SPTFQMR content;
-  
+
   /* check for legal pretype and maxl values; if illegal use defaults */
   if ((pretype != PREC_NONE)  && (pretype != PREC_LEFT) &&
       (pretype != PREC_RIGHT) && (pretype != PREC_BOTH))
@@ -85,83 +80,98 @@ SUNLinearSolver SUNLinSol_SPTFQMR(N_Vector y, int pretype, int maxl)
 
   /* Create linear solver */
   S = NULL;
-  S = (SUNLinearSolver) malloc(sizeof *S);
+  S = SUNLinSolNewEmpty();
   if (S == NULL) return(NULL);
-  
-  /* Create linear solver operation structure */
-  ops = NULL;
-  ops = (SUNLinearSolver_Ops) malloc(sizeof(struct _generic_SUNLinearSolver_Ops));
-  if (ops == NULL) { free(S); return(NULL); }
 
   /* Attach operations */
-  ops->gettype           = SUNLinSolGetType_SPTFQMR;
-  ops->setatimes         = SUNLinSolSetATimes_SPTFQMR;
-  ops->setpreconditioner = SUNLinSolSetPreconditioner_SPTFQMR;
-  ops->setscalingvectors = SUNLinSolSetScalingVectors_SPTFQMR;
-  ops->initialize        = SUNLinSolInitialize_SPTFQMR;
-  ops->setup             = SUNLinSolSetup_SPTFQMR;
-  ops->solve             = SUNLinSolSolve_SPTFQMR;
-  ops->numiters          = SUNLinSolNumIters_SPTFQMR;
-  ops->resnorm           = SUNLinSolResNorm_SPTFQMR;
-  ops->resid             = SUNLinSolResid_SPTFQMR;
-  ops->lastflag          = SUNLinSolLastFlag_SPTFQMR;  
-  ops->space             = SUNLinSolSpace_SPTFQMR;  
-  ops->free              = SUNLinSolFree_SPTFQMR;
+  S->ops->gettype           = SUNLinSolGetType_SPTFQMR;
+  S->ops->setatimes         = SUNLinSolSetATimes_SPTFQMR;
+  S->ops->setpreconditioner = SUNLinSolSetPreconditioner_SPTFQMR;
+  S->ops->setscalingvectors = SUNLinSolSetScalingVectors_SPTFQMR;
+  S->ops->initialize        = SUNLinSolInitialize_SPTFQMR;
+  S->ops->setup             = SUNLinSolSetup_SPTFQMR;
+  S->ops->solve             = SUNLinSolSolve_SPTFQMR;
+  S->ops->numiters          = SUNLinSolNumIters_SPTFQMR;
+  S->ops->resnorm           = SUNLinSolResNorm_SPTFQMR;
+  S->ops->resid             = SUNLinSolResid_SPTFQMR;
+  S->ops->lastflag          = SUNLinSolLastFlag_SPTFQMR;
+  S->ops->space             = SUNLinSolSpace_SPTFQMR;
+  S->ops->free              = SUNLinSolFree_SPTFQMR;
 
   /* Create content */
   content = NULL;
-  content = (SUNLinearSolverContent_SPTFQMR) malloc(sizeof(struct _SUNLinearSolverContent_SPTFQMR));
-  if (content == NULL) { free(ops); free(S); return(NULL); }
+  content = (SUNLinearSolverContent_SPTFQMR) malloc(sizeof *content);
+  if (content == NULL) { SUNLinSolFree(S); return(NULL); }
+
+  /* Attach content */
+  S->content = content;
 
   /* Fill content */
   content->last_flag = 0;
-  content->maxl = maxl;
-  content->pretype = pretype;
-  content->numiters = 0;
-  content->resnorm = ZERO;
-  content->r_star = N_VClone(y);
-  if (content->r_star == NULL)  return(NULL);
-  content->q = N_VClone(y);
-  if (content->q == NULL)  return(NULL);
-  content->d = N_VClone(y);
-  if (content->d == NULL)  return(NULL);
-  content->v = N_VClone(y);
-  if (content->v == NULL)  return(NULL);
-  content->p = N_VClone(y);
-  if (content->p == NULL)  return(NULL);
-  content->r = N_VCloneVectorArray(2, y);
-  if (content->r == NULL)  return(NULL);
-  content->u = N_VClone(y);
-  if (content->u == NULL)  return(NULL);
-  content->vtemp1 = N_VClone(y);
-  if (content->vtemp1 == NULL)  return(NULL);
-  content->vtemp2 = N_VClone(y);
-  if (content->vtemp2 == NULL)  return(NULL);
-  content->vtemp3 = N_VClone(y);
-  if (content->vtemp3 == NULL)  return(NULL);
-  content->s1 = NULL;
-  content->s2 = NULL;
-  content->ATimes = NULL;
-  content->ATData = NULL;
-  content->Psetup = NULL;
-  content->Psolve = NULL;
-  content->PData = NULL;
+  content->maxl      = maxl;
+  content->pretype   = pretype;
+  content->numiters  = 0;
+  content->resnorm   = ZERO;
+  content->r_star    = NULL;
+  content->q         = NULL;
+  content->d         = NULL;
+  content->v         = NULL;
+  content->p         = NULL;
+  content->r         = NULL;
+  content->u         = NULL;
+  content->vtemp1    = NULL;
+  content->vtemp2    = NULL;
+  content->vtemp3    = NULL;
+  content->s1        = NULL;
+  content->s2        = NULL;
+  content->ATimes    = NULL;
+  content->ATData    = NULL;
+  content->Psetup    = NULL;
+  content->Psolve    = NULL;
+  content->PData     = NULL;
 
-  /* Attach content and ops */
-  S->content = content;
-  S->ops     = ops;
+  /* Allocate content */
+  content->r_star = N_VClone(y);
+  if (content->r_star == NULL) { SUNLinSolFree(S); return(NULL); }
+
+  content->q = N_VClone(y);
+  if (content->q == NULL) { SUNLinSolFree(S); return(NULL); }
+
+  content->d = N_VClone(y);
+  if (content->d == NULL) { SUNLinSolFree(S); return(NULL); }
+
+  content->v = N_VClone(y);
+  if (content->v == NULL) { SUNLinSolFree(S); return(NULL); }
+
+  content->p = N_VClone(y);
+  if (content->p == NULL) { SUNLinSolFree(S); return(NULL); }
+
+  content->r = N_VCloneVectorArray(2, y);
+  if (content->r == NULL) { SUNLinSolFree(S); return(NULL); }
+
+  content->u = N_VClone(y);
+  if (content->u == NULL) { SUNLinSolFree(S); return(NULL); }
+
+  content->vtemp1 = N_VClone(y);
+  if (content->vtemp1 == NULL) { SUNLinSolFree(S); return(NULL); }
+
+  content->vtemp2 = N_VClone(y);
+  if (content->vtemp2 == NULL) { SUNLinSolFree(S); return(NULL); }
+
+  content->vtemp3 = N_VClone(y);
+  if (content->vtemp3 == NULL) { SUNLinSolFree(S); return(NULL); }
 
   return(S);
 }
 
 
 /* ----------------------------------------------------------------------------
- * Function to set the type of preconditioning for SPTFQMR to use 
+ * Function to set the type of preconditioning for SPTFQMR to use
  */
 
-SUNDIALS_EXPORT int SUNLinSol_SPTFQMRSetPrecType(SUNLinearSolver S, int pretype) 
+SUNDIALS_EXPORT int SUNLinSol_SPTFQMRSetPrecType(SUNLinearSolver S, int pretype)
 {
-  /* Check for legal pretype */ 
+  /* Check for legal pretype */
   if ((pretype != PREC_NONE)  && (pretype != PREC_LEFT) &&
       (pretype != PREC_RIGHT) && (pretype != PREC_BOTH)) {
     return(SUNLS_ILL_INPUT);
@@ -177,15 +187,15 @@ SUNDIALS_EXPORT int SUNLinSol_SPTFQMRSetPrecType(SUNLinearSolver S, int pretype)
 
 
 /* ----------------------------------------------------------------------------
- * Function to set the maximum number of iterations for SPTFQMR to use 
+ * Function to set the maximum number of iterations for SPTFQMR to use
  */
 
-SUNDIALS_EXPORT int SUNLinSol_SPTFQMRSetMaxl(SUNLinearSolver S, int maxl) 
+SUNDIALS_EXPORT int SUNLinSol_SPTFQMRSetMaxl(SUNLinearSolver S, int maxl)
 {
   /* Check for non-NULL SUNLinearSolver */
   if (S == NULL) return(SUNLS_MEM_NULL);
 
-  /* Check for legal pretype */ 
+  /* Check for legal pretype */
   if (maxl <= 0)
     maxl = SUNSPTFQMR_MAXL_DEFAULT;
 
@@ -212,26 +222,26 @@ int SUNLinSolInitialize_SPTFQMR(SUNLinearSolver S)
   SUNLinearSolverContent_SPTFQMR content;
 
   /* set shortcut to SPTFQMR memory structure */
-  if (S == NULL) return(SUNLS_MEM_NULL);  
+  if (S == NULL) return(SUNLS_MEM_NULL);
   content = SPTFQMR_CONTENT(S);
 
   /* ensure valid options */
-  if ( (content->pretype != PREC_LEFT) && 
-       (content->pretype != PREC_RIGHT) && 
+  if ( (content->pretype != PREC_LEFT) &&
+       (content->pretype != PREC_RIGHT) &&
        (content->pretype != PREC_BOTH) )
     content->pretype = PREC_NONE;
-  if (content->maxl <= 0) 
+  if (content->maxl <= 0)
     content->maxl = SUNSPTFQMR_MAXL_DEFAULT;
 
   /* no additional memory to allocate */
-  
+
   /* return with success */
   content->last_flag = SUNLS_SUCCESS;
   return(SUNLS_SUCCESS);
 }
 
 
-int SUNLinSolSetATimes_SPTFQMR(SUNLinearSolver S, void* ATData, 
+int SUNLinSolSetATimes_SPTFQMR(SUNLinearSolver S, void* ATData,
                                ATimesFn ATimes)
 {
   /* set function pointers to integrator-supplied ATimes routine
@@ -262,7 +272,7 @@ int SUNLinSolSetScalingVectors_SPTFQMR(SUNLinearSolver S,
                                        N_Vector s1,
                                        N_Vector s2)
 {
-  /* set N_Vector pointers to integrator-supplied scaling vectors, 
+  /* set N_Vector pointers to integrator-supplied scaling vectors,
      and return with success */
   if (S == NULL) return(SUNLS_MEM_NULL);
   SPTFQMR_CONTENT(S)->s1 = s1;
@@ -282,24 +292,24 @@ int SUNLinSolSetup_SPTFQMR(SUNLinearSolver S, SUNMatrix A)
   if (S == NULL) return(SUNLS_MEM_NULL);
   Psetup = SPTFQMR_CONTENT(S)->Psetup;
   PData = SPTFQMR_CONTENT(S)->PData;
-  
-  /* no solver-specific setup is required, but if user-supplied 
+
+  /* no solver-specific setup is required, but if user-supplied
      Psetup routine exists, call that here */
   if (Psetup != NULL) {
     ier = Psetup(PData);
     if (ier != 0) {
-      LASTFLAG(S) = (ier < 0) ? 
+      LASTFLAG(S) = (ier < 0) ?
 	SUNLS_PSET_FAIL_UNREC : SUNLS_PSET_FAIL_REC;
       return(LASTFLAG(S));
     }
   }
-  
-  /* return with success */ 
+
+  /* return with success */
   return(SUNLS_SUCCESS);
 }
 
 
-int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x, 
+int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
                            N_Vector b, realtype delta)
 {
   /* local data and shortcut variables */
@@ -320,7 +330,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   /* local variables for fused vector operations */
   realtype cv[3];
   N_Vector Xv[3];
-  
+
   /* Make local shorcuts to solver variables. */
   if (S == NULL) return(SUNLS_MEM_NULL);
   l_max        = SPTFQMR_CONTENT(S)->maxl;
@@ -350,9 +360,9 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
   b_ok = SUNFALSE;
 
   /* set booleantype flags for internal solver options */
-  preOnLeft  = ( (SPTFQMR_CONTENT(S)->pretype == PREC_LEFT) || 
+  preOnLeft  = ( (SPTFQMR_CONTENT(S)->pretype == PREC_LEFT) ||
                  (SPTFQMR_CONTENT(S)->pretype == PREC_BOTH) );
-  preOnRight = ( (SPTFQMR_CONTENT(S)->pretype == PREC_RIGHT) || 
+  preOnRight = ( (SPTFQMR_CONTENT(S)->pretype == PREC_RIGHT) ||
                  (SPTFQMR_CONTENT(S)->pretype == PREC_BOTH) );
   scale_x = (sx != NULL);
   scale_b = (sb != NULL);
@@ -588,7 +598,7 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
 	N_VLinearSum(ONE, vtemp3, -ONE, vtemp2, vtemp1);
 	*res_norm = r_curr_norm = SUNRsqrt(N_VDotProd(vtemp1, vtemp1));
 
-	/* Exit inner loop if inequality condition is satisfied 
+	/* Exit inner loop if inequality condition is satisfied
 	   (meaning exit if we have converged) */
 	if (r_curr_norm <= delta) {
 	  converged = SUNTRUE;
@@ -674,9 +684,9 @@ int SUNLinSolSolve_SPTFQMR(SUNLinearSolver S, SUNMatrix A, N_Vector x,
       }
       N_VScale(ONE, vtemp1, x);
     }
-    if (converged == SUNTRUE) 
+    if (converged == SUNTRUE)
       LASTFLAG(S) = SUNLS_SUCCESS;
-    else 
+    else
       LASTFLAG(S) = SUNLS_RES_REDUCED;
     return(LASTFLAG(S));
   }
@@ -719,8 +729,8 @@ long int SUNLinSolLastFlag_SPTFQMR(SUNLinearSolver S)
 }
 
 
-int SUNLinSolSpace_SPTFQMR(SUNLinearSolver S, 
-                           long int *lenrwLS, 
+int SUNLinSolSpace_SPTFQMR(SUNLinearSolver S,
+                           long int *lenrwLS,
                            long int *leniwLS)
 {
   sunindextype liw1, lrw1;
@@ -737,31 +747,51 @@ int SUNLinSolFree_SPTFQMR(SUNLinearSolver S)
 {
   if (S == NULL) return(SUNLS_SUCCESS);
 
-  /* delete items from within the content structure */
-  if (SPTFQMR_CONTENT(S)->r_star)
-    N_VDestroy(SPTFQMR_CONTENT(S)->r_star);
-  if (SPTFQMR_CONTENT(S)->q)
-    N_VDestroy(SPTFQMR_CONTENT(S)->q);
-  if (SPTFQMR_CONTENT(S)->d)
-    N_VDestroy(SPTFQMR_CONTENT(S)->d);
-  if (SPTFQMR_CONTENT(S)->v)
-    N_VDestroy(SPTFQMR_CONTENT(S)->v);
-  if (SPTFQMR_CONTENT(S)->p)
-    N_VDestroy(SPTFQMR_CONTENT(S)->p);
-  if (SPTFQMR_CONTENT(S)->r)
-    N_VDestroyVectorArray(SPTFQMR_CONTENT(S)->r, 2);
-  if (SPTFQMR_CONTENT(S)->u)
-    N_VDestroy(SPTFQMR_CONTENT(S)->u);
-  if (SPTFQMR_CONTENT(S)->vtemp1)
-    N_VDestroy(SPTFQMR_CONTENT(S)->vtemp1);
-  if (SPTFQMR_CONTENT(S)->vtemp2)
-    N_VDestroy(SPTFQMR_CONTENT(S)->vtemp2);
-  if (SPTFQMR_CONTENT(S)->vtemp3)
-    N_VDestroy(SPTFQMR_CONTENT(S)->vtemp3);
-
-  /* delete generic structures */
-  free(S->content);  S->content = NULL;
-  free(S->ops);  S->ops = NULL;
+  if (S->content) {
+    /* delete items from within the content structure */
+    if (SPTFQMR_CONTENT(S)->r_star) {
+      N_VDestroy(SPTFQMR_CONTENT(S)->r_star);
+      SPTFQMR_CONTENT(S)->r_star = NULL;
+    }
+    if (SPTFQMR_CONTENT(S)->q) {
+      N_VDestroy(SPTFQMR_CONTENT(S)->q);
+      SPTFQMR_CONTENT(S)->q = NULL;
+    }
+    if (SPTFQMR_CONTENT(S)->d) {
+      N_VDestroy(SPTFQMR_CONTENT(S)->d);
+      SPTFQMR_CONTENT(S)->d = NULL;
+    }
+    if (SPTFQMR_CONTENT(S)->v) {
+      N_VDestroy(SPTFQMR_CONTENT(S)->v);
+      SPTFQMR_CONTENT(S)->v = NULL;
+    }
+    if (SPTFQMR_CONTENT(S)->p) {
+      N_VDestroy(SPTFQMR_CONTENT(S)->p);
+      SPTFQMR_CONTENT(S)->p = NULL;
+    }
+    if (SPTFQMR_CONTENT(S)->r) {
+      N_VDestroyVectorArray(SPTFQMR_CONTENT(S)->r, 2);
+      SPTFQMR_CONTENT(S)->r = NULL;
+    }
+    if (SPTFQMR_CONTENT(S)->u) {
+      N_VDestroy(SPTFQMR_CONTENT(S)->u);
+      SPTFQMR_CONTENT(S)->u = NULL;
+    }
+    if (SPTFQMR_CONTENT(S)->vtemp1) {
+      N_VDestroy(SPTFQMR_CONTENT(S)->vtemp1);
+      SPTFQMR_CONTENT(S)->vtemp1 = NULL;
+    }
+    if (SPTFQMR_CONTENT(S)->vtemp2) {
+      N_VDestroy(SPTFQMR_CONTENT(S)->vtemp2);
+      SPTFQMR_CONTENT(S)->vtemp2 = NULL;
+    }
+    if (SPTFQMR_CONTENT(S)->vtemp3) {
+      N_VDestroy(SPTFQMR_CONTENT(S)->vtemp3);
+      SPTFQMR_CONTENT(S)->vtemp3 = NULL;
+    }
+    free(S->content); S->content = NULL;
+  }
+  if (S->ops) { free(S->ops); S->ops = NULL; }
   free(S); S = NULL;
   return(SUNLS_SUCCESS);
 }

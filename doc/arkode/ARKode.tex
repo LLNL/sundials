@@ -302,17 +302,18 @@ preconditioner routines.
 
 \subsection{Changes in v4.0.0-dev.1}
 \label{Introduction:changes-in-v4-0-0-dev-1}
-Several new functions were added to aid in creating custom NVECTOR and SUNMATRIX
-objects. The constructors {\hyperref[nvectors/NVector_Description:c.N_VNewEmpty]{\emph{\code{N\_VNewEmpty()}}}} and {\hyperref[sunmatrix/SUNMatrix_Description:c.SUNMatNewEmpty]{\emph{\code{SUNMatNewEmpty()}}}}
-allocate ``empty'' NVECTOR and SUNMATRIX objects respectively with the object's
+Several new functions were added to aid in creating custom NVECTOR, SUNMATRIX,
+and SUNLINEARSOLVER objects. The constructors {\hyperref[nvectors/NVector_Description:c.N_VNewEmpty]{\emph{\code{N\_VNewEmpty()}}}},
+{\hyperref[sunmatrix/SUNMatrix_Description:c.SUNMatNewEmpty]{\emph{\code{SUNMatNewEmpty()}}}}, and {\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolNewEmpty]{\emph{\code{SUNLinSolNewEmpty()}}}} allocate \code{empty}
+NVECTOR, SUNMATRIX, and SUNLINEAERSOLVER objects respectively with the object's
 content pointer and the function pointers in the operations structure are
 initialized to \code{NULL}. Additionally, the functions {\hyperref[nvectors/NVector_Description:c.N_VCopyOps]{\emph{\code{N\_VCopyOps()}}}} and
 {\hyperref[sunmatrix/SUNMatrix_Description:c.SUNMatCopyOps]{\emph{\code{SUNMatCopyOps()}}}} have been added to copy the operation function
 pointers between vector and matrix objects respectively. When used in the
-constructor and clone routines for custom NVECTOR and SUNMATRIX objects these
-functions will ease the introduction of any new optional operations to the
-NVECTOR or SUNMATRIX API by ensuring only required operations need to be set and
-all operations are copied when cloning objects.
+constructor and clone routines for custom objects these functions will ease the
+introduction of any new optional operations to the NVECTOR, SUNMATRIX, or
+SUNLINEARSOLVER APIs by ensuring only required operations need to be set and all
+operations are copied when cloning objects.
 
 Fixed a bug in the build system that prevented the PThreads NVECTOR module from
 being built.
@@ -32266,6 +32267,27 @@ We note that the function pointers for all unsupported optional
 routines should be set to \code{NULL} in the \emph{ops} structure.  This
 allows the SUNDIALS package that is using the SUNLinSol object
 to know that the associated functionality is not supported.
+
+To aid in the creation of custom \code{SUNLinearSolver} modules the generic
+\code{SUNLinearSolver} module provides the utility function
+{\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolNewEmpty]{\emph{\code{SUNLinSolNewEmpty()}}}}. When used in custom \code{SUNLinearSolver}
+constructors this function will ease the introduction of any new optional linear
+solver operations to the \code{SUNLinearSolver} API by ensuring only required
+operations need to be set.
+\index{SUNLinSolNewEmpty (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunlinsol/SUNLinSol_API:c.SUNLinSolNewEmpty}\pysiglinewithargsret{SUNLinearSolver \bfcode{SUNLinSolNewEmpty}}{}{}
+This function allocates a new generic \code{SUNLinearSolver} object and
+initializes its content pointer and the function pointers in the operations
+structure to \code{NULL}.
+
+\textbf{Return value:} If successful, this function returns a \code{SUNLinearSolver}
+object. If an error occurs when allocating the object, then this routine will
+return \code{NULL}.
+
+\end{fulllineitems}
+
 
 Additionally, a \code{SUNLinearSolver} implementation \emph{may} do the following:
 \begin{itemize}

@@ -1,7 +1,6 @@
-/*
- * ----------------------------------------------------------------------------
+/* -----------------------------------------------------------------------------
  * Programmer(s): Cody J. Balos @ LLNL
- * ----------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  * SUNDIALS Copyright Start
  * Copyright (c) 2002-2019, Lawrence Livermore National Security
  * and Southern Methodist University.
@@ -11,11 +10,10 @@
  *
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
- * ----------------------------------------------------------------------------
+ * -----------------------------------------------------------------------------
  * This is the implementation file for the SuperLU-DIST implementation of the
  * SUNLINSOL package.
- * ----------------------------------------------------------------------------
- */
+ * ---------------------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -59,7 +57,6 @@ SUNLinearSolver SUNLinSol_SuperLUDIST(N_Vector y, SUNMatrix A, gridinfo_t *grid,
                                       superlu_dist_options_t *options)
 {
   SUNLinearSolver S;
-  SUNLinearSolver_Ops ops;
   SUNLinearSolverContent_SuperLUDIST content;
   SuperMatrix *Asuper;
   NRformat_loc *Astore;
@@ -70,8 +67,7 @@ SUNLinearSolver SUNLinSol_SuperLUDIST(N_Vector y, SUNMatrix A, gridinfo_t *grid,
     return(NULL);
 
   /* Check compatibility with supplied SUNMatrix and N_Vector */
-  if (SUNMatGetID(A) != SUNMATRIX_SLUNRLOC)
-    return(NULL);
+  if (SUNMatGetID(A) != SUNMATRIX_SLUNRLOC) return(NULL);
 
   Asuper = SUNMatrix_SLUNRloc_SuperMatrix(A);
   Astore = (NRformat_loc *) Asuper->Store;
@@ -79,36 +75,27 @@ SUNLinearSolver SUNLinSol_SuperLUDIST(N_Vector y, SUNMatrix A, gridinfo_t *grid,
   /* Check that the matrix is square */
   if (Asuper->nrow != Asuper->ncol) return(NULL);
 
-  /* Create linear solver */
+  /* Create an empty linear solver */
   S = NULL;
-  S = (SUNLinearSolver) malloc(sizeof *S);
+  S = SUNLinSolNewEmpty();
   if (S == NULL) return(NULL);
 
-  /* Create linear solver operation structure */
-  ops = NULL;
-  ops = (SUNLinearSolver_Ops) malloc(sizeof(struct _generic_SUNLinearSolver_Ops));
-  if (ops == NULL) { free(S); return(NULL); }
-
   /* Attach operations */
-  ops->gettype           = SUNLinSolGetType_SuperLUDIST;
-  ops->initialize        = SUNLinSolInitialize_SuperLUDIST;
-  ops->setup             = SUNLinSolSetup_SuperLUDIST;
-  ops->solve             = SUNLinSolSolve_SuperLUDIST;
-  ops->lastflag          = SUNLinSolLastFlag_SuperLUDIST;
-  ops->space             = SUNLinSolSpace_SuperLUDIST;
-  ops->free              = SUNLinSolFree_SuperLUDIST;
-  ops->setatimes         = NULL;
-  ops->setpreconditioner = NULL;
-  ops->setscalingvectors = NULL;
-  ops->numiters          = NULL;
-  ops->resnorm           = NULL;
-  ops->resid             = NULL;
+  S->ops->gettype    = SUNLinSolGetType_SuperLUDIST;
+  S->ops->initialize = SUNLinSolInitialize_SuperLUDIST;
+  S->ops->setup      = SUNLinSolSetup_SuperLUDIST;
+  S->ops->solve      = SUNLinSolSolve_SuperLUDIST;
+  S->ops->lastflag   = SUNLinSolLastFlag_SuperLUDIST;
+  S->ops->space      = SUNLinSolSpace_SuperLUDIST;
+  S->ops->free       = SUNLinSolFree_SuperLUDIST;
 
   /* Create content */
   content = NULL;
-  content = (SUNLinearSolverContent_SuperLUDIST)
-            malloc(sizeof(struct _SUNLinearSolverContent_SuperLUDIST));
-  if (content == NULL) { free(ops); free(S); return(NULL); }
+  content = (SUNLinearSolverContent_SuperLUDIST) malloc(sizeof *content);
+  if (content == NULL) { SUNLinSolFree(S); return(NULL); }
+
+  /* Attach content */
+  S->content = content;
 
   /* Fill content */
   content->grid      = grid;
@@ -120,10 +107,6 @@ SUNLinearSolver SUNLinSol_SuperLUDIST(N_Vector y, SUNMatrix A, gridinfo_t *grid,
   content->stat      = stat;
   content->berr      = ZERO;
   content->last_flag = 0;
-
-  /* Attach content and ops */
-  S->content = content;
-  S->ops     = ops;
 
   return(S);
 }

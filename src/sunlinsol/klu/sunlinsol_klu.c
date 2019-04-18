@@ -1,5 +1,4 @@
-/*
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
  * Based on codes <solver>_klu.c, written by Carol Woodward @ LLNL
  * -----------------------------------------------------------------
@@ -15,8 +14,7 @@
  * -----------------------------------------------------------------
  * This is the implementation file for the KLU implementation of 
  * the SUNLINSOL package.
- * -----------------------------------------------------------------
- */ 
+ * -----------------------------------------------------------------*/ 
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,9 +26,6 @@
 #define ONE       RCONST(1.0)
 #define TWO       RCONST(2.0)
 #define TWOTHIRDS RCONST(0.666666666666666666666666666666667)
-
-/* Private function prototypes */
-sunindextype GlobalVectorLength_KLU(N_Vector y);
 
 /*
  * -----------------------------------------------------------------
@@ -88,60 +83,49 @@ int SUNKLUSetOrdering(SUNLinearSolver S,
 SUNLinearSolver SUNLinSol_KLU(N_Vector y, SUNMatrix A)
 {
   SUNLinearSolver S;
-  SUNLinearSolver_Ops ops;
   SUNLinearSolverContent_KLU content;
-  sunindextype MatrixRows, VecLength;
   int flag;
   
   /* Check compatibility with supplied SUNMatrix and N_Vector */
-  if (SUNMatGetID(A) != SUNMATRIX_SPARSE)
-    return(NULL);
-  if (SUNSparseMatrix_Rows(A) != SUNSparseMatrix_Columns(A))
-    return(NULL);
-  MatrixRows = SUNSparseMatrix_Rows(A);
+  if (SUNMatGetID(A) != SUNMATRIX_SPARSE) return(NULL);
+
+  if (SUNSparseMatrix_Rows(A) != SUNSparseMatrix_Columns(A)) return(NULL);
+
   if ( (N_VGetVectorID(y) != SUNDIALS_NVEC_SERIAL) &&
        (N_VGetVectorID(y) != SUNDIALS_NVEC_OPENMP) &&
        (N_VGetVectorID(y) != SUNDIALS_NVEC_PTHREADS) )
     return(NULL);
 
-  /* optimally this function would be replaced with a generic N_Vector routine */
-  VecLength = GlobalVectorLength_KLU(y);
-  if (MatrixRows != VecLength)
-    return(NULL);
-  
-  /* Create linear solver */
+  if (SUNSparseMatrix_Rows(A) != N_VGetLength(y)) return(NULL);
+
+  /* Create an empty linear solver */
   S = NULL;
-  S = (SUNLinearSolver) malloc(sizeof *S);
+  S = SUNLinSolNewEmpty();
   if (S == NULL) return(NULL);
-  
-  /* Create linear solver operation structure */
-  ops = NULL;
-  ops = (SUNLinearSolver_Ops) malloc(sizeof(struct _generic_SUNLinearSolver_Ops));
-  if (ops == NULL) { free(S); return(NULL); }
 
   /* Attach operations */
-  ops->gettype           = SUNLinSolGetType_KLU;
-  ops->initialize        = SUNLinSolInitialize_KLU;
-  ops->setup             = SUNLinSolSetup_KLU;
-  ops->solve             = SUNLinSolSolve_KLU;
-  ops->lastflag          = SUNLinSolLastFlag_KLU;
-  ops->space             = SUNLinSolSpace_KLU;
-  ops->free              = SUNLinSolFree_KLU;
-  ops->setatimes         = NULL;
-  ops->setpreconditioner = NULL;
-  ops->setscalingvectors = NULL;
-  ops->numiters          = NULL;
-  ops->resnorm           = NULL;
-  ops->resid             = NULL;
+  S->ops->gettype    = SUNLinSolGetType_KLU;
+  S->ops->initialize = SUNLinSolInitialize_KLU;
+  S->ops->setup      = SUNLinSolSetup_KLU;
+  S->ops->solve      = SUNLinSolSolve_KLU;
+  S->ops->lastflag   = SUNLinSolLastFlag_KLU;
+  S->ops->space      = SUNLinSolSpace_KLU;
+  S->ops->free       = SUNLinSolFree_KLU;
 
   /* Create content */
   content = NULL;
-  content = (SUNLinearSolverContent_KLU) malloc(sizeof(struct _SUNLinearSolverContent_KLU));
-  if (content == NULL) { free(ops); free(S); return(NULL); }
+  content = (SUNLinearSolverContent_KLU) malloc(sizeof *content);
+  if (content == NULL) { SUNLinSolFree(S); return(NULL); }
+
+  /* Attach content */
+  S->content = content;
 
   /* Fill content */
-  content->last_flag = 0;
+  content->last_flag       = 0;
   content->first_factorize = 1;
+  content->symbolic        = NULL;
+  content->numeric         = NULL;
+
 #if defined(SUNDIALS_INT64_T)
   if (SUNSparseMatrix_SparseType(A) == CSC_MAT) {
     content->klu_solver = (KLUSolveFn) &klu_l_solve;
@@ -157,15 +141,10 @@ SUNLinearSolver SUNLinSol_KLU(N_Vector y, SUNMatrix A)
 #else  /* incompatible sunindextype for KLU */
 #error  Incompatible sunindextype for KLU
 #endif
-  content->symbolic = NULL;
-  content->numeric = NULL;
+
   flag = sun_klu_defaults(&(content->common));
-  if (flag == 0) { free(content); free(ops); free(S); return(NULL); }
+  if (flag == 0) { SUNLinSolFree(S); return(NULL); }
   (content->common).ordering = SUNKLU_ORDERING_DEFAULT;
-  
-  /* Attach content and ops */
-  S->content = content;
-  S->ops     = ops;
 
   return(S);
 }
@@ -412,46 +391,24 @@ int SUNLinSolSpace_KLU(SUNLinearSolver S,
 int SUNLinSolFree_KLU(SUNLinearSolver S)
 {
   /* return with success if already freed */
-  if (S == NULL)
-    return(SUNLS_SUCCESS);
-  
+  if (S == NULL) return(SUNLS_SUCCESS);
+
   /* delete items from the contents structure (if it exists) */
   if (S->content) {
     if (NUMERIC(S))
       sun_klu_free_numeric(&NUMERIC(S), &COMMON(S));
     if (SYMBOLIC(S))
       sun_klu_free_symbolic(&SYMBOLIC(S), &COMMON(S));
-    free(S->content);  
+    free(S->content);
     S->content = NULL;
   }
-  
+
   /* delete generic structures */
   if (S->ops) {
-    free(S->ops);  
+    free(S->ops);
     S->ops = NULL;
   }
   free(S); S = NULL;
   return(SUNLS_SUCCESS);
 }
 
-/*
- * -----------------------------------------------------------------
- * private functions
- * -----------------------------------------------------------------
- */
-
-/* Inefficient kludge for determining the number of entries in a N_Vector 
-   object (replace if such a routine is ever added to the N_Vector API).
-
-   Returns "-1" on an error. */
-sunindextype GlobalVectorLength_KLU(N_Vector y)
-{
-  realtype len;
-  N_Vector tmp = NULL;
-  tmp = N_VClone(y);
-  if (tmp == NULL)  return(-1);
-  N_VConst(ONE, tmp);
-  len = N_VDotProd(tmp, tmp);
-  N_VDestroy(tmp);
-  return( (sunindextype) len );
-}

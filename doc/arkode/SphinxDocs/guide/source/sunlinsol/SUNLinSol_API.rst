@@ -597,6 +597,23 @@ routines should be set to ``NULL`` in the *ops* structure.  This
 allows the SUNDIALS package that is using the SUNLinSol object
 to know that the associated functionality is not supported.
 
+To aid in the creation of custom ``SUNLinearSolver`` modules the generic
+``SUNLinearSolver`` module provides the utility function
+:c:func:`SUNLinSolNewEmpty`. When used in custom ``SUNLinearSolver``
+constructors this function will ease the introduction of any new optional linear
+solver operations to the ``SUNLinearSolver`` API by ensuring only required
+operations need to be set.
+
+.. c:function:: SUNLinearSolver SUNLinSolNewEmpty()
+                
+  This function allocates a new generic ``SUNLinearSolver`` object and
+  initializes its content pointer and the function pointers in the operations
+  structure to ``NULL``.
+
+  **Return value:** If successful, this function returns a ``SUNLinearSolver``
+  object. If an error occurs when allocating the object, then this routine will
+  return ``NULL``. 
+
 Additionally, a ``SUNLinearSolver`` implementation *may* do the following:
 
 * Define and implement additional user-callable "set" routines

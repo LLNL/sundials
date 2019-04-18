@@ -1,5 +1,4 @@
-/*
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds, Ashley Crawford @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -12,10 +11,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the implementation file for the dense implementation of 
+ * This is the implementation file for the dense implementation of
  * the SUNLINSOL package.
- * -----------------------------------------------------------------
- */ 
+ * -----------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,12 +23,9 @@
 
 #define ONE  RCONST(1.0)
 
-/* Private function prototypes */
-sunindextype GlobalVectorLength_DenseLS(N_Vector y);
-
 /*
  * -----------------------------------------------------------------
- * Dense solver structure accessibility macros: 
+ * Dense solver structure accessibility macros:
  * -----------------------------------------------------------------
  */
 
@@ -61,68 +56,52 @@ SUNLinearSolver SUNDenseLinearSolver(N_Vector y, SUNMatrix A)
 SUNLinearSolver SUNLinSol_Dense(N_Vector y, SUNMatrix A)
 {
   SUNLinearSolver S;
-  SUNLinearSolver_Ops ops;
   SUNLinearSolverContent_Dense content;
-  sunindextype MatrixRows, VecLength;
-  
+  sunindextype MatrixRows;
+
   /* Check compatibility with supplied SUNMatrix and N_Vector */
-  if (SUNMatGetID(A) != SUNMATRIX_DENSE)
-    return(NULL);
-  if (SUNDenseMatrix_Rows(A) != SUNDenseMatrix_Columns(A))
-    return(NULL);
-  MatrixRows = SUNDenseMatrix_Rows(A);
+  if (SUNMatGetID(A) != SUNMATRIX_DENSE) return(NULL);
+
+  if (SUNDenseMatrix_Rows(A) != SUNDenseMatrix_Columns(A)) return(NULL);
+
   if ( (N_VGetVectorID(y) != SUNDIALS_NVEC_SERIAL) &&
        (N_VGetVectorID(y) != SUNDIALS_NVEC_OPENMP) &&
        (N_VGetVectorID(y) != SUNDIALS_NVEC_PTHREADS) )
     return(NULL);
 
-  /* optimally this function would be replaced with a generic N_Vector routine */
-  VecLength = GlobalVectorLength_DenseLS(y);
-  if (MatrixRows != VecLength)
-    return(NULL);
-  
-  /* Create linear solver */
+  MatrixRows = SUNDenseMatrix_Rows(A);
+  if (MatrixRows != N_VGetLength(y)) return(NULL);
+
+  /* Create an empty linear solver */
   S = NULL;
-  S = (SUNLinearSolver) malloc(sizeof *S);
+  S = SUNLinSolNewEmpty();
   if (S == NULL) return(NULL);
-  
-  /* Create linear solver operation structure */
-  ops = NULL;
-  ops = (SUNLinearSolver_Ops) malloc(sizeof(struct _generic_SUNLinearSolver_Ops));
-  if (ops == NULL) { free(S); return(NULL); }
 
   /* Attach operations */
-  ops->gettype           = SUNLinSolGetType_Dense;
-  ops->initialize        = SUNLinSolInitialize_Dense;
-  ops->setup             = SUNLinSolSetup_Dense;
-  ops->solve             = SUNLinSolSolve_Dense;
-  ops->lastflag          = SUNLinSolLastFlag_Dense;
-  ops->space             = SUNLinSolSpace_Dense;
-  ops->free              = SUNLinSolFree_Dense;
-  ops->setatimes         = NULL;
-  ops->setpreconditioner = NULL;
-  ops->setscalingvectors = NULL;
-  ops->numiters          = NULL;
-  ops->resnorm           = NULL;
-  ops->resid             = NULL;
+  S->ops->gettype    = SUNLinSolGetType_Dense;
+  S->ops->initialize = SUNLinSolInitialize_Dense;
+  S->ops->setup      = SUNLinSolSetup_Dense;
+  S->ops->solve      = SUNLinSolSolve_Dense;
+  S->ops->lastflag   = SUNLinSolLastFlag_Dense;
+  S->ops->space      = SUNLinSolSpace_Dense;
+  S->ops->free       = SUNLinSolFree_Dense;
 
   /* Create content */
   content = NULL;
-  content = (SUNLinearSolverContent_Dense) malloc(sizeof(struct _SUNLinearSolverContent_Dense));
-  if (content == NULL) { free(ops); free(S); return(NULL); }
+  content = (SUNLinearSolverContent_Dense) malloc(sizeof *content);
+  if (content == NULL) { SUNLinSolFree(S); return(NULL); }
+
+  /* Attach content */
+  S->content = content;
 
   /* Fill content */
-  content->N = MatrixRows;
+  content->N         = MatrixRows;
   content->last_flag = 0;
-  content->pivots = NULL;
+  content->pivots    = NULL;
+
+  /* Allocate content */
   content->pivots = (sunindextype *) malloc(MatrixRows * sizeof(sunindextype));
-  if (content->pivots == NULL) {
-    free(content); free(ops); free(S); return(NULL);
-  }
-  
-  /* Attach content and ops */
-  S->content = content;
-  S->ops     = ops;
+  if (content->pivots == NULL) { SUNLinSolFree(S); return(NULL); }
 
   return(S);
 }
@@ -228,8 +207,7 @@ int SUNLinSolSpace_Dense(SUNLinearSolver S,
 int SUNLinSolFree_Dense(SUNLinearSolver S)
 {
   /* return if S is already free */
-  if (S == NULL)
-    return(SUNLS_SUCCESS);
+  if (S == NULL) return(SUNLS_SUCCESS);
 
   /* delete items from contents, then delete generic structure */
   if (S->content) {
@@ -237,35 +215,13 @@ int SUNLinSolFree_Dense(SUNLinearSolver S)
       free(PIVOTS(S));
       PIVOTS(S) = NULL;
     }
-    free(S->content);  
+    free(S->content);
     S->content = NULL;
   }
   if (S->ops) {
-    free(S->ops);  
+    free(S->ops);
     S->ops = NULL;
   }
   free(S); S = NULL;
   return(SUNLS_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * private functions
- * -----------------------------------------------------------------
- */
-
-/* Inefficient kludge for determining the number of entries in a N_Vector 
-   object (replace if such a routine is ever added to the N_Vector API).
-
-   Returns "-1" on an error. */
-sunindextype GlobalVectorLength_DenseLS(N_Vector y)
-{
-  realtype len;
-  N_Vector tmp = NULL;
-  tmp = N_VClone(y);
-  if (tmp == NULL)  return(-1);
-  N_VConst(ONE, tmp);
-  len = N_VDotProd(tmp, tmp);
-  N_VDestroy(tmp);
-  return( (sunindextype) len );
 }

@@ -1,5 +1,4 @@
-/*
- * -----------------------------------------------------------------
+/* -----------------------------------------------------------------
  * Programmer(s): Daniel Reynolds @ SMU
  * -----------------------------------------------------------------
  * SUNDIALS Copyright Start
@@ -14,8 +13,7 @@
  * -----------------------------------------------------------------
  * This is the implementation file for the band implementation of 
  * the SUNLINSOL package.
- * -----------------------------------------------------------------
- */ 
+ * -----------------------------------------------------------------*/ 
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,10 +24,6 @@
 #define ZERO  RCONST(0.0)
 #define ONE   RCONST(1.0)
 #define ROW(i,j,smu) (i-j+smu)
-
-
-/* Private function prototypes */
-sunindextype GlobalVectorLength_BandLS(N_Vector y);
 
 /*
  * -----------------------------------------------------------------
@@ -63,73 +57,59 @@ SUNLinearSolver SUNBandLinearSolver(N_Vector y, SUNMatrix A)
 SUNLinearSolver SUNLinSol_Band(N_Vector y, SUNMatrix A)
 {
   SUNLinearSolver S;
-  SUNLinearSolver_Ops ops;
   SUNLinearSolverContent_Band content;
-  sunindextype MatrixRows, VecLength;
-  
+  sunindextype MatrixRows;
+
   /* Check compatibility with supplied SUNMatrix and N_Vector */
-  if (SUNMatGetID(A) != SUNMATRIX_BAND)
-    return(NULL);
-  if (SUNBandMatrix_Rows(A) != SUNBandMatrix_Columns(A))
-    return(NULL);
-  MatrixRows = SUNBandMatrix_Rows(A);
+  if (SUNMatGetID(A) != SUNMATRIX_BAND) return(NULL);
+
+  if (SUNBandMatrix_Rows(A) != SUNBandMatrix_Columns(A))  return(NULL);
+
   if ( (N_VGetVectorID(y) != SUNDIALS_NVEC_SERIAL) &&
        (N_VGetVectorID(y) != SUNDIALS_NVEC_OPENMP) &&
        (N_VGetVectorID(y) != SUNDIALS_NVEC_PTHREADS) )
     return(NULL);
 
   /* Check that A has appropriate storage upper bandwidth for factorization */
+  MatrixRows = SUNBandMatrix_Rows(A);
+
   if (SUNBandMatrix_StoredUpperBandwidth(A) <
-      SUNMIN(MatrixRows-1, SUNBandMatrix_LowerBandwidth(A)+SUNBandMatrix_UpperBandwidth(A)))
+      SUNMIN(MatrixRows-1,
+             SUNBandMatrix_LowerBandwidth(A)+SUNBandMatrix_UpperBandwidth(A)))
     return(NULL);
 
-  /* optimally this function would be replaced with a generic N_Vector routine */
-  VecLength = GlobalVectorLength_BandLS(y);
-  if (MatrixRows != VecLength)
-    return(NULL);
-  
-  /* Create linear solver */
+  if (MatrixRows != N_VGetLength(y)) return(NULL);
+
+  /* Create an empty linear solver */
   S = NULL;
-  S = (SUNLinearSolver) malloc(sizeof *S);
+  S = SUNLinSolNewEmpty();
   if (S == NULL) return(NULL);
-  
-  /* Create linear solver operation structure */
-  ops = NULL;
-  ops = (SUNLinearSolver_Ops) malloc(sizeof(struct _generic_SUNLinearSolver_Ops));
-  if (ops == NULL) { free(S); return(NULL); }
 
   /* Attach operations */
-  ops->gettype           = SUNLinSolGetType_Band;
-  ops->initialize        = SUNLinSolInitialize_Band;
-  ops->setup             = SUNLinSolSetup_Band;
-  ops->solve             = SUNLinSolSolve_Band;
-  ops->lastflag          = SUNLinSolLastFlag_Band;
-  ops->space             = SUNLinSolSpace_Band;
-  ops->free              = SUNLinSolFree_Band;
-  ops->setatimes         = NULL;
-  ops->setpreconditioner = NULL;
-  ops->setscalingvectors = NULL;
-  ops->numiters          = NULL;
-  ops->resnorm           = NULL;
-  ops->resid             = NULL;
+  S->ops->gettype    = SUNLinSolGetType_Band;
+  S->ops->initialize = SUNLinSolInitialize_Band;
+  S->ops->setup      = SUNLinSolSetup_Band;
+  S->ops->solve      = SUNLinSolSolve_Band;
+  S->ops->lastflag   = SUNLinSolLastFlag_Band;
+  S->ops->space      = SUNLinSolSpace_Band;
+  S->ops->free       = SUNLinSolFree_Band;
 
   /* Create content */
   content = NULL;
-  content = (SUNLinearSolverContent_Band) malloc(sizeof(struct _SUNLinearSolverContent_Band));
-  if (content == NULL) { free(ops); free(S); return(NULL); }
+  content = (SUNLinearSolverContent_Band) malloc(sizeof *content);
+  if (content == NULL) { SUNLinSolFree(S); return(NULL); }
+
+  /* Attach content */
+  S->content = content;
 
   /* Fill content */
-  content->N = MatrixRows;
+  content->N         = MatrixRows;
   content->last_flag = 0;
-  content->pivots = NULL;
+  content->pivots    = NULL;
+
+  /* Allocate content */
   content->pivots = (sunindextype *) malloc(MatrixRows * sizeof(sunindextype));
-  if (content->pivots == NULL) {
-    free(content); free(ops); free(S); return(NULL);
-  }
-  
-  /* Attach content and ops */
-  S->content = content;
-  S->ops     = ops;
+  if (content->pivots == NULL) { SUNLinSolFree(S); return(NULL); }
 
   return(S);
 }
@@ -243,8 +223,7 @@ int SUNLinSolSpace_Band(SUNLinearSolver S,
 int SUNLinSolFree_Band(SUNLinearSolver S)
 {
   /* return if S is already free */
-  if (S == NULL)
-    return(SUNLS_SUCCESS);
+  if (S == NULL) return(SUNLS_SUCCESS);
 
   /* delete items from contents, then delete generic structure */
   if (S->content) {
@@ -261,26 +240,4 @@ int SUNLinSolFree_Band(SUNLinearSolver S)
   }
   free(S); S = NULL;
   return(SUNLS_SUCCESS);
-}
-
-/*
- * -----------------------------------------------------------------
- * private functions
- * -----------------------------------------------------------------
- */
-
-/* Inefficient kludge for determining the number of entries in a N_Vector 
-   object (replace if such a routine is ever added to the N_Vector API).
-
-   Returns "-1" on an error. */
-sunindextype GlobalVectorLength_BandLS(N_Vector y)
-{
-  realtype len;
-  N_Vector tmp = NULL;
-  tmp = N_VClone(y);
-  if (tmp == NULL)  return(-1);
-  N_VConst(ONE, tmp);
-  len = N_VDotProd(tmp, tmp);
-  N_VDestroy(tmp);
-  return( (sunindextype) len );
 }
