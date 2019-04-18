@@ -59,64 +59,55 @@ SUNMatrix SUNBandMatrixStorage(sunindextype N, sunindextype mu,
                                sunindextype ml, sunindextype smu)
 {
   SUNMatrix A;
-  SUNMatrix_Ops ops;
   SUNMatrixContent_Band content;
   sunindextype j, colSize;
 
   /* return with NULL matrix on illegal dimension input */
   if ( (N <= 0) || (smu < 0) || (ml < 0) ) return(NULL);
 
-  /* Create matrix */
+  /* Create an empty matrix object */
   A = NULL;
-  A = (SUNMatrix) malloc(sizeof *A);
+  A = SUNMatNewEmpty();
   if (A == NULL) return(NULL);
-  
-  /* Create matrix operation structure */
-  ops = NULL;
-  ops = (SUNMatrix_Ops) malloc(sizeof(struct _generic_SUNMatrix_Ops));
-  if (ops == NULL) { free(A); return(NULL); }
 
   /* Attach operations */
-  ops->getid       = SUNMatGetID_Band;
-  ops->clone       = SUNMatClone_Band;
-  ops->destroy     = SUNMatDestroy_Band;
-  ops->zero        = SUNMatZero_Band;
-  ops->copy        = SUNMatCopy_Band;
-  ops->scaleadd    = SUNMatScaleAdd_Band;
-  ops->scaleaddi   = SUNMatScaleAddI_Band;
-  ops->matvec      = SUNMatMatvec_Band;
-  ops->space       = SUNMatSpace_Band;
-  ops->matvecsetup = NULL;
+  A->ops->getid     = SUNMatGetID_Band;
+  A->ops->clone     = SUNMatClone_Band;
+  A->ops->destroy   = SUNMatDestroy_Band;
+  A->ops->zero      = SUNMatZero_Band;
+  A->ops->copy      = SUNMatCopy_Band;
+  A->ops->scaleadd  = SUNMatScaleAdd_Band;
+  A->ops->scaleaddi = SUNMatScaleAddI_Band;
+  A->ops->matvec    = SUNMatMatvec_Band;
+  A->ops->space     = SUNMatSpace_Band;
 
   /* Create content */
   content = NULL;
-  content = (SUNMatrixContent_Band) malloc(sizeof(struct _SUNMatrixContent_Band));
-  if (content == NULL) { free(ops); free(A); return(NULL); }
+  content = (SUNMatrixContent_Band) malloc(sizeof *content);
+  if (content == NULL) { SUNMatDestroy(A); return(NULL); }
+
+  /* Attach content */
+  A->content = content;
 
   /* Fill content */
-  colSize = smu + ml + 1;
-  content->M = N;
-  content->N = N;
-  content->mu = mu;
-  content->ml = ml;
-  content->s_mu = smu;
-  content->ldim = colSize;
+  colSize        = smu + ml + 1;
+  content->M     = N;
+  content->N     = N;
+  content->mu    = mu;
+  content->ml    = ml;
+  content->s_mu  = smu;
+  content->ldim  = colSize;
   content->ldata = N * colSize;
-  content->data = NULL;
-  content->data = (realtype *) calloc(N * colSize, sizeof(realtype));
-  if (content->data == NULL) {
-    free(content); free(ops); free(A); return(NULL);
-  }
-  content->cols = NULL;
-  content->cols = (realtype **) malloc(N * sizeof(realtype *));
-  if (content->cols == NULL) {
-    free(content->data); free(content); free(ops); free(A); return(NULL);
-  }
-  for (j=0; j<N; j++) content->cols[j] = content->data + j * colSize;
+  content->data  = NULL;
+  content->cols  = NULL;
 
-  /* Attach content and ops */
-  A->content = content;
-  A->ops     = ops;
+  /* Allocate content */
+  content->data = (realtype *) calloc(N * colSize, sizeof(realtype));
+  if (content->data == NULL) { SUNMatDestroy(A); return(NULL); }
+
+  content->cols = (realtype **) malloc(N * sizeof(realtype *));
+  if (content->cols == NULL) { SUNMatDestroy(A); return(NULL); }
+  for (j=0; j<N; j++) content->cols[j] = content->data + j * colSize;
 
   return(A);
 }
@@ -252,20 +243,29 @@ SUNMatrix SUNMatClone_Band(SUNMatrix A)
 
 void SUNMatDestroy_Band(SUNMatrix A)
 {
-  if (A == NULL)  return;
-  if (A->ops)  free(A->ops);
-  A->ops = NULL;
-  if (A->content == NULL) {
-    free(A); A = NULL;
-    return;
+  if (A == NULL) return;
+
+  /* free content */
+  if (A->content != NULL) {
+    /* free data array */
+    if (SM_DATA_B(A)) {
+      free(SM_DATA_B(A));
+      SM_DATA_B(A) = NULL;
+    }
+    /* free column pointers */
+    if (SM_COLS_B(A)) {
+      free(SM_COLS_B(A));
+      SM_COLS_B(A) = NULL;
+    }
+    /* free content struct */
+    free(A->content);
+    A->content = NULL;
   }
-  if (SM_DATA_B(A))  free(SM_DATA_B(A));
-  SM_DATA_B(A) = NULL;
-  if (SM_COLS_B(A))  free(SM_COLS_B(A));
-  SM_COLS_B(A) = NULL;
-  if (A->content)  free(A->content);
-  A->content = NULL;
+
+  /* free ops and matrix */
+  if (A->ops) { free(A->ops); A->ops = NULL; }
   free(A); A = NULL;
+
   return;
 }
 

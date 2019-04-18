@@ -302,15 +302,17 @@ preconditioner routines.
 
 \subsection{Changes in v4.0.0-dev.1}
 \label{Introduction:changes-in-v4-0-0-dev-1}
-Two functions were added to aid in creating custom NVECTOR objects. The empty
-constructor {\hyperref[nvectors/NVector_Description:c.N_VNewEmpty]{\emph{\code{N\_VNewEmpty()}}}} allocates a new NVECTOR object and
-initializes the content pointer and function pointers in the operations
-structure to \code{NULL}. The function {\hyperref[nvectors/NVector_Description:c.N_VCopyOps]{\emph{\code{N\_VCopyOps()}}}} copies the function
-pointers from the vector \code{w} into the operations structure of the vector
-\code{v}. When used in custom NVECTOR constructors and clone routines these
-functions will ease the introduction of any new optional vector operations to
-the NVECTOR API by ensuring only required operations need to be set and all
-operations are copied when cloning a vector.
+Several new functions were added to aid in creating custom NVECTOR and SUNMATRIX
+objects. The constructors {\hyperref[nvectors/NVector_Description:c.N_VNewEmpty]{\emph{\code{N\_VNewEmpty()}}}} and {\hyperref[sunmatrix/SUNMatrix_Description:c.SUNMatNewEmpty]{\emph{\code{SUNMatNewEmpty()}}}}
+allocate ``empty'' NVECTOR and SUNMATRIX objects respectively with the object's
+content pointer and the function pointers in the operations structure are
+initialized to \code{NULL}. Additionally, the functions {\hyperref[nvectors/NVector_Description:c.N_VCopyOps]{\emph{\code{N\_VCopyOps()}}}} and
+{\hyperref[sunmatrix/SUNMatrix_Description:c.SUNMatCopyOps]{\emph{\code{SUNMatCopyOps()}}}} have been added to copy the operation function
+pointers between vector and matrix objects respectively. When used in the
+constructor and clone routines for custom NVECTOR and SUNMATRIX objects these
+functions will ease the introduction of any new optional operations to the
+NVECTOR or SUNMATRIX API by ensuring only required operations need to be set and
+all operations are copied when cloning objects.
 
 Fixed a bug in the build system that prevented the PThreads NVECTOR module from
 being built.
@@ -29165,6 +29167,52 @@ implementation to be used to access different parts in the content
 field of the newly defined \code{SUNMatrix}.
 
 \end{itemize}
+
+To aid in the creation of custom SUNMATRIX modules the generic SUNMATRIX module
+provides two utility functions {\hyperref[sunmatrix/SUNMatrix_Description:c.SUNMatNewEmpty]{\emph{\code{SUNMatNewEmpty()}}}} and
+{\hyperref[sunmatrix/SUNMatrix_Description:c.SUNMatCopyOps]{\emph{\code{SUNMatCopyOps()}}}}. When used in custom SUNMATRIX constructors and clone
+routines these functions will ease the introduction of any new optional matrix
+operations to the SUNMATRIX API by ensuring only required operations need to be
+set and all operations are copied when cloning a matrix.
+\index{SUNMatNewEmpty (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunmatrix/SUNMatrix_Description:c.SUNMatNewEmpty}\pysiglinewithargsret{SUNMatrix \bfcode{SUNMatNewEmpty}}{}{}
+This function allocates a new generic \code{SUNMatrix} object and initializes its
+content pointer and the function pointers in the operations structure to \code{NULL}.
+
+\textbf{Return value:} If successful, this function returns a \code{SUNMatrix}
+object. If an error occurs when allocating the object, then this routine will
+return \code{NULL}.
+
+\end{fulllineitems}
+
+\index{SUNMatCopyOps (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunmatrix/SUNMatrix_Description:c.SUNMatCopyOps}\pysiglinewithargsret{int \bfcode{SUNMatCopyOps}}{SUNMatrix\emph{ A}, SUNMatrix\emph{ B}}{}
+This function copies the function pointers in the \code{ops} structure of \code{A}
+into the \code{ops} structure of \code{B}.
+\begin{quote}
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{A} -- the matrix to copy operations from.
+
+\item {} 
+\emph{B} -- the matrix to copy operations to.
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Return value:}  If successful, this function returns \code{0}. If either of
+the inputs are \code{NULL} or the \code{ops} structure of either input is \code{NULL},
+then is function returns a non-zero value.
+\end{quote}
+
+\end{fulllineitems}
+
 
 Each SUNMATRIX implementation included in SUNDIALS has a unique
 identifier specified in enumeration and shown in the table below.

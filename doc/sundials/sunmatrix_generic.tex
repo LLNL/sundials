@@ -303,3 +303,50 @@ A particular implementation of the {\sunmatrix} module must:
   that particular implementation to access different parts
   of the {\em content} field of the newly defined \id{SUNMatrix}.
 \end{itemize}
+
+To aid in the creation of custom {\sunmatrix} modules the generic {\sunmatrix}
+module provides two utility functions \id{SUNMatNewEmpty} and
+\id{SUNMatVCopyOps}. When used in custom {\sunmatrix} constructors and clone
+routines these functions will ease the introduction of any new optional matrix
+operations to the {\sunmatrix} API by ensuring only required operations need to
+be set and all operations are copied when cloning a matrix.
+%
+% --------------------------------------------------------------------
+%
+\ucfunction{SUNMatNewEmpty}
+{
+  A = SUNMatNewEmpty();
+}
+{
+  The function \Id{SUNMatNewEmpty} allocates a new generic {\sunmatrix} object
+  and initializes its content pointer and the function pointers in the
+  operations structure to \id{NULL}.
+}
+{}
+{
+  This function returns a \id{SUNMatrix} object. If an error occurs when
+  allocating the object, then this routine will return \id{NULL}.
+}
+{}
+%
+% --------------------------------------------------------------------
+%
+\ucfunction{SUNMatCopyOps}
+{
+  retval = SUNMatCopyOps(A, B);
+}
+{
+  The function \Id{SUNMatCopyOps} copies the function pointers in the \id{ops}
+  structure of \id{A} into the \id{ops} structure of \id{B}.
+}
+{
+  \begin{args}[w]
+  \item[A] (\id{SUNMatrix}) the matrix to copy operations from.
+  \item[B] (\id{SUNMatrix}) the matrix to copy operations to.
+  \end{args}
+}
+{
+  This returns \id{0} if successful and a non-zero value if either of the inputs
+  are \id{NULL} or the \id{ops} structure of either input is \id{NULL}.
+}
+{}

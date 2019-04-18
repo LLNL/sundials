@@ -56,39 +56,35 @@ SUNMatrix SUNSparseMatrix(sunindextype M, sunindextype N,
                           sunindextype NNZ, int sparsetype)
 {
   SUNMatrix A;
-  SUNMatrix_Ops ops;
   SUNMatrixContent_Sparse content;
 
   /* return with NULL matrix on illegal input */
   if ( (M <= 0) || (N <= 0) || (NNZ < 0) ) return(NULL);
   if ( (sparsetype != CSC_MAT) && (sparsetype != CSR_MAT) ) return(NULL);
 
-  /* Create matrix */
+  /* Create an empty matrix object */
   A = NULL;
-  A = (SUNMatrix) malloc(sizeof *A);
+  A = SUNMatNewEmpty();
   if (A == NULL) return(NULL);
-  
-  /* Create matrix operation structure */
-  ops = NULL;
-  ops = (SUNMatrix_Ops) malloc(sizeof(struct _generic_SUNMatrix_Ops));
-  if (ops == NULL) { free(A); return(NULL); }
 
   /* Attach operations */
-  ops->getid       = SUNMatGetID_Sparse;
-  ops->clone       = SUNMatClone_Sparse;
-  ops->destroy     = SUNMatDestroy_Sparse;
-  ops->zero        = SUNMatZero_Sparse;
-  ops->copy        = SUNMatCopy_Sparse;
-  ops->scaleadd    = SUNMatScaleAdd_Sparse;
-  ops->scaleaddi   = SUNMatScaleAddI_Sparse;
-  ops->matvec      = SUNMatMatvec_Sparse;
-  ops->space       = SUNMatSpace_Sparse;
-  ops->matvecsetup = NULL;
+  A->ops->getid     = SUNMatGetID_Sparse;
+  A->ops->clone     = SUNMatClone_Sparse;
+  A->ops->destroy   = SUNMatDestroy_Sparse;
+  A->ops->zero      = SUNMatZero_Sparse;
+  A->ops->copy      = SUNMatCopy_Sparse;
+  A->ops->scaleadd  = SUNMatScaleAdd_Sparse;
+  A->ops->scaleaddi = SUNMatScaleAddI_Sparse;
+  A->ops->matvec    = SUNMatMatvec_Sparse;
+  A->ops->space     = SUNMatSpace_Sparse;
 
   /* Create content */
   content = NULL;
-  content = (SUNMatrixContent_Sparse) malloc(sizeof(struct _SUNMatrixContent_Sparse));
-  if (content == NULL) { free(ops); free(A); return(NULL); }
+  content = (SUNMatrixContent_Sparse) malloc(sizeof *content);
+  if (content == NULL) { SUNMatDestroy(A); return(NULL); }
+
+  /* Attach content */
+  A->content = content;
 
   /* Fill content */
   content->sparsetype = sparsetype;
@@ -112,28 +108,20 @@ SUNMatrix SUNSparseMatrix(sunindextype M, sunindextype N,
     content->rowvals = NULL;
     content->colptrs = NULL;
   }
-  content->data = (realtype *) calloc(NNZ, sizeof(realtype));
-  if (content->data == NULL) {
-    free(content); free(ops); free(A); return(NULL);
-  }
-  content->indexvals = (sunindextype *) calloc(NNZ, sizeof(sunindextype));
-  if (content->indexvals == NULL) {
-    free(content->data); free(content); free(ops); free(A); return(NULL);
-  }
-  content->indexptrs = (sunindextype *) calloc((content->NP + 1), sizeof(sunindextype));
-  if (content->indexptrs == NULL) {
-    free(content->indexvals);
-    free(content->data);
-    free(content);
-    free(ops);
-    free(A);
-    return(NULL);
-  }
-  content->indexptrs[content->NP] = 0;
+  content->data      = NULL;
+  content->indexvals = NULL;
+  content->indexptrs = NULL;
 
-  /* Attach content and ops */
-  A->content = content;
-  A->ops     = ops;
+  /* Allocate content */
+  content->data = (realtype *) calloc(NNZ, sizeof(realtype));
+  if (content->data == NULL) { SUNMatDestroy(A); return(NULL); }
+
+  content->indexvals = (sunindextype *) calloc(NNZ, sizeof(sunindextype));
+  if (content->indexvals == NULL) { SUNMatDestroy(A); return(NULL); }
+
+  content->indexptrs = (sunindextype *) calloc((content->NP + 1), sizeof(sunindextype));
+  if (content->indexptrs == NULL) { SUNMatDestroy(A); return(NULL); }
+  content->indexptrs[content->NP] = 0;
 
   return(A);
 }
@@ -459,28 +447,41 @@ SUNMatrix SUNMatClone_Sparse(SUNMatrix A)
 
 void SUNMatDestroy_Sparse(SUNMatrix A)
 {
-  /* perform operation */
-  if (SM_DATA_S(A)) {
-    free(SM_DATA_S(A));  SM_DATA_S(A) = NULL;
+  if (A == NULL) return;
+
+  /* free content */
+  if (A->content != NULL) {
+    /* free data array */
+    if (SM_DATA_S(A)) {
+      free(SM_DATA_S(A));
+      SM_DATA_S(A) = NULL;
+    }
+    /* free index values array */
+    if (SM_INDEXVALS_S(A)) {
+      free(SM_INDEXVALS_S(A));
+      SM_INDEXVALS_S(A) = NULL;
+      SM_CONTENT_S(A)->rowvals = NULL;
+      SM_CONTENT_S(A)->colvals = NULL;
+    }
+    /* free index pointers array */
+    if (SM_INDEXPTRS_S(A)) {
+      free(SM_INDEXPTRS_S(A));
+      SM_INDEXPTRS_S(A) = NULL;
+      SM_CONTENT_S(A)->colptrs = NULL;
+      SM_CONTENT_S(A)->rowptrs = NULL;
+    }
+    /* free content struct */
+    free(A->content);
+    A->content = NULL;
   }
-  if (SM_INDEXVALS_S(A)) {
-    free(SM_INDEXVALS_S(A));
-    SM_INDEXVALS_S(A) = NULL;
-    SM_CONTENT_S(A)->rowvals = NULL;
-    SM_CONTENT_S(A)->colvals = NULL;
-  }
-  if (SM_INDEXPTRS_S(A)) {
-    free(SM_INDEXPTRS_S(A));
-    SM_INDEXPTRS_S(A) = NULL;
-    SM_CONTENT_S(A)->colptrs = NULL;
-    SM_CONTENT_S(A)->rowptrs = NULL;
-  }
-  free(A->content); A->content = NULL;
-  free(A->ops);  A->ops = NULL;
+
+  /* free ops and matrix */
+  if (A->ops) { free(A->ops); A->ops = NULL; }
   free(A); A = NULL;
+
   return;
 }
-  
+
 int SUNMatZero_Sparse(SUNMatrix A)
 {
   sunindextype i;

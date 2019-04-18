@@ -102,6 +102,8 @@ struct _generic_SUNMatrix {
  * Functions exported by SUNMatrix module
  * ----------------------------------------------------------------- */
 
+SUNDIALS_EXPORT SUNMatrix SUNMatNewEmpty();
+SUNDIALS_EXPORT int SUNMatCopyOps();
 SUNDIALS_EXPORT SUNMatrix_ID SUNMatGetID(SUNMatrix A);
 SUNDIALS_EXPORT SUNMatrix SUNMatClone(SUNMatrix A);
 SUNDIALS_EXPORT void SUNMatDestroy(SUNMatrix A);
