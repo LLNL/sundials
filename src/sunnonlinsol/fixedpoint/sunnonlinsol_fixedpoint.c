@@ -44,7 +44,6 @@ static void FreeContent(SUNNonlinearSolver NLS);
 SUNNonlinearSolver SUNNonlinSol_FixedPoint(N_Vector y, int m)
 {
   SUNNonlinearSolver NLS;
-  SUNNonlinearSolver_Ops ops;
   SUNNonlinearSolverContent_FixedPoint content;
   int retval;
 
@@ -61,40 +60,31 @@ SUNNonlinearSolver SUNNonlinSol_FixedPoint(N_Vector y, int m)
 
   /* Create nonlinear linear solver */
   NLS = NULL;
-  NLS = (SUNNonlinearSolver) malloc(sizeof *NLS);
+  NLS = SUNNonlinSolNewEmpty();
   if (NLS == NULL) return(NULL);
 
-  /* Create nonlinear solver operations structure */
-  ops = NULL;
-  ops = (SUNNonlinearSolver_Ops) malloc(sizeof *ops);
-  if (ops == NULL) { free(NLS); return(NULL); }
+  /* Attach operations */
+  NLS->ops->gettype         = SUNNonlinSolGetType_FixedPoint;
+  NLS->ops->initialize      = SUNNonlinSolInitialize_FixedPoint;
+  NLS->ops->solve           = SUNNonlinSolSolve_FixedPoint;
+  NLS->ops->free            = SUNNonlinSolFree_FixedPoint;
+  NLS->ops->setsysfn        = SUNNonlinSolSetSysFn_FixedPoint;
+  NLS->ops->setctestfn      = SUNNonlinSolSetConvTestFn_FixedPoint;
+  NLS->ops->setmaxiters     = SUNNonlinSolSetMaxIters_FixedPoint;
+  NLS->ops->getnumiters     = SUNNonlinSolGetNumIters_FixedPoint;
+  NLS->ops->getcuriter      = SUNNonlinSolGetCurIter_FixedPoint;
+  NLS->ops->getnumconvfails = SUNNonlinSolGetNumConvFails_FixedPoint;
 
   /* Create nonlinear solver content structure */
   content = NULL;
   content = (SUNNonlinearSolverContent_FixedPoint) malloc(sizeof *content);
-  if (content == NULL) { free(ops); free(NLS); return(NULL); }
-
-  /* Attach content and ops */
-  NLS->content = content;
-  NLS->ops     = ops;
-
-  /* Attach operations */
-  ops->gettype         = SUNNonlinSolGetType_FixedPoint;
-  ops->initialize      = SUNNonlinSolInitialize_FixedPoint;
-  ops->setup           = NULL;  /* no setup needed */
-  ops->solve           = SUNNonlinSolSolve_FixedPoint;
-  ops->free            = SUNNonlinSolFree_FixedPoint;
-  ops->setsysfn        = SUNNonlinSolSetSysFn_FixedPoint;
-  ops->setlsetupfn     = NULL;  /* no lsetup needed */
-  ops->setlsolvefn     = NULL;  /* no lsolve needed */
-  ops->setctestfn      = SUNNonlinSolSetConvTestFn_FixedPoint;
-  ops->setmaxiters     = SUNNonlinSolSetMaxIters_FixedPoint;
-  ops->getnumiters     = SUNNonlinSolGetNumIters_FixedPoint;
-  ops->getcuriter      = SUNNonlinSolGetCurIter_FixedPoint;
-  ops->getnumconvfails = SUNNonlinSolGetNumConvFails_FixedPoint;
+  if (content == NULL) { SUNNonlinSolFree(NLS); return(NULL); }
 
   /* Initialize all components of content to 0/NULL */
   memset(content, 0, sizeof(struct _SUNNonlinearSolverContent_FixedPoint));
+
+  /* Attach content */
+  NLS->content = content;
 
   /* Fill general content */
   content->Sys        = NULL;
@@ -107,15 +97,7 @@ SUNNonlinearSolver SUNNonlinSol_FixedPoint(N_Vector y, int m)
 
   /* Fill allocatable content */
   retval = AllocateContent(NLS, y);
-
-  if (retval != SUN_NLS_SUCCESS) {
-    NLS->content = NULL;
-    NLS->ops = NULL;
-    free(content);
-    free(ops);
-    free(NLS);
-    return(NULL);
-  }
+  if (retval != SUN_NLS_SUCCESS) { SUNNonlinSolFree(NLS); return(NULL); }
 
   return(NLS);
 }

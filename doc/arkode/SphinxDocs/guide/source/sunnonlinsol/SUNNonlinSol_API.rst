@@ -560,6 +560,23 @@ A SUNNonlinSol implementation *must* do the following:
 * Define and implement a user-callable constructor to create a
   ``SUNNonlinearSolver`` object.
 
+To aid in the creation of custom ``SUNNonlinearSolver`` modules the generic
+``SUNNonlinearSolver`` module provides the utility function
+:c:func:`SUNNonlinSolNewEmpty()`. When used in custom ``SUNNonlinearSolver``
+constructors this function will ease the introduction of any new optional
+nonlinear solver operations to the ``SUNNonlinearSolver`` API by ensuring only
+required operations need to be set.
+
+.. c:function:: SUNNonlinearSolver SUNNonlinSolNewEmpty()
+                
+  This function allocates a new generic ``SUNNonlinearSolver`` object and
+  initializes its content pointer and the function pointers in the operations
+  structure to ``NULL``.
+
+  **Return value:** If successful, this function returns a
+  ``SUNNonlinearSolver`` object. If an error occurs when allocating the object,
+  then this routine will return ``NULL``. 
+  
 Additionally, a ``SUNNonlinearSolver`` implementation *may* do
 the following:
 

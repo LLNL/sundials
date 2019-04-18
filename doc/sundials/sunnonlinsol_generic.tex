@@ -968,6 +968,29 @@ the following:
   statistics.
 \end{enumerate}
 
+To aid in the creation of custom {\sunnonlinsol} modules the generic
+{\sunnonlinsol} module provides the utility function \id{SUNNonlinSolNewEmpty}.
+When used in custom {\sunnonlinsol} constructors this function will ease the
+introduction of any new optional nonlinear solver operations to the
+{\sunnonlinsol} API by ensuring only required operations need to be set.
+%
+% --------------------------------------------------------------------
+%
+\ucfunction{SUNNonlinSolNewEmpty}
+{
+  NLS = SUNNonlinSolNewEmpty();
+}
+{
+  The function \Id{SUNNonlinSolNewEmpty} allocates a new generic {\sunnonlinsol}
+  object and initializes its content pointer and the function pointers in the
+  operations structure to \id{NULL}.
+}
+{}
+{
+  This function returns a \id{SUNNonlinearSolver} object. If an error occurs when
+  allocating the object, then this routine will return \id{NULL}.
+}
+{}
 
 % ====================================================================
 \section{The SUNNonlinearSolver\_Newton implementation}

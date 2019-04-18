@@ -127,6 +127,9 @@ struct _generic_SUNNonlinearSolver {
  * Functions exported by SUNNonlinearSolver module
  * ---------------------------------------------------------------------------*/
 
+/* empty constructor */
+SUNDIALS_EXPORT SUNNonlinearSolver SUNNonlinSolNewEmpty();
+
 /* core functions */
 SUNDIALS_EXPORT SUNNonlinearSolver_Type SUNNonlinSolGetType(SUNNonlinearSolver NLS);
 

@@ -303,17 +303,21 @@ preconditioner routines.
 \subsection{Changes in v4.0.0-dev.1}
 \label{Introduction:changes-in-v4-0-0-dev-1}
 Several new functions were added to aid in creating custom NVECTOR, SUNMATRIX,
-and SUNLINEARSOLVER objects. The constructors {\hyperref[nvectors/NVector_Description:c.N_VNewEmpty]{\emph{\code{N\_VNewEmpty()}}}},
-{\hyperref[sunmatrix/SUNMatrix_Description:c.SUNMatNewEmpty]{\emph{\code{SUNMatNewEmpty()}}}}, and {\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolNewEmpty]{\emph{\code{SUNLinSolNewEmpty()}}}} allocate \code{empty}
-NVECTOR, SUNMATRIX, and SUNLINEAERSOLVER objects respectively with the object's
-content pointer and the function pointers in the operations structure are
-initialized to \code{NULL}. Additionally, the functions {\hyperref[nvectors/NVector_Description:c.N_VCopyOps]{\emph{\code{N\_VCopyOps()}}}} and
+SUNLINEARSOLVER, and SUNNONLINEARSOLVER objects. The constructors
+{\hyperref[nvectors/NVector_Description:c.N_VNewEmpty]{\emph{\code{N\_VNewEmpty()}}}}, {\hyperref[sunmatrix/SUNMatrix_Description:c.SUNMatNewEmpty]{\emph{\code{SUNMatNewEmpty()}}}},
+{\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolNewEmpty]{\emph{\code{SUNLinSolNewEmpty()}}}}, and {\hyperref[sunnonlinsol/SUNNonlinSol_API:c.SUNNonlinSolNewEmpty]{\emph{\code{SUNNonlinSolNewEmpty()}}}} allocate
+``empty'' generic NVECTOR, SUNMATRIX, SUNLINEARSOLVER, and SUNNONLINEARSOLVER
+objects respectively with the object's content pointer and the function pointers
+in the operations structure initialized to \code{NULL}. When used in the
+constructor for custom objects these functions will ease the introduction of any
+new optional operations to the NVECTOR, SUNMATRIX, SUNLINEARSOLVER, or
+SUNNONLINEARSOLVER APIs by ensuring only required operations need to be
+set. Additionally, the functions {\hyperref[nvectors/NVector_Description:c.N_VCopyOps]{\emph{\code{N\_VCopyOps()}}}} and
 {\hyperref[sunmatrix/SUNMatrix_Description:c.SUNMatCopyOps]{\emph{\code{SUNMatCopyOps()}}}} have been added to copy the operation function
-pointers between vector and matrix objects respectively. When used in the
-constructor and clone routines for custom objects these functions will ease the
-introduction of any new optional operations to the NVECTOR, SUNMATRIX, or
-SUNLINEARSOLVER APIs by ensuring only required operations need to be set and all
-operations are copied when cloning objects.
+pointers between vector and matrix objects respectively. When used in clone
+routines for custom vector and matrix objects these functions also will ease the
+introduction of any new optional operations to the NVECTOR or SUNMATRIX APIs by
+ensuring all operations are copied when cloning objects.
 
 Fixed a bug in the build system that prevented the PThreads NVECTOR module from
 being built.
@@ -37617,6 +37621,27 @@ Define and implement a user-callable constructor to create a
 \code{SUNNonlinearSolver} object.
 
 \end{itemize}
+
+To aid in the creation of custom \code{SUNNonlinearSolver} modules the generic
+\code{SUNNonlinearSolver} module provides the utility function
+{\hyperref[sunnonlinsol/SUNNonlinSol_API:c.SUNNonlinSolNewEmpty]{\emph{\code{SUNNonlinSolNewEmpty()}}}}. When used in custom \code{SUNNonlinearSolver}
+constructors this function will ease the introduction of any new optional
+nonlinear solver operations to the \code{SUNNonlinearSolver} API by ensuring only
+required operations need to be set.
+\index{SUNNonlinSolNewEmpty (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{sunnonlinsol/SUNNonlinSol_API:c.SUNNonlinSolNewEmpty}\pysiglinewithargsret{SUNNonlinearSolver \bfcode{SUNNonlinSolNewEmpty}}{}{}
+This function allocates a new generic \code{SUNNonlinearSolver} object and
+initializes its content pointer and the function pointers in the operations
+structure to \code{NULL}.
+
+\textbf{Return value:} If successful, this function returns a
+\code{SUNNonlinearSolver} object. If an error occurs when allocating the object,
+then this routine will return \code{NULL}.
+
+\end{fulllineitems}
+
 
 Additionally, a \code{SUNNonlinearSolver} implementation \emph{may} do
 the following:

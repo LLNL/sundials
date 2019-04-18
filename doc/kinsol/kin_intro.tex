@@ -112,17 +112,20 @@ interfacing the solver to applications written in {\F}.
 \subsection*{Changes in v5.0.0-dev.1}
 
 Several new functions were added to aid in creating custom {\nvector},
-{\sunmatrix}, and {\sunlinsol} objects. The constructors \id{N\_VNewEmpty()},
-\id{SUNMatNewEmpty()}, and \id{SUNLinSolNewEmpty()} allocate ``empty''
-{\nvector}, {\sunmatrix}, and {\sunlinsol} objects respectively with the
-object's content pointer and the function pointers in the operations structure
-are initialized to \id{NULL}. Additionally, the functions \id{N\_VCopyOps(w, v)}
+{\sunmatrix}, {\sunlinsol}, and {\sunnonlinsol} objects. The constructors
+\id{N\_VNewEmpty()}, \id{SUNMatNewEmpty()}, \id{SUNLinSolNewEmpty()}, and
+\id{SUNNonlinSolNewEmpty()} allocate ``empty'' generic {\nvector}, {\sunmatrix},
+{\sunlinsol}, and {\sunnonlinsol} objects respectively with the object's content
+pointer and the function pointers in the operations structure initialized to
+\id{NULL}. When used in the constructor for custom objects these functions will
+ease the introduction of any new optional operations to the {\nvector},
+{\sunmatrix}, {\sunlinsol}, or  {\sunnonlinsol} APIs by ensuring only required
+operations need to be set. Additionally, the functions \id{N\_VCopyOps(w, v)}
 and \id{SUNMatCopyOps(A, B)} have been added to copy the operation function
-pointers between vector and matrix objects respectively. When used in the
-constructor and clone routines for custom objects these functions will ease the
-introduction of any new optional operations to the {\nvector}, {\sunmatrix}, or
-{\sunlinsol} APIs by ensuring only required operations need to be set and all
-operations are copied when cloning objects.
+pointers between vector and matrix objects respectively. When used in clone
+routines for custom vector and matrix objects these functions also will ease the
+introduction of any new optional operations to the {\nvector} or {\sunmatrix}
+APIs by ensuring all operations are copied when cloning objects.
 
 Fixed a bug in the build system that prevented the {\nvecpthreads} module from
 being built.

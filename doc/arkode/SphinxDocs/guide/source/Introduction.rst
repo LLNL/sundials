@@ -111,17 +111,21 @@ Changes in v4.0.0-dev.1
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Several new functions were added to aid in creating custom NVECTOR, SUNMATRIX,
-and SUNLINEARSOLVER objects. The constructors :c:func:`N_VNewEmpty()`,
-:c:func:`SUNMatNewEmpty()`, and :c:func:`SUNLinSolNewEmpty()` allocate ``empty``
-NVECTOR, SUNMATRIX, and SUNLINEAERSOLVER objects respectively with the object's
-content pointer and the function pointers in the operations structure are
-initialized to ``NULL``. Additionally, the functions :c:func:`N_VCopyOps()` and
+SUNLINEARSOLVER, and SUNNONLINEARSOLVER objects. The constructors
+:c:func:`N_VNewEmpty()`, :c:func:`SUNMatNewEmpty()`,
+:c:func:`SUNLinSolNewEmpty()`, and :c:func:`SUNNonlinSolNewEmpty()` allocate
+"empty" generic NVECTOR, SUNMATRIX, SUNLINEARSOLVER, and SUNNONLINEARSOLVER
+objects respectively with the object's content pointer and the function pointers
+in the operations structure initialized to ``NULL``. When used in the
+constructor for custom objects these functions will ease the introduction of any
+new optional operations to the NVECTOR, SUNMATRIX, SUNLINEARSOLVER, or
+SUNNONLINEARSOLVER APIs by ensuring only required operations need to be
+set. Additionally, the functions :c:func:`N_VCopyOps()` and
 :c:func:`SUNMatCopyOps()` have been added to copy the operation function
-pointers between vector and matrix objects respectively. When used in the
-constructor and clone routines for custom objects these functions will ease the
-introduction of any new optional operations to the NVECTOR, SUNMATRIX, or
-SUNLINEARSOLVER APIs by ensuring only required operations need to be set and all
-operations are copied when cloning objects.
+pointers between vector and matrix objects respectively. When used in clone
+routines for custom vector and matrix objects these functions also will ease the
+introduction of any new optional operations to the NVECTOR or SUNMATRIX APIs by
+ensuring all operations are copied when cloning objects.
 
 Fixed a bug in the build system that prevented the PThreads NVECTOR module from
 being built.

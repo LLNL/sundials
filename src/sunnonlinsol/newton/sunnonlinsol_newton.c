@@ -36,7 +36,6 @@
 SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y)
 {
   SUNNonlinearSolver NLS;
-  SUNNonlinearSolver_Ops ops;
   SUNNonlinearSolverContent_Newton content;
 
   /* Check that the supplied N_Vector is non-NULL */
@@ -49,57 +48,50 @@ SUNNonlinearSolver SUNNonlinSol_Newton(N_Vector y)
        (y->ops->nvlinearsum == NULL) )
     return(NULL);
 
-  /* Create nonlinear linear solver */
+  /* Create an empty nonlinear linear solver object */
   NLS = NULL;
-  NLS = (SUNNonlinearSolver) malloc(sizeof *NLS);
+  NLS = SUNNonlinSolNewEmpty();
   if (NLS == NULL) return(NULL);
 
-  /* Create linear solver operation structure */
-  ops = NULL;
-  ops = (SUNNonlinearSolver_Ops) malloc(sizeof *ops);
-  if (ops == NULL) { free(NLS); return(NULL); }
-
   /* Attach operations */
-  ops->gettype         = SUNNonlinSolGetType_Newton;
-  ops->initialize      = SUNNonlinSolInitialize_Newton;
-  ops->setup           = NULL; /* no setup needed */
-  ops->solve           = SUNNonlinSolSolve_Newton;
-  ops->free            = SUNNonlinSolFree_Newton;
-  ops->setsysfn        = SUNNonlinSolSetSysFn_Newton;
-  ops->setlsetupfn     = SUNNonlinSolSetLSetupFn_Newton;
-  ops->setlsolvefn     = SUNNonlinSolSetLSolveFn_Newton;
-  ops->setctestfn      = SUNNonlinSolSetConvTestFn_Newton;
-  ops->setmaxiters     = SUNNonlinSolSetMaxIters_Newton;
-  ops->getnumiters     = SUNNonlinSolGetNumIters_Newton;
-  ops->getcuriter      = SUNNonlinSolGetCurIter_Newton;
-  ops->getnumconvfails = SUNNonlinSolGetNumConvFails_Newton;
+  NLS->ops->gettype         = SUNNonlinSolGetType_Newton;
+  NLS->ops->initialize      = SUNNonlinSolInitialize_Newton;
+  NLS->ops->solve           = SUNNonlinSolSolve_Newton;
+  NLS->ops->free            = SUNNonlinSolFree_Newton;
+  NLS->ops->setsysfn        = SUNNonlinSolSetSysFn_Newton;
+  NLS->ops->setlsetupfn     = SUNNonlinSolSetLSetupFn_Newton;
+  NLS->ops->setlsolvefn     = SUNNonlinSolSetLSolveFn_Newton;
+  NLS->ops->setctestfn      = SUNNonlinSolSetConvTestFn_Newton;
+  NLS->ops->setmaxiters     = SUNNonlinSolSetMaxIters_Newton;
+  NLS->ops->getnumiters     = SUNNonlinSolGetNumIters_Newton;
+  NLS->ops->getcuriter      = SUNNonlinSolGetCurIter_Newton;
+  NLS->ops->getnumconvfails = SUNNonlinSolGetNumConvFails_Newton;
 
   /* Create content */
   content = NULL;
   content = (SUNNonlinearSolverContent_Newton) malloc(sizeof *content);
-  if (content == NULL) { free(ops); free(NLS); return(NULL); }
+  if (content == NULL) { SUNNonlinSolFree(NLS); return(NULL); }
 
   /* Initialize all components of content to 0/NULL */
   memset(content, 0, sizeof(struct _SUNNonlinearSolverContent_Newton));
 
-  /* Fill content */
+  /* Attach content */
+  NLS->content = content;
+
+  /* Fill general content */
   content->Sys        = NULL;
   content->LSetup     = NULL;
   content->LSolve     = NULL;
   content->CTest      = NULL;
-  content->delta      = N_VClone(y);
   content->jcur       = SUNFALSE;
   content->curiter    = 0;
   content->maxiters   = 3;
   content->niters     = 0;
   content->nconvfails = 0;
 
-  /* check if clone was successful */
-  if (content->delta == NULL) { free(ops); free(NLS); return(NULL); }
-
-  /* Attach content and ops */
-  NLS->content = content;
-  NLS->ops     = ops;
+  /* Fill allocatable content */
+  content->delta = N_VClone(y);
+  if (content->delta == NULL) { SUNNonlinSolFree(NLS); return(NULL); }
 
   return(NLS);
 }
