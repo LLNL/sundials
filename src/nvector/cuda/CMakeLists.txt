@@ -24,6 +24,7 @@ set_source_files_properties(${nveccuda_SOURCES} PROPERTIES CUDA_SOURCE_PROPERTY_
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the NVECCUDA library
 SET(shared_SOURCES
+  sundials_nvector.c
   sundials_math.c
   sundials_mpi.c
 )

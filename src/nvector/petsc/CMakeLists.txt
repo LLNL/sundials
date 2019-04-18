@@ -29,6 +29,7 @@ SET(nvecpetsc_SOURCES nvector_petsc.c)
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the NVECPARHYP library
 SET(shared_SOURCES
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_math.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_mpi.c
   )

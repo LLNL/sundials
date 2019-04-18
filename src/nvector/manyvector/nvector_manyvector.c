@@ -52,7 +52,6 @@ N_Vector N_VMake_ManyVector(void *comm, sunindextype num_subvectors,
                             N_Vector *vec_array)
 {
   N_Vector v;
-  N_Vector_Ops ops;
   N_VectorContent_ManyVector content;
   sunindextype i, local_length;
   realtype globlen;
@@ -66,124 +65,108 @@ N_Vector N_VMake_ManyVector(void *comm, sunindextype num_subvectors,
 
   /* Create vector */
   v = NULL;
-  v = (N_Vector) malloc(sizeof *v);
+  v = N_VNewEmpty();
   if (v == NULL) return(NULL);
 
-  /* Create vector operation structure */
-  ops = NULL;
-  ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
-  if (ops == NULL) { free(v); return(NULL); }
+  /* Attach operations */
 
-  /* attach standard vector operations */
-  ops->nvgetvectorid     = N_VGetVectorID_ManyVector;
-  ops->nvcloneempty      = N_VCloneEmpty_ManyVector;
-  ops->nvclone           = N_VClone_ManyVector;
-  ops->nvdestroy         = N_VDestroy_ManyVector;
-  ops->nvspace           = N_VSpace_ManyVector;
-  ops->nvgetarraypointer = NULL;
-  ops->nvsetarraypointer = NULL;
-  ops->nvgetcommunicator = N_VGetCommunicator_ManyVector;
-  ops->nvgetlength       = N_VGetLength_ManyVector;
-  ops->nvlinearsum       = N_VLinearSum_ManyVector;
-  ops->nvconst           = N_VConst_ManyVector;
-  ops->nvprod            = N_VProd_ManyVector;
-  ops->nvdiv             = N_VDiv_ManyVector;
-  ops->nvscale           = N_VScale_ManyVector;
-  ops->nvabs             = N_VAbs_ManyVector;
-  ops->nvinv             = N_VInv_ManyVector;
-  ops->nvaddconst        = N_VAddConst_ManyVector;
-  ops->nvdotprod         = N_VDotProd_ManyVector;
-  ops->nvmaxnorm         = N_VMaxNorm_ManyVector;
-  ops->nvwrmsnorm        = N_VWrmsNorm_ManyVector;
-  ops->nvwrmsnormmask    = N_VWrmsNormMask_ManyVector;
-  ops->nvmin             = N_VMin_ManyVector;
-  ops->nvwl2norm         = N_VWL2Norm_ManyVector;
-  ops->nvl1norm          = N_VL1Norm_ManyVector;
-  ops->nvcompare         = N_VCompare_ManyVector;
-  ops->nvinvtest         = N_VInvTest_ManyVector;
-  ops->nvconstrmask      = N_VConstrMask_ManyVector;
-  ops->nvminquotient     = N_VMinQuotient_ManyVector;
+  /* constructors, destructors, and utility operations */
+  v->ops->nvgetvectorid     = N_VGetVectorID_ManyVector;
+  v->ops->nvcloneempty      = N_VCloneEmpty_ManyVector;
+  v->ops->nvclone           = N_VClone_ManyVector;
+  v->ops->nvdestroy         = N_VDestroy_ManyVector;
+  v->ops->nvspace           = N_VSpace_ManyVector;
+  v->ops->nvgetcommunicator = N_VGetCommunicator_ManyVector;
+  v->ops->nvgetlength       = N_VGetLength_ManyVector;
+
+  /* standard vector operations */
+  v->ops->nvlinearsum       = N_VLinearSum_ManyVector;
+  v->ops->nvconst           = N_VConst_ManyVector;
+  v->ops->nvprod            = N_VProd_ManyVector;
+  v->ops->nvdiv             = N_VDiv_ManyVector;
+  v->ops->nvscale           = N_VScale_ManyVector;
+  v->ops->nvabs             = N_VAbs_ManyVector;
+  v->ops->nvinv             = N_VInv_ManyVector;
+  v->ops->nvaddconst        = N_VAddConst_ManyVector;
+  v->ops->nvdotprod         = N_VDotProd_ManyVector;
+  v->ops->nvmaxnorm         = N_VMaxNorm_ManyVector;
+  v->ops->nvwrmsnorm        = N_VWrmsNorm_ManyVector;
+  v->ops->nvwrmsnormmask    = N_VWrmsNormMask_ManyVector;
+  v->ops->nvmin             = N_VMin_ManyVector;
+  v->ops->nvwl2norm         = N_VWL2Norm_ManyVector;
+  v->ops->nvl1norm          = N_VL1Norm_ManyVector;
+  v->ops->nvcompare         = N_VCompare_ManyVector;
+  v->ops->nvinvtest         = N_VInvTest_ManyVector;
+  v->ops->nvconstrmask      = N_VConstrMask_ManyVector;
+  v->ops->nvminquotient     = N_VMinQuotient_ManyVector;
 
   /* fused vector operations */
-  ops->nvlinearcombination = N_VLinearCombination_ManyVector;
-  ops->nvscaleaddmulti     = N_VScaleAddMulti_ManyVector;
-  ops->nvdotprodmulti      = N_VDotProdMulti_ManyVector;
+  v->ops->nvlinearcombination = N_VLinearCombination_ManyVector;
+  v->ops->nvscaleaddmulti     = N_VScaleAddMulti_ManyVector;
+  v->ops->nvdotprodmulti      = N_VDotProdMulti_ManyVector;
 
-  /* vector array operations (optional, NULL means disabled by default) */
-  ops->nvlinearsumvectorarray         = NULL;
-  ops->nvscalevectorarray             = NULL;
-  ops->nvconstvectorarray             = NULL;
-  ops->nvscaleaddmultivectorarray     = NULL;
-  ops->nvlinearcombinationvectorarray = NULL;
-  ops->nvwrmsnormvectorarray          = N_VWrmsNormVectorArray_ManyVector;
-  ops->nvwrmsnormmaskvectorarray      = N_VWrmsNormMaskVectorArray_ManyVector;
+  /* vector array operations */
+  v->ops->nvwrmsnormvectorarray     = N_VWrmsNormVectorArray_ManyVector;
+  v->ops->nvwrmsnormmaskvectorarray = N_VWrmsNormMaskVectorArray_ManyVector;
 
-  /* local reduction kernels */
-  ops->nvdotprodlocal     = N_VDotProdLocal_ManyVector;
-  ops->nvmaxnormlocal     = N_VMaxNormLocal_ManyVector;
-  ops->nvminlocal         = N_VMinLocal_ManyVector;
-  ops->nvl1normlocal      = N_VL1NormLocal_ManyVector;
-  ops->nvinvtestlocal     = N_VInvTestLocal_ManyVector;
-  ops->nvconstrmasklocal  = N_VConstrMaskLocal_ManyVector;
-  ops->nvminquotientlocal = N_VMinQuotientLocal_ManyVector;
-  ops->nvwsqrsumlocal     = N_VWSqrSumLocal_ManyVector;
-  ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_ManyVector;
+  /* local reduction operations */
+  v->ops->nvdotprodlocal     = N_VDotProdLocal_ManyVector;
+  v->ops->nvmaxnormlocal     = N_VMaxNormLocal_ManyVector;
+  v->ops->nvminlocal         = N_VMinLocal_ManyVector;
+  v->ops->nvl1normlocal      = N_VL1NormLocal_ManyVector;
+  v->ops->nvinvtestlocal     = N_VInvTestLocal_ManyVector;
+  v->ops->nvconstrmasklocal  = N_VConstrMaskLocal_ManyVector;
+  v->ops->nvminquotientlocal = N_VMinQuotientLocal_ManyVector;
+  v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_ManyVector;
+  v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_ManyVector;
 
   /* Create content */
   content = NULL;
-  content = (N_VectorContent_ManyVector) malloc(sizeof(struct _N_VectorContent_ManyVector));
-  if (content == NULL) { free(ops); free(v); return(NULL); }
+  content = (N_VectorContent_ManyVector) malloc(sizeof *content);
+  if (content == NULL) { N_VDestroy(v); return(NULL); }
 
+  /* Attach content */
+  v->content = content;
 
   /* Attach content components */
 
-  /*    duplicate input communicator (if non-NULL) */
+  /* duplicate input communicator (if non-NULL) */
   content->comm = SUNMPI_COMM_NULL;
   if (comm != NULL) {
     vcomm = (SUNMPI_Comm *) comm;
     if (*vcomm != SUNMPI_COMM_NULL) {
       retval = SUNMPI_Comm_dup(*vcomm, &(content->comm));
-      if (retval != SUNMPI_SUCCESS) { free(content); free(ops); free(v); return(NULL); }
+      if (retval != SUNMPI_SUCCESS) { N_VDestroy(v); return(NULL); }
     }
   }
 
-  /*    allocate and set subvector array */
+  /* allocate and set subvector array */
   content->num_subvectors = num_subvectors;
   content->own_data       = SUNFALSE;
-  content->subvec_array   = NULL;
 
-  content->subvec_array = (N_Vector *) malloc( content->num_subvectors * sizeof(N_Vector) );
-  if (content->subvec_array == NULL) {
-    free(ops); free(content); free(v); return(NULL); }
+  content->subvec_array = NULL;
+  content->subvec_array = (N_Vector *) malloc(num_subvectors * sizeof(N_Vector));
+  if (content->subvec_array == NULL) { N_VDestroy(v); return(NULL); }
 
-  for (i=0; i<content->num_subvectors; i++)
+  for (i=0; i<num_subvectors; i++)
     content->subvec_array[i] = vec_array[i];
 
   /* Determine overall ManyVector length: sum contributions from all
      subvectors where this rank is the root, then perform reduction */
   local_length = 0;
-  for (i=0; i<content->num_subvectors; i++) {
+  for (i=0; i<num_subvectors; i++) {
 
     /* determine rank of this task in subvector communicator
        (serial vectors default to rank=0) */
     rank = SubvectorMPIRank(vec_array[i]);
-    if (rank < 0) {
-      free(content); free(ops); free(v);
-      free(content->subvec_array); return(NULL); }
+    if (rank < 0) { N_VDestroy(v); return(NULL); }
 
     /* accumulate contribution from root tasks */
-    if (rank == 0)  local_length += N_VGetLength(vec_array[i]);
+    if (rank == 0) local_length += N_VGetLength(vec_array[i]);
   }
   retval = SUNMPI_Allreduce_scalar(local_length, &globlen, SUNMPI_SUM, content->comm);
-  if (retval != SUNMPI_SUCCESS) {
-    free(content); free(ops); free(v);
-    free(content->subvec_array); return(NULL);
-  }
+  if (retval != SUNMPI_SUCCESS) { N_VDestroy(v); return(NULL); }
   content->global_length = (sunindextype) globlen;
-
-  /* Attach content and ops to new vector, and return */
-  v->content = content;
-  v->ops     = ops;
 
   return(v);
 }
@@ -290,18 +273,29 @@ void N_VDestroy_ManyVector(N_Vector v)
 {
   sunindextype i;
 
-  /* if subvectors are owned by v, then Destroy those */
-  if ((MANYVECTOR_OWN_DATA(v) == SUNTRUE) && (MANYVECTOR_SUBVECS(v) != NULL)) {
-    for (i=0; i<MANYVECTOR_NUM_SUBVECS(v); i++)
-      N_VDestroy(MANYVECTOR_SUBVEC(v,i));
+  if (v == NULL) return;
+
+  /* free content */
+  if (v->content != NULL) {
+    /* if subvectors are owned by v, then Destroy those */
+    if ((MANYVECTOR_OWN_DATA(v) == SUNTRUE) && (MANYVECTOR_SUBVECS(v) != NULL)) {
+      for (i=0; i<MANYVECTOR_NUM_SUBVECS(v); i++) {
+        N_VDestroy(MANYVECTOR_SUBVEC(v,i));
+        MANYVECTOR_SUBVEC(v,i) = NULL;
+      }
+    }
+
+    /* free subvector array */
+    free(MANYVECTOR_SUBVECS(v));
+    MANYVECTOR_SUBVECS(v) = NULL;
+
+    /* free content structure */
+    free(v->content);
+    v->content = NULL;
   }
 
-  /* free subvector array */
-  free(MANYVECTOR_SUBVECS(v)); MANYVECTOR_SUBVECS(v) = NULL;
-
-  /* free N_Vector structures */
-  free(v->content); v->content = NULL;
-  free(v->ops); v->ops = NULL;
+  /* free ops and vector */
+  if (v->ops != NULL) { free(v->ops); v->ops = NULL; }
   free(v); v = NULL;
 
   return;
@@ -1473,126 +1467,53 @@ int N_VEnableWrmsNormMaskVectorArray_ManyVector(N_Vector v, booleantype tf)
 static N_Vector ManyVectorClone(N_Vector w, booleantype cloneempty)
 {
   N_Vector v;
-  N_Vector_Ops ops;
   N_VectorContent_ManyVector content;
-  booleantype fail_gracefully;
   sunindextype i;
 
   if (w == NULL) return(NULL);
 
   /* Create vector */
   v = NULL;
-  v = (N_Vector) malloc(sizeof *v);
+  v = N_VNewEmpty();
   if (v == NULL) return(NULL);
 
-  /* Create vector operation structure */
-  ops = NULL;
-  ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
-  if (ops == NULL) { free(v); return(NULL); }
-
-  /* standard vector operations */
-  ops->nvgetvectorid     = w->ops->nvgetvectorid;
-  ops->nvcloneempty      = w->ops->nvcloneempty;
-  ops->nvclone           = w->ops->nvclone;
-  ops->nvdestroy         = w->ops->nvdestroy;
-  ops->nvspace           = w->ops->nvspace;
-  ops->nvgetarraypointer = w->ops->nvgetarraypointer;
-  ops->nvsetarraypointer = w->ops->nvsetarraypointer;
-  ops->nvgetcommunicator = w->ops->nvgetcommunicator;
-  ops->nvgetlength       = w->ops->nvgetlength;
-  ops->nvlinearsum       = w->ops->nvlinearsum;
-  ops->nvconst           = w->ops->nvconst;
-  ops->nvprod            = w->ops->nvprod;
-  ops->nvdiv             = w->ops->nvdiv;
-  ops->nvscale           = w->ops->nvscale;
-  ops->nvabs             = w->ops->nvabs;
-  ops->nvinv             = w->ops->nvinv;
-  ops->nvaddconst        = w->ops->nvaddconst;
-  ops->nvdotprod         = w->ops->nvdotprod;
-  ops->nvmaxnorm         = w->ops->nvmaxnorm;
-  ops->nvwrmsnormmask    = w->ops->nvwrmsnormmask;
-  ops->nvwrmsnorm        = w->ops->nvwrmsnorm;
-  ops->nvmin             = w->ops->nvmin;
-  ops->nvwl2norm         = w->ops->nvwl2norm;
-  ops->nvl1norm          = w->ops->nvl1norm;
-  ops->nvcompare         = w->ops->nvcompare;
-  ops->nvinvtest         = w->ops->nvinvtest;
-  ops->nvconstrmask      = w->ops->nvconstrmask;
-  ops->nvminquotient     = w->ops->nvminquotient;
-
-  /* fused vector operations */
-  ops->nvlinearcombination = w->ops->nvlinearcombination;
-  ops->nvscaleaddmulti     = w->ops->nvscaleaddmulti;
-  ops->nvdotprodmulti      = w->ops->nvdotprodmulti;
-
-  /* vector array operations */
-  ops->nvlinearsumvectorarray         = w->ops->nvlinearsumvectorarray;
-  ops->nvscalevectorarray             = w->ops->nvscalevectorarray;
-  ops->nvconstvectorarray             = w->ops->nvconstvectorarray;
-  ops->nvwrmsnormvectorarray          = w->ops->nvwrmsnormvectorarray;
-  ops->nvwrmsnormmaskvectorarray      = w->ops->nvwrmsnormmaskvectorarray;
-  ops->nvscaleaddmultivectorarray     = w->ops->nvscaleaddmultivectorarray;
-  ops->nvlinearcombinationvectorarray = w->ops->nvlinearcombinationvectorarray;
-
-  /* local reduction kernels */
-  ops->nvdotprodlocal     = w->ops->nvdotprodlocal;
-  ops->nvmaxnormlocal     = w->ops->nvmaxnormlocal;
-  ops->nvminlocal         = w->ops->nvminlocal;
-  ops->nvl1normlocal      = w->ops->nvl1normlocal;
-  ops->nvinvtestlocal     = w->ops->nvinvtestlocal;
-  ops->nvconstrmasklocal  = w->ops->nvconstrmasklocal;
-  ops->nvminquotientlocal = w->ops->nvminquotientlocal;
-  ops->nvwsqrsumlocal     = w->ops->nvwsqrsumlocal;
-  ops->nvwsqrsummasklocal = w->ops->nvwsqrsummasklocal;
+  /* Attach operations */
+  if (N_VCopyOps(w, v)) { N_VDestroy(v); return(NULL); }
 
   /* Create content */
   content = NULL;
-  content = (N_VectorContent_ManyVector) malloc(sizeof(struct _N_VectorContent_ManyVector));
-  if (content == NULL) { free(ops); free(v); return(NULL); }
+  content = (N_VectorContent_ManyVector) malloc(sizeof *content);
+  if (content == NULL) { N_VDestroy(v); return(NULL); }
 
+  /* Attach content and ops to new vector, and return */
+  v->content = content;
 
   /* Attach content components */
 
-  /*   Set scalar components */
-  content->comm = MANYVECTOR_COMM(w);
+  /* Set scalar components */
+  content->comm           = MANYVECTOR_COMM(w);
   content->num_subvectors = MANYVECTOR_NUM_SUBVECS(w);
-  content->global_length = MANYVECTOR_GLOBLENGTH(w);
-  content->own_data = SUNTRUE;
+  content->global_length  = MANYVECTOR_GLOBLENGTH(w);
+  content->own_data       = SUNTRUE;
 
-  /*   Set vector components */
+  /* Allocate the subvector array */
   content->subvec_array = NULL;
-  content->subvec_array = (N_Vector *) malloc( content->num_subvectors * sizeof(N_Vector) );
-  if (content->subvec_array == NULL)
-    { free(ops); free(content); free(v); return(NULL); }
-  fail_gracefully = SUNFALSE;
+  content->subvec_array = (N_Vector *) malloc(content->num_subvectors * sizeof(N_Vector));
+  if (content->subvec_array == NULL) { N_VDestroy(v); return(NULL); }
+
+  /* Initialize the subvector array to NULL */
+  for (i=0; i<content->num_subvectors; i++)
+    content->subvec_array[i] = NULL;
+
+  /* Clone vectors into the subvector array */
   for (i=0; i<content->num_subvectors; i++) {
     if (cloneempty) {
       content->subvec_array[i] = N_VCloneEmpty(MANYVECTOR_SUBVEC(w,i));
     } else {
       content->subvec_array[i] = N_VClone(MANYVECTOR_SUBVEC(w,i));
     }
-    if (content->subvec_array[i] == NULL) {
-      fail_gracefully = SUNTRUE;
-      break;
-    }
+    if (content->subvec_array[i] == NULL) { N_VDestroy(v); return(NULL); }
   }
-
-  /*   fail gracefully if any Clone failed */
-  if (fail_gracefully) {
-    for (i=0; i<content->num_subvectors; i++) {
-      if (content->subvec_array[i] != NULL)
-        N_VDestroy(content->subvec_array[i]);
-    }
-    free(content->subvec_array);
-    free(ops);
-    free(content);
-    free(v);
-    return(NULL);
-  }
-
-  /* Attach content and ops to new vector, and return */
-  v->content = content;
-  v->ops     = ops;
 
   return(v);
 }

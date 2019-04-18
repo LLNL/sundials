@@ -51,91 +51,68 @@ N_Vector_ID N_VGetVectorID_Cuda(N_Vector v)
 N_Vector N_VNewEmpty_Cuda()
 {
   N_Vector v;
-  N_Vector_Ops ops;
 
   /* Create vector */
   v = NULL;
-  v = (N_Vector) malloc(sizeof *v);
+  v = N_VNewEmpty();
   if (v == NULL) return(NULL);
 
-  /* Create vector operation structure */
-  ops = NULL;
-  ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
-  if (ops == NULL) { free(v); return(NULL); }
+  /* Attach operations */
 
-  ops->nvgetvectorid     = N_VGetVectorID_Cuda;
-  ops->nvclone           = N_VClone_Cuda;
-  ops->nvcloneempty      = N_VCloneEmpty_Cuda;
-  ops->nvdestroy         = N_VDestroy_Cuda;
-  ops->nvspace           = N_VSpace_Cuda;
-  ops->nvgetarraypointer = NULL;
-  ops->nvsetarraypointer = NULL;
+  /* constructors, destructors, and utility operations */
+  v->ops->nvgetvectorid     = N_VGetVectorID_Cuda;
+  v->ops->nvclone           = N_VClone_Cuda;
+  v->ops->nvcloneempty      = N_VCloneEmpty_Cuda;
+  v->ops->nvdestroy         = N_VDestroy_Cuda;
+  v->ops->nvspace           = N_VSpace_Cuda;
 #if SUNDIALS_MPI_ENABLED
-  ops->nvgetcommunicator = N_VGetCommunicator_Cuda;
-#else
-  ops->nvgetcommunicator = NULL;
+  v->ops->nvgetcommunicator = N_VGetCommunicator_Cuda;
 #endif
-  ops->nvgetlength       = N_VGetLength_Cuda;
+  v->ops->nvgetlength       = N_VGetLength_Cuda;
 
   /* standard vector operations */
-  ops->nvlinearsum    = N_VLinearSum_Cuda;
-  ops->nvconst        = N_VConst_Cuda;
-  ops->nvprod         = N_VProd_Cuda;
-  ops->nvdiv          = N_VDiv_Cuda;
-  ops->nvscale        = N_VScale_Cuda;
-  ops->nvabs          = N_VAbs_Cuda;
-  ops->nvinv          = N_VInv_Cuda;
-  ops->nvaddconst     = N_VAddConst_Cuda;
+  v->ops->nvlinearsum    = N_VLinearSum_Cuda;
+  v->ops->nvconst        = N_VConst_Cuda;
+  v->ops->nvprod         = N_VProd_Cuda;
+  v->ops->nvdiv          = N_VDiv_Cuda;
+  v->ops->nvscale        = N_VScale_Cuda;
+  v->ops->nvabs          = N_VAbs_Cuda;
+  v->ops->nvinv          = N_VInv_Cuda;
+  v->ops->nvaddconst     = N_VAddConst_Cuda;
 #if SUNDIALS_MPI_ENABLED
-  ops->nvdotprod      = N_VDotProd_Cuda;
-  ops->nvmaxnorm      = N_VMaxNorm_Cuda;
-  ops->nvmin          = N_VMin_Cuda;
-  ops->nvl1norm       = N_VL1Norm_Cuda;
-  ops->nvinvtest      = N_VInvTest_Cuda;
-  ops->nvconstrmask   = N_VConstrMask_Cuda;
-  ops->nvminquotient  = N_VMinQuotient_Cuda;
+  v->ops->nvdotprod      = N_VDotProd_Cuda;
+  v->ops->nvmaxnorm      = N_VMaxNorm_Cuda;
+  v->ops->nvmin          = N_VMin_Cuda;
+  v->ops->nvl1norm       = N_VL1Norm_Cuda;
+  v->ops->nvinvtest      = N_VInvTest_Cuda;
+  v->ops->nvconstrmask   = N_VConstrMask_Cuda;
+  v->ops->nvminquotient  = N_VMinQuotient_Cuda;
 #else
-  ops->nvdotprod      = N_VDotProdLocal_Cuda;
-  ops->nvmaxnorm      = N_VMaxNormLocal_Cuda;
-  ops->nvmin          = N_VMinLocal_Cuda;
-  ops->nvl1norm       = N_VL1NormLocal_Cuda;
-  ops->nvinvtest      = N_VInvTestLocal_Cuda;
-  ops->nvconstrmask   = N_VConstrMaskLocal_Cuda;
-  ops->nvminquotient  = N_VMinQuotientLocal_Cuda;
+  v->ops->nvdotprod      = N_VDotProdLocal_Cuda;
+  v->ops->nvmaxnorm      = N_VMaxNormLocal_Cuda;
+  v->ops->nvmin          = N_VMinLocal_Cuda;
+  v->ops->nvl1norm       = N_VL1NormLocal_Cuda;
+  v->ops->nvinvtest      = N_VInvTestLocal_Cuda;
+  v->ops->nvconstrmask   = N_VConstrMaskLocal_Cuda;
+  v->ops->nvminquotient  = N_VMinQuotientLocal_Cuda;
 #endif
-  ops->nvwrmsnormmask = N_VWrmsNormMask_Cuda;
-  ops->nvwrmsnorm     = N_VWrmsNorm_Cuda;
-  ops->nvwl2norm      = N_VWL2Norm_Cuda;
-  ops->nvcompare      = N_VCompare_Cuda;
+  v->ops->nvwrmsnormmask = N_VWrmsNormMask_Cuda;
+  v->ops->nvwrmsnorm     = N_VWrmsNorm_Cuda;
+  v->ops->nvwl2norm      = N_VWL2Norm_Cuda;
+  v->ops->nvcompare      = N_VCompare_Cuda;
 
-  /* fused vector operations (optional, NULL means disabled by default) */
-  ops->nvlinearcombination = NULL;
-  ops->nvscaleaddmulti     = NULL;
-  ops->nvdotprodmulti      = NULL;
+  /* fused and vector array operations are disabled (NULL) by default */
 
-  /* vector array operations (optional, NULL means disabled by default) */
-  ops->nvlinearsumvectorarray         = NULL;
-  ops->nvscalevectorarray             = NULL;
-  ops->nvconstvectorarray             = NULL;
-  ops->nvwrmsnormvectorarray          = NULL;
-  ops->nvwrmsnormmaskvectorarray      = NULL;
-  ops->nvscaleaddmultivectorarray     = NULL;
-  ops->nvlinearcombinationvectorarray = NULL;
-
-  /* local reduction kernels */
-  ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Cuda;
-  ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Cuda;
-  ops->nvdotprodlocal     = N_VDotProdLocal_Cuda;
-  ops->nvmaxnormlocal     = N_VMaxNormLocal_Cuda;
-  ops->nvminlocal         = N_VMinLocal_Cuda;
-  ops->nvl1normlocal      = N_VL1NormLocal_Cuda;
-  ops->nvinvtestlocal     = N_VInvTestLocal_Cuda;
-  ops->nvconstrmasklocal  = N_VConstrMaskLocal_Cuda;
-  ops->nvminquotientlocal = N_VMinQuotientLocal_Cuda;
-
-  /* Attach ops and set content to NULL */
-  v->content = NULL;
-  v->ops     = ops;
+  /* local reduction operations */
+  v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Cuda;
+  v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Cuda;
+  v->ops->nvdotprodlocal     = N_VDotProdLocal_Cuda;
+  v->ops->nvmaxnormlocal     = N_VMaxNormLocal_Cuda;
+  v->ops->nvminlocal         = N_VMinLocal_Cuda;
+  v->ops->nvl1normlocal      = N_VL1NormLocal_Cuda;
+  v->ops->nvinvtestlocal     = N_VInvTestLocal_Cuda;
+  v->ops->nvconstrmasklocal  = N_VConstrMaskLocal_Cuda;
+  v->ops->nvminquotientlocal = N_VMinQuotientLocal_Cuda;
 
   return(v);
 }
@@ -185,25 +162,29 @@ N_Vector N_VMake_Cuda(MPI_Comm comm,
   if (v == NULL) return(NULL);
 
   /* create suncudavec::Vector using the user-provided data arrays */
-  v->content = new vector_type(comm, local_length, global_length, false, false, h_vdata, d_vdata);
+  v->content = new vector_type(comm, local_length, global_length, false, false,
+                               h_vdata, d_vdata);
 
   return(v);
 }
 
 N_Vector N_VMakeManaged_Cuda(MPI_Comm comm,
-                             sunindextype local_length, sunindextype global_length,
+                             sunindextype local_length,
+                             sunindextype global_length,
                              realtype *vdata)
 {
   N_Vector v;
 
   if (vdata == NULL) return(NULL);
-  
+
   v = NULL;
   v = N_VNewEmpty_Cuda();
   if (v == NULL) return(NULL);
 
-  /* create suncudavec::Vector with managed memory using the user-provided data arrays */
-  v->content = new vector_type(comm, local_length, global_length, true, false, vdata, vdata);
+  /* create suncudavec::Vector with managed memory using the user-provided data
+     arrays */
+  v->content = new vector_type(comm, local_length, global_length, true, false,
+                               vdata, vdata);
 
   return(v);
 }
@@ -261,7 +242,8 @@ N_Vector N_VMakeManaged_Cuda(sunindextype length, realtype *vdata)
   v = N_VNewEmpty_Cuda();
   if (v == NULL) return(NULL);
 
-  /* create suncudavec::Vector with managed memory using the user-provided data arrays */
+  /* create suncudavec::Vector with managed memory using the user-provided data
+     arrays */
   v->content = new vector_type(length, true, false, vdata, vdata);
 
   return(v);
@@ -400,79 +382,16 @@ void N_VPrintFile_Cuda(N_Vector x, FILE *outfile)
 N_Vector N_VCloneEmpty_Cuda(N_Vector w)
 {
   N_Vector v;
-  N_Vector_Ops ops;
 
   if (w == NULL) return(NULL);
 
   /* Create vector */
   v = NULL;
-  v = (N_Vector) malloc(sizeof *v);
+  v = N_VNewEmpty();
   if (v == NULL) return(NULL);
 
-  /* Create vector operation structure */
-  ops = NULL;
-  ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
-  if (ops == NULL) { free(v); return(NULL); }
-
-  ops->nvgetvectorid     = w->ops->nvgetvectorid;
-  ops->nvclone           = w->ops->nvclone;
-  ops->nvcloneempty      = w->ops->nvcloneempty;
-  ops->nvdestroy         = w->ops->nvdestroy;
-  ops->nvspace           = w->ops->nvspace;
-  ops->nvgetarraypointer = w->ops->nvgetarraypointer;
-  ops->nvsetarraypointer = w->ops->nvsetarraypointer;
-  ops->nvgetcommunicator = w->ops->nvgetcommunicator;
-  ops->nvgetlength       = w->ops->nvgetlength;
-
-  /* standard vector operations */
-  ops->nvlinearsum    = w->ops->nvlinearsum;
-  ops->nvconst        = w->ops->nvconst;
-  ops->nvprod         = w->ops->nvprod;
-  ops->nvdiv          = w->ops->nvdiv;
-  ops->nvscale        = w->ops->nvscale;
-  ops->nvabs          = w->ops->nvabs;
-  ops->nvinv          = w->ops->nvinv;
-  ops->nvaddconst     = w->ops->nvaddconst;
-  ops->nvdotprod      = w->ops->nvdotprod;
-  ops->nvmaxnorm      = w->ops->nvmaxnorm;
-  ops->nvwrmsnormmask = w->ops->nvwrmsnormmask;
-  ops->nvwrmsnorm     = w->ops->nvwrmsnorm;
-  ops->nvmin          = w->ops->nvmin;
-  ops->nvwl2norm      = w->ops->nvwl2norm;
-  ops->nvl1norm       = w->ops->nvl1norm;
-  ops->nvcompare      = w->ops->nvcompare;
-  ops->nvinvtest      = w->ops->nvinvtest;
-  ops->nvconstrmask   = w->ops->nvconstrmask;
-  ops->nvminquotient  = w->ops->nvminquotient;
-
-  /* fused vector operations */
-  ops->nvlinearcombination = w->ops->nvlinearcombination;
-  ops->nvscaleaddmulti     = w->ops->nvscaleaddmulti;
-  ops->nvdotprodmulti      = w->ops->nvdotprodmulti;
-
-  /* vector array operations */
-  ops->nvlinearsumvectorarray         = w->ops->nvlinearsumvectorarray;
-  ops->nvscalevectorarray             = w->ops->nvscalevectorarray;
-  ops->nvconstvectorarray             = w->ops->nvconstvectorarray;
-  ops->nvwrmsnormvectorarray          = w->ops->nvwrmsnormvectorarray;
-  ops->nvwrmsnormmaskvectorarray      = w->ops->nvwrmsnormmaskvectorarray;
-  ops->nvscaleaddmultivectorarray     = w->ops->nvscaleaddmultivectorarray;
-  ops->nvlinearcombinationvectorarray = w->ops->nvlinearcombinationvectorarray;
-
-  /* local reduction kernels */
-  ops->nvwsqrsumlocal     = w->ops->nvwsqrsumlocal;
-  ops->nvwsqrsummasklocal = w->ops->nvwsqrsummasklocal;
-  ops->nvdotprodlocal     = w->ops->nvdotprodlocal;
-  ops->nvmaxnormlocal     = w->ops->nvmaxnormlocal;
-  ops->nvminlocal         = w->ops->nvminlocal;
-  ops->nvl1normlocal      = w->ops->nvl1normlocal;
-  ops->nvinvtestlocal     = w->ops->nvinvtestlocal;
-  ops->nvconstrmasklocal  = w->ops->nvconstrmasklocal;
-  ops->nvminquotientlocal = w->ops->nvminquotientlocal;
-
-  /* Create content */
-  v->content = NULL;
-  v->ops  = ops;
+  /* Attach operations */
+  if (N_VCopyOps(w, v)) { N_VDestroy(v); return(NULL); }
 
   return(v);
 }
@@ -480,11 +399,12 @@ N_Vector N_VCloneEmpty_Cuda(N_Vector w)
 N_Vector N_VClone_Cuda(N_Vector w)
 {
   N_Vector v;
-  vector_type* wdat = static_cast<vector_type*>(w->content);
-  vector_type* vdat = new vector_type(*wdat);
   v = NULL;
   v = N_VCloneEmpty_Cuda(w);
   if (v == NULL) return(NULL);
+
+  vector_type* wdat = static_cast<vector_type*>(w->content);
+  vector_type* vdat = new vector_type(*wdat);
 
   v->content = vdat;
 
@@ -494,13 +414,16 @@ N_Vector N_VClone_Cuda(N_Vector w)
 
 void N_VDestroy_Cuda(N_Vector v)
 {
+  if (v == NULL) return;
+
   vector_type* x = static_cast<vector_type*>(v->content);
   if (x != NULL) {
     delete x;
     v->content = NULL;
   }
 
-  free(v->ops); v->ops = NULL;
+  /* free ops and vector */
+  if (v->ops != NULL) { free(v->ops); v->ops = NULL; }
   free(v); v = NULL;
 
   return;

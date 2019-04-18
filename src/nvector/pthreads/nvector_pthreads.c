@@ -112,7 +112,7 @@ static void *VaxpyVectorArray_PT(void *thread_data);
 
 /* Function to determine loop values for threads */
 static void N_VSplitLoop(int myid, int *nthreads, sunindextype *N,
-			 sunindextype *start, sunindextype *end);
+                         sunindextype *start, sunindextype *end);
 
 /* Function to initialize thread data */
 static void N_VInitThreadData(Pthreads_Data *thread_data);
@@ -139,88 +139,72 @@ N_Vector_ID N_VGetVectorID_Pthreads(N_Vector v)
 N_Vector N_VNewEmpty_Pthreads(sunindextype length, int num_threads)
 {
   N_Vector v;
-  N_Vector_Ops ops;
   N_VectorContent_Pthreads content;
 
-  /* Create vector */
+  /* Create an empty vector object */
   v = NULL;
-  v = (N_Vector) malloc(sizeof *v);
+  v = N_VNewEmpty();
   if (v == NULL) return(NULL);
 
-  /* Create vector operation structure */
-  ops = NULL;
-  ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
-  if (ops == NULL) { free(v); return(NULL); }
+  /* Attach operations */
 
-  ops->nvgetvectorid     = N_VGetVectorID_Pthreads;
-  ops->nvclone           = N_VClone_Pthreads;
-  ops->nvcloneempty      = N_VCloneEmpty_Pthreads;
-  ops->nvdestroy         = N_VDestroy_Pthreads;
-  ops->nvspace           = N_VSpace_Pthreads;
-  ops->nvgetarraypointer = N_VGetArrayPointer_Pthreads;
-  ops->nvsetarraypointer = N_VSetArrayPointer_Pthreads;
-  ops->nvgetcommunicator = NULL;
-  ops->nvgetlength       = N_VGetLength_Pthreads;
+  /* constructors, destructors, and utility operations */
+  v->ops->nvgetvectorid     = N_VGetVectorID_Pthreads;
+  v->ops->nvclone           = N_VClone_Pthreads;
+  v->ops->nvcloneempty      = N_VCloneEmpty_Pthreads;
+  v->ops->nvdestroy         = N_VDestroy_Pthreads;
+  v->ops->nvspace           = N_VSpace_Pthreads;
+  v->ops->nvgetarraypointer = N_VGetArrayPointer_Pthreads;
+  v->ops->nvsetarraypointer = N_VSetArrayPointer_Pthreads;
+  v->ops->nvgetlength       = N_VGetLength_Pthreads;
 
   /* standard vector operations */
-  ops->nvlinearsum    = N_VLinearSum_Pthreads;
-  ops->nvconst        = N_VConst_Pthreads;
-  ops->nvprod         = N_VProd_Pthreads;
-  ops->nvdiv          = N_VDiv_Pthreads;
-  ops->nvscale        = N_VScale_Pthreads;
-  ops->nvabs          = N_VAbs_Pthreads;
-  ops->nvinv          = N_VInv_Pthreads;
-  ops->nvaddconst     = N_VAddConst_Pthreads;
-  ops->nvdotprod      = N_VDotProd_Pthreads;
-  ops->nvmaxnorm      = N_VMaxNorm_Pthreads;
-  ops->nvwrmsnormmask = N_VWrmsNormMask_Pthreads;
-  ops->nvwrmsnorm     = N_VWrmsNorm_Pthreads;
-  ops->nvmin          = N_VMin_Pthreads;
-  ops->nvwl2norm      = N_VWL2Norm_Pthreads;
-  ops->nvl1norm       = N_VL1Norm_Pthreads;
-  ops->nvcompare      = N_VCompare_Pthreads;
-  ops->nvinvtest      = N_VInvTest_Pthreads;
-  ops->nvconstrmask   = N_VConstrMask_Pthreads;
-  ops->nvminquotient  = N_VMinQuotient_Pthreads;
+  v->ops->nvlinearsum    = N_VLinearSum_Pthreads;
+  v->ops->nvconst        = N_VConst_Pthreads;
+  v->ops->nvprod         = N_VProd_Pthreads;
+  v->ops->nvdiv          = N_VDiv_Pthreads;
+  v->ops->nvscale        = N_VScale_Pthreads;
+  v->ops->nvabs          = N_VAbs_Pthreads;
+  v->ops->nvinv          = N_VInv_Pthreads;
+  v->ops->nvaddconst     = N_VAddConst_Pthreads;
+  v->ops->nvdotprod      = N_VDotProd_Pthreads;
+  v->ops->nvmaxnorm      = N_VMaxNorm_Pthreads;
+  v->ops->nvwrmsnormmask = N_VWrmsNormMask_Pthreads;
+  v->ops->nvwrmsnorm     = N_VWrmsNorm_Pthreads;
+  v->ops->nvmin          = N_VMin_Pthreads;
+  v->ops->nvwl2norm      = N_VWL2Norm_Pthreads;
+  v->ops->nvl1norm       = N_VL1Norm_Pthreads;
+  v->ops->nvcompare      = N_VCompare_Pthreads;
+  v->ops->nvinvtest      = N_VInvTest_Pthreads;
+  v->ops->nvconstrmask   = N_VConstrMask_Pthreads;
+  v->ops->nvminquotient  = N_VMinQuotient_Pthreads;
 
-  /* fused vector operations (optional, NULL means disabled by default) */
-  ops->nvlinearcombination = NULL;
-  ops->nvscaleaddmulti     = NULL;
-  ops->nvdotprodmulti      = NULL;
+  /* fused and vector array operations are disabled (NULL) by default */
 
-  /* vector array operations (optional, NULL means disabled by default) */
-  ops->nvlinearsumvectorarray         = NULL;
-  ops->nvscalevectorarray             = NULL;
-  ops->nvconstvectorarray             = NULL;
-  ops->nvwrmsnormvectorarray          = NULL;
-  ops->nvwrmsnormmaskvectorarray      = NULL;
-  ops->nvscaleaddmultivectorarray     = NULL;
-  ops->nvlinearcombinationvectorarray = NULL;
+  /* local reduction operations */
+  v->ops->nvdotprodlocal     = N_VDotProd_Pthreads;
+  v->ops->nvmaxnormlocal     = N_VMaxNorm_Pthreads;
+  v->ops->nvminlocal         = N_VMin_Pthreads;
+  v->ops->nvl1normlocal      = N_VL1Norm_Pthreads;
+  v->ops->nvinvtestlocal     = N_VInvTest_Pthreads;
+  v->ops->nvconstrmasklocal  = N_VConstrMask_Pthreads;
+  v->ops->nvminquotientlocal = N_VMinQuotient_Pthreads;
+  v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Pthreads;
+  v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Pthreads;
 
-  /* local reduction kernels */
-  ops->nvdotprodlocal     = N_VDotProd_Pthreads;
-  ops->nvmaxnormlocal     = N_VMaxNorm_Pthreads;
-  ops->nvminlocal         = N_VMin_Pthreads;
-  ops->nvl1normlocal      = N_VL1Norm_Pthreads;
-  ops->nvinvtestlocal     = N_VInvTest_Pthreads;
-  ops->nvconstrmasklocal  = N_VConstrMask_Pthreads;
-  ops->nvminquotientlocal = N_VMinQuotient_Pthreads;
-  ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Pthreads;
-  ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Pthreads;
-  
   /* Create content */
   content = NULL;
-  content = (N_VectorContent_Pthreads) malloc(sizeof(struct _N_VectorContent_Pthreads));
-  if (content == NULL) { free(ops); free(v); return(NULL); }
+  content = (N_VectorContent_Pthreads) malloc(sizeof *content);
+  if (content == NULL) { N_VDestroy(v); return(NULL); }
 
+  /* Attach content */
+  v->content = content;
+
+  /* Initialize content */
   content->length      = length;
   content->num_threads = num_threads;
   content->own_data    = SUNFALSE;
   content->data        = NULL;
-
-  /* Attach content and ops */
-  v->content = content;
-  v->ops     = ops;
 
   return(v);
 }
@@ -403,90 +387,31 @@ void N_VPrintFile_Pthreads(N_Vector x, FILE *outfile)
 N_Vector N_VCloneEmpty_Pthreads(N_Vector w)
 {
   N_Vector v;
-  N_Vector_Ops ops;
   N_VectorContent_Pthreads content;
 
   if (w == NULL) return(NULL);
 
   /* Create vector */
   v = NULL;
-  v = (N_Vector) malloc(sizeof *v);
+  v = N_VNewEmpty();
   if (v == NULL) return(NULL);
 
-  /* Create vector operation structure */
-  ops = NULL;
-  ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
-  if (ops == NULL) { free(v); return(NULL); }
+  /* Attach operations */
+  if (N_VCopyOps(w, v)) { N_VDestroy(v); return(NULL); }
 
-  ops->nvgetvectorid     = w->ops->nvgetvectorid;
-  ops->nvclone           = w->ops->nvclone;
-  ops->nvcloneempty      = w->ops->nvcloneempty;
-  ops->nvdestroy         = w->ops->nvdestroy;
-  ops->nvspace           = w->ops->nvspace;
-  ops->nvgetarraypointer = w->ops->nvgetarraypointer;
-  ops->nvsetarraypointer = w->ops->nvsetarraypointer;
-  ops->nvgetcommunicator = w->ops->nvgetcommunicator;
-  ops->nvgetlength       = w->ops->nvgetlength;
-
-  /* standard vector operations */
-  ops->nvlinearsum    = w->ops->nvlinearsum;
-  ops->nvconst        = w->ops->nvconst;
-  ops->nvprod         = w->ops->nvprod;
-  ops->nvdiv          = w->ops->nvdiv;
-  ops->nvscale        = w->ops->nvscale;
-  ops->nvabs          = w->ops->nvabs;
-  ops->nvinv          = w->ops->nvinv;
-  ops->nvaddconst     = w->ops->nvaddconst;
-  ops->nvdotprod      = w->ops->nvdotprod;
-  ops->nvmaxnorm      = w->ops->nvmaxnorm;
-  ops->nvwrmsnormmask = w->ops->nvwrmsnormmask;
-  ops->nvwrmsnorm     = w->ops->nvwrmsnorm;
-  ops->nvmin          = w->ops->nvmin;
-  ops->nvwl2norm      = w->ops->nvwl2norm;
-  ops->nvl1norm       = w->ops->nvl1norm;
-  ops->nvcompare      = w->ops->nvcompare;
-  ops->nvinvtest      = w->ops->nvinvtest;
-  ops->nvconstrmask   = w->ops->nvconstrmask;
-  ops->nvminquotient  = w->ops->nvminquotient;
-
-  /* fused vector operations */
-  ops->nvlinearcombination = w->ops->nvlinearcombination;
-  ops->nvscaleaddmulti     = w->ops->nvscaleaddmulti;
-  ops->nvdotprodmulti      = w->ops->nvdotprodmulti;
-
-  /* vector array operations */
-  ops->nvlinearsumvectorarray         = w->ops->nvlinearsumvectorarray;
-  ops->nvscalevectorarray             = w->ops->nvscalevectorarray;
-  ops->nvconstvectorarray             = w->ops->nvconstvectorarray;
-  ops->nvwrmsnormvectorarray          = w->ops->nvwrmsnormvectorarray;
-  ops->nvwrmsnormmaskvectorarray      = w->ops->nvwrmsnormmaskvectorarray;
-  ops->nvscaleaddmultivectorarray     = w->ops->nvscaleaddmultivectorarray;
-  ops->nvlinearcombinationvectorarray = w->ops->nvlinearcombinationvectorarray;
-
-  /* local reduction kernels */
-  ops->nvdotprodlocal     = w->ops->nvdotprodlocal;
-  ops->nvmaxnormlocal     = w->ops->nvmaxnormlocal;
-  ops->nvminlocal         = w->ops->nvminlocal;
-  ops->nvl1normlocal      = w->ops->nvl1normlocal;
-  ops->nvinvtestlocal     = w->ops->nvinvtestlocal;
-  ops->nvconstrmasklocal  = w->ops->nvconstrmasklocal;
-  ops->nvminquotientlocal = w->ops->nvminquotientlocal;
-  ops->nvwsqrsumlocal     = w->ops->nvwsqrsumlocal;
-  ops->nvwsqrsummasklocal = w->ops->nvwsqrsummasklocal;
-  
   /* Create content */
   content = NULL;
-  content = (N_VectorContent_Pthreads) malloc(sizeof(struct _N_VectorContent_Pthreads));
-  if (content == NULL) { free(ops); free(v); return(NULL); }
+  content = (N_VectorContent_Pthreads) malloc(sizeof *content);
+  if (content == NULL) { N_VDestroy(v); return(NULL); }
 
+  /* Attach content */
+  v->content = content;
+
+  /* Initialize content */
   content->length      = NV_LENGTH_PT(w);
   content->num_threads = NV_NUM_THREADS_PT(w);
   content->own_data    = SUNFALSE;
   content->data        = NULL;
-
-  /* Attach content and ops */
-  v->content = content;
-  v->ops     = ops;
 
   return(v);
 }
@@ -531,12 +456,20 @@ N_Vector N_VClone_Pthreads(N_Vector w)
 
 void N_VDestroy_Pthreads(N_Vector v)
 {
-  if (NV_OWN_DATA_PT(v) == SUNTRUE) {
-    free(NV_DATA_PT(v));
-    NV_DATA_PT(v) = NULL;
+  if (v == NULL) return;
+
+  /* free content */
+  if (v->content != NULL) {
+    if (NV_OWN_DATA_PT(v) && NV_DATA_PT(v) != NULL) {
+      free(NV_DATA_PT(v));
+      NV_DATA_PT(v) = NULL;
+    }
+    free(v->content);
+    v->content = NULL;
   }
-  free(v->content); v->content = NULL;
-  free(v->ops); v->ops = NULL;
+
+  /* free ops and vector */
+  if (v->ops != NULL) { free(v->ops); v->ops = NULL; }
   free(v); v = NULL;
 
   return;

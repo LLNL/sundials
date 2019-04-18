@@ -300,6 +300,22 @@ preconditioner routines.
 \section{Changes from previous versions}
 \label{Introduction:changes-from-previous-versions}
 
+\subsection{Changes in v4.0.0-dev.1}
+\label{Introduction:changes-in-v4-0-0-dev-1}
+Two functions were added to aid in creating custom NVECTOR objects. The empty
+constructor {\hyperref[nvectors/NVector_Description:c.N_VNewEmpty]{\emph{\code{N\_VNewEmpty()}}}} allocates a new NVECTOR object and
+initializes the content pointer and function pointers in the operations
+structure to \code{NULL}. The function {\hyperref[nvectors/NVector_Description:c.N_VCopyOps]{\emph{\code{N\_VCopyOps()}}}} copies the function
+pointers from the vector \code{w} into the operations structure of the vector
+\code{v}. When used in custom NVECTOR constructors and clone routines these
+functions will ease the introduction of any new optional vector operations to
+the NVECTOR API by ensuring only required operations need to be set and all
+operations are copied when cloning a vector.
+
+Fixed a bug in the build system that prevented the PThreads NVECTOR module from
+being built.
+
+
 \subsection{Changes in v4.0.0-dev.0}
 \label{Introduction:changes-in-v4-0-0-dev-0}
 An additional NVECTOR implementation, NVECTOR\_MANYVECTOR, was
@@ -23512,10 +23528,10 @@ implementations include these local reduction operations, which may be
 used as templates for user-defined NVECTOR implementations.
 
 Finally, we note that the generic NVECTOR module defines the functions
-\code{N\_VCloneVectorArray} and \code{N\_VCloneVectorArrayEmpty}. Both
-functions create (by cloning) an array of \emph{count} variables of type
-\code{N\_Vector}, each of the same type as an existing \code{N\_Vector}. Their
-prototypes are:
+\code{N\_VCloneVectorArray}, \code{N\_VCloneVectorArrayEmpty}, and
+\code{N\_VDestroyVectorArray}. Both clone functions create (by cloning) an array of
+\emph{count} variables of type \code{N\_Vector}, each of the same type as an existing
+\code{N\_Vector}. Their prototypes are:
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{n}{N\PYGZus{}Vector} \PYG{o}{*}\PYG{n+nf}{N\PYGZus{}VCloneVectorArray}\PYG{p}{(}\PYG{k+kt}{int} \PYG{n}{count}\PYG{p}{,} \PYG{n}{N\PYGZus{}Vector} \PYG{n}{w}\PYG{p}{)}\PYG{p}{;}
@@ -23524,7 +23540,6 @@ prototypes are:
 
 and their definitions are based on the implementation-specific
 \code{N\_VClone} and \code{N\_VCloneEmpty} operations, respectively.
-
 An array of variables of type \code{N\_Vector} can be destroyed
 by calling \code{N\_VDestroyVectorArray}, whose prototype is
 
@@ -23563,6 +23578,52 @@ implementation to be used to access different parts in the content
 field of the newly defined \code{N\_Vector}.
 
 \end{itemize}
+
+To aid in the creation of custom NVECTOR modules the generic NVECTOR module
+provides two utility functions {\hyperref[nvectors/NVector_Description:c.N_VNewEmpty]{\emph{\code{N\_VNewEmpty()}}}} and
+{\hyperref[nvectors/NVector_Description:c.N_VCopyOps]{\emph{\code{N\_VCopyOps()}}}}. When used in custom NVECTOR constructors and clone
+routines these functions will ease the introduction of any new optional vector
+operations to the NVECTOR API by ensuring only required operations need to be
+set and all operations are copied when cloning a vector.
+\index{N\_VNewEmpty (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Description:c.N_VNewEmpty}\pysiglinewithargsret{N\_Vector \bfcode{N\_VNewEmpty}}{}{}
+This allocates a new generic \code{N\_Vector} object and initializes its content
+pointer and the function pointers in the operations structure to \code{NULL}.
+
+\textbf{Return value:} If successful, this function returns an \code{N\_Vector}
+object. If an error occurs when allocating the object, then this routine will
+return \code{NULL}.
+
+\end{fulllineitems}
+
+\index{N\_VCopyOps (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_Description:c.N_VCopyOps}\pysiglinewithargsret{int \bfcode{N\_VCopyOps}}{N\_Vector\emph{ w}, N\_Vector\emph{ v}}{}
+This function copies the function pointers in the \code{ops} structure of \code{w}
+into the \code{ops} structure of \code{v}.
+\begin{quote}
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{w} -- the vector to copy operations from.
+
+\item {} 
+\emph{v} -- the vector to copy operations to.
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Return value:}  If successful, this function returns \code{0}. If either of
+the inputs are \code{NULL} or the \code{ops} structure of either input is \code{NULL},
+then is function returns a non-zero value.
+\end{quote}
+
+\end{fulllineitems}
+
 
 Each NVECTOR implementation included in SUNDIALS has a unique
 identifier specified in enumeration and shown in the table below.

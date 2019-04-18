@@ -153,79 +153,67 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
                             sunindextype global_length)
 {
   N_Vector v;
-  N_Vector_Ops ops;
   N_VectorContent_ParHyp content;
 
-  /* Create vector */
+  /* Create an empty vector object */
   v = NULL;
-  v = (N_Vector) malloc(sizeof *v);
+  v = N_VNewEmpty();
   if (v == NULL) return(NULL);
 
-  /* Create vector operation structure */
-  ops = NULL;
-  ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
-  if (ops == NULL) { free(v); return(NULL); }
+  /* Attach operations */
 
-  ops->nvgetvectorid     = N_VGetVectorID_ParHyp;
-  ops->nvclone           = N_VClone_ParHyp;
-  ops->nvcloneempty      = N_VCloneEmpty_ParHyp;
-  ops->nvdestroy         = N_VDestroy_ParHyp;
-  ops->nvspace           = N_VSpace_ParHyp;
-  ops->nvgetarraypointer = N_VGetArrayPointer_ParHyp;
-  ops->nvsetarraypointer = N_VSetArrayPointer_ParHyp;
-  ops->nvgetcommunicator = N_VGetCommunicator_ParHyp;
-  ops->nvgetlength       = N_VGetLength_ParHyp;
+  /* constructors, destructors, and utility operations */
+  v->ops->nvgetvectorid     = N_VGetVectorID_ParHyp;
+  v->ops->nvclone           = N_VClone_ParHyp;
+  v->ops->nvcloneempty      = N_VCloneEmpty_ParHyp;
+  v->ops->nvdestroy         = N_VDestroy_ParHyp;
+  v->ops->nvspace           = N_VSpace_ParHyp;
+  v->ops->nvgetarraypointer = N_VGetArrayPointer_ParHyp;
+  v->ops->nvsetarraypointer = N_VSetArrayPointer_ParHyp;
+  v->ops->nvgetcommunicator = N_VGetCommunicator_ParHyp;
+  v->ops->nvgetlength       = N_VGetLength_ParHyp;
 
   /* standard vector operations */
-  ops->nvlinearsum    = N_VLinearSum_ParHyp;
-  ops->nvconst        = N_VConst_ParHyp;
-  ops->nvprod         = N_VProd_ParHyp;
-  ops->nvdiv          = N_VDiv_ParHyp;
-  ops->nvscale        = N_VScale_ParHyp;
-  ops->nvabs          = N_VAbs_ParHyp;
-  ops->nvinv          = N_VInv_ParHyp;
-  ops->nvaddconst     = N_VAddConst_ParHyp;
-  ops->nvdotprod      = N_VDotProd_ParHyp;
-  ops->nvmaxnorm      = N_VMaxNorm_ParHyp;
-  ops->nvwrmsnormmask = N_VWrmsNormMask_ParHyp;
-  ops->nvwrmsnorm     = N_VWrmsNorm_ParHyp;
-  ops->nvmin          = N_VMin_ParHyp;
-  ops->nvwl2norm      = N_VWL2Norm_ParHyp;
-  ops->nvl1norm       = N_VL1Norm_ParHyp;
-  ops->nvcompare      = N_VCompare_ParHyp;
-  ops->nvinvtest      = N_VInvTest_ParHyp;
-  ops->nvconstrmask   = N_VConstrMask_ParHyp;
-  ops->nvminquotient  = N_VMinQuotient_ParHyp;
+  v->ops->nvlinearsum    = N_VLinearSum_ParHyp;
+  v->ops->nvconst        = N_VConst_ParHyp;
+  v->ops->nvprod         = N_VProd_ParHyp;
+  v->ops->nvdiv          = N_VDiv_ParHyp;
+  v->ops->nvscale        = N_VScale_ParHyp;
+  v->ops->nvabs          = N_VAbs_ParHyp;
+  v->ops->nvinv          = N_VInv_ParHyp;
+  v->ops->nvaddconst     = N_VAddConst_ParHyp;
+  v->ops->nvdotprod      = N_VDotProd_ParHyp;
+  v->ops->nvmaxnorm      = N_VMaxNorm_ParHyp;
+  v->ops->nvwrmsnormmask = N_VWrmsNormMask_ParHyp;
+  v->ops->nvwrmsnorm     = N_VWrmsNorm_ParHyp;
+  v->ops->nvmin          = N_VMin_ParHyp;
+  v->ops->nvwl2norm      = N_VWL2Norm_ParHyp;
+  v->ops->nvl1norm       = N_VL1Norm_ParHyp;
+  v->ops->nvcompare      = N_VCompare_ParHyp;
+  v->ops->nvinvtest      = N_VInvTest_ParHyp;
+  v->ops->nvconstrmask   = N_VConstrMask_ParHyp;
+  v->ops->nvminquotient  = N_VMinQuotient_ParHyp;
 
-  /* fused vector operations (optional, NULL means disabled by default) */
-  ops->nvlinearcombination = NULL;
-  ops->nvscaleaddmulti     = NULL;
-  ops->nvdotprodmulti      = NULL;
+  /* fused and vector array operations are disabled (NULL) by default */
 
-  /* vector array operations (optional, NULL means disabled by default) */
-  ops->nvlinearsumvectorarray         = NULL;
-  ops->nvscalevectorarray             = NULL;
-  ops->nvconstvectorarray             = NULL;
-  ops->nvwrmsnormvectorarray          = NULL;
-  ops->nvwrmsnormmaskvectorarray      = NULL;
-  ops->nvscaleaddmultivectorarray     = NULL;
-  ops->nvlinearcombinationvectorarray = NULL;
-
-  /* local reduction kernels */
-  ops->nvdotprodlocal     = N_VDotProdLocal_ParHyp;
-  ops->nvmaxnormlocal     = N_VMaxNormLocal_ParHyp;
-  ops->nvminlocal         = N_VMinLocal_ParHyp;
-  ops->nvl1normlocal      = N_VL1NormLocal_ParHyp;
-  ops->nvinvtestlocal     = N_VInvTestLocal_ParHyp;
-  ops->nvconstrmasklocal  = N_VConstrMaskLocal_ParHyp;
-  ops->nvminquotientlocal = N_VMinQuotientLocal_ParHyp;
-  ops->nvwsqrsumlocal     = N_VWSqrSumLocal_ParHyp;
-  ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_ParHyp;
+  /* local reduction operations */
+  v->ops->nvdotprodlocal     = N_VDotProdLocal_ParHyp;
+  v->ops->nvmaxnormlocal     = N_VMaxNormLocal_ParHyp;
+  v->ops->nvminlocal         = N_VMinLocal_ParHyp;
+  v->ops->nvl1normlocal      = N_VL1NormLocal_ParHyp;
+  v->ops->nvinvtestlocal     = N_VInvTestLocal_ParHyp;
+  v->ops->nvconstrmasklocal  = N_VConstrMaskLocal_ParHyp;
+  v->ops->nvminquotientlocal = N_VMinQuotientLocal_ParHyp;
+  v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_ParHyp;
+  v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_ParHyp;
   
   /* Create content */
   content = NULL;
-  content = (N_VectorContent_ParHyp) malloc(sizeof(struct _N_VectorContent_ParHyp));
-  if (content == NULL) { free(ops); free(v); return(NULL); }
+  content = (N_VectorContent_ParHyp) malloc(sizeof *content);
+  if (content == NULL) { N_VDestroy(v); return(NULL); }
+
+  /* Attach content */
+  v->content = content;
 
   /* Attach lengths and communicator */
   content->local_length  = local_length;
@@ -233,10 +221,6 @@ N_Vector N_VNewEmpty_ParHyp(MPI_Comm comm,
   content->comm          = comm;
   content->own_parvector = SUNFALSE;
   content->x             = NULL;
-
-  /* Attach content and ops */
-  v->content = content;
-  v->ops     = ops;
 
   return(v);
 }
@@ -398,97 +382,32 @@ void N_VPrintFile_ParHyp(N_Vector x, FILE *outfile)
 N_Vector N_VCloneEmpty_ParHyp(N_Vector w)
 {
   N_Vector v;
-  N_Vector_Ops ops;
   N_VectorContent_ParHyp content;
 
   if (w == NULL) return(NULL);
 
   /* Create vector */
   v = NULL;
-  v = (N_Vector) malloc(sizeof *v);
+  v = N_VNewEmpty();
   if (v == NULL) return(NULL);
 
-  /* Added variables for hypre_parhyp intialization */
-  int nprocs, myid;
-  MPI_Comm_size(NV_COMM_PH(w), &nprocs);
-  MPI_Comm_rank(NV_COMM_PH(w), &myid);
-
-  /* Create vector operation structure */
-  ops = NULL;
-  ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
-  if (ops == NULL) { free(v); return(NULL); }
-
-  ops->nvgetvectorid     = w->ops->nvgetvectorid;
-  ops->nvclone           = w->ops->nvclone;
-  ops->nvcloneempty      = w->ops->nvcloneempty;
-  ops->nvdestroy         = w->ops->nvdestroy;
-  ops->nvspace           = w->ops->nvspace;
-  ops->nvgetarraypointer = w->ops->nvgetarraypointer;
-  ops->nvsetarraypointer = w->ops->nvsetarraypointer;
-  ops->nvgetcommunicator = w->ops->nvgetcommunicator;
-  ops->nvgetlength       = w->ops->nvgetlength;
-
-  /* standard vector operations */
-  ops->nvlinearsum    = w->ops->nvlinearsum;
-  ops->nvconst        = w->ops->nvconst;
-  ops->nvprod         = w->ops->nvprod;
-  ops->nvdiv          = w->ops->nvdiv;
-  ops->nvscale        = w->ops->nvscale;
-  ops->nvabs          = w->ops->nvabs;
-  ops->nvinv          = w->ops->nvinv;
-  ops->nvaddconst     = w->ops->nvaddconst;
-  ops->nvdotprod      = w->ops->nvdotprod;
-  ops->nvmaxnorm      = w->ops->nvmaxnorm;
-  ops->nvwrmsnormmask = w->ops->nvwrmsnormmask;
-  ops->nvwrmsnorm     = w->ops->nvwrmsnorm;
-  ops->nvmin          = w->ops->nvmin;
-  ops->nvwl2norm      = w->ops->nvwl2norm;
-  ops->nvl1norm       = w->ops->nvl1norm;
-  ops->nvcompare      = w->ops->nvcompare;
-  ops->nvinvtest      = w->ops->nvinvtest;
-  ops->nvconstrmask   = w->ops->nvconstrmask;
-  ops->nvminquotient  = w->ops->nvminquotient;
-
-  /* fused vector operations */
-  ops->nvlinearcombination = w->ops->nvlinearcombination;
-  ops->nvscaleaddmulti     = w->ops->nvscaleaddmulti;
-  ops->nvdotprodmulti      = w->ops->nvdotprodmulti;
-
-  /* vector array operations */
-  ops->nvlinearsumvectorarray         = w->ops->nvlinearsumvectorarray;
-  ops->nvscalevectorarray             = w->ops->nvscalevectorarray;
-  ops->nvconstvectorarray             = w->ops->nvconstvectorarray;
-  ops->nvwrmsnormvectorarray          = w->ops->nvwrmsnormvectorarray;
-  ops->nvwrmsnormmaskvectorarray      = w->ops->nvwrmsnormmaskvectorarray;
-  ops->nvscaleaddmultivectorarray     = w->ops->nvscaleaddmultivectorarray;
-  ops->nvlinearcombinationvectorarray = w->ops->nvlinearcombinationvectorarray;
-
-  /* local reduction kernels */
-  ops->nvdotprodlocal     = w->ops->nvdotprodlocal;
-  ops->nvmaxnormlocal     = w->ops->nvmaxnormlocal;
-  ops->nvminlocal         = w->ops->nvminlocal;
-  ops->nvl1normlocal      = w->ops->nvl1normlocal;
-  ops->nvinvtestlocal     = w->ops->nvinvtestlocal;
-  ops->nvconstrmasklocal  = w->ops->nvconstrmasklocal;
-  ops->nvminquotientlocal = w->ops->nvminquotientlocal;
-  ops->nvwsqrsumlocal     = w->ops->nvwsqrsumlocal;
-  ops->nvwsqrsummasklocal = w->ops->nvwsqrsummasklocal;
+  /* Attach operations */
+  if (N_VCopyOps(w, v)) { N_VDestroy(v); return(NULL); }
   
   /* Create content */
   content = NULL;
-  content = (N_VectorContent_ParHyp) malloc(sizeof(struct _N_VectorContent_ParHyp));
-  if (content == NULL) { free(ops); free(v); return(NULL); }
+  content = (N_VectorContent_ParHyp) malloc(sizeof *content);
+  if (content == NULL) { N_VDestroy(v); return(NULL); }
 
-  /* Attach lengths and communicator */
+  /* Attach content */
+  v->content = content;
+
+  /* Initialize content */
   content->local_length  = NV_LOCLENGTH_PH(w);
   content->global_length = NV_GLOBLENGTH_PH(w);
   content->comm          = NV_COMM_PH(w);
   content->own_parvector = SUNFALSE;
   content->x             = NULL;
-
-  /* Attach content and ops */
-  v->content = content;
-  v->ops     = ops;
 
   return(v);
 }
@@ -505,8 +424,7 @@ N_Vector N_VClone_ParHyp(N_Vector w)
 
   v = NULL;
   v = N_VCloneEmpty_ParHyp(w);
-  if (v==NULL)
-    return(NULL);
+  if (v==NULL) return(NULL);
 
   vx = hypre_ParVectorCreate(wx->comm, wx->global_size, wx->partitioning);
   hypre_ParVectorInitialize(vx);
@@ -516,19 +434,28 @@ N_Vector N_VClone_ParHyp(N_Vector w)
   hypre_SeqVectorSetDataOwner(hypre_ParVectorLocalVector(vx), 1);
 
   NV_HYPRE_PARVEC_PH(v) = vx;
-  NV_OWN_PARVEC_PH(v) = SUNTRUE;
+  NV_OWN_PARVEC_PH(v)   = SUNTRUE;
 
   return(v);
 }
 
 void N_VDestroy_ParHyp(N_Vector v)
 {
-  if ((NV_OWN_PARVEC_PH(v) == SUNTRUE)) {
-    hypre_ParVectorDestroy(NV_HYPRE_PARVEC_PH(v));
+  if (v == NULL) return;
+
+  /* free content */
+  if (v->content != NULL) {
+    /* free the hypre parvector if it's owned by the vector wrapper */
+    if (NV_OWN_PARVEC_PH(v) && NV_HYPRE_PARVEC_PH(v) != NULL) {
+      hypre_ParVectorDestroy(NV_HYPRE_PARVEC_PH(v));
+      NV_HYPRE_PARVEC_PH(v) = NULL;
+    }
+    free(v->content);
+    v->content = NULL;
   }
 
-  free(v->content); v->content = NULL;
-  free(v->ops); v->ops = NULL;
+  /* free ops and vector */
+  if (v->ops != NULL) { free(v->ops); v->ops = NULL; }
   free(v); v = NULL;
 
   return;

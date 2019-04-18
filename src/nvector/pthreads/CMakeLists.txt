@@ -26,6 +26,7 @@ SET(nvecpthreads_SOURCES nvector_pthreads.c)
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the NVECPTHREADS library
 SET(shared_SOURCES
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_math.c
   )
 

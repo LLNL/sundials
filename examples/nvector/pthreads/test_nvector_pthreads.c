@@ -252,7 +252,7 @@ booleantype has_data(N_Vector X)
 void set_element(N_Vector X, sunindextype i, realtype val)
 {
   /* set i-th element of data array */
-  set_element_range(X, i, i, val)
+  set_element_range(X, i, i, val);
 }
 
 void set_element_range(N_Vector X, sunindextype is, sunindextype ie,

@@ -107,6 +107,21 @@ preconditioner routines.
 Changes from previous versions
 --------------------------------
 
+Changes in v4.0.0-dev.1
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Two functions were added to aid in creating custom NVECTOR objects. The empty
+constructor :c:func:`N_VNewEmpty()` allocates a new NVECTOR object and
+initializes the content pointer and function pointers in the operations
+structure to ``NULL``. The function :c:func:`N_VCopyOps()` copies the function
+pointers from the vector ``w`` into the operations structure of the vector
+``v``. When used in custom NVECTOR constructors and clone routines these
+functions will ease the introduction of any new optional vector operations to
+the NVECTOR API by ensuring only required operations need to be set and all
+operations are copied when cloning a vector. 
+
+Fixed a bug in the build system that prevented the PThreads NVECTOR module from
+being built.
+
 Changes in v4.0.0-dev.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

@@ -22,6 +22,7 @@ set(nvecopenmpdev_SOURCES nvector_openmpdev.c)
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the NVECOPENMPDEV library
 set(shared_SOURCES
+  ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_math.c
   )
 

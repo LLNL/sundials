@@ -117,6 +117,21 @@ writing in C|)}
 
 \section{Changes from previous versions}
 
+\subsection*{Changes in v5.0.0-dev.1}
+
+Two functions were added to aid in creating custom {\nvector} objects. The empty
+constructor \id{N\_VNewEmpty()} allocates a new {\nvector} object and
+initializes the content pointer and function pointers in the operations
+structure to \id{NULL}. The function \id{N\_VCopyOps(w, v)} copies the function
+pointers from the vector \id{w} into the operations structure of the vector
+\id{v}. When used in custom {\nvector} constructors and clone routines these
+functions will ease the introduction of any new optional vector operations to
+the {\nvector} API by ensuring only required operations need to be set and all
+operations are copied when cloning a vector.
+
+Fixed a bug in the build system that prevented the {\nvecpthreads} module from
+being built.
+
 \subsection*{Changes in v5.0.0-dev.0}
 
 An additional {\nvector} implementation, {\nvecmanyvector}, was

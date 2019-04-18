@@ -150,10 +150,10 @@ implementations include these local reduction operations, which may be
 used as templates for user-defined NVECTOR implementations.
 
 Finally, we note that the generic NVECTOR module defines the functions
-``N_VCloneVectorArray`` and ``N_VCloneVectorArrayEmpty``. Both
-functions create (by cloning) an array of *count* variables of type
-``N_Vector``, each of the same type as an existing ``N_Vector``. Their
-prototypes are:
+``N_VCloneVectorArray``, ``N_VCloneVectorArrayEmpty``, and
+``N_VDestroyVectorArray``. Both clone functions create (by cloning) an array of
+*count* variables of type ``N_Vector``, each of the same type as an existing
+``N_Vector``. Their prototypes are:
 
 .. code-block:: c
 
@@ -162,7 +162,6 @@ prototypes are:
 
 and their definitions are based on the implementation-specific
 ``N_VClone`` and ``N_VCloneEmpty`` operations, respectively.
-
 An array of variables of type ``N_Vector`` can be destroyed
 by calling ``N_VDestroyVectorArray``, whose prototype is
 
@@ -172,8 +171,6 @@ by calling ``N_VDestroyVectorArray``, whose prototype is
 
 and whose definition is based on the implementation-specific
 ``N_VDestroy`` operation.
-
-
 
 A particular implementation of the NVECTOR module **must**:
 
@@ -197,6 +194,34 @@ A particular implementation of the NVECTOR module **must**:
   implementation to be used to access different parts in the content
   field of the newly defined ``N_Vector``.
 
+To aid in the creation of custom NVECTOR modules the generic NVECTOR module
+provides two utility functions :c:func:`N_VNewEmpty()` and
+:c:func:`N_VCopyOps()`. When used in custom NVECTOR constructors and clone
+routines these functions will ease the introduction of any new optional vector
+operations to the NVECTOR API by ensuring only required operations need to be
+set and all operations are copied when cloning a vector.
+
+.. c:function:: N_Vector N_VNewEmpty()
+
+  This allocates a new generic ``N_Vector`` object and initializes its content
+  pointer and the function pointers in the operations structure to ``NULL``.
+
+  **Return value:** If successful, this function returns an ``N_Vector``
+  object. If an error occurs when allocating the object, then this routine will
+  return ``NULL``.
+
+.. c:function:: int N_VCopyOps(N_Vector w, N_Vector v)
+
+  This function copies the function pointers in the ``ops`` structure of ``w``
+  into the ``ops`` structure of ``v``. 
+
+   **Arguments:**
+      * *w* -- the vector to copy operations from.
+      * *v* -- the vector to copy operations to.
+
+   **Return value:**  If successful, this function returns ``0``. If either of
+   the inputs are ``NULL`` or the ``ops`` structure of either input is ``NULL``,
+   then is function returns a non-zero value.
 
 Each NVECTOR implementation included in SUNDIALS has a unique
 identifier specified in enumeration and shown in the table below.

@@ -70,79 +70,58 @@ N_Vector_ID N_VGetVectorID_Trilinos(N_Vector v)
 N_Vector N_VNewEmpty_Trilinos()
 {
   N_Vector v;
-  N_Vector_Ops ops;
 
-  /* Create vector */
+  /* Create an empty vector object */
   v = NULL;
-  v = (N_Vector) malloc(sizeof *v);
+  v = N_VNewEmpty();
   if (v == NULL) return(NULL);
 
-  /* Create vector operation structure */
-  ops = NULL;
-  ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
-  if (ops == NULL) { free(v); return(NULL); }
+  /* Attach operations */
 
-  ops->nvgetvectorid     = N_VGetVectorID_Trilinos;
-  ops->nvclone           = N_VClone_Trilinos;
-  ops->nvcloneempty      = N_VCloneEmpty_Trilinos;
-  ops->nvdestroy         = N_VDestroy_Trilinos;
-  ops->nvspace           = N_VSpace_Trilinos;
-  ops->nvgetarraypointer = NULL;
-  ops->nvsetarraypointer = NULL;
+  /* constructors, destructors, and utility operations */
+  v->ops->nvgetvectorid     = N_VGetVectorID_Trilinos;
+  v->ops->nvclone           = N_VClone_Trilinos;
+  v->ops->nvcloneempty      = N_VCloneEmpty_Trilinos;
+  v->ops->nvdestroy         = N_VDestroy_Trilinos;
+  v->ops->nvspace           = N_VSpace_Trilinos;
 #if SUNDIALS_MPI_ENABLED
-  ops->nvgetcommunicator = N_VGetCommunicator_Trilinos;
-#else
-  ops->nvgetcommunicator = NULL;
+  v->ops->nvgetcommunicator = N_VGetCommunicator_Trilinos;
 #endif
-  ops->nvgetlength       = N_VGetLength_Trilinos;
-  ops->nvlinearsum       = N_VLinearSum_Trilinos;
-  ops->nvconst           = N_VConst_Trilinos;
-  ops->nvprod            = N_VProd_Trilinos;
-  ops->nvdiv             = N_VDiv_Trilinos;
-  ops->nvscale           = N_VScale_Trilinos;
-  ops->nvabs             = N_VAbs_Trilinos;
-  ops->nvinv             = N_VInv_Trilinos;
-  ops->nvaddconst        = N_VAddConst_Trilinos;
-  ops->nvdotprod         = N_VDotProd_Trilinos;
-  ops->nvmaxnorm         = N_VMaxNorm_Trilinos;
-  ops->nvwrmsnorm        = N_VWrmsNorm_Trilinos;
-  ops->nvwrmsnormmask    = N_VWrmsNormMask_Trilinos;
-  ops->nvmin             = N_VMin_Trilinos;
-  ops->nvwl2norm         = N_VWL2Norm_Trilinos;
-  ops->nvl1norm          = N_VL1Norm_Trilinos;
-  ops->nvcompare         = N_VCompare_Trilinos;
-  ops->nvinvtest         = N_VInvTest_Trilinos;
-  ops->nvconstrmask      = N_VConstrMask_Trilinos;
-  ops->nvminquotient     = N_VMinQuotient_Trilinos;
+  v->ops->nvgetlength       = N_VGetLength_Trilinos;
 
-  /* fused vector operations */
-  ops->nvlinearcombination = NULL;
-  ops->nvscaleaddmulti     = NULL;
-  ops->nvdotprodmulti      = NULL;
+  /* standard vector operations */
+  v->ops->nvlinearsum       = N_VLinearSum_Trilinos;
+  v->ops->nvconst           = N_VConst_Trilinos;
+  v->ops->nvprod            = N_VProd_Trilinos;
+  v->ops->nvdiv             = N_VDiv_Trilinos;
+  v->ops->nvscale           = N_VScale_Trilinos;
+  v->ops->nvabs             = N_VAbs_Trilinos;
+  v->ops->nvinv             = N_VInv_Trilinos;
+  v->ops->nvaddconst        = N_VAddConst_Trilinos;
+  v->ops->nvdotprod         = N_VDotProd_Trilinos;
+  v->ops->nvmaxnorm         = N_VMaxNorm_Trilinos;
+  v->ops->nvwrmsnorm        = N_VWrmsNorm_Trilinos;
+  v->ops->nvwrmsnormmask    = N_VWrmsNormMask_Trilinos;
+  v->ops->nvmin             = N_VMin_Trilinos;
+  v->ops->nvwl2norm         = N_VWL2Norm_Trilinos;
+  v->ops->nvl1norm          = N_VL1Norm_Trilinos;
+  v->ops->nvcompare         = N_VCompare_Trilinos;
+  v->ops->nvinvtest         = N_VInvTest_Trilinos;
+  v->ops->nvconstrmask      = N_VConstrMask_Trilinos;
+  v->ops->nvminquotient     = N_VMinQuotient_Trilinos;
 
-  /* vector array operations */
-  ops->nvlinearsumvectorarray         = NULL;
-  ops->nvscalevectorarray             = NULL;
-  ops->nvconstvectorarray             = NULL;
-  ops->nvwrmsnormvectorarray          = NULL;
-  ops->nvwrmsnormmaskvectorarray      = NULL;
-  ops->nvscaleaddmultivectorarray     = NULL;
-  ops->nvlinearcombinationvectorarray = NULL;
+  /* fused and vector array operations are disabled (NULL) by default */
 
-  /* local reduction kernels */
-  ops->nvdotprodlocal     = N_VDotProdLocal_Trilinos;
-  ops->nvmaxnormlocal     = N_VMaxNormLocal_Trilinos;
-  ops->nvminlocal         = N_VMinLocal_Trilinos;
-  ops->nvl1normlocal      = N_VL1NormLocal_Trilinos;
-  ops->nvinvtestlocal     = N_VInvTestLocal_Trilinos;
-  ops->nvconstrmasklocal  = N_VConstrMaskLocal_Trilinos;
-  ops->nvminquotientlocal = N_VMinQuotientLocal_Trilinos;
-  ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Trilinos;
-  ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Trilinos;
-  
-  /* Attach ops and set content to NULL */
-  v->content = NULL;
-  v->ops     = ops;
+  /* local reduction operations */
+  v->ops->nvdotprodlocal     = N_VDotProdLocal_Trilinos;
+  v->ops->nvmaxnormlocal     = N_VMaxNormLocal_Trilinos;
+  v->ops->nvminlocal         = N_VMinLocal_Trilinos;
+  v->ops->nvl1normlocal      = N_VL1NormLocal_Trilinos;
+  v->ops->nvinvtestlocal     = N_VInvTestLocal_Trilinos;
+  v->ops->nvconstrmasklocal  = N_VConstrMaskLocal_Trilinos;
+  v->ops->nvminquotientlocal = N_VMinQuotientLocal_Trilinos;
+  v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_Trilinos;
+  v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_Trilinos;
 
   return(v);
 }
@@ -161,16 +140,11 @@ N_Vector N_VMake_Trilinos(Teuchos::RCP<vector_type> vec)
 
   // Create an N_Vector with operators attached and empty content
   v = N_VNewEmpty_Trilinos();
-  if (v == NULL)
-     return(NULL);
+  if (v == NULL) return(NULL);
 
   // Create vector content using a pointer to Tpetra vector
   v->content = new Sundials::TpetraVectorInterface(vec);
-  if (v->content == NULL) {
-    free(v->ops);
-    free(v);
-    return NULL;
-  }
+  if (v->content == NULL) { N_VDestroy(v); return NULL; }
 
   return(v);
 }
@@ -185,80 +159,16 @@ N_Vector N_VMake_Trilinos(Teuchos::RCP<vector_type> vec)
 N_Vector N_VCloneEmpty_Trilinos(N_Vector w)
 {
   N_Vector v;
-  N_Vector_Ops ops;
 
   if (w == NULL) return(NULL);
 
   /* Create vector */
   v = NULL;
-  v = (N_Vector) malloc(sizeof *v);
+  v = N_VNewEmpty();
   if (v == NULL) return(NULL);
 
-  /* Create vector operation structure */
-  ops = NULL;
-  ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
-  if (ops == NULL) {
-    free(v);
-    return(NULL);
-  }
-
-  ops->nvgetvectorid     = w->ops->nvgetvectorid;
-  ops->nvclone           = w->ops->nvclone;
-  ops->nvcloneempty      = w->ops->nvcloneempty;
-  ops->nvdestroy         = w->ops->nvdestroy;
-  ops->nvspace           = w->ops->nvspace;
-  ops->nvgetarraypointer = w->ops->nvgetarraypointer;
-  ops->nvsetarraypointer = w->ops->nvsetarraypointer;
-  ops->nvgetcommunicator = w->ops->nvgetcommunicator;
-  ops->nvgetlength       = w->ops->nvgetlength;
-  ops->nvlinearsum       = w->ops->nvlinearsum;
-  ops->nvconst           = w->ops->nvconst;
-  ops->nvprod            = w->ops->nvprod;
-  ops->nvdiv             = w->ops->nvdiv;
-  ops->nvscale           = w->ops->nvscale;
-  ops->nvabs             = w->ops->nvabs;
-  ops->nvinv             = w->ops->nvinv;
-  ops->nvaddconst        = w->ops->nvaddconst;
-  ops->nvdotprod         = w->ops->nvdotprod;
-  ops->nvmaxnorm         = w->ops->nvmaxnorm;
-  ops->nvwrmsnorm        = w->ops->nvwrmsnorm;
-  ops->nvwrmsnormmask    = w->ops->nvwrmsnormmask;
-  ops->nvmin             = w->ops->nvmin;
-  ops->nvwl2norm         = w->ops->nvwl2norm;
-  ops->nvl1norm          = w->ops->nvl1norm;
-  ops->nvcompare         = w->ops->nvcompare;
-  ops->nvinvtest         = w->ops->nvinvtest;
-  ops->nvconstrmask      = w->ops->nvconstrmask;
-  ops->nvminquotient     = w->ops->nvminquotient;
-
-  /* fused vector operations */
-  ops->nvlinearcombination = w->ops->nvlinearcombination;
-  ops->nvscaleaddmulti     = w->ops->nvscaleaddmulti;
-  ops->nvdotprodmulti      = w->ops->nvdotprodmulti;
-
-  /* vector array operations */
-  ops->nvlinearsumvectorarray         = w->ops->nvlinearsumvectorarray;
-  ops->nvscalevectorarray             = w->ops->nvscalevectorarray;
-  ops->nvconstvectorarray             = w->ops->nvconstvectorarray;
-  ops->nvwrmsnormvectorarray          = w->ops->nvwrmsnormvectorarray;
-  ops->nvwrmsnormmaskvectorarray      = w->ops->nvwrmsnormmaskvectorarray;
-  ops->nvscaleaddmultivectorarray     = w->ops->nvscaleaddmultivectorarray;
-  ops->nvlinearcombinationvectorarray = w->ops->nvlinearcombinationvectorarray;
-
-  /* local reduction kernels */
-  ops->nvdotprodlocal     = w->ops->nvdotprodlocal;
-  ops->nvmaxnormlocal     = w->ops->nvmaxnormlocal;
-  ops->nvminlocal         = w->ops->nvminlocal;
-  ops->nvl1normlocal      = w->ops->nvl1normlocal;
-  ops->nvinvtestlocal     = w->ops->nvinvtestlocal;
-  ops->nvconstrmasklocal  = w->ops->nvconstrmasklocal;
-  ops->nvminquotientlocal = w->ops->nvminquotientlocal;
-  ops->nvwsqrsumlocal     = w->ops->nvwsqrsumlocal;
-  ops->nvwsqrsummasklocal = w->ops->nvwsqrsummasklocal;
-  
-  /* Attach ops and set content to NULL */
-  v->content = NULL;
-  v->ops     = ops;
+  /* Attach operations */
+  if (N_VCopyOps(w, v)) { N_VDestroy(v); return(NULL); }
 
   return(v);
 }
@@ -266,8 +176,7 @@ N_Vector N_VCloneEmpty_Trilinos(N_Vector w)
 N_Vector N_VClone_Trilinos(N_Vector w)
 {
   N_Vector v = N_VCloneEmpty_Trilinos(w);
-  if (v == NULL)
-    return(NULL);
+  if (v == NULL) return(NULL);
 
   // Get raw pointer to Tpetra vector
   Teuchos::RCP<vector_type> wvec = N_VGetVector_Trilinos(w);
@@ -278,17 +187,15 @@ N_Vector N_VClone_Trilinos(N_Vector w)
 
   // Create vector content using the raw pointer to the cloned Tpetra vector
   v->content = new Sundials::TpetraVectorInterface(tvec);
-  if (v->content == NULL) {
-    free(v->ops);
-    free(v);
-    return NULL;
-  }
+  if (v->content == NULL) { N_VDestroy(v); return NULL; }
 
   return(v);
 }
 
 void N_VDestroy_Trilinos(N_Vector v)
 {
+  if (v == NULL) return;
+
   if(v->content != NULL) {
     Sundials::TpetraVectorInterface* iface =
       reinterpret_cast<Sundials::TpetraVectorInterface*>(v->content);
@@ -298,11 +205,11 @@ void N_VDestroy_Trilinos(N_Vector v)
       v->content = NULL;
   }
 
-  free(v->ops);
-  v->ops = NULL;
+  /* free ops and vector */
+  if (v->ops != NULL) { free(v->ops); v->ops = NULL; }
+  free(v); v = NULL;
 
-  free(v);
-  v = NULL;
+  return;
 }
 
 void N_VSpace_Trilinos(N_Vector x, sunindextype *lrw, sunindextype *liw)

@@ -29,6 +29,7 @@ set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${RAJA_COMPILE_FLAGS})
 # Add variable shared_SOURCES with the common SUNDIALS sources which will
 # also be included in the NVECRAJA library
 SET(shared_SOURCES
+  sundials_nvector.c
   sundials_math.c
   sundials_mpi.c
 )

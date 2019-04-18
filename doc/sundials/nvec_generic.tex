@@ -137,22 +137,23 @@ implementations include these local reduction operations, which may be
 used as templates for user-defined {\nvector} implementations.
 
 Finally, note that the generic {\nvector} module defines the functions
-\ID{N\_VCloneVectorArray} and \ID{N\_VCloneVectorArrayEmpty}.  Both functions
-create (by cloning) an array of \id{count} variables of type \id{N\_Vector}, each
-of the same type as an existing \id{N\_Vector}. Their prototypes are
+\ID{N\_VCloneVectorArray},  \ID{N\_VCloneVectorArrayEmpty}, and
+\ID{N\_VDestroyVectorArray}. Both clone functions create (by cloning) an array
+of \id{count} variables of type \id{N\_Vector}, each of the same type as an
+existing \id{N\_Vector}. Their prototypes are
 \begin{verbatim}
 N_Vector *N_VCloneVectorArray(int count, N_Vector w);
 N_Vector *N_VCloneVectorArrayEmpty(int count, N_Vector w);
 \end{verbatim}
 and their definitions are based on the implementation-specific \id{N\_VClone} and
-\id{N\_VCloneEmpty} operations, respectively.
-
-An array of variables of type \id{N\_Vector} can be destroyed by
-calling \ID{N\_VDestroyVectorArray}, whose prototype is
+\id{N\_VCloneEmpty} operations, respectively. An array of variables of
+type \id{N\_Vector} can be destroyed by calling \ID{N\_VDestroyVectorArray},
+whose prototype is
 \begin{verbatim}
 void N_VDestroyVectorArray(N_Vector *vs, int count);
 \end{verbatim}
-and whose definition is based on the implementation-specific \id{N\_VDestroy} operation.
+and whose definition is based on the implementation-specific \id{N\_VDestroy}
+operation.
 
 
 A particular implementation of the {\nvector} module must:
@@ -172,6 +173,53 @@ A particular implementation of the {\nvector} module must:
 \item Optionally, provide accessor macros as needed for that particular implementation to
   be used to access different parts in the {\em content} field of the newly defined \id{N\_Vector}.
 \end{itemize}
+
+To aid in the creation of custom {\nvector} modules the generic {\nvector}
+module provides two utility functions \id{N\_VNewEmpty} and \id{N\_VCopyOps}.
+When used in custom {\nvector} constructors and clone routines these functions
+will ease the introduction of any new optional vector operations to the
+{\nvector} API by ensuring only required operations need to be set and all
+operations are copied when cloning a vector.
+%
+% --------------------------------------------------------------------
+%
+\ucfunction{N\_VNewEmpty}
+{
+  v = N\_VNewEmpty();
+}
+{
+  The function \Id{N\_VNewEmpty} allocates a new generic {\nvector} object and
+  initializes its content pointer and the function pointers in the operations
+  structure to \id{NULL}.
+}
+{}
+{
+  This function returns an \id{N\_Vector} object. If an error occurs when
+  allocating the object, then this routine will return \id{NULL}.
+}
+{}
+%
+% --------------------------------------------------------------------
+%
+\ucfunction{N\_VCopyOps}
+{
+  retval = N\_VCopyOps(w, v);
+}
+{
+  The function \Id{N\_VCopyOps} copies the function pointers in the \id{ops}
+  structure of \id{w} into the \id{ops} structure of \id{v}.
+}
+{
+  \begin{args}[w]
+  \item[w] (\id{N\_Vector}) the vector to copy operations from.
+  \item[v] (\id{N\_Vector}) the vector to copy operations to.
+  \end{args}
+}
+{
+  This returns \id{0} if successful and a non-zero value if either of the inputs
+  are \id{NULL} or the \id{ops} structure of either input is \id{NULL}.
+}
+{}
 
 Each {\nvector} implementation included in {\sundials} has a unique
 identifier specified in enumeration and shown in Table \ref{t:vectorIDs}.

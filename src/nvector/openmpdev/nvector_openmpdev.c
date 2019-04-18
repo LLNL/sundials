@@ -76,88 +76,70 @@ N_Vector_ID N_VGetVectorID_OpenMPDEV(N_Vector v)
 N_Vector N_VNewEmpty_OpenMPDEV(sunindextype length)
 {
   N_Vector v;
-  N_Vector_Ops ops;
   N_VectorContent_OpenMPDEV content;
 
-  /* Create vector */
+  /* Create an empty vector object */
   v = NULL;
-  v = (N_Vector) malloc(sizeof *v);
+  v = N_VNewEmpty();
   if (v == NULL) return(NULL);
 
-  /* Create vector operation structure */
-  ops = NULL;
-  ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
-  if (ops == NULL) { free(v); return(NULL); }
+  /* Attach operations */
 
-  ops->nvgetvectorid     = N_VGetVectorID_OpenMPDEV;
-  ops->nvclone           = N_VClone_OpenMPDEV;
-  ops->nvcloneempty      = N_VCloneEmpty_OpenMPDEV;
-  ops->nvdestroy         = N_VDestroy_OpenMPDEV;
-  ops->nvspace           = N_VSpace_OpenMPDEV;
-  ops->nvgetarraypointer = NULL;
-  ops->nvsetarraypointer = NULL;
-  ops->nvgetcommunicator = NULL;
-  ops->nvgetlength       = N_VGetLength_OpenMPDEV;
+  /* constructors, destructors, and utility operations */
+  v->ops->nvgetvectorid = N_VGetVectorID_OpenMPDEV;
+  v->ops->nvclone       = N_VClone_OpenMPDEV;
+  v->ops->nvcloneempty  = N_VCloneEmpty_OpenMPDEV;
+  v->ops->nvdestroy     = N_VDestroy_OpenMPDEV;
+  v->ops->nvspace       = N_VSpace_OpenMPDEV;
+  v->ops->nvgetlength   = N_VGetLength_OpenMPDEV;
 
   /* standard vector operations */
-  ops->nvlinearsum    = N_VLinearSum_OpenMPDEV;
-  ops->nvconst        = N_VConst_OpenMPDEV;
-  ops->nvprod         = N_VProd_OpenMPDEV;
-  ops->nvdiv          = N_VDiv_OpenMPDEV;
-  ops->nvscale        = N_VScale_OpenMPDEV;
-  ops->nvabs          = N_VAbs_OpenMPDEV;
-  ops->nvinv          = N_VInv_OpenMPDEV;
-  ops->nvaddconst     = N_VAddConst_OpenMPDEV;
-  ops->nvdotprod      = N_VDotProd_OpenMPDEV;
-  ops->nvmaxnorm      = N_VMaxNorm_OpenMPDEV;
-  ops->nvwrmsnormmask = N_VWrmsNormMask_OpenMPDEV;
-  ops->nvwrmsnorm     = N_VWrmsNorm_OpenMPDEV;
-  ops->nvmin          = N_VMin_OpenMPDEV;
-  ops->nvwl2norm      = N_VWL2Norm_OpenMPDEV;
-  ops->nvl1norm       = N_VL1Norm_OpenMPDEV;
-  ops->nvcompare      = N_VCompare_OpenMPDEV;
-  ops->nvinvtest      = N_VInvTest_OpenMPDEV;
-  ops->nvconstrmask   = N_VConstrMask_OpenMPDEV;
-  ops->nvminquotient  = N_VMinQuotient_OpenMPDEV;
+  v->ops->nvlinearsum    = N_VLinearSum_OpenMPDEV;
+  v->ops->nvconst        = N_VConst_OpenMPDEV;
+  v->ops->nvprod         = N_VProd_OpenMPDEV;
+  v->ops->nvdiv          = N_VDiv_OpenMPDEV;
+  v->ops->nvscale        = N_VScale_OpenMPDEV;
+  v->ops->nvabs          = N_VAbs_OpenMPDEV;
+  v->ops->nvinv          = N_VInv_OpenMPDEV;
+  v->ops->nvaddconst     = N_VAddConst_OpenMPDEV;
+  v->ops->nvdotprod      = N_VDotProd_OpenMPDEV;
+  v->ops->nvmaxnorm      = N_VMaxNorm_OpenMPDEV;
+  v->ops->nvwrmsnormmask = N_VWrmsNormMask_OpenMPDEV;
+  v->ops->nvwrmsnorm     = N_VWrmsNorm_OpenMPDEV;
+  v->ops->nvmin          = N_VMin_OpenMPDEV;
+  v->ops->nvwl2norm      = N_VWL2Norm_OpenMPDEV;
+  v->ops->nvl1norm       = N_VL1Norm_OpenMPDEV;
+  v->ops->nvcompare      = N_VCompare_OpenMPDEV;
+  v->ops->nvinvtest      = N_VInvTest_OpenMPDEV;
+  v->ops->nvconstrmask   = N_VConstrMask_OpenMPDEV;
+  v->ops->nvminquotient  = N_VMinQuotient_OpenMPDEV;
 
-  /* fused vector operations (optional, NULL means disabled by default) */
-  ops->nvlinearcombination = NULL;
-  ops->nvscaleaddmulti     = NULL;
-  ops->nvdotprodmulti      = NULL;
+  /* fused and vector array operations are disabled (NULL) by default */
 
-  /* vector array operations (optional, NULL means disabled by default) */
-  ops->nvlinearsumvectorarray         = NULL;
-  ops->nvscalevectorarray             = NULL;
-  ops->nvconstvectorarray             = NULL;
-  ops->nvwrmsnormvectorarray          = NULL;
-  ops->nvwrmsnormmaskvectorarray      = NULL;
-  ops->nvscaleaddmultivectorarray     = NULL;
-  ops->nvlinearcombinationvectorarray = NULL;
+  /* local reduction operations */
+  v->ops->nvdotprodlocal     = N_VDotProd_OpenMPDEV;
+  v->ops->nvmaxnormlocal     = N_VMaxNorm_OpenMPDEV;
+  v->ops->nvminlocal         = N_VMin_OpenMPDEV;
+  v->ops->nvl1normlocal      = N_VL1Norm_OpenMPDEV;
+  v->ops->nvinvtestlocal     = N_VInvTest_OpenMPDEV;
+  v->ops->nvconstrmasklocal  = N_VConstrMask_OpenMPDEV;
+  v->ops->nvminquotientlocal = N_VMinQuotient_OpenMPDEV;
+  v->ops->nvwsqrsumlocal     = N_VWSqrSumLocal_OpenMPDEV;
+  v->ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_OpenMPDEV;
 
-  /* local reduction kernels */
-  ops->nvdotprodlocal     = N_VDotProd_OpenMPDEV;
-  ops->nvmaxnormlocal     = N_VMaxNorm_OpenMPDEV;
-  ops->nvminlocal         = N_VMin_OpenMPDEV;
-  ops->nvl1normlocal      = N_VL1Norm_OpenMPDEV;
-  ops->nvinvtestlocal     = N_VInvTest_OpenMPDEV;
-  ops->nvconstrmasklocal  = N_VConstrMask_OpenMPDEV;
-  ops->nvminquotientlocal = N_VMinQuotient_OpenMPDEV;
-  ops->nvwsqrsumlocal     = N_VWSqrSumLocal_OpenMPDEV;
-  ops->nvwsqrsummasklocal = N_VWSqrSumMaskLocal_OpenMPDEV;
-  
   /* Create content */
   content = NULL;
-  content = (N_VectorContent_OpenMPDEV) malloc(sizeof(struct _N_VectorContent_OpenMPDEV));
-  if (content == NULL) { free(ops); free(v); return(NULL); }
+  content = (N_VectorContent_OpenMPDEV) malloc(sizeof *content);
+  if (content == NULL) { N_VDestroy(v); return(NULL); }
 
+  /* Attach content */
+  v->content = content;
+
+  /* Initialize content */
   content->length    = length;
   content->own_data  = SUNFALSE;
   content->host_data = NULL;
   content->dev_data  = NULL;
-
-  /* Attach content and ops */
-  v->content = content;
-  v->ops     = ops;
 
   return(v);
 }
@@ -180,18 +162,20 @@ N_Vector N_VNew_OpenMPDEV(sunindextype length)
   /* Create data */
   if (length > 0) {
 
+    /* Update ownership */
+    NV_OWN_DATA_OMPDEV(v) = SUNTRUE;
+
     /* Allocate memory on host */
     data = NULL;
     data = (realtype *) malloc(length * sizeof(realtype));
+    if (data == NULL) { N_VDestroy(v); return(NULL); }
 
     /* Allocate memory on device */
     dev = omp_get_default_device();
     dev_data = omp_target_alloc(length * sizeof(realtype), dev);
-
-    if(data == NULL) { N_VDestroy_OpenMPDEV(v); return(NULL); }
+    if (dev_data == NULL) { N_VDestroy(v); return(NULL); }
 
     /* Attach data */
-    NV_OWN_DATA_OMPDEV(v)  = SUNTRUE;
     NV_DATA_HOST_OMPDEV(v) = data;
     NV_DATA_DEV_OMPDEV(v)  = dev_data;
 
@@ -204,7 +188,8 @@ N_Vector N_VNew_OpenMPDEV(sunindextype length)
  * Function to create a vector with user data component
  */
 
-N_Vector N_VMake_OpenMPDEV(sunindextype length, realtype *h_vdata, realtype *d_vdata)
+N_Vector N_VMake_OpenMPDEV(sunindextype length, realtype *h_vdata,
+                           realtype *d_vdata)
 {
   N_Vector v;
   int dev, host;
@@ -424,90 +409,31 @@ void N_VCopyFromDevice_OpenMPDEV(N_Vector x)
 N_Vector N_VCloneEmpty_OpenMPDEV(N_Vector w)
 {
   N_Vector v;
-  N_Vector_Ops ops;
   N_VectorContent_OpenMPDEV content;
 
   if (w == NULL) return(NULL);
 
   /* Create vector */
   v = NULL;
-  v = (N_Vector) malloc(sizeof *v);
+  v = N_VNewEmpty();
   if (v == NULL) return(NULL);
 
-  /* Create vector operation structure */
-  ops = NULL;
-  ops = (N_Vector_Ops) malloc(sizeof(struct _generic_N_Vector_Ops));
-  if (ops == NULL) { free(v); return(NULL); }
-
-  ops->nvgetvectorid     = w->ops->nvgetvectorid;
-  ops->nvclone           = w->ops->nvclone;
-  ops->nvcloneempty      = w->ops->nvcloneempty;
-  ops->nvdestroy         = w->ops->nvdestroy;
-  ops->nvspace           = w->ops->nvspace;
-  ops->nvgetarraypointer = w->ops->nvgetarraypointer;
-  ops->nvsetarraypointer = w->ops->nvsetarraypointer;
-  ops->nvgetcommunicator = w->ops->nvgetcommunicator;
-  ops->nvgetlength       = w->ops->nvgetlength;
-
-  /* standard vector operations */
-  ops->nvlinearsum    = w->ops->nvlinearsum;
-  ops->nvconst        = w->ops->nvconst;
-  ops->nvprod         = w->ops->nvprod;
-  ops->nvdiv          = w->ops->nvdiv;
-  ops->nvscale        = w->ops->nvscale;
-  ops->nvabs          = w->ops->nvabs;
-  ops->nvinv          = w->ops->nvinv;
-  ops->nvaddconst     = w->ops->nvaddconst;
-  ops->nvdotprod      = w->ops->nvdotprod;
-  ops->nvmaxnorm      = w->ops->nvmaxnorm;
-  ops->nvwrmsnormmask = w->ops->nvwrmsnormmask;
-  ops->nvwrmsnorm     = w->ops->nvwrmsnorm;
-  ops->nvmin          = w->ops->nvmin;
-  ops->nvwl2norm      = w->ops->nvwl2norm;
-  ops->nvl1norm       = w->ops->nvl1norm;
-  ops->nvcompare      = w->ops->nvcompare;
-  ops->nvinvtest      = w->ops->nvinvtest;
-  ops->nvconstrmask   = w->ops->nvconstrmask;
-  ops->nvminquotient  = w->ops->nvminquotient;
-
-  /* fused vector operations */
-  ops->nvlinearcombination = w->ops->nvlinearcombination;
-  ops->nvscaleaddmulti     = w->ops->nvscaleaddmulti;
-  ops->nvdotprodmulti      = w->ops->nvdotprodmulti;
-
-  /* vector array operations */
-  ops->nvlinearsumvectorarray         = w->ops->nvlinearsumvectorarray;
-  ops->nvscalevectorarray             = w->ops->nvscalevectorarray;
-  ops->nvconstvectorarray             = w->ops->nvconstvectorarray;
-  ops->nvwrmsnormvectorarray          = w->ops->nvwrmsnormvectorarray;
-  ops->nvwrmsnormmaskvectorarray      = w->ops->nvwrmsnormmaskvectorarray;
-  ops->nvscaleaddmultivectorarray     = w->ops->nvscaleaddmultivectorarray;
-  ops->nvlinearcombinationvectorarray = w->ops->nvlinearcombinationvectorarray;
-
-  /* local reduction kernels */
-  ops->nvdotprodlocal     = w->ops->nvdotprodlocal;
-  ops->nvmaxnormlocal     = w->ops->nvmaxnormlocal;
-  ops->nvminlocal         = w->ops->nvminlocal;
-  ops->nvl1normlocal      = w->ops->nvl1normlocal;
-  ops->nvinvtestlocal     = w->ops->nvinvtestlocal;
-  ops->nvconstrmasklocal  = w->ops->nvconstrmasklocal;
-  ops->nvminquotientlocal = w->ops->nvminquotientlocal;
-  ops->nvwsqrsumlocal     = w->ops->nvwsqrsumlocal;
-  ops->nvwsqrsummasklocal = w->ops->nvwsqrsummasklocal;
+  /* Attach operations */
+  if (N_VCopyOps(w, v)) { N_VDestroy(v); return(NULL); }
   
   /* Create content */
   content = NULL;
-  content = (N_VectorContent_OpenMPDEV) malloc(sizeof(struct _N_VectorContent_OpenMPDEV));
-  if (content == NULL) { free(ops); free(v); return(NULL); }
+  content = (N_VectorContent_OpenMPDEV) malloc(sizeof *content);
+  if (content == NULL) { N_VDestroy(v); return(NULL); }
 
+  /* Attach content */
+  v->content = content;
+
+  /* Initialize content */
   content->length    = NV_LENGTH_OMPDEV(w);
   content->own_data  = SUNFALSE;
   content->host_data = NULL;
   content->dev_data  = NULL;
-
-  /* Attach content and ops */
-  v->content = content;
-  v->ops     = ops;
 
   return(v);
 }
@@ -534,18 +460,20 @@ N_Vector N_VClone_OpenMPDEV(N_Vector w)
   /* Create data */
   if (length > 0) {
 
+    /* Update ownership flag */
+    NV_OWN_DATA_OMPDEV(v) = SUNTRUE;
+
     /* Allocate memory on host */
     data = NULL;
     data = (realtype *) malloc(length * sizeof(realtype));
+    if (data == NULL) { N_VDestroy(v); return(NULL); }
 
     /* Allocate memory on device */
     dev = omp_get_default_device();
     dev_data = omp_target_alloc(length * sizeof(realtype), dev);
-
-    if(data == NULL) { N_VDestroy_OpenMPDEV(v); return(NULL); }
+    if (dev_data == NULL) { N_VDestroy(v); return(NULL); }
 
     /* Attach data */
-    NV_OWN_DATA_OMPDEV(v) = SUNTRUE;
     NV_DATA_HOST_OMPDEV(v)= data;
     NV_DATA_DEV_OMPDEV(v) = dev_data;
 
@@ -563,19 +491,30 @@ void N_VDestroy_OpenMPDEV(N_Vector v)
 {
   int dev;
 
-  if (NV_OWN_DATA_OMPDEV(v) == SUNTRUE) {
-    /* Free host memory */
-    free(NV_DATA_HOST_OMPDEV(v));
-    NV_DATA_HOST_OMPDEV(v) = NULL;
-    
-    /* Free device memory */
-    dev = omp_get_default_device();
-    omp_target_free(NV_DATA_DEV_OMPDEV(v), dev);
-    NV_DATA_DEV_OMPDEV(v) = NULL;
+  if (v == NULL) return;
+
+  /* free content */
+  if (v->content != NULL) {
+    /* free data arrays if they are owned by the vector */
+    if (NV_OWN_DATA_OMPDEV(v)) {
+
+      if (NV_DATA_HOST_OMPDEV(v) != NULL) {
+        free(NV_DATA_HOST_OMPDEV(v));
+        NV_DATA_HOST_OMPDEV(v) = NULL;
+      }
+
+      if (NV_DATA_DEV_OMPDEV(v) != NULL) {
+        dev = omp_get_default_device();
+        omp_target_free(NV_DATA_DEV_OMPDEV(v), dev);
+        NV_DATA_DEV_OMPDEV(v) = NULL;
+      }
+    }
+    free(v->content);
+    v->content = NULL;
   }
 
-  free(v->content); v->content = NULL;
-  free(v->ops); v->ops = NULL;
+  /* free ops and vector */
+  if (v->ops != NULL) { free(v->ops); v->ops = NULL; }
   free(v); v = NULL;
 
   return;
