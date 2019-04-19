@@ -4,220 +4,221 @@ tarfile=$1
 distrobase=$2
 doc=$3
 
+# all remaining inputs are for tar command
 shift 3
 tar=$*
 
 echo "   --- Add arkode module to $tarfile"
 
 if [ $doc = "T" ]; then
-$tar $tarfile $distrobase/doc/arkode/ark_guide.pdf
-$tar $tarfile $distrobase/doc/arkode/ark_examples.pdf
+    $tar $tarfile $distrobase/doc/arkode/ark_guide.pdf    || exit 1
+    $tar $tarfile $distrobase/doc/arkode/ark_examples.pdf || exit 1
 fi
 
-$tar $tarfile $distrobase/include/arkode/arkode.h
-$tar $tarfile $distrobase/include/arkode/arkode_arkstep.h
-$tar $tarfile $distrobase/include/arkode/arkode_bandpre.h
-$tar $tarfile $distrobase/include/arkode/arkode_bbdpre.h
-$tar $tarfile $distrobase/include/arkode/arkode_butcher.h
-$tar $tarfile $distrobase/include/arkode/arkode_butcher_dirk.h
-$tar $tarfile $distrobase/include/arkode/arkode_butcher_erk.h
-$tar $tarfile $distrobase/include/arkode/arkode_erkstep.h
-$tar $tarfile $distrobase/include/arkode/arkode_ls.h
-$tar $tarfile $distrobase/include/arkode/arkode_mristep.h
+$tar $tarfile $distrobase/include/arkode/arkode.h              || exit 1
+$tar $tarfile $distrobase/include/arkode/arkode_arkstep.h      || exit 1
+$tar $tarfile $distrobase/include/arkode/arkode_bandpre.h      || exit 1
+$tar $tarfile $distrobase/include/arkode/arkode_bbdpre.h       || exit 1
+$tar $tarfile $distrobase/include/arkode/arkode_butcher.h      || exit 1
+$tar $tarfile $distrobase/include/arkode/arkode_butcher_dirk.h || exit 1
+$tar $tarfile $distrobase/include/arkode/arkode_butcher_erk.h  || exit 1
+$tar $tarfile $distrobase/include/arkode/arkode_erkstep.h      || exit 1
+$tar $tarfile $distrobase/include/arkode/arkode_ls.h           || exit 1
+$tar $tarfile $distrobase/include/arkode/arkode_mristep.h      || exit 1
 
-$tar $tarfile $distrobase/src/arkode/LICENSE
-$tar $tarfile $distrobase/src/arkode/NOTICE
-$tar $tarfile $distrobase/src/arkode/README
-$tar $tarfile $distrobase/src/arkode/CMakeLists.txt
+$tar $tarfile $distrobase/src/arkode/LICENSE        || exit 1
+$tar $tarfile $distrobase/src/arkode/NOTICE         || exit 1
+$tar $tarfile $distrobase/src/arkode/README         || exit 1
+$tar $tarfile $distrobase/src/arkode/CMakeLists.txt || exit 1
 
-$tar $tarfile $distrobase/src/arkode/arkode.c
-$tar $tarfile $distrobase/src/arkode/arkode_adapt.c
-$tar $tarfile $distrobase/src/arkode/arkode_adapt_impl.h
-$tar $tarfile $distrobase/src/arkode/arkode_arkstep.c
-$tar $tarfile $distrobase/src/arkode/arkode_arkstep_impl.h
-$tar $tarfile $distrobase/src/arkode/arkode_arkstep_io.c
-$tar $tarfile $distrobase/src/arkode/arkode_arkstep_nls.c
-$tar $tarfile $distrobase/src/arkode/arkode_bandpre.c
-$tar $tarfile $distrobase/src/arkode/arkode_bandpre_impl.h
-$tar $tarfile $distrobase/src/arkode/arkode_bbdpre.c
-$tar $tarfile $distrobase/src/arkode/arkode_bbdpre_impl.h
-$tar $tarfile $distrobase/src/arkode/arkode_butcher.c
-$tar $tarfile $distrobase/src/arkode/arkode_butcher_dirk.c
-$tar $tarfile $distrobase/src/arkode/arkode_butcher_erk.c
-$tar $tarfile $distrobase/src/arkode/arkode_erkstep.c
-$tar $tarfile $distrobase/src/arkode/arkode_erkstep_impl.h
-$tar $tarfile $distrobase/src/arkode/arkode_erkstep_io.c
-$tar $tarfile $distrobase/src/arkode/arkode_impl.h
-$tar $tarfile $distrobase/src/arkode/arkode_interp.c
-$tar $tarfile $distrobase/src/arkode/arkode_interp_impl.h
-$tar $tarfile $distrobase/src/arkode/arkode_io.c
-$tar $tarfile $distrobase/src/arkode/arkode_ls.c
-$tar $tarfile $distrobase/src/arkode/arkode_ls_impl.h
-$tar $tarfile $distrobase/src/arkode/arkode_mristep.c
-$tar $tarfile $distrobase/src/arkode/arkode_mristep_impl.h
-$tar $tarfile $distrobase/src/arkode/arkode_mristep_io.c
-$tar $tarfile $distrobase/src/arkode/arkode_root.c
-$tar $tarfile $distrobase/src/arkode/arkode_root_impl.h
+$tar $tarfile $distrobase/src/arkode/arkode.c              || exit 1
+$tar $tarfile $distrobase/src/arkode/arkode_adapt.c        || exit 1
+$tar $tarfile $distrobase/src/arkode/arkode_adapt_impl.h   || exit 1
+$tar $tarfile $distrobase/src/arkode/arkode_arkstep.c      || exit 1
+$tar $tarfile $distrobase/src/arkode/arkode_arkstep_impl.h || exit 1
+$tar $tarfile $distrobase/src/arkode/arkode_arkstep_io.c   || exit 1
+$tar $tarfile $distrobase/src/arkode/arkode_arkstep_nls.c  || exit 1
+$tar $tarfile $distrobase/src/arkode/arkode_bandpre.c      || exit 1
+$tar $tarfile $distrobase/src/arkode/arkode_bandpre_impl.h || exit 1
+$tar $tarfile $distrobase/src/arkode/arkode_bbdpre.c       || exit 1
+$tar $tarfile $distrobase/src/arkode/arkode_bbdpre_impl.h  || exit 1
+$tar $tarfile $distrobase/src/arkode/arkode_butcher.c      || exit 1
+$tar $tarfile $distrobase/src/arkode/arkode_butcher_dirk.c || exit 1
+$tar $tarfile $distrobase/src/arkode/arkode_butcher_erk.c  || exit 1
+$tar $tarfile $distrobase/src/arkode/arkode_erkstep.c      || exit 1
+$tar $tarfile $distrobase/src/arkode/arkode_erkstep_impl.h || exit 1
+$tar $tarfile $distrobase/src/arkode/arkode_erkstep_io.c   || exit 1
+$tar $tarfile $distrobase/src/arkode/arkode_impl.h         || exit 1
+$tar $tarfile $distrobase/src/arkode/arkode_interp.c       || exit 1
+$tar $tarfile $distrobase/src/arkode/arkode_interp_impl.h  || exit 1
+$tar $tarfile $distrobase/src/arkode/arkode_io.c           || exit 1
+$tar $tarfile $distrobase/src/arkode/arkode_ls.c           || exit 1
+$tar $tarfile $distrobase/src/arkode/arkode_ls_impl.h      || exit 1
+$tar $tarfile $distrobase/src/arkode/arkode_mristep.c      || exit 1
+$tar $tarfile $distrobase/src/arkode/arkode_mristep_impl.h || exit 1
+$tar $tarfile $distrobase/src/arkode/arkode_mristep_io.c   || exit 1
+$tar $tarfile $distrobase/src/arkode/arkode_root.c         || exit 1
+$tar $tarfile $distrobase/src/arkode/arkode_root_impl.h    || exit 1
 
 echo "   --- Add farkode module to $tarfile"
 
-$tar $tarfile $distrobase/src/arkode/fcmix/CMakeLists.txt
+$tar $tarfile $distrobase/src/arkode/fcmix/CMakeLists.txt || exit 1
 
-$tar $tarfile $distrobase/src/arkode/fcmix/farkadapt.c
-$tar $tarfile $distrobase/src/arkode/fcmix/farkband.c
-$tar $tarfile $distrobase/src/arkode/fcmix/farkbandmass.c
-$tar $tarfile $distrobase/src/arkode/fcmix/farkbbd.c
-$tar $tarfile $distrobase/src/arkode/fcmix/farkbbd.h
-$tar $tarfile $distrobase/src/arkode/fcmix/farkbp.c
-$tar $tarfile $distrobase/src/arkode/fcmix/farkbp.h
-$tar $tarfile $distrobase/src/arkode/fcmix/farkdense.c
-$tar $tarfile $distrobase/src/arkode/fcmix/farkdensemass.c
-$tar $tarfile $distrobase/src/arkode/fcmix/farkewt.c
-$tar $tarfile $distrobase/src/arkode/fcmix/farkexpstab.c
-$tar $tarfile $distrobase/src/arkode/fcmix/farkjtimes.c
-$tar $tarfile $distrobase/src/arkode/fcmix/farkmasspreco.c
-$tar $tarfile $distrobase/src/arkode/fcmix/farkmtimes.c
-$tar $tarfile $distrobase/src/arkode/fcmix/farknulllinsol.c
-$tar $tarfile $distrobase/src/arkode/fcmix/farknullmatrix.c
-$tar $tarfile $distrobase/src/arkode/fcmix/farknullnonlinsol.c
-$tar $tarfile $distrobase/src/arkode/fcmix/farkode.c
-$tar $tarfile $distrobase/src/arkode/fcmix/farkode.h
-$tar $tarfile $distrobase/src/arkode/fcmix/farkpreco.c
-$tar $tarfile $distrobase/src/arkode/fcmix/farkroot.c
-$tar $tarfile $distrobase/src/arkode/fcmix/farkroot.h
-$tar $tarfile $distrobase/src/arkode/fcmix/farksparse.c
-$tar $tarfile $distrobase/src/arkode/fcmix/farksparsemass.c
+$tar $tarfile $distrobase/src/arkode/fcmix/farkadapt.c         || exit 1
+$tar $tarfile $distrobase/src/arkode/fcmix/farkband.c          || exit 1
+$tar $tarfile $distrobase/src/arkode/fcmix/farkbandmass.c      || exit 1
+$tar $tarfile $distrobase/src/arkode/fcmix/farkbbd.c           || exit 1
+$tar $tarfile $distrobase/src/arkode/fcmix/farkbbd.h           || exit 1
+$tar $tarfile $distrobase/src/arkode/fcmix/farkbp.c            || exit 1
+$tar $tarfile $distrobase/src/arkode/fcmix/farkbp.h            || exit 1
+$tar $tarfile $distrobase/src/arkode/fcmix/farkdense.c         || exit 1
+$tar $tarfile $distrobase/src/arkode/fcmix/farkdensemass.c     || exit 1
+$tar $tarfile $distrobase/src/arkode/fcmix/farkewt.c           || exit 1
+$tar $tarfile $distrobase/src/arkode/fcmix/farkexpstab.c       || exit 1
+$tar $tarfile $distrobase/src/arkode/fcmix/farkjtimes.c        || exit 1
+$tar $tarfile $distrobase/src/arkode/fcmix/farkmasspreco.c     || exit 1
+$tar $tarfile $distrobase/src/arkode/fcmix/farkmtimes.c        || exit 1
+$tar $tarfile $distrobase/src/arkode/fcmix/farknulllinsol.c    || exit 1
+$tar $tarfile $distrobase/src/arkode/fcmix/farknullmatrix.c    || exit 1
+$tar $tarfile $distrobase/src/arkode/fcmix/farknullnonlinsol.c || exit 1
+$tar $tarfile $distrobase/src/arkode/fcmix/farkode.c           || exit 1
+$tar $tarfile $distrobase/src/arkode/fcmix/farkode.h           || exit 1
+$tar $tarfile $distrobase/src/arkode/fcmix/farkpreco.c         || exit 1
+$tar $tarfile $distrobase/src/arkode/fcmix/farkroot.c          || exit 1
+$tar $tarfile $distrobase/src/arkode/fcmix/farkroot.h          || exit 1
+$tar $tarfile $distrobase/src/arkode/fcmix/farksparse.c        || exit 1
+$tar $tarfile $distrobase/src/arkode/fcmix/farksparsemass.c    || exit 1
 
 echo "   --- Add arkode examples to $tarfile"
 
-$tar $tarfile $distrobase/examples/arkode/CMakeLists.txt
+$tar $tarfile $distrobase/examples/arkode/CMakeLists.txt || exit 1
 
-$tar $tarfile $distrobase/examples/arkode/C_manyvector/CMakeLists.txt
-$tar $tarfile $distrobase/examples/arkode/C_manyvector/README
-$tar $tarfile $distrobase/examples/arkode/C_manyvector/ark_brusselator1D_manyvec.c
-$tar $tarfile $distrobase/examples/arkode/C_manyvector/ark_brusselator1D_manyvec.out
-$tar $tarfile $distrobase/examples/arkode/C_manyvector/plot_brusselator1D.py
+$tar $tarfile $distrobase/examples/arkode/C_manyvector/CMakeLists.txt                || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_manyvector/README                        || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_manyvector/ark_brusselator1D_manyvec.c   || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_manyvector/ark_brusselator1D_manyvec.out || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_manyvector/plot_brusselator1D.py         || exit 1
 
-$tar $tarfile $distrobase/examples/arkode/C_openmp/CMakeLists.txt
-$tar $tarfile $distrobase/examples/arkode/C_openmp/README
-$tar $tarfile $distrobase/examples/arkode/C_openmp/ark_brusselator1D_omp.c
-$tar $tarfile $distrobase/examples/arkode/C_openmp/ark_brusselator1D_omp.out
-$tar $tarfile $distrobase/examples/arkode/C_openmp/plot_brusselator1D.py
-$tar $tarfile $distrobase/examples/arkode/C_openmp/ark_heat1D_omp.c
-$tar $tarfile $distrobase/examples/arkode/C_openmp/ark_heat1D_omp.out
+$tar $tarfile $distrobase/examples/arkode/C_openmp/CMakeLists.txt            || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_openmp/README                    || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_openmp/ark_brusselator1D_omp.c   || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_openmp/ark_brusselator1D_omp.out || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_openmp/plot_brusselator1D.py     || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_openmp/ark_heat1D_omp.c          || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_openmp/ark_heat1D_omp.out        || exit 1
 
-$tar $tarfile $distrobase/examples/arkode/C_openmpdev/CMakeLists.txt
-$tar $tarfile $distrobase/examples/arkode/C_openmpdev/README
-$tar $tarfile $distrobase/examples/arkode/C_openmpdev/ark_analytic_nonlin_ompdev.c
-$tar $tarfile $distrobase/examples/arkode/C_openmpdev/ark_analytic_nonlin_ompdev.out
-$tar $tarfile $distrobase/examples/arkode/C_openmpdev/ark_heat1D_adapt_ompdev.c
-$tar $tarfile $distrobase/examples/arkode/C_openmpdev/ark_heat1D_adapt_ompdev.out
-$tar $tarfile $distrobase/examples/arkode/C_openmpdev/ark_heat1D_ompdev.c
-$tar $tarfile $distrobase/examples/arkode/C_openmpdev/ark_heat1D_ompdev.out
+$tar $tarfile $distrobase/examples/arkode/C_openmpdev/CMakeLists.txt                 || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_openmpdev/README                         || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_openmpdev/ark_analytic_nonlin_ompdev.c   || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_openmpdev/ark_analytic_nonlin_ompdev.out || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_openmpdev/ark_heat1D_adapt_ompdev.c      || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_openmpdev/ark_heat1D_adapt_ompdev.out    || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_openmpdev/ark_heat1D_ompdev.c            || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_openmpdev/ark_heat1D_ompdev.out          || exit 1
 
-$tar $tarfile $distrobase/examples/arkode/C_parallel/CMakeLists.txt
-$tar $tarfile $distrobase/examples/arkode/C_parallel/README
-$tar $tarfile $distrobase/examples/arkode/C_parallel/ark_diurnal_kry_bbd_p.c
-$tar $tarfile $distrobase/examples/arkode/C_parallel/ark_diurnal_kry_bbd_p.out
-$tar $tarfile $distrobase/examples/arkode/C_parallel/ark_diurnal_kry_p.c
-$tar $tarfile $distrobase/examples/arkode/C_parallel/ark_diurnal_kry_p.out
+$tar $tarfile $distrobase/examples/arkode/C_parallel/CMakeLists.txt            || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_parallel/README                    || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_parallel/ark_diurnal_kry_bbd_p.c   || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_parallel/ark_diurnal_kry_bbd_p.out || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_parallel/ark_diurnal_kry_p.c       || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_parallel/ark_diurnal_kry_p.out     || exit 1
 
-$tar $tarfile $distrobase/examples/arkode/C_parhyp/CMakeLists.txt
-$tar $tarfile $distrobase/examples/arkode/C_parhyp/README
-$tar $tarfile $distrobase/examples/arkode/C_parhyp/ark_diurnal_kry_ph.c
-$tar $tarfile $distrobase/examples/arkode/C_parhyp/ark_diurnal_kry_ph.out
+$tar $tarfile $distrobase/examples/arkode/C_parhyp/CMakeLists.txt         || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_parhyp/README                 || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_parhyp/ark_diurnal_kry_ph.c   || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_parhyp/ark_diurnal_kry_ph.out || exit 1
 
-$tar $tarfile $distrobase/examples/arkode/C_serial/CMakeLists.txt
-$tar $tarfile $distrobase/examples/arkode/C_serial/README
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_analytic.c
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_analytic.out
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_analytic_nonlin.c
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_analytic_nonlin.out
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator.c
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator.out
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D.c
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D.out
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D_FEM_slu.c
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D_FEM_slu.out
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D_klu.c
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D_klu.out
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator_fp.c
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator_fp.out
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator_mri.c
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator_mri.out
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator_1D_mri.c
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator_1D_mri.out
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D.c
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D.out
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D_adapt.c
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D_adapt.out
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_KrylovDemo_prec.c
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_KrylovDemo_prec.out
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_onewaycouple_mri.c
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_onewaycouple_mri.out
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_reaction_diffusion_mri.c
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_reaction_diffusion_mri.out
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_robertson.c
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_robertson.out
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_robertson_root.c
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_robertson_root.out
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_twowaycouple_mri.c
-$tar $tarfile $distrobase/examples/arkode/C_serial/ark_twowaycouple_mri.out
-$tar $tarfile $distrobase/examples/arkode/C_serial/bruss_plots.m
-$tar $tarfile $distrobase/examples/arkode/C_serial/plot_brusselator1D.py
-$tar $tarfile $distrobase/examples/arkode/C_serial/plot_brusselator1D_FEM.py
-$tar $tarfile $distrobase/examples/arkode/C_serial/plot_heat1D.py
-$tar $tarfile $distrobase/examples/arkode/C_serial/plot_heat1D_adapt.py
-$tar $tarfile $distrobase/examples/arkode/C_serial/plot_sol.py
-$tar $tarfile $distrobase/examples/arkode/C_serial/plot_sol_log.py
+$tar $tarfile $distrobase/examples/arkode/C_serial/CMakeLists.txt                 || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/README                         || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_analytic.c                 || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_analytic.out               || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_analytic_nonlin.c          || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_analytic_nonlin.out        || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator.c              || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator.out            || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D.c            || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D.out          || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D_FEM_slu.c    || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D_FEM_slu.out  || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D_klu.c        || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator1D_klu.out      || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator_fp.c           || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator_fp.out         || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator_mri.c          || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator_mri.out        || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator_1D_mri.c       || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_brusselator_1D_mri.out     || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D.c                   || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D.out                 || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D_adapt.c             || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_heat1D_adapt.out           || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_KrylovDemo_prec.c          || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_KrylovDemo_prec.out        || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_onewaycouple_mri.c         || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_onewaycouple_mri.out       || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_reaction_diffusion_mri.c   || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_reaction_diffusion_mri.out || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_robertson.c                || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_robertson.out              || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_robertson_root.c           || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_robertson_root.out         || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_twowaycouple_mri.c         || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/ark_twowaycouple_mri.out       || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/bruss_plots.m                  || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/plot_brusselator1D.py          || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/plot_brusselator1D_FEM.py      || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/plot_heat1D.py                 || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/plot_heat1D_adapt.py           || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/plot_sol.py                    || exit 1
+$tar $tarfile $distrobase/examples/arkode/C_serial/plot_sol_log.py                || exit 1
 
-$tar $tarfile $distrobase/examples/arkode/CXX_parallel/CMakeLists.txt
-$tar $tarfile $distrobase/examples/arkode/CXX_parallel/README
-$tar $tarfile $distrobase/examples/arkode/CXX_parallel/ark_heat2D.cpp
-$tar $tarfile $distrobase/examples/arkode/CXX_parallel/ark_heat2D.out
-$tar $tarfile $distrobase/examples/arkode/CXX_parallel/plot_heat2D.py
+$tar $tarfile $distrobase/examples/arkode/CXX_parallel/CMakeLists.txt || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_parallel/README         || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_parallel/ark_heat2D.cpp || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_parallel/ark_heat2D.out || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_parallel/plot_heat2D.py || exit 1
 
-$tar $tarfile $distrobase/examples/arkode/CXX_parhyp/CMakeLists.txt
-$tar $tarfile $distrobase/examples/arkode/CXX_parhyp/README
-$tar $tarfile $distrobase/examples/arkode/CXX_parhyp/ark_heat2D_hypre.cpp
-$tar $tarfile $distrobase/examples/arkode/CXX_parhyp/ark_heat2D_hypre.out
+$tar $tarfile $distrobase/examples/arkode/CXX_parhyp/CMakeLists.txt       || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_parhyp/README               || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_parhyp/ark_heat2D_hypre.cpp || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_parhyp/ark_heat2D_hypre.out || exit 1
 
-$tar $tarfile $distrobase/examples/arkode/CXX_serial/CMakeLists.txt
-$tar $tarfile $distrobase/examples/arkode/CXX_serial/README
-$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_analytic_sys.cpp
-$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_analytic_sys.out
-$tar $tarfile $distrobase/examples/arkode/CXX_serial/plot_sol.py
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/CMakeLists.txt       || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/README               || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_analytic_sys.cpp || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/ark_analytic_sys.out || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_serial/plot_sol.py          || exit 1
 
-$tar $tarfile $distrobase/examples/arkode/CXX_superludist/CMakeLists.txt
-$tar $tarfile $distrobase/examples/arkode/CXX_superludist/README
-$tar $tarfile $distrobase/examples/arkode/CXX_superludist/ark_brusselator1D_FEM_sludist.cpp
-$tar $tarfile $distrobase/examples/arkode/CXX_superludist/ark_brusselator1D_FEM_sludist.out
+$tar $tarfile $distrobase/examples/arkode/CXX_superludist/CMakeLists.txt                    || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_superludist/README                            || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_superludist/ark_brusselator1D_FEM_sludist.cpp || exit 1
+$tar $tarfile $distrobase/examples/arkode/CXX_superludist/ark_brusselator1D_FEM_sludist.out || exit 1
 
-$tar $tarfile $distrobase/examples/arkode/F77_parallel/CMakeLists.txt
-$tar $tarfile $distrobase/examples/arkode/F77_parallel/README
-$tar $tarfile $distrobase/examples/arkode/F77_parallel/fark_diag_kry_bbd_p.f
-$tar $tarfile $distrobase/examples/arkode/F77_parallel/fark_diag_kry_bbd_p.out
-$tar $tarfile $distrobase/examples/arkode/F77_parallel/fark_diag_non_p.f
-$tar $tarfile $distrobase/examples/arkode/F77_parallel/fark_diag_non_p.out
+$tar $tarfile $distrobase/examples/arkode/F77_parallel/CMakeLists.txt          || exit 1
+$tar $tarfile $distrobase/examples/arkode/F77_parallel/README                  || exit 1
+$tar $tarfile $distrobase/examples/arkode/F77_parallel/fark_diag_kry_bbd_p.f   || exit 1
+$tar $tarfile $distrobase/examples/arkode/F77_parallel/fark_diag_kry_bbd_p.out || exit 1
+$tar $tarfile $distrobase/examples/arkode/F77_parallel/fark_diag_non_p.f       || exit 1
+$tar $tarfile $distrobase/examples/arkode/F77_parallel/fark_diag_non_p.out     || exit 1
 
-$tar $tarfile $distrobase/examples/arkode/F77_serial/CMakeLists.txt
-$tar $tarfile $distrobase/examples/arkode/F77_serial/README
-$tar $tarfile $distrobase/examples/arkode/F77_serial/fark_diurnal_kry_bp.f
-$tar $tarfile $distrobase/examples/arkode/F77_serial/fark_diurnal_kry_bp.out
-$tar $tarfile $distrobase/examples/arkode/F77_serial/fark_roberts_dnsL.f
-$tar $tarfile $distrobase/examples/arkode/F77_serial/fark_roberts_dnsL.out
+$tar $tarfile $distrobase/examples/arkode/F77_serial/CMakeLists.txt          || exit 1
+$tar $tarfile $distrobase/examples/arkode/F77_serial/README                  || exit 1
+$tar $tarfile $distrobase/examples/arkode/F77_serial/fark_diurnal_kry_bp.f   || exit 1
+$tar $tarfile $distrobase/examples/arkode/F77_serial/fark_diurnal_kry_bp.out || exit 1
+$tar $tarfile $distrobase/examples/arkode/F77_serial/fark_roberts_dnsL.f     || exit 1
+$tar $tarfile $distrobase/examples/arkode/F77_serial/fark_roberts_dnsL.out   || exit 1
 
-$tar $tarfile $distrobase/examples/arkode/F90_parallel/CMakeLists.txt
-$tar $tarfile $distrobase/examples/arkode/F90_parallel/README
-$tar $tarfile $distrobase/examples/arkode/F90_parallel/fark_heat2D.f90
-$tar $tarfile $distrobase/examples/arkode/F90_parallel/fark_heat2D.out
-$tar $tarfile $distrobase/examples/arkode/F90_parallel/plot_heat2D.py
+$tar $tarfile $distrobase/examples/arkode/F90_parallel/CMakeLists.txt  || exit 1
+$tar $tarfile $distrobase/examples/arkode/F90_parallel/README          || exit 1
+$tar $tarfile $distrobase/examples/arkode/F90_parallel/fark_heat2D.f90 || exit 1
+$tar $tarfile $distrobase/examples/arkode/F90_parallel/fark_heat2D.out || exit 1
+$tar $tarfile $distrobase/examples/arkode/F90_parallel/plot_heat2D.py  || exit 1
 
-$tar $tarfile $distrobase/examples/arkode/F90_serial/CMakeLists.txt
-$tar $tarfile $distrobase/examples/arkode/F90_serial/README
-$tar $tarfile $distrobase/examples/arkode/F90_serial/ark_bruss.f90
-$tar $tarfile $distrobase/examples/arkode/F90_serial/ark_bruss.out
-$tar $tarfile $distrobase/examples/arkode/F90_serial/ark_bruss1D_FEM_klu.f90
-$tar $tarfile $distrobase/examples/arkode/F90_serial/ark_bruss1D_FEM_klu.out
-$tar $tarfile $distrobase/examples/arkode/F90_serial/plot_brusselator1D_FEM.py
-$tar $tarfile $distrobase/examples/arkode/F90_serial/plot_sol.py
+$tar $tarfile $distrobase/examples/arkode/F90_serial/CMakeLists.txt            || exit 1
+$tar $tarfile $distrobase/examples/arkode/F90_serial/README                    || exit 1
+$tar $tarfile $distrobase/examples/arkode/F90_serial/ark_bruss.f90             || exit 1
+$tar $tarfile $distrobase/examples/arkode/F90_serial/ark_bruss.out             || exit 1
+$tar $tarfile $distrobase/examples/arkode/F90_serial/ark_bruss1D_FEM_klu.f90   || exit 1
+$tar $tarfile $distrobase/examples/arkode/F90_serial/ark_bruss1D_FEM_klu.out   || exit 1
+$tar $tarfile $distrobase/examples/arkode/F90_serial/plot_brusselator1D_FEM.py || exit 1
+$tar $tarfile $distrobase/examples/arkode/F90_serial/plot_sol.py               || exit 1

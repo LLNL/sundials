@@ -4,96 +4,97 @@ tarfile=$1
 distrobase=$2
 doc=$3
 
+# all remaining inputs are for tar command
 shift 3
 tar=$*
 
 echo "   --- Add kinsol module to $tarfile"
 
 if [ $doc = "T" ]; then
-$tar $tarfile $distrobase/doc/kinsol/kin_guide.pdf
-$tar $tarfile $distrobase/doc/kinsol/kin_examples.pdf
+    $tar $tarfile $distrobase/doc/kinsol/kin_guide.pdf    || exit 1
+    $tar $tarfile $distrobase/doc/kinsol/kin_examples.pdf || exit 1
 fi
 
-$tar $tarfile $distrobase/include/kinsol/kinsol.h
-$tar $tarfile $distrobase/include/kinsol/kinsol_bbdpre.h
-$tar $tarfile $distrobase/include/kinsol/kinsol_direct.h
-$tar $tarfile $distrobase/include/kinsol/kinsol_ls.h
-$tar $tarfile $distrobase/include/kinsol/kinsol_spils.h
+$tar $tarfile $distrobase/include/kinsol/kinsol.h        || exit 1
+$tar $tarfile $distrobase/include/kinsol/kinsol_bbdpre.h || exit 1
+$tar $tarfile $distrobase/include/kinsol/kinsol_direct.h || exit 1
+$tar $tarfile $distrobase/include/kinsol/kinsol_ls.h     || exit 1
+$tar $tarfile $distrobase/include/kinsol/kinsol_spils.h  || exit 1
 
-$tar $tarfile $distrobase/src/kinsol/LICENSE
-$tar $tarfile $distrobase/src/kinsol/NOTICE
-$tar $tarfile $distrobase/src/kinsol/README
-$tar $tarfile $distrobase/src/kinsol/CMakeLists.txt
+$tar $tarfile $distrobase/src/kinsol/LICENSE        || exit 1
+$tar $tarfile $distrobase/src/kinsol/NOTICE         || exit 1
+$tar $tarfile $distrobase/src/kinsol/README         || exit 1
+$tar $tarfile $distrobase/src/kinsol/CMakeLists.txt || exit 1
 
-$tar $tarfile $distrobase/src/kinsol/kinsol.c
-$tar $tarfile $distrobase/src/kinsol/kinsol_bbdpre.c
-$tar $tarfile $distrobase/src/kinsol/kinsol_bbdpre_impl.h
-$tar $tarfile $distrobase/src/kinsol/kinsol_direct.c
-$tar $tarfile $distrobase/src/kinsol/kinsol_impl.h
-$tar $tarfile $distrobase/src/kinsol/kinsol_io.c
-$tar $tarfile $distrobase/src/kinsol/kinsol_ls.c
-$tar $tarfile $distrobase/src/kinsol/kinsol_ls_impl.h
-$tar $tarfile $distrobase/src/kinsol/kinsol_spils.c
+$tar $tarfile $distrobase/src/kinsol/kinsol.c             || exit 1
+$tar $tarfile $distrobase/src/kinsol/kinsol_bbdpre.c      || exit 1
+$tar $tarfile $distrobase/src/kinsol/kinsol_bbdpre_impl.h || exit 1
+$tar $tarfile $distrobase/src/kinsol/kinsol_direct.c      || exit 1
+$tar $tarfile $distrobase/src/kinsol/kinsol_impl.h        || exit 1
+$tar $tarfile $distrobase/src/kinsol/kinsol_io.c          || exit 1
+$tar $tarfile $distrobase/src/kinsol/kinsol_ls.c          || exit 1
+$tar $tarfile $distrobase/src/kinsol/kinsol_ls_impl.h     || exit 1
+$tar $tarfile $distrobase/src/kinsol/kinsol_spils.c       || exit 1
 
 echo "   --- Add fkinsol module to $tarfile"
 
-$tar $tarfile $distrobase/src/kinsol/fcmix/CMakeLists.txt
+$tar $tarfile $distrobase/src/kinsol/fcmix/CMakeLists.txt || exit 1
 
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkinband.c
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkinbbd.c
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkinbbd.h
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkindense.c
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkinjtimes.c
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkinnulllinsol.c
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkinnullmatrix.c
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkinpreco.c
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkinsol.c
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkinsol.h
-$tar $tarfile $distrobase/src/kinsol/fcmix/fkinsparse.c
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkinband.c       || exit 1
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkinbbd.c        || exit 1
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkinbbd.h        || exit 1
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkindense.c      || exit 1
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkinjtimes.c     || exit 1
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkinnulllinsol.c || exit 1
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkinnullmatrix.c || exit 1
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkinpreco.c      || exit 1
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkinsol.c        || exit 1
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkinsol.h        || exit 1
+$tar $tarfile $distrobase/src/kinsol/fcmix/fkinsparse.c     || exit 1
 
 echo "   --- Add kinsol examples to $tarfile"
 
-$tar $tarfile $distrobase/examples/kinsol/CMakeLists.txt
+$tar $tarfile $distrobase/examples/kinsol/CMakeLists.txt || exit 1
 
-$tar $tarfile $distrobase/examples/kinsol/serial/README
-$tar $tarfile $distrobase/examples/kinsol/serial/CMakeLists.txt
-$tar $tarfile $distrobase/examples/kinsol/serial/kinFerTron_dns.c
-$tar $tarfile $distrobase/examples/kinsol/serial/kinFerTron_dns.out
-$tar $tarfile $distrobase/examples/kinsol/serial/kinFerTron_klu.c
-$tar $tarfile $distrobase/examples/kinsol/serial/kinFerTron_klu.out
-$tar $tarfile $distrobase/examples/kinsol/serial/kinFoodWeb_kry.c
-$tar $tarfile $distrobase/examples/kinsol/serial/kinFoodWeb_kry.out
-$tar $tarfile $distrobase/examples/kinsol/serial/kinKrylovDemo_ls.c
-$tar $tarfile $distrobase/examples/kinsol/serial/kinKrylovDemo_ls.out
-$tar $tarfile $distrobase/examples/kinsol/serial/kinLaplace_bnd.c
-$tar $tarfile $distrobase/examples/kinsol/serial/kinLaplace_bnd.out
-$tar $tarfile $distrobase/examples/kinsol/serial/kinLaplace_picard_bnd.c
-$tar $tarfile $distrobase/examples/kinsol/serial/kinLaplace_picard_bnd.out
-$tar $tarfile $distrobase/examples/kinsol/serial/kinRoboKin_dns.c
-$tar $tarfile $distrobase/examples/kinsol/serial/kinRoboKin_dns.out
-$tar $tarfile $distrobase/examples/kinsol/serial/kinRoboKin_slu.c
-$tar $tarfile $distrobase/examples/kinsol/serial/kinRoboKin_slu.out
-$tar $tarfile $distrobase/examples/kinsol/serial/kinRoberts_fp.c
-$tar $tarfile $distrobase/examples/kinsol/serial/kinRoberts_fp.out
+$tar $tarfile $distrobase/examples/kinsol/serial/README                    || exit 1
+$tar $tarfile $distrobase/examples/kinsol/serial/CMakeLists.txt            || exit 1
+$tar $tarfile $distrobase/examples/kinsol/serial/kinFerTron_dns.c          || exit 1
+$tar $tarfile $distrobase/examples/kinsol/serial/kinFerTron_dns.out        || exit 1
+$tar $tarfile $distrobase/examples/kinsol/serial/kinFerTron_klu.c          || exit 1
+$tar $tarfile $distrobase/examples/kinsol/serial/kinFerTron_klu.out        || exit 1
+$tar $tarfile $distrobase/examples/kinsol/serial/kinFoodWeb_kry.c          || exit 1
+$tar $tarfile $distrobase/examples/kinsol/serial/kinFoodWeb_kry.out        || exit 1
+$tar $tarfile $distrobase/examples/kinsol/serial/kinKrylovDemo_ls.c        || exit 1
+$tar $tarfile $distrobase/examples/kinsol/serial/kinKrylovDemo_ls.out      || exit 1
+$tar $tarfile $distrobase/examples/kinsol/serial/kinLaplace_bnd.c          || exit 1
+$tar $tarfile $distrobase/examples/kinsol/serial/kinLaplace_bnd.out        || exit 1
+$tar $tarfile $distrobase/examples/kinsol/serial/kinLaplace_picard_bnd.c   || exit 1
+$tar $tarfile $distrobase/examples/kinsol/serial/kinLaplace_picard_bnd.out || exit 1
+$tar $tarfile $distrobase/examples/kinsol/serial/kinRoboKin_dns.c          || exit 1
+$tar $tarfile $distrobase/examples/kinsol/serial/kinRoboKin_dns.out        || exit 1
+$tar $tarfile $distrobase/examples/kinsol/serial/kinRoboKin_slu.c          || exit 1
+$tar $tarfile $distrobase/examples/kinsol/serial/kinRoboKin_slu.out        || exit 1
+$tar $tarfile $distrobase/examples/kinsol/serial/kinRoberts_fp.c           || exit 1
+$tar $tarfile $distrobase/examples/kinsol/serial/kinRoberts_fp.out         || exit 1
 
-$tar $tarfile $distrobase/examples/kinsol/C_openmp/README
-$tar $tarfile $distrobase/examples/kinsol/C_openmp/CMakeLists.txt
-$tar $tarfile $distrobase/examples/kinsol/C_openmp/kinFoodWeb_kry_omp.c
-$tar $tarfile $distrobase/examples/kinsol/C_openmp/kinFoodWeb_kry_omp.out
+$tar $tarfile $distrobase/examples/kinsol/C_openmp/README                 || exit 1
+$tar $tarfile $distrobase/examples/kinsol/C_openmp/CMakeLists.txt         || exit 1
+$tar $tarfile $distrobase/examples/kinsol/C_openmp/kinFoodWeb_kry_omp.c   || exit 1
+$tar $tarfile $distrobase/examples/kinsol/C_openmp/kinFoodWeb_kry_omp.out || exit 1
 
-$tar $tarfile $distrobase/examples/kinsol/fcmix_serial/README
-$tar $tarfile $distrobase/examples/kinsol/fcmix_serial/CMakeLists.txt
-$tar $tarfile $distrobase/examples/kinsol/fcmix_serial/fkinDiagon_kry.f
-$tar $tarfile $distrobase/examples/kinsol/fcmix_serial/fkinDiagon_kry.out
+$tar $tarfile $distrobase/examples/kinsol/fcmix_serial/README             || exit 1
+$tar $tarfile $distrobase/examples/kinsol/fcmix_serial/CMakeLists.txt     || exit 1
+$tar $tarfile $distrobase/examples/kinsol/fcmix_serial/fkinDiagon_kry.f   || exit 1
+$tar $tarfile $distrobase/examples/kinsol/fcmix_serial/fkinDiagon_kry.out || exit 1
 
-$tar $tarfile $distrobase/examples/kinsol/parallel/README
-$tar $tarfile $distrobase/examples/kinsol/parallel/CMakeLists.txt
-$tar $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_bbd_p.c
-$tar $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_bbd_p.out
-$tar $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_p.c
-$tar $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_p.out
+$tar $tarfile $distrobase/examples/kinsol/parallel/README                   || exit 1
+$tar $tarfile $distrobase/examples/kinsol/parallel/CMakeLists.txt           || exit 1
+$tar $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_bbd_p.c   || exit 1
+$tar $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_bbd_p.out || exit 1
+$tar $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_p.c       || exit 1
+$tar $tarfile $distrobase/examples/kinsol/parallel/kinFoodWeb_kry_p.out     || exit 1
 
-$tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/README
-$tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/CMakeLists.txt
-$tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/fkinDiagon_kry_p.f
-$tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/fkinDiagon_kry_p.out
+$tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/README               || exit 1
+$tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/CMakeLists.txt       || exit 1
+$tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/fkinDiagon_kry_p.f   || exit 1
+$tar $tarfile $distrobase/examples/kinsol/fcmix_parallel/fkinDiagon_kry_p.out || exit 1

@@ -331,7 +331,7 @@ int main(int argc, char *argv[])
 
   }
   /* Print each PE's portion of the solution in a separate file. */
-  /* PrintSol(ida_mem, uv, uvp, data, comm); */
+  PrintSol(ida_mem, uv, uvp, data, comm);
 
 
   /* On PE 0, print final set of statistics. */  

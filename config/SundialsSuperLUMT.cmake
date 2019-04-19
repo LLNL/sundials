@@ -53,11 +53,13 @@ if(SUPERLUMT_LIBRARY AND SUPERLUMT_LIBRARIES)
   # Create a C source file which calls a SUPERLUMT function
   file(WRITE ${SUPERLUMT_TEST_DIR}/ltest.c
     "\#include \"slu_mt_ddefs.h\"\n"
-#    "\#include \"pdsp_defs.h\"\n"
     "int main(){\n"
-    "SuperMatrix A;\n"
-    "NCformat *Astore;\n" 
-    "return(0);\n"
+    "SuperMatrix *A;\n"
+    "NCformat *Astore;\n"
+    "A = NULL;\n"
+    "Astore = NULL;\n"
+    "if (A != NULL || Astore != NULL) return(1);\n"
+    "else return(0);\n"
     "}\n")
 
   # Attempt to link the "ltest" executable

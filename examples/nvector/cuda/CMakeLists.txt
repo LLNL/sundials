@@ -65,7 +65,9 @@ FOREACH(example_tuple ${nvector_cuda_examples})
   IF(NOT TARGET ${example})
     # example source files
     CUDA_ADD_EXECUTABLE(${example} ${example}.cu
-      ../test_nvector.c ../../../src/sundials/sundials_nvector.c)
+      ../test_nvector.c
+      ../../../src/sundials/sundials_nvector.c
+      OPTIONS -DSUNDIALS_MPI_ENABLED=0)
 
     # folder to organize targets in an IDE
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")

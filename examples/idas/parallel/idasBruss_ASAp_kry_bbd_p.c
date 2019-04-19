@@ -336,7 +336,7 @@ int main(int argc, char *argv[])
   PrintOutput(ida_mem, uv, tret, data, comm);
 
   /* Print each PE's portion of the solution in a separate file. */
-  /* PrintSol(ida_mem, uv, uvp, data, comm); */
+  PrintSol(ida_mem, uv, uvp, data, comm);
 
   /* On PE 0, print final set of statistics. */  
   if (thispe == 0)  {
@@ -390,7 +390,7 @@ int main(int argc, char *argv[])
   if(check_retval(&retval, "IDAGetB", 1, thispe)) MPI_Abort(comm, 1);
 
   /* Print each PE's portion of solution in a separate file. */
-  /* PrintAdjSol(uvB, uvpB, data); */
+  PrintAdjSol(uvB, uvpB, data);
 
   /* On PE 0, print final set of statistics. */  
   if (thispe == 0)  {

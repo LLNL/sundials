@@ -9,10 +9,14 @@
 *.directory
 /.pydevproject
 
-# directories created by regression test scripts
-/regression/build_*/
-/regression/install_*/
-/regression/suntest.log
+# custom test environment setup script
+/test/env.sh
+
+# directories created by testing scripts
+/test/build_*/
+/test/install_*/
+/test/tarballs
+/test/suntest.log
 
 # /test/
 /test/output

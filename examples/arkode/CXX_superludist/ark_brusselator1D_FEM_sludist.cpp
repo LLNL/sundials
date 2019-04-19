@@ -233,23 +233,28 @@ int main(int argc, char *argv[]) {
   /* Initial problem output */
   printf("\n1D FEM Brusselator PDE test problem:\n");
   printf("    N = %li,  NEQ = %li\n", (long int) udata->N, (long int) NEQ);
-  printf("    problem parameters:  a = %"GSYM",  b = %"GSYM",  ep = %"GSYM"\n",
+  printf("    problem parameters:  a = %" GSYM ",  b = %" GSYM ",  ep = %" GSYM "\n",
          udata->a, udata->b, udata->ep);
-  printf("    diffusion coefficients:  du = %"GSYM",  dv = %"GSYM",  dw = %"GSYM"\n",
+  printf("    diffusion coefficients:  du = %" GSYM ",  dv = %" GSYM ",  dw = %" GSYM "\n",
          udata->du, udata->dv, udata->dw);
-  printf("    reltol = %.1"ESYM",  abstol = %.1"ESYM"\n\n", reltol, abstol);
+  printf("    reltol = %.1" ESYM ",  abstol = %.1" ESYM "\n\n", reltol, abstol);
 
   /* Initialize data structures */
   y = N_VNew_OpenMP(NEQ, num_threads);           /* Create serial vector for solution */
   if (check_retval((void *)y, "N_VNew_OpenMP", 0)) MPI_Abort(grid.comm, 1);
+
   data = N_VGetArrayPointer(y);     /* Access data array for new NVector y */
   if (check_retval((void *)data, "N_VGetArrayPointer", 0)) MPI_Abort(grid.comm, 1);
+
   umask = N_VNew_OpenMP(NEQ, num_threads);       /* Create serial vector masks */
   if (check_retval((void *)umask, "N_VNew_OpenMP", 0)) MPI_Abort(grid.comm, 1);
+
   vmask = N_VNew_OpenMP(NEQ, num_threads);
   if (check_retval((void *)vmask, "N_VNew_OpenMP", 0)) MPI_Abort(grid.comm, 1);
+
   wmask = N_VNew_OpenMP(NEQ, num_threads);
   if (check_retval((void *)wmask, "N_VNew_OpenMP", 0)) MPI_Abort(grid.comm, 1);
+
   udata->tmp = N_VNew_OpenMP(NEQ, num_threads);  /* temporary N_Vector inside udata */
   if (check_retval((void *) udata->tmp, "N_VNew_OpenMP", 0)) MPI_Abort(grid.comm, 1);
 
@@ -296,34 +301,57 @@ int main(int argc, char *argv[]) {
   if (check_retval((void *)arkode_mem, "ARKStepCreate", 0)) MPI_Abort(grid.comm, 1);
 
   /* Set routines */
-  retval = ARKStepSetUserData(arkode_mem, (void *) udata);     /* Pass udata to user functions */
+
+  /* Pass udata to user functions */
+  retval = ARKStepSetUserData(arkode_mem, (void *) udata);
   if (check_retval(&retval, "ARKStepSetUserData", 1)) MPI_Abort(grid.comm, 1);
-  retval = ARKStepSStolerances(arkode_mem, reltol, abstol);    /* Specify tolerances */
+
+  /* Specify tolerances */
+  retval = ARKStepSStolerances(arkode_mem, reltol, abstol);
   if (check_retval(&retval, "ARKStepSStolerances", 1)) MPI_Abort(grid.comm, 1);
-  retval = ARKStepResStolerance(arkode_mem, abstol);           /* Specify residual tolerance */
+
+  /* Specify residual tolerance */
+  retval = ARKStepResStolerance(arkode_mem, abstol);
   if (check_retval(&retval, "ARKStepResStolerance", 1)) MPI_Abort(grid.comm, 1);
 
   /* Initialize sparse matrix data structure and SuperLU_DIST solvers (system and mass) */
   NNZ = 15*NEQ;
 
+  Adata = NULL;
   Adata = (realtype *) malloc(NNZ*sizeof(realtype));
-  if (check_retval(&retval, "malloc Adata", 0)) MPI_Abort(grid.comm, 1);
+  if (check_retval((void *)Adata, "malloc Adata", 2)) MPI_Abort(grid.comm, 1);
+
+  Acolind = NULL;
   Acolind = (sunindextype *) malloc(NNZ*sizeof(sunindextype));
-  if (check_retval(&retval, "malloc Acolind", 0)) MPI_Abort(grid.comm, 1);
+  if (check_retval((void *)Acolind, "malloc Acolind", 2)) MPI_Abort(grid.comm, 1);
+
+  Arowptr = NULL;
   Arowptr = (sunindextype *) malloc((NEQ+1)*sizeof(sunindextype));
-  if (check_retval(&retval, "malloc Arowptr", 0)) MPI_Abort(grid.comm, 1);
+  if (check_retval((void *)Arowptr, "malloc Arowptr", 2)) MPI_Abort(grid.comm, 1);
+
+  Mdata = NULL;
   Mdata = (realtype *) malloc(NNZ*sizeof(realtype));
-  if (check_retval(&retval, "malloc Mdata", 0)) MPI_Abort(grid.comm, 1);
+  if (check_retval((void *)Mdata, "malloc Mdata", 2)) MPI_Abort(grid.comm, 1);
+
+  Mcolind = NULL;
   Mcolind = (sunindextype *) malloc(NNZ*sizeof(sunindextype));
-  if (check_retval(&retval, "malloc Mcolind", 0)) MPI_Abort(grid.comm, 1);
+  if (check_retval((void *)Mcolind, "malloc Mcolind", 2)) MPI_Abort(grid.comm, 1);
+
+  Mrowptr = NULL;
   Mrowptr = (sunindextype *) malloc((NEQ+1)*sizeof(sunindextype));
-  if (check_retval(&retval, "malloc Mrowptr", 0)) MPI_Abort(grid.comm, 1);
+  if (check_retval((void *)Mrowptr, "malloc Mrowptr", 2)) MPI_Abort(grid.comm, 1);
+
+  Rdata = NULL;
   Rdata = (realtype *) malloc(NNZ*sizeof(realtype));
-  if (check_retval(&retval, "malloc Rdata", 0)) MPI_Abort(grid.comm, 1);
+  if (check_retval((void *)Rdata, "malloc Rdata", 2)) MPI_Abort(grid.comm, 1);
+
+  Rcolind = NULL;
   Rcolind = (sunindextype *) malloc(NNZ*sizeof(sunindextype));
-  if (check_retval(&retval, "malloc Rcolind", 0)) MPI_Abort(grid.comm, 1);
+  if (check_retval((void *)Rcolind, "malloc Rcolind", 2)) MPI_Abort(grid.comm, 1);
+
+  Rrowptr = NULL;
   Rrowptr = (sunindextype *) malloc((NEQ+1)*sizeof(sunindextype));
-  if (check_retval(&retval, "malloc Rrowptr", 0)) MPI_Abort(grid.comm, 1);
+  if (check_retval((void *)Rrowptr, "malloc Rrowptr", 2)) MPI_Abort(grid.comm, 1);
 
   /* SuperLU_DIST structures */
   dCreate_CompRowLoc_Matrix_dist(&Asuper, NEQ, NEQ, NNZ, NEQ, 0,
@@ -348,31 +376,39 @@ int main(int argc, char *argv[]) {
   /* SUNDIALS structures */
   A = SUNMatrix_SLUNRloc(&Asuper, &grid);
   if (check_retval((void *)A, "SUNMatrix_SLUNRloc", 0)) MPI_Abort(grid.comm, 1);
+
   LS = SUNLinSol_SuperLUDIST(y, A, &grid, &Alu, &Ascaleperm, &Asolve, &Astat, &Aopts);
   if (check_retval((void *)LS, "SUNLinSol_SuperLUDIST", 0)) MPI_Abort(grid.comm, 1);
+
   M = SUNMatrix_SLUNRloc(&Msuper, &grid);
   if (check_retval((void *)M, "SUNMatrix_SLUNRloc", 0)) MPI_Abort(grid.comm, 1);
+
   MLS = SUNLinSol_SuperLUDIST(y, M, &grid, &Mlu, &Mscaleperm, &Msolve, &Mstat, &Mopts);
   if (check_retval((void *)MLS, "SUNLinSol_SuperLUDIST", 0)) MPI_Abort(grid.comm, 1);
+
   udata->R = SUNMatrix_SLUNRloc(&Rsuper, &grid);
   if (check_retval((void *)udata->R, "SUNMatrix_SLUNRloc", 0)) MPI_Abort(grid.comm, 1);
 
   /* Attach the matrix, linear solver, and Jacobian construction routine to ARKStep */
-  retval = ARKStepSetLinearSolver(arkode_mem, LS, A);        /* Attach matrix and LS */
+  retval = ARKStepSetLinearSolver(arkode_mem, LS, A);
   if (check_retval(&retval, "ARKStepSetLinearSolver", 1)) MPI_Abort(grid.comm, 1);
-  retval = ARKStepSetJacFn(arkode_mem, Jac);                 /* Supply Jac routine */
+
+  /* Supply Jac routine */
+  retval = ARKStepSetJacFn(arkode_mem, Jac);
   if (check_retval(&retval, "ARKStepSetJacFn", 1)) MPI_Abort(grid.comm, 1);
 
   /* Attach the mass matrix, linear solver and construction routines to ARKStep;
      notify ARKStep that the mass matrix is not time-dependent */
-  retval = ARKStepSetMassLinearSolver(arkode_mem, MLS, M, SUNFALSE); /* Attach matrix and LS */
+  retval = ARKStepSetMassLinearSolver(arkode_mem, MLS, M, SUNFALSE);
   if (check_retval(&retval, "ARKStepSetMassLinearSolver", 1)) MPI_Abort(grid.comm, 1);
-  retval = ARKStepSetMassFn(arkode_mem, MassMatrix);                 /* Supply M routine */
+
+  /* Supply M routine */
+  retval = ARKStepSetMassFn(arkode_mem, MassMatrix);
   if (check_retval(&retval, "ARKStepSetMassFn", 1)) MPI_Abort(grid.comm, 1);
 
   /* output mesh to disk */
   FID=fopen("bruss_FEM_mesh.txt","w");
-  for (i=0; i<N; i++)  fprintf(FID,"  %.16"ESYM"\n", udata->x[i]);
+  for (i=0; i<N; i++)  fprintf(FID,"  %.16" ESYM "\n", udata->x[i]);
   fclose(FID);
 
   /* Open output stream for results, access data arrays */
@@ -383,9 +419,9 @@ int main(int argc, char *argv[]) {
   if (check_retval((void *)data, "N_VGetArrayPointer", 0)) MPI_Abort(grid.comm, 1);
 
   /* output initial condition to disk */
-  for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM, data[IDX(i,0)]);
-  for (i=0; i<N; i++)  fprintf(VFID," %.16"ESYM, data[IDX(i,1)]);
-  for (i=0; i<N; i++)  fprintf(WFID," %.16"ESYM, data[IDX(i,2)]);
+  for (i=0; i<N; i++)  fprintf(UFID," %.16" ESYM, data[IDX(i,0)]);
+  for (i=0; i<N; i++)  fprintf(VFID," %.16" ESYM, data[IDX(i,1)]);
+  for (i=0; i<N; i++)  fprintf(WFID," %.16" ESYM, data[IDX(i,2)]);
   fprintf(UFID,"\n");
   fprintf(VFID,"\n");
   fprintf(WFID,"\n");
@@ -407,7 +443,7 @@ int main(int argc, char *argv[]) {
     v = SUNRsqrt(v*v/N);
     w = N_VWL2Norm(y,wmask);
     w = SUNRsqrt(w*w/N);
-    printf("  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"  %10.6"FSYM"\n", t, u, v, w);
+    printf("  %10.6" FSYM "  %10.6" FSYM "  %10.6" FSYM "  %10.6" FSYM "\n", t, u, v, w);
     if (retval >= 0) {                                     /* successful solve: update output time */
       tout += dTout;
       tout = (tout > Tf) ? Tf : tout;
@@ -417,9 +453,9 @@ int main(int argc, char *argv[]) {
     }
 
     /* output results to disk */
-    for (i=0; i<N; i++)  fprintf(UFID," %.16"ESYM, data[IDX(i,0)]);
-    for (i=0; i<N; i++)  fprintf(VFID," %.16"ESYM, data[IDX(i,1)]);
-    for (i=0; i<N; i++)  fprintf(WFID," %.16"ESYM, data[IDX(i,2)]);
+    for (i=0; i<N; i++)  fprintf(UFID," %.16" ESYM, data[IDX(i,0)]);
+    for (i=0; i<N; i++)  fprintf(VFID," %.16" ESYM, data[IDX(i,1)]);
+    for (i=0; i<N; i++)  fprintf(WFID," %.16" ESYM, data[IDX(i,2)]);
     fprintf(UFID,"\n");
     fprintf(VFID,"\n");
     fprintf(WFID,"\n");
@@ -481,7 +517,7 @@ int main(int argc, char *argv[]) {
   free(udata);
 
   /* free matrix underlying data */
-  free(Adata); free(Mdata); free(Rdata);
+  free(Adata);   free(Mdata);   free(Rdata);
   free(Acolind); free(Mcolind); free(Rcolind);
   free(Arowptr); free(Mrowptr); free(Rrowptr);
 

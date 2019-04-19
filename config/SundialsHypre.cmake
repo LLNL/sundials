@@ -56,8 +56,12 @@ if(HYPRE_LIBRARIES)
     "int main(){\n"
     "HYPRE_ParVector par_b;\n"
     "HYPRE_IJVector b;\n"
-    "return(0);\n"
+    "par_b = NULL;\n"
+    "b = NULL;\n"
+    "if (par_b != NULL || b != NULL) return(1);\n"
+    "else return(0);\n"
     "}\n")
+
   # Attempt to link the "ltest" executable
   try_compile(LTEST_OK ${HYPRETest_DIR} ${HYPRETest_DIR} ltest OUTPUT_VARIABLE MY_OUTPUT)
       

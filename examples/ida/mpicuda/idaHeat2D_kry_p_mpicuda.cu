@@ -710,10 +710,11 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
 static int BSend(MPI_Comm comm, int thispe,
                  int ixsub, int jysub, int npex, int npey,
                  sunindextype mxsub, sunindextype mysub,
-                 const realtype *uarray, realtype *dev_send_buff, realtype *host_send_buff)
+                 const realtype *uarray, realtype *dev_send_buff,
+                 realtype *host_send_buff)
 {
   cudaError_t err;
-  //const sunindextype zero = 0;
+
   /* Have left, right, top and bottom device buffers use the same dev_send_buff. */
   realtype *d_bufleft   = dev_send_buff;
   realtype *d_bufright  = dev_send_buff + mysub;
@@ -735,10 +736,10 @@ static int BSend(MPI_Comm comm, int thispe,
     CopyToBottomBuffer<<<grid, block>>>(uarray, d_bufbottom, mxsub);
 
     // Copy buffer to the host
-    err = cudaMemcpy(h_bufbottom, d_bufbottom, mxsub*sizeof(realtype), cudaMemcpyDeviceToHost);
+    err = cudaMemcpy(h_bufbottom, d_bufbottom, mxsub*sizeof(realtype),
+                     cudaMemcpyDeviceToHost);
     if (err != cudaSuccess) {
       printf("Bottom buffer: Copy from device to host failed with code %d... \n", err);
-      printf("%ld %ld\n", h_bufbottom, d_bufbottom);
       return -1;
     }
     // MPI send buffer

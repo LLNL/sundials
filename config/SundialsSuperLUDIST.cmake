@@ -88,12 +88,16 @@ if(SUPERLUDIST_FOUND)
   file(WRITE ${SUPERLUDIST_TEST_DIR}/ltest.cpp
     "\#include <superlu_ddefs.h>\n"
     "int main(){\n"
-    "SuperMatrix A;\n"
+    "SuperMatrix *A;\n"
     "NRformat_loc *Astore;\n"
-    "return(0);\n"
+    "A = NULL;\n"
+    "Astore = NULL;\n"
+    "if (A != NULL || Astore != NULL) return(1);\n"
+    "else return(0);\n"
     "}\n")
 
-  try_compile(COMPILE_OK ${SUPERLUDIST_TEST_DIR} ${SUPERLUDIST_TEST_DIR} ltest OUTPUT_VARIABLE COMPILE_OUTPUT)
+  try_compile(COMPILE_OK ${SUPERLUDIST_TEST_DIR} ${SUPERLUDIST_TEST_DIR} ltest
+    OUTPUT_VARIABLE COMPILE_OUTPUT)
 
   # Process test result
   if(COMPILE_OK)

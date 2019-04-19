@@ -320,11 +320,12 @@ if(MPI_C_FOUND)
   file(WRITE ${MPITest_DIR}/mpi2test.c
     "#include <mpi.h>\n"
     "int main(){\n"
-    "int c;\n"
+    "int c, myid;\n"
     "char **v;\n"
     "MPI_Comm C_comm;\n"
     "MPI_Init(&c, &v);\n"
     "C_comm = MPI_Comm_f2c((MPI_Fint) 1);\n"
+    "(void) MPI_Comm_rank(C_comm, &myid);\n"
     "MPI_Finalize();\n"
     "return(0);\n"
     "}\n")
