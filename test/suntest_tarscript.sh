@@ -183,7 +183,11 @@ echo "START TARSCRIPT"
 # check tarscript return code
 rc=${PIPESTATUS[0]}
 echo -e "\ntarscript returned $rc\n" | tee -a tar.log
-if [ $rc -ne 0 ]; then exit 1; fi
+if [ $rc -ne 0 ]; then
+    # remove temporary file created by tarscript and exit with error
+    \rm -rf ../../tmp_dir.*
+    exit 1;
+fi
 
 # relocate tarballs
 mv tar.log $testdir/tarballs/.
