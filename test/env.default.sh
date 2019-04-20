@@ -27,10 +27,15 @@ export SPACK_ROOT=/usr/casc/sundials/apps/spack
 # setup the spack environment
 source ${SPACK_ROOT}/share/spack/setup-env.sh
 
-# compiler settings
+# compilers
 export CC="$(spack location -i "$compiler")/bin/gcc"
-export FC="$(spack location -i "$compiler")/bin/gfortran"
 export CXX="$(spack location -i "$compiler")/bin/g++"
+export FC="$(spack location -i "$compiler")/bin/gfortran"
+
+# compiler flags (test scripts will append C/C++ standard flags)
+export CFLAGS="-g -Wall -Wpedantic -Werror"
+export CXXFLAGS="-g -Wall -Wpedantic -Werror"
+export FFLAGS="-g -Wall -Wpedantic -ffpe-summary=none"
 
 # OpenMP settings
 export OMP_NUM_THREADS=4

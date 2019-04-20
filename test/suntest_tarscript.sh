@@ -296,6 +296,13 @@ for tarball in *.tar.gz; do
 
                 if [ "$TPLs" == "ON" ]; then
 
+                    # C and C++ standard flags to append
+                    CSTD="-std=c99"
+                    CXXSTD="-std=c++11"
+
+                    # Enable MPI
+                    MPISTATUS=ON
+
                     # LAPACK/BLAS: Do currently support extended precision or 64-bit indices
                     if [ "$rt" == "extended" ] || [ "$is" == "64" ]; then
                         LAPACKSTATUS=OFF
@@ -372,8 +379,12 @@ for tarball in *.tar.gz; do
                     fi
 
                 else
+                    # C and C++ standard flags to append
+                    CSTD="-std=c90"
+                    CXXSTD="-std=c++11"
 
                     # disable all TPLs
+                    MPISTATUS=OFF
                     LAPACKSTATUS=OFF
                     BLASSTATUS=OFF
                     KLUSTATUS=OFF
@@ -427,9 +438,9 @@ for tarball in *.tar.gz; do
                     -D CMAKE_CXX_COMPILER=$CXX \
                     -D CMAKE_Fortran_COMPILER=$FC \
                     \
-                    -D CMAKE_C_FLAGS="-g -Wall -Wpedantic -Werror -std=c99" \
-                    -D CMAKE_CXX_FLAGS="-g -Wall -Wpedantic -Werror -std=c++11" \
-                    -D CMAKE_Fortran_FLAGS="-g -Wall -Wpedantic -ffpe-summary=none" \
+                    -D CMAKE_C_FLAGS="${CFLAGS} ${CSTD}" \
+                    -D CMAKE_CXX_FLAGS="${CXXFLAGS} ${CXXSTD}" \
+                    -D CMAKE_Fortran_FLAGS="${FFLAGS}" \
                     -D CUDA_NVCC_FLAGS="--compiler-options;-Wall;--compiler-options;-Werror" \
                     -D CUDA_PROPAGATE_HOST_FLAGS=OFF \
                     \
@@ -438,7 +449,7 @@ for tarball in *.tar.gz; do
                     -D CUDA_ENABLE=${CUDASTATUS} \
                     -D RAJA_ENABLE=OFF \
                     \
-                    -D MPI_ENABLE=ON \
+                    -D MPI_ENABLE="${MPISTATUS}" \
                     -D MPI_C_COMPILER="${MPIDIR}/bin/mpicc" \
                     -D MPI_CXX_COMPILER="${MPIDIR}/bin/mpicxx" \
                     -D MPI_Fortran_COMPILER="${MPIDIR}/bin/mpif90" \
