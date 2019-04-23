@@ -18,9 +18,7 @@
 # type is develop for examples excluded from 'make test' in releases
 
 # Examples using SUNDIALS linear solvers
-IF(SUPERLUDIST_OpenMP)
-  LIST(APPEND ARKODE_examples "ark_brusselator1D_FEM_sludist\;1\;1\;develop")
-ENDIF()
+LIST(APPEND ARKODE_examples "ark_brusselator1D_FEM_sludist\;1\;1\;develop")
 
 # Auxiliary files to install
 SET(ARKODE_extras
@@ -36,28 +34,20 @@ ELSE()
   INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
 ENDIF()
 
-IF(OPENMP_FOUND AND SUPERLUDIST_OpenMP)
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-ENDIF()
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(ARKODE_LIB sundials_arkode_static)
-  SET(NVECP_LIB sundials_nvecparallel_static)
   SET(SUNMAT_LIB sundials_sunmatrixslunrloc_static)
   SET(SUNLS_LIB sundials_sunlinsolsuperludist_static)
-  IF(SUPERLUDIST_OpenMP)
-    SET(NVECP_LIB sundials_nvecparallel_static sundials_nvecopenmp_static)
-  ENDIF()
+  SET(NVECP_LIB sundials_nvecopenmp_static)
 ELSE()
   SET(ARKODE_LIB sundials_arkode_shared)
-  SET(NVECP_LIB sundials_nvecparallel_shared)
   SET(SUNMAT_LIB sundials_sunmatrixslunrloc_shared)
   SET(SUNLS_LIB sundials_sunlinsolsuperludist_shared)
-  IF(SUPERLUDIST_OpenMP)
-    SET(NVECP_LIB sundials_nvecparallel_shared sundials_nvecopenmp_shared)
-  ENDIF()
+  SET(NVECP_LIB sundials_nvecopenmp_shared)
 ENDIF()
 
 # Set-up linker flags and link libraries
@@ -114,12 +104,9 @@ IF(EXAMPLES_INSTALL)
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   SET(SOLVER "ARKODE")
   STRING(CONCAT SUNDIALS_LIBS "-lsundials_arkode "
-    "-lsundials_nvecparallel "
     "-lsundials_sunmatrixslunrloc "
-    "-lsundials_sunlinsolsuperludist")
-  IF(SUPERLUDIST_OpenMP)
-    STRING(CONCAT SUNDIALS_LIBS "${SUNDIALS_LIBS} " "-lsundials_nvecopenmp")
-  ENDIF()
+    "-lsundials_sunlinsolsuperludist"
+    "-lsundials_nvecopenmp")
 
   EXAMPLES2STRING(ARKODE_examples EXAMPLES)
 

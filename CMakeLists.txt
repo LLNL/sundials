@@ -781,7 +781,8 @@ ENDIF()
 # (e) SuperLU_DIST is enabled
 # ---------------------------------------------------------------
 
-if(EXAMPLES_ENABLE_CXX OR CUDA_ENABLE OR RAJA_ENABLE OR Trilinos_ENABLE OR SUPERLUDIST_ENABLE)
+if(EXAMPLES_ENABLE_CXX OR CUDA_ENABLE OR RAJA_ENABLE OR Trilinos_ENABLE OR
+    SUPERLUDIST_ENABLE)
   include(SundialsCXX)
 endif()
 
@@ -819,7 +820,7 @@ endif()
 # components.
 # ---------------------------------------------------------------
 
-if(MPI_ENABLE OR Trilinos_ENABLE)
+if(MPI_ENABLE OR Trilinos_ENABLE OR SUPERLUDIST_ENABLE)
   include(SundialsMPI)
 endif()
 
@@ -971,6 +972,7 @@ if(SUPERLUDIST_ENABLE)
   include(SundialsSuperLUDIST)
 else()
   set(SUPERLUDIST_DISABLED TRUE CACHE INTERNAL "GUI - return when first set")
+  set(SUNDIALS_SUPERLUDIST FALSE)
 endif()
 
 # ---------------------------------------------------------------

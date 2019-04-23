@@ -27,20 +27,21 @@ if(SUNDIALS_PRECISION MATCHES "SINGLE" OR SUNDIALS_PRECISION MATCHES "EXTENDED")
   PRINT_ERROR("SuperLU_DIST is not compatible with ${SUNDIALS_PRECISION} precision")
 endif()
 
-# SuperLU_DIST requires MPI, so make sure it is enabled and found.
-if(NOT (MPI_ENABLE AND MPI_FOUND))
-  PRINT_ERROR("SuperLU_DIST requires MPI but it was not enabled/found. Try setting MPI_ENABLE to ON.")
+# SuperLU_DIST requires MPI, so make sure it was found.
+if(NOT (MPI_C_FOUND AND MPI_CXX_FOUND))
+  PRINT_ERROR("SuperLU_DIST requires MPI but it was not found.")
 endif()
 
+# SuperLU_DIST OpenMP node parallelism is on, make sure OpenMP as found and is
+# at least version 4.5
 if(SUPERLUDIST_OpenMP)
-  # SuperLU_DIST OpenMP node parallelism requires OpenMP 4.5
 
-  if(NOT (OPENMP_ENABLE AND OPENMP_FOUND))
-    PRINT_ERROR("SUPERLUDIST_OpenMP is set to ON but OpenMP was not enabled/found. Try setting OPENMP_ENABLE to ON.")
+  if(NOT OPENMP_FOUND)
+    PRINT_ERROR("SUPERLUDIST_OpenMP is set to ON but OpenMP was not found.")
   elseif(NOT OPENMP45_FOUND)
-    string(CONCAT ERRSTR "SuperLUDIST with OpenMP requires OpenMP 4.5+ but it was not found. "
-                         "Either use CMake 3.9+, or if you are sure OpenMP 4.5 is available "
-                         "set the SKIP_OPENMP_DEVICE_CHECK advanced option to ON.")
+    string(CONCAT ERRSTR "SuperLUDIST requires OpenMP 4.5+ but it was not found. "
+      "Either use CMake 3.9+, or if you are sure OpenMP 4.5+ is available "
+      "set the SKIP_OPENMP_DEVICE_CHECK advanced option to ON.")
     PRINT_ERROR(${ERRSTR})
   endif()
 
@@ -113,5 +114,10 @@ if(SUPERLUDIST_FOUND)
 
   # sundials_config.h symbols
   set(SUNDIALS_SUPERLUDIST TRUE)
+
+else()
+
+  # sundials_config.h symbols
+  set(SUNDIALS_SUPERLUDIST FALSE)
 
 endif()

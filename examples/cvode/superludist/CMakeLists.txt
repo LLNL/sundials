@@ -27,7 +27,7 @@ ELSE()
   INCLUDE_DIRECTORIES(${MPI_INCLUDE_PATH})
 ENDIF()
 
-IF(OPENMP_FOUND AND SUPERLUDIST_OpenMP)
+IF(SUPERLUDIST_OpenMP)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 ENDIF()
 
@@ -38,17 +38,11 @@ IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(NVECP_LIB sundials_nvecparallel_static)
   SET(SUNMAT_LIB sundials_sunmatrixslunrloc_static)
   SET(SUNLS_LIB sundials_sunlinsolsuperludist_static)
-  IF(SUPERLUDIST_OpenMP)
-    SET(NVECP_LIB sundials_nvecparallel_static sundials_nvecopenmp_static)
-  ENDIF()
 ELSE()
   SET(CVODE_LIB sundials_cvode_shared)
   SET(NVECP_LIB sundials_nvecparallel_shared)
   SET(SUNMAT_LIB sundials_sunmatrixslunrloc_shared)
   SET(SUNLS_LIB sundials_sunlinsolsuperludist_shared)
-  IF(SUPERLUDIST_OpenMP)
-    SET(NVECP_LIB sundials_nvecparallel_shared sundials_nvecopenmp_shared)
-  ENDIF()
 ENDIF()
 
 # Set-up linker flags and link libraries
@@ -104,9 +98,6 @@ IF(EXAMPLES_INSTALL)
     "-lsundials_nvecparallel "
     "-lsundials_sunmatrixslunrloc "
     "-lsundials_sunlinsolsuperludist")
-  IF(SUPERLUDIST_OpenMP)
-    STRING(CONCAT SUNDIALS_LIBS "${SUNDIALS_LIBS} " "-lsundials_nvecopenmp")
-  ENDIF()
 
   EXAMPLES2STRING(CVODE_examples EXAMPLES)
 

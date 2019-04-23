@@ -29,9 +29,9 @@ if(KLU_ENABLE AND KLU_FOUND)
   add_subdirectory(klu)
 endif(KLU_ENABLE AND KLU_FOUND)
 
-if(SUPERLUDIST_ENABLE AND SUPERLUDIST_FOUND)
+if(SUNDIALS_SUPERLUDIST)
   add_subdirectory(superludist)
-endif(SUPERLUDIST_ENABLE AND SUPERLUDIST_FOUND)
+endif()
 
 if(SUPERLUMT_ENABLE AND SUPERLUMT_FOUND)
   add_subdirectory(superlumt)

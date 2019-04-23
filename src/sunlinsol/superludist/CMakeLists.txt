@@ -52,7 +52,7 @@ if(BUILD_STATIC_LIBS)
       m
   )
 
-  if(SUPERLUDIST_OpenMP AND OPENMP_ENABLE AND OPENMP_FOUND)
+  if(SUPERLUDIST_OpenMP)
     target_compile_options(sundials_sunlinsolsuperludist_static
       PUBLIC ${OpenMP_C_FLAGS})
   endif()
