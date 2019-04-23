@@ -221,6 +221,7 @@ void SUNMatDestroy_SLUNRloc(SUNMatrix A)
 
     pdgsmv_finalize(SM_COMMPATTERN_SLUNRLOC(A));
     Destroy_CompRowLoc_Matrix_dist(SM_COLSORTED_SLUNRLOC(A));
+    free(SM_COLSORTED_SLUNRLOC(A));
     SM_COLSORTED_SLUNRLOC(A) = NULL;
   }
   if (SM_ROWTOPROC_SLUNRLOC(A)) {

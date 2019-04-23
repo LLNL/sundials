@@ -83,7 +83,6 @@ FOREACH(example_tuple ${sunlinsol_superludist_examples})
           sundials_sunlinsolsuperludist_static
           sundials_sunmatrixslunrloc_static
           sundials_sunmatrixdense_static
-          sundials_sunmatrixsparse_static
           sundials_nvecparallel_static
           sundials_nvecserial_static)
     ELSE()
@@ -92,7 +91,6 @@ FOREACH(example_tuple ${sunlinsol_superludist_examples})
           sundials_sunlinsolsuperludist_shared
           sundials_sunmatrixslunrloc_shared
           sundials_sunmatrixdense_shared
-          sundials_sunmatrixsparse_shared
           sundials_nvecparallel_shared
           sundials_nvecserial_shared)
     ENDIF()

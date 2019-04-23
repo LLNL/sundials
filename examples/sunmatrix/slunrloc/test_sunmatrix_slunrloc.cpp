@@ -26,7 +26,6 @@
 #include <nvector/nvector_parallel.h>
 #include <sunmatrix/sunmatrix_dense.h>
 #include <sunmatrix/sunmatrix_slunrloc.h>
-#include <sunmatrix/sunmatrix_sparse.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
 #include "test_sunmatrix.h"
@@ -35,6 +34,10 @@
  * when using TEST_STATUS* macros */
 static int print_all_ranks;
 static int print_timing;
+
+/* helper functions */
+int csr_from_dense(SUNMatrix Ad, realtype droptol, realtype **matdata,
+                   sunindextype **colind, sunindextype **rowptrs);
 
 /* ----------------------------------------------------------------------------
  * Main SUNMatrix Testing Routine
@@ -50,7 +53,7 @@ int main(int argc, char *argv[])
   sunindextype M, N;                        /* matrix size                      */
   realtype *matdata;                        /* pointer to matrix data           */
   sunindextype *rowptrs, *colind;           /* indexptrs and indexvals          */
-  SUNMatrix D, GA, A, I;                    /* global and local matrices        */
+  SUNMatrix D, A, I;                        /* global and local matrices        */
   SuperMatrix *Asuper, *Isuper;             /* SLU_NR_loc SuperMatrices         */
   NRformat_loc *Istore;                     /* SuperMatrix->Store               */
   N_Vector gx, gy, x, y;                    /* test vectors                     */
@@ -118,12 +121,14 @@ int main(int argc, char *argv[])
   }
 
   /* Initialize matrices and vectors to null */
-  GA = NULL;
   D = NULL;
   A = NULL;
   I = NULL;
   x = NULL;
   y = NULL;
+  matdata = NULL;
+  rowptrs = NULL;
+  colind  = NULL;
 
   /* Setup global matrix */
   if (grid.iam == 0) {
@@ -160,10 +165,11 @@ int main(int argc, char *argv[])
       return(1);
     }
 
-    GA = SUNSparseFromDenseMatrix(D, ZERO, CSR_MAT);
-    rowptrs = SUNSparseMatrix_IndexPointers(GA);
-    colind  = SUNSparseMatrix_IndexValues(GA);
-    matdata = SUNSparseMatrix_Data(GA);
+    fails = csr_from_dense(D, ZERO, &matdata, &colind, &rowptrs); 
+    if (fails != 0) {
+      printf(">>> FAIL: csr_from_dense failure \n");
+      return(1);
+    }
 
     /* distribute matrix and vectors */
     for (i=1; i<nprocs; i++) {
@@ -212,7 +218,7 @@ int main(int argc, char *argv[])
     if (A == NULL) {
       fails++;
       TEST_STATUS(">>> FAIL: Failed to create SUNMatrix_SLUNRloc\n", grid.iam);
-      SUNMatDestroy(D); SUNMatDestroy(GA); N_VDestroy(gx); N_VDestroy(gy);
+      SUNMatDestroy(D); N_VDestroy(gx); N_VDestroy(gy);
       return(fails);
     }
 
@@ -319,11 +325,12 @@ int main(int argc, char *argv[])
   }
 
   /* Destroy the SuperLU-DIST SuperMatrices */
-  free(Asuper);
+  Destroy_CompRowLoc_Matrix_dist(Asuper);
+  free(Asuper); Asuper = NULL;
 
   /* Destroy matricies and vectors */
   if (grid.iam == 0) {
-    SUNMatDestroy(D); SUNMatDestroy(GA);
+    SUNMatDestroy(D);
     N_VDestroy(gx); N_VDestroy(gy);
   }
   SUNMatDestroy(A); SUNMatDestroy(I);
@@ -519,3 +526,46 @@ booleantype is_square(SUNMatrix A)
   else
     return SUNFALSE;
 }
+
+int csr_from_dense(SUNMatrix Ad, realtype droptol, realtype **matdata,
+                   sunindextype **colind, sunindextype **rowptrs)
+{
+  sunindextype i, j, nnz;
+  sunindextype M, N;
+
+  if (droptol < ZERO)
+    return -1;
+  if (SUNMatGetID(Ad) != SUNMATRIX_DENSE)
+    return -1;
+  
+  /* set size of new matrix */
+  M = SUNDenseMatrix_Rows(Ad);
+  N = SUNDenseMatrix_Columns(Ad);
+
+  /* determine total number of nonzeros */
+  nnz = 0;
+  for (j=0; j<N; j++)
+    for (i=0; i<M; i++)
+      nnz += (SUNRabs(SM_ELEMENT_D(Ad,i,j)) > droptol);
+  
+  /* allocate */
+  (*matdata) = (realtype*) malloc(nnz*sizeof(realtype));
+  (*colind)  = (sunindextype*) malloc(nnz*sizeof(sunindextype));
+  (*rowptrs) = (sunindextype*) malloc((M+1)*sizeof(sunindextype));
+    
+  /* copy nonzeros from Ad into As, based on CSR/CSC type */
+  nnz = 0;
+  for (i=0; i<M; i++) {
+    (*rowptrs)[i] = nnz;
+    for (j=0; j<N; j++) {
+      if ( SUNRabs(SM_ELEMENT_D(Ad,i,j)) > droptol ) { 
+        (*colind)[nnz] = j;
+        (*matdata)[nnz++] = SM_ELEMENT_D(Ad,i,j);
+      }
+    }
+  }
+  (*rowptrs)[M] = nnz;
+    
+  return 0;
+}
+
