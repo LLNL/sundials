@@ -11,8 +11,8 @@ pipeline {
               // output for collapse setions plugin
               echo "END JENKINS SETUP"
 
-              // run regression tests with 4 build threads
-              sh("cd test && ./test_driver.sh 4 ${env.BRANCH_NAME} ${env.CHANGE_BRANCH}")
+              // run regression tests
+              sh("cd test && ./test_driver.sh 1 ${env.BRANCH_NAME} ${env.CHANGE_BRANCH}")
             }
         }
     }

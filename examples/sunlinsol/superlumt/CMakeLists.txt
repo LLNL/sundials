@@ -18,11 +18,13 @@
 # 'develop' for examples excluded from 'make test' in releases
 
 # Examples using the SuperLU_MT linear solver
+# Note: threaded tests are excluded because of a potential bug in
+# SuperLU_MT that causes random test failures
 SET(sunlinsol_superlumt_examples
   "test_sunlinsol_superlumt\;300 0 1 0\;"
   "test_sunlinsol_superlumt\;300 1 1 0\;"
-  "test_sunlinsol_superlumt\;1000 0 3 0\;develop"
-  "test_sunlinsol_superlumt\;1000 1 3 0\;develop"
+  "test_sunlinsol_superlumt\;1000 0 3 0\;exclude"
+  "test_sunlinsol_superlumt\;1000 1 3 0\;exclude"
 )
 
 # Dependencies for nvector examples
