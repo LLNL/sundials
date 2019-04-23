@@ -264,6 +264,7 @@ int main(int argc, char** argv)
 
   N_VDestroy(u);          /* Free the u vector */
   CVodeFree(&cvode_mem);  /* Free the integrator memory */
+  SUNLinSolFree(LS);      /* Free linear solver memory */
   free(data);             /* Free the user data */
   
   cuerr = cudaStreamDestroy(stream); /* Free and cleanup the CUDA stream */

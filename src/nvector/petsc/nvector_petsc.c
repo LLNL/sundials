@@ -394,18 +394,9 @@ N_Vector N_VClone_Petsc(N_Vector w)
   if (v == NULL)
     return(NULL);
 
-  /* Create data */
-
-  /* Allocate empty PETSc vector */
-  pvec = (Vec) malloc(sizeof(Vec));
-  if(pvec == NULL) {
-    N_VDestroy_Petsc(v);
-    return(NULL);
-  }
-
-  /* ierr = */
+  /* Duplicate vector */
   VecDuplicate(wvec, &pvec);
-  if(pvec == NULL) {
+  if (pvec == NULL) {
     N_VDestroy_Petsc(v);
     return(NULL);
   }
@@ -969,6 +960,7 @@ int N_VLinearCombination_Petsc(int nvec, realtype* c, N_Vector* X, N_Vector z)
    */
   if ((X[0] == z) && (c[0] == ONE)) {
     VecMAXPY(zv, nvec-1, c+1, xv+1);
+    free(xv);
     return(0);
   }
 
@@ -978,6 +970,7 @@ int N_VLinearCombination_Petsc(int nvec, realtype* c, N_Vector* X, N_Vector z)
   if (X[0] == z) {
     VecScale(zv, c[0]);
     VecMAXPY(zv, nvec-1, c+1, xv+1);
+    free(xv);
     return(0);
   }
 
@@ -986,6 +979,8 @@ int N_VLinearCombination_Petsc(int nvec, realtype* c, N_Vector* X, N_Vector z)
    */
   VecAXPBY(zv, c[0], 0.0, xv[0]);
   VecMAXPY(zv, nvec-1, c+1, xv+1);
+  free(xv);
+
   return(0);
 }
 
@@ -1062,6 +1057,8 @@ int N_VDotProdMulti_Petsc(int nvec, N_Vector x, N_Vector* Y, realtype* dotprods)
   xv = NV_PVEC_PTC(x);
 
   VecMDot(xv, nvec, yv, dotprods);
+  free(yv);
+
   return(0);
 }
 

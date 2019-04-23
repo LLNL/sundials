@@ -146,6 +146,7 @@ int main(int argc, char *argv[])
   SUNMatDestroy(B);
   N_VDestroy(x);
   N_VDestroy(y);
+  N_VDestroy(b);
 
   return(fails);
 }
