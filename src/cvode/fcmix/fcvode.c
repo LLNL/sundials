@@ -90,7 +90,6 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
   /* Initialize all pointers to NULL */
   CV_cvodemem = NULL;
   Vatol = NULL;
-  FCVNullNonlinSol();
 
   /* initialize global constants to disable each option */
   CV_nrtfn = 0;
@@ -491,9 +490,8 @@ void FCV_FREE ()
     SUNMatDestroy(F2C_CVODE_matrix);
   if (F2C_CVODE_linsol)
     SUNLinSolFree(F2C_CVODE_linsol);
-  /* already freed by CVodeFree */
   if (F2C_CVODE_nonlinsol)
-    F2C_CVODE_nonlinsol = NULL;
+    SUNNonlinSolFree(F2C_CVODE_nonlinsol);
   return;
 }
 

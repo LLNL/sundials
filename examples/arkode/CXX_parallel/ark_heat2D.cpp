@@ -817,6 +817,9 @@ static int FreeUserData(UserData *udata)
   if (udata->Nrecv != NULL)  delete[] udata->Nrecv;
   if (udata->Nsend != NULL)  delete[] udata->Nsend;
 
+  if (udata->comm != MPI_COMM_WORLD)
+    MPI_Comm_free(&(udata->comm));
+
   return 0;     // return with success flag
 }
 

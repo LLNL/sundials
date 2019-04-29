@@ -108,6 +108,11 @@ APIs by ensuring all operations are copied when cloning objects.
 Fixed a bug in the build system that prevented the {\nvecpthreads} module from
 being built.
 
+Fixed a memory leak in the {\nvecpetsc} clone function.
+
+Fixed a bug in \id{IDAQuadReInitB} where an incorrect memory structure was
+passed to \id{IDAQuadReInit}.
+
 \subsection*{Changes in v4.0.0-dev.0}
 
 An additional {\nvector} implementation, {\nvecmanyvector}, was

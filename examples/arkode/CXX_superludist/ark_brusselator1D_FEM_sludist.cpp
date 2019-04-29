@@ -525,8 +525,8 @@ int main(int argc, char *argv[]) {
   PStatFree(&Astat); PStatFree(&Mstat);
   ScalePermstructFree(&Ascaleperm); ScalePermstructFree(&Mscaleperm);
   LUstructFree(&Alu); LUstructFree(&Mlu);
-
   superlu_gridexit(&grid);
+
   MPI_Finalize();
 
   return 0;

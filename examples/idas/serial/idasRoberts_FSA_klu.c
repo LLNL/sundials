@@ -358,14 +358,19 @@ int main(int argc, char *argv[])
 
   /* Free memory */
   N_VDestroy(y);
+  N_VDestroy(yp);
+  N_VDestroy(abstol);
+  N_VDestroy(id);
   if (sensi) {
     N_VDestroyVectorArray(yS, NS);
+    N_VDestroyVectorArray(ypS, NS);
   }
   free(data);
   IDAFree(&ida_mem);
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
   N_VDestroy(yQ);
+  N_VDestroyVectorArray(yQS, NS);
 
   return(0);
 }

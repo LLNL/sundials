@@ -117,9 +117,12 @@ routines for custom vector and matrix objects these functions also will ease the
 introduction of any new optional operations to the {\nvector} or {\sunmatrix}
 APIs by ensuring all operations are copied when cloning objects.
 
-
 Fixed a bug in the build system that prevented the {\nvecpthreads} module from
 being built.
+
+Fixed a memory leak in the {\nvecpetsc} clone function.
+
+Fixed a memeory leak in {\fcvode} when not using the default nonlinear solver.
 
 \subsection*{Changes in v5.0.0-dev.0}
 

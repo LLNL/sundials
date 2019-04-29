@@ -85,7 +85,6 @@ void FIDA_MALLOC(realtype *t0, realtype *yy0, realtype *yp0,
   IDA_idamem = NULL;
   Vatol = NULL;
   F2C_IDA_ypvec = F2C_IDA_ewtvec = NULL;
-  FIDANullNonlinSol();
 
   /* Create IDA object */
   IDA_idamem = IDACreate();
@@ -561,16 +560,14 @@ void FIDA_FREE(void)
   N_VSetArrayPointer(NULL, F2C_IDA_ypvec);
   N_VDestroy(F2C_IDA_ypvec);
   if (F2C_IDA_ewtvec != NULL) {
-    N_VSetArrayPointer(NULL, F2C_IDA_ewtvec);
     N_VDestroy(F2C_IDA_ewtvec);
   }
   if (F2C_IDA_matrix)
     SUNMatDestroy(F2C_IDA_matrix);
   if (F2C_IDA_linsol)
     SUNLinSolFree(F2C_IDA_linsol);
-  /* already freed by IDAFree */
   if (F2C_IDA_nonlinsol)
-    F2C_IDA_nonlinsol = NULL;
+    SUNNonlinSolFree(F2C_IDA_nonlinsol);
   return;
 }
 

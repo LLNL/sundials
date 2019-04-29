@@ -788,13 +788,13 @@ static int AllocUserData(int thispe, MPI_Comm comm, N_Vector uu, UserData data)
 
 static int DeleteUserData(UserData data)
 {
-  if (data->pp == NULL)
+  if (data->pp != NULL)
     N_VDestroy(data->pp);
-  if (data->uext == NULL)
+  if (data->uext != NULL)
     free(data->uext);
-  if (data->send_buff == NULL)
+  if (data->send_buff != NULL)
     free(data->send_buff);
-  if (data->recv_buff == NULL)
+  if (data->recv_buff != NULL)
     free(data->recv_buff);
   return 0;
 }

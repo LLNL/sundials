@@ -358,6 +358,12 @@ int main(int argc, char *argv[])
   N_VDestroy(up);
   N_VDestroy(uu);
 
+  if(sensi) {
+    free(pbar);
+    N_VDestroyVectorArray(uuS, NS);
+    N_VDestroyVectorArray(upS, NS);
+  }
+
   MPI_Finalize();
 
   return(0);

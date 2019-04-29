@@ -128,7 +128,7 @@ static void PrintOutput2(realtype t, realtype erm, int qu, realtype hu);
 static realtype MaxError(N_Vector y, realtype t);
 static int PrepareNextRun(void *cvode_mem, int lmm, int miter, N_Vector y,
                           SUNMatrix* A, sunindextype mu, sunindextype ml,
-                          SUNLinearSolver* LS);
+                          SUNLinearSolver* LS, SUNNonlinearSolver* NLS);
 static void PrintErrOutput(realtype tol_factor);
 static void PrintFinalStats(void *cvode_mem, int miter, realtype ero);
 static void PrintErrInfo(int nerr);
@@ -193,31 +193,24 @@ static int Problem1(void)
 
     firstrun = (miter==FUNC);
     if (firstrun) {
+
       /* initialize CVode */
       retval = CVodeInit(cvode_mem, f1, P1_T0, y);
       if(check_retval(&retval, "CVodeInit", 1)) return(1);
+
       /* set scalar tolerances */
       retval = CVodeSStolerances(cvode_mem, reltol, abstol);
       if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
-      /* create fixed point nonlinear solver object */
-      NLS = SUNNonlinSol_FixedPoint(y, 0);
-      if(check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0)) return(1);
-      /* attach nonlinear solver object to CVode */
-      retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
-      if(check_retval(&retval, "CVodeSetNonlinearSolver", 1)) return(1);
+
     } else {
+
       /* reinitialize CVode */
       retval = CVodeReInit(cvode_mem, P1_T0, y);
       if(check_retval(&retval, "CVodeReInit", 1)) return(1);
-      /* create Newton nonlinear solver object */
-      NLS = SUNNonlinSol_Newton(y);
-      if(check_retval((void *)NLS, "SUNNonlinSol_Newton", 0)) return(1);
-      /* attach nonlinear solver object to CVode */
-      retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
-      if(check_retval(&retval, "CVodeSetNonlinearSolver", 1)) return(1);
-    }
 
-    retval = PrepareNextRun(cvode_mem, CV_ADAMS, miter, y, &A, 0, 0, &LS);
+    }
+      
+    retval = PrepareNextRun(cvode_mem, CV_ADAMS, miter, y, &A, 0, 0, &LS, &NLS);
     if(check_retval(&retval, "PrepareNextRun", 1)) return(1);
 
     PrintHeader1();
@@ -263,31 +256,24 @@ static int Problem1(void)
 
     firstrun = (miter==FUNC);
     if (firstrun) {
+
       /* initialize CVode */
       retval = CVodeInit(cvode_mem, f1, P1_T0, y);
       if(check_retval(&retval, "CVodeInit", 1)) return(1);
+
       /* set scalar tolerances */
       retval = CVodeSStolerances(cvode_mem, reltol, abstol);
       if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
-      /* create fixed point nonlinear solver object */
-      NLS = SUNNonlinSol_FixedPoint(y, 0);
-      if(check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0)) return(1);
-      /* attach nonlinear solver object to CVode */
-      retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
-      if(check_retval(&retval, "CVodeSetNonlinearSolver", 1)) return(1);
+
     } else {
+
       /* reinitialize CVode */
       retval = CVodeReInit(cvode_mem, P1_T0, y);
       if(check_retval(&retval, "CVodeReInit", 1)) return(1);
-      /* create Newton nonlinear solver object */
-      NLS = SUNNonlinSol_Newton(y);
-      if(check_retval((void *)NLS, "SUNNonlinSol_Newton", 0)) return(1);
-      /* attach nonlinear solver object to CVode */
-      retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
-      if(check_retval(&retval, "CVodeSetNonlinearSolver", 1)) return(1);
+
     }
 
-    retval = PrepareNextRun(cvode_mem, CV_BDF, miter, y, &A, 0, 0, &LS);
+    retval = PrepareNextRun(cvode_mem, CV_BDF, miter, y, &A, 0, 0, &LS, &NLS);
     if(check_retval(&retval, "PrepareNextRun", 1)) return(1);
 
     PrintHeader1();
@@ -425,31 +411,24 @@ static int Problem2(void)
 
     firstrun = (miter==FUNC);
     if (firstrun) {
+
       /* initialize CVode */
       retval = CVodeInit(cvode_mem, f2, P2_T0, y);
       if(check_retval(&retval, "CVodeInit", 1)) return(1);
+
       /* set scalar tolerances */
       retval = CVodeSStolerances(cvode_mem, reltol, abstol);
       if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
-      /* create fixed point nonlinear solver object */
-      NLS = SUNNonlinSol_FixedPoint(y, 0);
-      if(check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0)) return(1);
-      /* attach nonlinear solver object to CVode */
-      retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
-      if(check_retval(&retval, "CVodeSetNonlinearSolver", 1)) return(1);
+
     } else {
+
       /* reinitialize CVode */
       retval = CVodeReInit(cvode_mem, P2_T0, y);
       if(check_retval(&retval, "CVodeReInit", 1)) return(1);
-      /* create Newton nonlinear solver object */
-      NLS = SUNNonlinSol_Newton(y);
-      if(check_retval((void *)NLS, "SUNNonlinSol_Newton", 0)) return(1);
-      /* attach nonlinear solver object to CVode */
-      retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
-      if(check_retval(&retval, "CVodeSetNonlinearSolver", 1)) return(1);
+
     }
 
-    retval = PrepareNextRun(cvode_mem, CV_ADAMS, miter, y, &A, P2_MU, P2_ML, &LS);
+    retval = PrepareNextRun(cvode_mem, CV_ADAMS, miter, y, &A, P2_MU, P2_ML, &LS, &NLS);
     if(check_retval(&retval, "PrepareNextRun", 1)) return(1);
 
     PrintHeader2();
@@ -497,31 +476,24 @@ static int Problem2(void)
 
     firstrun = (miter==FUNC);
     if (firstrun) {
+
       /* initialize CVode */
       retval = CVodeInit(cvode_mem, f2, P2_T0, y);
       if(check_retval(&retval, "CVodeInit", 1)) return(1);
+
       /* set scalar tolerances */
       retval = CVodeSStolerances(cvode_mem, reltol, abstol);
       if(check_retval(&retval, "CVodeSStolerances", 1)) return(1);
-      /* create fixed point nonlinear solver object */
-      NLS = SUNNonlinSol_FixedPoint(y, 0);
-      if(check_retval((void *)NLS, "SUNNonlinSol_FixedPoint", 0)) return(1);
-      /* attach nonlinear solver object to CVode */
-      retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
-      if(check_retval(&retval, "CVodeSetNonlinearSolver", 1)) return(1);
+
     } else {
+
       /* reinitialize CVode */
       retval = CVodeReInit(cvode_mem, P2_T0, y);
       if(check_retval(&retval, "CVodeReInit", 1)) return(1);
-      /* create Newton nonlinear solver object */
-      NLS = SUNNonlinSol_Newton(y);
-      if(check_retval((void *)NLS, "SUNNonlinSol_Newton", 0)) return(1);
-      /* attach nonlinear solver object to CVode */
-      retval = CVodeSetNonlinearSolver(cvode_mem, NLS);
-      if(check_retval(&retval, "CVodeSetNonlinearSolver", 1)) return(1);
+
     }
 
-    retval = PrepareNextRun(cvode_mem, CV_BDF, miter, y, &A, P2_MU, P2_ML, &LS);
+    retval = PrepareNextRun(cvode_mem, CV_BDF, miter, y, &A, P2_MU, P2_ML, &LS, &NLS);
     if(check_retval(&retval, "PrepareNextRun", 1)) return(1);
 
     PrintHeader2();
@@ -685,10 +657,12 @@ static realtype MaxError(N_Vector y, realtype t)
 
 static int PrepareNextRun(void *cvode_mem, int lmm, int miter, N_Vector y,
                           SUNMatrix* A, sunindextype mu, sunindextype ml,
-                          SUNLinearSolver* LS)
+                          SUNLinearSolver* LS, SUNNonlinearSolver* NLS)
 {
   int retval = CV_SUCCESS;
 
+  if (*NLS)
+    SUNNonlinSolFree(*NLS);
   if (*LS)
     SUNLinSolFree(*LS);
   if (*A)
@@ -706,8 +680,26 @@ static int PrepareNextRun(void *cvode_mem, int lmm, int miter, N_Vector y,
   printf("Iteration               : ");
   if (miter == FUNC) {
     printf("FIXEDPOINT\n");
+
+    /* create fixed point nonlinear solver object */
+    *NLS = SUNNonlinSol_FixedPoint(y, 0);
+    if(check_retval((void *)*NLS, "SUNNonlinSol_FixedPoint", 0)) return(1);
+
+    /* attach nonlinear solver object to CVode */
+    retval = CVodeSetNonlinearSolver(cvode_mem, *NLS);
+    if(check_retval(&retval, "CVodeSetNonlinearSolver", 1)) return(1);
+
   } else {
     printf("NEWTON\n");
+
+    /* create Newton nonlinear solver object */
+    *NLS = SUNNonlinSol_Newton(y);
+    if(check_retval((void *)NLS, "SUNNonlinSol_Newton", 0)) return(1);
+
+    /* attach nonlinear solver object to CVode */
+    retval = CVodeSetNonlinearSolver(cvode_mem, *NLS);
+    if(check_retval(&retval, "CVodeSetNonlinearSolver", 1)) return(1);
+
     printf("Linear Solver           : ");
 
     switch(miter) {

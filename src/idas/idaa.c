@@ -1080,6 +1080,7 @@ int IDAQuadReInitB(void *ida_mem, int which, N_Vector yQB0)
   IDAMem IDA_mem;
   IDAadjMem IDAADJ_mem;
   IDABMem IDAB_mem;
+  void *ida_memB;
   
   /* Is ida_mem valid? */
   if (ida_mem == NULL) {
@@ -1108,8 +1109,9 @@ int IDAQuadReInitB(void *ida_mem, int which, N_Vector yQB0)
     /* advance */
     IDAB_mem = IDAB_mem->ida_next;
   }
+  ida_memB = (void *) IDAB_mem->IDA_mem;
 
-  return IDAQuadReInit(ida_mem, yQB0);
+  return IDAQuadReInit(ida_memB, yQB0);
 }
 
 

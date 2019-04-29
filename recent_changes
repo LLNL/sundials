@@ -19,6 +19,14 @@ cloning objects.
 Fixed a bug in the build system that prevented the PThreads NVECTOR module from
 being built.
 
+Fixed a memory leak in the NVECTOR_PETSC clone function.
+
+Fixed a memeory leaks in FARKODE, FCVODE, and FIDA when not using the default
+nonlinear solver.
+
+Fixed a bug in IDAQuadReInitB where an incorrect memory structure was passed to
+IDAQuadReInit.
+
 Changes to SUNDIALS in release 5.0.0-dev.0
 
 An additional N_Vector implementation, NVECTOR_MANYVECTOR, was

@@ -443,6 +443,13 @@ int main(int argc, char *argv[])
   CVodeFree(&cvode_mem);
   SUNLinSolFree(LS);
 
+  /* Free ProblemData */
+  N_VDestroy(d->p);
+  free(d->y_ext);
+  free(d->buf_send);
+  free(d->buf_recv);
+  free(d);
+
   MPI_Finalize();
 
   return(0);

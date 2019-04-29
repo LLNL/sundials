@@ -828,6 +828,8 @@ void FARK_FREE() {
     SUNLinSolFree(F2C_ARKODE_linsol);
   if (F2C_ARKODE_mass_sol)
     SUNLinSolFree(F2C_ARKODE_mass_sol);
+  if (F2C_ARKODE_nonlinsol)
+    SUNNonlinSolFree(F2C_ARKODE_nonlinsol);
   return;
 }
 

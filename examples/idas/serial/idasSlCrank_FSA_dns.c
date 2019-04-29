@@ -181,7 +181,7 @@ int main(void)
   retval = IDAQuadSStolerances(mem, RTOLQ, ATOLQ);
   retval = IDASetQuadErrCon(mem, SUNTRUE);
   
-  N_VConst(ZERO, qS[0]);
+  for (is=0; is<NP; is++) N_VConst(ZERO, qS[is]);
   retval = IDAQuadSensInit(mem, rhsQS, qS);
   atolS[0] = atolS[1] = ATOLQ;
   retval = IDAQuadSensSStolerances(mem, RTOLQ, atolS);

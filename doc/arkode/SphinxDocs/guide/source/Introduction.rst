@@ -130,6 +130,10 @@ ensuring all operations are copied when cloning objects.
 Fixed a bug in the build system that prevented the PThreads NVECTOR module from
 being built.
 
+Fixed a memory leak in the NVECTOR_PETSC clone function.
+
+Fixed a memeory leak in FARKODE when not using the default nonlinear solver.
+
 Changes in v4.0.0-dev.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
