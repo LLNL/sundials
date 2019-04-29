@@ -302,10 +302,10 @@ int main(int argc, char *argv[])
   }
 
   /* Free memory. */
-  N_VDestroy_Parallel(uv);
-  N_VDestroy_Parallel(uvp);
-  N_VDestroy_Parallel(id);
-  N_VDestroy_Parallel(resid);
+  N_VDestroy(uv);
+  N_VDestroy(uvp);
+  N_VDestroy(id);
+  N_VDestroy(resid);
   IDAFree(&ida_mem);
   SUNLinSolFree(LS);
   
@@ -495,7 +495,7 @@ static void PrintOutput(void *ida_mem, N_Vector uv, realtype tt,
 
   thispe = data->thispe; 
   npelast = data->npes - 1;
-  cdata = N_VGetArrayPointer_Parallel(uv);
+  cdata = N_VGetArrayPointer(uv);
   
   /* Send conc. at top right mesh point from PE npes-1 to PE 0. */
   if (thispe == npelast) {
@@ -726,7 +726,7 @@ static int rescomm(sunindextype Nlocal, realtype tt,
   MPI_Request request[4];
   
   data = (UserData) user_data;
-  cdata = N_VGetArrayPointer_Parallel(uv);
+  cdata = N_VGetArrayPointer(uv);
 
   /* Get comm, thispe, subgrid indices, data sizes, extended array cext. */  
   comm = data->comm;     
@@ -939,7 +939,7 @@ static int reslocal(sunindextype Nlocal, realtype tt, N_Vector uv,
   data = (UserData) user_data;
 
   /* Get data pointers, subgrid data, array sizes, work array cext. */
-  uvdata = N_VGetArrayPointer_Parallel(uv);
+  uvdata = N_VGetArrayPointer(uv);
 
   dx2 = dx * dx;
   dy2 = dy * dy;

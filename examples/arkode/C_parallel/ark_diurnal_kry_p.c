@@ -268,7 +268,7 @@ int main(int argc, char *argv[])
   FreeUserData(data);
   ARKStepFree(&arkode_mem);
   SUNLinSolFree(LS);
-  N_VDestroy_Parallel(u);
+  N_VDestroy(u);
   MPI_Finalize();
   return(0);
 }

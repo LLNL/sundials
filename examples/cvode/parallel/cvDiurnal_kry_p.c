@@ -282,7 +282,7 @@ int main(int argc, char *argv[])
   if (my_pe == 0) PrintFinalStats(cvode_mem);
 
   /* Free memory */
-  N_VDestroy_Parallel(u);
+  N_VDestroy(u);
   FreeUserData(data);
   CVodeFree(&cvode_mem);
   SUNLinSolFree(LS);

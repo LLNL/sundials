@@ -261,7 +261,7 @@ int main(int argc, char *argv[])
     PrintFinalStats(cvode_mem);  /* Print some final statistics */
 
   /* Free SUNDIALS structures */
-  N_VDestroy_Parallel(u);        /* Free the u vector */
+  N_VDestroy(u);                 /* Free the u vector */
   SUNLinSolFree(LS);             /* Free the linear solver */
   SUNMatDestroy(A);              /* Free the A matrix */
   CVodeFree(&cvode_mem);         /* Free the integrator memory */

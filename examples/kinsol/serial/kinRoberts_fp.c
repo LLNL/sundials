@@ -142,7 +142,7 @@ int main()
    * Initial guess 
    * ------------- */
 
-  N_VConst_Serial(ZERO, y);
+  N_VConst(ZERO, y);
   Ith(y,1) = ONE;
 
   /* ----------------------------
@@ -150,7 +150,7 @@ int main()
    * ---------------------------- */
 
   /* No scaling used */
-  N_VConst_Serial(ONE,scale);
+  N_VConst(ONE,scale);
 
   /* Call main solver */
   flag = KINSol(kmem,           /* KINSol memory block */
@@ -186,8 +186,8 @@ int main()
    * Free memory 
    * ----------- */
   
-  N_VDestroy_Serial(y);
-  N_VDestroy_Serial(scale);
+  N_VDestroy(y);
+  N_VDestroy(scale);
   KINFree(&kmem);
 
   return(flag);

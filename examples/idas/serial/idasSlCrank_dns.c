@@ -196,9 +196,9 @@ int main(void)
   SUNLinSolFree(LS);
   SUNMatDestroy(A);
   N_VDestroy(id);
-  N_VDestroy_Serial(yy);
-  N_VDestroy_Serial(yp);
-  N_VDestroy_Serial(q);
+  N_VDestroy(yy);
+  N_VDestroy(yp);
+  N_VDestroy(q);
 
   return(0);  
 }
@@ -387,7 +387,7 @@ static void PrintOutput(void *mem, realtype t, N_Vector y)
   long int nst;
   realtype hused;
 
-  yval  = N_VGetArrayPointer_Serial(y);
+  yval  = N_VGetArrayPointer(y);
 
   retval = IDAGetLastOrder(mem, &kused);
   check_retval(&retval, "IDAGetLastOrder", 1);

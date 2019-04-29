@@ -96,7 +96,7 @@ int main()
 
   /* Set optional inputs */
 
-  N_VConst_Serial(ZERO,constraints);
+  N_VConst(ZERO,constraints);
   for (i = NVAR+1; i <= NEQ; i++) Ith(constraints, i) = ONE;
   
   flag = KINSetConstraints(kmem, constraints);
@@ -136,7 +136,7 @@ int main()
 
   /* Initial guess */
 
-  N_VConst_Serial(ONE, y);
+  N_VConst(ONE, y);
   for(i = 1; i <= NVAR; i++) Ith(y,i) = SUNRsqrt(TWO)/TWO;
 
   printf("Initial guess:\n");
@@ -144,7 +144,7 @@ int main()
 
   /* Call KINSol to solve problem */
 
-  N_VConst_Serial(ONE,scale);
+  N_VConst(ONE,scale);
   flag = KINSol(kmem,           /* KINSol memory block */
                 y,              /* initial guess on input; solution vector */
                 KIN_LINESEARCH, /* global strategy choice */
@@ -159,9 +159,9 @@ int main()
 
   PrintFinalStats(kmem);
 
-  N_VDestroy_Serial(y);
-  N_VDestroy_Serial(scale);
-  N_VDestroy_Serial(constraints);
+  N_VDestroy(y);
+  N_VDestroy(scale);
+  N_VDestroy(constraints);
   KINFree(&kmem);
   SUNLinSolFree(LS);
   SUNMatDestroy(J);
@@ -185,8 +185,8 @@ static int func(N_Vector y, N_Vector f, void *user_data)
   realtype lb1, lb2, lb3, lb4, lb5, lb6, lb7, lb8;
   realtype ub1, ub2, ub3, ub4, ub5, ub6, ub7, ub8;
 
-  yd = N_VGetArrayPointer_Serial(y);
-  fd = N_VGetArrayPointer_Serial(f);
+  yd = N_VGetArrayPointer(y);
+  fd = N_VGetArrayPointer(f);
 
   x1 = yd[0]; l1 = yd[ 8]; u1 = yd[16]; 
   x2 = yd[1]; l2 = yd[ 9]; u2 = yd[17]; 
@@ -257,7 +257,7 @@ static int jac(N_Vector y, N_Vector f, SUNMatrix J,
   sunindextype *rowvals = SUNSparseMatrix_IndexValues(J);
   realtype *data = SUNSparseMatrix_Data(J);
 
-  yd = N_VGetArrayPointer_Serial(y);
+  yd = N_VGetArrayPointer(y);
 
   x1 = yd[0];
   x2 = yd[1];

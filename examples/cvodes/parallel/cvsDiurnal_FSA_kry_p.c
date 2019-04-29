@@ -311,9 +311,8 @@ int main(int argc, char *argv[])
     if (check_retval((void *)pbar, "malloc", 2, my_pe)) MPI_Abort(comm, 1);
     for (is=0; is<NS; is++) pbar[is] = data->p[plist[is]]; 
 
-    uS = N_VCloneVectorArray_Parallel(NS, u);
-    if (check_retval((void *)uS, "N_VCloneVectorArray_Parallel", 0, my_pe))
-                                                          MPI_Abort(comm, 1);
+    uS = N_VCloneVectorArray(NS, u);
+    if (check_retval((void *)uS, "N_VCloneVectorArray", 0, my_pe)) MPI_Abort(comm, 1);
     for (is = 0; is < NS; is++)
       N_VConst(ZERO,uS[is]);
 
@@ -374,9 +373,9 @@ int main(int argc, char *argv[])
   if (my_pe == 0) PrintFinalStats(cvode_mem, sensi, err_con, sensi_meth);
 
   /* Free memory */
-  N_VDestroy_Parallel(u);
+  N_VDestroy(u);
   if (sensi) {
-    N_VDestroyVectorArray_Parallel(uS, NS);
+    N_VDestroyVectorArray(uS, NS);
     free(plist);
     free(pbar);
   }
@@ -405,8 +404,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   realtype *udata, *dudata;
   UserData data;
 
-  udata = N_VGetArrayPointer_Parallel(u);
-  dudata = N_VGetArrayPointer_Parallel(udot);
+  udata = N_VGetArrayPointer(u);
+  dudata = N_VGetArrayPointer(udot);
   data = (UserData) user_data;
 
   /* Call ucomm to do inter-processor communicaiton */
@@ -440,7 +439,7 @@ static int Precond(realtype tn, N_Vector u, N_Vector fu,
   P = data->P;
   Jbd = data->Jbd;
   pivot = data->pivot;
-  udata = N_VGetArrayPointer_Parallel(u);
+  udata = N_VGetArrayPointer(u);
   isuby = data->isuby;
   nvmxsub = data->nvmxsub;
 
@@ -533,7 +532,7 @@ static int PSolve(realtype tn, N_Vector u, N_Vector fu,
   N_VScale(RCONST(1.0), r, z);
 
   nvmxsub = data->nvmxsub;
-  zdata = N_VGetArrayPointer_Parallel(z);
+  zdata = N_VGetArrayPointer(z);
 
   for (lx = 0; lx < MXSUB; lx++) {
     for (ly = 0; ly < MYSUB; ly++) {
@@ -692,7 +691,7 @@ static void SetInitialProfiles(N_Vector u, UserData data)
   realtype *udata;
 
   /* Set pointer to data array in vector u */
-  udata = N_VGetArrayPointer_Parallel(u);
+  udata = N_VGetArrayPointer(u);
 
   /* Get mesh spacings, and subgrid indices for this PE */
   dx = data->dx;         dy = data->dy;
@@ -878,7 +877,7 @@ static void ucomm(realtype t, N_Vector u, UserData data)
   sunindextype nvmxsub, nvmysub;
   MPI_Request request[4];
 
-  udata = N_VGetArrayPointer_Parallel(u);
+  udata = N_VGetArrayPointer(u);
 
   /* Get comm, my_pe, subgrid indices, data sizes, extended array uext */
   comm = data->comm;  my_pe = data->my_pe;
@@ -1049,7 +1048,7 @@ static void PrintOutput(void *cvode_mem, int my_pe, MPI_Comm comm,
   MPI_Status status;
 
   npelast = NPEX*NPEY - 1;
-  udata = N_VGetArrayPointer_Parallel(u);
+  udata = N_VGetArrayPointer(u);
 
   /* Send c at top right mesh point to PE 0 */
   if (my_pe == npelast) {
@@ -1120,7 +1119,7 @@ static void PrintOutputS(int my_pe, MPI_Comm comm, N_Vector *uS)
 
   npelast = NPEX*NPEY - 1;
 
-  sdata = N_VGetArrayPointer_Parallel(uS[0]);
+  sdata = N_VGetArrayPointer(uS[0]);
 
   /* Send s1 at top right mesh point to PE 0 */
   if (my_pe == npelast) {
@@ -1157,7 +1156,7 @@ static void PrintOutputS(int my_pe, MPI_Comm comm, N_Vector *uS)
 #endif
   }
 
-  sdata = N_VGetArrayPointer_Parallel(uS[1]);
+  sdata = N_VGetArrayPointer(uS[1]);
 
   /* Send s2 at top right mesh point to PE 0 */
   if (my_pe == npelast) {

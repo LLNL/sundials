@@ -379,9 +379,9 @@ int main(int argc, char *argv[])
 
   /* Free memory. */
 
-  N_VDestroy_Parallel(cc);
-  N_VDestroy_Parallel(cp);
-  N_VDestroy_Parallel(id);
+  N_VDestroy(cc);
+  N_VDestroy(cp);
+  N_VDestroy(id);
 
   IDAFree(&ida_mem);
   SUNLinSolFree(LS);
@@ -502,8 +502,8 @@ static void FreeUserData(UserData webdata)
   }
 
   destroyMat(webdata->acoef);
-  N_VDestroy_Parallel(webdata->rates);
-  N_VDestroy_Parallel(webdata->ewt);
+  N_VDestroy(webdata->rates);
+  N_VDestroy(webdata->ewt);
   free(webdata);
 
 }
@@ -610,7 +610,7 @@ static void PrintOutput(void *ida_mem, N_Vector cc, realtype tt,
 
   thispe = webdata->thispe; 
   npelast = webdata->npes - 1;
-  cdata = N_VGetArrayPointer_Parallel(cc);
+  cdata = N_VGetArrayPointer(cc);
   
   /* Send conc. at top right mesh point from PE npes-1 to PE 0. */
   if (thispe == npelast) {
@@ -795,7 +795,7 @@ static int rescomm(N_Vector cc, N_Vector cp, void *user_data)
   MPI_Request request[4];
   
   webdata = (UserData) user_data;
-  cdata = N_VGetArrayPointer_Parallel(cc);
+  cdata = N_VGetArrayPointer(cc);
   
   /* Get comm, thispe, subgrid indices, data sizes, extended array cext. */
   comm = webdata->comm;     thispe = webdata->thispe;
@@ -1007,7 +1007,7 @@ static int reslocal(realtype tt, N_Vector cc, N_Vector cp, N_Vector res,
   webdata = (UserData) user_data;
   
   /* Get data pointers, subgrid data, array sizes, work array cext. */
-  cdata = N_VGetArrayPointer_Parallel(cc);
+  cdata = N_VGetArrayPointer(cc);
   
   /* Copy local segment of cc vector into the working extended array cext. */
   locc = 0;

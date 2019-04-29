@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
   if (my_pe == 0)
     PrintFinalStats(cvode_mem);  /* Print some final statistics */
 
-  N_VDestroy_Parallel(u);        /* Free the u vector */
+  N_VDestroy(u);                 /* Free the u vector */
   CVodeFree(&cvode_mem);         /* Free the integrator memory */
   SUNNonlinSolFree(NLS);         /* Free the nonlinear solver */
   free(data);                    /* Free user data */

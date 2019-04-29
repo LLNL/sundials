@@ -232,7 +232,7 @@ int main(int argc, char *argv[])
 
   retval = IDASetConstraints(ida_mem, constraints);
   if(check_retval(&retval, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
-  N_VDestroy_Parallel(constraints);
+  N_VDestroy(constraints);
 
   retval = IDAInit(ida_mem, heatres, t0, uu, up);
   if(check_retval(&retval, "IDAInit", 1, thispe)) MPI_Abort(comm, 1);
@@ -282,12 +282,12 @@ int main(int argc, char *argv[])
        however, the derivatives upS may not and therefore we will have
        to call IDACalcIC to find them) */
 
-    uuS = N_VCloneVectorArray_Parallel(NS, uu);
-    if (check_retval((void *)uuS, "N_VCloneVectorArray_Parallel", 0, thispe)) MPI_Abort(comm, 1);
+    uuS = N_VCloneVectorArray(NS, uu);
+    if (check_retval((void *)uuS, "N_VCloneVectorArray", 0, thispe)) MPI_Abort(comm, 1);
     for (is = 0; is < NS; is++)  N_VConst(ZERO,uuS[is]);
 
-    upS = N_VCloneVectorArray_Parallel(NS, uu);
-    if (check_retval((void *)upS, "N_VCloneVectorArray_Parallel", 0, thispe)) MPI_Abort(comm, 1);
+    upS = N_VCloneVectorArray(NS, uu);
+    if (check_retval((void *)upS, "N_VCloneVectorArray", 0, thispe)) MPI_Abort(comm, 1);
     for (is = 0; is < NS; is++)  N_VConst(ZERO,upS[is]);
 
     /* Initialize FSA using the default internal sensitivity residual function
@@ -353,10 +353,10 @@ int main(int argc, char *argv[])
   IDAFree(&ida_mem);
   SUNLinSolFree(LS);
   free(data);
-  N_VDestroy_Parallel(id);
-  N_VDestroy_Parallel(res);
-  N_VDestroy_Parallel(up);
-  N_VDestroy_Parallel(uu);
+  N_VDestroy(id);
+  N_VDestroy(res);
+  N_VDestroy(up);
+  N_VDestroy(uu);
 
   MPI_Finalize();
 
@@ -421,7 +421,7 @@ static int rescomm(sunindextype Nlocal, realtype tt,
   MPI_Request request[4];
 
   data = (UserData) user_data;
-  uarray = N_VGetArrayPointer_Parallel(uu);
+  uarray = N_VGetArrayPointer(uu);
 
   /* Get comm, thispe, subgrid indices, data sizes, extended array uext. */
   comm = data->comm;  thispe = data->thispe;
@@ -465,9 +465,9 @@ static int reslocal(sunindextype Nlocal, realtype tres,
   data = (UserData) user_data;
 
   uext = data->uext;
-  uuv = N_VGetArrayPointer_Parallel(uu);
-  upv = N_VGetArrayPointer_Parallel(up);
-  resv = N_VGetArrayPointer_Parallel(res);
+  uuv = N_VGetArrayPointer(uu);
+  upv = N_VGetArrayPointer(up);
+  resv = N_VGetArrayPointer(res);
   ixsub = data->ixsub; jysub = data->jysub;
   mxsub = data->mxsub; mxsub2 = data->mxsub + 2;
   mysub = data->mysub; npex = data->npex; npey = data->npey;
@@ -714,8 +714,8 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
   
   /* Initialize uu. */ 
   
-  udata = N_VGetArrayPointer_Parallel(uu);
-  iddata = N_VGetArrayPointer_Parallel(id);
+  udata = N_VGetArrayPointer(uu);
+  iddata = N_VGetArrayPointer(id);
   
   /* Set mesh spacings and subgrid indices for this PE. */
   ixsub = data->ixsub;

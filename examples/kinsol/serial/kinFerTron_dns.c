@@ -136,7 +136,7 @@ int main()
   SetInitialGuess1(u1,data);
   SetInitialGuess2(u2,data);
 
-  N_VConst_Serial(ONE,s); /* no scaling */
+  N_VConst(ONE,s); /* no scaling */
 
   Ith(c,1) =  ZERO;   /* no constraint on x1 */
   Ith(c,2) =  ZERO;   /* no constraint on x2 */
@@ -185,28 +185,28 @@ int main()
   printf("  [x1,x2] = ");
   PrintOutput(u1);
 
-  N_VScale_Serial(ONE,u1,u);
+  N_VScale(ONE,u1,u);
   glstr = KIN_NONE;
   mset = 1;
   SolveIt(kmem, u, s, glstr, mset);
 
   /* --------------------------- */
 
-  N_VScale_Serial(ONE,u1,u);
+  N_VScale(ONE,u1,u);
   glstr = KIN_LINESEARCH;
   mset = 1;
   SolveIt(kmem, u, s, glstr, mset);
 
   /* --------------------------- */
 
-  N_VScale_Serial(ONE,u1,u);
+  N_VScale(ONE,u1,u);
   glstr = KIN_NONE;
   mset = 0;
   SolveIt(kmem, u, s, glstr, mset);
 
   /* --------------------------- */
 
-  N_VScale_Serial(ONE,u1,u);
+  N_VScale(ONE,u1,u);
   glstr = KIN_LINESEARCH;
   mset = 0;
   SolveIt(kmem, u, s, glstr, mset);
@@ -220,28 +220,28 @@ int main()
   printf("  [x1,x2] = ");
   PrintOutput(u2);
 
-  N_VScale_Serial(ONE,u2,u);
+  N_VScale(ONE,u2,u);
   glstr = KIN_NONE;
   mset = 1;
   SolveIt(kmem, u, s, glstr, mset);
 
   /* --------------------------- */
 
-  N_VScale_Serial(ONE,u2,u);
+  N_VScale(ONE,u2,u);
   glstr = KIN_LINESEARCH;
   mset = 1;
   SolveIt(kmem, u, s, glstr, mset);
 
   /* --------------------------- */
 
-  N_VScale_Serial(ONE,u2,u);
+  N_VScale(ONE,u2,u);
   glstr = KIN_NONE;
   mset = 0;
   SolveIt(kmem, u, s, glstr, mset);
 
   /* --------------------------- */
 
-  N_VScale_Serial(ONE,u2,u);
+  N_VScale(ONE,u2,u);
   glstr = KIN_LINESEARCH;
   mset = 0;
   SolveIt(kmem, u, s, glstr, mset);
@@ -251,11 +251,11 @@ int main()
 
   /* Free memory */
 
-  N_VDestroy_Serial(u1);
-  N_VDestroy_Serial(u2);
-  N_VDestroy_Serial(u);
-  N_VDestroy_Serial(s);
-  N_VDestroy_Serial(c);
+  N_VDestroy(u1);
+  N_VDestroy(u2);
+  N_VDestroy(u);
+  N_VDestroy(s);
+  N_VDestroy(c);
   KINFree(&kmem);
   SUNLinSolFree(LS);
   SUNMatDestroy(J);
@@ -318,8 +318,8 @@ static int func(N_Vector u, N_Vector f, void *user_data)
   lb = data->lb;
   ub = data->ub;
 
-  udata = N_VGetArrayPointer_Serial(u);
-  fdata = N_VGetArrayPointer_Serial(f);
+  udata = N_VGetArrayPointer(u);
+  fdata = N_VGetArrayPointer(f);
 
   x1 = udata[0];
   x2 = udata[1];
@@ -354,7 +354,7 @@ static void SetInitialGuess1(N_Vector u, UserData data)
   realtype *udata;
   realtype *lb, *ub;
 
-  udata = N_VGetArrayPointer_Serial(u);
+  udata = N_VGetArrayPointer(u);
 
   lb = data->lb;
   ub = data->ub;
@@ -379,7 +379,7 @@ static void SetInitialGuess2(N_Vector u, UserData data)
   realtype *udata;
   realtype *lb, *ub;
 
-  udata = N_VGetArrayPointer_Serial(u);
+  udata = N_VGetArrayPointer(u);
 
   lb = data->lb;
   ub = data->ub;

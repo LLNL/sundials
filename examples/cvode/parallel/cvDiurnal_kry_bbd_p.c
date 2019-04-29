@@ -300,7 +300,7 @@ int main(int argc, char *argv[])
   } /* End of jpre loop */
 
   /* Free memory */
-  N_VDestroy_Parallel(u);
+  N_VDestroy(u);
   free(data);
   CVodeFree(&cvode_mem);
   SUNLinSolFree(LS);

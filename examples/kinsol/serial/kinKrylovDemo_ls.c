@@ -365,9 +365,9 @@ int main(void)
 
   }  /* END: Loop through SPGMR, SPBCGS, SPTFQMR, and SPFGMR linear solver modules */
 
-  N_VDestroy_Serial(constraints);
-  N_VDestroy_Serial(cc);
-  N_VDestroy_Serial(sc);
+  N_VDestroy(constraints);
+  N_VDestroy(cc);
+  N_VDestroy(sc);
   FreeUserData(data);
 
   return(0);
@@ -688,7 +688,7 @@ static void FreeUserData(UserData data)
   free(bcoef);
   free(cox);
   free(coy);
-  N_VDestroy_Serial(data->rates);
+  N_VDestroy(data->rates);
   free(data);
 }
 

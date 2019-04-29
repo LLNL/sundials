@@ -237,7 +237,7 @@ int main(int argc, char *argv[])
 
   retval = IDASetConstraints(ida_mem, constraints);
   if(check_retval(&retval, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
-  N_VDestroy_Parallel(constraints);
+  N_VDestroy(constraints);
 
   retval = IDAInit(ida_mem, resHeat, t0, uu, up);
   if(check_retval(&retval, "IDAInit", 1, thispe)) MPI_Abort(comm, 1);
@@ -363,7 +363,7 @@ int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
   const int npey  = data->npey;
   const sunindextype mxsub = data->mxsub;
   const sunindextype mysub = data->mysub;
-  realtype *ppv = N_VGetArrayPointer_Parallel(data->pp);
+  realtype *ppv = N_VGetArrayPointer(data->pp);
 
   /* Calculate the value for the inverse of the diagonal preconditioner */
   const realtype pelinv = ONE/(c_j + data->coeffxy);
@@ -441,7 +441,7 @@ static int rescomm(N_Vector uu, N_Vector up, UserData data)
   const sunindextype mysub = data->mysub;
 
   /* Get solution vector data, buffers, extended array uext. */
-  const realtype *uarray = N_VGetArrayPointer_Parallel(uu);
+  const realtype *uarray = N_VGetArrayPointer(uu);
   realtype *uext = data->uext;
   realtype *send_buffer = data->send_buff;
   realtype *recv_buff = data->recv_buff;
@@ -483,9 +483,9 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
   const sunindextype mysub = data->mysub;
 
   /* Vector data arrays, extended work array uext. */
-  const realtype *uuv = N_VGetArrayPointer_Parallel(uu);
-  const realtype *upv = N_VGetArrayPointer_Parallel(up);
-  realtype *resv = N_VGetArrayPointer_Parallel(rr);
+  const realtype *uuv = N_VGetArrayPointer(uu);
+  const realtype *upv = N_VGetArrayPointer(up);
+  realtype *resv = N_VGetArrayPointer(rr);
   realtype *uext = data->uext;
 
   /* Initialize all elements of rr to uu. This sets the boundary
@@ -811,8 +811,8 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
 
   /* Initialize uu. */
 
-  realtype *uudata = N_VGetArrayPointer_Parallel(uu);
-  realtype *iddata = N_VGetArrayPointer_Parallel(id);
+  realtype *uudata = N_VGetArrayPointer(uu);
+  realtype *iddata = N_VGetArrayPointer(id);
 
   /* Set mesh spacings and subgrid indices for this PE. */
   const realtype dx = data->dx;

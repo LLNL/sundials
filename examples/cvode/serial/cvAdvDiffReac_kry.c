@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
   PrintFinalStats(cvode_mem);
 
   /* Free memory */
-  N_VDestroy_Serial(u);
+  N_VDestroy(u);
   free(data);
   CVodeFree(&cvode_mem);
 
@@ -321,7 +321,7 @@ static void PrintOutput(void *cvode_mem, N_Vector u, realtype t)
   int qu, retval;
   realtype hu, *udata;
 
-  udata = N_VGetArrayPointer_Serial(u);
+  udata = N_VGetArrayPointer(u);
 
   retval = CVodeGetNumSteps(cvode_mem, &nst);
   check_retval(&retval, "CVodeGetNumSteps", 1);

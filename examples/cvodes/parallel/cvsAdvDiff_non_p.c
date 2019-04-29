@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
   if (my_pe == 0) 
     PrintFinalStats(cvode_mem);  /* Print some final statistics */
 
-  N_VDestroy_Parallel(u);        /* Free the u vector */
+  N_VDestroy(u);                 /* Free the u vector */
   CVodeFree(&cvode_mem);         /* Free the integrator memory */
   SUNNonlinSolFree(NLS);         /* Free the nonlinear solver */
   free(data);                    /* Free user data */
@@ -214,7 +214,7 @@ static void SetIC(N_Vector u, realtype dx, sunindextype my_length,
   realtype *udata;
 
   /* Set pointer to data array and get local length of u. */
-  udata = N_VGetArrayPointer_Parallel(u);
+  udata = N_VGetArrayPointer(u);
   my_length = N_VGetLocalLength_Parallel(u);
 
   /* Load initial profile into u vector */
@@ -288,8 +288,8 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
   MPI_Status status;
   MPI_Comm comm;
 
-  udata = N_VGetArrayPointer_Parallel(u);
-  dudata = N_VGetArrayPointer_Parallel(udot);
+  udata = N_VGetArrayPointer(u);
+  dudata = N_VGetArrayPointer(udot);
 
   /* Extract needed problem constants from data */
   data = (UserData) user_data;

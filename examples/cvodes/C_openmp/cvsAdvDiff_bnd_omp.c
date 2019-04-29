@@ -225,7 +225,7 @@ int main(int argc, char *argv[])
   printf("num_threads = %i\n\n", num_threads);
    
 
-  N_VDestroy_OpenMP(u);   /* Free the u vector */
+  N_VDestroy(u);          /* Free the u vector */
   CVodeFree(&cvode_mem);  /* Free the integrator memory */
   SUNLinSolFree(LS);      /* Free the linear solver memory */
   SUNMatDestroy(A);       /* Free the matrix memory */

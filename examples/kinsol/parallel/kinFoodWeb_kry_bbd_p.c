@@ -281,7 +281,7 @@ int main(int argc, char *argv[])
 
   /* We no longer need the constraints vector since KINSetConstraints
      creates a private copy for KINSOL to use. */
-  N_VDestroy_Parallel(constraints);
+  N_VDestroy(constraints);
 
   /* Create SUNLinSol_SPGMR object with right preconditioning and the 
      maximum Krylov dimension maxl */
@@ -330,8 +330,8 @@ int main(int argc, char *argv[])
   /* Print final statistics and free memory */
   if (my_pe == 0) PrintFinalStats(kmem);
 
-  N_VDestroy_Parallel(cc);
-  N_VDestroy_Parallel(sc);
+  N_VDestroy(cc);
+  N_VDestroy(sc);
   KINFree(&kmem);
   SUNLinSolFree(LS);
   FreeUserData(data);
@@ -376,7 +376,7 @@ static int ccomm(sunindextype Nlocal, N_Vector cc, void *userdata)
   nsmysub = NUM_SPECIES*MYSUB;
   cext = data->cext;
 
-  cdata = N_VGetArrayPointer_Parallel(cc);
+  cdata = N_VGetArrayPointer(cc);
 
   /* Start receiving boundary data from neighboring PEs */
   BRecvPost(comm, request, my_pe, isubx, isuby, nsmxsub, nsmysub, cext, buffer);
@@ -404,7 +404,7 @@ static int func_local(sunindextype Nlocal, N_Vector cc, N_Vector fval, void *use
   UserData data;
   
   data = (UserData)user_data;
-  cdata = N_VGetArrayPointer_Parallel(cc);
+  cdata = N_VGetArrayPointer(cc);
   
   /* Get subgrid indices, data sizes, extended work array cext */
   isubx = data->isubx;   isuby = data->isuby;
@@ -651,7 +651,7 @@ static void FreeUserData(UserData data)
   destroyMat(acoef);
   free(bcoef);
   free(cox); free(coy);
-  N_VDestroy_Parallel(data->rates);
+  N_VDestroy(data->rates);
 
   free(data);
 
@@ -751,7 +751,7 @@ static void PrintOutput(int my_pe, MPI_Comm comm, N_Vector cc)
   
   npelast = NPEX*NPEY - 1;
   
-  ct = N_VGetArrayPointer_Parallel(cc);
+  ct = N_VGetArrayPointer(cc);
   
   /* Send the cc values (for all species) at the top right mesh point to PE 0 */
   if (my_pe == npelast) {

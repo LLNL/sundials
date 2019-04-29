@@ -147,8 +147,8 @@ int main(int argc, char *argv[])
   }
 
   /* Free vectors and matrices */
-  N_VDestroy_Serial(x);
-  N_VDestroy_Serial(y);
+  N_VDestroy(x);
+  N_VDestroy(y);
   SUNMatDestroy(A);
   if (square)
     SUNMatDestroy(I);
@@ -232,8 +232,8 @@ int check_vector(N_Vector x, N_Vector y, realtype tol)
   ydata = N_VGetArrayPointer(y);
 
   /* check data lengths */
-  xldata = N_VGetLength_Serial(x);
-  yldata = N_VGetLength_Serial(y);
+  xldata = N_VGetLength(x);
+  yldata = N_VGetLength(y);
 
   if (xldata != yldata) {
     printf(">>> ERROR: check_vector: Different data array lengths \n");

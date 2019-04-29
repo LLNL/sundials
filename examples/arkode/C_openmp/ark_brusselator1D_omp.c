@@ -324,10 +324,10 @@ int main(int argc, char *argv[])
   ARKStepFree(&arkode_mem);     /* Free integrator memory */
   SUNLinSolFree(LS);            /* Free linear solver */
   SUNMatDestroy(A);             /* Free matrix */
-  N_VDestroy_OpenMP(y);         /* Free vectors */
-  N_VDestroy_OpenMP(umask);
-  N_VDestroy_OpenMP(vmask);
-  N_VDestroy_OpenMP(wmask);
+  N_VDestroy(y);                /* Free vectors */
+  N_VDestroy(umask);
+  N_VDestroy(vmask);
+  N_VDestroy(wmask);
   return 0;
 }
 

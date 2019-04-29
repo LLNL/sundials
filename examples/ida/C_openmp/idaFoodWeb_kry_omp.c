@@ -331,14 +331,14 @@ int main(int argc, char *argv[])
   IDAFree(&ida_mem);
   SUNLinSolFree(LS);
 
-  N_VDestroy_OpenMP(cc);
-  N_VDestroy_OpenMP(cp);
-  N_VDestroy_OpenMP(id);
+  N_VDestroy(cc);
+  N_VDestroy(cp);
+  N_VDestroy(id);
 
 
   destroyMat(webdata->acoef);
-  N_VDestroy_OpenMP(webdata->rates);
-  N_VDestroy_OpenMP(webdata->ewt);
+  N_VDestroy(webdata->rates);
+  N_VDestroy(webdata->ewt);
   for (jx = 0; jx < MX; jx++) {
     for (jy = 0; jy < MY; jy ++) {
       destroyArray((webdata->pivot)[jx][jy]);

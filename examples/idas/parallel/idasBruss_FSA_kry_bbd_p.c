@@ -240,13 +240,13 @@ int main(int argc, char *argv[])
   id  = N_VNew_Parallel(comm, local_N, SystemSize);
   if(check_retval((void *)id, "N_VNew_Parallel", 0, thispe)) MPI_Abort(comm, 1);
 
-  uvS = N_VCloneVectorArray_Parallel(NS, uv);
-  if (check_retval((void *)uvS, "N_VCloneVectorArray_Parallel", 0, thispe)) 
+  uvS = N_VCloneVectorArray(NS, uv);
+  if (check_retval((void *)uvS, "N_VCloneVectorArray", 0, thispe)) 
     MPI_Abort(comm, 1);
   for (is=0;is<NS;is++) N_VConst(ZERO, uvS[is]);
     
-  uvpS = N_VCloneVectorArray_Parallel(NS, uv);
-  if (check_retval((void *)uvpS, "N_VCloneVectorArray_Parallel", 0, thispe))  
+  uvpS = N_VCloneVectorArray(NS, uv);
+  if (check_retval((void *)uvpS, "N_VCloneVectorArray", 0, thispe))  
     MPI_Abort(comm, 1);
   for (is=0;is<NS;is++) N_VConst(ZERO, uvpS[is]);
 
@@ -366,12 +366,12 @@ int main(int argc, char *argv[])
   }
 
   /* Free memory. */
-  N_VDestroy_Parallel(uv);
-  N_VDestroy_Parallel(uvp);
-  N_VDestroy_Parallel(id);
-  N_VDestroy_Parallel(resid);
-  N_VDestroyVectorArray_Parallel(uvS, NS);
-  N_VDestroyVectorArray_Parallel(uvpS, NS);
+  N_VDestroy(uv);
+  N_VDestroy(uvp);
+  N_VDestroy(id);
+  N_VDestroy(resid);
+  N_VDestroyVectorArray(uvS, NS);
+  N_VDestroyVectorArray(uvpS, NS);
   IDAFree(&ida_mem);
   SUNLinSolFree(LS);
 
@@ -563,7 +563,7 @@ static void PrintOutput(void *ida_mem, N_Vector uv, realtype tt,
 
   thispe = data->thispe; 
   npelast = data->npes - 1;
-  cdata = N_VGetArrayPointer_Parallel(uv);
+  cdata = N_VGetArrayPointer(uv);
   
   /* Send conc. at top right mesh point from PE npes-1 to PE 0. */
   if (thispe == npelast) {
@@ -794,7 +794,7 @@ static int rescomm(sunindextype Nlocal, realtype tt,
   MPI_Request request[4];
   
   data = (UserData) user_data;
-  cdata = N_VGetArrayPointer_Parallel(uv);
+  cdata = N_VGetArrayPointer(uv);
 
   /* Get comm, thispe, subgrid indices, data sizes, extended array cext. */  
   comm = data->comm;     
@@ -1007,7 +1007,7 @@ static int reslocal(sunindextype Nlocal, realtype tt, N_Vector uv,
   data = (UserData) user_data;
 
   /* Get data pointers, subgrid data, array sizes, work array cext. */
-  uvdata = N_VGetArrayPointer_Parallel(uv);
+  uvdata = N_VGetArrayPointer(uv);
 
   dx2 = dx * dx;
   dy2 = dy * dy;
@@ -1167,7 +1167,7 @@ static int integr(MPI_Comm comm, N_Vector uv, void *user_data, realtype *intval)
   data = (UserData) user_data;
 
   /* compute the integral on the (local) grid */
-  uvdata = N_VGetArrayPointer_Parallel(uv);
+  uvdata = N_VGetArrayPointer(uv);
 
   *intval = 0;
 

@@ -326,9 +326,9 @@ int main(int argc, char* argv[]) {
   // Clean up and return with successful completion
   ARKStepFree(&arkode_mem);    // Free integrator memory
   SUNLinSolFree(LS);           // Free linear solver
-  N_VDestroy_Parallel(y);      // Free vectors
-  N_VDestroy_Parallel(udata->h);
-  N_VDestroy_Parallel(udata->d);
+  N_VDestroy(y);               // Free vectors
+  N_VDestroy(udata->h);
+  N_VDestroy(udata->d);
   FreeUserData(udata);         // Free user data
   delete udata;
   flag = MPI_Finalize();       // Finalize MPI

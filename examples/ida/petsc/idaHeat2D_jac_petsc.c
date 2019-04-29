@@ -226,7 +226,7 @@ int main(int argc, char *argv[])
 
   retval = IDASetConstraints(mem, constraints);
   if(check_retval(&retval, "IDASetConstraints", 1, thispe)) MPI_Abort(comm, 1);
-  N_VDestroy_Petsc(constraints);
+  N_VDestroy(constraints);
 
   retval = IDAInit(mem, resHeat, t0, uu, up);
   if(check_retval(&retval, "IDAInit", 1, thispe)) MPI_Abort(comm, 1);
@@ -267,10 +267,10 @@ int main(int argc, char *argv[])
 
   IDAFree(&mem);
 
-  N_VDestroy_Petsc(id);
-  N_VDestroy_Petsc(res);
-  N_VDestroy_Petsc(up);
-  N_VDestroy_Petsc(uu);
+  N_VDestroy(id);
+  N_VDestroy(res);
+  N_VDestroy(up);
+  N_VDestroy(uu);
 
   ierr = VecDestroy(&uvec);
   CHKERRQ(ierr);
