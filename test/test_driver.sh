@@ -28,7 +28,7 @@
 # ------------------------------------------------------------------------------
 
 # print input args
-echo "./suntest_driver $@" | tee suntest.log
+echo "./test_driver $@" | tee suntest.log
 
 # Number of threads for parallel build (default 1)
 buildthreads=1
@@ -87,25 +87,6 @@ passfail=0
 
 # remove old test directories and logs
 \rm -rf build*/ install*/ *.log
-
-# setup test environment
-if [ ! -z "$SUNDIALS_ENV" ]; then
-    # user defined environment script
-    echo "Setting up environment with $SUNDIALS_ENV"
-    source $SUNDIALS_ENV
-elif [ -f env.sh ]; then
-    # user local environment script
-    echo "Setting up environment with ./env.sh"
-    source env.sh
-elif [ -f ~/.sundials_config/env.sh ]; then
-    # user global environment script
-    echo "Setting up environment with ~/.sundials_config/env.sh"
-    source ~/.sundials_config/env.sh
-else
-    # sundials default environment script
-    echo "Setting up environment with ./env.default.sh"
-    source env.default.sh
-fi
 
 # ------------------------------------------------------------------------------
 # Run regression tests

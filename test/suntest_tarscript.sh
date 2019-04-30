@@ -14,7 +14,7 @@
 # ------------------------------------------------------------------------------
 # SUNDIALS tarball regression testing script
 #
-# Usage: ./suntest_tarscript.sh <package> <lib type> <real type> <index size> \
+# Usage: ./suntest_tarscript.sh <package> <lib type> <real type> <index size>
 #                               <TPL status> <test type> <build threads>
 #
 # Required Inputs:
@@ -27,27 +27,27 @@
 #                    kinsol   : create KINSOL tarball only
 #                    sundials : create sundials tarball containing all packages
 #                    all      : all of the above options
-#   <lib type>   = Which library type to test:
-#                    static : only build static libraries
-#                    shared : only build shared libraries
-#                    each   : build static and shared separately
-#                    both   : build static and shared simultaneously
 #   <real type>  = SUNDIALS real type to build/test with:
 #                    single   : single precision only
 #                    double   : double precision only
 #                    extended : extended (quad) precision only
 #                    all      : all of the above options
 #   <index size> = SUNDIALS index size to build/test with:
-#                    32   : 32-bit indices only
-#                    64   : 64-bit indices only
-#                    both : both of the above options
+#                    32       : 32-bit indices only
+#                    64       : 64-bit indices only
+#                    both     : both of the above options
+#   <lib type>   = Which library type to test:
+#                    static   : only build static libraries
+#                    shared   : only build shared libraries
+#                    each     : build static and shared separately
+#                    both     : build static and shared simultaneously
 #   <TPL status> = Enable/disable third party libraries:
-#                    ON  : All possible TPLs enabled
-#                    OFF : No TPLs enabled
+#                    ON       : All possible TPLs enabled
+#                    OFF      : No TPLs enabled
 #   <test type>  = Test type to run:
-#                    STD  : standard tests
-#                    DEV  : development tests
-#                    NONE : no test, configure and compile only
+#                    STD      : standard tests
+#                    DEV      : development tests
+#                    NONE     : no test, configure and compile only
 #
 # Optional Inputs:
 #   <build threads> = number of threads to use in parallel build (default 1)
@@ -57,21 +57,21 @@
 if [ "$#" -lt 6 ]; then
     echo "ERROR: SIX (6) inputs required"
     echo "package      : [arkode|cvode|cvodes|ida|idas|kinsol|sundials|all]"
-    echo "library type : [static|shared|each|both]"
     echo "real type    : [single|double|extended|all]"
     echo "index size   : [32|64|both]"
+    echo "library type : [static|shared|each|both]"
     echo "TPLs         : [ON|OFF]"
     echo "test type    : [STD|DEV|NONE]"
     exit 1
 fi
 
-package=$1        # sundials package to test
-tmplibtype=$2     # library type to build
-tmprealtype=$3    # precision for realtypes
-tmpindexsize=$4   # integer size for indices
-tplstatus=$5      # enable/disable third party libraries
-testtype=$6       # run standard tests, dev tests, or no tests (compile only)
-buildthreads=1    # default number threads for parallel builds
+package=$1      # sundials package to test
+realtype=$2     # precision for realtypes
+indexsize=$3    # integer size for indices
+libtype=$4      # library type to build
+tplstatus=$5    # enable/disable third party libraries
+testtype=$6     # run standard tests, dev tests, or no tests (compile only)
+buildthreads=1  # default number threads for parallel builds
 
 # check if the number of build threads was set
 if [ "$#" -gt 6 ]; then
@@ -91,37 +91,37 @@ case $package in
         ;;
 esac
 
-# set library types to test
-case "$tmplibtype" in
-    static) libtype=( "static" );;
-    shared) libtype=( "shared" );;
-    each)   libtype=( "static" "shared") ;;
-    both)   libtype=( "both" ) ;;
-    *)
-        echo "ERROR: Unknown library type option: $tmplibtype"
-        exit 1
-        ;;
-esac
-
 # set real types to test
-case "$tmprealtype" in
-    single)   realtype=( "single" );;
-    double)   realtype=( "double" );;
-    extended) realtype=( "extended" );;
-    all)      realtype=( "single" "double" "extended" );;
+case "$realtype" in
+    SINGLE|Single|single)       realtype=( "single" );;
+    DOUBLE|Double|double)       realtype=( "double" );;
+    EXTENDED|Extended|extended) realtype=( "extended" );;
+    ALL|All|all)                realtype=( "single" "double" "extended" );;
     *)
-        echo "ERROR: Unknown real type option: $tmprealtype"
+        echo "ERROR: Unknown real type option: $realtype"
         exit 1
         ;;
 esac
 
 # set index sizes to test
-case "$tmpindexsize" in
+case "$indexsize" in
     32)   indexsize=( "32" );;
     64)   indexsize=( "64" );;
     both) indexsize=( "32" "64" );;
     *)
-        echo "ERROR: Unknown index size option: $tmpindexsize"
+        echo "ERROR: Unknown index size option: $indexsize"
+        exit 1
+        ;;
+esac
+
+# set library types to test
+case "$libtype" in
+    STATIC|Static|static) libtype=( "static" );;
+    SHARED|Shared|shared) libtype=( "shared" );;
+    EACH|Each|each)       libtype=( "static" "shared") ;;
+    BOTH|Both|both)       libtype=( "both" ) ;;
+    *)
+        echo "ERROR: Unknown library type option: $libtype"
         exit 1
         ;;
 esac
@@ -144,18 +144,15 @@ esac
 case "$testtype" in
     STD|std|Std)
         # only run standard tests
-        devtests=OFF
-        skiptests=OFF
+        testtype=STD
         ;;
     DEV|dev|Dev)
         # only run development tests
-        devtests=ON
-        skiptests=OFF
+        testtype=DEV
         ;;
     NONE|none|None)
         # only compile sundials, do not test or install
-        devtests=OFF
-        skiptests=ON
+        testtype=NONE
         ;;
     *)
         echo "ERROR: Unknown test option: $testtype"
@@ -231,17 +228,13 @@ esac
 # ------------------------------------------------------------------------------
 
 # move to tarball directory
-cd $testdir/tarballs/. || exit 1
+cd $testdir/tarballs || exit 1
 
 # loop over tarballs and test each one
 for tarball in *.tar.gz; do
 
     # get package name
     package=${tarball%.tar.gz}
-
-    # --------------------------------------------------------------------------
-    # Uncompress tarball and setup build
-    # --------------------------------------------------------------------------
 
     echo "START UNTAR"
     tar -xvzf $tarball 2>&1 | tee -a tar.log
@@ -254,319 +247,45 @@ for tarball in *.tar.gz; do
     # move log to package directory
     mv tar.log $package/. || exit 1
 
-    # move to package directory
-    cd $package || exit 1
+    # move to the extracted package's test directory
+    cd $package/test || exit 1
+
+    # copy environment and testing scripts from original test directory
+    cp $testdir/env*.sh .    || exit 1
+    cp $testdir/suntest.sh . || exit 1
 
     # loop over build options
-    for lt in "${libtype[@]}"; do
-        for rt in "${realtype[@]}"; do
-            for is in "${indexsize[@]}"; do
+    for rt in "${realtype[@]}"; do
+        for is in "${indexsize[@]}"; do
+            for lt in "${libtype[@]}"; do
 
                 # print test label for Jenkins section collapsing
-                echo "TEST: $lt $rt $is"
+                echo "TEST: $rt $is $lt $TPLs $testtype"
 
-                # build and install directories
-                if [ "$TPLs" == "ON" ]; then
-                    builddir=build_${lt}_${rt}_${is}_tpls
-                    installdir=install_${lt}_${rt}_${is}_tpls
+                ./suntest.sh $rt $is $lt $TPLs $testtype
+
+                # check return flag
+                if [ $? -ne 0 ]; then
+                    echo "FAILED: $rt $is $lt $TPLs $testtype"
+                    cd $testdir
+                    exit 1
                 else
-                    builddir=build_${lt}_${rt}_${is}
-                    installdir=install_${lt}_${rt}_${is}
+                    echo "PASSED"
                 fi
-
-                # remove old build and install directories
-                \rm -rf $builddir   || exit 1
-                \rm -rf $installdir || exit 1
-
-                # create and move to new build directory
-                mkdir $builddir || exit 1
-                cd $builddir    || exit 1
-
-                # set library type to build
-                if [ "${lt}" == "static" ]; then
-                    STATIC=ON
-                    SHARED=OFF
-                elif [ "${lt}" == "shared" ]; then
-                    STATIC=OFF
-                    SHARED=ON
-                else
-                    STATIC=ON
-                    SHARED=ON
-                fi
-
-                # --------------------------------------------------------------
-                # Installed Third Party Libraries
-                # --------------------------------------------------------------
-
-                if [ "$TPLs" == "ON" ]; then
-
-                    # C and C++ standard flags to append
-                    CSTD="-std=c99"
-                    CXXSTD="-std=c++11"
-
-                    # Enable MPI
-                    MPISTATUS=ON
-
-                    # LAPACK/BLAS: Do currently support extended precision or 64-bit indices
-                    if [ "$rt" == "extended" ] || [ "$is" == "64" ]; then
-                        LAPACKSTATUS=OFF
-                        BLASSTATUS=OFF
-                    else
-                        BLASSTATUS=ON
-                        LAPACKSTATUS=ON
-                    fi
-
-                    # KLU: Does not support single or extended precision
-                    if [ "$rt" == "single" ] || [ "$rt" == "extended" ]; then
-                        KLUSTATUS=OFF
-                    else
-                        KLUSTATUS=ON
-                    fi
-
-                    # SuperLU_MT: Does not support extended precision
-                    if [ "$rt" == "extended" ]; then
-                        SLUMTSTATUS=OFF
-                    else
-                        SLUMTSTATUS=ON
-                        # SuperLU_MT index size must be set at build time
-                        if [ "$is" == "32" ]; then
-                            SLUMTDIR=$SLUMTDIR_32
-                        else
-                            SLUMTDIR=$SLUMTDIR_64
-                        fi
-                    fi
-
-                    # SuperLU_DIST: Only supports double precision
-                    if [ "$rt" != "double" ]; then
-                        SLUDISTSTATUS=OFF
-                    else
-                        SLUDISTSTATUS=ON
-                        # SuperLU DIST index size must be set at build time
-                        if [ "$is" == "32" ]; then
-                            SLUDISTDIR=$SLUDISTDIR_32
-                        else
-                            SLUDISTDIR=$SLUDISTDIR_64
-                        fi
-                    fi
-
-                    # hypre: Only testing hypre with double precision at this time
-                    if [ "$rt" != "double" ]; then
-                        HYPRESTATUS=OFF
-                    else
-                        HYPRESTATUS=ON
-                        # hypre index size must be set at build time
-                        if [ "$is" == "32" ]; then
-                            HYPREDIR=$HYPREDIR_32
-                        else
-                            HYPREDIR=$HYPREDIR_64
-                        fi
-                    fi
-
-                    # PETSc: Only testing PETSc with double precision at this time
-                    if [ "$rt" != "double" ]; then
-                        PETSCSTATUS=OFF
-                    else
-                        PETSCSTATUS=ON
-                        # PETSc index size must be set at build time
-                        if [ "$is" == "32" ]; then
-                            PETSCDIR=$PETSCDIR_32
-                        else
-                            PETSCDIR=$PETSCDIR_64
-                        fi
-                    fi
-
-                    # CUDA does not support extended precision
-                    if [ "$rt" == "extended" ]; then
-                        CUDASTATUS=OFF
-                    else
-                        CUDASTATUS=ON
-                    fi
-
-                else
-                    # C and C++ standard flags to append
-                    CSTD="-std=c90"
-                    CXXSTD="-std=c++11"
-
-                    # disable all TPLs
-                    MPISTATUS=OFF
-                    LAPACKSTATUS=OFF
-                    BLASSTATUS=OFF
-                    KLUSTATUS=OFF
-                    SLUMTSTATUS=OFF
-                    SLUDISTSTATUS=OFF
-                    HYPRESTATUS=OFF
-                    PETSCSTATUS=OFF
-                    CUDASTATUS=OFF
-
-                fi
-
-                # -------------------------------------------------------------------
-                # Configure SUNDIALS with CMake
-                # -------------------------------------------------------------------
-
-                # only run development tests with double precision
-                if [ "$rt" != "double" ] && [ "$devtests" == "ON" ]; then
-                    echo -e "\nWARNING: Development tests only support realtype = double\n"
-                    dt=OFF
-                else
-                    dt=$devtests
-                fi
-
-                echo "START CMAKE"
-                cmake \
-                    -D CMAKE_INSTALL_PREFIX="../$installdir" \
-                    \
-                    -D BUILD_STATIC_LIBS="${STATIC}" \
-                    -D BUILD_SHARED_LIBS="${SHARED}" \
-                    \
-                    -D BUILD_ARKODE=ON \
-                    -D BUILD_CVODE=ON \
-                    -D BUILD_CVODES=ON \
-                    -D BUILD_IDA=ON \
-                    -D BUILD_IDAS=ON \
-                    -D BUILD_KINSOL=ON \
-                    \
-                    -D SUNDIALS_PRECISION=$rt \
-                    -D SUNDIALS_INDEX_SIZE=$is \
-                    \
-                    -D F77_INTERFACE_ENABLE=ON \
-                    -D F2003_INTERFACE_ENABLE=ON \
-                    \
-                    -D EXAMPLES_ENABLE_C=ON \
-                    -D EXAMPLES_ENABLE_CXX=ON \
-                    -D EXAMPLES_ENABLE_F77=ON \
-                    -D EXAMPLES_ENABLE_F90=ON \
-                    -D EXAMPLES_ENABLE_CUDA=${CUDASTATUS} \
-                    \
-                    -D CMAKE_C_COMPILER=$CC \
-                    -D CMAKE_CXX_COMPILER=$CXX \
-                    -D CMAKE_Fortran_COMPILER=$FC \
-                    \
-                    -D CMAKE_C_FLAGS="${CFLAGS} ${CSTD}" \
-                    -D CMAKE_CXX_FLAGS="${CXXFLAGS} ${CXXSTD}" \
-                    -D CMAKE_Fortran_FLAGS="${FFLAGS}" \
-                    -D CUDA_NVCC_FLAGS="--compiler-options;-Wall;--compiler-options;-Werror" \
-                    -D CUDA_PROPAGATE_HOST_FLAGS=OFF \
-                    \
-                    -D OPENMP_ENABLE=ON \
-                    -D PTHREAD_ENABLE=ON \
-                    -D CUDA_ENABLE=${CUDASTATUS} \
-                    -D RAJA_ENABLE=OFF \
-                    \
-                    -D MPI_ENABLE="${MPISTATUS}" \
-                    -D MPI_C_COMPILER="${MPIDIR}/bin/mpicc" \
-                    -D MPI_CXX_COMPILER="${MPIDIR}/bin/mpicxx" \
-                    -D MPI_Fortran_COMPILER="${MPIDIR}/bin/mpif90" \
-                    -D MPIEXEC_EXECUTABLE="${MPIEXEC}" \
-                    \
-                    -D BLAS_ENABLE="${BLASSTATUS}" \
-                    -D BLAS_LIBRARIES="${BLAS_LIBRARIES}" \
-                    \
-                    -D LAPACK_ENABLE="${LAPACKSTATUS}" \
-                    -D LAPACK_LIBRARIES="${LAPACK_LIBRARIES}" \
-                    \
-                    -D KLU_ENABLE="${KLUSTATUS}" \
-                    -D KLU_INCLUDE_DIR="${KLUDIR}/include" \
-                    -D KLU_LIBRARY_DIR="${KLUDIR}/lib" \
-                    \
-                    -D HYPRE_ENABLE="${HYPRESTATUS}" \
-                    -D HYPRE_INCLUDE_DIR="${HYPREDIR}/include" \
-                    -D HYPRE_LIBRARY_DIR="${HYPREDIR}/lib" \
-                    \
-                    -D PETSC_ENABLE="${PETSCSTATUS}" \
-                    -D PETSC_INCLUDE_DIR="${PETSCDIR}/include" \
-                    -D PETSC_LIBRARY_DIR="${PETSCDIR}/lib" \
-                    \
-                    -D SUPERLUMT_ENABLE="${SLUMTSTATUS}" \
-                    -D SUPERLUMT_INCLUDE_DIR="${SLUMTDIR}/SRC" \
-                    -D SUPERLUMT_LIBRARY_DIR="${SLUMTDIR}/lib" \
-                    -D SUPERLUMT_THREAD_TYPE=Pthread \
-                    \
-                    -D SUPERLUDIST_ENABLE="${SLUDISTSTATUS}" \
-                    -D SUPERLUDIST_INCLUDE_DIR="${SLUDISTDIR}/include" \
-                    -D SUPERLUDIST_LIBRARY_DIR="${SLUDISTDIR}/lib" \
-                    -D SUPERLUDIST_LIBRARIES="${BLAS_LIBRARIES}" \
-                    -D SUPERLUDIST_OpenMP=ON \
-                    -D SKIP_OPENMP_DEVICE_CHECK=ON \
-                    \
-                    -D SUNDIALS_DEVTESTS=$dt \
-                    ../. 2>&1 | tee configure.log
-
-                # check cmake return code
-                rc=${PIPESTATUS[0]}
-                echo -e "\ncmake returned $rc\n" | tee -a configure.log
-                if [ $rc -ne 0 ]; then exit 1; fi
-
-                # -------------------------------------------------------------------
-                # Make SUNDIALS
-                # -------------------------------------------------------------------
-
-                echo "START MAKE"
-                make -j $buildthreads 2>&1 | tee make.log
-
-                # check make return code
-                rc=${PIPESTATUS[0]}
-                echo -e "\nmake returned $rc\n" | tee -a make.log
-                if [ $rc -ne 0 ]; then exit 1; fi
-
-                # check if tests should be skipped (compile check only)
-                if [ "$skiptests" = "ON" ]; then cd ..; continue; fi
-
-                # -------------------------------------------------------------------
-                # Test SUNDIALS
-                # -------------------------------------------------------------------
-
-                # test sundials
-                echo "START TEST"
-                make test 2>&1 | tee test.log
-
-                # check make test return code
-                rc=${PIPESTATUS[0]}
-                echo -e "\nmake test returned $rc\n" | tee -a test.log
-                if [ $rc -ne 0 ]; then exit 1; fi
-
-                # -------------------------------------------------------------------
-                # Install SUNDIALS
-                # -------------------------------------------------------------------
-
-                # install sundials
-                echo "START INSTALL"
-                make install 2>&1 | tee install.log
-
-                # check make install return code
-                rc=${PIPESTATUS[0]}
-                echo -e "\nmake install returned $rc\n" | tee -a install.log
-                if [ $rc -ne 0 ]; then exit 1; fi
-
-                # -------------------------------------------------------------------
-                # Test SUNDIALS Install
-                # -------------------------------------------------------------------
-
-                # smoke test for installation
-                echo "START TEST_INSTALL"
-                make test_install 2>&1 | tee test_install.log
-
-                # check make install return code
-                rc=${PIPESTATUS[0]}
-                echo -e "\nmake test_install returned $rc\n" | tee -a test_install.log
-                if [ $rc -ne 0 ]; then exit 1; fi
-
-                # return to package directory
-                echo "PASSED"
-                cd .. || exit 1
 
             done
         done
     done
 
     # return to tarball directory
-    cd .. || exit 1
+    cd $testdir/tarballs || exit 1
 
 done
 
-# -------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 # Return
-# -------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 # if we make it here all tests have passed
+cd $testdir
 exit 0

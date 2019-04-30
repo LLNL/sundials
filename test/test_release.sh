@@ -31,11 +31,11 @@ fi
 # ==============================================================================
 
 # run tests
-./suntest_tarscript.sh sundials each all both ON DEV $bt
+./suntest_tarscript.sh sundials all both each ON DEV $bt
 
 # check return flag
 if [ $? -ne 0 ]; then
-    echo "FAILED: ./suntest_tarscript.sh sundials each all both ON DEV $bt" | tee -a suntest.log
+    echo "FAILED: ./suntest_tarscript.sh sundials all both each ON DEV $bt" | tee -a suntest.log
     exit 1
 fi
 
@@ -50,14 +50,14 @@ for rt in "${realtype[@]}"; do
     for is in "${indexsize[@]}"; do
 
         # print test label for Jenkins section collapsing
-        echo "TEST: ./suntest_xsdk.sh $rt $is ON DEV $bt"
+        echo "TEST: ./suntest_xsdk.sh $rt $is both ON DEV $bt"
 
         # run tests using xSDK CMake options
-        ./suntest_xsdk.sh $rt $is ON DEV $bt
+        ./suntest_xsdk.sh $rt $is both ON DEV $bt
 
         # check return flag
         if [ $? -ne 0 ]; then
-            echo "FAILED: ./suntest_xsdk.sh $rt $is ON DEV $bt" | tee -a suntest.log
+            echo "FAILED: ./suntest_xsdk.sh $rt $is both ON DEV $bt" | tee -a suntest.log
             exit 1
         else
             echo "PASSED"

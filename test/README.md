@@ -42,52 +42,8 @@ saved to `<build directory>/Testing/output`.
 Several shell scripts are provided for setting up and running SUNDIALS tests and
 are used with continuous integration tools to test each push and pull-request to
 the SUNDIALS repository. The primary driver script is `test_driver.sh` which
-sets up the testing environment and selects which test type to run: BRANCH, PR,
-or RELEASE. The typical usage of `test_driver.sh` is as follows:
-```
-./test_driver.sh <number of build threads> <test type>
-```
-
-The main test driver configures the testing environment by sourcing one of the
-following scripts (listed in the order checked):
-
-1. Script specificed by the environment variable `SUNDIALS_ENV`
-2. A user's local environment script: `sunrepo/test/env.sh`
-3. A user's global environment script: `~/.sundials_config/env.sh`
-4. The default SUNDIALS environment script: `sunrepo/test/env.default.sh`
-
-Environment scripts should set the following environment variables that are
-used when configuring SUNDIALS for testing:
-```
-CC  = C compiler
-FC  = Fortran compiler
-CXX = C++ compiler
-
-MPIDIR  = path to MPI installation
-MPIEXEC = executble for launching MPI runs
-
-BLAS_LIBRARIES   = full path to BLAS library
-LAPACK_LIBRARIES = full path to LAPACK library
-
-KLUDIR = path to KLU installation
-
-SLUMTDIR_32 = path to 32-bit int SuperLU_MT installation
-SLUMTDIR_64 = path to 64-bit int SuperLU_MT installation
-
-SLUDISTDIR_32 = path to 32-bit int SuperLU_DIST installation
-SLUDISTDIR_64 = path to 64-bit int SuperLU_DIST installation
-
-HYPREDIR_32 = path to 32-bit int hypre installation
-HYPREDIR_64 = path to 64-bit int hypre installation
-
-PETSCDIR_32 = path to 32-bit int PETSc installation
-PETSCDIR_64 = path to 64-bit int PETSc installation
-```
-Note: At this time the testing scripts only run development tests when SUNDIALS
-is configured with real type double (either index size can be used).
-
-Once the environment is setup the main driver calls one of three sub-driver
-scripts depending on the test type:
+selects which test type to run (BRANCH, PR, or RELEASE) and calls one of three
+driver scripts corresponding to the test type:
 * BRANCH tests (`test_branch.sh`) are run on each push to a branch in the
 SUNDIALS repository.
 * PR tests (`test_pr.sh`) are run for each pull-request issued to the SUNDIALS
@@ -101,6 +57,78 @@ scripts to configure, build, and test SUNDIALS:
 * `suntest_xsdk.sh` -- tests configured using xSDK options
 * `suntest_tarscript.sh` -- create tarballs and test with standard options
 
-Note: Any of the scripts may be called independently of the main driver script
-for manual testing. See the comment block at the top of each file for more
-information on running scripts.
+Any of the test scripts may be called independently of the driver scripts for
+manual testing. See the comment block at the top of each file for more
+information on running the scripts.
+
+Note: At this time the testing scripts only run development tests when SUNDIALS
+is configured with real type double (either index size can be used).
+
+### Testing environment
+
+To setup the testing environment the test scripts will source one of the
+following environment scripts (listed in the order checked):
+
+1. The script specified by the environment variable `SUNDIALS_ENV`
+2. A user's local environment script: `<sunrepo>/test/env.sh`
+3. A user's global environment script: `~/.sundials_config/env.sh`
+4. The default SUNDIALS environment script: `<sunrepo>/test/env.default.sh`
+
+Environment scripts must set the following environment variables that are used
+when configuring SUNDIALS for testing.
+```
+CC  = C compiler
+CXX = C++ compiler
+FC  = Fortran compiler
+
+CFLAGS   = C compiler flags
+CXXFLAGS = C++ compiler flags
+FFLAGS   = Fortran compiler flags
+```
+Note that the test scripts will append the C standard flag (`-std=c90` or
+`-std=c99`) and C++ standard flag (`-std=c++11`) to the compiler flags provided
+by the environment variables.
+
+An environment script may optionally set additional environment variables to
+enable or disable third party libraries (TPLs) in the Sundials configuration.
+Variables of the form `<TPL>STATUS` enable or disable the corresponding TPL when
+set to `ON` or `OFF` respectively. Note `<TPL>STATUS` variables default to `OFF`
+if they are not set. Depending on the particular TPL, a variable of the from
+`<TPL>DIR` or `<TPL>LIBS` must be set when `<TPL>STATUS = ON` to provide the
+full path to the the TPL installation directory or the list of TPL libraries
+respectively. To aid in setting these variables appropriately, the test scripts
+pass the real type (`single`, `double`, or `extended`) and the index size
+(`32` or `64`) Sundials will be configured with as inputs to the environment
+script.
+
+The currently supported TPL environment variables are as follows:
+```
+CUDASTATUS = ON or OFF
+
+MPISTATUS = ON or OFF
+MPICC     = MPI C compiler
+MPICXX    = MPI C++ compiler
+MPIFC     = MPI Fortran
+MPIEXEC   = executable for launching MPI runs
+
+BLAUSSTATUS = ON or OFF
+BLASLIBS    = full path to BLAS library
+
+LAPACKSTATUS = ON or OFF
+LAPACKLIBS   = full path to LAPACK library
+
+KLUSTATUS = ON or OFF
+KLUDIR    = full path to KLU installation
+
+SLUMTSTATUS = ON or OFF
+SLUMTDIR    = full path to SuperLU_MT installation
+
+SLUDISTSTATUS = ON or OFF
+SLUDISTDIR    = full path to SuperLU_DIST installation
+
+HYPRESTATUS = ON or OFF
+HYPREDIR    = full path to hypre installation
+
+PETSCSTATUS = ON or OFF
+PETSCDIR    = full path to PETSc installation
+```

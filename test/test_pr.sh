@@ -31,11 +31,11 @@ fi
 # ==============================================================================
 
 # run tests
-./suntest_tarscript.sh sundials both all both ON DEV $bt
+./suntest_tarscript.sh sundials all both both ON DEV $bt
 
 # check return flag
 if [ $? -ne 0 ]; then
-    echo "FAILED: ./suntest_tarscript.sh sundials both all both ON DEV $bt" | tee -a suntest.log
+    echo "FAILED: ./suntest_tarscript.sh sundials all both both ON DEV $bt" | tee -a suntest.log
     exit 1
 fi
 

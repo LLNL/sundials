@@ -14,39 +14,54 @@
 # ------------------------------------------------------------------------------
 # SUNDIALS regression testing using xSDK options
 #
-# Usage: ./suntest_xsdk.sh <real type> <index size> <TPL status> <test type> \
-#                          <build threads>
+# Usage: ./suntest_xsdk.sh <real type> <index size> <library type> <TPL status>
+#                          <test type> <build threads>
 #
 # Required Inputs:
-#   <real type>  = SUNDIALS real type: single, double or extended
-#   <index size> = SUNDIALS index size: 32 or 64
-#   <TPL status> = Enable/disable third party libraries: ON or OFF
-#   <test type>  = Test type: STD (standard), DEV (development), or
-#                  NONE (compile only)
+#   <real type>  = SUNDIALS real type to build/test with:
+#                    single   : single (32-bit) precision
+#                    double   : double (64-bit) precision
+#                    extended : extended (128-bit) precision
+#   <index size> = SUNDIALS index size to build/test with:
+#                    32       : 32-bit indices
+#                    64       : 64-bit indices
+#   <lib type>   = Which library type to test:
+#                    static   : only build static libraries
+#                    shared   : only build shared libraries
+#                    both     : build static and shared simultaneously
+#   <TPL status> = Enable/disable third party libraries:
+#                    ON       : All possible TPLs enabled
+#                    OFF      : No TPLs enabled
+#   <test type>  = Test type to run:
+#                    STD      : standard tests
+#                    DEV      : development tests
+#                    NONE     : no test, configure and compile only
 #
 # Optional Inputs:
 #   <build threads> = number of threads to use in parallel build (default 1)
 # ------------------------------------------------------------------------------
 
 # check number of inputs
-if [ "$#" -lt 4 ]; then
-    echo "ERROR: FOUR (4) inputs required"
-    echo "real type  : [single|double|extended]"
-    echo "index size : [32|64]"
-    echo "TPLs       : [ON|OFF]"
-    echo "test type  : [STD|DEV|NONE]"
+if [ "$#" -lt 5 ]; then
+    echo "ERROR: FIVE (5) inputs required"
+    echo "real type    : [single|double|extended]"
+    echo "index size   : [32|64]"
+    echo "library type : [static|shared|both]"
+    echo "TPLs         : [ON|OFF]"
+    echo "test type    : [STD|DEV|NONE]"
     exit 1
 fi
 
 realtype=$1     # precision for realtypes
 indexsize=$2    # integer size for indices
-tplstatus=$3    # enable/disable third party libraries
-testtype=$4     # run standard tests, dev tests, or no tests (compile only)
+libtype=$3      # library type to build
+tplstatus=$4    # enable/disable third party libraries
+testtype=$5     # run standard tests, dev tests, or no tests (compile only)
 buildthreads=1  # default number threads for parallel builds
 
 # check if the number of build threads was set
-if [ "$#" -gt 4 ]; then
-    buildthreads=$5
+if [ "$#" -gt 5 ]; then
+    buildthreads=$6
 fi
 
 # ------------------------------------------------------------------------------
@@ -67,6 +82,26 @@ case "$indexsize" in
     32|64) ;;
     *)
         echo "ERROR: Unknown index size option: $indexsize"
+        exit 1
+        ;;
+esac
+
+# set library types
+case "$libtype" in
+    STATIC|Static|static)
+        STATIC=ON
+        SHARED=OFF
+        ;;
+    SHARED|Shared|shared)
+        STATIC=OFF
+        SHARED=ON
+        ;;
+    BOTH|Both|both)
+        STATIC=ON
+        SHARED=ON
+        ;;
+    *)
+        echo "ERROR: Unknown library type: $libtype"
         exit 1
         ;;
 esac
@@ -115,28 +150,35 @@ case "$testtype" in
 esac
 
 # ------------------------------------------------------------------------------
-# Setup test directories
+# Setup the test environment
+# 1. User defined environment script
+# 2. User's local environment script
+# 3. User's global environment script
+# 4. Sundials default environment script
 # ------------------------------------------------------------------------------
 
-# build and install directories
-if [ "$TPLs" == "ON" ]; then
-    builddir=build_xsdk_${realtype}_${indexsize}_tpls
-    installdir=install_xsdk_${realtype}_${indexsize}_tpls
+if [ ! -z "$SUNDIALS_ENV" ]; then
+    echo "Setting up environment with $SUNDIALS_ENV"
+    source $SUNDIALS_ENV $realtype $indexsize
+elif [ -f env.sh ]; then
+    echo "Setting up environment with ./env.sh"
+    source env.sh $realtype $indexsize
+elif [ -f ~/.sundials_config/env.sh ]; then
+    echo "Setting up environment with ~/.sundials_config/env.sh"
+    source ~/.sundials_config/env.sh $realtype $indexsize
 else
-    builddir=build_xsdk_${realtype}_${indexsize}
-    installdir=install_xsdk_${realtype}_${indexsize}
+    echo "Setting up environment with ./env.default.sh"
+    source env.default.sh $realtype $indexsize
 fi
 
-# remove old build and install directories
-\rm -rf $builddir
-\rm -rf $installdir
-
-# create and move to new build directory
-mkdir $builddir
-cd $builddir
+# check return value
+if [ $? -ne 0 ]; then
+    echo "environment setup failed"
+    exit 1;
+fi
 
 # ------------------------------------------------------------------------------
-# Installed Third Party Libraries
+# Check third party library settings
 # ------------------------------------------------------------------------------
 
 if [ "$TPLs" == "ON" ]; then
@@ -145,84 +187,63 @@ if [ "$TPLs" == "ON" ]; then
     CSTD="-std=c99"
     CXXSTD="-std=c++11"
 
-    # Enable MPI
-    MPISTATUS=ON
+    # CUDA
+    CUDASTATUS=${CUDASTATUS:-"OFF"}
 
-    # LAPACK/BLAS: Do not currently support extended precision or 64-bit indices
-    if [ "$realtype" == "extended" ] || [ "$indexsize" == "64" ]; then
-        LAPACKSTATUS=OFF
-        BLASSTATUS=OFF
-    else
-        BLASSTATUS=ON
-        LAPACKSTATUS=ON
+    # MPI
+    MPISTATUS=${MPISTATUS:-"OFF"}
+    if [ "$MPISTATUS" == "ON" ] && [ -z "$MPICC" ]; then
+        echo "ERROR: MPISTATUS = ON but MPICC is not set"
+        exit 1
     fi
 
-    # KLU: Does not support single or extended precision
-    if [ "$realtype" == "single" ] || [ "$realtype" == "extended" ]; then
-        KLUSTATUS=OFF
-    else
-        KLUSTATUS=ON
+    # BLAS
+    BLASSTATUS=${BLASSTATUS:-"OFF"}
+    if [ "$BLASSTATUS" == "ON" ] && [ -z "$BLASLIBS" ]; then
+        echo "ERROR: BLASSTATUS = ON but BLASLIBS is not set"
+        exit 1
     fi
 
-    # SuperLU_MT: Does not support extended precision
-    if [ "$realtype" == "extended" ]; then
-        SLUMTSTATUS=OFF
-    else
-        SLUMTSTATUS=ON
-        # SuperLU_MT index size must be set at build time
-        if [ "$indexsize" == "32" ]; then
-            SLUMTDIR=$SLUMTDIR_32
-        else
-            SLUMTDIR=$SLUMTDIR_64
-        fi
+    # LAPACK
+    LAPACKSTATUS=${LAPACKSTATUS:-"OFF"}
+    if [ "$LAPACKSTATUS" == "ON" ] && [ -z "$LAPACKLIBS" ]; then
+        echo "ERROR: LAPACKSTATUS = ON but LAPACKLIBS is not set"
+        exit 1
     fi
 
-    # SuperLU_DIST: Only supports double precision
-    if [ "$realtype" != "double" ]; then
-        SLUDISTSTATUS=OFF
-    else
-        SLUDISTSTATUS=ON
-        # SuperLU DIST index size must be set at build time
-        if [ "$indexsize" == "32" ]; then
-            SLUDISTDIR=$SLUDISTDIR_32
-            SLUDISTLIBS=$SLUDISTLIBS_32
-        else
-            SLUDISTDIR=$SLUDISTDIR_64
-            SLUDISTLIBS=$SLUDISTLIBS_64
-        fi
+    # KLU
+    KLUSTATUS=${KLUSTATUS:-"OFF"}
+    if [ "$KLUSTATUS" == "ON" ] && [ -z "$KLUDIR" ]; then
+        echo "ERROR: KLUSTATUS = ON but KLUDIR is not set"
+        exit 1
     fi
 
-    # hypre: Only testing hypre with double precision at this time
-    if [ "$realtype" != "double" ]; then
-        HYPRESTATUS=OFF
-    else
-        HYPRESTATUS=ON
-        # hypre index size must be set at build time
-        if [ "$indexsize" == "32" ]; then
-            HYPREDIR=$HYPREDIR_32
-        else
-            HYPREDIR=$HYPREDIR_64
-        fi
+    # SuperLU_MT
+    SLUMTSTATUS=${SLUMTSTATUS:-"OFF"}
+    if [ "$SLUMTSTATUS" == "ON" ] && [ -z "$SLUMTDIR" ]; then
+        echo "ERROR: SLUMTSTATUS = ON but SLUMTDIR is not set"
+        exit 1
     fi
 
-    # PETSc: Only testing PETSc with double precision at this time
-    if [ "$realtype" != "double" ]; then
-        PETSCSTATUS=OFF
-    else
-        PETSCSTATUS=ON
-        # PETSc index size must be set at build time
-        if [ "$indexsize" == "32" ]; then
-            PETSCDIR=$PETSCDIR_32
-        else
-            PETSCDIR=$PETSCDIR_64
-        fi
+    # SuperLU_DIST
+    SLUDISTSTATUS=${SLUDISTSTATUS:-"OFF"}
+    if [ "$SLUDISTSTATUS" == "ON" ] && [ -z "$SLUDISTDIR" ]; then
+        echo "ERROR: SLUDISTSTATUS = ON but SLUDISTDIR is not set"
+        exit 1
     fi
 
-    # CUDA does not support extended precision
-    if [ "$realtype" == "extended" ]; then
-        CUDASTATUS=OFF
-    else
-        CUDASTATUS=ON
+    # hypre
+    HYPRESTATUS=${HYPRESTATUS:-"OFF"}
+    if [ "$HYPRESTATUS" == "ON" ] && [ -z "$HYPREDIR" ]; then
+        echo "ERROR: HYPRESTATUS = ON but HYPREDIR is not set"
+        exit 1
+    fi
+
+    # PETSc
+    PETSCSTATUS=${PETSCSTATUS:-"OFF"}
+    if [ "$PETSCSTATUS" == "ON" ] && [ -z "$PETSCDIR" ]; then
+        echo "ERROR: PETSCSTATUS = ON but PETSCDIR is not set"
+        exit 1
     fi
 
 else
@@ -245,6 +266,27 @@ else
 fi
 
 # ------------------------------------------------------------------------------
+# Setup test directories
+# ------------------------------------------------------------------------------
+
+# build and install directories
+if [ "$TPLs" == "ON" ]; then
+    builddir=build_xsdk_${realtype}_${indexsize}_${libtype}_tpls
+    installdir=install_xsdk_${realtype}_${indexsize}_${libtype}_tpls
+else
+    builddir=build_xsdk_${realtype}_${indexsize}_${libtype}
+    installdir=install_xsdk_${realtype}_${indexsize}_${libtype}
+fi
+
+# remove old build and install directories
+\rm -rf $builddir
+\rm -rf $installdir
+
+# create and move to new build directory
+mkdir $builddir
+cd $builddir
+
+# ------------------------------------------------------------------------------
 # Configure SUNDIALS with CMake
 # ------------------------------------------------------------------------------
 
@@ -260,6 +302,9 @@ cmake \
     -D USE_XSDK_DEFAULTS=ON \
     \
     -D CMAKE_INSTALL_PREFIX="../$installdir" \
+    \
+    -D BUILD_STATIC_LIBS="${STATIC}" \
+    -D BUILD_SHARED_LIBS="${SHARED}" \
     \
     -D BUILD_ARKODE=ON \
     -D BUILD_CVODE=ON \
@@ -295,16 +340,16 @@ cmake \
     -D RAJA_ENABLE=OFF \
     \
     -D MPI_ENABLE="${MPISTATUS}" \
-    -D MPI_C_COMPILER="${MPIDIR}/bin/mpicc" \
-    -D MPI_CXX_COMPILER="${MPIDIR}/bin/mpicxx" \
-    -D MPI_Fortran_COMPILER="${MPIDIR}/bin/mpif90" \
+    -D MPI_C_COMPILER="${MPICC}" \
+    -D MPI_CXX_COMPILER="${MPICXX}" \
+    -D MPI_Fortran_COMPILER="${MPIFC}" \
     -D MPIEXEC_EXECUTABLE="${MPIEXEC}" \
     \
     -D TPL_ENABLE_BLAS="${BLASSTATUS}" \
-    -D TPL_BLAS_LIBRARIES="${BLAS_LIBRARIES}" \
+    -D TPL_BLAS_LIBRARIES="${BLASLIBS}" \
     \
     -D TPL_ENABLE_LAPACK="${LAPACKSTATUS}" \
-    -D TPL_LAPACK_LIBRARIES="${LAPACK_LIBRARIES}" \
+    -D TPL_LAPACK_LIBRARIES="${LAPACKLIBS}" \
     \
     -D TPL_ENABLE_KLU="${KLUSTATUS}" \
     -D TPL_KLU_INCLUDE_DIRS="${KLUDIR}/include" \
@@ -335,7 +380,7 @@ cmake \
 # check cmake return code
 rc=${PIPESTATUS[0]}
 echo -e "\ncmake returned $rc\n" | tee -a configure.log
-if [ $rc -ne 0 ]; then exit 1; fi
+if [ $rc -ne 0 ]; then cd ..; exit 1; fi
 
 # -------------------------------------------------------------------------------
 # Make SUNDIALS
@@ -347,7 +392,7 @@ make -j $buildthreads 2>&1 | tee make.log
 # check make return code
 rc=${PIPESTATUS[0]}
 echo -e "\nmake returned $rc\n" | tee -a make.log
-if [ $rc -ne 0 ]; then exit 1; fi
+if [ $rc -ne 0 ]; then cd ..; exit 1; fi
 
 # check if tests should be skipped (compile check only)
 if [ "$skiptests" = "ON" ]; then exit 0; fi
@@ -363,7 +408,7 @@ make test 2>&1 | tee test.log
 # check make test return code
 rc=${PIPESTATUS[0]}
 echo -e "\nmake test returned $rc\n" | tee -a test.log
-if [ $rc -ne 0 ]; then exit 1; fi
+if [ $rc -ne 0 ]; then cd ..; exit 1; fi
 
 # -------------------------------------------------------------------------------
 # Install SUNDIALS
@@ -376,7 +421,7 @@ make install 2>&1 | tee install.log
 # check make install return code
 rc=${PIPESTATUS[0]}
 echo -e "\nmake install returned $rc\n" | tee -a install.log
-if [ $rc -ne 0 ]; then exit 1; fi
+if [ $rc -ne 0 ]; then cd ..; exit 1; fi
 
 # -------------------------------------------------------------------------------
 # Test SUNDIALS Install
@@ -389,11 +434,12 @@ make test_install 2>&1 | tee test_install.log
 # check make install return code
 rc=${PIPESTATUS[0]}
 echo -e "\nmake test_install returned $rc\n" | tee -a test_install.log
-if [ $rc -ne 0 ]; then exit 1; fi
+if [ $rc -ne 0 ]; then cd ..; exit 1; fi
 
 # -------------------------------------------------------------------------------
 # Return
 # -------------------------------------------------------------------------------
 
 # if we make it here all tests have passed
+cd ..
 exit 0
