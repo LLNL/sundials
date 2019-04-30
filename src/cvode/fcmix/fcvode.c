@@ -90,6 +90,7 @@ void FCV_MALLOC(realtype *t0, realtype *y0,
   /* Initialize all pointers to NULL */
   CV_cvodemem = NULL;
   Vatol = NULL;
+  FCVNullNonlinSol();
 
   /* initialize global constants to disable each option */
   CV_nrtfn = 0;

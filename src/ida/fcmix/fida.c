@@ -85,6 +85,7 @@ void FIDA_MALLOC(realtype *t0, realtype *yy0, realtype *yp0,
   IDA_idamem = NULL;
   Vatol = NULL;
   F2C_IDA_ypvec = F2C_IDA_ewtvec = NULL;
+  FIDANullNonlinSol();
 
   /* Create IDA object */
   IDA_idamem = IDACreate();
