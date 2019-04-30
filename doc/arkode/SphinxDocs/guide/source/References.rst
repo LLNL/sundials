@@ -64,7 +64,7 @@
 	    right-hand sides, *ACM Trans. Math. Soft.*,
 	    16:201-222, 1990. 
             
-.. [CGM2014] J. CHeng, M. Grossman and T. McKercher. Professional Cuda
+.. [CGM2014] J. Cheng, M. Grossman and T. McKercher. Professional Cuda
              C Programming.  John Wiley & Sons, 2014.
 
 .. [DP1980] J.R. Dormand and P.J. Prince. A family of embedded
@@ -151,6 +151,10 @@
 .. [KC2003] C.A. Kennedy and M.H. Carpenter. Additive Runge-Kutta
 	    schemes for convection-diffusion-reaction
 	    equations. *Appl. Numer. Math.*, 44:139-181, 2003. 
+
+.. [KC2019] C.A. Kennedy and M.H. Carpenter. Higher-order additive
+            Runge–Kutta schemes for ordinary differential
+            equations. *Appl. Numer. Math.*, 136:183-205, 2019.
 
 .. [KLU] `KLU Sparse Matrix Factorization Library
 	 <http://faculty.cse.tamu.edu/davis/suitesparse.html>`_. 

@@ -40,10 +40,12 @@ extern "C" {
 #define VERNER_8_5_6            10
 #define FEHLBERG_13_7_8         11
 #define KNOTH_WOLKE_3_3         12
+#define ARK437L2SA_ERK_7_3_4    13
+#define ARK548L2SAb_ERK_8_4_5   14
 
 /* Utility #defines to ensure valid input IDs for ERK tables */
 #define MIN_ERK_NUM              0
-#define MAX_ERK_NUM             12
+#define MAX_ERK_NUM             14
 
 /* Accessor routine to load built-in ERK table */
 SUNDIALS_EXPORT ARKodeButcherTable ARKodeButcherTable_LoadERK(int imethod);

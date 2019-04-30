@@ -134,6 +134,9 @@ Fixed a memory leak in the NVECTOR_PETSC clone function.
 
 Fixed a memeory leak in FARKODE when not using the default nonlinear solver.
 
+Added two new embedded ARK methods of orders 4 and 5 to ARKode (from [KC2019]_).
+
+
 Changes in v4.0.0-dev.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

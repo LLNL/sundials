@@ -152,8 +152,8 @@ Heun-Euler-2-1-2
 .. index:: Heun-Euler-2-1-2 ERK method
 
 Accessible via the constant ``HEUN_EULER_2_1_2`` to
-:c:func:`ARKStepSetARKTableNum()`, :c:func:`ERKStepSetERKTableNum()` or
-:c:func:`ARKodeLoadButcherTable_ERK()`.  This is the default 2nd order
+:c:func:`ARKStepSetTableNum()`, :c:func:`ERKStepSetTableNum()` or
+:c:func:`ARKodeButcherTable_LoadERK()`.  This is the default 2nd order
 explicit method.  
 
 .. math::
@@ -184,8 +184,8 @@ Bogacki-Shampine-4-2-3
 .. index:: Bogacki-Shampine-4-2-3 ERK method
 
 Accessible via the constant ``BOGACKI_SHAMPINE_4_2_3`` to
-:c:func:`ARKStepSetARKTableNum()`, :c:func:`ERKStepSetERKTableNum()` or
-:c:func:`ARKodeLoadButcherTable_ERK()`.  This is the default 3rd order 
+:c:func:`ARKStepSetTableNum()`, :c:func:`ERKStepSetTableNum()` or
+:c:func:`ARKodeButcherTable_LoadERK()`.  This is the default 3rd order 
 explicit method (from [BS1989]_). 
 
 .. math::
@@ -219,8 +219,8 @@ ARK-4-2-3 (explicit)
 .. index:: ARK-4-2-3 ERK method
 
 Accessible via the constant ``ARK324L2SA_ERK_4_2_3`` to
-:c:func:`ARKStepSetARKTableNum()`, :c:func:`ERKStepSetERKTableNum()` or
-:c:func:`ARKodeLoadButcherTable_ERK()`. This is the explicit portion of
+:c:func:`ARKStepSetTableNum()`, :c:func:`ERKStepSetTableNum()` or
+:c:func:`ARKodeButcherTable_LoadERK()`. This is the explicit portion of
 the default 3rd order additive method (from [KC2003]_). 
 
 .. math::
@@ -253,7 +253,7 @@ Knoth-Wolke-3-3
 .. index:: Knoth-Wolke-3-3 ERK method
 
 Accessible via the constant ``KNOTH_WOLKE_3_3`` to
-:c:func:`MRIStepSetMRITableNum()` and :c:func:`ARKodeLoadButcherTable_ERK()`.
+:c:func:`MRIStepSetMRITableNum()` and :c:func:`ARKodeButcherTable_LoadERK()`.
 This is the default 3th order slow and fast MRIStep method (from
 [KW1998]_).
 
@@ -284,8 +284,8 @@ Zonneveld-5-3-4
 .. index:: Zonneveld-5-3-4 ERK method
 
 Accessible via the constant ``ZONNEVELD_5_3_4`` to
-:c:func:`ARKStepSetARKTableNum()`, :c:func:`ERKStepSetERKTableNum()`
-or :c:func:`ARKodeLoadButcherTable_ERK()`.  This is  
+:c:func:`ARKStepSetTableNum()`, :c:func:`ERKStepSetTableNum()`
+or :c:func:`ARKodeButcherTable_LoadERK()`.  This is  
 the default 4th order explicit method (from [Z1963]_).
 
 .. math::
@@ -321,8 +321,8 @@ ARK-6-3-4 (explicit)
 .. index:: ARK-6-3-4 ERK method
 
 Accessible via the constant ``ARK436L2SA_ERK_6_3_4`` to
-:c:func:`ARKStepSetARKTableNum()`, :c:func:`ERKStepSetERKTableNum()`
-or :c:func:`ARKodeLoadButcherTable_ERK()`.  This is the explicit portion
+:c:func:`ARKStepSetTableNum()`, :c:func:`ERKStepSetTableNum()`
+or :c:func:`ARKodeButcherTable_LoadERK()`.  This is the explicit portion
 of the default 4th order additive method (from [KC2003]_). 
 
 .. math::
@@ -350,6 +350,45 @@ of the default 4th order additive method (from [KC2003]_).
 
 
 
+.. _Butcher.ARK_7_3_4_E:
+
+ARK-7-3-4 (explicit) 
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: ARK-7-3-4 ERK method
+
+Accessible via the constant ``ARK437L2SA_ERK_7_3_4`` to
+:c:func:`ARKStepSetTableNum()`, :c:func:`ERKStepSetTableNum()`
+or :c:func:`ARKodeButcherTable_LoadERK()`.  This is the explicit portion
+of the 4th order additive method (from [KC2019]_). 
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|ccccccc}
+     0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+     \frac{247}{1000} & \frac{247}{1000} & 0 & 0 & 0 & 0 & 0 & 0 \\
+     \frac{4276536705230}{10142255878289} & \frac{247}{4000} & \frac{2694949928731}{7487940209513} & 0 & 0 & 0 & 0 & 0 \\
+     \frac{67}{200} & \frac{464650059369}{8764239774964} & \frac{878889893998}{2444806327765} & -\frac{952945855348}{12294611323341} & 0 & 0 & 0 & 0 \\
+     \frac{3}{40} & \frac{476636172619}{8159180917465} & -\frac{1271469283451}{7793814740893} & -\frac{859560642026}{4356155882851} & \frac{1723805262919}{4571918432560} & 0 & 0 & 0 \\
+     \frac{7}{10} & \frac{6338158500785}{11769362343261} & -\frac{4970555480458}{10924838743837} & \frac{3326578051521}{2647936831840} & -\frac{880713585975}{1841400956686} & -\frac{1428733748635}{8843423958496} & 0 & 0 \\
+     1 & \frac{760814592956}{3276306540349} & \frac{760814592956}{3276306540349} & -\frac{47223648122716}{6934462133451} & \frac{71187472546993}{9669769126921} & -\frac{13330509492149}{9695768672337} & \frac{11565764226357}{8513123442827} & 0 \\
+     \hline
+     4 & 0 & 0 & \frac{9164257142617}{17756377923965} & -\frac{10812980402763}{74029279521829} & \frac{1335994250573}{5691609445217} & \frac{2273837961795}{8368240463276} & \frac{247}{2000} \\
+     3 & 0 & 0 & \frac{4469248916618}{8635866897933} & -\frac{621260224600}{4094290005349} & \frac{696572312987}{2942599194819} & \frac{1532940081127}{5565293938103} & \frac{2441}{20000}
+   \end{array}
+
+..
+   .. figure:: figs/stab_region_4.png
+      :scale: 50 %
+      :align: center
+
+      Linear stability region for the explicit ARK-6-3-4 method.  The method's
+      region is outlined in blue; the embedding's region is in red.
+
+
+
+
 .. _Butcher.Sayfy_Aburub:
 
 Sayfy-Aburub-6-3-4 
@@ -358,8 +397,8 @@ Sayfy-Aburub-6-3-4
 .. index:: Sayfy-Aburub-6-3-4 ERK method
 
 Accessible via the constant ``SAYFY_ABURUB_6_3_4`` to
-:c:func:`ARKStepSetARKTableNum()`, :c:func:`ERKStepSetERKTableNum()`
-or :c:func:`ARKodeLoadButcherTable_ERK()` (from [SA2002]_). 
+:c:func:`ARKStepSetTableNum()`, :c:func:`ERKStepSetTableNum()`
+or :c:func:`ARKodeButcherTable_LoadERK()` (from [SA2002]_). 
 
 .. math::
 
@@ -395,8 +434,8 @@ Cash-Karp-6-4-5
 .. index:: Cash-Karp-6-4-5 ERK method
 
 Accessible via the constant ``CASH_KARP_6_4_5`` to
-:c:func:`ARKStepSetARKTableNum()`, :c:func:`ERKStepSetERKTableNum()`
-or :c:func:`ARKodeLoadButcherTable_ERK()`.  This is the default 5th order 
+:c:func:`ARKStepSetTableNum()`, :c:func:`ERKStepSetTableNum()`
+or :c:func:`ARKodeButcherTable_LoadERK()`.  This is the default 5th order 
 explicit method (from [CK1990]_). 
 
 .. math::
@@ -435,8 +474,8 @@ Fehlberg-6-4-5
 .. index:: Fehlberg-6-4-5 ERK method
 
 Accessible via the constant ``FEHLBERG_6_4_5`` to
-:c:func:`ARKStepSetARKTableNum()`, :c:func:`ERKStepSetERKTableNum()`
-or :c:func:`ARKodeLoadButcherTable_ERK()` (from [F1969]_). 
+:c:func:`ARKStepSetTableNum()`, :c:func:`ERKStepSetTableNum()`
+or :c:func:`ARKodeButcherTable_LoadERK()` (from [F1969]_). 
 
 .. math::
 
@@ -472,8 +511,8 @@ Dormand-Prince-7-4-5
 .. index:: Dormand-Prince-7-4-5 ERK method
 
 Accessible via the constant ``DORMAND_PRINCE_7_4_5`` to
-:c:func:`ARKStepSetARKTableNum()`, :c:func:`ERKStepSetERKTableNum()`
-or :c:func:`ARKodeLoadButcherTable_ERK()` (from [DP1980]_).  
+:c:func:`ARKStepSetTableNum()`, :c:func:`ERKStepSetTableNum()`
+or :c:func:`ARKodeButcherTable_LoadERK()` (from [DP1980]_).  
 
 .. math::
 
@@ -510,8 +549,8 @@ ARK-8-4-5 (explicit)
 .. index:: ARK-8-4-5 ERK method
 
 Accessible via the constant ``ARK548L2SA_ERK_8_4_5`` to
-:c:func:`ARKStepSetARKTableNum()`, :c:func:`ERKStepSetERKTableNum()`
-or :c:func:`ARKodeLoadButcherTable_ERK()`.  This is the explicit portion
+:c:func:`ARKStepSetTableNum()`, :c:func:`ERKStepSetTableNum()`
+or :c:func:`ARKodeButcherTable_LoadERK()`.  This is the explicit portion
 of the default 5th order additive method (from [KC2003]_). 
 
 .. math::
@@ -543,6 +582,48 @@ of the default 5th order additive method (from [KC2003]_).
 
 
 
+.. _Butcher.ARK_8_4_5b_E:
+
+ARK-8-4-5b (explicit) 
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: ARK-8-4-5b ERK method
+
+Accessible via the constant ``ARK548L2SAb_ERK_8_4_5`` to
+:c:func:`ARKStepSetTableNum()`, :c:func:`ERKStepSetTableNum()`
+or :c:func:`ARKodeButcherTable_LoadERK()`.  This is the explicit portion
+of the 5th order additive method from [KC2019]_. 
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|cccccccc}
+     0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+     \frac{4}{9} & \frac{4}{9} & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+     \frac{6456083330201}{8509243623797} & \frac{1}{9} & \frac{1183333538310}{1827251437969} & 0 & 0 & 0 & 0 & 0 & 0 \\
+     \frac{1632083962415}{14158861528103} & \frac{895379019517}{9750411845327} & \frac{477606656805}{13473228687314} & \frac{-112564739183}{9373365219272} & 0 & 0 & 0 & 0 & 0 \\
+     \frac{6365430648612}{17842476412687} & \frac{-4458043123994}{13015289567637} & \frac{-2500665203865}{9342069639922} & \frac{983347055801}{8893519644487} & \frac{2185051477207}{2551468980502} & 0 & 0 & 0 & 0 \\
+     \frac{18}{25} & \frac{-167316361917}{17121522574472} & \frac{1605541814917}{7619724128744} & \frac{991021770328}{13052792161721} & \frac{2342280609577}{11279663441611} & \frac{3012424348531}{12792462456678} & 0 & 0 & 0 \\
+     \frac{191}{200} & \frac{6680998715867}{14310383562358} & \frac{5029118570809}{3897454228471} & \frac{2415062538259}{6382199904604} & \frac{-3924368632305}{6964820224454} & \frac{-4331110370267}{15021686902756} & \frac{-3944303808049}{11994238218192} & 0 & 0 \\
+     1 & \frac{2193717860234}{3570523412979} & \frac{2193717860234}{3570523412979} & \frac{5952760925747}{18750164281544} & \frac{-4412967128996}{6196664114337} & \frac{4151782504231}{36106512998704} & \frac{572599549169}{6265429158920} & \frac{-457874356192}{11306498036315} & 0 \\
+     \hline
+     5 & 0 & 0 & \frac{3517720773327}{20256071687669} & \frac{4569610470461}{17934693873752} & \frac{2819471173109}{11655438449929} & \frac{3296210113763}{10722700128969} & \frac{-1142099968913}{5710983926999} & \frac{2}{9} \\
+     4 & 0 & 0 & \frac{520639020421}{8300446712847} & \frac{4550235134915}{17827758688493} & \frac{1482366381361}{6201654941325} & \frac{5551607622171}{13911031047899} & \frac{-5266607656330}{36788968843917} & \frac{1074053359553}{5740751784926}
+   \end{array}
+
+..
+   .. figure:: figs/stab_region_9.png
+      :scale: 50 %
+      :align: center
+
+      Linear stability region for the explicit ARK-8-4-5 method.  The method's
+      region is outlined in blue; the embedding's region is in red.
+
+
+
+
+
+
 .. _Butcher.Verner-6-5:
 
 Verner-8-5-6 
@@ -551,8 +632,8 @@ Verner-8-5-6
 .. index:: Verner-8-5-6 ERK method
 
 Accessible via the constant ``VERNER_8_5_6`` to
-:c:func:`ARKStepSetARKTableNum()`, :c:func:`ERKStepSetERKTableNum()`
-or :c:func:`ARKodeLoadButcherTable_ERK()`.  This is the default 6th order 
+:c:func:`ARKStepSetTableNum()`, :c:func:`ERKStepSetTableNum()`
+or :c:func:`ARKodeButcherTable_LoadERK()`.  This is the default 6th order 
 explicit method (from [V1978]_).
 
 .. math::
@@ -589,8 +670,8 @@ Fehlberg-13-7-8
 .. index:: Fehlberg-13-7-8 ERK method
 
 Accessible via the constant ``FEHLBERG_13_7_8`` to
-:c:func:`ARKStepSetARKTableNum()`, :c:func:`ERKStepSetERKTableNum()`
-or :c:func:`ARKodeLoadButcherTable_ERK()`.  This is the default 8th order 
+:c:func:`ARKStepSetTableNum()`, :c:func:`ERKStepSetTableNum()`
+or :c:func:`ARKodeButcherTable_LoadERK()`.  This is the default 8th order 
 explicit method (from [B2008]_). 
 
 .. math::
@@ -647,8 +728,8 @@ SDIRK-2-1-2
 .. index:: SDIRK-2-1-2 method
 
 Accessible via the constant ``SDIRK_2_1_2`` to
-:c:func:`ARKStepSetIRKTableNum()` or
-:c:func:`ARKodeLoadButcherTable_DIRK()`.  This is the default 2nd order 
+:c:func:`ARKStepSetTableNum()` or
+:c:func:`ARKodeButcherTable_LoadDIRK()`.  This is the default 2nd order 
 implicit method.  Both the method and embedding are A- and B-stable.
 
 .. math::
@@ -682,8 +763,8 @@ Billington-3-3-2
 .. index:: Billington-3-3-2 SDIRK method
 
 Accessible via the constant ``BILLINGTON_3_3_2`` to
-:c:func:`ARKStepSetIRKTableNum()` or
-:c:func:`ARKodeLoadButcherTable_DIRK()`.  Here, the higher-order
+:c:func:`ARKStepSetTableNum()` or
+:c:func:`ARKodeButcherTable_LoadDIRK()`.  Here, the higher-order
 embedding is less stable than the lower-order method (from [B1983]_).
 
 .. math::
@@ -718,8 +799,8 @@ TRBDF2-3-3-2
 .. index:: TRBDF2-3-3-2 ESDIRK method
 
 Accessible via the constant ``TRBDF2_3_3_2`` to
-:c:func:`ARKStepSetIRKTableNum()` or
-:c:func:`ARKodeLoadButcherTable_DIRK()`.  As with Billington, here the 
+:c:func:`ARKStepSetTableNum()` or
+:c:func:`ARKodeButcherTable_LoadDIRK()`.  As with Billington, here the 
 higher-order embedding is less stable than the lower-order method
 (from [B1985]_). 
 
@@ -755,8 +836,8 @@ Kvaerno-4-2-3
 .. index:: Kvaerno-4-2-3 ESDIRK method
 
 Accessible via the constant ``KVAERNO_4_2_3`` to
-:c:func:`ARKStepSetIRKTableNum()` or
-:c:func:`ARKodeLoadButcherTable_DIRK()`.  Both the method and embedding are 
+:c:func:`ARKStepSetTableNum()` or
+:c:func:`ARKodeButcherTable_LoadDIRK()`.  Both the method and embedding are 
 A-stable; additionally the method is L-stable (from [K2004]_).
 
 .. math::
@@ -792,8 +873,8 @@ ARK-4-2-3 (implicit)
 .. index:: ARK-4-2-3 ESDIRK method
 
 Accessible via the constant ``ARK324L2SA_DIRK_4_2_3`` to
-:c:func:`ARKStepSetIRKTableNum()` or
-:c:func:`ARKodeLoadButcherTable_DIRK()`.  This is the default 3rd order 
+:c:func:`ARKStepSetTableNum()` or
+:c:func:`ARKodeButcherTable_LoadDIRK()`.  This is the default 3rd order 
 implicit method, and the implicit portion of the default 3rd order
 additive method.  Both the method and embedding are A-stable;
 additionally the method is L-stable (from [KC2003]_). 
@@ -832,8 +913,8 @@ Cash-5-2-4
 .. index:: Cash-5-2-4 SDIRK method
 
 Accessible via the constant ``CASH_5_2_4`` to
-:c:func:`ARKStepSetIRKTableNum()` or
-:c:func:`ARKodeLoadButcherTable_DIRK()`.  Both the method and embedding are
+:c:func:`ARKStepSetTableNum()` or
+:c:func:`ARKodeButcherTable_LoadDIRK()`.  Both the method and embedding are
 A-stable; additionally the method is L-stable (from [C1979]_).  
 
 .. math::
@@ -870,8 +951,8 @@ Cash-5-3-4
 .. index:: Cash-5-3-4 SDIRK method
 
 Accessible via the constant ``CASH_5_3_4`` to
-:c:func:`ARKStepSetIRKTableNum()` or
-:c:func:`ARKodeLoadButcherTable_DIRK()`.  Both the method and embedding are
+:c:func:`ARKStepSetTableNum()` or
+:c:func:`ARKodeButcherTable_LoadDIRK()`.  Both the method and embedding are
 A-stable; additionally the method is L-stable (from [C1979]_).
 
 .. math::
@@ -907,8 +988,8 @@ SDIRK-5-3-4
 .. index:: SDIRK-5-3-4 method
 
 Accessible via the constant ``SDIRK_5_3_4`` to
-:c:func:`ARKStepSetIRKTableNum()` or
-:c:func:`ARKodeLoadButcherTable_DIRK()`.  This is the default 4th order 
+:c:func:`ARKStepSetTableNum()` or
+:c:func:`ARKodeButcherTable_LoadDIRK()`.  This is the default 4th order 
 implicit method.  Here, the method is both A- and L-stable, although
 the embedding has reduced stability (from [HW1996]_). 
 
@@ -948,8 +1029,8 @@ Kvaerno-5-3-4
 .. index:: Kvaerno-5-3-4 ESDIRK method
 
 Accessible via the constant ``KVAERNO_5_3_4`` to
-:c:func:`ARKStepSetIRKTableNum()` or
-:c:func:`ARKodeLoadButcherTable_DIRK()`.  Both the method and embedding are 
+:c:func:`ARKStepSetTableNum()` or
+:c:func:`ARKodeButcherTable_LoadDIRK()`.  Both the method and embedding are 
 A-stable (from [K2004]_).
 
 .. math::
@@ -986,8 +1067,8 @@ ARK-6-3-4 (implicit)
 .. index:: ARK-6-3-4 ESDIRK method
 
 Accessible via the constant ``ARK436L2SA_DIRK_6_3_4`` to
-:c:func:`ARKStepSetIRKTableNum()` or
-:c:func:`ARKodeLoadButcherTable_DIRK()`.  This is the implicit portion
+:c:func:`ARKStepSetTableNum()` or
+:c:func:`ARKodeButcherTable_LoadDIRK()`.  This is the implicit portion
 of the default 4th order additive method. Both the method and
 embedding are A-stable; additionally the method is L-stable (from [KC2003]_). 
 
@@ -1018,6 +1099,50 @@ embedding are A-stable; additionally the method is L-stable (from [KC2003]_).
 
 
 
+.. _Butcher.ARK_7_3_4_I:
+
+ARK-7-3-4 (implicit) 
+^^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: ARK-7-3-4 ESDIRK method
+
+Accessible via the constant ``ARK437L2SA_DIRK_7_3_4`` to
+:c:func:`ARKStepSetTableNum()` or
+:c:func:`ARKodeButcherTable_LoadDIRK()`.  This is the implicit portion
+of the 4th order additive method from [KC2019]_.
+
+..
+   Both the method and embedding are A-stable; additionally the method is L-stable. 
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|ccccccc}
+     0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+     \frac{247}{1000} & \frac{1235}{10000} & \frac{1235}{10000} & 0 & 0 & 0 & 0 & 0 \\
+     \frac{4276536705230}{10142255878289} & \frac{624185399699}{4186980696204} & \frac{624185399699}{4186980696204} & \frac{1235}{10000} & 0 & 0 & 0 & 0 \\
+     \frac{67}{200} & \frac{1258591069120}{10082082980243} & \frac{1258591069120}{10082082980243} & -\frac{322722984531}{8455138723562} & \frac{1235}{10000} & 0 & 0 & 0 \\
+     \frac{3}{40} & -\frac{436103496990}{5971407786587} & -\frac{436103496990}{5971407786587} & -\frac{2689175662187}{11046760208243} & \frac{4431412449334}{12995360898505} & \frac{1235}{10000} & 0 & 0 \\
+     \frac{7}{10} & -\frac{2207373168298}{14430576638973} & -\frac{2207373168298}{14430576638973} & \frac{242511121179}{3358618340039} & \frac{3145666661981}{7780404714551} & \frac{5882073923981}{14490790706663} & \frac{1235}{10000} & 0 \\
+     1 & 0 & 0 & \frac{9164257142617}{17756377923965} & -\frac{10812980402763}{74029279521829} & \frac{1335994250573}{5691609445217} & \frac{2273837961795}{8368240463276} & \frac{1235}{10000} \\
+     \hline
+     4 & 0 & 0 & \frac{9164257142617}{17756377923965} & -\frac{10812980402763}{74029279521829} & \frac{1335994250573}{5691609445217} & \frac{2273837961795}{8368240463276} & \frac{1235}{10000} \\
+     3 & 0 & 0 & \frac{4469248916618}{8635866897933} & -\frac{621260224600}{4094290005349} & \frac{696572312987}{2942599194819} & \frac{1532940081127}{5565293938103} & \frac{2441}{20000}
+   \end{array}
+
+..
+   .. figure:: figs/stab_region_20.png
+      :scale: 50 %
+      :align: center
+
+      Linear stability region for the implicit ARK-6-3-4 method.  The method's
+      region is outlined in blue; the embedding's region is in red.
+
+
+
+
+
+
 .. _Butcher.Kvaerno_7_4_5:
 
 Kvaerno-7-4-5 
@@ -1026,8 +1151,8 @@ Kvaerno-7-4-5
 .. index:: Kvaerno-7-4-5 ESDIRK method
 
 Accessible via the constant ``KVAERNO_7_4_5`` to
-:c:func:`ARKStepSetIRKTableNum()` or
-:c:func:`ARKodeLoadButcherTable_DIRK()`.  Both the method and embedding are 
+:c:func:`ARKStepSetTableNum()` or
+:c:func:`ARKodeButcherTable_LoadDIRK()`.  Both the method and embedding are 
 A-stable; additionally the method is L-stable (from [K2004]_).
 
 .. math::
@@ -1067,8 +1192,8 @@ ARK-8-4-5 (implicit)
 .. index:: ARK-8-4-5 ESDIRK method
 
 Accessible via the constant ``ARK548L2SA_DIRK_8_4_5`` for
-:c:func:`ARKStepSetIRKTableNum()` or
-:c:func:`ARKodeLoadButcherTable_DIRK()`.  This is the default 5th order 
+:c:func:`ARKStepSetTableNum()` or
+:c:func:`ARKodeButcherTable_LoadDIRK()`.  This is the default 5th order 
 implicit method, and the implicit portion of the default 5th order
 additive method.  Both the method and embedding are A-stable;
 additionally the method is L-stable (from [KC2003]_).
@@ -1103,6 +1228,52 @@ additionally the method is L-stable (from [KC2003]_).
 
 
 
+.. _Butcher.ARK_8_4_5b_I:
+
+ARK-8-4-5b (implicit)
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. index:: ARK-8-4-5b ESDIRK method
+
+Accessible via the constant ``ARK548L2SAb_DIRK_8_4_5`` for
+:c:func:`ARKStepSetTableNum()` or
+:c:func:`ARKodeButcherTable_LoadDIRK()`.  This is the 5th order
+implicit method from [KC2019]_.
+
+..
+   Both the method and embedding are A-stable; additionally the method is L-stable.
+
+.. math::
+
+   \renewcommand{\arraystretch}{1.5}
+   \begin{array}{r|cccccccc}
+     0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+     \frac{4}{9} & \frac{2}{9} & \frac{2}{9} & 0 & 0 & 0 & 0 & 0 & 0 \\
+     \frac{6456083330201}{8509243623797} & \frac{2366667076620}{8822750406821} & \frac{2366667076620}{8822750406821} & \frac{2}{9} & 0 & 0 & 0 & 0 & 0 \\
+     \frac{1632083962415}{14158861528103} & -\frac{257962897183}{4451812247028} & -\frac{257962897183}{4451812247028} & \frac{128530224461}{14379561246022} & \frac{2}{9} & 0 & 0 & 0 & 0 \\
+     \frac{6365430648612}{17842476412687} & -\frac{486229321650}{11227943450093} & -\frac{486229321650}{11227943450093} & -\frac{225633144460}{6633558740617} & \frac{1741320951451}{6824444397158} & \frac{2}{9} & 0 & 0 & 0 \\
+     \frac{18}{25} & \frac{621307788657}{4714163060173} & \frac{621307788657}{4714163060173} & -\frac{125196015625}{3866852212004} & \frac{940440206406}{7593089888465} & \frac{961109811699}{6734810228204} & \frac{2}{9} & 0 & 0 \\
+     \frac{191}{200} & \frac{2036305566805}{6583108094622} & \frac{2036305566805}{6583108094622} & -\frac{3039402635899}{4450598839912} & -\frac{1829510709469}{31102090912115} & -\frac{286320471013}{6931253422520} & \frac{8651533662697}{9642993110008} & \frac{2}{9} & 0 \\
+     1 & 0 & 0 & \frac{3517720773327}{20256071687669} & \frac{4569610470461}{17934693873752} & \frac{2819471173109}{11655438449929} & \frac{3296210113763}{10722700128969} & -\frac{1142099968913}{5710983926999} & \frac{2}{9} \\
+     \hline
+     5 & 0 & 0 & \frac{3517720773327}{20256071687669} & \frac{4569610470461}{17934693873752} & \frac{2819471173109}{11655438449929} & \frac{3296210113763}{10722700128969} & -\frac{1142099968913}{5710983926999} & \frac{2}{9} \\
+     4 & 0 & 0 & \frac{520639020421}{8300446712847} & \frac{4550235134915}{17827758688493} & \frac{1482366381361}{6201654941325} & \frac{5551607622171}{13911031047899} & -\frac{5266607656330}{36788968843917} & \frac{1074053359553}{5740751784926}
+   \end{array}
+
+..
+   .. figure:: figs/stab_region_22.png
+      :scale: 50 %
+      :align: center
+
+      Linear stability region for the implicit ARK-8-4-5 method.  The method's
+      region is outlined in blue; the embedding's region is in red.
+
+
+
+
+
+
+
 .. _Butcher.additive:
 
 Additive Butcher tables
@@ -1116,15 +1287,25 @@ Butcher table pairs are as follows:
 * :index:`3rd-order pair <ARK-4-2-3 ARK method>`:
   :ref:`Butcher.ARK_4_2_3_E` with :ref:`Butcher.ARK_4_2_3_I`,
   corresponding to Butcher tables ``ARK324L2SA_ERK_4_2_3`` and
-  ``ARK324L2SA_DIRK_4_2_3`` for :c:func:`ARKStepSetARKTableNum()`.
+  ``ARK324L2SA_DIRK_4_2_3`` for :c:func:`ARKStepSetTableNum()`.
 
 * :index:`4th-order pair <ARK-6-3-4 ARK method>`:  
   :ref:`Butcher.ARK_6_3_4_E` with :ref:`Butcher.ARK_6_3_4_I`,
   corresponding to Butcher tables ``ARK436L2SA_ERK_6_3_4`` and
-  ``ARK436L2SA_DIRK_6_3_4`` for :c:func:`ARKStepSetARKTableNum()`.  
+  ``ARK436L2SA_DIRK_6_3_4`` for :c:func:`ARKStepSetTableNum()`.  
+
+* :index:`4th-order pair <ARK-7-3-4 ARK method>`:  
+  :ref:`Butcher.ARK_7_3_4_E` with :ref:`Butcher.ARK_7_3_4_I`,
+  corresponding to Butcher tables ``ARK437L2SA_ERK_7_3_4`` and
+  ``ARK437L2SA_DIRK_7_3_4`` for :c:func:`ARKStepSetTableNum()`.  
 
 * :index:`5th-order pair <ARK-8-4-5 ARK method>`:  
   :ref:`Butcher.ARK_8_4_5_E` with :ref:`Butcher.ARK_8_4_5_I`,
   corresponding to Butcher tables ``ARK548L2SA_ERK_8_4_5`` and 
-  ``ARK548L2SA_ERK_8_4_5`` for :c:func:`ARKStepSetARKTableNum()`.
+  ``ARK548L2SA_ERK_8_4_5`` for :c:func:`ARKStepSetTableNum()`.
+
+* :index:`5th-order pair <ARK-8-4-5b ARK method>`:  
+  :ref:`Butcher.ARK_8_4_5b_E` with :ref:`Butcher.ARK_8_4_5b_I`,
+  corresponding to Butcher tables ``ARK548L2SAb_ERK_8_4_5`` and 
+  ``ARK548L2SAb_ERK_8_4_5`` for :c:func:`ARKStepSetTableNum()`.
 

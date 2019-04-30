@@ -326,6 +326,8 @@ Fixed a memory leak in the NVECTOR\_PETSC clone function.
 
 Fixed a memeory leak in FARKODE when not using the default nonlinear solver.
 
+Added two new embedded ARK methods of orders 4 and 5 to ARKode (from \phantomsection\label{Introduction:id7}{\hyperref[References:kc2019]{\emph{{[}KC2019{]}}}}).
+
 
 \subsection{Changes in v4.0.0-dev.0}
 \label{Introduction:changes-in-v4-0-0-dev-0}
@@ -40565,8 +40567,8 @@ orders 1 through 5.
 \label{Butcher:butcher-heun-euler}\label{Butcher:heun-euler-2-1-2}
 \index{Heun-Euler-2-1-2 ERK method}
 Accessible via the constant \code{HEUN\_EULER\_2\_1\_2} to
-\code{ARKStepSetARKTableNum()}, \code{ERKStepSetERKTableNum()} or
-\code{ARKodeLoadButcherTable\_ERK()}.  This is the default 2nd order
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}}, {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetTableNum]{\emph{\code{ERKStepSetTableNum()}}}} or
+{\hyperref[ARKodeButcherTable:c.ARKodeButcherTable_LoadERK]{\emph{\code{ARKodeButcherTable\_LoadERK()}}}}.  This is the default 2nd order
 explicit method.
 \begin{gather}
 \begin{split}\renewcommand{\arraystretch}{1.5}
@@ -40590,8 +40592,8 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:bogacki-shampine-4-2-3}\label{Butcher:butcher-bogacki-shampine}
 \index{Bogacki-Shampine-4-2-3 ERK method}
 Accessible via the constant \code{BOGACKI\_SHAMPINE\_4\_2\_3} to
-\code{ARKStepSetARKTableNum()}, \code{ERKStepSetERKTableNum()} or
-\code{ARKodeLoadButcherTable\_ERK()}.  This is the default 3rd order
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}}, {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetTableNum]{\emph{\code{ERKStepSetTableNum()}}}} or
+{\hyperref[ARKodeButcherTable:c.ARKodeButcherTable_LoadERK]{\emph{\code{ARKodeButcherTable\_LoadERK()}}}}.  This is the default 3rd order
 explicit method (from \phantomsection\label{Butcher:id1}{\hyperref[References:bs1989]{\emph{{[}BS1989{]}}}}).
 \begin{gather}
 \begin{split}\renewcommand{\arraystretch}{1.5}
@@ -40617,8 +40619,8 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:butcher-ark-4-2-3-e}\label{Butcher:ark-4-2-3-explicit}
 \index{ARK-4-2-3 ERK method}
 Accessible via the constant \code{ARK324L2SA\_ERK\_4\_2\_3} to
-\code{ARKStepSetARKTableNum()}, \code{ERKStepSetERKTableNum()} or
-\code{ARKodeLoadButcherTable\_ERK()}. This is the explicit portion of
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}}, {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetTableNum]{\emph{\code{ERKStepSetTableNum()}}}} or
+{\hyperref[ARKodeButcherTable:c.ARKodeButcherTable_LoadERK]{\emph{\code{ARKodeButcherTable\_LoadERK()}}}}. This is the explicit portion of
 the default 3rd order additive method (from \phantomsection\label{Butcher:id2}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
 \begin{gather}
 \begin{split}\renewcommand{\arraystretch}{1.5}
@@ -40644,7 +40646,7 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:knoth-wolke-3-3}\label{Butcher:butcher-knoth-wolke}
 \index{Knoth-Wolke-3-3 ERK method}
 Accessible via the constant \code{KNOTH\_WOLKE\_3\_3} to
-{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetMRITableNum]{\emph{\code{MRIStepSetMRITableNum()}}}} and \code{ARKodeLoadButcherTable\_ERK()}.
+{\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetMRITableNum]{\emph{\code{MRIStepSetMRITableNum()}}}} and {\hyperref[ARKodeButcherTable:c.ARKodeButcherTable_LoadERK]{\emph{\code{ARKodeButcherTable\_LoadERK()}}}}.
 This is the default 3th order slow and fast MRIStep method (from
 \phantomsection\label{Butcher:id3}{\hyperref[References:kw1998]{\emph{{[}KW1998{]}}}}).
 \begin{gather}
@@ -40668,8 +40670,8 @@ This is the default 3th order slow and fast MRIStep method (from
 \label{Butcher:butcher-zonneveld}\label{Butcher:zonneveld-5-3-4}
 \index{Zonneveld-5-3-4 ERK method}
 Accessible via the constant \code{ZONNEVELD\_5\_3\_4} to
-\code{ARKStepSetARKTableNum()}, \code{ERKStepSetERKTableNum()}
-or \code{ARKodeLoadButcherTable\_ERK()}.  This is
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}}, {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetTableNum]{\emph{\code{ERKStepSetTableNum()}}}}
+or {\hyperref[ARKodeButcherTable:c.ARKodeButcherTable_LoadERK]{\emph{\code{ARKodeButcherTable\_LoadERK()}}}}.  This is
 the default 4th order explicit method (from \phantomsection\label{Butcher:id4}{\hyperref[References:z1963]{\emph{{[}Z1963{]}}}}).
 \begin{gather}
 \begin{split}\renewcommand{\arraystretch}{1.5}
@@ -40696,8 +40698,8 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:butcher-ark-6-3-4-e}\label{Butcher:ark-6-3-4-explicit}
 \index{ARK-6-3-4 ERK method}
 Accessible via the constant \code{ARK436L2SA\_ERK\_6\_3\_4} to
-\code{ARKStepSetARKTableNum()}, \code{ERKStepSetERKTableNum()}
-or \code{ARKodeLoadButcherTable\_ERK()}.  This is the explicit portion
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}}, {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetTableNum]{\emph{\code{ERKStepSetTableNum()}}}}
+or {\hyperref[ARKodeButcherTable:c.ARKodeButcherTable_LoadERK]{\emph{\code{ARKodeButcherTable\_LoadERK()}}}}.  This is the explicit portion
 of the default 4th order additive method (from \phantomsection\label{Butcher:id5}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
 \begin{gather}
 \begin{split}\renewcommand{\arraystretch}{1.5}
@@ -40721,12 +40723,35 @@ of the default 4th order additive method (from \phantomsection\label{Butcher:id5
 region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 
+\subsection{ARK-7-3-4 (explicit)}
+\label{Butcher:butcher-ark-7-3-4-e}\label{Butcher:ark-7-3-4-explicit}
+\index{ARK-7-3-4 ERK method}
+Accessible via the constant \code{ARK437L2SA\_ERK\_7\_3\_4} to
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}}, {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetTableNum]{\emph{\code{ERKStepSetTableNum()}}}}
+or {\hyperref[ARKodeButcherTable:c.ARKodeButcherTable_LoadERK]{\emph{\code{ARKodeButcherTable\_LoadERK()}}}}.  This is the explicit portion
+of the 4th order additive method (from \phantomsection\label{Butcher:id6}{\hyperref[References:kc2019]{\emph{{[}KC2019{]}}}}).
+\begin{gather}
+\begin{split}\renewcommand{\arraystretch}{1.5}
+\begin{array}{r|ccccccc}
+  0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+  \frac{247}{1000} & \frac{247}{1000} & 0 & 0 & 0 & 0 & 0 & 0 \\
+  \frac{4276536705230}{10142255878289} & \frac{247}{4000} & \frac{2694949928731}{7487940209513} & 0 & 0 & 0 & 0 & 0 \\
+  \frac{67}{200} & \frac{464650059369}{8764239774964} & \frac{878889893998}{2444806327765} & -\frac{952945855348}{12294611323341} & 0 & 0 & 0 & 0 \\
+  \frac{3}{40} & \frac{476636172619}{8159180917465} & -\frac{1271469283451}{7793814740893} & -\frac{859560642026}{4356155882851} & \frac{1723805262919}{4571918432560} & 0 & 0 & 0 \\
+  \frac{7}{10} & \frac{6338158500785}{11769362343261} & -\frac{4970555480458}{10924838743837} & \frac{3326578051521}{2647936831840} & -\frac{880713585975}{1841400956686} & -\frac{1428733748635}{8843423958496} & 0 & 0 \\
+  1 & \frac{760814592956}{3276306540349} & \frac{760814592956}{3276306540349} & -\frac{47223648122716}{6934462133451} & \frac{71187472546993}{9669769126921} & -\frac{13330509492149}{9695768672337} & \frac{11565764226357}{8513123442827} & 0 \\
+  \hline
+  4 & 0 & 0 & \frac{9164257142617}{17756377923965} & -\frac{10812980402763}{74029279521829} & \frac{1335994250573}{5691609445217} & \frac{2273837961795}{8368240463276} & \frac{247}{2000} \\
+  3 & 0 & 0 & \frac{4469248916618}{8635866897933} & -\frac{621260224600}{4094290005349} & \frac{696572312987}{2942599194819} & \frac{1532940081127}{5565293938103} & \frac{2441}{20000}
+\end{array}\end{split}\notag
+\end{gather}
+
 \subsection{Sayfy-Aburub-6-3-4}
 \label{Butcher:butcher-sayfy-aburub}\label{Butcher:sayfy-aburub-6-3-4}
 \index{Sayfy-Aburub-6-3-4 ERK method}
 Accessible via the constant \code{SAYFY\_ABURUB\_6\_3\_4} to
-\code{ARKStepSetARKTableNum()}, \code{ERKStepSetERKTableNum()}
-or \code{ARKodeLoadButcherTable\_ERK()} (from \phantomsection\label{Butcher:id6}{\hyperref[References:sa2002]{\emph{{[}SA2002{]}}}}).
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}}, {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetTableNum]{\emph{\code{ERKStepSetTableNum()}}}}
+or {\hyperref[ARKodeButcherTable:c.ARKodeButcherTable_LoadERK]{\emph{\code{ARKodeButcherTable\_LoadERK()}}}} (from \phantomsection\label{Butcher:id7}{\hyperref[References:sa2002]{\emph{{[}SA2002{]}}}}).
 \begin{gather}
 \begin{split}\renewcommand{\arraystretch}{1.5}
 \begin{array}{r|cccccc}
@@ -40753,9 +40778,9 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:cash-karp-6-4-5}\label{Butcher:butcher-cash-karp}
 \index{Cash-Karp-6-4-5 ERK method}
 Accessible via the constant \code{CASH\_KARP\_6\_4\_5} to
-\code{ARKStepSetARKTableNum()}, \code{ERKStepSetERKTableNum()}
-or \code{ARKodeLoadButcherTable\_ERK()}.  This is the default 5th order
-explicit method (from \phantomsection\label{Butcher:id7}{\hyperref[References:ck1990]{\emph{{[}CK1990{]}}}}).
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}}, {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetTableNum]{\emph{\code{ERKStepSetTableNum()}}}}
+or {\hyperref[ARKodeButcherTable:c.ARKodeButcherTable_LoadERK]{\emph{\code{ARKodeButcherTable\_LoadERK()}}}}.  This is the default 5th order
+explicit method (from \phantomsection\label{Butcher:id8}{\hyperref[References:ck1990]{\emph{{[}CK1990{]}}}}).
 \begin{gather}
 \begin{split}\renewcommand{\arraystretch}{1.5}
 \begin{array}{r|cccccc}
@@ -40782,8 +40807,8 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:butcher-fehlberg}\label{Butcher:fehlberg-6-4-5}
 \index{Fehlberg-6-4-5 ERK method}
 Accessible via the constant \code{FEHLBERG\_6\_4\_5} to
-\code{ARKStepSetARKTableNum()}, \code{ERKStepSetERKTableNum()}
-or \code{ARKodeLoadButcherTable\_ERK()} (from \phantomsection\label{Butcher:id8}{\hyperref[References:f1969]{\emph{{[}F1969{]}}}}).
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}}, {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetTableNum]{\emph{\code{ERKStepSetTableNum()}}}}
+or {\hyperref[ARKodeButcherTable:c.ARKodeButcherTable_LoadERK]{\emph{\code{ARKodeButcherTable\_LoadERK()}}}} (from \phantomsection\label{Butcher:id9}{\hyperref[References:f1969]{\emph{{[}F1969{]}}}}).
 \begin{gather}
 \begin{split}\renewcommand{\arraystretch}{1.5}
 \begin{array}{r|cccccc}
@@ -40810,8 +40835,8 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:dormand-prince-7-4-5}\label{Butcher:butcher-dormand-prince}
 \index{Dormand-Prince-7-4-5 ERK method}
 Accessible via the constant \code{DORMAND\_PRINCE\_7\_4\_5} to
-\code{ARKStepSetARKTableNum()}, \code{ERKStepSetERKTableNum()}
-or \code{ARKodeLoadButcherTable\_ERK()} (from \phantomsection\label{Butcher:id9}{\hyperref[References:dp1980]{\emph{{[}DP1980{]}}}}).
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}}, {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetTableNum]{\emph{\code{ERKStepSetTableNum()}}}}
+or {\hyperref[ARKodeButcherTable:c.ARKodeButcherTable_LoadERK]{\emph{\code{ARKodeButcherTable\_LoadERK()}}}} (from \phantomsection\label{Butcher:id10}{\hyperref[References:dp1980]{\emph{{[}DP1980{]}}}}).
 \begin{gather}
 \begin{split}\renewcommand{\arraystretch}{1.5}
 \begin{array}{r|ccccccc}
@@ -40839,9 +40864,9 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:butcher-ark-8-4-5-e}\label{Butcher:ark-8-4-5-explicit}
 \index{ARK-8-4-5 ERK method}
 Accessible via the constant \code{ARK548L2SA\_ERK\_8\_4\_5} to
-\code{ARKStepSetARKTableNum()}, \code{ERKStepSetERKTableNum()}
-or \code{ARKodeLoadButcherTable\_ERK()}.  This is the explicit portion
-of the default 5th order additive method (from \phantomsection\label{Butcher:id10}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}}, {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetTableNum]{\emph{\code{ERKStepSetTableNum()}}}}
+or {\hyperref[ARKodeButcherTable:c.ARKodeButcherTable_LoadERK]{\emph{\code{ARKodeButcherTable\_LoadERK()}}}}.  This is the explicit portion
+of the default 5th order additive method (from \phantomsection\label{Butcher:id11}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
 \begin{gather}
 \begin{split}\renewcommand{\arraystretch}{1.5}
 \begin{array}{r|cccccccc}
@@ -40866,13 +40891,37 @@ of the default 5th order additive method (from \phantomsection\label{Butcher:id1
 region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 
+\subsection{ARK-8-4-5b (explicit)}
+\label{Butcher:butcher-ark-8-4-5b-e}\label{Butcher:ark-8-4-5b-explicit}
+\index{ARK-8-4-5b ERK method}
+Accessible via the constant \code{ARK548L2SAb\_ERK\_8\_4\_5} to
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}}, {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetTableNum]{\emph{\code{ERKStepSetTableNum()}}}}
+or {\hyperref[ARKodeButcherTable:c.ARKodeButcherTable_LoadERK]{\emph{\code{ARKodeButcherTable\_LoadERK()}}}}.  This is the explicit portion
+of the 5th order additive method from \phantomsection\label{Butcher:id12}{\hyperref[References:kc2019]{\emph{{[}KC2019{]}}}}.
+\begin{gather}
+\begin{split}\renewcommand{\arraystretch}{1.5}
+\begin{array}{r|cccccccc}
+  0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+  \frac{4}{9} & \frac{4}{9} & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+  \frac{6456083330201}{8509243623797} & \frac{1}{9} & \frac{1183333538310}{1827251437969} & 0 & 0 & 0 & 0 & 0 & 0 \\
+  \frac{1632083962415}{14158861528103} & \frac{895379019517}{9750411845327} & \frac{477606656805}{13473228687314} & \frac{-112564739183}{9373365219272} & 0 & 0 & 0 & 0 & 0 \\
+  \frac{6365430648612}{17842476412687} & \frac{-4458043123994}{13015289567637} & \frac{-2500665203865}{9342069639922} & \frac{983347055801}{8893519644487} & \frac{2185051477207}{2551468980502} & 0 & 0 & 0 & 0 \\
+  \frac{18}{25} & \frac{-167316361917}{17121522574472} & \frac{1605541814917}{7619724128744} & \frac{991021770328}{13052792161721} & \frac{2342280609577}{11279663441611} & \frac{3012424348531}{12792462456678} & 0 & 0 & 0 \\
+  \frac{191}{200} & \frac{6680998715867}{14310383562358} & \frac{5029118570809}{3897454228471} & \frac{2415062538259}{6382199904604} & \frac{-3924368632305}{6964820224454} & \frac{-4331110370267}{15021686902756} & \frac{-3944303808049}{11994238218192} & 0 & 0 \\
+  1 & \frac{2193717860234}{3570523412979} & \frac{2193717860234}{3570523412979} & \frac{5952760925747}{18750164281544} & \frac{-4412967128996}{6196664114337} & \frac{4151782504231}{36106512998704} & \frac{572599549169}{6265429158920} & \frac{-457874356192}{11306498036315} & 0 \\
+  \hline
+  5 & 0 & 0 & \frac{3517720773327}{20256071687669} & \frac{4569610470461}{17934693873752} & \frac{2819471173109}{11655438449929} & \frac{3296210113763}{10722700128969} & \frac{-1142099968913}{5710983926999} & \frac{2}{9} \\
+  4 & 0 & 0 & \frac{520639020421}{8300446712847} & \frac{4550235134915}{17827758688493} & \frac{1482366381361}{6201654941325} & \frac{5551607622171}{13911031047899} & \frac{-5266607656330}{36788968843917} & \frac{1074053359553}{5740751784926}
+\end{array}\end{split}\notag
+\end{gather}
+
 \subsection{Verner-8-5-6}
 \label{Butcher:butcher-verner-6-5}\label{Butcher:verner-8-5-6}
 \index{Verner-8-5-6 ERK method}
 Accessible via the constant \code{VERNER\_8\_5\_6} to
-\code{ARKStepSetARKTableNum()}, \code{ERKStepSetERKTableNum()}
-or \code{ARKodeLoadButcherTable\_ERK()}.  This is the default 6th order
-explicit method (from \phantomsection\label{Butcher:id11}{\hyperref[References:v1978]{\emph{{[}V1978{]}}}}).
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}}, {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetTableNum]{\emph{\code{ERKStepSetTableNum()}}}}
+or {\hyperref[ARKodeButcherTable:c.ARKodeButcherTable_LoadERK]{\emph{\code{ARKodeButcherTable\_LoadERK()}}}}.  This is the default 6th order
+explicit method (from \phantomsection\label{Butcher:id13}{\hyperref[References:v1978]{\emph{{[}V1978{]}}}}).
 \begin{gather}
 \begin{split}\renewcommand{\arraystretch}{1.5}
 \begin{array}{r|cccccccc}
@@ -40901,9 +40950,9 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:butcher-fehlberg-8-7}\label{Butcher:fehlberg-13-7-8}
 \index{Fehlberg-13-7-8 ERK method}
 Accessible via the constant \code{FEHLBERG\_13\_7\_8} to
-\code{ARKStepSetARKTableNum()}, \code{ERKStepSetERKTableNum()}
-or \code{ARKodeLoadButcherTable\_ERK()}.  This is the default 8th order
-explicit method (from \phantomsection\label{Butcher:id12}{\hyperref[References:b2008]{\emph{{[}B2008{]}}}}).
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}}, {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetTableNum]{\emph{\code{ERKStepSetTableNum()}}}}
+or {\hyperref[ARKodeButcherTable:c.ARKodeButcherTable_LoadERK]{\emph{\code{ARKodeButcherTable\_LoadERK()}}}}.  This is the default 8th order
+explicit method (from \phantomsection\label{Butcher:id14}{\hyperref[References:b2008]{\emph{{[}B2008{]}}}}).
 \begin{gather}
 \begin{split}\renewcommand{\arraystretch}{1.5}
 \begin{array}{r|ccccccccccccc}
@@ -40944,8 +40993,8 @@ orders 1 through 4.
 \label{Butcher:sdirk-2-1-2}\label{Butcher:butcher-sdirk-2-1}
 \index{SDIRK-2-1-2 method}
 Accessible via the constant \code{SDIRK\_2\_1\_2} to
-\code{ARKStepSetIRKTableNum()} or
-\code{ARKodeLoadButcherTable\_DIRK()}.  This is the default 2nd order
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}} or
+{\hyperref[ARKodeButcherTable:c.ARKodeButcherTable_LoadDIRK]{\emph{\code{ARKodeButcherTable\_LoadDIRK()}}}}.  This is the default 2nd order
 implicit method.  Both the method and embedding are A- and B-stable.
 \begin{gather}
 \begin{split}\renewcommand{\arraystretch}{1.5}
@@ -40969,9 +41018,9 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:butcher-billington}\label{Butcher:billington-3-3-2}
 \index{Billington-3-3-2 SDIRK method}
 Accessible via the constant \code{BILLINGTON\_3\_3\_2} to
-\code{ARKStepSetIRKTableNum()} or
-\code{ARKodeLoadButcherTable\_DIRK()}.  Here, the higher-order
-embedding is less stable than the lower-order method (from \phantomsection\label{Butcher:id13}{\hyperref[References:b1983]{\emph{{[}B1983{]}}}}).
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}} or
+{\hyperref[ARKodeButcherTable:c.ARKodeButcherTable_LoadDIRK]{\emph{\code{ARKodeButcherTable\_LoadDIRK()}}}}.  Here, the higher-order
+embedding is less stable than the lower-order method (from \phantomsection\label{Butcher:id15}{\hyperref[References:b1983]{\emph{{[}B1983{]}}}}).
 \begin{gather}
 \begin{split}\renewcommand{\arraystretch}{1.5}
 \begin{array}{r|ccc}
@@ -40995,10 +41044,10 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:butcher-trbdf2}\label{Butcher:trbdf2-3-3-2}
 \index{TRBDF2-3-3-2 ESDIRK method}
 Accessible via the constant \code{TRBDF2\_3\_3\_2} to
-\code{ARKStepSetIRKTableNum()} or
-\code{ARKodeLoadButcherTable\_DIRK()}.  As with Billington, here the
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}} or
+{\hyperref[ARKodeButcherTable:c.ARKodeButcherTable_LoadDIRK]{\emph{\code{ARKodeButcherTable\_LoadDIRK()}}}}.  As with Billington, here the
 higher-order embedding is less stable than the lower-order method
-(from \phantomsection\label{Butcher:id14}{\hyperref[References:b1985]{\emph{{[}B1985{]}}}}).
+(from \phantomsection\label{Butcher:id16}{\hyperref[References:b1985]{\emph{{[}B1985{]}}}}).
 \begin{gather}
 \begin{split}\renewcommand{\arraystretch}{1.5}
 \begin{array}{r|ccc}
@@ -41022,9 +41071,9 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:butcher-kvaerno-4-2-3}\label{Butcher:kvaerno-4-2-3}
 \index{Kvaerno-4-2-3 ESDIRK method}
 Accessible via the constant \code{KVAERNO\_4\_2\_3} to
-\code{ARKStepSetIRKTableNum()} or
-\code{ARKodeLoadButcherTable\_DIRK()}.  Both the method and embedding are
-A-stable; additionally the method is L-stable (from \phantomsection\label{Butcher:id15}{\hyperref[References:k2004]{\emph{{[}K2004{]}}}}).
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}} or
+{\hyperref[ARKodeButcherTable:c.ARKodeButcherTable_LoadDIRK]{\emph{\code{ARKodeButcherTable\_LoadDIRK()}}}}.  Both the method and embedding are
+A-stable; additionally the method is L-stable (from \phantomsection\label{Butcher:id17}{\hyperref[References:k2004]{\emph{{[}K2004{]}}}}).
 \begin{gather}
 \begin{split}\renewcommand{\arraystretch}{1.5}
 \begin{array}{r|cccc}
@@ -41049,11 +41098,11 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:ark-4-2-3-implicit}\label{Butcher:butcher-ark-4-2-3-i}
 \index{ARK-4-2-3 ESDIRK method}
 Accessible via the constant \code{ARK324L2SA\_DIRK\_4\_2\_3} to
-\code{ARKStepSetIRKTableNum()} or
-\code{ARKodeLoadButcherTable\_DIRK()}.  This is the default 3rd order
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}} or
+{\hyperref[ARKodeButcherTable:c.ARKodeButcherTable_LoadDIRK]{\emph{\code{ARKodeButcherTable\_LoadDIRK()}}}}.  This is the default 3rd order
 implicit method, and the implicit portion of the default 3rd order
 additive method.  Both the method and embedding are A-stable;
-additionally the method is L-stable (from \phantomsection\label{Butcher:id16}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
+additionally the method is L-stable (from \phantomsection\label{Butcher:id18}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
 \begin{gather}
 \begin{split}\renewcommand{\arraystretch}{1.5}
 \begin{array}{r|cccc}
@@ -41078,9 +41127,9 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:butcher-cash-5-2-4}\label{Butcher:cash-5-2-4}
 \index{Cash-5-2-4 SDIRK method}
 Accessible via the constant \code{CASH\_5\_2\_4} to
-\code{ARKStepSetIRKTableNum()} or
-\code{ARKodeLoadButcherTable\_DIRK()}.  Both the method and embedding are
-A-stable; additionally the method is L-stable (from \phantomsection\label{Butcher:id17}{\hyperref[References:c1979]{\emph{{[}C1979{]}}}}).
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}} or
+{\hyperref[ARKodeButcherTable:c.ARKodeButcherTable_LoadDIRK]{\emph{\code{ARKodeButcherTable\_LoadDIRK()}}}}.  Both the method and embedding are
+A-stable; additionally the method is L-stable (from \phantomsection\label{Butcher:id19}{\hyperref[References:c1979]{\emph{{[}C1979{]}}}}).
 \begin{gather}
 \begin{split}\renewcommand{\arraystretch}{1.5}
 \begin{array}{r|ccccc}
@@ -41106,9 +41155,9 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:butcher-cash-5-3-4}\label{Butcher:cash-5-3-4}
 \index{Cash-5-3-4 SDIRK method}
 Accessible via the constant \code{CASH\_5\_3\_4} to
-\code{ARKStepSetIRKTableNum()} or
-\code{ARKodeLoadButcherTable\_DIRK()}.  Both the method and embedding are
-A-stable; additionally the method is L-stable (from \phantomsection\label{Butcher:id18}{\hyperref[References:c1979]{\emph{{[}C1979{]}}}}).
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}} or
+{\hyperref[ARKodeButcherTable:c.ARKodeButcherTable_LoadDIRK]{\emph{\code{ARKodeButcherTable\_LoadDIRK()}}}}.  Both the method and embedding are
+A-stable; additionally the method is L-stable (from \phantomsection\label{Butcher:id20}{\hyperref[References:c1979]{\emph{{[}C1979{]}}}}).
 \begin{gather}
 \begin{split}\renewcommand{\arraystretch}{1.5}
 \begin{array}{r|ccccc}
@@ -41134,10 +41183,10 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:butcher-sdirk-5-4}\label{Butcher:sdirk-5-3-4}
 \index{SDIRK-5-3-4 method}
 Accessible via the constant \code{SDIRK\_5\_3\_4} to
-\code{ARKStepSetIRKTableNum()} or
-\code{ARKodeLoadButcherTable\_DIRK()}.  This is the default 4th order
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}} or
+{\hyperref[ARKodeButcherTable:c.ARKodeButcherTable_LoadDIRK]{\emph{\code{ARKodeButcherTable\_LoadDIRK()}}}}.  This is the default 4th order
 implicit method.  Here, the method is both A- and L-stable, although
-the embedding has reduced stability (from \phantomsection\label{Butcher:id19}{\hyperref[References:hw1996]{\emph{{[}HW1996{]}}}}).
+the embedding has reduced stability (from \phantomsection\label{Butcher:id21}{\hyperref[References:hw1996]{\emph{{[}HW1996{]}}}}).
 \begin{gather}
 \begin{split}\renewcommand{\arraystretch}{1.5}
 \begin{array}{r|ccccc}
@@ -41163,9 +41212,9 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:kvaerno-5-3-4}\label{Butcher:butcher-kvaerno-5-3-4}
 \index{Kvaerno-5-3-4 ESDIRK method}
 Accessible via the constant \code{KVAERNO\_5\_3\_4} to
-\code{ARKStepSetIRKTableNum()} or
-\code{ARKodeLoadButcherTable\_DIRK()}.  Both the method and embedding are
-A-stable (from \phantomsection\label{Butcher:id20}{\hyperref[References:k2004]{\emph{{[}K2004{]}}}}).
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}} or
+{\hyperref[ARKodeButcherTable:c.ARKodeButcherTable_LoadDIRK]{\emph{\code{ARKodeButcherTable\_LoadDIRK()}}}}.  Both the method and embedding are
+A-stable (from \phantomsection\label{Butcher:id22}{\hyperref[References:k2004]{\emph{{[}K2004{]}}}}).
 \begin{gather}
 \begin{split}\renewcommand{\arraystretch}{1.5}
 \begin{array}{r|ccccc}
@@ -41191,10 +41240,10 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:ark-6-3-4-implicit}\label{Butcher:butcher-ark-6-3-4-i}
 \index{ARK-6-3-4 ESDIRK method}
 Accessible via the constant \code{ARK436L2SA\_DIRK\_6\_3\_4} to
-\code{ARKStepSetIRKTableNum()} or
-\code{ARKodeLoadButcherTable\_DIRK()}.  This is the implicit portion
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}} or
+{\hyperref[ARKodeButcherTable:c.ARKodeButcherTable_LoadDIRK]{\emph{\code{ARKodeButcherTable\_LoadDIRK()}}}}.  This is the implicit portion
 of the default 4th order additive method. Both the method and
-embedding are A-stable; additionally the method is L-stable (from \phantomsection\label{Butcher:id21}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
+embedding are A-stable; additionally the method is L-stable (from \phantomsection\label{Butcher:id23}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
 \begin{gather}
 \begin{split}\renewcommand{\arraystretch}{1.5}
 \begin{array}{r|cccccc}
@@ -41217,13 +41266,36 @@ embedding are A-stable; additionally the method is L-stable (from \phantomsectio
 region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 
+\subsection{ARK-7-3-4 (implicit)}
+\label{Butcher:butcher-ark-7-3-4-i}\label{Butcher:ark-7-3-4-implicit}
+\index{ARK-7-3-4 ESDIRK method}
+Accessible via the constant \code{ARK437L2SA\_DIRK\_7\_3\_4} to
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}} or
+{\hyperref[ARKodeButcherTable:c.ARKodeButcherTable_LoadDIRK]{\emph{\code{ARKodeButcherTable\_LoadDIRK()}}}}.  This is the implicit portion
+of the 4th order additive method from \phantomsection\label{Butcher:id24}{\hyperref[References:kc2019]{\emph{{[}KC2019{]}}}}.
+\begin{gather}
+\begin{split}\renewcommand{\arraystretch}{1.5}
+\begin{array}{r|ccccccc}
+  0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+  \frac{247}{1000} & \frac{1235}{10000} & \frac{1235}{10000} & 0 & 0 & 0 & 0 & 0 \\
+  \frac{4276536705230}{10142255878289} & \frac{624185399699}{4186980696204} & \frac{624185399699}{4186980696204} & \frac{1235}{10000} & 0 & 0 & 0 & 0 \\
+  \frac{67}{200} & \frac{1258591069120}{10082082980243} & \frac{1258591069120}{10082082980243} & -\frac{322722984531}{8455138723562} & \frac{1235}{10000} & 0 & 0 & 0 \\
+  \frac{3}{40} & -\frac{436103496990}{5971407786587} & -\frac{436103496990}{5971407786587} & -\frac{2689175662187}{11046760208243} & \frac{4431412449334}{12995360898505} & \frac{1235}{10000} & 0 & 0 \\
+  \frac{7}{10} & -\frac{2207373168298}{14430576638973} & -\frac{2207373168298}{14430576638973} & \frac{242511121179}{3358618340039} & \frac{3145666661981}{7780404714551} & \frac{5882073923981}{14490790706663} & \frac{1235}{10000} & 0 \\
+  1 & 0 & 0 & \frac{9164257142617}{17756377923965} & -\frac{10812980402763}{74029279521829} & \frac{1335994250573}{5691609445217} & \frac{2273837961795}{8368240463276} & \frac{1235}{10000} \\
+  \hline
+  4 & 0 & 0 & \frac{9164257142617}{17756377923965} & -\frac{10812980402763}{74029279521829} & \frac{1335994250573}{5691609445217} & \frac{2273837961795}{8368240463276} & \frac{1235}{10000} \\
+  3 & 0 & 0 & \frac{4469248916618}{8635866897933} & -\frac{621260224600}{4094290005349} & \frac{696572312987}{2942599194819} & \frac{1532940081127}{5565293938103} & \frac{2441}{20000}
+\end{array}\end{split}\notag
+\end{gather}
+
 \subsection{Kvaerno-7-4-5}
 \label{Butcher:kvaerno-7-4-5}\label{Butcher:butcher-kvaerno-7-4-5}
 \index{Kvaerno-7-4-5 ESDIRK method}
 Accessible via the constant \code{KVAERNO\_7\_4\_5} to
-\code{ARKStepSetIRKTableNum()} or
-\code{ARKodeLoadButcherTable\_DIRK()}.  Both the method and embedding are
-A-stable; additionally the method is L-stable (from \phantomsection\label{Butcher:id22}{\hyperref[References:k2004]{\emph{{[}K2004{]}}}}).
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}} or
+{\hyperref[ARKodeButcherTable:c.ARKodeButcherTable_LoadDIRK]{\emph{\code{ARKodeButcherTable\_LoadDIRK()}}}}.  Both the method and embedding are
+A-stable; additionally the method is L-stable (from \phantomsection\label{Butcher:id25}{\hyperref[References:k2004]{\emph{{[}K2004{]}}}}).
 \begin{gather}
 \begin{split}\renewcommand{\arraystretch}{1.5}
 \begin{array}{r|ccccccc}
@@ -41251,11 +41323,11 @@ region is outlined in blue; the embedding's region is in red.}\end{figure}
 \label{Butcher:ark-8-4-5-implicit}\label{Butcher:butcher-ark-8-4-5-i}
 \index{ARK-8-4-5 ESDIRK method}
 Accessible via the constant \code{ARK548L2SA\_DIRK\_8\_4\_5} for
-\code{ARKStepSetIRKTableNum()} or
-\code{ARKodeLoadButcherTable\_DIRK()}.  This is the default 5th order
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}} or
+{\hyperref[ARKodeButcherTable:c.ARKodeButcherTable_LoadDIRK]{\emph{\code{ARKodeButcherTable\_LoadDIRK()}}}}.  This is the default 5th order
 implicit method, and the implicit portion of the default 5th order
 additive method.  Both the method and embedding are A-stable;
-additionally the method is L-stable (from \phantomsection\label{Butcher:id23}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
+additionally the method is L-stable (from \phantomsection\label{Butcher:id26}{\hyperref[References:kc2003]{\emph{{[}KC2003{]}}}}).
 \begin{gather}
 \begin{split}\renewcommand{\arraystretch}{1.5}
 \begin{array}{r|cccccccc}
@@ -41280,6 +41352,30 @@ additionally the method is L-stable (from \phantomsection\label{Butcher:id23}{\h
 region is outlined in blue; the embedding's region is in red.}\end{figure}
 
 
+\subsection{ARK-8-4-5b (implicit)}
+\label{Butcher:butcher-ark-8-4-5b-i}\label{Butcher:ark-8-4-5b-implicit}
+\index{ARK-8-4-5b ESDIRK method}
+Accessible via the constant \code{ARK548L2SAb\_DIRK\_8\_4\_5} for
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}} or
+{\hyperref[ARKodeButcherTable:c.ARKodeButcherTable_LoadDIRK]{\emph{\code{ARKodeButcherTable\_LoadDIRK()}}}}.  This is the 5th order
+implicit method from \phantomsection\label{Butcher:id27}{\hyperref[References:kc2019]{\emph{{[}KC2019{]}}}}.
+\begin{gather}
+\begin{split}\renewcommand{\arraystretch}{1.5}
+\begin{array}{r|cccccccc}
+  0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+  \frac{4}{9} & \frac{2}{9} & \frac{2}{9} & 0 & 0 & 0 & 0 & 0 & 0 \\
+  \frac{6456083330201}{8509243623797} & \frac{2366667076620}{8822750406821} & \frac{2366667076620}{8822750406821} & \frac{2}{9} & 0 & 0 & 0 & 0 & 0 \\
+  \frac{1632083962415}{14158861528103} & -\frac{257962897183}{4451812247028} & -\frac{257962897183}{4451812247028} & \frac{128530224461}{14379561246022} & \frac{2}{9} & 0 & 0 & 0 & 0 \\
+  \frac{6365430648612}{17842476412687} & -\frac{486229321650}{11227943450093} & -\frac{486229321650}{11227943450093} & -\frac{225633144460}{6633558740617} & \frac{1741320951451}{6824444397158} & \frac{2}{9} & 0 & 0 & 0 \\
+  \frac{18}{25} & \frac{621307788657}{4714163060173} & \frac{621307788657}{4714163060173} & -\frac{125196015625}{3866852212004} & \frac{940440206406}{7593089888465} & \frac{961109811699}{6734810228204} & \frac{2}{9} & 0 & 0 \\
+  \frac{191}{200} & \frac{2036305566805}{6583108094622} & \frac{2036305566805}{6583108094622} & -\frac{3039402635899}{4450598839912} & -\frac{1829510709469}{31102090912115} & -\frac{286320471013}{6931253422520} & \frac{8651533662697}{9642993110008} & \frac{2}{9} & 0 \\
+  1 & 0 & 0 & \frac{3517720773327}{20256071687669} & \frac{4569610470461}{17934693873752} & \frac{2819471173109}{11655438449929} & \frac{3296210113763}{10722700128969} & -\frac{1142099968913}{5710983926999} & \frac{2}{9} \\
+  \hline
+  5 & 0 & 0 & \frac{3517720773327}{20256071687669} & \frac{4569610470461}{17934693873752} & \frac{2819471173109}{11655438449929} & \frac{3296210113763}{10722700128969} & -\frac{1142099968913}{5710983926999} & \frac{2}{9} \\
+  4 & 0 & 0 & \frac{520639020421}{8300446712847} & \frac{4550235134915}{17827758688493} & \frac{1482366381361}{6201654941325} & \frac{5551607622171}{13911031047899} & -\frac{5266607656330}{36788968843917} & \frac{1074053359553}{5740751784926}
+\end{array}\end{split}\notag
+\end{gather}
+
 \section{Additive Butcher tables}
 \label{Butcher:additive-butcher-tables}\label{Butcher:butcher-additive}
 In the category of additive Runge-Kutta methods for split implicit and
@@ -41291,19 +41387,31 @@ Butcher table pairs are as follows:
 \index{ARK-4-2-3 ARK method}3rd-order pair:
 {\hyperref[Butcher:butcher-ark-4-2-3-e]{\emph{\DUspan{}{ARK-4-2-3 (explicit)}}}} with {\hyperref[Butcher:butcher-ark-4-2-3-i]{\emph{\DUspan{}{ARK-4-2-3 (implicit)}}}},
 corresponding to Butcher tables \code{ARK324L2SA\_ERK\_4\_2\_3} and
-\code{ARK324L2SA\_DIRK\_4\_2\_3} for \code{ARKStepSetARKTableNum()}.
+\code{ARK324L2SA\_DIRK\_4\_2\_3} for {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}}.
 
 \item {} 
 \index{ARK-6-3-4 ARK method}4th-order pair:
 {\hyperref[Butcher:butcher-ark-6-3-4-e]{\emph{\DUspan{}{ARK-6-3-4 (explicit)}}}} with {\hyperref[Butcher:butcher-ark-6-3-4-i]{\emph{\DUspan{}{ARK-6-3-4 (implicit)}}}},
 corresponding to Butcher tables \code{ARK436L2SA\_ERK\_6\_3\_4} and
-\code{ARK436L2SA\_DIRK\_6\_3\_4} for \code{ARKStepSetARKTableNum()}.
+\code{ARK436L2SA\_DIRK\_6\_3\_4} for {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}}.
+
+\item {} 
+\index{ARK-7-3-4 ARK method}4th-order pair:
+{\hyperref[Butcher:butcher-ark-7-3-4-e]{\emph{\DUspan{}{ARK-7-3-4 (explicit)}}}} with {\hyperref[Butcher:butcher-ark-7-3-4-i]{\emph{\DUspan{}{ARK-7-3-4 (implicit)}}}},
+corresponding to Butcher tables \code{ARK437L2SA\_ERK\_7\_3\_4} and
+\code{ARK437L2SA\_DIRK\_7\_3\_4} for {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}}.
 
 \item {} 
 \index{ARK-8-4-5 ARK method}5th-order pair:
 {\hyperref[Butcher:butcher-ark-8-4-5-e]{\emph{\DUspan{}{ARK-8-4-5 (explicit)}}}} with {\hyperref[Butcher:butcher-ark-8-4-5-i]{\emph{\DUspan{}{ARK-8-4-5 (implicit)}}}},
 corresponding to Butcher tables \code{ARK548L2SA\_ERK\_8\_4\_5} and
-\code{ARK548L2SA\_ERK\_8\_4\_5} for \code{ARKStepSetARKTableNum()}.
+\code{ARK548L2SA\_ERK\_8\_4\_5} for {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}}.
+
+\item {} 
+\index{ARK-8-4-5b ARK method}5th-order pair:
+{\hyperref[Butcher:butcher-ark-8-4-5b-e]{\emph{\DUspan{}{ARK-8-4-5b (explicit)}}}} with {\hyperref[Butcher:butcher-ark-8-4-5b-i]{\emph{\DUspan{}{ARK-8-4-5b (implicit)}}}},
+corresponding to Butcher tables \code{ARK548L2SAb\_ERK\_8\_4\_5} and
+\code{ARK548L2SAb\_ERK\_8\_4\_5} for {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetTableNum]{\emph{\code{ARKStepSetTableNum()}}}}.
 
 \end{itemize}
 \phantomsection\label{References:references}
@@ -41362,7 +41470,7 @@ right-hand sides, \emph{ACM Trans. Math. Soft.},
 16:201-222, 1990.
 }
 \bibitem[CGM2014]{CGM2014}{\phantomsection\label{References:cgm2014} 
-J. CHeng, M. Grossman and T. McKercher. Professional Cuda
+J. Cheng, M. Grossman and T. McKercher. Professional Cuda
 C Programming.  John Wiley \& Sons, 2014.
 }
 \bibitem[DP1980]{DP1980}{\phantomsection\label{References:dp1980} 
@@ -41471,6 +41579,11 @@ Nonlinear Equations. SIAM, Philadelphia, 1995.
 C.A. Kennedy and M.H. Carpenter. Additive Runge-Kutta
 schemes for convection-diffusion-reaction
 equations. \emph{Appl. Numer. Math.}, 44:139-181, 2003.
+}
+\bibitem[KC2019]{KC2019}{\phantomsection\label{References:kc2019} 
+C.A. Kennedy and M.H. Carpenter. Higher-order additive
+Runge–Kutta schemes for ordinary differential
+equations. \emph{Appl. Numer. Math.}, 136:183-205, 2019.
 }
 \bibitem[KLU]{KLU}{\phantomsection\label{References:klu} 
 \href{http://faculty.cse.tamu.edu/davis/suitesparse.html}{KLU Sparse Matrix Factorization Library}.

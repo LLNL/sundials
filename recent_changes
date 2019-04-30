@@ -27,6 +27,10 @@ nonlinear solver.
 Fixed a bug in IDAQuadReInitB where an incorrect memory structure was passed to
 IDAQuadReInit.
 
+Added two new embedded ARK methods of orders 4 and 5 to ARKode (from
+Kennedy & Carpenter, Appl. Numer. Math., 136:183--205, 2019).
+
+
 Changes to SUNDIALS in release 5.0.0-dev.0
 
 An additional N_Vector implementation, NVECTOR_MANYVECTOR, was
