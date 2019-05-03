@@ -132,3 +132,10 @@ HYPREDIR    = full path to hypre installation
 PETSCSTATUS = ON or OFF
 PETSCDIR    = full path to PETSc installation
 ```
+
+## Using Spack to install TPLs
+
+The TPLs needed for a complete build of SUNDIALS can be easily installed with
+spack and the spack environment included in the SUNDIALS repository. Simply
+navigate to `test/spack` and run `spack install`. For more information on Spack
+environments is the [Spack tutorial](https://spack.readthedocs.io/en/latest/tutorial_environments.html).
