@@ -227,8 +227,6 @@ cp -r $sundialsdir/src/sunnonlinsol $tmpdir/src/   || exit 1
 
 cp -r $sundialsdir/doc/sundials $tmpdir/doc/ || exit 1
 
-cp -r $sundialsdir/bin $tmpdir/ || exit 1
-
 cp    $sundialsdir/examples/CMakeLists.txt $tmpdir/examples/ || exit 1
 cp -r $sundialsdir/examples/nvector $tmpdir/examples/        || exit 1
 cp -r $sundialsdir/examples/sunmatrix $tmpdir/examples/      || exit 1
