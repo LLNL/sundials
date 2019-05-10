@@ -1,0 +1,18 @@
+<<developer_names>>,
+
+A web page visitor has registered to download <<packageName>>:
+
+Date:               <<log_date>>
+Visitor:            <<realname>>
+Visitor email:      <<email>>
+Institution:        <<facility>>
+Mailing address:    <<mail_addr1>>
+0:                    <<mail_addr2>>
+0:                    <<mail_addr3>>
+                    <<city>> <<state>> <<zip>>
+Country:            <<country>>
+Visitor phone:      <<phone>>
+Visitor FAX:        <<fax>>
+Intended platform:  <<platform>>
+Intended use:       <<intended_use>>
+Comments:           <<comments>>

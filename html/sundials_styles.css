@@ -1,0 +1,507 @@
+/*
+ -------
+ Body
+ -------
+*/
+
+body {
+  margin: 0px;
+  padding: 0px;
+  background-color: #ffffff;
+}
+
+
+body, td {
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  text-decoration: none;
+  color: #666666;
+}
+
+div {
+ width: 500px;
+}
+
+
+/*
+ --------------
+ Links
+ --------------
+*/
+
+A:link {text-decoration: none; color:#36648B}
+A:visited {text-decoration: none; color:#64448B}
+A:active {text-decoration: none; color:#36648B;}
+A:hover {text-decoration: underline; color: #36648B;}
+
+/*
+ --------------
+ Section Header
+ --------------
+*/
+
+
+h1{
+        display: inline;
+	font-weight: bold;
+	letter-spacing: 2px;
+	font-size: 14px;
+
+        margin: 0px 0px 0px 0px;
+	padding: 2px 5px 0px 5px;
+        border: 0px;
+        border-bottom: 1px solid #dad9c9;
+        border-right: 1px solid #dad9c9;
+}
+
+h2{
+        display: inline;
+	font-weight: bold;
+	font-size: 12px;
+	letter-spacing: 1px;
+	margin: 0px;
+        margin-top: 10px;
+	padding: 0px;
+        border-bottom: 1px  solid #dad9c9;
+}
+
+h3{
+        display: inline;
+	letter-spacing: 1px;
+	font-size: 12px;
+	font-weight: normal;
+	margin: 0px;
+	margin-bottom: 3px;
+	padding: 0px;
+        border-bottom: 1px  solid #dad9c9;
+}
+
+h4{
+        display: inline;
+	letter-spacing: 1px;
+	font-size: 9px;
+	font-weight: bold;
+	margin: 0px;
+	margin-bottom: 5px;
+	padding: 0px;
+	color: #9EA7C0;
+}
+
+/*
+ ------------
+ Page Content
+ ------------
+*/
+
+#content {
+
+  margin: 0px 0px 0px 0px;
+        
+  padding: 5px 0px 0px 5px;
+
+  width: 714px;
+  background-color: #ffffff;
+/*
+  overflow: auto;
+  max-height: 710px;
+*/
+}
+
+/*
+ ---------------------------------
+ Main paragraph type and sub-types
+ ---------------------------------
+*/
+
+P{
+  margin: 0px;
+  margin-bottom: 10px;
+  padding: 4px;
+}
+
+
+P.links{
+  margin: 0px;
+  margin-top: 3px;
+  margin-bottom: 3px;
+  padding: 0px;
+  text-align: right;
+  width: 705px;
+}
+
+P.emph{
+  margin: 0px;
+  border: 1px #dad9c9 solid;
+  background-color: #e5e4d9;
+}
+
+PRE {
+  font-family: arial;
+}
+
+TT {
+  font-family: monospace;
+  color: #333333;
+}
+
+EM {
+  color: #444444;
+}
+
+div.warn {
+  color:#f00;
+  border: 1px #f00 solid;
+  text-align: center;
+  width: 700px;
+  padding: 5px 0px 5px 5px;
+  margin-bottom: 20px;
+}
+
+
+/*
+ ----------------------------------------------
+ Framed div (used to frame text+tables for ex.)
+ ----------------------------------------------
+*/
+
+div.title {
+  display: block;
+  font-weight: bold;
+  letter-spacing: 3px;
+  font-size: 16px;
+  margin: 10px 0px 0px 0px;
+  padding: 3px;
+  padding-left: 5px;
+  text-align: center;
+  width: 680px;
+}
+
+div.container{
+  margin: 0px;
+  margin-bottom: 5px;
+  margin-top: 5px;
+  border: 0px;
+  padding: 3px;
+  padding-left: 5px;
+  background: #ffffff;
+  width: 695px;
+}
+
+div.frame{
+  margin: 0px;
+  margin-bottom: 10px;
+  border: 0px;
+  border-left: 1px #dad9c9 solid;
+  border-bottom: 1px #dad9c9 solid;
+  padding: 5px 0px 5px 5px;
+  width: 695px;
+}
+
+/*
+ -------------------------------------------------------
+ Lists within frame (for Revision Histories and License)
+ ------------------------------------------------------
+*/
+
+div.frame ul{
+  border: 0px;
+  margin:0px;
+  padding: 0px;
+  list-style-type: none;
+  width: 695px;
+}
+
+div.frame ul.second{
+  margin: 5px 0px 0px 10px;
+  border: 0px;
+  padding: 0px;
+  width: 685px;
+}
+
+div.frame li{
+  padding: 3px 0px 3px 0px;
+  text-align: justify;
+  background-color:#ffffff;
+  width: 695px;
+}
+
+div.frame li.title{
+  border-bottom: 1px solid #dad9c9;
+  font-weight: bold;
+  padding: 5px 0px 5px 0px;
+  list-style-type: none;
+  width: 695px;  
+}
+
+div.frame li li {
+  margin: 0px 0px 0px 20px;
+  list-style-type: square;
+  width: 665px;
+}
+
+
+div.frame ol{
+  border: 0px;
+  margin:0px;
+  padding: 10px;
+  padding-left: 30px;
+  list-style-type: none;
+  width: 665px;
+}
+
+div.frame ol li{
+  padding: 3px 0px 3px 0px;
+  text-align: justify;
+  width: 665px;
+  list-style-type: decimal;
+}
+
+/*
+ -------------------------------------------------------
+ Styles for site Map
+ ------------------------------------------------------
+*/
+
+div.sitemap {
+
+  margin: 20px 0px 0px 0px;
+        
+  padding: 5px 0px 5px 5px;
+
+  width: 704px;
+  background-color: #ffffff;
+
+}
+
+div.sitemap A:link {text-decoration: none; color:#36648B}
+div.sitemap A:visited {text-decoration: none; color:#36648B}
+div.sitemap A:active {text-decoration: none; color:#36648B;}
+div.sitemap A:hover {text-decoration: underline; color: #36648B;}
+
+div.sitemap h1{
+        display: inline;
+	font-weight: bold;
+	letter-spacing: 3px;
+	font-size: 12px;
+	margin: 0px 0px 0px 0px;
+	padding: 2px 5px 0px 5px;
+        border: 0px;
+        border-bottom: 1px solid #dad9c9;
+        border-right: 1px solid #dad9c9;
+}
+
+div.sitemap ul {
+        margin: 0px 0px 20px 15px;
+        padding: 5px 0px 5px 25px;
+        border: 0px;
+        border-left: 1px solid #dad9c9;
+        border-bottom: 1px solid #dad9c9;
+}
+
+div.sitemap ul ul{
+        margin: 0px 0px 0px 0px;
+        padding: 0px 0px 0px 20px;
+        border: 0px;
+}
+
+div.sitemap li {
+        list-style-type: square;
+}
+
+/*
+ -------------------------------------------------------
+ Styles for Forms
+ ------------------------------------------------------
+*/
+
+input, textarea{
+
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  text-decoration: none;
+  color: #666666;
+}
+
+input.button {
+
+
+  padding: 0px 5px 0px 5px;
+  cursor: pointer;
+
+  border: 1px solid;
+  border-color: #ccc #666 #666 #ccc;
+  background-color: #e5e4d9;
+
+}
+
+input.button:active {
+  border-color: #666 #ccc #ccc #666;
+}
+
+input.textfield {
+
+  padding: 0px 5px 0px 5px;
+
+  border: 1px solid;
+  border-color: #666 #ccc #ccc #666;
+  width: 200px;
+
+}
+
+input.textfield:focus {
+  background-color: #e5e4d9;
+}
+
+textarea{
+  border: 1px solid;
+  border-color: #666 #ccc #ccc #666;
+}
+
+textarea:focus {
+  background-color: #e5e4d9;
+}
+
+
+/*
+ -------------------------------------------------------
+ Styles for FAQ
+ ------------------------------------------------------
+*/
+
+.faq_q {
+  margin: 5px 0px 0px 0px;
+  padding: 5px 0px 5px 5px;
+  border: 1px #dad9c9 solid;
+  background-color: #e5e4d9;
+  font-weight: bold;
+  width: 685px;
+}
+
+.faq_a {
+  margin: 0px;
+  padding: 5px 0px 0px 5px;
+  border: 0px;
+  width: 685px;
+}
+
+.faq_a pre {
+  padding: 3px 0px 3px 20px;
+  font-family: monospace;
+  margin: 0px;
+}
+
+/*
+ -----------------------------
+ Styles for Matlab and C codes
+ -----------------------------
+*/
+
+div.fragment{
+  border: 0px;
+  border-left: 1px solid #aaaaaa; 
+  border-bottom: 1px solid #aaaaaa; 
+  padding: 3px 0px 3px 10px;
+  
+  margin: 0px;
+  margin-bottom: 20px;
+  margin-left: 20px;
+
+  text-align: justify;
+  width: 650px;
+
+}
+
+div.box{
+  border: 0px;
+  border-left: 1px solid #aaaaaa; 
+  border-bottom: 1px solid #aaaaaa; 
+  padding: 3px 0px 3px 10px;
+
+  margin: 0px;
+  margin-bottom: 20px;
+  margin-left: 20px;
+
+  text-align: justify;
+  width: 650px;
+}
+
+div.box ul {
+  padding: 0px;
+  margin: 0px;
+  width: 600px;
+}
+
+div.fragment pre {
+  font-family: monospace;
+}
+
+.comment {font-family: monospace; color: #228B22;}
+.string {font-family: monospace; color: #B20000;}
+.keyword {font-family: monospace; color: #0000FF;}
+.constant {color: #ffd700;}
+.function-name {color: #daa520; font-weight: bold;}
+.variable-name {color: #000094;}
+.builtin {color: #804000;}
+.type {color: #4400dd;}
+.keywordtype { color: #604020; }
+.keywordflow { color: #e08000; }
+.preprocessor { color: #806020; }
+.stringliteral { color: #002080; }
+.charliteral { color: #008080; }
+
+a.code {
+  font-family: monospace;
+  font-weight: normal; 
+  color: #A020F0;
+}
+
+a.code:hover {
+  background-color: #384e76;
+  color: #ff6500;
+}	
+
+div.fragment a {
+  font-family: monospace;
+  font-weight: normal; 
+  color: #A020F0;
+}
+
+div.fragment a:hover {
+  background-color: #384e76;
+  color: #ff6500;
+}
+
+
+/*
+ -------------
+ Info
+ -------------
+*/
+
+#contact{
+  margin: 0px;
+  border:0px;
+  padding: 0px 0px 0px 4px;
+  width: 600px;
+}
+
+#announce{
+  border: 0px;
+  padding: 0px 0px 6px 0px;
+  margin: 1px 0px 1px 10px;
+  width: 630px;
+}
+
+.rs a{
+position:relative;
+z-index:24;
+text-decoration:none;
+}
+
+.rs a:hover span {
+position:absolute;
+top:50px; left:40px; 
+width:170px; height:170px;
+background-image:url('graphics/radu.png');
+}
+

@@ -1,0 +1,104 @@
+<html>
+
+<head>
+
+<title>Instructions to compile SUNDIALS with VC8</title>
+
+<meta name="author" content="Radu Serban">
+<meta name="description" content="suite of nonlinear differential algebraic equation solvers">
+<meta name="keywords" content="SUNDIALS, CVODE, CVODES, IDA, KINSOL">
+<meta name="keywords" content="ODE, DAE, sensitivity">
+<meta name="keywords" content="differential, algebraic">
+<link REL="SHORTCUT ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link REL="ICON" HREF="img/favicon.ico" type="image/x-icon">
+<link href="../../sundials_styles.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body style="padding: 5px 5px 5px 5px;">
+
+<a href="javascript:window.close();"><img border="0" src="../img/cross.png" style="vertical-align: middle;"> <b>Close</b></a>
+<hr>
+
+<b>Instructions to compile SUNDIALS with VC8 - Visual Studio C++ Express 2005</b>
+<br>courtesy of Andreas Nicolai
+<hr>
+
+<ol>
+<li>
+  extract SUNDIALS archive
+</li>
+<li>
+  copy (and optionally edit) the sample 
+  <a href="sundials_config.h"><tt>sundials_config.h</tt></a> header file.
+</li>
+<li>
+  create subdirectories <tt>projects</tt>, <tt>includes</tt>, and <tt>libs</tt>
+  <br>
+  copy all include files from the various subdirectories in SUNDIALS into
+  the <tt>includes</tt> folder (Windows doesn't have softlinks unfortunately)
+</li>
+<li>
+  create the SUNDIALS libraries that you need
+  <br>
+  here is the general procedure that you have to follow for each library
+  <ul>
+  <li> start VC </li>
+  <li> create new project<br>
+       Type: Win32 Console Application<br>
+       Name: libXXX<br>
+       Place: in directory <tt>projects</tt><br>
+       In New Project Wizard, select application settings page and choose:<br>
+       - static library<br>
+       - uncheck "precompiled headers"
+  </li>
+  <li> add existings source files to Sources and Headers 
+       (files are in the appropriate SUNDIALS subdirs)
+  </li>
+  <li> open project properties and modify settings:<br>
+       "Configuration properties" - "General"<br>
+       - change "Output Directory" to <tt>../../libs</tt><br>
+       "Configuration properties" - "C++" : "Additional Include Directories"<br>
+       - add appropriate include directories here (see below)<br>
+       "Configuration properties" - "C++" : "Code generation"<br>
+       - change "Runtime Library" to "Multi-threaded (/MT)"<br>
+         (links to the static runtime library)<br>
+       "Configuration properties" - "C++" : "Preprocessor"<br>
+       - add "HAVE_CONFIG_H" to "Preprocessor Definitions"
+  </li>
+  </ul>
+</li>
+<li>
+  specific settings for various libraries
+  <ul>
+  <li> libNVector:<br>
+       source to add: <tt>nvector_serial.c</tt> to Sources and <tt>nvector_serial.h</tt> to Headers
+                      (files are in subdir 'nvec_ser')<br>
+       includes: <tt>../..; ../../shared/include</tt>
+  </li>
+  <li> libCVode:<br>
+       source to add: all in subdirs <tt>cvode/include</tt> and <tt>cvode/source</tt>,
+                      all in subdirs <tt>shared/include</tt> and <tt>shared/source</tt><br>
+       includes: <tt>../..; ../../shared/include; ../../cvode/include; ../../cvode/source</tt>
+  </li>
+  <li> for all other solver libs use similar settings as for libCVode</li>
+  </ul>
+</li>
+<li>
+  linking programs to SUNDIALS libs
+  <ul>
+  <li> once all libraries have been created, they should be in the <tt>libs</tt> 
+       subdir while all header files should be copied to <tt>includes</tt></li>
+  <li> external SUNDIALS users must add the include directory and link to all used
+       libraries, typically libNVector and one of the solver libs</li>
+  </ul>
+</li>
+</ol>
+
+
+<hr>
+<a href="javascript:window.close();"><img border="0" src="../img/cross.png" style="vertical-align: middle;"> <b>Close</b></a>
+
+
+</body>
+</html>
