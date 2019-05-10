@@ -1,0 +1,276 @@
+\begin{thebibliography}{}
+
+\bibitem[\protect\citeauthoryear{Brenan, Campbell, and Petzold}{Brenan
+  et~al\mbox{.}}{1996}]{BCP:96}
+{\sc Brenan, K.~E.}, {\sc Campbell, S.~L.}, {\sc and} {\sc Petzold, L.~R.}
+  1996.
+\newblock {\em Numerical Solution of Initial-Value Problems in
+  Differential-Algebraic Equations}.
+\newblock SIAM, Philadelphia, Pa.
+
+\bibitem[\protect\citeauthoryear{Brown}{Brown}{1987}]{Bro:87}
+{\sc Brown, P.~N.} 1987.
+\newblock A local convergence theory for combined inexact-{N}ewton/finite
+  difference projection methods.
+\newblock {\em SIAM J. Numer. Anal.\/}~{\em 24,\/}~2, 407--434.
+
+\bibitem[\protect\citeauthoryear{Brown, Byrne, and Hindmarsh}{Brown
+  et~al\mbox{.}}{1989}]{BBH:89}
+{\sc Brown, P.~N.}, {\sc Byrne, G.~D.}, {\sc and} {\sc Hindmarsh, A.~C.} 1989.
+\newblock {VODE}, a variable-coefficient {ODE} solver.
+\newblock {\em SIAM J. Sci. Stat. Comput.\/}~{\em 10}, 1038--1051.
+
+\bibitem[\protect\citeauthoryear{Brown and Hindmarsh}{Brown and
+  Hindmarsh}{1989}]{BrHi:89}
+{\sc Brown, P.~N.} {\sc and} {\sc Hindmarsh, A.~C.} 1989.
+\newblock Reduced storage matrix methods in stiff {ODE} systems.
+\newblock {\em J. Appl. Math. \& Comp.\/}~{\em 31}, 49--91.
+
+\bibitem[\protect\citeauthoryear{Brown, Hindmarsh, and Petzold}{Brown
+  et~al\mbox{.}}{1994}]{BHP:94}
+{\sc Brown, P.~N.}, {\sc Hindmarsh, A.~C.}, {\sc and} {\sc Petzold, L.~R.}
+  1994.
+\newblock Using {K}rylov methods in the solution of large-scale
+  differential-algebraic systems.
+\newblock {\em SIAM J. Sci. Comput.\/}~{\em 15}, 1467--1488.
+
+\bibitem[\protect\citeauthoryear{Brown, Hindmarsh, and Petzold}{Brown
+  et~al\mbox{.}}{1998}]{BHP:98}
+{\sc Brown, P.~N.}, {\sc Hindmarsh, A.~C.}, {\sc and} {\sc Petzold, L.~R.}
+  1998.
+\newblock Consistent initial condition calculation for differential-algebraic
+  systems.
+\newblock {\em SIAM J. Sci. Comput.\/}~{\em 19}, 1495--1512.
+
+\bibitem[\protect\citeauthoryear{Brown and Saad}{Brown and
+  Saad}{1990}]{BrSa:90}
+{\sc Brown, P.~N.} {\sc and} {\sc Saad, Y.} 1990.
+\newblock Hybrid {K}rylov methods for nonlinear systems of equations.
+\newblock {\em SIAM J. Sci. Stat. Comput.\/}~{\em 11}, 450--481.
+
+\bibitem[\protect\citeauthoryear{Brown and Woodward}{Brown and
+  Woodward}{2001}]{BrWo:01}
+{\sc Brown, P.~N.} {\sc and} {\sc Woodward, C.~S.} 2001.
+\newblock Preconditioning strategies for fully implicit radiation diffusion
+  with material-energy transfer.
+\newblock {\em SIAM J. Sci. Comput.\/}~{\em 23,\/}~2, 499--516.
+
+\bibitem[\protect\citeauthoryear{Byrne}{Byrne}{1992}]{Byr:92}
+{\sc Byrne, G.~D.} 1992.
+\newblock Pragmatic experiments with {K}rylov methods in the stiff {ODE}
+  setting.
+\newblock In {\em Computational Ordinary Differential Equations}, {J.~Cash}
+  {and} {I.~Gladwell}, Eds. Oxford University Press, Oxford, 323--356.
+
+\bibitem[\protect\citeauthoryear{Byrne and Hindmarsh}{Byrne and
+  Hindmarsh}{1975}]{ByHi:75}
+{\sc Byrne, G.~D.} {\sc and} {\sc Hindmarsh, A.~C.} 1975.
+\newblock A polyalgorithm for the numerical solution of ordinary differential
+  equations.
+\newblock {\em ACM Trans. Math. Softw.\/}~{\em 1}, 71--96.
+
+\bibitem[\protect\citeauthoryear{Byrne and Hindmarsh}{Byrne and
+  Hindmarsh}{1998}]{ByHi:98}
+{\sc Byrne, G.~D.} {\sc and} {\sc Hindmarsh, A.~C.} 1998.
+\newblock User documentation for {PVODE}, an {ODE} solver for parallel
+  computers.
+\newblock Tech. Rep. UCRL-ID-130884, LLNL.
+
+\bibitem[\protect\citeauthoryear{Byrne and Hindmarsh}{Byrne and
+  Hindmarsh}{1999}]{ByHi:99}
+{\sc Byrne, G.~D.} {\sc and} {\sc Hindmarsh, A.~C.} 1999.
+\newblock {PVODE}, an {ODE} solver for parallel computers.
+\newblock {\em Intl. J. High Perf. Comput. Apps.\/}~{\em 13(4)}, 254--365.
+
+\bibitem[\protect\citeauthoryear{Cao, Li, Petzold, and Serban}{Cao
+  et~al\mbox{.}}{2003}]{CLPS:03}
+{\sc Cao, Y.}, {\sc Li, S.}, {\sc Petzold, L.~R.}, {\sc and} {\sc Serban, R.}
+  2003.
+\newblock Adjoint sensitivity analysis for differential-algebraic equations:
+  The adjoint {DAE} system and its numerical solution.
+\newblock {\em SIAM J. Sci. Comput.\/}~{\em 24(3)}, 1076--1089.
+
+\bibitem[\protect\citeauthoryear{Cohen and Hindmarsh}{Cohen and
+  Hindmarsh}{1994}]{CoHi:94}
+{\sc Cohen, S.~D.} {\sc and} {\sc Hindmarsh, A.~C.} 1994.
+\newblock \mbox{CVODE} user guide.
+\newblock Tech. Rep. UCRL-MA-118618, LLNL.
+
+\bibitem[\protect\citeauthoryear{Cohen and Hindmarsh}{Cohen and
+  Hindmarsh}{1996}]{CoHi:96}
+{\sc Cohen, S.~D.} {\sc and} {\sc Hindmarsh, A.~C.} 1996.
+\newblock \mbox{CVODE}, a stiff/nonstiff {ODE} solver in {C}.
+\newblock {\em Computers in Physics\/}~{\em 10(2)}, 138--143.
+
+\bibitem[\protect\citeauthoryear{Curtis, Powell, and Reid}{Curtis
+  et~al\mbox{.}}{1974}]{CPR:74}
+{\sc Curtis, A.~R.}, {\sc Powell, M. J.~D.}, {\sc and} {\sc Reid, J.~K.} 1974.
+\newblock On the estimation of sparse {J}acobian matrices.
+\newblock {\em J. Inst. Math. Applic.\/}~{\em 13}, 117--119.
+
+\bibitem[\protect\citeauthoryear{Dembo, Eisenstat, and Steihaug}{Dembo
+  et~al\mbox{.}}{1982}]{DES:82}
+{\sc Dembo, R.~S.}, {\sc Eisenstat, S.~C.}, {\sc and} {\sc Steihaug, T.} 1982.
+\newblock Inexact {N}ewton methods.
+\newblock {\em SIAM J. Numer. Anal.\/}~{\em 19}, 400--408.
+
+\bibitem[\protect\citeauthoryear{Dennis and Schnabel}{Dennis and
+  Schnabel}{1996}]{DeSc:96}
+{\sc Dennis, J.~E.} {\sc and} {\sc Schnabel, R.~B.} 1996.
+\newblock {\em Numerical Methods for Unconstrained Optimization and Nonlinear
+  Equations}.
+\newblock SIAM, Philadelphia, Pa.
+
+\bibitem[\protect\citeauthoryear{Eisenstat and Walker}{Eisenstat and
+  Walker}{1996}]{EiWa:96}
+{\sc Eisenstat, S.~C.} {\sc and} {\sc Walker, H.~F.} 1996.
+\newblock Choosing the forcing terms in an inexact {N}ewton method.
+\newblock {\em SIAM J. Sci. Comput.\/}~{\em 17}, 16--32.
+
+\bibitem[\protect\citeauthoryear{Feehery, Tolsma, and Barton}{Feehery
+  et~al\mbox{.}}{1997}]{FTB:97}
+{\sc Feehery, W.~F.}, {\sc Tolsma, J.~E.}, {\sc and} {\sc Barton, P.~I.} 1997.
+\newblock Efficient sensitivity analysis of large-scale differential-algebraic
+  systems.
+\newblock {\em Appl. Num. Math.\/}~{\em 25(1)}, 41--54.
+
+\bibitem[\protect\citeauthoryear{Hairer and Wanner}{Hairer and
+  Wanner}{1991}]{HaWa:91}
+{\sc Hairer, E.} {\sc and} {\sc Wanner, G.} 1991.
+\newblock {\em Solving Ordinary Differential Equations II, Stiff and
+  Differential-Algebraic Problems}.
+\newblock Springer-Verlag, Berlin.
+
+\bibitem[\protect\citeauthoryear{Hiebert and Shampine}{Hiebert and
+  Shampine}{1980}]{HeSh:80}
+{\sc Hiebert, K.~L.} {\sc and} {\sc Shampine, L.~F.} 1980.
+\newblock {Implicitly Defined Output Points for Solutions of ODEs}.
+\newblock Tech. Rep. SAND80-0180, Sandia National Laboratories.
+
+\bibitem[\protect\citeauthoryear{Hindmarsh}{Hindmarsh}{1992}]{Hin:92}
+{\sc Hindmarsh, A.~C.} 1992.
+\newblock Detecting stability barriers in {BDF} solvers.
+\newblock In {\em Computational Ordinary Differential Equations}, {J.~Cash}
+  {and} {I.~Gladwell}, Eds. Oxford University Press, Oxford, 87--96.
+
+\bibitem[\protect\citeauthoryear{Hindmarsh}{Hindmarsh}{1995}]{Hin:95}
+{\sc Hindmarsh, A.~C.} 1995.
+\newblock Avoiding {BDF} stability barriers in the {MOL} solution of
+  advection-dominated problems.
+\newblock {\em Appl. Num. Math.\/}~{\em 17}, 311--318.
+
+\bibitem[\protect\citeauthoryear{Hindmarsh}{Hindmarsh}{2000}]{Hin:00}
+{\sc Hindmarsh, A.~C.} 2000.
+\newblock The {PVODE} and {IDA} algorithms.
+\newblock Tech. Rep. UCRL-ID-141558, LLNL.
+
+\bibitem[\protect\citeauthoryear{Hindmarsh and Serban}{Hindmarsh and
+  Serban}{2004a}]{HiSe:04cvode}
+{\sc Hindmarsh, A.~C.} {\sc and} {\sc Serban, R.} 2004a.
+\newblock User documentation for \mbox{CVODE} v2.2.0.
+\newblock Tech. Rep. (in preparation), LLNL.
+
+\bibitem[\protect\citeauthoryear{Hindmarsh and Serban}{Hindmarsh and
+  Serban}{2004b}]{HiSe:04cvodes}
+{\sc Hindmarsh, A.~C.} {\sc and} {\sc Serban, R.} 2004b.
+\newblock User documentation for \mbox{CVODES} v2.1.0.
+\newblock Tech. Rep. (in preparation), LLNL.
+
+\bibitem[\protect\citeauthoryear{Hindmarsh and Serban}{Hindmarsh and
+  Serban}{2004c}]{HiSe:04ida}
+{\sc Hindmarsh, A.~C.} {\sc and} {\sc Serban, R.} 2004c.
+\newblock User documentation for \mbox{IDA} v2.2.0.
+\newblock Tech. Rep. (in preparation), LLNL.
+
+\bibitem[\protect\citeauthoryear{Hindmarsh, Serban, and Woodward}{Hindmarsh
+  et~al\mbox{.}}{2004}]{HSW:04kinsol}
+{\sc Hindmarsh, A.~C.}, {\sc Serban, R.}, {\sc and} {\sc Woodward, C.} 2004.
+\newblock User documentation for \mbox{KINSOL} v2.2.0.
+\newblock Tech. Rep. (in preparation), LLNL.
+
+\bibitem[\protect\citeauthoryear{Jackson and Sacks-Davis}{Jackson and
+  Sacks-Davis}{1980}]{JaSD:80}
+{\sc Jackson, K.~R.} {\sc and} {\sc Sacks-Davis, R.} 1980.
+\newblock An alternative implementation of variable step-size multistep
+  formulas for stiff {ODE}s.
+\newblock {\em ACM Trans. Math. Softw.\/}~{\em 6}, 295--318.
+
+\bibitem[\protect\citeauthoryear{Jones and Woodward}{Jones and
+  Woodward}{2001}]{JoWo:01}
+{\sc Jones, J.~E.} {\sc and} {\sc Woodward, C.~S.} 2001.
+\newblock {N}ewton-{K}rylov-multigrid solvers for large-scale, highly
+  heterogeneous, variably saturated flow problems.
+\newblock {\em Advances in Water Resources\/}~{\em 24}, 763--774.
+
+\bibitem[\protect\citeauthoryear{Kelley}{Kelley}{1995}]{Kel:95}
+{\sc Kelley, C.~T.} 1995.
+\newblock {\em Iterative Methods for Solving Linear and Nonlinear Equations}.
+\newblock SIAM, Philadelphia, Pa.
+
+\bibitem[\protect\citeauthoryear{Lee, Hindmarsh, and Brown}{Lee
+  et~al\mbox{.}}{2000}]{LHB:00}
+{\sc Lee, S.~L.}, {\sc Hindmarsh, A.~C.}, {\sc and} {\sc Brown, P.~N.} 2000.
+\newblock User documentation for \mbox{SensPVODE}, a variant of {PVODE} for
+  sensitivity analysis.
+\newblock Tech. Rep. UCRL-MA-140211, LLNL.
+
+\bibitem[\protect\citeauthoryear{Lee, Woodward, and Graziani}{Lee
+  et~al\mbox{.}}{2003}]{LWG:03}
+{\sc Lee, S.~L.}, {\sc Woodward, C.~S.}, {\sc and} {\sc Graziani, F.} 2003.
+\newblock Analyzing radiation diffusion using time-dependent sensitivity-based
+  techniques.
+\newblock {\em J. Comp. Phys.\/}~{\em 192(1)}, 211--230.
+
+\bibitem[\protect\citeauthoryear{Maly and Petzold}{Maly and
+  Petzold}{1996}]{MaPe:96}
+{\sc Maly, T.} {\sc and} {\sc Petzold, L.~R.} 1996.
+\newblock Numerical methods and software for sensitivity analysis of
+  differential-algebraic systems.
+\newblock {\em Appl. Num. Math.\/}~{\em 20}, 57--79.
+
+\bibitem[\protect\citeauthoryear{Radhakrishnan and Hindmarsh}{Radhakrishnan and
+  Hindmarsh}{1993}]{RaHi:93}
+{\sc Radhakrishnan, K.} {\sc and} {\sc Hindmarsh, A.~C.} 1993.
+\newblock Description and use of {LSODE}, the {L}ivermore solver for ordinary
+  differential equations.
+\newblock Tech. Rep. UCRL-ID-113855, LLNL.
+
+\bibitem[\protect\citeauthoryear{Rognlien, Xu, and Hindmarsh}{Rognlien
+  et~al\mbox{.}}{2002}]{RXH:02}
+{\sc Rognlien, T.~D.}, {\sc Xu, X.~Q.}, {\sc and} {\sc Hindmarsh, A.~C.} 2002.
+\newblock Application of parallel implicit methods to edge-plasma numerical
+  simulations.
+\newblock {\em J. Comp. Phys.\/}~{\em 175}, 249--268.
+
+\bibitem[\protect\citeauthoryear{Saad and Schultz}{Saad and
+  Schultz}{1986}]{SaSc:86}
+{\sc Saad, Y.} {\sc and} {\sc Schultz, M.~H.} 1986.
+\newblock {GMRES}: A generalized minimal residual algorithm for solving
+  nonsymmetric linear systems.
+\newblock {\em SIAM J. Sci. Stat. Comp.\/}~{\em 7}, 856--869.
+
+\bibitem[\protect\citeauthoryear{Serban and Hindmarsh}{Serban and
+  Hindmarsh}{2004}]{SeHi:03}
+{\sc Serban, R.} {\sc and} {\sc Hindmarsh, A.~C.} 2004.
+\newblock \mbox{CVODES}, an {ODE} solver with sensitivity analysis
+  capabilities.
+\newblock {\em ACM Trans. Math. Softw.\/}~(submitted).
+
+\bibitem[\protect\citeauthoryear{Woodward}{Woodward}{1998}]{Woo:98}
+{\sc Woodward, C.~S.} 1998.
+\newblock A {N}ewton-{K}rylov-multigrid solver for variably saturated flow
+  problems.
+\newblock In {\em Proc. of the Twelfth International Conference on
+  Computational Methods in Water Resources}. Vol.~2. Computational Mechanics
+  Publications, Southampton, 609--616.
+
+\bibitem[\protect\citeauthoryear{Woodward, Grant, and Maxwell}{Woodward
+  et~al\mbox{.}}{2002}]{WGM:02}
+{\sc Woodward, C.~S.}, {\sc Grant, K.~E.}, {\sc and} {\sc Maxwell, R.} 2002.
+\newblock Applications of sensitivity analysis to uncertainty quantification
+  for variably saturated flow.
+\newblock In {\em Computational Methods in Water Resources}, {S.~M.
+  Hassanizadeh}, {R.~J. Schotting}, {W.~G. Gray}, {and} {G.~F. Pinder}, Eds.
+  Elsevier, Amsterdam, 73--80.
+
+\end{thebibliography}
