@@ -53,6 +53,12 @@ $tar $tarfile $distrobase/config/SundialsTrilinos.cmake                 || exit 
 $tar $tarfile $distrobase/config/SundialsTryCompileExecute.cmake        || exit 1
 $tar $tarfile $distrobase/config/SundialsXSDK.cmake                     || exit 1
 
+
+# 03/06/2015 LEBanks - comment out, but don't remove yet...may want to recreate some of this logic in CMake
+#$tar $tarfile $distrobase/bin/sundials-config.in || exit 1
+#$tar $tarfile $distrobase/bin/fortran-update.in  || exit 1
+#$tar $tarfile $distrobase/bin/makefile-update.in || exit 1
+
 echo "   --- Add shared module to $tarfile"
 
 $tar $tarfile $distrobase/include/sundials/sundials_config.in             || exit 1
