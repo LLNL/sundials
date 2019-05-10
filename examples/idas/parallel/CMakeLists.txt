@@ -94,7 +94,7 @@ FOREACH(example_tuple ${IDAS_examples})
     EXAMPLE_TYPE ${example_type})
 
   # find all .out files for this example
-  FILE(GLOB example_out ${example}.out*)
+  FILE(GLOB example_out ${example}*.out)
 
   # install example source and .out files
   IF(EXAMPLES_INSTALL)
