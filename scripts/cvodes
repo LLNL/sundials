@@ -25,7 +25,7 @@ $tar $tarfile $distrobase/include/cvodes/cvodes_spils.h   || exit 1
 
 $tar $tarfile $distrobase/src/cvodes/LICENSE        || exit 1 
 $tar $tarfile $distrobase/src/cvodes/NOTICE         || exit 1 
-$tar $tarfile $distrobase/src/cvodes/README         || exit 1 
+$tar $tarfile $distrobase/src/cvodes/README.md      || exit 1
 $tar $tarfile $distrobase/src/cvodes/CMakeLists.txt || exit 1 
 
 $tar $tarfile $distrobase/src/cvodes/cvodea.c              || exit 1 

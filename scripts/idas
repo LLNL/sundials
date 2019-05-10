@@ -23,7 +23,7 @@ $tar $tarfile $distrobase/include/idas/idas_spils.h  || exit 1
 
 $tar $tarfile $distrobase/src/idas/LICENSE        || exit 1
 $tar $tarfile $distrobase/src/idas/NOTICE         || exit 1
-$tar $tarfile $distrobase/src/idas/README         || exit 1
+$tar $tarfile $distrobase/src/idas/README.md      || exit 1
 $tar $tarfile $distrobase/src/idas/CMakeLists.txt || exit 1
 
 $tar $tarfile $distrobase/src/idas/idaa.c             || exit 1

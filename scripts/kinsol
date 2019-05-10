@@ -23,7 +23,7 @@ $tar $tarfile $distrobase/include/kinsol/kinsol_spils.h  || exit 1
 
 $tar $tarfile $distrobase/src/kinsol/LICENSE        || exit 1
 $tar $tarfile $distrobase/src/kinsol/NOTICE         || exit 1
-$tar $tarfile $distrobase/src/kinsol/README         || exit 1
+$tar $tarfile $distrobase/src/kinsol/README.md      || exit 1
 $tar $tarfile $distrobase/src/kinsol/CMakeLists.txt || exit 1
 
 $tar $tarfile $distrobase/src/kinsol/kinsol.c             || exit 1

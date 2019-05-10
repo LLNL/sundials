@@ -28,7 +28,7 @@ $tar $tarfile $distrobase/include/arkode/arkode_mristep.h      || exit 1
 
 $tar $tarfile $distrobase/src/arkode/LICENSE        || exit 1
 $tar $tarfile $distrobase/src/arkode/NOTICE         || exit 1
-$tar $tarfile $distrobase/src/arkode/README         || exit 1
+$tar $tarfile $distrobase/src/arkode/README.md      || exit 1
 $tar $tarfile $distrobase/src/arkode/CMakeLists.txt || exit 1
 
 $tar $tarfile $distrobase/src/arkode/arkode.c              || exit 1

@@ -8,39 +8,43 @@ web pages.
 
 1. Update the "Changes in ..." sections in all user guides.
 
-2. Update README file in src/<solver>, with version
-   number and release dates at the top and bottom
-   of the file.
-    src/arkode/README
-    src/cvode/README
-    src/cvodes/README
-    src/ida/README
-    src/idas/README
-    src/kinsol/README
+2. Update version numbers and release date information using the updateVerson.sh
+   script. This will update the following files:
+     CMakeLists.txt
+     README.md
+     src/arkode/README
+     src/cvode/README
+     src/cvodes/README
+     src/ida/README
+     src/idas/README
+     src/kinsol/README
+     doc/arkode/SphinxDocs/examples/source/conf.py
+     doc/arkode/SphinxDocs/examples/source/References.rst
+     doc/arkode/SphinxDocs/guide/source/conf.py
+     doc/arkode/SphinxDocs/guide/source/History.rst
+     doc/arkode/SphinxDocs/guide/source/References.rst
+     doc/sundials/biblio.bib
+     doc/sundials/sundials_release_history.tex
+     doc/sundials/ug.tex
+     scripts/tarscript
+
+   The ARKode tex files doc/arkode/ARKode_example.tex and doc/arkode/ARKode.tex
+   need to be regenerated and updated manually.
+
+   The following files are no longer maintaianed:
+     html/main.html (This is no longer maintained as of at least 2016)
+     sundialsTB/install_STB.m (This is no longer maintained as of 2016)
 
 3. Update version numbers of third party libraries in Install Guide
    in doc directory.
 
-4. Update version numbers in source code, documentation, and tarscripts.
-    doc/arkode/ARKode_example.tex
-    doc/arkode/ARKode.tex
-    doc/arkode/SphinxDocs/examples/source/conf.py
-    doc/sundials/ug.tex
-    doc/sundials/biblio.bib (and year if necessary)
-    html/main.html (This is no longer maintained as of at least 2016)
-    scripts/tarscript
-    sundialsTB/install_STB.m (This is no longer maintained as of 2016)
-    CMakeLists.txt
-    README.md
-    README_DEV
-
-5. Create the tarballs
+4. Create the tarballs
    Create the new distribution tarballs using the "tarscript" shell script
    under scripts/.  This also compiles the documents (user guides and example
    docs) and creates all tarballs in their final form, appropriate for
    uploading to the website.
 
-6. Update Internal Drupal Web pages for SUNDIALS:
+5. Update Internal Drupal Web pages for SUNDIALS:
      https://computation-external.llnl.gov/user
 
   a) Modify content (save edits on each page as you go)
@@ -75,10 +79,10 @@ web pages.
       required review then Save.  This must be done for each page and is the
       final action before pages are uploaded for external release.
 
-7. After final push, ensure web content and behavior is as expected:
+6. After final push, ensure web content and behavior is as expected:
        + Main Page: http://computation.llnl.gov/projects/sundials
 
-8. Tag the release in the release branch in the Subversion repository
+7. Tag the release
 
 
 

@@ -44,6 +44,7 @@ nvec_manyvector.tex \
 nvec_examples.tex \
 spils_constants.tex \
 sun_org.tex \
+sundials_release_history.tex \
 sundials_version.tex \
 sunmatrix_generic.tex \
 sunmatrix_band.tex \

@@ -71,6 +71,7 @@ B598130 from `Lawrence Livermore National Laboratory
    Install
    Constants
    Butcher
+   History
    References
 
 .. only:: html

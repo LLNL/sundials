@@ -24,7 +24,7 @@ $tar $tarfile $distrobase/include/ida/ida_spils.h   || exit 1
 
 $tar $tarfile $distrobase/src/ida/LICENSE        || exit 1
 $tar $tarfile $distrobase/src/ida/NOTICE         || exit 1
-$tar $tarfile $distrobase/src/ida/README         || exit 1
+$tar $tarfile $distrobase/src/ida/README.md      || exit 1
 $tar $tarfile $distrobase/src/ida/CMakeLists.txt || exit 1
 
 $tar $tarfile $distrobase/src/ida/ida_bbdpre.c       || exit 1
