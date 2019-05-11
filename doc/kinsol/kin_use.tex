@@ -2876,9 +2876,10 @@ follows
   {\sunmatrix} interface functions (see Chapter \ref{s:sunmatrix} for
   details).
 
-  Prior to calling the user-supplied Jacobian function, the Jacobian
-  matrix $J(u)$ is zeroed out, so only nonzero elements need to be
-  loaded into \id{J}.
+  With direct linear solvers (i.e., linear solvers with type
+  \Id{SUNLINEARSOLVER\_DIRECT}), the Jacobian matrix $J(u)$ is zeroed out prior
+  to calling the user-supplied Jacobian function so only nonzero elements need
+  to be loaded into \id{J}.
 
   If the user's \id{KINLsJacFn} function uses difference quotient
   approximations, it may need to access quantities not in the call list.

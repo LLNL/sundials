@@ -103,12 +103,18 @@ int SUNLinSolSetScalingVectors(SUNLinearSolver S,
 
 int SUNLinSolInitialize(SUNLinearSolver S)
 {
-  return ((int) S->ops->initialize(S));
+  if (S->ops->initialize)
+    return ((int) S->ops->initialize(S));
+  else
+    return SUNLS_SUCCESS;
 }
 
 int SUNLinSolSetup(SUNLinearSolver S, SUNMatrix A)
 {
-  return ((int) S->ops->setup(S, A));
+  if (S->ops->setup)
+    return ((int) S->ops->setup(S, A));
+  else
+    return SUNLS_SUCCESS;
 }
 
 int SUNLinSolSolve(SUNLinearSolver S, SUNMatrix A, N_Vector x,

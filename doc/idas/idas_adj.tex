@@ -2491,8 +2491,11 @@ provide a function of type \ID{IDALsJacFnB} or \ID{IDALsJacFnBS}
   type) may be obtained through using the implementation-specific
   {\sunmatrix} interface functions (see Chapter \ref{s:sunmatrix} for
   details).
-  Only nonzero elements need to be loaded into \id{JacB} as this matrix 
-  is set to zero before the call to the Jacobian function. 
+
+  With direct linear solvers (i.e., linear solvers with type
+  \Id{SUNLINEARSOLVER\_DIRECT}), the Jacobian matrix $J(t,y)$ is zeroed out
+  prior to calling the user-supplied Jacobian function so only nonzero elements
+  need to be loaded into \id{JacB}.
   
   {\warn}Before calling the user's \id{IDALsJacFnB}, {\idas} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
@@ -2576,8 +2579,11 @@ provide a function of type \ID{IDALsJacFnB} or \ID{IDALsJacFnBS}
   type) may be obtained through using the implementation-specific
   {\sunmatrix} interface functions (see Chapter \ref{s:sunmatrix} for
   details).
-  Only nonzero elements need to be loaded into \id{JacB} as this matrix 
-  is set to zero before the call to the Jacobian function. 
+
+  With direct linear solvers (i.e., linear solvers with type
+  \Id{SUNLINEARSOLVER\_DIRECT}, the Jacobian matrix $J(t,y)$ is zeroed out prior
+  to calling the user-supplied Jacobian function so only nonzero elements need
+  to be loaded into \id{JacB}.
 
   {\warn}Before calling the user's \id{IDALsJacFnBS}, {\idas} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 

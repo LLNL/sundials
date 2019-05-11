@@ -342,6 +342,10 @@ int ARKStepSetMassTimes(void *arkode_mem, ARKLsMassTimesSetupFn msetup,
                         ARKLsMassTimesVecFn mtimes, void *mtimes_data) {
   return(arkLSSetMassTimes(arkode_mem, msetup, mtimes, mtimes_data)); }
 
+int ARKStepSetLinSysFn(void *arkode_mem, ARKLsLinSysFn linsys)
+{
+  return(arkLSSetLinSysFn(arkode_mem, linsys));
+}
 
 
 /*===============================================================

@@ -1266,6 +1266,7 @@ Disable rootfinding warnings & \id{CVodeSetNoInactiveRootWarn} & none \\
 \hline
 Jacobian / preconditioner update frequency & \id{CVodeSetMaxStepsBetweenJac} & 50\\
 Jacobian function & \id{CVodeSetJacFn} & DQ\\
+Linear System function & \id{CVodeSetLinSysFn} & internal\\
 Jacobian-times-vector functions & \id{CVodeSetJacTimes} & NULL, DQ \\
 Preconditioner functions & \id{CVodeSetPreconditioner} & NULL, NULL \\
 Ratio between linear and nonlinear tolerances & \id{CVodeSetEpsLin} & 0.05 \\
@@ -1847,8 +1848,7 @@ optional inputs for matrix-based linear solvers, optional inputs for
 matrix-free linear solvers, and optional inputs for iterative linear
 solvers.  We note that the matrix-based and matrix-free groups are
 mutually exclusive, whereas the ``iterative'' tag can apply to either
-case. \\
-
+case.
 
 As discussed in \S\ref{ss:ivp_sol}, {\cvode} strives to reuse matrix
 and preconditioner data for as many solves as possible to amortize the
@@ -1905,22 +1905,20 @@ which this setup routine is called may be controlled with the
 
 \index{optional input!matrix-based linear solver|(}
 \index{CVLS@{\cvls} linear solver interface!Jacobian approximation used by}
-When using matrix-based linear solver modules, the
-{\cvls} solver interface needs a function to compute an approximation to
-the Jacobian matrix $J(t,y)$.  This function must be of type \id{CVLsJacFn}.
-The user can supply a Jacobian function, or if using a
-dense or banded matrix $J$, can use the default internal difference
-quotient approximation
+When using matrix-based linear solver modules, the {\cvls} solver interface
+needs a function to compute an approximation to the Jacobian matrix $J(t,y)$ or
+linear system $M = I - \gamma J$. The function to evaluate $J(t,y)$ the must
+be of type \id{CVLsJacFn}. The user can supply a Jacobian function, or if using
+a dense or banded matrix $J$, can use the default internal difference quotient
+approximation
 \index{Jacobian approximation function!difference quotient}
-that comes with the {\cvls} solver.
-To specify a user-supplied Jacobian function \id{jac}, {\cvls} provides
-the function \id{CVodeSetJacFn}.
-The {\cvls} interface passes the pointer \id{user\_data}
-to the Jacobian function. This allows the user to
-create an arbitrary structure with relevant problem data and access it
-during the execution of the user-supplied Jacobian function, without
-using global data in the program.
-The pointer \id{user\_data} may be specified through \id{CVodeSetUserData}.
+that comes with the {\cvls} solver. To specify a user-supplied Jacobian function
+\id{jac}, {\cvls} provides the function \id{CVodeSetJacFn}. The {\cvls}
+interface passes the pointer \id{user\_data} to the Jacobian function. This
+allows the user to create an arbitrary structure with relevant problem data and
+access it during the execution of the user-supplied Jacobian function, without
+using global data in the program. The pointer \id{user\_data} may be specified
+through \id{CVodeSetUserData}.
 %%
 \index{Jacobian approximation function!user-supplied}
 \ucfunctionf{CVodeSetJacFn}
@@ -1969,6 +1967,54 @@ The pointer \id{user\_data} may be specified through \id{CVodeSetUserData}.
   users transition to the new routine name soon.
 }
 %%
+To specify a user-supplied linear system function \id{linsys}, {\cvls} provides
+the function\\ \id{CVodeSetLinSysFn}. The {\cvls} interface passes the pointer
+\id{user\_data} to the linear system function. This allows the user to create an
+arbitrary structure with relevant problem data and access it during the
+execution of the user-supplied linear system function, without using global data
+in the program. The pointer \id{user\_data} may be specified through
+\id{CVodeSetUserData}.
+%%
+\index{Linear system approximation function!user-supplied}
+\ucfunctionf{CVodeSetLinSysFn}
+{
+  flag = CVodeSetLinSysFn(cvode\_mem, linsys);
+}
+{
+  The function \ID{CVodeSetLinSysFn} specifies the linear system approximation
+  function to be used for a matrix-based solver within the {\cvls} interface.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvode} memory block.
+  \item[linsys] (\id{CVLsLinSysFn})
+    user-defined linear system approximation function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of
+  \begin{args}
+  \item[\Id{CVLS\_SUCCESS}]
+    The optional value has been successfully set.
+  \item[\Id{CVLS\_MEM\_NULL}]
+    The \id{cvode\_mem} pointer is \id{NULL}.
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The {\cvls} linear solver interface has not been initialized.
+  \end{args}
+}
+{
+  This function must be called \emph{after} the {\cvls} linear solver
+  interface has been initialized through a call to
+  \id{CVodeSetLinearSolver}.
+
+  By default, {\cvls} uses an internal linear system function leveraging the
+  {\sunmatrix} API to form the system $M = I - \gamma J$ using either an
+  internal finite difference approximation or user-supplied function to compute
+  the Jacobian. If \id{linsys} is \id{NULL}, this default function is used.
+
+  The function type \id{CVLsLinSysFn} is described in \S\ref{ss:linsysFn}.
+}
 %%
 \index{optional input!matrix-based linear solver|)}
 %%
@@ -4045,7 +4091,9 @@ the user must supply a {\CC} function of type \Id{CVRootFn}, defined as follows:
 
 If a matrix-based linear solver module is used (i.e., a non-\id{NULL}
 {\sunmatrix} object was supplied to \Id{CVodeSetLinearSolver}), the user may
-provide a function of type \Id{CVLsJacFn} defined as follows:
+optionally provide a function of type \Id{CVLsJacFn} for evaluating the Jacobian
+of the ODE right-hand side function (or an approximation of it). \id{CVLsJacFn}
+is defined as follows:
 %%
 \usfunction{CVLsJacFn}
 {
@@ -4094,9 +4142,10 @@ provide a function of type \Id{CVLsJacFn} defined as follows:
   {\sunmatrix} interface functions (see Chapter \ref{s:sunmatrix} for
   details).
 
-  Prior to calling the user-supplied Jacobian function, the Jacobian
-  matrix $J(t,y)$ is zeroed out, so only nonzero elements need to be
-  loaded into \id{Jac}.
+  With direct linear solvers (i.e., linear solvers with type
+  \Id{SUNLINEARSOLVER\_DIRECT}), the Jacobian matrix $J(t,y)$ is zeroed out
+  prior to calling the user-supplied Jacobian function so only nonzero elements
+  need to be loaded into \id{Jac}.
 
   If the user's \id{CVLsJacFn} function uses difference quotient
   approximations, then it may need to access quantities not in the
@@ -4185,6 +4234,78 @@ provide a function of type \Id{CVLsJacFn} defined as follows:
   that users transition to the new function type name soon.
 }
 \index{Jacobian approximation function!user-supplied|)}
+
+%%==============================================================================
+\subsection{Linear system construction (matrix-based linear solvers)}
+\label{ss:linsysFn}
+%%==============================================================================
+\index{Linear system function!user-supplied|(}
+
+With matrix-based linear solver modules, as an alternative to optionally
+supplying a function for evaluating the Jacobian of the ODE right-hand side
+function, the user may optionally supply a function of type \Id{CVLsLinSysFn}
+for evaluating the linear system, $M = I - \gamma J$ (or an approximation of
+it). \Id{CVLsLinSysFn} is defined as follows:
+%%
+\usfunction{CVLsLinSysFn}
+{
+  typedef int (*CVLsLinSysFn)(&realtype t, N\_Vector y, N\_Vector fy, \\
+                              &SUNMatrix M, booleantype jok, \\
+                              &booleantype *jcur, realtype gamma, \\
+                              &void *user\_data, N\_Vector tmp1, \\
+                              &N\_Vector tmp2, N\_Vector tmp3);
+}
+{
+  This function computes the linear system matrix $M = I - \gamma J$ (or an
+  approximation to it).
+}
+{
+  \begin{args}[user\_data]
+  \item[t]
+    is the current value of the independent variable.
+  \item[y]
+    is the current value of the dependent variable vector, namely the predicted
+    value of $y(t)$.
+  \item[fy]
+    is the current value of the vector $f(t,y)$.
+  \item[M]
+    is the output linear system matrix (of type \id{SUNMatrix}).
+  \item[jok]
+    is an input flag indicating whether the Jacobian-related data needs to be
+    updated. The \id{jok} flag enables reusing of Jacobian data across linear
+    solves however, the user is responsible for storing Jacobian data for
+    reuse. \id{jok = SUNFALSE} means that the Jacobian-related data must be
+    recomputed from scratch. \id{jok = SUNTRUE}  means that the Jacobian data,
+    if saved from the previous call to this function, can be reused (with the
+    current value of \id{gamma}). A call with \id{jok = SUNTRUE} can only occur
+    after a call with \id{jok = SUNFALSE}.
+  \item[jcur]
+    is a pointer to a flag which should be set to \id{SUNTRUE} if Jacobian data
+    was recomputed, or set to \id{SUNFALSE} if Jacobian data was not recomputed,
+    but saved data was still reused.
+  \item[gamma]
+    is the scalar $\gamma$ appearing in the matrix $M = I - \gamma J$.
+  \item[user\_data]
+    is a pointer to user data, the same as the \id{user\_data} parameter passed
+    to the function \id{CVodeSetUserData}.
+  \item[tmp1]
+  \item[tmp2]
+  \item[tmp3]
+    are pointers to memory allocated for variables of type \id{N\_Vector} which
+    can be used by a \id{CVLsLinSysFn} function as temporary storage or work
+    space.
+  \end{args}
+}
+{
+  A \id{CVLsLinSysFn} should return \id{0} if successful, a positive value if a
+  recoverable error occurred (in which case {\cvode} will attempt to correct,
+  while {\cvls} sets \id{last\_flag} to \Id{CVLS\_JACFUNC\_RECVR}), or a
+  negative value if it failed unrecoverably (in which case the integration is
+  halted, \id{CVode} returns \Id{CV\_LSETUP\_FAIL} and {\cvls} sets
+  \id{last\_flag} to \Id{CVLS\_JACFUNC\_UNRECVR}).
+}
+{}
+\index{Linear system function!user-supplied|)}
 
 
 %%==============================================================================

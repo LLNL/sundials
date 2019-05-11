@@ -84,6 +84,13 @@ routines for custom vector and matrix objects these functions also will ease the
 introduction of any new optional operations to the {\nvector} or {\sunmatrix}
 APIs by ensuring all operations are copied when cloning objects.
 
+The SUNLinearSolver API has been updated to make the initialize and setup
+functions optional.
+
+The IDALS interface has been updated to only zero the Jacobian matrix before
+calling a user-supplied Jacobian evaluation function when the attached linear
+solver has type \id{SUNLINEARSOLVER\_DIRECT}.
+
 Fixed a bug in the build system that prevented the {\nvecpthreads} module from
 being built.
 

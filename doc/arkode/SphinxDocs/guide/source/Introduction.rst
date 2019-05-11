@@ -127,6 +127,23 @@ routines for custom vector and matrix objects these functions also will ease the
 introduction of any new optional operations to the NVECTOR or SUNMATRIX APIs by
 ensuring all operations are copied when cloning objects.
 
+The SUNLinearSolver API has been updated to make the initialize and setup
+functions optional.
+
+A new linear solver interface function :c:func:`ARKLsLinSysFn` was added as an
+alternative method for evaluating the linear system :math:`A = M - \gamma J`.
+
+The ARKLS interface has been updated to only zero the Jacobian matrix before
+calling a user-supplied Jacobian evaluation function when the attached linear
+solver has type ``SUNLINEARSOLVER_DIRECT``.
+
+Fixed a bug in ARKStep where the mass matrix linear solver setup function was
+not called in the Matrix-free case.
+
+Fixed a minor bug in ARKStep where an incorrect flag is reported when an
+error occurs in the mass matrix setup or Jacobian-vector product setup
+functions.
+
 Fixed a bug in the build system that prevented the PThreads NVECTOR module from
 being built.
 

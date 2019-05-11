@@ -64,10 +64,7 @@ int IDASetLinearSolver(void *ida_mem, SUNLinearSolver LS, SUNMatrix A)
   IDA_mem = (IDAMem) ida_mem;
 
   /* Test if solver is compatible with LS interface */
-  if ( (LS->ops->gettype == NULL) ||
-       (LS->ops->initialize == NULL) ||
-       (LS->ops->setup == NULL) ||
-       (LS->ops->solve == NULL) ) {
+  if ( (LS->ops->gettype == NULL) || (LS->ops->solve == NULL) ) {
     IDAProcessError(IDA_mem, IDALS_ILL_INPUT, "IDALS",
                    "IDASetLinearSolver",
                    "LS object is missing a required operation");
@@ -1194,13 +1191,15 @@ int idaLsSetup(IDAMem IDA_mem, N_Vector y, N_Vector yp, N_Vector r,
     /* Increment nje counter. */
     idals_mem->nje++;
 
-    /* Zero out J; call Jacobian routine jac; return if it failed. */
-    retval = SUNMatZero(idals_mem->J);
-    if (retval != 0) {
-      IDAProcessError(IDA_mem, IDALS_SUNMAT_FAIL, "IDALS",
-                      "idaLsSetup", MSG_LS_MATZERO_FAILED);
-      idals_mem->last_flag = IDALS_SUNMAT_FAIL;
-      return(idals_mem->last_flag);
+    /* Clear the linear system matrix if necessary */
+    if (SUNLinSolGetType(idals_mem->LS) == SUNLINEARSOLVER_DIRECT) {
+      retval = SUNMatZero(idals_mem->J);
+      if (retval != 0) {
+        IDAProcessError(IDA_mem, IDALS_SUNMAT_FAIL, "IDALS",
+                        "idaLsSetup", MSG_LS_MATZERO_FAILED);
+        idals_mem->last_flag = IDALS_SUNMAT_FAIL;
+        return(idals_mem->last_flag);
+      }
     }
 
     /* Call Jacobian routine */

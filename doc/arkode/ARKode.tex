@@ -319,6 +319,23 @@ routines for custom vector and matrix objects these functions also will ease the
 introduction of any new optional operations to the NVECTOR or SUNMATRIX APIs by
 ensuring all operations are copied when cloning objects.
 
+The SUNLinearSolver API has been updated to make the initialize and setup
+functions optional.
+
+A new linear solver interface function {\hyperref[ARKStep_c_interface/User_supplied:c.ARKLsLinSysFn]{\emph{\code{ARKLsLinSysFn()}}}} was added as an
+alternative method for evaluating the linear system \(A = M - \gamma J\).
+
+The ARKLS interface has been updated to only zero the Jacobian matrix before
+calling a user-supplied Jacobian evaluation function when the attached linear
+solver has type \code{SUNLINEARSOLVER\_DIRECT}.
+
+Fixed a bug in ARKStep where the mass matrix linear solver setup function was
+not called in the Matrix-free case.
+
+Fixed a minor bug in ARKStep where an incorrect flag is reported when an
+error occurs in the mass matrix setup or Jacobian-vector product setup
+functions.
+
 Fixed a bug in the build system that prevented the PThreads NVECTOR module from
 being built.
 
@@ -7023,6 +7040,13 @@ Jacobian function
 \code{DQ}
 \\
 \hline
+Linear system function
+ & 
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetLinSysFn]{\emph{\code{ARKStepSetLinSysFn()}}}}
+ & 
+internal
+\\
+\hline
 Mass matrix function
  & 
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetMassFn]{\emph{\code{ARKStepSetMassFn()}}}}
@@ -7032,21 +7056,27 @@ none
 \hline\end{tabulary}
 
 
-When using matrix-based linear solver modules, the ARKLS solver
-interface needs a function to compute an approximation to the Jacobian
-matrix \(J(t,y)\). This function must be of type
-{\hyperref[ARKStep_c_interface/User_supplied:c.ARKLsJacFn]{\emph{\code{ARKLsJacFn()}}}}.  The user can supply a custom Jacobian
-function, or if using a dense or banded \(J\) can use the
-default internal difference quotient approximation that comes with the
-ARKLS interface.  At present, we do not supply a corresponding
-routine to approximate Jacobian entries in sparse matrices \(J\).
-To specify a user-supplied Jacobian function \emph{jac},
-ARKStep provides the function {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetJacFn]{\emph{\code{ARKStepSetJacFn()}}}}. The ARKLS
-interface passes the user data pointer to the Jacobian function. This
-allows the user to create an arbitrary structure with relevant problem
-data and access it during the execution of the user-supplied Jacobian
-function, without using global data in the program. The user
-data pointer may be specified through {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetUserData]{\emph{\code{ARKStepSetUserData()}}}}.
+When using matrix-based linear solver modules, the ARKLS solver interface needs
+a function to compute an approximation to the Jacobian matrix \(J(t,y)\) or
+the linear system \(M - \gamma J\). The function to evaluate the Jacobian
+must be of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKLsJacFn]{\emph{\code{ARKLsJacFn()}}}}. The user can supply a custom Jacobian
+function, or if using a dense or banded \(J\) can use the default internal
+difference quotient approximation that comes with the ARKLS interface.  At
+present, we do not supply a corresponding routine to approximate Jacobian
+entries in sparse matrices \(J\). To specify a user-supplied Jacobian
+function \emph{jac}, ARKStep provides the function {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetJacFn]{\emph{\code{ARKStepSetJacFn()}}}}.
+Alternatively, a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKLsLinSysFn]{\emph{\code{ARKLsLinSysFn()}}}} can be provided to
+evaluate the linear system \(M - \gamma J\). By default, ARKLS uses an
+internal linear system function leveraging the SUNMATRIX API to form the system
+\(M = I - \gamma J\). To specify a user-supplied linear system function
+\emph{linsys}, ARKStep provides the function {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetLinSysFn]{\emph{\code{ARKStepSetLinSysFn()}}}}.
+
+The ARKLS interface passes the user data pointer to the Jacobian and linear
+system functions. This allows the user to create an arbitrary structure with
+relevant problem data and access it during the execution of the user-supplied
+Jacobian or linear system functions, without using global data in the
+program. The user data pointer may be specified through
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetUserData]{\emph{\code{ARKStepSetUserData()}}}}.
 
 Similarly, if the ODE system involves a non-identity mass matrix,
 \(M\ne I\), matrix-based linear solver modules require a function
@@ -7100,6 +7130,49 @@ default is used. An error will occur if no \emph{jac} is supplied when
 using other matrix types.
 
 The function type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKLsJacFn]{\emph{\code{ARKLsJacFn()}}}} is described in the section
+{\hyperref[ARKStep_c_interface/User_supplied:arkstep-cinterface-usersupplied]{\emph{\DUspan{}{User-supplied functions}}}}.
+
+\end{fulllineitems}
+
+\index{ARKStepSetLinSysFn (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetLinSysFn}\pysiglinewithargsret{int \bfcode{ARKStepSetLinSysFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKLsLinSysFn]{\emph{ARKLsLinSysFn}}}\emph{ linsys}}{}
+Specifies the linear system approximation routine to be used for the
+matrix-based solver with the ARKLS interface.
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{arkode\_mem} -- pointer to the ARKStep memory block.
+
+\item {} 
+\emph{linsys} -- name of user-supplied linear system approximation function.
+
+\end{itemize}
+
+\item[{\textbf{Return value:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{ARKLS\_SUCCESS}  if successful
+
+\item {} 
+\emph{ARKLS\_MEM\_NULL}  if the ARKStep memory was \code{NULL}
+
+\item {} 
+\emph{ARKLS\_LMEM\_NULL} if the linear solver memory was \code{NULL}
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Notes:} This routine must be called after the ARKLS linear
+solver interface has been initialized through a call to
+{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetLinearSolver]{\emph{\code{ARKStepSetLinearSolver()}}}}.
+
+By default, ARKLS uses an internal linear system function that leverages the
+SUNMATRIX API to form the system \(M - \gamma J\).  If \code{NULL} is passed
+in for \emph{linsys}, this default is used.
+
+The function type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKLsLinSysFn]{\emph{\code{ARKLsLinSysFn()}}}} is described in the section
 {\hyperref[ARKStep_c_interface/User_supplied:arkstep-cinterface-usersupplied]{\emph{\DUspan{}{User-supplied functions}}}}.
 
 \end{fulllineitems}
@@ -10577,11 +10650,12 @@ integration is halted and ARKStep returns \emph{ARK\_RTFUNC\_FAIL}).
 
 \subsection{Jacobian construction (matrix-based linear solvers)}
 \label{ARKStep_c_interface/User_supplied:jacobian-construction-matrix-based-linear-solvers}\label{ARKStep_c_interface/User_supplied:arkstep-cinterface-jacobianfn}
-If a matrix-based linear solver module is used (i.e., a non-NULL
-\code{SUNMatrix} object was supplied to
-{\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetLinearSolver]{\emph{\code{ARKStepSetLinearSolver()}}}} in section
-{\hyperref[ARKStep_c_interface/Skeleton:arkstep-cinterface-skeleton]{\emph{\DUspan{}{A skeleton of the user's main program}}}}), the user may provide a
-function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKLsJacFn]{\emph{\code{ARKLsJacFn}}}} to provide the Jacobian approximation.
+If a matrix-based linear solver module is used (i.e., a non-NULL \code{SUNMatrix}
+object was supplied to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetLinearSolver]{\emph{\code{ARKStepSetLinearSolver()}}}} in section
+{\hyperref[ARKStep_c_interface/Skeleton:arkstep-cinterface-skeleton]{\emph{\DUspan{}{A skeleton of the user's main program}}}}), the user may provide a function of type
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKLsJacFn]{\emph{\code{ARKLsJacFn}}}} to provide the Jacobian approximation or
+{\hyperref[ARKStep_c_interface/User_supplied:c.ARKLsLinSysFn]{\emph{\code{ARKLsLinSysFn}}}} to provide an approximation of the linear system
+\(A = I - \gamma J\) or \(A = M - \gamma J\).
 \index{ARKLsJacFn (C type)}
 
 \begin{fulllineitems}
@@ -10634,6 +10708,11 @@ implementation-specific \code{SUNMatrix} interface functions
 Prior to calling the user-supplied Jacobian function, the Jacobian
 matrix \(J(t,y)\) is zeroed out, so only nonzero elements need
 to be loaded into \emph{Jac}.
+
+With direct linear solvers (i.e., linear solvers with type
+\code{SUNLINEARSOLVER\_DIRECT}), the Jacobian matrix \(J(t,y)\) is zeroed out
+prior to calling the user-supplied Jacobian function so only nonzero elements
+need to be loaded into \emph{Jac}.
 
 If the user's {\hyperref[ARKStep_c_interface/User_supplied:c.ARKLsJacFn]{\emph{\code{ARKLsJacFn}}}} function uses difference
 quotient approximations, then it may need to access quantities not
@@ -10720,6 +10799,72 @@ amount of allocated space in a SUNMATRIX\_SPARSE object may be
 accessed using the macro \code{SM\_NNZ\_S} or the routine
 {\hyperref[sunmatrix/SUNMatrix_Sparse:c.SUNSparseMatrix_NNZ]{\emph{\code{SUNSparseMatrix\_NNZ()}}}}.  The SUNMATRIX\_SPARSE type is
 further documented in the section {\hyperref[sunmatrix/SUNMatrix_Sparse:sunmatrix-sparse]{\emph{\DUspan{}{The SUNMATRIX\_SPARSE Module}}}}.
+
+\end{fulllineitems}
+
+\index{ARKLsLinSysFn (C type)}
+
+\begin{fulllineitems}
+\phantomsection\label{ARKStep_c_interface/User_supplied:c.ARKLsLinSysFn}\pysiglinewithargsret{typedef int \bfcode{(*ARKLsLinSysFn)}}{realtype\emph{ t}, N\_Vector\emph{ y}, N\_Vector\emph{ fy}, SUNMatrix\emph{ A}, SUNMatrix\emph{ M}, booleantype\emph{ jok}, booleantype\emph{ *jcur}, realtype\emph{ gamma}, void\emph{ *user\_data}, N\_Vector\emph{ tmp1}, N\_Vector\emph{ tmp2}, N\_Vector\emph{ tmp3}}{}
+This function computes the linear system matrix \(A = M - \gamma J\) (or
+an approximation to it).
+\begin{description}
+\item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
+\item {} 
+\emph{t} -- the current value of the independent variable.
+
+\item {} 
+\emph{y} -- the current value of the dependent variable vector, namely the
+predicted value of \(y(t)\).
+
+\item {} 
+\emph{fy} -- the current value of the vector \(f^I(t,y)\).
+
+\item {} 
+\emph{A} -- the output linear system matrix.
+
+\item {} 
+\emph{M} -- the current mass matrix (this input is \code{NULL} if \(M = I\)).
+
+\item {} 
+\emph{jok} -- is an input flag indicating whether the Jacobian-related data
+needs to be updated. The \emph{jok} argument provides for the reuse of
+Jacobian data in the preconditioner solve function. When \emph{jok} =
+\code{SUNFALSE}, the Jacobian-related data should be recomputed from
+scratch. When \emph{jok} = \code{SUNTRUE} the Jacobian data, if saved from the
+previous call to this function, can be reused (with the current value of
+\emph{gamma}). A call with \emph{jok} = \code{SUNTRUE} can only occur after a call
+with \emph{jok} = \code{SUNFALSE}.
+
+\item {} 
+\emph{jcur} -- is a pointer to a flag which should be set to \code{SUNTRUE} if
+Jacobian data was recomputed, or set to \code{SUNFALSE} if Jacobian data
+was not recomputed, but saved data was still reused.
+
+\item {} 
+\emph{gamma} -- the scalar \(\gamma\) appearing in the Newton matrix
+given by \(A=I-\gamma J\) or \(A=M-\gamma J\).
+
+\item {} 
+\emph{user\_data} -- a pointer to user data, the same as the \emph{user\_data}
+parameter that was passed to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetUserData]{\emph{\code{ARKStepSetUserData()}}}}.
+
+\item {} 
+\emph{tmp1}, \emph{tmp2}, \emph{tmp3} -- pointers to memory allocated to variables of
+type \code{N\_Vector} which can be used by an ARKLsLinSysFn as temporary
+storage or work space.
+
+\end{itemize}
+
+\end{description}
+
+\textbf{Return value:}
+An \emph{ARKLsLinSysFn} function should return 0 if successful, a positive value
+if a recoverable error occurred (in which case ARKStep will attempt to
+correct, while ARKLS sets \emph{last\_flag} to \emph{ARKLS\_JACFUNC\_RECVR}), or a
+negative value if it failed unrecoverably (in which case the integration is
+halted, {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepEvolve]{\emph{\code{ARKStepEvolve()}}}} returns \emph{ARK\_LSETUP\_FAIL} and ARKLS sets
+\emph{last\_flag} to \emph{ARKLS\_JACFUNC\_UNRECVR}).
 
 \end{fulllineitems}
 
@@ -31619,14 +31764,13 @@ functions are defined in the header file
 
 \subsection{SUNLinearSolver core functions}
 \label{sunlinsol/SUNLinSol_API:sunlinsol-corefn}\label{sunlinsol/SUNLinSol_API:sunlinearsolver-core-functions}
-The core linear solver functions consist of four required routines to get
-the linear solver type ({\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolGetType]{\emph{\code{SUNLinSolGetType()}}}}), initialize
-the linear solver object once all solver-specific options have been
-set ({\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolInitialize]{\emph{\code{SUNLinSolInitialize()}}}}), set up the linear solver object
-to utilize an updated matrix \(A\) ({\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolSetup]{\emph{\code{SUNLinSolSetup()}}}}),
-and solve the linear system \(Ax=b\) ({\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolSolve]{\emph{\code{SUNLinSolSolve()}}}}).
-The remaining routine for destruction of the linear solver object
-({\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolFree]{\emph{\code{SUNLinSolFree()}}}}) is optional.
+The core linear solver functions consist of two required functions to get the
+linear solver type ({\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolGetType]{\emph{\code{SUNLinSolGetType()}}}}) and solve the linear system
+\(Ax=b\) ({\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolSolve]{\emph{\code{SUNLinSolSolve()}}}}). The remaining three functions for
+initializing the linear solver object once all solver-specific options have been
+set ({\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolInitialize]{\emph{\code{SUNLinSolInitialize()}}}}), setting up the linear solver object to
+utilize an updated matrix \(A\) ({\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolSetup]{\emph{\code{SUNLinSolSetup()}}}}), and for
+destroying the linear solver object ({\hyperref[sunlinsol/SUNLinSol_API:c.SUNLinSolFree]{\emph{\code{SUNLinSolFree()}}}}) are optional.
 \index{SUNLinSolGetType (C function)}
 
 \begin{fulllineitems}

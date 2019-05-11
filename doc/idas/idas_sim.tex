@@ -4289,9 +4289,10 @@ provide a function of type \ID{IDALsJacFn} defined as follows:
   {\sunmatrix} interface functions (see Chapter \ref{s:sunmatrix} for
   details).
 
-  Prior to calling the user-supplied Jacobian function, the Jacobian
-  matrix $J(t,y)$ is zeroed out, so only nonzero elements need to be
-  loaded into \id{Jac}.
+  With direct linear solvers (i.e., linear solvers with type
+  \Id{SUNLINEARSOLVER\_DIRECT}), the Jacobian matrix $J(t,y)$ is zeroed out
+  prior to calling the user-supplied Jacobian function so only nonzero elements
+  need to be loaded into \id{Jac}.
 
   If the user's \id{IDALsJacFn} function uses difference
   quotient approximations, it may need to access quantities not in the

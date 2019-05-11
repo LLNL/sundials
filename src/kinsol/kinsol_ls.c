@@ -63,10 +63,7 @@ int KINSetLinearSolver(void *kinmem, SUNLinearSolver LS, SUNMatrix A)
   kin_mem = (KINMem) kinmem;
 
   /* Test if solver is compatible with LS interface */
-  if ( (LS->ops->gettype == NULL) ||
-       (LS->ops->initialize == NULL) ||
-       (LS->ops->setup == NULL) ||
-       (LS->ops->solve == NULL) ) {
+  if ( (LS->ops->gettype == NULL) || (LS->ops->solve == NULL) ) {
     KINProcessError(kin_mem, KINLS_ILL_INPUT, "KINLS",
                    "KINSetLinearSolver",
                    "LS object is missing a required operation");
@@ -1084,20 +1081,21 @@ int kinLsSetup(KINMem kin_mem)
   }
   kinls_mem = (KINLsMem) kin_mem->kin_lmem;
 
-
   /* recompute if J if it is non-NULL */
   if (kinls_mem->J) {
 
     /* Increment nje counter. */
     kinls_mem->nje++;
 
-    /* Zero out J */
-    retval = SUNMatZero(kinls_mem->J);
-    if (retval != 0) {
-      KINProcessError(kin_mem, KINLS_SUNMAT_FAIL, "KINLS",
-                      "kinLsSetup", MSG_LS_MATZERO_FAILED);
-      kinls_mem->last_flag = KINLS_SUNMAT_FAIL;
-      return(kinls_mem->last_flag);
+    /* Clear the linear system matrix if necessary */
+    if (SUNLinSolGetType(kinls_mem->LS) == SUNLINEARSOLVER_DIRECT) {
+      retval = SUNMatZero(kinls_mem->J);
+      if (retval != 0) {
+        KINProcessError(kin_mem, KINLS_SUNMAT_FAIL, "KINLS",
+                        "kinLsSetup", MSG_LS_MATZERO_FAILED);
+        kinls_mem->last_flag = KINLS_SUNMAT_FAIL;
+        return(kinls_mem->last_flag);
+      }
     }
 
     /* Call Jacobian routine */

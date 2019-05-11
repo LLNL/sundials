@@ -12,8 +12,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  *-----------------------------------------------------------------
- * Implementation header file for the scaled, preconditioned
- * linear solver interface.
+ * Implementation header file for CVODES' linear solver interface.
  *-----------------------------------------------------------------*/
 
 #ifndef _CVSLS_IMPL_H
@@ -25,6 +24,7 @@
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
 extern "C" {
 #endif
+
 
 /*-----------------------------------------------------------------
   CVSLS solver constants
@@ -109,6 +109,17 @@ typedef struct CVLsMemRec {
   CVLsJacTimesVecFn jtimes;
   void *jt_data;
 
+  /* Linear system setup function
+   * (a) user-provided linsys function:
+   *     - user_linsys = SUNTRUE
+   *     - A_data      = user_data
+   * (b) internal linsys function:
+   *     - user_linsys = SUNFALSE
+   *     - A_data      = cvode_mem */
+  booleantype user_linsys;
+  CVLsLinSysFn linsys;
+  void* A_data;
+
   long int last_flag; /* last error flag returned by any function */
 
 } *CVLsMem;
@@ -169,6 +180,8 @@ typedef struct CVLsMemRecB {
   CVLsJacTimesSetupFnBS jtsetupBS;
   CVLsJacTimesVecFnB    jtimesB;
   CVLsJacTimesVecFnBS   jtimesBS;
+  CVLsLinSysFnB         linsysB;
+  CVLsLinSysFnBS        linsysBS;
   CVLsPrecSetupFnB      psetB;
   CVLsPrecSetupFnBS     psetBS;
   CVLsPrecSolveFnB      psolveB;
@@ -198,13 +211,13 @@ int cvLs_AccessLMemBCur(void *cvode_mem, const char *fname,
 #define MSG_LS_CVMEM_NULL     "Integrator memory is NULL."
 #define MSG_LS_MEM_FAIL       "A memory request failed."
 #define MSG_LS_BAD_NVECTOR    "A required vector operation is not implemented."
-#define MSG_LS_BAD_SIZES      "Illegal bandwidth parameter(s). Must have 0 <=  ml, mu <= N-1."
 #define MSG_LS_BAD_LSTYPE     "Incompatible linear solver type."
+#define MSG_LS_LMEM_NULL      "Linear solver memory is NULL."
+#define MSG_LS_BAD_SIZES      "Illegal bandwidth parameter(s). Must have 0 <=  ml, mu <= N-1."
+#define MSG_LS_BAD_EPLIN      "eplifac < 0 illegal."
 #define MSG_LS_BAD_PRETYPE    "Illegal value for pretype. Legal values are PREC_NONE, PREC_LEFT, PREC_RIGHT, and PREC_BOTH."
 #define MSG_LS_PSOLVE_REQ     "pretype != PREC_NONE, but PSOLVE = NULL is illegal."
-#define MSG_LS_LMEM_NULL      "Linear solver memory is NULL."
 #define MSG_LS_BAD_GSTYPE     "Illegal value for gstype. Legal values are MODIFIED_GS and CLASSICAL_GS."
-#define MSG_LS_BAD_EPLIN      "eplifac < 0 illegal."
 
 #define MSG_LS_PSET_FAILED    "The preconditioner setup routine failed in an unrecoverable manner."
 #define MSG_LS_PSOLVE_FAILED  "The preconditioner solve routine failed in an unrecoverable manner."

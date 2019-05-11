@@ -38,14 +38,13 @@ functions are defined in the header file
 SUNLinearSolver core functions
 -----------------------------------------------------
 
-The core linear solver functions consist of four required routines to get
-the linear solver type (:c:func:`SUNLinSolGetType()`), initialize
-the linear solver object once all solver-specific options have been
-set (:c:func:`SUNLinSolInitialize()`), set up the linear solver object
-to utilize an updated matrix :math:`A` (:c:func:`SUNLinSolSetup()`),
-and solve the linear system :math:`Ax=b` (:c:func:`SUNLinSolSolve()`).
-The remaining routine for destruction of the linear solver object
-(:c:func:`SUNLinSolFree()`) is optional.
+The core linear solver functions consist of two required functions to get the
+linear solver type (:c:func:`SUNLinSolGetType`) and solve the linear system
+:math:`Ax=b` (:c:func:`SUNLinSolSolve`). The remaining three functions for
+initializing the linear solver object once all solver-specific options have been
+set (:c:func:`SUNLinSolInitialize`), setting up the linear solver object to
+utilize an updated matrix :math:`A` (:c:func:`SUNLinSolSetup`), and for
+destroying the linear solver object (:c:func:`SUNLinSolFree`) are optional.
 
 
 .. c:function:: SUNLinearSolver_Type SUNLinSolGetType(SUNLinearSolver LS)

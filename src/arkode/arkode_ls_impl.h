@@ -102,6 +102,17 @@ typedef struct ARKLsMemRec {
   ARKLsJacTimesVecFn jtimes;
   void *Jt_data;
 
+  /* Linear system setup function
+   * (a) user-provided linsys function:
+   *     - user_linsys = SUNTRUE
+   *     - A_data      = user_data
+   * (b) internal linsys function:
+   *     - user_linsys = SUNFALSE
+   *     - A_data      = cvode_mem */
+  booleantype user_linsys;
+  ARKLsLinSysFn linsys;
+  void* A_data;
+
   long int last_flag; /* last error flag returned by any function */
 
 } *ARKLsMem;
@@ -249,6 +260,7 @@ int arkLSSetJacTimes(void* arkode_mem, ARKLsJacTimesSetupFn jtsetup,
                      ARKLsJacTimesVecFn jtimes);
 int arkLSSetMassTimes(void* arkode_mem, ARKLsMassTimesSetupFn msetup,
                       ARKLsMassTimesVecFn mtimes, void* mtimes_data);
+int arkLSSetLinSysFn(void* arkode_mem, ARKLsLinSysFn linsys);
 
 int arkLSGetWorkSpace(void* arkode_mem, long int* lenrwLS, long int* leniwLS);
 int arkLSGetNumJacEvals(void* arkode_mem, long int* njevals);

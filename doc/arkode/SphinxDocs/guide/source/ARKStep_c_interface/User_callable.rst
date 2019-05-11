@@ -2119,24 +2119,31 @@ Optional inputs for matrix-based ``SUNLinearSolver`` modules
 Optional input              Function name                    Default
 ==========================  ===============================  =============
 Jacobian function           :c:func:`ARKStepSetJacFn()`      ``DQ``
+Linear system function      :c:func:`ARKStepSetLinSysFn()`   internal
 Mass matrix function        :c:func:`ARKStepSetMassFn()`     none
 ==========================  ===============================  =============
 
-When using matrix-based linear solver modules, the ARKLS solver
-interface needs a function to compute an approximation to the Jacobian
-matrix :math:`J(t,y)`. This function must be of type
-:c:func:`ARKLsJacFn()`.  The user can supply a custom Jacobian
-function, or if using a dense or banded :math:`J` can use the
-default internal difference quotient approximation that comes with the
-ARKLS interface.  At present, we do not supply a corresponding
-routine to approximate Jacobian entries in sparse matrices :math:`J`.
-To specify a user-supplied Jacobian function *jac*,
-ARKStep provides the function :c:func:`ARKStepSetJacFn()`. The ARKLS
-interface passes the user data pointer to the Jacobian function. This
-allows the user to create an arbitrary structure with relevant problem
-data and access it during the execution of the user-supplied Jacobian
-function, without using global data in the program. The user
-data pointer may be specified through :c:func:`ARKStepSetUserData()`.
+When using matrix-based linear solver modules, the ARKLS solver interface needs
+a function to compute an approximation to the Jacobian matrix :math:`J(t,y)` or
+the linear system :math:`M - \gamma J`. The function to evaluate the Jacobian
+must be of type :c:func:`ARKLsJacFn()`. The user can supply a custom Jacobian
+function, or if using a dense or banded :math:`J` can use the default internal
+difference quotient approximation that comes with the ARKLS interface.  At
+present, we do not supply a corresponding routine to approximate Jacobian
+entries in sparse matrices :math:`J`. To specify a user-supplied Jacobian
+function *jac*, ARKStep provides the function :c:func:`ARKStepSetJacFn()`.
+Alternatively, a function of type :c:func:`ARKLsLinSysFn()` can be provided to
+evaluate the linear system :math:`M - \gamma J`. By default, ARKLS uses an
+internal linear system function leveraging the SUNMATRIX API to form the system
+:math:`M = I - \gamma J`. To specify a user-supplied linear system function
+*linsys*, ARKStep provides the function :c:func:`ARKStepSetLinSysFn()`. 
+
+The ARKLS interface passes the user data pointer to the Jacobian and linear
+system functions. This allows the user to create an arbitrary structure with
+relevant problem data and access it during the execution of the user-supplied
+Jacobian or linear system functions, without using global data in the
+program. The user data pointer may be specified through
+:c:func:`ARKStepSetUserData()`.
 
 Similarly, if the ODE system involves a non-identity mass matrix,
 :math:`M\ne I`, matrix-based linear solver modules require a function
@@ -2179,6 +2186,31 @@ data may be specified through :c:func:`ARKStepSetUserData()`.
    The function type :c:func:`ARKLsJacFn()` is described in the section
    :ref:`ARKStep_CInterface.UserSupplied`.
 
+
+.. c:function:: int ARKStepSetLinSysFn(void* arkode_mem, ARKLsLinSysFn linsys)
+
+   Specifies the linear system approximation routine to be used for the
+   matrix-based solver with the ARKLS interface. 
+
+   **Arguments:**
+      * *arkode_mem* -- pointer to the ARKStep memory block.
+      * *linsys* -- name of user-supplied linear system approximation function.
+
+   **Return value:**
+      * *ARKLS_SUCCESS*  if successful
+      * *ARKLS_MEM_NULL*  if the ARKStep memory was ``NULL``
+      * *ARKLS_LMEM_NULL* if the linear solver memory was ``NULL``
+
+   **Notes:** This routine must be called after the ARKLS linear
+   solver interface has been initialized through a call to
+   :c:func:`ARKStepSetLinearSolver()`.
+
+   By default, ARKLS uses an internal linear system function that leverages the
+   SUNMATRIX API to form the system :math:`M - \gamma J`.  If ``NULL`` is passed
+   in for *linsys*, this default is used.
+
+   The function type :c:func:`ARKLsLinSysFn()` is described in the section
+   :ref:`ARKStep_CInterface.UserSupplied`.
 
 
 .. c:function:: int ARKStepSetMassFn(void* arkode_mem, ARKLsMassFn mass)

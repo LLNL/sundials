@@ -77,6 +77,11 @@ typedef int (*ARKLsJacTimesVecFn)(N_Vector v, N_Vector Jv,
                                   N_Vector fy, void *user_data,
                                   N_Vector tmp);
 
+typedef int (*ARKLsLinSysFn)(realtype t, N_Vector y, N_Vector fy, SUNMatrix A,
+                             SUNMatrix M, booleantype jok, booleantype *jcur,
+                             realtype gamma, void *user_data, N_Vector tmp1,
+                             N_Vector tmp2, N_Vector tmp3);
+
 typedef int (*ARKLsMassTimesSetupFn)(realtype t, void *mtimes_data);
 
 

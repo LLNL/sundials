@@ -570,6 +570,10 @@ static int J(realtype t, N_Vector y, N_Vector ydot, SUNMatrix Jac,
   HYPRE_Int    ix, iy, is, ie, js, je, index[2];
   int          ierr;
 
+  // zero-out the Jacobian
+  ierr = Hypre5ptMatrix_Zero(Jac);
+  if (ierr != 0) return(-1);
+
   // iterate over subdomain interior setting stencil entries
   is = (udata->HaveBdry[0][0]) ? 1 : 0;
   ie = (udata->HaveBdry[0][1]) ? nxl-1 : nxl;

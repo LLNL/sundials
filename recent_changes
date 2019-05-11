@@ -16,8 +16,19 @@ these functions also will ease the introduction of any new optional operations
 to the NVECTOR or SUNMATRIX APIs by ensuring all operations are copied when
 cloning objects.
 
+New linear solver interface functions ARKLsLinSysFn and CVLsLinSysFn were added
+as alternative methods for evaluating the linear systems M - gamma J and
+I - gamma J respectively.
+
 Fixed a bug in the build system that prevented the PThreads NVECTOR module from
 being built.
+
+Fixed a bug in ARKStep where the mass matrix linear solver setup function was
+not called in the Matrix-free case.
+
+Fixed a minor bug in ARKStep where an incorrect flag is reported when an
+error occurs in the mass matrix setup or Jacobian-vector product setup
+functions.
 
 Fixed a memory leak in the NVECTOR_PETSC clone function.
 

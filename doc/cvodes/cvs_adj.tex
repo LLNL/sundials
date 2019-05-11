@@ -1231,11 +1231,12 @@ has not been called, or \Id{CV\_ILL\_INPUT} if \id{which} was an invalid identif
 \index{optional input!generic linear solver interface|(}
 \index{CVLS@{\cvls} linear solver interface!optional input|(}
 \index{optional input!matrix-based linear solver|(}
-When using matrix-based linear solver modules, the {\cvls} solver
-interface needs a function to compute an approximation to the Jacobian
-for the backward problem.  This Jacobian evaluation function can
-be attached through a call to either \id{CVodeSetJacFnB} or \id{CVodeSetJacFnBS},
-with the second used when the backward problem depends on the forwrad sensitivities.
+When using matrix-based linear solver modules, the {\cvls} solver interface
+needs a function to compute an approximation to the Jacobian matrix or the
+linear system for the backward problem. The function to evaluate the Jacobian
+can be attached through a call to either \id{CVodeSetJacFnB} or
+\id{CVodeSetJacFnBS}, with the second used when the backward problem depends 
+on the forward sensitivities.
 %%
 \index{Jacobian approximation function!user-supplied (backward)}
 \ucfunction{CVodeSetJacFnB}
@@ -1326,6 +1327,88 @@ with the second used when the backward problem depends on the forwrad sensitivit
   users transition to the new routine name soon.
 }
 %%
+Alternatively, a function to evaluate the linear system can be attached
+through a call to either \id{CVodeSetLinSysFnB} or \id{CVodeSetLinSysFnBS}, with
+the second used when the backward problem depends on the forwrad sensitivities.
+%%
+\index{Linear system approximation function!user-supplied (backward)}
+\ucfunction{CVodeSetLinSysFnB}
+{
+  flag = CVodeSetLinSysFnB(cvode\_mem, which, linsysB);
+}
+{
+  The function \ID{CVodeSetLinSysFnB} specifies the linear system
+  approximation function to be used for the backward problem.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvodes} memory returned by \id{CVodeCreate}.
+  \item[which] (\id{int})
+    represents the identifier of the backward problem.
+  \item[linsysB] (\id{CVLsLinSysFnB})
+    user-defined linear system approximation function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[CVLS\_ILL\_INPUT]
+  \item[\Id{CVLS\_SUCCESS}] 
+    \id{CVodeSetLinSysFnB} succeeded.
+  \item[\Id{CVLS\_MEM\_NULL}]
+    \id{cvode\_mem} was \id{NULL}.
+  \item[\Id{CVLS\_NO\_ADJ}]
+    The function \id{CVodeAdjInit} has not been previously called.
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The linear solver has not been initialized with a call to \\ \noindent
+    \id{CVodeSetLinearSolverB}.
+  \item[\Id{CVLS\_ILL\_INPUT}]
+    The parameter \id{which} represented an invalid identifier.
+  \end{args}
+}
+{
+  The function type \id{CVLsLinSysFnB} is described in \S\ref{ss:linsysFn_b}.
+}
+%%
+\index{Linear system approximation function!user-supplied (backward)}
+\ucfunction{CVodeSetLinSysFnBS}
+{
+  flag = CVodeSetLinSysFnBS(cvode\_mem, which, linsysBS);
+}
+{
+  The function \ID{CVodeSetLinSysFnBS} specifies the linear system
+  approximation function to be used for the backward problem, in the
+  case where the backward problem depends on the forward sensitivities.
+}
+{
+  \begin{args}[cvode\_mem]
+  \item[cvode\_mem] (\id{void *})
+    pointer to the {\cvodes} memory returned by \id{CVodeCreate}.
+  \item[which] (\id{int})
+    represents the identifier of the backward problem.
+  \item[linsysBS] (\id{CVLsLinSysFnBS})
+    user-defined linear system approximation function.
+  \end{args}
+}
+{
+  The return value \id{flag} (of type \id{int}) is one of:
+  \begin{args}[CVLS\_ILL\_INPUT]
+  \item[\Id{CVLS\_SUCCESS}] 
+    \id{CVodeSetLinSysFnBS} succeeded.
+  \item[\Id{CVLS\_MEM\_NULL}]
+    \id{cvode\_mem} was \id{NULL}.
+  \item[\Id{CVLS\_NO\_ADJ}]
+    The function \id{CVodeAdjInit} has not been previously called.
+  \item[\Id{CVLS\_LMEM\_NULL}]
+    The linear solver has not been initialized with a call to \\ \noindent
+    \id{CVodeSetLinearSolverB}.
+  \item[\Id{CVLS\_ILL\_INPUT}]
+    The parameter \id{which} represented an invalid identifier.
+  \end{args}
+}
+{
+  The function type \id{CVLsLinSysFnBS} is described in \S\ref{ss:linsysFn_b}.
+}
 \index{optional input!matrix-based linear solver|)}
 %%
 %%
@@ -2250,8 +2333,11 @@ defined as follows:
   type) may be obtained through using the implementation-specific
   {\sunmatrix} interface functions (see Chapter \ref{s:sunmatrix} for
   details).
-  Only nonzero elements need to be loaded into \id{JacB} as this matrix 
-  is set to zero before the call to the Jacobian function. 
+
+  With direct linear solvers (i.e., linear solvers with type
+  \Id{SUNLINEARSOLVER\_DIRECT}), the Jacobian matrix $J(t,y)$ is zeroed out
+  prior to calling the user-supplied Jacobian function so only nonzero elements
+  need to be loaded into \id{JacB}.
   
   {\warn}Before calling the user's \id{CVLsJacFnB}, {\cvodes} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
@@ -2323,8 +2409,11 @@ defined as follows:
   type) may be obtained through using the implementation-specific
   {\sunmatrix} interface functions (see Chapter \ref{s:sunmatrix} for
   details).
-  Only nonzero elements need to be loaded into \id{JacB} as this matrix 
-  is set to zero before the call to the Jacobian function. 
+
+  With direct linear solvers (i.e., linear solvers with type
+  \Id{SUNLINEARSOLVER\_DIRECT}, the Jacobian matrix $J(t,y)$ is zeroed out prior
+  to calling the user-supplied Jacobian function so only nonzero elements need
+  to be loaded into \id{JacB}.
   
   {\warn}Before calling the user's \id{CVLsJacFnBS}, {\cvodes} needs to evaluate
   (through interpolation) the values of the states from the forward integration. 
@@ -2337,6 +2426,154 @@ defined as follows:
   \id{CVLsJacFnBS}, and may still be used for backward-compatibility.
   However, this will be deprecated in future releases, so we recommend
   that users transition to the new function type name soon.
+}
+
+%%==============================================================================
+\subsection{Linear system construction for the backward problem (matrix-based linear solvers)}
+
+With matrix-based linear solver modules, as an alternative to optionally
+supplying a function for evaluating the Jacobian of the ODE right-hand side
+function, the user may optionally supply a function of type \ID{CVLsLinSysFnB}
+or \ID{CVLsLinSysFnBS} (see \S\ref{ss:optional_input_b}) for evaluating the
+linear system, $M_B = I - \gamma_B J_B$ (or an approximation of it) for the
+backward problem.
+%%
+\index{Linear system approximation function!user-supplied (backward)}
+\usfunction{CVLsLinSysFnB}
+{
+  typedef int (*CVLsLinSysFnB)(&realtype t, N\_Vector y, N\_Vector yB, \\
+                               &N\_Vector fyB, SUNMatrix AB, \\
+                               &booleantype jokB, booleantype *jcurB,\\
+                               &realtype gammaB, void *user\_dataB, \\
+                               &N\_Vector tmp1B, N\_Vector tmp2B, \\
+                               &N\_Vector tmp3B);
+}
+{
+  This function computes the linear system of the backward problem (or an
+  approximation to it). 
+}
+{
+  \begin{args}[user\_dataB]
+  \item[t]
+    is the current value of the independent variable.
+  \item[y]
+    is the current value of the forward solution vector.
+  \item[yB]
+    is the current value of the backward dependent variable vector.
+  \item[fyB]
+    is the current value of the backward right-hand side function $f_B$.
+  \item[MB]
+    is the output approximate linear system matrix.
+  \item[jokB]
+    is an input flag indicating whether Jacobian-related
+    data needs to be recomputed (\id{jokB}=\id{SUNFALSE}) or information saved 
+    from a previous invokation can be safely used (\id{jokB}=\id{SUNTRUE}).
+  \item[jcurB]
+    is an output flag which must be set to \id{SUNTRUE} if Jacobian-relatd data 
+    was recomputed or \id{SUNFALSE} otherwise.
+  \item[gammaB]
+    is the scalar appearing in the matrix $M_B = I - \gamma_B J_B$.
+  \item[user\_dataB]
+    is a pointer to user data --- the same as the \id{user\_dataB}
+    parameter passed to \id{CVodeSetUserDataB}.
+  \item[tmp1B]
+  \item[tmp2B]
+  \item[tmp3B]
+    are pointers to memory allocated  for variables of type \id{N\_Vector} which 
+    can be used by the \id{CVLsLinSysFnB} function as temporary storage or work space.    
+  \end{args}
+}
+{
+  A \id{CVLsLinSysFnB} should return \id{0} if successful, a positive value if a
+  recoverable error occurred (in which case {\cvodes} will attempt to correct,
+  while {\cvls} sets \id{last\_flag} to \Id{CVLS\_JACFUNC\_RECVR}), or a
+  negative value if it failed unrecoverably (in which case the integration is
+  halted, \id{CVodeB} returns \Id{CV\_LSETUP\_FAIL} and {\cvls} sets
+  \id{last\_flag} to \Id{CVLS\_JACFUNC\_UNRECVR}).
+}
+{
+  A user-supplied linear system function must load the matrix \id{MB} with an
+  approximation to the linear system matrix at the point (\id{t}, \id{y},
+  \id{yB}), where \id{y} is the solution of the original IVP at time \id{tt},
+  and \id{yB} is the solution of the backward problem at the same time.
+
+  {\warn}Before calling the user's \id{CVLsLinSysFnB}, {\cvodes} needs to
+  evaluate (through interpolation) the values of the states from the forward
+  integration. If an error occurs in the interpolation, {\cvodes} triggers an
+  unrecoverable failure in the linear system function which will halt the
+  integration (\id{CVodeB} returns \id{CV\_LSETUP\_FAIL} and {\cvls} sets
+  \id{last\_flag} to \Id{CVLS\_JACFUNC\_UNRECVR}).
+}
+%%
+\index{Linear system approximation function!user-supplied (backward)}
+\usfunction{CVLsLinSysFnBS}
+{
+  typedef int (*CVLsLinSysFnBS)(&realtype t, N\_Vector y, N\_Vector* yS,\\
+                                &N\_Vector yB, N\_Vector fyB, SUNMatrix MB,\\
+                                &booleantype jokB, booleantype *jcurB,\\
+                                &realtype gammaB, void *user\_dataB, \\
+                                &N\_Vector tmp1B, N\_Vector tmp2B, \\
+                                &N\_Vector tmp3B);
+}
+{
+  This function computes the linear system of the backward problem (or an
+  approximation to it), in the case where the backward problem depends on the
+  forward sensitivities.
+}
+{
+  \begin{args}[user\_dataB]
+  \item[t]
+    is the current value of the independent variable.
+  \item[y]
+    is the current value of the forward solution vector.
+  \item[yS]
+    a pointer to an array of \id{Ns} vectors containing the sensitivities
+    of the forward solution.
+  \item[yB]
+    is the current value of the backward dependent variable vector.
+  \item[fyB]
+    is the current value of the backward right-hand side function $f_B$.
+  \item[MB]
+    is the output approximate linear system matrix.
+  \item[jokB]
+    is an input flag indicating whether Jacobian-related
+    data needs to be recomputed (\id{jokB}=\id{SUNFALSE}) or information saved
+    from a previous invokation can be safely used (\id{jokB}=\id{SUNTRUE}).
+  \item[jcurB]
+    is an output flag which must be set to \id{SUNTRUE} if Jacobian-relatd data
+    was recomputed or \id{SUNFALSE} otherwise.
+  \item[gammaB]
+    is the scalar appearing in the matrix $M_B = I - \gamma_B J_B$.
+  \item[user\_dataB]
+    is a pointer to user data -- the same as passed to \id{CVodeSetUserDataB}.
+  \item[tmp1B]
+  \item[tmp2B]
+  \item[tmp3B]
+    are pointers to memory allocated  for variables of type \id{N\_Vector} which
+    can be used by \id{CVLsLinSysFnBS} as temporary storage or work space.
+  \end{args}
+}
+{
+  A \id{CVLsLinSysFnBS} should return \id{0} if successful, a positive value if
+  a recoverable error occurred (in which case {\cvodes} will attempt to correct,
+  while {\cvls} sets \id{last\_flag} to \Id{CVLS\_JACFUNC\_RECVR}), or a
+  negative value if it failed unrecoverably (in which case the integration is
+  halted, \id{CVodeB} returns \Id{CV\_LSETUP\_FAIL} and {\cvls} sets
+  \id{last\_flag} to \Id{CVLS\_JACFUNC\_UNRECVR}).
+}
+{
+  A user-supplied linear system function must load the matrix \id{MB} with an
+  approximation to the linear system matrix at the point (\id{t}, \id{y},
+  \id{yS}, \id{yB}), where \id{y} is the solution of the original IVP at time
+  \id{tt}, \id{yS} is the vector of forward sensitivities at time \id{t}, and
+  \id{yB} is the solution of the backward problem at the same time.
+  
+  {\warn}Before calling the user's \id{CVLsLinSysFnBS}, {\cvodes} needs to
+  evaluate (through interpolation) the values of the states from the forward
+  integration.  If an error occurs in the interpolation, {\cvodes} triggers an
+  unrecoverable failure in the linear system function which will halt the
+  integration (\id{CVodeB} returns \id{CV\_LSETUP\_FAIL} and {\cvls} sets
+  \id{last\_flag} to \Id{CVLS\_JACFUNC\_UNRECVR}).
 }
 
 %%-------------------------------------------------------------------------------------
