@@ -100,6 +100,17 @@
  */
 #cmakedefine SUNDIALS_KLU
 
+/* Trilinos available
+ * If working libraries for Trilinos support were found, then
+ *     #define SUNDIALS_TRILINOS
+ */
+#cmakedefine SUNDIALS_TRILINOS
+
+ /* Trilinos with MPI is available, then
+  *    #define SUNDIALS_TRILINOS_HAVE_MPI
+  */
+#cmakedefine SUNDIALS_TRILINOS_HAVE_MPI
+
 /* Set if SUNDIALS is built with MPI support.
  * 
  */

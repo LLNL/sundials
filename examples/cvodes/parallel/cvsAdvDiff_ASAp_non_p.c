@@ -357,16 +357,16 @@ static int f(realtype t, N_Vector u, N_Vector udot, void *user_data)
 
   /* Pass needed data to processes before and after current process. */
    if (my_pe != 0)
-     MPI_Send(&udata[0], 1, PVEC_REAL_MPI_TYPE, my_pe_m1, 0, comm);
+     MPI_Send(&udata[0], 1, MPI_SUNREALTYPE, my_pe_m1, 0, comm);
    if (my_pe != last_pe)
-     MPI_Send(&udata[my_length-1], 1, PVEC_REAL_MPI_TYPE, my_pe_p1, 0, comm);   
+     MPI_Send(&udata[my_length-1], 1, MPI_SUNREALTYPE, my_pe_p1, 0, comm);   
 
   /* Receive needed data from processes before and after current process. */
    if (my_pe != 0)
-     MPI_Recv(&uLeft, 1, PVEC_REAL_MPI_TYPE, my_pe_m1, 0, comm, &status);
+     MPI_Recv(&uLeft, 1, MPI_SUNREALTYPE, my_pe_m1, 0, comm, &status);
    else uLeft = ZERO;
    if (my_pe != last_pe)
-     MPI_Recv(&uRight, 1, PVEC_REAL_MPI_TYPE, my_pe_p1, 0, comm,
+     MPI_Recv(&uRight, 1, MPI_SUNREALTYPE, my_pe_p1, 0, comm,
               &status);   
    else uRight = ZERO;
 
@@ -422,9 +422,9 @@ static int fB(realtype t, N_Vector u,
     duBdata[0] = ZERO;
     duBdata[1] = ZERO;
     for (i=0; i<npes; i++) {
-      MPI_Recv(&intgr1, 1, PVEC_REAL_MPI_TYPE, i, 0, comm, &status); 
+      MPI_Recv(&intgr1, 1, MPI_SUNREALTYPE, i, 0, comm, &status); 
       duBdata[0] += intgr1;
-      MPI_Recv(&intgr2, 1, PVEC_REAL_MPI_TYPE, i, 0, comm, &status); 
+      MPI_Recv(&intgr2, 1, MPI_SUNREALTYPE, i, 0, comm, &status); 
       duBdata[1] += intgr2;
     }
 
@@ -453,18 +453,18 @@ static int fB(realtype t, N_Vector u,
       data_out[0] = udata[0];
       data_out[1] = uBdata[0];
     
-      MPI_Send(data_out, 2, PVEC_REAL_MPI_TYPE, my_pe_m1, 0, comm);
+      MPI_Send(data_out, 2, MPI_SUNREALTYPE, my_pe_m1, 0, comm);
     }
     if (my_pe != last_pe) {
       data_out[0] = udata[my_length-1];
       data_out[1] = uBdata[my_length-1];
 
-      MPI_Send(data_out, 2, PVEC_REAL_MPI_TYPE, my_pe_p1, 0, comm);
+      MPI_Send(data_out, 2, MPI_SUNREALTYPE, my_pe_p1, 0, comm);
     }
     
     /* Receive needed data from processes before and after current process. */
     if (my_pe != 0) {
-      MPI_Recv(data_in, 2, PVEC_REAL_MPI_TYPE, my_pe_m1, 0, comm, &status);
+      MPI_Recv(data_in, 2, MPI_SUNREALTYPE, my_pe_m1, 0, comm, &status);
       
       uLeft = data_in[0];
       uBLeft = data_in[1];
@@ -473,7 +473,7 @@ static int fB(realtype t, N_Vector u,
       uBLeft = ZERO;
     }
     if (my_pe != last_pe) {
-      MPI_Recv(data_in, 2, PVEC_REAL_MPI_TYPE, my_pe_p1, 0, comm, &status);
+      MPI_Recv(data_in, 2, MPI_SUNREALTYPE, my_pe_p1, 0, comm, &status);
 
       uRight = data_in[0];
       uBRight = data_in[1];
@@ -510,8 +510,8 @@ static int fB(realtype t, N_Vector u,
     intgr2 = Xintgr(z2, my_length, dx);
 
     /* Send local integrals to 'quadrature' process */
-    MPI_Send(&intgr1, 1, PVEC_REAL_MPI_TYPE, npes, 0, comm);
-    MPI_Send(&intgr2, 1, PVEC_REAL_MPI_TYPE, npes, 0, comm);
+    MPI_Send(&intgr1, 1, MPI_SUNREALTYPE, npes, 0, comm);
+    MPI_Send(&intgr2, 1, MPI_SUNREALTYPE, npes, 0, comm);
 
   }
 
@@ -606,7 +606,7 @@ static realtype Compute_g(N_Vector u, UserData data)
   if (my_pe == npes) {  /* Loop over all other processes and sum */
     intgr = ZERO;
     for (i=0; i<npes; i++) {
-      MPI_Recv(&my_intgr, 1, PVEC_REAL_MPI_TYPE, i, 0, comm, &status); 
+      MPI_Recv(&my_intgr, 1, MPI_SUNREALTYPE, i, 0, comm, &status); 
       intgr += my_intgr;
     }
     return(intgr);
@@ -614,7 +614,7 @@ static realtype Compute_g(N_Vector u, UserData data)
     udata = N_VGetArrayPointer_Parallel(u);
     my_length = N_VGetLocalLength_Parallel(u);
     my_intgr = Xintgr(udata, my_length, dx);
-    MPI_Send(&my_intgr, 1, PVEC_REAL_MPI_TYPE, npes, 0, comm);
+    MPI_Send(&my_intgr, 1, MPI_SUNREALTYPE, npes, 0, comm);
     return(my_intgr);
   }
 }
@@ -660,7 +660,7 @@ static void PrintOutput(realtype g_val, N_Vector uB, UserData data)
     indx = 0;
     for ( i = 0; i < npes; i++) {
       Ni = ( i < nrem ) ? nperpe+1 : nperpe;
-      MPI_Recv(&mu[indx], Ni, PVEC_REAL_MPI_TYPE, i, 0, comm, &status);
+      MPI_Recv(&mu[indx], Ni, MPI_SUNREALTYPE, i, 0, comm, &status);
       indx += Ni;
     }
 
@@ -681,7 +681,7 @@ static void PrintOutput(realtype g_val, N_Vector uB, UserData data)
 
   } else {
 
-    MPI_Send(uBdata, local_N, PVEC_REAL_MPI_TYPE, npes, 0, comm);
+    MPI_Send(uBdata, local_N, MPI_SUNREALTYPE, npes, 0, comm);
 
   }
 

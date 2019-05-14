@@ -128,9 +128,9 @@ for the implementation specific functions to enable/disable operations.
 Local reduction operations are similarly intended to reduce parallel
 communication on distributed memory systems, particularly when
 {\nvector} objects are combined together within a \\
-{\nvecmanyvector} object (see Section \ref{ss:nvec_manyvector}).  If a
+{\nvecmpimanyvector} object (see Section \ref{ss:nvec_mpimanyvector}).  If a
 particular {\nvector} implementation defines a local reduction
-operation as \id{NULL}, the {\nvecmanyvector} module will
+operation as \id{NULL}, the {\nvecmpimanyvector} module will
 automatically call standard vector reduction operations as necessary
 to complete the desired operation. All {\sundials}-provided {\nvector}
 implementations include these local reduction operations, which may be
@@ -235,18 +235,20 @@ It is recommended that a user-supplied {\nvector} implementation use the
 \hline
 {\bf Vector ID} & {\bf Vector type} & {\bf ID Value} \\
 \hline
-SUNDIALS\_NVEC\_SERIAL     & Serial                                        & 0 \\
-SUNDIALS\_NVEC\_PARALLEL   & Distributed memory parallel (MPI)             & 1 \\
-SUNDIALS\_NVEC\_OPENMP     & OpenMP shared memory parallel                 & 2 \\
-SUNDIALS\_NVEC\_PTHREADS   & PThreads shared memory parallel               & 3 \\
-SUNDIALS\_NVEC\_PARHYP     & {\hypre} ParHyp parallel vector               & 4 \\
-SUNDIALS\_NVEC\_PETSC      & {\petsc} parallel vector                      & 5 \\
-SUNDIALS\_NVEC\_CUDA       & {\cuda} parallel vector                       & 6 \\
-SUNDIALS\_NVEC\_RAJA       & {\raja} parallel vector                       & 7 \\
-SUNDIALS\_NVEC\_OPENMPDEV  & OpenMP parallel vector with device offloading & 8 \\
-SUNDIALS\_NVEC\_TRILINOS   & {\trilinos} Tpetra vector                     & 9 \\
-SUNDIALS\_NVEC\_MANYVECTOR & ``ManyVector'' vector                         & 10 \\
-SUNDIALS\_NVEC\_CUSTOM     & User-provided custom vector                   & 11 \\
+SUNDIALS\_NVEC\_SERIAL        & Serial                                        & 0 \\
+SUNDIALS\_NVEC\_PARALLEL      & Distributed memory parallel (MPI)             & 1 \\
+SUNDIALS\_NVEC\_OPENMP        & OpenMP shared memory parallel                 & 2 \\
+SUNDIALS\_NVEC\_PTHREADS      & PThreads shared memory parallel               & 3 \\
+SUNDIALS\_NVEC\_PARHYP        & {\hypre} ParHyp parallel vector               & 4 \\
+SUNDIALS\_NVEC\_PETSC         & {\petsc} parallel vector                      & 5 \\
+SUNDIALS\_NVEC\_CUDA          & {\cuda} parallel vector                       & 6 \\
+SUNDIALS\_NVEC\_RAJA          & {\raja} parallel vector                       & 7 \\
+SUNDIALS\_NVEC\_OPENMPDEV     & OpenMP parallel vector with device offloading & 8 \\
+SUNDIALS\_NVEC\_TRILINOS      & {\trilinos} Tpetra vector                     & 9 \\
+SUNDIALS\_NVEC\_MANYVECTOR    & ``ManyVector'' vector                         & 10 \\
+SUNDIALS\_NVEC\_MPIMANYVECTOR & MPI-enabled ``ManyVector'' vector             & 11 \\
+SUNDIALS\_NVEC\_MPIPLUSX      & MPI+X vector                                  & 12 \\
+SUNDIALS\_NVEC\_CUSTOM        & User-provided custom vector                   & 13 \\
 \hline
 \end{tabular}
 \end{table}

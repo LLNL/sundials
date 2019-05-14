@@ -618,7 +618,7 @@ static int BSend(N_Vector uu, void *user_data)
     /* Copy device buffer to the corresponding host buffer */
     Kokkos::deep_copy(h_bufbottom, bufbottom);
     /* MPI send buffer */
-    MPI_Send(h_bufbottom.data(), mxsub, PVEC_REAL_MPI_TYPE, thispe-npex, 0, *rawComm);
+    MPI_Send(h_bufbottom.data(), mxsub, MPI_SUNREALTYPE, thispe-npex, 0, *rawComm);
   }
 
   /* If jysub < NPEY-1, send data from top x-line of u. (via buftop) */
@@ -634,7 +634,7 @@ static int BSend(N_Vector uu, void *user_data)
     /* Copy buffer to the host */
     Kokkos::deep_copy(h_buftop, buftop);
     /* MPI send buffer */
-    MPI_Send(h_buftop.data(), mxsub, PVEC_REAL_MPI_TYPE, thispe+npex, 0, *rawComm);
+    MPI_Send(h_buftop.data(), mxsub, MPI_SUNREALTYPE, thispe+npex, 0, *rawComm);
   }
 
   /* If ixsub > 0, send data from left y-line of u (via bufleft). */
@@ -650,7 +650,7 @@ static int BSend(N_Vector uu, void *user_data)
     /* Copy buffer to the host */
     Kokkos::deep_copy(h_bufleft, bufleft);
     /* MPI send buffer */
-    MPI_Send(h_bufleft.data(), mysub, PVEC_REAL_MPI_TYPE, thispe-1, 0, *rawComm);
+    MPI_Send(h_bufleft.data(), mysub, MPI_SUNREALTYPE, thispe-1, 0, *rawComm);
   }
 
   /* If ixsub < NPEX-1, send data from right y-line of u (via bufright). */
@@ -666,7 +666,7 @@ static int BSend(N_Vector uu, void *user_data)
     /* Copy buffer to the host */
     Kokkos::deep_copy(h_bufright, bufright);
     /* MPI send buffer */
-    MPI_Send(h_bufright.data(), mysub, PVEC_REAL_MPI_TYPE, thispe+1, 0, *rawComm);
+    MPI_Send(h_bufright.data(), mysub, MPI_SUNREALTYPE, thispe+1, 0, *rawComm);
   }
 
   return(0);
@@ -707,25 +707,25 @@ static int BRecvPost(MPI_Request request[], void *user_data)
 
   /* If jysub > 0, receive data for bottom x-line of uext. */
   if (jysub != 0) {
-    MPI_Irecv(h_bufbottom.data(), mxsub, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(h_bufbottom.data(), mxsub, MPI_SUNREALTYPE,
               thispe-npex, 0, *rawComm, &request[0]);
   }
 
   /* If jysub < NPEY-1, receive data for top x-line of uext. */
   if (jysub != npey-1) {
-    MPI_Irecv(h_buftop.data(), mxsub, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(h_buftop.data(), mxsub, MPI_SUNREALTYPE,
               thispe+npex, 0, *rawComm, &request[1]);
   }
 
   /* If ixsub > 0, receive data for left y-line of uext (via bufleft). */
   if (ixsub != 0) {
-    MPI_Irecv(h_bufleft.data(), mysub, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(h_bufleft.data(), mysub, MPI_SUNREALTYPE,
               thispe-1, 0, *rawComm, &request[2]);
   }
 
   /* If ixsub < NPEX-1, receive data for right y-line of uext (via bufright). */
   if (ixsub != npex-1) {
-    MPI_Irecv(h_bufright.data(), mysub, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(h_bufright.data(), mysub, MPI_SUNREALTYPE,
               thispe+1, 0, *rawComm, &request[3]);
   }
 

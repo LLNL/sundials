@@ -730,7 +730,7 @@ int arkGetStepStats(ARKodeMem ark_mem, long int *nsteps,
 char *arkGetReturnFlagName(long int flag)
 {
   char *name;
-  name = (char *)malloc(24*sizeof(char));
+  name = (char *)malloc(25*sizeof(char));
 
   switch(flag) {
   case ARK_SUCCESS:

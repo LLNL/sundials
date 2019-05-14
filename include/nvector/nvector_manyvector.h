@@ -38,7 +38,6 @@
 #define _NVECTOR_MANY_VECTOR_H
 
 #include <stdio.h>
-#include <sundials/sundials_mpi.h>
 #include <sundials/sundials_nvector.h>
 
 #ifdef __cplusplus  /* wrapper to enable C++ usage */
@@ -50,7 +49,6 @@ extern "C" {
    ----------------------------------------------------------------- */
 
 struct _N_VectorContent_ManyVector {
-  SUNMPI_Comm   comm;            /* overall MPI communicator        */
   sunindextype  num_subvectors;  /* number of vectors attached      */
   sunindextype  global_length;   /* overall manyvector length       */
   N_Vector*     subvec_array;    /* pointer to N_Vector array       */
@@ -63,15 +61,17 @@ typedef struct _N_VectorContent_ManyVector *N_VectorContent_ManyVector;
    functions exported by ManyVector
    ----------------------------------------------------------------- */
 
-SUNDIALS_EXPORT N_Vector N_VMake_ManyVector(void *comm,
-                                            sunindextype num_subvectors,
-                                            N_Vector *vec_array);
-
 SUNDIALS_EXPORT N_Vector N_VNew_ManyVector(sunindextype num_subvectors,
                                            N_Vector *vec_array);
 
 SUNDIALS_EXPORT N_Vector N_VGetSubvector_ManyVector(N_Vector v,
                                                     sunindextype vec_num);
+
+SUNDIALS_EXPORT realtype *N_VGetSubvectorArrayPointer_ManyVector(N_Vector v,
+                                                                 sunindextype vec_num);
+
+SUNDIALS_EXPORT int N_VSetSubvectorArrayPointer_ManyVector(realtype *v_data, N_Vector v,
+                                                           sunindextype vec_num);
 
 SUNDIALS_EXPORT sunindextype N_VGetNumSubvectors_ManyVector(N_Vector v);
 
@@ -82,7 +82,6 @@ SUNDIALS_EXPORT N_Vector N_VClone_ManyVector(N_Vector w);
 SUNDIALS_EXPORT void N_VDestroy_ManyVector(N_Vector v);
 SUNDIALS_EXPORT void N_VSpace_ManyVector(N_Vector v, sunindextype *lrw,
                                          sunindextype *liw);
-SUNDIALS_EXPORT void *N_VGetCommunicator_ManyVector(N_Vector v);
 SUNDIALS_EXPORT sunindextype N_VGetLength_ManyVector(N_Vector v);
 SUNDIALS_EXPORT void N_VLinearSum_ManyVector(realtype a, N_Vector x,
                                              realtype b, N_Vector y,
@@ -95,20 +94,11 @@ SUNDIALS_EXPORT void N_VAbs_ManyVector(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT void N_VInv_ManyVector(N_Vector x, N_Vector z);
 SUNDIALS_EXPORT void N_VAddConst_ManyVector(N_Vector x, realtype b,
                                             N_Vector z);
-SUNDIALS_EXPORT realtype N_VDotProd_ManyVector(N_Vector x, N_Vector y);
-SUNDIALS_EXPORT realtype N_VMaxNorm_ManyVector(N_Vector x);
 SUNDIALS_EXPORT realtype N_VWrmsNorm_ManyVector(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT realtype N_VWrmsNormMask_ManyVector(N_Vector x, N_Vector w,
                                                     N_Vector id);
-SUNDIALS_EXPORT realtype N_VMin_ManyVector(N_Vector x);
 SUNDIALS_EXPORT realtype N_VWL2Norm_ManyVector(N_Vector x, N_Vector w);
-SUNDIALS_EXPORT realtype N_VL1Norm_ManyVector(N_Vector x);
 SUNDIALS_EXPORT void N_VCompare_ManyVector(realtype c, N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VInvTest_ManyVector(N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VConstrMask_ManyVector(N_Vector c, N_Vector x,
-                                                     N_Vector m);
-SUNDIALS_EXPORT realtype N_VMinQuotient_ManyVector(N_Vector num,
-                                                   N_Vector denom);
 
 /* fused vector operations */
 SUNDIALS_EXPORT int N_VLinearCombination_ManyVector(int nvec, realtype* c,

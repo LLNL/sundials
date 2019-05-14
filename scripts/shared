@@ -94,6 +94,8 @@ $tar $tarfile $distrobase/include/nvector/nvector_trilinos.h                    
 $tar $tarfile $distrobase/include/nvector/trilinos/SundialsTpetraVectorInterface.hpp  || exit 1
 $tar $tarfile $distrobase/include/nvector/trilinos/SundialsTpetraVectorKernels.hpp    || exit 1
 $tar $tarfile $distrobase/include/nvector/nvector_manyvector.h                        || exit 1
+$tar $tarfile $distrobase/include/nvector/nvector_mpimanyvector.h                     || exit 1
+$tar $tarfile $distrobase/include/nvector/nvector_mpiplusx.h                          || exit 1
 
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_band.h      || exit 1
 $tar $tarfile $distrobase/include/sunmatrix/sunmatrix_dense.h     || exit 1
@@ -205,6 +207,11 @@ echo "   --- Add nvector/manyvector module to $tarfile"
 
 $tar $tarfile $distrobase/src/nvector/manyvector/CMakeLists.txt       || exit 1
 $tar $tarfile $distrobase/src/nvector/manyvector/nvector_manyvector.c || exit 1
+
+echo "   --- Add nvector/mpiplusx module to $tarfile"
+
+$tar $tarfile $distrobase/src/nvector/mpiplusx/CMakeLists.txt     || exit 1
+$tar $tarfile $distrobase/src/nvector/mpiplusx/nvector_mpiplusx.c || exit 1
 
 echo "   --- Add sunmatrix modules to $tarfile"
 
@@ -401,13 +408,17 @@ $tar $tarfile $distrobase/examples/nvector/mpiraja/test_nvector_mpiraja.cu      
 $tar $tarfile $distrobase/examples/nvector/mpiraja/CMakeLists.txt                                  || exit 1
 $tar $tarfile $distrobase/examples/nvector/trilinos/test_nvector_trilinos.cpp                      || exit 1
 $tar $tarfile $distrobase/examples/nvector/trilinos/CMakeLists.txt                                 || exit 1
-$tar $tarfile $distrobase/examples/nvector/manyvector_serial/test_nvector_manyvector_serial.c      || exit 1
-$tar $tarfile $distrobase/examples/nvector/manyvector_serial/CMakeLists.txt                        || exit 1
-$tar $tarfile $distrobase/examples/nvector/manyvector_parallel/test_nvector_manyvector_parallel1.c || exit 1
-$tar $tarfile $distrobase/examples/nvector/manyvector_parallel/test_nvector_manyvector_parallel2.c || exit 1
-$tar $tarfile $distrobase/examples/nvector/manyvector_parallel/CMakeLists.txt                      || exit 1
+$tar $tarfile $distrobase/examples/nvector/manyvector/test_nvector_manyvector.c                    || exit 1
+$tar $tarfile $distrobase/examples/nvector/manyvector/CMakeLists.txt                               || exit 1
+$tar $tarfile $distrobase/examples/nvector/mpimanyvector/test_nvector_mpimanyvector_serial.c       || exit 1
+$tar $tarfile $distrobase/examples/nvector/mpimanyvector/test_nvector_mpimanyvector_parallel1.c    || exit 1
+$tar $tarfile $distrobase/examples/nvector/mpimanyvector/test_nvector_mpimanyvector_parallel2.c    || exit 1
+$tar $tarfile $distrobase/examples/nvector/mpimanyvector/CMakeLists.txt                            || exit 1
+$tar $tarfile $distrobase/examples/nvector/mpiplusx/test_nvector_mpiplusx.c                        || exit 1
+$tar $tarfile $distrobase/examples/nvector/mpiplusx/CMakeLists.txt                                 || exit 1
 $tar $tarfile $distrobase/examples/nvector/test_nvector.c                                          || exit 1
 $tar $tarfile $distrobase/examples/nvector/test_nvector.h                                          || exit 1
+$tar $tarfile $distrobase/examples/nvector/test_mpinvector.c                                       || exit 1
 
 echo "   --- Add sunmatrix examples to $tarfile"
 

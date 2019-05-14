@@ -237,19 +237,21 @@ Vector Identifications associated with vector kernels supplied with SUNDIALS
 
 .. cssclass:: table-bordered
 
-========================  =====================================================  ==============
-Vector ID                 Vector type                                            ID Value
-========================  =====================================================  ==============
-SUNDIALS_NVEC_SERIAL      Serial                                                 0
-SUNDIALS_NVEC_PARALLEL    Distributed memory parallel (MPI)                      1
-SUNDIALS_NVEC_OPENMP      OpenMP shared memory parallel                          2
-SUNDIALS_NVEC_PTHREADS    PThreads shared memory parallel                        3
-SUNDIALS_NVEC_PARHYP      *hypre* ParHyp parallel vector                         4
-SUNDIALS_NVEC_PETSC       PETSc parallel vector                                  5
-SUNDIALS_NVEC_CUDA        CUDA parallel vector                                   6
-SUNDIALS_NVEC_RAJA        RAJA parallel vector                                   7
-SUNDIALS_NVEC_OPENMPDEV   OpenMP parallel vector with device offloading          8
-SUNDIALS_NVEC_TRILINOS    Trilinos Tpetra vector                                 9
-SUNDIALS_NVEC_MANYVECTOR  "ManyVector" vector                                    10
-SUNDIALS_NVEC_CUSTOM      User-provided custom vector                            11
-========================  =====================================================  ==============
+===========================  =====================================================  ==============
+Vector ID                    Vector type                                            ID Value
+===========================  =====================================================  ==============
+SUNDIALS_NVEC_SERIAL         Serial                                                 0
+SUNDIALS_NVEC_PARALLEL       Distributed memory parallel (MPI)                      1
+SUNDIALS_NVEC_OPENMP         OpenMP shared memory parallel                          2
+SUNDIALS_NVEC_PTHREADS       PThreads shared memory parallel                        3
+SUNDIALS_NVEC_PARHYP         *hypre* ParHyp parallel vector                         4
+SUNDIALS_NVEC_PETSC          PETSc parallel vector                                  5
+SUNDIALS_NVEC_CUDA           CUDA parallel vector                                   6
+SUNDIALS_NVEC_RAJA           RAJA parallel vector                                   7
+SUNDIALS_NVEC_OPENMPDEV      OpenMP parallel vector with device offloading          8
+SUNDIALS_NVEC_TRILINOS       Trilinos Tpetra vector                                 9
+SUNDIALS_NVEC_MANYVECTOR     "ManyVector" vector                                    10
+SUNDIALS_NVEC_MPIMANYVECTOR  MPI-enabled "ManyVector" vector                        11
+SUNDIALS_NVEC_MPIPLUSX       MPI+X vector                                           12
+SUNDIALS_NVEC_CUSTOM         User-provided custom vector                            13
+===========================  =====================================================  ==============

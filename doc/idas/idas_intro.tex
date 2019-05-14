@@ -120,6 +120,16 @@ Fixed a memory leak in the {\nvecpetsc} clone function.
 Fixed a bug in \id{IDAQuadReInitB} where an incorrect memory structure was
 passed to \id{IDAQuadReInit}.
 
+The {\nvecmanyvector} module has been split into two versions: one
+that requires MPI ({\nvecmpimanyvector}) and another that does not use
+MPI at all ({\nvecmanyvector}).  The associated example problems have
+been similarly updated to reflect this new structure.
+
+An additional {\nvector} implementation, {\nvecmpiplusx}, was created to support
+the MPI+X paradigm, where X is a type of on-node parallelism (e.g. OpenMP, CUDA).
+The implementation is accompanied by additions to user documentation and {\sundials}
+examples.
+
 \subsection*{Changes in v4.0.0-dev.0}
 
 An additional {\nvector} implementation, {\nvecmanyvector}, was
@@ -599,7 +609,7 @@ available for use with the {\idas} solver.  First, in the serial case,
 an interface to the sparse direct solver KLU was added.
 Second, an interface to SuperLU\_MT, the multi-threaded version of
 SuperLU, was added as a thread-parallel sparse direct solver option,
-to be used with the serial version of the NVECTOR module.
+to be used with the serial version of the {\nvector} module.
 As part of these additions, a sparse matrix (CSC format) structure
 was added to {\idas}.
 

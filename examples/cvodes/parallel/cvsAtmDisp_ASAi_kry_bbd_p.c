@@ -340,7 +340,7 @@ int main(int argc, char *argv[])
   if(check_retval(&retval, "CVodeGetQuad", 1, myId)) MPI_Abort(comm, 1);
   
   qdata = N_VGetArrayPointer(q);
-  MPI_Allreduce(&qdata[0], &G, 1, PVEC_REAL_MPI_TYPE, MPI_SUM, comm);
+  MPI_Allreduce(&qdata[0], &G, 1, MPI_SUNREALTYPE, MPI_SUM, comm);
 #if defined(SUNDIALS_EXTENDED_PRECISION)
   if (myId == 0) printf("  G = %Le\n",G);
 #else
@@ -716,12 +716,12 @@ static void f_comm(sunindextype N_local, realtype t, N_Vector y, void *user_data
 	  
         if ( proc_cond[dim] ) {
           /* Send buf_send and receive into buf_recv */
-          MPI_Send(buf_send, c, PVEC_REAL_MPI_TYPE, nbr[dim][dir], 0, comm);
-          MPI_Recv(buf_recv, c, PVEC_REAL_MPI_TYPE, nbr[dim][dir], 0, comm, &stat);
+          MPI_Send(buf_send, c, MPI_SUNREALTYPE, nbr[dim][dir], 0, comm);
+          MPI_Recv(buf_recv, c, MPI_SUNREALTYPE, nbr[dim][dir], 0, comm, &stat);
         } else {
           /* Receive into buf_recv and send buf_send*/
-          MPI_Recv(buf_recv, c, PVEC_REAL_MPI_TYPE, nbr[dim][dir], 0, comm, &stat);
-          MPI_Send(buf_send, c, PVEC_REAL_MPI_TYPE, nbr[dim][dir], 0, comm);
+          MPI_Recv(buf_recv, c, MPI_SUNREALTYPE, nbr[dim][dir], 0, comm, &stat);
+          MPI_Send(buf_send, c, MPI_SUNREALTYPE, nbr[dim][dir], 0, comm);
         }
 
         c=0;

@@ -724,15 +724,6 @@ static int Exchange(N_Vector y, UserData *udata)
   realtype *Y = N_VGetArrayPointer(y);
   if (check_flag((void *) Y, "N_VGetArrayPointer", 0)) return -1;
 
-  // MPI equivalent of realtype type
-  #if defined(SUNDIALS_SINGLE_PRECISION)
-  #define REALTYPE_MPI_TYPE MPI_FLOAT
-  #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  #define REALTYPE_MPI_TYPE MPI_DOUBLE
-  #elif defined(SUNDIALS_EXTENDED_PRECISION)
-  #define REALTYPE_MPI_TYPE MPI_LONG_DOUBLE
-  #endif
-
   // MPI neighborhood information
   ierr = MPI_Cart_get(udata->comm, 2, dims, periods, coords);
   if (ierr != MPI_SUCCESS) {
@@ -778,7 +769,7 @@ static int Exchange(N_Vector y, UserData *udata)
 
   // open Irecv buffers
   if (!udata->HaveBdry[0][0]) {
-    ierr = MPI_Irecv(udata->Wrecv, udata->nyl, REALTYPE_MPI_TYPE, ipW,
+    ierr = MPI_Irecv(udata->Wrecv, udata->nyl, MPI_SUNREALTYPE, ipW,
                    MPI_ANY_TAG, udata->comm, &reqRW);
     if (ierr != MPI_SUCCESS) {
       cerr << "Error in MPI_Irecv = " << ierr << "\n";
@@ -786,7 +777,7 @@ static int Exchange(N_Vector y, UserData *udata)
     }
   }
   if (!udata->HaveBdry[0][1]) {
-    ierr = MPI_Irecv(udata->Erecv, udata->nyl, REALTYPE_MPI_TYPE, ipE,
+    ierr = MPI_Irecv(udata->Erecv, udata->nyl, MPI_SUNREALTYPE, ipE,
                    MPI_ANY_TAG, udata->comm, &reqRE);
     if (ierr != MPI_SUCCESS) {
       cerr << "Error in MPI_Irecv = " << ierr << "\n";
@@ -794,7 +785,7 @@ static int Exchange(N_Vector y, UserData *udata)
     }
   }
   if (!udata->HaveBdry[1][0]) {
-    ierr = MPI_Irecv(udata->Srecv, udata->nxl, REALTYPE_MPI_TYPE, ipS,
+    ierr = MPI_Irecv(udata->Srecv, udata->nxl, MPI_SUNREALTYPE, ipS,
                    MPI_ANY_TAG, udata->comm, &reqRS);
     if (ierr != MPI_SUCCESS) {
       cerr << "Error in MPI_Irecv = " << ierr << "\n";
@@ -802,7 +793,7 @@ static int Exchange(N_Vector y, UserData *udata)
     }
   }
   if (!udata->HaveBdry[1][1]) {
-    ierr = MPI_Irecv(udata->Nrecv, udata->nxl, REALTYPE_MPI_TYPE, ipN,
+    ierr = MPI_Irecv(udata->Nrecv, udata->nxl, MPI_SUNREALTYPE, ipN,
                    MPI_ANY_TAG, udata->comm, &reqRN);
     if (ierr != MPI_SUCCESS) {
       cerr << "Error in MPI_Irecv = " << ierr << "\n";
@@ -813,7 +804,7 @@ static int Exchange(N_Vector y, UserData *udata)
   // send data
   if (!udata->HaveBdry[0][0]) {
     for (i=0; i<nyl; i++)  udata->Wsend[i] = Y[IDX(0,i,nxl)];
-    ierr = MPI_Isend(udata->Wsend, udata->nyl, REALTYPE_MPI_TYPE, ipW, 0,
+    ierr = MPI_Isend(udata->Wsend, udata->nyl, MPI_SUNREALTYPE, ipW, 0,
               udata->comm, &reqSW);
     if (ierr != MPI_SUCCESS) {
       cerr << "Error in MPI_Isend = " << ierr << "\n";
@@ -822,7 +813,7 @@ static int Exchange(N_Vector y, UserData *udata)
   }
   if (!udata->HaveBdry[0][1]) {
     for (i=0; i<nyl; i++)  udata->Esend[i] = Y[IDX(nxl-1,i,nxl)];
-    ierr = MPI_Isend(udata->Esend, udata->nyl, REALTYPE_MPI_TYPE, ipE, 1,
+    ierr = MPI_Isend(udata->Esend, udata->nyl, MPI_SUNREALTYPE, ipE, 1,
               udata->comm, &reqSE);
     if (ierr != MPI_SUCCESS) {
       cerr << "Error in MPI_Isend = " << ierr << "\n";
@@ -831,7 +822,7 @@ static int Exchange(N_Vector y, UserData *udata)
   }
   if (!udata->HaveBdry[1][0]) {
     for (i=0; i<nxl; i++)  udata->Ssend[i] = Y[IDX(i,0,nxl)];
-    ierr = MPI_Isend(udata->Ssend, udata->nxl, REALTYPE_MPI_TYPE, ipS, 2,
+    ierr = MPI_Isend(udata->Ssend, udata->nxl, MPI_SUNREALTYPE, ipS, 2,
               udata->comm, &reqSS);
     if (ierr != MPI_SUCCESS) {
       cerr << "Error in MPI_Isend = " << ierr << "\n";
@@ -840,7 +831,7 @@ static int Exchange(N_Vector y, UserData *udata)
   }
   if (!udata->HaveBdry[1][1]) {
     for (i=0; i<nxl; i++)  udata->Nsend[i] = Y[IDX(i,nyl-1,nxl)];
-    ierr = MPI_Isend(udata->Nsend, udata->nxl, REALTYPE_MPI_TYPE, ipN, 3,
+    ierr = MPI_Isend(udata->Nsend, udata->nxl, MPI_SUNREALTYPE, ipN, 3,
               udata->comm, &reqSN);
     if (ierr != MPI_SUCCESS) {
       cerr << "Error in MPI_Isend = " << ierr << "\n";

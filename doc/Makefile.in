@@ -41,6 +41,8 @@ nvec_cuda.tex \
 nvec_raja.tex \
 nvec_trilinos.tex \
 nvec_manyvector.tex \
+nvec_mpimanyvector.tex \
+nvec_mpiplusx.tex \
 nvec_examples.tex \
 spils_constants.tex \
 sun_org.tex \

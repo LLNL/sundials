@@ -345,6 +345,16 @@ Fixed a memeory leak in FARKODE when not using the default nonlinear solver.
 
 Added two new embedded ARK methods of orders 4 and 5 to ARKode (from \phantomsection\label{Introduction:id7}{\hyperref[References:kc2019]{\emph{{[}KC2019{]}}}}).
 
+The ManyVector NVECTOR module has been split into two versions: one
+that requires MPI (MPIManyVector) and another that does not use MPI at
+all (ManyVector).  The associated example problems have been similarly
+updated to reflect this new structure.
+
+An additional NVECTOR implementation, NVECTOR\_MPIPLUSX, was created to support
+the MPI+X paradigm, where X is a type of on-node parallelism (e.g. OpenMP, CUDA).
+The implementation is accompanied by additions to user documentation and SUNDIALS
+examples.
+
 
 \subsection{Changes in v4.0.0-dev.0}
 \label{Introduction:changes-in-v4-0-0-dev-0}
@@ -3747,18 +3757,18 @@ provide her own error handler function (see the section
 \label{ARKStep_c_interface/User_callable:arkstep-cinterface-initialization}\label{ARKStep_c_interface/User_callable:arkstep-initialization-and-deallocation-functions}\index{ARKStepCreate (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepCreate}\pysiglinewithargsret{void* \bfcode{ARKStepCreate}}{{\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fe}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fi}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepCreate}\pysiglinewithargsret{void* \bfcode{ARKStepCreate}}{{\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fe}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fi}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
 This function creates an internal memory block for a problem to be
 solved using the ARKStep time-stepping module in ARKode.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
-\emph{fe} -- the name of the C function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{fe} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the explicit portion of the right-hand side function in
 \(M\, \dot{y} = f^E(t,y) + f^I(t,y)\).
 
 \item {} 
-\emph{fi} -- the name of the C function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{fi} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the implicit portion of the right-hand side function in
 \(M\, \dot{y} = f^E(t,y) + f^I(t,y)\).
 
@@ -3912,7 +3922,7 @@ solution component.
 \index{ARKStepWFtolerances (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepWFtolerances}\pysiglinewithargsret{int \bfcode{ARKStepWFtolerances}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{ARKEwtFn}}}\emph{ efun}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepWFtolerances}\pysiglinewithargsret{int \bfcode{ARKStepWFtolerances}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{ARKEwtFn}}}\emph{ efun}}{}
 This function specifies a user-supplied function \emph{efun} to compute
 the error weight vector \code{ewt}.
 \begin{description}
@@ -3921,7 +3931,7 @@ the error weight vector \code{ewt}.
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {} 
-\emph{efun} -- the name of the function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}})
+\emph{efun} -- the name of the function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}})
 that implements the error weight vector computation.
 
 \end{itemize}
@@ -4556,7 +4566,7 @@ called prior to a continuation call to {\hyperref[ARKStep_c_interface/User_calla
 \index{ARKStepRootInit (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepRootInit}\pysiglinewithargsret{int \bfcode{ARKStepRootInit}}{void*\emph{ arkode\_mem}, int\emph{ nrtfn}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{ARKRootFn}}}\emph{ g}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepRootInit}\pysiglinewithargsret{int \bfcode{ARKStepRootInit}}{void*\emph{ arkode\_mem}, int\emph{ nrtfn}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{ARKRootFn}}}\emph{ g}}{}
 Initializes a rootfinding problem to be solved during the
 integration of the ODE system.  It must be called after
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepCreate]{\emph{\code{ARKStepCreate()}}}}, and before {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepEvolve]{\emph{\code{ARKStepEvolve()}}}}.
@@ -4569,7 +4579,7 @@ integration of the ODE system.  It must be called after
 \emph{nrtfn} -- number of functions \(g_i\), an integer \(\ge\) 0.
 
 \item {} 
-\emph{g} -- name of user-supplied function, of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn()}}}},
+\emph{g} -- name of user-supplied function, of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn()}}}},
 defining the functions \(g_i\) whose roots are sought.
 
 \end{itemize}
@@ -5092,7 +5102,7 @@ error messages.
 \index{ARKStepSetErrHandlerFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetErrHandlerFn}\pysiglinewithargsret{int \bfcode{ARKStepSetErrHandlerFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{ARKErrHandlerFn}}}\emph{ ehfun}, void*\emph{ eh\_data}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetErrHandlerFn}\pysiglinewithargsret{int \bfcode{ARKStepSetErrHandlerFn}}{void*\emph{ arkode\_mem}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{ARKErrHandlerFn}}}\emph{ ehfun}, void*\emph{ eh\_data}}{}
 Specifies the optional user-defined function to be used
 in handling error messages.
 \begin{description}
@@ -5963,7 +5973,7 @@ none
 \index{ARKStepSetAdaptivityFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetAdaptivityFn}\pysiglinewithargsret{int \bfcode{ARKStepSetAdaptivityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{ARKAdaptFn}}}\emph{ hfun}, void*\emph{ h\_data}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetAdaptivityFn}\pysiglinewithargsret{int \bfcode{ARKStepSetAdaptivityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{ARKAdaptFn}}}\emph{ hfun}, void*\emph{ h\_data}}{}
 Sets a user-supplied time-step adaptivity function.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -6374,7 +6384,7 @@ before the \emph{etamxf} parameter from
 \index{ARKStepSetStabilityFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetStabilityFn}\pysiglinewithargsret{int \bfcode{ARKStepSetStabilityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{ARKExpStabFn}}}\emph{ EStab}, void*\emph{ estab\_data}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepSetStabilityFn}\pysiglinewithargsret{int \bfcode{ARKStepSetStabilityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{ARKExpStabFn}}}\emph{ EStab}, void*\emph{ estab\_data}}{}
 Sets the problem-dependent function to estimate a stable
 time step size for the explicit portion of the ODE system.
 \begin{description}
@@ -10065,7 +10075,7 @@ vector.
 \index{ARKStepReInit (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepReInit}\pysiglinewithargsret{int \bfcode{ARKStepReInit}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fe}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fi}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepReInit}\pysiglinewithargsret{int \bfcode{ARKStepReInit}}{void*\emph{ arkode\_mem}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fe}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fi}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
 Provides required problem specifications and re-initializes the
 ARKStep time-stepper module.
 \begin{description}
@@ -10074,12 +10084,12 @@ ARKStep time-stepper module.
 \emph{arkode\_mem} -- pointer to the ARKStep memory block.
 
 \item {} 
-\emph{fe} -- the name of the C function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{fe} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the explicit portion of the right-hand side function in
 \(M\, \dot{y} = f^E(t,y) + f^I(t,y)\).
 
 \item {} 
-\emph{fi} -- the name of the C function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{fi} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the implicit portion of the right-hand side function in
 \(M\, \dot{y} = f^E(t,y) + f^I(t,y)\).
 
@@ -10135,7 +10145,7 @@ memory structure should be deleted with a call to
 To aid in the vector resize operation, the user can supply a vector
 resize function that will take as input a vector with the previous
 size, and transform it in-place to return a corresponding vector of
-the new size.  If this function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}})
+the new size.  If this function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}})
 is not supplied (i.e. is set to \code{NULL}), then all existing vectors
 internal to ARKStep will be destroyed and re-cloned from the new input
 vector.
@@ -10147,7 +10157,7 @@ rescale the upcoming time step by the specified factor.  If a value
 \index{ARKStepResize (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepResize}\pysiglinewithargsret{int \bfcode{ARKStepResize}}{void*\emph{ arkode\_mem}, N\_Vector\emph{ ynew}, realtype\emph{ hscale}, realtype\emph{ t0}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{ARKVecResizeFn}}}\emph{ resize}, void*\emph{ resize\_data}}{}
+\phantomsection\label{ARKStep_c_interface/User_callable:c.ARKStepResize}\pysiglinewithargsret{int \bfcode{ARKStepResize}}{void*\emph{ arkode\_mem}, N\_Vector\emph{ ynew}, realtype\emph{ hscale}, realtype\emph{ t0}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{ARKVecResizeFn}}}\emph{ resize}, void*\emph{ resize\_data}}{}
 Re-initializes ARKStep with a different state vector but with
 comparable dynamical time scale.
 \begin{description}
@@ -10169,7 +10179,7 @@ scale (i.e. the next step will be of size \emph{h*hscale}).
 
 \item {} 
 \emph{resize} -- the user-supplied vector resize function (of type
-{\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}}.
+{\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}}.
 
 \item {} 
 \emph{resize\_data} -- the user-supplied data structure to be passed
@@ -10302,7 +10312,7 @@ deletion/recreation), and if the user plans to call
 
 \subsection{ODE right-hand side}
 \label{ARKStep_c_interface/User_supplied:ode-right-hand-side}\label{ARKStep_c_interface/User_supplied:arkstep-cinterface-oderhs}
-The user must supply at least one function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} to
+The user must supply at least one function of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} to
 specify the explicit and/or implicit portions of the ODE system:
 \index{ARKRhsFn (C type)}
 
@@ -10359,7 +10369,7 @@ completes a successful stage, in which case ARKStep returns
 As an alternative to the default behavior of directing error and
 warning messages to the file pointed to by \emph{errfp} (see
 {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepSetErrFile]{\emph{\code{ARKStepSetErrFile()}}}}), the user may provide a function of type
-{\hyperref[ARKStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{\code{ARKErrHandlerFn}}}} to process any such messages.
+{\hyperref[MRIStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{\code{ARKErrHandlerFn}}}} to process any such messages.
 \index{ARKErrHandlerFn (C type)}
 
 \begin{fulllineitems}
@@ -10403,7 +10413,7 @@ pointer to memory encounters an error, it sets \emph{error\_code} to
 \subsection{Error weight function}
 \label{ARKStep_c_interface/User_supplied:arkstep-cinterface-errorweight}\label{ARKStep_c_interface/User_supplied:error-weight-function}
 As an alternative to providing the relative and absolute tolerances,
-the user may provide a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn}}}} to compute a
+the user may provide a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn}}}} to compute a
 vector \emph{ewt} containing the weights in the WRMS norm
 \(\|v\|_{WRMS} = \left(\frac{1}{n} \sum_{i=1}^n \left(ewt_i\; v_i\right)^2
 \right)^{1/2}\).  These weights will be used in place of those defined
@@ -10495,7 +10505,7 @@ is not satisfied.
 \label{ARKStep_c_interface/User_supplied:arkstep-cinterface-adaptivityfn}\label{ARKStep_c_interface/User_supplied:time-step-adaptivity-function}
 As an alternative to using one of the built-in time step adaptivity
 methods for controlling solution error, the user may provide a
-function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn}}}} to compute a target step size
+function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn}}}} to compute a target step size
 \(h\) for the next integration step.  These steps should be chosen
 as the maximum value such that the error estimates remain below 1.
 \index{ARKAdaptFn (C type)}
@@ -10562,7 +10572,7 @@ for the explicit portion of the ImEx system, \(f^E(t,y)\).  While
 the accuracy-based time step adaptivity algorithms may be sufficient
 for retaining a stable solution to the ODE system, these may be
 inefficient if \(f^E(t,y)\) contains moderately stiff terms.  In
-this scenario, a user may provide a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn}}}}
+this scenario, a user may provide a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn}}}}
 to provide this stability information to ARKStep.  This function
 must set the scalar step size satisfying the stability restriction for
 the upcoming time step.  This value will subsequently be bounded by
@@ -10610,7 +10620,7 @@ stability restriction on the time step size.
 \subsection{Rootfinding function}
 \label{ARKStep_c_interface/User_supplied:arkstep-cinterface-rootfindingfn}\label{ARKStep_c_interface/User_supplied:rootfinding-function}
 If a rootfinding problem is to be solved during the integration of the
-ODE system, the user must supply a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn}}}}.
+ODE system, the user must supply a function of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn}}}}.
 \index{ARKRootFn (C type)}
 
 \begin{fulllineitems}
@@ -10972,7 +10982,7 @@ error (in which case the step will be retried), or negative for an
 unrecoverable error (in which case the integration is halted).
 
 \textbf{Notes:}    Each call to the Jacobian-vector setup function is
-preceded by a call to the implicit {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} user
+preceded by a call to the implicit {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} user
 function with the same \((t,y)\) arguments.  Thus, the setup
 function can use any auxiliary data that is computed and saved
 during the evaluation of the implicit ODE right-hand side.
@@ -11124,7 +11134,7 @@ factorization of the resulting approximation to \(A = M -
 \gamma J\).
 
 Each call to the preconditioner setup function is preceded by a
-call to the implicit {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} user function with the
+call to the implicit {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} user function with the
 same \((t,y)\) arguments.  Thus, the preconditioner setup
 function can use any auxiliary data that is computed and saved
 during the evaluation of the ODE right-hand side.
@@ -11437,7 +11447,7 @@ adaptivity without repeated allocation/deallocation of memory.  In
 these scenarios, it is recommended that the user supply a customized
 vector kernel to interface between SUNDIALS and their problem-specific
 data structure.  If this vector kernel includes a function of type
-{\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn}}}} to resize a given vector implementation, then
+{\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn}}}} to resize a given vector implementation, then
 this function may be supplied to {\hyperref[ARKStep_c_interface/User_callable:c.ARKStepResize]{\emph{\code{ARKStepResize()}}}} so that all
 internal ARKStep vectors may be resized, instead of deleting and
 re-creating them at each call.  This resize function should have the
@@ -12698,12 +12708,12 @@ function type
 \hline
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKIFUN]{\emph{\code{FARKIFUN()}}}}
  & 
-{\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}}
+{\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}}
 \\
 \hline
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKEFUN]{\emph{\code{FARKEFUN()}}}}
  & 
-{\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}}
+{\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}}
 \\
 \hline\end{tabulary}
 
@@ -12826,21 +12836,21 @@ FARKODE ``activation'' routine
 \hline
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKEWT]{\emph{\code{FARKEWT()}}}}
  & 
-{\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}}
+{\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}}
  & 
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKEWTSET]{\emph{\code{FARKEWTSET()}}}}
 \\
 \hline
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKADAPT]{\emph{\code{FARKADAPT()}}}}
  & 
-{\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn()}}}}
+{\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn()}}}}
  & 
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKADAPTSET]{\emph{\code{FARKADAPTSET()}}}}
 \\
 \hline
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKEXPSTAB]{\emph{\code{FARKEXPSTAB()}}}}
  & 
-{\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn()}}}}
+{\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn()}}}}
  & 
 {\hyperref[ARKStep_f_interface/Usage:f/_/FARKEXPSTABSET]{\emph{\code{FARKEXPSTABSET()}}}}
 \\
@@ -13736,7 +13746,7 @@ ARKStep for handling adaptive error control and explicit stability.
 The former of these is designed for advanced users who wish to
 investigate custom step adaptivity approaches as opposed to using any
 of those built-in to ARKStep.  In ARKStep's C/C++ interface, this would be
-provided by a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn()}}}}; in the Fortran
+provided by a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn()}}}}; in the Fortran
 interface this is provided through the user-supplied function:
 \index{FARKADAPT() (fortran subroutine)|textbf}
 
@@ -13829,7 +13839,7 @@ Similarly, if either an explicit or mixed implicit-explicit
 integration method is to be employed, the user may specify a function
 to provide the maximum explicitly-stable step for their problem.
 Again, in the C/C++ interface this would be a function of type
-{\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn()}}}}, while in ARKStep's Fortran interface this
+{\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn()}}}}, while in ARKStep's Fortran interface this
 must be given through the user-supplied function:
 \index{FARKEXPSTAB() (fortran subroutine)|textbf}
 
@@ -17007,13 +17017,13 @@ provide her own error handler function (see the section
 \label{ERKStep_c_interface/User_callable:erkstep-cinterface-initialization}\label{ERKStep_c_interface/User_callable:erkstep-initialization-and-deallocation-functions}\index{ERKStepCreate (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepCreate}\pysiglinewithargsret{void* \bfcode{ERKStepCreate}}{{\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ f}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepCreate}\pysiglinewithargsret{void* \bfcode{ERKStepCreate}}{{\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ f}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
 This function allocates and initializes memory for a problem to
 be solved using the ERKStep time-stepping module in ARKode.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
-\emph{f} -- the name of the C function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{f} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the right-hand side function in
 \(\dot{y} = f(t,y)\).
 
@@ -17167,7 +17177,7 @@ solution component.
 \index{ERKStepWFtolerances (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepWFtolerances}\pysiglinewithargsret{int \bfcode{ERKStepWFtolerances}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{ARKEwtFn}}}\emph{ efun}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepWFtolerances}\pysiglinewithargsret{int \bfcode{ERKStepWFtolerances}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{ARKEwtFn}}}\emph{ efun}}{}
 This function specifies a user-supplied function \emph{efun} to compute
 the error weight vector \code{ewt}.
 \begin{description}
@@ -17176,7 +17186,7 @@ the error weight vector \code{ewt}.
 \emph{arkode\_mem} -- pointer to the ERKStep memory block.
 
 \item {} 
-\emph{efun} -- the name of the function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}})
+\emph{efun} -- the name of the function (of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn()}}}})
 that implements the error weight vector computation.
 
 \end{itemize}
@@ -17312,7 +17322,7 @@ called prior to a continuation call to {\hyperref[ERKStep_c_interface/User_calla
 \index{ERKStepRootInit (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepRootInit}\pysiglinewithargsret{int \bfcode{ERKStepRootInit}}{void*\emph{ arkode\_mem}, int\emph{ nrtfn}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{ARKRootFn}}}\emph{ g}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepRootInit}\pysiglinewithargsret{int \bfcode{ERKStepRootInit}}{void*\emph{ arkode\_mem}, int\emph{ nrtfn}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{ARKRootFn}}}\emph{ g}}{}
 Initializes a rootfinding problem to be solved during the
 integration of the ODE system.  It must be called after
 {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepCreate]{\emph{\code{ERKStepCreate()}}}}, and before {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepEvolve]{\emph{\code{ERKStepEvolve()}}}}.
@@ -17325,7 +17335,7 @@ integration of the ODE system.  It must be called after
 \emph{nrtfn} -- number of functions \(g_i\), an integer \(\ge\) 0.
 
 \item {} 
-\emph{g} -- name of user-supplied function, of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn()}}}},
+\emph{g} -- name of user-supplied function, of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn()}}}},
 defining the functions \(g_i\) whose roots are sought.
 
 \end{itemize}
@@ -17799,7 +17809,7 @@ error messages.
 \index{ERKStepSetErrHandlerFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetErrHandlerFn}\pysiglinewithargsret{int \bfcode{ERKStepSetErrHandlerFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{ARKErrHandlerFn}}}\emph{ ehfun}, void*\emph{ eh\_data}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetErrHandlerFn}\pysiglinewithargsret{int \bfcode{ERKStepSetErrHandlerFn}}{void*\emph{ arkode\_mem}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{ARKErrHandlerFn}}}\emph{ ehfun}, void*\emph{ eh\_data}}{}
 Specifies the optional user-defined function to be used
 in handling error messages.
 \begin{description}
@@ -18445,7 +18455,7 @@ none
 \index{ERKStepSetAdaptivityFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetAdaptivityFn}\pysiglinewithargsret{int \bfcode{ERKStepSetAdaptivityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{ARKAdaptFn}}}\emph{ hfun}, void*\emph{ h\_data}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetAdaptivityFn}\pysiglinewithargsret{int \bfcode{ERKStepSetAdaptivityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{ARKAdaptFn}}}\emph{ hfun}, void*\emph{ h\_data}}{}
 Sets a user-supplied time-step adaptivity function.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -18821,7 +18831,7 @@ before the \emph{etamxf} parameter from
 \index{ERKStepSetStabilityFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetStabilityFn}\pysiglinewithargsret{int \bfcode{ERKStepSetStabilityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{ARKExpStabFn}}}\emph{ EStab}, void*\emph{ estab\_data}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepSetStabilityFn}\pysiglinewithargsret{int \bfcode{ERKStepSetStabilityFn}}{void*\emph{ arkode\_mem}, {\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{ARKExpStabFn}}}\emph{ EStab}, void*\emph{ estab\_data}}{}
 Sets the problem-dependent function to estimate a stable
 time step size for the explicit portion of the ODE system.
 \begin{description}
@@ -20088,7 +20098,7 @@ vector.
 \index{ERKStepReInit (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepReInit}\pysiglinewithargsret{int \bfcode{ERKStepReInit}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ f}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepReInit}\pysiglinewithargsret{int \bfcode{ERKStepReInit}}{void*\emph{ arkode\_mem}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ f}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
 Provides required problem specifications and re-initializes the
 ERKStep time-stepper module.
 \begin{description}
@@ -20097,7 +20107,7 @@ ERKStep time-stepper module.
 \emph{arkode\_mem} -- pointer to the ERKStep memory block.
 
 \item {} 
-\emph{f} -- the name of the C function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{f} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the right-hand side function in \(\dot{y} = f(t,y)\).
 
 \item {} 
@@ -20152,7 +20162,7 @@ memory structure should be deleted with a call to
 To aid in the vector resize operation, the user can supply a vector
 resize function that will take as input a vector with the previous
 size, and transform it in-place to return a corresponding vector of
-the new size.  If this function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}})
+the new size.  If this function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}})
 is not supplied (i.e. is set to \code{NULL}), then all existing vectors
 internal to ERKStep will be destroyed and re-cloned from the new input
 vector.
@@ -20164,7 +20174,7 @@ rescale the upcoming time step by the specified factor.  If a value
 \index{ERKStepResize (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepResize}\pysiglinewithargsret{int \bfcode{ERKStepResize}}{void*\emph{ arkode\_mem}, N\_Vector\emph{ ynew}, realtype\emph{ hscale}, realtype\emph{ t0}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{ARKVecResizeFn}}}\emph{ resize}, void*\emph{ resize\_data}}{}
+\phantomsection\label{ERKStep_c_interface/User_callable:c.ERKStepResize}\pysiglinewithargsret{int \bfcode{ERKStepResize}}{void*\emph{ arkode\_mem}, N\_Vector\emph{ ynew}, realtype\emph{ hscale}, realtype\emph{ t0}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{ARKVecResizeFn}}}\emph{ resize}, void*\emph{ resize\_data}}{}
 Re-initializes ERKStep with a different state vector but with
 comparable dynamical time scale.
 \begin{description}
@@ -20186,7 +20196,7 @@ scale (i.e. the next step will be of size \emph{h*hscale}).
 
 \item {} 
 \emph{resize} -- the user-supplied vector resize function (of type
-{\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}}.
+{\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}}.
 
 \item {} 
 \emph{resize\_data} -- the user-supplied data structure to be passed
@@ -20272,7 +20282,7 @@ deletion/recreation), and if the user plans to call
 
 \subsection{ODE right-hand side}
 \label{ERKStep_c_interface/User_supplied:erkstep-cinterface-oderhs}\label{ERKStep_c_interface/User_supplied:ode-right-hand-side}
-The user must supply a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} to
+The user must supply a function of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} to
 specify the right-hand side of the ODE system:
 \index{ARKRhsFn (C type)}
 
@@ -20325,7 +20335,7 @@ case ERKStep returns \emph{ARK\_FIRST\_RHSFUNC\_ERR}).
 As an alternative to the default behavior of directing error and
 warning messages to the file pointed to by \emph{errfp} (see
 {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepSetErrFile]{\emph{\code{ERKStepSetErrFile()}}}}), the user may provide a function of type
-{\hyperref[ARKStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{\code{ARKErrHandlerFn}}}} to process any such messages.
+{\hyperref[MRIStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{\code{ARKErrHandlerFn}}}} to process any such messages.
 \index{ARKErrHandlerFn (C type)}
 
 \begin{fulllineitems}
@@ -20369,7 +20379,7 @@ pointer to memory encounters an error, it sets \emph{error\_code} to
 \subsection{Error weight function}
 \label{ERKStep_c_interface/User_supplied:erkstep-cinterface-errorweight}\label{ERKStep_c_interface/User_supplied:error-weight-function}
 As an alternative to providing the relative and absolute tolerances,
-the user may provide a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn}}}} to compute a
+the user may provide a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKEwtFn]{\emph{\code{ARKEwtFn}}}} to compute a
 vector \emph{ewt} containing the weights in the WRMS norm
 \(\|v\|_{WRMS} = \left(\frac{1}{n} \sum_{i=1}^n \left(ewt_i\; v_i\right)^2
 \right)^{1/2}\).  These weights will be used in place of those defined
@@ -20415,7 +20425,7 @@ is not satisfied.
 \label{ERKStep_c_interface/User_supplied:time-step-adaptivity-function}\label{ERKStep_c_interface/User_supplied:erkstep-cinterface-adaptivityfn}
 As an alternative to using one of the built-in time step adaptivity
 methods for controlling solution error, the user may provide a
-function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn}}}} to compute a target step size
+function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKAdaptFn]{\emph{\code{ARKAdaptFn}}}} to compute a target step size
 \(h\) for the next integration step.  These steps should be chosen
 as the maximum value such that the error estimates remain below 1.
 \index{ARKAdaptFn (C type)}
@@ -20482,7 +20492,7 @@ for the explicit Runge Kutta method on this problem.  While the
 accuracy-based time step adaptivity algorithms may be sufficient
 for retaining a stable solution to the ODE system, these may be
 inefficient if \(f(t,y)\) contains moderately stiff terms.  In
-this scenario, a user may provide a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn}}}}
+this scenario, a user may provide a function of type {\hyperref[ERKStep_c_interface/User_supplied:c.ARKExpStabFn]{\emph{\code{ARKExpStabFn}}}}
 to provide this stability information to ERKStep.  This function
 must set the scalar step size satisfying the stability restriction for
 the upcoming time step.  This value will subsequently be bounded by
@@ -20529,7 +20539,7 @@ stability restriction on the time step size.
 \subsection{Rootfinding function}
 \label{ERKStep_c_interface/User_supplied:rootfinding-function}\label{ERKStep_c_interface/User_supplied:erkstep-cinterface-rootfindingfn}
 If a rootfinding problem is to be solved during the integration of the
-ODE system, the user must supply a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn}}}}.
+ODE system, the user must supply a function of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn}}}}.
 \index{ARKRootFn (C type)}
 
 \begin{fulllineitems}
@@ -20579,7 +20589,7 @@ adaptivity without repeated allocation/deallocation of memory.  In
 these scenarios, it is recommended that the user supply a customized
 vector kernel to interface between SUNDIALS and their problem-specific
 data structure.  If this vector kernel includes a function of type
-{\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn}}}} to resize a given vector implementation, then
+{\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn}}}} to resize a given vector implementation, then
 this function may be supplied to {\hyperref[ERKStep_c_interface/User_callable:c.ERKStepResize]{\emph{\code{ERKStepResize()}}}} so that all
 internal ERKStep vectors may be resized, instead of deleting and
 re-creating them at each call.  This resize function should have the
@@ -21042,13 +21052,13 @@ provide her own error handler function (see the section
 \label{MRIStep_c_interface/User_callable:mristep-initialization-and-deallocation-functions}\label{MRIStep_c_interface/User_callable:mristep-cinterface-initialization}\index{MRIStepCreate (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepCreate}\pysiglinewithargsret{void* \bfcode{MRIStepCreate}}{{\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fs}, realtype\emph{ t0}, N\_Vector\emph{ y0}, MRISTEP\_ID\emph{ inner\_step\_id}, void*\emph{ inner\_step\_mem}}{}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepCreate}\pysiglinewithargsret{void* \bfcode{MRIStepCreate}}{{\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fs}, realtype\emph{ t0}, N\_Vector\emph{ y0}, MRISTEP\_ID\emph{ inner\_step\_id}, void*\emph{ inner\_step\_mem}}{}
 This function allocates and initializes memory for a problem to
 be solved using the MRIStep time-stepping module in ARKode.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
 \item {} 
-\emph{fs} -- the name of the C function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{fs} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the slow portion of the right-hand side function in
 \(\dot{y} = f_s(t,y) + f_f(t,y)\).
 
@@ -21113,7 +21123,7 @@ called prior to a continuation call to {\hyperref[MRIStep_c_interface/User_calla
 \index{MRIStepRootInit (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepRootInit}\pysiglinewithargsret{int \bfcode{MRIStepRootInit}}{void*\emph{ arkode\_mem}, int\emph{ nrtfn}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{ARKRootFn}}}\emph{ g}}{}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepRootInit}\pysiglinewithargsret{int \bfcode{MRIStepRootInit}}{void*\emph{ arkode\_mem}, int\emph{ nrtfn}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{ARKRootFn}}}\emph{ g}}{}
 Initializes a rootfinding problem to be solved during the
 integration of the ODE system.  It must be called after
 {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepCreate]{\emph{\code{MRIStepCreate()}}}}, and before {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepEvolve]{\emph{\code{MRIStepEvolve()}}}}.
@@ -21126,7 +21136,7 @@ integration of the ODE system.  It must be called after
 \emph{nrtfn} -- number of functions \(g_i\), an integer \(\ge\) 0.
 
 \item {} 
-\emph{g} -- name of user-supplied function, of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn()}}}},
+\emph{g} -- name of user-supplied function, of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn()}}}},
 defining the functions \(g_i\) whose roots are sought.
 
 \end{itemize}
@@ -21569,7 +21579,7 @@ error messages.
 \index{MRIStepSetErrHandlerFn (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetErrHandlerFn}\pysiglinewithargsret{int \bfcode{MRIStepSetErrHandlerFn}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{ARKErrHandlerFn}}}\emph{ ehfun}, void*\emph{ eh\_data}}{}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepSetErrHandlerFn}\pysiglinewithargsret{int \bfcode{MRIStepSetErrHandlerFn}}{void*\emph{ arkode\_mem}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{ARKErrHandlerFn}}}\emph{ ehfun}, void*\emph{ eh\_data}}{}
 Specifies the optional user-defined function to be used
 in handling error messages.
 \begin{description}
@@ -22754,7 +22764,7 @@ vector.
 \index{MRIStepReInit (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepReInit}\pysiglinewithargsret{int \bfcode{MRIStepReInit}}{void*\emph{ arkode\_mem}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fs}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepReInit}\pysiglinewithargsret{int \bfcode{MRIStepReInit}}{void*\emph{ arkode\_mem}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{ARKRhsFn}}}\emph{ fs}, realtype\emph{ t0}, N\_Vector\emph{ y0}}{}
 Provides required problem specifications and re-initializes the
 MRIStep outer (slow) stepper.
 \begin{description}
@@ -22763,12 +22773,12 @@ MRIStep outer (slow) stepper.
 \emph{arkode\_mem} -- pointer to the MRIStep memory block.
 
 \item {} 
-\emph{fs} -- the name of the C function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{fs} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the slow right-hand side function in \(\dot{y} = f_s(t,y) +
 f_f(t,y)\).
 
 \item {} 
-\emph{ff} -- the name of the C function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
+\emph{ff} -- the name of the C function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn()}}}})
 defining the fast right-hand side function in \(\dot{y} = f_s(t,y) +
 f_f(t,y)\).
 
@@ -22820,14 +22830,14 @@ MRIStep's internal memory structures to use the new problem size.
 To aid in the vector resize operation, the user can supply a vector
 resize function that will take as input a vector with the previous
 size, and transform it in-place to return a corresponding vector of
-the new size.  If this function (of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}})
+the new size.  If this function (of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}})
 is not supplied (i.e. is set to \code{NULL}), then all existing vectors
 internal to MRIStep will be destroyed and re-cloned from the new input
 vector.
 \index{MRIStepResize (C function)}
 
 \begin{fulllineitems}
-\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepResize}\pysiglinewithargsret{int \bfcode{MRIStepResize}}{void*\emph{ arkode\_mem}, N\_Vector\emph{ ynew}, realtype\emph{ t0}, {\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{ARKVecResizeFn}}}\emph{ resize}, void*\emph{ resize\_data}}{}
+\phantomsection\label{MRIStep_c_interface/User_callable:c.MRIStepResize}\pysiglinewithargsret{int \bfcode{MRIStepResize}}{void*\emph{ arkode\_mem}, N\_Vector\emph{ ynew}, realtype\emph{ t0}, {\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{ARKVecResizeFn}}}\emph{ resize}, void*\emph{ resize\_data}}{}
 Re-initializes MRIStep with a different state vector.
 \begin{description}
 \item[{\textbf{Arguments:}}] \leavevmode\begin{itemize}
@@ -22844,7 +22854,7 @@ dependent variable values \(y(t_0)\).
 
 \item {} 
 \emph{resize} -- the user-supplied vector resize function (of type
-{\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}}.
+{\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn()}}}}.
 
 \item {} 
 \emph{resize\_data} -- the user-supplied data structure to be passed
@@ -22903,7 +22913,7 @@ deletion/recreation), and if the user plans to call
 
 \subsection{ODE right-hand side}
 \label{MRIStep_c_interface/User_supplied:mristep-cinterface-oderhs}\label{MRIStep_c_interface/User_supplied:ode-right-hand-side}
-The user must supply two functions of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} to
+The user must supply two functions of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRhsFn]{\emph{\code{ARKRhsFn}}}} to
 specify the right-hand side of the ODE system:
 \index{ARKRhsFn (C type)}
 
@@ -22950,7 +22960,7 @@ where only a non-negative value is physically meaningful).
 As an alternative to the default behavior of directing error and
 warning messages to the file pointed to by \emph{errfp} (see
 {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepSetErrFile]{\emph{\code{MRIStepSetErrFile()}}}}), the user may provide a function of type
-{\hyperref[ARKStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{\code{ARKErrHandlerFn}}}} to process any such messages.
+{\hyperref[MRIStep_c_interface/User_supplied:c.ARKErrHandlerFn]{\emph{\code{ARKErrHandlerFn}}}} to process any such messages.
 \index{ARKErrHandlerFn (C type)}
 
 \begin{fulllineitems}
@@ -22994,7 +23004,7 @@ pointer to memory encounters an error, it sets \emph{error\_code} to
 \subsection{Rootfinding function}
 \label{MRIStep_c_interface/User_supplied:mristep-cinterface-rootfindingfn}\label{MRIStep_c_interface/User_supplied:rootfinding-function}
 If a rootfinding problem is to be solved during the integration of the
-ODE system, the user must supply a function of type {\hyperref[ARKStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn}}}}.
+ODE system, the user must supply a function of type {\hyperref[MRIStep_c_interface/User_supplied:c.ARKRootFn]{\emph{\code{ARKRootFn}}}}.
 \index{ARKRootFn (C type)}
 
 \begin{fulllineitems}
@@ -23044,7 +23054,7 @@ adaptivity without repeated allocation/deallocation of memory.  In
 these scenarios, it is recommended that the user supply a customized
 vector kernel to interface between SUNDIALS and their problem-specific
 data structure.  If this vector kernel includes a function of type
-{\hyperref[ARKStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn}}}} to resize a given vector implementation, then
+{\hyperref[MRIStep_c_interface/User_supplied:c.ARKVecResizeFn]{\emph{\code{ARKVecResizeFn}}}} to resize a given vector implementation, then
 this function may be supplied to {\hyperref[MRIStep_c_interface/User_callable:c.MRIStepResize]{\emph{\code{MRIStepResize()}}}} so that all
 internal MRIStep vectors may be resized, instead of deleting and
 re-creating them at each call.  This resize function should have the
@@ -23878,11 +23888,25 @@ SUNDIALS\_NVEC\_MANYVECTOR
 10
 \\
 \hline
+SUNDIALS\_NVEC\_MPIMANYVECTOR
+ & 
+MPI-enabled ``ManyVector'' vector
+ & 
+11
+\\
+\hline
+SUNDIALS\_NVEC\_MPIPLUSX
+ & 
+MPI+X vector
+ & 
+12
+\\
+\hline
 SUNDIALS\_NVEC\_CUSTOM
  & 
 User-provided custom vector
  & 
-11
+13
 \\
 \hline\end{tabulary}
 
@@ -28321,32 +28345,23 @@ as there is at least one reference to it.
 \label{nvectors/NVector_ManyVector:nvectors-manyvector}\label{nvectors/NVector_ManyVector:the-nvector-manyvector-module}\label{nvectors/NVector_ManyVector::doc}
 The NVECTOR\_MANYVECTOR implementation of the NVECTOR module provided with
 SUNDIALS is designed to facilitate problems with an inherent
-data partitioning for the solution vector.  These data partitions are
-entirely user-defined, through construction of distinct NVECTOR
-modules for each component, that are then combined together to form
-the NVECTOR\_MANYVECTOR.  We envision three generic use cases for this
-implementation:
+data partitioning for the solution vector within a computational node.
+These data partitions are entirely user-defined, through construction
+of distinct NVECTOR modules for each component, that are then combined
+together to form the NVECTOR\_MANYVECTOR.  We envision two generic use
+cases for this implementation:
 \begin{enumerate}
 \item {} 
-\emph{Heterogenous computational architectures (serial or parallel)}:
+\emph{Heterogenous computational architectures}:
 for users who wish to partition data on a node between different
 computing resources, they may create architecture-specific
 subvectors for each partition.  For example, a user could create
-one MPI-parallel component based on NVECTOR\_PARALLEL, another
-single-node component for GPU accelerators based on NVECTOR\_CUDA,
-and another threaded single-node component based on
-NVECTOR\_OPENMP.
+one serial component based on NVECTOR\_SERIAL, another component for
+GPU accelerators based on NVECTOR\_CUDA, and another threaded
+component based on NVECTOR\_OPENMP.
 
 \item {} 
-\emph{Process-based multiphysics decompositions (parallel)}: for users
-who wish to combine separate simulations together, e.g., where
-one subvector resides on one subset of MPI processes, while
-another subvector resides on a different subset of MPI processes,
-and where the user has created a MPI \emph{intercommunicator} to
-connect these distinct process sets together.
-
-\item {} 
-\emph{Structure of arrays (SOA) data layouts (serial or parallel)}:
+\emph{Structure of arrays (SOA) data layouts}:
 for users who wish to create separate subvectors for each
 solution component, e.g., in a Navier-Stokes simulation they
 could have separate subvectors for density, velocities and
@@ -28361,13 +28376,9 @@ of these cases.
 
 The NVECTOR\_MANYVECTOR implementation is designed to work with any
 NVECTOR subvectors that implement the minimum \emph{required} set
-of operations, however significant performance benefits may be
-obtained when subvectors additionally implement the optional local
-reduction operations listed in the section {\hyperref[nvectors/NVector_Operations:nvectors-localops]{\emph{\DUspan{}{Description of the NVECTOR local reduction operations}}}}.
-
-Additionally, NVECTOR\_MANYVECTOR sets no limit on the number of
-subvectors that may be attached (aside from the limitations of using
-\code{sunindextype} for indexing, and standard per-node memory
+of operations.  Additionally, NVECTOR\_MANYVECTOR sets no limit on the
+number of subvectors that may be attached (aside from the limitations
+of using \code{sunindextype} for indexing, and standard per-node memory
 limitations).  However, while this ostensibly supports subvectors
 with one entry each (i.e., one subvector for each solution entry), we
 anticipate that this extreme situation will hinder performance due to
@@ -28387,17 +28398,15 @@ residual, or nonlinear solver residual functions.
 \subsection{NVECTOR\_MANYVECTOR structure}
 \label{nvectors/NVector_ManyVector:nvector-manyvector-structure}
 The NVECTOR\_MANYVECTOR implementation defines the \emph{content} field
-of \code{N\_Vector} to be a structure containing the MPI communicator
-(or \code{SUNMPI\_COMM\_NULL} if running in serial), the number of
+of \code{N\_Vector} to be a structure containing the number of
 subvectors comprising the ManyVector, the global length of the
-ManyVector (including all subvectors on all MPI tasks), a pointer to
+ManyVector (including all subvectors), a pointer to
 the beginning of the array of subvectors, and a boolean flag
 \code{own\_data} indicating ownership of the subvectors that populate
 \code{subvec\_array}.
 
 \begin{Verbatim}[commandchars=\\\{\}]
 \PYG{k}{struct} \PYG{n}{\PYGZus{}N\PYGZus{}VectorContent\PYGZus{}ManyVector} \PYG{p}{\PYGZob{}}
-  \PYG{n}{SUNMPI\PYGZus{}Comm}   \PYG{n}{comm}\PYG{p}{;}            \PYG{c+cm}{/* overall MPI communicator        */}
   \PYG{n}{sunindextype}  \PYG{n}{num\PYGZus{}subvectors}\PYG{p}{;}  \PYG{c+cm}{/* number of vectors attached      */}
   \PYG{n}{sunindextype}  \PYG{n}{global\PYGZus{}length}\PYG{p}{;}   \PYG{c+cm}{/* overall manyvector length       */}
   \PYG{n}{N\PYGZus{}Vector}\PYG{o}{*}     \PYG{n}{subvec\PYGZus{}array}\PYG{p}{;}    \PYG{c+cm}{/* pointer to N\PYGZus{}Vector array       */}
@@ -28410,15 +28419,6 @@ The header file to include when using this module is
 \code{libsundials\_nvecmanyvector.lib} where \code{.lib} is typically \code{.so} for
 shared libraries and \code{.a} for static libraries.
 
-\emph{Note:} If SUNDIALS is configured with MPI enabled, then the
-ManyVector library will be built for the parallel use case and \code{SUNMPI\_Comm}
-is set to \code{MPI\_Comm}. As such an MPI-aware compiler will become necessary
-even in single node uses of the ManyVector library. If SUNDIALS is configured
-with MPI disabled, then the ManyVector library is built for the single-node
-(serial) use case and \code{SUNMPI\_Comm} is set to \code{int}. As such, users need
-not include \code{mpi.h}, nor must executables be built with an MPI-aware
-compiler. See the \DUspan{xref,std,std-ref}{\_Installation} section for details.
-
 
 \subsection{NVECTOR\_MANYVECTOR functions}
 \label{nvectors/NVector_ManyVector:nvector-manyvector-functions}
@@ -28428,7 +28428,7 @@ in the sections {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUsp
 {\hyperref[nvectors/NVector_Operations:c.N_VGetArrayPointer]{\emph{\code{N\_VGetArrayPointer()}}}}, {\hyperref[nvectors/NVector_Operations:c.N_VSetArrayPointer]{\emph{\code{N\_VSetArrayPointer()}}}},
 {\hyperref[nvectors/NVector_Operations:c.N_VScaleAddMultiVectorArray]{\emph{\code{N\_VScaleAddMultiVectorArray()}}}}, and
 {\hyperref[nvectors/NVector_Operations:c.N_VLinearCombinationVectorArray]{\emph{\code{N\_VLinearCombinationVectorArray()}}}}.  As such, this vector
-cannot be used with the SUNDIALS Fortran interfaces, nor with the
+cannot be used with the SUNDIALS Fortran-77 interfaces, nor with the
 SUNDIALS direct solvers and preconditioners. Instead, the
 NVECTOR\_MANYVECTOR module provides functions to access subvectors,
 whose data may in turn be accessed according to their NVECTOR
@@ -28445,12 +28445,7 @@ user-callable routines:
 \begin{fulllineitems}
 \phantomsection\label{nvectors/NVector_ManyVector:c.N_VNew_ManyVector}\pysiglinewithargsret{N\_Vector \bfcode{N\_VNew\_ManyVector}}{sunindextype\emph{ num\_subvectors}, N\_Vector\emph{ *vec\_array}}{}
 This function creates a ManyVector from a set of existing
-NVECTOR objects, under the requirement that all MPI-aware
-subvectors use the same MPI communicator (this is checked
-internally).  If none of the subvectors are MPI-aware, then this
-may equivalently be used to describe data partitioning within a
-single node.  We note that this routine is designed to support use
-cases A and C above.
+NVECTOR objects.
 
 This routine will copy all \code{N\_Vector} pointers from the input
 \code{vec\_array}, so the user may modify/free that pointer array
@@ -28460,55 +28455,8 @@ themselves should not be destroyed before the ManyVector that
 contains them.
 
 Upon successful completion, the new ManyVector is returned;
-otherwise this routine returns \code{NULL} (e.g., if two MPI-aware
-subvectors use different MPI communicators).
-
-\end{fulllineitems}
-
-\index{N\_VMake\_ManyVector (C function)}
-
-\begin{fulllineitems}
-\phantomsection\label{nvectors/NVector_ManyVector:c.N_VMake_ManyVector}\pysiglinewithargsret{N\_Vector \bfcode{N\_VMake\_ManyVector}}{void\emph{ *comm}, sunindextype\emph{ num\_subvectors}, N\_Vector\emph{ *vec\_array}}{}
-This function creates a ManyVector from a set of existing NVECTOR
-objects, and a user-created MPI communicator that ``connects'' these
-subvectors.  Any MPI-aware subvectors may use different MPI
-communicators than the input \emph{comm}.  We note that this routine
-is designed to support any combination of the use cases above.
-
-The input \emph{comm} should be the memory reference to this
-user-created MPI communicator.  We note that since many MPI
-implementations \code{\#define}  \code{MPI\_COMM\_WORLD} to be a specific
-integer \emph{value} (that has no memory reference), users who wish
-to supply \code{MPI\_COMM\_WORLD} to this routine should first
-duplicate this to a specific \code{MPI\_Comm} variable before passing
-in the reference, e.g.
-
-\begin{Verbatim}[commandchars=\\\{\}]
-\PYG{n}{MPI\PYGZus{}Comm} \PYG{n}{comm}\PYG{p}{;}
-\PYG{n}{N\PYGZus{}Vector} \PYG{n}{x}\PYG{p}{;}
-\PYG{n}{MPI\PYGZus{}Comm\PYGZus{}dup}\PYG{p}{(}\PYG{n}{MPI\PYGZus{}COMM\PYGZus{}WORLD}\PYG{p}{,} \PYG{o}{\PYGZam{}}\PYG{n}{comm}\PYG{p}{)}\PYG{p}{;}
-\PYG{n}{x} \PYG{o}{=} \PYG{n}{N\PYGZus{}VMake\PYGZus{}ManyVector}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{comm}\PYG{p}{,} \PYG{p}{.}\PYG{p}{.}\PYG{p}{.}\PYG{p}{)}\PYG{p}{;}
-\end{Verbatim}
-
-This routine will internally call \code{MPI\_Comm\_dup} to create a
-copy of the input \code{comm}, so the user-supplied \code{comm} argument
-need not be retained after the call to
-{\hyperref[nvectors/NVector_ManyVector:c.N_VMake_ManyVector]{\emph{\code{N\_VMake\_ManyVector()}}}}.
-
-If all subvectors are MPI-unaware, then the input \emph{comm} argument
-should be \code{NULL}, although in this case, it would be simpler to
-call {\hyperref[nvectors/NVector_ManyVector:c.N_VNew_ManyVector]{\emph{\code{N\_VNew\_ManyVector()}}}} instead.
-
-This routine will copy all \code{N\_Vector} pointers from the input
-\emph{vec\_array}, so the user may modify/free that pointer array
-after calling this function.  However, this routine does \emph{not}
-allocate any new subvectors, so the underlying NVECTOR objects
-themselves should not be destroyed before the ManyVector that
-contains them.
-
-Upon successful completion, the new ManyVector is returned;
-otherwise this routine returns \code{NULL} (e.g., if the input
-\emph{vec\_array} is \code{NULL}).
+otherwise this routine returns \code{NULL} (e.g., a memory allocation
+failure occurred).
 
 \end{fulllineitems}
 
@@ -28517,6 +28465,32 @@ otherwise this routine returns \code{NULL} (e.g., if the input
 \begin{fulllineitems}
 \phantomsection\label{nvectors/NVector_ManyVector:c.N_VGetSubvector_ManyVector}\pysiglinewithargsret{N\_Vector \bfcode{N\_VGetSubvector\_ManyVector}}{N\_Vector\emph{ v}, sunindextype\emph{ vec\_num}}{}
 This function returns the \emph{vec\_num} subvector from the NVECTOR array.
+
+\end{fulllineitems}
+
+\index{N\_VGetSubvectorArrayPointer\_ManyVector (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ManyVector:c.N_VGetSubvectorArrayPointer_ManyVector}\pysiglinewithargsret{realtype *\bfcode{N\_VGetSubvectorArrayPointer\_ManyVector}}{N\_Vector\emph{ v}, sunindextype\emph{ vec\_num}}{}
+This function returns the data array pointer for the \emph{vec\_num}
+subvector from the NVECTOR array.
+
+If the input \emph{vec\_num} is invalid, or if the subvector does not
+support the \code{N\_VGetArrayPointer} operation, then \code{NULL} is
+returned.
+
+\end{fulllineitems}
+
+\index{N\_VSetSubvectorArrayPointer\_ManyVector (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_ManyVector:c.N_VSetSubvectorArrayPointer_ManyVector}\pysiglinewithargsret{int \bfcode{N\_VSetSubvectorArrayPointer\_ManyVector}}{realtype\emph{ *v\_data}, N\_Vector\emph{ v}, sunindextype\emph{ vec\_num}}{}
+This function sets the data array pointer for the \emph{vec\_num}
+subvector from the NVECTOR array.
+
+If the input \emph{vec\_num} is invalid, or if the subvector does not
+support the \code{N\_VSetArrayPointer} operation, then \code{-1} is
+returned; otherwise it returns \code{0}.
 
 \end{fulllineitems}
 
@@ -28529,25 +28503,25 @@ This function returns the overall number of subvectors in the ManyVector object.
 \end{fulllineitems}
 
 
-By default all fused and vector array operations are disabled in the NVECTOR\_MANYVECTOR
-module, except for {\hyperref[nvectors/NVector_Operations:c.N_VWrmsNormVectorArray]{\emph{\code{N\_VWrmsNormVectorArray()}}}} and
-{\hyperref[nvectors/NVector_Operations:c.N_VWrmsNormMaskVectorArray]{\emph{\code{N\_VWrmsNormMaskVectorArray()}}}}, that are enabled by default. The
-following additional user-callable routines are provided to enable or
-disable fused and vector array operations for a specific vector. To
-ensure consistency across vectors it is recommended to first create a
-vector with {\hyperref[nvectors/NVector_ManyVector:c.N_VNew_ManyVector]{\emph{\code{N\_VNew\_ManyVector()}}}} or
-{\hyperref[nvectors/NVector_ManyVector:c.N_VMake_ManyVector]{\emph{\code{N\_VMake\_ManyVector()}}}}, enable/disable the desired operations
+By default all fused and vector array operations are disabled in the
+NVECTOR\_MANYVECTOR module, except for {\hyperref[nvectors/NVector_Operations:c.N_VWrmsNormVectorArray]{\emph{\code{N\_VWrmsNormVectorArray()}}}}
+and {\hyperref[nvectors/NVector_Operations:c.N_VWrmsNormMaskVectorArray]{\emph{\code{N\_VWrmsNormMaskVectorArray()}}}}, that are enabled by
+default. The following additional user-callable routines are provided
+to enable or disable fused and vector array operations for a specific
+vector. To ensure consistency across vectors it is recommended to
+first create a vector with {\hyperref[nvectors/NVector_ManyVector:c.N_VNew_ManyVector]{\emph{\code{N\_VNew\_ManyVector()}}}} or
+\code{N\_VMake\_ManyVector()}, enable/disable the desired operations
 for that vector with the functions below, and create any additional
 vectors from that vector using {\hyperref[nvectors/NVector_Operations:c.N_VClone]{\emph{\code{N\_VClone()}}}}. This guarantees
 that the new vectors will have the same operations enabled/disabled,
 since cloned vectors inherit those configuration options from the
 vector they are cloned from, while vectors created with
-{\hyperref[nvectors/NVector_ManyVector:c.N_VNew_ManyVector]{\emph{\code{N\_VNew\_ManyVector()}}}} and {\hyperref[nvectors/NVector_ManyVector:c.N_VMake_ManyVector]{\emph{\code{N\_VMake\_ManyVector()}}}} will
+{\hyperref[nvectors/NVector_ManyVector:c.N_VNew_ManyVector]{\emph{\code{N\_VNew\_ManyVector()}}}} and \code{N\_VMake\_ManyVector()} will
 have the default settings for the NVECTOR\_MANYVECTOR module.  We note
 that these routines \emph{do not} call the corresponding routines on
 subvectors, so those should be set up as desired \emph{before} attaching
 them to the ManyVector in {\hyperref[nvectors/NVector_ManyVector:c.N_VNew_ManyVector]{\emph{\code{N\_VNew\_ManyVector()}}}} or
-{\hyperref[nvectors/NVector_ManyVector:c.N_VMake_ManyVector]{\emph{\code{N\_VMake\_ManyVector()}}}}.
+\code{N\_VMake\_ManyVector()}.
 \index{N\_VEnableFusedOps\_ManyVector (C function)}
 
 \begin{fulllineitems}
@@ -28645,7 +28619,7 @@ norm operation for vector arrays in the manyvector vector. The return value is
 \textbf{Notes}
 \begin{itemize}
 \item {} 
-{\hyperref[nvectors/NVector_ManyVector:c.N_VNew_ManyVector]{\emph{\code{N\_VNew\_ManyVector()}}}} and {\hyperref[nvectors/NVector_ManyVector:c.N_VMake_ManyVector]{\emph{\code{N\_VMake\_ManyVector()}}}} set
+{\hyperref[nvectors/NVector_ManyVector:c.N_VNew_ManyVector]{\emph{\code{N\_VNew\_ManyVector()}}}} and \code{N\_VMake\_ManyVector()} set
 the field \code{own\_data = SUNFALSE}.
 \code{N\_VDestroy\_ManyVector()} will not attempt to call
 {\hyperref[nvectors/NVector_Operations:c.N_VDestroy]{\emph{\code{N\_VDestroy()}}}} on any subvectors contained in the
@@ -28656,6 +28630,522 @@ deallocate the subvectors.
 \item {} 
 To maximize efficiency, arithmetic vector operations in the
 NVECTOR\_MANYVECTOR implementation that have more than one
+\code{N\_Vector} argument do not check for consistent internal
+representation of these vectors. It is the user's responsibility to
+ensure that such routines are called with \code{N\_Vector} arguments
+that were all created with the same subvector representations.
+
+\end{itemize}
+
+
+\section{The NVECTOR\_MPIMANYVECTOR Module}
+\label{nvectors/NVector_MPIManyVector:nvectors-mpimanyvector}\label{nvectors/NVector_MPIManyVector::doc}\label{nvectors/NVector_MPIManyVector:the-nvector-mpimanyvector-module}
+The NVECTOR\_MPIMANYVECTOR implementation of the NVECTOR module provided with
+SUNDIALS is designed to facilitate problems with an inherent
+data partitioning for the solution vector, and when using
+distributed-memory parallel architectures.  As such, the MPIManyVector
+implementation supports all use cases allowed by the MPI-unaware
+NVECTOR\_MANYVECTOR implementation, as well as partitioning data
+between nodes in a parallel environment.  These data partitions are
+entirely user-defined, through construction of distinct NVECTOR
+modules for each component, that are then combined together to form
+the NVECTOR\_MPIMANYVECTOR.  We envision three generic use cases for this
+implementation:
+\begin{enumerate}
+\item {} 
+\emph{Heterogenous computational architectures (single-node or multi-node)}:
+for users who wish to partition data on a node between different
+computing resources, they may create architecture-specific
+subvectors for each partition.  For example, a user could create
+one MPI-parallel component based on NVECTOR\_PARALLEL, another
+single-node component for GPU accelerators based on NVECTOR\_CUDA,
+and another threaded single-node component based on
+NVECTOR\_OPENMP.
+
+\item {} 
+\emph{Process-based multiphysics decompositions (multi-node)}: for users
+who wish to combine separate simulations together, e.g., where
+one subvector resides on one subset of MPI processes, while
+another subvector resides on a different subset of MPI processes,
+and where the user has created a MPI \emph{intercommunicator} to
+connect these distinct process sets together.
+
+\item {} 
+\emph{Structure of arrays (SOA) data layouts (single-node or multi-node)}:
+for users who wish to create separate subvectors for each
+solution component, e.g., in a Navier-Stokes simulation they
+could have separate subvectors for density, velocities and
+pressure, which are combined together into a single
+NVECTOR\_MPIMANYVECTOR for the overall ``solution''.
+
+\end{enumerate}
+
+We note that the above use cases are not mutually exclusive, and the
+NVECTOR\_MPIMANYVECTOR implementation should support arbitrary combinations
+of these cases.
+
+The NVECTOR\_MPIMANYVECTOR implementation is designed to work with any
+NVECTOR subvectors that implement the minimum \emph{required} set
+of operations, however significant performance benefits may be
+obtained when subvectors additionally implement the optional local
+reduction operations listed in the section {\hyperref[nvectors/NVector_Operations:nvectors-localops]{\emph{\DUspan{}{Description of the NVECTOR local reduction operations}}}}.
+
+Additionally, NVECTOR\_MPIMANYVECTOR sets no limit on the number of
+subvectors that may be attached (aside from the limitations of using
+\code{sunindextype} for indexing, and standard per-node memory
+limitations).  However, while this ostensibly supports subvectors
+with one entry each (i.e., one subvector for each solution entry), we
+anticipate that this extreme situation will hinder performance due to
+non-stride-one memory accesses and increased function call overhead.
+We therefore recommend a relatively coarse partitioning of the
+problem, although actual performance will likely be
+problem-dependent.
+
+As a final note, in the coming years we plan to introduce additional
+algebraic solvers and time integration modules that will leverage the
+problem partitioning enabled by NVECTOR\_MPIMANYVECTOR.  However, even at
+present we anticipate that users will be able to leverage such data
+partitioning in their problem-defining ODE right-hand side, DAE
+residual, or nonlinear solver residual functions.
+
+
+\subsection{NVECTOR\_MPIMANYVECTOR structure}
+\label{nvectors/NVector_MPIManyVector:nvectors-mpimanyvector-structure}\label{nvectors/NVector_MPIManyVector:nvector-mpimanyvector-structure}
+The NVECTOR\_MPIMANYVECTOR implementation defines the \emph{content} field
+of \code{N\_Vector} to be a structure containing the MPI communicator
+(or \code{MPI\_COMM\_NULL} if running on a single node), the number of
+subvectors comprising the MPIManyVector, the global length of the
+MPIManyVector (including all subvectors on all MPI tasks), a pointer to
+the beginning of the array of subvectors, and a boolean flag
+\code{own\_data} indicating ownership of the subvectors that populate
+\code{subvec\_array}.
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{k}{struct} \PYG{n}{\PYGZus{}N\PYGZus{}VectorContent\PYGZus{}MPIManyVector} \PYG{p}{\PYGZob{}}
+  \PYG{n}{MPI\PYGZus{}Comm}      \PYG{n}{comm}\PYG{p}{;}            \PYG{c+cm}{/* overall MPI communicator        */}
+  \PYG{n}{sunindextype}  \PYG{n}{num\PYGZus{}subvectors}\PYG{p}{;}  \PYG{c+cm}{/* number of vectors attached      */}
+  \PYG{n}{sunindextype}  \PYG{n}{global\PYGZus{}length}\PYG{p}{;}   \PYG{c+cm}{/* overall mpimanyvector length    */}
+  \PYG{n}{N\PYGZus{}Vector}\PYG{o}{*}     \PYG{n}{subvec\PYGZus{}array}\PYG{p}{;}    \PYG{c+cm}{/* pointer to N\PYGZus{}Vector array       */}
+  \PYG{n}{booleantype}   \PYG{n}{own\PYGZus{}data}\PYG{p}{;}        \PYG{c+cm}{/* flag indicating data ownership  */}
+\PYG{p}{\PYGZcb{}}\PYG{p}{;}
+\end{Verbatim}
+
+The header file to include when using this module is
+\code{nvector\_mpimanyvector.h}. The installed module library to link against is
+\code{libsundials\_nvecmpimanyvector.lib} where \code{.lib} is typically \code{.so} for
+shared libraries and \code{.a} for static libraries.
+
+\emph{Note:} If SUNDIALS is configured with MPI disabled, then the
+MPIManyVector library will not be built.  Furthermore, any user codes
+that include \code{nvector\_mpimanyvector.h} \emph{must} be compiled using an
+MPI-aware compiler (whether the specific user code utilizes MPI or
+not).  We note that the NVECTOR\_MANYVECTOR implementation is designed
+for ManyVector use cases in an MPI-unaware environment.
+
+
+\subsection{NVECTOR\_MPIMANYVECTOR functions}
+\label{nvectors/NVector_MPIManyVector:nvector-mpimanyvector-functions}
+The NVECTOR\_MPIMANYVECTOR module implements all vector operations listed
+in the sections {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}},
+{\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}, and {\hyperref[nvectors/NVector_Operations:nvectors-localops]{\emph{\DUspan{}{Description of the NVECTOR local reduction operations}}}}, except for
+{\hyperref[nvectors/NVector_Operations:c.N_VGetArrayPointer]{\emph{\code{N\_VGetArrayPointer()}}}}, {\hyperref[nvectors/NVector_Operations:c.N_VSetArrayPointer]{\emph{\code{N\_VSetArrayPointer()}}}},
+{\hyperref[nvectors/NVector_Operations:c.N_VScaleAddMultiVectorArray]{\emph{\code{N\_VScaleAddMultiVectorArray()}}}}, and
+{\hyperref[nvectors/NVector_Operations:c.N_VLinearCombinationVectorArray]{\emph{\code{N\_VLinearCombinationVectorArray()}}}}.  As such, this vector
+cannot be used with the SUNDIALS Fortran-77 interfaces, nor with the
+SUNDIALS direct solvers and preconditioners. Instead, the
+NVECTOR\_MPIMANYVECTOR module provides functions to access subvectors,
+whose data may in turn be accessed according to their NVECTOR
+implementations.
+
+The names of vector operations are obtained from those in the sections
+{\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}},
+{\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}, and {\hyperref[nvectors/NVector_Operations:nvectors-localops]{\emph{\DUspan{}{Description of the NVECTOR local reduction operations}}}} by
+appending the suffix \code{\_MPIManyVector} (e.g. \code{N\_VDestroy\_MPIManyVector}).
+The module NVECTOR\_MPIMANYVECTOR provides the following additional
+user-callable routines:
+\index{N\_VNew\_MPIManyVector (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_MPIManyVector:c.N_VNew_MPIManyVector}\pysiglinewithargsret{N\_Vector \bfcode{N\_VNew\_MPIManyVector}}{sunindextype\emph{ num\_subvectors}, N\_Vector\emph{ *vec\_array}}{}
+This function creates a MPIManyVector from a set of existing
+NVECTOR objects, under the requirement that all MPI-aware
+subvectors use the same MPI communicator (this is checked
+internally).  If none of the subvectors are MPI-aware, then this
+may equivalently be used to describe data partitioning within a
+single node.  We note that this routine is designed to support use
+cases A and C above.
+
+This routine will copy all \code{N\_Vector} pointers from the input
+\code{vec\_array}, so the user may modify/free that pointer array
+after calling this function.  However, this routine does \emph{not}
+allocate any new subvectors, so the underlying NVECTOR objects
+themselves should not be destroyed before the MPIManyVector that
+contains them.
+
+Upon successful completion, the new MPIManyVector is returned;
+otherwise this routine returns \code{NULL} (e.g., if two MPI-aware
+subvectors use different MPI communicators).
+
+\end{fulllineitems}
+
+\index{N\_VMake\_MPIManyVector (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_MPIManyVector:c.N_VMake_MPIManyVector}\pysiglinewithargsret{N\_Vector \bfcode{N\_VMake\_MPIManyVector}}{MPI\_Comm\emph{ *comm}, sunindextype\emph{ num\_subvectors}, N\_Vector\emph{ *vec\_array}}{}
+This function creates a MPIManyVector from a set of existing NVECTOR
+objects, and a user-created MPI communicator that ``connects'' these
+subvectors.  Any MPI-aware subvectors may use different MPI
+communicators than the input \emph{comm}.  We note that this routine
+is designed to support any combination of the use cases above.
+
+The input \emph{comm} should be the memory reference to this
+user-created MPI communicator.  We note that since many MPI
+implementations \code{\#define}  \code{MPI\_COMM\_WORLD} to be a specific
+integer \emph{value} (that has no memory reference), users who wish
+to supply \code{MPI\_COMM\_WORLD} to this routine should first
+set a specific \code{MPI\_Comm} variable to \code{MPI\_COMM\_WORLD} before
+passing in the reference, e.g.
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{MPI\PYGZus{}Comm} \PYG{n}{comm}\PYG{p}{;}
+\PYG{n}{comm} \PYG{o}{=} \PYG{n}{MPI\PYGZus{}COMM\PYGZus{}WORLD}\PYG{p}{;}
+\PYG{n}{N\PYGZus{}Vector} \PYG{n}{x}\PYG{p}{;}
+\PYG{n}{x} \PYG{o}{=} \PYG{n}{N\PYGZus{}VMake\PYGZus{}MPIManyVector}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{comm}\PYG{p}{,} \PYG{p}{.}\PYG{p}{.}\PYG{p}{.}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+This routine will internally call \code{MPI\_Comm\_dup} to create a
+copy of the input \code{comm}, so the user-supplied \code{comm} argument
+need not be retained after the call to
+{\hyperref[nvectors/NVector_MPIManyVector:c.N_VMake_MPIManyVector]{\emph{\code{N\_VMake\_MPIManyVector()}}}}.
+
+If all subvectors are MPI-unaware, then the input \emph{comm} argument
+should be \code{NULL}, although in this case, it would be simpler to
+call {\hyperref[nvectors/NVector_MPIManyVector:c.N_VNew_MPIManyVector]{\emph{\code{N\_VNew\_MPIManyVector()}}}} instead.
+
+This routine will copy all \code{N\_Vector} pointers from the input
+\emph{vec\_array}, so the user may modify/free that pointer array
+after calling this function.  However, this routine does \emph{not}
+allocate any new subvectors, so the underlying NVECTOR objects
+themselves should not be destroyed before the MPIManyVector that
+contains them.
+
+Upon successful completion, the new MPIManyVector is returned;
+otherwise this routine returns \code{NULL} (e.g., if the input
+\emph{vec\_array} is \code{NULL}).
+
+\end{fulllineitems}
+
+\index{N\_VGetSubvector\_MPIManyVector (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_MPIManyVector:c.N_VGetSubvector_MPIManyVector}\pysiglinewithargsret{N\_Vector \bfcode{N\_VGetSubvector\_MPIManyVector}}{N\_Vector\emph{ v}, sunindextype\emph{ vec\_num}}{}
+This function returns the \emph{vec\_num} subvector from the NVECTOR array.
+
+\end{fulllineitems}
+
+\index{N\_VGetSubvectorArrayPointer\_MPIManyVector (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_MPIManyVector:c.N_VGetSubvectorArrayPointer_MPIManyVector}\pysiglinewithargsret{realtype *\bfcode{N\_VGetSubvectorArrayPointer\_MPIManyVector}}{N\_Vector\emph{ v}, sunindextype\emph{ vec\_num}}{}
+This function returns the data array pointer for the \emph{vec\_num}
+subvector from the NVECTOR array.
+
+If the input \emph{vec\_num} is invalid, or if the subvector does not
+support the \code{N\_VGetArrayPointer} operation, then \code{NULL} is
+returned.
+
+\end{fulllineitems}
+
+\index{N\_VSetSubvectorArrayPointer\_MPIManyVector (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_MPIManyVector:c.N_VSetSubvectorArrayPointer_MPIManyVector}\pysiglinewithargsret{int \bfcode{N\_VSetSubvectorArrayPointer\_MPIManyVector}}{realtype\emph{ *v\_data}, N\_Vector\emph{ v}, sunindextype\emph{ vec\_num}}{}
+This function sets the data array pointer for the \emph{vec\_num}
+subvector from the NVECTOR array.
+
+If the input \emph{vec\_num} is invalid, or if the subvector does not
+support the \code{N\_VSetArrayPointer} operation, then \code{-1} is
+returned; otherwise it returns \code{0}.
+
+\end{fulllineitems}
+
+\index{N\_VGetNumSubvectors\_MPIManyVector (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_MPIManyVector:c.N_VGetNumSubvectors_MPIManyVector}\pysiglinewithargsret{sunindextype \bfcode{N\_VGetNumSubvectors\_MPIManyVector}}{N\_Vector\emph{ v}}{}
+This function returns the overall number of subvectors in the MPIManyVector object.
+
+\end{fulllineitems}
+
+
+By default all fused and vector array operations are disabled in the NVECTOR\_MPIMANYVECTOR
+module, except for {\hyperref[nvectors/NVector_Operations:c.N_VWrmsNormVectorArray]{\emph{\code{N\_VWrmsNormVectorArray()}}}} and
+{\hyperref[nvectors/NVector_Operations:c.N_VWrmsNormMaskVectorArray]{\emph{\code{N\_VWrmsNormMaskVectorArray()}}}}, that are enabled by default. The
+following additional user-callable routines are provided to enable or
+disable fused and vector array operations for a specific vector. To
+ensure consistency across vectors it is recommended to first create a
+vector with {\hyperref[nvectors/NVector_MPIManyVector:c.N_VNew_MPIManyVector]{\emph{\code{N\_VNew\_MPIManyVector()}}}} or
+{\hyperref[nvectors/NVector_MPIManyVector:c.N_VMake_MPIManyVector]{\emph{\code{N\_VMake\_MPIManyVector()}}}}, enable/disable the desired operations
+for that vector with the functions below, and create any additional
+vectors from that vector using {\hyperref[nvectors/NVector_Operations:c.N_VClone]{\emph{\code{N\_VClone()}}}}. This guarantees
+that the new vectors will have the same operations enabled/disabled,
+since cloned vectors inherit those configuration options from the
+vector they are cloned from, while vectors created with
+{\hyperref[nvectors/NVector_MPIManyVector:c.N_VNew_MPIManyVector]{\emph{\code{N\_VNew\_MPIManyVector()}}}} and {\hyperref[nvectors/NVector_MPIManyVector:c.N_VMake_MPIManyVector]{\emph{\code{N\_VMake\_MPIManyVector()}}}} will
+have the default settings for the NVECTOR\_MPIMANYVECTOR module.  We note
+that these routines \emph{do not} call the corresponding routines on
+subvectors, so those should be set up as desired \emph{before} attaching
+them to the MPIManyVector in {\hyperref[nvectors/NVector_MPIManyVector:c.N_VNew_MPIManyVector]{\emph{\code{N\_VNew\_MPIManyVector()}}}} or
+{\hyperref[nvectors/NVector_MPIManyVector:c.N_VMake_MPIManyVector]{\emph{\code{N\_VMake\_MPIManyVector()}}}}.
+\index{N\_VEnableFusedOps\_MPIManyVector (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_MPIManyVector:c.N_VEnableFusedOps_MPIManyVector}\pysiglinewithargsret{int \bfcode{N\_VEnableFusedOps\_MPIManyVector}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) all fused and
+vector array operations in the MPIManyVector vector. The return value is \code{0} for
+success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
+
+\end{fulllineitems}
+
+\index{N\_VEnableLinearCombination\_MPIManyVector (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_MPIManyVector:c.N_VEnableLinearCombination_MPIManyVector}\pysiglinewithargsret{int \bfcode{N\_VEnableLinearCombination\_MPIManyVector}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear
+combination fused operation in the MPIManyVector vector. The return value is \code{0} for
+success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
+
+\end{fulllineitems}
+
+\index{N\_VEnableScaleAddMulti\_MPIManyVector (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_MPIManyVector:c.N_VEnableScaleAddMulti_MPIManyVector}\pysiglinewithargsret{int \bfcode{N\_VEnableScaleAddMulti\_MPIManyVector}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale and
+add a vector to multiple vectors fused operation in the MPIManyVector vector. The
+return value is \code{0} for success and \code{-1} if the input vector or its
+\code{ops} structure are \code{NULL}.
+
+\end{fulllineitems}
+
+\index{N\_VEnableDotProdMulti\_MPIManyVector (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_MPIManyVector:c.N_VEnableDotProdMulti_MPIManyVector}\pysiglinewithargsret{int \bfcode{N\_VEnableDotProdMulti\_MPIManyVector}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the multiple
+dot products fused operation in the MPIManyVector vector. The return value is \code{0}
+for success and \code{-1} if the input vector or its \code{ops} structure are
+\code{NULL}.
+
+\end{fulllineitems}
+
+\index{N\_VEnableLinearSumVectorArray\_MPIManyVector (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_MPIManyVector:c.N_VEnableLinearSumVectorArray_MPIManyVector}\pysiglinewithargsret{int \bfcode{N\_VEnableLinearSumVectorArray\_MPIManyVector}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the linear sum
+operation for vector arrays in the MPIManyVector vector. The return value is \code{0} for
+success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
+
+\end{fulllineitems}
+
+\index{N\_VEnableScaleVectorArray\_MPIManyVector (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_MPIManyVector:c.N_VEnableScaleVectorArray_MPIManyVector}\pysiglinewithargsret{int \bfcode{N\_VEnableScaleVectorArray\_MPIManyVector}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the scale
+operation for vector arrays in the MPIManyVector vector. The return value is \code{0} for
+success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
+
+\end{fulllineitems}
+
+\index{N\_VEnableConstVectorArray\_MPIManyVector (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_MPIManyVector:c.N_VEnableConstVectorArray_MPIManyVector}\pysiglinewithargsret{int \bfcode{N\_VEnableConstVectorArray\_MPIManyVector}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the const
+operation for vector arrays in the MPIManyVector vector. The return value is \code{0} for
+success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
+
+\end{fulllineitems}
+
+\index{N\_VEnableWrmsNormVectorArray\_MPIManyVector (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_MPIManyVector:c.N_VEnableWrmsNormVectorArray_MPIManyVector}\pysiglinewithargsret{int \bfcode{N\_VEnableWrmsNormVectorArray\_MPIManyVector}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the WRMS norm
+operation for vector arrays in the MPIManyVector vector. The return value is \code{0} for
+success and \code{-1} if the input vector or its \code{ops} structure are \code{NULL}.
+
+\end{fulllineitems}
+
+\index{N\_VEnableWrmsNormMaskVectorArray\_MPIManyVector (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_MPIManyVector:c.N_VEnableWrmsNormMaskVectorArray_MPIManyVector}\pysiglinewithargsret{int \bfcode{N\_VEnableWrmsNormMaskVectorArray\_MPIManyVector}}{N\_Vector\emph{ v}, booleantype\emph{ tf}}{}
+This function enables (\code{SUNTRUE}) or disables (\code{SUNFALSE}) the masked WRMS
+norm operation for vector arrays in the MPIManyVector vector. The return value is
+\code{0} for success and \code{-1} if the input vector or its \code{ops} structure are
+\code{NULL}.
+
+\end{fulllineitems}
+
+
+\textbf{Notes}
+\begin{itemize}
+\item {} 
+{\hyperref[nvectors/NVector_MPIManyVector:c.N_VNew_MPIManyVector]{\emph{\code{N\_VNew\_MPIManyVector()}}}} and {\hyperref[nvectors/NVector_MPIManyVector:c.N_VMake_MPIManyVector]{\emph{\code{N\_VMake\_MPIManyVector()}}}} set
+the field \code{own\_data = SUNFALSE}.
+\code{N\_VDestroy\_MPIManyVector()} will not attempt to call
+{\hyperref[nvectors/NVector_Operations:c.N_VDestroy]{\emph{\code{N\_VDestroy()}}}} on any subvectors contained in the
+subvector array for any \code{N\_Vector} with \code{own\_data} set to
+\code{SUNFALSE}. In such a case, it is the user's responsibility to
+deallocate the subvectors.
+
+\item {} 
+To maximize efficiency, arithmetic vector operations in the
+NVECTOR\_MPIMANYVECTOR implementation that have more than one
+\code{N\_Vector} argument do not check for consistent internal
+representation of these vectors. It is the user's responsibility to
+ensure that such routines are called with \code{N\_Vector} arguments
+that were all created with the same subvector representations.
+
+\end{itemize}
+
+
+\section{The NVECTOR\_MPIPLUSX Module}
+\label{nvectors/NVector_MPIPlusX:the-nvector-mpiplusx-module}\label{nvectors/NVector_MPIPlusX:nvectors-mpiplusx}\label{nvectors/NVector_MPIPlusX::doc}
+The NVECTOR\_MPIPLUSX implementation of the NVECTOR module provided
+with SUNDIALS is designed to facilitate the MPI+X paradigm, where
+X is some form of on-node (local) parallelism (e.g. OpenMP, CUDA).
+This paradigm is becoming increasingly popular with the rise of
+heterogeneous computing architectures.
+
+The NVECTOR\_MPIPLUSX implementation is designed to work with any
+NVECTOR that implements the minimum \emph{required} set of operations.
+However, it is not recommended to use the NVECTOR\_PARALLEL,
+NVECTOR\_PARHYP, NVECTOR\_PETSC, or NVECTOR\_TRILINOS implementations
+underneath the NVECTOR\_MPIPLUSX module since they already provide
+MPI capabilities.
+
+
+\subsection{NVECTOR\_MPIPLUSX structure}
+\label{nvectors/NVector_MPIPlusX:nvector-mpiplusx-structure}
+The NVECTOR\_MPIPLUSX implementation is a thin wrapper around the
+NVECTOR\_MPIMANYVECTOR. Accordingly, it adopts the same content
+structure as defined in the section {\hyperref[nvectors/NVector_MPIManyVector:nvectors-mpimanyvector-structure]{\emph{\DUspan{}{NVECTOR\_MPIMANYVECTOR structure}}}}.
+
+The header file to include when using this module is
+\code{nvector\_mpiplusx.h}. The installed module library to link against is
+\code{libsundials\_nvecmpiplusx.lib} where \code{.lib} is typically \code{.so} for
+shared libraries and \code{.a} for static libraries.
+
+\textbf{Note:} If SUNDIALS is configured with MPI disabled, then the
+mpiplusx library will not be built.  Furthermore, any user codes
+that include \code{nvector\_mpiplusx.h} \emph{must} be compiled using an MPI-aware
+compiler.
+
+
+\subsection{NVECTOR\_MPIPLUSX functions}
+\label{nvectors/NVector_MPIPlusX:nvector-mpiplusx-functions}
+The NVECTOR\_MPIPLUSX module adopts all vector operations listed
+in the sections {\hyperref[nvectors/NVector_Operations:nvectors-ops]{\emph{\DUspan{}{Description of the NVECTOR operations}}}}, {\hyperref[nvectors/NVector_Operations:nvectors-fusedops]{\emph{\DUspan{}{Description of the NVECTOR fused operations}}}},
+{\hyperref[nvectors/NVector_Operations:nvectors-arrayops]{\emph{\DUspan{}{Description of the NVECTOR vector array operations}}}}, and {\hyperref[nvectors/NVector_Operations:nvectors-localops]{\emph{\DUspan{}{Description of the NVECTOR local reduction operations}}}}, from the
+NVECTOR\_MPIMANYVECTOR (see section {\hyperref[nvectors/NVector_MPIManyVector:nvectors-mpimanyvector]{\emph{\DUspan{}{The NVECTOR\_MPIMANYVECTOR Module}}}})
+except for {\hyperref[nvectors/NVector_Operations:c.N_VGetArrayPointer]{\emph{\code{N\_VGetArrayPointer()}}}}, and {\hyperref[nvectors/NVector_Operations:c.N_VSetArrayPointer]{\emph{\code{N\_VSetArrayPointer()}}}};
+the module provides its own implementation of these functions that
+call the local vector implementations. Therefore, the NVECTOR\_MPIPLUSX
+module implements all of the operations listed in the referenced
+sections except for {\hyperref[nvectors/NVector_Operations:c.N_VScaleAddMultiVectorArray]{\emph{\code{N\_VScaleAddMultiVectorArray()}}}},
+and {\hyperref[nvectors/NVector_Operations:c.N_VLinearCombinationVectorArray]{\emph{\code{N\_VLinearCombinationVectorArray()}}}}. Accordingly, it's
+compatibility with the SUNDIALS Fortran-77 interface, and with the
+SUNDIALS direct solvers and preconditioners depends on the local
+vector implementation.
+
+The module NVECTOR\_MPIPLUSX provides the following additional
+user-callable routines:
+\index{N\_VMake\_MPIPlusX (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_MPIPlusX:c.N_VMake_MPIPlusX}\pysiglinewithargsret{N\_Vector \bfcode{N\_VMake\_MPIPlusX}}{MPI\_Comm\emph{ *comm}, N\_Vector\emph{ *local\_vector}}{}
+This function creates a MPIPlusX vector from an exisiting local
+(i.e. on node) NVECTOR object, and a user-created MPI communicator.
+
+The input \emph{comm} should be the memory reference to this
+user-created MPI communicator.  We note that since many MPI
+implementations \code{\#define}  \code{MPI\_COMM\_WORLD} to be a specific
+integer \emph{value} (that has no memory reference), users who wish
+to supply \code{MPI\_COMM\_WORLD} to this routine should first
+set a specific \code{MPI\_Comm} variable to \code{MPI\_COMM\_WORLD} before
+passing in the reference, e.g.
+
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n}{MPI\PYGZus{}Comm} \PYG{n}{comm}\PYG{p}{;}
+\PYG{n}{comm} \PYG{o}{=} \PYG{n}{MPI\PYGZus{}COMM\PYGZus{}WORLD}\PYG{p}{;}
+\PYG{n}{N\PYGZus{}Vector} \PYG{n}{x}\PYG{p}{;}
+\PYG{n}{x} \PYG{o}{=} \PYG{n}{N\PYGZus{}VMake\PYGZus{}MPIPlusX}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{comm}\PYG{p}{,} \PYG{p}{.}\PYG{p}{.}\PYG{p}{.}\PYG{p}{)}\PYG{p}{;}
+\end{Verbatim}
+
+This routine will internally call \code{MPI\_Comm\_dup} to create a
+copy of the input \code{comm}, so the user-supplied \code{comm} argument
+need not be retained after the call to
+{\hyperref[nvectors/NVector_MPIPlusX:c.N_VMake_MPIPlusX]{\emph{\code{N\_VMake\_MPIPlusX()}}}}.
+
+This routine will copy the NVECTOR pointer to the input
+\code{local\_vector}, so the underlying NVECTOR object should not be
+destroyed before the mpiplusx that contains it.
+
+Upon successful completion, the new MPIPlusX is returned;
+otherwise this routine returns \code{NULL} (e.g., if the input
+\emph{local\_vector} is \code{NULL}).
+
+\end{fulllineitems}
+
+\index{N\_VGetLocal\_MPIPlusX (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_MPIPlusX:c.N_VGetLocal_MPIPlusX}\pysiglinewithargsret{N\_Vector \bfcode{N\_VGetLocal\_MPIPlusX}}{N\_Vector\emph{ v}}{}
+This function returns the local vector underneath the MPIPlusX
+NVECTOR.
+
+\end{fulllineitems}
+
+\index{N\_VGetArrayPointer\_MPIPlusX (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_MPIPlusX:c.N_VGetArrayPointer_MPIPlusX}\pysiglinewithargsret{realtype *\bfcode{N\_VGetArrayPointer\_MPIPlusX}}{N\_Vector\emph{ v}}{}
+This function returns the data array pointer for the local vector.
+
+If the local vector does not support the \code{N\_VGetArrayPointer}
+operation, then \code{NULL} is returned.
+
+\end{fulllineitems}
+
+\index{N\_VSetArrayPointer\_MPIPlusX (C function)}
+
+\begin{fulllineitems}
+\phantomsection\label{nvectors/NVector_MPIPlusX:c.N_VSetArrayPointer_MPIPlusX}\pysiglinewithargsret{void \bfcode{N\_VSetArrayPointer\_MPIPlusX}}{realtype\emph{ *v\_data}, N\_Vector\emph{ v}}{}
+This function sets the data array pointer for the local vector if
+the local vector implements the \code{N\_VGetArrayPointe()} operation.
+
+\end{fulllineitems}
+
+
+The NVECTOR\_MPIPLUSX module does not implement any fused or vector array
+operations. Instead users should enable/disable fused operations on the
+local vector.
+
+\textbf{Notes}
+\begin{itemize}
+\item {} 
+{\hyperref[nvectors/NVector_MPIPlusX:c.N_VMake_MPIPlusX]{\emph{\code{N\_VMake\_MPIPlusX()}}}} sets the field \code{own\_data = SUNFALSE} and
+\code{N\_VDestroy\_MPIPlusX()} will not call {\hyperref[nvectors/NVector_Operations:c.N_VDestroy]{\emph{\code{N\_VDestroy()}}}} on the
+local vector. In this a case, it is the user's responsibility to deallocate
+the local vector.
+
+\item {} 
+To maximize efficiency, arithmetic vector operations in the
+NVECTOR\_MPIPLUSX implementation that have more than one
 \code{N\_Vector} argument do not check for consistent internal
 representation of these vectors. It is the user's responsibility to
 ensure that such routines are called with \code{N\_Vector} arguments

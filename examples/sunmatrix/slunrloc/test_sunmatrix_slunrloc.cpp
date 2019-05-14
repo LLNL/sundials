@@ -182,26 +182,26 @@ int main(int argc, char *argv[])
 
       /* send number of local NNZ */
       NNZ_local = rowptrs[fstrow_temp+M_localtemp] - rowptrs[fstrow_temp];
-      MPI_Send(&NNZ_local, 1, PVEC_INTEGER_MPI_TYPE, i, i, grid.comm);
+      MPI_Send(&NNZ_local, 1, MPI_SUNINDEXTYPE, i, i, grid.comm);
 
       /* send out rowptrs */
       rowtemp = &rowptrs[fstrow_temp];
-      MPI_Send(rowtemp, M_localtemp+1, PVEC_INTEGER_MPI_TYPE, i, i, grid.comm);
+      MPI_Send(rowtemp, M_localtemp+1, MPI_SUNINDEXTYPE, i, i, grid.comm);
 
       /* send corresponding column indices */
       coltemp = &colind[rowptrs[fstrow_temp]];
-      MPI_Send(coltemp, NNZ_local, PVEC_INTEGER_MPI_TYPE, i, i, grid.comm);
+      MPI_Send(coltemp, NNZ_local, MPI_SUNINDEXTYPE, i, i, grid.comm);
 
       /* send corresponding data */
       datatemp = &matdata[rowptrs[fstrow_temp]];
-      MPI_Send(datatemp, NNZ_local, PVEC_REAL_MPI_TYPE, i, i, grid.comm);
+      MPI_Send(datatemp, NNZ_local, MPI_SUNREALTYPE, i, i, grid.comm);
 
       /* send vector data */
       datatemp = &xdata[fstrow_temp];
-      MPI_Send(datatemp, M_localtemp, PVEC_REAL_MPI_TYPE, i, i, grid.comm);
+      MPI_Send(datatemp, M_localtemp, MPI_SUNREALTYPE, i, i, grid.comm);
 
       datatemp = &ydata[fstrow_temp];
-      MPI_Send(datatemp, M_localtemp, PVEC_REAL_MPI_TYPE, i, i, grid.comm);
+      MPI_Send(datatemp, M_localtemp, MPI_SUNREALTYPE, i, i, grid.comm);
     }
 
     NNZ_local = rowptrs[M_local] - rowptrs[0];
@@ -232,7 +232,7 @@ int main(int argc, char *argv[])
     sunindextype shift;
 
     /* recieve number of local nnz */
-    MPI_Recv(&NNZ_local, 1, PVEC_INTEGER_MPI_TYPE, 0, grid.iam, grid.comm, &mpistatus);
+    MPI_Recv(&NNZ_local, 1, MPI_SUNINDEXTYPE, 0, grid.iam, grid.comm, &mpistatus);
 
     /* Allocate memory for matrix members */
     matdata = (realtype*) malloc(NNZ_local*sizeof(realtype));
@@ -240,9 +240,9 @@ int main(int argc, char *argv[])
     rowptrs = (sunindextype*) malloc((M_local+1)*sizeof(sunindextype));
 
     /* receive distributed matrix */
-    MPI_Recv(rowptrs, M_local+1, PVEC_INTEGER_MPI_TYPE, 0, grid.iam, grid.comm, &mpistatus);
-    MPI_Recv(colind, NNZ_local, PVEC_INTEGER_MPI_TYPE, 0, grid.iam, grid.comm, &mpistatus);
-    MPI_Recv(matdata, NNZ_local, PVEC_REAL_MPI_TYPE, 0, grid.iam, grid.comm, &mpistatus);
+    MPI_Recv(rowptrs, M_local+1, MPI_SUNINDEXTYPE, 0, grid.iam, grid.comm, &mpistatus);
+    MPI_Recv(colind, NNZ_local, MPI_SUNINDEXTYPE, 0, grid.iam, grid.comm, &mpistatus);
+    MPI_Recv(matdata, NNZ_local, MPI_SUNREALTYPE, 0, grid.iam, grid.comm, &mpistatus);
 
     /* localize rowptrs */
     shift = rowptrs[0];
@@ -272,8 +272,8 @@ int main(int argc, char *argv[])
     ydata = N_VGetArrayPointer(y);
 
     /* recieve vectors */
-    MPI_Recv(xdata, M_local, PVEC_REAL_MPI_TYPE, 0, grid.iam, grid.comm, &mpistatus);
-    MPI_Recv(ydata, M_local, PVEC_REAL_MPI_TYPE, 0, grid.iam, grid.comm, &mpistatus);
+    MPI_Recv(xdata, M_local, MPI_SUNREALTYPE, 0, grid.iam, grid.comm, &mpistatus);
+    MPI_Recv(ydata, M_local, MPI_SUNREALTYPE, 0, grid.iam, grid.comm, &mpistatus);
   }
 
   /* Create local I matrix that is the same shape as A (which was

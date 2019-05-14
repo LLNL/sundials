@@ -343,8 +343,8 @@ int SUNMatMatvecSetup_SLUNRloc(SUNMatrix A)
   temp = (sunindextype*) malloc((nprocs+1)*sizeof(sunindextype));
   if (temp == NULL) { SUNMatDestroy(A); return(SUNMAT_MEM_FAIL); }
 
-  MPI_Allgather(&SM_FSTROW_SLUNRLOC(A), 1, PVEC_INTEGER_MPI_TYPE,
-                temp, 1, PVEC_INTEGER_MPI_TYPE, SM_GRID_SLUNRLOC(A)->comm);
+  MPI_Allgather(&SM_FSTROW_SLUNRLOC(A), 1, MPI_SUNINDEXTYPE,
+                temp, 1, MPI_SUNINDEXTYPE, SM_GRID_SLUNRLOC(A)->comm);
 
   temp[nprocs] = SM_GLOBALROWS_SLUNRLOC(A);
   for (i=0; i<nprocs; i++) {

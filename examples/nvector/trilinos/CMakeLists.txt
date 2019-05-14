@@ -30,9 +30,9 @@ ELSE()
 ENDIF()
 
 SET(shared_SOURCES
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_mpi.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
   ${sundials_SOURCE_DIR}/examples/nvector/test_nvector.c
+  ${sundials_SOURCE_DIR}/examples/nvector/test_mpinvector.c
   )
 
 # Dependencies for nvector examples
@@ -88,10 +88,6 @@ FOREACH(example_tuple ${nvector_trilinos_examples})
     # example source files
     ADD_EXECUTABLE(${example} ${example}.cpp ${shared_SOURCES})
 
-    IF(NOT Trilinos_INTERFACE_MPI_CXX_FOUND)
-      TARGET_COMPILE_DEFINITIONS(${example} PRIVATE -DSUNDIALS_MPI_ENABLED=0)
-    ENDIF()
-
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
 
     # Trilinos libraries must be linked after SUNDIALS libraries!
@@ -125,6 +121,7 @@ FOREACH(example_tuple ${nvector_trilinos_examples})
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.cpp
       ../test_nvector.c
+      ../test_mpinvector.c
       ../test_nvector.h
       ../../../src/sundials/sundials_nvector.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/trilinos)

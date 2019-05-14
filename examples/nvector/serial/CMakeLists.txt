@@ -77,15 +77,7 @@ FOREACH(example_tuple ${nvector_serial_examples})
   IF(NOT TARGET ${example})
     # example source files
     ADD_EXECUTABLE(${example} ${example}.c
-      ../test_nvector.c ../../../src/sundials/sundials_nvector.c
-      ../../../src/sundials/sundials_mpi.c)
-
-    # must ensure SUNDIALS_MPI_ENABLED=0 so that the correct block
-    # of sundials_mpi.h is included.
-    TARGET_COMPILE_DEFINITIONS(${example} PRIVATE -DSUNDIALS_MPI_ENABLED=0)
-
-    # folder to organize targets in an IDE
-    SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
+      ../test_nvector.c ../../../src/sundials/sundials_nvector.c)
 
     # libraries to link against
     TARGET_LINK_LIBRARIES(${example} ${SUNDIALS_LIBS})

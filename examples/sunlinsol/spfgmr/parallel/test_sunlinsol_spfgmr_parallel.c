@@ -445,32 +445,23 @@ int ATimes(void* Data, N_Vector v_vec, N_Vector z_vec)
   if (check_flag(s2, "N_VGetArrayPointer", 0)) return 1;
   Nloc = ProbData->Nloc;
   
-  /* MPI equivalent of realtype type */
-  #if defined(SUNDIALS_SINGLE_PRECISION)
-  #define REALTYPE_MPI_TYPE MPI_FLOAT
-  #elif defined(SUNDIALS_DOUBLE_PRECISION)
-  #define REALTYPE_MPI_TYPE MPI_DOUBLE
-  #elif defined(SUNDIALS_EXTENDED_PRECISION)
-  #define REALTYPE_MPI_TYPE MPI_LONG_DOUBLE
-  #endif
-  
   /* send/recv boundary data with neighbors */
   vL = vR = ZERO;
   vsL = v[0]*s2[0];
   vsR = v[Nloc-1]*s2[Nloc-1];
   if (ProbData->myid > 0) {                   /* left neighbor exists */
-    ierr = MPI_Irecv(&vL, 1, REALTYPE_MPI_TYPE, ProbData->myid-1,
+    ierr = MPI_Irecv(&vL, 1, MPI_SUNREALTYPE, ProbData->myid-1,
                      MPI_ANY_TAG, ProbData->comm, &RecvReqL);
     if (ierr != MPI_SUCCESS) return 1;
-    ierr = MPI_Isend(&vsL, 1, REALTYPE_MPI_TYPE, ProbData->myid-1,
+    ierr = MPI_Isend(&vsL, 1, MPI_SUNREALTYPE, ProbData->myid-1,
                      0, ProbData->comm, &SendReqL);
     if (ierr != MPI_SUCCESS) return 1;
   }
   if (ProbData->myid < ProbData->nprocs-1) {  /* right neighbor exists */
-    ierr = MPI_Irecv(&vR, 1, REALTYPE_MPI_TYPE, ProbData->myid+1,
+    ierr = MPI_Irecv(&vR, 1, MPI_SUNREALTYPE, ProbData->myid+1,
                      MPI_ANY_TAG, ProbData->comm, &RecvReqR);
     if (ierr != MPI_SUCCESS) return 1;
-    ierr = MPI_Isend(&vsR, 1, REALTYPE_MPI_TYPE, ProbData->myid+1,
+    ierr = MPI_Isend(&vsR, 1, MPI_SUNREALTYPE, ProbData->myid+1,
                      1, ProbData->comm, &SendReqR);
     if (ierr != MPI_SUCCESS) return 1;
   }

@@ -41,6 +41,15 @@ IDAQuadReInit.
 Added two new embedded ARK methods of orders 4 and 5 to ARKode (from
 Kennedy & Carpenter, Appl. Numer. Math., 136:183--205, 2019).
 
+The ManyVector NVECTOR module has been split into two versions: one
+that requires MPI (MPIManyVector) and another that does not use
+MPI at all (ManyVector).  The associated example problems have
+been similarly updated to reflect this new structure.
+
+An additional NVECTOR implementation, NVECTOR_MPIPLUSX, was created to support
+the MPI+X paradigm where X is a type of on-node parallelism (e.g. OpenMP, CUDA).
+The implementation is accompanied by additions to user documentation and SUNDIALS
+examples.
 
 Changes to SUNDIALS in release 5.0.0-dev.0
 

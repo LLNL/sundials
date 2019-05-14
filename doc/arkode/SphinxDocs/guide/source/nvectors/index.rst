@@ -56,5 +56,7 @@ patterns in the NVECTORS used.
    NVector_OpenMPDEV
    NVector_Trilinos
    NVector_ManyVector
+   NVector_MPIManyVector
+   NVector_MPIPlusX
    NVector_Examples
    ARKode_requirements

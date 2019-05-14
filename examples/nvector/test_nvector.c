@@ -36,7 +36,6 @@
 #include <sundials/sundials_nvector.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_math.h>
-
 #include "test_nvector.h"
 
 /* private functions */
@@ -425,30 +424,24 @@ int Test_N_VGetLength(N_Vector W, int myid)
 
 
 /* ----------------------------------------------------------------------
- * Test_N_VGetCommunicator Test
- *
- * NOTE: This routine depends on SUNMPI_Comm_compare.  The input "comm"
- * should be a memory reference to the MPI communicator used to
- * construct W (or NULL if W is MPI-unaware).
+ * Test_N_VGetCommunicator Test (without MPI dependency)
  * --------------------------------------------------------------------*/
-int Test_N_VGetCommunicator(N_Vector W, SUNMPI_Comm *comm, int myid)
+int Test_N_VGetCommunicator(N_Vector W, void *comm, int myid)
 {
-  void* vcomm;
-  SUNMPI_Comm* Wcomm;
-  int same;
+  void* wcomm;
 
   /* ask W for its communicator */
-  vcomm = NULL;
-  vcomm = N_VGetCommunicator(W);
+  wcomm = NULL;
+  wcomm = N_VGetCommunicator(W);
 
   /* return with success if both are NULL */
-  if ((vcomm == NULL) && (comm == NULL))  {
+  if ((wcomm == NULL) && (comm == NULL))  {
     printf("PASSED test -- N_VGetCommunicator\n");
     return(0);
   }
 
   /* return with failure if either is NULL */
-  if (vcomm == NULL) {
+  if (wcomm == NULL) {
     printf(">>> FAILED test -- N_VGetCommunicator, Proc %d (incorrectly reports NULL comm)\n", myid);
     return(1);
   }
@@ -457,18 +450,8 @@ int Test_N_VGetCommunicator(N_Vector W, SUNMPI_Comm *comm, int myid)
     return(1);
   }
 
-  /* call SUNMPI_Comm_compare to check that communicators match or are congruent */
-  Wcomm = (SUNMPI_Comm *) vcomm;
-  if (SUNMPI_Comm_compare(*comm, *Wcomm, &same) != SUNMPI_SUCCESS) {
-    printf(">>> FAILED test -- N_VGetCommunicator, Proc %d (error in SUNMPI_Comm_compare)\n", myid);
-    return(1);
-  }
-  if ((same != SUNMPI_IDENT) && (same != SUNMPI_CONGRUENT)) {
-    printf(">>> FAILED test -- N_VGetCommunicator, Proc %d (mismatched comms)\n", myid);
-    return(1);
-  }
   if (myid == 0)
-    printf("PASSED test -- N_VGetCommunicator\n");
+    printf(">>> FAILED test -- N_VGetCommunicator, Proc %d has non-NULL comm with MPI disabled\n", myid);
   return(0);
 }
 

@@ -106,9 +106,11 @@ int main (int argc, char *argv[])
   fails += Test_N_VGetLength(X, myRank);
 
   /* Check vector communicator */
-#if SUNDIALS_MPI_ENABLED
+#ifdef SUNDIALS_TRILINOS_HAVE_MPI
   auto mpicomm = Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>(comm);
-  fails += Test_N_VGetCommunicator(X, (SUNMPI_Comm *) mpicomm->getRawMpiComm().get(), myRank);
+  fails += Test_N_VGetCommunicatorMPI(X, (MPI_Comm *) mpicomm->getRawMpiComm().get(), myRank);
+#else
+  fails += Test_N_VGetCommunicator(X, NULL, myRank);
 #endif
 
   /* Test clone functions */
@@ -159,7 +161,7 @@ int main (int argc, char *argv[])
   fails += Test_N_VMinQuotient(X, Y, local_length, myRank);
 
   /* local reduction operations */
-  printf("\nTesting local reduction operations:\n\n");
+  if (myRank == 0) printf("\nTesting local reduction operations:\n\n");
 
   fails += Test_N_VDotProdLocal(X, Y, local_length, myRank);
   fails += Test_N_VMaxNormLocal(X, local_length, myRank);
@@ -186,7 +188,7 @@ int main (int argc, char *argv[])
 
   /* Print global result */
   if (myRank == 0) {
-    if (fails)
+    if (globfails)
       printf("FAIL: NVector module failed total of %i tests across all processes \n \n", globfails);
     else
       printf("SUCCESS: NVector module passed all tests on all processes \n \n");

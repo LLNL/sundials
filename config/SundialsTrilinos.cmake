@@ -26,14 +26,7 @@
 #     Trilinos_INTERFACE_CXX_COMPILER_FLAGS
 # are created. The variables should be used to set the compiler flags
 # when building targets that use Trilinos.
-#
-# The variable
-#     Trilinos_FUNCTIONAL
-# is created and indicates if the Trilinos installation found was usable
-# under the current configuration of SUNDIALS.
 #-----------------------------------------------------------------------------
-
-set(Trilinos_FUNCTIONAL FALSE)
 
 # Find Trilinos
 include(FindTrilinos)
@@ -73,12 +66,13 @@ if(Trilinos_FOUND AND TARGET Trilinos::Trilinos)
     set(Trilinos_INTERFACE_MPI_CXX_FOUND ${Trilinos_MPI} CACHE INTERNAL "Is Trilinos interface C++ compiler MPI")
     set(Trilinos_INTERFACE_MPI_C_FOUND ${Trilinos_MPI} CACHE INTERNAL "Is Trilinos interface C compiler MPI")
   endif()
+
   mark_as_advanced(FORCE Trilinos_INTERFACE_CXX_COMPILER
                          Trilinos_INTERFACE_C_COMPILER
                          Trilinos_INTERFACE_CXX_COMPILER_FLAGS 
                          Trilinos_INTERFACE_C_COMPILER_FLAGS
                          Trilinos_INTERFACE_MPIEXEC)
-  
+
   # Begin testing the Trilinos libraries with the compiler settings
   # that will be used when building Trilinos modules.
   message(STATUS "Testing Trilinos libraries...")
@@ -120,10 +114,13 @@ if(Trilinos_FOUND AND TARGET Trilinos::Trilinos)
   # Process test result
   if(LTEST_OK)
     message(STATUS "Testing Trilinos libraries... OK")
-    set(Trilinos_FUNCTIONAL TRUE)
+    # sundials_config.h symbols
+    set(SUNDIALS_TRILINOS TRUE)
+    set(SUNDIALS_TRILINOS_HAVE_MPI ${Trilinos_INTERFACE_MPI_CXX_FOUND})
   else(LTEST_OK)
     message(STATUS "Testing Trilinos libraries... FAILED")
+    PRINT_ERROR("Trilinos not functional - support cannot be provided.")
   endif(LTEST_OK)
-  
+
 endif()
 

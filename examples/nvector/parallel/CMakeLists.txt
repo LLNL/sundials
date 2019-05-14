@@ -26,6 +26,7 @@ SET(nvector_parallel_examples
 # Dependencies for nvector examples
 SET(nvector_examples_dependencies
   test_nvector
+  test_mpinvector
   sundials_nvector
   )
 
@@ -66,7 +67,9 @@ FOREACH(example_tuple ${nvector_parallel_examples})
   IF(NOT TARGET ${example})
     # example source files
     ADD_EXECUTABLE(${example} ${example}.c
-      ../test_nvector.c ../../../src/sundials/sundials_nvector.c)
+      ../test_nvector.c
+      ../test_mpinvector.c
+      ../../../src/sundials/sundials_nvector.c)
 
     # folder to organize targets in an IDE
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
@@ -105,6 +108,7 @@ FOREACH(example_tuple ${nvector_parallel_examples})
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.c
       ../test_nvector.c
+      ../test_mpinvector.c
       ../test_nvector.h
       ../../../src/sundials/sundials_nvector.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/parallel)

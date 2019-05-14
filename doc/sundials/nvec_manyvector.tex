@@ -5,42 +5,31 @@
 
 The {\nvecmanyvector} implementation of the {\nvector} module provided
 with {\sundials} is designed to facilitate problems with an inherent
-data partitioning for the solution vector.  These data partitions are
-entirely user-defined, through construction of distinct {\nvector}
-modules for each component, that are then combined together to form
-the {\nvecmanyvector}.  We envision three generic use cases for this
-implementation:
+data partitioning for the solution vector within a computational node.
+These data partitions are entirely user-defined, through construction
+of distinct {\nvector} modules for each component, that are then
+combined together to form the {\nvecmanyvector}.  We envision two
+generic use cases for this implementation:
 \begin{itemize}
-\item[A.] \emph{Heterogeneous computational architectures (serial or
-    parallel)}: for users who wish to partition data on a node between
-  different computing resources, they may create architecture-specific
-  subvectors for each partition.  For example, a user could create one
-  MPI-parallel component based on {\nvecp}, another single-node
-  component for GPU accelerators based on {\nveccuda}, and another
-  threaded single-node component based on {\nvecopenmp}.
-\item[B.] \emph{Process-based multiphysics decompositions (parallel)}: for
-  users who wish to combine separate simulations together, e.g., where
-  one subvector resides on one subset of MPI processes, while another
-  subvector resides on a different subset of MPI processes, and where
-  the user has created a MPI \emph{intercommunicator} to connect these
-  distinct process sets together.
-\item[C.] \emph{Structure of arrays (SOA) data layouts (serial or
-    parallel)}: for users who wish to create separate subvectors for
-  each solution component, e.g., in a Navier-Stokes simulation they
-  could have separate subvectors for density, velocities and
-  pressure, which are combined together into a single
-  {\nvecmanyvector} for the overall ``solution''. 
+\item[A.] \emph{Heterogeneous computational architectures}: for users
+  who wish to partition data on a node between different computing
+  resources, they may create architecture-specific subvectors for each
+  partition.  For example, a user could create one serial component
+  based on {\nvecs}, another component for GPU accelerators based on
+  {\nveccuda}, and another threaded component based on {\nvecopenmp}.
+\item[B.] \emph{Structure of arrays (SOA) data layouts}: for users who
+  wish to create separate subvectors for each solution component,
+  e.g., in a Navier-Stokes simulation they could have separate
+  subvectors for density, velocities and pressure, which are combined
+  together into a single {\nvecmanyvector} for the overall ``solution''.
 \end{itemize}
 We note that the above use cases are not mutually exclusive, and the
 {\nvecmanyvector} implementation should support arbitrary combinations
 of these cases.
 
-The {\nvecmanyvector} implementation is designed to work with any
-{\nvector} subvectors that implement the minimum \emph{required} set
-of operations, however significant performance benefits may be
-obtained when subvectors additionally implement the optional local
-reduction operations listed in Table \ref{t:nveclocalops}.
-
+The {\nvecmanyvector} implementation is designed to
+work with any {\nvector} subvectors that implement the minimum
+\emph{required} set of operations.
 Additionally, {\nvecmanyvector} sets no limit on the number of
 subvectors that may be attached (aside from the limitations of using
 \id{sunindextype} for indexing, and standard per-node memory
@@ -62,21 +51,19 @@ residual, or nonlinear solver residual functions.
 
 % ====================================================================
 \subsection{NVECTOR\_MANYVECTOR structure}
-\label{ss:nvec_manyvector_functions}
+\label{ss:nvec_manyvector_structure}
 % ====================================================================
 
 The {\nvecmanyvector} implementation defines the {\em content} field
-of \id{N\_Vector} to be a structure containing the MPI communicator
-(or \id{SUNMPI\_COMM\_NULL} if running in serial), the number of
+of \id{N\_Vector} to be a structure containing the number of
 subvectors comprising the ManyVector, the global length of the
-ManyVector (including all subvectors on all MPI tasks), a pointer to
+ManyVector (including all subvectors), a pointer to
 the beginning of the array of subvectors, and a boolean flag
 \id{own\_data} indicating ownership of the subvectors that populate
 \id{subvec\_array}.
 %%
 \begin{verbatim} 
 struct _N_VectorContent_ManyVector {
-  SUNMPI_Comm   comm;            /* overall MPI communicator        */
   sunindextype  num_subvectors;  /* number of vectors attached      */
   sunindextype  global_length;   /* overall manyvector length       */
   N_Vector*     subvec_array;    /* pointer to N_Vector array       */
@@ -91,14 +78,6 @@ The header file to include when using this module is
 \id{libsundials\_nvecmanyvector.\textit{lib}} where \id{\em.lib} is typically
 \id{.so} for shared libraries and \id{.a} for static libraries.
 
-\warn\textbf{Note:} If {\sundials} is configured with MPI enabled, then the
-ManyVector library will be built for the parallel use case and \id{SUNMPI\_Comm}
-is set to \id{MPI\_Comm}. As such an MPI-aware compiler will become necessary
-even in single node uses of the ManyVector library. If {\sundials} is configured
-with MPI disabled, then the ManyVector library is built for the single-node
-(serial) use case and \id{SUNMPI\_Comm} is set to \id{int}. As such, users need
-not include \id{mpi.h}, nor must executables be built with an MPI-aware
-compiler. For more details see Appendix \ref{c:install}.
 
 
 % ====================================================================
@@ -111,8 +90,8 @@ in Tables \ref{t:nvecops}, \ref{t:nvecfusedops}, \ref{t:nvecarrayops},
 and \ref{t:nveclocalops}, except for \id{N\_VGetArrayPointer},
 \id{N\_VSetArrayPointer}, \id{N\_VScaleAddMultiVectorArray}, and
 \id{N\_VLinearCombinationVectorArray}.  As such, this vector cannot be
-used with the {\sundials} Fortran interfaces, nor with the {\sundials}
-direct solvers and preconditioners. Instead, the \\
+used with the {\sundials} Fortran-77 interfaces, nor with the
+{\sundials} direct solvers and preconditioners. Instead, the \\
 {\nvecmanyvector} module provides functions to access subvectors,
 whose data may in turn be accessed according to their {\nvector}
 implementations.
@@ -127,11 +106,7 @@ user-callable routines:
 \sunmodfun{N\_VNew\_ManyVector}
 {
   This function creates a ManyVector from a set of existing {\nvector}
-  objects, under the requirement that all MPI-aware subvectors use the
-  same MPI communicator (this is checked internally).  If none of the
-  subvectors are MPI-aware, then this may equivalently be used to
-  describe data partitioning within a single node.  We note that this
-  routine is designed to support use cases A and C above.
+  objects.
 
   This routine will copy all \id{N\_Vector} pointers from the input
   \id{vec\_array}, so the user may modify/free that pointer array
@@ -141,8 +116,8 @@ user-callable routines:
   contains them.
 
   Upon successful completion, the new ManyVector is returned;
-  otherwise this routine returns \id{NULL} (e.g., if two MPI-aware
-  subvectors use different MPI communicators).
+  otherwise this routine returns \id{NULL} (e.g., a memory allocation
+  failure occurred).
 }
 {
   N\_Vector N\_VNew\_ManyVector(sunindextype num\_subvectors,
@@ -150,63 +125,38 @@ user-callable routines:
   N\_Vector *vec\_array);
 }
 %%--------------------------------------
-\sunmodfun{N\_VMake\_ManyVector}
-{
-  This function creates a ManyVector from a set of existing {\nvector}
-  objects, and a user-created MPI communicator that ``connects'' these
-  subvectors.  Any MPI-aware subvectors may use different MPI
-  communicators than the input \id{comm}.  We note that this routine
-  is designed to support any combination of the use cases above.
-
-  The input \id{comm} should be the memory reference to this
-  user-created MPI communicator.  We note that since many {\mpi}
-  implementations \id{\#define} \id{MPI\_COMM\_WORLD} to be a specific
-  integer \emph{value} (that has no memory reference), users who wish
-  to supply \id{MPI\_COMM\_WORLD} to this routine should first
-  duplicate this to a specific \id{MPI\_Comm} variable before passing
-  in the reference, e.g.
-
-  \hspace{0.5in} \texttt{MPI\_Comm comm;}\vspace{-0.5em}
-  
-  \hspace{0.5in} \texttt{N\_Vector x;}\vspace{-0.5em}
-  
-  \hspace{0.5in} \texttt{MPI\_Comm\_dup(MPI\_COMM\_WORLD, \&comm);}\vspace{-0.5em}
-  
-  \hspace{0.5in} \texttt{x = N\_VMake\_ManyVector(\&comm, ...);}
-
-  This routine will internally call \id{MPI\_Comm\_dup} to create a
-  copy of the input \id{comm}, so the user-supplied \id{comm} argument
-  need not be retained after the call to \id{N\_VMake\_ManyVector}.
-
-  If all subvectors are MPI-unaware, then the input \id{comm} argument
-  should be \id{NULL}, although in this case, it would be simpler to
-  call \Id{N\_VNew\_ManyVector} instead.
-  
-  This routine will copy all \id{N\_Vector} pointers from the input
-  \id{vec\_array}, so the user may modify/free that pointer array
-  after calling this function.  However, this routine does \emph{not}
-  allocate any new subvectors, so the underlying {\nvector} objects
-  themselves should not be destroyed before the ManyVector that
-  contains them.
-
-  Upon successful completion, the new ManyVector is returned;
-  otherwise this routine returns \id{NULL} (e.g., if the input
-  \id{vec\_array} is \id{NULL}).
-}
-{
-  N\_Vector N\_VMake\_ManyVector(void *comm, 
-  sunindextype num\_subvectors,
-  \newlinefill{N\_Vector N\_VMake\_ManyVector}
-  N\_Vector *vec\_array);
-}
-%%--------------------------------------
 \sunmodfun{N\_VGetSubvector\_ManyVector}
 {
   This function returns the \id{vec\_num} subvector from the {\nvector}
-   array.
+  array.
 }
 {
   N\_Vector N\_VGetSubvector\_ManyVector(N\_Vector v, sunindextype vec\_num);
+}
+%%--------------------------------------
+\sunmodfun{N\_VGetSubvectorArrayPointer\_ManyVector}
+{
+  This function returns the data array pointer for the \id{vec\_num}
+  subvector from the {\nvector} array.
+
+  If the input \id{vec\_num} is invalid, or if the subvector does not
+  support the \id{N\_VGetArrayPointer} operation, then \id{NULL} is returned.
+}
+{
+  realtype *N\_VGetSubvectorArrayPointer\_ManyVector(N\_Vector v, sunindextype vec\_num);
+}
+%%--------------------------------------
+\sunmodfun{N\_VSetSubvectorArrayPointer\_ManyVector}
+{
+  This function sets the data array pointer for the \id{vec\_num}
+  subvector from the {\nvector} array.
+
+  If the input \id{vec\_num} is invalid, or if the subvector does not
+  support the \id{N\_VSetArrayPointer} operation, then this routine
+  returns \id{-1}; otherwise it returns \id{0}.
+}
+{
+  int N\_VSetSubvectorArrayPointer\_ManyVector(realtype *v\_data, N\_Vector v, sunindextype vec\_num);
 }
 %%--------------------------------------
 \sunmodfun{N\_VGetNumSubvectors\_ManyVector}
@@ -337,9 +287,8 @@ as desired \emph{before} attaching them to the ManyVector in
 \begin{itemize}
                                         
 \item
-  {\warn}\id{N\_VNew\_ManyVector} and \id{N\_VMake\_ManyVector} set
-  the field {\em own\_data} $=$ \id{SUNFALSE}.  \\
-  \id{N\_VDestroy\_ManyVector} will not attempt to call
+  {\warn}\id{N\_VNew\_ManyVector} sets the field {\em own\_data} $=$
+  \id{SUNFALSE}.  \id{N\_VDestroy\_ManyVector} will not attempt to call
   \id{N\_VDestroy} on any subvectors contained in the subvector array
   for any \id{N\_Vector} with {\em own\_data} set to \id{SUNFALSE}. In
   such a case, it is the user's responsibility to deallocate the

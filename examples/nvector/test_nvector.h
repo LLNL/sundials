@@ -17,7 +17,6 @@
 
 #include <math.h>
 #include <sundials/sundials_types.h>
-#include <sundials/sundials_mpi.h>
 
 /* define constants */
 #define NEG_TWO  RCONST(-2.0)
@@ -67,7 +66,8 @@ extern "C" {
   int Test_N_VGetArrayPointer(N_Vector W, sunindextype local_length, int myid);
   int Test_N_VSetArrayPointer(N_Vector W, sunindextype local_length, int myid);
   int Test_N_VGetLength(N_Vector W, int myid);
-  int Test_N_VGetCommunicator(N_Vector W, SUNMPI_Comm *comm, int myid);
+  int Test_N_VGetCommunicator(N_Vector W, void *comm, int myid);
+  int Test_N_VGetCommunicatorMPI(N_Vector W, void *comm, int myid);
 
   /* Standard vector operation tests */
   int Test_N_VLinearSum(N_Vector X, N_Vector Y, N_Vector Z,

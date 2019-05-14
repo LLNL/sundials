@@ -26,6 +26,7 @@ SET(nvector_petsc_examples
 # Dependencies for nvector examples
 SET(nvector_examples_dependencies
   test_nvector
+  test_mpinvector
   sundials_nvector
   )
 
@@ -33,7 +34,7 @@ SET(nvector_examples_dependencies
 INCLUDE_DIRECTORIES(. ..)
 INCLUDE_DIRECTORIES(${PETSC_INCLUDE_DIR})
 
-# Specify libraries to link against (through the target that was used to 
+# Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(NVECS_LIB sundials_nvecpetsc_static)
@@ -70,7 +71,9 @@ FOREACH(example_tuple ${nvector_petsc_examples})
   IF(NOT TARGET ${example})
     # example source files
     ADD_EXECUTABLE(${example} ${example}.c
-      ../test_nvector.c ../../../src/sundials/sundials_nvector.c)
+      ../test_nvector.c
+      ../test_mpinvector.c
+      ../../../src/sundials/sundials_nvector.c)
 
     # folder to organize targets in an IDE
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
@@ -96,7 +99,7 @@ FOREACH(example_tuple ${nvector_petsc_examples})
     ELSE()
       STRING(REGEX REPLACE " " "_" test_name ${example}_${number_of_tasks}_${example_args})
     ENDIF()
-  ENDIF()  
+  ENDIF()
 
   # add example to regression tests
   SUNDIALS_ADD_TEST(${test_name} ${example}
@@ -109,6 +112,7 @@ FOREACH(example_tuple ${nvector_petsc_examples})
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.c
       ../test_nvector.c
+      ../test_mpinvector.c
       ../test_nvector.h
       ../../../src/sundials/sundials_nvector.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/petsc)
@@ -128,8 +132,8 @@ IF(EXAMPLES_INSTALL)
   EXAMPLES2STRING(nvector_petsc_examples EXAMPLES)
   EXAMPLES2STRING(nvector_examples_dependencies EXAMPLES_DEPENDENCIES)
 
-  # Regardless of the platform we're on, we will generate and install 
-  # CMakeLists.txt file for building the examples. This file  can then 
+  # Regardless of the platform we're on, we will generate and install
+  # CMakeLists.txt file for building the examples. This file  can then
   # be used as a template for the user's own programs.
 
   # generate CMakelists.txt in the binary directory
@@ -145,8 +149,8 @@ IF(EXAMPLES_INSTALL)
     DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/petsc
     )
 
-  # On UNIX-type platforms, we also  generate and install a makefile for 
-  # building the examples. This makefile can then be used as a template 
+  # On UNIX-type platforms, we also  generate and install a makefile for
+  # building the examples. This makefile can then be used as a template
   # for the user's own programs.
 
   IF(UNIX)
@@ -158,7 +162,7 @@ IF(EXAMPLES_INSTALL)
       )
     # install the configured Makefile_ex as Makefile
     INSTALL(
-      FILES ${PROJECT_BINARY_DIR}/examples/nvector/petsc/Makefile_ex 
+      FILES ${PROJECT_BINARY_DIR}/examples/nvector/petsc/Makefile_ex
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/petsc
       RENAME Makefile
       )

@@ -25,6 +25,10 @@ if(MPI_ENABLE AND MPI_C_FOUND)
   add_subdirectory(parallel)
 endif(MPI_ENABLE AND MPI_C_FOUND)
 
+if(MPI_ENABLE AND MPI_C_FOUND)
+  add_subdirectory(mpiplusx)
+endif(MPI_ENABLE AND MPI_C_FOUND)
+
 if(HYPRE_ENABLE AND HYPRE_FOUND)
   add_subdirectory(parhyp)
 endif(HYPRE_ENABLE AND HYPRE_FOUND)
@@ -53,7 +57,7 @@ if(RAJA_ENABLE AND RAJA_FOUND)
   add_subdirectory(raja)
 endif(RAJA_ENABLE AND RAJA_FOUND)
 
-IF(Trilinos_ENABLE AND Trilinos_FUNCTIONAL)
+IF(Trilinos_ENABLE AND Trilinos_FOUND)
   ADD_SUBDIRECTORY(trilinos)
-ENDIF(Trilinos_ENABLE AND Trilinos_FUNCTIONAL)
+ENDIF(Trilinos_ENABLE AND Trilinos_FOUND)
 

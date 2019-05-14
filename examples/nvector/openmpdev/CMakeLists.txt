@@ -62,12 +62,7 @@ foreach(example_tuple ${nvector_openmpdev_examples})
   if(NOT TARGET ${example})
     # example source files
     add_executable(${example} ${example}.c
-      ../test_nvector.c ../../../src/sundials/sundials_nvector.c
-       ../../../src/sundials/sundials_mpi.c)
-
-    # must ensure SUNDIALS_MPI_ENABLED=0 so that the correct block
-    # of sundials_mpi.h is included.
-    TARGET_COMPILE_DEFINITIONS(${example} PRIVATE -DSUNDIALS_MPI_ENABLED=0)
+      ../test_nvector.c ../../../src/sundials/sundials_nvector.c)
 
     # folder to organize targets in an IDE
     set_target_properties(${example} PROPERTIES FOLDER "Examples")

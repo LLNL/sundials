@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: BSD-3-Clause
  * SUNDIALS Copyright End
  * -----------------------------------------------------------------
- * This is the testing routine to check the NVECTOR ManyVector
+ * This is the testing routine to check the NVECTOR MPIManyVector
  * (serial) module implementation.
  * -----------------------------------------------------------------*/
 
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 
 #include <sundials/sundials_types.h>
-#include <nvector/nvector_manyvector.h>
+#include <nvector/nvector_mpimanyvector.h>
 #include <nvector/nvector_serial.h>
 #include <sundials/sundials_math.h>
 #include "test_nvector.h"
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
   /* overall length */
   length = len1 + len2;
 
-  printf("Testing ManyVector (serial) N_Vector \n");
+  printf("Testing MPIManyVector (serial) N_Vector \n");
   printf("Vector lengths: %ld %ld \n", (long int) len1, (long int) len2);
 
   /* Create subvectors */
@@ -78,31 +78,31 @@ int main(int argc, char *argv[])
     return(1);
   }
 
-  /* Create a new ManyVector */
-  X = N_VNew_ManyVector(2, Xsub);
+  /* Create a new MPIManyVector */
+  X = N_VNew_MPIManyVector(2, Xsub);
 
   /* Check vector ID */
-  fails += Test_N_VGetVectorID(X, SUNDIALS_NVEC_MANYVECTOR, 0);
+  fails += Test_N_VGetVectorID(X, SUNDIALS_NVEC_MPIMANYVECTOR, 0);
 
   /* Check vector length */
   fails += Test_N_VGetLength(X, 0);
 
   /* Check vector communicator */
-  fails += Test_N_VGetCommunicator(X, NULL, 0);
+  fails += Test_N_VGetCommunicatorMPI(X, NULL, 0);
 
   /* Test subvector accessors */
-  if (N_VGetNumSubvectors_ManyVector(X) != 2) {
-    printf(">>> FAILED test -- N_VGetNumSubvectors_ManyVector\n");
+  if (N_VGetNumSubvectors_MPIManyVector(X) != 2) {
+    printf(">>> FAILED test -- N_VGetNumSubvectors_MPIManyVector\n");
     fails += 1;
   }
-  U = N_VGetSubvector_ManyVector(X, 0);
+  U = N_VGetSubvector_MPIManyVector(X, 0);
   if (N_VGetLength(U) != len1) {
-    printf(">>> FAILED test -- N_VGetSubvector_ManyVector\n");
+    printf(">>> FAILED test -- N_VGetSubvector_MPIManyVector\n");
     fails += 1;
   }
-  U = N_VGetSubvector_ManyVector(X, 1);
+  U = N_VGetSubvector_MPIManyVector(X, 1);
   if (N_VGetLength(U) != len2) {
-    printf(">>> FAILED test -- N_VGetSubvector_ManyVector\n");
+    printf(">>> FAILED test -- N_VGetSubvector_MPIManyVector\n");
     fails += 1;
   }
 
@@ -159,7 +159,7 @@ int main(int argc, char *argv[])
 
   /* create vector and disable all fused and vector array operations */
   U = N_VClone(X);
-  retval = N_VEnableFusedOps_ManyVector(U, SUNFALSE);
+  retval = N_VEnableFusedOps_MPIManyVector(U, SUNFALSE);
   if (U == NULL || retval != 0) {
     N_VDestroy(W);
     N_VDestroy(X);
@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
 
   /* create vector and enable all fused and vector array operations */
   V = N_VClone(X);
-  retval = N_VEnableFusedOps_ManyVector(V, SUNTRUE);
+  retval = N_VEnableFusedOps_MPIManyVector(V, SUNTRUE);
   if (V == NULL || retval != 0) {
     N_VDestroy(W);
     N_VDestroy(X);
@@ -257,12 +257,12 @@ int check_ans(realtype ans, N_Vector X, sunindextype local_length)
   realtype     *x0, *x1;
   sunindextype x0len, x1len;
 
-  Xsub[0] = N_VGetSubvector_ManyVector(X, 0);
-  Xsub[1] = N_VGetSubvector_ManyVector(X, 1);
+  Xsub[0] = N_VGetSubvector_MPIManyVector(X, 0);
+  Xsub[1] = N_VGetSubvector_MPIManyVector(X, 1);
   x0len = N_VGetLength(Xsub[0]);
   x1len = N_VGetLength(Xsub[1]);
-  x0 = N_VGetArrayPointer(Xsub[0]);
-  x1 = N_VGetArrayPointer(Xsub[1]);
+  x0 = N_VGetSubvectorArrayPointer_MPIManyVector(X, 0);
+  x1 = N_VGetSubvectorArrayPointer_MPIManyVector(X, 1);
 
   /* ensure that local_length = x0len + x1len */
   if (local_length != x0len+x1len)
@@ -286,8 +286,8 @@ void set_element(N_Vector X, sunindextype i, realtype val)
   N_Vector     Xsub[2];
   sunindextype x0len;
 
-  Xsub[0] = N_VGetSubvector_ManyVector(X, 0);
-  Xsub[1] = N_VGetSubvector_ManyVector(X, 1);
+  Xsub[0] = N_VGetSubvector_MPIManyVector(X, 0);
+  Xsub[1] = N_VGetSubvector_MPIManyVector(X, 1);
   x0len = N_VGetLength(Xsub[0]);
 
   /* set i-th element of data array (in appropriate subvector) */
@@ -303,8 +303,8 @@ void set_element_range(N_Vector X, sunindextype is, sunindextype ie, realtype va
   N_Vector     Xsub[2];
   sunindextype x0len, i;
 
-  Xsub[0] = N_VGetSubvector_ManyVector(X, 0);
-  Xsub[1] = N_VGetSubvector_ManyVector(X, 1);
+  Xsub[0] = N_VGetSubvector_MPIManyVector(X, 0);
+  Xsub[1] = N_VGetSubvector_MPIManyVector(X, 1);
   x0len = N_VGetLength(Xsub[0]);
 
   /* set i-th element of data array (in appropriate subvector) */
@@ -317,8 +317,8 @@ realtype get_element(N_Vector X, sunindextype i)
   N_Vector     Xsub[2];
   sunindextype x0len;
 
-  Xsub[0] = N_VGetSubvector_ManyVector(X, 0);
-  Xsub[1] = N_VGetSubvector_ManyVector(X, 1);
+  Xsub[0] = N_VGetSubvector_MPIManyVector(X, 0);
+  Xsub[1] = N_VGetSubvector_MPIManyVector(X, 1);
   x0len = N_VGetLength(Xsub[0]);
 
   /* get i-th element of data array (from appropriate subvector) */

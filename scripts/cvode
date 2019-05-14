@@ -171,6 +171,11 @@ $tar $tarfile $distrobase/examples/cvode/parhyp/CMakeLists.txt       || exit 1
 $tar $tarfile $distrobase/examples/cvode/parhyp/cvAdvDiff_non_ph.c   || exit 1 
 $tar $tarfile $distrobase/examples/cvode/parhyp/cvAdvDiff_non_ph.out || exit 1 
 
+$tar $tarfile $distrobase/examples/cvode/C_mpimanyvector/README                       || exit 1
+$tar $tarfile $distrobase/examples/cvode/C_mpimanyvector/CMakeLists.txt               || exit 1
+$tar $tarfile $distrobase/examples/cvode/C_mpimanyvector/cvDiurnal_kry_mpimanyvec.c   || exit 1
+$tar $tarfile $distrobase/examples/cvode/C_mpimanyvector/cvDiurnal_kry_mpimanyvec.out || exit 1
+
 $tar $tarfile $distrobase/examples/cvode/fcmix_parallel/README                || exit 1 
 $tar $tarfile $distrobase/examples/cvode/fcmix_parallel/CMakeLists.txt        || exit 1 
 $tar $tarfile $distrobase/examples/cvode/fcmix_parallel/fcvDiag_non_p.f       || exit 1 

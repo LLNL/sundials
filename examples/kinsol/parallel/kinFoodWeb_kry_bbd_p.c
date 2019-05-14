@@ -757,7 +757,7 @@ static void PrintOutput(int my_pe, MPI_Comm comm, N_Vector cc)
   if (my_pe == npelast) {
     i0 = NUM_SPECIES*(MXSUB*MYSUB-1);
     if (npelast!=0)
-      MPI_Send(&ct[i0],NUM_SPECIES,PVEC_REAL_MPI_TYPE,0,0,comm);
+      MPI_Send(&ct[i0],NUM_SPECIES,MPI_SUNREALTYPE,0,0,comm);
     else  /* single processor case */
       for (is = 0; is < NUM_SPECIES; is++) tempc[is]=ct[i0+is];   
   }
@@ -767,7 +767,7 @@ static void PrintOutput(int my_pe, MPI_Comm comm, N_Vector cc)
   if (my_pe == 0) {
     
     if (npelast != 0)
-      MPI_Recv(&tempc[0],NUM_SPECIES,PVEC_REAL_MPI_TYPE,npelast,0,comm,&status);
+      MPI_Recv(&tempc[0],NUM_SPECIES,MPI_SUNREALTYPE,npelast,0,comm,&status);
     
     printf("\nAt bottom left:");
     for (is = 0; is < NUM_SPECIES; is++){
@@ -841,12 +841,12 @@ static void BSend(MPI_Comm comm, int my_pe,
 
   /* If isuby > 0, send data from bottom x-line of u */
   if (isuby != 0)
-    MPI_Send(&cdata[0], dsizex, PVEC_REAL_MPI_TYPE, my_pe-NPEX, 0, comm);
+    MPI_Send(&cdata[0], dsizex, MPI_SUNREALTYPE, my_pe-NPEX, 0, comm);
 
   /* If isuby < NPEY-1, send data from top x-line of u */
   if (isuby != NPEY-1) {
     offsetc = (MYSUB-1)*dsizex;
-    MPI_Send(&cdata[offsetc], dsizex, PVEC_REAL_MPI_TYPE, my_pe+NPEX, 0, comm);
+    MPI_Send(&cdata[offsetc], dsizex, MPI_SUNREALTYPE, my_pe+NPEX, 0, comm);
   }
 
   /* If isubx > 0, send data from left y-line of u (via bufleft) */
@@ -857,7 +857,7 @@ static void BSend(MPI_Comm comm, int my_pe,
       for (i = 0; i < NUM_SPECIES; i++)
         bufleft[offsetbuf+i] = cdata[offsetc+i];
     }
-    MPI_Send(&bufleft[0], dsizey, PVEC_REAL_MPI_TYPE, my_pe-1, 0, comm);   
+    MPI_Send(&bufleft[0], dsizey, MPI_SUNREALTYPE, my_pe-1, 0, comm);   
   }
 
   /* If isubx < NPEX-1, send data from right y-line of u (via bufright) */
@@ -868,7 +868,7 @@ static void BSend(MPI_Comm comm, int my_pe,
       for (i = 0; i < NUM_SPECIES; i++)
         bufright[offsetbuf+i] = cdata[offsetc+i];
     }
-    MPI_Send(&bufright[0], dsizey, PVEC_REAL_MPI_TYPE, my_pe+1, 0, comm);   
+    MPI_Send(&bufright[0], dsizey, MPI_SUNREALTYPE, my_pe+1, 0, comm);   
   }
 }
 
@@ -893,25 +893,25 @@ static void BRecvPost(MPI_Comm comm, MPI_Request request[], int my_pe,
   
   /* If isuby > 0, receive data for bottom x-line of cext */
   if (isuby != 0)
-    MPI_Irecv(&cext[NUM_SPECIES], dsizex, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&cext[NUM_SPECIES], dsizex, MPI_SUNREALTYPE,
               my_pe-NPEX, 0, comm, &request[0]);
   
   /* If isuby < NPEY-1, receive data for top x-line of cext */
   if (isuby != NPEY-1) {
     offsetce = NUM_SPECIES*(1 + (MYSUB+1)*(MXSUB+2));
-    MPI_Irecv(&cext[offsetce], dsizex, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&cext[offsetce], dsizex, MPI_SUNREALTYPE,
               my_pe+NPEX, 0, comm, &request[1]);
   }
   
   /* If isubx > 0, receive data for left y-line of cext (via bufleft) */
   if (isubx != 0) {
-    MPI_Irecv(&bufleft[0], dsizey, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&bufleft[0], dsizey, MPI_SUNREALTYPE,
               my_pe-1, 0, comm, &request[2]);
   }
   
   /* If isubx < NPEX-1, receive data for right y-line of cext (via bufright) */
   if (isubx != NPEX-1) {
-    MPI_Irecv(&bufright[0], dsizey, PVEC_REAL_MPI_TYPE,
+    MPI_Irecv(&bufright[0], dsizey, MPI_SUNREALTYPE,
               my_pe+1, 0, comm, &request[3]);
   } 
 }

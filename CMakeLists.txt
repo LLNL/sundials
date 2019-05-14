@@ -1121,9 +1121,6 @@ ENDIF()
 
 if(Trilinos_ENABLE)
   include(SundialsTrilinos)
-  if(NOT Trilinos_FUNCTIONAL)
-    PRINT_WARNING("Trilinos not functional" "Verify the path to Trilinos and check the Trilinos installation")
-  endif()
 endif(Trilinos_ENABLE)
 
 

@@ -11,21 +11,23 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
-# CMakeLists.txt file for parallel ManyVector nvector examples
+# CMakeLists.txt file for MPIManyVector nvector examples
 # ---------------------------------------------------------------
 
 # Example lists are tuples "name\;args\;nodes\;tasks\;type" where the
 # type is develop for examples excluded from 'make test' in releases
 
-# Examples using SUNDIALS MPI nvector
-SET(nvector_manyvector_parallel_examples
-  "test_nvector_manyvector_parallel1\;1000 200 0\;1\;4\;"  # run parallel on 4 procs
-  "test_nvector_manyvector_parallel2\;200 1000 0\;1\;4\;"  # run parallel on 4 procs
+# Examples using SUNDIALS MPIManyVector module
+SET(nvector_mpimanyvector_examples
+  "test_nvector_mpimanyvector_serial\;1000 100 0\;1\;1\;"     # run parallel on 1 procs
+  "test_nvector_mpimanyvector_parallel1\;1000 200 0\;1\;4\;"  # run parallel on 4 procs
+  "test_nvector_mpimanyvector_parallel2\;200 1000 0\;1\;4\;"  # run parallel on 4 procs
   )
 
 # Dependencies for nvector examples
 SET(nvector_examples_dependencies
   test_nvector
+  test_mpinvector
   sundials_nvector
   )
 
@@ -35,9 +37,9 @@ INCLUDE_DIRECTORIES(. ..)
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 IF(LINK_LIBRARY_TYPE MATCHES "static")
-  SET(NVECS_LIB sundials_nvecmanyvector_static sundials_nvecparallel_static sundials_nvecserial_static)
+  SET(NVECS_LIB sundials_nvecmpimanyvector_static sundials_nvecparallel_static sundials_nvecserial_static)
 ELSE()
-  SET(NVECS_LIB sundials_nvecmanyvector_shared sundials_nvecparallel_shared sundials_nvecserial_shared)
+  SET(NVECS_LIB sundials_nvecmpimanyvector_shared sundials_nvecparallel_shared sundials_nvecserial_shared)
 ENDIF()
 
 # Set-up linker flags and link libraries
@@ -52,7 +54,7 @@ ELSE()
 ENDIF()
 
 # Add the build and install targets for each example
-FOREACH(example_tuple ${nvector_manyvector_parallel_examples})
+FOREACH(example_tuple ${nvector_mpimanyvector_examples})
 
   # parse the example tuple
   LIST(GET example_tuple 0 example)
@@ -74,7 +76,9 @@ FOREACH(example_tuple ${nvector_manyvector_parallel_examples})
   IF(NOT TARGET ${example})
     # example source files
     ADD_EXECUTABLE(${example} ${example}.c
-      ../test_nvector.c ../../../src/sundials/sundials_nvector.c)
+      ../test_nvector.c
+      ../test_mpinvector.c
+      ../../../src/sundials/sundials_nvector.c)
 
     # folder to organize targets in an IDE
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
@@ -113,22 +117,23 @@ FOREACH(example_tuple ${nvector_manyvector_parallel_examples})
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.c
       ../test_nvector.c
+      ../test_mpinvector.c
       ../test_nvector.h
       ../../../src/sundials/sundials_nvector.c
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/manyvector_parallel)
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpimanyvector)
   ENDIF()
 
-ENDFOREACH(example_tuple ${nvector_manyvector_parallel_examples})
+ENDFOREACH(example_tuple ${nvector_mpimanyvector_examples})
 
 IF(EXAMPLES_INSTALL)
 
   # Install the README file
-  INSTALL(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/manyvector_parallel)
+  INSTALL(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpimanyvector)
 
   # Prepare substitution variables for Makefile and/or CMakeLists templates
-  SET(SOLVER_LIB "sundials_nvecmanyvector")
+  SET(SOLVER_LIB "sundials_nvecmpimanyvector")
 
-  EXAMPLES2STRING(nvector_manyvector_parallel_examples EXAMPLES)
+  EXAMPLES2STRING(nvector_mpimanyvector_examples EXAMPLES)
   EXAMPLES2STRING(nvector_examples_dependencies EXAMPLES_DEPENDENCIES)
 
   # Regardless of the platform we're on, we will generate and install
@@ -138,14 +143,14 @@ IF(EXAMPLES_INSTALL)
   # generate CMakelists.txt in the binary directory
   CONFIGURE_FILE(
     ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_C_ex.in
-    ${PROJECT_BINARY_DIR}/examples/nvector/manyvector_parallel/CMakeLists.txt
+    ${PROJECT_BINARY_DIR}/examples/nvector/mpimanyvector/CMakeLists.txt
     @ONLY
     )
 
   # install CMakelists.txt
   INSTALL(
-    FILES ${PROJECT_BINARY_DIR}/examples/nvector/manyvector_parallel/CMakeLists.txt
-    DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/manyvector_parallel
+    FILES ${PROJECT_BINARY_DIR}/examples/nvector/mpimanyvector/CMakeLists.txt
+    DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpimanyvector
     )
 
   # On UNIX-type platforms, we also  generate and install a makefile for
@@ -156,13 +161,13 @@ IF(EXAMPLES_INSTALL)
     # generate Makefile and place it in the binary dir
     CONFIGURE_FILE(
       ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parallel_C_ex.in
-      ${PROJECT_BINARY_DIR}/examples/nvector/manyvector_parallel/Makefile_ex
+      ${PROJECT_BINARY_DIR}/examples/nvector/mpimanyvector/Makefile_ex
       @ONLY
       )
     # install the configured Makefile_ex as Makefile
     INSTALL(
-      FILES ${PROJECT_BINARY_DIR}/examples/nvector/manyvector_parallel/Makefile_ex
-      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/manyvector_parallel
+      FILES ${PROJECT_BINARY_DIR}/examples/nvector/mpimanyvector/Makefile_ex
+      DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpimanyvector
       RENAME Makefile
       )
   ENDIF(UNIX)

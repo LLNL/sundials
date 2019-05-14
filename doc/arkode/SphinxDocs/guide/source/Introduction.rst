@@ -153,6 +153,16 @@ Fixed a memeory leak in FARKODE when not using the default nonlinear solver.
 
 Added two new embedded ARK methods of orders 4 and 5 to ARKode (from [KC2019]_).
 
+The ManyVector NVECTOR module has been split into two versions: one
+that requires MPI (MPIManyVector) and another that does not use MPI at
+all (ManyVector).  The associated example problems have been similarly
+updated to reflect this new structure.
+
+An additional NVECTOR implementation, NVECTOR_MPIPLUSX, was created to support
+the MPI+X paradigm, where X is a type of on-node parallelism (e.g. OpenMP, CUDA).
+The implementation is accompanied by additions to user documentation and SUNDIALS
+examples.
+
 
 Changes in v4.0.0-dev.0
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
