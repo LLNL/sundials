@@ -173,21 +173,21 @@ void* ARKStepCreate(ARKRhsFn fe, ARKRhsFn fi, realtype t0, N_Vector y0)
   }
 
   /* Set the linear solver addresses to NULL (we check != NULL later) */
-  step_mem->linit  = NULL;
-  step_mem->lsetup = NULL;
-  step_mem->lsolve = NULL;
-  step_mem->lfree  = NULL;
-  step_mem->lmem   = NULL;
+  step_mem->linit       = NULL;
+  step_mem->lsetup      = NULL;
+  step_mem->lsolve      = NULL;
+  step_mem->lfree       = NULL;
+  step_mem->lmem        = NULL;
   step_mem->lsolve_type = -1;
 
   /* Set the mass matrix solver addresses to NULL */
-  step_mem->minit    = NULL;
-  step_mem->msetup   = NULL;
-  step_mem->mmult    = NULL;
-  step_mem->msolve   = NULL;
-  step_mem->mfree    = NULL;
-  step_mem->mass_mem = NULL;
-  step_mem->msetuptime = -RCONST(99999999999.0);
+  step_mem->minit       = NULL;
+  step_mem->msetup      = NULL;
+  step_mem->mmult       = NULL;
+  step_mem->msolve      = NULL;
+  step_mem->mfree       = NULL;
+  step_mem->mass_mem    = NULL;
+  step_mem->msetuptime  = -RCONST(99999999999.0);
   step_mem->msolve_type = -1;
 
   /* Initialize initial error norm  */
@@ -255,17 +255,17 @@ int ARKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
   /* Resize the sdata, zpred and zcor vectors */
   if (step_mem->sdata != NULL) {
     retval = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                       liw_diff, y0, &step_mem->sdata);
+                          liw_diff, y0, &step_mem->sdata);
     if (retval != ARK_SUCCESS)  return(retval);
   }
   if (step_mem->zpred != NULL) {
     retval = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                       liw_diff, y0, &step_mem->zpred);
+                          liw_diff, y0, &step_mem->zpred);
     if (retval != ARK_SUCCESS)  return(retval);
   }
   if (step_mem->zcor != NULL) {
     retval = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                       liw_diff, y0, &step_mem->zcor);
+                          liw_diff, y0, &step_mem->zcor);
     if (retval != ARK_SUCCESS)  return(retval);
   }
 
@@ -274,7 +274,7 @@ int ARKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
   if (step_mem->Fe != NULL) {
     for (i=0; i<step_mem->stages; i++) {
       retval = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                         liw_diff, y0, &step_mem->Fe[i]);
+                            liw_diff, y0, &step_mem->Fe[i]);
       if (retval != ARK_SUCCESS)  return(retval);
     }
   }
@@ -282,7 +282,7 @@ int ARKStepResize(void *arkode_mem, N_Vector y0, realtype hscale,
   if (step_mem->Fi != NULL) {
     for (i=0; i<step_mem->stages; i++) {
       retval = arkResizeVec(ark_mem, resize, resize_data, lrw_diff,
-                         liw_diff, y0, &step_mem->Fi[i]);
+                            liw_diff, y0, &step_mem->Fi[i]);
       if (retval != ARK_SUCCESS)  return(retval);
     }
   }
