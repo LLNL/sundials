@@ -29,7 +29,6 @@ SET(sundials_HEADERS
   sundials_math.h
   sundials_matrix.h
   sundials_nonlinearsolver.h
-  sundials_mpi.h
   sundials_mpi_types.h
   sundials_nvector.h
   sundials_types.h

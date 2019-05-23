@@ -149,6 +149,14 @@ the MPI+X paradigm, where X is a type of on-node parallelism (e.g. OpenMP, CUDA)
 The implementation is accompanied by additions to user documentation and {\sundials}
 examples.
 
+The \id{*\_MPICuda} and \id{*\_MPIRaja} functions were removed from the {\nveccuda} and
+{\nvecraja} implementations respectively. Accordingly, the \id{nvector\_mpicuda.h},
+\id{nvector\_mpiraja.h}, \id{libsundials\_nvecmpicuda.lib}, and~ 
+\id{libsundials\_nvecmpicudaraja.lib} files have been removed. Users should use
+the {\nvecmpiplusx} module coupled with {\nveccuda} or {\nvecraja} to replace the
+functionality. The necessary changes are minimal and should require few code
+modifications.
+
 \subsection*{Changes in v5.0.0-dev.0}
 
 An additional {\nvector} implementation, {\nvecmanyvector}, was

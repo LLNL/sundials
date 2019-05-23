@@ -32,7 +32,6 @@ in the namespace ``suncudavec`` manages the vector data layout:
   class Vector {
     I size_;
     I mem_size_;
-    I global_size_;
     T* h_vec_;
     T* d_vec_;
     ThreadPartitioning<T, I>* partStream_;
@@ -40,7 +39,6 @@ in the namespace ``suncudavec`` manages the vector data layout:
     bool ownPartitioning_;
     bool ownData_;
     bool managed_mem_;
-    SUNMPI_Comm comm_;
     ...
   };
 
@@ -49,9 +47,8 @@ block, pointers to vector data on the host and the device, pointers
 to ``ThreadPartitioning`` implementations that handle thread partitioning for
 streaming and reduction vector kernels, a boolean flag that signals if the
 vector owns the thread partitioning, a boolean flag that signals if the vector
-owns the data, a boolean flag that signals if managed memory is used for the
-data arrays, and the MPI communicator. The class ``Vector`` inherits from the
-empty structure
+owns the data, and a boolean flag that signals if managed memory is used for the
+data arrays. The class ``Vector`` inherits from the empty structure
 
 .. code-block:: c++
 
@@ -70,16 +67,9 @@ managed memory, the constructors ``N_VNewManaged_Cuda`` and
 ``N_VMakeManaged_Cuda`` are provided. Details on each of these constructors
 are provided below.
 
-The NVECTOR_CUDA module can be utilized for single-node parallelism or in a
-distributed context with MPI. In the single-node case the header file to
-include ``nvector_cuda.h`` and the library to link to is
-``libsundials_nveccuda.lib``. In the a distributed setting the header
-file to include is ``nvector_mpicuda.h`` and the library to link to is
-``libsundials_nvecmpicuda.lib``. The extension, ``.lib``, is
+To use the NVECTOR_CUDA module, include ``nvector_cuda.h`` and link to
+the library ``libsundials_nveccuda.lib``. The extension, ``.lib``, is
 typically ``.so`` for shared libraries and ``.a`` for static libraries.
-Only one of these libraries may be linked to when creating an executable
-or library. SUNDIALS must be built with MPI support if the distributed
-library is desired.
 
 
 NVECTOR_CUDA functions
@@ -90,15 +80,6 @@ provide macros to access its member variables. Instead, user should use the
 accessor functions:
 
 
-.. c:function:: sunindextype N_VGetLocalLength_Cuda(N_Vector v)
-
-   This function returns the local length of the vector.
-
-   Note: This function is for use in a *distributed* context
-   and is defined in the header ``nvector_mpicuda.h`` and the
-   library to link to is ``libsundials_nvecmpicuda.lib``.
-
-
 .. c:function:: realtype* N_VGetHostArrayPointer_Cuda(N_Vector v)
 
    This function returns pointer to the vector data on the host.
@@ -107,15 +88,6 @@ accessor functions:
 .. c:function:: realtype* N_VGetDeviceArrayPointer_Cuda(N_Vector v)
 
    This function returns pointer to the vector data on the device.
-
-
-.. c:function:: MPI_Comm N_VGetMPIComm_Cuda(N_Vector v)
-
-   This function returns the MPI communicator for the vector.
-
-   Note: This function is for use in a *distributed* context
-   and is defined in the header ``nvector_mpicuda.h`` and the
-   library to link to is ``libsundials_nvecmpicuda.lib``.
 
 
 .. c:function:: booleantype N_VIsManagedMemory_Cuda(N_Vector v)
@@ -146,35 +118,15 @@ following additional user-callable routines:
 
 
 .. c:function:: N_Vector N_VNew_Cuda(sunindextype length)
-                N_Vector N_VNew_Cuda(MPI_Comm comm, sunindextype local_length, sunindextype global_length)
 
    This function creates and allocates memory for a CUDA ``N_Vector``.
    The vector data array is allocated on both the host and device.
 
-   In the *single-node* setting, the only input is the vector length.
-   This constructor is defined in the header ``nvector_cuda.h`` and
-   the library to link to is is ``libsundials_nveccuda.lib``.
-
-   When used in a *distributed* context with MPI, the arguments are the
-   MPI communicator, the local vector length, and the global vector length.
-   This constructor is defined in the header ``nvector_mpicuda.h`` and
-   the library to link to is ``libsundials_nvecmpicuda.lib``.
-
 
 .. c:function:: N_Vector N_VNewManaged_Cuda(sunindextype vec_length)
-                N_Vector N_VNewManaged_Cuda(MPI_Comm comm, sunindextype local_length, sunindextype global_length)
 
    This function creates and allocates memory for a CUDA
    ``N_Vector``. The vector data array is allocated in managed memory.
-
-   When used in the *single-node* setting, the only input is the vector length.
-   this constructor is defined in the header ``nvector_cuda.h`` and
-   the library to link to is is ``libsundials_nveccuda.lib``.
-
-   When used in a *distributed* context with MPI, the arguments are the
-   MPI communicator, the local vector length, and the global vector length.
-   This constructor is defined in the header ``nvector_mpicuda.h`` and
-   the library to link to is ``libsundials_nvecmpicuda.lib``.
 
 
 .. c:function:: N_Vector N_VNewEmpty_Cuda(sunindextype vec_length)
@@ -186,40 +138,16 @@ following additional user-callable routines:
 
 
 .. c:function:: N_Vector N_VMake_Cuda(sunindextype vec_length, realtype *h_vdata, realtype *d_vdata)
-                N_Vector N_VMake_Cuda(MPI_Comm comm, sunindextype global_length, sunindextype local_length, realtype *h_vdata, realtype *d_vdata)
 
 
    This function creates a CUDA ``N_Vector`` with user-supplied vector data arrays
    for the host and the device.
 
-   When used in the *single-node* setting, the arguments are the
-   the vector length, the host data array, and the device data array.
-   This constructor is defined in the header ``nvector_cuda.h`` and
-   the library to link to is is ``libsundials_nveccuda.lib``.
-
-   When used in a *distributed* context with MPI, the arguments are the
-   MPI communicator, the global vector length, the local vector length,
-   the host data array, the device data array.
-   This constructor is defined in the header ``nvector_mpicuda.h`` and
-   the library to link to is ``libsundials_nvecmpicuda.lib``.
-
 
 .. c:function:: N_Vector N_VMakeManaged_Cuda(sunindextype vec_length, realtype *vdata)
-                N_Vector N_VMakeManaged_Cuda(MPI_Comm comm, sunindextype global_length, sunindextype local_length, realtype *vdata)
 
    This function creates a CUDA ``N_Vector`` with a user-supplied
    managed memory data array.
-
-   When used in the *single-node* setting, the arguments are the
-   the vector length, and the managed data array. This constructor
-   is defined in the header ``nvector_cuda.h`` and
-   the library to link to is is ``libsundials_nveccuda.lib``.
-
-   When used in a *distributed* context with MPI, the arguments are the
-   MPI communicator, the global vector length, the local vector length,
-   the managed data array. This constructor is defined in the header
-   ``nvector_mpicuda.h`` and the library to link to is
-   ``libsundials_nvecmpicuda.lib``.
 
 
 

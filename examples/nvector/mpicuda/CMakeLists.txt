@@ -1,5 +1,5 @@
 # ---------------------------------------------------------------
-# Programmer:  Slaven Peles @ LLNL
+# Programmer:  Slaven Peles, Cody J. Balos @ LLNL
 # ---------------------------------------------------------------
 # SUNDIALS Copyright Start
 # Copyright (c) 2002-2019, Lawrence Livermore National Security
@@ -11,7 +11,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 # SUNDIALS Copyright End
 # ---------------------------------------------------------------
-# CMakeLists.txt file for CUDA nvector examples
+# CMakeLists.txt file for MPIPlusX, X = CUDA NVECTOR examples.
 # ---------------------------------------------------------------
 
 # Example lists are tuples "name\;args\;nodes\;tasks\;type" where the
@@ -26,6 +26,7 @@ SET(nvector_cuda_examples
 # Dependencies for nvector examples
 SET(nvector_examples_dependencies
   test_nvector
+  test_mpinvector
   sundials_nvector
   )
 
@@ -41,9 +42,9 @@ ENDIF()
 # Specify libraries to link against (through the target that was used to
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 IF(LINK_LIBRARY_TYPE MATCHES "static")
-  SET(NVECS_LIB sundials_nvecmpicuda_static)
+  SET(NVECS_LIB sundials_nvecmpiplusx_static sundials_nveccuda_static)
 ELSE()
-  SET(NVECS_LIB sundials_nvecmpicuda_shared)
+  SET(NVECS_LIB sundials_nvecmpiplusx_shared sundials_nveccuda_shared)
 ENDIF()
 
 # Set-up linker flags and link libraries
@@ -72,7 +73,9 @@ FOREACH(example_tuple ${nvector_cuda_examples})
   IF(NOT TARGET ${example})
     # example source files
     CUDA_ADD_EXECUTABLE(${example} ${example}.cu
-      ../test_nvector.c ../../../src/sundials/sundials_nvector.c)
+      ../test_nvector.c
+      ../test_mpinvector.c
+      ../../../src/sundials/sundials_nvector.c)
 
     # folder to organize targets in an IDE
     SET_TARGET_PROPERTIES(${example} PROPERTIES FOLDER "Examples")
@@ -107,6 +110,7 @@ FOREACH(example_tuple ${nvector_cuda_examples})
   IF(EXAMPLES_INSTALL)
     INSTALL(FILES ${example}.cu
       ../test_nvector.c
+      ../test_mpinvector.c
       ../test_nvector.h
       ../../../src/sundials/sundials_nvector.c
       DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpicuda)
@@ -120,9 +124,6 @@ IF(EXAMPLES_INSTALL)
   # Install the README file
   INSTALL(FILES DESTINATION ${EXAMPLES_INSTALL_PATH}/nvector/mpicuda)
 
-  # Prepare substitution variables for Makefile and/or CMakeLists templates
-  SET(NVECTOR_LIB "sundials_nvecmpicuda")
-
   EXAMPLES2STRING(nvector_cuda_examples EXAMPLES)
   EXAMPLES2STRING(nvector_examples_dependencies EXAMPLES_DEPENDENCIES)
 
@@ -132,7 +133,7 @@ IF(EXAMPLES_INSTALL)
 
   # generate CMakelists.txt in the binary directory
   CONFIGURE_FILE(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_cuda_CUDA_ex.in
+    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_CUDA_ex.in
     ${PROJECT_BINARY_DIR}/examples/nvector/mpicuda/CMakeLists.txt
     @ONLY
     )
@@ -150,7 +151,7 @@ IF(EXAMPLES_INSTALL)
   IF(UNIX)
     # generate Makefile and place it in the binary dir
     CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_cuda_CUDA_ex.in
+      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_serial_CUDA_ex.in
       ${PROJECT_BINARY_DIR}/examples/nvector/mpicuda/Makefile_ex
       @ONLY
       )

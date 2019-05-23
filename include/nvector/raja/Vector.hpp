@@ -29,13 +29,7 @@
 #include <iostream>
 
 #include <sundials/sundials_config.h>
-#include <sundials/sundials_mpi.h>
-
-#if SUNDIALS_MPI_ENABLED
-#include <nvector/nvector_mpiraja.h>
-#else
 #include <nvector/nvector_raja.h>
-#endif
 
 namespace sunrajavec
 {
@@ -46,18 +40,7 @@ class Vector : public _N_VectorContent_Raja
 public:
   Vector(I N)
   : size_(N),
-    mem_size_(N*sizeof(T)),
-    global_size_(N),
-    comm_(0)
-  {
-    allocate();
-  }
-
-  Vector(SUNMPI_Comm comm, I N, I Nglobal)
-  : size_(N),
-    mem_size_(N*sizeof(T)),
-    global_size_(Nglobal),
-    comm_(comm)
+    mem_size_(N*sizeof(T))
   {
     allocate();
   }
@@ -65,9 +48,7 @@ public:
   // Copy constructor does not copy values
   explicit Vector(const Vector& v)
   : size_(v.size()),
-    mem_size_(size_*sizeof(T)),
-    global_size_(v.global_size_),
-    comm_(v.comm_)
+    mem_size_(size_*sizeof(T))
   {
     allocate();
   }
@@ -96,21 +77,6 @@ public:
   int size() const
   {
     return size_;
-  }
-
-  int sizeGlobal() const
-  {
-    return global_size_;
-  }
-
-  SUNMPI_Comm comm() const
-  {
-    return comm_;
-  }
-
-  SUNMPI_Comm* comm_ptr()
-  {
-    return &comm_;
   }
 
   T* host()
@@ -150,10 +116,8 @@ public:
 private:
   I size_;
   I mem_size_;
-  I global_size_;
   T* h_vec_;
   T* d_vec_;
-  SUNMPI_Comm comm_;
 };
 
 

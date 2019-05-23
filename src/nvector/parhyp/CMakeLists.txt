@@ -32,7 +32,6 @@ SET(nvecparhyp_SOURCES nvector_parhyp.c)
 SET(shared_SOURCES
   sundials_nvector.c
   sundials_math.c
-  sundials_mpi.c
   )
 ADD_PREFIX(${sundials_SOURCE_DIR}/src/sundials/ shared_SOURCES)
 

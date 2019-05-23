@@ -1463,6 +1463,34 @@ Table: SUNDIALS libraries and header files
 +-------------------------+--------------+---------------------------------------------+
 | NVECTOR_PTHREADS        | Header files | ``nvector/nvector_pthreads.h``              |
 +-------------------------+--------------+---------------------------------------------+
+| NVECTOR_PARHYP          | Libraries    | ``libsundials_nvecparhyp.LIB``              |
++-------------------------+--------------+---------------------------------------------+
+| NVECTOR_PARHYP          | Header files | ``nvector/nvector_parhyp.h``                |
++-------------------------+--------------+---------------------------------------------+
+| NVECTOR_PETSC           | Libraries    | ``libsundials_nvecpetsc.LIB``               |
++-------------------------+--------------+---------------------------------------------+
+| NVECTOR_PETSC           | Header files | ``nvector/nvector_petsc.h``                 |
++-------------------------+--------------+---------------------------------------------+
+| NVECTOR_CUDA            | Libraries    | ``libsundials_nveccuda.LIB``                |
++-------------------------+--------------+---------------------------------------------+
+| NVECTOR_CUDA            | Header files | ``nvector/nvector_cuda.h``                  |
++-------------------------+--------------+---------------------------------------------+
+| NVECTOR_RAJA            | Libraries    | ``libsundials_nvecraja.LIB``                |
++-------------------------+--------------+---------------------------------------------+
+| NVECTOR_RAJA            | Header files | ``nvector/nvector_raja.h``                  |
++-------------------------+--------------+---------------------------------------------+
+| NVECTOR_MANYVECTOR      | Libraries    | ``libsundials_nvecmanyvector.LIB``          |
++-------------------------+--------------+---------------------------------------------+
+| NVECTOR_MANYVECTOR      | Header files | ``nvector/nvector_manyvector.h``            |
++-------------------------+--------------+---------------------------------------------+
+| NVECTOR_MPIMANYVECTOR   | Libraries    | ``libsundials_nvecmpimanyvector.LIB``       |
++-------------------------+--------------+---------------------------------------------+
+| NVECTOR_MPIMANYVECTOR   | Header files | ``nvector/nvector_mpimanyvector.h``         |
++-------------------------+--------------+---------------------------------------------+
+| NVECTOR_MPIPLUSX        | Libraries    | ``libsundials_nvecmpiplusx.LIB``            |
++-------------------------+--------------+---------------------------------------------+
+| NVECTOR_MPIPLUSX        | Header files | ``nvector/nvector_mpiplusx.h``              |
++-------------------------+--------------+---------------------------------------------+
 | SUNMATRIX_BAND          | Libraries    | ``libsundials_sunmatrixband.LIB``,          |
 |                         |              | ``libsundials_fsunmatrixband.a``            |
 +-------------------------+--------------+---------------------------------------------+

@@ -139,16 +139,8 @@ SUNDIALS_EXPORT int N_VLinearCombinationVectorArray_Raja(int nvec, int nsum,
                                                          N_Vector* Z);
 
 /* OPTIONAL local reduction kernels (no parallel communication) */
-SUNDIALS_EXPORT realtype N_VDotProdLocal_Raja(N_Vector x, N_Vector y);
-SUNDIALS_EXPORT realtype N_VMaxNormLocal_Raja(N_Vector x);
-SUNDIALS_EXPORT realtype N_VMinLocal_Raja(N_Vector x);
-SUNDIALS_EXPORT realtype N_VL1NormLocal_Raja(N_Vector x);
 SUNDIALS_EXPORT realtype N_VWSqrSumLocal_Raja(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT realtype N_VWSqrSumMaskLocal_Raja(N_Vector x, N_Vector w, N_Vector id);
-SUNDIALS_EXPORT booleantype N_VInvTestLocal_Raja(N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VConstrMaskLocal_Raja(N_Vector c, N_Vector x, N_Vector m);
-SUNDIALS_EXPORT realtype N_VMinQuotientLocal_Raja(N_Vector num, N_Vector denom);
-
 
 /*
  * -----------------------------------------------------------------

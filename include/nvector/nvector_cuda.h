@@ -154,15 +154,8 @@ SUNDIALS_EXPORT int N_VWrmsNormMaskVectorArray_Cuda(int nvec, N_Vector* X,
                                                     realtype* nrm);
 
 /* OPTIONAL local reduction kernels (no parallel communication) */
-SUNDIALS_EXPORT realtype N_VDotProdLocal_Cuda(N_Vector x, N_Vector y);
-SUNDIALS_EXPORT realtype N_VMaxNormLocal_Cuda(N_Vector x);
-SUNDIALS_EXPORT realtype N_VMinLocal_Cuda(N_Vector x);
-SUNDIALS_EXPORT realtype N_VL1NormLocal_Cuda(N_Vector x);
 SUNDIALS_EXPORT realtype N_VWSqrSumLocal_Cuda(N_Vector x, N_Vector w);
 SUNDIALS_EXPORT realtype N_VWSqrSumMaskLocal_Cuda(N_Vector x, N_Vector w, N_Vector id);
-SUNDIALS_EXPORT booleantype N_VInvTestLocal_Cuda(N_Vector x, N_Vector z);
-SUNDIALS_EXPORT booleantype N_VConstrMaskLocal_Cuda(N_Vector c, N_Vector x, N_Vector m);
-SUNDIALS_EXPORT realtype N_VMinQuotientLocal_Cuda(N_Vector num, N_Vector denom);
 
 
 /*

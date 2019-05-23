@@ -34,10 +34,10 @@ ENDIF()
 # generate them) based on the value of the variable LINK_LIBRARY_TYPE
 IF(LINK_LIBRARY_TYPE MATCHES "static")
   SET(IDA_LIB sundials_ida_static)
-  SET(NVECS_LIB sundials_nvecmpicuda_static)
+  SET(NVECS_LIB sundials_nvecmpiplusx_static sundials_nveccuda_static)
 ELSE()
   SET(IDA_LIB sundials_ida_shared)
-  SET(NVECS_LIB sundials_nvecmpicuda_shared)
+  SET(NVECS_LIB sundials_nvecmpiplusx_shared sundials_nveccuda_shared)
 ENDIF()
 
 # Set-up linker flags and link libraries
@@ -86,7 +86,6 @@ IF(EXAMPLES_INSTALL)
   # Prepare substitution variables for Makefile and/or CMakeLists templates
   SET(SOLVER "IDA")
   SET(SOLVER_LIB "sundials_ida")
-  SET(NVECTOR_LIB "sundials_nvecmpicuda")
 
   EXAMPLES2STRING(IDA_examples EXAMPLES)
 
@@ -96,7 +95,7 @@ IF(EXAMPLES_INSTALL)
 
   # generate CMakelists.txt in the binary directory
   CONFIGURE_FILE(
-    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_cuda_CUDA_ex.in
+    ${PROJECT_SOURCE_DIR}/examples/templates/cmakelists_parallel_CUDA_ex.in
     ${PROJECT_BINARY_DIR}/examples/ida/mpicuda/CMakeLists.txt
     @ONLY
     )
@@ -114,7 +113,7 @@ IF(EXAMPLES_INSTALL)
   IF(UNIX)
     # generate Makefile and place it in the binary dir
     CONFIGURE_FILE(
-      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_cuda_CUDA_ex.in
+      ${PROJECT_SOURCE_DIR}/examples/templates/makefile_parallel_CUDA_ex.in
       ${PROJECT_BINARY_DIR}/examples/ida/mpicuda/Makefile_ex
       @ONLY
       )

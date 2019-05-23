@@ -31,7 +31,6 @@ SET(nvecpetsc_SOURCES nvector_petsc.c)
 SET(shared_SOURCES
   ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_math.c
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_mpi.c
   )
 
 # Add variable nvecpetsc_HEADERS with the exported NVECPARHYP header files

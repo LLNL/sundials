@@ -175,7 +175,7 @@ mkdir tarballs   || exit 1
 cd ../scripts || exit 1
 
 echo "START TARSCRIPT"
-./tarscript -s $package | tee -a tar.log
+./tarscript $package | tee -a tar.log
 
 # check tarscript return code
 rc=${PIPESTATUS[0]}

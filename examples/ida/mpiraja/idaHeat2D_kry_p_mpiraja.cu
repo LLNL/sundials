@@ -44,8 +44,9 @@
 #include <string.h>
 
 #include <ida/ida.h>
-#include <nvector/nvector_mpiraja.h>      /* access to MPI+RAJA N_Vector */
 #include <ida/ida_spils.h>
+#include <nvector/nvector_mpiplusx.h>
+#include <nvector/nvector_raja.h>
 #include <sunlinsol/sunlinsol_spgmr.h>
 #include <sundials/sundials_types.h>
 #include <sundials/sundials_mpi_types.h>
@@ -146,14 +147,14 @@ int main(int argc, char *argv[])
   SUNLinearSolver LS;
   UserData data;
   int iout, thispe, ier, npes;
-  sunindextype Neq, local_N;
+  sunindextype local_N;
   realtype rtol, atol, t0, t1, tout, tret;
-  N_Vector uu, up, constraints, id, res;
+  N_Vector uulocal, uu, up, constraints, id, res;
 
   ida_mem = NULL;
   LS = NULL;
   data = NULL;
-  uu = up = constraints = id = res = NULL;
+  uulocal = uu = up = constraints = id = res = NULL;
 
   /* Get processor number and total number of pe's. */
 
@@ -180,15 +181,17 @@ int main(int argc, char *argv[])
     return(1);
   }
 
-  /* Set local length local_N and global length Neq. */
-
+  /* Set local length local_N */
   local_N = data->mxsub * data->mysub;
-  Neq     = data->mx * data->my;
 
   /* Allocate and initialize N-vectors. */
 
-  uu = N_VNew_Raja(comm, local_N, Neq);
-  if(check_flag((void *)uu, "N_VNew_Parallel", 0, thispe))
+  uulocal = N_VNew_Raja(local_N);
+  if(check_flag((void *)uulocal, "N_VNew_Raja", 0, thispe))
+    MPI_Abort(comm, 1);
+  
+  uu = N_VMake_MPIPlusX(&comm, uulocal);
+  if(check_flag((void *)uu, "N_VMake_MPIPlusX", 0, thispe))
     MPI_Abort(comm, 1);
 
   up = N_VClone(uu);
@@ -305,9 +308,8 @@ int main(int argc, char *argv[])
   free(data);
 
   MPI_Finalize();
-
+  
   return(0);
-
 }
 
 /*
@@ -379,7 +381,7 @@ int PsetupHeat(realtype tt, N_Vector yy, N_Vector yp, N_Vector rr,
   const int npey  = data->npey;
   const sunindextype mxsub = data->mxsub;
   const sunindextype mysub = data->mysub;
-  realtype *ppv = N_VGetDeviceArrayPointer_Raja(data->pp);
+  realtype *ppv = N_VGetDeviceArrayPointer_Raja(N_VGetLocalVector_MPIPlusX(data->pp));
 
   /* Calculate the value for the inverse element of the diagonal preconditioner */
   const realtype pelinv = ONE/(c_j + data->coeffxy);
@@ -458,7 +460,7 @@ static int rescomm(N_Vector uu, N_Vector up, void* user_data)
   realtype *dev_recv_buff  = data->dev_recv_buff;
 
   /* Get solution vector data. */
-  const realtype *uarray = N_VGetDeviceArrayPointer_Raja(uu);
+  const realtype *uarray = N_VGetDeviceArrayPointer_Raja(N_VGetLocalVector_MPIPlusX(uu));
 
   /* Set array of MPI requests */
   MPI_Request request[4];
@@ -500,9 +502,9 @@ static int reslocal(realtype tt, N_Vector uu, N_Vector up, N_Vector rr,
   const realtype coeffxy = data->coeffxy;
 
   /* Vector data arrays, extended work array uext. */
-  const realtype *uuv = N_VGetDeviceArrayPointer_Raja(uu);
-  const realtype *upv = N_VGetDeviceArrayPointer_Raja(up);
-  realtype *resv = N_VGetDeviceArrayPointer_Raja(rr);
+  const realtype *uuv = N_VGetDeviceArrayPointer_Raja(N_VGetLocalVector_MPIPlusX(uu));
+  const realtype *upv = N_VGetDeviceArrayPointer_Raja(N_VGetLocalVector_MPIPlusX(up));
+  realtype *resv = N_VGetDeviceArrayPointer_Raja(N_VGetLocalVector_MPIPlusX(rr));
   realtype *uext = data->uext;
 
   const sunindextype zero = 0;
@@ -951,8 +953,8 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
   /* Initialize uu. */
 
   // Get host pointer
-  realtype *uudata = N_VGetHostArrayPointer_Raja(uu);
-  realtype *iddata = N_VGetHostArrayPointer_Raja(id);
+  realtype *uudata = N_VGetHostArrayPointer_Raja(N_VGetLocalVector_MPIPlusX(uu));
+  realtype *iddata = N_VGetHostArrayPointer_Raja(N_VGetLocalVector_MPIPlusX(id));
 
   /* Set mesh spacings and subgrid indices for this PE. */
   const realtype dx = data->dx;
@@ -988,8 +990,8 @@ static int SetInitialProfile(N_Vector uu, N_Vector up,  N_Vector id,
   }
 
   // Synchronize data from the host to the device for uu and id vectors
-  N_VCopyToDevice_Raja(uu);
-  N_VCopyToDevice_Raja(id);
+  N_VCopyToDevice_Raja(N_VGetLocalVector_MPIPlusX(uu));
+  N_VCopyToDevice_Raja(N_VGetLocalVector_MPIPlusX(id));
 
   /* Initialize up. */
 

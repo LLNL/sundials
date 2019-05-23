@@ -51,6 +51,14 @@ the MPI+X paradigm where X is a type of on-node parallelism (e.g. OpenMP, CUDA).
 The implementation is accompanied by additions to user documentation and SUNDIALS
 examples.
 
+The *_MPICuda and *_MPIRaja functions were removed from the NVECTOR_CUDA and 
+NVECTOR_RAJA implementations respectively. Accordingly, the nvector_mpicuda.h,
+nvector_mpiraja.h, libsundials_nvecmpicuda.lib, and libsundials_nvecmpicudaraja.lib
+files have been removed. Users should use the NVECTOR_MPIPLUSX module coupled with
+the NVECTOR_CUDA or NVECTOR_RAJA to replace the functionality. The necessary changes
+are minimal and should require few code modifications.
+
+
 Changes to SUNDIALS in release 5.0.0-dev.0
 
 An additional N_Vector implementation, NVECTOR_MANYVECTOR, was

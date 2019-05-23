@@ -37,17 +37,14 @@ layout:
    class Vector {
      I size_;
      I mem_size_;
-     I global_size_;
      T* h_vec_;
      T* d_vec_;
-     SUNMPI_Comm comm_;
      ...
    };
 
 The class members are: vector size (length), size of the vector data
-memory block, the global vector size (length), pointers to vector data
-on the host and on the device, and the MPI communicator. The class
-``Vector`` inherits from an empty structure
+memory block, a pointer to vector data on the host, and a pointer to
+the vector data on the device. The class ``Vector`` inherits from an empty structure
 
 .. code-block:: c++
 
@@ -62,15 +59,10 @@ SUNDIALS releases. The code is structured so that it can tolerate
 significant changes in the ``sunrajavec::Vector`` class without
 requiring changes to the user API.
 
-The NVECTOR_RAJA module can be utilized for single-node parallelism or in
-a distributed context with MPI. The header file to include when using this
-module for single-node parallelism is ``nvector_raja.h``. The header file
-to include when using this module in the distributed case is
-``nvector_mpiraja.h``. The installed module libraries to link to are
-``libsundials_nveccudaraja.lib`` in the single-node case, or
-``libsundials_nveccudampiraja.lib`` in the distributed case. Only one one of
-these libraries may be linked to when creating an executable or library.
-SUNDIALS must be built with MPI support if the distributed library is desired.
+The header file to include when using this is ``nvector_raja.h``.
+The installed module library to link to is ``libsundials_nveccudaraja.lib``.
+The extension ``.lib`` is typically ``.so`` for shared libraries ``.a`` for
+static libraries.
 
 
 NVECTOR_RAJA functions
@@ -81,14 +73,6 @@ provide macros to access its member variables. Instead, user should use the
 accessor functions:
 
 
-.. c:function:: sunindextype N_VGetLocalLength_Raja(N_Vector v)
-
-   This function returns the local length of the vector.
-
-   Note: This function is for use in a *distributed* context
-   and is defined in the header ``nvector_mpicuda.h`` and the
-   library to link to is ``libsundials_nvecmpicuda.lib``.
-
 
 .. c:function:: realtype* N_VGetHostArrayPointer_Raja(N_Vector v)
 
@@ -98,16 +82,6 @@ accessor functions:
 .. c:function:: realtype* N_VGetDeviceArrayPointer_Raja(N_Vector v)
 
    This function returns pointer to the vector data on the device.
-
-
-.. c:function:: MPI_Comm N_VGetMPIComm_Raja(N_Vector v)
-
-   This function returns the MPI communicator for the vector.
-
-   Note: This function is for use in a *distributed* context
-   and is defined in the header ``nvector_mpicuda.h`` and the
-   library to link to is ``libsundials_nvecmpicuda.lib``.
-
 
 
 

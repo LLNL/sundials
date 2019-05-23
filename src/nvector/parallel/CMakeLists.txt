@@ -31,7 +31,6 @@ SET(nvecparallel_SOURCES nvector_parallel.c)
 SET(shared_SOURCES
   ${sundials_SOURCE_DIR}/src/sundials/sundials_nvector.c
   ${sundials_SOURCE_DIR}/src/sundials/sundials_math.c
-  ${sundials_SOURCE_DIR}/src/sundials/sundials_mpi.c
   )
 
 # Add variable nvecparallel_HEADERS with the exported NVECPARALLEL header files

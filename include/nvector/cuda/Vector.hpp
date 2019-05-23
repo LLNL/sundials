@@ -31,14 +31,8 @@
 #include <cuda_runtime.h>
 #include "ThreadPartitioning.hpp"
 
-#include <sundials/sundials_config.h>
-#include <sundials/sundials_mpi.h>
-
-#if SUNDIALS_MPI_ENABLED
-#include <nvector/nvector_mpicuda.h>
-#else
 #include <nvector/nvector_cuda.h>
-#endif
+#include <sundials/sundials_config.h>
 
 namespace suncudavec
 {
@@ -47,16 +41,16 @@ template <typename T, typename I>
 class Vector : public _N_VectorContent_Cuda
 {
 public:
-  Vector(I N, bool use_managed_memory = false, bool allocate_data = true, T* const h_vec = nullptr, T* const d_vec = nullptr)
+  Vector(I N,
+         bool use_managed_memory = false, bool allocate_data = true,
+         T* const h_vec = nullptr, T* const d_vec = nullptr)
   : size_(N),
     mem_size_(N*sizeof(T)),
-    global_size_(N),
     ownPartitioning_(true),
     ownData_(allocate_data),
     managed_mem_(use_managed_memory),
     h_vec_(h_vec),
-    d_vec_(d_vec),
-    comm_(0)
+    d_vec_(d_vec)
   {
     // Set partitioning
     partStream_ = new StreamPartitioning<T, I>(N, 256);
@@ -68,58 +62,15 @@ public:
   }
 
   Vector(I N, cudaStream_t stream,
-         bool use_managed_memory = false, bool allocate_data = true, T* const h_vec = nullptr, T* const d_vec = nullptr)
+         bool use_managed_memory = false, bool allocate_data = true,
+         T* const h_vec = nullptr, T* const d_vec = nullptr)
   : size_(N),
     mem_size_(N*sizeof(T)),
-    global_size_(N),
     ownPartitioning_(true),
     ownData_(allocate_data),
     managed_mem_(use_managed_memory),
     h_vec_(h_vec),
-    d_vec_(d_vec),
-    comm_(0)
-  {
-    // Set partitioning
-    partStream_ = new StreamPartitioning<T, I>(N, 256, stream);
-    partReduce_ = new ReducePartitioning<T, I>(N, 256, stream);
-
-    // Allocate data arrays
-    if (allocate_data)
-      allocate();
-  }
-  
-  Vector(SUNMPI_Comm comm, I N, I Nglobal,
-         bool use_managed_memory = false, bool allocate_data = true, T* const h_vec = nullptr, T* const d_vec = nullptr)
-  : size_(N),
-    mem_size_(N*sizeof(T)),
-    global_size_(Nglobal),
-    ownPartitioning_(true),
-    ownData_(allocate_data),
-    managed_mem_(use_managed_memory),
-    h_vec_(h_vec),
-    d_vec_(d_vec),
-    comm_(comm)
-  {
-    // Set partitioning
-    partStream_ = new StreamPartitioning<T, I>(N, 256);
-    partReduce_ = new ReducePartitioning<T, I>(N, 256);
-
-    // Allocate data arrays
-    if (allocate_data)
-      allocate();
-  }
-
-  Vector(SUNMPI_Comm comm, I N, I Nglobal, cudaStream_t stream,
-         bool use_managed_memory = false, bool allocate_data = true, T* const h_vec = nullptr, T* const d_vec = nullptr) 
-  : size_(N),
-    mem_size_(N*sizeof(T)),
-    global_size_(Nglobal),
-    ownPartitioning_(true),
-    ownData_(allocate_data),
-    managed_mem_(use_managed_memory),
-    h_vec_(h_vec),
-    d_vec_(d_vec),
-    comm_(comm)
+    d_vec_(d_vec)
   {
     // Set partitioning
     partStream_ = new StreamPartitioning<T, I>(N, 256, stream);
@@ -134,15 +85,13 @@ public:
   explicit Vector(const Vector& v)
   : size_(v.size()),
     mem_size_(size_*sizeof(T)),
-    global_size_(v.global_size_),
     partStream_(v.partStream_),
     partReduce_(v.partReduce_),
     ownPartitioning_(false),
     ownData_(true),
     managed_mem_(v.managed_mem_),
     h_vec_(nullptr),
-    d_vec_(nullptr),
-    comm_(v.comm_)
+    d_vec_(nullptr)
   {
     allocate();
   }
@@ -205,21 +154,6 @@ public:
     return size_;
   }
 
-  int sizeGlobal() const
-  {
-    return global_size_;
-  }
-
-  SUNMPI_Comm comm() const
-  {
-    return comm_;
-  }
-  
-  SUNMPI_Comm* comm_ptr()
-  {
-    return &comm_;
-  }
-
   T* host()
   {
     return h_vec_;
@@ -273,7 +207,6 @@ public:
 private:
   I size_;
   I mem_size_;
-  I global_size_;
   T* h_vec_;
   T* d_vec_;
   ThreadPartitioning<T, I>* partStream_;
@@ -281,7 +214,6 @@ private:
   bool ownPartitioning_;
   bool ownData_;
   bool managed_mem_;
-  SUNMPI_Comm comm_;
   
 };
 
